@@ -67,11 +67,17 @@ struct _generic_SUNHeuristics_Ops
 
   /* OPTIONAL for all SUNHeuristics implementations. */
   int (*constrainstep)(SUNHeuristics H, realtype hcur,
-                       realtype hnew, booleantype efail,
-                       booleantype cfail, realtype *hconstr);
+                       realtype hnew, realtype *hconstr);
+  int (*constrainefail)(SUNHeuristics H, realtype hcur,
+                        realtype hnew, int nef, realtype *hconstr);
+  int (*constraincfail)(SUNHeuristics H, realtype hcur,
+                        realtype *hconstr);
   int (*reset)(SUNHeuristics H);
+  int (*update)(SUNHeuristics H);
   int (*setdefaults)(SUNHeuristics H);
   int (*write)(SUNHeuristics H, FILE* fptr);
+  int (*setmaxstep)(SUNHeuristics H, realtype hmax);
+  int (*setminstep)(SUNHeuristics H, realtype hmin);
   int (*setexpstabfn)(SUNHeuristics H, SUNExpStabFn EStab, void* estab_data);
   int (*setcflfraction)(SUNHeuristics H, realtype cfl_frac);
   int (*setmaxgrowth)(SUNHeuristics H, realtype mx_growth);
@@ -107,51 +113,158 @@ struct _generic_SUNHeuristics
  * Functions exported by SUNHeuristics module
  * ----------------------------------------------------------------- */
 
-SUNDIALS_EXPORT SUNHeuristics SUNHeuristicsNewEmpty(SUNContext sunctx);
-SUNDIALS_EXPORT void SUNHeuristicsFreeEmpty(SUNHeuristics H);
-SUNDIALS_EXPORT SUNHeuristics_ID SUNHeuristicsGetID(SUNHeuristics H);
-SUNDIALS_EXPORT int SUNHeuristicsConstrainStep(
-                       SUNHeuristics H, realtype hcur,
-                       realtype hnew, booleantype efail,
-                       booleantype cfail, realtype *hconstr);
-SUNDIALS_EXPORT int SUNHeuristicsReset(SUNHeuristics H);
-SUNDIALS_EXPORT int SUNHeuristicsSetDefaults(SUNHeuristics H);
-SUNDIALS_EXPORT int SUNHeuristicsWrite(SUNHeuristics H, FILE* fptr);
+/* Function to create an empty SUNHeuristics data structure. */
+SUNDIALS_EXPORT
+SUNHeuristics SUNHeuristicsNewEmpty(SUNContext sunctx);
 
-SUNDIALS_EXPORT int SUNHeuristicsSetExpStabFn(
-                       SUNHeuristics H, SUNExpStabFn EStab, void* estab_data);
-SUNDIALS_EXPORT int SUNHeuristicsSetCFLFraction(
-                       SUNHeuristics H, realtype cfl_frac);
-SUNDIALS_EXPORT int SUNHeuristicsSetMaxGrowth(
-                       SUNHeuristics H, realtype mx_growth);
-SUNDIALS_EXPORT int SUNHeuristicsSetMinReduction(
-                       SUNHeuristics H, realtype eta_min);
-SUNDIALS_EXPORT int SUNHeuristicsSetFixedStepBounds(
-                       SUNHeuristics H, realtype lb, realtype ub);
-SUNDIALS_EXPORT int SUNHeuristicsSetMaxFirstGrowth(
-                       SUNHeuristics H, realtype etamx1);
-SUNDIALS_EXPORT int SUNHeuristicsSetMaxEFailGrowth(
-                       SUNHeuristics H, realtype etamxf);
-SUNDIALS_EXPORT int SUNHeuristicsSetSmallNumEFails(
-                       SUNHeuristics H, int small_nef);
-SUNDIALS_EXPORT int SUNHeuristicsSetMaxCFailGrowth(
-                       SUNHeuristics H, realtype etacf);
-SUNDIALS_EXPORT int SUNHeuristicsGetNumExpSteps(
-                       SUNHeuristics H, long int* expsteps);
-SUNDIALS_EXPORT int SUNHeuristicsGetNumAccSteps(
-                       SUNHeuristics H, long int* accsteps);
-SUNDIALS_EXPORT int SUNHeuristicsSpace(
-                       SUNHeuristics H, long int *lenrw, long int *leniw);
+/* Function to free an empty SUNHeuristics data structure. */
+SUNDIALS_EXPORT
+void SUNHeuristicsFreeEmpty(SUNHeuristics H);
+
+/* Function to report the ID of a SUNHeuristics object. */
+SUNDIALS_EXPORT
+SUNHeuristics_ID SUNHeuristicsGetID(SUNHeuristics H);
+
+/* Function to deallocate a SUNHeuristics object. */
+SUNDIALS_EXPORT
+void SUNHeuristicsDestroy(SUNHeuristics H);
+
+/* Main constraint-application function.  This is called following a
+   time step with acceptable temporal error, and where 'hnew' has
+   already been predicted by a temporal error controller. */
+SUNDIALS_EXPORT
+int SUNHeuristicsConstrainStep(SUNHeuristics H, realtype hcur,
+                               realtype hnew, realtype *hconstr);
+
+/* Function to apply constraints following a step with unacceptable
+   temporal error.  Here, 'hnew' has already been predicted by a
+   temporal error controller, and 'nef' is the integrator-provided
+   counter of how many temporal error test failures have occurred
+   on this time step. */
+SUNDIALS_EXPORT
+int SUNHeuristicsConstrainEFail(SUNHeuristics H, realtype hcur,
+                                realtype hnew, int nef,
+                                realtype *hconstr);
+
+/* Function to apply constraints following a step with an algebraic
+   solver convergence failure. */
+SUNDIALS_EXPORT
+int SUNHeuristicsConstrainCFail(SUNHeuristics H, realtype hcur,
+                                realtype *hconstr);
+
+/* Function to reset the heuristics to its initial state: zeros
+   the "accuracy" and "stability" counters (if present), and resets
+   any stepsize growth factor bounds. */
+SUNDIALS_EXPORT
+int SUNHeuristicsReset(SUNHeuristics H);
+
+/* Function to notify the heuristics that a time step has
+   succeeded, indicating e.g. that the stepsize growh factor should
+   should be set to its "default" state. */
+SUNDIALS_EXPORT
+int SUNHeuristicsUpdate(SUNHeuristics H);
+
+/* Function to set the heuristics parameters to their default values. */
+SUNDIALS_EXPORT
+int SUNHeuristicsSetDefaults(SUNHeuristics H);
+
+/* Function to write all heuristics parameters to the indicated
+   file pointer. */
+SUNDIALS_EXPORT
+int SUNHeuristicsWrite(SUNHeuristics H, FILE* fptr);
+
+/* Function to set the maximum absolute step size allowed
+   (hmax <=0 implies infinite). */
+SUNDIALS_EXPORT
+int SUNHeuristicsSetMaxStep(SUNHeuristics H,
+                                            realtype hmax);
+
+/* Function to set the minimum absolute step size allowed
+   (hmin <= 0 implies no minimum). */
+SUNDIALS_EXPORT
+int SUNHeuristicsSetMinStep(SUNHeuristics H,
+                                            realtype hmin);
+
+/* Function to provide a user-supplied function for the
+   maximum stable step size (EStab == NULL disables). */
+SUNDIALS_EXPORT
+int SUNHeuristicsSetExpStabFn(SUNHeuristics H, SUNExpStabFn EStab,
+                              void* estab_data);
+
+/* Function to set a CFL safety factor that should be applied to
+   the outputs of EStab, above.  Allowable values must be within
+   the open interval (0,1).  A non-positive input implies a reset
+   to the default value. */
+SUNDIALS_EXPORT
+int SUNHeuristicsSetCFLFraction(SUNHeuristics H, realtype cfl_frac);
+
+/* Function to set maximum stepsize growth factor for general steps.
+   Note: the first step uses a separate maximum growth factor.
+   Allowable values must be >1.  Any illegal value implies a reset
+   to the default.*/
+SUNDIALS_EXPORT
+int SUNHeuristicsSetMaxGrowth(SUNHeuristics H, realtype mx_growth);
+
+/* Function to specify the maximum stepsize growth factor for the
+   first internal time step.  Legal values are greater than 1.0.
+   Illegal values imply a reset to the default value. */
+SUNDIALS_EXPORT
+int SUNHeuristicsSetMaxFirstGrowth(SUNHeuristics H, realtype etamx1);
+
+/* Function to specify the step size growth interval within which
+   the step size will remain unchanged.  Allowable values must
+   enclose the value 1.0.  Any illegal interval implies a reset to
+   the default. */
+SUNDIALS_EXPORT
+int SUNHeuristicsSetFixedStepBounds(SUNHeuristics H, realtype lb,
+                                    realtype ub);
+
+/* Function to set a lower bound for the stepsize adjustment factor
+   following a temporal error failure. */
+SUNDIALS_EXPORT
+int SUNHeuristicsSetMinReduction(SUNHeuristics H, realtype eta_min);
+
+/* Function to set an upper bound for the stepsize adjustment factor
+   following a temporal error failure (once at least small_nef
+   failures have occurred). Legal values are in the interval (0,1].
+   Illegal values imply a reset to the default value. */
+SUNDIALS_EXPORT
+int SUNHeuristicsSetMaxEFailGrowth(SUNHeuristics H, realtype etamxf);
+
+/* Function to specify the step adaptivity constant small_nef (see
+   MaxEFailGrowth above).  Legal values are > 0.  Illegal values
+   imply a reset to the default value. */
+SUNDIALS_EXPORT
+int SUNHeuristicsSetSmallNumEFails(SUNHeuristics H, int small_nef);
+
+/* Function to specify an upper bound for the stepsize adjustment
+   factor following an algebraic solver convergence failure. Legal
+   values are in the interval (0,1].  Illegal values imply a reset
+   to the default value. */
+SUNDIALS_EXPORT
+int SUNHeuristicsSetMaxCFailGrowth(SUNHeuristics H, realtype etacf);
+
+/* Function to return the current number of stability-limited steps. */
+SUNDIALS_EXPORT
+int SUNHeuristicsGetNumExpSteps(SUNHeuristics H, long int* expsteps);
+
+/* Function to return the current number of accuracy-limited steps. */
+SUNDIALS_EXPORT
+int SUNHeuristicsGetNumAccSteps(SUNHeuristics H, long int* accsteps);
+
+/* Function to return the memory requirements of the heuristics object. */
+SUNDIALS_EXPORT
+int SUNHeuristicsSpace(SUNHeuristics H, long int *lenrw, long int *leniw);
 
 
 /* -----------------------------------------------------------------
  * SUNHeuristics error codes
  * ----------------------------------------------------------------- */
 
-#define SUNHEURISTICS_SUCCESS           0     /* function successfull        */
-#define SUNHEURISTICS_ILL_INPUT         -1101 /* illegal function input      */
-#define SUNHEURISTICS_MEM_FAIL          -1102 /* failed memory access/alloc  */
-#define SUNHEURISTICS_OPERATION_FAIL    -1103 /* catchall failure code       */
+#define SUNHEURISTICS_SUCCESS           0     /* function successfull      */
+#define SUNHEURISTICS_ILL_INPUT         -1101 /* illegal function input    */
+#define SUNHEURISTICS_CANNOT_DECREASE   -1102 /* no step decrease possible */
+#define SUNHEURISTICS_USER_FCN_FAIL     -1103 /* user-supplied fcn failure */
 
 #ifdef __cplusplus
 }
