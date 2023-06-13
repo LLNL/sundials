@@ -57,6 +57,8 @@ module diurnal_mod
     integer(c_long), parameter :: mm = mx*my
     integer(c_long), parameter :: neq = 2*mm
 
+    ! ADD A3, A4 to the list below
+
     ! ODE constant parameters
     double precision, parameter :: Kh = 4.0d-6
     double precision, parameter :: Vel = 0.001d0
@@ -94,61 +96,6 @@ module diurnal_mod
     integer(c_long)  :: jx, jy
 
     contains
-
-    ! ----------------------------------------------------------------
-    ! ExpRhsFn provides the right hand side explicit function for the
-    ! ODE: dy1/dt = f1(t,y1,y2,y3)
-    !      dy2/dt = f2(t,y1,y2,y3)
-    !      dy3/dt = f3(t,y1,y2,y3)
-    !
-    ! Return values:
-    !    0 = success,
-    !    1 = recoverable error,
-    !   -1 = non-recoverable error
-    ! ----------------------------------------------------------------
-    integer(c_int) function ExpRhsFn(tn, sunvec_u, sunvec_f, user_data) &
-         result(ierr) bind(C,name='ExpRhsFn')
-
-      !======= Inclusions ===========
-      use, intrinsic :: iso_c_binding
-      use fsundials_nvector_mod
-
-      !======= Declarations =========
-      implicit none
-
-      ! calling variables
-      double precision, value :: tn    ! current time
-      type(N_Vector) :: sunvec_u       ! solution N_Vector
-      type(N_Vector) :: sunvec_f       ! rhs N_Vector
-      type(c_ptr) :: user_data         ! user-defined data
-
-      ! local data
-      integer(c_long) :: idx, idx0
-
-      ! pointers to data in SUNDIALS vectors
-      double precision, pointer, dimension(2,mm) :: fvecE(:,:)
-
-      !======= Internals ============
-
-      ! get data arrays from SUNDIALS vectors
-      fvecE(1:2,1:mm) => FN_VGetArrayPointer(sunvec_f)
-
-      ! fill RHS f vector with zeros
-      do jy = 1,my
-         idx0 = (jy - 1) * mx
-         do jx = 1,mx
-            idx = idx0 + jx
-            fvecE(1,idx) = 0.d0
-            fvecE(2,idx) = 0.d0
-         end do
-      end do
-
-      ! return success
-      ierr = 0
-      return
-
-    end function ExpRhsFn
-
 
     ! ----------------------------------------------------------------
     ! ImpRhsFn provides the right hand side implicit function for the
@@ -194,6 +141,9 @@ module diurnal_mod
       ! get data arrays from SUNDIALS vectors
       uvecI(1:2,1:mm) => FN_VGetArrayPointer(sunvec_u)
       fvecI(1:2,1:mm) => FN_VGetArrayPointer(sunvec_f)
+
+      ! add "Set diurnal rate coefficients" code here (including A3, A4)
+
 
       ! Loop over all grid points.
       do jy = 1, my
@@ -275,7 +225,6 @@ module diurnal_mod
     double precision :: tout       ! output time
     double precision :: tcur(1)    ! current time
     double precision :: cx, cy     ! initialization variables
-    double precision :: cx0, cy0
     integer(c_int)   :: ierr       ! error flag from C functions
     integer(c_long)  :: outstep    ! output step
     integer(c_long)  :: mu, ml     ! band preconditioner constants
@@ -318,22 +267,22 @@ module diurnal_mod
     uvec(1:2,1:mx,1:my) => FN_VGetArrayPointer(sunvec_u)
    !  fvec(1:2,1:mx,1:my) => FN_VGetArrayPointer(sunvec_f)
 
-    ! initialize and fill RHS solution vector
+    ! initialize and fill initial condition vector
     do jy = 1,my
        y  = 30.0d0 + (jy - 1.0d0) * dy
-       cy0 = (0.1d0 * (y - 40.0d0))**2
-       cy = 1.0d0 - cy0 + 0.5d0 * cy0**2
+       cy = (0.1d0 * (y - 40.0d0))**2
+       cy = 1.0d0 - cy + 0.5d0 * cy**2
        do jx = 1,mx
           x = (jx - 1.0d0) * dx
-          cx0 = (0.1d0 * (x - 10.0d0))**2
-          cx = 1.0d0 - cx0 + 0.5d0 * cx0**2
+          cx = (0.1d0 * (x - 10.0d0))**2
+          cx = 1.0d0 - cx + 0.5d0 * cx**2
           uvec(1,jx,jy) = 1.0d6 * cx * cy
           uvec(2,jx,jy) = 1.0d12 * cx * cy
        end do
     end do
 
     ! create ARKStep memory
-    arkode_mem = FARKStepCreate(c_funloc(ExpRhsFn), c_funloc(ImpRhsFn), tstart, sunvec_u, ctx)
+    arkode_mem = FARKStepCreate(c_null_ptr, c_funloc(ImpRhsFn), tstart, sunvec_u, ctx)
     if (.not. c_associated(arkode_mem)) print *,'ERROR: arkode_mem = NULL'
 
     ! Tell ARKODE to use a SPGMR linear solver.
