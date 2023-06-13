@@ -51,9 +51,9 @@ typedef struct _SUNControlContent_ImExGus *SUNControlContent_ImExGus;
 SUNDIALS_EXPORT
 SUNControl SUNControlImExGus(SUNContext sunctx);
 SUNDIALS_EXPORT
-SUNControl SUNControlImExGus_SetParams(SUNControl C, sunbooleantype pq,
-                                       realtype k1e, realtype k2e,
-                                       realtype k1i, realtype k2i);
+int SUNControlImExGus_SetParams(SUNControl C, sunbooleantype pq,
+                                realtype k1e, realtype k2e,
+                                realtype k1i, realtype k2i);
 SUNDIALS_EXPORT
 SUNControl_ID SUNControlGetID_ImExGus(SUNControl C);
 SUNDIALS_EXPORT

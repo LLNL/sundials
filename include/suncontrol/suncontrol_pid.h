@@ -49,8 +49,8 @@ typedef struct _SUNControlContent_PID *SUNControlContent_PID;
 SUNDIALS_EXPORT
 SUNControl SUNControlPID(SUNContext sunctx);
 SUNDIALS_EXPORT
-SUNControl SUNControlPID_SetParams(SUNControl C, sunbooleantype pq,
-                                   realtype k1, realtype k2, realtype k3);
+int SUNControlPID_SetParams(SUNControl C, sunbooleantype pq,
+                            realtype k1, realtype k2, realtype k3);
 SUNDIALS_EXPORT
 SUNControl_ID SUNControlGetID_PID(SUNControl C);
 SUNDIALS_EXPORT

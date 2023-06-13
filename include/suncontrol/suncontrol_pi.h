@@ -47,8 +47,8 @@ typedef struct _SUNControlContent_PI *SUNControlContent_PI;
 SUNDIALS_EXPORT
 SUNControl SUNControlPI(SUNContext sunctx);
 SUNDIALS_EXPORT
-SUNControl SUNControlPI_SetParams(SUNControl C, sunbooleantype pq,
-                                  realtype k1, realtype k2);
+int SUNControlPI_SetParams(SUNControl C, sunbooleantype pq,
+                           realtype k1, realtype k2);
 SUNDIALS_EXPORT
 SUNControl_ID SUNControlGetID_PI(SUNControl C);
 SUNDIALS_EXPORT

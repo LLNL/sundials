@@ -98,8 +98,8 @@ SUNControl SUNControlI(SUNContext sunctx)
  * Function to set I parameters
  */
 
-SUNControl SUNControlI_SetParams(SUNControl C, sunbooleantype pq,
-                                 realtype k1)
+int SUNControlI_SetParams(SUNControl C, sunbooleantype pq,
+                          realtype k1)
 {
   /* store legal inputs, and return with success */
   SC_I_PQ(C) = pq;

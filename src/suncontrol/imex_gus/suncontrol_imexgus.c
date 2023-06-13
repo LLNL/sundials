@@ -110,9 +110,9 @@ SUNControl SUNControlImExGus(SUNContext sunctx)
  * Function to set ImExGus parameters
  */
 
-SUNControl SUNControlImExGus_SetParams(SUNControl C, sunbooleantype pq,
-                                       realtype k1e, realtype k2e,
-                                       realtype k1i, realtype k2i)
+int SUNControlImExGus_SetParams(SUNControl C, sunbooleantype pq,
+                                realtype k1e, realtype k2e,
+                                realtype k1i, realtype k2i)
 {
   /* store legal inputs, and return with success */
   SC_IMEXGUS_PQ(C) = pq;

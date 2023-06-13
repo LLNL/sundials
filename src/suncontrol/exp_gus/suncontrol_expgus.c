@@ -105,8 +105,8 @@ SUNControl SUNControlExpGus(SUNContext sunctx)
  * Function to set ExpGus parameters
  */
 
-SUNControl SUNControlExpGus_SetParams(SUNControl C, sunbooleantype pq,
-                                      realtype k1, realtype k2)
+int SUNControlExpGus_SetParams(SUNControl C, sunbooleantype pq,
+                               realtype k1, realtype k2)
 {
   /* store legal inputs, and return with success */
   SC_EXPGUS_PQ(C) = pq;

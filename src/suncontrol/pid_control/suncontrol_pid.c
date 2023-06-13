@@ -107,8 +107,8 @@ SUNControl SUNControlPID(SUNContext sunctx)
  * Function to set PID parameters
  */
 
-SUNControl SUNControlPID_SetParams(SUNControl C, sunbooleantype pq,
-                                   realtype k1, realtype k2, realtype k3)
+int SUNControlPID_SetParams(SUNControl C, sunbooleantype pq,
+                            realtype k1, realtype k2, realtype k3)
 {
   /* store legal inputs, and return with success */
   SC_PID_PQ(C) = pq;

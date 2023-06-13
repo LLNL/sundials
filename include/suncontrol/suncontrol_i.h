@@ -45,8 +45,8 @@ typedef struct _SUNControlContent_I *SUNControlContent_I;
 SUNDIALS_EXPORT
 SUNControl SUNControlI(SUNContext sunctx);
 SUNDIALS_EXPORT
-SUNControl SUNControlI_SetParams(SUNControl C, sunbooleantype pq,
-                                 realtype k1);
+int SUNControlI_SetParams(SUNControl C, sunbooleantype pq,
+                          realtype k1);
 SUNDIALS_EXPORT
 SUNControl_ID SUNControlGetID_I(SUNControl C);
 SUNDIALS_EXPORT

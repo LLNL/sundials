@@ -104,8 +104,8 @@ SUNControl SUNControlPI(SUNContext sunctx)
  * Function to set PI parameters
  */
 
-SUNControl SUNControlPI_SetParams(SUNControl C, sunbooleantype pq,
-                                  realtype k1, realtype k2)
+int SUNControlPI_SetParams(SUNControl C, sunbooleantype pq,
+                           realtype k1, realtype k2)
 {
   /* store legal inputs, and return with success */
   SC_PI_PQ(C) = pq;

@@ -106,8 +106,8 @@ SUNControl SUNControlImpGus(SUNContext sunctx)
  * Function to set ImpGus parameters
  */
 
-SUNControl SUNControlImpGus_SetParams(SUNControl C, sunbooleantype pq,
-                                      realtype k1, realtype k2)
+int SUNControlImpGus_SetParams(SUNControl C, sunbooleantype pq,
+                               realtype k1, realtype k2)
 {
   /* store legal inputs, and return with success */
   SC_IMPGUS_PQ(C) = pq;

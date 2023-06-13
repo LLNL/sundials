@@ -48,8 +48,8 @@ typedef struct _SUNControlContent_ExpGus *SUNControlContent_ExpGus;
 SUNDIALS_EXPORT
 SUNControl SUNControlExpGus(SUNContext sunctx);
 SUNDIALS_EXPORT
-SUNControl SUNControlExpGus_SetParams(SUNControl C, sunbooleantype pq,
-                                      realtype k1, realtype k2);
+int SUNControlExpGus_SetParams(SUNControl C, sunbooleantype pq,
+                               realtype k1, realtype k2);
 SUNDIALS_EXPORT
 SUNControl_ID SUNControlGetID_ExpGus(SUNControl C);
 SUNDIALS_EXPORT
