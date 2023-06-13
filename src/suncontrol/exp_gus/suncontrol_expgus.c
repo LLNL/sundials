@@ -155,6 +155,7 @@ int SUNControlReset_ExpGus(SUNControl C)
 {
   SC_EXPGUS_EP(C) = RCONST(1.0);
   SC_EXPGUS_FIRSTSTEP(C) = SUNTRUE;
+  return SUNCONTROL_SUCCESS;
 }
 
 int SUNControlSetDefaults_ExpGus(SUNControl C)
@@ -164,6 +165,7 @@ int SUNControlSetDefaults_ExpGus(SUNControl C)
   SC_EXPGUS_BIAS(C)   = DEFAULT_BIAS;
   SC_EXPGUS_SAFETY(C) = DEFAULT_SAFETY;
   SC_EXPGUS_PQ(C)     = DEFAULT_PQ;
+  return SUNCONTROL_SUCCESS;
 }
 
 int SUNControlWrite_ExpGus(SUNControl C, FILE *fptr)

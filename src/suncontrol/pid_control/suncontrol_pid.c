@@ -145,6 +145,7 @@ int SUNControlReset_PI(SUNControl C)
 {
   SC_PID_EP(C)  = RCONST(1.0);
   SC_PID_EPP(C) = RCONST(1.0);
+  return SUNCONTROL_SUCCESS;
 }
 
 int SUNControlSetDefaults_PID(SUNControl C)
@@ -155,6 +156,7 @@ int SUNControlSetDefaults_PID(SUNControl C)
   SC_PID_BIAS(C)   = DEFAULT_BIAS;
   SC_PID_SAFETY(C) = DEFAULT_SAFETY;
   SC_PID_PQ(C)     = DEFAULT_PQ;
+  return SUNCONTROL_SUCCESS;
 }
 
 int SUNControlWrite_PID(SUNControl C, FILE *fptr)

@@ -132,6 +132,7 @@ int SUNControlSetDefaults_I(SUNControl C)
   SC_I_BIAS(C)   = DEFAULT_BIAS;
   SC_I_SAFETY(C) = DEFAULT_SAFETY;
   SC_I_PQ(C)     = DEFAULT_PQ;
+  return SUNCONTROL_SUCCESS;
 }
 
 int SUNControlWrite_I(SUNControl C, FILE *fptr)

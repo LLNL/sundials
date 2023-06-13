@@ -137,6 +137,7 @@ int SUNControlEstimateStep_PI(SUNControl C, realtype h,
 int SUNControlReset_PI(SUNControl C)
 {
   SC_PI_EP(C) = RCONST(1.0);
+  return SUNCONTROL_SUCCESS;
 }
 
 int SUNControlSetDefaults_PI(SUNControl C)
@@ -146,6 +147,7 @@ int SUNControlSetDefaults_PI(SUNControl C)
   SC_PI_BIAS(C)   = DEFAULT_BIAS;
   SC_PI_SAFETY(C) = DEFAULT_SAFETY;
   SC_PI_PQ(C)     = DEFAULT_PQ;
+  return SUNCONTROL_SUCCESS;
 }
 
 int SUNControlWrite_PI(SUNControl C, FILE *fptr)

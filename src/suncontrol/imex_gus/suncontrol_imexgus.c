@@ -167,6 +167,7 @@ int SUNControlReset_ImExGus(SUNControl C)
 {
   SC_IMEXGUS_EP(C) = RCONST(1.0);
   SC_IMEXGUS_FIRSTSTEP(C) = SUNTRUE;
+  return SUNCONTROL_SUCCESS;
 }
 
 int SUNControlSetDefaults_ImExGus(SUNControl C)
@@ -178,6 +179,7 @@ int SUNControlSetDefaults_ImExGus(SUNControl C)
   SC_IMEXGUS_BIAS(C)   = DEFAULT_BIAS;
   SC_IMEXGUS_SAFETY(C) = DEFAULT_SAFETY;
   SC_IMEXGUS_PQ(C)     = DEFAULT_PQ;
+  return SUNCONTROL_SUCCESS;
 }
 
 int SUNControlWrite_ImExGus(SUNControl C, FILE *fptr)

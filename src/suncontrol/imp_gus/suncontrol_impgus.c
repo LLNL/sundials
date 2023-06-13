@@ -157,6 +157,7 @@ int SUNControlReset_ImpGus(SUNControl C)
 {
   SC_IMPGUS_EP(C) = RCONST(1.0);
   SC_IMPGUS_FIRSTSTEP(C) = SUNTRUE;
+  return SUNCONTROL_SUCCESS;
 }
 
 int SUNControlSetDefaults_ImpGus(SUNControl C)
@@ -166,6 +167,7 @@ int SUNControlSetDefaults_ImpGus(SUNControl C)
   SC_IMPGUS_BIAS(C)   = DEFAULT_BIAS;
   SC_IMPGUS_SAFETY(C) = DEFAULT_SAFETY;
   SC_IMPGUS_PQ(C)     = DEFAULT_PQ;
+  return SUNCONTROL_SUCCESS;
 }
 
 int SUNControlWrite_ImpGus(SUNControl C, FILE *fptr)
