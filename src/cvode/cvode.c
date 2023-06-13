@@ -740,6 +740,10 @@ int CVodeResizeHistory(void *cvode_mem, sunrealtype* t_hist, N_Vector* y_hist,
   N_Vector tmpl = y_hist[0];
   int maxord = cv_mem->cv_qmax_alloc;
 
+  /* -------------- *
+   * Resize vectors *
+   * -------------- */
+
   N_VDestroy(cv_mem->cv_ewt);
   cv_mem->cv_ewt = N_VClone(tmpl);
 
@@ -770,8 +774,22 @@ int CVodeResizeHistory(void *cvode_mem, sunrealtype* t_hist, N_Vector* y_hist,
     /* N_VScale(ONE, y_hist[j], cv_mem->cv_zn[j]); */
   }
 
-  /* Test 1: Copy yn, evaluate fn, and y_hist is actually a copy of zn */
+  /* ------------------------- *
+   * Construct Nordsieck Array *
+   * ------------------------- */
+
+  /* Test 1: New hist is actually a copy of zn */
+  /* for (int j = 2; j <= maxord; j++) */
+  /* { */
+  /*   N_VScale(ONE, y_hist[j], cv_mem->cv_zn[j]); */
+  /* } */
+
+  /* Test 2: Copy yn, evaluate fn, and limit to first order (externally) */
+
+  /* zn[0] = y_n-1 */
   N_VScale(ONE, y_hist[0], cv_mem->cv_zn[0]);
+
+  /* zn[1] = h_n-1 * y'(t_n-1, y_n-1) */
   retval = cv_mem->cv_f(t_hist[0], y_hist[0],
                         cv_mem->cv_zn[1], cv_mem->cv_user_data);
   cv_mem->cv_nfe++;
@@ -783,29 +801,9 @@ int CVodeResizeHistory(void *cvode_mem, sunrealtype* t_hist, N_Vector* y_hist,
   }
   N_VScale(cv_mem->cv_hscale, cv_mem->cv_zn[1], cv_mem->cv_zn[1]);
 
-  /* for (int j = 2; j <= maxord; j++) */
-  /* { */
-  /*   /\* For testing where new hist is actually a copy of zn *\/ */
-  /*   N_VScale(ONE, y_hist[j], cv_mem->cv_zn[j]); */
-  /* } */
-
-  /* /\* Test 2: Copy yn, evaluate fn, and compute derivatives from polynomial *\/ */
+  /* Test 3: Copy yn and evaluate fn (like above). Compute higher order
+     derivatives from polynomial interpolant */
   /* sunrealtype a[4]; */
-
-  /* /\* zn[0] = y_n-1 *\/ */
-  /* N_VScale(ONE, y_hist[0], cv_mem->cv_zn[0]); */
-
-  /* /\* zn[1] = h_n-1 * y'(t_n-1, y_n-1) *\/ */
-  /* retval = cv_mem->cv_f(t_hist[0], y_hist[0], */
-  /*                       cv_mem->cv_zn[1], cv_mem->cv_user_data); */
-  /* cv_mem->cv_nfe++; */
-  /* if (retval) */
-  /* { */
-  /*   cvProcessError(cv_mem, CV_RHSFUNC_FAIL, "CVODE", "CVode", */
-  /*                  MSGCV_RHSFUNC_FAILED, cv_mem->cv_tn); */
-  /*   return CV_RHSFUNC_FAIL; */
-  /* } */
-  /* N_VScale(cv_mem->cv_hscale, cv_mem->cv_zn[1], cv_mem->cv_zn[1]); */
 
   /* /\* (>= 2nd order) zn[2] = ((h_n-1)^2 / 2) * y''(t_n-1, y_n-1) *\/ */
   /* if (cv_mem->cv_qprime >= 2) */
@@ -825,7 +823,10 @@ int CVodeResizeHistory(void *cvode_mem, sunrealtype* t_hist, N_Vector* y_hist,
   /*            cv_mem->cv_zn[3], cv_mem->cv_zn[3]); */
   /* } */
 
-  /* >>> need to adjust q and qprime, not apply order change update <<< */
+  /* >>>
+     Do we need to adjust q and qprime and not apply order change update?
+     Or should we just update Z and allow CVODE to proceed like normal?
+     <<< */
 
   if (cv_mem->cv_VabstolMallocDone)
   {
