@@ -192,11 +192,11 @@ int SUNControlWrite_ExpGus(SUNControl C, FILE *fptr)
 #endif
   if (SC_EXPGUS_PQ(C))
   {
-    fprintf(fptr, "  p = %i (method order)\n", SC_EXPGUS_PI(C));
+    fprintf(fptr, "  p = %i (method order)\n", SC_EXPGUS_P(C));
   }
   else
   {
-    fprintf(fptr, "  p = %i (embedding order)\n", SC_EXPGUS_PI(C));
+    fprintf(fptr, "  p = %i (embedding order)\n", SC_EXPGUS_P(C));
   }
   return SUNCONTROL_SUCCESS;
 }

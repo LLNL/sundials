@@ -174,11 +174,11 @@ int SUNControlWrite_PI(SUNControl C, FILE *fptr)
 #endif
   if (SC_PI_PQ(C))
   {
-    fprintf(fptr, "  p = %i (method order)\n", SC_PI_PI(C));
+    fprintf(fptr, "  p = %i (method order)\n", SC_PI_P(C));
   }
   else
   {
-    fprintf(fptr, "  p = %i (embedding order)\n", SC_PI_PI(C));
+    fprintf(fptr, "  p = %i (embedding order)\n", SC_PI_P(C));
   }
   return SUNCONTROL_SUCCESS;
 }

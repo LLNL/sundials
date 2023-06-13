@@ -197,11 +197,11 @@ int SUNControlWrite_ImpGus(SUNControl C, FILE *fptr)
 #endif
   if (SC_IMPGUS_PQ(C))
   {
-    fprintf(fptr, "  p = %i (method order)\n", SC_IMPGUS_PI(C));
+    fprintf(fptr, "  p = %i (method order)\n", SC_IMPGUS_P(C));
   }
   else
   {
-    fprintf(fptr, "  p = %i (embedding order)\n", SC_IMPGUS_PI(C));
+    fprintf(fptr, "  p = %i (embedding order)\n", SC_IMPGUS_P(C));
   }
   return SUNCONTROL_SUCCESS;
 }
