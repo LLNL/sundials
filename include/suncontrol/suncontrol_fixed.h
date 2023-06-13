@@ -44,8 +44,6 @@ SUNControl SUNControlFixed(realtype hfixed, SUNContext sunctx);
 SUNDIALS_EXPORT
 SUNControl_ID SUNControlGetID_Fixed(SUNControl C);
 SUNDIALS_EXPORT
-void SUNControlDestroy_Fixed(SUNControl C);
-SUNDIALS_EXPORT
 int SUNControlEstimateStep_Fixed(SUNControl C, realtype h,
                                  realtype dsm, realtype* hnew);
 SUNDIALS_EXPORT

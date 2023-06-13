@@ -71,7 +71,6 @@ SUNControl SUNControlImExGus(SUNContext sunctx)
 
   /* Attach operations */
   C->ops->getid             = SUNControlGetID_ImExGus;
-  C->ops->destroy           = SUNControlDestroy_ImExGus;
   C->ops->estimatestep      = SUNControlEstimateStep_ImExGus;
   C->ops->reset             = SUNControlReset_ImExGus;
   C->ops->setdefaults       = SUNControlSetDefaults_ImExGus;
@@ -129,27 +128,6 @@ int SUNControlImExGus_SetParams(SUNControl C, sunbooleantype pq,
  * ----------------------------------------------------------------- */
 
 SUNControl_ID SUNControlGetID_ImExGus(SUNControl C) { return SUNDIALS_CONTROL_H; }
-
-void SUNControlDestroy_ImExGus(SUNControl C)
-{
-  if (C == NULL) { return; }
-
-  /* free content */
-  if (C->content != NULL) {
-    free(C->content);
-    C->content = NULL;
-  }
-
-  /* free ops and controller */
-  if (C->ops) {
-    free(C->ops);
-    C->ops = NULL;
-  }
-  free(C);
-  C = NULL;
-
-  return;
-}
 
 int SUNControlEstimateStep_ImExGus(SUNControl C, realtype h,
                                    realtype dsm, realtype* hnew)

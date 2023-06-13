@@ -68,7 +68,6 @@ SUNControl SUNControlPID(SUNContext sunctx)
 
   /* Attach operations */
   C->ops->getid             = SUNControlGetID_PID;
-  C->ops->destroy           = SUNControlDestroy_PID;
   C->ops->estimatestep      = SUNControlEstimateStep_PID;
   C->ops->reset             = SUNControlReset_PID;
   C->ops->setdefaults       = SUNControlSetDefaults_PID;
@@ -123,27 +122,6 @@ int SUNControlPID_SetParams(SUNControl C, sunbooleantype pq,
  * ----------------------------------------------------------------- */
 
 SUNControl_ID SUNControlGetID_PID(SUNControl C) { return SUNDIALS_CONTROL_H; }
-
-void SUNControlDestroy_PID(SUNControl C)
-{
-  if (C == NULL) { return; }
-
-  /* free content */
-  if (C->content != NULL) {
-    free(C->content);
-    C->content = NULL;
-  }
-
-  /* free ops and controller */
-  if (C->ops) {
-    free(C->ops);
-    C->ops = NULL;
-  }
-  free(C);
-  C = NULL;
-
-  return;
-}
 
 int SUNControlEstimateStep_PID(SUNControl C, realtype h,
                                realtype dsm, realtype* hnew)

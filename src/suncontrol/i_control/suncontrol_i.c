@@ -62,7 +62,6 @@ SUNControl SUNControlI(SUNContext sunctx)
 
   /* Attach operations */
   C->ops->getid             = SUNControlGetID_I;
-  C->ops->destroy           = SUNControlDestroy_I;
   C->ops->estimatestep      = SUNControlEstimateStep_I;
   C->ops->setdefaults       = SUNControlSetDefaults_I;
   C->ops->write             = SUNControlWrite_I;
@@ -113,27 +112,6 @@ int SUNControlI_SetParams(SUNControl C, sunbooleantype pq,
  * ----------------------------------------------------------------- */
 
 SUNControl_ID SUNControlGetID_I(SUNControl C) { return SUNDIALS_CONTROL_H; }
-
-void SUNControlDestroy_I(SUNControl C)
-{
-  if (C == NULL) { return; }
-
-  /* free content */
-  if (C->content != NULL) {
-    free(C->content);
-    C->content = NULL;
-  }
-
-  /* free ops and controller */
-  if (C->ops) {
-    free(C->ops);
-    C->ops = NULL;
-  }
-  free(C);
-  C = NULL;
-
-  return;
-}
 
 int SUNControlEstimateStep_I(SUNControl C, realtype h,
                                realtype dsm, realtype* hnew)

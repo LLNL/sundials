@@ -54,8 +54,6 @@ int SUNControlPID_SetParams(SUNControl C, sunbooleantype pq,
 SUNDIALS_EXPORT
 SUNControl_ID SUNControlGetID_PID(SUNControl C);
 SUNDIALS_EXPORT
-void SUNControlDestroy_PID(SUNControl C);
-SUNDIALS_EXPORT
 int SUNControlEstimateStep_PID(SUNControl C, realtype h,
                                realtype dsm, realtype* hnew);
 SUNDIALS_EXPORT

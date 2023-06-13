@@ -67,7 +67,6 @@ SUNControl SUNControlImpGus(SUNContext sunctx)
 
   /* Attach operations */
   C->ops->getid             = SUNControlGetID_ImpGus;
-  C->ops->destroy           = SUNControlDestroy_ImpGus;
   C->ops->estimatestep      = SUNControlEstimateStep_ImpGus;
   C->ops->reset             = SUNControlReset_ImpGus;
   C->ops->setdefaults       = SUNControlSetDefaults_ImpGus;
@@ -123,29 +122,8 @@ int SUNControlImpGus_SetParams(SUNControl C, sunbooleantype pq,
 
 SUNControl_ID SUNControlGetID_ImpGus(SUNControl C) { return SUNDIALS_CONTROL_H; }
 
-void SUNControlDestroy_ImpGus(SUNControl C)
-{
-  if (C == NULL) { return; }
-
-  /* free content */
-  if (C->content != NULL) {
-    free(C->content);
-    C->content = NULL;
-  }
-
-  /* free ops and controller */
-  if (C->ops) {
-    free(C->ops);
-    C->ops = NULL;
-  }
-  free(C);
-  C = NULL;
-
-  return;
-}
-
 int SUNControlEstimateStep_ImpGus(SUNControl C, realtype h,
-                               realtype dsm, realtype* hnew)
+                                  realtype dsm, realtype* hnew)
 {
   /* modified method for first step */
   if (SC_IMPGUS_FIRSTSTEP(C))

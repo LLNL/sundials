@@ -51,7 +51,6 @@ SUNControl SUNControlFixed(realtype hfixed, SUNContext sunctx)
 
   /* Attach operations */
   C->ops->getid        = SUNControlGetID_Fixed;
-  C->ops->destroy      = SUNControlDestroy_Fixed;
   C->ops->estimatestep = SUNControlEstimateStep_Fixed;
   C->ops->write        = SUNControlWrite_Fixed;
   C->ops->space        = SUNControlSpace_Fixed;
@@ -80,27 +79,6 @@ SUNControl SUNControlFixed(realtype hfixed, SUNContext sunctx)
  * ----------------------------------------------------------------- */
 
 SUNControl_ID SUNControlGetID_Fixed(SUNControl C) { return SUNDIALS_CONTROL_H; }
-
-void SUNControlDestroy_Fixed(SUNControl C)
-{
-  if (C == NULL) { return; }
-
-  /* free content */
-  if (C->content != NULL) {
-    free(C->content);
-    C->content = NULL;
-  }
-
-  /* free ops and controller */
-  if (C->ops) {
-    free(C->ops);
-    C->ops = NULL;
-  }
-  free(C);
-  C = NULL;
-
-  return;
-}
 
 int SUNControlEstimateStep_Fixed(SUNControl C, realtype h,
                                  realtype dsm, realtype* hnew)

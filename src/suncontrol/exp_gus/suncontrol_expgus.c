@@ -66,7 +66,6 @@ SUNControl SUNControlExpGus(SUNContext sunctx)
 
   /* Attach operations */
   C->ops->getid             = SUNControlGetID_ExpGus;
-  C->ops->destroy           = SUNControlDestroy_ExpGus;
   C->ops->estimatestep      = SUNControlEstimateStep_ExpGus;
   C->ops->reset             = SUNControlReset_ExpGus;
   C->ops->setdefaults       = SUNControlSetDefaults_ExpGus;
@@ -121,27 +120,6 @@ int SUNControlExpGus_SetParams(SUNControl C, sunbooleantype pq,
  * ----------------------------------------------------------------- */
 
 SUNControl_ID SUNControlGetID_ExpGus(SUNControl C) { return SUNDIALS_CONTROL_H; }
-
-void SUNControlDestroy_ExpGus(SUNControl C)
-{
-  if (C == NULL) { return; }
-
-  /* free content */
-  if (C->content != NULL) {
-    free(C->content);
-    C->content = NULL;
-  }
-
-  /* free ops and controller */
-  if (C->ops) {
-    free(C->ops);
-    C->ops = NULL;
-  }
-  free(C);
-  C = NULL;
-
-  return;
-}
 
 int SUNControlEstimateStep_ExpGus(SUNControl C, realtype h,
                                realtype dsm, realtype* hnew)

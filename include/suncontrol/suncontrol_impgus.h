@@ -54,8 +54,6 @@ int SUNControlImpGus_SetParams(SUNControl C, sunbooleantype pq,
 SUNDIALS_EXPORT
 SUNControl_ID SUNControlGetID_ImpGus(SUNControl C);
 SUNDIALS_EXPORT
-void SUNControlDestroy_ImpGus(SUNControl C);
-SUNDIALS_EXPORT
 int SUNControlEstimateStep_ImpGus(SUNControl C, realtype h,
                                   realtype dsm, realtype* hnew);
 SUNDIALS_EXPORT
