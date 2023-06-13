@@ -814,7 +814,7 @@ int CVodeResizeHistory(void *cvode_mem, sunrealtype* t_hist, N_Vector* y_hist,
   /*            cv_mem->cv_zn[2], cv_mem->cv_zn[2]); */
   /* } */
 
-  /* /\* (>= 3rd order) zn[3] = ((h_n-1)^3 / 6) * y'''(t_n-1, y_n-1) *\/ */
+  /* (>= 3rd order) zn[3] = ((h_n-1)^3 / 6) * y'''(t_n-1, y_n-1) */
   /* if (cv_mem->cv_qprimt >= 3) */
   /* { */
   /*   for (int j = 0; j < 4; j++) a[j] = LBasisD3(j, t_hist[0], t_hist); */

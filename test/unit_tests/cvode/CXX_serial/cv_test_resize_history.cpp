@@ -206,7 +206,7 @@ int main(int argc, char* argv[])
   if (check_flag(flag, "CVodeSetMaxOrd")) return 1;
 
   // Initial time and final times
-  sunrealtype tf   = SUN_RCONST(10.0);
+  sunrealtype tf = SUN_RCONST(10.0);
 
   // History of solution times
   sunrealtype tret[31];
