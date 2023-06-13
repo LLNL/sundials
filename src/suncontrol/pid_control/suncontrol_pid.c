@@ -141,7 +141,7 @@ int SUNControlEstimateStep_PID(SUNControl C, realtype h,
   return SUNCONTROL_SUCCESS;
 }
 
-int SUNControlReset_PI(SUNControl C)
+int SUNControlReset_PID(SUNControl C)
 {
   SC_PID_EP(C)  = RCONST(1.0);
   SC_PID_EPP(C) = RCONST(1.0);
@@ -189,11 +189,11 @@ int SUNControlWrite_PID(SUNControl C, FILE *fptr)
 #endif
   if (SC_PID_PQ(C))
   {
-    fprintf(fptr, "  p = %i (method order)\n", SC_PID_PI(C));
+    fprintf(fptr, "  p = %i (method order)\n", SC_PID_P(C));
   }
   else
   {
-    fprintf(fptr, "  p = %i (embedding order)\n", SC_PID_PI(C));
+    fprintf(fptr, "  p = %i (embedding order)\n", SC_PID_P(C));
   }
   return SUNCONTROL_SUCCESS;
 }
