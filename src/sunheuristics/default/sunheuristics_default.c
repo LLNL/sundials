@@ -136,6 +136,9 @@ SUNHeuristics_ID SUNHeuristicsGetID_Default(SUNHeuristics H)
 int SUNHeuristicsConstrainStep_Default(SUNHeuristics H, realtype hcur,
                                        realtype h_acc, realtype* hconstr)
 {
+  /* Initialize output as unconstrained */
+  *hconstr = h_acc;
+
   /* Determine direction of integration, int_dir (see arkode_adapt.c:169) */
   realtype int_dir = hcur / SUNRabs(hcur);
 
@@ -191,6 +194,9 @@ int SUNHeuristicsConstrainEFail_Default(SUNHeuristics H, realtype hcur,
                                         realtype hnew, int nef,
                                         realtype* hconstr)
 {
+  /* Initialize output as unconstrained */
+  *hconstr = hnew;
+
   /* Set etamax to 1.0 for next step attempt */
   SH_ETAMAX(H) = RCONST(1.0);
 
@@ -207,6 +213,9 @@ int SUNHeuristicsConstrainEFail_Default(SUNHeuristics H, realtype hcur,
 int SUNHeuristicsConstrainCFail_Default(SUNHeuristics H, realtype hcur,
                                         realtype* hconstr)
 {
+  /* Initialize output as unconstrained */
+  *hconstr = hcur;
+
   /* Set etamax to 1.0 for next step attempt */
   SH_ETAMAX(H) = RCONST(1.0);
 

@@ -261,10 +261,10 @@ int SUNHeuristicsSpace(SUNHeuristics H, long int *lenrw, long int *leniw);
  * SUNHeuristics error codes
  * ----------------------------------------------------------------- */
 
-#define SUNHEURISTICS_SUCCESS           0     /* function successfull      */
-#define SUNHEURISTICS_ILL_INPUT         -1101 /* illegal function input    */
-#define SUNHEURISTICS_CANNOT_DECREASE   -1102 /* no step decrease possible */
-#define SUNHEURISTICS_USER_FCN_FAIL     -1103 /* user-supplied fcn failure */
+#define SUNHEURISTICS_SUCCESS         0     /* function successfull      */
+#define SUNHEURISTICS_ILL_INPUT       -1101 /* illegal function input    */
+#define SUNHEURISTICS_CANNOT_DECREASE -1102 /* no step decrease possible */
+#define SUNHEURISTICS_USER_FCN_FAIL   -1103 /* user-supplied fcn failure */
 
 #ifdef __cplusplus
 }

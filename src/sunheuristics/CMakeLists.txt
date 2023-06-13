@@ -16,4 +16,4 @@
 
 # required native matrices
 add_subdirectory(default)
-#add_subdirectory(unconstrained)
+add_subdirectory(unconstrained)
