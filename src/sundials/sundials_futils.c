@@ -15,6 +15,7 @@
  * -----------------------------------------------------------------*/
 
 #include <sundials/sundials_futils.h>
+#include <string.h>
 
 /* Create a file pointer with the given file name and mode. */
 FILE* SUNDIALSFileOpen(const char* filename, const char* mode)
