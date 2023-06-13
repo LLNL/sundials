@@ -1454,7 +1454,7 @@ Set additive RK tables via their names    :c:func:`ARKStepSetTableName()`    int
       For explicit methods, the allowed values are :math:`2 \le`
       *ord* :math:`\le 8`.  For implicit methods, the allowed values are
       :math:`2\le` *ord* :math:`\le 5`, and for ImEx methods the allowed
-      values are :math:`3 \le` *ord* :math:`\le 5`.  Any illegal input
+      values are :math:`2 \le` *ord* :math:`\le 5`.  Any illegal input
       will result in the default value of 4.
 
       Since *ord* affects the memory requirements for the internal
