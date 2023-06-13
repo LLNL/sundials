@@ -78,7 +78,7 @@ module diurnal_mod
     double precision, parameter :: rtol = 1.0d-5
     double precision, parameter :: floor = 100.0d0
     double precision, parameter :: delt = 0.0d0
-    double precision, parameter :: atol = rtol * floor
+    double precision, parameter :: atol = rtol*floor
     integer(c_int), parameter   :: Jpretype = 1
     integer(c_int), parameter   :: iGStype = 1
     integer(c_int), parameter   :: maxL = 0
@@ -179,7 +179,7 @@ module diurnal_mod
 
       ! local data
       integer(c_int)   :: ileft, iright
-      integer(c_long)  :: mx, my, mm, jy, jx, idx0, idn, iup, idx
+      integer(c_long)  :: idx0, idn, iup, idx
       double precision :: c1dn, c2dn, c1up, c2up, c1lt, c2lt
       double precision :: c1rt, c2rt, cydn, cyup, hord1, hord2, horad1
       double precision :: horad2, qq1, qq2, qq3, qq4, rkin1, rkin2, s
@@ -258,7 +258,6 @@ module diurnal_mod
 
     use farkode_mod                ! Fortran interface to the ARKode module
     use farkode_arkstep_mod        ! Fortran interface to the ARKStep module
-    !use farkode_bandpre_mod        ! Fortran interface to the ARKBandpre module
     use fsundials_nvector_mod      ! Fortran interface to the generic N_Vector
     use fsundials_matrix_mod       ! Fortran interface to generic SUNMatrix
     use fsundials_linearsolver_mod ! Fortran interface to generic SUNLinearSolver
@@ -276,22 +275,23 @@ module diurnal_mod
     double precision :: tout       ! output time
     double precision :: tcur(1)    ! current time
     double precision :: cx, cy     ! initialization variables
+    double precision :: cx0, cy0
     integer(c_int)   :: ierr       ! error flag from C functions
     integer(c_long)  :: outstep    ! output step
-    integer(c_long)  :: mu, ml
-    double precision :: x, y
+    integer(c_long)  :: mu, ml     ! band preconditioner constants
+    double precision :: x, y       ! initialization index variables
 
     type(N_Vector),        pointer :: sunvec_u      ! sundials vector
     type(N_Vector),        pointer :: sunvec_f      ! sundials vector
     type(SUNLinearSolver), pointer :: sunls         ! sundials linear solver
     type(SUNMatrix),       pointer :: sunmat_A      ! sundials matrix (empty)
     type(c_ptr)                    :: arkode_mem    ! ARKODE memory
-    double precision, pointer, dimension(2,mx,my) :: fvec(:,:,:) ! underlying vector
+   !  double precision, pointer, dimension(2,mx,my) :: fvec(:,:,:) ! underlying vector
     double precision, pointer, dimension(2,mx,my) :: uvec(:,:,:) ! underlying vector
 
     ! output statistic variables
-    integer(c_long) :: lnst(1), lnst_att(1)
-    real(c_double)  :: lh(1)
+    integer(c_long)  :: lnst(1), lnst_att(1)
+    double precision :: lh(1)
 
     !======= Internals ============
 
@@ -301,7 +301,6 @@ module diurnal_mod
     ! initialize ODE
     tstart = 0.0d0
     tcur   = tstart
-    tout   = tstart
 
     ! create SUNDIALS N_Vector
     sunvec_u => FN_VNew_Serial(neq, ctx)
@@ -317,17 +316,17 @@ module diurnal_mod
     end if
 
     uvec(1:2,1:mx,1:my) => FN_VGetArrayPointer(sunvec_u)
-    fvec(1:2,1:mx,1:my) => FN_VGetArrayPointer(sunvec_f)
+   !  fvec(1:2,1:mx,1:my) => FN_VGetArrayPointer(sunvec_f)
 
     ! initialize and fill RHS solution vector
     do jy = 1,my
        y  = 30.0d0 + (jy - 1.0d0) * dy
-       cy = (0.1d0 * (y - 40.0d0))**2
-       cy = 1.0d0 - cy + 0.5d0 * cy**2
+       cy0 = (0.1d0 * (y - 40.0d0))**2
+       cy = 1.0d0 - cy0 + 0.5d0 * cy0**2
        do jx = 1,mx
           x = (jx - 1.0d0) * dx
-          cx = (0.1d0 * (x - 10.0d0))**2
-          cx = 1.0d0 - cx + 0.5d0 * cx**2
+          cx0 = (0.1d0 * (x - 10.0d0))**2
+          cx = 1.0d0 - cx0 + 0.5d0 * cx0**2
           uvec(1,jx,jy) = 1.0d6 * cx * cy
           uvec(2,jx,jy) = 1.0d12 * cx * cy
        end do
@@ -344,17 +343,17 @@ module diurnal_mod
        stop 1
     end if
 
-    ierr = FSUNLinSol_SPGMRSetGSType(sunls, iGStype)
-    if (ierr /= 0) then
-       print *, 'Error in FARKStepSetLinearSolver'
-       stop 1
-    end if
-
     ! Attach the linear solver (with NULL SUNMatrix object)
     sunmat_A => null()
     ierr = FARKStepSetLinearSolver(arkode_mem, sunls, sunmat_A)
     if (ierr /= 0) then
-       print *, 'Error in FARKStepSetLinearSolver, retval = ', ierr, '; halting'
+       print *, 'Error in FARKStepSetLinearSolver, ierr = ', ierr, '; halting'
+       stop 1
+    end if
+
+    ierr = FSUNLinSol_SPGMRSetGSType(sunls, iGStype)
+    if (ierr /= 0) then
+       print *, 'Error in FARKStepSetLinearSolver'
        stop 1
     end if
 
@@ -366,9 +365,17 @@ module diurnal_mod
 
     ierr = FARKStepSetMaxNumSteps(arkode_mem, mxsteps)
     if (ierr /= 0) then
-      print *, 'Error in FARKStepSetMaxNumSteps'
-      stop 1
+       print *, 'Error in FARKStepSetMaxNumSteps'
+       stop 1
     end if
+
+   !  ! Attach the linear solver (with NULL SUNMatrix object)
+   !  sunmat_A => null()
+   !  ierr = FARKStepSetLinearSolver(arkode_mem, sunls, sunmat_A)
+   !  if (ierr /= 0) then
+   !     print *, 'Error in FARKStepSetLinearSolver, ierr = ', ierr, '; halting'
+   !     stop 1
+   !  end if
 
     mu = 2
     ml = 2
@@ -382,9 +389,9 @@ module diurnal_mod
     print *, '   '
     print *, 'Finished initialization, starting time steps'
     print *, '   '
-    print *, '      t      c1  (bottom left    middle     top right)   |   lnst   lnst_att  lh '
-    print *, '      t      c2  (bottom left    middle     top right)   |   lnst   lnst_att  lh '
-    print *, ' --------------------------------------------------------------------------------'
+    print *, '      t          c1  (bottom left      middle       top right)   |   lnst   lnst_att  lh '
+    print *, '      t          c2  (bottom left      middle       top right)   |   lnst   lnst_att  lh '
+    print *, ' ------------------------------------------------------------------------------------'
     tout = twohr
     do outstep = 1,12
 
@@ -415,7 +422,7 @@ module diurnal_mod
 
        ! print current solution and output statistics
        print '(2x,4(es14.6,2x),i5,i5,es14.6)', tcur, uvec(1,1,1), uvec(1,5,5), uvec(1,10,10), lnst, lnst_att, lh
-       print '(18x,3(es14.6,2x),24x)', tcur, uvec(2,1,1), uvec(2,5,5), uvec(2,10,10)
+       print '(18x,3(es14.6,2x),24x)', uvec(2,1,1), uvec(2,5,5), uvec(2,10,10)
 
        ! update tout
        tout = tout + twohr
@@ -429,6 +436,7 @@ module diurnal_mod
     ! clean up
     call FARKStepFree(arkode_mem)
     call FN_VDestroy(sunvec_u)
+    call FN_VDestroy(sunvec_f)
     ierr = FSUNLinSolFree(sunls)
     ierr = FSUNContext_Free(ctx)
 
@@ -458,13 +466,13 @@ module diurnal_mod
     integer(c_long) :: nst_a(1)      ! num steps attempted
     integer(c_long) :: nfe(1)        ! num explicit function evals
     integer(c_long) :: nfi(1)        ! num implicit function evals
-    integer(c_long) :: npsetups(1)   ! num preconditioner setups
+   !  integer(c_long) :: npsetups(1)   ! num preconditioner setups
     integer(c_long) :: netfails(1)   ! num error test fails
     integer(c_long) :: npe(1)        ! num preconditioner evals
     integer(c_long) :: nps(1)        ! num preconditioner solves
     integer(c_long) :: nniters(1)    ! nonlinear solver iterations
     integer(c_long) :: nliters(1)    ! linear solver iterations
-    integer(c_long) :: nmcf(1)       ! num mass convergence failures
+   !  integer(c_long) :: nmcf(1)       ! num mass convergence failures
     integer(c_long) :: ncf(1)        ! num convergence failures nonlinear
     integer(c_long) :: ncfl(1)       ! num convergence failures linear
     integer(c_long) :: nncfails(1)   ! nonlinear solver fails
@@ -497,11 +505,11 @@ module diurnal_mod
        stop 1
     end if
 
-    ierr = FARKStepGetNumMassSetups(arkode_mem, npsetups)
-    if (ierr /= 0) then
-       print *, 'Error in FARKStepGetNumMassSetups, ierr = ', ierr, '; halting'
-       stop 1
-    end if
+   !  ierr = FARKStepGetNumMassSetups(arkode_mem, npsetups)
+   !  if (ierr /= 0) then
+   !     print *, 'Error in FARKStepGetNumMassSetups, ierr = ', ierr, '; halting'
+   !     stop 1
+   !  end if
 
     ierr = FARKStepGetNumErrTestFails(arkode_mem, netfails)
     if (ierr /= 0) then
@@ -515,7 +523,7 @@ module diurnal_mod
        stop 1
     end if
 
-    ierr = FARKStepGetNumPrecSolves(arkode_mem, npe)
+    ierr = FARKStepGetNumPrecSolves(arkode_mem, nps)
     if (ierr /= 0) then
        print *, 'Error in FARKStepGetNumPrecSolves, ierr = ', ierr, '; halting'
        stop 1
@@ -535,11 +543,11 @@ module diurnal_mod
 
     avdim = dble(nliters)/dble(nniters)
 
-    ierr = FARKStepGetNumMassConvFails(arkode_mem, nmcf)
-    if (ierr /= 0) then
-       print *, 'Error in FARKStepGetNumMassConvFails, ierr = ', ierr, '; halting'
-       stop 1
-    end if
+   !  ierr = FARKStepGetNumMassConvFails(arkode_mem, nmcf)
+   !  if (ierr /= 0) then
+   !     print *, 'Error in FARKStepGetNumMassConvFails, ierr = ', ierr, '; halting'
+   !     stop 1
+   !  end if
 
     ierr = FARKStepGetNumLinConvFails(arkode_mem, ncfl)
     if (ierr /= 0) then
@@ -579,20 +587,20 @@ module diurnal_mod
 
     print *, ' '
     print *, ' General Solver Stats:'
-    print '(4x,A,i9)'       ,'Total internal steps taken    =',nsteps
-    print '(4x,A,i9)'       ,'Total internal steps attempts =',nst_a
-    print '(4x,A,i9)'       ,'Total rhs exp function call   =',nfe
-    print '(4x,A,i9)'       ,'Total rhs imp function call   =',nfi
-    print '(4x,A,i9)'       ,'Num lin solver setup calls    =',npsetups
-    print '(4x,A,i9)'       ,'Total rhs imp function call   =',npe
-    print '(4x,A,i9)'       ,'Total rhs imp function call   =',nps
-    print '(4x,A,i9)'       ,'Num error test failures       =',netfails
-    print '(4x,A,i9)'       ,'Num nonlinear solver iters    =',nniters
-    print '(4x,A,i9)'       ,'Num linear solver iters       =',nliters
-    print '(4x,A,es14.6)'   ,'Avg Krylov subspace dim       =',avdim
-    print '(4x,A,i9)'       ,'Num nonlinear solver fails    =',ncf
-    print '(4x,A,i9)'       ,'Num linear solver fails       =',ncfl
-    print '(4x,A,i9)'       ,'Num mass solver fails         =',nmcf
+    print '(4x,A,i9)'       ,'Total internal steps taken      =',nsteps
+    print '(4x,A,i9)'       ,'Total internal steps attempts   =',nst_a
+    print '(4x,A,i9)'       ,'Total rhs exp function call     =',nfe
+    print '(4x,A,i9)'       ,'Total rhs imp function call     =',nfi
+   !  print '(4x,A,i9)'       ,'Num lin solver setup calls    =',npsetups
+    print '(4x,A,i9)'       ,'Total num preconditioner evals  =',npe
+    print '(4x,A,i9)'       ,'Total num preconditioner solves =',nps
+    print '(4x,A,i9)'       ,'Num error test failures         =',netfails
+    print '(4x,A,i9)'       ,'Num nonlinear solver iters      =',nniters
+    print '(4x,A,i9)'       ,'Num linear solver iters         =',nliters
+    print '(4x,A,es14.6)'   ,'Avg Krylov subspace dim         =',avdim
+    print '(4x,A,i9)'       ,'Num nonlinear solver fails      =',ncf
+    print '(4x,A,i9)'       ,'Num linear solver fails         =',ncfl
+   !  print '(4x,A,i9)'       ,'Num mass solver fails         =',nmcf
     print '(4x,A,2(i9,3x))' ,'main solver real/int workspace sizes   =',lenrw,leniw
     print '(4x,A,2(i9,3x))' ,'linear solver real/int workspace sizes =',lenrwls,leniwls
     print '(4x,A,2(i9,3x))' ,'ARKBandPre real/int workspace sizes    =',lenrwbp,leniwbp
