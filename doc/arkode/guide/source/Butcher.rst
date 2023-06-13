@@ -18,12 +18,12 @@
 Appendix: Butcher tables
 =========================
 
-Here we catalog the full set of Butcher tables included in ARKODE.
-We group these into three categories: *explicit*, *implicit* and
-*additive*.  However, since the methods that comprise an additive
-Runge--Kutta method are themselves explicit and implicit, their
-component Butcher tables are listed within their separate
-sections, but are referenced together in the additive section.
+Here we catalog the full set of Butcher tables included in ARKODE. We group
+these into four categories: *explicit*, *implicit*, *additive* and symplectic.
+However, since the methods that comprise an additive Runge--Kutta method are
+themselves explicit and implicit, their component Butcher tables are listed
+within their separate sections, but are referenced together in the additive
+section.
 
 In each of the following tables, we use the following notation (shown
 for a 3-stage method):
@@ -61,12 +61,15 @@ where here
 * ``Q`` is the global order of accuracy for the method.
 
 For methods without an embedding (e.g., fixed-step methods) ``P`` is omitted so
-that methods follow the naming convention ``NAME-S-Q``.
+that methods follow the naming convention ``NAME-S-Q``. 
+
+For symplectic methods, 
 
 In the code, unique integer IDs are defined inside ``arkode_butcher_erk.h`` and
 ``arkode_butcher_dirk.h`` for each method, which may be used by calling routines
-to specify the desired method.  These names are specified in ``fixed width
-font`` at the start of each method's section below.
+to specify the desired method. Symplectic methods are 
+These names are specified in ``fixed width font`` at the start of each method's 
+section below.
 
 Additionally, for each method we provide a plot of the linear
 stability region in the complex plane.  These have been computed via
@@ -1708,121 +1711,121 @@ Butcher table pairs are as follows:
 Symplectic Butcher tables
 ---------------------------
 
-ARKODE_SYMPLECTIC_EULER_1
-^^^^^^^^^^^^^^^^^^^^^^^^^
+ARKODE_SYMPLECTIC_EULER_1_1
+^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 .. index:: 1st-order symplectic Euler method
 
-Accessible via the constant ``ARKODE_SYMPLECTIC_EULER_1`` to
+Accessible via the constant ``ARKODE_SYMPLECTIC_EULER_1_1`` to
 :c:func:`ARKodeSPRKMem_Load()` or by calling :c:func:`ARKodeSymplecticEuler`.
 This is the classic Symplectic Euler method.
 
 
-ARKODE_SYMPLECTIC_LEAPFROG_2
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+ARKODE_SYMPLECTIC_LEAPFROG_2_2
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 .. index:: 2nd-order Leapfrog method
 
-Accessible via the constant ``ARKODE_SYMPLECTIC_LEAPFROG_2`` to
+Accessible via the constant ``ARKODE_SYMPLECTIC_LEAPFROG_2_2`` to
 :c:func:`ARKodeSPRKMem_Load()` or by calling :c:func:`ARKodeSymplecticLeapfrog2`.
 This is the classic Leapfrog/Verlet method. 
 
 
-ARKODE_SYMPLECTIC_PSEUDO_LEAPFROG_2
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+ARKODE_SYMPLECTIC_PSEUDO_LEAPFROG_2_2
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 .. index:: 2nd-order Pseudo Leapfrog method
 
-Accessible via the constant ``ARKODE_SYMPLECTIC_PSEUDO_LEAPFROG_2`` to
+Accessible via the constant ``ARKODE_SYMPLECTIC_PSEUDO_LEAPFROG_2_2`` to
 :c:func:`ARKodeSPRKMem_Load()` or by calling :c:func:`ARKodeSymplecticPseudoLeapfrog2`.
 This is the classic Pseudo Leapfrog/Verlet method. 
 
 
-ARKODE_SYMPLECTIC_MCLACHLAN_2
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+ARKODE_SYMPLECTIC_MCLACHLAN_2_2
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 .. index:: 2nd-order McLachlan method
 
-Accessible via the constant ``ARKODE_SYMPLECTIC_MCLACHLAN_2`` to
+Accessible via the constant ``ARKODE_SYMPLECTIC_MCLACHLAN_2_2`` to
 :c:func:`ARKodeSPRKMem_Load()` or by calling :c:func:`ARKodeSymplecticMcLachlan2`.
 This is the 2nd order method given by McLachlan in :cite:p:`Mclachlan:92`.
 
 
-ARKODE_SYMPLECTIC_RUTH_3
-^^^^^^^^^^^^^^^^^^^^^^^^^
+ARKODE_SYMPLECTIC_RUTH_3_3
+^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 .. index:: 3rd-order Ruth method
 
-Accessible via the constant ``ARKODE_SYMPLECTIC_RUTH_3`` to
+Accessible via the constant ``ARKODE_SYMPLECTIC_RUTH_3_3`` to
 :c:func:`ARKodeSPRKMem_Load()` or by calling :c:func:`ARKodeSymplecticRuth3`.
 This is the 3rd order method given by Ruth in :cite:p:`Ruth:93`.
 
 
-ARKODE_SYMPLECTIC_MCLACHLAN_3
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+ARKODE_SYMPLECTIC_MCLACHLAN_3_3
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 .. index:: 3rd-order McLachlan method
 
-Accessible via the constant ``ARKODE_SYMPLECTIC_MCLACHLAN_3`` to
+Accessible via the constant ``ARKODE_SYMPLECTIC_MCLACHLAN_3_3`` to
 :c:func:`ARKodeSPRKMem_Load()` or by calling :c:func:`ARKodeSymplecticMcLachlan3`.
 This is the 3rd order method given by McLachlan in :cite:p:`Mclachlan:92`.
 
 
-ARKODE_SYMPLECTIC_MCLACHLAN_4
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+ARKODE_SYMPLECTIC_MCLACHLAN_4_4
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 .. index:: 4th-order McLachlan method
 
-Accessible via the constant ``ARKODE_SYMPLECTIC_MCLACHLAN_4`` to
+Accessible via the constant ``ARKODE_SYMPLECTIC_MCLACHLAN_4_4`` to
 :c:func:`ARKodeSPRKMem_Load()` or by calling :c:func:`ARKodeSymplecticMcLachlan4`.
 This is the 4th order method given by McLachlan in :cite:p:`Mclachlan:92`.
 
 
-ARKODE_SYMPLECTIC_CANDY_ROZMUS_4
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+ARKODE_SYMPLECTIC_CANDY_ROZMUS_4_4
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 .. index:: 4th-order Candy-Rozmus method
 
-Accessible via the constant ``ARKODE_SYMPLECTIC_CANDY_ROZMUS_4`` to
+Accessible via the constant ``ARKODE_SYMPLECTIC_CANDY_ROZMUS_4_4`` to
 :c:func:`ARKodeSPRKMem_Load()` or by calling :c:func:`ARKodeSymplecticCandyRozmus4`.
 This is the 4th order method given by Candy and Rozmus in :cite:p:`CandyRozmus:91`.
 
 
-ARKODE_SYMPLECTIC_MCLACHLAN_5
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+ARKODE_SYMPLECTIC_MCLACHLAN_5_6
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 .. index:: 5th-order McLachlan method
 
-Accessible via the constant ``ARKODE_SYMPLECTIC_MCLACHLAN_5`` to
+Accessible via the constant ``ARKODE_SYMPLECTIC_MCLACHLAN_5_6`` to
 :c:func:`ARKodeSPRKMem_Load()` or by calling :c:func:`ARKodeSymplecticMcLachlan5`.
 This is the 5th order method given by McLachlan in :cite:p:`Mclachlan:92`.
 
 
-ARKODE_SYMPLECTIC_YOSHIDA_6
-^^^^^^^^^^^^^^^^^^^^^^^^^^^
+ARKODE_SYMPLECTIC_YOSHIDA_6_8
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 .. index:: 6th-order Yoshida method
 
-Accessible via the constant ``ARKODE_SYMPLECTIC_YOSHIDA_6`` to
+Accessible via the constant ``ARKODE_SYMPLECTIC_YOSHIDA_6_8`` to
 :c:func:`ARKodeSPRKMem_Load()` or by calling :c:func:`ARKodeSymplecticYoshida6`.
 This is the 6th order method given by Yoshida in :cite:p:`Yoshida:90`.
 
 
-ARKODE_SYMPLECTIC_MCLACHLAN_8
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+ARKODE_SYMPLECTIC_MCLACHLAN_8_16
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 .. index:: 8th-order McLachlan method
 
-Accessible via the constant ``ARKODE_SYMPLECTIC_MCLACHLAN_8`` to
+Accessible via the constant ``ARKODE_SYMPLECTIC_MCLACHLAN_8_16`` to
 :c:func:`ARKodeSPRKMem_Load()` or by calling :c:func:`ARKodeSymplecticMcLachlan8`.
 This is the 8th order method given by McLachlan in :cite:p:`Mclachlan:92`.
 
 
-ARKODE_SYMPLECTIC_SOFRONIOU_10
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+ARKODE_SYMPLECTIC_SOFRONIOU_10_36
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 .. index:: 10th-order Sofroniou method
 
-Accessible via the constant ``ARKODE_SYMPLECTIC_SOFRONIOU_10`` to
+Accessible via the constant ``ARKODE_SYMPLECTIC_SOFRONIOU_10_36`` to
 :c:func:`ARKodeSPRKMem_Load()` or by calling :c:func:`ARKodeSymplecticSofroniou10`.
 This is the 10th order method given by Sofroniou in :cite:p:`Sofroniou:05`.

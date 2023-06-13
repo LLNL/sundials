@@ -352,29 +352,29 @@ ARKodeSPRKMem ARKodeSPRKMem_Alloc(int stages)
 ARKodeSPRKMem ARKodeSPRKMem_Load(ARKODE_SPRKMethodID id)
 {
   switch(id) {
-    case ARKODE_SYMPLECTIC_EULER_1:
+    case ARKODE_SYMPLECTIC_EULER_1_1:
       return ARKodeSymplecticEuler();
-    case ARKODE_SYMPLECTIC_LEAPFROG_2:
+    case ARKODE_SYMPLECTIC_LEAPFROG_2_2:
       return ARKodeSymplecticLeapfrog2();
-    case ARKODE_SYMPLECTIC_PSEUDO_LEAPFROG_2:
+    case ARKODE_SYMPLECTIC_PSEUDO_LEAPFROG_2_2:
       return ARKodeSymplecticPseudoLeapfrog2();
-    case ARKODE_SYMPLECTIC_RUTH_3:
+    case ARKODE_SYMPLECTIC_RUTH_3_3:
       return ARKodeSymplecticRuth3();
-    case ARKODE_SYMPLECTIC_MCLACHLAN_2:
+    case ARKODE_SYMPLECTIC_MCLACHLAN_2_2:
       return ARKodeSymplecticMcLachlan2();
-    case ARKODE_SYMPLECTIC_MCLACHLAN_3:
+    case ARKODE_SYMPLECTIC_MCLACHLAN_3_3:
       return ARKodeSymplecticMcLachlan3();
-    case ARKODE_SYMPLECTIC_MCLACHLAN_4:
+    case ARKODE_SYMPLECTIC_MCLACHLAN_4_4:
       return ARKodeSymplecticMcLachlan4();
-    case ARKODE_SYMPLECTIC_CANDY_ROZMUS_4:
+    case ARKODE_SYMPLECTIC_CANDY_ROZMUS_4_4:
       return ARKodeSymplecticCandyRozmus4();
-    case ARKODE_SYMPLECTIC_MCLACHLAN_5:
+    case ARKODE_SYMPLECTIC_MCLACHLAN_5_6:
       return ARKodeSymplecticMcLachlan5();
-    case ARKODE_SYMPLECTIC_YOSHIDA_6:
+    case ARKODE_SYMPLECTIC_YOSHIDA_6_8:
       return ARKodeSymplecticYoshida6();
-    case ARKODE_SYMPLECTIC_MCLACHLAN_8:
+    case ARKODE_SYMPLECTIC_MCLACHLAN_8_16:
       return ARKodeSymplecticMcLachlan8();
-    case ARKODE_SYMPLECTIC_SOFRONIOU_10:
+    case ARKODE_SYMPLECTIC_SOFRONIOU_10_36:
       return ARKodeSymplecticSofroniou10();
     default:
       return NULL;
