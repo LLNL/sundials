@@ -47,6 +47,8 @@ if(ENABLE_HYPRE)
   endif()
 endif()
 
+message(STATUS "Requested SUNDIALS HYPRE backend: ${SUNDIALS_HYPRE_BACKENDS}")
+
 if((SUNDIALS_HYPRE_BACKENDS MATCHES "CUDA") AND (NOT ENABLE_CUDA))
   message(FATAL_ERROR "HYPRE with a CUDA backend requires ENABLE_CUDA = ON")
 endif()
@@ -81,13 +83,12 @@ find_package(HYPRE CONFIG
 
 # Determine the backends
 foreach(_backend CUDA HIP)
-  message(CHECK_START "Was HYPRE built with ${_backend} backend?")
   file(STRINGS "${HYPRE_CONFIGH_PATH}" _hypre_has_backend REGEX "^#define HYPRE_USING_${_backend}")
   if(_hypre_has_backend)
     set(HYPRE_BACKENDS "${_backend};${HYPRE_BACKENDS}")
-    message(CHECK_PASS "Yes")
+    message(STATUS "HYPRE built with ${_backend} backend? - YES")
   else()
-    message(CHECK_FAIL "No")
+    message(STATUS "HYPRE built with ${_backend} backend? - NO")
   endif()
 endforeach()
 
@@ -95,8 +96,8 @@ endforeach()
 #                 HYPRE_RELEASE_DATE, HYPRE_RELEASE_TIME, HYPRE_RELEASE_BUGS,
 #                 HYPRE_DEVELOP_STRING, HYPRE_DEVELOP_NUMBER, HYPRE_DEVELOP_BRANCH,
 #                 HYPRE_BRANCH_NAME
-message(STATUS "HYPRE Version:  ${HYPRE_RELEASE_VERSION}.${HYPRE_RELEASE_NUMBER} ${HYPRE_RELEASE_DATE}")
-message(STATUS "HYPRE Backends: ${HYPRE_BACKENDS}")
+file(STRINGS "${HYPRE_CONFIGH_PATH}" _hypre_release_version REGEX "(?<=HYPRE_RELEASE_VERSION)[.\d]+")
+message(STATUS "HYPRE Version:  ${_hypre_release_version}")
 
 # CUDA linkage already performed in hypre/src/config/cmake/HYPRE_CMakeUtilities.cmake
 
@@ -106,12 +107,12 @@ message(STATUS "HYPRE Backends: ${HYPRE_BACKENDS}")
 
 if((SUNDIALS_HYPRE_BACKENDS MATCHES "CUDA") AND
    (NOT HYPRE_BACKENDS MATCHES "CUDA"))
-  print_error("Requested that SUNDIALS uses the CUDA hypre backend, but hypre was not built with the CUDA backend.")
+  print_error("Requested that SUNDIALS uses the CUDA HYPRE backend, but HYPRE was not built with the CUDA backend.")
 endif()
 
 if((SUNDIALS_HYPRE_BACKENDS MATCHES "HIP") AND
    (NOT HYPRE_BACKENDS MATCHES "HIP"))
-  print_error("Requested that SUNDIALS uses the HIP hypre backend, but hypre was not built with the HIP backend.")
+  print_error("Requested that SUNDIALS uses the HIP HYPRE backend, but HYPRE was not built with the HIP backend.")
 endif()
 
 if(HYPRE_FOUND AND (NOT HYPRE_WORKS))
