@@ -81,6 +81,14 @@ find_package(HYPRE CONFIG
              NO_DEFAULT_PATH
              REQUIRED)
 
+# Available info: HYPRE_RELEASE_NAME, HYPRE_RELEASE_VERSION, HYPRE_RELEASE_NUMBER,
+#                 HYPRE_RELEASE_DATE, HYPRE_RELEASE_TIME, HYPRE_RELEASE_BUGS,
+#                 HYPRE_DEVELOP_STRING, HYPRE_DEVELOP_NUMBER, HYPRE_DEVELOP_BRANCH,
+#                 HYPRE_BRANCH_NAME
+file(READ "${HYPRE_CONFIGH_PATH}" _hypre_config_file_text)
+string(REGEX MATCH "[0-9]+\.[0-9]+\.[0-9]+" _hypre_release_version "${_hypre_config_file_text}")
+message(STATUS "HYPRE Version: ${_hypre_release_version}")
+
 # Determine the backends
 foreach(_backend CUDA HIP)
   file(STRINGS "${HYPRE_CONFIGH_PATH}" _hypre_has_backend REGEX "^#define HYPRE_USING_${_backend}")
@@ -91,14 +99,6 @@ foreach(_backend CUDA HIP)
     message(STATUS "HYPRE built with ${_backend} backend? - NO")
   endif()
 endforeach()
-
-# Available info: HYPRE_RELEASE_NAME, HYPRE_RELEASE_VERSION, HYPRE_RELEASE_NUMBER,
-#                 HYPRE_RELEASE_DATE, HYPRE_RELEASE_TIME, HYPRE_RELEASE_BUGS,
-#                 HYPRE_DEVELOP_STRING, HYPRE_DEVELOP_NUMBER, HYPRE_DEVELOP_BRANCH,
-#                 HYPRE_BRANCH_NAME
-file(READ "${HYPRE_CONFIGH_PATH}" _hypre_config_file_text)
-string(REGEX MATCH "[0-9]+\.[0-9]+\.[0-9]+" _hypre_release_version _hypre_config_file_text)
-message(STATUS "HYPRE Version: ${_hypre_release_version}")
 
 # -----------------------------------------------------------------------------
 # Section 4: Test the TPL
