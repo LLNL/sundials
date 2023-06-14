@@ -105,6 +105,8 @@ typedef void (*CVErrHandlerFn)(int error_code,
 
 typedef int (*CVMonitorFn)(void *cvode_mem, void *user_data);
 
+typedef int (*CVResizeVecFn)(N_Vector y, N_Vector ytemplate, void *user_data);
+
 /* -------------------
  * Exported Functions
  * ------------------- */
@@ -116,7 +118,8 @@ SUNDIALS_EXPORT int CVodeInit(void *cvode_mem, CVRhsFn f, realtype t0,
                               N_Vector y0);
 SUNDIALS_EXPORT int CVodeReInit(void *cvode_mem, realtype t0, N_Vector y0);
 SUNDIALS_EXPORT int CVodeResizeHistory(void *cvode_mem, sunrealtype* times,
-                                       N_Vector* hist, int n_hist);
+                                       N_Vector* hist, int n_hist,
+                                       CVResizeVecFn resize_fn);
 
 /* Tolerance input functions */
 SUNDIALS_EXPORT int CVodeSStolerances(void *cvode_mem, realtype reltol,

@@ -723,16 +723,45 @@ realtype LBasisD3(int j, sunrealtype t, sunrealtype* t_hist)
 
 
 int CVodeResizeHistory(void *cvode_mem, sunrealtype* t_hist, N_Vector* y_hist,
-                       int n_hist)
+                       int n_hist, CVResizeVecFn resize_fn)
 {
   int retval = 0;
 
   if (!cvode_mem)
   {
-    cvProcessError(NULL, CV_MEM_NULL, "CVODE", "CVodeReInit", MSGCV_NO_MEM);
-    return(CV_MEM_NULL);
+    cvProcessError(NULL, CV_MEM_NULL, "CVODE", "CVodeResizeHistory",
+                   MSGCV_NO_MEM);
+    return CV_MEM_NULL;
   }
   CVodeMem cv_mem = (CVodeMem) cvode_mem;
+
+  if (!t_hist)
+  {
+    cvProcessError(cv_mem, CV_ILL_INPUT, "CVODE", "CVodeResizeHistory",
+                   "Time history array is NULL");
+    return CV_ILL_INPUT;
+  }
+
+  if (!y_hist)
+  {
+    cvProcessError(cv_mem, CV_ILL_INPUT, "CVODE", "CVodeResizeHistory",
+                   "State history array is NULL");
+    return CV_ILL_INPUT;
+  }
+
+  if (n_hist < 1)
+  {
+    cvProcessError(cv_mem, CV_ILL_INPUT, "CVODE", "CVodeResizeHistory",
+                   "Invalid history size value");
+    return CV_ILL_INPUT;
+  }
+
+  if (!resize_fn)
+  {
+    cvProcessError(cv_mem, CV_ILL_INPUT, "CVODE", "CVodeResizeHistory",
+                   "Resize function is NULL");
+    return CV_ILL_INPUT;
+  }
 
   /* Make sure number of inputs is sufficient for the current (next) order */
   /* Make sure times[0] == tn */
@@ -765,26 +794,73 @@ int CVodeResizeHistory(void *cvode_mem, sunrealtype* t_hist, N_Vector* y_hist,
   N_VDestroy(cv_mem->cv_vtemp3);
   cv_mem->cv_vtemp3 = N_VClone(tmpl);
 
+  /* If there could be an order change in the next step resize and fill the
+     saved correction vector to use in the q+1 error estimate */
+  if (((cv_mem->cv_qwait == 1) && (cv_mem->cv_q != cv_mem->cv_qmax)) ||
+      (cv_mem->cv_q != cv_mem->cv_qprime))
+  {
+    SUNLogger_QueueMsg(CV_LOGGER, SUN_LOGLEVEL_DEBUG,
+                       "CVODE::CVodeResizeHistory", "resize acor prev",
+                       "%s", "Resizing previous correction");
+    // resize_vector(old vec, new vec, user_data)
+    retval = resize_fn(cv_mem->cv_zn[cv_mem->cv_qmax], cv_mem->cv_tempv,
+                       cv_mem->cv_user_data);
+    if (retval)
+    {
+      // >>>>>
+      // TODO(DJG): Change return value
+      // <<<<<
+      cvProcessError(cv_mem, CV_ILL_INPUT, "CVODE", "CVodeResizeHistory",
+                     "Resize function is NULL");
+      return CV_ILL_INPUT;
+    }
+  }
+
   for (int j = 0; j <= maxord; j++)
   {
     N_VDestroy(cv_mem->cv_zn[j]);
     cv_mem->cv_zn[j] = N_VClone(tmpl);
+    // >>>>>
+    // TODO(DJG): Add option to set all values to NAN
+    // <<<<<
     N_VConst(NAN, cv_mem->cv_zn[j]);
-    /* Test 0: Input y_hist is actually a copy of zn */
-    /* N_VScale(ONE, y_hist[j], cv_mem->cv_zn[j]); */
+  }
+
+  if (((cv_mem->cv_qwait == 1) && (cv_mem->cv_q != cv_mem->cv_qmax)) ||
+      (cv_mem->cv_q != cv_mem->cv_qprime))
+  {
+    N_VScale(ONE, cv_mem->cv_tempv, cv_mem->cv_zn[cv_mem->cv_qmax]);
   }
 
   /* ------------------------- *
    * Construct Nordsieck Array *
    * ------------------------- */
 
-  /* Test 1: New hist is actually a copy of zn */
-  /* for (int j = 2; j <= maxord; j++) */
+  /* Test 0: Input y_hist is actually a copy of zn. Output should match that
+     from the problem without resizing except for the duplicated values. */
+  /* for (int j = 0; j <= maxord; j++) */
   /* { */
   /*   N_VScale(ONE, y_hist[j], cv_mem->cv_zn[j]); */
   /* } */
 
-  /* Test 2: Copy yn, evaluate fn, and limit to first order (externally) */
+  /* Test 1: Copy history but re-evaluate f */
+  /* for (int j = 0; j <= maxord; j++) */
+  /* { */
+  /*   N_VScale(ONE, y_hist[j], cv_mem->cv_zn[j]); */
+  /* } */
+
+  /* retval = cv_mem->cv_f(t_hist[0], y_hist[0], */
+  /*                       cv_mem->cv_zn[1], cv_mem->cv_user_data); */
+  /* cv_mem->cv_nfe++; */
+  /* if (retval) */
+  /* { */
+  /*   cvProcessError(cv_mem, CV_RHSFUNC_FAIL, "CVODE", "CVode", */
+  /*                  MSGCV_RHSFUNC_FAILED, cv_mem->cv_tn); */
+  /*   return CV_RHSFUNC_FAIL; */
+  /* } */
+  /* N_VScale(cv_mem->cv_hscale, cv_mem->cv_zn[1], cv_mem->cv_zn[1]); */
+
+  /* Test 3: Copy yn, evaluate fn, and limit to first order (externally) */
 
   /* zn[0] = y_n-1 */
   N_VScale(ONE, y_hist[0], cv_mem->cv_zn[0]);
@@ -801,27 +877,32 @@ int CVodeResizeHistory(void *cvode_mem, sunrealtype* t_hist, N_Vector* y_hist,
   }
   N_VScale(cv_mem->cv_hscale, cv_mem->cv_zn[1], cv_mem->cv_zn[1]);
 
+  /* for (int j = 2; j < maxord; j++) */
+  /* { */
+  /*   N_VScale(ONE, y_hist[j], cv_mem->cv_zn[j]); */
+  /* } */
+
   /* Test 3: Copy yn and evaluate fn (like above). Compute higher order
      derivatives from polynomial interpolant */
-  /* sunrealtype a[4]; */
+  sunrealtype a[4];
 
-  /* /\* (>= 2nd order) zn[2] = ((h_n-1)^2 / 2) * y''(t_n-1, y_n-1) *\/ */
-  /* if (cv_mem->cv_qprime >= 2) */
-  /* { */
-  /*   for (int j = 0; j < 3; j++) a[j] = LBasisD2(j, t_hist[0], t_hist); */
-  /*   N_VLinearCombination(3, a, y_hist, cv_mem->cv_zn[2]); */
-  /*   N_VScale((cv_mem->cv_hscale * cv_mem->cv_hscale) / TWO, */
-  /*            cv_mem->cv_zn[2], cv_mem->cv_zn[2]); */
-  /* } */
+  /* (>= 2nd order) zn[2] = ((h_n-1)^2 / 2) * y''(t_n-1, y_n-1) */
+  if (cv_mem->cv_qprime >= 2)
+  {
+    for (int j = 0; j < 3; j++) a[j] = LBasisD2(j, t_hist[0], t_hist);
+    N_VLinearCombination(3, a, y_hist, cv_mem->cv_zn[2]);
+    N_VScale((cv_mem->cv_hscale * cv_mem->cv_hscale) / TWO,
+             cv_mem->cv_zn[2], cv_mem->cv_zn[2]);
+  }
 
   /* (>= 3rd order) zn[3] = ((h_n-1)^3 / 6) * y'''(t_n-1, y_n-1) */
-  /* if (cv_mem->cv_qprimt >= 3) */
-  /* { */
-  /*   for (int j = 0; j < 4; j++) a[j] = LBasisD3(j, t_hist[0], t_hist); */
-  /*   N_VLinearCombination(4, a, y_hist, cv_mem->cv_zn[3]); */
-  /*   N_VScale((cv_mem->cv_hscale * cv_mem->cv_hscale * cv_mem->cv_hscale) / SUN_RCONST(6.0), */
-  /*            cv_mem->cv_zn[3], cv_mem->cv_zn[3]); */
-  /* } */
+  if (cv_mem->cv_qprime >= 3)
+  {
+    for (int j = 0; j < 4; j++) a[j] = LBasisD3(j, t_hist[0], t_hist);
+    N_VLinearCombination(4, a, y_hist, cv_mem->cv_zn[3]);
+    N_VScale((cv_mem->cv_hscale * cv_mem->cv_hscale * cv_mem->cv_hscale) / SUN_RCONST(6.0),
+             cv_mem->cv_zn[3], cv_mem->cv_zn[3]);
+  }
 
   /* >>>
      Do we need to adjust q and qprime and not apply order change update?
@@ -3404,8 +3485,9 @@ static void cvCompleteStep(CVodeMem cv_mem)
 
 #if SUNDIALS_LOGGING_LEVEL >= SUNDIALS_LOGGING_DEBUG
   SUNLogger_QueueMsg(CV_LOGGER, SUN_LOGLEVEL_DEBUG,
-    "CVODE::cvCompleteStep", "return",
-    "nst = %d, nscon = %d", cv_mem->cv_nst, cv_mem->cv_nscon);
+                     "CVODE::cvCompleteStep", "return",
+                     "nst = %d, qwait = %d, nscon = %d",
+                     cv_mem->cv_nst, cv_mem->cv_qwait, cv_mem->cv_nscon);
 #endif
 }
 
@@ -3450,7 +3532,7 @@ static void cvPrepareNextStep(CVodeMem cv_mem, realtype dsm)
 #if SUNDIALS_LOGGING_LEVEL >= SUNDIALS_LOGGING_DEBUG
   SUNLogger_QueueMsg(CV_LOGGER, SUN_LOGLEVEL_DEBUG,
     "CVODE::cvPrepareNextStep", "return",
-    "eta = %.16g, hprime = %.16g, qprime = %d, qwait = %d\n",
+    "eta = %.16g, hprime = %.16g, qprime = %d, qwait = %d",
     cv_mem->cv_eta, cv_mem->cv_hprime, cv_mem->cv_qprime, cv_mem->cv_qwait);
 #endif
 }

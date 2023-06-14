@@ -48,6 +48,22 @@ int ode_jac(realtype t, N_Vector y, N_Vector fy, SUNMatrix J, void* user_data,
   return PR_Jac(t, y, J, udata);
 }
 
+int resize_vec(N_Vector v_in, N_Vector v_out, void* user_data)
+{
+  sunrealtype* v_in_data  = N_VGetArrayPointer(v_in);
+  sunrealtype* v_out_data = N_VGetArrayPointer(v_out);
+
+  sunindextype N = N_VGetLocalLength(v_in);
+
+  for (int i = 0; i < N; i++)
+  {
+    v_out_data[i] = v_in_data[i];
+  }
+  v_out_data[N] = v_in_data[N - 1];
+
+  return 0;
+}
+
 // Print CVODE Nordsieck History Array
 int PrintNordsieck(int step, sunrealtype* thist, N_Vector tmp, N_Vector* zn,
                    sunrealtype step_size, int order, PRData& udata)
@@ -160,6 +176,12 @@ int main(int argc, char* argv[])
   // SUNDIALS context object for this simulation
   sundials::Context sunctx;
 
+  int resize = 0;
+  if (argc > 1)
+  {
+    resize = atoi(argv[1]);
+  }
+
   // Create problem data structure
   PRData udata;
 
@@ -202,8 +224,8 @@ int main(int argc, char* argv[])
   if (check_flag(flag, "CVodeSetUserData")) return 1;
 
   // Limit max order
-  flag = CVodeSetMaxOrd(cvode_mem, 1);
-  if (check_flag(flag, "CVodeSetMaxOrd")) return 1;
+  // flag = CVodeSetMaxOrd(cvode_mem, 1);
+  // if (check_flag(flag, "CVodeSetMaxOrd")) return 1;
 
   // Initial time and final times
   sunrealtype tf = SUN_RCONST(10.0);
@@ -223,12 +245,17 @@ int main(int argc, char* argv[])
   N_Vector ytmp = N_VClone(y);
   if (check_ptr(ytmp, "N_VClone")) return 1;
 
+  N_Vector* yhist = N_VCloneVectorArray(6, y);
+  if (check_ptr(yhist, "N_VCloneVectorArray")) return 1;
+
+  sunrealtype thist[6] = {ZERO, ZERO, ZERO, ZERO, ZERO, ZERO};
+
   // Advance in time
   // 11 steps - reach 2nd order
   // 14 steps - reach 3rd order
   // 22 steps - reach 4th order
   // 27 steps - reach 5th order
-  for (int i = 1; i <= 11; i++)
+  for (int i = 1; i <= 22; i++)
   {
     flag = CVode(cvode_mem, tf, y, &(tret[i]), CV_ONE_STEP);
     if (check_flag(flag, "CVode")) return 1;
@@ -238,63 +265,97 @@ int main(int argc, char* argv[])
               << " | Step Size: " << std::setw(21) << cv_mem->cv_h
               << " | Order: " << cv_mem->cv_q << std::endl;
 
-    // Print Nordsieck array
+    std::cout << "\n==========\nEnd Step - Start Resize Step\n==========\n";
+
+    // Print Nordsieck array (length q_max + 1)
+    // PrintNordsieck(i, tret, ytmp, cv_mem->cv_zn, cv_mem->cv_h,
+    //                cv_mem->cv_q, udata);
     PrintNordsieck(i, tret, ytmp, cv_mem->cv_zn, cv_mem->cv_h,
-                   cv_mem->cv_q, udata);
+                   6, udata);
     if (check_flag(flag, "PrintNordsieck")) return 1;
 
-    // Test 0/1: Copy the Nordsieck array
-    N_VDestroy(y);
-    N_VDestroy(ytmp);
-    y = N_VNew_Serial(i + 1, sunctx);
-    ytmp = N_VClone(y);
-    N_Vector* znew = N_VCloneVectorArray(6, y);
-    for (int j = 0; j <= 5; j++)
+    if (resize == 1)
     {
-      sunrealtype* zdata    = N_VGetArrayPointer(cv_mem->cv_zn[j]);
-      sunrealtype* znewdata = N_VGetArrayPointer(znew[j]);
-      for (int k = 0; k < i + 1; k++)
+      // Test 1: Copy and expand the Nordsieck array
+      N_VDestroy(y);
+      N_VDestroy(ytmp);
+      y = N_VNew_Serial(i + 1, sunctx);
+      ytmp = N_VClone(y);
+      N_Vector* znew = N_VCloneVectorArray(6, y);
+      for (int j = 0; j <= 5; j++)
       {
-        znewdata[k] = zdata[0];
+        sunrealtype* zdata    = N_VGetArrayPointer(cv_mem->cv_zn[j]);
+        sunrealtype* znewdata = N_VGetArrayPointer(znew[j]);
+        for (int k = 0; k < i + 1; k++)
+        {
+          znewdata[k] = zdata[0];
+        }
       }
+      flag = CVodeResizeHistory(cvode_mem, &tret[i], znew, 5, resize_vec);
+      if (check_flag(flag, "CVodeResizeHistory")) return 1;
+      N_VDestroyVectorArray(znew, 6);
+
+      // "Resize" the nonlinear solver
+      SUNNonlinSolFree(NLS);
+      NLS = SUNNonlinSol_FixedPoint(y, 2, sunctx);
+      if (check_ptr(NLS, "SUNNonlinSol_FixedPoint")) return 1;
+
+      flag = CVodeSetNonlinearSolver(cvode_mem, NLS);
+      if (check_flag(flag, "CVodeSetNonlinearSolver")) return 1;
+
+      flag = CVodeSetMaxNonlinIters(cvode_mem, 10);
+      if (check_flag(flag, "CVodeSetMaxNonlinIters")) return 1;
     }
-    flag = CVodeResizeHistory(cvode_mem, &tret[i], znew, 5);
-    if (check_flag(flag, "CVodeResizeHistory")) return 1;
-    N_VDestroyVectorArray(znew, 6);
+    else if (resize == 2)
+    {
+      // Test 2: Copy and expand the state
 
-    // "Resize" the nonlinear solver
-    SUNNonlinSolFree(NLS);
-    NLS = SUNNonlinSol_FixedPoint(y, 2, sunctx);
-    if (check_ptr(NLS, "SUNNonlinSol_FixedPoint")) return 1;
+      // Shuffle times and vectors over
+      for (int j = 5; j > 0; j--)
+      {
+        thist[j] = thist[j - 1];
+        N_VScale(ONE, yhist[j - 1], yhist[j]);
 
-    flag = CVodeSetNonlinearSolver(cvode_mem, NLS);
-    if (check_flag(flag, "CVodeSetNonlinearSolver")) return 1;
+      }
 
-    flag = CVodeSetMaxNonlinIters(cvode_mem, 10);
-    if (check_flag(flag, "CVodeSetMaxNonlinIters")) return 1;
+      // Copy in newest time and vector
+      thist[0] = tret[i];
+      N_VScale(ONE, y, yhist[0]);
 
-    // Test 2: Interpolate past values
-    // sunrealtype t_hist[4];
-    // N_Vector y_hist[4];
-    // int j_limit = std::min(i, 4);
-    // for (int j = 0; j < j_limit; j++)
-    // {
-    //   t_hist[0] = tret[i-j];
-    // }
+      // Resize all vectors
+      for (int j = 0; j <= 5; j++)
+      {
+        sunrealtype* old_data = N_VGetArrayPointer(yhist[j]);
 
-    // flag = CVodeResizeHistory(cvode_mem, t_hist, y_hist, 0);
-    // if (check_flag(flag, "CVodeResizeHistory")) return 1;
+        N_Vector new_vec = N_VNew_Serial(i + 1, sunctx);
+        sunrealtype* new_data = N_VGetArrayPointer(new_vec);
+        for (int k = 0; k < i + 1; k++)
+        {
+          new_data[k] = old_data[0];
+        }
+        N_VDestroy(yhist[j]);
+        yhist[j] = new_vec;
+      }
 
-    // // "Resize" the nonlinear solver
-    // SUNNonlinSolFree(NLS);
-    // NLS = SUNNonlinSol_FixedPoint(y, 2, sunctx);
-    // if (check_ptr(NLS, "SUNNonlinSol_FixedPoint")) return 1;
+      N_VDestroy(y);
+      N_VDestroy(ytmp);
+      y = N_VNew_Serial(i + 1, sunctx);
+      ytmp = N_VClone(y);
 
-    // flag = CVodeSetNonlinearSolver(cvode_mem, NLS);
-    // if (check_flag(flag, "CVodeSetNonlinearSolver")) return 1;
+      flag = CVodeResizeHistory(cvode_mem, thist, yhist, 5, resize_vec);
+      if (check_flag(flag, "CVodeResizeHistory")) return 1;
 
-    // flag = CVodeSetMaxNonlinIters(cvode_mem, 10);
-    // if (check_flag(flag, "CVodeSetMaxNonlinIters")) return 1;
+      // "Resize" the nonlinear solver
+      SUNNonlinSolFree(NLS);
+      NLS = SUNNonlinSol_FixedPoint(y, 2, sunctx);
+      if (check_ptr(NLS, "SUNNonlinSol_FixedPoint")) return 1;
+
+      flag = CVodeSetNonlinearSolver(cvode_mem, NLS);
+      if (check_flag(flag, "CVodeSetNonlinearSolver")) return 1;
+
+      flag = CVodeSetMaxNonlinIters(cvode_mem, 10);
+      if (check_flag(flag, "CVodeSetMaxNonlinIters")) return 1;
+    };
   }
   std::cout << std::endl;
 
@@ -305,6 +366,7 @@ int main(int argc, char* argv[])
   // Clean up and return with successful completion
   N_VDestroy(y);
   N_VDestroy(ytmp);
+  N_VDestroyVectorArray(yhist, 6);
   SUNNonlinSolFree(NLS);
   CVodeFree(&cvode_mem);
 
