@@ -66,16 +66,16 @@ message(STATUS "HYPRE_INCLUDE_DIR: ${HYPRE_INCLUDE_DIR}")
 
 #TODO verify this is good code -jsdomine
 
-# Find the hypre library configuration file (in build directory)
+# Find the hypre library configuration file (HYPRE_config.h)
 find_file(HYPRE_CONFIGH_PATH HYPRE_config.h
           HINTS "${HYPRE_DIR}"
-          PATH_SUFFIXES src src/cmbuild
+          PATH_SUFFIXES include
           NO_DEFAULT_PATH)
 mark_as_advanced(FORCE HYPRE_CONFIGH_PATH)
 
-# Look for CMake configuration file in hypre installation
+# Look for CMake configuration file in hypre installation (HYPREConfig.cmake)
 find_package(HYPRE CONFIG
-             PATHS "${HYPRE_DIR}" "${HYPRE_DIR}/src/cmbuild"
+             HINTS "${HYPRE_DIR}"
              NO_DEFAULT_PATH
              REQUIRED)
 
