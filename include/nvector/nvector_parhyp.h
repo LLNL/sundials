@@ -49,6 +49,11 @@
 /* hypre header files */
 #include <_hypre_parcsr_mv.h>
 
+/* TEMPORARY test of HYPRE backend detection */
+#ifdef SUNDIALS_HYPRE_BACKENDS_CUDA
+#pragma message "HYPRE CUDA backend confirmed from nvector_parhyp.h"
+#endif
+
 #ifdef __cplusplus  /* wrapper to enable C++ usage */
 extern "C" {
 #endif

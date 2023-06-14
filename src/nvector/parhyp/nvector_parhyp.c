@@ -30,6 +30,11 @@
 #define ONE    RCONST(1.0)
 #define ONEPT5 RCONST(1.5)
 
+/* TEMPORARY test of HYPRE backend detection */
+#ifdef SUNDIALS_HYPRE_BACKENDS_CUDA
+#pragma message "HYPRE CUDA backend confirmed from nvector_parhyp.c"
+#endif
+
 /*
  * -----------------------------------------------------------------
  * Simplifying macros NV_CONTENT_PH, NV_DATA_PH, NV_LOCLENGTH_PH,
