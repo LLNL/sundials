@@ -96,7 +96,7 @@ endforeach()
 #                 HYPRE_RELEASE_DATE, HYPRE_RELEASE_TIME, HYPRE_RELEASE_BUGS,
 #                 HYPRE_DEVELOP_STRING, HYPRE_DEVELOP_NUMBER, HYPRE_DEVELOP_BRANCH,
 #                 HYPRE_BRANCH_NAME
-file(STRINGS "${HYPRE_CONFIGH_PATH}" _hypre_release_version REGEX "\d+\.\d+\.\d+")
+file(STRINGS "${HYPRE_CONFIGH_PATH}" _hypre_release_version REGEX "[0-9]+\.[0-9]+\.[0-9]+")
 message(STATUS "HYPRE Version:  ${_hypre_release_version}")
 
 # CUDA linkage already performed in hypre/src/config/cmake/HYPRE_CMakeUtilities.cmake
