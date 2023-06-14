@@ -37,7 +37,7 @@ endif()
 # -----------------------------------------------------------------------------
 
 if(ENABLE_HYPRE)
-  # Using hypre requres building with MPI enabled
+  # Using hypre requires building with MPI enabled
   if(NOT ENABLE_MPI)
     print_error("MPI is required for hypre support. Set ENABLE_MPI to ON.")
   endif()
@@ -45,6 +45,14 @@ if(ENABLE_HYPRE)
   if(CMAKE_C_STANDARD STREQUAL "90")
     message(SEND_ERROR "CMAKE_C_STANDARD must be >= c99 with ENABLE_HYPRE=ON")
   endif()
+endif()
+
+if((SUNDIALS_HYPRE_BACKENDS MATCHES "CUDA") AND (NOT ENABLE_CUDA))
+  message(FATAL_ERROR "HYPRE with a CUDA backend requires ENABLE_CUDA = ON")
+endif()
+
+if((SUNDIALS_HYPRE_BACKENDS MATCHES "HIP") AND (NOT ENABLE_HIP))
+  message(FATAL_ERROR "HYPRE with a HIP backend requires ENABLE_HIP = ON")
 endif()
 
 # -----------------------------------------------------------------------------
@@ -55,6 +63,31 @@ find_package(HYPRE REQUIRED)
 
 message(STATUS "HYPRE_LIBRARIES:   ${HYPRE_LIBRARIES}")
 message(STATUS "HYPRE_INCLUDE_DIR: ${HYPRE_INCLUDE_DIR}")
+
+#TODO verify this is good code -jsdomine
+
+# Find the library configuration file
+find_file(HYPRE_CONFIGH_PATH HYPRE_config.h
+          HINTS "${HYPRE_DIR}"
+          PATH_SUFFIXES src src/cmbuild
+          NO_DEFAULT_PATH)
+mark_as_advanced(FORCE HYPRE_CONFIGH_PATH)
+
+# Look for CMake configuration file in hypre installation
+find_package(HYPRE CONFIG
+             PATHS "${HYPRE_DIR}" "${HYPRE_DIR}/src/cmbuild"
+             NO_DEFAULT_PATH
+             REQUIRED)
+
+# Determine the backends
+foreach(_backend CUDA HIP)
+  file(STRINGS "${HYPRE_CONFIGH_PATH}" _hypre_has_backend REGEX "^#define HYPRE_USING_${_backend}\$")
+  if(_hypre_has_backend)
+    set(HYPRE_BACKENDS "${_backend};${HYPRE_BACKENDS}")
+  endif()
+endforeach()
+
+#TODO add remaining checks following SundialsRAJA.cmake
 
 # -----------------------------------------------------------------------------
 # Section 4: Test the TPL
