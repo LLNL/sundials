@@ -132,7 +132,10 @@ void SUNControlDestroy(SUNControl C);
 /* Main step size controller function.  This is called following
    a time step with size 'h' and local error factor 'dsm', and the
    controller should estimate 'hnew' so that the ensuing step
-   will have 'dsm' value JUST BELOW 1. */
+   will have 'dsm' value JUST BELOW 1.
+
+   Any return value other than SUNCONTROL_SUCCESS will be treated as
+   an unrecoverable failure. */
 SUNDIALS_EXPORT
 int SUNControlEstimateStep(SUNControl C, realtype h, realtype dsm,
                            realtype* hnew);
@@ -223,7 +226,8 @@ int SUNControlSpace(SUNControl C, long int *lenrw, long int *leniw);
 #define SUNCONTROL_SUCCESS           0     /* function successfull        */
 #define SUNCONTROL_ILL_INPUT         -1001 /* illegal function input      */
 #define SUNCONTROL_MEM_FAIL          -1002 /* failed memory access/alloc  */
-#define SUNCONTROL_OPERATION_FAIL    -1003 /* catchall failure code       */
+#define SUNCONTROL_USER_FCN_FAIL     -1103 /* user-supplied fcn failure */
+#define SUNCONTROL_OPERATION_FAIL    -1004 /* catchall failure code       */
 
 #ifdef __cplusplus
 }

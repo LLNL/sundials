@@ -1125,11 +1125,23 @@ int arkStep_Init(void* arkode_mem, int init_type)
 
     /* Retrieve/store method and embedding orders now that tables are finalized */
     if (step_mem->Bi != NULL) {
-      step_mem->q = ark_mem->hadapt_mem->q = step_mem->Bi->q;
-      step_mem->p = ark_mem->hadapt_mem->p = step_mem->Bi->p;
+      step_mem->q = step_mem->Bi->q;
+      step_mem->p = step_mem->Bi->p;
     } else {
-      step_mem->q = ark_mem->hadapt_mem->q = step_mem->Be->q;
-      step_mem->p = ark_mem->hadapt_mem->p = step_mem->Be->p;
+      step_mem->q = step_mem->Be->q;
+      step_mem->p = step_mem->Be->p;
+    }
+    retval = SUNControlSetMethodOrder(ark_mem->hcontroller, step_mem->q);
+    if (retval != ARK_SUCCESS) {
+      arkProcessError(ark_mem, ARK_CONTROLLER_ERR, "ARKODE::ARKStep",
+                      "arkStep_Init", "SUNControlSetMethodOrder error");
+      return(ARK_CONTROLLER_ERR);
+    }
+    retval = SUNControlSetEmbeddingOrder(ark_mem->hcontroller, step_mem->p);
+    if (retval != ARK_SUCCESS) {
+      arkProcessError(ark_mem, ARK_CONTROLLER_ERR, "ARKODE::ARKStep",
+                      "arkStep_Init", "SUNControlSetEmbeddingOrder error");
+      return(ARK_CONTROLLER_ERR);
     }
 
     /* Ensure that if adaptivity is enabled, then method includes embedding coefficients */

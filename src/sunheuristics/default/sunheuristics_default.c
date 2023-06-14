@@ -147,15 +147,7 @@ int SUNHeuristicsConstrainStep_Default(SUNHeuristics H, realtype hcur,
   realtype h_cfl = RCONST(1.0e3) * SUNRabs(hcur);
   if (SH_EXPSTAB(H) != NULL)
   {
-    /* NEED TO FIGURE OUT HOW TO GET (t,y) FROM INTEGRATOR TO PASS INTO THIS!  Options:
-       (a) add (t,y) to the argument list for SUNHeuristicsConstrainStep,
-       (b) remove (t,y) from this function prototype, and have ARKODE provide a function
-           with this signature that wraps the user-provided function, supplying its own
-           "current" (t,y) values.
-       Issue with (a): other integrators might also want ydot or the current f.
-       Issue with (b): depending on when this function is called, ARKODE might not have a
-           consistent (t,y) pair. */
-    /**** retval = SH_EXPSTAB(H)(y, t, &h_cfl, SH_ESTAB_DATA(H)); ****/
+    retval = SH_EXPSTAB(H)(&h_cfl, SH_ESTAB_DATA(H));
     if (retval != 0) { return SUNHEURISTICS_USER_FCN_FAIL; }
     h_cfl *= int_dir * SH_CFL(H);
   }

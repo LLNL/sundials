@@ -23,8 +23,18 @@
 
 #include "arkode_impl.h"
 #include "arkode_interp_impl.h"
+#include "arkode_user_controller.h"
 #include <sundials/sundials_math.h>
 #include <sundials/sundials_types.h>
+#include <suncontrol/suncontrol_pid.h>
+#include <suncontrol/suncontrol_pi.h>
+#include <suncontrol/suncontrol_i.h>
+#include <suncontrol/suncontrol_expgus.h>
+#include <suncontrol/suncontrol_impgus.h>
+#include <suncontrol/suncontrol_imexgus.h>
+#include <suncontrol/suncontrol_fixed.h>
+#include <sunheuristics/sunheuristics_default.h>
+#include <sunheuristics/sunheuristics_unconstrained.h>
 
 
 /*===============================================================
@@ -43,6 +53,7 @@
 int arkSetDefaults(void *arkode_mem)
 {
   ARKodeMem ark_mem;
+  int retval;
   if (arkode_mem==NULL) {
     arkProcessError(NULL, ARK_MEM_NULL, "ARKODE",
                     "arkSetDefaults", MSG_ARK_NO_MEM);
@@ -83,26 +94,15 @@ int arkSetDefaults(void *arkode_mem)
   ark_mem->tstop                   = ZERO;           /* no fixed stop time */
   ark_mem->diagfp                  = NULL;           /* no solver diagnostics file */
   ark_mem->report                  = SUNFALSE;       /* don't report solver diagnostics */
-  ark_mem->hadapt_mem->etamx1      = ETAMX1;         /* max change on first step */
-  ark_mem->hadapt_mem->etamxf      = ETAMXF;         /* max change on error-failed step */
-  ark_mem->hadapt_mem->etamin      = ETAMIN;         /* min bound on time step reduction */
-  ark_mem->hadapt_mem->small_nef   = SMALL_NEF;      /* num error fails before ETAMXF enforced */
-  ark_mem->hadapt_mem->etacf       = ETACF;          /* max change on convergence failure */
-  ark_mem->hadapt_mem->HAdapt      = NULL;           /* step adaptivity fn */
-  ark_mem->hadapt_mem->HAdapt_data = NULL;           /* step adaptivity data */
-  ark_mem->hadapt_mem->imethod     = ARK_ADAPT_PID;  /* PID controller */
-  ark_mem->hadapt_mem->cfl         = CFLFAC;         /* explicit stability factor */
-  ark_mem->hadapt_mem->safety      = SAFETY;         /* step adaptivity safety factor  */
-  ark_mem->hadapt_mem->bias        = BIAS;           /* step adaptivity error bias */
-  ark_mem->hadapt_mem->growth      = GROWTH;         /* step adaptivity growth factor */
-  ark_mem->hadapt_mem->lbound      = HFIXED_LB;      /* step adaptivity no-change lower bound */
-  ark_mem->hadapt_mem->ubound      = HFIXED_UB;      /* step adaptivity no-change upper bound */
-  ark_mem->hadapt_mem->k1          = AD0_K1;         /* step adaptivity parameter */
-  ark_mem->hadapt_mem->k2          = AD0_K2;         /* step adaptivity parameter */
-  ark_mem->hadapt_mem->k3          = AD0_K3;         /* step adaptivity parameter */
-  ark_mem->hadapt_mem->pq          = SUNFALSE;       /* use embedding order */
-  ark_mem->hadapt_mem->expstab     = arkExpStab;     /* internal explicit stability fn */
-  ark_mem->hadapt_mem->estab_data  = NULL;           /* no explicit stability fn data */
+
+  /* Set default values for controller object */
+  retval = SUNControlSetDefaults(ark_mem->hcontroller);
+  if (retval != SUNCONTROL_SUCCESS) { return(ARK_CONTROLLER_ERR); }
+
+  /* Set default values for heuristics object */
+  retval = SUNHeuristicsSetDefaults(ark_mem->hconstraints);
+  if (retval != SUNHEURISTICS_SUCCESS) { return(ARK_HEURISTICS_ERR); }
+
   return(ARK_SUCCESS);
 }
 
@@ -326,6 +326,106 @@ int arkSetDiagnostics(void *arkode_mem, FILE *diagfp)
 
 
 /*---------------------------------------------------------------
+  arkSetController:
+
+  Specifies a non-default SUNControl time step controller object.
+  If a NULL-valued SUNControl is input, the default will be
+  re-enabled.
+  ---------------------------------------------------------------*/
+int arkSetController(void *arkode_mem, SUNControl C)
+{
+  int retval;
+  long int lenrw, leniw;
+  ARKodeMem ark_mem;
+  if (arkode_mem==NULL) {
+    arkProcessError(NULL, ARK_MEM_NULL, "ARKODE",
+                    "arkSetController", MSG_ARK_NO_MEM);
+    return(ARK_MEM_NULL);
+  }
+  ark_mem = (ARKodeMem) arkode_mem;
+
+  /* Remove current SUNControl object */
+  retval = SUNControlSpace(ark_mem->hcontroller, &lenrw, &leniw);
+  if (retval == SUNCONTROL_SUCCESS) {
+    ark_mem->liw -= leniw;
+    ark_mem->lrw -= lenrw;
+  }
+  SUNControlDestroy(ark_mem->hcontroller);
+  ark_mem->hcontroller = NULL;
+
+  /* On NULL-valued input, create default SUNControl object */
+  if (C == NULL) {
+    C = SUNControlPID(ark_mem->sunctx);
+    if (C == NULL) {
+      arkProcessError(ark_mem, ARK_MEM_FAIL, "ARKODE", "arkSetController",
+                      "SUNControlPID allocation failure");
+      return(ARK_MEM_FAIL);
+    }
+  }
+
+  /* Attach new SUNControl object */
+  retval = SUNControlSpace(C, &lenrw, &leniw);
+  if (retval == SUNCONTROL_SUCCESS) {
+    ark_mem->liw += leniw;
+    ark_mem->lrw += lenrw;
+  }
+  ark_mem->hcontroller = C;
+
+  return(ARK_SUCCESS);
+}
+
+
+/*---------------------------------------------------------------
+  arkSetHeuristics:
+
+  Specifies a non-default SUNHeuristics time step constraints
+  object. If a NULL-valued SUNHeuristics is input, the default
+  will be re-enabled.
+  ---------------------------------------------------------------*/
+int arkSetHeuristics(void *arkode_mem, SUNHeuristics H)
+{
+  int retval;
+  long int lenrw, leniw;
+  ARKodeMem ark_mem;
+  if (arkode_mem==NULL) {
+    arkProcessError(NULL, ARK_MEM_NULL, "ARKODE",
+                    "arkSetHeuristics", MSG_ARK_NO_MEM);
+    return(ARK_MEM_NULL);
+  }
+  ark_mem = (ARKodeMem) arkode_mem;
+
+  /* Remove current SUNHeuristics object */
+  retval = SUNHeuristicsSpace(ark_mem->hconstraints, &lenrw, &leniw);
+  if (retval == SUNHEURISTICS_SUCCESS) {
+    ark_mem->liw -= leniw;
+    ark_mem->lrw -= lenrw;
+  }
+  SUNHeuristicsDestroy(ark_mem->hconstraints);
+  ark_mem->hconstraints = NULL;
+
+  /* On NULL-valued input, create default SUNHeuristics object */
+  if (H == NULL) {
+    H = SUNHeuristicsDefault(ark_mem->sunctx);
+    if (H == NULL) {
+      arkProcessError(ark_mem, ARK_MEM_FAIL, "ARKODE", "arkSetHeuristics",
+                      "SUNHeuristicsDefault allocation failure");
+      return(ARK_MEM_FAIL);
+    }
+  }
+
+  /* Attach new SUNHeuristics object */
+  retval = SUNHeuristicsSpace(H, &lenrw, &leniw);
+  if (retval == SUNCONTROL_SUCCESS) {
+    ark_mem->liw += leniw;
+    ark_mem->lrw += lenrw;
+  }
+  ark_mem->hconstraints = H;
+
+  return(ARK_SUCCESS);
+}
+
+
+/*---------------------------------------------------------------
   arkSetMaxNumSteps:
 
   Specifies the maximum number of integration steps
@@ -384,6 +484,7 @@ int arkSetMaxHnilWarns(void *arkode_mem, int mxhnil)
 int arkSetInitStep(void *arkode_mem, realtype hin)
 {
   ARKodeMem ark_mem;
+  int retval;
   if (arkode_mem==NULL) {
     arkProcessError(NULL, ARK_MEM_NULL, "ARKODE",
                     "arkSetInitStep", MSG_ARK_NO_MEM);
@@ -401,83 +502,9 @@ int arkSetInitStep(void *arkode_mem, realtype hin)
   /* Clear previous initial step */
   ark_mem->h0u = ZERO;
 
-  /* Clear error and step size history */
-  ark_mem->hadapt_mem->ehist[0] = ONE;
-  ark_mem->hadapt_mem->ehist[1] = ONE;
-  ark_mem->hadapt_mem->hhist[0] = ZERO;
-  ark_mem->hadapt_mem->hhist[1] = ZERO;
-
-  return(ARK_SUCCESS);
-}
-
-
-/*---------------------------------------------------------------
-  arkSetMinStep:
-
-  Specifies the minimum step size
-  ---------------------------------------------------------------*/
-int arkSetMinStep(void *arkode_mem, realtype hmin)
-{
-  ARKodeMem ark_mem;
-  if (arkode_mem==NULL) {
-    arkProcessError(NULL, ARK_MEM_NULL, "ARKODE",
-                    "arkSetMinStep", MSG_ARK_NO_MEM);
-    return(ARK_MEM_NULL);
-  }
-  ark_mem = (ARKodeMem) arkode_mem;
-
-  /* Passing a value <= 0 sets hmin = 0 */
-  if (hmin <= ZERO) {
-    ark_mem->hmin = ZERO;
-    return(ARK_SUCCESS);
-  }
-
-  /* check that hmin and hmax are agreeable */
-  if (hmin * ark_mem->hmax_inv > ONE) {
-    arkProcessError(ark_mem, ARK_ILL_INPUT, "ARKODE",
-                    "arkSetMinStep", MSG_ARK_BAD_HMIN_HMAX);
-    return(ARK_ILL_INPUT);
-  }
-
-  /* set the value */
-  ark_mem->hmin = hmin;
-
-  return(ARK_SUCCESS);
-}
-
-
-/*---------------------------------------------------------------
-  arkSetMaxStep:
-
-  Specifies the maximum step size
-  ---------------------------------------------------------------*/
-int arkSetMaxStep(void *arkode_mem, realtype hmax)
-{
-  realtype hmax_inv;
-  ARKodeMem ark_mem;
-  if (arkode_mem==NULL) {
-    arkProcessError(NULL, ARK_MEM_NULL, "ARKODE",
-                    "arkSetMaxStep", MSG_ARK_NO_MEM);
-    return (ARK_MEM_NULL);
-  }
-  ark_mem = (ARKodeMem) arkode_mem;
-
-  /* Passing a value <= 0 sets hmax = infinity */
-  if (hmax <= ZERO) {
-    ark_mem->hmax_inv = ZERO;
-    return(ARK_SUCCESS);
-  }
-
-  /* check that hmax and hmin are agreeable */
-  hmax_inv = ONE/hmax;
-  if (hmax_inv * ark_mem->hmin > ONE) {
-    arkProcessError(ark_mem, ARK_ILL_INPUT, "ARKODE",
-                    "arkSetMaxStep", MSG_ARK_BAD_HMIN_HMAX);
-    return(ARK_ILL_INPUT);
-  }
-
-  /* set the value */
-  ark_mem->hmax_inv = hmax_inv;
+  /* Reset error controller (e.g., error and step size history) */
+  retval = SUNControlReset(ark_mem->hcontroller);
+  if (retval != SUNCONTROL_SUCCESS) { return(ARK_CONTROLLER_ERR); }
 
   return(ARK_SUCCESS);
 }
@@ -540,22 +567,28 @@ int arkClearStopTime(void *arkode_mem)
 
 
 /*---------------------------------------------------------------
-  arkSetFixedStep:
+  arkSetFixedStep:  ***DEPRECATED***
 
   Specifies to use a fixed time step size instead of performing
-  any form of temporal adaptivity.  ARKODE will use this step size
-  for all steps (unless tstop is set, in which case it may need to
-  modify that last step approaching tstop.  If any solver failure
-  occurs in the timestepping module, ARKODE will typically
-  immediately return with an error message indicating that the
-  selected step size cannot be used.
+  any form of temporal adaptivity.  Any nonzero argument will
+  result in the use of that fixed step size; an argument of 0
+  will re-enable temporal adaptivity.  ARKODE will use this step
+  size for all steps (unless tstop is set, in which case it may
+  need to modify that last step approaching tstop.  If any solver
+  failure occurs in the timestepping module, ARKODE will
+  typically immediately return with an error message indicating
+  that the selected step size cannot be used.
 
-  Any nonzero argument will result in the use of that fixed step
-  size; an argument of 0 will re-enable temporal adaptivity.
+  This is a convenience routine, that merely replaces ARKODE's
+  default SUNControl and SUNHeuristics objects with the
+  SUNControl_Fixed and SUNHeuristics_Unconstrained objects,
+  respectively (or replaces these with the defaults, if
+  re-enabling temporal adaptivity).
   ---------------------------------------------------------------*/
 int arkSetFixedStep(void *arkode_mem, realtype hfixed)
 {
   int retval;
+  long int lenrw, leniw;
   ARKodeMem ark_mem;
   if (arkode_mem==NULL) {
     arkProcessError(NULL, ARK_MEM_NULL, "ARKODE",
@@ -564,24 +597,91 @@ int arkSetFixedStep(void *arkode_mem, realtype hfixed)
   }
   ark_mem = (ARKodeMem) arkode_mem;
 
-  /* re-attach internal error weight functions if necessary */
-  if ((hfixed == ZERO) && (!ark_mem->user_efun)) {
-    if (ark_mem->itol == ARK_SV && ark_mem->Vabstol != NULL)
-      retval = arkSVtolerances(ark_mem, ark_mem->reltol, ark_mem->Vabstol);
-    else
-      retval = arkSStolerances(ark_mem, ark_mem->reltol, ark_mem->Sabstol);
-    if (retval != ARK_SUCCESS) return(retval);
+  /* Remove current SUNControl object */
+  retval = SUNControlSpace(ark_mem->hcontroller, &lenrw, &leniw);
+  if (retval == SUNCONTROL_SUCCESS) {
+    ark_mem->liw -= leniw;
+    ark_mem->lrw -= lenrw;
+  }
+  SUNControlDestroy(ark_mem->hcontroller);
+  ark_mem->hcontroller = NULL;
+
+  /* Remove current SUNHeuristics object */
+  retval = SUNHeuristicsSpace(ark_mem->hconstraints, &lenrw, &leniw);
+  if (retval == SUNHEURISTICS_SUCCESS) {
+    ark_mem->liw -= leniw;
+    ark_mem->lrw -= lenrw;
+  }
+  SUNHeuristicsDestroy(ark_mem->hconstraints);
+  ark_mem->hconstraints = NULL;
+
+  /* Create new SUNControl and SUNHeuristics objects */
+  SUNControl C = NULL;
+  SUNHeuristics H = NULL;
+  if (hfixed == 0)
+  {
+    /* hfixed == 0: construct default objects */
+    C = SUNControlPID(ark_mem->sunctx);
+    if (C == NULL) {
+      arkProcessError(ark_mem, ARK_MEM_FAIL, "ARKODE", "arkSetFixedStep",
+                      "SUNControlPID allocation failure");
+      return(ARK_MEM_FAIL);
+    }
+    H = SUNHeuristicsDefault(ark_mem->sunctx);
+    if (H == NULL) {
+      arkProcessError(ark_mem, ARK_MEM_FAIL, "ARKODE", "arkSetFixedStep",
+                      "SUNHeuristicsDefault allocation failure");
+      return(ARK_MEM_FAIL);
+    }
+  } else {
+    /* hfixed != 0: construct fixed-step objects */
+    C = SUNControlFixed(hfixed, ark_mem->sunctx);
+    if (C == NULL) {
+      arkProcessError(ark_mem, ARK_MEM_FAIL, "ARKODE", "arkSetFixedStep",
+                      "SUNControlFixed allocation failure");
+      return(ARK_MEM_FAIL);
+    }
+    H = SUNHeuristicsUnconstrained(ark_mem->sunctx);
+    if (H == NULL) {
+      arkProcessError(ark_mem, ARK_MEM_FAIL, "ARKODE", "arkSetFixedStep",
+                      "SUNHeuristicsUnconstrained allocation failure");
+      return(ARK_MEM_FAIL);
+    }
   }
 
-  /* set ark_mem entry */
+  /* Attach new SUNControl and SUNHeuristics objects to ARKODE */
+  retval = SUNControlSpace(C, &lenrw, &leniw);
+  if (retval == SUNCONTROL_SUCCESS) {
+    ark_mem->liw += leniw;
+    ark_mem->lrw += lenrw;
+  }
+  ark_mem->hcontroller = C;
+  retval = SUNHeuristicsSpace(H, &lenrw, &leniw);
+  if (retval == SUNHEURISTICS_SUCCESS) {
+    ark_mem->liw += leniw;
+    ark_mem->lrw += lenrw;
+  }
+  ark_mem->hconstraints = H;
+
+  /* /\* re-attach internal error weight functions if necessary *\/ */
+  /* if ((hfixed == ZERO) && (!ark_mem->user_efun)) { */
+  /*   if (ark_mem->itol == ARK_SV && ark_mem->Vabstol != NULL) */
+  /*     retval = arkSVtolerances(ark_mem, ark_mem->reltol, ark_mem->Vabstol); */
+  /*   else */
+  /*     retval = arkSStolerances(ark_mem, ark_mem->reltol, ark_mem->Sabstol); */
+  /*   if (retval != ARK_SUCCESS) return(retval); */
+  /* } */
+
+  /* set ark_mem "fixedstep" entry ***REMOVE*** */
   if (hfixed != ZERO) {
     ark_mem->fixedstep = SUNTRUE;
-    ark_mem->hin = hfixed;
   } else {
     ark_mem->fixedstep = SUNFALSE;
   }
 
-  return(ARK_SUCCESS);
+  /* Notify ARKODE to use hfixed as the initial step size, and return */
+  retval = arkSetInitStep(arkode_mem, hfixed);
+  return(retval);
 }
 
 
@@ -795,203 +895,28 @@ int arkSetMaxNumConstrFails(void *arkode_mem, int maxfails)
 
 
 /*---------------------------------------------------------------
-  arkSetCFLFraction:
-
-  Specifies the safety factor to use on the maximum explicitly-
-  stable step size.  Allowable values must be within the open
-  interval (0,1).  A non-positive input implies a reset to
-  the default value.
-  ---------------------------------------------------------------*/
-int arkSetCFLFraction(void *arkode_mem, realtype cfl_frac)
-{
-  int retval;
-  ARKodeHAdaptMem hadapt_mem;
-  ARKodeMem ark_mem;
-  retval = arkAccessHAdaptMem(arkode_mem, "arkSetCFLFraction",
-                              &ark_mem, &hadapt_mem);
-  if (retval != ARK_SUCCESS)  return(retval);
-
-  /* check for allowable parameters */
-  if (cfl_frac >= ONE) {
-    arkProcessError(ark_mem, ARK_ILL_INPUT, "ARKODE",
-                    "arkSetCFLFraction", "Illegal CFL fraction");
-    return(ARK_ILL_INPUT);
-  }
-
-  /* set positive-valued parameters, otherwise set default */
-  if (cfl_frac <= ZERO) {
-    hadapt_mem->cfl = CFLFAC;
-  } else {
-    hadapt_mem->cfl = cfl_frac;
-  }
-
-  return(ARK_SUCCESS);
-}
-
-
-/*---------------------------------------------------------------
-  arkSetSafetyFactor:
-
-  Specifies the safety factor to use on the error-based predicted
-  time step size.  Allowable values must be within the open
-  interval (0,1).  A non-positive input implies a reset to the
-  default value.
-  ---------------------------------------------------------------*/
-int arkSetSafetyFactor(void *arkode_mem, realtype safety)
-{
-  int retval;
-  ARKodeHAdaptMem hadapt_mem;
-  ARKodeMem ark_mem;
-  retval = arkAccessHAdaptMem(arkode_mem, "arkSetSafetyFactor",
-                              &ark_mem, &hadapt_mem);
-  if (retval != ARK_SUCCESS)  return(retval);
-
-  /* check for allowable parameters */
-  if (safety >= ONE) {
-    arkProcessError(ark_mem, ARK_ILL_INPUT, "ARKODE",
-                    "arkSetSafetyFactor", "Illegal safety factor");
-    return(ARK_ILL_INPUT);
-  }
-
-  /* set positive-valued parameters, otherwise set default */
-  if (safety <= ZERO) {
-    hadapt_mem->safety = SAFETY;
-  } else {
-    hadapt_mem->safety = safety;
-  }
-
-  return(ARK_SUCCESS);
-}
-
-
-/*---------------------------------------------------------------
-  arkSetErrorBias:
-
-  Specifies the error bias to use when performing adaptive-step
-  error control.  Allowable values must be >= 1.0.  Any illegal
-  value implies a reset to the default value.
-  ---------------------------------------------------------------*/
-int arkSetErrorBias(void *arkode_mem, realtype bias)
-{
-  int retval;
-  ARKodeHAdaptMem hadapt_mem;
-  ARKodeMem ark_mem;
-  retval = arkAccessHAdaptMem(arkode_mem, "arkSetErrorBias",
-                              &ark_mem, &hadapt_mem);
-  if (retval != ARK_SUCCESS)  return(retval);
-
-  /* set allowed value, otherwise set default */
-  if (bias < ONE) {
-    hadapt_mem->bias = BIAS;
-  } else {
-    hadapt_mem->bias = bias;
-  }
-
-  return(ARK_SUCCESS);
-}
-
-
-/*---------------------------------------------------------------
-  arkSetMaxGrowth:
-
-  Specifies the maximum step size growth factor to be allowed
-  between successive integration steps.  Note: the first step uses
-  a separate maximum growth factor.  Allowable values must be
-  > 1.0.  Any illegal value implies a reset to the default.
-  ---------------------------------------------------------------*/
-int arkSetMaxGrowth(void *arkode_mem, realtype mx_growth)
-{
-  int retval;
-  ARKodeHAdaptMem hadapt_mem;
-  ARKodeMem ark_mem;
-  retval = arkAccessHAdaptMem(arkode_mem, "arkSetMaxGrowth",
-                              &ark_mem, &hadapt_mem);
-  if (retval != ARK_SUCCESS)  return(retval);
-
-  /* set allowed value, otherwise set default */
-  if (mx_growth <= ONE) {
-    hadapt_mem->growth = GROWTH;
-  } else {
-    hadapt_mem->growth = mx_growth;
-  }
-
-  return(ARK_SUCCESS);
-}
-
-
-/*---------------------------------------------------------------
-  arkSetMinReduction:
-
-  Specifies the minimum possible step size reduction factor to be
-  allowed between successive integration steps. Allowable values
-  must be > 0.0 and < 1.0. Any illegal value implies a reset to
-  the default.
-  ---------------------------------------------------------------*/
-int arkSetMinReduction(void *arkode_mem, realtype eta_min)
-{
-  int retval;
-  ARKodeHAdaptMem hadapt_mem;
-  ARKodeMem ark_mem;
-  retval = arkAccessHAdaptMem(arkode_mem, "arkSetMinReduction",
-                              &ark_mem, &hadapt_mem);
-  if (retval != ARK_SUCCESS) return(retval);
-
-  /* set allowed value, otherwise set default */
-  if (eta_min >= ONE || eta_min <= ZERO) {
-    hadapt_mem->etamin = ETAMIN;
-  } else {
-    hadapt_mem->etamin = eta_min;
-  }
-
-  return(ARK_SUCCESS);
-}
-
-
-/*---------------------------------------------------------------
-  arkSetFixedStepBounds:
-
-  Specifies the step size growth interval within which the step
-  size will remain unchanged.  Allowable values must enclose the
-  value 1.0.  Any illegal interval implies a reset to the default.
-  ---------------------------------------------------------------*/
-int arkSetFixedStepBounds(void *arkode_mem, realtype lb, realtype ub)
-{
-  int retval;
-  ARKodeHAdaptMem hadapt_mem;
-  ARKodeMem ark_mem;
-  retval = arkAccessHAdaptMem(arkode_mem, "arkSetFixedStepBounds",
-                              &ark_mem, &hadapt_mem);
-  if (retval != ARK_SUCCESS)  return(retval);
-
-  /* set allowable interval, otherwise set defaults */
-  if ((lb <= ONE) && (ub >= ONE)) {
-    hadapt_mem->lbound = lb;
-    hadapt_mem->ubound = ub;
-  } else {
-    hadapt_mem->lbound = HFIXED_LB;
-    hadapt_mem->ubound = HFIXED_UB;
-  }
-
-  return(ARK_SUCCESS);
-}
-
-
-/*---------------------------------------------------------------
-  arkSetAdaptivityMethod:
+  arkSetAdaptivityMethod:  ***DEPRECATED***
 
   Specifies the built-in time step adaptivity algorithm (and
   optionally, its associated parameters) to use.  All parameters
   will be checked for validity when used by the solver.
+
+  Users should transition to constructing non-default SUNControl
+  objects directly, and providing those directly to the integrator
+  via the time-stepping module *SetController routines.
   ---------------------------------------------------------------*/
 int arkSetAdaptivityMethod(void *arkode_mem, int imethod, int idefault,
                            int pq, realtype adapt_params[3])
 {
   int retval;
-  ARKodeHAdaptMem hadapt_mem;
+  long int lenrw, leniw;
   ARKodeMem ark_mem;
-  retval = arkAccessHAdaptMem(arkode_mem, "arkSetAdaptivityMethod",
-                              &ark_mem, &hadapt_mem);
-  if (retval != ARK_SUCCESS)  return(retval);
+  if (arkode_mem==NULL) {
+    arkProcessError(NULL, ARK_MEM_NULL, "ARKODE",
+                    "arkSetController", MSG_ARK_NO_MEM);
+    return(ARK_MEM_NULL);
+  }
+  ark_mem = (ARKodeMem) arkode_mem;
 
   /* check for allowable parameters */
   if ((imethod > ARK_ADAPT_IMEX_GUS) || (imethod < ARK_ADAPT_PID)) {
@@ -1000,184 +925,190 @@ int arkSetAdaptivityMethod(void *arkode_mem, int imethod, int idefault,
     return(ARK_ILL_INPUT);
   }
 
-  /* set adaptivity method */
-  hadapt_mem->imethod = imethod;
-
-  /* set flag whether to use p (embedding, 0) or q (method, 1) order */
-  hadapt_mem->pq = (pq != 0);
-
-  /* set method parameters */
-  if (idefault == 1) {
-    switch (hadapt_mem->imethod) {
-    case (ARK_ADAPT_PID):
-      hadapt_mem->k1 = AD0_K1;
-      hadapt_mem->k2 = AD0_K2;
-      hadapt_mem->k3 = AD0_K3; break;
-    case (ARK_ADAPT_PI):
-      hadapt_mem->k1 = AD1_K1;
-      hadapt_mem->k2 = AD1_K2; break;
-    case (ARK_ADAPT_I):
-      hadapt_mem->k1 = AD2_K1; break;
-    case (ARK_ADAPT_EXP_GUS):
-      hadapt_mem->k1 = AD3_K1;
-      hadapt_mem->k2 = AD3_K2; break;
-    case (ARK_ADAPT_IMP_GUS):
-      hadapt_mem->k1 = AD4_K1;
-      hadapt_mem->k2 = AD4_K2; break;
-    case (ARK_ADAPT_IMEX_GUS):
-      hadapt_mem->k1 = AD5_K1;
-      hadapt_mem->k2 = AD5_K2;
-      hadapt_mem->k3 = AD5_K3; break;
-    }
-  } else {
-    hadapt_mem->k1 = adapt_params[0];
-    hadapt_mem->k2 = adapt_params[1];
-    hadapt_mem->k3 = adapt_params[2];
+  /* Remove current SUNControl object */
+  retval = SUNControlSpace(ark_mem->hcontroller, &lenrw, &leniw);
+  if (retval == SUNCONTROL_SUCCESS) {
+    ark_mem->liw -= leniw;
+    ark_mem->lrw -= lenrw;
   }
+  SUNControlDestroy(ark_mem->hcontroller);
+  ark_mem->hcontroller = NULL;
+
+  /* if idefault==1 overwrite adapt_params inputs to signal use of defaults */
+  if (idefault == 1) {
+    adapt_params[0] = -RCONST(1.0);
+    adapt_params[1] = -RCONST(1.0);
+    adapt_params[2] = -RCONST(1.0);
+  }
+
+  /* Create new SUNControl object based on "imethod" input, optionally setting
+     the specified controller parameters */
+  SUNControl C = NULL;
+  switch (imethod) {
+  case (ARK_ADAPT_PID):
+    C = SUNControlPID(ark_mem->sunctx);
+    if (C == NULL) {
+      arkProcessError(ark_mem, ARK_MEM_FAIL, "ARKODE", "arkSetAdaptivityMethod",
+                      "SUNControlPID allocation failure");
+      return(ARK_MEM_FAIL);
+    }
+    retval = SUNControlPID_SetParams(C, pq, adapt_params[0],
+                                     adapt_params[1], adapt_params[2]);
+    if (retval != SUNCONTROL_SUCCESS) {
+      arkProcessError(ark_mem, ARK_CONTROLLER_ERR, "ARKODE",
+                      "arkSetAdaptivityMethod", "SUNControlPID_SetParams failure");
+      return(ARK_CONTROLLER_ERR);
+    }
+    break;
+  case (ARK_ADAPT_PI):
+    C = SUNControlPI(ark_mem->sunctx);
+    if (C == NULL) {
+      arkProcessError(ark_mem, ARK_MEM_FAIL, "ARKODE", "arkSetAdaptivityMethod",
+                      "SUNControlPI allocation failure");
+      return(ARK_MEM_FAIL);
+    }
+    retval = SUNControlPI_SetParams(C, pq, adapt_params[0], adapt_params[1]);
+    if (retval != SUNCONTROL_SUCCESS) {
+      arkProcessError(ark_mem, ARK_CONTROLLER_ERR, "ARKODE",
+                      "arkSetAdaptivityMethod", "SUNControlPI_SetParams failure");
+      return(ARK_CONTROLLER_ERR);
+    }
+    break;
+  case (ARK_ADAPT_I):
+    C = SUNControlI(ark_mem->sunctx);
+    if (C == NULL) {
+      arkProcessError(ark_mem, ARK_MEM_FAIL, "ARKODE", "arkSetAdaptivityMethod",
+                      "SUNControlI allocation failure");
+      return(ARK_MEM_FAIL);
+    }
+    retval = SUNControlI_SetParams(C, pq, adapt_params[0]);
+    if (retval != SUNCONTROL_SUCCESS) {
+      arkProcessError(ark_mem, ARK_CONTROLLER_ERR, "ARKODE",
+                      "arkSetAdaptivityMethod", "SUNControlI_SetParams failure");
+      return(ARK_CONTROLLER_ERR);
+    }
+    break;
+  case (ARK_ADAPT_EXP_GUS):
+    C = SUNControlExpGus(ark_mem->sunctx);
+    if (C == NULL) {
+      arkProcessError(ark_mem, ARK_MEM_FAIL, "ARKODE", "arkSetAdaptivityMethod",
+                      "SUNControlExpGus allocation failure");
+      return(ARK_MEM_FAIL);
+    }
+    retval = SUNControlExpGus_SetParams(C, pq, adapt_params[0], adapt_params[1]);
+    if (retval != SUNCONTROL_SUCCESS) {
+      arkProcessError(ark_mem, ARK_CONTROLLER_ERR, "ARKODE",
+                      "arkSetAdaptivityMethod", "SUNControlExpGus_SetParams failure");
+      return(ARK_CONTROLLER_ERR);
+    }
+    break;
+  case (ARK_ADAPT_IMP_GUS):
+    C = SUNControlImpGus(ark_mem->sunctx);
+    if (C == NULL) {
+      arkProcessError(ark_mem, ARK_MEM_FAIL, "ARKODE", "arkSetAdaptivityMethod",
+                      "SUNControlImpGus allocation failure");
+      return(ARK_MEM_FAIL);
+    }
+    retval = SUNControlImpGus_SetParams(C, pq, adapt_params[0], adapt_params[1]);
+    if (retval != SUNCONTROL_SUCCESS) {
+      arkProcessError(ark_mem, ARK_CONTROLLER_ERR, "ARKODE",
+                      "arkSetAdaptivityMethod", "SUNControlImpGus_SetParams failure");
+      return(ARK_CONTROLLER_ERR);
+    }
+    break;
+  case (ARK_ADAPT_IMEX_GUS):
+    C = SUNControlImExGus(ark_mem->sunctx);
+    if (C == NULL) {
+      arkProcessError(ark_mem, ARK_MEM_FAIL, "ARKODE", "arkSetAdaptivityMethod",
+                      "SUNControlImExGus allocation failure");
+      return(ARK_MEM_FAIL);
+    }
+    retval = SUNControlImExGus_SetParams(C, pq, adapt_params[0], adapt_params[1],
+                                         adapt_params[2], adapt_params[2]);
+    if (retval != SUNCONTROL_SUCCESS) {
+      arkProcessError(ark_mem, ARK_CONTROLLER_ERR, "ARKODE",
+                      "arkSetAdaptivityMethod", "SUNControlImExGus_SetParams failure");
+      return(ARK_CONTROLLER_ERR);
+    }
+    break;
+  }
+
+  /* Attach new SUNControl object */
+  retval = SUNControlSpace(C, &lenrw, &leniw);
+  if (retval == SUNCONTROL_SUCCESS) {
+    ark_mem->liw += leniw;
+    ark_mem->lrw += lenrw;
+  }
+  ark_mem->hcontroller = C;
 
   return(ARK_SUCCESS);
 }
 
 
 /*---------------------------------------------------------------
-  arkSetAdaptivityFn:
+  arkSetAdaptivityFn:  ***DEPRECATED***
 
   Specifies the user-provided time step adaptivity function to use.
+  If 'hfun' is NULL-valued, then the default PID controller will
+  be used instead.
+
+  Users should transition to constructing a custom SUNControl
+  object, and providing this directly to the integrator
+  via the time-stepping module *SetController routines.
   ---------------------------------------------------------------*/
 int arkSetAdaptivityFn(void *arkode_mem, ARKAdaptFn hfun, void *h_data)
 {
   int retval;
-  ARKodeHAdaptMem hadapt_mem;
+  long int lenrw, leniw;
   ARKodeMem ark_mem;
-  retval = arkAccessHAdaptMem(arkode_mem, "arkSetAdaptivityFn",
-                              &ark_mem, &hadapt_mem);
-  if (retval != ARK_SUCCESS)  return(retval);
+  if (arkode_mem==NULL) {
+    arkProcessError(NULL, ARK_MEM_NULL, "ARKODE",
+                    "arkSetAdaptivityFn", MSG_ARK_NO_MEM);
+    return(ARK_MEM_NULL);
+  }
+  ark_mem = (ARKodeMem) arkode_mem;
 
-  /* NULL hfun sets default, otherwise set inputs */
+  /* Remove current SUNControl object */
+  retval = SUNControlSpace(ark_mem->hcontroller, &lenrw, &leniw);
+  if (retval == SUNCONTROL_SUCCESS) {
+    ark_mem->liw -= leniw;
+    ark_mem->lrw -= lenrw;
+  }
+  SUNControlDestroy(ark_mem->hcontroller);
+  ark_mem->hcontroller = NULL;
+
+  /* Create new SUNControl object depending on NULL-ity of 'hfun' */
+  SUNControl C = NULL;
   if (hfun == NULL) {
-    hadapt_mem->HAdapt      = NULL;
-    hadapt_mem->HAdapt_data = NULL;
-    hadapt_mem->imethod     = ARK_ADAPT_PID;
+    C = SUNControlPID(ark_mem->sunctx);
+    if (C == NULL) {
+      arkProcessError(ark_mem, ARK_MEM_FAIL, "ARKODE", "arkSetAdaptivityFn",
+                      "SUNControlPID allocation failure");
+      return(ARK_MEM_FAIL);
+    }
   } else {
-    hadapt_mem->HAdapt      = hfun;
-    hadapt_mem->HAdapt_data = h_data;
-    hadapt_mem->imethod     = ARK_ADAPT_CUSTOM;
+    C = ARKUserControl(ark_mem->sunctx, arkode_mem, hfun, h_data);
+    if (C == NULL) {
+      arkProcessError(ark_mem, ARK_MEM_FAIL, "ARKODE", "arkSetAdaptivityFn",
+                      "ARKUserControl allocation failure");
+      return(ARK_MEM_FAIL);
+    }
   }
+
+  /* Attach new SUNControl object */
+  retval = SUNControlSpace(C, &lenrw, &leniw);
+  if (retval == SUNCONTROL_SUCCESS) {
+    ark_mem->liw += leniw;
+    ark_mem->lrw += lenrw;
+  }
+  ark_mem->hcontroller = C;
 
   return(ARK_SUCCESS);
 }
 
 
 /*---------------------------------------------------------------
-  arkSetMaxFirstGrowth:
-
-  Specifies the user-provided time step adaptivity constant
-  etamx1.  Legal values are greater than 1.0.  Illegal values
-  imply a reset to the default value.
-  ---------------------------------------------------------------*/
-int arkSetMaxFirstGrowth(void *arkode_mem, realtype etamx1)
-{
-  int retval;
-  ARKodeHAdaptMem hadapt_mem;
-  ARKodeMem ark_mem;
-  retval = arkAccessHAdaptMem(arkode_mem, "arkSetMaxFirstGrowth",
-                              &ark_mem, &hadapt_mem);
-  if (retval != ARK_SUCCESS)  return(retval);
-
-  /* if argument legal set it, otherwise set default */
-  if (etamx1 <= ONE) {
-    hadapt_mem->etamx1 = ETAMX1;
-  } else {
-    hadapt_mem->etamx1 = etamx1;
-  }
-
-  return(ARK_SUCCESS);
-}
-
-
-/*---------------------------------------------------------------
-  arkSetMaxEFailGrowth:
-
-  Specifies the user-provided time step adaptivity constant
-  etamxf. Legal values are in the interval (0,1].  Illegal values
-  imply a reset to the default value.
-  ---------------------------------------------------------------*/
-int arkSetMaxEFailGrowth(void *arkode_mem, realtype etamxf)
-{
-  int retval;
-  ARKodeHAdaptMem hadapt_mem;
-  ARKodeMem ark_mem;
-  retval = arkAccessHAdaptMem(arkode_mem, "arkSetMaxEFailGrowth",
-                              &ark_mem, &hadapt_mem);
-  if (retval != ARK_SUCCESS)  return(retval);
-
-  /* if argument legal set it, otherwise set default */
-  if ((etamxf <= ZERO) || (etamxf > ONE)) {
-    hadapt_mem->etamxf = ETAMXF;
-  } else {
-    hadapt_mem->etamxf = etamxf;
-  }
-
-  return(ARK_SUCCESS);
-}
-
-
-/*---------------------------------------------------------------
-  arkSetSmallNumEFails:
-
-  Specifies the user-provided time step adaptivity constant
-  small_nef.  Legal values are > 0.  Illegal values
-  imply a reset to the default value.
-  ---------------------------------------------------------------*/
-int arkSetSmallNumEFails(void *arkode_mem, int small_nef)
-{
-  int retval;
-  ARKodeHAdaptMem hadapt_mem;
-  ARKodeMem ark_mem;
-  retval = arkAccessHAdaptMem(arkode_mem, "arkSetSmallNumEFails",
-                              &ark_mem, &hadapt_mem);
-  if (retval != ARK_SUCCESS)  return(retval);
-
-  /* if argument legal set it, otherwise set default */
-  if (small_nef <= 0) {
-    hadapt_mem->small_nef = SMALL_NEF;
-  } else {
-    hadapt_mem->small_nef = small_nef;
-  }
-
-  return(ARK_SUCCESS);
-}
-
-
-/*---------------------------------------------------------------
-  arkSetMaxCFailGrowth:
-
-  Specifies the user-provided time step adaptivity constant
-  etacf. Legal values are in the interval (0,1].  Illegal values
-  imply a reset to the default value.
-  ---------------------------------------------------------------*/
-int arkSetMaxCFailGrowth(void *arkode_mem, realtype etacf)
-{
-  int retval;
-  ARKodeHAdaptMem hadapt_mem;
-  ARKodeMem ark_mem;
-  retval = arkAccessHAdaptMem(arkode_mem, "arkSetMaxCFailGrowth",
-                              &ark_mem, &hadapt_mem);
-  if (retval != ARK_SUCCESS)  return(retval);
-
-  /* if argument legal set it, otherwise set default */
-  if ((etacf <= ZERO) || (etacf > ONE)) {
-    hadapt_mem->etacf = ETACF;
-  } else {
-    hadapt_mem->etacf = etacf;
-  }
-
-  return(ARK_SUCCESS);
-}
-
-
-/*---------------------------------------------------------------
-  arkSetStabilityFn:
+  arkSetStabilityFn:  ***DEPRECATED***
 
   Specifies the user-provided explicit time step stability
   function to use.  A NULL input function implies a reset to
@@ -1186,19 +1117,39 @@ int arkSetMaxCFailGrowth(void *arkode_mem, realtype etacf)
 int arkSetStabilityFn(void *arkode_mem, ARKExpStabFn EStab, void *estab_data)
 {
   int retval;
-  ARKodeHAdaptMem hadapt_mem;
   ARKodeMem ark_mem;
-  retval = arkAccessHAdaptMem(arkode_mem, "arkSetStabilityFn",
-                              &ark_mem, &hadapt_mem);
-  if (retval != ARK_SUCCESS)  return(retval);
+  if (arkode_mem==NULL) {
+    arkProcessError(NULL, ARK_MEM_NULL, "ARKODE",
+                    "arkSetStabilityFn", MSG_ARK_NO_MEM);
+    return(ARK_MEM_NULL);
+  }
+  ark_mem = (ARKodeMem) arkode_mem;
 
-  /* NULL argument sets default, otherwise set inputs */
+  /* NULL argument sets default. */
   if (EStab == NULL) {
-    hadapt_mem->expstab    = arkExpStab;
-    hadapt_mem->estab_data = ark_mem;
-  } else {
-    hadapt_mem->expstab    = EStab;
-    hadapt_mem->estab_data = estab_data;
+    retval = SUNHeuristicsSetExpStabFn(ark_mem->hconstraints, NULL, NULL);
+    if (retval != SUNHEURISTICS_SUCCESS) {
+      arkProcessError(ark_mem, ARK_HEURISTICS_ERR, "ARKODE",
+                      "arkSetStabilityFn", "SUNHeuristicsSetExpStabFn failure");
+      return(ARK_HEURISTICS_ERR);
+    }
+  }
+
+  /* Otherwise create wrapper structure */
+  void* wrapper_data = ARKUserStability(arkode_mem, EStab, estab_data);
+  if (wrapper_data == NULL) {
+    arkProcessError(ark_mem, ARK_MEM_FAIL, "ARKODE", "arkSetStabilityFn",
+                    "ARKUserStabilkty failure");
+    return(ARK_MEM_FAIL);
+  }
+
+  /* Attach ARKODE function and wrapper structure to heuristics object */
+  retval = SUNHeuristicsSetExpStabFn(ark_mem->hconstraints,
+                                     ARKControlExpStab, wrapper_data);
+  if (retval != SUNHEURISTICS_SUCCESS) {
+    arkProcessError(ark_mem, ARK_HEURISTICS_ERR, "ARKODE",
+                    "arkSetStabilityFn", "SUNHeuristicsSetExpStabFn failure");
+    return(ARK_HEURISTICS_ERR);
   }
 
   return(ARK_SUCCESS);
@@ -1587,46 +1538,6 @@ int arkGetNumConstrFails(void *arkode_mem, long int *nconstrfails)
 
 
 /*---------------------------------------------------------------
-  arkGetNumExpSteps:
-
-  Returns the current number of stability-limited steps
-  ---------------------------------------------------------------*/
-int arkGetNumExpSteps(void *arkode_mem, long int *nsteps)
-{
-  ARKodeMem ark_mem;
-  if (arkode_mem==NULL) {
-    arkProcessError(NULL, ARK_MEM_NULL, "ARKODE",
-                    "arkGetNumExpSteps", MSG_ARK_NO_MEM);
-    return(ARK_MEM_NULL);
-  }
-  ark_mem = (ARKodeMem) arkode_mem;
-
-  *nsteps = ark_mem->hadapt_mem->nst_exp;
-  return(ARK_SUCCESS);
-}
-
-
-/*---------------------------------------------------------------
-  arkGetNumAccSteps:
-
-  Returns the current number of accuracy-limited steps
-  ---------------------------------------------------------------*/
-int arkGetNumAccSteps(void *arkode_mem, long int *nsteps)
-{
-  ARKodeMem ark_mem;
-  if (arkode_mem==NULL) {
-    arkProcessError(NULL, ARK_MEM_NULL, "ARKODE",
-                    "arkGetNumAccSteps", MSG_ARK_NO_MEM);
-    return(ARK_MEM_NULL);
-  }
-  ark_mem = (ARKodeMem) arkode_mem;
-
-  *nsteps = ark_mem->hadapt_mem->nst_acc;
-  return(ARK_SUCCESS);
-}
-
-
-/*---------------------------------------------------------------
   arkGetNumErrTestFails:
 
   Returns the current number of error test failures
@@ -1698,6 +1609,8 @@ int arkPrintAllStats(void *arkode_mem, FILE *outfile, SUNOutputFormat fmt)
 {
   ARKodeMem ark_mem;
   ARKodeRootMem ark_root_mem;
+  int retval;
+  long int nst_exp, nst_acc;
 
   if (arkode_mem == NULL) {
     arkProcessError(NULL, ARK_MEM_NULL, "ARKODE",
@@ -1706,14 +1619,27 @@ int arkPrintAllStats(void *arkode_mem, FILE *outfile, SUNOutputFormat fmt)
   }
   ark_mem = (ARKodeMem) arkode_mem;
 
+  retval = SUNHeuristicsGetNumExpSteps(ark_mem->hconstraints, &nst_exp);
+  if (retval != SUNHEURISTICS_SUCCESS) {
+    arkProcessError(ark_mem, ARK_HEURISTICS_ERR, "ARKODE", "arkPrintAllStats",
+                    "Error in SUNHeuristicsGetNumExpSteps");
+    return(ARK_HEURISTICS_ERR);
+  }
+  retval = SUNHeuristicsGetNumAccSteps(ark_mem->hconstraints, &nst_acc);
+  if (retval != SUNHEURISTICS_SUCCESS) {
+    arkProcessError(ark_mem, ARK_HEURISTICS_ERR, "ARKODE", "arkPrintAllStats",
+                    "Error in SUNHeuristicsGetNumAccSteps");
+    return(ARK_HEURISTICS_ERR);
+  }
+
   switch(fmt)
   {
   case SUN_OUTPUTFORMAT_TABLE:
     fprintf(outfile, "Current time                 = %"RSYM"\n", ark_mem->tcur);
     fprintf(outfile, "Steps                        = %ld\n", ark_mem->nst);
     fprintf(outfile, "Step attempts                = %ld\n", ark_mem->nst_attempts);
-    fprintf(outfile, "Stability limited steps      = %ld\n", ark_mem->hadapt_mem->nst_exp);
-    fprintf(outfile, "Accuracy limited steps       = %ld\n", ark_mem->hadapt_mem->nst_acc);
+    fprintf(outfile, "Stability limited steps      = %ld\n", nst_exp);
+    fprintf(outfile, "Accuracy limited steps       = %ld\n", nst_acc);
     fprintf(outfile, "Error test fails             = %ld\n", ark_mem->netf);
     fprintf(outfile, "NLS step fails               = %ld\n", ark_mem->ncfn);
     fprintf(outfile, "Inequality constraint fails  = %ld\n", ark_mem->nconstrfails);
@@ -1730,8 +1656,8 @@ int arkPrintAllStats(void *arkode_mem, FILE *outfile, SUNOutputFormat fmt)
     fprintf(outfile, "Time,%"RSYM, ark_mem->tcur);
     fprintf(outfile, ",Steps,%ld", ark_mem->nst);
     fprintf(outfile, ",Step attempts,%ld", ark_mem->nst_attempts);
-    fprintf(outfile, ",Stability limited steps,%ld", ark_mem->hadapt_mem->nst_exp);
-    fprintf(outfile, ",Accuracy limited steps,%ld", ark_mem->hadapt_mem->nst_acc);
+    fprintf(outfile, ",Stability limited steps,%ld", nst_exp);
+    fprintf(outfile, ",Accuracy limited steps,%ld", nst_acc);
     fprintf(outfile, ",Error test fails,%ld", ark_mem->netf);
     fprintf(outfile, ",NLS step fails,%ld", ark_mem->ncfn);
     fprintf(outfile, ",Inequality constraint fails,%ld", ark_mem->nconstrfails);
@@ -1901,12 +1827,6 @@ int arkWriteParameters(ARKodeMem ark_mem, FILE *fp)
 
   /* print integrator parameters to file */
   fprintf(fp, "ARKODE solver parameters:\n");
-  if (ark_mem->hmin != ZERO)
-    fprintf(fp, "  Minimum step size = %" RSYM"\n",ark_mem->hmin);
-  if (ark_mem->hmax_inv != ZERO)
-    fprintf(fp, "  Maximum step size = %" RSYM"\n",ONE/ark_mem->hmax_inv);
-  if (ark_mem->fixedstep)
-    fprintf(fp, "  Fixed time-stepping enabled\n");
   if (ark_mem->itol == ARK_WF) {
     fprintf(fp, "  User provided error weight function\n");
   } else {
@@ -1930,39 +1850,11 @@ int arkWriteParameters(ARKodeMem ark_mem, FILE *fp)
   }
   if (ark_mem->hin != ZERO)
     fprintf(fp, "  Initial step size = %" RSYM"\n",ark_mem->hin);
-  fprintf(fp, "\n");
-  fprintf(fp, "  Maximum step increase (first step) = %"RSYM"\n",
-          ark_mem->hadapt_mem->etamx1);
-  fprintf(fp, "  Step reduction factor on multiple error fails = %"RSYM"\n",
-          ark_mem->hadapt_mem->etamxf);
-  fprintf(fp, "  Minimum error fails before above factor is used = %i\n",
-          ark_mem->hadapt_mem->small_nef);
-  fprintf(fp, "  Step reduction factor on nonlinear convergence failure = %"RSYM"\n",
-          ark_mem->hadapt_mem->etacf);
-  fprintf(fp, "  Explicit safety factor = %"RSYM"\n",
-          ark_mem->hadapt_mem->cfl);
-  if (ark_mem->hadapt_mem->HAdapt == NULL) {
-    fprintf(fp, "  Time step adaptivity method %i\n", ark_mem->hadapt_mem->imethod);
-    fprintf(fp, "     Safety factor = %"RSYM"\n", ark_mem->hadapt_mem->safety);
-    fprintf(fp, "     Bias factor = %"RSYM"\n", ark_mem->hadapt_mem->bias);
-    fprintf(fp, "     Growth factor = %"RSYM"\n", ark_mem->hadapt_mem->growth);
-    fprintf(fp, "     Step growth lower bound = %"RSYM"\n", ark_mem->hadapt_mem->lbound);
-    fprintf(fp, "     Step growth upper bound = %"RSYM"\n", ark_mem->hadapt_mem->ubound);
-    fprintf(fp, "     k1 = %"RSYM"\n", ark_mem->hadapt_mem->k1);
-    fprintf(fp, "     k2 = %"RSYM"\n", ark_mem->hadapt_mem->k2);
-    fprintf(fp, "     k3 = %"RSYM"\n", ark_mem->hadapt_mem->k3);
-    if (ark_mem->hadapt_mem->expstab == arkExpStab) {
-      fprintf(fp, "  Default explicit stability function\n");
-    } else {
-      fprintf(fp, "  User provided explicit stability function\n");
-    }
-  } else {
-    fprintf(fp, "  User provided time step adaptivity function\n");
-  }
-
   fprintf(fp, "  Maximum number of error test failures = %i\n",ark_mem->maxnef);
   fprintf(fp, "  Maximum number of convergence test failures = %i\n",ark_mem->maxncf);
-
+  fprintf(fp, "\n");
+  (void) SUNHeuristicsWrite(ark_mem->hconstraints, fp);
+  (void) SUNControlWrite(ark_mem->hcontroller, fp);
   return(ARK_SUCCESS);
 }
 

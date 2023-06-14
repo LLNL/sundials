@@ -18,7 +18,6 @@ install(CODE "MESSAGE(\"\nInstall ARKODE\n\")")
 
 # Add variable arkode_SOURCES with the sources for the ARKODE library
 set(arkode_SOURCES
-  arkode_adapt.c
   arkode_arkstep_io.c
   arkode_arkstep_nls.c
   arkode_arkstep.c
@@ -37,6 +36,8 @@ set(arkode_SOURCES
   arkode_mristep_nls.c
   arkode_mristep.c
   arkode_root.c
+  arkode_user_controller.c
+  arkode_user_stability.c
   arkode.c
 )
 

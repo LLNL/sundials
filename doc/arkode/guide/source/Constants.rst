@@ -377,6 +377,12 @@ contains the ARKODE output constants.
    +-------------------------------------+------+------------------------------------------------------------+
    | :index:`ARK_INVALID_TABLE`          | -41  | An invalid Butcher or MRI table was encountered.           |
    +-------------------------------------+------+------------------------------------------------------------+
+   | :index:`ARK_CONTEXT_ERR`            | -42  | An error with the SUNContext object was encountered.       |
+   +-------------------------------------+------+------------------------------------------------------------+
+   | :index:`ARK_CONTROLLER_ERR`         | -43  | An error with the SUNController object was encountered.    |
+   +-------------------------------------+------+------------------------------------------------------------+
+   | :index:`ARK_HEURISTICS_ERR`         | -44  | An error with the SUNHeuristics object was encountered.    |
+   +-------------------------------------+------+------------------------------------------------------------+
    | :index:`ARK_UNRECOGNIZED_ERROR`     | -99  | An unknown error was encountered.                          |
    +-------------------------------------+------+------------------------------------------------------------+
    |                                                                                                         |

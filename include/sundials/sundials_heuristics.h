@@ -45,8 +45,7 @@ typedef enum
  * User-supplied function types
  * ----------------------------------------------------------------- */
 
-typedef int (*SUNExpStabFn)(N_Vector y, realtype t,
-                            realtype *hstab, void *user_data);
+typedef int (*SUNExpStabFn)(realtype *hstab, void *user_data);
 
 /* -----------------------------------------------------------------
  * Generic definition of SUNHeuristics
@@ -131,7 +130,10 @@ void SUNHeuristicsDestroy(SUNHeuristics H);
 
 /* Main constraint-application function.  This is called following a
    time step with acceptable temporal error, and where 'hnew' has
-   already been predicted by a temporal error controller. */
+   already been predicted by a temporal error controller.
+
+   Any return value other than SUNHEURISTICS_SUCCESS will be treated as
+   an unrecoverable failure. */
 SUNDIALS_EXPORT
 int SUNHeuristicsConstrainStep(SUNHeuristics H, realtype hcur,
                                realtype hnew, realtype *hconstr);
@@ -140,7 +142,10 @@ int SUNHeuristicsConstrainStep(SUNHeuristics H, realtype hcur,
    temporal error.  Here, 'hnew' has already been predicted by a
    temporal error controller, and 'nef' is the integrator-provided
    counter of how many temporal error test failures have occurred
-   on this time step. */
+   on this time step.
+
+   Any return value other than SUNHEURISTICS_SUCCESS will be treated as
+   an unrecoverable failure. */
 SUNDIALS_EXPORT
 int SUNHeuristicsConstrainEFail(SUNHeuristics H, realtype hcur,
                                 realtype hnew, int nef,
@@ -176,14 +181,12 @@ int SUNHeuristicsWrite(SUNHeuristics H, FILE* fptr);
 /* Function to set the maximum absolute step size allowed
    (hmax <=0 implies infinite). */
 SUNDIALS_EXPORT
-int SUNHeuristicsSetMaxStep(SUNHeuristics H,
-                                            realtype hmax);
+int SUNHeuristicsSetMaxStep(SUNHeuristics H, realtype hmax);
 
 /* Function to set the minimum absolute step size allowed
    (hmin <= 0 implies no minimum). */
 SUNDIALS_EXPORT
-int SUNHeuristicsSetMinStep(SUNHeuristics H,
-                                            realtype hmin);
+int SUNHeuristicsSetMinStep(SUNHeuristics H, realtype hmin);
 
 /* Function to provide a user-supplied function for the
    maximum stable step size (EStab == NULL disables). */
