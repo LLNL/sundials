@@ -23,6 +23,9 @@ set(FCVODE_examples
   "cv_analytic_sys_dns_f2003\;develop"
   "cv_analytic_sys_dns_jac_f2003\;develop"
   "cv_brusselator_dns_f2003\;develop"
+  "cv_roberts_dns_constraints_f2003\;develop"
+  "cv_roberts_dns_f2003\;develop"
+  "cv_roberts_dnsL_f2003\;develop"
   )
 
 # Examples using LAPACK linear solvers

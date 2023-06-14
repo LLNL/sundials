@@ -12,8 +12,8 @@
 ! SPDX-License-Identifier: BSD-3-Clause
 ! SUNDIALS Copyright End
 ! ------------------------------------------------------------------
-! The following is a simple example problem for ARKODE, due to Robertson,
-! is from chemical kinetics, and consists of the following three
+! The following is a simple example problem for CVODE, due to Robertson,
+! is from chemical kinetics, and consists of the following three rate
 ! equations:
 !
 !      dy1/dt = -.04*y1 + 1.e4*y2*y3
@@ -24,12 +24,15 @@
 ! conditions: y1 = 1, y2 = y3 = 0.
 !
 ! While integrating the system, we also use the rootfinding
-! feature to find the points at which y1 = 1e-4 or at which
+! feature to find the points at which y1 = 1.e-4 or at which
 ! y3 = 0.01.
 !
-! The problem is solved with ARKODE using the DENSE linear
+! The problem is solved with CVODE using the DENSE linear
 ! solver, with a user-supplied Jacobian. Output is printed at
-! t = .4, 4, 40, ..., 4e10.
+! t = .4, 4, 40, ..., 4e10. It uses ATOL much smaller for y2
+! than y1 or y3 because y2 has much smaller values. The
+! constraint y_i >= 0 is posed for all components. At the end
+! of the run, various counters of interest are printed.
 ! ------------------------------------------------------------------
 
 module dnsc_mod
@@ -40,21 +43,21 @@ module dnsc_mod
     !======= Declarations =========
     implicit none
 
+    integer(c_int), parameter  :: nout = 12
     integer(c_long), parameter :: neq = 3
-    integer(c_long), parameter :: nout = 12
 
   contains
 
     ! ----------------------------------------------------------------
-    ! fcnirob: The implicit RSH operator function
+    ! fcnrob: The CVODE RHS operator function
     !
     ! Return values:
     !    0 = success,
     !    1 = recoverable error,
     !   -1 = non-recoverable error
     ! ----------------------------------------------------------------
-    integer(c_int) function fcnirob(tres, sunvec_y, sunvec_f, user_data) &
-         result(ierr) bind(C,name='fcnirob')
+    integer(c_int) function fcnrob(t, sunvec_y, sunvec_f, user_data) &
+         result(ierr) bind(C,name='fcnrob')
 
       !======= Inclusions ===========
       use, intrinsic :: iso_c_binding
@@ -65,7 +68,7 @@ module dnsc_mod
       implicit none
 
       ! calling variables
-      real(c_double), value :: tres      ! current time
+      real(c_double), value :: t         ! current time
       type(N_Vector)        :: sunvec_y  ! solution N_Vector
       type(N_Vector)        :: sunvec_f  ! function N_Vector
       type(c_ptr),    value :: user_data ! user-defined data
@@ -89,53 +92,7 @@ module dnsc_mod
       ierr = 0
       return
 
-    end function fcnirob
-
-    ! ----------------------------------------------------------------
-    ! fcnerob: The explicit RHS operator function
-    !
-    ! Return values:
-    !    0 = success,
-    !    1 = recoverable error,
-    !   -1 = non-recoverable error
-    ! ----------------------------------------------------------------
-    integer(c_int) function fcnerob(tres, sunvec_y, sunvec_f, user_data) &
-         result(ierr) bind(C,name='fcnerob')
-
-      !======= Inclusions ===========
-      use, intrinsic :: iso_c_binding
-      use fsundials_nvector_mod
-      use fnvector_serial_mod
-
-      !======= Declarations =========
-      implicit none
-
-      ! calling variables
-      real(c_double), value :: tres      ! current time
-      type(N_Vector)        :: sunvec_y  ! solution N_Vector
-      type(N_Vector)        :: sunvec_f  ! function N_Vector
-      type(c_ptr),    value :: user_data ! user-defined data
-
-      ! pointers to data in SUNDIALS vectors
-      real(c_double), pointer :: yval(:)
-      real(c_double), pointer :: fval(:)
-
-      !======= Internals ============
-
-      ! get data arrays from SUNDIALS vectors
-      yval  => FN_VGetArrayPointer(sunvec_y)
-      fval  => FN_VGetArrayPointer(sunvec_f)
-
-      ! fill residual vector
-      fval(1)  = 0.d0
-      fval(2)  = 0.d0
-      fval(3)  = 0.d0
-
-      ! return success
-      ierr = 0
-      return
-
-    end function fcnerob
+    end function fcnrob
 
     ! ----------------------------------------------------------------
     ! grob: The root function routine
@@ -171,8 +128,8 @@ module dnsc_mod
       yval => FN_VGetArrayPointer(sunvec_y)
 
       ! fill root vector
-      gout(1) = yval(1) - 0.0001d0
-      gout(2) = yval(3) - 0.01d0
+      gout(1) = yval(1) - 1.0d-4
+      gout(2) = yval(3) - 1.0d-2
 
       ! return success
       ierr = 0
@@ -181,7 +138,7 @@ module dnsc_mod
     end function grob
 
     ! ----------------------------------------------------------------
-    ! jacrob: The DAE Jacobian function
+    ! jacrob: The Jacobian function
     !
     ! Return values:
     !    0 = success,
@@ -226,13 +183,13 @@ module dnsc_mod
       ! fill Jacobian entries
       J(1,1) = -0.04d0
       J(2,1) = 0.04d0
-      J(3,1) = 0.d0
-      J(1,2) = 1.d4*yval(3)
-      J(2,2) = -1.d4*yval(3) - 6.0d7*yval(2)
-      J(3,2) = 6.d7*yval(2)
-      J(1,3) = 1.d4*yval(2)
-      J(2,3) = -1.d4*yval(2)
-      J(3,3) = 0.d0
+      J(3,1) = 0.0d0
+      J(1,2) = 1.0d4*yval(3)
+      J(2,2) = -1.0d4*yval(3) - 6.0d7*yval(2)
+      J(3,2) = 6.0d7*yval(2)
+      J(1,3) = 1.0d4*yval(2)
+      J(2,3) = -1.0d4*yval(2)
+      J(3,3) = 0.0d0
 
       ! return success
       ierr = 0
@@ -249,38 +206,38 @@ module dnsc_mod
     !======= Inclusions ===========
     use, intrinsic :: iso_c_binding
 
-    use farkode_mod                   ! Fortran interface to ARKODE
-    use farkode_arkstep_mod        ! Fortran interface to the ARKStep module
+    use fcvode_mod                    ! Fortran interface to CVODE
+    ! use fcvode_ls_mod                 ! Fortran interface to the CVode linear solver module
     use fsundials_context_mod         ! Fortran interface to SUNContext
     use fnvector_serial_mod           ! Fortran interface to serial N_Vector
     use fsunmatrix_dense_mod          ! Fortran interface to dense SUNMatrix
     use fsunlinsol_dense_mod          ! Fortran interface to dense SUNLinearSolver
-    use fsunnonlinsol_newton_mod      ! Fortran interface to Newton SUNNonlinearSolver
     use fsundials_matrix_mod          ! Fortran interface to generic SUNMatrix
     use fsundials_nvector_mod         ! Fortran interface to generic N_Vector
     use fsundials_linearsolver_mod    ! Fortran interface to generic SUNLinearSolver
     use fsundials_nonlinearsolver_mod ! Fortran interface to generic SUNNonlinearSolver
-    use dnsc_mod                       ! ODE functions
+    use dnsc_mod                      ! ODE functions
 
     !======= Declarations =========
     implicit none
 
     ! local variables
-    real(c_double) :: rtol, t0, tout1, tout, tret(1)
+    real(c_double) :: rtol, t0, tout, tret(1)
     integer(c_int) :: iout, retval, retvalr, nrtfn, rootsfound(2)
 
     type(N_Vector),           pointer :: sunvec_y      ! sundials solution vector
-    type(N_Vector),           pointer :: sunvec_dky    ! sundials solution vector
     type(N_Vector),           pointer :: sunvec_f      ! sundials solution vector
+    type(N_Vector),           pointer :: sunvec_c      ! sundials constraint vector
+    type(N_Vector),           pointer :: sunvec_dky    ! sundials solution vector
     type(N_Vector),           pointer :: sunvec_av     ! sundials tolerance vector
     type(SUNMatrix),          pointer :: sunmat_A      ! sundials matrix
     type(SUNLinearSolver),    pointer :: sunlinsol_LS  ! sundials linear solver
     type(SUNNonLinearSolver), pointer :: sunnonlin_NLS ! sundials nonlinear solver
-    type(c_ptr)                       :: arkode_mem    ! ARKODE memory
+    type(c_ptr)                       :: cvode_mem     ! ARKODE memory
     type(c_ptr)                       :: sunctx        ! SUNDIALS simulation context
 
     ! solution and tolerance vectors, neq is set in the dae_mod module
-    real(c_double) :: yval(neq), fval(neq), avtol(neq), dkyval(neq)
+    real(c_double) :: yval(neq), cval(neq), avtol(neq), dkyval(neq)
 
     ! fine-tuning initialized here
     real(c_double)  :: initsize, nlscoef
@@ -295,13 +252,15 @@ module dnsc_mod
     yval(1) = 1.d0
     yval(2) = 0.d0
     yval(3) = 0.d0
-    fval    = 0.d0
+    cval(1) = 1.d0
+    cval(2) = 1.d0
+    cval(3) = 1.d0
 
     rtol = 1.d-4
 
-    avtol(1) = 1.d-8
+    avtol(1) = 1.d-6
     avtol(2) = 1.d-11
-    avtol(3) = 1.d-8
+    avtol(3) = 1.d-5
 
     ! create serial vectors
     sunvec_y => FN_VMake_Serial(neq, yval, sunctx)
@@ -310,8 +269,8 @@ module dnsc_mod
        stop 1
     end if
 
-    sunvec_f => FN_VMake_Serial(neq, fval, sunctx)
-    if (.not. associated(sunvec_f)) then
+    sunvec_c => FN_VMake_Serial(neq, cval, sunctx)
+    if (.not. associated(sunvec_c)) then
        print *, 'ERROR: sunvec = NULL'
        stop 1
     end if
@@ -322,28 +281,34 @@ module dnsc_mod
        stop 1
     end if
 
-    ! set integration limits
-    t0 = 0.d0
-    tout1 = 0.4d0
+    ! set limits
+    t0 = 0.0d0
+    tout = 0.4d0
 
-    call PrintHeader(rtol, avtol, yval)
+    call PrintHeader(rtol, avtol, yval, cval)
 
-    ! Call FARKStepCreate to initialize ARKODE memory
-    arkode_mem = FARKStepCreate(c_funloc(fcnerob), c_funloc(fcnirob), t0, sunvec_y, sunctx)
-    if (.not. c_associated(arkode_mem)) print *, 'ERROR: arkode_mem = NULL'
+    ! Call FCVodeCreate FCVodeInit to create and initialize ARKODE memory
+    cvode_mem = FCVodeCreate(CV_BDF, sunctx)
+    if (.not. c_associated(cvode_mem)) print *, 'ERROR: cvode_mem = NULL'
 
-    ! Call FARKStepSVtolerances to set tolerances
-    retval = FARKStepSVtolerances(arkode_mem, rtol, sunvec_av)
+    retval = FCVodeInit(cvode_mem, c_funloc(fcnrob), t0, sunvec_y)
     if (retval /= 0) then
-       print *, 'Error in FARKStepSVtolerances, retval = ', retval, '; halting'
+       print *, 'Error in FCVodeInit, retval = ', retval, '; halting'
        stop 1
     end if
 
-    ! Call FARKStepRootInit to specify the root function grob with 2 components
-    nrtfn = 2
-    retval = FARKStepRootInit(arkode_mem, nrtfn, c_funloc(grob))
+    ! Call FCVodeSVtolerances to set tolerances
+    retval = FCVodeSVtolerances(cvode_mem, rtol, sunvec_av)
     if (retval /= 0) then
-       print *, 'Error in FARKStepRootInit, retval = ', retval, '; halting'
+       print *, 'Error in FCVodeSVtolerances, retval = ', retval, '; halting'
+       stop 1
+    end if
+
+    ! Call FCVodeRootInit to specify the root function grob with 2 components
+    nrtfn = 2
+    retval = FCVodeRootInit(cvode_mem, nrtfn, c_funloc(grob))
+    if (retval /= 0) then
+       print *, 'Error in FCVodeRootInit, retval = ', retval, '; halting'
        stop 1
     end if
 
@@ -362,104 +327,50 @@ module dnsc_mod
     end if
 
     ! Attach the matrix and linear solver
-    retval = FARKStepSetLinearSolver(arkode_mem, sunlinsol_LS, sunmat_A);
+    retval = FCVodeSetLinearSolver(cvode_mem, sunlinsol_LS, sunmat_A);
     if (retval /= 0) then
-       print *, 'Error in FARKStepSetLinearSolver, retval = ', retval, '; halting'
-       stop 1
-    end if
-
-    mxsteps = 10000
-    retval = FARKStepSetMaxNumSteps(arkode_mem, mxsteps)
-    if (retval /= 0) then
-       print *, 'Error in FARKStepSetMaxNumSteps'
-       stop 1
-    end if
-
-    initsize = 1.d-4 * rtol
-    retval = FARKStepSetInitStep(arkode_mem, initsize)
-    if (retval /= 0) then
-       print *, 'Error in FARKStepSetInitStep'
-       stop 1
-    end if
-
-    nlscoef = 1.d-7
-    retval = FARKStepSetNonlinConvCoef(arkode_mem, nlscoef)
-    if (retval /= 0) then
-       print *, 'Error in FARKStepSetNonlinConvCoef'
-       stop 1
-    end if
-
-    nliters = 8
-    retval = FARKStepSetMaxNonlinIters(arkode_mem, nliters)
-    if (retval /= 0) then
-       print *, 'Error in FARKStepSetMaxNonlinIters'
-       stop 1
-    end if
-
-    pmethod = 1
-    retval = FARKStepSetPredictorMethod(arkode_mem, pmethod)
-    if (retval /= 0) then
-       print *, 'Error in FARKStepSetPredictorMethod'
-       stop 1
-    end if
-
-    maxetf = 20
-    retval = FARKStepSetMaxErrTestFails(arkode_mem, maxetf)
-    if (retval /= 0) then
-       print *, 'Error in FARKStepSetMaxErrTestFails'
+       print *, 'Error in FCVodeSetLinearSolver, retval = ', retval, '; halting'
        stop 1
     end if
 
     ! Set the user-supplied Jacobian routine
-    retval = FARKStepSetJacFn(arkode_mem, c_funloc(jacrob))
+    retval = FCVodeSetJacFn(cvode_mem, c_funloc(jacrob))
     if (retval /= 0) then
-       print *, 'Error in FARKStepSetJacFn, retval = ', retval, '; halting'
+       print *, 'Error in FCVodeSetJacFn, retval = ', retval, '; halting'
        stop 1
     end if
 
-    ! Create Newton SUNNonlinearSolver object. ARKODE uses a
-    ! Newton SUNNonlinearSolver by default, so it is not necessary
-    ! to create it and attach it. It is done in this example code
-    ! solely for demonstration purposes.
-    sunnonlin_NLS => FSUNNonlinSol_Newton(sunvec_y, sunctx)
-    if (.not. associated(sunnonlin_NLS)) then
-       print *, 'ERROR: sunnonlinsol = NULL'
-       stop 1
-    end if
-
-    ! Attach the nonlinear solver
-    retval = FARKStepSetNonlinearSolver(arkode_mem, sunnonlin_NLS)
+    retval = FCVodeSetConstraints(cvode_mem, sunvec_c)
     if (retval /= 0) then
-       print *, 'Error in FARKStepSetNonlinearSolver, retval = ', retval, '; halting'
+       print *, 'Error in FCVodeSetConstraints, retval = ', retval, '; halting'
        stop 1
     end if
 
-    ! In loop, call ARKStepEvolve, print results, and test for error.
+    ! In loop, call FCVode, print results, and test for error.
 
     iout = 0
-    tout = tout1
     do while(iout < nout)
 
-       retval = FARKStepEvolve(arkode_mem, tout, sunvec_y, tret(1), ARK_NORMAL)
+       retval = FCVode(cvode_mem, tout, sunvec_y, tret(1), CV_NORMAL)
        if (retval < 0) then
-          print *, 'Error in FARKStepEvolve, retval = ', retval, '; halting'
+          print *, 'Error in FCVode, retval = ', retval, '; halting'
           stop 1
-       endif
+       end if
 
-       call PrintOutput(arkode_mem, tret(1), yval)
+       call PrintOutput(cvode_mem, tret(1), yval)
 
-       if (retval .eq. ARK_ROOT_RETURN) then
-          retvalr = FARKStepGetRootInfo(arkode_mem, rootsfound)
+       if (retval .eq. CV_ROOT_RETURN) then
+          retvalr = FCVodeGetRootInfo(cvode_mem, rootsfound)
           if (retvalr < 0) then
-             print *, 'Error in FARKStepGetRootInfo, retval = ', retval, '; halting'
+             print *, 'Error in FCVodeGetRootInfo, retval = ', retval, '; halting'
              stop 1
-          endif
+          end if
           print '(a,2(i2,2x))', "    rootsfound[] = ", rootsfound(1), rootsfound(2)
        end if
 
-       if (retval .eq. ARK_SUCCESS) then
+       if (retval .eq. CV_SUCCESS) then
           iout = iout + 1
-          tout = tout * 10.d0
+          tout = tout * 10.0d0
        end if
     end do
 
@@ -470,9 +381,9 @@ module dnsc_mod
     end if
 
     ! find and print derivative at tret(1)
-    retval = FARKStepGetDky(arkode_mem, tret(1), 1, sunvec_dky)
+    retval = FCVodeGetDky(cvode_mem, tret(1), 1, sunvec_dky)
     if (retval /= 0) then
-       print *, 'Error in ARKStepGetDky'
+       print *, 'Error in CVodeGetDky'
        stop 1
     end if
     print *, " "
@@ -481,14 +392,15 @@ module dnsc_mod
     print *, "------------------------------------------------------"
     print '(13x,3(es12.4,1x))', dkyval
 
-    call PrintFinalStats(arkode_mem)
+    call PrintFinalStats(cvode_mem)
 
     ! free memory
-    call FARKStepFree(arkode_mem)
-    retval = FSUNNonlinSolFree(sunnonlin_NLS)
+    call FCVodeFree(cvode_mem)
     retval = FSUNLinSolFree(sunlinsol_LS)
     call FSUNMatDestroy(sunmat_A)
     call FN_VDestroy(sunvec_y)
+    call FN_VDestroy(sunvec_f)
+    call FN_VDestroy(sunvec_c)
     call FN_VDestroy(sunvec_dky)
     call FN_VDestroy(sunvec_av)
     retval = FSUNContext_Free(sunctx)
@@ -499,7 +411,7 @@ module dnsc_mod
   ! ----------------------------------------------------------------
   ! PrintHeader: prints first lines of output (problem description)
   ! ----------------------------------------------------------------
-  subroutine PrintHeader(rtol, avtol, y)
+  subroutine PrintHeader(rtol, avtol, y, c)
 
     !======= Inclusions ===========
     use, intrinsic :: iso_c_binding
@@ -511,22 +423,23 @@ module dnsc_mod
     ! calling variable
     real(c_double) :: rtol
     real(c_double) :: avtol(neq)
-    real(c_double) :: y(neq)
+    real(c_double) :: y(neq), c(neq)
 
     !======= Internals ============
 
     print *, " "
-    print *, "arkRoberts_dnsL.f03: Robertson ARK ODE serial example problem for ARKODE"
+    print *, "cv_roberts_dns_constraints_f2003.f90: Robertson CV ODE serial example problem for CVODE"
     print *, "         Three equation chemical kinetics problem."
     print *, " "
     print *, "Linear solver: DENSE, with user-supplied Jacobian."
     print '(a,f6.4,a,3(es7.0,1x))', "Tolerance parameters:  rtol = ",rtol,"   atol = ", avtol
     print '(a,3(f5.2,1x),a)', "Initial conditions y0 = (",y,")"
-    print *, "Constraints and id not used."
+    print '(a,3(f5.2,1x),a)', "Constraints cval = (",c,")"
+    print *, "ID not used."
     print *, " "
-    print *, "----------------------------------------------------------------------"
-    print *, "   t            y1           y2           y3       | nst      h"
-    print *, "----------------------------------------------------------------------"
+    print *, "---------------------------------------------------"
+    print *, "   t            y1           y2           y3"
+    print *, "---------------------------------------------------"
 
     return
   end subroutine PrintHeader
@@ -535,42 +448,26 @@ module dnsc_mod
   ! ----------------------------------------------------------------
   ! PrintOutput
   ! ----------------------------------------------------------------
-  subroutine PrintOutput(arkode_mem, t, y)
+  subroutine PrintOutput(cvode_mem, t, y)
 
     !======= Inclusions ===========
     use, intrinsic :: iso_c_binding
-    use farkode_mod
-    use farkode_arkstep_mod
+    use fcvode_mod
     use dnsc_mod
 
     !======= Declarations =========
     implicit none
 
     ! calling variable
-    type(c_ptr)    :: arkode_mem
+    type(c_ptr)    :: cvode_mem
     real(c_double) :: t, y(neq)
 
     ! internal variables
-    integer(c_int)  :: retval, kused(1)
-    integer(c_long) :: nst(1)
-    real(c_double)  :: hused(1)
+    integer(c_int)  :: retval
 
     !======= Internals ============
 
-    retval = FARKStepGetNumSteps(arkode_mem, nst)
-    if (retval /= 0) then
-       print *, 'Error in FARKStepGetNumSteps, retval = ', retval, '; halting'
-       stop 1
-    end if
-
-    retval = FARKStepGetLastStep(arkode_mem, hused)
-    if (retval /= 0) then
-       print *, 'Error in FARKStepGetLastStep, retval = ', retval, '; halting'
-       stop 1
-    end if
-
-    print '(es12.4,1x,3(es12.4,1x),a,i3,2x,es12.4)', &
-         t, y(1), y(2), y(3), "| ", nst, hused(1)
+    print '(es12.4,1x,3(es12.4,1x))', t, y(1), y(2), y(3)
 
   end subroutine PrintOutput
 
@@ -580,122 +477,93 @@ module dnsc_mod
   !
   ! Print ARKSOL statstics to standard out
   ! ----------------------------------------------------------------
-  subroutine PrintFinalStats(arkode_mem)
+  subroutine PrintFinalStats(cvode_mem)
 
     !======= Inclusions ===========
     use iso_c_binding
-    use farkode_mod
-    use farkode_arkstep_mod
+    use fcvode_mod
 
     !======= Declarations =========
     implicit none
 
-    type(c_ptr), intent(in) :: arkode_mem ! solver memory structure
+    type(c_ptr), intent(in) :: cvode_mem ! solver memory structure
 
     integer(c_int)  :: retval          ! error flag
 
     integer(c_long) :: nsteps(1)     ! num steps
-    integer(c_long) :: nst_a(1)      ! num steps attempted
-    integer(c_long) :: nfe(1)        ! num explicit function evals
-    integer(c_long) :: nfi(1)        ! num implicit function evals
-    integer(c_long) :: nlinsetups(1) ! num linear solver setups
+    integer(c_long) :: nfe(1)        ! num function evals
     integer(c_long) :: netfails(1)   ! num error test fails
-
-    real(c_double)  :: hinused(1)    ! initial step size
-    real(c_double)  :: hlast(1)      ! last step size
-    real(c_double)  :: hcur(1)       ! step size for next step
-    real(c_double)  :: tcur(1)       ! internal time reached
-
     integer(c_long) :: nniters(1)    ! nonlinear solver iterations
     integer(c_long) :: nncfails(1)   ! nonlinear solver fails
     integer(c_long) :: njacevals(1)  ! number of Jacobian evaluations
+    integer(c_long) :: nluevals(1)   ! number of LU evals
+    integer(c_long) :: ngevals(1)    ! number of root evals
 
     !======= Internals ============
 
-    retval = FARKStepGetNumSteps(arkode_mem, nsteps)
+    retval = FCVodeGetNumSteps(cvode_mem, nsteps)
     if (retval /= 0) then
-       print *, 'Error in FARKStepGetNumSteps, retval = ', retval, '; halting'
+       print *, 'Error in FCVodeGetNumSteps, retval = ', retval, '; halting'
        stop 1
     end if
 
-    retval = FARKStepGetNumStepAttempts(arkode_mem, nst_a)
+    retval = FCVodeGetNumRhsEvals(cvode_mem, nfe)
     if (retval /= 0) then
-       print *, 'Error in FARKStepGetNumStepAttempts, retval = ', retval, '; halting'
+       print *, 'Error in FCVodeGetNumRhsEvals, retval = ', retval, '; halting'
        stop 1
     end if
 
-    retval = FARKStepGetNumRhsEvals(arkode_mem, nfe, nfi)
+    retval = FCVodeGetNumLinSolvSetups(cvode_mem, nluevals)
     if (retval /= 0) then
-       print *, 'Error in FARKStepGetNumRhsEvals, retval = ', retval, '; halting'
+       print *, 'Error in FCVodeGetNumLinSolvSetups, retval = ', retval, '; halting'
        stop 1
     end if
 
-    retval = FARKStepGetActualInitStep(arkode_mem, hinused)
+    retval = FCVodeGetNumErrTestFails(cvode_mem, netfails)
     if (retval /= 0) then
-       print *, 'Error in FARKStepGetActualInitStep, retval = ', retval, '; halting'
+       print *, 'Error in FCVodeGetNumErrTestFails, retval = ', retval, '; halting'
        stop 1
     end if
 
-    retval = FARKStepGetLastStep(arkode_mem, hlast)
+    retval = FCVodeGetNumNonlinSolvIters(cvode_mem, nniters)
     if (retval /= 0) then
-       print *, 'Error in FARKStepGetLastStep, retval = ', retval, '; halting'
+       print *, 'Error in FCVodeGetNumNonlinSolvIters, retval = ', retval, '; halting'
        stop 1
     end if
 
-    retval = FARKStepGetCurrentStep(arkode_mem, hcur)
+    retval = FCVodeGetNumNonlinSolvConvFails(cvode_mem, nncfails)
     if (retval /= 0) then
-       print *, 'Error in FARKStepGetCurrentStep, retval = ', retval, '; halting'
+       print *, 'Error in FCVodeGetNumNonlinSolvConvFails, retval = ', retval, '; halting'
        stop 1
     end if
 
-    retval = FARKStepGetCurrentTime(arkode_mem, tcur)
+    ! ! Alternatively
+    ! retval = FCVodeGetNonlinSolvStats(cvode_mem, nniters, nncfails)
+    ! if (retval /= 0) then
+    !    print *, 'Error in FCVodeGetNonlinSolvStats, retval = ', retval, '; halting'
+    !    stop 1
+    ! end if
+
+    retval = FCVodeGetNumJacEvals(cvode_mem, njacevals)
     if (retval /= 0) then
-       print *, 'Error in FARKStepGetCurrentTime, retval = ', retval, '; halting'
+       print *, 'Error in FCVodeGetNumJacEvals, retval = ', retval, '; halting'
        stop 1
     end if
 
-    retval = FARKStepGetNumLinSolvSetups(arkode_mem, nlinsetups)
+    retval = FCVodeGetNumGEvals(cvode_mem, ngevals)
     if (retval /= 0) then
-       print *, 'Error in FARKStepGetNumLinSolvSetups, retval = ', retval, '; halting'
-       stop 1
-    end if
-
-    retval = FARKStepGetNumErrTestFails(arkode_mem, netfails)
-    if (retval /= 0) then
-       print *, 'Error in FARKStepGetNumErrTestFails, retval = ', retval, '; halting'
-       stop 1
-    end if
-
-    retval = FARKStepGetNumNonlinSolvIters(arkode_mem, nniters)
-    if (retval /= 0) then
-       print *, 'Error in FARKStepGetNumNonlinSolvIters, retval = ', retval, '; halting'
-       stop 1
-    end if
-
-    retval = FARKStepGetNumNonlinSolvConvFails(arkode_mem, nncfails)
-    if (retval /= 0) then
-       print *, 'Error in FARKStepGetNumNonlinSolvConvFails, retval = ', retval, '; halting'
-       stop 1
-    end if
-
-    retval = FARKStepGetNumJacEvals(arkode_mem, njacevals)
-    if (retval /= 0) then
-       print *, 'Error in FARKStepGetNumJacEvals, retval = ', retval, '; halting'
+       print *, 'Error in FCVodeGetNumGEvals, retval = ', retval, '; halting'
        stop 1
     end if
 
     print *, ' '
     print *, ' General Solver Stats:'
     print '(4x,A,i9)'    ,'Total internal steps taken    =',nsteps
-    print '(4x,A,i9)'    ,'Total internal steps attempts =',nst_a
-    print '(4x,A,i9)'    ,'Total rhs exp function call   =',nfe
-    print '(4x,A,i9)'    ,'Total rhs imp function call   =',nfi
-    print '(4x,A,i9)'    ,'Num lin solver setup calls    =',nlinsetups
+    print '(4x,A,i9)'    ,'Total rhs function calls      =',nfe
+    print '(4x,A,i9)'    ,'Total Jacobian function calls =',njacevals
+    print '(4x,A,i9)'    ,'Total root function calls     =',ngevals
+    print '(4x,A,i9)'    ,'Total LU function calls       =',nluevals
     print '(4x,A,i9)'    ,'Num error test failures       =',netfails
-    print '(4x,A,es12.5)','First internal step size      =',hinused
-    print '(4x,A,es12.5)','Last internal step size       =',hlast
-    print '(4x,A,es12.5)','Next internal step size       =',hcur
-    print '(4x,A,es12.5)','Current internal time         =',tcur
     print '(4x,A,i9)'    ,'Num nonlinear solver iters    =',nniters
     print '(4x,A,i9)'    ,'Num nonlinear solver fails    =',nncfails
     print *, ' '

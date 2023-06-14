@@ -57,8 +57,6 @@ module diurnal_mod
     integer(c_long), parameter :: mm = mx*my
     integer(c_long), parameter :: neq = 2*mm
 
-    ! ADD A3, A4 to the list below
-
     ! ODE constant parameters
     double precision, parameter :: Kh = 4.0d-6
     double precision, parameter :: Vel = 0.001d0
@@ -74,6 +72,8 @@ module diurnal_mod
     double precision, parameter :: hdco = Kh/(dx**2)
     double precision, parameter :: haco = Vel/(2.0d0*dx)
     double precision, parameter :: vdco = (1.0d0/(dy**2))*Kv0
+    double precision, parameter :: a3 = 22.62d0
+    double precision, parameter :: a4 = 7.601d0
 
     ! Solving assistance fixed parameters
     double precision, parameter :: twohr = 7200.0D0
@@ -91,8 +91,6 @@ module diurnal_mod
     double precision :: q4
     double precision :: c1
     double precision :: c2
-    double precision :: a3
-    double precision :: a4
     integer(c_long)  :: jx, jy
 
     contains
@@ -142,8 +140,15 @@ module diurnal_mod
       uvecI(1:2,1:mm) => FN_VGetArrayPointer(sunvec_u)
       fvecI(1:2,1:mm) => FN_VGetArrayPointer(sunvec_f)
 
-      ! add "Set diurnal rate coefficients" code here (including A3, A4)
-
+      ! Set diurnal rate coefficients.
+      s = sin(om * tn)
+      if (s > 0.0d0) then
+         q3 = exp(-a3 / s)
+         q4 = exp(-a4 / s)
+      else
+         q3 = 0.0d0
+         q4 = 0.0d0
+      end if
 
       ! Loop over all grid points.
       do jy = 1, my
@@ -265,7 +270,6 @@ module diurnal_mod
     end if
 
     uvec(1:2,1:mx,1:my) => FN_VGetArrayPointer(sunvec_u)
-   !  fvec(1:2,1:mx,1:my) => FN_VGetArrayPointer(sunvec_f)
 
     ! initialize and fill initial condition vector
     do jy = 1,my
@@ -318,14 +322,6 @@ module diurnal_mod
        stop 1
     end if
 
-   !  ! Attach the linear solver (with NULL SUNMatrix object)
-   !  sunmat_A => null()
-   !  ierr = FARKStepSetLinearSolver(arkode_mem, sunls, sunmat_A)
-   !  if (ierr /= 0) then
-   !     print *, 'Error in FARKStepSetLinearSolver, ierr = ', ierr, '; halting'
-   !     stop 1
-   !  end if
-
     mu = 2
     ml = 2
     ierr = FARKBandPrecInit(arkode_mem, neq, mu, ml)
@@ -338,9 +334,9 @@ module diurnal_mod
     print *, '   '
     print *, 'Finished initialization, starting time steps'
     print *, '   '
-    print *, '      t          c1  (bottom left      middle       top right)   |   lnst   lnst_att  lh '
-    print *, '      t          c2  (bottom left      middle       top right)   |   lnst   lnst_att  lh '
-    print *, ' ------------------------------------------------------------------------------------'
+    print *, '      t          c1  (bottom left      middle       top right)  | lnst  lnst_att  lh'
+    print *, '      t          c2  (bottom left      middle       top right)  | lnst  lnst_att  lh'
+    print *, ' ----------------------------------------------------------------------------------------'
     tout = twohr
     do outstep = 1,12
 
@@ -371,13 +367,13 @@ module diurnal_mod
 
        ! print current solution and output statistics
        print '(2x,4(es14.6,2x),i5,i5,es14.6)', tcur, uvec(1,1,1), uvec(1,5,5), uvec(1,10,10), lnst, lnst_att, lh
-       print '(18x,3(es14.6,2x),24x)', uvec(2,1,1), uvec(2,5,5), uvec(2,10,10)
+       print '(18x,3(es14.6,2x))', uvec(2,1,1), uvec(2,5,5), uvec(2,10,10)
 
        ! update tout
        tout = tout + twohr
 
     end do
-    print *, ' --------------------------------------------------------------------------------'
+    print *, ' ----------------------------------------------------------------------------------------'
 
     ! diagnostics output
     call ARKStepStats(arkode_mem)
