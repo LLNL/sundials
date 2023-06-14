@@ -81,9 +81,13 @@ find_package(HYPRE CONFIG
 
 # Determine the backends
 foreach(_backend CUDA HIP)
-  file(STRINGS "${HYPRE_CONFIGH_PATH}" _hypre_has_backend REGEX "^#define HYPRE_USING_${_backend}\$")
+  message(CHECK_START "Was HYPRE built with ${_backend} backend?")
+  file(STRINGS "${HYPRE_CONFIGH_PATH}" _hypre_has_backend REGEX "^#define HYPRE_USING_${_backend}")
   if(_hypre_has_backend)
     set(HYPRE_BACKENDS "${_backend};${HYPRE_BACKENDS}")
+    message(CHECK_PASS "Yes")
+  else()
+    message(CHECK_FAIL "No")
   endif()
 endforeach()
 
