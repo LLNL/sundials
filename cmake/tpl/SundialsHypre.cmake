@@ -96,10 +96,9 @@ endforeach()
 #                 HYPRE_RELEASE_DATE, HYPRE_RELEASE_TIME, HYPRE_RELEASE_BUGS,
 #                 HYPRE_DEVELOP_STRING, HYPRE_DEVELOP_NUMBER, HYPRE_DEVELOP_BRANCH,
 #                 HYPRE_BRANCH_NAME
-file(STRINGS "${HYPRE_CONFIGH_PATH}" _hypre_release_version REGEX "[0-9]+\.[0-9]+\.[0-9]+")
-message(STATUS "HYPRE Version:  ${_hypre_release_version}")
-
-# CUDA linkage already performed in hypre/src/config/cmake/HYPRE_CMakeUtilities.cmake
+file(READ "${HYPRE_CONFIGH_PATH}" _hypre_config_file_text)
+string(REGEX MATCH "[0-9]+\.[0-9]+\.[0-9]+" _hypre_release_version _hypre_config_file_text)
+message(STATUS "HYPRE Version: ${_hypre_release_version}")
 
 # -----------------------------------------------------------------------------
 # Section 4: Test the TPL
