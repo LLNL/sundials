@@ -47,8 +47,6 @@ if(ENABLE_HYPRE)
   endif()
 endif()
 
-message(STATUS "Requested SUNDIALS HYPRE backend: ${SUNDIALS_HYPRE_BACKENDS}")
-
 if((SUNDIALS_HYPRE_BACKENDS MATCHES "CUDA") AND (NOT ENABLE_CUDA))
   message(FATAL_ERROR "HYPRE with a CUDA backend requires ENABLE_CUDA = ON")
 endif()
@@ -103,6 +101,8 @@ endforeach()
 # -----------------------------------------------------------------------------
 # Section 4: Test the TPL
 # -----------------------------------------------------------------------------
+
+message(STATUS "Requested SUNDIALS HYPRE backend: ${SUNDIALS_HYPRE_BACKENDS}")
 
 if((SUNDIALS_HYPRE_BACKENDS MATCHES "CUDA") AND
    (NOT HYPRE_BACKENDS MATCHES "CUDA"))
