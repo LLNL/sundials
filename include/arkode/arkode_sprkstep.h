@@ -67,7 +67,7 @@ SUNDIALS_EXPORT int SPRKStepRootInit(void* arkode_mem, int nrtfn, ARKRootFn g);
 SUNDIALS_EXPORT int SPRKStepSetDefaults(void* arkode_mem);
 SUNDIALS_EXPORT int SPRKStepSetUseCompensatedSums(void* arkode_mem,
                                                   sunbooleantype onoff);
-SUNDIALS_EXPORT int SPRKStepSetMethod(void* arkode_mem, ARKodeSPRKMem sprk_mem);
+SUNDIALS_EXPORT int SPRKStepSetMethod(void* arkode_mem, ARKodeSPRKStorage sprk_storage);
 SUNDIALS_EXPORT int SPRKStepSetOrder(void* arkode_mem, int maxord);
 SUNDIALS_EXPORT int SPRKStepSetInterpolantType(void* arkode_mem, int itype);
 SUNDIALS_EXPORT int SPRKStepSetInterpolantDegree(void* arkode_mem, int degree);
@@ -100,7 +100,7 @@ SUNDIALS_EXPORT int SPRKStepGetDky(void* arkode_mem, realtype t, int k,
 /* Optional output functions */
 SUNDIALS_EXPORT char* SPRKStepGetReturnFlagName(long int flag);
 SUNDIALS_EXPORT int SPRKStepGetCurrentMethod(void* arkode_mem,
-                                             ARKodeSPRKMem* sprk_mem);
+                                             ARKodeSPRKStorage* sprk_storage);
 SUNDIALS_EXPORT int SPRKStepGetCurrentState(void* arkode_mem, N_Vector* state);
 SUNDIALS_EXPORT int SPRKStepGetCurrentStep(void* arkode_mem, realtype* hcur);
 SUNDIALS_EXPORT int SPRKStepGetCurrentTime(void* arkode_mem, realtype* tcur);

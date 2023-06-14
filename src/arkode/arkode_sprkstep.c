@@ -613,7 +613,7 @@ int sprkStep_TakeStep_Compensated(void* arkode_mem, realtype* dsmPtr,
 {
   ARKodeMem ark_mem;
   ARKodeSPRKStepMem step_mem;
-  ARKodeSPRKMem method;
+  ARKodeSPRKStorage method;
   int retval, is;
   N_Vector delta_Yi, yn_plus_delta_Yi, diff;
 

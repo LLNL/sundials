@@ -16,16 +16,17 @@
 #ifndef _ARKODE_SPRKMEM_H
 #define _ARKODE_SPRKMEM_H
 
-#include <sundials/sundials_types.h>
 #include <arkode/arkode_butcher.h>
+#include <sundials/sundials_types.h>
 
-#ifdef __cplusplus  /* wrapper to enable C++ usage */
+#ifdef __cplusplus /* wrapper to enable C++ usage */
 extern "C" {
 #endif
 
-typedef enum {
-  ARKODE_SPRK_NONE = -1, /* ensure enum is signed int */
-  ARKODE_MIN_SPRK_NUM = 0,
+typedef enum
+{
+  ARKODE_SPRK_NONE            = -1, /* ensure enum is signed int */
+  ARKODE_MIN_SPRK_NUM         = 0,
   ARKODE_SYMPLECTIC_EULER_1_1 = ARKODE_MIN_SPRK_NUM,
   ARKODE_SYMPLECTIC_LEAPFROG_2_2,
   ARKODE_SYMPLECTIC_PSEUDO_LEAPFROG_2_2,
@@ -41,42 +42,45 @@ typedef enum {
   ARKODE_MAX_SPRK_NUM = ARKODE_SYMPLECTIC_SOFRONIOU_10_36
 } ARKODE_SPRKMethodID;
 
-struct ARKodeSPRKMem_s {
-
-  int q;           /* method order of accuracy         */
-  int stages;      /* number of stages                 */
-  sunrealtype* a;  /* coefficients multiplying q'     */
-  sunrealtype* b;  /* coefficients multiplying p'     */
+struct ARKodeSPRKMem_s
+{
+  int q;          /* method order of accuracy         */
+  int stages;     /* number of stages                 */
+  sunrealtype* a; /* coefficients that generate the explicit Butcher table */
+  sunrealtype* b; /* coefficients that generate the diagonally-implicit Butcher
+                     table */
 
   /* the a_i coefficients generate the explicit Butcher table */
   /* the b_i coefficients generate the diagonally-implicit Butcher table */
-
 };
 
-typedef _SUNDIALS_STRUCT_ ARKodeSPRKMem_s *ARKodeSPRKMem;
+typedef _SUNDIALS_STRUCT_ ARKodeSPRKMem_s* ARKodeSPRKStorage;
 
 /* Utility routines to allocate/free/output SPRK structures */
-SUNDIALS_EXPORT ARKodeSPRKMem ARKodeSPRKMem_Alloc(int stages);
-SUNDIALS_EXPORT ARKodeSPRKMem ARKodeSPRKMem_Load(ARKODE_SPRKMethodID id);
-SUNDIALS_EXPORT ARKodeSPRKMem ARKodeSPRKMem_Copy(ARKodeSPRKMem B);
-SUNDIALS_EXPORT void ARKodeSPRKMem_Space(ARKodeSPRKMem B, sunindextype *liw, sunindextype *lrw);
-SUNDIALS_EXPORT void ARKodeSPRKMem_Free(ARKodeSPRKMem B);
-SUNDIALS_EXPORT int ARKodeSPRKMem_ToButcher(ARKodeSPRKMem sprk_mem, ARKodeButcherTable* b_ptr, ARKodeButcherTable* B_ptr);
+SUNDIALS_EXPORT ARKodeSPRKStorage ARKodeSPRKMem_Alloc(int stages);
+SUNDIALS_EXPORT ARKodeSPRKStorage ARKodeSPRKMem_Load(ARKODE_SPRKMethodID id);
+SUNDIALS_EXPORT ARKodeSPRKStorage ARKodeSPRKMem_Copy(ARKodeSPRKStorage B);
+SUNDIALS_EXPORT void ARKodeSPRKMem_Space(ARKodeSPRKStorage B, sunindextype* liw,
+                                         sunindextype* lrw);
+SUNDIALS_EXPORT void ARKodeSPRKMem_Free(ARKodeSPRKStorage B);
+SUNDIALS_EXPORT int ARKodeSPRKMem_ToButcher(ARKodeSPRKStorage sprk_storage,
+                                            ARKodeButcherTable* a_ptr,
+                                            ARKodeButcherTable* b_ptr);
 
 /* Different methods */
 
-ARKodeSPRKMem ARKodeSymplecticEuler();
-ARKodeSPRKMem ARKodeSymplecticLeapfrog2();
-ARKodeSPRKMem ARKodeSymplecticPseudoLeapfrog2();
-ARKodeSPRKMem ARKodeSymplecticRuth3();
-ARKodeSPRKMem ARKodeSymplecticCandyRozmus4();
-ARKodeSPRKMem ARKodeSymplecticMcLachlan2();
-ARKodeSPRKMem ARKodeSymplecticMcLachlan3();
-ARKodeSPRKMem ARKodeSymplecticMcLachlan4();
-ARKodeSPRKMem ARKodeSymplecticMcLachlan5();
-ARKodeSPRKMem ARKodeSymplecticYoshida6();
-ARKodeSPRKMem ARKodeSymplecticMcLachlan8();
-ARKodeSPRKMem ARKodeSymplecticSofroniou10();
+ARKodeSPRKStorage ARKodeSymplecticEuler();
+ARKodeSPRKStorage ARKodeSymplecticLeapfrog2();
+ARKodeSPRKStorage ARKodeSymplecticPseudoLeapfrog2();
+ARKodeSPRKStorage ARKodeSymplecticRuth3();
+ARKodeSPRKStorage ARKodeSymplecticCandyRozmus4();
+ARKodeSPRKStorage ARKodeSymplecticMcLachlan2();
+ARKodeSPRKStorage ARKodeSymplecticMcLachlan3();
+ARKodeSPRKStorage ARKodeSymplecticMcLachlan4();
+ARKodeSPRKStorage ARKodeSymplecticMcLachlan5();
+ARKodeSPRKStorage ARKodeSymplecticYoshida6();
+ARKodeSPRKStorage ARKodeSymplecticMcLachlan8();
+ARKodeSPRKStorage ARKodeSymplecticSofroniou10();
 
 #ifdef __cplusplus
 }

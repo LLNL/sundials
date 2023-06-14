@@ -670,12 +670,12 @@ Optional inputs for IVP method selection
       accumulation. 
 
 
-.. c:function:: int SPRKStepSetMethod(void* arkode_mem, ARKodeSPRKMem sprk_mem)
+.. c:function:: int SPRKStepSetMethod(void* arkode_mem, ARKodeSPRKStorage sprk_storage)
 
    Specifies the SPRK method.
 
    :param arkode_mem: pointer to the SPRKStep memory block.
-   :param sprk_mem: the SPRK method memory.
+   :param sprk_storage: the SPRK method memory.
 
    :return:
       * *ARK_SUCCESS* if successful
@@ -684,8 +684,8 @@ Optional inputs for IVP method selection
 
    **Notes:**
 
-      For a description of the :c:type:`ARKodeSPRKMem` type and related
-      functions for creating the method structure, see :numref:`ARKodeSPRKMem`.
+      For a description of the :c:type:`ARKodeSPRKStorage` type and related
+      functions for creating the method structure, see :numref:`ARKodeSPRKStorage`.
 
       No error checking is performed to ensure that either the method order *p* or
       specified in the method structure correctly describe the coefficients.
@@ -1099,19 +1099,19 @@ Main solver optional output functions
 
 
 
-.. c:function:: int SPRKStepGetCurrentMethod(void* arkode_mem, ARKodeSPRKMem *sprk_mem)
+.. c:function:: int SPRKStepGetCurrentMethod(void* arkode_mem, ARKodeSPRKStorage *sprk_storage)
 
    Returns the SPRK method structure currently in use by the solver.
 
    :param arkode_mem: pointer to the SPRKStep memory block.
-   :param sprk_mem: pointer to the SPRK method structure.
+   :param sprk_storage: pointer to the SPRK method structure.
 
    :return:
       * *ARK_SUCCESS* if successful
       * *ARK_MEM_NULL* if the SPRKStep memory was ``NULL``
 
    **Notes:**
-      The :c:type:`ARKodeSPRKMem` data structure is defined as a
+      The :c:type:`ARKodeSPRKStorage` data structure is defined as a
       pointer to the following C structure:
 
       .. code-block:: c
@@ -1128,7 +1128,7 @@ Main solver optional output functions
 
          };
 
-      For more details see :numref:`ARKodeSPRKMem`.
+      For more details see :numref:`ARKodeSPRKStorage`.
 
 
 

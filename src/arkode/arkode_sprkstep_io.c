@@ -278,7 +278,7 @@ int SPRKStepSetUseCompensatedSums(void* arkode_mem, sunbooleantype onoff)
   ** Note in documentation that this should not be called along
   with SPRKStepSetOrder. **
   ---------------------------------------------------------------*/
-int SPRKStepSetMethod(void* arkode_mem, ARKodeSPRKMem sprk_mem)
+int SPRKStepSetMethod(void* arkode_mem, ARKodeSPRKStorage sprk_storage)
 {
   ARKodeMem ark_mem;
   ARKodeSPRKStepMem step_mem;
@@ -295,7 +295,7 @@ int SPRKStepSetMethod(void* arkode_mem, ARKodeSPRKMem sprk_mem)
     step_mem->method = NULL;
   }
 
-  step_mem->method = sprk_mem;
+  step_mem->method = sprk_storage;
 
   return (ARK_SUCCESS);
 }
@@ -363,7 +363,7 @@ int SPRKStepGetNumRhsEvals(void* arkode_mem, long int* nf1, long int* nf2)
 
   Returns the stepper method structure.
   ---------------------------------------------------------------*/
-int SPRKStepGetCurrentMethod(void* arkode_mem, ARKodeSPRKMem* sprk_mem)
+int SPRKStepGetCurrentMethod(void* arkode_mem, ARKodeSPRKStorage* sprk_storage)
 {
   ARKodeMem ark_mem;
   ARKodeSPRKStepMem step_mem;
@@ -374,7 +374,7 @@ int SPRKStepGetCurrentMethod(void* arkode_mem, ARKodeSPRKMem* sprk_mem)
                                   &ark_mem, &step_mem);
   if (retval != ARK_SUCCESS) return (retval);
 
-  *sprk_mem = step_mem->method;
+  *sprk_storage = step_mem->method;
 
   return (ARK_SUCCESS);
 }
