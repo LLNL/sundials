@@ -57,7 +57,8 @@
      ARKODE_ARK548L2SAb_DIRK_8_4_5*   ESDIRK     Y         Y       N
      ARKODE_ESDIRK547L2SA_7_4_5       ESDIRK     Y         Y       N
      ARKODE_ESDIRK547L2SA2_7_4_5      ESDIRK     Y         Y       N
-    -----------------------------------------------------------------
+     ARKODE_ARK2_DIRK_3_1_2           ESDIRK     Y         Y       Y
+     -----------------------------------------------------------------
 */
 
 ARK_BUTCHER_TABLE(ARKODE_DIRK_NONE, {
@@ -68,19 +69,53 @@ ARK_BUTCHER_TABLE(ARKODE_SDIRK_2_1_2, { /* SDIRK-2-1 (A,B stable) */
     ARKodeButcherTable B = ARKodeButcherTable_Alloc(2, SUNTRUE);
     B->q = 2;
     B->p = 1;
-    
+
     B->A[0][0] = RCONST(1.0);
     B->A[1][0] = RCONST(-1.0);
     B->A[1][1] = RCONST(1.0);
-    
+
     B->b[0] = RCONST(0.5);
     B->b[1] = RCONST(0.5);
-    
+
     B->d[0] = RCONST(1.0);
 
-    
     B->c[0] = RCONST(1.0);
     B->c[1] = RCONST(0.0);
+    return B;
+  })
+
+ARK_BUTCHER_TABLE(ARKODE_ARK2_DIRK_3_1_2, { /* ARK2 Implicit Table (A,L stable) */
+    ARKodeButcherTable B = ARKodeButcherTable_Alloc(3, SUNTRUE);
+
+    /* 1 - 1 / sqrt(2) */
+    const sunrealtype gamma = SUN_RCONST(1.0) - SUN_RCONST(1.0) / SUNRsqrt(SUN_RCONST(2.0));
+    /* 1 / (2 sqrt(2)) */
+    const sunrealtype delta = SUN_RCONST(1.0) / (SUN_RCONST(2.0) * SUNRsqrt(SUN_RCONST(2.0)));
+    /* 2 - sqrt(2) */
+    const sunrealtype twogamma = SUN_RCONST(2.0) - SUNRsqrt(SUN_RCONST(2.0));
+    /* (4 - sqrt(2)) / 8 */
+    const sunrealtype beta = (SUN_RCONST(4.0) - SUNRsqrt(SUN_RCONST(2.0))) / SUN_RCONST(8.0);
+
+    B->q = 2;
+    B->p = 1;
+
+    B->A[1][0] = gamma;
+    B->A[1][1] = gamma;
+    B->A[2][0] = delta;
+    B->A[2][1] = delta;
+    B->A[2][2] = gamma;
+
+    B->b[0] = delta;
+    B->b[1] = delta;
+    B->b[2] = gamma;
+
+    B->d[0] = beta;
+    B->d[1] = beta;
+    B->d[2] = SUN_RCONST(1.0) / (SUN_RCONST(2.0) * SUNRsqrt(SUN_RCONST(2.0)));
+
+    B->c[1] = twogamma;
+    B->c[2] = SUN_RCONST(1.0);
+
     return B;
   })
 
@@ -620,7 +655,7 @@ ARK_BUTCHER_TABLE(ARKODE_ESDIRK324L2SA_4_2_3, { /* ESDIRK3(2)4L[2]SA (A,L stable
     const sunrealtype g4 = g3 * g;
     const sunrealtype g5 = g4 * g;
     const sunrealtype c3 = RCONST(0.6);
-    
+
     ARKodeButcherTable B = ARKodeButcherTable_Alloc(4, SUNTRUE);
     B->q = 3;
     B->p = 2;

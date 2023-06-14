@@ -8,27 +8,31 @@ RAJA performance portability layer with serial, CUDA, or HIP backends.
 This code simulates the advection and reaction of three chemical species where
 the reaction mechanism is a variation of the Brusselator problem from chemical
 kinetics. The PDE system is given by
+```math
+\begin{align}
+  u_t &= -c \nabla u + A - (w+1) u + v u^2 \\
+  v_t &= -c \nabla v + w u - v u^2 \\
+  w_t &= -c \nabla w + (B - w) / \epsilon - w u
+\end{align}
 ```
-    u_t = -c grad(u) + A - (w+1) * u + v * u^2
-    v_t = -c grad(v) + w * u - v * u^2
-    w_t = -c grad(w) + (B - w) / epsilon - w * u
-```
-where `u`, `v`, and `w` are chemical concentrations, `c` is the advection speed,
-`A` and `B` are the concentrations of chemical species that remain constant over
-space and time, and `epsilon` is a parameter that varies the stiffness of the
-system. The problem is solved on the domain `(x,y,z) = X` in `[0, X_max]^3`,
-for times `t` in `[0,t_f]`. The initial condition is
-```
-    u(0,X) = A + p(X)
-    v(0,X) = B / A + p(X)
-    w(0,X) = 3.0 + p(X)
+where $u$, $v$, and $w$ are chemical concentrations, $c$ is the advection speed,
+$A$ and $B$ are the concentrations of chemical species that remain constant over
+space and time, and $\epsilon$ is a parameter that varies the stiffness of the
+system. The problem is solved on the domain $(x,y,z) = X$ in $[0, X_{\text{max}}]^3$,
+for times $t$ in $[0,t_f]$. The initial condition is
+```math
+\begin{align}
+    u(0,X) &= A + p(X) \\
+    v(0,X) &= B / A + p(X) \\
+    w(0,X) &= 3.0 + p(X)
+\end{align}
 ```
 where the perturbation function is
+```math
+    p(X) = \alpha e^{-(X-\mu)^T \sigma^{-1} (X-\mu) / 2 \sqrt{|\sigma| 8 \pi^3}}
 ```
-    p(X) = alpha * e^( -((X-mu)^T sigma^{-1} (X-mu)) / (2*sqrt(|sigma| 8 pi^3)) )
-```
-with `alpha = 0.1`, `mu = 0.5 X_max`, and `sigma` is a diagonal matrix with
-entries `0.25 X_max`.
+with $\alpha = 0.1$, $\mu = 0.5 X_{\text{max}}$, and $\sigma$ is a diagonal 
+matrix with entries $0.25 X_{\text{max}}$.
 
 Spatial derivatives are discretized with first-order upwind finite differences
 on a uniform spatial grid. The system can be evolved in time using explicit,
@@ -64,7 +68,7 @@ listed below.
 | `--method <method>`         | Integrator to use: `ERK`, `ARK-DIRK`, `ARK-IMEX`, `CV-BDF`, `CV-ADAMS`, `IDA` | `ARK-DIRK`  |
 | `--nls <method>`            | Nonlinear Solver Method: `newton`, `tl-newton`, `fixedpoint`, `none`          | `newton`    |
 | `--fpaccel <int>`           | Number of fixed point acceleration vectors                                    | 3           |
-| `--nopre`                   | Disable preconditioning                                                       | False       | 
+| `--nopre`                   | Disable preconditioning                                                       | False       |
 | `--fused`                   | Enabled fused operations                                                      | Off         |
 | `--tf <realtype>`           | Final integration time `t_f`                                                  | 10.0        |
 | `--rtol <realtype>`         | Relative tolerance                                                            | 1.0e-6      |
@@ -79,11 +83,11 @@ GPUs. See the installation guide for more details on configuring, building,
 and installing SUNDIALS.
 
 Based on the configuration the following executables will be built and installed
-in the `<install prefix>/bin/benchmarks/advection_reaction_3D` directory:
+in the `<benchmarks install prefix>/advection_reaction_3D/raja` directory:
 
-* `advection_reaction_3D` -- MPI parallelism
-* `advection_reaction_3D_mpicuda` -- MPI + CUDA parallelism
-* `advection_reaction_3D_mpihip` -- MPI + HIP parallelism
+* `advection_reaction_3D_raja` -- MPI parallelism
+* `advection_reaction_3D_raja_mpicuda` -- MPI + CUDA parallelism
+* `advection_reaction_3D_raja_mpihip` -- MPI + HIP parallelism
 
 On Summit, with the default environment
 ```
@@ -93,7 +97,7 @@ On Summit, with the default environment
 ```
 an example `jsrun` command is
 ```
-jsrun -n 2 -a 1 -c 1 -g 1 ./advection_reaction_3D_mpicuda
+jsrun -n 2 -a 1 -c 1 -g 1 ./advection_reaction_3D_raja_mpicuda
 ```
 
 On Lassen, with the environment
@@ -104,5 +108,5 @@ On Lassen, with the environment
 ```
 an example `jsrun` command is
 ```
-jsrun -n 2 -a 1 -c 1 -g 1 ./advection_reaction_3D_mpicuda
+jsrun -n 2 -a 1 -c 1 -g 1 ./advection_reaction_3D_raja_mpicuda
 ```
