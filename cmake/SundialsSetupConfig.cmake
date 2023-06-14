@@ -68,19 +68,24 @@ if(Trilinos_MPI)
   set(SUNDIALS_TRILINOS_HAVE_MPI TRUE)
 endif()
 
-# prepare substitution variable(s) SUNDIALS_RAJA_BACKENDS_*
-foreach(backend ${SUNDIALS_RAJA_BACKENDS})
-  set(SUNDIALS_RAJA_BACKENDS_${backend} TRUE)
-endforeach()
-
 # prepare substitution variable(s) SUNDIALS_GINKGO_BACKENDS_*
 foreach(backend ${SUNDIALS_GINKGO_BACKENDS})
   set(SUNDIALS_GINKGO_BACKENDS_${backend} TRUE)
 endforeach()
 
+# prepare substitution variable(s) SUNDIALS_HYPRE_BACKENDS_*
+foreach(backend ${SUNDIALS_HYPRE_BACKENDS})
+  set(SUNDIALS_HYPRE_BACKENDS_${backend} TRUE)
+endforeach()
+
 # prepare substitution variable(s) SUNDIALS_MAGMA_BACKENDS_*
 foreach(backend ${SUNDIALS_MAGMA_BACKENDS})
   set(SUNDIALS_MAGMA_BACKENDS_${backend} TRUE)
+endforeach()
+
+# prepare substitution variable(s) SUNDIALS_RAJA_BACKENDS_*
+foreach(backend ${SUNDIALS_RAJA_BACKENDS})
+  set(SUNDIALS_RAJA_BACKENDS_${backend} TRUE)
 endforeach()
 
 # prepare substitution variable SUNDIALS_HAVE_POSIX_TIMERS for sundials_config.h
