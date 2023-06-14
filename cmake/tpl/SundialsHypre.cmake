@@ -66,7 +66,7 @@ message(STATUS "HYPRE_INCLUDE_DIR: ${HYPRE_INCLUDE_DIR}")
 
 #TODO verify this is good code -jsdomine
 
-# Find the library configuration file
+# Find the hypre library configuration file (in build directory)
 find_file(HYPRE_CONFIGH_PATH HYPRE_config.h
           HINTS "${HYPRE_DIR}"
           PATH_SUFFIXES src src/cmbuild
@@ -87,11 +87,28 @@ foreach(_backend CUDA HIP)
   endif()
 endforeach()
 
-#TODO add remaining checks following SundialsRAJA.cmake
+# Available info: HYPRE_RELEASE_NAME, HYPRE_RELEASE_VERSION, HYPRE_RELEASE_NUMBER,
+#                 HYPRE_RELEASE_DATE, HYPRE_RELEASE_TIME, HYPRE_RELEASE_BUGS,
+#                 HYPRE_DEVELOP_STRING, HYPRE_DEVELOP_NUMBER, HYPRE_DEVELOP_BRANCH,
+#                 HYPRE_BRANCH_NAME
+message(STATUS "HYPRE Version:  ${HYPRE_RELEASE_VERSION}.${HYPRE_RELEASE_NUMBER} ${HYPRE_RELEASE_DATE}")
+message(STATUS "HYPRE Backends: ${HYPRE_BACKENDS}")
+
+# CUDA linkage already performed in hypre/src/config/cmake/HYPRE_CMakeUtilities.cmake
 
 # -----------------------------------------------------------------------------
 # Section 4: Test the TPL
 # -----------------------------------------------------------------------------
+
+if((SUNDIALS_HYPRE_BACKENDS MATCHES "CUDA") AND
+   (NOT HYPRE_BACKENDS MATCHES "CUDA"))
+  print_error("Requested that SUNDIALS uses the CUDA hypre backend, but hypre was not built with the CUDA backend.")
+endif()
+
+if((SUNDIALS_HYPRE_BACKENDS MATCHES "HIP") AND
+   (NOT HYPRE_BACKENDS MATCHES "HIP"))
+  print_error("Requested that SUNDIALS uses the HIP hypre backend, but hypre was not built with the HIP backend.")
+endif()
 
 if(HYPRE_FOUND AND (NOT HYPRE_WORKS))
   # Do any checks which don't require compilation first.
