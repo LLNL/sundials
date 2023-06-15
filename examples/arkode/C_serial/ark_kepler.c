@@ -38,22 +38,11 @@
  * used and time-stepping strategy. The program has the following CLI arguments:
  * 
  *   --step-mode <fixed, adapt>  should we use a fixed time-step or adaptive time-step (default fixed)
- *   --stepper <ark, sprk>  should we use the ARKStep or SPRKStep time-stepping module
- *   --order <1,2,22,222,3,33,4,44,5,6,8,10>  which method order and specific method to use (default 4)
- *      1   - Symplectic Euler
- *      2   - 2nd order Leapfrog
- *      22  - 2nd order Pseudo Leapfrog
- *      222 - 2nd order McLachlan
- *      3   - 3rd order Ruth
- *      33  - 3rd order McLachlan
- *      4   - 4th order Candy-Rozmus
- *      44  - 4th order McLachlan
- *      5   - 5th order McLachlan
- *      6   - 6th order Yoshida
- *      8   - 8th order McLachlan
- *      10  - 10th order Sofroniou
- *   --dt <Real>  the fixed-time step size to use if fixed time stepping is turned on (default 0.01)
- *   --use-compensated-sums  turns on compensated summation in ARKODE where applicable
+ *   --stepper <SPRK, ERK>       should we use SPRKStep or ARKStep with an ERK method (default SPRK)
+ *   --method <string>           which method to use (default ARKODE_SYMPLECTIC_MCLACHLAN_4_4)
+ *   --dt <Real>                 the fixed-time step size to use if fixed time stepping is turned on (default 0.01)
+ *   --tf <Real>                 the final time for the simulation (default 100)
+ *   --use-compensated-sums      turns on compensated summation in ARKODE where applicable
  * 
  * References:
  *    Ernst Hairer, Christain Lubich, Gerhard Wanner
@@ -97,10 +86,11 @@ typedef struct
 typedef struct
 {
   int step_mode;
-  int method;
-  int order;
+  int stepper;
   int use_compsums;
   sunrealtype dt;
+  sunrealtype tf;
+  const char* method_name;
 } ProgramArgs;
 
 static int check_retval(void* returnvalue, const char* funcname, int opt);
@@ -145,15 +135,15 @@ int main(int argc, char* argv[])
 
   /* CLI args */
   if (ParseArgs(argc, argv, &args)) { return -1; };
-  const int step_mode    = args.step_mode;
-  const int method       = args.method;
-  const int order        = args.order;
-  const int use_compsums = args.use_compsums;
-  const sunrealtype dt   = args.dt;
+  const int step_mode     = args.step_mode;
+  const int stepper       = args.stepper;
+  const char* method_name = args.method_name;
+  const int use_compsums  = args.use_compsums;
+  const sunrealtype dt    = args.dt;
+  sunrealtype Tf          = args.tf;
 
   /* Default problem parameters */
   const sunrealtype T0       = SUN_RCONST(0.0);
-  sunrealtype Tf             = SUN_RCONST(50.0);
   const sunrealtype ecc      = SUN_RCONST(0.6);
   const sunrealtype dTout    = 10 * dt; // SUN_RCONST(1.);
   const int num_output_times = (int)ceil(Tf / dTout);
@@ -183,7 +173,7 @@ int main(int argc, char* argv[])
   InitialConditions(y, ecc);
 
   /* Create SPRKStep integrator */
-  if (method == 0)
+  if (stepper == 0)
   {
     arkode_mem = SPRKStepCreate(force, velocity, T0, y, sunctx);
 
@@ -191,70 +181,8 @@ int main(int argc, char* argv[])
     SPRKStepRootInit(arkode_mem, 1, rootfn);
     if (check_retval(&retval, "SPRKStepRootInit", 1)) return 1;
 
-    switch (order)
-    {
-    case 1:
-      retval = SPRKStepSetMethod(arkode_mem, ARKodeSymplecticEuler());
-      fprintf(stdout, "Using symplectic Euler O(h^1)\n");
-      if (check_retval(&retval, "SPRKStepSetMethod", 1)) return 1;
-      break;
-    case 2:
-      retval = SPRKStepSetMethod(arkode_mem, ARKodeSymplecticLeapfrog2());
-      fprintf(stdout, "Using symplectic Leapfrog O(h^2)\n");
-      if (check_retval(&retval, "SPRKStepSetMethod", 1)) return 1;
-      break;
-    case 22:
-      retval = SPRKStepSetMethod(arkode_mem, ARKodeSymplecticPseudoLeapfrog2());
-      fprintf(stdout, "Using symplectic Pseudo Leapfrog O(h^2)\n");
-      if (check_retval(&retval, "SPRKStepSetMethod", 1)) return 1;
-      break;
-    case 222:
-      retval = SPRKStepSetMethod(arkode_mem, ARKodeSymplecticMcLachlan2());
-      fprintf(stdout, "Using symplectic McLachlan O(h^2)\n");
-      if (check_retval(&retval, "SPRKStepSetMethod", 1)) return 1;
-      break;
-    case 3:
-      retval = SPRKStepSetMethod(arkode_mem, ARKodeSymplecticRuth3());
-      fprintf(stdout, "Using symplectic Ruth O(h^3)\n");
-      if (check_retval(&retval, "SPRKStepSetMethod", 1)) return 1;
-      break;
-    case 33:
-      retval = SPRKStepSetMethod(arkode_mem, ARKodeSymplecticMcLachlan3());
-      fprintf(stdout, "Using symplectic McLachlan O(h^3)\n");
-      if (check_retval(&retval, "SPRKStepSetMethod", 1)) return 1;
-      break;
-    case 4:
-      retval = SPRKStepSetMethod(arkode_mem, ARKodeSymplecticCandyRozmus4());
-      fprintf(stdout, "Using symplectic Candy-Rozmus O(h^4)\n");
-      if (check_retval(&retval, "SPRKStepSetMethod", 1)) return 1;
-      break;
-    case 44:
-      retval = SPRKStepSetMethod(arkode_mem, ARKodeSymplecticMcLachlan4());
-      fprintf(stdout, "Using symplectic McLachlan O(h^4)\n");
-      if (check_retval(&retval, "SPRKStepSetMethod", 1)) return 1;
-      break;
-    case 5:
-      retval = SPRKStepSetMethod(arkode_mem, ARKodeSymplecticMcLachlan5());
-      fprintf(stdout, "Using symplectic McLachlan O(h^5)\n");
-      if (check_retval(&retval, "SPRKStepSetMethod", 1)) return 1;
-      break;
-    case 6:
-      retval = SPRKStepSetMethod(arkode_mem, ARKodeSymplecticYoshida6());
-      fprintf(stdout, "Using symplectic Yoshida O(h^6)\n");
-      if (check_retval(&retval, "SPRKStepSetMethod", 1)) return 1;
-      break;
-    case 8:
-      retval = SPRKStepSetMethod(arkode_mem, ARKodeSymplecticMcLachlan8());
-      fprintf(stdout, "Using symplectic McLachlan O(h^8)\n");
-      if (check_retval(&retval, "SPRKStepSetMethod", 1)) return 1;
-      break;
-    case 10:
-      retval = SPRKStepSetMethod(arkode_mem, ARKodeSymplecticSofroniou10());
-      fprintf(stdout, "Using symplectic Sofroniou O(h^10)\n");
-      if (check_retval(&retval, "SPRKStepSetMethod", 1)) return 1;
-      break;
-    default: fprintf(stderr, "Not a valid method\n"); return 1;
-    }
+    retval = SPRKStepSetMethodName(arkode_mem, method_name);
+    if (check_retval(&retval, "SPRKStepSetMethodName", 1)) return 1;
 
     retval = SPRKStepSetUseCompensatedSums(arkode_mem, use_compsums);
     if (check_retval(&retval, "SPRKStepSetUseCompensatedSums", 1)) return 1;
@@ -289,25 +217,12 @@ int main(int argc, char* argv[])
     retval = SPRKStepSetUserData(arkode_mem, (void*)udata);
     if (check_retval(&retval, "SPRKStepSetUserData", 1)) return 1;
   }
-  else if (method >= 1)
+  else if (stepper == 1)
   {
-    if (method == 1)
-    {
-      arkode_mem = ARKStepCreate(dydt, NULL, T0, y, sunctx);
+    arkode_mem = ARKStepCreate(dydt, NULL, T0, y, sunctx);
 
-      retval = ARKStepSetOrder(arkode_mem, order);
-      if (check_retval(&retval, "ARKStepSetOrder", 1)) return 1;
-    }
-    else
-    {
-      arkode_mem = ARKStepCreate(velocity, force, T0, y, sunctx);
-
-      retval = ARKStepSetOrder(arkode_mem, order);
-      if (check_retval(&retval, "ARKStepSetOrder", 1)) return 1;
-
-      NLS = SUNNonlinSol_FixedPoint(y, 0, sunctx);
-      ARKStepSetNonlinearSolver(arkode_mem, NLS);
-    }
+    retval = ARKStepSetTableName(arkode_mem, "ARKODE_DIRK_NONE", method_name);
+    if (check_retval(&retval, "ARKStepSetTableName", 1)) return 1;
 
     ARKStepRootInit(arkode_mem, 1, rootfn);
     if (check_retval(&retval, "ARKStepRootInit", 1)) return 1;
@@ -327,33 +242,33 @@ int main(int argc, char* argv[])
   }
 
   /* Open output files */
-  if (method == 0)
+  if (stepper == 0)
   {
-    const char* fmt1 = "ark_kepler_conserved_sprk-%d-dt-%.2e.txt";
-    const char* fmt2 = "ark_kepler_solution_sprk-%d-dt-%.2e.txt";
-    const char* fmt3 = "ark_kepler_times_sprk-%d-dt-%.2e.txt";
-    const char* fmt4 = "ark_kepler_hhist_sprk-%d-dt-%.2e.txt";
-    char fname[64];
-    sprintf(fname, fmt1, order, dt);
+    const char* fmt1 = "ark_kepler_conserved_%s-dt-%.2e.txt";
+    const char* fmt2 = "ark_kepler_solution_%s-dt-%.2e.txt";
+    const char* fmt3 = "ark_kepler_times_%s-dt-%.2e.txt";
+    const char* fmt4 = "ark_kepler_hhist_%s-dt-%.2e.txt";
+    char fname[256];
+    sprintf(fname, fmt1, method_name, dt);
     conserved_fp = fopen(fname, "w+");
-    sprintf(fname, fmt2, order, dt);
+    sprintf(fname, fmt2, method_name, dt);
     solution_fp = fopen(fname, "w+");
-    sprintf(fname, fmt3, order, dt);
+    sprintf(fname, fmt3, method_name, dt);
     times_fp = fopen(fname, "w+");
-    sprintf(fname, fmt4, order, dt);
+    sprintf(fname, fmt4, method_name, dt);
     udata->hhist_fp = fopen(fname, "w+");
   }
   else
   {
-    const char* fmt1 = "ark_kepler_conserved_erk-%d-dt-%.2e.txt";
-    const char* fmt2 = "ark_kepler_solution_erk-%d-dt-%.2e.txt";
-    const char* fmt3 = "ark_kepler_times_erk-%d-dt-%.2e.txt";
-    char fname[64];
-    sprintf(fname, fmt1, order, dt);
+    const char* fmt1 = "ark_kepler_conserved_%s-dt-%.2e.txt";
+    const char* fmt2 = "ark_kepler_solution_%s-dt-%.2e.txt";
+    const char* fmt3 = "ark_kepler_times_%s-dt-%.2e.txt";
+    char fname[256];
+    sprintf(fname, fmt1, method_name, dt);
     conserved_fp = fopen(fname, "w+");
-    sprintf(fname, fmt2, order, dt);
+    sprintf(fname, fmt2, method_name, dt);
     solution_fp = fopen(fname, "w+");
-    sprintf(fname, fmt3, order, dt);
+    sprintf(fname, fmt3, method_name, dt);
     times_fp = fopen(fname, "w+");
   }
 
@@ -371,7 +286,7 @@ int main(int argc, char* argv[])
   N_VPrintFile(y, solution_fp);
 
   /* Do integration */
-  if (method == 0)
+  if (stepper == 0)
   {
     for (iout = 0; iout < num_output_times; iout++)
     {
@@ -480,7 +395,7 @@ int main(int argc, char* argv[])
   fclose(solution_fp);
   if (NLS) { SUNNonlinSolFree(NLS); }
   N_VDestroy(y);
-  if (method == 0)
+  if (stepper == 0)
   {
     SPRKStepPrintAllStats(arkode_mem, stdout, SUN_OUTPUTFORMAT_TABLE);
     SPRKStepFree(&arkode_mem);
@@ -643,10 +558,11 @@ sunrealtype ControlError(N_Vector yvec, void* user_data)
 int ParseArgs(int argc, char* argv[], ProgramArgs* args)
 {
   args->step_mode    = 0;
-  args->method       = 0;
-  args->order        = 4;
+  args->stepper      = 0;
+  args->method_name  = NULL;
   args->use_compsums = 0;
   args->dt           = SUN_RCONST(1e-2);
+  args->tf           = SUN_RCONST(100.);
 
   for (int argi = 1; argi < argc; argi++)
   {
@@ -664,23 +580,28 @@ int ParseArgs(int argc, char* argv[], ProgramArgs* args)
     else if (!strcmp(argv[argi], "--stepper"))
     {
       argi++;
-      if (!strcmp(argv[argi], "sprk")) { args->method = 0; }
-      else if (!strcmp(argv[argi], "ark")) { args->method = 1; }
+      if (!strcmp(argv[argi], "SPRK")) { args->stepper = 0; }
+      else if (!strcmp(argv[argi], "ERK")) { args->stepper = 1; }
       else
       {
-        fprintf(stderr, "--stepper must be 'ark' or 'sprk'\n");
+        fprintf(stderr, "--stepper must be 'SPRK' or 'ERK'\n");
         return -1;
       }
     }
-    else if (!strcmp(argv[argi], "--order"))
+    else if (!strcmp(argv[argi], "--method"))
     {
       argi++;
-      args->order = atoi(argv[argi]);
+      args->method_name = argv[argi];
     }
     else if (!strcmp(argv[argi], "--dt"))
     {
       argi++;
       args->dt = atof(argv[argi]);
+    }
+    else if (!strcmp(argv[argi], "--tf"))
+    {
+      argi++;
+      args->tf = atof(argv[argi]);
     }
     else if (!strcmp(argv[argi], "--use-compensated-sums"))
     {
@@ -699,6 +620,18 @@ int ParseArgs(int argc, char* argv[], ProgramArgs* args)
     }
   }
 
+  if (!args->method_name)
+  {
+    if (args->stepper == 0)
+    {
+      args->method_name = "ARKODE_SYMPLECTIC_MCLACHLAN_4_4";
+    }
+    else if (args->stepper == 1)
+    {
+      args->method_name = "ARKODE_ZONNEVELD_5_3_4";
+    }
+  }
+
   return 0;
 }
 
@@ -708,26 +641,19 @@ void PrintHelp()
                   "time-stepping module solving the Kepler problem\n");
   fprintf(stderr, "  --step-mode <fixed, adapt>  should we use a fixed "
                   "time-step or adaptive time-step (default fixed)\n");
-  fprintf(stderr, "  --stepper <ark, sprk>  should we use the ARKStep or "
-                  "SPRKStep time-stepping module\n");
-  fprintf(stderr, "  --order <1,2,22,222,3,33,4,44,5,6,8,10>  which method "
-                  "order and specific method to use (default 4)\n");
-  fprintf(stderr, "     1   - Symplectic Euler\n");
-  fprintf(stderr, "     2   - 2nd order Leapfrog\n");
-  fprintf(stderr, "     22  - 2nd order Pseudo Leapfrog\n");
-  fprintf(stderr, "     222 - 2nd order McLachlan\n");
-  fprintf(stderr, "     3   - 3rd order Ruth\n");
-  fprintf(stderr, "     33  - 3rd order McLachlan\n");
-  fprintf(stderr, "     4   - 4th order Candy-Rozmus\n");
-  fprintf(stderr, "     44  - 4th order McLachlan\n");
-  fprintf(stderr, "     5   - 5th order McLachlan\n");
-  fprintf(stderr, "     6   - 6th order Yoshida\n");
-  fprintf(stderr, "     8   - 8th order McLachlan\n");
-  fprintf(stderr, "     10  - 10th order Sofroniou\n");
-  fprintf(stderr, "  --dt <Real>  the fixed-time step size to use if fixed "
+  fprintf(stderr,
+          "  --stepper <SPRK, ERK>       should we use SPRKStep or ARKStep "
+          "with an ERK method (default SPRK)\n");
+  fprintf(stderr, "  --method <string>           which method to use (default "
+                  "ARKODE_SYMPLECTIC_MCLACHLAN_4_4)\n");
+  fprintf(stderr, "  --dt <Real>                 the fixed-time step size to "
+                  "use if fixed "
                   "time stepping is turned on (default 0.01)\n");
-  fprintf(stderr, "  --use-compensated-sums  turns on compensated summation in "
-                  "ARKODE where applicable\n");
+  fprintf(stderr, "  --tf <Real>                 the final time for the "
+                  "simulation (default 100)\n");
+  fprintf(stderr,
+          "  --use-compensated-sums      turns on compensated summation in "
+          "ARKODE where applicable\n");
 }
 
 /* Check function return value...
@@ -740,7 +666,7 @@ void PrintHelp()
 */
 int check_retval(void* returnvalue, const char* funcname, int opt)
 {
-  int* retval;
+  int* retval = NULL;
 
   /* Check if SUNDIALS function returned NULL pointer - no memory allocated */
   if (opt == 0 && returnvalue == NULL)

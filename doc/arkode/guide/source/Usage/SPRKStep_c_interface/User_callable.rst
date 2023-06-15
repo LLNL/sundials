@@ -625,7 +625,9 @@ Optional inputs for IVP method selection
    +-----------------------------+-------------------------------------------+----------+
    | Set integrator method order | :c:func:`SPRKStepSetOrder()`              | 4        |
    +-----------------------------+-------------------------------------------+----------+
-   | Set SPRK method pair        | :c:func:`SPRKStepSetMethod()`             | internal |
+   | Set SPRK method             | :c:func:`SPRKStepSetMethod()`             | internal |
+   +-----------------------------+-------------------------------------------+----------+
+   | Set SPRK method by name     | :c:func:`SPRKStepSetMethodName()`         | internal |
    +-----------------------------+-------------------------------------------+----------+
    | Use compensated summation   | :c:func:`SPRKStepSetUseCompensatedSums()` | false    |
    +-----------------------------+-------------------------------------------+----------+
@@ -651,6 +653,47 @@ Optional inputs for IVP method selection
       SPRKStep memory block, it cannot be changed after the first call to
       :c:func:`SPRKStepEvolve()`, unless :c:func:`SPRKStepReInit()` is called.
 
+   .. warning:: 
+      
+      This overrides the method so it should not be used with :c:func:`SPRKStepSetMethod`
+      or :c:func:`SPRKStepMethodByName`.
+
+
+.. c:function:: int SPRKStepSetMethod(void* arkode_mem, ARKodeSPRKStorage sprk_storage)
+
+   Specifies the SPRK method.
+
+   :param arkode_mem: pointer to the SPRKStep memory block.
+   :param sprk_storage: the SPRK method memory.
+
+   :return:
+      * *ARK_SUCCESS* if successful
+      * *ARK_MEM_NULL* if the SPRKStep memory is ``NULL``
+      * *ARK_ILL_INPUT* if an argument has an illegal value
+
+   **Notes:**
+      No error checking is performed to ensure that either the method order *p* or
+      specified in the method structure correctly describe the coefficients.
+
+
+
+.. c:function:: int SPRKStepSetMethodName(void* arkode_mem, const char* method)
+
+   Specifies the SPRK method by its name
+
+   :param arkode_mem: pointer to the SPRKStep memory block.
+   :param method: the SPRK method name.
+
+   :return:
+      * *ARK_SUCCESS* if successful
+      * *ARK_MEM_NULL* if the SPRKStep memory is ``NULL``
+      * *ARK_ILL_INPUT* if an argument has an illegal value
+
+   **Notes:**
+      No error checking is performed to ensure that either the method order *p* or
+      specified in the method structure correctly describe the coefficients.
+
+
 
 .. c:function:: int SPRKStepSetUseCompensatedSums(void* arkode_mem, sunbooleantype onoff)
 
@@ -668,27 +711,6 @@ Optional inputs for IVP method selection
       This increases the computational cost and memory usage of the SPRK methods
       per stage, however, it signficantly more robust to roundoff error
       accumulation. 
-
-
-.. c:function:: int SPRKStepSetMethod(void* arkode_mem, ARKodeSPRKStorage sprk_storage)
-
-   Specifies the SPRK method.
-
-   :param arkode_mem: pointer to the SPRKStep memory block.
-   :param sprk_storage: the SPRK method memory.
-
-   :return:
-      * *ARK_SUCCESS* if successful
-      * *ARK_MEM_NULL* if the SPRKStep memory is ``NULL``
-      * *ARK_ILL_INPUT* if an argument has an illegal value
-
-   **Notes:**
-
-      For a description of the :c:type:`ARKodeSPRKStorage` type and related
-      functions for creating the method structure, see :numref:`ARKodeSPRKStorage`.
-
-      No error checking is performed to ensure that either the method order *p* or
-      specified in the method structure correctly describe the coefficients.
 
 
 .. _ARKODE.Usage.SPRKStep.SPRKStepAdaptivityInput:
@@ -1109,27 +1131,6 @@ Main solver optional output functions
    :return:
       * *ARK_SUCCESS* if successful
       * *ARK_MEM_NULL* if the SPRKStep memory was ``NULL``
-
-   **Notes:**
-      The :c:type:`ARKodeSPRKStorage` data structure is defined as a
-      pointer to the following C structure:
-
-      .. code-block:: c
-
-         struct ARKodeSPRKMem_s {
-
-         int q;           /* method order of accuracy         */
-         int stages;      /* number of stages                 */
-         sunrealtype* a;  /* coefficients multiplying q'     */
-         sunrealtype* b;  /* coefficients multiplying p'     */
-
-         /* the a_i coefficients generate the explicit Butcher table */
-         /* the b_i coefficients generate the diagonally-implicit Butcher table */
-
-         };
-
-      For more details see :numref:`ARKodeSPRKStorage`.
-
 
 
 .. c:function:: int SPRKStepGetUserData(void* arkode_mem, void** user_data)

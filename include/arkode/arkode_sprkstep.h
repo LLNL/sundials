@@ -33,7 +33,7 @@ extern "C" {
  * ----------------- */
 
 static const int SPRKSTEP_DEFAULT_1  = ARKODE_SYMPLECTIC_EULER_1_1;
-static const int SPRKSTEP_DEFAULT_2  = ARKODE_SYMPLECTIC_MCLACHLAN_2_2;
+static const int SPRKSTEP_DEFAULT_2  = ARKODE_SYMPLECTIC_LEAPFROG_2_2;
 static const int SPRKSTEP_DEFAULT_3  = ARKODE_SYMPLECTIC_MCLACHLAN_3_3;
 static const int SPRKSTEP_DEFAULT_4  = ARKODE_SYMPLECTIC_MCLACHLAN_4_4;
 static const int SPRKSTEP_DEFAULT_5  = ARKODE_SYMPLECTIC_MCLACHLAN_5_6;
@@ -68,6 +68,7 @@ SUNDIALS_EXPORT int SPRKStepSetDefaults(void* arkode_mem);
 SUNDIALS_EXPORT int SPRKStepSetUseCompensatedSums(void* arkode_mem,
                                                   sunbooleantype onoff);
 SUNDIALS_EXPORT int SPRKStepSetMethod(void* arkode_mem, ARKodeSPRKStorage sprk_storage);
+SUNDIALS_EXPORT int SPRKStepSetMethodName(void* arkode_mem, const char* method);
 SUNDIALS_EXPORT int SPRKStepSetOrder(void* arkode_mem, int maxord);
 SUNDIALS_EXPORT int SPRKStepSetInterpolantType(void* arkode_mem, int itype);
 SUNDIALS_EXPORT int SPRKStepSetInterpolantDegree(void* arkode_mem, int degree);
