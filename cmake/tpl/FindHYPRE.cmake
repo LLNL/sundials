@@ -59,8 +59,14 @@ endif ()
 mark_as_advanced(HYPRE_LIBRARY)
 
 list(FIND HYPRE_LIBRARIES ${HYPRE_LIBRARY} _idx)
-if ((_idx EQUAL -1) AND (NOT HYPRE_LIBRARY MATCHES "HYPRE_LIBRARY-NOTFOUND"))
-  set(HYPRE_LIBRARIES "${HYPRE_LIBRARY};${HYPRE_LIBRARIES}" CACHE STRING "" FORCE)
+if (_idx EQUAL -1)
+  # Automatically overwrite "HYPRE_LIBRARY-NOTFOUND" entry if present
+  if (HYPRE_LIBRARIES MATCHES "HYPRE_LIBRARY-NOTFOUND")
+    set(HYPRE_LIBRARIES "${HYPRE_LIBRARY}" CACHE STRING "" FORCE)
+  # ...otherwise append HYPRE_LIBRARY entry.
+  else ()
+    set(HYPRE_LIBRARIES "${HYPRE_LIBRARY};${HYPRE_LIBRARIES}" CACHE STRING "" FORCE)
+  endif ()
 endif ()
 
 # set a more informative error message in case the library was not found
