@@ -20,16 +20,16 @@
 
 # Examples using SUNDIALS linear solvers
 set(IDA_examples
-  "idaAnalytic_mels\;\;exclude-single"
-  "idaFoodWeb_bnd\;\;develop"
-  "idaFoodWeb_kry\;\;develop"
-  "idaHeat2D_bnd\;\;develop"
-  "idaHeat2D_kry\;\;develop"
-  "idaKrylovDemo_ls\;\;develop"
-  "idaKrylovDemo_ls\;1\;develop"
-  "idaKrylovDemo_ls\;2\;develop"
-  "idaRoberts_dns\;\;"
-  "idaSlCrank_dns\;\;exclude-single"
+  "idaAnalytic_mels.c\;\;exclude-single"
+  "idaFoodWeb_bnd.c\;\;develop"
+  "idaFoodWeb_kry.c\;\;develop"
+  "idaHeat2D_bnd.c\;\;develop"
+  "idaHeat2D_kry.c\;\;develop"
+  "idaKrylovDemo_ls.c\;\;develop"
+  "idaKrylovDemo_ls.c\;1\;develop"
+  "idaKrylovDemo_ls.c\;2\;develop"
+  "idaRoberts_dns.c\;\;"
+  "idaSlCrank_dns.c\;\;exclude-single"
   )
 
 # Examples using LAPACK linear solvers
@@ -38,13 +38,13 @@ set(IDA_examples_BL
 
 # Examples using KLU linear solver
 set(IDA_examples_KLU
-  "idaHeat2D_klu\;\;develop"
-  "idaRoberts_klu\;\;develop"
+  "idaHeat2D_klu.c\;\;develop"
+  "idaRoberts_klu.c\;\;develop"
   )
 
 # Examples using SuperLU_MT linear solver
 set(IDA_examples_SUPERLUMT
-    "idaRoberts_sps\;\;develop"
+    "idaRoberts_sps.c\;\;develop"
     #"idaHeat2D_sps\;develop" # not ready yet, incorrect answer.
     )
 
@@ -72,7 +72,7 @@ foreach(example_tuple ${IDA_examples})
   # example source files once for testing with different inputs
   if(NOT TARGET ${example})
     # example source files
-    add_executable(${example} ${example}.c)
+    add_executable(${example} ${example})
 
     # folder to organize targets in an IDE
     set_target_properties(${example} PROPERTIES FOLDER "Examples")
@@ -97,12 +97,6 @@ foreach(example_tuple ${IDA_examples})
 
   # find all .out files for this example
   file(GLOB example_out ${example}*.out)
-
-  # install example source and .out files
-  if(EXAMPLES_INSTALL)
-    install(FILES ${example}.c ${example_out}
-      DESTINATION ${EXAMPLES_INSTALL_PATH}/ida/serial)
-  endif()
 
 endforeach(example_tuple ${IDA_examples})
 
@@ -129,7 +123,7 @@ if(BUILD_SUNLINSOL_LAPACKBAND AND BUILD_SUNLINSOL_LAPACKDENSE)
     # example source files once for testing with different inputs
     if(NOT TARGET ${example})
       # example source files
-      add_executable(${example} ${example}.c)
+      add_executable(${example} ${example})
 
       # folder to organize targets in an IDE
       set_target_properties(${example} PROPERTIES FOLDER "Examples")
@@ -154,12 +148,6 @@ if(BUILD_SUNLINSOL_LAPACKBAND AND BUILD_SUNLINSOL_LAPACKDENSE)
 
     # find all .out files for this example
     file(GLOB example_out ${example}*.out)
-
-    # install example source and .out files
-    if(EXAMPLES_INSTALL)
-      install(FILES ${example}.c ${example_out}
-        DESTINATION ${EXAMPLES_INSTALL_PATH}/ida/serial)
-    endif()
 
   endforeach(example_tuple ${IDA_examples_BL})
 
@@ -186,7 +174,7 @@ if(BUILD_SUNLINSOL_KLU)
     # example source files once for testing with different inputs
     if(NOT TARGET ${example})
       # add example source files
-      add_executable(${example} ${example}.c)
+      add_executable(${example} ${example})
 
       # folder to organize targets in an IDE
       set_target_properties(${example} PROPERTIES FOLDER "Examples")
@@ -211,12 +199,6 @@ if(BUILD_SUNLINSOL_KLU)
 
     # find all .out files for this example
     file(GLOB example_out ${example}*.out)
-
-    # install example source and .out files
-    if(EXAMPLES_INSTALL)
-      install(FILES ${example}.c ${example_out}
-        DESTINATION ${EXAMPLES_INSTALL_PATH}/ida/serial)
-    endif()
 
   endforeach(example_tuple ${IDA_examples_KLU})
 
@@ -243,7 +225,7 @@ if(BUILD_SUNLINSOL_SUPERLUMT)
     # example source files once for testing with different inputs
     if(NOT TARGET ${example})
       # add example source files
-      add_executable(${example} ${example}.c)
+      add_executable(${example} ${example})
 
       # folder to organize targets in an IDE
       set_target_properties(${example} PROPERTIES FOLDER "Examples")
@@ -275,95 +257,128 @@ if(BUILD_SUNLINSOL_SUPERLUMT)
     # find all .out files for this example
     file(GLOB example_out ${example}*.out)
 
-    # install example source and .out files
-    if(EXAMPLES_INSTALL)
-      install(FILES ${example}.c ${example_out}
-        DESTINATION ${EXAMPLES_INSTALL_PATH}/ida/serial)
-    endif()
-
   endforeach(example_tuple ${IDA_examples_SUPERLUMT})
 
 endif()
 
 
-# create Makfile and CMakeLists.txt for examples
+# # create Makfile and CMakeLists.txt for examples
+# if(EXAMPLES_INSTALL)
+
+#   # Install the README file
+#   install(FILES README DESTINATION ${EXAMPLES_INSTALL_PATH}/ida/serial)
+
+#   # Install the extra files
+#   foreach(extrafile ${IDA_extras})
+#     install(FILES ${extrafile} DESTINATION ${EXAMPLES_INSTALL_PATH}/ida/serial)
+#   endforeach()
+
+#   # Prepare substitution variables for Makefile and/or CMakeLists templates
+#   set(SOLVER "IDA")
+#   set(SOLVER_LIB "sundials_ida")
+
+#   examples2string(IDA_examples EXAMPLES)
+
+#   if(BUILD_SUNLINSOL_LAPACKBAND AND BUILD_SUNLINSOL_LAPACKDENSE)
+#     examples2string(IDA_examples_BL EXAMPLES_BL)
+#   else()
+#     set(EXAMPLES_BL "")
+#   endif()
+
+#   if(BUILD_SUNLINSOL_KLU)
+#     examples2string(IDA_examples_KLU EXAMPLES_KLU)
+#   else()
+#     set(EXAMPLES_KLU "")
+#   endif()
+
+#   if(BUILD_SUNLINSOL_SUPERLUMT)
+#     examples2string(IDA_examples_SUPERLUMT EXAMPLES_SLUMT)
+#     if (SUNDIALS_SUPERLUMT_THREAD_TYPE STREQUAL "PTHREAD")
+#       set(THREAD_LIBRARY_SLUMT ${CMAKE_THREAD_LIBS_INIT})
+#     else()
+#       set(THREAD_LIBRARY_SLUMT "")
+#     endif()
+#   else()
+#     set(EXAMPLES_SLUMT "")
+#     set(THREAD_LIBRARY_SLUMT "")
+#   endif()
+
+#   # Regardless of the platform we're on, we will generate and install
+#   # CMakeLists.txt file for building the examples. This file  can then
+#   # be used as a template for the user's own programs.
+
+#   # generate CMakelists.txt in the binary directory
+#   configure_file(
+#     ${PROJECT_SOURCE_DIR}/examples/templates/cmakelists_serial_C_ex.in
+#     ${PROJECT_BINARY_DIR}/examples/ida/serial/CMakeLists.txt
+#     @ONLY
+#     )
+
+#   # install CMakelists.txt
+#   install(
+#     FILES ${PROJECT_BINARY_DIR}/examples/ida/serial/CMakeLists.txt
+#     DESTINATION ${EXAMPLES_INSTALL_PATH}/ida/serial
+#     )
+
+#   # On UNIX-type platforms, we also  generate and install a makefile for
+#   # building the examples. This makefile can then be used as a template
+#   # for the user's own programs.
+
+#   if(UNIX)
+#     # generate Makefile and place it in the binary dir
+#     configure_file(
+#       ${PROJECT_SOURCE_DIR}/examples/templates/makefile_serial_C_ex.in
+#       ${PROJECT_BINARY_DIR}/examples/ida/serial/Makefile_ex
+#       @ONLY
+#       )
+#     # install the configured Makefile_ex as Makefile
+#     install(
+#       FILES ${PROJECT_BINARY_DIR}/examples/ida/serial/Makefile_ex
+#       DESTINATION ${EXAMPLES_INSTALL_PATH}/ida/serial
+#       RENAME Makefile
+#       )
+#   endif()
+
+#   # add test_install target
+#   sundials_add_test_install(ida serial EXECUTABLE idaRoberts_dns)
+
+# endif()
+
 if(EXAMPLES_INSTALL)
 
-  # Install the README file
-  install(FILES README DESTINATION ${EXAMPLES_INSTALL_PATH}/ida/serial)
-
-  # Install the extra files
-  foreach(extrafile ${IDA_extras})
-    install(FILES ${extrafile} DESTINATION ${EXAMPLES_INSTALL_PATH}/ida/serial)
-  endforeach()
-
-  # Prepare substitution variables for Makefile and/or CMakeLists templates
-  set(SOLVER "IDA")
-  set(SOLVER_LIB "sundials_ida")
-
-  examples2string(IDA_examples EXAMPLES)
-
-  if(BUILD_SUNLINSOL_LAPACKBAND AND BUILD_SUNLINSOL_LAPACKDENSE)
-    examples2string(IDA_examples_BL EXAMPLES_BL)
-  else()
-    set(EXAMPLES_BL "")
+  if(BUILD_SUNLINSOL_SUPERLUMT)
+    set(_include_sunlinsolsuperlumt sunlinsolsuperlumt)
   endif()
 
   if(BUILD_SUNLINSOL_KLU)
-    examples2string(IDA_examples_KLU EXAMPLES_KLU)
-  else()
-    set(EXAMPLES_KLU "")
+    set(_include_sunlinsolklu sunlinsolklu)
   endif()
 
-  if(BUILD_SUNLINSOL_SUPERLUMT)
-    examples2string(IDA_examples_SUPERLUMT EXAMPLES_SLUMT)
-    if (SUNDIALS_SUPERLUMT_THREAD_TYPE STREQUAL "PTHREAD")
-      set(THREAD_LIBRARY_SLUMT ${CMAKE_THREAD_LIBS_INIT})
-    else()
-      set(THREAD_LIBRARY_SLUMT "")
-    endif()
-  else()
-    set(EXAMPLES_SLUMT "")
-    set(THREAD_LIBRARY_SLUMT "")
+  if(BUILD_SUNLINSOL_LAPACKBAND AND BUILD_SUNLINSOL_LAPACKDENSE)
+    set(_include_sundials_sunlinsollapackband sunlinsollapackband)
+    set(_include_sundials_sunlinsollapackdense sunlinsollapackdense)
   endif()
 
-  # Regardless of the platform we're on, we will generate and install
-  # CMakeLists.txt file for building the examples. This file  can then
-  # be used as a template for the user's own programs.
-
-  # generate CMakelists.txt in the binary directory
-  configure_file(
-    ${PROJECT_SOURCE_DIR}/examples/templates/cmakelists_serial_C_ex.in
-    ${PROJECT_BINARY_DIR}/examples/ida/serial/CMakeLists.txt
-    @ONLY
-    )
-
-  # install CMakelists.txt
-  install(
-    FILES ${PROJECT_BINARY_DIR}/examples/ida/serial/CMakeLists.txt
-    DESTINATION ${EXAMPLES_INSTALL_PATH}/ida/serial
-    )
-
-  # On UNIX-type platforms, we also  generate and install a makefile for
-  # building the examples. This makefile can then be used as a template
-  # for the user's own programs.
-
-  if(UNIX)
-    # generate Makefile and place it in the binary dir
-    configure_file(
-      ${PROJECT_SOURCE_DIR}/examples/templates/makefile_serial_C_ex.in
-      ${PROJECT_BINARY_DIR}/examples/ida/serial/Makefile_ex
-      @ONLY
-      )
-    # install the configured Makefile_ex as Makefile
-    install(
-      FILES ${PROJECT_BINARY_DIR}/examples/ida/serial/Makefile_ex
-      DESTINATION ${EXAMPLES_INSTALL_PATH}/ida/serial
-      RENAME Makefile
-      )
-  endif()
-
-  # add test_install target
-  sundials_add_test_install(ida serial EXECUTABLE idaRoberts_dns)
+  sundials_install_examples(ida IDA_examples
+    CMAKE_TEMPLATE
+      cmakelists_serial_C_ex.in
+    MAKE_TEMPLATE
+      makefile_serial_C_ex.in
+    SUNDIALS_TARGETS
+      nvecserial
+      ida
+      ${_include_sunlinsolsuperlumt}
+      ${_include_sunlinsolklu}
+      ${_include_sundials_sunlinsollapackband}
+      ${_include_sundials_sunlinsollapackdense}
+    DESTINATION
+      ida/serial
+    EXTRA_FILES
+      README
+      ${IDA_extras}
+      ${IDA_headers}
+    TEST_INSTALL
+      serial
+  )
 
 endif()
