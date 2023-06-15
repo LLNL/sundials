@@ -77,6 +77,15 @@ sundials_add_library(sundials_arkode
     sundials_generic_obj
     sundials_sunmemsys_obj
     sundials_nvecserial_obj
+    sundials_suncontrolexpgus_obj
+    sundials_suncontroli_obj
+    sundials_suncontrolpid_obj
+    sundials_suncontrolimpgus_obj
+    sundials_suncontrolpi_obj
+    sundials_suncontrolimexgus_obj
+    sundials_suncontrolfixed_obj
+    sundials_sunheuristicsunconstrained_obj
+    sundials_sunheuristicsdefault_obj
     sundials_sunmatrixband_obj
     sundials_sunmatrixdense_obj
     sundials_sunmatrixsparse_obj

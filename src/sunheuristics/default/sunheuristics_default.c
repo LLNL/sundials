@@ -220,7 +220,7 @@ int SUNHeuristicsConstrainCFail_Default(SUNHeuristics H, realtype hcur,
   return SUNHEURISTICS_SUCCESS;
 }
 
-int SUNHeuristicsReset_PI(SUNHeuristics H)
+int SUNHeuristicsReset_Default(SUNHeuristics H)
 {
   SH_ETAMAX(H) = SH_ETAMX1(H);
   SH_NST_ACC(H) = 0;
@@ -228,7 +228,7 @@ int SUNHeuristicsReset_PI(SUNHeuristics H)
   return SUNHEURISTICS_SUCCESS;
 }
 
-int SUNHeuristicsUpdate_PI(SUNHeuristics H)
+int SUNHeuristicsUpdate_Default(SUNHeuristics H)
 {
   SH_ETAMAX(H) = SH_GROWTH(H);
   return SUNHEURISTICS_SUCCESS;

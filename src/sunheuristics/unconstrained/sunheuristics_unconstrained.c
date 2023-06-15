@@ -94,14 +94,14 @@ int SUNHeuristicsConstrainStep_Unconstrained(SUNHeuristics H, realtype hcur,
 }
 
 int SUNHeuristicsConstrainCFail_Unconstrained(SUNHeuristics H, realtype hcur,
-                                        realtype* hconstr)
+                                              realtype* hconstr)
 {
   /* No recovery is possible upon an algebraic solver convergence failure */
   *hconstr = hcur;
   return SUNHEURISTICS_CANNOT_DECREASE;
 }
 
-int SUNHeuristicsReset_PI(SUNHeuristics H)
+int SUNHeuristicsReset_Unconstrained(SUNHeuristics H)
 {
   SH_NST_ACC(H) = 0;
   return SUNHEURISTICS_SUCCESS;
