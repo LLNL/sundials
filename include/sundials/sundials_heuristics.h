@@ -67,10 +67,11 @@ struct _generic_SUNHeuristics_Ops
   /* OPTIONAL for all SUNHeuristics implementations. */
   int (*constrainstep)(SUNHeuristics H, realtype hcur,
                        realtype hnew, realtype *hconstr);
-  int (*constrainefail)(SUNHeuristics H, realtype hcur,
-                        realtype hnew, int nef, realtype *hconstr);
-  int (*constraincfail)(SUNHeuristics H, realtype hcur,
-                        realtype *hconstr);
+  int (*etestfail)(SUNHeuristics H, realtype hcur,
+                   realtype hnew, int nef, realtype *hconstr);
+  int (*convfail)(SUNHeuristics H, realtype hcur, realtype *hconstr);
+  int (*boundreduction)(SUNHeuristics H, realtype hcur,
+                        realtype hnew, realtype *hconstr);
   int (*reset)(SUNHeuristics H);
   int (*update)(SUNHeuristics H);
   int (*setdefaults)(SUNHeuristics H);
@@ -128,9 +129,9 @@ SUNHeuristics_ID SUNHeuristicsGetID(SUNHeuristics H);
 SUNDIALS_EXPORT
 void SUNHeuristicsDestroy(SUNHeuristics H);
 
-/* Main constraint-application function.  This is called following a
-   time step with acceptable temporal error, and where 'hnew' has
-   already been predicted by a temporal error controller.
+/* Main constraint-application function.  This will attempt to
+   change the step hcur to hnew, applying any heuristic bounds
+   on the step size adjustments.
 
    Any return value other than SUNHEURISTICS_SUCCESS will be treated as
    an unrecoverable failure. */
@@ -147,15 +148,22 @@ int SUNHeuristicsConstrainStep(SUNHeuristics H, realtype hcur,
    Any return value other than SUNHEURISTICS_SUCCESS will be treated as
    an unrecoverable failure. */
 SUNDIALS_EXPORT
-int SUNHeuristicsConstrainEFail(SUNHeuristics H, realtype hcur,
-                                realtype hnew, int nef,
-                                realtype *hconstr);
+int SUNHeuristicsETestFail(SUNHeuristics H, realtype hcur,
+                           realtype hnew,  int nef, realtype *hconstr);
+
+/* This ensures that a step size reduction is within user-prescribed
+   bounds.  If a reduction is requested but no reduction from hcur
+   is possible, this returns SUNHEURISTICS_CANNOT_DECREASE, otherwise
+   it returns SUNHEURISTICS_SUCCESS. */
+SUNDIALS_EXPORT
+int SUNHeuristicsBoundReduction(SUNHeuristics H, realtype hcur,
+                                realtype hnew, realtype *hconstr);
 
 /* Function to apply constraints following a step with an algebraic
    solver convergence failure. */
 SUNDIALS_EXPORT
-int SUNHeuristicsConstrainCFail(SUNHeuristics H, realtype hcur,
-                                realtype *hconstr);
+int SUNHeuristicsConvFail(SUNHeuristics H, realtype hcur,
+                          realtype *hconstr);
 
 /* Function to reset the heuristics to its initial state: zeros
    the "accuracy" and "stability" counters (if present), and resets

@@ -44,10 +44,10 @@ SUNDIALS_EXPORT
 SUNHeuristics_ID SUNHeuristicsGetID_Unconstrained(SUNHeuristics H);
 SUNDIALS_EXPORT
 int SUNHeuristicsConstrainStep_Unconstrained(SUNHeuristics H, realtype hcur,
-                                       realtype hnew, realtype* hconstr);
+                                             realtype hnew, realtype* hconstr);
 SUNDIALS_EXPORT
-int SUNHeuristicsConstrainCFail_Unconstrained(SUNHeuristics H, realtype hcur,
-                                       realtype* hconstr);
+int SUNHeuristicsConvFail_Unconstrained(SUNHeuristics H, realtype hcur,
+                                        realtype* hconstr);
 SUNDIALS_EXPORT
 int SUNHeuristicsReset_Unconstrained(SUNHeuristics H);
 SUNDIALS_EXPORT

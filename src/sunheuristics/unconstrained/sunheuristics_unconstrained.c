@@ -50,7 +50,7 @@ SUNHeuristics SUNHeuristicsUnconstrained(SUNContext sunctx)
   /* Attach operations */
   H->ops->getid          = SUNHeuristicsGetID_Unconstrained;
   H->ops->constrainstep  = SUNHeuristicsConstrainStep_Unconstrained;
-  H->ops->constraincfail = SUNHeuristicsConstrainCFail_Unconstrained;
+  H->ops->convfail       = SUNHeuristicsConvFail_Unconstrained;
   H->ops->reset          = SUNHeuristicsReset_Unconstrained;
   H->ops->write          = SUNHeuristicsWrite_Unconstrained;
   H->ops->getnumaccsteps = SUNHeuristicsGetNumAccSteps_Unconstrained;
@@ -93,8 +93,8 @@ int SUNHeuristicsConstrainStep_Unconstrained(SUNHeuristics H, realtype hcur,
   return SUNHEURISTICS_SUCCESS;
 }
 
-int SUNHeuristicsConstrainCFail_Unconstrained(SUNHeuristics H, realtype hcur,
-                                              realtype* hconstr)
+int SUNHeuristicsConvFail_Unconstrained(SUNHeuristics H, realtype hcur,
+                                        realtype* hconstr)
 {
   /* No recovery is possible upon an algebraic solver convergence failure */
   *hconstr = hcur;

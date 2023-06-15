@@ -45,8 +45,9 @@ SUNHeuristics SUNHeuristicsNewEmpty(SUNContext sunctx)
   ops->getid              = NULL;
   ops->destroy            = NULL;
   ops->constrainstep      = NULL;
-  ops->constrainefail     = NULL;
-  ops->constraincfail     = NULL;
+  ops->etestfail          = NULL;
+  ops->convfail           = NULL;
+  ops->boundreduction     = NULL;
   ops->reset              = NULL;
   ops->update             = NULL;
   ops->setdefaults        = NULL;
@@ -135,30 +136,42 @@ int SUNHeuristicsConstrainStep(SUNHeuristics H, realtype hcur,
   return(ier);
 }
 
-int SUNHeuristicsConstrainEFail(SUNHeuristics H, realtype hcur,
-                                realtype hnew, int nef,
-                                realtype *hconstr)
+int SUNHeuristicsETestFail(SUNHeuristics H, realtype hcur,
+                           realtype hnew, int nef, realtype *hconstr)
 {
   int ier = 0;
   *hconstr = hnew;   /* initialize output with identity */
-  if (H->ops->constrainefail)
+  if (H->ops->etestfail)
   {
-    ier = H->ops->constrainefail(H, hcur, hnew, nef, hconstr);
+    ier = H->ops->etestfail(H, hcur, hnew, nef, hconstr);
   }
   return(ier);
 }
 
-int SUNHeuristicsConstrainCFail(SUNHeuristics H, realtype hcur,
-                                realtype *hconstr)
+int SUNHeuristicsConvFail(SUNHeuristics H, realtype hcur,
+                          realtype *hconstr)
 {
   int ier = 0;
   *hconstr = hcur;   /* initialize output with identity */
-  if (H->ops->constraincfail)
+  if (H->ops->convfail)
   {
-    ier = H->ops->constraincfail(H, hcur, hconstr);
+    ier = H->ops->convfail(H, hcur, hconstr);
   }
   return(ier);
 }
+
+int SUNHeuristicsBoundReduction(SUNHeuristics H, realtype hcur,
+                                realtype hnew, realtype *hconstr)
+{
+  int ier = 0;
+  *hconstr = hnew;   /* initialize output with identity */
+  if (H->ops->boundreduction)
+  {
+    ier = H->ops->boundreduction(H, hcur, hnew, hconstr);
+  }
+  return(ier);
+}
+
 
 int SUNHeuristicsReset(SUNHeuristics H)
 {

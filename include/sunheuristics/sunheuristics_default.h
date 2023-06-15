@@ -61,12 +61,14 @@ SUNDIALS_EXPORT
 int SUNHeuristicsConstrainStep_Default(SUNHeuristics H, realtype hcur,
                                        realtype hnew, realtype* hconstr);
 SUNDIALS_EXPORT
-int SUNHeuristicsConstrainEFail_Default(SUNHeuristics H, realtype hcur,
-                                        realtype hnew, int nef,
-                                        realtype* hconstr);
+int SUNHeuristicsETestFail_Default(SUNHeuristics H, realtype hcur,
+                                   realtype hnew, int nef, realtype* hconstr);
 SUNDIALS_EXPORT
-int SUNHeuristicsConstrainCFail_Default(SUNHeuristics H, realtype hcur,
-                                       realtype* hconstr);
+int SUNHeuristicsConvFail_Default(SUNHeuristics H, realtype hcur,
+                                  realtype* hconstr);
+SUNDIALS_EXPORT
+int SUNHeuristicsBoundReduction_Default(SUNHeuristics H, realtype hcur,
+                                        realtype hnew, realtype* hconstr);
 SUNDIALS_EXPORT
 int SUNHeuristicsReset_Default(SUNHeuristics H);
 SUNDIALS_EXPORT

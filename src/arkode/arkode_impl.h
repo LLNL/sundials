@@ -342,8 +342,6 @@ typedef struct ARKodeMemRec {
   /* Time step data */
   realtype hin;                /* initial step size                        */
   realtype h;                  /* current step size                        */
-  realtype hmin;               /* |h| >= hmin                              */
-  realtype hmax_inv;           /* |h| <= 1/hmax_inv                        */
   realtype hprime;             /* next actual step size to be used         */
   realtype next_h;             /* next dynamical step size (only used in
                                   getCurrenStep); note that this could

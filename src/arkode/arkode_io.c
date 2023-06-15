@@ -88,8 +88,6 @@ int arkSetDefaults(void *arkode_mem)
   ark_mem->maxncf                  = MAXNCF;         /* max convergence fails */
   ark_mem->maxconstrfails          = MAXCONSTRFAILS; /* max number of constraint fails */
   ark_mem->hin                     = ZERO;           /* determine initial step on-the-fly */
-  ark_mem->hmin                    = ZERO;           /* no minimum step size */
-  ark_mem->hmax_inv                = ZERO;           /* no maximum step size */
   ark_mem->tstopset                = SUNFALSE;       /* no stop time set */
   ark_mem->tstop                   = ZERO;           /* no fixed stop time */
   ark_mem->diagfp                  = NULL;           /* no solver diagnostics file */

@@ -81,8 +81,9 @@ SUNHeuristics SUNHeuristicsDefault(SUNContext sunctx)
   /* Attach operations */
   H->ops->getid              = SUNHeuristicsGetID_Default;
   H->ops->constrainstep      = SUNHeuristicsConstrainStep_Default;
-  H->ops->constrainefail     = SUNHeuristicsConstrainEFail_Default;
-  H->ops->constraincfail     = SUNHeuristicsConstrainCFail_Default;
+  H->ops->etestfail          = SUNHeuristicsETestFail_Default;
+  H->ops->convfail           = SUNHeuristicsConvFail_Default;
+  H->ops->boundreduction     = SUNHeuristicsBoundReduction_Default;
   H->ops->reset              = SUNHeuristicsReset_Default;
   H->ops->update             = SUNHeuristicsUpdate_Default;
   H->ops->setdefaults        = SUNHeuristicsSetDefaults_Default;
@@ -136,10 +137,7 @@ SUNHeuristics_ID SUNHeuristicsGetID_Default(SUNHeuristics H)
 int SUNHeuristicsConstrainStep_Default(SUNHeuristics H, realtype hcur,
                                        realtype h_acc, realtype* hconstr)
 {
-  /* Initialize output as unconstrained */
-  *hconstr = h_acc;
-
-  /* Determine direction of integration, int_dir (see arkode_adapt.c:169) */
+  /* Determine direction of integration, int_dir */
   realtype int_dir = hcur / SUNRabs(hcur);
 
   /* Call explicit stability function if present, multiply result by CFL factor * int_dir */
@@ -170,53 +168,48 @@ int SUNHeuristicsConstrainStep_Default(SUNHeuristics H, realtype hcur,
       hnew = hcur;
   }
 
-  /* Set basic value of eta. */
-  realtype eta = hnew / hcur;
+  /* Enforce max step size */
+  hnew /= SUNMAX(RCONST(1.0), SUNRabs(hnew) * SH_HMAX_INV(H));
 
-  /* Enforce max/min step sizes on eta */
-  eta = SUNMAX(eta, SH_HMIN(H) / SUNRabs(hcur));
-  eta /= SUNMAX(RCONST(1.0), SUNRabs(hcur) * SH_HMAX_INV(H)*eta);
-
-  /* Convert eta into new step size and return with success. */
-  *hconstr = eta*hcur;
-  return SUNHEURISTICS_SUCCESS;
+  /* Bound any requested stepsize reduction, and return */
+  return (SUNHeuristicsBoundReduction_Default(H, hcur, hnew, hconstr));
 }
 
-int SUNHeuristicsConstrainEFail_Default(SUNHeuristics H, realtype hcur,
-                                        realtype hnew, int nef,
-                                        realtype* hconstr)
+int SUNHeuristicsETestFail_Default(SUNHeuristics H, realtype hcur,
+                                   realtype hnew, int nef, realtype* hconstr)
 {
-  /* Initialize output as unconstrained */
-  *hconstr = hnew;
-
   /* Set etamax to 1.0 for next step attempt */
   SH_ETAMAX(H) = RCONST(1.0);
 
-  /* If hnew is already less than hmin*ONEPSM, return with a failure
-     code to indicate that the step cannot shrink further */
-  if (SUNRabs(hcur) <= SH_HMIN(H)*ONEPSM) { return SUNHEURISTICS_CANNOT_DECREASE; }
+  /* Enforce failure bounds on step */
+  if (nef >= SH_SMALL_NEF(H)) { hnew = SUNMIN(hnew, hcur*SH_ETAMXF(H)); }
 
-  /* Enforce failure bounds on step and return */
-  realtype eta = (nef < SH_SMALL_NEF(H)) ? hnew/hcur : SUNMIN(hnew/hcur, SH_ETAMXF(H));
-  *hconstr = eta*hcur;
-  return SUNHEURISTICS_SUCCESS;
+  /* Bound any requested stepsize reduction, and return */
+  return (SUNHeuristicsBoundReduction_Default(H, hcur, hnew, hconstr));
 }
 
-int SUNHeuristicsConstrainCFail_Default(SUNHeuristics H, realtype hcur,
-                                        realtype* hconstr)
+int SUNHeuristicsConvFail_Default(SUNHeuristics H, realtype hcur,
+                                  realtype* hconstr)
 {
-  /* Initialize output as unconstrained */
-  *hconstr = hcur;
-
   /* Set etamax to 1.0 for next step attempt */
   SH_ETAMAX(H) = RCONST(1.0);
 
-  /* If hcur is already less than hmin*ONEPSM, return with a failure
-     code to indicate that the step cannot shrink further */
-  if (SUNRabs(hcur) <= SH_HMIN(H)*ONEPSM) { return SUNHEURISTICS_CANNOT_DECREASE; }
+  /* Enforce failure bounds on next step */
+  realtype hnew = hcur*SH_ETACF(H);
 
-  /* Set hconstr to enforce etacf and return with success */
-  *hconstr = SH_ETACF(H)*hcur;
+  /* Bound any requested stepsize reduction, and return */
+  return (SUNHeuristicsBoundReduction_Default(H, hcur, hnew, hconstr));
+}
+
+int SUNHeuristicsBoundReduction_Default(SUNHeuristics H, realtype hcur,
+                                        realtype hnew, realtype *hconstr)
+{
+  /* If reduction requested first ensure that it its possible. */
+  if ((SUNRabs(hcur) <= SH_HMIN(H)*ONEPSM) && (SUNRabs(hnew) <= SUNRabs(hcur)))
+  { return SUNHEURISTICS_CANNOT_DECREASE; }
+
+  /* Enforce minimum step size and return. */
+  *hconstr = SUNMAX(SUNRabs(hnew), SH_HMIN(H));
   return SUNHEURISTICS_SUCCESS;
 }
 

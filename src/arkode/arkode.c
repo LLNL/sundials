@@ -872,7 +872,7 @@ int arkEvolve(ARKodeMem ark_mem, realtype tout, N_Vector yout,
       }
 
       /* when fixed time-stepping is enabled, 'success' == successful stage solves
-         (checked in previous block), so just enforce no step size change */
+         (checked in previous block), so just enforce no step size change ***REMOVE??*** */
       if (ark_mem->fixedstep) {
         ark_mem->eta = ONE;
         break;
@@ -893,9 +893,6 @@ int arkEvolve(ARKodeMem ark_mem, realtype tout, N_Vector yout,
 
       /* break attempt loop on successful step */
       if (kflag == ARK_SUCCESS)  break;
-
-      /* unsuccessful step, if |h| = hmin, return ARK_ERR_FAILURE */
-      if (SUNRabs(ark_mem->h) <= ark_mem->hmin*ONEPSM) return(ARK_ERR_FAILURE);
 
       /* update h, hprime and next_h for next iteration */
       ark_mem->h *= ark_mem->eta;
@@ -1398,8 +1395,6 @@ void arkPrintMem(ARKodeMem ark_mem, FILE *outfile)
   fprintf(outfile, "eta = %" RSYM"\n", ark_mem->eta);
   fprintf(outfile, "tcur = %" RSYM"\n", ark_mem->tcur);
   fprintf(outfile, "tretlast = %" RSYM"\n", ark_mem->tretlast);
-  fprintf(outfile, "hmin = %" RSYM"\n", ark_mem->hmin);
-  fprintf(outfile, "hmax_inv = %" RSYM"\n", ark_mem->hmax_inv);
   fprintf(outfile, "h0u = %" RSYM"\n", ark_mem->h0u);
   fprintf(outfile, "tn = %" RSYM"\n", ark_mem->tn);
   fprintf(outfile, "hold = %" RSYM"\n", ark_mem->hold);
@@ -1968,10 +1963,13 @@ int arkInitialSetup(ARKodeMem ark_mem, realtype tout)
     }
 
     /* Enforce step size bounds */
-    rh = SUNRabs(ark_mem->h)*ark_mem->hmax_inv;
-    if (rh > ONE) ark_mem->h /= rh;
-    if (SUNRabs(ark_mem->h) < ark_mem->hmin)
-      ark_mem->h *= ark_mem->hmin/SUNRabs(ark_mem->h);
+    retval = SUNHeuristicsConstrainStep(ark_mem->hconstraints, ark_mem->h,
+                                        ark_mem->h, &(ark_mem->h));
+    if (retval != SUNHEURISTICS_SUCCESS) {
+      arkProcessError(ark_mem, ARK_HEURISTICS_ERR, "ARKODE", "arkInitialSetup",
+                      "Error in call to SUNHeuristicsConstrainStep");
+      return(ARK_HEURISTICS_ERR);
+    }
 
     /* Check for approach to tstop */
     if (ark_mem->tstopset) {
@@ -2892,8 +2890,7 @@ int arkCheckConvergence(ARKodeMem ark_mem, int *nflagPtr, int *ncfPtr)
   }
 
   /* Attempt step reduction via heuristics control */
-  retval = SUNHeuristicsConstrainCFail(ark_mem->hconstraints, ark_mem->h,
-                                       &hnew);
+  retval = SUNHeuristicsConvFail(ark_mem->hconstraints, ark_mem->h, &hnew);
 
   /* If step reduction successful: store step 'eta', increment ncf, signal
      for Jacobian/preconditioner setup, and return to reattempt the step.
@@ -2924,6 +2921,8 @@ int arkCheckConvergence(ARKodeMem ark_mem, int *nflagPtr, int *ncfPtr)
 int arkCheckConstraints(ARKodeMem ark_mem, int *constrfails, int *nflag)
 {
   booleantype constraintsPassed;
+  realtype hnew;
+  int retval;
   N_Vector mm  = ark_mem->tempv4;
   N_Vector tmp = ark_mem->tempv1;
 
@@ -2943,14 +2942,17 @@ int arkCheckConstraints(ARKodeMem ark_mem, int *constrfails, int *nflag)
   /* Return with error if using fixed step sizes */
   if (ark_mem->fixedstep) return(ARK_CONSTR_FAIL);
 
-  /* Return with error if |h| == hmin */
-  if (SUNRabs(ark_mem->h) <= ark_mem->hmin*ONEPSM) return(ARK_CONSTR_FAIL);
-
-  /* Reduce h by computing eta = h'/h */
+  /* Recommend step size adjustment to satisfy constraints */
   N_VLinearSum(ONE, ark_mem->yn, -ONE, ark_mem->ycur, tmp);
   N_VProd(mm, tmp, tmp);
-  ark_mem->eta = RCONST(0.9)*N_VMinQuotient(ark_mem->yn, tmp);
-  ark_mem->eta = SUNMAX(ark_mem->eta, TENTH);
+  hnew = ark_mem->h * SUNMAX(RCONST(0.9)*N_VMinQuotient(ark_mem->yn, tmp), TENTH);
+
+  /* Check if step size reduction is possible; if so adjust recommended step to meet bounds */
+  retval = SUNHeuristicsBoundReduction(ark_mem->hconstraints, ark_mem->h, hnew, &hnew);
+  if (retval != SUNHEURISTICS_SUCCESS) { return(ARK_CONSTR_FAIL); }
+
+  /* Compute step size change for subsequent use */
+  ark_mem->eta = hnew / ark_mem->h;
 
   /* Signal for Jacobian/preconditioner setup */
   *nflag = PREV_CONV_FAIL;
@@ -2974,7 +2976,7 @@ int arkCheckConstraints(ARKodeMem ark_mem, int *constrfails, int *nflag)
 
   If the test fails:
     - if maxnef error test failures have occurred or if
-      SUNRabs(h) = hmin, we return ARK_ERR_FAILURE.
+      no stepsize reduction is possible, we return ARK_ERR_FAILURE.
     - otherwise: set *nflagPtr to PREV_ERR_FAIL, and
       return TRY_AGAIN.
   --------------------------------------------------------------*/
@@ -2991,7 +2993,7 @@ int arkCheckTemporalError(ARKodeMem ark_mem, int *nflagPtr, int *nefPtr, realtyp
     return(ARK_CONTROLLER_ERR);
   }
 
-  /* Perform heuristic controls on recommended time step */
+  /* Perform heuristic controls on recommended step size */
   retval = SUNHeuristicsConstrainStep(ark_mem->hconstraints, ark_mem->h, hnew, &hnew);
   if (retval != SUNHEURISTICS_SUCCESS) {
     arkProcessError(ark_mem, ARK_HEURISTICS_ERR, "ARKODE", "arkCheckTemporalError",
@@ -3011,8 +3013,8 @@ int arkCheckTemporalError(ARKodeMem ark_mem, int *nflagPtr, int *nefPtr, realtyp
   if (*nefPtr == ark_mem->maxnef)  return(ARK_ERR_FAILURE);
 
   /* Attempt step reduction via heuristics control */
-  retval = SUNHeuristicsConstrainEFail(ark_mem->hconstraints, ark_mem->h, hnew,
-                                       *nefPtr, &hnew);
+  retval = SUNHeuristicsETestFail(ark_mem->hconstraints, ark_mem->h,
+                                  hnew, *nefPtr, &hnew);
 
   /* If step reduction successful, store result and return to reattempt
      the step.  Otherwise, return ARK_ERR_FAILURE or ARK_HEURISTICS_ERR,
