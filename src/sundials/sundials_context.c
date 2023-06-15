@@ -227,9 +227,17 @@ void sunAdiakCollectMetadata() {
   adiak_job_size();
   adiak_num_hosts();
 
+  adiak_namevalue("c_compiler", 2, NULL, "%s", SUN_C_COMPILER);
+  adiak_namevalue("c_compiler_version", 2, NULL, "%s", SUN_C_COMPILER_VERSION);
+  adiak_namevalue("c_compiler_flags", 2, NULL, "%s", SUN_C_COMPILER_FLAGS);
+
   adiak_namevalue("cxx_compiler", 2, NULL, "%s", SUN_CXX_COMPILER);
   adiak_namevalue("cxx_compiler_version", 2, NULL, "%s", SUN_CXX_COMPILER_VERSION);
   adiak_namevalue("cxx_compiler_flags", 2, NULL, "%s", SUN_CXX_COMPILER_FLAGS);
+
+  adiak_namevalue("fortran_compiler", 2, NULL, "%s", SUN_FORTRAN_COMPILER);
+  adiak_namevalue("fortran_compiler_version", 2, NULL, "%s", SUN_FORTRAN_COMPILER_VERSION);
+  adiak_namevalue("fortran_compiler_flags", 2, NULL, "%s", SUN_FORTRAN_COMPILER_FLAGS);
 
   adiak_namevalue("sundials_version", 2, NULL, "%s", SUNDIALS_GIT_VERSION);
   adiak_namevalue("build_type", 2, NULL, "%s", SUN_BUILD_TYPE);
@@ -271,9 +279,15 @@ void sunAdiakCollectMetadata() {
   adiak_namevalue("magma_version", 2, NULL, "%s", SUN_MAGMA_VERSION);
 #endif
 
-// needs a further look
 #ifdef SUNDIALS_MPI_ENABLED
-  adiak_namevalue("mpi_version", 2, NULL, "%s", SUN_MPI_VERSION);
+  adiak_namevalue("mpi_c_compiler", 2, NULL, "%s", SUN_MPI_C_COMPILER);
+  adiak_namevalue("mpi_c_version", 2, NULL, "%s", SUN_MPI_C_VERSION);
+
+  adiak_namevalue("mpi_cxx_compiler", 2, NULL, "%s", SUN_MPI_CXX_COMPILER);
+  adiak_namevalue("mpi_cxx_version", 2, NULL, "%s", SUN_MPI_CXX_VERSION);
+
+  adiak_namevalue("mpi_fortran_compiler", 2, NULL, "%s", SUN_MPI_FORTRAN_COMPILER);
+  adiak_namevalue("mpi_fortran_version", 2, NULL, "%s", SUN_MPI_FORTRAN_VERSION);
 #endif
 
 #ifdef SUNDIALS_ONEMKL_ENABLED
@@ -314,10 +328,14 @@ void sunAdiakCollectMetadata() {
 
 #ifdef SUNDIALS_CUDA_ENABLED
   adiak_namevalue("cuda_version", 2, NULL, "%s", SUN_CUDA_VERSION);
+  adiak_namevalue("cuda_compiler", 2, NULL, "%s", SUN_CUDA_COMPILER);
+  adiak_namevalue("cuda_architectures", 2, NULL, "%s", SUN_CUDA_ARCHITECTURES);
 #endif
 
 #ifdef SUNDIALS_HIP_ENABLED
   adiak_namevalue("hip_version", 2, NULL, "%s", SUN_HIP_VERSION);
+  adiak_namevalue("amdgpu_targets", 2, NULL, "%s", SUN_AMDGPU_TARGETS);
 #endif
+
 }
 #endif
