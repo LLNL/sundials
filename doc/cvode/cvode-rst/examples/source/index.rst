@@ -23,7 +23,7 @@ CVode Example documentation
 
 This is the documentation for the CVode examples.  CVode is a
 Krylov method integration package for stiff, nonstiff and
-multi-rate systems of ordinary differential equations (ODEs).  
+multi-rate systems of ordinary differential equations (ODEs).
 The CVode solver is a component of the `SUNDIALS
 <https://computing.llnl.gov/projects/sundials>`_ suite of
 nonlinear and differential/algebraic equation solvers. It is designed
@@ -34,12 +34,12 @@ output times, return after each internal step and root-finding
 capabilities, for calculations both in serial and parallel (via
 MPI). The default integration and solver options should apply to most
 users, though complete control over all internal parameters and time
-adaptivity algorithms is enabled through optional interface routines.  
+adaptivity algorithms is enabled through optional interface routines.
 
 CVode is developed by `Lawrence Livermore National Laboratory
 <http://www.llnl.gov>`_, with support by the `US Department of Energy
 <http://www.doe.gov>`_ through the `FASTMath
-<https://scidac5-fastmath.lbl.gov/>`_ SciDAC-5 Institute, under 
+<https://scidac5-fastmath.lbl.gov/>`_ SciDAC-5 Institute, under
 subcontract 07NA27344.
 
 Along with the CVode solver, we have created a suite of example
@@ -58,30 +58,30 @@ The following tables summarize the salient features of each of the
 example problems in this document.  Each example is designed to be
 relatively self-contained, so that you need only study and/or emulate
 the problem that is most closely related to your own.  We group these
-examples according to programming language (C, C++, Fortran 2003). 
+examples according to programming language (C, C++, Fortran 2003).
 
 
 CVode example problems written in C are summarized in the table
 below, and are further described in the chapters :ref:`serial_c`,
-:ref:`openmp_c`, :ref:`parallel_c` and :ref:`parhyp_c`. 
+:ref:`openmp_c`, :ref:`parallel_c` and :ref:`parhyp_c`.
 
 .. cssclass:: table-bordered
 
-================================  ============  ============  ==========  =============  =====================================================
-Problem                           Integrator    Nonlinear     Linear      Size           Extras
-================================  ============  ============  ==========  =============  =====================================================
+================================   ============  ============  ==========  =============  =====================================================
+Problem                            Integrator    Nonlinear     Linear      Size           Extras
+================================   ============  ============  ==========  =============  =====================================================
 :ref:`cvAdvDiff_bnd`               BDF           Newton        Band        1              user Jacobian
 :ref:`cvAdvDiff_bndL`              BDF           Newton        Band        1              LAPACK band solver, user Jacobian
-:ref:`cvAnalytic_mels`             ----          Newton        Dense       3              
+:ref:`cvAnalytic_mels`             ----          Newton        Dense       3
 :ref:`cvDirectDemo_ls`             BDF           Newton        Dense       3              Van der Pol (1) user (2) dif-quot (3) diag + 2
                                    Adams         fixed-point   Band        1              2D advection (1) user (2) dif-quot (3) diag + 2
-:ref:`cvDisc_dns`                  ----          Newton        Dense       3              
+:ref:`cvDisc_dns`                  ----          Newton        Dense       3
 :ref:`cvDirunal_kry`               BDF           Newton        SPGMR       200            block-diagonal preconditioner
 :ref:`cvDirunal_kry_bp`            BDF/BandPre   Newton        SPGMR       200            Solved twice with prec. on left and right
-:ref:`cvHeat2D_klu`                BDF           Newton        KLU                        
+:ref:`cvHeat2D_klu`                BDF           Newton        KLU
 :ref:`cvKrylovDemo_ls`             BDF           Newton        3 Krylov    200            SPGMR, SPBCGS, SPTFQMR used
 :ref:`cvKrylovDemo_prec`           GMRES         Newton        SPGMR       12             preconditioner matrix (1) implicit GS (2) block-diag
-:ref:`cvParticle_dns`              ----          Newton        PCG         N              
+:ref:`cvParticle_dns`              ----          Newton        PCG         N
 :ref:`cvPendulum_dns`              ----          Newton        PCG         (dynamic)      adaptive vector resizing
 :ref:`cvRoberts_block_klu`         ----          Newton        SPGMR       216            multiple preconditioners
 :ref:`cvRoberts_dns`               BDF           Newton        Dense       3              user rootfinding
@@ -100,13 +100,13 @@ Problem                           Integrator    Nonlinear     Linear      Size  
 :ref:`cvAdvDiff_kry_p`             DIRK          Newton        SPGMR       200            HYPRE parallel vector
 :ref:`cvAdvDiff_non_ph`            DIRK          Newton        SPGMR       200            HYPRE parallel vector
 :ref:`cvDirunal_kry_mpimanyvec`    DIRK          Newton        SPGMR       200            HYPRE parallel vector
-================================  ============  ===========  ==========  =============  =====================================================
+================================   ============  ============  ==========  =============  =====================================================
 
 
 CVode example problems written in C++ are summarized in the table
 below, and are further described in the chapters :ref:`serial_cpp`,
-:ref:`parallel_cpp`, :ref:`parhyp_cpp`, :ref:`onemkl_cpp`, and 
-:ref:`sycl_cpp`. 
+:ref:`parallel_cpp`, :ref:`parhyp_cpp`, :ref:`onemkl_cpp`, and
+:ref:`sycl_cpp`.
 
 .. cssclass:: table-bordered
 
@@ -114,27 +114,27 @@ below, and are further described in the chapters :ref:`serial_cpp`,
 Problem                            Integrator  Nonlinear    Linear  Size           Extras
 =================================  ==========  ===========  ======  =============  =================================
 :ref:`cv_heat2D`                    DIRK        Newton       PCG     :math:`nx*ny`  parallel
-:ref:`cv_kpr`                       DIRK        Newton       Dense   3              
-:ref:`cv_heat2D_p`                  DIRK        Newton       Dense   3              
-:ref:`cv_heat2D_hypre_ls`           DIRK        Newton       Dense   3              
-:ref:`cv_heat2D_hypre_pfmg`         DIRK        Newton       Dense   3              
-:ref:`cvRoberts_blockdiag_onemkl`   DIRK        Newton       Dense   3              
-:ref:`cvAdvDiff_kry_sycl`           DIRK        Newton       Dense   3              
+:ref:`cv_kpr`                       DIRK        Newton       Dense   3
+:ref:`cv_heat2D_p`                  DIRK        Newton       Dense   3
+:ref:`cv_heat2D_hypre_ls`           DIRK        Newton       Dense   3
+:ref:`cv_heat2D_hypre_pfmg`         DIRK        Newton       Dense   3
+:ref:`cvRoberts_blockdiag_onemkl`   DIRK        Newton       Dense   3
+:ref:`cvAdvDiff_kry_sycl`           DIRK        Newton       Dense   3
 =================================  ==========  ===========  ======  =============  =================================
 
 
 CVode example problems written in Fortran 2003 are summarized in the table
 below, and are further described in the chapters :ref:`serial_f2003` and
-:ref:`parallel_f2003`. 
+:ref:`parallel_f2003`.
 
 .. cssclass:: table-bordered
 
-=================================  ==========  ===========  ======  =============  =================================
-Problem                            Integrator  Nonlinear    Linear  Size           Extras
-=================================  ==========  ===========  ======  =============  =================================
+=================================   ==========  ===========  ======  =============  =================================================
+Problem                             Integrator  Nonlinear    Linear  Size           Extras
+=================================   ==========  ===========  ======  =============  =================================================
 :ref:`cv_analytic_fp`               DIRK        Newton       SPGMR   10             banded preconditioner
 :ref:`cv_analytic_sys_dns`          DIRK        Newton       Dense   3              LAPACK dense solver, rootfinding
-:ref:`cv_analytic_sys_dns_jac`      CV          Newton       Dense   3              
+:ref:`cv_analytic_sys_dns_jac`      CV          Newton       Dense   3
 :ref:`cv_analytic_sys_klu`          DIRK        Newton       KLU     3N             finite-element, :math:`M\ne I`, sparse matrices
 :ref:`cv_brusselator_dns`           DIRK        Newton       SPGMR   10*NProcs      parallel BBD preconditioner
 :ref:`cv_roberts_dns_constraints`   ERK         N.A.         N.A.    10*NProcs      parallel
@@ -145,7 +145,7 @@ Problem                            Integrator  Nonlinear    Linear  Size        
 :ref:`cv_diag_kry_bbd_p`            DIRK        Newton       PCG     :math:`nx*ny`  parallel
 :ref:`cv_diag_kry_p`                DIRK        Newton       PCG     :math:`nx*ny`  parallel
 :ref:`cv_diag_non_p`                DIRK        Newton       PCG     :math:`nx*ny`  parallel
-=================================  ==========  ===========  ======  =============  =================================
+=================================   ==========  ===========  ======  =============  =================================================
 
 
 
@@ -153,7 +153,7 @@ Problem                            Integrator  Nonlinear    Linear  Size        
 
 .. only:: html
 
-   Further details on each of the above-listed examples are provided
+   Further details on many of the above-listed examples are provided
    in the following chapters:
 
 .. toctree::
@@ -165,15 +165,10 @@ Problem                            Integrator  Nonlinear    Linear  Size        
    c_parhyp
    cpp_serial
    cpp_parallel
-   cpp_parhyp
-   cpp_onemkl
-   cpp_sycl
    f2003_serial
    f2003_parallel
-   References           
-   
+   References
+
 .. only:: html
 
    * :ref:`search`
-
-
