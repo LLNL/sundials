@@ -83,8 +83,6 @@ sundials_add_library(sundials_arkode
     sundials_suncontrolimpgus_obj
     sundials_suncontrolpi_obj
     sundials_suncontrolimexgus_obj
-    sundials_suncontrolfixed_obj
-    sundials_sunheuristicsunconstrained_obj
     sundials_sunheuristicsdefault_obj
     sundials_sunmatrixband_obj
     sundials_sunmatrixdense_obj

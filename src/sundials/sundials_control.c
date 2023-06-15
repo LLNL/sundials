@@ -85,13 +85,18 @@ void SUNControlFreeEmpty(SUNControl C)
 
 
 /* -----------------------------------------------------------------
- * Required functions in the 'ops' structure
+ * Required functions in the 'ops' structure for non-NULL controller
  * ----------------------------------------------------------------- */
 
 SUNControl_ID SUNControlGetID(SUNControl C)
 {
+  if (C == NULL) { return SUNDIALS_CONTROL_NONE; }
   return(C->ops->getid(C));
 }
+
+/* -----------------------------------------------------------------
+ * Optional functions in the 'ops' structure
+ * ----------------------------------------------------------------- */
 
 void SUNControlDestroy(SUNControl C)
 {
@@ -110,15 +115,12 @@ void SUNControlDestroy(SUNControl C)
   return;
 }
 
-/* -----------------------------------------------------------------
- * Optional functions in the 'ops' structure
- * ----------------------------------------------------------------- */
-
 int SUNControlEstimateStep(SUNControl C, realtype h, realtype dsm,
                            realtype* hnew)
 {
   int ier = 0;
   *hnew = h;   /* initialize output with identity */
+  if (C == NULL) { return ier; }
   if (C->ops->estimatestep)
   {
     ier = C->ops->estimatestep(C, h, dsm, hnew);
@@ -134,6 +136,7 @@ int SUNControlEstimateStepAndOrder(SUNControl C, realtype h, int q,
   int ier = 0;
   *hnew = h;   /* initialize outputs with identity */
   *qnew = q;
+  if (C == NULL) { return ier; }
   if (C->ops->estimatestepandorder)
   {
     ier = C->ops->estimatestepandorder(C, h, q, dsm, hnew, qnew);
@@ -148,6 +151,7 @@ int SUNControlEstimateMRISteps(SUNControl C, realtype H,
   int ier = 0;
   *Hnew = H;   /* initialize outputs with identity */
   *hnew = h;
+  if (C == NULL) { return ier; }
   if (C->ops->estimatemristeps)
   {
     ier = C->ops->estimatemristeps(C, H, dsm, h, Hnew, hnew);
@@ -162,6 +166,7 @@ int SUNControlEstimateStepTol(SUNControl C, realtype H,
   int ier = 0;
   *Hnew = H;   /* initialize outputs with identity */
   *tolfacnew = tolfac;
+  if (C == NULL) { return ier; }
   if (C->ops->estimatesteptol)
   {
     ier = C->ops->estimatesteptol(C, H, tolfac, dsm, Hnew, tolfacnew);
@@ -172,6 +177,7 @@ int SUNControlEstimateStepTol(SUNControl C, realtype H,
 int SUNControlReset(SUNControl C)
 {
   int ier = 0;
+  if (C == NULL) { return ier; }
   if (C->ops->reset) { ier = C->ops->reset(C); }
   return(ier);
 }
@@ -186,6 +192,7 @@ int SUNControlSetDefaults(SUNControl C)
 int SUNControlWrite(SUNControl C, FILE* fptr)
 {
   int ier = 0;
+  if (C == NULL) { return ier; }
   if (C->ops->write) { ier = C->ops->write(C, fptr); }
   return(ier);
 }
@@ -193,6 +200,7 @@ int SUNControlWrite(SUNControl C, FILE* fptr)
 int SUNControlSetMethodOrder(SUNControl C, int q)
 {
   int ier = 0;
+  if (C == NULL) { return ier; }
   if (C->ops->setmethodorder) { ier = C->ops->setmethodorder(C, q); }
   return(ier);
 }
@@ -200,6 +208,7 @@ int SUNControlSetMethodOrder(SUNControl C, int q)
 int SUNControlSetEmbeddingOrder(SUNControl C, int p)
 {
   int ier = 0;
+  if (C == NULL) { return ier; }
   if (C->ops->setembeddingorder) { ier = C->ops->setembeddingorder(C, p); }
   return(ier);
 }
@@ -207,6 +216,7 @@ int SUNControlSetEmbeddingOrder(SUNControl C, int p)
 int SUNControlSetSafetyFactor(SUNControl C, realtype safety)
 {
   int ier = 0;
+  if (C == NULL) { return ier; }
   if (C->ops->setsafetyfactor)
   {
     ier = C->ops->setsafetyfactor(C, safety);
@@ -217,6 +227,7 @@ int SUNControlSetSafetyFactor(SUNControl C, realtype safety)
 int SUNControlSetErrorBias(SUNControl C, realtype bias)
 {
   int ier = 0;
+  if (C == NULL) { return ier; }
   if (C->ops->seterrorbias) { ier = C->ops->seterrorbias(C, bias); }
   return(ier);
 }
@@ -224,6 +235,7 @@ int SUNControlSetErrorBias(SUNControl C, realtype bias)
 int SUNControlUpdate(SUNControl C, realtype h, realtype dsm)
 {
   int ier = 0;
+  if (C == NULL) { return ier; }
   if (C->ops->update) { ier = C->ops->update(C, h, dsm); }
   return(ier);
 }
@@ -233,6 +245,7 @@ int SUNControlSpace(SUNControl C, long int *lenrw, long int *leniw)
   int ier = 0;
   *lenrw = 0;   /* initialize outputs with identity */
   *leniw = 0;
+  if (C == NULL) { return ier; }
   if (C->ops->space) { ier = C->ops->space(C, lenrw, leniw); }
   return(ier);
 }

@@ -32,6 +32,7 @@ extern "C" {
 /* -----------------------------------------------------------------
  * SUNControl types (currently, only "H" is implemented; others
  * are planned):
+ *    NONE    - empty controller (does nothing)
  *    H       - controls a single-rate step size
  *    HQ      - controls a single-rate step size and method order
  *    MRI_H   - controls two multirate step sizes
@@ -40,6 +41,7 @@ extern "C" {
 
 typedef enum
 {
+  SUNDIALS_CONTROL_NONE,
   SUNDIALS_CONTROL_H,
   SUNDIALS_CONTROL_HQ,
   SUNDIALS_CONTROL_MRI_H,
@@ -116,10 +118,6 @@ struct _generic_SUNControl
 /* Function to create an empty SUNHeuristics data structure. */
 SUNDIALS_EXPORT
 SUNControl SUNControlNewEmpty(SUNContext sunctx);
-
-/* Function to free an empty SUNHeuristics data structure. */
-SUNDIALS_EXPORT
-void SUNControlFreeEmpty(SUNControl C);
 
 /* Function to report the ID of a SUNHeuristics object. */
 SUNDIALS_EXPORT

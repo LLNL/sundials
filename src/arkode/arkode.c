@@ -872,7 +872,7 @@ int arkEvolve(ARKodeMem ark_mem, realtype tout, N_Vector yout,
       }
 
       /* when fixed time-stepping is enabled, 'success' == successful stage solves
-         (checked in previous block), so just enforce no step size change ***REMOVE??*** */
+         (checked in previous block), so just enforce no step size change */
       if (ark_mem->fixedstep) {
         ark_mem->eta = ONE;
         break;

@@ -33,9 +33,7 @@
 #include <suncontrol/suncontrol_expgus.h>
 #include <suncontrol/suncontrol_impgus.h>
 #include <suncontrol/suncontrol_imexgus.h>
-#include <suncontrol/suncontrol_fixed.h>
 #include <sunheuristics/sunheuristics_default.h>
-#include <sunheuristics/sunheuristics_unconstrained.h>
 
 
 /*===============================================================

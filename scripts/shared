@@ -176,7 +176,6 @@ $tar $tarfile $distrobase/include/nvector/trilinos/SundialsTpetraVectorInterface
 $tar $tarfile $distrobase/include/nvector/trilinos/SundialsTpetraVectorKernels.hpp
 
 $tar $tarfile $distrobase/include/suncontrol/suncontrol_expgus.h
-$tar $tarfile $distrobase/include/suncontrol/suncontrol_fixed.h
 $tar $tarfile $distrobase/include/suncontrol/suncontrol_i.h
 $tar $tarfile $distrobase/include/suncontrol/suncontrol_imexgus.h
 $tar $tarfile $distrobase/include/suncontrol/suncontrol_impgus.h
@@ -389,11 +388,6 @@ echo "   --- Add suncontrol/exp_gus module to $tarfile"
 
 $tar $tarfile $distrobase/src/suncontrol/exp_gus/CMakeLists.txt
 $tar $tarfile $distrobase/src/suncontrol/exp_gus/suncontrol_expgus.c
-
-echo "   --- Add suncontrol/fixed module to $tarfile"
-
-$tar $tarfile $distrobase/src/suncontrol/fixed/CMakeLists.txt
-$tar $tarfile $distrobase/src/suncontrol/fixed/suncontrol_fixed.c
 
 echo "   --- Add suncontrol/i_control module to $tarfile"
 

@@ -32,9 +32,7 @@
 #include <suncontrol/suncontrol_expgus.h>
 #include <suncontrol/suncontrol_impgus.h>
 #include <suncontrol/suncontrol_imexgus.h>
-#include <suncontrol/suncontrol_fixed.h>
 #include <sunheuristics/sunheuristics_default.h>
-#include <sunheuristics/sunheuristics_unconstrained.h>
 
 
 /*===============================================================
@@ -565,7 +563,7 @@ int arkClearStopTime(void *arkode_mem)
 
 
 /*---------------------------------------------------------------
-  arkSetFixedStep:  ***DEPRECATED***
+  arkSetFixedStep:
 
   Specifies to use a fixed time step size instead of performing
   any form of temporal adaptivity.  Any nonzero argument will
@@ -576,12 +574,6 @@ int arkClearStopTime(void *arkode_mem)
   failure occurs in the timestepping module, ARKODE will
   typically immediately return with an error message indicating
   that the selected step size cannot be used.
-
-  This is a convenience routine, that merely replaces ARKODE's
-  default SUNControl and SUNHeuristics objects with the
-  SUNControl_Fixed and SUNHeuristics_Unconstrained objects,
-  respectively (or replaces these with the defaults, if
-  re-enabling temporal adaptivity).
   ---------------------------------------------------------------*/
 int arkSetFixedStep(void *arkode_mem, realtype hfixed)
 {
@@ -604,75 +596,43 @@ int arkSetFixedStep(void *arkode_mem, realtype hfixed)
   SUNControlDestroy(ark_mem->hcontroller);
   ark_mem->hcontroller = NULL;
 
-  /* Remove current SUNHeuristics object */
-  retval = SUNHeuristicsSpace(ark_mem->hconstraints, &lenrw, &leniw);
-  if (retval == SUNHEURISTICS_SUCCESS) {
-    ark_mem->liw -= leniw;
-    ark_mem->lrw -= lenrw;
-  }
-  SUNHeuristicsDestroy(ark_mem->hconstraints);
-  ark_mem->hconstraints = NULL;
-
-  /* Create new SUNControl and SUNHeuristics objects */
+  /* If re-enabling time adaptivity, create default PID controller */
   SUNControl C = NULL;
-  SUNHeuristics H = NULL;
   if (hfixed == 0)
   {
-    /* hfixed == 0: construct default objects */
     C = SUNControlPID(ark_mem->sunctx);
     if (C == NULL) {
       arkProcessError(ark_mem, ARK_MEM_FAIL, "ARKODE", "arkSetFixedStep",
                       "SUNControlPID allocation failure");
       return(ARK_MEM_FAIL);
     }
-    H = SUNHeuristicsDefault(ark_mem->sunctx);
-    if (H == NULL) {
-      arkProcessError(ark_mem, ARK_MEM_FAIL, "ARKODE", "arkSetFixedStep",
-                      "SUNHeuristicsDefault allocation failure");
-      return(ARK_MEM_FAIL);
-    }
-  } else {
-    /* hfixed != 0: construct fixed-step objects */
-    C = SUNControlFixed(hfixed, ark_mem->sunctx);
-    if (C == NULL) {
-      arkProcessError(ark_mem, ARK_MEM_FAIL, "ARKODE", "arkSetFixedStep",
-                      "SUNControlFixed allocation failure");
-      return(ARK_MEM_FAIL);
-    }
-    H = SUNHeuristicsUnconstrained(ark_mem->sunctx);
-    if (H == NULL) {
-      arkProcessError(ark_mem, ARK_MEM_FAIL, "ARKODE", "arkSetFixedStep",
-                      "SUNHeuristicsUnconstrained allocation failure");
-      return(ARK_MEM_FAIL);
-    }
   }
 
-  /* Attach new SUNControl and SUNHeuristics objects to ARKODE */
+  /* Attach new SUNControl object to ARKODE */
   retval = SUNControlSpace(C, &lenrw, &leniw);
   if (retval == SUNCONTROL_SUCCESS) {
     ark_mem->liw += leniw;
     ark_mem->lrw += lenrw;
   }
   ark_mem->hcontroller = C;
-  retval = SUNHeuristicsSpace(H, &lenrw, &leniw);
-  if (retval == SUNHEURISTICS_SUCCESS) {
-    ark_mem->liw += leniw;
-    ark_mem->lrw += lenrw;
+
+  /* re-attach internal error weight functions if necessary */
+  if ((hfixed == ZERO) && (!ark_mem->user_efun)) {
+    if (ark_mem->itol == ARK_SV && ark_mem->Vabstol != NULL)
+      retval = arkSVtolerances(ark_mem, ark_mem->reltol, ark_mem->Vabstol);
+    else
+      retval = arkSStolerances(ark_mem, ark_mem->reltol, ark_mem->Sabstol);
+    if (retval != ARK_SUCCESS) return(retval);
   }
-  ark_mem->hconstraints = H;
 
-  /* /\* re-attach internal error weight functions if necessary *\/ */
-  /* if ((hfixed == ZERO) && (!ark_mem->user_efun)) { */
-  /*   if (ark_mem->itol == ARK_SV && ark_mem->Vabstol != NULL) */
-  /*     retval = arkSVtolerances(ark_mem, ark_mem->reltol, ark_mem->Vabstol); */
-  /*   else */
-  /*     retval = arkSStolerances(ark_mem, ark_mem->reltol, ark_mem->Sabstol); */
-  /*   if (retval != ARK_SUCCESS) return(retval); */
-  /* } */
-
-  /* set ark_mem "fixedstep" entry ***REMOVE*** */
+  /* set ark_mem "fixedstep" entry, and set
+     stepsize bounds into heuristics module */
   if (hfixed != ZERO) {
     ark_mem->fixedstep = SUNTRUE;
+    retval = SUNHeuristicsSetMaxStep(ark_mem->hconstraints, hfixed);
+    if (retval != ARK_SUCCESS) return(ARK_HEURISTICS_ERR);
+    retval = SUNHeuristicsSetMinStep(ark_mem->hconstraints, hfixed);
+    if (retval != ARK_SUCCESS) return(ARK_HEURISTICS_ERR);
   } else {
     ark_mem->fixedstep = SUNFALSE;
   }
