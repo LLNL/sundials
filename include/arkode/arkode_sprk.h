@@ -13,8 +13,8 @@
  * -----------------------------------------------------------------
  * -----------------------------------------------------------------*/
 
-#ifndef _ARKODE_SPRKMEM_H
-#define _ARKODE_SPRKMEM_H
+#ifndef _ARKODE_SPRKSTORAGE_H
+#define _ARKODE_SPRKSTORAGE_H
 
 #include <arkode/arkode_butcher.h>
 #include <sundials/sundials_types.h>
@@ -42,7 +42,7 @@ typedef enum
   ARKODE_MAX_SPRK_NUM = ARKODE_SYMPLECTIC_SOFRONIOU_10_36
 } ARKODE_SPRKMethodID;
 
-struct ARKodeSPRKMem_s
+struct ARKodeSPRKStorage_s
 {
   int q;          /* method order of accuracy         */
   int stages;     /* number of stages                 */
@@ -54,11 +54,12 @@ struct ARKodeSPRKMem_s
   /* the b_i coefficients generate the diagonally-implicit Butcher table */
 };
 
-typedef _SUNDIALS_STRUCT_ ARKodeSPRKMem_s* ARKodeSPRKStorage;
+typedef _SUNDIALS_STRUCT_ ARKodeSPRKStorage_s* ARKodeSPRKStorage;
 
 /* Utility routines to allocate/free/output SPRK structures */
 SUNDIALS_EXPORT ARKodeSPRKStorage ARKodeSPRKMem_Alloc(int stages);
 SUNDIALS_EXPORT ARKodeSPRKStorage ARKodeSPRKMem_Load(ARKODE_SPRKMethodID id);
+SUNDIALS_EXPORT ARKodeSPRKStorage ARKodeSPRKMem_LoadByName(const char* method);
 SUNDIALS_EXPORT ARKodeSPRKStorage ARKodeSPRKMem_Copy(ARKodeSPRKStorage B);
 SUNDIALS_EXPORT void ARKodeSPRKMem_Space(ARKodeSPRKStorage B, sunindextype* liw,
                                          sunindextype* lrw);

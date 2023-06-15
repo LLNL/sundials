@@ -18,6 +18,7 @@
 #include <arkode/arkode_sprk.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 #include <sundials/sundials_math.h>
 #include <sundials/sundials_types.h>
 
@@ -392,7 +393,7 @@ ARKodeSPRKStorage ARKodeSPRKMem_Alloc(int stages)
 {
   ARKodeSPRKStorage sprk_storage;
 
-  sprk_storage = (ARKodeSPRKStorage)malloc(sizeof(struct ARKodeSPRKMem_s));
+  sprk_storage = (ARKodeSPRKStorage)malloc(sizeof(struct ARKodeSPRKStorage_s));
 
   sprk_storage->q      = 0;
   sprk_storage->stages = stages;
@@ -424,6 +425,59 @@ ARKodeSPRKStorage ARKodeSPRKMem_Load(ARKODE_SPRKMethodID id)
   }
 }
 
+ARKodeSPRKStorage ARKodeSPRKMem_LoadByName(const char* method)
+{
+  if (!strcmp(method, "ARKODE_SYMPLECTIC_EULER_1_1"))
+  {
+    return ARKodeSymplecticEuler();
+  }
+  else if (!strcmp(method, "ARKODE_SYMPLECTIC_LEAPFROG_2_2"))
+  {
+    return ARKodeSymplecticLeapfrog2();
+  }
+  else if (!strcmp(method, "ARKODE_SYMPLECTIC_PSEUDO_LEAPFROG_2_2"))
+  {
+    return ARKodeSymplecticPseudoLeapfrog2();
+  }
+  else if (!strcmp(method, "ARKODE_SYMPLECTIC_RUTH_3_3"))
+  {
+    return ARKodeSymplecticRuth3();
+  }
+  else if (!strcmp(method, "ARKODE_SYMPLECTIC_MCLACHLAN_2_2"))
+  {
+    return ARKodeSymplecticMcLachlan2();
+  }
+  else if (!strcmp(method, "ARKODE_SYMPLECTIC_MCLACHLAN_3_3"))
+  {
+    return ARKodeSymplecticMcLachlan3();
+  }
+  else if (!strcmp(method, "ARKODE_SYMPLECTIC_MCLACHLAN_4_4"))
+  {
+    return ARKodeSymplecticMcLachlan4();
+  }
+  else if (!strcmp(method, "ARKODE_SYMPLECTIC_CANDY_ROZMUS_4_4"))
+  {
+    return ARKodeSymplecticCandyRozmus4();
+  }
+  else if (!strcmp(method, "ARKODE_SYMPLECTIC_MCLACHLAN_5_6"))
+  {
+    return ARKodeSymplecticMcLachlan5();
+  }
+  else if (!strcmp(method, "ARKODE_SYMPLECTIC_YOSHIDA_6_8"))
+  {
+    return ARKodeSymplecticYoshida6();
+  }
+  else if (!strcmp(method, "ARKODE_SYMPLECTIC_MCLACHLAN_8_16"))
+  {
+    return ARKodeSymplecticMcLachlan8();
+  }
+  else if (!strcmp(method, "ARKODE_SYMPLECTIC_SOFRONIOU_10_36"))
+  {
+    return ARKodeSymplecticSofroniou10();
+  }
+  else { return NULL; }
+}
+
 ARKodeSPRKStorage ARKodeSPRKMem_Copy(ARKodeSPRKStorage that_sprk_mem)
 {
   int i;
@@ -442,7 +496,7 @@ ARKodeSPRKStorage ARKodeSPRKMem_Copy(ARKodeSPRKStorage that_sprk_mem)
   return sprk_storage;
 }
 
-void ARKodeSPRKMem_Space(ARKodeSPRKStorage sprk_storage, sunindextype* liw,
+void ARKodeSPRKStorage_space(ARKodeSPRKStorage sprk_storage, sunindextype* liw,
                          sunindextype* lrw)
 {
   *liw = 2;
