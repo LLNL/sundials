@@ -96,12 +96,6 @@ static int velocity(sunrealtype t, N_Vector y, N_Vector ydot, void* user_data);
 static int force(sunrealtype t, N_Vector y, N_Vector ydot, void* user_data);
 static int rootfn(sunrealtype t, N_Vector y, sunrealtype* gout, void* user_data);
 
-static sunrealtype Q(N_Vector yvec, sunrealtype alpha);
-static sunrealtype G(N_Vector yvec, sunrealtype alpha);
-static int Adapt(N_Vector y, sunrealtype t, sunrealtype h1, sunrealtype h2,
-                 sunrealtype h3, sunrealtype e1, sunrealtype e2, sunrealtype e3,
-                 int q, int p, sunrealtype* hnew, void* user_data);
-
 int main(int argc, char* argv[])
 {
   ProgramArgs args;
