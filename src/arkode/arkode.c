@@ -138,7 +138,7 @@ ARKodeMem arkCreate(SUNContext sunctx)
                     "Allocation of step heuristics object failed");
     return(NULL);
   }
-  (void) SUNHeuristicsSpace(ark_mem->hcontroller, &lenrw, &leniw);
+  (void) SUNHeuristicsSpace(ark_mem->hconstraints, &lenrw, &leniw);
   ark_mem->lrw += lenrw;
   ark_mem->liw += leniw;
 
@@ -1807,7 +1807,7 @@ void arkFreeVectors(ARKodeMem ark_mem)
 int arkInitialSetup(ARKodeMem ark_mem, realtype tout)
 {
   int retval, hflag, istate;
-  realtype tout_hin, rh, htmp;
+  realtype tout_hin, htmp;
   booleantype conOK;
 
   /* Set up the time stepper module */
