@@ -186,7 +186,7 @@ sundials_option(HYPRE_WORKS BOOL "Set to ON to force CMake to accept a given hyp
                 DEPENDS_ON ENABLE_HYPRE
                 ADVANCED)
 
-sundials_option(SUNDIALS_HYPRE_BACKENDS STRING "Which hypre backend under the SUNDIALS hypre interfaces (SERIAL, CUDA, HIP)" "CUDA"
+sundials_option(SUNDIALS_HYPRE_BACKENDS STRING "Which hypre backend under the SUNDIALS hypre interfaces (SERIAL, CUDA, HIP)" "SERIAL"
                 OPTIONS "SERIAL;CUDA;HIP"
                 DEPENDS_ON ENABLE_HYPRE)
 
