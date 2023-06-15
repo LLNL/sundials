@@ -242,28 +242,28 @@ program main
   implicit none
 
   ! local variables
-  type(c_ptr)    :: ctx                      ! SUNDIALS context for the simulation
-  double precision :: tstart                   ! initial time
-  double precision :: tend                     ! final time
-  double precision :: rtol, atol               ! relative and absolute tolerance
-  double precision :: dtout                    ! output time interval
-  double precision :: tout                     ! output time
-  double precision :: tcur(1)                  ! current time
-  integer(c_int) :: imethod, idefault, pq    ! time step adaptivity parameters
-  double precision :: adapt_params(3)          ! time step adaptivity parameters
-  integer(c_int) :: ierr                     ! error flag from C functions
-  integer(c_int) :: nout                     ! number of outputs
-  integer(c_int) :: outstep                  ! output loop counter
-  integer(c_long):: mxsteps                  ! max num steps
+  type(c_ptr)    :: ctx                    ! SUNDIALS context for the simulation
+  double precision :: tstart               ! initial time
+  double precision :: tend                 ! final time
+  double precision :: rtol, atol           ! relative and absolute tolerance
+  double precision :: dtout                ! output time interval
+  double precision :: tout                 ! output time
+  double precision :: tcur(1)              ! current time
+  integer(c_int) :: imethod, idefault, pq  ! time step adaptivity parameters
+  double precision :: adapt_params(3)      ! time step adaptivity parameters
+  integer(c_int) :: ierr                   ! error flag from C functions
+  integer(c_int) :: nout                   ! number of outputs
+  integer(c_int) :: outstep                ! output loop counter
+  integer(c_long):: mxsteps                ! max num steps
 
   double precision, parameter :: nlscoef = 1.d-2  ! non-linear solver coefficient
-  integer(c_int), parameter :: order = 3        ! method order
+  integer(c_int),   parameter :: order = 3        ! method order
 
   type(N_Vector),        pointer :: sunvec_y    ! sundials vector
   type(SUNMatrix),       pointer :: sunmat_A    ! sundials matrix
   type(SUNLinearSolver), pointer :: sunls       ! sundials linear solver
   type(c_ptr)                    :: arkode_mem  ! ARKODE memory
-  double precision,        pointer :: yvec(:)     ! underlying vector
+  double precision,      pointer :: yvec(:)     ! underlying vector
 
   !======= Internals ============
 

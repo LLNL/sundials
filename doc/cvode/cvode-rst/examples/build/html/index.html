@@ -1,0 +1,411 @@
+<!DOCTYPE html>
+
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>ARKode Example documentation &#8212; Example Programs for ARKODE  documentation</title>
+    <link rel="stylesheet" href="_static/css/bootstrap-2.2.1.min.css" type="text/css" />
+    <link rel="stylesheet" href="_static/bootstrap-sphinx.css" type="text/css" />
+    <link rel="stylesheet" href="_static/css/bootstrap-responsive-2.2.1.min.css" type="text/css" />
+    <link rel="stylesheet" type="text/css" href="_static/pygments.css" />
+    <link rel="stylesheet" type="text/css" href="_static/basic.css" />
+    <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
+    <script src="_static/doctools.js"></script>
+    <script src="_static/sphinx_highlight.js"></script>
+    <script async="async" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    <script src="_static/js/bootstrap-2.2.1.min.js"></script>
+    <script src="_static/bootstrap-sphinx.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="Serial C example problems" href="c_serial.html" />
+
+<meta charset='utf-8'>
+<meta http-equiv='X-UA-Compatible' content='IE=edge,chrome=1'>
+<meta name='viewport' content='width=device-width, initial-scale=1.0, maximum-scale=1'>
+<meta name="apple-mobile-web-app-capable" content="yes">
+
+<script type="text/javascript">
+  var _gaq = _gaq || [];
+  _gaq.push(['_setAccount', 'UA-37525145-1']);
+  _gaq.push(['_trackPageview']);
+</script>
+
+  </head><body>
+<div class="container">
+  
+  <div id="navbar" class="navbar navbar-inverse navbar-fixed-top">
+    <div class="navbar-inner">
+      <!-- .btn-navbar is used as the toggle for collapsed navbar content -->
+      <button class="btn btn-navbar" data-toggle="collapse" data-target=".nav-collapse">
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+      </button>
+
+      <a class="brand" href="#">Example Programs for ARKODE</a>
+      <span class="navbar-text pull-left"><b>v5.5.1</b></span>
+
+      <div class="nav-collapse">
+        <ul class="nav">
+          <li class="divider-vertical"></li>
+          
+            <li class="dropdown">
+  <a href="#"
+     class="dropdown-toggle"
+     data-toggle="dropdown">Sections <b class="caret"></b></a>
+  <ul class="dropdown-menu globaltoc"
+    ><ul>
+<li class="toctree-l1"><a class="reference internal" href="c_serial.html">Serial C example problems</a></li>
+<li class="toctree-l1"><a class="reference internal" href="c_openmp.html">OpenMP C example problems</a></li>
+<li class="toctree-l1"><a class="reference internal" href="c_parallel.html">Parallel C example problems</a></li>
+<li class="toctree-l1"><a class="reference internal" href="c_parhyp.html">Parallel Hypre example problems</a></li>
+<li class="toctree-l1"><a class="reference internal" href="cpp_serial.html">Serial C++ example problems</a></li>
+<li class="toctree-l1"><a class="reference internal" href="cpp_parallel.html">Parallel C++ example problems</a></li>
+<li class="toctree-l1"><a class="reference internal" href="f2003_serial.html">Serial Fortran 2003 example problems</a></li>
+<li class="toctree-l1"><a class="reference internal" href="f77_parallel.html">Parallel Fortran 77 example problems</a></li>
+<li class="toctree-l1"><a class="reference internal" href="f90_parallel.html">Parallel Fortran 90 example problems</a></li>
+<li class="toctree-l1"><a class="reference internal" href="References.html">References</a></li>
+</ul>
+</ul>
+</li>
+            <li class="dropdown">
+  <a href="#" class="dropdown-toggle" data-toggle="dropdown">Page <b class="caret"></b></a>
+  <ul class="dropdown-menu localtoc"><ul>
+<li><a class="reference internal" href="#">ARKode Example documentation</a></li>
+</ul>
+</ul>
+</li>
+          
+          
+            
+  <li><a href="c_serial.html"
+         title="next chapter">Serial C example problems &raquo;</a></li>
+          
+          
+            <li></li>
+          
+        </ul>
+
+        
+          
+<form class="navbar-search pull-right" style="margin-bottom:-3px;" action="search.html" method="get">
+  <input type="text" name="q" placeholder="Search" style="color:
+  #333333; background-color: #dddddd;"/>
+  <input type="hidden" name="check_keywords" value="yes" />
+  <input type="hidden" name="area" value="default" />
+</form>
+        
+      </div>
+    </div>
+  </div>
+
+  
+  <section id="arkode-example-documentation">
+<h1>ARKode Example documentation<a class="headerlink" href="#arkode-example-documentation" title="Permalink to this heading">¶</a></h1>
+<p>This is the documentation for the ARKode examples.  ARKode is an
+adaptive step time integration package for stiff, nonstiff and
+multi-rate systems of ordinary differential equations (ODEs).
+The ARKode solver is a component of the <a class="reference external" href="https://computing.llnl.gov/projects/sundials">SUNDIALS</a> suite of
+nonlinear and differential/algebraic equation solvers. It is designed
+to have a similar user experience to the <a class="reference external" href="https://computing.llnl.gov/casc/sundials/description/description.html#descr_cvode">CVODE</a>
+solver, with user modes to allow adaptive integration to specified
+output times, return after each internal step and root-finding
+capabilities, for calculations both in serial and parallel (via
+MPI). The default integration and solver options should apply to most
+users, though complete control over all internal parameters and time
+adaptivity algorithms is enabled through optional interface routines.</p>
+<p>ARKode is developed by <a class="reference external" href="http://www.smu.edu">Southern Methodist University</a>, with support by the <a class="reference external" href="http://www.doe.gov">US Department of Energy</a> through the <a class="reference external" href="http://www.fastmath-scidac.org/">FASTMath</a> SciDAC Institute, under subcontract
+B598130 from <a class="reference external" href="http://www.llnl.gov">Lawrence Livermore National Laboratory</a>.</p>
+<p>Along with the ARKode solver, we have created a suite of example
+problems demonstrating its usage on applications written in C, C++ and
+Fortran 77 and Fortran 90.  These examples demonstrate a large variety
+of ARKode solver options, including explicit, implicit and ImEx
+solvers, root-finding, Newton and fixed-point nonlinear solvers,
+direct and iterative linear solvers, adaptive resize capabilities, and
+the Fortran solver interface.  While these examples are not an
+exhaustive set of all possible usage scenarios, they are designed to
+show a variety of exemplars, and can be used as templates for new
+problems using ARKode’s solvers.  Further information on the ARKode
+package itself may be found in the accompanying ARKode user guide
+<a class="reference internal" href="References.html#r2018" id="id1"><span>[R2018]</span></a>.</p>
+<p>The following tables summarize the salient features of each of the
+example problems in this document.  Each example is designed to be
+relatively self-contained, so that you need only study and/or emulate
+the problem that is most closely related to your own.  We group these
+examples according to programming language (C, C++, Fortran 77,
+Fortran 90).</p>
+<p>ARKode example problems written in C are summarized in the table
+below, and are further described in the chapters <a class="reference internal" href="c_serial.html#serial-c"><span class="std std-ref">Serial C example problems</span></a>,
+<a class="reference internal" href="c_openmp.html#openmp-c"><span class="std std-ref">OpenMP C example problems</span></a>, <a class="reference internal" href="c_parallel.html#parallel-c"><span class="std std-ref">Parallel C example problems</span></a> and <a class="reference internal" href="c_parhyp.html#parhyp-c"><span class="std std-ref">Parallel Hypre example problems</span></a>.</p>
+<table class="table-bordered docutils align-default">
+<thead>
+<tr class="row-odd"><th class="head"><p>Problem</p></th>
+<th class="head"><p>Integrator</p></th>
+<th class="head"><p>Nonlinear</p></th>
+<th class="head"><p>Linear</p></th>
+<th class="head"><p>Size</p></th>
+<th class="head"><p>Extras</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p><a class="reference internal" href="c_serial.html#ark-analytic"><span class="std std-ref">ark_analytic</span></a></p></td>
+<td><p>DIRK</p></td>
+<td><p>Newton</p></td>
+<td><p>Dense</p></td>
+<td><p>1</p></td>
+<td></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="c_serial.html#ark-analytic-nonlin"><span class="std std-ref">ark_analytic_nonlin</span></a></p></td>
+<td><p>ERK</p></td>
+<td><p>N.A.</p></td>
+<td><p>N.A.</p></td>
+<td><p>1</p></td>
+<td><p>ERKStep timestepping module</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="c_serial.html#ark-brusselator"><span class="std std-ref">ark_brusselator</span></a></p></td>
+<td><p>DIRK</p></td>
+<td><p>Newton</p></td>
+<td><p>Dense</p></td>
+<td><p>3</p></td>
+<td></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="c_serial.html#ark-brusselator-fp"><span class="std std-ref">ark_brusselator_fp</span></a></p></td>
+<td><p>ARK</p></td>
+<td><p>Fixed-point</p></td>
+<td><p>N.A.</p></td>
+<td><p>3</p></td>
+<td></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="c_serial.html#ark-robertson"><span class="std std-ref">ark_robertson</span></a></p></td>
+<td><p>DIRK</p></td>
+<td><p>Newton</p></td>
+<td><p>Dense</p></td>
+<td><p>3</p></td>
+<td></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="c_serial.html#ark-robertson-root"><span class="std std-ref">ark_robertson_root</span></a></p></td>
+<td><p>DIRK</p></td>
+<td><p>Newton</p></td>
+<td><p>Dense</p></td>
+<td><p>3</p></td>
+<td><p>rootfinding</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="c_serial.html#ark-brusselator1d"><span class="std std-ref">ark_brusselator1D</span></a></p></td>
+<td><p>DIRK</p></td>
+<td><p>Newton</p></td>
+<td><p>Band</p></td>
+<td><p>3N</p></td>
+<td></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="c_openmp.html#ark-brusselator1d-omp"><span class="std std-ref">ark_brusselator1D_omp</span></a></p></td>
+<td><p>DIRK</p></td>
+<td><p>Newton</p></td>
+<td><p>Band</p></td>
+<td><p>3N</p></td>
+<td><p>OpenMP-enabled</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="c_serial.html#ark-brusselator1d-klu"><span class="std std-ref">ark_brusselator1D_klu</span></a></p></td>
+<td><p>DIRK</p></td>
+<td><p>Newton</p></td>
+<td><p>KLU</p></td>
+<td><p>3N</p></td>
+<td><p>sparse matrices</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="c_serial.html#ark-brusselator1d-fem-slu"><span class="std std-ref">ark_brusselator1D_FEM_slu</span></a></p></td>
+<td><p>DIRK</p></td>
+<td><p>Newton</p></td>
+<td><p>SuperLU_MT</p></td>
+<td><p>3N</p></td>
+<td><p>finite-element, <span class="math notranslate nohighlight">\(M\ne I\)</span>, sparse matrices</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="c_serial.html#ark-heat1d"><span class="std std-ref">ark_heat1D</span></a></p></td>
+<td><p>DIRK</p></td>
+<td><p>Newton</p></td>
+<td><p>PCG</p></td>
+<td><p>N</p></td>
+<td></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="c_serial.html#ark-heat1d-adapt"><span class="std std-ref">ark_heat1D_adapt</span></a></p></td>
+<td><p>DIRK</p></td>
+<td><p>Newton</p></td>
+<td><p>PCG</p></td>
+<td><p>(dynamic)</p></td>
+<td><p>adaptive vector resizing</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="c_serial.html#ark-krylovdemo-prec"><span class="std std-ref">ark_KrylovDemo_prec</span></a></p></td>
+<td><p>DIRK</p></td>
+<td><p>Newton</p></td>
+<td><p>SPGMR</p></td>
+<td><p>216</p></td>
+<td><p>multiple preconditioners</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="c_parallel.html#ark-diurnal-kry-bbd-p"><span class="std std-ref">ark_diurnal_kry_bbd_p</span></a></p></td>
+<td><p>DIRK</p></td>
+<td><p>Newton</p></td>
+<td><p>SPGMR</p></td>
+<td><p>200</p></td>
+<td><p>parallel, BBD preconditioner</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="c_parallel.html#ark-diurnal-kry-p"><span class="std std-ref">ark_diurnal_kry_p</span></a></p></td>
+<td><p>DIRK</p></td>
+<td><p>Newton</p></td>
+<td><p>SPGMR</p></td>
+<td><p>200</p></td>
+<td><p>parallel, block-diagonal precond.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="c_parhyp.html#ark-diurnal-kry-ph"><span class="std std-ref">ark_diurnal_kry_ph</span></a></p></td>
+<td><p>DIRK</p></td>
+<td><p>Newton</p></td>
+<td><p>SPGMR</p></td>
+<td><p>200</p></td>
+<td><p>HYPRE parallel vector</p></td>
+</tr>
+</tbody>
+</table>
+<p>ARKode example problems written in C++ are summarized in the table
+below, and are further described in the chapters <a class="reference internal" href="cpp_serial.html#serial-cpp"><span class="std std-ref">Serial C++ example problems</span></a> and
+<a class="reference internal" href="cpp_parallel.html#parallel-cpp"><span class="std std-ref">Parallel C++ example problems</span></a>.</p>
+<table class="table-bordered docutils align-default">
+<thead>
+<tr class="row-odd"><th class="head"><p>Problem</p></th>
+<th class="head"><p>Integrator</p></th>
+<th class="head"><p>Nonlinear</p></th>
+<th class="head"><p>Linear</p></th>
+<th class="head"><p>Size</p></th>
+<th class="head"><p>Extras</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p><a class="reference internal" href="cpp_serial.html#ark-analytic-sys"><span class="std std-ref">ark_analytic_sys</span></a></p></td>
+<td><p>DIRK</p></td>
+<td><p>Newton</p></td>
+<td><p>Dense</p></td>
+<td><p>3</p></td>
+<td></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="cpp_parallel.html#ark-heat2d"><span class="std std-ref">ark_heat2D</span></a></p></td>
+<td><p>DIRK</p></td>
+<td><p>Newton</p></td>
+<td><p>PCG</p></td>
+<td><p><span class="math notranslate nohighlight">\(nx*ny\)</span></p></td>
+<td><p>parallel</p></td>
+</tr>
+</tbody>
+</table>
+<p>ARKode example problems written in Fortran 2003 are summarized in the table
+below, and are further described in the chapters <a class="reference internal" href="f2003_serial.html#serial-f2003"><span class="std std-ref">Serial Fortran 2003 example problems</span></a> and
+<a class="reference internal" href="f77_parallel.html#parallel-f77"><span class="std std-ref">Parallel Fortran 77 example problems</span></a>.</p>
+<table class="table-bordered docutils align-default">
+<thead>
+<tr class="row-odd"><th class="head"><p>Problem</p></th>
+<th class="head"><p>Integrator</p></th>
+<th class="head"><p>Nonlinear</p></th>
+<th class="head"><p>Linear</p></th>
+<th class="head"><p>Size</p></th>
+<th class="head"><p>Extras</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p><a class="reference internal" href="f2003_serial.html#fark-diurnal-kry-bp"><span class="std std-ref">fark_diurnal_kry_bp</span></a></p></td>
+<td><p>DIRK</p></td>
+<td><p>Newton</p></td>
+<td><p>SPGMR</p></td>
+<td><p>10</p></td>
+<td><p>banded preconditioner</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="f2003_serial.html#fark-roberts-dnsl"><span class="std std-ref">fark_roberts_dnsL</span></a></p></td>
+<td><p>DIRK</p></td>
+<td><p>Newton</p></td>
+<td><p>Dense</p></td>
+<td><p>3</p></td>
+<td><p>LAPACK dense solver, rootfinding</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="f2003_serial.html#ark-bruss"><span class="std std-ref">ark_bruss</span></a></p></td>
+<td><p>ARK</p></td>
+<td><p>Newton</p></td>
+<td><p>Dense</p></td>
+<td><p>3</p></td>
+<td></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="f2003_serial.html#ark-bruss1d-fem-klu"><span class="std std-ref">ark_bruss1D_FEM_klu</span></a></p></td>
+<td><p>DIRK</p></td>
+<td><p>Newton</p></td>
+<td><p>KLU</p></td>
+<td><p>3N</p></td>
+<td><p>finite-element, <span class="math notranslate nohighlight">\(M\ne I\)</span>, sparse matrices</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="f77_parallel.html#fark-diag-kry-bbd-p"><span class="std std-ref">fark_diag_kry_bbd_p</span></a></p></td>
+<td><p>DIRK</p></td>
+<td><p>Newton</p></td>
+<td><p>SPGMR</p></td>
+<td><p>10*NProcs</p></td>
+<td><p>parallel BBD preconditioner</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="f77_parallel.html#fark-diag-non-p"><span class="std std-ref">fark_diag_non_p</span></a></p></td>
+<td><p>ERK</p></td>
+<td><p>N.A.</p></td>
+<td><p>N.A.</p></td>
+<td><p>10*NProcs</p></td>
+<td><p>parallel</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="f90_parallel.html#fark-heat2d"><span class="std std-ref">fark_heat2D</span></a></p></td>
+<td><p>DIRK</p></td>
+<td><p>Newton</p></td>
+<td><p>PCG</p></td>
+<td><p><span class="math notranslate nohighlight">\(nx*ny\)</span></p></td>
+<td><p>parallel</p></td>
+</tr>
+</tbody>
+</table>
+<p>Further details on each of the above-listed examples are provided
+in the following chapters:</p>
+<div class="toctree-wrapper compound">
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="c_serial.html">Serial C example problems</a></li>
+<li class="toctree-l1"><a class="reference internal" href="c_openmp.html">OpenMP C example problems</a></li>
+<li class="toctree-l1"><a class="reference internal" href="c_parallel.html">Parallel C example problems</a></li>
+<li class="toctree-l1"><a class="reference internal" href="c_parhyp.html">Parallel Hypre example problems</a></li>
+<li class="toctree-l1"><a class="reference internal" href="cpp_serial.html">Serial C++ example problems</a></li>
+<li class="toctree-l1"><a class="reference internal" href="cpp_parallel.html">Parallel C++ example problems</a></li>
+<li class="toctree-l1"><a class="reference internal" href="f2003_serial.html">Serial Fortran 2003 example problems</a></li>
+<li class="toctree-l1"><a class="reference internal" href="f77_parallel.html">Parallel Fortran 77 example problems</a></li>
+<li class="toctree-l1"><a class="reference internal" href="f90_parallel.html">Parallel Fortran 90 example problems</a></li>
+<li class="toctree-l1"><a class="reference internal" href="References.html">References</a></li>
+</ul>
+</div>
+<ul class="simple">
+<li><p><a class="reference internal" href="search.html"><span class="std std-ref">Search Page</span></a></p></li>
+</ul>
+</section>
+
+
+</div>
+
+<footer class="footer">
+  <div class="container">
+    <p class="pull-right">
+      <a href="#">Back to top</a>
+      
+    </p>
+    <p>
+        &copy; Copyright 2012-2021, Daniel R. Reynolds, David J. Gardner, Carol S. Woodward, and Cody J. Balos, release number LLNL-SM-668082.<br/>
+      Last updated on Jun 12, 2023.<br/>
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 7.0.1.<br/>
+    </p>
+  </div>
+</footer>
+<script type="text/javascript">
+  (function() {
+    var ga = document.createElement('script');
+    ga.src = ('https:' == document.location.protocol ?
+              'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+    ga.setAttribute('async', 'true');
+    document.documentElement.firstChild.appendChild(ga);
+  })();
+</script>
+</div>
+
+  </body>
+</html>

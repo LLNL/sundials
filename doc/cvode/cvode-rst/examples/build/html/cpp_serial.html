@@ -1,0 +1,198 @@
+<!DOCTYPE html>
+
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>Serial C++ example problems &#8212; Example Programs for ARKODE  documentation</title>
+    <link rel="stylesheet" href="_static/css/bootstrap-2.2.1.min.css" type="text/css" />
+    <link rel="stylesheet" href="_static/bootstrap-sphinx.css" type="text/css" />
+    <link rel="stylesheet" href="_static/css/bootstrap-responsive-2.2.1.min.css" type="text/css" />
+    <link rel="stylesheet" type="text/css" href="_static/pygments.css" />
+    <link rel="stylesheet" type="text/css" href="_static/basic.css" />
+    <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
+    <script src="_static/doctools.js"></script>
+    <script src="_static/sphinx_highlight.js"></script>
+    <script async="async" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    <script src="_static/js/bootstrap-2.2.1.min.js"></script>
+    <script src="_static/bootstrap-sphinx.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="Parallel C++ example problems" href="cpp_parallel.html" />
+    <link rel="prev" title="Parallel Hypre example problems" href="c_parhyp.html" />
+
+<meta charset='utf-8'>
+<meta http-equiv='X-UA-Compatible' content='IE=edge,chrome=1'>
+<meta name='viewport' content='width=device-width, initial-scale=1.0, maximum-scale=1'>
+<meta name="apple-mobile-web-app-capable" content="yes">
+
+<script type="text/javascript">
+  var _gaq = _gaq || [];
+  _gaq.push(['_setAccount', 'UA-37525145-1']);
+  _gaq.push(['_trackPageview']);
+</script>
+
+  </head><body>
+<div class="container">
+  
+  <div id="navbar" class="navbar navbar-inverse navbar-fixed-top">
+    <div class="navbar-inner">
+      <!-- .btn-navbar is used as the toggle for collapsed navbar content -->
+      <button class="btn btn-navbar" data-toggle="collapse" data-target=".nav-collapse">
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+      </button>
+
+      <a class="brand" href="index.html">Example Programs for ARKODE</a>
+      <span class="navbar-text pull-left"><b>v5.5.1</b></span>
+
+      <div class="nav-collapse">
+        <ul class="nav">
+          <li class="divider-vertical"></li>
+          
+            <li class="dropdown">
+  <a href="index.html"
+     class="dropdown-toggle"
+     data-toggle="dropdown">Sections <b class="caret"></b></a>
+  <ul class="dropdown-menu globaltoc"
+    ><ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="c_serial.html">Serial C example problems</a></li>
+<li class="toctree-l1"><a class="reference internal" href="c_openmp.html">OpenMP C example problems</a></li>
+<li class="toctree-l1"><a class="reference internal" href="c_parallel.html">Parallel C example problems</a></li>
+<li class="toctree-l1"><a class="reference internal" href="c_parhyp.html">Parallel Hypre example problems</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Serial C++ example problems</a></li>
+<li class="toctree-l1"><a class="reference internal" href="cpp_parallel.html">Parallel C++ example problems</a></li>
+<li class="toctree-l1"><a class="reference internal" href="f77_serial.html">Serial Fortran 77 example problems</a></li>
+<li class="toctree-l1"><a class="reference internal" href="f77_parallel.html">Parallel Fortran 77 example problems</a></li>
+<li class="toctree-l1"><a class="reference internal" href="f90_serial.html">Serial Fortran 90 example problems</a></li>
+<li class="toctree-l1"><a class="reference internal" href="f90_parallel.html">Parallel Fortran 90 example problems</a></li>
+<li class="toctree-l1"><a class="reference internal" href="References.html">References</a></li>
+</ul>
+</ul>
+</li>
+            <li class="dropdown">
+  <a href="#" class="dropdown-toggle" data-toggle="dropdown">Page <b class="caret"></b></a>
+  <ul class="dropdown-menu localtoc"><ul>
+<li><a class="reference internal" href="#">Serial C++ example problems</a><ul>
+<li><a class="reference internal" href="#ark-analytic-sys">ark_analytic_sys</a><ul>
+<li><a class="reference internal" href="#numerical-method">Numerical method</a></li>
+<li><a class="reference internal" href="#solutions">Solutions</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</ul>
+</li>
+          
+          
+            
+  <li><a href="c_parhyp.html"
+         title="previous chapter">&laquo; Parallel Hypre example problems</a></li>
+  <li><a href="cpp_parallel.html"
+         title="next chapter">Parallel C++ example problems &raquo;</a></li>
+          
+          
+            <li></li>
+          
+        </ul>
+
+        
+          
+<form class="navbar-search pull-right" style="margin-bottom:-3px;" action="search.html" method="get">
+  <input type="text" name="q" placeholder="Search" style="color:
+  #333333; background-color: #dddddd;"/>
+  <input type="hidden" name="check_keywords" value="yes" />
+  <input type="hidden" name="area" value="default" />
+</form>
+        
+      </div>
+    </div>
+  </div>
+
+  
+  <section id="serial-c-example-problems">
+<span id="serial-cpp"></span><h1>Serial C++ example problems<a class="headerlink" href="#serial-c-example-problems" title="Permalink to this heading">¶</a></h1>
+<section id="ark-analytic-sys">
+<span id="id1"></span><h2>ark_analytic_sys<a class="headerlink" href="#ark-analytic-sys" title="Permalink to this heading">¶</a></h2>
+<p>This example demonstrates the use of ARKode’s fully implicit solver on
+a stiff ODE system that has a simple analytical solution.  The problem
+is that of a linear ODE system,</p>
+<div class="math notranslate nohighlight">
+\[\frac{dy}{dt} = Ay\]</div>
+<p>where <span class="math notranslate nohighlight">\(A = V D V^{-1}\)</span>.  In this example, we use</p>
+<div class="math notranslate nohighlight">
+\[\begin{split}V = \left[\begin{array}{rrr} 1 &amp; -1 &amp; 1\\ -1 &amp; 2 &amp; 1\\ 0 &amp; -1 &amp; 2
+    \end{array}\right], \qquad
+V^{-1} = \frac14 \left[\begin{array}{rrr} 5 &amp; 1 &amp; -3\\ 2 &amp; 2 &amp; -2\\
+    1 &amp; 1 &amp; 1 \end{array}\right], \qquad
+D = \left[\begin{array}{rrr} -1/2 &amp; 0 &amp; 0\\ 0 &amp; -1/10 &amp; 0\\ 0 &amp; 0 &amp;
+    \lambda \end{array}\right].\end{split}\]</div>
+<p>where <span class="math notranslate nohighlight">\(\lambda\)</span> is a large negative number. The analytical
+solution to this problem may be computed using the matrix exponential,</p>
+<div class="math notranslate nohighlight">
+\[Y(t) = V e^{Dt} V^{-1} Y(0).\]</div>
+<p>We evolve the problem for <span class="math notranslate nohighlight">\(t\)</span> in the interval <span class="math notranslate nohighlight">\(\left[0,\,
+\frac{1}{20}\right]\)</span>, with initial condition <span class="math notranslate nohighlight">\(Y(0) = \left[1,\,
+1,\, 1\right]^T\)</span>.</p>
+<section id="numerical-method">
+<h3>Numerical method<a class="headerlink" href="#numerical-method" title="Permalink to this heading">¶</a></h3>
+<p>The stiffness of the problem is directly proportional to the
+value of <span class="math notranslate nohighlight">\(\lambda\)</span>.  The value of <span class="math notranslate nohighlight">\(\lambda\)</span> should be
+negative to result in a well-posed ODE; for values with magnitude
+larger than 100 the problem becomes quite stiff.</p>
+<p>Here, we choose <span class="math notranslate nohighlight">\(\lambda = -100\)</span>, along with scalar relative and
+absolute tolerances of <span class="math notranslate nohighlight">\(rtol=10^{-6}\)</span> and <span class="math notranslate nohighlight">\(atol=10^{-10}\)</span>,
+respectively.</p>
+<p>This program solves the problem with the DIRK method,
+Newton iteration with the SUNMATRIX_DENSE matrix module and
+accompanying SUNLINSOL_DENSE linear solver module, ARKDLS direct
+linear solver interface, and a user-supplied dense Jacobian
+routine.  Output is printed every 0.005 units of time (10 total).
+Run statistics (optional outputs) are printed at the end.</p>
+</section>
+<section id="solutions">
+<h3>Solutions<a class="headerlink" href="#solutions" title="Permalink to this heading">¶</a></h3>
+<p>This problem is included both as a simple example to test systems of
+ODE within ARKode on a problem having an analytical solution,
+<span class="math notranslate nohighlight">\(Y(t) = V e^{Dt} V^{-1} Y(0)\)</span>.  As seen in the plots below, the
+computed solution tracks the analytical solution quite well (left),
+and results in errors with exactly the magnitude as specified by the
+requested error tolerances (right).</p>
+<a class="reference internal image-reference" href="_images/plot-ark_analytic_sys.png"><img alt="_images/plot-ark_analytic_sys.png" src="_images/plot-ark_analytic_sys.png" style="width: 45%;" /></a>
+<a class="reference internal image-reference" href="_images/plot-ark_analytic_sys_error.png"><img alt="_images/plot-ark_analytic_sys_error.png" src="_images/plot-ark_analytic_sys_error.png" style="width: 45%;" /></a>
+</section>
+</section>
+</section>
+
+
+</div>
+
+<footer class="footer">
+  <div class="container">
+    <p class="pull-right">
+      <a href="#">Back to top</a>
+      
+    </p>
+    <p>
+        &copy; Copyright 2012-2021, Daniel R. Reynolds, David J. Gardner, Carol S. Woodward, and Cody J. Balos, release number LLNL-SM-668082.<br/>
+      Last updated on Jun 07, 2023.<br/>
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 7.0.1.<br/>
+    </p>
+  </div>
+</footer>
+<script type="text/javascript">
+  (function() {
+    var ga = document.createElement('script');
+    ga.src = ('https:' == document.location.protocol ?
+              'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+    ga.setAttribute('async', 'true');
+    document.documentElement.firstChild.appendChild(ga);
+  })();
+</script>
+</div>
+
+  </body>
+</html>

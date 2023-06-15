@@ -229,7 +229,6 @@ module dnsL_mod
     type(N_Vector),           pointer :: sunvec_av     ! sundials tolerance vector
     type(SUNMatrix),          pointer :: sunmat_A      ! sundials matrix
     type(SUNLinearSolver),    pointer :: sunlinsol_LS  ! sundials linear solver
-    type(SUNNonLinearSolver), pointer :: sunnonlin_NLS ! sundials nonlinear solver
     type(c_ptr)                       :: cvode_mem     ! ARKODE memory
     type(c_ptr)                       :: sunctx        ! SUNDIALS simulation context
 
