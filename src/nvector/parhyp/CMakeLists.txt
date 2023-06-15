@@ -27,7 +27,7 @@ elseif(SUNDIALS_HYPRE_BACKENDS MATCHES "HIP")
   set_source_files_properties(nvector_parhyp.c PROPERTIES LANGUAGE HIP)
   set(_sunmemlib sundials_sunmemhip_obj)  # Use HIP sunmemoryhelper
   set(_include_vectorkernels_hip TRUE)    # Include src/nvector/hip/VectorKernels.hip.hpp
-  set(_hip_lib_or_not hip::device).       # Require hip::device library
+  set(_hip_lib_or_not hip::device)        # Require hip::device library
   set(_cxx_std cxx_std_14)
 endif()
 
@@ -48,6 +48,7 @@ sundials_add_library(sundials_nvecparhyp
     SUNDIALS::HYPRE
     MPI::MPI_C
   INCLUDE_DIRECTORIES
+    PUBLIC
     $<$<BOOL:_include_vectorkernels_cuh>:${SUNDIALS_SOURCE_DIR}/src/nvector/cuda/VectorKernels.cuh>
     $<$<BOOL:_include_vectorkernels_hip>:${SUNDIALS_SOURCE_DIR}/src/nvector/hip/VectorKernels.hip.hpp>
 #TODO Is this needed? -jsdomine

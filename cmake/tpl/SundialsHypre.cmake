@@ -102,7 +102,7 @@ endforeach()
 # Section 4: Test the TPL
 # -----------------------------------------------------------------------------
 
-message(STATUS "Requested SUNDIALS HYPRE backend: ${SUNDIALS_HYPRE_BACKENDS}")
+message(STATUS "Requested SUNDIALS hypre backend: ${SUNDIALS_HYPRE_BACKENDS}")
 
 if((SUNDIALS_HYPRE_BACKENDS MATCHES "CUDA") AND
    (NOT HYPRE_BACKENDS MATCHES "CUDA"))
