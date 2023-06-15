@@ -22,18 +22,23 @@
 #include <stdlib.h>
 
 #include <nvector/nvector_parhyp.h>
-#include <sundials/sundials_math.h>
-#include "sundials/sundials_nvector.h"
+
+/* backend-specific headers */
+#if defined(SUNDIALS_HYPRE_BACKENDS_SERIAL)
+#pragma message "hypre backend SERIAL confirmed from nvector_parhyp.c"
+#elif defined(SUNDIALS_HYPRE_BACKENDS_CUDA)
+#pragma message "hypre backend CUDA confirmed from nvector_parhyp.c"
+#include "VectorKernels.cuh" /* located in src/nvector/cuda     */
+#include "sundials_debug.h"  /* located in src/nvector/sundials */
+#include "sundials_cuda.h"   /* located in src/nvector/sundials */
+#elif defined(SUNDIALS_HYPRE_BACKENDS_HIP)
+#pragma message "hypre backend HIP confirmed from nvector_parhyp.c"
+#endif
 
 #define ZERO   RCONST(0.0)
 #define HALF   RCONST(0.5)
 #define ONE    RCONST(1.0)
 #define ONEPT5 RCONST(1.5)
-
-/* TEMPORARY test of HYPRE backend detection */
-#ifdef SUNDIALS_HYPRE_BACKENDS_CUDA
-#pragma message "HYPRE CUDA backend confirmed from nvector_parhyp.c"
-#endif
 
 /*
  * -----------------------------------------------------------------

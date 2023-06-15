@@ -41,17 +41,27 @@
 #ifndef _NVECTOR_PARHYP_H
 #define _NVECTOR_PARHYP_H
 
-#include <stdio.h>
 #include <mpi.h>
+#include <stdio.h>
+
+#include <sundials/sundials_math.h>
+#include <sundials/sundials_config.h>
 #include <sundials/sundials_nvector.h>
 #include <sundials/sundials_mpi_types.h>
 
 /* hypre header files */
 #include <_hypre_parcsr_mv.h>
 
-/* TEMPORARY test of HYPRE backend detection */
-#ifdef SUNDIALS_HYPRE_BACKENDS_CUDA
-#pragma message "HYPRE CUDA backend confirmed from nvector_parhyp.h"
+/* backend-specific headers */
+#if defined(SUNDIALS_HYPRE_BACKENDS_SERIAL)
+#pragma message "hypre backend SERIAL confirmed from nvector_parhyp.h"
+#elif defined(SUNDIALS_HYPRE_BACKENDS_CUDA)
+#pragma message "hypre backend CUDA confirmed from nvector_parhyp.h"
+#include <cuda_runtime.h>
+#include <sunmemory/sunmemory_cuda.h>
+#include <sundials/sundials_cuda_policies.hpp>
+#elif defined(SUNDIALS_HYPRE_BACKENDS_HIP)
+#pragma message "hypre backend HIP confirmed from nvector_parhyp.h"
 #endif
 
 #ifdef __cplusplus  /* wrapper to enable C++ usage */
