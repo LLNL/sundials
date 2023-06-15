@@ -1697,6 +1697,9 @@ char *arkGetReturnFlagName(long int flag)
   case ARK_ROOT_RETURN:
     sprintf(name,"ARK_ROOT_RETURN");
     break;
+  case ARK_WARNING:
+    sprintf(name,"ARK_WARNING");
+    break;
   case ARK_TOO_MUCH_WORK:
     sprintf(name,"ARK_TOO_MUCH_WORK");
     break;
@@ -1751,6 +1754,9 @@ char *arkGetReturnFlagName(long int flag)
   case ARK_MASSMULT_FAIL:
     sprintf(name,"ARK_MASSMULT_FAIL");
     break;
+  case ARK_CONSTR_FAIL:
+    sprintf(name,"ARK_CONSTR_FAIL");
+    break;
   case ARK_MEM_FAIL:
     sprintf(name,"ARK_MEM_FAIL");
     break;
@@ -1775,12 +1781,6 @@ char *arkGetReturnFlagName(long int flag)
   case ARK_TOO_CLOSE:
     sprintf(name,"ARK_TOO_CLOSE");
     break;
-  case ARK_POSTPROCESS_STEP_FAIL:
-    sprintf(name,"ARK_POSTPROCESS_STEP_FAIL");
-    break;
-  case ARK_POSTPROCESS_STAGE_FAIL:
-    sprintf(name,"ARK_POSTPROCESS_STAGE_FAIL");
-    break;
   case ARK_VECTOROP_ERR:
     sprintf(name,"ARK_VECTOROP_ERR");
     break;
@@ -1790,6 +1790,9 @@ char *arkGetReturnFlagName(long int flag)
   case ARK_NLS_SETUP_FAIL:
     sprintf(name,"ARK_NLS_SETUP_FAIL");
     break;
+  case ARK_NLS_SETUP_RECVR:
+    sprintf(name,"ARK_NLS_SETUP_RECVR");
+    break;
   case ARK_NLS_OP_ERR:
     sprintf(name,"ARK_NLS_OP_ERR");
     break;
@@ -1798,6 +1801,39 @@ char *arkGetReturnFlagName(long int flag)
     break;
   case ARK_INNERSTEP_FAIL:
     sprintf(name,"ARK_INNERSTEP_FAIL");
+    break;
+  case ARK_OUTERTOINNER_FAIL:
+    sprintf(name,"ARK_OUTERTOINNER_FAIL");
+    break;
+  case ARK_INNERTOOUTER_FAIL:
+    sprintf(name,"ARK_INNERTOOUTER_FAIL");
+    break;
+  case ARK_POSTPROCESS_STEP_FAIL:
+    sprintf(name,"ARK_POSTPROCESS_STEP_FAIL");
+    break;
+  case ARK_POSTPROCESS_STAGE_FAIL:
+    sprintf(name,"ARK_POSTPROCESS_STAGE_FAIL");
+    break;
+  case ARK_USER_PREDICT_FAIL:
+    sprintf(name,"ARK_USER_PREDICT_FAIL");
+    break;
+  case ARK_INTERP_FAIL:
+    sprintf(name,"ARK_INTERP_FAIL");
+    break;
+  case ARK_INVALID_TABLE:
+    sprintf(name,"ARK_INVALID_TABLE");
+    break;
+  case ARK_CONTEXT_ERR:
+    sprintf(name,"ARK_CONTEXT_ERR");
+    break;
+  case ARK_CONTROLLER_ERR:
+    sprintf(name,"ARK_CONTROLLER_ERR");
+    break;
+  case ARK_HEURISTICS_ERR:
+    sprintf(name,"ARK_HEURISTICS_ERR");
+    break;
+  case ARK_UNRECOGNIZED_ERROR:
+    sprintf(name,"ARK_UNRECOGNIZED_ERROR");
     break;
   default:
     sprintf(name,"NONE");
