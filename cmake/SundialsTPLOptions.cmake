@@ -171,22 +171,22 @@ sundials_option(KLU_WORKS BOOL "Set to ON to force CMake to accept a given KLU c
 # ---------------------------------------------------------------
 # Enable hypre support?
 # ---------------------------------------------------------------
-sundials_option(ENABLE_HYPRE BOOL "Enable HYPRE support" OFF)
+sundials_option(ENABLE_HYPRE BOOL "Enable hypre support" OFF)
 
-sundials_option(HYPRE_DIR PATH "Path to HYPRE installation" "${HYPRE_DIR}"
+sundials_option(HYPRE_DIR PATH "Path to hypre installation" "${HYPRE_DIR}"
                 DEPENDS_ON ENABLE_HYPRE)
 
-sundials_option(HYPRE_INCLUDE_DIR PATH "HYPRE include directory" "${HYPRE_INCLUDE_DIR}"
+sundials_option(HYPRE_INCLUDE_DIR PATH "hypre include directory" "${HYPRE_INCLUDE_DIR}"
                 DEPENDS_ON ENABLE_HYPRE)
 
-sundials_option(HYPRE_LIBRARY_DIR PATH "HYPRE library directory" "${HYPRE_LIBRARY_DIR}"
+sundials_option(HYPRE_LIBRARY_DIR PATH "hypre library directory" "${HYPRE_LIBRARY_DIR}"
                 DEPENDS_ON ENABLE_HYPRE)
 
-sundials_option(HYPRE_WORKS BOOL "Set to ON to force CMake to accept a given HYPRE configuration" OFF
+sundials_option(HYPRE_WORKS BOOL "Set to ON to force CMake to accept a given hypre configuration" OFF
                 DEPENDS_ON ENABLE_HYPRE
                 ADVANCED)
 
-sundials_option(SUNDIALS_HYPRE_BACKENDS STRING "Which HYPRE backend under the SUNDIALS HYPRE interfaces (SERIAL, CUDA, HIP)" "CUDA"
+sundials_option(SUNDIALS_HYPRE_BACKENDS STRING "Which hypre backend under the SUNDIALS hypre interfaces (SERIAL, CUDA, HIP)" "CUDA"
                 OPTIONS "SERIAL;CUDA;HIP"
                 DEPENDS_ON ENABLE_HYPRE)
 

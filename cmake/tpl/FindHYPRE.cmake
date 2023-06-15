@@ -66,7 +66,7 @@ endif ()
 # set a more informative error message in case the library was not found
 set(HYPRE_NOT_FOUND_MESSAGE "\
 ************************************************************************\n\
-ERROR: Could not find HYPRE. Please check the variables:\n\
+ERROR: Could not find hypre. Please check the variables:\n\
        HYPRE_INCLUDE_DIR and HYPRE_LIBRARY_DIR\n\
 ************************************************************************")
 

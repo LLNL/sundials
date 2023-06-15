@@ -48,11 +48,11 @@ if(ENABLE_HYPRE)
 endif()
 
 if((SUNDIALS_HYPRE_BACKENDS MATCHES "CUDA") AND (NOT ENABLE_CUDA))
-  message(FATAL_ERROR "HYPRE with a CUDA backend requires ENABLE_CUDA = ON")
+  message(FATAL_ERROR "hypre with a CUDA backend requires ENABLE_CUDA = ON")
 endif()
 
 if((SUNDIALS_HYPRE_BACKENDS MATCHES "HIP") AND (NOT ENABLE_HIP))
-  message(FATAL_ERROR "HYPRE with a HIP backend requires ENABLE_HIP = ON")
+  message(FATAL_ERROR "hypre with a HIP backend requires ENABLE_HIP = ON")
 endif()
 
 # -----------------------------------------------------------------------------
@@ -85,16 +85,16 @@ find_package(HYPRE CONFIG
 #                 HYPRE_BRANCH_NAME
 file(READ "${HYPRE_CONFIGH_PATH}" _hypre_config_file_text)
 string(REGEX MATCH "[0-9]+\.[0-9]+\.[0-9]+" _hypre_release_version "${_hypre_config_file_text}")
-message(STATUS "HYPRE Version: ${_hypre_release_version}")
+message(STATUS "hypre Version: ${_hypre_release_version}")
 
 # Determine the backends
 foreach(_backend CUDA HIP)
   file(STRINGS "${HYPRE_CONFIGH_PATH}" _hypre_has_backend REGEX "^#define HYPRE_USING_${_backend}")
   if(_hypre_has_backend)
     set(HYPRE_BACKENDS "${_backend};${HYPRE_BACKENDS}")
-    message(STATUS "HYPRE built with ${_backend} backend? - YES")
+    message(STATUS "hypre built with ${_backend} backend? - YES")
   else()
-    message(STATUS "HYPRE built with ${_backend} backend? - NO")
+    message(STATUS "hypre built with ${_backend} backend? - NO")
   endif()
 endforeach()
 
@@ -106,12 +106,12 @@ message(STATUS "Requested SUNDIALS HYPRE backend: ${SUNDIALS_HYPRE_BACKENDS}")
 
 if((SUNDIALS_HYPRE_BACKENDS MATCHES "CUDA") AND
    (NOT HYPRE_BACKENDS MATCHES "CUDA"))
-  print_error("Requested that SUNDIALS uses the CUDA HYPRE backend, but HYPRE was not built with the CUDA backend.")
+  print_error("Requested that SUNDIALS uses the CUDA hypre backend, but hypre was not built with the CUDA backend.")
 endif()
 
 if((SUNDIALS_HYPRE_BACKENDS MATCHES "HIP") AND
    (NOT HYPRE_BACKENDS MATCHES "HIP"))
-  print_error("Requested that SUNDIALS uses the HIP HYPRE backend, but HYPRE was not built with the HIP backend.")
+  print_error("Requested that SUNDIALS uses the HIP hypre backend, but hypre was not built with the HIP backend.")
 endif()
 
 if(HYPRE_FOUND AND (NOT HYPRE_WORKS))
@@ -160,15 +160,15 @@ if(HYPRE_FOUND AND (NOT HYPRE_WORKS))
 
   # Process test result
   if(COMPILE_OK)
-    message(STATUS "Checking if HYPRE works... OK")
-    set(HYPRE_WORKS TRUE CACHE BOOL "HYPRE works with SUNDIALS as configured" FORCE)
+    message(STATUS "Checking if hypre works... OK")
+    set(HYPRE_WORKS TRUE CACHE BOOL "hypre works with SUNDIALS as configured" FORCE)
   else()
-    message(STATUS "Checking if HYPRE works... FAILED")
+    message(STATUS "Checking if hypre works... FAILED")
     message(STATUS "Check output: ")
     message("${COMPILE_OUTPUT}")
-    print_error("SUNDIALS interface to HYPRE is not functional.")
+    print_error("SUNDIALS interface to hypre is not functional.")
   endif()
 
 elseif(HYPRE_FOUND AND HYPRE_WORKS)
-  message(STATUS "Skipped HYPRE tests, assuming HYPRE works with SUNDIALS. Set HYPRE_WORKS=FALSE to (re)run compatibility test.")
+  message(STATUS "Skipped hypre tests, assuming hypre works with SUNDIALS. Set HYPRE_WORKS=FALSE to (re)run compatibility test.")
 endif()
