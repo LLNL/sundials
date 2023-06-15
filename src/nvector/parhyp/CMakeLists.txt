@@ -49,8 +49,8 @@ sundials_add_library(sundials_nvecparhyp
     MPI::MPI_C
   INCLUDE_DIRECTORIES
     PUBLIC
-    $<$<BOOL:_include_vectorkernels_cuh>:${SUNDIALS_SOURCE_DIR}/src/nvector/cuda/VectorKernels.cuh>
-    $<$<BOOL:_include_vectorkernels_hip>:${SUNDIALS_SOURCE_DIR}/src/nvector/hip/VectorKernels.hip.hpp>
+    $<$<BOOL:_include_vectorkernels_cuh>:${SUNDIALS_SOURCE_DIR}/src/nvector/cuda>
+    $<$<BOOL:_include_vectorkernels_hip>:${SUNDIALS_SOURCE_DIR}/src/nvector/hip>
 #TODO Is this needed? -jsdomine
 #  COMPILE_OPTIONS
 #    PUBLIC
