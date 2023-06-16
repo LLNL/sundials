@@ -48,6 +48,7 @@ SUNHeuristics SUNHeuristicsNewEmpty(SUNContext sunctx)
   ops->etestfail          = NULL;
   ops->convfail           = NULL;
   ops->boundreduction     = NULL;
+  ops->boundfirststep     = NULL;
   ops->reset              = NULL;
   ops->update             = NULL;
   ops->setdefaults        = NULL;
@@ -169,6 +170,19 @@ int SUNHeuristicsBoundReduction(SUNHeuristics H, realtype hcur,
   if (H->ops->boundreduction)
   {
     ier = H->ops->boundreduction(H, hcur, hnew, hconstr);
+  }
+  return(ier);
+}
+
+
+int SUNHeuristicsBoundFirstStep(SUNHeuristics H, realtype h0,
+                                realtype *h0constr)
+{
+  int ier = 0;
+  *h0constr = h0;   /* initialize output with identity */
+  if (H->ops->boundfirststep)
+  {
+    ier = H->ops->boundfirststep(H, h0, h0constr);
   }
   return(ier);
 }

@@ -71,6 +71,9 @@ SUNDIALS_EXPORT
 int SUNHeuristicsBoundReduction_Default(SUNHeuristics H, realtype hcur,
                                         realtype hnew, realtype* hconstr);
 SUNDIALS_EXPORT
+int SUNHeuristicsBoundFirstStep_Default(SUNHeuristics H, realtype h0,
+                                        realtype* h0constr);
+SUNDIALS_EXPORT
 int SUNHeuristicsReset_Default(SUNHeuristics H);
 SUNDIALS_EXPORT
 int SUNHeuristicsUpdate_Default(SUNHeuristics H);

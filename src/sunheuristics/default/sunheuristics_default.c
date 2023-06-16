@@ -86,6 +86,7 @@ SUNHeuristics SUNHeuristicsDefault(SUNContext sunctx)
   H->ops->etestfail          = SUNHeuristicsETestFail_Default;
   H->ops->convfail           = SUNHeuristicsConvFail_Default;
   H->ops->boundreduction     = SUNHeuristicsBoundReduction_Default;
+  H->ops->boundfirststep     = SUNHeuristicsBoundFirstStep_Default;
   H->ops->reset              = SUNHeuristicsReset_Default;
   H->ops->update             = SUNHeuristicsUpdate_Default;
   H->ops->setdefaults        = SUNHeuristicsSetDefaults_Default;
@@ -153,7 +154,7 @@ int SUNHeuristicsConstrainStep_Default(SUNHeuristics H, realtype hcur,
     h_cfl *= int_dir * SH_CFL(H);
   }
 
-  /* Enforce safety factor on h_acc prediction */
+  /* Enforce safety factor on h_acc prediction. */
   h_acc *= SH_SAFETY(H);
 
   /* Enforce maximum bound on h_acc growth (etamax) */
@@ -216,6 +217,17 @@ int SUNHeuristicsBoundReduction_Default(SUNHeuristics H, realtype hcur,
 
   /* Enforce minimum step size and return. */
   *hconstr = SUNMAX(SUNRabs(hnew), SH_HMIN(H));
+  return SUNHEURISTICS_SUCCESS;
+}
+
+int SUNHeuristicsBoundFirstStep_Default(SUNHeuristics H, realtype h0,
+                                        realtype *h0constr)
+{
+  /* Enforce max step size */
+  h0 /= SUNMAX(RCONST(1.0), SUNRabs(h0) * SH_HMAX_INV(H));
+
+  /* Enforce minimum step size and return. */
+  *h0constr = SUNMAX(SUNRabs(h0), SH_HMIN(H));
   return SUNHEURISTICS_SUCCESS;
 }
 

@@ -1963,11 +1963,11 @@ int arkInitialSetup(ARKodeMem ark_mem, realtype tout)
     }
 
     /* Enforce step size bounds */
-    retval = SUNHeuristicsConstrainStep(ark_mem->hconstraints, ark_mem->h,
-                                        ark_mem->h, &(ark_mem->h));
+    retval = SUNHeuristicsBoundFirstStep(ark_mem->hconstraints, ark_mem->h,
+                                         &(ark_mem->h));
     if (retval != SUNHEURISTICS_SUCCESS) {
       arkProcessError(ark_mem, ARK_HEURISTICS_ERR, "ARKODE", "arkInitialSetup",
-                      "Error in call to SUNHeuristicsConstrainStep");
+                      "Error in call to SUNHeuristicsBoundFirstStep");
       return(ARK_HEURISTICS_ERR);
     }
 
@@ -2429,6 +2429,14 @@ int arkCompleteStep(ARKodeMem ark_mem, realtype dsm)
   if (retval != 0) {
     arkProcessError(ark_mem, ARK_CONTROLLER_ERR, "ARKODE", "arkCompleteStep",
                     "Failure updating controller object");
+    return(ARK_CONTROLLER_ERR);
+  }
+
+  /* Notify time step heuristics object of successful step */
+  retval = SUNHeuristicsUpdate(ark_mem->hconstraints);
+  if (retval != 0) {
+    arkProcessError(ark_mem, ARK_HEURISTICS_ERR, "ARKODE", "arkCompleteStep",
+                    "Failure updating heuristics object");
     return(ARK_CONTROLLER_ERR);
   }
 

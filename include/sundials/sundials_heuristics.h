@@ -72,6 +72,7 @@ struct _generic_SUNHeuristics_Ops
   int (*convfail)(SUNHeuristics H, realtype hcur, realtype *hconstr);
   int (*boundreduction)(SUNHeuristics H, realtype hcur,
                         realtype hnew, realtype *hconstr);
+  int (*boundfirststep)(SUNHeuristics H, realtype h0, realtype *h0constr);
   int (*reset)(SUNHeuristics H);
   int (*update)(SUNHeuristics H);
   int (*setdefaults)(SUNHeuristics H);
@@ -159,6 +160,11 @@ int SUNHeuristicsETestFail(SUNHeuristics H, realtype hcur,
 SUNDIALS_EXPORT
 int SUNHeuristicsBoundReduction(SUNHeuristics H, realtype hcur,
                                 realtype hnew, realtype *hconstr);
+
+/* This bounds the initial step by user-provided min/max step values. */
+SUNDIALS_EXPORT
+int SUNHeuristicsBoundFirstStep(SUNHeuristics H, realtype h0,
+                                realtype *h0constr);
 
 /* Function to apply constraints following a step with an algebraic
    solver convergence failure. */
