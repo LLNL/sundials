@@ -19,14 +19,16 @@ install(CODE "MESSAGE(\"\nInstall NVECTOR_PARHYP with ${SUNDIALS_HYPRE_BACKENDS}
 if(SUNDIALS_HYPRE_BACKENDS MATCHES "SERIAL")
   # Do nothing; Don't use sumemoryhelper, don't change language
 elseif(SUNDIALS_HYPRE_BACKENDS MATCHES "CUDA")
-  set_source_files_properties(nvector_parhyp.c PROPERTIES LANGUAGE CUDA)
+#  set_source_files_properties(nvector_parhyp.c PROPERTIES LANGUAGE CUDA)
   set(_sunmemlib sundials_sunmemcuda_obj) # Use CUDA sunmemoryhelper
-  set(_include_vectorkernels_cuh TRUE)    # Include src/nvector/cuda/VectorKernels.cuh
+  set(_hypre_using_cuda TRUE)
+#   set(_include_vectorkernels_cuh TRUE)    # Include src/nvector/cuda/VectorKernels.cuh
   set(_cxx_std cxx_std_14)
 elseif(SUNDIALS_HYPRE_BACKENDS MATCHES "HIP")
   set_source_files_properties(nvector_parhyp.c PROPERTIES LANGUAGE HIP)
   set(_sunmemlib sundials_sunmemhip_obj)  # Use HIP sunmemoryhelper
-  set(_include_vectorkernels_hip TRUE)    # Include src/nvector/hip/VectorKernels.hip.hpp
+  set(_hypre_using_hip TRUE)
+#   set(_include_vectorkernels_hip TRUE)    # Include src/nvector/hip/VectorKernels.hip.hpp
   set(_hip_lib_or_not hip::device)        # Require hip::device library
   set(_cxx_std cxx_std_14)
 endif()
@@ -49,8 +51,8 @@ sundials_add_library(sundials_nvecparhyp
     MPI::MPI_C
   INCLUDE_DIRECTORIES
     PUBLIC
-    $<$<BOOL:_include_vectorkernels_cuh>:${SUNDIALS_SOURCE_DIR}/src/nvector/cuda>
-    $<$<BOOL:_include_vectorkernels_hip>:${SUNDIALS_SOURCE_DIR}/src/nvector/hip>
+    $<$<BOOL:_hypre_using_cuda>:${SUNDIALS_SOURCE_DIR}/src/nvector/cuda>
+    $<$<BOOL:_hypre_using_hip>:${SUNDIALS_SOURCE_DIR}/src/nvector/hip>
 #TODO Is this needed? -jsdomine
 #  COMPILE_OPTIONS
 #    PUBLIC
@@ -58,6 +60,8 @@ sundials_add_library(sundials_nvecparhyp
   COMPILE_FEATURES
     PUBLIC
     ${_cxx_std}
+  PROPERTIES
+    $<$<BOOL:_hypre_using_cuda>:LANGUAGE CUDA>
   OUTPUT_NAME
     sundials_nvecparhyp
   VERSION
