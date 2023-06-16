@@ -146,7 +146,7 @@ int SUNHeuristicsConstrainStep_Default(SUNHeuristics H, realtype hcur,
 
   /* Call explicit stability function if present, multiply result by CFL factor * int_dir */
   int retval = 0;
-  realtype h_cfl = RCONST(1.0e3) * SUNRabs(hcur);
+  realtype h_cfl = RCONST(1.0e30) * SUNRabs(hcur);
   if (SH_EXPSTAB(H) != NULL)
   {
     retval = SH_EXPSTAB(H)(&h_cfl, SH_ESTAB_DATA(H));
