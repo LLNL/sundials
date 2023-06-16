@@ -64,7 +64,6 @@ set(NVECS_LIB sundials_nvecserial)
 # Set-up linker flags and link libraries
 set(SUNDIALS_LIBS ${KINSOL_LIB} ${NVECS_LIB} ${EXE_EXTRA_LINK_LIBS})
 
-
 # Add the build and install targets for each example
 foreach(example_tuple ${KINSOL_examples})
 
@@ -106,7 +105,6 @@ foreach(example_tuple ${KINSOL_examples})
 
 endforeach(example_tuple ${KINSOL_examples})
 
-
 # Add the build and install targets for each LAPACK example (if needed)
 if(BUILD_SUNLINSOL_LAPACKBAND AND BUILD_SUNLINSOL_LAPACKDENSE)
 
@@ -142,7 +140,6 @@ if(BUILD_SUNLINSOL_LAPACKBAND AND BUILD_SUNLINSOL_LAPACKDENSE)
 
 endif()
 
-
 # Add the build and install targets for each KLU example (if needed)
 if(BUILD_SUNLINSOL_KLU)
 
@@ -175,7 +172,6 @@ if(BUILD_SUNLINSOL_KLU)
   endforeach(example_tuple ${KINSOL_examples_KLU})
 
 endif()
-
 
 # Add the build and install targets for each SuperLU_MT example (if needed)
 if(BUILD_SUNLINSOL_SUPERLUMT)
@@ -210,89 +206,7 @@ if(BUILD_SUNLINSOL_SUPERLUMT)
 
 endif()
 
-
-# # create Makfile and CMakeLists.txt for examples
-# if(EXAMPLES_INSTALL)
-
-#   # Install the README file
-#   install(FILES README DESTINATION ${EXAMPLES_INSTALL_PATH}/kinsol/serial)
-
-#   # Install the extra files
-#   foreach(extrafile ${KINSOL_extras})
-#     install(FILES ${extrafile} DESTINATION ${EXAMPLES_INSTALL_PATH}/kinsol/serial)
-#   endforeach()
-
-#   # Prepare substitution variables for Makefile and/or CMakeLists templates
-#   set(SOLVER "KINSOL")
-#   set(SOLVER_LIB "sundials_kinsol")
-
-#   examples2string(KINSOL_examples EXAMPLES)
-
-#   if(BUILD_SUNLINSOL_LAPACKBAND AND BUILD_SUNLINSOL_LAPACKDENSE)
-#     examples2string(KINSOL_examples_BL EXAMPLES_BL)
-#   else()
-#     set(EXAMPLES_BL "")
-#   endif()
-
-#   if(BUILD_SUNLINSOL_KLU)
-#     examples2string(KINSOL_examples_KLU EXAMPLES_KLU)
-#   else()
-#     set(EXAMPLES_KLU "")
-#   endif()
-
-#   if(BUILD_SUNLINSOL_SUPERLUMT)
-#     examples2string(KINSOL_examples_SUPERLUMT EXAMPLES_SLUMT)
-#     if (SUNDIALS_SUPERLUMT_THREAD_TYPE STREQUAL "PTHREAD")
-#       set(THREAD_LIBRARY_SLUMT ${CMAKE_THREAD_LIBS_INIT})
-#     else()
-#       set(THREAD_LIBRARY_SLUMT "")
-#     endif()
-#   else()
-#     set(EXAMPLES_SLUMT "")
-#     set(THREAD_LIBRARY_SLUMT "")
-#   endif()
-
-#   # Regardless of the platform we're on, we will generate and install
-#   # CMakeLists.txt file for building the examples. This file  can then
-#   # be used as a template for the user's own programs.
-
-#   # generate CMakelists.txt in the binary directory
-#   configure_file(
-#     ${PROJECT_SOURCE_DIR}/examples/templates/cmakelists_serial_C_ex.in
-#     ${PROJECT_BINARY_DIR}/examples/kinsol/serial/CMakeLists.txt
-#     @ONLY
-#     )
-
-#   # install CMakelists.txt
-#   install(
-#     FILES ${PROJECT_BINARY_DIR}/examples/kinsol/serial/CMakeLists.txt
-#     DESTINATION ${EXAMPLES_INSTALL_PATH}/kinsol/serial
-#     )
-
-#   # On UNIX-type platforms, we also  generate and install a makefile for
-#   # building the examples. This makefile can then be used as a template
-#   # for the user's own programs.
-
-#   if(UNIX)
-#     # generate Makefile and place it in the binary dir
-#     configure_file(
-#       ${PROJECT_SOURCE_DIR}/examples/templates/makefile_serial_C_ex.in
-#       ${PROJECT_BINARY_DIR}/examples/kinsol/serial/Makefile_ex
-#       @ONLY
-#       )
-#     # install the configured Makefile_ex as Makefile
-#     install(
-#       FILES ${PROJECT_BINARY_DIR}/examples/kinsol/serial/Makefile_ex
-#       DESTINATION ${EXAMPLES_INSTALL_PATH}/kinsol/serial
-#       RENAME Makefile
-#       )
-#   endif()
-
-  # add test_install target
-#   sundials_add_test_install(kinsol serial EXECUTABLE kinAnalytic_fp)
-
-# endif()
-
+# create Makfile and CMakeLists.txt for examples
 if(EXAMPLES_INSTALL)
 
   if(BUILD_SUNLINSOL_SUPERLUMT)
@@ -310,7 +224,7 @@ if(EXAMPLES_INSTALL)
 
   sundials_install_examples(kinsol KINSOL_examples
     CMAKE_TEMPLATE
-      cmakelists_serial_C_ex.in
+      cmakelists_C_ex.in
     MAKE_TEMPLATE
       makefile_serial_C_ex.in
     SUNDIALS_TARGETS
