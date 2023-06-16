@@ -313,15 +313,8 @@ int SUNHeuristicsSetMaxStep_Default(SUNHeuristics H, realtype hmax)
     return SUNHEURISTICS_SUCCESS;
   }
 
-  /* check that hmax and hmin are agreeable */
-  hmax_inv = RCONST(1.0)/hmax;
-  if (hmax_inv * SH_HMIN(H) > RCONST(1.0))
-  {
-    return SUNHEURISTICS_ILL_INPUT;
-  }
-
   /* set the value and return */
-  SH_HMAX_INV(H) = hmax_inv;
+  SH_HMAX_INV(H) = RCONST(1.0)/hmax;
 
   return SUNHEURISTICS_SUCCESS;
 }
@@ -333,12 +326,6 @@ int SUNHeuristicsSetMinStep_Default(SUNHeuristics H, realtype hmin)
   {
     SH_HMIN(H) = RCONST(0.0);
     return SUNHEURISTICS_SUCCESS;
-  }
-
-  /* check that hmin and hmax are agreeable */
-  if (hmin * SH_HMAX_INV(H) > RCONST(1.0))
-  {
-    return SUNHEURISTICS_ILL_INPUT;
   }
 
   /* set the value and return */

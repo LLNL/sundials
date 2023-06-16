@@ -596,7 +596,8 @@ int arkSetFixedStep(void *arkode_mem, realtype hfixed)
   SUNControlDestroy(ark_mem->hcontroller);
   ark_mem->hcontroller = NULL;
 
-  /* If re-enabling time adaptivity, create default PID controller */
+  /* If re-enabling time adaptivity, create default PID controller
+     and attach object to ARKODE */
   SUNControl C = NULL;
   if (hfixed == 0)
   {
@@ -606,15 +607,14 @@ int arkSetFixedStep(void *arkode_mem, realtype hfixed)
                       "SUNControlPID allocation failure");
       return(ARK_MEM_FAIL);
     }
-  }
 
-  /* Attach new SUNControl object to ARKODE */
-  retval = SUNControlSpace(C, &lenrw, &leniw);
-  if (retval == SUNCONTROL_SUCCESS) {
-    ark_mem->liw += leniw;
-    ark_mem->lrw += lenrw;
+    retval = SUNControlSpace(C, &lenrw, &leniw);
+    if (retval == SUNCONTROL_SUCCESS) {
+      ark_mem->liw += leniw;
+      ark_mem->lrw += lenrw;
+    }
+    ark_mem->hcontroller = C;
   }
-  ark_mem->hcontroller = C;
 
   /* re-attach internal error weight functions if necessary */
   if ((hfixed == ZERO) && (!ark_mem->user_efun)) {
