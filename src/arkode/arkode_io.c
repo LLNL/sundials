@@ -868,6 +868,7 @@ int arkSetAdaptivityMethod(void *arkode_mem, int imethod, int idefault,
 {
   int retval;
   long int lenrw, leniw;
+  realtype k1, k2, k3;
   ARKodeMem ark_mem;
   if (arkode_mem==NULL) {
     arkProcessError(NULL, ARK_MEM_NULL, "ARKODE",
@@ -875,13 +876,6 @@ int arkSetAdaptivityMethod(void *arkode_mem, int imethod, int idefault,
     return(ARK_MEM_NULL);
   }
   ark_mem = (ARKodeMem) arkode_mem;
-
-  /* check for allowable parameters */
-  if ((imethod > ARK_ADAPT_IMEX_GUS) || (imethod < ARK_ADAPT_PID)) {
-    arkProcessError(ark_mem, ARK_ILL_INPUT, "ARKODE",
-                    "arkSetAdaptivityMethod", "Illegal imethod");
-    return(ARK_ILL_INPUT);
-  }
 
   /* Remove current SUNControl object */
   retval = SUNControlSpace(ark_mem->hcontroller, &lenrw, &leniw);
@@ -892,11 +886,15 @@ int arkSetAdaptivityMethod(void *arkode_mem, int imethod, int idefault,
   SUNControlDestroy(ark_mem->hcontroller);
   ark_mem->hcontroller = NULL;
 
-  /* if idefault==1 overwrite adapt_params inputs to signal use of defaults */
+  /* set adaptivity parameters from inputs or signal use of defaults */
   if (idefault == 1) {
-    adapt_params[0] = -RCONST(1.0);
-    adapt_params[1] = -RCONST(1.0);
-    adapt_params[2] = -RCONST(1.0);
+    k1 = -RCONST(1.0);
+    k2 = -RCONST(1.0);
+    k3 = -RCONST(1.0);
+  } else {
+    k1 = adapt_params[0];
+    k2 = adapt_params[1];
+    k3 = adapt_params[2];
   }
 
   /* Create new SUNControl object based on "imethod" input, optionally setting
@@ -910,8 +908,7 @@ int arkSetAdaptivityMethod(void *arkode_mem, int imethod, int idefault,
                       "SUNControlPID allocation failure");
       return(ARK_MEM_FAIL);
     }
-    retval = SUNControlPID_SetParams(C, pq, adapt_params[0],
-                                     adapt_params[1], adapt_params[2]);
+    retval = SUNControlPID_SetParams(C, pq, k1, k2, k3);
     if (retval != SUNCONTROL_SUCCESS) {
       arkProcessError(ark_mem, ARK_CONTROLLER_ERR, "ARKODE",
                       "arkSetAdaptivityMethod", "SUNControlPID_SetParams failure");
@@ -925,7 +922,7 @@ int arkSetAdaptivityMethod(void *arkode_mem, int imethod, int idefault,
                       "SUNControlPI allocation failure");
       return(ARK_MEM_FAIL);
     }
-    retval = SUNControlPI_SetParams(C, pq, adapt_params[0], adapt_params[1]);
+    retval = SUNControlPI_SetParams(C, pq, k1, k2);
     if (retval != SUNCONTROL_SUCCESS) {
       arkProcessError(ark_mem, ARK_CONTROLLER_ERR, "ARKODE",
                       "arkSetAdaptivityMethod", "SUNControlPI_SetParams failure");
@@ -939,7 +936,7 @@ int arkSetAdaptivityMethod(void *arkode_mem, int imethod, int idefault,
                       "SUNControlI allocation failure");
       return(ARK_MEM_FAIL);
     }
-    retval = SUNControlI_SetParams(C, pq, adapt_params[0]);
+    retval = SUNControlI_SetParams(C, pq, k1);
     if (retval != SUNCONTROL_SUCCESS) {
       arkProcessError(ark_mem, ARK_CONTROLLER_ERR, "ARKODE",
                       "arkSetAdaptivityMethod", "SUNControlI_SetParams failure");
@@ -953,7 +950,7 @@ int arkSetAdaptivityMethod(void *arkode_mem, int imethod, int idefault,
                       "SUNControlExpGus allocation failure");
       return(ARK_MEM_FAIL);
     }
-    retval = SUNControlExpGus_SetParams(C, pq, adapt_params[0], adapt_params[1]);
+    retval = SUNControlExpGus_SetParams(C, pq, k1, k2);
     if (retval != SUNCONTROL_SUCCESS) {
       arkProcessError(ark_mem, ARK_CONTROLLER_ERR, "ARKODE",
                       "arkSetAdaptivityMethod", "SUNControlExpGus_SetParams failure");
@@ -967,7 +964,7 @@ int arkSetAdaptivityMethod(void *arkode_mem, int imethod, int idefault,
                       "SUNControlImpGus allocation failure");
       return(ARK_MEM_FAIL);
     }
-    retval = SUNControlImpGus_SetParams(C, pq, adapt_params[0], adapt_params[1]);
+    retval = SUNControlImpGus_SetParams(C, pq, k1, k2);
     if (retval != SUNCONTROL_SUCCESS) {
       arkProcessError(ark_mem, ARK_CONTROLLER_ERR, "ARKODE",
                       "arkSetAdaptivityMethod", "SUNControlImpGus_SetParams failure");
@@ -981,14 +978,17 @@ int arkSetAdaptivityMethod(void *arkode_mem, int imethod, int idefault,
                       "SUNControlImExGus allocation failure");
       return(ARK_MEM_FAIL);
     }
-    retval = SUNControlImExGus_SetParams(C, pq, adapt_params[0], adapt_params[1],
-                                         adapt_params[2], adapt_params[2]);
+    retval = SUNControlImExGus_SetParams(C, pq, k1, k2, k3, k3);
     if (retval != SUNCONTROL_SUCCESS) {
       arkProcessError(ark_mem, ARK_CONTROLLER_ERR, "ARKODE",
                       "arkSetAdaptivityMethod", "SUNControlImExGus_SetParams failure");
       return(ARK_CONTROLLER_ERR);
     }
     break;
+  default:
+    arkProcessError(ark_mem, ARK_ILL_INPUT, "ARKODE",
+                    "arkSetAdaptivityMethod", "Illegal imethod");
+    return(ARK_ILL_INPUT);
   }
 
   /* Attach new SUNControl object */
