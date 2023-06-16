@@ -219,7 +219,7 @@ int SUNHeuristicsSetCFLFraction(SUNHeuristics H, realtype cfl_frac);
 /* Function to set a step size safety factor that should be used
    to constrain the error-controller-recommended step size. */
 SUNDIALS_EXPORT
-int SUNHeuristisSetSafetyFactor(SUNHeuristics C, realtype safety);
+int SUNHeuristicsSetSafetyFactor(SUNHeuristics C, realtype safety);
 
 /* Function to set maximum stepsize growth factor for general steps.
    Note: the first step uses a separate maximum growth factor.
