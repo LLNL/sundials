@@ -243,6 +243,7 @@ int SUNControlSetErrorBias_ImExGus(SUNControl C, realtype bias)
 int SUNControlUpdate_ImExGus(SUNControl C, realtype h, realtype dsm)
 {
   SC_IMEXGUS_EP(C) = SC_IMEXGUS_BIAS(C) * dsm;
+  SC_IMEXGUS_HP(C) = h;
   SC_IMEXGUS_FIRSTSTEP(C) = SUNFALSE;
   return SUNCONTROL_SUCCESS;
 }
