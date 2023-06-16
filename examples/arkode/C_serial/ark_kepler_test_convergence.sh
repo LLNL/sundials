@@ -1,18 +1,23 @@
 #!/bin/bash
 
-# generate reference solution - use 8th order ERK method with tiny timestep
-./ark_kepler 1 0 8 0.000001
-
-orders=(1 2 22 222 3 33 4 44 5 6 8 10)
-dts=(0.5 0.1 0.01 0.001 0.0001)
-for order in ${orders[@]}; 
+methods=(
+  ARKODE_SYMPLECTIC_EULER_1_1
+  ARKODE_SYMPLECTIC_LEAPFROG_2_2
+  ARKODE_SYMPLECTIC_PSEUDO_LEAPFROG_2_2
+  ARKODE_SYMPLECTIC_MCLACHLAN_2_2
+  ARKODE_SYMPLECTIC_RUTH_3_3
+  ARKODE_SYMPLECTIC_MCLACHLAN_3_3
+  ARKODE_SYMPLECTIC_CANDY_ROZMUS_4_4
+  ARKODE_SYMPLECTIC_MCLACHLAN_4_4
+  ARKODE_SYMPLECTIC_MCLACHLAN_5_6
+  ARKODE_SYMPLECTIC_YOSHIDA_6_8
+  ARKODE_SYMPLECTIC_MCLACHLAN_8_16
+  ARKODE_SYMPLECTIC_SOFRONIOU_10_36
+)
+for method in ${methods[@]}; 
 do 
-  for dt in ${dts[@]};
-  do 
-    # ./ark_kepler 0 0 $order $dt 0 # no compensated sums
-    ./ark_kepler 0 0 $order $dt 1 # compensated sums
-  done
+  ./ark_kepler --stepper SPRK --step-mode fixed --method $method --tf 50 --check-order --nout 1
 done
 
 # plot
-./ark_kepler_plot_order_work.py
+# ./ark_kepler_plot_order_work.py

@@ -40,9 +40,12 @@
  *   --step-mode <fixed, adapt>  should we use a fixed time-step or adaptive time-step (default fixed)
  *   --stepper <SPRK, ERK>       should we use SPRKStep or ARKStep with an ERK method (default SPRK)
  *   --method <string>           which method to use (default ARKODE_SYMPLECTIC_MCLACHLAN_4_4)
+ *   --use-compensated-sums      turns on compensated summation in ARKODE where applicable
  *   --dt <Real>                 the fixed-time step size to use if fixed time stepping is turned on (default 0.01)
  *   --tf <Real>                 the final time for the simulation (default 100)
- *   --use-compensated-sums      turns on compensated summation in ARKODE where applicable
+ *   --nout                      number of output times
+ *   --find-roots                turn on rootfinding
+ *   --check-order               compute the order of the method used and check if it is within range of the expected 
  * 
  * References:
  *    Ernst Hairer, Christain Lubich, Gerhard Wanner
@@ -67,6 +70,7 @@
 #include <sunnonlinsol/sunnonlinsol_fixedpoint.h>
 
 #include "arkode/arkode.h"
+#include "sundials/sundials_context.h"
 
 typedef struct
 {
@@ -75,22 +79,43 @@ typedef struct
 
 typedef struct
 {
+  N_Vector sol;
+  sunrealtype energy_error;
+  int method_order;
+} ProblemResult;
+
+typedef struct
+{
   int step_mode;
   int stepper;
+  int num_output_times;
   int use_compsums;
+  int find_roots;
+  int check_order;
   sunrealtype dt;
   sunrealtype tf;
   const char* method_name;
 } ProgramArgs;
 
-static int check_retval(void* returnvalue, const char* funcname, int opt);
+/* Helper functions */
 static int ParseArgs(int argc, char* argv[], ProgramArgs* args);
+static void PrintArgs(ProgramArgs* args);
 static void PrintHelp();
+static int ComputeConvergence(int num_dt, sunrealtype* orders,
+                              sunrealtype expected_order, sunrealtype a11,
+                              sunrealtype a12, sunrealtype a21, sunrealtype a22,
+                              sunrealtype b1, sunrealtype b2,
+                              sunrealtype* ord_avg, sunrealtype* ord_max,
+                              sunrealtype* ord_est);
+static int check_retval(void* returnvalue, const char* funcname, int opt);
 
+/* These functions do the interesting work that offer a good example of how to
+ * use SPRKStep */
+static int SolveProblem(ProgramArgs* args, ProblemResult* result,
+                        SUNContext sunctx);
 static void InitialConditions(N_Vector y0, sunrealtype ecc);
 static sunrealtype Hamiltonian(N_Vector yvec);
 static sunrealtype AngularMomentum(N_Vector y);
-
 static int dydt(sunrealtype t, N_Vector y, N_Vector ydot, void* user_data);
 static int velocity(sunrealtype t, N_Vector y, N_Vector ydot, void* user_data);
 static int force(sunrealtype t, N_Vector y, N_Vector ydot, void* user_data);
@@ -99,8 +124,147 @@ static int rootfn(sunrealtype t, N_Vector y, sunrealtype* gout, void* user_data)
 int main(int argc, char* argv[])
 {
   ProgramArgs args;
+  ProblemResult result;
+  SUNContext sunctx = NULL;
+  int retval        = 0;
+
+  /* Create the SUNDIALS context object for this simulation */
+  retval = SUNContext_Create(NULL, &sunctx);
+  if (check_retval(&retval, "SUNContext_Create", 1)) { return 1; }
+
+  /* Parse the command line arguments */
+  if (ParseArgs(argc, argv, &args)) { return 1; };
+
+  /* Allocate space for result variables */
+  result.sol = N_VNew_Serial(4, sunctx);
+
+  if (!args.check_order)
+  {
+    /* SolveProblem calls a stepper to evolve the problem to Tf */
+    retval = SolveProblem(&args, &result, sunctx);
+    if (check_retval(&retval, "SolveProblem", 1)) { return 1; }
+  }
+  else
+  {
+    /* If we are checking the order of the method, then we solve with different
+       dt. Otherwise we solve once with the dt provided as a program argument.
+     */
+    const int NUM_DT = 8;
+    sunrealtype acc_orders[NUM_DT];
+    sunrealtype con_orders[NUM_DT];
+    sunrealtype acc_errors[NUM_DT];
+    sunrealtype con_errors[NUM_DT];
+    int expected_order = 0;
+    N_Vector ref_sol   = N_VClone(result.sol);
+    N_Vector error     = N_VClone(result.sol);
+
+    sunrealtype a11 = 0, a12 = 0, a21 = 0, a22 = 0;
+    sunrealtype b1 = 0, b2 = 0, b1e = 0, b2e = 0;
+    sunrealtype ord_max_acc = 0, ord_max_conv = 0, ord_avg = 0, ord_est = 0;
+    sunrealtype dts[NUM_DT] = {SUN_RCONST(1e-1), SUN_RCONST(5e-1), SUN_RCONST(1e-2), SUN_RCONST(5e-2),
+                               SUN_RCONST(1e-3), SUN_RCONST(5e-3), SUN_RCONST(1e-4), SUN_RCONST(5e-4)};
+
+    /* Create a reference solution using ARKStep with a tiny time step */
+    const int old_step_mode     = args.step_mode;
+    const int old_stepper       = args.stepper;
+    const char* old_method_name = args.method_name;
+    args.dt                     = SUN_RCONST(1e-5);
+    args.step_mode              = 0;
+    args.stepper                = 1;
+    args.method_name            = "ARKODE_ARK548L2SAb_ERK_8_4_5";
+
+    /* SolveProblem calls a stepper to evolve the problem to Tf */
+    retval = SolveProblem(&args, &result, sunctx);
+    if (check_retval(&retval, "SolveProblem", 1)) { return 1; }
+
+    /* Store the reference solution */
+    N_VScale(SUN_RCONST(1.0), result.sol, ref_sol);
+
+    /* Restore the program args */
+    args.step_mode   = old_step_mode;
+    args.stepper     = old_stepper;
+    args.method_name = old_method_name;
+
+    /* Determine expected method order */
+    expected_order = ARKodeSPRKMem_LoadByName(args.method_name)->q;
+
+    /* Compute the error with various step sizes */
+    for (int i = 0; i < NUM_DT; i++)
+    {
+      /* Set the dt to use for this solve */
+      args.dt = dts[i];
+
+      /* SolveProblem calls a stepper to evolve the problem to Tf */
+      retval = SolveProblem(&args, &result, sunctx);
+      if (check_retval(&retval, "SolveProblem", 1)) { return 1; }
+
+      printf("\n");
+
+      /* Compute the error */
+      N_VLinearSum(SUN_RCONST(1.0), result.sol, -SUN_RCONST(1.0), ref_sol, error);
+      acc_errors[i] = SUNRsqrt(N_VDotProd(error, error)) /
+                      ((sunrealtype)N_VGetLength(error));
+      con_errors[i] = SUNRabs(result.energy_error);
+
+      a11 += 1;
+      a12 += log(dts[i]);
+      a21 += log(dts[i]);
+      a22 += (log(dts[i]) * log(dts[i]));
+      b1 += log(acc_errors[i]);
+      b2 += (log(acc_errors[i]) * log(dts[i]));
+      b1e += log(con_errors[i]);
+      b2e += (log(con_errors[i]) * log(dts[i]));
+
+      if (i >= 1)
+      {
+        acc_orders[i - 1] = log(acc_errors[i] / acc_errors[i - 1]) /
+                            log(dts[i] / dts[i - 1]);
+        con_orders[i - 1] = log(con_errors[i] / con_errors[i - 1]) /
+                            log(dts[i] / dts[i - 1]);
+      }
+    }
+
+    retval = ComputeConvergence(NUM_DT, acc_orders, expected_order, a11, a12, a21,
+                                a22, b1, b2, &ord_avg, &ord_max_acc, &ord_est);
+    printf("Order of accuracy:     expected = %d, max = %.4Lf,  avg = %.4Lf,  "
+           "overall = %.4Lf\n",
+           expected_order, (long double)ord_max_acc, (long double)ord_avg,
+           (long double)ord_est);
+
+    retval = ComputeConvergence(NUM_DT, con_orders, expected_order, a11, a12,
+                                a21, a22, b1e, b2e, &ord_avg, &ord_max_conv,
+                                &ord_est);
+
+    printf("Order of conservation: expected = %d, max = %.4Lf,  avg = %.4Lf,  "
+           "overall = %.4Lf\n",
+           expected_order, (long double)ord_max_conv, (long double)ord_avg,
+           (long double)ord_est);
+
+    if (ord_max_acc < (expected_order - RCONST(0.5)))
+    {
+      printf(">>> FAILURE: computed order of accuracy is below expected (%d)\n",
+             expected_order);
+      return 1;
+    }
+
+    if (ord_max_conv < (expected_order - RCONST(0.5)))
+    {
+      printf(">>> FAILURE: computed order of conservation is below expected "
+             "(%d)\n",
+             expected_order);
+      return 1;
+    }
+  }
+
+  N_VDestroy(result.sol);
+  SUNContext_Free(&sunctx);
+
+  return 0;
+}
+
+int SolveProblem(ProgramArgs* args, ProblemResult* result, SUNContext sunctx)
+{
   void* arkode_mem       = NULL;
-  SUNContext sunctx      = NULL;
   N_Vector y             = NULL;
   SUNNonlinearSolver NLS = NULL;
   UserData udata         = NULL;
@@ -116,30 +280,26 @@ int main(int argc, char* argv[])
   int iout               = 0;
   int retval             = 0;
 
-  /* CLI args */
-  if (ParseArgs(argc, argv, &args)) { return 1; };
-  const int step_mode     = args.step_mode;
-  const int stepper       = args.stepper;
-  const char* method_name = args.method_name;
-  const int use_compsums  = args.use_compsums;
-  const sunrealtype dt    = args.dt;
-  sunrealtype Tf          = args.tf;
+  const int find_roots       = args->find_roots;
+  const int step_mode        = args->step_mode;
+  const int stepper          = args->stepper;
+  const int use_compsums     = args->use_compsums;
+  const int num_output_times = args->num_output_times;
+  const char* method_name    = args->method_name;
+  const sunrealtype dt       = args->dt;
+  sunrealtype Tf             = args->tf;
 
   /* Default problem parameters */
-  const sunrealtype T0       = SUN_RCONST(0.0);
-  const sunrealtype ecc      = SUN_RCONST(0.6);
-  const sunrealtype dTout    = 10 * dt; // SUN_RCONST(1.);
-  const int num_output_times = (int)ceil(Tf / dTout);
+  const sunrealtype T0    = SUN_RCONST(0.0);
+  const sunrealtype dTout = (Tf - T0) / ((sunrealtype)num_output_times);
+  const sunrealtype ecc   = SUN_RCONST(0.6);
 
   printf("\n   Begin Kepler Problem\n\n");
+  PrintArgs(args);
 
   /* Allocate and fill udata structure */
   udata      = (UserData)malloc(sizeof(*udata));
   udata->ecc = ecc;
-
-  /* Create the SUNDIALS context object for this simulation */
-  retval = SUNContext_Create(NULL, &sunctx);
-  if (check_retval(&retval, "SUNContext_Create", 1)) return 1;
 
   /* Allocate our state vector */
   y = N_VNew_Serial(4, sunctx);
@@ -153,8 +313,11 @@ int main(int argc, char* argv[])
     arkode_mem = SPRKStepCreate(force, velocity, T0, y, sunctx);
 
     /* Optional: enable temporal root-finding */
-    SPRKStepRootInit(arkode_mem, 1, rootfn);
-    if (check_retval(&retval, "SPRKStepRootInit", 1)) return 1;
+    if (find_roots)
+    {
+      SPRKStepRootInit(arkode_mem, 1, rootfn);
+      if (check_retval(&retval, "SPRKStepRootInit", 1)) return 1;
+    }
 
     retval = SPRKStepSetMethodName(arkode_mem, method_name);
     if (check_retval(&retval, "SPRKStepSetMethodName", 1)) return 1;
@@ -187,13 +350,16 @@ int main(int argc, char* argv[])
     retval = ARKStepSetTableName(arkode_mem, "ARKODE_DIRK_NONE", method_name);
     if (check_retval(&retval, "ARKStepSetTableName", 1)) return 1;
 
-    ARKStepRootInit(arkode_mem, 1, rootfn);
-    if (check_retval(&retval, "ARKStepRootInit", 1)) return 1;
+    if (find_roots)
+    {
+      ARKStepRootInit(arkode_mem, 1, rootfn);
+      if (check_retval(&retval, "ARKStepRootInit", 1)) return 1;
+    }
 
     retval = ARKStepSetUserData(arkode_mem, (void*)udata);
     if (check_retval(&retval, "ARKStepSetUserData", 1)) return 1;
 
-    retval = ARKStepSetMaxNumSteps(arkode_mem, 1000000);
+    retval = ARKStepSetMaxNumSteps(arkode_mem, ((long int)ceil(Tf / dt)) + 1);
     if (check_retval(&retval, "ARKStepSetMaxNumSteps", 1)) return 1;
 
     if (step_mode == 0) { retval = ARKStepSetFixedStep(arkode_mem, dt); }
@@ -339,6 +505,10 @@ int main(int argc, char* argv[])
     }
   }
 
+  /* Copy results */
+  N_VScale(SUN_RCONST(1.0), y, result->sol);
+  result->energy_error = Hamiltonian(y) - H0;
+
   free(udata);
   fclose(times_fp);
   fclose(conserved_fp);
@@ -355,8 +525,6 @@ int main(int argc, char* argv[])
     ARKStepPrintAllStats(arkode_mem, stdout, SUN_OUTPUTFORMAT_TABLE);
     ARKStepFree(&arkode_mem);
   }
-
-  SUNContext_Free(&sunctx);
 
   return 0;
 }
@@ -454,42 +622,37 @@ int rootfn(sunrealtype t, N_Vector yvec, sunrealtype* gout, void* user_data)
   return 0;
 }
 
-/* Functions needed to implement the step density integrating controller
-   proposed by Hairer and Soderlind in https://doi.org/10.1137/04060699. */
-
-sunrealtype G(N_Vector yvec, sunrealtype alpha)
+int ComputeConvergence(int num_dt, sunrealtype* orders,
+                       sunrealtype expected_order, sunrealtype a11,
+                       sunrealtype a12, sunrealtype a21, sunrealtype a22,
+                       sunrealtype b1, sunrealtype b2, sunrealtype* ord_avg,
+                       sunrealtype* ord_max, sunrealtype* ord_est)
 {
-  sunrealtype* y       = N_VGetArrayPointer(yvec);
-  const sunrealtype q1 = y[0];
-  const sunrealtype q2 = y[1];
-  const sunrealtype p1 = y[2];
-  const sunrealtype p2 = y[3];
-
-  const sunrealtype pTq = p1 * q1 + p2 * q2;
-  const sunrealtype qTq = q1 * q1 + q2 * q2;
-
-  return (-alpha * pTq / qTq);
-}
-
-sunrealtype Q(N_Vector yvec, sunrealtype alpha)
-{
-  sunrealtype* y       = N_VGetArrayPointer(yvec);
-  const sunrealtype q1 = y[0];
-  const sunrealtype q2 = y[1];
-
-  const sunrealtype qTq = q1 * q1 + q2 * q2;
-
-  return SUNRpowerR(qTq, alpha / SUN_RCONST(2.0));
+  /* Compute/print overall estimated convergence rate */
+  sunrealtype det = 0;
+  *ord_avg = 0, *ord_max = 0, *ord_est = 0;
+  for (int i = 1; i < num_dt; i++)
+  {
+    *ord_avg += orders[i - 1];
+    *ord_max = SUNMAX(*ord_max, orders[i - 1]);
+  }
+  *ord_avg = *ord_avg / ((realtype)num_dt - 1);
+  det      = a11 * a22 - a12 * a21;
+  *ord_est = (a11 * b2 - a21 * b1) / det;
+  return 0;
 }
 
 int ParseArgs(int argc, char* argv[], ProgramArgs* args)
 {
-  args->step_mode    = 0;
-  args->stepper      = 0;
-  args->method_name  = NULL;
-  args->use_compsums = 0;
-  args->dt           = SUN_RCONST(1e-2);
-  args->tf           = SUN_RCONST(100.);
+  args->step_mode        = 0;
+  args->stepper          = 0;
+  args->method_name      = NULL;
+  args->find_roots       = 0;
+  args->use_compsums     = 0;
+  args->dt               = SUN_RCONST(1e-2);
+  args->tf               = SUN_RCONST(100.);
+  args->check_order      = 0;
+  args->num_output_times = 1000;
 
   for (int argi = 1; argi < argc; argi++)
   {
@@ -530,10 +693,17 @@ int ParseArgs(int argc, char* argv[], ProgramArgs* args)
       argi++;
       args->tf = atof(argv[argi]);
     }
+    else if (!strcmp(argv[argi], "--nout"))
+    {
+      argi++;
+      args->num_output_times = atoi(argv[argi]);
+    }
+    else if (!strcmp(argv[argi], "--find-roots")) { args->find_roots = 1; }
     else if (!strcmp(argv[argi], "--use-compensated-sums"))
     {
       args->use_compsums = 1;
     }
+    else if (!strcmp(argv[argi], "--check-order")) { args->check_order = 1; }
     else if (!strcmp(argv[argi], "--help"))
     {
       PrintHelp();
@@ -562,6 +732,17 @@ int ParseArgs(int argc, char* argv[], ProgramArgs* args)
   return 0;
 }
 
+void PrintArgs(ProgramArgs* args)
+{
+  fprintf(stdout, "Problem Arguments:\n");
+  fprintf(stdout, "  stepper:              %d\n", args->stepper);
+  fprintf(stdout, "  step mode:            %d\n", args->step_mode);
+  fprintf(stdout, "  use compensated sums: %d\n", args->use_compsums);
+  fprintf(stdout, "  dt:                   %Lg\n", (long double)args->dt);
+  fprintf(stdout, "  Tf:                   %Lg\n", (long double)args->tf);
+  fprintf(stdout, "  nout:                 %d\n\n", args->num_output_times);
+}
+
 void PrintHelp()
 {
   fprintf(stderr, "ark_kepler: an ARKODE example demonstrating the SPRKStep "
@@ -573,14 +754,20 @@ void PrintHelp()
           "with an ERK method (default SPRK)\n");
   fprintf(stderr, "  --method <string>           which method to use (default "
                   "ARKODE_SYMPLECTIC_MCLACHLAN_4_4)\n");
+  fprintf(stderr,
+          "  --use-compensated-sums      turns on compensated summation in "
+          "ARKODE where applicable\n");
   fprintf(stderr, "  --dt <Real>                 the fixed-time step size to "
                   "use if fixed "
                   "time stepping is turned on (default 0.01)\n");
   fprintf(stderr, "  --tf <Real>                 the final time for the "
                   "simulation (default 100)\n");
+  fprintf(stderr, "  --nout <int>                the number of output times "
+                  "(default 100)\n");
+  fprintf(stderr, "  --find-roots                turns on rootfinding\n");
   fprintf(stderr,
-          "  --use-compensated-sums      turns on compensated summation in "
-          "ARKODE where applicable\n");
+          "  --check-order               compute the order of the method used "
+          "and check if it is within range of the expected\n");
 }
 
 /* Check function return value...
