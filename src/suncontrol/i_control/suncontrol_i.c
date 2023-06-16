@@ -133,13 +133,13 @@ int SUNControlSetDefaults_I(SUNControl C)
 
 int SUNControlWrite_I(SUNControl C, FILE *fptr)
 {
-  fprintf(fptr, "SUNControl_I module:\n");
+  fprintf(fptr, "I-controller SUNControl module:\n");
 #if defined(SUNDIALS_EXTENDED_PRECISION)
-  fprintf(fptr, "  k1 = %12Lg\n", SC_I_K1(C));
-  fprintf(fptr, "  bias = %12Lg\n", SC_I_BIAS(C));
+  fprintf(fptr, "  k1 = %32Lg\n", SC_I_K1(C));
+  fprintf(fptr, "  bias factor = %32Lg\n", SC_I_BIAS(C));
 #else
-  fprintf(fptr, "  k1 = %12g\n", SC_I_K1(C));
-  fprintf(fptr, "  bias = %12g\n", SC_I_BIAS(C));
+  fprintf(fptr, "  k1 = %16g\n", SC_I_K1(C));
+  fprintf(fptr, "  bias factor = %16g\n", SC_I_BIAS(C));
 #endif
   if (SC_I_PQ(C))
   {

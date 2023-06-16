@@ -166,17 +166,17 @@ int SUNControlSetDefaults_ExpGus(SUNControl C)
 
 int SUNControlWrite_ExpGus(SUNControl C, FILE *fptr)
 {
-  fprintf(fptr, "SUNControl_ExpGus module:\n");
+  fprintf(fptr, "Explicit Gustafsson SUNControl module:\n");
 #if defined(SUNDIALS_EXTENDED_PRECISION)
-  fprintf(fptr, "  k1 = %12Lg\n", SC_EXPGUS_K1(C));
-  fprintf(fptr, "  k2 = %12Lg\n", SC_EXPGUS_K2(C));
-  fprintf(fptr, "  bias = %12Lg\n", SC_EXPGUS_BIAS(C));
-  fprintf(fptr, "  ep = %12Lg\n", SC_EXPGUS_EP(C));
+  fprintf(fptr, "  k1 = %32Lg\n", SC_EXPGUS_K1(C));
+  fprintf(fptr, "  k2 = %32Lg\n", SC_EXPGUS_K2(C));
+  fprintf(fptr, "  bias factor = %32Lg\n", SC_EXPGUS_BIAS(C));
+  fprintf(fptr, "  previous error = %32g\n", SC_EXPGUS_EP(C));
 #else
-  fprintf(fptr, "  k1 = %12g\n", SC_EXPGUS_K1(C));
-  fprintf(fptr, "  k2 = %12g\n", SC_EXPGUS_K2(C));
-  fprintf(fptr, "  bias = %12g\n", SC_EXPGUS_BIAS(C));
-  fprintf(fptr, "  ep = %12g\n", SC_EXPGUS_EP(C));
+  fprintf(fptr, "  k1 = %16g\n", SC_EXPGUS_K1(C));
+  fprintf(fptr, "  k2 = %16g\n", SC_EXPGUS_K2(C));
+  fprintf(fptr, "  bias factor = %16g\n", SC_EXPGUS_BIAS(C));
+  fprintf(fptr, "  previous error = %16g\n", SC_EXPGUS_EP(C));
 #endif
   if (SC_EXPGUS_PQ(C))
   {

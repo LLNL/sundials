@@ -168,19 +168,19 @@ int SUNControlSetDefaults_ImpGus(SUNControl C)
 
 int SUNControlWrite_ImpGus(SUNControl C, FILE *fptr)
 {
-  fprintf(fptr, "SUNControl_ImpGus module:\n");
+  fprintf(fptr, "Implicit Gustafsson SUNControl module:\n");
 #if defined(SUNDIALS_EXTENDED_PRECISION)
-  fprintf(fptr, "  k1 = %12Lg\n", SC_IMPGUS_K1(C));
-  fprintf(fptr, "  k2 = %12Lg\n", SC_IMPGUS_K2(C));
-  fprintf(fptr, "  bias = %12Lg\n", SC_IMPGUS_BIAS(C));
-  fprintf(fptr, "  ep = %12Lg\n", SC_IMPGUS_EP(C));
-  fprintf(fptr, "  hp = %12Lg\n", SC_IMPGUS_HP(C));
+  fprintf(fptr, "  k1 = %32Lg\n", SC_IMPGUS_K1(C));
+  fprintf(fptr, "  k2 = %32Lg\n", SC_IMPGUS_K2(C));
+  fprintf(fptr, "  bias factor = %32Lg\n", SC_IMPGUS_BIAS(C));
+  fprintf(fptr, "  previous error = %32Lg\n", SC_IMPGUS_EP(C));
+  fprintf(fptr, "  previous step = %32Lg\n", SC_IMPGUS_HP(C));
 #else
-  fprintf(fptr, "  k1 = %12g\n", SC_IMPGUS_K1(C));
-  fprintf(fptr, "  k2 = %12g\n", SC_IMPGUS_K2(C));
-  fprintf(fptr, "  bias = %12g\n", SC_IMPGUS_BIAS(C));
-  fprintf(fptr, "  ep = %12g\n", SC_IMPGUS_EP(C));
-  fprintf(fptr, "  hp = %12g\n", SC_IMPGUS_HP(C));
+  fprintf(fptr, "  k1 = %16g\n", SC_IMPGUS_K1(C));
+  fprintf(fptr, "  k2 = %16g\n", SC_IMPGUS_K2(C));
+  fprintf(fptr, "  bias factor = %16g\n", SC_IMPGUS_BIAS(C));
+  fprintf(fptr, "  previous error = %16g\n", SC_IMPGUS_EP(C));
+  fprintf(fptr, "  previous step = %16g\n", SC_IMPGUS_HP(C));
 #endif
   if (SC_IMPGUS_PQ(C))
   {

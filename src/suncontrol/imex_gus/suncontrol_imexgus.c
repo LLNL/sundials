@@ -179,23 +179,23 @@ int SUNControlSetDefaults_ImExGus(SUNControl C)
 
 int SUNControlWrite_ImExGus(SUNControl C, FILE *fptr)
 {
-  fprintf(fptr, "SUNControl_ImExGus module:\n");
+  fprintf(fptr, "ImEx Gustafsson SUNControl module:\n");
 #if defined(SUNDIALS_EXTENDED_PRECISION)
-  fprintf(fptr, "  k1e = %12Lg\n", SC_IMEXGUS_K1E(C));
-  fprintf(fptr, "  k2e = %12Lg\n", SC_IMEXGUS_K2E(C));
-  fprintf(fptr, "  k1i = %12Lg\n", SC_IMEXGUS_K1I(C));
-  fprintf(fptr, "  k2i = %12Lg\n", SC_IMEXGUS_K2I(C));
-  fprintf(fptr, "  bias = %12Lg\n", SC_IMEXGUS_BIAS(C));
-  fprintf(fptr, "  ep = %12Lg\n", SC_IMEXGUS_EP(C));
-  fprintf(fptr, "  hp = %12Lg\n", SC_IMEXGUS_HP(C));
+  fprintf(fptr, "  k1e = %32Lg\n", SC_IMEXGUS_K1E(C));
+  fprintf(fptr, "  k2e = %32Lg\n", SC_IMEXGUS_K2E(C));
+  fprintf(fptr, "  k1i = %32Lg\n", SC_IMEXGUS_K1I(C));
+  fprintf(fptr, "  k2i = %32Lg\n", SC_IMEXGUS_K2I(C));
+  fprintf(fptr, "  bias factor = %22Lg\n", SC_IMEXGUS_BIAS(C));
+  fprintf(fptr, "  previous error = %22Lg\n", SC_IMEXGUS_EP(C));
+  fprintf(fptr, "  previous step = %22Lg\n", SC_IMEXGUS_HP(C));
 #else
-  fprintf(fptr, "  k1e = %12g\n", SC_IMEXGUS_K1E(C));
-  fprintf(fptr, "  k2e = %12g\n", SC_IMEXGUS_K2E(C));
-  fprintf(fptr, "  k1i = %12g\n", SC_IMEXGUS_K1I(C));
-  fprintf(fptr, "  k2i = %12g\n", SC_IMEXGUS_K2I(C));
-  fprintf(fptr, "  bias = %12g\n", SC_IMEXGUS_BIAS(C));
-  fprintf(fptr, "  ep = %12g\n", SC_IMEXGUS_EP(C));
-  fprintf(fptr, "  hp = %12g\n", SC_IMEXGUS_HP(C));
+  fprintf(fptr, "  k1e = %16g\n", SC_IMEXGUS_K1E(C));
+  fprintf(fptr, "  k2e = %16g\n", SC_IMEXGUS_K2E(C));
+  fprintf(fptr, "  k1i = %16g\n", SC_IMEXGUS_K1I(C));
+  fprintf(fptr, "  k2i = %16g\n", SC_IMEXGUS_K2I(C));
+  fprintf(fptr, "  bias factor = %16g\n", SC_IMEXGUS_BIAS(C));
+  fprintf(fptr, "  previous error = %16g\n", SC_IMEXGUS_EP(C));
+  fprintf(fptr, "  previous step = %16g\n", SC_IMEXGUS_HP(C));
 #endif
   if (SC_IMEXGUS_PQ(C))
   {
