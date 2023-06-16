@@ -106,6 +106,19 @@ else()
   message(STATUS "hypre using CUDA Unified Memory? - NO")
 endif()
 
+# Manually link to cuda_runtime (CUDA::cudart) when using CUDA backend
+set(HYPRE_NEEDS_THREADS OFF)
+if("${HYPRE_BACKENDS}" MATCHES "CUDA")
+  set(HYPRE_NEEDS_THREADS ON)
+  if(NOT TARGET Threads::Threads)
+    find_package(Threads)
+  endif()
+  if(NOT TARGET cuda_runtime)
+    add_library(cuda_runtime INTERFACE IMPORTED)
+    target_link_libraries(cuda_runtime INTERFACE CUDA::cudart)
+  endif()
+endif()
+
 # -----------------------------------------------------------------------------
 # Section 4: Test the TPL
 # -----------------------------------------------------------------------------
