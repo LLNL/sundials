@@ -68,60 +68,6 @@ foreach(example_tuple ${KINSOL_examples})
 
 endforeach(example_tuple ${KINSOL_examples})
 
-
-# create Makfile and CMakeLists.txt for examples
-# if(EXAMPLES_INSTALL)
-
-#   # Install the README file
-#   install(FILES README DESTINATION ${EXAMPLES_INSTALL_PATH}/kinsol/parallel)
-
-#   # Prepare substitution variables for Makefile and/or CMakeLists templates
-#   set(SOLVER "KINSOL")
-#   set(SOLVER_LIB "sundials_kinsol")
-
-#   examples2string(KINSOL_examples EXAMPLES)
-
-#   # Regardless of the platform we're on, we will generate and install
-#   # CMakeLists.txt file for building the examples. This file  can then
-#   # be used as a template for the user's own programs.
-
-#   # generate CMakelists.txt in the binary directory
-#   configure_file(
-#     ${PROJECT_SOURCE_DIR}/examples/templates/cmakelists_parallel_C_ex.in
-#     ${PROJECT_BINARY_DIR}/examples/kinsol/parallel/CMakeLists.txt
-#     @ONLY
-#     )
-
-#   # install CMakelists.txt
-#   install(
-#     FILES ${PROJECT_BINARY_DIR}/examples/kinsol/parallel/CMakeLists.txt
-#     DESTINATION ${EXAMPLES_INSTALL_PATH}/kinsol/parallel
-#     )
-
-#   # On UNIX-type platforms, we also  generate and install a makefile for
-#   # building the examples. This makefile can then be used as a template
-#   # for the user's own programs.
-
-#   if(UNIX)
-#     # generate Makefile and place it in the binary dir
-#     configure_file(
-#       ${PROJECT_SOURCE_DIR}/examples/templates/makefile_parallel_C_ex.in
-#       ${PROJECT_BINARY_DIR}/examples/kinsol/parallel/Makefile_ex
-#       @ONLY
-#       )
-#     # install the configured Makefile_ex as Makefile
-#     install(
-#       FILES ${PROJECT_BINARY_DIR}/examples/kinsol/parallel/Makefile_ex
-#       DESTINATION ${EXAMPLES_INSTALL_PATH}/kinsol/parallel
-#       RENAME Makefile
-#       )
-#   endif()
-
-#   # add test_install target
-#   sundials_add_test_install(kinsol parallel)
-
-# endif()
-
 # create Makfile and CMakeLists.txt for examples
 if(EXAMPLES_INSTALL)
 
