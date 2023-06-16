@@ -73,61 +73,6 @@ foreach(example_tuple ${CVODE_examples})
 endforeach(example_tuple ${CVODE_examples})
 
 # create Makfile and CMakeLists.txt for examples
-# if(EXAMPLES_INSTALL)
-
-#   # Install the README file
-#   install(FILES README DESTINATION ${EXAMPLES_INSTALL_PATH}/cvode/parallel)
-
-#   # Prepare substitution variables for Makefile and/or CMakeLists templates
-#   set(SOLVER "CVODE")
-#   set(SOLVER_LIB "sundials_cvode")
-#   if(SUNDIALS_BUILD_PACKAGE_FUSED_KERNELS)
-#     set(LIBS "-lsundials_cvode_fused_stubs ${LIBS}")
-#   endif()
-
-#   examples2string(CVODE_examples EXAMPLES)
-
-#   # Regardless of the platform we're on, we will generate and install
-#   # CMakeLists.txt file for building the examples. This file  can then
-#   # be used as a template for the user's own programs.
-
-#   # generate CMakelists.txt in the binary directory
-#   configure_file(
-#     ${PROJECT_SOURCE_DIR}/examples/templates/cmakelists_parallel_C_ex.in
-#     ${PROJECT_BINARY_DIR}/examples/cvode/parallel/CMakeLists.txt
-#     @ONLY
-#     )
-
-#   # install CMakelists.txt
-#   install(
-#     FILES ${PROJECT_BINARY_DIR}/examples/cvode/parallel/CMakeLists.txt
-#     DESTINATION ${EXAMPLES_INSTALL_PATH}/cvode/parallel
-#     )
-
-#   # On UNIX-type platforms, we also  generate and install a makefile for
-#   # building the examples. This makefile can then be used as a template
-#   # for the user's own programs.
-
-#   if(UNIX)
-#     # generate Makefile and place it in the binary dir
-#     configure_file(
-#       ${PROJECT_SOURCE_DIR}/examples/templates/makefile_parallel_C_ex.in
-#       ${PROJECT_BINARY_DIR}/examples/cvode/parallel/Makefile_ex
-#       @ONLY
-#       )
-#     # install the configured Makefile_ex as Makefile
-#     install(
-#       FILES ${PROJECT_BINARY_DIR}/examples/cvode/parallel/Makefile_ex
-#       DESTINATION ${EXAMPLES_INSTALL_PATH}/cvode/parallel
-#       RENAME Makefile
-#       )
-#   endif()
-
-#   # add test_install target
-#   sundials_add_test_install(cvode parallel)
-
-# endif()
-
 if(EXAMPLES_INSTALL)
 
   if(SUNDIALS_BUILD_PACKAGE_FUSED_KERNELS)
