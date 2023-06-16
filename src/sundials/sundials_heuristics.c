@@ -79,29 +79,12 @@ SUNHeuristics SUNHeuristicsNewEmpty(SUNContext sunctx)
 
 
 /* -----------------------------------------------------------------
- * Free a generic SUNHeuristics (assumes content is already empty)
- * ----------------------------------------------------------------- */
-
-void SUNHeuristicsFreeEmpty(SUNHeuristics H)
-{
-  if (H == NULL)  return;
-
-  /* free non-NULL ops structure */
-  if (H->ops)  free(H->ops);
-  H->ops = NULL;
-
-  /* free overall SUNHeuristics object and return */
-  free(H);
-  return;
-}
-
-
-/* -----------------------------------------------------------------
  * Required functions in the 'ops' structure
  * ----------------------------------------------------------------- */
 
 SUNHeuristics_ID SUNHeuristicsGetID(SUNHeuristics H)
 {
+  if (H == NULL) { return SUNDIALS_HEURISTICS_NULL; }
   return(H->ops->getid(H));
 }
 
