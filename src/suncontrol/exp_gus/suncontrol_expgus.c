@@ -69,7 +69,7 @@ SUNControl SUNControlExpGus(SUNContext sunctx)
   C->ops->setdefaults       = SUNControlSetDefaults_ExpGus;
   C->ops->write             = SUNControlWrite_ExpGus;
   C->ops->setmethodorder    = SUNControlSetMethodOrder_ExpGus;
-  C->ops->setembeddingorder = SUNControlSetMethodOrder_ExpGus;
+  C->ops->setembeddingorder = SUNControlSetEmbeddingOrder_ExpGus;
   C->ops->seterrorbias      = SUNControlSetErrorBias_ExpGus;
   C->ops->update            = SUNControlUpdate_ExpGus;
   C->ops->space             = SUNControlSpace_ExpGus;

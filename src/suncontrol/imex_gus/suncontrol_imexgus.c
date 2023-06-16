@@ -74,7 +74,7 @@ SUNControl SUNControlImExGus(SUNContext sunctx)
   C->ops->setdefaults       = SUNControlSetDefaults_ImExGus;
   C->ops->write             = SUNControlWrite_ImExGus;
   C->ops->setmethodorder    = SUNControlSetMethodOrder_ImExGus;
-  C->ops->setembeddingorder = SUNControlSetMethodOrder_ImExGus;
+  C->ops->setembeddingorder = SUNControlSetEmbeddingOrder_ImExGus;
   C->ops->seterrorbias      = SUNControlSetErrorBias_ImExGus;
   C->ops->update            = SUNControlUpdate_ImExGus;
   C->ops->space             = SUNControlSpace_ImExGus;

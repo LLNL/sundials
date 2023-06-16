@@ -70,7 +70,7 @@ SUNControl SUNControlImpGus(SUNContext sunctx)
   C->ops->setdefaults       = SUNControlSetDefaults_ImpGus;
   C->ops->write             = SUNControlWrite_ImpGus;
   C->ops->setmethodorder    = SUNControlSetMethodOrder_ImpGus;
-  C->ops->setembeddingorder = SUNControlSetMethodOrder_ImpGus;
+  C->ops->setembeddingorder = SUNControlSetEmbeddingOrder_ImpGus;
   C->ops->seterrorbias      = SUNControlSetErrorBias_ImpGus;
   C->ops->update            = SUNControlUpdate_ImpGus;
   C->ops->space             = SUNControlSpace_ImpGus;
