@@ -70,19 +70,18 @@ message(STATUS "HYPRE_INCLUDE_DIR: ${HYPRE_INCLUDE_DIR}")
 find_file(HYPRE_CONFIGH_PATH HYPRE_config.h
           HINTS "${HYPRE_DIR}"
           PATH_SUFFIXES include
-          NO_DEFAULT_PATH)
+          NO_DEFAULT_PATH
+          REQUIRED) #TODO should we set as required? -jsdomine
 mark_as_advanced(FORCE HYPRE_CONFIGH_PATH)
 
-# Look for CMake configuration file in hypre installation (HYPREConfig.cmake)
-find_package(HYPRE CONFIG
-             HINTS "${HYPRE_DIR}"
-             NO_DEFAULT_PATH
-             REQUIRED)
+# --- Throws error if hypre wasn't built with CMake; HYPREConfig.cmake is not used, anyway ---
+# # Look for CMake configuration file in hypre installation (HYPREConfig.cmake)
+# find_package(HYPRE CONFIG
+#              HINTS "${HYPRE_DIR}"
+#              NO_DEFAULT_PATH
+#              REQUIRED)
 
-# Available info: HYPRE_RELEASE_NAME, HYPRE_RELEASE_VERSION, HYPRE_RELEASE_NUMBER,
-#                 HYPRE_RELEASE_DATE, HYPRE_RELEASE_TIME, HYPRE_RELEASE_BUGS,
-#                 HYPRE_DEVELOP_STRING, HYPRE_DEVELOP_NUMBER, HYPRE_DEVELOP_BRANCH,
-#                 HYPRE_BRANCH_NAME
+# Display hypre version
 file(READ "${HYPRE_CONFIGH_PATH}" _hypre_config_file_text)
 string(REGEX MATCH "[0-9]+\.[0-9]+\.[0-9]+" _hypre_release_version "${_hypre_config_file_text}")
 message(STATUS "hypre Version: ${_hypre_release_version}")
@@ -97,6 +96,15 @@ foreach(_backend CUDA HIP)
     message(STATUS "hypre built with ${_backend} backend? - NO")
   endif()
 endforeach()
+
+# Check for CUDA Unified Memory
+file(STRINGS "${HYPRE_CONFIGH_PATH}" _hypre_using_unified_memory REGEX "^#define HYPRE_USING_UNIFIED_MEMORY")
+if(_hypre_using_unified_memory)
+  set(SUNDIALS_HYPRE_USING_UNIFIED_MEMORY TRUE)
+  message(STATUS "hypre using CUDA Unified Memory? - YES")
+else()
+  message(STATUS "hypre using CUDA Unified Memory? - NO")
+endif()
 
 # -----------------------------------------------------------------------------
 # Section 4: Test the TPL
