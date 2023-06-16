@@ -33,7 +33,6 @@ struct _SUNControlContent_PID {
   realtype k2;
   realtype k3;
   realtype bias;      /* error bias factor */
-  realtype safety;    /* step safety factor */
   realtype ep;        /* error from previous step */
   realtype epp;       /* error from 2 steps ago */
   int p;              /* order of accuracy to use for controller */
@@ -66,8 +65,6 @@ SUNDIALS_EXPORT
 int SUNControlSetMethodOrder_PID(SUNControl C, int q);
 SUNDIALS_EXPORT
 int SUNControlSetEmbeddingOrder_PID(SUNControl C, int p);
-SUNDIALS_EXPORT
-int SUNControlSetSafetyFactor_PID(SUNControl C, realtype safety);
 SUNDIALS_EXPORT
 int SUNControlSetErrorBias_PID(SUNControl C, realtype bias);
 SUNDIALS_EXPORT

@@ -28,7 +28,6 @@
 #define SC_PI_K1(C)          ( SC_PI_CONTENT(C)->k1 )
 #define SC_PI_K2(C)          ( SC_PI_CONTENT(C)->k2 )
 #define SC_PI_BIAS(C)        ( SC_PI_CONTENT(C)->bias )
-#define SC_PI_SAFETY(C)      ( SC_PI_CONTENT(C)->safety )
 #define SC_PI_EP(C)          ( SC_PI_CONTENT(C)->ep )
 #define SC_PI_P(C)           ( SC_PI_CONTENT(C)->p )
 #define SC_PI_PQ(C)          ( SC_PI_CONTENT(C)->pq )
@@ -40,7 +39,6 @@
 #define DEFAULT_K1     RCONST(0.8)
 #define DEFAULT_K2     RCONST(0.31)
 #define DEFAULT_BIAS   RCONST(1.5)
-#define DEFAULT_SAFETY RCONST(0.96)
 #define DEFAULT_PQ     SUNFALSE
 #define TINY           RCONST(1.0e-10)
 
@@ -71,7 +69,6 @@ SUNControl SUNControlPI(SUNContext sunctx)
   C->ops->write             = SUNControlWrite_PI;
   C->ops->setmethodorder    = SUNControlSetMethodOrder_PI;
   C->ops->setembeddingorder = SUNControlSetEmbeddingOrder_PI;
-  C->ops->setsafetyfactor   = SUNControlSetSafetyFactor_PI;
   C->ops->seterrorbias      = SUNControlSetErrorBias_PI;
   C->ops->update            = SUNControlUpdate_PI;
   C->ops->space             = SUNControlSpace_PI;
@@ -130,7 +127,7 @@ int SUNControlEstimateStep_PI(SUNControl C, realtype h,
   const realtype e2 = SUNMAX(SC_PI_EP(C), TINY);
 
   /* compute estimated optimal time step size and return with success */
-  *hnew = SC_PI_SAFETY(C) * h * SUNRpowerR(e1,k1) * SUNRpowerR(e2,k2);
+  *hnew = h * SUNRpowerR(e1,k1) * SUNRpowerR(e2,k2);
   return SUNCONTROL_SUCCESS;
 }
 
@@ -145,7 +142,6 @@ int SUNControlSetDefaults_PI(SUNControl C)
   SC_PI_K1(C)     = DEFAULT_K1;
   SC_PI_K2(C)     = DEFAULT_K2;
   SC_PI_BIAS(C)   = DEFAULT_BIAS;
-  SC_PI_SAFETY(C) = DEFAULT_SAFETY;
   SC_PI_PQ(C)     = DEFAULT_PQ;
   return SUNCONTROL_SUCCESS;
 }
@@ -157,19 +153,11 @@ int SUNControlWrite_PI(SUNControl C, FILE *fptr)
   fprintf(fptr, "  k1 = %12Lg\n", SC_PI_K1(C));
   fprintf(fptr, "  k2 = %12Lg\n", SC_PI_K2(C));
   fprintf(fptr, "  bias = %12Lg\n", SC_PI_BIAS(C));
-  fprintf(fptr, "  safety = %12Lg\n", SC_PI_SAFETY(C));
   fprintf(fptr, "  ep = %12Lg\n", SC_PI_EP(C));
-#elif defined(SUNDIALS_DOUBLE_PRECISION)
-  fprintf(fptr, "  k1 = %12g\n", SC_PI_K1(C));
-  fprintf(fptr, "  k2 = %12g\n", SC_PI_K2(C));
-  fprintf(fptr, "  bias = %12g\n", SC_PI_BIAS(C));
-  fprintf(fptr, "  safety = %12g\n", SC_PI_SAFETY(C));
-  fprintf(fptr, "  ep = %12g\n", SC_PI_EP(C));
 #else
   fprintf(fptr, "  k1 = %12g\n", SC_PI_K1(C));
   fprintf(fptr, "  k2 = %12g\n", SC_PI_K2(C));
   fprintf(fptr, "  bias = %12g\n", SC_PI_BIAS(C));
-  fprintf(fptr, "  safety = %12g\n", SC_PI_SAFETY(C));
   fprintf(fptr, "  ep = %12g\n", SC_PI_EP(C));
 #endif
   if (SC_PI_PQ(C))
@@ -200,21 +188,6 @@ int SUNControlSetEmbeddingOrder_PI(SUNControl C, int p)
 
   /* store if "pq" specifies to use method order */
   if (!SC_PI_PQ(C)) { SC_PI_P(C) = p; }
-  return SUNCONTROL_SUCCESS;
-}
-
-int SUNControlSetSafetyFactor_PI(SUNControl C, realtype safety)
-{
-  /* check for legal input */
-  if (safety >= RCONST(1.0)) { return SUNCONTROL_ILL_INPUT; }
-
-  /* set positive-valued parameters, otherwise set default */
-  if (safety <= RCONST(0.0)) {
-    SC_PI_SAFETY(C) = DEFAULT_SAFETY;
-  } else {
-    SC_PI_SAFETY(C) = safety;
-  }
-
   return SUNCONTROL_SUCCESS;
 }
 

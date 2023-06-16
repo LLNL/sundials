@@ -28,7 +28,6 @@
 #define SC_IMPGUS_K1(C)          ( SC_IMPGUS_CONTENT(C)->k1 )
 #define SC_IMPGUS_K2(C)          ( SC_IMPGUS_CONTENT(C)->k2 )
 #define SC_IMPGUS_BIAS(C)        ( SC_IMPGUS_CONTENT(C)->bias )
-#define SC_IMPGUS_SAFETY(C)      ( SC_IMPGUS_CONTENT(C)->safety )
 #define SC_IMPGUS_EP(C)          ( SC_IMPGUS_CONTENT(C)->ep )
 #define SC_IMPGUS_HP(C)          ( SC_IMPGUS_CONTENT(C)->hp )
 #define SC_IMPGUS_P(C)           ( SC_IMPGUS_CONTENT(C)->p )
@@ -42,7 +41,6 @@
 #define DEFAULT_K1     RCONST(0.98)
 #define DEFAULT_K2     RCONST(0.95)
 #define DEFAULT_BIAS   RCONST(1.5)
-#define DEFAULT_SAFETY RCONST(0.96)
 #define DEFAULT_PQ     SUNFALSE
 #define TINY           RCONST(1.0e-10)
 
@@ -73,7 +71,6 @@ SUNControl SUNControlImpGus(SUNContext sunctx)
   C->ops->write             = SUNControlWrite_ImpGus;
   C->ops->setmethodorder    = SUNControlSetMethodOrder_ImpGus;
   C->ops->setembeddingorder = SUNControlSetMethodOrder_ImpGus;
-  C->ops->setsafetyfactor   = SUNControlSetSafetyFactor_ImpGus;
   C->ops->seterrorbias      = SUNControlSetErrorBias_ImpGus;
   C->ops->update            = SUNControlUpdate_ImpGus;
   C->ops->space             = SUNControlSpace_ImpGus;
@@ -133,7 +130,7 @@ int SUNControlEstimateStep_ImpGus(SUNControl C, realtype h,
     const realtype e = SUNMAX(SC_IMPGUS_BIAS(C) * dsm, TINY);
 
     /* compute estimated optimal time step size */
-    *hnew = SC_IMPGUS_SAFETY(C) * h * SUNRpowerR(e,k);
+    *hnew = h * SUNRpowerR(e,k);
   }
   else
   {
@@ -146,7 +143,7 @@ int SUNControlEstimateStep_ImpGus(SUNControl C, realtype h,
     const realtype hrat = h / SC_IMPGUS_HP(C);
 
     /* compute estimated optimal time step size */
-    *hnew = SC_IMPGUS_SAFETY(C) * h * hrat * SUNRpowerR(e1,k1) * SUNRpowerR(e2,k2);
+    *hnew = h * hrat * SUNRpowerR(e1,k1) * SUNRpowerR(e2,k2);
   }
 
   /* return with success */
@@ -165,7 +162,6 @@ int SUNControlSetDefaults_ImpGus(SUNControl C)
   SC_IMPGUS_K1(C)     = DEFAULT_K1;
   SC_IMPGUS_K2(C)     = DEFAULT_K2;
   SC_IMPGUS_BIAS(C)   = DEFAULT_BIAS;
-  SC_IMPGUS_SAFETY(C) = DEFAULT_SAFETY;
   SC_IMPGUS_PQ(C)     = DEFAULT_PQ;
   return SUNCONTROL_SUCCESS;
 }
@@ -177,21 +173,12 @@ int SUNControlWrite_ImpGus(SUNControl C, FILE *fptr)
   fprintf(fptr, "  k1 = %12Lg\n", SC_IMPGUS_K1(C));
   fprintf(fptr, "  k2 = %12Lg\n", SC_IMPGUS_K2(C));
   fprintf(fptr, "  bias = %12Lg\n", SC_IMPGUS_BIAS(C));
-  fprintf(fptr, "  safety = %12Lg\n", SC_IMPGUS_SAFETY(C));
   fprintf(fptr, "  ep = %12Lg\n", SC_IMPGUS_EP(C));
   fprintf(fptr, "  hp = %12Lg\n", SC_IMPGUS_HP(C));
-#elif defined(SUNDIALS_DOUBLE_PRECISION)
-  fprintf(fptr, "  k1 = %12g\n", SC_IMPGUS_K1(C));
-  fprintf(fptr, "  k2 = %12g\n", SC_IMPGUS_K2(C));
-  fprintf(fptr, "  bias = %12g\n", SC_IMPGUS_BIAS(C));
-  fprintf(fptr, "  safety = %12g\n", SC_IMPGUS_SAFETY(C));
-  fprintf(fptr, "  ep = %12g\n", SC_IMPGUS_EP(C));
-  fprintf(fptr, "  hp = %12g\n", SC_IMPGUS_HP(C));
 #else
   fprintf(fptr, "  k1 = %12g\n", SC_IMPGUS_K1(C));
   fprintf(fptr, "  k2 = %12g\n", SC_IMPGUS_K2(C));
   fprintf(fptr, "  bias = %12g\n", SC_IMPGUS_BIAS(C));
-  fprintf(fptr, "  safety = %12g\n", SC_IMPGUS_SAFETY(C));
   fprintf(fptr, "  ep = %12g\n", SC_IMPGUS_EP(C));
   fprintf(fptr, "  hp = %12g\n", SC_IMPGUS_HP(C));
 #endif
@@ -223,21 +210,6 @@ int SUNControlSetEmbeddingOrder_ImpGus(SUNControl C, int p)
 
   /* store if "pq" specifies to use method order */
   if (!SC_IMPGUS_PQ(C)) { SC_IMPGUS_P(C) = p; }
-  return SUNCONTROL_SUCCESS;
-}
-
-int SUNControlSetSafetyFactor_ImpGus(SUNControl C, realtype safety)
-{
-  /* check for legal input */
-  if (safety >= RCONST(1.0)) { return SUNCONTROL_ILL_INPUT; }
-
-  /* set positive-valued parameters, otherwise set default */
-  if (safety <= RCONST(0.0)) {
-    SC_IMPGUS_SAFETY(C) = DEFAULT_SAFETY;
-  } else {
-    SC_IMPGUS_SAFETY(C) = safety;
-  }
-
   return SUNCONTROL_SUCCESS;
 }
 

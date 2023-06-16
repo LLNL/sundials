@@ -27,7 +27,6 @@
 #define SC_I_CONTENT(C)     ( (SUNControlContent_I)(C->content) )
 #define SC_I_K1(C)          ( SC_I_CONTENT(C)->k1 )
 #define SC_I_BIAS(C)        ( SC_I_CONTENT(C)->bias )
-#define SC_I_SAFETY(C)      ( SC_I_CONTENT(C)->safety )
 #define SC_I_P(C)           ( SC_I_CONTENT(C)->p )
 #define SC_I_PQ(C)          ( SC_I_CONTENT(C)->pq )
 
@@ -37,7 +36,6 @@
 
 #define DEFAULT_K1     RCONST(1.0)
 #define DEFAULT_BIAS   RCONST(1.5)
-#define DEFAULT_SAFETY RCONST(0.96)
 #define DEFAULT_PQ     SUNFALSE
 #define TINY           RCONST(1.0e-10)
 
@@ -67,7 +65,6 @@ SUNControl SUNControlI(SUNContext sunctx)
   C->ops->write             = SUNControlWrite_I;
   C->ops->setmethodorder    = SUNControlSetMethodOrder_I;
   C->ops->setembeddingorder = SUNControlSetEmbeddingOrder_I;
-  C->ops->setsafetyfactor   = SUNControlSetSafetyFactor_I;
   C->ops->seterrorbias      = SUNControlSetErrorBias_I;
   C->ops->space             = SUNControlSpace_I;
 
@@ -122,7 +119,7 @@ int SUNControlEstimateStep_I(SUNControl C, realtype h,
   const realtype e1 = SUNMAX(ecur, TINY);
 
   /* compute estimated optimal time step size and return with success */
-  *hnew = SC_I_SAFETY(C) * h * SUNRpowerR(e1,k1);
+  *hnew = h * SUNRpowerR(e1,k1);
   return SUNCONTROL_SUCCESS;
 }
 
@@ -130,7 +127,6 @@ int SUNControlSetDefaults_I(SUNControl C)
 {
   SC_I_K1(C)     = DEFAULT_K1;
   SC_I_BIAS(C)   = DEFAULT_BIAS;
-  SC_I_SAFETY(C) = DEFAULT_SAFETY;
   SC_I_PQ(C)     = DEFAULT_PQ;
   return SUNCONTROL_SUCCESS;
 }
@@ -141,15 +137,9 @@ int SUNControlWrite_I(SUNControl C, FILE *fptr)
 #if defined(SUNDIALS_EXTENDED_PRECISION)
   fprintf(fptr, "  k1 = %12Lg\n", SC_I_K1(C));
   fprintf(fptr, "  bias = %12Lg\n", SC_I_BIAS(C));
-  fprintf(fptr, "  safety = %12Lg\n", SC_I_SAFETY(C));
-#elif defined(SUNDIALS_DOUBLE_PRECISION)
-  fprintf(fptr, "  k1 = %12g\n", SC_I_K1(C));
-  fprintf(fptr, "  bias = %12g\n", SC_I_BIAS(C));
-  fprintf(fptr, "  safety = %12g\n", SC_I_SAFETY(C));
 #else
   fprintf(fptr, "  k1 = %12g\n", SC_I_K1(C));
   fprintf(fptr, "  bias = %12g\n", SC_I_BIAS(C));
-  fprintf(fptr, "  safety = %12g\n", SC_I_SAFETY(C));
 #endif
   if (SC_I_PQ(C))
   {
@@ -179,21 +169,6 @@ int SUNControlSetEmbeddingOrder_I(SUNControl C, int p)
 
   /* store if "pq" specifies to use method order */
   if (!SC_I_PQ(C)) { SC_I_P(C) = p; }
-  return SUNCONTROL_SUCCESS;
-}
-
-int SUNControlSetSafetyFactor_I(SUNControl C, realtype safety)
-{
-  /* check for legal input */
-  if (safety >= RCONST(1.0)) { return SUNCONTROL_ILL_INPUT; }
-
-  /* set positive-valued parameters, otherwise set default */
-  if (safety <= RCONST(0.0)) {
-    SC_I_SAFETY(C) = DEFAULT_SAFETY;
-  } else {
-    SC_I_SAFETY(C) = safety;
-  }
-
   return SUNCONTROL_SUCCESS;
 }
 

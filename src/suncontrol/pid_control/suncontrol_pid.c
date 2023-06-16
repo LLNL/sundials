@@ -29,7 +29,6 @@
 #define SC_PID_K2(C)          ( SC_PID_CONTENT(C)->k2 )
 #define SC_PID_K3(C)          ( SC_PID_CONTENT(C)->k3 )
 #define SC_PID_BIAS(C)        ( SC_PID_CONTENT(C)->bias )
-#define SC_PID_SAFETY(C)      ( SC_PID_CONTENT(C)->safety )
 #define SC_PID_EP(C)          ( SC_PID_CONTENT(C)->ep )
 #define SC_PID_EPP(C)         ( SC_PID_CONTENT(C)->epp )
 #define SC_PID_P(C)           ( SC_PID_CONTENT(C)->p )
@@ -43,7 +42,6 @@
 #define DEFAULT_K2     RCONST(0.21)
 #define DEFAULT_K3     RCONST(0.1)
 #define DEFAULT_BIAS   RCONST(1.5)
-#define DEFAULT_SAFETY RCONST(0.96)
 #define DEFAULT_PQ     SUNFALSE
 #define TINY           RCONST(1.0e-10)
 
@@ -74,7 +72,6 @@ SUNControl SUNControlPID(SUNContext sunctx)
   C->ops->write             = SUNControlWrite_PID;
   C->ops->setmethodorder    = SUNControlSetMethodOrder_PID;
   C->ops->setembeddingorder = SUNControlSetEmbeddingOrder_PID;
-  C->ops->setsafetyfactor   = SUNControlSetSafetyFactor_PID;
   C->ops->seterrorbias      = SUNControlSetErrorBias_PID;
   C->ops->update            = SUNControlUpdate_PID;
   C->ops->space             = SUNControlSpace_PID;
@@ -136,8 +133,7 @@ int SUNControlEstimateStep_PID(SUNControl C, realtype h,
   const realtype e3 = SUNMAX(SC_PID_EPP(C), TINY);
 
   /* compute estimated optimal time step size and return with success */
-  *hnew = SC_PID_SAFETY(C) * h * SUNRpowerR(e1,k1)
-          * SUNRpowerR(e2,k2) * SUNRpowerR(e3,k3);
+  *hnew = h * SUNRpowerR(e1,k1) * SUNRpowerR(e2,k2) * SUNRpowerR(e3,k3);
   return SUNCONTROL_SUCCESS;
 }
 
@@ -154,7 +150,6 @@ int SUNControlSetDefaults_PID(SUNControl C)
   SC_PID_K2(C)     = DEFAULT_K2;
   SC_PID_K3(C)     = DEFAULT_K3;
   SC_PID_BIAS(C)   = DEFAULT_BIAS;
-  SC_PID_SAFETY(C) = DEFAULT_SAFETY;
   SC_PID_PQ(C)     = DEFAULT_PQ;
   return SUNCONTROL_SUCCESS;
 }
@@ -167,23 +162,13 @@ int SUNControlWrite_PID(SUNControl C, FILE *fptr)
   fprintf(fptr, "  k2 = %12Lg\n", SC_PID_K2(C));
   fprintf(fptr, "  k3 = %12Lg\n", SC_PID_K3(C));
   fprintf(fptr, "  bias = %12Lg\n", SC_PID_BIAS(C));
-  fprintf(fptr, "  safety = %12Lg\n", SC_PID_SAFETY(C));
   fprintf(fptr, "  ep = %12Lg\n", SC_PID_EP(C));
   fprintf(fptr, "  epp = %12Lg\n", SC_PID_EPP(C));
-#elif defined(SUNDIALS_DOUBLE_PRECISION)
-  fprintf(fptr, "  k1 = %12g\n", SC_PID_K1(C));
-  fprintf(fptr, "  k2 = %12g\n", SC_PID_K2(C));
-  fprintf(fptr, "  k3 = %12g\n", SC_PID_K3(C));
-  fprintf(fptr, "  bias = %12g\n", SC_PID_BIAS(C));
-  fprintf(fptr, "  safety = %12g\n", SC_PID_SAFETY(C));
-  fprintf(fptr, "  ep = %12g\n", SC_PID_EP(C));
-  fprintf(fptr, "  epp = %12g\n", SC_PID_EPP(C));
 #else
   fprintf(fptr, "  k1 = %12g\n", SC_PID_K1(C));
   fprintf(fptr, "  k2 = %12g\n", SC_PID_K2(C));
   fprintf(fptr, "  k3 = %12g\n", SC_PID_K3(C));
   fprintf(fptr, "  bias = %12g\n", SC_PID_BIAS(C));
-  fprintf(fptr, "  safety = %12g\n", SC_PID_SAFETY(C));
   fprintf(fptr, "  ep = %12g\n", SC_PID_EP(C));
   fprintf(fptr, "  epp = %12g\n", SC_PID_EPP(C));
 #endif
@@ -215,21 +200,6 @@ int SUNControlSetEmbeddingOrder_PID(SUNControl C, int p)
 
   /* store if "pq" specifies to use method order */
   if (!SC_PID_PQ(C)) { SC_PID_P(C) = p; }
-  return SUNCONTROL_SUCCESS;
-}
-
-int SUNControlSetSafetyFactor_PID(SUNControl C, realtype safety)
-{
-  /* check for legal input */
-  if (safety >= RCONST(1.0)) { return SUNCONTROL_ILL_INPUT; }
-
-  /* set positive-valued parameters, otherwise set default */
-  if (safety <= RCONST(0.0)) {
-    SC_PID_SAFETY(C) = DEFAULT_SAFETY;
-  } else {
-    SC_PID_SAFETY(C) = safety;
-  }
-
   return SUNCONTROL_SUCCESS;
 }
 

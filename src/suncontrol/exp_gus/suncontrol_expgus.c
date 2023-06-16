@@ -28,7 +28,6 @@
 #define SC_EXPGUS_K1(C)          ( SC_EXPGUS_CONTENT(C)->k1 )
 #define SC_EXPGUS_K2(C)          ( SC_EXPGUS_CONTENT(C)->k2 )
 #define SC_EXPGUS_BIAS(C)        ( SC_EXPGUS_CONTENT(C)->bias )
-#define SC_EXPGUS_SAFETY(C)      ( SC_EXPGUS_CONTENT(C)->safety )
 #define SC_EXPGUS_EP(C)          ( SC_EXPGUS_CONTENT(C)->ep )
 #define SC_EXPGUS_P(C)           ( SC_EXPGUS_CONTENT(C)->p )
 #define SC_EXPGUS_PQ(C)          ( SC_EXPGUS_CONTENT(C)->pq )
@@ -41,7 +40,6 @@
 #define DEFAULT_K1     RCONST(0.367)
 #define DEFAULT_K2     RCONST(0.268)
 #define DEFAULT_BIAS   RCONST(1.5)
-#define DEFAULT_SAFETY RCONST(0.96)
 #define DEFAULT_PQ     SUNFALSE
 #define TINY           RCONST(1.0e-10)
 
@@ -72,7 +70,6 @@ SUNControl SUNControlExpGus(SUNContext sunctx)
   C->ops->write             = SUNControlWrite_ExpGus;
   C->ops->setmethodorder    = SUNControlSetMethodOrder_ExpGus;
   C->ops->setembeddingorder = SUNControlSetMethodOrder_ExpGus;
-  C->ops->setsafetyfactor   = SUNControlSetSafetyFactor_ExpGus;
   C->ops->seterrorbias      = SUNControlSetErrorBias_ExpGus;
   C->ops->update            = SUNControlUpdate_ExpGus;
   C->ops->space             = SUNControlSpace_ExpGus;
@@ -132,7 +129,7 @@ int SUNControlEstimateStep_ExpGus(SUNControl C, realtype h,
     const realtype e = SUNMAX(SC_EXPGUS_BIAS(C) * dsm, TINY);
 
     /* compute estimated optimal time step size */
-    *hnew = SC_EXPGUS_SAFETY(C) * h * SUNRpowerR(e,k);
+    *hnew = h * SUNRpowerR(e,k);
   }
   else
   {
@@ -144,7 +141,7 @@ int SUNControlEstimateStep_ExpGus(SUNControl C, realtype h,
     const realtype e2 = e1 / SUNMAX(SC_EXPGUS_EP(C), TINY);
 
     /* compute estimated optimal time step size */
-    *hnew = SC_EXPGUS_SAFETY(C) * h * SUNRpowerR(e1,k1) * SUNRpowerR(e2,k2);
+    *hnew = h * SUNRpowerR(e1,k1) * SUNRpowerR(e2,k2);
   }
 
   /* return with success */
@@ -163,7 +160,6 @@ int SUNControlSetDefaults_ExpGus(SUNControl C)
   SC_EXPGUS_K1(C)     = DEFAULT_K1;
   SC_EXPGUS_K2(C)     = DEFAULT_K2;
   SC_EXPGUS_BIAS(C)   = DEFAULT_BIAS;
-  SC_EXPGUS_SAFETY(C) = DEFAULT_SAFETY;
   SC_EXPGUS_PQ(C)     = DEFAULT_PQ;
   return SUNCONTROL_SUCCESS;
 }
@@ -175,19 +171,11 @@ int SUNControlWrite_ExpGus(SUNControl C, FILE *fptr)
   fprintf(fptr, "  k1 = %12Lg\n", SC_EXPGUS_K1(C));
   fprintf(fptr, "  k2 = %12Lg\n", SC_EXPGUS_K2(C));
   fprintf(fptr, "  bias = %12Lg\n", SC_EXPGUS_BIAS(C));
-  fprintf(fptr, "  safety = %12Lg\n", SC_EXPGUS_SAFETY(C));
   fprintf(fptr, "  ep = %12Lg\n", SC_EXPGUS_EP(C));
-#elif defined(SUNDIALS_DOUBLE_PRECISION)
-  fprintf(fptr, "  k1 = %12g\n", SC_EXPGUS_K1(C));
-  fprintf(fptr, "  k2 = %12g\n", SC_EXPGUS_K2(C));
-  fprintf(fptr, "  bias = %12g\n", SC_EXPGUS_BIAS(C));
-  fprintf(fptr, "  safety = %12g\n", SC_EXPGUS_SAFETY(C));
-  fprintf(fptr, "  ep = %12g\n", SC_EXPGUS_EP(C));
 #else
   fprintf(fptr, "  k1 = %12g\n", SC_EXPGUS_K1(C));
   fprintf(fptr, "  k2 = %12g\n", SC_EXPGUS_K2(C));
   fprintf(fptr, "  bias = %12g\n", SC_EXPGUS_BIAS(C));
-  fprintf(fptr, "  safety = %12g\n", SC_EXPGUS_SAFETY(C));
   fprintf(fptr, "  ep = %12g\n", SC_EXPGUS_EP(C));
 #endif
   if (SC_EXPGUS_PQ(C))
@@ -218,21 +206,6 @@ int SUNControlSetEmbeddingOrder_ExpGus(SUNControl C, int p)
 
   /* store if "pq" specifies to use method order */
   if (!SC_EXPGUS_PQ(C)) { SC_EXPGUS_P(C) = p; }
-  return SUNCONTROL_SUCCESS;
-}
-
-int SUNControlSetSafetyFactor_ExpGus(SUNControl C, realtype safety)
-{
-  /* check for legal input */
-  if (safety >= RCONST(1.0)) { return SUNCONTROL_ILL_INPUT; }
-
-  /* set positive-valued parameters, otherwise set default */
-  if (safety <= RCONST(0.0)) {
-    SC_EXPGUS_SAFETY(C) = DEFAULT_SAFETY;
-  } else {
-    SC_EXPGUS_SAFETY(C) = safety;
-  }
-
   return SUNCONTROL_SUCCESS;
 }
 

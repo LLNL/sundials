@@ -32,7 +32,6 @@ struct _SUNControlContent_PI {
   realtype k1;        /* internal controller parameters */
   realtype k2;
   realtype bias;      /* error bias factor */
-  realtype safety;    /* step safety factor */
   realtype ep;        /* error from previous step */
   int p;              /* order of accuracy to use for controller */
   sunbooleantype pq;  /* p is embedding order (FALSE) or method order (TRUE) */
@@ -64,8 +63,6 @@ SUNDIALS_EXPORT
 int SUNControlSetMethodOrder_PI(SUNControl C, int q);
 SUNDIALS_EXPORT
 int SUNControlSetEmbeddingOrder_PI(SUNControl C, int p);
-SUNDIALS_EXPORT
-int SUNControlSetSafetyFactor_PI(SUNControl C, realtype safety);
 SUNDIALS_EXPORT
 int SUNControlSetErrorBias_PI(SUNControl C, realtype bias);
 SUNDIALS_EXPORT

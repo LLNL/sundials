@@ -40,6 +40,7 @@ struct _SUNHeuristicsContent_Default {
   SUNExpStabFn expstab;    /* step stability function                    */
   void*        estab_data; /* user pointer passed to expstab             */
   realtype     cfl;        /* cfl safety factor                          */
+  realtype     safety;     /* step safety factor                         */
   realtype     growth;     /* maximum step growth safety factor          */
   realtype     lbound;     /* eta lower bound to leave h unchanged       */
   realtype     ubound;     /* eta upper bound to leave h unchanged       */
@@ -86,6 +87,8 @@ int SUNHeuristicsSetExpStabFn_Default(SUNHeuristics H, SUNExpStabFn EStab,
                                       void* estab_data);
 SUNDIALS_EXPORT
 int SUNHeuristicsSetCFLFraction_Default(SUNHeuristics H, realtype cfl_frac);
+SUNDIALS_EXPORT
+int SUNHeuristicsSetSafetyFactor_Default(SUNHeuristics H, realtype safety);
 SUNDIALS_EXPORT
 int SUNHeuristicsSetMaxGrowth_Default(SUNHeuristics H, realtype mx_growth);
 SUNDIALS_EXPORT

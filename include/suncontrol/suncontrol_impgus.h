@@ -32,7 +32,6 @@ struct _SUNControlContent_ImpGus {
   realtype k1;              /* internal controller parameters */
   realtype k2;
   realtype bias;            /* error bias factor */
-  realtype safety;          /* step safety factor */
   realtype ep;              /* error from previous step */
   realtype hp;              /* previous step size */
   int p;                    /* order of accuracy to use for controller */
@@ -66,8 +65,6 @@ SUNDIALS_EXPORT
 int SUNControlSetMethodOrder_ImpGus(SUNControl C, int q);
 SUNDIALS_EXPORT
 int SUNControlSetEmbeddingOrder_ImpGus(SUNControl C, int p);
-SUNDIALS_EXPORT
-int SUNControlSetSafetyFactor_ImpGus(SUNControl C, realtype safety);
 SUNDIALS_EXPORT
 int SUNControlSetErrorBias_ImpGus(SUNControl C, realtype bias);
 SUNDIALS_EXPORT

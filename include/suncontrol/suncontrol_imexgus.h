@@ -34,7 +34,6 @@ struct _SUNControlContent_ImExGus {
   realtype k1e;
   realtype k2e;
   realtype bias;            /* error bias factor */
-  realtype safety;          /* step safety factor */
   realtype ep;              /* error from previous step */
   realtype hp;              /* previous step size */
   int p;                    /* order of accuracy to use for controller */
@@ -69,8 +68,6 @@ SUNDIALS_EXPORT
 int SUNControlSetMethodOrder_ImExGus(SUNControl C, int q);
 SUNDIALS_EXPORT
 int SUNControlSetEmbeddingOrder_ImExGus(SUNControl C, int p);
-SUNDIALS_EXPORT
-int SUNControlSetSafetyFactor_ImExGus(SUNControl C, realtype safety);
 SUNDIALS_EXPORT
 int SUNControlSetErrorBias_ImExGus(SUNControl C, realtype bias);
 SUNDIALS_EXPORT

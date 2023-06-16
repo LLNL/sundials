@@ -187,7 +187,7 @@ int ERKStepSetCFLFraction(void *arkode_mem, realtype cfl_frac)
 
 /*---------------------------------------------------------------
   ERKStepSetSafetyFactor: user should create/attach a
-  SUNControl object, and set this directly therein.
+  SUNHeuristics object, and set this directly therein.
   ---------------------------------------------------------------*/
 int ERKStepSetSafetyFactor(void *arkode_mem, realtype safety)
 {
@@ -199,8 +199,8 @@ int ERKStepSetSafetyFactor(void *arkode_mem, realtype safety)
     return(ARK_MEM_NULL);
   }
   ark_mem = (ARKodeMem) arkode_mem;
-  retval = SUNControlSetSafetyFactor(ark_mem->hcontroller, safety);
-  if (retval != SUNCONTROL_SUCCESS) { return(ARK_ILL_INPUT); }
+  retval = SUNHeuristicsSetSafetyFactor(ark_mem->hconstraints, safety);
+  if (retval != SUNHEURISTICS_SUCCESS) { return(ARK_ILL_INPUT); }
   return(ARK_SUCCESS);
 }
 
@@ -437,12 +437,12 @@ int ERKStepSetDefaults(void* arkode_mem)
   step_mem->p = 0;                             /* embedding order */
   step_mem->stages = 0;                        /* no stages */
   step_mem->B = NULL;                          /* no Butcher table */
-  (void) SUNHeuristicsSetMaxEFailGrowth(ark_mem->hconstraints, RCONST(0.3));
-  (void) SUNControlSetSafetyFactor(ark_mem->hcontroller, RCONST(0.99));
   (void) SUNControlSetErrorBias(ark_mem->hcontroller, RCONST(1.2));
-  (void) SUNHeuristicsSetMaxGrowth(ark_mem->hconstraints, RCONST(25.0));
   (void) SUNControlPI_SetParams(ark_mem->hcontroller, SUNFALSE,
                                 RCONST(0.8), RCONST(0.31));
+  (void) SUNHeuristicsSetSafetyFactor(ark_mem->hconstraints, RCONST(0.99));
+  (void) SUNHeuristicsSetMaxEFailGrowth(ark_mem->hconstraints, RCONST(0.3));
+  (void) SUNHeuristicsSetMaxGrowth(ark_mem->hconstraints, RCONST(25.0));
   return(ARK_SUCCESS);
 }
 

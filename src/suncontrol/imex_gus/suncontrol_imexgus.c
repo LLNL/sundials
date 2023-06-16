@@ -30,7 +30,6 @@
 #define SC_IMEXGUS_K1I(C)         ( SC_IMEXGUS_CONTENT(C)->k1i )
 #define SC_IMEXGUS_K2I(C)         ( SC_IMEXGUS_CONTENT(C)->k2i )
 #define SC_IMEXGUS_BIAS(C)        ( SC_IMEXGUS_CONTENT(C)->bias )
-#define SC_IMEXGUS_SAFETY(C)      ( SC_IMEXGUS_CONTENT(C)->safety )
 #define SC_IMEXGUS_EP(C)          ( SC_IMEXGUS_CONTENT(C)->ep )
 #define SC_IMEXGUS_HP(C)          ( SC_IMEXGUS_CONTENT(C)->hp )
 #define SC_IMEXGUS_P(C)           ( SC_IMEXGUS_CONTENT(C)->p )
@@ -46,7 +45,6 @@
 #define DEFAULT_K1I    RCONST(0.95)
 #define DEFAULT_K2I    RCONST(0.95)
 #define DEFAULT_BIAS   RCONST(1.5)
-#define DEFAULT_SAFETY RCONST(0.96)
 #define DEFAULT_PQ     SUNFALSE
 #define TINY           RCONST(1.0e-10)
 
@@ -77,7 +75,6 @@ SUNControl SUNControlImExGus(SUNContext sunctx)
   C->ops->write             = SUNControlWrite_ImExGus;
   C->ops->setmethodorder    = SUNControlSetMethodOrder_ImExGus;
   C->ops->setembeddingorder = SUNControlSetMethodOrder_ImExGus;
-  C->ops->setsafetyfactor   = SUNControlSetSafetyFactor_ImExGus;
   C->ops->seterrorbias      = SUNControlSetErrorBias_ImExGus;
   C->ops->update            = SUNControlUpdate_ImExGus;
   C->ops->space             = SUNControlSpace_ImExGus;
@@ -140,7 +137,7 @@ int SUNControlEstimateStep_ImExGus(SUNControl C, realtype h,
     const realtype e = SUNMAX(SC_IMEXGUS_BIAS(C) * dsm, TINY);
 
     /* compute estimated optimal time step size */
-    *hnew = SC_IMEXGUS_SAFETY(C) * h * SUNRpowerR(e,k);
+    *hnew = h * SUNRpowerR(e,k);
   }
   else
   {
@@ -154,9 +151,8 @@ int SUNControlEstimateStep_ImExGus(SUNControl C, realtype h,
     const realtype hrat = h / SC_IMEXGUS_HP(C);
 
     /* compute estimated optimal time step size */
-    *hnew = SC_IMEXGUS_SAFETY(C) * h
-      * SUNMIN(hrat * SUNRpowerR(e1,k1i) * SUNRpowerR(e2,k2i),
-               SUNRpowerR(e1,k1e) * SUNRpowerR(e2,k2e));
+    *hnew = h * SUNMIN(hrat * SUNRpowerR(e1,k1i) * SUNRpowerR(e2,k2i),
+                       SUNRpowerR(e1,k1e) * SUNRpowerR(e2,k2e));
   }
 
   /* return with success */
@@ -177,7 +173,6 @@ int SUNControlSetDefaults_ImExGus(SUNControl C)
   SC_IMEXGUS_K1I(C)    = DEFAULT_K1I;
   SC_IMEXGUS_K2I(C)    = DEFAULT_K2I;
   SC_IMEXGUS_BIAS(C)   = DEFAULT_BIAS;
-  SC_IMEXGUS_SAFETY(C) = DEFAULT_SAFETY;
   SC_IMEXGUS_PQ(C)     = DEFAULT_PQ;
   return SUNCONTROL_SUCCESS;
 }
@@ -191,25 +186,14 @@ int SUNControlWrite_ImExGus(SUNControl C, FILE *fptr)
   fprintf(fptr, "  k1i = %12Lg\n", SC_IMEXGUS_K1I(C));
   fprintf(fptr, "  k2i = %12Lg\n", SC_IMEXGUS_K2I(C));
   fprintf(fptr, "  bias = %12Lg\n", SC_IMEXGUS_BIAS(C));
-  fprintf(fptr, "  safety = %12Lg\n", SC_IMEXGUS_SAFETY(C));
   fprintf(fptr, "  ep = %12Lg\n", SC_IMEXGUS_EP(C));
   fprintf(fptr, "  hp = %12Lg\n", SC_IMEXGUS_HP(C));
-#elif defined(SUNDIALS_DOUBLE_PRECISION)
-  fprintf(fptr, "  k1e = %12g\n", SC_IMEXGUS_K1E(C));
-  fprintf(fptr, "  k2e = %12g\n", SC_IMEXGUS_K2E(C));
-  fprintf(fptr, "  k1i = %12g\n", SC_IMEXGUS_K1I(C));
-  fprintf(fptr, "  k2i = %12g\n", SC_IMEXGUS_K2I(C));
-  fprintf(fptr, "  bias = %12g\n", SC_IMEXGUS_BIAS(C));
-  fprintf(fptr, "  safety = %12g\n", SC_IMEXGUS_SAFETY(C));
-  fprintf(fptr, "  ep = %12g\n", SC_IMEXGUS_EP(C));
-  fprintf(fptr, "  hp = %12g\n", SC_IMEXGUS_HP(C));
 #else
   fprintf(fptr, "  k1e = %12g\n", SC_IMEXGUS_K1E(C));
   fprintf(fptr, "  k2e = %12g\n", SC_IMEXGUS_K2E(C));
   fprintf(fptr, "  k1i = %12g\n", SC_IMEXGUS_K1I(C));
   fprintf(fptr, "  k2i = %12g\n", SC_IMEXGUS_K2I(C));
   fprintf(fptr, "  bias = %12g\n", SC_IMEXGUS_BIAS(C));
-  fprintf(fptr, "  safety = %12g\n", SC_IMEXGUS_SAFETY(C));
   fprintf(fptr, "  ep = %12g\n", SC_IMEXGUS_EP(C));
   fprintf(fptr, "  hp = %12g\n", SC_IMEXGUS_HP(C));
 #endif
@@ -241,21 +225,6 @@ int SUNControlSetEmbeddingOrder_ImExGus(SUNControl C, int p)
 
   /* store if "pq" specifies to use method order */
   if (!SC_IMEXGUS_PQ(C)) { SC_IMEXGUS_P(C) = p; }
-  return SUNCONTROL_SUCCESS;
-}
-
-int SUNControlSetSafetyFactor_ImExGus(SUNControl C, realtype safety)
-{
-  /* check for legal input */
-  if (safety >= RCONST(1.0)) { return SUNCONTROL_ILL_INPUT; }
-
-  /* set positive-valued parameters, otherwise set default */
-  if (safety <= RCONST(0.0)) {
-    SC_IMEXGUS_SAFETY(C) = DEFAULT_SAFETY;
-  } else {
-    SC_IMEXGUS_SAFETY(C) = safety;
-  }
-
   return SUNCONTROL_SUCCESS;
 }
 

@@ -52,7 +52,6 @@ SUNControl SUNControlNewEmpty(SUNContext sunctx)
   ops->write                = NULL;
   ops->setmethodorder       = NULL;
   ops->setembeddingorder    = NULL;
-  ops->setsafetyfactor      = NULL;
   ops->seterrorbias         = NULL;
   ops->update               = NULL;
   ops->space                = NULL;
@@ -210,17 +209,6 @@ int SUNControlSetEmbeddingOrder(SUNControl C, int p)
   int ier = 0;
   if (C == NULL) { return ier; }
   if (C->ops->setembeddingorder) { ier = C->ops->setembeddingorder(C, p); }
-  return(ier);
-}
-
-int SUNControlSetSafetyFactor(SUNControl C, realtype safety)
-{
-  int ier = 0;
-  if (C == NULL) { return ier; }
-  if (C->ops->setsafetyfactor)
-  {
-    ier = C->ops->setsafetyfactor(C, safety);
-  }
   return(ier);
 }
 

@@ -56,6 +56,7 @@ SUNHeuristics SUNHeuristicsNewEmpty(SUNContext sunctx)
   ops->setminstep         = NULL;
   ops->setexpstabfn       = NULL;
   ops->setcflfraction     = NULL;
+  ops->setsafetyfactor    = NULL;
   ops->setmaxgrowth       = NULL;
   ops->setminreduction    = NULL;
   ops->setfixedstepbounds = NULL;
@@ -240,6 +241,16 @@ int SUNHeuristicsSetCFLFraction(SUNHeuristics H,
   if (H->ops->setcflfraction)
   {
     ier = H->ops->setcflfraction(H, cfl_frac);
+  }
+  return(ier);
+}
+
+int SUNHeuristicsSetSafetyFactor(SUNHeuristics H, realtype safety)
+{
+  int ier = 0;
+  if (H->ops->setsafetyfactor)
+  {
+    ier = H->ops->setsafetyfactor(H, safety);
   }
   return(ier);
 }

@@ -88,7 +88,6 @@ struct _generic_SUNControl_Ops
   int (*write)(SUNControl C, FILE* fptr);
   int (*setmethodorder)(SUNControl C, int q);
   int (*setembeddingorder)(SUNControl C, int p);
-  int (*setsafetyfactor)(SUNControl C, realtype safety);
   int (*seterrorbias)(SUNControl C, realtype bias);
   int (*update)(SUNControl C, realtype h, realtype dsm);
   int (*space)(SUNControl C, long int *lenrw, long int *leniw);
@@ -196,10 +195,6 @@ int SUNControlSetMethodOrder(SUNControl C, int q);
 /* Function to set the asymptotic order of accuracy for the embedding. */
 SUNDIALS_EXPORT
 int SUNControlSetEmbeddingOrder(SUNControl C, int p);
-
-/* Function to set a step size safety factor. */
-SUNDIALS_EXPORT
-int SUNControlSetSafetyFactor(SUNControl C, realtype safety);
 
 /* Function to set an error bias factor to use for scaling the local error
    'dsm' factors above. */

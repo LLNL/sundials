@@ -80,6 +80,7 @@ struct _generic_SUNHeuristics_Ops
   int (*setminstep)(SUNHeuristics H, realtype hmin);
   int (*setexpstabfn)(SUNHeuristics H, SUNExpStabFn EStab, void* estab_data);
   int (*setcflfraction)(SUNHeuristics H, realtype cfl_frac);
+  int (*setsafetyfactor)(SUNHeuristics H, realtype safety);
   int (*setmaxgrowth)(SUNHeuristics H, realtype mx_growth);
   int (*setminreduction)(SUNHeuristics H, realtype eta_min);
   int (*setfixedstepbounds)(SUNHeuristics H, realtype lb, realtype ub);
@@ -208,6 +209,11 @@ int SUNHeuristicsSetExpStabFn(SUNHeuristics H, SUNExpStabFn EStab,
    to the default value. */
 SUNDIALS_EXPORT
 int SUNHeuristicsSetCFLFraction(SUNHeuristics H, realtype cfl_frac);
+
+/* Function to set a step size safety factor that should be used
+   to constrain the error-controller-recommended step size. */
+SUNDIALS_EXPORT
+int SUNHeuristisSetSafetyFactor(SUNHeuristics C, realtype safety);
 
 /* Function to set maximum stepsize growth factor for general steps.
    Note: the first step uses a separate maximum growth factor.

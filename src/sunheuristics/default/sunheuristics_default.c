@@ -37,6 +37,7 @@
 #define SH_EXPSTAB(H)     ( SH_CONTENT(H)->expstab )
 #define SH_ESTAB_DATA(H)  ( SH_CONTENT(H)->estab_data )
 #define SH_CFL(H)         ( SH_CONTENT(H)->cfl )
+#define SH_SAFETY(H)      ( SH_CONTENT(H)->safety )
 #define SH_GROWTH(H)      ( SH_CONTENT(H)->growth )
 #define SH_LBOUND(H)      ( SH_CONTENT(H)->lbound )
 #define SH_UBOUND(H)      ( SH_CONTENT(H)->ubound )
@@ -48,6 +49,7 @@
  * ------------------ */
 
 #define DEFAULT_CFLFAC     RCONST(0.5)
+#define DEFAULT_SAFETY     RCONST(0.96)
 #define DEFAULT_GROWTH     RCONST(20.0)
 #define DEFAULT_HFIXED_LB  RCONST(1.0)
 #define DEFAULT_HFIXED_UB  RCONST(1.5)
@@ -92,6 +94,7 @@ SUNHeuristics SUNHeuristicsDefault(SUNContext sunctx)
   H->ops->setminstep         = SUNHeuristicsSetMinStep_Default;
   H->ops->setexpstabfn       = SUNHeuristicsSetExpStabFn_Default;
   H->ops->setcflfraction     = SUNHeuristicsSetCFLFraction_Default;
+  H->ops->setsafetyfactor    = SUNHeuristicsSetSafetyFactor_Default;
   H->ops->setmaxgrowth       = SUNHeuristicsSetMaxGrowth_Default;
   H->ops->setminreduction    = SUNHeuristicsSetMinReduction_Default;
   H->ops->setfixedstepbounds = SUNHeuristicsSetFixedStepBounds_Default;
@@ -149,6 +152,9 @@ int SUNHeuristicsConstrainStep_Default(SUNHeuristics H, realtype hcur,
     if (retval != 0) { return SUNHEURISTICS_USER_FCN_FAIL; }
     h_cfl *= int_dir * SH_CFL(H);
   }
+
+  /* Enforce safety factor on h_acc prediction */
+  h_acc *= SH_SAFETY(H);
 
   /* Enforce maximum bound on h_acc growth (etamax) */
   h_acc = int_dir * SUNMIN(SUNRabs(h_acc), SUNRabs(SH_ETAMAX(H)*hcur));
@@ -237,6 +243,7 @@ int SUNHeuristicsSetDefaults_Default(SUNHeuristics H)
   SH_SMALL_NEF(H) = DEFAULT_SMALL_NEF;
   SH_ETACF(H) = DEFAULT_ETACF;
   SH_CFL(H) = DEFAULT_CFLFAC;
+  SH_SAFETY(H) = DEFAULT_SAFETY;
   SH_GROWTH(H) = DEFAULT_GROWTH;
   SH_LBOUND(H) = DEFAULT_HFIXED_LB;
   SH_UBOUND(H) = DEFAULT_HFIXED_UB;
@@ -255,6 +262,7 @@ int SUNHeuristicsWrite_Default(SUNHeuristics H, FILE *fptr)
   fprintf(fptr, "  etamin = %12Lg\n", SH_ETAMIN(H));
   fprintf(fptr, "  etacf = %12Lg\n", SH_ETACF(H));
   fprintf(fptr, "  cfl = %12Lg\n", SH_CFL(H));
+  fprintf(fptr, "  safety = %12Lg\n", SH_SAFETY(H));
   fprintf(fptr, "  growth = %12Lg\n", SH_GROWTH(H));
   fprintf(fptr, "  lbound = %12Lg\n", SH_LBOUND(H));
   fprintf(fptr, "  ubound = %12Lg\n", SH_UBOUND(H));
@@ -267,6 +275,7 @@ int SUNHeuristicsWrite_Default(SUNHeuristics H, FILE *fptr)
   fprintf(fptr, "  etamin = %12g\n", SH_ETAMIN(H));
   fprintf(fptr, "  etacf = %12g\n", SH_ETACF(H));
   fprintf(fptr, "  cfl = %12g\n", SH_CFL(H));
+  fprintf(fptr, "  safety = %12g\n", SH_SAFETY(H));
   fprintf(fptr, "  growth = %12g\n", SH_GROWTH(H));
   fprintf(fptr, "  lbound = %12g\n", SH_LBOUND(H));
   fprintf(fptr, "  ubound = %12g\n", SH_UBOUND(H));
@@ -350,6 +359,21 @@ int SUNHeuristicsSetCFLFraction_Default(SUNHeuristics H, realtype cfl_frac)
   {
     SH_CFL(H) = cfl_frac;
   }
+  return SUNHEURISTICS_SUCCESS;
+}
+
+int SUNHeuristicsSetSafetyFactor_Default(SUNHeuristics H, realtype safety)
+{
+  /* check for legal input */
+  if (safety >= RCONST(1.0)) { return SUNHEURISTICS_ILL_INPUT; }
+
+  /* set positive-valued parameters, otherwise set default */
+  if (safety <= RCONST(0.0)) {
+    SH_SAFETY(H) = DEFAULT_SAFETY;
+  } else {
+    SH_SAFETY(H) = safety;
+  }
+
   return SUNHEURISTICS_SUCCESS;
 }
 
