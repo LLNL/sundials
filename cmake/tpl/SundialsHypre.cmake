@@ -107,18 +107,8 @@ else()
 endif()
 
 # Manually link to cuda_runtime (CUDA::cudart) when using CUDA backend
-# set(HYPRE_NEEDS_THREADS OFF)
 if(SUNDIALS_HYPRE_BACKENDS MATCHES "CUDA")
-  list(APPEND HYPRE_LIBRARIES CUDA::cudart CUDA::cublas)
-#   set(HYPRE_NEEDS_THREADS ON)
-#   if(NOT TARGET Threads::Threads)
-#     find_package(Threads)
-#   endif()
-#   if(NOT TARGET cuda_runtime)
-#     add_library(cuda_runtime INTERFACE IMPORTED)
-#     target_link_libraries(cuda_runtime INTERFACE CUDA::cudart)
-#   endif()
-endif()
+  list(APPEND HYPRE_LIBRARIES cuda)
 
 # -----------------------------------------------------------------------------
 # Section 4: Test the TPL
