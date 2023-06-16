@@ -18,6 +18,3 @@ for method in ${methods[@]};
 do 
   ./ark_kepler --stepper SPRK --step-mode fixed --method $method --tf 50 --check-order --nout 1
 done
-
-# plot
-# ./ark_kepler_plot_order_work.py

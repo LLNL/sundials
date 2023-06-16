@@ -38,7 +38,19 @@ set(ARKODE_examples
   "ark_heat1D_adapt\;\;develop"
   "ark_heat1D\;\;develop"
   "ark_hookes_law\;\;develop"
-  "ark_kepler\;\;develop"
+  "ark_kepler\;\;"
+  "ark_kepler\;--stepper ERK --step-mode adapt\;develop"
+  "ark_kepler\;--stepper ERK --step-mode fixed --find-roots\;develop"
+  "ark_kepler\;--stepper SPRK --step-mode fixed --find-roots\;develop"
+  "ark_kepler\;--stepper SPRK --step-mode fixed --method ARKODE_SYMPLECTIC_EULER_1_1 --tf 50 --check-order --nout 1\;develop"
+  "ark_kepler\;--stepper SPRK --step-mode fixed --method ARKODE_SYMPLECTIC_LEAPFROG_2_2 --tf 50 --check-order --nout 1\;develop"
+  "ark_kepler\;--stepper SPRK --step-mode fixed --method ARKODE_SYMPLECTIC_PSEUDO_LEAPFROG_2_2 --tf 50 --check-order --nout 1\;develop"
+  "ark_kepler\;--stepper SPRK --step-mode fixed --method ARKODE_SYMPLECTIC_MCLACHLAN_2_2 --tf 50 --check-order --nout 1\;develop"
+  "ark_kepler\;--stepper SPRK --step-mode fixed --method ARKODE_SYMPLECTIC_RUTH_3_3 --tf 50 --check-order --nout 1\;develop"
+  "ark_kepler\;--stepper SPRK --step-mode fixed --method ARKODE_SYMPLECTIC_MCLACHLAN_3_3 --tf 50 --check-order --nout 1\;develop"
+  "ark_kepler\;--stepper SPRK --step-mode fixed --method ARKODE_SYMPLECTIC_MCLACHLAN_4_4 --tf 50 --check-order --nout 1\;develop"
+  "ark_kepler\;--stepper SPRK --step-mode fixed --method ARKODE_SYMPLECTIC_MCLACHLAN_5_6 --tf 50 --check-order --nout 1\;develop"
+  "ark_kepler\;--stepper SPRK --step-mode fixed --method ARKODE_SYMPLECTIC_YOSHIDA_6_8 --tf 50 --check-order --nout 1\;develop"
   "ark_kpr_mri\;\;develop"
   "ark_kpr_mri\;0 0.002\;develop"
   "ark_kpr_mri\;1 0.002\;develop"
@@ -81,7 +93,6 @@ set(ARKODE_examples_SUPERLUMT
 # Auxiliary files to install
 set(ARKODE_extras
   ark_kepler_plot.py
-  ark_kepler_order.py
   plot_brusselator1D.py
   plot_brusselator1D_FEM.py
   plot_heat1D.py
