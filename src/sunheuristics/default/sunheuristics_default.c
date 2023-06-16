@@ -264,41 +264,40 @@ int SUNHeuristicsSetDefaults_Default(SUNHeuristics H)
 
 int SUNHeuristicsWrite_Default(SUNHeuristics H, FILE *fptr)
 {
-  fprintf(fptr, "SUNHeuristics_Default module:\n");
+  fprintf(fptr, "Default SUNHeuristics module:\n");
 #if defined(SUNDIALS_EXTENDED_PRECISION)
-  fprintf(fptr, "  hmin = %12Lg\n", SH_HMIN(H));
-  fprintf(fptr, "  hmax_inv = %12Lg\n", SH_HMAX_INV(H));
-  fprintf(fptr, "  etamax = %12Lg\n", SH_ETAMAX(H));
-  fprintf(fptr, "  etamx1 = %12Lg\n", SH_ETAMX1(H));
-  fprintf(fptr, "  etamxf = %12Lg\n", SH_ETAMXF(H));
-  fprintf(fptr, "  etamin = %12Lg\n", SH_ETAMIN(H));
-  fprintf(fptr, "  etacf = %12Lg\n", SH_ETACF(H));
-  fprintf(fptr, "  cfl = %12Lg\n", SH_CFL(H));
-  fprintf(fptr, "  safety = %12Lg\n", SH_SAFETY(H));
-  fprintf(fptr, "  growth = %12Lg\n", SH_GROWTH(H));
-  fprintf(fptr, "  lbound = %12Lg\n", SH_LBOUND(H));
-  fprintf(fptr, "  ubound = %12Lg\n", SH_UBOUND(H));
+  fprintf(fptr, "  Minimum step size = %32Lg\n", SH_HMIN(H));
+  fprintf(fptr, "  Maximum step size = %32Lg\n", RCONST(1.0)/SH_HMAX_INV(H));
+  fprintf(fptr, "  Maximum step increase factor (first step) = %32Lg\n", SH_ETAMX1(H));
+  fprintf(fptr, "  Maximum step increase factor (general steps) = %32Lg\n", SH_GROWTH(H));
+  fprintf(fptr, "  Current maximum step increase factor = %32Lg\n", SH_ETAMAX(H));
+  fprintf(fptr, "  Minimum step reduction factor = %32Lg\n", SH_ETAMIN(H));
+  fprintf(fptr, "  Step reduction factor on algebraic solver convergence failure = %32Lg\n", SH_ETACF(H));
+  fprintf(fptr, "  Step reduction factor on multiple error fails = %32Lg\n", SH_ETAMXF(H));
+  fprintf(fptr, "  Minimum number of error fails before above factor is used = %i\n", SH_SMALL_NEF(H));
+  fprintf(fptr, "  Explicit stability safety factor = %32Lg\n", SH_CFL(H));
+  fprintf(fptr, "  Step adaptivity safety factor = %32Lg\n", SH_SAFETY(H));
+  fprintf(fptr, "  Unchanged step growth interval = [%32Lg,  %32Lg]\n", SH_LBOUND(H), SH_UBOUND(H));
 #else
-  fprintf(fptr, "  hmin = %12g\n", SH_HMIN(H));
-  fprintf(fptr, "  hmax_inv = %12g\n", SH_HMAX_INV(H));
-  fprintf(fptr, "  etamax = %12g\n", SH_ETAMAX(H));
-  fprintf(fptr, "  etamx1 = %12g\n", SH_ETAMX1(H));
-  fprintf(fptr, "  etamxf = %12g\n", SH_ETAMXF(H));
-  fprintf(fptr, "  etamin = %12g\n", SH_ETAMIN(H));
-  fprintf(fptr, "  etacf = %12g\n", SH_ETACF(H));
-  fprintf(fptr, "  cfl = %12g\n", SH_CFL(H));
-  fprintf(fptr, "  safety = %12g\n", SH_SAFETY(H));
-  fprintf(fptr, "  growth = %12g\n", SH_GROWTH(H));
-  fprintf(fptr, "  lbound = %12g\n", SH_LBOUND(H));
-  fprintf(fptr, "  ubound = %12g\n", SH_UBOUND(H));
+  fprintf(fptr, "  Minimum step size = %16g\n", SH_HMIN(H));
+  fprintf(fptr, "  Maximum step size = %16g\n", RCONST(1.0)/SH_HMAX_INV(H));
+  fprintf(fptr, "  Maximum step increase factor (first step) = %16g\n", SH_ETAMX1(H));
+  fprintf(fptr, "  Maximum step increase factor (general steps) = %16g\n", SH_GROWTH(H));
+  fprintf(fptr, "  Current maximum step increase factor = %16g\n", SH_ETAMAX(H));
+  fprintf(fptr, "  Minimum step reduction factor = %16g\n", SH_ETAMIN(H));
+  fprintf(fptr, "  Step reduction factor on algebraic solver convergence failure = %16g\n", SH_ETACF(H));
+  fprintf(fptr, "  Step reduction factor on multiple error fails = %16g\n", SH_ETAMXF(H));
+  fprintf(fptr, "  Minimum number of error fails before above factor is used = %i\n", SH_SMALL_NEF(H));
+  fprintf(fptr, "  Explicit stability safety factor = %16g\n", SH_CFL(H));
+  fprintf(fptr, "  Step adaptivity safety factor = %16g\n", SH_SAFETY(H));
+  fprintf(fptr, "  Unchanged step growth interval = [%16g,  %16g]\n", SH_LBOUND(H), SH_UBOUND(H));
 #endif
-  fprintf(fptr, "  small_nef = %i\n", SH_SMALL_NEF(H));
   if (SH_EXPSTAB(H) != NULL) {
-    fprintf(fptr, "  user-provided explicit stability function\n");
-    fprintf(fptr, "  stability function data pointer = %p\n", SH_ESTAB_DATA(H));
+    fprintf(fptr, "  User-provided explicit stability function\n");
+    fprintf(fptr, "  Stability function data pointer = %p\n", SH_ESTAB_DATA(H));
   }
-  fprintf(fptr, "  nst_acc = %li\n", SH_NST_ACC(H));
-  fprintf(fptr, "  nst_exp = %li\n", SH_NST_EXP(H));
+  fprintf(fptr, "  Current number of accuracy-limited steps = %li\n", SH_NST_ACC(H));
+  fprintf(fptr, "  Current number of stability-limited steps = %li\n", SH_NST_EXP(H));
   return SUNHEURISTICS_SUCCESS;
 }
 

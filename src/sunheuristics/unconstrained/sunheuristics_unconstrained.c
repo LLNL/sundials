@@ -109,8 +109,8 @@ int SUNHeuristicsReset_Unconstrained(SUNHeuristics H)
 
 int SUNHeuristicsWrite_Unconstrained(SUNHeuristics H, FILE *fptr)
 {
-  fprintf(fptr, "SUNHeuristics_Unconstrained module:\n");
-  fprintf(fptr, "  nst_acc = %li\n", SH_NST_ACC(H));
+  fprintf(fptr, "Unconstrained SUNHeuristics module:\n");
+  fprintf(fptr, "  Current step count = %li\n", SH_NST_ACC(H));
   return SUNHEURISTICS_SUCCESS;
 }
 
