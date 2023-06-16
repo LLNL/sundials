@@ -97,7 +97,6 @@ set(NVECS_LIB sundials_nvecserial)
 # Set-up linker flags and link libraries
 set(SUNDIALS_LIBS ${ARKODE_LIB} ${NVECS_LIB} ${EXE_EXTRA_LINK_LIBS})
 
-
 # Add the build and install targets for each ARKODE example
 foreach(example_tuple ${ARKODE_examples})
 
@@ -132,7 +131,6 @@ foreach(example_tuple ${ARKODE_examples})
     EXAMPLE_TYPE ${example_type})
 
 endforeach(example_tuple ${ARKODE_examples})
-
 
 # Add the build and install targets for each KLU example (if needed)
 if(BUILD_SUNLINSOL_KLU)
@@ -200,83 +198,6 @@ if(BUILD_SUNLINSOL_SUPERLUMT)
     endforeach(example_tuple ${ARKODE_examples_SUPERLUMT})
 
 endif()
-
-
-# # create Makfile and CMakeLists.txt for examples
-# if(EXAMPLES_INSTALL)
-
-#   # Install the README file
-#   install(FILES README DESTINATION ${EXAMPLES_INSTALL_PATH}/arkode/C_serial)
-
-#   # Install the extra files
-#   foreach(extrafile ${ARKODE_extras})
-#     install(FILES ${extrafile} DESTINATION ${EXAMPLES_INSTALL_PATH}/arkode/C_serial)
-#   endforeach(extrafile ${ARKODE_extras})
-
-#   # Prepare substitution variables for Makefile and/or CMakeLists templates
-#   set(SOLVER "ARKODE")
-#   set(SOLVER_LIB "sundials_arkode")
-
-#   examples2string(ARKODE_examples EXAMPLES)
-
-#   if(BUILD_SUNLINSOL_KLU)
-#     examples2string(ARKODE_examples_KLU EXAMPLES_KLU)
-#   else()
-#     set(EXAMPLES_KLU "")
-#   endif()
-
-#   if(BUILD_SUNLINSOL_SUPERLUMT)
-#     examples2string(ARKODE_examples_SUPERLUMT EXAMPLES_SLUMT)
-#     if (SUNDIALS_SUPERLUMT_THREAD_TYPE STREQUAL "PTHREAD")
-#       set(THREAD_LIBRARY_SLUMT ${CMAKE_THREAD_LIBS_INIT})
-#     else()
-#       set(THREAD_LIBRARY_SLUMT "")
-#     endif()
-#   else()
-#     set(EXAMPLES_SLUMT "")
-#     set(THREAD_LIBRARY_SLUMT "")
-#   endif()
-
-#   # Regardless of the platform we're on, we will generate and install
-#   # CMakeLists.txt file for building the examples. This file  can then
-#   # be used as a template for the user's own programs.
-
-#   # generate CMakelists.txt in the binary directory
-#   configure_file(
-#     ${PROJECT_SOURCE_DIR}/examples/templates/cmakelists_serial_C_ex.in
-#     ${PROJECT_BINARY_DIR}/examples/arkode/C_serial/CMakeLists.txt
-#     @ONLY
-#     )
-
-#   # install CMakelists.txt
-#   install(
-#     FILES ${PROJECT_BINARY_DIR}/examples/arkode/C_serial/CMakeLists.txt
-#     DESTINATION ${EXAMPLES_INSTALL_PATH}/arkode/C_serial
-#     )
-
-#   # On UNIX-type platforms, we also  generate and install a makefile for
-#   # building the examples. This makefile can then be used as a template
-#   # for the user's own programs.
-
-#   if(UNIX)
-#     # generate Makefile and place it in the binary dir
-#     configure_file(
-#       ${PROJECT_SOURCE_DIR}/examples/templates/makefile_serial_C_ex.in
-#       ${PROJECT_BINARY_DIR}/examples/arkode/C_serial/Makefile_ex
-#       @ONLY
-#       )
-#     # install the configured Makefile_ex as Makefile
-#     install(
-#       FILES ${PROJECT_BINARY_DIR}/examples/arkode/C_serial/Makefile_ex
-#       DESTINATION ${EXAMPLES_INSTALL_PATH}/arkode/C_serial
-#       RENAME Makefile
-#       )
-#   endif()
-
-#   # add test_install target
-#   sundials_add_test_install(arkode C_serial EXECUTABLE ark_analytic)
-
-# endif()
 
 if(EXAMPLES_INSTALL)
 
