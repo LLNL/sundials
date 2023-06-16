@@ -106,9 +106,12 @@ else()
   message(STATUS "hypre using CUDA Unified Memory? - NO")
 endif()
 
-# Manually link to cuda_runtime (CUDA::cudart) when using CUDA backend
+# Manually link to cuda_runtime when using CUDA backend
 if(SUNDIALS_HYPRE_BACKENDS MATCHES "CUDA")
   list(APPEND HYPRE_LIBRARIES cuda)
+  find_package(CUDA REQUIRED)
+  include_directories(${CUDA_INCLUDE_DIRS})
+endif()
 
 # -----------------------------------------------------------------------------
 # Section 4: Test the TPL
