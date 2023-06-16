@@ -3001,6 +3001,9 @@ int arkCheckTemporalError(ARKodeMem ark_mem, int *nflagPtr, int *nefPtr, realtyp
     return(ARK_HEURISTICS_ERR);
   }
 
+  /* Store step size recommendation in ark_mem->eta */
+  ark_mem->eta = hnew / ark_mem->h;
+
   /* If est. local error norm dsm passes test, return ARK_SUCCESS */
   if (dsm <= ONE) return(ARK_SUCCESS);
 
