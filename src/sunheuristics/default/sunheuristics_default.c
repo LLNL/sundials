@@ -304,8 +304,6 @@ int SUNHeuristicsWrite_Default(SUNHeuristics H, FILE *fptr)
 
 int SUNHeuristicsSetMaxStep_Default(SUNHeuristics H, realtype hmax)
 {
-  realtype hmax_inv;
-
   /* Passing a value <= 0 sets hmax = infinity */
   if (hmax <= RCONST(0.0))
   {
