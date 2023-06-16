@@ -19,8 +19,8 @@
 
 # Examples using SUNDIALS serial nvector
 set(nvector_serial_examples
-  "test_nvector_serial\;1000 0\;"
-  "test_nvector_serial\;10000 0\;"
+  "test_nvector_serial.c\;1000 0\;"
+  "test_nvector_serial.c\;10000 0\;"
   )
 
 # If building F2003 tests
@@ -28,6 +28,12 @@ if (BUILD_FORTRAN_MODULE_INTERFACE)
   set(nvector_serial_fortran_examples
     "test_fnvector_serial_mod\;\;")
 endif()
+
+# Adding dependency files 
+set(nvector_serial_dependencies
+  test_nvector.c
+  test_nvector.h
+)
 
 # Add source directory to include directories
 include_directories(. ..)
@@ -54,7 +60,7 @@ foreach(example_tuple ${nvector_serial_examples})
   # example source files once for testing with different inputs
   if(NOT TARGET ${example})
     # example source files
-    add_executable(${example} ${example}.c)
+    add_executable(${example} ${example})
 
     # link vector test utilties
     target_link_libraries(${example} PRIVATE test_nvector_obj)
@@ -79,13 +85,13 @@ foreach(example_tuple ${nvector_serial_examples})
     EXAMPLE_TYPE ${example_type}
     NODIFF)
 
-  # install example source files
-  if(EXAMPLES_INSTALL)
-    install(FILES ${example}.c
-      ../test_nvector.c
-      ../test_nvector.h
-      DESTINATION ${EXAMPLES_INSTALL_PATH}/nvector/serial)
-  endif()
+  # # install example source files
+  # if(EXAMPLES_INSTALL)
+  #   install(FILES ${example}.c
+  #     ../test_nvector.c
+  #     ../test_nvector.h
+  #     DESTINATION ${EXAMPLES_INSTALL_PATH}/nvector/serial)
+  # endif()
 
 endforeach(example_tuple ${nvector_serial_examples})
 
@@ -130,55 +136,79 @@ foreach(example_tuple ${nvector_serial_fortran_examples})
 
 endforeach(example_tuple ${nvector_serial_fortran_examples})
 
+# if(EXAMPLES_INSTALL)
+
+#   # Install the README file
+#   install(FILES DESTINATION ${EXAMPLES_INSTALL_PATH}/nvector/serial)
+
+#   # Prepare substitution variables for Makefile and/or CMakeLists templates
+#   set(SOLVER_LIB "sundials_nvecserial")
+
+#   examples2string(nvector_serial_examples EXAMPLES)
+#   set(nvector_serial_dependencies test_nvector.c)
+#   examples2string(nvector_serial_dependencies EXAMPLES_DEPENDENCIES)
+
+#   # Regardless of the platform we're on, we will generate and install
+#   # CMakeLists.txt file for building the examples. This file  can then
+#   # be used as a template for the user's own programs.
+
+#   # generate CMakelists.txt in the binary directory
+#   configure_file(
+#     ${PROJECT_SOURCE_DIR}/examples/templates/cmakelists_serial_C_ex.in
+#     ${PROJECT_BINARY_DIR}/examples/nvector/serial/CMakeLists.txt
+#     @ONLY
+#     )
+
+#   # install CMakelists.txt
+#   install(
+#     FILES ${PROJECT_BINARY_DIR}/examples/nvector/serial/CMakeLists.txt
+#     DESTINATION ${EXAMPLES_INSTALL_PATH}/nvector/serial
+#     )
+
+#   # On UNIX-type platforms, we also  generate and install a makefile for
+#   # building the examples. This makefile can then be used as a template
+#   # for the user's own programs.
+#   set(EXAMPLES_DEPENDENCIES )
+#   set(nvector_serial_dependencies test_nvector)
+#   examples2string(nvector_serial_dependencies EXAMPLES_DEPENDENCIES)
+
+#   if(UNIX)
+#     # generate Makefile and place it in the binary dir
+#     configure_file(
+#       ${PROJECT_SOURCE_DIR}/examples/templates/makefile_serial_C_ex.in
+#       ${PROJECT_BINARY_DIR}/examples/nvector/serial/Makefile_ex
+#       @ONLY
+#       )
+#     # install the configured Makefile_ex as Makefile
+#     install(
+#       FILES ${PROJECT_BINARY_DIR}/examples/nvector/serial/Makefile_ex
+#       DESTINATION ${EXAMPLES_INSTALL_PATH}/nvector/serial
+#       RENAME Makefile
+#       )
+#   endif()
+
+# endif()
+
+# create Makfile and CMakeLists.txt for examples
 if(EXAMPLES_INSTALL)
 
-  # Install the README file
-  install(FILES DESTINATION ${EXAMPLES_INSTALL_PATH}/nvector/serial)
-
-  # Prepare substitution variables for Makefile and/or CMakeLists templates
-  set(SOLVER_LIB "sundials_nvecserial")
-
-  examples2string(nvector_serial_examples EXAMPLES)
-  set(nvector_serial_dependencies test_nvector.c)
-  examples2string(nvector_serial_dependencies EXAMPLES_DEPENDENCIES)
-
-  # Regardless of the platform we're on, we will generate and install
-  # CMakeLists.txt file for building the examples. This file  can then
-  # be used as a template for the user's own programs.
-
-  # generate CMakelists.txt in the binary directory
-  configure_file(
-    ${PROJECT_SOURCE_DIR}/examples/templates/cmakelists_serial_C_ex.in
-    ${PROJECT_BINARY_DIR}/examples/nvector/serial/CMakeLists.txt
-    @ONLY
-    )
-
-  # install CMakelists.txt
-  install(
-    FILES ${PROJECT_BINARY_DIR}/examples/nvector/serial/CMakeLists.txt
-    DESTINATION ${EXAMPLES_INSTALL_PATH}/nvector/serial
-    )
-
-  # On UNIX-type platforms, we also  generate and install a makefile for
-  # building the examples. This makefile can then be used as a template
-  # for the user's own programs.
-  set(EXAMPLES_DEPENDENCIES )
-  set(nvector_serial_dependencies test_nvector)
-  examples2string(nvector_serial_dependencies EXAMPLES_DEPENDENCIES)
-
-  if(UNIX)
-    # generate Makefile and place it in the binary dir
-    configure_file(
-      ${PROJECT_SOURCE_DIR}/examples/templates/makefile_serial_C_ex.in
-      ${PROJECT_BINARY_DIR}/examples/nvector/serial/Makefile_ex
-      @ONLY
-      )
-    # install the configured Makefile_ex as Makefile
-    install(
-      FILES ${PROJECT_BINARY_DIR}/examples/nvector/serial/Makefile_ex
-      DESTINATION ${EXAMPLES_INSTALL_PATH}/nvector/serial
-      RENAME Makefile
-      )
-  endif()
+  sundials_install_examples(nvector nvector_serial_examples
+    CMAKE_TEMPLATE
+      cmakelists_C_ex.in
+    MAKE_TEMPLATE
+      makefile_serial_C_ex.in
+    SUNDIALS_TARGETS
+      nvecserial
+    DESTINATION
+      nvector/serial
+    EXAMPLES_DEPENDENCIES
+      ${nvector_serial_dependencies}
+    EXTRA_FILES
+      #README
+      ${nvector_extras}
+      ${nvector_headers}
+    TEST_INSTALL
+      serial
+  )
 
 endif()
