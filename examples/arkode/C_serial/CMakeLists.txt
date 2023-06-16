@@ -199,6 +199,7 @@ if(BUILD_SUNLINSOL_SUPERLUMT)
 
 endif()
 
+# create Makfile and CMakeLists.txt for examples
 if(EXAMPLES_INSTALL)
 
   if(BUILD_SUNLINSOL_SUPERLUMT)

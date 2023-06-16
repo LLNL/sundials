@@ -57,6 +57,7 @@ foreach(example_tuple ${ARKODE_examples})
 
 endforeach(example_tuple ${ARKODE_examples})
 
+# create Makfile and CMakeLists.txt for examples
 if(EXAMPLES_INSTALL)
 
   sundials_install_examples(arkode ARKODE_examples
