@@ -219,7 +219,7 @@ int SUNControlSpace(SUNControl C, long int *lenrw, long int *leniw);
 #define SUNCONTROL_SUCCESS           0     /* function successfull        */
 #define SUNCONTROL_ILL_INPUT         -1001 /* illegal function input      */
 #define SUNCONTROL_MEM_FAIL          -1002 /* failed memory access/alloc  */
-#define SUNCONTROL_USER_FCN_FAIL     -1103 /* user-supplied fcn failure */
+#define SUNCONTROL_USER_FCN_FAIL     -1003 /* user-supplied fcn failure */
 #define SUNCONTROL_OPERATION_FAIL    -1004 /* catchall failure code       */
 
 #ifdef __cplusplus

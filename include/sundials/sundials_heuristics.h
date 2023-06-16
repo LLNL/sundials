@@ -60,11 +60,8 @@ typedef _SUNDIALS_STRUCT_ _generic_SUNHeuristics* SUNHeuristics;
 /* Structure containing function pointers to heuristics operations  */
 struct _generic_SUNHeuristics_Ops
 {
-  /* REQUIRED of all heuristics implementations. */
   SUNHeuristics_ID (*getid)(SUNHeuristics H);
   void (*destroy)(SUNHeuristics H);
-
-  /* OPTIONAL for all SUNHeuristics implementations. */
   int (*constrainstep)(SUNHeuristics H, realtype hcur,
                        realtype hnew, realtype *hconstr);
   int (*etestfail)(SUNHeuristics H, realtype hcur,
@@ -118,10 +115,6 @@ struct _generic_SUNHeuristics
 /* Function to create an empty SUNHeuristics data structure. */
 SUNDIALS_EXPORT
 SUNHeuristics SUNHeuristicsNewEmpty(SUNContext sunctx);
-
-/* Function to free an empty SUNHeuristics data structure. */
-SUNDIALS_EXPORT
-void SUNHeuristicsFreeEmpty(SUNHeuristics H);
 
 /* Function to report the ID of a SUNHeuristics object. */
 SUNDIALS_EXPORT
