@@ -19,14 +19,14 @@
 
 # Examples using SUNDIALS linear solvers
 set(IDAS_examples
-  "idasBruss_ASAp_kry_bbd_p\;\;1\;4\;exclude-single"
-  "idasBruss_FSA_kry_bbd_p\;\;1\;4\;exclude-single"
-  "idasBruss_kry_bbd_p\;\;1\;4\;exclude-single"
-  "idasFoodWeb_kry_bbd_p\;\;1\;4\;exclude-single"
-  "idasFoodWeb_kry_p\;\;1\;4\;exclude-single"
-  "idasHeat2D_FSA_kry_bbd_p\;-sensi stg t\;1\;4\;exclude-single"
-  "idasHeat2D_kry_bbd_p\;\;1\;4\;exclude-single"
-  "idasHeat2D_kry_p\;\;1\;4\;exclude-single"
+  "idasBruss_ASAp_kry_bbd_p.c\;\;1\;4\;exclude-single"
+  "idasBruss_FSA_kry_bbd_p.c\;\;1\;4\;exclude-single"
+  "idasBruss_kry_bbd_p.c\;\;1\;4\;exclude-single"
+  "idasFoodWeb_kry_bbd_p.c\;\;1\;4\;exclude-single"
+  "idasFoodWeb_kry_p.c\;\;1\;4\;exclude-single"
+  "idasHeat2D_FSA_kry_bbd_p.c\;-sensi stg t\;1\;4\;exclude-single"
+  "idasHeat2D_kry_bbd_p.c\;\;1\;4\;exclude-single"
+  "idasHeat2D_kry_p.c\;\;1\;4\;exclude-single"
   )
 
 if(MPI_C_COMPILER)
@@ -59,7 +59,7 @@ foreach(example_tuple ${IDAS_examples})
   # example source files once for testing with different inputs
   if(NOT TARGET ${example})
     # example source files
-    add_executable(${example} ${example}.c)
+    add_executable(${example} ${example})
 
     # folder to organize targets in an IDE
     set_target_properties(${example} PROPERTIES FOLDER "Examples")
@@ -90,64 +90,27 @@ foreach(example_tuple ${IDAS_examples})
   # find all .out files for this example
   file(GLOB example_out ${example}*.out)
 
-  # install example source and .out files
-  if(EXAMPLES_INSTALL)
-    install(FILES ${example}.c ${example_out}
-      DESTINATION ${EXAMPLES_INSTALL_PATH}/idas/parallel)
-  endif()
-
 endforeach(example_tuple ${IDAS_examples})
-
 
 # create Makfile and CMakeLists.txt for examples
 if(EXAMPLES_INSTALL)
 
-  # Install the README file
-  install(FILES README DESTINATION ${EXAMPLES_INSTALL_PATH}/idas/parallel)
-
-  # Prepare substitution variables for Makefile and/or CMakeLists templates
-  set(SOLVER "IDAS")
-  set(SOLVER_LIB "sundials_idas")
-
-  examples2string(IDAS_examples EXAMPLES)
-
-  # Regardless of the platform we're on, we will generate and install
-  # CMakeLists.txt file for building the examples. This file  can then
-  # be used as a template for the user's own programs.
-
-  # generate CMakelists.txt in the binary directory
-  configure_file(
-    ${PROJECT_SOURCE_DIR}/examples/templates/cmakelists_parallel_C_ex.in
-    ${PROJECT_BINARY_DIR}/examples/idas/parallel/CMakeLists.txt
-    @ONLY
-    )
-
-  # install CMakelists.txt
-  install(
-    FILES ${PROJECT_BINARY_DIR}/examples/idas/parallel/CMakeLists.txt
-    DESTINATION ${EXAMPLES_INSTALL_PATH}/idas/parallel
-    )
-
-  # On UNIX-type platforms, we also  generate and install a makefile for
-  # building the examples. This makefile can then be used as a template
-  # for the user's own programs.
-
-  if(UNIX)
-    # generate Makefile and place it in the binary dir
-    configure_file(
-      ${PROJECT_SOURCE_DIR}/examples/templates/makefile_parallel_C_ex.in
-      ${PROJECT_BINARY_DIR}/examples/idas/parallel/Makefile_ex
-      @ONLY
-      )
-    # install the configured Makefile_ex as Makefile
-    install(
-      FILES ${PROJECT_BINARY_DIR}/examples/idas/parallel/Makefile_ex
-      DESTINATION ${EXAMPLES_INSTALL_PATH}/idas/parallel
-      RENAME Makefile
-      )
-  endif()
-
-  # add test_install target
-  sundials_add_test_install(idas parallel)
+  sundials_install_examples(idas IDAS_examples
+    CMAKE_TEMPLATE
+      cmakelists_C_MPI_ex.in
+    MAKE_TEMPLATE
+      makefile_parallel_C_ex.in
+    SUNDIALS_TARGETS
+      nvecparallel
+      idas
+    DESTINATION
+      idas/parallel
+    EXTRA_FILES
+      README
+      ${IDAS_extras}
+      ${IDAS_headers}
+    TEST_INSTALL
+      parallel
+  )
 
 endif()
