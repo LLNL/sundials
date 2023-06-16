@@ -22,7 +22,7 @@
 #     [MAKE_TEMPLATE name [SOLVER_LIBRARY target]]
 #     [SUNDIALS_COMPONENTS components]
 #     [SUNDIALS_TARGETS targets]
-#     [DEPENDENCIES files]
+#     [EXAMPLES_DEPENDENCIES files]
 #     [TEST_INSTALL target]
 #     [EXTRA_FILES files]
 #     [EXTRA_INCLUDES includes]
