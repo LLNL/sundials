@@ -146,29 +146,35 @@ int main(int argc, char* argv[])
   }
   else
   {
-    /* If we are checking the order of the method, then we solve with different
-       dt. Otherwise we solve once with the dt provided as a program argument.
-     */
+    /* Compute the order of accuracy of the method by testing
+       it with different step sizes. */
     const int NUM_DT = 8;
     sunrealtype acc_orders[NUM_DT];
     sunrealtype con_orders[NUM_DT];
     sunrealtype acc_errors[NUM_DT];
     sunrealtype con_errors[NUM_DT];
-    int expected_order = 0;
+    int expected_order = ARKodeSPRKMem_LoadByName(args.method_name)->q;
     N_Vector ref_sol   = N_VClone(result.sol);
     N_Vector error     = N_VClone(result.sol);
-
     sunrealtype a11 = 0, a12 = 0, a21 = 0, a22 = 0;
     sunrealtype b1 = 0, b2 = 0, b1e = 0, b2e = 0;
     sunrealtype ord_max_acc = 0, ord_max_conv = 0, ord_avg = 0, ord_est = 0;
-    sunrealtype dts[NUM_DT] = {SUN_RCONST(1e-1), SUN_RCONST(5e-1), SUN_RCONST(1e-2), SUN_RCONST(5e-2),
-                               SUN_RCONST(1e-3), SUN_RCONST(5e-3), SUN_RCONST(1e-4), SUN_RCONST(5e-4)};
+    sunrealtype refine = SUN_RCONST(.5);
+    sunrealtype dt = (expected_order >= 3) ?  SUN_RCONST(1e-1) : SUN_RCONST(1e-3);
+    sunrealtype dts[NUM_DT] = {dt,
+                               dt * refine,
+                               dt * refine * refine,
+                               dt * pow(refine, 3),
+                               dt * pow(refine, 4),
+                               dt * pow(refine, 5),
+                               dt * pow(refine, 6),
+                               dt * pow(refine, 7)};
 
-    /* Create a reference solution using ARKStep with a tiny time step */
+    /* Create a reference solution using 8th order ERK with a small time step */
     const int old_step_mode     = args.step_mode;
     const int old_stepper       = args.stepper;
     const char* old_method_name = args.method_name;
-    args.dt                     = SUN_RCONST(1e-5);
+    args.dt                     = SUN_RCONST(1e-3);
     args.step_mode              = 0;
     args.stepper                = 1;
     args.method_name            = "ARKODE_ARK548L2SAb_ERK_8_4_5";
@@ -184,9 +190,6 @@ int main(int argc, char* argv[])
     args.step_mode   = old_step_mode;
     args.stepper     = old_stepper;
     args.method_name = old_method_name;
-
-    /* Determine expected method order */
-    expected_order = ARKodeSPRKMem_LoadByName(args.method_name)->q;
 
     /* Compute the error with various step sizes */
     for (int i = 0; i < NUM_DT; i++)
@@ -224,33 +227,37 @@ int main(int argc, char* argv[])
       }
     }
 
+    /* Compute the order of accuracy */
     retval = ComputeConvergence(NUM_DT, acc_orders, expected_order, a11, a12, a21,
                                 a22, b1, b2, &ord_avg, &ord_max_acc, &ord_est);
-    printf("Order of accuracy:     expected = %d, max = %.4Lf,  avg = %.4Lf,  "
+    printf("Order of accuracy wrt solution:    expected = %d, max = %.4Lf,  avg "
+           "= %.4Lf,  "
            "overall = %.4Lf\n",
            expected_order, (long double)ord_max_acc, (long double)ord_avg,
            (long double)ord_est);
 
+    /* Comptue the order of accuracy with respect to conserving */
     retval = ComputeConvergence(NUM_DT, con_orders, expected_order, a11, a12,
                                 a21, a22, b1e, b2e, &ord_avg, &ord_max_conv,
                                 &ord_est);
 
-    printf("Order of conservation: expected = %d, max = %.4Lf,  avg = %.4Lf,  "
-           "overall = %.4Lf\n",
+    printf("Order of accuracy wrt Hamiltonian: expected = %d, max = %.4Lf,  "
+           "avg = %.4Lf,  overall = %.4Lf\n",
            expected_order, (long double)ord_max_conv, (long double)ord_avg,
            (long double)ord_est);
 
     if (ord_max_acc < (expected_order - RCONST(0.5)))
     {
-      printf(">>> FAILURE: computed order of accuracy is below expected (%d)\n",
+      printf(">>> FAILURE: computed order of accuracy wrt solution is below "
+             "expected (%d)\n",
              expected_order);
       return 1;
     }
 
     if (ord_max_conv < (expected_order - RCONST(0.5)))
     {
-      printf(">>> FAILURE: computed order of conservation is below expected "
-             "(%d)\n",
+      printf(">>> FAILURE: computed order of accuracy wrt Hamiltonian is below "
+             "expected (%d)\n",
              expected_order);
       return 1;
     }
