@@ -118,7 +118,7 @@ int main(int argc, char* argv[])
 
   /* Allocate and fill udata structure */
   udata.A     = sqrt(alpha * alpha + beta * beta);
-  udata.phi   = atan(beta / omega / alpha);
+  udata.phi   = atan((beta / omega) / alpha);
   udata.omega = omega;
 
   /* Allocate our state vector */
@@ -240,7 +240,7 @@ int Force(sunrealtype t, N_Vector yvec, N_Vector ydotvec, void* user_data)
 int ParseArgs(int argc, char* argv[], ProgramArgs* args)
 {
   args->order            = 4;
-  args->num_output_times = 1000;
+  args->num_output_times = 8;
   args->use_compsums     = 0;
   args->dt               = SUN_RCONST(1e-2);
 
