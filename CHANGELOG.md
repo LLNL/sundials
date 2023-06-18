@@ -6,6 +6,14 @@ Added the second order IMEX method from Giraldo, Kelly, and Constantinescu 2013
 as the default second order IMEX method in ARKStep. The explicit table is given
 by `ARKODE_ARK2_ERK_3_1_2` and the implicit table by `ARKODE_ARK2_DIRK_3_1_2`.
 
+Added `SUNControl` and `SUNHeuristics` base classes.  Ported ARKODE's internal
+implementations of time step control and heuristic constraints into
+implementations of these classes, and updated ARKODE to use these objects
+instead of its own implementations.  Added `ARKStepSetController`,
+`ARKStepSetHeuristics`, `ERKStepSetController`, and `ERKStepSetHeuristics`
+routines so that users can modify controller/heuristic parameters, or even
+provide custom implementations.
+
 ## Changes to SUNDIALS in release 6.5.1
 
 Added the functions `ARKStepClearStopTime`, `ERKStepClearStopTime`,

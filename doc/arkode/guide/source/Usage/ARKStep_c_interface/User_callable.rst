@@ -907,6 +907,10 @@ Set max number of constraint failures             :c:func:`ARKStepSetMaxNumConst
       Also leaves alone any data structures or options related to
       root-finding (those can be reset using :c:func:`ARKStepRootInit()`).
 
+   .. deprecated:: 5.6.0
+
+      Use the SUNControl and SUNHeuristics infrastructures, along with other individual set routines,
+      instead (see :numref:`SUNControl.Description` and :numref:`SUNHeuristics.Description`).
 
 
 .. c:function:: int ARKStepSetInterpolantType(void* arkode_mem, int itype)
@@ -1221,6 +1225,10 @@ Set max number of constraint failures             :c:func:`ARKStepSetMaxNumConst
    **Notes:**
       Pass *hmax* :math:`\le 0.0` to set the default value of :math:`\infty`.
 
+   .. deprecated:: 5.6.0
+
+      Use the SUNHeuristics infrastructure instead (see :numref:`SUNHeuristics.Description`).
+
 
 
 .. c:function:: int ARKStepSetMinStep(void* arkode_mem, realtype hmin)
@@ -1238,6 +1246,10 @@ Set max number of constraint failures             :c:func:`ARKStepSetMaxNumConst
 
    **Notes:**
       Pass *hmin* :math:`\le 0.0` to set the default value of 0.
+
+   .. deprecated:: 5.6.0
+
+      Use the SUNHeuristics infrastructure instead (see :numref:`SUNHeuristics.Description`).
 
 
 
@@ -1676,6 +1688,8 @@ the code, is provided in :numref:`ARKODE.Mathematics.Adaptivity`.
 ========================================================   ======================================  ========
 Optional input                                             Function name                           Default
 ========================================================   ======================================  ========
+Provide a :c:type:`SUNControl` for ARKStep to use          :c:func:`ARKStepSetController()`        PID
+Provide a :c:type:`SUNHeuristics` for ARKStep to use       :c:func:`ARKStepSetHeuristics()`        Default
 Set a custom time step adaptivity function                 :c:func:`ARKStepSetAdaptivityFn()`      internal
 Choose an existing time step adaptivity method             :c:func:`ARKStepSetAdaptivityMethod()`  0
 Explicit stability safety factor                           :c:func:`ARKStepSetCFLFraction()`       0.5
@@ -1690,6 +1704,42 @@ Time step safety factor                                    :c:func:`ARKStepSetSa
 Error fails before MaxEFailGrowth takes effect             :c:func:`ARKStepSetSmallNumEFails()`    2
 Explicit stability function                                :c:func:`ARKStepSetStabilityFn()`       none
 ========================================================   ======================================  ========
+
+
+
+.. c:function:: int ARKStepSetController(void* arkode_mem, SUNControl C)
+
+   Sets a user-supplied time-step controller object.
+
+   **Arguments:**
+      * *arkode_mem* -- pointer to the ARKStep memory block.
+      * *C* -- user-supplied time adaptivity controller.  If ``NULL`` then the PID controller will be created (see :numref:`SUNControl.PID`).
+
+   **Return value:**
+      * *ARK_SUCCESS* if successful
+      * *ARK_MEM_NULL* if the ARKStep memory is ``NULL``
+      * *ARK_MEM_FAIL* if *C* was ``NULL`` and the PID controller could not be allocated.
+
+   **Notes:**
+      This function allows user customization over accuracy-based time step adaptivity.
+
+
+
+.. c:function:: int ARKStepSetHeuristics(void* arkode_mem, SUNHeuristics H)
+
+   Sets a user-supplied time-step heuristics constraint object.
+
+   **Arguments:**
+      * *arkode_mem* -- pointer to the ARKStep memory block.
+      * *H* -- user-supplied time step heuristic constraint object.  If ``NULL`` then the default heuristics object will be created (see :numref:`SUNHeuristics.Default`).
+
+   **Return value:**
+      * *ARK_SUCCESS* if successful
+      * *ARK_MEM_NULL* if the ARKStep memory is ``NULL``
+      * *ARK_MEM_FAIL* if *H* was ``NULL`` and the default heuristics object could not be allocated.
+
+   **Notes:**
+      This function allows user customization over time step heuristic constraints.
 
 
 
@@ -1712,6 +1762,11 @@ Explicit stability function                                :c:func:`ARKStepSetSt
       This function should focus on accuracy-based time step
       estimation; for stability based time steps the function
       :c:func:`ARKStepSetStabilityFn()` should be used instead.
+
+
+   .. deprecated:: 5.6.0
+
+      Use the SUNControl infrastructure instead (see :numref:`SUNControl.Description`).
 
 
 
@@ -1747,6 +1802,11 @@ Explicit stability function                                :c:func:`ARKStepSetSt
       a custom function through a call to :c:func:`ARKStepSetAdaptivityFn()`.
 
 
+   .. deprecated:: 5.6.0
+
+      Use the SUNControl infrastructure instead (see :numref:`SUNControl.Description`).
+
+
 
 .. c:function:: int ARKStepSetCFLFraction(void* arkode_mem, realtype cfl_frac)
 
@@ -1764,6 +1824,10 @@ Explicit stability function                                :c:func:`ARKStepSetSt
    **Notes:**
       Any non-positive parameter will imply a reset to the default
       value.
+
+   .. deprecated:: 5.6.0
+
+      Use the SUNHeuristics infrastructure instead (see :numref:`SUNHeuristics.Description`).
 
 
 
@@ -1786,6 +1850,11 @@ Explicit stability function                                :c:func:`ARKStepSetSt
       Any value below 1.0 will imply a reset to the default value.
 
 
+   .. deprecated:: 5.6.0
+
+      Use the SUNControl infrastructure instead (see :numref:`SUNControl.Description`).
+
+
 
 .. c:function:: int ARKStepSetFixedStepBounds(void* arkode_mem, realtype lb, realtype ub)
 
@@ -1803,6 +1872,10 @@ Explicit stability function                                :c:func:`ARKStepSetSt
 
    **Notes:**
       Any interval *not* containing 1.0 will imply a reset to the default values.
+
+   .. deprecated:: 5.6.0
+
+      Use the SUNHeuristics infrastructure instead (see :numref:`SUNHeuristics.Description`).
 
 
 
@@ -1824,6 +1897,10 @@ Explicit stability function                                :c:func:`ARKStepSetSt
 
    **Notes:**
       Any value outside the interval :math:`(0,1]` will imply a reset to the default value.
+
+   .. deprecated:: 5.6.0
+
+      Use the SUNHeuristics infrastructure instead (see :numref:`SUNHeuristics.Description`).
 
 
 
@@ -1864,6 +1941,10 @@ Explicit stability function                                :c:func:`ARKStepSetSt
    **Notes:**
       Any value :math:`\le 1.0` will imply a reset to the default value.
 
+   .. deprecated:: 5.6.0
+
+      Use the SUNHeuristics infrastructure instead (see :numref:`SUNHeuristics.Description`).
+
 
 
 .. c:function:: int ARKStepSetMaxGrowth(void* arkode_mem, realtype mx_growth)
@@ -1883,6 +1964,10 @@ Explicit stability function                                :c:func:`ARKStepSetSt
    **Notes:**
       Any value :math:`\le 1.0` will imply a reset to the default
       value.
+
+   .. deprecated:: 5.6.0
+
+      Use the SUNHeuristics infrastructure instead (see :numref:`SUNHeuristics.Description`).
 
 
 
@@ -1906,6 +1991,10 @@ Explicit stability function                                :c:func:`ARKStepSetSt
       Any value outside the interval :math:`(0,1)` will imply a reset to
       the default value.
 
+   .. deprecated:: 5.6.0
+
+      Use the SUNHeuristics infrastructure instead (see :numref:`SUNHeuristics.Description`).
+
 
 
 .. c:function:: int ARKStepSetSafetyFactor(void* arkode_mem, realtype safety)
@@ -1926,6 +2015,10 @@ Explicit stability function                                :c:func:`ARKStepSetSt
       Any value :math:`\le 0` will imply a reset to the default
       value.
 
+   .. deprecated:: 5.6.0
+
+      Use the SUNHeuristics infrastructure instead (see :numref:`SUNHeuristics.Description`).
+
 
 
 .. c:function:: int ARKStepSetSmallNumEFails(void* arkode_mem, int small_nef)
@@ -1945,6 +2038,10 @@ Explicit stability function                                :c:func:`ARKStepSetSt
 
    **Notes:**
       Any value :math:`\le 0` will imply a reset to the default value.
+
+   .. deprecated:: 5.6.0
+
+      Use the SUNHeuristics infrastructure instead (see :numref:`SUNHeuristics.Description`).
 
 
 
@@ -1971,6 +2068,10 @@ Explicit stability function                                :c:func:`ARKStepSetSt
       adaptivity may be sufficient for retaining stability, but this can
       be quite useful for problems where the explicit right-hand side
       function :math:`f^E(t,y)` contains stiff terms.
+
+   .. deprecated:: 5.6.0
+
+      Use the SUNHeuristics infrastructure instead (see :numref:`SUNHeuristics.Description`).
 
 
 

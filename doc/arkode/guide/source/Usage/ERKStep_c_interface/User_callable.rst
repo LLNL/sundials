@@ -840,6 +840,9 @@ Optional inputs for ERKStep
    **Notes:**
       Pass *hmax* :math:`\le 0.0` to set the default value of :math:`\infty`.
 
+   .. deprecated:: 5.6.0
+
+      Use the SUNHeuristics infrastructure instead (see :numref:`SUNHeuristics.Description`).
 
 
 .. c:function:: int ERKStepSetMinStep(void* arkode_mem, realtype hmin)
@@ -858,6 +861,9 @@ Optional inputs for ERKStep
    **Notes:**
       Pass *hmin* :math:`\le 0.0` to set the default value of 0.
 
+   .. deprecated:: 5.6.0
+
+      Use the SUNHeuristics infrastructure instead (see :numref:`SUNHeuristics.Description`).
 
 
 .. c:function:: int ERKStepSetStopTime(void* arkode_mem, realtype tstop)
@@ -1143,6 +1149,10 @@ the code, is provided in :numref:`ARKODE.Mathematics.Adaptivity`.
    +-----------------------------------------------------------+----------------------------------------+-----------+
    | Optional input                                            | Function name                          | Default   |
    +-----------------------------------------------------------+----------------------------------------+-----------+
+   | Provide a :c:type:`SUNControl` for ERKStep to use         | :c:func:`ERKStepSetController()`       | PI        |
+   +-----------------------------------------------------------+----------------------------------------+-----------+
+   | Provide a :c:type:`SUNHeuristics` for ERKStep to use      | :c:func:`ERKStepSetHeuristics()`       | Default   |
+   +-----------------------------------------------------------+----------------------------------------+-----------+
    | Set a custom time step adaptivity function                | :c:func:`ERKStepSetAdaptivityFn()`     | internal  |
    +-----------------------------------------------------------+----------------------------------------+-----------+
    | Choose an existing time step adaptivity method            | :c:func:`ERKStepSetAdaptivityMethod()` | 0         |
@@ -1170,6 +1180,42 @@ the code, is provided in :numref:`ARKODE.Mathematics.Adaptivity`.
 
 
 
+.. c:function:: int ERKStepSetController(void* arkode_mem, SUNControl C)
+
+   Sets a user-supplied time-step controller object.
+
+   **Arguments:**
+      * *arkode_mem* -- pointer to the ERKStep memory block.
+      * *C* -- user-supplied time adaptivity controller.  If ``NULL`` then the PID controller will be created (see :numref:`SUNControl.PID`).
+
+   **Return value:**
+      * *ARK_SUCCESS* if successful
+      * *ARK_MEM_NULL* if the ERKStep memory is ``NULL``
+      * *ARK_MEM_FAIL* if *C* was ``NULL`` and the PID controller could not be allocated.
+
+   **Notes:**
+      This function allows user customization over accuracy-based time step adaptivity.
+
+
+
+.. c:function:: int ERKStepSetHeuristics(void* arkode_mem, SUNHeuristics H)
+
+   Sets a user-supplied time-step heuristics constraint object.
+
+   **Arguments:**
+      * *arkode_mem* -- pointer to the ERKStep memory block.
+      * *H* -- user-supplied time step heuristic constraint object.  If ``NULL`` then the default heuristics object will be created (see :numref:`SUNHeuristics.Default`).
+
+   **Return value:**
+      * *ARK_SUCCESS* if successful
+      * *ARK_MEM_NULL* if the ERKStep memory is ``NULL``
+      * *ARK_MEM_FAIL* if *H* was ``NULL`` and the default heuristics object could not be allocated.
+
+   **Notes:**
+      This function allows user customization over time step heuristic constraints.
+
+
+
 .. c:function:: int ERKStepSetAdaptivityFn(void* arkode_mem, ARKAdaptFn hfun, void* h_data)
 
    Sets a user-supplied time-step adaptivity function.
@@ -1190,6 +1236,10 @@ the code, is provided in :numref:`ARKODE.Mathematics.Adaptivity`.
       estimation; for stability based time steps the function
       :c:func:`ERKStepSetStabilityFn()` should be used instead.
 
+
+   .. deprecated:: 5.6.0
+
+      Use the SUNControl infrastructure instead (see :numref:`SUNControl.Description`).
 
 
 .. c:function:: int ERKStepSetAdaptivityMethod(void* arkode_mem, int imethod, int idefault, int pq, realtype* adapt_params)
@@ -1224,6 +1274,10 @@ the code, is provided in :numref:`ARKODE.Mathematics.Adaptivity`.
       a custom function through a call to :c:func:`ERKStepSetAdaptivityFn()`.
 
 
+   .. deprecated:: 5.6.0
+
+      Use the SUNControl infrastructure instead (see :numref:`SUNControl.Description`).
+
 
 .. c:function:: int ERKStepSetCFLFraction(void* arkode_mem, realtype cfl_frac)
 
@@ -1242,6 +1296,9 @@ the code, is provided in :numref:`ARKODE.Mathematics.Adaptivity`.
       Any non-positive parameter will imply a reset to the default
       value.
 
+   .. deprecated:: 5.6.0
+
+      Use the SUNHeuristics infrastructure instead (see :numref:`SUNHeuristics.Description`).
 
 
 .. c:function:: int ERKStepSetErrorBias(void* arkode_mem, realtype bias)
@@ -1262,6 +1319,9 @@ the code, is provided in :numref:`ARKODE.Mathematics.Adaptivity`.
    **Notes:**
       Any value below 1.0 will imply a reset to the default value.
 
+   .. deprecated:: 5.6.0
+
+      Use the SUNControl infrastructure instead (see :numref:`SUNControl.Description`).
 
 
 .. c:function:: int ERKStepSetFixedStepBounds(void* arkode_mem, realtype lb, realtype ub)
@@ -1281,6 +1341,9 @@ the code, is provided in :numref:`ARKODE.Mathematics.Adaptivity`.
    **Notes:**
       Any interval *not* containing 1.0 will imply a reset to the default values.
 
+   .. deprecated:: 5.6.0
+
+      Use the SUNHeuristics infrastructure instead (see :numref:`SUNHeuristics.Description`).
 
 
 .. c:function:: int ERKStepSetMaxEFailGrowth(void* arkode_mem, realtype etamxf)
@@ -1300,6 +1363,9 @@ the code, is provided in :numref:`ARKODE.Mathematics.Adaptivity`.
    **Notes:**
       Any value outside the interval :math:`(0,1]` will imply a reset to the default value.
 
+   .. deprecated:: 5.6.0
+
+      Use the SUNHeuristics infrastructure instead (see :numref:`SUNHeuristics.Description`).
 
 
 .. c:function:: int ERKStepSetMaxFirstGrowth(void* arkode_mem, realtype etamx1)
@@ -1320,6 +1386,9 @@ the code, is provided in :numref:`ARKODE.Mathematics.Adaptivity`.
    **Notes:**
       Any value :math:`\le 1.0` will imply a reset to the default value.
 
+   .. deprecated:: 5.6.0
+
+      Use the SUNHeuristics infrastructure instead (see :numref:`SUNHeuristics.Description`).
 
 
 .. c:function:: int ERKStepSetMaxGrowth(void* arkode_mem, realtype mx_growth)
@@ -1340,6 +1409,9 @@ the code, is provided in :numref:`ARKODE.Mathematics.Adaptivity`.
       Any value :math:`\le 1.0` will imply a reset to the default
       value.
 
+   .. deprecated:: 5.6.0
+
+      Use the SUNHeuristics infrastructure instead (see :numref:`SUNHeuristics.Description`).
 
 
 .. c:function:: int ERKStepSetMinReduction(void* arkode_mem, realtype eta_min)
@@ -1362,6 +1434,9 @@ the code, is provided in :numref:`ARKODE.Mathematics.Adaptivity`.
       Any value :math:`\ge 1.0` or :math:`\le 0.0` will imply a reset to
       the default value.
 
+   .. deprecated:: 5.6.0
+
+      Use the SUNHeuristics infrastructure instead (see :numref:`SUNHeuristics.Description`).
 
 
 .. c:function:: int ERKStepSetSafetyFactor(void* arkode_mem, realtype safety)
@@ -1382,6 +1457,9 @@ the code, is provided in :numref:`ARKODE.Mathematics.Adaptivity`.
       Any non-positive parameter will imply a reset to the default
       value.
 
+   .. deprecated:: 5.6.0
+
+      Use the SUNHeuristics infrastructure instead (see :numref:`SUNHeuristics.Description`).
 
 
 .. c:function:: int ERKStepSetSmallNumEFails(void* arkode_mem, int small_nef)
@@ -1402,6 +1480,9 @@ the code, is provided in :numref:`ARKODE.Mathematics.Adaptivity`.
    **Notes:**
       Any non-positive parameter will imply a reset to the default value.
 
+   .. deprecated:: 5.6.0
+
+      Use the SUNHeuristics infrastructure instead (see :numref:`SUNHeuristics.Description`).
 
 
 .. c:function:: int ERKStepSetStabilityFn(void* arkode_mem, ARKExpStabFn EStab, void* estab_data)
@@ -1428,6 +1509,9 @@ the code, is provided in :numref:`ARKODE.Mathematics.Adaptivity`.
       where the right-hand side function :math:`f(t,y)` contains stiff
       terms.
 
+   .. deprecated:: 5.6.0
+
+      Use the SUNHeuristics infrastructure instead (see :numref:`SUNHeuristics.Description`).
 
 
 
