@@ -252,8 +252,8 @@ int SPRKStepSetUseCompensatedSums(void* arkode_mem, sunbooleantype onoff)
   int retval;
 
   /* access ARKodeSPRKStepMem structure */
-  retval = sprkStep_AccessStepMem(arkode_mem, "SPRKStepSetUseCompensatedSums", &ark_mem,
-                                  &step_mem);
+  retval = sprkStep_AccessStepMem(arkode_mem, "SPRKStepSetUseCompensatedSums",
+                                  &ark_mem, &step_mem);
   if (retval != ARK_SUCCESS) { return (retval); }
 
   if (onoff)
@@ -291,7 +291,7 @@ int SPRKStepSetMethod(void* arkode_mem, ARKodeSPRKStorage sprk_storage)
 
   if (step_mem->method)
   {
-    ARKodeSPRKMem_Free(step_mem->method);
+    ARKodeSPRKStorage__Free(step_mem->method);
     step_mem->method = NULL;
   }
 
@@ -299,7 +299,6 @@ int SPRKStepSetMethod(void* arkode_mem, ARKodeSPRKStorage sprk_storage)
 
   return (ARK_SUCCESS);
 }
-
 
 /*---------------------------------------------------------------
   SPRKStepSetMethodName:
@@ -319,11 +318,11 @@ int SPRKStepSetMethodName(void* arkode_mem, const char* method)
 
   if (step_mem->method)
   {
-    ARKodeSPRKMem_Free(step_mem->method);
+    ARKodeSPRKStorage__Free(step_mem->method);
     step_mem->method = NULL;
   }
 
-  step_mem->method = ARKodeSPRKMem_LoadByName(method);
+  step_mem->method = ARKodeSPRKStorage__LoadByName(method);
 
   return (ARK_SUCCESS);
 }
@@ -353,7 +352,7 @@ int SPRKStepSetOrder(void* arkode_mem, int ord)
 
   if (step_mem->method)
   {
-    ARKodeSPRKMem_Free(step_mem->method);
+    ARKodeSPRKStorage__Free(step_mem->method);
     step_mem->method = NULL;
   }
 

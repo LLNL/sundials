@@ -1717,7 +1717,7 @@ ARKODE_SYMPLECTIC_EULER_1_1
 .. index:: 1st-order symplectic Euler method
 
 Accessible via the constant ``ARKODE_SYMPLECTIC_EULER_1_1`` to
-:c:func:`ARKodeSPRKMem_Load()` or by calling :c:func:`ARKodeSymplecticEuler`.
+:c:func:`ARKodeSPRKStorage__Load()` or by calling :c:func:`ARKodeSymplecticEuler`.
 This is the classic Symplectic Euler method.
 
 
@@ -1727,7 +1727,7 @@ ARKODE_SYMPLECTIC_LEAPFROG_2_2
 .. index:: 2nd-order Leapfrog method
 
 Accessible via the constant ``ARKODE_SYMPLECTIC_LEAPFROG_2_2`` to
-:c:func:`ARKodeSPRKMem_Load()` or by calling :c:func:`ARKodeSymplecticLeapfrog2`.
+:c:func:`ARKodeSPRKStorage__Load()` or by calling :c:func:`ARKodeSymplecticLeapfrog2`.
 This is the classic Leapfrog/Verlet method. 
 
 
@@ -1737,7 +1737,7 @@ ARKODE_SYMPLECTIC_PSEUDO_LEAPFROG_2_2
 .. index:: 2nd-order Pseudo Leapfrog method
 
 Accessible via the constant ``ARKODE_SYMPLECTIC_PSEUDO_LEAPFROG_2_2`` to
-:c:func:`ARKodeSPRKMem_Load()` or by calling :c:func:`ARKodeSymplecticPseudoLeapfrog2`.
+:c:func:`ARKodeSPRKStorage__Load()` or by calling :c:func:`ARKodeSymplecticPseudoLeapfrog2`.
 This is the classic Pseudo Leapfrog/Verlet method. 
 
 
@@ -1747,7 +1747,7 @@ ARKODE_SYMPLECTIC_MCLACHLAN_2_2
 .. index:: 2nd-order McLachlan method
 
 Accessible via the constant ``ARKODE_SYMPLECTIC_MCLACHLAN_2_2`` to
-:c:func:`ARKodeSPRKMem_Load()` or by calling :c:func:`ARKodeSymplecticMcLachlan2`.
+:c:func:`ARKodeSPRKStorage__Load()` or by calling :c:func:`ARKodeSymplecticMcLachlan2`.
 This is the 2nd order method given by McLachlan in :cite:p:`Mclachlan:92`.
 
 
@@ -1757,7 +1757,7 @@ ARKODE_SYMPLECTIC_RUTH_3_3
 .. index:: 3rd-order Ruth method
 
 Accessible via the constant ``ARKODE_SYMPLECTIC_RUTH_3_3`` to
-:c:func:`ARKodeSPRKMem_Load()` or by calling :c:func:`ARKodeSymplecticRuth3`.
+:c:func:`ARKodeSPRKStorage__Load()` or by calling :c:func:`ARKodeSymplecticRuth3`.
 This is the 3rd order method given by Ruth in :cite:p:`Ruth:93`.
 
 
@@ -1767,7 +1767,7 @@ ARKODE_SYMPLECTIC_MCLACHLAN_3_3
 .. index:: 3rd-order McLachlan method
 
 Accessible via the constant ``ARKODE_SYMPLECTIC_MCLACHLAN_3_3`` to
-:c:func:`ARKodeSPRKMem_Load()` or by calling :c:func:`ARKodeSymplecticMcLachlan3`.
+:c:func:`ARKodeSPRKStorage__Load()` or by calling :c:func:`ARKodeSymplecticMcLachlan3`.
 This is the 3rd order method given by McLachlan in :cite:p:`Mclachlan:92`.
 
 
@@ -1777,7 +1777,7 @@ ARKODE_SYMPLECTIC_MCLACHLAN_4_4
 .. index:: 4th-order McLachlan method
 
 Accessible via the constant ``ARKODE_SYMPLECTIC_MCLACHLAN_4_4`` to
-:c:func:`ARKodeSPRKMem_Load()` or by calling :c:func:`ARKodeSymplecticMcLachlan4`.
+:c:func:`ARKodeSPRKStorage__Load()` or by calling :c:func:`ARKodeSymplecticMcLachlan4`.
 This is the 4th order method given by McLachlan in :cite:p:`Mclachlan:92`.
 
 
@@ -1787,7 +1787,7 @@ ARKODE_SYMPLECTIC_CANDY_ROZMUS_4_4
 .. index:: 4th-order Candy-Rozmus method
 
 Accessible via the constant ``ARKODE_SYMPLECTIC_CANDY_ROZMUS_4_4`` to
-:c:func:`ARKodeSPRKMem_Load()` or by calling :c:func:`ARKodeSymplecticCandyRozmus4`.
+:c:func:`ARKodeSPRKStorage__Load()` or by calling :c:func:`ARKodeSymplecticCandyRozmus4`.
 This is the 4th order method given by Candy and Rozmus in :cite:p:`CandyRozmus:91`.
 
 
@@ -1797,7 +1797,7 @@ ARKODE_SYMPLECTIC_MCLACHLAN_5_6
 .. index:: 5th-order McLachlan method
 
 Accessible via the constant ``ARKODE_SYMPLECTIC_MCLACHLAN_5_6`` to
-:c:func:`ARKodeSPRKMem_Load()` or by calling :c:func:`ARKodeSymplecticMcLachlan5`.
+:c:func:`ARKodeSPRKStorage__Load()` or by calling :c:func:`ARKodeSymplecticMcLachlan5`.
 This is the 5th order method given by McLachlan in :cite:p:`Mclachlan:92`.
 
 
@@ -1807,7 +1807,7 @@ ARKODE_SYMPLECTIC_YOSHIDA_6_8
 .. index:: 6th-order Yoshida method
 
 Accessible via the constant ``ARKODE_SYMPLECTIC_YOSHIDA_6_8`` to
-:c:func:`ARKodeSPRKMem_Load()` or by calling :c:func:`ARKodeSymplecticYoshida6`.
+:c:func:`ARKodeSPRKStorage__Load()` or by calling :c:func:`ARKodeSymplecticYoshida6`.
 This is the 6th order method given by Yoshida in :cite:p:`Yoshida:90`.
 
 
@@ -1817,7 +1817,7 @@ ARKODE_SYMPLECTIC_MCLACHLAN_8_16
 .. index:: 8th-order McLachlan method
 
 Accessible via the constant ``ARKODE_SYMPLECTIC_MCLACHLAN_8_16`` to
-:c:func:`ARKodeSPRKMem_Load()` or by calling :c:func:`ARKodeSymplecticMcLachlan8`.
+:c:func:`ARKodeSPRKStorage__Load()` or by calling :c:func:`ARKodeSymplecticMcLachlan8`.
 This is the 8th order method given by McLachlan in :cite:p:`Mclachlan:92`.
 
 
@@ -1827,5 +1827,5 @@ ARKODE_SYMPLECTIC_SOFRONIOU_10_36
 .. index:: 10th-order Sofroniou method
 
 Accessible via the constant ``ARKODE_SYMPLECTIC_SOFRONIOU_10_36`` to
-:c:func:`ARKodeSPRKMem_Load()` or by calling :c:func:`ARKodeSymplecticSofroniou10`.
+:c:func:`ARKodeSPRKStorage__Load()` or by calling :c:func:`ARKodeSymplecticSofroniou10`.
 This is the 10th order method given by Sofroniou in :cite:p:`Sofroniou:05`.

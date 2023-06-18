@@ -153,14 +153,14 @@ int main(int argc, char* argv[])
     sunrealtype con_orders[NUM_DT];
     sunrealtype acc_errors[NUM_DT];
     sunrealtype con_errors[NUM_DT];
-    int expected_order = ARKodeSPRKMem_LoadByName(args.method_name)->q;
+    int expected_order = ARKodeSPRKStorage__LoadByName(args.method_name)->q;
     N_Vector ref_sol   = N_VClone(result.sol);
     N_Vector error     = N_VClone(result.sol);
     sunrealtype a11 = 0, a12 = 0, a21 = 0, a22 = 0;
     sunrealtype b1 = 0, b2 = 0, b1e = 0, b2e = 0;
     sunrealtype ord_max_acc = 0, ord_max_conv = 0, ord_avg = 0, ord_est = 0;
     sunrealtype refine = SUN_RCONST(.5);
-    sunrealtype dt = (expected_order >= 3) ?  SUN_RCONST(1e-1) : SUN_RCONST(1e-3);
+    sunrealtype dt = (expected_order >= 3) ? SUN_RCONST(1e-1) : SUN_RCONST(1e-3);
     sunrealtype dts[NUM_DT] = {dt,
                                dt * refine,
                                dt * refine * refine,
@@ -230,7 +230,8 @@ int main(int argc, char* argv[])
     /* Compute the order of accuracy */
     retval = ComputeConvergence(NUM_DT, acc_orders, expected_order, a11, a12, a21,
                                 a22, b1, b2, &ord_avg, &ord_max_acc, &ord_est);
-    printf("Order of accuracy wrt solution:    expected = %d, max = %.4Lf,  avg "
+    printf("Order of accuracy wrt solution:    expected = %d, max = %.4Lf,  "
+           "avg "
            "= %.4Lf,  "
            "overall = %.4Lf\n",
            expected_order, (long double)ord_max_acc, (long double)ord_avg,
@@ -547,8 +548,6 @@ void InitialConditions(N_Vector y0vec, sunrealtype ecc)
   y0[2] = zero;
   y0[3] = SUNRsqrt((one + ecc) / (one - ecc));
 }
-
-void Solution(N_Vector yvec, UserData user_data) {}
 
 sunrealtype Hamiltonian(N_Vector yvec)
 {

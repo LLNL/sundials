@@ -24,7 +24,7 @@
 
 ARKodeSPRKStorage ARKodeSymplecticEuler()
 {
-  ARKodeSPRKStorage sprk_storage = ARKodeSPRKMem_Alloc(1);
+  ARKodeSPRKStorage sprk_storage = ARKodeSPRKStorage__Alloc(1);
   sprk_storage->q                = 1;
   sprk_storage->stages           = 1;
   sprk_storage->a[0]             = SUN_RCONST(1.0);
@@ -43,7 +43,7 @@ ARKodeSPRKStorage ARKodeSymplecticEuler()
 
 ARKodeSPRKStorage ARKodeSymplecticLeapfrog2()
 {
-  ARKodeSPRKStorage sprk_storage = ARKodeSPRKMem_Alloc(2);
+  ARKodeSPRKStorage sprk_storage = ARKodeSPRKStorage__Alloc(2);
   sprk_storage->q                = 2;
   sprk_storage->stages           = 2;
   sprk_storage->a[0]             = SUN_RCONST(0.5);
@@ -55,7 +55,7 @@ ARKodeSPRKStorage ARKodeSymplecticLeapfrog2()
 
 ARKodeSPRKStorage ARKodeSymplecticPseudoLeapfrog2()
 {
-  ARKodeSPRKStorage sprk_storage = ARKodeSPRKMem_Alloc(2);
+  ARKodeSPRKStorage sprk_storage = ARKodeSPRKStorage__Alloc(2);
   sprk_storage->q                = 2;
   sprk_storage->stages           = 2;
   sprk_storage->a[0]             = SUN_RCONST(1.0);
@@ -67,7 +67,7 @@ ARKodeSPRKStorage ARKodeSymplecticPseudoLeapfrog2()
 
 ARKodeSPRKStorage ARKodeSymplecticCandyRozmus4()
 {
-  ARKodeSPRKStorage sprk_storage = ARKodeSPRKMem_Alloc(4);
+  ARKodeSPRKStorage sprk_storage = ARKodeSPRKStorage__Alloc(4);
   sprk_storage->q                = 4;
   sprk_storage->stages           = 4;
   sprk_storage->a[0] =
@@ -105,7 +105,7 @@ ARKodeSPRKStorage ARKodeSymplecticCandyRozmus4()
 
 ARKodeSPRKStorage ARKodeSymplecticRuth3()
 {
-  ARKodeSPRKStorage sprk_storage = ARKodeSPRKMem_Alloc(3);
+  ARKodeSPRKStorage sprk_storage = ARKodeSPRKStorage__Alloc(3);
   sprk_storage->q                = 3;
   sprk_storage->stages           = 3;
   sprk_storage->a[0]             = SUN_RCONST(2.0) / SUN_RCONST(3.0);
@@ -126,7 +126,7 @@ ARKodeSPRKStorage ARKodeSymplecticRuth3()
 
 ARKodeSPRKStorage ARKodeSymplecticMcLachlan2()
 {
-  ARKodeSPRKStorage sprk_storage = ARKodeSPRKMem_Alloc(2);
+  ARKodeSPRKStorage sprk_storage = ARKodeSPRKStorage__Alloc(2);
   sprk_storage->q                = 2;
   sprk_storage->stages           = 2;
   sprk_storage->a[1]             = SUN_RCONST(1.0) -
@@ -140,7 +140,7 @@ ARKodeSPRKStorage ARKodeSymplecticMcLachlan2()
 
 ARKodeSPRKStorage ARKodeSymplecticMcLachlan3()
 {
-  ARKodeSPRKStorage sprk_storage = ARKodeSPRKMem_Alloc(3);
+  ARKodeSPRKStorage sprk_storage = ARKodeSPRKStorage__Alloc(3);
   sprk_storage->q                = 3;
   sprk_storage->stages           = 3;
   sprk_storage->a[0]             = SUN_RCONST(0.919661523017399857);
@@ -155,7 +155,7 @@ ARKodeSPRKStorage ARKodeSymplecticMcLachlan3()
 
 ARKodeSPRKStorage ARKodeSymplecticMcLachlan4()
 {
-  ARKodeSPRKStorage sprk_storage = ARKodeSPRKMem_Alloc(4);
+  ARKodeSPRKStorage sprk_storage = ARKodeSPRKStorage__Alloc(4);
   sprk_storage->q                = 4;
   sprk_storage->stages           = 4;
   sprk_storage->a[0]             = SUN_RCONST(0.515352837431122936);
@@ -171,7 +171,7 @@ ARKodeSPRKStorage ARKodeSymplecticMcLachlan4()
 
 ARKodeSPRKStorage ARKodeSymplecticMcLachlan5()
 {
-  ARKodeSPRKStorage sprk_storage = ARKodeSPRKMem_Alloc(6);
+  ARKodeSPRKStorage sprk_storage = ARKodeSPRKStorage__Alloc(6);
   sprk_storage->q                = 5;
   sprk_storage->stages           = 6;
   sprk_storage->a[0]             = SUN_RCONST(0.339839625839110000);
@@ -200,7 +200,7 @@ ARKodeSPRKStorage ARKodeSymplecticMcLachlan5()
 
 ARKodeSPRKStorage ARKodeSymplecticYoshida6()
 {
-  ARKodeSPRKStorage sprk_storage = ARKodeSPRKMem_Alloc(8);
+  ARKodeSPRKStorage sprk_storage = ARKodeSPRKStorage__Alloc(8);
   sprk_storage->q                = 6;
   sprk_storage->stages           = 8;
   sprk_storage->a[0]             = SUN_RCONST(0.78451361047755726382);
@@ -236,7 +236,7 @@ ARKodeSPRKStorage ARKodeSymplecticYoshida6()
 
 ARKodeSPRKStorage ARKodeSymplecticMcLachlan8()
 {
-  ARKodeSPRKStorage sprk_storage = ARKodeSPRKMem_Alloc(16);
+  ARKodeSPRKStorage sprk_storage = ARKodeSPRKStorage__Alloc(16);
   sprk_storage->q                = 8;
   sprk_storage->stages           = 16;
   sprk_storage->a[0]             = SUN_RCONST(0.74167036435061295344822780);
@@ -292,7 +292,7 @@ ARKodeSPRKStorage ARKodeSymplecticMcLachlan8()
 
 ARKodeSPRKStorage ARKodeSymplecticSofroniou10()
 {
-  ARKodeSPRKStorage sprk_storage = ARKodeSPRKMem_Alloc(36);
+  ARKodeSPRKStorage sprk_storage = ARKodeSPRKStorage__Alloc(36);
   sprk_storage->q                = 10;
   sprk_storage->stages           = 36;
 
@@ -389,7 +389,7 @@ ARKodeSPRKStorage ARKodeSymplecticSofroniou10()
   return sprk_storage;
 }
 
-ARKodeSPRKStorage ARKodeSPRKMem_Alloc(int stages)
+ARKodeSPRKStorage ARKodeSPRKStorage__Alloc(int stages)
 {
   ARKodeSPRKStorage sprk_storage;
 
@@ -403,7 +403,7 @@ ARKodeSPRKStorage ARKodeSPRKMem_Alloc(int stages)
   return sprk_storage;
 }
 
-ARKodeSPRKStorage ARKodeSPRKMem_Load(ARKODE_SPRKMethodID id)
+ARKodeSPRKStorage ARKodeSPRKStorage__Load(ARKODE_SPRKMethodID id)
 {
   switch (id)
   {
@@ -425,7 +425,7 @@ ARKodeSPRKStorage ARKodeSPRKMem_Load(ARKODE_SPRKMethodID id)
   }
 }
 
-ARKodeSPRKStorage ARKodeSPRKMem_LoadByName(const char* method)
+ARKodeSPRKStorage ARKodeSPRKStorage__LoadByName(const char* method)
 {
   if (!strcmp(method, "ARKODE_SYMPLECTIC_EULER_1_1"))
   {
@@ -478,12 +478,12 @@ ARKodeSPRKStorage ARKodeSPRKMem_LoadByName(const char* method)
   else { return NULL; }
 }
 
-ARKodeSPRKStorage ARKodeSPRKMem_Copy(ARKodeSPRKStorage that_sprk_mem)
+ARKodeSPRKStorage ARKodeSPRKStorage__Copy(ARKodeSPRKStorage that_sprk_mem)
 {
   int i;
   ARKodeSPRKStorage sprk_storage;
 
-  sprk_storage = ARKodeSPRKMem_Alloc(that_sprk_mem->stages);
+  sprk_storage = ARKodeSPRKStorage__Alloc(that_sprk_mem->stages);
 
   sprk_storage->q = that_sprk_mem->q;
 
@@ -504,7 +504,7 @@ void ARKodeSPRKStorage_space(ARKodeSPRKStorage sprk_storage, sunindextype* liw,
   return;
 }
 
-void ARKodeSPRKMem_Free(ARKodeSPRKStorage sprk_storage)
+void ARKodeSPRKStorage__Free(ARKodeSPRKStorage sprk_storage)
 {
   if (sprk_storage)
   {
@@ -515,7 +515,7 @@ void ARKodeSPRKMem_Free(ARKodeSPRKStorage sprk_storage)
   return;
 }
 
-int ARKodeSPRKMem_ToButcher(ARKodeSPRKStorage sprk_storage,
+int ARKodeSPRKStorage__ToButcher(ARKodeSPRKStorage sprk_storage,
                             ARKodeButcherTable* a_ptr, ARKodeButcherTable* b_ptr)
 {
   int i, j;

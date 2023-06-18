@@ -67,12 +67,14 @@ SUNDIALS_EXPORT int SPRKStepRootInit(void* arkode_mem, int nrtfn, ARKRootFn g);
 SUNDIALS_EXPORT int SPRKStepSetDefaults(void* arkode_mem);
 SUNDIALS_EXPORT int SPRKStepSetUseCompensatedSums(void* arkode_mem,
                                                   sunbooleantype onoff);
-SUNDIALS_EXPORT int SPRKStepSetMethod(void* arkode_mem, ARKodeSPRKStorage sprk_storage);
+SUNDIALS_EXPORT int SPRKStepSetMethod(void* arkode_mem,
+                                      ARKodeSPRKStorage sprk_storage);
 SUNDIALS_EXPORT int SPRKStepSetMethodName(void* arkode_mem, const char* method);
 SUNDIALS_EXPORT int SPRKStepSetOrder(void* arkode_mem, int maxord);
 SUNDIALS_EXPORT int SPRKStepSetInterpolantType(void* arkode_mem, int itype);
 SUNDIALS_EXPORT int SPRKStepSetInterpolantDegree(void* arkode_mem, int degree);
-/* TODO(CJB): should we remove this from the initial release and wait for the OO adaptivity? */
+/* TODO(CJB): should we remove this from the initial release and wait for the OO
+ * adaptivity? */
 SUNDIALS_EXPORT int SPRKStepSetAdaptivityFn(void* arkode_mem, ARKAdaptFn hfun,
                                             void* h_data);
 SUNDIALS_EXPORT int SPRKStepSetMaxNumSteps(void* arkode_mem, long int mxsteps);
