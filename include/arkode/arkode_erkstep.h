@@ -18,6 +18,8 @@
 #define _ERKSTEP_H
 
 #include <sundials/sundials_nvector.h>
+#include <sundials/sundials_control.h>
+#include <sundials/sundials_heuristics.h>
 #include <arkode/arkode.h>
 #include <arkode/arkode_butcher_erk.h>
 

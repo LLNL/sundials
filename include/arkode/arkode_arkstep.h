@@ -20,6 +20,8 @@
 #include <sundials/sundials_nvector.h>
 #include <sundials/sundials_linearsolver.h>
 #include <sundials/sundials_nonlinearsolver.h>
+#include <sundials/sundials_control.h>
+#include <sundials/sundials_heuristics.h>
 #include <arkode/arkode.h>
 #include <arkode/arkode_ls.h>
 #include <arkode/arkode_butcher_erk.h>
