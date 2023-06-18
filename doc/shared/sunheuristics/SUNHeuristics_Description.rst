@@ -16,7 +16,7 @@
 The SUNHeuristics API
 =====================
 
-The SUNHeuristics base class provides a common API for time step heuristic constraints that may be applied to step sizes by SUNDIALS integrators.  These heuristics can include a variety of things, including bounds on how much the time step size can grow or shrink in a single step, absolute maximum and minimum allowable step sizes, stability-limitations (e.g., CFL) on explicit steps, etc.  
+The SUNHeuristics base class provides a common API for time step heuristic constraints that may be applied to step sizes by SUNDIALS integrators.  These heuristics can include a variety of things, including bounds on how much the time step size can grow or shrink in a single step, absolute maximum and minimum allowable step sizes, stability-limitations (e.g., CFL) on explicit steps, etc.
 
 The base ``SUNHeuristics`` class is modeled after SUNDIALS' other object-oriented classes, in that this class contains a pointer to an implementation-specific *content*, an *ops* structure with generic heuristics operations, and a :c:type:`SUNContext` object.  Specifically, the type ``SUNHeuristics`` is defined as:
 
@@ -26,7 +26,7 @@ and the base class structure is defined as
 
 .. code-block:: C
 
-   struct _generic_SUNControl {
+   struct _generic_SUNHeuristics {
         void* content;
         _generic_SUNHeuristics_Ops* ops;
         SUNContext sunctx;
@@ -44,49 +44,32 @@ Here, ``_generic_SUNHeuristics_Ops`` is the pointer to a structure containing fu
                            realtype hnew, realtype *hconstr);
       int              (*etestfail)(SUNHeuristics H, realtype hcur,
                                     realtype hnew, int nef, realtype *hconstr);
-      int             (*convfail)(SUNHeuristics H, realtype hcur, realtype *hconstr);
-      int             (*boundreduction)(SUNHeuristics H, realtype hcur,
-                                        realtype hnew, realtype *hconstr);
-      int             (*boundfirststep)(SUNHeuristics H, realtype h0, 
-                                        realtype *h0constr);
-      int             (*reset)(SUNHeuristics H);
-      int             (*update)(SUNHeuristics H);
-      int             (*setdefaults)(SUNHeuristics H);
-      int             (*write)(SUNHeuristics H, FILE* fptr);
-      int             (*setmaxstep)(SUNHeuristics H, realtype hmax);
-      int             (*setminstep)(SUNHeuristics H, realtype hmin);
-      int             (*setexpstabfn)(SUNHeuristics H, SUNExpStabFn EStab, 
-                                      void* estab_data);
-      int             (*setcflfraction)(SUNHeuristics H, realtype cfl_frac);
-      int             (*setsafetyfactor)(SUNHeuristics H, realtype safety);
-      int             (*setmaxgrowth)(SUNHeuristics H, realtype mx_growth);
-      int             (*setminreduction)(SUNHeuristics H, realtype eta_min);
-      int             (*setfixedstepbounds)(SUNHeuristics H, realtype lb, realtype ub);
-      int             (*setmaxfirstgrowth)(SUNHeuristics H, realtype etamx1);
-      int             (*setmaxefailgrowth)(SUNHeuristics H, realtype etamxf);
-      int             (*setsmallnumefails)(SUNHeuristics H, int small_nef);
-      int             (*setmaxcfailgrowth)(SUNHeuristics H, realtype etacf);
-      int             (*getnumexpsteps)(SUNHeuristics H, long int* expsteps);
-      int             (*getnumaccsteps)(SUNHeuristics H, long int* accsteps);
-      int             (*space)(SUNHeuristics H, long int *lenrw, long int *leniw);
+      int              (*convfail)(SUNHeuristics H, realtype hcur, realtype *hconstr);
+      int              (*boundreduction)(SUNHeuristics H, realtype hcur,
+                                         realtype hnew, realtype *hconstr);
+      int              (*boundfirststep)(SUNHeuristics H, realtype h0,
+                                         realtype *h0constr);
+      int              (*reset)(SUNHeuristics H);
+      int              (*update)(SUNHeuristics H);
+      int              (*setdefaults)(SUNHeuristics H);
+      int              (*write)(SUNHeuristics H, FILE* fptr);
+      int              (*setmaxstep)(SUNHeuristics H, realtype hmax);
+      int              (*setminstep)(SUNHeuristics H, realtype hmin);
+      int              (*setexpstabfn)(SUNHeuristics H, SUNExpStabFn EStab,
+                                       void* estab_data);
+      int              (*setcflfraction)(SUNHeuristics H, realtype cfl_frac);
+      int              (*setsafetyfactor)(SUNHeuristics H, realtype safety);
+      int              (*setmaxgrowth)(SUNHeuristics H, realtype mx_growth);
+      int              (*setminreduction)(SUNHeuristics H, realtype eta_min);
+      int              (*setfixedstepbounds)(SUNHeuristics H, realtype lb, realtype ub);
+      int              (*setmaxfirstgrowth)(SUNHeuristics H, realtype etamx1);
+      int              (*setmaxefailgrowth)(SUNHeuristics H, realtype etamxf);
+      int              (*setsmallnumefails)(SUNHeuristics H, int small_nef);
+      int              (*setmaxcfailgrowth)(SUNHeuristics H, realtype etacf);
+      int              (*getnumexpsteps)(SUNHeuristics H, long int* expsteps);
+      int              (*getnumaccsteps)(SUNHeuristics H, long int* accsteps);
+      int              (*space)(SUNHeuristics H, long int *lenrw, long int *leniw);
     };
-
-
-SUNHeuristics IDs
------------------
-
-The time integrators in SUNDIALS leverage a myriad of heuristics to achieve accurate and efficient computations; however, most follow a rather standard pattern, or request no heuristic control whatsoever.    Therefore, each SUNHeuristics implementation should indicate its type, informing the integrators of whether they perform heuristic control or not:
-
-.. _SUNHeuristics.Description.heuristicsIDs:
-.. table:: Identifiers associated with SUNHeuristics implementations
-   :align: center
-
-   ========================  =====================================================
-   SUNHeuristics ID          Intended form of heuristic control
-   ========================  =====================================================
-   SUNDIALS_HEURISTICS_STD   Performs "standard" heuristic stepsize constraints.
-   SUNDIALS_HEURISTICS_NULL  Performs no heuristic constraints.
-   ========================  =====================================================
 
 
 SUNHeuristics Type Definitions
@@ -122,6 +105,7 @@ Additionally, if the heuristics object can be used to limit stepsizes based on e
 
 
 
+.. _SUNHeuristics.Description.operations:
 
 SUNHeuristics Operations
 ------------------------
@@ -164,7 +148,7 @@ Each of the following routines are *optional* for any specific SUNHeuristics imp
 
 .. c:function:: int SUNHeuristicsConstrainStep(SUNHeuristics H, realtype hcur, realtype hnew, realtype* hconstr)
 
-   Main constraint-application function.  This will attempt to change the step *hcur* to *hnew*, applying any heuristic bounds on the step size adjustments.  The return value is an integer flag denoting success/failure of the routine (see :numref:`SUNHeuristics.Description.errorCodes``).
+   Main constraint-application function.  This will attempt to change the step *hcur* to *hnew*, applying any heuristic bounds on the step size adjustments.  The return value is an integer flag denoting success/failure of the routine (see :numref:`SUNHeuristics.Description.errorCodes`).
 
    Arguments:
 
@@ -181,7 +165,7 @@ Each of the following routines are *optional* for any specific SUNHeuristics imp
 
 .. c:function:: int SUNHeuristicsETestFail(SUNHeuristics H, realtype hcur, realtype hnew, int nef, realtype* hconstr)
 
-   Function to apply constraints following a step with unacceptable temporal error.  The return value is an integer flag denoting success/failure of the routine (see :numref:`SUNHeuristics.Description.errorCodes``).
+   Function to apply constraints following a step with unacceptable temporal error.  The return value is an integer flag denoting success/failure of the routine (see :numref:`SUNHeuristics.Description.errorCodes`).
 
    Arguments:
 
@@ -216,7 +200,7 @@ Each of the following routines are *optional* for any specific SUNHeuristics imp
 
 .. c:function:: int SUNHeuristicsBoundFirstStep(SUNHeuristics H, realtype h0, realtype *h0constr)
 
-   This bounds the initial step by user-provided min/max step values.  The return value is an integer flag denoting success/failure of the routine (see :numref:`SUNHeuristics.Description.errorCodes``).
+   This bounds the initial step by user-provided min/max step values.  The return value is an integer flag denoting success/failure of the routine (see :numref:`SUNHeuristics.Description.errorCodes`).
 
    Arguments:
 
@@ -232,7 +216,7 @@ Each of the following routines are *optional* for any specific SUNHeuristics imp
 
 .. c:function:: int SUNHeuristicsConvFail(SUNHeuristics H, realtype hcur, realtype *hconstr)
 
-   Function to apply constraints following a step with an algebraic solver convergence failure.  The return value is an integer flag denoting success/failure of the routine (see :numref:`SUNHeuristics.Description.errorCodes``).
+   Function to apply constraints following a step with an algebraic solver convergence failure.  The return value is an integer flag denoting success/failure of the routine (see :numref:`SUNHeuristics.Description.errorCodes`).
 
    Arguments:
 
@@ -249,7 +233,7 @@ Each of the following routines are *optional* for any specific SUNHeuristics imp
 .. c:function::int SUNHeuristicsReset(SUNHeuristics H)
 
    Function to reset the heuristics to its initial state: zeros any internal counters, and resets
-   any stepsize growth factor bounds. The return value is an integer flag denoting success/failure of the routine (see :numref:`SUNHeuristics.Description.errorCodes``).
+   any stepsize growth factor bounds. The return value is an integer flag denoting success/failure of the routine (see :numref:`SUNHeuristics.Description.errorCodes`).
 
    Arguments:
 
@@ -263,7 +247,7 @@ Each of the following routines are *optional* for any specific SUNHeuristics imp
 
 .. c:function::int SUNHeuristicsUpdate(SUNHeuristics H)
 
-   Function to notify the heuristics object that a time step has succeeded, indicating e.g. that the stepsize growh factor should should be set to its "default" state.  The return value is an integer flag denoting success/failure of the routine (see :numref:`SUNHeuristics.Description.errorCodes``).
+   Function to notify the heuristics object that a time step has succeeded, indicating e.g. that the stepsize growh factor should should be set to its "default" state.  The return value is an integer flag denoting success/failure of the routine (see :numref:`SUNHeuristics.Description.errorCodes`).
 
    Arguments:
 
@@ -277,7 +261,7 @@ Each of the following routines are *optional* for any specific SUNHeuristics imp
 
 .. c:function::int SUNHeuristicsSetDefaults(SUNHeuristics H)
 
-   Function to set the heuristics parameters to their default values.  The return value is an integer flag denoting success/failure of the routine (see :numref:`SUNHeuristics.Description.errorCodes``).
+   Function to set the heuristics parameters to their default values.  The return value is an integer flag denoting success/failure of the routine (see :numref:`SUNHeuristics.Description.errorCodes`).
 
    Arguments:
 
@@ -291,13 +275,13 @@ Each of the following routines are *optional* for any specific SUNHeuristics imp
 
 .. c:function::int SUNHeuristicsWrite(SUNHeuristics H, FILE* fptr)
 
-   Writes all controller parameters to the indicated file pointer.  The return value is an integer flag denoting success/failure of the routine (see :numref:`SUNHeuristics.Description.errorCodes``).
+   Writes all controller parameters to the indicated file pointer.  The return value is an integer flag denoting success/failure of the routine (see :numref:`SUNHeuristics.Description.errorCodes`).
 
    Arguments:
 
    * *H* -- the heuristics object.
    * *fptr* -- the output stream to write the parameters.
-   
+
    Usage:
 
    .. code-block:: c
@@ -306,13 +290,13 @@ Each of the following routines are *optional* for any specific SUNHeuristics imp
 
 .. c:function::int SUNHeuristicsSetMaxStep(SUNHeuristics H, realtype hmax)
 
-   Function to inform the heuristics object about a maximum allowed absolute step size.  The return value is an integer flag denoting success/failure of the routine (see :numref:`SUNHeuristics.Description.errorCodes``).
+   Function to inform the heuristics object about a maximum allowed absolute step size.  The return value is an integer flag denoting success/failure of the routine (see :numref:`SUNHeuristics.Description.errorCodes`).
 
    Arguments:
 
    * *H* -- the heuristics object.
    * *hmax* -- maximum absolute step size allowed (:math:`\text{hmax} \le 0` implies :math:`\text{hmax}=\infty`).
-   
+
    Usage:
 
    .. code-block:: c
@@ -321,13 +305,13 @@ Each of the following routines are *optional* for any specific SUNHeuristics imp
 
 .. c:function::int SUNHeuristicsSetMinStep(SUNHeuristics H, realtype hmin)
 
-   Function to inform the heuristics object about a minimum allowed absolute step size.  The return value is an integer flag denoting success/failure of the routine (see :numref:`SUNHeuristics.Description.errorCodes``).
+   Function to inform the heuristics object about a minimum allowed absolute step size.  The return value is an integer flag denoting success/failure of the routine (see :numref:`SUNHeuristics.Description.errorCodes`).
 
    Arguments:
 
    * *H* -- the heuristics object.
    * *hmin* -- minimum absolute step size allowed (:math:`\text{hmin} \le 0` implies no minimum).
-   
+
    Usage:
 
    .. code-block:: c
@@ -336,14 +320,14 @@ Each of the following routines are *optional* for any specific SUNHeuristics imp
 
 .. c:function::int SUNHeuristicsSetExpStabFn(SUNHeuristics H, SUNExpStabFn EStab, void* estab_data)
 
-   Function to provide a user-supplied function for the maximum stable step size (EStab == NULL disables).  The return value is an integer flag denoting success/failure of the routine (see :numref:`SUNHeuristics.Description.errorCodes``).
+   Function to provide a user-supplied function for the maximum stable step size.  The return value is an integer flag denoting success/failure of the routine (see :numref:`SUNHeuristics.Description.errorCodes`).
 
    Arguments:
 
    * *H* -- the heuristics object.
    * *EStab* -- user-supplied function specifying the maximum stable step size (``EStab == NULL`` disables).
    * *estab_data* -- user-supplied data pointer that should be provided on all calls to *EStab*.
-   
+
    Usage:
 
    .. code-block:: c
@@ -352,13 +336,13 @@ Each of the following routines are *optional* for any specific SUNHeuristics imp
 
 .. c:function::int SUNHeuristicsSetCFLFraction(SUNHeuristics H, realtype cfl_frac)
 
-   Function to set a CFL safety factor that should be applied to the outputs of *EStab*, above.  The return value is an integer flag denoting success/failure of the routine (see :numref:`SUNHeuristics.Description.errorCodes``).
+   Function to set a CFL safety factor that should be applied to the outputs of *EStab*, above.  The return value is an integer flag denoting success/failure of the routine (see :numref:`SUNHeuristics.Description.errorCodes`).
 
    Arguments:
 
    * *H* -- the heuristics object.
    * *cfl_frac* -- safety factor.  Allowable values must be within the open interval (0,1), :math:`\text{cfl\_frac} \le 0` implies a reset to the default value.
-   
+
    Usage:
 
    .. code-block:: c
@@ -367,13 +351,13 @@ Each of the following routines are *optional* for any specific SUNHeuristics imp
 
 .. c:function::int SUNHeuristicsSetSafetyFactor(SUNHeuristics C, realtype safety)
 
-   Function to set a step size safety factor that should be used to constrain an error-controller-recommended step size.  The return value is an integer flag denoting success/failure of the routine (see :numref:`SUNHeuristics.Description.errorCodes``).
+   Function to set a step size safety factor that should be used to constrain an error-controller-recommended step size.  The return value is an integer flag denoting success/failure of the routine (see :numref:`SUNHeuristics.Description.errorCodes`).
 
    Arguments:
 
    * *H* -- the heuristics object.
    * *safety* -- safety factor.  Allowable values must be within the open interval (0,1), :math:`\text{safety} \le 0` implies a reset to the default value.
-   
+
    Usage:
 
    .. code-block:: c
@@ -382,13 +366,13 @@ Each of the following routines are *optional* for any specific SUNHeuristics imp
 
 .. c:function::int SUNHeuristicsSetMaxGrowth(SUNHeuristics H, realtype mx_growth)
 
-   Function to set maximum stepsize growth factor for general steps. *Note: the first step uses a separate maximum growth factor.*  The return value is an integer flag denoting success/failure of the routine (see :numref:`SUNHeuristics.Description.errorCodes``).
+   Function to set maximum stepsize growth factor for general steps. *Note: the first step uses a separate maximum growth factor.*  The return value is an integer flag denoting success/failure of the routine (see :numref:`SUNHeuristics.Description.errorCodes`).
 
    Arguments:
 
    * *H* -- the heuristics object.
    * *mx_growth* -- maximum step size growth factor.  Allowable values must be greater than 1; illegal values imply a reset to the default.
-   
+
    Usage:
 
    .. code-block:: c
@@ -397,13 +381,13 @@ Each of the following routines are *optional* for any specific SUNHeuristics imp
 
 .. c:function::int SUNHeuristicsSetMaxFirstGrowth(SUNHeuristics H, realtype etamx1)
 
-   Function to set maximum stepsize growth factor for the first internal time step.  The return value is an integer flag denoting success/failure of the routine (see :numref:`SUNHeuristics.Description.errorCodes``).
+   Function to set maximum stepsize growth factor for the first internal time step.  The return value is an integer flag denoting success/failure of the routine (see :numref:`SUNHeuristics.Description.errorCodes`).
 
    Arguments:
 
    * *H* -- the heuristics object.
    * *etamx1* -- maximum first step size growth factor.  Allowable values must be greater than 1; illegal values imply a reset to the default.
-   
+
    Usage:
 
    .. code-block:: c
@@ -413,14 +397,14 @@ Each of the following routines are *optional* for any specific SUNHeuristics imp
 .. c:function::int SUNHeuristicsSetFixedStepBounds(SUNHeuristics H, realtype lb, realtype ub)
 
    Function to specify the step size growth interval within which the step size will remain unchanged.  Allowable values must enclose the value 1.0.  Any illegal interval implies a reset to
-   the default.  The return value is an integer flag denoting success/failure of the routine (see :numref:`SUNHeuristics.Description.errorCodes``).
+   the default.  The return value is an integer flag denoting success/failure of the routine (see :numref:`SUNHeuristics.Description.errorCodes`).
 
    Arguments:
 
    * *H* -- the heuristics object.
    * *lb* -- interval lower bound.
    * *ub* -- interval upper bound.
-   
+
    Usage:
 
    .. code-block:: c
@@ -429,13 +413,13 @@ Each of the following routines are *optional* for any specific SUNHeuristics imp
 
 .. c:function::int SUNHeuristicsSetMinReduction(SUNHeuristics H, realtype eta_min)
 
-   Function to set a lower bound for the stepsize adjustment factor following a temporal error failure.  The return value is an integer flag denoting success/failure of the routine (see :numref:`SUNHeuristics.Description.errorCodes``).
+   Function to set a lower bound for the stepsize adjustment factor following a temporal error failure.  The return value is an integer flag denoting success/failure of the routine (see :numref:`SUNHeuristics.Description.errorCodes`).
 
    Arguments:
 
    * *H* -- the heuristics object.
    * *eta_min* -- minimum step size reduction factor.  Allowable values must be in the open interval (0,1); illegal values imply a reset to the default.
-   
+
    Usage:
 
    .. code-block:: c
@@ -444,13 +428,13 @@ Each of the following routines are *optional* for any specific SUNHeuristics imp
 
 .. c:function::int SUNHeuristicsSetMaxEFailGrowth(SUNHeuristics H, realtype etamxf)
 
-   Function to set an upper bound for the stepsize adjustment factor following a temporal error failure (once at least *small_nef* failures have occurred, see :c:func:`SUNHeuristicsSetSmallNumEFails`). The return value is an integer flag denoting success/failure of the routine (see :numref:`SUNHeuristics.Description.errorCodes``).
+   Function to set an upper bound for the stepsize adjustment factor following a temporal error failure (once at least *small_nef* failures have occurred, see :c:func:`SUNHeuristicsSetSmallNumEFails`). The return value is an integer flag denoting success/failure of the routine (see :numref:`SUNHeuristics.Description.errorCodes`).
 
    Arguments:
 
    * *H* -- the heuristics object.
    * *etamxf* -- temporal error failure step size reduction factor.  Allowable values must be in the interval (0,1]; illegal values imply a reset to the default.
-   
+
    Usage:
 
    .. code-block:: c
@@ -459,13 +443,13 @@ Each of the following routines are *optional* for any specific SUNHeuristics imp
 
 .. c:function::int SUNHeuristicsSetSmallNumEFails(SUNHeuristics H, int small_nef)
 
-   Function to specify the step adaptivity constant *small_nef* (see :c:func:`SUNHeuristicsSetMaxEFailGrowth`). The return value is an integer flag denoting success/failure of the routine (see :numref:`SUNHeuristics.Description.errorCodes``).
+   Function to specify the step adaptivity constant *small_nef* (see :c:func:`SUNHeuristicsSetMaxEFailGrowth`). The return value is an integer flag denoting success/failure of the routine (see :numref:`SUNHeuristics.Description.errorCodes`).
 
    Arguments:
 
    * *H* -- the heuristics object.
    * *small_nef* -- minimum number of error test failures before *etamxf* takes effect.  Allowable values are greater than 0.  Illegal values imply a reset to the default.
-   
+
    Usage:
 
    .. code-block:: c
@@ -474,13 +458,13 @@ Each of the following routines are *optional* for any specific SUNHeuristics imp
 
 .. c:function::int SUNHeuristicsSetMaxCFailGrowth(SUNHeuristics H, realtype etacf)
 
-   Function to specify an upper bound for the stepsize adjustment factor following an algebraic solver convergence failure.  The return value is an integer flag denoting success/failure of the routine (see :numref:`SUNHeuristics.Description.errorCodes``).
+   Function to specify an upper bound for the stepsize adjustment factor following an algebraic solver convergence failure.  The return value is an integer flag denoting success/failure of the routine (see :numref:`SUNHeuristics.Description.errorCodes`).
 
    Arguments:
 
    * *H* -- the heuristics object.
    * *etacf* -- convergence failure step adjustment factor. Allowable values must be in the interval (0,1]; illegal values imply a reset to the default.
-   
+
    Usage:
 
    .. code-block:: c
@@ -489,13 +473,13 @@ Each of the following routines are *optional* for any specific SUNHeuristics imp
 
 .. c:function::int SUNHeuristicsGetNumExpSteps(SUNHeuristics H, long int* expsteps)
 
-   Function to return the current number of stability-limited steps.  The return value is an integer flag denoting success/failure of the routine (see :numref:`SUNHeuristics.Description.errorCodes``).
+   Function to return the current number of stability-limited steps.  The return value is an integer flag denoting success/failure of the routine (see :numref:`SUNHeuristics.Description.errorCodes`).
 
    Arguments:
 
    * *H* -- the heuristics object.
    * *expsteps* (output) -- pointer to hold the stability-limited step counter.
-   
+
    Usage:
 
    .. code-block:: c
@@ -504,13 +488,13 @@ Each of the following routines are *optional* for any specific SUNHeuristics imp
 
 .. c:function::int SUNHeuristicsGetNumAccSteps(SUNHeuristics H, long int* accsteps)
 
-   Function to return the current number of accuracy-limited steps.  The return value is an integer flag denoting success/failure of the routine (see :numref:`SUNHeuristics.Description.errorCodes``).
+   Function to return the current number of accuracy-limited steps.  The return value is an integer flag denoting success/failure of the routine (see :numref:`SUNHeuristics.Description.errorCodes`).
 
    Arguments:
 
    * *H* -- the heuristics object.
    * *expsteps* (output) -- pointer to hold the accuracy-limited step counter.
-   
+
    Usage:
 
    .. code-block:: c
@@ -519,14 +503,14 @@ Each of the following routines are *optional* for any specific SUNHeuristics imp
 
 .. c:function:: int SUNHeuristicsSpace(SUNHeuristics H, long int *lenrw, long int *leniw)
 
-   Informative routine that returns the memory requirements of the heuristics object. The return value is an integer flag denoting success/failure of the routine (see :numref:`SUNControl.Description.errorCodes``).
+   Informative routine that returns the memory requirements of the heuristics object. The return value is an integer flag denoting success/failure of the routine (see :numref:`SUNHeuristics.Description.errorCodes`).
 
    Arguments:
 
    * *H* -- the heuristics object.
    * *lenrw* (output) -- number of ``sunrealtype`` words stored in the heuristics object.
    * *leniw* (output) -- number of ``sunindextype`` words stored in the heuristics object.  This may also include pointers, `int` and `long int` words.
-   
+
    Usage:
 
    .. code-block:: c
@@ -554,7 +538,7 @@ SUNHeuristics functions return one of the following set of error codes:
 C/C++ API Usage
 ---------------
 
-The SUNDIALS Heuristics module can be used in C and C++ programs by including the header file ``sundials/sundials_heuristisc.h``. 
+The SUNDIALS Heuristics module can be used in C and C++ programs by including the header file ``sundials/sundials_heuristisc.h``.
 
 Example usage (here ``SUNHeuristicsXYZ`` is a placeholder for an actual SUNHeuristics implementation constructor):
 

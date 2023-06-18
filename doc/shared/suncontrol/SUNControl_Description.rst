@@ -59,6 +59,7 @@ Here, ``_generic_SUNControl_Ops`` is the pointer to a structure containing funct
     };
 
 
+
 SUNControl IDs
 --------------
 
@@ -78,6 +79,8 @@ The time integrators in SUNDIALS adapt a variety of parameters to achieve accura
    SUNDIALS_CONTROL_MRI_TOL  Controls slow multirate step size and fast tolerance.
    ========================  =====================================================
 
+
+.. _SUNControl.Description.operations:
 
 SUNControl Operations
 ---------------------
@@ -119,7 +122,7 @@ Each of the following routines are *optional* for any specific SUNControl implem
 
 .. c:function:: int SUNControlEstimateStep(SUNControl C, realtype h, realtype dsm, realtype* hnew)
 
-   Estimates a single-rate step size.  This routine is required for controllers of type ``SUNDIALS_CONTROL_H``.  The return value is an integer flag denoting success/failure of the routine (see :numref:`SUNControl.Description.errorCodes``).
+   Estimates a single-rate step size.  This routine is required for controllers of type ``SUNDIALS_CONTROL_H``.  The return value is an integer flag denoting success/failure of the routine (see :numref:`SUNControl.Description.errorCodes`).
 
    Arguments:
 
@@ -136,7 +139,7 @@ Each of the following routines are *optional* for any specific SUNControl implem
 
 .. c:function:: int SUNControlEstimateStepAndOrder(SUNControl C, realtype h, int q, realtype dsm, realtype* hnew, int* qnew)
 
-   Estimates a single-rate step size and corresponding method order.  This routine is required for controllers of type ``SUNDIALS_CONTROL_HQ``.  The return value is an integer flag denoting success/failure of the routine (see :numref:`SUNControl.Description.errorCodes``).
+   Estimates a single-rate step size and corresponding method order.  This routine is required for controllers of type ``SUNDIALS_CONTROL_HQ``.  The return value is an integer flag denoting success/failure of the routine (see :numref:`SUNControl.Description.errorCodes`).
 
    Arguments:
 
@@ -155,7 +158,7 @@ Each of the following routines are *optional* for any specific SUNControl implem
 
 .. c:function:: int SUNControlEstimateMRISteps(SUNControl C, realtype H, realtype h, realtype DSM, realtype* Hnew, realtype *hnew)
 
-   Estimates the slow and fast multirate step sizes.  This routine is required for controllers of type ``SUNDIALS_CONTROL_MRI_H``.  The return value is an integer flag denoting success/failure of the routine (see :numref:`SUNControl.Description.errorCodes``).
+   Estimates the slow and fast multirate step sizes.  This routine is required for controllers of type ``SUNDIALS_CONTROL_MRI_H``.  The return value is an integer flag denoting success/failure of the routine (see :numref:`SUNControl.Description.errorCodes`).
 
    Arguments:
 
@@ -165,7 +168,7 @@ Each of the following routines are *optional* for any specific SUNControl implem
    * *DSM* -- the local slow temporal estimate from the previous step attempt.  *Note: the fast local temporal error should be requested by the controller directly from the fast integrator.*
    * *Hnew* (output) -- pointer to the estimated slow step size.
    * *hnew* (output) -- pointer to the estimated fast step size.
-   
+
    Usage:
 
    .. code-block:: c
@@ -174,7 +177,7 @@ Each of the following routines are *optional* for any specific SUNControl implem
 
 .. c:function:: int SUNControlEstimateStepTol(SUNControl C, realtype H, realtype tolfac, realtype DSM, realtype *Hnew, realtype* tolfacnew)
 
-   Estimates the slow step size and recommended fast relative tolerance factor for a multirate step.  This routine is required for controllers of type ``SUNDIALS_CONTROL_MRI_TOL``. The return value is an integer flag denoting success/failure of the routine (see :numref:`SUNControl.Description.errorCodes``).
+   Estimates the slow step size and recommended fast relative tolerance factor for a multirate step.  This routine is required for controllers of type ``SUNDIALS_CONTROL_MRI_TOL``. The return value is an integer flag denoting success/failure of the routine (see :numref:`SUNControl.Description.errorCodes`).
 
    Arguments:
 
@@ -184,7 +187,7 @@ Each of the following routines are *optional* for any specific SUNControl implem
    * *DSM* -- the local slow temporal estimate from the previous step attempt.  *Note: the fast local temporal error should be requested by the controller directly from the fast integrator.*
    * *Hnew* (output) -- pointer to the estimated slow step size.
    * *tolfacnew* (output) -- pointer to the estimated relative tolerance ratio.
-   
+
    Usage:
 
    .. code-block:: c
@@ -193,13 +196,13 @@ Each of the following routines are *optional* for any specific SUNControl implem
 
 .. c:function:: int SUNControlReset(SUNControl C)
 
-   Resets the controller to its initial state, e.g., if it stores a small number of previous 
-   dsm* or *h* values. The return value is an integer flag denoting success/failure of the routine (see :numref:`SUNControl.Description.errorCodes``).
+   Resets the controller to its initial state, e.g., if it stores a small number of previous
+   dsm* or *h* values. The return value is an integer flag denoting success/failure of the routine (see :numref:`SUNControl.Description.errorCodes`).
 
    Arguments:
 
    * *C* -- the controller object.
-   
+
    Usage:
 
    .. code-block:: c
@@ -208,12 +211,12 @@ Each of the following routines are *optional* for any specific SUNControl implem
 
 .. c:function:: int SUNControlSetDefaults(SUNControl C)
 
-   Sets the controller parameters to their default values.  The return value is an integer flag denoting success/failure of the routine (see :numref:`SUNControl.Description.errorCodes``).
+   Sets the controller parameters to their default values.  The return value is an integer flag denoting success/failure of the routine (see :numref:`SUNControl.Description.errorCodes`).
 
    Arguments:
 
    * *C* -- the controller object.
-   
+
    Usage:
 
    .. code-block:: c
@@ -222,13 +225,13 @@ Each of the following routines are *optional* for any specific SUNControl implem
 
 .. c:function:: int SUNControlWrite(SUNControl C, FILE* fptr)
 
-   Writes all controller parameters to the indicated file pointer.  The return value is an integer flag denoting success/failure of the routine (see :numref:`SUNControl.Description.errorCodes``).
+   Writes all controller parameters to the indicated file pointer.  The return value is an integer flag denoting success/failure of the routine (see :numref:`SUNControl.Description.errorCodes`).
 
    Arguments:
 
    * *C* -- the controller object.
    * *fptr* -- the output stream to write the parameters.
-   
+
    Usage:
 
    .. code-block:: c
@@ -237,13 +240,13 @@ Each of the following routines are *optional* for any specific SUNControl implem
 
 .. c:function:: int SUNControlSetMethodOrder(SUNControl C, int q)
 
-   Called by the time integrator to inform the controller of the asymptotic order of accuracy for the method.  The return value is an integer flag denoting success/failure of the routine (see :numref:`SUNControl.Description.errorCodes``).
+   Called by the time integrator to inform the controller of the asymptotic order of accuracy for the method.  The return value is an integer flag denoting success/failure of the routine (see :numref:`SUNControl.Description.errorCodes`).
 
    Arguments:
 
    * *C* -- the controller object.
    * *q* -- the asymptotic order of accuracy for the time integration method.
-   
+
    Usage:
 
    .. code-block:: c
@@ -252,13 +255,13 @@ Each of the following routines are *optional* for any specific SUNControl implem
 
 .. c:function:: int SUNControlSetEmbeddingOrder(SUNControl C, int p)
 
-   Called by the time integrator to inform the controller of the asymptotic order of accuracy for the method embedding.  The return value is an integer flag denoting success/failure of the routine (see :numref:`SUNControl.Description.errorCodes``).
+   Called by the time integrator to inform the controller of the asymptotic order of accuracy for the method embedding.  The return value is an integer flag denoting success/failure of the routine (see :numref:`SUNControl.Description.errorCodes`).
 
    Arguments:
 
    * *C* -- the controller object.
    * *p* -- the asymptotic order of accuracy for the time integration method embedding.
-   
+
    Usage:
 
    .. code-block:: c
@@ -267,13 +270,13 @@ Each of the following routines are *optional* for any specific SUNControl implem
 
 .. c:function:: int SUNControlSetErrorBias(SUNControl C, realtype bias)
 
-   Sets an error bias factor for scaling the local error factors.  This is typically used to slightly exaggerate the temporal error during the estimation process, leading to a more conservative estimated step size.  The return value is an integer flag denoting success/failure of the routine (see :numref:`SUNControl.Description.errorCodes``).
+   Sets an error bias factor for scaling the local error factors.  This is typically used to slightly exaggerate the temporal error during the estimation process, leading to a more conservative estimated step size.  The return value is an integer flag denoting success/failure of the routine (see :numref:`SUNControl.Description.errorCodes`).
 
    Arguments:
 
    * *C* -- the controller object.
    * *bias* -- the error bias factor.
-   
+
    Usage:
 
    .. code-block:: c
@@ -282,14 +285,14 @@ Each of the following routines are *optional* for any specific SUNControl implem
 
 .. c:function:: int SUNControlUpdate(SUNControl C, realtype h, realtype dsm)
 
-   Notifies the controller of a successful time step of size *h* and with temporal error estimate *dsm*.  This is typically used for controllers that store a history of either step sizes or error estimates for performing the estimation process.  The return value is an integer flag denoting success/failure of the routine (see :numref:`SUNControl.Description.errorCodes``).
+   Notifies the controller of a successful time step of size *h* and with temporal error estimate *dsm*.  This is typically used for controllers that store a history of either step sizes or error estimates for performing the estimation process.  The return value is an integer flag denoting success/failure of the routine (see :numref:`SUNControl.Description.errorCodes`).
 
    Arguments:
 
    * *C* -- the controller object.
    * *h* -- the successful step size.
    * *dsm* -- the successful temporal error estimate.
-   
+
    Usage:
 
    .. code-block:: c
@@ -298,14 +301,14 @@ Each of the following routines are *optional* for any specific SUNControl implem
 
 .. c:function:: int SUNControlSpace(SUNControl C, long int *lenrw, long int *leniw)
 
-   Informative routine that returns the memory requirements of the controller object. The return value is an integer flag denoting success/failure of the routine (see :numref:`SUNControl.Description.errorCodes``).
+   Informative routine that returns the memory requirements of the controller object. The return value is an integer flag denoting success/failure of the routine (see :numref:`SUNControl.Description.errorCodes`).
 
    Arguments:
 
    * *C* -- the controller object.
    * *lenrw* (output) -- number of ``sunrealtype`` words stored in the controller.
    * *leniw* (output) -- number of ``sunindextype`` words stored in the controller.  This may also include pointers, `int` and `long int` words.
-   
+
    Usage:
 
    .. code-block:: c
@@ -313,29 +316,40 @@ Each of the following routines are *optional* for any specific SUNControl implem
       retval = SUNControlSpace(C, &lenrw, &leniw);
 
 
-.. _SUNControl.Description.errorCodes:
 
 SUNControl Error Codes
 ----------------------
 
-SUNControl functions return one of the following set of error codes:
+SUNControl functions return an error code from among those in the table :numref:`SUNControl.Description.errorCodes`.
 
-* ``SUNCONTROL_SUCCESS`` (0) -- successful call.
+.. _SUNControl.Description.errorCodes:
+.. table:: Error codes returned by SUNControl implementations
+   :align: center
 
-* ``SUNCONTROL_ILL_INPUT`` (-1001) -- an illegal input has been provided to the function.
+   =========================  =====  ==========================================================
+   Error code                 Value  Meaning
+   =========================  =====  ==========================================================
+   SUNCONTROL_SUCCESS         0      Successful call.
+   SUNCONTROL_ILL_INPUT       -1001  An illegal input has been provided to the function.
+   SUNCONTROL_MEM_FAIL        -1002  A memory access or allocation failed.
+   SUNCONTROL_USER_FCN_FAIL   -1003  A user-supplied function returned a nonzero [error] value.
+   SUNCONTROL_OPERATION_FAIL  -1004  Catch-all for errors not in the above list.
+   =========================  =====  ==========================================================
 
-* ``SUNCONTROL_MEM_FAIL`` (-1002) -- failed memory access or allocation.
 
-* ``SUNCONTROL_USER_FCN_FAIL`` (-1003) -- a user-supplied function returned a nonzero [error] value.
 
-* ``SUNCONTROL_OPERATION_FAIL`` (-1004) -- this is a catch-all failure code, for any errors that are do not fit in the above list.
+
+
+
+
+
 
 
 
 C/C++ API Usage
 ---------------
 
-The SUNDIALS Controller module can be used in C and C++ programs by including the header file ``sundials/sundials_controller.h``. 
+The SUNDIALS Controller module can be used in C and C++ programs by including the header file ``sundials/sundials_controller.h``.
 
 Example usage (here ``SUNControlXYZ`` is a placeholder for an actual SUNControl implementation constructor):
 

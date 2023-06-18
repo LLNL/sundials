@@ -80,10 +80,10 @@ SUNHeuristics SUNHeuristicsUnconstrained(SUNContext sunctx)
  * ----------------------------------------------------------------- */
 
 SUNHeuristics_ID SUNHeuristicsGetID_Unconstrained(SUNHeuristics H)
-{ return SUNDIALS_HEURISTICS_STD; }
+{ return SUNDIALS_HEURISTICS_NULL; }
 
 int SUNHeuristicsConstrainStep_Unconstrained(SUNHeuristics H, realtype hcur,
-                                       realtype h_acc, realtype* hconstr)
+                                             realtype h_acc, realtype* hconstr)
 {
   /* All steps are considered accuracy-limited */
   SH_NST_ACC(H)++;
