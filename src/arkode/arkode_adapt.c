@@ -166,13 +166,6 @@ int arkAdapt(void* arkode_mem, ARKodeHAdaptMem hadapt_mem,
     return (ARK_ILL_INPUT);
   }
 
-  /* TODO(CJB): with the Symplectic controller, I want ARKODE to take exactly the step my adaptivity function says to take. */
-  if (hadapt_mem->imethod == ARK_ADAPT_CUSTOM) {
-    ark_mem->eta = ONE;
-    ark_mem->h = h_acc;
-    return ARK_SUCCESS;
-  }
-
   /* determine direction of integration */
   int_dir = hcur / SUNRabs(hcur);
 

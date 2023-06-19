@@ -11,7 +11,7 @@
  * SPDX-License-Identifier: BSD-3-Clause
  * SUNDIALS Copyright End
  *---------------------------------------------------------------
- * This is the implementation file for ARKODE's ARK time stepper
+ * This is the implementation file for ARKODE's SPRK time stepper
  * module.
  *--------------------------------------------------------------*/
 
@@ -443,10 +443,6 @@ int sprkStep_Init(void* arkode_mem, int init_type)
   /* Signal to shared arkode module that fullrhs is not required after each step
    */
   ark_mem->call_fullrhs = SUNFALSE;
-
-  // TODO(CJB): setting this to NULL is not supported in arkode right now.
-  // Should this really exist in fixed step mode?
-  // ark_mem->hadapt_mem = NULL;
 
   return (ARK_SUCCESS);
 }

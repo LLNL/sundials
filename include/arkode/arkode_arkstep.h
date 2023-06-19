@@ -299,8 +299,6 @@ SUNDIALS_EXPORT int ARKStepSetMassTimes(void *arkode_mem,
                                         ARKLsMassTimesVecFn mtimes,
                                         void *mtimes_data);
 SUNDIALS_EXPORT int ARKStepSetLinSysFn(void *arkode_mem, ARKLsLinSysFn linsys);
-SUNDIALS_EXPORT int ARKStepSetSeparableRhs(void *arkode_mem, sunbooleantype isseparable);
-
 
 /* Integrate the ODE over an interval in t */
 SUNDIALS_EXPORT int ARKStepEvolve(void *arkode_mem, realtype tout,

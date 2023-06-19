@@ -11,7 +11,7 @@
  * SPDX-License-Identifier: BSD-3-Clause
  * SUNDIALS Copyright End
  *---------------------------------------------------------------
- * Implementation header file for ARKODE's ARK time stepper
+ * Implementation header file for ARKODE's SPRK time stepper
  * module.
  *--------------------------------------------------------------*/
 

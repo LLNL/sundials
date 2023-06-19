@@ -135,8 +135,7 @@ int arkSetInterpolantType(void *arkode_mem, int itype)
   ark_mem = (ARKodeMem) arkode_mem;
 
   /* check for legal itype input */
-  if ((itype != ARK_INTERP_HERMITE) && (itype != ARK_INTERP_LAGRANGE)
-      && (itype != ARK_INTERP_NONE)) {
+  if ((itype != ARK_INTERP_HERMITE) && (itype != ARK_INTERP_LAGRANGE)) {
     arkProcessError(ark_mem, ARK_ILL_INPUT, "ARKODE",
                     "arkSetInterpolantType",
                     "Illegal interpolation type input.");

@@ -10,8 +10,6 @@
  *
  * SPDX-License-Identifier: BSD-3-Clause
  * SUNDIALS Copyright End
- *---------------------------------------------------------------
- *
  *--------------------------------------------------------------*/
 
 #include <arkode/arkode.h>
