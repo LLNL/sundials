@@ -186,8 +186,7 @@ in :numref:`ARKODE.Mathematics.Error.Norm`.
         weight vector is to be computed.
       * *ewt* -- the output vector containing the error weights.
       * *user_data* -- a pointer to user data, the same as the
-        *user_data* parameter that was passed to :c:func:`ARKStepSetUserData`,
-        :c:func:`ERKStepSetUserData`, or :c:func:`MRIStepSetUserData`.
+        *user_data* parameter that was passed to the ``SetUserData`` function
 
    **Return value:**
       An *ARKEwtFn* function must return 0 if it
@@ -397,8 +396,7 @@ ODE system, the user must supply a function of type :c:type:`ARKRootFn`.
       * *y* -- the current value of the dependent variable vector.
       * *gout* -- the output array, of length *nrtfn*, with components :math:`g_i(t,y)`.
       * *user_data* -- a pointer to user data, the same as the
-        *user_data* parameter that was passed to :c:func:`ARKStepSetUserData`,
-        :c:func:`ERKStepSetUserData`, or :c:func:`MRIStepSetUserData`.
+        *user_data* parameter that was passed to the ``SetUserData`` function
 
    **Return value:**
       An *ARKRootFn* function should return 0 if successful
