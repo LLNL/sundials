@@ -178,21 +178,6 @@
  { printf("In " DECL ": " MSG); assert(0); RETURNNULL; }
 
 
-enum {
-    SWIG_MEM_OWN = 0x01,
-    SWIG_MEM_RVALUE = 0x02,
-    SWIG_MEM_CONST = 0x04
-};
-
-
-#define SWIG_check_nonnull(SWIG_CLASS_WRAPPER, TYPENAME, FNAME, FUNCNAME, RETURNNULL) \
-  if (!(SWIG_CLASS_WRAPPER).cptr) { \
-    SWIG_exception_impl(FUNCNAME, SWIG_TypeError, \
-                        "Cannot pass null " TYPENAME " (class " FNAME ") " \
-                        "as a reference", RETURNNULL); \
-  }
-
-
 #include <stdio.h>
 #if defined(_MSC_VER) || defined(__BORLANDC__) || defined(_WATCOM)
 # ifndef snprintf
@@ -223,84 +208,59 @@ enum {
 
 #include "suncontrol/suncontrol_expgus.h"
 
-
-typedef struct {
-    void* cptr;
-    int cmemflags;
-} SwigClassWrapper;
-
-
-SWIGINTERN SwigClassWrapper SwigClassWrapper_uninitialized() {
-    SwigClassWrapper result;
-    result.cptr = NULL;
-    result.cmemflags = 0;
-    return result;
-}
-
-SWIGEXPORT SwigClassWrapper _wrap_FSUNControlExpGus(SwigClassWrapper const *farg1) {
-  SwigClassWrapper fresult ;
-  SUNContext arg1 ;
+SWIGEXPORT SUNControl _wrap_FSUNControlExpGus(void *farg1) {
+  SUNControl fresult ;
+  SUNContext arg1 = (SUNContext) 0 ;
   SUNControl result;
   
-  SWIG_check_nonnull(*farg1, "SUNContext", "SWIGTYPE_p_SUNContext", "SUNControlExpGus(SUNContext)", return SwigClassWrapper_uninitialized());
-  arg1 = *(SUNContext *)(farg1->cptr);
-  result = SUNControlExpGus(arg1);
-  fresult.cptr = (SUNControl *)memcpy((SUNControl *)calloc(1,sizeof(SUNControl)),&result,sizeof(SUNControl));
-  fresult.cmemflags = SWIG_MEM_RVALUE | SWIG_MEM_OWN;
+  arg1 = (SUNContext)(farg1);
+  result = (SUNControl)SUNControlExpGus(arg1);
+  fresult = result;
   return fresult;
 }
 
 
-SWIGEXPORT int _wrap_FSUNControlExpGus_SetParams(SwigClassWrapper const *farg1, SwigClassWrapper const *farg2, SwigClassWrapper const *farg3, SwigClassWrapper const *farg4) {
+SWIGEXPORT int _wrap_FSUNControlExpGus_SetParams(SUNControl farg1, int const *farg2, double const *farg3, double const *farg4) {
   int fresult ;
-  SUNControl arg1 ;
-  sunbooleantype arg2 ;
+  SUNControl arg1 = (SUNControl) 0 ;
+  int arg2 ;
   realtype arg3 ;
   realtype arg4 ;
   int result;
   
-  SWIG_check_nonnull(*farg1, "SUNControl", "SWIGTYPE_p_SUNControl", "SUNControlExpGus_SetParams(SUNControl,sunbooleantype,realtype,realtype)", return 0);
-  arg1 = *(SUNControl *)(farg1->cptr);
-  SWIG_check_nonnull(*farg2, "sunbooleantype", "SWIGTYPE_p_sunbooleantype", "SUNControlExpGus_SetParams(SUNControl,sunbooleantype,realtype,realtype)", return 0);
-  arg2 = *(sunbooleantype *)(farg2->cptr);
-  SWIG_check_nonnull(*farg3, "realtype", "SWIGTYPE_p_realtype", "SUNControlExpGus_SetParams(SUNControl,sunbooleantype,realtype,realtype)", return 0);
-  arg3 = *(realtype *)(farg3->cptr);
-  SWIG_check_nonnull(*farg4, "realtype", "SWIGTYPE_p_realtype", "SUNControlExpGus_SetParams(SUNControl,sunbooleantype,realtype,realtype)", return 0);
-  arg4 = *(realtype *)(farg4->cptr);
+  arg1 = (SUNControl)(farg1);
+  arg2 = (int)(*farg2);
+  arg3 = (realtype)(*farg3);
+  arg4 = (realtype)(*farg4);
   result = (int)SUNControlExpGus_SetParams(arg1,arg2,arg3,arg4);
   fresult = (int)(result);
   return fresult;
 }
 
 
-SWIGEXPORT SwigClassWrapper _wrap_FSUNControlGetID_ExpGus(SwigClassWrapper const *farg1) {
-  SwigClassWrapper fresult ;
-  SUNControl arg1 ;
+SWIGEXPORT int _wrap_FSUNControlGetID_ExpGus(SUNControl farg1) {
+  int fresult ;
+  SUNControl arg1 = (SUNControl) 0 ;
   SUNControl_ID result;
   
-  SWIG_check_nonnull(*farg1, "SUNControl", "SWIGTYPE_p_SUNControl", "SUNControlGetID_ExpGus(SUNControl)", return SwigClassWrapper_uninitialized());
-  arg1 = *(SUNControl *)(farg1->cptr);
-  result = SUNControlGetID_ExpGus(arg1);
-  fresult.cptr = (SUNControl_ID *)memcpy((SUNControl_ID *)calloc(1,sizeof(SUNControl_ID)),&result,sizeof(SUNControl_ID));
-  fresult.cmemflags = SWIG_MEM_RVALUE | SWIG_MEM_OWN;
+  arg1 = (SUNControl)(farg1);
+  result = (SUNControl_ID)SUNControlGetID_ExpGus(arg1);
+  fresult = (int)(result);
   return fresult;
 }
 
 
-SWIGEXPORT int _wrap_FSUNControlEstimateStep_ExpGus(SwigClassWrapper const *farg1, SwigClassWrapper const *farg2, SwigClassWrapper const *farg3, SwigClassWrapper *farg4) {
+SWIGEXPORT int _wrap_FSUNControlEstimateStep_ExpGus(SUNControl farg1, double const *farg2, double const *farg3, double *farg4) {
   int fresult ;
-  SUNControl arg1 ;
+  SUNControl arg1 = (SUNControl) 0 ;
   realtype arg2 ;
   realtype arg3 ;
   realtype *arg4 = (realtype *) 0 ;
   int result;
   
-  SWIG_check_nonnull(*farg1, "SUNControl", "SWIGTYPE_p_SUNControl", "SUNControlEstimateStep_ExpGus(SUNControl,realtype,realtype,realtype *)", return 0);
-  arg1 = *(SUNControl *)(farg1->cptr);
-  SWIG_check_nonnull(*farg2, "realtype", "SWIGTYPE_p_realtype", "SUNControlEstimateStep_ExpGus(SUNControl,realtype,realtype,realtype *)", return 0);
-  arg2 = *(realtype *)(farg2->cptr);
-  SWIG_check_nonnull(*farg3, "realtype", "SWIGTYPE_p_realtype", "SUNControlEstimateStep_ExpGus(SUNControl,realtype,realtype,realtype *)", return 0);
-  arg3 = *(realtype *)(farg3->cptr);
+  arg1 = (SUNControl)(farg1);
+  arg2 = (realtype)(*farg2);
+  arg3 = (realtype)(*farg3);
   arg4 = (realtype *)(farg4);
   result = (int)SUNControlEstimateStep_ExpGus(arg1,arg2,arg3,arg4);
   fresult = (int)(result);
@@ -308,40 +268,37 @@ SWIGEXPORT int _wrap_FSUNControlEstimateStep_ExpGus(SwigClassWrapper const *farg
 }
 
 
-SWIGEXPORT int _wrap_FSUNControlReset_ExpGus(SwigClassWrapper const *farg1) {
+SWIGEXPORT int _wrap_FSUNControlReset_ExpGus(SUNControl farg1) {
   int fresult ;
-  SUNControl arg1 ;
+  SUNControl arg1 = (SUNControl) 0 ;
   int result;
   
-  SWIG_check_nonnull(*farg1, "SUNControl", "SWIGTYPE_p_SUNControl", "SUNControlReset_ExpGus(SUNControl)", return 0);
-  arg1 = *(SUNControl *)(farg1->cptr);
+  arg1 = (SUNControl)(farg1);
   result = (int)SUNControlReset_ExpGus(arg1);
   fresult = (int)(result);
   return fresult;
 }
 
 
-SWIGEXPORT int _wrap_FSUNControlSetDefaults_ExpGus(SwigClassWrapper const *farg1) {
+SWIGEXPORT int _wrap_FSUNControlSetDefaults_ExpGus(SUNControl farg1) {
   int fresult ;
-  SUNControl arg1 ;
+  SUNControl arg1 = (SUNControl) 0 ;
   int result;
   
-  SWIG_check_nonnull(*farg1, "SUNControl", "SWIGTYPE_p_SUNControl", "SUNControlSetDefaults_ExpGus(SUNControl)", return 0);
-  arg1 = *(SUNControl *)(farg1->cptr);
+  arg1 = (SUNControl)(farg1);
   result = (int)SUNControlSetDefaults_ExpGus(arg1);
   fresult = (int)(result);
   return fresult;
 }
 
 
-SWIGEXPORT int _wrap_FSUNControlWrite_ExpGus(SwigClassWrapper const *farg1, void *farg2) {
+SWIGEXPORT int _wrap_FSUNControlWrite_ExpGus(SUNControl farg1, void *farg2) {
   int fresult ;
-  SUNControl arg1 ;
+  SUNControl arg1 = (SUNControl) 0 ;
   FILE *arg2 = (FILE *) 0 ;
   int result;
   
-  SWIG_check_nonnull(*farg1, "SUNControl", "SWIGTYPE_p_SUNControl", "SUNControlWrite_ExpGus(SUNControl,FILE *)", return 0);
-  arg1 = *(SUNControl *)(farg1->cptr);
+  arg1 = (SUNControl)(farg1);
   arg2 = (FILE *)(farg2);
   result = (int)SUNControlWrite_ExpGus(arg1,arg2);
   fresult = (int)(result);
@@ -349,14 +306,13 @@ SWIGEXPORT int _wrap_FSUNControlWrite_ExpGus(SwigClassWrapper const *farg1, void
 }
 
 
-SWIGEXPORT int _wrap_FSUNControlSetMethodOrder_ExpGus(SwigClassWrapper const *farg1, int const *farg2) {
+SWIGEXPORT int _wrap_FSUNControlSetMethodOrder_ExpGus(SUNControl farg1, int const *farg2) {
   int fresult ;
-  SUNControl arg1 ;
+  SUNControl arg1 = (SUNControl) 0 ;
   int arg2 ;
   int result;
   
-  SWIG_check_nonnull(*farg1, "SUNControl", "SWIGTYPE_p_SUNControl", "SUNControlSetMethodOrder_ExpGus(SUNControl,int)", return 0);
-  arg1 = *(SUNControl *)(farg1->cptr);
+  arg1 = (SUNControl)(farg1);
   arg2 = (int)(*farg2);
   result = (int)SUNControlSetMethodOrder_ExpGus(arg1,arg2);
   fresult = (int)(result);
@@ -364,14 +320,13 @@ SWIGEXPORT int _wrap_FSUNControlSetMethodOrder_ExpGus(SwigClassWrapper const *fa
 }
 
 
-SWIGEXPORT int _wrap_FSUNControlSetEmbeddingOrder_ExpGus(SwigClassWrapper const *farg1, int const *farg2) {
+SWIGEXPORT int _wrap_FSUNControlSetEmbeddingOrder_ExpGus(SUNControl farg1, int const *farg2) {
   int fresult ;
-  SUNControl arg1 ;
+  SUNControl arg1 = (SUNControl) 0 ;
   int arg2 ;
   int result;
   
-  SWIG_check_nonnull(*farg1, "SUNControl", "SWIGTYPE_p_SUNControl", "SUNControlSetEmbeddingOrder_ExpGus(SUNControl,int)", return 0);
-  arg1 = *(SUNControl *)(farg1->cptr);
+  arg1 = (SUNControl)(farg1);
   arg2 = (int)(*farg2);
   result = (int)SUNControlSetEmbeddingOrder_ExpGus(arg1,arg2);
   fresult = (int)(result);
@@ -379,50 +334,44 @@ SWIGEXPORT int _wrap_FSUNControlSetEmbeddingOrder_ExpGus(SwigClassWrapper const 
 }
 
 
-SWIGEXPORT int _wrap_FSUNControlSetErrorBias_ExpGus(SwigClassWrapper const *farg1, SwigClassWrapper const *farg2) {
+SWIGEXPORT int _wrap_FSUNControlSetErrorBias_ExpGus(SUNControl farg1, double const *farg2) {
   int fresult ;
-  SUNControl arg1 ;
+  SUNControl arg1 = (SUNControl) 0 ;
   realtype arg2 ;
   int result;
   
-  SWIG_check_nonnull(*farg1, "SUNControl", "SWIGTYPE_p_SUNControl", "SUNControlSetErrorBias_ExpGus(SUNControl,realtype)", return 0);
-  arg1 = *(SUNControl *)(farg1->cptr);
-  SWIG_check_nonnull(*farg2, "realtype", "SWIGTYPE_p_realtype", "SUNControlSetErrorBias_ExpGus(SUNControl,realtype)", return 0);
-  arg2 = *(realtype *)(farg2->cptr);
+  arg1 = (SUNControl)(farg1);
+  arg2 = (realtype)(*farg2);
   result = (int)SUNControlSetErrorBias_ExpGus(arg1,arg2);
   fresult = (int)(result);
   return fresult;
 }
 
 
-SWIGEXPORT int _wrap_FSUNControlUpdate_ExpGus(SwigClassWrapper const *farg1, SwigClassWrapper const *farg2, SwigClassWrapper const *farg3) {
+SWIGEXPORT int _wrap_FSUNControlUpdate_ExpGus(SUNControl farg1, double const *farg2, double const *farg3) {
   int fresult ;
-  SUNControl arg1 ;
+  SUNControl arg1 = (SUNControl) 0 ;
   realtype arg2 ;
   realtype arg3 ;
   int result;
   
-  SWIG_check_nonnull(*farg1, "SUNControl", "SWIGTYPE_p_SUNControl", "SUNControlUpdate_ExpGus(SUNControl,realtype,realtype)", return 0);
-  arg1 = *(SUNControl *)(farg1->cptr);
-  SWIG_check_nonnull(*farg2, "realtype", "SWIGTYPE_p_realtype", "SUNControlUpdate_ExpGus(SUNControl,realtype,realtype)", return 0);
-  arg2 = *(realtype *)(farg2->cptr);
-  SWIG_check_nonnull(*farg3, "realtype", "SWIGTYPE_p_realtype", "SUNControlUpdate_ExpGus(SUNControl,realtype,realtype)", return 0);
-  arg3 = *(realtype *)(farg3->cptr);
+  arg1 = (SUNControl)(farg1);
+  arg2 = (realtype)(*farg2);
+  arg3 = (realtype)(*farg3);
   result = (int)SUNControlUpdate_ExpGus(arg1,arg2,arg3);
   fresult = (int)(result);
   return fresult;
 }
 
 
-SWIGEXPORT int _wrap_FSUNControlSpace_ExpGus(SwigClassWrapper const *farg1, long *farg2, long *farg3) {
+SWIGEXPORT int _wrap_FSUNControlSpace_ExpGus(SUNControl farg1, long *farg2, long *farg3) {
   int fresult ;
-  SUNControl arg1 ;
+  SUNControl arg1 = (SUNControl) 0 ;
   long *arg2 = (long *) 0 ;
   long *arg3 = (long *) 0 ;
   int result;
   
-  SWIG_check_nonnull(*farg1, "SUNControl", "SWIGTYPE_p_SUNControl", "SUNControlSpace_ExpGus(SUNControl,long *,long *)", return 0);
-  arg1 = *(SUNControl *)(farg1->cptr);
+  arg1 = (SUNControl)(farg1);
   arg2 = (long *)(farg2);
   arg3 = (long *)(farg3);
   result = (int)SUNControlSpace_ExpGus(arg1,arg2,arg3);

@@ -21,6 +21,9 @@
 #include "sundials/sundials_control.h"
 %}
 
+// Load the typedefs and generate "use" statements
+%import "../sundials/fsundials_control_mod.i"
+
 // Macro for creating an interface to a SUNControl
 %define %suncontrol_impl(TYPE)
   %ignore _SUNControlContent_## TYPE ##;

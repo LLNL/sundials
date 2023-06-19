@@ -37,6 +37,8 @@
 %sundials_generic(SUNLinearSolver)
 %sundials_generic(SUNNonlinearSolver)
 %sundials_generic(SUNMatrix)
+%sundials_generic(SUNControl)
+%sundials_generic(SUNHeuristics)
 
 // Treat FILE* as an opaque pointer
 %apply void* { FILE* };

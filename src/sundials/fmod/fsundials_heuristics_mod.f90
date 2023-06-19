@@ -21,94 +21,41 @@ module fsundials_heuristics_mod
  end enum
  integer, parameter, public :: SUNHeuristics_ID = kind(SUNDIALS_HEURISTICS_STD)
  public :: SUNDIALS_HEURISTICS_STD, SUNDIALS_HEURISTICS_NULL
-
- integer, parameter :: swig_cmem_own_bit = 0
- integer, parameter :: swig_cmem_rvalue_bit = 1
- integer, parameter :: swig_cmem_const_bit = 2
- type, bind(C) :: SwigClassWrapper
-  type(C_PTR), public :: cptr = C_NULL_PTR
-  integer(C_INT), public :: cmemflags = 0
- end type
  ! struct struct _generic_SUNHeuristics_Ops
- type, public :: generic_SUNHeuristics_Ops_
-  type(SwigClassWrapper), public :: swigdata
- contains
-  procedure :: set_getid => swigf__generic_SUNHeuristics_Ops_getid_set
-  procedure :: get_getid => swigf__generic_SUNHeuristics_Ops_getid_get
-  procedure :: set_destroy => swigf__generic_SUNHeuristics_Ops_destroy_set
-  procedure :: get_destroy => swigf__generic_SUNHeuristics_Ops_destroy_get
-  procedure :: set_constrainstep => swigf__generic_SUNHeuristics_Ops_constrainstep_set
-  procedure :: get_constrainstep => swigf__generic_SUNHeuristics_Ops_constrainstep_get
-  procedure :: set_etestfail => swigf__generic_SUNHeuristics_Ops_etestfail_set
-  procedure :: get_etestfail => swigf__generic_SUNHeuristics_Ops_etestfail_get
-  procedure :: set_convfail => swigf__generic_SUNHeuristics_Ops_convfail_set
-  procedure :: get_convfail => swigf__generic_SUNHeuristics_Ops_convfail_get
-  procedure :: set_boundreduction => swigf__generic_SUNHeuristics_Ops_boundreduction_set
-  procedure :: get_boundreduction => swigf__generic_SUNHeuristics_Ops_boundreduction_get
-  procedure :: set_boundfirststep => swigf__generic_SUNHeuristics_Ops_boundfirststep_set
-  procedure :: get_boundfirststep => swigf__generic_SUNHeuristics_Ops_boundfirststep_get
-  procedure :: set_reset => swigf__generic_SUNHeuristics_Ops_reset_set
-  procedure :: get_reset => swigf__generic_SUNHeuristics_Ops_reset_get
-  procedure :: set_update => swigf__generic_SUNHeuristics_Ops_update_set
-  procedure :: get_update => swigf__generic_SUNHeuristics_Ops_update_get
-  procedure :: set_setdefaults => swigf__generic_SUNHeuristics_Ops_setdefaults_set
-  procedure :: get_setdefaults => swigf__generic_SUNHeuristics_Ops_setdefaults_get
-  procedure :: set_write => swigf__generic_SUNHeuristics_Ops_write_set
-  procedure :: get_write => swigf__generic_SUNHeuristics_Ops_write_get
-  procedure :: set_setmaxstep => swigf__generic_SUNHeuristics_Ops_setmaxstep_set
-  procedure :: get_setmaxstep => swigf__generic_SUNHeuristics_Ops_setmaxstep_get
-  procedure :: set_setminstep => swigf__generic_SUNHeuristics_Ops_setminstep_set
-  procedure :: get_setminstep => swigf__generic_SUNHeuristics_Ops_setminstep_get
-  procedure :: set_setexpstabfn => swigf__generic_SUNHeuristics_Ops_setexpstabfn_set
-  procedure :: get_setexpstabfn => swigf__generic_SUNHeuristics_Ops_setexpstabfn_get
-  procedure :: set_setcflfraction => swigf__generic_SUNHeuristics_Ops_setcflfraction_set
-  procedure :: get_setcflfraction => swigf__generic_SUNHeuristics_Ops_setcflfraction_get
-  procedure :: set_setsafetyfactor => swigf__generic_SUNHeuristics_Ops_setsafetyfactor_set
-  procedure :: get_setsafetyfactor => swigf__generic_SUNHeuristics_Ops_setsafetyfactor_get
-  procedure :: set_setmaxgrowth => swigf__generic_SUNHeuristics_Ops_setmaxgrowth_set
-  procedure :: get_setmaxgrowth => swigf__generic_SUNHeuristics_Ops_setmaxgrowth_get
-  procedure :: set_setminreduction => swigf__generic_SUNHeuristics_Ops_setminreduction_set
-  procedure :: get_setminreduction => swigf__generic_SUNHeuristics_Ops_setminreduction_get
-  procedure :: set_setfixedstepbounds => swigf__generic_SUNHeuristics_Ops_setfixedstepbounds_set
-  procedure :: get_setfixedstepbounds => swigf__generic_SUNHeuristics_Ops_setfixedstepbounds_get
-  procedure :: set_setmaxfirstgrowth => swigf__generic_SUNHeuristics_Ops_setmaxfirstgrowth_set
-  procedure :: get_setmaxfirstgrowth => swigf__generic_SUNHeuristics_Ops_setmaxfirstgrowth_get
-  procedure :: set_setmaxefailgrowth => swigf__generic_SUNHeuristics_Ops_setmaxefailgrowth_set
-  procedure :: get_setmaxefailgrowth => swigf__generic_SUNHeuristics_Ops_setmaxefailgrowth_get
-  procedure :: set_setsmallnumefails => swigf__generic_SUNHeuristics_Ops_setsmallnumefails_set
-  procedure :: get_setsmallnumefails => swigf__generic_SUNHeuristics_Ops_setsmallnumefails_get
-  procedure :: set_setmaxcfailgrowth => swigf__generic_SUNHeuristics_Ops_setmaxcfailgrowth_set
-  procedure :: get_setmaxcfailgrowth => swigf__generic_SUNHeuristics_Ops_setmaxcfailgrowth_get
-  procedure :: set_getnumexpsteps => swigf__generic_SUNHeuristics_Ops_getnumexpsteps_set
-  procedure :: get_getnumexpsteps => swigf__generic_SUNHeuristics_Ops_getnumexpsteps_get
-  procedure :: set_getnumaccsteps => swigf__generic_SUNHeuristics_Ops_getnumaccsteps_set
-  procedure :: get_getnumaccsteps => swigf__generic_SUNHeuristics_Ops_getnumaccsteps_get
-  procedure :: set_space => swigf__generic_SUNHeuristics_Ops_space_set
-  procedure :: get_space => swigf__generic_SUNHeuristics_Ops_space_get
-  procedure :: release => swigf_release__generic_SUNHeuristics_Ops
-  procedure, private :: swigf__generic_SUNHeuristics_Ops_op_assign__
-  generic :: assignment(=) => swigf__generic_SUNHeuristics_Ops_op_assign__
- end type generic_SUNHeuristics_Ops_
- interface generic_SUNHeuristics_Ops_
-  module procedure swigf_create__generic_SUNHeuristics_Ops
- end interface
+ type, bind(C), public :: SUNHeuristics_Ops
+  type(C_FUNPTR), public :: getid
+  type(C_FUNPTR), public :: destroy
+  type(C_FUNPTR), public :: constrainstep
+  type(C_FUNPTR), public :: etestfail
+  type(C_FUNPTR), public :: convfail
+  type(C_FUNPTR), public :: boundreduction
+  type(C_FUNPTR), public :: boundfirststep
+  type(C_FUNPTR), public :: reset
+  type(C_FUNPTR), public :: update
+  type(C_FUNPTR), public :: setdefaults
+  type(C_FUNPTR), public :: write
+  type(C_FUNPTR), public :: setmaxstep
+  type(C_FUNPTR), public :: setminstep
+  type(C_FUNPTR), public :: setexpstabfn
+  type(C_FUNPTR), public :: setcflfraction
+  type(C_FUNPTR), public :: setsafetyfactor
+  type(C_FUNPTR), public :: setmaxgrowth
+  type(C_FUNPTR), public :: setminreduction
+  type(C_FUNPTR), public :: setfixedstepbounds
+  type(C_FUNPTR), public :: setmaxfirstgrowth
+  type(C_FUNPTR), public :: setmaxefailgrowth
+  type(C_FUNPTR), public :: setsmallnumefails
+  type(C_FUNPTR), public :: setmaxcfailgrowth
+  type(C_FUNPTR), public :: getnumexpsteps
+  type(C_FUNPTR), public :: getnumaccsteps
+  type(C_FUNPTR), public :: space
+ end type SUNHeuristics_Ops
  ! struct struct _generic_SUNHeuristics
- type, public :: generic_SUNHeuristics_
-  type(SwigClassWrapper), public :: swigdata
- contains
-  procedure :: set_content => swigf__generic_SUNHeuristics_content_set
-  procedure :: get_content => swigf__generic_SUNHeuristics_content_get
-  procedure :: set_ops => swigf__generic_SUNHeuristics_ops_set
-  procedure :: get_ops => swigf__generic_SUNHeuristics_ops_get
-  procedure :: set_sunctx => swigf__generic_SUNHeuristics_sunctx_set
-  procedure :: get_sunctx => swigf__generic_SUNHeuristics_sunctx_get
-  procedure :: release => swigf_release__generic_SUNHeuristics
-  procedure, private :: swigf__generic_SUNHeuristics_op_assign__
-  generic :: assignment(=) => swigf__generic_SUNHeuristics_op_assign__
- end type generic_SUNHeuristics_
- interface generic_SUNHeuristics_
-  module procedure swigf_create__generic_SUNHeuristics
- end interface
+ type, bind(C), public :: SUNHeuristics
+  type(C_PTR), public :: content
+  type(C_PTR), public :: ops
+  type(C_PTR), public :: sunctx
+ end type SUNHeuristics
  public :: FSUNHeuristicsNewEmpty
  public :: FSUNHeuristicsGetID
  public :: FSUNHeuristicsDestroy
@@ -143,576 +90,33 @@ module fsundials_heuristics_mod
 
 ! WRAPPER DECLARATIONS
 interface
-subroutine swigc__generic_SUNHeuristics_Ops_getid_set(farg1, farg2) &
-bind(C, name="_wrap__generic_SUNHeuristics_Ops_getid_set")
-use, intrinsic :: ISO_C_BINDING
-import :: swigclasswrapper
-type(SwigClassWrapper) :: farg1
-type(C_FUNPTR), value :: farg2
-end subroutine
-
-function swigc__generic_SUNHeuristics_Ops_getid_get(farg1) &
-bind(C, name="_wrap__generic_SUNHeuristics_Ops_getid_get") &
-result(fresult)
-use, intrinsic :: ISO_C_BINDING
-import :: swigclasswrapper
-type(SwigClassWrapper) :: farg1
-type(C_FUNPTR) :: fresult
-end function
-
-subroutine swigc__generic_SUNHeuristics_Ops_destroy_set(farg1, farg2) &
-bind(C, name="_wrap__generic_SUNHeuristics_Ops_destroy_set")
-use, intrinsic :: ISO_C_BINDING
-import :: swigclasswrapper
-type(SwigClassWrapper) :: farg1
-type(C_FUNPTR), value :: farg2
-end subroutine
-
-function swigc__generic_SUNHeuristics_Ops_destroy_get(farg1) &
-bind(C, name="_wrap__generic_SUNHeuristics_Ops_destroy_get") &
-result(fresult)
-use, intrinsic :: ISO_C_BINDING
-import :: swigclasswrapper
-type(SwigClassWrapper) :: farg1
-type(C_FUNPTR) :: fresult
-end function
-
-subroutine swigc__generic_SUNHeuristics_Ops_constrainstep_set(farg1, farg2) &
-bind(C, name="_wrap__generic_SUNHeuristics_Ops_constrainstep_set")
-use, intrinsic :: ISO_C_BINDING
-import :: swigclasswrapper
-type(SwigClassWrapper) :: farg1
-type(C_FUNPTR), value :: farg2
-end subroutine
-
-function swigc__generic_SUNHeuristics_Ops_constrainstep_get(farg1) &
-bind(C, name="_wrap__generic_SUNHeuristics_Ops_constrainstep_get") &
-result(fresult)
-use, intrinsic :: ISO_C_BINDING
-import :: swigclasswrapper
-type(SwigClassWrapper) :: farg1
-type(C_FUNPTR) :: fresult
-end function
-
-subroutine swigc__generic_SUNHeuristics_Ops_etestfail_set(farg1, farg2) &
-bind(C, name="_wrap__generic_SUNHeuristics_Ops_etestfail_set")
-use, intrinsic :: ISO_C_BINDING
-import :: swigclasswrapper
-type(SwigClassWrapper) :: farg1
-type(C_FUNPTR), value :: farg2
-end subroutine
-
-function swigc__generic_SUNHeuristics_Ops_etestfail_get(farg1) &
-bind(C, name="_wrap__generic_SUNHeuristics_Ops_etestfail_get") &
-result(fresult)
-use, intrinsic :: ISO_C_BINDING
-import :: swigclasswrapper
-type(SwigClassWrapper) :: farg1
-type(C_FUNPTR) :: fresult
-end function
-
-subroutine swigc__generic_SUNHeuristics_Ops_convfail_set(farg1, farg2) &
-bind(C, name="_wrap__generic_SUNHeuristics_Ops_convfail_set")
-use, intrinsic :: ISO_C_BINDING
-import :: swigclasswrapper
-type(SwigClassWrapper) :: farg1
-type(C_FUNPTR), value :: farg2
-end subroutine
-
-function swigc__generic_SUNHeuristics_Ops_convfail_get(farg1) &
-bind(C, name="_wrap__generic_SUNHeuristics_Ops_convfail_get") &
-result(fresult)
-use, intrinsic :: ISO_C_BINDING
-import :: swigclasswrapper
-type(SwigClassWrapper) :: farg1
-type(C_FUNPTR) :: fresult
-end function
-
-subroutine swigc__generic_SUNHeuristics_Ops_boundreduction_set(farg1, farg2) &
-bind(C, name="_wrap__generic_SUNHeuristics_Ops_boundreduction_set")
-use, intrinsic :: ISO_C_BINDING
-import :: swigclasswrapper
-type(SwigClassWrapper) :: farg1
-type(C_FUNPTR), value :: farg2
-end subroutine
-
-function swigc__generic_SUNHeuristics_Ops_boundreduction_get(farg1) &
-bind(C, name="_wrap__generic_SUNHeuristics_Ops_boundreduction_get") &
-result(fresult)
-use, intrinsic :: ISO_C_BINDING
-import :: swigclasswrapper
-type(SwigClassWrapper) :: farg1
-type(C_FUNPTR) :: fresult
-end function
-
-subroutine swigc__generic_SUNHeuristics_Ops_boundfirststep_set(farg1, farg2) &
-bind(C, name="_wrap__generic_SUNHeuristics_Ops_boundfirststep_set")
-use, intrinsic :: ISO_C_BINDING
-import :: swigclasswrapper
-type(SwigClassWrapper) :: farg1
-type(C_FUNPTR), value :: farg2
-end subroutine
-
-function swigc__generic_SUNHeuristics_Ops_boundfirststep_get(farg1) &
-bind(C, name="_wrap__generic_SUNHeuristics_Ops_boundfirststep_get") &
-result(fresult)
-use, intrinsic :: ISO_C_BINDING
-import :: swigclasswrapper
-type(SwigClassWrapper) :: farg1
-type(C_FUNPTR) :: fresult
-end function
-
-subroutine swigc__generic_SUNHeuristics_Ops_reset_set(farg1, farg2) &
-bind(C, name="_wrap__generic_SUNHeuristics_Ops_reset_set")
-use, intrinsic :: ISO_C_BINDING
-import :: swigclasswrapper
-type(SwigClassWrapper) :: farg1
-type(C_FUNPTR), value :: farg2
-end subroutine
-
-function swigc__generic_SUNHeuristics_Ops_reset_get(farg1) &
-bind(C, name="_wrap__generic_SUNHeuristics_Ops_reset_get") &
-result(fresult)
-use, intrinsic :: ISO_C_BINDING
-import :: swigclasswrapper
-type(SwigClassWrapper) :: farg1
-type(C_FUNPTR) :: fresult
-end function
-
-subroutine swigc__generic_SUNHeuristics_Ops_update_set(farg1, farg2) &
-bind(C, name="_wrap__generic_SUNHeuristics_Ops_update_set")
-use, intrinsic :: ISO_C_BINDING
-import :: swigclasswrapper
-type(SwigClassWrapper) :: farg1
-type(C_FUNPTR), value :: farg2
-end subroutine
-
-function swigc__generic_SUNHeuristics_Ops_update_get(farg1) &
-bind(C, name="_wrap__generic_SUNHeuristics_Ops_update_get") &
-result(fresult)
-use, intrinsic :: ISO_C_BINDING
-import :: swigclasswrapper
-type(SwigClassWrapper) :: farg1
-type(C_FUNPTR) :: fresult
-end function
-
-subroutine swigc__generic_SUNHeuristics_Ops_setdefaults_set(farg1, farg2) &
-bind(C, name="_wrap__generic_SUNHeuristics_Ops_setdefaults_set")
-use, intrinsic :: ISO_C_BINDING
-import :: swigclasswrapper
-type(SwigClassWrapper) :: farg1
-type(C_FUNPTR), value :: farg2
-end subroutine
-
-function swigc__generic_SUNHeuristics_Ops_setdefaults_get(farg1) &
-bind(C, name="_wrap__generic_SUNHeuristics_Ops_setdefaults_get") &
-result(fresult)
-use, intrinsic :: ISO_C_BINDING
-import :: swigclasswrapper
-type(SwigClassWrapper) :: farg1
-type(C_FUNPTR) :: fresult
-end function
-
-subroutine swigc__generic_SUNHeuristics_Ops_write_set(farg1, farg2) &
-bind(C, name="_wrap__generic_SUNHeuristics_Ops_write_set")
-use, intrinsic :: ISO_C_BINDING
-import :: swigclasswrapper
-type(SwigClassWrapper) :: farg1
-type(C_FUNPTR), value :: farg2
-end subroutine
-
-function swigc__generic_SUNHeuristics_Ops_write_get(farg1) &
-bind(C, name="_wrap__generic_SUNHeuristics_Ops_write_get") &
-result(fresult)
-use, intrinsic :: ISO_C_BINDING
-import :: swigclasswrapper
-type(SwigClassWrapper) :: farg1
-type(C_FUNPTR) :: fresult
-end function
-
-subroutine swigc__generic_SUNHeuristics_Ops_setmaxstep_set(farg1, farg2) &
-bind(C, name="_wrap__generic_SUNHeuristics_Ops_setmaxstep_set")
-use, intrinsic :: ISO_C_BINDING
-import :: swigclasswrapper
-type(SwigClassWrapper) :: farg1
-type(C_FUNPTR), value :: farg2
-end subroutine
-
-function swigc__generic_SUNHeuristics_Ops_setmaxstep_get(farg1) &
-bind(C, name="_wrap__generic_SUNHeuristics_Ops_setmaxstep_get") &
-result(fresult)
-use, intrinsic :: ISO_C_BINDING
-import :: swigclasswrapper
-type(SwigClassWrapper) :: farg1
-type(C_FUNPTR) :: fresult
-end function
-
-subroutine swigc__generic_SUNHeuristics_Ops_setminstep_set(farg1, farg2) &
-bind(C, name="_wrap__generic_SUNHeuristics_Ops_setminstep_set")
-use, intrinsic :: ISO_C_BINDING
-import :: swigclasswrapper
-type(SwigClassWrapper) :: farg1
-type(C_FUNPTR), value :: farg2
-end subroutine
-
-function swigc__generic_SUNHeuristics_Ops_setminstep_get(farg1) &
-bind(C, name="_wrap__generic_SUNHeuristics_Ops_setminstep_get") &
-result(fresult)
-use, intrinsic :: ISO_C_BINDING
-import :: swigclasswrapper
-type(SwigClassWrapper) :: farg1
-type(C_FUNPTR) :: fresult
-end function
-
-subroutine swigc__generic_SUNHeuristics_Ops_setexpstabfn_set(farg1, farg2) &
-bind(C, name="_wrap__generic_SUNHeuristics_Ops_setexpstabfn_set")
-use, intrinsic :: ISO_C_BINDING
-import :: swigclasswrapper
-type(SwigClassWrapper) :: farg1
-type(C_FUNPTR), value :: farg2
-end subroutine
-
-function swigc__generic_SUNHeuristics_Ops_setexpstabfn_get(farg1) &
-bind(C, name="_wrap__generic_SUNHeuristics_Ops_setexpstabfn_get") &
-result(fresult)
-use, intrinsic :: ISO_C_BINDING
-import :: swigclasswrapper
-type(SwigClassWrapper) :: farg1
-type(C_FUNPTR) :: fresult
-end function
-
-subroutine swigc__generic_SUNHeuristics_Ops_setcflfraction_set(farg1, farg2) &
-bind(C, name="_wrap__generic_SUNHeuristics_Ops_setcflfraction_set")
-use, intrinsic :: ISO_C_BINDING
-import :: swigclasswrapper
-type(SwigClassWrapper) :: farg1
-type(C_FUNPTR), value :: farg2
-end subroutine
-
-function swigc__generic_SUNHeuristics_Ops_setcflfraction_get(farg1) &
-bind(C, name="_wrap__generic_SUNHeuristics_Ops_setcflfraction_get") &
-result(fresult)
-use, intrinsic :: ISO_C_BINDING
-import :: swigclasswrapper
-type(SwigClassWrapper) :: farg1
-type(C_FUNPTR) :: fresult
-end function
-
-subroutine swigc__generic_SUNHeuristics_Ops_setsafetyfactor_set(farg1, farg2) &
-bind(C, name="_wrap__generic_SUNHeuristics_Ops_setsafetyfactor_set")
-use, intrinsic :: ISO_C_BINDING
-import :: swigclasswrapper
-type(SwigClassWrapper) :: farg1
-type(C_FUNPTR), value :: farg2
-end subroutine
-
-function swigc__generic_SUNHeuristics_Ops_setsafetyfactor_get(farg1) &
-bind(C, name="_wrap__generic_SUNHeuristics_Ops_setsafetyfactor_get") &
-result(fresult)
-use, intrinsic :: ISO_C_BINDING
-import :: swigclasswrapper
-type(SwigClassWrapper) :: farg1
-type(C_FUNPTR) :: fresult
-end function
-
-subroutine swigc__generic_SUNHeuristics_Ops_setmaxgrowth_set(farg1, farg2) &
-bind(C, name="_wrap__generic_SUNHeuristics_Ops_setmaxgrowth_set")
-use, intrinsic :: ISO_C_BINDING
-import :: swigclasswrapper
-type(SwigClassWrapper) :: farg1
-type(C_FUNPTR), value :: farg2
-end subroutine
-
-function swigc__generic_SUNHeuristics_Ops_setmaxgrowth_get(farg1) &
-bind(C, name="_wrap__generic_SUNHeuristics_Ops_setmaxgrowth_get") &
-result(fresult)
-use, intrinsic :: ISO_C_BINDING
-import :: swigclasswrapper
-type(SwigClassWrapper) :: farg1
-type(C_FUNPTR) :: fresult
-end function
-
-subroutine swigc__generic_SUNHeuristics_Ops_setminreduction_set(farg1, farg2) &
-bind(C, name="_wrap__generic_SUNHeuristics_Ops_setminreduction_set")
-use, intrinsic :: ISO_C_BINDING
-import :: swigclasswrapper
-type(SwigClassWrapper) :: farg1
-type(C_FUNPTR), value :: farg2
-end subroutine
-
-function swigc__generic_SUNHeuristics_Ops_setminreduction_get(farg1) &
-bind(C, name="_wrap__generic_SUNHeuristics_Ops_setminreduction_get") &
-result(fresult)
-use, intrinsic :: ISO_C_BINDING
-import :: swigclasswrapper
-type(SwigClassWrapper) :: farg1
-type(C_FUNPTR) :: fresult
-end function
-
-subroutine swigc__generic_SUNHeuristics_Ops_setfixedstepbounds_set(farg1, farg2) &
-bind(C, name="_wrap__generic_SUNHeuristics_Ops_setfixedstepbounds_set")
-use, intrinsic :: ISO_C_BINDING
-import :: swigclasswrapper
-type(SwigClassWrapper) :: farg1
-type(C_FUNPTR), value :: farg2
-end subroutine
-
-function swigc__generic_SUNHeuristics_Ops_setfixedstepbounds_get(farg1) &
-bind(C, name="_wrap__generic_SUNHeuristics_Ops_setfixedstepbounds_get") &
-result(fresult)
-use, intrinsic :: ISO_C_BINDING
-import :: swigclasswrapper
-type(SwigClassWrapper) :: farg1
-type(C_FUNPTR) :: fresult
-end function
-
-subroutine swigc__generic_SUNHeuristics_Ops_setmaxfirstgrowth_set(farg1, farg2) &
-bind(C, name="_wrap__generic_SUNHeuristics_Ops_setmaxfirstgrowth_set")
-use, intrinsic :: ISO_C_BINDING
-import :: swigclasswrapper
-type(SwigClassWrapper) :: farg1
-type(C_FUNPTR), value :: farg2
-end subroutine
-
-function swigc__generic_SUNHeuristics_Ops_setmaxfirstgrowth_get(farg1) &
-bind(C, name="_wrap__generic_SUNHeuristics_Ops_setmaxfirstgrowth_get") &
-result(fresult)
-use, intrinsic :: ISO_C_BINDING
-import :: swigclasswrapper
-type(SwigClassWrapper) :: farg1
-type(C_FUNPTR) :: fresult
-end function
-
-subroutine swigc__generic_SUNHeuristics_Ops_setmaxefailgrowth_set(farg1, farg2) &
-bind(C, name="_wrap__generic_SUNHeuristics_Ops_setmaxefailgrowth_set")
-use, intrinsic :: ISO_C_BINDING
-import :: swigclasswrapper
-type(SwigClassWrapper) :: farg1
-type(C_FUNPTR), value :: farg2
-end subroutine
-
-function swigc__generic_SUNHeuristics_Ops_setmaxefailgrowth_get(farg1) &
-bind(C, name="_wrap__generic_SUNHeuristics_Ops_setmaxefailgrowth_get") &
-result(fresult)
-use, intrinsic :: ISO_C_BINDING
-import :: swigclasswrapper
-type(SwigClassWrapper) :: farg1
-type(C_FUNPTR) :: fresult
-end function
-
-subroutine swigc__generic_SUNHeuristics_Ops_setsmallnumefails_set(farg1, farg2) &
-bind(C, name="_wrap__generic_SUNHeuristics_Ops_setsmallnumefails_set")
-use, intrinsic :: ISO_C_BINDING
-import :: swigclasswrapper
-type(SwigClassWrapper) :: farg1
-type(C_FUNPTR), value :: farg2
-end subroutine
-
-function swigc__generic_SUNHeuristics_Ops_setsmallnumefails_get(farg1) &
-bind(C, name="_wrap__generic_SUNHeuristics_Ops_setsmallnumefails_get") &
-result(fresult)
-use, intrinsic :: ISO_C_BINDING
-import :: swigclasswrapper
-type(SwigClassWrapper) :: farg1
-type(C_FUNPTR) :: fresult
-end function
-
-subroutine swigc__generic_SUNHeuristics_Ops_setmaxcfailgrowth_set(farg1, farg2) &
-bind(C, name="_wrap__generic_SUNHeuristics_Ops_setmaxcfailgrowth_set")
-use, intrinsic :: ISO_C_BINDING
-import :: swigclasswrapper
-type(SwigClassWrapper) :: farg1
-type(C_FUNPTR), value :: farg2
-end subroutine
-
-function swigc__generic_SUNHeuristics_Ops_setmaxcfailgrowth_get(farg1) &
-bind(C, name="_wrap__generic_SUNHeuristics_Ops_setmaxcfailgrowth_get") &
-result(fresult)
-use, intrinsic :: ISO_C_BINDING
-import :: swigclasswrapper
-type(SwigClassWrapper) :: farg1
-type(C_FUNPTR) :: fresult
-end function
-
-subroutine swigc__generic_SUNHeuristics_Ops_getnumexpsteps_set(farg1, farg2) &
-bind(C, name="_wrap__generic_SUNHeuristics_Ops_getnumexpsteps_set")
-use, intrinsic :: ISO_C_BINDING
-import :: swigclasswrapper
-type(SwigClassWrapper) :: farg1
-type(C_FUNPTR), value :: farg2
-end subroutine
-
-function swigc__generic_SUNHeuristics_Ops_getnumexpsteps_get(farg1) &
-bind(C, name="_wrap__generic_SUNHeuristics_Ops_getnumexpsteps_get") &
-result(fresult)
-use, intrinsic :: ISO_C_BINDING
-import :: swigclasswrapper
-type(SwigClassWrapper) :: farg1
-type(C_FUNPTR) :: fresult
-end function
-
-subroutine swigc__generic_SUNHeuristics_Ops_getnumaccsteps_set(farg1, farg2) &
-bind(C, name="_wrap__generic_SUNHeuristics_Ops_getnumaccsteps_set")
-use, intrinsic :: ISO_C_BINDING
-import :: swigclasswrapper
-type(SwigClassWrapper) :: farg1
-type(C_FUNPTR), value :: farg2
-end subroutine
-
-function swigc__generic_SUNHeuristics_Ops_getnumaccsteps_get(farg1) &
-bind(C, name="_wrap__generic_SUNHeuristics_Ops_getnumaccsteps_get") &
-result(fresult)
-use, intrinsic :: ISO_C_BINDING
-import :: swigclasswrapper
-type(SwigClassWrapper) :: farg1
-type(C_FUNPTR) :: fresult
-end function
-
-subroutine swigc__generic_SUNHeuristics_Ops_space_set(farg1, farg2) &
-bind(C, name="_wrap__generic_SUNHeuristics_Ops_space_set")
-use, intrinsic :: ISO_C_BINDING
-import :: swigclasswrapper
-type(SwigClassWrapper) :: farg1
-type(C_FUNPTR), value :: farg2
-end subroutine
-
-function swigc__generic_SUNHeuristics_Ops_space_get(farg1) &
-bind(C, name="_wrap__generic_SUNHeuristics_Ops_space_get") &
-result(fresult)
-use, intrinsic :: ISO_C_BINDING
-import :: swigclasswrapper
-type(SwigClassWrapper) :: farg1
-type(C_FUNPTR) :: fresult
-end function
-
-function swigc_new__generic_SUNHeuristics_Ops() &
-bind(C, name="_wrap_new__generic_SUNHeuristics_Ops") &
-result(fresult)
-use, intrinsic :: ISO_C_BINDING
-import :: swigclasswrapper
-type(SwigClassWrapper) :: fresult
-end function
-
-subroutine swigc_delete__generic_SUNHeuristics_Ops(farg1) &
-bind(C, name="_wrap_delete__generic_SUNHeuristics_Ops")
-use, intrinsic :: ISO_C_BINDING
-import :: swigclasswrapper
-type(SwigClassWrapper), intent(inout) :: farg1
-end subroutine
-
-subroutine swigc__generic_SUNHeuristics_Ops_op_assign__(farg1, farg2) &
-bind(C, name="_wrap__generic_SUNHeuristics_Ops_op_assign__")
-use, intrinsic :: ISO_C_BINDING
-import :: swigclasswrapper
-type(SwigClassWrapper), intent(inout) :: farg1
-type(SwigClassWrapper) :: farg2
-end subroutine
-
-subroutine swigc__generic_SUNHeuristics_content_set(farg1, farg2) &
-bind(C, name="_wrap__generic_SUNHeuristics_content_set")
-use, intrinsic :: ISO_C_BINDING
-import :: swigclasswrapper
-type(SwigClassWrapper) :: farg1
-type(C_PTR), value :: farg2
-end subroutine
-
-function swigc__generic_SUNHeuristics_content_get(farg1) &
-bind(C, name="_wrap__generic_SUNHeuristics_content_get") &
-result(fresult)
-use, intrinsic :: ISO_C_BINDING
-import :: swigclasswrapper
-type(SwigClassWrapper) :: farg1
-type(C_PTR) :: fresult
-end function
-
-subroutine swigc__generic_SUNHeuristics_ops_set(farg1, farg2) &
-bind(C, name="_wrap__generic_SUNHeuristics_ops_set")
-use, intrinsic :: ISO_C_BINDING
-import :: swigclasswrapper
-type(SwigClassWrapper) :: farg1
-type(SwigClassWrapper) :: farg2
-end subroutine
-
-function swigc__generic_SUNHeuristics_ops_get(farg1) &
-bind(C, name="_wrap__generic_SUNHeuristics_ops_get") &
-result(fresult)
-use, intrinsic :: ISO_C_BINDING
-import :: swigclasswrapper
-type(SwigClassWrapper) :: farg1
-type(SwigClassWrapper) :: fresult
-end function
-
-subroutine swigc__generic_SUNHeuristics_sunctx_set(farg1, farg2) &
-bind(C, name="_wrap__generic_SUNHeuristics_sunctx_set")
-use, intrinsic :: ISO_C_BINDING
-import :: swigclasswrapper
-type(SwigClassWrapper) :: farg1
-type(C_PTR), value :: farg2
-end subroutine
-
-function swigc__generic_SUNHeuristics_sunctx_get(farg1) &
-bind(C, name="_wrap__generic_SUNHeuristics_sunctx_get") &
-result(fresult)
-use, intrinsic :: ISO_C_BINDING
-import :: swigclasswrapper
-type(SwigClassWrapper) :: farg1
-type(C_PTR) :: fresult
-end function
-
-function swigc_new__generic_SUNHeuristics() &
-bind(C, name="_wrap_new__generic_SUNHeuristics") &
-result(fresult)
-use, intrinsic :: ISO_C_BINDING
-import :: swigclasswrapper
-type(SwigClassWrapper) :: fresult
-end function
-
-subroutine swigc_delete__generic_SUNHeuristics(farg1) &
-bind(C, name="_wrap_delete__generic_SUNHeuristics")
-use, intrinsic :: ISO_C_BINDING
-import :: swigclasswrapper
-type(SwigClassWrapper), intent(inout) :: farg1
-end subroutine
-
-subroutine swigc__generic_SUNHeuristics_op_assign__(farg1, farg2) &
-bind(C, name="_wrap__generic_SUNHeuristics_op_assign__")
-use, intrinsic :: ISO_C_BINDING
-import :: swigclasswrapper
-type(SwigClassWrapper), intent(inout) :: farg1
-type(SwigClassWrapper) :: farg2
-end subroutine
-
 function swigc_FSUNHeuristicsNewEmpty(farg1) &
 bind(C, name="_wrap_FSUNHeuristicsNewEmpty") &
 result(fresult)
 use, intrinsic :: ISO_C_BINDING
-import :: swigclasswrapper
 type(C_PTR), value :: farg1
-type(SwigClassWrapper) :: fresult
+type(C_PTR) :: fresult
 end function
 
 function swigc_FSUNHeuristicsGetID(farg1) &
 bind(C, name="_wrap_FSUNHeuristicsGetID") &
 result(fresult)
 use, intrinsic :: ISO_C_BINDING
-import :: swigclasswrapper
-type(SwigClassWrapper) :: farg1
+type(C_PTR), value :: farg1
 integer(C_INT) :: fresult
 end function
 
 subroutine swigc_FSUNHeuristicsDestroy(farg1) &
 bind(C, name="_wrap_FSUNHeuristicsDestroy")
 use, intrinsic :: ISO_C_BINDING
-import :: swigclasswrapper
-type(SwigClassWrapper) :: farg1
+type(C_PTR), value :: farg1
 end subroutine
 
 function swigc_FSUNHeuristicsConstrainStep(farg1, farg2, farg3, farg4) &
 bind(C, name="_wrap_FSUNHeuristicsConstrainStep") &
 result(fresult)
 use, intrinsic :: ISO_C_BINDING
-import :: swigclasswrapper
-type(SwigClassWrapper) :: farg1
+type(C_PTR), value :: farg1
 real(C_DOUBLE), intent(in) :: farg2
 real(C_DOUBLE), intent(in) :: farg3
 type(C_PTR), value :: farg4
@@ -723,8 +127,7 @@ function swigc_FSUNHeuristicsETestFail(farg1, farg2, farg3, farg4, farg5) &
 bind(C, name="_wrap_FSUNHeuristicsETestFail") &
 result(fresult)
 use, intrinsic :: ISO_C_BINDING
-import :: swigclasswrapper
-type(SwigClassWrapper) :: farg1
+type(C_PTR), value :: farg1
 real(C_DOUBLE), intent(in) :: farg2
 real(C_DOUBLE), intent(in) :: farg3
 integer(C_INT), intent(in) :: farg4
@@ -736,8 +139,7 @@ function swigc_FSUNHeuristicsBoundReduction(farg1, farg2, farg3, farg4) &
 bind(C, name="_wrap_FSUNHeuristicsBoundReduction") &
 result(fresult)
 use, intrinsic :: ISO_C_BINDING
-import :: swigclasswrapper
-type(SwigClassWrapper) :: farg1
+type(C_PTR), value :: farg1
 real(C_DOUBLE), intent(in) :: farg2
 real(C_DOUBLE), intent(in) :: farg3
 type(C_PTR), value :: farg4
@@ -748,8 +150,7 @@ function swigc_FSUNHeuristicsBoundFirstStep(farg1, farg2, farg3) &
 bind(C, name="_wrap_FSUNHeuristicsBoundFirstStep") &
 result(fresult)
 use, intrinsic :: ISO_C_BINDING
-import :: swigclasswrapper
-type(SwigClassWrapper) :: farg1
+type(C_PTR), value :: farg1
 real(C_DOUBLE), intent(in) :: farg2
 type(C_PTR), value :: farg3
 integer(C_INT) :: fresult
@@ -759,8 +160,7 @@ function swigc_FSUNHeuristicsConvFail(farg1, farg2, farg3) &
 bind(C, name="_wrap_FSUNHeuristicsConvFail") &
 result(fresult)
 use, intrinsic :: ISO_C_BINDING
-import :: swigclasswrapper
-type(SwigClassWrapper) :: farg1
+type(C_PTR), value :: farg1
 real(C_DOUBLE), intent(in) :: farg2
 type(C_PTR), value :: farg3
 integer(C_INT) :: fresult
@@ -770,8 +170,7 @@ function swigc_FSUNHeuristicsReset(farg1) &
 bind(C, name="_wrap_FSUNHeuristicsReset") &
 result(fresult)
 use, intrinsic :: ISO_C_BINDING
-import :: swigclasswrapper
-type(SwigClassWrapper) :: farg1
+type(C_PTR), value :: farg1
 integer(C_INT) :: fresult
 end function
 
@@ -779,8 +178,7 @@ function swigc_FSUNHeuristicsUpdate(farg1) &
 bind(C, name="_wrap_FSUNHeuristicsUpdate") &
 result(fresult)
 use, intrinsic :: ISO_C_BINDING
-import :: swigclasswrapper
-type(SwigClassWrapper) :: farg1
+type(C_PTR), value :: farg1
 integer(C_INT) :: fresult
 end function
 
@@ -788,8 +186,7 @@ function swigc_FSUNHeuristicsSetDefaults(farg1) &
 bind(C, name="_wrap_FSUNHeuristicsSetDefaults") &
 result(fresult)
 use, intrinsic :: ISO_C_BINDING
-import :: swigclasswrapper
-type(SwigClassWrapper) :: farg1
+type(C_PTR), value :: farg1
 integer(C_INT) :: fresult
 end function
 
@@ -797,8 +194,7 @@ function swigc_FSUNHeuristicsWrite(farg1, farg2) &
 bind(C, name="_wrap_FSUNHeuristicsWrite") &
 result(fresult)
 use, intrinsic :: ISO_C_BINDING
-import :: swigclasswrapper
-type(SwigClassWrapper) :: farg1
+type(C_PTR), value :: farg1
 type(C_PTR), value :: farg2
 integer(C_INT) :: fresult
 end function
@@ -807,8 +203,7 @@ function swigc_FSUNHeuristicsSetMaxStep(farg1, farg2) &
 bind(C, name="_wrap_FSUNHeuristicsSetMaxStep") &
 result(fresult)
 use, intrinsic :: ISO_C_BINDING
-import :: swigclasswrapper
-type(SwigClassWrapper) :: farg1
+type(C_PTR), value :: farg1
 real(C_DOUBLE), intent(in) :: farg2
 integer(C_INT) :: fresult
 end function
@@ -817,8 +212,7 @@ function swigc_FSUNHeuristicsSetMinStep(farg1, farg2) &
 bind(C, name="_wrap_FSUNHeuristicsSetMinStep") &
 result(fresult)
 use, intrinsic :: ISO_C_BINDING
-import :: swigclasswrapper
-type(SwigClassWrapper) :: farg1
+type(C_PTR), value :: farg1
 real(C_DOUBLE), intent(in) :: farg2
 integer(C_INT) :: fresult
 end function
@@ -827,8 +221,7 @@ function swigc_FSUNHeuristicsSetExpStabFn(farg1, farg2, farg3) &
 bind(C, name="_wrap_FSUNHeuristicsSetExpStabFn") &
 result(fresult)
 use, intrinsic :: ISO_C_BINDING
-import :: swigclasswrapper
-type(SwigClassWrapper) :: farg1
+type(C_PTR), value :: farg1
 type(C_FUNPTR), value :: farg2
 type(C_PTR), value :: farg3
 integer(C_INT) :: fresult
@@ -838,8 +231,7 @@ function swigc_FSUNHeuristicsSetCFLFraction(farg1, farg2) &
 bind(C, name="_wrap_FSUNHeuristicsSetCFLFraction") &
 result(fresult)
 use, intrinsic :: ISO_C_BINDING
-import :: swigclasswrapper
-type(SwigClassWrapper) :: farg1
+type(C_PTR), value :: farg1
 real(C_DOUBLE), intent(in) :: farg2
 integer(C_INT) :: fresult
 end function
@@ -848,8 +240,7 @@ function swigc_FSUNHeuristicsSetSafetyFactor(farg1, farg2) &
 bind(C, name="_wrap_FSUNHeuristicsSetSafetyFactor") &
 result(fresult)
 use, intrinsic :: ISO_C_BINDING
-import :: swigclasswrapper
-type(SwigClassWrapper) :: farg1
+type(C_PTR), value :: farg1
 real(C_DOUBLE), intent(in) :: farg2
 integer(C_INT) :: fresult
 end function
@@ -858,8 +249,7 @@ function swigc_FSUNHeuristicsSetMaxGrowth(farg1, farg2) &
 bind(C, name="_wrap_FSUNHeuristicsSetMaxGrowth") &
 result(fresult)
 use, intrinsic :: ISO_C_BINDING
-import :: swigclasswrapper
-type(SwigClassWrapper) :: farg1
+type(C_PTR), value :: farg1
 real(C_DOUBLE), intent(in) :: farg2
 integer(C_INT) :: fresult
 end function
@@ -868,8 +258,7 @@ function swigc_FSUNHeuristicsSetMaxFirstGrowth(farg1, farg2) &
 bind(C, name="_wrap_FSUNHeuristicsSetMaxFirstGrowth") &
 result(fresult)
 use, intrinsic :: ISO_C_BINDING
-import :: swigclasswrapper
-type(SwigClassWrapper) :: farg1
+type(C_PTR), value :: farg1
 real(C_DOUBLE), intent(in) :: farg2
 integer(C_INT) :: fresult
 end function
@@ -878,8 +267,7 @@ function swigc_FSUNHeuristicsSetFixedStepBounds(farg1, farg2, farg3) &
 bind(C, name="_wrap_FSUNHeuristicsSetFixedStepBounds") &
 result(fresult)
 use, intrinsic :: ISO_C_BINDING
-import :: swigclasswrapper
-type(SwigClassWrapper) :: farg1
+type(C_PTR), value :: farg1
 real(C_DOUBLE), intent(in) :: farg2
 real(C_DOUBLE), intent(in) :: farg3
 integer(C_INT) :: fresult
@@ -889,8 +277,7 @@ function swigc_FSUNHeuristicsSetMinReduction(farg1, farg2) &
 bind(C, name="_wrap_FSUNHeuristicsSetMinReduction") &
 result(fresult)
 use, intrinsic :: ISO_C_BINDING
-import :: swigclasswrapper
-type(SwigClassWrapper) :: farg1
+type(C_PTR), value :: farg1
 real(C_DOUBLE), intent(in) :: farg2
 integer(C_INT) :: fresult
 end function
@@ -899,8 +286,7 @@ function swigc_FSUNHeuristicsSetMaxEFailGrowth(farg1, farg2) &
 bind(C, name="_wrap_FSUNHeuristicsSetMaxEFailGrowth") &
 result(fresult)
 use, intrinsic :: ISO_C_BINDING
-import :: swigclasswrapper
-type(SwigClassWrapper) :: farg1
+type(C_PTR), value :: farg1
 real(C_DOUBLE), intent(in) :: farg2
 integer(C_INT) :: fresult
 end function
@@ -909,8 +295,7 @@ function swigc_FSUNHeuristicsSetSmallNumEFails(farg1, farg2) &
 bind(C, name="_wrap_FSUNHeuristicsSetSmallNumEFails") &
 result(fresult)
 use, intrinsic :: ISO_C_BINDING
-import :: swigclasswrapper
-type(SwigClassWrapper) :: farg1
+type(C_PTR), value :: farg1
 integer(C_INT), intent(in) :: farg2
 integer(C_INT) :: fresult
 end function
@@ -919,8 +304,7 @@ function swigc_FSUNHeuristicsSetMaxCFailGrowth(farg1, farg2) &
 bind(C, name="_wrap_FSUNHeuristicsSetMaxCFailGrowth") &
 result(fresult)
 use, intrinsic :: ISO_C_BINDING
-import :: swigclasswrapper
-type(SwigClassWrapper) :: farg1
+type(C_PTR), value :: farg1
 real(C_DOUBLE), intent(in) :: farg2
 integer(C_INT) :: fresult
 end function
@@ -929,8 +313,7 @@ function swigc_FSUNHeuristicsGetNumExpSteps(farg1, farg2) &
 bind(C, name="_wrap_FSUNHeuristicsGetNumExpSteps") &
 result(fresult)
 use, intrinsic :: ISO_C_BINDING
-import :: swigclasswrapper
-type(SwigClassWrapper) :: farg1
+type(C_PTR), value :: farg1
 type(C_PTR), value :: farg2
 integer(C_INT) :: fresult
 end function
@@ -939,8 +322,7 @@ function swigc_FSUNHeuristicsGetNumAccSteps(farg1, farg2) &
 bind(C, name="_wrap_FSUNHeuristicsGetNumAccSteps") &
 result(fresult)
 use, intrinsic :: ISO_C_BINDING
-import :: swigclasswrapper
-type(SwigClassWrapper) :: farg1
+type(C_PTR), value :: farg1
 type(C_PTR), value :: farg2
 integer(C_INT) :: fresult
 end function
@@ -949,8 +331,7 @@ function swigc_FSUNHeuristicsSpace(farg1, farg2, farg3) &
 bind(C, name="_wrap_FSUNHeuristicsSpace") &
 result(fresult)
 use, intrinsic :: ISO_C_BINDING
-import :: swigclasswrapper
-type(SwigClassWrapper) :: farg1
+type(C_PTR), value :: farg1
 type(C_PTR), value :: farg2
 type(C_PTR), value :: farg3
 integer(C_INT) :: fresult
@@ -961,837 +342,38 @@ end interface
 
 contains
  ! MODULE SUBPROGRAMS
-subroutine swigf__generic_SUNHeuristics_Ops_getid_set(self, getid)
-use, intrinsic :: ISO_C_BINDING
-class(generic_SUNHeuristics_Ops_), intent(in) :: self
-type(C_FUNPTR), intent(in), value :: getid
-type(SwigClassWrapper) :: farg1 
-type(C_FUNPTR) :: farg2 
-
-farg1 = self%swigdata
-farg2 = getid
-call swigc__generic_SUNHeuristics_Ops_getid_set(farg1, farg2)
-end subroutine
-
-function swigf__generic_SUNHeuristics_Ops_getid_get(self) &
-result(swig_result)
-use, intrinsic :: ISO_C_BINDING
-type(C_FUNPTR) :: swig_result
-class(generic_SUNHeuristics_Ops_), intent(in) :: self
-type(C_FUNPTR) :: fresult 
-type(SwigClassWrapper) :: farg1 
-
-farg1 = self%swigdata
-fresult = swigc__generic_SUNHeuristics_Ops_getid_get(farg1)
-swig_result = fresult
-end function
-
-subroutine swigf__generic_SUNHeuristics_Ops_destroy_set(self, destroy)
-use, intrinsic :: ISO_C_BINDING
-class(generic_SUNHeuristics_Ops_), intent(in) :: self
-type(C_FUNPTR), intent(in), value :: destroy
-type(SwigClassWrapper) :: farg1 
-type(C_FUNPTR) :: farg2 
-
-farg1 = self%swigdata
-farg2 = destroy
-call swigc__generic_SUNHeuristics_Ops_destroy_set(farg1, farg2)
-end subroutine
-
-function swigf__generic_SUNHeuristics_Ops_destroy_get(self) &
-result(swig_result)
-use, intrinsic :: ISO_C_BINDING
-type(C_FUNPTR) :: swig_result
-class(generic_SUNHeuristics_Ops_), intent(in) :: self
-type(C_FUNPTR) :: fresult 
-type(SwigClassWrapper) :: farg1 
-
-farg1 = self%swigdata
-fresult = swigc__generic_SUNHeuristics_Ops_destroy_get(farg1)
-swig_result = fresult
-end function
-
-subroutine swigf__generic_SUNHeuristics_Ops_constrainstep_set(self, constrainstep)
-use, intrinsic :: ISO_C_BINDING
-class(generic_SUNHeuristics_Ops_), intent(in) :: self
-type(C_FUNPTR), intent(in), value :: constrainstep
-type(SwigClassWrapper) :: farg1 
-type(C_FUNPTR) :: farg2 
-
-farg1 = self%swigdata
-farg2 = constrainstep
-call swigc__generic_SUNHeuristics_Ops_constrainstep_set(farg1, farg2)
-end subroutine
-
-function swigf__generic_SUNHeuristics_Ops_constrainstep_get(self) &
-result(swig_result)
-use, intrinsic :: ISO_C_BINDING
-type(C_FUNPTR) :: swig_result
-class(generic_SUNHeuristics_Ops_), intent(in) :: self
-type(C_FUNPTR) :: fresult 
-type(SwigClassWrapper) :: farg1 
-
-farg1 = self%swigdata
-fresult = swigc__generic_SUNHeuristics_Ops_constrainstep_get(farg1)
-swig_result = fresult
-end function
-
-subroutine swigf__generic_SUNHeuristics_Ops_etestfail_set(self, etestfail)
-use, intrinsic :: ISO_C_BINDING
-class(generic_SUNHeuristics_Ops_), intent(in) :: self
-type(C_FUNPTR), intent(in), value :: etestfail
-type(SwigClassWrapper) :: farg1 
-type(C_FUNPTR) :: farg2 
-
-farg1 = self%swigdata
-farg2 = etestfail
-call swigc__generic_SUNHeuristics_Ops_etestfail_set(farg1, farg2)
-end subroutine
-
-function swigf__generic_SUNHeuristics_Ops_etestfail_get(self) &
-result(swig_result)
-use, intrinsic :: ISO_C_BINDING
-type(C_FUNPTR) :: swig_result
-class(generic_SUNHeuristics_Ops_), intent(in) :: self
-type(C_FUNPTR) :: fresult 
-type(SwigClassWrapper) :: farg1 
-
-farg1 = self%swigdata
-fresult = swigc__generic_SUNHeuristics_Ops_etestfail_get(farg1)
-swig_result = fresult
-end function
-
-subroutine swigf__generic_SUNHeuristics_Ops_convfail_set(self, convfail)
-use, intrinsic :: ISO_C_BINDING
-class(generic_SUNHeuristics_Ops_), intent(in) :: self
-type(C_FUNPTR), intent(in), value :: convfail
-type(SwigClassWrapper) :: farg1 
-type(C_FUNPTR) :: farg2 
-
-farg1 = self%swigdata
-farg2 = convfail
-call swigc__generic_SUNHeuristics_Ops_convfail_set(farg1, farg2)
-end subroutine
-
-function swigf__generic_SUNHeuristics_Ops_convfail_get(self) &
-result(swig_result)
-use, intrinsic :: ISO_C_BINDING
-type(C_FUNPTR) :: swig_result
-class(generic_SUNHeuristics_Ops_), intent(in) :: self
-type(C_FUNPTR) :: fresult 
-type(SwigClassWrapper) :: farg1 
-
-farg1 = self%swigdata
-fresult = swigc__generic_SUNHeuristics_Ops_convfail_get(farg1)
-swig_result = fresult
-end function
-
-subroutine swigf__generic_SUNHeuristics_Ops_boundreduction_set(self, boundreduction)
-use, intrinsic :: ISO_C_BINDING
-class(generic_SUNHeuristics_Ops_), intent(in) :: self
-type(C_FUNPTR), intent(in), value :: boundreduction
-type(SwigClassWrapper) :: farg1 
-type(C_FUNPTR) :: farg2 
-
-farg1 = self%swigdata
-farg2 = boundreduction
-call swigc__generic_SUNHeuristics_Ops_boundreduction_set(farg1, farg2)
-end subroutine
-
-function swigf__generic_SUNHeuristics_Ops_boundreduction_get(self) &
-result(swig_result)
-use, intrinsic :: ISO_C_BINDING
-type(C_FUNPTR) :: swig_result
-class(generic_SUNHeuristics_Ops_), intent(in) :: self
-type(C_FUNPTR) :: fresult 
-type(SwigClassWrapper) :: farg1 
-
-farg1 = self%swigdata
-fresult = swigc__generic_SUNHeuristics_Ops_boundreduction_get(farg1)
-swig_result = fresult
-end function
-
-subroutine swigf__generic_SUNHeuristics_Ops_boundfirststep_set(self, boundfirststep)
-use, intrinsic :: ISO_C_BINDING
-class(generic_SUNHeuristics_Ops_), intent(in) :: self
-type(C_FUNPTR), intent(in), value :: boundfirststep
-type(SwigClassWrapper) :: farg1 
-type(C_FUNPTR) :: farg2 
-
-farg1 = self%swigdata
-farg2 = boundfirststep
-call swigc__generic_SUNHeuristics_Ops_boundfirststep_set(farg1, farg2)
-end subroutine
-
-function swigf__generic_SUNHeuristics_Ops_boundfirststep_get(self) &
-result(swig_result)
-use, intrinsic :: ISO_C_BINDING
-type(C_FUNPTR) :: swig_result
-class(generic_SUNHeuristics_Ops_), intent(in) :: self
-type(C_FUNPTR) :: fresult 
-type(SwigClassWrapper) :: farg1 
-
-farg1 = self%swigdata
-fresult = swigc__generic_SUNHeuristics_Ops_boundfirststep_get(farg1)
-swig_result = fresult
-end function
-
-subroutine swigf__generic_SUNHeuristics_Ops_reset_set(self, reset)
-use, intrinsic :: ISO_C_BINDING
-class(generic_SUNHeuristics_Ops_), intent(in) :: self
-type(C_FUNPTR), intent(in), value :: reset
-type(SwigClassWrapper) :: farg1 
-type(C_FUNPTR) :: farg2 
-
-farg1 = self%swigdata
-farg2 = reset
-call swigc__generic_SUNHeuristics_Ops_reset_set(farg1, farg2)
-end subroutine
-
-function swigf__generic_SUNHeuristics_Ops_reset_get(self) &
-result(swig_result)
-use, intrinsic :: ISO_C_BINDING
-type(C_FUNPTR) :: swig_result
-class(generic_SUNHeuristics_Ops_), intent(in) :: self
-type(C_FUNPTR) :: fresult 
-type(SwigClassWrapper) :: farg1 
-
-farg1 = self%swigdata
-fresult = swigc__generic_SUNHeuristics_Ops_reset_get(farg1)
-swig_result = fresult
-end function
-
-subroutine swigf__generic_SUNHeuristics_Ops_update_set(self, update)
-use, intrinsic :: ISO_C_BINDING
-class(generic_SUNHeuristics_Ops_), intent(in) :: self
-type(C_FUNPTR), intent(in), value :: update
-type(SwigClassWrapper) :: farg1 
-type(C_FUNPTR) :: farg2 
-
-farg1 = self%swigdata
-farg2 = update
-call swigc__generic_SUNHeuristics_Ops_update_set(farg1, farg2)
-end subroutine
-
-function swigf__generic_SUNHeuristics_Ops_update_get(self) &
-result(swig_result)
-use, intrinsic :: ISO_C_BINDING
-type(C_FUNPTR) :: swig_result
-class(generic_SUNHeuristics_Ops_), intent(in) :: self
-type(C_FUNPTR) :: fresult 
-type(SwigClassWrapper) :: farg1 
-
-farg1 = self%swigdata
-fresult = swigc__generic_SUNHeuristics_Ops_update_get(farg1)
-swig_result = fresult
-end function
-
-subroutine swigf__generic_SUNHeuristics_Ops_setdefaults_set(self, setdefaults)
-use, intrinsic :: ISO_C_BINDING
-class(generic_SUNHeuristics_Ops_), intent(in) :: self
-type(C_FUNPTR), intent(in), value :: setdefaults
-type(SwigClassWrapper) :: farg1 
-type(C_FUNPTR) :: farg2 
-
-farg1 = self%swigdata
-farg2 = setdefaults
-call swigc__generic_SUNHeuristics_Ops_setdefaults_set(farg1, farg2)
-end subroutine
-
-function swigf__generic_SUNHeuristics_Ops_setdefaults_get(self) &
-result(swig_result)
-use, intrinsic :: ISO_C_BINDING
-type(C_FUNPTR) :: swig_result
-class(generic_SUNHeuristics_Ops_), intent(in) :: self
-type(C_FUNPTR) :: fresult 
-type(SwigClassWrapper) :: farg1 
-
-farg1 = self%swigdata
-fresult = swigc__generic_SUNHeuristics_Ops_setdefaults_get(farg1)
-swig_result = fresult
-end function
-
-subroutine swigf__generic_SUNHeuristics_Ops_write_set(self, write)
-use, intrinsic :: ISO_C_BINDING
-class(generic_SUNHeuristics_Ops_), intent(in) :: self
-type(C_FUNPTR), intent(in), value :: write
-type(SwigClassWrapper) :: farg1 
-type(C_FUNPTR) :: farg2 
-
-farg1 = self%swigdata
-farg2 = write
-call swigc__generic_SUNHeuristics_Ops_write_set(farg1, farg2)
-end subroutine
-
-function swigf__generic_SUNHeuristics_Ops_write_get(self) &
-result(swig_result)
-use, intrinsic :: ISO_C_BINDING
-type(C_FUNPTR) :: swig_result
-class(generic_SUNHeuristics_Ops_), intent(in) :: self
-type(C_FUNPTR) :: fresult 
-type(SwigClassWrapper) :: farg1 
-
-farg1 = self%swigdata
-fresult = swigc__generic_SUNHeuristics_Ops_write_get(farg1)
-swig_result = fresult
-end function
-
-subroutine swigf__generic_SUNHeuristics_Ops_setmaxstep_set(self, setmaxstep)
-use, intrinsic :: ISO_C_BINDING
-class(generic_SUNHeuristics_Ops_), intent(in) :: self
-type(C_FUNPTR), intent(in), value :: setmaxstep
-type(SwigClassWrapper) :: farg1 
-type(C_FUNPTR) :: farg2 
-
-farg1 = self%swigdata
-farg2 = setmaxstep
-call swigc__generic_SUNHeuristics_Ops_setmaxstep_set(farg1, farg2)
-end subroutine
-
-function swigf__generic_SUNHeuristics_Ops_setmaxstep_get(self) &
-result(swig_result)
-use, intrinsic :: ISO_C_BINDING
-type(C_FUNPTR) :: swig_result
-class(generic_SUNHeuristics_Ops_), intent(in) :: self
-type(C_FUNPTR) :: fresult 
-type(SwigClassWrapper) :: farg1 
-
-farg1 = self%swigdata
-fresult = swigc__generic_SUNHeuristics_Ops_setmaxstep_get(farg1)
-swig_result = fresult
-end function
-
-subroutine swigf__generic_SUNHeuristics_Ops_setminstep_set(self, setminstep)
-use, intrinsic :: ISO_C_BINDING
-class(generic_SUNHeuristics_Ops_), intent(in) :: self
-type(C_FUNPTR), intent(in), value :: setminstep
-type(SwigClassWrapper) :: farg1 
-type(C_FUNPTR) :: farg2 
-
-farg1 = self%swigdata
-farg2 = setminstep
-call swigc__generic_SUNHeuristics_Ops_setminstep_set(farg1, farg2)
-end subroutine
-
-function swigf__generic_SUNHeuristics_Ops_setminstep_get(self) &
-result(swig_result)
-use, intrinsic :: ISO_C_BINDING
-type(C_FUNPTR) :: swig_result
-class(generic_SUNHeuristics_Ops_), intent(in) :: self
-type(C_FUNPTR) :: fresult 
-type(SwigClassWrapper) :: farg1 
-
-farg1 = self%swigdata
-fresult = swigc__generic_SUNHeuristics_Ops_setminstep_get(farg1)
-swig_result = fresult
-end function
-
-subroutine swigf__generic_SUNHeuristics_Ops_setexpstabfn_set(self, setexpstabfn)
-use, intrinsic :: ISO_C_BINDING
-class(generic_SUNHeuristics_Ops_), intent(in) :: self
-type(C_FUNPTR), intent(in), value :: setexpstabfn
-type(SwigClassWrapper) :: farg1 
-type(C_FUNPTR) :: farg2 
-
-farg1 = self%swigdata
-farg2 = setexpstabfn
-call swigc__generic_SUNHeuristics_Ops_setexpstabfn_set(farg1, farg2)
-end subroutine
-
-function swigf__generic_SUNHeuristics_Ops_setexpstabfn_get(self) &
-result(swig_result)
-use, intrinsic :: ISO_C_BINDING
-type(C_FUNPTR) :: swig_result
-class(generic_SUNHeuristics_Ops_), intent(in) :: self
-type(C_FUNPTR) :: fresult 
-type(SwigClassWrapper) :: farg1 
-
-farg1 = self%swigdata
-fresult = swigc__generic_SUNHeuristics_Ops_setexpstabfn_get(farg1)
-swig_result = fresult
-end function
-
-subroutine swigf__generic_SUNHeuristics_Ops_setcflfraction_set(self, setcflfraction)
-use, intrinsic :: ISO_C_BINDING
-class(generic_SUNHeuristics_Ops_), intent(in) :: self
-type(C_FUNPTR), intent(in), value :: setcflfraction
-type(SwigClassWrapper) :: farg1 
-type(C_FUNPTR) :: farg2 
-
-farg1 = self%swigdata
-farg2 = setcflfraction
-call swigc__generic_SUNHeuristics_Ops_setcflfraction_set(farg1, farg2)
-end subroutine
-
-function swigf__generic_SUNHeuristics_Ops_setcflfraction_get(self) &
-result(swig_result)
-use, intrinsic :: ISO_C_BINDING
-type(C_FUNPTR) :: swig_result
-class(generic_SUNHeuristics_Ops_), intent(in) :: self
-type(C_FUNPTR) :: fresult 
-type(SwigClassWrapper) :: farg1 
-
-farg1 = self%swigdata
-fresult = swigc__generic_SUNHeuristics_Ops_setcflfraction_get(farg1)
-swig_result = fresult
-end function
-
-subroutine swigf__generic_SUNHeuristics_Ops_setsafetyfactor_set(self, setsafetyfactor)
-use, intrinsic :: ISO_C_BINDING
-class(generic_SUNHeuristics_Ops_), intent(in) :: self
-type(C_FUNPTR), intent(in), value :: setsafetyfactor
-type(SwigClassWrapper) :: farg1 
-type(C_FUNPTR) :: farg2 
-
-farg1 = self%swigdata
-farg2 = setsafetyfactor
-call swigc__generic_SUNHeuristics_Ops_setsafetyfactor_set(farg1, farg2)
-end subroutine
-
-function swigf__generic_SUNHeuristics_Ops_setsafetyfactor_get(self) &
-result(swig_result)
-use, intrinsic :: ISO_C_BINDING
-type(C_FUNPTR) :: swig_result
-class(generic_SUNHeuristics_Ops_), intent(in) :: self
-type(C_FUNPTR) :: fresult 
-type(SwigClassWrapper) :: farg1 
-
-farg1 = self%swigdata
-fresult = swigc__generic_SUNHeuristics_Ops_setsafetyfactor_get(farg1)
-swig_result = fresult
-end function
-
-subroutine swigf__generic_SUNHeuristics_Ops_setmaxgrowth_set(self, setmaxgrowth)
-use, intrinsic :: ISO_C_BINDING
-class(generic_SUNHeuristics_Ops_), intent(in) :: self
-type(C_FUNPTR), intent(in), value :: setmaxgrowth
-type(SwigClassWrapper) :: farg1 
-type(C_FUNPTR) :: farg2 
-
-farg1 = self%swigdata
-farg2 = setmaxgrowth
-call swigc__generic_SUNHeuristics_Ops_setmaxgrowth_set(farg1, farg2)
-end subroutine
-
-function swigf__generic_SUNHeuristics_Ops_setmaxgrowth_get(self) &
-result(swig_result)
-use, intrinsic :: ISO_C_BINDING
-type(C_FUNPTR) :: swig_result
-class(generic_SUNHeuristics_Ops_), intent(in) :: self
-type(C_FUNPTR) :: fresult 
-type(SwigClassWrapper) :: farg1 
-
-farg1 = self%swigdata
-fresult = swigc__generic_SUNHeuristics_Ops_setmaxgrowth_get(farg1)
-swig_result = fresult
-end function
-
-subroutine swigf__generic_SUNHeuristics_Ops_setminreduction_set(self, setminreduction)
-use, intrinsic :: ISO_C_BINDING
-class(generic_SUNHeuristics_Ops_), intent(in) :: self
-type(C_FUNPTR), intent(in), value :: setminreduction
-type(SwigClassWrapper) :: farg1 
-type(C_FUNPTR) :: farg2 
-
-farg1 = self%swigdata
-farg2 = setminreduction
-call swigc__generic_SUNHeuristics_Ops_setminreduction_set(farg1, farg2)
-end subroutine
-
-function swigf__generic_SUNHeuristics_Ops_setminreduction_get(self) &
-result(swig_result)
-use, intrinsic :: ISO_C_BINDING
-type(C_FUNPTR) :: swig_result
-class(generic_SUNHeuristics_Ops_), intent(in) :: self
-type(C_FUNPTR) :: fresult 
-type(SwigClassWrapper) :: farg1 
-
-farg1 = self%swigdata
-fresult = swigc__generic_SUNHeuristics_Ops_setminreduction_get(farg1)
-swig_result = fresult
-end function
-
-subroutine swigf__generic_SUNHeuristics_Ops_setfixedstepbounds_set(self, setfixedstepbounds)
-use, intrinsic :: ISO_C_BINDING
-class(generic_SUNHeuristics_Ops_), intent(in) :: self
-type(C_FUNPTR), intent(in), value :: setfixedstepbounds
-type(SwigClassWrapper) :: farg1 
-type(C_FUNPTR) :: farg2 
-
-farg1 = self%swigdata
-farg2 = setfixedstepbounds
-call swigc__generic_SUNHeuristics_Ops_setfixedstepbounds_set(farg1, farg2)
-end subroutine
-
-function swigf__generic_SUNHeuristics_Ops_setfixedstepbounds_get(self) &
-result(swig_result)
-use, intrinsic :: ISO_C_BINDING
-type(C_FUNPTR) :: swig_result
-class(generic_SUNHeuristics_Ops_), intent(in) :: self
-type(C_FUNPTR) :: fresult 
-type(SwigClassWrapper) :: farg1 
-
-farg1 = self%swigdata
-fresult = swigc__generic_SUNHeuristics_Ops_setfixedstepbounds_get(farg1)
-swig_result = fresult
-end function
-
-subroutine swigf__generic_SUNHeuristics_Ops_setmaxfirstgrowth_set(self, setmaxfirstgrowth)
-use, intrinsic :: ISO_C_BINDING
-class(generic_SUNHeuristics_Ops_), intent(in) :: self
-type(C_FUNPTR), intent(in), value :: setmaxfirstgrowth
-type(SwigClassWrapper) :: farg1 
-type(C_FUNPTR) :: farg2 
-
-farg1 = self%swigdata
-farg2 = setmaxfirstgrowth
-call swigc__generic_SUNHeuristics_Ops_setmaxfirstgrowth_set(farg1, farg2)
-end subroutine
-
-function swigf__generic_SUNHeuristics_Ops_setmaxfirstgrowth_get(self) &
-result(swig_result)
-use, intrinsic :: ISO_C_BINDING
-type(C_FUNPTR) :: swig_result
-class(generic_SUNHeuristics_Ops_), intent(in) :: self
-type(C_FUNPTR) :: fresult 
-type(SwigClassWrapper) :: farg1 
-
-farg1 = self%swigdata
-fresult = swigc__generic_SUNHeuristics_Ops_setmaxfirstgrowth_get(farg1)
-swig_result = fresult
-end function
-
-subroutine swigf__generic_SUNHeuristics_Ops_setmaxefailgrowth_set(self, setmaxefailgrowth)
-use, intrinsic :: ISO_C_BINDING
-class(generic_SUNHeuristics_Ops_), intent(in) :: self
-type(C_FUNPTR), intent(in), value :: setmaxefailgrowth
-type(SwigClassWrapper) :: farg1 
-type(C_FUNPTR) :: farg2 
-
-farg1 = self%swigdata
-farg2 = setmaxefailgrowth
-call swigc__generic_SUNHeuristics_Ops_setmaxefailgrowth_set(farg1, farg2)
-end subroutine
-
-function swigf__generic_SUNHeuristics_Ops_setmaxefailgrowth_get(self) &
-result(swig_result)
-use, intrinsic :: ISO_C_BINDING
-type(C_FUNPTR) :: swig_result
-class(generic_SUNHeuristics_Ops_), intent(in) :: self
-type(C_FUNPTR) :: fresult 
-type(SwigClassWrapper) :: farg1 
-
-farg1 = self%swigdata
-fresult = swigc__generic_SUNHeuristics_Ops_setmaxefailgrowth_get(farg1)
-swig_result = fresult
-end function
-
-subroutine swigf__generic_SUNHeuristics_Ops_setsmallnumefails_set(self, setsmallnumefails)
-use, intrinsic :: ISO_C_BINDING
-class(generic_SUNHeuristics_Ops_), intent(in) :: self
-type(C_FUNPTR), intent(in), value :: setsmallnumefails
-type(SwigClassWrapper) :: farg1 
-type(C_FUNPTR) :: farg2 
-
-farg1 = self%swigdata
-farg2 = setsmallnumefails
-call swigc__generic_SUNHeuristics_Ops_setsmallnumefails_set(farg1, farg2)
-end subroutine
-
-function swigf__generic_SUNHeuristics_Ops_setsmallnumefails_get(self) &
-result(swig_result)
-use, intrinsic :: ISO_C_BINDING
-type(C_FUNPTR) :: swig_result
-class(generic_SUNHeuristics_Ops_), intent(in) :: self
-type(C_FUNPTR) :: fresult 
-type(SwigClassWrapper) :: farg1 
-
-farg1 = self%swigdata
-fresult = swigc__generic_SUNHeuristics_Ops_setsmallnumefails_get(farg1)
-swig_result = fresult
-end function
-
-subroutine swigf__generic_SUNHeuristics_Ops_setmaxcfailgrowth_set(self, setmaxcfailgrowth)
-use, intrinsic :: ISO_C_BINDING
-class(generic_SUNHeuristics_Ops_), intent(in) :: self
-type(C_FUNPTR), intent(in), value :: setmaxcfailgrowth
-type(SwigClassWrapper) :: farg1 
-type(C_FUNPTR) :: farg2 
-
-farg1 = self%swigdata
-farg2 = setmaxcfailgrowth
-call swigc__generic_SUNHeuristics_Ops_setmaxcfailgrowth_set(farg1, farg2)
-end subroutine
-
-function swigf__generic_SUNHeuristics_Ops_setmaxcfailgrowth_get(self) &
-result(swig_result)
-use, intrinsic :: ISO_C_BINDING
-type(C_FUNPTR) :: swig_result
-class(generic_SUNHeuristics_Ops_), intent(in) :: self
-type(C_FUNPTR) :: fresult 
-type(SwigClassWrapper) :: farg1 
-
-farg1 = self%swigdata
-fresult = swigc__generic_SUNHeuristics_Ops_setmaxcfailgrowth_get(farg1)
-swig_result = fresult
-end function
-
-subroutine swigf__generic_SUNHeuristics_Ops_getnumexpsteps_set(self, getnumexpsteps)
-use, intrinsic :: ISO_C_BINDING
-class(generic_SUNHeuristics_Ops_), intent(in) :: self
-type(C_FUNPTR), intent(in), value :: getnumexpsteps
-type(SwigClassWrapper) :: farg1 
-type(C_FUNPTR) :: farg2 
-
-farg1 = self%swigdata
-farg2 = getnumexpsteps
-call swigc__generic_SUNHeuristics_Ops_getnumexpsteps_set(farg1, farg2)
-end subroutine
-
-function swigf__generic_SUNHeuristics_Ops_getnumexpsteps_get(self) &
-result(swig_result)
-use, intrinsic :: ISO_C_BINDING
-type(C_FUNPTR) :: swig_result
-class(generic_SUNHeuristics_Ops_), intent(in) :: self
-type(C_FUNPTR) :: fresult 
-type(SwigClassWrapper) :: farg1 
-
-farg1 = self%swigdata
-fresult = swigc__generic_SUNHeuristics_Ops_getnumexpsteps_get(farg1)
-swig_result = fresult
-end function
-
-subroutine swigf__generic_SUNHeuristics_Ops_getnumaccsteps_set(self, getnumaccsteps)
-use, intrinsic :: ISO_C_BINDING
-class(generic_SUNHeuristics_Ops_), intent(in) :: self
-type(C_FUNPTR), intent(in), value :: getnumaccsteps
-type(SwigClassWrapper) :: farg1 
-type(C_FUNPTR) :: farg2 
-
-farg1 = self%swigdata
-farg2 = getnumaccsteps
-call swigc__generic_SUNHeuristics_Ops_getnumaccsteps_set(farg1, farg2)
-end subroutine
-
-function swigf__generic_SUNHeuristics_Ops_getnumaccsteps_get(self) &
-result(swig_result)
-use, intrinsic :: ISO_C_BINDING
-type(C_FUNPTR) :: swig_result
-class(generic_SUNHeuristics_Ops_), intent(in) :: self
-type(C_FUNPTR) :: fresult 
-type(SwigClassWrapper) :: farg1 
-
-farg1 = self%swigdata
-fresult = swigc__generic_SUNHeuristics_Ops_getnumaccsteps_get(farg1)
-swig_result = fresult
-end function
-
-subroutine swigf__generic_SUNHeuristics_Ops_space_set(self, space)
-use, intrinsic :: ISO_C_BINDING
-class(generic_SUNHeuristics_Ops_), intent(in) :: self
-type(C_FUNPTR), intent(in), value :: space
-type(SwigClassWrapper) :: farg1 
-type(C_FUNPTR) :: farg2 
-
-farg1 = self%swigdata
-farg2 = space
-call swigc__generic_SUNHeuristics_Ops_space_set(farg1, farg2)
-end subroutine
-
-function swigf__generic_SUNHeuristics_Ops_space_get(self) &
-result(swig_result)
-use, intrinsic :: ISO_C_BINDING
-type(C_FUNPTR) :: swig_result
-class(generic_SUNHeuristics_Ops_), intent(in) :: self
-type(C_FUNPTR) :: fresult 
-type(SwigClassWrapper) :: farg1 
-
-farg1 = self%swigdata
-fresult = swigc__generic_SUNHeuristics_Ops_space_get(farg1)
-swig_result = fresult
-end function
-
-function swigf_create__generic_SUNHeuristics_Ops() &
-result(self)
-use, intrinsic :: ISO_C_BINDING
-type(generic_SUNHeuristics_Ops_) :: self
-type(SwigClassWrapper) :: fresult 
-
-fresult = swigc_new__generic_SUNHeuristics_Ops()
-self%swigdata = fresult
-end function
-
-subroutine swigf_release__generic_SUNHeuristics_Ops(self)
-use, intrinsic :: ISO_C_BINDING
-class(generic_SUNHeuristics_Ops_), intent(inout) :: self
-type(SwigClassWrapper) :: farg1 
-
-farg1 = self%swigdata
-if (btest(farg1%cmemflags, swig_cmem_own_bit)) then
-call swigc_delete__generic_SUNHeuristics_Ops(farg1)
-endif
-farg1%cptr = C_NULL_PTR
-farg1%cmemflags = 0
-self%swigdata = farg1
-end subroutine
-
-subroutine swigf__generic_SUNHeuristics_Ops_op_assign__(self, other)
-use, intrinsic :: ISO_C_BINDING
-class(generic_SUNHeuristics_Ops_), intent(inout) :: self
-type(generic_SUNHeuristics_Ops_), intent(in) :: other
-type(SwigClassWrapper) :: farg1 
-type(SwigClassWrapper) :: farg2 
-
-farg1 = self%swigdata
-farg2 = other%swigdata
-call swigc__generic_SUNHeuristics_Ops_op_assign__(farg1, farg2)
-self%swigdata = farg1
-end subroutine
-
-subroutine swigf__generic_SUNHeuristics_content_set(self, content)
-use, intrinsic :: ISO_C_BINDING
-class(generic_SUNHeuristics_), intent(in) :: self
-type(C_PTR) :: content
-type(SwigClassWrapper) :: farg1 
-type(C_PTR) :: farg2 
-
-farg1 = self%swigdata
-farg2 = content
-call swigc__generic_SUNHeuristics_content_set(farg1, farg2)
-end subroutine
-
-function swigf__generic_SUNHeuristics_content_get(self) &
-result(swig_result)
-use, intrinsic :: ISO_C_BINDING
-type(C_PTR) :: swig_result
-class(generic_SUNHeuristics_), intent(in) :: self
-type(C_PTR) :: fresult 
-type(SwigClassWrapper) :: farg1 
-
-farg1 = self%swigdata
-fresult = swigc__generic_SUNHeuristics_content_get(farg1)
-swig_result = fresult
-end function
-
-subroutine swigf__generic_SUNHeuristics_ops_set(self, ops)
-use, intrinsic :: ISO_C_BINDING
-class(generic_SUNHeuristics_), intent(in) :: self
-class(generic_SUNHeuristics_Ops_), intent(in) :: ops
-type(SwigClassWrapper) :: farg1 
-type(SwigClassWrapper) :: farg2 
-
-farg1 = self%swigdata
-farg2 = ops%swigdata
-call swigc__generic_SUNHeuristics_ops_set(farg1, farg2)
-end subroutine
-
-function swigf__generic_SUNHeuristics_ops_get(self) &
-result(swig_result)
-use, intrinsic :: ISO_C_BINDING
-type(generic_SUNHeuristics_Ops_) :: swig_result
-class(generic_SUNHeuristics_), intent(in) :: self
-type(SwigClassWrapper) :: fresult 
-type(SwigClassWrapper) :: farg1 
-
-farg1 = self%swigdata
-fresult = swigc__generic_SUNHeuristics_ops_get(farg1)
-swig_result%swigdata = fresult
-end function
-
-subroutine swigf__generic_SUNHeuristics_sunctx_set(self, sunctx)
-use, intrinsic :: ISO_C_BINDING
-class(generic_SUNHeuristics_), intent(in) :: self
-type(C_PTR) :: sunctx
-type(SwigClassWrapper) :: farg1 
-type(C_PTR) :: farg2 
-
-farg1 = self%swigdata
-farg2 = sunctx
-call swigc__generic_SUNHeuristics_sunctx_set(farg1, farg2)
-end subroutine
-
-function swigf__generic_SUNHeuristics_sunctx_get(self) &
-result(swig_result)
-use, intrinsic :: ISO_C_BINDING
-type(C_PTR) :: swig_result
-class(generic_SUNHeuristics_), intent(in) :: self
-type(C_PTR) :: fresult 
-type(SwigClassWrapper) :: farg1 
-
-farg1 = self%swigdata
-fresult = swigc__generic_SUNHeuristics_sunctx_get(farg1)
-swig_result = fresult
-end function
-
-function swigf_create__generic_SUNHeuristics() &
-result(self)
-use, intrinsic :: ISO_C_BINDING
-type(generic_SUNHeuristics_) :: self
-type(SwigClassWrapper) :: fresult 
-
-fresult = swigc_new__generic_SUNHeuristics()
-self%swigdata = fresult
-end function
-
-subroutine swigf_release__generic_SUNHeuristics(self)
-use, intrinsic :: ISO_C_BINDING
-class(generic_SUNHeuristics_), intent(inout) :: self
-type(SwigClassWrapper) :: farg1 
-
-farg1 = self%swigdata
-if (btest(farg1%cmemflags, swig_cmem_own_bit)) then
-call swigc_delete__generic_SUNHeuristics(farg1)
-endif
-farg1%cptr = C_NULL_PTR
-farg1%cmemflags = 0
-self%swigdata = farg1
-end subroutine
-
-subroutine swigf__generic_SUNHeuristics_op_assign__(self, other)
-use, intrinsic :: ISO_C_BINDING
-class(generic_SUNHeuristics_), intent(inout) :: self
-type(generic_SUNHeuristics_), intent(in) :: other
-type(SwigClassWrapper) :: farg1 
-type(SwigClassWrapper) :: farg2 
-
-farg1 = self%swigdata
-farg2 = other%swigdata
-call swigc__generic_SUNHeuristics_op_assign__(farg1, farg2)
-self%swigdata = farg1
-end subroutine
-
 function FSUNHeuristicsNewEmpty(sunctx) &
 result(swig_result)
 use, intrinsic :: ISO_C_BINDING
-type(generic_SUNHeuristics_) :: swig_result
+type(SUNHeuristics), pointer :: swig_result
 type(C_PTR) :: sunctx
-type(SwigClassWrapper) :: fresult 
+type(C_PTR) :: fresult 
 type(C_PTR) :: farg1 
 
 farg1 = sunctx
 fresult = swigc_FSUNHeuristicsNewEmpty(farg1)
-swig_result%swigdata = fresult
+call c_f_pointer(fresult, swig_result)
 end function
 
 function FSUNHeuristicsGetID(h) &
 result(swig_result)
 use, intrinsic :: ISO_C_BINDING
 integer(SUNHeuristics_ID) :: swig_result
-class(generic_SUNHeuristics_), intent(in) :: h
+type(SUNHeuristics), target, intent(inout) :: h
 integer(C_INT) :: fresult 
-type(SwigClassWrapper) :: farg1 
+type(C_PTR) :: farg1 
 
-farg1 = h%swigdata
+farg1 = c_loc(h)
 fresult = swigc_FSUNHeuristicsGetID(farg1)
 swig_result = fresult
 end function
 
 subroutine FSUNHeuristicsDestroy(h)
 use, intrinsic :: ISO_C_BINDING
-class(generic_SUNHeuristics_), intent(in) :: h
-type(SwigClassWrapper) :: farg1 
+type(SUNHeuristics), target, intent(inout) :: h
+type(C_PTR) :: farg1 
 
-farg1 = h%swigdata
+farg1 = c_loc(h)
 call swigc_FSUNHeuristicsDestroy(farg1)
 end subroutine
 
@@ -1799,17 +381,17 @@ function FSUNHeuristicsConstrainStep(h, hcur, hnew, hconstr) &
 result(swig_result)
 use, intrinsic :: ISO_C_BINDING
 integer(C_INT) :: swig_result
-class(generic_SUNHeuristics_), intent(in) :: h
+type(SUNHeuristics), target, intent(inout) :: h
 real(C_DOUBLE), intent(in) :: hcur
 real(C_DOUBLE), intent(in) :: hnew
 real(C_DOUBLE), dimension(*), target, intent(inout) :: hconstr
 integer(C_INT) :: fresult 
-type(SwigClassWrapper) :: farg1 
+type(C_PTR) :: farg1 
 real(C_DOUBLE) :: farg2 
 real(C_DOUBLE) :: farg3 
 type(C_PTR) :: farg4 
 
-farg1 = h%swigdata
+farg1 = c_loc(h)
 farg2 = hcur
 farg3 = hnew
 farg4 = c_loc(hconstr(1))
@@ -1821,19 +403,19 @@ function FSUNHeuristicsETestFail(h, hcur, hnew, nef, hconstr) &
 result(swig_result)
 use, intrinsic :: ISO_C_BINDING
 integer(C_INT) :: swig_result
-class(generic_SUNHeuristics_), intent(in) :: h
+type(SUNHeuristics), target, intent(inout) :: h
 real(C_DOUBLE), intent(in) :: hcur
 real(C_DOUBLE), intent(in) :: hnew
 integer(C_INT), intent(in) :: nef
 real(C_DOUBLE), dimension(*), target, intent(inout) :: hconstr
 integer(C_INT) :: fresult 
-type(SwigClassWrapper) :: farg1 
+type(C_PTR) :: farg1 
 real(C_DOUBLE) :: farg2 
 real(C_DOUBLE) :: farg3 
 integer(C_INT) :: farg4 
 type(C_PTR) :: farg5 
 
-farg1 = h%swigdata
+farg1 = c_loc(h)
 farg2 = hcur
 farg3 = hnew
 farg4 = nef
@@ -1846,17 +428,17 @@ function FSUNHeuristicsBoundReduction(h, hcur, hnew, hconstr) &
 result(swig_result)
 use, intrinsic :: ISO_C_BINDING
 integer(C_INT) :: swig_result
-class(generic_SUNHeuristics_), intent(in) :: h
+type(SUNHeuristics), target, intent(inout) :: h
 real(C_DOUBLE), intent(in) :: hcur
 real(C_DOUBLE), intent(in) :: hnew
 real(C_DOUBLE), dimension(*), target, intent(inout) :: hconstr
 integer(C_INT) :: fresult 
-type(SwigClassWrapper) :: farg1 
+type(C_PTR) :: farg1 
 real(C_DOUBLE) :: farg2 
 real(C_DOUBLE) :: farg3 
 type(C_PTR) :: farg4 
 
-farg1 = h%swigdata
+farg1 = c_loc(h)
 farg2 = hcur
 farg3 = hnew
 farg4 = c_loc(hconstr(1))
@@ -1868,15 +450,15 @@ function FSUNHeuristicsBoundFirstStep(h, h0, h0constr) &
 result(swig_result)
 use, intrinsic :: ISO_C_BINDING
 integer(C_INT) :: swig_result
-class(generic_SUNHeuristics_), intent(in) :: h
+type(SUNHeuristics), target, intent(inout) :: h
 real(C_DOUBLE), intent(in) :: h0
 real(C_DOUBLE), dimension(*), target, intent(inout) :: h0constr
 integer(C_INT) :: fresult 
-type(SwigClassWrapper) :: farg1 
+type(C_PTR) :: farg1 
 real(C_DOUBLE) :: farg2 
 type(C_PTR) :: farg3 
 
-farg1 = h%swigdata
+farg1 = c_loc(h)
 farg2 = h0
 farg3 = c_loc(h0constr(1))
 fresult = swigc_FSUNHeuristicsBoundFirstStep(farg1, farg2, farg3)
@@ -1887,15 +469,15 @@ function FSUNHeuristicsConvFail(h, hcur, hconstr) &
 result(swig_result)
 use, intrinsic :: ISO_C_BINDING
 integer(C_INT) :: swig_result
-class(generic_SUNHeuristics_), intent(in) :: h
+type(SUNHeuristics), target, intent(inout) :: h
 real(C_DOUBLE), intent(in) :: hcur
 real(C_DOUBLE), dimension(*), target, intent(inout) :: hconstr
 integer(C_INT) :: fresult 
-type(SwigClassWrapper) :: farg1 
+type(C_PTR) :: farg1 
 real(C_DOUBLE) :: farg2 
 type(C_PTR) :: farg3 
 
-farg1 = h%swigdata
+farg1 = c_loc(h)
 farg2 = hcur
 farg3 = c_loc(hconstr(1))
 fresult = swigc_FSUNHeuristicsConvFail(farg1, farg2, farg3)
@@ -1906,11 +488,11 @@ function FSUNHeuristicsReset(h) &
 result(swig_result)
 use, intrinsic :: ISO_C_BINDING
 integer(C_INT) :: swig_result
-class(generic_SUNHeuristics_), intent(in) :: h
+type(SUNHeuristics), target, intent(inout) :: h
 integer(C_INT) :: fresult 
-type(SwigClassWrapper) :: farg1 
+type(C_PTR) :: farg1 
 
-farg1 = h%swigdata
+farg1 = c_loc(h)
 fresult = swigc_FSUNHeuristicsReset(farg1)
 swig_result = fresult
 end function
@@ -1919,11 +501,11 @@ function FSUNHeuristicsUpdate(h) &
 result(swig_result)
 use, intrinsic :: ISO_C_BINDING
 integer(C_INT) :: swig_result
-class(generic_SUNHeuristics_), intent(in) :: h
+type(SUNHeuristics), target, intent(inout) :: h
 integer(C_INT) :: fresult 
-type(SwigClassWrapper) :: farg1 
+type(C_PTR) :: farg1 
 
-farg1 = h%swigdata
+farg1 = c_loc(h)
 fresult = swigc_FSUNHeuristicsUpdate(farg1)
 swig_result = fresult
 end function
@@ -1932,11 +514,11 @@ function FSUNHeuristicsSetDefaults(h) &
 result(swig_result)
 use, intrinsic :: ISO_C_BINDING
 integer(C_INT) :: swig_result
-class(generic_SUNHeuristics_), intent(in) :: h
+type(SUNHeuristics), target, intent(inout) :: h
 integer(C_INT) :: fresult 
-type(SwigClassWrapper) :: farg1 
+type(C_PTR) :: farg1 
 
-farg1 = h%swigdata
+farg1 = c_loc(h)
 fresult = swigc_FSUNHeuristicsSetDefaults(farg1)
 swig_result = fresult
 end function
@@ -1945,13 +527,13 @@ function FSUNHeuristicsWrite(h, fptr) &
 result(swig_result)
 use, intrinsic :: ISO_C_BINDING
 integer(C_INT) :: swig_result
-class(generic_SUNHeuristics_), intent(in) :: h
+type(SUNHeuristics), target, intent(inout) :: h
 type(C_PTR) :: fptr
 integer(C_INT) :: fresult 
-type(SwigClassWrapper) :: farg1 
+type(C_PTR) :: farg1 
 type(C_PTR) :: farg2 
 
-farg1 = h%swigdata
+farg1 = c_loc(h)
 farg2 = fptr
 fresult = swigc_FSUNHeuristicsWrite(farg1, farg2)
 swig_result = fresult
@@ -1961,13 +543,13 @@ function FSUNHeuristicsSetMaxStep(h, hmax) &
 result(swig_result)
 use, intrinsic :: ISO_C_BINDING
 integer(C_INT) :: swig_result
-class(generic_SUNHeuristics_), intent(in) :: h
+type(SUNHeuristics), target, intent(inout) :: h
 real(C_DOUBLE), intent(in) :: hmax
 integer(C_INT) :: fresult 
-type(SwigClassWrapper) :: farg1 
+type(C_PTR) :: farg1 
 real(C_DOUBLE) :: farg2 
 
-farg1 = h%swigdata
+farg1 = c_loc(h)
 farg2 = hmax
 fresult = swigc_FSUNHeuristicsSetMaxStep(farg1, farg2)
 swig_result = fresult
@@ -1977,13 +559,13 @@ function FSUNHeuristicsSetMinStep(h, hmin) &
 result(swig_result)
 use, intrinsic :: ISO_C_BINDING
 integer(C_INT) :: swig_result
-class(generic_SUNHeuristics_), intent(in) :: h
+type(SUNHeuristics), target, intent(inout) :: h
 real(C_DOUBLE), intent(in) :: hmin
 integer(C_INT) :: fresult 
-type(SwigClassWrapper) :: farg1 
+type(C_PTR) :: farg1 
 real(C_DOUBLE) :: farg2 
 
-farg1 = h%swigdata
+farg1 = c_loc(h)
 farg2 = hmin
 fresult = swigc_FSUNHeuristicsSetMinStep(farg1, farg2)
 swig_result = fresult
@@ -1993,15 +575,15 @@ function FSUNHeuristicsSetExpStabFn(h, estab, estab_data) &
 result(swig_result)
 use, intrinsic :: ISO_C_BINDING
 integer(C_INT) :: swig_result
-class(generic_SUNHeuristics_), intent(in) :: h
+type(SUNHeuristics), target, intent(inout) :: h
 type(C_FUNPTR), intent(in), value :: estab
 type(C_PTR) :: estab_data
 integer(C_INT) :: fresult 
-type(SwigClassWrapper) :: farg1 
+type(C_PTR) :: farg1 
 type(C_FUNPTR) :: farg2 
 type(C_PTR) :: farg3 
 
-farg1 = h%swigdata
+farg1 = c_loc(h)
 farg2 = estab
 farg3 = estab_data
 fresult = swigc_FSUNHeuristicsSetExpStabFn(farg1, farg2, farg3)
@@ -2012,13 +594,13 @@ function FSUNHeuristicsSetCFLFraction(h, cfl_frac) &
 result(swig_result)
 use, intrinsic :: ISO_C_BINDING
 integer(C_INT) :: swig_result
-class(generic_SUNHeuristics_), intent(in) :: h
+type(SUNHeuristics), target, intent(inout) :: h
 real(C_DOUBLE), intent(in) :: cfl_frac
 integer(C_INT) :: fresult 
-type(SwigClassWrapper) :: farg1 
+type(C_PTR) :: farg1 
 real(C_DOUBLE) :: farg2 
 
-farg1 = h%swigdata
+farg1 = c_loc(h)
 farg2 = cfl_frac
 fresult = swigc_FSUNHeuristicsSetCFLFraction(farg1, farg2)
 swig_result = fresult
@@ -2028,13 +610,13 @@ function FSUNHeuristicsSetSafetyFactor(c, safety) &
 result(swig_result)
 use, intrinsic :: ISO_C_BINDING
 integer(C_INT) :: swig_result
-class(generic_SUNHeuristics_), intent(in) :: c
+type(SUNHeuristics), target, intent(inout) :: c
 real(C_DOUBLE), intent(in) :: safety
 integer(C_INT) :: fresult 
-type(SwigClassWrapper) :: farg1 
+type(C_PTR) :: farg1 
 real(C_DOUBLE) :: farg2 
 
-farg1 = c%swigdata
+farg1 = c_loc(c)
 farg2 = safety
 fresult = swigc_FSUNHeuristicsSetSafetyFactor(farg1, farg2)
 swig_result = fresult
@@ -2044,13 +626,13 @@ function FSUNHeuristicsSetMaxGrowth(h, mx_growth) &
 result(swig_result)
 use, intrinsic :: ISO_C_BINDING
 integer(C_INT) :: swig_result
-class(generic_SUNHeuristics_), intent(in) :: h
+type(SUNHeuristics), target, intent(inout) :: h
 real(C_DOUBLE), intent(in) :: mx_growth
 integer(C_INT) :: fresult 
-type(SwigClassWrapper) :: farg1 
+type(C_PTR) :: farg1 
 real(C_DOUBLE) :: farg2 
 
-farg1 = h%swigdata
+farg1 = c_loc(h)
 farg2 = mx_growth
 fresult = swigc_FSUNHeuristicsSetMaxGrowth(farg1, farg2)
 swig_result = fresult
@@ -2060,13 +642,13 @@ function FSUNHeuristicsSetMaxFirstGrowth(h, etamx1) &
 result(swig_result)
 use, intrinsic :: ISO_C_BINDING
 integer(C_INT) :: swig_result
-class(generic_SUNHeuristics_), intent(in) :: h
+type(SUNHeuristics), target, intent(inout) :: h
 real(C_DOUBLE), intent(in) :: etamx1
 integer(C_INT) :: fresult 
-type(SwigClassWrapper) :: farg1 
+type(C_PTR) :: farg1 
 real(C_DOUBLE) :: farg2 
 
-farg1 = h%swigdata
+farg1 = c_loc(h)
 farg2 = etamx1
 fresult = swigc_FSUNHeuristicsSetMaxFirstGrowth(farg1, farg2)
 swig_result = fresult
@@ -2076,15 +658,15 @@ function FSUNHeuristicsSetFixedStepBounds(h, lb, ub) &
 result(swig_result)
 use, intrinsic :: ISO_C_BINDING
 integer(C_INT) :: swig_result
-class(generic_SUNHeuristics_), intent(in) :: h
+type(SUNHeuristics), target, intent(inout) :: h
 real(C_DOUBLE), intent(in) :: lb
 real(C_DOUBLE), intent(in) :: ub
 integer(C_INT) :: fresult 
-type(SwigClassWrapper) :: farg1 
+type(C_PTR) :: farg1 
 real(C_DOUBLE) :: farg2 
 real(C_DOUBLE) :: farg3 
 
-farg1 = h%swigdata
+farg1 = c_loc(h)
 farg2 = lb
 farg3 = ub
 fresult = swigc_FSUNHeuristicsSetFixedStepBounds(farg1, farg2, farg3)
@@ -2095,13 +677,13 @@ function FSUNHeuristicsSetMinReduction(h, eta_min) &
 result(swig_result)
 use, intrinsic :: ISO_C_BINDING
 integer(C_INT) :: swig_result
-class(generic_SUNHeuristics_), intent(in) :: h
+type(SUNHeuristics), target, intent(inout) :: h
 real(C_DOUBLE), intent(in) :: eta_min
 integer(C_INT) :: fresult 
-type(SwigClassWrapper) :: farg1 
+type(C_PTR) :: farg1 
 real(C_DOUBLE) :: farg2 
 
-farg1 = h%swigdata
+farg1 = c_loc(h)
 farg2 = eta_min
 fresult = swigc_FSUNHeuristicsSetMinReduction(farg1, farg2)
 swig_result = fresult
@@ -2111,13 +693,13 @@ function FSUNHeuristicsSetMaxEFailGrowth(h, etamxf) &
 result(swig_result)
 use, intrinsic :: ISO_C_BINDING
 integer(C_INT) :: swig_result
-class(generic_SUNHeuristics_), intent(in) :: h
+type(SUNHeuristics), target, intent(inout) :: h
 real(C_DOUBLE), intent(in) :: etamxf
 integer(C_INT) :: fresult 
-type(SwigClassWrapper) :: farg1 
+type(C_PTR) :: farg1 
 real(C_DOUBLE) :: farg2 
 
-farg1 = h%swigdata
+farg1 = c_loc(h)
 farg2 = etamxf
 fresult = swigc_FSUNHeuristicsSetMaxEFailGrowth(farg1, farg2)
 swig_result = fresult
@@ -2127,13 +709,13 @@ function FSUNHeuristicsSetSmallNumEFails(h, small_nef) &
 result(swig_result)
 use, intrinsic :: ISO_C_BINDING
 integer(C_INT) :: swig_result
-class(generic_SUNHeuristics_), intent(in) :: h
+type(SUNHeuristics), target, intent(inout) :: h
 integer(C_INT), intent(in) :: small_nef
 integer(C_INT) :: fresult 
-type(SwigClassWrapper) :: farg1 
+type(C_PTR) :: farg1 
 integer(C_INT) :: farg2 
 
-farg1 = h%swigdata
+farg1 = c_loc(h)
 farg2 = small_nef
 fresult = swigc_FSUNHeuristicsSetSmallNumEFails(farg1, farg2)
 swig_result = fresult
@@ -2143,13 +725,13 @@ function FSUNHeuristicsSetMaxCFailGrowth(h, etacf) &
 result(swig_result)
 use, intrinsic :: ISO_C_BINDING
 integer(C_INT) :: swig_result
-class(generic_SUNHeuristics_), intent(in) :: h
+type(SUNHeuristics), target, intent(inout) :: h
 real(C_DOUBLE), intent(in) :: etacf
 integer(C_INT) :: fresult 
-type(SwigClassWrapper) :: farg1 
+type(C_PTR) :: farg1 
 real(C_DOUBLE) :: farg2 
 
-farg1 = h%swigdata
+farg1 = c_loc(h)
 farg2 = etacf
 fresult = swigc_FSUNHeuristicsSetMaxCFailGrowth(farg1, farg2)
 swig_result = fresult
@@ -2159,13 +741,13 @@ function FSUNHeuristicsGetNumExpSteps(h, expsteps) &
 result(swig_result)
 use, intrinsic :: ISO_C_BINDING
 integer(C_INT) :: swig_result
-class(generic_SUNHeuristics_), intent(in) :: h
+type(SUNHeuristics), target, intent(inout) :: h
 integer(C_LONG), dimension(*), target, intent(inout) :: expsteps
 integer(C_INT) :: fresult 
-type(SwigClassWrapper) :: farg1 
+type(C_PTR) :: farg1 
 type(C_PTR) :: farg2 
 
-farg1 = h%swigdata
+farg1 = c_loc(h)
 farg2 = c_loc(expsteps(1))
 fresult = swigc_FSUNHeuristicsGetNumExpSteps(farg1, farg2)
 swig_result = fresult
@@ -2175,13 +757,13 @@ function FSUNHeuristicsGetNumAccSteps(h, accsteps) &
 result(swig_result)
 use, intrinsic :: ISO_C_BINDING
 integer(C_INT) :: swig_result
-class(generic_SUNHeuristics_), intent(in) :: h
+type(SUNHeuristics), target, intent(inout) :: h
 integer(C_LONG), dimension(*), target, intent(inout) :: accsteps
 integer(C_INT) :: fresult 
-type(SwigClassWrapper) :: farg1 
+type(C_PTR) :: farg1 
 type(C_PTR) :: farg2 
 
-farg1 = h%swigdata
+farg1 = c_loc(h)
 farg2 = c_loc(accsteps(1))
 fresult = swigc_FSUNHeuristicsGetNumAccSteps(farg1, farg2)
 swig_result = fresult
@@ -2191,15 +773,15 @@ function FSUNHeuristicsSpace(h, lenrw, leniw) &
 result(swig_result)
 use, intrinsic :: ISO_C_BINDING
 integer(C_INT) :: swig_result
-class(generic_SUNHeuristics_), intent(in) :: h
+type(SUNHeuristics), target, intent(inout) :: h
 integer(C_LONG), dimension(*), target, intent(inout) :: lenrw
 integer(C_LONG), dimension(*), target, intent(inout) :: leniw
 integer(C_INT) :: fresult 
-type(SwigClassWrapper) :: farg1 
+type(C_PTR) :: farg1 
 type(C_PTR) :: farg2 
 type(C_PTR) :: farg3 
 
-farg1 = h%swigdata
+farg1 = c_loc(h)
 farg2 = c_loc(lenrw(1))
 farg3 = c_loc(leniw(1))
 fresult = swigc_FSUNHeuristicsSpace(farg1, farg2, farg3)

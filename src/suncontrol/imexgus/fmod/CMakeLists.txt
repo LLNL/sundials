@@ -12,7 +12,7 @@
 # SUNDIALS Copyright End
 # ---------------------------------------------------------------
 
-sundials_add_f2003_library(sundials_fsuncontrolimexgus
+sundials_add_f2003_library(sundials_fsuncontrolimexgus_mod
   SOURCES
     fsuncontrol_imexgus_mod.f90 fsuncontrol_imexgus_mod.c
   OBJECT_LIBRARIES

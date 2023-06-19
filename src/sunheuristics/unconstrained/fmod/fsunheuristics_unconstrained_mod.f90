@@ -23,25 +23,15 @@ module fsunheuristics_unconstrained_mod
  use fsundials_nvector_mod
  use fsundials_context_mod
  use fsundials_types_mod
+ use fsundials_heuristics_mod
+ use fsundials_nvector_mod
+ use fsundials_context_mod
+ use fsundials_types_mod
  implicit none
  private
 
  ! DECLARATION CONSTRUCTS
-
- integer, parameter :: swig_cmem_own_bit = 0
- integer, parameter :: swig_cmem_rvalue_bit = 1
- integer, parameter :: swig_cmem_const_bit = 2
- type, bind(C) :: SwigClassWrapper
-  type(C_PTR), public :: cptr = C_NULL_PTR
-  integer(C_INT), public :: cmemflags = 0
- end type
- type, public :: SWIGTYPE_p_SUNHeuristics
-  type(SwigClassWrapper), public :: swigdata
- end type
  public :: FSUNHeuristicsUnconstrained
- type, public :: SWIGTYPE_p_SUNHeuristics_ID
-  type(SwigClassWrapper), public :: swigdata
- end type
  public :: FSUNHeuristicsGetID_Unconstrained
  public :: FSUNHeuristicsConstrainStep_Unconstrained
  public :: FSUNHeuristicsConvFail_Unconstrained
@@ -56,26 +46,23 @@ function swigc_FSUNHeuristicsUnconstrained(farg1) &
 bind(C, name="_wrap_FSUNHeuristicsUnconstrained") &
 result(fresult)
 use, intrinsic :: ISO_C_BINDING
-import :: swigclasswrapper
 type(C_PTR), value :: farg1
-type(SwigClassWrapper) :: fresult
+type(C_PTR) :: fresult
 end function
 
 function swigc_FSUNHeuristicsGetID_Unconstrained(farg1) &
 bind(C, name="_wrap_FSUNHeuristicsGetID_Unconstrained") &
 result(fresult)
 use, intrinsic :: ISO_C_BINDING
-import :: swigclasswrapper
-type(SwigClassWrapper) :: farg1
-type(SwigClassWrapper) :: fresult
+type(C_PTR), value :: farg1
+integer(C_INT) :: fresult
 end function
 
 function swigc_FSUNHeuristicsConstrainStep_Unconstrained(farg1, farg2, farg3, farg4) &
 bind(C, name="_wrap_FSUNHeuristicsConstrainStep_Unconstrained") &
 result(fresult)
 use, intrinsic :: ISO_C_BINDING
-import :: swigclasswrapper
-type(SwigClassWrapper) :: farg1
+type(C_PTR), value :: farg1
 real(C_DOUBLE), intent(in) :: farg2
 real(C_DOUBLE), intent(in) :: farg3
 type(C_PTR), value :: farg4
@@ -86,8 +73,7 @@ function swigc_FSUNHeuristicsConvFail_Unconstrained(farg1, farg2, farg3) &
 bind(C, name="_wrap_FSUNHeuristicsConvFail_Unconstrained") &
 result(fresult)
 use, intrinsic :: ISO_C_BINDING
-import :: swigclasswrapper
-type(SwigClassWrapper) :: farg1
+type(C_PTR), value :: farg1
 real(C_DOUBLE), intent(in) :: farg2
 type(C_PTR), value :: farg3
 integer(C_INT) :: fresult
@@ -97,8 +83,7 @@ function swigc_FSUNHeuristicsReset_Unconstrained(farg1) &
 bind(C, name="_wrap_FSUNHeuristicsReset_Unconstrained") &
 result(fresult)
 use, intrinsic :: ISO_C_BINDING
-import :: swigclasswrapper
-type(SwigClassWrapper) :: farg1
+type(C_PTR), value :: farg1
 integer(C_INT) :: fresult
 end function
 
@@ -106,8 +91,7 @@ function swigc_FSUNHeuristicsWrite_Unconstrained(farg1, farg2) &
 bind(C, name="_wrap_FSUNHeuristicsWrite_Unconstrained") &
 result(fresult)
 use, intrinsic :: ISO_C_BINDING
-import :: swigclasswrapper
-type(SwigClassWrapper) :: farg1
+type(C_PTR), value :: farg1
 type(C_PTR), value :: farg2
 integer(C_INT) :: fresult
 end function
@@ -116,8 +100,7 @@ function swigc_FSUNHeuristicsGetNumAccSteps_Unconstrained(farg1, farg2) &
 bind(C, name="_wrap_FSUNHeuristicsGetNumAccSteps_Unconstrained") &
 result(fresult)
 use, intrinsic :: ISO_C_BINDING
-import :: swigclasswrapper
-type(SwigClassWrapper) :: farg1
+type(C_PTR), value :: farg1
 type(C_PTR), value :: farg2
 integer(C_INT) :: fresult
 end function
@@ -126,8 +109,7 @@ function swigc_FSUNHeuristicsSpace_Unconstrained(farg1, farg2, farg3) &
 bind(C, name="_wrap_FSUNHeuristicsSpace_Unconstrained") &
 result(fresult)
 use, intrinsic :: ISO_C_BINDING
-import :: swigclasswrapper
-type(SwigClassWrapper) :: farg1
+type(C_PTR), value :: farg1
 type(C_PTR), value :: farg2
 type(C_PTR), value :: farg3
 integer(C_INT) :: fresult
@@ -141,44 +123,44 @@ contains
 function FSUNHeuristicsUnconstrained(sunctx) &
 result(swig_result)
 use, intrinsic :: ISO_C_BINDING
-type(SWIGTYPE_p_SUNHeuristics) :: swig_result
+type(SUNHeuristics), pointer :: swig_result
 type(C_PTR) :: sunctx
-type(SwigClassWrapper) :: fresult 
+type(C_PTR) :: fresult 
 type(C_PTR) :: farg1 
 
 farg1 = sunctx
 fresult = swigc_FSUNHeuristicsUnconstrained(farg1)
-swig_result%swigdata = fresult
+call c_f_pointer(fresult, swig_result)
 end function
 
 function FSUNHeuristicsGetID_Unconstrained(h) &
 result(swig_result)
 use, intrinsic :: ISO_C_BINDING
-type(SWIGTYPE_p_SUNHeuristics_ID) :: swig_result
-type(SWIGTYPE_p_SUNHeuristics), intent(in) :: h
-type(SwigClassWrapper) :: fresult 
-type(SwigClassWrapper) :: farg1 
+integer(SUNHeuristics_ID) :: swig_result
+type(SUNHeuristics), target, intent(inout) :: h
+integer(C_INT) :: fresult 
+type(C_PTR) :: farg1 
 
-farg1 = h%swigdata
+farg1 = c_loc(h)
 fresult = swigc_FSUNHeuristicsGetID_Unconstrained(farg1)
-swig_result%swigdata = fresult
+swig_result = fresult
 end function
 
 function FSUNHeuristicsConstrainStep_Unconstrained(h, hcur, hnew, hconstr) &
 result(swig_result)
 use, intrinsic :: ISO_C_BINDING
 integer(C_INT) :: swig_result
-type(SWIGTYPE_p_SUNHeuristics), intent(in) :: h
+type(SUNHeuristics), target, intent(inout) :: h
 real(C_DOUBLE), intent(in) :: hcur
 real(C_DOUBLE), intent(in) :: hnew
 real(C_DOUBLE), dimension(*), target, intent(inout) :: hconstr
 integer(C_INT) :: fresult 
-type(SwigClassWrapper) :: farg1 
+type(C_PTR) :: farg1 
 real(C_DOUBLE) :: farg2 
 real(C_DOUBLE) :: farg3 
 type(C_PTR) :: farg4 
 
-farg1 = h%swigdata
+farg1 = c_loc(h)
 farg2 = hcur
 farg3 = hnew
 farg4 = c_loc(hconstr(1))
@@ -190,15 +172,15 @@ function FSUNHeuristicsConvFail_Unconstrained(h, hcur, hconstr) &
 result(swig_result)
 use, intrinsic :: ISO_C_BINDING
 integer(C_INT) :: swig_result
-type(SWIGTYPE_p_SUNHeuristics), intent(in) :: h
+type(SUNHeuristics), target, intent(inout) :: h
 real(C_DOUBLE), intent(in) :: hcur
 real(C_DOUBLE), dimension(*), target, intent(inout) :: hconstr
 integer(C_INT) :: fresult 
-type(SwigClassWrapper) :: farg1 
+type(C_PTR) :: farg1 
 real(C_DOUBLE) :: farg2 
 type(C_PTR) :: farg3 
 
-farg1 = h%swigdata
+farg1 = c_loc(h)
 farg2 = hcur
 farg3 = c_loc(hconstr(1))
 fresult = swigc_FSUNHeuristicsConvFail_Unconstrained(farg1, farg2, farg3)
@@ -209,11 +191,11 @@ function FSUNHeuristicsReset_Unconstrained(h) &
 result(swig_result)
 use, intrinsic :: ISO_C_BINDING
 integer(C_INT) :: swig_result
-type(SWIGTYPE_p_SUNHeuristics), intent(in) :: h
+type(SUNHeuristics), target, intent(inout) :: h
 integer(C_INT) :: fresult 
-type(SwigClassWrapper) :: farg1 
+type(C_PTR) :: farg1 
 
-farg1 = h%swigdata
+farg1 = c_loc(h)
 fresult = swigc_FSUNHeuristicsReset_Unconstrained(farg1)
 swig_result = fresult
 end function
@@ -222,13 +204,13 @@ function FSUNHeuristicsWrite_Unconstrained(h, fptr) &
 result(swig_result)
 use, intrinsic :: ISO_C_BINDING
 integer(C_INT) :: swig_result
-type(SWIGTYPE_p_SUNHeuristics), intent(in) :: h
+type(SUNHeuristics), target, intent(inout) :: h
 type(C_PTR) :: fptr
 integer(C_INT) :: fresult 
-type(SwigClassWrapper) :: farg1 
+type(C_PTR) :: farg1 
 type(C_PTR) :: farg2 
 
-farg1 = h%swigdata
+farg1 = c_loc(h)
 farg2 = fptr
 fresult = swigc_FSUNHeuristicsWrite_Unconstrained(farg1, farg2)
 swig_result = fresult
@@ -238,13 +220,13 @@ function FSUNHeuristicsGetNumAccSteps_Unconstrained(h, accsteps) &
 result(swig_result)
 use, intrinsic :: ISO_C_BINDING
 integer(C_INT) :: swig_result
-type(SWIGTYPE_p_SUNHeuristics), intent(in) :: h
+type(SUNHeuristics), target, intent(inout) :: h
 integer(C_LONG), dimension(*), target, intent(inout) :: accsteps
 integer(C_INT) :: fresult 
-type(SwigClassWrapper) :: farg1 
+type(C_PTR) :: farg1 
 type(C_PTR) :: farg2 
 
-farg1 = h%swigdata
+farg1 = c_loc(h)
 farg2 = c_loc(accsteps(1))
 fresult = swigc_FSUNHeuristicsGetNumAccSteps_Unconstrained(farg1, farg2)
 swig_result = fresult
@@ -254,15 +236,15 @@ function FSUNHeuristicsSpace_Unconstrained(h, lenrw, leniw) &
 result(swig_result)
 use, intrinsic :: ISO_C_BINDING
 integer(C_INT) :: swig_result
-type(SWIGTYPE_p_SUNHeuristics), intent(in) :: h
+type(SUNHeuristics), target, intent(inout) :: h
 integer(C_LONG), dimension(*), target, intent(inout) :: lenrw
 integer(C_LONG), dimension(*), target, intent(inout) :: leniw
 integer(C_INT) :: fresult 
-type(SwigClassWrapper) :: farg1 
+type(C_PTR) :: farg1 
 type(C_PTR) :: farg2 
 type(C_PTR) :: farg3 
 
-farg1 = h%swigdata
+farg1 = c_loc(h)
 farg2 = c_loc(lenrw(1))
 farg3 = c_loc(leniw(1))
 fresult = swigc_FSUNHeuristicsSpace_Unconstrained(farg1, farg2, farg3)

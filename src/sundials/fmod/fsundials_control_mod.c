@@ -163,35 +163,6 @@
  { printf("In " DECL ": " MSG); assert(0); RETURNNULL; }
 
 
-enum {
-    SWIG_MEM_OWN = 0x01,
-    SWIG_MEM_RVALUE = 0x02,
-    SWIG_MEM_CONST = 0x04
-};
-
-
-#define SWIG_check_mutable(SWIG_CLASS_WRAPPER, TYPENAME, FNAME, FUNCNAME, RETURNNULL) \
-    if ((SWIG_CLASS_WRAPPER).cmemflags & SWIG_MEM_CONST) { \
-        SWIG_exception_impl(FUNCNAME, SWIG_TypeError, \
-            "Cannot pass const " TYPENAME " (class " FNAME ") " \
-            "as a mutable reference", \
-            RETURNNULL); \
-    }
-
-
-#define SWIG_check_nonnull(SWIG_CLASS_WRAPPER, TYPENAME, FNAME, FUNCNAME, RETURNNULL) \
-  if (!(SWIG_CLASS_WRAPPER).cptr) { \
-    SWIG_exception_impl(FUNCNAME, SWIG_TypeError, \
-                        "Cannot pass null " TYPENAME " (class " FNAME ") " \
-                        "as a reference", RETURNNULL); \
-  }
-
-
-#define SWIG_check_mutable_nonnull(SWIG_CLASS_WRAPPER, TYPENAME, FNAME, FUNCNAME, RETURNNULL) \
-    SWIG_check_nonnull(SWIG_CLASS_WRAPPER, TYPENAME, FNAME, FUNCNAME, RETURNNULL); \
-    SWIG_check_mutable(SWIG_CLASS_WRAPPER, TYPENAME, FNAME, FUNCNAME, RETURNNULL);
-
-
 #include <stdio.h>
 #if defined(_MSC_VER) || defined(__BORLANDC__) || defined(_WATCOM)
 # ifndef snprintf
@@ -219,588 +190,39 @@ enum {
 
 #include "sundials/sundials_control.h"
 
-
-typedef struct {
-    void* cptr;
-    int cmemflags;
-} SwigClassWrapper;
-
-
-SWIGINTERN SwigClassWrapper SwigClassWrapper_uninitialized() {
-    SwigClassWrapper result;
-    result.cptr = NULL;
-    result.cmemflags = 0;
-    return result;
-}
-
-
-#include <stdlib.h>
-#ifdef _MSC_VER
-# ifndef strtoull
-#  define strtoull _strtoui64
-# endif
-# ifndef strtoll
-#  define strtoll _strtoi64
-# endif
-#endif
-
-
-#include <string.h>
-
-
-SWIGINTERN void SWIG_assign(SwigClassWrapper* self, SwigClassWrapper other) {
-  if (self->cptr == NULL) {
-    /* LHS is unassigned */
-    if (other.cmemflags & SWIG_MEM_RVALUE) {
-      /* Capture pointer from RHS, clear 'moving' flag */
-      self->cptr = other.cptr;
-      self->cmemflags = other.cmemflags & (~SWIG_MEM_RVALUE);
-    } else {
-      /* Become a reference to the other object */
-      self->cptr = other.cptr;
-      self->cmemflags = other.cmemflags & (~SWIG_MEM_OWN);
-    }
-  } else if (other.cptr == NULL) {
-    /* Replace LHS with a null pointer */
-    free(self->cptr);
-    *self = SwigClassWrapper_uninitialized();
-  } else {
-    if (self->cmemflags & SWIG_MEM_OWN) {
-      free(self->cptr);
-    }
-    self->cptr = other.cptr;
-    if (other.cmemflags & SWIG_MEM_RVALUE) {
-      /* Capture RHS */
-      self->cmemflags = other.cmemflags & ~SWIG_MEM_RVALUE;
-    } else {
-      /* Point to RHS */
-      self->cmemflags = other.cmemflags & ~SWIG_MEM_OWN;
-    }
-  }
-}
-
-SWIGEXPORT void _wrap__generic_SUNControl_Ops_getid_set(SwigClassWrapper const *farg1, SUNControl_ID (*farg2)(SUNControl)) {
-  struct _generic_SUNControl_Ops *arg1 = (struct _generic_SUNControl_Ops *) 0 ;
-  SUNControl_ID (*arg2)(SUNControl) = (SUNControl_ID (*)(SUNControl)) 0 ;
-  
-  SWIG_check_mutable_nonnull(*farg1, "struct _generic_SUNControl_Ops *", "generic_SUNControl_Ops_", "_generic_SUNControl_Ops::getid", return );
-  arg1 = (struct _generic_SUNControl_Ops *)(farg1->cptr);
-  arg2 = (SUNControl_ID (*)(SUNControl))(farg2);
-  if (arg1) (arg1)->getid = arg2;
-}
-
-
-typedef SUNControl_ID (*_generic_SUNControl_Ops_getid_get_swigrtype)(SUNControl);
-SWIGEXPORT _generic_SUNControl_Ops_getid_get_swigrtype _wrap__generic_SUNControl_Ops_getid_get(SwigClassWrapper const *farg1) {
-  _generic_SUNControl_Ops_getid_get_swigrtype fresult ;
-  struct _generic_SUNControl_Ops *arg1 = (struct _generic_SUNControl_Ops *) 0 ;
-  SUNControl_ID (*result)(SUNControl) = 0 ;
-  
-  SWIG_check_mutable_nonnull(*farg1, "struct _generic_SUNControl_Ops *", "generic_SUNControl_Ops_", "_generic_SUNControl_Ops::getid", return 0);
-  arg1 = (struct _generic_SUNControl_Ops *)(farg1->cptr);
-  result = (SUNControl_ID (*)(SUNControl)) ((arg1)->getid);
-  fresult = result;
-  return fresult;
-}
-
-
-SWIGEXPORT void _wrap__generic_SUNControl_Ops_destroy_set(SwigClassWrapper const *farg1, void (*farg2)(SUNControl)) {
-  struct _generic_SUNControl_Ops *arg1 = (struct _generic_SUNControl_Ops *) 0 ;
-  void (*arg2)(SUNControl) = (void (*)(SUNControl)) 0 ;
-  
-  SWIG_check_mutable_nonnull(*farg1, "struct _generic_SUNControl_Ops *", "generic_SUNControl_Ops_", "_generic_SUNControl_Ops::destroy", return );
-  arg1 = (struct _generic_SUNControl_Ops *)(farg1->cptr);
-  arg2 = (void (*)(SUNControl))(farg2);
-  if (arg1) (arg1)->destroy = arg2;
-}
-
-
-typedef void (*_generic_SUNControl_Ops_destroy_get_swigrtype)(SUNControl);
-SWIGEXPORT _generic_SUNControl_Ops_destroy_get_swigrtype _wrap__generic_SUNControl_Ops_destroy_get(SwigClassWrapper const *farg1) {
-  _generic_SUNControl_Ops_destroy_get_swigrtype fresult ;
-  struct _generic_SUNControl_Ops *arg1 = (struct _generic_SUNControl_Ops *) 0 ;
-  void (*result)(SUNControl) = 0 ;
-  
-  SWIG_check_mutable_nonnull(*farg1, "struct _generic_SUNControl_Ops *", "generic_SUNControl_Ops_", "_generic_SUNControl_Ops::destroy", return 0);
-  arg1 = (struct _generic_SUNControl_Ops *)(farg1->cptr);
-  result = (void (*)(SUNControl)) ((arg1)->destroy);
-  fresult = result;
-  return fresult;
-}
-
-
-SWIGEXPORT void _wrap__generic_SUNControl_Ops_estimatestep_set(SwigClassWrapper const *farg1, int (*farg2)(SUNControl,realtype,realtype,realtype *)) {
-  struct _generic_SUNControl_Ops *arg1 = (struct _generic_SUNControl_Ops *) 0 ;
-  int (*arg2)(SUNControl,realtype,realtype,realtype *) = (int (*)(SUNControl,realtype,realtype,realtype *)) 0 ;
-  
-  SWIG_check_mutable_nonnull(*farg1, "struct _generic_SUNControl_Ops *", "generic_SUNControl_Ops_", "_generic_SUNControl_Ops::estimatestep", return );
-  arg1 = (struct _generic_SUNControl_Ops *)(farg1->cptr);
-  arg2 = (int (*)(SUNControl,realtype,realtype,realtype *))(farg2);
-  if (arg1) (arg1)->estimatestep = arg2;
-}
-
-
-typedef int (*_generic_SUNControl_Ops_estimatestep_get_swigrtype)(SUNControl,realtype,realtype,realtype *);
-SWIGEXPORT _generic_SUNControl_Ops_estimatestep_get_swigrtype _wrap__generic_SUNControl_Ops_estimatestep_get(SwigClassWrapper const *farg1) {
-  _generic_SUNControl_Ops_estimatestep_get_swigrtype fresult ;
-  struct _generic_SUNControl_Ops *arg1 = (struct _generic_SUNControl_Ops *) 0 ;
-  int (*result)(SUNControl,realtype,realtype,realtype *) = 0 ;
-  
-  SWIG_check_mutable_nonnull(*farg1, "struct _generic_SUNControl_Ops *", "generic_SUNControl_Ops_", "_generic_SUNControl_Ops::estimatestep", return 0);
-  arg1 = (struct _generic_SUNControl_Ops *)(farg1->cptr);
-  result = (int (*)(SUNControl,realtype,realtype,realtype *)) ((arg1)->estimatestep);
-  fresult = result;
-  return fresult;
-}
-
-
-SWIGEXPORT void _wrap__generic_SUNControl_Ops_estimatestepandorder_set(SwigClassWrapper const *farg1, int (*farg2)(SUNControl,realtype,int,realtype,realtype *,int *)) {
-  struct _generic_SUNControl_Ops *arg1 = (struct _generic_SUNControl_Ops *) 0 ;
-  int (*arg2)(SUNControl,realtype,int,realtype,realtype *,int *) = (int (*)(SUNControl,realtype,int,realtype,realtype *,int *)) 0 ;
-  
-  SWIG_check_mutable_nonnull(*farg1, "struct _generic_SUNControl_Ops *", "generic_SUNControl_Ops_", "_generic_SUNControl_Ops::estimatestepandorder", return );
-  arg1 = (struct _generic_SUNControl_Ops *)(farg1->cptr);
-  arg2 = (int (*)(SUNControl,realtype,int,realtype,realtype *,int *))(farg2);
-  if (arg1) (arg1)->estimatestepandorder = arg2;
-}
-
-
-typedef int (*_generic_SUNControl_Ops_estimatestepandorder_get_swigrtype)(SUNControl,realtype,int,realtype,realtype *,int *);
-SWIGEXPORT _generic_SUNControl_Ops_estimatestepandorder_get_swigrtype _wrap__generic_SUNControl_Ops_estimatestepandorder_get(SwigClassWrapper const *farg1) {
-  _generic_SUNControl_Ops_estimatestepandorder_get_swigrtype fresult ;
-  struct _generic_SUNControl_Ops *arg1 = (struct _generic_SUNControl_Ops *) 0 ;
-  int (*result)(SUNControl,realtype,int,realtype,realtype *,int *) = 0 ;
-  
-  SWIG_check_mutable_nonnull(*farg1, "struct _generic_SUNControl_Ops *", "generic_SUNControl_Ops_", "_generic_SUNControl_Ops::estimatestepandorder", return 0);
-  arg1 = (struct _generic_SUNControl_Ops *)(farg1->cptr);
-  result = (int (*)(SUNControl,realtype,int,realtype,realtype *,int *)) ((arg1)->estimatestepandorder);
-  fresult = result;
-  return fresult;
-}
-
-
-SWIGEXPORT void _wrap__generic_SUNControl_Ops_estimatemristeps_set(SwigClassWrapper const *farg1, int (*farg2)(SUNControl,realtype,realtype,realtype,realtype *,realtype *)) {
-  struct _generic_SUNControl_Ops *arg1 = (struct _generic_SUNControl_Ops *) 0 ;
-  int (*arg2)(SUNControl,realtype,realtype,realtype,realtype *,realtype *) = (int (*)(SUNControl,realtype,realtype,realtype,realtype *,realtype *)) 0 ;
-  
-  SWIG_check_mutable_nonnull(*farg1, "struct _generic_SUNControl_Ops *", "generic_SUNControl_Ops_", "_generic_SUNControl_Ops::estimatemristeps", return );
-  arg1 = (struct _generic_SUNControl_Ops *)(farg1->cptr);
-  arg2 = (int (*)(SUNControl,realtype,realtype,realtype,realtype *,realtype *))(farg2);
-  if (arg1) (arg1)->estimatemristeps = arg2;
-}
-
-
-typedef int (*_generic_SUNControl_Ops_estimatemristeps_get_swigrtype)(SUNControl,realtype,realtype,realtype,realtype *,realtype *);
-SWIGEXPORT _generic_SUNControl_Ops_estimatemristeps_get_swigrtype _wrap__generic_SUNControl_Ops_estimatemristeps_get(SwigClassWrapper const *farg1) {
-  _generic_SUNControl_Ops_estimatemristeps_get_swigrtype fresult ;
-  struct _generic_SUNControl_Ops *arg1 = (struct _generic_SUNControl_Ops *) 0 ;
-  int (*result)(SUNControl,realtype,realtype,realtype,realtype *,realtype *) = 0 ;
-  
-  SWIG_check_mutable_nonnull(*farg1, "struct _generic_SUNControl_Ops *", "generic_SUNControl_Ops_", "_generic_SUNControl_Ops::estimatemristeps", return 0);
-  arg1 = (struct _generic_SUNControl_Ops *)(farg1->cptr);
-  result = (int (*)(SUNControl,realtype,realtype,realtype,realtype *,realtype *)) ((arg1)->estimatemristeps);
-  fresult = result;
-  return fresult;
-}
-
-
-SWIGEXPORT void _wrap__generic_SUNControl_Ops_estimatesteptol_set(SwigClassWrapper const *farg1, int (*farg2)(SUNControl,realtype,realtype,realtype,realtype *,realtype *)) {
-  struct _generic_SUNControl_Ops *arg1 = (struct _generic_SUNControl_Ops *) 0 ;
-  int (*arg2)(SUNControl,realtype,realtype,realtype,realtype *,realtype *) = (int (*)(SUNControl,realtype,realtype,realtype,realtype *,realtype *)) 0 ;
-  
-  SWIG_check_mutable_nonnull(*farg1, "struct _generic_SUNControl_Ops *", "generic_SUNControl_Ops_", "_generic_SUNControl_Ops::estimatesteptol", return );
-  arg1 = (struct _generic_SUNControl_Ops *)(farg1->cptr);
-  arg2 = (int (*)(SUNControl,realtype,realtype,realtype,realtype *,realtype *))(farg2);
-  if (arg1) (arg1)->estimatesteptol = arg2;
-}
-
-
-typedef int (*_generic_SUNControl_Ops_estimatesteptol_get_swigrtype)(SUNControl,realtype,realtype,realtype,realtype *,realtype *);
-SWIGEXPORT _generic_SUNControl_Ops_estimatesteptol_get_swigrtype _wrap__generic_SUNControl_Ops_estimatesteptol_get(SwigClassWrapper const *farg1) {
-  _generic_SUNControl_Ops_estimatesteptol_get_swigrtype fresult ;
-  struct _generic_SUNControl_Ops *arg1 = (struct _generic_SUNControl_Ops *) 0 ;
-  int (*result)(SUNControl,realtype,realtype,realtype,realtype *,realtype *) = 0 ;
-  
-  SWIG_check_mutable_nonnull(*farg1, "struct _generic_SUNControl_Ops *", "generic_SUNControl_Ops_", "_generic_SUNControl_Ops::estimatesteptol", return 0);
-  arg1 = (struct _generic_SUNControl_Ops *)(farg1->cptr);
-  result = (int (*)(SUNControl,realtype,realtype,realtype,realtype *,realtype *)) ((arg1)->estimatesteptol);
-  fresult = result;
-  return fresult;
-}
-
-
-SWIGEXPORT void _wrap__generic_SUNControl_Ops_reset_set(SwigClassWrapper const *farg1, int (*farg2)(SUNControl)) {
-  struct _generic_SUNControl_Ops *arg1 = (struct _generic_SUNControl_Ops *) 0 ;
-  int (*arg2)(SUNControl) = (int (*)(SUNControl)) 0 ;
-  
-  SWIG_check_mutable_nonnull(*farg1, "struct _generic_SUNControl_Ops *", "generic_SUNControl_Ops_", "_generic_SUNControl_Ops::reset", return );
-  arg1 = (struct _generic_SUNControl_Ops *)(farg1->cptr);
-  arg2 = (int (*)(SUNControl))(farg2);
-  if (arg1) (arg1)->reset = arg2;
-}
-
-
-typedef int (*_generic_SUNControl_Ops_reset_get_swigrtype)(SUNControl);
-SWIGEXPORT _generic_SUNControl_Ops_reset_get_swigrtype _wrap__generic_SUNControl_Ops_reset_get(SwigClassWrapper const *farg1) {
-  _generic_SUNControl_Ops_reset_get_swigrtype fresult ;
-  struct _generic_SUNControl_Ops *arg1 = (struct _generic_SUNControl_Ops *) 0 ;
-  int (*result)(SUNControl) = 0 ;
-  
-  SWIG_check_mutable_nonnull(*farg1, "struct _generic_SUNControl_Ops *", "generic_SUNControl_Ops_", "_generic_SUNControl_Ops::reset", return 0);
-  arg1 = (struct _generic_SUNControl_Ops *)(farg1->cptr);
-  result = (int (*)(SUNControl)) ((arg1)->reset);
-  fresult = result;
-  return fresult;
-}
-
-
-SWIGEXPORT void _wrap__generic_SUNControl_Ops_setdefaults_set(SwigClassWrapper const *farg1, int (*farg2)(SUNControl)) {
-  struct _generic_SUNControl_Ops *arg1 = (struct _generic_SUNControl_Ops *) 0 ;
-  int (*arg2)(SUNControl) = (int (*)(SUNControl)) 0 ;
-  
-  SWIG_check_mutable_nonnull(*farg1, "struct _generic_SUNControl_Ops *", "generic_SUNControl_Ops_", "_generic_SUNControl_Ops::setdefaults", return );
-  arg1 = (struct _generic_SUNControl_Ops *)(farg1->cptr);
-  arg2 = (int (*)(SUNControl))(farg2);
-  if (arg1) (arg1)->setdefaults = arg2;
-}
-
-
-typedef int (*_generic_SUNControl_Ops_setdefaults_get_swigrtype)(SUNControl);
-SWIGEXPORT _generic_SUNControl_Ops_setdefaults_get_swigrtype _wrap__generic_SUNControl_Ops_setdefaults_get(SwigClassWrapper const *farg1) {
-  _generic_SUNControl_Ops_setdefaults_get_swigrtype fresult ;
-  struct _generic_SUNControl_Ops *arg1 = (struct _generic_SUNControl_Ops *) 0 ;
-  int (*result)(SUNControl) = 0 ;
-  
-  SWIG_check_mutable_nonnull(*farg1, "struct _generic_SUNControl_Ops *", "generic_SUNControl_Ops_", "_generic_SUNControl_Ops::setdefaults", return 0);
-  arg1 = (struct _generic_SUNControl_Ops *)(farg1->cptr);
-  result = (int (*)(SUNControl)) ((arg1)->setdefaults);
-  fresult = result;
-  return fresult;
-}
-
-
-SWIGEXPORT void _wrap__generic_SUNControl_Ops_write_set(SwigClassWrapper const *farg1, int (*farg2)(SUNControl,FILE *)) {
-  struct _generic_SUNControl_Ops *arg1 = (struct _generic_SUNControl_Ops *) 0 ;
-  int (*arg2)(SUNControl,FILE *) = (int (*)(SUNControl,FILE *)) 0 ;
-  
-  SWIG_check_mutable_nonnull(*farg1, "struct _generic_SUNControl_Ops *", "generic_SUNControl_Ops_", "_generic_SUNControl_Ops::write", return );
-  arg1 = (struct _generic_SUNControl_Ops *)(farg1->cptr);
-  arg2 = (int (*)(SUNControl,FILE *))(farg2);
-  if (arg1) (arg1)->write = arg2;
-}
-
-
-typedef int (*_generic_SUNControl_Ops_write_get_swigrtype)(SUNControl,FILE *);
-SWIGEXPORT _generic_SUNControl_Ops_write_get_swigrtype _wrap__generic_SUNControl_Ops_write_get(SwigClassWrapper const *farg1) {
-  _generic_SUNControl_Ops_write_get_swigrtype fresult ;
-  struct _generic_SUNControl_Ops *arg1 = (struct _generic_SUNControl_Ops *) 0 ;
-  int (*result)(SUNControl,FILE *) = 0 ;
-  
-  SWIG_check_mutable_nonnull(*farg1, "struct _generic_SUNControl_Ops *", "generic_SUNControl_Ops_", "_generic_SUNControl_Ops::write", return 0);
-  arg1 = (struct _generic_SUNControl_Ops *)(farg1->cptr);
-  result = (int (*)(SUNControl,FILE *)) ((arg1)->write);
-  fresult = result;
-  return fresult;
-}
-
-
-SWIGEXPORT void _wrap__generic_SUNControl_Ops_setmethodorder_set(SwigClassWrapper const *farg1, int (*farg2)(SUNControl,int)) {
-  struct _generic_SUNControl_Ops *arg1 = (struct _generic_SUNControl_Ops *) 0 ;
-  int (*arg2)(SUNControl,int) = (int (*)(SUNControl,int)) 0 ;
-  
-  SWIG_check_mutable_nonnull(*farg1, "struct _generic_SUNControl_Ops *", "generic_SUNControl_Ops_", "_generic_SUNControl_Ops::setmethodorder", return );
-  arg1 = (struct _generic_SUNControl_Ops *)(farg1->cptr);
-  arg2 = (int (*)(SUNControl,int))(farg2);
-  if (arg1) (arg1)->setmethodorder = arg2;
-}
-
-
-typedef int (*_generic_SUNControl_Ops_setmethodorder_get_swigrtype)(SUNControl,int);
-SWIGEXPORT _generic_SUNControl_Ops_setmethodorder_get_swigrtype _wrap__generic_SUNControl_Ops_setmethodorder_get(SwigClassWrapper const *farg1) {
-  _generic_SUNControl_Ops_setmethodorder_get_swigrtype fresult ;
-  struct _generic_SUNControl_Ops *arg1 = (struct _generic_SUNControl_Ops *) 0 ;
-  int (*result)(SUNControl,int) = 0 ;
-  
-  SWIG_check_mutable_nonnull(*farg1, "struct _generic_SUNControl_Ops *", "generic_SUNControl_Ops_", "_generic_SUNControl_Ops::setmethodorder", return 0);
-  arg1 = (struct _generic_SUNControl_Ops *)(farg1->cptr);
-  result = (int (*)(SUNControl,int)) ((arg1)->setmethodorder);
-  fresult = result;
-  return fresult;
-}
-
-
-SWIGEXPORT void _wrap__generic_SUNControl_Ops_setembeddingorder_set(SwigClassWrapper const *farg1, int (*farg2)(SUNControl,int)) {
-  struct _generic_SUNControl_Ops *arg1 = (struct _generic_SUNControl_Ops *) 0 ;
-  int (*arg2)(SUNControl,int) = (int (*)(SUNControl,int)) 0 ;
-  
-  SWIG_check_mutable_nonnull(*farg1, "struct _generic_SUNControl_Ops *", "generic_SUNControl_Ops_", "_generic_SUNControl_Ops::setembeddingorder", return );
-  arg1 = (struct _generic_SUNControl_Ops *)(farg1->cptr);
-  arg2 = (int (*)(SUNControl,int))(farg2);
-  if (arg1) (arg1)->setembeddingorder = arg2;
-}
-
-
-typedef int (*_generic_SUNControl_Ops_setembeddingorder_get_swigrtype)(SUNControl,int);
-SWIGEXPORT _generic_SUNControl_Ops_setembeddingorder_get_swigrtype _wrap__generic_SUNControl_Ops_setembeddingorder_get(SwigClassWrapper const *farg1) {
-  _generic_SUNControl_Ops_setembeddingorder_get_swigrtype fresult ;
-  struct _generic_SUNControl_Ops *arg1 = (struct _generic_SUNControl_Ops *) 0 ;
-  int (*result)(SUNControl,int) = 0 ;
-  
-  SWIG_check_mutable_nonnull(*farg1, "struct _generic_SUNControl_Ops *", "generic_SUNControl_Ops_", "_generic_SUNControl_Ops::setembeddingorder", return 0);
-  arg1 = (struct _generic_SUNControl_Ops *)(farg1->cptr);
-  result = (int (*)(SUNControl,int)) ((arg1)->setembeddingorder);
-  fresult = result;
-  return fresult;
-}
-
-
-SWIGEXPORT void _wrap__generic_SUNControl_Ops_seterrorbias_set(SwigClassWrapper const *farg1, int (*farg2)(SUNControl,realtype)) {
-  struct _generic_SUNControl_Ops *arg1 = (struct _generic_SUNControl_Ops *) 0 ;
-  int (*arg2)(SUNControl,realtype) = (int (*)(SUNControl,realtype)) 0 ;
-  
-  SWIG_check_mutable_nonnull(*farg1, "struct _generic_SUNControl_Ops *", "generic_SUNControl_Ops_", "_generic_SUNControl_Ops::seterrorbias", return );
-  arg1 = (struct _generic_SUNControl_Ops *)(farg1->cptr);
-  arg2 = (int (*)(SUNControl,realtype))(farg2);
-  if (arg1) (arg1)->seterrorbias = arg2;
-}
-
-
-typedef int (*_generic_SUNControl_Ops_seterrorbias_get_swigrtype)(SUNControl,realtype);
-SWIGEXPORT _generic_SUNControl_Ops_seterrorbias_get_swigrtype _wrap__generic_SUNControl_Ops_seterrorbias_get(SwigClassWrapper const *farg1) {
-  _generic_SUNControl_Ops_seterrorbias_get_swigrtype fresult ;
-  struct _generic_SUNControl_Ops *arg1 = (struct _generic_SUNControl_Ops *) 0 ;
-  int (*result)(SUNControl,realtype) = 0 ;
-  
-  SWIG_check_mutable_nonnull(*farg1, "struct _generic_SUNControl_Ops *", "generic_SUNControl_Ops_", "_generic_SUNControl_Ops::seterrorbias", return 0);
-  arg1 = (struct _generic_SUNControl_Ops *)(farg1->cptr);
-  result = (int (*)(SUNControl,realtype)) ((arg1)->seterrorbias);
-  fresult = result;
-  return fresult;
-}
-
-
-SWIGEXPORT void _wrap__generic_SUNControl_Ops_update_set(SwigClassWrapper const *farg1, int (*farg2)(SUNControl,realtype,realtype)) {
-  struct _generic_SUNControl_Ops *arg1 = (struct _generic_SUNControl_Ops *) 0 ;
-  int (*arg2)(SUNControl,realtype,realtype) = (int (*)(SUNControl,realtype,realtype)) 0 ;
-  
-  SWIG_check_mutable_nonnull(*farg1, "struct _generic_SUNControl_Ops *", "generic_SUNControl_Ops_", "_generic_SUNControl_Ops::update", return );
-  arg1 = (struct _generic_SUNControl_Ops *)(farg1->cptr);
-  arg2 = (int (*)(SUNControl,realtype,realtype))(farg2);
-  if (arg1) (arg1)->update = arg2;
-}
-
-
-typedef int (*_generic_SUNControl_Ops_update_get_swigrtype)(SUNControl,realtype,realtype);
-SWIGEXPORT _generic_SUNControl_Ops_update_get_swigrtype _wrap__generic_SUNControl_Ops_update_get(SwigClassWrapper const *farg1) {
-  _generic_SUNControl_Ops_update_get_swigrtype fresult ;
-  struct _generic_SUNControl_Ops *arg1 = (struct _generic_SUNControl_Ops *) 0 ;
-  int (*result)(SUNControl,realtype,realtype) = 0 ;
-  
-  SWIG_check_mutable_nonnull(*farg1, "struct _generic_SUNControl_Ops *", "generic_SUNControl_Ops_", "_generic_SUNControl_Ops::update", return 0);
-  arg1 = (struct _generic_SUNControl_Ops *)(farg1->cptr);
-  result = (int (*)(SUNControl,realtype,realtype)) ((arg1)->update);
-  fresult = result;
-  return fresult;
-}
-
-
-SWIGEXPORT void _wrap__generic_SUNControl_Ops_space_set(SwigClassWrapper const *farg1, int (*farg2)(SUNControl,long *,long *)) {
-  struct _generic_SUNControl_Ops *arg1 = (struct _generic_SUNControl_Ops *) 0 ;
-  int (*arg2)(SUNControl,long *,long *) = (int (*)(SUNControl,long *,long *)) 0 ;
-  
-  SWIG_check_mutable_nonnull(*farg1, "struct _generic_SUNControl_Ops *", "generic_SUNControl_Ops_", "_generic_SUNControl_Ops::space", return );
-  arg1 = (struct _generic_SUNControl_Ops *)(farg1->cptr);
-  arg2 = (int (*)(SUNControl,long *,long *))(farg2);
-  if (arg1) (arg1)->space = arg2;
-}
-
-
-typedef int (*_generic_SUNControl_Ops_space_get_swigrtype)(SUNControl,long *,long *);
-SWIGEXPORT _generic_SUNControl_Ops_space_get_swigrtype _wrap__generic_SUNControl_Ops_space_get(SwigClassWrapper const *farg1) {
-  _generic_SUNControl_Ops_space_get_swigrtype fresult ;
-  struct _generic_SUNControl_Ops *arg1 = (struct _generic_SUNControl_Ops *) 0 ;
-  int (*result)(SUNControl,long *,long *) = 0 ;
-  
-  SWIG_check_mutable_nonnull(*farg1, "struct _generic_SUNControl_Ops *", "generic_SUNControl_Ops_", "_generic_SUNControl_Ops::space", return 0);
-  arg1 = (struct _generic_SUNControl_Ops *)(farg1->cptr);
-  result = (int (*)(SUNControl,long *,long *)) ((arg1)->space);
-  fresult = result;
-  return fresult;
-}
-
-
-SWIGEXPORT SwigClassWrapper _wrap_new__generic_SUNControl_Ops() {
-  SwigClassWrapper fresult ;
-  struct _generic_SUNControl_Ops *result = 0 ;
-  
-  result = (struct _generic_SUNControl_Ops *)calloc(1, sizeof(struct _generic_SUNControl_Ops));
-  fresult.cptr = result;
-  fresult.cmemflags = SWIG_MEM_RVALUE | (1 ? SWIG_MEM_OWN : 0);
-  return fresult;
-}
-
-
-SWIGEXPORT void _wrap_delete__generic_SUNControl_Ops(SwigClassWrapper *farg1) {
-  struct _generic_SUNControl_Ops *arg1 = (struct _generic_SUNControl_Ops *) 0 ;
-  
-  SWIG_check_mutable(*farg1, "struct _generic_SUNControl_Ops *", "generic_SUNControl_Ops_", "_generic_SUNControl_Ops::~_generic_SUNControl_Ops()", return );
-  arg1 = (struct _generic_SUNControl_Ops *)(farg1->cptr);
-  free((char *) arg1);
-}
-
-
-SWIGEXPORT void _wrap__generic_SUNControl_Ops_op_assign__(SwigClassWrapper *farg1, SwigClassWrapper const *farg2) {
-  struct _generic_SUNControl_Ops *arg1 = (struct _generic_SUNControl_Ops *) 0 ;
-  struct _generic_SUNControl_Ops *arg2 = 0 ;
-  
-  (void)sizeof(arg1);
-  (void)sizeof(arg2);
-  SWIG_assign(farg1, *farg2);
-  
-}
-
-
-SWIGEXPORT void _wrap__generic_SUNControl_content_set(SwigClassWrapper const *farg1, void *farg2) {
-  struct _generic_SUNControl *arg1 = (struct _generic_SUNControl *) 0 ;
-  void *arg2 = (void *) 0 ;
-  
-  SWIG_check_mutable_nonnull(*farg1, "struct _generic_SUNControl *", "generic_SUNControl_", "_generic_SUNControl::content", return );
-  arg1 = (struct _generic_SUNControl *)(farg1->cptr);
-  arg2 = (void *)(farg2);
-  if (arg1) (arg1)->content = arg2;
-}
-
-
-SWIGEXPORT void * _wrap__generic_SUNControl_content_get(SwigClassWrapper const *farg1) {
-  void * fresult ;
-  struct _generic_SUNControl *arg1 = (struct _generic_SUNControl *) 0 ;
-  void *result = 0 ;
-  
-  SWIG_check_mutable_nonnull(*farg1, "struct _generic_SUNControl *", "generic_SUNControl_", "_generic_SUNControl::content", return 0);
-  arg1 = (struct _generic_SUNControl *)(farg1->cptr);
-  result = (void *) ((arg1)->content);
-  fresult = result;
-  return fresult;
-}
-
-
-SWIGEXPORT void _wrap__generic_SUNControl_ops_set(SwigClassWrapper const *farg1, SwigClassWrapper const *farg2) {
-  struct _generic_SUNControl *arg1 = (struct _generic_SUNControl *) 0 ;
-  SUNControl_Ops arg2 = (SUNControl_Ops) 0 ;
-  
-  SWIG_check_mutable_nonnull(*farg1, "struct _generic_SUNControl *", "generic_SUNControl_", "_generic_SUNControl::ops", return );
-  arg1 = (struct _generic_SUNControl *)(farg1->cptr);
-  SWIG_check_mutable(*farg2, "SUNControl_Ops", "generic_SUNControl_Ops_", "_generic_SUNControl::ops", return );
-  arg2 = (SUNControl_Ops)(farg2->cptr);
-  if (arg1) (arg1)->ops = arg2;
-}
-
-
-SWIGEXPORT SwigClassWrapper _wrap__generic_SUNControl_ops_get(SwigClassWrapper const *farg1) {
-  SwigClassWrapper fresult ;
-  struct _generic_SUNControl *arg1 = (struct _generic_SUNControl *) 0 ;
-  SUNControl_Ops result;
-  
-  SWIG_check_mutable_nonnull(*farg1, "struct _generic_SUNControl *", "generic_SUNControl_", "_generic_SUNControl::ops", return SwigClassWrapper_uninitialized());
-  arg1 = (struct _generic_SUNControl *)(farg1->cptr);
-  result = (SUNControl_Ops) ((arg1)->ops);
-  fresult.cptr = result;
-  fresult.cmemflags = SWIG_MEM_RVALUE | (0 ? SWIG_MEM_OWN : 0);
-  return fresult;
-}
-
-
-SWIGEXPORT void _wrap__generic_SUNControl_sunctx_set(SwigClassWrapper const *farg1, void *farg2) {
-  struct _generic_SUNControl *arg1 = (struct _generic_SUNControl *) 0 ;
-  SUNContext arg2 = (SUNContext) 0 ;
-  
-  SWIG_check_mutable_nonnull(*farg1, "struct _generic_SUNControl *", "generic_SUNControl_", "_generic_SUNControl::sunctx", return );
-  arg1 = (struct _generic_SUNControl *)(farg1->cptr);
-  arg2 = (SUNContext)(farg2);
-  if (arg1) (arg1)->sunctx = arg2;
-}
-
-
-SWIGEXPORT void * _wrap__generic_SUNControl_sunctx_get(SwigClassWrapper const *farg1) {
-  void * fresult ;
-  struct _generic_SUNControl *arg1 = (struct _generic_SUNControl *) 0 ;
-  SUNContext result;
-  
-  SWIG_check_mutable_nonnull(*farg1, "struct _generic_SUNControl *", "generic_SUNControl_", "_generic_SUNControl::sunctx", return 0);
-  arg1 = (struct _generic_SUNControl *)(farg1->cptr);
-  result = (SUNContext) ((arg1)->sunctx);
-  fresult = result;
-  return fresult;
-}
-
-
-SWIGEXPORT SwigClassWrapper _wrap_new__generic_SUNControl() {
-  SwigClassWrapper fresult ;
-  struct _generic_SUNControl *result = 0 ;
-  
-  result = (struct _generic_SUNControl *)calloc(1, sizeof(struct _generic_SUNControl));
-  fresult.cptr = result;
-  fresult.cmemflags = SWIG_MEM_RVALUE | (1 ? SWIG_MEM_OWN : 0);
-  return fresult;
-}
-
-
-SWIGEXPORT void _wrap_delete__generic_SUNControl(SwigClassWrapper *farg1) {
-  struct _generic_SUNControl *arg1 = (struct _generic_SUNControl *) 0 ;
-  
-  SWIG_check_mutable(*farg1, "struct _generic_SUNControl *", "generic_SUNControl_", "_generic_SUNControl::~_generic_SUNControl()", return );
-  arg1 = (struct _generic_SUNControl *)(farg1->cptr);
-  free((char *) arg1);
-}
-
-
-SWIGEXPORT void _wrap__generic_SUNControl_op_assign__(SwigClassWrapper *farg1, SwigClassWrapper const *farg2) {
-  struct _generic_SUNControl *arg1 = (struct _generic_SUNControl *) 0 ;
-  struct _generic_SUNControl *arg2 = 0 ;
-  
-  (void)sizeof(arg1);
-  (void)sizeof(arg2);
-  SWIG_assign(farg1, *farg2);
-  
-}
-
-
-SWIGEXPORT SwigClassWrapper _wrap_FSUNControlNewEmpty(void *farg1) {
-  SwigClassWrapper fresult ;
+SWIGEXPORT SUNControl _wrap_FSUNControlNewEmpty(void *farg1) {
+  SUNControl fresult ;
   SUNContext arg1 = (SUNContext) 0 ;
   SUNControl result;
   
   arg1 = (SUNContext)(farg1);
   result = (SUNControl)SUNControlNewEmpty(arg1);
-  fresult.cptr = result;
-  fresult.cmemflags = SWIG_MEM_RVALUE | (0 ? SWIG_MEM_OWN : 0);
+  fresult = result;
   return fresult;
 }
 
 
-SWIGEXPORT int _wrap_FSUNControlGetID(SwigClassWrapper const *farg1) {
+SWIGEXPORT int _wrap_FSUNControlGetID(SUNControl farg1) {
   int fresult ;
   SUNControl arg1 = (SUNControl) 0 ;
   SUNControl_ID result;
   
-  SWIG_check_mutable(*farg1, "SUNControl", "generic_SUNControl_", "SUNControlGetID(SUNControl)", return 0);
-  arg1 = (SUNControl)(farg1->cptr);
+  arg1 = (SUNControl)(farg1);
   result = (SUNControl_ID)SUNControlGetID(arg1);
   fresult = (int)(result);
   return fresult;
 }
 
 
-SWIGEXPORT void _wrap_FSUNControlDestroy(SwigClassWrapper const *farg1) {
+SWIGEXPORT void _wrap_FSUNControlDestroy(SUNControl farg1) {
   SUNControl arg1 = (SUNControl) 0 ;
   
-  SWIG_check_mutable(*farg1, "SUNControl", "generic_SUNControl_", "SUNControlDestroy(SUNControl)", return );
-  arg1 = (SUNControl)(farg1->cptr);
+  arg1 = (SUNControl)(farg1);
   SUNControlDestroy(arg1);
 }
 
 
-SWIGEXPORT int _wrap_FSUNControlEstimateStep(SwigClassWrapper const *farg1, double const *farg2, double const *farg3, double *farg4) {
+SWIGEXPORT int _wrap_FSUNControlEstimateStep(SUNControl farg1, double const *farg2, double const *farg3, double *farg4) {
   int fresult ;
   SUNControl arg1 = (SUNControl) 0 ;
   realtype arg2 ;
@@ -808,8 +230,7 @@ SWIGEXPORT int _wrap_FSUNControlEstimateStep(SwigClassWrapper const *farg1, doub
   realtype *arg4 = (realtype *) 0 ;
   int result;
   
-  SWIG_check_mutable(*farg1, "SUNControl", "generic_SUNControl_", "SUNControlEstimateStep(SUNControl,realtype,realtype,realtype *)", return 0);
-  arg1 = (SUNControl)(farg1->cptr);
+  arg1 = (SUNControl)(farg1);
   arg2 = (realtype)(*farg2);
   arg3 = (realtype)(*farg3);
   arg4 = (realtype *)(farg4);
@@ -819,7 +240,7 @@ SWIGEXPORT int _wrap_FSUNControlEstimateStep(SwigClassWrapper const *farg1, doub
 }
 
 
-SWIGEXPORT int _wrap_FSUNControlEstimateStepAndOrder(SwigClassWrapper const *farg1, double const *farg2, int const *farg3, double const *farg4, double *farg5, int *farg6) {
+SWIGEXPORT int _wrap_FSUNControlEstimateStepAndOrder(SUNControl farg1, double const *farg2, int const *farg3, double const *farg4, double *farg5, int *farg6) {
   int fresult ;
   SUNControl arg1 = (SUNControl) 0 ;
   realtype arg2 ;
@@ -829,8 +250,7 @@ SWIGEXPORT int _wrap_FSUNControlEstimateStepAndOrder(SwigClassWrapper const *far
   int *arg6 = (int *) 0 ;
   int result;
   
-  SWIG_check_mutable(*farg1, "SUNControl", "generic_SUNControl_", "SUNControlEstimateStepAndOrder(SUNControl,realtype,int,realtype,realtype *,int *)", return 0);
-  arg1 = (SUNControl)(farg1->cptr);
+  arg1 = (SUNControl)(farg1);
   arg2 = (realtype)(*farg2);
   arg3 = (int)(*farg3);
   arg4 = (realtype)(*farg4);
@@ -842,7 +262,7 @@ SWIGEXPORT int _wrap_FSUNControlEstimateStepAndOrder(SwigClassWrapper const *far
 }
 
 
-SWIGEXPORT int _wrap_FSUNControlEstimateMRISteps(SwigClassWrapper const *farg1, double const *farg2, double const *farg3, double const *farg4, double *farg5, double *farg6) {
+SWIGEXPORT int _wrap_FSUNControlEstimateMRISteps(SUNControl farg1, double const *farg2, double const *farg3, double const *farg4, double *farg5, double *farg6) {
   int fresult ;
   SUNControl arg1 = (SUNControl) 0 ;
   realtype arg2 ;
@@ -852,8 +272,7 @@ SWIGEXPORT int _wrap_FSUNControlEstimateMRISteps(SwigClassWrapper const *farg1, 
   realtype *arg6 = (realtype *) 0 ;
   int result;
   
-  SWIG_check_mutable(*farg1, "SUNControl", "generic_SUNControl_", "SUNControlEstimateMRISteps(SUNControl,realtype,realtype,realtype,realtype *,realtype *)", return 0);
-  arg1 = (SUNControl)(farg1->cptr);
+  arg1 = (SUNControl)(farg1);
   arg2 = (realtype)(*farg2);
   arg3 = (realtype)(*farg3);
   arg4 = (realtype)(*farg4);
@@ -865,7 +284,7 @@ SWIGEXPORT int _wrap_FSUNControlEstimateMRISteps(SwigClassWrapper const *farg1, 
 }
 
 
-SWIGEXPORT int _wrap_FSUNControlEstimateStepTol(SwigClassWrapper const *farg1, double const *farg2, double const *farg3, double const *farg4, double *farg5, double *farg6) {
+SWIGEXPORT int _wrap_FSUNControlEstimateStepTol(SUNControl farg1, double const *farg2, double const *farg3, double const *farg4, double *farg5, double *farg6) {
   int fresult ;
   SUNControl arg1 = (SUNControl) 0 ;
   realtype arg2 ;
@@ -875,8 +294,7 @@ SWIGEXPORT int _wrap_FSUNControlEstimateStepTol(SwigClassWrapper const *farg1, d
   realtype *arg6 = (realtype *) 0 ;
   int result;
   
-  SWIG_check_mutable(*farg1, "SUNControl", "generic_SUNControl_", "SUNControlEstimateStepTol(SUNControl,realtype,realtype,realtype,realtype *,realtype *)", return 0);
-  arg1 = (SUNControl)(farg1->cptr);
+  arg1 = (SUNControl)(farg1);
   arg2 = (realtype)(*farg2);
   arg3 = (realtype)(*farg3);
   arg4 = (realtype)(*farg4);
@@ -888,40 +306,37 @@ SWIGEXPORT int _wrap_FSUNControlEstimateStepTol(SwigClassWrapper const *farg1, d
 }
 
 
-SWIGEXPORT int _wrap_FSUNControlReset(SwigClassWrapper const *farg1) {
+SWIGEXPORT int _wrap_FSUNControlReset(SUNControl farg1) {
   int fresult ;
   SUNControl arg1 = (SUNControl) 0 ;
   int result;
   
-  SWIG_check_mutable(*farg1, "SUNControl", "generic_SUNControl_", "SUNControlReset(SUNControl)", return 0);
-  arg1 = (SUNControl)(farg1->cptr);
+  arg1 = (SUNControl)(farg1);
   result = (int)SUNControlReset(arg1);
   fresult = (int)(result);
   return fresult;
 }
 
 
-SWIGEXPORT int _wrap_FSUNControlSetDefaults(SwigClassWrapper const *farg1) {
+SWIGEXPORT int _wrap_FSUNControlSetDefaults(SUNControl farg1) {
   int fresult ;
   SUNControl arg1 = (SUNControl) 0 ;
   int result;
   
-  SWIG_check_mutable(*farg1, "SUNControl", "generic_SUNControl_", "SUNControlSetDefaults(SUNControl)", return 0);
-  arg1 = (SUNControl)(farg1->cptr);
+  arg1 = (SUNControl)(farg1);
   result = (int)SUNControlSetDefaults(arg1);
   fresult = (int)(result);
   return fresult;
 }
 
 
-SWIGEXPORT int _wrap_FSUNControlWrite(SwigClassWrapper const *farg1, void *farg2) {
+SWIGEXPORT int _wrap_FSUNControlWrite(SUNControl farg1, void *farg2) {
   int fresult ;
   SUNControl arg1 = (SUNControl) 0 ;
   FILE *arg2 = (FILE *) 0 ;
   int result;
   
-  SWIG_check_mutable(*farg1, "SUNControl", "generic_SUNControl_", "SUNControlWrite(SUNControl,FILE *)", return 0);
-  arg1 = (SUNControl)(farg1->cptr);
+  arg1 = (SUNControl)(farg1);
   arg2 = (FILE *)(farg2);
   result = (int)SUNControlWrite(arg1,arg2);
   fresult = (int)(result);
@@ -929,14 +344,13 @@ SWIGEXPORT int _wrap_FSUNControlWrite(SwigClassWrapper const *farg1, void *farg2
 }
 
 
-SWIGEXPORT int _wrap_FSUNControlSetMethodOrder(SwigClassWrapper const *farg1, int const *farg2) {
+SWIGEXPORT int _wrap_FSUNControlSetMethodOrder(SUNControl farg1, int const *farg2) {
   int fresult ;
   SUNControl arg1 = (SUNControl) 0 ;
   int arg2 ;
   int result;
   
-  SWIG_check_mutable(*farg1, "SUNControl", "generic_SUNControl_", "SUNControlSetMethodOrder(SUNControl,int)", return 0);
-  arg1 = (SUNControl)(farg1->cptr);
+  arg1 = (SUNControl)(farg1);
   arg2 = (int)(*farg2);
   result = (int)SUNControlSetMethodOrder(arg1,arg2);
   fresult = (int)(result);
@@ -944,14 +358,13 @@ SWIGEXPORT int _wrap_FSUNControlSetMethodOrder(SwigClassWrapper const *farg1, in
 }
 
 
-SWIGEXPORT int _wrap_FSUNControlSetEmbeddingOrder(SwigClassWrapper const *farg1, int const *farg2) {
+SWIGEXPORT int _wrap_FSUNControlSetEmbeddingOrder(SUNControl farg1, int const *farg2) {
   int fresult ;
   SUNControl arg1 = (SUNControl) 0 ;
   int arg2 ;
   int result;
   
-  SWIG_check_mutable(*farg1, "SUNControl", "generic_SUNControl_", "SUNControlSetEmbeddingOrder(SUNControl,int)", return 0);
-  arg1 = (SUNControl)(farg1->cptr);
+  arg1 = (SUNControl)(farg1);
   arg2 = (int)(*farg2);
   result = (int)SUNControlSetEmbeddingOrder(arg1,arg2);
   fresult = (int)(result);
@@ -959,14 +372,13 @@ SWIGEXPORT int _wrap_FSUNControlSetEmbeddingOrder(SwigClassWrapper const *farg1,
 }
 
 
-SWIGEXPORT int _wrap_FSUNControlSetErrorBias(SwigClassWrapper const *farg1, double const *farg2) {
+SWIGEXPORT int _wrap_FSUNControlSetErrorBias(SUNControl farg1, double const *farg2) {
   int fresult ;
   SUNControl arg1 = (SUNControl) 0 ;
   realtype arg2 ;
   int result;
   
-  SWIG_check_mutable(*farg1, "SUNControl", "generic_SUNControl_", "SUNControlSetErrorBias(SUNControl,realtype)", return 0);
-  arg1 = (SUNControl)(farg1->cptr);
+  arg1 = (SUNControl)(farg1);
   arg2 = (realtype)(*farg2);
   result = (int)SUNControlSetErrorBias(arg1,arg2);
   fresult = (int)(result);
@@ -974,15 +386,14 @@ SWIGEXPORT int _wrap_FSUNControlSetErrorBias(SwigClassWrapper const *farg1, doub
 }
 
 
-SWIGEXPORT int _wrap_FSUNControlUpdate(SwigClassWrapper const *farg1, double const *farg2, double const *farg3) {
+SWIGEXPORT int _wrap_FSUNControlUpdate(SUNControl farg1, double const *farg2, double const *farg3) {
   int fresult ;
   SUNControl arg1 = (SUNControl) 0 ;
   realtype arg2 ;
   realtype arg3 ;
   int result;
   
-  SWIG_check_mutable(*farg1, "SUNControl", "generic_SUNControl_", "SUNControlUpdate(SUNControl,realtype,realtype)", return 0);
-  arg1 = (SUNControl)(farg1->cptr);
+  arg1 = (SUNControl)(farg1);
   arg2 = (realtype)(*farg2);
   arg3 = (realtype)(*farg3);
   result = (int)SUNControlUpdate(arg1,arg2,arg3);
@@ -991,15 +402,14 @@ SWIGEXPORT int _wrap_FSUNControlUpdate(SwigClassWrapper const *farg1, double con
 }
 
 
-SWIGEXPORT int _wrap_FSUNControlSpace(SwigClassWrapper const *farg1, long *farg2, long *farg3) {
+SWIGEXPORT int _wrap_FSUNControlSpace(SUNControl farg1, long *farg2, long *farg3) {
   int fresult ;
   SUNControl arg1 = (SUNControl) 0 ;
   long *arg2 = (long *) 0 ;
   long *arg3 = (long *) 0 ;
   int result;
   
-  SWIG_check_mutable(*farg1, "SUNControl", "generic_SUNControl_", "SUNControlSpace(SUNControl,long *,long *)", return 0);
-  arg1 = (SUNControl)(farg1->cptr);
+  arg1 = (SUNControl)(farg1);
   arg2 = (long *)(farg2);
   arg3 = (long *)(farg3);
   result = (int)SUNControlSpace(arg1,arg2,arg3);

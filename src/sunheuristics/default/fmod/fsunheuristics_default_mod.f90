@@ -23,25 +23,15 @@ module fsunheuristics_default_mod
  use fsundials_nvector_mod
  use fsundials_context_mod
  use fsundials_types_mod
+ use fsundials_heuristics_mod
+ use fsundials_nvector_mod
+ use fsundials_context_mod
+ use fsundials_types_mod
  implicit none
  private
 
  ! DECLARATION CONSTRUCTS
-
- integer, parameter :: swig_cmem_own_bit = 0
- integer, parameter :: swig_cmem_rvalue_bit = 1
- integer, parameter :: swig_cmem_const_bit = 2
- type, bind(C) :: SwigClassWrapper
-  type(C_PTR), public :: cptr = C_NULL_PTR
-  integer(C_INT), public :: cmemflags = 0
- end type
- type, public :: SWIGTYPE_p_SUNHeuristics
-  type(SwigClassWrapper), public :: swigdata
- end type
  public :: FSUNHeuristicsDefault
- type, public :: SWIGTYPE_p_SUNHeuristics_ID
-  type(SwigClassWrapper), public :: swigdata
- end type
  public :: FSUNHeuristicsGetID_Default
  public :: FSUNHeuristicsConstrainStep_Default
  public :: FSUNHeuristicsETestFail_Default
@@ -54,9 +44,6 @@ module fsunheuristics_default_mod
  public :: FSUNHeuristicsWrite_Default
  public :: FSUNHeuristicsSetMaxStep_Default
  public :: FSUNHeuristicsSetMinStep_Default
- type, public :: SWIGTYPE_p_SUNExpStabFn
-  type(SwigClassWrapper), public :: swigdata
- end type
  public :: FSUNHeuristicsSetExpStabFn_Default
  public :: FSUNHeuristicsSetCFLFraction_Default
  public :: FSUNHeuristicsSetSafetyFactor_Default
@@ -77,26 +64,23 @@ function swigc_FSUNHeuristicsDefault(farg1) &
 bind(C, name="_wrap_FSUNHeuristicsDefault") &
 result(fresult)
 use, intrinsic :: ISO_C_BINDING
-import :: swigclasswrapper
 type(C_PTR), value :: farg1
-type(SwigClassWrapper) :: fresult
+type(C_PTR) :: fresult
 end function
 
 function swigc_FSUNHeuristicsGetID_Default(farg1) &
 bind(C, name="_wrap_FSUNHeuristicsGetID_Default") &
 result(fresult)
 use, intrinsic :: ISO_C_BINDING
-import :: swigclasswrapper
-type(SwigClassWrapper) :: farg1
-type(SwigClassWrapper) :: fresult
+type(C_PTR), value :: farg1
+integer(C_INT) :: fresult
 end function
 
 function swigc_FSUNHeuristicsConstrainStep_Default(farg1, farg2, farg3, farg4) &
 bind(C, name="_wrap_FSUNHeuristicsConstrainStep_Default") &
 result(fresult)
 use, intrinsic :: ISO_C_BINDING
-import :: swigclasswrapper
-type(SwigClassWrapper) :: farg1
+type(C_PTR), value :: farg1
 real(C_DOUBLE), intent(in) :: farg2
 real(C_DOUBLE), intent(in) :: farg3
 type(C_PTR), value :: farg4
@@ -107,8 +91,7 @@ function swigc_FSUNHeuristicsETestFail_Default(farg1, farg2, farg3, farg4, farg5
 bind(C, name="_wrap_FSUNHeuristicsETestFail_Default") &
 result(fresult)
 use, intrinsic :: ISO_C_BINDING
-import :: swigclasswrapper
-type(SwigClassWrapper) :: farg1
+type(C_PTR), value :: farg1
 real(C_DOUBLE), intent(in) :: farg2
 real(C_DOUBLE), intent(in) :: farg3
 integer(C_INT), intent(in) :: farg4
@@ -120,8 +103,7 @@ function swigc_FSUNHeuristicsConvFail_Default(farg1, farg2, farg3) &
 bind(C, name="_wrap_FSUNHeuristicsConvFail_Default") &
 result(fresult)
 use, intrinsic :: ISO_C_BINDING
-import :: swigclasswrapper
-type(SwigClassWrapper) :: farg1
+type(C_PTR), value :: farg1
 real(C_DOUBLE), intent(in) :: farg2
 type(C_PTR), value :: farg3
 integer(C_INT) :: fresult
@@ -131,8 +113,7 @@ function swigc_FSUNHeuristicsBoundReduction_Default(farg1, farg2, farg3, farg4) 
 bind(C, name="_wrap_FSUNHeuristicsBoundReduction_Default") &
 result(fresult)
 use, intrinsic :: ISO_C_BINDING
-import :: swigclasswrapper
-type(SwigClassWrapper) :: farg1
+type(C_PTR), value :: farg1
 real(C_DOUBLE), intent(in) :: farg2
 real(C_DOUBLE), intent(in) :: farg3
 type(C_PTR), value :: farg4
@@ -143,8 +124,7 @@ function swigc_FSUNHeuristicsBoundFirstStep_Default(farg1, farg2, farg3) &
 bind(C, name="_wrap_FSUNHeuristicsBoundFirstStep_Default") &
 result(fresult)
 use, intrinsic :: ISO_C_BINDING
-import :: swigclasswrapper
-type(SwigClassWrapper) :: farg1
+type(C_PTR), value :: farg1
 real(C_DOUBLE), intent(in) :: farg2
 type(C_PTR), value :: farg3
 integer(C_INT) :: fresult
@@ -154,8 +134,7 @@ function swigc_FSUNHeuristicsReset_Default(farg1) &
 bind(C, name="_wrap_FSUNHeuristicsReset_Default") &
 result(fresult)
 use, intrinsic :: ISO_C_BINDING
-import :: swigclasswrapper
-type(SwigClassWrapper) :: farg1
+type(C_PTR), value :: farg1
 integer(C_INT) :: fresult
 end function
 
@@ -163,8 +142,7 @@ function swigc_FSUNHeuristicsUpdate_Default(farg1) &
 bind(C, name="_wrap_FSUNHeuristicsUpdate_Default") &
 result(fresult)
 use, intrinsic :: ISO_C_BINDING
-import :: swigclasswrapper
-type(SwigClassWrapper) :: farg1
+type(C_PTR), value :: farg1
 integer(C_INT) :: fresult
 end function
 
@@ -172,8 +150,7 @@ function swigc_FSUNHeuristicsSetDefaults_Default(farg1) &
 bind(C, name="_wrap_FSUNHeuristicsSetDefaults_Default") &
 result(fresult)
 use, intrinsic :: ISO_C_BINDING
-import :: swigclasswrapper
-type(SwigClassWrapper) :: farg1
+type(C_PTR), value :: farg1
 integer(C_INT) :: fresult
 end function
 
@@ -181,8 +158,7 @@ function swigc_FSUNHeuristicsWrite_Default(farg1, farg2) &
 bind(C, name="_wrap_FSUNHeuristicsWrite_Default") &
 result(fresult)
 use, intrinsic :: ISO_C_BINDING
-import :: swigclasswrapper
-type(SwigClassWrapper) :: farg1
+type(C_PTR), value :: farg1
 type(C_PTR), value :: farg2
 integer(C_INT) :: fresult
 end function
@@ -191,8 +167,7 @@ function swigc_FSUNHeuristicsSetMaxStep_Default(farg1, farg2) &
 bind(C, name="_wrap_FSUNHeuristicsSetMaxStep_Default") &
 result(fresult)
 use, intrinsic :: ISO_C_BINDING
-import :: swigclasswrapper
-type(SwigClassWrapper) :: farg1
+type(C_PTR), value :: farg1
 real(C_DOUBLE), intent(in) :: farg2
 integer(C_INT) :: fresult
 end function
@@ -201,8 +176,7 @@ function swigc_FSUNHeuristicsSetMinStep_Default(farg1, farg2) &
 bind(C, name="_wrap_FSUNHeuristicsSetMinStep_Default") &
 result(fresult)
 use, intrinsic :: ISO_C_BINDING
-import :: swigclasswrapper
-type(SwigClassWrapper) :: farg1
+type(C_PTR), value :: farg1
 real(C_DOUBLE), intent(in) :: farg2
 integer(C_INT) :: fresult
 end function
@@ -211,9 +185,8 @@ function swigc_FSUNHeuristicsSetExpStabFn_Default(farg1, farg2, farg3) &
 bind(C, name="_wrap_FSUNHeuristicsSetExpStabFn_Default") &
 result(fresult)
 use, intrinsic :: ISO_C_BINDING
-import :: swigclasswrapper
-type(SwigClassWrapper) :: farg1
-type(SwigClassWrapper) :: farg2
+type(C_PTR), value :: farg1
+type(C_FUNPTR), value :: farg2
 type(C_PTR), value :: farg3
 integer(C_INT) :: fresult
 end function
@@ -222,8 +195,7 @@ function swigc_FSUNHeuristicsSetCFLFraction_Default(farg1, farg2) &
 bind(C, name="_wrap_FSUNHeuristicsSetCFLFraction_Default") &
 result(fresult)
 use, intrinsic :: ISO_C_BINDING
-import :: swigclasswrapper
-type(SwigClassWrapper) :: farg1
+type(C_PTR), value :: farg1
 real(C_DOUBLE), intent(in) :: farg2
 integer(C_INT) :: fresult
 end function
@@ -232,8 +204,7 @@ function swigc_FSUNHeuristicsSetSafetyFactor_Default(farg1, farg2) &
 bind(C, name="_wrap_FSUNHeuristicsSetSafetyFactor_Default") &
 result(fresult)
 use, intrinsic :: ISO_C_BINDING
-import :: swigclasswrapper
-type(SwigClassWrapper) :: farg1
+type(C_PTR), value :: farg1
 real(C_DOUBLE), intent(in) :: farg2
 integer(C_INT) :: fresult
 end function
@@ -242,8 +213,7 @@ function swigc_FSUNHeuristicsSetMaxGrowth_Default(farg1, farg2) &
 bind(C, name="_wrap_FSUNHeuristicsSetMaxGrowth_Default") &
 result(fresult)
 use, intrinsic :: ISO_C_BINDING
-import :: swigclasswrapper
-type(SwigClassWrapper) :: farg1
+type(C_PTR), value :: farg1
 real(C_DOUBLE), intent(in) :: farg2
 integer(C_INT) :: fresult
 end function
@@ -252,8 +222,7 @@ function swigc_FSUNHeuristicsSetMinReduction_Default(farg1, farg2) &
 bind(C, name="_wrap_FSUNHeuristicsSetMinReduction_Default") &
 result(fresult)
 use, intrinsic :: ISO_C_BINDING
-import :: swigclasswrapper
-type(SwigClassWrapper) :: farg1
+type(C_PTR), value :: farg1
 real(C_DOUBLE), intent(in) :: farg2
 integer(C_INT) :: fresult
 end function
@@ -262,8 +231,7 @@ function swigc_FSUNHeuristicsSetFixedStepBounds_Default(farg1, farg2, farg3) &
 bind(C, name="_wrap_FSUNHeuristicsSetFixedStepBounds_Default") &
 result(fresult)
 use, intrinsic :: ISO_C_BINDING
-import :: swigclasswrapper
-type(SwigClassWrapper) :: farg1
+type(C_PTR), value :: farg1
 real(C_DOUBLE), intent(in) :: farg2
 real(C_DOUBLE), intent(in) :: farg3
 integer(C_INT) :: fresult
@@ -273,8 +241,7 @@ function swigc_FSUNHeuristicsSetMaxFirstGrowth_Default(farg1, farg2) &
 bind(C, name="_wrap_FSUNHeuristicsSetMaxFirstGrowth_Default") &
 result(fresult)
 use, intrinsic :: ISO_C_BINDING
-import :: swigclasswrapper
-type(SwigClassWrapper) :: farg1
+type(C_PTR), value :: farg1
 real(C_DOUBLE), intent(in) :: farg2
 integer(C_INT) :: fresult
 end function
@@ -283,8 +250,7 @@ function swigc_FSUNHeuristicsSetMaxEFailGrowth_Default(farg1, farg2) &
 bind(C, name="_wrap_FSUNHeuristicsSetMaxEFailGrowth_Default") &
 result(fresult)
 use, intrinsic :: ISO_C_BINDING
-import :: swigclasswrapper
-type(SwigClassWrapper) :: farg1
+type(C_PTR), value :: farg1
 real(C_DOUBLE), intent(in) :: farg2
 integer(C_INT) :: fresult
 end function
@@ -293,8 +259,7 @@ function swigc_FSUNHeuristicsSetSmallNumEFails_Default(farg1, farg2) &
 bind(C, name="_wrap_FSUNHeuristicsSetSmallNumEFails_Default") &
 result(fresult)
 use, intrinsic :: ISO_C_BINDING
-import :: swigclasswrapper
-type(SwigClassWrapper) :: farg1
+type(C_PTR), value :: farg1
 integer(C_INT), intent(in) :: farg2
 integer(C_INT) :: fresult
 end function
@@ -303,8 +268,7 @@ function swigc_FSUNHeuristicsSetMaxCFailGrowth_Default(farg1, farg2) &
 bind(C, name="_wrap_FSUNHeuristicsSetMaxCFailGrowth_Default") &
 result(fresult)
 use, intrinsic :: ISO_C_BINDING
-import :: swigclasswrapper
-type(SwigClassWrapper) :: farg1
+type(C_PTR), value :: farg1
 real(C_DOUBLE), intent(in) :: farg2
 integer(C_INT) :: fresult
 end function
@@ -313,8 +277,7 @@ function swigc_FSUNHeuristicsGetNumExpSteps_Default(farg1, farg2) &
 bind(C, name="_wrap_FSUNHeuristicsGetNumExpSteps_Default") &
 result(fresult)
 use, intrinsic :: ISO_C_BINDING
-import :: swigclasswrapper
-type(SwigClassWrapper) :: farg1
+type(C_PTR), value :: farg1
 type(C_PTR), value :: farg2
 integer(C_INT) :: fresult
 end function
@@ -323,8 +286,7 @@ function swigc_FSUNHeuristicsGetNumAccSteps_Default(farg1, farg2) &
 bind(C, name="_wrap_FSUNHeuristicsGetNumAccSteps_Default") &
 result(fresult)
 use, intrinsic :: ISO_C_BINDING
-import :: swigclasswrapper
-type(SwigClassWrapper) :: farg1
+type(C_PTR), value :: farg1
 type(C_PTR), value :: farg2
 integer(C_INT) :: fresult
 end function
@@ -333,8 +295,7 @@ function swigc_FSUNHeuristicsSpace_Default(farg1, farg2, farg3) &
 bind(C, name="_wrap_FSUNHeuristicsSpace_Default") &
 result(fresult)
 use, intrinsic :: ISO_C_BINDING
-import :: swigclasswrapper
-type(SwigClassWrapper) :: farg1
+type(C_PTR), value :: farg1
 type(C_PTR), value :: farg2
 type(C_PTR), value :: farg3
 integer(C_INT) :: fresult
@@ -348,44 +309,44 @@ contains
 function FSUNHeuristicsDefault(sunctx) &
 result(swig_result)
 use, intrinsic :: ISO_C_BINDING
-type(SWIGTYPE_p_SUNHeuristics) :: swig_result
+type(SUNHeuristics), pointer :: swig_result
 type(C_PTR) :: sunctx
-type(SwigClassWrapper) :: fresult 
+type(C_PTR) :: fresult 
 type(C_PTR) :: farg1 
 
 farg1 = sunctx
 fresult = swigc_FSUNHeuristicsDefault(farg1)
-swig_result%swigdata = fresult
+call c_f_pointer(fresult, swig_result)
 end function
 
 function FSUNHeuristicsGetID_Default(h) &
 result(swig_result)
 use, intrinsic :: ISO_C_BINDING
-type(SWIGTYPE_p_SUNHeuristics_ID) :: swig_result
-type(SWIGTYPE_p_SUNHeuristics), intent(in) :: h
-type(SwigClassWrapper) :: fresult 
-type(SwigClassWrapper) :: farg1 
+integer(SUNHeuristics_ID) :: swig_result
+type(SUNHeuristics), target, intent(inout) :: h
+integer(C_INT) :: fresult 
+type(C_PTR) :: farg1 
 
-farg1 = h%swigdata
+farg1 = c_loc(h)
 fresult = swigc_FSUNHeuristicsGetID_Default(farg1)
-swig_result%swigdata = fresult
+swig_result = fresult
 end function
 
 function FSUNHeuristicsConstrainStep_Default(h, hcur, hnew, hconstr) &
 result(swig_result)
 use, intrinsic :: ISO_C_BINDING
 integer(C_INT) :: swig_result
-type(SWIGTYPE_p_SUNHeuristics), intent(in) :: h
+type(SUNHeuristics), target, intent(inout) :: h
 real(C_DOUBLE), intent(in) :: hcur
 real(C_DOUBLE), intent(in) :: hnew
 real(C_DOUBLE), dimension(*), target, intent(inout) :: hconstr
 integer(C_INT) :: fresult 
-type(SwigClassWrapper) :: farg1 
+type(C_PTR) :: farg1 
 real(C_DOUBLE) :: farg2 
 real(C_DOUBLE) :: farg3 
 type(C_PTR) :: farg4 
 
-farg1 = h%swigdata
+farg1 = c_loc(h)
 farg2 = hcur
 farg3 = hnew
 farg4 = c_loc(hconstr(1))
@@ -397,19 +358,19 @@ function FSUNHeuristicsETestFail_Default(h, hcur, hnew, nef, hconstr) &
 result(swig_result)
 use, intrinsic :: ISO_C_BINDING
 integer(C_INT) :: swig_result
-type(SWIGTYPE_p_SUNHeuristics), intent(in) :: h
+type(SUNHeuristics), target, intent(inout) :: h
 real(C_DOUBLE), intent(in) :: hcur
 real(C_DOUBLE), intent(in) :: hnew
 integer(C_INT), intent(in) :: nef
 real(C_DOUBLE), dimension(*), target, intent(inout) :: hconstr
 integer(C_INT) :: fresult 
-type(SwigClassWrapper) :: farg1 
+type(C_PTR) :: farg1 
 real(C_DOUBLE) :: farg2 
 real(C_DOUBLE) :: farg3 
 integer(C_INT) :: farg4 
 type(C_PTR) :: farg5 
 
-farg1 = h%swigdata
+farg1 = c_loc(h)
 farg2 = hcur
 farg3 = hnew
 farg4 = nef
@@ -422,15 +383,15 @@ function FSUNHeuristicsConvFail_Default(h, hcur, hconstr) &
 result(swig_result)
 use, intrinsic :: ISO_C_BINDING
 integer(C_INT) :: swig_result
-type(SWIGTYPE_p_SUNHeuristics), intent(in) :: h
+type(SUNHeuristics), target, intent(inout) :: h
 real(C_DOUBLE), intent(in) :: hcur
 real(C_DOUBLE), dimension(*), target, intent(inout) :: hconstr
 integer(C_INT) :: fresult 
-type(SwigClassWrapper) :: farg1 
+type(C_PTR) :: farg1 
 real(C_DOUBLE) :: farg2 
 type(C_PTR) :: farg3 
 
-farg1 = h%swigdata
+farg1 = c_loc(h)
 farg2 = hcur
 farg3 = c_loc(hconstr(1))
 fresult = swigc_FSUNHeuristicsConvFail_Default(farg1, farg2, farg3)
@@ -441,17 +402,17 @@ function FSUNHeuristicsBoundReduction_Default(h, hcur, hnew, hconstr) &
 result(swig_result)
 use, intrinsic :: ISO_C_BINDING
 integer(C_INT) :: swig_result
-type(SWIGTYPE_p_SUNHeuristics), intent(in) :: h
+type(SUNHeuristics), target, intent(inout) :: h
 real(C_DOUBLE), intent(in) :: hcur
 real(C_DOUBLE), intent(in) :: hnew
 real(C_DOUBLE), dimension(*), target, intent(inout) :: hconstr
 integer(C_INT) :: fresult 
-type(SwigClassWrapper) :: farg1 
+type(C_PTR) :: farg1 
 real(C_DOUBLE) :: farg2 
 real(C_DOUBLE) :: farg3 
 type(C_PTR) :: farg4 
 
-farg1 = h%swigdata
+farg1 = c_loc(h)
 farg2 = hcur
 farg3 = hnew
 farg4 = c_loc(hconstr(1))
@@ -463,15 +424,15 @@ function FSUNHeuristicsBoundFirstStep_Default(h, h0, h0constr) &
 result(swig_result)
 use, intrinsic :: ISO_C_BINDING
 integer(C_INT) :: swig_result
-type(SWIGTYPE_p_SUNHeuristics), intent(in) :: h
+type(SUNHeuristics), target, intent(inout) :: h
 real(C_DOUBLE), intent(in) :: h0
 real(C_DOUBLE), dimension(*), target, intent(inout) :: h0constr
 integer(C_INT) :: fresult 
-type(SwigClassWrapper) :: farg1 
+type(C_PTR) :: farg1 
 real(C_DOUBLE) :: farg2 
 type(C_PTR) :: farg3 
 
-farg1 = h%swigdata
+farg1 = c_loc(h)
 farg2 = h0
 farg3 = c_loc(h0constr(1))
 fresult = swigc_FSUNHeuristicsBoundFirstStep_Default(farg1, farg2, farg3)
@@ -482,11 +443,11 @@ function FSUNHeuristicsReset_Default(h) &
 result(swig_result)
 use, intrinsic :: ISO_C_BINDING
 integer(C_INT) :: swig_result
-type(SWIGTYPE_p_SUNHeuristics), intent(in) :: h
+type(SUNHeuristics), target, intent(inout) :: h
 integer(C_INT) :: fresult 
-type(SwigClassWrapper) :: farg1 
+type(C_PTR) :: farg1 
 
-farg1 = h%swigdata
+farg1 = c_loc(h)
 fresult = swigc_FSUNHeuristicsReset_Default(farg1)
 swig_result = fresult
 end function
@@ -495,11 +456,11 @@ function FSUNHeuristicsUpdate_Default(h) &
 result(swig_result)
 use, intrinsic :: ISO_C_BINDING
 integer(C_INT) :: swig_result
-type(SWIGTYPE_p_SUNHeuristics), intent(in) :: h
+type(SUNHeuristics), target, intent(inout) :: h
 integer(C_INT) :: fresult 
-type(SwigClassWrapper) :: farg1 
+type(C_PTR) :: farg1 
 
-farg1 = h%swigdata
+farg1 = c_loc(h)
 fresult = swigc_FSUNHeuristicsUpdate_Default(farg1)
 swig_result = fresult
 end function
@@ -508,11 +469,11 @@ function FSUNHeuristicsSetDefaults_Default(h) &
 result(swig_result)
 use, intrinsic :: ISO_C_BINDING
 integer(C_INT) :: swig_result
-type(SWIGTYPE_p_SUNHeuristics), intent(in) :: h
+type(SUNHeuristics), target, intent(inout) :: h
 integer(C_INT) :: fresult 
-type(SwigClassWrapper) :: farg1 
+type(C_PTR) :: farg1 
 
-farg1 = h%swigdata
+farg1 = c_loc(h)
 fresult = swigc_FSUNHeuristicsSetDefaults_Default(farg1)
 swig_result = fresult
 end function
@@ -521,13 +482,13 @@ function FSUNHeuristicsWrite_Default(h, fptr) &
 result(swig_result)
 use, intrinsic :: ISO_C_BINDING
 integer(C_INT) :: swig_result
-type(SWIGTYPE_p_SUNHeuristics), intent(in) :: h
+type(SUNHeuristics), target, intent(inout) :: h
 type(C_PTR) :: fptr
 integer(C_INT) :: fresult 
-type(SwigClassWrapper) :: farg1 
+type(C_PTR) :: farg1 
 type(C_PTR) :: farg2 
 
-farg1 = h%swigdata
+farg1 = c_loc(h)
 farg2 = fptr
 fresult = swigc_FSUNHeuristicsWrite_Default(farg1, farg2)
 swig_result = fresult
@@ -537,13 +498,13 @@ function FSUNHeuristicsSetMaxStep_Default(h, hmax) &
 result(swig_result)
 use, intrinsic :: ISO_C_BINDING
 integer(C_INT) :: swig_result
-type(SWIGTYPE_p_SUNHeuristics), intent(in) :: h
+type(SUNHeuristics), target, intent(inout) :: h
 real(C_DOUBLE), intent(in) :: hmax
 integer(C_INT) :: fresult 
-type(SwigClassWrapper) :: farg1 
+type(C_PTR) :: farg1 
 real(C_DOUBLE) :: farg2 
 
-farg1 = h%swigdata
+farg1 = c_loc(h)
 farg2 = hmax
 fresult = swigc_FSUNHeuristicsSetMaxStep_Default(farg1, farg2)
 swig_result = fresult
@@ -553,13 +514,13 @@ function FSUNHeuristicsSetMinStep_Default(h, hmin) &
 result(swig_result)
 use, intrinsic :: ISO_C_BINDING
 integer(C_INT) :: swig_result
-type(SWIGTYPE_p_SUNHeuristics), intent(in) :: h
+type(SUNHeuristics), target, intent(inout) :: h
 real(C_DOUBLE), intent(in) :: hmin
 integer(C_INT) :: fresult 
-type(SwigClassWrapper) :: farg1 
+type(C_PTR) :: farg1 
 real(C_DOUBLE) :: farg2 
 
-farg1 = h%swigdata
+farg1 = c_loc(h)
 farg2 = hmin
 fresult = swigc_FSUNHeuristicsSetMinStep_Default(farg1, farg2)
 swig_result = fresult
@@ -569,16 +530,16 @@ function FSUNHeuristicsSetExpStabFn_Default(h, estab, estab_data) &
 result(swig_result)
 use, intrinsic :: ISO_C_BINDING
 integer(C_INT) :: swig_result
-type(SWIGTYPE_p_SUNHeuristics), intent(in) :: h
-type(SWIGTYPE_p_SUNExpStabFn), intent(in) :: estab
+type(SUNHeuristics), target, intent(inout) :: h
+type(C_FUNPTR), intent(in), value :: estab
 type(C_PTR) :: estab_data
 integer(C_INT) :: fresult 
-type(SwigClassWrapper) :: farg1 
-type(SwigClassWrapper) :: farg2 
+type(C_PTR) :: farg1 
+type(C_FUNPTR) :: farg2 
 type(C_PTR) :: farg3 
 
-farg1 = h%swigdata
-farg2 = estab%swigdata
+farg1 = c_loc(h)
+farg2 = estab
 farg3 = estab_data
 fresult = swigc_FSUNHeuristicsSetExpStabFn_Default(farg1, farg2, farg3)
 swig_result = fresult
@@ -588,13 +549,13 @@ function FSUNHeuristicsSetCFLFraction_Default(h, cfl_frac) &
 result(swig_result)
 use, intrinsic :: ISO_C_BINDING
 integer(C_INT) :: swig_result
-type(SWIGTYPE_p_SUNHeuristics), intent(in) :: h
+type(SUNHeuristics), target, intent(inout) :: h
 real(C_DOUBLE), intent(in) :: cfl_frac
 integer(C_INT) :: fresult 
-type(SwigClassWrapper) :: farg1 
+type(C_PTR) :: farg1 
 real(C_DOUBLE) :: farg2 
 
-farg1 = h%swigdata
+farg1 = c_loc(h)
 farg2 = cfl_frac
 fresult = swigc_FSUNHeuristicsSetCFLFraction_Default(farg1, farg2)
 swig_result = fresult
@@ -604,13 +565,13 @@ function FSUNHeuristicsSetSafetyFactor_Default(h, safety) &
 result(swig_result)
 use, intrinsic :: ISO_C_BINDING
 integer(C_INT) :: swig_result
-type(SWIGTYPE_p_SUNHeuristics), intent(in) :: h
+type(SUNHeuristics), target, intent(inout) :: h
 real(C_DOUBLE), intent(in) :: safety
 integer(C_INT) :: fresult 
-type(SwigClassWrapper) :: farg1 
+type(C_PTR) :: farg1 
 real(C_DOUBLE) :: farg2 
 
-farg1 = h%swigdata
+farg1 = c_loc(h)
 farg2 = safety
 fresult = swigc_FSUNHeuristicsSetSafetyFactor_Default(farg1, farg2)
 swig_result = fresult
@@ -620,13 +581,13 @@ function FSUNHeuristicsSetMaxGrowth_Default(h, mx_growth) &
 result(swig_result)
 use, intrinsic :: ISO_C_BINDING
 integer(C_INT) :: swig_result
-type(SWIGTYPE_p_SUNHeuristics), intent(in) :: h
+type(SUNHeuristics), target, intent(inout) :: h
 real(C_DOUBLE), intent(in) :: mx_growth
 integer(C_INT) :: fresult 
-type(SwigClassWrapper) :: farg1 
+type(C_PTR) :: farg1 
 real(C_DOUBLE) :: farg2 
 
-farg1 = h%swigdata
+farg1 = c_loc(h)
 farg2 = mx_growth
 fresult = swigc_FSUNHeuristicsSetMaxGrowth_Default(farg1, farg2)
 swig_result = fresult
@@ -636,13 +597,13 @@ function FSUNHeuristicsSetMinReduction_Default(h, eta_min) &
 result(swig_result)
 use, intrinsic :: ISO_C_BINDING
 integer(C_INT) :: swig_result
-type(SWIGTYPE_p_SUNHeuristics), intent(in) :: h
+type(SUNHeuristics), target, intent(inout) :: h
 real(C_DOUBLE), intent(in) :: eta_min
 integer(C_INT) :: fresult 
-type(SwigClassWrapper) :: farg1 
+type(C_PTR) :: farg1 
 real(C_DOUBLE) :: farg2 
 
-farg1 = h%swigdata
+farg1 = c_loc(h)
 farg2 = eta_min
 fresult = swigc_FSUNHeuristicsSetMinReduction_Default(farg1, farg2)
 swig_result = fresult
@@ -652,15 +613,15 @@ function FSUNHeuristicsSetFixedStepBounds_Default(h, lb, ub) &
 result(swig_result)
 use, intrinsic :: ISO_C_BINDING
 integer(C_INT) :: swig_result
-type(SWIGTYPE_p_SUNHeuristics), intent(in) :: h
+type(SUNHeuristics), target, intent(inout) :: h
 real(C_DOUBLE), intent(in) :: lb
 real(C_DOUBLE), intent(in) :: ub
 integer(C_INT) :: fresult 
-type(SwigClassWrapper) :: farg1 
+type(C_PTR) :: farg1 
 real(C_DOUBLE) :: farg2 
 real(C_DOUBLE) :: farg3 
 
-farg1 = h%swigdata
+farg1 = c_loc(h)
 farg2 = lb
 farg3 = ub
 fresult = swigc_FSUNHeuristicsSetFixedStepBounds_Default(farg1, farg2, farg3)
@@ -671,13 +632,13 @@ function FSUNHeuristicsSetMaxFirstGrowth_Default(h, etamx1) &
 result(swig_result)
 use, intrinsic :: ISO_C_BINDING
 integer(C_INT) :: swig_result
-type(SWIGTYPE_p_SUNHeuristics), intent(in) :: h
+type(SUNHeuristics), target, intent(inout) :: h
 real(C_DOUBLE), intent(in) :: etamx1
 integer(C_INT) :: fresult 
-type(SwigClassWrapper) :: farg1 
+type(C_PTR) :: farg1 
 real(C_DOUBLE) :: farg2 
 
-farg1 = h%swigdata
+farg1 = c_loc(h)
 farg2 = etamx1
 fresult = swigc_FSUNHeuristicsSetMaxFirstGrowth_Default(farg1, farg2)
 swig_result = fresult
@@ -687,13 +648,13 @@ function FSUNHeuristicsSetMaxEFailGrowth_Default(h, etamxf) &
 result(swig_result)
 use, intrinsic :: ISO_C_BINDING
 integer(C_INT) :: swig_result
-type(SWIGTYPE_p_SUNHeuristics), intent(in) :: h
+type(SUNHeuristics), target, intent(inout) :: h
 real(C_DOUBLE), intent(in) :: etamxf
 integer(C_INT) :: fresult 
-type(SwigClassWrapper) :: farg1 
+type(C_PTR) :: farg1 
 real(C_DOUBLE) :: farg2 
 
-farg1 = h%swigdata
+farg1 = c_loc(h)
 farg2 = etamxf
 fresult = swigc_FSUNHeuristicsSetMaxEFailGrowth_Default(farg1, farg2)
 swig_result = fresult
@@ -703,13 +664,13 @@ function FSUNHeuristicsSetSmallNumEFails_Default(h, small_nef) &
 result(swig_result)
 use, intrinsic :: ISO_C_BINDING
 integer(C_INT) :: swig_result
-type(SWIGTYPE_p_SUNHeuristics), intent(in) :: h
+type(SUNHeuristics), target, intent(inout) :: h
 integer(C_INT), intent(in) :: small_nef
 integer(C_INT) :: fresult 
-type(SwigClassWrapper) :: farg1 
+type(C_PTR) :: farg1 
 integer(C_INT) :: farg2 
 
-farg1 = h%swigdata
+farg1 = c_loc(h)
 farg2 = small_nef
 fresult = swigc_FSUNHeuristicsSetSmallNumEFails_Default(farg1, farg2)
 swig_result = fresult
@@ -719,13 +680,13 @@ function FSUNHeuristicsSetMaxCFailGrowth_Default(h, etacf) &
 result(swig_result)
 use, intrinsic :: ISO_C_BINDING
 integer(C_INT) :: swig_result
-type(SWIGTYPE_p_SUNHeuristics), intent(in) :: h
+type(SUNHeuristics), target, intent(inout) :: h
 real(C_DOUBLE), intent(in) :: etacf
 integer(C_INT) :: fresult 
-type(SwigClassWrapper) :: farg1 
+type(C_PTR) :: farg1 
 real(C_DOUBLE) :: farg2 
 
-farg1 = h%swigdata
+farg1 = c_loc(h)
 farg2 = etacf
 fresult = swigc_FSUNHeuristicsSetMaxCFailGrowth_Default(farg1, farg2)
 swig_result = fresult
@@ -735,13 +696,13 @@ function FSUNHeuristicsGetNumExpSteps_Default(h, expsteps) &
 result(swig_result)
 use, intrinsic :: ISO_C_BINDING
 integer(C_INT) :: swig_result
-type(SWIGTYPE_p_SUNHeuristics), intent(in) :: h
+type(SUNHeuristics), target, intent(inout) :: h
 integer(C_LONG), dimension(*), target, intent(inout) :: expsteps
 integer(C_INT) :: fresult 
-type(SwigClassWrapper) :: farg1 
+type(C_PTR) :: farg1 
 type(C_PTR) :: farg2 
 
-farg1 = h%swigdata
+farg1 = c_loc(h)
 farg2 = c_loc(expsteps(1))
 fresult = swigc_FSUNHeuristicsGetNumExpSteps_Default(farg1, farg2)
 swig_result = fresult
@@ -751,13 +712,13 @@ function FSUNHeuristicsGetNumAccSteps_Default(h, accsteps) &
 result(swig_result)
 use, intrinsic :: ISO_C_BINDING
 integer(C_INT) :: swig_result
-type(SWIGTYPE_p_SUNHeuristics), intent(in) :: h
+type(SUNHeuristics), target, intent(inout) :: h
 integer(C_LONG), dimension(*), target, intent(inout) :: accsteps
 integer(C_INT) :: fresult 
-type(SwigClassWrapper) :: farg1 
+type(C_PTR) :: farg1 
 type(C_PTR) :: farg2 
 
-farg1 = h%swigdata
+farg1 = c_loc(h)
 farg2 = c_loc(accsteps(1))
 fresult = swigc_FSUNHeuristicsGetNumAccSteps_Default(farg1, farg2)
 swig_result = fresult
@@ -767,15 +728,15 @@ function FSUNHeuristicsSpace_Default(h, lenrw, leniw) &
 result(swig_result)
 use, intrinsic :: ISO_C_BINDING
 integer(C_INT) :: swig_result
-type(SWIGTYPE_p_SUNHeuristics), intent(in) :: h
+type(SUNHeuristics), target, intent(inout) :: h
 integer(C_LONG), dimension(*), target, intent(inout) :: lenrw
 integer(C_LONG), dimension(*), target, intent(inout) :: leniw
 integer(C_INT) :: fresult 
-type(SwigClassWrapper) :: farg1 
+type(C_PTR) :: farg1 
 type(C_PTR) :: farg2 
 type(C_PTR) :: farg3 
 
-farg1 = h%swigdata
+farg1 = c_loc(h)
 farg2 = c_loc(lenrw(1))
 farg3 = c_loc(leniw(1))
 fresult = swigc_FSUNHeuristicsSpace_Default(farg1, farg2, farg3)

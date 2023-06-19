@@ -12,7 +12,7 @@
 # SUNDIALS Copyright End
 # ---------------------------------------------------------------
 
-sundials_add_f2003_library(sundials_fsuncontrolexpgus
+sundials_add_f2003_library(sundials_fsuncontrolexpgus_mod
   SOURCES
     fsuncontrol_expgus_mod.f90 fsuncontrol_expgus_mod.c
   OBJECT_LIBRARIES

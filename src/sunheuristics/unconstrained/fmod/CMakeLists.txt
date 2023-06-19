@@ -12,7 +12,7 @@
 # SUNDIALS Copyright End
 # ---------------------------------------------------------------
 
-sundials_add_f2003_library(sundials_fsunheuristicsunconstrained
+sundials_add_f2003_library(sundials_fsunheuristicsunconstrained_mod
   SOURCES
     fsunheuristics_unconstrained_mod.f90 fsunheuristics_unconstrained_mod.c
   OBJECT_LIBRARIES

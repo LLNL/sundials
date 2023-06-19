@@ -23,6 +23,7 @@
 
 // Load the typedefs and generate "use" statements
 %import "../sundials/fsundials_nvector_mod.i"
+%import "../sundials/fsundials_heuristics_mod.i"
 
 // Macro for creating an interface to an N_Vector
 %define %sunheuristics_impl(TYPE)
