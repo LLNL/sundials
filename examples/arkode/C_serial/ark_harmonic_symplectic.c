@@ -157,6 +157,7 @@ int main(int argc, char* argv[])
   /* Do integration */
   for (iout = 0; iout < num_output_times; iout++)
   {
+    SPRKStepSetStopTime(arkode_mem, tout);
     retval = SPRKStepEvolve(arkode_mem, tout, y, &tret, ARK_NORMAL);
 
     /* Compute the anaytical solution */
@@ -167,11 +168,11 @@ int main(int argc, char* argv[])
     err = sqrt(N_VDotProd(solution, solution));
 
     /* Output current integration status */
-    fprintf(stdout, "t = %.6Lf, x(t) = %.6Lf, E = %.6Lf, sol. err = %.6Lf\n", tret,
+    fprintf(stdout, "t = %.6Lf, x(t) = %.6Lf, E = %.6Lf, sol. err = %.16Lf\n", tret,
             ydata[0], Energy(y, dt, &udata), err);
 
     /* Check that solution error is within tolerance */
-    if (err > SUNMAX(10*dt, 100*SUN_UNIT_ROUNDOFF))
+    if (err > SUNMAX(dt / pow(10, order-2), 1000*SUN_UNIT_ROUNDOFF))
     {
       fprintf(stderr, "FAILURE: solution error is too high\n");
       return 1;

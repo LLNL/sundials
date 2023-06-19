@@ -22,7 +22,6 @@
 set(ARKODE_examples
   # tests that are always run
   "ark_analytic\;\;"
-  "ark_harmonic_symplectic\;\;"
   # develop tests
   "ark_analytic_mels\;\;develop"
   "ark_analytic_nonlin\;\;develop"
@@ -38,12 +37,13 @@ set(ARKODE_examples
   "ark_brusselator1D_imexmri\;6 0.001\;exclude-single"
   "ark_brusselator1D_imexmri\;7 0.001\;exclude-single"
   "ark_brusselator1D\;\;exclude-single"
+  "ark_harmonic_symplectic\;\;exclude-single"
   "ark_heat1D_adapt\;\;develop"
   "ark_heat1D\;\;develop"
   "ark_kepler\;\;develop"
   "ark_kepler\;--stepper ERK --step-mode adapt\;develop"
-  "ark_kepler\;--stepper ERK --step-mode fixed --find-roots\;develop"
-  "ark_kepler\;--stepper SPRK --step-mode fixed --find-roots --use-compensated-sums\;develop"
+  "ark_kepler\;--stepper ERK --step-mode fixed --count-orbits\;develop"
+  "ark_kepler\;--stepper SPRK --step-mode fixed --count-orbits --use-compensated-sums\;develop"
   "ark_kepler\;--stepper SPRK --step-mode fixed --method ARKODE_SYMPLECTIC_EULER_1_1 --tf 50 --check-order --nout 1\;develop"
   "ark_kepler\;--stepper SPRK --step-mode fixed --method ARKODE_SYMPLECTIC_LEAPFROG_2_2 --tf 50 --check-order --nout 1\;develop"
   "ark_kepler\;--stepper SPRK --step-mode fixed --method ARKODE_SYMPLECTIC_PSEUDO_LEAPFROG_2_2 --tf 50 --check-order --nout 1\;develop"

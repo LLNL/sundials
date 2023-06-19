@@ -30,9 +30,14 @@
  * is conserved as well as the angular momentum,
  *    L(p,q) = q1*p2 - q2*p1.
  *
- * By default We solve the problem by letting y = [ q, p ]^T then using a 4th
+ * By default we solve the problem by letting y = [ q, p ]^T then using a 4th
  * order symplectic integrator via the SPRKStep time-stepper of ARKODE with a
  * fixed time-step size.
+ *
+ * The rootfinding feature of SPRKStep is used to count the number of complete orbits. 
+ * This is done by defining the function,
+ *    g(q) = q2
+ * and prodivding it to SPRKStep as the function to find the roots for.
  *
  * The program also accepts command line arguments to change the method
  * used and time-stepping strategy. The program has the following CLI arguments:
@@ -44,7 +49,7 @@
  *   --dt <Real>                 the fixed-time step size to use if fixed time stepping is turned on (default 0.01)
  *   --tf <Real>                 the final time for the simulation (default 100)
  *   --nout                      number of output times
- *   --find-roots                turn on rootfinding
+ *   --count-orbits              use rootfinding to count the number of completed orbits
  *   --check-order               compute the order of the method used and check if it is within range of the expected 
  * 
  * References:
@@ -90,7 +95,7 @@ typedef struct
   int stepper;
   int num_output_times;
   int use_compsums;
-  int find_roots;
+  int count_orbits;
   int check_order;
   sunrealtype dt;
   sunrealtype tf;
@@ -276,10 +281,12 @@ int SolveProblem(ProgramArgs* args, ProblemResult* result, SUNContext sunctx)
   N_Vector y             = NULL;
   SUNNonlinearSolver NLS = NULL;
   UserData udata         = NULL;
+  sunrealtype* ydata     = NULL;
   sunrealtype tout       = NAN;
   sunrealtype tret       = NAN;
   sunrealtype H0         = NAN;
   sunrealtype L0         = NAN;
+  sunrealtype num_orbits = 0;
   FILE* conserved_fp     = NULL;
   FILE* solution_fp      = NULL;
   FILE* times_fp         = NULL;
@@ -288,7 +295,7 @@ int SolveProblem(ProgramArgs* args, ProblemResult* result, SUNContext sunctx)
   int iout               = 0;
   int retval             = 0;
 
-  const int find_roots       = args->find_roots;
+  const int count_orbits     = args->count_orbits;
   const int step_mode        = args->step_mode;
   const int stepper          = args->stepper;
   const int use_compsums     = args->use_compsums;
@@ -310,7 +317,8 @@ int SolveProblem(ProgramArgs* args, ProblemResult* result, SUNContext sunctx)
   udata->ecc = ecc;
 
   /* Allocate our state vector */
-  y = N_VNew_Serial(4, sunctx);
+  y     = N_VNew_Serial(4, sunctx);
+  ydata = N_VGetArrayPointer(y);
 
   /* Fill the initial conditions */
   InitialConditions(y, ecc);
@@ -321,7 +329,7 @@ int SolveProblem(ProgramArgs* args, ProblemResult* result, SUNContext sunctx)
     arkode_mem = SPRKStepCreate(force, velocity, T0, y, sunctx);
 
     /* Optional: enable temporal root-finding */
-    if (find_roots)
+    if (count_orbits)
     {
       SPRKStepRootInit(arkode_mem, 1, rootfn);
       if (check_retval(&retval, "SPRKStepRootInit", 1)) return 1;
@@ -358,7 +366,7 @@ int SolveProblem(ProgramArgs* args, ProblemResult* result, SUNContext sunctx)
     retval = ARKStepSetTableName(arkode_mem, "ARKODE_DIRK_NONE", method_name);
     if (check_retval(&retval, "ARKStepSetTableName", 1)) return 1;
 
-    if (find_roots)
+    if (count_orbits)
     {
       ARKStepRootInit(arkode_mem, 1, rootfn);
       if (check_retval(&retval, "ARKStepRootInit", 1)) return 1;
@@ -419,7 +427,7 @@ int SolveProblem(ProgramArgs* args, ProblemResult* result, SUNContext sunctx)
   /* Do integration */
   if (stepper == 0)
   {
-    for (iout = 0; iout < num_output_times; iout++)
+    while (iout < num_output_times)
     {
       sunrealtype hlast = SUN_RCONST(0.0);
 
@@ -432,32 +440,32 @@ int SolveProblem(ProgramArgs* args, ProblemResult* result, SUNContext sunctx)
 
       if (retval == ARK_ROOT_RETURN)
       {
+        num_orbits += SUN_RCONST(0.5);
+
         fprintf(stdout, "ROOT RETURN:\t");
         SPRKStepGetRootInfo(arkode_mem, &rootsfound);
-        fprintf(stdout, "t = %.4Lf g[0] = %3d, y[0] = %3Lg, y[1] = %3Lg\n", tret,
-                rootsfound, N_VGetArrayPointer(y)[0], N_VGetArrayPointer(y)[1]);
+        fprintf(stdout, "  g[0] = %3d, y[0] = %3Lg, y[1] = %3Lg, num. orbits is now %.2Lf\n",
+                rootsfound, (long double)ydata[0], (long double)ydata[1],
+                (long double)num_orbits);
         fprintf(stdout, "t = %.4Lf, H(p,q)-H0 = %.16Lf, L(p,q)-L0 = %.16Lf\n",
-                tret, Hamiltonian(y) - H0, AngularMomentum(y) - L0);
-
-        /* Continue to tout */
-        retval = SPRKStepEvolve(arkode_mem, tout, y, &tret, ARK_NORMAL);
+                (long double)tret, (long double)(Hamiltonian(y) - H0),
+                (long double)(AngularMomentum(y) - L0));
       }
-
-      /* Output current integration status */
-      fprintf(stdout, "t = %.4Lf, H(p,q)-H0 = %.16Lf, L(p,q)-L0 = %.16Lf\n",
-              tret, Hamiltonian(y) - H0, AngularMomentum(y) - L0);
-      fprintf(times_fp, "%.16Lf\n", tret);
-      fprintf(conserved_fp, "%.16Lf, %.16Lf\n", Hamiltonian(y),
-              AngularMomentum(y));
-
-      N_VPrintFile(y, solution_fp);
-
-      /* Check if the solve was successful, if so, update the time and continue
-       */
-      if (retval >= 0)
+      else if (retval >= 0)
       {
+        /* Output current integration status */
+        fprintf(stdout, "t = %.4Lf, H(p,q)-H0 = %.16Lf, L(p,q)-L0 = %.16Lf\n",
+                (long double)tret, (long double)(Hamiltonian(y) - H0),
+                (long double)(AngularMomentum(y) - L0));
+        fprintf(times_fp, "%.16Lf\n", (long double)tret);
+        fprintf(conserved_fp, "%.16Lf, %.16Lf\n", (long double)Hamiltonian(y),
+                (long double)AngularMomentum(y));
+
+        N_VPrintFile(y, solution_fp);
+
         tout += dTout;
         tout = (tout > Tf) ? Tf : tout;
+        iout++;
       }
       else
       {
@@ -468,8 +476,10 @@ int SolveProblem(ProgramArgs* args, ProblemResult* result, SUNContext sunctx)
   }
   else
   {
-    for (iout = 0; iout < num_output_times; iout++)
+    while (iout < num_output_times)
     {
+      sunrealtype hlast = SUN_RCONST(0.0);
+
       /* Optional: if the stop time is not set, then its possible that the the
          exact requested output time will not be hit (even with a fixed
          time-step due to roundoff error accumulation) and interpolation will be
@@ -479,35 +489,36 @@ int SolveProblem(ProgramArgs* args, ProblemResult* result, SUNContext sunctx)
 
       if (retval == ARK_ROOT_RETURN)
       {
+        num_orbits += SUN_RCONST(0.5);
+
         fprintf(stdout, "ROOT RETURN:\t");
         ARKStepGetRootInfo(arkode_mem, &rootsfound);
-        fprintf(stdout, "t = %.4Lf g[0] = %3d, y[0] = %3Lg, y[1] = %3Lg\n", tret,
-                rootsfound, N_VGetArrayPointer(y)[0], N_VGetArrayPointer(y)[1]);
+        fprintf(stdout, "  g[0] = %3d, y[0] = %3Lg, y[1] = %3Lg, num. orbits is now %.2Lf\n",
+                rootsfound, (long double)ydata[0], (long double)ydata[1],
+                (long double)num_orbits);
         fprintf(stdout, "t = %.4Lf, H(p,q)-H0 = %.16Lf, L(p,q)-L0 = %.16Lf\n",
-                tret, Hamiltonian(y) - H0, AngularMomentum(y) - L0);
-
-        /* Continue to tout */
-        retval = ARKStepEvolve(arkode_mem, tout, y, &tret, ARK_NORMAL);
+                (long double)tret, (long double)(Hamiltonian(y) - H0),
+                (long double)(AngularMomentum(y) - L0));
       }
-
-      /* Output current integration status */
-      fprintf(stdout, "t = %.4Lf, H(p,q)-H0 = %.16Lf, L(p,q)-L0 = %.16Lf\n",
-              tret, Hamiltonian(y) - H0, AngularMomentum(y) - L0);
-      fprintf(times_fp, "%.16Lf\n", tret);
-      fprintf(conserved_fp, "%.16Lf, %.16Lf\n", Hamiltonian(y),
-              AngularMomentum(y));
-      N_VPrintFile(y, solution_fp);
-
-      /* Check if the solve was successful, if so, update the time and continue
-       */
-      if (retval >= 0)
+      else if (retval >= 0)
       {
+        /* Output current integration status */
+        fprintf(stdout, "t = %.4Lf, H(p,q)-H0 = %.16Lf, L(p,q)-L0 = %.16Lf\n",
+                (long double)tret, (long double)(Hamiltonian(y) - H0),
+                (long double)(AngularMomentum(y) - L0));
+        fprintf(times_fp, "%.16Lf\n", (long double)tret);
+        fprintf(conserved_fp, "%.16Lf, %.16Lf\n", (long double)Hamiltonian(y),
+                (long double)AngularMomentum(y));
+
+        N_VPrintFile(y, solution_fp);
+
         tout += dTout;
         tout = (tout > Tf) ? Tf : tout;
+        iout++;
       }
       else
       {
-        fprintf(stderr, "ERROR: Solver failure, stopping integration\n");
+        fprintf(stderr, "Solver failure, stopping integration\n");
         break;
       }
     }
@@ -619,11 +630,9 @@ int rootfn(sunrealtype t, N_Vector yvec, sunrealtype* gout, void* user_data)
 {
   UserData udata       = (UserData)user_data;
   sunrealtype* y       = N_VGetArrayPointer(yvec);
-  const sunrealtype q1 = y[0];
   const sunrealtype q2 = y[1];
 
-  /* We want to know when the body crosses the position (0.36, -0.22) */
-  gout[0] = (q1 - SUN_RCONST(0.36)) + (q2 + SUN_RCONST(0.22));
+  gout[0] = q2;
 
   return 0;
 }
@@ -653,7 +662,7 @@ int ParseArgs(int argc, char* argv[], ProgramArgs* args)
   args->step_mode        = 0;
   args->stepper          = 0;
   args->method_name      = NULL;
-  args->find_roots       = 0;
+  args->count_orbits     = 0;
   args->use_compsums     = 0;
   args->dt               = SUN_RCONST(1e-2);
   args->tf               = SUN_RCONST(100.);
@@ -704,7 +713,7 @@ int ParseArgs(int argc, char* argv[], ProgramArgs* args)
       argi++;
       args->num_output_times = atoi(argv[argi]);
     }
-    else if (!strcmp(argv[argi], "--find-roots")) { args->find_roots = 1; }
+    else if (!strcmp(argv[argi], "--count-orbits")) { args->count_orbits = 1; }
     else if (!strcmp(argv[argi], "--use-compensated-sums"))
     {
       args->use_compsums = 1;
@@ -770,7 +779,8 @@ void PrintHelp()
                   "simulation (default 100)\n");
   fprintf(stderr, "  --nout <int>                the number of output times "
                   "(default 100)\n");
-  fprintf(stderr, "  --find-roots                turns on rootfinding\n");
+  fprintf(stderr, "  --count-orbits              use rootfinding to count the "
+                  "number of completed orbits\n");
   fprintf(stderr,
           "  --check-order               compute the order of the method used "
           "and check if it is within range of the expected\n");
