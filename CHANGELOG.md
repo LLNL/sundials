@@ -6,6 +6,10 @@ Added the second order IMEX method from Giraldo, Kelly, and Constantinescu 2013
 as the default second order IMEX method in ARKStep. The explicit table is given
 by `ARKODE_ARK2_ERK_3_1_2` and the implicit table by `ARKODE_ARK2_DIRK_3_1_2`.
 
+Updated the F2003 utility routines `SUNDIALSFileOpen` and `SUNDIALSFileClose`
+to support user specification of `stdout` and `stderr` strings for the output
+file names.
+
 Added `SUNControl` and `SUNHeuristics` base classes.  Ported ARKODE's internal
 implementations of time step control and heuristic constraints into
 implementations of these classes, and updated ARKODE to use these objects
