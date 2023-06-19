@@ -12,18 +12,14 @@
 # SUNDIALS Copyright End
 # ---------------------------------------------------------------
 
-# Create a library out of the generic sundials modules
-sundials_add_library(sundials_sunheuristicsunconstrained
+sundials_add_f2003_library(sundials_fsuncontrolimpgus
   SOURCES
-    sunheuristics_unconstrained.c
-  HEADERS
-    ${SUNDIALS_SOURCE_DIR}/include/sunheuristics/sunheuristics_unconstrained.h
-  INCLUDE_SUBDIR
-    sunheuristics
+    fsuncontrol_impgus_mod.f90 fsuncontrol_impgus_mod.c
+  OBJECT_LIBRARIES
+    sundials_fgeneric_mod_obj
+  OUTPUT_NAME
+    sundials_fsuncontrolimpgus_mod
   OBJECT_LIB_ONLY
 )
 
-# Add F2003 module if the interface is enabled
-if(BUILD_FORTRAN_MODULE_INTERFACE)
-  add_subdirectory(fmod)
-endif()
+message(STATUS "Added SUNControl_ImpGus F2003 interface")

@@ -241,6 +241,25 @@ int arkInterpEvaluate(void* arkode_mem, ARKInterp interp,
                       realtype tau, int d, int order, N_Vector yout);
 
 
+/* =======================================================================
+ * User-provided stability function wrapper structure and utility routines
+ * ======================================================================= */
+
+struct ARKUserStabilityDataMem {
+  ARKExpStabFn EStab;  /* user-provided stability function */
+  void* estab_data;    /* user-provided data pointer */
+  void* arkode_mem;    /* ARKODE time-stepper memory */
+};
+
+typedef struct ARKUserStabilityDataMem *ARKUserStabilityData;
+
+void* ARKUserStability(void* arkode_mem, ARKExpStabFn EStab,
+                       void* estab_data);
+
+void ARKUserStability_Free(void* sdata);
+
+int ARKControlExpStab(realtype *hstab, void* user_data);
+
 /*===============================================================
   ARKODE data structures
   ===============================================================*/

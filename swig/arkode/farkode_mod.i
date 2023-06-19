@@ -33,6 +33,8 @@
 %import "../sundials/fsundials_matrix_mod.i"
 %import "../sundials/fsundials_linearsolver_mod.i"
 %import "../sundials/fsundials_nonlinearsolver_mod.i"
+%import "../sundials/fsundials_control_mod.i"
+%import "../sundials/fsundials_heuristics_mod.i"
 %import "../sundials/fsundials_types_mod.i"
 
 // Treat ARKodeButcherTable as an opaque pointer
@@ -46,4 +48,3 @@
 %include "arkode/arkode_butcher_dirk.h"
 %include "arkode/arkode_butcher_erk.h"
 %include "arkode/arkode_ls.h"
-

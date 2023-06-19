@@ -13,13 +13,13 @@
 # ---------------------------------------------------------------
 
 # Create a library out of the generic sundials modules
-sundials_add_library(sundials_sunheuristicsunconstrained
+sundials_add_library(sundials_suncontrolpi
   SOURCES
-    sunheuristics_unconstrained.c
+    suncontrol_pi.c
   HEADERS
-    ${SUNDIALS_SOURCE_DIR}/include/sunheuristics/sunheuristics_unconstrained.h
+    ${SUNDIALS_SOURCE_DIR}/include/suncontrol/suncontrol_pi.h
   INCLUDE_SUBDIR
-    sunheuristics
+    suncontrol
   OBJECT_LIB_ONLY
 )
 

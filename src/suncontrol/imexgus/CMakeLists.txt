@@ -22,3 +22,8 @@ sundials_add_library(sundials_suncontrolimexgus
     suncontrol
   OBJECT_LIB_ONLY
 )
+
+# Add F2003 module if the interface is enabled
+if(BUILD_FORTRAN_MODULE_INTERFACE)
+  add_subdirectory(fmod)
+endif()

@@ -13,12 +13,17 @@
 # ---------------------------------------------------------------
 
 # Create a library out of the generic sundials modules
-sundials_add_library(sundials_suncontrolpi
+sundials_add_library(sundials_suncontroli
   SOURCES
-    suncontrol_pi.c
+    suncontrol_i.c
   HEADERS
-    ${SUNDIALS_SOURCE_DIR}/include/suncontrol/suncontrol_pi.h
+    ${SUNDIALS_SOURCE_DIR}/include/suncontrol/suncontrol_i.h
   INCLUDE_SUBDIR
     suncontrol
   OBJECT_LIB_ONLY
 )
+
+# Add F2003 module if the interface is enabled
+if(BUILD_FORTRAN_MODULE_INTERFACE)
+  add_subdirectory(fmod)
+endif()

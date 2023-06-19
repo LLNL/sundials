@@ -15,9 +15,9 @@
 # ------------------------------------------------------------------------------
 
 # required native matrices
-add_subdirectory(exp_gus)
-add_subdirectory(i_control)
-add_subdirectory(imex_gus)
-add_subdirectory(imp_gus)
-add_subdirectory(pi_control)
-add_subdirectory(pid_control)
+add_subdirectory(expgus)
+add_subdirectory(i)
+add_subdirectory(imexgus)
+add_subdirectory(impgus)
+add_subdirectory(pi)
+add_subdirectory(pid)

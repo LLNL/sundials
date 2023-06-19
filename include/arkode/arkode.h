@@ -180,25 +180,6 @@ typedef int (*ARKStagePredictFn)(realtype t, N_Vector zpred,
 
 typedef _SUNDIALS_STRUCT_ _MRIStepInnerStepper *MRIStepInnerStepper;
 
-/* -----------------------------------------------------------------------
- * User-provided stability function wrapper structure and utility routines
- * ----------------------------------------------------------------------- */
-
-struct ARKUserStabilityDataMem {
-  ARKExpStabFn EStab;  /* user-provided stability function */
-  void* estab_data;    /* user-provided data pointer */
-  void* arkode_mem;    /* ARKODE time-stepper memory */
-};
-
-typedef _SUNDIALS_STRUCT_ ARKUserStabilityDataMem *ARKUserStabilityData;
-
-SUNDIALS_EXPORT void* ARKUserStability(void* arkode_mem, ARKExpStabFn EStab,
-                                       void* estab_data);
-
-SUNDIALS_EXPORT void ARKUserStability_Free(void* sdata);
-
-SUNDIALS_EXPORT int ARKControlExpStab(realtype *hstab, void* user_data);
-
 
 #ifdef __cplusplus
 }

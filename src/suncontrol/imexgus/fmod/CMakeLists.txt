@@ -12,13 +12,14 @@
 # SUNDIALS Copyright End
 # ---------------------------------------------------------------
 
-# Create a library out of the generic sundials modules
-sundials_add_library(sundials_suncontroli
+sundials_add_f2003_library(sundials_fsuncontrolimexgus
   SOURCES
-    suncontrol_i.c
-  HEADERS
-    ${SUNDIALS_SOURCE_DIR}/include/suncontrol/suncontrol_i.h
-  INCLUDE_SUBDIR
-    suncontrol
+    fsuncontrol_imexgus_mod.f90 fsuncontrol_imexgus_mod.c
+  OBJECT_LIBRARIES
+    sundials_fgeneric_mod_obj
+  OUTPUT_NAME
+    sundials_fsuncontrolimexgus_mod
   OBJECT_LIB_ONLY
 )
+
+message(STATUS "Added SUNControl_ImExGus F2003 interface")

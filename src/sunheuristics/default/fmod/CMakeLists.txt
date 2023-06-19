@@ -12,13 +12,14 @@
 # SUNDIALS Copyright End
 # ---------------------------------------------------------------
 
-# Create a library out of the generic sundials modules
-sundials_add_library(sundials_suncontrolpid
+sundials_add_f2003_library(sundials_fsunheuristicsdefault
   SOURCES
-    suncontrol_pid.c
-  HEADERS
-    ${SUNDIALS_SOURCE_DIR}/include/suncontrol/suncontrol_pid.h
-  INCLUDE_SUBDIR
-    suncontrol
+    fsunheuristics_default_mod.f90 fsunheuristics_default_mod.c
+  OBJECT_LIBRARIES
+    sundials_fgeneric_mod_obj
+  OUTPUT_NAME
+    sundials_fsunheuristics_default_mod
   OBJECT_LIB_ONLY
 )
+
+message(STATUS "Added SUNHeuristics_Default F2003 interface")
