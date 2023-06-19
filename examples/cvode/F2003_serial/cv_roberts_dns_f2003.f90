@@ -206,7 +206,6 @@ module dns_mod
     use, intrinsic :: iso_c_binding
 
     use fcvode_mod                    ! Fortran interface to CVODE
-    ! use fcvode_ls_mod                 ! Fortran interface to the CVode linear solver module
     use fsundials_context_mod         ! Fortran interface to SUNContext
     use fnvector_serial_mod           ! Fortran interface to serial N_Vector
     use fsunmatrix_dense_mod          ! Fortran interface to dense SUNMatrix

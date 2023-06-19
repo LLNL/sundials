@@ -25,7 +25,6 @@ set(FCVODE_examples
   "cv_brusselator_dns_f2003\;develop"
   "cv_roberts_dns_constraints_f2003\;develop"
   "cv_roberts_dns_f2003\;develop"
-  "cv_roberts_dnsL_f2003\;develop"
   )
 
 # Examples using LAPACK linear solvers
@@ -38,6 +37,7 @@ if(SUNDIALS_INDEX_SIZE MATCHES "64")
   # Examples using KLU linear solver
   set(FCVODE_examples_KLU
     "cv_analytic_sys_klu_f2003\;develop"
+    "cv_roberts_klu_f2003\;develop"
     )
 endif()
 
