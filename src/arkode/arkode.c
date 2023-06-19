@@ -952,9 +952,7 @@ int arkEvolve(ARKodeMem ark_mem, realtype tout, N_Vector yout,
          (ark_mem->tcur-tout)*ark_mem->h >= ZERO ) {
       istate = ARK_SUCCESS;
       ark_mem->tretlast = *tret = tout;
-      if (!SUNRCompare(SUNRabs(ark_mem->tcur - tout), FUZZ_FACTOR*ark_mem->uround)) {
-        (void) arkGetDky(ark_mem, tout, 0, yout);
-      }
+      (void) arkGetDky(ark_mem, tout, 0, yout);
       ark_mem->next_h = ark_mem->hprime;
       break;
     }
@@ -963,10 +961,8 @@ int arkEvolve(ARKodeMem ark_mem, realtype tout, N_Vector yout,
     if ( ark_mem->tstopset ) {
       troundoff = FUZZ_FACTOR*ark_mem->uround *
         (SUNRabs(ark_mem->tcur) + SUNRabs(ark_mem->h));
-      if (SUNRabs(ark_mem->tcur - ark_mem->tstop) <= troundoff) {
-        if (!SUNRCompare(SUNRabs(ark_mem->tcur - ark_mem->tstop), FUZZ_FACTOR*ark_mem->uround)) {
-          (void) arkGetDky(ark_mem, ark_mem->tstop, 0, yout);
-        }
+      if ( SUNRabs(ark_mem->tcur - ark_mem->tstop) <= troundoff) {
+        (void) arkGetDky(ark_mem, ark_mem->tstop, 0, yout);
         ark_mem->tretlast = *tret = ark_mem->tstop;
         ark_mem->tstopset = SUNFALSE;
         istate = ARK_TSTOP_RETURN;
