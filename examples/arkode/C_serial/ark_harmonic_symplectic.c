@@ -28,13 +28,12 @@
  * We simulate the problem on t = [0, 2pi] using the symplectic methods
  * in SPRKStep. Symplectic methods will approximately conserve U.
  *
- * The problem can be run like so:
- *    ./ark_harmonic_symplectic [order] [dt] [use_compsums]
- *
- * Order sets the order of the method to use, dt is the time step size, and
- * use_compsums turns on (1) or off (0) compensated summation inside SPRKStep.
- * Compensated summation increases accuracy but at increased computational
- * and memory cost.
+ * The example has the following command line arguments:
+ *   --order <int>               the order of the method to use (default 4)
+ *   --dt <Real>                 the fixed-time step size to use (default 0.01)
+ *   --nout <int>                the number of output times (default 100)
+ *   --use-compensated-sums      turns on compensated summation in ARKODE where 
+ *                               applicable
  * --------------------------------------------------------------------------*/
 /* clang-format: on */
 
