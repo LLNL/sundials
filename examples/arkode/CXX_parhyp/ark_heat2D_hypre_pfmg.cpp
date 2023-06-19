@@ -58,6 +58,12 @@
 #include "sunlinsol/sunlinsol_pcg.h"   // access to PCG SUNLinearSolver
 #include "sunlinsol/sunlinsol_spgmr.h" // access to SPGMR SUNLinearSolver
 #include "HYPRE_struct_ls.h"           // HYPRE structured grid solver interface
+#include "suncontrol/suncontrol_pid.h" // SUNControl implementations
+#include "suncontrol/suncontrol_pi.h"
+#include "suncontrol/suncontrol_i.h"
+#include "suncontrol/suncontrol_expgus.h"
+#include "suncontrol/suncontrol_impgus.h"
+#include "suncontrol/suncontrol_imexgus.h"
 #include "mpi.h"                       // MPI header file
 
 
@@ -516,9 +522,17 @@ int main(int argc, char* argv[])
   }
   else
   {
-    flag = ARKStepSetAdaptivityMethod(arkode_mem, udata->controller, SUNTRUE,
-                                      SUNFALSE, NULL);
-    if (check_flag(&flag, "ARKStepSetAdaptivityMethod", 1)) return 1;
+    SUNControl C = NULL;
+    switch (udata->controller) {
+    case (ARK_ADAPT_PID):      C = SUNControlPID(ctx);     break;
+    case (ARK_ADAPT_PI):       C = SUNControlPI(ctx);      break;
+    case (ARK_ADAPT_I):        C = SUNControlI(ctx);       break;
+    case (ARK_ADAPT_EXP_GUS):  C = SUNControlExpGus(ctx);  break;
+    case (ARK_ADAPT_IMP_GUS):  C = SUNControlImpGus(ctx);  break;
+    case (ARK_ADAPT_IMEX_GUS): C = SUNControlImExGus(ctx); break;
+    }
+    flag = ARKStepSetController(arkode_mem, C);
+    if (check_flag(&flag, "ARKStepSetController", 1)) return 1;
   }
 
   // Specify linearly implicit non-time-dependent RHS

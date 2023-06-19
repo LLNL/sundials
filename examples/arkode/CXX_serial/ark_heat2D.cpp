@@ -57,6 +57,12 @@
 #include "nvector/nvector_serial.h"    // access to the serial N_Vector
 #include "sunlinsol/sunlinsol_pcg.h"   // access to PCG SUNLinearSolver
 #include "sunlinsol/sunlinsol_spgmr.h" // access to SPGMR SUNLinearSolver
+#include "suncontrol/suncontrol_pid.h"
+#include "suncontrol/suncontrol_pi.h"
+#include "suncontrol/suncontrol_i.h"
+#include "suncontrol/suncontrol_expgus.h"
+#include "suncontrol/suncontrol_impgus.h"
+#include "suncontrol/suncontrol_imexgus.h"
 
 
 // Macros for problem constants
@@ -207,6 +213,7 @@ int main(int argc, char* argv[])
   N_Vector u         = NULL;  // vector for storing solution
   SUNLinearSolver LS = NULL;  // linear solver memory structure
   void *arkode_mem   = NULL;  // ARKODE memory structure
+  SUNControl C       = NULL;  // Adaptivity controller
   FILE *diagfp       = NULL;  // diagnostics output file
 
   // Timing variables
@@ -371,9 +378,16 @@ int main(int argc, char* argv[])
   }
   else
   {
-    flag = ARKStepSetAdaptivityMethod(arkode_mem, udata->controller, SUNTRUE,
-                                      SUNFALSE, NULL);
-    if (check_flag(&flag, "ARKStepSetAdaptivityMethod", 1)) return 1;
+    switch (udata->controller) {
+    case (ARK_ADAPT_PID):      C = SUNControlPID(ctx);     break;
+    case (ARK_ADAPT_PI):       C = SUNControlPI(ctx);      break;
+    case (ARK_ADAPT_I):        C = SUNControlI(ctx);       break;
+    case (ARK_ADAPT_EXP_GUS):  C = SUNControlExpGus(ctx);  break;
+    case (ARK_ADAPT_IMP_GUS):  C = SUNControlImpGus(ctx);  break;
+    case (ARK_ADAPT_IMEX_GUS): C = SUNControlImExGus(ctx); break;
+    }
+    flag = ARKStepSetController(arkode_mem, C);
+    if (check_flag(&flag, "ARKStepSetController", 1)) return 1;
   }
 
   // Specify linearly implicit non-time-dependent RHS

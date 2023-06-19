@@ -58,6 +58,12 @@
 #include "sunlinsol/sunlinsol_spgmr.h" // access to GMRES SUNLinearSolver
 #include "sundials/sundials_math.h"    // def. math fcns eg. SUNMAX
 #include "HYPRE_struct_ls.h"           // HYPRE structured grid solver interface
+#include "suncontrol/suncontrol_pid.h" // SUNControl implementations
+#include "suncontrol/suncontrol_pi.h"
+#include "suncontrol/suncontrol_i.h"
+#include "suncontrol/suncontrol_expgus.h"
+#include "suncontrol/suncontrol_impgus.h"
+#include "suncontrol/suncontrol_imexgus.h"
 #include "mpi.h"                       // MPI header file
 
 
@@ -439,9 +445,17 @@ int main(int argc, char* argv[])
     }
     else
     {
-      flag = ARKStepSetAdaptivityMethod(inner_arkode_mem, udata.controller, SUNTRUE,
-                                        SUNFALSE, NULL);
-      if (check_flag(&flag, "ARKStepSetAdaptivityMethod", 1)) return 1;
+      SUNControl C = NULL;
+      switch (udata.controller) {
+      case (ARK_ADAPT_PID):      C = SUNControlPID(sunctx);     break;
+      case (ARK_ADAPT_PI):       C = SUNControlPI(sunctx);      break;
+      case (ARK_ADAPT_I):        C = SUNControlI(sunctx);       break;
+      case (ARK_ADAPT_EXP_GUS):  C = SUNControlExpGus(sunctx);  break;
+      case (ARK_ADAPT_IMP_GUS):  C = SUNControlImpGus(sunctx);  break;
+      case (ARK_ADAPT_IMEX_GUS): C = SUNControlImExGus(sunctx); break;
+      }
+      flag = ARKStepSetController(inner_arkode_mem, C);
+      if (check_flag(&flag, "ARKStepSetController", 1)) return 1;
     }
 
     // Attach user data

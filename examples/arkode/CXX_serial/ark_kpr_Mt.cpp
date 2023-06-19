@@ -84,6 +84,7 @@
 #include <sundials/sundials_math.h>     // def. math fcns, 'realtype'
 #include <sunnonlinsol/sunnonlinsol_newton.h>      // Newton nonlinear solver
 #include <sunnonlinsol/sunnonlinsol_fixedpoint.h>  // fixed-point nonlinear solver
+#include <sunheuristics/sunheuristics_default.h>   // heuristic stepsize constraints
 
 #if defined(SUNDIALS_EXTENDED_PRECISION)
 #define GSYM "Lg"
@@ -162,6 +163,7 @@ int main(int argc, char *argv[])
   SUNLinearSolver LS = NULL;     // empty system linear solver object
   SUNLinearSolver MLS = NULL;    // empty mass linear solver object
   SUNNonlinearSolver NLS = NULL; // empty nonlinear solver object
+  SUNHeuristics H = NULL;        // empty heuristics object
   UserData udata;                // user-data structure
   udata.G = RCONST(-100.0);      // stiffness parameter
   udata.g = RCONST(10.0);        // mass matrix parameter
@@ -291,8 +293,12 @@ int main(int argc, char *argv[])
 
   // Set maximum stepsize for ERK run
   if (rk_type == 2) {
-    retval = ARKStepSetMaxStep(arkode_mem, ONE/SUNRabs(udata.G));
-    if (check_retval(&retval, "ARKStepSetMaxStep", 1)) return(1);
+    H = SUNHeuristicsDefault(ctx);
+    if (check_retval((void *)H, "SUNHeuristicsDefault", 0)) return 1;
+    retval = SUNHeuristicsSetMaxStep(H, ONE/SUNRabs(udata.G));
+    if (check_retval(&retval, "SUNHeuristicsSetMaxStep", 1)) return(1);
+    retval = ARKStepSetHeuristics(arkode_mem, H);
+    if (check_retval(&retval, "ARKStepSetHeuristics", 1)) return(1);
   }
 
   // Initialize/attach mass matrix solver

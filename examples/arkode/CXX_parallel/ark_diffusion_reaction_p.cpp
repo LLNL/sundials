@@ -67,7 +67,7 @@
 // Include MPI
 #include "mpi.h"
 
-// Include desired integrators, vectors, linear solvers, and nonlinear sovlers
+// Include desired integrators, vectors, linear solvers, nonlinear solvers, and controllers
 #include "arkode/arkode_arkstep.h"
 #include "arkode/arkode_mristep.h"
 #include "cvode/cvode.h"
@@ -76,6 +76,12 @@
 #include "sunlinsol/sunlinsol_pcg.h"
 #include "sunlinsol/sunlinsol_spgmr.h"
 #include "sunnonlinsol/sunnonlinsol_fixedpoint.h"
+#include "suncontrol/suncontrol_pid.h"
+#include "suncontrol/suncontrol_pi.h"
+#include "suncontrol/suncontrol_i.h"
+#include "suncontrol/suncontrol_expgus.h"
+#include "suncontrol/suncontrol_impgus.h"
+#include "suncontrol/suncontrol_imexgus.h"
 
 // Macros for problem constants
 #define PI    RCONST(3.141592653589793238462643383279502884197169)
@@ -1016,9 +1022,17 @@ static int SetupARK(SUNContext ctx, UserData* udata, N_Vector u,
   }
   else
   {
-    flag = ARKStepSetAdaptivityMethod(*arkode_mem, udata->controller, SUNTRUE,
-                                      SUNFALSE, NULL);
-    if (check_flag(&flag, "ARKStepSetAdaptivityMethod", 1)) return 1;
+    SUNControl Ctrl = NULL;
+    switch (udata->controller) {
+    case (ARK_ADAPT_PID):      Ctrl = SUNControlPID(ctx);     break;
+    case (ARK_ADAPT_PI):       Ctrl = SUNControlPI(ctx);      break;
+    case (ARK_ADAPT_I):        Ctrl = SUNControlI(ctx);       break;
+    case (ARK_ADAPT_EXP_GUS):  Ctrl = SUNControlExpGus(ctx);  break;
+    case (ARK_ADAPT_IMP_GUS):  Ctrl = SUNControlImpGus(ctx);  break;
+    case (ARK_ADAPT_IMEX_GUS): Ctrl = SUNControlImExGus(ctx); break;
+    }
+    flag = ARKStepSetController(*arkode_mem, Ctrl);
+    if (check_flag(&flag, "ARKStepSetController", 1)) return 1;
   }
 
   // Set max steps between outputs
@@ -1075,9 +1089,17 @@ static int SetupMRI(SUNContext ctx, UserData* udata, N_Vector y,
   }
   else
   {
-    flag = ARKStepSetAdaptivityMethod(inner_arkode_mem, udata->controller,
-                                      SUNTRUE, SUNFALSE, NULL);
-    if (check_flag(&flag, "ARKStepSetAdaptivityMethod", 1)) return 1;
+    SUNControl Ctrl = NULL;
+    switch (udata->controller) {
+    case (ARK_ADAPT_PID):      Ctrl = SUNControlPID(ctx);     break;
+    case (ARK_ADAPT_PI):       Ctrl = SUNControlPI(ctx);      break;
+    case (ARK_ADAPT_I):        Ctrl = SUNControlI(ctx);       break;
+    case (ARK_ADAPT_EXP_GUS):  Ctrl = SUNControlExpGus(ctx);  break;
+    case (ARK_ADAPT_IMP_GUS):  Ctrl = SUNControlImpGus(ctx);  break;
+    case (ARK_ADAPT_IMEX_GUS): Ctrl = SUNControlImExGus(ctx); break;
+    }
+    flag = ARKStepSetController(inner_arkode_mem, Ctrl);
+    if (check_flag(&flag, "ARKStepSetController", 1)) return 1;
   }
 
   // Set max steps between outputs

@@ -60,6 +60,8 @@
 #include "mpi.h"                       // MPI header file
 #include "braid.h"                     // access to XBraid
 #include "arkode/arkode_xbraid.h"      // access to ARKStep + XBraid interface
+#include "suncontrol/suncontrol_i.h"   // I-controller
+#include "sunheuristics/sunheuristics_default.h" // heuristic time step constraints
 
 
 // Macros for problem constants
@@ -444,17 +446,23 @@ int main(int argc, char* argv[])
   // Set adaptive stepping (XBraid with temporal refinement) options
   if (udata->x_refine)
   {
-    // Use I controller
-    flag = ARKStepSetAdaptivityMethod(arkode_mem, ARK_ADAPT_I, 1, 0, NULL);
-    if (check_flag(&flag, "ARKStepSetAdaptivityMethod", 1)) return 1;
+    // Use I controller with default parameters
+    SUNControl C = SUNControlI(ctx);
+    if (check_flag((void*) C, "SUNControlI", 0)) return 1;
+    flag = ARKStepSetController(arkode_mem, C);
+    if (check_flag(&flag, "ARKStepSetController", 1)) return 1;
 
-    // Set the step size reduction factor limit (1 / refinement factor limit)
-    flag = ARKStepSetMinReduction(arkode_mem, ONE / udata->x_rfactor_limit);
-    if (check_flag(&flag, "ARKStepSetMinReduction", 1)) return 1;
-
-    // Set the failed solve step size reduction factor (1 / refinement factor)
-    flag = ARKStepSetMaxCFailGrowth(arkode_mem, ONE / udata->x_rfactor_fail);
-    if (check_flag(&flag, "ARKStepSetMaxCFailGrowth", 1)) return 1;
+    // Use default heuristics constraints with some options
+    SUNHeuristics H = SUNHeuristicsDefault(ctx);
+    if (check_flag((void*) H, "SUNHeuristicsDefault", 0)) return 1;
+    //   Set the step size reduction factor limit (1 / refinement factor limit)
+    flag = SUNHeuristicsSetMinReduction(H, ONE / udata->x_rfactor_limit);
+    if (check_flag(&flag, "SUNHeuristicsSetMinReduction", 1)) return 1;
+    //   Set the failed solve step size reduction factor (1 / refinement factor)
+    flag = SUNHeuristicsSetMaxCFailGrowth(H, ONE / udata->x_rfactor_fail);
+    if (check_flag(&flag, "SUNHeuristicsSetMaxCFailGrowth", 1)) return 1;
+    flag = ARKStepSetHeuristics(arkode_mem, H);
+    if (check_flag(&flag, "ARKStepSetHeuristics", 1)) return 1;
   }
 
   // Set diagnostics output file
