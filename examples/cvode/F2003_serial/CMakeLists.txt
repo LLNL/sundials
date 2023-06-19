@@ -25,6 +25,10 @@ set(FCVODE_examples
   "cv_brusselator_dns_f2003\;develop"
   "cv_roberts_dns_constraints_f2003\;develop"
   "cv_roberts_dns_f2003\;develop"
+<<<<<<< HEAD
+=======
+  #"cv_roberts_dnsL_f2003\;develop"
+>>>>>>> 60455e6fb81286a2a9dbfeb34d0dd19481d8e8e7
   )
 
 # Examples using LAPACK linear solvers
