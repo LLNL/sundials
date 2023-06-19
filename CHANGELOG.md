@@ -10,6 +10,9 @@ Updated the F2003 utility routines `SUNDIALSFileOpen` and `SUNDIALSFileClose`
 to support user specification of `stdout` and `stderr` strings for the output
 file names.
 
+A new time-stepping module, `SPRKStep`, was added to ARKODE. This time-stepper
+provides symplectic partitioned Runge-Kutta methods for Hamiltonian systems. 
+
 ## Changes to SUNDIALS in release 6.5.1
 
 Added the functions `ARKStepClearStopTime`, `ERKStepClearStopTime`,

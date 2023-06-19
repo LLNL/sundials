@@ -195,7 +195,7 @@ $tar $tarfile $distrobase/examples/arkode/C_serial/ark_heat1D.out
 $tar $tarfile $distrobase/examples/arkode/C_serial/ark_heat1D_adapt.c
 $tar $tarfile $distrobase/examples/arkode/C_serial/ark_heat1D_adapt.out
 $tar $tarfile $distrobase/examples/arkode/C_serial/ark_kepler.c
-$tar $tarfile $distrobase/examples/arkode/C_serial/ark_kepler.out
+$tar $tarfile '$distrobase/examples/arkode/C_serial/ark_kepler*.out'
 $tar $tarfile $distrobase/examples/arkode/C_serial/ark_kepler_plot.py
 $tar $tarfile $distrobase/examples/arkode/C_serial/ark_harmonic_symplectic.c
 $tar $tarfile $distrobase/examples/arkode/C_serial/ark_harmonic_symplectic.out

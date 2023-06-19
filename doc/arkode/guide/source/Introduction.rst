@@ -142,6 +142,10 @@ Updated the F2003 utility routines :c:func:`SUNDIALSFileOpen` and :c:func:`SUNDI
 to support user specification of ``stdout`` and ``stderr`` strings for the output
 file names.
 
+A new time-stepping module, :ref:`SPRKStep <ARKODE.Mathematics.SPRKStep>`, was
+added to ARKODE. This time-stepper provides symplectic partitioned Runge-Kutta
+methods for Hamiltonian systems. 
+
 Changes in v5.5.1
 -----------------
 
