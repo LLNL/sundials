@@ -38,7 +38,7 @@
 ! Run statistics (optional outputs) are printed at the end.
 ! ------------------------------------------------------------------
 
-module ode_mod
+module bruss_mod
 
   !======= Inclusions ===========
   use, intrinsic :: iso_c_binding
@@ -220,7 +220,7 @@ contains
 
   end function Jac
 
-end module ode_mod
+end module bruss_mod
 
 program main
 
@@ -236,7 +236,7 @@ program main
   use fsunmatrix_dense_mod       ! Fortran interface to dense SUNMatrix
   use fsunlinsol_dense_mod       ! Fortran interface to dense SUNLinearSolver
   use fsundials_context_mod      ! Fortran interface to SUNContext
-  use ode_mod                    ! ODE functions
+  use bruss_mod                    ! ODE functions
 
   !======= Declarations =========
   implicit none
