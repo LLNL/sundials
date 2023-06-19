@@ -17,14 +17,14 @@
  * We rewrite the second order ODE as the first order ODE model
  *    x'(t) = v(t)
  *    v'(t) = -omega^2*x(t).
- * With the initial conditions x(0) = alpha and v(0) = beta*omega,
+ * With the initial conditions x(0) = x0 and v(0) = v0,
  * the analytical solution is
- *    x(t) = A*cos(t*omega - phi),
- *    v(t) = -A*omega*sin(t*omega - phi)
- * where A = sqrt(alpha + beta) and tan(phi) = beta/alpha.
- * The potential energy in this system is given by
- *    U = 1/2*k*x^2
- * U is conserved and is the system Hamiltonian.
+ *    x(t) = A*cos(t*omega + phi),
+ *    v(t) = -A*omega*sin(t*omega + phi)
+ * where A = sqrt(x0^2 + v0^2/omega) and tan(phi) = v0/(omega*x0).
+ * The total energy (potential + kinetic) in this system is
+ *    E = (v^2 + omega^2*x^2) / 2
+ * E is conserved and is the system Hamiltonian.
  * We simulate the problem on t = [0, 2pi] using the symplectic methods
  * in SPRKStep. Symplectic methods will approximately conserve U.
  *
@@ -39,7 +39,7 @@
 /* clang-format: on */
 
 #include <arkode/arkode_sprk.h>
-#include <arkode/arkode_sprkstep.h> /* prototypes for MRIStep fcts., consts */
+#include <arkode/arkode_sprkstep.h> /* prototypes for SPRKStep fcts., consts */
 #include <math.h>
 #include <nvector/nvector_serial.h> /* serial N_Vector type, fcts., macros  */
 #include <stdio.h>
@@ -103,11 +103,11 @@ int main(int argc, char* argv[])
 
   /* Default problem parameters */
   const sunrealtype T0    = SUN_RCONST(0.0);
-  sunrealtype Tf          = SUN_RCONST(2 * M_PI);
-  sunrealtype dt          = SUN_RCONST(args.dt);
-  const sunrealtype omega = SUN_RCONST(16.0);
-  const sunrealtype alpha = SUN_RCONST(0.0);
-  const sunrealtype beta  = SUN_RCONST(0.2);
+  sunrealtype Tf          = SUN_RCONST(2.0) * M_PI;
+  sunrealtype dt          = args.dt;
+  const sunrealtype A     = SUN_RCONST(10.0);
+  const sunrealtype phi   = SUN_RCONST(0.0);
+  const sunrealtype omega = SUN_RCONST(1.0);
   const sunrealtype dTout = (Tf - T0) / ((sunrealtype)num_output_times);
 
   /* Create the SUNDIALS context object for this simulation */
@@ -117,8 +117,8 @@ int main(int argc, char* argv[])
   printf("\n   Begin simple harmonic oscillator problem\n\n");
 
   /* Allocate and fill udata structure */
-  udata.A     = sqrt(alpha * alpha + beta * beta);
-  udata.phi   = atan((beta / omega) / alpha);
+  udata.A     = A;
+  udata.phi   = phi;
   udata.omega = omega;
 
   /* Allocate our state vector */
@@ -127,8 +127,8 @@ int main(int argc, char* argv[])
 
   /* Fill the initial conditions */
   ydata    = N_VGetArrayPointer(y);
-  ydata[0] = alpha;
-  ydata[1] = omega * beta;
+  ydata[0] = A*cos(phi);
+  ydata[1] = -A*omega*sin(phi);
 
   /* Create SPRKStep integrator */
   arkode_mem = SPRKStepCreate(Force, Velocity, T0, y, sunctx);
@@ -151,8 +151,8 @@ int main(int argc, char* argv[])
   /* Print out starting energy, momentum before integrating */
   tret = T0;
   tout = T0 + dTout;
-  fprintf(stdout, "t = %.6Lf, sol. err = %.6Lf, energy = %.6Lf\n", tret,
-          SUN_RCONST(0.0), Energy(y, dt, &udata));
+  fprintf(stdout, "t = %.6Lf, x(t) = %.6Lf, E = %.6Lf, sol. err = %.6Lf\n", tret,
+          ydata[0], Energy(y, dt, &udata), SUN_RCONST(0.0));
 
   /* Do integration */
   for (iout = 0; iout < num_output_times; iout++)
@@ -162,13 +162,20 @@ int main(int argc, char* argv[])
     /* Compute the anaytical solution */
     Solution(tret, y, solution, &udata);
 
-    /* Compute error */
+    /* Compute L2 error */
     N_VLinearSum(SUN_RCONST(1.0), y, -SUN_RCONST(1.0), solution, solution);
     err = sqrt(N_VDotProd(solution, solution));
 
     /* Output current integration status */
-    fprintf(stdout, "t = %.6Lf, sol. err = %.6Lf, energy = %.6Lf\n", tret, err,
-            Energy(y, dt, &udata));
+    fprintf(stdout, "t = %.6Lf, x(t) = %.6Lf, E = %.6Lf, sol. err = %.6Lf\n", tret,
+            ydata[0], Energy(y, dt, &udata), err);
+
+    /* Check that solution error is within tolerance */
+    if (err > SUNMAX(10*dt, 100*SUN_UNIT_ROUNDOFF))
+    {
+      fprintf(stderr, "FAILURE: solution error is too high\n");
+      return 1;
+    }
 
     /* Check if the solve was successful, if so, update the time and continue
      */
@@ -198,21 +205,21 @@ void Solution(sunrealtype t, N_Vector y, N_Vector solvec, UserData* udata)
   sunrealtype* sol = N_VGetArrayPointer(solvec);
 
   /* compute solution */
-  sol[0] = udata->A * cos(udata->omega * t - udata->phi);
-  sol[1] = -udata->A * udata->omega * sin(udata->omega * t - udata->phi);
+  sol[0] = udata->A * cos(udata->omega * t + udata->phi);
+  sol[1] = -udata->A * udata->omega * sin(udata->omega * t + udata->phi);
 }
 
 sunrealtype Energy(N_Vector yvec, sunrealtype dt, UserData* udata)
 {
-  sunrealtype H            = 0.0;
+  sunrealtype E            = 0.0;
   sunrealtype* y           = N_VGetArrayPointer(yvec);
   const sunrealtype x      = y[0];
   const sunrealtype v      = y[1];
   const sunrealtype omega2 = udata->omega * udata->omega;
 
-  H = (v * v + omega2 * x * x) / SUN_RCONST(2.0);
+  E = (v * v + omega2 * x * x) / SUN_RCONST(2.0);
 
-  return H;
+  return E;
 }
 
 int Velocity(sunrealtype t, N_Vector yvec, N_Vector ydotvec, void* user_data)
@@ -242,7 +249,7 @@ int ParseArgs(int argc, char* argv[], ProgramArgs* args)
   args->order            = 4;
   args->num_output_times = 8;
   args->use_compsums     = 0;
-  args->dt               = SUN_RCONST(1e-2);
+  args->dt               = SUN_RCONST(1e-3);
 
   for (int argi = 1; argi < argc; argi++)
   {

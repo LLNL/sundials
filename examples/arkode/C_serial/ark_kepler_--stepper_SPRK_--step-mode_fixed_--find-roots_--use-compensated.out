@@ -1,0 +1,11 @@
+ERROR: unrecognized argument --use-compensated
+ark_kepler: an ARKODE example demonstrating the SPRKStep time-stepping module solving the Kepler problem
+  --step-mode <fixed, adapt>  should we use a fixed time-step or adaptive time-step (default fixed)
+  --stepper <SPRK, ERK>       should we use SPRKStep or ARKStep with an ERK method (default SPRK)
+  --method <string>           which method to use (default ARKODE_SYMPLECTIC_MCLACHLAN_4_4)
+  --use-compensated-sums      turns on compensated summation in ARKODE where applicable
+  --dt <Real>                 the fixed-time step size to use if fixed time stepping is turned on (default 0.01)
+  --tf <Real>                 the final time for the simulation (default 100)
+  --nout <int>                the number of output times (default 100)
+  --find-roots                turns on rootfinding
+  --check-order               compute the order of the method used and check if it is within range of the expected

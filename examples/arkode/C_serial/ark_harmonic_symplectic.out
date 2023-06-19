@@ -1,0 +1,26 @@
+
+   Begin simple harmonic oscillator problem
+
+t = 0.000000, x(t) = 10.000000, E = 50.000000, sol. err = 0.000000
+t = 0.785398, x(t) = 7.066811, E = 50.000000, sol. err = 0.006018
+t = 1.570796, x(t) = -0.002037, E = 50.000000, sol. err = 0.002037
+t = 2.356194, x(t) = -7.076761, E = 50.000000, sol. err = 0.008055
+t = 3.141593, x(t) = -9.999999, E = 50.000000, sol. err = 0.004073
+t = 3.926991, x(t) = -7.071003, E = 50.000000, sol. err = 0.000092
+t = 4.712389, x(t) = 0.006110, E = 50.000000, sol. err = 0.006110
+t = 5.497787, x(t) = 7.072573, E = 50.000000, sol. err = 0.002129
+t = 6.283185, x(t) = 9.999997, E = 50.000000, sol. err = 0.008147
+
+Current time                 = 6.284000000000433
+Steps                        = 6284
+Step attempts                = 6284
+Stability limited steps      = 0
+Accuracy limited steps       = 0
+Error test fails             = 0
+NLS step fails               = 0
+Inequality constraint fails  = 0
+Initial step size            = 0.001
+Last step size               = 0.001
+Current step size            = 0.001
+f1 RHS fn evals              = 25137
+f2 RHS fn evals              = 25137
