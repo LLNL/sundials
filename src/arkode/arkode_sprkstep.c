@@ -351,7 +351,7 @@ void SPRKStepFree(void** arkode_mem)
       step_mem->sdata = NULL;
     }
 
-    ARKodeSPRKStorage__Free(step_mem->method);
+    ARKodeSPRKStorage_Free(step_mem->method);
 
     free(ark_mem->step_mem);
     ark_mem->step_mem = NULL;
@@ -408,33 +408,33 @@ int sprkStep_Init(void* arkode_mem, int init_type)
       switch (step_mem->q)
       {
       case 1:
-        step_mem->method = ARKodeSPRKStorage__Load(SPRKSTEP_DEFAULT_1);
+        step_mem->method = ARKodeSPRKStorage_Load(SPRKSTEP_DEFAULT_1);
         break;
       case 2:
-        step_mem->method = ARKodeSPRKStorage__Load(SPRKSTEP_DEFAULT_2);
+        step_mem->method = ARKodeSPRKStorage_Load(SPRKSTEP_DEFAULT_2);
         break;
       case 3:
-        step_mem->method = ARKodeSPRKStorage__Load(SPRKSTEP_DEFAULT_3);
+        step_mem->method = ARKodeSPRKStorage_Load(SPRKSTEP_DEFAULT_3);
         break;
       case 4:
-        step_mem->method = ARKodeSPRKStorage__Load(SPRKSTEP_DEFAULT_4);
+        step_mem->method = ARKodeSPRKStorage_Load(SPRKSTEP_DEFAULT_4);
         break;
       case 5:
-        step_mem->method = ARKodeSPRKStorage__Load(SPRKSTEP_DEFAULT_5);
+        step_mem->method = ARKodeSPRKStorage_Load(SPRKSTEP_DEFAULT_5);
         break;
       case 6:
-        step_mem->method = ARKodeSPRKStorage__Load(SPRKSTEP_DEFAULT_6);
+        step_mem->method = ARKodeSPRKStorage_Load(SPRKSTEP_DEFAULT_6);
         break;
       case 7:
       case 8:
-        step_mem->method = ARKodeSPRKStorage__Load(SPRKSTEP_DEFAULT_8);
+        step_mem->method = ARKodeSPRKStorage_Load(SPRKSTEP_DEFAULT_8);
         break;
       case 9:
       case 10:
-        step_mem->method = ARKodeSPRKStorage__Load(SPRKSTEP_DEFAULT_10);
+        step_mem->method = ARKodeSPRKStorage_Load(SPRKSTEP_DEFAULT_10);
         break;
       default:
-        step_mem->method = ARKodeSPRKStorage__Load(SPRKSTEP_DEFAULT_4);
+        step_mem->method = ARKodeSPRKStorage_Load(SPRKSTEP_DEFAULT_4);
         break;
       }
     }

@@ -291,7 +291,7 @@ int SPRKStepSetMethod(void* arkode_mem, ARKodeSPRKStorage sprk_storage)
 
   if (step_mem->method)
   {
-    ARKodeSPRKStorage__Free(step_mem->method);
+    ARKodeSPRKStorage_Free(step_mem->method);
     step_mem->method = NULL;
   }
 
@@ -318,11 +318,11 @@ int SPRKStepSetMethodName(void* arkode_mem, const char* method)
 
   if (step_mem->method)
   {
-    ARKodeSPRKStorage__Free(step_mem->method);
+    ARKodeSPRKStorage_Free(step_mem->method);
     step_mem->method = NULL;
   }
 
-  step_mem->method = ARKodeSPRKStorage__LoadByName(method);
+  step_mem->method = ARKodeSPRKStorage_LoadByName(method);
 
   return (ARK_SUCCESS);
 }
@@ -352,7 +352,7 @@ int SPRKStepSetOrder(void* arkode_mem, int ord)
 
   if (step_mem->method)
   {
-    ARKodeSPRKStorage__Free(step_mem->method);
+    ARKodeSPRKStorage_Free(step_mem->method);
     step_mem->method = NULL;
   }
 

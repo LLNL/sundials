@@ -57,15 +57,15 @@ struct ARKodeSPRKStorage_s
 typedef _SUNDIALS_STRUCT_ ARKodeSPRKStorage_s* ARKodeSPRKStorage;
 
 /* Utility routines to allocate/free/output SPRK structures */
-SUNDIALS_EXPORT ARKodeSPRKStorage ARKodeSPRKStorage__Alloc(int stages);
-SUNDIALS_EXPORT ARKodeSPRKStorage ARKodeSPRKStorage__Load(ARKODE_SPRKMethodID id);
-SUNDIALS_EXPORT ARKodeSPRKStorage ARKodeSPRKStorage__LoadByName(const char* method);
-SUNDIALS_EXPORT ARKodeSPRKStorage ARKodeSPRKStorage__Copy(ARKodeSPRKStorage B);
-SUNDIALS_EXPORT void ARKodeSPRKStorage__Space(ARKodeSPRKStorage B,
+SUNDIALS_EXPORT ARKodeSPRKStorage ARKodeSPRKStorage_Alloc(int stages);
+SUNDIALS_EXPORT ARKodeSPRKStorage ARKodeSPRKStorage_Load(ARKODE_SPRKMethodID id);
+SUNDIALS_EXPORT ARKodeSPRKStorage ARKodeSPRKStorage_LoadByName(const char* method);
+SUNDIALS_EXPORT ARKodeSPRKStorage ARKodeSPRKStorage_Copy(ARKodeSPRKStorage B);
+SUNDIALS_EXPORT void ARKodeSPRKStorage_Space(ARKodeSPRKStorage B,
                                               sunindextype* liw,
                                               sunindextype* lrw);
-SUNDIALS_EXPORT void ARKodeSPRKStorage__Free(ARKodeSPRKStorage B);
-SUNDIALS_EXPORT int ARKodeSPRKStorage__ToButcher(ARKodeSPRKStorage sprk_storage,
+SUNDIALS_EXPORT void ARKodeSPRKStorage_Free(ARKodeSPRKStorage B);
+SUNDIALS_EXPORT int ARKodeSPRKStorage_ToButcher(ARKodeSPRKStorage sprk_storage,
                                                  ARKodeButcherTable* a_ptr,
                                                  ARKodeButcherTable* b_ptr);
 

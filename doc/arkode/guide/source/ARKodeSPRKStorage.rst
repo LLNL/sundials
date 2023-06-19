@@ -123,21 +123,21 @@ ARKodeSPRKStorage functions
    +----------------------------------------------+------------------------------------------------------------+
 
 
-.. c:function:: ARKodeSPRKStorage ARKodeSPRKStorage__Alloc(int stages)
+.. c:function:: ARKodeSPRKStorage ARKodeSPRKStorage_Alloc(int stages)
 
    Allocate memory for the ARKodeSPRKStorage structure.
 
    :param stages: The number of stages.
    :return: Pointer to the allocated ARKodeSPRKStorage structure.
 
-.. c:function:: ARKodeSPRKStorage ARKodeSPRKStorage__Load(ARKODE_SPRKMethodID id)
+.. c:function:: ARKodeSPRKStorage ARKodeSPRKStorage_Load(ARKODE_SPRKMethodID id)
 
    Load the ARKodeSPRKStorage structure for the specified method ID.
 
    :param id: The ID of the SPRK method. One of :ref:`SPRKStorage.id`.
    :return: Pointer to the loaded ARKodeSPRKStorage structure.
 
-.. c:function:: ARKodeSPRKStorage ARKodeSPRKStorage__LoadByName(const char* method)
+.. c:function:: ARKodeSPRKStorage ARKodeSPRKStorage_LoadByName(const char* method)
 
    Load the ARKodeSPRKStorage structure for the specified method name.
 
@@ -145,7 +145,7 @@ ARKodeSPRKStorage functions
    :return: Pointer to the loaded ARKodeSPRKStorage structure.
 
 
-.. c:function:: ARKodeSPRKStorage ARKodeSPRKStorage__Copy(ARKodeSPRKStorage B)
+.. c:function:: ARKodeSPRKStorage ARKodeSPRKStorage_Copy(ARKodeSPRKStorage B)
 
    Create a copy of the ARKodeSPRKStorage structure.
 
@@ -160,13 +160,13 @@ ARKodeSPRKStorage functions
    :param liw: Pointer to store the integer workspace size.
    :param lrw: Pointer to store the real workspace size.
 
-.. c:function:: void ARKodeSPRKStorage__Free(ARKodeSPRKStorage B)
+.. c:function:: void ARKodeSPRKStorage_Free(ARKodeSPRKStorage B)
 
    Free the memory allocated for the ARKodeSPRKStorage structure.
 
    :param B: The ARKodeSPRKStorage structure to free.
 
-.. c:function:: int ARKodeSPRKStorage__ToButcher(ARKodeSPRKStorage sprk_storage, ARKodeButcherTable* a_ptr, ARKodeButcherTable* b_ptr)
+.. c:function:: int ARKodeSPRKStorage_ToButcher(ARKodeSPRKStorage sprk_storage, ARKodeButcherTable* a_ptr, ARKodeButcherTable* b_ptr)
 
    Convert the ARKodeSPRKStorage structure to the Butcher table representation.
 
