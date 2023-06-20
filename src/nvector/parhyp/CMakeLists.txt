@@ -19,7 +19,7 @@ install(CODE "MESSAGE(\"\nInstall NVECTOR_PARHYP with ${SUNDIALS_HYPRE_BACKENDS}
 if(SUNDIALS_HYPRE_BACKENDS MATCHES "SERIAL")
   # Do nothing; Don't use sumemoryhelper, don't change language
 elseif(SUNDIALS_HYPRE_BACKENDS MATCHES "CUDA")
-#  set_source_files_properties(nvector_parhyp.c PROPERTIES LANGUAGE CUDA)
+  set_source_files_properties(nvector_parhyp.c PROPERTIES LANGUAGE CUDA)
   set(_sunmemlib sundials_sunmemcuda_obj) # Use CUDA sunmemoryhelper
   set(_hypre_using_cuda TRUE)
 #   set(_include_vectorkernels_cuh TRUE)    # Include src/nvector/cuda/VectorKernels.cuh
