@@ -20,10 +20,13 @@ if(SUNDIALS_LOGGING_ENABLE_MPI)
   set(FARKODE_examples
     "ark_brusselator1D_task_local_nls_f2003\;--monitor\;1\;4\;develop\;2"
     "ark_brusselator1D_task_local_nls_f2003\;--monitor --global-nls\;1\;4\;develop\;2"
-    "ark_brusselator1D_task_local_nls_f2003\;--monitor --explicit --tf 3\;1\;4\;develop\;2")
+    "ark_brusselator1D_task_local_nls_f2003\;--monitor --explicit --tf 3\;1\;4\;develop\;2"
+    "ark_heat2D_f2003\;\;1\;4\;develop\;2")
 else()
-  set(FARKODE_examples )
+  set(FARKODE_examples
+    "ark_heat2D_f2003\;\;1\;4\;develop\;2")
 endif()
+
 
 if(MPI_Fortran_COMPILER)
   # use MPI wrapper as the compiler
