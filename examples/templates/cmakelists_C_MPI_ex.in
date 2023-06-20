@@ -92,13 +92,21 @@ include_directories(. @EXTRA_INCLUDES@)
 
 # Set the names of the examples to be built and their dependencies
 set(examples @EXAMPLES@)
+set(examples_args @ALL_EXAMPLE_ARGS@)
+set(examples_num_procs @ALL_EXAMPLES_NPROCS@)
 set(examples_dependencies @EXAMPLES_DEPENDENCIES@)
 if(examples)
   list(REMOVE_DUPLICATES examples)
 endif()
 
+list(LENGTH examples n_elems) # Total number of the elements in the every list
+math(EXPR len "${n_elems}-1") # The last index in the every list
+
 # Create targets for each example
-foreach(example ${examples})
+foreach(idx RANGE ${len})
+
+  list(GET examples ${idx} example)
+  list(GET examples_args ${idx} example_args)
 
   # get filename without extension
   get_filename_component(example_target ${example} NAME_WE)
@@ -111,6 +119,6 @@ foreach(example ${examples})
     ${SUNDIALS_TARGETS} ${EXTRA_LIBS} MPI::MPI_C)
 
   # add the example to ctest
-  add_test(NAME ${example_target} COMMAND ${example_target})
+  add_test(NAME ${example_target} COMMAND mpirun -np ${example_nprocs} ${example_target} ${example_args})
 
 endforeach()

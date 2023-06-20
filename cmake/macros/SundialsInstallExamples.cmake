@@ -88,8 +88,11 @@ macro(sundials_install_examples MODULE EXAMPLES_VAR)
   endforeach()
 
   # Install the examples
+  set(ALL_EXAMPLE_ARGS )
   foreach(example_tuple ${${EXAMPLES_VAR}})
     list(GET example_tuple 0 example) # filename always has to be the first item in the example tuple
+    list(GET example_tuple 1 example_args) # args always has to be the second item in the example tuple
+    list(APPEND ALL_EXAMPLE_ARGS ${example_args})
     get_filename_component(example_noext ${example} NAME_WE)
     file(GLOB example_header ${example_noext}.h*)
     file(GLOB example_out ${example_noext}*.out)
