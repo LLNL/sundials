@@ -94,7 +94,7 @@ mark_as_advanced(FORCE HYPRE_CONFIGH_PATH)
 if (HYPRE_CONFIGH_PATH)
   message(STATUS "hypre library configuration file found. Parsing for version and backends...")
 else ()
-  message(ERROR "${HYPRE_CONFIG_NOT_FOUND_MESSAGE}")
+  message(FATAL_ERROR "${HYPRE_CONFIG_NOT_FOUND_MESSAGE}")
 endif ()
 
 # --- Parse config for hypre version ---
