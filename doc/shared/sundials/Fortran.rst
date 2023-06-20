@@ -146,7 +146,7 @@ team.
    SUNLINSOL_SPFGMR         ``fsunlinsol_spfgmr_mod``
    SUNLINSOL_SPBCGS         ``fsunlinsol_spbcgs_mod``
    SUNLINSOL_SPTFQMR        ``fsunlinsol_sptfqmr_mod``
-   SUNLINSOL_PCG            ``fsunlinsol_pcg_mof``
+   SUNLINSOL_PCG            ``fsunlinsol_pcg_mod``
    SUNNONLINSOL             ``fsundials_nonlinearsolver_mod``
    SUNNONLINSOL_NEWTON      ``fsunnonlinsol_newton_mod``
    SUNNONLINSOL_FIXEDPOINT  ``fsunnonlinsol_fixedpoint_mod``
