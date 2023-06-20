@@ -19,14 +19,15 @@
 
 # Examples using SUNDIALS MPIManyVector module
 set(nvector_mpimanyvector_examples
-  "test_nvector_mpimanyvector_parallel1\;1000 200 0\;1\;4\;"  # run parallel on 4 procs
-  "test_nvector_mpimanyvector_parallel2\;200 1000 0\;1\;4\;"  # run parallel on 4 procs
+  "test_nvector_mpimanyvector_parallel1.c\;1000 200 0\;1\;4\;"  # run parallel on 4 procs
+  "test_nvector_mpimanyvector_parallel2.c\;200 1000 0\;1\;4\;"  # run parallel on 4 procs
   )
 
 # Dependencies for nvector examples
 set(nvector_examples_dependencies
-  test_nvector
-  test_mpinvector
+  test_nvector.c
+  test_mpinvector.c
+  test_nvector.h
   )
 
 # If building F2003 tests
@@ -84,7 +85,7 @@ foreach(example_tuple ${nvector_mpimanyvector_examples})
   # example source files once for testing with different inputs
   if(NOT TARGET ${example})
     # example source files
-    add_executable(${example} ${example}.c)
+    add_executable(${example} ${example})
 
     # link vector test utilties
     target_link_libraries(${example} PRIVATE test_nvector_obj test_nvectormpi_obj)
@@ -122,14 +123,14 @@ foreach(example_tuple ${nvector_mpimanyvector_examples})
     EXAMPLE_TYPE ${example_type}
     NODIFF)
 
-  # install example source files
-  if(EXAMPLES_INSTALL)
-    install(FILES ${example}.c
-      ../test_nvector.c
-      ../test_mpinvector.c
-      ../test_nvector.h
-      DESTINATION ${EXAMPLES_INSTALL_PATH}/nvector/mpimanyvector)
-  endif()
+  # # install example source files
+  # if(EXAMPLES_INSTALL)
+  #   install(FILES ${example}.c
+  #     ../test_nvector.c
+  #     ../test_mpinvector.c
+  #     ../test_nvector.h
+  #     DESTINATION ${EXAMPLES_INSTALL_PATH}/nvector/mpimanyvector)
+  # endif()
 
 endforeach(example_tuple ${nvector_mpimanyvector_examples})
 
@@ -187,51 +188,28 @@ foreach(example_tuple ${nvector_mpimanyvector_fortran_examples})
 
 endforeach(example_tuple ${nvector_mpimanyvector_fortran_examples})
 
+# create Makfile and CMakeLists.txt for examples
 if(EXAMPLES_INSTALL)
 
-  # Install the README file
-  install(FILES DESTINATION ${EXAMPLES_INSTALL_PATH}/nvector/mpimanyvector)
-
-  # Prepare substitution variables for Makefile and/or CMakeLists templates
-  set(SOLVER_LIB "sundials_nvecmpimanyvector")
-
-  examples2string(nvector_mpimanyvector_examples EXAMPLES)
-  examples2string(nvector_examples_dependencies EXAMPLES_DEPENDENCIES)
-
-  # Regardless of the platform we're on, we will generate and install
-  # CMakeLists.txt file for building the examples. This file  can then
-  # be used as a template for the user's own programs.
-
-  # generate CMakelists.txt in the binary directory
-  configure_file(
-    ${PROJECT_SOURCE_DIR}/examples/templates/cmakelists_parallel_C_ex.in
-    ${PROJECT_BINARY_DIR}/examples/nvector/mpimanyvector/CMakeLists.txt
-    @ONLY
-    )
-
-  # install CMakelists.txt
-  install(
-    FILES ${PROJECT_BINARY_DIR}/examples/nvector/mpimanyvector/CMakeLists.txt
-    DESTINATION ${EXAMPLES_INSTALL_PATH}/nvector/mpimanyvector
-    )
-
-  # On UNIX-type platforms, we also  generate and install a makefile for
-  # building the examples. This makefile can then be used as a template
-  # for the user's own programs.
-
-  if(UNIX)
-    # generate Makefile and place it in the binary dir
-    configure_file(
-      ${PROJECT_SOURCE_DIR}/examples/templates/makefile_parallel_C_ex.in
-      ${PROJECT_BINARY_DIR}/examples/nvector/mpimanyvector/Makefile_ex
-      @ONLY
-      )
-    # install the configured Makefile_ex as Makefile
-    install(
-      FILES ${PROJECT_BINARY_DIR}/examples/nvector/mpimanyvector/Makefile_ex
-      DESTINATION ${EXAMPLES_INSTALL_PATH}/nvector/mpimanyvector
-      RENAME Makefile
-      )
-  endif()
+  sundials_install_examples(nvector nvector_mpimanyvector_examples
+    CMAKE_TEMPLATE
+      cmakelists_C_MPI_ex.in
+    MAKE_TEMPLATE
+      makefile_parallel_C_ex.in
+    SUNDIALS_TARGETS
+      nvecserial
+      nvecmpimanyvector
+      nvecparallel
+    DESTINATION
+      nvector/mpimanyvector
+    EXAMPLES_DEPENDENCIES
+      ${nvector_examples_dependencies}
+    EXTRA_FILES
+      #README
+      #${NVECTOR_extras}
+      #${NVECTOR_headers}
+    TEST_INSTALL
+      mpimanyvector
+  )
 
 endif()
