@@ -124,7 +124,7 @@ endif()
 
 # --- Add libraries for backend support ---
 if(SUNDIALS_HYPRE_BACKENDS MATCHES "CUDA")
-  list(APPEND HYPRE_LIBRARIES CUDA::cudart CUDA::cublas)
+  list(APPEND HYPRE_LIBRARIES CUDA::cudart CUDA::cublas std::cstdio)
 #   find_package(CUDA REQUIRED)
 #   include_directories(${CUDA_INCLUDE_DIRS})
 endif()
