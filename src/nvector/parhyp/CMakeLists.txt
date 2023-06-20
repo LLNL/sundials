@@ -46,12 +46,16 @@ sundials_add_library(sundials_nvecparhyp
     ${_sunmemlib}
   LINK_LIBRARIES
     PUBLIC
-    ${_hip_lib_or_not}
-    SUNDIALS::HYPRE
     MPI::MPI_C
+    SUNDIALS::HYPRE
+    $<$<BOOL:_hypre_using_cuda>:${CMAKE_CPP_STANDARD_LIBRARIES}>
+    $<$<BOOL:_hypre_using_cuda>:${CMAKE_CUDA_STANDARD_LIBRARIES}>
+    ${_hip_lib_or_not}
   INCLUDE_DIRECTORIES
     PUBLIC
     $<$<BOOL:_hypre_using_cuda>:${SUNDIALS_SOURCE_DIR}/src/nvector/cuda>
+    $<$<BOOL:_hypre_using_cuda>:${CMAKE_CPP_STANDARD_INCLUDE_DIRECTORIES}>
+    $<$<BOOL:_hypre_using_cuda>:${CMAKE_CUDA_STANDARD_INCLUDE_DIRECTORIES}>
     $<$<BOOL:_hypre_using_hip>:${SUNDIALS_SOURCE_DIR}/src/nvector/hip>
 #TODO Is this needed? -jsdomine
 #  COMPILE_OPTIONS
