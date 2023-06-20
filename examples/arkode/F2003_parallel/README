@@ -4,7 +4,7 @@ List of parallel ARKODE F2003 examples
                                      with a user-defined nonlinear solver
 
   ark_heat2D                       : 2-D heat equation problem with a
-                                     user-defined preconditioner
+                                     user-defined diagonal preconditioner
 
 The following CMake command was used to configure SUNDIALS:
 

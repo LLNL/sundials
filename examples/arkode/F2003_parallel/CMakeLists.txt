@@ -28,7 +28,7 @@ if(SUNDIALS_LOGGING_ENABLE_MPI)
 else()
   set(FARKODE_examples )
 endif()
-=======
+
 set(FARKODE_examples
   "ark_brusselator1D_task_local_nls_f2003\;--monitor\;1\;4\;develop\;2"
   "ark_brusselator1D_task_local_nls_f2003\;--monitor --global-nls\;1\;4\;develop\;2"
