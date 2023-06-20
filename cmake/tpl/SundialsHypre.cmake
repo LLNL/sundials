@@ -90,23 +90,36 @@ if(HYPRE_FOUND AND (NOT HYPRE_WORKS))
   set(HYPRE_TEST_DIR ${PROJECT_BINARY_DIR}/HYPRE_TEST)
   file(MAKE_DIRECTORY ${HYPRE_TEST_DIR})
 
+  # Choose test language (C for serial, C++ for CUDA or HIP)
+  if (SUNDIALS_HYPRE_BACKENDS MATCHES "SERIAL")
+    set(_hypre_test_languages "C")
+  elseif (SUNDIALS_HYPRE_BACKENDS MATCHES "CUDA")
+    set(_hypre_test_languages "C CXX CUDA")
+  elseif (SUNDIALS_HYPRE_BACKENDS MATCHES "HIP")
+    set(_hypre_test_languages "C CXX HIP)
+  endif ()
+
   # Create a CMakeLists.txt file
   file(WRITE ${HYPRE_TEST_DIR}/CMakeLists.txt
-  "CMAKE_MINIMUM_REQUIRED(VERSION ${CMAKE_VERSION})\n"
-  "PROJECT(ltest C)\n"
-  "SET(CMAKE_VERBOSE_MAKEFILE ON)\n"
-  "SET(CMAKE_BUILD_TYPE \"${CMAKE_BUILD_TYPE}\")\n"
-  "SET(CMAKE_C_COMPILER ${MPI_C_COMPILER})\n"
-  "SET(CMAKE_C_STANDARD \"${CMAKE_C_STANDARD}\")\n"
-  "SET(CMAKE_C_FLAGS \"${CMAKE_C_FLAGS}\")\n"
-  "SET(CMAKE_C_FLAGS_RELEASE \"${CMAKE_C_FLAGS_RELEASE}\")\n"
-  "SET(CMAKE_C_FLAGS_DEBUG \"${CMAKE_C_FLAGS_DEBUG}\")\n"
-  "SET(CMAKE_C_FLAGS_RELWITHDEBUGINFO \"${CMAKE_C_FLAGS_RELWITHDEBUGINFO}\")\n"
-  "SET(CMAKE_C_FLAGS_MINSIZE \"${CMAKE_C_FLAGS_MINSIZE}\")\n"
-  "SET(CMAKE_EXE_LINKER_FLAGS \"${LINK_MATH_LIB}\")\n"
-  "INCLUDE_DIRECTORIES(${HYPRE_INCLUDE_DIR})\n"
-  "ADD_EXECUTABLE(ltest ltest.c)\n"
-  "TARGET_LINK_LIBRARIES(ltest ${HYPRE_LIBRARIES})\n")
+    "CMAKE_MINIMUM_REQUIRED(VERSION ${CMAKE_VERSION})\n"
+    "PROJECT(ltest ${_hypre_test_languages})\n"
+    "SET(CMAKE_VERBOSE_MAKEFILE ON)\n"
+    "SET(CMAKE_BUILD_TYPE \"${CMAKE_BUILD_TYPE}\")\n")
+  foreach(_language _hypre_test_languages)
+    file(APPEND ${HYPRE_TEST_DIR}/CMakeLists.txt
+      "SET(CMAKE_${_language}_COMPILER ${MPI_${_language}_COMPILER})\n"
+      "SET(CMAKE_${_language}_STANDARD \"${CMAKE_${_language}_STANDARD}\")\n"
+      "SET(CMAKE_${_language}_FLAGS \"${CMAKE_${_language}_FLAGS}\")\n"
+      "SET(CMAKE_${_language}_FLAGS_RELEASE \"${CMAKE_${_language}_FLAGS_RELEASE}\")\n"
+      "SET(CMAKE_${_language}_FLAGS_DEBUG \"${CMAKE_${_language}_FLAGS_DEBUG}\")\n"
+      "SET(CMAKE_${_language}_FLAGS_RELWITHDEBUGINFO \"${CMAKE_${_language}_FLAGS_RELWITHDEBUGINFO}\")\n"
+      "SET(CMAKE_${_language}_FLAGS_MINSIZE \"${CMAKE_${_language}_FLAGS_MINSIZE}\")\n")
+  endforeach()
+  file(APPEND ${HYPRE_TEST_DIR}/CMakeLists.txt
+    "SET(CMAKE_EXE_LINKER_FLAGS \"${LINK_MATH_LIB}\")\n"
+    "INCLUDE_DIRECTORIES(${HYPRE_INCLUDE_DIR})\n"
+    "ADD_EXECUTABLE(ltest ltest.c)\n"
+    "TARGET_LINK_LIBRARIES(ltest ${HYPRE_LIBRARIES})\n")
 
   file(WRITE ${HYPRE_TEST_DIR}/ltest.c
   "\#include \"HYPRE_parcsr_ls.h\"\n"
