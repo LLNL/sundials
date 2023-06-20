@@ -76,8 +76,8 @@ set(HYPRE_CONFIG_NOT_FOUND_MESSAGE "\
 ************************************************************************\n\
 ERROR: Could not find hypre library configuration file (HYPRE_config.h).
        Please specify HYPRE_DIR and ensure that it contains\n\
-       "include" and "lib" or "lib64" subdirectories.\n\
-       (e.g. ".../hypre/src/hypre")
+       \"include\" and \"lib\" or \"lib64\" subdirectories.\n\
+       (e.g. \".../hypre/src/hypre\")
 ************************************************************************")
 set(HYPRE_NOT_FOUND_MESSAGE "\
 ************************************************************************\n\
