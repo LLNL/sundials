@@ -19,7 +19,7 @@ install(CODE "MESSAGE(\"\nInstall NVECTOR_PARHYP with ${SUNDIALS_HYPRE_BACKENDS}
 if(SUNDIALS_HYPRE_BACKENDS MATCHES "SERIAL")
   # Do nothing; Don't use sumemoryhelper, don't change language
 elseif(SUNDIALS_HYPRE_BACKENDS MATCHES "CUDA")
-  set_source_files_properties(nvector_parhyp.c ${SUNDIALS_SOURCE_DIR}/include/nvector/nvector_parhyp.h PROPERTIES LANGUAGE CUDA)
+  set_source_files_properties(nvector_parhyp.c PROPERTIES LANGUAGE CUDA)
   set(_sunmemlib sundials_sunmemcuda_obj) # Use CUDA sunmemoryhelper
   set(_hypre_using_cuda TRUE)
 #   set(_include_vectorkernels_cuh TRUE)    # Include src/nvector/cuda/VectorKernels.cuh
@@ -57,6 +57,8 @@ sundials_add_library(sundials_nvecparhyp
     $<$<BOOL:_hypre_using_cuda>:${CMAKE_CPP_STANDARD_INCLUDE_DIRECTORIES}>
     $<$<BOOL:_hypre_using_cuda>:${CMAKE_CUDA_STANDARD_INCLUDE_DIRECTORIES}>
     $<$<BOOL:_hypre_using_hip>:${SUNDIALS_SOURCE_DIR}/src/nvector/hip>
+  COMPILE_DEFINITIONS
+    USE_CUDA
 #TODO Is this needed? -jsdomine
 #  COMPILE_OPTIONS
 #    PUBLIC
