@@ -76,7 +76,7 @@ class Sundials(CachedCMakePackage, CudaPackage, ROCmPackage):
         "cxxstd",
         default="14",
         description="C++ language standard",
-        values=("99", "11", "14", "17"),
+        values=("14", "17"),
     )
 
     # Logging
