@@ -57,7 +57,6 @@
 #include <stdio.h>
 #elif defined(SUNDIALS_HYPRE_BACKENDS_CUDA)
 #pragma message "hypre backend CUDA confirmed from nvector_parhyp.h"
-#include <cstdio>
 #include <cuda_runtime.h>
 #include <sunmemory/sunmemory_cuda.h>
 #include <sundials/sundials_cuda_policies.hpp>
