@@ -389,7 +389,7 @@ ARKodeSPRKStorage ARKodeSymplecticSofroniou10()
 
 ARKodeSPRKStorage ARKodeSPRKStorage_Alloc(int stages)
 {
-  ARKodeSPRKStorage sprk_storage;
+  ARKodeSPRKStorage sprk_storage = NULL;
 
   sprk_storage = (ARKodeSPRKStorage)malloc(sizeof(struct ARKodeSPRKStorage_s));
 
@@ -429,77 +429,76 @@ ARKodeSPRKStorage ARKodeSPRKStorage_LoadByName(const char* method)
   {
     return ARKodeSymplecticEuler();
   }
-  else if (!strcmp(method, "ARKODE_SYMPLECTIC_LEAPFROG_2_2"))
+  if (!strcmp(method, "ARKODE_SYMPLECTIC_LEAPFROG_2_2"))
   {
     return ARKodeSymplecticLeapfrog2();
   }
-  else if (!strcmp(method, "ARKODE_SYMPLECTIC_PSEUDO_LEAPFROG_2_2"))
+  if (!strcmp(method, "ARKODE_SYMPLECTIC_PSEUDO_LEAPFROG_2_2"))
   {
     return ARKodeSymplecticPseudoLeapfrog2();
   }
-  else if (!strcmp(method, "ARKODE_SYMPLECTIC_RUTH_3_3"))
+  if (!strcmp(method, "ARKODE_SYMPLECTIC_RUTH_3_3"))
   {
     return ARKodeSymplecticRuth3();
   }
-  else if (!strcmp(method, "ARKODE_SYMPLECTIC_MCLACHLAN_2_2"))
+  if (!strcmp(method, "ARKODE_SYMPLECTIC_MCLACHLAN_2_2"))
   {
     return ARKodeSymplecticMcLachlan2();
   }
-  else if (!strcmp(method, "ARKODE_SYMPLECTIC_MCLACHLAN_3_3"))
+  if (!strcmp(method, "ARKODE_SYMPLECTIC_MCLACHLAN_3_3"))
   {
     return ARKodeSymplecticMcLachlan3();
   }
-  else if (!strcmp(method, "ARKODE_SYMPLECTIC_MCLACHLAN_4_4"))
+  if (!strcmp(method, "ARKODE_SYMPLECTIC_MCLACHLAN_4_4"))
   {
     return ARKodeSymplecticMcLachlan4();
   }
-  else if (!strcmp(method, "ARKODE_SYMPLECTIC_CANDY_ROZMUS_4_4"))
+  if (!strcmp(method, "ARKODE_SYMPLECTIC_CANDY_ROZMUS_4_4"))
   {
     return ARKodeSymplecticCandyRozmus4();
   }
-  else if (!strcmp(method, "ARKODE_SYMPLECTIC_MCLACHLAN_5_6"))
+  if (!strcmp(method, "ARKODE_SYMPLECTIC_MCLACHLAN_5_6"))
   {
     return ARKodeSymplecticMcLachlan5();
   }
-  else if (!strcmp(method, "ARKODE_SYMPLECTIC_YOSHIDA_6_8"))
+  if (!strcmp(method, "ARKODE_SYMPLECTIC_YOSHIDA_6_8"))
   {
     return ARKodeSymplecticYoshida6();
   }
-  else if (!strcmp(method, "ARKODE_SYMPLECTIC_MCLACHLAN_8_16"))
+  if (!strcmp(method, "ARKODE_SYMPLECTIC_MCLACHLAN_8_16"))
   {
     return ARKodeSymplecticMcLachlan8();
   }
-  else if (!strcmp(method, "ARKODE_SYMPLECTIC_SOFRONIOU_10_36"))
+  if (!strcmp(method, "ARKODE_SYMPLECTIC_SOFRONIOU_10_36"))
   {
     return ARKodeSymplecticSofroniou10();
   }
-  else { return NULL; }
+  return NULL;
 }
 
-ARKodeSPRKStorage ARKodeSPRKStorage_Copy(ARKodeSPRKStorage that_sprk_mem)
+ARKodeSPRKStorage ARKodeSPRKStorage_Copy(ARKodeSPRKStorage that_sprk_storage)
 {
-  int i;
-  ARKodeSPRKStorage sprk_storage;
+  int i                          = 0;
+  ARKodeSPRKStorage sprk_storage = NULL;
 
-  sprk_storage = ARKodeSPRKStorage_Alloc(that_sprk_mem->stages);
+  sprk_storage = ARKodeSPRKStorage_Alloc(that_sprk_storage->stages);
 
-  sprk_storage->q = that_sprk_mem->q;
+  sprk_storage->q = that_sprk_storage->q;
 
   for (i = 0; i < sprk_storage->stages; ++i)
   {
-    sprk_storage->b[i] = that_sprk_mem->b[i];
-    sprk_storage->a[i] = that_sprk_mem->a[i];
+    sprk_storage->b[i] = that_sprk_storage->b[i];
+    sprk_storage->a[i] = that_sprk_storage->a[i];
   }
 
   return sprk_storage;
 }
 
 void ARKodeSPRKStorage_space(ARKodeSPRKStorage sprk_storage, sunindextype* liw,
-                         sunindextype* lrw)
+                             sunindextype* lrw)
 {
   *liw = 2;
   *lrw = sprk_storage->stages * 2;
-  return;
 }
 
 void ARKodeSPRKStorage_Free(ARKodeSPRKStorage sprk_storage)
@@ -510,14 +509,16 @@ void ARKodeSPRKStorage_Free(ARKodeSPRKStorage sprk_storage)
     free(sprk_storage->a);
     free(sprk_storage);
   }
-  return;
 }
 
 int ARKodeSPRKStorage_ToButcher(ARKodeSPRKStorage sprk_storage,
-                            ARKodeButcherTable* a_ptr, ARKodeButcherTable* b_ptr)
+                                ARKodeButcherTable* a_ptr,
+                                ARKodeButcherTable* b_ptr)
 {
-  int i, j;
-  ARKodeButcherTable a, b;
+  int i                = 0;
+  int j                = 0;
+  ARKodeButcherTable a = NULL;
+  ARKodeButcherTable b = NULL;
 
   a = ARKodeButcherTable_Alloc(sprk_storage->stages, SUNFALSE);
   b = ARKodeButcherTable_Alloc(sprk_storage->stages, SUNFALSE);
