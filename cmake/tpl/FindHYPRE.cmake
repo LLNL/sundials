@@ -92,7 +92,7 @@ find_file(HYPRE_CONFIGH_PATH HYPRE_config.h
           NO_DEFAULT_PATH)
 mark_as_advanced(FORCE HYPRE_CONFIGH_PATH)
 if (HYPRE_CONFIGH_PATH)
-  message(STATUS "hypre library configuration file found. Parsing for version and backends...)
+  message(STATUS "hypre library configuration file found. Parsing for version and backends...")
 else ()
   message(ERROR "${HYPRE_CONFIG_NOT_FOUND_MESSAGE}")
 endif ()
