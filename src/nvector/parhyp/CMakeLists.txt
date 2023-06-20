@@ -58,6 +58,7 @@ sundials_add_library(sundials_nvecparhyp
     $<$<BOOL:_hypre_using_cuda>:${CMAKE_CUDA_STANDARD_INCLUDE_DIRECTORIES}>
     $<$<BOOL:_hypre_using_hip>:${SUNDIALS_SOURCE_DIR}/src/nvector/hip>
   COMPILE_DEFINITIONS
+    PUBLIC
     USE_CUDA
 #TODO Is this needed? -jsdomine
 #  COMPILE_OPTIONS
