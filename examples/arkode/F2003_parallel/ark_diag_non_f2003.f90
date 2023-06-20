@@ -1218,7 +1218,7 @@ module diag_non_mod
     use, intrinsic :: iso_c_binding
   
     use fsundials_futils_mod          ! Fortran utilities
-    use farkdiag_non_mod                   ! Access ARKode
+    use farkdiag_non_mod              ! Access ARKode
     use farkode_arkstep_mod           ! Access ARKStep
     use fsundials_nvector_mod         ! Access generic N_Vector
     use fsundials_matrix_mod          ! Access generic SUNMatrix
