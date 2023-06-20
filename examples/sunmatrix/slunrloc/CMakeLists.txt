@@ -59,6 +59,8 @@ foreach(example_tuple ${sunmatrix_slunrloc_examples})
 
     target_include_directories(${example_target} PRIVATE . ..)
 
+    target_compile_features(${example_target} PRIVATE cxx_std_14)
+    
     # libraries to link against
     target_link_libraries(${example_target}
       PRIVATE
