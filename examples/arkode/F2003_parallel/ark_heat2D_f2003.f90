@@ -60,7 +60,6 @@ module HeatUserData
   !---------------------------------------------------------------
    use, intrinsic :: iso_c_binding
   implicit none
-  include "sundials/sundials_fconfig.h"
   save
 
   integer(c_long)  :: nx                                ! global number of x grid points 
@@ -77,11 +76,11 @@ module HeatUserData
   double precision :: ky                                ! y-directional diffusion coefficient 
   double precision, dimension(:,:), allocatable :: h    ! heat source vector
   double precision, dimension(:,:), allocatable :: d    ! inverse of Jacobian diagonal
-  integer(c_int) :: comm                                ! communicator object
+  integer(c_int), target :: comm                        ! communicator object
   integer(c_int) :: myid                                ! MPI process ID
   integer(c_int) :: nprocs                              ! total number of MPI processes
-  type(c_ptr) :: sunctx                                 ! SUNDIALS simulation context
-  type(c_ptr) :: logger                                 ! SUNDIALS logger
+!   type(c_ptr) :: sunctx                                 ! SUNDIALS simulation context
+!   type(c_ptr) :: logger                                 ! SUNDIALS logger (optional, must change CMake)
   logical :: HaveNbor(2,2)                              ! flags denoting neighbor on boundary
   double precision, dimension(:), allocatable :: Erecv  ! receive buffers for neighbor exchange
   double precision, dimension(:), allocatable :: Wrecv
@@ -91,7 +90,7 @@ module HeatUserData
   double precision, dimension(:), allocatable :: Wsend
   double precision, dimension(:), allocatable :: Nsend
   double precision, dimension(:), allocatable :: Ssend
-  integer(c_long) :: nst(1), nst_att(1), nfe(1), nfi(1), nls(1), nli(1), njve(1), npe(1), nps(1) &
+  integer(c_long) :: nst(1), nst_att(1), nfe(1), nfi(1), nls(1), nli(1), njve(1), npe(1), nps(1), &
                            nlcf(1), niters(1), nlscf(1), netf(1)
 
 contains
@@ -230,9 +229,9 @@ contains
       use fsundials_nvector_mod
       implicit none
       include "mpif.h"
-      type(N_Vector), intent(in)  :: sunvec_y
-      integer(c_int), intent(out) :: ierr
-      double precision, pointer, dimension(nxl,nyl) :: y(:,:)
+      type(N_Vector), intent(inout) :: sunvec_y
+      integer(c_int), intent(out)   :: ierr
+      double precision, pointer, dimension(:,:) :: y
       integer(c_int)  :: reqSW, reqSE, reqSS, reqSN, reqRW, reqRE, reqRS, reqRN;
       integer(c_int)  :: stat(MPI_STATUS_SIZE)
       integer(c_long) :: i
@@ -448,14 +447,14 @@ contains
       use fsundials_nvector_mod
       implicit none
       include "mpif.h"
+      type(N_Vector), intent(inout) :: sunvec_y
       integer(c_int), intent(out)   :: ierr
-      type(N_Vector), intent(in)    :: sunvec_y
-      double precision, pointer     :: y(nxl,nyl)
+      double precision, pointer     :: y(:,:)
       double precision, intent(out) :: yrms
       double precision :: lsum, gsum
 
       ! internals
-      y(:,:) => FN_VGetArrayPointer(sunvec_y)
+      y(1:nxl,1:nyl) => FN_VGetArrayPointer(sunvec_y)
       lsum = sum(y**2)
       call MPI_Allreduce(lsum, gsum, 1, MPI_DOUBLE_PRECISION, &
                         MPI_SUM, comm, ierr)
@@ -477,7 +476,10 @@ contains
 
       use, intrinsic :: iso_c_binding
       use fsundials_nvector_mod
+
       implicit none
+      save
+
    contains
 
       !-----------------------------------------------------------------
@@ -502,14 +504,14 @@ contains
       type(c_ptr)      :: user_data
       double precision :: c1, c2, c3
       integer(c_long)  :: ii, jj
-      double precision, pointer :: y(nxl,nyl)
-      double precision, pointer :: ydot(nxl,nyl)
+      double precision, pointer, dimension(nxl,nyl) :: y(:,:)
+      double precision, pointer, dimension(nxl,nyl) :: ydot(:,:)
 
       ! internals
 
       ! Initialize ydot to zero 
-      y(:,:)    => FN_VGetArrayPointer(sunvec_y)
-      ydot(:,:) => FN_VGetArrayPointer(sunvec_ydot)
+      y(1:nxl,1:nyl)    => FN_VGetArrayPointer(sunvec_y)
+      ydot(1:nxl,1:nyl) => FN_VGetArrayPointer(sunvec_ydot)
       ydot = 0.d0
 
       ! Exchange boundary data with neighbors
@@ -595,8 +597,8 @@ contains
       type(N_Vector)   :: sunvec_y
       type(N_Vector)   :: sunvec_fy
       double precision :: t, gamma, c
-      logical          :: jok
-      logical, pointer :: jcur
+      integer(c_int), value :: jok
+      integer(c_int)   :: jcur
       type(c_ptr)      :: user_data
 
       ! internals
@@ -606,8 +608,8 @@ contains
       ! (since boundary RHS is 0, set boundary diagonals to the same)
       d = 1.d0/c
 
-      jcur = .true. ! Update jcur flag
-      ierr = 0      ! Return with success 
+      jcur = 1 ! Update jcur flag
+      ierr = 0 ! Return with success 
       return
       end function farkpset
 
@@ -628,14 +630,90 @@ contains
       double precision, pointer, dimension(nxl, nyl) :: r(:,:), z(:,:)
 
       ! internals
-      r(:,:) => FN_VGetArrayPointer(sunvec_r)
-      z(:,:) => FN_VGetArrayPointer(sunvec_z)
+      r(1:nxl,1:nyl) => FN_VGetArrayPointer(sunvec_r)
+      z(1:nxl,1:nyl) => FN_VGetArrayPointer(sunvec_z)
 
       z = r*d      ! perform Jacobi iteration (whole array operation)
       ierr = 0     ! Return with success 
       return
    end function farkpsol
    !-----------------------------------------------------------------
+
+   subroutine GetFinalStats(arkmem,flag,retval)
+
+      use HeatUserData
+      use farkode_mod                   ! Access ARKode
+      use farkode_arkstep_mod           ! Access ARKStep
+
+      implicit none
+      include "mpif.h"
+   
+      type(c_ptr), pointer, intent(in) :: arkmem
+      integer(c_int),       intent(in) :: flag
+      integer(c_int),    intent(inout) :: retval
+   
+      retval = FARKStepGetNumSteps(arkmem, nst)
+      if (retval /= 0) then
+         write(0,*) "Error in FARKStepGetNumSteps = ", retval
+         call MPI_Finalize(flag)
+      end if
+      retval = FARKStepGetNumStepAttempts(arkmem, nst_att)
+      if (retval /= 0) then
+         write(0,*) "Error in FARKStepGetNumStepAttempts = ", retval
+         call MPI_Finalize(flag)
+      end if
+      retval = FARKStepGetNumRhsEvals(arkmem, nfe, nfi)
+      if (retval /= 0) then
+         write(0,*) "Error in FARKStepGetNumRhsEvals = ", retval
+         call MPI_Finalize(flag)
+      end if
+      retval = FARKStepGetNumLinSolvSetups(arkmem, nls)
+      if (retval /= 0) then
+         write(0,*) "Error in FARKStepGetNumLinSolvSetups = ", retval
+         call MPI_Finalize(flag)
+      end if
+      retval = FARKStepGetNumLinIters(arkmem, nli)
+      if (retval /= 0) then
+         write(0,*) "Error in FARKStepGetNumLinIters = ", retval
+         call MPI_Finalize(flag)
+      end if
+      retval = FARKStepGetNumJtimesEvals(arkmem, njve)
+      if (retval /= 0) then
+         write(0,*) "Error in FARKStepGetNumJtimesEvals = ", retval
+         call MPI_Finalize(flag)
+      end if
+      retval = FARKStepGetNumPrecEvals(arkmem, npe)
+      if (retval /= 0) then
+         write(0,*) "Error in FARKStepGetNumPrecEvals = ", retval
+         call MPI_Finalize(flag)
+      end if
+      retval = FARKStepGetNumPrecSolves(arkmem, nps)
+      if (retval /= 0) then
+         write(0,*) "Error in FARKStepGetNumPrecSolves = ", retval
+         call MPI_Finalize(flag)
+      end if
+      retval = FARKStepGetNumLinConvFails(arkmem, nlcf)
+      if (retval /= 0) then
+         write(0,*) "Error in FARKStepGetNumLinConvFails = ", retval
+         call MPI_Finalize(flag)
+      end if
+      retval = FARKStepGetNumNonlinSolvIters(arkmem, niters)
+      if (retval /= 0) then
+         write(0,*) "Error in FARKStepGetNumNonlinSolvIters = ", retval
+         call MPI_Finalize(flag)
+      end if
+      retval = FARKStepGetNumNonlinSolvConvFails(arkmem, nlscf)
+      if (retval /= 0) then
+         write(0,*) "Error in FARKStepGetNumNonlinSolvConvFails = ", retval
+         call MPI_Finalize(flag)
+      end if
+      retval = FARKStepGetNumErrTestFails(arkmem, netf)
+      if (retval /= 0) then
+         write(0,*) "Error in FARKStepGetNumErrTestFails = ", retval
+         call MPI_Finalize(flag)
+      end if
+   
+   end subroutine GetFinalStats
 
 end module Implicit_and_Prec_Fn
 
@@ -647,10 +725,12 @@ program driver
   ! inclusions
   use HeatUserData
   use Implicit_and_Prec_Fn
+  use fsundials_types_mod           ! sundials defined types
+  use fsundials_context_mod         ! Access sundials context
   use farkode_mod                   ! Access ARKode
   use farkode_arkstep_mod           ! Access ARKStep
   use fsundials_nvector_mod         ! Access generic N_Vector
-  use fnvector_mpiplusx_mod         ! Access generic MPI+X N_Vector
+  use fnvector_parallel_mod         ! Access parallel N_Vector
   use fsundials_matrix_mod          ! Access generic SUNMatrix
   use fsundials_linearsolver_mod    ! Access generic SUNLinearSolver
   use fsunlinsol_pcg_mod            ! Access PCG SUNLinearSolver
@@ -676,12 +756,14 @@ program driver
 
   ! solution vector and other local variables
   type(N_Vector), pointer  :: sunvec_y
-  type(N_Vector), pointer  :: sunvec_ys
-  type(SUNLinearSolver), pointer    :: sunlinsol_LS
+  type(SUNLinearSolver), pointer :: sunlinsol_LS
   type(SUNMatrix), pointer :: sunmat_A
+  type(c_ptr), pointer     :: arkode_mem           ! ARKODE memory structure
+  type(c_ptr), pointer     :: sunctx               ! SUNDIALS context structure
 
-  double precision, pointer, allocatable :: y(:,:)
-  double precision   :: t, dTout, tout, urms
+  double precision, pointer, dimension(:,:) :: y
+  integer, pointer   :: commptr
+  double precision   :: t(1), dTout, tout, urms
   integer(c_long)    :: N, Ntot, i, j
   integer(c_int)     :: flag, retval, ioutput
   logical            :: outproc
@@ -699,6 +781,25 @@ program driver
      call MPI_Finalize(flag)
   end if
 
+
+!   ! Configure SUNDIALS logging via the runtime API. 
+!   ! This requires that SUNDIALS was configured with the CMake options
+!   !   SUNDIALS_LOGGING_LEVEL=n     (see logger in HeatUserData above)
+!   ! where n is one of:
+!   !    1 --> log only errors,
+!   !    2 --> log errors + warnings,
+!   !    3 --> log errors + warnings + info output
+!   !    4 --> all of the above plus debug output
+!   !    5 --> all of the above and even more
+!   ! SUNDIALS will only log up to the max level n, but a lesser level can
+!   ! be configured at runtime by only providing output files for the
+!   ! desired levels. We will enable informational logging here:
+!   retval = FSUNLogger_Create(c_loc(commptr), 0, logger)
+!   if (retval /= 0) then
+!     print *, "Error: FSUNLogger_Create returned ",retval
+!     call MPI_Abort(comm, 1, ierr)
+!   end if
+
   ! Initialize HeatUserData module
   call InitUserData()
   nx = nx_
@@ -707,6 +808,14 @@ program driver
   ky = ky_
   dx = 1.d0/(nx-1)   ! x mesh spacing 
   dy = 1.d0/(ny-1)   ! x mesh spacing 
+
+  ! Create SUNDIALS simulation context
+  commptr => comm
+  retval = FSUNContext_Create(c_loc(commptr), sunctx)
+  if (retval /= 0) then
+    print *, "Error: FSUNContext_Create returned ",retval
+    call MPI_Finalize(flag)
+  end if
 
   ! Set up parallel decomposition (computes local mesh sizes)
   call SetupDecomp(flag)
@@ -735,28 +844,25 @@ program driver
   ! Initialize data structures -- bigger changes start here
   N = nxl*nyl
   Ntot = nx*ny
-  call FNVInitP(comm, 4, N, Ntot, flag)
-  if (flag /= MPI_SUCCESS) then
-     write(0,*) "Error in FNVInitP = ", flag
-     call MPI_Finalize(flag)
-  end if
   ! Create solution vector
-  sunvec_ys => FN_VNew_Serial(int(Ntot, c_long), sunctx)
-  sunvec_y  => FN_VMake_MPIPlusX(comm, sunvec_ys, sunctx)
+  sunvec_y  => FN_VNew_Parallel(comm, N, Ntot, sunctx)
   ! Set initial conditions
-  allocate(y(nxl,nyl))
-  y(:,:) => FN_VGetArrayPointer(sunvec_y)
+  y(1:nxl,1:nyl) => FN_VGetArrayPointer(sunvec_y)
   y = 0.d0
 
-  arkode_mem = FARKStepCreate(c_null_funptr, c_funloc(farkifun), T0, sunvec_y, sunctx)
-
   ! initialize PCG linear solver module
-  sunlinsol_LS => FSUNLinSol_PCG(sunvec_y, PCGpretype, PCGmaxl, flag)
+  sunlinsol_LS => FSUNLinSol_PCG(sunvec_y, PCGpretype, PCGmaxl, sunctx)
   if (flag /= MPI_SUCCESS) then
      write(0,*) "Error in FSunLinSol_PCG = ", flag
      call MPI_Finalize(flag)
   end if
   
+  arkode_mem = FARKStepCreate(c_null_funptr, c_funloc(farkifun), T0, sunvec_y, sunctx)
+  if (.not. c_associated(arkode_mem)) then
+     print *, "Error: FARKStepCreate returned NULL"
+     call MPI_Finalize(flag)
+  end if
+
   ! Initialize the scalar tolerances for the solver
   retval = FARKStepSStolerances(arkode_mem, rtol, atol)
   if (retval /= 0) then
@@ -777,7 +883,7 @@ program driver
      write(0,*) "Error in FARKStepSetNonlinConvCoef = ", retval
      call MPI_Finalize(flag)
   end if
-  retval = FARKStepSetPredictorMethod(arkode_mem, 1_8)
+  retval = FARKStepSetPredictorMethod(arkode_mem, 1)
   if (retval /= 0) then
      write(0,*) "Error in FARKStepSetPredictorMethod = ", retval
      call MPI_Finalize(flag)
@@ -801,7 +907,7 @@ program driver
   end if
 
   ! specify that the problem is linearly implicit, but that Jacobian does not depend on time
-  retval = FARKStepSetLinear(arkode_mem, 0_8)
+  retval = FARKStepSetLinear(arkode_mem, 0)
   if (retval /= 0) then
      write(0,*) "Error in FARKStepSetLinear = ", retval
      call MPI_Finalize(flag)
@@ -838,10 +944,10 @@ program driver
   end if
   do ioutput=1,Nt
 
-     call FARKStepEvolve(arkode_mem, tout, sunvec_y, t, 1, flag)         ! call integrator
-     if (flag < 0) then
-        write(0,*) "Error in FARKStepEvolve = ", flag
-        exit
+     retval = FARKStepEvolve(arkode_mem, tout, sunvec_y, t, ARK_NORMAL)         ! call integrator
+     if (retval /= 0) then
+        write(0,*) "Error in FARKStepEvolve = ", retval
+        call MPI_Finalize(flag)
      end if
      
      call PRMS(sunvec_y, urms, flag)
@@ -871,7 +977,7 @@ program driver
 
   ! Print some final statistics 
   if (outproc) then
-     call GetFinalStats(arkode_mem)
+     call GetFinalStats(arkode_mem, flag, retval)
      write(6,*) "  "
      write(6,*) "Final Solver Statistics:"
      write(6,'(2(A,i6),A)') "   Internal solver steps = ", nst(1), &
@@ -891,91 +997,17 @@ program driver
  end if
 
  ! Clean up and return with successful completion
- if (allocated(y))  deallocate(y)    ! free solution
- call FreeUserData(flag)             ! free user data
+ call FreeUserData(flag)               ! free user data
  call FARKStepFree(arkode_mem) 
- call FN_VDestroy(sunvec_ys)         ! free NVectors
  call FN_VDestroy(sunvec_y)
- retval = FSUNLinSolFree(sunlinsol_LS)        ! free linear solver
-    if (retval /= 0) then
-       print *, "Error: FSUNLinSolFree returned ", retval
-       call MPI_Finalize(flag)
-    end if
- end if
- retval = FSUNNonlinSolFree(sunnonlinsol_NLS) ! free nonlinear solver
+ retval = FSUNLinSolFree(sunlinsol_LS) ! free linear solver
  if (retval /= 0) then
-    print *, "Error: FSUNNonlinSolFree returned ",retval
-    call MPI_Abort(comm, 1, ierr)
+    print *, "Error: FSUNLinSolFree returned ", retval
+    call MPI_Finalize(flag)
  end if
  call MPI_Barrier(comm, flag)
- call MPI_Finalize(flag)             ! Finalize MPI
+ call MPI_Finalize(flag)               ! Finalize MPI
 
 end program driver
 !-----------------------------------------------------------------
 
-subroutine GetFinalStats(arkmem)
-
-   type(c_ptr), intent(in) :: arkmem
-
-   retval = FARKStepGetNumSteps(arkmem, nst)
-   if (retval /= 0) then
-      write(0,*) "Error in FARKStepGetNumSteps = ", retval
-      call MPI_Finalize(flag)
-   end if
-   retval = FARKStepGetNumStepAttempts(arkmem, nst_att)
-   if (retval /= 0) then
-      write(0,*) "Error in FARKStepGetNumStepAttempts = ", retval
-      call MPI_Finalize(flag)
-   end if
-   retval = FARKStepGetNumRhsEvals(arkmem, nfe, nfi)
-   if (retval /= 0) then
-      write(0,*) "Error in FARKStepGetNumRhsEvals = ", retval
-      call MPI_Finalize(flag)
-   end if
-   retval = FARKStepGetNumLinSolvSetups(arkmem, nls)
-   if (retval /= 0) then
-      write(0,*) "Error in FARKStepGetNumLinSolvSetups = ", retval
-      call MPI_Finalize(flag)
-   end if
-   retval = FARKStepGetNumLinIters(arkmem, nli)
-   if (retval /= 0) then
-      write(0,*) "Error in FARKStepGetNumLinIters = ", retval
-      call MPI_Finalize(flag)
-   end if
-   retval = FARKStepGetNumJtimesEvals(arkmem, njve)
-   if (retval /= 0) then
-      write(0,*) "Error in FARKStepGetNumJtimesEvals = ", retval
-      call MPI_Finalize(flag)
-   end if
-   retval = FARKStepGetNumPrecEvals(arkmem, npe)
-   if (retval /= 0) then
-      write(0,*) "Error in FARKStepGetNumPrecEvals = ", retval
-      call MPI_Finalize(flag)
-   end if
-   retval = FARKStepGetNumPrecSolves(arkmem, nps)
-   if (retval /= 0) then
-      write(0,*) "Error in FARKStepGetNumPrecSolves = ", retval
-      call MPI_Finalize(flag)
-   end if
-   retval = FARKStepGetNumLinConvFails(arkmem, nlcf)
-   if (retval /= 0) then
-      write(0,*) "Error in FARKStepGetNumLinConvFails = ", retval
-      call MPI_Finalize(flag)
-   end if
-   retval = FARKStepGetNumNonlinSolvIters(arkmem, niters)
-   if (retval /= 0) then
-      write(0,*) "Error in FARKStepGetNumNonlinSolvIters = ", retval
-      call MPI_Finalize(flag)
-   end if
-   retval = FARKStepGetNumNonlinSolvConvFails(arkmem, nlscf)
-   if (retval /= 0) then
-      write(0,*) "Error in FARKStepGetNumNonlinSolvConvFails = ", retval
-      call MPI_Finalize(flag)
-   end if
-   retval = FARKStepGetNumErrTestFails(arkmem, netf)
-   if (retval /= 0) then
-      write(0,*) "Error in FARKStepGetNumErrTestFails = ", retval
-      call MPI_Finalize(flag)
-   end if
-
-end subroutine GetFinalStats
