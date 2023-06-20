@@ -92,11 +92,11 @@ if(HYPRE_FOUND AND (NOT HYPRE_WORKS))
 
   # Choose test language (C for serial, C++ for CUDA or HIP)
   if (SUNDIALS_HYPRE_BACKENDS MATCHES "SERIAL")
-    set(_hypre_test_languages "C")
+    set(_hypre_test_languages C)
   elseif (SUNDIALS_HYPRE_BACKENDS MATCHES "CUDA")
-    set(_hypre_test_languages "C CXX CUDA")
+    set(_hypre_test_languages C CXX CUDA)
   elseif (SUNDIALS_HYPRE_BACKENDS MATCHES "HIP")
-    set(_hypre_test_languages "C CXX HIP")
+    set(_hypre_test_languages C CXX HIP)
   endif ()
 
   # Create a CMakeLists.txt file
@@ -105,7 +105,7 @@ if(HYPRE_FOUND AND (NOT HYPRE_WORKS))
     "PROJECT(ltest ${_hypre_test_languages})\n"
     "SET(CMAKE_VERBOSE_MAKEFILE ON)\n"
     "SET(CMAKE_BUILD_TYPE \"${CMAKE_BUILD_TYPE}\")\n")
-  foreach(_language _hypre_test_languages)
+  foreach(_language IN LISTS _hypre_test_languages)
     file(APPEND ${HYPRE_TEST_DIR}/CMakeLists.txt
       "SET(CMAKE_${_language}_COMPILER ${MPI_${_language}_COMPILER})\n"
       "SET(CMAKE_${_language}_STANDARD \"${CMAKE_${_language}_STANDARD}\")\n"
