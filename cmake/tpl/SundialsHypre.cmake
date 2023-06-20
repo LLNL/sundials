@@ -36,6 +36,7 @@ endif()
 # Section 2: Check to make sure options are compatible
 # -----------------------------------------------------------------------------
 
+# --- hypre requires MPI and C99 or newer ---
 if(ENABLE_HYPRE)
   # Using hypre requires building with MPI enabled
   if(NOT ENABLE_MPI)
@@ -47,10 +48,12 @@ if(ENABLE_HYPRE)
   endif()
 endif()
 
+# --- hypre with CUDA backend requires bulding with CUDA enabled ---
 if((SUNDIALS_HYPRE_BACKENDS MATCHES "CUDA") AND (NOT ENABLE_CUDA))
   message(FATAL_ERROR "hypre with a CUDA backend requires ENABLE_CUDA = ON")
 endif()
 
+# --- hypre with HIP backend requires bulding with HIP enabled ---
 if((SUNDIALS_HYPRE_BACKENDS MATCHES "HIP") AND (NOT ENABLE_HIP))
   message(FATAL_ERROR "hypre with a HIP backend requires ENABLE_HIP = ON")
 endif()
@@ -64,71 +67,22 @@ find_package(HYPRE REQUIRED)
 message(STATUS "HYPRE_LIBRARIES:   ${HYPRE_LIBRARIES}")
 message(STATUS "HYPRE_INCLUDE_DIR: ${HYPRE_INCLUDE_DIR}")
 
-#TODO verify this is good code -jsdomine
-
-# Find the hypre library configuration file (HYPRE_config.h)
-find_file(HYPRE_CONFIGH_PATH HYPRE_config.h
-          HINTS "${HYPRE_DIR}"
-          PATH_SUFFIXES include
-          NO_DEFAULT_PATH
-          REQUIRED) #TODO should we set as required? -jsdomine
-mark_as_advanced(FORCE HYPRE_CONFIGH_PATH)
-
-# --- Throws error if hypre wasn't built with CMake; HYPREConfig.cmake is not used, anyway ---
-# # Look for CMake configuration file in hypre installation (HYPREConfig.cmake)
-# find_package(HYPRE CONFIG
-#              HINTS "${HYPRE_DIR}"
-#              NO_DEFAULT_PATH
-#              REQUIRED)
-
-# Display hypre version
-file(READ "${HYPRE_CONFIGH_PATH}" _hypre_config_file_text)
-string(REGEX MATCH "[0-9]+\.[0-9]+\.[0-9]+" _hypre_release_version "${_hypre_config_file_text}")
-message(STATUS "hypre Version: ${_hypre_release_version}")
-
-# Determine the backends
-foreach(_backend CUDA HIP)
-  file(STRINGS "${HYPRE_CONFIGH_PATH}" _hypre_has_backend REGEX "^#define HYPRE_USING_${_backend}")
-  if(_hypre_has_backend)
-    set(HYPRE_BACKENDS "${_backend};${HYPRE_BACKENDS}")
-    message(STATUS "hypre built with ${_backend} backend? - YES")
-  else()
-    message(STATUS "hypre built with ${_backend} backend? - NO")
-  endif()
-endforeach()
-
-# Check for CUDA Unified Memory
-file(STRINGS "${HYPRE_CONFIGH_PATH}" _hypre_using_unified_memory REGEX "^#define HYPRE_USING_UNIFIED_MEMORY")
-if(_hypre_using_unified_memory)
-  set(SUNDIALS_HYPRE_USING_UNIFIED_MEMORY TRUE)
-  message(STATUS "hypre using CUDA Unified Memory? - YES")
-else()
-  message(STATUS "hypre using CUDA Unified Memory? - NO")
-endif()
-
-# Manually link to cuda_runtime when using CUDA backend
-if(SUNDIALS_HYPRE_BACKENDS MATCHES "CUDA")
-  list(APPEND HYPRE_LIBRARIES cuda)
-  find_package(CUDA REQUIRED)
-  include_directories(${CUDA_INCLUDE_DIRS})
-endif()
-
 # -----------------------------------------------------------------------------
 # Section 4: Test the TPL
 # -----------------------------------------------------------------------------
 
+# --- Ensure hypre built with requested backend ---
 message(STATUS "Requested SUNDIALS hypre backend: ${SUNDIALS_HYPRE_BACKENDS}")
-
 if((SUNDIALS_HYPRE_BACKENDS MATCHES "CUDA") AND
    (NOT HYPRE_BACKENDS MATCHES "CUDA"))
   print_error("Requested that SUNDIALS uses the CUDA hypre backend, but hypre was not built with the CUDA backend.")
 endif()
-
 if((SUNDIALS_HYPRE_BACKENDS MATCHES "HIP") AND
    (NOT HYPRE_BACKENDS MATCHES "HIP"))
   print_error("Requested that SUNDIALS uses the HIP hypre backend, but hypre was not built with the HIP backend.")
 endif()
 
+# --- Test hypre libraries ---
 if(HYPRE_FOUND AND (NOT HYPRE_WORKS))
   # Do any checks which don't require compilation first.
 

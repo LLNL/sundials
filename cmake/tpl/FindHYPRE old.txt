@@ -32,7 +32,7 @@
 #   HYPRE_LIBRARIES   - all of the libraries needed for HYPRE
 # ---------------------------------------------------------------
 
-# --- Find hypre include dir ---
+### Find include dir
 find_path(temp_HYPRE_INCLUDE_DIR
           NAMES HYPRE.h hypre.h
           HINTS "${HYPRE_DIR}" "${HYPRE_DIR}/include" "${HYPRE_INCLUDE_DIR}")
@@ -41,7 +41,6 @@ if (temp_HYPRE_INCLUDE_DIR)
 endif()
 unset(temp_HYPRE_INCLUDE_DIR CACHE)
 
-# --- Find hypre library ---
 if (HYPRE_LIBRARY)
     # We have (or were given) HYPRE_LIBRARY - get path to use for any related libs
     get_filename_component(HYPRE_LIBRARY_DIR ${HYPRE_LIBRARY} PATH)
@@ -59,7 +58,6 @@ else ()
 endif ()
 mark_as_advanced(HYPRE_LIBRARY)
 
-# --- Append found library to HYPRE_LIBRARIES ---
 list(FIND HYPRE_LIBRARIES ${HYPRE_LIBRARY} _idx)
 if (_idx EQUAL -1)
   # Automatically overwrite "HYPRE_LIBRARY-NOTFOUND" entry if present
@@ -71,61 +69,14 @@ if (_idx EQUAL -1)
   endif ()
 endif ()
 
-# --- Find the hypre library configuration file (HYPRE_config.h) ---
-find_file(HYPRE_CONFIGH_PATH HYPRE_config.h
-          HINTS "${HYPRE_DIR}"
-          PATH_SUFFIXES include
-          NO_DEFAULT_PATH
-          REQUIRED)
-mark_as_advanced(FORCE HYPRE_CONFIGH_PATH)
-
-# (Throws error if hypre wasn't built with CMake; HYPREConfig.cmake is not used, anyway)
-# # Look for CMake configuration file in hypre installation (HYPREConfig.cmake)
-# find_package(HYPRE CONFIG
-#              HINTS "${HYPRE_DIR}"
-#              NO_DEFAULT_PATH
-#              REQUIRED)
-
-# --- Display hypre version ---
-file(READ "${HYPRE_CONFIGH_PATH}" _hypre_config_file_text)
-string(REGEX MATCH "[0-9]+\.[0-9]+\.[0-9]+" _hypre_release_version "${_hypre_config_file_text}")
-message(STATUS "hypre Version: ${_hypre_release_version}")
-
-# --- Determine the backends ---
-foreach(_backend CUDA HIP)
-  file(STRINGS "${HYPRE_CONFIGH_PATH}" _hypre_has_backend REGEX "^#define HYPRE_USING_${_backend}")
-  if(_hypre_has_backend)
-    set(HYPRE_BACKENDS "${_backend};${HYPRE_BACKENDS}")
-    message(STATUS "hypre built with ${_backend} backend? - YES")
-  else()
-    message(STATUS "hypre built with ${_backend} backend? - NO")
-  endif()
-endforeach()
-
-# --- Check for CUDA Unified Memory ---
-file(STRINGS "${HYPRE_CONFIGH_PATH}" _hypre_using_unified_memory REGEX "^#define HYPRE_USING_UNIFIED_MEMORY")
-if(_hypre_using_unified_memory)
-  set(SUNDIALS_HYPRE_USING_UNIFIED_MEMORY TRUE)
-  message(STATUS "hypre using CUDA Unified Memory? - YES")
-else()
-  message(STATUS "hypre using CUDA Unified Memory? - NO")
-endif()
-
-# --- Add libraries for backend support ---
-if(SUNDIALS_HYPRE_BACKENDS MATCHES "CUDA")
-  list(APPEND HYPRE_LIBRARIES CUDA::cudart CUDA::cublas)
-#   find_package(CUDA REQUIRED)
-#   include_directories(${CUDA_INCLUDE_DIRS})
-endif()
-
-# --- Set a more informative error message in case the library was not found ---
+# set a more informative error message in case the library was not found
 set(HYPRE_NOT_FOUND_MESSAGE "\
 ************************************************************************\n\
 ERROR: Could not find hypre. Please check the variables:\n\
        HYPRE_INCLUDE_DIR and HYPRE_LIBRARY_DIR\n\
 ************************************************************************")
 
-# --- Set package variables including HYPRE_FOUND ---
+# set package variables including HYPRE_FOUND
 find_package_handle_standard_args(HYPRE
   REQUIRED_VARS
     HYPRE_LIBRARY
@@ -135,7 +86,7 @@ find_package_handle_standard_args(HYPRE
     "${HYPRE_NOT_FOUND_MESSAGE}"
   )
 
-# --- Create target for HYPRE ---
+# Create target for HYPRE
 if(HYPRE_FOUND)
 
   if(NOT TARGET SUNDIALS::HYPRE)
