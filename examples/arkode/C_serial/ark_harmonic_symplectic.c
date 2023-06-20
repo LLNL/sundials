@@ -83,7 +83,6 @@ int main(int argc, char* argv[])
   SUNContext sunctx      = NULL;
   N_Vector y             = NULL;
   N_Vector solution      = NULL;
-  SUNNonlinearSolver NLS = NULL;
   sunrealtype* ydata     = NULL;
   sunrealtype tout       = NAN;
   sunrealtype tret       = NAN;

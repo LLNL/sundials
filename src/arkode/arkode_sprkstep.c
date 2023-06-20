@@ -173,12 +173,6 @@ int SPRKStepResize(void* arkode_mem, N_Vector ynew, realtype hscale,
 {
   ARKodeMem ark_mem          = NULL;
   ARKodeSPRKStepMem step_mem = NULL;
-  SUNNonlinearSolver NLS     = NULL;
-  sunindextype lrw1          = 0;
-  sunindextype liw1          = 0;
-  sunindextype lrw_diff      = 0;
-  sunindextype liw_diff      = 0;
-  int i                      = 0;
   int retval                 = 0;
 
   /* access ARKodeSPRKStepMem structure */
@@ -353,9 +347,6 @@ int SPRKStepGetDky(void* arkode_mem, realtype t, int k, N_Vector dky)
   ---------------------------------------------------------------*/
 void SPRKStepFree(void** arkode_mem)
 {
-  int j                      = 0;
-  sunindextype Bliw          = 0;
-  sunindextype Blrw          = 0;
   ARKodeMem ark_mem          = NULL;
   ARKodeSPRKStepMem step_mem = NULL;
 
@@ -412,9 +403,7 @@ int sprkStep_Init(void* arkode_mem, int init_type)
 {
   ARKodeMem ark_mem          = NULL;
   ARKodeSPRKStepMem step_mem = NULL;
-  int j                      = 0;
   int retval                 = 0;
-  booleantype reset_efun     = 0;
 
   /* access ARKodeSPRKStepMem structure */
   retval = sprkStep_AccessStepMem(arkode_mem, "sprkStep_Init", &ark_mem,

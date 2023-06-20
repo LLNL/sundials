@@ -77,6 +77,8 @@
 #include "arkode/arkode.h"
 #include "sundials/sundials_context.h"
 
+#define NUM_DT 8
+
 typedef struct
 {
   sunrealtype ecc;
@@ -153,7 +155,6 @@ int main(int argc, char* argv[])
   {
     /* Compute the order of accuracy of the method by testing
        it with different step sizes. */
-    const int NUM_DT = 8;
     sunrealtype acc_orders[NUM_DT];
     sunrealtype con_orders[NUM_DT];
     sunrealtype acc_errors[NUM_DT];
@@ -291,7 +292,6 @@ int SolveProblem(ProgramArgs* args, ProblemResult* result, SUNContext sunctx)
   FILE* solution_fp      = NULL;
   FILE* times_fp         = NULL;
   int rootsfound         = 0;
-  int argi               = 0;
   int iout               = 0;
   int retval             = 0;
 
@@ -429,8 +429,6 @@ int SolveProblem(ProgramArgs* args, ProblemResult* result, SUNContext sunctx)
   {
     while (iout < num_output_times)
     {
-      sunrealtype hlast = SUN_RCONST(0.0);
-
       /* Optional: if the stop time is not set, then its possible that the the
          exact requested output time will not be hit (even with a fixed
          time-step due to roundoff error accumulation) and interpolation will be
@@ -478,8 +476,6 @@ int SolveProblem(ProgramArgs* args, ProblemResult* result, SUNContext sunctx)
   {
     while (iout < num_output_times)
     {
-      sunrealtype hlast = SUN_RCONST(0.0);
-
       /* Optional: if the stop time is not set, then its possible that the the
          exact requested output time will not be hit (even with a fixed
          time-step due to roundoff error accumulation) and interpolation will be
@@ -612,7 +608,6 @@ int velocity(sunrealtype t, N_Vector yvec, N_Vector ydotvec, void* user_data)
 
 int force(sunrealtype t, N_Vector yvec, N_Vector ydotvec, void* user_data)
 {
-  UserData udata             = (UserData)user_data;
   sunrealtype* y             = N_VGetArrayPointer(yvec);
   sunrealtype* ydot          = N_VGetArrayPointer(ydotvec);
   const sunrealtype q1       = y[0];
@@ -628,7 +623,6 @@ int force(sunrealtype t, N_Vector yvec, N_Vector ydotvec, void* user_data)
 
 int rootfn(sunrealtype t, N_Vector yvec, sunrealtype* gout, void* user_data)
 {
-  UserData udata       = (UserData)user_data;
   sunrealtype* y       = N_VGetArrayPointer(yvec);
   const sunrealtype q2 = y[1];
 
