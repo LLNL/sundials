@@ -74,10 +74,10 @@ endif ()
 # --- Set a more informative error message in case the library was not found ---
 set(HYPRE_CONFIG_NOT_FOUND_MESSAGE "\
 ************************************************************************\n\
-ERROR: Could not find hypre library configuration file (HYPRE_config.h).
+ERROR: Could not find hypre library configuration file (HYPRE_config.h).\n\
        Please specify HYPRE_DIR and ensure that it contains\n\
        \"include\" and \"lib\" or \"lib64\" subdirectories.\n\
-       (e.g. \".../hypre/src/hypre\")
+       (e.g. \".../hypre/src/hypre\")\n\
 ************************************************************************")
 set(HYPRE_NOT_FOUND_MESSAGE "\
 ************************************************************************\n\
