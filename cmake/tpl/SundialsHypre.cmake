@@ -96,7 +96,7 @@ if(HYPRE_FOUND AND (NOT HYPRE_WORKS))
   elseif (SUNDIALS_HYPRE_BACKENDS MATCHES "CUDA")
     set(_hypre_test_languages "C CXX CUDA")
   elseif (SUNDIALS_HYPRE_BACKENDS MATCHES "HIP")
-    set(_hypre_test_languages "C CXX HIP)
+    set(_hypre_test_languages "C CXX HIP")
   endif ()
 
   # Create a CMakeLists.txt file
