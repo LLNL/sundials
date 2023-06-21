@@ -40,8 +40,9 @@ else()
 endif()
 
 if($ENV{CI_JOB_ID})
-  set(SUNDIALS_CI_JOB TRUE)
   set(SUN_CI_JOB_ID $ENV{CI_JOB_ID})
+else()
+  string(TIMESTAMP SUN_CI_JOB_ID "%Y%m%d%H%M%S")
 endif()
 
 # ============================================================================

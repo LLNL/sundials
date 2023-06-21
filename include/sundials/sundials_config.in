@@ -120,7 +120,6 @@
 
 #define SUN_BUILD_TYPE "@CMAKE_BUILD_TYPE@"
 
-#cmakedefine SUNDIALS_CI_JOB
 #define SUN_CI_JOB_ID "@SUN_CI_JOB_ID@"
 
 #define SUN_TPL_LIST "@SUNDIALS_TPL_LIST@"
