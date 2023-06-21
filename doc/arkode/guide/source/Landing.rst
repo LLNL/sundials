@@ -37,11 +37,14 @@
 
       .. code-block:: latex
 
-         @article{reynolds2022arkode,
-           title   = {{ARKODE: A flexible IVP solver infrastructure for one-step methods}},
+         @article{reynolds2023arkode,
+           title   = {{ARKODE: a flexible IVP solver infrastructure for one-step methods}},
            author  = {Reynolds, Daniel R and Gardner, David J and Woodward, Carol S and Chinomona, Rujeko},
-           journal = {arXiv preprint arXiv:2205.14077},
-           year    = {2022}
+           journal = {ACM Transactions on Mathematical Software},
+           volume  = {49},
+           number  = {2},
+           pages   = {1--26},
+           year    = {2023}
          }
 
       The ARKODE documentation can be cited:

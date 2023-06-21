@@ -39,6 +39,8 @@ SUNDIALS is developed on `GitHub <https://github.com/LLNL/sundials>`_.
    sunmatrix/index.rst
    sunlinsol/index.rst
    sunnonlinsol/index.rst
+   suncontrol/index.rst
+   sunheuristics/index.rst
    sunmemory/index.rst
    Install_link.rst
    History_link.rst
@@ -70,11 +72,14 @@ When using the ARKODE package from SUNDIALS, please also cite:
 
 .. code-block:: latex
 
-   @article{reynolds2022arkode,
-     title   = {{ARKODE: A flexible IVP solver infrastructure for one-step methods}},
+   @article{reynolds2023arkode,
+     title   = {{ARKODE: a flexible IVP solver infrastructure for one-step methods}},
      author  = {Reynolds, Daniel R and Gardner, David J and Woodward, Carol S and Chinomona, Rujeko},
-     journal = {arXiv preprint arXiv:2205.14077},
-     year    = {2022}
+     journal = {ACM Transactions on Mathematical Software},
+     volume  = {49},
+     number  = {2},
+     pages   = {1--26},
+     year    = {2023}
    }
 
 We also ask that users cite the documentation for the package and version that

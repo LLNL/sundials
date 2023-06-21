@@ -14,6 +14,8 @@
 ARKODE Documentation
 ********************
 
+.. include:: ../../../arkode/guide/source/Landing.rst
+
 **Table of Contents**:
 
 .. toctree::
