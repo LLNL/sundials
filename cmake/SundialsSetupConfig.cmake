@@ -40,13 +40,13 @@ else()
 endif()
 
 if($ENV{CI_JOB_ID})
-  set(SUN_CI_JOB_ID $ENV{CI_JOB_ID})
+  set(CI_JOB_ID $ENV{CI_JOB_ID})
 endif()
 
 if($ENV{CI_JOB_STARTED_AT})
-  set(SUN_CI_JOB_START_TIME $ENV{CI_JOB_STARTED_AT})
+  set(CI_JOB_START_TIME $ENV{CI_JOB_STARTED_AT})
 else()
-  string(TIMESTAMP SUN_CI_JOB_ID "%Y%m%d%H%M%S")
+  string(TIMESTAMP CI_JOB_START_TIME "%Y%m%d%H%M%S")
 endif()
 
 
