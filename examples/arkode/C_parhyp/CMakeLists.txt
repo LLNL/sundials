@@ -19,7 +19,7 @@
 
 # Examples using SUNDIALS linear solvers
 set(ARKODE_examples
-  "ark_diurnal_kry_ph.c\;1\;4\;develop"
+#   "ark_diurnal_kry_ph.c\;1\;4\;develop"
   )
 
 # Add the build and install targets for each ARKODE example

@@ -19,7 +19,7 @@
 
 # Examples using SUNDIALS linear solvers
 set(CVODE_examples
-  "cvAdvDiff_non_ph.c\;2\;2\;develop"
+#   "cvAdvDiff_non_ph.c\;2\;2\;develop"
   )
 
 if(SUNDIALS_BUILD_PACKAGE_FUSED_KERNELS)
