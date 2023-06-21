@@ -48,7 +48,7 @@ sundials_add_library(sundials_nvecparhyp
     PUBLIC
     MPI::MPI_C
     SUNDIALS::HYPRE
-    $<$<BOOL:_hypre_using_cuda>:${std::cstdio}>
+    $<$<BOOL:_hypre_using_cuda>:std::cstdio>
     $<$<BOOL:_hypre_using_cuda>:${CMAKE_CPP_STANDARD_LIBRARIES}>
     $<$<BOOL:_hypre_using_cuda>:${CMAKE_CUDA_STANDARD_LIBRARIES}>
     ${_hip_lib_or_not}
