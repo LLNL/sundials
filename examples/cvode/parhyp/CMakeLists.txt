@@ -35,6 +35,10 @@ foreach(example_tuple ${CVODE_examples})
   list(GET example_tuple 2 number_of_tasks)
   list(GET example_tuple 3 example_type)
 
+  if(SUNDIALS_HYPRE_BACKENDS MATCHES "CUDA")
+    set_source_files_properties(${example} PROPERTIES LANGUAGE CUDA)
+  endif()
+
   # extract the file name without extension
   get_filename_component(example_target ${example} NAME_WE)
 
