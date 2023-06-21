@@ -19,37 +19,18 @@
 
 # Examples using SUNDIALS parallel hypre nvector
 set(nvector_parhyp_examples
-  "test_nvector_parhyp\;1000 0\;1\;1\;" # run sequentially
-  "test_nvector_parhyp\;1000 0\;1\;4\;" # run parallel on 4 procs
+  "test_nvector_parhyp.c\;1000 0\;1\;1\;" # run sequentially
+  "test_nvector_parhyp.c\;1000 0\;1\;4\;" # run parallel on 4 procs
   )
 
 # Dependencies for nvector examples
 set(nvector_examples_dependencies
-  test_nvector
-  test_mpinvector
+  test_nvector.c
+  test_mpinvector.c
   )
 
 # Add source directory to include directories
 include_directories(. ..)
-include_directories(${HYPRE_INC_PATH})
-include_directories(${HYPRE_INC_DIR})
-include_directories(${HYPRE_LIB_DIR})
-
-# Specify libraries to link against
-set(NVECS_LIB sundials_nvecparhyp)
-
-# Set-up linker flags and link libraries
-set(SUNDIALS_LIBS ${NVECS_LIB} ${EXE_EXTRA_LINK_LIBS})
-
-list(APPEND SUNDIALS_LIBS)
-
-if(MPI_C_COMPILER)
-  # use MPI wrapper as the compiler
-  set(CMAKE_C_COMPILER ${MPI_C_COMPILER})
-else()
-  # add MPI_INCLUDE_PATH to include directories
-  include_directories(${MPI_INCLUDE_PATH})
-endif()
 
 # Add the build and install targets for each example
 foreach(example_tuple ${nvector_parhyp_examples})
@@ -61,43 +42,50 @@ foreach(example_tuple ${nvector_parhyp_examples})
   list(GET example_tuple 3 number_of_tasks)
   list(GET example_tuple 4 example_type)
 
+  if(SUNDIALS_HYPRE_BACKENDS MATCHES "CUDA")
+    set_source_files_properties(${example} PROPERTIES LANGUAGE CUDA)
+  endif()
+
+  # extract the file name without extension
+  get_filename_component(example_target ${example} NAME_WE)
+
   # check if this example has already been added, only need to add
   # example source files once for testing with different inputs
-  if(NOT TARGET ${example})
+  if(NOT TARGET ${example_target})
     # example source files
-    add_executable(${example} ${example}.c)
+    add_executable(${example_target} ${example})
 
     # link vector test utilties
-    target_link_libraries(${example} PRIVATE test_nvector_obj test_nvectormpi_obj)
+    target_link_libraries(${example_target} PRIVATE test_nvector_obj test_nvectormpi_obj)
 
     # folder to organize targets in an IDE
-    set_target_properties(${example} PROPERTIES FOLDER "Examples")
+    set_target_properties(${example_target} PROPERTIES FOLDER "Examples")
 
     # libraries to link against
-    target_link_libraries(${example} PRIVATE ${SUNDIALS_LIBS})
-
-    if(NOT MPI_C_COMPILER)
-      target_link_libraries(${example} PRIVATE ${MPI_LIBRARIES})
-    endif()
+    target_link_libraries(${example_target}
+      PRIVATE
+      sundials_nvecparhyp
+      MPI::MPI_C
+      ${EXE_EXTRA_LINK_LIBS})
   endif()
 
   # check if example args are provided and set the test name
   if("${example_args}" STREQUAL "")
     if("${number_of_tasks}" STREQUAL "")
-      set(test_name ${example})
+      set(test_name ${example_target})
     else()
-      string(REGEX REPLACE " " "_" test_name ${example}_${number_of_tasks})
+      string(REGEX REPLACE " " "_" test_name ${example_target}_${number_of_tasks})
     endif()
   else()
     if("${number_of_tasks}" STREQUAL "")
-      string(REGEX REPLACE " " "_" test_name ${example}_${example_args})
+      string(REGEX REPLACE " " "_" test_name ${example_target}_${example_args})
     else()
-      string(REGEX REPLACE " " "_" test_name ${example}_${number_of_tasks}_${example_args})
+      string(REGEX REPLACE " " "_" test_name ${example_target}_${number_of_tasks}_${example_args})
     endif()
   endif()
 
   # add example to regression tests
-  sundials_add_test(${test_name} ${example}
+  sundials_add_test(${test_name} ${example_target}
     TEST_ARGS ${example_args}
     MPI_NPROCS ${number_of_tasks}
     EXAMPLE_TYPE ${example_type}
@@ -105,7 +93,7 @@ foreach(example_tuple ${nvector_parhyp_examples})
 
   # install example source files
   if(EXAMPLES_INSTALL)
-    install(FILES ${example}.c
+    install(FILES ${example}
       ../test_nvector.c
       ../test_nvector.h
       ../test_mpinvector.c
