@@ -449,7 +449,7 @@ contains
       include "mpif.h"
       type(N_Vector), intent(inout) :: sunvec_y
       integer(c_int), intent(out)   :: ierr
-      real(c_double), pointer     :: y(:,:)
+      real(c_double), pointer       :: y(:,:)
       double precision, intent(out) :: yrms
       double precision :: lsum, gsum
 
@@ -492,13 +492,14 @@ contains
       !-----------------------------------------------------------------
       ! f routine to compute the ODE RHS function f(t,y)
       !-----------------------------------------------------------------
-      ! declarations
+      ! inclusions
       use HeatUserData
 
+      ! declarations
       implicit none
       include "mpif.h"
 
-      real(c_double) :: t
+      real(c_double)   :: t
       type(N_Vector)   :: sunvec_y
       type(N_Vector)   :: sunvec_ydot
       type(c_ptr)      :: user_data
@@ -788,7 +789,8 @@ program driver
   use farkode_mod                   ! Access ARKode
   use farkode_arkstep_mod           ! Access ARKStep
   use fsundials_nvector_mod         ! Access generic N_Vector
-  use fnvector_parallel_mod         ! Access parallel N_Vector
+  use fnvector_serial_mod           ! Access serial N_Vector
+  use fnvector_mpiplusx_mod         ! Access MPI+X N_Vector
   use fsundials_matrix_mod          ! Access generic SUNMatrix
   use fsundials_linearsolver_mod    ! Access generic SUNLinearSolver
   use fsunlinsol_pcg_mod            ! Access PCG SUNLinearSolver
@@ -813,6 +815,7 @@ program driver
   double precision, parameter :: nlscoef = 1.d-7   ! nonlinear solver tolerance factor
 
   ! solution vector and other local variables
+  type(N_Vector), pointer  :: sunvec_ys
   type(N_Vector), pointer  :: sunvec_y
   type(SUNLinearSolver), pointer :: sunlinsol_LS
   type(SUNMatrix), pointer :: sunmat_A
@@ -885,7 +888,8 @@ program driver
   N = nxl*nyl
   Ntot = nx*ny
   ! Create solution vector
-  sunvec_y  => FN_VNew_Parallel(comm, N, Ntot, sunctx)
+  sunvec_ys => FN_VNew_Serial(int(Ntot, c_long), sunctx)
+  sunvec_y  => FN_VMake_MPIPlusX(comm, sunvec_ys, sunctx)
 
   ! Initial problem output
   outproc = (myid == 0)
@@ -1044,6 +1048,7 @@ program driver
  ! Clean up and return with successful completion
  call FreeUserData(flag)               ! free user data
  call FARKStepFree(arkode_mem)
+ call FN_VDestroy(sunvec_ys)
  call FN_VDestroy(sunvec_y)
  retval = FSUNLinSolFree(sunlinsol_LS) ! free linear solver
  if (retval /= 0) then

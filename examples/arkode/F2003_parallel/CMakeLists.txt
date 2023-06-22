@@ -43,9 +43,7 @@ set(ARKODE_LIBS
   sundials_nvecmpiplusx
   sundials_fnvecmpiplusx_mod
   sundials_nvecmpimanyvector
-  sundials_fnvecmpimanyvector_mod
-  sundials_nvecparallel
-  sundials_fnvecparallel_mod)
+  sundials_fnvecmpimanyvector_mod)
 
 # Set-up linker flags and link libraries
 set(SUNDIALS_LIBS ${ARKODE_LIBS} ${EXE_EXTRA_LINK_LIBS})
