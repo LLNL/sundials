@@ -49,8 +49,8 @@ if(SUNDIALS_TEST_DEVTESTS)
   # If a non-default output directory was provided make sure it exists
   if(SUNDIALS_TEST_OUTPUT_DIR)
     message(STATUS "Using non-default test output directory: ${SUNDIALS_TEST_OUTPUT_DIR}")
-    if(NOT EXISTS ${SUNDIALS_TEST_OUTPUT_DIR}/Testing/${SUN_CI_JOB_ID})
-      file(MAKE_DIRECTORY ${SUNDIALS_TEST_OUTPUT_DIR}/Testing/${SUN_CI_JOB_ID})
+    if(NOT EXISTS ${SUNDIALS_TEST_OUTPUT_DIR}/Testing/${JOB_ID})
+      file(MAKE_DIRECTORY ${SUNDIALS_TEST_OUTPUT_DIR}/Testing/${JOB_ID})
     endif()
   endif()
 

@@ -242,9 +242,10 @@ void sunAdiakCollectMetadata() {
   adiak_namevalue("sundials_version", 2, NULL, "%s", SUNDIALS_GIT_VERSION);
   adiak_namevalue("build_type", 2, NULL, "%s", SUN_BUILD_TYPE);
   adiak_namevalue("third_party_libraries", 2, NULL, "%s", SUN_TPL_LIST);
-
-  adiak_namevalue("ci_job_id", 2, NULL, "%s", SUN_CI_JOB_ID);
-  adiak_namevalue("ci_job_start_time", 2, NULL, "%s", SUN_CI_JOB_START_TIME);
+#ifdef SUN_JOB_ID
+  adiak_namevalue("job_id", 2, NULL, "%s", SUN_JOB_ID);
+#endif
+  adiak_namevalue("job_start_time", 2, NULL, "%s", SUN_JOB_START_TIME);
 
 #ifdef SUNDIALS_SPACK_VERSION
   adiak_namevalue("spack_version", 2, NULL, "%s", SUNDIALS_SPACK_VERSION);
