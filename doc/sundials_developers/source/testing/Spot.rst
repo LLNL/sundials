@@ -21,29 +21,32 @@ continuous performance testing.
 To track and visualize performance over time, we collect data with
 `Caliper <https://lc.llnl.gov/confluence/display/CALI/Spot+DB>`_ and
 `Adiak <https://github.com/LLNL/Adiak>`_. Steps to setting up continuous
-performance testing(CPT) can be found at
+performance testing(CPT) can be found in
 :ref:`Continuous Performance Testing<CPT>`.
 
-Documentation to using the SPOT performance visualization tool can be found at
-`here<https://lc.llnl.gov/confluence/display/SpotDoc/Spot+Documentation>`_.
+Documentation to using the SPOT performance visualization tool can be found
+`here <https://lc.llnl.gov/confluence/display/SpotDoc/Spot+Documentation>`_.
 
 Setting Up Your Own SPOT Visualizations
 ---------------------------------------
 
 To display data from non-GitLab jobs or create a local collection of runs,
-input into the SPOT search bar the absolute file path and refresh the page.
+input into the SPOT search bar the absolute path to the directory containing the `,cali` files and refresh the page.
 By default `.cali`` files will be generated in the build directory under
 ``Benchmarking/output`` and ``Testing/output``. To specify where `.cali` output
 files are placed, define the CMake option SUNDIALS_TEST_OUTPUT_DIR with the
 desired directory path.
 
-To retain the same filters as a given SPOT visualization link
-:ref:`_Quick_Reference`, swap out the ``sf`` value in the URL with the 
+To retain the same filters as a given SPOT visualization link in
+:ref:`Bookmarks`, swap out the ``sf`` value in the URL with the 
 directory path containing the `.cali` files.
 
-.. _Quick_Reference:
+.. _Bookmarks:
 
-Quick Reference to Notable SPOT Visualizations
+Bookmarks to Notable SPOT Visualizations
 ----------------------------------------------
 
 Links will be added as informative SPOT visualizations are found.
+
+.. future links to add: aggregations of examples
+.. 

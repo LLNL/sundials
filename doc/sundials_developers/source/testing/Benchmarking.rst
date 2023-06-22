@@ -60,12 +60,20 @@ This command will result in ``--profile`` option being passed to the SUNDIALS
 test runner Python script, ``test/testRunner``, which will in turn set the
 ``CALI_CONFIG`` environment variable before running every test so that when
 you run ``make test`` the examples will produce `.cali` output files
-documenting the performance. Running ``make benchmark`` will execute all the
-available benchmarks and produce `.cali` output files for each one.
+documenting the performance. 
+
+Note: Caliper prints to the `.out` files by default. Ensure all Caliper configs
+requested have the `output` option defined to ensure output data is saved in a
+separate location from the test output. Otherwise, the `.out` files for each
+test will contain the output and the tests will fail.
+
+Turning on the ``BUILD_BENCHMARKS`` option will build benchmarks. Running
+``make benchmark`` will execute all the available benchmarks and produce
+`.cali` output files for each one.
 
 To specify where `.cali` output files are placed, define the CMake option
 SUNDIALS_TEST_OUTPUT_DIR with the directory path. By default `.cali` output
-files are placed in the build directory (:numref:`Installation`) under
+files are placed in the build directory (:ref:`Installation`) under
 ``Benchmarking/output`` and ``Testing/output``.
 
 Refer to section :ref:`Benchmarks` for instructions on building
