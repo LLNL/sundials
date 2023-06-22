@@ -34,7 +34,7 @@
 ! the end of the run, various counters of interest are printed.
 ! ------------------------------------------------------------------
 
-module klu_mod
+module roberts_klu_mod
 
     !======= Inclusions ===========
     use, intrinsic :: iso_c_binding
@@ -222,7 +222,7 @@ module klu_mod
 
     end function jacrob
 
-  end module klu_mod
+  end module roberts_klu_mod
   ! ------------------------------------------------------------------
 
 
@@ -231,14 +231,14 @@ module klu_mod
     !======= Inclusions ===========
     use fcvode_mod                    ! Fortran interface to CVODE
     use fsundials_context_mod         ! Fortran interface to SUNContext
-    use fnvector_serial_mod           ! Fortran interface to serial N_Vector
-    use fsunlinsol_klu_mod            ! Fortran interface to KLU sparse SUNLinearSolver
-    use fsundials_matrix_mod          ! Fortran interface to generic SUNMatrix
-    use fsunmatrix_sparse_mod         ! Fortran interface to sparse SUNMatrix
     use fsundials_nvector_mod         ! Fortran interface to generic N_Vector
+    use fsundials_matrix_mod          ! Fortran interface to generic SUNMatrix
     use fsundials_linearsolver_mod    ! Fortran interface to generic SUNLinearSolver
     use fsundials_nonlinearsolver_mod ! Fortran interface to generic SUNNonlinearSolver
-    use klu_mod                       ! ODE functions
+    use fnvector_serial_mod           ! Fortran interface to serial N_Vector
+    use fsunmatrix_sparse_mod         ! Fortran interface to sparse SUNMatrix
+    use fsunlinsol_klu_mod            ! Fortran interface to KLU sparse SUNLinearSolver
+    use roberts_klu_mod               ! ODE functions
 
     !======= Declarations =========
     implicit none
@@ -455,7 +455,7 @@ module klu_mod
 
     !======= Inclusions ===========
     use, intrinsic :: iso_c_binding
-    use klu_mod
+    use roberts_klu_mod
 
     !======= Declarations =========
     implicit none
@@ -492,7 +492,7 @@ module klu_mod
     !======= Inclusions ===========
     use, intrinsic :: iso_c_binding
     use fcvode_mod
-    use klu_mod
+    use roberts_klu_mod
 
     !======= Declarations =========
     implicit none
