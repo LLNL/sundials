@@ -34,9 +34,9 @@ macro(sundials_add_benchmark NAME EXECUTABLE BASE_BENCHMARK_NAME)
     endif()
   endif()
 
-  # Create default benchmark output directory if custom directory not defined
-  if(SUNDIALS_TEST_OUTPUT_DIR)
-    set(SUNDIALS_BENCHMARK_OUTPUT_DIR ${SUNDIALS_TEST_OUTPUT_DIR}/Benchmarking/${BASE_BENCHMARK_NAME})
+  # Create default benchmark caliper output directory if custom directory is not defined
+  if(SUNDIALS_CALIPER_OUTPUT_DIR)
+    set(SUNDIALS_BENCHMARK_OUTPUT_DIR ${SUNDIALS_CALIPER_OUTPUT_DIR}/Benchmarking/${BASE_BENCHMARK_NAME})
   else()
     set(SUNDIALS_BENCHMARK_OUTPUT_DIR ${PROJECT_BINARY_DIR}/Benchmarking/${BASE_BENCHMARK_NAME})
   endif()
@@ -50,7 +50,8 @@ macro(sundials_add_benchmark NAME EXECUTABLE BASE_BENCHMARK_NAME)
   set(TEST_RUNNER_ARGS
     "--verbose"
     "--executablename=$<TARGET_FILE:${EXECUTABLE}>"
-    "--outputdir=${SUNDIALS_BENCHMARK_OUTPUT_DIR}/${TARGET_NAME}"
+    "--outputdir=${TEST_OUTPUT_DIR}"
+    "--calidir=${SUNDIALS_BENCHMARK_OUTPUT_DIR}/${TARGET_NAME}"
     "--nodiff"
     )
   

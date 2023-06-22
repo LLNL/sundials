@@ -296,3 +296,5 @@ sundials_option(SUNDIALS_TEST_UNITTESTS BOOL
   "Include unit tests in make test" OFF ADVANCED)
 
 sundials_option(SUNDIALS_SCHEDULER_COMMAND STRING "Job scheduler command to use to launch SUNDIALS MPI tests" "" ADVANCED)
+
+sundials_option(SUNDIALS_CALIPER_OUTPUT_DIR PATH "Location to write caliper output files" "" ADVANCED)

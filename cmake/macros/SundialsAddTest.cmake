@@ -42,6 +42,12 @@
 #
 #  -D SUNDIALS_TEST_OUTPUT_DIR=<path to output directory>
 #  -D SUNDIALS_TEST_ANSWER_DIR=<path to answer directory>
+#
+# By default the caliper output is written to builddir/Caliper. This can be
+# changed by setting the cache variable SUNDIALS_CALIPER_OUTPUT_DIR.
+#
+# -D SUNDIALS_CALIPER_OUTPUT_DIR=<path to caliper output directory>
+#
 # ------------------------------------------------------------------------------
 
 macro(SUNDIALS_ADD_TEST NAME EXECUTABLE)
@@ -92,15 +98,16 @@ macro(SUNDIALS_ADD_TEST NAME EXECUTABLE)
 
       if(SUNDIALS_TEST_PROFILE)
         list(APPEND TEST_ARGS "--profile")
+        if (SUNDIALS_CALIPER_OUTPUT_DIR)
+          list(APPEND TEST_ARGS "--calidir=${SUNDIALS_CALIPER_OUTPUT_DIR}/Testing/${JOB_ID}")
+        else()
+          list(APPEND TEST_ARGS "--calidir=${TEST_OUTPUT_DIR}/Caliper/Testing")
+        endif()
       endif()
 
       # check for a non-default output directory
       if(SUNDIALS_TEST_OUTPUT_DIR)
-        if(JOB_ID)
-          list(APPEND TEST_ARGS "--outputdir=${SUNDIALS_TEST_OUTPUT_DIR}/Testing/${JOB_ID}")
-        else()
-          list(APPEND TEST_ARGS "--outputdir=${SUNDIALS_TEST_OUTPUT_DIR}/Testing")
-        endif()
+        list(APPEND TEST_ARGS "--outputdir=${SUNDIALS_TEST_OUTPUT_DIR}")
       else()
         list(APPEND TEST_ARGS "--outputdir=${TEST_OUTPUT_DIR}")
       endif()

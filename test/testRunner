@@ -72,6 +72,8 @@ def main():
     parser.add_argument('-v', '--verbose', dest='verbose', action='store_true',
                         help='run verbosely')
 
+    parser.add_argument('--calidir', dest='caliDir', type=str, help='path to directory to write .cali files to')
+
     args = parser.parse_args()
 
     if(args.verbose):
@@ -85,10 +87,12 @@ def main():
         print("buildDir=%s"%(args.buildDir))
         print("buildCmd=%s"%(args.buildCmd))
         print("profile=%s"%(args.profile))
+        print("caliDir=%s"%{args.caliDir})
 
     # regression test name and output directory
     testName  = args.testName
     outDir    = args.outputDir
+    caliDir   = args.caliDir
 
     # path to Sundials test directory
     testDir = os.path.dirname(sys.argv[0])
@@ -195,7 +199,7 @@ def main():
         # If profiling set the CALI_CONFIG environment variable
         if(args.profile):
             dateTime = datetime.datetime.now().strftime("%m%d%Y_%H%M%S")
-            profilePath = os.path.join(outDir, args.testName+".%s.cali" % dateTime)
+            profilePath = os.path.join(caliDir, args.testName+".%s.cali" % dateTime)
             os.environ['CALI_SERVICES_ENABLE'] = 'env'
             os.environ['CALI_CONFIG'] = 'spot(output=%s)' % profilePath
 
