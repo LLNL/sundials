@@ -103,7 +103,8 @@ string(REGEX MATCH "[0-9]+\.[0-9]+\.[0-9]+" _hypre_release_version "${_hypre_con
 message(STATUS "hypre Version: ${_hypre_release_version}")
 
 # --- Parse config for hypre backends ---
-foreach(_backend CUDA HIP)
+set(HYPRE_BACKENDS SERIAL)
+foreach(_backend HIP CUDA)
   file(STRINGS "${HYPRE_CONFIGH_PATH}" _hypre_has_backend REGEX "^#define HYPRE_USING_${_backend}")
   if(_hypre_has_backend)
     set(HYPRE_BACKENDS "${_backend};${HYPRE_BACKENDS}")

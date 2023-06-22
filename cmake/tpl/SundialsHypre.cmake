@@ -72,14 +72,28 @@ message(STATUS "HYPRE_INCLUDE_DIR: ${HYPRE_INCLUDE_DIR}")
 # -----------------------------------------------------------------------------
 
 # --- Ensure hypre built with requested backend ---
+set(HYPRE_BACKEND_NOT_AVAILABLE_MESSAGE "\
+************************************************************************\n\
+ERROR: Requested that SUNDIALS use the ${SUNDIALS_HYPRE_BACKENDS} hypre backend,\n\
+       but hypre was built with the ${HYPRE_BACKENDS} backend(s).\n\
+       Please set SUNDIALS_HYPRE_BACKENDS to an available backend\n\
+       or rebuild hypre with the desired backend.\n\
+************************************************************************")
 message(STATUS "Requested SUNDIALS hypre backend: ${SUNDIALS_HYPRE_BACKENDS}")
-if((SUNDIALS_HYPRE_BACKENDS MATCHES "CUDA") AND
-   (NOT HYPRE_BACKENDS MATCHES "CUDA"))
-  print_error("Requested that SUNDIALS uses the CUDA hypre backend, but hypre was not built with the CUDA backend.")
+list(FIND HYPRE_BACKENDS ${SUNDIALS_HYPRE_BACKENDS} _idx)
+if(_idx EQUAL -1)
+  message(FATAL_ERROR ${HYPRE_BACKEND_NOT_AVAILABLE_MESSAGE})
 endif()
-if((SUNDIALS_HYPRE_BACKENDS MATCHES "HIP") AND
-   (NOT HYPRE_BACKENDS MATCHES "HIP"))
-  print_error("Requested that SUNDIALS uses the HIP hypre backend, but hypre was not built with the HIP backend.")
+
+# --- Warn user if requesting default (SERIAL) backend when another backend is available ---
+set(HYPRE_NONSERIAL_BACKEND_AVAILABLE_MESSAGE "\
+************************************************************************\n\
+NOTICE: hypre was built with backends other than SERIAL,\n\
+        but SUNDIALS_HYPRE_BACKENDS is set to the default SERIAL backend.\n\
+        SUNDIALS will use the SERIAL hypre backend unless otherwise specified.\n\
+************************************************************************")
+if((SUNDIALS_HYPRE_BACKENDS MATCHES "SERIAL") AND (NOT HYPRE_BACKENDS MATCHES "SERIAL"))
+  message(NOTICE ${HYPRE_NONSERIAL_BACKEND_AVAILABLE_MESSAGE})
 endif()
 
 # --- Test hypre libraries ---
