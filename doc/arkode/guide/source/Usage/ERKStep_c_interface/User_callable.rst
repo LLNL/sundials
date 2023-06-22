@@ -496,6 +496,8 @@ Optional inputs for ERKStep
    +----------------------------------------------------+-----------------------------------------+------------------------+
    | Set a value for :math:`t_{stop}`                   | :c:func:`ERKStepSetStopTime()`          | undefined              |
    +----------------------------------------------------+-----------------------------------------+------------------------+
+   | Interpolate at :math:`t_{stop}`                    | :c:func:`ERKStepInterpolateStopTime()`  | ``SUNFALSE``           |
+   +----------------------------------------------------+-----------------------------------------+------------------------+
    | Disable the stop time                              | :c:func:`ERKStepClearStopTime`          | N/A                    |
    +----------------------------------------------------+-----------------------------------------+------------------------+
    | Supply a pointer for user data                     | :c:func:`ERKStepSetUserData()`          | ``NULL``               |
@@ -884,6 +886,23 @@ Optional inputs for ERKStep
       A stop time not reached before a call to :c:func:`ERKStepReInit` or
       :c:func:`ERKStepReset` will remain active but can be disabled by calling
       :c:func:`ERKStepClearStopTime`.
+
+
+.. c:function:: int ERKStepInterpolateStopTime(void* arkode_mem, booleantype interp)
+
+   Specifies that the output solution should be interpolated when the current
+   :math:`t` equals the specified ``tstop`` (instead of merely copying the
+   internal solution :math:`y_n`).
+
+   **Arguments:**
+      * *arkode_mem* -- pointer to the ERKStep memory block.
+      * *interp* -- flag indicating to use interpolation (1) or copy (0).
+
+   **Return value:**
+      * *ARK_SUCCESS* if successful
+      * *ARK_MEM_NULL* if the ARKStep memory is ``NULL``
+
+   .. versionadded:: 5.6.0
 
 
 .. c:function:: int ERKStepClearStopTime(void* arkode_mem)

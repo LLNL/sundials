@@ -695,6 +695,8 @@ Optional inputs for MRIStep
    +---------------------------------------------------------------+-----------------------------------------+------------------------+
    | Set a value for :math:`t_{stop}`                              | :c:func:`MRIStepSetStopTime()`          | undefined              |
    +---------------------------------------------------------------+-----------------------------------------+------------------------+
+   | Interpolate at :math:`t_{stop}`                               | :c:func:`MRIStepInterpolateStopTime()`  | ``SUNFALSE``           |
+   +---------------------------------------------------------------+-----------------------------------------+------------------------+
    | Disable the stop time                                         | :c:func:`MRIStepClearStopTime`          | N/A                    |
    +---------------------------------------------------------------+-----------------------------------------+------------------------+
    | Supply a pointer for user data                                | :c:func:`MRIStepSetUserData()`          | ``NULL``               |
@@ -1103,6 +1105,23 @@ Optional inputs for MRIStep
       A stop time not reached before a call to :c:func:`MRIStepReInit` or
       :c:func:`MRIStepReset` will remain active but can be disabled by calling
       :c:func:`MRIStepClearStopTime`.
+
+
+.. c:function:: int MRIStepInterpolateStopTime(void* arkode_mem, booleantype interp)
+
+   Specifies that the output solution should be interpolated when the current
+   :math:`t` equals the specified ``tstop`` (instead of merely copying the
+   internal solution :math:`y_n`).
+
+   **Arguments:**
+      * *arkode_mem* -- pointer to the MRIStep memory block.
+      * *interp* -- flag indicating to use interpolation (1) or copy (0).
+
+   **Return value:**
+      * *ARK_SUCCESS* if successful
+      * *ARK_MEM_NULL* if the ARKStep memory is ``NULL``
+
+   .. versionadded:: 5.6.0
 
 
 .. c:function:: int MRIStepClearStopTime(void* arkode_mem)
