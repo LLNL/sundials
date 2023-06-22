@@ -48,14 +48,19 @@ if(ENABLE_HYPRE)
   endif()
 endif()
 
-# --- hypre with CUDA backend requires bulding with CUDA enabled ---
-if((SUNDIALS_HYPRE_BACKENDS MATCHES "CUDA") AND (NOT ENABLE_CUDA))
-  message(FATAL_ERROR "hypre with a CUDA backend requires ENABLE_CUDA = ON")
-endif()
-
-# --- hypre with HIP backend requires bulding with HIP enabled ---
-if((SUNDIALS_HYPRE_BACKENDS MATCHES "HIP") AND (NOT ENABLE_HIP))
-  message(FATAL_ERROR "hypre with a HIP backend requires ENABLE_HIP = ON")
+# --- Ensure requested backend is enabled in SUNDIALS ---
+set(HYPRE_BACKEND_NOT_ENABLED_MESSAGE "\
+************************************************************************\n\
+ERROR: Requested that SUNDIALS use the ${SUNDIALS_HYPRE_BACKENDS} hypre backend,\n\
+       but ENABLE_${SUNDIALS_HYPRE_BACKENDS} is set to OFF.\n\
+       \n\
+       Please set ENABLE_${SUNDIALS_HYPRE_BACKENDS} to ON\n\
+       or request a different hypre backend.\n\
+************************************************************************")
+if(NOT SUNDIALS_HYPRE_BACKENDS MATCHES "SERIAL")
+  if(NOT ENABLE_${SUNDIALS_HYPRE_BACKENDS})
+    message(FATAL_ERROR ${HYPRE_BACKEND_NOT_ENABLED_MESSAGE})
+  endif()
 endif()
 
 # -----------------------------------------------------------------------------
@@ -76,6 +81,7 @@ set(HYPRE_BACKEND_NOT_AVAILABLE_MESSAGE "\
 ************************************************************************\n\
 ERROR: Requested that SUNDIALS use the ${SUNDIALS_HYPRE_BACKENDS} hypre backend,\n\
        but hypre was built with the ${HYPRE_BACKENDS} backend(s).\n\
+       \n\
        Please set SUNDIALS_HYPRE_BACKENDS to an available backend\n\
        or rebuild hypre with the desired backend.\n\
 ************************************************************************")
@@ -90,9 +96,11 @@ set(HYPRE_NONSERIAL_BACKEND_AVAILABLE_MESSAGE "\
 ************************************************************************\n\
 NOTICE: hypre was built with backends other than SERIAL,\n\
         but SUNDIALS_HYPRE_BACKENDS is set to the default SERIAL backend.\n\
+        \n\
         SUNDIALS will use the SERIAL hypre backend unless otherwise specified.\n\
 ************************************************************************")
-if((SUNDIALS_HYPRE_BACKENDS MATCHES "SERIAL") AND (NOT HYPRE_BACKENDS MATCHES "SERIAL"))
+list(LENGTH HYPRE_BACKENDS _len)
+if((SUNDIALS_HYPRE_BACKENDS MATCHES "SERIAL") AND (_len GREATER 1))
   message(NOTICE ${HYPRE_NONSERIAL_BACKEND_AVAILABLE_MESSAGE})
 endif()
 
