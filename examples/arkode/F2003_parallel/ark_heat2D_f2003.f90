@@ -76,9 +76,9 @@ module HeatUserData
   double precision :: ky                                ! y-directional diffusion coefficient 
   double precision, dimension(:,:), allocatable :: h    ! heat source vector
   double precision, dimension(:,:), allocatable :: d    ! inverse of Jacobian diagonal
-  integer(c_int), target :: comm                        ! communicator object
-  integer(c_int) :: myid                                ! MPI process ID
-  integer(c_int) :: nprocs                              ! total number of MPI processes
+  integer, target  :: comm                              ! communicator object
+  integer(c_int)   :: myid                              ! MPI process ID
+  integer(c_int)   :: nprocs                            ! total number of MPI processes
 !   type(c_ptr) :: sunctx                                 ! SUNDIALS simulation context
 !   type(c_ptr) :: logger                                 ! SUNDIALS logger (optional, must change CMake)
   logical :: HaveNbor(2,2)                              ! flags denoting neighbor on boundary
@@ -115,7 +115,6 @@ contains
     ky = 0.d0
     if (allocated(h))  deallocate(h)
     if (allocated(d))  deallocate(d)
-    comm = MPI_COMM_WORLD
     myid = 0
     nprocs = 0
     HaveNbor = .false.
@@ -138,7 +137,7 @@ contains
     ! declarations
     implicit none
     include "mpif.h"
-    integer(c_int), intent(out) :: ierr
+    integer(c_int), intent(inout) :: ierr
     integer(c_int) :: dims(2), periods(2), coords(2)
     
     ! internals
@@ -717,6 +716,62 @@ contains
 
 end module Implicit_and_Prec_Fn
 
+module Output_Fns
+
+      use, intrinsic :: iso_c_binding
+      use fsundials_nvector_mod         ! Access generic N_Vector
+
+      implicit none
+      save
+
+      integer(c_long) :: i, j
+
+   contains
+   
+      subroutine InitOutput_Disk(sunvec_y, stream, nxl, nyl)
+
+         implicit none
+
+         type(N_Vector), intent(inout) :: sunvec_y
+         integer(c_int), intent(in)    :: stream
+         integer(c_long), intent(in)   :: nxl, nyl
+
+         double precision, pointer, dimension(:,:) :: y
+         y(1:nxl,1:nyl) => FN_VGetArrayPointer(sunvec_y)
+
+         ! Output initial condition to disk
+         do j=1,nyl
+            do i=1,nxl
+               write(stream,'(es25.16)',advance='no') y(i,j)
+            end do
+         end do
+         write(stream,*) "  "
+
+      end subroutine InitOutput_Disk
+      
+      subroutine OutputResults_Disk(sunvec_y, stream, nxl, nyl)
+
+         implicit none
+
+         type(N_Vector), intent(inout) :: sunvec_y
+         integer(c_int), intent(in)    :: stream
+         integer(c_long), intent(in)   :: nxl, nyl
+
+         double precision, pointer, dimension(:,:) :: y
+         y(1:nxl,1:nyl) => FN_VGetArrayPointer(sunvec_y)
+
+         ! output results to disk 
+         do j=1,nyl
+            do i=1,nxl
+               write(stream,'(es25.16)',advance='no') y(i,j)
+            end do
+         end do
+         write(stream,*) "  "
+
+      end subroutine OutputResults_Disk
+
+end module Output_Fns
+
 !-----------------------------------------------------------------
 ! Main driver program
 !-----------------------------------------------------------------
@@ -725,6 +780,7 @@ program driver
   ! inclusions
   use HeatUserData
   use Implicit_and_Prec_Fn
+  use Output_Fns
   use fsundials_types_mod           ! sundials defined types
   use fsundials_context_mod         ! Access sundials context
   use farkode_mod                   ! Access ARKode
@@ -759,12 +815,11 @@ program driver
   type(SUNLinearSolver), pointer :: sunlinsol_LS
   type(SUNMatrix), pointer :: sunmat_A
   type(c_ptr), pointer     :: arkode_mem           ! ARKODE memory structure
-  type(c_ptr), pointer     :: sunctx               ! SUNDIALS context structure
+  type(c_ptr)              :: sunctx               ! SUNDIALS context structure
+  integer, pointer         :: commptr              ! comm pointer to initialize sunctx
 
-  double precision, pointer, dimension(:,:) :: y
-  integer, pointer   :: commptr
   double precision   :: t(1), dTout, tout, urms
-  integer(c_long)    :: N, Ntot, i, j
+  integer(c_long)    :: N, Ntot
   integer(c_int)     :: flag, retval, ioutput
   logical            :: outproc
   character(len=100) :: outname
@@ -781,6 +836,14 @@ program driver
      call MPI_Finalize(flag)
   end if
 
+  ! Create SUNDIALS simulation context
+  comm = MPI_COMM_WORLD
+  commptr => comm
+  retval = FSUNContext_Create(c_loc(commptr), sunctx)
+  if (retval /= 0) then
+    print *, "Error: FSUNContext_Create returned ",retval
+    call MPI_Finalize(flag)
+  end if
 
 !   ! Configure SUNDIALS logging via the runtime API. 
 !   ! This requires that SUNDIALS was configured with the CMake options
@@ -809,20 +872,18 @@ program driver
   dx = 1.d0/(nx-1)   ! x mesh spacing 
   dy = 1.d0/(ny-1)   ! x mesh spacing 
 
-  ! Create SUNDIALS simulation context
-  commptr => comm
-  retval = FSUNContext_Create(c_loc(commptr), sunctx)
-  if (retval /= 0) then
-    print *, "Error: FSUNContext_Create returned ",retval
-    call MPI_Finalize(flag)
-  end if
-
   ! Set up parallel decomposition (computes local mesh sizes)
   call SetupDecomp(flag)
   if (flag /= MPI_SUCCESS) then
      write(0,*) "Error in SetupDecomp = ", flag
      call MPI_Finalize(flag)
   end if
+
+  ! Initialize data structures
+  N = nxl*nyl
+  Ntot = nx*ny
+  ! Create solution vector
+  sunvec_y  => FN_VNew_Parallel(comm, N, Ntot, sunctx)
 
   ! Initial problem output 
   outproc = (myid == 0)
@@ -841,14 +902,8 @@ program driver
      write(6,*) "  "
   end if
 
-  ! Initialize data structures -- bigger changes start here
-  N = nxl*nyl
-  Ntot = nx*ny
-  ! Create solution vector
-  sunvec_y  => FN_VNew_Parallel(comm, N, Ntot, sunctx)
   ! Set initial conditions
-  y(1:nxl,1:nyl) => FN_VGetArrayPointer(sunvec_y)
-  y = 0.d0
+  call FN_VConst(0.d0, sunvec_y)
 
   ! initialize PCG linear solver module
   sunlinsol_LS => FSUNLinSol_PCG(sunvec_y, PCGpretype, PCGmaxl, sunctx)
@@ -923,13 +978,7 @@ program driver
   write(outname,'(6Hheat2d,f4.3,4H.txt)') myid/1000.0
   open(101, file=outname)
 
-  ! Output initial condition to disk
-  do j=1,nyl
-     do i=1,nxl
-        write(101,'(es25.16)',advance='no') y(i,j)
-     end do
-  end do
-  write(101,*) "  "
+  call InitOutput_Disk(sunvec_y, 101, nxl, nyl)
 
   ! Main time-stepping loop: calls ARKode to perform the integration, then
   ! prints results.  Stops when the final time has been reached
@@ -961,13 +1010,7 @@ program driver
         exit
      end if
 
-     ! output results to disk 
-     do j=1,nyl
-        do i=1,nxl
-           write(101,'(es25.16)',advance='no') y(i,j)
-        end do
-     end do
-     write(101,*) "  "
+     call OutputResults_Disk(sunvec_y, 101, nxl, nyl)
      
   end do
   if (outproc) then

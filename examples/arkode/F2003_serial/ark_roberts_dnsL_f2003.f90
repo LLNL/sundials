@@ -32,7 +32,7 @@
 ! t = .4, 4, 40, ..., 4e10.
 ! ------------------------------------------------------------------
 
-module dns_mod
+module dnsL_mod
 
     !======= Inclusions ===========
     use, intrinsic :: iso_c_binding
@@ -240,7 +240,7 @@ module dns_mod
 
     end function jacrob
 
-  end module dns_mod
+  end module dnsL_mod
   ! ------------------------------------------------------------------
 
 
@@ -254,13 +254,13 @@ module dns_mod
     use fsundials_context_mod         ! Fortran interface to SUNContext
     use fnvector_serial_mod           ! Fortran interface to serial N_Vector
     use fsunmatrix_dense_mod          ! Fortran interface to dense SUNMatrix
-    use fsunlinsol_dense_mod          ! Fortran interface to dense SUNLinearSolver
+    use fsunlinsol_lapackdense_mod    ! Fortran interface to LAPACK SUNLinearSolver
     use fsunnonlinsol_newton_mod      ! Fortran interface to Newton SUNNonlinearSolver
     use fsundials_matrix_mod          ! Fortran interface to generic SUNMatrix
     use fsundials_nvector_mod         ! Fortran interface to generic N_Vector
     use fsundials_linearsolver_mod    ! Fortran interface to generic SUNLinearSolver
     use fsundials_nonlinearsolver_mod ! Fortran interface to generic SUNNonlinearSolver
-    use dns_mod                       ! ODE functions
+    use dnsL_mod                      ! ODE functions
 
     !======= Declarations =========
     implicit none
@@ -355,7 +355,7 @@ module dns_mod
     end if
 
     ! Create dense SUNLinearSolver object
-    sunlinsol_LS => FSUNLinSol_Dense(sunvec_y, sunmat_A, sunctx)
+    sunlinsol_LS => FSUNLinSol_LapackDense(sunvec_y, sunmat_A, sunctx)
     if (.not. associated(sunlinsol_LS)) then
        print *, 'ERROR: sunlinsol = NULL'
        stop 1
@@ -503,7 +503,7 @@ module dns_mod
 
     !======= Inclusions ===========
     use, intrinsic :: iso_c_binding
-    use dns_mod
+    use dnsL_mod
 
     !======= Declarations =========
     implicit none
@@ -519,7 +519,7 @@ module dns_mod
     print *, "arkRoberts_dnsL.f03: Robertson ARK ODE serial example problem for ARKODE"
     print *, "         Three equation chemical kinetics problem."
     print *, " "
-    print *, "Linear solver: DENSE, with user-supplied Jacobian."
+    print *, "Linear solver: LAPACK DENSE, with user-supplied Jacobian."
     print '(a,f6.4,a,3(es7.0,1x))', "Tolerance parameters:  rtol = ",rtol,"   atol = ", avtol
     print '(a,3(f5.2,1x),a)', "Initial conditions y0 = (",y,")"
     print *, "Constraints and id not used."
@@ -541,7 +541,7 @@ module dns_mod
     use, intrinsic :: iso_c_binding
     use farkode_mod
     use farkode_arkstep_mod
-    use dns_mod
+    use dnsL_mod
 
     !======= Declarations =========
     implicit none
