@@ -43,7 +43,7 @@ sundials_add_library(sundials_nvecparhyp
     ${_extra_includes}
   COMPILE_DEFINITIONS
     PUBLIC
-    USE_CUDA
+    $<$<BOOLEAN:SUNDIALS_HYPRE_BACKENDS MATCHES "CUDA">:USE_CUDA>
   COMPILE_FEATURES
     PUBLIC
     ${_cxx_std}
