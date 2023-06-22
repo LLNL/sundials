@@ -1,5 +1,6 @@
 !-----------------------------------------------------------------
 ! Programmer(s): Daniel R. Reynolds @ SMU
+!                Daniel M. Margolis @ SMU
 !-----------------------------------------------------------------
 ! SUNDIALS Copyright Start
 ! Copyright (c) 2002-2023, Lawrence Livermore National Security
@@ -12,13 +13,13 @@
 ! SUNDIALS Copyright End
 !-----------------------------------------------------------------
 ! Example problem:
-! 
-! The following test simulates a simple anisotropic 2D heat 
+!
+! The following test simulates a simple anisotropic 2D heat
 ! equation,
 !    u_t = kx*u_xx + ky*u_yy + h,
 ! for t in [0, 10], (x,y) in [0, 1]^2, with initial conditions
 !    u(0,x,y) =  0,
-! stationary boundary conditions, i.e. 
+! stationary boundary conditions, i.e.
 !    u_t(t,0,y) = u_t(t,1,y) = u_t(t,x,0) = u_t(t,x,1) = 0,
 ! and a heat source of the form
 !    h(x,y) = sin(pi*x)*sin(2*pi*y).
@@ -26,22 +27,22 @@
 ! Under this setup, the problem has an analytical solution:
 !    u(t,x,y) = a(t)*sin(pi*x)*sin(2*pi*y), where
 !    a(t) = (1 - exp(-(kx+4*ky)*pi^2*t)) / ((kx+4*ky)*pi^2).
-! 
-! The spatial derivatives are computed using second-order 
+!
+! The spatial derivatives are computed using second-order
 ! centered differences, with the data distributed over nx*ny
 ! points on a uniform spatial grid.
 !
-! The spatial grid parameters nx and ny, the parameters kx and ky, 
-! as well as the desired relative and absolute solver tolerances, 
+! The spatial grid parameters nx and ny, the parameters kx and ky,
+! as well as the desired relative and absolute solver tolerances,
 ! are provided in the input file input_heat2D.txt.
-! 
-! This program solves the problem with a DIRK method.  This 
-! employs a Newton iteration with the PCG iterative linear solver, 
-! which itself uses a Jacobi preconditioner.  The example uses the 
-! built-in finite-difference Jacobian-vector product routine, but 
+!
+! This program solves the problem with a DIRK method.  This
+! employs a Newton iteration with the PCG iterative linear solver,
+! which itself uses a Jacobi preconditioner.  The example uses the
+! built-in finite-difference Jacobian-vector product routine, but
 ! supplies both the RHS and preconditioner setup/solve functions.
 !
-! 20 outputs are printed at equal intervals, and run statistics 
+! 20 outputs are printed at equal intervals, and run statistics
 ! are printed at the end.
 !-----------------------------------------------------------------
 
@@ -62,18 +63,18 @@ module HeatUserData
   implicit none
   save
 
-  integer(c_long)  :: nx                                ! global number of x grid points 
-  integer(c_long)  :: ny                                ! global number of y grid points 
+  integer(c_long)  :: nx                                ! global number of x grid points
+  integer(c_long)  :: ny                                ! global number of y grid points
   integer(c_long)  :: is                                ! global x indices of this subdomain
   integer(c_long)  :: ie
   integer(c_long)  :: js                                ! global y indices of this subdomain
   integer(c_long)  :: je
-  integer(c_long)  :: nxl                               ! local number of x grid points 
-  integer(c_long)  :: nyl                               ! local number of y grid points 
-  double precision :: dx                                ! x-directional mesh spacing 
-  double precision :: dy                                ! y-directional mesh spacing 
-  double precision :: kx                                ! x-directional diffusion coefficient 
-  double precision :: ky                                ! y-directional diffusion coefficient 
+  integer(c_long)  :: nxl                               ! local number of x grid points
+  integer(c_long)  :: nyl                               ! local number of y grid points
+  double precision :: dx                                ! x-directional mesh spacing
+  double precision :: dy                                ! y-directional mesh spacing
+  double precision :: kx                                ! x-directional diffusion coefficient
+  double precision :: ky                                ! y-directional diffusion coefficient
   double precision, dimension(:,:), allocatable :: h    ! heat source vector
   double precision, dimension(:,:), allocatable :: d    ! inverse of Jacobian diagonal
   integer, target  :: comm                              ! communicator object
@@ -139,7 +140,7 @@ contains
     include "mpif.h"
     integer(c_int), intent(inout) :: ierr
     integer(c_int) :: dims(2), periods(2), coords(2)
-    
+
     ! internals
 
     ! check that this has not been called before
@@ -213,7 +214,7 @@ contains
     ! allocate temporary vectors
     allocate(h(nxl,nyl))    ! Create vector for heat source
     allocate(d(nxl,nyl))    ! Create vector for Jacobian diagonal
-    
+
     ierr = 0     ! return with success flag
     return
   end subroutine SetupDecomp
@@ -230,13 +231,13 @@ contains
       include "mpif.h"
       type(N_Vector), intent(inout) :: sunvec_y
       integer(c_int), intent(out)   :: ierr
-      double precision, pointer, dimension(:,:) :: y
+      real(c_double), pointer, dimension(:,:) :: y
       integer(c_int)  :: reqSW, reqSE, reqSS, reqSN, reqRW, reqRE, reqRS, reqRN;
       integer(c_int)  :: stat(MPI_STATUS_SIZE)
       integer(c_long) :: i
       integer(c_int)  :: ipW, ipE, ipS, ipN
       integer(c_int)  :: coords(2), dims(2), periods(2), nbcoords(2)
-      
+
       ! internals
 
       y(1:nxl, 1:nyl) => FN_VGetArrayPointer(sunvec_y)
@@ -250,7 +251,7 @@ contains
       if (HaveNbor(1,1)) then
          nbcoords = (/ coords(1)-1, coords(2) /)
          call MPI_Cart_rank(comm, nbcoords, ipW, ierr)
-         if (ierr /= MPI_SUCCESS) then 
+         if (ierr /= MPI_SUCCESS) then
             write(0,*) "Error in MPI_Cart_rank = ", ierr
             return
          end if
@@ -258,7 +259,7 @@ contains
       if (HaveNbor(1,2)) then
          nbcoords = (/ coords(1)+1, coords(2) /)
          call MPI_Cart_rank(comm, nbcoords, ipE, ierr)
-         if (ierr /= MPI_SUCCESS) then 
+         if (ierr /= MPI_SUCCESS) then
             write(0,*) "Error in MPI_Cart_rank = ", ierr
             return
          end if
@@ -266,7 +267,7 @@ contains
       if (HaveNbor(2,1)) then
          nbcoords = (/ coords(1), coords(2)-1 /)
          call MPI_Cart_rank(comm, nbcoords, ipS, ierr)
-         if (ierr /= MPI_SUCCESS) then 
+         if (ierr /= MPI_SUCCESS) then
             write(0,*) "Error in MPI_Cart_rank = ", ierr
             return
          end if
@@ -274,7 +275,7 @@ contains
       if (HaveNbor(2,2)) then
          nbcoords = (/ coords(1), coords(2)+1 /)
          call MPI_Cart_rank(comm, nbcoords, ipN, ierr)
-         if (ierr /= MPI_SUCCESS) then 
+         if (ierr /= MPI_SUCCESS) then
             write(0,*) "Error in MPI_Cart_rank = ", ierr
             return
          end if
@@ -284,7 +285,7 @@ contains
       if (HaveNbor(1,1)) then
          call MPI_Irecv(Wrecv, nyl, MPI_DOUBLE_PRECISION, ipW, &
                         MPI_ANY_TAG, comm, reqRW, ierr)
-         if (ierr /= MPI_SUCCESS) then 
+         if (ierr /= MPI_SUCCESS) then
             write(0,*) "Error in MPI_Irecv = ", ierr
             return
          end if
@@ -292,7 +293,7 @@ contains
       if (HaveNbor(1,2)) then
          call MPI_Irecv(Erecv, nyl, MPI_DOUBLE_PRECISION, ipE, &
                         MPI_ANY_TAG, comm, reqRE, ierr)
-         if (ierr /= MPI_SUCCESS) then 
+         if (ierr /= MPI_SUCCESS) then
             write(0,*) "Error in MPI_Irecv = ", ierr
             return
          end if
@@ -300,7 +301,7 @@ contains
       if (HaveNbor(2,1)) then
          call MPI_Irecv(Srecv, nxl, MPI_DOUBLE_PRECISION, ipS, &
                         MPI_ANY_TAG, comm, reqRS, ierr)
-         if (ierr /= MPI_SUCCESS) then 
+         if (ierr /= MPI_SUCCESS) then
             write(0,*) "Error in MPI_Irecv = ", ierr
             return
          end if
@@ -308,7 +309,7 @@ contains
       if (HaveNbor(2,2)) then
          call MPI_Irecv(Nrecv, nxl, MPI_DOUBLE_PRECISION, ipN, &
                         MPI_ANY_TAG, comm, reqRN, ierr)
-         if (ierr /= MPI_SUCCESS) then 
+         if (ierr /= MPI_SUCCESS) then
             write(0,*) "Error in MPI_Irecv = ", ierr
             return
          end if
@@ -321,7 +322,7 @@ contains
          end do
          call MPI_Isend(Wsend, nyl, MPI_DOUBLE_PRECISION, ipW, 0, &
                         comm, reqSW, ierr)
-         if (ierr /= MPI_SUCCESS) then 
+         if (ierr /= MPI_SUCCESS) then
             write(0,*) "Error in MPI_Isend = ", ierr
             return
          end if
@@ -332,7 +333,7 @@ contains
          end do
          call MPI_Isend(Esend, nyl, MPI_DOUBLE_PRECISION, ipE, 1, &
                         comm, reqSE, ierr)
-         if (ierr /= MPI_SUCCESS) then 
+         if (ierr /= MPI_SUCCESS) then
             write(0,*) "Error in MPI_Isend = ", ierr
             return
          end if
@@ -343,7 +344,7 @@ contains
          end do
          call MPI_Isend(Ssend, nxl, MPI_DOUBLE_PRECISION, ipS, 2, &
                         comm, reqSS, ierr)
-         if (ierr /= MPI_SUCCESS) then 
+         if (ierr /= MPI_SUCCESS) then
             write(0,*) "Error in MPI_Isend = ", ierr
             return
          end if
@@ -354,7 +355,7 @@ contains
          end do
          call MPI_Isend(Nsend, nxl, MPI_DOUBLE_PRECISION, ipN, 3, &
                         comm, reqSN, ierr)
-         if (ierr /= MPI_SUCCESS) then 
+         if (ierr /= MPI_SUCCESS) then
             write(0,*) "Error in MPI_Isend = ", ierr
             return
          end if
@@ -363,48 +364,48 @@ contains
       ! wait for messages to finish
       if (HaveNbor(1,1)) then
          call MPI_Wait(reqRW, stat, ierr)
-         if (ierr /= MPI_SUCCESS) then 
+         if (ierr /= MPI_SUCCESS) then
             write(0,*) "Error in MPI_Wait = ", ierr
             return
          end if
          call MPI_Wait(reqSW, stat, ierr)
-         if (ierr /= MPI_SUCCESS) then 
+         if (ierr /= MPI_SUCCESS) then
             write(0,*) "Error in MPI_Wait = ", ierr
             return
          end if
       end if
       if (HaveNbor(1,2)) then
          call MPI_Wait(reqRE, stat, ierr)
-         if (ierr /= MPI_SUCCESS) then 
+         if (ierr /= MPI_SUCCESS) then
             write(0,*) "Error in MPI_Wait = ", ierr
             return
          end if
          call MPI_Wait(reqSE, stat, ierr)
-         if (ierr /= MPI_SUCCESS) then 
+         if (ierr /= MPI_SUCCESS) then
             write(0,*) "Error in MPI_Wait = ", ierr
             return
          end if
       end if
       if (HaveNbor(2,1)) then
          call MPI_Wait(reqRS, stat, ierr)
-         if (ierr /= MPI_SUCCESS) then 
+         if (ierr /= MPI_SUCCESS) then
             write(0,*) "Error in MPI_Wait = ", ierr
             return
          end if
          call MPI_Wait(reqSS, stat, ierr)
-         if (ierr /= MPI_SUCCESS) then 
+         if (ierr /= MPI_SUCCESS) then
             write(0,*) "Error in MPI_Wait = ", ierr
             return
          end if
       end if
       if (HaveNbor(2,2)) then
          call MPI_Wait(reqRN, stat, ierr)
-         if (ierr /= MPI_SUCCESS) then 
+         if (ierr /= MPI_SUCCESS) then
             write(0,*) "Error in MPI_Wait = ", ierr
             return
          end if
          call MPI_Wait(reqSN, stat, ierr)
-         if (ierr /= MPI_SUCCESS) then 
+         if (ierr /= MPI_SUCCESS) then
             write(0,*) "Error in MPI_Wait = ", ierr
             return
          end if
@@ -448,7 +449,7 @@ contains
       include "mpif.h"
       type(N_Vector), intent(inout) :: sunvec_y
       integer(c_int), intent(out)   :: ierr
-      double precision, pointer     :: y(:,:)
+      real(c_double), pointer     :: y(:,:)
       double precision, intent(out) :: yrms
       double precision :: lsum, gsum
 
@@ -493,22 +494,22 @@ contains
       !-----------------------------------------------------------------
       ! declarations
       use HeatUserData
-      
+
       implicit none
       include "mpif.h"
-      
-      double precision :: t
+
+      real(c_double) :: t
       type(N_Vector)   :: sunvec_y
       type(N_Vector)   :: sunvec_ydot
       type(c_ptr)      :: user_data
       double precision :: c1, c2, c3
       integer(c_long)  :: ii, jj
-      double precision, pointer, dimension(nxl,nyl) :: y(:,:)
-      double precision, pointer, dimension(nxl,nyl) :: ydot(:,:)
+      real(c_double), pointer, dimension(nxl,nyl) :: y(:,:)
+      real(c_double), pointer, dimension(nxl,nyl) :: ydot(:,:)
 
       ! internals
 
-      ! Initialize ydot to zero 
+      ! Initialize ydot to zero
       y(1:nxl,1:nyl)    => FN_VGetArrayPointer(sunvec_y)
       ydot(1:nxl,1:nyl) => FN_VGetArrayPointer(sunvec_ydot)
       ydot = 0.d0
@@ -566,7 +567,7 @@ contains
          ydot(ii,jj) = c1*(Wrecv(jj)+y(ii+1,jj)) + c2*(y(ii,jj-1)+Nrecv(ii)) + c3*y(ii,jj)
       end if
       if (HaveNbor(1,2) .and. HaveNbor(2,1)) then  ! South-East corner
-         ii=nxl 
+         ii=nxl
          jj=1
          ydot(ii,jj) = c1*(y(ii-1,jj)+Erecv(jj)) + c2*(Srecv(ii)+y(ii,jj+1)) + c3*y(ii,jj)
       end if
@@ -578,7 +579,7 @@ contains
 
       ydot = ydot + h         ! add in heat source
 
-      ierr = 0                ! Return with success 
+      ierr = 0                ! Return with success
       return
 
       end function farkifun
@@ -595,7 +596,8 @@ contains
       implicit none
       type(N_Vector)   :: sunvec_y
       type(N_Vector)   :: sunvec_fy
-      double precision :: t, gamma, c
+      real(c_double) :: t, gamma
+      double precision :: c
       integer(c_int), value :: jok
       integer(c_int)   :: jcur
       type(c_ptr)      :: user_data
@@ -608,7 +610,7 @@ contains
       d = 1.d0/c
 
       jcur = 1 ! Update jcur flag
-      ierr = 0 ! Return with success 
+      ierr = 0 ! Return with success
       return
       end function farkpset
 
@@ -623,17 +625,17 @@ contains
       implicit none
 
       type(N_Vector)   :: sunvec_y, sunvec_fy, sunvec_r, sunvec_z
-      double precision :: t, gamma, delta
+      real(c_double)   :: t, gamma, delta
       integer(c_int)   :: lr
       type(c_ptr)      :: user_data
-      double precision, pointer, dimension(nxl, nyl) :: r(:,:), z(:,:)
+      real(c_double), pointer, dimension(nxl, nyl) :: r(:,:), z(:,:)
 
       ! internals
       r(1:nxl,1:nyl) => FN_VGetArrayPointer(sunvec_r)
       z(1:nxl,1:nyl) => FN_VGetArrayPointer(sunvec_z)
 
       z = r*d      ! perform Jacobi iteration (whole array operation)
-      ierr = 0     ! Return with success 
+      ierr = 0     ! Return with success
       return
    end function farkpsol
    !-----------------------------------------------------------------
@@ -646,11 +648,11 @@ contains
 
       implicit none
       include "mpif.h"
-   
-      type(c_ptr), pointer, intent(in) :: arkmem
+
+      type(c_ptr),          intent(in) :: arkmem
       integer(c_int),       intent(in) :: flag
       integer(c_int),    intent(inout) :: retval
-   
+
       retval = FARKStepGetNumSteps(arkmem, nst)
       if (retval /= 0) then
          write(0,*) "Error in FARKStepGetNumSteps = ", retval
@@ -711,7 +713,7 @@ contains
          write(0,*) "Error in FARKStepGetNumErrTestFails = ", retval
          call MPI_Finalize(flag)
       end if
-   
+
    end subroutine GetFinalStats
 
 end module Implicit_and_Prec_Fn
@@ -727,7 +729,7 @@ module Output_Fns
       integer(c_long) :: i, j
 
    contains
-   
+
       subroutine InitOutput_Disk(sunvec_y, stream, nxl, nyl)
 
          implicit none
@@ -736,7 +738,7 @@ module Output_Fns
          integer(c_int), intent(in)    :: stream
          integer(c_long), intent(in)   :: nxl, nyl
 
-         double precision, pointer, dimension(:,:) :: y
+         real(c_double), pointer, dimension(:,:) :: y
          y(1:nxl,1:nyl) => FN_VGetArrayPointer(sunvec_y)
 
          ! Output initial condition to disk
@@ -748,7 +750,7 @@ module Output_Fns
          write(stream,*) "  "
 
       end subroutine InitOutput_Disk
-      
+
       subroutine OutputResults_Disk(sunvec_y, stream, nxl, nyl)
 
          implicit none
@@ -757,10 +759,10 @@ module Output_Fns
          integer(c_int), intent(in)    :: stream
          integer(c_long), intent(in)   :: nxl, nyl
 
-         double precision, pointer, dimension(:,:) :: y
+         real(c_double), pointer, dimension(:,:) :: y
          y(1:nxl,1:nyl) => FN_VGetArrayPointer(sunvec_y)
 
-         ! output results to disk 
+         ! output results to disk
          do j=1,nyl
             do i=1,nxl
                write(stream,'(es25.16)',advance='no') y(i,j)
@@ -791,19 +793,19 @@ program driver
   use fsundials_linearsolver_mod    ! Access generic SUNLinearSolver
   use fsunlinsol_pcg_mod            ! Access PCG SUNLinearSolver
 
-  implicit none  
+  implicit none
   include "mpif.h"
 
   ! Declarations
   ! general problem parameters
   double precision, parameter :: pi = 3.1415926535897932d0
-  integer(c_int),   parameter :: Nt = 20           ! total number of output times 
+  integer(c_int),   parameter :: Nt = 20           ! total number of output times
   integer(c_long),  parameter :: nx_ = 60          ! spatial mesh size
   integer(c_long),  parameter :: ny_ = 120
   integer(c_int),   parameter :: PCGpretype = 1    ! enable preconditioner
   integer(c_int),   parameter :: PCGmaxl = 20      ! max num. PCG iterations
-  double precision, parameter :: T0 = 0.d0         ! initial time 
-  double precision, parameter :: Tf = 0.3d0        ! final time 
+  double precision, parameter :: T0 = 0.d0         ! initial time
+  double precision, parameter :: Tf = 0.3d0        ! final time
   double precision, parameter :: rtol = 1.d-5      ! relative and absolute tolerances
   double precision, parameter :: atol = 1.d-10
   double precision, parameter :: kx_ = 0.5d0       ! heat conductivity coefficients
@@ -814,7 +816,7 @@ program driver
   type(N_Vector), pointer  :: sunvec_y
   type(SUNLinearSolver), pointer :: sunlinsol_LS
   type(SUNMatrix), pointer :: sunmat_A
-  type(c_ptr), pointer     :: arkode_mem           ! ARKODE memory structure
+  type(c_ptr)              :: arkode_mem           ! ARKODE memory structure
   type(c_ptr)              :: sunctx               ! SUNDIALS context structure
   integer, pointer         :: commptr              ! comm pointer to initialize sunctx
 
@@ -845,7 +847,7 @@ program driver
     call MPI_Finalize(flag)
   end if
 
-!   ! Configure SUNDIALS logging via the runtime API. 
+!   ! Configure SUNDIALS logging via the runtime API.
 !   ! This requires that SUNDIALS was configured with the CMake options
 !   !   SUNDIALS_LOGGING_LEVEL=n     (see logger in HeatUserData above)
 !   ! where n is one of:
@@ -869,8 +871,8 @@ program driver
   ny = ny_
   kx = kx_
   ky = ky_
-  dx = 1.d0/(nx-1)   ! x mesh spacing 
-  dy = 1.d0/(ny-1)   ! x mesh spacing 
+  dx = 1.d0/(nx-1)   ! x mesh spacing
+  dy = 1.d0/(ny-1)   ! x mesh spacing
 
   ! Set up parallel decomposition (computes local mesh sizes)
   call SetupDecomp(flag)
@@ -885,7 +887,7 @@ program driver
   ! Create solution vector
   sunvec_y  => FN_VNew_Parallel(comm, N, Ntot, sunctx)
 
-  ! Initial problem output 
+  ! Initial problem output
   outproc = (myid == 0)
   if (outproc) then
      write(6,*) "  "
@@ -911,8 +913,8 @@ program driver
      write(0,*) "Error in FSunLinSol_PCG = ", flag
      call MPI_Finalize(flag)
   end if
-  
-  arkode_mem = FARKStepCreate(c_null_funptr, c_funloc(farkifun), T0, sunvec_y, sunctx)
+
+  arkode_mem = FARKStepCreate(c_null_ptr, c_funloc(farkifun), T0, sunvec_y, sunctx)
   if (.not. c_associated(arkode_mem)) then
      print *, "Error: FARKStepCreate returned NULL"
      call MPI_Finalize(flag)
@@ -974,7 +976,7 @@ program driver
   write(100,'(6(i9,1x))') nx, ny, is, ie, js, je
   close(100)
 
-  ! Open output streams for results, access data array 
+  ! Open output streams for results, access data array
   write(outname,'(6Hheat2d,f4.3,4H.txt)') myid/1000.0
   open(101, file=outname)
 
@@ -998,27 +1000,27 @@ program driver
         write(0,*) "Error in FARKStepEvolve = ", retval
         call MPI_Finalize(flag)
      end if
-     
+
      call PRMS(sunvec_y, urms, flag)
      if (outproc) &
-          write(6,'(2(2x,f10.6))') t, urms     ! print solution stats 
+          write(6,'(2(2x,f10.6))') t, urms     ! print solution stats
      if (flag >= 0) then                       ! successful solve: update output time
         tout = min(tout + dTout, Tf)
-     else                                      ! unsuccessful solve: break 
+     else                                      ! unsuccessful solve: break
         if (outproc) &
              write(0,*) "Solver failure, stopping integration"
         exit
      end if
 
      call OutputResults_Disk(sunvec_y, 101, nxl, nyl)
-     
+
   end do
   if (outproc) then
      write(6,*) "   ----------------------"
   end if
   close(101)
 
-  ! Print some final statistics 
+  ! Print some final statistics
   if (outproc) then
      call GetFinalStats(arkode_mem, flag, retval)
      write(6,*) "  "
@@ -1041,7 +1043,7 @@ program driver
 
  ! Clean up and return with successful completion
  call FreeUserData(flag)               ! free user data
- call FARKStepFree(arkode_mem) 
+ call FARKStepFree(arkode_mem)
  call FN_VDestroy(sunvec_y)
  retval = FSUNLinSolFree(sunlinsol_LS) ! free linear solver
  if (retval /= 0) then
@@ -1053,4 +1055,3 @@ program driver
 
 end program driver
 !-----------------------------------------------------------------
-
