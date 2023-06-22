@@ -19,10 +19,10 @@
 
 # Examples using SUNDIALS linear solvers
 set(IDA_examples
-  "idaFoodWeb_kry_bbd_p.c\;1\;4\;exclude-single"
-  "idaFoodWeb_kry_p.c\;1\;4\;exclude-single"
-  "idaHeat2D_kry_bbd_p.c\;1\;4\;exclude-single"
-  "idaHeat2D_kry_p.c\;1\;4\;exclude-single"
+  "idaFoodWeb_kry_bbd_p.c\;--\;1\;4\;exclude-single"
+  "idaFoodWeb_kry_p.c\;--\;1\;4\;exclude-single"
+  "idaHeat2D_kry_bbd_p.c\;--\;1\;4\;exclude-single"
+  "idaHeat2D_kry_p.c\;--\;1\;4\;exclude-single"
   )
 
 if(MPI_C_COMPILER)
@@ -44,9 +44,10 @@ set(SUNDIALS_LIBS ${IDA_LIB} ${NVECP_LIB} ${EXE_EXTRA_LINK_LIBS})
 foreach(example_tuple ${IDA_examples})
 
   list(GET example_tuple 0 example)
-  list(GET example_tuple 1 number_of_nodes)
-  list(GET example_tuple 2 number_of_tasks)
-  list(GET example_tuple 3 example_type)
+  list(GET example_tuple 1 example_args)
+  list(GET example_tuple 2 number_of_nodes)
+  list(GET example_tuple 3 number_of_tasks)
+  list(GET example_tuple 4 example_type)
 
   # example source files
   add_executable(${example} ${example})
