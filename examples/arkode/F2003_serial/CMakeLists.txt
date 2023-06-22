@@ -49,7 +49,7 @@ endif()
 if(SUNDIALS_INDEX_SIZE MATCHES "64")
 
   set(FARKODE_examples_LAPACK
-    #"ark_roberts_dnsL_f2003\;\;develop"
+    "ark_roberts_dnsL_f2003\;\;develop"
     )
 
 endif()
@@ -161,7 +161,6 @@ if(BUILD_SUNLINSOL_LAPACKBAND AND BUILD_SUNLINSOL_LAPACKDENSE)
   set(SUNLINSOLLAPACK_LIBS
     sundials_sunlinsollapackband
     sundials_sunlinsollapackdense
-    sundials_fsunlinsollapackband_mod
     sundials_fsunlinsollapackdense_mod)
 
   # LAPACK libraries
