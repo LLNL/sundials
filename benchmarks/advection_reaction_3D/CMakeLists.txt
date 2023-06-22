@@ -57,10 +57,10 @@ if(BUILD_ARKODE AND BUILD_CVODE AND BUILD_IDA)
     DESTINATION "${BENCHMARKS_INSTALL_PATH}/advection_reaction_3D")
 
   set(BENCHMARK_VAR
-    "--method ARK-IMEX --nls tl-newton --tf 1.0 --dont-save\;arkimex_tlnewton"
-    "--method ARK-DIRK --nls newton --tf 1.0 --dont-save\;arkdirk_newton"
-    "--method CV-BDF --nls newton --tf 1.0 --dont-save\;cvbdf_newton"
-    "--method IDA --nls newton --tf 1.0 --dont-save\;ida_newton"
+    "--method ARK-IMEX --nls tl-newton --tf 0.01 --dont-save\;arkimex_tlnewton"
+    "--method ARK-DIRK --nls newton --tf 0.01 --dont-save\;arkdirk_newton"
+    "--method CV-BDF --nls newton --tf 0.01 --dont-save\;cvbdf_newton"
+    "--method IDA --nls newton --tf 0.01 --dont-save\;ida_newton"
     )
 
   # NUM_CORES based on Lassen system for 1 node
@@ -68,7 +68,7 @@ if(BUILD_ARKODE AND BUILD_CVODE AND BUILD_IDA)
     list(GET benchmark_tuple 0 benchmark_args)
     list(GET benchmark_tuple 1 identifier)
 
-    sundials_add_benchmark(advection_reaction_3D advection_reaction_3D
+    sundials_add_benchmark(advection_reaction_3D advection_reaction_3D advection_reaction_3D
       NUM_CORES 40
       BENCHMARK_ARGS ${benchmark_args}
       IDENTIFIER ${identifier}
@@ -122,17 +122,17 @@ if(BUILD_ARKODE AND BUILD_CVODE AND BUILD_IDA)
       DESTINATION "${BENCHMARKS_INSTALL_PATH}/advection_reaction_3D")
 
     set(BENCHMARK_VAR
-        "--method ARK-IMEX --nls tl-newton --tf 1.0 --dont-save\;arkimex_tlnewton_cuda"
-        "--method ARK-DIRK --nls newton --tf 1.0 --dont-save\;arkdirk_newton_cuda"
-        "--method CV-BDF --nls newton --tf 1.0 --dont-save\;cvbdf_newton_cuda"
-        "--method IDA --nls newton --tf 1.0 --dont-save\;ida_newton_cuda"
+        "--method ARK-IMEX --nls tl-newton --tf 0.01 --dont-save\;arkimex_tlnewton_cuda"
+        "--method ARK-DIRK --nls newton --tf 0.01 --dont-save\;arkdirk_newton_cuda"
+        "--method CV-BDF --nls newton --tf 0.01 --dont-save\;cvbdf_newton_cuda"
+        "--method IDA --nls newton --tf 0.01 --dont-save\;ida_newton_cuda"
       )
     # NUM_CORES based on Lassen system for 1 node
     foreach(benchmark_tuple ${BENCHMARK_VAR})
       list(GET benchmark_tuple 0 benchmark_args)
       list(GET benchmark_tuple 1 identifier)
 
-      sundials_add_benchmark(advection_reaction_3D_mpicuda advection_reaction_3D_mpicuda
+      sundials_add_benchmark(advection_reaction_3D_mpicuda advection_reaction_3D_mpicuda advection_reaction_3D
         ENABLE_GPU
         NUM_CORES 4
         BENCHMARK_ARGS ${benchmark_args}
@@ -193,7 +193,7 @@ if(BUILD_ARKODE AND BUILD_CVODE AND BUILD_IDA)
       list(GET benchmark_tuple 1 identifier)
 
       # NUM_CORES based on Corona system for 1 node
-      sundials_add_benchmark(advection_reaction_3D_mpihip advection_reaction_3D_mpihip
+      sundials_add_benchmark(advection_reaction_3D_mpihip advection_reaction_3D_mpihip advection_reaction_3D
         ENABLE_GPU
         NUM_CORES 8
         BENCHMARK_ARGS ${benchmark_args}

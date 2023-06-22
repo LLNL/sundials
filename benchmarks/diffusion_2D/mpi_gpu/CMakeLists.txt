@@ -77,7 +77,7 @@ foreach(test_tuple ${tests})
   if("${backend}" STREQUAL "USE_CUDA")
 
     # based on Lassen system from build_and_bench (1 nodes).
-    # sundials_add_benchmark(${target} ${target}
+    # sundials_add_benchmark(${target} ${target} diffusion_2D
     #   NUM_CORES 2
     #   ENABLE_GPU
     #   IDENTIFIER "d2d_${package}_cuda"
@@ -88,7 +88,7 @@ foreach(test_tuple ${tests})
   if("${backend}" STREQUAL "USE_HIP")
 
     # based on the Corona system for 1 node
-    sundials_add_benchmark(${target} ${target}
+    sundials_add_benchmark(${target} ${target} diffusion_2D
       NUM_CORES 8
       ENABLE_GPU
       IDENTIFIER "d2d_${package}_hip"

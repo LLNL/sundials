@@ -4,7 +4,8 @@
 # CMake macro for adding benchmarks to `make benchmark`.
 # ---------------------------------------------------------------
 
-macro(sundials_add_benchmark NAME EXECUTABLE)
+macro(sundials_add_benchmark NAME EXECUTABLE BASE_BENCHMARK_NAME)
+
   # Define single value parameters the macro takes in to set up the test runner
   #
   # NUM_CORES         = number of cores (GPU count or CPU count) to run on/number of resource sets
@@ -33,11 +34,11 @@ macro(sundials_add_benchmark NAME EXECUTABLE)
     endif()
   endif()
 
-  # Create default benchmark output directory if custom not defined
+  # Create default benchmark output directory if custom directory not defined
   if(SUNDIALS_TEST_OUTPUT_DIR)
-    set(SUNDIALS_BENCHMARK_OUTPUT_DIR ${SUNDIALS_TEST_OUTPUT_DIR}/Benchmarking)
+    set(SUNDIALS_BENCHMARK_OUTPUT_DIR ${SUNDIALS_TEST_OUTPUT_DIR}/Benchmarking/${BASE_BENCHMARK_NAME})
   else()
-    set(SUNDIALS_BENCHMARK_OUTPUT_DIR ${PROJECT_BINARY_DIR}/Benchmarking/output)
+    set(SUNDIALS_BENCHMARK_OUTPUT_DIR ${PROJECT_BINARY_DIR}/Benchmarking/${BASE_BENCHMARK_NAME})
   endif()
 
   # make the output directory if it doesn't exist
