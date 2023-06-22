@@ -26,7 +26,7 @@
  *    E = (v^2 + omega^2*x^2) / 2
  * E is conserved and is the system Hamiltonian.
  * We simulate the problem on t = [0, 2pi] using the symplectic methods
- * in SPRKStep. Symplectic methods will approximately conserve U.
+ * in SPRKStep. Symplectic methods will approximately conserve E.
  *
  * The example has the following command line arguments:
  *   --order <int>               the order of the method to use (default 4)
@@ -44,10 +44,8 @@
 #include <stdio.h>
 #include <string.h>
 #include <sundials/sundials_math.h> /* def. math fcns, 'sunrealtype'           */
-#include <sundials/sundials_nonlinearsolver.h>
 #include <sundials/sundials_nvector.h>
 #include <sundials/sundials_types.h>
-#include <sunnonlinsol/sunnonlinsol_fixedpoint.h>
 
 #include "arkode/arkode.h"
 
@@ -176,8 +174,7 @@ int main(int argc, char* argv[])
       return 1;
     }
 
-    /* Check if the solve was successful, if so, update the time and continue
-     */
+    /* Check if the solve was successful, if so, update the time and continue */
     if (retval >= 0)
     {
       tout += dTout;

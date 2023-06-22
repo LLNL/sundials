@@ -37,7 +37,7 @@
  * The rootfinding feature of SPRKStep is used to count the number of complete orbits. 
  * This is done by defining the function,
  *    g(q) = q2
- * and prodivding it to SPRKStep as the function to find the roots for.
+ * and providing it to SPRKStep as the function to find the roots for.
  *
  * The program also accepts command line arguments to change the method
  * used and time-stepping strategy. The program has the following CLI arguments:
@@ -69,10 +69,8 @@
 #include <stdio.h>
 #include <string.h>
 #include <sundials/sundials_math.h> /* def. math fcns, 'sunrealtype'           */
-#include <sundials/sundials_nonlinearsolver.h>
 #include <sundials/sundials_nvector.h>
 #include <sundials/sundials_types.h>
-#include <sunnonlinsol/sunnonlinsol_fixedpoint.h>
 
 #include "arkode/arkode.h"
 #include "sundials/sundials_context.h"
@@ -243,7 +241,7 @@ int main(int argc, char* argv[])
            expected_order, (long double)ord_max_acc, (long double)ord_avg,
            (long double)ord_est);
 
-    /* Comptue the order of accuracy with respect to conserving */
+    /* Compute the order of accuracy with respect to conservation */
     retval = ComputeConvergence(NUM_DT, con_orders, expected_order, a11, a12,
                                 a21, a22, b1e, b2e, &ord_avg, &ord_max_conv,
                                 &ord_est);
@@ -429,7 +427,7 @@ int SolveProblem(ProgramArgs* args, ProblemResult* result, SUNContext sunctx)
   {
     while (iout < num_output_times)
     {
-      /* Optional: if the stop time is not set, then its possible that the the
+      /* Optional: if the stop time is not set, then its possible that the
          exact requested output time will not be hit (even with a fixed
          time-step due to roundoff error accumulation) and interpolation will be
          used to get the solution at the output time. */
@@ -601,7 +599,6 @@ int velocity(sunrealtype t, N_Vector yvec, N_Vector ydotvec, void* user_data)
 
   ydot[0] = p1;
   ydot[1] = p2;
-  // ydot[2] = ydot[3] = SUN_RCONST(0.0);
 
   return 0;
 }
@@ -614,7 +611,6 @@ int force(sunrealtype t, N_Vector yvec, N_Vector ydotvec, void* user_data)
   const sunrealtype q2       = y[1];
   const sunrealtype sqrt_qTq = SUNRsqrt(q1 * q1 + q2 * q2);
 
-  // ydot[0] = ydot[1] = SUN_RCONST(0.0);
   ydot[2] = -q1 / SUNRpowerR(sqrt_qTq, SUN_RCONST(3.0));
   ydot[3] = -q2 / SUNRpowerR(sqrt_qTq, SUN_RCONST(3.0));
 

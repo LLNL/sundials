@@ -259,7 +259,7 @@ Optional inputs for SPRKStep
 
   +-----------------------------------------------------+------------------------------------------+------------------------+
   | Optional input                                      | Function name                            | Default                |
-  +-----------------------------------------------------+------------------------------------------+------------------------+
++=====================================================+==========================================+========================+
   | Return SPRKStep solver parameters to their defaults | :c:func:`SPRKStepSetDefaults()`          | internal               |
   +-----------------------------------------------------+------------------------------------------+------------------------+
   | Set dense output interpolation type                 | :c:func:`SPRKStepSetInterpolantType()`   | ``ARK_INTERP_LAGRANGE``|
@@ -272,7 +272,7 @@ Optional inputs for SPRKStep
   +-----------------------------------------------------+------------------------------------------+------------------------+
   | Supply a custom error handler function              | :c:func:`SPRKStepSetErrHandlerFn()`      | internal fn            |
   +-----------------------------------------------------+------------------------------------------+------------------------+
-  | Disable time step adaptivity (fixed-step mode)      | :c:func:`SPRKStepSetFixedStep()`         | disabled               |
+  | Set fixed step size (disables time step adaptivity) | :c:func:`SPRKStepSetFixedStep()`         | disabled               |
   +-----------------------------------------------------+------------------------------------------+------------------------+
   | Supply an initial step size to attempt              | :c:func:`SPRKStepSetInitStep()`          | estimated              |
   +-----------------------------------------------------+------------------------------------------+------------------------+
@@ -375,39 +375,7 @@ Optional inputs for SPRKStep
       :math:`q-1` and the input *degree*, for :math:`q > 1` where :math:`q` is
       the order of accuracy for the time integration method.
 
-      .. versionchanged:: 5.5.1
 
-         When :math:`q=1`, a linear interpolant is the default to ensure values
-         obtained by the integrator are returned at the ends of the time
-         interval.
-
-
-.. c:function:: int SPRKStepSetDiagnostics(void* arkode_mem, FILE* diagfp)
-
-   Specifies the file pointer for a diagnostics file where
-   all SPRKStep step adaptivity and solver information is written.
-
-   :param arkode_mem: pointer to the SPRKStep memory block.
-   :param diagfp: pointer to the diagnostics output file.
-
-   :return:
-      * *ARK_SUCCESS* if successful
-      * *ARK_MEM_NULL* if the SPRKStep memory is ``NULL``
-      * *ARK_ILL_INPUT* if an argument has an illegal value
-
-   **Notes:**
-      This parameter can be ``stdout`` or ``stderr``, although the
-      suggested approach is to specify a pointer to a unique file opened
-      by the user and returned by ``fopen``.  If not called, or if called
-      with a ``NULL`` file pointer, all diagnostics output is disabled.
-
-      When run in parallel, only one process should set a non-NULL value
-      for this pointer, since statistics from all processes would be
-      identical.
-
-   .. deprecated:: 5.2.0
-
-      Use :c:func:`SUNLogger_SetInfoFilename` instead.
 
 
 .. c:function:: int SPRKStepSetErrFile(void* arkode_mem, FILE* errfp)
@@ -458,7 +426,7 @@ Optional inputs for SPRKStep
 
 .. c:function:: int SPRKStepSetFixedStep(void* arkode_mem, realtype hfixed)
 
-   Disabled time step adaptivity within SPRKStep, and specifies the
+   Disables time step adaptivity within SPRKStep, and specifies the
    fixed time step size to use for the following internal step(s).
 
    :param arkode_mem: pointer to the SPRKStep memory block.
@@ -472,7 +440,7 @@ Optional inputs for SPRKStep
    **Notes:**
       Pass 0.0 to return SPRKStep to the default (adaptive-step) mode.
 
-      Use of this function is not generally recommended, since we it gives no
+      Use of this function is not generally recommended, since it gives no
       assurance of the validity of the computed solutions.  It is
       primarily provided for code-to-code verification testing purposes.
 
@@ -505,7 +473,6 @@ Optional inputs for SPRKStep
       :math:`\ddot{y}` is an estimate of the second derivative of the
       solution at :math:`t_0`.
 
-      This routine will also reset the step size and error history.
 
 
 .. c:function:: int SPRKStepSetMaxNumSteps(void* arkode_mem, long int mxsteps)
@@ -533,15 +500,15 @@ Optional inputs for SPRKStep
 
    Specifies the maximum number of messages issued by the
    solver to warn that :math:`t+h=t` on the next internal step, before
-   ERKStep will instead return with an error.
+   SPRKStep will instead return with an error.
 
    **Arguments:**
-      * *arkode_mem* -- pointer to the ERKStep memory block.
+      * *arkode_mem* -- pointer to the SPRKStep memory block.
       * *mxhnil* -- maximum allowed number of warning messages :math:`(>0)`.
 
    **Return value:**
       * *ARK_SUCCESS* if successful
-      * *ARK_MEM_NULL* if the ERKStep memory is ``NULL``
+      * *ARK_MEM_NULL* if the SPRKStep memory is ``NULL``
       * *ARK_ILL_INPUT* if an argument has an illegal value
 
    **Notes:**
@@ -589,8 +556,6 @@ Optional inputs for SPRKStep
    **Notes:**
       The stop time can be reenabled though a new call to
       :c:func:`SPRKStepSetStopTime`.
-
-   .. versionadded:: 5.5.1
 
 
 .. c:function:: int SPRKStepSetUserData(void* arkode_mem, void* user_data)
@@ -664,7 +629,7 @@ Optional inputs for IVP method selection
    Specifies the SPRK method.
 
    :param arkode_mem: pointer to the SPRKStep memory block.
-   :param sprk_storage: the SPRK method memory.
+   :param sprk_storage: the SPRK method coefficient structure.
 
    :return:
       * *ARK_SUCCESS* if successful
@@ -672,14 +637,13 @@ Optional inputs for IVP method selection
       * *ARK_ILL_INPUT* if an argument has an illegal value
 
    **Notes:**
-      No error checking is performed to ensure that either the method order *p* or
-      specified in the method structure correctly describe the coefficients.
+      No error checking is performed on the coefficients contained in the structure to ensure its declared order of accuracy.
 
 
 
 .. c:function:: int SPRKStepSetMethodName(void* arkode_mem, const char* method)
 
-   Specifies the SPRK method by its name
+   Specifies the SPRK method by its name.
 
    :param arkode_mem: pointer to the SPRKStep memory block.
    :param method: the SPRK method name.
@@ -950,7 +914,7 @@ Main solver optional output functions
   +-----------------------------------------------------+--------------------------------------------+
   | No. of attempted steps                              | :c:func:`SPRKStepGetNumStepAttempts()`     |
   +-----------------------------------------------------+--------------------------------------------+
-  | No. of calls to *f* function                        | :c:func:`SPRKStepGetNumRhsEvals()`         |
+  | No. of calls to right-hand side functions           | :c:func:`SPRKStepGetNumRhsEvals()`         |
   +-----------------------------------------------------+--------------------------------------------+
   | Current method memory                               | :c:func:`SPRKStepGetCurrentMethod()`       |
   +-----------------------------------------------------+--------------------------------------------+
@@ -1045,7 +1009,7 @@ Main solver optional output functions
 
 .. c:function:: int SPRKStepPrintAllStats(void* arkode_mem, FILE* outfile, SUNOutputFormat fmt)
 
-   Outputs all of the integrator and other statistics.
+   Outputs all of the integrator statistics.
 
      * *arkode_mem* -- pointer to the SPRKStep memory block.
      * *outfile* -- pointer to output file.
@@ -1065,8 +1029,6 @@ Main solver optional output functions
       The file ``scripts/sundials_csv.py`` provides python utility functions to
       read and output the data from a SUNDIALS CSV output file using the key
       and value pair format.
-
-   .. versionadded:: 5.2.0
 
 
 
@@ -1123,10 +1085,10 @@ Main solver optional output functions
 
 .. c:function:: int SPRKStepGetCurrentMethod(void* arkode_mem, ARKodeSPRKStorage *sprk_storage)
 
-   Returns the SPRK method structure currently in use by the solver.
+   Returns the SPRK method coefficient structure currently in use by the solver.
 
    :param arkode_mem: pointer to the SPRKStep memory block.
-   :param sprk_storage: pointer to the SPRK method structure.
+   :param sprk_storage: pointer to the SPRK method coefficient structure.
 
    :return:
       * *ARK_SUCCESS* if successful
@@ -1144,8 +1106,6 @@ Main solver optional output functions
    :return:
       * *ARK_SUCCESS* if successful
       * *ARK_MEM_NULL* if the ARKStep memory was ``NULL``
-
-   .. versionadded:: 5.3.0
 
 
 .. _ARKODE.Usage.SPRKStep.SPRKStepRootOutputs:
@@ -1215,13 +1175,10 @@ Rootfinding optional output functions
 General usability functions
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-The following optional routines may be called by a user to inquire
-about existing solver parameters, to retrieve stored Butcher tables,
-write the current Butcher table, or even to test a provided Butcher
-table to determine its analytical order of accuracy.  While none of
-these would typically be called during the course of solving an
-initial value problem, these may be useful for users wishing to better
-understand SPRKStep and/or specific Runge--Kutta methods.
+The following optional routine may be called by a user to inquire
+about existing solver parameters.  While it would not typically be called 
+during the course of solving an initial value problem, it may be useful 
+for users wishing to better understand SPRKStep.
 
 
 .. _ARKODE.Usage.SPRKStep.SPRKStepExtraOutputsTable:
@@ -1339,7 +1296,7 @@ the current settings for all SPRKStep module options and performs no memory
 allocations but, unlike :c:func:`SPRKStepReInit()`, this routine performs only a
 *subset* of the input checking and initializations that are done in
 :c:func:`SPRKStepCreate`. In particular this routine retains all internal
-counter values and the step size/error history. Like :c:func:`SPRKStepReInit()`, a call to
+counter values. Like :c:func:`SPRKStepReInit()`, a call to
 :c:func:`SPRKStepReset()` will delete any previously-set *tstop* value specified
 via a call to :c:func:`SPRKStepSetStopTime()`.  Following a successful call to
 :c:func:`SPRKStepReset()`, call :c:func:`SPRKStepEvolve()` again to continue
@@ -1458,5 +1415,3 @@ rescale the upcoming time step by the specified factor.  If a value
       If an error occurred, :c:func:`SPRKStepResize()` also sends an error
       message to the error handler function.
 
-      If inequality constraint checking is enabled a call to
-      :c:func:`SPRKStepResize()` will disable constraint checking.

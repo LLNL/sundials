@@ -478,7 +478,7 @@ where
 .. math::
    H(p, q, t) = T(p) + V(q, t)
 
-is the system Hamiltonian. When :math:`dH/dt = 0`, i.e. when *H* is autonomous, then H is a conserved quantity. 
+is the system Hamiltonian. When :math:`\mathrm{d}H/\mathrm{d}t = 0`, i.e. when *H* is autonomous, then *H* is a conserved quantity. 
 Often this correponds to the conservation of energy (for example, in *n*-body problems).
 
 In solving the IVP :eq:`ARKODE_IVP_Hamiltonian`, we consider the problem in the form
@@ -493,7 +493,7 @@ In solving the IVP :eq:`ARKODE_IVP_Hamiltonian`, we consider the problem in the 
       \begin{bmatrix}
          p_0\\
          q_0
-      \end{bmatrix}
+      \end{bmatrix}.
 
 SPRKStep utilizes Symplectic Partitioned Runge-Kutta (SPRK) methods represented by the pair of Butcher tableau,
 
@@ -514,14 +514,14 @@ SPRKStep utilizes Symplectic Partitioned Runge-Kutta (SPRK) methods represented 
    C_s & b_1 & b_2 & \cdots & b_{s-1} \\
    \hline
    & b_1 & b_2 & \cdots & b_{s-1}
-   \end{array}
+   \end{array}.
 
 We use a compact storage of these coefficients in terms of two arrays, one for *a* and one for *b*.
 The time weights are computed on the fly. These methods approximately conserve a nearby Hamiltonian 
 for exponentially long times :cite:p:`HaWa:06`.  SPRKStep makes the assumption that the Hamiltonian is separable,
 in which case the schemes are explicit. SPRKStep provides methods with order of accuracy and conservation 
-of :math:`q = \{1,2,3,4,5,6,8,10\}`. The tables for these methods, and the default methods used, 
-are given in the section ???.
+equal to :math:`q = \{1,2,3,4,5,6,8,10\}`. The tables for these methods, and the default methods used, 
+are given in the section :numref:`SPRKStorage`.
 
 In the default case, the algorithm for a single time-step is as follows
 
@@ -1121,8 +1121,8 @@ information.  In this mode, all internal time step adaptivity is disabled:
 
 Additional information on this mode is provided in the sections
 :ref:`ARKStep Optional Inputs <ARKODE.Usage.ARKStep.OptionalInputs>`,
-:ref:`SPRKStep Optional Inputs <ARKODE.Usage.SPRKStep.OptionalInputs>`, 
-:ref:`MRIStep Optional Inputs <ARKODE.Usage.MRIStep.OptionalInputs>`, and
+:ref:`ERKStep Optional Inputs <ARKODE.Usage.ERKStep.OptionalInputs>`,
+:ref:`SPRKStep Optional Inputs <ARKODE.Usage.SPRKStep.OptionalInputs>`, and
 :ref:`MRIStep Optional Inputs <ARKODE.Usage.MRIStep.OptionalInputs>`.
 
 

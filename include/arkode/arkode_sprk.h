@@ -72,18 +72,6 @@ SUNDIALS_EXPORT int ARKodeSPRKStorage_ToButcher(ARKodeSPRKStorage sprk_storage,
 
 /* Different methods */
 
-ARKodeSPRKStorage ARKodeSymplecticEuler();
-ARKodeSPRKStorage ARKodeSymplecticLeapfrog2();
-ARKodeSPRKStorage ARKodeSymplecticPseudoLeapfrog2();
-ARKodeSPRKStorage ARKodeSymplecticRuth3();
-ARKodeSPRKStorage ARKodeSymplecticCandyRozmus4();
-ARKodeSPRKStorage ARKodeSymplecticMcLachlan2();
-ARKodeSPRKStorage ARKodeSymplecticMcLachlan3();
-ARKodeSPRKStorage ARKodeSymplecticMcLachlan4();
-ARKodeSPRKStorage ARKodeSymplecticMcLachlan5();
-ARKodeSPRKStorage ARKodeSymplecticYoshida6();
-ARKodeSPRKStorage ARKodeSymplecticMcLachlan8();
-ARKodeSPRKStorage ARKodeSymplecticSofroniou10();
 
 #ifdef __cplusplus
 }

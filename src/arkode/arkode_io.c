@@ -21,7 +21,6 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-#include "arkode/arkode.h"
 #include "arkode_impl.h"
 #include "arkode_interp_impl.h"
 #include <sundials/sundials_math.h>

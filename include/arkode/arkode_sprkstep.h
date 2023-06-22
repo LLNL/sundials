@@ -18,10 +18,7 @@
 #define _SPRKSTEP_H
 
 #include <arkode/arkode.h>
-#include <arkode/arkode_ls.h>
 #include <arkode/arkode_sprk.h>
-#include <sundials/sundials_linearsolver.h>
-#include <sundials/sundials_nonlinearsolver.h>
 #include <sundials/sundials_nvector.h>
 
 #ifdef __cplusplus /* wrapper to enable C++ usage */

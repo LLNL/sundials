@@ -83,17 +83,6 @@ int sprkStep_f1(ARKodeSPRKStepMem step_mem, sunrealtype tcur, N_Vector ycur,
 int sprkStep_f2(ARKodeSPRKStepMem step_mem, sunrealtype tcur, N_Vector ycur,
                 N_Vector f2, void* user_data);
 
-// /* private functions for interfacing with MRIStep */
-// int sprkStep_SetInnerForcing(void* arkode_mem, realtype tshift, realtype
-// tscale,
-//                             N_Vector *f, int nvecs);
-// int sprkStep_MRIStepInnerEvolve(MRIStepInnerStepper stepper,
-//                                realtype t0, realtype tout, N_Vector y);
-// int sprkStep_MRIStepInnerFullRhs(MRIStepInnerStepper stepper, realtype t,
-//                                 N_Vector y, N_Vector f, int mode);
-// int sprkStep_MRIStepInnerReset(MRIStepInnerStepper stepper, realtype tR,
-//                               N_Vector yR);
-
 /*===============================================================
   Reusable SPRKStep Error Messages
   ===============================================================*/

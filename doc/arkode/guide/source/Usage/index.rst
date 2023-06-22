@@ -23,7 +23,7 @@ conventions for the library and header files, and discussion of data types in
 SUNDIALS.  We then separately discuss the C and C++ interfaces to each of
 ARKODE's time stepping modules: :ref:`ARKStep <ARKODE.Usage.ARKStep>`,
 :ref:`ERKStep <ARKODE.Usage.ERKStep>`, :ref:`SPRKStep <ARKODE.Usage.SPRKStep>` 
-and :ref:`MRIStep <ARKODE.Usage.MRIStep>`. Following these, we describe set of 
+and :ref:`MRIStep <ARKODE.Usage.MRIStep>`. Following these, we describe the set of 
 :ref:`user-supplied routines <ARKODE.Usage.UserSupplied>` 
 (both required and optional) that can be supplied to ARKODE.
 

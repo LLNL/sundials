@@ -57,10 +57,6 @@ int SPRKStepSetErrFile(void* arkode_mem, FILE* errfp)
   return (arkSetErrFile(arkode_mem, errfp));
 }
 
-int SPRKStepSetDiagnostics(void* arkode_mem, FILE* diagfp)
-{
-  return (arkSetDiagnostics(arkode_mem, diagfp));
-}
 
 int SPRKStepSetMaxNumSteps(void* arkode_mem, long int mxsteps)
 {
@@ -189,20 +185,7 @@ char* SPRKStepGetReturnFlagName(long int flag)
   ---------------------------------------------------------------*/
 int SPRKStepSetUserData(void* arkode_mem, void* user_data)
 {
-  ARKodeMem ark_mem          = NULL;
-  ARKodeSPRKStepMem step_mem = NULL;
-  int retval                 = 0;
-
-  /* access ARKodeSPRKStepMem structure */
-  retval = sprkStep_AccessStepMem(arkode_mem, "SPRKStepSetUserData", &ark_mem,
-                                  &step_mem);
-  if (retval != ARK_SUCCESS) { return (retval); }
-
-  /* set user_data in ARKODE mem */
-  retval = arkSetUserData(arkode_mem, user_data);
-  if (retval != ARK_SUCCESS) { return (retval); }
-
-  return (ARK_SUCCESS);
+  return (arkSetUserData(arkode_mem, user_data));
 }
 
 /*---------------------------------------------------------------
