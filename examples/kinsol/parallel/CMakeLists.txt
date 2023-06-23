@@ -19,8 +19,8 @@
 
 # Examples using SUNDIALS linear solvers
 set(KINSOL_examples
-  "kinFoodWeb_kry_bbd_p.c\;--\;1\;4\;exclude-single"
-  "kinFoodWeb_kry_p.c\;--\;1\;4\;exclude-single"
+  "kinFoodWeb_kry_bbd_p.c\; \"\" \;1\;4\;exclude-single"
+  "kinFoodWeb_kry_p.c\; \"\" \;1\;4\;exclude-single"
   )
 
 if(MPI_C_COMPILER)
@@ -41,12 +41,14 @@ set(SUNDIALS_LIBS ${KINSOL_LIB} ${NVECP_LIB} ${EXE_EXTRA_LINK_LIBS})
 # Add the build and install targets for each example
 foreach(example_tuple ${KINSOL_examples})
 
-  # parse the example tuple
-  list(GET example_tuple 0 example)
-  list(GET example_tuple 1 example_args)
-  list(GET example_tuple 2 number_of_nodes)
-  list(GET example_tuple 3 number_of_tasks)
-  list(GET example_tuple 4 example_type)
+  # parse the example tuple using sundials_parse_tuple macro
+  sundials_parse_tuple( KINSOL_examples
+    FILENAME_VAR example
+    PARAMS_VAR example_args
+    NODES_VAR number_of_nodes
+    NPROCS_VAR number_of_tasks
+    TYPE_VAR example_type
+  ) 
 
   # example source files
   add_executable(${example} ${example})
@@ -73,6 +75,7 @@ endforeach(example_tuple ${KINSOL_examples})
 if(EXAMPLES_INSTALL)
 
   sundials_install_examples(kinsol KINSOL_examples
+    HAS_MPI
     CMAKE_TEMPLATE
       cmakelists_C_MPI_ex.in
     MAKE_TEMPLATE
