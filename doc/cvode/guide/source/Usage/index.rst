@@ -852,7 +852,7 @@ Main solver optional input functions
    +-------------------------------+---------------------------------------------+----------------+
    | Value of :math:`t_{stop}`     | :c:func:`CVodeSetStopTime`                  | undefined      |
    +-------------------------------+---------------------------------------------+----------------+
-   | Interpolate at                | :c:func:`CVodeInterpolateStopTime`          | ``SUNFALSE``   |
+   | Interpolate at                | :c:func:`CVodeSetInterpolateStopTime`       | ``SUNFALSE``   |
    | :math:`t_{stop}`              |                                             |                |
    +-------------------------------+---------------------------------------------+----------------+
    | Disable the stop time         | :c:func:`CVodeClearStopTime`                | N/A            |
@@ -1094,9 +1094,9 @@ Main solver optional input functions
       A stop time not reached before a call to :c:func:`CVodeReInit` will
       remain active but can be disabled by calling :c:func:`CVodeClearStopTime`.
 
-.. c:function:: int CVodeInterpolateStopTime(void* cvode_mem, booleantype interp)
+.. c:function:: int CVodeSetInterpolateStopTime(void* cvode_mem, booleantype interp)
 
-   The function ``CVodeInterpolateStopTime`` specifies that the output solution should be
+   The function ``CVodeSetInterpolateStopTime`` specifies that the output solution should be
    interpolated when the current :math:`t` equals the specified ``tstop`` (instead of
    merely copying the internal solution :math:`y_n`).
 

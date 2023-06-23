@@ -122,7 +122,7 @@ Updated the default CVODES behavior when returning the solution when
 the internal time has reached a user-specified stop time.  Previously, the output
 solution was interpolated to the value of ``tstop``; the default is now to copy the
 internal solution vector.  Users who wish to revert to interpolation may call the
-routine :c:func:`CVodeInterpolateStopTime`.
+routine :c:func:`CVodeSetInterpolateStopTime`.
 
 Changes in v6.5.1
 -----------------

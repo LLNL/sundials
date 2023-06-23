@@ -14,8 +14,8 @@ Updated CVODE, CVODES and ARKODE default behavior when returning the solution wh
 the internal time has reached a user-specified stop time.  Previously, the output
 solution was interpolated to the value of `tstop`; the default is now to copy the
 internal solution vector.  Users who wish to revert to interpolation may call a new
-routine `CVodeInterpolateStopTime`, `ARKStepInterpolateStopTime`,
-`ERKStepInterpolateStopTime`, or `MRIStepInterpolateStopTime`.
+routine `CVodeSetInterpolateStopTime`, `ARKStepSetInterpolateStopTime`,
+`ERKStepSetInterpolateStopTime`, or `MRIStepSetInterpolateStopTime`.
 
 ## Changes to SUNDIALS in release 6.5.1
 

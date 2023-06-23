@@ -876,7 +876,7 @@ Maximum no. of internal steps before *tout*       :c:func:`ARKStepSetMaxNumSteps
 Maximum absolute step size                        :c:func:`ARKStepSetMaxStep`              :math:`\infty`
 Minimum absolute step size                        :c:func:`ARKStepSetMinStep`              0.0
 Set a value for :math:`t_{stop}`                  :c:func:`ARKStepSetStopTime`             undefined
-Interpolate at :math:`t_{stop}`                   :c:func:`ARKStepInterpolateStopTime`     ``SUNFALSE``
+Interpolate at :math:`t_{stop}`                   :c:func:`ARKStepSetInterpolateStopTime`  ``SUNFALSE``
 Disable the stop time                             :c:func:`ARKStepClearStopTime`           N/A
 Supply a pointer for user data                    :c:func:`ARKStepSetUserData`             ``NULL``
 Maximum no. of ARKStep error test failures        :c:func:`ARKStepSetMaxErrTestFails`      7
@@ -1268,7 +1268,7 @@ Set max number of constraint failures             :c:func:`ARKStepSetMaxNumConst
       :c:func:`ARKStepClearStopTime`.
 
 
-.. c:function:: int ARKStepInterpolateStopTime(void* arkode_mem, booleantype interp)
+.. c:function:: int ARKStepSetInterpolateStopTime(void* arkode_mem, booleantype interp)
 
    Specifies that the output solution should be interpolated when the current
    :math:`t` equals the specified ``tstop`` (instead of merely copying the

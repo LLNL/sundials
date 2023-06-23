@@ -672,39 +672,39 @@ Optional inputs for MRIStep
 .. _ARKODE.Usage.MRIStep.MRIStepInput.Table:
 .. table:: Optional inputs for MRIStep
 
-   +---------------------------------------------------------------+-----------------------------------------+------------------------+
-   | Optional input                                                | Function name                           | Default                |
-   +---------------------------------------------------------------+-----------------------------------------+------------------------+
-   | Return MRIStep solver parameters to their defaults            | :c:func:`MRIStepSetDefaults()`          | internal               |
-   +---------------------------------------------------------------+-----------------------------------------+------------------------+
-   | Set dense output interpolation type                           | :c:func:`MRIStepSetInterpolantType()`   | ``ARK_INTERP_HERMITE`` |
-   +---------------------------------------------------------------+-----------------------------------------+------------------------+
-   | Set dense output polynomial degree                            | :c:func:`MRIStepSetInterpolantDegree()` | 5                      |
-   +---------------------------------------------------------------+-----------------------------------------+------------------------+
-   | Supply a pointer to a diagnostics output file                 | :c:func:`MRIStepSetDiagnostics()`       | ``NULL``               |
-   +---------------------------------------------------------------+-----------------------------------------+------------------------+
-   | Supply a pointer to an error output file                      | :c:func:`MRIStepSetErrFile()`           | ``stderr``             |
-   +---------------------------------------------------------------+-----------------------------------------+------------------------+
-   | Supply a custom error handler function                        | :c:func:`MRIStepSetErrHandlerFn()`      | internal fn            |
-   +---------------------------------------------------------------+-----------------------------------------+------------------------+
-   | Run with fixed-step sizes                                     | :c:func:`MRIStepSetFixedStep()`         | required               |
-   +---------------------------------------------------------------+-----------------------------------------+------------------------+
-   | Maximum no. of warnings for :math:`t_n+h = t_n`               | :c:func:`MRIStepSetMaxHnilWarns()`      | 10                     |
-   +---------------------------------------------------------------+-----------------------------------------+------------------------+
-   | Maximum no. of internal steps before *tout*                   | :c:func:`MRIStepSetMaxNumSteps()`       | 500                    |
-   +---------------------------------------------------------------+-----------------------------------------+------------------------+
-   | Set a value for :math:`t_{stop}`                              | :c:func:`MRIStepSetStopTime()`          | undefined              |
-   +---------------------------------------------------------------+-----------------------------------------+------------------------+
-   | Interpolate at :math:`t_{stop}`                               | :c:func:`MRIStepInterpolateStopTime()`  | ``SUNFALSE``           |
-   +---------------------------------------------------------------+-----------------------------------------+------------------------+
-   | Disable the stop time                                         | :c:func:`MRIStepClearStopTime`          | N/A                    |
-   +---------------------------------------------------------------+-----------------------------------------+------------------------+
-   | Supply a pointer for user data                                | :c:func:`MRIStepSetUserData()`          | ``NULL``               |
-   +---------------------------------------------------------------+-----------------------------------------+------------------------+
-   | Supply a function to be called prior to the inner integration | :c:func:`MRIStepSetPreInnerFn()`        | ``NULL``               |
-   +---------------------------------------------------------------+-----------------------------------------+------------------------+
-   | Supply a function to be called after the inner integration    | :c:func:`MRIStepSetPostInnerFn()`       | ``NULL``               |
-   +---------------------------------------------------------------+-----------------------------------------+------------------------+
+   +---------------------------------------------------------------+-------------------------------------------+------------------------+
+   | Optional input                                                | Function name                             | Default                |
+   +===============================================================+===========================================+========================+
+   | Return MRIStep solver parameters to their defaults            | :c:func:`MRIStepSetDefaults()`            | internal               |
+   +---------------------------------------------------------------+-------------------------------------------+------------------------+
+   | Set dense output interpolation type                           | :c:func:`MRIStepSetInterpolantType()`     | ``ARK_INTERP_HERMITE`` |
+   +---------------------------------------------------------------+-------------------------------------------+------------------------+
+   | Set dense output polynomial degree                            | :c:func:`MRIStepSetInterpolantDegree()`   | 5                      |
+   +---------------------------------------------------------------+-------------------------------------------+------------------------+
+   | Supply a pointer to a diagnostics output file                 | :c:func:`MRIStepSetDiagnostics()`         | ``NULL``               |
+   +---------------------------------------------------------------+-------------------------------------------+------------------------+
+   | Supply a pointer to an error output file                      | :c:func:`MRIStepSetErrFile()`             | ``stderr``             |
+   +---------------------------------------------------------------+-------------------------------------------+------------------------+
+   | Supply a custom error handler function                        | :c:func:`MRIStepSetErrHandlerFn()`        | internal fn            |
+   +---------------------------------------------------------------+-------------------------------------------+------------------------+
+   | Run with fixed-step sizes                                     | :c:func:`MRIStepSetFixedStep()`           | required               |
+   +---------------------------------------------------------------+-------------------------------------------+------------------------+
+   | Maximum no. of warnings for :math:`t_n+h = t_n`               | :c:func:`MRIStepSetMaxHnilWarns()`        | 10                     |
+   +---------------------------------------------------------------+-------------------------------------------+------------------------+
+   | Maximum no. of internal steps before *tout*                   | :c:func:`MRIStepSetMaxNumSteps()`         | 500                    |
+   +---------------------------------------------------------------+-------------------------------------------+------------------------+
+   | Set a value for :math:`t_{stop}`                              | :c:func:`MRIStepSetStopTime()`            | undefined              |
+   +---------------------------------------------------------------+-------------------------------------------+------------------------+
+   | Interpolate at :math:`t_{stop}`                               | :c:func:`MRIStepSetInterpolateStopTime()` | ``SUNFALSE``           |
+   +---------------------------------------------------------------+-------------------------------------------+------------------------+
+   | Disable the stop time                                         | :c:func:`MRIStepClearStopTime`            | N/A                    |
+   +---------------------------------------------------------------+-------------------------------------------+------------------------+
+   | Supply a pointer for user data                                | :c:func:`MRIStepSetUserData()`            | ``NULL``               |
+   +---------------------------------------------------------------+-------------------------------------------+------------------------+
+   | Supply a function to be called prior to the inner integration | :c:func:`MRIStepSetPreInnerFn()`          | ``NULL``               |
+   +---------------------------------------------------------------+-------------------------------------------+------------------------+
+   | Supply a function to be called after the inner integration    | :c:func:`MRIStepSetPostInnerFn()`         | ``NULL``               |
+   +---------------------------------------------------------------+-------------------------------------------+------------------------+
 
 
 
@@ -1107,7 +1107,7 @@ Optional inputs for MRIStep
       :c:func:`MRIStepClearStopTime`.
 
 
-.. c:function:: int MRIStepInterpolateStopTime(void* arkode_mem, booleantype interp)
+.. c:function:: int MRIStepSetInterpolateStopTime(void* arkode_mem, booleantype interp)
 
    Specifies that the output solution should be interpolated when the current
    :math:`t` equals the specified ``tstop`` (instead of merely copying the

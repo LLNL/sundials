@@ -717,17 +717,17 @@ int CVodeSetStopTime(void *cvode_mem, realtype tstop)
 }
 
 /*
- * CVodeInterpolateStopTime
+ * CVodeSetInterpolateStopTime
  *
  * Specifies to use interpolation to fill the returned solution at the stop time (instead of a copy).
  */
 
-int CVodeInterpolateStopTime(void *cvode_mem, booleantype interp)
+int CVodeSetInterpolateStopTime(void *cvode_mem, booleantype interp)
 {
   CVodeMem cv_mem;
 
   if (cvode_mem==NULL) {
-    cvProcessError(NULL, CV_MEM_NULL, "CVODES", "CVodeInterpolateStopTime", MSGCV_NO_MEM);
+    cvProcessError(NULL, CV_MEM_NULL, "CVODES", "CVodeSetInterpolateStopTime", MSGCV_NO_MEM);
     return (CV_MEM_NULL);
   }
   cv_mem = (CVodeMem) cvode_mem;

@@ -520,17 +520,17 @@ int arkSetStopTime(void *arkode_mem, realtype tstop)
 
 
 /*---------------------------------------------------------------
-  arkInterpolateStopTime:
+  arkSetInterpolateStopTime:
 
   Specifies to use interpolation to fill the solution output at
   the stop time (instead of a copy).
   ---------------------------------------------------------------*/
-int arkInterpolateStopTime(void *arkode_mem, booleantype interp)
+int arkSetInterpolateStopTime(void *arkode_mem, booleantype interp)
 {
   ARKodeMem ark_mem;
   if (arkode_mem==NULL) {
     arkProcessError(NULL, ARK_MEM_NULL, "ARKODE",
-                    "arkInterpolateStopTime", MSG_ARK_NO_MEM);
+                    "arkSetInterpolateStopTime", MSG_ARK_NO_MEM);
     return (ARK_MEM_NULL);
   }
   ark_mem = (ARKodeMem) arkode_mem;

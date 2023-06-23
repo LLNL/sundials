@@ -59,8 +59,9 @@ int ERKStepSetMaxStep(void *arkode_mem, realtype hmax) {
   return(arkSetMaxStep(arkode_mem, hmax)); }
 int ERKStepSetStopTime(void *arkode_mem, realtype tstop) {
   return(arkSetStopTime(arkode_mem, tstop)); }
-int ERKStepInterpolateStopTime(void *arkode_mem, booleantype interp) {
-  return(arkInterpolateStopTime(arkode_mem, interp)); }
+int ERKStepSetInterpolateStopTime(void *arkode_mem,
+                                  booleantype interp) {
+  return(arkSetInterpolateStopTime(arkode_mem, interp)); }
 int ERKStepClearStopTime(void *arkode_mem) {
   return(arkClearStopTime(arkode_mem)); }
 int ERKStepSetRootDirection(void *arkode_mem, int *rootdir) {
