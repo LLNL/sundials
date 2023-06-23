@@ -19,10 +19,10 @@
 
 # Examples using SUNDIALS linear solvers
 set(IDA_examples
-  "idaFoodWeb_kry_bbd_p.c\;--\;1\;4\;exclude-single"
-  "idaFoodWeb_kry_p.c\;--\;1\;4\;exclude-single"
-  "idaHeat2D_kry_bbd_p.c\;--\;1\;4\;exclude-single"
-  "idaHeat2D_kry_p.c\;--\;1\;4\;exclude-single"
+  "idaFoodWeb_kry_bbd_p.c\; \"\" \;1\;4\;exclude-single"
+  "idaFoodWeb_kry_p.c\; \"\" \;1\;4\;exclude-single"
+  "idaHeat2D_kry_bbd_p.c\; \"\" \;1\;4\;exclude-single"
+  "idaHeat2D_kry_p.c\; \"\" \;1\;4\;exclude-single"
   )
 
 if(MPI_C_COMPILER)
@@ -43,11 +43,14 @@ set(SUNDIALS_LIBS ${IDA_LIB} ${NVECP_LIB} ${EXE_EXTRA_LINK_LIBS})
 # Add the build and install targets for each example
 foreach(example_tuple ${IDA_examples})
 
-  list(GET example_tuple 0 example)
-  list(GET example_tuple 1 example_args)
-  list(GET example_tuple 2 number_of_nodes)
-  list(GET example_tuple 3 number_of_tasks)
-  list(GET example_tuple 4 example_type)
+  # parse the example tuple using sundials_parse_tuple macro
+  sundials_parse_tuple( IDA_examples 
+    FILENAME_VAR example
+    PARAMS_VAR example_args
+    NODES_VAR number_of_nodes
+    NPROCS_VAR number_of_tasks
+    TYPE_VAR example_type
+  ) 
 
   # example source files
   add_executable(${example} ${example})
@@ -74,6 +77,7 @@ endforeach(example_tuple ${IDA_examples})
 if(EXAMPLES_INSTALL)
 
   sundials_install_examples(ida IDA_examples
+    HAS_MPI
     CMAKE_TEMPLATE
       cmakelists_C_MPI_ex.in
     MAKE_TEMPLATE

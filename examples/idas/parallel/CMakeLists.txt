@@ -19,14 +19,14 @@
 
 # Examples using SUNDIALS linear solvers
 set(IDAS_examples
-  "idasBruss_ASAp_kry_bbd_p.c\;--\;1\;4\;exclude-single"
-  "idasBruss_FSA_kry_bbd_p.c\;--\;1\;4\;exclude-single"
-  "idasBruss_kry_bbd_p.c\;--\;1\;4\;exclude-single"
-  "idasFoodWeb_kry_bbd_p.c\;--\;1\;4\;exclude-single"
-  "idasFoodWeb_kry_p.c\;--\;1\;4\;exclude-single"
-  "idasHeat2D_FSA_kry_bbd_p.c\;-sensi stg t\;1\;4\;exclude-single"
-  "idasHeat2D_kry_bbd_p.c\;--\;1\;4\;exclude-single"
-  "idasHeat2D_kry_p.c\;--\;1\;4\;exclude-single"
+  "idasBruss_ASAp_kry_bbd_p.c\; \"\" \;1\;4\;exclude-single"
+  "idasBruss_FSA_kry_bbd_p.c\; \"\" \;1\;4\;exclude-single"
+  "idasBruss_kry_bbd_p.c\; \"\" \;1\;4\;exclude-single"
+  "idasFoodWeb_kry_bbd_p.c\; \"\" \;1\;4\;exclude-single"
+  "idasFoodWeb_kry_p.c\; \"\" \;1\;4\;exclude-single"
+  "idasHeat2D_FSA_kry_bbd_p.c\; \"-sensi stg t\" \;1\;4\;exclude-single"
+  "idasHeat2D_kry_bbd_p.c\; \"\" \;1\;4\;exclude-single"
+  "idasHeat2D_kry_p.c\; \"\" \;1\;4\;exclude-single"
   )
 
 if(MPI_C_COMPILER)
@@ -48,12 +48,14 @@ set(SUNDIALS_LIBS ${IDAS_LIB} ${NVECP_LIB} ${EXE_EXTRA_LINK_LIBS})
 # Add the build and install targets for each example
 foreach(example_tuple ${IDAS_examples})
 
-  # parse the example tuple
-  list(GET example_tuple 0 example)
-  list(GET example_tuple 1 example_args)
-  list(GET example_tuple 2 number_of_nodes)
-  list(GET example_tuple 3 number_of_tasks)
-  list(GET example_tuple 4 example_type)
+  # parse the example tuple using sundials_parse_tuple macro
+  sundials_parse_tuple( IDAS_examples 
+    FILENAME_VAR example
+    PARAMS_VAR example_args
+    NODES_VAR number_of_nodes
+    NPROCS_VAR number_of_tasks
+    TYPE_VAR example_type
+  ) 
 
   # check if this example has already been added, only need to add
   # example source files once for testing with different inputs
@@ -96,6 +98,7 @@ endforeach(example_tuple ${IDAS_examples})
 if(EXAMPLES_INSTALL)
 
   sundials_install_examples(idas IDAS_examples
+    HAS_MPI
     CMAKE_TEMPLATE
       cmakelists_C_MPI_ex.in
     MAKE_TEMPLATE
