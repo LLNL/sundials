@@ -92,8 +92,9 @@ include_directories(. @EXTRA_INCLUDES@)
 
 # Set the names of the examples to be built and their dependencies
 set(examples @EXAMPLES@)
-set(examples_args @ALL_EXAMPLE_ARGS@)
-set(examples_num_procs @ALL_EXAMPLES_NPROCS@)
+set(examples_args @ALL_EXAMPLES_ARGS@)
+set(examples_num_of_nodes @ALL_EXAMPLES_NUM_OF_NODES@)
+set(examples_nprocs @ALL_EXAMPLES_NPROCS@)
 set(examples_dependencies @EXAMPLES_DEPENDENCIES@)
 if(examples)
   list(REMOVE_DUPLICATES examples)
@@ -107,6 +108,8 @@ foreach(idx RANGE ${len})
 
   list(GET examples ${idx} example)
   list(GET examples_args ${idx} example_args)
+  list(GET examples_nprocs ${idx} example_nprocs)
+  list(GET examples_num_of_nodes ${idx} example_num_of_nodes)
 
   # get filename without extension
   get_filename_component(example_target ${example} NAME_WE)
