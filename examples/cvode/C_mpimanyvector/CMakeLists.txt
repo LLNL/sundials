@@ -19,7 +19,7 @@
 
 # Examples using SUNDIALS linear solvers
 set(CVODE_examples
-  "cvDiurnal_kry_mpimanyvec.c\;2\;4\;develop"
+  "cvDiurnal_kry_mpimanyvec.c\; \" \" \;2\;4\;develop"
   )
 
 if(MPI_C_COMPILER)
@@ -42,11 +42,14 @@ set(SUNDIALS_LIBS ${CVODE_LIB} ${NVECP_LIB} ${EXE_EXTRA_LINK_LIBS})
 # Add the build and install targets for each example
 foreach(example_tuple ${CVODE_examples})
 
-  # parse the example tuple
-  list(GET example_tuple 0 example)
-  list(GET example_tuple 1 number_of_nodes)
-  list(GET example_tuple 2 number_of_tasks)
-  list(GET example_tuple 3 example_type)
+  # parse the example tuple using sundials_parse_tuple macro
+  sundials_parse_tuple( CVODE_examples
+    FILENAME_VAR example
+    PARAMS_VAR example_args
+    NODES_VAR number_of_nodes
+    NPROCS_VAR number_of_tasks
+    TYPE_VAR example_type
+  ) 
 
   # example source files
   add_executable(${example} ${example})
@@ -77,6 +80,7 @@ if(EXAMPLES_INSTALL)
   endif()
 
   sundials_install_examples(cvode CVODE_examples
+    HAS_MPI
     CMAKE_TEMPLATE
       cmakelists_C_MPI_ex.in
     MAKE_TEMPLATE

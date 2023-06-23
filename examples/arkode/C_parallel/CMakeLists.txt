@@ -19,16 +19,18 @@
 
 # Examples using SUNDIALS linear solvers
 set(ARKODE_examples
-  "ark_diurnal_kry_p.c\;\;1\;4\;exclude-single\;default"
-  "ark_diurnal_kry_bbd_p.c\;\;1\;4\;exclude-single\;default"
+  "ark_diurnal_kry_p.c\; \"\" \;1\;4\;exclude-single\;default"
+  "ark_diurnal_kry_bbd_p.c\; \"\" \;1\;4\;exclude-single\;default"
   )
 
 if(SUNDIALS_PRECISION MATCHES "DOUBLE" AND
    SUNDIALS_INDEX_SIZE MATCHES "64")
 
-  list(APPEND ARKODE_examples "ark_brusselator1D_task_local_nls.c\;--monitor\;1\;4\;develop\;2")
-  list(APPEND ARKODE_examples "ark_brusselator1D_task_local_nls.c\;--monitor --global-nls\;1\;4\;develop\;2")
-  list(APPEND ARKODE_examples "ark_brusselator1D_task_local_nls.c\;--monitor --explicit --tf 3\;1\;4\;develop\;2")
+  list(APPEND ARKODE_examples "ark_brusselator1D_task_local_nls.c\; \"--monitor\" \;1\;4\;develop\;2")
+  list(APPEND ARKODE_examples "ark_brusselator1D_task_local_nls.c\; \"--monitor --global-nls\" \;1\;4\;develop\;2")
+  list(APPEND ARKODE_examples "ark_brusselator1D_task_local_nls.c\; \"--monitor --explicit --tf 3\" \;1\;4\;develop\;2")
+
+  #sundials_add_example(ARKODE_examples)
 
   # Auxiliary files to install
   set(ARKODE_extras
@@ -52,13 +54,15 @@ set(SUNDIALS_LIBS ${ARKODE_LIB} ${NVECP_LIB} ${EXE_EXTRA_LINK_LIBS})
 # Add the build and install targets for each ARKODE example
 foreach(example_tuple ${ARKODE_examples})
 
-  # parse the example tuple
-  list(GET example_tuple 0 example)
-  list(GET example_tuple 1 example_args)
-  list(GET example_tuple 2 number_of_nodes)
-  list(GET example_tuple 3 number_of_tasks)
-  list(GET example_tuple 4 example_type)
-  list(GET example_tuple 5 example_precision)
+ # parse the example tuple using sundials_parse_tuple macro
+  sundials_parse_tuple( ARKODE_examples 
+    FILENAME_VAR example
+    PARAMS_VAR example_args
+    NODES_VAR number_of_nodes
+    NPROCS_VAR number_of_tasks
+    TYPE_VAR example_type
+    PRECISION_VAR example_precision
+  ) 
 
   if(NOT TARGET ${example})
     # example source files
@@ -99,6 +103,7 @@ endforeach(example_tuple ${ARKODE_examples})
 if(EXAMPLES_INSTALL)
 
   sundials_install_examples(arkode ARKODE_examples
+    HAS_MPI
     CMAKE_TEMPLATE
       cmakelists_C_MPI_ex.in
     MAKE_TEMPLATE
