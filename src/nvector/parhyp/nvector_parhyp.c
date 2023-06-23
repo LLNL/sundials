@@ -17,28 +17,56 @@
  * This is the implementation file for a HYPRE ParVector wrapper
  * for the NVECTOR package.
  * -----------------------------------------------------------------*/
-
-#include <stdio.h>
-#include <stdlib.h>
-
 #include <nvector/nvector_parhyp.h>
 
-/* backend-specific headers */
+/* --- Backend-specific headers --- */
+
 #if defined(SUNDIALS_HYPRE_BACKENDS_SERIAL)
 #pragma message "hypre backend SERIAL confirmed from nvector_parhyp.c"
-#elif defined(SUNDIALS_HYPRE_BACKENDS_CUDA)
-#pragma message "hypre backend CUDA confirmed from nvector_parhyp.c"
-#include "VectorKernels.cuh" /* located in src/nvector/cuda     */
-#include "sundials_debug.h"  /* located in src/nvector/sundials */
-#include "sundials_cuda.h"   /* located in src/nvector/sundials */
-#elif defined(SUNDIALS_HYPRE_BACKENDS_HIP)
-#pragma message "hypre backend HIP confirmed from nvector_parhyp.c"
+#include <stdio.h>
+#include <stdlib.h>
+#elif defined(SUNDIALS_HYPRE_BACKENDS_CUDA_OR_HIP)
+#include <cmath>
+#include <limits>
+#include <cstdio>
+#include <cstdlib>
+#include <iostream>
+#include "sundials_debug.h"           /* located in src/nvector/sundials */
 #endif
+
+#if defined(SUNDIALS_HYPRE_BACKENDS_CUDA)
+#pragma message "hypre backend CUDA confirmed from nvector_parhyp.c"
+#include "sundials_cuda.h"            /* located in src/nvector/sundials */
+#include "VectorKernels.cuh"          /* located in src/nvector/cuda     */
+#include "VectorArrayKernels.cuh"     /* located in src/nvector/cuda     */
+#endif
+
+#if defined(SUNDIALS_HYPRE_BACKENDS_HIP)
+#pragma message "hypre backend HIP confirmed from nvector_parhyp.c"
+#include "sundials_hip.h"             /* located in src/nvector/sundials */
+#include "VectorKernels.hip.hpp"      /* located in src/nvector/hip      */
+#include "VectorArrayKernels.hip.hpp" /* located in src/nvector/hip      */
+#endif
+
+/* --- Defined constants --- */
 
 #define ZERO   RCONST(0.0)
 #define HALF   RCONST(0.5)
 #define ONE    RCONST(1.0)
 #define ONEPT5 RCONST(1.5)
+
+/* --- Backend-specific namespaces --- */
+
+#if defined(SUNDIALS_HYPRE_BACKENDS_CUDA)
+using namespace sundials;
+using namespace sundials::cuda;
+using namespace sundials::cuda::impl;
+
+#elif defined(SUNDIALS_HYPRE_BACKENDS_HIP)
+using namespace sundials;
+using namespace sundials::hip;
+using namespace sundials::hip::impl;
+#endif
 
 /*
  * -----------------------------------------------------------------
@@ -103,22 +131,33 @@
  * -----------------------------------------------------------------
  */
 
-#define NV_CONTENT_PH(v)    ( (N_VectorContent_ParHyp)(v->content) )
-
-#define NV_LOCLENGTH_PH(v)  ( NV_CONTENT_PH(v)->local_length )
-
-#define NV_GLOBLENGTH_PH(v) ( NV_CONTENT_PH(v)->global_length )
-
-#define NV_OWN_PARVEC_PH(v) ( NV_CONTENT_PH(v)->own_parvector )
-
+#define NV_CONTENT_PH(v)      ( (N_VectorContent_ParHyp)(v->content) )
+#define NV_LOCLENGTH_PH(v)    ( NV_CONTENT_PH(v)->local_length )
+#define NV_GLOBLENGTH_PH(v)   ( NV_CONTENT_PH(v)->global_length )
+#define NV_OWN_PARVEC_PH(v)   ( NV_CONTENT_PH(v)->own_parvector )
+#define NV_COMM_PH(v)         ( NV_CONTENT_PH(v)->comm )
 #define NV_HYPRE_PARVEC_PH(v) ( NV_CONTENT_PH(v)->x )
 
-#define NV_DATA_PH(v)       ( NV_HYPRE_PARVEC_PH(v) == NULL ? NULL : hypre_VectorData(hypre_ParVectorLocalVector(NV_HYPRE_PARVEC_PH(v))) )
+/* --- Backend-dependent macros --- */
 
-#define NV_COMM_PH(v)       ( NV_CONTENT_PH(v)->comm )
+#if defined(SUNDIALS_HYPRE_BACKENDS_SERIAL)
+#define NV_DATA_PH(v)         ( NV_HYPRE_PARVEC_PH(v) == NULL ? NULL : hypre_VectorData(hypre_ParVectorLocalVector(NV_HYPRE_PARVEC_PH(v))) )
 
+#elif defined(SUNDIALS_HYPRE_BACKENDS_CUDA_OR_HIP)
+// Macros to access vector content
+#define NV_MEMSIZE_PH(x)  (NV_CONTENT_PH(x)->length * sizeof(realtype))
+#define NV_MEMHELP_PH(x)  (NV_CONTENT_PH(x)->mem_helper)
+#define NV_HDATAp_PH(x)   ((realtype*) NV_CONTENT_PH(x)->host_data->ptr)
+#define NV_DDATAp_PH(x)   ((realtype*) NV_CONTENT_PH(x)->device_data->ptr)
+#define NV_STREAM_PH(x)   (NV_CONTENT_PH(x)->stream_exec_policy->stream())
+// Macros to access vector private content
+#define NV_PRIVATE_PH(x)   ((N_PrivateVectorContent_Cuda)(NV_CONTENT_PH(x)->priv))
+#define NV_HBUFFERp_PH(x)  ((realtype*) NVEC_CUDA_PRIVATE(x)->reduce_buffer_host->ptr)
+#define NV_DBUFFERp_PH(x)  ((realtype*) NVEC_CUDA_PRIVATE(x)->reduce_buffer_dev->ptr)
+#define NV_DCOUNTERp_PH(x) ((unsigned int*) NVEC_CUDA_PRIVATE(x)->device_counter->ptr)
+#endif
 
-/* Private function prototypes */
+/* --- Private function prototypes --- */
 
 /* z=x+y */
 static void VSum_ParHyp(N_Vector x, N_Vector y, N_Vector z);
