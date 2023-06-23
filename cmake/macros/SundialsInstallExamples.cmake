@@ -72,7 +72,7 @@
 
 macro(sundials_install_examples MODULE EXAMPLES_VAR)
 
-  set(options )
+  set(options HAS_MPI)
   set(oneValueArgs SOLVER_LIBRARY DESTINATION CMAKE_TEMPLATE MAKE_TEMPLATE
     TEST_INSTALL)
   set(multiValueArgs SUNDIALS_TARGETS SUNDIALS_COMPONENTS OTHER_TARGETS
@@ -88,11 +88,21 @@ macro(sundials_install_examples MODULE EXAMPLES_VAR)
   endforeach()
 
   # Install the examples
-  set(ALL_EXAMPLE_ARGS )
-  foreach(example_tuple ${${EXAMPLES_VAR}})
+  set(ALL_EXAMPLES_ARGS)
+  if(${sundials_install_examples_HAS_MPI})
+    set(ALL_EXAMPLES_NUM_OF_NODES)
+    set(ALL_EXAMPLES_NPROCS)
+  endif()
+    foreach(example_tuple ${${EXAMPLES_VAR}})
     list(GET example_tuple 0 example) # filename always has to be the first item in the example tuple
     list(GET example_tuple 1 example_args) # args always has to be the second item in the example tuple
-    list(APPEND ALL_EXAMPLE_ARGS ${example_args})
+    list(APPEND ALL_EXAMPLES_ARGS ${example_args})
+    if(${sundials_install_examples_HAS_MPI})
+      list(GET example_tuple 2 example_num_of_nodes) # of nodes always have to be the third item in the example tuple
+      list(APPEND ALL_EXAMPLES_NUM_OF_NODES ${example_num_of_nodes})
+      list(GET example_tuple 3 example_nprocs) # processes always have to be the fourth item in the example tuple
+      list(APPEND ALL_EXAMPLES_NPROCS ${example_nprocs})
+    endif()
     get_filename_component(example_noext ${example} NAME_WE)
     file(GLOB example_header ${example_noext}.h*)
     file(GLOB example_out ${example_noext}*.out)
