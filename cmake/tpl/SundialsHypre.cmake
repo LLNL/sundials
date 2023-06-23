@@ -147,10 +147,10 @@ if(HYPRE_FOUND AND (NOT HYPRE_WORKS))
     "TARGET_LINK_LIBRARIES(ltest ${HYPRE_LIBRARIES})\n"
     "SET_SOURCE_FILES_PROPERTIES(ltest.c LANGUAGE ${_hypre_test_file_language})\n")
 
-  if(SUNDIALS_HYPRE_BACKENDS MATCHES "CUDA")
-    file(APPEND ${HYPRE_TEST_DIR}/CMakeLists.txt
-      "TARGET_COMPILE_FEATURES(ltest PUBLIC USE_CUDA)\n")
-  endif()
+  # if(SUNDIALS_HYPRE_BACKENDS MATCHES "CUDA")
+  #   file(APPEND ${HYPRE_TEST_DIR}/CMakeLists.txt
+  #     "TARGET_COMPILE_FEATURES(ltest PUBLIC USE_CUDA)\n")
+  # endif()
 
   file(WRITE ${HYPRE_TEST_DIR}/ltest.c
   "\#include \"HYPRE_parcsr_ls.h\"\n"

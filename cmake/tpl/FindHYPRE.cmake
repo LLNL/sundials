@@ -42,21 +42,20 @@ endif()
 unset(temp_HYPRE_INCLUDE_DIR CACHE)
 
 # --- Find hypre library ---
-if (HYPRE_LIBRARY)
-    # We have (or were given) HYPRE_LIBRARY - get path to use for any related libs
-    get_filename_component(HYPRE_LIBRARY_DIR ${HYPRE_LIBRARY} PATH)
-
-    # force CACHE update to show user DIR that will be used
-    set(HYPRE_LIBRARY_DIR ${HYPRE_LIBRARY_DIR} CACHE PATH "" FORCE)
+if ((NOT HYPRE_LIBRARY) OR (NOT HYPRE_DIR EQUAL HYPRE_DIR_OLD))
+  # If we don't have HYPRE_LIBRARY *or* the user has updated HYPRE_DIR, search provided path
+  set(HYPRE_LIBRARY_NAMES hypre HYPRE)
+  find_library(HYPRE_LIBRARY
+    NAMES ${HYPRE_LIBRARY_NAMES}
+    HINTS "${HYPRE_DIR}" "${HYPRE_DIR}/lib" "${HYPRE_DIR}/lib64" "${HYPRE_LIBRARY_DIR}"
+    NO_DEFAULT_PATH)
 else ()
-    # find library with user provided directory path
-    set(HYPRE_LIBRARY_NAMES hypre HYPRE)
-    find_library(HYPRE_LIBRARY
-      NAMES ${HYPRE_LIBRARY_NAMES}
-      HINTS "${HYPRE_DIR}" "${HYPRE_DIR}/lib" "${HYPRE_DIR}/lib64" "${HYPRE_LIBRARY_DIR}"
-      NO_DEFAULT_PATH
-      )
+  # We have (or were given) HYPRE_LIBRARY - get path to use for any related libs
+  get_filename_component(HYPRE_LIBRARY_DIR ${HYPRE_LIBRARY} PATH)
+  # Force CACHE update to show user DIR that will be used
+  set(HYPRE_LIBRARY_DIR ${HYPRE_LIBRARY_DIR} CACHE PATH "" FORCE)
 endif ()
+set(HYPRE_DIR_OLD ${HYPRE_DIR})
 mark_as_advanced(HYPRE_LIBRARY)
 
 # --- Append found library to HYPRE_LIBRARIES ---
