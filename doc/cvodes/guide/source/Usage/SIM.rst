@@ -721,7 +721,7 @@ of two modes as to where CVODES is to return a solution. But these
 modes are modified if the user has set a stop time (with :c:func:`CVodeSetStopTime`) or requested
 rootfinding.
 
-.. c:function:: int CVode(void* cvode_mem, realtype tout, N_Vector yout, realtype tret, int itask)
+.. c:function:: int CVode(void* cvode_mem, realtype tout, N_Vector yout, realtype* tret, int itask)
 
    The function ``CVode`` integrates the ODE over an interval in t.
 
