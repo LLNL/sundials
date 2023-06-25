@@ -1627,8 +1627,8 @@ the :c:func:`CVodeSetEpsLin` function.
 
 .. _CVODES.Usage.SIM.optional_input.optin_nls:
 
-Linear solver interface optional input functions
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+Nonlinear solver interface optional input functions
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 .. _CVODES.Usage.SIM.optional_input.optin_nls_table:
 
