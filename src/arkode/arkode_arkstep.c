@@ -1059,7 +1059,7 @@ int arkStep_GetGammas(void* arkode_mem, realtype *gamma,
   - initializes and sets up the nonlinear solver (if applicable)
   - allocates the interpolation data structure (if needed based
     on ARKStep solver options)
-  - updates the call_fullrhs flag if necessary
+  - updates the call_fullrhs_start flag if necessary
 
   With initialization type FIRST_INIT or RESIZE_INIT, this routine:
   - sets the relevant TakeStep routine based on the current
@@ -1209,7 +1209,7 @@ int arkStep_Init(void* arkode_mem, int init_type)
 
     /* If the bootstrap predictor is enabled, signal to shared arkode module that
        fullrhs is required after each step */
-    if (step_mem->predictor == 4)  ark_mem->call_fullrhs = SUNTRUE;
+    if (step_mem->predictor == 4)  ark_mem->call_fullrhs_start = SUNTRUE;
   }
 
   /* set appropriate TakeStep routine based on problem configuration */

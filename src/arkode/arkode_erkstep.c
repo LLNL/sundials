@@ -493,7 +493,6 @@ void ERKStepPrintMem(void* arkode_mem, FILE* outfile)
   - sets/checks the ARK Butcher tables to be used
   - allocates any memory that depends on the number of ARK
     stages, method order, or solver options
-  - sets the call_fullrhs flag
 
   With other initialization types, this routine does nothing.
   ---------------------------------------------------------------*/
@@ -592,9 +591,6 @@ int erkStep_Init(void* arkode_mem, int init_type)
       return (ARK_ILL_INPUT);
     }
   }
-
-  /* Signal to shared arkode module that fullrhs is required after each step */
-  ark_mem->call_fullrhs = SUNTRUE;
 
   return(ARK_SUCCESS);
 }
@@ -765,6 +761,18 @@ int erkStep_TakeStep(void* arkode_mem, realtype *dsmPtr, int *nflagPtr)
                      "step = %li, stage = 0, h = %"RSYM", tcur = %"RSYM,
                      ark_mem->nst, ark_mem->h, ark_mem->tcur);
 #endif
+
+  /* if fullrhs has not been called, fill in F[0] */
+  if (!ark_mem->call_fullrhs_start) {
+    retval = step_mem->f(ark_mem->tn, ark_mem->ycur,
+                         step_mem->F[0], ark_mem->user_data);
+    step_mem->nfe++;
+    if (retval != 0) {
+      arkProcessError(ark_mem, ARK_RHSFUNC_FAIL, "ARKODE::ERKStep",
+                      "erkStep_TakeStep", MSG_ARK_RHSFUNC_FAILED, ark_mem->tn);
+      return(ARK_RHSFUNC_FAIL);
+    }
+  }
 
 #ifdef SUNDIALS_LOGGING_EXTRA_DEBUG
   SUNLogger_QueueMsg(ARK_LOGGER, SUN_LOGLEVEL_DEBUG,

@@ -408,8 +408,9 @@ int arkInterpInit_Hermite(void* arkode_mem, ARKInterp interp,
   /* copy fnew into fold */
   N_VScale(ONE, HINT_FNEW(interp), HINT_FOLD(interp));
 
-  /* signal that fullrhs is required after each step */
-  ark_mem->call_fullrhs = SUNTRUE;
+  /* signal that fullrhs is required at both "ends" of the time step */
+  ark_mem->call_fullrhs_start = SUNTRUE;
+  ark_mem->call_fullrhs_end   = SUNTRUE;
 
   /* return with success */
   return(ARK_SUCCESS);

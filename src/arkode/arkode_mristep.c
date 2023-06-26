@@ -131,7 +131,7 @@ void* MRIStepCreate(ARKRhsFn fse, ARKRhsFn fsi, realtype t0, N_Vector y0,
   step_mem->implicit_rhs = (fsi == NULL) ? SUNFALSE : SUNTRUE;
 
   /* Update the ARKODE workspace requirements */
-  ark_mem->liw += 42;  /* fcn/data ptr, int, long int, sunindextype, booleantype */
+  ark_mem->liw += 43;  /* fcn/data ptr, int, long int, sunindextype, booleantype */
   ark_mem->lrw += 10;
 
   /* Create a default Newton NLS object (just in case; will be deleted if
@@ -965,7 +965,6 @@ int mriStep_GetGammas(void* arkode_mem, realtype *gamma,
   - sets/checks the ARK Butcher tables to be used
   - allocates any memory that depends on the number of ARK
     stages, method order, or solver options
-  - sets the call_fullrhs flag
 
   With other initialization types, this routine does nothing.
   ---------------------------------------------------------------*/
@@ -1207,9 +1206,6 @@ int mriStep_Init(void* arkode_mem, int init_type)
     }
   }
 
-  /* Signal to shared arkode module that fullrhs is required after each step */
-  ark_mem->call_fullrhs = SUNTRUE;
-
   return(ARK_SUCCESS);
 }
 
@@ -1249,6 +1245,13 @@ int mriStep_FullRHS(void* arkode_mem, realtype t, N_Vector y, N_Vector f,
   retval = mriStep_AccessStepMem(arkode_mem, "mriStep_FullRHS",
                                  &ark_mem, &step_mem);
   if (retval != ARK_SUCCESS) return(retval);
+
+  /* ensure that inner stepper provides fullrhs function */
+  if (step_mem->stepper->ops->fullrhs == NULL) {
+    arkProcessError(ark_mem, ARK_ILL_INPUT, "ARKODE::MRIStep",
+                    "mriStep_FullRHS", MSG_ARK_MISSING_FULLRHS);
+    return(ARK_ILL_INPUT);
+  }
 
   /* perform RHS functions contingent on 'mode' argument */
   switch(mode) {
@@ -1461,6 +1464,30 @@ int mriStep_TakeStep(void* arkode_mem, realtype *dsmPtr, int *nflagPtr)
   printf("    MRIStep step %li,  stage 0,  h = %"RSYM",  t_n = %"RSYM"\n",
          ark_mem->nst, ark_mem->h, ark_mem->tcur);
 #endif
+
+  /* if fullrhs has not been called, fill in Fse[0] and Fsi[0] as applicable */
+  if (!ark_mem->call_fullrhs_start) {
+    if (step_mem->explicit_rhs) {
+      retval = step_mem->fse(ark_mem->tn, ark_mem->ycur,
+                             step_mem->Fse[0], ark_mem->user_data);
+      step_mem->nfse++;
+      if (retval != 0) {
+         arkProcessError(ark_mem, ARK_RHSFUNC_FAIL, "ARKODE::MRIStep",
+                         "mriStep_TakeStep", MSG_ARK_RHSFUNC_FAILED, ark_mem->tn);
+         return(ARK_RHSFUNC_FAIL);
+      }
+    }
+    if (step_mem->implicit_rhs) {
+      retval = step_mem->fsi(ark_mem->tn, ark_mem->ycur,
+                             step_mem->Fsi[0], ark_mem->user_data);
+      step_mem->nfsi++;
+      if (retval != 0) {
+        arkProcessError(ark_mem, ARK_RHSFUNC_FAIL, "ARKODE::MRIStep",
+                        "mriStep_TakeStep", MSG_ARK_RHSFUNC_FAILED, ark_mem->tn);
+        return(ARK_RHSFUNC_FAIL);
+      }
+    }
+  }
 
 #ifdef SUNDIALS_LOGGING_EXTRA_DEBUG
   SUNLogger_QueueMsg(ARK_LOGGER, SUN_LOGLEVEL_DEBUG,
@@ -2729,7 +2756,7 @@ int mriStepInnerStepper_HasRequiredOps(MRIStepInnerStepper stepper)
   if (stepper == NULL) return ARK_ILL_INPUT;
   if (stepper->ops == NULL) return ARK_ILL_INPUT;
 
-  if (stepper->ops->evolve && stepper->ops->fullrhs)
+  if (stepper->ops->evolve)
     return ARK_SUCCESS;
   else
     return ARK_ILL_INPUT;

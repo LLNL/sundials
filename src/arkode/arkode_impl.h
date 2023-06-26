@@ -394,7 +394,8 @@ typedef struct ARKodeMemRec {
   int         init_type;    /* initialization type (see constants above)  */
   booleantype firststage;   /* denotes first stage in simulation          */
   booleantype initialized;  /* denotes arkInitialSetup has been done      */
-  booleantype call_fullrhs; /* denotes fn needs updating after each step  */
+  booleantype call_fullrhs_start; /* denotes fn needs updating before or  */
+  booleantype call_fullrhs_end;   /*    after each step                   */
 
   /* Error handler function and error ouput file */
   ARKErrHandlerFn ehfun;    /* error messages are handled by ehfun        */
@@ -1131,7 +1132,7 @@ int arkGetLastKFlag(void *arkode_mem, int *last_kflag);
 #define MSG_ARK_POSTPROCESS_STAGE_FAIL "At " MSG_TIME ", the stage postprocessing routine failed in an unrecoverable manner."
 #define MSG_ARK_NULL_SUNCTX "sunctx = NULL illegal."
 #define MSG_ARK_CONTEXT_MISMATCH "Outer and inner steppers have different contexts."
-
+#define MSG_ARK_MISSING_FULLRHS "Time-stepping module missing fullrhs routine (required by requested solver configuration)."
 #ifdef __cplusplus
 }
 #endif
