@@ -13,23 +13,23 @@
    SUNDIALS Copyright End
    ----------------------------------------------------------------
 
-.. CVode_example documentation master file, created by
+.. IDA_example documentation master file, created by
    sphinx-quickstart on Wed Jun 14 02:10:03 2023.
    You can adapt this file completely to your liking, but it should at least
    contain the root `toctree` directive.
 
 ==============================================
-CVode Example documentation
+IDA Example documentation
 ==============================================
 
-This is the documentation for the CVode examples.  CVode is a
+This is the documentation for the IDA examples.  IDA is a
 Krylov method integration package for stiff, nonstiff and
 multi-rate systems of ordinary differential equations (ODEs).
-The CVode solver is a component of the `SUNDIALS
+The IDA solver is a component of the `SUNDIALS
 <https://computing.llnl.gov/projects/sundials>`_ suite of
 nonlinear and differential/algebraic equation solvers. It is designed
 to have a similar user experience to the `CVODE
-<https://computing.llnl.gov/projects/sundials/cvode>`_
+<https://computing.llnl.gov/projects/sundials/ida>`_
 solver, with user modes to allow adaptive integration to specified
 output times, return after each internal step and root-finding
 capabilities, for calculations both in serial and parallel (via
@@ -37,23 +37,23 @@ MPI). The default integration and solver options should apply to most
 users, though complete control over all internal parameters and time
 adaptivity algorithms is enabled through optional interface routines.
 
-CVode is developed by `Lawrence Livermore National Laboratory
+IDA is developed by `Lawrence Livermore National Laboratory
 <http://www.llnl.gov>`_, with support by the `US Department of Energy
 <http://www.doe.gov>`_ through the `FASTMath
 <https://scidac5-fastmath.lbl.gov/>`_ SciDAC-5 Institute, under
 subcontract 07NA27344.
 
-Along with the CVode solver, we have created a suite of example
+Along with the IDA solver, we have created a suite of example
 problems demonstrating its usage on applications written in C, C++ and
-Fortran 2003.  These examples demonstrate a large variety of CVode
+Fortran 2003.  These examples demonstrate a large variety of IDA
 solver options, including explicit, implicit and ImEx solvers, root-
 finding, Newton and fixed-point nonlinear solvers, direct and iterative
 linear solvers, adaptive resize capabilities, and the Fortran solver
 interface.  While these examples are not an exhaustive set of all
 possible usage scenarios, they are designed to show a variety of
-exemplars, and can be used as templates for new problems using CVode's
-solvers.  Further information on the CVode package itself may be found
-in the accompanying CVode user guide [R2018]_.
+exemplars, and can be used as templates for new problems using IDA's
+solvers.  Further information on the IDA package itself may be found
+in the accompanying IDA user guide [R2018]_.
 
 The following tables summarize the salient features of each of the
 example problems in this document.  Each example is designed to be
@@ -62,7 +62,7 @@ the problem that is most closely related to your own.  We group these
 examples according to programming language (C, C++, Fortran 2003).
 
 
-CVode example problems written in C are summarized in the table
+IDA example problems written in C are summarized in the table
 below, and are further described in the chapters :ref:`serial_c`,
 :ref:`openmp_c`, :ref:`parallel_c` and :ref:`parhyp_c`.
 
@@ -104,7 +104,7 @@ Problem                            Integrator    Nonlinear     Linear      Size 
 ================================   ============  ============  ==========  =============  =====================================================
 
 
-CVode example problems written in C++ are summarized in the table
+IDA example problems written in C++ are summarized in the table
 below, and are further described in the chapters :ref:`serial_cpp`
 and :ref:`parallel_cpp`.
 
@@ -123,7 +123,7 @@ Problem                            Integrator  Nonlinear    Linear  Size        
 =================================  ==========  ===========  ======  =============  =================================
 
 
-CVode example problems written in Fortran 2003 are summarized in the table
+IDA example problems written in Fortran 2003 are summarized in the table
 below, and are further described in the chapters :ref:`serial_f2003` and
 :ref:`parallel_f2003`.
 

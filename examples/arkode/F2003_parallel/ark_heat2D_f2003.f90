@@ -227,6 +227,7 @@ contains
   subroutine Exchange(sunvec_y, ierr)
       ! declarations
       use fsundials_nvector_mod
+      use fnvector_serial_mod
       implicit none
       include "mpif.h"
       type(N_Vector), intent(inout) :: sunvec_y
@@ -445,6 +446,7 @@ contains
    subroutine PRMS(sunvec_y,yrms,ierr)
       ! declarations
       use fsundials_nvector_mod
+      use fnvector_serial_mod
       implicit none
       include "mpif.h"
       type(N_Vector), intent(inout) :: sunvec_y
@@ -476,6 +478,7 @@ contains
 
       use, intrinsic :: iso_c_binding
       use fsundials_nvector_mod
+      use fnvector_serial_mod
 
       implicit none
       save
@@ -723,6 +726,7 @@ module Output_Fns
 
       use, intrinsic :: iso_c_binding
       use fsundials_nvector_mod         ! Access generic N_Vector
+      use fnvector_serial_mod           ! Access serial N_Vector
 
       implicit none
       save
@@ -817,6 +821,8 @@ program driver
   ! solution vector and other local variables
   type(N_Vector), pointer  :: sunvec_ys
   type(N_Vector), pointer  :: sunvec_y
+  type(N_Vector), pointer  :: sunvec_ydots
+  type(N_Vector), pointer  :: sunvec_ydot
   type(SUNLinearSolver), pointer :: sunlinsol_LS
   type(SUNMatrix), pointer :: sunmat_A
   type(c_ptr)              :: arkode_mem           ! ARKODE memory structure
@@ -890,6 +896,8 @@ program driver
   ! Create solution vector
   sunvec_ys => FN_VNew_Serial(int(Ntot, c_long), sunctx)
   sunvec_y  => FN_VMake_MPIPlusX(comm, sunvec_ys, sunctx)
+  sunvec_ydots => FN_VNew_Serial(int(Ntot, c_long), sunctx)
+  sunvec_ydot  => FN_VMake_MPIPlusX(comm, sunvec_ydots, sunctx)
 
   ! Initial problem output
   outproc = (myid == 0)
