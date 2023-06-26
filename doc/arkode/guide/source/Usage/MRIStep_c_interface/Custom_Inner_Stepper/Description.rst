@@ -366,6 +366,12 @@ member functions:
       * ``examples/arkode/CXX_parallel/ark_diffusion_reaction_p.cpp``
 
 
+Optional Member Functions
+"""""""""""""""""""""""""
+
+An :c:type:`MRIStepInnerStepper` *may* provide implementations of any of the
+following member functions:
+
 .. c:type:: int (*MRIStepInnerFullRhsFn)(MRIStepInnerStepper stepper, realtype t, N_Vector v, N_Vector f, int mode)
 
    This function computes the full right-hand side function of the inner (fast)
@@ -393,11 +399,10 @@ member functions:
    **Example codes:**
       * ``examples/arkode/CXX_parallel/ark_diffusion_reaction_p.cpp``
 
-Optional Member Functions
-"""""""""""""""""""""""""
-
-An :c:type:`MRIStepInnerStepper` *may* provide implementations of any of the
-following member functions:
+   **Notes:**
+      This function will instead be required by MRIStep if: the Hermite interpolation
+      module is used, the user requests temporal root-finding, or the user requests the
+      now-deprecated "bootstrap" predictor method (see :c:func:`MRIStepSetPredictorMethod`).
 
 .. c:type:: int (*MRIStepInnerResetFn)(MRIStepInnerStepper stepper, realtype tR, N_Vector vR)
 

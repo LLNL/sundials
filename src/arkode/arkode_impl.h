@@ -791,6 +791,14 @@ typedef struct ARKodeMemRec {
   maximize reuse between calls to this function and RHS
   evaluations inside the stepper itself.
 
+  This routine is only required to be supplied to ARKODE if:
+  * ARKODE's initial time step selection algorithm is used,
+  * the user requests temporal root-finding,
+  * the Hermite interpolation module is used, or
+  * the user requests the "bootstrap" implicit predictor.
+  Note that any stepper can itself require that this routine
+  exist for its own internal business (e.g., ERKStep).
+
   This routine should return 0 if successful, and a negative value
   otherwise.  If an error does occur, an appropriate message
   should be sent to the error handler function.

@@ -10,6 +10,15 @@ Updated the F2003 utility routines `SUNDIALSFileOpen` and `SUNDIALSFileClose`
 to support user specification of `stdout` and `stderr` strings for the output
 file names.
 
+Updated main ARKODE infrastructure so that the time-stepping module `fullrhs` routine,
+and the `MRIStepInnerFullRhsFn` for MRIStep are optional.  These may still be
+required based on integrator usage, including: use of the internal initial time step
+size selection algorithm, use of the Hermite interpolation module, use of temporal
+root-finding, use of the now-deprecated "bootstrap" predictor method (see
+`MRIStepSetPredictorMethod` and `ARKStepSetPredictorMethod`).  When `fullrhs`
+is not in fact required, one vector of ARKODE storage (the size of the IVP solution)
+is left unallocated.
+
 ## Changes to SUNDIALS in release 6.5.1
 
 Added the functions `ARKStepClearStopTime`, `ERKStepClearStopTime`,
