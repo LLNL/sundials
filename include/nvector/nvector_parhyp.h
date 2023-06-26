@@ -42,6 +42,8 @@
 #define _NVECTOR_PARHYP_H
 
 #include <mpi.h>
+#include <stdio.h>
+#include <stdlib.h>
 
 /* --- SUNDIALS and hypre headers --- */
 
@@ -56,25 +58,21 @@
 
 #if defined(SUNDIALS_HYPRE_BACKENDS_SERIAL)
 #pragma message "hypre backend SERIAL confirmed from nvector_parhyp.h"
-#include <stdio.h>
-#include <stdlib.h>
 
 #elif defined(SUNDIALS_HYPRE_BACKENDS_CUDA)
 #pragma message "hypre backend CUDA confirmed from nvector_parhyp.h"
-#include <stdio.h>
 #include <cuda_runtime.h>
 #include <sundials/sundials_cuda_policies.hpp>
 #include <sunmemory/sunmemory_cuda.h>
 
 #elif defined(SUNDIALS_HYPRE_BACKENDS_HIP)
 #pragma message "hypre backend HIP confirmed from nvector_parhyp.h"
-#include <stdio.h>
 #include <hip/hip_runtime.h>
 #include <sundials/sundials_hip_policies.hpp>
 #include <sunmemory/sunmemory_hip.h>
 #endif
 
-/* --- Backend-specific defines and macros --- */
+/* --- Backend-specific definitions --- */
 
 #if defined(SUNDIALS_HYPRE_BACKENDS_CUDA) || defined(SUNDIALS_HYPRE_BACKENDS_HIP)
 #define SUNDIALS_HYPRE_BACKENDS_CUDA_OR_HIP
@@ -84,15 +82,11 @@
 #define NV_PH_LANG CUDA
 #define NV_PH_Lang Cuda
 #define NV_PH_lang cuda
-
 #elif defined(SUNDIALS_HYPRE_BACKENDS_HIP)
 #define NV_PH_LANG HIP
 #define NV_PH_Lang Hip
 #define NV_PH_lang hip
-
 #endif
-
-/* wrapper to enable C++ usage */
 
 /* --- Wrapper to enable C++ usage --- */
 
@@ -106,7 +100,8 @@ extern "C" {
  * -----------------------------------------------------------------
  */
 
-struct _N_VectorContent_ParHyp {
+struct _N_VectorContent_ParHyp
+{
   sunindextype local_length;  /* local vector length         */
   sunindextype global_length; /* global vector length        */
   booleantype own_parvector;  /* ownership of HYPRE vector   */
@@ -115,18 +110,17 @@ struct _N_VectorContent_ParHyp {
   SUNCudaExecPolicy* stream_exec_policy;
   SUNCudaExecPolicy* reduce_exec_policy;
   SUNMemoryHelper    mem_helper;
-  void*              priv; /* 'private' data */
+  void*              priv;    /* 'private' data */
 #elif defined(SUNDIALS_HYPRE_BACKENDS_HIP)
   SUNHipExecPolicy*  stream_exec_policy;
   SUNHipExecPolicy*  reduce_exec_policy;
   SUNMemoryHelper    mem_helper;
-  void*              priv; /* 'private' data */
+  void*              priv;    /* 'private' data */
 #endif
   HYPRE_ParVector x;          /* the actual HYPRE_ParVector object */
 };
 
 typedef struct _N_VectorContent_ParHyp *N_VectorContent_ParHyp;
-
 
 /*
  * -----------------------------------------------------------------
