@@ -411,6 +411,10 @@ int main(int argc, char *argv[])
   retval = ARKStepSetFixedStep(inner_arkode_mem, hf);
   if (check_retval(&retval, "ARKStepSetFixedStep", 1)) return 1;
 
+  /* Set the Lagrange interpolation module */
+  retval = ARKStepSetInterpolantType(inner_arkode_mem, ARK_INTERP_LAGRANGE);
+  if (check_retval(&retval, "ARKStepSetInterpolantType", 1)) return 1;
+
   /* Create inner stepper */
   retval = ARKStepCreateMRIStepInnerStepper(inner_arkode_mem,
                                             &inner_stepper);
@@ -550,6 +554,10 @@ int main(int argc, char *argv[])
   /* Set the slow step size */
   retval = MRIStepSetFixedStep(arkode_mem, hs);
   if (check_retval(&retval, "MRIStepSetFixedStep", 1)) return 1;
+
+  /* Set the Lagrange interpolation module */
+  retval = MRIStepSetInterpolantType(arkode_mem, ARK_INTERP_LAGRANGE);
+  if (check_retval(&retval, "MRIStepSetInterpolantType", 1)) return 1;
 
   /*
    * Integrate ODE

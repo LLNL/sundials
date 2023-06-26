@@ -140,6 +140,8 @@ int main()
   if (check_flag(&flag, "ARKStepSStolerances", 1)) return 1;
   flag = ARKStepSetConstraints(arkode_mem, constraints);    /* Set constraints */
   if (check_flag(&flag, "ARKStepSetConstraints", 1)) return 1;
+  flag = ARKStepSetInterpolantType(arkode_mem, ARK_INTERP_LAGRANGE); /* Lagrange interpolation */
+  if (check_flag(&flag, "ARKStepSetInterpolantType", 1)) return 1;
 
   /* Initialize dense matrix data structure and solver */
   A = SUNDenseMatrix(NEQ, NEQ, ctx);

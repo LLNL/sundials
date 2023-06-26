@@ -110,6 +110,8 @@ int main()
   if (check_retval(&retval, "ARKStepSetUserData", 1)) return 1;
   retval = ARKStepSStolerances(arkode_mem, reltol, abstol);  /* Specify tolerances */
   if (check_retval(&retval, "ARKStepSStolerances", 1)) return 1;
+  retval = ARKStepSetInterpolantType(arkode_mem, ARK_INTERP_LAGRANGE); /* Lagrange interpolant */
+  if (check_retval(&retval, "ARKStepSetInterpolantType", 1)) return 1;
 
   /* Initialize custom matrix-embedded linear solver */
   LS = MatrixEmbeddedLS(arkode_mem, ctx);

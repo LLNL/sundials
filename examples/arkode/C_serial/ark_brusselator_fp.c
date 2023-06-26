@@ -184,6 +184,8 @@ int main(int argc, char *argv[])
   if (check_flag(&flag, "ARKStepSStolerances", 1)) return 1;
   flag = ARKStepSetMaxNonlinIters(arkode_mem, maxcor);       /* Increase default iterations */
   if (check_flag(&flag, "ARKStepSetMaxNonlinIters", 1)) return 1;
+  flag = ARKStepSetInterpolantType(arkode_mem, ARK_INTERP_LAGRANGE);  /* Lagrange interpolation */
+  if (check_flag(&flag, "ARKStepSetInterpolantType", 1)) return 1;
 
   /* Open output stream for results, output comment line */
   UFID = fopen("solution.txt","w");

@@ -592,6 +592,10 @@ int erkStep_Init(void* arkode_mem, int init_type)
     }
   }
 
+  /* Indicate to ARKODE to evaluate the RHS before/after each step */
+  ark_mem->call_fullrhs_start = SUNTRUE;
+  ark_mem->call_fullrhs_end = SUNTRUE;
+
   return(ARK_SUCCESS);
 }
 

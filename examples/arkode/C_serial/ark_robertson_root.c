@@ -72,7 +72,7 @@ int main()
   realtype TMult = RCONST(10.0); /* output time multiplication factor */
   int Nt = 12;                   /* total number of output times */
   sunindextype NEQ = 3;              /* number of dependent vars. */
- 
+
   /* rootfinding variables */
   int rootsfound[2];
   int rtflag;         /* root info flag */
@@ -139,6 +139,8 @@ int main()
   if (check_flag(&flag, "ARKStepSetPredictorMethod", 1)) return 1;
   flag = ARKStepSVtolerances(arkode_mem, reltol, atols);      /* Specify tolerances */
   if (check_flag(&flag, "ARKStepSStolerances", 1)) return 1;
+  flag = ARKStepSetInterpolantType(arkode_mem, ARK_INTERP_LAGRANGE); /* Lagrange interpolation */
+  if (check_flag(&flag, "ARKStepSetInterpolantType", 1)) return 1;
 
   /* Specify the root-finding function, having 2 equations */
   flag = ARKStepRootInit(arkode_mem, 2, g);

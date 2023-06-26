@@ -155,6 +155,10 @@ int main() {
   retval = ARKStepSetFixedStep(inner_arkode_mem, hf);
   if (check_retval(&retval, "ARKStepSetFixedStep", 1)) return 1;
 
+  /* Specify the Lagrange interpolation module */
+  retval = ARKStepSetInterpolantType(inner_arkode_mem, ARK_INTERP_LAGRANGE);
+  if (check_retval(&retval, "ARKStepSetInterpolantType", 1)) return 1;
+
   /* Create inner stepper */
   retval = ARKStepCreateMRIStepInnerStepper(inner_arkode_mem,
                                             &inner_stepper);
@@ -177,6 +181,10 @@ int main() {
   /* Set the slow step size */
   retval = MRIStepSetFixedStep(arkode_mem, hs);
   if (check_retval(&retval, "MRIStepSetFixedStep", 1)) return 1;
+
+  /* Specify the Lagrange interpolation module */
+  retval = MRIStepSetInterpolantType(arkode_mem, ARK_INTERP_LAGRANGE);
+  if (check_retval(&retval, "MRIStepSetInterpolantType", 1)) return 1;
 
   /* Increase max num steps  */
   retval = MRIStepSetMaxNumSteps(arkode_mem, 10000);

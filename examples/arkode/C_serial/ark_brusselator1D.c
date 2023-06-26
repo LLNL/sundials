@@ -207,6 +207,8 @@ int main()
   if (check_flag(&flag, "ARKStepSetUserData", 1)) return 1;
   flag = ARKStepSStolerances(arkode_mem, reltol, abstol);    /* Specify tolerances */
   if (check_flag(&flag, "ARKStepSStolerances", 1)) return 1;
+  flag = ARKStepSetInterpolantType(arkode_mem, ARK_INTERP_LAGRANGE); /* Lagrange interpolant */
+  if (check_flag(&flag, "ARKStepSetInterpolantType", 1)) return 1;
 
   /* Initialize band matrix data structure and solver -- A will be factored, so set smu to ml+mu */
   A = SUNBandMatrix(NEQ, 4, 4, ctx);

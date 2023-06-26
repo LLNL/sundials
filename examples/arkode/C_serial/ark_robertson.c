@@ -128,6 +128,9 @@ int main()
   if (check_flag(&flag, "ARKStepSetPredictorMethod", 1)) return 1;
   flag = ARKStepSStolerances(arkode_mem, reltol, abstol);     /* Specify tolerances */
   if (check_flag(&flag, "ARKStepSStolerances", 1)) return 1;
+  flag = ARKStepSetInterpolantType(arkode_mem, ARK_INTERP_LAGRANGE); /* Lagrange interpolation */
+  if (check_flag(&flag, "ARKStepSetInterpolantType", 1)) return 1;
+
 
   /* Initialize dense matrix data structure and solver */
   A = SUNDenseMatrix(NEQ, NEQ, ctx);

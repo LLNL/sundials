@@ -170,6 +170,8 @@ int main() {
   if (check_flag(&flag, "ARKStepSetAdaptivityMethod", 1)) return 1;
   flag = ARKStepSetPredictorMethod(arkode_mem, 0);     /* Set predictor method */
   if (check_flag(&flag, "ARKStepSetPredictorMethod", 1)) return 1;
+  flag = ARKStepSetInterpolantType(arkode_mem, ARK_INTERP_LAGRANGE);  /* Lagrange interpolation */
+  if (check_flag(&flag, "ARKStepSetInterpolantType", 1)) return 1;
 
   /* Specify linearly implicit RHS, with time-dependent Jacobian */
   flag = ARKStepSetLinear(arkode_mem, 1);

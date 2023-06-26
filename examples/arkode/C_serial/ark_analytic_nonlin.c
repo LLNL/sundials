@@ -92,6 +92,10 @@ int main()
   flag = ERKStepSStolerances(arkode_mem, reltol, abstol);
   if (check_flag(&flag, "ERKStepSStolerances", 1)) return 1;
 
+  /* Set Lagrange interpolation module */
+  flag = ERKStepSetInterpolantType(arkode_mem, ARK_INTERP_LAGRANGE);
+  if (check_flag(&flag, "ERKStepSetInterpolantType", 1)) return 1;
+
   /* Open output stream for results, output comment line */
   UFID = fopen("solution.txt","w");
   fprintf(UFID,"# t u\n");

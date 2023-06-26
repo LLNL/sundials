@@ -512,6 +512,10 @@ int main(int argc, char *argv[])
   retval = ARKStepSetFixedStep(inner_arkode_mem, hf);
   if (check_retval(&retval, "ARKStepSetFixedStep", 1)) return 1;
 
+  /* Set Lagrange interpolation type */
+  retval = ARKStepSetInterpolantType(inner_arkode_mem, ARK_INTERP_LAGRANGE);
+  if (check_retval(&retval, "ARKStepSetInterpolantType", 1)) return 1;
+
   /* Create inner stepper */
   retval = ARKStepCreateMRIStepInnerStepper(inner_arkode_mem,
                                             &inner_stepper);
@@ -647,6 +651,10 @@ int main(int argc, char *argv[])
   /* Set maximum number of steps taken by solver */
   retval = MRIStepSetMaxNumSteps(arkode_mem, 1000000);
   if (check_retval(&retval, "MRIStepSetMaxNumSteps", 1)) return 1;
+
+  /* Set Lagrange interpolation type */
+  retval = MRIStepSetInterpolantType(arkode_mem, ARK_INTERP_LAGRANGE);
+  if (check_retval(&retval, "MRIStepSetInterpolantType", 1)) return 1;
 
   /*
    * Integrate ODE
