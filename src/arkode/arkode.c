@@ -1427,8 +1427,10 @@ void arkPrintMem(ARKodeMem ark_mem, FILE *outfile)
   N_VPrintFile(ark_mem->ycur, outfile);
   fprintf(outfile, "yn:\n");
   N_VPrintFile(ark_mem->yn, outfile);
-  fprintf(outfile, "fn:\n");
-  N_VPrintFile(ark_mem->fn, outfile);
+  if (ark_mem->fn != NULL) {
+    fprintf(outfile, "fn:\n");
+    N_VPrintFile(ark_mem->fn, outfile);
+  }
   fprintf(outfile, "tempv1:\n");
   N_VPrintFile(ark_mem->tempv1, outfile);
   fprintf(outfile, "tempv2:\n");
@@ -1661,10 +1663,6 @@ booleantype arkAllocVectors(ARKodeMem ark_mem, N_Vector tmpl)
   if (!arkAllocVec(ark_mem, tmpl, &ark_mem->yn))
     return(SUNFALSE);
 
-  /* Allocate fn if needed */
-  if (!arkAllocVec(ark_mem, tmpl, &ark_mem->fn))
-    return(SUNFALSE);
-
   /* Allocate tempv1 if needed */
   if (!arkAllocVec(ark_mem, tmpl, &ark_mem->tempv1))
     return(SUNFALSE);
@@ -1778,7 +1776,9 @@ void arkFreeVectors(ARKodeMem ark_mem)
   arkFreeVec(ark_mem, &ark_mem->tempv3);
   arkFreeVec(ark_mem, &ark_mem->tempv4);
   arkFreeVec(ark_mem, &ark_mem->yn);
-  arkFreeVec(ark_mem, &ark_mem->fn);
+  if (ark_mem->fn != NULL) {
+    arkFreeVec(ark_mem, &ark_mem->fn);
+  }
   arkFreeVec(ark_mem, &ark_mem->Vabstol);
   arkFreeVec(ark_mem, &ark_mem->constraints);
 }
@@ -1902,6 +1902,15 @@ int arkInitialSetup(ARKodeMem ark_mem, realtype tout)
   if (ark_mem->interp != NULL) {
     retval = arkInterpInit(ark_mem, ark_mem->interp, ark_mem->tcur);
     if (retval != 0)  return(retval);
+  }
+
+  /* Allocate fn if fullrhs was requested by any subsidiary module */
+  if (ark_mem->call_fullrhs_start || ark_mem->call_fullrhs_end) {
+    if (!arkAllocVec(ark_mem, ark_mem->yn, &ark_mem->fn)) {
+      arkProcessError(ark_mem, ARK_MEM_FAIL, "ARKODE",
+                      "arkInitialSetup", MSG_ARK_MEM_FAIL);
+      return(ARK_MEM_FAIL);
+    }
   }
 
   /* Call fullrhs if indicated as needed (stepper-requested, Hermite
