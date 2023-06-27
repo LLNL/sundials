@@ -141,8 +141,18 @@ ARKodeSPRKStorage ARKodeSymplecticMcLachlan3()
   ARKodeSPRKStorage sprk_storage = ARKodeSPRKStorage_Alloc(3);
   sprk_storage->q                = 3;
   sprk_storage->stages           = 3;
-  sprk_storage->a[0]             = SUN_RCONST(0.919661523017399857);
-  sprk_storage->a[1]             = SUN_RCONST(0.25) / sprk_storage->a[0] -
+
+  sunrealtype z =
+    -SUNRpowerR((SUN_RCONST(2.0) / SUN_RCONST(27.0)) -
+                  SUN_RCONST(1.0) / (SUN_RCONST(9.0) * SUNRsqrt(3.0)),
+                SUN_RCONST(1.0) / SUN_RCONST(3.0));
+  sunrealtype w = -SUN_RCONST(2.0) / SUN_RCONST(3.0) +
+                  SUN_RCONST(1.0) / (SUN_RCONST(9.0) * z) + z;
+  sunrealtype y      = (SUN_RCONST(1.0) + w * w) / SUN_RCONST(4.0);
+  sprk_storage->a[0] = SUNRsqrt(SUN_RCONST(1.0) / (SUN_RCONST(9.0) * y) -
+                                w / SUN_RCONST(2.0) + SUNRsqrt(y)) -
+                       SUN_RCONST(1.0) / (SUN_RCONST(3.0) * SUNRsqrt(y));
+  sprk_storage->a[1] = SUN_RCONST(0.25) / sprk_storage->a[0] -
                        sprk_storage->a[0] / SUN_RCONST(2.0);
   sprk_storage->a[2] = SUN_RCONST(1.0) - sprk_storage->a[0] - sprk_storage->a[1];
   sprk_storage->ahat[0] = sprk_storage->a[2];
