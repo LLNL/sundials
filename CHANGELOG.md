@@ -11,7 +11,9 @@ to support user specification of `stdout` and `stderr` strings for the output
 file names.
 
 A new time-stepping module, `SPRKStep`, was added to ARKODE. This time-stepper
-provides symplectic partitioned Runge-Kutta methods for Hamiltonian systems. 
+provides explicit symplectic partitioned Runge-Kutta methods up to order 10 
+for separable Hamiltonian systems. 
+
 
 ## Changes to SUNDIALS in release 6.5.1
 

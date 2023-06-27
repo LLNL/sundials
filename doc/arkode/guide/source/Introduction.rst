@@ -143,8 +143,8 @@ to support user specification of ``stdout`` and ``stderr`` strings for the outpu
 file names.
 
 A new time-stepping module, :ref:`SPRKStep <ARKODE.Mathematics.SPRKStep>`, was
-added to ARKODE. This time-stepper provides symplectic partitioned Runge-Kutta
-methods for Hamiltonian systems. 
+added to ARKODE. This time-stepper provides explicit symplectic partitioned
+Runge-Kutta methods up to order 10 for separable Hamiltonian systems. 
 
 Changes in v5.5.1
 -----------------
