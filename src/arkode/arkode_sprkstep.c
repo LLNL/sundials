@@ -566,7 +566,7 @@ int sprkStep_FullRHS(void* arkode_mem, realtype t, N_Vector y, N_Vector f,
 /* Standard formulation of SPRK.
    This requires only 2 vectors in principle, but we use three
    since we persist the stage data. Only the stage data vector
-   belongs to SPRKStep, the rest are reused from ARKODE. */
+   belongs to SPRKStep, the other two are reused from the ARKODE core. */
 int sprkStep_TakeStep(void* arkode_mem, realtype* dsmPtr, int* nflagPtr)
 {
   ARKodeMem ark_mem          = NULL;

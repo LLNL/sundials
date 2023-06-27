@@ -657,7 +657,7 @@ int ParseArgs(int argc, char* argv[], ProgramArgs* args)
   args->dt               = SUN_RCONST(1e-2);
   args->tf               = SUN_RCONST(100.);
   args->check_order      = 0;
-  args->num_output_times = 1000;
+  args->num_output_times = 50;
 
   for (int argi = 1; argi < argc; argi++)
   {
