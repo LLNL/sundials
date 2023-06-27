@@ -46,10 +46,6 @@ static const int SPRKSTEP_DEFAULT_10 = ARKODE_SYMPLECTIC_SOFRONIOU_10_36;
 SUNDIALS_EXPORT void* SPRKStepCreate(ARKRhsFn f1, ARKRhsFn f2, realtype t0,
                                      N_Vector y0, SUNContext sunctx);
 
-SUNDIALS_EXPORT int SPRKStepResize(void* arkode_mem, N_Vector ynew,
-                                   realtype hscale, realtype t0,
-                                   ARKVecResizeFn resize, void* resize_data);
-
 SUNDIALS_EXPORT int SPRKStepReInit(void* arkode_mem, ARKRhsFn f1, ARKRhsFn f2,
                                    realtype t0, N_Vector y0);
 

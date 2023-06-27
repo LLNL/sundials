@@ -48,7 +48,8 @@ typedef struct ARKodeSPRKStepMemRec
   /* SPRK method and storage */
   ARKodeSPRKStorage method; /* method spec  */
   int q;                    /* method order */
-  N_Vector sdata;           /* persisted stage data         */
+  N_Vector sdata;           /* persisted stage data */
+  N_Vector yerr;            /* error vector for compensated summation */
 
   /* SPRK problem specification */
   ARKRhsFn f1; /* p' = f1(t,q) = - dV(t,q)/dq  */

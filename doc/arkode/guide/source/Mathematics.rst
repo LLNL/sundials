@@ -540,9 +540,8 @@ In the default case, the algorithm for a single time-step is as follows
 
 Optionally, a different algorithm leveraging compensated summation can be used
 that is more robust to roundoff error at the expense of 2 extra vector operations
-per stage and an additional 5 per time step, however, it signficantly more robust 
-to roundoff error accumulation. There is not increased memory usage as we reuse vectors
-already allocated in the ARKODE core.
+per stage and an additional 5 per time step. It also requires one extra vector to
+be stored.  However, it signficantly more robust to roundoff error accumulation.
 
 #. Set :math:`\Delta P_0 = 0, \Delta Q_1 = 0`
 

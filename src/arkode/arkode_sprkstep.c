@@ -108,6 +108,16 @@ void* SPRKStepCreate(ARKRhsFn f1, ARKRhsFn f2, realtype t0, N_Vector y0,
     return (NULL);
   }
 
+  if (ark_mem->use_compensated_sums)
+  {
+    if (!arkAllocVec(ark_mem, y0, &(step_mem->yerr)))
+    {
+      SPRKStepFree((void**)&ark_mem);
+      return (NULL);
+    }
+  }
+  else { step_mem->yerr = NULL; }
+
   /* Attach step_mem structure and function pointers to ark_mem */
   ark_mem->step_attachlinsol   = NULL;
   ark_mem->step_attachmasssol  = NULL;
@@ -142,6 +152,11 @@ void* SPRKStepCreate(ARKRhsFn f1, ARKRhsFn f2, realtype t0, N_Vector y0,
   step_mem->nf2    = 0;
   step_mem->istage = 0;
 
+  /* Zero yerr for compensated summation */
+  if (ark_mem->use_compensated_sums) {
+    N_VConst(ZERO, step_mem->yerr);
+  }
+
   /* Initialize main ARKODE infrastructure */
   retval = arkInit(ark_mem, t0, y0, FIRST_INIT);
   if (retval != ARK_SUCCESS)
@@ -157,37 +172,6 @@ void* SPRKStepCreate(ARKRhsFn f1, ARKRhsFn f2, realtype t0, N_Vector y0,
   arkSetInterpolantType(ark_mem, ARK_INTERP_LAGRANGE);
 
   return ((void*)ark_mem);
-}
-
-/*---------------------------------------------------------------
-  SPRKStepResize:
-
-  This routine resizes the memory within the SPRKStep module.
-  It first resizes the main ARKODE infrastructure memory, and
-  then resizes its own data.
-  ---------------------------------------------------------------*/
-int SPRKStepResize(void* arkode_mem, N_Vector ynew, realtype hscale,
-                   realtype t0, ARKVecResizeFn resize, void* resize_data)
-{
-  ARKodeMem ark_mem          = NULL;
-  ARKodeSPRKStepMem step_mem = NULL;
-  int retval                 = 0;
-
-  /* access ARKodeSPRKStepMem structure */
-  retval = sprkStep_AccessStepMem(arkode_mem, "SPRKStepResize", &ark_mem,
-                                  &step_mem);
-  if (retval != ARK_SUCCESS) { return (retval); }
-
-  /* resize ARKODE infrastructure memory */
-  retval = arkResize(ark_mem, ynew, hscale, t0, resize, resize_data);
-  if (retval != ARK_SUCCESS)
-  {
-    arkProcessError(ark_mem, retval, "ARKODE::SPRKStep", "SPRKStepResize",
-                    "Unable to resize main ARKODE infrastructure");
-    return (retval);
-  }
-
-  return (ARK_SUCCESS);
 }
 
 /*---------------------------------------------------------------
@@ -254,6 +238,9 @@ int SPRKStepReInit(void* arkode_mem, ARKRhsFn f1, ARKRhsFn f2, realtype t0,
   step_mem->nf1    = 0;
   step_mem->nf2    = 0;
   step_mem->istage = 0;
+
+  /* Zero yerr for compensated summation */
+  N_VConst(ZERO, step_mem->yerr);
 
   return (ARK_SUCCESS);
 }
@@ -361,6 +348,12 @@ void SPRKStepFree(void** arkode_mem)
     {
       arkFreeVec(ark_mem, &step_mem->sdata);
       step_mem->sdata = NULL;
+    }
+
+    if (step_mem->yerr != NULL)
+    {
+      arkFreeVec(ark_mem, &step_mem->yerr);
+      step_mem->yerr = NULL;
     }
 
     ARKodeSPRKStorage_Free(step_mem->method);
@@ -728,10 +721,10 @@ int sprkStep_TakeStep_Compensated(void* arkode_mem, realtype* dsmPtr,
     Now we compute the step solution via compensated summation.
      [ q_{n+1} ] = [ q_n ] + [ \Delta Q_i ]
      [ p_{n+1} ] = [ p_n ] + [ \Delta P_i ] */
-  N_VLinearSum(ONE, delta_Yi, -ONE, ark_mem->yerr, delta_Yi);
+  N_VLinearSum(ONE, delta_Yi, -ONE, step_mem->yerr, delta_Yi);
   N_VLinearSum(ONE, ark_mem->yn, ONE, delta_Yi, ark_mem->ycur);
   N_VLinearSum(ONE, ark_mem->ycur, -ONE, ark_mem->yn, diff);
-  N_VLinearSum(ONE, diff, -ONE, delta_Yi, ark_mem->yerr);
+  N_VLinearSum(ONE, diff, -ONE, delta_Yi, step_mem->yerr);
 
   *nflagPtr = 0;
   *dsmPtr   = 0;

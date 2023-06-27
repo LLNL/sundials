@@ -672,9 +672,8 @@ Optional inputs for IVP method selection
 
    **Notes:**
       This increases the computational cost by 2 extra vector operations per stage and
-      an additional 5 per time step, however, it signficantly more robust to roundoff
-      error accumulation. There is not increased memory usage as we reuse vectors
-      already allocated in the ARKODE core.
+      an additional 5 per time step. It also requires one extra vector to be stored. 
+      However, it signficantly more robust to roundoff error accumulation.
 
 
 .. _ARKODE.Usage.SPRKStep.SPRKStepRootfindingInput:
