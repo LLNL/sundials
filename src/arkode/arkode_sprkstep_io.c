@@ -24,6 +24,7 @@
 #include <sundials/sundials_math.h>
 #include <sundials/sundials_types.h>
 
+#include "arkode/arkode.h"
 #include "arkode/arkode_sprk.h"
 #include "arkode_sprkstep_impl.h"
 
@@ -51,7 +52,6 @@ int SPRKStepSetErrFile(void* arkode_mem, FILE* errfp)
 {
   return (arkSetErrFile(arkode_mem, errfp));
 }
-
 
 int SPRKStepSetMaxNumSteps(void* arkode_mem, long int mxsteps)
 {
@@ -302,7 +302,7 @@ int SPRKStepSetMethodName(void* arkode_mem, const char* method)
 
   step_mem->method = ARKodeSPRKStorage_LoadByName(method);
 
-  return (ARK_SUCCESS);
+  return step_mem->method ? ARK_SUCCESS : ARK_ILL_INPUT;
 }
 
 /*---------------------------------------------------------------
@@ -323,6 +323,8 @@ int SPRKStepSetOrder(void* arkode_mem, int ord)
   retval = sprkStep_AccessStepMem(arkode_mem, "SPRKStepSetOrder", &ark_mem,
                                   &step_mem);
   if (retval != ARK_SUCCESS) { return (retval); }
+
+  if (ord == 7 || ord == 9 || ord > 10) { return ARK_ILL_INPUT; }
 
   /* set user-provided value, or default, depending on argument */
   if (ord <= 0) { step_mem->q = 4; }
@@ -459,7 +461,7 @@ int SPRKStepWriteParameters(void* arkode_mem, FILE* fp)
   /* print integrator parameters to file */
   fprintf(fp, "SPRKStep time step module parameters:\n");
   fprintf(fp, "  Method order %i\n", step_mem->method->q);
-  fprintf(fp, "\n");
+  fprintf(fp, "  Method stages %i\n", step_mem->method->stages);
 
   return (ARK_SUCCESS);
 }
