@@ -20,44 +20,44 @@
 
 # Examples using SUNDIALS linear solvers
 set(CVODE_examples
-  "cvAdvDiff_bnd.c\;\;develop"
-  "cvAnalytic_mels.c\;\;develop"
-  "cvDirectDemo_ls.c\;\;develop"
-  "cvDisc_dns.c\;\;develop"
-  "cvDiurnal_kry_bp.c\;\;develop"
-  "cvDiurnal_kry.c\;\;develop"
-  "cvKrylovDemo_ls.c\;\;develop"
-  "cvKrylovDemo_ls.c\;1\;develop"
-  "cvKrylovDemo_ls.c\;2\;develop"
-  "cvKrylovDemo_prec.c\;\;develop"
-  "cvParticle_dns.c\;\;develop"
-  "cvPendulum_dns.c\;\;exclude-single"
-  "cvRoberts_dns.c\;\;"
-  "cvRoberts_dns_constraints.c\;\;develop"
-  "cvRoberts_dns_negsol.c\;\;exclude-single"
-  "cvRoberts_dns_uw.c\;\;develop"
-  "cvRocket_dns.c\;\;develop"
+  "cvAdvDiff_bnd.c\; \"\" \;develop"
+  "cvAnalytic_mels.c\; \"\" \;develop"
+  "cvDirectDemo_ls.c\; \"\" \;develop"
+  "cvDisc_dns.c\; \"\" \;develop"
+  "cvDiurnal_kry_bp.c\; \"\" \;develop"
+  "cvDiurnal_kry.c\; \"\" \;develop"
+  "cvKrylovDemo_ls.c\; \"\" \;develop"
+  "cvKrylovDemo_ls.c\;\"1\"\;develop"
+  "cvKrylovDemo_ls.c\;\"2\"\;develop"
+  "cvKrylovDemo_prec.c\; \"\" \;develop"
+  "cvParticle_dns.c\; \"\" \;develop"
+  "cvPendulum_dns.c\; \"\" \;exclude-single"
+  "cvRoberts_dns.c\; \"\" \; \"\" "
+  "cvRoberts_dns_constraints.c\; \"\" \;develop"
+  "cvRoberts_dns_negsol.c\; \"\" \;exclude-single"
+  "cvRoberts_dns_uw.c\; \"\" \;develop"
+  "cvRocket_dns.c\; \"\" \;develop"
   )
 
 if(SUNDIALS_BUILD_WITH_MONITORING)
-  list(APPEND CVODE_examples "cvKrylovDemo_ls.c\;0 1\;develop")
+  list(APPEND CVODE_examples "cvKrylovDemo_ls.c\;\"0 1\"\;develop")
 endif()
 
 # Examples using LAPACK linear solvers
 set(CVODE_examples_BL
-  "cvAdvDiff_bndL.c\;\;exclude-single"
-  "cvRoberts_dnsL.c\;\;exclude-single"
+  "cvAdvDiff_bndL.c\; \"\" \;exclude-single"
+  "cvRoberts_dnsL.c\; \"\" \;exclude-single"
   )
 
 # Examples using KLU linear solver
 set(CVODE_examples_KLU
-  "cvRoberts_block_klu.c\;\;develop"
-  "cvRoberts_klu.c\;\;develop"
+  "cvRoberts_block_klu.c\; \"\" \;develop"
+  "cvRoberts_klu.c\; \"\" \;develop"
   )
 
 # Examples using SuperLU_MT linear solver
 set(CVODE_examples_SUPERLUMT
-  "cvRoberts_sps.c\;\;develop"
+  "cvRoberts_sps.c\; \"\" \;develop"
   )
 
 # Auxiliary files to install
@@ -81,10 +81,12 @@ set(SUNDIALS_LIBS ${CVODE_LIB} ${NVECS_LIB} ${EXE_EXTRA_LINK_LIBS})
 # Add the build and install targets for each example
 foreach(example_tuple ${CVODE_examples})
 
-  # parse the example tuple
-  list(GET example_tuple 0 example)
-  list(GET example_tuple 1 example_args)
-  list(GET example_tuple 2 example_type)
+  # parse the example tuple using sundials_parse_tuple macro
+  sundials_parse_tuple( CVODES_examples 
+    FILENAME_VAR example
+    PARAMS_VAR example_args
+    TYPE_VAR example_type
+  ) 
 
   # check if this example has already been added, only need to add
   # example source files once for testing with different inputs
@@ -131,10 +133,12 @@ if(BUILD_SUNLINSOL_LAPACKBAND AND BUILD_SUNLINSOL_LAPACKDENSE)
 
   foreach(example_tuple ${CVODE_examples_BL})
 
-    # parse the example tuple
-    list(GET example_tuple 0 example)
-    list(GET example_tuple 1 example_args)
-    list(GET example_tuple 2 example_type)
+    # parse the example tuple using sundials_parse_tuple macro
+    sundials_parse_tuple( CVODES_examples 
+      FILENAME_VAR example
+      PARAMS_VAR example_args
+      TYPE_VAR example_type
+    ) 
 
     # check if this example has already been added, only need to add
     # example source files once for testing with different inputs
@@ -181,10 +185,12 @@ if(BUILD_SUNLINSOL_KLU)
 
   foreach(example_tuple ${CVODE_examples_KLU})
 
-    # parse the example tuple
-    list(GET example_tuple 0 example)
-    list(GET example_tuple 1 example_args)
-    list(GET example_tuple 2 example_type)
+    # parse the example tuple using sundials_parse_tuple macro
+    sundials_parse_tuple( CVODES_examples 
+      FILENAME_VAR example
+      PARAMS_VAR example_args
+      TYPE_VAR example_type
+    ) 
 
     # check if this example has already been added, only need to add
     # example source files once for testing with different inputs
@@ -231,10 +237,12 @@ if(BUILD_SUNLINSOL_SUPERLUMT)
 
   foreach(example_tuple ${CVODE_examples_SUPERLUMT})
 
-    # parse the example tuple
-    list(GET example_tuple 0 example)
-    list(GET example_tuple 1 example_args)
-    list(GET example_tuple 2 example_type)
+    # parse the example tuple using sundials_parse_tuple macro
+    sundials_parse_tuple( CVODES_examples 
+      FILENAME_VAR example
+      PARAMS_VAR example_args
+      TYPE_VAR example_type
+    ) 
 
     # check if this example has already been added, only need to add
     # example source files once for testing with different inputs

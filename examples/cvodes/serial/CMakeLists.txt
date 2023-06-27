@@ -20,58 +20,57 @@
 
 # Examples using SUNDIALS linear solvers
 set(CVODES_examples
-  "cvsAdvDiff_ASAi_bnd.c\;\;develop"
-  "cvsAdvDiff_FSA_non.c\;-sensi sim t\;exclude-single"
-  "cvsAdvDiff_FSA_non.c\;-sensi stg t\;exclude-single"
-  "cvsAdvDiff_bnd.c\;\;develop"
-  "cvsAnalytic_mels.c\;\;develop"
-  "cvsDirectDemo_ls.c\;\;develop"
-  "cvsDiurnal_FSA_kry.c\;-sensi sim t\;exclude-single"
-  "cvsDiurnal_FSA_kry.c\;-sensi stg t\;exclude-single"
-  "cvsDiurnal_kry.c\;\;develop"
-  "cvsDiurnal_kry_bp.c\;\;develop"
-  "cvsFoodWeb_ASAi_kry.c\;\;develop"
-  "cvsFoodWeb_ASAp_kry.c\;\;develop"
-  "cvsHessian_ASA_FSA.c\;\;exclude-single"
-  "cvsKrylovDemo_ls.c\;\;develop"
-  "cvsKrylovDemo_ls.c\;1\;develop"
-  "cvsKrylovDemo_ls.c\;2\;develop"
-  "cvsKrylovDemo_prec.c\;\;develop"
-  "cvsParticle_dns.c\;\;develop"
-  "cvsPendulum_dns.c\;\;exclude-single"
-  "cvsRoberts_ASAi_dns.c\;\;exclude-single"
-  "cvsRoberts_ASAi_dns_constraints.c\;\;develop"
-  "cvsRoberts_FSA_dns.c\;-sensi sim t\;exclude-single"
-  "cvsRoberts_FSA_dns.c\;-sensi stg1 t\;exclude-single"
-  "cvsRoberts_FSA_dns_Switch.c\;\;exclude-single"
-  "cvsRoberts_FSA_dns_constraints.c\;-sensi stg1 t\;exclude-single"
-  "cvsRoberts_dns.c\;\;"
-  "cvsRoberts_dns_constraints.c\;\;develop"
-  "cvsRoberts_dns_uw.c\;\;develop"
+  "cvsAdvDiff_FSA_non.c\; \"-sensi sim t\" \;exclude-single"
+  "cvsAdvDiff_FSA_non.c\; \"-sensi stg t\" \;exclude-single"
+  "cvsAdvDiff_bnd.c\; \"\" \;develop"
+  "cvsAnalytic_mels.c\; \"\" \;develop"
+  "cvsDirectDemo_ls.c\; \"\" \;develop"
+  "cvsDiurnal_FSA_kry.c\; \"-sensi sim t\" \;exclude-single"
+  "cvsDiurnal_FSA_kry.c\; \"-sensi stg t\" \;exclude-single"
+  "cvsDiurnal_kry.c\; \"\" \;develop"
+  "cvsDiurnal_kry_bp.c\; \"\" \;develop"
+  "cvsFoodWeb_ASAi_kry.c\; \"\" \;develop"
+  "cvsFoodWeb_ASAp_kry.c\; \"\" \;develop"
+  "cvsHessian_ASA_FSA.c\; \"\" \;exclude-single"
+  "cvsKrylovDemo_ls.c\; \"\" \;develop"
+  "cvsKrylovDemo_ls.c\; \"1\" \;develop"
+  "cvsKrylovDemo_ls.c\; \"2\" \;develop"
+  "cvsKrylovDemo_prec.c\; \"\" \;develop"
+  "cvsParticle_dns.c\; \"\" \;develop"
+  "cvsPendulum_dns.c\; \"\" \;exclude-single"
+  "cvsRoberts_ASAi_dns.c\; \"\" \;exclude-single"
+  "cvsRoberts_ASAi_dns_constraints.c\; \"\" \;develop"
+  "cvsRoberts_FSA_dns.c\; \"-sensi sim t\" \;exclude-single"
+  "cvsRoberts_FSA_dns.c\; \"-sensi stg1 t\" \;exclude-single"
+  "cvsRoberts_FSA_dns_Switch.c\; \"\" \;exclude-single"
+  "cvsRoberts_FSA_dns_constraints.c\; \"-sensi stg1 t\" \;exclude-single"
+  "cvsRoberts_dns.c\; \"\" \; \"\" "
+  "cvsRoberts_dns_constraints.c\; \"\" \;develop"
+  "cvsRoberts_dns_uw.c\; \"\" \;develop"
   )
 
 if(SUNDIALS_BUILD_WITH_MONITORING)
-  list(APPEND CVODE_examples "cvsKrylovDemo_ls.c\;0 1\;develop")
+  list(APPEND CVODE_examples "cvsKrylovDemo_ls.c\; \"0 1\" \;develop")
 endif()
 
 # Examples using LAPACK linear solvers
 set(CVODES_examples_BL
-  "cvsAdvDiff_bndL.c\;\;exclude-single"
-  "cvsRoberts_dnsL.c\;\;exclude-single"
+  "cvsAdvDiff_bndL.c\; \"\" \;exclude-single"
+  "cvsRoberts_dnsL.c\; \"\" \;exclude-single"
   )
 
 # Examples using KLU linear solver
 set(CVODES_examples_KLU
-  "cvsRoberts_ASAi_klu.c\;\;develop"
-  "cvsRoberts_FSA_klu.c\;-sensi stg1 t\;develop"
-  "cvsRoberts_klu.c\;\;develop"
+  "cvsRoberts_ASAi_klu.c\; \"\" \;develop"
+  "cvsRoberts_FSA_klu.c\; \"-sensi stg1 t\" \;develop"
+  "cvsRoberts_klu.c\; \"\" \;develop"
   )
 
 # Examples using SuperLU_MT linear solver
 set(CVODES_examples_SUPERLUMT
-  "cvsRoberts_ASAi_sps.c\;\;exclude-single"
-  "cvsRoberts_FSA_sps.c\;-sensi stg1 t\;exclude-single"
-  "cvsRoberts_sps.c\;\;develop"
+  "cvsRoberts_ASAi_sps.c\ \"\" ;\;exclude-single"
+  "cvsRoberts_FSA_sps.c\; \"-sensi stg1 t\" \;exclude-single"
+  "cvsRoberts_sps.c\; \"\" \;develop"
   )
 
 # Auxiliary files to install
@@ -96,11 +95,12 @@ set(SUNDIALS_LIBS ${CVODES_LIB} ${NVECS_LIB} ${EXE_EXTRA_LINK_LIBS})
 # Add the build and install targets for each example
 foreach(example_tuple ${CVODES_examples})
 
-  # parse the example tuple
-  list(GET example_tuple 0 example)
-  list(GET example_tuple 1 example_args)
-  list(GET example_tuple 2 example_type)
-
+  # parse the example tuple using sundials_parse_tuple macro
+  sundials_parse_tuple( CVODES_examples 
+    FILENAME_VAR example
+    PARAMS_VAR example_args
+    TYPE_VAR example_type
+  ) 
   # check if this example has already been added, only need to add
   # example source files once for testing with different inputs
   if(NOT TARGET ${example})
@@ -146,10 +146,12 @@ if(BUILD_SUNLINSOL_LAPACKBAND AND BUILD_SUNLINSOL_LAPACKDENSE)
 
   foreach(example_tuple ${CVODES_examples_BL})
 
-    # parse the example tuple
-    list(GET example_tuple 0 example)
-    list(GET example_tuple 1 example_args)
-    list(GET example_tuple 2 example_type)
+    # parse the example tuple using sundials_parse_tuple macro
+    sundials_parse_tuple( CVODES_examples 
+      FILENAME_VAR example
+      PARAMS_VAR example_args
+      TYPE_VAR example_type
+    ) 
 
     # check if this example has already been added, only need to add
     # example source files once for testing with different inputs
@@ -195,11 +197,12 @@ if(BUILD_SUNLINSOL_KLU)
   list(APPEND SUNLINSOLKLU_LIBS)
 
   foreach(example_tuple ${CVODES_examples_KLU})
-
-    # parse the example tuple
-    list(GET example_tuple 0 example)
-    list(GET example_tuple 1 example_args)
-    list(GET example_tuple 2 example_type)
+    # parse the example tuple using sundials_parse_tuple macro
+    sundials_parse_tuple( CVODES_examples 
+      FILENAME_VAR example
+      PARAMS_VAR example_args
+      TYPE_VAR example_type
+    ) 
 
     # check if this example has already been added, only need to add
     # example source files once for testing with different inputs
@@ -246,10 +249,12 @@ if(BUILD_SUNLINSOL_SUPERLUMT)
 
   foreach(example_tuple ${CVODES_examples_SUPERLUMT})
 
-    # parse the example tuple
-    list(GET example_tuple 0 example)
-    list(GET example_tuple 1 example_args)
-    list(GET example_tuple 2 example_type)
+    # parse the example tuple using sundials_parse_tuple macro
+    sundials_parse_tuple( CVODES_examples 
+      FILENAME_VAR example
+      PARAMS_VAR example_args
+      TYPE_VAR example_type
+    ) 
 
     # check if this example has already been added, only need to add
     # example source files once for testing with different inputs
