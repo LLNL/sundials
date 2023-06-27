@@ -102,54 +102,54 @@ ARKodeSPRKStorage functions
 ---------------------------
 
 .. _ARKodeSPRKStorage.FunctionsTable:
-.. table:: ARKodeButcherTable functions
+.. table:: ARKodeSPRKStorage functions
 
    +----------------------------------------------+------------------------------------------------------------+
    | **Function name**                            | **Description**                                            |
    +----------------------------------------------+------------------------------------------------------------+
-   | :c:func:`ARKodeButcherTable_Alloc()`         | Allocate an empty storage structure                        |
+   | :c:func:`ARKodeSPRKStorage_Alloc()`          | Allocate an empty storage structure                        |
    +----------------------------------------------+------------------------------------------------------------+
-   | :c:func:`ARKodeButcherTable_Load()`          | Load SPRK method using an identifier                       |
+   | :c:func:`ARKodeSPRKStorage_Load()`           | Load SPRK method using an identifier                       |
    +----------------------------------------------+------------------------------------------------------------+
-   | :c:func:`ARKodeButcherTable_LoadByName()`    | Load SPRK method using a string version of the identifier  |
+   | :c:func:`ARKodeSPRKStorage_LoadByName()`     | Load SPRK method using a string version of the identifier  |
    +----------------------------------------------+------------------------------------------------------------+
-   | :c:func:`ARKodeButcherTable_Create()`        | Create a new storage structure                             |
+   | :c:func:`ARKodeSPRKStorage_Create()`         | Create a new storage structure                             |
    +----------------------------------------------+------------------------------------------------------------+
-   | :c:func:`ARKodeButcherTable_Copy()`          | Create a copy of a storage structure                       |
+   | :c:func:`ARKodeSPRKStorage_Copy()`           | Create a copy of a storage structure                       |
    +----------------------------------------------+------------------------------------------------------------+
-   | :c:func:`ARKodeButcherTable_Space()`         | Get the storage structure real and integer workspace size  |
+   | :c:func:`ARKodeSPRKStorage_Space()`          | Get the storage structure real and integer workspace size  |
    +----------------------------------------------+------------------------------------------------------------+
-   | :c:func:`ARKodeButcherTable_Free()`          | Deallocate a storage structure                             |
+   | :c:func:`ARKodeSPRKStorage_Free()`           | Deallocate a storage structure                             |
    +----------------------------------------------+------------------------------------------------------------+
 
 
 .. c:function:: ARKodeSPRKStorage ARKodeSPRKStorage_Alloc(int stages)
 
-   Allocate memory for the ARKodeSPRKStorage structure.
+   Allocate memory for an ARKodeSPRKStorage structure with the specified number of stages.
 
    :param stages: The number of stages.
-   :return: Pointer to the allocated ARKodeSPRKStorage structure.
+   :return: ARKodeSPRKStorage structure for the loaded method.
 
 .. c:function:: ARKodeSPRKStorage ARKodeSPRKStorage_Load(ARKODE_SPRKMethodID id)
 
    Load the ARKodeSPRKStorage structure for the specified method ID.
 
    :param id: The ID of the SPRK method. One of :ref:`SPRKStorage.id`.
-   :return: Pointer to the loaded ARKodeSPRKStorage structure.
+   :return: ARKodeSPRKStorage structure for the loaded method.
 
 .. c:function:: ARKodeSPRKStorage ARKodeSPRKStorage_LoadByName(const char* method)
 
    Load the ARKodeSPRKStorage structure for the specified method name.
 
    :param method: The name of the SPRK method. Must be one of :ref:`SPRKStorage.id` but as a string.
-   :return: Pointer to the loaded ARKodeSPRKStorage structure.
+   :return: ARKodeSPRKStorage structure for the loaded method.
 
 
 .. c:function:: ARKodeSPRKStorage ARKodeSPRKStorage_Copy(ARKodeSPRKStorage B)
 
    Create a copy of the ARKodeSPRKStorage structure.
 
-   :param B: The original ARKodeSPRKStorage structure.
+   :param B: The ARKodeSPRKStorage structure to copy.
    :return: Pointer to the copied ARKodeSPRKStorage structure.
 
 .. c:function:: void ARKodeSPRKStorage_Space(ARKodeSPRKStorage B, sunindextype* liw, sunindextype* lrw)
@@ -166,58 +166,10 @@ ARKodeSPRKStorage functions
 
    :param B: The ARKodeSPRKStorage structure to free.
 
-.. c:function:: int ARKodeSPRKStorage_ToButcher(ARKodeSPRKStorage sprk_storage, ARKodeButcherTable* a_ptr, ARKodeButcherTable* b_ptr)
+.. c:function:: int ARKodeSPRKStorage_ToButcher(ARKodeSPRKStorage sprk_storage, ARKodeSPRKStorage* a_ptr, ARKodeSPRKStorage* b_ptr)
 
    Convert the ARKodeSPRKStorage structure to the Butcher table representation.
 
    :param sprk_storage: The ARKodeSPRKStorage structure.
    :param a_ptr: Pointer to store the explicit Butcher table.
    :param b_ptr: Pointer to store the diagonally-implicit Butcher table.
-
-.. c:function:: ARKodeSPRKStorage ARKodeSymplecticEuler()
-
-   Create the ARKodeSPRKStorage structure for the Symplectic Euler method.
-
-.. c:function:: ARKodeSPRKStorage ARKodeSymplecticLeapfrog2()
-
-   Create the ARKodeSPRKStorage structure for the Symplectic Leapfrog 2-2 method.
-
-.. c:function:: ARKodeSPRKStorage ARKodeSymplecticPseudoLeapfrog2()
-
-   Create the ARKodeSPRKStorage structure for the Symplectic Pseudo Leapfrog 2-2 method.
-
-.. c:function:: ARKodeSPRKStorage ARKodeSymplecticRuth3()
-
-   Create the ARKodeSPRKStorage structure for the Symplectic Ruth 3-3 method.
-
-.. c:function:: ARKodeSPRKStorage ARKodeSymplecticCandyRozmus4()
-
-   Create the ARKodeSPRKStorage structure for the Symplectic Candy Rozmus 4-4 method.
-
-.. c:function:: ARKodeSPRKStorage ARKodeSymplecticMcLachlan2()
-
-   Create the ARKodeSPRKStorage structure for the Symplectic McLachlan 2-2 method.
-
-.. c:function:: ARKodeSPRKStorage ARKodeSymplecticMcLachlan3()
-
-   Create the ARKodeSPRKStorage structure for the Symplectic McLachlan 3-3 method.
-
-.. c:function:: ARKodeSPRKStorage ARKodeSymplecticMcLachlan4()
-
-   Create the ARKodeSPRKStorage structure for the Symplectic McLachlan 4-4 method.
-
-.. c:function:: ARKodeSPRKStorage ARKodeSymplecticMcLachlan5()
-
-   Create the ARKodeSPRKStorage structure for the Symplectic McLachlan 5-6 method.
-
-.. c:function:: ARKodeSPRKStorage ARKodeSymplecticYoshida6()
-
-   Create the ARKodeSPRKStorage structure for the Symplectic Yoshida 6-8 method.
-
-.. c:function:: ARKodeSPRKStorage ARKodeSymplecticMcLachlan8()
-
-   Create the ARKodeSPRKStorage structure for the Symplectic McLachlan 8-16 method.
-
-.. c:function:: ARKodeSPRKStorage ARKodeSymplecticSofroniou10()
-
-   Create the ARKodeSPRKStorage structure for the Symplectic Sofroniou 10-36 method.
