@@ -150,7 +150,7 @@ using namespace sundials::hip::impl;
 #define NV_PH_STREAM(v)       (NV_PH_CONTENT(v)->stream_exec_policy->stream())
 #define NV_PH_HDATAp(v)       ((realtype*) NV_PH_CONTENT(v)->host_data->ptr)
 #define NV_PH_DDATAp(v)       ((realtype*) NV_PH_CONTENT(v)->device_data->ptr)
-// Private vector content
+// Private content accessor macros
 #define NV_PH_PRIVATE(v)      ((N_PrivateVectorContent_ParHyp)(NV_PH_CONTENT(v)->priv))
 #define NV_PH_HBUFFERp(v)     ((realtype*) NV_PH_PRIVATE(v)->reduce_buffer_host->ptr)
 #define NV_PH_DBUFFERp(v)     ((realtype*) NV_PH_PRIVATE(v)->reduce_buffer_dev->ptr)

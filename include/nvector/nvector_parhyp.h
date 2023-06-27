@@ -74,8 +74,19 @@
 
 /* --- Backend-specific definitions --- */
 
+#if defined(SUNDIALS_HYPRE_BACKENDS_CUDA)
+#define NV_PH_CUDA 
+#elif defined(SUNDIALS_HYPRE_BACKENDS_HIP)
+#define NV_PH_HIP
+#endif
+
 #if defined(SUNDIALS_HYPRE_BACKENDS_CUDA) || defined(SUNDIALS_HYPRE_BACKENDS_HIP)
-#define SUNDIALS_HYPRE_BACKENDS_CUDA_OR_HIP
+#define NV_PH_CUDA_OR_HIP
+#endif
+
+//TODO: Ensure hypre's unified memory setting applies to HIP (as it does CUDA)
+#if defined(SUNDIALS_HYPRE_USING_UNIFIED_MEMORY) // && defined(SUNDIALS_HYPRE_BACKENDS_CUDA)
+#define NV_PH_UNIFIED_MEMORY
 #endif
 
 #if defined(SUNDIALS_HYPRE_BACKENDS_CUDA)
