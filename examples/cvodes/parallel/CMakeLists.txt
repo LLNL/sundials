@@ -19,15 +19,15 @@
 
 # Examples using SUNDIALS linear solvers
 set(CVODES_examples
-  "cvsAdvDiff_ASAp_non_p.c\;--\;2\;2\;exclude-single"
-  "cvsAdvDiff_FSA_non_p.c\;-sensi stg t\;2\;2\;exclude-single"
-  "cvsAdvDiff_FSA_non_p.c\;-sensi sim t\;2\;2\;exclude-single"
-  "cvsAdvDiff_non_p.c\;--\;2\;2\;exclude-single"
-  "cvsAtmDisp_ASAi_kry_bbd_p.c\;--\;2\;4\;exclude-single"
-  "cvsDiurnal_FSA_kry_p.c\;-sensi stg t\;2\;4\;exclude-single"
-  "cvsDiurnal_FSA_kry_p.c\;-sensi sim t\;2\;4\;exclude-single"
-  "cvsDiurnal_kry_bbd_p.c\;--\;2\;4\;exclude-single"
-  "cvsDiurnal_kry_p.c\;--\;2\;4\;exclude-single"
+  "cvsAdvDiff_ASAp_non_p.c\; \"\" \;2\;2\;exclude-single"
+  "cvsAdvDiff_FSA_non_p.c\; \"-sensi stg t\" \;2\;2\;exclude-single"
+  "cvsAdvDiff_FSA_non_p.c\; \"-sensi sim t\" \;2\;2\;exclude-single"
+  "cvsAdvDiff_non_p.c\; \"\" \;2\;2\;exclude-single"
+  "cvsAtmDisp_ASAi_kry_bbd_p.c\; \"\" \;2\;4\;exclude-single"
+  "cvsDiurnal_FSA_kry_p.c\; \"-sensi stg t\" \;2\;4\;exclude-single"
+  "cvsDiurnal_FSA_kry_p.c\; \"-sensi sim t\" \;2\;4\;exclude-single"
+  "cvsDiurnal_kry_bbd_p.c\; \"\" \;2\;4\;exclude-single"
+  "cvsDiurnal_kry_p.c\; \"\" \;2\;4\;exclude-single"
   )
 
 if(MPI_C_COMPILER)
@@ -48,12 +48,14 @@ set(SUNDIALS_LIBS ${CVODES_LIB} ${NVECP_LIB} ${EXE_EXTRA_LINK_LIBS})
 # Add the build and install targets for each example
 foreach(example_tuple ${CVODES_examples})
 
-  # parse the example tuple
-  list(GET example_tuple 0 example)
-  list(GET example_tuple 1 example_args)
-  list(GET example_tuple 2 number_of_nodes)
-  list(GET example_tuple 3 number_of_tasks)
-  list(GET example_tuple 4 example_type)
+  # parse the example tuple using sundials_parse_tuple macro
+  sundials_parse_tuple( CVODES_examples 
+    FILENAME_VAR example
+    PARAMS_VAR example_args
+    NODES_VAR number_of_nodes
+    NPROCS_VAR number_of_tasks
+    TYPE_VAR example_type
+  )
 
   # check if this example has already been added, only need to add
   # example source files once for testing with different inputs
@@ -96,6 +98,7 @@ endforeach(example_tuple ${CVODES_examples})
 if(EXAMPLES_INSTALL)
 
   sundials_install_examples(cvodes CVODES_examples
+    HAS_MPI
     CMAKE_TEMPLATE
       cmakelists_C_MPI_ex.in
     MAKE_TEMPLATE
