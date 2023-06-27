@@ -26,7 +26,8 @@ referenced.
 #. Set problem dimensions, etc.
 
    This generally includes the problem size, ``N``, and may include
-   the local vector length ``Nlocal``.
+   the local vector length ``Nlocal``. The problem size ``N`` is the
+   size including both the ``q`` and ``p`` variables. 
 
    .. note::
 
@@ -37,6 +38,7 @@ referenced.
 
    To set the vector ``y0`` of initial values, use the appropriate
    functions defined by the particular NVECTOR implementation.
+   The vector should include both the ``q`` and ``p`` variables.
 
    For native SUNDIALS vector implementations (except the CUDA and
    RAJA based ones), use a call of the form

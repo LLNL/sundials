@@ -63,11 +63,11 @@ where here
 For methods without an embedding (e.g., fixed-step methods) ``P`` is omitted so
 that methods follow the naming convention ``NAME-S-Q``. 
 
-For symplectic methods, 
+For symplectic methods, the naming convention is ``NAME-SYMPLECTIC-S-Q``.
 
 In the code, unique integer IDs are defined inside ``arkode_butcher_erk.h`` and
 ``arkode_butcher_dirk.h`` for each method, which may be used by calling routines
-to specify the desired method. Symplectic methods are 
+to specify the desired method. Symplectic methods are defined inside ``arkode_sprk.h``.
 These names are specified in ``fixed width font`` at the start of each method's 
 section below.
 

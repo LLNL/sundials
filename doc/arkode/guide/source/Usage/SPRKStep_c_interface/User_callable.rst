@@ -53,6 +53,13 @@ SPRKStep initialization and deallocation functions
 
    :returns: If successful, a pointer to initialized problem memory of type ``void*``, to be passed to all user-facing SPRKStep routines listed below.  If unsuccessful, a ``NULL`` pointer will be returned, and an error message will be printed to ``stderr``.
 
+   .. warning::
+
+      SPRKStep requires a partitioned problem where ``f1`` should only modify the q variables
+      and ``f2`` should only modify the p variables (or vice versa). However, the vector
+      passed to these functions is the full vector with both p and q. The ordering of the
+      variables is up to the user.
+
 
 .. c:function:: void SPRKStepFree(void** arkode_mem)
 
@@ -1301,69 +1308,3 @@ vector.
 
       If an error occurred, :c:func:`SPRKStepReset()` also sends an error message to
       the error handler function.
-
-
-
-
-.. _ARKODE.Usage.SPRKStep.Resizing:
-
-SPRKStep system resize function
--------------------------------------
-
-For simulations involving changes to the number of equations and
-unknowns in the ODE system (e.g. when using spatially-adaptive
-PDE simulations under a method-of-lines approach), the SPRKStep
-integrator may be "resized" between integration steps, through calls
-to the :c:func:`SPRKStepResize()` function. This function modifies
-SPRKStep's internal memory structures to use the new problem size,
-without destruction of the temporal adaptivity heuristics.  It is
-assumed that the dynamical time scales before and after the vector
-resize will be comparable, so that all time-stepping heuristics prior
-to calling :c:func:`SPRKStepResize()` remain valid after the call.  If
-instead the dynamics should be recomputed from scratch, the SPRKStep
-memory structure should be deleted with a call to
-:c:func:`SPRKStepFree()`, and recreated with a call to
-:c:func:`SPRKStepCreate`.
-
-To aid in the vector resize operation, the user can supply a vector
-resize function that will take as input a vector with the previous
-size, and transform it in-place to return a corresponding vector of
-the new size.  If this function (of type :c:func:`ARKVecResizeFn()`)
-is not supplied (i.e., is set to ``NULL``), then all existing vectors
-internal to SPRKStep will be destroyed and re-cloned from the new input
-vector.
-
-In the case that the dynamical time scale should be modified slightly
-from the previous time scale, an input *hscale* is allowed, that will
-rescale the upcoming time step by the specified factor.  If a value
-*hscale* :math:`\le 0` is specified, the default of 1.0 will be used.
-
-
-
-.. c:function:: int SPRKStepResize(void* arkode_mem, N_Vector yR, realtype hscale, realtype tR, ARKVecResizeFn resize, void* resize_data)
-
-   Re-sizes SPRKStep with a different state vector but with comparable
-   dynamical time scale.
-
-   :param arkode_mem: pointer to the SPRKStep memory block.
-   :param yR: the newly-sized solution vector, holding the current
-        dependent variable values :math:`y(t_R)`.
-   :param hscale: the desired time step scaling factor (i.e. the next
-        step will be of size *h\*hscale*).
-   :param tR: the current value of the independent variable
-        :math:`t_R` (this must be consistent with *yR*).
-   :param resize: the user-supplied vector resize function (of type
-        :c:func:`ARKVecResizeFn()`.
-   :param resize_data: the user-supplied data structure to be passed
-        to *resize* when modifying internal SPRKStep vectors.
-
-   :return:
-      * *ARK_SUCCESS* if successful
-      * *ARK_MEM_NULL*  if the SPRKStep memory was ``NULL``
-      * *ARK_NO_MALLOC* if *arkode_mem* was not allocated.
-      * *ARK_ILL_INPUT* if an argument has an illegal value.
-
-   **Notes:**
-      If an error occurred, :c:func:`SPRKStepResize()` also sends an error
-      message to the error handler function.
-
