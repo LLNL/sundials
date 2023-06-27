@@ -31,11 +31,6 @@
   SPRKStep Optional input functions (wrappers for generic ARKODE
   utility routines).  All are documented in arkode_io.c.
   ===============================================================*/
-int SPRKStepSetDenseOrder(void* arkode_mem, int dord)
-{
-  return (SPRKStepSetInterpolantDegree(arkode_mem, dord));
-}
-
 int SPRKStepSetInterpolantDegree(void* arkode_mem, int degree)
 {
   if (degree < 0) { degree = ARK_INTERP_MAX_DEGREE; }

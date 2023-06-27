@@ -152,10 +152,8 @@ void* SPRKStepCreate(ARKRhsFn f1, ARKRhsFn f2, realtype t0, N_Vector y0,
     return (NULL);
   }
 
-  /* We use Lagrange interpolation by default otherwise extra RHS calls are
-     needed. This is because we cannot reuse the f2 RHS in TakeStep since it is
-     a staggered time step. Additionally, it seems Lagrange interpolation does
-     a better job of conservation. */
+  /* SPRKStep uses Lagrange interpolation by default, since Hermite is
+     less compatible with these methods. */
   arkSetInterpolantType(ark_mem, ARK_INTERP_LAGRANGE);
 
   return ((void*)ark_mem);

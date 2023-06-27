@@ -72,11 +72,11 @@ referenced.
 
 #. Specify time step size or adaptivity module 
 
-   Call :c:func:`SPRKStepSetFixedStep()` or
-   :c:func:`SPRKStepAdaptivityFn()` to specify either a fixed time-step 
-   size or a callback function that adapts the time-step size. SPRKStep
-   does not support error-based adaptivity like other ARKODE time-stepper 
-   modules due to the incompatibility with symplectic methods.
+   Call :c:func:`SPRKStepSetFixedStep()` to set the fixed time step size.
+   .. or :c:func:`SPRKStepAdaptivityFn()` to specify either a fixed time-step 
+   .. size or a callback function that adapts the time-step size. SPRKStep
+   .. does not support error-based adaptivity like other ARKODE time-stepper 
+   .. modules due to the incompatibility with symplectic methods.
 
 #. Set optional inputs
 

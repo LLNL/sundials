@@ -90,10 +90,12 @@ The following enum values are used to identify different SPRK methods:
    .. c:member:: sunrealtype* a
 
       Array of coefficients that generate the explicit Butcher table.
+      ``a[i]`` is the coefficient appearing in column i+1.
 
-   .. c:member:: sunrealtype* b
+   .. c:member:: sunrealtype* ahat
 
       Array of coefficients that generate the diagonally-implicit Butcher table.
+      ``ahat[i]`` is the coefficient appearing in column i.
 
 .. c:type:: ARKodeSPRKStorage_s* ARKodeSPRKStorage
 

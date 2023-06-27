@@ -536,8 +536,13 @@ In the default case, the algorithm for a single time-step is as follows
 
 #. Set :math:`p_{n+1} = P_s, q_{n+1} = Q_{s+1}`
 
-Optionally, a different algorithm can be used that is more robust to roundoff error at the expense of 
-additional storage and vector operations :cite:p:`Sof:03`.
+.. _ARKODE.Mathematics.SPRKStep.Compensated:
+
+Optionally, a different algorithm leveraging compensated summation can be used
+that is more robust to roundoff error at the expense of 2 extra vector operations
+per stage and an additional 5 per time step, however, it signficantly more robust 
+to roundoff error accumulation. There is not increased memory usage as we reuse vectors
+already allocated in the ARKODE core.
 
 #. Set :math:`\Delta P_0 = 0, \Delta Q_1 = 0`
 
@@ -550,10 +555,12 @@ additional storage and vector operations :cite:p:`Sof:03`.
 
 #. Using compensated summation, set :math:`p_{n+1} = p_n + \Delta p_{n+1}, q_{n+1} = q_n + \Delta Q_{s+1}`
 
-Since temporal error based adaptive time-stepping is known to ruin the conservation property :cite:p:`HaWa:06`, 
-SPRKStep employs a fixed time-step size by default. However, it is possible for a user to provide a
-problem-specific adaptivity controller such as the one described in :cite:p:`HaSo:05`.
-The `ark_kepler.c` example demonstrates an implementation of such controller. 
+Since temporal error based adaptive time-stepping is known to ruin the 
+conservation property :cite:p:`HaWa:06`,  SPRKStep employs a fixed time-step size. 
+
+.. However, it is possible for a user to provide a
+.. problem-specific adaptivity controller such as the one described in :cite:p:`HaSo:05`.
+.. The `ark_kepler.c` example demonstrates an implementation of such controller. 
 
 
 .. _ARKODE.Mathematics.MRIStep:

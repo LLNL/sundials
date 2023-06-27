@@ -202,7 +202,9 @@ has requested rootfinding.
       :math:`y_{n}` will be returned in the vector *yout*.  Once the
       integrator returns at a *tstop* time, any future testing for
       *tstop* is disabled (and can be re-enabled only though a new call
-      to :c:func:`SPRKStepSetStopTime()`).
+      to :c:func:`SPRKStepSetStopTime()`). SPRKStep uses the ARKODE
+      Lagrange interpolation module by default because testing showed that
+      it does a better job of maintaining conservation than Hermite interpolation.
 
       On any error return in which one or more internal steps were taken
       by :c:func:`SPRKStepEvolve()`, the returned values of *tret* and
@@ -259,7 +261,7 @@ Optional inputs for SPRKStep
 
   +-----------------------------------------------------+------------------------------------------+------------------------+
   | Optional input                                      | Function name                            | Default                |
-+=====================================================+==========================================+========================+
+  +=====================================================+==========================================+========================+
   | Return SPRKStep solver parameters to their defaults | :c:func:`SPRKStepSetDefaults()`          | internal               |
   +-----------------------------------------------------+------------------------------------------+------------------------+
   | Set dense output interpolation type                 | :c:func:`SPRKStepSetInterpolantType()`   | ``ARK_INTERP_LAGRANGE``|
@@ -339,6 +341,8 @@ Optional inputs for SPRKStep
       not be changed without first calling :c:func:`SPRKStepReInit()`.
 
       If this routine is not called, the Lagrange interpolation module will be used.
+      Our testing indicates that Lagrange interpolation does a better job of conserving
+      quantites than Hermite interpolation.
 
 
 
@@ -438,12 +442,6 @@ Optional inputs for SPRKStep
       * *ARK_ILL_INPUT* if an argument has an illegal value
 
    **Notes:**
-      Pass 0.0 to return SPRKStep to the default (adaptive-step) mode.
-
-      Use of this function is not generally recommended, since it gives no
-      assurance of the validity of the computed solutions.  It is
-      primarily provided for code-to-code verification testing purposes.
-
       If both :c:func:`SPRKStepSetFixedStep()` and
       :c:func:`SPRKStepSetStopTime()` are used, then the fixed step size will be
       used for all steps until the final step preceding the provided stop time
@@ -653,15 +651,11 @@ Optional inputs for IVP method selection
       * *ARK_MEM_NULL* if the SPRKStep memory is ``NULL``
       * *ARK_ILL_INPUT* if an argument has an illegal value
 
-   **Notes:**
-      No error checking is performed to ensure that either the method order *p* or
-      specified in the method structure correctly describe the coefficients.
-
-
 
 .. c:function:: int SPRKStepSetUseCompensatedSums(void* arkode_mem, sunbooleantype onoff)
 
-   Specifies if compensated summation should be used where applicable. 
+   Specifies if :ref:`compensated summation (and the incremental form) <ARKODE.Mathematics.SPRKStep.Compensated>` 
+   should be used where applicable. 
 
    :param arkode_mem: pointer to the SPRKStep memory block.
    :param onoff: should compensated summation be used (1) or not (0)
@@ -672,48 +666,10 @@ Optional inputs for IVP method selection
       * *ARK_ILL_INPUT* if an argument has an illegal value
 
    **Notes:**
-      This increases the computational cost and memory usage of the SPRK methods
-      per stage, however, it signficantly more robust to roundoff error
-      accumulation. 
-
-
-.. _ARKODE.Usage.SPRKStep.SPRKStepAdaptivityInput:
-
-Optional inputs for time step adaptivity
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-
-SPRKStep only supports a custom time step adaptivity function. The adaptivity methods
-described in :numref:`ARKODE.Mathematics.Adaptivity` are not compatible.
-
-
-.. _ARKODE.Usage.SPRKStep.SPRKStepAdaptivityInputTable:
-.. table:: Optional inputs for time step adaptivity
-
-  +----------------------------------------------------------+-----------------------------------------+----------+
-  | Optional input                                           | Function name                           | Default  |
-  +----------------------------------------------------------+-----------------------------------------+----------+
-  | Set a custom time step adaptivity function               | :c:func:`SPRKStepSetAdaptivityFn()`     | internal |
-  +----------------------------------------------------------+-----------------------------------------+----------+
-
-
-.. c:function:: int SPRKStepSetAdaptivityFn(void* arkode_mem, ARKAdaptFn hfun, void* h_data)
-
-   Sets a user-supplied time-step adaptivity function.
-
-   :param arkode_mem: pointer to the SPRKStep memory block.
-   :param hfun: name of user-supplied adaptivity function.
-   :param h_data: pointer to user data passed to *hfun* every time it is called.
-
-   :return:
-      * *ARK_SUCCESS* if successful
-      * *ARK_MEM_NULL* if the SPRKStep memory is ``NULL``
-      * *ARK_ILL_INPUT* if an argument has an illegal value
-
-   **Notes:**
-      This function should focus on accuracy-based time step
-      estimation; for stability based time steps the function
-      :c:func:`SPRKStepSetStabilityFn()` should be used instead.
-
+      This increases the computational cost by 2 extra vector operations per stage and
+      an additional 5 per time step, however, it signficantly more robust to roundoff
+      error accumulation. There is not increased memory usage as we reuse vectors
+      already allocated in the ARKODE core.
 
 
 .. _ARKODE.Usage.SPRKStep.SPRKStepRootfindingInput:
@@ -798,11 +754,7 @@ should only be called after a successful return from
 :c:func:`SPRKStepEvolve()`, as it provides interpolated values either of
 :math:`y` or of its derivatives (up to the 5th derivative)
 interpolated to any value of :math:`t` in the last internal step taken
-by :c:func:`SPRKStepEvolve()`.  Internally, this "dense output" or
-"continuous extension" algorithm is identical to the algorithm used for
-the maximum order implicit predictors, described in
-:numref:`ARKODE.Mathematics.Predictors.Max`, except that
-derivatives of the polynomial model may be evaluated upon request.
+by :c:func:`SPRKStepEvolve()`.
 
 
 
@@ -842,7 +794,9 @@ derivatives of the polynomial model may be evaluated upon request.
       functions :c:func:`SPRKStepGetCurrentTime()` and
       :c:func:`SPRKStepGetLastStep()`, respectively.
 
-
+      Dense outputs may or may not conserve the Hamiltonian. Our testing has
+      shown that Lagrange interpolation typically performs well in this regard,
+      while Hermite interpolation does not. 
 
 
 .. _ARKODE.Usage.SPRKStep.OptionalOutputs:
