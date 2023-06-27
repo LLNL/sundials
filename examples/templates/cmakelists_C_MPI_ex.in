@@ -96,9 +96,6 @@ set(examples_args @ALL_EXAMPLES_ARGS@)
 set(examples_num_of_nodes @ALL_EXAMPLES_NUM_OF_NODES@)
 set(examples_nprocs @ALL_EXAMPLES_NPROCS@)
 set(examples_dependencies @EXAMPLES_DEPENDENCIES@)
-if(examples)
-  list(REMOVE_DUPLICATES examples)
-endif()
 
 list(LENGTH examples n_elems) # Total number of the elements in the every list
 math(EXPR len "${n_elems}-1") # The last index in the every list
@@ -115,13 +112,21 @@ foreach(idx RANGE ${len})
   get_filename_component(example_target ${example} NAME_WE)
 
   # create target with example source files
-  add_executable(${example_target} ${example} ${examples_dependencies})
-
+  if(NOT TARGET ${example_target})
+    add_executable(${example_target} ${example} ${examples_dependencies})
+  endif()
+  
   # libraries to link against
   target_link_libraries(${example_target}
     ${SUNDIALS_TARGETS} ${EXTRA_LIBS} MPI::MPI_C)
 
   # add the example to ctest
-  add_test(NAME ${example_target} COMMAND mpirun -np ${example_nprocs} ${example_target} ${example_args})
+  if("${example_args}" STREQUAL "")
+    set(test_name ${example})
+  else()
+    string(REGEX REPLACE " " "_" test_name ${example}_${example_args})
+  endif()
+  
+  add_test(NAME ${test_name} COMMAND mpirun -np ${example_nprocs} ${example_target} ${example_args})
 
 endforeach()

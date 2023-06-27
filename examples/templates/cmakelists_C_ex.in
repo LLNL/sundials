@@ -76,24 +76,40 @@ include_directories(. @EXTRA_INCLUDES@)
 
 # Set the names of the examples to be built and their dependencies
 set(examples @EXAMPLES@)
+set(examples_args @ALL_EXAMPLES_ARGS@)
 set(examples_dependencies @EXAMPLES_DEPENDENCIES@)
-if(examples)
-  list(REMOVE_DUPLICATES examples)
-endif()
+
+list(LENGTH examples n_elems) # Total number of the elements in the every list
+math(EXPR len "${n_elems}-1") # The last index in the every list
+ message("> ${examples_args}")
 
 # Create targets for each example
-foreach(example ${examples})
+
+# Create targets for each example
+foreach(idx RANGE ${len})
+
+  list(GET examples ${idx} example)
+  list(GET examples_args ${idx} example_args)
+  message(">>>> ${example_args}")
 
   # get filename without extension
   get_filename_component(example_target ${example} NAME_WE)
 
   # create target with example source files
-  add_executable(${example_target} ${example} ${examples_dependencies})
+  if(NOT TARGET ${example_target})
+    add_executable(${example_target} ${example} ${examples_dependencies})
+  endif()
 
   # libraries to link against
   target_link_libraries(${example_target} ${SUNDIALS_TARGETS} ${EXTRA_LIBS})
 
+  if("${example_args}" STREQUAL "")
+    set(test_name ${example})
+  else()
+    string(REGEX REPLACE " " "_" test_name ${example}_${example_args})
+  endif()
+
   # add the example to ctest
-  add_test(NAME ${example_target} COMMAND ${example_target})
+  add_test(NAME ${test_name} COMMAND ${example_target} ${example_args})
 
 endforeach()
