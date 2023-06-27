@@ -298,7 +298,7 @@ int SPRKStepReset(void* arkode_mem, realtype tR, N_Vector yR)
 int SPRKStepEvolve(void* arkode_mem, realtype tout, N_Vector yout,
                    realtype* tret, int itask)
 {
-  /* unpack ark_mem, call arkGetDky, and return */
+  /* unpack ark_mem, call arkEvolve, and return */
   int retval        = 0;
   ARKodeMem ark_mem = NULL;
   if (arkode_mem == NULL)
