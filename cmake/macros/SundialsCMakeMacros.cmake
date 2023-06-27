@@ -107,7 +107,6 @@ macro(EXAMPLES2STRING example_list example_string)
     list(GET example_tuple 0 example)
     list(APPEND tmp_list ${example})
   endforeach()
-  list(REMOVE_DUPLICATES tmp_list)
   list2string(tmp_list ${example_string})
 endmacro(EXAMPLES2STRING)
 
