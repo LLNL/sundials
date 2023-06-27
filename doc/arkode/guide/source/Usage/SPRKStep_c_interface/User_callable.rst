@@ -233,8 +233,6 @@ The optional inputs are grouped into the following categories:
 
 * IVP method solver options (:numref:`ARKODE.Usage.SPRKStep.SPRKStepMethodInputTable`),
 
-* Step adaptivity solver options (:numref:`ARKODE.Usage.SPRKStep.SPRKStepAdaptivityInputTable`), and
-
 * Rootfinding options (:numref:`ARKODE.Usage.SPRKStep.SPRKStepRootfindingInputTable`).
 
 For the most casual use of SPRKStep, relying on the default set of
