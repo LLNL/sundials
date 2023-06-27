@@ -508,17 +508,19 @@ SPRKStep utilizes Symplectic Partitioned Runge-Kutta (SPRK) methods represented 
    \end{array}
    \qquad \qquad
    \begin{array}{c|cccc}
-   C_1 & b_1 & \cdots & 0 & 0 \\
-   C_2 & b_1 & b_2 & \cdots & \vdots \\
+   \hat{c}_1 & \hat{a}_1 & \cdots & 0 & 0 \\
+   \hat{c}_2 & \hat{a}_1 & \hat{a}_2 & \cdots & \vdots \\
    \vdots & \vdots & \ddots & \ddots & \vdots \\
-   C_s & b_1 & b_2 & \cdots & b_{s-1} \\
+   \hat{c}_s & \hat{a}_1 & \hat{a}_2 & \cdots & \hat{a}_{s} \\
    \hline
-   & b_1 & b_2 & \cdots & b_{s-1}
+   & \hat{a}_1 & \hat{a}_2 & \cdots & \hat{a}_{s}
    \end{array}.
 
 We use a compact storage of these coefficients in terms of two arrays, one for *a* and one for *b*.
-The time weights are computed on the fly. These methods approximately conserve a nearby Hamiltonian 
-for exponentially long times :cite:p:`HaWa:06`.  SPRKStep makes the assumption that the Hamiltonian is separable,
+The time weights are computed dynamically as :math:`c_j = \sum_{i=1}^s a_i` and 
+:math:`\hat{c}_j = \sum_{i=1}^s \hat{a}_i` respectively. These methods approximately conserve a nearby 
+Hamiltonian for exponentially long times :cite:p:`HaWa:06`.
+SPRKStep makes the assumption that the Hamiltonian is separable,
 in which case the schemes are explicit. SPRKStep provides methods with order of accuracy and conservation 
 equal to :math:`q = \{1,2,3,4,5,6,8,10\}`. The tables for these methods, and the default methods used, 
 are given in the section :numref:`SPRKStorage`.
@@ -529,8 +531,8 @@ In the default case, the algorithm for a single time-step is as follows
 
 #. For :math:`i = 1,\ldots,s` do:
 
-   #. :math:`P_i = P_{i-1} + h_{n+1} a_i f_1(Q_i, t_n + C_i h_{n+1})`
-   #. :math:`Q_{i+1} = Q_i + h_{n+1} b_i f_2(P_i)`
+   #. :math:`P_i = P_{i-1} + h_{n+1} \hat{a}_i f_1(Q_i, t_n + \hat{c}_i h_{n+1})`
+   #. :math:`Q_{i+1} = Q_i + h_{n+1} a_i f_2(P_i)`
 
 #. Set :math:`p_{n+1} = P_s, q_{n+1} = Q_{s+1}`
 
@@ -541,8 +543,8 @@ additional storage and vector operations :cite:p:`Sof:03`.
 
 #. For :math:`i = 1,\ldots,s` do:
 
-   #. :math:`\Delta P_i = \Delta P_{i-1} + h_{n+1} a_i f_1(q_n + \Delta Q_i, t_n + C_i h_{n+1})`
-   #. :math:`\Delta Q_{i+1} = \Delta Q_i + h_{n+1} b_i f_2(p_n + \Delta P_i)`
+   #. :math:`\Delta P_i = \Delta P_{i-1} + h_{n+1} \hat{a}_i f_1(q_n + \Delta Q_i, t_n + \hat{c}_i h_{n+1})`
+   #. :math:`\Delta Q_{i+1} = \Delta Q_i + h_{n+1} a_i f_2(p_n + \Delta P_i)`
 
 #. Set :math:`\Delta p_{n+1} = \Delta P_s, \Delta q_{n+1} = \Delta Q_{s+1}`
 

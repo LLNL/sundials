@@ -44,14 +44,14 @@ typedef enum
 
 struct ARKodeSPRKStorage_s
 {
-  int q;          /* method order of accuracy         */
-  int stages;     /* number of stages                 */
-  sunrealtype* a; /* coefficients that generate the explicit Butcher table */
-  sunrealtype* b; /* coefficients that generate the diagonally-implicit Butcher
-                     table */
-
+  /* method order of accuracy */
+  int q;
+  /* number of stages */
+  int stages;
   /* the a_i coefficients generate the explicit Butcher table */
-  /* the b_i coefficients generate the diagonally-implicit Butcher table */
+  sunrealtype* a;
+  /* the ahat_i coefficients generate the diagonally-implicit Butcher table */
+  sunrealtype* ahat;
 };
 
 typedef _SUNDIALS_STRUCT_ ARKodeSPRKStorage_s* ARKodeSPRKStorage;
@@ -62,16 +62,15 @@ SUNDIALS_EXPORT ARKodeSPRKStorage ARKodeSPRKStorage_Load(ARKODE_SPRKMethodID id)
 SUNDIALS_EXPORT ARKodeSPRKStorage ARKodeSPRKStorage_LoadByName(const char* method);
 SUNDIALS_EXPORT ARKodeSPRKStorage
 ARKodeSPRKStorage_Copy(ARKodeSPRKStorage that_sprk_storage);
-SUNDIALS_EXPORT void ARKodeSPRKStorage_Space(ARKodeSPRKStorage B,
+SUNDIALS_EXPORT void ARKodeSPRKStorage_Space(ARKodeSPRKStorage sprk_storage,
                                              sunindextype* liw,
                                              sunindextype* lrw);
 SUNDIALS_EXPORT void ARKodeSPRKStorage_Free(ARKodeSPRKStorage sprk_storage);
 SUNDIALS_EXPORT int ARKodeSPRKStorage_ToButcher(ARKodeSPRKStorage sprk_storage,
-                                                ARKodeButcherTable* a_ptr,
-                                                ARKodeButcherTable* b_ptr);
+                                                ARKodeButcherTable* erk_ptr,
+                                                ARKodeButcherTable* dirk_ptr);
 
 /* Different methods */
-
 
 #ifdef __cplusplus
 }
