@@ -178,7 +178,7 @@ int main(int argc, char* argv[])
     const int old_step_mode     = args.step_mode;
     const int old_stepper       = args.stepper;
     const char* old_method_name = args.method_name;
-    args.dt                     = SUN_RCONST(1e-2);
+    args.dt                     = SUN_RCONST(1e-3);
     args.step_mode              = 0;
     args.stepper                = 1;
     args.method_name            = "ARKODE_ARK548L2SAb_ERK_8_4_5";
