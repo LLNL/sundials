@@ -93,7 +93,7 @@ macro(sundials_install_examples MODULE EXAMPLES_VAR)
     set(ALL_EXAMPLES_NUM_OF_NODES)
     set(ALL_EXAMPLES_NPROCS)
   endif()
-    foreach(example_tuple ${${EXAMPLES_VAR}})
+  foreach(example_tuple ${${EXAMPLES_VAR}})
     list(GET example_tuple 0 example) # filename always has to be the first item in the example tuple
     list(GET example_tuple 1 example_args) # args always has to be the second item in the example tuple
     list(APPEND ALL_EXAMPLES_ARGS ${example_args})
