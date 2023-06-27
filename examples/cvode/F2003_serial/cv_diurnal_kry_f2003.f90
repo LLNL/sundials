@@ -84,7 +84,7 @@ module diurnal_mod
     integer(c_int), parameter   :: Jpretype = 1
     integer(c_int), parameter   :: iGStype = 1
     integer(c_int), parameter   :: maxL = 0
-    integer(c_long), parameter  :: mxsteps = 500000
+    integer(c_long), parameter  :: mxsteps = 1000
     double precision :: p_p(2,2,mm)
 
     ! ODE non-constant parameters
