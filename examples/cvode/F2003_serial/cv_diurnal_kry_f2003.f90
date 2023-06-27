@@ -84,10 +84,8 @@ module diurnal_mod
     integer(c_int), parameter   :: Jpretype = 1
     integer(c_int), parameter   :: iGStype = 1
     integer(c_int), parameter   :: maxL = 0
-    integer(c_int), parameter   :: p_ipp = 7
-    integer(c_int), parameter   :: p_bd = 13
-    integer(c_int), parameter   :: p_p = p_bd + 4*mm
-   !  integer(c_long), parameter  :: mxsteps = 10000
+    integer(c_long), parameter  :: mxsteps = 500000
+    double precision :: p_p(2,2,mm)
 
     ! ODE non-constant parameters
     double precision :: q3
@@ -134,14 +132,14 @@ module diurnal_mod
       double precision :: vertd1, vertd2, ydn, yup
 
       ! pointers to data in SUNDIALS vectors
-      double precision, pointer, dimension(2,mm) :: uvecI(:,:)
-      double precision, pointer, dimension(2,mm) :: fvecI(:,:)
+      double precision, pointer, dimension(2,mm) :: uvec(:,:)
+      double precision, pointer, dimension(2,mm) :: fvec(:,:)
 
       !======= Internals ============
 
       ! get data arrays from SUNDIALS vectors
-      uvecI(1:2,1:mm) => FN_VGetArrayPointer(sunvec_u)
-      fvecI(1:2,1:mm) => FN_VGetArrayPointer(sunvec_f)
+      uvec(1:2,1:mm) => FN_VGetArrayPointer(sunvec_u)
+      fvec(1:2,1:mm) => FN_VGetArrayPointer(sunvec_f)
 
       ! Set diurnal rate coefficients.
       s = sin(om * tn)
@@ -166,8 +164,8 @@ module diurnal_mod
          if (jy == my) iup = -mx
          do jx = 1, mx
             idx = idx0 + jx
-            c1 = uvecI(1,idx)
-            c2 = uvecI(2,idx)
+            c1 = uvec(1,idx)
+            c2 = uvec(2,idx)
             ! Set kinetic rate terms.
             qq1 = q1 * c1 * c3
             qq2 = q2 * c1 * c2
@@ -176,10 +174,10 @@ module diurnal_mod
             rkin1 = -qq1 - qq2 + 2.0d0 * qq3 + qq4
             rkin2 = qq1 - qq2 - qq4
             ! Set vertical diffusion terms.
-            c1dn = uvecI(1,idx + idn)
-            c2dn = uvecI(2,idx + idn)
-            c1up = uvecI(1,idx + iup)
-            c2up = uvecI(2,idx + iup)
+            c1dn = uvec(1,idx + idn)
+            c2dn = uvec(2,idx + idn)
+            c1up = uvec(1,idx + iup)
+            c2up = uvec(2,idx + iup)
             vertd1 = cyup * (c1up - c1) - cydn * (c1 - c1dn)
             vertd2 = cyup * (c2up - c2) - cydn * (c2 - c2dn)
             ! Set horizontal diffusion and advection terms.
@@ -187,17 +185,17 @@ module diurnal_mod
             if (jx == 1) ileft = 1
             iright = 1
             if (jx == mx) iright = -1
-            c1lt = uvecI(1,idx + ileft)
-            c2lt = uvecI(2,idx + ileft)
-            c1rt = uvecI(1,idx + iright)
-            c2rt = uvecI(2,idx + iright)
+            c1lt = uvec(1,idx + ileft)
+            c2lt = uvec(2,idx + ileft)
+            c1rt = uvec(1,idx + iright)
+            c2rt = uvec(2,idx + iright)
             hord1 = hdco * (c1rt - 2.0d0 * c1 + c1lt)
             hord2 = hdco * (c2rt - 2.0d0 * c2 + c2lt)
             horad1 = haco * (c1rt - c1lt)
             horad2 = haco * (c2rt - c2lt)
-            ! load all terms into fvecI.
-            fvecI(1,idx) = vertd1 + hord1 + horad1 + rkin1
-            fvecI(2,idx) = vertd2 + hord2 + horad2 + rkin2
+            ! load all terms into fvec.
+            fvec(1,idx) = vertd1 + hord1 + horad1 + rkin1
+            fvec(2,idx) = vertd2 + hord2 + horad2 + rkin2
          end do
       end do
 
@@ -221,31 +219,33 @@ module diurnal_mod
       double precision,  value :: t
       type(N_Vector)   :: sunvec_u       ! solution N_Vector
       type(N_Vector)   :: sunvec_f       ! f-value N_Vector
-      logical(c_bool)  :: jok
-      logical(c_bool), pointer :: jcur
-      double precision :: gamma
+      integer(c_int), value :: jok
+      integer(c_int)   :: jcur
+      double precision, value :: gamma
       type(c_ptr) :: user_data
 
+      ! temporary variables
+      double precision, pointer, dimension(2,mm)   :: u(:,:)
+      double precision :: p_bd(2,2,mm)
+      u(1:2,1:mm) => FN_VGetArrayPointer(sunvec_u)
+
       ! if needed, recompute bd
-      if (jok == .true.) then
+      if (jok == 1) then
       ! jok = 1. reuse saved bd
-        jcur = .false.
+         jcur = 0
       else    
       ! jok = 0. compute diagonal jacobian blocks.
       ! (using q4 value computed on last fcvfun call).
-         call Prec_Jac(mx, my, mm, u, p_bd, &
-              q1, q2, q3, q4, c3, dy, hdco, vdco)
-         jcur = .true.
+         call Prec_Jac(mx, my, u, p_bd, &
+              q1, q2, q3, q4, c3, dy, hdco, vdco, ierr)
+         jcur = 1
       endif
 
-      ! copy bd to p
-      call DCopy(4*mm, p_bd, 1, p_p, 1)
- 
-      ! scale p by -gamma
-      call DScal(4*mm, -gamma, p_p, 1)
+      ! copy bd to p and scale by -gamma
+      p_p = -gamma * p_bd
 
       ! Perform LU decomposition
-      call Prec_LU(mm, p_p, p_ipp, ier)
+      call Prec_LU(mm, p_p, ierr)
 
       ! return success
       ierr = 0
@@ -273,12 +273,17 @@ module diurnal_mod
       integer(c_int) :: lr
       type(c_ptr)  :: user_data
 
+      ! temporary variables
+      double precision, pointer, dimension(2,mm) :: z(:,:), r(:,:)
+      z(1:2,1:mm) => FN_VGetArrayPointer(sunvec_z)
+      r(1:2,1:mm) => FN_VGetArrayPointer(sunvec_r)
+
       ! copy rhs into z
-      call Dcopy(2*mm, sunvec_r, 1, sunvec_z, 1)
+      z = r
 
       ! solve the block-diagonal system px = r using lu factors stored in p
       ! and pivot data in ipp, and return the solution in z.
-      call Prec_Sol(mm, p_p, p_ipp, z)
+      call Prec_Sol(mm, p_p, z)
 
       ! return success
       ierr = 0
@@ -286,36 +291,36 @@ module diurnal_mod
       
     end function PreSolve
 
-    subroutine Prec_Jac(mx, my, mm, u, bd, q1, q2, q3, q4, c3, &
-            dy, hdco, vdco, ierr)
+    subroutine Prec_Jac(mmx, mmy, u, bd, qq1, qq2, qq3, qq4, cc3, &
+            ddy, hhdco, vvdco, ierr)
       
       implicit none
 
-      integer(c_long), intent(in)   :: mx, my, mm
-      double precision, intent(in)  :: u(2,:)
-      double precision, intent(out) :: bd(2,2,mm)
-      double precision, intent(in)  :: q1, q2, q3, q4, c3, dy, hdco, vdco
+      integer(c_int), intent(in)    :: mmx, mmy
+      double precision, intent(in)  :: u(2,*)
+      double precision, intent(out) :: bd(2,2,*)
+      double precision, intent(in)  :: qq1, qq2, qq3, qq4, cc3, ddy, hhdco, vvdco
       integer(c_int), intent(out)   :: ierr
 
       ! local variables
-      integer(c_int)   :: jy, jx, idx, idx0
-      double precision :: c1, c2, cydn, cyup, diag, ydn, yup
+      integer(c_int)   :: idx, idx0
+      double precision :: cydn, cyup, diag, ydn, yup
 
-      do jy = 1, my
-         ydn = 30.0d0 + (jy - 1.5d0) * dy
-         yup = ydn + dy
-         cydn = vdco * exp(0.2d0 * ydn)
-         cyup = vdco * exp(0.2d0 * yup)
-         diag = -(cydn + cyup + 2.0d0 * hdco)
-         idx0 = (jy - 1) * mx
-         do jx = 1, mx
+      do jy = 1, mmy
+         ydn = 30.0d0 + (jy - 1.5d0) * ddy
+         yup = ydn + ddy
+         cydn = vvdco * exp(0.2d0 * ydn)
+         cyup = vvdco * exp(0.2d0 * yup)
+         diag = -(cydn + cyup + 2.0d0 * hhdco)
+         idx0 = (jy - 1) * mmx
+         do jx = 1, mmx
             idx = idx0 + jx
             c1 = u(1,idx)
             c2 = u(2,idx)
-            bd(1,1,idx) = (-q1 * c3 - q2 * c2) + diag
-            bd(1,2,idx) = -q2 * c1 + q4
-            bd(2,1,idx) =  q1 * c3 - q2 * c2
-            bd(2,2,idx) = (-q2 * c1 - q4) + diag
+            bd(1,1,idx) = (-qq1 * cc3 - qq2 * c2) + diag
+            bd(1,2,idx) = -qq2 * c1 + qq4
+            bd(2,1,idx) =  qq1 * cc3 - qq2 * c2
+            bd(2,2,idx) = (-qq2 * c1 - qq4) + diag
          end do
       end do
       
@@ -325,68 +330,60 @@ module diurnal_mod
    
     end subroutine Prec_Jac
     
-    subroutine DCopy(n, dx, incx, dy, incy)
-   
-    end subroutine DCopy
-    
-    subroutine DScal(n, da, dx, incx)
-   
-    end subroutine DScal
-    
-    subroutine Prec_LU(mm, p, ipp, ierr)
+    subroutine Prec_LU(mmm, p, ierr)
 
       implicit none
-c
+
       integer(c_int), intent(out) :: ierr
-      integer(c_long), intent(in) :: mm
-      integer(c_long), intent(inout)  :: ipp(2,mm)
-      double precision, intent(inout) :: p(2,2,mm)
+      integer(c_long), intent(in) :: mmm
+      double precision, intent(inout) :: p(2,2,mmm)
 
       ! local variable
-      integer(c_long) :: i
+      integer(c_long)  :: i
+      double precision :: p11, p12, p21, p22, det
 
       ! add identity matrix and do lu decompositions on blocks, in place.
-      do i = 1,mm
-         p(1,1,i) = p(1,1,i) + 1.0d0
-         p(2,2,i) = p(2,2,i) + 1.0d0
-         call dgefa(p(1,1,i), 2, 2, ipp(1,i), ierr)
-         if (ierr /= 0) return
+      do i = 1,mmm
+         p11 = p(1,1,i) + 1.0d0
+         p22 = p(2,2,i) + 1.0d0
+         p12 = p(1,2,i)
+         p21 = p(1,2,i)
+         det = p11*p22 - p12*p21
+         if (det == 0.d0) return
+
+         p(1,1,i) = p22/det
+         p(2,2,i) = p11/det
+         p(1,2,i) = -p21/det
+         p(2,1,i) = -p12/det
       end do
 
       return
    
     end subroutine Prec_LU
 
-    subroutine Prec_Sol(mm, p, ipp, z)
+    subroutine Prec_Sol(mmm, p, z)
     
       implicit none
 
-      integer(c_long), intent(in)   :: mm
-      integer(c_long), intent(inout) :: ipp(2,mm)
-      double precision, intent(inout) :: p(2,2,mm), z(2,mm)
+      integer(c_long), intent(in)   :: mmm
+      double precision, dimension(2,2,mmm), intent(inout) :: p(:,:,:)
+      double precision, dimension(2,mmm), intent(inout) :: z(:,:)
       
       ! local variable
-      integer(c_long) :: i
+      integer(c_long)  :: i
+      double precision :: z1, z2
+
 
       do i = 1,mm
-         call dgesl(p(1,1,i), 2, 2, ipp(1,i), z(1,i), 0)
+         z1 = z(1,i)
+         z2 = z(2,i)
+         z(1,i) = p(1,1,i) * z1 + p(1,2,i) * z2
+         z(2,i) = p(2,1,i) * z1 + p(2,2,i) * z2
       end do
 
       return
 
     end subroutine Prec_Sol
-
-    subroutine dgefa(a, lda, n, ipvt, info)
-   
-    end subroutine dgefa
-    
-    subroutine dgesl(a, lda, n, ipvt, b, job)
-   
-    end subroutine dgesl
-
-    subroutine daxpy(n, da, dx, incx, dy, incy)
-   
-    end subroutine daxpy
     
   end module diurnal_mod
 
@@ -395,7 +392,8 @@ c
     !======= Inclusions ===========
     use, intrinsic :: iso_c_binding
 
-    use fcvode_mod                ! Fortran interface to the ARKode module
+    use fcvode_mod                 ! Fortran interface to the ARKode module
+    use fsundials_futils_mod       ! Fortran utilities
     use fsundials_nvector_mod      ! Fortran interface to the generic N_Vector
     use fsundials_matrix_mod       ! Fortran interface to generic SUNMatrix
     use fsundials_linearsolver_mod ! Fortran interface to generic SUNLinearSolver
@@ -475,18 +473,18 @@ c
        print *, 'Error in FCVodeInit, ierr = ', ierr, '; halting'
        stop 1
     end if
+
+    ierr = FCVodeSetMaxNumSteps(cvode_mem, mxsteps)
+    if (ierr /= 0) then
+       print *, 'Error in FCVodeSetMaxNumSteps, ierr = ', ierr, '; halting'
+       stop 1
+    end if
     
     ierr = FCVodeSStolerances(cvode_mem, rtol, atol)
     if (ierr /= 0) then
        print *, 'Error in FCVodeSStolerances, ierr = ', ierr, '; halting'
        stop 1
     end if
-
-   !  ierr = FCVodeSetMaxNumSteps(cvode_mem, mxsteps)
-   !  if (ierr /= 0) then
-   !     print *, 'Error in FCVodeSetMaxNumSteps'
-   !     stop 1
-   !  end if
 
     ! Tell CVODE to use a SPGMR linear solver.
     sunls => FSUNLinSol_SPGMR(sunvec_u, Jpretype, maxL, ctx)
@@ -509,7 +507,7 @@ c
        stop 1
     end if
 
-    ierr = FCVodeSetPreconditioner(cvode_mem, c_funloc(), c_funloc())
+    ierr = FCVodeSetPreconditioner(cvode_mem, c_funloc(PreSet), c_funloc(PreSolve))
     if (ierr /= 0) then
       print *, 'Error in FCVodeSetPreconditioner, ierr = ', ierr, '; halting'
       stop 1

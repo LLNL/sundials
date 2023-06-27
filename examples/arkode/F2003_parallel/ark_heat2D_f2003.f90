@@ -785,9 +785,10 @@ end module Output_Fns
 program driver
 
   ! inclusions
-  use HeatUserData
+  use HeatUserData                  ! User-defined modules
   use Implicit_and_Prec_Fn
   use Output_Fns
+  use fsundials_futils_mod          ! Fortran utilities
   use fsundials_types_mod           ! sundials defined types
   use fsundials_context_mod         ! Access sundials context
   use farkode_mod                   ! Access ARKode
