@@ -130,6 +130,27 @@ using namespace sundials::hip::impl;
  * -----------------------------------------------------------------
  */
 
+/* --- (TEMPORARY) Reference accesor macros defined by hypre --- */
+
+// #define hypre_ParVectorComm(vector)             ((vector) -> comm)
+// #define hypre_ParVectorGlobalSize(vector)       ((vector) -> global_size)
+// #define hypre_ParVectorFirstIndex(vector)       ((vector) -> first_index)
+// #define hypre_ParVectorLastIndex(vector)        ((vector) -> last_index)
+// #define hypre_ParVectorPartitioning(vector)     ((vector) -> partitioning)
+// #define hypre_ParVectorActualLocalSize(vector)  ((vector) -> actual_local_size)
+// #define hypre_ParVectorLocalVector(vector)      ((vector) -> local_vector)
+// #define hypre_ParVectorOwnsData(vector)         ((vector) -> owns_data)
+// #define hypre_ParVectorAllZeros(vector)         ((vector) -> all_zeros)
+// #define hypre_ParVectorNumVectors(vector)       (hypre_VectorNumVectors(hypre_ParVectorLocalVector(vector)))
+
+// #define hypre_ParVectorAssumedPartition(vector) ((vector) -> assumed_partition)
+
+// static inline HYPRE_MemoryLocation
+// hypre_ParVectorMemoryLocation(hypre_ParVector *vector)
+// {
+//    return hypre_VectorMemoryLocation(hypre_ParVectorLocalVector(vector));
+// }
+
 /* --- Common accessor macros --- */
 
 #define NV_PH_CONTENT(v)      ( (N_VectorContent_ParHyp)(v->content) )
@@ -137,7 +158,9 @@ using namespace sundials::hip::impl;
 #define NV_PH_GLOBLENGTH(v)   ( NV_PH_CONTENT(v)->global_length )
 #define NV_PH_OWN_PARVEC(v)   ( NV_PH_CONTENT(v)->own_parvector )
 #define NV_PH_COMM(v)         ( NV_PH_CONTENT(v)->comm )
+// hypre ParVector accessor macros
 #define NV_PH_HYPRE_PARVEC(v) ( NV_PH_CONTENT(v)->x )
+#define NV_PH_HYPRE_MEMLOC(v) ( (HYPRE_MemoryLocation) hypre_ParVectorMemoryLocation(NV_PH_HYPRE_PARVEC(v)) )
 
 /* --- Backend-dependent accessor macros --- */
 
