@@ -19,7 +19,7 @@
 
 # Examples using SUNDIALS linear solvers
 set(ARKODE_examples
-  "ark_brusselator1D_manyvec.c\;develop"
+  "ark_brusselator1D_manyvec.c\; \" \" \;develop"
   )
 
 # Auxiliary files to install
@@ -37,10 +37,12 @@ set(SUNDIALS_LIBS ${ARKODE_LIB} ${NVECS_LIB} ${EXE_EXTRA_LINK_LIBS})
 # Add the build and install targets for each ARKODE example
 foreach(example_tuple ${ARKODE_examples})
 
-  # parse the example tuple
-  list(GET example_tuple 0 example)
-  list(GET example_tuple 1 example_type)
-
+  # parse the example tuple using sundials_parse_tuple macro
+  sundials_parse_tuple( CVODES_examples 
+    FILENAME_VAR example
+    PARAMS_VAR example_args
+    TYPE_VAR example_type
+  ) 
   # example source files
   add_executable(${example} ${example})
 
