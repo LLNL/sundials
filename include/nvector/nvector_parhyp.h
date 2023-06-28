@@ -109,9 +109,9 @@ extern "C" {
 #endif
 
 /*
- * -----------------------------------------------------------------
+ * =================================================================
  * ParHyp implementation of N_Vector
- * -----------------------------------------------------------------
+ * =================================================================
  */
 
 struct _N_VectorContent_ParHyp
@@ -137,44 +137,28 @@ struct _N_VectorContent_ParHyp
 typedef struct _N_VectorContent_ParHyp *N_VectorContent_ParHyp;
 
 /*
- * -----------------------------------------------------------------
+ * =================================================================
  * Functions exported by nvector_parhyp
- * -----------------------------------------------------------------
+ * =================================================================
  */
 
 SUNDIALS_EXPORT N_Vector N_VNewEmpty_ParHyp(MPI_Comm comm,
                                             sunindextype local_length,
                                             sunindextype global_length,
                                             SUNContext sunctx);
-
 SUNDIALS_EXPORT N_Vector N_VMake_ParHyp(HYPRE_ParVector x, SUNContext sunctx);
-
 SUNDIALS_EXPORT HYPRE_ParVector N_VGetVector_ParHyp(N_Vector v);
 
-SUNDIALS_EXPORT void N_VPrint_ParHyp(N_Vector v);
+/* === Backend-specific operations === */
 
-SUNDIALS_EXPORT void N_VPrintFile_ParHyp(N_Vector v, FILE *outfile);
-
-SUNDIALS_EXPORT N_Vector_ID N_VGetVectorID_ParHyp(N_Vector v);
-SUNDIALS_EXPORT N_Vector N_VCloneEmpty_ParHyp(N_Vector w);
-SUNDIALS_EXPORT N_Vector N_VClone_ParHyp(N_Vector w);
-SUNDIALS_EXPORT void N_VDestroy_ParHyp(N_Vector v);
-SUNDIALS_EXPORT void N_VSpace_ParHyp(N_Vector v, sunindextype *lrw,
-                                     sunindextype *liw);
-SUNDIALS_EXPORT realtype *N_VGetArrayPointer_ParHyp(N_Vector v);
-SUNDIALS_EXPORT void N_VSetArrayPointer_ParHyp(realtype *v_data, N_Vector v);
-SUNDIALS_EXPORT void *N_VGetCommunicator_ParHyp(N_Vector v);
-SUNDIALS_EXPORT sunindextype N_VGetLength_ParHyp(N_Vector v);
-
-/* --- Backend-specific operations --- */
-
-//TODO: add these in the .c file
+/* --- Memory operations --- */
 #if defined(SUNDIALS_HYPRE_BACKENDS_CUDA_OR_HIP)
 SUNDIALS_EXPORT booleantype N_VIsManagedMemory_ParHyp(N_Vector x);
 SUNDIALS_EXPORT void N_VCopyToDevice_ParHyp(N_Vector v);
 SUNDIALS_EXPORT void N_VCopyFromDevice_ParHyp(N_Vector v);
 #endif
 
+/* --- Backend-specific execution policy operations --- */
 #if defined(SUNDIALS_HYPRE_BACKENDS_CUDA)
 SUNDIALS_EXPORT int N_VSetKernelExecPolicy_ParHyp(N_Vector x,
                                                 SUNCudaExecPolicy* stream_exec_policy,
@@ -185,10 +169,22 @@ SUNDIALS_EXPORT int N_VSetKernelExecPolicy_ParHyp(N_Vector x,
                                                 SUNHipExecPolicy* reduce_exec_policy);
 #endif
 
-/* --- Standard vector operations --- */
+/* ===== REQUIRED generic operations ===== */
 
-SUNDIALS_EXPORT void N_VLinearSum_ParHyp(realtype a, N_Vector x, realtype b,
-                                         N_Vector y, N_Vector z);
+/* --- Constructors, destructors, and utility operations --- */
+SUNDIALS_EXPORT N_Vector_ID N_VGetVectorID_ParHyp(N_Vector v);
+SUNDIALS_EXPORT N_Vector N_VClone_ParHyp(N_Vector w);
+SUNDIALS_EXPORT N_Vector N_VCloneEmpty_ParHyp(N_Vector w);
+SUNDIALS_EXPORT void N_VDestroy_ParHyp(N_Vector v);
+SUNDIALS_EXPORT void N_VSpace_ParHyp(N_Vector v, sunindextype *lrw, sunindextype *liw);
+SUNDIALS_EXPORT realtype *N_VGetArrayPointer_ParHyp(N_Vector v);
+SUNDIALS_EXPORT void N_VSetArrayPointer_ParHyp(realtype *v_data, N_Vector v);
+SUNDIALS_EXPORT void *N_VGetCommunicator_ParHyp(N_Vector v);
+SUNDIALS_EXPORT sunindextype N_VGetLength_ParHyp(N_Vector v);
+SUNDIALS_EXPORT sunindextype N_VGetLocalLength_ParHyp(N_Vector v); //TODO
+
+/* --- Standard vector operations --- */
+SUNDIALS_EXPORT void N_VLinearSum_ParHyp(realtype a, N_Vector x, realtype b, N_Vector y, N_Vector z);
 SUNDIALS_EXPORT void N_VConst_ParHyp(realtype c, N_Vector z);
 SUNDIALS_EXPORT void N_VProd_ParHyp(N_Vector x, N_Vector y, N_Vector z);
 SUNDIALS_EXPORT void N_VDiv_ParHyp(N_Vector x, N_Vector y, N_Vector z);
@@ -199,19 +195,18 @@ SUNDIALS_EXPORT void N_VAddConst_ParHyp(N_Vector x, realtype b, N_Vector z);
 SUNDIALS_EXPORT realtype N_VDotProd_ParHyp(N_Vector x, N_Vector y);
 SUNDIALS_EXPORT realtype N_VMaxNorm_ParHyp(N_Vector x);
 SUNDIALS_EXPORT realtype N_VWrmsNorm_ParHyp(N_Vector x, N_Vector w);
-SUNDIALS_EXPORT realtype N_VWrmsNormMask_ParHyp(N_Vector x, N_Vector w,
-                                                N_Vector id);
+SUNDIALS_EXPORT realtype N_VWrmsNormMask_ParHyp(N_Vector x, N_Vector w, N_Vector id);
 SUNDIALS_EXPORT realtype N_VMin_ParHyp(N_Vector x);
 SUNDIALS_EXPORT realtype N_VWL2Norm_ParHyp(N_Vector x, N_Vector w);
 SUNDIALS_EXPORT realtype N_VL1Norm_ParHyp(N_Vector x);
 SUNDIALS_EXPORT void N_VCompare_ParHyp(realtype c, N_Vector x, N_Vector z);
 SUNDIALS_EXPORT booleantype N_VInvTest_ParHyp(N_Vector x, N_Vector z);
-SUNDIALS_EXPORT booleantype N_VConstrMask_ParHyp(N_Vector c, N_Vector x,
-                                                 N_Vector m);
+SUNDIALS_EXPORT booleantype N_VConstrMask_ParHyp(N_Vector c, N_Vector x, N_Vector m);
 SUNDIALS_EXPORT realtype N_VMinQuotient_ParHyp(N_Vector num, N_Vector denom);
 
-/* --- Fused vector operations --- */
+/* ===== OPTIONAL generic operations (override default implementations) ===== */
 
+/* --- Fused vector operations --- */
 SUNDIALS_EXPORT int N_VLinearCombination_ParHyp(int nvec, realtype* c,
                                                 N_Vector* X, N_Vector z);
 SUNDIALS_EXPORT int N_VScaleAddMulti_ParHyp(int nvec, realtype* a, N_Vector x,
@@ -220,7 +215,6 @@ SUNDIALS_EXPORT int N_VDotProdMulti_ParHyp(int nvec, N_Vector x, N_Vector* Y,
                                            realtype* dotprods);
 
 /* --- Vector array operations --- */
-
 SUNDIALS_EXPORT int N_VLinearSumVectorArray_ParHyp(int nvec,
                                                    realtype a, N_Vector* X,
                                                    realtype b, N_Vector* Y,
@@ -244,46 +238,43 @@ SUNDIALS_EXPORT int N_VLinearCombinationVectorArray_ParHyp(int nvec, int nsum,
                                                            N_Vector** X,
                                                            N_Vector* Z);
 
-/* --- OPTIONAL local reduction kernels (no parallel communication) --- */
+/* ===== OPTIONAL generic operations (NO default implementations provided) ===== */
 
+/* --- Local reduction kernels (no parallel communication) --- */
 SUNDIALS_EXPORT realtype N_VDotProdLocal_ParHyp(N_Vector x, N_Vector y);
 SUNDIALS_EXPORT realtype N_VMaxNormLocal_ParHyp(N_Vector x);
 SUNDIALS_EXPORT realtype N_VMinLocal_ParHyp(N_Vector x);
 SUNDIALS_EXPORT realtype N_VL1NormLocal_ParHyp(N_Vector x);
-SUNDIALS_EXPORT realtype N_VWSqrSumLocal_ParHyp(N_Vector x, N_Vector w);
-SUNDIALS_EXPORT realtype N_VWSqrSumMaskLocal_ParHyp(N_Vector x, N_Vector w,
-                                                    N_Vector id);
 SUNDIALS_EXPORT booleantype N_VInvTestLocal_ParHyp(N_Vector x, N_Vector z);
-SUNDIALS_EXPORT booleantype N_VConstrMaskLocal_ParHyp(N_Vector c, N_Vector x,
-                                                      N_Vector m);
-SUNDIALS_EXPORT realtype N_VMinQuotientLocal_ParHyp(N_Vector num,
-                                                    N_Vector denom);
+SUNDIALS_EXPORT booleantype N_VConstrMaskLocal_ParHyp(N_Vector c, N_Vector x, N_Vector m);
+SUNDIALS_EXPORT realtype N_VMinQuotientLocal_ParHyp(N_Vector num, N_Vector denom);
+SUNDIALS_EXPORT realtype N_VWSqrSumLocal_ParHyp(N_Vector x, N_Vector w);
+SUNDIALS_EXPORT realtype N_VWSqrSumMaskLocal_ParHyp(N_Vector x, N_Vector w, N_Vector id);
 
-/* --- OPTIONAL single buffer reduction operations --- */
-
+/* --- Single buffer reduction operations --- */
 SUNDIALS_EXPORT int N_VDotProdMultiLocal_ParHyp(int nvec, N_Vector x,
                                                 N_Vector* Y,
                                                 realtype* dotprods);
 SUNDIALS_EXPORT int N_VDotProdMultiAllReduce_ParHyp(int nvec, N_Vector x,
                                                     realtype* sum);
 
-/* --- OPTIONAL XBraid interface operations --- */
-
+/* --- XBraid interface operations --- */
 SUNDIALS_EXPORT int N_VBufSize_ParHyp(N_Vector x, sunindextype *size);
 SUNDIALS_EXPORT int N_VBufPack_ParHyp(N_Vector x, void *buf);
 SUNDIALS_EXPORT int N_VBufUnpack_ParHyp(N_Vector x, void *buf);
 
-/*
- * -----------------------------------------------------------------
- * Enable / disable fused vector operations
- * -----------------------------------------------------------------
- */
+/* --- Debugging operations ---*/
+SUNDIALS_EXPORT void N_VPrint_ParHyp(N_Vector v);
+SUNDIALS_EXPORT void N_VPrintFile_ParHyp(N_Vector v, FILE *outfile);
+
+/* === Enable / disable fused vector operations === */
 
 SUNDIALS_EXPORT int N_VEnableFusedOps_ParHyp(N_Vector v, booleantype tf);
 
 SUNDIALS_EXPORT int N_VEnableLinearCombination_ParHyp(N_Vector v,
                                                       booleantype tf);
 SUNDIALS_EXPORT int N_VEnableScaleAddMulti_ParHyp(N_Vector v, booleantype tf);
+
 SUNDIALS_EXPORT int N_VEnableDotProdMulti_ParHyp(N_Vector v, booleantype tf);
 
 SUNDIALS_EXPORT int N_VEnableLinearSumVectorArray_ParHyp(N_Vector v,
@@ -300,26 +291,39 @@ SUNDIALS_EXPORT int N_VEnableScaleAddMultiVectorArray_ParHyp(N_Vector v,
                                                              booleantype tf);
 SUNDIALS_EXPORT int N_VEnableLinearCombinationVectorArray_ParHyp(N_Vector v,
                                                                  booleantype tf);
+SUNDIALS_EXPORT int N_VEnableDotProdMultiLocal_ParHyp(N_Vector v, booleantype tf);
 
-/*
- * -----------------------------------------------------------------
- * Deprecated functions
- * -----------------------------------------------------------------
- */
+/* === Deprecated functions === */
 
 /* use N_VCloneVectorArray */
 SUNDIALS_DEPRECATED_EXPORT N_Vector *N_VCloneVectorArray_ParHyp(int count,
                                                                 N_Vector w);
-
 /* use N_VCloneVectorArrayEmpty */
 SUNDIALS_DEPRECATED_EXPORT N_Vector *N_VCloneVectorArrayEmpty_ParHyp(int count,
                                                                      N_Vector w);
-
 /* use N_VDestroyVectorArray */
 SUNDIALS_DEPRECATED_EXPORT void N_VDestroyVectorArray_ParHyp(N_Vector *vs,
                                                              int count);
 
-SUNDIALS_EXPORT int N_VEnableDotProdMultiLocal_ParHyp(N_Vector v, booleantype tf);
+/*
+ * =================================================================
+ * Private function prototypes (not exported)
+ * =================================================================
+ */
+
+/* --- Standard vector operations --- */
+/* z=x+y */
+static void VSum_ParHyp(N_Vector x, N_Vector y, N_Vector z);
+/* z=x-y */
+static void VDiff_ParHyp(N_Vector x, N_Vector y, N_Vector z);
+/* z=c(x+y) */
+static void VScaleSum_ParHyp(realtype c, N_Vector x, N_Vector y, N_Vector z);
+/* z=c(x-y) */
+static void VScaleDiff_ParHyp(realtype c, N_Vector x, N_Vector y, N_Vector z);
+/* z=ax+y */
+static void VLin1_ParHyp(realtype a, N_Vector x, N_Vector y, N_Vector z);
+/* z=ax-y */
+static void VLin2_ParHyp(realtype a, N_Vector x, N_Vector y, N_Vector z);
 
 #ifdef __cplusplus
 }
