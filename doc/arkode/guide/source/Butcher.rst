@@ -1811,12 +1811,12 @@ Accessible via the constant ``ARKODE_SYMPLECTIC_YOSHIDA_6_8`` to
 This is the 6th order method given by Yoshida in :cite:p:`Yoshida:90`.
 
 
-ARKODE_SYMPLECTIC_MCLACHLAN_8_16
+ARKODE_SYMPLECTIC_SUZUKI_UMENO_8_16
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 .. index:: 8th-order McLachlan method
 
-Accessible via the constant ``ARKODE_SYMPLECTIC_MCLACHLAN_8_16`` to
+Accessible via the constant ``ARKODE_SYMPLECTIC_SUZUKI_UMENO_8_16`` to
 :c:func:`ARKodeSPRKStorage_Load()` or :c:func:`ARKodeSPRKStorage_LoadByName`.
 This is the 8th order method given by McLachlan in :cite:p:`Mclachlan:92`.
 

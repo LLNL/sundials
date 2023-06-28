@@ -236,13 +236,18 @@ ARKodeSPRKStorage ARKodeSymplecticYoshida6()
 /*
   The following methods are from:
 
+  (Original) Suzuki, M., & Umeno, K. (1993). Higher-order decomposition theory
+  of exponential operators and its applications to QMC and nonlinear dynamics.
+  Computer simulation studies in condensed-matter physics VI, 74-86. 
+  https://doi.org/10.1007/978-3-642-78448-4_7
+
   McLachlan, R.I.: On the Numerical Integration of Ordinary Differential
   Equations by Symmetric Composition Methods. Siam J Sci Comput. 16, 151–168
   (1995). https://doi.org/10.1137/0916010
 
  */
 
-ARKodeSPRKStorage ARKodeSymplecticMcLachlan8()
+ARKodeSPRKStorage ARKodeSymplecticSuzukiUmeno816()
 {
   ARKodeSPRKStorage sprk_storage = ARKodeSPRKStorage_Alloc(16);
   sprk_storage->q                = 8;
@@ -427,7 +432,7 @@ ARKodeSPRKStorage ARKodeSPRKStorage_Load(ARKODE_SPRKMethodID id)
     return ARKodeSymplecticCandyRozmus4();
   case ARKODE_SYMPLECTIC_MCLACHLAN_5_6: return ARKodeSymplecticMcLachlan5();
   case ARKODE_SYMPLECTIC_YOSHIDA_6_8: return ARKodeSymplecticYoshida6();
-  case ARKODE_SYMPLECTIC_MCLACHLAN_8_16: return ARKodeSymplecticMcLachlan8();
+  case ARKODE_SYMPLECTIC_SUZUKI_UMENO_8_16: return ARKodeSymplecticSuzukiUmeno816();
   case ARKODE_SYMPLECTIC_SOFRONIOU_10_36: return ARKodeSymplecticSofroniou10();
   default: return NULL;
   }
@@ -475,9 +480,9 @@ ARKodeSPRKStorage ARKodeSPRKStorage_LoadByName(const char* method)
   {
     return ARKodeSymplecticYoshida6();
   }
-  if (!strcmp(method, "ARKODE_SYMPLECTIC_MCLACHLAN_8_16"))
+  if (!strcmp(method, "ARKODE_SYMPLECTIC_SUZUKI_UMENO_8_16"))
   {
-    return ARKodeSymplecticMcLachlan8();
+    return ARKodeSymplecticSuzukiUmeno816();
   }
   if (!strcmp(method, "ARKODE_SYMPLECTIC_SOFRONIOU_10_36"))
   {

@@ -280,7 +280,7 @@ contains the ARKODE output constants.
    +--------------------------------------------------+------------------------------------------------------------+
    | :c:macro:`ARKODE_SYMPLECTIC_YOSHIDA_6_8`         | Symplectic Yoshida 6th order method with 8 stages.         |
    +--------------------------------------------------+------------------------------------------------------------+
-   | :c:macro:`ARKODE_SYMPLECTIC_MCLACHLAN_8_16`      | Symplectic McLachlan 8th order method with 16 stages.      |
+   | :c:macro:`ARKODE_SYMPLECTIC_SUZUKI_UMENO_8_16`      | Symplectic McLachlan 8th order method with 16 stages.      |
    +--------------------------------------------------+------------------------------------------------------------+
    | :c:macro:`ARKODE_SYMPLECTIC_SOFRONIOU_10_36`     | Symplectic Sofroniou 10th order method with 36 stages.     |
    +--------------------------------------------------+------------------------------------------------------------+

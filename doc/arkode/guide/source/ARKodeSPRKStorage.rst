@@ -67,7 +67,7 @@ The following enum values are used to identify different SPRK methods:
 
    Identifier for the Symplectic Yoshida 6th order method with 8 stages.
 
-.. c:macro:: ARKODE_SYMPLECTIC_MCLACHLAN_8_16
+.. c:macro:: ARKODE_SYMPLECTIC_SUZUKI_UMENO_8_16
 
    Identifier for the Symplectic McLachlan 8th order method with 16 stages.
 
