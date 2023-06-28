@@ -20,16 +20,16 @@
 
 # Examples using SUNDIALS linear solvers
 set(IDA_examples
-  "idaAnalytic_mels.c\;\;exclude-single"
-  "idaFoodWeb_bnd.c\;\;develop"
-  "idaFoodWeb_kry.c\;\;develop"
-  "idaHeat2D_bnd.c\;\;develop"
-  "idaHeat2D_kry.c\;\;develop"
-  "idaKrylovDemo_ls.c\;\;develop"
-  "idaKrylovDemo_ls.c\;1\;develop"
-  "idaKrylovDemo_ls.c\;2\;develop"
-  "idaRoberts_dns.c\;\;"
-  "idaSlCrank_dns.c\;\;exclude-single"
+  "idaAnalytic_mels.c\; \"\" \;exclude-single"
+  "idaFoodWeb_bnd.c\; \"\" \;develop"
+  "idaFoodWeb_kry.c\; \"\" \;develop"
+  "idaHeat2D_bnd.c\; \"\" \;develop"
+  "idaHeat2D_kry.c\; \"\" \;develop"
+  "idaKrylovDemo_ls.c\; \"\" \;develop"
+  "idaKrylovDemo_ls.c\; \"1\" \;develop"
+  "idaKrylovDemo_ls.c\; \"2\" \;develop"
+  "idaRoberts_dns.c\; \"\" \; \"\" "
+  "idaSlCrank_dns.c\; \"\" \;exclude-single"
   )
 
 # Examples using LAPACK linear solvers
@@ -38,13 +38,13 @@ set(IDA_examples_BL
 
 # Examples using KLU linear solver
 set(IDA_examples_KLU
-  "idaHeat2D_klu.c\;\;develop"
-  "idaRoberts_klu.c\;\;develop"
+  "idaHeat2D_klu.c\; \"\" \;develop"
+  "idaRoberts_klu.c\; \"\" \;develop"
   )
 
 # Examples using SuperLU_MT linear solver
 set(IDA_examples_SUPERLUMT
-    "idaRoberts_sps.c\;\;develop"
+    "idaRoberts_sps.c\; \"\" \;develop"
     #"idaHeat2D_sps\;develop" # not ready yet, incorrect answer.
     )
 
@@ -63,10 +63,12 @@ set(SUNDIALS_LIBS ${IDA_LIB} ${NVECS_LIB} ${EXE_EXTRA_LINK_LIBS})
 # Add the build and install targets for each example
 foreach(example_tuple ${IDA_examples})
 
-  # parse the example tuple
-  list(GET example_tuple 0 example)
-  list(GET example_tuple 1 example_args)
-  list(GET example_tuple 2 example_type)
+  # parse the example tuple using sundials_parse_tuple macro
+  sundials_parse_tuple( CVODES_examples 
+    FILENAME_VAR example
+    PARAMS_VAR example_args
+    TYPE_VAR example_type
+  ) 
 
   # check if this example has already been added, only need to add
   # example source files once for testing with different inputs
@@ -113,10 +115,12 @@ if(BUILD_SUNLINSOL_LAPACKBAND AND BUILD_SUNLINSOL_LAPACKDENSE)
 
   foreach(example_tuple ${IDA_examples_BL})
 
-    # parse the example tuple
-    list(GET example_tuple 0 example)
-    list(GET example_tuple 1 example_args)
-    list(GET example_tuple 2 example_type)
+    # parse the example tuple using sundials_parse_tuple macro
+    sundials_parse_tuple( CVODES_examples 
+      FILENAME_VAR example
+      PARAMS_VAR example_args
+      TYPE_VAR example_type
+    ) 
 
     # check if this example has already been added, only need to add
     # example source files once for testing with different inputs
@@ -163,10 +167,12 @@ if(BUILD_SUNLINSOL_KLU)
 
   foreach(example_tuple ${IDA_examples_KLU})
 
-    # parse the example tuple
-    list(GET example_tuple 0 example)
-    list(GET example_tuple 1 example_args)
-    list(GET example_tuple 2 example_type)
+    # parse the example tuple using sundials_parse_tuple macro
+    sundials_parse_tuple( CVODES_examples 
+      FILENAME_VAR example
+      PARAMS_VAR example_args
+      TYPE_VAR example_type
+    ) 
 
     # check if this example has already been added, only need to add
     # example source files once for testing with different inputs
@@ -213,10 +219,12 @@ if(BUILD_SUNLINSOL_SUPERLUMT)
 
   foreach(example_tuple ${IDA_examples_SUPERLUMT})
 
-    # parse the example tuple
-    list(GET example_tuple 0 example)
-    list(GET example_tuple 1 example_args)
-    list(GET example_tuple 2 example_type)
+    # parse the example tuple using sundials_parse_tuple macro
+    sundials_parse_tuple( CVODES_examples 
+      FILENAME_VAR example
+      PARAMS_VAR example_args
+      TYPE_VAR example_type
+    ) 
 
     # check if this example has already been added, only need to add
     # example source files once for testing with different inputs

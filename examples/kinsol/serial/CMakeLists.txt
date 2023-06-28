@@ -20,22 +20,22 @@
 
 # Examples using SUNDIALS linear solvers
 set(KINSOL_examples
-  "kinAnalytic_fp.c\;\;"
-  "kinAnalytic_fp.c\;--damping_fp 0.5\;develop"
-  "kinAnalytic_fp.c\;--m_aa 2\;"
-  "kinAnalytic_fp.c\;--m_aa 2 --delay_aa 2\;"
-  "kinAnalytic_fp.c\;--m_aa 2 --damping_aa 0.5\;develop"
-  "kinAnalytic_fp.c\;--m_aa 2 --orth_aa 1\;"
-  "kinAnalytic_fp.c\;--m_aa 2 --orth_aa 2\;"
-  "kinAnalytic_fp.c\;--m_aa 2 --orth_aa 3\;"
-  "kinFerTron_dns.c\;\;develop"
-  "kinFoodWeb_kry.c\;\;exclude-single"
-  "kinKrylovDemo_ls.c\;\;exclude-single"
-  "kinLaplace_bnd.c\;\;exclude-single"
-  "kinLaplace_picard_bnd.c\;\;exclude-single"
-  "kinLaplace_picard_kry.c\;\;exclude-single"
-  "kinRoberts_fp.c\;\;develop"
-  "kinRoboKin_dns.c\;\;exclude-single"
+  "kinAnalytic_fp.c\; \"\" \; \"\" "
+  "kinAnalytic_fp.c\; \"--damping_fp 0.5\" \;develop"
+  "kinAnalytic_fp.c\; \"--m_aa 2\" \; \"\" "
+  "kinAnalytic_fp.c\; \"--m_aa 2 --delay_aa 2\" \; \"\" "
+  "kinAnalytic_fp.c\; \"--m_aa 2 --damping_aa 0.5\" \;develop"
+  "kinAnalytic_fp.c\; \"--m_aa 2 --orth_aa 1\" \;  \"\" "
+  "kinAnalytic_fp.c\; \"--m_aa 2 --orth_aa 2\" \; \"\" "
+  "kinAnalytic_fp.c\; \"--m_aa 2 --orth_aa 3\" \;  \"\" "
+  "kinFerTron_dns.c\; \"\" \;develop"
+  "kinFoodWeb_kry.c\; \"\" \;exclude-single"
+  "kinKrylovDemo_ls.c\; \"\" \;exclude-single"
+  "kinLaplace_bnd.c\; \"\" \;exclude-single"
+  "kinLaplace_picard_bnd.c\; \"\" \;exclude-single"
+  "kinLaplace_picard_kry.c\; \"\" \;exclude-single"
+  "kinRoberts_fp.c\; \"\" \;develop"
+  "kinRoboKin_dns.c\; \"\" \;exclude-single"
   )
 
 # Examples using LAPACK linear solvers
@@ -44,12 +44,12 @@ set(KINSOL_examples_BL
 
 # Examples using KLU linear solver
 set(KINSOL_examples_KLU
-  "kinFerTron_klu.c\;develop"
+  "kinFerTron_klu.c\; \"\" \;develop"
   )
 
 # Examples using SuperLU_MT linear solver
 set(KINSOL_examples_SUPERLUMT
-  "kinRoboKin_slu.c\;develop"
+  "kinRoboKin_slu.c\; \"\" \;develop"
   )
 
 # Auxiliary files to install
@@ -67,10 +67,12 @@ set(SUNDIALS_LIBS ${KINSOL_LIB} ${NVECS_LIB} ${EXE_EXTRA_LINK_LIBS})
 # Add the build and install targets for each example
 foreach(example_tuple ${KINSOL_examples})
 
-  # parse the example tuple
-  list(GET example_tuple 0 example)
-  list(GET example_tuple 1 example_args)
-  list(GET example_tuple 2 example_type)
+    # parse the example tuple using sundials_parse_tuple macro
+    sundials_parse_tuple( CVODES_examples 
+      FILENAME_VAR example
+      PARAMS_VAR example_args
+      TYPE_VAR example_type
+    )
 
   # check if this example has already been added, only need to add
   # example source files once for testing with different inputs
@@ -117,11 +119,12 @@ if(BUILD_SUNLINSOL_LAPACKBAND AND BUILD_SUNLINSOL_LAPACKDENSE)
   list(APPEND SUNLINSOLLAPACK_LIBS ${LAPACK_LIBRARIES})
 
   foreach(example_tuple ${KINSOL_examples_BL})
-
-    # parse the example tuple
-    list(GET example_tuple 0 example)
-    list(GET example_tuple 1 example_type)
-
+    # parse the example tuple using sundials_parse_tuple macro
+    sundials_parse_tuple( CVODES_examples 
+      FILENAME_VAR example
+      PARAMS_VAR example_args
+      TYPE_VAR example_type
+    )
     # example source files
     add_executable(${example} ${example})
 
@@ -151,9 +154,12 @@ if(BUILD_SUNLINSOL_KLU)
 
   foreach(example_tuple ${KINSOL_examples_KLU})
 
-    # parse the example tuple
-    list(GET example_tuple 0 example)
-    list(GET example_tuple 1 example_type)
+    # parse the example tuple using sundials_parse_tuple macro
+    sundials_parse_tuple( CVODES_examples 
+      FILENAME_VAR example
+      PARAMS_VAR example_args
+      TYPE_VAR example_type
+    )
 
     # example source files
     add_executable(${example} ${example})
@@ -184,9 +190,12 @@ if(BUILD_SUNLINSOL_SUPERLUMT)
 
   foreach(example_tuple ${KINSOL_examples_SUPERLUMT})
 
-    # parse the example tuple
-    list(GET example_tuple 0 example)
-    list(GET example_tuple 1 example_type)
+    # parse the example tuple using sundials_parse_tuple macro
+    sundials_parse_tuple( CVODES_examples 
+      FILENAME_VAR example
+      PARAMS_VAR example_args
+      TYPE_VAR example_type
+    )
 
     # example source files
     add_executable(${example} ${example})

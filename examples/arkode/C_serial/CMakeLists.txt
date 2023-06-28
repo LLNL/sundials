@@ -20,60 +20,60 @@
 
 # Examples using SUNDIALS linear solvers
 set(ARKODE_examples
-  "ark_analytic.c\;\;"
-  "ark_analytic_mels.c\;\;develop"
-  "ark_analytic_nonlin.c\;\;develop"
-  "ark_brusselator.c\;\;develop"
-  "ark_brusselator_fp.c\;\;exclude-single"
-  "ark_brusselator1D.c\;\;exclude-single"
-  "ark_heat1D.c\;\;develop"
-  "ark_heat1D_adapt.c\;\;develop"
-  "ark_KrylovDemo_prec.c\;\;exclude-single"
-  "ark_KrylovDemo_prec.c\;1\;exclude-single"
-  "ark_KrylovDemo_prec.c\;2\;exclude-single"
-  "ark_robertson.c\;\;exclude-single"
-  "ark_robertson_constraints.c\;\;exclude-single"
-  "ark_robertson_root.c\;\;exclude-single"
-  "ark_brusselator_mri.c\;\;develop"
-  "ark_onewaycouple_mri.c\;\;develop"
-  "ark_twowaycouple_mri.c\;\;develop"
-  "ark_reaction_diffusion_mri.c\;\;develop"
-  "ark_brusselator_1D_mri.c\;\;develop"
-  "ark_kpr_mri.c\;\;develop"
-  "ark_kpr_mri.c\;0 0.002\;develop"
-  "ark_kpr_mri.c\;1 0.002\;develop"
-  "ark_kpr_mri.c\;2 0.005\;develop"
-  "ark_kpr_mri.c\;3 0.01\;develop"
-  "ark_kpr_mri.c\;4 0.002\;develop"
-  "ark_kpr_mri.c\;5 0.002\;develop"
-  "ark_kpr_mri.c\;6 0.005\;develop"
-  "ark_kpr_mri.c\;7 0.001\;exclude-single"
-  "ark_kpr_mri.c\;7 0.001 -100 100 0.5 1\;exclude-single"
-  "ark_kpr_mri.c\;8 0.001\;exclude-single"
-  "ark_kpr_mri.c\;8 0.001 -100 100 0.5 1\;exclude-single"
-  "ark_kpr_mri.c\;9 0.001\;exclude-single"
-  "ark_kpr_mri.c\;9 0.001 -100 100 0.5 1\;exclude-single"
-  "ark_brusselator1D_imexmri.c\;0 0.001\;exclude-single"
-  "ark_brusselator1D_imexmri.c\;2 0.001\;exclude-single"
-  "ark_brusselator1D_imexmri.c\;3 0.001\;exclude-single"
-  "ark_brusselator1D_imexmri.c\;4 0.001\;exclude-single"
-  "ark_brusselator1D_imexmri.c\;5 0.001\;exclude-single"
-  "ark_brusselator1D_imexmri.c\;6 0.001\;exclude-single"
-  "ark_brusselator1D_imexmri.c\;7 0.001\;exclude-single"
+  "ark_analytic.c\; \"\" \; \"\" "
+  "ark_analytic_mels.c\; \"\" \;develop"
+  "ark_analytic_nonlin.c\; \"\" \;develop"
+  "ark_brusselator.c\; \"\" \;develop"
+  "ark_brusselator_fp.c\; \"\" \;exclude-single"
+  "ark_brusselator1D.c\; \"\" \;exclude-single"
+  "ark_heat1D.c\; \"\" \;develop"
+  "ark_heat1D_adapt.c\; \"\" \;develop"
+  "ark_KrylovDemo_prec.c\; \"\" \;exclude-single"
+  "ark_KrylovDemo_prec.c\; \"1\" \;exclude-single"
+  "ark_KrylovDemo_prec.c\; \"2\" \;exclude-single"
+  "ark_robertson.c\; \"\" \;exclude-single"
+  "ark_robertson_constraints.c\; \"\" \;exclude-single"
+  "ark_robertson_root.c\; \"\" \;exclude-single"
+  "ark_brusselator_mri.c\; \"\" \;develop"
+  "ark_onewaycouple_mri.c\; \"\" \;develop"
+  "ark_twowaycouple_mri.c\; \"\" \;develop"
+  "ark_reaction_diffusion_mri.c\; \"\" \;develop"
+  "ark_brusselator_1D_mri.c\; \"\" \;develop"
+  "ark_kpr_mri.c\; \"\" \;develop"
+  "ark_kpr_mri.c\; \"0 0.002\" \;develop"
+  "ark_kpr_mri.c\; \"1 0.002\" \;develop"
+  "ark_kpr_mri.c\; \"2 0.005\" \;develop"
+  "ark_kpr_mri.c\; \"3 0.01\" \;develop"
+  "ark_kpr_mri.c\; \"4 0.002\" \;develop"
+  "ark_kpr_mri.c\; \"5 0.002\" \;develop"
+  "ark_kpr_mri.c\; \"6 0.005\" \;develop"
+  "ark_kpr_mri.c\; \"7 0.001\" \;exclude-single"
+  "ark_kpr_mri.c\; \"7 0.001 -100 100 0.5 1\" \;exclude-single"
+  "ark_kpr_mri.c\; \"8 0.001\" \;exclude-single"
+  "ark_kpr_mri.c\; \"8 0.001 -100 100 0.5 1\" \;exclude-single"
+  "ark_kpr_mri.c\; \"9 0.001\" \;exclude-single"
+  "ark_kpr_mri.c\; \"9 0.001 -100 100 0.5 1\" \;exclude-single"
+  "ark_brusselator1D_imexmri.c\; \"0 0.001\" \;exclude-single"
+  "ark_brusselator1D_imexmri.c\; \"2 0.001\" \;exclude-single"
+  "ark_brusselator1D_imexmri.c\; \"3 0.001\" \;exclude-single"
+  "ark_brusselator1D_imexmri.c\; \"4 0.001\" \;exclude-single"
+  "ark_brusselator1D_imexmri.c\; \"5 0.001\" \;exclude-single"
+  "ark_brusselator1D_imexmri.c\; \"6 0.001\" \;exclude-single"
+  "ark_brusselator1D_imexmri.c\; \"7 0.001\" \;exclude-single"
   )
 
 if(SUNDIALS_BUILD_WITH_MONITORING)
-  list(APPEND ARKODE_examples "ark_brusselator_fp\;1\;exclude-single")
+  list(APPEND ARKODE_examples "ark_brusselator_fp\; \"1\" \;exclude-single")
 endif()
 
 # Examples using KLU linear solver
 set(ARKODE_examples_KLU
-  "ark_brusselator1D_klu\;develop"
+  "ark_brusselator1D_klu\; \"\" \;develop"
   )
 
 # Examples using SuperLU_MT linear solver
 set(ARKODE_examples_SUPERLUMT
-  "ark_brusselator1D_FEM_slu\;exclude-single"
+  "ark_brusselator1D_FEM_slu\; \"\" \;exclude-single"
   )
 
 # Auxiliary files to install
@@ -100,11 +100,12 @@ set(SUNDIALS_LIBS ${ARKODE_LIB} ${NVECS_LIB} ${EXE_EXTRA_LINK_LIBS})
 # Add the build and install targets for each ARKODE example
 foreach(example_tuple ${ARKODE_examples})
 
-  # parse the example tuple
-  list(GET example_tuple 0 example)
-  list(GET example_tuple 1 example_args)
-  list(GET example_tuple 2 example_type)
-
+  # parse the example tuple using sundials_parse_tuple macro
+  sundials_parse_tuple( CVODES_examples 
+    FILENAME_VAR example
+    PARAMS_VAR example_args
+    TYPE_VAR example_type
+  ) 
   if (NOT TARGET ${example})
     # example source files
     add_executable(${example} ${example})
@@ -143,9 +144,12 @@ if(BUILD_SUNLINSOL_KLU)
 
   foreach(example_tuple ${ARKODE_examples_KLU})
 
-    # parse the example tuple
-    list(GET example_tuple 0 example)
-    list(GET example_tuple 1 example_type)
+    # parse the example tuple using sundials_parse_tuple macro
+    sundials_parse_tuple( CVODES_examples 
+      FILENAME_VAR example
+      PARAMS_VAR example_args
+      TYPE_VAR example_type
+    ) 
 
     # example source files
     add_executable(${example} ${example})
@@ -177,9 +181,12 @@ if(BUILD_SUNLINSOL_SUPERLUMT)
 
   foreach(example_tuple ${ARKODE_examples_SUPERLUMT})
 
-    # parse the example tuple
-    list(GET example_tuple 0 example)
-    list(GET example_tuple 1 example_type)
+    # parse the example tuple using sundials_parse_tuple macro
+    sundials_parse_tuple( CVODES_examples 
+      FILENAME_VAR example
+      PARAMS_VAR example_args
+      TYPE_VAR example_type
+    ) 
 
     # example source files
     add_executable(${example} ${example})
@@ -195,7 +202,7 @@ if(BUILD_SUNLINSOL_SUPERLUMT)
     # libraries to link against
     target_link_libraries(${example} ${SUNDIALS_LIBS} ${SUNLINSOLSLUMT_LIBS})
 
-    endforeach(example_tuple ${ARKODE_examples_SUPERLUMT})
+  endforeach(example_tuple ${ARKODE_examples_SUPERLUMT})
 
 endif()
 
