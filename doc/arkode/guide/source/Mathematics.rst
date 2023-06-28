@@ -517,8 +517,8 @@ SPRKStep utilizes Symplectic Partitioned Runge-Kutta (SPRK) methods represented 
    \end{array}.
 
 We use a compact storage of these coefficients in terms of two arrays, one for *a* and one for *b*.
-The time weights are computed dynamically as :math:`c_j = \sum_{i=1}^s a_i` and 
-:math:`\hat{c}_j = \sum_{i=1}^s \hat{a}_i` respectively. These methods approximately conserve a nearby 
+The time weights are computed dynamically as :math:`c_j = \sum_{i=1}^j a_i` and 
+:math:`\hat{c}_j = \sum_{i=1}^j \hat{a}_i` respectively. These methods approximately conserve a nearby 
 Hamiltonian for exponentially long times :cite:p:`HaWa:06`.
 SPRKStep makes the assumption that the Hamiltonian is separable,
 in which case the schemes are explicit. SPRKStep provides methods with order of accuracy and conservation 
