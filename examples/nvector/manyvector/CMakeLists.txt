@@ -19,25 +19,26 @@
 
 # Examples using SUNDIALS manyvector nvector
 set(nvector_manyvector_examples
-  "test_nvector_manyvector.c\;1000 100 0\;"
-  "test_nvector_manyvector.c\;100 1000 0\;"
-  )
-
-# Dependencies for nvector examples
-set(nvector_examples_dependencies
-  test_nvector
+  "test_nvector_manyvector.c\; \"1000 100 0\" \; \"\" "
+  "test_nvector_manyvector.c\; \"100 1000 0\" \; \"\" "
   )
 
 # If building F2003 tests
 if (BUILD_FORTRAN_MODULE_INTERFACE)
   set(nvector_manyvector_fortran_examples
-    "test_fnvector_manyvector_mod\;\;")
+    "test_fnvector_manyvector_mod\; \"\" \; \"\" ")
 endif()
 
-# Adding dependency files 
-set(nvector_serial_dependencies
-  test_nvector.c
+# Dependencies for nvector serial examples
+set(nvector_examples_dependencies
+  test_nvector.c 
   test_nvector.h
+  )
+
+# Adding extra files 
+set(nvector_serial_dependencies
+  ../test_nvector.c
+  ../test_nvector.h
 )
 
 # Add source directory to include directories
@@ -56,10 +57,12 @@ set(SUNDIALS_LIBS ${NVECS_LIB} ${EXE_EXTRA_LINK_LIBS})
 # Add the build and install targets for each example
 foreach(example_tuple ${nvector_manyvector_examples})
 
-  # parse the example tuple
-  list(GET example_tuple 0 example)
-  list(GET example_tuple 1 example_args)
-  list(GET example_tuple 2 example_type)
+  # parse the example tuple using sundials_parse_tuple macro
+  sundials_parse_tuple( CVODES_examples 
+    FILENAME_VAR example
+    PARAMS_VAR example_args
+    TYPE_VAR example_type
+  ) 
 
   # check if this example has already been added, only need to add
   # example source files once for testing with different inputs
@@ -95,10 +98,12 @@ endforeach(example_tuple ${nvector_manyvector_examples})
 # Add the build and install targets for each example
 foreach(example_tuple ${nvector_manyvector_fortran_examples})
 
-  # parse the example tuple
-  list(GET example_tuple 0 example)
-  list(GET example_tuple 1 example_args)
-  list(GET example_tuple 2 example_type)
+  # parse the example tuple using sundials_parse_tuple macro
+  sundials_parse_tuple( CVODES_examples 
+    FILENAME_VAR example
+    PARAMS_VAR example_args
+    TYPE_VAR example_type
+  ) 
 
   # check if this example has already been added, only need to add
   # example source files once for testing with different inputs
@@ -145,11 +150,12 @@ if(EXAMPLES_INSTALL)
     DESTINATION
       nvector/manyvector
     EXAMPLES_DEPENDENCIES
-      ${nvector_serial_dependencies}
+      ${nvector_examples_dependencies}
     EXTRA_FILES
       #README
       ${NVECTOR_extras}
       ${NVECTOR_headers}
+      ${nvector_serial_dependencies}
     TEST_INSTALL
       manyvector
   )
