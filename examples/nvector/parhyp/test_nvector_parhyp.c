@@ -347,7 +347,14 @@ realtype get_element(N_Vector X, sunindextype i)
   Xvec  = N_VGetVector_ParHyp(X);
   Xdata = hypre_VectorData(hypre_ParVectorLocalVector(Xvec));
 
+  #if defined(SUNDIALS_HYPRE_BACKENDS_CUDA)
+  realtype host_data;
+  cudaMemcpy(&host_data,Xdata,sizeof(realtype),cudaMemcpyDeviceToHost);
+  return host_data;
+  #else
   return Xdata[i];
+  #endif
+
 }
 
 double max_time(N_Vector X, double time)
@@ -364,5 +371,8 @@ double max_time(N_Vector X, double time)
 void sync_device(N_Vector x)
 {
   /* not running on GPU, just return */
+  #if defined(SUNDIALS_HYPRE_BACKENDS_CUDA)
+  cudaDeviceSynchronize();
+  #endif
   return;
 }
