@@ -211,10 +211,10 @@ ARKodeSPRKStorage ARKodeSymplecticYoshida6()
   ARKodeSPRKStorage sprk_storage = ARKodeSPRKStorage_Alloc(8);
   sprk_storage->q                = 6;
   sprk_storage->stages           = 8;
-  sprk_storage->a[0]             = SUN_RCONST(0.78451361047755726382);
-  sprk_storage->a[1]             = SUN_RCONST(0.23557321335935813368);
-  sprk_storage->a[2]             = -SUN_RCONST(1.17767998417887100695);
-  sprk_storage->a[3]             = SUN_RCONST(1.3151863206839);
+  sprk_storage->a[0]             = SUN_RCONST(0.7845136104775572638194976338663498757768);
+  sprk_storage->a[1]             = SUN_RCONST(0.2355732133593581336847931829785346016865);
+  sprk_storage->a[2]             = -SUN_RCONST(1.177679984178871006946415680964315734639);
+  sprk_storage->a[3]             = SUN_RCONST(1.315186320683911218884249728238862514352);
   sprk_storage->a[4]             = sprk_storage->a[2];
   sprk_storage->a[5]             = sprk_storage->a[1];
   sprk_storage->a[6]             = sprk_storage->a[0];
