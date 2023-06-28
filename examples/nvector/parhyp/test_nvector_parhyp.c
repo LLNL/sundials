@@ -285,6 +285,7 @@ int check_ans(realtype ans, N_Vector X, sunindextype local_length)
 
   Xvec  = N_VGetVector_ParHyp(X);
   Xdata = hypre_VectorData(hypre_ParVectorLocalVector(Xvec));
+  // if CUDA, malloc host -> cudamemcpy -> check -> free
 
   /* check vector data */
   for (i = 0; i < local_length; i++) {

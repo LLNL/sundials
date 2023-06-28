@@ -132,6 +132,7 @@ using namespace sundials::hip::impl;
 
 /* --- (TEMPORARY) Reference accesor macros defined by hypre --- */
 
+// For hypre ParVector
 // #define hypre_ParVectorComm(vector)             ((vector) -> comm)
 // #define hypre_ParVectorGlobalSize(vector)       ((vector) -> global_size)
 // #define hypre_ParVectorFirstIndex(vector)       ((vector) -> first_index)
@@ -142,14 +143,23 @@ using namespace sundials::hip::impl;
 // #define hypre_ParVectorOwnsData(vector)         ((vector) -> owns_data)
 // #define hypre_ParVectorAllZeros(vector)         ((vector) -> all_zeros)
 // #define hypre_ParVectorNumVectors(vector)       (hypre_VectorNumVectors(hypre_ParVectorLocalVector(vector)))
-
 // #define hypre_ParVectorAssumedPartition(vector) ((vector) -> assumed_partition)
-
 // static inline HYPRE_MemoryLocation
 // hypre_ParVectorMemoryLocation(hypre_ParVector *vector)
 // {
 //    return hypre_VectorMemoryLocation(hypre_ParVectorLocalVector(vector));
 // }
+
+// For hypre hypreVector (local_vector inside a ParVector)
+// #define hypre_VectorData(vector)                  ((vector) -> data)
+// #define hypre_VectorSize(vector)                  ((vector) -> size)
+// #define hypre_VectorComponent(vector)             ((vector) -> component)
+// #define hypre_VectorOwnsData(vector)              ((vector) -> owns_data)
+// #define hypre_VectorMemoryLocation(vector)        ((vector) -> memory_location)
+// #define hypre_VectorNumVectors(vector)            ((vector) -> num_vectors)
+// #define hypre_VectorMultiVecStorageMethod(vector) ((vector) -> multivec_storage_method)
+// #define hypre_VectorVectorStride(vector)          ((vector) -> vecstride)
+// #define hypre_VectorIndexStride(vector)           ((vector) -> idxstride)
 
 /* --- Common accessor macros --- */
 
@@ -718,8 +728,10 @@ void N_VDiv_ParHyp(N_Vector x, N_Vector y, N_Vector z)
   yd = NV_PH_DATA(y);
   zd = NV_PH_DATA(z);
 
+  // if Serial
   for (i = 0; i < N; i++)
     zd[i] = xd[i]/yd[i];
+  // if CUDA kernal launch... divKernel<<<...>>>
 
   return;
 }
