@@ -577,23 +577,14 @@ contains
 
     !======= Internals ============
 
-!!$    ! update Jacobian
-!!$    if (jok == 0) then
-!!$
-       ! set constant for matrix diagonal
-       c = 1.d0 + gamma*2.d0*(kx/dx/dx + ky/dy/dy)
+    ! set constant for matrix diagonal
+    c = 1.d0 + gamma*2.d0*(kx/dx/dx + ky/dy/dy)
 
-       ! set all entries of d to the inverse of the diagonal values in interior
-       ! (since boundary RHS is 0, set boundary diagonals to the same)
-       d = 1.d0/c
+    ! set all entries of d to the inverse of the diagonal values in interior
+    ! (since boundary RHS is 0, set boundary diagonals to the same)
+    d = 1.d0/c
 
-       jcurPtr = 1  ! update jcur flag
-
-!!$    else
-!!$
-!!$       jcurPtr = 0  ! indicate that preconditioner was unchanged
-!!$
-!!$    end if
+    jcurPtr = 1  ! update jcur flag
 
     ierr = 0     ! Return with success
     return

@@ -99,8 +99,8 @@ module advdiff_mod
       double precision :: uij, udn, uup, ult, urt, hdiff, hadv, vdiff
 
       ! pointers to data in SUNDIALS vectors
-      double precision, pointer, dimension(mxmy) :: uvec(:)
-      double precision, pointer, dimension(mxmy) :: fvec(:)
+      real(c_double), pointer :: uvec(:)
+      real(c_double), pointer :: fvec(:)
 
       !======= Internals ============
 
@@ -166,17 +166,11 @@ module advdiff_mod
       ! local data
       integer(c_int) :: mband, k, ioff, mu1, mu2
 
-      sunmat_J => FSUNBandMatrix(neq, mu, ml, ctx)
-      if (.not. associated(sunmat_J)) then
-         print *, 'ERROR: sunmat = NULL'
-         stop 1
-      end if
-
       mu1 = mu + 1
       mu2 = mu + 2
       mband = mu + 1 + ml
+      real(c_double), pointer :: Jmat(:,:)
 
-      double precision, pointer, dimension(mband, neq) :: Jmat(:,:)
       Jmat(1:mband,1:neq) => FSUNBandMatrix_Data(sunmat_J)
 
       ! Loop over all grid points
@@ -233,7 +227,7 @@ module advdiff_mod
     type(SUNLinearSolver), pointer :: sunls         ! sundials linear solver
     type(SUNMatrix),       pointer :: sunmat_A      ! sundials matrix (empty)
     type(c_ptr)                    :: cvode_mem     ! CVODE memory
-    double precision, pointer, dimension(mxmy)  :: u(:)   ! underlying vector
+    real(c_double),        pointer :: u(:)          ! underlying vector
 
     ! output statistic variables
     integer(c_long)  :: lnst(1)
