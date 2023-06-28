@@ -40,6 +40,8 @@ endif()
 set(ARKODE_LIBS
   sundials_arkode
   sundials_farkode_mod
+  sundials_nvecparallel
+  sundials_fnvecparallel_mod
   sundials_nvecmpiplusx
   sundials_fnvecmpiplusx_mod
   sundials_nvecmpimanyvector
