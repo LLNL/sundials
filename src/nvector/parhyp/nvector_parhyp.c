@@ -346,7 +346,7 @@ N_Vector N_VMake_ParHyp(HYPRE_ParVector x, SUNContext sunctx)
 
 HYPRE_ParVector N_VGetVector_ParHyp(N_Vector v)
 {
-  return NV_HYPRE_PARVEC_PH(v);
+  return NV_PH_HYPRE_PARVEC(v);
 }
 
 /*
