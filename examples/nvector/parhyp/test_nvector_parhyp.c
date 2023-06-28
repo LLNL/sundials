@@ -287,7 +287,7 @@ int check_ans(realtype ans, N_Vector X, sunindextype local_length)
   Xdata = hypre_VectorData(hypre_ParVectorLocalVector(Xvec));
   // if CUDA, malloc host -> cudamemcpy -> check -> free
   #if defined(SUNDIALS_HYPRE_BACKENDS_CUDA)
-    realtype *host_data = malloc(sizeof(realtype)*local_length);
+    realtype *host_data = (realtype*)malloc(sizeof(realtype)*local_length);
     cudaMemcpy(host_data,Xdata,sizeof(realtype)*local_length,cudaMemcpyDeviceToHost);
     Xdata = host_data;
   #endif
