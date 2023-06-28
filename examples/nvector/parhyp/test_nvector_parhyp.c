@@ -298,7 +298,7 @@ int check_ans(realtype ans, N_Vector X, sunindextype local_length)
   }
 
   #if defined(SUNDIALS_HYPRE_BACKENDS_CUDA)
-    free(host_data)
+    free(host_data);
   #endif
 
   return (failure > ZERO) ? (1) : (0);
