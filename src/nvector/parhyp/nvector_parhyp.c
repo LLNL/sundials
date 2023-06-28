@@ -174,15 +174,12 @@ using namespace sundials::hip::impl;
 
 /* --- Backend-dependent accessor macros --- */
 
-#if defined(SUNDIALS_HYPRE_BACKENDS_SERIAL)
 #define NV_PH_DATA(v)         ( NV_PH_HYPRE_PARVEC(v) == NULL ? NULL : hypre_VectorData(hypre_ParVectorLocalVector(NV_PH_HYPRE_PARVEC(v))) )
 
-#elif defined(SUNDIALS_HYPRE_BACKENDS_CUDA_OR_HIP)
+#if defined(SUNDIALS_HYPRE_BACKENDS_CUDA_OR_HIP)
 #define NV_PH_MEMHELP(v)      (NV_PH_CONTENT(v)->mem_helper)
 #define NV_PH_MEMSIZE(v)      (NV_PH_CONTENT(v)->length * sizeof(realtype))
 #define NV_PH_STREAM(v)       (NV_PH_CONTENT(v)->stream_exec_policy->stream())
-#define NV_PH_HDATAp(v)       ((realtype*) NV_PH_CONTENT(v)->host_data->ptr)
-#define NV_PH_DDATAp(v)       ((realtype*) NV_PH_CONTENT(v)->device_data->ptr)
 // Private content accessor macros
 #define NV_PH_PRIVATE(v)      ((N_PrivateVectorContent_ParHyp)(NV_PH_CONTENT(v)->priv))
 #define NV_PH_HBUFFERp(v)     ((realtype*) NV_PH_PRIVATE(v)->reduce_buffer_host->ptr)
