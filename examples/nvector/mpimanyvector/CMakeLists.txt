@@ -19,23 +19,30 @@
 
 # Examples using SUNDIALS MPIManyVector module
 set(nvector_mpimanyvector_examples
-  "test_nvector_mpimanyvector_parallel1.c\;1000 200 0\;1\;4\;"  # run parallel on 4 procs
-  "test_nvector_mpimanyvector_parallel2.c\;200 1000 0\;1\;4\;"  # run parallel on 4 procs
+  "test_nvector_mpimanyvector_parallel1.c\; \"1000 200 0\" \;1\;4\; \"\" "  # run parallel on 4 procs
+  "test_nvector_mpimanyvector_parallel2.c\; \"200 1000 0\" \;1\;4\; \"\" "  # run parallel on 4 procs
   )
 
-# Dependencies for nvector examples
+# If building F2003 tests
+if (BUILD_FORTRAN_MODULE_INTERFACE)
+  set(nvector_mpimanyvector_fortran_examples
+    "test_fnvector_mpimanyvector_mod\; \"\" \;1\;1\; \"\" "
+    "test_fnvector_mpimanyvector_mod\; \"\" \;1\;4\; \"\" ")
+endif()
+
+# Dependencies for nvector parallel examples
 set(nvector_examples_dependencies
   test_nvector.c
   test_mpinvector.c
   test_nvector.h
   )
 
-# If building F2003 tests
-if (BUILD_FORTRAN_MODULE_INTERFACE)
-  set(nvector_mpimanyvector_fortran_examples
-    "test_fnvector_mpimanyvector_mod\;\;1\;1\;"
-    "test_fnvector_mpimanyvector_mod\;\;1\;4\;")
-endif()
+# Adding extra files 
+set(nvector_serial_dependencies
+  ../test_nvector.c
+  ../test_nvector.h
+  ../test_mpinvector.c
+) 
 
 # Add source directory to include directories
 include_directories(. ..)
@@ -73,13 +80,15 @@ endif()
 
 # Add the build and install targets for each example
 foreach(example_tuple ${nvector_mpimanyvector_examples})
-
-  # parse the example tuple
-  list(GET example_tuple 0 example)
-  list(GET example_tuple 1 example_args)
-  list(GET example_tuple 2 number_of_nodes)
-  list(GET example_tuple 3 number_of_tasks)
-  list(GET example_tuple 4 example_type)
+  
+  # parse the example tuple using sundials_parse_tuple macro
+  sundials_parse_tuple( ARKODE_examples 
+    FILENAME_VAR example
+    PARAMS_VAR example_args
+    NODES_VAR number_of_nodes
+    NPROCS_VAR number_of_tasks
+    TYPE_VAR example_type
+  )
 
   # check if this example has already been added, only need to add
   # example source files once for testing with different inputs
@@ -123,26 +132,19 @@ foreach(example_tuple ${nvector_mpimanyvector_examples})
     EXAMPLE_TYPE ${example_type}
     NODIFF)
 
-  # # install example source files
-  # if(EXAMPLES_INSTALL)
-  #   install(FILES ${example}.c
-  #     ../test_nvector.c
-  #     ../test_mpinvector.c
-  #     ../test_nvector.h
-  #     DESTINATION ${EXAMPLES_INSTALL_PATH}/nvector/mpimanyvector)
-  # endif()
-
 endforeach(example_tuple ${nvector_mpimanyvector_examples})
 
 # Add the build and install targets for each example
 foreach(example_tuple ${nvector_mpimanyvector_fortran_examples})
 
-  # parse the example tuple
-  list(GET example_tuple 0 example)
-  list(GET example_tuple 1 example_args)
-  list(GET example_tuple 2 number_of_nodes)
-  list(GET example_tuple 3 number_of_tasks)
-  list(GET example_tuple 4 example_type)
+  # parse the example tuple using sundials_parse_tuple macro
+  sundials_parse_tuple( ARKODE_examples 
+    FILENAME_VAR example
+    PARAMS_VAR example_args
+    NODES_VAR number_of_nodes
+    NPROCS_VAR number_of_tasks
+    TYPE_VAR example_type
+  )
 
   # check if this example has already been added, only need to add
   # example source files once for testing with different inputs
@@ -192,6 +194,7 @@ endforeach(example_tuple ${nvector_mpimanyvector_fortran_examples})
 if(EXAMPLES_INSTALL)
 
   sundials_install_examples(nvector nvector_mpimanyvector_examples
+    HAS_MPI
     CMAKE_TEMPLATE
       cmakelists_C_MPI_ex.in
     MAKE_TEMPLATE
@@ -208,6 +211,7 @@ if(EXAMPLES_INSTALL)
       #README
       #${NVECTOR_extras}
       #${NVECTOR_headers}
+      ${nvector_serial_dependencies}
     TEST_INSTALL
       mpimanyvector
   )
