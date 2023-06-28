@@ -24,7 +24,6 @@
 #include <sundials/sundials_math.h>
 #include <sundials/sundials_nvector.h>
 #include <sundials/sundials_types.h>
-#include <sunnonlinsol/sunnonlinsol_newton.h>
 
 #include "arkode_impl.h"
 #include "arkode_interp_impl.h"
@@ -153,9 +152,7 @@ void* SPRKStepCreate(ARKRhsFn f1, ARKRhsFn f2, realtype t0, N_Vector y0,
   step_mem->istage = 0;
 
   /* Zero yerr for compensated summation */
-  if (ark_mem->use_compensated_sums) {
-    N_VConst(ZERO, step_mem->yerr);
-  }
+  if (ark_mem->use_compensated_sums) { N_VConst(ZERO, step_mem->yerr); }
 
   /* Initialize main ARKODE infrastructure */
   retval = arkInit(ark_mem, t0, y0, FIRST_INIT);
