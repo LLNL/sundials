@@ -266,6 +266,9 @@ int main(int argc, char* argv[])
     {
       CVodeSetJacFn(cvode_mem, diffusion_jac);
       if (check_flag(&flag, "CVodeSetJacFn", 1)) return 1;
+
+      flag = CVodeSetJacEvalFrequency(cvode_mem, uopts.msbj);
+      if (check_flag(&flag, "CVodeSetJacEvalFrequency", 1)) return 1;
     }
 #endif
 
@@ -274,11 +277,11 @@ int main(int argc, char* argv[])
       // Attach preconditioner
       flag = CVodeSetPreconditioner(cvode_mem, PSetup, PSolve);
       if (check_flag(&flag, "CVodeSetPreconditioner", 1)) { return 1; }
-
-      // Set linear solver setup frequency (update preconditioner)
-      flag = CVodeSetLSetupFrequency(cvode_mem, uopts.msbp);
-      if (check_flag(&flag, "CVodeSetLSetupFrequency", 1)) { return 1; }
     }
+
+    // Set linear solver setup frequency (update preconditioner and/or Jacobian)
+    flag = CVodeSetLSetupFrequency(cvode_mem, uopts.msbp);
+    if (check_flag(&flag, "CVodeSetLSetupFrequency", 1)) return 1;
 
     // Set linear solver tolerance factor
     flag = CVodeSetEpsLin(cvode_mem, uopts.epslin);
@@ -463,6 +466,13 @@ int UserOptions::parse_args(vector<string>& args, bool outproc)
     args.erase(it, it + 2);
   }
 
+  it = find(args.begin(), args.end(), "--msbj");
+  if (it != args.end())
+  {
+    msbj = stoi(*(it + 1));
+    args.erase(it, it + 2);
+  }
+
   it = find(args.begin(), args.end(), "--epslin");
   if (it != args.end())
   {
@@ -486,6 +496,7 @@ void UserOptions::help()
   cout << "  --epslin <factor>       : linear tolerance factor" << endl;
   cout << "  --noprec                : disable preconditioner" << endl;
   cout << "  --msbp <steps>          : max steps between prec setups" << endl;
+  cout << "  --msbj <steps>          : max steps between Jac evals" << endl;
 }
 
 // Print user options
@@ -513,6 +524,7 @@ void UserOptions::print()
 #endif
     cout << " LS info  = " << lsinfo << endl;
     cout << " msbp     = " << msbp << endl;
+    cout << " msbj     = " << msbj << endl;
     cout << " --------------------------------- " << endl;
   }
   else
@@ -524,6 +536,7 @@ void UserOptions::print()
     cout << " LS info  = " << lsinfo << endl;
     cout << " LS iters = " << liniters << endl;
     cout << " msbp     = " << msbp << endl;
+    cout << " msbj     = " << msbj << endl;
     cout << " epslin   = " << epslin << endl;
     cout << " --------------------------------- " << endl;
   }
