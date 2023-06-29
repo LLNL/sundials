@@ -63,7 +63,7 @@
 
 #include <arkode/arkode_arkstep.h> /* prototypes for ARKStep fcts., consts */
 #include <arkode/arkode_sprk.h>
-#include <arkode/arkode_sprkstep.h> /* prototypes for MRIStep fcts., consts */
+#include <arkode/arkode_sprkstep.h> /* prototypes for SPRKStep fcts., consts */
 #include <math.h>
 #include <nvector/nvector_serial.h> /* serial N_Vector type, fcts., macros  */
 #include <stdio.h>

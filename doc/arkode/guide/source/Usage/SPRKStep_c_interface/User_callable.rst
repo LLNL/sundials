@@ -281,10 +281,6 @@ Optional inputs for SPRKStep
   +-----------------------------------------------------+------------------------------------------+------------------------+
   | Set fixed step size (disables time step adaptivity) | :c:func:`SPRKStepSetFixedStep()`         | disabled               |
   +-----------------------------------------------------+------------------------------------------+------------------------+
-  | Supply an initial step size to attempt              | :c:func:`SPRKStepSetInitStep()`          | estimated              |
-  +-----------------------------------------------------+------------------------------------------+------------------------+
-  | Maximum no. of warnings for :math:`t_n+h = t_n`     | :c:func:`SPRKStepSetMaxHnilWarns()`      | 10                     |
-  +-----------------------------------------------------+------------------------------------------+------------------------+
   | Maximum no. of internal steps before *tout*         | :c:func:`SPRKStepSetMaxNumSteps()`       | 500                    |
   +-----------------------------------------------------+------------------------------------------+------------------------+
   | Set a value for :math:`t_{stop}`                    | :c:func:`SPRKStepSetStopTime()`          | undefined              |
@@ -455,29 +451,6 @@ Optional inputs for SPRKStep
       calling :c:func:`SPRKStepEvolve()` to resume integration.
 
 
-.. c:function:: int SPRKStepSetInitStep(void* arkode_mem, realtype hin)
-
-   Specifies the initial time step size SPRKStep should use after
-   initialization, re-initialization, or resetting.
-
-   :param arkode_mem: pointer to the SPRKStep memory block.
-   :param hin: value of the initial step to be attempted :math:`(\ne 0)`.
-
-   :return:
-      * *ARK_SUCCESS* if successful
-      * *ARK_MEM_NULL* if the SPRKStep memory is ``NULL``
-      * *ARK_ILL_INPUT* if an argument has an illegal value
-
-   **Notes:**
-      Pass 0.0 to use the default value.
-
-      By default, SPRKStep estimates the initial step size to be
-      :math:`h = \sqrt{\dfrac{2}{\left\| \ddot{y} \right\|}}`, where
-      :math:`\ddot{y}` is an estimate of the second derivative of the
-      solution at :math:`t_0`.
-
-
-
 .. c:function:: int SPRKStepSetMaxNumSteps(void* arkode_mem, long int mxsteps)
 
    Specifies the maximum number of steps to be taken by the
@@ -497,29 +470,6 @@ Optional inputs for SPRKStep
       default value (500).
 
       Passing *mxsteps* < 0 disables the test (not recommended).
-
-
-.. c:function:: int SPRKStepSetMaxHnilWarns(void* arkode_mem, int mxhnil)
-
-   Specifies the maximum number of messages issued by the
-   solver to warn that :math:`t+h=t` on the next internal step, before
-   SPRKStep will instead return with an error.
-
-   **Arguments:**
-      * *arkode_mem* -- pointer to the SPRKStep memory block.
-      * *mxhnil* -- maximum allowed number of warning messages :math:`(>0)`.
-
-   **Return value:**
-      * *ARK_SUCCESS* if successful
-      * *ARK_MEM_NULL* if the SPRKStep memory is ``NULL``
-      * *ARK_ILL_INPUT* if an argument has an illegal value
-
-   **Notes:**
-      The default value is 10; set *mxhnil* to zero to specify
-      this default.
-
-      A negative value indicates that no warning messages should be issued.
-
 
 .. c:function:: int SPRKStepSetStopTime(void* arkode_mem, realtype tstop)
 
@@ -590,7 +540,7 @@ Optional inputs for IVP method selection
 
    +-----------------------------+-------------------------------------------+----------+
    | Optional input              | Function name                             | Default  |
-   +-----------------------------+-------------------------------------------+----------+
+   +=============================+===========================================+==========+
    | Set integrator method order | :c:func:`SPRKStepSetOrder()`              | 4        |
    +-----------------------------+-------------------------------------------+----------+
    | Set SPRK method             | :c:func:`SPRKStepSetMethod()`             | internal |
@@ -692,7 +642,7 @@ described in :numref:`ARKODE.Mathematics.Rootfinding`.
 
    +-----------------------------------------+-------------------------------------------+----------+
    | Optional input                          | Function name                             | Default  |
-   +-----------------------------------------+-------------------------------------------+----------+
+   +=========================================+===========================================+==========+
    | Direction of zero-crossings to monitor  | :c:func:`SPRKStepSetRootDirection()`      | both     |
    +-----------------------------------------+-------------------------------------------+----------+
    | Disable inactive root warnings          | :c:func:`SPRKStepSetNoInactiveRootWarn()` | enabled  |
@@ -853,7 +803,7 @@ Main solver optional output functions
 
   +-----------------------------------------------------+--------------------------------------------+
   | Optional output                                     | Function name                              |
-  +-----------------------------------------------------+--------------------------------------------+
+  +=====================================================+============================================+
   | Cumulative number of internal steps                 | :c:func:`SPRKStepGetNumSteps()`            |
   +-----------------------------------------------------+--------------------------------------------+
   | Step size used for the last successful step         | :c:func:`SPRKStepGetLastStep()`            |
@@ -1077,7 +1027,7 @@ Rootfinding optional output functions
 
    +--------------------------------------------------+---------------------------------+
    | Optional output                                  | Function name                   |
-   +--------------------------------------------------+---------------------------------+
+   +==================================================+=================================+
    | Array showing roots found                        | :c:func:`SPRKStepGetRootInfo()` |
    +--------------------------------------------------+---------------------------------+
    | No. of calls to user root function               | :c:func:`SPRKStepGetNumGEvals()`|
@@ -1195,23 +1145,14 @@ Runge--Kutta stages, denoted by *s*, be no larger for the new problem than
 for the previous problem.  This condition is automatically fulfilled
 if the method order *q* is left unchanged.
 
-One important use of the :c:func:`SPRKStepReInit()` function is in the
-treating of jump discontinuities in the RHS function.  Except in cases
-of fairly small jumps, it is usually more efficient to stop at each
-point of discontinuity and restart the integrator with a readjusted
-ODE model, using a call to this routine.  To stop when the location
-of the discontinuity is known, simply make that location a value of
-``tout``.  To stop when the location of the discontinuity is
-determined by the solution, use the rootfinding feature.  In either
-case, it is critical that the RHS function *not* incorporate the
-discontinuity, but rather have a smooth extension over the
-discontinuity, so that the step across it (and subsequent rootfinding,
-if used) can be done efficiently.  Then use a switch within the RHS
-function (communicated through ``user_data``) that can be flipped
-between the stopping of the integration and the restart, so that the
-restarted problem uses the new values (which have jumped).  Similar
-comments apply if there is to be a jump in the dependent variable
-vector.
+One potential use of the :c:func:`SPRKStepReInit()` function is in the
+treating of jump discontinuities in the RHS function :cite:p:`Tao:22`. 
+In lieu of including if statements within the RHS function to handle 
+discontinuities, it may be more computationally efficient to stop at each 
+point of discontinuity (e.g., through use of tout or the rootfinding feature)
+and restart the integrator with a readjusted ODE model, using a call to 
+this routine. We note that for the solution to retain temporal accuracy,
+the RHS function should not incorporate the discontinuity.
 
 
 .. c:function:: int SPRKStepReInit(void* arkode_mem, ARKRhsFn f1, ARKRhsFn f2, realtype t0, N_Vector y0)
@@ -1260,26 +1201,7 @@ via a call to :c:func:`SPRKStepSetStopTime()`.  Following a successful call to
 :c:func:`SPRKStepReset()`, call :c:func:`SPRKStepEvolve()` again to continue
 solving the problem. By default the next call to :c:func:`SPRKStepEvolve()` will
 use the step size computed by SPRKStep prior to calling :c:func:`SPRKStepReset()`.
-To set a different step size or have SPRKStep estimate a new step size use
-:c:func:`SPRKStepSetInitStep()`.
 
-One important use of the :c:func:`SPRKStepReset()` function is in the
-treating of jump discontinuities in the RHS functions.  Except in cases
-of fairly small jumps, it is usually more efficient to stop at each
-point of discontinuity and restart the integrator with a readjusted
-ODE model, using a call to :c:func:`SPRKStepReset()`.  To stop when
-the location of the discontinuity is known, simply make that location
-a value of ``tout``.  To stop when the location of the discontinuity
-is determined by the solution, use the rootfinding feature.  In either
-case, it is critical that the RHS functions *not* incorporate the
-discontinuity, but rather have a smooth extension over the
-discontinuity, so that the step across it (and subsequent rootfinding,
-if used) can be done efficiently.  Then use a switch within the RHS
-functions (communicated through ``user_data``) that can be flipped
-between the stopping of the integration and the restart, so that the
-restarted problem uses the new values (which have jumped).  Similar
-comments apply if there is to be a jump in the dependent variable
-vector.
 
 .. c:function:: int SPRKStepReset(void* arkode_mem, realtype tR, N_Vector yR)
 
@@ -1298,9 +1220,7 @@ vector.
 
    **Notes:**
       By default the next call to :c:func:`SPRKStepEvolve()` will use the step size
-      computed by SPRKStep prior to calling :c:func:`SPRKStepReset()`. To set a
-      different step size or have SPRKStep estimate a new step size use
-      :c:func:`SPRKStepSetInitStep()`.
+      computed by SPRKStep prior to calling :c:func:`SPRKStepReset()`.
 
       All previously set options are retained but may be updated by calling
       the appropriate "Set" functions.

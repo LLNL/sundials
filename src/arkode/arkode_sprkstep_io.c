@@ -58,16 +58,6 @@ int SPRKStepSetMaxNumSteps(void* arkode_mem, long int mxsteps)
   return (arkSetMaxNumSteps(arkode_mem, mxsteps));
 }
 
-int SPRKStepSetMaxHnilWarns(void* arkode_mem, int mxhnil)
-{
-  return (arkSetMaxHnilWarns(arkode_mem, mxhnil));
-}
-
-int SPRKStepSetInitStep(void* arkode_mem, realtype hin)
-{
-  return (arkSetInitStep(arkode_mem, hin));
-}
-
 int SPRKStepSetStopTime(void* arkode_mem, realtype tstop)
 {
   return (arkSetStopTime(arkode_mem, tstop));
@@ -96,11 +86,6 @@ int SPRKStepSetPostprocessStepFn(void* arkode_mem, ARKPostProcessFn ProcessStep)
 int SPRKStepSetPostprocessStageFn(void* arkode_mem, ARKPostProcessFn ProcessStage)
 {
   return (arkSetPostprocessStageFn(arkode_mem, ProcessStage));
-}
-
-int SPRKStepSetAdaptivityFn(void* arkode_mem, ARKAdaptFn hfun, void* h_data)
-{
-  return (arkSetAdaptivityFn(arkode_mem, hfun, h_data));
 }
 
 int SPRKStepSetFixedStep(void* arkode_mem, realtype hfixed)
