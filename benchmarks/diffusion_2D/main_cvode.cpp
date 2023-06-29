@@ -208,6 +208,10 @@ int main(int argc, char* argv[])
       dLUstructInit(udata.nodes, &A_lu);
       PStatInit(&A_stat);
       set_default_options_dist(&A_opts);
+      A_opts.IterRefine = NOREFINE;
+      A_opts.RowPerm = NOROWPERM;
+      A_opts.ParSymbFact = YES;
+      A_opts.ColPerm = PARMETIS;
       // A_opts.PrintStat = NO;
 
       // SUNDIALS structures
