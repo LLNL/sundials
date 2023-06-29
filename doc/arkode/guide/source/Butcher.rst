@@ -1814,18 +1814,18 @@ This is the 6th order method given by Yoshida in :cite:p:`Yoshida:90`.
 ARKODE_SPRK_SUZUKI_UMENO_8_16
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-.. index:: 8th-order McLachlan method
+.. index:: 8th-order Suzuki-Umeno method
 
 Accessible via the constant ``ARKODE_SPRK_SUZUKI_UMENO_8_16`` to
 :c:func:`ARKodeSPRKStorage_Load()` or :c:func:`ARKodeSPRKStorage_LoadByName`.
-This is the 8th order method given by McLachlan in :cite:p:`Mclachlan:92`.
+This is the 8th order method given by Suzuki and Umeno in :cite:p:`Suzuki:93`.
 
 
 ARKODE_SPRK_SOFRONIOU_10_36
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-.. index:: 10th-order Sofroniou method
+.. index:: 10th-order Sofroniou-Spaletta method
 
 Accessible via the constant ``ARKODE_SPRK_SOFRONIOU_10_36`` to
 :c:func:`ARKodeSPRKStorage_Load()` or :c:func:`ARKodeSPRKStorage_LoadByName`.
-This is the 10th order method given by Sofroniou in :cite:p:`Sofroniou:05`.
+This is the 10th order method given by Sofroniou and Spaletta in :cite:p:`Sofroniou:05`.

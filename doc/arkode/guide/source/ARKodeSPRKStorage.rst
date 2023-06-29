@@ -69,7 +69,7 @@ The following enum values are used to identify different SPRK methods:
 
 .. c:macro:: ARKODE_SPRK_SUZUKI_UMENO_8_16
 
-   Identifier for the Symplectic McLachlan 8th order method with 16 stages.
+   Identifier for the Symplectic Suzuki-Umeno 8th order method with 16 stages.
 
 .. c:macro:: ARKODE_SPRK_SOFRONIOU_10_36
 
