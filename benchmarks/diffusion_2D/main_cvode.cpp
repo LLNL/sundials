@@ -208,7 +208,7 @@ int main(int argc, char* argv[])
       dLUstructInit(udata.nodes, &A_lu);
       PStatInit(&A_stat);
       set_default_options_dist(&A_opts);
-      A_opts.PrintStat = NO;
+      // A_opts.PrintStat = NO;
 
       // SUNDIALS structures
       A = SUNMatrix_SLUNRloc(&A_super, &grid, ctx);
