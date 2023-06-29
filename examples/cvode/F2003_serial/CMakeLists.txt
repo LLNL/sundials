@@ -19,7 +19,7 @@
 
 # Examples using SUNDIALS linear solvers
 set(FCVODE_examples
-  #"cv_advdiff_bnd_f2003\;develop"
+  "cv_advdiff_bnd_f2003\;develop"
   "cv_analytic_fp_f2003\;develop"
   "cv_analytic_sys_dns_f2003\;develop"
   "cv_analytic_sys_dns_jac_f2003\;develop"

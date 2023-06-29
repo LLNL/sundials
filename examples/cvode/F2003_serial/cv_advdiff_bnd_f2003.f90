@@ -26,7 +26,7 @@
 ! The PDE is discretized on a uniform MX+2 by MY+2 grid with
 ! central differencing, and with boundary values eliminated,
 ! leaving an ODE system of size NEQ = MX*MY.
-! This program solves this problem with CVODE, using the Fortran/C 
+! This program solves this problem with CVODE, using the Fortran/C
 ! interface routine package. This solution uses the BDF method,
 ! a user-supplied banded Jacobian routine, and scalar relative and
 ! absolute tolerances. It prints results at t = .1, .2, ..., 1.0.
@@ -45,7 +45,7 @@ module advdiff_mod
     integer(c_int), parameter  :: mx = 10, my = 5
     integer(c_int), parameter  :: mxmy = mx*my
     integer(c_long), parameter :: neq = mxmy
-    
+
     ! ODE constant parameters
     double precision, parameter :: xmax = 2.0d0, ymax = 1.0d0
     double precision, parameter :: dtout = 0.1d0
@@ -112,7 +112,7 @@ module advdiff_mod
       do i = 1, mx
          ioff = (i - 1) * my
          do j = 1, my
-            
+
             ! Extract u at x_i, y_j and four neighboring points.
             ij = j + ioff
             uij = uvec(ij)
@@ -164,14 +164,18 @@ module advdiff_mod
       type(N_Vector)  :: sunvec_t3
 
       ! local data
-      integer(c_int) :: mband, k, ioff, mu1, mu2
-
-      mu1 = mu + 1
-      mu2 = mu + 2
-      mband = mu + 1 + ml
+      integer(c_int) :: mband, k, ioff, mu1, mu2, smu, mdim
+      integer(c_int) :: start
       real(c_double), pointer :: Jmat(:,:)
 
-      Jmat(1:mband,1:neq) => FSUNBandMatrix_Data(sunmat_J)
+      smu = FSUNBandMatrix_StoredUpperBandwidth(sunmat_J)
+      mdim = smu + 1 + ml
+      Jmat(1:mdim,1:neq) => FSUNBandMatrix_Data(sunmat_J)
+
+      mu1 = smu + 1
+      mu2 = smu + 2
+      mband = smu + 1 + ml
+      start = smu-mu+1
 
       ! Loop over all grid points
       do i = 1, mx
@@ -180,10 +184,10 @@ module advdiff_mod
             k = j + ioff
 
             ! Set Jacobian elements in column k of J.
-            J(mu1,k) = -2.0d0 * (vdcoef + hdcoef)
-            if (i /= 1)  Jmat(1,k) = hdcoef + hacoef
+            Jmat(mu1,k) = -2.0d0 * (vdcoef + hdcoef)
+            if (i /= 1)  Jmat(start,k) = hdcoef + hacoef
             if (i /= mx) Jmat(mband,k) = hdcoef - hacoef
-            if (j /= 1)  Jmat(mu,k) = vdcoef
+            if (j /= 1)  Jmat(smu,k) = vdcoef
             if (j /= my) Jmat(mu2,k) = vdcoef
 
          end do
@@ -250,7 +254,7 @@ module advdiff_mod
        stop 1
     end if
 
-    u(1:my,1:mx) => FN_VGetArrayPointer(sunvec_u)
+    u(1:neq) => FN_VGetArrayPointer(sunvec_u)
 
     ! initialize and fill initial condition vector
     do i = 1, mx
@@ -274,6 +278,11 @@ module advdiff_mod
     end if
 
     ! Tell CVODE to use a Band linear solver.
+    sunmat_A => FSUNBandMatrix(neq, mu, ml, ctx)
+    if (.not. associated(sunmat_A)) then
+       print *, 'ERROR: sunmat = NULL'
+       stop 1
+    end if
     sunls => FSUNLinSol_Band(sunvec_u, sunmat_A, ctx)
     if (.not. associated(sunls)) then
        print *, 'ERROR: sunls = NULL'
@@ -281,11 +290,6 @@ module advdiff_mod
     end if
 
     ! Attach the linear solver (with NULL SUNMatrix object)
-    sunmat_A => FSUNBandMatrix(neq, mu, ml, ctx)
-    if (.not. associated(sunmat_A)) then
-       print *, 'ERROR: sunmat = NULL'
-       stop 1
-    end if
     ierr = FCVodeSetLinearSolver(cvode_mem, sunls, sunmat_A)
     if (ierr /= 0) then
        print *, 'Error in FCVodeSetLinearSolver, ierr = ', ierr, '; halting'
@@ -320,8 +324,8 @@ module advdiff_mod
     print *, '      t         max.norm(u)      | lnst'
     print *, ' ------------------------------------------'
 
-    call MaxNorm(neq, u, unorm)
-    print '(2x,es14.6,2x,i5)', tcur, unorm, lnst
+    unorm = maxval(abs(u))
+    print '(2x,f6.2,2x,es14.6,2x,i5)', tcur, unorm, lnst
 
     tout = dtout
     do outstep = 1, 10
@@ -340,7 +344,8 @@ module advdiff_mod
        end if
 
        ! print current solution and output statistics
-       print '(2x,es14.6,2x,i5)', tcur, unorm, lnst
+       unorm = maxval(abs(u))
+       print '(2x,f6.2,2x,es14.6,2x,i5)', tcur, unorm, lnst
 
        ! update tout
        tout = tout + dtout
@@ -418,8 +423,6 @@ module advdiff_mod
        print *, 'Error in FCVodeGetNumLinIters, ierr = ', ierr, '; halting'
        stop 1
     end if
-
-    avdim = dble(nliters)/dble(nniters)
 
     ierr = FCVodeGetNumLinConvFails(cvode_mem, ncfl)
     if (ierr /= 0) then
