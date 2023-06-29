@@ -420,71 +420,71 @@ ARKodeSPRKStorage ARKodeSPRKStorage_Load(ARKODE_SPRKMethodID id)
 {
   switch (id)
   {
-  case ARKODE_SYMPLECTIC_EULER_1_1: return ARKodeSymplecticEuler();
-  case ARKODE_SYMPLECTIC_LEAPFROG_2_2: return ARKodeSymplecticLeapfrog2();
-  case ARKODE_SYMPLECTIC_PSEUDO_LEAPFROG_2_2:
+  case ARKODE_SPRK_EULER_1_1: return ARKodeSymplecticEuler();
+  case ARKODE_SPRK_LEAPFROG_2_2: return ARKodeSymplecticLeapfrog2();
+  case ARKODE_SPRK_PSEUDO_LEAPFROG_2_2:
     return ARKodeSymplecticPseudoLeapfrog2();
-  case ARKODE_SYMPLECTIC_RUTH_3_3: return ARKodeSymplecticRuth3();
-  case ARKODE_SYMPLECTIC_MCLACHLAN_2_2: return ARKodeSymplecticMcLachlan2();
-  case ARKODE_SYMPLECTIC_MCLACHLAN_3_3: return ARKodeSymplecticMcLachlan3();
-  case ARKODE_SYMPLECTIC_MCLACHLAN_4_4: return ARKodeSymplecticMcLachlan4();
-  case ARKODE_SYMPLECTIC_CANDY_ROZMUS_4_4:
+  case ARKODE_SPRK_RUTH_3_3: return ARKodeSymplecticRuth3();
+  case ARKODE_SPRK_MCLACHLAN_2_2: return ARKodeSymplecticMcLachlan2();
+  case ARKODE_SPRK_MCLACHLAN_3_3: return ARKodeSymplecticMcLachlan3();
+  case ARKODE_SPRK_MCLACHLAN_4_4: return ARKodeSymplecticMcLachlan4();
+  case ARKODE_SPRK_CANDY_ROZMUS_4_4:
     return ARKodeSymplecticCandyRozmus4();
-  case ARKODE_SYMPLECTIC_MCLACHLAN_5_6: return ARKodeSymplecticMcLachlan5();
-  case ARKODE_SYMPLECTIC_YOSHIDA_6_8: return ARKodeSymplecticYoshida6();
-  case ARKODE_SYMPLECTIC_SUZUKI_UMENO_8_16: return ARKodeSymplecticSuzukiUmeno816();
-  case ARKODE_SYMPLECTIC_SOFRONIOU_10_36: return ARKodeSymplecticSofroniou10();
+  case ARKODE_SPRK_MCLACHLAN_5_6: return ARKodeSymplecticMcLachlan5();
+  case ARKODE_SPRK_YOSHIDA_6_8: return ARKodeSymplecticYoshida6();
+  case ARKODE_SPRK_SUZUKI_UMENO_8_16: return ARKodeSymplecticSuzukiUmeno816();
+  case ARKODE_SPRK_SOFRONIOU_10_36: return ARKodeSymplecticSofroniou10();
   default: return NULL;
   }
 }
 
 ARKodeSPRKStorage ARKodeSPRKStorage_LoadByName(const char* method)
 {
-  if (!strcmp(method, "ARKODE_SYMPLECTIC_EULER_1_1"))
+  if (!strcmp(method, "ARKODE_SPRK_EULER_1_1"))
   {
     return ARKodeSymplecticEuler();
   }
-  if (!strcmp(method, "ARKODE_SYMPLECTIC_LEAPFROG_2_2"))
+  if (!strcmp(method, "ARKODE_SPRK_LEAPFROG_2_2"))
   {
     return ARKodeSymplecticLeapfrog2();
   }
-  if (!strcmp(method, "ARKODE_SYMPLECTIC_PSEUDO_LEAPFROG_2_2"))
+  if (!strcmp(method, "ARKODE_SPRK_PSEUDO_LEAPFROG_2_2"))
   {
     return ARKodeSymplecticPseudoLeapfrog2();
   }
-  if (!strcmp(method, "ARKODE_SYMPLECTIC_RUTH_3_3"))
+  if (!strcmp(method, "ARKODE_SPRK_RUTH_3_3"))
   {
     return ARKodeSymplecticRuth3();
   }
-  if (!strcmp(method, "ARKODE_SYMPLECTIC_MCLACHLAN_2_2"))
+  if (!strcmp(method, "ARKODE_SPRK_MCLACHLAN_2_2"))
   {
     return ARKodeSymplecticMcLachlan2();
   }
-  if (!strcmp(method, "ARKODE_SYMPLECTIC_MCLACHLAN_3_3"))
+  if (!strcmp(method, "ARKODE_SPRK_MCLACHLAN_3_3"))
   {
     return ARKodeSymplecticMcLachlan3();
   }
-  if (!strcmp(method, "ARKODE_SYMPLECTIC_MCLACHLAN_4_4"))
+  if (!strcmp(method, "ARKODE_SPRK_MCLACHLAN_4_4"))
   {
     return ARKodeSymplecticMcLachlan4();
   }
-  if (!strcmp(method, "ARKODE_SYMPLECTIC_CANDY_ROZMUS_4_4"))
+  if (!strcmp(method, "ARKODE_SPRK_CANDY_ROZMUS_4_4"))
   {
     return ARKodeSymplecticCandyRozmus4();
   }
-  if (!strcmp(method, "ARKODE_SYMPLECTIC_MCLACHLAN_5_6"))
+  if (!strcmp(method, "ARKODE_SPRK_MCLACHLAN_5_6"))
   {
     return ARKodeSymplecticMcLachlan5();
   }
-  if (!strcmp(method, "ARKODE_SYMPLECTIC_YOSHIDA_6_8"))
+  if (!strcmp(method, "ARKODE_SPRK_YOSHIDA_6_8"))
   {
     return ARKodeSymplecticYoshida6();
   }
-  if (!strcmp(method, "ARKODE_SYMPLECTIC_SUZUKI_UMENO_8_16"))
+  if (!strcmp(method, "ARKODE_SPRK_SUZUKI_UMENO_8_16"))
   {
     return ARKodeSymplecticSuzukiUmeno816();
   }
-  if (!strcmp(method, "ARKODE_SYMPLECTIC_SOFRONIOU_10_36"))
+  if (!strcmp(method, "ARKODE_SPRK_SOFRONIOU_10_36"))
   {
     return ARKodeSymplecticSofroniou10();
   }

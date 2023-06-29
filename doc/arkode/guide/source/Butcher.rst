@@ -1711,121 +1711,121 @@ Butcher table pairs are as follows:
 Symplectic Butcher tables
 ---------------------------
 
-ARKODE_SYMPLECTIC_EULER_1_1
+ARKODE_SPRK_EULER_1_1
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 .. index:: 1st-order symplectic Euler method
 
-Accessible via the constant ``ARKODE_SYMPLECTIC_EULER_1_1`` to
+Accessible via the constant ``ARKODE_SPRK_EULER_1_1`` to
 :c:func:`ARKodeSPRKStorage_Load()` or :c:func:`ARKodeSPRKStorage_LoadByName`.
 This is the classic Symplectic Euler method.
 
 
-ARKODE_SYMPLECTIC_LEAPFROG_2_2
+ARKODE_SPRK_LEAPFROG_2_2
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 .. index:: 2nd-order Leapfrog method
 
-Accessible via the constant ``ARKODE_SYMPLECTIC_LEAPFROG_2_2`` to
+Accessible via the constant ``ARKODE_SPRK_LEAPFROG_2_2`` to
 :c:func:`ARKodeSPRKStorage_Load()` or :c:func:`ARKodeSPRKStorage_LoadByName`.
 This is the classic Leapfrog/Verlet method. 
 
 
-ARKODE_SYMPLECTIC_PSEUDO_LEAPFROG_2_2
+ARKODE_SPRK_PSEUDO_LEAPFROG_2_2
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 .. index:: 2nd-order Pseudo Leapfrog method
 
-Accessible via the constant ``ARKODE_SYMPLECTIC_PSEUDO_LEAPFROG_2_2`` to
+Accessible via the constant ``ARKODE_SPRK_PSEUDO_LEAPFROG_2_2`` to
 :c:func:`ARKodeSPRKStorage_Load()` or :c:func:`ARKodeSPRKStorage_LoadByName`.
 This is the classic Pseudo Leapfrog/Verlet method. 
 
 
-ARKODE_SYMPLECTIC_MCLACHLAN_2_2
+ARKODE_SPRK_MCLACHLAN_2_2
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 .. index:: 2nd-order McLachlan method
 
-Accessible via the constant ``ARKODE_SYMPLECTIC_MCLACHLAN_2_2`` to
+Accessible via the constant ``ARKODE_SPRK_MCLACHLAN_2_2`` to
 :c:func:`ARKodeSPRKStorage_Load()` or :c:func:`ARKodeSPRKStorage_LoadByName`.
 This is the 2nd order method given by McLachlan in :cite:p:`Mclachlan:92`.
 
 
-ARKODE_SYMPLECTIC_RUTH_3_3
+ARKODE_SPRK_RUTH_3_3
 ^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 .. index:: 3rd-order Ruth method
 
-Accessible via the constant ``ARKODE_SYMPLECTIC_RUTH_3_3`` to
+Accessible via the constant ``ARKODE_SPRK_RUTH_3_3`` to
 :c:func:`ARKodeSPRKStorage_Load()` or :c:func:`ARKodeSPRKStorage_LoadByName`.
 This is the 3rd order method given by Ruth in :cite:p:`Ruth:93`.
 
 
-ARKODE_SYMPLECTIC_MCLACHLAN_3_3
+ARKODE_SPRK_MCLACHLAN_3_3
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 .. index:: 3rd-order McLachlan method
 
-Accessible via the constant ``ARKODE_SYMPLECTIC_MCLACHLAN_3_3`` to
+Accessible via the constant ``ARKODE_SPRK_MCLACHLAN_3_3`` to
 :c:func:`ARKodeSPRKStorage_Load()` or :c:func:`ARKodeSPRKStorage_LoadByName`.
 This is the 3rd order method given by McLachlan in :cite:p:`Mclachlan:92`.
 
 
-ARKODE_SYMPLECTIC_MCLACHLAN_4_4
+ARKODE_SPRK_MCLACHLAN_4_4
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 .. index:: 4th-order McLachlan method
 
-Accessible via the constant ``ARKODE_SYMPLECTIC_MCLACHLAN_4_4`` to
+Accessible via the constant ``ARKODE_SPRK_MCLACHLAN_4_4`` to
 :c:func:`ARKodeSPRKStorage_Load()` or :c:func:`ARKodeSPRKStorage_LoadByName`.
 This is the 4th order method given by McLachlan in :cite:p:`Mclachlan:92`.
 
 
-ARKODE_SYMPLECTIC_CANDY_ROZMUS_4_4
+ARKODE_SPRK_CANDY_ROZMUS_4_4
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 .. index:: 4th-order Candy-Rozmus method
 
-Accessible via the constant ``ARKODE_SYMPLECTIC_CANDY_ROZMUS_4_4`` to
+Accessible via the constant ``ARKODE_SPRK_CANDY_ROZMUS_4_4`` to
 :c:func:`ARKodeSPRKStorage_Load()` or :c:func:`ARKodeSPRKStorage_LoadByName`.
 This is the 4th order method given by Candy and Rozmus in :cite:p:`CandyRozmus:91`.
 
 
-ARKODE_SYMPLECTIC_MCLACHLAN_5_6
+ARKODE_SPRK_MCLACHLAN_5_6
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 .. index:: 5th-order McLachlan method
 
-Accessible via the constant ``ARKODE_SYMPLECTIC_MCLACHLAN_5_6`` to
+Accessible via the constant ``ARKODE_SPRK_MCLACHLAN_5_6`` to
 :c:func:`ARKodeSPRKStorage_Load()` or :c:func:`ARKodeSPRKStorage_LoadByName`.
 This is the 5th order method given by McLachlan in :cite:p:`Mclachlan:92`.
 
 
-ARKODE_SYMPLECTIC_YOSHIDA_6_8
+ARKODE_SPRK_YOSHIDA_6_8
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 .. index:: 6th-order Yoshida method
 
-Accessible via the constant ``ARKODE_SYMPLECTIC_YOSHIDA_6_8`` to
+Accessible via the constant ``ARKODE_SPRK_YOSHIDA_6_8`` to
 :c:func:`ARKodeSPRKStorage_Load()` or :c:func:`ARKodeSPRKStorage_LoadByName`.
 This is the 6th order method given by Yoshida in :cite:p:`Yoshida:90`.
 
 
-ARKODE_SYMPLECTIC_SUZUKI_UMENO_8_16
+ARKODE_SPRK_SUZUKI_UMENO_8_16
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 .. index:: 8th-order McLachlan method
 
-Accessible via the constant ``ARKODE_SYMPLECTIC_SUZUKI_UMENO_8_16`` to
+Accessible via the constant ``ARKODE_SPRK_SUZUKI_UMENO_8_16`` to
 :c:func:`ARKodeSPRKStorage_Load()` or :c:func:`ARKodeSPRKStorage_LoadByName`.
 This is the 8th order method given by McLachlan in :cite:p:`Mclachlan:92`.
 
 
-ARKODE_SYMPLECTIC_SOFRONIOU_10_36
+ARKODE_SPRK_SOFRONIOU_10_36
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 .. index:: 10th-order Sofroniou method
 
-Accessible via the constant ``ARKODE_SYMPLECTIC_SOFRONIOU_10_36`` to
+Accessible via the constant ``ARKODE_SPRK_SOFRONIOU_10_36`` to
 :c:func:`ARKodeSPRKStorage_Load()` or :c:func:`ARKodeSPRKStorage_LoadByName`.
 This is the 10th order method given by Sofroniou in :cite:p:`Sofroniou:05`.

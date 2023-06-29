@@ -260,29 +260,29 @@ contains the ARKODE output constants.
    +--------------------------------------------------+------------------------------------------------------------+
    | **Symplectic Method storage specification**      |                                                            |
    +--------------------------------------------------+------------------------------------------------------------+
-   | :c:macro:`ARKODE_SYMPLECTIC_EULER_1_1`           | Symplectic Euler 1st order method with 1 stage.            |
+   | :c:macro:`ARKODE_SPRK_EULER_1_1`           | Symplectic Euler 1st order method with 1 stage.            |
    +--------------------------------------------------+------------------------------------------------------------+
-   | :c:macro:`ARKODE_SYMPLECTIC_LEAPFROG_2_2`        | Symplectic Leapfrog 2nd order method with 2 stages.        |
+   | :c:macro:`ARKODE_SPRK_LEAPFROG_2_2`        | Symplectic Leapfrog 2nd order method with 2 stages.        |
    +--------------------------------------------------+------------------------------------------------------------+
-   | :c:macro:`ARKODE_SYMPLECTIC_PSEUDO_LEAPFROG_2_2` | Symplectic Pseudo Leapfrog 2nd order method with 2 stages. |
+   | :c:macro:`ARKODE_SPRK_PSEUDO_LEAPFROG_2_2` | Symplectic Pseudo Leapfrog 2nd order method with 2 stages. |
    +--------------------------------------------------+------------------------------------------------------------+
-   | :c:macro:`ARKODE_SYMPLECTIC_RUTH_3_3`            | Symplectic Ruth 3rd order method with 3 stages.            |
+   | :c:macro:`ARKODE_SPRK_RUTH_3_3`            | Symplectic Ruth 3rd order method with 3 stages.            |
    +--------------------------------------------------+------------------------------------------------------------+
-   | :c:macro:`ARKODE_SYMPLECTIC_MCLACHLAN_2_2`       | Symplectic McLachlan 2nd order method with 2 stages.       |
+   | :c:macro:`ARKODE_SPRK_MCLACHLAN_2_2`       | Symplectic McLachlan 2nd order method with 2 stages.       |
    +--------------------------------------------------+------------------------------------------------------------+
-   | :c:macro:`ARKODE_SYMPLECTIC_MCLACHLAN_3_3`       | Symplectic McLachlan 3rd order method with 3 stages.       |
+   | :c:macro:`ARKODE_SPRK_MCLACHLAN_3_3`       | Symplectic McLachlan 3rd order method with 3 stages.       |
    +--------------------------------------------------+------------------------------------------------------------+
-   | :c:macro:`ARKODE_SYMPLECTIC_CANDY_ROZMUS_4_4`    | Symplectic Candy-Rozmus 4th order method with 4 stages.    |
+   | :c:macro:`ARKODE_SPRK_CANDY_ROZMUS_4_4`    | Symplectic Candy-Rozmus 4th order method with 4 stages.    |
    +--------------------------------------------------+------------------------------------------------------------+
-   | :c:macro:`ARKODE_SYMPLECTIC_MCLACHLAN_4_4`       | Symplectic McLachlan 4th order method with 4 stages.       |
+   | :c:macro:`ARKODE_SPRK_MCLACHLAN_4_4`       | Symplectic McLachlan 4th order method with 4 stages.       |
    +--------------------------------------------------+------------------------------------------------------------+
-   | :c:macro:`ARKODE_SYMPLECTIC_MCLACHLAN_5_6`       | Symplectic McLachlan 5th order method with 6 stages.       |
+   | :c:macro:`ARKODE_SPRK_MCLACHLAN_5_6`       | Symplectic McLachlan 5th order method with 6 stages.       |
    +--------------------------------------------------+------------------------------------------------------------+
-   | :c:macro:`ARKODE_SYMPLECTIC_YOSHIDA_6_8`         | Symplectic Yoshida 6th order method with 8 stages.         |
+   | :c:macro:`ARKODE_SPRK_YOSHIDA_6_8`         | Symplectic Yoshida 6th order method with 8 stages.         |
    +--------------------------------------------------+------------------------------------------------------------+
-   | :c:macro:`ARKODE_SYMPLECTIC_SUZUKI_UMENO_8_16`      | Symplectic McLachlan 8th order method with 16 stages.      |
+   | :c:macro:`ARKODE_SPRK_SUZUKI_UMENO_8_16`      | Symplectic McLachlan 8th order method with 16 stages.      |
    +--------------------------------------------------+------------------------------------------------------------+
-   | :c:macro:`ARKODE_SYMPLECTIC_SOFRONIOU_10_36`     | Symplectic Sofroniou 10th order method with 36 stages.     |
+   | :c:macro:`ARKODE_SPRK_SOFRONIOU_10_36`     | Symplectic Sofroniou 10th order method with 36 stages.     |
    +--------------------------------------------------+------------------------------------------------------------+
 
 

@@ -44,7 +44,7 @@
  * 
  *   --step-mode <fixed, adapt>  should we use a fixed time-step or adaptive time-step (default fixed)
  *   --stepper <SPRK, ERK>       should we use SPRKStep or ARKStep with an ERK method (default SPRK)
- *   --method <string>           which method to use (default ARKODE_SYMPLECTIC_MCLACHLAN_4_4)
+ *   --method <string>           which method to use (default ARKODE_SPRK_MCLACHLAN_4_4)
  *   --use-compensated-sums      turns on compensated summation in ARKODE where applicable
  *   --dt <Real>                 the fixed-time step size to use if fixed time stepping is turned on (default 0.01)
  *   --tf <Real>                 the final time for the simulation (default 100)
@@ -726,7 +726,7 @@ int ParseArgs(int argc, char* argv[], ProgramArgs* args)
   {
     if (args->stepper == 0)
     {
-      args->method_name = "ARKODE_SYMPLECTIC_MCLACHLAN_4_4";
+      args->method_name = "ARKODE_SPRK_MCLACHLAN_4_4";
     }
     else if (args->stepper == 1)
     {
@@ -758,7 +758,7 @@ void PrintHelp()
           "  --stepper <SPRK, ERK>       should we use SPRKStep or ARKStep "
           "with an ERK method (default SPRK)\n");
   fprintf(stderr, "  --method <string>           which method to use (default "
-                  "ARKODE_SYMPLECTIC_MCLACHLAN_4_4)\n");
+                  "ARKODE_SPRK_MCLACHLAN_4_4)\n");
   fprintf(stderr,
           "  --use-compensated-sums      turns on compensated summation in "
           "ARKODE where applicable\n");

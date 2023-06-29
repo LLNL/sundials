@@ -27,51 +27,51 @@ The following enum values are used to identify different SPRK methods:
 
    Identifier representing no SPRK method, this is solely used to mark the beginning of the enum.
 
-.. c:macro:: ARKODE_SYMPLECTIC_EULER_1_1
+.. c:macro:: ARKODE_SPRK_EULER_1_1
 
    Identifier for the Symplectic Euler 1st order method with 1 stage.
 
-.. c:macro:: ARKODE_SYMPLECTIC_LEAPFROG_2_2
+.. c:macro:: ARKODE_SPRK_LEAPFROG_2_2
 
    Identifier for the Symplectic Leapfrog 2nd order method with 2 stages.
 
-.. c:macro:: ARKODE_SYMPLECTIC_PSEUDO_LEAPFROG_2_2
+.. c:macro:: ARKODE_SPRK_PSEUDO_LEAPFROG_2_2
 
    Identifier for the Symplectic Pseudo Leapfrog 2nd order method with 2 stages.
 
-.. c:macro:: ARKODE_SYMPLECTIC_RUTH_3_3
+.. c:macro:: ARKODE_SPRK_RUTH_3_3
 
    Identifier for the Symplectic Ruth 3rd order method with 3 stages.
 
-.. c:macro:: ARKODE_SYMPLECTIC_MCLACHLAN_2_2
+.. c:macro:: ARKODE_SPRK_MCLACHLAN_2_2
 
    Identifier for the Symplectic McLachlan 2nd order method with 2 stages.
 
-.. c:macro:: ARKODE_SYMPLECTIC_MCLACHLAN_3_3
+.. c:macro:: ARKODE_SPRK_MCLACHLAN_3_3
 
    Identifier for the Symplectic McLachlan 3rd order method with 3 stages.
 
-.. c:macro:: ARKODE_SYMPLECTIC_CANDY_ROZMUS_4_4
+.. c:macro:: ARKODE_SPRK_CANDY_ROZMUS_4_4
 
    Identifier for the Symplectic Candy Rozmus 4th order method with 4 stages.
 
-.. c:macro:: ARKODE_SYMPLECTIC_MCLACHLAN_4_4
+.. c:macro:: ARKODE_SPRK_MCLACHLAN_4_4
 
    Identifier for the Symplectic McLachlan 4th order method with 4 stages.
 
-.. c:macro:: ARKODE_SYMPLECTIC_MCLACHLAN_5_6
+.. c:macro:: ARKODE_SPRK_MCLACHLAN_5_6
 
    Identifier for the Symplectic McLachlan 5th order method with 6 stages.
 
-.. c:macro:: ARKODE_SYMPLECTIC_YOSHIDA_6_8
+.. c:macro:: ARKODE_SPRK_YOSHIDA_6_8
 
    Identifier for the Symplectic Yoshida 6th order method with 8 stages.
 
-.. c:macro:: ARKODE_SYMPLECTIC_SUZUKI_UMENO_8_16
+.. c:macro:: ARKODE_SPRK_SUZUKI_UMENO_8_16
 
    Identifier for the Symplectic McLachlan 8th order method with 16 stages.
 
-.. c:macro:: ARKODE_SYMPLECTIC_SOFRONIOU_10_36
+.. c:macro:: ARKODE_SPRK_SOFRONIOU_10_36
 
    Identifier for the Symplectic Sofroniou 10th order method with 36 stages.
 
