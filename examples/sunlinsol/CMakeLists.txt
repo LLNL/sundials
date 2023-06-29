@@ -37,6 +37,7 @@ if(BUILD_SHARED_LIBS)
   set_property(TARGET test_sunlinsol_obj PROPERTY POSITION_INDEPENDENT_CODE TRUE)
 endif()
 target_link_libraries(test_sunlinsol_obj PRIVATE sundials_sunlinsoldense)
+target_link_libraries(test_sunlinsol_obj PRIVATE sundials_sunlinsolband)
 
 if(ENABLE_MPI AND MPI_C_FOUND)
   add_subdirectory(spgmr/parallel)
