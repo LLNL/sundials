@@ -22,70 +22,69 @@ module DiagnonData
    ! Description:
    !    Module containing problem-defining parameters.
    !---------------------------------------------------------------
- 
+
    !======= Inclusions ===========
    use, intrinsic :: iso_c_binding
- 
+
    use fsundials_nvector_mod
- 
+
    !======= Declarations =========
    implicit none
- 
+
    ! With MPI-3 use mpi_f08 is preferred
    include "mpif.h"
- 
+
    save
- 
+
    ! SUNDIALS simulation context
    type(c_ptr) :: sunctx
- 
+
    ! MPI domain decomposition information
    integer, target :: comm  ! communicator object
    integer :: myid          ! MPI process ID
    integer :: nprocs        ! total number of MPI processes
- 
+
    ! Problem parameters
    integer(c_long), parameter :: nlocal = 2
    integer(c_long)  :: neq
-   double precision :: errmax, erri, gerrmax
-   double precision :: alpha
- 
+   real(c_double) :: alpha
+
  contains
 
 
- 
+
    !-----------------------------------------------------------------
    ! ODE RHS function f(t,y) (explicit).
    !-----------------------------------------------------------------
    integer(c_int) function frhs(t, sunvec_y, sunvec_ydot, user_data) &
      result(retval) bind(C)
- 
+
      !======= Inclusions ===========
      use, intrinsic :: iso_c_binding
      use fsundials_nvector_mod
- 
+
      !======= Declarations =========
      implicit none
- 
+
      ! calling variables
      real(c_double), value :: t            ! current time
      type(N_Vector)        :: sunvec_y     ! solution N_Vector
      type(N_Vector)        :: sunvec_ydot  ! rhs N_Vector
      type(c_ptr)           :: user_data    ! user-defined data
- 
+
      ! pointers to data in SUNDIALS vectors
      real(c_double), pointer :: y(:)
      real(c_double), pointer :: ydot(:)
- 
+
      ! local data
      integer :: i, ierr
- 
+
      !======= Internals ============
- 
+
      ! Get data arrays from SUNDIALS vectors
      y(1:nlocal)    => FN_VGetArrayPointer(sunvec_y)
      ydot(1:nlocal) => FN_VGetArrayPointer(sunvec_ydot)
- 
+
      ! Initialize ydot to zero
      ydot = 0.d0
 
@@ -93,22 +92,22 @@ module DiagnonData
      do i = 1,nlocal
         ydot(i) = -alpha * (myid * nlocal + i) * y(i)
      end do
- 
+
      retval = 0              ! Return with success
      return
    end function frhs
    !-----------------------------------------------------------------
- 
- 
+
+
  end module DiagnonData
  !-----------------------------------------------------------------
- 
- 
+
+
  !-----------------------------------------------------------------
  ! Main driver program
  !-----------------------------------------------------------------
  program driver
- 
+
    ! inclusions
    use, intrinsic :: iso_c_binding
    use fsundials_futils_mod       ! Fortran utilities
@@ -118,12 +117,12 @@ module DiagnonData
    use fsundials_nvector_mod      ! Access generic N_Vector
    use fnvector_parallel_mod      ! Access parallel N_Vector
    use fsundials_context_mod      ! Access sundials context
- 
+
    use DiagnonData
- 
+
    !======= Declarations =========
    implicit none
- 
+
    ! Declarations
    ! general problem parameters
    integer, parameter :: Nt = 10           ! total number of output times
@@ -131,7 +130,7 @@ module DiagnonData
    real(c_double), parameter :: Tf = 1.d0        ! final time
    real(c_double), parameter :: rtol = 1.d-5     ! relative and absolute tolerances
    real(c_double), parameter :: atol = 1.d-10
- 
+
    ! solution vector and other local variables
    type(N_Vector), pointer :: sunvec_y        ! solution N_Vector
    real(c_double), pointer :: y(:)            ! vector data
@@ -147,7 +146,8 @@ module DiagnonData
    integer(c_long) :: netf(1)    ! number of error test fails
    integer :: i, ioutput
    integer, pointer :: commptr
- 
+   real(c_double) :: errmax, erri, gerrmax
+
    ! Initialize MPI variables
    comm = MPI_COMM_WORLD
    myid = 0
@@ -174,38 +174,6 @@ module DiagnonData
    neq = nprocs * nlocal
    alpha = 10.0d0 / neq
 
-   ! Broadcast output arguments
-   call MPI_Bcast(erri, MPI_DOUBLE_PRECISION, 0, ierr)
-   if (ierr /= MPI_SUCCESS) then
-      write(0,*) "Error in MPI_Bcast = ", ierr
-      call MPI_Abort(comm, 1, ierr)
-   end if
-   call MPI_Bcast(errmax, MPI_DOUBLE_PRECISION, 0, ierr)
-   if (ierr /= MPI_SUCCESS) then
-      write(0,*) "Error in MPI_Bcast = ", ierr
-      call MPI_Abort(comm, 1, ierr)
-   end if
-   call MPI_Bcast(alpha, MPI_DOUBLE_PRECISION, 0, ierr)
-   if (ierr /= MPI_SUCCESS) then
-      write(0,*) "Error in MPI_Bcast = ", ierr
-      call MPI_Abort(comm, 1, ierr)
-   end if
-   call MPI_Bcast(nlocal, MPI_LONG, 0, ierr)
-   if (ierr /= MPI_SUCCESS) then
-      write(0,*) "Error in MPI_Bcast = ", ierr
-      call MPI_Abort(comm, 1, ierr)
-   end if
-   call MPI_Bcast(i, MPI_INT, 0, ierr)
-   if (ierr /= MPI_SUCCESS) then
-      write(0,*) "Error in MPI_Bcast = ", ierr
-      call MPI_Abort(comm, 1, ierr)
-   end if
-   call MPI_Bcast(t, MPI_DOUBLE, 0, ierr)
-   if (ierr /= MPI_SUCCESS) then
-      write(0,*) "Error in MPI_Bcast = ", ierr
-      call MPI_Abort(comm, 1, ierr)
-   end if
- 
    ! Create SUNDIALS simulation context, now that comm has been configured
    commptr => comm
    retval = FSUNContext_Create(c_loc(commptr), sunctx)
@@ -213,7 +181,7 @@ module DiagnonData
      print *, "Error: FSUNContext_Create returned ",retval
      call MPI_Abort(comm, 1, ierr)
    end if
- 
+
    ! Initial problem output
    outproc = (myid == 0)
    if (outproc) then
@@ -228,26 +196,26 @@ module DiagnonData
       write(6,*) "   ydot_i = -alpha*i * y_i (i = 1,...,neq)"
       write(6,*) "  "
    endif
- 
+
    ! Create solution vector, point at its data, and set initial condition
    sunvec_y => FN_VNew_Parallel(comm, nlocal, neq, sunctx)
    y(1:nlocal) => FN_VGetArrayPointer(sunvec_y)
    y = 0.d0
- 
+
    ! Create the ERKStep timestepper module
    arkode_mem = FERKStepCreate(c_funloc(frhs), t0, sunvec_y, sunctx)
    if (.not. c_associated(arkode_mem)) then
       print *, "Error: FERKStepCreate returned NULL"
       call MPI_Abort(comm, 1, ierr)
    end if
- 
+
    ! Specify tolerances
    retval = FERKStepSStolerances(arkode_mem, rtol, atol)
    if (retval /= 0) then
       print *, "Error: FERKStepSStolerances returned ",retval
       call MPI_Abort(comm, 1, ierr)
    end if
- 
+
    ! Main time-stepping loop: calls ARKode to perform the integration, then
    ! prints results.  Stops when the final time has been reached
    t(1) = T0
@@ -258,7 +226,7 @@ module DiagnonData
      write(6,*) "   -----------------------------------------"
    end if
    do ioutput=1,Nt
- 
+
       ! Integrate to output time
       retval = FERKStepEvolve(arkode_mem, tout, sunvec_y, t, ARK_NORMAL)
       if (retval /= 0) then
@@ -283,11 +251,11 @@ module DiagnonData
          print *, "Error: FERKStepGetNumRhsEvals returned ",retval
          call MPI_Abort(comm, 1, ierr)
       end if
- 
+
       ! print solution stats and update internal time
       if (outproc)   write(6,'(3x,f10.6,3(2x,i6))') t, nst, nst_a, nfe
       tout = min(tout + dTout, Tf)
- 
+
    end do
    if (outproc) then
       write(6,*) "   ----------------------"
@@ -296,7 +264,7 @@ module DiagnonData
    ! Get max. absolute error in the local vector.
    errmax = 0.d0
    do i = 1,nlocal
-      erri = y(i) - exp(-alpha * (myid * nlocal + i) * t)
+      erri = y(i) - exp(-alpha * (myid * nlocal + i) * t(1))
       errmax = max(errmax, abs(erri))
    end do
 
@@ -310,32 +278,32 @@ module DiagnonData
 
    ! Print global max. error
    if (outproc) print '(a,es10.2)', "Max. absolute error is ", gerrmax
- 
+
    ! Get final statistics
    retval = FERKStepGetNumSteps(arkode_mem, nst)
    if (retval /= 0) then
       print *, "Error: FERKStepGetNumSteps returned ",retval
       call MPI_Abort(comm, 1, ierr)
    end if
- 
+
    retval = FERKStepGetNumStepAttempts(arkode_mem, nst_a)
    if (retval /= 0) then
       print *, "Error: FERKStepGetNumStepAttempts returned ",retval
       call MPI_Abort(comm, 1, ierr)
    end if
- 
+
    retval = FERKStepGetNumRhsEvals(arkode_mem, nfe)
    if (retval /= 0) then
       print *, "Error: FERKStepGetNumRhsEvals returned ",retval
       call MPI_Abort(comm, 1, ierr)
    end if
- 
+
    retval = FERKStepGetNumErrTestFails(arkode_mem, netf)
    if (retval /= 0) then
       print *, "Error: FERKStepGetNumErrTestFails returned ",retval
       call MPI_Abort(comm, 1, ierr)
    end if
- 
+
    ! Print some final statistics
    if (outproc) then
       write(6,*) "  "
@@ -345,13 +313,12 @@ module DiagnonData
       write(6,'(A,i6)') "   Total RHS evals = ", nfe
       write(6,'(A,i6)') "   Total number of error test failures = ", netf
   endif
- 
+
   ! Clean up and return with successful completion
   call FERKStepFree(arkode_mem)       ! free integrator memory
   call FN_VDestroy(sunvec_y)          ! free vector memory
   call MPI_Barrier(comm, ierr)
   call MPI_Finalize(ierr)             ! Finalize MPI
- 
+
  end program driver
  !-----------------------------------------------------------------
- 
