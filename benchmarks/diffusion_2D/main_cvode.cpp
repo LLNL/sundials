@@ -322,6 +322,14 @@ int main(int argc, char* argv[])
 
     for (int iout = 0; iout < uout.nout; iout++)
     {
+      if (outproc)
+      {
+        std::cout << "\n\n====================\n";
+        std::cout << "Begin Step " << iout + 1 << std::endl;
+        std::cout << "====================\n\n";
+      }
+      MPI_Barrier(MPI_COMM_WORLD);
+
       SUNDIALS_MARK_BEGIN(prof, "Evolve");
 
       // Evolve in time
@@ -337,6 +345,14 @@ int main(int argc, char* argv[])
       // Update output time
       tout += dTout;
       tout = (tout > udata.tf) ? udata.tf : tout;
+
+      MPI_Barrier(MPI_COMM_WORLD);
+      if (outproc)
+      {
+        std::cout << "\n\n====================\n";
+        std::cout << "End Step " << iout + 1 << std::endl;
+        std::cout << "====================\n\n";
+      }
     }
 
     // Close output
