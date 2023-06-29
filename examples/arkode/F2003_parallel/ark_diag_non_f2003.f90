@@ -200,7 +200,7 @@ module DiagnonData
    ! Create solution vector, point at its data, and set initial condition
    sunvec_y => FN_VNew_Parallel(comm, nlocal, neq, sunctx)
    y(1:nlocal) => FN_VGetArrayPointer(sunvec_y)
-   y = 0.d0
+   y = 1.d0
 
    ! Create the ERKStep timestepper module
    arkode_mem = FERKStepCreate(c_funloc(frhs), t0, sunvec_y, sunctx)
@@ -269,7 +269,7 @@ module DiagnonData
    end do
 
    ! Get global max. error from MPI_Reduce call.
-   call MPI_Reduce(errmax, gerrmax, 1, MPI_DOUBLE_PRECISION, MPI_MAX, &
+   call MPI_Reduce(errmax, gerrmax, 1, MPI_DOUBLE, MPI_MAX, &
                    0, comm, ierr)
    if (ierr /= MPI_SUCCESS) then
       print *, "Error in MPI_Reduce = ", ierr
