@@ -721,7 +721,7 @@ of two modes as to where CVODES is to return a solution. But these
 modes are modified if the user has set a stop time (with :c:func:`CVodeSetStopTime`) or requested
 rootfinding.
 
-.. c:function:: int CVode(void* cvode_mem, realtype tout, N_Vector yout, realtype tret, int itask)
+.. c:function:: int CVode(void* cvode_mem, realtype tout, N_Vector yout, realtype* tret, int itask)
 
    The function ``CVode`` integrates the ODE over an interval in t.
 
@@ -1645,8 +1645,8 @@ the :c:func:`CVodeSetEpsLin` function.
 
 .. _CVODES.Usage.SIM.optional_input.optin_nls:
 
-Linear solver interface optional input functions
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+Nonlinear solver interface optional input functions
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 .. _CVODES.Usage.SIM.optional_input.optin_nls_table:
 
@@ -4042,7 +4042,7 @@ solution and quadratures at time ``t``. However, :c:func:`CVode` will still retu
 only the solution :math:`y` in ``yout``. Solution quadratures can be obtained
 using the following function:
 
-.. c:function:: int CVodeGetQuad(void * cvode_mem, realtype tret, N_Vector yQ)
+.. c:function:: int CVodeGetQuad(void * cvode_mem, realtype* tret, N_Vector yQ)
 
    The function ``CVodeGetQuad`` returns the quadrature solution vector after a  successful return from ``CVode``.
 
@@ -4122,7 +4122,7 @@ If the quadrature variables are part of the step size control mechanism,
 one of the following functions must be called to specify the
 integration tolerances for quadrature variables.
 
-.. c:function:: int CVodeQuadSVtolerances(void * cvode_mem, realtype reltolQ, realtype abstolQ)
+.. c:function:: int CVodeQuadSVtolerances(void * cvode_mem, realtype reltolQ, N_Vector abstolQ)
 
    The function ``CVodeQuadSStolerances`` specifies scalar relative and absolute  tolerances.
 
