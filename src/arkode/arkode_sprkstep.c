@@ -283,8 +283,8 @@ int SPRKStepEvolve(void* arkode_mem, realtype tout, N_Vector yout,
                    realtype* tret, int itask)
 {
   /* unpack ark_mem, call arkEvolve, and return */
+  ARKodeMem ark_mem;
   int retval        = 0;
-  ARKodeMem ark_mem = NULL;
   if (arkode_mem == NULL)
   {
     arkProcessError(NULL, ARK_MEM_NULL, "ARKODE::SPRKStep", "SPRKKStepGetDky",
@@ -308,8 +308,8 @@ int SPRKStepEvolve(void* arkode_mem, realtype tout, N_Vector yout,
 int SPRKStepGetDky(void* arkode_mem, realtype t, int k, N_Vector dky)
 {
   /* unpack ark_mem, call arkGetDky, and return */
+  ARKodeMem ark_mem;
   int retval        = 0;
-  ARKodeMem ark_mem = NULL;
   if (arkode_mem == NULL)
   {
     arkProcessError(NULL, ARK_MEM_NULL, "ARKODE::SPRKStep", "SPRKKStepGetDky",
