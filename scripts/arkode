@@ -199,6 +199,8 @@ $tar $tarfile '$distrobase/examples/arkode/C_serial/ark_kepler*.out'
 $tar $tarfile $distrobase/examples/arkode/C_serial/ark_kepler_plot.py
 $tar $tarfile $distrobase/examples/arkode/C_serial/ark_harmonic_symplectic.c
 $tar $tarfile $distrobase/examples/arkode/C_serial/ark_harmonic_symplectic.out
+$tar $tarfile $distrobase/examples/arkode/C_serial/ark_anharmonic_symplectic.c
+$tar $tarfile $distrobase/examples/arkode/C_serial/ark_anharmonic_symplectic.out
 $tar $tarfile $distrobase/examples/arkode/C_serial/ark_kpr_mri.c
 $tar $tarfile $distrobase/examples/arkode/C_serial/ark_kpr_mri.out
 $tar $tarfile $distrobase/examples/arkode/C_serial/ark_kpr_mri_0_0.002.out

@@ -561,6 +561,8 @@ int sprkStep_TakeStep(void* arkode_mem, realtype* dsmPtr, int* nflagPtr)
   ARKodeSPRKStepMem step_mem = NULL;
   N_Vector prev_stage        = NULL;
   N_Vector curr_stage        = NULL;
+  sunrealtype ci = 0.0;
+  sunrealtype chati = 0.0;
   int is                     = 0;
   int retval                 = 0;
 
@@ -571,12 +573,14 @@ int sprkStep_TakeStep(void* arkode_mem, realtype* dsmPtr, int* nflagPtr)
 
   prev_stage    = ark_mem->yn;
   curr_stage    = ark_mem->ycur;
-  ark_mem->tcur = ark_mem->tn;
   for (is = 0; is < step_mem->method->stages; is++)
   {
     /* load/compute coefficients */
     sunrealtype ai    = step_mem->method->a[is];
     sunrealtype ahati = step_mem->method->ahat[is];
+
+    ci += ai;
+    chati += ahati;
 
     /* store current stage index */
     step_mem->istage = is;
@@ -584,7 +588,7 @@ int sprkStep_TakeStep(void* arkode_mem, realtype* dsmPtr, int* nflagPtr)
     /* evaluate p' with the previous velocity */
     N_VConst(ZERO, step_mem->sdata); /* either have to do this or ask user to
                                         set other outputs to zero */
-    retval = sprkStep_f1(step_mem, ark_mem->tcur, prev_stage, step_mem->sdata,
+    retval = sprkStep_f1(step_mem, ark_mem->tn + chati*ark_mem->h, prev_stage, step_mem->sdata,
                          ark_mem->user_data);
     if (retval != 0) { return ARK_RHSFUNC_FAIL; }
 
@@ -593,12 +597,12 @@ int sprkStep_TakeStep(void* arkode_mem, realtype* dsmPtr, int* nflagPtr)
                  curr_stage);
 
     /* set current stage time(s) */
-    ark_mem->tcur = ark_mem->tcur + ai * ark_mem->h;
+    ark_mem->tcur = ark_mem->tn + chati * ark_mem->h;
 
     /* evaluate q' with the current positions */
     N_VConst(ZERO, step_mem->sdata); /* either have to do this or ask user to
                                         set other outputs to zero */
-    retval = sprkStep_f2(step_mem, ark_mem->tcur, curr_stage, step_mem->sdata,
+    retval = sprkStep_f2(step_mem, ark_mem->tn + ci*ark_mem->h, curr_stage, step_mem->sdata,
                          ark_mem->user_data);
     if (retval != 0) { return ARK_RHSFUNC_FAIL; }
 
@@ -637,6 +641,8 @@ int sprkStep_TakeStep_Compensated(void* arkode_mem, realtype* dsmPtr,
   N_Vector delta_Yi          = NULL;
   N_Vector yn_plus_delta_Yi  = NULL;
   N_Vector diff              = NULL;
+  sunrealtype ci = 0.0;
+  sunrealtype chati = 0.0;
   int is                     = 0;
   int retval                 = 0;
 
@@ -657,12 +663,14 @@ int sprkStep_TakeStep_Compensated(void* arkode_mem, realtype* dsmPtr,
   N_VConst(ZERO, delta_Yi);
 
   /* loop over internal stages to the step */
-  ark_mem->tcur = ark_mem->tn;
   for (is = 0; is < method->stages; is++)
   {
     /* load/compute coefficients */
     sunrealtype ai    = step_mem->method->a[is];
     sunrealtype ahati = step_mem->method->ahat[is];
+
+    ci += ai;
+    chati += ahati;
 
     /* store current stage index */
     step_mem->istage = is;
@@ -674,7 +682,7 @@ int sprkStep_TakeStep_Compensated(void* arkode_mem, realtype* dsmPtr,
     /* Evaluate p' with the previous velocity */
     N_VConst(ZERO, step_mem->sdata); /* either have to do this or ask user to
                                         set other outputs to zero */
-    retval = sprkStep_f1(step_mem, ark_mem->tcur, yn_plus_delta_Yi,
+    retval = sprkStep_f1(step_mem, ark_mem->tn + chati*ark_mem->h, yn_plus_delta_Yi,
                          step_mem->sdata, ark_mem->user_data);
     if (retval != 0) { return (ARK_RHSFUNC_FAIL); }
 
@@ -688,12 +696,12 @@ int sprkStep_TakeStep_Compensated(void* arkode_mem, realtype* dsmPtr,
     N_VLinearSum(ONE, ark_mem->yn, ONE, delta_Yi, yn_plus_delta_Yi);
 
     /* set current stage time(s) */
-    ark_mem->tcur = ark_mem->tcur + ai * ark_mem->h;
+    ark_mem->tcur = ark_mem->tn + chati * ark_mem->h;
 
     /* Evaluate q' with the current positions */
     N_VConst(ZERO, step_mem->sdata); /* either have to do this or ask user to
                                         set other outputs to zero */
-    retval = sprkStep_f2(step_mem, ark_mem->tcur, yn_plus_delta_Yi,
+    retval = sprkStep_f2(step_mem, ark_mem->tn + ci*ark_mem->h, yn_plus_delta_Yi,
                          step_mem->sdata, ark_mem->user_data);
     if (retval != 0) { return (ARK_RHSFUNC_FAIL); }
 

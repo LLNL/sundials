@@ -12,21 +12,20 @@
  * SPDX-License-Identifier: BSD-3-Clause
  * SUNDIALS Copyright End
  * ----------------------------------------------------------------------------
- * In this example we consider the simple harmonic oscillator
- *    x''(t) + omega^2*x(t) = 0.
- * We rewrite the second order ODE as the first order ODE model
- *    x'(t) = v(t)
- *    v'(t) = -omega^2*x(t).
- * With the initial conditions x(0) = x0 and v(0) = v0,
- * the analytical solution is
- *    x(t) = A*cos(t*omega + phi),
- *    v(t) = -A*omega*sin(t*omega + phi)
- * where A = sqrt(x0^2 + v0^2/omega) and tan(phi) = v0/(omega*x0).
- * The total energy (potential + kinetic) in this system is
- *    E = (v^2 + omega^2*x^2) / 2
- * E is conserved and is the system Hamiltonian.
- * We simulate the problem on t = [0, 2pi] using the symplectic methods
- * in SPRKStep. Symplectic methods will approximately conserve E.
+ * In this example we consider the anharmonic oscillator
+ *    q'(t) = p(t)
+ *    p'(t) = -( omega^2(t)*q^2 + 3*a(t)*q^2 + 4*b(t)*q^3 )
+ * With the initial conditions q(0) = 1, p(0) = 0.
+ * The Hamiltonian for the system is
+ *    H(p,q,t) = 1/2*p^2 + 1/2*omega^2(t)*q^2 + a(t)*q^3 + b(t)*q^4
+ * where omega(t) = cos(t/2), a(t) = 0.05*sin(t/3), b(t) = 0.08*cos^2(t/3).
+ * We simulate the problem on t = [0, 30] using the symplectic methods in
+ * SPRKStep.
+ *
+ * This is example 7.2 from:
+ * Struckmeier, J., & Riedel, C. (2002). Canonical transformations and exact
+ * invariants for time‐dependent Hamiltonian systems. Annalen der Physik, 11(1),
+ * 15-38.
  *
  * The example has the following command line arguments:
  *   --order <int>               the order of the method to use (default 4)
@@ -51,11 +50,6 @@
 
 typedef struct
 {
-  sunrealtype A, phi, omega;
-} UserData;
-
-typedef struct
-{
   int order;
   int num_output_times;
   int use_compsums;
@@ -63,12 +57,11 @@ typedef struct
 } ProgramArgs;
 
 /* RHS functions */
-static int xdot(sunrealtype t, N_Vector y, N_Vector ydot, void* user_data);
-static int vdot(sunrealtype t, N_Vector y, N_Vector ydot, void* user_data);
+static int pdot(sunrealtype t, N_Vector y, N_Vector ydot, void* user_data);
+static int qdot(sunrealtype t, N_Vector y, N_Vector ydot, void* user_data);
 
 /* Helper functions */
-static void Solution(sunrealtype t, N_Vector y, N_Vector solvec, UserData* udata);
-static sunrealtype Energy(N_Vector yvec, sunrealtype dt, UserData* udata);
+static sunrealtype Hamiltonian(N_Vector yvec, sunrealtype t);
 static int ParseArgs(int argc, char* argv[], ProgramArgs* args);
 static void PrintHelp();
 static int check_retval(void* returnvalue, const char* funcname, int opt);
@@ -76,14 +69,11 @@ static int check_retval(void* returnvalue, const char* funcname, int opt);
 int main(int argc, char* argv[])
 {
   ProgramArgs args;
-  UserData udata;
   SUNContext sunctx  = NULL;
   N_Vector y         = NULL;
-  N_Vector solution  = NULL;
   sunrealtype* ydata = NULL;
   sunrealtype tout   = NAN;
   sunrealtype tret   = NAN;
-  sunrealtype err    = NAN;
   void* arkode_mem   = NULL;
   int iout           = 0;
   int retval         = 0;
@@ -98,56 +88,47 @@ int main(int argc, char* argv[])
 
   /* Default problem parameters */
   const sunrealtype T0    = SUN_RCONST(0.0);
-  sunrealtype Tf          = SUN_RCONST(2.0) * M_PI;
+  sunrealtype Tf          = SUN_RCONST(30.0);
   sunrealtype dt          = args.dt;
-  const sunrealtype A     = SUN_RCONST(10.0);
-  const sunrealtype phi   = SUN_RCONST(0.0);
-  const sunrealtype omega = SUN_RCONST(1.0);
   const sunrealtype dTout = (Tf - T0) / ((sunrealtype)num_output_times);
 
   /* Create the SUNDIALS context object for this simulation */
   retval = SUNContext_Create(NULL, &sunctx);
   if (check_retval(&retval, "SUNContext_Create", 1)) return 1;
 
-  printf("\n   Begin simple harmonic oscillator problem\n\n");
+  printf("\n   Begin time-dependent anharmonic oscillator problem\n\n");
 
-  /* Allocate and fill udata structure */
-  udata.A     = A;
-  udata.phi   = phi;
-  udata.omega = omega;
+  /* Allocate our state vector */
+  y = N_VNew_Serial(4, sunctx);
 
-  /* Allocate our state vector [x, v]^T */
-  y        = N_VNew_Serial(2, sunctx);
-  solution = N_VClone(y);
-
-  /* Fill the initial conditions (x0 then v0) */
+  /* Fill the initial conditions */
   ydata    = N_VGetArrayPointer(y);
-  ydata[0] = A * cos(phi);
-  ydata[1] = -A * omega * sin(phi);
+  ydata[0] = 0; /* ptau */
+  ydata[1] = 0; /* \dot{q} = p */
+  ydata[2] = 0; /* qtau */
+  ydata[3] = 1; /* \ddot{q} = \dot{p} */
 
   /* Create SPRKStep integrator */
-  arkode_mem = SPRKStepCreate(xdot, vdot, T0, y, sunctx);
+  arkode_mem = SPRKStepCreate(qdot, pdot, T0, y, sunctx);
 
   retval = SPRKStepSetOrder(arkode_mem, order);
-  if (check_retval(&retval, "SPRKStepSetOrder", 1)) return 1;
-
-  retval = SPRKStepSetUserData(arkode_mem, &udata);
-  if (check_retval(&retval, "SPRKStepSetUserData", 1)) return 1;
+  if (check_retval(&retval, "SPRKStepSetOrder", 1)) { return 1; }
 
   retval = SPRKStepSetUseCompensatedSums(arkode_mem, use_compsums);
-  if (check_retval(&retval, "SPRKStepSetUseCompensatedSums", 1)) return 1;
+  if (check_retval(&retval, "SPRKStepSetUseCompensatedSums", 1)) { return 1; }
 
   retval = SPRKStepSetFixedStep(arkode_mem, dt);
-  if (check_retval(&retval, "SPRKStepSetFixedStep", 1)) return 1;
+  if (check_retval(&retval, "SPRKStepSetFixedStep", 1)) { return 1; }
 
   retval = SPRKStepSetMaxNumSteps(arkode_mem, ((long int)ceil(Tf / dt)) + 2);
-  if (check_retval(&retval, "SPRKStepSetMaxNumSteps", 1)) return 1;
+  if (check_retval(&retval, "SPRKStepSetMaxNumSteps", 1)) { return 1; }
 
-  /* Print out starting energy, momentum before integrating */
+  /* Print out starting Hamiltonian before integrating */
   tret = T0;
   tout = T0 + dTout;
-  fprintf(stdout, "t = %.6Lf, x(t) = %.6Lf, E = %.6Lf, sol. err = %.6Lf\n",
-          tret, ydata[0], Energy(y, dt, &udata), SUN_RCONST(0.0));
+  /* Output current integration status */
+  fprintf(stdout, "t = %.6Lf, q(t) = %.6Lf, H = %.6Lf\n", tret,
+          ydata[1], Hamiltonian(y, tret));
 
   /* Do integration */
   for (iout = 0; iout < num_output_times; iout++)
@@ -155,23 +136,9 @@ int main(int argc, char* argv[])
     SPRKStepSetStopTime(arkode_mem, tout);
     retval = SPRKStepEvolve(arkode_mem, tout, y, &tret, ARK_NORMAL);
 
-    /* Compute the anaytical solution */
-    Solution(tret, y, solution, &udata);
-
-    /* Compute L2 error */
-    N_VLinearSum(SUN_RCONST(1.0), y, -SUN_RCONST(1.0), solution, solution);
-    err = sqrt(N_VDotProd(solution, solution));
-
     /* Output current integration status */
-    fprintf(stdout, "t = %.6Lf, x(t) = %.6Lf, E = %.6Lf, sol. err = %.16Lf\n",
-            tret, ydata[0], Energy(y, dt, &udata), err);
-
-    /* Check that solution error is within tolerance */
-    if (err > SUNMAX(dt / pow(10, order - 2), 1000 * SUN_UNIT_ROUNDOFF))
-    {
-      fprintf(stderr, "FAILURE: solution error is too high\n");
-      return 1;
-    }
+    fprintf(stdout, "t = %.6Lf, q(t) = %.6Lf, H = %.6Lf\n", tret,
+            ydata[1], Hamiltonian(y, tret));
 
     /* Check if the solve was successful, if so, update the time and continue */
     if (retval >= 0)
@@ -187,57 +154,51 @@ int main(int argc, char* argv[])
   }
 
   fprintf(stdout, "\n");
-  N_VDestroy(y);
-  N_VDestroy(solution);
   SPRKStepPrintAllStats(arkode_mem, stdout, SUN_OUTPUTFORMAT_TABLE);
+  N_VDestroy(y);
   SPRKStepFree(&arkode_mem);
   SUNContext_Free(&sunctx);
 
   return 0;
 }
 
-void Solution(sunrealtype t, N_Vector y, N_Vector solvec, UserData* udata)
+sunrealtype omega(sunrealtype t) { return cos(t / 2.0); }
+
+sunrealtype a(sunrealtype t) { return 0.05 * sin(t / 3.0); }
+
+sunrealtype b(sunrealtype t) { return 0.08 * cos(t / 3.0) * cos(t / 3.0); }
+
+sunrealtype Hamiltonian(N_Vector yvec, sunrealtype t)
 {
-  sunrealtype* sol = N_VGetArrayPointer(solvec);
+  sunrealtype E       = 0.0;
+  sunrealtype* y      = N_VGetArrayPointer(yvec);
+  const sunrealtype p = y[1];
+  const sunrealtype q = y[3];
 
-  /* compute solution */
-  sol[0] = udata->A * cos(udata->omega * t + udata->phi);
-  sol[1] = -udata->A * udata->omega * sin(udata->omega * t + udata->phi);
-}
-
-sunrealtype Energy(N_Vector yvec, sunrealtype dt, UserData* udata)
-{
-  sunrealtype E            = 0.0;
-  sunrealtype* y           = N_VGetArrayPointer(yvec);
-  const sunrealtype x      = y[0];
-  const sunrealtype v      = y[1];
-  const sunrealtype omega2 = udata->omega * udata->omega;
-
-  E = (v * v + omega2 * x * x) / SUN_RCONST(2.0);
+  E = p * p / 2 + omega(t) * omega(t) * q * q / 2 + a(t) * q * q * q +
+      b(t) * q * q * q * q;
 
   return E;
 }
 
-int xdot(sunrealtype t, N_Vector yvec, N_Vector ydotvec, void* user_data)
+int qdot(sunrealtype t, N_Vector yvec, N_Vector ydotvec, void* user_data)
 {
-  sunrealtype* y      = N_VGetArrayPointer(yvec);
-  sunrealtype* ydot   = N_VGetArrayPointer(ydotvec);
-  const sunrealtype v = y[1];
+  sunrealtype* y       = N_VGetArrayPointer(yvec);
+  sunrealtype* ydot    = N_VGetArrayPointer(ydotvec);
+  const sunrealtype p  = y[1];
 
-  ydot[0] = v;
+  ydot[3] = p;
 
   return 0;
 }
 
-int vdot(sunrealtype t, N_Vector yvec, N_Vector ydotvec, void* user_data)
+int pdot(sunrealtype t, N_Vector yvec, N_Vector ydotvec, void* user_data)
 {
-  UserData* udata          = (UserData*)user_data;
-  sunrealtype* y           = N_VGetArrayPointer(yvec);
-  sunrealtype* ydot        = N_VGetArrayPointer(ydotvec);
-  const sunrealtype x      = y[0];
-  const sunrealtype omega2 = udata->omega * udata->omega;
+  sunrealtype* y       = N_VGetArrayPointer(yvec);
+  sunrealtype* ydot    = N_VGetArrayPointer(ydotvec);
+  const sunrealtype q  = y[3];
 
-  ydot[1] = -omega2 * x;
+  ydot[1] = -omega(t) * omega(t) * q - 3 * a(t) * q * q - 4 * b(t) * q * q * q;
 
   return 0;
 }
@@ -288,9 +249,9 @@ int ParseArgs(int argc, char* argv[], ProgramArgs* args)
 
 void PrintHelp()
 {
-  fprintf(stderr, "ark_harmonic_symplectic: an ARKODE example demonstrating "
-                  "the SPRKStep time-stepping module solving a simple harmonic "
-                  "oscillator\n");
+  fprintf(stderr, "ark_anharmonic_symplectic: an ARKODE example demonstrating "
+                  "the SPRKStep time-stepping module solving a time-dependent "
+                  "anharmonic oscillator\n");
   fprintf(stderr, "  --order <int>               the order of the method to "
                   "use (default 4)\n");
   fprintf(stderr,

@@ -46,7 +46,7 @@ SPRKStep initialization and deallocation functions
    be solved using the SPRKStep time-stepping module in ARKODE.
 
    :param f1: the name of the C function (of type :c:func:`ARKRhsFn()`) defining :math:`f_1(q,t) = \frac{\partial V(q,t)}{\partial q}`
-   :param f2:  the name of the C function (of type :c:func:`ARKRhsFn()`) defining :math:`f_2(p) = \frac{\partial T(p)}{\partial p}`
+   :param f2:  the name of the C function (of type :c:func:`ARKRhsFn()`) defining :math:`f_2(p,t) = \frac{\partial T(p,t)}{\partial p}`
    :param t0: the initial value of :math:`t`
    :param y0: the initial condition vector :math:`y(t_0)`
    :param sunctx: the :c:type:`SUNContext` object (see :numref:`SUNDIALS.SUNContext`)
@@ -58,7 +58,7 @@ SPRKStep initialization and deallocation functions
       SPRKStep requires a partitioned problem where ``f1`` should only modify the q variables
       and ``f2`` should only modify the p variables (or vice versa). However, the vector
       passed to these functions is the full vector with both p and q. The ordering of the
-      variables is up to the user.
+      variables is determined implicitly by the user when they set the initial conditions.
 
 
 .. c:function:: void SPRKStepFree(void** arkode_mem)

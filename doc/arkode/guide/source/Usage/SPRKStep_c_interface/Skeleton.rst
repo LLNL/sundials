@@ -27,7 +27,9 @@ referenced.
 
    This generally includes the problem size, ``N``, and may include
    the local vector length ``Nlocal``. The problem size ``N`` is the
-   size including both the ``q`` and ``p`` variables. 
+   size including both the ``q`` and ``p`` variables.  If the problem
+   is non-autonomous, then the size is ``N+2`` as two additional variables
+   must be stored for ``t`` (see :ref:`ARKODE.Mathematics.SPRKStep.Nonautonomous`)
 
    .. note::
 
