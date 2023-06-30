@@ -50,6 +50,8 @@
 
 #include "arkode/arkode.h"
 
+#define PI SUN_RCONST(3.14159265358979323846264338327950)
+
 typedef struct
 {
   sunrealtype A, phi, omega;
@@ -252,7 +254,7 @@ int ParseArgs(int argc, char* argv[], ProgramArgs* args)
   args->use_compsums     = 0;
   args->use_tstop        = 1;
   args->dt               = SUN_RCONST(1e-3);
-  args->Tf               = SUN_RCONST(2.0) * M_PI;
+  args->Tf               = SUN_RCONST(2.0) * PI;
 
   for (int argi = 1; argi < argc; argi++)
   {

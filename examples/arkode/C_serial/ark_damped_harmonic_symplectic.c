@@ -49,6 +49,8 @@
 
 #include "arkode/arkode.h"
 
+#define PI SUN_RCONST(3.14159265358979323846264338327950)
+
 typedef struct
 {
   int order;
@@ -165,7 +167,7 @@ int main(int argc, char* argv[])
 
 sunrealtype omega(sunrealtype t) { return cos(t / 2.0); }
 
-sunrealtype F(sunrealtype t) { return 0.018 * sin(t / M_PI); }
+sunrealtype F(sunrealtype t) { return 0.018 * sin(t / PI); }
 
 sunrealtype Hamiltonian(N_Vector yvec, sunrealtype t)
 {
@@ -208,7 +210,7 @@ int ParseArgs(int argc, char* argv[], ProgramArgs* args)
   args->num_output_times = 8;
   args->use_compsums     = 0;
   args->use_tstop        = 1;
-  args->Tf               = SUN_RCONST(10.0) * M_PI;
+  args->Tf               = SUN_RCONST(10.0) * PI;
   args->dt               = SUN_RCONST(1e-3);
 
   for (int argi = 1; argi < argc; argi++)
