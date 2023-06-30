@@ -31,7 +31,7 @@ if (BUILD_FORTRAN_MODULE_INTERFACE)
     "test_fsunlinsol_band_mod\; \"\" \; \"\" ")
 endif()
 
-# Dependencies for nvector examples
+# Dependencies for sunlinsol examples
 set(sunlinsol_band_dependencies
   test_sunlinsol.c
   test_sunlinsol.h
