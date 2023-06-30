@@ -82,7 +82,7 @@ set(SUNDIALS_LIBS ${CVODE_LIB} ${NVECS_LIB} ${EXE_EXTRA_LINK_LIBS})
 foreach(example_tuple ${CVODE_examples})
 
   # parse the example tuple using sundials_parse_tuple macro
-  sundials_parse_tuple( CVODES_examples 
+  sundials_parse_tuple( CVODE_examples 
     FILENAME_VAR example
     PARAMS_VAR example_args
     TYPE_VAR example_type
@@ -134,7 +134,7 @@ if(BUILD_SUNLINSOL_LAPACKBAND AND BUILD_SUNLINSOL_LAPACKDENSE)
   foreach(example_tuple ${CVODE_examples_BL})
 
     # parse the example tuple using sundials_parse_tuple macro
-    sundials_parse_tuple( CVODES_examples 
+    sundials_parse_tuple( CVODE_examples 
       FILENAME_VAR example
       PARAMS_VAR example_args
       TYPE_VAR example_type
@@ -186,7 +186,7 @@ if(BUILD_SUNLINSOL_KLU)
   foreach(example_tuple ${CVODE_examples_KLU})
 
     # parse the example tuple using sundials_parse_tuple macro
-    sundials_parse_tuple( CVODES_examples 
+    sundials_parse_tuple( CVODE_examples 
       FILENAME_VAR example
       PARAMS_VAR example_args
       TYPE_VAR example_type
@@ -238,7 +238,7 @@ if(BUILD_SUNLINSOL_SUPERLUMT)
   foreach(example_tuple ${CVODE_examples_SUPERLUMT})
 
     # parse the example tuple using sundials_parse_tuple macro
-    sundials_parse_tuple( CVODES_examples 
+    sundials_parse_tuple( CVODE_examples 
       FILENAME_VAR example
       PARAMS_VAR example_args
       TYPE_VAR example_type
