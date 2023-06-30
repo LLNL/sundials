@@ -19,19 +19,32 @@
 
 # Examples using the SUNDIALS SPGMR linear solver
 set(sunlinsol_spgmr_examples
-  "test_sunlinsol_spgmr_parallel\;100 1 1 50 1e-3 0\;1\;4\;"
-  "test_sunlinsol_spgmr_parallel\;100 1 2 50 1e-3 0\;1\;4\;"
-  "test_sunlinsol_spgmr_parallel\;100 2 1 50 1e-3 0\;1\;4\;"
-  "test_sunlinsol_spgmr_parallel\;100 2 2 50 1e-3 0\;1\;4\;"
+  "test_sunlinsol_spgmr_parallel.c\; \"100 1 1 50 1e-3 0\" \;1\;4\; \"\" "
+  "test_sunlinsol_spgmr_parallel.c\; \"100 1 2 50 1e-3 0\" \;1\;4\; \"\" "
+  "test_sunlinsol_spgmr_parallel.c\; \"100 2 1 50 1e-3 0\" \;1\;4\; \"\" "
+  "test_sunlinsol_spgmr_parallel.c\; \"100 2 2 50 1e-3 0\" \;1\;4\; \"\" "
   )
 
-# Dependencies for nvector examples
+# Dependencies for sunlinsol examples
 set(sunlinsol_spgmr_dependencies
-  test_sunlinsol
+  test_sunlinsol.c
+  test_sunlinsol.h
+  )
+# Adding extra files  
+set(sunlinsol_spgmr_files
+  ../../test_sunlinsol.c
+  ../../test_sunlinsol.h
   )
 
 # Add source directory to include directories
 include_directories(. ../..)
+
+# Specify libraries to link against
+set(SUNLINSOL_SPGMR_LIB sundials_sunlinsolspgmr)
+set(NVECS_LIB sundials_nvecparallel)
+
+# Set-up linker flags and link libraries
+set(SUNDIALS_LIBS ${SUNLINSOL_SPGMR_LIB} ${NVECS_LIB} ${EXE_EXTRA_LINK_LIBS})
 
 if(MPI_C_COMPILER)
   # use MPI wrapper as the compiler
@@ -45,27 +58,29 @@ endif()
 # Add the build and install targets for each example
 foreach(example_tuple ${sunlinsol_spgmr_examples})
 
-  # parse the example tuple
-  list(GET example_tuple 0 example)
-  list(GET example_tuple 1 example_args)
-  list(GET example_tuple 2 number_of_nodes)
-  list(GET example_tuple 3 number_of_tasks)
-  list(GET example_tuple 4 example_type)
+  # parse the example tuple using sundials_parse_tuple macro
+  sundials_parse_tuple( sunlinsol_spgmr_examples
+    FILENAME_VAR example
+    PARAMS_VAR example_args
+    NODES_VAR number_of_nodes
+    NPROCS_VAR number_of_tasks
+    TYPE_VAR example_type
+  )
 
   # check if this example has already been added, only need to add
   # example source files once for testing with different inputs
   if(NOT TARGET ${example})
     # example source files
-    add_executable(${example} ${example}.c ../../test_sunlinsol.c)
+    add_executable(${example} ${example})
+
+    # link vector test utilities 
+    target_link_libraries(${example} PRIVATE test_sunlinsol_obj)
+
+    # libraries to link against
+    target_link_libraries(${example} PRIVATE ${SUNDIALS_LIBS})    
 
     # folder to organize targets in an IDE
     set_target_properties(${example} PROPERTIES FOLDER "Examples")
-
-    # libraries to link against
-    target_link_libraries(${example}
-      sundials_nvecparallel
-      sundials_sunlinsolspgmr
-      ${EXE_EXTRA_LINK_LIBS})
 
     if(NOT MPI_C_COMPILER)
       target_link_libraries(${example} ${MPI_LIBRARIES})
@@ -86,62 +101,29 @@ foreach(example_tuple ${sunlinsol_spgmr_examples})
     EXAMPLE_TYPE ${example_type}
     NODIFF)
 
-  # install example source files
-  if(EXAMPLES_INSTALL)
-    install(FILES ${example}.c
-      ../../test_sunlinsol.h
-      ../../test_sunlinsol.c
-      DESTINATION ${EXAMPLES_INSTALL_PATH}/sunlinsol/spgmr/parallel)
-  endif()
-
 endforeach(example_tuple ${sunlinsol_spgmr_examples})
 
-
+# create Makfile and CMakeLists.txt for examples
 if(EXAMPLES_INSTALL)
 
-  # Install the README file
-  install(FILES DESTINATION ${EXAMPLES_INSTALL_PATH}/sunlinsol/spgmr/parallel)
-
-  # Prepare substitution variables for Makefile and/or CMakeLists templates
-  set(SOLVER_LIB "sundials_sunlinsolspgmr")
-
-  examples2string(sunlinsol_spgmr_examples EXAMPLES)
-  examples2string(sunlinsol_spgmr_dependencies EXAMPLES_DEPENDENCIES)
-
-  # Regardless of the platform we're on, we will generate and install
-  # CMakeLists.txt file for building the examples. This file  can then
-  # be used as a template for the user's own programs.
-
-  # generate CMakelists.txt in the binary directory
-  configure_file(
-    ${PROJECT_SOURCE_DIR}/examples/templates/cmakelists_parallel_C_ex.in
-    ${PROJECT_BINARY_DIR}/examples/sunlinsol/spgmr/parallel/CMakeLists.txt
-    @ONLY
-    )
-
-  # install CMakelists.txt
-  install(
-    FILES ${PROJECT_BINARY_DIR}/examples/sunlinsol/spgmr/parallel/CMakeLists.txt
-    DESTINATION ${EXAMPLES_INSTALL_PATH}/sunlinsol/spgmr/parallel
-    )
-
-  # On UNIX-type platforms, we also  generate and install a makefile for
-  # building the examples. This makefile can then be used as a template
-  # for the user's own programs.
-
-  if(UNIX)
-    # generate Makefile and place it in the binary dir
-    configure_file(
-      ${PROJECT_SOURCE_DIR}/examples/templates/makefile_parallel_C_ex.in
-      ${PROJECT_BINARY_DIR}/examples/sunlinsol/spgmr/parallel/Makefile_ex
-      @ONLY
-      )
-    # install the configured Makefile_ex as Makefile
-    install(
-      FILES ${PROJECT_BINARY_DIR}/examples/sunlinsol/spgmr/parallel/Makefile_ex
-      DESTINATION ${EXAMPLES_INSTALL_PATH}/sunlinsol/spgmr/parallel
-      RENAME Makefile
-      )
-  endif()
+  sundials_install_examples(sunlinsol sunlinsol_spgmr_examples
+    HAS_MPI
+    CMAKE_TEMPLATE
+      cmakelists_C_MPI_ex.in
+    MAKE_TEMPLATE
+      makefile_parallel_C_ex.in
+    SUNDIALS_TARGETS
+      nvecparallel
+      sunlinsolspgmr
+    DESTINATION
+      sunlinsol/spgmr/parallel
+    EXAMPLES_DEPENDENCIES
+      ${sunlinsol_spgmr_dependencies}
+    EXTRA_FILES
+      #README
+      ${sunlinsol_spgmr_files}
+    TEST_INSTALL
+      spgmr_parallel
+  )
 
 endif()
