@@ -127,8 +127,8 @@ int main(int argc, char* argv[])
   tret = T0;
   tout = T0 + dTout;
   /* Output current integration status */
-  fprintf(stdout, "t = %.6Lf, q(t) = %.6Lf, H = %.6Lf\n", tret,
-          ydata[1], Hamiltonian(y, tret));
+  fprintf(stdout, "t = %.6Lf, q(t) = %.6Lf, H = %.6Lf\n", tret, ydata[1],
+          Hamiltonian(y, tret));
 
   /* Do integration */
   for (iout = 0; iout < num_output_times; iout++)
@@ -137,8 +137,8 @@ int main(int argc, char* argv[])
     retval = SPRKStepEvolve(arkode_mem, tout, y, &tret, ARK_NORMAL);
 
     /* Output current integration status */
-    fprintf(stdout, "t = %.6Lf, q(t) = %.6Lf, H = %.6Lf\n", tret,
-            ydata[1], Hamiltonian(y, tret));
+    fprintf(stdout, "t = %.6Lf, q(t) = %.6Lf, H = %.6Lf\n", tret, ydata[1],
+            Hamiltonian(y, tret));
 
     /* Check if the solve was successful, if so, update the time and continue */
     if (retval >= 0)
@@ -183,10 +183,11 @@ sunrealtype Hamiltonian(N_Vector yvec, sunrealtype t)
 
 int qdot(sunrealtype t, N_Vector yvec, N_Vector ydotvec, void* user_data)
 {
-  sunrealtype* y       = N_VGetArrayPointer(yvec);
-  sunrealtype* ydot    = N_VGetArrayPointer(ydotvec);
-  const sunrealtype p  = y[1];
+  sunrealtype* y      = N_VGetArrayPointer(yvec);
+  sunrealtype* ydot   = N_VGetArrayPointer(ydotvec);
+  const sunrealtype p = y[1];
 
+  ydot[2] = 1;
   ydot[3] = p;
 
   return 0;
@@ -194,11 +195,14 @@ int qdot(sunrealtype t, N_Vector yvec, N_Vector ydotvec, void* user_data)
 
 int pdot(sunrealtype t, N_Vector yvec, N_Vector ydotvec, void* user_data)
 {
-  sunrealtype* y       = N_VGetArrayPointer(yvec);
-  sunrealtype* ydot    = N_VGetArrayPointer(ydotvec);
-  const sunrealtype q  = y[3];
+  sunrealtype* y         = N_VGetArrayPointer(yvec);
+  sunrealtype* ydot      = N_VGetArrayPointer(ydotvec);
+  const sunrealtype qtau = y[2];
+  const sunrealtype q    = y[3];
 
-  ydot[1] = -omega(t) * omega(t) * q - 3 * a(t) * q * q - 4 * b(t) * q * q * q;
+  ydot[0] = 1;
+  ydot[1] = -omega(qtau) * omega(qtau) * q - 3 * a(qtau) * q * q -
+            4 * b(qtau) * q * q * q;
 
   return 0;
 }
