@@ -45,6 +45,7 @@ set(sunlinsol_band_files
 # Add source directory to include directories
 include_directories(. ..)
 
+# Specify libraries to link against
 set(SUNLINSOL_BAND_LIB sundials_sunlinsolband)
 set(NVECS_LIB sundials_nvecserial)
 if (BUILD_FORTRAN_MODULE_INTERFACE)
@@ -52,6 +53,7 @@ if (BUILD_FORTRAN_MODULE_INTERFACE)
   list(APPEND SUNLINSOL_BAND_LIB sundials_fsunlinsolband_mod)
 endif()
 
+# Set-up linker flags and link libraries
 set(SUNDIALS_LIBS ${SUNLINSOL_BAND_LIB} ${NVECS_LIB} ${EXE_EXTRA_LINK_LIBS})
 
 # Add the build and install targets for each example
