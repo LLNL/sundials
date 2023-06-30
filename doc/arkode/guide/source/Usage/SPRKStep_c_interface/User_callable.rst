@@ -45,8 +45,8 @@ SPRKStep initialization and deallocation functions
    This function allocates and initializes memory for a problem to
    be solved using the SPRKStep time-stepping module in ARKODE.
 
-   :param f1: the name of the C function (of type :c:func:`ARKRhsFn()`) defining :math:`f_1(q,t) = \frac{\partial V(q,t)}{\partial q}`
-   :param f2:  the name of the C function (of type :c:func:`ARKRhsFn()`) defining :math:`f_2(p,t) = \frac{\partial T(p,t)}{\partial p}`
+   :param f1: the name of the C function (of type :c:func:`ARKRhsFn()`) defining :math:`f_1(t,q) = \frac{\partial V(t,q)}{\partial q}`
+   :param f2:  the name of the C function (of type :c:func:`ARKRhsFn()`) defining :math:`f_2(t,p) = \frac{\partial T(t,p)}{\partial p}`
    :param t0: the initial value of :math:`t`
    :param y0: the initial condition vector :math:`y(t_0)`
    :param sunctx: the :c:type:`SUNContext` object (see :numref:`SUNDIALS.SUNContext`)

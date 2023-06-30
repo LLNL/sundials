@@ -46,6 +46,7 @@
  *   --stepper <SPRK, ERK>       should we use SPRKStep or ARKStep with an ERK method (default SPRK)
  *   --method <string>           which method to use (default ARKODE_SPRK_MCLACHLAN_4_4)
  *   --use-compensated-sums      turns on compensated summation in ARKODE where applicable
+ *   --disable-tstop             turns off tstop mode
  *   --dt <Real>                 the fixed-time step size to use if fixed time stepping is turned on (default 0.01)
  *   --tf <Real>                 the final time for the simulation (default 100)
  *   --nout                      number of output times
@@ -95,6 +96,7 @@ typedef struct
   int stepper;
   int num_output_times;
   int use_compsums;
+  int use_tstop;
   int count_orbits;
   int check_order;
   sunrealtype dt;
@@ -431,7 +433,7 @@ int SolveProblem(ProgramArgs* args, ProblemResult* result, SUNContext sunctx)
          exact requested output time will not be hit (even with a fixed
          time-step due to roundoff error accumulation) and interpolation will be
          used to get the solution at the output time. */
-      SPRKStepSetStopTime(arkode_mem, tout);
+      if (args->use_tstop) { SPRKStepSetStopTime(arkode_mem, tout); }
       retval = SPRKStepEvolve(arkode_mem, tout, y, &tret, ARK_NORMAL);
 
       if (retval == ARK_ROOT_RETURN)
@@ -478,7 +480,7 @@ int SolveProblem(ProgramArgs* args, ProblemResult* result, SUNContext sunctx)
          exact requested output time will not be hit (even with a fixed
          time-step due to roundoff error accumulation) and interpolation will be
          used to get the solution at the output time. */
-      ARKStepSetStopTime(arkode_mem, tout);
+      if (args->use_tstop) { ARKStepSetStopTime(arkode_mem, tout); }
       retval = ARKStepEvolve(arkode_mem, tout, y, &tret, ARK_NORMAL);
 
       if (retval == ARK_ROOT_RETURN)
@@ -654,6 +656,7 @@ int ParseArgs(int argc, char* argv[], ProgramArgs* args)
   args->method_name      = NULL;
   args->count_orbits     = 0;
   args->use_compsums     = 0;
+  args->use_tstop        = 1;
   args->dt               = SUN_RCONST(1e-2);
   args->tf               = SUN_RCONST(100.);
   args->check_order      = 0;
@@ -704,6 +707,7 @@ int ParseArgs(int argc, char* argv[], ProgramArgs* args)
       args->num_output_times = atoi(argv[argi]);
     }
     else if (!strcmp(argv[argi], "--count-orbits")) { args->count_orbits = 1; }
+    else if (!strcmp(argv[argi], "--disable-tstop")) { args->use_tstop = 0; }
     else if (!strcmp(argv[argi], "--use-compensated-sums"))
     {
       args->use_compsums = 1;
@@ -724,10 +728,7 @@ int ParseArgs(int argc, char* argv[], ProgramArgs* args)
 
   if (!args->method_name)
   {
-    if (args->stepper == 0)
-    {
-      args->method_name = "ARKODE_SPRK_MCLACHLAN_4_4";
-    }
+    if (args->stepper == 0) { args->method_name = "ARKODE_SPRK_MCLACHLAN_4_4"; }
     else if (args->stepper == 1)
     {
       args->method_name = "ARKODE_ZONNEVELD_5_3_4";
@@ -742,6 +743,7 @@ void PrintArgs(ProgramArgs* args)
   fprintf(stdout, "Problem Arguments:\n");
   fprintf(stdout, "  stepper:              %d\n", args->stepper);
   fprintf(stdout, "  step mode:            %d\n", args->step_mode);
+  fprintf(stdout, "  use tstop:            %d\n", args->use_tstop);
   fprintf(stdout, "  use compensated sums: %d\n", args->use_compsums);
   fprintf(stdout, "  dt:                   %Lg\n", (long double)args->dt);
   fprintf(stdout, "  Tf:                   %Lg\n", (long double)args->tf);
@@ -752,28 +754,18 @@ void PrintHelp()
 {
   fprintf(stderr, "ark_kepler: an ARKODE example demonstrating the SPRKStep "
                   "time-stepping module solving the Kepler problem\n");
-  fprintf(stderr, "  --step-mode <fixed, adapt>  should we use a fixed "
-                  "time-step or adaptive time-step (default fixed)\n");
-  fprintf(stderr,
-          "  --stepper <SPRK, ERK>       should we use SPRKStep or ARKStep "
-          "with an ERK method (default SPRK)\n");
-  fprintf(stderr, "  --method <string>           which method to use (default "
-                  "ARKODE_SPRK_MCLACHLAN_4_4)\n");
-  fprintf(stderr,
-          "  --use-compensated-sums      turns on compensated summation in "
-          "ARKODE where applicable\n");
-  fprintf(stderr, "  --dt <Real>                 the fixed-time step size to "
-                  "use if fixed "
-                  "time stepping is turned on (default 0.01)\n");
-  fprintf(stderr, "  --tf <Real>                 the final time for the "
-                  "simulation (default 100)\n");
-  fprintf(stderr, "  --nout <int>                the number of output times "
-                  "(default 100)\n");
-  fprintf(stderr, "  --count-orbits              use rootfinding to count the "
-                  "number of completed orbits\n");
-  fprintf(stderr,
-          "  --check-order               compute the order of the method used "
-          "and check if it is within range of the expected\n");
+  /* clang-format off */
+  fprintf(stderr, "  --step-mode <fixed, adapt>  should we use a fixed time-step or adaptive time-step (default fixed)\n");
+  fprintf(stderr, "  --stepper <SPRK, ERK>       should we use SPRKStep or ARKStep with an ERK method (default SPRK)\n");
+  fprintf(stderr, "  --method <string>           which method to use (default ARKODE_SPRK_MCLACHLAN_4_4)\n");
+  fprintf(stderr, "  --use-compensated-sums      turns on compensated summation in ARKODE where applicable\n");
+  fprintf(stderr, "  --disable-tstop             turns off tstop mode\n");
+  fprintf(stderr, "  --dt <Real>                 the fixed-time step size to use if fixed time stepping is turned on (default 0.01)\n");
+  fprintf(stderr, "  --tf <Real>                 the final time for the simulation (default 100)\n");
+  fprintf(stderr, "  --nout <int>                the number of output times (default 100)\n");
+  fprintf(stderr, "  --count-orbits              use rootfinding to count the number of completed orbits\n");
+  fprintf(stderr, "  --check-order               compute the order of the method used and check if it is within range of the expected\n");
+  /* clang-format on */
 }
 
 /* Check function return value...

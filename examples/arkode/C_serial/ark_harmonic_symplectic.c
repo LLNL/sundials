@@ -34,6 +34,7 @@
  *   --nout <int>                the number of output times (default 100)
  *   --use-compensated-sums      turns on compensated summation in ARKODE where
  *                               applicable
+ *   --disable-tstop             turns off tstop mode
  * --------------------------------------------------------------------------*/
 /* clang-format: on */
 
@@ -59,6 +60,8 @@ typedef struct
   int order;
   int num_output_times;
   int use_compsums;
+  int use_tstop;
+  sunrealtype Tf;
   sunrealtype dt;
 } ProgramArgs;
 
@@ -98,7 +101,7 @@ int main(int argc, char* argv[])
 
   /* Default problem parameters */
   const sunrealtype T0    = SUN_RCONST(0.0);
-  sunrealtype Tf          = SUN_RCONST(2.0) * M_PI;
+  sunrealtype Tf          = args.Tf;
   sunrealtype dt          = args.dt;
   const sunrealtype A     = SUN_RCONST(10.0);
   const sunrealtype phi   = SUN_RCONST(0.0);
@@ -129,19 +132,19 @@ int main(int argc, char* argv[])
   arkode_mem = SPRKStepCreate(xdot, vdot, T0, y, sunctx);
 
   retval = SPRKStepSetOrder(arkode_mem, order);
-  if (check_retval(&retval, "SPRKStepSetOrder", 1)) return 1;
+  if (check_retval(&retval, "SPRKStepSetOrder", 1)) { return 1; }
 
   retval = SPRKStepSetUserData(arkode_mem, &udata);
-  if (check_retval(&retval, "SPRKStepSetUserData", 1)) return 1;
+  if (check_retval(&retval, "SPRKStepSetUserData", 1)) { return 1; }
 
   retval = SPRKStepSetUseCompensatedSums(arkode_mem, use_compsums);
-  if (check_retval(&retval, "SPRKStepSetUseCompensatedSums", 1)) return 1;
+  if (check_retval(&retval, "SPRKStepSetUseCompensatedSums", 1)) { return 1; }
 
   retval = SPRKStepSetFixedStep(arkode_mem, dt);
-  if (check_retval(&retval, "SPRKStepSetFixedStep", 1)) return 1;
+  if (check_retval(&retval, "SPRKStepSetFixedStep", 1)) { return 1; }
 
   retval = SPRKStepSetMaxNumSteps(arkode_mem, ((long int)ceil(Tf / dt)) + 2);
-  if (check_retval(&retval, "SPRKStepSetMaxNumSteps", 1)) return 1;
+  if (check_retval(&retval, "SPRKStepSetMaxNumSteps", 1)) { return 1; }
 
   /* Print out starting energy, momentum before integrating */
   tret = T0;
@@ -152,7 +155,7 @@ int main(int argc, char* argv[])
   /* Do integration */
   for (iout = 0; iout < num_output_times; iout++)
   {
-    SPRKStepSetStopTime(arkode_mem, tout);
+    if (args.use_tstop) { SPRKStepSetStopTime(arkode_mem, tout); }
     retval = SPRKStepEvolve(arkode_mem, tout, y, &tret, ARK_NORMAL);
 
     /* Compute the anaytical solution */
@@ -247,7 +250,9 @@ int ParseArgs(int argc, char* argv[], ProgramArgs* args)
   args->order            = 4;
   args->num_output_times = 8;
   args->use_compsums     = 0;
+  args->use_tstop        = 1;
   args->dt               = SUN_RCONST(1e-3);
+  args->Tf               = SUN_RCONST(2.0) * M_PI;
 
   for (int argi = 1; argi < argc; argi++)
   {
@@ -255,6 +260,11 @@ int ParseArgs(int argc, char* argv[], ProgramArgs* args)
     {
       argi++;
       args->order = atoi(argv[argi]);
+    }
+    else if (!strcmp(argv[argi], "--tf"))
+    {
+      argi++;
+      args->Tf = atof(argv[argi]);
     }
     else if (!strcmp(argv[argi], "--dt"))
     {
@@ -270,6 +280,7 @@ int ParseArgs(int argc, char* argv[], ProgramArgs* args)
     {
       args->use_compsums = 1;
     }
+    else if (!strcmp(argv[argi], "--disable-tstop")) { args->use_tstop = 0; }
     else if (!strcmp(argv[argi], "--help"))
     {
       PrintHelp();
@@ -291,16 +302,13 @@ void PrintHelp()
   fprintf(stderr, "ark_harmonic_symplectic: an ARKODE example demonstrating "
                   "the SPRKStep time-stepping module solving a simple harmonic "
                   "oscillator\n");
-  fprintf(stderr, "  --order <int>               the order of the method to "
-                  "use (default 4)\n");
-  fprintf(stderr,
-          "  --dt <Real>                 the fixed-time step size to use "
-          "(default 0.01)\n");
-  fprintf(stderr, "  --nout <int>                the number of output times "
-                  "(default 100)\n");
-  fprintf(stderr,
-          "  --use-compensated-sums      turns on compensated summation in "
-          "ARKODE where applicable\n");
+  /* clang-format off */
+  fprintf(stderr, "  --order <int>               the order of the method to use (default 4)\n");
+  fprintf(stderr, "  --dt <Real>                 the fixed-time step size to use (default 0.01)\n");
+  fprintf(stderr, "  --nout <int>                the number of output times (default 100)\n");
+  fprintf(stderr, "  --use-compensated-sums      turns on compensated summation in ARKODE where applicable\n");
+  fprintf(stderr, "  --disable-tstop             turns off tstop mode\n");
+  /* clang-format on */
 }
 
 /* Check function return value...

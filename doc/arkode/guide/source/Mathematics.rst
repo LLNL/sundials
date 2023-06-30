@@ -468,27 +468,28 @@ SPRKStep -- Symplectic Partitioned Runge--Kutta methods
 The SPRKStep time-stepping module in ARKODE is designed for IVPs of the form
 
 .. math::
-   \dot{p} = f_1(q) = \frac{\partial V(q)}{\partial q}, \quad 
-   \dot{q} = f_2(p) = \frac{\partial T(p)}{\partial p}, 
+   \dot{p} = f_1(t, q) = \frac{\partial V(t, q)}{\partial q}, \quad 
+   \dot{q} = f_2(t, p) = \frac{\partial T(t, p)}{\partial p}, 
    \qquad p(t_0) = p_0,\quad q(t_0) = q_0,
    :label: ARKODE_IVP_Hamiltonian
   
-where
+where the system Hamiltonian
 
 .. math::
-   H(p, q) = T(p) + V(q)
+   H(t, p, q) = T(t, p) + V(t, q)
 
-is the system Hamiltonian that is separable. When *H* is autonomous, then *H* is
-a conserved quantity. Often this correponds to the conservation of energy (for
-example, in *n*-body problems).
+**is separable**. When *H* is autonomous, then *H* is a conserved quantity.
+Often this correponds to the conservation of energy (for example, in *n*-body
+problems). For non-autonomous *H*, the invariants are no longer directly
+obtainable from the Hamiltonian :cite:p:`Struckheimer:02`.
 
 In solving the IVP :eq:`ARKODE_IVP_Hamiltonian`, we consider the problem in the form
 
 .. math::
    \dot{y} = 
       \begin{bmatrix}
-         f_1(q) \\
-         f_2(p)
+         f_1(t, q) \\
+         f_2(t, p)
       \end{bmatrix}, \qquad 
       y(t_0) = 
       \begin{bmatrix}
@@ -520,15 +521,15 @@ of Butcher tableau,
    \end{array}.
 
 We use a compact storage of these coefficients in terms of two arrays, one for
-*a* and one for *b*. The time weights (which matter for non-autonomous systems)
-are computed dynamically as :math:`c_j = \sum_{i=1}^j a_i` and  :math:`\hat{c}_j
-= \sum_{i=1}^j \hat{a}_i` respectively. These methods approximately conserve a
-nearby Hamiltonian for exponentially long times :cite:p:`HaWa:06`. SPRKStep
-makes the assumption that the Hamiltonian is separable, in which case the
-schemes are explicit. SPRKStep provides methods with order of accuracy and
-conservation equal to :math:`q = \{1,2,3,4,5,6,8,10\}`. The tables for these
-methods, and the default methods used, are given in the section
-:numref:`SPRKStorage`.
+*a* and one for *b*. The time weights (which matter only for non-autonomous
+systems) are computed dynamically as :math:`c_j = \sum_{i=1}^j a_i` and
+:math:`\hat{c}_j = \sum_{i=1}^j \hat{a}_i` respectively
+:cite:p:`Jay:21,Diele:11`. These methods approximately conserve a nearby
+Hamiltonian for exponentially long times :cite:p:`HaWa:06`. SPRKStep makes the
+assumption that the Hamiltonian is separable, in which case the schemes are
+explicit. SPRKStep provides methods with order of accuracy and conservation
+equal to :math:`q = \{1,2,3,4,5,6,8,10\}`. The tables for these methods, and the
+default methods used, are given in the section :numref:`SPRKStorage`.
 
 In the default case, the algorithm for a single time-step is as follows
 (for autonomous Hamiltonian systems the times provided to :math:`f1` and :math:`f2`
@@ -548,14 +549,15 @@ can be ignored).
 Optionally, a different algorithm leveraging compensated summation can be used
 that is more robust to roundoff error at the expense of 2 extra vector operations
 per stage and an additional 5 per time step. It also requires one extra vector to
-be stored.  However, it signficantly more robust to roundoff error accumulation.
+be stored.  However, it signficantly more robust to roundoff error accumulation
+:cite:p:`Sof:02`.
 
 #. Set :math:`\Delta P_0 = 0, \Delta Q_1 = 0`
 
 #. For :math:`i = 1,\ldots,s` do:
 
-   #. :math:`\Delta P_i = \Delta P_{i-1} + h_{n+1} \hat{a}_i f_1(q_n + \Delta Q_i)`
-   #. :math:`\Delta Q_{i+1} = \Delta Q_i + h_{n+1} a_i f_2(p_n + \Delta P_i)`
+   #. :math:`\Delta P_i = \Delta P_{i-1} + h_{n+1} \hat{a}_i f_1(q_n + \Delta Q_i, t_n + c_i h)`
+   #. :math:`\Delta Q_{i+1} = \Delta Q_i + h_{n+1} a_i f_2(p_n + \Delta P_i, t_n + \hat{c}_i h)`
 
 #. Set :math:`\Delta p_{n+1} = \Delta P_s, \Delta q_{n+1} = \Delta Q_{s+1}`
 
@@ -567,63 +569,6 @@ conservation property :cite:p:`HaWa:06`,  SPRKStep employs a fixed time-step siz
 .. However, it is possible for a user to provide a
 .. problem-specific adaptivity controller such as the one described in :cite:p:`HaSo:05`.
 .. The `ark_kepler.c` example demonstrates an implementation of such controller. 
-
-
-.. _ARKODE.Mathematics.SPRKStep.Nonautonomous:
-
-Non-autonomous systems
-----------------------
-
-SPRKStep also supports non-autonomous separable Hamiltonian systems of the form
-
-.. math::
-   \dot{p} = f_1(q, t) = \frac{\partial V(q, t)}{\partial q}, \quad 
-   \dot{q} = f_2(p, t) = \frac{\partial T(p, t)}{\partial p}, 
-   \qquad p(t_0) = p_0,\quad q(t_0) = q_0,
-   :label: ARKODE_IVP_Hamiltonian_Time_Dependent
-  
-where
-
-.. math::
-   H(p, q, t) = T(p, t) + V(q, t)
-
-In this non-autonomous case, the Hamiltonian no longer yields a conserved quantity (such as energy)
-although other invariants may exist :cite:p:`Struckmeier:02`.
-However, symplectic methods still are benefical to use for the long-time integration of these systems.
-For example, they may accurately capture the bounded energy of the system :cite:p:``.
-
-To handle non-autonomous systems SPRKStep considers the extended system (like the autonomous case, 
-the ordering of the variables is notational only and is determined by the user):
-
-.. math::
-
-   \begin{cases}
-   \dot{q_\tau} = 1 \\
-   \dot{q} = f_1(p_0, p)
-   \end{cases},
-   \qquad
-   \begin{cases}
-   \dot{p_\tau} = 1 \\
-   \dot{p} = f_2(q_0, q)
-   \end{cases}
-   \quad
-   \rightarrow
-   \quad
-   \dot{y} = 
-      \begin{bmatrix}
-         q_\tau \\
-         f_1(q,t) \\
-         p_\tau \\
-         f_2(p,t)
-      \end{bmatrix}, \qquad 
-      y(t_0) = 
-      \begin{bmatrix}
-         0 \\
-         p_0\\
-         0 \\
-         q_0
-      \end{bmatrix}.
-
 
 
 .. _ARKODE.Mathematics.MRIStep:

@@ -38,7 +38,7 @@ set(ARKODE_examples
   "ark_brusselator1D_imexmri\;7 0.001\;exclude-single"
   "ark_brusselator1D\;\;exclude-single"
   "ark_harmonic_symplectic\;\;exclude-single"
-  "ark_anharmonic_symplectic\;\;exclude-single"
+  "ark_damped_harmonic_symplectic\;\;exclude-single"
   "ark_heat1D_adapt\;\;develop"
   "ark_heat1D\;\;develop"
   "ark_kepler\;\;develop"
