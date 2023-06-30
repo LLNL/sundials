@@ -82,33 +82,39 @@ int main(int argc, char* argv[])
 {
   ProgramArgs args;
   UserData udata;
-  SUNContext sunctx  = NULL;
-  N_Vector y         = NULL;
-  N_Vector solution  = NULL;
-  sunrealtype* ydata = NULL;
-  sunrealtype tout   = NAN;
-  sunrealtype tret   = NAN;
-  sunrealtype err    = NAN;
-  void* arkode_mem   = NULL;
-  int iout           = 0;
-  int retval         = 0;
+  SUNContext sunctx       = NULL;
+  N_Vector y              = NULL;
+  N_Vector solution       = NULL;
+  sunrealtype* ydata      = NULL;
+  sunrealtype tout        = NAN;
+  sunrealtype tret        = NAN;
+  sunrealtype err         = NAN;
+  void* arkode_mem        = NULL;
+  int iout                = 0;
+  int retval              = 0;
+  int order               = 0;
+  int use_compsums        = 0;
+  int num_output_times    = 0;
+  sunrealtype Tf          = SUN_RCONST(0.0);
+  sunrealtype dt          = SUN_RCONST(0.0);
+  sunrealtype dTout       = SUN_RCONST(0.0);
+  const sunrealtype T0    = SUN_RCONST(0.0);
+  const sunrealtype A     = SUN_RCONST(10.0);
+  const sunrealtype phi   = SUN_RCONST(0.0);
+  const sunrealtype omega = SUN_RCONST(1.0);
 
   /* Parse the command line arguments */
   if (ParseArgs(argc, argv, &args)) { return 1; };
 
-  /* Default integrator options */
-  int order                  = args.order;
-  int use_compsums           = args.use_compsums;
-  const int num_output_times = args.num_output_times;
+  /* Default integrator options and problem parameters */
+  order            = args.order;
+  use_compsums     = args.use_compsums;
+  num_output_times = args.num_output_times;
+  Tf               = args.Tf;
+  dt               = args.dt;
+  dTout            = (Tf - T0) / ((sunrealtype)num_output_times);
 
   /* Default problem parameters */
-  const sunrealtype T0    = SUN_RCONST(0.0);
-  sunrealtype Tf          = args.Tf;
-  sunrealtype dt          = args.dt;
-  const sunrealtype A     = SUN_RCONST(10.0);
-  const sunrealtype phi   = SUN_RCONST(0.0);
-  const sunrealtype omega = SUN_RCONST(1.0);
-  const sunrealtype dTout = (Tf - T0) / ((sunrealtype)num_output_times);
 
   /* Create the SUNDIALS context object for this simulation */
   retval = SUNContext_Create(NULL, &sunctx);
@@ -249,6 +255,8 @@ int vdot(sunrealtype t, N_Vector yvec, N_Vector ydotvec, void* user_data)
 
 int ParseArgs(int argc, char* argv[], ProgramArgs* args)
 {
+  int argi = 0;
+
   args->order            = 4;
   args->num_output_times = 8;
   args->use_compsums     = 0;
@@ -256,7 +264,7 @@ int ParseArgs(int argc, char* argv[], ProgramArgs* args)
   args->dt               = SUN_RCONST(1e-3);
   args->Tf               = SUN_RCONST(2.0) * PI;
 
-  for (int argi = 1; argi < argc; argi++)
+  for (argi = 1; argi < argc; argi++)
   {
     if (!strcmp(argv[argi], "--order"))
     {

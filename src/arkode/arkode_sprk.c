@@ -138,17 +138,19 @@ ARKodeSPRKStorage ARKodeSymplecticMcLachlan2()
 
 ARKodeSPRKStorage ARKodeSymplecticMcLachlan3()
 {
+  sunrealtype w                  = 0.0;
+  sunrealtype y                  = 0.0;
+  sunrealtype z                  = 0.0;
   ARKodeSPRKStorage sprk_storage = ARKodeSPRKStorage_Alloc(3);
   sprk_storage->q                = 3;
   sprk_storage->stages           = 3;
 
-  sunrealtype z =
-    -SUNRpowerR((SUN_RCONST(2.0) / SUN_RCONST(27.0)) -
-                  SUN_RCONST(1.0) / (SUN_RCONST(9.0) * SUNRsqrt(3.0)),
-                SUN_RCONST(1.0) / SUN_RCONST(3.0));
-  sunrealtype w = -SUN_RCONST(2.0) / SUN_RCONST(3.0) +
-                  SUN_RCONST(1.0) / (SUN_RCONST(9.0) * z) + z;
-  sunrealtype y      = (SUN_RCONST(1.0) + w * w) / SUN_RCONST(4.0);
+  z = -SUNRpowerR((SUN_RCONST(2.0) / SUN_RCONST(27.0)) -
+                    SUN_RCONST(1.0) / (SUN_RCONST(9.0) * SUNRsqrt(3.0)),
+                  SUN_RCONST(1.0) / SUN_RCONST(3.0));
+  w = -SUN_RCONST(2.0) / SUN_RCONST(3.0) +
+      SUN_RCONST(1.0) / (SUN_RCONST(9.0) * z) + z;
+  y                  = (SUN_RCONST(1.0) + w * w) / SUN_RCONST(4.0);
   sprk_storage->a[0] = SUNRsqrt(SUN_RCONST(1.0) / (SUN_RCONST(9.0) * y) -
                                 w / SUN_RCONST(2.0) + SUNRsqrt(y)) -
                        SUN_RCONST(1.0) / (SUN_RCONST(3.0) * SUNRsqrt(y));
@@ -211,16 +213,16 @@ ARKodeSPRKStorage ARKodeSymplecticYoshida6()
   ARKodeSPRKStorage sprk_storage = ARKodeSPRKStorage_Alloc(8);
   sprk_storage->q                = 6;
   sprk_storage->stages           = 8;
-  sprk_storage->a[0]             = SUN_RCONST(0.7845136104775572638194976338663498757768);
-  sprk_storage->a[1]             = SUN_RCONST(0.2355732133593581336847931829785346016865);
-  sprk_storage->a[2]             = -SUN_RCONST(1.177679984178871006946415680964315734639);
-  sprk_storage->a[3]             = SUN_RCONST(1.315186320683911218884249728238862514352);
-  sprk_storage->a[4]             = sprk_storage->a[2];
-  sprk_storage->a[5]             = sprk_storage->a[1];
-  sprk_storage->a[6]             = sprk_storage->a[0];
-  sprk_storage->a[7]             = SUN_RCONST(0.0);
-  sprk_storage->ahat[0]          = sprk_storage->a[0] / SUN_RCONST(2.0);
-  sprk_storage->ahat[1]          = (sprk_storage->a[0] + sprk_storage->a[1]) /
+  sprk_storage->a[0] = SUN_RCONST(0.7845136104775572638194976338663498757768);
+  sprk_storage->a[1] = SUN_RCONST(0.2355732133593581336847931829785346016865);
+  sprk_storage->a[2] = -SUN_RCONST(1.177679984178871006946415680964315734639);
+  sprk_storage->a[3] = SUN_RCONST(1.315186320683911218884249728238862514352);
+  sprk_storage->a[4] = sprk_storage->a[2];
+  sprk_storage->a[5] = sprk_storage->a[1];
+  sprk_storage->a[6] = sprk_storage->a[0];
+  sprk_storage->a[7] = SUN_RCONST(0.0);
+  sprk_storage->ahat[0] = sprk_storage->a[0] / SUN_RCONST(2.0);
+  sprk_storage->ahat[1] = (sprk_storage->a[0] + sprk_storage->a[1]) /
                           SUN_RCONST(2.0);
   sprk_storage->ahat[2] = (sprk_storage->a[1] + sprk_storage->a[2]) /
                           SUN_RCONST(2.0);
@@ -238,7 +240,7 @@ ARKodeSPRKStorage ARKodeSymplecticYoshida6()
 
   (Original) Suzuki, M., & Umeno, K. (1993). Higher-order decomposition theory
   of exponential operators and its applications to QMC and nonlinear dynamics.
-  Computer simulation studies in condensed-matter physics VI, 74-86. 
+  Computer simulation studies in condensed-matter physics VI, 74-86.
   https://doi.org/10.1007/978-3-642-78448-4_7
 
   McLachlan, R.I.: On the Numerical Integration of Ordinary Differential
@@ -252,24 +254,24 @@ ARKodeSPRKStorage ARKodeSymplecticSuzukiUmeno816()
   ARKodeSPRKStorage sprk_storage = ARKodeSPRKStorage_Alloc(16);
   sprk_storage->q                = 8;
   sprk_storage->stages           = 16;
-  sprk_storage->a[0]             = SUN_RCONST(0.7416703643506129534482278017838063156035);
-  sprk_storage->a[1]             = -SUN_RCONST(0.4091008258000315939973000958935634173099);
-  sprk_storage->a[2]             = SUN_RCONST(0.1907547102962383799538762564503716627355);
-  sprk_storage->a[3]             = -SUN_RCONST(0.5738624711160822666563877266355357421595);
-  sprk_storage->a[4]             = SUN_RCONST(0.2990641813036559238444635406886029882258);
-  sprk_storage->a[5]             = SUN_RCONST(0.3346249182452981837849579798821822886337);
-  sprk_storage->a[6]             = SUN_RCONST(0.3152930923967665966320566638110024309941);
-  sprk_storage->a[7]             = -SUN_RCONST(0.7968879393529163540197888401737330534463);
-  sprk_storage->a[8]             = sprk_storage->a[6];
-  sprk_storage->a[9]             = sprk_storage->a[5];
-  sprk_storage->a[10]            = sprk_storage->a[4];
-  sprk_storage->a[11]            = sprk_storage->a[3];
-  sprk_storage->a[12]            = sprk_storage->a[2];
-  sprk_storage->a[13]            = sprk_storage->a[1];
-  sprk_storage->a[14]            = sprk_storage->a[0];
-  sprk_storage->a[15]            = SUN_RCONST(0.0);
-  sprk_storage->ahat[0]          = sprk_storage->a[0] / SUN_RCONST(2.0);
-  sprk_storage->ahat[1]          = (sprk_storage->a[0] + sprk_storage->a[1]) /
+  sprk_storage->a[0]  = SUN_RCONST(0.7416703643506129534482278017838063156035);
+  sprk_storage->a[1]  = -SUN_RCONST(0.4091008258000315939973000958935634173099);
+  sprk_storage->a[2]  = SUN_RCONST(0.1907547102962383799538762564503716627355);
+  sprk_storage->a[3]  = -SUN_RCONST(0.5738624711160822666563877266355357421595);
+  sprk_storage->a[4]  = SUN_RCONST(0.2990641813036559238444635406886029882258);
+  sprk_storage->a[5]  = SUN_RCONST(0.3346249182452981837849579798821822886337);
+  sprk_storage->a[6]  = SUN_RCONST(0.3152930923967665966320566638110024309941);
+  sprk_storage->a[7]  = -SUN_RCONST(0.7968879393529163540197888401737330534463);
+  sprk_storage->a[8]  = sprk_storage->a[6];
+  sprk_storage->a[9]  = sprk_storage->a[5];
+  sprk_storage->a[10] = sprk_storage->a[4];
+  sprk_storage->a[11] = sprk_storage->a[3];
+  sprk_storage->a[12] = sprk_storage->a[2];
+  sprk_storage->a[13] = sprk_storage->a[1];
+  sprk_storage->a[14] = sprk_storage->a[0];
+  sprk_storage->a[15] = SUN_RCONST(0.0);
+  sprk_storage->ahat[0] = sprk_storage->a[0] / SUN_RCONST(2.0);
+  sprk_storage->ahat[1] = (sprk_storage->a[0] + sprk_storage->a[1]) /
                           SUN_RCONST(2.0);
   sprk_storage->ahat[2] = (sprk_storage->a[1] + sprk_storage->a[2]) /
                           SUN_RCONST(2.0);
@@ -428,8 +430,7 @@ ARKodeSPRKStorage ARKodeSPRKStorage_Load(ARKODE_SPRKMethodID id)
   case ARKODE_SPRK_MCLACHLAN_2_2: return ARKodeSymplecticMcLachlan2();
   case ARKODE_SPRK_MCLACHLAN_3_3: return ARKodeSymplecticMcLachlan3();
   case ARKODE_SPRK_MCLACHLAN_4_4: return ARKodeSymplecticMcLachlan4();
-  case ARKODE_SPRK_CANDY_ROZMUS_4_4:
-    return ARKodeSymplecticCandyRozmus4();
+  case ARKODE_SPRK_CANDY_ROZMUS_4_4: return ARKodeSymplecticCandyRozmus4();
   case ARKODE_SPRK_MCLACHLAN_5_6: return ARKodeSymplecticMcLachlan5();
   case ARKODE_SPRK_YOSHIDA_6_8: return ARKodeSymplecticYoshida6();
   case ARKODE_SPRK_SUZUKI_UMENO_8_16: return ARKodeSymplecticSuzukiUmeno816();

@@ -153,6 +153,7 @@ int main(int argc, char* argv[])
   }
   else
   {
+    int i = 0;
     /* Compute the order of accuracy of the method by testing
        it with different step sizes. */
     sunrealtype acc_orders[NUM_DT];
@@ -167,14 +168,7 @@ int main(int argc, char* argv[])
     sunrealtype ord_max_acc = 0, ord_max_conv = 0, ord_avg = 0, ord_est = 0;
     sunrealtype refine = SUN_RCONST(.5);
     sunrealtype dt = (expected_order >= 3) ? SUN_RCONST(1e-1) : SUN_RCONST(1e-3);
-    sunrealtype dts[NUM_DT] = {dt,
-                               dt * refine,
-                               dt * refine * refine,
-                               dt * pow(refine, 3),
-                               dt * pow(refine, 4),
-                               dt * pow(refine, 5),
-                               dt * pow(refine, 6),
-                               dt * pow(refine, 7)};
+    sunrealtype dts[NUM_DT];
 
     /* Create a reference solution using 8th order ERK with a small time step */
     const int old_step_mode     = args.step_mode;
@@ -197,8 +191,10 @@ int main(int argc, char* argv[])
     args.stepper     = old_stepper;
     args.method_name = old_method_name;
 
+    for (i = 0; i < NUM_DT; i++) { dts[i] = dt * pow(refine, i); }
+
     /* Compute the error with various step sizes */
-    for (int i = 0; i < NUM_DT; i++)
+    for (i = 0; i < NUM_DT; i++)
     {
       /* Set the dt to use for this solve */
       args.dt = dts[i];
@@ -636,9 +632,10 @@ int ComputeConvergence(int num_dt, sunrealtype* orders,
                        sunrealtype* ord_max, sunrealtype* ord_est)
 {
   /* Compute/print overall estimated convergence rate */
+  int i           = 0;
   sunrealtype det = 0;
   *ord_avg = 0, *ord_max = 0, *ord_est = 0;
-  for (int i = 1; i < num_dt; i++)
+  for (i = 1; i < num_dt; i++)
   {
     *ord_avg += orders[i - 1];
     *ord_max = SUNMAX(*ord_max, orders[i - 1]);
@@ -651,6 +648,8 @@ int ComputeConvergence(int num_dt, sunrealtype* orders,
 
 int ParseArgs(int argc, char* argv[], ProgramArgs* args)
 {
+  int argi = 0;
+
   args->step_mode        = 0;
   args->stepper          = 0;
   args->method_name      = NULL;
@@ -662,7 +661,7 @@ int ParseArgs(int argc, char* argv[], ProgramArgs* args)
   args->check_order      = 0;
   args->num_output_times = 50;
 
-  for (int argi = 1; argi < argc; argi++)
+  for (argi = 1; argi < argc; argi++)
   {
     if (!strcmp(argv[argi], "--step-mode"))
     {

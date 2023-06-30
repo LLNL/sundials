@@ -27,6 +27,7 @@
 
 #include "arkode_impl.h"
 #include "arkode_interp_impl.h"
+#include "sundials/sundials_config.h"
 #include <sundials/sundials_math.h>
 #include <sundials/sundials_types.h>
 
@@ -2333,7 +2334,7 @@ int arkYddNorm(ARKodeMem ark_mem, realtype hg, realtype *yddnrm)
   return(ARK_SUCCESS);
 }
 
-inline static
+SUNDIALS_STATIC_INLINE
 void compensatedSum(sunrealtype base, sunrealtype inc, sunrealtype *sum, sunrealtype *error)
 {
   sunrealtype err = *error;
