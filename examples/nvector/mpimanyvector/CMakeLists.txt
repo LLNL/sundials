@@ -138,7 +138,7 @@ endforeach(example_tuple ${nvector_mpimanyvector_examples})
 foreach(example_tuple ${nvector_mpimanyvector_fortran_examples})
 
   # parse the example tuple using sundials_parse_tuple macro
-  sundials_parse_tuple( nvector_mpimanyvector_examples 
+  sundials_parse_tuple( nvector_mpimanyvector_fortran_examples 
     FILENAME_VAR example
     PARAMS_VAR example_args
     NODES_VAR number_of_nodes

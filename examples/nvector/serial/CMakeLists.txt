@@ -99,7 +99,7 @@ endforeach(example_tuple ${nvector_serial_examples})
 foreach(example_tuple ${nvector_serial_fortran_examples})
  
 # parse the example tuple using sundials_parse_tuple macro
-  sundials_parse_tuple( nvector_serial_examples 
+  sundials_parse_tuple( nvector_serial_fortran_examples 
     FILENAME_VAR example
     PARAMS_VAR example_args
     TYPE_VAR example_type
