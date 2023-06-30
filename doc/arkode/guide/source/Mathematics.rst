@@ -481,7 +481,7 @@ where the system Hamiltonian
 **is separable**. When *H* is autonomous, then *H* is a conserved quantity.
 Often this correponds to the conservation of energy (for example, in *n*-body
 problems). For non-autonomous *H*, the invariants are no longer directly
-obtainable from the Hamiltonian :cite:p:`Struckheimer:02`.
+obtainable from the Hamiltonian :cite:p:`Struckmeier:02`.
 
 In solving the IVP :eq:`ARKODE_IVP_Hamiltonian`, we consider the problem in the form
 
