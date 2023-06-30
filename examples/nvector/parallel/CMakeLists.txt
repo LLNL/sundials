@@ -37,7 +37,7 @@ set(nvector_examples_dependencies
   )
 
 # Adding extra files 
-set(nvector_serial_dependencies
+set(nvector_dependencies
   ../test_nvector.c
   ../test_nvector.h
   ../test_mpinvector.c
@@ -77,7 +77,7 @@ endif()
 foreach(example_tuple ${nvector_parallel_examples})
 
   # parse the example tuple using sundials_parse_tuple macro
-  sundials_parse_tuple( ARKODE_examples 
+  sundials_parse_tuple( nvector_parallel_examples 
     FILENAME_VAR example
     PARAMS_VAR example_args
     NODES_VAR number_of_nodes
@@ -132,7 +132,7 @@ endforeach(example_tuple ${nvector_parallel_examples})
 foreach(example_tuple ${nvector_parallel_fortran_examples})
 
   # parse the example tuple using sundials_parse_tuple macro
-  sundials_parse_tuple( ARKODE_examples 
+  sundials_parse_tuple( nvector_parallel_examples 
     FILENAME_VAR example
     PARAMS_VAR example_args
     NODES_VAR number_of_nodes
@@ -207,7 +207,7 @@ if(EXAMPLES_INSTALL)
       #README
       #${NVECTOR_extras}
       #${NVECTOR_headers}
-      ${nvector_serial_dependencies}
+      ${nvector_dependencies}
     TEST_INSTALL
       parallel
   )

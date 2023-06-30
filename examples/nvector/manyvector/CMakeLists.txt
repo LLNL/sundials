@@ -58,7 +58,7 @@ set(SUNDIALS_LIBS ${NVECS_LIB} ${EXE_EXTRA_LINK_LIBS})
 foreach(example_tuple ${nvector_manyvector_examples})
 
   # parse the example tuple using sundials_parse_tuple macro
-  sundials_parse_tuple( CVODES_examples 
+  sundials_parse_tuple( nvector_manyvector_examples 
     FILENAME_VAR example
     PARAMS_VAR example_args
     TYPE_VAR example_type
@@ -99,7 +99,7 @@ endforeach(example_tuple ${nvector_manyvector_examples})
 foreach(example_tuple ${nvector_manyvector_fortran_examples})
 
   # parse the example tuple using sundials_parse_tuple macro
-  sundials_parse_tuple( CVODES_examples 
+  sundials_parse_tuple( nvector_manyvector_examples 
     FILENAME_VAR example
     PARAMS_VAR example_args
     TYPE_VAR example_type
