@@ -125,7 +125,7 @@ module DiagnonData
 
    ! Declarations
    ! general problem parameters
-   integer, parameter :: Nt = 10           ! total number of output times
+   integer, parameter :: Nt = 10                 ! total number of output times
    real(c_double), parameter :: T0 = 0.d0        ! initial time
    real(c_double), parameter :: Tf = 1.d0        ! final time
    real(c_double), parameter :: rtol = 1.d-5     ! relative and absolute tolerances
@@ -253,7 +253,7 @@ module DiagnonData
       end if
 
       ! print solution stats and update internal time
-      if (outproc)   write(6,'(3x,f10.6,3(2x,i6))') t, nst, nst_a, nfe
+      if (outproc)   write(6,'(3x,f10.6,3(3x,i5))') t, nst, nst_a, nfe
       tout = min(tout + dTout, Tf)
 
    end do

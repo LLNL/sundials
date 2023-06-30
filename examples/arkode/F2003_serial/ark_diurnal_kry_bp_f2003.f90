@@ -306,7 +306,7 @@ module diurnal_mod
 
     ierr = FSUNLinSol_SPGMRSetGSType(sunls, iGStype)
     if (ierr /= 0) then
-       print *, 'Error in FARKStepSetLinearSolver'
+       print *, 'Error in FSUNLinSol_SPGMRSetGSType, ierr = ', ierr, '; halting'
        stop 1
     end if
 
@@ -411,13 +411,11 @@ module diurnal_mod
     integer(c_long) :: nst_a(1)      ! num steps attempted
     integer(c_long) :: nfe(1)        ! num explicit function evals
     integer(c_long) :: nfi(1)        ! num implicit function evals
-   !  integer(c_long) :: npsetups(1)   ! num preconditioner setups
     integer(c_long) :: netfails(1)   ! num error test fails
     integer(c_long) :: npe(1)        ! num preconditioner evals
     integer(c_long) :: nps(1)        ! num preconditioner solves
     integer(c_long) :: nniters(1)    ! nonlinear solver iterations
     integer(c_long) :: nliters(1)    ! linear solver iterations
-   !  integer(c_long) :: nmcf(1)       ! num mass convergence failures
     integer(c_long) :: ncf(1)        ! num convergence failures nonlinear
     integer(c_long) :: ncfl(1)       ! num convergence failures linear
     integer(c_long) :: nncfails(1)   ! nonlinear solver fails
@@ -427,7 +425,7 @@ module diurnal_mod
     integer(c_long) :: leniwls(1)
     integer(c_long) :: nfebp(1)      ! num f evaluations
     double precision :: avdim(1)     ! avg Krylov subspace dim (NLI/NNI)
-    integer(c_long) :: lenrwbp(1)
+    integer(c_long) :: lenrwbp(1)    ! band preconditioner real/int workspace size
     integer(c_long) :: leniwbp(1)
 
     !======= Internals ============
@@ -449,12 +447,6 @@ module diurnal_mod
        print *, 'Error in FARKStepGetNumRhsEvals, ierr = ', ierr, '; halting'
        stop 1
     end if
-
-   !  ierr = FARKStepGetNumMassSetups(arkode_mem, npsetups)
-   !  if (ierr /= 0) then
-   !     print *, 'Error in FARKStepGetNumMassSetups, ierr = ', ierr, '; halting'
-   !     stop 1
-   !  end if
 
     ierr = FARKStepGetNumErrTestFails(arkode_mem, netfails)
     if (ierr /= 0) then
@@ -487,12 +479,6 @@ module diurnal_mod
     end if
 
     avdim = dble(nliters)/dble(nniters)
-
-   !  ierr = FARKStepGetNumMassConvFails(arkode_mem, nmcf)
-   !  if (ierr /= 0) then
-   !     print *, 'Error in FARKStepGetNumMassConvFails, ierr = ', ierr, '; halting'
-   !     stop 1
-   !  end if
 
     ierr = FARKStepGetNumLinConvFails(arkode_mem, ncfl)
     if (ierr /= 0) then
@@ -536,7 +522,6 @@ module diurnal_mod
     print '(4x,A,i9)'       ,'Total internal steps attempts   =',nst_a
     print '(4x,A,i9)'       ,'Total rhs exp function call     =',nfe
     print '(4x,A,i9)'       ,'Total rhs imp function call     =',nfi
-   !  print '(4x,A,i9)'       ,'Num lin solver setup calls    =',npsetups
     print '(4x,A,i9)'       ,'Total num preconditioner evals  =',npe
     print '(4x,A,i9)'       ,'Total num preconditioner solves =',nps
     print '(4x,A,i9)'       ,'Num error test failures         =',netfails
@@ -545,7 +530,6 @@ module diurnal_mod
     print '(4x,A,es14.6)'   ,'Avg Krylov subspace dim         =',avdim
     print '(4x,A,i9)'       ,'Num nonlinear solver fails      =',ncf
     print '(4x,A,i9)'       ,'Num linear solver fails         =',ncfl
-   !  print '(4x,A,i9)'       ,'Num mass solver fails         =',nmcf
     print '(4x,A,2(i9,3x))' ,'main solver real/int workspace sizes   =',lenrw,leniw
     print '(4x,A,2(i9,3x))' ,'linear solver real/int workspace sizes =',lenrwls,leniwls
     print '(4x,A,2(i9,3x))' ,'ARKBandPre real/int workspace sizes    =',lenrwbp,leniwbp
