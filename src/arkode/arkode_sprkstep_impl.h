@@ -90,18 +90,7 @@ int sprkStep_f2(ARKodeSPRKStepMem step_mem, sunrealtype tcur, N_Vector ycur,
 
 /* Initialization and I/O error messages */
 #define MSG_SPRKSTEP_NO_MEM "Time step module memory is NULL."
-#define MSG_NLS_INIT_FAIL   "The nonlinear solver's init routine failed."
 
-/* Other error messages */
-#define MSG_ARK_MISSING_FE                                               \
-  "Cannot specify that method is explicit without providing a function " \
-  "pointer to fe(t,y)."
-#define MSG_ARK_MISSING_FI                                               \
-  "Cannot specify that method is implicit without providing a function " \
-  "pointer to fi(t,y)."
-#define MSG_ARK_MISSING_F                                                      \
-  "Cannot specify that method is ImEx without providing function pointers to " \
-  "fi(t,y) and fe(t,y)."
 
 #ifdef __cplusplus
 }
