@@ -13,8 +13,12 @@
 !-----------------------------------------------------------------
 ! Example problem:
 !
-! Diagonal ODE example. Nonstiff case: alpha = 10/NEQ.
+! Diagonal ODE example.  Stiff case, with diagonal preconditioner.
+! Uses FARKODE interfaces and FARKBBD interfaces.
+! Solves problem twice -- with left and right preconditioning.
 !
+! Note that this problem should only work with SUNDIALS configured
+! to use 'realtype' as 'double' and 'sunindextype' as '64bit'
 !-----------------------------------------------------------------
 
 module DiagkryData

@@ -195,6 +195,7 @@ module DiagnonData
        write(6,'(A,es9.2)') "   atol = ", atol
        write(6,'(A,es9.2)') "   alpha = ", alpha
        write(6,*) "   ydot_i = -alpha*i * y_i (i = 1,...,neq)"
+       write(6,*) "   Method is ADAMS/FIXED-POINT/SPGMR"
        write(6,*) "  "
     endif
  
@@ -250,7 +251,7 @@ module DiagnonData
        ! Integrate to output time
        retval = FCVode(cvode_mem, tout, sunvec_y, t, CV_NORMAL)
        if (retval /= 0) then
-          print *, "Error: FCVodeEvolve returned ", retval
+          print *, "Error: FCVode returned ", retval
           call MPI_Abort(comm, 1, ierr)
        end if
  

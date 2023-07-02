@@ -516,7 +516,7 @@ module dns_mod
     !======= Internals ============
 
     print *, " "
-    print *, "arkRoberts_dnsL.f03: Robertson ARK ODE serial example problem for ARKODE"
+    print *, "ark_roberts_dns_f2003.f90: Robertson ARK ODE serial example problem for ARKODE"
     print *, "         Three equation chemical kinetics problem."
     print *, " "
     print *, "Linear solver: DENSE, with user-supplied Jacobian."
@@ -688,8 +688,9 @@ module dns_mod
     print *, ' General Solver Stats:'
     print '(4x,A,i9)'    ,'Total internal steps taken    =',nsteps
     print '(4x,A,i9)'    ,'Total internal steps attempts =',nst_a
-    print '(4x,A,i9)'    ,'Total rhs exp function call   =',nfe
-    print '(4x,A,i9)'    ,'Total rhs imp function call   =',nfi
+    print '(4x,A,i9)'    ,'Total rhs exp function calls  =',nfe
+    print '(4x,A,i9)'    ,'Total rhs imp function calls  =',nfi
+    print '(4x,A,i9)'    ,'Total Jacobian function calls =',njacevals
     print '(4x,A,i9)'    ,'Num lin solver setup calls    =',nlinsetups
     print '(4x,A,i9)'    ,'Num error test failures       =',netfails
     print '(4x,A,es12.5)','First internal step size      =',hinused

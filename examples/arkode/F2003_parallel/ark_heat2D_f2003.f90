@@ -611,7 +611,7 @@ contains
     type(N_Vector)        :: sunvec_r     ! rhs N_Vector
     type(N_Vector)        :: sunvec_z     ! rhs N_Vector
     real(c_double), value :: gamma        ! current gamma value
-    real(c_double), value :: delta        ! current gamma value
+    real(c_double), value :: delta        ! current delta value
     integer(c_int), value :: lr           ! left or right preconditioning
     type(c_ptr)           :: user_data    ! user-defined data
 

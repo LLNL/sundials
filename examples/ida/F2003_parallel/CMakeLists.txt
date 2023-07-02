@@ -12,52 +12,75 @@
 # SPDX-License-Identifier: BSD-3-Clause
 # SUNDIALS Copyright End
 # ---------------------------------------------------------------
-# CMakeLists.txt file for the CVode F2003 module parallel examples
+# CMakeLists.txt file for the IDA F2003 module parallel examples
 # ---------------------------------------------------------------
 
 # Example lists are tuples "name\;nodes\;tasks\;type" where the
 # type is develop for examples excluded from 'make test' in releases
 if(SUNDIALS_LOGGING_ENABLE_MPI)
-  set(FCVODE_examples
-    "cv_diag_kry_bbd_f2003\;\;1\;4\;develop\;2"
-    "cv_diag_kry_f2003\;\;1\;4\;develop\;2"
-    "cv_diag_non_f2003\;\;1\;4\;develop\;2")
+  set(FIDA_examples
+    #"ida_heat2D_kry_bbd_f2003\;\;1\;4\;develop\;2"
+    )
 else()
-  set(FCVODE_examples
-    "cv_diag_kry_bbd_f2003\;\;1\;4\;develop\;2"
-    "cv_diag_kry_f2003\;\;1\;4\;develop\;2"
-    "cv_diag_non_f2003\;\;1\;4\;develop\;2")
+  set(FIDA_examples
+    #"ark_heat2D_kry_bbd_f2003\;\;1\;4\;develop\;2"
+    )
 endif()
 
+# Only include test if OpenMP is enabled
+if(ENABLE_OPENMP)
+  set(FIDA_examples
+    "ida_roberts_dns_openmp_f2003\;\;4\;develop\;2")
+endif()
 
-if(MPI_Fortran_COMPILER)
+# Only include test if Pthreads is enabled
+if(ENABLE_PTHREAD)
+  set(FIDA_examples
+    #"ida_roberts_dns_pthreads_f2003\;\;1\;\;develop\;2"
+    )
+endif()
+
+#if(MPI_Fortran_COMPILER)
   # use MPI wrapper as the compiler
-  set(CMAKE_Fortran_COMPILER ${MPI_Fortran_COMPILER})
-else()
+  #set(CMAKE_Fortran_COMPILER ${MPI_Fortran_COMPILER})
+#else()
   # add MPI_INCLUDE_PATH to include directories
-  include_directories(${MPI_INCLUDE_PATH})
+  #include_directories(${MPI_INCLUDE_PATH})
+#endif()
+
+if(OPENMP_Fortran_COMPILER)
+  # use OpenMP wrapper as the compiler
+  set(CMAKE_Fortran_COMPILER ${OPENMP_Fortran_COMPILER})
+else()
+  # add OPENMP_INCLUDE_PATH to include directories
+  include_directories(${OPENMP_INCLUDE_PATH})
 endif()
 
 # Specify libraries to link against
-set(CVODE_LIBS
-  sundials_cvode
-  sundials_fcvode_mod
-  sundials_nvecparallel
-  sundials_fnvecparallel_mod)
+set(IDA_LIBS
+  sundials_ida
+  sundials_fida_mod
+  #sundials_nvecparallel
+  #sundials_fnvecparallel_mod
+  sundials_nvecopenmp
+  sundials_fnvecopenmp_mod
+  #sundials_nvecpthreads
+  #sundials_fnvecpthreads_mod
+  )
 
 # Set-up linker flags and link libraries
-set(SUNDIALS_LIBS ${CVODE_LIBS} ${EXE_EXTRA_LINK_LIBS})
+set(SUNDIALS_LIBS ${IDA_LIBS} ${EXE_EXTRA_LINK_LIBS})
 
 # Add the build and install targets for each example
-foreach(example_tuple ${FCVODE_examples})
+foreach(example_tuple ${FIDA_examples})
 
   # parse the example tuple
   list(GET example_tuple 0 example)
   list(GET example_tuple 1 example_args)
-  list(GET example_tuple 2 number_of_nodes)
-  list(GET example_tuple 3 number_of_tasks)
-  list(GET example_tuple 4 example_type)
-  list(GET example_tuple 5 example_precision)
+  #list(GET example_tuple 2 number_of_nodes)
+  list(GET example_tuple 2 number_of_tasks)    # 3
+  list(GET example_tuple 3 example_type)       # 4
+  list(GET example_tuple 4 example_precision)  # 5
 
   if(NOT TARGET ${example})
     # Install fortran modules to a unique directory to avoid naming collisions
@@ -82,9 +105,9 @@ foreach(example_tuple ${FCVODE_examples})
   # add example to regression tests
   sundials_add_test(${test_name} ${example}
     TEST_ARGS ${example_args}
-    MPI_NPROCS ${number_of_tasks}
+    #MPI_NPROCS ${number_of_tasks}
     ANSWER_DIR ${CMAKE_CURRENT_SOURCE_DIR}
-    ANSWER_FILE ${test_name}.out
+    #ANSWER_FILE ${test_name}.out
     EXAMPLE_TYPE ${example_type}
     FLOAT_PRECISION ${example_precision})
 
@@ -94,10 +117,10 @@ foreach(example_tuple ${FCVODE_examples})
   # install example source and out files
   if(EXAMPLES_INSTALL)
     install(FILES ${example}.f90 ${example_out}
-      DESTINATION ${EXAMPLES_INSTALL_PATH}/cvode/F2003_parallel)
+      DESTINATION ${EXAMPLES_INSTALL_PATH}/ida/F2003_parallel)
   endif()
 
-endforeach(example_tuple ${FCVODE_examples})
+endforeach(example_tuple ${FIDA_examples})
 
 
 # create Makfile and CMakeLists.txt for examples
@@ -105,26 +128,26 @@ if(EXAMPLES_INSTALL)
 
   # Install the README file
   install(FILES README
-    DESTINATION ${EXAMPLES_INSTALL_PATH}/cvode/F2003_parallel)
+    DESTINATION ${EXAMPLES_INSTALL_PATH}/ida/F2003_parallel)
 
   # Install the extra files
-  foreach(extrafile ${CVODE_extras})
+  foreach(extrafile ${IDA_extras})
     install(FILES ${extrafile}
-      DESTINATION ${EXAMPLES_INSTALL_PATH}/cvode/F2003_parallel)
+      DESTINATION ${EXAMPLES_INSTALL_PATH}/ida/F2003_parallel)
   endforeach()
 
   # Prepare substitution variables for Makefile and/or CMakeLists templates
-  set(SOLVER "CVODE")
+  set(SOLVER "IDA")
 
   # Makefile: convert semi-colon separated target list to space separated string
-  list2string(CVODE_LIBS EXAMPLE_LIBS)
+  list2string(IDA_LIBS EXAMPLE_LIBS)
 
   # CMakeLists: replace sundials_ prefix and convert to space separted string
-  list(TRANSFORM CVODE_LIBS REPLACE "sundials_" "SUNDIALS::"
+  list(TRANSFORM IDA_LIBS REPLACE "sundials_" "SUNDIALS::"
     OUTPUT_VARIABLE EXAMPLES_CMAKE_TARGETS_tmp)
   list2string(EXAMPLES_CMAKE_TARGETS_tmp EXAMPLES_CMAKE_TARGETS)
 
-  examples2string(FCVODE_examples EXAMPLES)
+  examples2string(FIDA_examples EXAMPLES)
 
   # Regardless of the platform we're on, we will generate and install
   # CMakeLists.txt file for building the examples. This file  can then
@@ -133,14 +156,14 @@ if(EXAMPLES_INSTALL)
   # generate CMakelists.txt in the binary directory
   configure_file(
     ${PROJECT_SOURCE_DIR}/examples/templates/cmakelists_parallel_F2003_ex.in
-    ${PROJECT_BINARY_DIR}/examples/cvode/F2003_parallel/CMakeLists.txt
+    ${PROJECT_BINARY_DIR}/examples/ida/F2003_parallel/CMakeLists.txt
     @ONLY
     )
 
   # install CMakelists.txt
   install(
-    FILES ${PROJECT_BINARY_DIR}/examples/cvode/F2003_parallel/CMakeLists.txt
-    DESTINATION ${EXAMPLES_INSTALL_PATH}/cvode/F2003_parallel
+    FILES ${PROJECT_BINARY_DIR}/examples/ida/F2003_parallel/CMakeLists.txt
+    DESTINATION ${EXAMPLES_INSTALL_PATH}/ida/F2003_parallel
     )
 
   # On UNIX-type platforms, we also  generate and install a makefile for
@@ -151,18 +174,18 @@ if(EXAMPLES_INSTALL)
     # generate Makefile and place it in the binary dir
     configure_file(
       ${PROJECT_SOURCE_DIR}/examples/templates/makefile_parallel_F2003_ex.in
-      ${PROJECT_BINARY_DIR}/examples/cvode/F2003_parallel/Makefile_ex
+      ${PROJECT_BINARY_DIR}/examples/ida/F2003_parallel/Makefile_ex
       @ONLY
       )
     # install the configured Makefile_ex as Makefile
     install(
-      FILES ${PROJECT_BINARY_DIR}/examples/cvode/F2003_parallel/Makefile_ex
-      DESTINATION ${EXAMPLES_INSTALL_PATH}/cvode/F2003_parallel
+      FILES ${PROJECT_BINARY_DIR}/examples/ida/F2003_parallel/Makefile_ex
+      DESTINATION ${EXAMPLES_INSTALL_PATH}/ida/F2003_parallel
       RENAME Makefile
       )
   endif()
 
   # add test_install target
-  sundials_add_test_install(cvode F2003_parallel)
+  sundials_add_test_install(ida F2003_parallel)
 
 endif()
