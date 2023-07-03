@@ -76,11 +76,11 @@
 
 // TODO: Would this be good for locality, or needlessly confusing?
 // #if defined(SUNDIALS_HYPRE_BACKENDS_SERIAL)
-// #define NV_PH_BACKEND_SERIAL
+// #define NV_BACKEND_SERIAL_PH
 // #elif defined(SUNDIALS_HYPRE_BACKENDS_CUDA)
-// #define NV_PH_BACKEND_CUDA 
+// #define NV_BACKEND_CUDA_PH 
 // #elif defined(SUNDIALS_HYPRE_BACKENDS_HIP)
-// #define NV_PH_BACKEND_HIP
+// #define NV_BACKEND_HIP_PH
 // #endif
 
 #if defined(SUNDIALS_HYPRE_BACKENDS_CUDA) || defined(SUNDIALS_HYPRE_BACKENDS_HIP)
@@ -88,18 +88,18 @@
 #endif
 
 //TODO: Ensure hypre's unified memory setting applies to HIP (as it does CUDA)
-#if defined(SUNDIALS_HYPRE_USING_UNIFIED_MEMORY) // && defined(SUNDIALS_HYPRE_BACKENDS_CUDA)
-#define NV_PH_BOOL_USE_UNIFIED_MEMORY true
+#if defined(SUNDIALS_HYPRE_USING_UNIFIED_MEMORY) && defined(SUNDIALS_HYPRE_BACKENDS_CUDA)
+#define NV_USE_UNIFIED_MEMORY_PH true
 #endif
 
 #if defined(SUNDIALS_HYPRE_BACKENDS_CUDA)
-#define NV_PH_LANG CUDA
-#define NV_PH_Lang Cuda
-#define NV_PH_lang cuda
+#define NV_LANG_PH CUDA
+#define NV_Lang_PH Cuda
+#define NV_lang_PH cuda
 #elif defined(SUNDIALS_HYPRE_BACKENDS_HIP)
-#define NV_PH_LANG HIP
-#define NV_PH_Lang Hip
-#define NV_PH_lang hip
+#define NV_LANG_PH HIP
+#define NV_Lang_PH Hip
+#define NV_lang_PH hip
 #endif
 
 /* --- Wrapper to enable C++ usage --- */
