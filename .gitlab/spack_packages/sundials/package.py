@@ -935,6 +935,9 @@ class Sundials(CachedCMakePackage, CudaPackage, ROCmPackage):
         if "+trilinos" in spec:
             entries.append(cmake_cache_path("Trilinos_DIR", spec["trilinos"].prefix))
 
+        if "+profile-examples" in spec:
+            entries.append(cmake_cache_path("SUNDIALS_CALIPER_OUTPUT_DIR"), "/usr/workspace/sundials/califiles")
+
         # Examples
         if spec.satisfies("@3:"):
             entries.extend(
