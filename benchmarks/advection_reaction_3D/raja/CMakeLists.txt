@@ -58,6 +58,25 @@ if(BUILD_ARKODE AND BUILD_CVODE AND BUILD_IDA)
   install(FILES README.md ../scripts/compare_error.py ../scripts/compute_error.py ../scripts/pickle_solution_output.py
     DESTINATION "${BENCHMARKS_INSTALL_PATH}/advection_reaction_3D/raja")
 
+  set(BENCHMARK_VAR
+    "--method ARK-IMEX --nls tl-newton --tf 0.01 --dont-save\;arkimex_tlnewton"
+    "--method ARK-DIRK --nls newton --tf 0.01 --dont-save\;arkdirk_newton"
+    "--method CV-BDF --nls newton --tf 0.01 --dont-save\;cvbdf_newton"
+    "--method IDA --nls newton --tf 0.01 --dont-save\;ida_newton"
+    )
+
+  # NUM_CORES based on Lassen system for 1 node
+  foreach(benchmark_tuple ${BENCHMARK_VAR})
+    list(GET benchmark_tuple 0 benchmark_args)
+    list(GET benchmark_tuple 1 identifier)
+
+    sundials_add_benchmark(advection_reaction_3D advection_reaction_3D advection_reaction_3D
+      NUM_CORES 40
+      BENCHMARK_ARGS ${benchmark_args}
+      IDENTIFIER ${identifier}
+      )
+  endforeach()
+
   # ----------------------------------------------------------------------------
   # MPI + CUDA
   # ----------------------------------------------------------------------------
@@ -105,6 +124,23 @@ if(BUILD_ARKODE AND BUILD_CVODE AND BUILD_IDA)
     install(TARGETS advection_reaction_3D_raja_mpicuda
       DESTINATION "${BENCHMARKS_INSTALL_PATH}/advection_reaction_3D/raja")
 
+    set(BENCHMARK_VAR
+        "--method ARK-IMEX --nls tl-newton --tf 0.01 --dont-save\;arkimex_tlnewton_cuda_raja"
+        "--method ARK-DIRK --nls newton --tf 0.01 --dont-save\;arkdirk_newton_cuda_raja"
+        "--method CV-BDF --nls newton --tf 0.01 --dont-save\;cvbdf_newton_cuda_raja"
+        "--method IDA --nls newton --tf 0.01 --dont-save\;ida_newton_cuda_raja")
+
+    # NUM_CORES based on Lassen system for 1 node
+    foreach(benchmark_tuple ${BENCHMARK_VAR})
+      list(GET benchmark_tuple 0 benchmark_args)
+      list(GET benchmark_tuple 1 identifier)
+
+      sundials_add_benchmark(advection_reaction_3D_mpicuda advection_reaction_3D_mpicuda advection_reaction_3D
+        ENABLE_GPU
+        NUM_CORES 4
+        BENCHMARK_ARGS ${benchmark_args}
+        IDENTIFIER ${identifier})
+    endforeach()
   endif()
 
   # ----------------------------------------------------------------------------
@@ -146,6 +182,22 @@ if(BUILD_ARKODE AND BUILD_CVODE AND BUILD_IDA)
     install(TARGETS advection_reaction_3D_raja_mpihip
       DESTINATION "${BENCHMARKS_INSTALL_PATH}/advection_reaction_3D/raja")
 
-  endif()
+    set(BENCHMARK_VAR 
+        "--method ARK-IMEX --nls tl-newton --tf 1.0 --dont-save\;arkimex_tlnewton_hip_raja"
+        "--method ARK-DIRK --nls newton --tf 1.0 --dont-save\;arkdirk_newton_hip_raja"
+        "--method CV-BDF --nls newton --tf 1.0 --dont-save\;cvbdf_newton_hip_raja"
+        "--method IDA --nls newton --tf 1.0 --dont-save\;ida_newton_hip_raja")
 
+    foreach(benchmark_tuple ${BENCHMARK_VAR})
+      list(GET benchmark_tuple 0 benchmark_args)
+      list(GET benchmark_tuple 1 identifier)
+
+      # NUM_CORES based on Corona system for 1 node
+      sundials_add_benchmark(advection_reaction_3D_mpihip advection_reaction_3D_mpihip advection_reaction_3D
+        ENABLE_GPU
+        NUM_CORES 8
+        BENCHMARK_ARGS ${benchmark_args}
+        IDENTIFIER ${identifier})
+    endforeach()
+  endif()
 endif()
