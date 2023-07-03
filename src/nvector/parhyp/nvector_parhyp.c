@@ -1797,9 +1797,30 @@ static void VSum_ParHyp(N_Vector x, N_Vector y, N_Vector z)
   yd = NV_DATA_PH(y);
   zd = NV_DATA_PH(z);
 
+  #if defined(SUNDIALS_HYPRE_BACKENDS_SERIAL)
   for (i = 0; i < N; i++)
     zd[i] = xd[i]+yd[i];
+  #elif defined(SUNDIALS_HYPRE_BACKENDS_CUDA)
+  // size_t grid, block, shMemSize;
+  // cudaStream_t stream;
 
+  // if (GetKernelParameters(X, false, grid, block, shMemSize, stream))
+  // {
+  //   SUNDIALS_DEBUG_PRINT("ERROR in N_VLinearSum_Cuda: GetKernelParameters returned nonzero\n");
+  // }
+
+  linearSumKernel<<<1, 100, 0, 0>>>
+  (
+    1.0,
+    xd,
+    1.0,
+    yd,
+    zd,
+    N
+  );
+  // PostKernelLaunch();
+  #endif
+  
   return;
 }
 
