@@ -18,8 +18,8 @@
 # 'develop' for examples excluded from 'make test' in releases
 
 # Example programs
-set(examples
-  "test_sunnonlinsol_petscsnes\;\;"
+set(sunnonlinsol_petsc_examples
+  "test_sunnonlinsol_petscsnes\; \" \" \; \" \" "
 )
 
 if(MPI_C_COMPILER)
@@ -38,18 +38,20 @@ list(APPEND SUNDIALS_LIBS sundials_sunnonlinsolpetscsnes)
 list(APPEND SUNDIALS_LIBS ${EXE_EXTRA_LINK_LIBS})
 
 # Add the build and install targets for each example
-foreach(example_tuple ${examples})
+foreach(example_tuple ${sunnonlinsol_petsc_examples})
 
-  # parse the example tuple
-  list(GET example_tuple 0 example)
-  list(GET example_tuple 1 example_args)
-  list(GET example_tuple 2 example_type)
+  # parse the example tuple using sundials_parse_tuple macro
+  sundials_parse_tuple( sunnonlinsol_petsc_examples 
+    FILENAME_VAR example
+    PARAMS_VAR example_args
+    TYPE_VAR example_type
+  )
 
   # check if this example has already been added, only need to add
   # example source files once for testing with different inputs
   if(NOT TARGET ${example})
     # example source files
-    add_executable(${example} ${example}.c)
+    add_executable(${example} ${example})
 
     # folder to organize targets in an IDE
     set_target_properties(${example} PROPERTIES FOLDER "Examples")
@@ -71,64 +73,25 @@ foreach(example_tuple ${examples})
     EXAMPLE_TYPE ${example_type}
     NODIFF)
 
-  if(EXAMPLES_INSTALL)
-    install(FILES ${example}.c
-      DESTINATION ${EXAMPLES_INSTALL_PATH}/sunnonlinsol/petscsnes)
-  endif()
-
 endforeach(example_tuple ${examples})
 
-
+# create Makfile and CMakeLists.txt for examples
 if(EXAMPLES_INSTALL)
 
-  # Install the README file
-  install(FILES DESTINATION ${EXAMPLES_INSTALL_PATH}/sunnonlinsol/petscsnes)
-
-  # Prepare substitution variables for Makefile and/or CMakeLists templates
-  set(SOLVER_LIB "sundials_sunnonlinsolpetscsnes")
-  set(LIBS "${LIBS}")
-
-  # Set the link directory for the dense sunmatrix and linear solver library
-  # The generated CMakeLists.txt does not use find_library() locate it
-  set(EXTRA_LIBS_DIR "${libdir}")
-
-  examples2string(examples EXAMPLES)
-  examples2string(dependencies EXAMPLES_DEPENDENCIES)
-
-  # Regardless of the platform we're on, we will generate and install
-  # CMakeLists.txt file for building the examples. This file  can then
-  # be used as a template for the user's own programs.
-
-  # generate CMakelists.txt in the binary directory
-  configure_file(
-    ${PROJECT_SOURCE_DIR}/examples/templates/cmakelists_petsc_C_ex.in
-    ${PROJECT_BINARY_DIR}/examples/sunnonlinsol/petscsnes/CMakeLists.txt
-    @ONLY
-    )
-
-  # install CMakelists.txt
-  install(
-    FILES ${PROJECT_BINARY_DIR}/examples/sunnonlinsol/petscsnes/CMakeLists.txt
-    DESTINATION ${EXAMPLES_INSTALL_PATH}/sunnonlinsol/petscsnes
-    )
-
-  # On UNIX-type platforms, we also  generate and install a makefile for
-  # building the examples. This makefile can then be used as a template
-  # for the user's own programs.
-
-  if(UNIX)
-    # generate Makefile and place it in the binary dir
-    configure_file(
-      ${PROJECT_SOURCE_DIR}/examples/templates/makefile_petsc_C_ex.in
-      ${PROJECT_BINARY_DIR}/examples/sunnonlinsol/petscsnes/Makefile_ex
-      @ONLY
-      )
-    # install the configured Makefile_ex as Makefile
-    install(
-      FILES ${PROJECT_BINARY_DIR}/examples/sunnonlinsol/petscsnes/Makefile_ex
-      DESTINATION ${EXAMPLES_INSTALL_PATH}/sunnonlinsol/petscsnes
-      RENAME Makefile
-      )
-  endif()
+  sundials_install_examples(sunnonlinsol sunnonlinsol_petsc_examples
+    CMAKE_TEMPLATE
+      cmakelists_C_ex.in
+    MAKE_TEMPLATE
+      makefile_serial_C_ex.in
+    SUNDIALS_TARGETS
+      nvecpetsc
+      sunnonlinsolpetscnes
+    DESTINATION
+      sunnonlinsol/petsc
+    EXAMPLES_DEPENDENCIES
+    EXTRA_FILES
+    TEST_INSTALL
+      petsc
+  )
 
 endif()

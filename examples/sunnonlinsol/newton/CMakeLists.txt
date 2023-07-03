@@ -18,13 +18,13 @@
 # 'develop' for examples excluded from 'make test' in releases
 
 # Example programs
-set(examples
-  "test_sunnonlinsol_newton\;\;"
+set(sunnonlinsol_newton_examples
+  "test_sunnonlinsol_newton.c\; \" \" \; \" \" "
 )
 
 if (BUILD_FORTRAN_MODULE_INTERFACE)
-  set(fortran_examples
-    "test_fsunnonlinsol_newton_mod\;\;"
+  set(sunnonlinsol_newton_fortran_examples
+    "test_fsunnonlinsol_newton_mod\; \"\" \; \"\" "
   )
 endif()
 
@@ -47,18 +47,20 @@ endif()
 list(APPEND SUNDIALS_LIBS ${EXE_EXTRA_LINK_LIBS})
 
 # Add the build and install targets for each example
-foreach(example_tuple ${examples})
-
-  # parse the example tuple
-  list(GET example_tuple 0 example)
-  list(GET example_tuple 1 example_args)
-  list(GET example_tuple 2 example_type)
+foreach(example_tuple ${sunnonlinsol_newton_examples})
+  
+  # parse the example tuple using sundials_parse_tuple macro
+  sundials_parse_tuple( sunnonlinsol_newton_examples 
+    FILENAME_VAR example
+    PARAMS_VAR example_args
+    TYPE_VAR example_type
+  )
 
   # check if this example has already been added, only need to add
   # example source files once for testing with different inputs
   if(NOT TARGET ${example})
     # example source files
-    add_executable(${example} ${example}.c)
+    add_executable(${example} ${example})
 
     # folder to organize targets in an IDE
     set_target_properties(${example} PROPERTIES FOLDER "Examples")
@@ -80,20 +82,17 @@ foreach(example_tuple ${examples})
     EXAMPLE_TYPE ${example_type}
     NODIFF)
 
-  if(EXAMPLES_INSTALL)
-    install(FILES ${example}.c
-      DESTINATION ${EXAMPLES_INSTALL_PATH}/sunnonlinsol/newton)
-  endif()
-
-endforeach(example_tuple ${examples})
+endforeach(example_tuple ${sunnonlinsol_newton_examples})
 
 # Add the build and install targets for each example
-foreach(example_tuple ${fortran_examples})
+foreach(example_tuple ${sunnonlinsol_newton_fortran_examples})
 
-  # parse the example tuple
-  list(GET example_tuple 0 example)
-  list(GET example_tuple 1 example_args)
-  list(GET example_tuple 2 example_type)
+  # parse the example tuple using sundials_parse_tuple macro
+  sundials_parse_tuple( sunnonlinsol_newton_fortran_examples 
+    FILENAME_VAR example
+    PARAMS_VAR example_args
+    TYPE_VAR example_type
+  )
 
   # check if this example has already been added, only need to add
   # example source files once for testing with different inputs
@@ -122,58 +121,28 @@ foreach(example_tuple ${fortran_examples})
     EXAMPLE_TYPE ${example_type}
     NODIFF)
 
-endforeach(example_tuple ${fortran_examples})
+endforeach(example_tuple ${sunnonlinsol_newton_fortran_examples})
 
-
+# create Makfile and CMakeLists.txt for examples
 if(EXAMPLES_INSTALL)
 
-  # Install the README file
-  install(FILES DESTINATION ${EXAMPLES_INSTALL_PATH}/sunnonlinsol/newton)
-
-  # Prepare substitution variables for Makefile and/or CMakeLists templates
-  set(SOLVER_LIB "sundials_sunnonlinsolnewton")
-  set(LIBS "${LIBS} -lsundials_sunmatrixdense -lsundials_sunlinsoldense")
-
-  # Set the link directory for the dense sunmatrix and linear solver library
-  # The generated CMakeLists.txt does not use find_library() locate it
-  set(EXTRA_LIBS_DIR "${libdir}")
-
-  examples2string(examples EXAMPLES)
-
-  # Regardless of the platform we're on, we will generate and install
-  # CMakeLists.txt file for building the examples. This file  can then
-  # be used as a template for the user's own programs.
-
-  # generate CMakelists.txt in the binary directory
-  configure_file(
-    ${PROJECT_SOURCE_DIR}/examples/templates/cmakelists_serial_C_ex.in
-    ${PROJECT_BINARY_DIR}/examples/sunnonlinsol/newton/CMakeLists.txt
-    @ONLY
-    )
-
-  # install CMakelists.txt
-  install(
-    FILES ${PROJECT_BINARY_DIR}/examples/sunnonlinsol/newton/CMakeLists.txt
-    DESTINATION ${EXAMPLES_INSTALL_PATH}/sunnonlinsol/newton
-    )
-
-  # On UNIX-type platforms, we also  generate and install a makefile for
-  # building the examples. This makefile can then be used as a template
-  # for the user's own programs.
-
-  if(UNIX)
-    # generate Makefile and place it in the binary dir
-    configure_file(
-      ${PROJECT_SOURCE_DIR}/examples/templates/makefile_serial_C_ex.in
-      ${PROJECT_BINARY_DIR}/examples/sunnonlinsol/newton/Makefile_ex
-      @ONLY
-      )
-    # install the configured Makefile_ex as Makefile
-    install(
-      FILES ${PROJECT_BINARY_DIR}/examples/sunnonlinsol/newton/Makefile_ex
-      DESTINATION ${EXAMPLES_INSTALL_PATH}/sunnonlinsol/newton
-      RENAME Makefile
-      )
-  endif()
+  sundials_install_examples(sunnonlinsol sunnonlinsol_newton_examples
+    CMAKE_TEMPLATE
+      cmakelists_C_ex.in
+    MAKE_TEMPLATE
+      makefile_serial_C_ex.in
+    SUNDIALS_TARGETS
+      nvecserial
+      sunnonlinsolnewton
+      sunmatrixdense
+      sunlinsoldense
+    DESTINATION
+      sunnonlinsol/newton
+    EXAMPLES_DEPENDENCIES
+    EXTRA_FILES
+    TEST_INSTALL
+      newton
+  )
 
 endif()
+
