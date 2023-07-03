@@ -116,7 +116,7 @@ if(EXAMPLES_INSTALL)
       nvecparallel
       sunlinsolspgmr
     DESTINATION
-      sunlinsol/spgmr/parallel
+      sunlinsol/spgmr_parallel
     EXAMPLES_DEPENDENCIES
       ${sunlinsol_spgmr_dependencies}
     EXTRA_FILES

@@ -114,7 +114,7 @@ if(EXAMPLES_INSTALL)
       nvecparallel
       sunlinsolspbcgs
     DESTINATION
-      sunlinsol/spbcgs/parallel
+      sunlinsol/spbcgs_parallel
     EXAMPLES_DEPENDENCIES
       ${sunlinsol_spbcgs_dependencies}
     EXTRA_FILES

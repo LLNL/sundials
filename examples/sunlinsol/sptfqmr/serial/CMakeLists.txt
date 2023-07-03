@@ -162,7 +162,7 @@ if(EXAMPLES_INSTALL)
       nvecserial
       sunlinsolsptfqmr
     DESTINATION
-      sunlinsol/sptfqmr/serial
+      sunlinsol/sptfqmr_serial
     EXAMPLES_DEPENDENCIES
       ${sunlinsol_sptfqmr_dependencies}
     EXTRA_FILES

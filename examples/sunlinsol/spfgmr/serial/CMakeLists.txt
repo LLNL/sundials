@@ -159,7 +159,7 @@ if(EXAMPLES_INSTALL)
       nvecserial
       sunlinsolspfgmr
     DESTINATION
-      sunlinsol/spfgmr/serial
+      sunlinsol/spfgmr_serial
     EXAMPLES_DEPENDENCIES
       ${sunlinsol_spfgmr_dependencies}
     EXTRA_FILES

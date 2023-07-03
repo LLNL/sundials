@@ -101,7 +101,6 @@ endforeach(example_tuple ${sunlinsol_pcg_examples})
 
 # create Makfile and CMakeLists.txt for examples
 if(EXAMPLES_INSTALL)
-
   sundials_install_examples(sunlinsol sunlinsol_pcg_examples
     HAS_MPI
     CMAKE_TEMPLATE
@@ -112,7 +111,7 @@ if(EXAMPLES_INSTALL)
       nvecparallel
       sunlinsolpcg
     DESTINATION
-      sunlinsol/pcg/parallel
+      sunlinsol/pcg_parallel
     EXAMPLES_DEPENDENCIES
       ${sunlinsol_pcg_dependencies}
     EXTRA_FILES

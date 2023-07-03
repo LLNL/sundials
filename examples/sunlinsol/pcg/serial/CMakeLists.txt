@@ -159,7 +159,7 @@ if(EXAMPLES_INSTALL)
       nvecserial
       sunlinsolpcg
     DESTINATION
-      sunlinsol/pcg/serial
+      sunlinsol/pcg_serial
     EXAMPLES_DEPENDENCIES
       ${sunlinsol_pcg_dependencies}
     EXTRA_FILES

@@ -159,14 +159,14 @@ if(EXAMPLES_INSTALL)
       nvecserial
       sunlinsolspbcgs
     DESTINATION
-      sunlinsol/spbcgs/serial
+      sunlinsol/spbcgs_serial
     EXAMPLES_DEPENDENCIES
       ${sunlinsol_spbcgs_dependencies}
     EXTRA_FILES
       #README
       ${sunlinsol_spbcgs_files}
     TEST_INSTALL
-      spbgcs_serial
+      spbcgs_serial
   )
 
 endif()
