@@ -81,7 +81,6 @@ set(examples_dependencies @EXAMPLES_DEPENDENCIES@)
 
 list(LENGTH examples n_elems) # Total number of the elements in the every list
 math(EXPR len "${n_elems}-1") # The last index in the every list
- message("> ${examples_args}")
 
 # Create targets for each example
 
@@ -90,7 +89,6 @@ foreach(idx RANGE ${len})
 
   list(GET examples ${idx} example)
   list(GET examples_args ${idx} example_args)
-  message(">>>> ${example_args}")
 
   # get filename without extension
   get_filename_component(example_target ${example} NAME_WE)
