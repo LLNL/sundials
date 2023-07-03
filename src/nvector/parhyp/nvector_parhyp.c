@@ -673,8 +673,20 @@ void N_VLinearSum_ParHyp(realtype a, N_Vector x, realtype b, N_Vector y, N_Vecto
   yd = NV_DATA_PH(y);
   zd = NV_DATA_PH(z);
 
+  #if defined(SUNDIALS_HYPRE_BACKENDS_SERIAL)
   for (i = 0; i < N; i++)
     zd[i] = (a*xd[i])+(b*yd[i]);
+  #elif defined(SUNDIALS_HYPRE_BACKENDS_CUDA)
+  linearSumKernel<<<1, 100, 0, 0>>>
+  (
+    a, // a*x[i]
+    xd,
+    b, // b*y[i]
+    yd,
+    zd,
+    N
+  );
+  #endif
 
   return;
 }
@@ -702,9 +714,18 @@ void N_VProd_ParHyp(N_Vector x, N_Vector y, N_Vector z)
   yd = NV_DATA_PH(y);
   zd = NV_DATA_PH(z);
 
+  #if defined(SUNDIALS_HYPRE_BACKENDS_SERIAL)
   for (i = 0; i < N; i++)
     zd[i] = xd[i]*yd[i];
-
+  #elif defined(SUNDIALS_HYPRE_BACKENDS_CUDA)
+  prodKernel<<<1, 100, 0, 0>>>
+  (
+    xd,
+    yd,
+    zd,
+    N
+  );
+  #endif
   return;
 }
 
@@ -725,10 +746,18 @@ void N_VDiv_ParHyp(N_Vector x, N_Vector y, N_Vector z)
   yd = NV_DATA_PH(y);
   zd = NV_DATA_PH(z);
 
-  // if Serial
+  #if defined(SUNDIALS_HYPRE_BACKENDS_SERIAL)
   for (i = 0; i < N; i++)
     zd[i] = xd[i]/yd[i];
-  // if CUDA kernal launch... divKernel<<<...>>>
+  #elif defined(SUNDIALS_HYPRE_BACKENDS_CUDA)
+  divKernel<<<1, 100, 0, 0>>>
+  (
+    xd,
+    yd,
+    zd,
+    N
+  );
+  #endif
 
   return;
 }
@@ -758,8 +787,17 @@ void N_VAbs_ParHyp(N_Vector x, N_Vector z)
   xd = NV_DATA_PH(x);
   zd = NV_DATA_PH(z);
 
+  #if defined(SUNDIALS_HYPRE_BACKENDS_SERIAL)
   for (i = 0; i < N; i++)
     zd[i] = SUNRabs(xd[i]);
+  #elif defined(SUNDIALS_HYPRE_BACKENDS_CUDA)
+  absKernel<<<1, 100, 0, 0>>>
+  (
+    xd,
+    zd,
+    N
+  );
+  #endif
 
   return;
 }
@@ -775,8 +813,17 @@ void N_VInv_ParHyp(N_Vector x, N_Vector z)
   xd = NV_DATA_PH(x);
   zd = NV_DATA_PH(z);
 
+  #if defined(SUNDIALS_HYPRE_BACKENDS_SERIAL)
   for (i = 0; i < N; i++)
     zd[i] = ONE/xd[i];
+  #elif defined(SUNDIALS_HYPRE_BACKENDS_CUDA)
+  invKernel<<<1, 100, 0, 0>>>
+  (
+    xd,
+    zd,
+    N
+  );
+  #endif
 
   return;
 }
@@ -792,8 +839,18 @@ void N_VAddConst_ParHyp(N_Vector x, realtype b, N_Vector z)
   xd = NV_DATA_PH(x);
   zd = NV_DATA_PH(z);
 
+  #if defined(SUNDIALS_HYPRE_BACKENDS_SERIAL)
   for (i = 0; i < N; i++)
-     zd[i] = xd[i] + b;
+    zd[i] = xd[i] + b;
+  #elif defined(SUNDIALS_HYPRE_BACKENDS_CUDA)
+  addConstKernel<<<1, 100, 0, 0>>>
+  (
+    b,
+    xd,
+    zd,
+    N
+  );
+  #endif
 
   return;
 }
@@ -807,8 +864,21 @@ realtype N_VDotProdLocal_ParHyp(N_Vector x, N_Vector y)
   yd = NV_DATA_PH(y);
 
   sum = ZERO;
+
+  // #if defined(SUNDIALS_HYPRE_BACKENDS_SERIAL)
   for (i = 0; i < N; i++)
     sum += xd[i]*yd[i];
+  // #elif defined(SUNDIALS_HYPRE_BACKENDS_CUDA)
+  // dotProdKernel<<<1, 100, 0, 0>>>
+  // (
+  //   xd,
+  //   yd,
+  //   &sum,
+  //   N,
+  //   1
+  // );
+  // #endif
+
   return(sum);
 }
 
