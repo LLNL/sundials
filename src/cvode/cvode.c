@@ -648,7 +648,7 @@ int CVodeReInit(void *cvode_mem, realtype t0, N_Vector y0)
   return(CV_SUCCESS);
 }
 
-sunrealtype LBasisD2(int j, sunrealtype t, sunrealtype* t_hist)
+static sunrealtype LBasisD2(int j, sunrealtype t, sunrealtype* t_hist)
 {
   sunrealtype p, q, r;
 
@@ -680,7 +680,7 @@ sunrealtype LBasisD2(int j, sunrealtype t, sunrealtype* t_hist)
 }
 
 
-realtype LBasisD3(int j, sunrealtype t, sunrealtype* t_hist)
+static realtype LBasisD3(int j, sunrealtype t, sunrealtype* t_hist)
 {
   sunrealtype p, q, r, s;
 
