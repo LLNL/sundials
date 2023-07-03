@@ -108,6 +108,15 @@ static int arkRelaxNewtonSolve(ARKodeMem ark_mem)
   sunrealtype max_res;
   ARKodeRelaxMem relax_mem = ark_mem->relax_mem;
 
+#if SUNDIALS_LOGGING_LEVEL >= SUNDIALS_LOGGING_INFO
+  SUNLogger_QueueMsg(ARK_LOGGER, SUN_LOGLEVEL_INFO,
+                     "ARKODE::arkStep_TakeStep_Z", "NewtonSolve",
+                     "tolerance = %g", relax_mem->tol);
+  SUNLogger_QueueMsg(ARK_LOGGER, SUN_LOGLEVEL_INFO,
+                     "ARKODE::arkStep_TakeStep_Z", "NewtonSolve",
+                     "0: relaxation param = %g", relax_mem->relax_vals[0]);
+#endif
+
   for (i = 0; i < ark_mem->relax_mem->max_iters; i++)
   {
     /* y_relax = y_n + r * delta_y */
@@ -119,6 +128,12 @@ static int arkRelaxNewtonSolve(ARKodeMem ark_mem)
     retval = arkRelaxResidual(relax_mem->relax_vals, relax_mem->y_relax,
                               relax_mem->res_vals, ark_mem);
     if (retval) return retval;
+
+#if SUNDIALS_LOGGING_LEVEL >= SUNDIALS_LOGGING_INFO
+    SUNLogger_QueueMsg(ARK_LOGGER, SUN_LOGLEVEL_INFO,
+                       "ARKODE::arkStep_TakeStep_Z", "NewtonSolve",
+                       "%d: relaxation resid = %g", i, relax_mem->res_vals[0]);
+#endif
 
     /* Check for convergence of all values */
     max_res = SUNRabs(relax_mem->res_vals[0]);
@@ -135,8 +150,20 @@ static int arkRelaxNewtonSolve(ARKodeMem ark_mem)
                               relax_mem->jac_vals, ark_mem);
     if (retval) return retval;
 
+#if SUNDIALS_LOGGING_LEVEL >= SUNDIALS_LOGGING_INFO
+    SUNLogger_QueueMsg(ARK_LOGGER, SUN_LOGLEVEL_INFO,
+                       "ARKODE::arkStep_TakeStep_Z", "NewtonSolve",
+                       "%d: relaxation jac = %g", i, relax_mem->jac_vals[0]);
+#endif
+
     for (j = 0; j < ark_mem->relax_mem->num_relax_fn; ++j)
       relax_mem->relax_vals[j] -= relax_mem->res_vals[j] / relax_mem->jac_vals[j];
+
+#if SUNDIALS_LOGGING_LEVEL >= SUNDIALS_LOGGING_INFO
+    SUNLogger_QueueMsg(ARK_LOGGER, SUN_LOGLEVEL_INFO,
+                       "ARKODE::arkStep_TakeStep_Z", "NewtonSolve",
+                       "%d: relaxation param = %g", i+1, relax_mem->relax_vals[0]);
+#endif
   }
 
   return ARK_RELAX_SOLVE_RECV;
@@ -742,6 +769,12 @@ int arkRelax(ARKodeMem ark_mem, int* relax_fails, realtype* dsm_inout,
 
     /* Cut step size and try again */
     ark_mem->eta = relax_mem->eta_fail;
+
+#if SUNDIALS_LOGGING_LEVEL >= SUNDIALS_LOGGING_INFO
+    SUNLogger_QueueMsg(ARK_LOGGER, SUN_LOGLEVEL_INFO,
+                       "ARKODE::arkStep_TakeStep_Z", "relaxation",
+                       "relaxation failed");
+#endif
 
     return TRY_AGAIN;
   }
