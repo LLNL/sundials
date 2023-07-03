@@ -29,9 +29,9 @@ run the following commands:
 Running the above will install the necessary Sphinx version. A Python virtual environment can also be used by activating the environment before running the above commands.
 
 Building and Running Documentation Locally
-------------------------------
+-------------------------------------------
 
-To build the general documentation (also viewable from `here<https://sundials.readthedocs.io>`_), run the following:
+To build the general documentation (also viewable from `here <https://sundials.readthedocs.io>`_), run the following:
 
 .. code-block:: bash
 
