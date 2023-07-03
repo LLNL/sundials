@@ -72,10 +72,10 @@ int Jac(sunrealtype t, N_Vector y, N_Vector fy, SUNMatrix J, void* user_data,
         N_Vector tmp1, N_Vector tmp2, N_Vector tmp3);
 
 /* Entropy function */
-int Ent(N_Vector* y, sunrealtype* e, void* user_data);
+int Ent(N_Vector y, sunrealtype* e, void* user_data);
 
 /* Entropy Jacobian function */
-int JacEnt(N_Vector* y, N_Vector* J, void* user_data);
+int JacEnt(N_Vector y, N_Vector J, void* user_data);
 
 /* ----------------- *
  * Utility functions *
@@ -193,7 +193,7 @@ int main(int argc, char* argv[])
   if (check_ptr(ytdata, "N_VGetArrayPointer")) return 1;
 
   /* Initial entropy */
-  flag = Ent(&y, &ent0, NULL);
+  flag = Ent(y, &ent0, NULL);
   if (check_flag(flag, "Ent")) return 1;
 
   /* Initialize the ARKStep */
@@ -214,7 +214,7 @@ int main(int argc, char* argv[])
   if (relax)
   {
     /* Enable relaxation methods */
-    flag = ARKStepSetRelaxFn(arkode_mem, 1, Ent, JacEnt);
+    flag = ARKStepSetRelaxFn(arkode_mem, Ent, JacEnt);
     if (check_flag(flag, "ARKStepSetRelaxFn")) return 1;
   }
 
@@ -281,7 +281,7 @@ int main(int argc, char* argv[])
     if (check_flag(flag, "ARKStepEvolve")) break;
 
     /* Output solution and errors */
-    flag = Ent(&y, &ent, NULL);
+    flag = Ent(y, &ent, NULL);
     if (check_flag(flag, "Ent")) return 1;
 
     flag = ans(t, ytrue);
@@ -427,20 +427,20 @@ int Jac(sunrealtype t, N_Vector y, N_Vector fy, SUNMatrix J, void* user_data,
 }
 
 /* Entropy function e(y) */
-int Ent(N_Vector* y, sunrealtype* e, void* user_data)
+int Ent(N_Vector y, sunrealtype* e, void* user_data)
 {
-  sunrealtype* ydata = N_VGetArrayPointer(y[0]);
+  sunrealtype* ydata = N_VGetArrayPointer(y);
 
-  e[0] = EXP(ydata[0]) + EXP(ydata[1]);
+  *e = EXP(ydata[0]) + EXP(ydata[1]);
 
   return 0;
 }
 
 /* Entropy function Jacobian Je(y) = de/dy */
-int JacEnt(N_Vector* y, N_Vector* J, void* user_data)
+int JacEnt(N_Vector y, N_Vector J, void* user_data)
 {
-  sunrealtype* ydata = N_VGetArrayPointer(y[0]);
-  sunrealtype* jdata = N_VGetArrayPointer(J[0]);
+  sunrealtype* ydata = N_VGetArrayPointer(y);
+  sunrealtype* jdata = N_VGetArrayPointer(J);
 
   jdata[0] = EXP(ydata[0]);
   jdata[1] = EXP(ydata[1]);

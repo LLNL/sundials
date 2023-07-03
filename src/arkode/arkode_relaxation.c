@@ -13,6 +13,11 @@
  * -----------------------------------------------------------------------------
  * This is the implementation file for ARKODE's relaxation (in time)
  * functionality
+ *
+ * Temporary vectors utilized in the functions below:
+ *   tempv1 - holds delta_y, the update direction vector
+ *   tempv2 - holds y_relax, the relaxed solution vector
+ *   tempv3 - holds J_relax, the Jacobian of the relaxation function
  * ---------------------------------------------------------------------------*/
 
 #include <stdarg.h>
@@ -50,53 +55,46 @@ static int arkRelaxAccessMem(void* arkode_mem, const char* fname,
   return ARK_SUCCESS;
 }
 
-/* Evaluate the relaxation residual function */
-static int arkRelaxResidual(sunrealtype* relax_vals, N_Vector* y_relax,
-                            sunrealtype* res_vals, ARKodeMem ark_mem)
+/* Evaluates the relaxation residual function */
+static int arkRelaxResidual(sunrealtype relax_param, N_Vector y_relax,
+                            sunrealtype* relax_res, ARKodeMem ark_mem)
 {
-  int i, retval;
-  int num_relax_fn            = ark_mem->relax_mem->num_relax_fn;
-  long int num_relax_fn_evals = ark_mem->relax_mem->num_relax_fn_evals;
-  sunrealtype* e_old          = ark_mem->relax_mem->e_old;
-  sunrealtype* delta_e        = ark_mem->relax_mem->delta_e;
-  void* user_data             = ark_mem->user_data;
+  int retval;
+  sunrealtype e_old   = ark_mem->relax_mem->e_old;
+  sunrealtype delta_e = ark_mem->relax_mem->delta_e;
+  void* user_data     = ark_mem->user_data;
 
-  /* Evaluate entropy functions */
-  retval = ark_mem->relax_mem->relax_fn(y_relax, res_vals, user_data);
-  num_relax_fn_evals++;
+  /* Evaluate entropy function */
+  retval = ark_mem->relax_mem->relax_fn(y_relax, relax_res, user_data);
+  ark_mem->relax_mem->num_relax_fn_evals++;
   if (retval < 0) return ARK_RELAX_FUNC_FAIL;
   if (retval > 0) return ARK_RELAX_FUNC_RECV;
 
   /* Compute relaxation residual */
-  for (i = 0; i < num_relax_fn; ++i)
-    res_vals[i] = res_vals[i] - e_old[i] - relax_vals[i] * delta_e[i];
+  *relax_res = *relax_res - e_old - relax_param * delta_e;
 
   return ARK_SUCCESS;
 }
 
-/* Evaluate the relaxation Jacobian function */
-static int arkRelaxJacobian(sunrealtype* relax_vals, N_Vector* y_relax,
-                            sunrealtype* jac_vals, ARKodeMem ark_mem)
+/* Evaluates the Jacobian of the relaxation residual function */
+static int arkRelaxResidualJacobian(sunrealtype relax_param, N_Vector y_relax,
+                                    sunrealtype* relax_jac, ARKodeMem ark_mem)
 {
-  int i, retval;
-  int num_relax_fn                = ark_mem->relax_mem->num_relax_fn;
-  long int num_relax_jac_fn_evals = ark_mem->relax_mem->num_relax_jac_evals;
-  N_Vector delta_y                = ark_mem->relax_mem->delta_y;
-  N_Vector* J_vecs                = ark_mem->relax_mem->J_vecs;
-  sunrealtype* delta_e            = ark_mem->relax_mem->delta_e;
-  void* user_data                 = ark_mem->user_data;
+  int retval;
+  N_Vector delta_y    = ark_mem->tempv1;
+  N_Vector J_relax    = ark_mem->tempv3;
+  sunrealtype delta_e = ark_mem->relax_mem->delta_e;
+  void* user_data     = ark_mem->user_data;
 
   /* Evaluate Jacobian of entropy functions */
-  retval = ark_mem->relax_mem->relax_jac_fn(y_relax, J_vecs, user_data);
-  num_relax_jac_fn_evals++;
+  retval = ark_mem->relax_mem->relax_jac_fn(y_relax, J_relax, user_data);
+  ark_mem->relax_mem->num_relax_jac_evals++;
   if (retval < 0) return ARK_RELAX_JAC_FAIL;
   if (retval > 0) return ARK_RELAX_JAC_RECV;
 
   /* Compute relaxation residual Jacobian */
-  retval = N_VDotProdMulti(num_relax_fn, delta_y, J_vecs, jac_vals);
-  if (retval) return retval;
-
-  for (i = 0; i < num_relax_fn; ++i) jac_vals[i] -= delta_e[i];
+  *relax_jac = N_VDotProd(delta_y, J_relax);
+  *relax_jac -= delta_e;
 
   return ARK_SUCCESS;
 }
@@ -104,9 +102,10 @@ static int arkRelaxJacobian(sunrealtype* relax_vals, N_Vector* y_relax,
 /* Solve the relaxation residual equation using Newton's method */
 static int arkRelaxNewtonSolve(ARKodeMem ark_mem)
 {
-  int i, j, retval;
-  sunrealtype max_res;
+  int i, retval;
   ARKodeRelaxMem relax_mem = ark_mem->relax_mem;
+  N_Vector delta_y = ark_mem->tempv1;
+  N_Vector y_relax = ark_mem->tempv2;
 
 #if SUNDIALS_LOGGING_LEVEL >= SUNDIALS_LOGGING_INFO
   SUNLogger_QueueMsg(ARK_LOGGER, SUN_LOGLEVEL_INFO,
@@ -114,55 +113,49 @@ static int arkRelaxNewtonSolve(ARKodeMem ark_mem)
                      "tolerance = %g", relax_mem->tol);
   SUNLogger_QueueMsg(ARK_LOGGER, SUN_LOGLEVEL_INFO,
                      "ARKODE::arkStep_TakeStep_Z", "NewtonSolve",
-                     "0: relaxation param = %g", relax_mem->relax_vals[0]);
+                     "0: relaxation param = %g", relax_mem->relax_param);
 #endif
 
   for (i = 0; i < ark_mem->relax_mem->max_iters; i++)
   {
     /* y_relax = y_n + r * delta_y */
-    for (j = 0; j < ark_mem->relax_mem->num_relax_fn; ++j)
-      N_VLinearSum(ONE, ark_mem->yn, relax_mem->relax_vals[j],
-                   ark_mem->relax_mem->delta_y, ark_mem->relax_mem->y_relax[j]);
+    N_VLinearSum(ONE, ark_mem->yn, relax_mem->relax_param, delta_y, y_relax);
 
     /* Compute the current residual */
-    retval = arkRelaxResidual(relax_mem->relax_vals, relax_mem->y_relax,
-                              relax_mem->res_vals, ark_mem);
+    retval = arkRelaxResidual(relax_mem->relax_param, y_relax,
+                              &(relax_mem->res), ark_mem);
     if (retval) return retval;
 
 #if SUNDIALS_LOGGING_LEVEL >= SUNDIALS_LOGGING_INFO
     SUNLogger_QueueMsg(ARK_LOGGER, SUN_LOGLEVEL_INFO,
                        "ARKODE::arkStep_TakeStep_Z", "NewtonSolve",
-                       "%d: relaxation resid = %g", i, relax_mem->res_vals[0]);
+                       "%d: relaxation resid = %g", i, relax_mem->res);
 #endif
 
-    /* Check for convergence of all values */
-    max_res = SUNRabs(relax_mem->res_vals[0]);
-    for (j = 1; j < ark_mem->relax_mem->num_relax_fn; ++j)
-      max_res = SUNMAX(max_res, relax_mem->res_vals[j]);
-
-    if (max_res < relax_mem->tol) return ARK_SUCCESS;
-
-    /* Update iteration count */
-    relax_mem->nls_iters++;
+    /* Check for convergence */
+    if (SUNRabs(relax_mem->res) < relax_mem->tol) return ARK_SUCCESS;
 
     /* Compute Jacobian and update */
-    retval = arkRelaxJacobian(relax_mem->relax_vals, relax_mem->y_relax,
-                              relax_mem->jac_vals, ark_mem);
+    retval = arkRelaxResidualJacobian(relax_mem->relax_param, y_relax,
+                                      &(relax_mem->jac),
+                                      ark_mem);
     if (retval) return retval;
 
 #if SUNDIALS_LOGGING_LEVEL >= SUNDIALS_LOGGING_INFO
     SUNLogger_QueueMsg(ARK_LOGGER, SUN_LOGLEVEL_INFO,
                        "ARKODE::arkStep_TakeStep_Z", "NewtonSolve",
-                       "%d: relaxation jac = %g", i, relax_mem->jac_vals[0]);
+                       "%d: relaxation jac = %g", i, relax_mem->jac);
 #endif
 
-    for (j = 0; j < ark_mem->relax_mem->num_relax_fn; ++j)
-      relax_mem->relax_vals[j] -= relax_mem->res_vals[j] / relax_mem->jac_vals[j];
+    relax_mem->relax_param -= relax_mem->res / relax_mem->jac;
+
+    /* Update cumulative iteration count */
+    relax_mem->nls_iters++;
 
 #if SUNDIALS_LOGGING_LEVEL >= SUNDIALS_LOGGING_INFO
     SUNLogger_QueueMsg(ARK_LOGGER, SUN_LOGLEVEL_INFO,
                        "ARKODE::arkStep_TakeStep_Z", "NewtonSolve",
-                       "%d: relaxation param = %g", i+1, relax_mem->relax_vals[0]);
+                       "%d: relaxation param = %g", i+1, relax_mem->relax_param);
 #endif
   }
 
@@ -172,34 +165,28 @@ static int arkRelaxNewtonSolve(ARKodeMem ark_mem)
 /* Solve the relaxation residual equation using Newton's method */
 static int arkRelaxFixedPointSolve(ARKodeMem ark_mem)
 {
-  int i, j, retval;
-  sunrealtype max_res;
+  int i, retval;
   ARKodeRelaxMem relax_mem = ark_mem->relax_mem;
+  N_Vector delta_y = ark_mem->tempv1;
+  N_Vector y_relax = ark_mem->tempv2;
 
   for (i = 0; i < ark_mem->relax_mem->max_iters; i++)
   {
     /* y_relax = y_n + r * delta_y */
-    for (j = 0; j < ark_mem->relax_mem->num_relax_fn; ++j)
-      N_VLinearSum(ONE, ark_mem->yn, relax_mem->relax_vals[j],
-                   ark_mem->relax_mem->delta_y, ark_mem->relax_mem->y_relax[j]);
+    N_VLinearSum(ONE, ark_mem->yn, relax_mem->relax_param, delta_y, y_relax);
 
     /* Compute the current residual */
-    retval = arkRelaxResidual(relax_mem->relax_vals, relax_mem->y_relax,
-                              relax_mem->res_vals, ark_mem);
+    retval = arkRelaxResidual(relax_mem->relax_param, y_relax,
+                              &(relax_mem->res), ark_mem);
     if (retval) return retval;
 
-    /* Check for convergence of all values */
-    max_res = SUNRabs(relax_mem->res_vals[0]);
-    for (j = 1; j < ark_mem->relax_mem->num_relax_fn; ++j)
-      max_res = SUNMAX(max_res, relax_mem->res_vals[j]);
+    /* Check for convergence */
+    if (relax_mem->res < relax_mem->tol) return ARK_SUCCESS;
 
-    if (max_res < relax_mem->tol) return ARK_SUCCESS;
+    relax_mem->relax_param -= relax_mem->res;
 
     /* Update iteration count */
     relax_mem->nls_iters++;
-
-    for (j = 0; j < ark_mem->relax_mem->num_relax_fn; ++j)
-      relax_mem->relax_vals[j] -= relax_mem->res_vals[j];
   }
 
   return ARK_RELAX_SOLVE_RECV;
@@ -209,34 +196,29 @@ static int arkRelaxFixedPointSolve(ARKodeMem ark_mem)
 int arkRelaxSolve(ARKodeMem ark_mem, ARKodeRelaxMem relax_mem,
                   sunrealtype* relax_val_out)
 {
-  int i, retval;
-  sunrealtype relax_val_max, relax_val_min;
+  int retval;
 
-  /* Get the change in entropy (use y_relax and J_vecs as scratch) */
-  retval = relax_mem->delta_e_fn(ark_mem, relax_mem->num_relax_fn,
-                                 relax_mem->relax_jac_fn, relax_mem->y_relax,
-                                 relax_mem->J_vecs,
+  /* Get the change in entropy (uses temp vectors 1 and 2) */
+  retval = relax_mem->delta_e_fn(ark_mem,
+                                 relax_mem->relax_jac_fn,
                                  &(relax_mem->num_relax_jac_evals),
-                                 relax_mem->delta_e);
+                                 &(relax_mem->delta_e));
   if (retval) return retval;
 
-  /* Get the change in state */
-  retval = relax_mem->delta_y_fn(ark_mem, &(relax_mem->delta_y));
+  /* Get the change in state (delta_y = tempv1) */
+  retval = relax_mem->delta_y_fn(ark_mem, ark_mem->tempv1);
   if (retval) return retval;
 
-  /* Duplicate state to evaluate entropy functions at y_n */
-  for (i = 0; i < ark_mem->relax_mem->num_relax_fn; ++i)
-    N_VScale(ONE, ark_mem->yn, ark_mem->relax_mem->y_relax[i]);
-
-  retval = relax_mem->relax_fn(ark_mem->relax_mem->y_relax, relax_mem->e_old,
+  /* Store the current relaxation function value */
+  retval = relax_mem->relax_fn(ark_mem->yn, &(relax_mem->e_old),
                                ark_mem->user_data);
   relax_mem->num_relax_fn_evals++;
   if (retval < 0) return ARK_RELAX_FUNC_FAIL;
   if (retval > 0) return ARK_RELAX_FUNC_RECV;
 
   /* Initial guess for relaxation parameter */
-  for (i = 0; i < ark_mem->relax_mem->num_relax_fn; ++i)
-    relax_mem->relax_vals[i] = ONE;
+  /* ADD OPTION TO USE GAMMA FROM LAST STEP */
+  relax_mem->relax_param = ONE;
 
   switch(relax_mem->solver)
   {
@@ -258,22 +240,13 @@ int arkRelaxSolve(ARKodeMem ark_mem, ARKodeRelaxMem relax_mem,
     return retval;
   }
 
-  /* Compute max and min relaxation values */
-  relax_val_max = relax_mem->relax_vals[0];
-  relax_val_min = relax_mem->relax_vals[0];
-  for (i = 1; i < ark_mem->relax_mem->num_relax_fn; ++i)
-  {
-    relax_val_min = SUNMIN(relax_val_min, relax_mem->relax_vals[i]);
-    relax_val_max = SUNMAX(relax_val_max, relax_mem->relax_vals[i]);
-  }
-
   /* Check for bad relaxation value */
-  if (relax_val_min < relax_mem->lower_bound ||
-      relax_val_max > relax_mem->upper_bound)
+  if (ark_mem->relax_mem->relax_param < relax_mem->lower_bound ||
+      ark_mem->relax_mem->relax_param > relax_mem->upper_bound)
     return ARK_RELAX_SOLVE_RECV;
 
-  /* Return min relaxation value */
-  *relax_val_out = relax_val_min;
+  /* Return relaxation value */
+  *relax_val_out = ark_mem->relax_mem->relax_param;
 
   return ARK_SUCCESS;
 }
@@ -520,7 +493,7 @@ int arkRelaxPrintAllStats(void* arkode_mem, FILE* outfile, SUNOutputFormat fmt)
  * ===========================================================================*/
 
 /* Constructor called by stepper */
-int arkRelaxCreate(void* arkode_mem, int num_relax_fn, ARKRelaxFn relax_fn,
+int arkRelaxCreate(void* arkode_mem, ARKRelaxFn relax_fn,
                    ARKRelaxJacFn relax_jac_fn, ARKRelaxDeltaYFn delta_y_fn,
                    ARKRelaxDeltaEFn delta_e_fn, ARKRelaxGetOrderFn get_order_fn)
 {
@@ -535,44 +508,29 @@ int arkRelaxCreate(void* arkode_mem, int num_relax_fn, ARKRelaxFn relax_fn,
   }
   ark_mem = (ARKodeMem)arkode_mem;
 
-  /* Check for valid inputs */
-  if (num_relax_fn < 0)
+  /* Disable relaxation if both user inputs are NULL */
+  if (!relax_fn && !relax_jac_fn)
   {
-    arkProcessError(ark_mem, ARK_ILL_INPUT, "ARKODE", "arkRelaxCreate",
-                    "The number of relaxation functions must be non-negative");
-    return ARK_ILL_INPUT;
+    ark_mem->relax_enabled = SUNFALSE;
+    return ARK_SUCCESS;
   }
 
-  if (num_relax_fn == 0 && (relax_fn || relax_jac_fn))
-  {
-    arkProcessError(ark_mem, ARK_ILL_INPUT, "ARKODE", "arkRelaxCreate",
-                    "The number of relaxation functions is 0 but the relaxation"
-                    " or Jacobian function was not NULL.");
-    return ARK_ILL_INPUT;
-  }
-
-  if (num_relax_fn > 0 && !relax_fn)
+  /* Ensure both the relaxation function and Jacobian are provided */
+  if (!relax_fn)
   {
     arkProcessError(ark_mem, ARK_ILL_INPUT, "ARKODE", "arkRelaxCreate",
                     "The relaxation function is NULL.");
     return ARK_ILL_INPUT;
   }
 
-  if (num_relax_fn > 0 && !relax_jac_fn)
+  if (!relax_jac_fn)
   {
     arkProcessError(ark_mem, ARK_ILL_INPUT, "ARKODE", "arkRelaxCreate",
                     "The relaxation Jacobian function is NULL.");
     return ARK_ILL_INPUT;
   }
 
-  /* Disable relaxation if user inputs are 0 and NULL */
-  if (num_relax_fn == 0 && !relax_fn && !relax_jac_fn)
-  {
-    ark_mem->relax_enabled = SUNFALSE;
-    return ARK_SUCCESS;
-  }
-
-  /* Check for stepper supplied inputs */
+  /* Ensure stepper supplied inputs are provided */
   if (!delta_y_fn || !delta_e_fn || !get_order_fn)
   {
     arkProcessError(ark_mem, ARK_ILL_INPUT, "ARKODE", "arkRelaxCreate",
@@ -580,98 +538,29 @@ int arkRelaxCreate(void* arkode_mem, int num_relax_fn, ARKRelaxFn relax_fn,
     return ARK_ILL_INPUT;
   }
 
-  /* Check if sufficient memory has already been allocated */
-  if (ark_mem->relax_mem)
-  {
-    if (ark_mem->relax_mem->num_relax_fn_alloc < num_relax_fn)
-    {
-      arkRelaxDestroy(arkode_mem);
-      ark_mem->relax_mem = NULL;
-    }
-  }
-
-  /* Allocate the relaxation memory structure if necessary */
+  /* Allocate and initialize relaxation memory structure */
   if (!(ark_mem->relax_mem))
   {
     ark_mem->relax_mem = (ARKodeRelaxMem)malloc(sizeof(*(ark_mem->relax_mem)));
     if (!(ark_mem->relax_mem)) return ARK_MEM_FAIL;
-
-    /* Zero out relax_mem */
     memset(ark_mem->relax_mem, 0, sizeof(struct ARKodeRelaxMemRec));
 
-    /* Allocate vectors */
-    ark_mem->relax_mem->y_relax = N_VCloneVectorArray(num_relax_fn, ark_mem->yn);
-    if (!(ark_mem->relax_mem->y_relax))
-    {
-      arkRelaxDestroy(arkode_mem);
-      return ARK_MEM_FAIL;
-    }
-
-    ark_mem->relax_mem->J_vecs = N_VCloneVectorArray(num_relax_fn, ark_mem->yn);
-    if (!(ark_mem->relax_mem->J_vecs))
-    {
-      arkRelaxDestroy(arkode_mem);
-      return ARK_MEM_FAIL;
-    }
-
-    /* Allocate arrays */
-    ark_mem->relax_mem->delta_e =
-      (sunrealtype*)malloc(num_relax_fn * sizeof(sunrealtype));
-    if (!(ark_mem->relax_mem->delta_e))
-    {
-      arkRelaxDestroy(arkode_mem);
-      return ARK_MEM_FAIL;
-    }
-
-    ark_mem->relax_mem->e_old =
-      (sunrealtype*)malloc(num_relax_fn * sizeof(sunrealtype));
-    if (!(ark_mem->relax_mem->e_old))
-    {
-      arkRelaxDestroy(arkode_mem);
-      return ARK_MEM_FAIL;
-    }
-
-    ark_mem->relax_mem->res_vals =
-      (sunrealtype*)malloc(num_relax_fn * sizeof(sunrealtype));
-    if (!(ark_mem->relax_mem->res_vals))
-    {
-      arkRelaxDestroy(arkode_mem);
-      return ARK_MEM_FAIL;
-    }
-
-    ark_mem->relax_mem->jac_vals =
-      (sunrealtype*)malloc(num_relax_fn * sizeof(sunrealtype));
-    if (!(ark_mem->relax_mem->jac_vals))
-    {
-      arkRelaxDestroy(arkode_mem);
-      return ARK_MEM_FAIL;
-    }
-
-    ark_mem->relax_mem->relax_vals =
-      (sunrealtype*)malloc(num_relax_fn * sizeof(sunrealtype));
-    if (!(ark_mem->relax_mem->relax_vals))
-    {
-      arkRelaxDestroy(arkode_mem);
-      return ARK_MEM_FAIL;
-    }
-
-    ark_mem->relax_mem->num_relax_fn_alloc = num_relax_fn;
+    /* Initialize other values */
+    ark_mem->relax_mem->max_fails   = ARK_RELAX_DEFAULT_MAX_FAILS;
+    ark_mem->relax_mem->lower_bound = ARK_RELAX_DEFAULT_LOWER_BOUND;
+    ark_mem->relax_mem->upper_bound = ARK_RELAX_DEFAULT_UPPER_BOUND;
+    ark_mem->relax_mem->eta_fail    = ARK_RELAX_DEFAULT_ETA_FAIL;
+    ark_mem->relax_mem->solver      = ARK_RELAX_NEWTON;
+    ark_mem->relax_mem->tol         = ARK_RELAX_DEFAULT_TOL;
+    ark_mem->relax_mem->max_iters   = ARK_RELAX_DEFAULT_MAX_ITERS;
   }
 
-  /* Initialize other values */
+  /* Set function pointers */
   ark_mem->relax_mem->relax_fn     = relax_fn;
   ark_mem->relax_mem->relax_jac_fn = relax_jac_fn;
   ark_mem->relax_mem->delta_y_fn   = delta_y_fn;
   ark_mem->relax_mem->delta_e_fn   = delta_e_fn;
   ark_mem->relax_mem->get_order_fn = get_order_fn;
-  ark_mem->relax_mem->num_relax_fn = num_relax_fn;
-  ark_mem->relax_mem->max_fails    = ARK_RELAX_DEFAULT_MAX_FAILS;
-  ark_mem->relax_mem->lower_bound  = ARK_RELAX_DEFAULT_LOWER_BOUND;
-  ark_mem->relax_mem->upper_bound  = ARK_RELAX_DEFAULT_UPPER_BOUND;
-  ark_mem->relax_mem->eta_fail     = ARK_RELAX_DEFAULT_ETA_FAIL;
-  ark_mem->relax_mem->solver       = ARK_RELAX_NEWTON;
-  ark_mem->relax_mem->tol          = ARK_RELAX_DEFAULT_TOL;
-  ark_mem->relax_mem->max_iters    = ARK_RELAX_DEFAULT_MAX_ITERS;
 
   /* Enable relaxation */
   ark_mem->relax_enabled = SUNTRUE;
@@ -683,50 +572,6 @@ int arkRelaxCreate(void* arkode_mem, int num_relax_fn, ARKRelaxFn relax_fn,
 int arkRelaxDestroy(ARKodeRelaxMem relax_mem)
 {
   if (!relax_mem) return ARK_SUCCESS;
-
-  /* Free vectors */
-  if (relax_mem->y_relax)
-  {
-    N_VDestroyVectorArray(relax_mem->y_relax, relax_mem->num_relax_fn_alloc);
-    relax_mem->y_relax = NULL;
-  }
-
-  if (relax_mem->J_vecs)
-  {
-    N_VDestroyVectorArray(relax_mem->J_vecs, relax_mem->num_relax_fn_alloc);
-    relax_mem->J_vecs = NULL;
-  }
-
-  /* Free arrays */
-  if (relax_mem->delta_e)
-  {
-    free(relax_mem->delta_e);
-    relax_mem->delta_e = NULL;
-  }
-
-  if (relax_mem->e_old)
-  {
-    free(relax_mem->e_old);
-    relax_mem->e_old = NULL;
-  }
-
-  if (relax_mem->res_vals)
-  {
-    free(relax_mem->res_vals);
-    relax_mem->res_vals = NULL;
-  }
-
-  if (relax_mem->jac_vals)
-  {
-    free(relax_mem->jac_vals);
-    relax_mem->jac_vals = NULL;
-  }
-
-  if (relax_mem->relax_vals)
-  {
-    free(relax_mem->relax_vals);
-    relax_mem->relax_vals = NULL;
-  }
 
   /* Free structure */
   free(relax_mem);

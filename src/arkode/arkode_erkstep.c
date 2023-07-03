@@ -1168,7 +1168,7 @@ int erkStep_ComputeSolutions(ARKodeMem ark_mem, realtype *dsmPtr)
  * Computes the RK update to yn for use in relaxation methods
  * ---------------------------------------------------------------------------*/
 
-int erkStep_RelaxDeltaY(ARKodeMem ark_mem, N_Vector* delta_y)
+int erkStep_RelaxDeltaY(ARKodeMem ark_mem, N_Vector delta_y)
 {
   int i, nvec, retval;
   realtype* cvals;
@@ -1197,10 +1197,8 @@ int erkStep_RelaxDeltaY(ARKodeMem ark_mem, N_Vector* delta_y)
   }
 
   /* Compute time step update (delta_y) */
-  retval = N_VLinearCombination(nvec, cvals, Xvecs, ark_mem->tempv1);
+  retval = N_VLinearCombination(nvec, cvals, Xvecs, delta_y);
   if (retval) return ARK_VECTOROP_ERR;
-
-  *delta_y = ark_mem->tempv1;
 
   return ARK_SUCCESS;
 }
@@ -1212,15 +1210,15 @@ int erkStep_RelaxDeltaY(ARKodeMem ark_mem, N_Vector* delta_y)
  * delta_e = h * sum_i b_i * <rjac(z_i), f_i>
  * ---------------------------------------------------------------------------*/
 
-int erkStep_RelaxDeltaE(ARKodeMem ark_mem, int num_relax_fn,
-                        ARKRelaxJacFn relax_jac_fn, N_Vector* work_space_1,
-                        N_Vector* work_space_2, long int* num_relax_jac_evals,
-                        sunrealtype* delta_e_out)
+int erkStep_RelaxDeltaE(ARKodeMem ark_mem, ARKRelaxJacFn relax_jac_fn,
+                        long int* num_relax_jac_evals, sunrealtype* delta_e_out)
 {
   int i, j, nvec, retval;
   realtype* cvals;
   N_Vector* Xvecs;
   ARKodeERKStepMem step_mem;
+  N_Vector z_stage = ark_mem->tempv1;
+  N_Vector J_relax = ark_mem->tempv2;
 
   /* Access the stepper memory structure */
   if (!(ark_mem->step_mem))
@@ -1232,10 +1230,7 @@ int erkStep_RelaxDeltaE(ARKodeMem ark_mem, int num_relax_fn,
   step_mem = (ARKodeERKStepMem)(ark_mem->step_mem);
 
   /* Initialize output */
-  for (j = 0; j < num_relax_fn; j++)
-  {
-    delta_e_out[j] = ZERO;
-  }
+  *delta_e_out = ZERO;
 
   /* Set arrays for fused vector operation */
   cvals = step_mem->cvals;
@@ -1243,14 +1238,13 @@ int erkStep_RelaxDeltaE(ARKodeMem ark_mem, int num_relax_fn,
 
   for (i = 0; i < step_mem->stages; i++)
   {
+    /* Construct stages z[i] = y_n + h * sum_j Ae[i,j] Fe[j] + Ai[i,j] Fi[j] */
     nvec = 0;
 
-    /* Start with y_n */
     cvals[nvec] = ONE;
     Xvecs[nvec] = ark_mem->yn;
     nvec++;
 
-    /* Explicit pieces */
     for (j = 0; j < i; j++)
     {
       cvals[nvec] = ark_mem->h * step_mem->B->A[i][j];
@@ -1258,37 +1252,24 @@ int erkStep_RelaxDeltaE(ARKodeMem ark_mem, int num_relax_fn,
       nvec++;
     }
 
-    /* Construct stages z[i] = y_n + h * sum_j Ae[i,j] Fe[j] */
-    retval = N_VLinearCombination(nvec, cvals, Xvecs, ark_mem->tempv2);
+    retval = N_VLinearCombination(nvec, cvals, Xvecs, z_stage);
     if (retval) return ARK_VECTOROP_ERR;
 
-    /* Duplicate stage to compute entropy Jacobians at z_i */
-    for (j = 0; j < num_relax_fn; j++)
-    {
-      N_VScale(ONE, ark_mem->tempv2, work_space_1[j]);
-    }
-
-    /* Evaluate the Jacobians at z_i */
-    retval = relax_jac_fn(work_space_1, work_space_2, ark_mem->user_data);
+    /* Evaluate the Jacobian at z_i */
+    retval = relax_jac_fn(z_stage, J_relax, ark_mem->user_data);
     (*num_relax_jac_evals)++;
     if (retval < 0) { return ARK_RELAX_JAC_FAIL; }
     if (retval > 0) { return ARK_RELAX_JAC_RECV; }
 
     /* Update estimates */
-    for (j = 0; j < num_relax_fn; j++)
-    {
-      delta_e_out[j] += step_mem->B->b[i] * N_VDotProdLocal(work_space_2[j],
-                                                            step_mem->F[i]);
-    }
+    *delta_e_out += step_mem->B->b[i] * N_VDotProdLocal(J_relax,
+                                                        step_mem->F[i]);
   }
 
   /* Ignore negative return for node-local vectors where this is a non-op */
-  N_VDotProdMultiAllReduce(num_relax_fn, ark_mem->tempv1, delta_e_out);
+  N_VDotProdMultiAllReduce(1, J_relax, delta_e_out);
 
-  for (j = 0; j < num_relax_fn; j++)
-  {
-    delta_e_out[j] *= ark_mem->h;
-  }
+  delta_e_out[j] *= ark_mem->h;
 
   return ARK_SUCCESS;
 }

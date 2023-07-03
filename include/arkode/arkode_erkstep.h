@@ -261,8 +261,8 @@ SUNDIALS_EXPORT void ERKStepFree(void **arkode_mem);
 SUNDIALS_EXPORT void ERKStepPrintMem(void* arkode_mem, FILE* outfile);
 
 /* Relaxation functions */
-SUNDIALS_EXPORT int ERKStepSetRelaxFn(void* arkode_mem, int nrfn,
-                                      ARKRelaxFn rfn, ARKRelaxJacFn rjac);
+SUNDIALS_EXPORT int ERKStepSetRelaxFn(void* arkode_mem, ARKRelaxFn rfn,
+                                      ARKRelaxJacFn rjac);
 SUNDIALS_EXPORT int ERKStepSetRelaxEtaFail(void* arkode_mem,
                                            sunrealtype eta_rf);
 SUNDIALS_EXPORT int ERKStepSetRelaxLowerBound(void* arkode_mem,

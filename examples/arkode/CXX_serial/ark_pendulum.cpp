@@ -64,10 +64,10 @@ int Jac(sunrealtype t, N_Vector y, N_Vector fy, SUNMatrix J, void* user_data,
         N_Vector tmp1, N_Vector tmp2, N_Vector tmp3);
 
 // Energy function
-int Eng(N_Vector* y, sunrealtype* e, void* user_data);
+int Eng(N_Vector y, sunrealtype* e, void* user_data);
 
 // Energy Jacobian function
-int JacEng(N_Vector* y, N_Vector* J, void* user_data);
+int JacEng(N_Vector y, N_Vector J, void* user_data);
 
 /* ------------ *
  * Main Program *
@@ -128,7 +128,7 @@ int main(int argc, char* argv[])
 
   // Initial energy
   sunrealtype eng0;
-  int flag = Eng(&y, &eng0, nullptr);
+  int flag = Eng(y, &eng0, nullptr);
   if (check_flag(flag, "Eng")) return 1;
 
   // Initialize the ARKStep
@@ -144,7 +144,7 @@ int main(int argc, char* argv[])
   if (relax)
   {
     // Enable relaxation methods
-    flag = ARKStepSetRelaxFn(arkode_mem, 1, Eng, JacEng);
+    flag = ARKStepSetRelaxFn(arkode_mem, Eng, JacEng);
     if (check_flag(flag, "ARKStepSetRelaxFn")) return 1;
 
     flag = ARKStepSetRelaxMaxIters(arkode_mem, 100);
@@ -238,7 +238,7 @@ int main(int argc, char* argv[])
 
     // Output solution and errors
     sunrealtype eng;
-    flag = Eng(&y, &eng, nullptr);
+    flag = Eng(y, &eng, nullptr);
     if (check_flag(flag, "Eng")) return 1;
 
     sunrealtype eng_chng = eng - eng0;
@@ -383,20 +383,20 @@ int Jac(sunrealtype t, N_Vector y, N_Vector fy, SUNMatrix J, void* user_data,
 }
 
 // Energy function e(y)
-int Eng(N_Vector* y, sunrealtype* e, void* user_data)
+int Eng(N_Vector y, sunrealtype* e, void* user_data)
 {
-  sunrealtype* ydata = N_VGetArrayPointer(y[0]);
+  sunrealtype* ydata = N_VGetArrayPointer(y);
 
-  e[0] = SUN_RCONST(0.5) * ydata[0] * ydata[0] - std::cos(ydata[1]);
+  *e = SUN_RCONST(0.5) * ydata[0] * ydata[0] - std::cos(ydata[1]);
 
   return 0;
 }
 
 // Energy function Jacobian Je(y) = de/dy
-int JacEng(N_Vector* y, N_Vector* J, void* user_data)
+int JacEng(N_Vector y, N_Vector J, void* user_data)
 {
-  sunrealtype* ydata = N_VGetArrayPointer(y[0]);
-  sunrealtype* jdata = N_VGetArrayPointer(J[0]);
+  sunrealtype* ydata = N_VGetArrayPointer(y);
+  sunrealtype* jdata = N_VGetArrayPointer(J);
 
   jdata[0] = ydata[0];
   jdata[1] = std::sin(ydata[1]);

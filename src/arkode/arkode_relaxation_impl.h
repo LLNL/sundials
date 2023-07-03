@@ -49,12 +49,10 @@
  * ---------------------------------------------------------------------------*/
 
 /* Compute the change in state for the current step y_new = y_old + delta_y */
-typedef int (*ARKRelaxDeltaYFn)(ARKodeMem ark_mem, N_Vector* delta_y);
+typedef int (*ARKRelaxDeltaYFn)(ARKodeMem ark_mem, N_Vector delta_y);
 
 /* Compute the estimated change in entropy for this step delta_e */
-typedef int (*ARKRelaxDeltaEFn)(ARKodeMem ark_mem, int num_relax_fn,
-                                ARKRelaxJacFn relax_jac_fn,
-                                N_Vector* work_space_1, N_Vector* work_space_2,
+typedef int (*ARKRelaxDeltaEFn)(ARKodeMem ark_mem, ARKRelaxJacFn relax_jac_fn,
                                 long int* evals_out, sunrealtype* delta_e_out);
 
 /* Get the method order */
@@ -73,23 +71,16 @@ struct ARKodeRelaxMemRec
   ARKRelaxDeltaEFn delta_e_fn;     /* get delta entropy from stepper       */
   ARKRelaxGetOrderFn get_order_fn; /* get the method order                 */
 
-  /* stepper computed quantities used in the residual and Jacobian */
-  N_Vector delta_y;     /* change in solution */
-  sunrealtype* delta_e; /* change in entropy  */
-
   /* relaxation variables */
-  int num_relax_fn;             /* number of entropy functions         */
-  int num_relax_fn_alloc;       /* allocated workspce size             */
   int max_fails;                /* max allowed relax fails in a step   */
   long int num_relax_fn_evals;  /* counter for total function evals    */
   long int num_relax_jac_evals; /* counter for total jacobian evals    */
   long int num_fails;           /* counter for total relaxation fails  */
-  N_Vector* y_relax;            /* relaxed state y_n + relax * delta_y */
-  N_Vector* J_vecs;             /* relaxation Jacobian vectors         */
-  sunrealtype* e_old;           /* entropy at start of step y(t_{n-1}) */
-  sunrealtype* res_vals;        /* relaxation residual values          */
-  sunrealtype* jac_vals;        /* relaxation Jacobian values          */
-  sunrealtype* relax_vals;      /* relaxation parameter values         */
+  sunrealtype e_old;            /* entropy at start of step y(t_{n-1}) */
+  sunrealtype delta_e;          /* change in entropy                   */
+  sunrealtype res;              /* relaxation residual value           */
+  sunrealtype jac;              /* relaxation Jacobian value           */
+  sunrealtype relax_param;      /* relaxation parameter value          */
   sunrealtype lower_bound;      /* smallest allowed relaxation value   */
   sunrealtype upper_bound;      /* largest allowed relaxation value    */
   sunrealtype eta_fail;         /* failed relaxation step size factor  */
@@ -107,7 +98,7 @@ struct ARKodeRelaxMemRec
  * ---------------------------------------------------------------------------*/
 
 /* Driver and Stepper Functions */
-int arkRelaxCreate(void* arkode_mem, int num_relax_fn, ARKRelaxFn relax_fn,
+int arkRelaxCreate(void* arkode_mem, ARKRelaxFn relax_fn,
                    ARKRelaxJacFn relax_jac_fn, ARKRelaxDeltaYFn delta_y_fn,
                    ARKRelaxDeltaEFn delta_e_fn,
                    ARKRelaxGetOrderFn get_order_fn);

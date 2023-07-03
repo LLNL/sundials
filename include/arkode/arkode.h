@@ -176,9 +176,9 @@ typedef int (*ARKPostProcessFn)(realtype t, N_Vector y,
 typedef int (*ARKStagePredictFn)(realtype t, N_Vector zpred,
                                  void *user_data);
 
-typedef int (*ARKRelaxFn)(N_Vector* y, realtype* r, void* user_data);
+typedef int (*ARKRelaxFn)(N_Vector y, realtype* r, void* user_data);
 
-typedef int (*ARKRelaxJacFn)(N_Vector* y, N_Vector* J, void* user_data);
+typedef int (*ARKRelaxJacFn)(N_Vector y, N_Vector J, void* user_data);
 
 /* --------------------------
  * MRIStep Inner Stepper Type

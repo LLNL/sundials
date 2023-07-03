@@ -154,10 +154,9 @@ char *ERKStepGetReturnFlagName(long int flag) {
  * Wrappers for the ARKODE relaxation module
  * ---------------------------------------------------------------------------*/
 
-int ERKStepSetRelaxFn(void* arkode_mem, int nrfn, ARKRelaxFn rfn,
-                      ARKRelaxJacFn rjac)
+int ERKStepSetRelaxFn(void* arkode_mem, ARKRelaxFn rfn, ARKRelaxJacFn rjac)
 {
-  return arkRelaxCreate(arkode_mem, nrfn, rfn, rjac, erkStep_RelaxDeltaY,
+  return arkRelaxCreate(arkode_mem, rfn, rjac, erkStep_RelaxDeltaY,
                         erkStep_RelaxDeltaE, erkStep_GetOrder);
 }
 

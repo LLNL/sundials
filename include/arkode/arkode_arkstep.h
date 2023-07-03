@@ -474,8 +474,8 @@ SUNDIALS_EXPORT int ARKStepCreateMRIStepInnerStepper(void *arkode_mem,
                                                      MRIStepInnerStepper *stepper);
 
 /* Relaxation functions */
-SUNDIALS_EXPORT int ARKStepSetRelaxFn(void* arkode_mem, int nrfn,
-                                      ARKRelaxFn rfn, ARKRelaxJacFn rjac);
+SUNDIALS_EXPORT int ARKStepSetRelaxFn(void* arkode_mem, ARKRelaxFn rfn,
+                                      ARKRelaxJacFn rjac);
 SUNDIALS_EXPORT int ARKStepSetRelaxEtaFail(void* arkode_mem,
                                            sunrealtype eta_rf);
 SUNDIALS_EXPORT int ARKStepSetRelaxLowerBound(void* arkode_mem,
