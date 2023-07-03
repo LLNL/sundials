@@ -60,7 +60,7 @@ set(SUNLINSOL_SPGMR_LIB sundials_sunlinsolspgmr)
 set(NVECS_LIB sundials_nvecserial)
 if (BUILD_FORTRAN_MODULE_INTERFACE)
   list(APPEND NVECS_LIB sundials_fnvecserial_mod)
-  list(APPEND SUNLINSOL_SPGMR_LIB sundials_fsunlinsolband_mod)
+  list(APPEND SUNLINSOL_SPGMR_LIB sundials_fsunlinsolspgmr_mod)
 endif()
 
 # Set-up linker flags and link libraries
