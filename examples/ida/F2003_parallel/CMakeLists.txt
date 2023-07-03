@@ -27,45 +27,20 @@ else()
     )
 endif()
 
-# Only include test if OpenMP is enabled
-if(ENABLE_OPENMP)
-  set(FIDA_examples
-    "ida_roberts_dns_openmp_f2003\;\;4\;develop\;2")
-endif()
-
-# Only include test if Pthreads is enabled
-if(ENABLE_PTHREAD)
-  set(FIDA_examples
-    #"ida_roberts_dns_pthreads_f2003\;\;1\;\;develop\;2"
-    )
-endif()
-
-#if(MPI_Fortran_COMPILER)
+if(MPI_Fortran_COMPILER)
   # use MPI wrapper as the compiler
-  #set(CMAKE_Fortran_COMPILER ${MPI_Fortran_COMPILER})
-#else()
-  # add MPI_INCLUDE_PATH to include directories
-  #include_directories(${MPI_INCLUDE_PATH})
-#endif()
-
-if(OPENMP_Fortran_COMPILER)
-  # use OpenMP wrapper as the compiler
-  set(CMAKE_Fortran_COMPILER ${OPENMP_Fortran_COMPILER})
+  set(CMAKE_Fortran_COMPILER ${MPI_Fortran_COMPILER})
 else()
-  # add OPENMP_INCLUDE_PATH to include directories
-  include_directories(${OPENMP_INCLUDE_PATH})
+  # add MPI_INCLUDE_PATH to include directories
+  include_directories(${MPI_INCLUDE_PATH})
 endif()
 
 # Specify libraries to link against
 set(IDA_LIBS
   sundials_ida
   sundials_fida_mod
-  #sundials_nvecparallel
-  #sundials_fnvecparallel_mod
-  sundials_nvecopenmp
-  sundials_fnvecopenmp_mod
-  #sundials_nvecpthreads
-  #sundials_fnvecpthreads_mod
+  sundials_nvecparallel
+  sundials_fnvecparallel_mod
   )
 
 # Set-up linker flags and link libraries
