@@ -59,10 +59,10 @@ if(BUILD_ARKODE AND BUILD_CVODE AND BUILD_IDA)
     DESTINATION "${BENCHMARKS_INSTALL_PATH}/advection_reaction_3D/raja")
 
   set(BENCHMARK_VAR
-    "--method ARK-IMEX --nls tl-newton --tf 0.01 --dont-save\;arkimex_tlnewton"
-    "--method ARK-DIRK --nls newton --tf 0.01 --dont-save\;arkdirk_newton"
-    "--method CV-BDF --nls newton --tf 0.01 --dont-save\;cvbdf_newton"
-    "--method IDA --nls newton --tf 0.01 --dont-save\;ida_newton"
+    "--method ARK-IMEX --nls tl-newton --tf 0.01 --dont-save\;arkimex_tlnewton_raja"
+    "--method ARK-DIRK --nls newton --tf 0.01 --dont-save\;arkdirk_newton_raja"
+    "--method CV-BDF --nls newton --tf 0.01 --dont-save\;cvbdf_newton_raja"
+    "--method IDA --nls newton --tf 0.01 --dont-save\;ida_newton_raja"
     )
 
   # NUM_CORES based on Lassen system for 1 node
