@@ -1801,14 +1801,6 @@ static void VSum_ParHyp(N_Vector x, N_Vector y, N_Vector z)
   for (i = 0; i < N; i++)
     zd[i] = xd[i]+yd[i];
   #elif defined(SUNDIALS_HYPRE_BACKENDS_CUDA)
-  // size_t grid, block, shMemSize;
-  // cudaStream_t stream;
-
-  // if (GetKernelParameters(X, false, grid, block, shMemSize, stream))
-  // {
-  //   SUNDIALS_DEBUG_PRINT("ERROR in N_VLinearSum_Cuda: GetKernelParameters returned nonzero\n");
-  // }
-
   linearSumKernel<<<1, 100, 0, 0>>>
   (
     1.0,
@@ -1818,9 +1810,8 @@ static void VSum_ParHyp(N_Vector x, N_Vector y, N_Vector z)
     zd,
     N
   );
-  // PostKernelLaunch();
   #endif
-  
+
   return;
 }
 
@@ -1836,8 +1827,20 @@ static void VDiff_ParHyp(N_Vector x, N_Vector y, N_Vector z)
   yd = NV_DATA_PH(y);
   zd = NV_DATA_PH(z);
 
+  #if defined(SUNDIALS_HYPRE_BACKENDS_SERIAL)
   for (i = 0; i < N; i++)
     zd[i] = xd[i]-yd[i];
+  #elif defined(SUNDIALS_HYPRE_BACKENDS_CUDA)
+  linearSumKernel<<<1, 100, 0, 0>>>
+  (
+    1.0, // (1.0)*x[i]
+    xd,
+    -1.0, // (-1.0)*y[i]
+    yd,
+    zd,
+    N
+  );
+  #endif
 
   return;
 }
@@ -1855,8 +1858,20 @@ static void VScaleSum_ParHyp(realtype c, N_Vector x, N_Vector y, N_Vector z)
   yd = NV_DATA_PH(y);
   zd = NV_DATA_PH(z);
 
+  #if defined(SUNDIALS_HYPRE_BACKENDS_SERIAL)
   for (i = 0; i < N; i++)
     zd[i] = c*(xd[i]+yd[i]);
+  #elif defined(SUNDIALS_HYPRE_BACKENDS_CUDA)
+  linearSumKernel<<<1, 100, 0, 0>>>
+  (
+    c, // c*x[i]
+    xd,
+    c, // c*y[i]
+    yd,
+    zd,
+    N
+  );
+  #endif
 
   return;
 }
@@ -1873,8 +1888,20 @@ static void VScaleDiff_ParHyp(realtype c, N_Vector x, N_Vector y, N_Vector z)
   yd = NV_DATA_PH(y);
   zd = NV_DATA_PH(z);
 
+  #if defined(SUNDIALS_HYPRE_BACKENDS_SERIAL)
   for (i = 0; i < N; i++)
     zd[i] = c*(xd[i]-yd[i]);
+  #elif defined(SUNDIALS_HYPRE_BACKENDS_CUDA)
+  linearSumKernel<<<1, 100, 0, 0>>>
+  (
+    c, // c*x[i]
+    xd,
+    (-1.0)*c, // -c*y[i]
+    yd,
+    zd,
+    N
+  );
+  #endif
 
   return;
 }
@@ -1891,8 +1918,20 @@ static void VLin1_ParHyp(realtype a, N_Vector x, N_Vector y, N_Vector z)
   yd = NV_DATA_PH(y);
   zd = NV_DATA_PH(z);
 
+  #if defined(SUNDIALS_HYPRE_BACKENDS_SERIAL)
   for (i = 0; i < N; i++)
     zd[i] = (a*xd[i])+yd[i];
+  #elif defined(SUNDIALS_HYPRE_BACKENDS_CUDA)
+  linearSumKernel<<<1, 100, 0, 0>>>
+  (
+    a, // a*x[i]
+    xd,
+    1.0, // (1.0)*y[i]
+    yd,
+    zd,
+    N
+  );
+  #endif
 
   return;
 }
@@ -1909,8 +1948,20 @@ static void VLin2_ParHyp(realtype a, N_Vector x, N_Vector y, N_Vector z)
   yd = NV_DATA_PH(y);
   zd = NV_DATA_PH(z);
 
+  #if defined(SUNDIALS_HYPRE_BACKENDS_SERIAL)
   for (i = 0; i < N; i++)
     zd[i] = (a*xd[i])-yd[i];
+  #elif defined(SUNDIALS_HYPRE_BACKENDS_CUDA)
+  linearSumKernel<<<1, 100, 0, 0>>>
+  (
+    a, // a*x[i]
+    xd,
+    -1.0, // (-1.0)*y[i]
+    yd,
+    zd,
+    N
+  );
+  #endif
 
   return;
 }
