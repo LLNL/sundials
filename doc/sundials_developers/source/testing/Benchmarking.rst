@@ -69,13 +69,16 @@ test will contain the output and the tests will fail.
 
 Turning on the ``BUILD_BENCHMARKS`` option will build benchmarks. Running
 ``make benchmark`` will execute all the available benchmarks and produce
-`.cali` output files for each one.
+`.cali` output files for each one. To change what parameters benchmarks are run
+with, edit the respective `CMakeLists.txt`. The ``BENCHMARK_VARS`` variable
+determines how many tests to run with different parameters. Arguments passed
+into the ``sundials_add_benchmark`` macro change how the benchmark is run.
 
 To specify where `.cali` output files are placed, define the CMake option
-SUNDIALS_TEST_OUTPUT_DIR with the directory path. By default `.cali` output
+SUNDIALS_CALIPER_OUTPUT_DIR with the directory path. By default `.cali` output
 files are placed in the build directory (:ref:`Installation`) under
 ``Benchmarking/output`` and ``Testing/output``.
 
-Refer to section :ref:`Benchmarks` for instructions on building
+Refer to section :ref:`Benchmarks` for details on instructions on building
 and running the ``benchmarks/`` programs locally. Refer to section <<examples>>
 for instructions on build and running examples locally.
