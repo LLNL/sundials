@@ -1,5 +1,5 @@
 # ---------------------------------------------------------------
-# Programmer(s):  Cody J. Balos @ LLNL
+# Programmer(s): Daniel R. Reynolds @ SMU
 # ---------------------------------------------------------------
 # SUNDIALS Copyright Start
 # Copyright (c) 2002-2023, Lawrence Livermore National Security
@@ -12,11 +12,9 @@
 # SUNDIALS Copyright End
 # ---------------------------------------------------------------
 
-if(BUILD_ARKODE AND BUILD_CVODE AND BUILD_IDA)
-
-  if((RAJA_BACKENDS MATCHES "TARGET_OPENMP") OR (RAJA_BACKENDS MATCHES "OPENMP"))
-    set(OTHER_LIBS OpenMP::OpenMP_CXX)
-  endif()
+if(ENABLE_RAJA)
+  add_subdirectory(raja)
+endif()
 
   # ----------------------------------------------------------------------------
   # MPI only
