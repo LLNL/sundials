@@ -163,6 +163,151 @@ static int arkRelaxNewtonSolve(ARKodeMem ark_mem)
 }
 
 /* Solve the relaxation residual equation using Newton's method */
+static int arkRelaxBrentsSolve(ARKodeMem ark_mem)
+{
+  int i, j, retval;
+  sunrealtype prev, f_prev; /* previous solution and function value */
+  sunrealtype curr, f_curr; /* current solution and function value  */
+  sunrealtype brac, f_brac; /* together brac and curr bracket zero  */
+  sunrealtype mid;          /* midpoint between brac and curr       */
+  ARKodeRelaxMem relax_mem = ark_mem->relax_mem;
+  N_Vector delta_y = ark_mem->tempv1;
+  N_Vector y_relax = ark_mem->tempv2;
+
+  /* Compute interval that brackets the root */
+  prev = SUN_RCONST(0.9) * relax_mem->relax_param;
+  curr = SUN_RCONST(1.1) * relax_mem->relax_param;
+  for (i = 0; i < 10; i++)
+  {
+    /* y_relax = y_n + r * delta_y */
+    N_VLinearSum(ONE, ark_mem->yn, prev, delta_y, y_relax);
+
+    /* Compute relaxation residual */
+    retval = arkRelaxResidual(prev, y_relax, &f_prev, ark_mem);
+    ark_mem->relax_mem->num_relax_fn_evals++;
+    if (retval < 0) { return ARK_RELAX_FUNC_FAIL; }
+    if (retval > 0) { return ARK_RELAX_FUNC_RECV; }
+
+    /* Check if we got lucky */
+    if (SUNRabs(f_prev) < relax_mem->tol)
+    {
+      relax_mem->res = f_prev;
+      relax_mem->relax_param = prev;
+      return ARK_SUCCESS;
+    }
+
+    if (relax_mem->res < ZERO) break;
+
+    f_curr = f_prev;
+    curr = prev;
+    prev *= SUN_RCONST(0.9);
+  }
+  if (relax_mem->res > ZERO) { return ARK_RELAX_SOLVE_RECV; }
+
+  for (i = 0; i < 10; i++)
+  {
+    /* y_relax = y_n + r * delta_y */
+    N_VLinearSum(ONE, ark_mem->yn, curr, delta_y, y_relax);
+
+    /* Compute relaxation residual */
+    retval = arkRelaxResidual(curr, y_relax, &f_curr, ark_mem);
+    ark_mem->relax_mem->num_relax_fn_evals++;
+    if (retval < 0) { return ARK_RELAX_FUNC_FAIL; }
+    if (retval > 0) { return ARK_RELAX_FUNC_RECV; }
+
+    /* Check if we got lucky */
+    if (SUNRabs(f_curr) < relax_mem->tol)
+    {
+      relax_mem->res = f_curr;
+      relax_mem->relax_param = curr;
+      return ARK_SUCCESS;
+    }
+
+    if (relax_mem->res > ZERO) break;
+
+    f_prev = f_curr;
+    prev = curr;
+    curr *= SUN_RCONST(1.1);
+  }
+  if (relax_mem->res < ZERO) { return ARK_RELAX_SOLVE_RECV; }
+
+  /* Initialize values (prev = lower bound and curr = upper bound) */
+  brac = prev;
+  f_brac = f_prev;
+
+  /* Find root */
+  for (i = 0; i < ark_mem->relax_mem->max_iters; i++)
+  {
+    /* Ensure brac and curr bracket zero */
+    if (signbit(f_prev) != signbit(f_curr))
+    {
+      brac = prev;
+      f_brac = f_prev;
+      // spre = scur = xcur - xpre
+    }
+
+    /* Ensure the current solution better of bracketing values */
+    if (SUNRabs(f_brac) < SUNRabs(f_curr))
+    {
+      prev = curr;
+      curr = brac;
+      brac = prev;
+
+      f_prev = f_curr;
+      f_curr = f_brac;
+      f_brac = f_prev;
+    }
+
+    /* Compute midpoint */
+    mid = SUN_RCONST(0.5) * (c - b);
+
+    if (SUNRabs(mid) < tol1)
+    {
+      relax_mem->relax_param = curr;
+      return ARK_SUCCESS;
+    }
+
+
+    if (SUNRabs(e) > tol1 && SUNRabs(f_perv) > SUNRabs(f_cur))
+    {
+      /* Inverse quadratic interpolation */
+
+    }
+    else
+    {
+      /* Bisection */
+      d = mid;
+      e = d;
+    }
+
+    /* Update previous best solution */
+    prev = curr;
+    f_prev = f_curr;
+
+    /* Compute new current solution */
+    if (SUNRabs(d) > tol1)
+    {
+      curr += d;
+    }
+    else
+    {
+      curr += copysign(tol1, mid);
+    }
+
+    /* y_relax = y_n + r * delta_y */
+    N_VLinearSum(ONE, ark_mem->yn, curr, delta_y, y_relax);
+
+    /* Compute relaxation residual */
+    retval = arkRelaxResidual(curr, y_relax, &f_curr, ark_mem);
+    ark_mem->relax_mem->num_relax_fn_evals++;
+    if (retval < 0) { return ARK_RELAX_FUNC_FAIL; }
+    if (retval > 0) { return ARK_RELAX_FUNC_RECV; }
+  }
+
+  return ARK_RELAX_SOLVE_RECV;
+}
+
+/* Solve the relaxation residual equation using Newton's method */
 static int arkRelaxFixedPointSolve(ARKodeMem ark_mem)
 {
   int i, retval;
