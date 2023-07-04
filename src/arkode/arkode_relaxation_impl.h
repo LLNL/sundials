@@ -30,7 +30,7 @@
  * ---------------------------------------------------------------------------*/
 
 #define ARK_RELAX_DEFAULT_MAX_FAILS   10
-#define ARK_RELAX_DEFAULT_TOL         SUN_RCONST(1.0e-14)
+#define ARK_RELAX_DEFAULT_RES_TOL     (4 * SUN_UNIT_ROUNDOFF)
 #define ARK_RELAX_DEFAULT_MAX_ITERS   5
 #define ARK_RELAX_DEFAULT_LOWER_BOUND SUN_RCONST(0.8)
 #define ARK_RELAX_DEFAULT_UPPER_BOUND SUN_RCONST(1.2)
@@ -86,11 +86,13 @@ struct ARKodeRelaxMemRec
   sunrealtype eta_fail;         /* failed relaxation step size factor  */
 
   /* nonlinear solver settings */
-  ARKRelaxSolver solver;      /* choice of relaxation solver      */
-  sunrealtype tol;            /* nonlinear solve tolerance        */
-  int max_iters;              /* nonlinear solve max iterations   */
-  long int nls_iters;         /* total nonlinear iterations       */
-  long int nls_fails;         /* number of nonlinear solver fails */
+  ARKRelaxSolver solver;      /* choice of relaxation solver          */
+  sunrealtype res_tol;        /* nonlinear residual solve tolerance   */
+  sunrealtype rel_tol;        /* nonlinear iterate relative tolerance */
+  sunrealtype abs_tol;        /* nonlinear iterate absolute tolerance */
+  int max_iters;              /* nonlinear solve max iterations       */
+  long int nls_iters;         /* total nonlinear iterations           */
+  long int nls_fails;         /* number of nonlinear solver fails     */
 };
 
 /* -----------------------------------------------------------------------------
@@ -112,7 +114,7 @@ int arkRelaxSetLowerBound(void* arkode_mem, sunrealtype lower);
 int arkRelaxSetMaxFails(void* arkode_mem, int max_fails);
 int arkRelaxSetMaxIters(void* arkode_mem, int max_iters);
 int arkRelaxSetSolver(void* arkode_mem, ARKRelaxSolver solver);
-int arkRelaxSetTol(void* arkode_mem, sunrealtype tol);
+int arkRelaxSetResTol(void* arkode_mem, sunrealtype res_tol);
 int arkRelaxSetUpperBound(void* arkode_mem, sunrealtype upper);
 
 int arkRelaxGetNumRelaxFnEvals(void* arkode_mem, long int* r_evals);

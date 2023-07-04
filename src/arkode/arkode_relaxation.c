@@ -110,7 +110,7 @@ static int arkRelaxNewtonSolve(ARKodeMem ark_mem)
 #if SUNDIALS_LOGGING_LEVEL >= SUNDIALS_LOGGING_INFO
   SUNLogger_QueueMsg(ARK_LOGGER, SUN_LOGLEVEL_INFO,
                      "ARKODE::arkStep_TakeStep_Z", "NewtonSolve",
-                     "tolerance = %g", relax_mem->tol);
+                     "tolerance = %g", relax_mem->res_tol);
   SUNLogger_QueueMsg(ARK_LOGGER, SUN_LOGLEVEL_INFO,
                      "ARKODE::arkStep_TakeStep_Z", "NewtonSolve",
                      "0: relaxation param = %g", relax_mem->relax_param);
@@ -133,7 +133,7 @@ static int arkRelaxNewtonSolve(ARKodeMem ark_mem)
 #endif
 
     /* Check for convergence */
-    if (SUNRabs(relax_mem->res) < relax_mem->tol) return ARK_SUCCESS;
+    if (SUNRabs(relax_mem->res) < relax_mem->res_tol) return ARK_SUCCESS;
 
     /* Compute Jacobian and update */
     retval = arkRelaxResidualJacobian(relax_mem->relax_param, y_relax,
@@ -326,7 +326,7 @@ static int arkRelaxFixedPointSolve(ARKodeMem ark_mem)
     if (retval) return retval;
 
     /* Check for convergence */
-    if (relax_mem->res < relax_mem->tol) return ARK_SUCCESS;
+    if (relax_mem->res < relax_mem->res_tol) return ARK_SUCCESS;
 
     relax_mem->relax_param -= relax_mem->res;
 
@@ -483,17 +483,17 @@ int arkRelaxSetSolver(void* arkode_mem, ARKRelaxSolver solver)
   return ARK_SUCCESS;
 }
 
-int arkRelaxSetTol(void* arkode_mem, sunrealtype tol)
+int arkRelaxSetResTol(void* arkode_mem, sunrealtype res_tol)
 {
   int retval;
   ARKodeMem ark_mem;
   ARKodeRelaxMem relax_mem;
 
-  retval = arkRelaxAccessMem(arkode_mem, "arkRelaxSetTol", &ark_mem, &relax_mem);
+  retval = arkRelaxAccessMem(arkode_mem, "arkRelaxSetResTol", &ark_mem, &relax_mem);
   if (retval) return retval;
 
-  if (tol > SUN_RCONST(0.0)) relax_mem->tol = tol;
-  else relax_mem->tol = ARK_RELAX_DEFAULT_TOL;
+  if (res_tol > SUN_RCONST(0.0)) relax_mem->res_tol = res_tol;
+  else relax_mem->res_tol = ARK_RELAX_DEFAULT_RES_TOL;
 
   return ARK_SUCCESS;
 }
@@ -696,7 +696,7 @@ int arkRelaxCreate(void* arkode_mem, ARKRelaxFn relax_fn,
     ark_mem->relax_mem->upper_bound = ARK_RELAX_DEFAULT_UPPER_BOUND;
     ark_mem->relax_mem->eta_fail    = ARK_RELAX_DEFAULT_ETA_FAIL;
     ark_mem->relax_mem->solver      = ARK_RELAX_NEWTON;
-    ark_mem->relax_mem->tol         = ARK_RELAX_DEFAULT_TOL;
+    ark_mem->relax_mem->res_tol     = ARK_RELAX_DEFAULT_RES_TOL;
     ark_mem->relax_mem->max_iters   = ARK_RELAX_DEFAULT_MAX_ITERS;
   }
 
