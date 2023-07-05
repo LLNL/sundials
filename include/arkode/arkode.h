@@ -191,6 +191,7 @@ typedef _SUNDIALS_STRUCT_ _MRIStepInnerStepper *MRIStepInnerStepper;
  * -------------------------- */
 
 typedef enum {
+  ARK_RELAX_BRENT,
   ARK_RELAX_NEWTON,
   ARK_RELAX_FIXEDPOINT
 } ARKRelaxSolver;

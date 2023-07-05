@@ -79,6 +79,7 @@ extern "C" {
 #define HALF   RCONST(0.5)      /* real 0.5     */
 #define ONE    RCONST(1.0)      /* real 1.0     */
 #define TWO    RCONST(2.0)      /* real 2.0     */
+#define THREE  RCONST(3.0)      /* real 3.0     */
 #define FOUR   RCONST(4.0)      /* real 4.0     */
 #define FIVE   RCONST(5.0)      /* real 5.0     */
 

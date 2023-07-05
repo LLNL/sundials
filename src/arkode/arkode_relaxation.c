@@ -166,142 +166,203 @@ static int arkRelaxNewtonSolve(ARKodeMem ark_mem)
 }
 
 /* Solve the relaxation residual equation using Newton's method */
-static int arkRelaxBrentsSolve(ARKodeMem ark_mem)
+static int arkRelaxBrentSolve(ARKodeMem ark_mem)
 {
-  int i, j, retval;
-  sunrealtype prev, f_prev; /* previous solution and function value */
-  sunrealtype curr, f_curr; /* current solution and function value  */
-  sunrealtype brac, f_brac; /* together brac and curr bracket zero  */
-  sunrealtype mid;          /* midpoint between brac and curr       */
+  int i, retval;
+  sunrealtype xa, fa;         /* previous solution and function value */
+  sunrealtype xb, fb;         /* current solution and function value  */
+  sunrealtype xc, fc;         /* together brac and curr bracket zero  */
+  sunrealtype xm;             /* midpoint between brac and curr       */
+  sunrealtype old_update;     /* previous iteration update            */
+  sunrealtype new_update;     /* new iteration update                 */
+  sunrealtype tol;            /* iteration tolerance                  */
+  sunrealtype pt, qt, rt, st; /* temporary values                     */
+
   ARKodeRelaxMem relax_mem = ark_mem->relax_mem;
-  N_Vector delta_y = ark_mem->tempv1;
-  N_Vector y_relax = ark_mem->tempv2;
 
   /* Compute interval that brackets the root */
-  prev = SUN_RCONST(0.9) * relax_mem->relax_param;
-  curr = SUN_RCONST(1.1) * relax_mem->relax_param;
+  xa = SUN_RCONST(0.9) * relax_mem->relax_param;
+  xb = SUN_RCONST(1.1) * relax_mem->relax_param;
+
   for (i = 0; i < 10; i++)
   {
-    /* y_relax = y_n + r * delta_y */
-    N_VLinearSum(ONE, ark_mem->yn, prev, delta_y, y_relax);
-
     /* Compute relaxation residual */
-    retval = arkRelaxResidual(prev, y_relax, &f_prev, ark_mem);
+    retval = arkRelaxResidual(xa, &fa, ark_mem);
     ark_mem->relax_mem->num_relax_fn_evals++;
     if (retval < 0) { return ARK_RELAX_FUNC_FAIL; }
     if (retval > 0) { return ARK_RELAX_FUNC_RECV; }
 
     /* Check if we got lucky */
-    if (SUNRabs(f_prev) < relax_mem->tol)
+    if (SUNRabs(fa) < relax_mem->res_tol)
     {
-      relax_mem->res = f_prev;
-      relax_mem->relax_param = prev;
+#if SUNDIALS_LOGGING_LEVEL >= SUNDIALS_LOGGING_INFO
+      SUNLogger_QueueMsg(ARK_LOGGER, SUN_LOGLEVEL_INFO,
+                         "ARKODE::arkRelaxBrentSolve", "Lower bound solves",
+                         "relax param = %g, relax residual = %g",
+                         xa, fa);
+#endif
+      relax_mem->res = fa;
+      relax_mem->relax_param = xa;
       return ARK_SUCCESS;
     }
 
-    if (relax_mem->res < ZERO) break;
+    if (fa < ZERO) break;
 
-    f_curr = f_prev;
-    curr = prev;
-    prev *= SUN_RCONST(0.9);
+    fb = fa;
+    xb = xa;
+    xa *= SUN_RCONST(0.9);
   }
-  if (relax_mem->res > ZERO) { return ARK_RELAX_SOLVE_RECV; }
+  if (fa > ZERO) { return ARK_RELAX_SOLVE_RECV; }
 
   for (i = 0; i < 10; i++)
   {
-    /* y_relax = y_n + r * delta_y */
-    N_VLinearSum(ONE, ark_mem->yn, curr, delta_y, y_relax);
-
     /* Compute relaxation residual */
-    retval = arkRelaxResidual(curr, y_relax, &f_curr, ark_mem);
+    retval = arkRelaxResidual(xb, &fb, ark_mem);
     ark_mem->relax_mem->num_relax_fn_evals++;
     if (retval < 0) { return ARK_RELAX_FUNC_FAIL; }
     if (retval > 0) { return ARK_RELAX_FUNC_RECV; }
 
     /* Check if we got lucky */
-    if (SUNRabs(f_curr) < relax_mem->tol)
+    if (SUNRabs(fb) < relax_mem->res_tol)
     {
-      relax_mem->res = f_curr;
-      relax_mem->relax_param = curr;
+#if SUNDIALS_LOGGING_LEVEL >= SUNDIALS_LOGGING_INFO
+      SUNLogger_QueueMsg(ARK_LOGGER, SUN_LOGLEVEL_INFO,
+                         "ARKODE::arkRelaxBrentSolve", "Upper bound solves",
+                         "relax param = %g, relax residual = %g",
+                         xb, fb);
+#endif
+      relax_mem->res = fb;
+      relax_mem->relax_param = xb;
       return ARK_SUCCESS;
     }
 
-    if (relax_mem->res > ZERO) break;
+    if (fb > ZERO) break;
 
-    f_prev = f_curr;
-    prev = curr;
-    curr *= SUN_RCONST(1.1);
+    fa = fb;
+    xa = xb;
+    xb *= SUN_RCONST(1.1);
   }
-  if (relax_mem->res < ZERO) { return ARK_RELAX_SOLVE_RECV; }
+  if (fb < ZERO) { return ARK_RELAX_SOLVE_RECV; }
 
-  /* Initialize values (prev = lower bound and curr = upper bound) */
-  brac = prev;
-  f_brac = f_prev;
+#if SUNDIALS_LOGGING_LEVEL >= SUNDIALS_LOGGING_INFO
+  SUNLogger_QueueMsg(ARK_LOGGER, SUN_LOGLEVEL_INFO,
+                     "ARKODE::arkRelaxBrentSolve", "Initial interval",
+                     "xa = %g, xb = %g, fa = %g, fb = %g",
+                     xa, xb, fa, fb);
+#endif
+
+  /* Initialize values bracketing values to lower bound */
+  xc = xa;
+  fc = fa;
 
   /* Find root */
   for (i = 0; i < ark_mem->relax_mem->max_iters; i++)
   {
-    /* Ensure brac and curr bracket zero */
-    if (signbit(f_prev) != signbit(f_curr))
+    /* Ensure xc and xb bracket zero */
+    if (SAME_SIGN(fc,fb))
     {
-      brac = prev;
-      f_brac = f_prev;
-      // spre = scur = xcur - xpre
+      xc = xa;
+      fc = fa;
+      old_update = new_update = xb - xa;
     }
 
-    /* Ensure the current solution better of bracketing values */
-    if (SUNRabs(f_brac) < SUNRabs(f_curr))
+    /* Ensure xb is closer to zero than xc */
+    if (SUNRabs(fb) > SUNRabs(fc))
     {
-      prev = curr;
-      curr = brac;
-      brac = prev;
+      xa = xb;
+      xb = xc;
+      xc = xa;
 
-      f_prev = f_curr;
-      f_curr = f_brac;
-      f_brac = f_prev;
+      fa = fb;
+      fb = fc;
+      fc = fa;
     }
 
-    /* Compute midpoint */
-    mid = SUN_RCONST(0.5) * (c - b);
+    /* Update tolerance */
+    tol = relax_mem->rel_tol * SUNRabs(xb) + HALF * relax_mem->abs_tol;
 
-    if (SUNRabs(mid) < tol1)
+    /* Compute midpoint for bisection */
+    xm = SUN_RCONST(0.5) * (xc - xb);
+
+    /* Check for convergence */
+    if (SUNRabs(xm) < tol || SUNRabs(fb) < relax_mem->res_tol)
     {
-      relax_mem->relax_param = curr;
+#if SUNDIALS_LOGGING_LEVEL >= SUNDIALS_LOGGING_INFO
+      SUNLogger_QueueMsg(ARK_LOGGER, SUN_LOGLEVEL_INFO,
+                         "ARKODE::arkRelaxBrentSolve", "Coverged",
+                         "xm = %g, tol = %g, res tol = %g, relax param = %g, relax residual = %g",
+                         xm, tol, relax_mem->res_tol, xb, fb);
+#endif
+      relax_mem->res = fb;
+      relax_mem->relax_param = xb;
       return ARK_SUCCESS;
     }
 
-
-    if (SUNRabs(e) > tol1 && SUNRabs(f_perv) > SUNRabs(f_cur))
+    /* Compute iteration update */
+    if (SUNRabs(old_update) >= tol && SUNRabs(fb) < SUNRabs(fa))
     {
-      /* Inverse quadratic interpolation */
+      /* Converging sufficiently fast, interpolate solution */
+      st = fb / fa;
 
+      if (xa == xc)
+      {
+        /* Two unique values available, try linear interpolant (secant) */
+        pt = TWO * xm * st ;
+        qt = ONE - st;
+      }
+      else
+      {
+        /* Three unique values available, try inverse quadratic interpolant */
+        qt = fa / fc;
+        rt = fb / fc;
+        pt = st * (TWO * xm * qt * (qt - rt) - (xb - xa) * (rt - ONE));
+        qt = (qt - ONE) * (rt - ONE) * (st - ONE);
+      }
+
+      /* Ensure updates produce values within [xc, xb] or [xb, xc] */
+      if (pt > ZERO) { qt = -qt; }
+      else { pt = -pt; }
+
+      /* Check if interpolant is acceptable, otherwise use bisection */
+      st = THREE * xm * qt - SUNRabs(tol * qt);
+      rt = SUNRabs(old_update * qt);
+
+      if (TWO * pt < SUNMIN(st, rt))
+      {
+        old_update = new_update;
+        new_update = pt / qt;
+      }
+      else
+      {
+        new_update = xm;
+        old_update = xm;
+      }
     }
     else
     {
-      /* Bisection */
-      d = mid;
-      e = d;
+      /* Converging too slowly, use bisection */
+      new_update = xm;
+      old_update = xm;
     }
 
-    /* Update previous best solution */
-    prev = curr;
-    f_prev = f_curr;
+    /* Update solution */
+    xa = xb;
+    fa = fb;
 
-    /* Compute new current solution */
-    if (SUNRabs(d) > tol1)
+    /* If update is small, use tolerance in bisection direction */
+    if (SUNRabs(new_update) > tol)
     {
-      curr += d;
+      xb += new_update;
     }
     else
     {
-      curr += copysign(tol1, mid);
+      /* TODO(DJG): Replace with copysign when C99+ required */
+      if (xm > ZERO) { xb += tol; }
+      else { xb -= tol; }
     }
-
-    /* y_relax = y_n + r * delta_y */
-    N_VLinearSum(ONE, ark_mem->yn, curr, delta_y, y_relax);
 
     /* Compute relaxation residual */
-    retval = arkRelaxResidual(curr, y_relax, &f_curr, ark_mem);
+    retval = arkRelaxResidual(xb, &fb, ark_mem);
     ark_mem->relax_mem->num_relax_fn_evals++;
     if (retval < 0) { return ARK_RELAX_FUNC_FAIL; }
     if (retval > 0) { return ARK_RELAX_FUNC_RECV; }
@@ -364,6 +425,9 @@ int arkRelaxSolve(ARKodeMem ark_mem, ARKodeRelaxMem relax_mem,
 
   switch(relax_mem->solver)
   {
+  case(ARK_RELAX_BRENT):
+    retval = arkRelaxBrentSolve(ark_mem);
+    break;
   case(ARK_RELAX_NEWTON):
     retval = arkRelaxNewtonSolve(ark_mem);
     break;
@@ -703,6 +767,8 @@ int arkRelaxCreate(void* arkode_mem, ARKRelaxFn relax_fn,
     ark_mem->relax_mem->eta_fail    = ARK_RELAX_DEFAULT_ETA_FAIL;
     ark_mem->relax_mem->solver      = ARK_RELAX_NEWTON;
     ark_mem->relax_mem->res_tol     = ARK_RELAX_DEFAULT_RES_TOL;
+    ark_mem->relax_mem->rel_tol     = ARK_RELAX_DEFAULT_REL_TOL;
+    ark_mem->relax_mem->abs_tol     = ARK_RELAX_DEFAULT_ABS_TOL;
     ark_mem->relax_mem->max_iters   = ARK_RELAX_DEFAULT_MAX_ITERS;
 
     /* Initialize values */
