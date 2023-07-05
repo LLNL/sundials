@@ -1269,7 +1269,7 @@ int erkStep_RelaxDeltaE(ARKodeMem ark_mem, ARKRelaxJacFn relax_jac_fn,
   /* Ignore negative return for node-local vectors where this is a non-op */
   N_VDotProdMultiAllReduce(1, J_relax, delta_e_out);
 
-  delta_e_out[j] *= ark_mem->h;
+  *delta_e_out *= ark_mem->h;
 
   return ARK_SUCCESS;
 }
