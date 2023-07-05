@@ -56,19 +56,24 @@ static int arkRelaxAccessMem(void* arkode_mem, const char* fname,
 }
 
 /* Evaluates the relaxation residual function */
-static int arkRelaxResidual(sunrealtype relax_param, N_Vector y_relax,
-                            sunrealtype* relax_res, ARKodeMem ark_mem)
+static int arkRelaxResidual(sunrealtype relax_param, sunrealtype* relax_res,
+                            ARKodeMem ark_mem)
 {
   int retval;
   sunrealtype e_old   = ark_mem->relax_mem->e_old;
   sunrealtype delta_e = ark_mem->relax_mem->delta_e;
+  N_Vector delta_y    = ark_mem->tempv1;
+  N_Vector y_relax    = ark_mem->tempv2;
   void* user_data     = ark_mem->user_data;
+
+  /* y_relax = y_n + r * delta_y */
+  N_VLinearSum(ONE, ark_mem->yn, relax_param, delta_y, y_relax);
 
   /* Evaluate entropy function */
   retval = ark_mem->relax_mem->relax_fn(y_relax, relax_res, user_data);
   ark_mem->relax_mem->num_relax_fn_evals++;
-  if (retval < 0) return ARK_RELAX_FUNC_FAIL;
-  if (retval > 0) return ARK_RELAX_FUNC_RECV;
+  if (retval < 0) { return ARK_RELAX_FUNC_FAIL; }
+  if (retval > 0) { return ARK_RELAX_FUNC_RECV; }
 
   /* Compute relaxation residual */
   *relax_res = *relax_res - e_old - relax_param * delta_e;
@@ -77,20 +82,24 @@ static int arkRelaxResidual(sunrealtype relax_param, N_Vector y_relax,
 }
 
 /* Evaluates the Jacobian of the relaxation residual function */
-static int arkRelaxResidualJacobian(sunrealtype relax_param, N_Vector y_relax,
+static int arkRelaxResidualJacobian(sunrealtype relax_param,
                                     sunrealtype* relax_jac, ARKodeMem ark_mem)
 {
   int retval;
   N_Vector delta_y    = ark_mem->tempv1;
+  N_Vector y_relax    = ark_mem->tempv2;
   N_Vector J_relax    = ark_mem->tempv3;
   sunrealtype delta_e = ark_mem->relax_mem->delta_e;
   void* user_data     = ark_mem->user_data;
 
+  /* y_relax = y_n + r * delta_y */
+  N_VLinearSum(ONE, ark_mem->yn, relax_param, delta_y, y_relax);
+
   /* Evaluate Jacobian of entropy functions */
   retval = ark_mem->relax_mem->relax_jac_fn(y_relax, J_relax, user_data);
   ark_mem->relax_mem->num_relax_jac_evals++;
-  if (retval < 0) return ARK_RELAX_JAC_FAIL;
-  if (retval > 0) return ARK_RELAX_JAC_RECV;
+  if (retval < 0) { return ARK_RELAX_JAC_FAIL; }
+  if (retval > 0) { return ARK_RELAX_JAC_RECV; }
 
   /* Compute relaxation residual Jacobian */
   *relax_jac = N_VDotProd(delta_y, J_relax);
@@ -104,8 +113,6 @@ static int arkRelaxNewtonSolve(ARKodeMem ark_mem)
 {
   int i, retval;
   ARKodeRelaxMem relax_mem = ark_mem->relax_mem;
-  N_Vector delta_y = ark_mem->tempv1;
-  N_Vector y_relax = ark_mem->tempv2;
 
 #if SUNDIALS_LOGGING_LEVEL >= SUNDIALS_LOGGING_INFO
   SUNLogger_QueueMsg(ARK_LOGGER, SUN_LOGLEVEL_INFO,
@@ -118,12 +125,9 @@ static int arkRelaxNewtonSolve(ARKodeMem ark_mem)
 
   for (i = 0; i < ark_mem->relax_mem->max_iters; i++)
   {
-    /* y_relax = y_n + r * delta_y */
-    N_VLinearSum(ONE, ark_mem->yn, relax_mem->relax_param, delta_y, y_relax);
-
     /* Compute the current residual */
-    retval = arkRelaxResidual(relax_mem->relax_param, y_relax,
-                              &(relax_mem->res), ark_mem);
+    retval = arkRelaxResidual(relax_mem->relax_param, &(relax_mem->res),
+                              ark_mem);
     if (retval) return retval;
 
 #if SUNDIALS_LOGGING_LEVEL >= SUNDIALS_LOGGING_INFO
@@ -136,8 +140,7 @@ static int arkRelaxNewtonSolve(ARKodeMem ark_mem)
     if (SUNRabs(relax_mem->res) < relax_mem->res_tol) return ARK_SUCCESS;
 
     /* Compute Jacobian and update */
-    retval = arkRelaxResidualJacobian(relax_mem->relax_param, y_relax,
-                                      &(relax_mem->jac),
+    retval = arkRelaxResidualJacobian(relax_mem->relax_param, &(relax_mem->jac),
                                       ark_mem);
     if (retval) return retval;
 
@@ -312,21 +315,16 @@ static int arkRelaxFixedPointSolve(ARKodeMem ark_mem)
 {
   int i, retval;
   ARKodeRelaxMem relax_mem = ark_mem->relax_mem;
-  N_Vector delta_y = ark_mem->tempv1;
-  N_Vector y_relax = ark_mem->tempv2;
 
   for (i = 0; i < ark_mem->relax_mem->max_iters; i++)
   {
-    /* y_relax = y_n + r * delta_y */
-    N_VLinearSum(ONE, ark_mem->yn, relax_mem->relax_param, delta_y, y_relax);
-
     /* Compute the current residual */
-    retval = arkRelaxResidual(relax_mem->relax_param, y_relax,
-                              &(relax_mem->res), ark_mem);
+    retval = arkRelaxResidual(relax_mem->relax_param, &(relax_mem->res),
+                              ark_mem);
     if (retval) return retval;
 
     /* Check for convergence */
-    if (relax_mem->res < relax_mem->res_tol) return ARK_SUCCESS;
+    if (SUNRabs(relax_mem->res) < relax_mem->res_tol) return ARK_SUCCESS;
 
     relax_mem->relax_param -= relax_mem->res;
 
