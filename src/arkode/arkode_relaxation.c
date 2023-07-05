@@ -360,8 +360,7 @@ int arkRelaxSolve(ARKodeMem ark_mem, ARKodeRelaxMem relax_mem,
   if (retval > 0) return ARK_RELAX_FUNC_RECV;
 
   /* Initial guess for relaxation parameter */
-  /* ADD OPTION TO USE GAMMA FROM LAST STEP */
-  relax_mem->relax_param = ONE;
+  relax_mem->relax_param = relax_mem->relax_param_prev;
 
   switch(relax_mem->solver)
   {
@@ -393,6 +392,9 @@ int arkRelaxSolve(ARKodeMem ark_mem, ARKodeRelaxMem relax_mem,
   if (ark_mem->relax_mem->relax_param < relax_mem->lower_bound ||
       ark_mem->relax_mem->relax_param > relax_mem->upper_bound)
     return ARK_RELAX_SOLVE_RECV;
+
+  /* Save parameter for next initial guess */
+  relax_mem->relax_param_prev = relax_mem->relax_param;
 
   /* Return relaxation value */
   *relax_val_out = ark_mem->relax_mem->relax_param;
@@ -694,7 +696,7 @@ int arkRelaxCreate(void* arkode_mem, ARKRelaxFn relax_fn,
     if (!(ark_mem->relax_mem)) return ARK_MEM_FAIL;
     memset(ark_mem->relax_mem, 0, sizeof(struct ARKodeRelaxMemRec));
 
-    /* Initialize other values */
+    /* Set defaults */
     ark_mem->relax_mem->max_fails   = ARK_RELAX_DEFAULT_MAX_FAILS;
     ark_mem->relax_mem->lower_bound = ARK_RELAX_DEFAULT_LOWER_BOUND;
     ark_mem->relax_mem->upper_bound = ARK_RELAX_DEFAULT_UPPER_BOUND;
@@ -702,6 +704,9 @@ int arkRelaxCreate(void* arkode_mem, ARKRelaxFn relax_fn,
     ark_mem->relax_mem->solver      = ARK_RELAX_NEWTON;
     ark_mem->relax_mem->res_tol     = ARK_RELAX_DEFAULT_RES_TOL;
     ark_mem->relax_mem->max_iters   = ARK_RELAX_DEFAULT_MAX_ITERS;
+
+    /* Initialize values */
+    ark_mem->relax_mem->relax_param_prev = ONE;
   }
 
   /* Set function pointers */

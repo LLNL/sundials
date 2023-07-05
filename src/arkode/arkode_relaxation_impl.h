@@ -80,7 +80,8 @@ struct ARKodeRelaxMemRec
   sunrealtype delta_e;          /* change in entropy                   */
   sunrealtype res;              /* relaxation residual value           */
   sunrealtype jac;              /* relaxation Jacobian value           */
-  sunrealtype relax_param;      /* relaxation parameter value          */
+  sunrealtype relax_param;      /* current relaxation parameter value  */
+  sunrealtype relax_param_prev; /* previous relaxation parameter value */
   sunrealtype lower_bound;      /* smallest allowed relaxation value   */
   sunrealtype upper_bound;      /* largest allowed relaxation value    */
   sunrealtype eta_fail;         /* failed relaxation step size factor  */
