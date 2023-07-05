@@ -262,45 +262,49 @@ SWIGEXPORT int _wrap_FSUNControlEstimateStepAndOrder(SUNControl farg1, double co
 }
 
 
-SWIGEXPORT int _wrap_FSUNControlEstimateMRISteps(SUNControl farg1, double const *farg2, double const *farg3, double const *farg4, double *farg5, double *farg6) {
+SWIGEXPORT int _wrap_FSUNControlEstimateMRISteps(SUNControl farg1, double const *farg2, double const *farg3, double const *farg4, double const *farg5, double *farg6, double *farg7) {
   int fresult ;
   SUNControl arg1 = (SUNControl) 0 ;
   realtype arg2 ;
   realtype arg3 ;
   realtype arg4 ;
-  realtype *arg5 = (realtype *) 0 ;
+  realtype arg5 ;
   realtype *arg6 = (realtype *) 0 ;
+  realtype *arg7 = (realtype *) 0 ;
   int result;
   
   arg1 = (SUNControl)(farg1);
   arg2 = (realtype)(*farg2);
   arg3 = (realtype)(*farg3);
   arg4 = (realtype)(*farg4);
-  arg5 = (realtype *)(farg5);
+  arg5 = (realtype)(*farg5);
   arg6 = (realtype *)(farg6);
-  result = (int)SUNControlEstimateMRISteps(arg1,arg2,arg3,arg4,arg5,arg6);
+  arg7 = (realtype *)(farg7);
+  result = (int)SUNControlEstimateMRISteps(arg1,arg2,arg3,arg4,arg5,arg6,arg7);
   fresult = (int)(result);
   return fresult;
 }
 
 
-SWIGEXPORT int _wrap_FSUNControlEstimateStepTol(SUNControl farg1, double const *farg2, double const *farg3, double const *farg4, double *farg5, double *farg6) {
+SWIGEXPORT int _wrap_FSUNControlEstimateStepTol(SUNControl farg1, double const *farg2, double const *farg3, double const *farg4, double const *farg5, double *farg6, double *farg7) {
   int fresult ;
   SUNControl arg1 = (SUNControl) 0 ;
   realtype arg2 ;
   realtype arg3 ;
   realtype arg4 ;
-  realtype *arg5 = (realtype *) 0 ;
+  realtype arg5 ;
   realtype *arg6 = (realtype *) 0 ;
+  realtype *arg7 = (realtype *) 0 ;
   int result;
   
   arg1 = (SUNControl)(farg1);
   arg2 = (realtype)(*farg2);
   arg3 = (realtype)(*farg3);
   arg4 = (realtype)(*farg4);
-  arg5 = (realtype *)(farg5);
+  arg5 = (realtype)(*farg5);
   arg6 = (realtype *)(farg6);
-  result = (int)SUNControlEstimateStepTol(arg1,arg2,arg3,arg4,arg5,arg6);
+  arg7 = (realtype *)(farg7);
+  result = (int)SUNControlEstimateStepTol(arg1,arg2,arg3,arg4,arg5,arg6,arg7);
   fresult = (int)(result);
   return fresult;
 }
@@ -397,6 +401,46 @@ SWIGEXPORT int _wrap_FSUNControlUpdate(SUNControl farg1, double const *farg2, do
   arg2 = (realtype)(*farg2);
   arg3 = (realtype)(*farg3);
   result = (int)SUNControlUpdate(arg1,arg2,arg3);
+  fresult = (int)(result);
+  return fresult;
+}
+
+
+SWIGEXPORT int _wrap_FSUNControlUpdateMRIH(SUNControl farg1, double const *farg2, double const *farg3, double const *farg4, double const *farg5) {
+  int fresult ;
+  SUNControl arg1 = (SUNControl) 0 ;
+  realtype arg2 ;
+  realtype arg3 ;
+  realtype arg4 ;
+  realtype arg5 ;
+  int result;
+  
+  arg1 = (SUNControl)(farg1);
+  arg2 = (realtype)(*farg2);
+  arg3 = (realtype)(*farg3);
+  arg4 = (realtype)(*farg4);
+  arg5 = (realtype)(*farg5);
+  result = (int)SUNControlUpdateMRIH(arg1,arg2,arg3,arg4,arg5);
+  fresult = (int)(result);
+  return fresult;
+}
+
+
+SWIGEXPORT int _wrap_FSUNControlUpdateMRITol(SUNControl farg1, double const *farg2, double const *farg3, double const *farg4, double const *farg5) {
+  int fresult ;
+  SUNControl arg1 = (SUNControl) 0 ;
+  realtype arg2 ;
+  realtype arg3 ;
+  realtype arg4 ;
+  realtype arg5 ;
+  int result;
+  
+  arg1 = (SUNControl)(farg1);
+  arg2 = (realtype)(*farg2);
+  arg3 = (realtype)(*farg3);
+  arg4 = (realtype)(*farg4);
+  arg5 = (realtype)(*farg5);
+  result = (int)SUNControlUpdateMRITol(arg1,arg2,arg3,arg4,arg5);
   fresult = (int)(result);
   return fresult;
 }

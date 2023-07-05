@@ -36,6 +36,8 @@ module fsundials_control_mod
   type(C_FUNPTR), public :: setembeddingorder
   type(C_FUNPTR), public :: seterrorbias
   type(C_FUNPTR), public :: update
+  type(C_FUNPTR), public :: updatemrih
+  type(C_FUNPTR), public :: updatemritol
   type(C_FUNPTR), public :: space
  end type SUNControl_Ops
  ! struct struct _generic_SUNControl
@@ -58,6 +60,8 @@ module fsundials_control_mod
  public :: FSUNControlSetEmbeddingOrder
  public :: FSUNControlSetErrorBias
  public :: FSUNControlUpdate
+ public :: FSUNControlUpdateMRIH
+ public :: FSUNControlUpdateMRITol
  public :: FSUNControlSpace
  integer(C_INT), parameter, public :: SUNCONTROL_SUCCESS = 0_C_INT
  integer(C_INT), parameter, public :: SUNCONTROL_ILL_INPUT = -1001_C_INT
@@ -113,7 +117,7 @@ type(C_PTR), value :: farg6
 integer(C_INT) :: fresult
 end function
 
-function swigc_FSUNControlEstimateMRISteps(farg1, farg2, farg3, farg4, farg5, farg6) &
+function swigc_FSUNControlEstimateMRISteps(farg1, farg2, farg3, farg4, farg5, farg6, farg7) &
 bind(C, name="_wrap_FSUNControlEstimateMRISteps") &
 result(fresult)
 use, intrinsic :: ISO_C_BINDING
@@ -121,12 +125,13 @@ type(C_PTR), value :: farg1
 real(C_DOUBLE), intent(in) :: farg2
 real(C_DOUBLE), intent(in) :: farg3
 real(C_DOUBLE), intent(in) :: farg4
-type(C_PTR), value :: farg5
+real(C_DOUBLE), intent(in) :: farg5
 type(C_PTR), value :: farg6
+type(C_PTR), value :: farg7
 integer(C_INT) :: fresult
 end function
 
-function swigc_FSUNControlEstimateStepTol(farg1, farg2, farg3, farg4, farg5, farg6) &
+function swigc_FSUNControlEstimateStepTol(farg1, farg2, farg3, farg4, farg5, farg6, farg7) &
 bind(C, name="_wrap_FSUNControlEstimateStepTol") &
 result(fresult)
 use, intrinsic :: ISO_C_BINDING
@@ -134,8 +139,9 @@ type(C_PTR), value :: farg1
 real(C_DOUBLE), intent(in) :: farg2
 real(C_DOUBLE), intent(in) :: farg3
 real(C_DOUBLE), intent(in) :: farg4
-type(C_PTR), value :: farg5
+real(C_DOUBLE), intent(in) :: farg5
 type(C_PTR), value :: farg6
+type(C_PTR), value :: farg7
 integer(C_INT) :: fresult
 end function
 
@@ -198,6 +204,30 @@ use, intrinsic :: ISO_C_BINDING
 type(C_PTR), value :: farg1
 real(C_DOUBLE), intent(in) :: farg2
 real(C_DOUBLE), intent(in) :: farg3
+integer(C_INT) :: fresult
+end function
+
+function swigc_FSUNControlUpdateMRIH(farg1, farg2, farg3, farg4, farg5) &
+bind(C, name="_wrap_FSUNControlUpdateMRIH") &
+result(fresult)
+use, intrinsic :: ISO_C_BINDING
+type(C_PTR), value :: farg1
+real(C_DOUBLE), intent(in) :: farg2
+real(C_DOUBLE), intent(in) :: farg3
+real(C_DOUBLE), intent(in) :: farg4
+real(C_DOUBLE), intent(in) :: farg5
+integer(C_INT) :: fresult
+end function
+
+function swigc_FSUNControlUpdateMRITol(farg1, farg2, farg3, farg4, farg5) &
+bind(C, name="_wrap_FSUNControlUpdateMRITol") &
+result(fresult)
+use, intrinsic :: ISO_C_BINDING
+type(C_PTR), value :: farg1
+real(C_DOUBLE), intent(in) :: farg2
+real(C_DOUBLE), intent(in) :: farg3
+real(C_DOUBLE), intent(in) :: farg4
+real(C_DOUBLE), intent(in) :: farg5
 integer(C_INT) :: fresult
 end function
 
@@ -301,7 +331,7 @@ fresult = swigc_FSUNControlEstimateStepAndOrder(farg1, farg2, farg3, farg4, farg
 swig_result = fresult
 end function
 
-function FSUNControlEstimateMRISteps(c, h, h2, dsm, hnew, hnew5) &
+function FSUNControlEstimateMRISteps(c, h, h2, dsm, dsm4, hnew, hnew6) &
 result(swig_result)
 use, intrinsic :: ISO_C_BINDING
 integer(C_INT) :: swig_result
@@ -309,27 +339,30 @@ type(SUNControl), target, intent(inout) :: c
 real(C_DOUBLE), intent(in) :: h
 real(C_DOUBLE), intent(in) :: h2
 real(C_DOUBLE), intent(in) :: dsm
+real(C_DOUBLE), intent(in) :: dsm4
 real(C_DOUBLE), dimension(*), target, intent(inout) :: hnew
-real(C_DOUBLE), dimension(*), target, intent(inout) :: hnew5
+real(C_DOUBLE), dimension(*), target, intent(inout) :: hnew6
 integer(C_INT) :: fresult 
 type(C_PTR) :: farg1 
 real(C_DOUBLE) :: farg2 
 real(C_DOUBLE) :: farg3 
 real(C_DOUBLE) :: farg4 
-type(C_PTR) :: farg5 
+real(C_DOUBLE) :: farg5 
 type(C_PTR) :: farg6 
+type(C_PTR) :: farg7 
 
 farg1 = c_loc(c)
 farg2 = h
 farg3 = h2
 farg4 = dsm
-farg5 = c_loc(hnew(1))
-farg6 = c_loc(hnew5(1))
-fresult = swigc_FSUNControlEstimateMRISteps(farg1, farg2, farg3, farg4, farg5, farg6)
+farg5 = dsm4
+farg6 = c_loc(hnew(1))
+farg7 = c_loc(hnew6(1))
+fresult = swigc_FSUNControlEstimateMRISteps(farg1, farg2, farg3, farg4, farg5, farg6, farg7)
 swig_result = fresult
 end function
 
-function FSUNControlEstimateStepTol(c, h, tolfac, dsm, hnew, tolfacnew) &
+function FSUNControlEstimateStepTol(c, h, tolfac, dsm, dsm4, hnew, tolfacnew) &
 result(swig_result)
 use, intrinsic :: ISO_C_BINDING
 integer(C_INT) :: swig_result
@@ -337,6 +370,7 @@ type(SUNControl), target, intent(inout) :: c
 real(C_DOUBLE), intent(in) :: h
 real(C_DOUBLE), intent(in) :: tolfac
 real(C_DOUBLE), intent(in) :: dsm
+real(C_DOUBLE), intent(in) :: dsm4
 real(C_DOUBLE), dimension(*), target, intent(inout) :: hnew
 real(C_DOUBLE), dimension(*), target, intent(inout) :: tolfacnew
 integer(C_INT) :: fresult 
@@ -344,16 +378,18 @@ type(C_PTR) :: farg1
 real(C_DOUBLE) :: farg2 
 real(C_DOUBLE) :: farg3 
 real(C_DOUBLE) :: farg4 
-type(C_PTR) :: farg5 
+real(C_DOUBLE) :: farg5 
 type(C_PTR) :: farg6 
+type(C_PTR) :: farg7 
 
 farg1 = c_loc(c)
 farg2 = h
 farg3 = tolfac
 farg4 = dsm
-farg5 = c_loc(hnew(1))
-farg6 = c_loc(tolfacnew(1))
-fresult = swigc_FSUNControlEstimateStepTol(farg1, farg2, farg3, farg4, farg5, farg6)
+farg5 = dsm4
+farg6 = c_loc(hnew(1))
+farg7 = c_loc(tolfacnew(1))
+fresult = swigc_FSUNControlEstimateStepTol(farg1, farg2, farg3, farg4, farg5, farg6, farg7)
 swig_result = fresult
 end function
 
@@ -463,6 +499,56 @@ farg1 = c_loc(c)
 farg2 = h
 farg3 = dsm
 fresult = swigc_FSUNControlUpdate(farg1, farg2, farg3)
+swig_result = fresult
+end function
+
+function FSUNControlUpdateMRIH(c, h, h2, dsm, dsm4) &
+result(swig_result)
+use, intrinsic :: ISO_C_BINDING
+integer(C_INT) :: swig_result
+type(SUNControl), target, intent(inout) :: c
+real(C_DOUBLE), intent(in) :: h
+real(C_DOUBLE), intent(in) :: h2
+real(C_DOUBLE), intent(in) :: dsm
+real(C_DOUBLE), intent(in) :: dsm4
+integer(C_INT) :: fresult 
+type(C_PTR) :: farg1 
+real(C_DOUBLE) :: farg2 
+real(C_DOUBLE) :: farg3 
+real(C_DOUBLE) :: farg4 
+real(C_DOUBLE) :: farg5 
+
+farg1 = c_loc(c)
+farg2 = h
+farg3 = h2
+farg4 = dsm
+farg5 = dsm4
+fresult = swigc_FSUNControlUpdateMRIH(farg1, farg2, farg3, farg4, farg5)
+swig_result = fresult
+end function
+
+function FSUNControlUpdateMRITol(c, h, tolfac, dsm, dsm4) &
+result(swig_result)
+use, intrinsic :: ISO_C_BINDING
+integer(C_INT) :: swig_result
+type(SUNControl), target, intent(inout) :: c
+real(C_DOUBLE), intent(in) :: h
+real(C_DOUBLE), intent(in) :: tolfac
+real(C_DOUBLE), intent(in) :: dsm
+real(C_DOUBLE), intent(in) :: dsm4
+integer(C_INT) :: fresult 
+type(C_PTR) :: farg1 
+real(C_DOUBLE) :: farg2 
+real(C_DOUBLE) :: farg3 
+real(C_DOUBLE) :: farg4 
+real(C_DOUBLE) :: farg5 
+
+farg1 = c_loc(c)
+farg2 = h
+farg3 = tolfac
+farg4 = dsm
+farg5 = dsm4
+fresult = swigc_FSUNControlUpdateMRITol(farg1, farg2, farg3, farg4, farg5)
 swig_result = fresult
 end function
 
