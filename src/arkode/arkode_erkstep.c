@@ -1064,16 +1064,23 @@ int erkStep_CheckButcherTable(ARKodeMem ark_mem)
   /* check if all b values are positive for relaxation */
   if (ark_mem->relax_enabled)
   {
-    okay = SUNTRUE;
-    for (i = 0; i < step_mem->stages; i++)
-      if (step_mem->B->b[i] < ZERO)
-        okay = SUNFALSE;
-    if (!okay)
+    if (step_mem->q < 2)
     {
       arkProcessError(ark_mem, ARK_INVALID_TABLE, "ARKODE::ERKStep",
-                      "erkStep_CheckButcherTable",
-                      "The Butcher table has a negative b value!");
+                      "erkStep_CheckButcherTables",
+                      "The Butcher table must be at least second order!");
       return ARK_INVALID_TABLE;
+    }
+
+    for (i = 0; i < step_mem->stages; i++)
+    {
+      if (step_mem->B->b[i] < ZERO)
+      {
+        arkProcessError(ark_mem, ARK_INVALID_TABLE, "ARKODE::ERKStep",
+                        "erkStep_CheckButcherTable",
+                        "The Butcher table has a negative b value!");
+        return ARK_INVALID_TABLE;
+      }
     }
   }
 
