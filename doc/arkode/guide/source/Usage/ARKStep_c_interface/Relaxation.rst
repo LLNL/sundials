@@ -24,18 +24,16 @@ with ARKStep. For more information on relaxation Runge-Kutta methods see
 Enabling or Disabling Relaxation
 --------------------------------
 
-.. c:function:: int ARKStepSetRelaxFn(void* arkode_mem, int nrfn, ARKRelaxFn rfn, ARKRelaxJacFn rjac)
+.. c:function:: int ARKStepSetRelaxFn(void* arkode_mem, ARKRelaxFn rfn, ARKRelaxJacFn rjac)
 
    Attaches the user supplied functions for evaluating the relaxation function
-   (``rfn``) and its Jacobian (``rjac``) and specifies the number of relaxation
-   functions (``nrfn``).
+   (``rfn``) and its Jacobian (``rjac``).
 
    :param arkode_mem: the ARKStep memory structure
-   :param nrfn: the number of relaxation functions
    :param rfn: the user-defined function to compute the relaxation function
-               :math:`\xi_i(y)`
+               :math:`\xi(y)`
    :param rjac: the user-defined function to compute the relaxation Jacobian
-                :math:`\xi'_i(y)`
+                :math:`\xi'(y)`
 
    :retval ARK_SUCCESS: the function exited successfully
    :retval ARK_MEM_NULL: ``arkode_mem`` was ``NULL``
@@ -45,7 +43,7 @@ Enabling or Disabling Relaxation
 
    .. note::
 
-      If ``nrfn = 0`` and both ``rfn = rjac = NULL`` relaxation is disabled.
+      If both ``rfn = rjac = NULL`` relaxation is disabled.
 
    .. versionadded:: 5.6.0
 
@@ -109,10 +107,11 @@ method.
 
    Sets the maximum number of nonlinear iterations allowed when solving for the
    relaxation parameter. If the maximum number of iterations is reached before
-   meeting the solve tolerance (determined by :c:func:`ARKStepSetRelaxTol`), the
-   step will be repeated with a smaller step size (determined by
-   :c:func:`ARKStepSetRelaxEtaFail`). The default value is 5. Input values
-   :math:`\leq 0` will result in the default value being used.
+   meeting the solve tolerance (determined by :c:func:`ARKStepSetRelaxResTol`
+   and :c:func:`ARKStepSetRelaxTol`), the step will be repeated with a smaller
+   step size (determined by :c:func:`ARKStepSetRelaxEtaFail`). The default
+   value is 10. Input values :math:`\leq 0` will result in the default value
+   being used.
 
    :param arkode_mem: the ARKStep memory structure
    :param max_iters: the maximum number of solver iterations allowed
@@ -130,7 +129,8 @@ method.
    The default value is ``ARK_RELAX_NEWTON``.
 
    :param arkode_mem: the ARKStep memory structure
-   :param solver: the nonlinear solver to use
+   :param solver: the nonlinear solver to use: ``ARK_RELAX_BRENT``,
+                  ``ARK_RELAX_NEWTON``, or  ``ARK_RELAX_FIXEDPOINT``
 
    :retval ARK_SUCCESS: the value was successfully set
    :retval ARK_MEM_NULL: ``arkode_mem`` was ``NULL``
@@ -139,17 +139,41 @@ method.
 
    .. versionadded:: 5.6.0
 
-.. c:function:: int ARKStepSetRelaxTol(void* arkode_mem, sunrealtype tol)
+.. c:function:: int ARKStepSetRelaxResTol(void* arkode_mem, sunrealtype res_tol)
 
-   Sets the nonlinear solver tolerance to use when computing the relaxation
-   parameter. If the tolerance is not reached within the maximum number of
+   Sets the nonlinear solver residual tolerance to use when computing the
+   relaxation parameter. If the residual or solution tolerance (see
+   :c:func:`ARKStepSetRelaxMaxIter`) is not reached within the maximum number of
    iterations (determined by :c:func:`ARKStepSetRelaxMaxIters`), the step will
    be repeated with a smaller step size (determined by
-   :c:func:`ARKStepSetRelaxEtaFail`). The default value is 1.0e-14. Input values
+   :c:func:`ARKStepSetRelaxEtaFail`). The default value is :math:`4 \epsilon`
+   where :math:`\epsilon` is floating-point precision. Input values
    :math:`\leq 0.0` will result in the default value being used.
 
    :param arkode_mem: the ARKStep memory structure
-   :param tol: the nonlinear solver tolerance to use
+   :param tol: the nonlinear solver residual tolerance to use
+
+   :retval ARK_SUCCESS: the value was successfully set
+   :retval ARK_MEM_NULL: ``arkode_mem`` was ``NULL``
+   :retval ARK_RELAX_MEM_NULL: the internal relaxation memory structure was
+                               ``NULL``
+
+   .. versionadded:: 5.6.0
+
+.. c:function:: int ARKStepSetRelaxTol(void* arkode_mem, sunrealtype rel_tol, sunrealtype abs_tol)
+
+   Sets the nonlinear solver relative and absolute tolerance on :math:`r`. If
+   the residual or solution tolerance is not reached within the maximum
+   number of iterations (determined by :c:func:`ARKStepSetRelaxMaxIters`), the
+   step will be repeated with a smaller step size (determined by
+   :c:func:`ARKStepSetRelaxEtaFail`). The default relative and absolute
+   tolerances are :math:`4 \epsilon` and :math:`10^{-14}`, respectively, where
+   :math:`\epsilon` is floating-point precision. Input values :math:`\leq 0.0`
+   will result in the default value being used.
+
+   :param arkode_mem: the ARKStep memory structure
+   :param tol: the nonlinear solver relative solution tolerance to use
+   :param tol: the nonlinear solver absolute solution tolerance to use
 
    :retval ARK_SUCCESS: the value was successfully set
    :retval ARK_MEM_NULL: ``arkode_mem`` was ``NULL``
