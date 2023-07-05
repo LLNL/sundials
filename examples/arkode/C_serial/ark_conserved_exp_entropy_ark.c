@@ -95,7 +95,7 @@ int main(int argc, char* argv[])
 
   /* Initial and final times */
   sunrealtype t0 = SUN_RCONST(0.0);
-  sunrealtype tf = SUN_RCONST(5.0);
+  sunrealtype tf = SUN_RCONST(0.03);
 
   /* Relative and absolute tolerances */
   sunrealtype reltol = SUN_RCONST(1.0e-6);
@@ -279,6 +279,9 @@ int main(int argc, char* argv[])
     /* Evolve in time */
     flag = ARKStepEvolve(arkode_mem, tf, y, &t, ARK_ONE_STEP);
     if (check_flag(flag, "ARKStepEvolve")) break;
+
+    printf("y_new (returned):\n");
+    N_VPrint(y);
 
     /* Output solution and errors */
     flag = Ent(y, &ent, NULL);

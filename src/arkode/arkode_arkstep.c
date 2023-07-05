@@ -3102,7 +3102,7 @@ int arkStep_RelaxDeltaE(ARKodeMem ark_mem, ARKRelaxJacFn relax_jac_fn,
 
     if (step_mem->explicit)
     {
-      for (j = 0; j < i; j++)
+      for (j = 0; j < i; j++) // for IMEX this might need to be <= i
       {
         cvals[nvec] = ark_mem->h * step_mem->Be->A[i][j];
         Xvecs[nvec] = step_mem->Fe[j];
@@ -3123,11 +3123,18 @@ int arkStep_RelaxDeltaE(ARKodeMem ark_mem, ARKRelaxJacFn relax_jac_fn,
     retval = N_VLinearCombination(nvec, cvals, Xvecs, z_stage);
     if (retval) return ARK_VECTOROP_ERR;
 
+    printf("z%d:\n", i);
+    N_VPrint(z_stage);
+    printf("f(z%d):\n", i);
+    N_VPrint(step_mem->Fi[i]);
+
     /* Evaluate the Jacobian at z_i */
-    retval = relax_jac_fn(z_stage, ark_mem->tempv2, ark_mem->user_data);
+    retval = relax_jac_fn(z_stage, J_relax, ark_mem->user_data);
     (*num_relax_jac_evals)++;
     if (retval < 0) { return ARK_RELAX_JAC_FAIL; }
     if (retval > 0) { return ARK_RELAX_JAC_RECV; }
+
+    sunrealtype dot, tmp;
 
     /* Update estimate of relaxation function change */
     if (step_mem->explicit && step_mem->implicit)
@@ -3144,9 +3151,13 @@ int arkStep_RelaxDeltaE(ARKodeMem ark_mem, ARKRelaxJacFn relax_jac_fn,
     }
     else if (step_mem->implicit)
     {
-      *delta_e_out += step_mem->Bi->b[i] * N_VDotProdLocal(J_relax,
-                                                           step_mem->Fi[i]);
+      dot = N_VDotProdLocal(J_relax, step_mem->Fi[i]);
+      tmp = step_mem->Bi->b[i] * dot;
+      *delta_e_out += tmp;
     }
+    printf("dot%d: %.16e\n", i, dot);
+    printf("b%d:   %.16e\n", i, step_mem->Bi->b[i]);
+    printf("tmp%d: %.16e\n", i, *delta_e_out);
   }
 
   /* Ignore negative return for node-local vectors where this is a non-op */
