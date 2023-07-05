@@ -3090,6 +3090,12 @@ int arkStep_RelaxDeltaY(ARKodeMem ark_mem, N_Vector delta_y)
  *
  * Computes the change in the relaxation functions for use in relaxation methods
  * delta_e = h * sum_i b_i * <relax_jac(z_i), f_i>
+ *
+ * With implicit and IMEX methods it is necessary to storing the method stages
+ * (or computing the delta_e estimate along the way) to avoid inconsistencies
+ * between z_i, F(z_i), and J_relax(z_i) that arise from reconstructing stages
+ * from stored RHS values like with ERK methods. As such the take step function
+ * stores the stages along the way but only when there is an implicit RHS.
  * ---------------------------------------------------------------------------*/
 
 int arkStep_RelaxDeltaE(ARKodeMem ark_mem, ARKRelaxJacFn relax_jac_fn,
