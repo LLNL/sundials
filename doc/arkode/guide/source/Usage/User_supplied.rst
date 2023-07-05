@@ -63,9 +63,9 @@ The user-supplied functions for ARKODE consist of:
   by the outer integrator to the inner integrator, or state data supplied
   by the inner integrator to the outer integrator.
 
-* if relaxation is enabled (optional), a function that evaluates the dissipative
-  or conservative functions :math:`\xi_i(y(t))` (required) and a function to
-  evaluate the Jacobians :math:`\xi_i'(y(t))` (required).
+* if relaxation is enabled (optional), a function that evaluates the
+  conservative or dissipative function :math:`\xi(y(t))` (required) and a
+  function to evaluate its Jacobian :math:`\xi'(y(t))` (required).
 
 
 .. _ARKODE.Usage.ODERHS:
@@ -1124,14 +1124,14 @@ outer integrator for the outer integration.
 Relaxation function
 -------------------
 
-.. c:type:: int (*ARKRelaxFn)(N_Vector* y, realtype* r, void* user_data)
+.. c:type:: int (*ARKRelaxFn)(N_Vector y, realtype* r, void* user_data)
 
    When applying relaxation, an :c:func:`ARKRelaxFn` function is required to
-   compute the dissipative or conservative functions :math:`\xi_i(y)`.
+   compute the conservative or dissipative function :math:`\xi(y)`.
 
    **Arguments:**
       * *y* -- the current value of the dependent variable vector.
-      * *r* -- the array of :math:`\xi_i(y)` values.
+      * *r* -- the value of :math:`\xi(y)`.
       * *user_data* -- the ``user_data`` pointer that was passed to
         :c:func:`ARKStepSetUserData`.
 
@@ -1146,14 +1146,15 @@ Relaxation function
 Relaxation Jacobian function
 ----------------------------
 
-.. c:type:: int (*ARKRelaxJacFn)(N_Vector* y, N_Vector* J, void* user_data);
+.. c:type:: int (*ARKRelaxJacFn)(N_Vector y, N_Vector J, void* user_data);
 
    When applying relaxation, an :c:func:`ARKRelaxJacFn` function is required to
-   computes the Jacobians :math:`\xi'_i(y)`.
+   compute the Jacobian :math:`\xi'(y)` of the :c:func:`ARKRelaxFn`
+   :math:`\xi(y)`.
 
    **Arguments:**
       * *y* -- the current value of the dependent variable vector.
-      * *J* -- an array Jacobian vectors :math:`\xi'_i(y)`.
+      * *J* -- the Jacobian vector :math:`\xi'(y)`.
       * *user_data* -- the ``user_data`` pointer that was passed to
         :c:func:`ARKStepSetUserData`.
 
