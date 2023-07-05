@@ -2533,6 +2533,23 @@ int arkHandleFailure(ARKodeMem ark_mem, int flag)
     arkProcessError(ark_mem, ARK_INVALID_TABLE, "ARKODE", "ARKODE",
                     "ARKODE was provided an invalid method table");
     break;
+  case ARK_RELAX_FAIL:
+    arkProcessError(ark_mem, ARK_RELAX_FAIL, "ARKODE", "ARKODE",
+                    "At t = %Lg the relaxation module failed",
+                    (long double) ark_mem->tcur);
+    break;
+  case ARK_RELAX_MEM_NULL:
+    arkProcessError(ark_mem, ARK_RELAX_MEM_NULL, "ARKODE", "ARKODE",
+                    "The ARKODE relaxation module memory is NULL");
+    break;
+  case ARK_RELAX_FUNC_FAIL:
+    arkProcessError(ark_mem, ARK_RELAX_FUNC_FAIL, "ARKODE", "ARKODE",
+                    "The relaxation function failed unrecoverably");
+    break;
+  case ARK_RELAX_JAC_FAIL:
+    arkProcessError(ark_mem, ARK_RELAX_JAC_FAIL, "ARKODE", "ARKODE",
+                    "The relaxation Jacobian failed unrecoverably");
+    break;
   default:
     /* This return should never happen */
     arkProcessError(ark_mem, ARK_UNRECOGNIZED_ERROR, "ARKODE", "ARKODE",
