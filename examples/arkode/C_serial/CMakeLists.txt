@@ -29,7 +29,8 @@ set(ARKODE_examples
   "ark_conserved_exp_entropy_ark\;1 0\;develop"
   "ark_conserved_exp_entropy_ark\;1 1\;develop"
   "ark_conserved_exp_entropy_erk\;1\;develop"
-  "ark_dissipated_exp_entropy\;0 1 0.1\;develop"
+  "ark_dissipated_exp_entropy\;1 0\;develop"
+  "ark_dissipated_exp_entropy\;1 1\;develop"
   "ark_heat1D\;\;develop"
   "ark_heat1D_adapt\;\;develop"
   "ark_KrylovDemo_prec\;\;exclude-single"
@@ -206,6 +207,11 @@ if(BUILD_SUNLINSOL_SUPERLUMT)
       ANSWER_DIR ${CMAKE_CURRENT_SOURCE_DIR}
       ANSWER_FILE ${example}.out
       EXAMPLE_TYPE ${example_type})
+
+    # directories to include
+    target_include_directories(${example}
+      PRIVATE
+      ${PROJECT_SOURCE_DIR}/examples/utilities)
 
     # libraries to link against
     target_link_libraries(${example}

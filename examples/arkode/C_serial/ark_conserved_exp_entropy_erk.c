@@ -174,10 +174,6 @@ int main(int argc, char* argv[])
   ytdata = N_VGetArrayPointer(ytrue);
   if (check_ptr(ytdata, "N_VGetArrayPointer")) return 1;
 
-  /* Initial entropy */
-  flag = Ent(y, &ent0, NULL);
-  if (check_flag(flag, "Ent")) return 1;
-
   /* Initialize the ERKStep */
   arkode_mem = ERKStepCreate(f, t0, y, ctx);
   if (check_ptr(arkode_mem, "ERKStepCreate")) return 1;
@@ -211,6 +207,9 @@ int main(int argc, char* argv[])
   t = t0;
 
   /* Output the initial condition and entropy */
+  flag = Ent(y, &ent0, NULL);
+  if (check_flag(flag, "Ent")) return 1;
+
   fprintf(UFID,
           "%23.16" ESYM " %23.16" ESYM " %23.16" ESYM " %23.16" ESYM
           " %23.16" ESYM " %23.16" ESYM " %23.16" ESYM "\n",

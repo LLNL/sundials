@@ -146,9 +146,6 @@ int main(int argc, char* argv[])
     // Enable relaxation methods
     flag = ARKStepSetRelaxFn(arkode_mem, Eng, JacEng);
     if (check_flag(flag, "ARKStepSetRelaxFn")) return 1;
-
-    flag = ARKStepSetRelaxMaxIters(arkode_mem, 100);
-    if (check_flag(flag, "ARKStepSetRelaxMaxIters")) return 1;
   }
 
   SUNMatrix A        = nullptr;
