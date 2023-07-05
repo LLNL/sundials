@@ -2080,45 +2080,44 @@ strategies as discussed in :numref:`ARKODE.Usage.ARKStep.Tolerances` and
 Relaxation Methods
 ==================
 
-For cases where the problem :eq:`ARKODE_IVP` is dissipative or conservative with
-respect to a smooth convex function :math:`\xi(y(t))`, it is desirable to ensure
-this property is preserved by the numerical method applied to the IVP. That is
-:math:`\xi(y_n) \leq \xi(y_{n-1})` for dissipative problems and
-:math:`\xi(y_n) = \xi(y_{n-1}) = \ldots = \xi(y_{0})` for conservative problems.
+For cases where the problem :eq:`ARKODE_IVP` is conservative or dissipative with
+respect to a smooth convex function :math:`\xi(y(t))`, it is desirable to have
+the numerical method preserve these properties. That is
+:math:`\xi(y_n) = \xi(y_{n-1}) = \ldots = \xi(y_{0})` for conservative problems
+and :math:`\xi(y_n) \leq \xi(y_{n-1})` for dissipative problems. To this end,
+ARKODE supports relaxation methods
+:cite:p:`ketcheson2019relaxation, kang2022entropy, ranocha2020relaxation` to
+ensure dissipation or preservation of a global function.
 
-To this end, ARKODE supports relaxation methods :cite:p:`ketcheson2019relaxation, kang2022entropy, ranocha2020relaxation`
-to guarantee the dissipation or preservation of a global function. Given a
-second order method with :math:`b^E_i \geq 0` and :math:`b^I_i \geq 0`, this is
-achieved by solving the auxiliary scalar nonlinear system
-
-.. math::
-   F(r) = \xi(y_{n-1} + r d) - \xi(y_{n-1}) - r e = 0
-   :label: ARKODE_RELAX_NLS
-
-for the relaxation factor :math:`r` at the end of each time step. The update
-direction is :math:`d = h_n \sum_{i=1}^{s}(b^E_i f^E_i + b^I_i f^I_i)`
-and the estimate of the change in :math:`\xi` is
-:math:`e = h_n \sum_{i=1}^{s} \langle \xi'(z_i), b^E_i f^E_i + b^I_i f^I_i \rangle`
-where :math:`\xi'` is the Jacobian of :math:`\xi`. The relaxed solution is then
-given by
+Relaxation methods compute a new solution
 
 .. math::
    y_r = y_{n-1} + r d = r y_n + (1 - r) y_{n - 1}
    :label: ARKODE_RELAX_SOL
 
-Currently, the nonlinear system :eq:`ARKODE_RELAX_NLS` can be solved using a
-fixed point or Newton iteration. Should this iteration fail to meet the
-residual tolerance in the maximum allowed number of iterations, the step size
-will be reduced by the factor :math:`\eta_\text{rf}` (default 0.25).
-Additionally, a relaxation value greater than :math:`r_\text{max}` (default 0.8)
-or less than :math:`r_\text{min}` (default 1.2) will result in a solver failure
+where :math:`d \equiv h_n \sum_{i=1}^{s}(b^E_i f^E_i + b^I_i f^I_i)` is the update
+direction and the relaxation factor, :math:`r`, is selected to ensure
+conservation or dissipation. Given a second order method with
+:math:`b^E_i \geq 0` and :math:`b^I_i \geq 0`, the factor :math:`r` is computed
+by solving the auxiliary scalar nonlinear system
+
+.. math::
+   F(r) = \xi(y_{n-1} + r d) - \xi(y_{n-1}) - r e = 0
+   :label: ARKODE_RELAX_NLS
+
+at the end of each time step. The estimated change in :math:`\xi` is given by
+:math:`e \equiv h_n \sum_{i=1}^{s} \langle \xi'(z_i), b^E_i f^E_i + b^I_i f^I_i \rangle`
+where :math:`\xi'` is the Jacobian of :math:`\xi`.
+
+By default the nonlinear system :eq:`ARKODE_RELAX_NLS` is solved using Newton
+iteration. Optionally, a fixed-point iteration of Brent's method can be
+utilized. If this iteration fail to meet the specified tolerances in the
+maximum allowed number of iterations, the step size is reduced by the factor
+:math:`\eta_\text{rf}` (default 0.25) and the step is repeated. Additionally, a
+relaxation value greater than :math:`r_\text{max}` (default 0.8) or less than
+:math:`r_\text{min}` (default 1.2), will be considered as a failed solve and the
 and the step will be repeated with the step size reduced by
 :math:`\eta_\text{rf}`.
-
-In the case where there are multiple functions :math:`\xi_i(y)` of interest that
-do not need to be conserved but may also be dissipated, ARKODE will compute the
-relaxation values for each function and select :math:`r = \min_i r_i`. As a
-result each :math:`\xi_i(y)` will be dissipated.
 
 For more information on utilizing relaxation Runge-Kutta methods, see
 :numref:`ARKODE.Usage.ERKStep.Relaxation` and
