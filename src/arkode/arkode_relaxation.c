@@ -761,6 +761,9 @@ int arkRelax(ARKodeMem ark_mem, int* relax_fails, realtype* dsm_inout,
     if (SUNRabs(ark_mem->h) <= ark_mem->hmin * ONEPSM)
       return ARK_RELAX_FAIL;
 
+    /* Return with error if using fixed step sizes */
+    if (ark_mem->fixedstep) return(ARK_RELAX_FAIL);
+
     /* Cut step size and try again */
     ark_mem->eta = relax_mem->eta_fail;
 
