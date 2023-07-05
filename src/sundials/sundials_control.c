@@ -54,6 +54,8 @@ SUNControl SUNControlNewEmpty(SUNContext sunctx)
   ops->setembeddingorder    = NULL;
   ops->seterrorbias         = NULL;
   ops->update               = NULL;
+  ops->updatemrih           = NULL;
+  ops->updatemritol         = NULL;
   ops->space                = NULL;
 
   /* attach ops and initialize content to NULL */
@@ -227,6 +229,25 @@ int SUNControlUpdate(SUNControl C, realtype h, realtype dsm)
   int ier = 0;
   if (C == NULL) { return ier; }
   if (C->ops->update) { ier = C->ops->update(C, h, dsm); }
+  return(ier);
+}
+
+int SUNControlUpdateMRIH(SUNControl C, realtype H, realtype h,
+                         realtype DSM, realtype dsm)
+{
+  int ier = 0;
+  if (C == NULL) { return ier; }
+  if (C->ops->updatemrih) { ier = C->ops->updatemrih(C, H, h, DSM, dsm); }
+  return(ier);
+}
+
+int SUNControlUpdateMRITol(SUNControl C, realtype H, realtype tolfac,
+                           realtype DSM, realtype dsm)
+{
+  int ier = 0;
+  if (C == NULL) { return ier; }
+  if (C->ops->updatemritol) { ier = C->ops->updatemritol(C, H, tolfac,
+                                                         DSM, dsm); }
   return(ier);
 }
 

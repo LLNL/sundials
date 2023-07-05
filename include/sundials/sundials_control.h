@@ -91,6 +91,10 @@ struct _generic_SUNControl_Ops
   int (*setembeddingorder)(SUNControl C, int p);
   int (*seterrorbias)(SUNControl C, realtype bias);
   int (*update)(SUNControl C, realtype h, realtype dsm);
+  int (*updatemrih)(SUNControl C, realtype H, realtype h,
+                    realtype DSM, realtype dsm);
+  int (*updatemritol)(SUNControl C, realtype H, realtype tolfac,
+                      realtype DSM, realtype dsm);
   int (*space)(SUNControl C, long int *lenrw, long int *leniw);
 #ifdef __cplusplus
   _generic_SUNControl_Ops() = default;
@@ -200,11 +204,27 @@ int SUNControlSetEmbeddingOrder(SUNControl C, int p);
 SUNDIALS_EXPORT
 int SUNControlSetErrorBias(SUNControl C, realtype bias);
 
-/* Function to notify the controller of a successful a time step with size
-   h and local error factor dsm, indicating the the step size or local error
-   factor can be saved for subsequent controller functions. */
+/* Function to notify the controller of a successful time step with size
+   h and local error factor dsm, indicating that the step size or local
+   error factor can be saved for subsequent controller functions. */
 SUNDIALS_EXPORT
 int SUNControlUpdate(SUNControl C, realtype h, realtype dsm);
+
+/* Function to notify the controller of a successful multirate time step
+   with sizes H and h, and local error factors DSM and dsm, indicating that
+   the step sizes or local error factors can be saved for subsequent
+   controller functions. */
+SUNDIALS_EXPORT
+int SUNControlUpdateMRIH(SUNControl C, realtype H, realtype h,
+                         realtype DSM, realtype dsm);
+
+/* Function to notify the controller of a successful multirate time step
+   with size H and fast tolerance factor tolfac, and local error factors
+   DSM and dsm, indicating that the step size, tolerance factor, or local
+   error factors can be saved for subsequent controller functions. */
+SUNDIALS_EXPORT
+int SUNControlUpdateMRITol(SUNControl C, realtype H, realtype tolfac,
+                           realtype DSM, realtype dsm);
 
 /* Function to return the memory requirements of the controller object. */
 SUNDIALS_EXPORT

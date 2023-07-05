@@ -71,6 +71,8 @@ function pointers to the various controller operations, and is defined as
         int           (*setembeddingorder)(SUNControl C, int p);
         int           (*seterrorbias)(SUNControl C, realtype bias);
         int           (*update)(SUNControl C, realtype h, realtype dsm);
+        int           (*updatemrih)(SUNControl C, realtype H, realtype h, realtype DSM, realtype dsm);
+        int           (*updatemritol)(SUNControl C, realtype H, realtype tolfac, realtype DSM, realtype dsm);
         int           (*space)(SUNControl C, long int *lenrw, long int *leniw);
     };
 
@@ -329,6 +331,47 @@ the behavior of the base SUNControl wrapper routine, below.
    :param C:  the :c:type:`SUNControl` object..
    :param h:  the successful step size.
    :param dsm:  the successful temporal error estimate.
+   :return: error code indicating success failure  (see :numref:`SUNControl.Description.errorCodes`).
+
+   Usage:
+
+   .. code-block:: c
+
+      retval = SUNControlUpdate(C, h, dsm);
+
+.. c:function:: int SUNControlUpdateMRIH(SUNControl C, realtype H, realtype h, realtype DSM, realtype dsm)
+
+   Notifies the controller of a successful multirate time step of sizes *H* and *h*,
+   and with temporal error estimates *DSM* and *dsm*.  This is used for controllers of
+   type *SUNDIALS_CONTROL_MRI_H* that store a history of either step size inputs or
+   resulting error estimates for performing the estimation process.
+
+   :param C:  the :c:type:`SUNControl` object..
+   :param H:  the successful slow step size.
+   :param h:  the successful fast step size.
+   :param DSM:  the successful slow temporal error estimate.
+   :param dsm:  the successful fast temporal error estimate.
+   :return: error code indicating success failure  (see :numref:`SUNControl.Description.errorCodes`).
+
+   Usage:
+
+   .. code-block:: c
+
+      retval = SUNControlUpdateMRIH(C, H, h, DSM, dsm);
+
+.. c:function:: int SUNControlUpdateMRITol(SUNControl C, realtype H, realtype tolfac, realtype DSM, realtype dsm)
+
+   Notifies the controller of a successful multirate time step of size *H* and fast
+   tolerance factor *tolfac*, that resulted in temporal error estimates *DSM* and
+   *dsm*.  This is typically used for controllers of type *SUNDIALS_CONTROL_MRI_TOL*
+   that store a history of either control inputs or resulting error estimates for
+   performing the estimation process.
+
+   :param C:  the :c:type:`SUNControl` object..
+   :param H:  the successful slow step size.
+   :param tolfac:  the successful fast relative tolerance factor.
+   :param DSM:  the successful slow temporal error estimate.
+   :param dsm:  the successful fast temporal error estimate.
    :return: error code indicating success failure  (see :numref:`SUNControl.Description.errorCodes`).
 
    Usage:
