@@ -171,10 +171,9 @@ using namespace sundials::hip::impl;
 // hypre ParVector accessor macros
 #define NV_HYPRE_PARVEC_PH(v)   ( NV_CONTENT_PH(v)->x )
 #define NV_HYPRE_MEMLOC_PH(v)   ( (HYPRE_MemoryLocation) hypre_ParVectorMemoryLocation(NV_HYPRE_PARVEC_PH(v)) )
+#define NV_DATA_PH(v)           ( NV_HYPRE_PARVEC_PH(v) == NULL ? NULL : hypre_VectorData(hypre_ParVectorLocalVector(NV_HYPRE_PARVEC_PH(v))) )
 
 /* --- Backend-dependent accessor macros --- */
-
-#define NV_DATA_PH(v)           ( NV_HYPRE_PARVEC_PH(v) == NULL ? NULL : hypre_VectorData(hypre_ParVectorLocalVector(NV_HYPRE_PARVEC_PH(v))) )
 
 #if defined(SUNDIALS_HYPRE_BACKENDS_CUDA_OR_HIP)
 #define NV_MEMHELP_PH(v)        (NV_CONTENT_PH(v)->mem_helper)
@@ -221,7 +220,7 @@ ThreadDirectExecPolicy DEFAULT_STREAMING_EXECPOLICY(512);
 BlockReduceExecPolicy DEFAULT_REDUCTION_EXECPOLICY(512);
 #endif
 
-/* --- Private function prototypes --- */
+/* --- Private linear combination operation prototypes --- */
 
 /* z=x+y */
 static void VSum_ParHyp(N_Vector x, N_Vector y, N_Vector z);
@@ -236,9 +235,36 @@ static void VLin1_ParHyp(realtype a, N_Vector x, N_Vector y, N_Vector z);
 /* z=ax-y */
 static void VLin2_ParHyp(realtype a, N_Vector x, N_Vector y, N_Vector z);
 
+/* --- Private CUDA/HIP helper function prototypes --- */
+
+#if defined(SUNDIALS_HYPRE_BACKENDS_CUDA_OR_HIP)
+
+// /* Allocators for temporary host data (if NOT using unified memory) */
+// #if !defined(SUNDIALS_HYPRE_USING_UNIFIED_MEMORY_AND_CUDA)
+// static int AllocateTempHostData(N_Vector v, SUNMemory *host_data);
+// static int FreeTempHostData(N_Vector v, SUNMemory *host_data);
+// #endif // NOT Unified Memory and CUDA
+
+/* Reduction buffer functions */
+static int InitializeDeviceCounter(N_Vector v);
+static int FreeDeviceCounter(N_Vector v);
+static int InitializeReductionBuffer(N_Vector v, realtype value, size_t n = 1);
+static void FreeReductionBuffer(N_Vector v);
+// static int CopyReductionBufferFromDevice(N_Vector v, size_t n = 1);
+
+/* Kernel launch parameters */
+static int GetKernelParameters(N_Vector v, booleantype reduction, size_t& grid, size_t& block,
+                               size_t& shMemSize, cudaStream_t& stream, size_t n = 0);
+static int GetKernelParameters(N_Vector v, booleantype reduction, size_t& grid, size_t& block,
+                                size_t& shMemSize, cudaStream_t& stream, bool& atomic, size_t n = 0);
+static void PostKernelLaunch();
+
+#endif // CUDA or HIP
+
+
 /*
  * -----------------------------------------------------------------
- * exported functions
+ * Exported functions
  * -----------------------------------------------------------------
  */
 
@@ -250,7 +276,6 @@ N_Vector_ID N_VGetVectorID_ParHyp(N_Vector v)
 {
   return SUNDIALS_NVEC_PARHYP;
 }
-
 
 /* ----------------------------------------------------------------
  * Function to create a new parhyp vector without underlying
@@ -366,12 +391,10 @@ N_Vector N_VNewEmpty_ParHyp(MPI_Comm comm,
   return(v);
 }
 
-
 /* ----------------------------------------------------------------
  * Function to create a parhyp N_Vector wrapper around user
  * supplie HYPRE vector.
  */
-
 N_Vector N_VMake_ParHyp(HYPRE_ParVector x, SUNContext sunctx)
 {
   N_Vector v;
@@ -392,7 +415,7 @@ N_Vector N_VMake_ParHyp(HYPRE_ParVector x, SUNContext sunctx)
 
   /* Attach CUDA/HIP-only content */
 #if defined(SUNDIALS_HYPRE_BACKENDS_CUDA_OR_HIP)
-  NV_MEMHELP_PH(v)       = SUNMemoryHelper_Cuda(sunctx);
+  NV_MEMHELP_PH(v)       = NV_SUNMemoryHelper_TYPE_PH(sunctx);
   NV_STREAM_POLICY_PH(v) = DEFAULT_STREAMING_EXECPOLICY.clone();
   NV_REDUCE_POLICY_PH(v) = DEFAULT_REDUCTION_EXECPOLICY.clone();
 
@@ -407,11 +430,9 @@ N_Vector N_VMake_ParHyp(HYPRE_ParVector x, SUNContext sunctx)
   return(v);
 }
 
-
 /* ----------------------------------------------------------------
  * Function to create an array of new parhyp vectors.
  */
-
 N_Vector *N_VCloneVectorArray_ParHyp(int count, N_Vector w)
 {
   return(N_VCloneVectorArray(count, w));
@@ -421,7 +442,6 @@ N_Vector *N_VCloneVectorArray_ParHyp(int count, N_Vector w)
  * Function to create an array of new parhyp vector wrappers
  * without uderlying HYPRE vectors.
  */
-
 N_Vector *N_VCloneVectorArrayEmpty_ParHyp(int count, N_Vector w)
 {
   return(N_VCloneEmptyVectorArray(count, w));
@@ -430,18 +450,15 @@ N_Vector *N_VCloneVectorArrayEmpty_ParHyp(int count, N_Vector w)
 /* ----------------------------------------------------------------
  * Function to free an array created with N_VCloneVectorArray_ParHyp
  */
-
 void N_VDestroyVectorArray_ParHyp(N_Vector *vs, int count)
 {
   N_VDestroyVectorArray(vs, count);
   return;
 }
 
-
 /* ----------------------------------------------------------------
  * Extract HYPRE vector
  */
-
 HYPRE_ParVector N_VGetVector_ParHyp(N_Vector v)
 {
   return NV_HYPRE_PARVEC_PH(v);
@@ -451,7 +468,6 @@ HYPRE_ParVector N_VGetVector_ParHyp(N_Vector v)
  * Function to print a parhyp vector.
  * TODO: Consider using a HYPRE function for this.
  */
-
 void N_VPrint_ParHyp(N_Vector x)
 {
   N_VPrintFile_ParHyp(x, stdout);
@@ -461,7 +477,6 @@ void N_VPrint_ParHyp(N_Vector x)
  * Function to print a parhyp vector.
  * TODO: Consider using a HYPRE function for this.
  */
-
 void N_VPrintFile_ParHyp(N_Vector x, FILE *outfile)
 {
   sunindextype i, N;
@@ -485,6 +500,7 @@ void N_VPrintFile_ParHyp(N_Vector x, FILE *outfile)
 
   return;
 }
+
 
 /*
  * -----------------------------------------------------------------
@@ -576,7 +592,6 @@ void N_VDestroy_ParHyp(N_Vector v)
   return;
 }
 
-
 void N_VSpace_ParHyp(N_Vector v, sunindextype *lrw, sunindextype *liw)
 {
   MPI_Comm comm;
@@ -591,7 +606,6 @@ void N_VSpace_ParHyp(N_Vector v, sunindextype *lrw, sunindextype *liw)
   return;
 }
 
-
 /*
  * This function is disabled in ParHyp implementation and returns NULL.
  * The user should extract HYPRE vector using N_VGetVector_ParHyp and
@@ -603,7 +617,6 @@ realtype *N_VGetArrayPointer_ParHyp(N_Vector v)
   return NULL; /* ((realtype *) NV_DATA_PH(v)); */
 }
 
-
 /*
  * This method is not implemented for HYPRE vector wrapper.
  * TODO: Put error handler in the function body.
@@ -612,7 +625,6 @@ void N_VSetArrayPointer_ParHyp(realtype *v_data, N_Vector v)
 {
   /* Not implemented for Hypre vector */
 }
-
 
 void *N_VGetCommunicator_ParHyp(N_Vector v)
 {
@@ -741,7 +753,6 @@ void N_VConst_ParHyp(realtype c, N_Vector z)
 /* ----------------------------------------------------------------------------
  * Compute componentwise product z[i] = x[i]*y[i]
  */
-
 void N_VProd_ParHyp(N_Vector x, N_Vector y, N_Vector z)
 {
   sunindextype i, N;
@@ -769,11 +780,9 @@ void N_VProd_ParHyp(N_Vector x, N_Vector y, N_Vector z)
   return;
 }
 
-
 /* ----------------------------------------------------------------------------
  * Compute componentwise division z[i] = x[i]/y[i]
  */
-
 void N_VDiv_ParHyp(N_Vector x, N_Vector y, N_Vector z)
 {
   sunindextype i, N;
@@ -802,7 +811,6 @@ void N_VDiv_ParHyp(N_Vector x, N_Vector y, N_Vector z)
   return;
 }
 
-
 void N_VScale_ParHyp(realtype c, N_Vector x, N_Vector z)
 {
   HYPRE_Complex value = c;
@@ -814,7 +822,6 @@ void N_VScale_ParHyp(realtype c, N_Vector x, N_Vector z)
 
   return;
 }
-
 
 void N_VAbs_ParHyp(N_Vector x, N_Vector z)
 {
@@ -1192,10 +1199,9 @@ realtype N_VMinQuotient_ParHyp(N_Vector num, N_Vector denom)
 
 /*
  * -----------------------------------------------------------------
- * fused vector operations
+ * Fused vector operations
  * -----------------------------------------------------------------
  */
-
 
 int N_VLinearCombination_ParHyp(int nvec, realtype* c, N_Vector* X, N_Vector z)
 {
@@ -1357,10 +1363,9 @@ int N_VDotProdMulti_ParHyp(int nvec, N_Vector x, N_Vector* Y,
 
 /*
  * -----------------------------------------------------------------
- * single buffer reduction operations
+ * Single buffer reduction operations
  * -----------------------------------------------------------------
  */
-
 
 int N_VDotProdMultiLocal_ParHyp(int nvec, N_Vector x, N_Vector* Y,
                                 realtype* dotprods)
@@ -1404,7 +1409,6 @@ int N_VDotProdMultiAllReduce_ParHyp(int nvec, N_Vector x, realtype* sum)
  * vector array operations
  * -----------------------------------------------------------------
  */
-
 
 int N_VLinearSumVectorArray_ParHyp(int nvec,
                                    realtype a, N_Vector* X,
@@ -1842,7 +1846,6 @@ int N_VLinearCombinationVectorArray_ParHyp(int nvec, int nsum,
  * -----------------------------------------------------------------
  */
 
-
 int N_VBufSize_ParHyp(N_Vector x, sunindextype *size)
 {
   if (x == NULL) return(-1);
@@ -1891,7 +1894,7 @@ int N_VBufUnpack_ParHyp(N_Vector x, void *buf)
 
 /*
  * -----------------------------------------------------------------
- * private functions
+ * Private linear combination operations
  * -----------------------------------------------------------------
  */
 
@@ -1954,7 +1957,6 @@ static void VDiff_ParHyp(N_Vector x, N_Vector y, N_Vector z)
 
   return;
 }
-
 
 static void VScaleSum_ParHyp(realtype c, N_Vector x, N_Vector y, N_Vector z)
 {
@@ -2126,7 +2128,6 @@ int N_VEnableFusedOps_ParHyp(N_Vector v, booleantype tf)
   /* return success */
   return(0);
 }
-
 
 int N_VEnableLinearCombination_ParHyp(N_Vector v, booleantype tf)
 {
@@ -2325,3 +2326,207 @@ int N_VEnableDotProdMultiLocal_ParHyp(N_Vector v, booleantype tf)
   /* return success */
   return(0);
 }
+
+
+/*
+ * -----------------------------------------------------------------
+ * Private CUDA/HIP helper functions
+ * -----------------------------------------------------------------
+ */
+
+#if defined(SUNDIALS_HYPRE_BACKENDS_CUDA_OR_HIP)
+
+static int InitializeDeviceCounter(N_Vector v)
+{
+  int retval = 0;
+  
+  if (NV_PRIVATE_PH(v)->device_counter == NULL)
+  {
+    retval = SUNMemoryHelper_Alloc(NV_MEMHELP_PH(v),
+                                   &(NV_PRIVATE_PH(v)->device_counter), sizeof(unsigned int),
+                                   SUNMEMTYPE_DEVICE, (void*) NV_STREAM_PH(v));
+  }
+  NV_MemsetAsync_CALL_PH(NV_DCOUNTERp_PH(v), 0, sizeof(unsigned int), *NV_STREAM_PH(v));
+  return retval;
+}
+
+static int FreeDeviceCounter(N_Vector v)
+{
+  int retval = 0;
+  if (NV_PRIVATE_PH(v)->device_counter)
+    retval = SUNMemoryHelper_Dealloc(NV_MEMHELP_PH(v), NV_PRIVATE_PH(v)->device_counter,
+                                     (void*) NV_STREAM_PH(v));
+  return retval;
+}
+
+static int InitializeReductionBuffer(N_Vector v, realtype value, size_t n)
+{
+  int         alloc_fail = 0;
+  int         copy_fail  = 0;
+  booleantype alloc_mem  = SUNFALSE;
+  size_t      bytes      = n * sizeof(realtype);
+
+  // Get the vector private memory structure
+  N_PrivateVectorContent_ParHyp vcp = NV_PRIVATE_PH(v);
+
+  // Check if the existing reduction memory is not large enough
+  if (vcp->reduce_buffer_bytes < bytes)
+  {
+    FreeReductionBuffer(v);
+    alloc_mem = SUNTRUE;
+  }
+
+  if (alloc_mem)
+  {
+    // Allocate pinned memory on the host
+    alloc_fail = SUNMemoryHelper_Alloc(NV_MEMHELP_PH(v),
+                                       &(vcp->reduce_buffer_host), bytes,
+                                       SUNMEMTYPE_PINNED, (void*) NV_STREAM_PH(v));
+    if (alloc_fail)
+    {
+      SUNDIALS_DEBUG_PRINT("WARNING in InitializeReductionBuffer: SUNMemoryHelper_Alloc failed to alloc SUNMEMTYPE_PINNED, using SUNMEMTYPE_HOST instead\n");
+
+      // If pinned alloc failed, allocate plain host memory
+      alloc_fail = SUNMemoryHelper_Alloc(NV_MEMHELP_PH(v),
+                                         &(vcp->reduce_buffer_host), bytes,
+                                         SUNMEMTYPE_HOST, (void*) NV_STREAM_PH(v));
+      if (alloc_fail)
+      {
+        SUNDIALS_DEBUG_PRINT("ERROR in InitializeReductionBuffer: SUNMemoryHelper_Alloc failed to alloc SUNMEMTYPE_HOST\n");
+      }
+    }
+
+    // Allocate device memory
+    alloc_fail = SUNMemoryHelper_Alloc(NV_MEMHELP_PH(v),
+                                       &(vcp->reduce_buffer_dev), bytes,
+                                       SUNMEMTYPE_DEVICE, (void*) NV_STREAM_PH(v));
+    if (alloc_fail)
+    {
+      SUNDIALS_DEBUG_PRINT("ERROR in InitializeReductionBuffer: SUNMemoryHelper_Alloc failed to alloc SUNMEMTYPE_DEVICE\n");
+    }
+  }
+
+  if (!alloc_fail)
+  {
+    // Store the size of the reduction memory buffer
+    vcp->reduce_buffer_bytes = bytes;
+
+    // Initialize the host memory with the value
+    for (int i = 0; i < n; ++i)
+      ((realtype*)vcp->reduce_buffer_host->ptr)[i] = value;
+
+    // Initialize the device memory with the value
+    copy_fail = SUNMemoryHelper_CopyAsync(NV_MEMHELP_PH(v),
+                                          vcp->reduce_buffer_dev, vcp->reduce_buffer_host,
+                                          bytes, (void*) NV_STREAM_PH(v));
+
+    if (copy_fail)
+    {
+      SUNDIALS_DEBUG_PRINT("ERROR in InitializeReductionBuffer: SUNMemoryHelper_CopyAsync failed\n");
+    }
+  }
+
+  return((alloc_fail || copy_fail) ? -1 : 0);
+}
+
+static void FreeReductionBuffer(N_Vector v)
+{
+  N_PrivateVectorContent_ParHyp vcp = NV_PRIVATE_PH(v);
+
+  if (vcp == NULL) return;
+
+  // Free device mem
+  if (vcp->reduce_buffer_dev != NULL)
+    SUNMemoryHelper_Dealloc(NV_MEMHELP_PH(v), vcp->reduce_buffer_dev,
+                            (void*) NV_STREAM_PH(v));
+  vcp->reduce_buffer_dev  = NULL;
+
+  // Free host mem
+  if (vcp->reduce_buffer_host != NULL)
+    SUNMemoryHelper_Dealloc(NV_MEMHELP_PH(v), vcp->reduce_buffer_host,
+                            (void*) NV_STREAM_PH(v));
+  vcp->reduce_buffer_host = NULL;
+
+  // Reset allocated memory size
+  vcp->reduce_buffer_bytes = 0;
+}
+
+static int GetKernelParameters(N_Vector v, booleantype reduction, size_t& grid,
+                               size_t& block, size_t& shMemSize,
+                               NV_Stream_TYPE_PH& stream, bool& atomic, size_t n)
+{
+  n = (n == 0) ? NV_CONTENT_PH(v)->length : n;
+  if (reduction)
+  {
+    NV_SUNExecPolicy_TYPE_PH* reduce_exec_policy = NV_CONTENT_PH(v)->reduce_exec_policy;
+    grid      = reduce_exec_policy->gridSize(n);
+    block     = reduce_exec_policy->blockSize();
+    shMemSize = 0;
+    stream    = *(reduce_exec_policy->stream());
+    atomic    = reduce_exec_policy->atomic();
+
+    if (!atomic)
+    {
+      if (InitializeDeviceCounter(v))
+      {
+  #ifdef SUNDIALS_DEBUG
+        throw std::runtime_error("SUNMemoryHelper_Alloc returned nonzero\n");
+  #endif
+        return(-1);
+      }
+    }
+
+    if (block % sundials::NV_lang_TOKEN_PH::WARP_SIZE)
+    {
+#ifdef SUNDIALS_DEBUG
+      throw std::runtime_error("the block size must be a multiple must be of the "NV_LANG_STRING_PH" warp size");
+#endif
+      return(-1);
+    }
+  }
+  else
+  {
+    NV_SUNExecPolicy_TYPE_PH* stream_exec_policy = NV_CONTENT_PH(v)->stream_exec_policy;
+    grid      = stream_exec_policy->gridSize(n);
+    block     = stream_exec_policy->blockSize();
+    shMemSize = 0;
+    stream    = *(stream_exec_policy->stream());
+    atomic    = false;
+  }
+
+  if (grid == 0)
+  {
+#ifdef SUNDIALS_DEBUG
+    throw std::runtime_error("the grid size must be > 0");
+#endif
+    return(-1);
+  }
+  if (block == 0)
+  {
+#ifdef SUNDIALS_DEBUG
+    throw std::runtime_error("the block size must be > 0");
+#endif
+    return(-1);
+  }
+
+  return(0);
+}
+
+static int GetKernelParameters(N_Vector v, booleantype reduction, size_t& grid,
+                               size_t& block, size_t& shMemSize, NV_Stream_TYPE_PH& stream,
+                               size_t n)
+{
+  bool atomic;
+  return GetKernelParameters(v, reduction, grid, block, shMemSize, stream, atomic, n);
+}
+
+static void PostKernelLaunch()
+{
+// TODO: implement "SUNDIALS_DEBUG_PARHYP_LASTERROR"?
+#if defined(SUNDIALS_DEBUG_CUDA_LASTERROR) || defined(SUNDIALS_DEBUG_HIP_LASTERROR)
+  NV_DeviceSynchronize_CALL_PH();
+  NV_Verify_CALL_PH(NV_GetLastError_CALL_PH());
+#endif
+}
+
+#endif // CUDA or HIP
