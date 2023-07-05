@@ -163,28 +163,30 @@ using namespace sundials::hip::impl;
 
 /* --- Common accessor macros --- */
 
-#define NV_CONTENT_PH(v)      ( (N_VectorContent_ParHyp)(v->content) )
-#define NV_LOCLENGTH_PH(v)    ( NV_CONTENT_PH(v)->local_length )
-#define NV_GLOBLENGTH_PH(v)   ( NV_CONTENT_PH(v)->global_length )
-#define NV_OWN_PARVEC_PH(v)   ( NV_CONTENT_PH(v)->own_parvector )
-#define NV_COMM_PH(v)         ( NV_CONTENT_PH(v)->comm )
+#define NV_CONTENT_PH(v)        ( (N_VectorContent_ParHyp)(v->content) )
+#define NV_LOCLENGTH_PH(v)      ( NV_CONTENT_PH(v)->local_length )
+#define NV_GLOBLENGTH_PH(v)     ( NV_CONTENT_PH(v)->global_length )
+#define NV_OWN_PARVEC_PH(v)     ( NV_CONTENT_PH(v)->own_parvector )
+#define NV_COMM_PH(v)           ( NV_CONTENT_PH(v)->comm )
 // hypre ParVector accessor macros
-#define NV_HYPRE_PARVEC_PH(v) ( NV_CONTENT_PH(v)->x )
-#define NV_HYPRE_MEMLOC_PH(v) ( (HYPRE_MemoryLocation) hypre_ParVectorMemoryLocation(NV_HYPRE_PARVEC_PH(v)) )
+#define NV_HYPRE_PARVEC_PH(v)   ( NV_CONTENT_PH(v)->x )
+#define NV_HYPRE_MEMLOC_PH(v)   ( (HYPRE_MemoryLocation) hypre_ParVectorMemoryLocation(NV_HYPRE_PARVEC_PH(v)) )
 
 /* --- Backend-dependent accessor macros --- */
 
-#define NV_DATA_PH(v)         ( NV_HYPRE_PARVEC_PH(v) == NULL ? NULL : hypre_VectorData(hypre_ParVectorLocalVector(NV_HYPRE_PARVEC_PH(v))) )
+#define NV_DATA_PH(v)           ( NV_HYPRE_PARVEC_PH(v) == NULL ? NULL : hypre_VectorData(hypre_ParVectorLocalVector(NV_HYPRE_PARVEC_PH(v))) )
 
 #if defined(SUNDIALS_HYPRE_BACKENDS_CUDA_OR_HIP)
-#define NV_MEMHELP_PH(v)      (NV_CONTENT_PH(v)->mem_helper)
-#define NV_MEMSIZE_PH(v)      (NV_CONTENT_PH(v)->length * sizeof(realtype))
-#define NV_STREAM_PH(v)       (NV_CONTENT_PH(v)->stream_exec_policy->stream())
+#define NV_MEMHELP_PH(v)        (NV_CONTENT_PH(v)->mem_helper)
+#define NV_MEMSIZE_PH(v)        (NV_CONTENT_PH(v)->length * sizeof(realtype))
+#define NV_STREAM_PH(v)         (NV_CONTENT_PH(v)->stream_exec_policy->stream())
+#define NV_STREAM_POLICY_PH(v)  (NV_CONTENT_PH(v)->stream_exec_policy)
+#define NV_REDUCE_POLICY_PH(v)  (NV_CONTENT_PH(v)->reduce_exec_policy)
 // Private content accessor macros
-#define NV_PRIVATE_PH(v)      ((N_PrivateVectorContent_ParHyp)(NV_CONTENT_PH(v)->priv))
-#define NV_HBUFFERp_PH(v)     ((realtype*) NV_PRIVATE_PH(v)->reduce_buffer_host->ptr)
-#define NV_DBUFFERp_PH(v)     ((realtype*) NV_PRIVATE_PH(v)->reduce_buffer_dev->ptr)
-#define NV_DCOUNTERp_PH(v)    ((unsigned int*) NV_PRIVATE_PH(v)->device_counter->ptr)
+#define NV_PRIVATE_PH(v)        (N_PrivateVectorContent_ParHyp)(NV_CONTENT_PH(v)->priv))
+#define NV_HBUFFERp_PH(v)       ((realtype*) NV_PRIVATE_PH(v)->reduce_buffer_host->ptr)
+#define NV_DBUFFERp_PH(v)       ((realtype*) NV_PRIVATE_PH(v)->reduce_buffer_dev->ptr)
+#define NV_DCOUNTERp_PH(v)      ((unsigned int*) NV_PRIVATE_PH(v)->device_counter->ptr)
 #endif
 
 /* --- Private structure definition --- */
@@ -325,8 +327,15 @@ N_Vector N_VNewEmpty_ParHyp(MPI_Comm comm,
 
   /* Create content */
   content = NULL;
-  content = (N_VectorContent_ParHyp) malloc(sizeof *content);
+  content = (N_VectorContent_ParHyp) malloc(sizeof(_N_VectorContent_ParHyp));
   if (content == NULL) { N_VDestroy(v); return(NULL); }
+
+  /* Create private content */
+#if defined(SUNDIALS_HYPRE_BACKENDS_CUDA_OR_HIP)
+  content->priv = NULL;
+  content->priv = (N_PrivateVectorContent_ParHyp) malloc(sizeof(_N_PrivateVectorContent_ParHyp));
+  if (content->priv == NULL) { N_VDestroy(v); return(NULL); }
+#endif
 
   /* Attach content */
   v->content = content;
@@ -334,9 +343,25 @@ N_Vector N_VNewEmpty_ParHyp(MPI_Comm comm,
   /* Attach lengths and communicator */
   content->local_length  = local_length;
   content->global_length = global_length;
-  content->comm          = comm;
   content->own_parvector = SUNFALSE;
+  content->comm          = comm;
   content->x             = NULL;
+
+  /* Initialize CUDA/HIP-only content */
+#if defined(SUNDIALS_HYPRE_BACKENDS_CUDA_OR_HIP)
+  content->stream_exec_policy         = NULL;
+  content->reduce_exec_policy         = NULL;
+  content->mem_helper                 = NULL;
+  // content->priv->use_managed_mem      = SUNFALSE;
+  content->priv->device_counter       = NULL;
+  content->priv->reduce_buffer_dev    = NULL;
+  content->priv->reduce_buffer_host   = NULL;
+  content->priv->reduce_buffer_bytes  = 0;
+  // content->priv->fused_buffer_dev     = NULL;
+  // content->priv->fused_buffer_host    = NULL;
+  // content->priv->fused_buffer_bytes   = 0;
+  // content->priv->fused_buffer_offset  = 0;
+#endif
 
   return(v);
 }
@@ -361,8 +386,23 @@ N_Vector N_VMake_ParHyp(HYPRE_ParVector x, SUNContext sunctx)
   if (v == NULL)
     return(NULL);
 
+  /* Use provided hypre vector x, which we do not own */
   NV_OWN_PARVEC_PH(v)   = SUNFALSE;
   NV_HYPRE_PARVEC_PH(v) = x;
+
+  /* Attach CUDA/HIP-only content */
+#if defined(SUNDIALS_HYPRE_BACKENDS_CUDA_OR_HIP)
+  NV_MEMHELP_PH(v)       = SUNMemoryHelper_Cuda(sunctx);
+  NV_STREAM_POLICY_PH(v) = DEFAULT_STREAMING_EXECPOLICY.clone();
+  NV_REDUCE_POLICY_PH(v) = DEFAULT_REDUCTION_EXECPOLICY.clone();
+
+  if (NV_MEMHELP_PH(v) == NULL)
+  {
+    SUNDIALS_DEBUG_PRINT("ERROR in N_VMake_ParHyp: memory helper is NULL\n");
+    N_VDestroy(v);
+    return(NULL);
+  }
+#endif
 
   return(v);
 }
@@ -865,19 +905,19 @@ realtype N_VDotProdLocal_ParHyp(N_Vector x, N_Vector y)
 
   sum = ZERO;
 
-  // #if defined(SUNDIALS_HYPRE_BACKENDS_SERIAL)
+  #if defined(SUNDIALS_HYPRE_BACKENDS_SERIAL)
   for (i = 0; i < N; i++)
     sum += xd[i]*yd[i];
-  // #elif defined(SUNDIALS_HYPRE_BACKENDS_CUDA)
-  // dotProdKernel<<<1, 100, 0, 0>>>
-  // (
-  //   xd,
-  //   yd,
-  //   &sum,
-  //   N,
-  //   1
-  // );
-  // #endif
+  #elif defined(SUNDIALS_HYPRE_BACKENDS_CUDA)
+  dotProdKernel<<<1, 100, 0, 0>>>
+  (
+    xd,
+    yd,
+    &sum,
+    N,
+    1
+  );
+  #endif
 
   return(sum);
 }

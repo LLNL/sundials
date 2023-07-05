@@ -116,22 +116,22 @@ extern "C" {
 
 struct _N_VectorContent_ParHyp
 {
-  sunindextype local_length;  /* local vector length         */
-  sunindextype global_length; /* global vector length        */
-  booleantype own_parvector;  /* ownership of HYPRE vector   */
-  MPI_Comm comm;              /* pointer to MPI communicator */
+  sunindextype local_length;  /* local vector length               */
+  sunindextype global_length; /* global vector length              */
+  booleantype own_parvector;  /* ownership of HYPRE vector         */
+  MPI_Comm comm;              /* pointer to MPI communicator       */
+  HYPRE_ParVector x;          /* the actual HYPRE_ParVector object */
 #if defined(SUNDIALS_HYPRE_BACKENDS_CUDA)
   SUNCudaExecPolicy* stream_exec_policy;
   SUNCudaExecPolicy* reduce_exec_policy;
   SUNMemoryHelper    mem_helper;
-  void*              priv;    /* 'private' data */
+  void*              priv;    /* 'private' data structure */
 #elif defined(SUNDIALS_HYPRE_BACKENDS_HIP)
   SUNHipExecPolicy*  stream_exec_policy;
   SUNHipExecPolicy*  reduce_exec_policy;
   SUNMemoryHelper    mem_helper;
-  void*              priv;    /* 'private' data */
+  void*              priv;    /* 'private' data structure */
 #endif
-  HYPRE_ParVector x;          /* the actual HYPRE_ParVector object */
 };
 
 typedef struct _N_VectorContent_ParHyp *N_VectorContent_ParHyp;
