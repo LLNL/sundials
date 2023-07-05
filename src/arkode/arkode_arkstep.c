@@ -692,6 +692,15 @@ void ARKStepFree(void **arkode_mem)
       ark_mem->liw -= step_mem->stages;
     }
 
+    /* free stage vectors */
+    if (step_mem->z != NULL) {
+      for(j=0; j<step_mem->stages; j++)
+        arkFreeVec(ark_mem, &step_mem->z[j]);
+      free(step_mem->z);
+      step_mem->z = NULL;
+      ark_mem->liw -= step_mem->stages;
+    }
+
     /* free the reusable arrays for fused vector interface */
     if (step_mem->cvals != NULL) {
       free(step_mem->cvals);
@@ -1158,6 +1167,18 @@ int arkStep_Init(void* arkode_mem, int init_type)
         step_mem->Fi = (N_Vector *) calloc(step_mem->stages, sizeof(N_Vector));
       for (j=0; j<step_mem->stages; j++) {
         if (!arkAllocVec(ark_mem, ark_mem->ewt, &(step_mem->Fi[j])))
+          return(ARK_MEM_FAIL);
+      }
+      ark_mem->liw += step_mem->stages;  /* pointers */
+    }
+
+    /* Allocate stage storage for relaxation with implicit/IMEX methods */
+    if (ark_mem->relax_enabled && step_mem->implicit)
+    {
+      if (step_mem->z == NULL)
+        step_mem->z = (N_Vector *) calloc(step_mem->stages, sizeof(N_Vector));
+      for (j = 0; j < step_mem->stages; j++) {
+        if (!arkAllocVec(ark_mem, ark_mem->ewt, &(step_mem->z[j])))
           return(ARK_MEM_FAIL);
       }
       ark_mem->liw += step_mem->stages;  /* pointers */
@@ -1726,6 +1747,13 @@ int arkStep_TakeStep_Z(void* arkode_mem, realtype *dsmPtr, int *nflagPtr)
     }
 
     /* successful stage solve */
+
+    /*    store stage (if necessary for relaxation) */
+    if (ark_mem->relax_enabled && step_mem->implicit)
+    {
+      N_VScale(ONE, ark_mem->ycur, step_mem->z[is]);
+    }
+
     /*    store implicit RHS (value in Fi[is] is from preceding nonlinear iteration) */
     if (step_mem->implicit) {
 
@@ -3093,40 +3121,30 @@ int arkStep_RelaxDeltaE(ARKodeMem ark_mem, ARKRelaxJacFn relax_jac_fn,
 
   for (i = 0; i < step_mem->stages; i++)
   {
-    /* Construct stages z[i] = y_n + h * sum_j Ae[i,j] Fe[j] + Ai[i,j] Fi[j] */
-    nvec = 0;
-
-    cvals[nvec] = ONE;
-    Xvecs[nvec] = ark_mem->yn;
-    nvec++;
-
-    if (step_mem->explicit)
+    if (step_mem->implicit)
     {
-      for (j = 0; j < i; j++) // for IMEX this might need to be <= i
+      /* Use stored stages */
+      z_stage = step_mem->z[i];
+    }
+    else
+    {
+      /* Reconstruct explicit stages z[i] = y_n + h * sum_j Ae[i,j] Fe[j] */
+      nvec = 0;
+
+      cvals[nvec] = ONE;
+      Xvecs[nvec] = ark_mem->yn;
+      nvec++;
+
+      for (j = 0; j < i; j++)
       {
         cvals[nvec] = ark_mem->h * step_mem->Be->A[i][j];
         Xvecs[nvec] = step_mem->Fe[j];
         nvec++;
       }
+
+      retval = N_VLinearCombination(nvec, cvals, Xvecs, z_stage);
+      if (retval) return ARK_VECTOROP_ERR;
     }
-
-    if (step_mem->implicit)
-    {
-      for (j = 0; j <= i; j++)
-      {
-        cvals[nvec] = ark_mem->h * step_mem->Bi->A[i][j];
-        Xvecs[nvec] = step_mem->Fi[j];
-        nvec++;
-      }
-    }
-
-    retval = N_VLinearCombination(nvec, cvals, Xvecs, z_stage);
-    if (retval) return ARK_VECTOROP_ERR;
-
-    printf("z%d:\n", i);
-    N_VPrint(z_stage);
-    printf("f(z%d):\n", i);
-    N_VPrint(step_mem->Fi[i]);
 
     /* Evaluate the Jacobian at z_i */
     retval = relax_jac_fn(z_stage, J_relax, ark_mem->user_data);
@@ -3155,15 +3173,26 @@ int arkStep_RelaxDeltaE(ARKodeMem ark_mem, ARKRelaxJacFn relax_jac_fn,
       tmp = step_mem->Bi->b[i] * dot;
       *delta_e_out += tmp;
     }
-    printf("dot%d: %.16e\n", i, dot);
-    printf("b%d:   %.16e\n", i, step_mem->Bi->b[i]);
-    printf("tmp%d: %.16e\n", i, *delta_e_out);
+    /* printf("z%d:\n", i); */
+    /* N_VPrint(z_stage); */
+    /* printf("f(z%d):\n", i); */
+    /* N_VPrint(step_mem->Fi[i]); */
+    /* printf("deta:\n"); */
+    /* N_VPrint(J_relax); */
+    /* printf("dot%d:   %.16e\n", i, dot); */
+    /* printf("b%d:     %.16e\n", i, step_mem->Bi->b[i]); */
+    /* printf("b*dot%d: %.16e\n", i, tmp); */
+    /* printf("est%d:   %.16e\n", i, *delta_e_out); */
   }
 
   /* Ignore negative return for node-local vectors where this is a non-op */
   N_VDotProdMultiAllReduce(1, ark_mem->tempv2, delta_e_out);
 
+  /* printf("est_r:   %.16e\n", *delta_e_out); */
+
   *delta_e_out *= ark_mem->h;
+
+  /* printf("dt*est:   %.16e\n", *delta_e_out); */
 
   return ARK_SUCCESS;
 }
