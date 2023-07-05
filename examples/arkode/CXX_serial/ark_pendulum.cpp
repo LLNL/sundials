@@ -168,33 +168,43 @@ int main(int argc, char* argv[])
     flag = ARKStepSetJacFn(arkode_mem, Jac);
     if (check_flag(flag, "ARKStepSetJacFn")) return 1;
 
-    // Select a Butcher table with non-negative b values
-    flag = ARKStepSetTableName(arkode_mem, "ARKODE_SDIRK_2_1_2",
-                               "ARKODE_ERK_NONE");
-    if (check_flag(flag, "ARKStepSetTableName")) return 1;
+    if (fixed_h > SUN_RCONST(0.0))
+    {
+      // 3rd-order SDIRK method of Norsett
+      ARKodeButcherTable B = ARKodeButcherTable_Alloc(2, SUNFALSE);
+
+      const sunrealtype gamma = ((SUN_RCONST(3.0) + std::sqrt(SUN_RCONST(3.0)))
+                                 / SUN_RCONST(6.0));
+
+      B->A[0][0] = gamma;
+      B->A[1][0] = SUN_RCONST(1.0) - SUN_RCONST(2.0) * gamma;
+      B->A[1][1] = gamma;
+
+      B->c[0] = gamma;
+      B->c[1] = SUN_RCONST(1.0) - gamma;
+
+      B->b[0] = SUN_RCONST(0.5);
+      B->b[1] = SUN_RCONST(0.5);
+
+      B->q = 3;
+      B->p = 0;
+
+      flag = ARKStepSetTables(arkode_mem, 3, 0, B, nullptr);
+      if (check_flag(flag, "ARKStepSetTables")) return 1;
+
+      ARKodeButcherTable_Free(B);
+    }
+    else
+    {
+      // Select a Butcher table with non-negative b values
+      flag = ARKStepSetTableName(arkode_mem, "ARKODE_SDIRK_2_1_2",
+                                 "ARKODE_ERK_NONE");
+      if (check_flag(flag, "ARKStepSetTableName")) return 1;
+    }
   }
 
   if (fixed_h > SUN_RCONST(0.0))
   {
-    // 3rd-order SDIRK method of Norsett
-    ARKodeButcherTable B = ARKodeButcherTable_Alloc(2, SUNFALSE);
-
-    B->A[0][0] = std::sqrt(3.0)/6.0 + 0.5;
-    B->A[1][0] = -std::sqrt(3.0)/3.0;
-    B->A[1][1] = std::sqrt(3.0)/6.0 + 0.5;
-
-    B->c[0] = 0.5;
-    B->c[1] = 0.5;
-
-    B->b[0] = std::sqrt(3.0)/6.0 + 0.5;
-    B->b[1] = 0.5 - std::sqrt(3.0)/6.0;
-
-    B->q = 3;
-    B->p = 0;
-
-    flag = ARKStepSetTables(arkode_mem, 3, 0, B, nullptr);
-    if (check_flag(flag, "ARKStepSetTables")) return 1;
-
     flag = ARKStepSetFixedStep(arkode_mem, fixed_h);
     if (check_flag(flag, "ARKStepSetFixedStep")) return 1;
   }
