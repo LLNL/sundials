@@ -62,8 +62,8 @@ function pointers to the various controller operations, and is defined as
         void          (*destroy)(SUNControl C);
         int           (*estimatestep)(SUNControl C, realtype h, realtype dsm, realtype* hnew);
         int           (*estimatestepandorder)(SUNControl C, realtype h, int q, realtype dsm, realtype* hnew, int *qnew);
-        int           (*estimatemristeps)(SUNControl C, realtype H, realtype h, realtype DSM, realtype* Hnew, realtype *hnew);
-        int           (*estimatesteptol)(SUNControl C, realtype H, realtype tolfac, realtype DSM, realtype *Hnew, realtype* tolfacnew);
+        int           (*estimatemristeps)(SUNControl C, realtype H, realtype h, realtype DSM, realtype dsm, realtype* Hnew, realtype *hnew);
+        int           (*estimatesteptol)(SUNControl C, realtype H, realtype tolfac, realtype DSM, realtype dsm, realtype *Hnew, realtype* tolfacnew);
         int           (*reset)(SUNControl C);
         int           (*setdefaults)(SUNControl C);
         int           (*write)(SUNControl C, FILE* fptr);
@@ -190,7 +190,7 @@ the behavior of the base SUNControl wrapper routine, below.
 
       retval = SUNControlEstimateStepAndOrder(C, hcur, qcur, dsm, &hnew, &qnew);
 
-.. c:function:: int SUNControlEstimateMRISteps(SUNControl C, realtype H, realtype h, realtype DSM, realtype* Hnew, realtype *hnew)
+.. c:function:: int SUNControlEstimateMRISteps(SUNControl C, realtype H, realtype h, realtype DSM, realtype dsm, realtype* Hnew, realtype *hnew)
 
    Estimates the slow and fast multirate step sizes.  This routine is required for
    controllers of type ``SUNDIALS_CONTROL_MRI_H``.
@@ -198,7 +198,8 @@ the behavior of the base SUNControl wrapper routine, below.
    :param C:  the :c:type:`SUNControl` object..
    :param H:  the slow step size from the previous multirate step attempt.
    :param h:  the fast step size from the previous multirate step attempt.
-   :param DSM:  the local slow temporal estimate from the previous step attempt.  :param te: the fast local temporal error should be requested by the controller directly from the fast integrator.
+   :param DSM: the local slow temporal error estimate from the previous step attempt.
+   :param dsm: the local fast temporal error estimate from the previous step attempt.
    :param Hnew: (output)  pointer to the estimated slow step size.
    :param hnew: (output)  pointer to the estimated fast step size.
    :return: error code indicating success failure  (see :numref:`SUNControl.Description.errorCodes`).
@@ -218,7 +219,8 @@ the behavior of the base SUNControl wrapper routine, below.
    :param C:  the :c:type:`SUNControl` object..
    :param H:  the slow step size from the previous multirate step attempt.
    :param tolfac:  the ratio of fast/slow relative tolerances, :math:`\text{reltol}/\text{RELTOL}`, from the previous multirate step attempt.
-   :param DSM:  the local slow temporal estimate from the previous step attempt.  *Note: the fast local temporal error should be requested by the controller directly from the fast integrator.*
+   :param DSM:  the local slow temporal error estimate from the previous step attempt.
+   :param dsm:  the local fast temporal error estimate from the previous step attempt.
    :param Hnew: (output)  pointer to the estimated slow step size.
    :param tolfacnew: (output)  pointer to the estimated relative tolerance ratio.
    :return: error code indicating success failure  (see :numref:`SUNControl.Description.errorCodes`).

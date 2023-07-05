@@ -75,11 +75,12 @@ struct _generic_SUNControl_Ops
 
   /* REQUIRED for controllers of SUNDIALS_CONTROL_MRI_H type. */
   int (*estimatemristeps)(SUNControl C, realtype H, realtype h,
-                          realtype DSM, realtype* Hnew, realtype *hnew);
+                          realtype DSM, realtype dsm,
+                          realtype* Hnew, realtype *hnew);
 
   /* REQUIRED for controllers of SUNDIALS_CONTROL_MRI_TOL type. */
   int (*estimatesteptol)(SUNControl C, realtype H, realtype tolfac,
-                         realtype DSM, realtype *Hnew,
+                         realtype DSM, realtype dsm, realtype *Hnew,
                          realtype* tolfacnew);
 
   /* OPTIONAL for all SUNControl implementations. */
@@ -149,30 +150,28 @@ int SUNControlEstimateStepAndOrder(SUNControl C, realtype h, int q,
 
 /* Combined slow/fast multirate step size controller function.  This
    is called following a slow multirate time step with sizes 'H' and
-   'h' (slow and fast, resp.), and where the slow step has local error
-   factor 'dsm' (the MRI controller should request the fast error
-   factor directly from the fast integrator).  The controller should
-   estimate slow and fast steps 'Hnew' and 'hnew', resp., so that the
-   ensuing step will have 'dsm' value JUST BELOW 1 with minimal
-   computational effort. */
+   'h' (slow and fast, resp.), and error factors 'DSM' and 'dsm'
+   (slow and fast, resp.). The controller should estimate slow and
+   fast steps 'Hnew' and 'hnew', resp., so that the ensuing step will
+   have 'DSM' and 'dsm' values JUST BELOW 1 with minimal computational
+   effort. */
 SUNDIALS_EXPORT
 int SUNControlEstimateMRISteps(SUNControl C, realtype H, realtype h,
-                               realtype dsm, realtype* Hnew,
-                               realtype *hnew);
+                               realtype DSM, realtype dsm,
+                               realtype* Hnew, realtype *hnew);
 
 /* Combined slow step/fast tolerance multirate controller function.
    This is called following a slow multirate time step with size 'H'
-   and fast/slow relative tolerance ratio 'tolfac', and where the
-   slow step has local error factor 'dsm' (the MRI controller should
-   request the fast error factor directly from the fast integrator).
-   The controller should estimate slow stepsize 'Hnew' and updated
-   relative tolerance ratio 'tolfacnew', so that the ensuing step
-   will have 'dsm' value JUST BELOW 1 with minimal computational
-   effort. */
+   and fast/slow relative tolerance ratio 'tolfac', and error factors
+   'DSM' and 'dsm' (slow and fast, resp.).  The controller should
+   estimate slow stepsize 'Hnew' and updated relative tolerance ratio
+   'tolfacnew', so that the ensuing step will have 'DSM' and 'dsm'
+   values JUST BELOW 1 with minimal computational effort. */
 SUNDIALS_EXPORT
 int SUNControlEstimateStepTol(SUNControl C, realtype H,
-                              realtype tolfac, realtype dsm,
-                              realtype *Hnew, realtype* tolfacnew);
+                              realtype tolfac, realtype DSM,
+                              realtype dsm, realtype *Hnew,
+                              realtype* tolfacnew);
 
 /* Function to reset the controller to its initial state, e.g., if
    it stores a small number of previous dsm or step size values. */

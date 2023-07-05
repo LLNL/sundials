@@ -143,8 +143,8 @@ int SUNControlEstimateStepAndOrder(SUNControl C, realtype h, int q,
   return(ier);
 }
 
-int SUNControlEstimateMRISteps(SUNControl C, realtype H,
-                               realtype h, realtype dsm,
+int SUNControlEstimateMRISteps(SUNControl C, realtype H, realtype h,
+                               realtype DSM, realtype dsm,
                                realtype* Hnew, realtype *hnew)
 {
   int ier = 0;
@@ -153,14 +153,15 @@ int SUNControlEstimateMRISteps(SUNControl C, realtype H,
   if (C == NULL) { return ier; }
   if (C->ops->estimatemristeps)
   {
-    ier = C->ops->estimatemristeps(C, H, dsm, h, Hnew, hnew);
+    ier = C->ops->estimatemristeps(C, H, DSM, dsm, h, Hnew, hnew);
   }
   return(ier);
 }
 
 int SUNControlEstimateStepTol(SUNControl C, realtype H,
-                              realtype tolfac, realtype dsm,
-                              realtype *Hnew, realtype* tolfacnew)
+                              realtype tolfac, realtype DSM,
+                              realtype dsm, realtype *Hnew,
+                              realtype* tolfacnew)
 {
   int ier = 0;
   *Hnew = H;   /* initialize outputs with identity */
@@ -168,7 +169,8 @@ int SUNControlEstimateStepTol(SUNControl C, realtype H,
   if (C == NULL) { return ier; }
   if (C->ops->estimatesteptol)
   {
-    ier = C->ops->estimatesteptol(C, H, tolfac, dsm, Hnew, tolfacnew);
+    ier = C->ops->estimatesteptol(C, H, tolfac, DSM, dsm,
+                                  Hnew, tolfacnew);
   }
   return(ier);
 }
