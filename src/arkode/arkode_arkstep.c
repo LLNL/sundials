@@ -3158,8 +3158,6 @@ int arkStep_RelaxDeltaE(ARKodeMem ark_mem, ARKRelaxJacFn relax_jac_fn,
     if (retval < 0) { return ARK_RELAX_JAC_FAIL; }
     if (retval > 0) { return ARK_RELAX_JAC_RECV; }
 
-    sunrealtype dot, tmp;
-
     /* Update estimate of relaxation function change */
     if (step_mem->explicit && step_mem->implicit)
     {
@@ -3175,30 +3173,15 @@ int arkStep_RelaxDeltaE(ARKodeMem ark_mem, ARKRelaxJacFn relax_jac_fn,
     }
     else if (step_mem->implicit)
     {
-      dot = N_VDotProdLocal(J_relax, step_mem->Fi[i]);
-      tmp = step_mem->Bi->b[i] * dot;
-      *delta_e_out += tmp;
+      *delta_e_out += step_mem->Bi->b[i] * N_VDotProdLocal(J_relax,
+                                                           step_mem->Fi[i]);
     }
-    /* printf("z%d:\n", i); */
-    /* N_VPrint(z_stage); */
-    /* printf("f(z%d):\n", i); */
-    /* N_VPrint(step_mem->Fi[i]); */
-    /* printf("deta:\n"); */
-    /* N_VPrint(J_relax); */
-    /* printf("dot%d:   %.16e\n", i, dot); */
-    /* printf("b%d:     %.16e\n", i, step_mem->Bi->b[i]); */
-    /* printf("b*dot%d: %.16e\n", i, tmp); */
-    /* printf("est%d:   %.16e\n", i, *delta_e_out); */
   }
 
   /* Ignore negative return for node-local vectors where this is a non-op */
-  N_VDotProdMultiAllReduce(1, ark_mem->tempv2, delta_e_out);
-
-  /* printf("est_r:   %.16e\n", *delta_e_out); */
+  N_VDotProdMultiAllReduce(1, J_relax, delta_e_out);
 
   *delta_e_out *= ark_mem->h;
-
-  /* printf("dt*est:   %.16e\n", *delta_e_out); */
 
   return ARK_SUCCESS;
 }
