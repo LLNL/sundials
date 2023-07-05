@@ -236,7 +236,7 @@ int main(int argc, char* argv[])
     if (check_flag(flag, "ARKStepSetJacFn")) return 1;
 
     /* Select a Butcher table with non-negative b values */
-    flag = ARKStepSetTableName(arkode_mem, "ARKODE_SDIRK_2_1_2",
+    flag = ARKStepSetTableName(arkode_mem, "ARKODE_ARK2_DIRK_3_1_2",
                                "ARKODE_ERK_NONE");
     if (check_flag(flag, "ARKStepSetTableName")) return 1;
   }
