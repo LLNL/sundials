@@ -380,6 +380,12 @@ int arkRelaxSolve(ARKodeMem ark_mem, ARKodeRelaxMem relax_mem,
   if (retval)
   {
     relax_mem->nls_fails++;
+#if SUNDIALS_LOGGING_LEVEL >= SUNDIALS_LOGGING_INFO
+    SUNLogger_QueueMsg(ARK_LOGGER, SUN_LOGLEVEL_INFO,
+                       "ARKODE::arkRelaxSolve", "failed solve",
+                       "return flag = %d, num fails = %ld",
+                       retval, relax_mem->nls_fails);
+#endif
     return retval;
   }
 
