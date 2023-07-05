@@ -2193,35 +2193,44 @@ int arkStep_CheckButcherTables(ARKodeMem ark_mem)
     }
   }
 
-  /* check if all b values are positive for relaxation */
+  /* Check if the method is compatible with relaxation */
   if (ark_mem->relax_enabled)
   {
-    okay = SUNTRUE;
+    if (step_mem->q < 2)
+    {
+      arkProcessError(ark_mem, ARK_INVALID_TABLE, "ARKODE::ARKStep",
+                      "arkStep_CheckButcherTables",
+                      "The Butcher table(s) must be at least second order!");
+      return ARK_INVALID_TABLE;
+    }
+
     if (step_mem->explicit)
     {
+      /* Check if all b values are positive */
       for (i = 0; i < step_mem->stages; i++)
-        if (step_mem->Be->b[i] < ZERO)
-          okay = SUNFALSE;
-      if (!okay)
       {
-        arkProcessError(ark_mem, ARK_INVALID_TABLE, "ARKODE::ARKStep",
-                        "arkStep_CheckButcherTables",
-                        "The explicit Butcher table has a negative b value!");
-        return ARK_INVALID_TABLE;
+        if (step_mem->Be->b[i] < ZERO)
+        {
+          arkProcessError(ark_mem, ARK_INVALID_TABLE, "ARKODE::ARKStep",
+                          "arkStep_CheckButcherTables",
+                          "The explicit Butcher table has a negative b value!");
+          return ARK_INVALID_TABLE;
+        }
       }
     }
 
     if (step_mem->implicit)
     {
+      /* Check if all b values are positive */
       for (i = 0; i < step_mem->stages; i++)
-        if (step_mem->Bi->b[i] < ZERO)
-          okay = SUNFALSE;
-      if (!okay)
       {
-        arkProcessError(ark_mem, ARK_INVALID_TABLE, "ARKODE::ARKStep",
-                        "arkStep_CheckButcherTables",
-                        "The implicit Butcher table has a negative b value!");
-        return ARK_INVALID_TABLE;
+        if (step_mem->Bi->b[i] < ZERO)
+        {
+          arkProcessError(ark_mem, ARK_INVALID_TABLE, "ARKODE::ARKStep",
+                          "arkStep_CheckButcherTables",
+                          "The implicit Butcher table has a negative b value!");
+          return ARK_INVALID_TABLE;
+        }
       }
     }
   }
