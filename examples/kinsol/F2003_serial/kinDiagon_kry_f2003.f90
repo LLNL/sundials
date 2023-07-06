@@ -37,7 +37,8 @@ module diag_mod
 
   integer(c_int)  :: ierr, retval
   integer(c_long) :: i
-  real(c_double), pointer, dimension(neq) :: p(:), u(:), scale(:), constr(:)
+  real(c_double), pointer, dimension(neq) :: u(:), scale(:), constr(:)
+  real(c_double)             :: p(neq)
   integer(c_int),  parameter :: prectype = 2
   integer(c_int),  parameter :: maxl = 10
   integer(c_int),  parameter :: maxlrst = 2
@@ -330,12 +331,6 @@ program main
   retval = FSUNLinSol_SPGMRSetMaxRestarts(sunlinsol_LS, maxlrst)
   if (retval /= 0) then
      print *, 'Error in FSUNLinSol_SPGMRSetMaxRestarts, retval = ', retval, '; halting'
-     stop 1
-  end if
-
-  retval = FSUNLinSol_SPGMRSetPrecType(sunlinsol_LS, 1)
-  if (retval /= 0) then
-     print *, 'Error in FSUNLinSol_SPGMRSetPrecType, retval = ', retval, '; halting'
      stop 1
   end if
 
