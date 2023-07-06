@@ -123,7 +123,7 @@ method.
 
    .. versionadded:: 5.6.0
 
-.. c:function:: int ARKSteSetRelaxSolver(void* arkode_mem, ARKRelaxSolver solver)
+.. c:function:: int ARKStepSetRelaxSolver(void* arkode_mem, ARKRelaxSolver solver)
 
    Sets the nonlinear solver method used to compute the relaxation parameter.
    The default value is ``ARK_RELAX_NEWTON``.
