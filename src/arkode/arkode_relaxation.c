@@ -112,6 +112,7 @@ static int arkRelaxResidualJacobian(sunrealtype relax_param,
 static int arkRelaxNewtonSolve(ARKodeMem ark_mem)
 {
   int i, retval;
+  sunrealtype tol, delta;
   ARKodeRelaxMem relax_mem = ark_mem->relax_mem;
 
   for (i = 0; i < ark_mem->relax_mem->max_iters; i++)
@@ -122,17 +123,25 @@ static int arkRelaxNewtonSolve(ARKodeMem ark_mem)
     if (retval) return retval;
 
     /* Check for convergence */
-    if (SUNRabs(relax_mem->res) < relax_mem->res_tol) return ARK_SUCCESS;
+    if (SUNRabs(relax_mem->res) < relax_mem->res_tol) { return ARK_SUCCESS; }
 
-    /* Compute Jacobian and update */
+    /* Compute Jacobian */
     retval = arkRelaxResidualJacobian(relax_mem->relax_param, &(relax_mem->jac),
                                       ark_mem);
     if (retval) return retval;
 
-    relax_mem->relax_param -= relax_mem->res / relax_mem->jac;
+    /* Update step length tolerance and solution */
+    tol = (relax_mem->rel_tol * SUNRabs(relax_mem->relax_param)
+           + relax_mem->abs_tol);
+
+    delta = relax_mem->res / relax_mem->jac;
+    relax_mem->relax_param -= delta;
 
     /* Update cumulative iteration count */
     relax_mem->nls_iters++;
+
+    /* Check for small update */
+    if (SUNRabs(delta) < tol) { return ARK_SUCCESS; }
   }
 
   return ARK_RELAX_SOLVE_RECV;
@@ -333,7 +342,7 @@ static int arkRelaxFixedPointSolve(ARKodeMem ark_mem)
     if (retval) return retval;
 
     /* Check for convergence */
-    if (SUNRabs(relax_mem->res) < relax_mem->res_tol) return ARK_SUCCESS;
+    if (SUNRabs(relax_mem->res) < relax_mem->res_tol) { return ARK_SUCCESS; }
 
     relax_mem->relax_param -= relax_mem->res;
 
@@ -503,11 +512,31 @@ int arkRelaxSetResTol(void* arkode_mem, sunrealtype res_tol)
   ARKodeMem ark_mem;
   ARKodeRelaxMem relax_mem;
 
-  retval = arkRelaxAccessMem(arkode_mem, "arkRelaxSetResTol", &ark_mem, &relax_mem);
+  retval = arkRelaxAccessMem(arkode_mem, "arkRelaxSetResTol", &ark_mem,
+                             &relax_mem);
   if (retval) return retval;
 
   if (res_tol > SUN_RCONST(0.0)) relax_mem->res_tol = res_tol;
   else relax_mem->res_tol = ARK_RELAX_DEFAULT_RES_TOL;
+
+  return ARK_SUCCESS;
+}
+
+int arkRelaxSetTol(void* arkode_mem, sunrealtype rel_tol, sunrealtype abs_tol)
+{
+  int retval;
+  ARKodeMem ark_mem;
+  ARKodeRelaxMem relax_mem;
+
+  retval = arkRelaxAccessMem(arkode_mem, "arkRelaxSetTol", &ark_mem,
+                             &relax_mem);
+  if (retval) return retval;
+
+  if (rel_tol > SUN_RCONST(0.0)) relax_mem->rel_tol = rel_tol;
+  else relax_mem->rel_tol = ARK_RELAX_DEFAULT_REL_TOL;
+
+  if (abs_tol > SUN_RCONST(0.0)) relax_mem->abs_tol = abs_tol;
+  else relax_mem->abs_tol = ARK_RELAX_DEFAULT_ABS_TOL;
 
   return ARK_SUCCESS;
 }

@@ -151,7 +151,7 @@ method.
    :math:`\leq 0.0` will result in the default value being used.
 
    :param arkode_mem: the ARKStep memory structure
-   :param tol: the nonlinear solver residual tolerance to use
+   :param res_tol: the nonlinear solver residual tolerance to use
 
    :retval ARK_SUCCESS: the value was successfully set
    :retval ARK_MEM_NULL: ``arkode_mem`` was ``NULL``
@@ -172,8 +172,8 @@ method.
    will result in the default value being used.
 
    :param arkode_mem: the ARKStep memory structure
-   :param tol: the nonlinear solver relative solution tolerance to use
-   :param tol: the nonlinear solver absolute solution tolerance to use
+   :param rel_tol: the nonlinear solver relative solution tolerance to use
+   :param abs_tol: the nonlinear solver absolute solution tolerance to use
 
    :retval ARK_SUCCESS: the value was successfully set
    :retval ARK_MEM_NULL: ``arkode_mem`` was ``NULL``

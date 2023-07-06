@@ -190,6 +190,12 @@ int ERKStepSetRelaxResTol(void* arkode_mem, sunrealtype res_tol)
   return arkRelaxSetResTol(arkode_mem, res_tol);
 }
 
+int ERKStepSetRelaxTol(void* arkode_mem, sunrealtype rel_tol,
+                       sunrealtype abs_tol)
+{
+  return arkRelaxSetTol(arkode_mem, rel_tol, abs_tol);
+}
+
 int ERKStepSetRelaxUpperBound(void* arkode_mem, sunrealtype upper)
 {
   return arkRelaxSetUpperBound(arkode_mem, upper);

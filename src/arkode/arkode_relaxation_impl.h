@@ -118,6 +118,7 @@ int arkRelaxSetMaxFails(void* arkode_mem, int max_fails);
 int arkRelaxSetMaxIters(void* arkode_mem, int max_iters);
 int arkRelaxSetSolver(void* arkode_mem, ARKRelaxSolver solver);
 int arkRelaxSetResTol(void* arkode_mem, sunrealtype res_tol);
+int arkRelaxSetTol(void* arkode_mem, sunrealtype rel_tol, sunrealtype abs_tol);
 int arkRelaxSetUpperBound(void* arkode_mem, sunrealtype upper);
 
 int arkRelaxGetNumRelaxFnEvals(void* arkode_mem, long int* r_evals);
