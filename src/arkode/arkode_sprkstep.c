@@ -283,7 +283,7 @@ int SPRKStepEvolve(void* arkode_mem, realtype tout, N_Vector yout,
                    realtype* tret, int itask)
 {
   /* unpack ark_mem, call arkEvolve, and return */
-  ARKodeMem ark_mem;
+  ARKodeMem ark_mem = NULL;
   int retval        = 0;
   if (arkode_mem == NULL)
   {
@@ -293,7 +293,7 @@ int SPRKStepEvolve(void* arkode_mem, realtype tout, N_Vector yout,
   }
   ark_mem = (ARKodeMem)arkode_mem;
   SUNDIALS_MARK_FUNCTION_BEGIN(ARK_PROFILER);
-  retval = arkEvolve((ARKodeMem)arkode_mem, tout, yout, tret, itask);
+  retval = arkEvolve(ark_mem, tout, yout, tret, itask);
   SUNDIALS_MARK_FUNCTION_END(ARK_PROFILER);
   return (retval);
 }
@@ -308,7 +308,7 @@ int SPRKStepEvolve(void* arkode_mem, realtype tout, N_Vector yout,
 int SPRKStepGetDky(void* arkode_mem, realtype t, int k, N_Vector dky)
 {
   /* unpack ark_mem, call arkGetDky, and return */
-  ARKodeMem ark_mem;
+  ARKodeMem ark_mem = NULL;
   int retval        = 0;
   if (arkode_mem == NULL)
   {
@@ -318,7 +318,7 @@ int SPRKStepGetDky(void* arkode_mem, realtype t, int k, N_Vector dky)
   }
   ark_mem = (ARKodeMem)arkode_mem;
   SUNDIALS_MARK_FUNCTION_BEGIN(ARK_PROFILER);
-  retval = arkGetDky((ARKodeMem)arkode_mem, t, k, dky);
+  retval = arkGetDky(ark_mem, t, k, dky);
   SUNDIALS_MARK_FUNCTION_END(ARK_PROFILER);
   return (retval);
 }
