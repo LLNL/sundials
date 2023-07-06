@@ -630,6 +630,17 @@ void N_VDestroy_ParHyp(N_Vector v)
   if (v->ops != NULL) { free(v->ops); v->ops = NULL; }
   free(v); v = NULL;
 
+  /* free CUDA/HIP private content */
+#if defined(SUNDIALS_HYPRE_BACKENDS_CUDA_OR_HIP)
+  if (NV_PRIVATE_PH(v) != NULL)
+  {
+    FreeDeviceCounter(v);
+    FreeReductionBuffer(v);
+    // FusedBuffer_Free(v);
+    free(NV_PRIVATE_PH(v));
+    NV_PRIVATE_PH(v) = NULL;
+  }
+#endif
   return;
 }
 
