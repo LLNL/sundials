@@ -33,17 +33,15 @@ module diag_mod
   !======= Declarations =========
   implicit none
 
-  integer(c_int),  parameter :: probsize = 128 
+  integer(c_long), parameter :: neq = 128
 
-  integer(c_int)  :: ierr, i, retval
-  integer(c_long) :: iout(16)
-  real(c_double)  :: p(probsize), rout(2), u(probsize), pscale(probsize), constr(probsize)
-  integer(c_int),  parameter :: globalstrat = 0
-  integer(c_int),  parameter :: prectype = 2 
+  integer(c_int)  :: ierr, retval
+  integer(c_long) :: i
+  real(c_double), pointer, dimension(neq) :: p(:), u(:), scale(:), constr(:)
+  integer(c_int),  parameter :: prectype = 2
   integer(c_int),  parameter :: maxl = 10
   integer(c_int),  parameter :: maxlrst = 2
-  integer(c_long), parameter :: neq = probsize
-  integer(c_long), parameter :: msbpre = 50
+  integer(c_long), parameter :: msbpre = 5
   real(c_double),  parameter :: fnormtol = 1.0d-5
   real(c_double),  parameter :: scsteptol = 1.0d-4
 
@@ -150,14 +148,11 @@ contains
     type(c_ptr),   value :: user_data ! user-defined data
 
     ! pointers to data in SUNDIALS vectors
-    real(c_double), pointer, dimension(neq) :: udata(:)
     real(c_double), pointer, dimension(neq) :: v(:)
 
     !======= Internals ============
-
     ! get data arrays from SUNDIALS vectors
-    udata(1:neq) => FN_VGetArrayPointer(sunvec_u)
-    v(1:neq)     => FN_VGetArrayPointer(sunvec_v)
+    v(1:neq) => FN_VGetArrayPointer(sunvec_v)
 
     ! loop over domain
     do i = 1,neq
@@ -225,34 +220,20 @@ program main
   end if
 
   ! -------------------------
-  ! Set initial guess, and disable scaling
-
-  do i = 1,neq
-    u(i) = 2.0d0
-    pscale(i) = 1.0d0
-    constr(i) = 0.0d0
-  end do
-
-  ! -------------------------
   ! Create vectors for solution and scales
 
-  sunvec_u => FN_VMake_Serial(neq, u, sunctx)
-  if (.not. associated(sunvec_u)) then
-     print *, 'ERROR: sunvec = NULL'
-     stop 1
-  end if
+  u(1:neq)      => FN_VGetArrayPointer(sunvec_u)
+  scale(1:neq)  => FN_VGetArrayPointer(sunvec_s)
+  constr(1:neq) => FN_VGetArrayPointer(sunvec_c)
 
-  sunvec_s => FN_VMake_Serial(neq, pscale, sunctx)
-  if (.not. associated(sunvec_u)) then
-     print *, 'ERROR: sunvec = NULL'
-     stop 1
-  end if
-
-  sunvec_c => FN_VMake_Serial(neq, constr, sunctx)
-  if (.not. associated(sunvec_u)) then
-     print *, 'ERROR: sunvec = NULL'
-     stop 1
-  end if
+  ! -------------------------
+  ! Set initial guess, and disable scaling
+  
+  do i = 1,neq
+     u(i) = 2.0d0 * dble(i)
+  end do
+  scale = 1.0d0
+  constr = 0.0d0
 
   ! -------------------------
   ! Initialize and allocate memory for KINSOL

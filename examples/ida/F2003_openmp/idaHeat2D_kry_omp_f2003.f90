@@ -39,7 +39,7 @@ module dae_mod
 
   !======= Inclusions ===========
   use, intrinsic :: iso_c_binding
-  use :: omp_lib
+  use, intrinsic :: omp_lib
 
   !======= Declarations =========
   implicit none
@@ -95,16 +95,20 @@ contains
     r(1:mgrid, 1:mgrid)  => FN_VGetArrayPointer(sunvec_r)
 
     ! Initialize r to u, to take care of boundary equations
+    !$omp parallel
+    !$omp workshare
     r = u
+    !$omp end workshare
 
     ! Loop over interior points; set res = up - (central difference)
-    ! ADD OPENMP HERE  !$omp parallel do collapse(2) private(i,j) ...
+    !$omp do collapse(2)
     do j = 2,mgrid-1
        do i = 2,mgrid-1
           r(i,j) = up(i,j) - coeff*( u(i-1,j) + u(i+1,j) + u(i,j-1) + u(i,j+1) - 4.d0*u(i,j))
        end do
     end do
-    ! STOP USING OPENMP HERE !$omp end parallel do
+    !$omp end do
+    !$omp end parallel
 
     ! return success
     ierr = 0
@@ -151,9 +155,11 @@ contains
     pelinv = 1.d0/(cj + 4.d0*coeff)
 
     ! set the interior points to the correct value for preconditioning
-    ! CONSIDER ADDING OPENMP HERE  !$omp parallel workshare
+    !$omp parallel
+    !$omp workshare
     pp(2:mgrid-1, 2:mgrid-1) = pelinv
-    ! CONSIDER STOPING OPENMP HERE !$omp end parallel workshare
+    !$omp end workshare
+    !$omp end parallel
 
     ! return success
     ierr = 0
@@ -201,9 +207,11 @@ contains
     sol(1:mgrid, 1:mgrid) => FN_VGetArrayPointer(sunvec_sol)
 
     ! Apply preconditioner to rhs to create sol
-    ! CONSIDER ADDING OPENMP HERE  !$omp parallel workshare
+    !$omp parallel
+    !$omp workshare
     sol = rhs * pp
-    ! CONSIDER STOPING OPENMP HERE !$omp end parallel workshare
+    !$omp end workshare
+    !$omp end parallel
 
     ! return success
     ierr = 0
@@ -260,7 +268,7 @@ program main
      call get_command_argument(1, arg, length, status)
      read(arg,*) nthreads
   else
-     nthreads = 1
+     nthreads = 6
   endif
   call omp_set_num_threads(nthreads)
 
@@ -536,7 +544,8 @@ subroutine SetInitialProfile(sunvec_u, sunvec_up, sunvec_r)
   !======= Internals ============
 
   ! Initialize uu on all grid points
-  ! CONSIDER USING OPENMP HERE !$omp parallel do collapse(2) ...
+  !$omp parallel
+  !$omp do collapse(2)
   do j = 1,mgrid
      yfact = dx * (j-1)
      do i = 1,mgrid
@@ -544,7 +553,8 @@ subroutine SetInitialProfile(sunvec_u, sunvec_up, sunvec_r)
         uu(i,j) = 16.d0 * xfact * (1.d0 - xfact) * yfact * (1.d0 - yfact)
      end do
   end do
-  ! CONSIDER STOPPING OPENMP HERE !$omp end parallel do
+  !$omp end do
+  !$omp end parallel
 
   ! Initialize up vector to 0
   up = 0.d0
@@ -553,13 +563,19 @@ subroutine SetInitialProfile(sunvec_u, sunvec_up, sunvec_r)
   retval = resHeat(0.d0, sunvec_u, sunvec_up, sunvec_r, C_NULL_PTR)
 
   ! Copy -r into up to get correct interior initial up values
+  !$omp parallel
+  !$omp workshare
   up = -r
+  !$omp end workshare
 
   ! Set up at boundary points to zero
+  !$omp workshare
   up(1,:)     = 0.d0
   up(mgrid,:) = 0.d0
   up(:,1)     = 0.d0
   up(:,mgrid) = 0.d0
+  !$omp end workshare
+  !$omp end parallel
 
   return
 end subroutine SetInitialProfile
@@ -686,7 +702,7 @@ subroutine PrintOutput(ida_mem, t, uu)
   end if
 
 
-  print '(f5.2,1x,es13.5,1x,i1,2x,3(i3,2x),2(i4,2x),es9.2,2x,2(i3,1x))', &
+  print '(f5.2,1x,es13.5,4x,i1,2x,3(i3,2x),2(i4,2x),es9.2,2x,2(i3,1x))', &
        t, umax, kused, nst, nni, nje, nre, nreLS, hused(1), npe, nps
 
 end subroutine PrintOutput

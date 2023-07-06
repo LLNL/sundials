@@ -640,8 +640,7 @@ module Heat2DData
     ! inclusions
     use, intrinsic :: iso_c_binding
     use fsundials_futils_mod       ! Fortran utilities
-    use fida_mod                ! Access IDA
-    use fida_arkstep_mod        ! Access IDA
+    use fida_mod                   ! Access IDA
     use fsundials_types_mod        ! sundials defined types
     use fsundials_nvector_mod      ! Access generic N_Vector
     use fnvector_parallel_mod      ! Access parallel N_Vector

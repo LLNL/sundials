@@ -42,7 +42,7 @@ source_suffix = '.rst'
 master_doc = 'index'
 
 # General information about the project.
-project = u'Example Programs for ARKODE'
+project = u'Example Programs for CVODE'
 copyright = u'2012-2021, Daniel R. Reynolds, David J. Gardner, Carol S. Woodward, and Cody J. Balos, release number LLNL-SM-668082'
 
 # The version info for the project you're documenting, acts as replacement for
@@ -50,7 +50,7 @@ copyright = u'2012-2021, Daniel R. Reynolds, David J. Gardner, Carol S. Woodward
 # built documents.
 #
 # The short X.Y version.
-version = '{arkode_version}'.format(arkode_version=arkode_version)
+version = '{cvode_version}'.format(cvode_version=cvode_version)
 sun_version = '{sundials_version}'.format(sundials_version=sundials_version)
 
 # Set the date format (full-month-name day, full-year)
@@ -240,7 +240,7 @@ html_show_sourcelink = False
 #html_file_suffix = None
 
 # Output file base name for HTML help builder.
-htmlhelp_basename = 'ARKODEExampleDoc'
+htmlhelp_basename = 'CVODEExampleDoc'
 
 
 # -- Options for LaTeX output --------------------------------------------------
@@ -252,9 +252,11 @@ htmlhelp_basename = 'ARKODEExampleDoc'
 # 5. the LaTeX theme
 # 6. include the file from 1. in the output
 tex_author = r'''
-    Daniel R. Reynolds\\
+    Alan C. Hindmarsh, Radu Serban, \\
+    Cody J. Balos, David J. Gardner, \\
+    Daniel R. Reynolds, and Carol S. Woodward\\
     {\em Department of Mathematics} \\
-    {\em Southern Methodist University}
+    {\em Southern Methodist University and LLNL}
     '''
 
 latex_documents = [('index', 'ark_examples.tex', project,
@@ -426,8 +428,8 @@ Ting Yan, and Ulrike M. Yang.
 # One entry per manual page. List of tuples
 # (source start file, name, description, authors, manual section).
 man_pages = [
-    ('index', 'arkode_example', u'ARKODE Example Documentation',
-     [u'Daniel R. Reynolds'], 1)
+    ('index', 'cvode_example', u'CVODE Example Documentation',
+     [u'Alan C. Hindmarsh, Radu Serban, Cody J. Balos, David J. Gardner, Daniel R. Reynolds, and Carol S. Woodward'], 1)
 ]
 
 # If true, show URL addresses after external links.
@@ -440,9 +442,9 @@ man_pages = [
 # (source start file, target name, title, author,
 #  dir menu entry, description, category)
 texinfo_documents = [
-  ('index', 'ARKODE_example', u'ARKODE Example Documentation',
-   u'Daniel R. Reynolds', 'ARKODE_example',
-   'Example programs for the ARKODE time integration package for multi-rate systems of ordinary differntial equations.',
+  ('index', 'CVODE_example', u'CVODE Example Documentation',
+   u'Alan C. Hindmarsh, Radu Serban, Cody J. Balos, David J. Gardner, Daniel R. Reynolds, and Carol S. Woodward', 'CVODE_example',
+   'Example programs for the CVODE time integration package for multi-rate systems of ordinary differntial equations.',
    'Miscellaneous'),
 ]
 
