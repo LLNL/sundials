@@ -1780,6 +1780,10 @@ Accessible via the constant ``ARKODE_SPRK_MCLACHLAN_4_4`` to
 :c:func:`ARKodeSPRKStorage_Load()` or :c:func:`ARKodeSPRKStorage_LoadByName`.
 This is the 4th order method given by McLachlan in :cite:p:`Mclachlan:92`.
 
+.. warning::
+
+   This method only has coefficients sufficient for single or double precision.
+
 
 ARKODE_SPRK_CANDY_ROZMUS_4_4
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -1799,6 +1803,10 @@ ARKODE_SPRK_MCLACHLAN_5_6
 Accessible via the constant ``ARKODE_SPRK_MCLACHLAN_5_6`` to
 :c:func:`ARKodeSPRKStorage_Load()` or :c:func:`ARKodeSPRKStorage_LoadByName`.
 This is the 5th order method given by McLachlan in :cite:p:`Mclachlan:92`.
+
+.. warning::
+
+   This method only has coefficients sufficient for single or double precision.
 
 
 ARKODE_SPRK_YOSHIDA_6_8
