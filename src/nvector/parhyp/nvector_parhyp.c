@@ -250,7 +250,7 @@ static int InitializeDeviceCounter(N_Vector v);
 static int FreeDeviceCounter(N_Vector v);
 static int InitializeReductionBuffer(N_Vector v, realtype value, size_t n = 1);
 static void FreeReductionBuffer(N_Vector v);
-// static int CopyReductionBufferFromDevice(N_Vector v, size_t n = 1);
+static int CopyReductionBufferFromDevice(N_Vector v, size_t n = 1);
 
 /* Kernel launch parameters */
 static int GetKernelParameters(N_Vector v, booleantype reduction, size_t& grid, size_t& block,
@@ -1018,21 +1018,57 @@ realtype N_VDotProdLocal_ParHyp(N_Vector x, N_Vector y)
 
   sum = ZERO;
 
-  // #if defined(SUNDIALS_HYPRE_BACKENDS_SERIAL)
+#if defined(SUNDIALS_HYPRE_BACKENDS_SERIAL)
   for (i = 0; i < N; i++)
     sum += xd[i]*yd[i];
-  // #elif defined(SUNDIALS_HYPRE_BACKENDS_CUDA)
-  // dotProdKernel<<<grid, block, shMemSize, stream>>>
-  // (
-  //   xd,
-  //   yd,
-  //   &sum,
-  //   N,
-  //   1
-  // );
-  // #endif
-
   return(sum);
+#elif defined(SUNDIALS_HYPRE_BACKENDS_CUDA_OR_HIP)
+  bool atomic;
+  size_t grid, block, shMemSize;
+  NV_ADD_LANG_PREFIX_PH(Stream_t) stream;
+
+  realtype sum = ZERO;
+
+  if (GetKernelParameters(x, true, grid, block, shMemSize, stream, atomic))
+  {
+    SUNDIALS_DEBUG_PRINT("ERROR in N_VDotProdLocal_ParHyp (backend "NV_GPU_LANG_STRING_PH"): GetKernelParameters returned nonzero\n");
+  }
+  
+  const size_t buffer_size = atomic ? 1 : grid;
+  if (InitializeReductionBuffer(x, sum, buffer_size)) // Initialize reduction buffer within x->content->priv
+  {
+    SUNDIALS_DEBUG_PRINT("ERROR in N_VDotProdLocal_ParHyp (backend "NV_GPU_LANG_STRING_PH"): InitializeReductionBuffer returned nonzero\n");
+  }
+
+  if (atomic)
+  {
+    dotProdKernel<realtype, sunindextype, GridReducerAtomic><<<grid, block, shMemSize, stream>>>
+    (
+      xd,
+      yd,
+      NV_DBUFFERp_PH(x),
+      N,
+      NULL
+    );
+  }
+  else
+  {
+    dotProdKernel<realtype, sunindextype, GridReducerLDS><<<grid, block, shMemSize, stream>>>
+    (
+      xd,
+      yd,
+      NV_DBUFFERp_PH(x),
+      N,
+      NV_DCOUNTERp_PH(x)
+    );
+  }
+  PostKernelLaunch();
+
+  // Get result from the GPU
+  CopyReductionBufferFromDevice(x);
+  sum = NV_HBUFFERp_PH(x)[0];
+#endif
+  return sum;
 }
 
 realtype N_VDotProd_ParHyp(N_Vector x, N_Vector y)
@@ -2603,6 +2639,26 @@ static void FreeReductionBuffer(N_Vector v)
 
   // Reset allocated memory size
   vcp->reduce_buffer_bytes = 0;
+}
+
+static int CopyReductionBufferFromDevice(N_Vector v, size_t n = 1);
+{
+  int copy_fail;
+  NV_ADD_LANG_PREFIX_PH(Error_t) cuerr;
+
+  copy_fail = SUNMemoryHelper_CopyAsync(NV_MEMHELP_PH(v),
+                                        NV_PRIVATE_PH(v)->reduce_buffer_host,
+                                        NV_PRIVATE_PH(v)->reduce_buffer_dev,
+                                        n * sizeof(realtype),
+                                        (void*) NV_STREAM_PH(v));
+
+  if (copy_fail)
+  {
+    SUNDIALS_DEBUG_PRINT("ERROR in CopyReductionBufferFromDevice: SUNMemoryHelper_CopyAsync returned nonzero\n");
+  }
+
+  err = NV_ADD_LANG_PREFIX_PH(StreamSynchronize)(*NV_STREAM_PH(v));
+  return (!NV_VERIFY_CALL_PH(err) || copy_fail ? -1 : 0);
 }
 
 static int GetKernelParameters(N_Vector v, booleantype reduction, size_t& grid,
