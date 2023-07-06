@@ -1148,6 +1148,14 @@ int arkStep_Init(void* arkode_mem, int init_type)
       return(ARK_ILL_INPUT);
     }
 
+    /* Relaxation is incompatible with implicit RHS deduction */
+    if (ark_mem->relax_enabled && step_mem->implicit && step_mem->deduce_rhs)
+    {
+      arkProcessError(ark_mem, ARK_ILL_INPUT, "ARKODE::ARKStep",
+                      "arkStep_Init", "Relaxation cannot be performed when deducing implicit RHS values");
+      return ARK_ILL_INPUT;
+    }
+
     /* Allocate ARK RHS vector memory, update storage requirements */
     /*   Allocate Fe[0] ... Fe[stages-1] if needed */
     if (step_mem->explicit) {
