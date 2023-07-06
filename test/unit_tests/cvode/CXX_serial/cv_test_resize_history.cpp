@@ -255,7 +255,7 @@ int main(int argc, char* argv[])
   // 14 steps - reach 3rd order
   // 22 steps - reach 4th order
   // 27 steps - reach 5th order
-  for (int i = 1; i <= 22; i++)
+  for (int i = 1; i <= 30; i++)
   {
     flag = CVode(cvode_mem, tf, y, &(tret[i]), CV_ONE_STEP);
     if (check_flag(flag, "CVode")) return 1;

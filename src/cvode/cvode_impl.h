@@ -474,6 +474,9 @@ typedef struct CVodeMemRec {
 
   booleantype cv_usefused;  /* flag indicating if CVODE specific fused kernels should be used */
 
+  /* Resize history workspace */
+  N_Vector resize_wrk[L_MAX];
+
 } *CVodeMem;
 
 /*
