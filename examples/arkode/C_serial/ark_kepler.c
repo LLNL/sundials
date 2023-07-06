@@ -81,6 +81,16 @@
 typedef struct
 {
   sunrealtype ecc;
+
+  /* for time-step control */
+  sunrealtype eps;
+  sunrealtype alpha;
+  sunrealtype rho_0;
+  sunrealtype rho_nphalf;
+  sunrealtype rho_n;
+  sunrealtype Q0;
+
+  FILE* hhist_fp;
 } * UserData;
 
 typedef struct
@@ -127,6 +137,14 @@ static int dydt(sunrealtype t, N_Vector y, N_Vector ydot, void* user_data);
 static int velocity(sunrealtype t, N_Vector y, N_Vector ydot, void* user_data);
 static int force(sunrealtype t, N_Vector y, N_Vector ydot, void* user_data);
 static int rootfn(sunrealtype t, N_Vector y, sunrealtype* gout, void* user_data);
+
+/* Adaptivity functions */
+static sunrealtype Q(N_Vector yvec, sunrealtype alpha);
+static sunrealtype G(N_Vector yvec, sunrealtype alpha);
+static int Adapt(N_Vector y, sunrealtype t, sunrealtype h1, sunrealtype h2,
+                 sunrealtype h3, sunrealtype e1, sunrealtype e2, sunrealtype e3,
+                 int q, int p, sunrealtype* hnew, void* user_data);
+static sunrealtype ControlError(N_Vector yvec, void* user_data);
 
 int main(int argc, char* argv[])
 {
@@ -311,6 +329,14 @@ int SolveProblem(ProgramArgs* args, ProblemResult* result, SUNContext sunctx)
   /* Allocate and fill udata structure */
   udata      = (UserData)malloc(sizeof(*udata));
   udata->ecc = ecc;
+  /* Adaptivity controller parameters */
+  /* Controller's integral gain. Increasing this will result in a higher
+     rate of change in the step size, while decreasing it will result in
+     a lower rate of change. */
+  udata->alpha = SUN_RCONST(3.0) / SUN_RCONST(2.0);
+  /* Controller's set-point. The error in the Hamiltonian is bounded by
+   * O(eps^p) where p is the method order. */
+  udata->eps = dt;
 
   /* Allocate our state vector */
   y     = N_VNew_Serial(4, sunctx);
@@ -347,9 +373,21 @@ int SolveProblem(ProgramArgs* args, ProblemResult* result, SUNContext sunctx)
     }
     else
     {
-      fprintf(stderr,
-              "ERROR: adaptive time-steps are not supported with SPRKStep\n");
-      return 1;
+      /* Adaptivity based on https://doi.org/10.1137/04060699 (Hairer and
+       * Soderlind, 2005). */
+      retval = SPRKStepSetAdaptivityFn(arkode_mem, Adapt, udata);
+      if (check_retval(&retval, "SPRKStepSetAdaptivityFn", 1)) return 1;
+
+      /* Compute the initial advance of rho_nphalf */
+      udata->rho_0      = SUN_RCONST(1.0) / Q(y, udata->alpha);
+      udata->rho_nphalf = udata->rho_0 +
+                          udata->eps * G(y, udata->alpha) / SUN_RCONST(2.0);
+      retval = SPRKStepSetInitStep(arkode_mem, udata->eps / udata->rho_nphalf);
+      if (check_retval(&retval, "SPRKStepSetInitStep", 1)) return 1;
+
+      /* Set the max number of time steps to something large. */
+      retval = SPRKStepSetMaxNumSteps(arkode_mem, 100000000);
+      if (check_retval(&retval, "SPRKStepSetMaxNumSteps", 1)) return 1;
     }
 
     retval = SPRKStepSetUserData(arkode_mem, (void*)udata);
@@ -388,6 +426,7 @@ int SolveProblem(ProgramArgs* args, ProblemResult* result, SUNContext sunctx)
     const char* fmt1 = "ark_kepler_conserved_%s-dt-%.2e.txt";
     const char* fmt2 = "ark_kepler_solution_%s-dt-%.2e.txt";
     const char* fmt3 = "ark_kepler_times_%s-dt-%.2e.txt";
+    const char* fmt4 = "ark_kepler_hhist_%s-dt-%.2e.txt";
     char fname[256];
     sprintf(fname, fmt1, method_name, dt);
     conserved_fp = fopen(fname, "w+");
@@ -395,6 +434,8 @@ int SolveProblem(ProgramArgs* args, ProblemResult* result, SUNContext sunctx)
     solution_fp = fopen(fname, "w+");
     sprintf(fname, fmt3, method_name, dt);
     times_fp = fopen(fname, "w+");
+    sprintf(fname, fmt4, method_name, dt);
+    udata->hhist_fp = fopen(fname, "w+");
   }
   else
   {
@@ -411,12 +452,14 @@ int SolveProblem(ProgramArgs* args, ProblemResult* result, SUNContext sunctx)
   }
 
   /* Print out starting energy, momentum before integrating */
-  tret = T0;
-  tout = T0 + dTout;
-  H0   = Hamiltonian(y);
-  L0   = AngularMomentum(y);
-  fprintf(stdout, "t = %.4Lf, H(p,q) = %.16Lf, L(p,q) = %.16Lf\n",
-          (long double)tret, (long double)H0, (long double)L0);
+  tret      = T0;
+  tout      = T0 + dTout;
+  H0        = Hamiltonian(y);
+  L0        = AngularMomentum(y);
+  udata->Q0 = Q(y, udata->alpha);
+  fprintf(stdout,
+          "t = %.4Lf, H(p,q) = %.16Lf, L(p,q) = %.16Lf, Q(p,q) = %.16Lf\n",
+          (long double)tret, (long double)H0, (long double)L0, (long double)udata->Q0);
   fprintf(times_fp, "%.16Lf\n", (long double)tret);
   fprintf(conserved_fp, "%.16Lf, %.16Lf\n", (long double)H0, (long double)L0);
   N_VPrintFile(y, solution_fp);
@@ -456,6 +499,9 @@ int SolveProblem(ProgramArgs* args, ProblemResult* result, SUNContext sunctx)
         fprintf(conserved_fp, "%.16Lf, %.16Lf\n", (long double)Hamiltonian(y),
                 (long double)AngularMomentum(y));
 
+
+        SPRKStepGetLastStep(arkode_mem, &hlast);
+        fprintf(udata->hhist_fp, "%.16Lf, %.16Lf\n", hlast, ControlError(y, udata));
         N_VPrintFile(y, solution_fp);
 
         tout += dTout;
@@ -521,6 +567,7 @@ int SolveProblem(ProgramArgs* args, ProblemResult* result, SUNContext sunctx)
   N_VScale(SUN_RCONST(1.0), y, result->sol);
   result->energy_error = Hamiltonian(y) - H0;
 
+  if (udata->hhist_fp) { fclose(udata->hhist_fp); }
   free(udata);
   fclose(times_fp);
   fclose(conserved_fp);
@@ -647,6 +694,29 @@ int ComputeConvergence(int num_dt, sunrealtype* orders,
   return 0;
 }
 
+int Adapt(N_Vector y, sunrealtype t, sunrealtype h1, sunrealtype h2,
+          sunrealtype h3, sunrealtype e1, sunrealtype e2, sunrealtype e3, int q,
+          int p, sunrealtype* hnew, void* user_data)
+{
+  UserData udata = (UserData)user_data;
+
+  /* When we enter this function, we are have already computed y_n+1 and are
+   * preparing for the next step. */
+  sunrealtype Gyn   = G(y, udata->alpha);
+  udata->rho_n      = udata->rho_nphalf + udata->eps * Gyn / SUN_RCONST(2.0);
+  udata->rho_nphalf = udata->rho_n + udata->eps * Gyn / SUN_RCONST(2.0);
+
+  *hnew = udata->eps / udata->rho_nphalf;
+
+  return 0;
+}
+
+sunrealtype ControlError(N_Vector yvec, void* user_data)
+{
+  UserData udata = (UserData)user_data;
+  return udata->rho_n * Q(yvec, udata->alpha) - udata->rho_0 * udata->Q0;
+}
+
 int ParseArgs(int argc, char* argv[], ProgramArgs* args)
 {
   int argi = 0;
@@ -671,8 +741,8 @@ int ParseArgs(int argc, char* argv[], ProgramArgs* args)
       else if (!strcmp(argv[argi], "adapt")) { args->step_mode = 1; }
       else
       {
-        fprintf(stderr, "ERROR: --step-mode must be 'fixed' or 'adapt'\n");
-        return 1;
+        fprintf(stderr, "--step-mode must be 'fixed' or 'adapt'\n");
+        return -1;
       }
     }
     else if (!strcmp(argv[argi], "--stepper"))
@@ -682,8 +752,8 @@ int ParseArgs(int argc, char* argv[], ProgramArgs* args)
       else if (!strcmp(argv[argi], "ERK")) { args->stepper = 1; }
       else
       {
-        fprintf(stderr, "ERROR: --stepper must be 'SPRK' or 'ERK'\n");
-        return 1;
+        fprintf(stderr, "--stepper must be 'SPRK' or 'ERK'\n");
+        return -1;
       }
     }
     else if (!strcmp(argv[argi], "--method"))
@@ -716,13 +786,13 @@ int ParseArgs(int argc, char* argv[], ProgramArgs* args)
     else if (!strcmp(argv[argi], "--help"))
     {
       PrintHelp();
-      return 1;
+      return -1;
     }
     else
     {
-      fprintf(stderr, "ERROR: unrecognized argument %s\n", argv[argi]);
+      fprintf(stderr, "Unrecognized argument %s\n", argv[argi]);
       PrintHelp();
-      return 1;
+      return -1;
     }
   }
 
@@ -783,7 +853,7 @@ int check_retval(void* returnvalue, const char* funcname, int opt)
   /* Check if SUNDIALS function returned NULL pointer - no memory allocated */
   if (opt == 0 && returnvalue == NULL)
   {
-    fprintf(stderr, "\nSUNDIALS ERROR: %s() failed - returned NULL pointer\n\n",
+    fprintf(stderr, "\nSUNDIALS_ERROR: %s() failed - returned NULL pointer\n\n",
             funcname);
     return 1;
   }
@@ -794,7 +864,7 @@ int check_retval(void* returnvalue, const char* funcname, int opt)
     retval = (int*)returnvalue;
     if (*retval < 0)
     {
-      fprintf(stderr, "\nSUNDIALS ERROR: %s() failed with retval = %d\n\n",
+      fprintf(stderr, "\nSUNDIALS_ERROR: %s() failed with retval = %d\n\n",
               funcname, *retval);
       return 1;
     }
@@ -803,7 +873,7 @@ int check_retval(void* returnvalue, const char* funcname, int opt)
   /* Check if function returned NULL pointer - no memory allocated */
   else if (opt == 2 && returnvalue == NULL)
   {
-    fprintf(stderr, "\nMEMORY ERROR: %s() failed - returned NULL pointer\n\n",
+    fprintf(stderr, "\nMEMORY_ERROR: %s() failed - returned NULL pointer\n\n",
             funcname);
     return 1;
   }
