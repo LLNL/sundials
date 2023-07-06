@@ -300,6 +300,10 @@ if(EXAMPLES_INSTALL)
     set(_include_sundials_sunlinsollapackdense sunlinsollapackdense)
   endif()
 
+  if(SUNDIALS_BUILD_PACKAGE_FUSED_KERNELS)
+    set(_include_cvode_fused_stubs cvode_fused_stubs)
+  endif()
+
   sundials_install_examples(cvode CVODE_examples
     CMAKE_TEMPLATE
       cmakelists_C_ex.in
@@ -312,6 +316,7 @@ if(EXAMPLES_INSTALL)
       ${_include_sunlinsolklu}
       ${_include_sundials_sunlinsollapackband}
       ${_include_sundials_sunlinsollapackdense}
+      ${cvode_fused_stubs}
     DESTINATION
       cvode/serial
     EXTRA_FILES
