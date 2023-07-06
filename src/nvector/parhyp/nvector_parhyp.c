@@ -182,7 +182,7 @@ using namespace sundials::hip::impl;
 #define NV_STREAM_POLICY_PH(v)  (NV_CONTENT_PH(v)->stream_exec_policy)
 #define NV_REDUCE_POLICY_PH(v)  (NV_CONTENT_PH(v)->reduce_exec_policy)
 // Private content accessor macros
-#define NV_PRIVATE_PH(v)        (N_PrivateVectorContent_ParHyp)(NV_CONTENT_PH(v)->priv))
+#define NV_PRIVATE_PH(v)        ((N_PrivateVectorContent_ParHyp)(NV_CONTENT_PH(v)->priv))
 #define NV_HBUFFERp_PH(v)       ((realtype*) NV_PRIVATE_PH(v)->reduce_buffer_host->ptr)
 #define NV_DBUFFERp_PH(v)       ((realtype*) NV_PRIVATE_PH(v)->reduce_buffer_dev->ptr)
 #define NV_DCOUNTERp_PH(v)      ((unsigned int*) NV_PRIVATE_PH(v)->device_counter->ptr)
@@ -357,9 +357,10 @@ N_Vector N_VNewEmpty_ParHyp(MPI_Comm comm,
 
   /* Create private content */
 #if defined(SUNDIALS_HYPRE_BACKENDS_CUDA_OR_HIP)
-  content->priv = NULL;
-  content->priv = (N_PrivateVectorContent_ParHyp) malloc(sizeof(_N_PrivateVectorContent_ParHyp));
-  if (content->priv == NULL) { N_VDestroy(v); return(NULL); }
+  priv = NULL;
+  priv = (N_PrivateVectorContent_ParHyp) malloc(sizeof(_N_PrivateVectorContent_ParHyp));
+  if (priv == NULL) { N_VDestroy(v); return(NULL); }
+  content->priv = priv
 #endif
 
   /* Attach content */
@@ -488,8 +489,8 @@ void N_VPrintFile_ParHyp(N_Vector x, FILE *outfile)
   xd = NV_DATA_PH(x);
 
 #if defined(SUNDIALS_HYPRE_BACKENDS_CUDA_OR_HIP)
-  realtype *host_data = (realtype*)malloc(sizeof(realtype)*local_length);
-  NV_ADD_LANG_PREFIX_PH(Memcpy)(host_data,xd,sizeof(realtype)*local_length,NV_ADD_LANG_PREFIX_PH(MemcpyDeviceToHost));
+  realtype *host_data = (realtype*)malloc(sizeof(realtype)*N);
+  NV_ADD_LANG_PREFIX_PH(Memcpy)(host_data,xd,sizeof(realtype)*N,NV_ADD_LANG_PREFIX_PH(MemcpyDeviceToHost));
   xd = host_data;
 #endif
 
@@ -507,7 +508,6 @@ void N_VPrintFile_ParHyp(N_Vector x, FILE *outfile)
 #if defined(SUNDIALS_HYPRE_BACKENDS_CUDA_OR_HIP)
   free(host_data);
 #endif
-
   return;
 }
 
@@ -521,22 +521,22 @@ void N_VPrintFile_ParHyp(N_Vector x, FILE *outfile)
 N_Vector N_VCloneEmpty_ParHyp(N_Vector w)
 {
   N_Vector v;
-  N_VectorContent_ParHyp content;
+  // N_VectorContent_ParHyp content;
 
   if (w == NULL) return(NULL);
 
   /* Create vector */
   v = NULL;
-  v = N_VNewEmpty_ParHyp(w->sunctx); //TODO: was N_VNewEmpty before - verify
+  v = N_VNewEmpty_ParHyp(NV_COMM_PH(w),NV_LOCLENGTH_PH(w),NV_GLOBLENGTH_PH(w),w->sunctx);
   if (v == NULL) return(NULL);
 
   /* Attach operations */
   if (N_VCopyOps(w, v)) { N_VDestroy(v); return(NULL); }
 
   /* Set content */
-  NV_LOCLENGTH_PH(v)    = NV_LOCLENGTH_PH(w);
-  NV_GLOBLENGTH_PH(v)   = NV_GLOBLENGTH_PH(w);
-  NV_COMM_PH(v)         = NV_COMM_PH(w);
+  // NV_LOCLENGTH_PH(v)    = NV_LOCLENGTH_PH(w);
+  // NV_GLOBLENGTH_PH(v)   = NV_GLOBLENGTH_PH(w);
+  // NV_COMM_PH(v)         = NV_COMM_PH(w);
   NV_OWN_PARVEC_PH(v)   = SUNFALSE;
   NV_HYPRE_PARVEC_PH(v) = NULL;
 
@@ -789,7 +789,7 @@ void N_VLinearSum_ParHyp(realtype a, N_Vector x, realtype b, N_Vector y, N_Vecto
   size_t grid, block, shMemSize;
   NV_ADD_LANG_PREFIX_PH(Stream_t) stream;
 
-  if (GetKernelParameters(X, false, grid, block, shMemSize, stream))
+  if (GetKernelParameters(x, false, grid, block, shMemSize, stream))
   {
     SUNDIALS_DEBUG_PRINT("ERROR in N_VLinearSum_ParHyp (backend "NV_GPU_LANG_STRING_PH"): GetKernelParameters returned nonzero\n");
   }
@@ -837,7 +837,7 @@ void N_VProd_ParHyp(N_Vector x, N_Vector y, N_Vector z)
   size_t grid, block, shMemSize;
   NV_ADD_LANG_PREFIX_PH(Stream_t) stream;
 
-  if (GetKernelParameters(X, false, grid, block, shMemSize, stream))
+  if (GetKernelParameters(x, false, grid, block, shMemSize, stream))
   {
     SUNDIALS_DEBUG_PRINT("ERROR in N_VProd_ParHyp (backend "NV_GPU_LANG_STRING_PH"): GetKernelParameters returned nonzero\n");
   }
@@ -876,7 +876,7 @@ void N_VDiv_ParHyp(N_Vector x, N_Vector y, N_Vector z)
   size_t grid, block, shMemSize;
   NV_ADD_LANG_PREFIX_PH(Stream_t) stream;
 
-  if (GetKernelParameters(X, false, grid, block, shMemSize, stream))
+  if (GetKernelParameters(x, false, grid, block, shMemSize, stream))
   {
     SUNDIALS_DEBUG_PRINT("ERROR in N_VDiv_ParHyp (backend "NV_GPU_LANG_STRING_PH"): GetKernelParameters returned nonzero\n");
   }
@@ -923,7 +923,7 @@ void N_VAbs_ParHyp(N_Vector x, N_Vector z)
   size_t grid, block, shMemSize;
   NV_ADD_LANG_PREFIX_PH(Stream_t) stream;
 
-  if (GetKernelParameters(X, false, grid, block, shMemSize, stream))
+  if (GetKernelParameters(x, false, grid, block, shMemSize, stream))
   {
     SUNDIALS_DEBUG_PRINT("ERROR in N_VAbs_ParHyp (backend "NV_GPU_LANG_STRING_PH"): GetKernelParameters returned nonzero\n");
   }
@@ -957,7 +957,7 @@ void N_VInv_ParHyp(N_Vector x, N_Vector z)
   size_t grid, block, shMemSize;
   NV_ADD_LANG_PREFIX_PH(Stream_t) stream;
 
-  if (GetKernelParameters(X, false, grid, block, shMemSize, stream))
+  if (GetKernelParameters(x, false, grid, block, shMemSize, stream))
   {
     SUNDIALS_DEBUG_PRINT("ERROR in N_VInv_ParHyp (backend "NV_GPU_LANG_STRING_PH"): GetKernelParameters returned nonzero\n");
   }
@@ -991,7 +991,7 @@ void N_VAddConst_ParHyp(N_Vector x, realtype b, N_Vector z)
   size_t grid, block, shMemSize;
   NV_ADD_LANG_PREFIX_PH(Stream_t) stream;
 
-  if (GetKernelParameters(X, false, grid, block, shMemSize, stream))
+  if (GetKernelParameters(x, false, grid, block, shMemSize, stream))
   {
     SUNDIALS_DEBUG_PRINT("ERROR in N_VAddConst_ParHyp (backend "NV_GPU_LANG_STRING_PH"): GetKernelParameters returned nonzero\n");
   }
@@ -2057,7 +2057,7 @@ static void VSum_ParHyp(N_Vector x, N_Vector y, N_Vector z)
   size_t grid, block, shMemSize;
   NV_ADD_LANG_PREFIX_PH(Stream_t) stream;
 
-  if (GetKernelParameters(X, false, grid, block, shMemSize, stream))
+  if (GetKernelParameters(x, false, grid, block, shMemSize, stream))
   {
     SUNDIALS_DEBUG_PRINT("ERROR in VSum_ParHyp (backend "NV_GPU_LANG_STRING_PH"): GetKernelParameters returned nonzero\n");
   }
@@ -2095,7 +2095,7 @@ static void VDiff_ParHyp(N_Vector x, N_Vector y, N_Vector z)
   size_t grid, block, shMemSize;
   NV_ADD_LANG_PREFIX_PH(Stream_t) stream;
 
-  if (GetKernelParameters(X, false, grid, block, shMemSize, stream))
+  if (GetKernelParameters(x, false, grid, block, shMemSize, stream))
   {
     SUNDIALS_DEBUG_PRINT("ERROR in VDiff_ParHyp (backend "NV_GPU_LANG_STRING_PH"): GetKernelParameters returned nonzero\n");
   }
@@ -2133,7 +2133,7 @@ static void VScaleSum_ParHyp(realtype c, N_Vector x, N_Vector y, N_Vector z)
   size_t grid, block, shMemSize;
   NV_ADD_LANG_PREFIX_PH(Stream_t) stream;
 
-  if (GetKernelParameters(X, false, grid, block, shMemSize, stream))
+  if (GetKernelParameters(x, false, grid, block, shMemSize, stream))
   {
     SUNDIALS_DEBUG_PRINT("ERROR in VScaleSum_ParHyp (backend "NV_GPU_LANG_STRING_PH"): GetKernelParameters returned nonzero\n");
   }
@@ -2171,7 +2171,7 @@ static void VScaleDiff_ParHyp(realtype c, N_Vector x, N_Vector y, N_Vector z)
   size_t grid, block, shMemSize;
   NV_ADD_LANG_PREFIX_PH(Stream_t) stream;
 
-  if (GetKernelParameters(X, false, grid, block, shMemSize, stream))
+  if (GetKernelParameters(x, false, grid, block, shMemSize, stream))
   {
     SUNDIALS_DEBUG_PRINT("ERROR in VScaleDiff_ParHyp (backend "NV_GPU_LANG_STRING_PH"): GetKernelParameters returned nonzero\n");
   }
@@ -2209,7 +2209,7 @@ static void VLin1_ParHyp(realtype a, N_Vector x, N_Vector y, N_Vector z)
   size_t grid, block, shMemSize;
   NV_ADD_LANG_PREFIX_PH(Stream_t) stream;
 
-  if (GetKernelParameters(X, false, grid, block, shMemSize, stream))
+  if (GetKernelParameters(x, false, grid, block, shMemSize, stream))
   {
     SUNDIALS_DEBUG_PRINT("ERROR in VLin1_ParHyp (backend "NV_GPU_LANG_STRING_PH"): GetKernelParameters returned nonzero\n");
   }
@@ -2247,7 +2247,7 @@ static void VLin2_ParHyp(realtype a, N_Vector x, N_Vector y, N_Vector z)
   size_t grid, block, shMemSize;
   NV_ADD_LANG_PREFIX_PH(Stream_t) stream;
 
-  if (GetKernelParameters(X, false, grid, block, shMemSize, stream))
+  if (GetKernelParameters(x, false, grid, block, shMemSize, stream))
   {
     SUNDIALS_DEBUG_PRINT("ERROR in VLin2_ParHyp (backend "NV_GPU_LANG_STRING_PH"): GetKernelParameters returned nonzero\n");
   }
