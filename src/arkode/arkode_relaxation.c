@@ -417,21 +417,11 @@ int arkRelaxSolve(ARKodeMem ark_mem, ARKodeRelaxMem relax_mem,
   retval = relax_mem->relax_fn(ark_mem->yn, &(relax_mem->e_old),
                                ark_mem->user_data);
   relax_mem->num_relax_fn_evals++;
-  if (retval < 0) return ARK_RELAX_FUNC_FAIL;
-  if (retval > 0) return ARK_RELAX_FUNC_RECV;
+  if (retval < 0) { return ARK_RELAX_FUNC_FAIL; }
+  if (retval > 0) { return ARK_RELAX_FUNC_RECV; }
 
   /* Initial guess for relaxation parameter */
   relax_mem->relax_param = relax_mem->relax_param_prev;
-
-  /* printf("y_n:\n"); */
-  /* N_VPrint(ark_mem->yn); */
-  /* printf("direction:\n"); */
-  /* N_VPrint(ark_mem->tempv1); */
-  /* printf("eta_old: %.16e\n", relax_mem->e_old); */
-  /* printf("eta_est: %.16e\n", relax_mem->delta_e); */
-  /* sunrealtype tmp; */
-  /* arkRelaxResidual(ONE, &tmp, ark_mem); */
-  /* printf("r(1): %.16e\n", relax_mem->delta_e); */
 
   switch(relax_mem->solver)
   {
@@ -449,8 +439,6 @@ int arkRelaxSolve(ARKodeMem ark_mem, ARKodeRelaxMem relax_mem,
     break;
   }
 
-  /* printf("gam: %.16e\n", relax_mem->relax_param); */
-
   /* Check for solver failure */
   if (retval)
   {
@@ -467,7 +455,9 @@ int arkRelaxSolve(ARKodeMem ark_mem, ARKodeRelaxMem relax_mem,
   /* Check for bad relaxation value */
   if (ark_mem->relax_mem->relax_param < relax_mem->lower_bound ||
       ark_mem->relax_mem->relax_param > relax_mem->upper_bound)
+  {
     return ARK_RELAX_SOLVE_RECV;
+  }
 
   /* Save parameter for next initial guess */
   relax_mem->relax_param_prev = relax_mem->relax_param;
@@ -866,9 +856,6 @@ int arkRelax(ARKodeMem ark_mem, int* relax_fails, realtype* dsm_inout,
   /* Relax solution */
   N_VLinearSum(relax_val, ark_mem->ycur, (ONE - relax_val), ark_mem->yn,
                ark_mem->ycur);
-
-  /* printf("y_new:\n"); */
-  /* N_VPrint(ark_mem->ycur); */
 
 #if SUNDIALS_LOGGING_LEVEL >= SUNDIALS_LOGGING_INFO
   SUNLogger_QueueMsg(ARK_LOGGER, SUN_LOGLEVEL_INFO,
