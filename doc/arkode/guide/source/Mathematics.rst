@@ -539,8 +539,8 @@ can be ignored).
 
 #. For :math:`i = 1,\ldots,s` do:
 
-   #. :math:`P_i = P_{i-1} + h_{n+1} \hat{a}_i f_1(Q_i, t_n + c_i h)`
-   #. :math:`Q_{i+1} = Q_i + h_{n+1} a_i f_2(P_i, t_n + \hat{c}_i h)`
+   #. :math:`P_i = P_{i-1} + h_{n+1} \hat{a}_i f_1(Q_i, t_n + \hat{c}_i h)`
+   #. :math:`Q_{i+1} = Q_i + h_{n+1} a_i f_2(P_i, t_n + c_i h)`
 
 #. Set :math:`p_{n+1} = P_s, q_{n+1} = Q_{s+1}`
 
