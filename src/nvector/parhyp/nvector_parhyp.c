@@ -586,7 +586,7 @@ N_Vector N_VClone_ParHyp(N_Vector w)
 #if defined(SUNDIALS_HYPRE_BACKENDS_CUDA_OR_HIP)
   NV_MEMHELP_PH(v)       = SUNMemoryHelper_Clone(NV_MEMHELP_PH(w));
   NV_STREAM_POLICY_PH(v) = NV_STREAM_POLICY_PH(w)->clone();
-  NV_STREAM_POLICY_PH(v) = NV_REDUCE_POLICY_PH(w)->clone();
+  NV_REDUCE_POLICY_PH(v) = NV_REDUCE_POLICY_PH(w)->clone();
 
   if (NV_MEMHELP_PH(v) == NULL)
   {
@@ -1027,8 +1027,6 @@ realtype N_VDotProdLocal_ParHyp(N_Vector x, N_Vector y)
   size_t grid, block, shMemSize;
   NV_ADD_LANG_PREFIX_PH(Stream_t) stream;
 
-  realtype sum = ZERO;
-
   if (GetKernelParameters(x, true, grid, block, shMemSize, stream, atomic))
   {
     SUNDIALS_DEBUG_PRINT("ERROR in N_VDotProdLocal_ParHyp (backend "NV_GPU_LANG_STRING_PH"): GetKernelParameters returned nonzero\n");
@@ -1048,7 +1046,7 @@ realtype N_VDotProdLocal_ParHyp(N_Vector x, N_Vector y)
       yd,
       NV_DBUFFERp_PH(x),
       N,
-      NULL
+      nullptr
     );
   }
   else
