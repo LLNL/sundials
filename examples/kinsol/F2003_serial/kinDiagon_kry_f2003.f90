@@ -48,6 +48,37 @@ module diag_mod
 contains
 
   ! ----------------------------------------------------------------
+  ! init: Initializes variables u, scale, constr
+  ! ----------------------------------------------------------------
+  subroutine init(sunvec_u, sunvec_s, sunvec_c)
+    
+    !======= Inclusions ===========
+    use fsundials_nvector_mod
+
+    !======= Declarations =========
+    implicit none
+
+    ! calling variables
+    type(N_Vector)       :: sunvec_u  ! solution N_Vector
+    type(N_Vector)       :: sunvec_s  ! scaling N_Vector
+    type(N_Vector)       :: sunvec_c  ! constraint N_Vector
+
+    u(1:neq)      => FN_VGetArrayPointer(sunvec_u)
+    scale(1:neq)  => FN_VGetArrayPointer(sunvec_s)
+    constr(1:neq) => FN_VGetArrayPointer(sunvec_c)
+
+    ! -------------------------
+    ! Set initial guess, and disable scaling
+  
+    do i = 1,neq
+       u(i) = 2.0d0 * dble(i)
+    end do
+    scale = 1.0d0
+    constr = 0.0d0
+
+  end subroutine init
+
+  ! ----------------------------------------------------------------
   ! func: The nonlinear residual function
   !
   ! Return values:
@@ -82,7 +113,7 @@ contains
     do i = 1,neq
 
        ! applying the constraint f(u) = u(i)^2 - i^2
-       ff(i) = uu(i)*uu(i) - i*i
+       ff(i) = uu(i)*uu(i) - dble(i*i)
     end do
 
 
@@ -176,9 +207,9 @@ program main
   !======= Inclusions ===========
   use fsundials_context_mod
   use fkinsol_mod                ! Fortran interface to KINSOL
+  use fsundials_nvector_mod      ! Fortran interface to generic N_Vector
   use fnvector_serial_mod        ! Fortran interface to serial N_Vector
   use fsunlinsol_spgmr_mod       ! Fortran interface to SPGMR SUNLinearSolver
-  use fsundials_nvector_mod      ! Fortran interface to generic N_Vector
   use fsundials_matrix_mod       ! Fortran interface to generic SUNmatrix
   use fsundials_linearsolver_mod ! Fortran interface to generic SUNLinearSolver
   use diag_mod                   ! problem-defining functions
@@ -222,18 +253,11 @@ program main
   ! -------------------------
   ! Create vectors for solution and scales
 
-  u(1:neq)      => FN_VGetArrayPointer(sunvec_u)
-  scale(1:neq)  => FN_VGetArrayPointer(sunvec_s)
-  constr(1:neq) => FN_VGetArrayPointer(sunvec_c)
+  sunvec_u => FN_VNew_Serial(neq, sunctx)
+  sunvec_s => FN_VNew_Serial(neq, sunctx)
+  sunvec_c => FN_VNew_Serial(neq, sunctx)
 
-  ! -------------------------
-  ! Set initial guess, and disable scaling
-  
-  do i = 1,neq
-     u(i) = 2.0d0 * dble(i)
-  end do
-  scale = 1.0d0
-  constr = 0.0d0
+  call init(sunvec_u, sunvec_s, sunvec_c)
 
   ! -------------------------
   ! Initialize and allocate memory for KINSOL
