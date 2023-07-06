@@ -242,12 +242,11 @@ int main(int argc, char* argv[])
           "%23.16" ESYM " %23.16" ESYM " %23.16" ESYM " %23.16" ESYM " %23.16" ESYM "\n",
           t0, ydata[0], ent0, SUN_RCONST(0.0), SUN_RCONST(0.0));
 
-  printf("        t              u               e                  delta e\n");
-  printf("   "
-         "---------------------------------------------------------------------"
-         "---\n");
-  printf(" %14.6" ESYM " %14.6" ESYM " %14.6" ESYM " %14.6" ESYM " %14.6" ESYM "\n",
-         t, ydata[0], ent0, SUN_RCONST(0.0), SUN_RCONST(0.0));
+  printf(" step   t              u              e              u_err          delta e\n");
+  printf(" --------------------------------------------------------------------"
+         "-----------\n");
+  printf("%5d %14.6" ESYM " %14.6" ESYM " %14.6" ESYM " %14.6" ESYM " %14.6" ESYM "\n",
+         0, t, ydata[0], ent0, SUN_RCONST(0.0), SUN_RCONST(0.0));
 
   while (t < tf)
   {
@@ -265,17 +264,24 @@ int main(int argc, char* argv[])
     delta_ent = ent - ent0;
     u_err     = ydata[0] - ytdata[0];
 
-    printf(" %14.6" ESYM " %14.6" ESYM " %14.6" ESYM " %14.16" ESYM " %14.6" ESYM "\n",
-           t, ydata[0], ent, u_err, delta_ent);
+    /* Output to the screen every periodically */
+    flag = ARKStepGetNumSteps(arkode_mem, &nst);
+    check_flag(flag, "ARKStepGetNumSteps");
 
+    if (nst % 40 == 0)
+    {
+    printf("%5ld %14.6" ESYM " %14.6" ESYM " %14.6" ESYM " %14.6" ESYM " %14.6" ESYM "\n",
+           nst, t, ydata[0], ent, u_err, delta_ent);
+    }
+
+    /* Write all steps to file */
     fprintf(UFID,
             "%23.16" ESYM " %23.16" ESYM " %23.16" ESYM " %23.16" ESYM " %23.16" ESYM "\n",
             t, ydata[0], ent, u_err, delta_ent);
   }
 
-  printf("   "
-         "---------------------------------------------------------------------"
-         "---\n");
+  printf(" --------------------------------------------------------------------"
+         "-----------\n");
   fclose(UFID);
 
   /* ------------ *

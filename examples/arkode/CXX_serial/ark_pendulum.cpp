@@ -23,7 +23,7 @@
  *   du/dt = -sin(v)
  *   dv/dt = u
  *
- * for t in the interval [0, 1000] with the initial condition y0 = [1.5 1.0]^T.
+ * for t in the interval [0, 10] with the initial condition y0 = [1.5 1.0]^T.
  * The conserved energy and its Jacobian for the system are
  *
  *   e(y) = 0.5 u^2 - cos(v) and e'(y) = [u, sin(v)]^T
@@ -80,7 +80,7 @@ int main(int argc, char* argv[])
 
   // Initial and final times
   sunrealtype t0 = SUN_RCONST(0.0);
-  sunrealtype tf = SUN_RCONST(1000.0);
+  sunrealtype tf = SUN_RCONST(10.0);
 
   // Relative and absolute tolerances
   sunrealtype reltol = SUN_RCONST(1.0e-6);
@@ -224,17 +224,17 @@ int main(int argc, char* argv[])
   outfile << t << " " << ydata[0] << " " << ydata[1] << " " << eng0 << " "
           << SUN_RCONST(0.0) << std::endl;
 
-  std::cout << std::setw(24) << "t" << std::setw(24) << "u" << std::setw(24)
-            << "v" << std::setw(24) << "e" << std::setw(24) << "e err"
-            << std::endl;
+  std::cout << std::setw(5) << "step" << std::setw(24) << "t" << std::setw(24)
+            << "u" << std::setw(24) << "v" << std::setw(24) << "e"
+            << std::setw(24) << "e err" << std::endl;
   for (int i = 0; i < 9; i++) std::cout << "--------------";
 
   std::cout << std::endl;
   std::cout << std::scientific;
   std::cout << std::setprecision(std::numeric_limits<realtype>::digits10);
-  std::cout << std::setw(24) << t << std::setw(24) << ydata[0] << std::setw(24)
-            << ydata[1] << std::setw(24) << eng0 << std::setw(24)
-            << SUN_RCONST(0.0);
+  std::cout << std::setw(5) << 0 << std::setw(24) << t << std::setw(24)
+            << ydata[0] << std::setw(24) << ydata[1] << std::setw(24) << eng0
+            << std::setw(24) << SUN_RCONST(0.0);
   std::cout << std::endl;
 
   while (t < tf)
@@ -250,13 +250,22 @@ int main(int argc, char* argv[])
 
     sunrealtype eng_chng = eng - eng0;
 
+    /* Output to the screen every periodically */
+    long int nst;
+    flag = ARKStepGetNumSteps(arkode_mem, &nst);
+    check_flag(flag, "ARKStepGetNumSteps");
+
+    if (nst % 1000 == 0)
+    {
+      std::cout << std::setw(5) << nst << std::setw(24) << t << std::setw(24)
+                << ydata[0] << std::setw(24) << ydata[1] << std::setw(24) << eng
+                << std::setw(24) << eng_chng << std::endl;
+    }
+
+    /* Write all steps to file */
     outfile << t << " " << ydata[0] << " " << ydata[1] << " " << eng << " "
             << eng_chng << std::endl;
-
-    std::cout << std::setw(24) << t << std::setw(24) << ydata[0]
-              << std::setw(24) << ydata[1] << std::setw(24) << eng
-              << std::setw(24) << eng_chng << std::endl;
-  }
+    }
 
   for (int i = 0; i < 9; i++) std::cout << "--------------";
   std::cout << std::endl;

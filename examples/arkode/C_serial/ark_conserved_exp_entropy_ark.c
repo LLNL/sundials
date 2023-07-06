@@ -264,14 +264,13 @@ int main(int argc, char* argv[])
           t0, ydata[0], ydata[1], ent0, SUN_RCONST(0.0), SUN_RCONST(0.0),
           SUN_RCONST(0.0));
 
-  printf("        t              u              v              e            "
-         "delta e\n");
-  printf("   "
-         "---------------------------------------------------------------------"
-         "---\n");
-  printf(" %14.6" ESYM " %14.6" ESYM " %14.6" ESYM " %14.6" ESYM " %14.6" ESYM
+  printf(" step   t              u              v              e            "
+         "  delta e\n");
+  printf(" --------------------------------------------------------------------"
+         "-----------\n");
+  printf("%5d %14.6" ESYM " %14.6" ESYM " %14.6" ESYM " %14.6" ESYM " %14.6" ESYM
          "\n",
-         t, ydata[0], ydata[1], ent0, SUN_RCONST(0.0));
+         0, t, ydata[0], ydata[1], ent0, SUN_RCONST(0.0));
 
   while (t < tf)
   {
@@ -290,19 +289,26 @@ int main(int argc, char* argv[])
     u_err   = ydata[0] - ytdata[0];
     v_err   = ydata[1] - ytdata[1];
 
-    printf(" %14.6" ESYM " %14.6" ESYM " %14.6" ESYM " %14.6" ESYM " %14.6" ESYM
-           "\n",
-           t, ydata[0], ydata[1], ent, ent_err);
+    /* Output to the screen every periodically */
+    flag = ARKStepGetNumSteps(arkode_mem, &nst);
+    check_flag(flag, "ARKStepGetNumSteps");
 
+    if (nst % 40 == 0)
+    {
+      printf("%5ld %14.6" ESYM " %14.6" ESYM " %14.6" ESYM " %14.6" ESYM " %14.6" ESYM
+             "\n",
+             nst, t, ydata[0], ydata[1], ent, ent_err);
+    }
+
+    /* Write all steps to file */
     fprintf(UFID,
             "%23.16" ESYM " %23.16" ESYM " %23.16" ESYM " %23.16" ESYM
             " %23.16" ESYM " %23.16" ESYM " %23.16" ESYM "\n",
             t, ydata[0], ydata[1], ent, u_err, v_err, ent_err);
   }
 
-  printf("   "
-         "---------------------------------------------------------------------"
-         "---\n");
+  printf(" --------------------------------------------------------------------"
+         "-----------\n");
   fclose(UFID);
 
   /* ------------ *
