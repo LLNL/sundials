@@ -1,0 +1,25 @@
+
+Dissipated Exponential Entropy problem:
+   method     = ERK
+   reltol     = 1.0e-06
+   abstol     = 1.0e-10
+   relaxation = ON
+
+ step   t              u              e              u_err          delta e
+ -------------------------------------------------------------------------------
+    0   0.000000e+00   1.000000e+00   2.718282e+00   0.000000e+00   0.000000e+00
+   40   5.788604e-01   5.473125e-02   1.056257e+00  -1.153415e-01  -1.662025e+00
+   80   1.549362e+00  -6.508864e-01   5.215832e-01  -1.419091e+00  -2.196699e+00
+  120   5.112347e+00  -1.701137e+00   1.824759e-01  -3.444910e+00  -2.535806e+00
+ -------------------------------------------------------------------------------
+
+Final Solver Statistics:
+   Internal solver steps = 120 (attempted = 121)
+   Total number of error test failures = 1
+   Total RHS evals:  Fe = 728,  Fi = 0
+   Total Relaxation fails     = 0
+   Total Relaxation Fn evals  = 478
+   Total Relaxation Jac evals = 841
+   Total Relaxation NLS iters = 236
+   Total Relaxation NLS fails = 0
+
