@@ -615,7 +615,24 @@ void N_VDestroy_ParHyp(N_Vector v)
 {
   if (v == NULL) return;
 
-  /* free content */
+  /* free ops structure */
+  if (v->ops != NULL) { free(v->ops); v->ops = NULL; }
+
+  /* free CUDA/HIP content */
+#if defined(SUNDIALS_HYPRE_BACKENDS_CUDA_OR_HIP)
+  if (NV_PRIVATE_PH(v) != NULL)
+  {
+    FreeDeviceCounter(v);
+    FreeReductionBuffer(v);
+    // FusedBuffer_Free(v);
+    free(NV_PRIVATE_PH(v));
+    NV_PRIVATE_PH(v) = NULL;
+  }
+  delete NV_STREAM_POLICY_PH(v);
+  delete NV_REDUCE_POLICY_PH(v);
+#endif
+
+  /* free content struct */
   if (v->content != NULL) {
     /* free the hypre parvector if it's owned by the vector wrapper */
     if (NV_OWN_PARVEC_PH(v) && NV_HYPRE_PARVEC_PH(v) != NULL) {
@@ -626,21 +643,9 @@ void N_VDestroy_ParHyp(N_Vector v)
     v->content = NULL;
   }
 
-  /* free ops and vector */
-  if (v->ops != NULL) { free(v->ops); v->ops = NULL; }
+  /* free vector*/
   free(v); v = NULL;
 
-  /* free CUDA/HIP private content */
-#if defined(SUNDIALS_HYPRE_BACKENDS_CUDA_OR_HIP)
-  if (NV_PRIVATE_PH(v) != NULL)
-  {
-    FreeDeviceCounter(v);
-    FreeReductionBuffer(v);
-    // FusedBuffer_Free(v);
-    free(NV_PRIVATE_PH(v));
-    NV_PRIVATE_PH(v) = NULL;
-  }
-#endif
   return;
 }
 
