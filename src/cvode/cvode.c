@@ -722,6 +722,132 @@ static realtype LBasisD3(int j, sunrealtype t, sunrealtype* t_hist)
   return p;
 }
 
+/*
+ * Compute Newton interpolating polynomial coefficients
+ *
+ * Inputs:
+ *   t -- array (length M) of time values, t_i
+ *   y -- array (length M) of state vectors (length N), y_i
+ *   N -- number of interpolation times
+ *
+ * Outputs:
+ *   c -- array (length M) of coefficient vectors (length N)
+ */
+int NewtonPolyCoef(sunrealtype* t, N_Vector* y, int M, N_Vector* c)
+{
+  int i, j;
+
+  /* Check for valid inputs */
+  if (!t || !y || M < 1 || !c) return CV_ILL_INPUT;
+
+  for (i = 0; i < M; i++)
+  {
+    if (!y[i]) return CV_ILL_INPUT;
+    if (!c[i]) return CV_ILL_INPUT;
+  }
+
+  /* Initialize coefficient arrays with values to interpolate */
+  for (i = 0; i < M; i++)
+  {
+    N_VScale(ONE, y[i], c[i]);
+  }
+
+  if (M == 1) return CV_SUCCESS;
+
+  /* Compute coefficients from bottom up to write in place */
+  for (i = 0; i < M; i++)
+  {
+    for (j = M - 1; j >= i; j--)
+    {
+      /* c_j = (c_j - c_{j - 1}) / (t_j - t_{j - i}) */
+      N_VLinearSum(ONE / (t[j] - t[j-1]), c[j],
+                   -ONE / (t[j] - t[j-1]), c[j - 1], c[j]);
+    }
+  }
+
+  return CV_SUCCESS;
+}
+
+/*
+ * Evaluate the Newton interpolating polynomial and its derivatives up to
+ * order d at a given time
+ *
+ * Inputs:
+ *
+ * t -- array (length M) of interpolated time values, t_i
+ * c -- array (length M) of polynomial coefficient vectors (length N), c_i
+ * s -- time at which to evaluate the polynomial, s
+ *
+ * Output:
+ *
+ * p -- array (length d + 1) of values p[0] = p(s), p[1] = p'[s], etc.
+ *
+ * Example:
+ *
+ * Consider the M = 4 case, we have the interpolation times t0, t1, t2, t3 and
+ * the coefficients c0, c1, c2, c3. The Newton interpolating polynomial is
+ *
+ * p(s) = c0 + c1 (s - t0) + c2 (s - t0)(s - t1) + c3 (s - t0)(s - t1)(s - t2)
+ *
+ * This can be rewritten as
+ *
+ * p(s) = a0 + (s - t0) [ a1 + (s - t1) [ a2 + (s - t2) a3 ] ]
+ *
+ * We can then write this recursively as P{k} = P{k + 1} (s - t{k}) + a{k} for
+ * k = M-1,...,0 where P{M - 1} = c{M - 1} and P0 = p
+ *
+ * Using this recursive definition we can also compute derivatives of the
+ * polynomial as P^(d){k} = P^(d){k + 1} (t - t{k}) + d P^(d - 1){k + 1} where
+ * P^(d){M - 1} = 0 for d > 0 and p^(d) = P^(d)0. For example, the first three
+ * derivatives are given by
+ *
+ * P'{k}   = P'{k + 1}   (t - t{k}) +   P{k + 1}
+ * P''{k}  = P''{k + 1}  (t - t{k}) + 2 P'{k + 1}
+ * P'''{k} = P'''{k + 1} (t - t{k}) + 3 P''{k + 1}
+ */
+
+int NewtonPolyMultiDerEval(sunrealtype* t, N_Vector* c, int M, sunrealtype s,
+                           int d, N_Vector* p)
+{
+  int i, j;
+
+  /* Check for valid inputs */
+  if (!t || !c || M < 1 || d < 0 || !p) return CV_ILL_INPUT;
+
+  for (i = 0; i < M; i++)
+  {
+    if (!c[i]) return CV_ILL_INPUT;
+  }
+
+  for (i = 0; i < d + 1; i++)
+  {
+    if (!p[i]) return CV_ILL_INPUT;
+  }
+
+  /* Initialize interpolation output to P_{M-1} = c_{M-1} and derivative output
+     to zero */
+  N_VScale(ONE, c[M - 1], p[0]);
+  for (i = 1; i < d; i++)
+  {
+    N_VConst(ZERO, p[i]);
+  }
+
+  /* Accumulate polynomial terms in-place i.e., P_{i+1} is stored in p[0] and
+     overwritten each iteration by P_{i} and similarly for P', P'', etc. */
+  for (i = M - 2; i >= 0; i--)
+  {
+    for (j = d; j > 0; j--)
+    {
+      // P^(j)_i = P_{j + 1} * (s - t_i) + j * P^(j - 1)_i
+      N_VLinearSum(s - t[i], p[j], j, p[j-1], p[j]);
+    }
+    // P_i = P_{i + 1} * (s - t_i) + c_i
+    N_VLinearSum(s - t[i], p[0], ONE, c[i], p[0]);
+  }
+
+  return CV_SUCCESS;
+}
+
 
 int CVodeResizeHistory(void *cvode_mem, sunrealtype* t_hist, N_Vector* y_hist,
                        int n_hist, CVResizeVecFn resize_fn)
