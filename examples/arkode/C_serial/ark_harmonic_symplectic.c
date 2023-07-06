@@ -158,7 +158,8 @@ int main(int argc, char* argv[])
   tret = T0;
   tout = T0 + dTout;
   fprintf(stdout, "t = %.6Lf, x(t) = %.6Lf, E = %.6Lf, sol. err = %.6Lf\n",
-          tret, ydata[0], Energy(y, dt, &udata), SUN_RCONST(0.0));
+          (long double)tret, (long double)ydata[0],
+          (long double)Energy(y, dt, &udata), (long double)SUN_RCONST(0.0));
 
   /* Do integration */
   for (iout = 0; iout < num_output_times; iout++)
@@ -175,7 +176,8 @@ int main(int argc, char* argv[])
 
     /* Output current integration status */
     fprintf(stdout, "t = %.6Lf, x(t) = %.6Lf, E = %.6Lf, sol. err = %.16Lf\n",
-            tret, ydata[0], Energy(y, dt, &udata), err);
+            (long double)tret, (long double)ydata[0],
+            (long double)Energy(y, dt, &udata), (long double)err);
 
     /* Check that solution error is within tolerance */
     if (err > SUNMAX(dt / pow(10, order - 2), 1000 * SUN_UNIT_ROUNDOFF))

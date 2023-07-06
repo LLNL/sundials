@@ -415,9 +415,10 @@ int SolveProblem(ProgramArgs* args, ProblemResult* result, SUNContext sunctx)
   tout = T0 + dTout;
   H0   = Hamiltonian(y);
   L0   = AngularMomentum(y);
-  fprintf(stdout, "t = %.4Lf, H(p,q) = %.16Lf, L(p,q) = %.16Lf\n", tret, H0, L0);
-  fprintf(times_fp, "%.16Lf\n", tret);
-  fprintf(conserved_fp, "%.16Lf, %.16Lf\n", H0, L0);
+  fprintf(stdout, "t = %.4Lf, H(p,q) = %.16Lf, L(p,q) = %.16Lf\n",
+          (long double)tret, (long double)H0, (long double)L0);
+  fprintf(times_fp, "%.16Lf\n", (long double)tret);
+  fprintf(conserved_fp, "%.16Lf, %.16Lf\n", (long double)H0, (long double)L0);
   N_VPrintFile(y, solution_fp);
 
   /* Do integration */
