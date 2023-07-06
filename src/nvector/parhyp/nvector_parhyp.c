@@ -415,7 +415,7 @@ N_Vector N_VMake_ParHyp(HYPRE_ParVector x, SUNContext sunctx)
 
   /* Attach CUDA/HIP-only content */
 #if defined(SUNDIALS_HYPRE_BACKENDS_CUDA_OR_HIP)
-  NV_MEMHELP_PH(v)       = NV_SUNMemoryHelper_TYPE_PH(sunctx);
+  NV_MEMHELP_PH(v)       = NV_MEMHELP_STRUCT_PH(sunctx);
   NV_STREAM_POLICY_PH(v) = DEFAULT_STREAMING_EXECPOLICY.clone();
   NV_REDUCE_POLICY_PH(v) = DEFAULT_REDUCTION_EXECPOLICY.clone();
 
@@ -486,6 +486,12 @@ void N_VPrintFile_ParHyp(N_Vector x, FILE *outfile)
 
   N  = NV_LOCLENGTH_PH(x);
   xd = NV_DATA_PH(x);
+
+// #if defined(SUNDIALS_HYPRE_BACKENDS_CUDA_OR_HIP)
+//   realtype *host_data = (realtype*)malloc(sizeof(realtype)*local_length);
+//   NV_ADD_LANG_PREFIX_PH(Memcpy)(host_data,Xdata,sizeof(realtype)*local_length,NV_ADD_LANG_PREFIX_PH(MemcpyDeviceToHost));
+//   Xdata = host_data;
+// #endif
 
   for (i = 0; i < N; i++) {
 #if defined(SUNDIALS_EXTENDED_PRECISION)
@@ -2346,7 +2352,7 @@ static int InitializeDeviceCounter(N_Vector v)
                                    &(NV_PRIVATE_PH(v)->device_counter), sizeof(unsigned int),
                                    SUNMEMTYPE_DEVICE, (void*) NV_STREAM_PH(v));
   }
-  NV_MemsetAsync_CALL_PH(NV_DCOUNTERp_PH(v), 0, sizeof(unsigned int), *NV_STREAM_PH(v));
+  NV_ADD_LANG_PREFIX_PH(MemsetAsync)(NV_DCOUNTERp_PH(v), 0, sizeof(unsigned int), *NV_STREAM_PH(v));
   return retval;
 }
 
@@ -2453,12 +2459,12 @@ static void FreeReductionBuffer(N_Vector v)
 
 static int GetKernelParameters(N_Vector v, booleantype reduction, size_t& grid,
                                size_t& block, size_t& shMemSize,
-                               NV_Stream_TYPE_PH& stream, bool& atomic, size_t n)
+                               NV_ADD_LANG_PREFIX_PH(Stream_t)& stream, bool& atomic, size_t n)
 {
   n = (n == 0) ? NV_CONTENT_PH(v)->length : n;
   if (reduction)
   {
-    NV_SUNExecPolicy_TYPE_PH* reduce_exec_policy = NV_CONTENT_PH(v)->reduce_exec_policy;
+    NV_EXECPOLICY_TYPE_PH* reduce_exec_policy = NV_CONTENT_PH(v)->reduce_exec_policy;
     grid      = reduce_exec_policy->gridSize(n);
     block     = reduce_exec_policy->blockSize();
     shMemSize = 0;
@@ -2476,7 +2482,7 @@ static int GetKernelParameters(N_Vector v, booleantype reduction, size_t& grid,
       }
     }
 
-    if (block % sundials::NV_lang_TOKEN_PH::WARP_SIZE)
+    if (block % sundials::NV_GPU_LANG_TOKEN_PH::WARP_SIZE)
     {
 #ifdef SUNDIALS_DEBUG
       throw std::runtime_error("the block size must be a multiple must be of the "NV_LANG_STRING_PH" warp size");
@@ -2486,7 +2492,7 @@ static int GetKernelParameters(N_Vector v, booleantype reduction, size_t& grid,
   }
   else
   {
-    NV_SUNExecPolicy_TYPE_PH* stream_exec_policy = NV_CONTENT_PH(v)->stream_exec_policy;
+    NV_EXECPOLICY_TYPE_PH* stream_exec_policy = NV_CONTENT_PH(v)->stream_exec_policy;
     grid      = stream_exec_policy->gridSize(n);
     block     = stream_exec_policy->blockSize();
     shMemSize = 0;
@@ -2513,7 +2519,7 @@ static int GetKernelParameters(N_Vector v, booleantype reduction, size_t& grid,
 }
 
 static int GetKernelParameters(N_Vector v, booleantype reduction, size_t& grid,
-                               size_t& block, size_t& shMemSize, NV_Stream_TYPE_PH& stream,
+                               size_t& block, size_t& shMemSize, NV_ADD_LANG_PREFIX_PH(Stream_t)& stream,
                                size_t n)
 {
   bool atomic;
@@ -2524,8 +2530,8 @@ static void PostKernelLaunch()
 {
 // TODO: implement "SUNDIALS_DEBUG_PARHYP_LASTERROR"?
 #if defined(SUNDIALS_DEBUG_CUDA_LASTERROR) || defined(SUNDIALS_DEBUG_HIP_LASTERROR)
-  NV_DeviceSynchronize_CALL_PH();
-  NV_Verify_CALL_PH(NV_GetLastError_CALL_PH());
+  NV_ADD_LANG_PREFIX_PH(DeviceSynchronize)();
+  NV_VERIFY_CALL_PH(NV_ADD_LANG_PREFIX_PH(GetLastError)());
 #endif
 }
 
