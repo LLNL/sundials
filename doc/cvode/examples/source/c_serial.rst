@@ -52,8 +52,8 @@ header files.
 
 Attempt to "includeOutput":
 
-.. literalinclude:: ../../../../examples/cvode/serial/cvRoberts_dns.out
-   :text:
+.. include:: ../../../../examples/cvode/serial/cvRoberts_dns.out
+   :literal:
 
    
 

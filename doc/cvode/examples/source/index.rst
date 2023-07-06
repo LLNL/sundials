@@ -66,6 +66,23 @@ CVode example problems written in C are summarized in the table
 below, and are further described in the chapters :ref:`serial_c`,
 :ref:`openmp_c`, :ref:`parallel_c` and :ref:`parhyp_c`.
 
+C examples:
+
+* :ref:`cvAdvDiff_bnd` -- description
+
+* :ref:`cvAdvDiff_bndL` -- extended description onto two lines
+
+  * sub-bullet
+
+    * sub-sub-bullet
+
+* :ref:`cvAnalytic_mels`
+
+* :ref:`cvDirectDemo_ls` 
+
+* :ref:`cvDisc_dns`
+
+
 .. cssclass:: table-bordered
 
 ================================   ============  ============  ==========  =============  =====================================================
