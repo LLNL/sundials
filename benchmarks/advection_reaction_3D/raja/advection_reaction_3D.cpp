@@ -1,5 +1,6 @@
 /* -----------------------------------------------------------------------------
  * Programmer(s): David J. Gardner, Cody J. Balos @ LLNL
+ *                Daniel R. Reynolds @ SMU
  * -----------------------------------------------------------------------------
  * SUNDIALS Copyright Start
  * Copyright (c) 2002-2023, Lawrence Livermore National Security
@@ -60,9 +61,13 @@
 
 #include "advection_reaction_3D.hpp"
 
+#define STENCIL_WIDTH 1
+
+
 /* Main Program */
 int main(int argc, char *argv[])
 {
+
   SUNContext ctx;
 
   /* Initialize MPI */
@@ -87,7 +92,6 @@ int main(int argc, char *argv[])
     UserData     udata(ctx);    /* user data                    */
     UserOptions  uopt;          /* user options                 */
     int          retval;        /* reusable error-checking flag */
-    char         fname[MXSTR];
 
     SUNDIALS_CXX_MARK_FUNCTION(udata.prof);
 
@@ -113,6 +117,7 @@ int main(int argc, char *argv[])
     /* Output spatial mesh to disk (add extra point for periodic BC) */
     if (udata.myid == 0 && uopt.nout > 0)
     {
+      char fname[MXSTR];
       snprintf(fname, MXSTR, "%s/mesh.txt", uopt.outputdir);
       udata.grid->MeshToFile(fname);
     }
@@ -124,7 +129,6 @@ int main(int argc, char *argv[])
     else if (uopt.method == "CV-BDF")   retval = EvolveProblemBDF(y, &udata, &uopt);
     else if (uopt.method == "CV-ADAMS") retval = EvolveProblemAdams(y, &udata, &uopt);
     else if (uopt.method == "IDA")      retval = EvolveDAEProblem(y, &udata, &uopt);
-
     if (check_retval(&retval, "Evolve", 1, udata.myid)) MPI_Abort(comm, 1);
 
     /* Clean up */
@@ -142,15 +146,6 @@ int main(int argc, char *argv[])
 /* Destructor for problem data */
 UserData::~UserData()
 {
-  /* free solution masks */
-  N_VDestroy(N_VGetLocalVector_MPIPlusX(umask));
-  N_VDestroy(umask);
-  N_VDestroy(vmask);
-  N_VDestroy(wmask);
-
-  /* free the parallel grid */
-  delete grid;
-
   /* close output streams */
   if (uopt->nout > 0)
   {
@@ -159,6 +154,24 @@ UserData::~UserData()
     if (WFID) fclose(WFID);
     if (TFID && myid == 0) fclose(TFID);
   }
+
+  /* free solution masks */
+  if (umask != nullptr) {
+    N_VDestroy(N_VGetLocalVector_MPIPlusX(umask));
+    N_VDestroy(umask);
+    umask = nullptr;
+  }
+  if (vmask != nullptr) {
+    N_VDestroy(vmask);
+    vmask = nullptr;
+  }
+  if (wmask != nullptr) {
+    N_VDestroy(wmask);
+    wmask = nullptr;
+  }
+
+  /* free the parallel grid */
+  delete grid;
 }
 
 
@@ -166,175 +179,98 @@ UserData::~UserData()
  * Communication functions
  * --------------------------------------------------------------*/
 
-/* Exchanges the boundary conditions only, */
-int ExchangeBCOnly(N_Vector y, UserData* udata)
+/* Fills send buffers before exchanging neighbor information */
+int FillSendBuffers(N_Vector y, UserData* udata)
 {
-  int ierr;
-  MPI_Status stat;
-  MPI_Request reqR, reqS;
 
   /* shortcuts */
-  int nvar  = udata->grid->dof;
-  int myid  = udata->myid;
-  int first = 0;
-  int last  = udata->nprocs - 1;
+  const realtype c = udata->c;
+  const int nxl = udata->grid->nxl;
+  const int nyl = udata->grid->nyl;
+  const int nzl = udata->grid->nzl;
+  const int dof = udata->grid->dof;
 
-  /* extract the data */
-  realtype* Ydata = GetVecData(y);
-  realtype* Wsend = udata->grid->getSendBuffer("WEST");
-
-  /* open the East Irecv buffer */
-  if (myid == last)
-  {
-    ierr = MPI_Irecv(udata->grid->getRecvBuffer("EAST"), nvar, MPI_SUNREALTYPE, first,
-                     MPI_ANY_TAG, udata->comm, &reqR);
-  }
-
-  /* send first mesh node to the last processor */
-  if (myid == first)
-  {
-    RAJA::forall< EXEC_POLICY >( RAJA::RangeSegment(0, nvar),
-      [=] DEVICE_FUNC (int var) {
-      Wsend[IDX(nvar, 0, var)] = Ydata[IDX(nvar, 0, var)];
-    });
-    ierr = MPI_Isend(Wsend, nvar, MPI_SUNREALTYPE,
-                     last, 0, udata->comm, &reqS);
-  }
-
-  if (myid == last)
-  {
-    /* wait for exchange to finish */
-    ierr = MPI_Wait(&reqR, &stat);
-    if (ierr != MPI_SUCCESS)
-    {
-      fprintf(stderr, "\nERROR: error in MPI_Wait = %d\n", ierr);
-      return -1;
-    }
-  }
-
-  if (myid == first)
-  {
-    /* wait for exchange to finish */
-    ierr = MPI_Wait(&reqS, &stat);
-    if (ierr != MPI_SUCCESS)
-    {
-      fprintf(stderr, "\nERROR: error in MPI_Wait = %d\n", ierr);
-      return -1;
-    }
-  }
-
-  return(0);
-}
-
-
-/* Starts the exchange of the neighbor information */
-int ExchangeAllStart(N_Vector y, UserData* udata)
-{
-  SUNDIALS_MARK_BEGIN(udata->prof, "Neighbor Exchange");
-
-  /* shortcuts */
-  realtype c = udata->c;
-
-  /* extract the data */
-  RAJA::View<realtype, RAJA::Layout<NDIMS+1> > Yview(GetVecData(y),
-                                                     udata->grid->nxl,
-                                                     udata->grid->nyl,
-                                                     udata->grid->nzl,
-                                                     udata->grid->dof);
+  /* Create a 4D view of the vector */
+  RAJA::View<realtype, RAJA::Layout<4> > Yview(GetVecData(y),
+                                               nxl, nyl, nzl, dof);
 
   if (c > 0.0)
   {
+
     /* Flow moving in the positive directions uses backward difference. */
-    udata->grid->ExchangeStart(
-      [=] (realtype*, realtype* Esend, realtype*, realtype* Nsend, realtype* Bsend, realtype*) {
-        int nxl = udata->grid->nxl;
-        int nyl = udata->grid->nyl;
-        int nzl = udata->grid->nzl;
-        int dof = udata->grid->dof;
 
-        auto range = RAJA::make_tuple(RAJA::RangeSegment(0, std::max(1,nxl-1)),
-                                      RAJA::RangeSegment(0, std::max(1,nyl-1)),
-                                      RAJA::RangeSegment(0, std::max(1,nzl-1)));
+    /* Fill 3D views of send buffers on device */
+    RAJA::View<realtype, RAJA::Layout<3> >
+      Esend(udata->grid->getSendBuffer("EAST"),  nyl, nzl, dof);
+    RAJA::View<realtype, RAJA::Layout<3> >
+      Nsend(udata->grid->getSendBuffer("NORTH"), nxl, nzl, dof);
+    RAJA::View<realtype, RAJA::Layout<3> >
+      Fsend(udata->grid->getSendBuffer("FRONT"), nxl, nyl, dof);
 
-        RAJA::View<realtype, RAJA::Layout<3> >
-          Eview(Esend, nyl, nzl, dof);
-        RAJA::View<realtype, RAJA::Layout<3> >
-          Nview(Nsend, nxl, nzl, dof);
-        RAJA::View<realtype, RAJA::Layout<3> >
-          Bview(Bsend, nxl, nyl, dof);
+    auto east_face = RAJA::make_tuple(RAJA::RangeSegment(0, nyl),
+                                      RAJA::RangeSegment(0, nzl),
+                                      RAJA::RangeSegment(0, dof));
+    RAJA::kernel<XYZ_KERNEL_POL>(east_face,
+      [=] DEVICE_FUNC (int j, int k, int l) {
+        Esend(j,k,l) = Yview(nxl-1,j,k,l);
+    });
 
-        RAJA::kernel<XYZ_KERNEL_POL>(range,
-          [=] DEVICE_FUNC (int i, int j, int k) {
+    auto north_face = RAJA::make_tuple(RAJA::RangeSegment(0, nxl),
+                                       RAJA::RangeSegment(0, nzl),
+                                       RAJA::RangeSegment(0, dof));
+    RAJA::kernel<XYZ_KERNEL_POL>(north_face,
+      [=] DEVICE_FUNC (int i, int k, int l) {
+        Nsend(i,k,l) = Yview(i,nyl-1,k,l);
+    });
 
-          if (nxl > 1)
-          {
-            Eview(j,k,0) = Yview(nxl-1,j,k,0);
-            Eview(j,k,1) = Yview(nxl-1,j,k,1);
-            Eview(j,k,2) = Yview(nxl-1,j,k,2);
-          }
+    auto front_face = RAJA::make_tuple(RAJA::RangeSegment(0, nxl),
+                                       RAJA::RangeSegment(0, nyl),
+                                       RAJA::RangeSegment(0, dof));
+    RAJA::kernel<XYZ_KERNEL_POL>(front_face,
+      [=] DEVICE_FUNC (int i, int j, int l) {
+        Fsend(i,j,l) = Yview(i,j,nzl-1,l);
+    });
 
-          if (nyl > 1)
-          {
-            Nview(i,k,0) = Yview(i,nyl-1,k,0);
-            Nview(i,k,1) = Yview(i,nyl-1,k,1);
-            Nview(i,k,2) = Yview(i,nyl-1,k,2);
-          }
-
-          if (nzl > 1)
-          {
-            Bview(i,j,0) = Yview(i,j,nzl-1,0);
-            Bview(i,j,1) = Yview(i,j,nzl-1,1);
-            Bview(i,j,2) = Yview(i,j,nzl-1,2);
-          }
-
-        });
-      });
   }
   else if (c < 0.0)
   {
+
     /* Flow moving in the negative directions uses forward difference. */
 
-    udata->grid->ExchangeStart(
-      [=] (realtype* Wsend, realtype*, realtype*Ssend, realtype*, realtype*, realtype* Fsend) {
-        auto range = RAJA::make_tuple(RAJA::RangeSegment(0, udata->grid->nxl-1),
-                                      RAJA::RangeSegment(0, udata->grid->nyl-1),
-                                      RAJA::RangeSegment(0, udata->grid->nzl-1));
+    /* Fill 3D views of send buffers on device */
+    RAJA::View<realtype, RAJA::Layout<3> >
+      Wsend(udata->grid->getSendBuffer("WEST"),  nyl, nzl, dof);
+    RAJA::View<realtype, RAJA::Layout<3> >
+      Ssend(udata->grid->getSendBuffer("SOUTH"), nxl, nzl, dof);
+    RAJA::View<realtype, RAJA::Layout<3> >
+      Bsend(udata->grid->getSendBuffer("BACK"),  nxl, nyl, dof);
 
-        RAJA::View<realtype, RAJA::Layout<3> >
-          Wview(Wsend, udata->grid->nyl, udata->grid->nzl, udata->grid->dof);
-        RAJA::View<realtype, RAJA::Layout<3> >
-          Sview(Ssend, udata->grid->nxl, udata->grid->nzl, udata->grid->dof);
-        RAJA::View<realtype, RAJA::Layout<3> >
-          Fview(Fsend, udata->grid->nxl, udata->grid->nyl, udata->grid->dof);
+    auto west_face = RAJA::make_tuple(RAJA::RangeSegment(0, nyl),
+                                      RAJA::RangeSegment(0, nzl),
+                                      RAJA::RangeSegment(0, dof));
+    RAJA::kernel<XYZ_KERNEL_POL>(west_face,
+      [=] DEVICE_FUNC (int j, int k, int l) {
+        Wsend(j,k,l) = Yview(0,j,k,l);
+    });
 
-        RAJA::kernel<XYZ_KERNEL_POL>(range,
-          [=] DEVICE_FUNC (int i, int j, int k) {
-          Wview(j,k,0) = Yview(0,j,k,0);
-          Wview(j,k,1) = Yview(0,j,k,1);
-          Wview(j,k,2) = Yview(0,j,k,2);
+    auto south_face = RAJA::make_tuple(RAJA::RangeSegment(0, nxl),
+                                       RAJA::RangeSegment(0, nzl),
+                                       RAJA::RangeSegment(0, dof));
+    RAJA::kernel<XYZ_KERNEL_POL>(south_face,
+      [=] DEVICE_FUNC (int i, int k, int l) {
+        Ssend(i,k,l) = Yview(i,0,k,l);
+    });
 
-          Sview(i,k,0) = Yview(i,0,k,0);
-          Sview(i,k,1) = Yview(i,0,k,1);
-          Sview(i,k,2) = Yview(i,0,k,2);
+    auto back_face = RAJA::make_tuple(RAJA::RangeSegment(0, nxl),
+                                      RAJA::RangeSegment(0, nyl),
+                                      RAJA::RangeSegment(0, dof));
+    RAJA::kernel<XYZ_KERNEL_POL>(back_face,
+      [=] DEVICE_FUNC (int i, int j, int l) {
+        Bsend(i,j,l) = Yview(i,j,0,l);
+    });
 
-          Fview(i,j,0) = Yview(i,j,0,0);
-          Fview(i,j,1) = Yview(i,j,0,1);
-          Fview(i,j,2) = Yview(i,j,0,2);
-        });
-      });
   }
 
-  SUNDIALS_MARK_END(udata->prof, "Neighbor Exchange");
-  return(0);
-}
-
-
-/* Completes the exchange of the neighbor information */
-int ExchangeAllEnd(UserData* udata)
-{
-  SUNDIALS_MARK_BEGIN(udata->prof, "Neighbor Exchange");
-  udata->grid->ExchangeEnd();
-  SUNDIALS_MARK_END(udata->prof, "Neighbor Exchange");
   return(0);
 }
 
@@ -494,17 +430,20 @@ int ComponentMask(N_Vector mask, int component, const UserData* udata)
 
   N_VConst(0.0, mask);
 
-  RAJA::View<realtype, RAJA::Layout<NDIMS+1> > mask_view(GetVecData(mask),
-                                                         udata->grid->nxl,
-                                                         udata->grid->nyl,
-                                                         udata->grid->nzl,
-                                                         udata->grid->dof);
+  /* Create 4D view of mask data */
+  RAJA::View<realtype, RAJA::Layout<4> > mask_view(GetVecData(mask),
+                                                   udata->grid->nxl,
+                                                   udata->grid->nyl,
+                                                   udata->grid->nzl,
+                                                   udata->grid->dof);
+  /* Fill mask data */
   auto range = RAJA::make_tuple(RAJA::RangeSegment(0, udata->grid->nxl),
                                 RAJA::RangeSegment(0, udata->grid->nyl),
                                 RAJA::RangeSegment(0, udata->grid->nzl));
   RAJA::kernel<XYZ_KERNEL_POL>(range,
-    [=] DEVICE_FUNC (int xi, int yi, int zi) {
-    mask_view(xi,yi,zi,component) = 1.0;
+    [=] DEVICE_FUNC (int i, int j, int k)
+  {
+    mask_view(i,j,k,component) = 1.0;
   });
 
   return 0;
@@ -515,13 +454,8 @@ int ComponentMask(N_Vector mask, int component, const UserData* udata)
 int SetupProblem(int argc, char *argv[], UserData* udata, UserOptions* uopt,
                  SUNMemoryHelper memhelper, SUNContext ctx)
 {
-  constexpr int STENCIL_WIDTH = 1;
 
   SUNDIALS_CXX_MARK_FUNCTION(udata->prof);
-
-  /* Local variables */
-  int retval = 0;
-  char fname[MXSTR];
 
   /* MPI variables */
   udata->comm = MPI_COMM_WORLD;
@@ -567,16 +501,16 @@ int SetupProblem(int argc, char *argv[], UserData* udata, UserOptions* uopt,
   uopt->outputdir = (char *) "."; /* output directory         */
 
   /* Parse CLI args and set udata/uopt appropriately */
-  retval = ParseArgs(argc, argv, udata, uopt);
+  int retval = ParseArgs(argc, argv, udata, uopt);
   if (check_retval((void*)&retval, "ParseArgs", 1, udata->myid)) return -1;
 
   /* Setup the parallel decomposition */
   const sunindextype npts[] = {uopt->npts, uopt->npts, uopt->npts};
   const realtype amax[] = {0.0, 0.0, 0.0};
   const realtype bmax[] = {udata->xmax, udata->xmax, udata->xmax};
-  udata->grid = new ParallelGrid<realtype,sunindextype,NDIMS>(memhelper,
-    &udata->comm, amax, bmax, npts, 3, BoundaryType::PERIODIC, StencilType::UPWIND, STENCIL_WIDTH, uopt->npxyz
-  );
+  udata->grid = new ParallelGrid<realtype,sunindextype>(memhelper, &udata->comm,
+    amax, bmax, npts, 3, BoundaryType::PERIODIC, StencilType::UPWIND, udata->c,
+    STENCIL_WIDTH, uopt->npxyz);
 
   /* Create the solution masks */
   udata->umask = N_VMake_MPIPlusX(udata->comm, LocalNvector(udata->grid->neq, ctx), ctx);
@@ -589,6 +523,7 @@ int SetupProblem(int argc, char *argv[], UserData* udata, UserOptions* uopt,
   /* Open output files for results */
   if (uopt->save)
   {
+    char fname[MXSTR];
     if (udata->myid == 0)
     {
       sprintf(fname, "%s/t.%06d.txt", uopt->outputdir, udata->myid);
@@ -609,7 +544,7 @@ int SetupProblem(int argc, char *argv[], UserData* udata, UserOptions* uopt,
   if (udata->myid == 0)
   {
     printf("\n\t\tAdvection-Reaction Test Problem\n\n");
-    printf("Using the %s NVECTOR\n", NVECTOR_ID_STRING);
+    printf("Using the MPI+%s NVECTOR\n", NVECTOR_ID_STRING);
     printf("Number of Processors = %li\n", (long int) udata->nprocs);
     udata->grid->PrintInfo();
     printf("Problem Parameters:\n");
@@ -632,7 +567,6 @@ int SetupProblem(int argc, char *argv[], UserData* udata, UserOptions* uopt,
     printf("Output directory: %s\n", uopt->outputdir);
   }
 
-
   /* return success */
   return(0);
 }
@@ -644,8 +578,8 @@ void Gaussian3D(realtype& x, realtype& y, realtype& z, realtype xmax)
 {
   /* Gaussian distribution defaults */
   const realtype alpha = 0.1;
-  const realtype mu[3] = { xmax/RCONST(2.0), xmax/RCONST(2.0), xmax/RCONST(2.0) };
-  const realtype sigma[3] = { xmax/RCONST(4.0), xmax/RCONST(4.0), xmax/RCONST(4.0) }; // Sigma = diag(sigma)
+  const realtype mu[] = { xmax/RCONST(2.0), xmax/RCONST(2.0), xmax/RCONST(2.0) };
+  const realtype sigma[] = { xmax/RCONST(4.0), xmax/RCONST(4.0), xmax/RCONST(4.0) }; // Sigma = diag(sigma)
 
   /* denominator = 2*sqrt(|Sigma|*(2pi)^3) */
   const realtype denom = 2.0 * sqrt((sigma[0]*sigma[1]*sigma[2])*pow(2*M_PI,3));
@@ -664,6 +598,7 @@ int SetIC(N_Vector y, UserData* udata)
   const int      nxl  = udata->grid->nxl;
   const int      nyl  = udata->grid->nyl;
   const int      nzl  = udata->grid->nzl;
+  const int      dof  = udata->grid->dof;
   const realtype dx   = udata->grid->dx;
   const realtype dy   = udata->grid->dy;
   const realtype dz   = udata->grid->dz;
@@ -683,22 +618,25 @@ int SetIC(N_Vector y, UserData* udata)
   const realtype vs = k2 * k4 * B / (k1 * k3 * A);
   const realtype ws = 3.0;
 
+  /* Create 4D view of y */
+  RAJA::View<realtype, RAJA::Layout<4> > yview(GetVecData(y),
+                                               nxl, nyl, nzl, dof);
+
   /* Gaussian perturbation of the steady state solution */
-  RAJA::View<realtype, RAJA::Layout<NDIMS+1> > yview(GetVecData(y), nxl, nyl, nzl,
-                                                     udata->grid->dof);
   auto range = RAJA::make_tuple(RAJA::RangeSegment(0, nxl),
                                 RAJA::RangeSegment(0, nyl),
                                 RAJA::RangeSegment(0, nzl));
   RAJA::kernel<XYZ_KERNEL_POL>(range,
-    [=] DEVICE_FUNC (int xi, int yi, int zi) {
-    realtype x = (xcrd * nxl + xi) * dx;
-    realtype y = (ycrd * nyl + yi) * dy;
-    realtype z = (zcrd * nzl + zi) * dz;
+    [=] DEVICE_FUNC (int i, int j, int k)
+  {
+    realtype x = (xcrd * nxl + i) * dx;
+    realtype y = (ycrd * nyl + j) * dy;
+    realtype z = (zcrd * nzl + k) * dz;
     Gaussian3D(x,y,z,xmax);
     const realtype p = x + y + z;
-    yview(xi,yi,zi,0) = us + p;
-    yview(xi,yi,zi,1) = vs + p;
-    yview(xi,yi,zi,2) = ws + p;
+    yview(i,j,k,0) = us + p;
+    yview(i,j,k,1) = vs + p;
+    yview(i,j,k,2) = ws + p;
   });
 
   /* Return success */
@@ -710,23 +648,17 @@ int SetIC(N_Vector y, UserData* udata)
 int WriteOutput(realtype t, N_Vector y, UserData* udata, UserOptions* uopt)
 {
   SUNDIALS_CXX_MARK_FUNCTION(udata->prof);
-  
-  realtype  u, v, w, N;
-  realtype* ydata = NULL;
 
-  /* get vector data array */
-  ydata = N_VGetArrayPointer(y);
-  if (check_retval((void *) ydata, "N_VGetArrayPointer", 0, udata->myid)) return -1;
-
+  /* Copy solution data to host mirror view */
   CopyVecFromDevice(N_VGetLocalVector_MPIPlusX(y));
 
   /* output current solution norm to screen */
-  N = (realtype) udata->grid->npts();
-  u = N_VWL2Norm(y, udata->umask);
+  realtype N = (realtype) udata->grid->npts();
+  realtype u = N_VWL2Norm(y, udata->umask);
   u = sqrt(u*u/N);
-  v = N_VWL2Norm(y, udata->vmask);
+  realtype v = N_VWL2Norm(y, udata->vmask);
   v = sqrt(v*v/N);
-  w = N_VWL2Norm(y, udata->wmask);
+  realtype w = N_VWL2Norm(y, udata->wmask);
   w = sqrt(w*w/N);
   if (udata->myid == 0) {
     printf("     %10.6f   %10.6f   %10.6f   %10.6f\n", t, u, v, w);
@@ -736,32 +668,38 @@ int WriteOutput(realtype t, N_Vector y, UserData* udata, UserOptions* uopt)
   if (uopt->save)
   {
     /* output the times to disk */
-    if (udata->myid == 0 && udata->TFID)
+    if (udata->myid == 0 && udata->TFID) {
       fprintf(udata->TFID," %.16e\n", t);
+      std::fflush(udata->TFID);
+    }
+
+    /* create 4D view of host data */
+    realtype* ydata = NULL;
+    ydata = N_VGetArrayPointer(y);
+    if (check_retval((void *) ydata, "N_VGetArrayPointer", 0, udata->myid)) return -1;
+    const int nxl = udata->grid->nxl;
+    const int nyl = udata->grid->nyl;
+    const int nzl = udata->grid->nzl;
+    const int dof = udata->grid->dof;
+    RAJA::View<realtype, RAJA::Layout<4> > Yview(ydata, nxl, nyl, nzl, dof);
 
     /* output results to disk */
-    RAJA::View<realtype, RAJA::Layout<NDIMS+1> > Yview(ydata,
-                                                       udata->grid->nxl,
-                                                       udata->grid->nyl,
-                                                       udata->grid->nzl,
-                                                       udata->grid->dof);
-
-    auto range = RAJA::make_tuple(RAJA::RangeSegment(0, udata->grid->nxl),
-                                  RAJA::RangeSegment(0, udata->grid->nyl),
-                                  RAJA::RangeSegment(0, udata->grid->nzl));
-
-    RAJA::kernel<XYZ_KERNEL_SERIAL_POLICY>(range,
-      [=] (int i, int j, int k) {
-      fprintf(udata->UFID," %.16e", Yview(i,j,k,0));
-      fprintf(udata->VFID," %.16e", Yview(i,j,k,1));
-      fprintf(udata->WFID," %.16e", Yview(i,j,k,2));
-    });
+    for (int i = 0; i < nxl; i++)
+      for (int j = 0; j < nyl; j++)
+        for (int k = 0; k < nzl; k++) {
+          fprintf(udata->UFID," %.16e", Yview(i,j,k,0));
+          fprintf(udata->VFID," %.16e", Yview(i,j,k,1));
+          fprintf(udata->WFID," %.16e", Yview(i,j,k,2));
+        }
 
     fprintf(udata->UFID,"\n");
     fprintf(udata->VFID,"\n");
     fprintf(udata->WFID,"\n");
+    std::fflush(udata->UFID);
+    std::fflush(udata->VFID);
+    std::fflush(udata->WFID);
   }
-  
+
   return(0);
 }
 
@@ -799,4 +737,3 @@ void InputError(char *name)
 
   MPI_Barrier(MPI_COMM_WORLD);
 }
-

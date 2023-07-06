@@ -130,18 +130,26 @@
  */
 #cmakedefine01 SUNDIALS_MPI_ENABLED
 
- /* SUPERLUMT threading type */
-#cmakedefine SUNDIALS_SUPERLUMT_THREAD_TYPE "@SUPERLUMT_THREAD_TYPE@"
+/* oneMKL interface options */
+#cmakedefine SUNDIALS_ONEMKL_USE_GETRF_LOOP
+#cmakedefine SUNDIALS_ONEMKL_USE_GETRS_LOOP
 
- /* Trilinos with MPI is available, then
-  *    #define SUNDIALS_TRILINOS_HAVE_MPI
-  */
+/* SUPERLUMT threading type */
+#define SUNDIALS_SUPERLUMT_THREAD_TYPE "@SUPERLUMT_THREAD_TYPE@"
+
+/* Trilinos with MPI is available, then
+ *    #define SUNDIALS_TRILINOS_HAVE_MPI
+ */
 #cmakedefine SUNDIALS_TRILINOS_HAVE_MPI
 
 /* RAJA backends */
 #cmakedefine SUNDIALS_RAJA_BACKENDS_CUDA
 #cmakedefine SUNDIALS_RAJA_BACKENDS_HIP
 #cmakedefine SUNDIALS_RAJA_BACKENDS_SYCL
+
+/* SYCL options */
+#cmakedefine SUNDIALS_SYCL_2020_UNSUPPORTED
+
 
 /* ------------------------------------------------------------------
  * SUNDIALS modules enabled
