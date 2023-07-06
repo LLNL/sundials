@@ -14,6 +14,12 @@ A new time-stepping module, `SPRKStep`, was added to ARKODE. This time-stepper
 provides explicit symplectic partitioned Runge-Kutta methods up to order 10 
 for separable Hamiltonian systems. 
 
+Updated CVODE, CVODES and ARKODE default behavior when returning the solution when
+the internal time has reached a user-specified stop time.  Previously, the output
+solution was interpolated to the value of `tstop`; the default is now to copy the
+internal solution vector.  Users who wish to revert to interpolation may call a new
+routine `CVodeSetInterpolateStopTime`, `ARKStepSetInterpolateStopTime`,
+`ERKStepSetInterpolateStopTime`, or `MRIStepSetInterpolateStopTime`.
 
 ## Changes to SUNDIALS in release 6.5.1
 

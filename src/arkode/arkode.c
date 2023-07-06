@@ -963,7 +963,11 @@ int arkEvolve(ARKodeMem ark_mem, realtype tout, N_Vector yout,
       troundoff = FUZZ_FACTOR*ark_mem->uround *
         (SUNRabs(ark_mem->tcur) + SUNRabs(ark_mem->h));
       if ( SUNRabs(ark_mem->tcur - ark_mem->tstop) <= troundoff) {
-        (void) arkGetDky(ark_mem, ark_mem->tstop, 0, yout);
+        if (ark_mem->tstopinterp) {
+          (void) arkGetDky(ark_mem, ark_mem->tstop, 0, yout);
+        } else {
+          N_VScale(ONE, ark_mem->yn, yout);
+        }
         ark_mem->tretlast = *tret = ark_mem->tstop;
         ark_mem->tstopset = SUNFALSE;
         istate = ARK_TSTOP_RETURN;
@@ -1357,6 +1361,7 @@ void arkPrintMem(ARKodeMem ark_mem, FILE *outfile)
   fprintf(outfile, "liw = %li\n", (long int) ark_mem->liw);
   fprintf(outfile, "user_efun = %i\n", ark_mem->user_efun);
   fprintf(outfile, "tstopset = %i\n", ark_mem->tstopset);
+  fprintf(outfile, "tstopinterp = %i\n", ark_mem->tstopinterp);
   fprintf(outfile, "tstop = %" RSYM"\n", ark_mem->tstop);
   fprintf(outfile, "report = %i\n", ark_mem->report);
   fprintf(outfile, "VabstolMallocDone = %i\n", ark_mem->VabstolMallocDone);

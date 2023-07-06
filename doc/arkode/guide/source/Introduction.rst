@@ -146,6 +146,13 @@ A new time-stepping module, :ref:`SPRKStep <ARKODE.Mathematics.SPRKStep>`, was
 added to ARKODE. This time-stepper provides explicit symplectic partitioned
 Runge-Kutta methods up to order 10 for separable Hamiltonian systems. 
 
+Updated the default ARKODE behavior when returning the solution when
+the internal time has reached a user-specified stop time.  Previously, the output
+solution was interpolated to the value of ``tstop``; the default is now to copy the
+internal solution vector.  Users who wish to revert to interpolation may call a new
+routine :c:func:`ARKStepSetInterpolateStopTime`,
+:c:func:`ERKStepSetInterpolateStopTime`, or :c:func:`MRIStepSetInterpolateStopTime`.
+
 Changes in v5.5.1
 -----------------
 

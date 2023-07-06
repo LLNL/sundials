@@ -829,45 +829,47 @@ Main solver optional input functions
 
 .. table:: Optional inputs for CVODES
 
-   +-------------------------------+---------------------------------------------+----------------+
-   |      **Optional input**       |              **Function name**              |  **Default**   |
-   +===============================+=============================================+================+
-   | Pointer to an error file      | :c:func:`CVodeSetErrFile`                   | ``stderr``     |
-   +-------------------------------+---------------------------------------------+----------------+
-   | Error handler function        | :c:func:`CVodeSetErrHandlerFn`              | internal fn.   |
-   +-------------------------------+---------------------------------------------+----------------+
-   | User data                     | :c:func:`CVodeSetUserData`                  | ``NULL``       |
-   +-------------------------------+---------------------------------------------+----------------+
-   | Maximum order for BDF method  | :c:func:`CVodeSetMaxOrd`                    | 5              |
-   +-------------------------------+---------------------------------------------+----------------+
-   | Maximum order for Adams       | :c:func:`CVodeSetMaxOrd`                    | 12             |
-   | method                        |                                             |                |
-   +-------------------------------+---------------------------------------------+----------------+
-   | Maximum no. of internal steps | :c:func:`CVodeSetMaxNumSteps`               | 500            |
-   | before :math:`t_{out}`        |                                             |                |
-   +-------------------------------+---------------------------------------------+----------------+
-   | Maximum no. of warnings for   | :c:func:`CVodeSetMaxHnilWarns`              | 10             |
-   | :math:`t_n+h=t_n`             |                                             |                |
-   +-------------------------------+---------------------------------------------+----------------+
-   | Flag to activate stability    | :c:func:`CVodeSetStabLimDet`                | ``SUNFALSE``   |
-   | limit detection               |                                             |                |
-   +-------------------------------+---------------------------------------------+----------------+
-   | Initial step size             | :c:func:`CVodeSetInitStep`                  | estimated      |
-   +-------------------------------+---------------------------------------------+----------------+
-   | Minimum absolute step size    | :c:func:`CVodeSetMinStep`                   | 0.0            |
-   +-------------------------------+---------------------------------------------+----------------+
-   | Maximum absolute step size    | :c:func:`CVodeSetMaxStep`                   | :math:`\infty` |
-   +-------------------------------+---------------------------------------------+----------------+
-   | Value of :math:`t_{stop}`     | :c:func:`CVodeSetStopTime`                  | undefined      |
-   +-------------------------------+---------------------------------------------+----------------+
-   | Disable the stop time         | :c:func:`CVodeClearStopTime`                | N/A            |
-   +-------------------------------+---------------------------------------------+----------------+
-   | Maximum no. of error test     | :c:func:`CVodeSetMaxErrTestFails`           | 7              |
-   | failures                      |                                             |                |
-   +-------------------------------+---------------------------------------------+----------------+
-   | Inequality constraints on     | :c:func:`CVodeSetConstraints`               |                |
-   | solution                      |                                             |                |
-   +-------------------------------+---------------------------------------------+----------------+
+   +---------------------------------+---------------------------------------------+----------------+
+   |        **Optional input**       |              **Function name**              |  **Default**   |
+   +=================================+=============================================+================+
+   | Pointer to an error file        | :c:func:`CVodeSetErrFile`                   | ``stderr``     |
+   +---------------------------------+---------------------------------------------+----------------+
+   | Error handler function          | :c:func:`CVodeSetErrHandlerFn`              | internal fn.   |
+   +---------------------------------+---------------------------------------------+----------------+
+   | User data                       | :c:func:`CVodeSetUserData`                  | ``NULL``       |
+   +---------------------------------+---------------------------------------------+----------------+
+   | Maximum order for BDF method    | :c:func:`CVodeSetMaxOrd`                    | 5              |
+   +---------------------------------+---------------------------------------------+----------------+
+   | Maximum order for Adams         | :c:func:`CVodeSetMaxOrd`                    | 12             |
+   | method                          |                                             |                |
+   +---------------------------------+---------------------------------------------+----------------+
+   | Maximum no. of internal steps   | :c:func:`CVodeSetMaxNumSteps`               | 500            |
+   | before :math:`t_{out}`          |                                             |                |
+   +---------------------------------+---------------------------------------------+----------------+
+   | Maximum no. of warnings for     | :c:func:`CVodeSetMaxHnilWarns`              | 10             |
+   | :math:`t_n+h=t_n`               |                                             |                |
+   +---------------------------------+---------------------------------------------+----------------+
+   | Flag to activate stability      | :c:func:`CVodeSetStabLimDet`                | ``SUNFALSE``   |
+   | limit detection                 |                                             |                |
+   +---------------------------------+---------------------------------------------+----------------+
+   | Initial step size               | :c:func:`CVodeSetInitStep`                  | estimated      |
+   +---------------------------------+---------------------------------------------+----------------+
+   | Minimum absolute step size      | :c:func:`CVodeSetMinStep`                   | 0.0            |
+   +---------------------------------+---------------------------------------------+----------------+
+   | Maximum absolute step size      | :c:func:`CVodeSetMaxStep`                   | :math:`\infty` |
+   +---------------------------------+---------------------------------------------+----------------+
+   | Value of :math:`t_{stop}`       | :c:func:`CVodeSetStopTime`                  | undefined      |
+   +---------------------------------+---------------------------------------------+----------------+
+   | Interpolate at :math:`t_{stop}` | :c:func:`CVodeSetInterpolateStopTime`       | ``SUNFALSE``   |
+   +---------------------------------+---------------------------------------------+----------------+
+   | Disable the stop time           | :c:func:`CVodeClearStopTime`                | N/A            |
+   +---------------------------------+---------------------------------------------+----------------+
+   | Maximum no. of error test       | :c:func:`CVodeSetMaxErrTestFails`           | 7              |
+   | failures                        |                                             |                |
+   +---------------------------------+---------------------------------------------+----------------+
+   | Inequality constraints on       | :c:func:`CVodeSetConstraints`               |                |
+   | solution                        |                                             |                |
+   +---------------------------------+---------------------------------------------+----------------+
 
 
 .. c:function:: int CVodeSetErrFile(void* cvode_mem, FILE * errfp)
@@ -1095,6 +1097,22 @@ Main solver optional input functions
 
       A stop time not reached before a call to :c:func:`CVodeReInit` will
       remain active but can be disabled by calling :c:func:`CVodeClearStopTime`.
+
+.. c:function:: int CVodeSetInterpolateStopTime(void* cvode_mem, booleantype interp)
+
+   The function ``CVodeSetInterpolateStopTime`` specifies that the output solution should be
+   interpolated when the current :math:`t` equals the specified ``tstop`` (instead of
+   merely copying the internal solution :math:`y_n`).
+
+   **Arguments:**
+     * ``cvode_mem`` -- pointer to the CVODES memory block.
+     * ``interp`` -- flag indicating to use interpolation (1) or copy (0).
+
+   **Return value:**
+     * ``CV_SUCCESS`` -- The optional value has been successfully set.
+     * ``CV_MEM_NULL`` -- The CVODES memory block was not initialized through a previous call to :c:func:`CVodeCreate`.
+
+   .. versionadded:: 6.6.0
 
 .. c:function:: int CVodeClearStopTime(void* cvode_mem)
 
