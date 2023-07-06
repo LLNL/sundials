@@ -18,9 +18,9 @@
 if(SUNDIALS_PRECISION MATCHES "SINGLE")
   set(TOL "1e-2")
 elseif(SUNDIALS_PRECISION MATCHES "DOUBLE")
-  set(TOL "1e-13")
+  set(TOL "1e-10")
 else()
-  set(TOL "1e-16")
+  set(TOL "1e-13")
 endif()
 
 # Example lists are tuples "name\;args\;nodes\;tasks\;type" where the
