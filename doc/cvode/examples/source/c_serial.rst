@@ -39,12 +39,23 @@ the independent variable :math:`t`:
 
    \frac{dy}{dt} = \lambda y + \frac{1}{1+t^2} - \lambda \arctan(t),
 
-where :math:`0\le t\le 10` and :math:`y(0)=0`.  The stiffness of the
+where :math:`t \in [0, ~4 \cdot 10^{10}]` and :math:`y(0)=0`.  The stiffness of the
 problem may be tuned via the parameter :math:`\lambda`.  The value of
 :math:`\lambda` must be negative to result in a well-posed problem;
 for values with magnitude larger than 100 or so the problem becomes
 quite stiff.  Here, we choose :math:`\lambda=-100`.  After each unit
 time interval, the solution is output to the screen.
+
+Following the initial comment block, this program has a number
+of ``#include`` lines, which allow access to useful items in CVODE
+header files.  
+
+Attempt to "includeOutput":
+
+.. literalinclude:: ../../../../examples/cvode/serial/cvRoberts_dns.out
+   :text:
+
+   
 
 
 Numerical method
