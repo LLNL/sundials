@@ -579,6 +579,7 @@ echo "   --- Add examples utilities to $tarfile"
 
 $tar $tarfile $distrobase/examples/utilities/custom_memory_helper_gpu.h
 $tar $tarfile $distrobase/examples/utilities/custom_memory_helper_sycl.h
+$tar $tarfile $distrobase/examples/utilities/example_utilities.h
 $tar $tarfile $distrobase/examples/utilities/example_utilities.hpp
 $tar $tarfile $distrobase/examples/utilities/test_utilities.f90
 $tar $tarfile $distrobase/examples/utilities/plot_data_2d.py
