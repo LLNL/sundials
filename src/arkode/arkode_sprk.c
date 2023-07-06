@@ -510,7 +510,7 @@ ARKodeSPRKStorage ARKodeSPRKStorage_Copy(ARKodeSPRKStorage that_sprk_storage)
   return sprk_storage;
 }
 
-void ARKodeSPRKStorage_space(ARKodeSPRKStorage sprk_storage, sunindextype* liw,
+void ARKodeSPRKStorage_Space(ARKodeSPRKStorage sprk_storage, sunindextype* liw,
                              sunindextype* lrw)
 {
   *liw = 2;

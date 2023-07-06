@@ -25,8 +25,8 @@ extern "C" {
 
 typedef enum
 {
-  ARKODE_SPRK_NONE            = -1, /* ensure enum is signed int */
-  ARKODE_MIN_SPRK_NUM         = 0,
+  ARKODE_SPRK_NONE      = -1, /* ensure enum is signed int */
+  ARKODE_MIN_SPRK_NUM   = 0,
   ARKODE_SPRK_EULER_1_1 = ARKODE_MIN_SPRK_NUM,
   ARKODE_SPRK_LEAPFROG_2_2,
   ARKODE_SPRK_PSEUDO_LEAPFROG_2_2,
@@ -57,18 +57,28 @@ struct ARKodeSPRKStorage_s
 typedef _SUNDIALS_STRUCT_ ARKodeSPRKStorage_s* ARKodeSPRKStorage;
 
 /* Utility routines to allocate/free/output SPRK structures */
-SUNDIALS_EXPORT ARKodeSPRKStorage ARKodeSPRKStorage_Alloc(int stages);
-SUNDIALS_EXPORT ARKodeSPRKStorage ARKodeSPRKStorage_Load(ARKODE_SPRKMethodID id);
-SUNDIALS_EXPORT ARKodeSPRKStorage ARKodeSPRKStorage_LoadByName(const char* method);
-SUNDIALS_EXPORT ARKodeSPRKStorage
-ARKodeSPRKStorage_Copy(ARKodeSPRKStorage that_sprk_storage);
-SUNDIALS_EXPORT void ARKodeSPRKStorage_Space(ARKodeSPRKStorage sprk_storage,
-                                             sunindextype* liw,
-                                             sunindextype* lrw);
-SUNDIALS_EXPORT void ARKodeSPRKStorage_Free(ARKodeSPRKStorage sprk_storage);
-SUNDIALS_EXPORT int ARKodeSPRKStorage_ToButcher(ARKodeSPRKStorage sprk_storage,
-                                                ARKodeButcherTable* erk_ptr,
-                                                ARKodeButcherTable* dirk_ptr);
+SUNDIALS_EXPORT
+ARKodeSPRKStorage ARKodeSPRKStorage_Alloc(int stages);
+
+SUNDIALS_EXPORT
+ARKodeSPRKStorage ARKodeSPRKStorage_Load(ARKODE_SPRKMethodID id);
+
+SUNDIALS_EXPORT
+ARKodeSPRKStorage ARKodeSPRKStorage_LoadByName(const char* method);
+
+SUNDIALS_EXPORT
+ARKodeSPRKStorage ARKodeSPRKStorage_Copy(ARKodeSPRKStorage that_sprk_storage);
+
+SUNDIALS_EXPORT
+void ARKodeSPRKStorage_Space(ARKodeSPRKStorage sprk_storage, sunindextype* liw,
+                             sunindextype* lrw);
+SUNDIALS_EXPORT
+void ARKodeSPRKStorage_Free(ARKodeSPRKStorage sprk_storage);
+
+SUNDIALS_EXPORT
+int ARKodeSPRKStorage_ToButcher(ARKodeSPRKStorage sprk_storage,
+                                ARKodeButcherTable* erk_ptr,
+                                ARKodeButcherTable* dirk_ptr);
 
 /* Different methods */
 

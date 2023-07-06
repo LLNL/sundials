@@ -49,9 +49,11 @@ module farkode_arkstep_mod
  integer(C_INT), parameter, public :: ARKSTEP_DEFAULT_DIRK_3 = ARKODE_ARK324L2SA_DIRK_4_2_3
  integer(C_INT), parameter, public :: ARKSTEP_DEFAULT_DIRK_4 = ARKODE_SDIRK_5_3_4
  integer(C_INT), parameter, public :: ARKSTEP_DEFAULT_DIRK_5 = ARKODE_ARK548L2SA_DIRK_8_4_5
+ integer(C_INT), parameter, public :: ARKSTEP_DEFAULT_ARK_ETABLE_2 = ARKODE_ARK2_ERK_3_1_2
  integer(C_INT), parameter, public :: ARKSTEP_DEFAULT_ARK_ETABLE_3 = ARKODE_ARK324L2SA_ERK_4_2_3
  integer(C_INT), parameter, public :: ARKSTEP_DEFAULT_ARK_ETABLE_4 = ARKODE_ARK436L2SA_ERK_6_3_4
  integer(C_INT), parameter, public :: ARKSTEP_DEFAULT_ARK_ETABLE_5 = ARKODE_ARK548L2SA_ERK_8_4_5
+ integer(C_INT), parameter, public :: ARKSTEP_DEFAULT_ARK_ITABLE_2 = ARKODE_ARK2_DIRK_3_1_2
  integer(C_INT), parameter, public :: ARKSTEP_DEFAULT_ARK_ITABLE_3 = ARKODE_ARK324L2SA_DIRK_4_2_3
  integer(C_INT), parameter, public :: ARKSTEP_DEFAULT_ARK_ITABLE_4 = ARKODE_ARK436L2SA_DIRK_6_3_4
  integer(C_INT), parameter, public :: ARKSTEP_DEFAULT_ARK_ITABLE_5 = ARKODE_ARK548L2SA_DIRK_8_4_5
@@ -117,6 +119,7 @@ module farkode_arkstep_mod
  public :: FARKStepSetInitStep
  public :: FARKStepSetMinStep
  public :: FARKStepSetMaxStep
+ public :: FARKStepSetInterpolateStopTime
  public :: FARKStepSetStopTime
  public :: FARKStepClearStopTime
  public :: FARKStepSetFixedStep
@@ -755,6 +758,15 @@ result(fresult)
 use, intrinsic :: ISO_C_BINDING
 type(C_PTR), value :: farg1
 real(C_DOUBLE), intent(in) :: farg2
+integer(C_INT) :: fresult
+end function
+
+function swigc_FARKStepSetInterpolateStopTime(farg1, farg2) &
+bind(C, name="_wrap_FARKStepSetInterpolateStopTime") &
+result(fresult)
+use, intrinsic :: ISO_C_BINDING
+type(C_PTR), value :: farg1
+integer(C_INT), intent(in) :: farg2
 integer(C_INT) :: fresult
 end function
 
@@ -2644,6 +2656,22 @@ real(C_DOUBLE) :: farg2
 farg1 = arkode_mem
 farg2 = hmax
 fresult = swigc_FARKStepSetMaxStep(farg1, farg2)
+swig_result = fresult
+end function
+
+function FARKStepSetInterpolateStopTime(arkode_mem, interp) &
+result(swig_result)
+use, intrinsic :: ISO_C_BINDING
+integer(C_INT) :: swig_result
+type(C_PTR) :: arkode_mem
+integer(C_INT), intent(in) :: interp
+integer(C_INT) :: fresult 
+type(C_PTR) :: farg1 
+integer(C_INT) :: farg2 
+
+farg1 = arkode_mem
+farg2 = interp
+fresult = swigc_FARKStepSetInterpolateStopTime(farg1, farg2)
 swig_result = fresult
 end function
 
