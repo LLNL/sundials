@@ -285,7 +285,9 @@ int main(int argc, char* argv[])
   // 27 steps - reach 5th order
   for (int i = 1; i <= 12; i++)
   {
-    std::cout << "\n========== Start Step ==========\n";
+    std::cout << std::flush;
+    std::cerr << std::flush;
+    std::cout << "\n========== Start Step " << i << " ==========\n";
 
     flag = CVode(cvode_mem, tf, y, &(tret), CV_ONE_STEP);
     if (check_flag(flag, "CVode")) return 1;
@@ -299,9 +301,7 @@ int main(int argc, char* argv[])
     PrintNordsieck(tret, ytmp, cv_mem->cv_zn, cv_mem->cv_hscale, 6, udata);
     if (check_flag(flag, "PrintNordsieck")) return 1;
 
-    std::cout << "\n========== End Step ==========\n";
-
-    std::cout << "\n========== Start Resize ==========\n";
+    std::cout << "\n========== End Step " << i << " ==========\n";
 
     if (resize == 1)
     {
@@ -339,6 +339,7 @@ int main(int argc, char* argv[])
     }
     else if (resize == 2)
     {
+      std::cout << "\n========== Start Resize " << i << " ==========\n";
       // Test 2: Copy and expand the state
 
       // Update saved history
@@ -396,8 +397,9 @@ int main(int argc, char* argv[])
 
       flag = CVodeSetMaxNonlinIters(cvode_mem, 10);
       if (check_flag(flag, "CVodeSetMaxNonlinIters")) return 1;
+      std::cout << "\n========== End Resize " << i << " ==========\n";
     }
-    std::cout << "\n========== End Resize ==========\n";
+
   }
   std::cout << std::endl;
 
