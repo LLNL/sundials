@@ -65,12 +65,10 @@ int resize_vec(N_Vector v_in, N_Vector v_out, void* user_data)
 }
 
 // Print CVODE Nordsieck History Array
-int PrintNordsieck(int step, sunrealtype* thist, N_Vector tmp, N_Vector* zn,
+int PrintNordsieck(sunrealtype tret, N_Vector tmp, N_Vector* zn,
                    sunrealtype step_size, int order, PRData& udata)
 {
-  const sunrealtype  tret = thist[step];
-  const sunindextype N    = N_VGetLength(tmp);
-
+  const sunindextype N = N_VGetLength(tmp);
   sunrealtype* tmpdata = N_VGetArrayPointer(tmp);
   sunrealtype* vdata   = N_VGetArrayPointer(zn[0]);
   sunrealtype  scale   = ONE;
@@ -182,6 +180,24 @@ int main(int argc, char* argv[])
     resize = atoi(argv[1]);
   }
 
+  if (resize == 0)
+  {
+    std::cout << "CVODE -- NO RESIZE" << std::endl;
+  }
+  else if (resize == 1)
+  {
+    std::cout << "CVODE -- COPY RESIZE" << std::endl;
+  }
+  else if (resize == 2)
+  {
+    std::cout << "CVODE -- RESIZE" << std::endl;
+  }
+  else
+  {
+    std::cerr << "INVALID INPUT" << std::endl;
+    return 1;
+  }
+
   // Create problem data structure
   PRData udata;
 
@@ -216,9 +232,6 @@ int main(int argc, char* argv[])
   flag = CVodeSetMaxNonlinIters(cvode_mem, 10);
   if (check_flag(flag, "CVodeSetMaxNonlinIters")) return 1;
 
-  // flag = CVodeSetNonlinConvCoef(cvode_mem, 0.0001);
-  // if (check_flag(flag, "CVodeSetNonlinConvCoef")) return 1;
-
   // Attach user data
   flag = CVodeSetUserData(cvode_mem, &udata);
   if (check_flag(flag, "CVodeSetUserData")) return 1;
@@ -231,8 +244,7 @@ int main(int argc, char* argv[])
   sunrealtype tf = SUN_RCONST(10.0);
 
   // History of solution times
-  sunrealtype tret[31];
-  tret[0] = ZERO;
+  sunrealtype tret;
 
   // Set output formatting
   std::cout << std::scientific;
@@ -250,28 +262,31 @@ int main(int argc, char* argv[])
 
   sunrealtype thist[6] = {ZERO, ZERO, ZERO, ZERO, ZERO, ZERO};
 
+  int hist_size = 1;
+
+  // Initialize saved history
+  thist[0] = ZERO;
+  N_VScale(ONE, y, yhist[0]);
+
   // Advance in time
   // 11 steps - reach 2nd order
   // 14 steps - reach 3rd order
   // 22 steps - reach 4th order
   // 27 steps - reach 5th order
-  for (int i = 1; i <= 30; i++)
+  for (int i = 1; i <= 2; i++)
   {
-    flag = CVode(cvode_mem, tf, y, &(tret[i]), CV_ONE_STEP);
+    flag = CVode(cvode_mem, tf, y, &(tret), CV_ONE_STEP);
     if (check_flag(flag, "CVode")) return 1;
 
     std::cout << " Step Number: " << std::setw(3) << i
-              << " | Time: " << std::setw(21) << tret[i]
+              << " | Time: " << std::setw(21) << tret
               << " | Step Size: " << std::setw(21) << cv_mem->cv_h
               << " | Order: " << cv_mem->cv_q << std::endl;
 
     std::cout << "\n==========\nEnd Step - Start Resize Step\n==========\n";
 
     // Print Nordsieck array (length q_max + 1)
-    // PrintNordsieck(i, tret, ytmp, cv_mem->cv_zn, cv_mem->cv_h,
-    //                cv_mem->cv_q, udata);
-    PrintNordsieck(i, tret, ytmp, cv_mem->cv_zn, cv_mem->cv_h,
-                   6, udata);
+    PrintNordsieck(tret, ytmp, cv_mem->cv_zn, cv_mem->cv_hscale, 6, udata);
     if (check_flag(flag, "PrintNordsieck")) return 1;
 
     if (resize == 1)
@@ -282,6 +297,7 @@ int main(int argc, char* argv[])
       y = N_VNew_Serial(i + 1, sunctx);
       ytmp = N_VClone(y);
       N_Vector* znew = N_VCloneVectorArray(6, y);
+
       for (int j = 0; j <= 5; j++)
       {
         sunrealtype* zdata    = N_VGetArrayPointer(cv_mem->cv_zn[j]);
@@ -291,7 +307,8 @@ int main(int argc, char* argv[])
           znewdata[k] = zdata[0];
         }
       }
-      flag = CVodeResizeHistory(cvode_mem, &tret[i], znew, 5, resize_vec);
+
+      flag = CVodeResizeHistory(cvode_mem, thist, znew, 6, resize_vec);
       if (check_flag(flag, "CVodeResizeHistory")) return 1;
       N_VDestroyVectorArray(znew, 6);
 
@@ -310,20 +327,35 @@ int main(int argc, char* argv[])
     {
       // Test 2: Copy and expand the state
 
-      // Shuffle times and vectors over
-      for (int j = 5; j > 0; j--)
+      // History shuffle over one
+      // >>>>> Should actually be able to use in any order (interpolate z0 and
+      // >>>>> use stored tn)
+      if (i < 6)
       {
-        thist[j] = thist[j - 1];
-        N_VScale(ONE, yhist[j - 1], yhist[j]);
+        hist_size++;
+        thist[i % 6] = tret;
+        N_VScale(ONE, y, yhist[i % 6]);
+      }
+      else
+      {
+        hist_size = 6;
+        for (int j = 0; j < 5; j++)
+        {
+          thist[j] = thist[j + 1];
+        }
+        thist[5] = tret;
 
+        N_Vector tmp = yhist[0];
+        for (int j = 0; j < 5; j++)
+        {
+          yhist[j] = yhist[j + 1];
+        }
+        yhist[5] = tmp;
+        N_VScale(ONE, y, yhist[5]);
       }
 
-      // Copy in newest time and vector
-      thist[0] = tret[i];
-      N_VScale(ONE, y, yhist[0]);
-
       // Resize all vectors
-      for (int j = 0; j <= 5; j++)
+      for (int j = 0; j < 6; j++)
       {
         sunrealtype* old_data = N_VGetArrayPointer(yhist[j]);
 
@@ -342,7 +374,7 @@ int main(int argc, char* argv[])
       y = N_VNew_Serial(i + 1, sunctx);
       ytmp = N_VClone(y);
 
-      flag = CVodeResizeHistory(cvode_mem, thist, yhist, 5, resize_vec);
+      flag = CVodeResizeHistory(cvode_mem, thist, yhist, hist_size, resize_vec);
       if (check_flag(flag, "CVodeResizeHistory")) return 1;
 
       // "Resize" the nonlinear solver
@@ -355,7 +387,7 @@ int main(int argc, char* argv[])
 
       flag = CVodeSetMaxNonlinIters(cvode_mem, 10);
       if (check_flag(flag, "CVodeSetMaxNonlinIters")) return 1;
-    };
+    }
   }
   std::cout << std::endl;
 
