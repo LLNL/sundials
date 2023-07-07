@@ -790,7 +790,7 @@ void N_VLinearSum_ParHyp(realtype a, N_Vector x, realtype b, N_Vector y, N_Vecto
 
   if (GetKernelParameters(x, false, grid, block, shMemSize, stream))
   {
-    SUNDIALS_DEBUG_PRINT("ERROR in N_VLinearSum_ParHyp (backend "NV_GPU_LANG_STRING_PH"): GetKernelParameters returned nonzero\n");
+    SUNDIALS_DEBUG_PRINT("ERROR in N_VLinearSum_ParHyp (backend " NV_GPU_LANG_STRING_PH "): GetKernelParameters returned nonzero\n");
   }
 
   linearSumKernel<<<grid, block, shMemSize, stream>>>
@@ -838,7 +838,7 @@ void N_VProd_ParHyp(N_Vector x, N_Vector y, N_Vector z)
 
   if (GetKernelParameters(x, false, grid, block, shMemSize, stream))
   {
-    SUNDIALS_DEBUG_PRINT("ERROR in N_VProd_ParHyp (backend "NV_GPU_LANG_STRING_PH"): GetKernelParameters returned nonzero\n");
+    SUNDIALS_DEBUG_PRINT("ERROR in N_VProd_ParHyp (backend " NV_GPU_LANG_STRING_PH "): GetKernelParameters returned nonzero\n");
   }
 
   prodKernel<<<grid, block, shMemSize, stream>>>
@@ -877,7 +877,7 @@ void N_VDiv_ParHyp(N_Vector x, N_Vector y, N_Vector z)
 
   if (GetKernelParameters(x, false, grid, block, shMemSize, stream))
   {
-    SUNDIALS_DEBUG_PRINT("ERROR in N_VDiv_ParHyp (backend "NV_GPU_LANG_STRING_PH"): GetKernelParameters returned nonzero\n");
+    SUNDIALS_DEBUG_PRINT("ERROR in N_VDiv_ParHyp (backend " NV_GPU_LANG_STRING_PH "): GetKernelParameters returned nonzero\n");
   }
 
   divKernel<<<grid, block, shMemSize, stream>>>
@@ -924,7 +924,7 @@ void N_VAbs_ParHyp(N_Vector x, N_Vector z)
 
   if (GetKernelParameters(x, false, grid, block, shMemSize, stream))
   {
-    SUNDIALS_DEBUG_PRINT("ERROR in N_VAbs_ParHyp (backend "NV_GPU_LANG_STRING_PH"): GetKernelParameters returned nonzero\n");
+    SUNDIALS_DEBUG_PRINT("ERROR in N_VAbs_ParHyp (backend " NV_GPU_LANG_STRING_PH "): GetKernelParameters returned nonzero\n");
   }
 
   absKernel<<<grid, block, shMemSize, stream>>>
@@ -958,7 +958,7 @@ void N_VInv_ParHyp(N_Vector x, N_Vector z)
 
   if (GetKernelParameters(x, false, grid, block, shMemSize, stream))
   {
-    SUNDIALS_DEBUG_PRINT("ERROR in N_VInv_ParHyp (backend "NV_GPU_LANG_STRING_PH"): GetKernelParameters returned nonzero\n");
+    SUNDIALS_DEBUG_PRINT("ERROR in N_VInv_ParHyp (backend " NV_GPU_LANG_STRING_PH "): GetKernelParameters returned nonzero\n");
   }
 
   invKernel<<<grid, block, shMemSize, stream>>>
@@ -992,7 +992,7 @@ void N_VAddConst_ParHyp(N_Vector x, realtype b, N_Vector z)
 
   if (GetKernelParameters(x, false, grid, block, shMemSize, stream))
   {
-    SUNDIALS_DEBUG_PRINT("ERROR in N_VAddConst_ParHyp (backend "NV_GPU_LANG_STRING_PH"): GetKernelParameters returned nonzero\n");
+    SUNDIALS_DEBUG_PRINT("ERROR in N_VAddConst_ParHyp (backend " NV_GPU_LANG_STRING_PH "): GetKernelParameters returned nonzero\n");
   }
 
   addConstKernel<<<grid, block, shMemSize, stream>>>
@@ -1028,13 +1028,13 @@ realtype N_VDotProdLocal_ParHyp(N_Vector x, N_Vector y)
 
   if (GetKernelParameters(x, true, grid, block, shMemSize, stream, atomic))
   {
-    SUNDIALS_DEBUG_PRINT("ERROR in N_VDotProdLocal_ParHyp (backend "NV_GPU_LANG_STRING_PH"): GetKernelParameters returned nonzero\n");
+    SUNDIALS_DEBUG_PRINT("ERROR in N_VDotProdLocal_ParHyp (backend " NV_GPU_LANG_STRING_PH "): GetKernelParameters returned nonzero\n");
   }
   
   const size_t buffer_size = atomic ? 1 : grid;
   if (InitializeReductionBuffer(x, sum, buffer_size)) // Initialize reduction buffer within x->content->priv
   {
-    SUNDIALS_DEBUG_PRINT("ERROR in N_VDotProdLocal_ParHyp (backend "NV_GPU_LANG_STRING_PH"): InitializeReductionBuffer returned nonzero\n");
+    SUNDIALS_DEBUG_PRINT("ERROR in N_VDotProdLocal_ParHyp (backend " NV_GPU_LANG_STRING_PH "): InitializeReductionBuffer returned nonzero\n");
   }
 
   if (atomic)
@@ -2058,7 +2058,7 @@ static void VSum_ParHyp(N_Vector x, N_Vector y, N_Vector z)
 
   if (GetKernelParameters(x, false, grid, block, shMemSize, stream))
   {
-    SUNDIALS_DEBUG_PRINT("ERROR in VSum_ParHyp (backend "NV_GPU_LANG_STRING_PH"): GetKernelParameters returned nonzero\n");
+    SUNDIALS_DEBUG_PRINT("ERROR in VSum_ParHyp (backend " NV_GPU_LANG_STRING_PH "): GetKernelParameters returned nonzero\n");
   }
 
   linearSumKernel<<<grid, block, shMemSize, stream>>>
@@ -2096,7 +2096,7 @@ static void VDiff_ParHyp(N_Vector x, N_Vector y, N_Vector z)
 
   if (GetKernelParameters(x, false, grid, block, shMemSize, stream))
   {
-    SUNDIALS_DEBUG_PRINT("ERROR in VDiff_ParHyp (backend "NV_GPU_LANG_STRING_PH"): GetKernelParameters returned nonzero\n");
+    SUNDIALS_DEBUG_PRINT("ERROR in VDiff_ParHyp (backend " NV_GPU_LANG_STRING_PH "): GetKernelParameters returned nonzero\n");
   }
 
   linearSumKernel<<<grid, block, shMemSize, stream>>>
@@ -2134,7 +2134,7 @@ static void VScaleSum_ParHyp(realtype c, N_Vector x, N_Vector y, N_Vector z)
 
   if (GetKernelParameters(x, false, grid, block, shMemSize, stream))
   {
-    SUNDIALS_DEBUG_PRINT("ERROR in VScaleSum_ParHyp (backend "NV_GPU_LANG_STRING_PH"): GetKernelParameters returned nonzero\n");
+    SUNDIALS_DEBUG_PRINT("ERROR in VScaleSum_ParHyp (backend " NV_GPU_LANG_STRING_PH "): GetKernelParameters returned nonzero\n");
   }
 
   linearSumKernel<<<grid, block, shMemSize, stream>>>
@@ -2172,7 +2172,7 @@ static void VScaleDiff_ParHyp(realtype c, N_Vector x, N_Vector y, N_Vector z)
 
   if (GetKernelParameters(x, false, grid, block, shMemSize, stream))
   {
-    SUNDIALS_DEBUG_PRINT("ERROR in VScaleDiff_ParHyp (backend "NV_GPU_LANG_STRING_PH"): GetKernelParameters returned nonzero\n");
+    SUNDIALS_DEBUG_PRINT("ERROR in VScaleDiff_ParHyp (backend " NV_GPU_LANG_STRING_PH "): GetKernelParameters returned nonzero\n");
   }
 
   linearSumKernel<<<grid, block, shMemSize, stream>>>
@@ -2210,7 +2210,7 @@ static void VLin1_ParHyp(realtype a, N_Vector x, N_Vector y, N_Vector z)
 
   if (GetKernelParameters(x, false, grid, block, shMemSize, stream))
   {
-    SUNDIALS_DEBUG_PRINT("ERROR in VLin1_ParHyp (backend "NV_GPU_LANG_STRING_PH"): GetKernelParameters returned nonzero\n");
+    SUNDIALS_DEBUG_PRINT("ERROR in VLin1_ParHyp (backend " NV_GPU_LANG_STRING_PH "): GetKernelParameters returned nonzero\n");
   }
 
   linearSumKernel<<<grid, block, shMemSize, stream>>>
@@ -2248,7 +2248,7 @@ static void VLin2_ParHyp(realtype a, N_Vector x, N_Vector y, N_Vector z)
 
   if (GetKernelParameters(x, false, grid, block, shMemSize, stream))
   {
-    SUNDIALS_DEBUG_PRINT("ERROR in VLin2_ParHyp (backend "NV_GPU_LANG_STRING_PH"): GetKernelParameters returned nonzero\n");
+    SUNDIALS_DEBUG_PRINT("ERROR in VLin2_ParHyp (backend " NV_GPU_LANG_STRING_PH "): GetKernelParameters returned nonzero\n");
   }
 
   linearSumKernel<<<grid, block, shMemSize, stream>>>
@@ -2686,7 +2686,7 @@ static int GetKernelParameters(N_Vector v, booleantype reduction, size_t& grid,
     if (block % sundials::NV_GPU_LANG_TOKEN_PH::WARP_SIZE)
     {
 #ifdef SUNDIALS_DEBUG
-      throw std::runtime_error("the block size must be a multiple must be of the "NV_GPU_LANG_STRING_PH" warp size");
+      throw std::runtime_error("the block size must be a multiple must be of the " NV_GPU_LANG_STRING_PH " warp size");
 #endif
       return(-1);
     }
