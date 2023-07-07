@@ -1152,7 +1152,7 @@ realtype N_VMaxNorm_ParHyp(N_Vector x)
 realtype N_VWSqrSumLocal_ParHyp(N_Vector x, N_Vector w)
 {
   sunindextype N;
-  realtype sum, prodi, *xd, *wd;
+  realtype sum, *xd, *wd;
 
   N  = NV_LOCLENGTH_PH(x);
   xd = NV_DATA_PH(x);
@@ -1161,6 +1161,7 @@ realtype N_VWSqrSumLocal_ParHyp(N_Vector x, N_Vector w)
   sum = ZERO;
 
 #if defined(SUNDIALS_HYPRE_BACKENDS_SERIAL)
+  realtype prodi;
   for (sunindextype i = 0; i < N; i++) {
     prodi = xd[i]*wd[i];
     sum += SUNSQR(prodi);
@@ -1183,10 +1184,10 @@ realtype N_VWSqrSumLocal_ParHyp(N_Vector x, N_Vector w)
 
   if (atomic)
   {
-    dotProdKernel<realtype, sunindextype, GridReducerAtomic><<<grid, block, shMemSize, stream>>>
+    wL2NormSquareKernel<realtype, sunindextype, GridReducerAtomic><<<grid, block, shMemSize, stream>>>
     (
       xd,
-      yd,
+      wd,
       NV_DBUFFERp_PH(x),
       N,
       nullptr
@@ -1194,10 +1195,10 @@ realtype N_VWSqrSumLocal_ParHyp(N_Vector x, N_Vector w)
   }
   else
   {
-    dotProdKernel<realtype, sunindextype, GridReducerLDS><<<grid, block, shMemSize, stream>>>
+    wL2NormSquareKernel<realtype, sunindextype, GridReducerLDS><<<grid, block, shMemSize, stream>>>
     (
       xd,
-      yd,
+      wd,
       NV_DBUFFERp_PH(x),
       N,
       NV_DCOUNTERp_PH(x)
