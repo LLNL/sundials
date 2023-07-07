@@ -1144,28 +1144,36 @@ realtype N_VWSqrSumLocal_ParHyp(N_Vector x, N_Vector w)
   const size_t buffer_size = atomic ? 1 : grid;
   NV_CATCH_ERR_PH(InitializeReductionBuffer(x, sum, buffer_size))
 
-  if (atomic)
-  {
-    wL2NormSquareKernel<realtype, sunindextype, GridReducerAtomic><<<grid, block, shMemSize, stream>>>
-    (
-      xd,
-      wd,
-      NV_DBUFFERp_PH(x),
-      N,
-      nullptr
-    );
-  }
-  else
-  {
-    wL2NormSquareKernel<realtype, sunindextype, GridReducerLDS><<<grid, block, shMemSize, stream>>>
-    (
-      xd,
-      wd,
-      NV_DBUFFERp_PH(x),
-      N,
-      NV_DCOUNTERp_PH(x)
-    );
-  }
+  wL2NormSquareKernel<realtype, sunindextype, atomic?GridReducerAtomic:GridReducerLDS><<<grid, block, shMemSize, stream>>>
+  (
+    xd,
+    wd,
+    NV_DBUFFERp_PH(x),
+    N,
+    atomic?nullptr:NV_DCOUNTERp_PH(x)
+  );
+  // if (atomic)
+  // {
+  //   wL2NormSquareKernel<realtype, sunindextype, GridReducerAtomic><<<grid, block, shMemSize, stream>>>
+  //   (
+  //     xd,
+  //     wd,
+  //     NV_DBUFFERp_PH(x),
+  //     N,
+  //     nullptr
+  //   );
+  // }
+  // else
+  // {
+  //   wL2NormSquareKernel<realtype, sunindextype, GridReducerLDS><<<grid, block, shMemSize, stream>>>
+  //   (
+  //     xd,
+  //     wd,
+  //     NV_DBUFFERp_PH(x),
+  //     N,
+  //     NV_DCOUNTERp_PH(x)
+  //   );
+  // }
   PostKernelLaunch();
 
   // Get result from the GPU
