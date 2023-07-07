@@ -1025,7 +1025,7 @@ int CVodeResizeHistory(void *cvode_mem, sunrealtype* t_hist, N_Vector* y_hist,
    correct even if more history than desired is provided <<<<< */
 
   /* Compute interpolation coefficients */
-  retval = NewtonPolyCoef(t_hist, y_hist, cv_mem->cv_qprime + 1,
+  retval = NewtonPolyCoef(t_hist, y_hist, cv_mem->cv_q + 1,
                           cv_mem->resize_wrk);
   if (retval)
   {
@@ -1035,8 +1035,8 @@ int CVodeResizeHistory(void *cvode_mem, sunrealtype* t_hist, N_Vector* y_hist,
   }
 
   retval = NewtonPolyMultiDerEval(t_hist, cv_mem->resize_wrk,
-                                  cv_mem->cv_qprime + 1,
-                                  cv_mem->cv_tn, cv_mem->cv_qprime,
+                                  cv_mem->cv_q + 1,
+                                  cv_mem->cv_tn, cv_mem->cv_q,
                                   cv_mem->cv_zn);
   if (retval)
   {
@@ -1046,7 +1046,7 @@ int CVodeResizeHistory(void *cvode_mem, sunrealtype* t_hist, N_Vector* y_hist,
   }
 
   sunrealtype scale = ONE;
-  for (int i = 1; i < cv_mem->cv_qprime + 1; i++)
+  for (int i = 1; i < cv_mem->cv_q + 1; i++)
   {
     scale *= cv_mem->cv_hscale / ((sunrealtype) i);
     N_VScale(scale, cv_mem->cv_zn[i], cv_mem->cv_zn[i]);
