@@ -260,7 +260,8 @@ void N_VPrintFile_Serial(N_Vector x, FILE* outfile)
 
   xd = NULL;
 
-  N  = NV_LENGTH_S(x);
+  /* N  = NV_LENGTH_S(x); */
+  N  = 1; /* HACK for debugging resize */
   xd = NV_DATA_S(x);
 
   for (i = 0; i < N; i++) {

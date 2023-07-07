@@ -68,7 +68,8 @@ int resize_vec(N_Vector v_in, N_Vector v_out, void* user_data)
 int PrintNordsieck(sunrealtype tret, N_Vector tmp, N_Vector* zn,
                    sunrealtype step_size, int order, PRData& udata)
 {
-  const sunindextype N = N_VGetLength(tmp);
+  // const sunindextype N = N_VGetLength(tmp);
+  const sunindextype N = 1;
   sunrealtype* vdata   = nullptr;
   sunrealtype* tmpdata = N_VGetArrayPointer(tmp);
   sunrealtype  scale   = ONE;
