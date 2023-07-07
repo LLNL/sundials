@@ -1144,36 +1144,28 @@ realtype N_VWSqrSumLocal_ParHyp(N_Vector x, N_Vector w)
   const size_t buffer_size = atomic ? 1 : grid;
   NV_CATCH_ERR_PH(InitializeReductionBuffer(x, sum, buffer_size))
 
-  wL2NormSquareKernel<realtype, sunindextype, atomic?GridReducerAtomic:GridReducerLDS><<<grid, block, shMemSize, stream>>>
-  (
-    xd,
-    wd,
-    NV_DBUFFERp_PH(x),
-    N,
-    atomic?nullptr:NV_DCOUNTERp_PH(x)
-  );
-  // if (atomic)
-  // {
-  //   wL2NormSquareKernel<realtype, sunindextype, GridReducerAtomic><<<grid, block, shMemSize, stream>>>
-  //   (
-  //     xd,
-  //     wd,
-  //     NV_DBUFFERp_PH(x),
-  //     N,
-  //     nullptr
-  //   );
-  // }
-  // else
-  // {
-  //   wL2NormSquareKernel<realtype, sunindextype, GridReducerLDS><<<grid, block, shMemSize, stream>>>
-  //   (
-  //     xd,
-  //     wd,
-  //     NV_DBUFFERp_PH(x),
-  //     N,
-  //     NV_DCOUNTERp_PH(x)
-  //   );
-  // }
+  if (atomic)
+  {
+    wL2NormSquareKernel<realtype, sunindextype, GridReducerAtomic><<<grid, block, shMemSize, stream>>>
+    (
+      xd,
+      wd,
+      NV_DBUFFERp_PH(x),
+      N,
+      nullptr
+    );
+  }
+  else
+  {
+    wL2NormSquareKernel<realtype, sunindextype, GridReducerLDS><<<grid, block, shMemSize, stream>>>
+    (
+      xd,
+      wd,
+      NV_DBUFFERp_PH(x),
+      N,
+      NV_DCOUNTERp_PH(x)
+    );
+  }
   PostKernelLaunch();
 
   // Get result from the GPU
@@ -1194,7 +1186,7 @@ realtype N_VWrmsNorm_ParHyp(N_Vector x, N_Vector w)
 realtype N_VWSqrSumMaskLocal_ParHyp(N_Vector x, N_Vector w, N_Vector id)
 {
   sunindextype N;
-  realtype sum, prodi, *xd, *wd, *idd;
+  realtype sum, *xd, *wd, *idd;
 
   N   = NV_LOCLENGTH_PH(x);
   xd  = NV_DATA_PH(x);
@@ -1202,12 +1194,54 @@ realtype N_VWSqrSumMaskLocal_ParHyp(N_Vector x, N_Vector w, N_Vector id)
   idd = NV_DATA_PH(id);
 
   sum = ZERO;
+
+#if defined(SUNDIALS_HYPRE_BACKENDS_SERIAL)
+  realtype prodi;
   for (sunindextype i = 0; i < N; i++) {
     if (idd[i] > ZERO) {
       prodi = xd[i]*wd[i];
       sum += SUNSQR(prodi);
     }
   }
+#elif defined(SUNDIALS_HYPRE_BACKENDS_CUDA_OR_HIP)
+  bool atomic;
+  size_t grid, block, shMemSize;
+  NV_ADD_LANG_PREFIX_PH(Stream_t) stream;
+
+  NV_CATCH_ERR_PH(GetKernelParameters(x, true, grid, block, shMemSize, stream, atomic))
+  const size_t buffer_size = atomic ? 1 : grid;
+  NV_CATCH_ERR_PH(InitializeReductionBuffer(x, sum, buffer_size))
+
+  if (atomic)
+  {
+    wL2NormSquareMaskKernel<realtype, sunindextype, GridReducerAtomic><<<grid, block, shMemSize, stream>>>
+    (
+      xd,
+      wd,
+      idd,
+      NV_DBUFFERp_PH(x),
+      N,
+      nullptr
+    );
+  }
+  else
+  {
+    wL2NormSquareMaskKernel<realtype, sunindextype, GridReducerLDS><<<grid, block, shMemSize, stream>>>
+    (
+      xd,
+      wd,
+      idd,
+      NV_DBUFFERp_PH(x),
+      N,
+      NV_DCOUNTERp_PH(x)
+    );
+  }
+  PostKernelLaunch();
+
+  // Get result from the GPU
+  CopyReductionBufferFromDevice(x);
+  sum = NV_HBUFFERp_PH(x)[0];
+#endif
   return(sum);
 }
 
