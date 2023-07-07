@@ -19,7 +19,7 @@
 
 macro(sundials_parse_tuple example_tuple)
     set(options )
-    set(oneValueArgs FILENAME_VAR PARAMS_VAR NODES_VAR NPROCS_VAR TYPE_VAR PRECISION_VAR)
+    set(oneValueArgs FILENAME_VAR PARAMS_VAR NODES_VAR NPROCS_VAR TYPE_VAR PRECISION_VAR INT_PRECISION_VAR)
     set(multiValueArgs)
     
     cmake_parse_arguments(sundials_parse_tuple
@@ -44,7 +44,13 @@ macro(sundials_parse_tuple example_tuple)
         endif()
     endif()
     if(sundials_parse_tuple_PRECISION_VAR)
-        list(GET example_tuple 5 ${sundials_parse_tuple_PRECISION_VAR})
+        if(HAS_OPENMP)
+            list(GET example_tuple 3 ${sundials_parse_tuple_PRECISION_VAR})
+        else()
+            list(GET example_tuple 4 ${sundials_parse_tuple_PRECISION_VAR})
+        endif()
     endif()
-    
+    if(sundials_parse_tuple_INT_PRECISION_VAR)
+        list(GET example_tuple 4 ${sundials_parse_tuple_INT_PRECISION_VAR})
+    endif()
 endmacro()
