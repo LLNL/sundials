@@ -1212,14 +1212,14 @@ realtype N_VWSqrSumMaskLocal_ParHyp(N_Vector x, N_Vector w, N_Vector id)
   const size_t buffer_size = atomic ? 1 : grid;
   NV_CATCH_ERR_PH(InitializeReductionBuffer(x, sum, buffer_size))
 
-  wL2NormSquareMaskKernel<realtype, sunindextype, (atomic?GridReducerAtomic:GridReducerLDS)><<<grid, block, shMemSize, stream>>>
+  wL2NormSquareMaskKernel<realtype, sunindextype, (atomic ? GridReducerAtomic : GridReducerLDS)><<<grid, block, shMemSize, stream>>>
   (
     xd,
     wd,
     idd,
     NV_DBUFFERp_PH(x),
     N,
-    (atomic?nullptr:NV_DCOUNTERp_PH(x))
+    (atomic ? nullptr : NV_DCOUNTERp_PH(x))
   );
   // if (atomic)
   // {
