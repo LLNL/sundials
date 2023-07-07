@@ -2699,6 +2699,22 @@ static int cvStep(CVodeMem cv_mem)
   int eflag;                 /* error test return flag                   */
   booleantype doProjection;  /* flag to apply projection in this step    */
 
+  /* printf("Start cvStep\n"); */
+  /* printf("tn             = %g\n", cv_mem->cv_tn); */
+  /* printf("current h      = %g\n", cv_mem->cv_h); */
+  /* printf("next h         = %g\n", cv_mem->cv_hprime); */
+  /* printf("next h (?)     = %g\n", cv_mem->cv_next_h); */
+  /* printf("h scale        = %g\n", cv_mem->cv_hscale); */
+  /* printf("current order  = %d\n", cv_mem->cv_q); */
+  /* printf("next order     = %d\n", cv_mem->cv_qprime); */
+  /* printf("next order (?) = %d\n", cv_mem->cv_next_q); */
+  /* for (int ord = 0; ord < 6; ord++) */
+  /* { */
+  /*   printf("zn[%d]\n", ord); */
+  /*   N_VPrint(cv_mem->cv_zn[ord]); */
+  /* } */
+  /* printf("-----\n"); */
+
   /* Initialize local counters for convergence and error test failures */
 
   ncf = npf = nef = 0;
@@ -2839,6 +2855,23 @@ static int cvStep(CVodeMem cv_mem)
       estimated local error vector. */
 
   N_VScale(cv_mem->cv_tq[2], cv_mem->cv_acor, cv_mem->cv_acor);
+
+  /* printf("End cvStep\n"); */
+  /* printf("tn             = %g\n", cv_mem->cv_tn); */
+  /* printf("current h      = %g\n", cv_mem->cv_h); */
+  /* printf("next h         = %g\n", cv_mem->cv_hprime); */
+  /* printf("next h (?)     = %g\n", cv_mem->cv_next_h); */
+  /* printf("h scale        = %g\n", cv_mem->cv_hscale); */
+  /* printf("current order  = %d\n", cv_mem->cv_q); */
+  /* printf("next order     = %d\n", cv_mem->cv_qprime); */
+  /* printf("next order (?) = %d\n", cv_mem->cv_next_q); */
+  /* printf("zn[0]\n"); */
+  /* for (int ord = 0; ord < 6; ord++) */
+  /* { */
+  /*   printf("zn[%d]\n", ord); */
+  /*   N_VPrint(cv_mem->cv_zn[ord]); */
+  /* } */
+  /* printf("-----\n"); */
 
   return(CV_SUCCESS);
 }
