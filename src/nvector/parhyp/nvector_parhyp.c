@@ -1101,7 +1101,7 @@ realtype N_VMaxNormLocal_ParHyp(N_Vector x)
   }
 
   const size_t buffer_size = atomic ? 1 : grid;
-  if (InitializeReductionBuffer(x, sum, buffer_size)) // Initialize reduction buffer within x->content->priv
+  if (InitializeReductionBuffer(x, max, buffer_size)) // Initialize reduction buffer within x->content->priv
   {
     SUNDIALS_DEBUG_PRINT("ERROR in N_VMaxNormLocal_ParHyp (backend " NV_GPU_LANG_STRING_PH "): InitializeReductionBuffer returned nonzero\n");
   }
