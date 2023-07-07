@@ -1021,7 +1021,7 @@ int CVodeResizeHistory(void *cvode_mem, sunrealtype* t_hist, N_Vector* y_hist,
    * Construct Nordsieck Array (new) *
    * ------------------------------- */
 
-  /* >>>>> NOTE use use qprime + 1 not n_hist, so the interpolation order is
+  /* >>>>> NOTE use use q + 1 not n_hist, so the interpolation order is
    correct even if more history than desired is provided <<<<< */
 
   /* Compute interpolation coefficients */
@@ -1065,83 +1065,6 @@ int CVodeResizeHistory(void *cvode_mem, sunrealtype* t_hist, N_Vector* y_hist,
   /*   printf("zn[%d]\n", ord); */
   /*   N_VPrint(cv_mem->cv_zn[ord]); */
   /* } */
-
-  /* ------------------------------- *
-   * Construct Nordsieck Array (old) *
-   * ------------------------------- */
-
-  /* Test 0: Input y_hist is actually a copy of zn. Output should match that
-     from the problem without resizing except for the duplicated values. */
-  /* for (int j = 0; j <= maxord; j++) */
-  /* { */
-  /*   N_VScale(ONE, y_hist[j], cv_mem->cv_zn[j]); */
-  /* } */
-
-  /* Test 1: Copy history but re-evaluate f */
-  /* for (int j = 0; j <= maxord; j++) */
-  /* { */
-  /*   N_VScale(ONE, y_hist[j], cv_mem->cv_zn[j]); */
-  /* } */
-
-  /* retval = cv_mem->cv_f(t_hist[0], y_hist[0], */
-  /*                       cv_mem->cv_zn[1], cv_mem->cv_user_data); */
-  /* cv_mem->cv_nfe++; */
-  /* if (retval) */
-  /* { */
-  /*   cvProcessError(cv_mem, CV_RHSFUNC_FAIL, "CVODE", "CVode", */
-  /*                  MSGCV_RHSFUNC_FAILED, cv_mem->cv_tn); */
-  /*   return CV_RHSFUNC_FAIL; */
-  /* } */
-  /* N_VScale(cv_mem->cv_hscale, cv_mem->cv_zn[1], cv_mem->cv_zn[1]); */
-
-  /* Test 3: Copy yn, evaluate fn, and limit to first order (externally) */
-
-  /* /\* zn[0] = y_n-1 *\/ */
-  /* N_VScale(ONE, y_hist[0], cv_mem->cv_zn[0]); */
-
-  /* /\* zn[1] = h_n-1 * y'(t_n-1, y_n-1) *\/ */
-  /* retval = cv_mem->cv_f(t_hist[0], y_hist[0], */
-  /*                       cv_mem->cv_zn[1], cv_mem->cv_user_data); */
-  /* cv_mem->cv_nfe++; */
-  /* if (retval) */
-  /* { */
-  /*   cvProcessError(cv_mem, CV_RHSFUNC_FAIL, "CVODE", "CVode", */
-  /*                  MSGCV_RHSFUNC_FAILED, cv_mem->cv_tn); */
-  /*   return CV_RHSFUNC_FAIL; */
-  /* } */
-  /* N_VScale(cv_mem->cv_hscale, cv_mem->cv_zn[1], cv_mem->cv_zn[1]); */
-
-  /* for (int j = 2; j < maxord; j++) */
-  /* { */
-  /*   N_VScale(ONE, y_hist[j], cv_mem->cv_zn[j]); */
-  /* } */
-
-  /* Test 3: Copy yn and evaluate fn (like above). Compute higher order
-     derivatives from polynomial interpolant */
-  /* sunrealtype a[4]; */
-
-  /* /\* (>= 2nd order) zn[2] = ((h_n-1)^2 / 2) * y''(t_n-1, y_n-1) *\/ */
-  /* if (cv_mem->cv_qprime >= 2) */
-  /* { */
-  /*   for (int j = 0; j < 3; j++) a[j] = LBasisD2(j, t_hist[0], t_hist); */
-  /*   N_VLinearCombination(3, a, y_hist, cv_mem->cv_zn[2]); */
-  /*   N_VScale((cv_mem->cv_hscale * cv_mem->cv_hscale) / TWO, */
-  /*            cv_mem->cv_zn[2], cv_mem->cv_zn[2]); */
-  /* } */
-
-  /* /\* (>= 3rd order) zn[3] = ((h_n-1)^3 / 6) * y'''(t_n-1, y_n-1) *\/ */
-  /* if (cv_mem->cv_qprime >= 3) */
-  /* { */
-  /*   for (int j = 0; j < 4; j++) a[j] = LBasisD3(j, t_hist[0], t_hist); */
-  /*   N_VLinearCombination(4, a, y_hist, cv_mem->cv_zn[3]); */
-  /*   N_VScale((cv_mem->cv_hscale * cv_mem->cv_hscale * cv_mem->cv_hscale) / SUN_RCONST(6.0), */
-  /*            cv_mem->cv_zn[3], cv_mem->cv_zn[3]); */
-  /* } */
-
-  /* >>>
-     Do we need to adjust q and qprime and not apply order change update?
-     Or should we just update Z and allow CVODE to proceed like normal?
-     <<< */
 
   if (cv_mem->cv_VabstolMallocDone)
   {

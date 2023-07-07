@@ -196,10 +196,6 @@ int main(int argc, char* argv[])
   }
   else if (resize == 1)
   {
-    std::cout << "CVODE -- COPY RESIZE" << std::endl;
-  }
-  else if (resize == 2)
-  {
     std::cout << "CVODE -- RESIZE" << std::endl;
   }
   else
@@ -303,103 +299,63 @@ int main(int argc, char* argv[])
 
     std::cout << "\n========== End Step " << i << " ==========\n";
 
-    if (resize == 1)
+    std::cout << "\n========== Start Resize " << i << " ==========\n";
+    // Update saved history
+    if (i < 6)
     {
-      // Test 1: Copy and expand the Nordsieck array
-      N_VDestroy(y);
-      N_VDestroy(ytmp);
-      y = N_VNew_Serial(i + 1, sunctx);
-      ytmp = N_VClone(y);
-      N_Vector* znew = N_VCloneVectorArray(6, y);
-
-      for (int j = 0; j <= 5; j++)
-      {
-        sunrealtype* zdata    = N_VGetArrayPointer(cv_mem->cv_zn[j]);
-        sunrealtype* znewdata = N_VGetArrayPointer(znew[j]);
-        for (int k = 0; k < i + 1; k++)
-        {
-          znewdata[k] = zdata[0];
-        }
-      }
-
-      flag = CVodeResizeHistory(cvode_mem, thist, znew, 6, resize_vec);
-      if (check_flag(flag, "CVodeResizeHistory")) return 1;
-      N_VDestroyVectorArray(znew, 6);
-
-      // "Resize" the nonlinear solver
-      SUNNonlinSolFree(NLS);
-      NLS = SUNNonlinSol_FixedPoint(y, 2, sunctx);
-      if (check_ptr(NLS, "SUNNonlinSol_FixedPoint")) return 1;
-
-      flag = CVodeSetNonlinearSolver(cvode_mem, NLS);
-      if (check_flag(flag, "CVodeSetNonlinearSolver")) return 1;
-
-      flag = CVodeSetMaxNonlinIters(cvode_mem, 10);
-      if (check_flag(flag, "CVodeSetMaxNonlinIters")) return 1;
+      hist_size++;
     }
-    else if (resize == 2)
+    else
     {
-      std::cout << "\n========== Start Resize " << i << " ==========\n";
-      // Test 2: Copy and expand the state
-
-      // Update saved history
-      if (i < 6)
-      {
-        hist_size++;
-      }
-      else
-      {
-        hist_size = 6;
-      }
-
-      for (int j = 5; j > 0; j--)
-      {
-        thist[j] = thist[j - 1];
-      }
-      thist[0] = tret;
-
-      for (int j = 5; j > 0; j--)
-      {
-        N_VScale(ONE, yhist[j - 1], yhist[j]);
-      }
-      N_VScale(ONE, y, yhist[0]);
-
-      // Resize all vectors
-      for (int j = 0; j < 6; j++)
-      {
-        sunrealtype* old_data = N_VGetArrayPointer(yhist[j]);
-
-        N_Vector new_vec = N_VNew_Serial(i + 1, sunctx);
-        sunrealtype* new_data = N_VGetArrayPointer(new_vec);
-        for (int k = 0; k < i + 1; k++)
-        {
-          new_data[k] = old_data[0];
-        }
-        N_VDestroy(yhist[j]);
-        yhist[j] = new_vec;
-      }
-
-      N_VDestroy(y);
-      N_VDestroy(ytmp);
-      y = N_VNew_Serial(i + 1, sunctx);
-      ytmp = N_VClone(y);
-
-      flag = CVodeResizeHistory(cvode_mem, thist, yhist, hist_size, resize_vec);
-      if (check_flag(flag, "CVodeResizeHistory")) return 1;
-
-      // "Resize" the nonlinear solver
-      SUNNonlinSolFree(NLS);
-      NLS = SUNNonlinSol_FixedPoint(y, 2, sunctx);
-      if (check_ptr(NLS, "SUNNonlinSol_FixedPoint")) return 1;
-
-      flag = CVodeSetNonlinearSolver(cvode_mem, NLS);
-      if (check_flag(flag, "CVodeSetNonlinearSolver")) return 1;
-
-      flag = CVodeSetMaxNonlinIters(cvode_mem, 10);
-      if (check_flag(flag, "CVodeSetMaxNonlinIters")) return 1;
-      std::cout << "\n========== End Resize " << i << " ==========\n";
+      hist_size = 6;
     }
 
+    for (int j = 5; j > 0; j--)
+    {
+      thist[j] = thist[j - 1];
+    }
+    thist[0] = tret;
+
+    for (int j = 5; j > 0; j--)
+    {
+      N_VScale(ONE, yhist[j - 1], yhist[j]);
+    }
+    N_VScale(ONE, y, yhist[0]);
+
+    // Resize all vectors
+    for (int j = 0; j < 6; j++)
+    {
+      sunrealtype* old_data = N_VGetArrayPointer(yhist[j]);
+
+      N_Vector new_vec = N_VNew_Serial(i + 1, sunctx);
+      sunrealtype* new_data = N_VGetArrayPointer(new_vec);
+      for (int k = 0; k < i + 1; k++)
+      {
+        new_data[k] = old_data[0];
+      }
+      N_VDestroy(yhist[j]);
+      yhist[j] = new_vec;
+    }
+
+    N_VDestroy(y);
+    N_VDestroy(ytmp);
+    y = N_VNew_Serial(i + 1, sunctx);
+    ytmp = N_VClone(y);
+
+    flag = CVodeResizeHistory(cvode_mem, thist, yhist, hist_size, resize_vec);
+    if (check_flag(flag, "CVodeResizeHistory")) return 1;
+
+    // "Resize" the nonlinear solver
+    SUNNonlinSolFree(NLS);
+    NLS = SUNNonlinSol_FixedPoint(y, 2, sunctx);
+    if (check_ptr(NLS, "SUNNonlinSol_FixedPoint")) return 1;
+
+    flag = CVodeSetNonlinearSolver(cvode_mem, NLS);
+    if (check_flag(flag, "CVodeSetNonlinearSolver")) return 1;
+
+    flag = CVodeSetMaxNonlinIters(cvode_mem, 10);
+    if (check_flag(flag, "CVodeSetMaxNonlinIters")) return 1;
+    std::cout << "\n========== End Resize " << i << " ==========\n";
   }
   std::cout << std::endl;
 
