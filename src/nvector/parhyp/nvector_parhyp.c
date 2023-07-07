@@ -357,10 +357,9 @@ N_Vector N_VNewEmpty_ParHyp(MPI_Comm comm,
 
   /* Create private content */
 #if defined(SUNDIALS_HYPRE_BACKENDS_CUDA_OR_HIP)
-  priv = NULL;
-  priv = (N_PrivateVectorContent_ParHyp) malloc(sizeof(_N_PrivateVectorContent_ParHyp));
-  if (priv == NULL) { N_VDestroy(v); return(NULL); }
-  content->priv = priv
+  content->priv = NULL;
+  content->priv = (N_PrivateVectorContent_ParHyp) malloc(sizeof(_N_PrivateVectorContent_ParHyp));
+  if (content->priv == NULL) { N_VDestroy(v); return(NULL); }
 #endif
 
   /* Attach content */
@@ -625,8 +624,8 @@ void N_VDestroy_ParHyp(N_Vector v)
     FreeDeviceCounter(v);
     FreeReductionBuffer(v);
     // FusedBuffer_Free(v);
-    free(NV_PRIVATE_PH(v));
     NV_PRIVATE_PH(v) = NULL;
+    free(NV_PRIVATE_PH(v));
   }
   delete NV_STREAM_POLICY_PH(v);
   delete NV_REDUCE_POLICY_PH(v);
@@ -2639,10 +2638,10 @@ static void FreeReductionBuffer(N_Vector v)
   vcp->reduce_buffer_bytes = 0;
 }
 
-static int CopyReductionBufferFromDevice(N_Vector v, size_t n = 1);
+static int CopyReductionBufferFromDevice(N_Vector v, size_t n);
 {
   int copy_fail;
-  NV_ADD_LANG_PREFIX_PH(Error_t) cuerr;
+  NV_ADD_LANG_PREFIX_PH(Error_t) err;
 
   copy_fail = SUNMemoryHelper_CopyAsync(NV_MEMHELP_PH(v),
                                         NV_PRIVATE_PH(v)->reduce_buffer_host,
@@ -2663,10 +2662,10 @@ static int GetKernelParameters(N_Vector v, booleantype reduction, size_t& grid,
                                size_t& block, size_t& shMemSize,
                                NV_ADD_LANG_PREFIX_PH(Stream_t)& stream, bool& atomic, size_t n)
 {
-  n = (n == 0) ? NV_CONTENT_PH(v)->length : n;
+  n = (n == 0) ? NV_LOCLENGTH_PH(v) : n;
   if (reduction)
   {
-    NV_EXECPOLICY_TYPE_PH* reduce_exec_policy = NV_CONTENT_PH(v)->reduce_exec_policy;
+    NV_EXECPOLICY_TYPE_PH* reduce_exec_policy = NV_REDUCE_POLICY_PH(v);
     grid      = reduce_exec_policy->gridSize(n);
     block     = reduce_exec_policy->blockSize();
     shMemSize = 0;
@@ -2694,7 +2693,7 @@ static int GetKernelParameters(N_Vector v, booleantype reduction, size_t& grid,
   }
   else
   {
-    NV_EXECPOLICY_TYPE_PH* stream_exec_policy = NV_CONTENT_PH(v)->stream_exec_policy;
+    NV_EXECPOLICY_TYPE_PH* stream_exec_policy = NV_STREAM_POLICY_PH(v);
     grid      = stream_exec_policy->gridSize(n);
     block     = stream_exec_policy->blockSize();
     shMemSize = 0;
