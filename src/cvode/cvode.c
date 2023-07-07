@@ -998,7 +998,6 @@ int CVodeResizeHistory(void *cvode_mem, sunrealtype* t_hist, N_Vector* y_hist,
   }
 
   sunrealtype scale = ONE;
-  N_VScale(cv_mem->cv_hscale, cv_mem->cv_zn[0], cv_mem->cv_zn[0]);
   for (int i = 1; i < cv_mem->cv_qprime + 1; i++)
   {
     scale *= cv_mem->cv_hscale / ((sunrealtype) i);
