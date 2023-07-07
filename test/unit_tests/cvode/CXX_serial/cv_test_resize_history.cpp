@@ -341,32 +341,27 @@ int main(int argc, char* argv[])
     {
       // Test 2: Copy and expand the state
 
-      // History shuffle over one
-      // >>>>> Should actually be able to use in any order (interpolate z0 and
-      // >>>>> use stored tn)
+      // Update saved history
       if (i < 6)
       {
         hist_size++;
-        thist[i % 6] = tret;
-        N_VScale(ONE, y, yhist[i % 6]);
       }
       else
       {
         hist_size = 6;
-        for (int j = 0; j < 5; j++)
-        {
-          thist[j] = thist[j + 1];
-        }
-        thist[5] = tret;
-
-        N_Vector tmp = yhist[0];
-        for (int j = 0; j < 5; j++)
-        {
-          yhist[j] = yhist[j + 1];
-        }
-        yhist[5] = tmp;
-        N_VScale(ONE, y, yhist[5]);
       }
+
+      for (int j = 0; j < 5; j++)
+      {
+        thist[j + 1] = thist[j];
+      }
+      thist[0] = tret;
+
+      for (int j = 0; j < 5; j++)
+      {
+        N_VScale(ONE, yhist[j], yhist[j + 1]);
+      }
+      N_VScale(ONE, y, yhist[0]);
 
       // Resize all vectors
       for (int j = 0; j < 6; j++)
