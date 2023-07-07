@@ -752,24 +752,50 @@ int NewtonPolyCoef(sunrealtype* t, N_Vector* y, int M, N_Vector* c)
     N_VScale(ONE, y[i], c[i]);
   }
 
+  /* printf("y hist\n"); */
+  /* for (int k = 0; k < M; k++) */
+  /* { */
+  /*   printf("y[%d]\n", k); */
+  /*   N_VPrint(y[k]); */
+  /* } */
+
+  /* printf("Initial values\n"); */
+  /* for (int k = 0; k < M; k++) */
+  /* { */
+  /*   printf("c[%d]\n", k); */
+  /*   N_VPrint(c[k]); */
+  /* } */
+
   if (M == 1) return CV_SUCCESS;
 
   /* Compute coefficients from bottom up to write in place */
+  /* printf("Iteration Newton Coef\n"); */
   for (i = 1; i < M; i++)
   {
     for (j = M - 1; j > i - 1; j--)
     {
+      /* printf("%d %d c[%d]\n", i, j, j); */
+      /* printf("t[%d] = %.16e\n", j, t[j]); */
+      /* printf("t[%d] = %.16e\n", j-1, t[j-1]); */
+      /* printf("c[%d]\n", j); */
+      /* N_VPrint(c[j]); */
+      /* printf("c[%d]\n", j - 1); */
+      /* N_VPrint(c[j - 1]); */
+
       /* c_j = (c_j - c_{j - 1}) / (t_j - t_{j - i}) */
       N_VLinearSum(ONE / (t[j] - t[j - 1]), c[j],
                    -ONE / (t[j] - t[j - 1]), c[j - 1], c[j]);
+      /* printf("result c[%d]\n", j); */
+      /* N_VPrint(c[j]); */
     }
   }
 
   /* printf("Newton Coef\n"); */
-  /* printf("c[0]\n"); */
-  /* N_VPrint(c[0]); */
-  /* printf("c[1]\n"); */
-  /* N_VPrint(c[1]); */
+  /* for (int k = 0; k < M; k++) */
+  /* { */
+  /*   printf("c[%d]\n", k); */
+  /*   N_VPrint(c[k]); */
+  /* } */
 
   return CV_SUCCESS;
 }
@@ -852,10 +878,11 @@ int NewtonPolyMultiDerEval(sunrealtype* t, N_Vector* c, int M, sunrealtype s,
   }
 
   /* printf("Newton Eval\n"); */
-  /* printf("p[0]\n"); */
-  /* N_VPrint(p[0]); */
-  /* printf("p[1]\n"); */
-  /* N_VPrint(p[1]); */
+  /* for (int k = 0; k < d + 1; k++) */
+  /* { */
+  /*   printf("p[%d]\n", k); */
+  /*   N_VPrint(p[k]); */
+  /* } */
 
   return CV_SUCCESS;
 }
@@ -901,6 +928,21 @@ int CVodeResizeHistory(void *cvode_mem, sunrealtype* t_hist, N_Vector* y_hist,
                    "Resize function is NULL");
     return CV_ILL_INPUT;
   }
+
+  /* printf("Start Resize\n"); */
+  /* printf("tn             = %g\n", cv_mem->cv_tn); */
+  /* printf("current h      = %g\n", cv_mem->cv_h); */
+  /* printf("next h         = %g\n", cv_mem->cv_hprime); */
+  /* printf("next h (?)     = %g\n", cv_mem->cv_next_h); */
+  /* printf("h scale        = %g\n", cv_mem->cv_hscale); */
+  /* printf("current order  = %d\n", cv_mem->cv_q); */
+  /* printf("next order     = %d\n", cv_mem->cv_qprime); */
+  /* printf("next order (?) = %d\n", cv_mem->cv_next_q); */
+  /* for (int ord = 0; ord < 6; ord++) */
+  /* { */
+  /*   printf("zn[%d]\n", ord); */
+  /*   N_VPrint(cv_mem->cv_zn[ord]); */
+  /* } */
 
   /* Make sure number of inputs is sufficient for the current (next) order */
   /* Make sure times[0] == tn */
@@ -1016,11 +1058,13 @@ int CVodeResizeHistory(void *cvode_mem, sunrealtype* t_hist, N_Vector* y_hist,
     N_VScale(ONE, cv_mem->cv_tempv, cv_mem->cv_zn[cv_mem->cv_qmax]);
   }
 
-  printf("Finish Resize\n");
-  printf("zn[0]\n");
-  N_VPrint(cv_mem->cv_zn[0]);
-  printf("zn[1]\n");
-  N_VPrint(cv_mem->cv_zn[1]);
+  /* printf("Finish Resize\n"); */
+  /* printf("tn = %g\n", cv_mem->cv_tn); */
+  /* for (int ord = 0; ord < 6; ord++) */
+  /* { */
+  /*   printf("zn[%d]\n", ord); */
+  /*   N_VPrint(cv_mem->cv_zn[ord]); */
+  /* } */
 
   /* ------------------------------- *
    * Construct Nordsieck Array (old) *
