@@ -366,26 +366,26 @@ N_Vector N_VNewEmpty_ParHyp(MPI_Comm comm,
   v->content = content;
 
   /* Attach lengths and communicator */
-  content->local_length  = local_length;
-  content->global_length = global_length;
-  content->own_parvector = SUNFALSE;
-  content->comm          = comm;
-  content->x             = NULL;
+  NV_CONTENT_PH(v)->local_length  = local_length;
+  NV_CONTENT_PH(v)->global_length = global_length;
+  NV_CONTENT_PH(v)->own_parvector = SUNFALSE;
+  NV_CONTENT_PH(v)->comm          = comm;
+  NV_CONTENT_PH(v)->x             = NULL;
 
   /* Initialize CUDA/HIP-only content */
 #if defined(SUNDIALS_HYPRE_BACKENDS_CUDA_OR_HIP)
-  content->stream_exec_policy         = NULL;
-  content->reduce_exec_policy         = NULL;
-  content->mem_helper                 = NULL;
-  // content->priv->use_managed_mem      = SUNFALSE;
-  content->priv->device_counter       = NULL;
-  content->priv->reduce_buffer_dev    = NULL;
-  content->priv->reduce_buffer_host   = NULL;
-  content->priv->reduce_buffer_bytes  = 0;
-  // content->priv->fused_buffer_dev     = NULL;
-  // content->priv->fused_buffer_host    = NULL;
-  // content->priv->fused_buffer_bytes   = 0;
-  // content->priv->fused_buffer_offset  = 0;
+  NV_CONTENT_PH(v)->stream_exec_policy         = NULL;
+  NV_CONTENT_PH(v)->reduce_exec_policy         = NULL;
+  NV_CONTENT_PH(v)->mem_helper                 = NULL;
+  // NV_PRIVATE_PH(v)->use_managed_mem      = SUNFALSE;
+  NV_PRIVATE_PH(v)->device_counter       = NULL;
+  NV_PRIVATE_PH(v)->reduce_buffer_dev    = NULL;
+  NV_PRIVATE_PH(v)->reduce_buffer_host   = NULL;
+  NV_PRIVATE_PH(v)->reduce_buffer_bytes  = 0;
+  // NV_PRIVATE_PH(v)->fused_buffer_dev     = NULL;
+  // NV_PRIVATE_PH(v)->fused_buffer_host    = NULL;
+  // NV_PRIVATE_PH(v)->fused_buffer_bytes   = 0;
+  // NV_PRIVATE_PH(v)->fused_buffer_offset  = 0;
 #endif
 
   return(v);

@@ -144,8 +144,8 @@ struct _N_VectorContent_ParHyp
   MPI_Comm comm;              /* pointer to MPI communicator       */
   HYPRE_ParVector x;          /* the actual HYPRE_ParVector object */
 #if defined(SUNDIALS_HYPRE_BACKENDS_CUDA_OR_HIP)
-  NV_EXEC_POLICY_TYPE_PH* stream_exec_policy;
-  NV_EXEC_POLICY_TYPE_PH* reduce_exec_policy;
+  NV_EXECPOLICY_TYPE_PH* stream_exec_policy;
+  NV_EXECPOLICY_TYPE_PH* reduce_exec_policy;
   SUNMemoryHelper           mem_helper;
   void*                     priv;
 #endif
