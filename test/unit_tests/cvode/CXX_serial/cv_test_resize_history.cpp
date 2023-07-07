@@ -69,95 +69,104 @@ int PrintNordsieck(sunrealtype tret, N_Vector tmp, N_Vector* zn,
                    sunrealtype step_size, int order, PRData& udata)
 {
   const sunindextype N = N_VGetLength(tmp);
+  sunrealtype* vdata   = nullptr;
   sunrealtype* tmpdata = N_VGetArrayPointer(tmp);
-  sunrealtype* vdata   = N_VGetArrayPointer(zn[0]);
   sunrealtype  scale   = ONE;
 
+
   std::cout << std::setw(4) << "idx"
-            << std::setw(25) << "scaled zn"
+            << std::setw(25) << "zn"
             << std::setw(25) << "true value"
             << std::setw(25) << "relative error"
             << std::endl;
 
+  scale = ONE;
+  vdata = N_VGetArrayPointer(zn[0]);
   PR_true_dot(tret, tmp, 0, udata);
   for (sunindextype i = 0; i < N; i++)
   {
+    sunrealtype z_tmp = scale * tmpdata[i];
     std::cout << std::setw(4) << 0
-              << std::setw(25) << scale * vdata[i]
-              << std::setw(25) << tmpdata[i]
-              << std::setw(25) << std::abs(scale * vdata[i] - tmpdata[i]) / std::abs(tmpdata[i])
+              << std::setw(25) << vdata[i]
+              << std::setw(25) << z_tmp
+              << std::setw(25) << std::abs(vdata[i] - z_tmp) / std::abs(z_tmp)
               << std::endl;
   }
 
-  scale = ONE / step_size;
+  scale = step_size;
   vdata = N_VGetArrayPointer(zn[1]);
   PR_true_dot(tret, tmp, 1, udata);
   for (sunindextype i = 0; i < N; i++)
   {
+    sunrealtype z_tmp = scale * tmpdata[i];
     std::cout << std::setw(4) << 1
-              << std::setw(25) << scale * vdata[i]
-              << std::setw(25) << tmpdata[i]
-              << std::setw(25) << std::abs(scale * vdata[i] - tmpdata[i]) / std::abs(tmpdata[i])
+              << std::setw(25) << vdata[i]
+              << std::setw(25) << z_tmp
+              << std::setw(25) << std::abs(vdata[i] - z_tmp) / std::abs(z_tmp)
               << std::endl;
   }
 
 
   if (order > 1)
   {
-    scale = TWO / std::pow(step_size, 2);
+    scale = std::pow(step_size, 2) / TWO;
     vdata = N_VGetArrayPointer(zn[2]);
     PR_true_dot(tret, tmp, 2, udata);
     for (sunindextype i = 0; i < N; i++)
     {
+      sunrealtype z_tmp = scale * tmpdata[i];
       std::cout << std::setw(4) << 2
-                << std::setw(25) << scale * vdata[i]
-                << std::setw(25) << tmpdata[i]
-                << std::setw(25) << std::abs(scale * vdata[i] - tmpdata[i]) / std::abs(tmpdata[i])
+                << std::setw(25) << vdata[i]
+                << std::setw(25) << z_tmp
+                << std::setw(25) << std::abs(vdata[i] - z_tmp) / std::abs(z_tmp)
                 << std::endl;
     }
   }
 
   if (order > 2)
   {
-    scale = SIX / std::pow(step_size, 3);
+    scale = std::pow(step_size, 3) / SIX;
     vdata = N_VGetArrayPointer(zn[3]);
     PR_true_dot(tret, tmp, 3, udata);
     for (sunindextype i = 0; i < N; i++)
     {
+      sunrealtype z_tmp = scale * tmpdata[i];
       std::cout << std::setw(4) << 3
-                << std::setw(25) << scale * vdata[i]
-                << std::setw(25) << tmpdata[i]
-                << std::setw(25) << std::abs(scale * vdata[i] - tmpdata[i]) / std::abs(tmpdata[i])
+                << std::setw(25) << vdata[i]
+                << std::setw(25) << z_tmp
+                << std::setw(25) << std::abs(vdata[i] - z_tmp) / std::abs(z_tmp)
                 << std::endl;
     }
   }
 
   if (order > 3)
   {
-    scale = TWENTYFOUR / std::pow(step_size, 4);
+    scale = std::pow(step_size, 4) / TWENTYFOUR;
     vdata = N_VGetArrayPointer(zn[4]);
     PR_true_dot(tret, tmp, 4, udata);
     for (sunindextype i = 0; i < N; i++)
     {
+      sunrealtype z_tmp = scale * tmpdata[i];
       std::cout << std::setw(4) << 4
-                << std::setw(25) << scale * vdata[i]
-                << std::setw(25) << tmpdata[i]
-                << std::setw(25) << std::abs(scale * vdata[i] - tmpdata[i]) / std::abs(tmpdata[i])
+                << std::setw(25) << vdata[i]
+                << std::setw(25) << z_tmp
+                << std::setw(25) << std::abs(vdata[i] - z_tmp) / std::abs(z_tmp)
                 << std::endl;
     }
   }
 
   if (order > 4)
   {
-    scale = ONEHUNDREDTWENTY / std::pow(step_size, 5);
+    scale = std::pow(step_size, 5) / ONEHUNDREDTWENTY;
     vdata = N_VGetArrayPointer(zn[5]);
     PR_true_dot(tret, tmp, 5, udata);
     for (sunindextype i = 0; i < N; i++)
     {
+      sunrealtype z_tmp = scale * tmpdata[i];
       std::cout << std::setw(4) << 5
-                << std::setw(25) << scale * vdata[i]
-                << std::setw(25) << tmpdata[i]
-                << std::setw(25) << std::abs(scale * vdata[i] - tmpdata[i]) / std::abs(tmpdata[i])
+                << std::setw(25) << vdata[i]
+                << std::setw(25) << z_tmp
+                << std::setw(25) << std::abs(vdata[i] - z_tmp) / std::abs(z_tmp)
                 << std::endl;
     }
   }
