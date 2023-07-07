@@ -1332,9 +1332,47 @@ realtype N_VL1NormLocal_ParHyp(N_Vector x)
 
   N   = NV_LOCLENGTH_PH(x);
   xd  = NV_DATA_PH(x);
+
   sum = ZERO;
 
-  for (sunindextype i = 0; i<N; i++)  sum += SUNRabs(xd[i]);
+#if defined(SUNDIALS_HYPRE_BACKENDS_SERIAL)
+  for (sunindextype i = 0; i < N; i++) 
+    sum += SUNRabs(xd[i]);
+#elif defined(SUNDIALS_HYPRE_BACKENDS_CUDA_OR_HIP)
+  bool atomic;
+  size_t grid, block, shMemSize;
+  NV_ADD_LANG_PREFIX_PH(Stream_t) stream;
+
+  NV_CATCH_ERR_PH(GetKernelParameters(x, true, grid, block, shMemSize, stream, atomic))
+  const size_t buffer_size = atomic ? 1 : grid;
+  NV_CATCH_ERR_PH(InitializeReductionBuffer(x, sum, buffer_size))
+
+  if (atomic)
+  {
+    L1NormKernel<realtype, sunindextype, GridReducerAtomic><<<grid, block, shMemSize, stream>>>
+    (
+      xd,
+      NV_DBUFFERp_PH(x),
+      N,
+      nullptr
+    );
+  }
+  else
+  {
+    L1NormKernel<realtype, sunindextype, GridReducerLDS><<<grid, block, shMemSize, stream>>>
+    (
+      xd,
+      NV_DBUFFERp_PH(x),
+      N,
+      NV_DCOUNTERp_PH(x)
+    );
+  }
+  PostKernelLaunch();
+
+  // Get result from the GPU
+  CopyReductionBufferFromDevice(x);
+  sum = NV_HBUFFERp_PH(x)[0];
+#endif
   return(sum);
 }
 
