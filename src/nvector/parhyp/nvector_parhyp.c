@@ -1086,9 +1086,53 @@ realtype N_VMaxNormLocal_ParHyp(N_Vector x)
   xd = NV_DATA_PH(x);
 
   max = ZERO;
+
+#if defined(SUNDIALS_HYPRE_BACKENDS_SERIAL)
   for (sunindextype i = 0; i < N; i++)
     if (SUNRabs(xd[i]) > max) max = SUNRabs(xd[i]);
-  return(max);
+#elif defined(SUNDIALS_HYPRE_BACKENDS_CUDA_OR_HIP)
+  bool atomic;
+  size_t grid, block, shMemSize;
+  NV_ADD_LANG_PREFIX_PH(Stream_t) stream;
+
+  if (GetKernelParameters(x, true, grid, block, shMemSize, stream, atomic))
+  {
+    SUNDIALS_DEBUG_PRINT("ERROR in N_VMaxNormLocal_ParHyp (backend " NV_GPU_LANG_STRING_PH "): GetKernelParameters returned nonzero\n");
+  }
+
+  const size_t buffer_size = atomic ? 1 : grid;
+  if (InitializeReductionBuffer(x, sum, buffer_size)) // Initialize reduction buffer within x->content->priv
+  {
+    SUNDIALS_DEBUG_PRINT("ERROR in N_VMaxNormLocal_ParHyp (backend " NV_GPU_LANG_STRING_PH "): InitializeReductionBuffer returned nonzero\n");
+  }
+
+  if (atomic)
+  {
+    maxNormKernel<realtype, sunindextype, GridReducerAtomic><<<grid, block, shMemSize, stream>>>
+    (
+      xd,
+      NV_DBUFFERp_PH(x),
+      N,
+      nullptr
+    );
+  }
+  else
+  {
+    maxNormKernel<realtype, sunindextype, GridReducerLDS><<<grid, block, shMemSize, stream>>>
+    (
+      xd,
+      NV_DBUFFERp_PH(x),
+      N,
+      NV_DCOUNTERp_PH(x)
+    );
+  }
+  PostKernelLaunch();
+
+  // Get result from the GPU
+  CopyReductionBufferFromDevice(x);
+  max = NV_HBUFFERp_PH(x)[0];
+#endif
+  return max;
 }
 
 realtype N_VMaxNorm_ParHyp(N_Vector x)
