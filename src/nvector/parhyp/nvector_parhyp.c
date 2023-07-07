@@ -624,8 +624,8 @@ void N_VDestroy_ParHyp(N_Vector v)
     FreeDeviceCounter(v);
     FreeReductionBuffer(v);
     // FusedBuffer_Free(v);
-    NV_PRIVATE_PH(v) = NULL;
     free(NV_PRIVATE_PH(v));
+    NV_CONTENT_PH(v)->priv = NULL;
   }
   delete NV_STREAM_POLICY_PH(v);
   delete NV_REDUCE_POLICY_PH(v);
@@ -2638,7 +2638,7 @@ static void FreeReductionBuffer(N_Vector v)
   vcp->reduce_buffer_bytes = 0;
 }
 
-static int CopyReductionBufferFromDevice(N_Vector v, size_t n);
+static int CopyReductionBufferFromDevice(N_Vector v, size_t n)
 {
   int copy_fail;
   NV_ADD_LANG_PREFIX_PH(Error_t) err;
