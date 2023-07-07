@@ -977,7 +977,7 @@ int CVodeResizeHistory(void *cvode_mem, sunrealtype* t_hist, N_Vector* y_hist,
   }
 
   retval = NewtonPolyMultiDerEval(t_hist, cv_mem->resize_wrk, n_hist, t_hist[0],
-                                  cv_mem->cv_qprime + 1, cv_mem->cv_zn);
+                                  cv_mem->cv_qprime, cv_mem->cv_zn);
   if (retval)
   {
     cvProcessError(cv_mem, CV_ILL_INPUT, "CVODE", "CVodeResizeHistory",
