@@ -279,7 +279,7 @@ int main(int argc, char* argv[])
   // 14 steps - reach 3rd order
   // 22 steps - reach 4th order
   // 27 steps - reach 5th order
-  for (int i = 1; i <= 14; i++)
+  for (int i = 1; i <= 30; i++)
   {
     std::cout << std::flush;
     std::cerr << std::flush;
