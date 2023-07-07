@@ -199,8 +199,6 @@ if(EXAMPLES_INSTALL)
       nvecparallel
     DESTINATION
       nvector/parallel
-    HAS_MPI
-      "ON"
     EXAMPLES_DEPENDENCIES
       ${nvector_examples_dependencies}
     EXTRA_FILES
