@@ -352,15 +352,15 @@ int main(int argc, char* argv[])
         hist_size = 6;
       }
 
-      for (int j = 0; j < 5; j++)
+      for (int j = 5; j > 0; j--)
       {
-        thist[j + 1] = thist[j];
+        thist[j] = thist[j - 1];
       }
       thist[0] = tret;
 
-      for (int j = 0; j < 5; j++)
+      for (int j = 5; j > 0; j--)
       {
-        N_VScale(ONE, yhist[j], yhist[j + 1]);
+        N_VScale(ONE, yhist[j - 1], yhist[j]);
       }
       N_VScale(ONE, y, yhist[0]);
 
