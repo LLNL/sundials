@@ -74,14 +74,25 @@
 
 /* --- Backend-specific definitions --- */
 
-// TODO: Would this be good for locality, or needlessly confusing?
-// #if defined(SUNDIALS_HYPRE_BACKENDS_SERIAL)
-// #define NV_BACKEND_SERIAL_PH
-// #elif defined(SUNDIALS_HYPRE_BACKENDS_CUDA)
-// #define NV_BACKEND_CUDA_PH 
-// #elif defined(SUNDIALS_HYPRE_BACKENDS_HIP)
-// #define NV_BACKEND_HIP_PH
-// #endif
+#if defined(SUNDIALS_HYPRE_BACKENDS_SERIAL)
+#define NV_BACKEND_STRING_PH "SERIAL"
+
+#elif defined(SUNDIALS_HYPRE_BACKENDS_CUDA)
+#define NV_BACKEND_STRING_PH "CUDA"
+#define NV_GPU_LANG_TOKEN_PH cuda
+#define NV_ADD_LANG_PREFIX_PH(token) cuda##token // token pasting; expands to ```cuda[token]```
+#define NV_EXECPOLICY_TYPE_PH SUNCudaExecPolicy
+#define NV_MEMHELP_STRUCT_PH SUNMemoryHelper_Cuda
+#define NV_VERIFY_CALL_PH SUNDIALS_CUDA_VERIFY
+
+#elif defined(SUNDIALS_HYPRE_BACKENDS_HIP)
+#define NV_BACKEND_STRING_PH "HIP"
+#define NV_GPU_LANG_TOKEN_PH hip
+#define NV_ADD_LANG_PREFIX_PH(token) hip##token // token pasting; expands to ```hip[token]```
+#define NV_EXECPOLICY_TYPE_PH SUNHipExecPolicy
+#define NV_MEMHELP_STRUCT_PH SUNMemoryHelper_Hip
+#define NV_VERIFY_CALL_PH SUNDIALS_HIP_VERIFY
+#endif
 
 #if defined(SUNDIALS_HYPRE_BACKENDS_CUDA) || defined(SUNDIALS_HYPRE_BACKENDS_HIP)
 #define SUNDIALS_HYPRE_BACKENDS_CUDA_OR_HIP
@@ -89,39 +100,6 @@
 
 #if defined(SUNDIALS_HYPRE_USING_UNIFIED_MEMORY) && defined(SUNDIALS_HYPRE_BACKENDS_CUDA)
 #define SUNDIALS_HYPRE_USING_UNIFIED_MEMORY_AND_CUDA
-#endif
-
-#if defined(SUNDIALS_HYPRE_BACKENDS_CUDA)
-
-#define NV_GPU_LANG_TOKEN_PH cuda
-#define NV_GPU_LANG_STRING_PH "CUDA"
-#define NV_ADD_LANG_PREFIX_PH(token) cuda##token // token pasting; expands to ```cuda[token]```
-/* Example usage: NV_ADD_LANG_PREFIX_PH(MemsetAsync)(...) -> cudaMemsetAsync(...) */
-
-#define NV_EXECPOLICY_TYPE_PH SUNCudaExecPolicy
-#define NV_MEMHELP_STRUCT_PH SUNMemoryHelper_Cuda
-#define NV_VERIFY_CALL_PH SUNDIALS_CUDA_VERIFY
-
-// #define NV_lang_TOKEN_PH cuda
-// #define NV_Stream_TYPE_PH cudaStream_t
-// #define NV_DeviceSynchronize_CALL_PH cudaDeviceSynchronize
-// #define NV_GetLastError_CALL_PH cudaGetLastError
-// #define NV_MemsetAsync_CALL_PH cudaMemsetAsync
-// #define NV_Memcpy_CALL_PH cudaMemcpy
-// #define NV_MemcpyDeviceToHost_TOKEN_PH cudaMemcpyDeviceToHost
-// #define NV_MemcpyHostToDevice_TOKEN_PH cudaMemcpyHostToDevice
-
-#elif defined(SUNDIALS_HYPRE_BACKENDS_HIP)
-
-#define NV_GPU_LANG_TOKEN_PH hip
-#define NV_GPU_LANG_STRING_PH "HIP"
-#define NV_ADD_LANG_PREFIX_PH(token) hip##token // token pasting; expands to ```hip[token]```
-/* Example usage: NV_ADD_LANG_PREFIX_PH(MemsetAsync)(...) -> hipMemsetAsync(...) */
-
-#define NV_EXECPOLICY_TYPE_PH SUNHipExecPolicy
-#define NV_MEMHELP_STRUCT_PH SUNMemoryHelper_Hip
-#define NV_VERIFY_CALL_PH SUNDIALS_HIP_VERIFY
-
 #endif
 
 /* --- Wrapper to enable C++ usage --- */
