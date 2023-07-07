@@ -311,15 +311,21 @@ macro(sundials_add_library target)
 
       # set the correct output name
       if(sundials_add_library_OUTPUT_NAME)
-        set_target_properties(${_actual_target_name} PROPERTIES
-          OUTPUT_NAME ${sundials_add_library_OUTPUT_NAME}
-          CLEAN_DIRECT_OUTPUT 1
-        )
+        set(tgt_output_name ${sundials_add_library_OUTPUT_NAME})
       else()
-        set_target_properties(${_actual_target_name} PROPERTIES
-          OUTPUT_NAME ${target}
-          CLEAN_DIRECT_OUTPUT 1
-        )
+        set(tgt_output_name ${target})
+      endif()
+
+      if(${_libtype} MATCHES "STATIC")
+          set_target_properties(${_actual_target_name} PROPERTIES
+            OUTPUT_NAME ${tgt_output_name}${_STATIC_LIB_SUFFIX}
+            CLEAN_DIRECT_OUTPUT 1
+          )
+      else()
+          set_target_properties(${_actual_target_name} PROPERTIES
+            OUTPUT_NAME ${tgt_output_name}
+            CLEAN_DIRECT_OUTPUT 1
+          )
       endif()
 
       # set the library versions
