@@ -1047,6 +1047,18 @@ int CVodeResizeHistory(void *cvode_mem, sunrealtype* t_hist, N_Vector* y_hist,
     return CV_ILL_INPUT;
   }
 
+  /* Force zn[1] = y'(t_n-1, y_n-1) -- ideally we would use the value computed
+     by the interpolant but it has a larger error -- FURTHER TESTING NEEDED */
+  /* retval = cv_mem->cv_f(cv_mem->cv_tn, cv_mem->cv_zn[0], */
+  /*                       cv_mem->cv_zn[1], cv_mem->cv_user_data); */
+  /* cv_mem->cv_nfe++; */
+  /* if (retval) */
+  /* { */
+  /*   cvProcessError(cv_mem, CV_RHSFUNC_FAIL, "CVODE", "CVode", */
+  /*                  MSGCV_RHSFUNC_FAILED, cv_mem->cv_tn); */
+  /*   return CV_RHSFUNC_FAIL; */
+  /* } */
+
   sunrealtype scale = ONE;
   for (int i = 1; i < cv_mem->cv_q + 1; i++)
   {
@@ -2651,11 +2663,11 @@ static int cvStep(CVodeMem cv_mem)
   }
 
   /* printf("After AdjustParams\n"); */
-  /* printf("tn = %g\n", cv_mem->cv_tn); */
-  /* printf("zn[0]\n"); */
-  /* N_VPrint(cv_mem->cv_zn[0]); */
-  /* printf("zn[1]\n"); */
-  /* N_VPrint(cv_mem->cv_zn[1]); */
+  /* for (int ord = 0; ord < 6; ord++) */
+  /* { */
+  /*   printf("zn[%d]\n", ord); */
+  /*   N_VPrint(cv_mem->cv_zn[ord]); */
+  /* } */
   /* printf("-----\n"); */
 
   /* Check if this step should be projected */
@@ -2682,31 +2694,31 @@ static int cvStep(CVodeMem cv_mem)
     cvPredict(cv_mem);
 
     /* printf("After Predict\n"); */
-    /* printf("tn = %g\n", cv_mem->cv_tn); */
-    /* printf("zn[0]\n"); */
-    /* N_VPrint(cv_mem->cv_zn[0]); */
-    /* printf("zn[1]\n"); */
-    /* N_VPrint(cv_mem->cv_zn[1]); */
+    /* for (int ord = 0; ord < 6; ord++) */
+    /* { */
+    /*   printf("zn[%d]\n", ord); */
+    /*   N_VPrint(cv_mem->cv_zn[ord]); */
+    /* } */
     /* printf("-----\n"); */
 
     cvSet(cv_mem);
 
     /* printf("After Set\n"); */
-    /* printf("tn = %g\n", cv_mem->cv_tn); */
-    /* printf("zn[0]\n"); */
-    /* N_VPrint(cv_mem->cv_zn[0]); */
-    /* printf("zn[1]\n"); */
-    /* N_VPrint(cv_mem->cv_zn[1]); */
+    /* for (int ord = 0; ord < 6; ord++) */
+    /* { */
+    /*   printf("zn[%d]\n", ord); */
+    /*   N_VPrint(cv_mem->cv_zn[ord]); */
+    /* } */
     /* printf("-----\n"); */
 
     nflag = cvNls(cv_mem, nflag);
 
     /* printf("After NLS\n"); */
-    /* printf("tn = %g\n", cv_mem->cv_tn); */
-    /* printf("zn[0]\n"); */
-    /* N_VPrint(cv_mem->cv_zn[0]); */
-    /* printf("zn[1]\n"); */
-    /* N_VPrint(cv_mem->cv_zn[1]); */
+    /* for (int ord = 0; ord < 6; ord++) */
+    /* { */
+    /*   printf("zn[%d]\n", ord); */
+    /*   N_VPrint(cv_mem->cv_zn[ord]); */
+    /* } */
     /* printf("-----\n"); */
 
     kflag = cvHandleNFlag(cv_mem, &nflag, saved_t, &ncf);
@@ -2752,21 +2764,21 @@ static int cvStep(CVodeMem cv_mem)
   cvCompleteStep(cv_mem);
 
   /* printf("After Complete Step\n"); */
-  /* printf("tn = %g\n", cv_mem->cv_tn); */
-  /* printf("zn[0]\n"); */
-  /* N_VPrint(cv_mem->cv_zn[0]); */
-  /* printf("zn[1]\n"); */
-  /* N_VPrint(cv_mem->cv_zn[1]); */
+  /* for (int ord = 0; ord < 6; ord++) */
+  /* { */
+  /*   printf("zn[%d]\n", ord); */
+  /*   N_VPrint(cv_mem->cv_zn[ord]); */
+  /* } */
   /* printf("-----\n"); */
 
   cvPrepareNextStep(cv_mem, dsm);
 
   /* printf("After PrepareNextStep\n"); */
-  /* printf("tn = %g\n", cv_mem->cv_tn); */
-  /* printf("zn[0]\n"); */
-  /* N_VPrint(cv_mem->cv_zn[0]); */
-  /* printf("zn[1]\n"); */
-  /* N_VPrint(cv_mem->cv_zn[1]); */
+  /* for (int ord = 0; ord < 6; ord++) */
+  /* { */
+  /*   printf("zn[%d]\n", ord); */
+  /*   N_VPrint(cv_mem->cv_zn[ord]); */
+  /* } */
   /* printf("-----\n"); */
 
   /* If Stablilty Limit Detection is turned on, call stability limit

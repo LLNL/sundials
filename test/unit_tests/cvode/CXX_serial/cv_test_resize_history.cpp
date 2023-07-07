@@ -359,6 +359,11 @@ int main(int argc, char* argv[])
 
       flag = CVodeSetMaxNonlinIters(cvode_mem, 10);
       if (check_flag(flag, "CVodeSetMaxNonlinIters")) return 1;
+
+      // // Print Nordsieck array (length q_max + 1)
+      // PrintNordsieck(tret, ytmp, cv_mem->cv_zn, cv_mem->cv_hscale, 6, udata);
+      // if (check_flag(flag, "PrintNordsieck")) return 1;
+
       // std::cout << "\n========== End Resize " << i << " ==========\n";
     }
   }
