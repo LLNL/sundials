@@ -783,8 +783,8 @@ int NewtonPolyCoef(sunrealtype* t, N_Vector* y, int M, N_Vector* c)
       /* N_VPrint(c[j - 1]); */
 
       /* c_j = (c_j - c_{j - 1}) / (t_j - t_{j - i}) */
-      N_VLinearSum(ONE / (t[j] - t[j - 1]), c[j],
-                   -ONE / (t[j] - t[j - 1]), c[j - 1], c[j]);
+      N_VLinearSum(ONE / (t[j] - t[j - i]), c[j],
+                   -ONE / (t[j] - t[j - i]), c[j - 1], c[j]);
       /* printf("result c[%d]\n", j); */
       /* N_VPrint(c[j]); */
     }
