@@ -111,5 +111,4 @@ foreach(idx RANGE ${len})
   separate_arguments(example_args_wo_quotes UNIX_COMMAND "${example_args}")
   add_test(NAME ${test_name} COMMAND ${example_target} ${example_args_wo_quotes})
 
-
 endforeach()
