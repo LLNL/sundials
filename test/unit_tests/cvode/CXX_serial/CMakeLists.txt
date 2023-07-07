@@ -29,6 +29,7 @@ set(unit_tests
   "cv_test_kpr.cpp\;--dgmax_jbad 1.0"
   "cv_test_getjac.cpp\;"
   "cv_test_resize_history.cpp\;"
+  "test_newton_poly.cpp\;"
 )
 
 # Add the build and install targets for each test
