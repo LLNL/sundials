@@ -273,7 +273,7 @@ void N_VPrintFile_Serial(N_Vector x, FILE* outfile)
     fprintf(outfile, "%11.8e\n", xd[i]);
 #endif
   }
-  fprintf(outfile, "\n");
+  //fprintf(outfile, "\n");
 
   return;
 }

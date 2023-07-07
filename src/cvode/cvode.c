@@ -977,25 +977,27 @@ int CVodeResizeHistory(void *cvode_mem, sunrealtype* t_hist, N_Vector* y_hist,
 
   /* If there could be an order change in the next step resize and fill the
      saved correction vector to use in the q+1 error estimate */
-  if (((cv_mem->cv_qwait == 1) && (cv_mem->cv_q != cv_mem->cv_qmax)) ||
-      (cv_mem->cv_q != cv_mem->cv_qprime))
-  {
-    SUNLogger_QueueMsg(CV_LOGGER, SUN_LOGLEVEL_DEBUG,
-                       "CVODE::CVodeResizeHistory", "resize acor prev",
-                       "%s", "Resizing previous correction");
-    // resize_vector(old vec, new vec, user_data)
-    retval = resize_fn(cv_mem->cv_zn[cv_mem->cv_qmax], cv_mem->cv_tempv,
-                       cv_mem->cv_user_data);
-    if (retval)
-    {
-      // >>>>>
-      // TODO(DJG): Change return value
-      // <<<<<
-      cvProcessError(cv_mem, CV_ILL_INPUT, "CVODE", "CVodeResizeHistory",
-                     "Resize function is NULL");
-      return CV_ILL_INPUT;
-    }
-  }
+  /* if (((cv_mem->cv_qwait == 1) && (cv_mem->cv_q != cv_mem->cv_qmax)) || */
+  /*     (cv_mem->cv_q != cv_mem->cv_qprime)) */
+  /* { */
+  /*   SUNLogger_QueueMsg(CV_LOGGER, SUN_LOGLEVEL_DEBUG, */
+  /*                      "CVODE::CVodeResizeHistory", "resize acor prev", */
+  /*                      "%s", "Resizing previous correction"); */
+  /*   // resize_vector(old vec, new vec, user_data) */
+  /*   retval = resize_fn(cv_mem->cv_zn[cv_mem->cv_qmax], cv_mem->cv_tempv, */
+  /*                      cv_mem->cv_user_data); */
+  /*   if (retval) */
+  /*   { */
+  /*     // >>>>> */
+  /*     // TODO(DJG): Change return value */
+  /*     // <<<<< */
+  /*     cvProcessError(cv_mem, CV_ILL_INPUT, "CVODE", "CVodeResizeHistory", */
+  /*                    "Resize function is NULL"); */
+  /*     return CV_ILL_INPUT; */
+  /*   } */
+  /* } */
+  retval = resize_fn(cv_mem->cv_zn[cv_mem->cv_qmax], cv_mem->cv_tempv,
+                     cv_mem->cv_user_data);
 
   for (int j = 0; j <= maxord; j++)
   {
@@ -1052,11 +1054,12 @@ int CVodeResizeHistory(void *cvode_mem, sunrealtype* t_hist, N_Vector* y_hist,
     N_VScale(scale, cv_mem->cv_zn[i], cv_mem->cv_zn[i]);
   }
 
-  if (((cv_mem->cv_qwait == 1) && (cv_mem->cv_q != cv_mem->cv_qmax)) ||
-      (cv_mem->cv_q != cv_mem->cv_qprime))
-  {
-    N_VScale(ONE, cv_mem->cv_tempv, cv_mem->cv_zn[cv_mem->cv_qmax]);
-  }
+  /* if (((cv_mem->cv_qwait == 1) && (cv_mem->cv_q != cv_mem->cv_qmax)) || */
+  /*     (cv_mem->cv_q != cv_mem->cv_qprime)) */
+  /* { */
+  /*   N_VScale(ONE, cv_mem->cv_tempv, cv_mem->cv_zn[cv_mem->cv_qmax]); */
+  /* } */
+  N_VScale(ONE, cv_mem->cv_tempv, cv_mem->cv_zn[cv_mem->cv_qmax]);
 
   /* printf("Finish Resize\n"); */
   /* printf("tn = %g\n", cv_mem->cv_tn); */

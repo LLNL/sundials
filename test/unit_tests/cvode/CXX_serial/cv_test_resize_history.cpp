@@ -301,7 +301,7 @@ int main(int argc, char* argv[])
 
     if (resize == 1)
     {
-      std::cout << "\n========== Start Resize " << i << " ==========\n";
+      // std::cout << "\n========== Start Resize " << i << " ==========\n";
       // Test 2: Copy and expand the state
 
       // Update saved history
@@ -359,7 +359,7 @@ int main(int argc, char* argv[])
 
       flag = CVodeSetMaxNonlinIters(cvode_mem, 10);
       if (check_flag(flag, "CVodeSetMaxNonlinIters")) return 1;
-      std::cout << "\n========== End Resize " << i << " ==========\n";
+      // std::cout << "\n========== End Resize " << i << " ==========\n";
     }
   }
   std::cout << std::endl;
