@@ -765,6 +765,12 @@ int NewtonPolyCoef(sunrealtype* t, N_Vector* y, int M, N_Vector* c)
     }
   }
 
+  /* printf("Newton Coef\n"); */
+  /* printf("c[0]\n"); */
+  /* N_VPrint(c[0]); */
+  /* printf("c[1]\n"); */
+  /* N_VPrint(c[1]); */
+
   return CV_SUCCESS;
 }
 
@@ -844,6 +850,12 @@ int NewtonPolyMultiDerEval(sunrealtype* t, N_Vector* c, int M, sunrealtype s,
     // P_i = P_{i + 1} * (s - t_i) + c_i
     N_VLinearSum(s - t[i], p[0], ONE, c[i], p[0]);
   }
+
+  /* printf("Newton Eval\n"); */
+  /* printf("p[0]\n"); */
+  /* N_VPrint(p[0]); */
+  /* printf("p[1]\n"); */
+  /* N_VPrint(p[1]); */
 
   return CV_SUCCESS;
 }
@@ -2647,6 +2659,14 @@ static int cvStep(CVodeMem cv_mem)
     cvAdjustParams(cv_mem);
   }
 
+  /* printf("After AdjustParams\n"); */
+  /* printf("tn = %g\n", cv_mem->cv_tn); */
+  /* printf("zn[0]\n"); */
+  /* N_VPrint(cv_mem->cv_zn[0]); */
+  /* printf("zn[1]\n"); */
+  /* N_VPrint(cv_mem->cv_zn[1]); */
+  /* printf("-----\n"); */
+
   /* Check if this step should be projected */
   doProjection = SUNFALSE;
   if (cv_mem->proj_enabled)
@@ -2669,9 +2689,35 @@ static int cvStep(CVodeMem cv_mem)
 #endif
 
     cvPredict(cv_mem);
+
+    /* printf("After Predict\n"); */
+    /* printf("tn = %g\n", cv_mem->cv_tn); */
+    /* printf("zn[0]\n"); */
+    /* N_VPrint(cv_mem->cv_zn[0]); */
+    /* printf("zn[1]\n"); */
+    /* N_VPrint(cv_mem->cv_zn[1]); */
+    /* printf("-----\n"); */
+
     cvSet(cv_mem);
 
+    /* printf("After Set\n"); */
+    /* printf("tn = %g\n", cv_mem->cv_tn); */
+    /* printf("zn[0]\n"); */
+    /* N_VPrint(cv_mem->cv_zn[0]); */
+    /* printf("zn[1]\n"); */
+    /* N_VPrint(cv_mem->cv_zn[1]); */
+    /* printf("-----\n"); */
+
     nflag = cvNls(cv_mem, nflag);
+
+    /* printf("After NLS\n"); */
+    /* printf("tn = %g\n", cv_mem->cv_tn); */
+    /* printf("zn[0]\n"); */
+    /* N_VPrint(cv_mem->cv_zn[0]); */
+    /* printf("zn[1]\n"); */
+    /* N_VPrint(cv_mem->cv_zn[1]); */
+    /* printf("-----\n"); */
+
     kflag = cvHandleNFlag(cv_mem, &nflag, saved_t, &ncf);
 
     /* Go back in loop if we need to predict again (nflag=PREV_CONV_FAIL) */
@@ -2714,7 +2760,23 @@ static int cvStep(CVodeMem cv_mem)
 
   cvCompleteStep(cv_mem);
 
+  /* printf("After Complete Step\n"); */
+  /* printf("tn = %g\n", cv_mem->cv_tn); */
+  /* printf("zn[0]\n"); */
+  /* N_VPrint(cv_mem->cv_zn[0]); */
+  /* printf("zn[1]\n"); */
+  /* N_VPrint(cv_mem->cv_zn[1]); */
+  /* printf("-----\n"); */
+
   cvPrepareNextStep(cv_mem, dsm);
+
+  /* printf("After PrepareNextStep\n"); */
+  /* printf("tn = %g\n", cv_mem->cv_tn); */
+  /* printf("zn[0]\n"); */
+  /* N_VPrint(cv_mem->cv_zn[0]); */
+  /* printf("zn[1]\n"); */
+  /* N_VPrint(cv_mem->cv_zn[1]); */
+  /* printf("-----\n"); */
 
   /* If Stablilty Limit Detection is turned on, call stability limit
      detection routine for possible order reduction. */
