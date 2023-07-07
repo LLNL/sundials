@@ -19,18 +19,23 @@
 
 # Examples using SUNDIALS OpenMP nvector
 set(nvector_openmp_examples
-  "test_nvector_openmp\;1000 1 0\;"
-  "test_nvector_openmp\;1000 2 0\;"
-  "test_nvector_openmp\;1000 4 0\;"
-  "test_nvector_openmp\;10000 1 0\;"
-  "test_nvector_openmp\;10000 2 0\;"
-  "test_nvector_openmp\;10000 4 0\;"
+  "test_nvector_openmp.c\; \"1000 1 0\" \; \"\" "
+  "test_nvector_openmp.c\; \"1000 2 0\" \; \"\" "
+  "test_nvector_openmp.c\; \"1000 4 0\" \; \"\" "
+  "test_nvector_openmp.c\; \"10000 1 0\" \; \"\" "
+  "test_nvector_openmp.c\; \"10000 2 0\" \; \"\" "
+  "test_nvector_openmp.c\; \"10000 4 0\" \; \"\" "
   )
 
 # Dependencies for nvector examples
 set(nvector_examples_dependencies
-  test_nvector
+  test_nvector.c
+  test_nvector.h
   )
+set(nvector_examples_files
+  ../test_nvector.c
+  ../test_nvector.h
+)
 
 # If building F2003 tests
 if (BUILD_FORTRAN_MODULE_INTERFACE)
@@ -53,16 +58,18 @@ set(SUNDIALS_LIBS ${NVECS_LIB} ${EXE_EXTRA_LINK_LIBS})
 # Add the build and install targets for each example
 foreach(example_tuple ${nvector_openmp_examples})
 
-  # parse the example tuple
-  list(GET example_tuple 0 example)
-  list(GET example_tuple 1 example_args)
-  list(GET example_tuple 2 example_type)
+  # parse the example tuple using sundials_parse_tuple macro
+  sundials_parse_tuple( nvector_openmp_examples
+    FILENAME_VAR example
+    PARAMS_VAR example_args
+    TYPE_VAR example_type
+  ) 
 
   # check if this example has already been added, only need to add
   # example source files once for testing with different inputs
   if(NOT TARGET ${example})
     # example source files
-    add_executable(${example} ${example}.c)
+    add_executable(${example} ${example})
 
     # link vector test utilties
     target_link_libraries(${example} PRIVATE test_nvector_obj)
@@ -87,23 +94,17 @@ foreach(example_tuple ${nvector_openmp_examples})
     EXAMPLE_TYPE ${example_type}
     NODIFF)
 
-  # install example source files
-  if(EXAMPLES_INSTALL)
-    install(FILES ${example}.c
-      ../test_nvector.c
-      ../test_nvector.h
-      DESTINATION ${EXAMPLES_INSTALL_PATH}/nvector/C_openmp)
-  endif()
-
 endforeach(example_tuple ${nvector_openmp_examples})
 
 # Add the build and install targets for each example
 foreach(example_tuple ${nvector_openmp_fortran_examples})
 
-  # parse the example tuple
-  list(GET example_tuple 0 example)
-  list(GET example_tuple 1 example_args)
-  list(GET example_tuple 2 example_type)
+  # parse the example tuple using sundials_parse_tuple macro
+  sundials_parse_tuple( nvector_openmp_fortran_examples
+    FILENAME_VAR example
+    PARAMS_VAR example_args
+    TYPE_VAR example_type
+  ) 
 
   # check if this example has already been added, only need to add
   # example source files once for testing with different inputs
@@ -136,51 +137,25 @@ foreach(example_tuple ${nvector_openmp_fortran_examples})
 
 endforeach(example_tuple ${nvector_openmp_fortran_examples})
 
+# create Makfile and CMakeLists.txt for examples
 if(EXAMPLES_INSTALL)
 
-  # Install the README file
-  install(FILES DESTINATION ${EXAMPLES_INSTALL_PATH}/nvector/C_openmp)
-
-  # Prepare substitution variables for Makefile and/or CMakeLists templates
-  set(SOLVER_LIB "sundials_nvecopenmp")
-
-  examples2string(nvector_openmp_examples EXAMPLES)
-  examples2string(nvector_examples_dependencies EXAMPLES_DEPENDENCIES)
-
-  # Regardless of the platform we're on, we will generate and install
-  # CMakeLists.txt file for building the examples. This file  can then
-  # be used as a template for the user's own programs.
-
-  # generate CMakelists.txt in the binary directory
-  configure_file(
-    ${PROJECT_SOURCE_DIR}/examples/templates/cmakelists_openmp_C_ex.in
-    ${PROJECT_BINARY_DIR}/examples/nvector/C_openmp/CMakeLists.txt
-    @ONLY
-    )
-
-  # install CMakelists.txt
-  install(
-    FILES ${PROJECT_BINARY_DIR}/examples/nvector/C_openmp/CMakeLists.txt
-    DESTINATION ${EXAMPLES_INSTALL_PATH}/nvector/C_openmp
-    )
-
-  # On UNIX-type platforms, we also  generate and install a makefile for
-  # building the examples. This makefile can then be used as a template
-  # for the user's own programs.
-
-  if(UNIX)
-    # generate Makefile and place it in the binary dir
-    configure_file(
-      ${PROJECT_SOURCE_DIR}/examples/templates/makefile_openmp_C_ex.in
-      ${PROJECT_BINARY_DIR}/examples/nvector/C_openmp/Makefile_ex
-      @ONLY
-      )
-    # install the configured Makefile_ex as Makefile
-    install(
-      FILES ${PROJECT_BINARY_DIR}/examples/nvector/C_openmp/Makefile_ex
-      DESTINATION ${EXAMPLES_INSTALL_PATH}/nvector/C_openmp
-      RENAME Makefile
-      )
-  endif()
+  sundials_install_examples(nvector nvector_openmp_examples
+    HAS_OPENMP
+    CMAKE_TEMPLATE
+      cmakelists_C_openmp_ex.in
+    MAKE_TEMPLATE
+      makefile_openmp_C_ex.in
+    SUNDIALS_TARGETS
+      nvecopenmp
+    DESTINATION
+      nvector/C_openmp
+    EXAMPLES_DEPENDENCIES
+      ${nvector_examples_dependencies}
+    EXTRA_FILES
+      ${nvector_examples_files}
+    TEST_INSTALL
+      C_openmp
+  )
 
 endif()
