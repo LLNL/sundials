@@ -755,13 +755,13 @@ int NewtonPolyCoef(sunrealtype* t, N_Vector* y, int M, N_Vector* c)
   if (M == 1) return CV_SUCCESS;
 
   /* Compute coefficients from bottom up to write in place */
-  for (i = 0; i < M; i++)
+  for (i = 1; i < M; i++)
   {
-    for (j = M - 1; j >= i; j--)
+    for (j = M - 1; j > i - 1; j--)
     {
       /* c_j = (c_j - c_{j - 1}) / (t_j - t_{j - i}) */
-      N_VLinearSum(ONE / (t[j] - t[j-1]), c[j],
-                   -ONE / (t[j] - t[j-1]), c[j - 1], c[j]);
+      N_VLinearSum(ONE / (t[j] - t[j - 1]), c[j],
+                   -ONE / (t[j] - t[j - 1]), c[j - 1], c[j]);
     }
   }
 
@@ -827,7 +827,7 @@ int NewtonPolyMultiDerEval(sunrealtype* t, N_Vector* c, int M, sunrealtype s,
   /* Initialize interpolation output to P_{M-1} = c_{M-1} and derivative output
      to zero */
   N_VScale(ONE, c[M - 1], p[0]);
-  for (i = 1; i < d; i++)
+  for (i = 1; i < d + 1; i++)
   {
     N_VConst(ZERO, p[i]);
   }
