@@ -979,8 +979,12 @@ int CVodeResizeHistory(void *cvode_mem, sunrealtype* t_hist, N_Vector* y_hist,
    * Construct Nordsieck Array (new) *
    * ------------------------------- */
 
+  /* >>>>> NOTE use use qprime + 1 not n_hist, so the interpolation order is
+   correct even if more history than desired is provided <<<<< */
+
   /* Compute interpolation coefficients */
-  retval = NewtonPolyCoef(t_hist, y_hist, n_hist, cv_mem->resize_wrk);
+  retval = NewtonPolyCoef(t_hist, y_hist, cv_mem->cv_qprime + 1,
+                          cv_mem->resize_wrk);
   if (retval)
   {
     cvProcessError(cv_mem, CV_ILL_INPUT, "CVODE", "CVodeResizeHistory",
@@ -988,8 +992,10 @@ int CVodeResizeHistory(void *cvode_mem, sunrealtype* t_hist, N_Vector* y_hist,
     return CV_ILL_INPUT;
   }
 
-  retval = NewtonPolyMultiDerEval(t_hist, cv_mem->resize_wrk, n_hist, t_hist[0],
-                                  cv_mem->cv_qprime, cv_mem->cv_zn);
+  retval = NewtonPolyMultiDerEval(t_hist, cv_mem->resize_wrk,
+                                  cv_mem->cv_qprime + 1,
+                                  cv_mem->cv_tn, cv_mem->cv_qprime,
+                                  cv_mem->cv_zn);
   if (retval)
   {
     cvProcessError(cv_mem, CV_ILL_INPUT, "CVODE", "CVodeResizeHistory",
