@@ -190,7 +190,10 @@ using namespace sundials::hip::impl;
 
 /* --- Debug macros --- */
 
-#define NV_CATCH_ERR_PH(call) if (call) { SUNDIALS_DEBUG_PRINT("ERROR in " __FUNCTION__ " (backend " NV_BACKEND_STRING_PH "): " #call " returned nonzero\n") }
+#define NV_CATCH_ERR_PH(call)                         \
+  if (call) {                                         \
+    SUNDIALS_DEBUG_ERROR(#call " returned nonzero\n") \
+    }
 
 /* --- Private structure definition --- */
 
@@ -792,10 +795,7 @@ void N_VLinearSum_ParHyp(realtype a, N_Vector x, realtype b, N_Vector y, N_Vecto
   size_t grid, block, shMemSize;
   NV_ADD_LANG_PREFIX_PH(Stream_t) stream;
 
-  if (GetKernelParameters(x, false, grid, block, shMemSize, stream))
-  {
-    SUNDIALS_DEBUG_PRINT("ERROR in N_VLinearSum_ParHyp (backend " NV_BACKEND_STRING_PH "): GetKernelParameters returned nonzero\n");
-  }
+  NV_CATCH_ERR_PH(GetKernelParameters(x, false, grid, block, shMemSize, stream))
 
   linearSumKernel<<<grid, block, shMemSize, stream>>>
   (
@@ -840,10 +840,7 @@ void N_VProd_ParHyp(N_Vector x, N_Vector y, N_Vector z)
   size_t grid, block, shMemSize;
   NV_ADD_LANG_PREFIX_PH(Stream_t) stream;
 
-  if (GetKernelParameters(x, false, grid, block, shMemSize, stream))
-  {
-    SUNDIALS_DEBUG_PRINT("ERROR in N_VProd_ParHyp (backend " NV_BACKEND_STRING_PH "): GetKernelParameters returned nonzero\n");
-  }
+  NV_CATCH_ERR_PH(GetKernelParameters(x, false, grid, block, shMemSize, stream))
 
   prodKernel<<<grid, block, shMemSize, stream>>>
   (
@@ -879,10 +876,7 @@ void N_VDiv_ParHyp(N_Vector x, N_Vector y, N_Vector z)
   size_t grid, block, shMemSize;
   NV_ADD_LANG_PREFIX_PH(Stream_t) stream;
 
-  if (GetKernelParameters(x, false, grid, block, shMemSize, stream))
-  {
-    SUNDIALS_DEBUG_PRINT("ERROR in N_VDiv_ParHyp (backend " NV_BACKEND_STRING_PH "): GetKernelParameters returned nonzero\n");
-  }
+  NV_CATCH_ERR_PH(GetKernelParameters(x, false, grid, block, shMemSize, stream))
 
   divKernel<<<grid, block, shMemSize, stream>>>
   (
@@ -926,10 +920,7 @@ void N_VAbs_ParHyp(N_Vector x, N_Vector z)
   size_t grid, block, shMemSize;
   NV_ADD_LANG_PREFIX_PH(Stream_t) stream;
 
-  if (GetKernelParameters(x, false, grid, block, shMemSize, stream))
-  {
-    SUNDIALS_DEBUG_PRINT("ERROR in N_VAbs_ParHyp (backend " NV_BACKEND_STRING_PH "): GetKernelParameters returned nonzero\n");
-  }
+  NV_CATCH_ERR_PH(GetKernelParameters(x, false, grid, block, shMemSize, stream))
 
   absKernel<<<grid, block, shMemSize, stream>>>
   (
@@ -960,10 +951,7 @@ void N_VInv_ParHyp(N_Vector x, N_Vector z)
   size_t grid, block, shMemSize;
   NV_ADD_LANG_PREFIX_PH(Stream_t) stream;
 
-  if (GetKernelParameters(x, false, grid, block, shMemSize, stream))
-  {
-    SUNDIALS_DEBUG_PRINT("ERROR in N_VInv_ParHyp (backend " NV_BACKEND_STRING_PH "): GetKernelParameters returned nonzero\n");
-  }
+  NV_CATCH_ERR_PH(GetKernelParameters(x, false, grid, block, shMemSize, stream))
 
   invKernel<<<grid, block, shMemSize, stream>>>
   (
@@ -994,10 +982,7 @@ void N_VAddConst_ParHyp(N_Vector x, realtype b, N_Vector z)
   size_t grid, block, shMemSize;
   NV_ADD_LANG_PREFIX_PH(Stream_t) stream;
 
-  if (GetKernelParameters(x, false, grid, block, shMemSize, stream))
-  {
-    SUNDIALS_DEBUG_PRINT("ERROR in N_VAddConst_ParHyp (backend " NV_BACKEND_STRING_PH "): GetKernelParameters returned nonzero\n");
-  }
+  NV_CATCH_ERR_PH(GetKernelParameters(x, false, grid, block, shMemSize, stream))
 
   addConstKernel<<<grid, block, shMemSize, stream>>>
   (
@@ -1030,16 +1015,9 @@ realtype N_VDotProdLocal_ParHyp(N_Vector x, N_Vector y)
   size_t grid, block, shMemSize;
   NV_ADD_LANG_PREFIX_PH(Stream_t) stream;
 
-  if (GetKernelParameters(x, true, grid, block, shMemSize, stream, atomic))
-  {
-    SUNDIALS_DEBUG_PRINT("ERROR in N_VDotProdLocal_ParHyp (backend " NV_BACKEND_STRING_PH "): GetKernelParameters returned nonzero\n");
-  }
-  
+  NV_CATCH_ERR_PH(GetKernelParameters(x, true, grid, block, shMemSize, stream, atomic))
   const size_t buffer_size = atomic ? 1 : grid;
-  if (InitializeReductionBuffer(x, sum, buffer_size)) // Initialize reduction buffer within x->content->priv
-  {
-    SUNDIALS_DEBUG_PRINT("ERROR in N_VDotProdLocal_ParHyp (backend " NV_BACKEND_STRING_PH "): InitializeReductionBuffer returned nonzero\n");
-  }
+  NV_CATCH_ERR_PH(InitializeReductionBuffer(x, sum, buffer_size))
 
   if (atomic)
   {
@@ -1100,17 +1078,8 @@ realtype N_VMaxNormLocal_ParHyp(N_Vector x)
   NV_ADD_LANG_PREFIX_PH(Stream_t) stream;
 
   NV_CATCH_ERR_PH(GetKernelParameters(x, true, grid, block, shMemSize, stream, atomic))
-  NV_CATCH_ERR_PH(true)
-  // if (GetKernelParameters(x, true, grid, block, shMemSize, stream, atomic))
-  // {
-  //   SUNDIALS_DEBUG_PRINT("ERROR in N_VMaxNormLocal_ParHyp (backend " NV_BACKEND_STRING_PH "): GetKernelParameters returned nonzero\n");
-  // }
-
   const size_t buffer_size = atomic ? 1 : grid;
-  if (InitializeReductionBuffer(x, max, buffer_size)) // Initialize reduction buffer within x->content->priv
-  {
-    SUNDIALS_DEBUG_PRINT("ERROR in N_VMaxNormLocal_ParHyp (backend " NV_BACKEND_STRING_PH "): InitializeReductionBuffer returned nonzero\n");
-  }
+  NV_CATCH_ERR_PH(InitializeReductionBuffer(x, max, buffer_size))
 
   if (atomic)
   {
@@ -1171,16 +1140,9 @@ realtype N_VWSqrSumLocal_ParHyp(N_Vector x, N_Vector w)
   size_t grid, block, shMemSize;
   NV_ADD_LANG_PREFIX_PH(Stream_t) stream;
 
-  if (GetKernelParameters(x, true, grid, block, shMemSize, stream, atomic))
-  {
-    SUNDIALS_DEBUG_PRINT("ERROR in N_VWSqrSumLocal_ParHyp (backend " NV_BACKEND_STRING_PH "): GetKernelParameters returned nonzero\n");
-  }
-  
+  NV_CATCH_ERR_PH(GetKernelParameters(x, true, grid, block, shMemSize, stream, atomic))
   const size_t buffer_size = atomic ? 1 : grid;
-  if (InitializeReductionBuffer(x, sum, buffer_size)) // Initialize reduction buffer within x->content->priv
-  {
-    SUNDIALS_DEBUG_PRINT("ERROR in N_VWSqrSumLocal_ParHyp (backend " NV_BACKEND_STRING_PH "): InitializeReductionBuffer returned nonzero\n");
-  }
+  NV_CATCH_ERR_PH(InitializeReductionBuffer(x, sum, buffer_size))
 
   if (atomic)
   {
@@ -2153,10 +2115,7 @@ static void VSum_ParHyp(N_Vector x, N_Vector y, N_Vector z)
   size_t grid, block, shMemSize;
   NV_ADD_LANG_PREFIX_PH(Stream_t) stream;
 
-  if (GetKernelParameters(x, false, grid, block, shMemSize, stream))
-  {
-    SUNDIALS_DEBUG_PRINT("ERROR in VSum_ParHyp (backend " NV_BACKEND_STRING_PH "): GetKernelParameters returned nonzero\n");
-  }
+  NV_CATCH_ERR_PH(GetKernelParameters(x, false, grid, block, shMemSize, stream))
 
   linearSumKernel<<<grid, block, shMemSize, stream>>>
   (
@@ -2191,10 +2150,7 @@ static void VDiff_ParHyp(N_Vector x, N_Vector y, N_Vector z)
   size_t grid, block, shMemSize;
   NV_ADD_LANG_PREFIX_PH(Stream_t) stream;
 
-  if (GetKernelParameters(x, false, grid, block, shMemSize, stream))
-  {
-    SUNDIALS_DEBUG_PRINT("ERROR in VDiff_ParHyp (backend " NV_BACKEND_STRING_PH "): GetKernelParameters returned nonzero\n");
-  }
+  NV_CATCH_ERR_PH(GetKernelParameters(x, false, grid, block, shMemSize, stream))
 
   linearSumKernel<<<grid, block, shMemSize, stream>>>
   (
@@ -2229,10 +2185,7 @@ static void VScaleSum_ParHyp(realtype c, N_Vector x, N_Vector y, N_Vector z)
   size_t grid, block, shMemSize;
   NV_ADD_LANG_PREFIX_PH(Stream_t) stream;
 
-  if (GetKernelParameters(x, false, grid, block, shMemSize, stream))
-  {
-    SUNDIALS_DEBUG_PRINT("ERROR in VScaleSum_ParHyp (backend " NV_BACKEND_STRING_PH "): GetKernelParameters returned nonzero\n");
-  }
+  NV_CATCH_ERR_PH(GetKernelParameters(x, false, grid, block, shMemSize, stream))
 
   linearSumKernel<<<grid, block, shMemSize, stream>>>
   (
@@ -2267,10 +2220,7 @@ static void VScaleDiff_ParHyp(realtype c, N_Vector x, N_Vector y, N_Vector z)
   size_t grid, block, shMemSize;
   NV_ADD_LANG_PREFIX_PH(Stream_t) stream;
 
-  if (GetKernelParameters(x, false, grid, block, shMemSize, stream))
-  {
-    SUNDIALS_DEBUG_PRINT("ERROR in VScaleDiff_ParHyp (backend " NV_BACKEND_STRING_PH "): GetKernelParameters returned nonzero\n");
-  }
+  NV_CATCH_ERR_PH(GetKernelParameters(x, false, grid, block, shMemSize, stream))
 
   linearSumKernel<<<grid, block, shMemSize, stream>>>
   (
@@ -2305,10 +2255,7 @@ static void VLin1_ParHyp(realtype a, N_Vector x, N_Vector y, N_Vector z)
   size_t grid, block, shMemSize;
   NV_ADD_LANG_PREFIX_PH(Stream_t) stream;
 
-  if (GetKernelParameters(x, false, grid, block, shMemSize, stream))
-  {
-    SUNDIALS_DEBUG_PRINT("ERROR in VLin1_ParHyp (backend " NV_BACKEND_STRING_PH "): GetKernelParameters returned nonzero\n");
-  }
+  NV_CATCH_ERR_PH(GetKernelParameters(x, false, grid, block, shMemSize, stream))
 
   linearSumKernel<<<grid, block, shMemSize, stream>>>
   (
@@ -2343,10 +2290,7 @@ static void VLin2_ParHyp(realtype a, N_Vector x, N_Vector y, N_Vector z)
   size_t grid, block, shMemSize;
   NV_ADD_LANG_PREFIX_PH(Stream_t) stream;
 
-  if (GetKernelParameters(x, false, grid, block, shMemSize, stream))
-  {
-    SUNDIALS_DEBUG_PRINT("ERROR in VLin2_ParHyp (backend " NV_BACKEND_STRING_PH "): GetKernelParameters returned nonzero\n");
-  }
+  NV_CATCH_ERR_PH(GetKernelParameters(x, false, grid, block, shMemSize, stream))
 
   linearSumKernel<<<grid, block, shMemSize, stream>>>
   (
