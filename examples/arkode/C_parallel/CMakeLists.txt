@@ -61,7 +61,7 @@ foreach(example_tuple ${ARKODE_examples})
     NODES_VAR number_of_nodes
     NPROCS_VAR number_of_tasks
     TYPE_VAR example_type
-    PRECISION_VAR example_precision
+    FLT_PRECISION_VAR example_precision
   ) 
 
   if(NOT TARGET ${example})

@@ -43,7 +43,7 @@ foreach(example_tuple ${ARKODE_examples})
   FILENAME_VAR example
   PARAMS_VAR example_args
   TYPE_VAR example_type
-  PRECISION_VAR example_float_precision
+  FLT_PRECISION_VAR example_float_precision
   INT_PRECISION_VAR example_int_precision
   ) 
 
