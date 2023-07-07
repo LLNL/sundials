@@ -953,10 +953,14 @@ int CVodeResizeHistory(void *cvode_mem, sunrealtype* t_hist, N_Vector* y_hist,
     N_VConst(NAN, cv_mem->cv_zn[j]);
   }
 
-  if (((cv_mem->cv_qwait == 1) && (cv_mem->cv_q != cv_mem->cv_qmax)) ||
-      (cv_mem->cv_q != cv_mem->cv_qprime))
+  for (int j = 0; j <= maxord; j++)
   {
-    N_VScale(ONE, cv_mem->cv_tempv, cv_mem->cv_zn[cv_mem->cv_qmax]);
+    N_VDestroy(cv_mem->resize_wrk[j]);
+    cv_mem->resize_wrk[j] = N_VClone(tmpl);
+    // >>>>>
+    // TODO(DJG): Add option to set all values to NAN
+    // <<<<<
+    N_VConst(NAN, cv_mem->resize_wrk[j]);
   }
 
   /* ------------------------------- *
@@ -981,15 +985,25 @@ int CVodeResizeHistory(void *cvode_mem, sunrealtype* t_hist, N_Vector* y_hist,
     return CV_ILL_INPUT;
   }
 
-  sunrealtype scale[L_MAX];
-  scale[0] = ONE;
-  for (int i = 1; i < L_MAX; i++)
+  sunrealtype scale = ONE;
+  N_VScale(cv_mem->cv_hscale, cv_mem->cv_zn[0], cv_mem->cv_zn[0]);
+  for (int i = 1; i < cv_mem->cv_qprime + 1; i++)
   {
-    scale[i] *= cv_mem->cv_hscale / ((sunrealtype) i);
+    scale *= cv_mem->cv_hscale / ((sunrealtype) i);
+    N_VScale(scale, cv_mem->cv_zn[i], cv_mem->cv_zn[i]);
   }
 
-  /*   N_VScale((cv_mem->cv_hscale * cv_mem->cv_hscale) / TWO, */
-  /*            cv_mem->cv_zn[2], cv_mem->cv_zn[2]); */
+  if (((cv_mem->cv_qwait == 1) && (cv_mem->cv_q != cv_mem->cv_qmax)) ||
+      (cv_mem->cv_q != cv_mem->cv_qprime))
+  {
+    N_VScale(ONE, cv_mem->cv_tempv, cv_mem->cv_zn[cv_mem->cv_qmax]);
+  }
+
+  printf("Finish Resize\n");
+  printf("zn[0]\n");
+  N_VPrint(cv_mem->cv_zn[0]);
+  printf("zn[1]\n");
+  N_VPrint(cv_mem->cv_zn[1]);
 
   /* ------------------------------- *
    * Construct Nordsieck Array (old) *
