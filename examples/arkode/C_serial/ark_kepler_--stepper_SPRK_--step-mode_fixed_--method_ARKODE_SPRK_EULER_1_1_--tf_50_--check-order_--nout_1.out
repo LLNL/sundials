@@ -4,6 +4,7 @@
 Problem Arguments:
   stepper:              1
   step mode:            0
+  use tstop:            1
   use compensated sums: 0
   dt:                   0.001
   Tf:                   50
@@ -22,7 +23,7 @@ Inequality constraint fails  = 0
 Initial step size            = 0.001
 Last step size               = 2.582822844487962e-11
 Current step size            = 2.582822844487962e-11
-Explicit RHS fn evals        = 400009
+Explicit RHS fn evals        = 400010
 Implicit RHS fn evals        = 0
 NLS iters                    = 0
 NLS fails                    = 0
@@ -34,6 +35,7 @@ LS setups                    = 0
 Problem Arguments:
   stepper:              0
   step mode:            0
+  use tstop:            1
   use compensated sums: 0
   dt:                   0.001
   Tf:                   50
@@ -61,6 +63,7 @@ f2 RHS fn evals              = 50002
 Problem Arguments:
   stepper:              0
   step mode:            0
+  use tstop:            1
   use compensated sums: 0
   dt:                   0.0005
   Tf:                   50
@@ -88,6 +91,7 @@ f2 RHS fn evals              = 100001
 Problem Arguments:
   stepper:              0
   step mode:            0
+  use tstop:            1
   use compensated sums: 0
   dt:                   0.00025
   Tf:                   50
@@ -115,6 +119,7 @@ f2 RHS fn evals              = 200001
 Problem Arguments:
   stepper:              0
   step mode:            0
+  use tstop:            1
   use compensated sums: 0
   dt:                   0.000125
   Tf:                   50
@@ -142,6 +147,7 @@ f2 RHS fn evals              = 400002
 Problem Arguments:
   stepper:              0
   step mode:            0
+  use tstop:            1
   use compensated sums: 0
   dt:                   6.25e-05
   Tf:                   50
@@ -169,6 +175,7 @@ f2 RHS fn evals              = 800002
 Problem Arguments:
   stepper:              0
   step mode:            0
+  use tstop:            1
   use compensated sums: 0
   dt:                   3.125e-05
   Tf:                   50
@@ -196,6 +203,7 @@ f2 RHS fn evals              = 1600002
 Problem Arguments:
   stepper:              0
   step mode:            0
+  use tstop:            1
   use compensated sums: 0
   dt:                   1.5625e-05
   Tf:                   50
@@ -223,6 +231,7 @@ f2 RHS fn evals              = 3200001
 Problem Arguments:
   stepper:              0
   step mode:            0
+  use tstop:            1
   use compensated sums: 0
   dt:                   7.8125e-06
   Tf:                   50
@@ -245,4 +254,98 @@ f1 RHS fn evals              = 6400001
 f2 RHS fn evals              = 6400001
 
 Order of accuracy wrt solution:    expected = 1, max = 1.6317,  avg = 1.0843,  overall = 1.0418
-Order of accuracy wrt Hamiltonian: expected = 1, max = 0.9999,  avg = 0.9979,  overall = 0.9983
+Order of accuracy wrt Hamiltonian: expe
+=================================================================
+==64418==ERROR: LeakSanitizer: detected memory leaks
+
+Direct leak of 24 byte(s) in 1 object(s) allocated from:
+    #0 0x7fdf15bed07a in __interceptor_malloc /tmp/gardner48/spack-stage/spack-stage-gcc-5.5.0-khqnsyjkc36jajm2637pm3dftr2egjwk/spack-src/libsanitizer/asan/asan_malloc_linux.cc:62
+    #1 0x7fdf153af06c in ARKodeSPRKStorage_Alloc /home/gardner48/sundials/src/arkode/arkode_sprk.c:411
+    #2 0x7fdf153a485c in ARKodeSymplecticEuler /home/gardner48/sundials/src/arkode/arkode_sprk.c:25
+    #3 0x7fdf153af322 in ARKodeSPRKStorage_LoadByName /home/gardner48/sundials/src/arkode/arkode_sprk.c:446
+    #4 0x40232f in main /home/gardner48/sundials/examples/arkode/C_serial/ark_kepler.c:163
+    #5 0x7fdf137a9554 in __libc_start_main (/lib64/libc.so.6+0x22554)
+
+Direct leak of 24 byte(s) in 1 object(s) allocated from:
+    #0 0x7fdf15bed07a in __interceptor_malloc /tmp/gardner48/spack-stage/spack-stage-gcc-5.5.0-khqnsyjkc36jajm2637pm3dftr2egjwk/spack-src/libsanitizer/asan/asan_malloc_linux.cc:62
+    #1 0x7fdf153ecbd2 in N_VNewEmpty /home/gardner48/sundials/src/sundials/sundials_nvector.c:48
+    #2 0x7fdf15403657 in N_VCloneEmpty_Serial /home/gardner48/sundials/src/nvector/serial/nvector_serial.c:295
+    #3 0x7fdf154038e1 in N_VClone_Serial /home/gardner48/sundials/src/nvector/serial/nvector_serial.c:324
+    #4 0x7fdf153f196a in N_VClone /home/gardner48/sundials/src/sundials/sundials_nvector.c:284
+    #5 0x402398 in main /home/gardner48/sundials/examples/arkode/C_serial/ark_kepler.c:164
+    #6 0x7fdf137a9554 in __libc_start_main (/lib64/libc.so.6+0x22554)
+
+Direct leak of 24 byte(s) in 1 object(s) allocated from:
+    #0 0x7fdf15bed07a in __interceptor_malloc /tmp/gardner48/spack-stage/spack-stage-gcc-5.5.0-khqnsyjkc36jajm2637pm3dftr2egjwk/spack-src/libsanitizer/asan/asan_malloc_linux.cc:62
+    #1 0x7fdf153ecbd2 in N_VNewEmpty /home/gardner48/sundials/src/sundials/sundials_nvector.c:48
+    #2 0x7fdf15403657 in N_VCloneEmpty_Serial /home/gardner48/sundials/src/nvector/serial/nvector_serial.c:295
+    #3 0x7fdf154038e1 in N_VClone_Serial /home/gardner48/sundials/src/nvector/serial/nvector_serial.c:324
+    #4 0x7fdf153f196a in N_VClone /home/gardner48/sundials/src/sundials/sundials_nvector.c:284
+    #5 0x4023ae in main /home/gardner48/sundials/examples/arkode/C_serial/ark_kepler.c:165
+    #6 0x7fdf137a9554 in __libc_start_main (/lib64/libc.so.6+0x22554)
+
+Indirect leak of 448 byte(s) in 1 object(s) allocated from:
+    #0 0x7fdf15bed07a in __interceptor_malloc /tmp/gardner48/spack-stage/spack-stage-gcc-5.5.0-khqnsyjkc36jajm2637pm3dftr2egjwk/spack-src/libsanitizer/asan/asan_malloc_linux.cc:62
+    #1 0x7fdf153ecbf9 in N_VNewEmpty /home/gardner48/sundials/src/sundials/sundials_nvector.c:53
+    #2 0x7fdf15403657 in N_VCloneEmpty_Serial /home/gardner48/sundials/src/nvector/serial/nvector_serial.c:295
+    #3 0x7fdf154038e1 in N_VClone_Serial /home/gardner48/sundials/src/nvector/serial/nvector_serial.c:324
+    #4 0x7fdf153f196a in N_VClone /home/gardner48/sundials/src/sundials/sundials_nvector.c:284
+    #5 0x4023ae in main /home/gardner48/sundials/examples/arkode/C_serial/ark_kepler.c:165
+    #6 0x7fdf137a9554 in __libc_start_main (/lib64/libc.so.6+0x22554)
+
+Indirect leak of 448 byte(s) in 1 object(s) allocated from:
+    #0 0x7fdf15bed07a in __interceptor_malloc /tmp/gardner48/spack-stage/spack-stage-gcc-5.5.0-khqnsyjkc36jajm2637pm3dftr2egjwk/spack-src/libsanitizer/asan/asan_malloc_linux.cc:62
+    #1 0x7fdf153ecbf9 in N_VNewEmpty /home/gardner48/sundials/src/sundials/sundials_nvector.c:53
+    #2 0x7fdf15403657 in N_VCloneEmpty_Serial /home/gardner48/sundials/src/nvector/serial/nvector_serial.c:295
+    #3 0x7fdf154038e1 in N_VClone_Serial /home/gardner48/sundials/src/nvector/serial/nvector_serial.c:324
+    #4 0x7fdf153f196a in N_VClone /home/gardner48/sundials/src/sundials/sundials_nvector.c:284
+    #5 0x402398 in main /home/gardner48/sundials/examples/arkode/C_serial/ark_kepler.c:164
+    #6 0x7fdf137a9554 in __libc_start_main (/lib64/libc.so.6+0x22554)
+
+Indirect leak of 32 byte(s) in 1 object(s) allocated from:
+    #0 0x7fdf15bed07a in __interceptor_malloc /tmp/gardner48/spack-stage/spack-stage-gcc-5.5.0-khqnsyjkc36jajm2637pm3dftr2egjwk/spack-src/libsanitizer/asan/asan_malloc_linux.cc:62
+    #1 0x7fdf154039af in N_VClone_Serial /home/gardner48/sundials/src/nvector/serial/nvector_serial.c:334
+    #2 0x7fdf153f196a in N_VClone /home/gardner48/sundials/src/sundials/sundials_nvector.c:284
+    #3 0x4023ae in main /home/gardner48/sundials/examples/arkode/C_serial/ark_kepler.c:165
+    #4 0x7fdf137a9554 in __libc_start_main (/lib64/libc.so.6+0x22554)
+
+Indirect leak of 32 byte(s) in 1 object(s) allocated from:
+    #0 0x7fdf15bed07a in __interceptor_malloc /tmp/gardner48/spack-stage/spack-stage-gcc-5.5.0-khqnsyjkc36jajm2637pm3dftr2egjwk/spack-src/libsanitizer/asan/asan_malloc_linux.cc:62
+    #1 0x7fdf154039af in N_VClone_Serial /home/gardner48/sundials/src/nvector/serial/nvector_serial.c:334
+    #2 0x7fdf153f196a in N_VClone /home/gardner48/sundials/src/sundials/sundials_nvector.c:284
+    #3 0x402398 in main /home/gardner48/sundials/examples/arkode/C_serial/ark_kepler.c:164
+    #4 0x7fdf137a9554 in __libc_start_main (/lib64/libc.so.6+0x22554)
+
+Indirect leak of 24 byte(s) in 1 object(s) allocated from:
+    #0 0x7fdf15bed07a in __interceptor_malloc /tmp/gardner48/spack-stage/spack-stage-gcc-5.5.0-khqnsyjkc36jajm2637pm3dftr2egjwk/spack-src/libsanitizer/asan/asan_malloc_linux.cc:62
+    #1 0x7fdf154036ab in N_VCloneEmpty_Serial /home/gardner48/sundials/src/nvector/serial/nvector_serial.c:303
+    #2 0x7fdf154038e1 in N_VClone_Serial /home/gardner48/sundials/src/nvector/serial/nvector_serial.c:324
+    #3 0x7fdf153f196a in N_VClone /home/gardner48/sundials/src/sundials/sundials_nvector.c:284
+    #4 0x402398 in main /home/gardner48/sundials/examples/arkode/C_serial/ark_kepler.c:164
+    #5 0x7fdf137a9554 in __libc_start_main (/lib64/libc.so.6+0x22554)
+
+Indirect leak of 24 byte(s) in 1 object(s) allocated from:
+    #0 0x7fdf15bed07a in __interceptor_malloc /tmp/gardner48/spack-stage/spack-stage-gcc-5.5.0-khqnsyjkc36jajm2637pm3dftr2egjwk/spack-src/libsanitizer/asan/asan_malloc_linux.cc:62
+    #1 0x7fdf154036ab in N_VCloneEmpty_Serial /home/gardner48/sundials/src/nvector/serial/nvector_serial.c:303
+    #2 0x7fdf154038e1 in N_VClone_Serial /home/gardner48/sundials/src/nvector/serial/nvector_serial.c:324
+    #3 0x7fdf153f196a in N_VClone /home/gardner48/sundials/src/sundials/sundials_nvector.c:284
+    #4 0x4023ae in main /home/gardner48/sundials/examples/arkode/C_serial/ark_kepler.c:165
+    #5 0x7fdf137a9554 in __libc_start_main (/lib64/libc.so.6+0x22554)
+
+Indirect leak of 8 byte(s) in 1 object(s) allocated from:
+    #0 0x7fdf15bed07a in __interceptor_malloc /tmp/gardner48/spack-stage/spack-stage-gcc-5.5.0-khqnsyjkc36jajm2637pm3dftr2egjwk/spack-src/libsanitizer/asan/asan_malloc_linux.cc:62
+    #1 0x7fdf153af149 in ARKodeSPRKStorage_Alloc /home/gardner48/sundials/src/arkode/arkode_sprk.c:415
+    #2 0x7fdf153a485c in ARKodeSymplecticEuler /home/gardner48/sundials/src/arkode/arkode_sprk.c:25
+    #3 0x7fdf153af322 in ARKodeSPRKStorage_LoadByName /home/gardner48/sundials/src/arkode/arkode_sprk.c:446
+    #4 0x40232f in main /home/gardner48/sundials/examples/arkode/C_serial/ark_kepler.c:163
+    #5 0x7fdf137a9554 in __libc_start_main (/lib64/libc.so.6+0x22554)
+
+Indirect leak of 8 byte(s) in 1 object(s) allocated from:
+    #0 0x7fdf15bed07a in __interceptor_malloc /tmp/gardner48/spack-stage/spack-stage-gcc-5.5.0-khqnsyjkc36jajm2637pm3dftr2egjwk/spack-src/libsanitizer/asan/asan_malloc_linux.cc:62
+    #1 0x7fdf153af1af in ARKodeSPRKStorage_Alloc /home/gardner48/sundials/src/arkode/arkode_sprk.c:416
+    #2 0x7fdf153a485c in ARKodeSymplecticEuler /home/gardner48/sundials/src/arkode/arkode_sprk.c:25
+    #3 0x7fdf153af322 in ARKodeSPRKStorage_LoadByName /home/gardner48/sundials/src/arkode/arkode_sprk.c:446
+    #4 0x40232f in main /home/gardner48/sundials/examples/arkode/C_serial/ark_kepler.c:163
+    #5 0x7fdf137a9554 in __libc_start_main (/lib64/libc.so.6+0x22554)
+
+SUMMARY: AddressSanitizer: 1096 byte(s) leaked in 11 allocation(s).
