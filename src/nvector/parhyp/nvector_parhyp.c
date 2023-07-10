@@ -1477,10 +1477,10 @@ booleantype N_VInvTestLocal_ParHyp(N_Vector x, N_Vector z)
 
 booleantype N_VInvTest_ParHyp(N_Vector x, N_Vector z)
 {
-  realtype flag, gflag;
+  realtype lflag, gflag;
   /* Call returns false if any x[i] = 0 -> raise flag to ONE */
-  flag = (N_VInvTestLocal_ParHyp(x, z)) ? ZERO : ONE;
-  MPI_Allreduce(&flag, &gflag, 1, MPI_SUNREALTYPE, MPI_MIN, NV_COMM_PH(x));
+  lflag = (N_VInvTestLocal_ParHyp(x, z)) ? ZERO : ONE;
+  MPI_Allreduce(&lflag, &gflag, 1, MPI_SUNREALTYPE, MPI_MIN, NV_COMM_PH(x));
   return (gflag == ONE) ? SUNFALSE : SUNTRUE;
 }
 
@@ -1489,7 +1489,6 @@ booleantype N_VConstrMaskLocal_ParHyp(N_Vector c, N_Vector x, N_Vector m)
   sunindextype N;
   realtype flag;
   realtype *cd, *xd, *md;
-  booleantype test;
 
   N  = NV_LOCLENGTH_PH(x);
   cd = NV_DATA_PH(c);
@@ -1499,6 +1498,7 @@ booleantype N_VConstrMaskLocal_ParHyp(N_Vector c, N_Vector x, N_Vector m)
   flag = ZERO;
 
 #if defined(SUNDIALS_HYPRE_BACKENDS_SERIAL)
+  booleantype test;
   for (sunindextype i = 0; i < N; i++) {
     md[i] = ZERO;
 
@@ -1558,10 +1558,10 @@ booleantype N_VConstrMaskLocal_ParHyp(N_Vector c, N_Vector x, N_Vector m)
 
 booleantype N_VConstrMask_ParHyp(N_Vector c, N_Vector x, N_Vector m)
 {
-  realtype flag, gflag;
+  realtype lflag, gflag;
   /* Call returns false if any constraint was violated -> raise flag to ONE */
-  flag = (N_VConstrMaskLocal_ParHyp(c, x, m)) ? ZERO : ONE;
-  MPI_Allreduce(&flag, &gflag, 1, MPI_SUNREALTYPE, MPI_MAX, NV_COMM_PH(x));
+  lflag = (N_VConstrMaskLocal_ParHyp(c, x, m)) ? ZERO : ONE;
+  MPI_Allreduce(&lflag, &gflag, 1, MPI_SUNREALTYPE, MPI_MAX, NV_COMM_PH(x));
   return (gflag == ONE) ? SUNFALSE : SUNTRUE;
 }
 
@@ -1596,9 +1596,9 @@ realtype N_VMinQuotientLocal_ParHyp(N_Vector num, N_Vector denom)
   size_t grid, block, shMemSize;
   NV_ADD_LANG_PREFIX_PH(Stream_t) stream;
 
-  NV_CATCH_ERR_PH(GetKernelParameters(x, true, grid, block, shMemSize, stream, atomic))
+  NV_CATCH_ERR_PH(GetKernelParameters(num, true, grid, block, shMemSize, stream, atomic))
   const size_t buffer_size = atomic ? 1 : grid;
-  NV_CATCH_ERR_PH(InitializeReductionBuffer(x, min, buffer_size))
+  NV_CATCH_ERR_PH(InitializeReductionBuffer(num, min, buffer_size))
 
   if (atomic)
   {
@@ -1627,8 +1627,8 @@ realtype N_VMinQuotientLocal_ParHyp(N_Vector num, N_Vector denom)
   PostKernelLaunch();
 
   // Get result from the GPU
-  CopyReductionBufferFromDevice(x);
-  min = NV_HBUFFERp_PH(x)[0];
+  CopyReductionBufferFromDevice(num);
+  min = NV_HBUFFERp_PH(num)[0];
 #endif
   return(min);
 }
