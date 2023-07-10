@@ -949,6 +949,7 @@ module Heat2DData
     open(101, file=outname)
   
     ! Output initial condition to disk
+    y(1:nxl,1:nyl) => FN_VGetArrayPointer(sunvec_y)
     do j=1,nyl
        do i=1,nxl
           write(101,'(es25.16)',advance='no') y(i,j)
