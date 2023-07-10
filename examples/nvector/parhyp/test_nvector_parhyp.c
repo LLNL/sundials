@@ -330,8 +330,17 @@ void set_element_range(N_Vector X, sunindextype is, sunindextype ie,
   #if defined(SUNDIALS_HYPRE_BACKENDS_CUDA_OR_HIP)
   int sub_len = ie-is+1;
   realtype *host_data = (realtype*)malloc(sizeof(realtype)*sub_len);
-  for(i = 0; i < sub_len; i++) host_data[i] = val;
-  NV_ADD_LANG_PREFIX_PH(Memcpy)(Xdata+is,host_data,sizeof(realtype)*sub_len,NV_ADD_LANG_PREFIX_PH(MemcpyHostToDevice));
+  for(i = 0; i < sub_len; i++)
+  {
+    printf("set x[%d] = %f\n",i,val);
+    host_data[i] = val;
+  }
+  NV_ADD_LANG_PREFIX_PH(Memcpy)
+  (
+    Xdata+is,host_data,
+    sizeof(realtype)*sub_len,
+    NV_ADD_LANG_PREFIX_PH(MemcpyHostToDevice)
+  );
   free(host_data);
   #else
   for(i = is; i <= ie; i++) Xdata[i] = val;
@@ -349,7 +358,14 @@ realtype get_element(N_Vector X, sunindextype i)
 
   #if defined(SUNDIALS_HYPRE_BACKENDS_CUDA_OR_HIP)
   realtype host_data;
-  NV_ADD_LANG_PREFIX_PH(Memcpy)(&host_data,Xdata,sizeof(realtype),NV_ADD_LANG_PREFIX_PH(MemcpyDeviceToHost));
+  NV_ADD_LANG_PREFIX_PH(Memcpy)
+  (
+    &host_data,
+    Xdata,
+    sizeof(realtype),
+    NV_ADD_LANG_PREFIX_PH(MemcpyDeviceToHost)
+  );
+  printf("get x[%d] = %f\n",i,host_data);
   return host_data;
   #else
   return Xdata[i];
