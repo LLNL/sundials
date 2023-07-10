@@ -677,70 +677,34 @@ module Heat2DData
             if (i == 1 .and. j == 1) then
                if (HaveNbor(1,1) .and. HaveNbor(2,1)) then  ! South-West corner
                   res(i,j) = c1*(Wrecv(j)+y(i+1,j)) + c2*(Srecv(i)+y(i,j+1)) + c3*y(i,j)
-               else if (.not. (HaveNbor(1,1) .or. HaveNbor(2,1))) then
-                  res(i,j) = c1*y(i+1,j) + c2*y(i,j+1) + c3*y(i,j)
-               else 
                end if
             else if (i == 1 .and. j == nyl) then
                if (HaveNbor(1,1) .and. HaveNbor(2,2)) then  ! North-West corner
                   res(i,j) = c1*(Wrecv(j)+y(i+1,j)) + c2*(y(i,j-1)+Nrecv(i)) + c3*y(i,j)
-               else if (.not. (HaveNbor(1,1) .or. HaveNbor(2,2))) then
-                  res(i,j) = c1*y(i+1,j) + c2*y(i,j-1) + c3*y(i,j)
-               else
                end if
             else if (i == nxl .and. j == 1) then
                if (HaveNbor(1,2) .and. HaveNbor(2,1)) then  ! South-East corner
                   res(i,j) = c1*(y(i-1,j)+Erecv(j)) + c2*(Srecv(i)+y(i,j+1)) + c3*y(i,j)
-               else if (.not. (HaveNbor(1,2) .or. HaveNbor(2,1))) then
-                  res(i,j) = c1*y(i-1,j) + c2*y(i,j+1) + c3*y(i,j)
-               else
                end if
             else if (i == nxl .and. j == nyl) then
                if (HaveNbor(1,2) .and. HaveNbor(2,2)) then  ! North-East corner
                   res(i,j) = c1*(y(i-1,j)+Erecv(j)) + c2*(y(i,j-1)+Nrecv(i)) + c3*y(i,j)
-               else if (.not. (HaveNbor(1,2) .or. HaveNbor(2,2))) then
-                  res(i,j) = c1*y(i-1,j) + c2*y(i,j-1) + c3*y(i,j)
-               else
                end if
             else if (i == 1) then
                if (HaveNbor(1,1)) then                      ! West face
-                  if (j > 1 .and. j < nyl) then
-                     res(i,j) = c1*(Wrecv(j)+y(i+1,j)) + c2*(y(i,j-1)+y(i,j+1)) + c3*y(i,j)
-                  end if
-               else
-                  if (j > 1 .and. j < nyl) then
-                     res(i,j) = c1*y(i+1,j) + c2*(y(i,j-1)+y(i,j+1)) + c3*y(i,j)
-                  end if
+                  res(i,j) = c1*(Wrecv(j)+y(i+1,j)) + c2*(y(i,j-1)+y(i,j+1)) + c3*y(i,j)
                end if
             else if (i == nxl) then
                if (HaveNbor(1,2)) then                      ! East face
-                  if (j > 1 .and. j < nyl) then
-                     res(i,j) = c1*(y(i-1,j)+Erecv(j)) + c2*(y(i,j-1)+y(i,j+1)) + c3*y(i,j)
-                  end if
-               else
-                  if (j > 1 .and. j < nyl) then
-                     res(i,j) = c1*y(i-1,j) + c2*(y(i,j-1)+y(i,j+1)) + c3*y(i,j)
-                  end if
+                  res(i,j) = c1*(y(i-1,j)+Erecv(j)) + c2*(y(i,j-1)+y(i,j+1)) + c3*y(i,j)
                end if
             else if (j == 1) then
                if (HaveNbor(2,1)) then                      ! South face
-                  if (i > 1 .and. i < nyl) then
-                     res(i,j) = c1*(y(i,j)+y(i+1,j)) + c2*(Srecv(i)+y(i,j+1)) + c3*y(i,j)
-                  end if
-               else
-                  if (i > 1 .and. i < nyl) then
-                     res(i,j) = c1*(y(i,j)+y(i+1,j)) + c2*y(i,j+1) + c3*y(i,j)
-                  end if
+                  res(i,j) = c1*(y(i-1,j)+y(i+1,j)) + c2*(Srecv(i)+y(i,j+1)) + c3*y(i,j)
                end if
             else if (j == nyl) then
-               if (HaveNbor(2,2)) then                      ! West face
-                  if (i > 1 .and. i < nyl) then
-                     res(i,j) = c1*(y(i-1,j)+y(i+1,j)) + c2*(y(i,j-1)+Nrecv(i)) + c3*y(i,j)
-                  end if
-               else
-                  if (i > 1 .and. i < nyl) then
-                     res(i,j) = c1*(y(i-1,j)+y(i+1,j)) + c2*y(i,j-1) + c3*y(i,j)
-                  end if
+               if (HaveNbor(2,2)) then                      ! North face
+                  res(i,j) = c1*(y(i-1,j)+y(i+1,j)) + c2*(y(i,j-1)+Nrecv(i)) + c3*y(i,j)
                end if
             else
                res(i,j) = c1*(y(i-1,j)+y(i+1,j)) + c2*(y(i,j-1)+y(i,j+1)) + c3*y(i,j)
@@ -783,8 +747,8 @@ module Heat2DData
     ! Declarations
     ! general problem parameters
     integer, parameter :: Nt = 11           ! total number of output times
-    integer, parameter :: nx_ = 10          ! spatial mesh size
-    integer, parameter :: ny_ = 10
+    integer, parameter :: nx_ = 100         ! spatial mesh size
+    integer, parameter :: ny_ = 100
     real(c_double), parameter :: T0 = 0.d0        ! initial time
     real(c_double), parameter :: T1 = 0.01d0      ! final time
     real(c_double), parameter :: rtol = 0.d0      ! relative and absolute tolerances
