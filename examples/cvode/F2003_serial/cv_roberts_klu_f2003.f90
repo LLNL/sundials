@@ -61,7 +61,6 @@ module roberts_klu_mod
 
       !======= Inclusions ===========
       use fsundials_nvector_mod
-      use fnvector_serial_mod
 
       !======= Declarations =========
       implicit none
@@ -73,19 +72,19 @@ module roberts_klu_mod
       type(c_ptr),    value :: user_data ! user-defined data
 
       ! pointers to data in SUNDIALS vectors
-      real(c_double), pointer :: yval(:)
-      real(c_double), pointer :: fval(:)
+      real(c_double), pointer, dimension(neq) :: yval(:)
+      real(c_double), pointer, dimension(neq) :: fval(:)
 
       !======= Internals ============
 
       ! get data arrays from SUNDIALS vectors
-      yval => FN_VGetArrayPointer(sunvec_y)
-      fval => FN_VGetArrayPointer(sunvec_f)
+      yval(1:neq) => FN_VGetArrayPointer(sunvec_y)
+      fval(1:neq) => FN_VGetArrayPointer(sunvec_f)
 
       ! fill residual vector
-      fval(1)  = -0.04d0*yval(1) + 1.0d4*yval(2)*yval(3)
-      fval(3)  = 3.0d7*yval(2)**2
-      fval(2)  = -fval(1) - fval(3)
+      fval(1) = -0.04d0*yval(1) + 1.0d4*yval(2)*yval(3)
+      fval(3) = 3.0d7*yval(2)**2
+      fval(2) = -fval(1) - fval(3)
 
       ! return success
       ierr = 0
@@ -106,7 +105,6 @@ module roberts_klu_mod
 
       !======= Inclusions ===========
       use fsundials_nvector_mod
-      use fnvector_serial_mod
 
       !======= Declarations =========
       implicit none
@@ -118,12 +116,12 @@ module roberts_klu_mod
       type(c_ptr),    value :: user_data ! user-defined data
 
       ! pointers to data in SUNDIALS vectors
-      real(c_double), pointer :: yval(:)
+      real(c_double), pointer, dimension(neq) :: yval(:)
 
       !======= Internals ============
 
       ! get data array from SUNDIALS vector
-      yval => FN_VGetArrayPointer(sunvec_y)
+      yval(1:neq) => FN_VGetArrayPointer(sunvec_y)
 
       ! fill root vector
       gout(1) = yval(1) - 1.0d-4
@@ -150,7 +148,6 @@ module roberts_klu_mod
       !======= Inclusions ===========
       use fsundials_nvector_mod
       use fsundials_matrix_mod
-      use fnvector_serial_mod
       use fsunmatrix_sparse_mod
 
       !======= Declarations =========
@@ -176,8 +173,8 @@ module roberts_klu_mod
 
       ! get data arrays from SUNDIALS vectors
       yval(1:neq) => FN_VGetArrayPointer(sunvec_y)
-      Jcptrs(1:neq+1) => FSUNSparseMatrix_IndexValues(sunmat_J)
-      Jrvals(1:nnz) => FSUNSparseMatrix_IndexPointers(sunmat_J)
+      Jcptrs(1:neq+1) => FSUNSparseMatrix_IndexPointers(sunmat_J)
+      Jrvals(1:nnz) => FSUNSparseMatrix_IndexValues(sunmat_J)
       Jdata(1:nnz) => FSUNSparseMatrix_Data(sunmat_J)
 
       ! fill Jacobian sparse pointers
@@ -229,6 +226,7 @@ module roberts_klu_mod
   program main
 
     !======= Inclusions ===========
+    use, intrinsic :: iso_c_binding
     use fcvode_mod                    ! Fortran interface to CVODE
     use fsundials_context_mod         ! Fortran interface to SUNContext
     use fsundials_nvector_mod         ! Fortran interface to generic N_Vector
@@ -252,13 +250,13 @@ module roberts_klu_mod
     type(N_Vector),           pointer :: sunvec_dky    ! sundials solution vector
     type(N_Vector),           pointer :: sunvec_av     ! sundials tolerance vector
     type(SUNMatrix),          pointer :: sunmat_A      ! sundials matrix
-   !  type(SUNMatrix),          pointer :: sunmat_J      ! sundials matrix
     type(SUNLinearSolver),    pointer :: sunlinsol_LS  ! sundials linear solver
     type(c_ptr)                       :: cvode_mem     ! ARKODE memory
     type(c_ptr)                       :: sunctx        ! SUNDIALS simulation context
 
     ! solution and tolerance vectors, neq is set in the dae_mod module
-    real(c_double) :: yval(neq), avtol(neq), dkyval(neq)
+    real(c_double), target :: yval(neq), avtol(neq), dkyval(neq)
+    double precision,      pointer :: yvec(:,:)   ! underlying vector y    
 
     ! fine-tuning initialized here
     real(c_double) :: initsize, nlscoef
