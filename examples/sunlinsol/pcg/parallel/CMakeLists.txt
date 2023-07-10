@@ -28,7 +28,7 @@ endif()
 
 # Examples using the SUNDIALS PCG linear solver
 set(sunlinsol_pcg_examples
-  "test_sunlinsol_pcg_parallel\;100 100 ${TOL} 0\;1\;4\;"
+  "test_sunlinsol_pcg_parallel\;100 200 ${TOL} 0\;1\;4\;"
   )
 
 # Dependencies for nvector examples
