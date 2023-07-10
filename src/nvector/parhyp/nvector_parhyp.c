@@ -1395,60 +1395,111 @@ void N_VCompare_ParHyp(realtype c, N_Vector x, N_Vector z)
   xd = NV_DATA_PH(x);
   zd = NV_DATA_PH(z);
 
+#if defined(SUNDIALS_HYPRE_BACKENDS_SERIAL)
   for (sunindextype i = 0; i < N; i++) {
     zd[i] = (SUNRabs(xd[i]) >= c) ? ONE : ZERO;
   }
+#elif defined(SUNDIALS_HYPRE_BACKENDS_CUDA_OR_HIP)
+  size_t grid, block, shMemSize;
+  NV_ADD_LANG_PREFIX_PH(Stream_t) stream;
 
+  NV_CATCH_ERR_PH(GetKernelParameters(x, false, grid, block, shMemSize, stream))
+
+  compareKernel<<<grid, block, shMemSize, stream>>>
+  (
+    c,
+    xd,
+    zd,
+    N
+  );
+  PostKernelLaunch();
+#endif
   return;
 }
 
 booleantype N_VInvTestLocal_ParHyp(N_Vector x, N_Vector z)
 {
   sunindextype N;
-  realtype *xd, *zd, val;
+  realtype *xd, *zd, flag;
 
   N  = NV_LOCLENGTH_PH(x);
   xd = NV_DATA_PH(x);
   zd = NV_DATA_PH(z);
 
-  val = ONE;
+  flag = ZERO;
+
+#if defined(SUNDIALS_HYPRE_BACKENDS_SERIAL)
   for (sunindextype i = 0; i < N; i++) {
     if (xd[i] == ZERO)
-      val = ZERO;
+      flag = ONE; //Raise flag
     else
       zd[i] = ONE/xd[i];
   }
-  if (val == ZERO)
-    return(SUNFALSE);
+#elif defined(SUNDIALS_HYPRE_BACKENDS_CUDA_OR_HIP)
+  bool atomic;
+  size_t grid, block, shMemSize;
+  NV_ADD_LANG_PREFIX_PH(Stream_t) stream;
+
+  NV_CATCH_ERR_PH(GetKernelParameters(x, true, grid, block, shMemSize, stream, atomic))
+  const size_t buffer_size = atomic ? 1 : grid;
+  NV_CATCH_ERR_PH(InitializeReductionBuffer(x, flag, buffer_size))
+
+  if (atomic)
+  {
+    invTestKernel<realtype, sunindextype, GridReducerAtomic><<<grid, block, shMemSize, stream>>>
+    (
+      xd,
+      zd,
+      NV_DBUFFERp_PH(x),
+      N,
+      nullptr
+    );
+  }
   else
-    return(SUNTRUE);
+  {
+    invTestKernel<realtype, sunindextype, GridReducerLDS><<<grid, block, shMemSize, stream>>>
+    (
+      xd,
+      zd,
+      NV_DBUFFERp_PH(x),
+      N,
+      NV_DCOUNTERp_PH(x)
+    );
+  }
+  PostKernelLaunch();
+
+  // Get result from the GPU
+  CopyReductionBufferFromDevice(x);
+  flag = NV_HBUFFERp_PH(x)[0];
+#endif
+  /* Return false if any denominator x[i] is zero (flag raised) */
+  return (flag > HALF) ? SUNFALSE : SUNTRUE;
 }
 
 booleantype N_VInvTest_ParHyp(N_Vector x, N_Vector z)
 {
-  realtype val, gval;
-  val = (N_VInvTestLocal_ParHyp(x, z)) ? ONE : ZERO;
-  MPI_Allreduce(&val, &gval, 1, MPI_SUNREALTYPE, MPI_MIN, NV_COMM_PH(x));
-  if (gval == ZERO)
-    return(SUNFALSE);
-  else
-    return(SUNTRUE);
+  realtype flag, gflag;
+  /* Call returns false if any x[i] = 0 -> raise flag to ONE */
+  flag = (N_VInvTestLocal_ParHyp(x, z)) ? ZERO : ONE;
+  MPI_Allreduce(&flag, &gflag, 1, MPI_SUNREALTYPE, MPI_MIN, NV_COMM_PH(x));
+  return (gflag == ONE) ? SUNFALSE : SUNTRUE;
 }
 
 booleantype N_VConstrMaskLocal_ParHyp(N_Vector c, N_Vector x, N_Vector m)
 {
   sunindextype N;
-  realtype temp;
+  realtype flag;
   realtype *cd, *xd, *md;
   booleantype test;
 
   N  = NV_LOCLENGTH_PH(x);
-  xd = NV_DATA_PH(x);
   cd = NV_DATA_PH(c);
+  xd = NV_DATA_PH(x);
   md = NV_DATA_PH(m);
 
-  temp = ZERO;
+  flag = ZERO;
 
+#if defined(SUNDIALS_HYPRE_BACKENDS_SERIAL)
   for (sunindextype i = 0; i < N; i++) {
     md[i] = ZERO;
 
@@ -1460,20 +1511,59 @@ booleantype N_VConstrMaskLocal_ParHyp(N_Vector c, N_Vector x, N_Vector m)
     test = (SUNRabs(cd[i]) > ONEPT5 && xd[i]*cd[i] <= ZERO) ||
            (SUNRabs(cd[i]) > HALF   && xd[i]*cd[i] <  ZERO);
     if (test) {
-      temp = md[i] = ONE;
+      flag = md[i] = ONE; //Raise flag
     }
   }
+#elif defined(SUNDIALS_HYPRE_BACKENDS_CUDA_OR_HIP)
+  bool atomic;
+  size_t grid, block, shMemSize;
+  NV_ADD_LANG_PREFIX_PH(Stream_t) stream;
 
-  /* Return false if any constraint was violated */
-  return (temp == ONE) ? SUNFALSE : SUNTRUE;
+  NV_CATCH_ERR_PH(GetKernelParameters(x, true, grid, block, shMemSize, stream, atomic))
+  const size_t buffer_size = atomic ? 1 : grid;
+  NV_CATCH_ERR_PH(InitializeReductionBuffer(x, flag, buffer_size))
+
+  if (atomic)
+  {
+    constrMaskKernel<realtype, sunindextype, GridReducerAtomic><<<grid, block, shMemSize, stream>>>
+    (
+      cd,
+      xd,
+      md,
+      NV_DBUFFERp_PH(x),
+      N,
+      nullptr
+    );
+  }
+  else
+  {
+    constrMaskKernel<realtype, sunindextype, GridReducerLDS><<<grid, block, shMemSize, stream>>>
+    (
+      cd,
+      xd,
+      md,
+      NV_DBUFFERp_PH(x),
+      N,
+      NV_DCOUNTERp_PH(x)
+    );
+  }
+  PostKernelLaunch();
+
+  // Get result from the GPU
+  CopyReductionBufferFromDevice(x);
+  flag = NV_HBUFFERp_PH(x)[0];
+#endif
+  /* Return false if any constraint was violated (flag raised) */
+  return (flag > HALF) ? SUNFALSE : SUNTRUE;
 }
 
 booleantype N_VConstrMask_ParHyp(N_Vector c, N_Vector x, N_Vector m)
 {
-  realtype temp, temp2;
-  temp = (N_VConstrMaskLocal_ParHyp(c, x, m)) ? ZERO : ONE;
-  MPI_Allreduce(&temp, &temp2, 1, MPI_SUNREALTYPE, MPI_MAX, NV_COMM_PH(x));
-  return (temp2 == ONE) ? SUNFALSE : SUNTRUE;
+  realtype flag, gflag;
+  /* Call returns false if any constraint was violated -> raise flag to ONE */
+  flag = (N_VConstrMaskLocal_ParHyp(c, x, m)) ? ZERO : ONE;
+  MPI_Allreduce(&flag, &gflag, 1, MPI_SUNREALTYPE, MPI_MAX, NV_COMM_PH(x));
+  return (gflag == ONE) ? SUNFALSE : SUNTRUE;
 }
 
 realtype N_VMinQuotientLocal_ParHyp(N_Vector num, N_Vector denom)
