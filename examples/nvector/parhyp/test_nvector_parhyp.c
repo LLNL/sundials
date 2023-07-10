@@ -321,7 +321,7 @@ void set_element_range(N_Vector X, sunindextype is, sunindextype ie,
 {
   HYPRE_ParVector  Xvec;
   realtype        *Xdata;
-  sunindextype     i;
+  sunindextype     j;
 
   /* set elements [is,ie] of the data array */
   Xvec  = N_VGetVector_ParHyp(X);
@@ -330,10 +330,10 @@ void set_element_range(N_Vector X, sunindextype is, sunindextype ie,
   #if defined(SUNDIALS_HYPRE_BACKENDS_CUDA_OR_HIP)
   int sub_len = ie-is+1;
   realtype *host_data = (realtype*)malloc(sizeof(realtype)*sub_len);
-  for(i = 0; i < sub_len; i++)
+  for(j = 0; j < sub_len; j++)
   {
-    printf("set x[%d] = %f\n",i,val);
-    host_data[i] = val;
+    printf("set x[%d] = %f\n",j,val);
+    host_data[j] = val;
   }
   NV_ADD_LANG_PREFIX_PH(Memcpy)
   (
@@ -343,7 +343,7 @@ void set_element_range(N_Vector X, sunindextype is, sunindextype ie,
   );
   free(host_data);
   #else
-  for(i = is; i <= ie; i++) Xdata[i] = val;
+  for(j = is; j <= ie; j++) Xdata[j] = val;
   #endif
 }
 
