@@ -286,20 +286,20 @@ int check_ans(realtype ans, N_Vector X, sunindextype local_length)
   Xvec  = N_VGetVector_ParHyp(X);
   Xdata = hypre_VectorData(hypre_ParVectorLocalVector(Xvec));
   // if CUDA, malloc host -> cudamemcpy -> check -> free
-  #if defined(SUNDIALS_HYPRE_BACKENDS_CUDA_OR_HIP)
-    realtype *host_data = (realtype*)malloc(sizeof(realtype)*local_length);
-    NV_ADD_LANG_PREFIX_PH(Memcpy)(host_data,Xdata,sizeof(realtype)*local_length,NV_ADD_LANG_PREFIX_PH(MemcpyDeviceToHost));
-    Xdata = host_data;
-  #endif
+#if defined(SUNDIALS_HYPRE_BACKENDS_CUDA_OR_HIP)
+  realtype *host_data = (realtype*)malloc(sizeof(realtype)*local_length);
+  NV_ADD_LANG_PREFIX_PH(Memcpy)(host_data,Xdata,sizeof(realtype)*local_length,NV_ADD_LANG_PREFIX_PH(MemcpyDeviceToHost));
+  Xdata = host_data;
+#endif
 
   /* check vector data */
   for (i = 0; i < local_length; i++) {
     failure += SUNRCompare(Xdata[i], ans);
   }
 
-  #if defined(SUNDIALS_HYPRE_BACKENDS_CUDA_OR_HIP)
-    free(host_data);
-  #endif
+#if defined(SUNDIALS_HYPRE_BACKENDS_CUDA_OR_HIP)
+  free(host_data);
+#endif
 
   return (failure > ZERO) ? (1) : (0);
 }
@@ -327,7 +327,9 @@ void set_element_range(N_Vector X, sunindextype is, sunindextype ie,
   Xvec  = N_VGetVector_ParHyp(X);
   Xdata = hypre_VectorData(hypre_ParVectorLocalVector(Xvec));
 
-  #if defined(SUNDIALS_HYPRE_BACKENDS_CUDA_OR_HIP)
+#if defined(SUNDIALS_HYPRE_BACKENDS_SERIAL)
+  for(i = is; i <= ie; i++) Xdata[i] = val;
+#elif defined(SUNDIALS_HYPRE_BACKENDS_CUDA_OR_HIP)
   int sub_len = ie-is+1;
   realtype *host_data = (realtype*)malloc(sizeof(realtype)*sub_len);
   for(i = 0; i < sub_len; i++)
@@ -342,9 +344,7 @@ void set_element_range(N_Vector X, sunindextype is, sunindextype ie,
     NV_ADD_LANG_PREFIX_PH(MemcpyHostToDevice)
   );
   free(host_data);
-  #else
-  for(i = is; i <= ie; i++) Xdata[i] = val;
-  #endif
+#endif
 }
 
 realtype get_element(N_Vector X, sunindextype i)
@@ -355,22 +355,21 @@ realtype get_element(N_Vector X, sunindextype i)
   /* get i-th element of data array */
   Xvec  = N_VGetVector_ParHyp(X);
   Xdata = hypre_VectorData(hypre_ParVectorLocalVector(Xvec));
-
-  #if defined(SUNDIALS_HYPRE_BACKENDS_CUDA_OR_HIP)
-  realtype *host_data = (realtype*)malloc(sizeof(realtype));
-  // realtype host_data;
+  
+#if defined(SUNDIALS_HYPRE_BACKENDS_SERIAL)
+  return Xdata[i];
+#elif defined(SUNDIALS_HYPRE_BACKENDS_CUDA_OR_HIP)
+  realtype host_data;
   NV_ADD_LANG_PREFIX_PH(Memcpy)
   (
     host_data,
-    Xdata,
+    Xdata+i,
     sizeof(realtype),
     NV_ADD_LANG_PREFIX_PH(MemcpyDeviceToHost)
   );
   printf("get x[%d] = %f\n",i,host_data);
-  return host_data[0];
-  #else
-  return Xdata[i];
-  #endif
+  return host_data;
+#endif
 
 }
 
