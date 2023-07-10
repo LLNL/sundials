@@ -1255,7 +1255,6 @@ realtype N_VWrmsNormMask_ParHyp(N_Vector x, N_Vector w, N_Vector id)
 
 realtype N_VMinLocal_ParHyp(N_Vector x)
 {
-
   sunindextype N;
   realtype min, *xd;
 
@@ -1568,7 +1567,6 @@ booleantype N_VConstrMask_ParHyp(N_Vector c, N_Vector x, N_Vector m)
 
 realtype N_VMinQuotientLocal_ParHyp(N_Vector num, N_Vector denom)
 {
-  booleantype notEvenOnce;
   sunindextype N;
   realtype *nd, *dd, min;
 
@@ -1578,19 +1576,60 @@ realtype N_VMinQuotientLocal_ParHyp(N_Vector num, N_Vector denom)
   nd = NV_DATA_PH(num);
   dd = NV_DATA_PH(denom);
 
-  notEvenOnce = SUNTRUE;
   min = BIG_REAL;
 
+#if defined(SUNDIALS_HYPRE_BACKENDS_SERIAL)
+  // booleantype notEvenOnce = SUNTRUE;
   for (sunindextype i = 0; i < N; i++) {
-    if (dd[i] == ZERO) continue;
-    else {
-      if (!notEvenOnce) min = SUNMIN(min, nd[i]/dd[i]);
-      else {
-        min = nd[i]/dd[i];
-        notEvenOnce = SUNFALSE;
-      }
-    }
+    if (dd[i] != ZERO) min = SUNMIN(min, nd[i]/dd[i]);
+    // if (dd[i] == ZERO) continue;
+    // else {
+    //   if (!notEvenOnce) min = SUNMIN(min, nd[i]/dd[i]);
+    //   else {
+    //     min = nd[i]/dd[i];
+    //     notEvenOnce = SUNFALSE;
+    //   }
+    // }
   }
+#elif defined(SUNDIALS_HYPRE_BACKENDS_CUDA_OR_HIP)
+  bool atomic;
+  size_t grid, block, shMemSize;
+  NV_ADD_LANG_PREFIX_PH(Stream_t) stream;
+
+  NV_CATCH_ERR_PH(GetKernelParameters(x, true, grid, block, shMemSize, stream, atomic))
+  const size_t buffer_size = atomic ? 1 : grid;
+  NV_CATCH_ERR_PH(InitializeReductionBuffer(x, min, buffer_size))
+
+  if (atomic)
+  {
+    minQuotientKernel<realtype, sunindextype, GridReducerAtomic><<<grid, block, shMemSize, stream>>>
+    (
+      min,
+      nd,
+      dd,
+      NV_DBUFFERp_PH(num),
+      N,
+      nullptr
+    );
+  }
+  else
+  {
+    minQuotientKernel<realtype, sunindextype, GridReducerLDS><<<grid, block, shMemSize, stream>>>
+    (
+      min,
+      nd,
+      dd,
+      NV_DBUFFERp_PH(num),
+      N,
+      NV_DCOUNTERp_PH(num)
+    );
+  }
+  PostKernelLaunch();
+
+  // Get result from the GPU
+  CopyReductionBufferFromDevice(x);
+  min = NV_HBUFFERp_PH(x)[0];
+#endif
   return(min);
 }
 
