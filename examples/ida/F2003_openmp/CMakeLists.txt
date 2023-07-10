@@ -11,40 +11,48 @@
 # SPDX-License-Identifier: BSD-3-Clause
 # SUNDIALS Copyright End
 # ---------------------------------------------------------------
-# CMakeLists.txt file for the F2003 KINSOL serial examples
+# CMakeLists.txt file for the F2003 IDA OpenMP examples
 # ---------------------------------------------------------------
 
-# Example lists are tuples "name\;type" where the type is
+# Example lists are tuples "name\;args\;type" where the type is
 # 'develop' for examples excluded from 'make test' in releases
 
 # Examples using SUNDIALS linear solvers
-set(FKINSOL_examples
-  "kinDiagon_kry_f2003\;-ffpe-trap=invalid\;develop"
-  "kinRoboKin_dns_f2003\;\;develop"
-  "kinLaplace_bnd_f2003\;\;develop"
-  "kinLaplace_picard_kry_f2003\;\;develop"
+set(FIDA_examples_OMP
+  "idaHeat2D_kry_omp_f2003\;4\;develop"
+  "idaHeat2D_kry_omp_f2003\;8\;develop"
   )
 
 # Specify libraries to link against
-set(KINSOL_LIB sundials_fkinsol_mod)
+set(IDA_LIB sundials_fida_mod)
 
 # Set-up linker flags and link libraries
-set(SUNDIALS_LIBS ${KINSOL_LIB} ${EXE_EXTRA_LINK_LIBS})
+set(SUNDIALS_LIBS ${IDA_LIB} ${EXE_EXTRA_LINK_LIBS})
 
 # Add the build and install targets for each example
-foreach(example_tuple ${FKINSOL_examples})
+foreach(example_tuple ${FIDA_examples_OMP})
   # parse the example tuple
   list(GET example_tuple 0 example)
   list(GET example_tuple 1 example_args)
   list(GET example_tuple 2 example_type)
 
-  # Install fortran modules to a unique directory to avoid naming collisions
-  set(CMAKE_Fortran_MODULE_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/CMakeFiles/${example}.dir)
+  if(NOT TARGET ${example})
+    # Install fortran modules to a unique directory to avoid naming collisions
+    set(CMAKE_Fortran_MODULE_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/CMakeFiles/${example}.dir)
 
-  # example source files
-  add_executable(${example} ${example}.f90)
+    # example source files
+    add_executable(${example} ${example}.f90)
 
-  set_target_properties(${example} PROPERTIES FOLDER "Examples")
+    # libraries to link against
+    target_link_libraries(${example}
+      sundials_ida
+      sundials_fida_mod
+      sundials_nvecopenmp
+      sundials_fnvecopenmp_mod
+      ${SUNDIALS_LIBS})
+
+    set_target_properties(${example} PROPERTIES FOLDER "Examples")
+  endif()
 
   # add example to regression tests
   sundials_add_test(${example} ${example}
@@ -53,28 +61,25 @@ foreach(example_tuple ${FKINSOL_examples})
     ANSWER_FILE ${example}.out
     EXAMPLE_TYPE ${example_type})
 
-  # libraries to link against
-  target_link_libraries(${example} ${SUNDIALS_LIBS})
-
-   # install example source and out files
+  # install example source and out files
   if(EXAMPLES_INSTALL)
     install(FILES ${example}.f90 ${example}.out
-      DESTINATION ${EXAMPLES_INSTALL_PATH}/kinsol/F2003_serial)
+      DESTINATION ${EXAMPLES_INSTALL_PATH}/ida/F2003_opemp)
   endif()
-endforeach(example_tuple ${FKINSOL_examples})
+endforeach(example_tuple ${FIDA_examples_OMP})
 
 # create Makefile and CMakeLists.txt for examples
 if(EXAMPLES_INSTALL)
 
   # Install the README file
-  install(FILES README DESTINATION ${EXAMPLES_INSTALL_PATH}/kinsol/F2003_serial)
+  install(FILES README DESTINATION ${EXAMPLES_INSTALL_PATH}/ida/F2003_openmp)
 
   # Prepare substitution variables for Makefile and/or CMakeLists templates
-  set(SOLVER "KINSOL")
-  set(SOLVER_LIB "sundials_kinsol")
-  set(SOLVER_FLIB "sundials_fkinsol_mod")
+  set(SOLVER "IDA")
+  set(SOLVER_LIB "sundials_ida")
+  set(SOLVER_FLIB "sundials_fida_mod")
 
-  examples2string(FKINSOL_examples EXAMPLES)
+  examples2string(FIDA_examples_OMP EXAMPLES)
 
   # Regardless of the platform we're on, we will generate and install
   # CMakeLists.txt file for building the examples. This file  can then
@@ -82,15 +87,15 @@ if(EXAMPLES_INSTALL)
 
   # generate CMakelists.txt in the binary directory
   configure_file(
-    ${PROJECT_SOURCE_DIR}/examples/templates/cmakelists_serial_F2003_ex.in
-    ${PROJECT_BINARY_DIR}/examples/kinsol/F2003_serial/CMakeLists.txt
+    ${PROJECT_SOURCE_DIR}/examples/templates/cmakelists_openmp_F2003_ex.in
+    ${PROJECT_BINARY_DIR}/examples/ida/F2003_openmp/CMakeLists.txt
     @ONLY
     )
 
   # install CMakelists.txt
   install(
-    FILES ${PROJECT_BINARY_DIR}/examples/kinsol/F2003_serial/CMakeLists.txt
-    DESTINATION ${EXAMPLES_INSTALL_PATH}/kinsol/F2003_serial
+    FILES ${PROJECT_BINARY_DIR}/examples/ida/F2003_openmp/CMakeLists.txt
+    DESTINATION ${EXAMPLES_INSTALL_PATH}/ida/F2003_openmp
     )
 
   # On UNIX-type platforms, we also  generate and install a makefile for
@@ -100,19 +105,19 @@ if(EXAMPLES_INSTALL)
   if(UNIX)
     # generate Makefile and place it in the binary dir
     configure_file(
-      ${PROJECT_SOURCE_DIR}/examples/templates/makefile_serial_F2003_ex.in
-      ${PROJECT_BINARY_DIR}/examples/kinsol/F2003_serial/Makefile_ex
+      ${PROJECT_SOURCE_DIR}/examples/templates/makefile_openmp_F2003_ex.in
+      ${PROJECT_BINARY_DIR}/examples/ida/F2003_openmp/Makefile_ex
       @ONLY
       )
     # install the configured Makefile_ex as Makefile
     install(
-      FILES ${PROJECT_BINARY_DIR}/examples/kinsol/F2003_serial/Makefile_ex
-      DESTINATION ${EXAMPLES_INSTALL_PATH}/kinsol/F2003_serial
+      FILES ${PROJECT_BINARY_DIR}/examples/ida/F2003_openmp/Makefile_ex
+      DESTINATION ${EXAMPLES_INSTALL_PATH}/ida/F2003_openmp
       RENAME Makefile
       )
   endif()
 
   # add test_install target
-  sundials_add_test_install(kinsol F2003_serial)
+  sundials_add_test_install(ida F2003_openmp)
 
 endif()

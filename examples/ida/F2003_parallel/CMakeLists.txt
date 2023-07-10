@@ -1,5 +1,6 @@
 # ---------------------------------------------------------------
 # Programmer(s): David J. Gardner @ LLNL
+#                modified by Daniel M. Margolis @ SMU
 # ---------------------------------------------------------------
 # SUNDIALS Copyright Start
 # Copyright (c) 2002-2023, Lawrence Livermore National Security
@@ -11,24 +12,17 @@
 # SPDX-License-Identifier: BSD-3-Clause
 # SUNDIALS Copyright End
 # ---------------------------------------------------------------
-# CMakeLists.txt file for the ARKode F2003 module parallel examples
+# CMakeLists.txt file for the IDA F2003 module parallel examples
 # ---------------------------------------------------------------
 
 # Example lists are tuples "name\;nodes\;tasks\;type" where the
 # type is develop for examples excluded from 'make test' in releases
 if(SUNDIALS_LOGGING_ENABLE_MPI)
-  set(FARKODE_examples
-    "ark_brusselator1D_task_local_nls_f2003\;--monitor\;1\;4\;develop\;2"
-    "ark_brusselator1D_task_local_nls_f2003\;--monitor --global-nls\;1\;4\;develop\;2"
-    "ark_brusselator1D_task_local_nls_f2003\;--monitor --explicit --tf 3\;1\;4\;develop\;2"
-    "ark_diag_kry_bbd_f2003\;\;1\;4\;develop\;2"
-    "ark_diag_non_f2003\;\;1\;4\;develop\;2"
-    "ark_heat2D_f2003\;\;1\;4\;develop\;2")
+  set(FIDA_examples
+    "ida_heat2D_kry_bbd_f2003\;\;1\;4\;develop\;2")
 else()
-  set(FARKODE_examples
-    "ark_diag_kry_bbd_f2003\;\;1\;4\;develop\;2"
-    "ark_diag_non_f2003\;\;1\;4\;develop\;2"
-    "ark_heat2D_f2003\;\;1\;4\;develop\;2")
+  set(FIDA_examples
+    "ida_heat2D_kry_bbd_f2003\;\;1\;4\;develop\;2")
 endif()
 
 
@@ -41,21 +35,17 @@ else()
 endif()
 
 # Specify libraries to link against
-set(ARKODE_LIBS
-  sundials_arkode
-  sundials_farkode_mod
+set(IDA_LIBS
+  sundials_ida
+  sundials_fida_mod
   sundials_nvecparallel
-  sundials_fnvecparallel_mod
-  sundials_nvecmpiplusx
-  sundials_fnvecmpiplusx_mod
-  sundials_nvecmpimanyvector
-  sundials_fnvecmpimanyvector_mod)
+  sundials_fnvecparallel_mod)
 
 # Set-up linker flags and link libraries
-set(SUNDIALS_LIBS ${ARKODE_LIBS} ${EXE_EXTRA_LINK_LIBS})
+set(SUNDIALS_LIBS ${IDA_LIBS} ${EXE_EXTRA_LINK_LIBS})
 
 # Add the build and install targets for each example
-foreach(example_tuple ${FARKODE_examples})
+foreach(example_tuple ${FIDA_examples})
 
   # parse the example tuple
   list(GET example_tuple 0 example)
@@ -100,10 +90,10 @@ foreach(example_tuple ${FARKODE_examples})
   # install example source and out files
   if(EXAMPLES_INSTALL)
     install(FILES ${example}.f90 ${example_out}
-      DESTINATION ${EXAMPLES_INSTALL_PATH}/arkode/F2003_parallel)
+      DESTINATION ${EXAMPLES_INSTALL_PATH}/ida/F2003_parallel)
   endif()
 
-endforeach(example_tuple ${FARKODE_examples})
+endforeach(example_tuple ${FIDA_examples})
 
 
 # create Makfile and CMakeLists.txt for examples
@@ -111,26 +101,26 @@ if(EXAMPLES_INSTALL)
 
   # Install the README file
   install(FILES README
-    DESTINATION ${EXAMPLES_INSTALL_PATH}/arkode/F2003_parallel)
+    DESTINATION ${EXAMPLES_INSTALL_PATH}/ida/F2003_parallel)
 
   # Install the extra files
-  foreach(extrafile ${ARKODE_extras})
+  foreach(extrafile ${IDA_extras})
     install(FILES ${extrafile}
-      DESTINATION ${EXAMPLES_INSTALL_PATH}/arkode/F2003_parallel)
+      DESTINATION ${EXAMPLES_INSTALL_PATH}/ida/F2003_parallel)
   endforeach()
 
   # Prepare substitution variables for Makefile and/or CMakeLists templates
-  set(SOLVER "ARKODE")
+  set(SOLVER "IDA")
 
   # Makefile: convert semi-colon separated target list to space separated string
-  list2string(ARKODE_LIBS EXAMPLE_LIBS)
+  list2string(IDA_LIBS EXAMPLE_LIBS)
 
   # CMakeLists: replace sundials_ prefix and convert to space separted string
-  list(TRANSFORM ARKODE_LIBS REPLACE "sundials_" "SUNDIALS::"
+  list(TRANSFORM IDA_LIBS REPLACE "sundials_" "SUNDIALS::"
     OUTPUT_VARIABLE EXAMPLES_CMAKE_TARGETS_tmp)
   list2string(EXAMPLES_CMAKE_TARGETS_tmp EXAMPLES_CMAKE_TARGETS)
 
-  examples2string(FARKODE_examples EXAMPLES)
+  examples2string(FIDA_examples EXAMPLES)
 
   # Regardless of the platform we're on, we will generate and install
   # CMakeLists.txt file for building the examples. This file  can then
@@ -139,14 +129,14 @@ if(EXAMPLES_INSTALL)
   # generate CMakelists.txt in the binary directory
   configure_file(
     ${PROJECT_SOURCE_DIR}/examples/templates/cmakelists_parallel_F2003_ex.in
-    ${PROJECT_BINARY_DIR}/examples/arkode/F2003_parallel/CMakeLists.txt
+    ${PROJECT_BINARY_DIR}/examples/ida/F2003_parallel/CMakeLists.txt
     @ONLY
     )
 
   # install CMakelists.txt
   install(
-    FILES ${PROJECT_BINARY_DIR}/examples/arkode/F2003_parallel/CMakeLists.txt
-    DESTINATION ${EXAMPLES_INSTALL_PATH}/arkode/F2003_parallel
+    FILES ${PROJECT_BINARY_DIR}/examples/ida/F2003_parallel/CMakeLists.txt
+    DESTINATION ${EXAMPLES_INSTALL_PATH}/ida/F2003_parallel
     )
 
   # On UNIX-type platforms, we also  generate and install a makefile for
@@ -157,18 +147,18 @@ if(EXAMPLES_INSTALL)
     # generate Makefile and place it in the binary dir
     configure_file(
       ${PROJECT_SOURCE_DIR}/examples/templates/makefile_parallel_F2003_ex.in
-      ${PROJECT_BINARY_DIR}/examples/arkode/F2003_parallel/Makefile_ex
+      ${PROJECT_BINARY_DIR}/examples/ida/F2003_parallel/Makefile_ex
       @ONLY
       )
     # install the configured Makefile_ex as Makefile
     install(
-      FILES ${PROJECT_BINARY_DIR}/examples/arkode/F2003_parallel/Makefile_ex
-      DESTINATION ${EXAMPLES_INSTALL_PATH}/arkode/F2003_parallel
+      FILES ${PROJECT_BINARY_DIR}/examples/ida/F2003_parallel/Makefile_ex
+      DESTINATION ${EXAMPLES_INSTALL_PATH}/ida/F2003_parallel
       RENAME Makefile
       )
   endif()
 
   # add test_install target
-  sundials_add_test_install(arkode F2003_parallel)
+  sundials_add_test_install(ida F2003_parallel)
 
 endif()

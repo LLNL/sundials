@@ -19,10 +19,16 @@
 
 # Examples using SUNDIALS linear solvers
 set(FCVODE_examples
+  "cv_advdiff_bnd_f2003\;develop"
   "cv_analytic_fp_f2003\;develop"
   "cv_analytic_sys_dns_f2003\;develop"
   "cv_analytic_sys_dns_jac_f2003\;develop"
   "cv_brusselator_dns_f2003\;develop"
+  "cv_diurnal_kry_f2003\;develop"
+  "cv_diurnal_kry_bp_f2003\;develop"
+  "cv_roberts_dns_constraints_f2003\;develop"
+  "cv_roberts_dns_f2003\;develop"
+  #"cv_roberts_dnsL_f2003\;develop"
   )
 
 # Examples using LAPACK linear solvers
@@ -35,6 +41,7 @@ if(SUNDIALS_INDEX_SIZE MATCHES "64")
   # Examples using KLU linear solver
   set(FCVODE_examples_KLU
     "cv_analytic_sys_klu_f2003\;develop"
+    #"cv_roberts_klu_f2003\;develop"
     )
 endif()
 

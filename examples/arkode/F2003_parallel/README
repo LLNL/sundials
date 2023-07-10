@@ -3,6 +3,9 @@ List of parallel ARKODE F2003 examples
   ark_brusselator1D_task_local_nls : 1-D 3-species advection-reaction problem
                                      with a user-defined nonlinear solver
 
+  ark_heat2D                       : 2-D heat equation problem with a
+                                     user-defined diagonal preconditioner
+
 The following CMake command was used to configure SUNDIALS:
 
  cmake \
