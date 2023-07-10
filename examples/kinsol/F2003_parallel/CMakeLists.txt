@@ -38,11 +38,7 @@ set(KINSOL_LIBS
   sundials_kinsol
   sundials_fkinsol_mod
   sundials_nvecparallel
-  sundials_fnvecparallel_mod
-  sundials_nvecmpiplusx
-  sundials_fnvecmpiplusx_mod
-  sundials_nvecmpimanyvector
-  sundials_fnvecmpimanyvector_mod)
+  sundials_fnvecparallel_mod)
 
 # Set-up linker flags and link libraries
 set(SUNDIALS_LIBS ${KINSOL_LIBS} ${EXE_EXTRA_LINK_LIBS})

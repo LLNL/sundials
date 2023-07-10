@@ -25,18 +25,21 @@
 !
 ! ------------------------------------------------------------------
 
-module diag_mod
+module diagon_mod
 
     !======= Inclusions ===========
     use, intrinsic :: iso_c_binding
   
     !======= Declarations =========
     implicit none
+
+    ! With MPI-3 use mpi_f08 is preferred
+    include "mpif.h"
   
     integer(c_long), parameter :: neq = 128
   
-    integer(c_int)  :: ierr, retval
-    integer(c_long) :: i
+    integer(c_int)  :: ierr, retval, nprint
+    integer(c_long) :: i, nlocal
     real(c_double), pointer, dimension(neq) :: u(:), scale(:), constr(:)
     real(c_double)             :: p(neq)
     integer(c_int),  parameter :: prectype = 2
@@ -45,6 +48,12 @@ module diag_mod
     integer(c_long), parameter :: msbpre = 5
     real(c_double),  parameter :: fnormtol = 1.0d-5
     real(c_double),  parameter :: scsteptol = 1.0d-4
+
+    ! MPI domain decomposition information
+    integer, target :: comm  ! communicator object
+    integer :: myid          ! MPI process ID
+    integer :: nprocs        ! total number of MPI processes
+
   
   contains
   
@@ -63,16 +72,20 @@ module diag_mod
       type(N_Vector)       :: sunvec_u  ! solution N_Vector
       type(N_Vector)       :: sunvec_s  ! scaling N_Vector
       type(N_Vector)       :: sunvec_c  ! constraint N_Vector
+
+      ! local variables
+      integer(c_long) :: ii
   
-      u(1:neq)      => FN_VGetArrayPointer(sunvec_u)
-      scale(1:neq)  => FN_VGetArrayPointer(sunvec_s)
-      constr(1:neq) => FN_VGetArrayPointer(sunvec_c)
+      u(1:nlocal)      => FN_VGetArrayPointer(sunvec_u)
+      scale(1:nlocal)  => FN_VGetArrayPointer(sunvec_s)
+      constr(1:nlocal) => FN_VGetArrayPointer(sunvec_c)
   
       ! -------------------------
       ! Set initial guess, and disable scaling
     
-      do i = 1,neq
-         u(i) = 2.0d0 * dble(i)
+      do i = 1,nlocal
+         ii = i + myid * nlocal
+         u(i) = 2.0d0 * dble(ii)
       end do
       scale = 1.0d0
       constr = 0.0d0
@@ -103,18 +116,23 @@ module diag_mod
   
       ! pointers to data in SUNDIALS vectors
       real(c_double), pointer :: uu(:), ff(:)
+
+      ! local variables
+      integer(c_long) :: ii
   
       !======= Internals ============
   
       ! get data arrays from SUNDIALS vectors
-      uu(1:neq) => FN_VGetArrayPointer(sunvec_u)
-      ff(1:neq) => FN_VGetArrayPointer(sunvec_f)
+      uu(1:nlocal) => FN_VGetArrayPointer(sunvec_u)
+      ff(1:nlocal) => FN_VGetArrayPointer(sunvec_f)
   
       ! loop over domain, computing our system f(u) = 0
-      do i = 1,neq
+      do i = 1,nlocal
+         ! set local variables
+         ii = i + myid * nlocal
   
          ! applying the constraint f(u) = u(i)^2 - i^2
-         ff(i) = uu(i)*uu(i) - dble(i*i)
+         ff(i) = uu(i)*uu(i) - dble(ii*ii)
       end do
   
   
@@ -141,15 +159,15 @@ module diag_mod
       type(c_ptr),   value :: user_data ! user-defined data
   
       ! pointers to data in SUNDIALS vectors
-      real(c_double), pointer, dimension(neq) :: udata(:)
+      real(c_double), pointer, dimension(nlocal) :: udata(:)
   
       !======= Internals ============
   
       ! get data arrays from SUNDIALS vectors
-      udata(1:neq) => FN_VGetArrayPointer(sunvec_u)
+      udata(1:nlocal) => FN_VGetArrayPointer(sunvec_u)
   
       ! loop over domain
-      do i = 1,neq
+      do i = 1,nlocal
   
         ! setup preconditioner
         p(i) = 0.5d0 / (udata(i) + 5.0d0)
@@ -180,14 +198,14 @@ module diag_mod
       type(c_ptr),   value :: user_data ! user-defined data
   
       ! pointers to data in SUNDIALS vectors
-      real(c_double), pointer, dimension(neq) :: v(:)
+      real(c_double), pointer, dimension(nlocal) :: v(:)
   
       !======= Internals ============
       ! get data arrays from SUNDIALS vectors
-      v(1:neq) => FN_VGetArrayPointer(sunvec_v)
+      v(1:nlocal) => FN_VGetArrayPointer(sunvec_v)
   
       ! loop over domain
-      do i = 1,neq
+      do i = 1,nlocal
   
         ! preconditioner solver
         v(i) = v(i) * p(i)
@@ -200,7 +218,7 @@ module diag_mod
   
     end function kpsolve
   
-  end module diag_mod
+  end module diagon_mod
   
   
   program main
@@ -209,11 +227,11 @@ module diag_mod
     use fsundials_context_mod
     use fkinsol_mod                ! Fortran interface to KINSOL
     use fsundials_nvector_mod      ! Fortran interface to generic N_Vector
-    use fnvector_serial_mod        ! Fortran interface to serial N_Vector
+    use fnvector_parallel_mod      ! Fortran interface to serial N_Vector
     use fsunlinsol_spgmr_mod       ! Fortran interface to SPGMR SUNLinearSolver
     use fsundials_matrix_mod       ! Fortran interface to generic SUNmatrix
     use fsundials_linearsolver_mod ! Fortran interface to generic SUNLinearSolver
-    use diag_mod                   ! problem-defining functions
+    use diagon_mod                   ! problem-defining functions
   
     !======= Declarations =========
     implicit none
@@ -229,20 +247,51 @@ module diag_mod
     type(SUNLinearSolver), pointer :: sunlinsol_LS  ! sundials linear solver
   
     type(c_ptr) :: kmem ! KINSOL memory
+    logical :: outproc
   
     !======= Internals ============
   
     ! -------------------------
+    ! Initialize MPI variables
+    comm = MPI_COMM_WORLD
+    myid = 0
+    nprocs = 0
+
+    ! initialize MPI
+    call MPI_Init(ierr)
+    if (ierr /= MPI_SUCCESS) then
+       write(0,*) "Error in MPI_Init = ", ierr
+       stop 1
+    end if
+    call MPI_Comm_size(comm, nprocs, ierr)
+    if (ierr /= MPI_SUCCESS) then
+       write(0,*) "Error in MPI_Comm_size = ", ierr
+       call MPI_Abort(comm, 1, ierr)
+    end if
+    if (popcnt(nprocs) /= 1 .or. nprocs > neq) then
+       write(0,*) "Error nprocs must equal a power of 2^n <= neq for functionality."
+       call MPI_Abort(comm, 1, ierr)
+    end if
+    call MPI_Comm_rank(comm, myid, ierr)
+    if (ierr /= MPI_SUCCESS) then
+       write(0,*) "Error in MPI_Comm_rank = ", ierr
+       call MPI_Abort(comm, 1, ierr)
+    end if
+
+    outproc = (myid == 0)
+   
     ! Print problem description
   
-    print *, " "
-    print *, "Example program fkinDiagon_kry:"
-    print *, "   This FKINSOL example solves a 128 eqn diagonal algebraic system."
-    print *, " Its purpose is to demonstrate the use of the Fortran interface in"
-    print *, " a serial environment."
-    print *, " "
-    print *, "Solution method: KIN_none"
-    print '(a,i3)', "Problem size: neq = ", neq
+    if (outproc) then
+       print *, " "
+       print *, "Example program kinDiagon_kry_f2003:"
+       print *, "   This FKINSOL example solves a 128 eqn diagonal algebraic system."
+       print *, " Its purpose is to demonstrate the use of the Fortran interface in"
+       print *, " a parallel environment."
+       print *, " "
+       print *, "Solution method: KIN_none"
+       print '(a,i3)', "Problem size: neq = ", neq
+    end if
   
     ! -------------------------
     retval = FSUNContext_Create(c_null_ptr, sunctx)
@@ -253,10 +302,11 @@ module diag_mod
   
     ! -------------------------
     ! Create vectors for solution and scales
+    nlocal = neq / nprocs
   
-    sunvec_u => FN_VNew_Serial(neq, sunctx)
-    sunvec_s => FN_VNew_Serial(neq, sunctx)
-    sunvec_c => FN_VNew_Serial(neq, sunctx)
+    sunvec_u => FN_VNew_Parallel(comm, nlocal, neq, sunctx)
+    sunvec_s => FN_VNew_Parallel(comm, nlocal, neq, sunctx)
+    sunvec_c => FN_VNew_Parallel(comm, nlocal, neq, sunctx)
   
     call init(sunvec_u, sunvec_s, sunvec_c)
   
@@ -361,9 +411,17 @@ module diag_mod
     ! -------------------------
     ! Print solution and solver statistics
   
-    print *, " "
-    call PrintOutput(u)
-    call PrintFinalStats(kmem)
+    if (outproc) then
+       print *, " "
+    end if
+    do nprint = 0,nprocs-1
+       if (nprint == myid) then
+          call PrintOutput(u)
+       end if
+       call MPI_Barrier(comm, ierr)
+    end do
+    call MPI_Barrier(comm, ierr)
+    call PrintFinalStats(kmem, outproc)
   
     ! clean up
     call FKINFree(kmem)
@@ -372,6 +430,8 @@ module diag_mod
     call FN_VDestroy(sunvec_s)
     call FN_VDestroy(sunvec_c)
     retval = FSUNContext_Free(sunctx)
+    call MPI_Barrier(comm, ierr)
+    call MPI_Finalize(ierr)             ! Finalize MPI
   
   end program main
   
@@ -382,18 +442,20 @@ module diag_mod
   subroutine PrintOutput(uu)
   
     !======= Inclusions ===========
-    use diag_mod
+    use diagon_mod
   
     !======= Declarations =========
     implicit none
   
     ! calling variable
     real(c_double), dimension(neq) :: uu
+    integer(c_long) :: ii
   
     !======= Internals ============
   
-    do i = 1,neq,4
-      print '(i4, 4(1x, f10.6))', i, uu(i), uu(i+1), uu(i+2), uu(i+3)
+    do i = 1,nlocal,4
+      ii = i + nlocal * myid
+      print '(i4, 4(1x, f10.6))', ii, uu(i), uu(i+1), uu(i+2), uu(i+3)
     end do
   
     return
@@ -406,7 +468,7 @@ module diag_mod
   !
   ! Print KINSOL statstics to standard out
   ! ----------------------------------------------------------------
-  subroutine PrintFinalStats(kmemo)
+  subroutine PrintFinalStats(kmemo, outproc)
   
     !======= Inclusions ===========
     use, intrinsic :: iso_c_binding
@@ -415,7 +477,8 @@ module diag_mod
     !======= Declarations =========
     implicit none
   
-    type(c_ptr) :: kmemo
+    type(c_ptr), intent(in) :: kmemo
+    logical,     intent(in) :: outproc
   
     integer(c_int) :: retval
     integer(c_long) :: nni(1), nli(1), nfe(1), npe(1), nps(1), ncfl(1)
@@ -460,12 +523,14 @@ module diag_mod
       stop 1
     end if
   
-    print *, ' '
-    print *, 'Final Statistics..'
-    print *, ' '
-    print '(2(A,i6))'    ,'nni      =', nni,      '    nli     =', nli
-    print '(2(A,i6))'    ,'nfe      =', nfe,      '    npe     =', npe
-    print '(2(A,i6))'    ,'nps      =', nps,      '    nlcf    =', ncfl
+    if (outproc) then
+       print *, ' '
+       print *, 'Final Statistics..'
+       print *, ' '
+       print '(2(A,i6))'    ,'nni      =', nni,      '    nli     =', nli
+       print '(2(A,i6))'    ,'nfe      =', nfe,      '    npe     =', npe
+       print '(2(A,i6))'    ,'nps      =', nps,      '    nlcf    =', ncfl
+    end if
   
     return
   
