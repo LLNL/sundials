@@ -246,7 +246,6 @@ module roberts_klu_mod
     integer(c_int) :: iout, retval, retvalr, nrtfn, rootsfound(2)
 
     type(N_Vector),           pointer :: sunvec_y      ! sundials solution vector
-    type(N_Vector),           pointer :: sunvec_f      ! sundials solution vector
     type(N_Vector),           pointer :: sunvec_dky    ! sundials solution vector
     type(N_Vector),           pointer :: sunvec_av     ! sundials tolerance vector
     type(SUNMatrix),          pointer :: sunmat_A      ! sundials matrix
@@ -326,7 +325,7 @@ module roberts_klu_mod
     end if
 
     ! Create sparse SUNMatrix for use in linear solves
-    sunmat_A => FSUNSparseMatrix(neq, neq, nnz, CSR_MAT, sunctx)
+    sunmat_A => FSUNSparseMatrix(neq, neq, nnz, CSC_MAT, sunctx)
     if (.not. associated(sunmat_A)) then
        print *, 'ERROR: sunmat = NULL'
        stop 1
@@ -438,7 +437,6 @@ module roberts_klu_mod
     call FSUNMatDestroy(sunmat_A)
    !  call FSUNMatDestroy(sunmat_J)
     call FN_VDestroy(sunvec_y)
-    call FN_VDestroy(sunvec_f)
     call FN_VDestroy(sunvec_dky)
     call FN_VDestroy(sunvec_av)
     retval = FSUNContext_Free(sunctx)
