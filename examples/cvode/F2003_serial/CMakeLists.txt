@@ -41,7 +41,7 @@ if(SUNDIALS_INDEX_SIZE MATCHES "64")
   # Examples using KLU linear solver
   set(FCVODE_examples_KLU
     "cv_analytic_sys_klu_f2003\;develop"
-    #"cv_roberts_klu_f2003\;develop"
+    "cv_roberts_klu_f2003\;develop"
     )
 endif()
 
