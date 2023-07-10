@@ -1734,6 +1734,7 @@ int Test_N_VCompare(N_Vector X, N_Vector Z, sunindextype local_length, int myid)
   }
 
   /* fill vector data */
+  printf("X");
   for(i=0; i < local_length; i++){
     set_element(Z, i, NEG_ONE);
 
@@ -1754,6 +1755,7 @@ int Test_N_VCompare(N_Vector X, N_Vector Z, sunindextype local_length, int myid)
       set_element(X, i, NEG_TWO);
       break;
     }
+    printf(" %f",get_element(Z, i));
   }
 
   start_time = get_time();
@@ -1762,6 +1764,7 @@ int Test_N_VCompare(N_Vector X, N_Vector Z, sunindextype local_length, int myid)
   stop_time = get_time();
 
   /* check return vector */
+  printf("\nZ");
   for(i=0; i < local_length; i++){
 
     switch(i % 3) {
@@ -1784,7 +1787,9 @@ int Test_N_VCompare(N_Vector X, N_Vector Z, sunindextype local_length, int myid)
         failure = 1;
       break;
     }
+    printf(" %f",get_element(Z, i));
   }
+  printf("\n");
 
   if (failure) {
     printf(">>> FAILED test -- N_VCompare, Proc %d \n", myid);
