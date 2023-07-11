@@ -13,6 +13,13 @@ Updated the F2003 utility routines `SUNDIALSFileOpen` and `SUNDIALSFileClose`
 to support user specification of `stdout` and `stderr` strings for the output
 file names.
 
+Updated CVODE, CVODES and ARKODE default behavior when returning the solution when
+the internal time has reached a user-specified stop time.  Previously, the output
+solution was interpolated to the value of `tstop`; the default is now to copy the
+internal solution vector.  Users who wish to revert to interpolation may call a new
+routine `CVodeSetInterpolateStopTime`, `ARKStepSetInterpolateStopTime`,
+`ERKStepSetInterpolateStopTime`, or `MRIStepSetInterpolateStopTime`.
+
 ## Changes to SUNDIALS in release 6.5.1
 
 Added the functions `ARKStepClearStopTime`, `ERKStepClearStopTime`,

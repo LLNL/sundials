@@ -467,45 +467,47 @@ Optional inputs for ERKStep
 .. _ARKODE.Usage.ERKStep.ERKStepInputTable:
 .. table:: Optional inputs for ERKStep
 
-   +----------------------------------------------------+-----------------------------------------+------------------------+
-   | Optional input                                     | Function name                           |  Default               |
-   +----------------------------------------------------+-----------------------------------------+------------------------+
-   | Return ERKStep solver parameters to their defaults | :c:func:`ERKStepSetDefaults()`          |  internal              |
-   +----------------------------------------------------+-----------------------------------------+------------------------+
-   | Set dense output interpolation type                | :c:func:`ERKStepSetInterpolantType()`   | ``ARK_INTERP_HERMITE`` |
-   +----------------------------------------------------+-----------------------------------------+------------------------+
-   | Set dense output polynomial degree                 | :c:func:`ERKStepSetInterpolantDegree()` |  5                     |
-   +----------------------------------------------------+-----------------------------------------+------------------------+
-   | Supply a pointer to a diagnostics output file      | :c:func:`ERKStepSetDiagnostics()`       | ``NULL``               |
-   +----------------------------------------------------+-----------------------------------------+------------------------+
-   | Supply a pointer to an error output file           | :c:func:`ERKStepSetErrFile()`           | ``stderr``             |
-   +----------------------------------------------------+-----------------------------------------+------------------------+
-   | Supply a custom error handler function             | :c:func:`ERKStepSetErrHandlerFn()`      |  internal fn           |
-   +----------------------------------------------------+-----------------------------------------+------------------------+
-   | Disable time step adaptivity (fixed-step mode)     | :c:func:`ERKStepSetFixedStep()`         |  disabled              |
-   +----------------------------------------------------+-----------------------------------------+------------------------+
-   | Supply an initial step size to attempt             | :c:func:`ERKStepSetInitStep()`          |  estimated             |
-   +----------------------------------------------------+-----------------------------------------+------------------------+
-   | Maximum no. of warnings for :math:`t_n+h = t_n`    | :c:func:`ERKStepSetMaxHnilWarns()`      |  10                    |
-   +----------------------------------------------------+-----------------------------------------+------------------------+
-   | Maximum no. of internal steps before *tout*        | :c:func:`ERKStepSetMaxNumSteps()`       |  500                   |
-   +----------------------------------------------------+-----------------------------------------+------------------------+
-   | Maximum absolute step size                         | :c:func:`ERKStepSetMaxStep()`           | :math:`\infty`         |
-   +----------------------------------------------------+-----------------------------------------+------------------------+
-   | Minimum absolute step size                         | :c:func:`ERKStepSetMinStep()`           |  0.0                   |
-   +----------------------------------------------------+-----------------------------------------+------------------------+
-   | Set a value for :math:`t_{stop}`                   | :c:func:`ERKStepSetStopTime()`          | undefined              |
-   +----------------------------------------------------+-----------------------------------------+------------------------+
-   | Disable the stop time                              | :c:func:`ERKStepClearStopTime`          | N/A                    |
-   +----------------------------------------------------+-----------------------------------------+------------------------+
-   | Supply a pointer for user data                     | :c:func:`ERKStepSetUserData()`          | ``NULL``               |
-   +----------------------------------------------------+-----------------------------------------+------------------------+
-   | Maximum no. of ERKStep error test failures         | :c:func:`ERKStepSetMaxErrTestFails()`   |  7                     |
-   +----------------------------------------------------+-----------------------------------------+------------------------+
-   | Set inequality constraints on solution             | :c:func:`ERKStepSetConstraints()`       | ``NULL``               |
-   +----------------------------------------------------+-----------------------------------------+------------------------+
-   | Set max number of constraint failures              | :c:func:`ERKStepSetMaxNumConstrFails()` |  10                    |
-   +----------------------------------------------------+-----------------------------------------+------------------------+
+   +----------------------------------------------------+-------------------------------------------+------------------------+
+   | Optional input                                     | Function name                             |  Default               |
+   +====================================================+===========================================+========================+
+   | Return ERKStep solver parameters to their defaults | :c:func:`ERKStepSetDefaults()`            |  internal              |
+   +----------------------------------------------------+-------------------------------------------+------------------------+
+   | Set dense output interpolation type                | :c:func:`ERKStepSetInterpolantType()`     | ``ARK_INTERP_HERMITE`` |
+   +----------------------------------------------------+-------------------------------------------+------------------------+
+   | Set dense output polynomial degree                 | :c:func:`ERKStepSetInterpolantDegree()`   |  5                     |
+   +----------------------------------------------------+-------------------------------------------+------------------------+
+   | Supply a pointer to a diagnostics output file      | :c:func:`ERKStepSetDiagnostics()`         | ``NULL``               |
+   +----------------------------------------------------+-------------------------------------------+------------------------+
+   | Supply a pointer to an error output file           | :c:func:`ERKStepSetErrFile()`             | ``stderr``             |
+   +----------------------------------------------------+-------------------------------------------+------------------------+
+   | Supply a custom error handler function             | :c:func:`ERKStepSetErrHandlerFn()`        |  internal fn           |
+   +----------------------------------------------------+-------------------------------------------+------------------------+
+   | Disable time step adaptivity (fixed-step mode)     | :c:func:`ERKStepSetFixedStep()`           |  disabled              |
+   +----------------------------------------------------+-------------------------------------------+------------------------+
+   | Supply an initial step size to attempt             | :c:func:`ERKStepSetInitStep()`            |  estimated             |
+   +----------------------------------------------------+-------------------------------------------+------------------------+
+   | Maximum no. of warnings for :math:`t_n+h = t_n`    | :c:func:`ERKStepSetMaxHnilWarns()`        |  10                    |
+   +----------------------------------------------------+-------------------------------------------+------------------------+
+   | Maximum no. of internal steps before *tout*        | :c:func:`ERKStepSetMaxNumSteps()`         |  500                   |
+   +----------------------------------------------------+-------------------------------------------+------------------------+
+   | Maximum absolute step size                         | :c:func:`ERKStepSetMaxStep()`             | :math:`\infty`         |
+   +----------------------------------------------------+-------------------------------------------+------------------------+
+   | Minimum absolute step size                         | :c:func:`ERKStepSetMinStep()`             |  0.0                   |
+   +----------------------------------------------------+-------------------------------------------+------------------------+
+   | Set a value for :math:`t_{stop}`                   | :c:func:`ERKStepSetStopTime()`            | undefined              |
+   +----------------------------------------------------+-------------------------------------------+------------------------+
+   | Interpolate at :math:`t_{stop}`                    | :c:func:`ERKStepInterpolateSetStopTime()` | ``SUNFALSE``           |
+   +----------------------------------------------------+-------------------------------------------+------------------------+
+   | Disable the stop time                              | :c:func:`ERKStepClearStopTime`            | N/A                    |
+   +----------------------------------------------------+-------------------------------------------+------------------------+
+   | Supply a pointer for user data                     | :c:func:`ERKStepSetUserData()`            | ``NULL``               |
+   +----------------------------------------------------+-------------------------------------------+------------------------+
+   | Maximum no. of ERKStep error test failures         | :c:func:`ERKStepSetMaxErrTestFails()`     |  7                     |
+   +----------------------------------------------------+-------------------------------------------+------------------------+
+   | Set inequality constraints on solution             | :c:func:`ERKStepSetConstraints()`         | ``NULL``               |
+   +----------------------------------------------------+-------------------------------------------+------------------------+
+   | Set max number of constraint failures              | :c:func:`ERKStepSetMaxNumConstrFails()`   |  10                    |
+   +----------------------------------------------------+-------------------------------------------+------------------------+
 
 
 
@@ -884,6 +886,23 @@ Optional inputs for ERKStep
       A stop time not reached before a call to :c:func:`ERKStepReInit` or
       :c:func:`ERKStepReset` will remain active but can be disabled by calling
       :c:func:`ERKStepClearStopTime`.
+
+
+.. c:function:: int ERKStepSetInterpolateStopTime(void* arkode_mem, booleantype interp)
+
+   Specifies that the output solution should be interpolated when the current
+   :math:`t` equals the specified ``tstop`` (instead of merely copying the
+   internal solution :math:`y_n`).
+
+   **Arguments:**
+      * *arkode_mem* -- pointer to the ERKStep memory block.
+      * *interp* -- flag indicating to use interpolation (1) or copy (0).
+
+   **Return value:**
+      * *ARK_SUCCESS* if successful
+      * *ARK_MEM_NULL* if the ARKStep memory is ``NULL``
+
+   .. versionadded:: 5.6.0
 
 
 .. c:function:: int ERKStepClearStopTime(void* arkode_mem)

@@ -349,6 +349,7 @@ struct ARKodeMemRec
 
   /* Tstop information */
   booleantype tstopset;
+  booleantype tstopinterp;
   realtype    tstop;
 
   /* Time step data */
@@ -992,6 +993,7 @@ int arkSetInitStep(void *arkode_mem, realtype hin);
 int arkSetMinStep(void *arkode_mem, realtype hmin);
 int arkSetMaxStep(void *arkode_mem, realtype hmax);
 int arkSetStopTime(void *arkode_mem, realtype tstop);
+int arkSetInterpolateStopTime(void *arkode_mem, booleantype interp);
 int arkClearStopTime(void *arkode_mem);
 int arkSetFixedStep(void *arkode_mem, realtype hfixed);
 int arkSetRootDirection(void *arkode_mem, int *rootdir);

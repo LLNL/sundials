@@ -135,6 +135,13 @@ Updated the F2003 utility routines :c:func:`SUNDIALSFileOpen` and :c:func:`SUNDI
 to support user specification of ``stdout`` and ``stderr`` strings for the output
 file names.
 
+Updated the default ARKODE behavior when returning the solution when
+the internal time has reached a user-specified stop time.  Previously, the output
+solution was interpolated to the value of ``tstop``; the default is now to copy the
+internal solution vector.  Users who wish to revert to interpolation may call a new
+routine :c:func:`ARKStepSetInterpolateStopTime`,
+:c:func:`ERKStepSetInterpolateStopTime`, or :c:func:`MRIStepSetInterpolateStopTime`.
+
 Changes in v5.5.1
 -----------------
 
