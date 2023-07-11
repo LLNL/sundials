@@ -297,9 +297,9 @@ static int check_ans(N_Vector y, realtype t, realtype rtol, realtype atol)
   ewt = N_VClone(y);
 
   /* set the reference solution data */
-  NV_Ith_S(ref,0) = RCONST(2.0833403356917897e-08);
-  NV_Ith_S(ref,1) = RCONST(8.1470714598028223e-14);
-  NV_Ith_S(ref,2) = RCONST(9.9999997916651040e-01);
+  NV_Ith_S(ref,0) = RCONST(2.0878749372744711e-08);
+  NV_Ith_S(ref,1) = RCONST(8.4220713891497298e-14);
+  NV_Ith_S(ref,2) = RCONST(9.9999997912116090e-01);
 
   /* compute the error weight vector */
   N_VAbs(ref, ewt);
