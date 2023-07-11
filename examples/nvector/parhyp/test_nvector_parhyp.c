@@ -355,14 +355,14 @@ realtype get_element(N_Vector X, sunindextype i)
   /* get i-th element of data array */
   Xvec  = N_VGetVector_ParHyp(X);
   Xdata = hypre_VectorData(hypre_ParVectorLocalVector(Xvec));
-  
+
 #if defined(SUNDIALS_HYPRE_BACKENDS_SERIAL)
   return Xdata[i];
 #elif defined(SUNDIALS_HYPRE_BACKENDS_CUDA_OR_HIP)
   realtype host_data;
   NV_ADD_LANG_PREFIX_PH(Memcpy)
   (
-    host_data,
+    &host_data,
     Xdata+i,
     sizeof(realtype),
     NV_ADD_LANG_PREFIX_PH(MemcpyDeviceToHost)
