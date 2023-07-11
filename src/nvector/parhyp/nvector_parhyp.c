@@ -190,9 +190,15 @@ using namespace sundials::hip::impl;
 
 /* --- Debug macros --- */
 
-#define NV_CATCH_ERR_PH(call)                         \
-  if (call) {                                         \
-    SUNDIALS_DEBUG_ERROR(#call " returned nonzero\n") \
+#define NV_CATCH_PH(call)                          \
+  if (call) {                                          \
+    SUNDIALS_DEBUG_ERROR(#call " returned nonzero\n"); \
+    }
+
+#define NV_CATCH_MSG_AND_RETURN_PH(call,msg,ret)   \
+  if (call) {                                          \
+    SUNDIALS_DEBUG_ERROR(msg);                         \
+    return(ret);                                       \
     }
 
 /* --- Private structure definition --- */
@@ -200,19 +206,20 @@ using namespace sundials::hip::impl;
 #if defined(SUNDIALS_HYPRE_BACKENDS_CUDA_OR_HIP)
 struct _N_PrivateVectorContent_ParHyp
 {
-  booleantype use_managed_mem; /* do data pointers use managed memory */
+  booleantype use_managed_mem;   /* do data pointers use managed memory */
 
   // Reduction workspace
-  SUNMemory device_counter;      // device memory for a counter (used in LDS reductions)
-  SUNMemory reduce_buffer_dev;   // device memory for reductions
-  SUNMemory reduce_buffer_host;  // host memory for reductions
-  size_t    reduce_buffer_bytes; // current size of reduction buffers
+  SUNMemory device_counter;      /* device memory for a counter (LDS)   */
+  SUNMemory reduce_buffer_dev;   /* device memory for reductions        */
+  SUNMemory reduce_buffer_host;  /* host memory for reductions          */
+  size_t    reduce_buffer_bytes; /* current size of reduction buffers   */
 
-  // // Fused vector operations workspace
-  // SUNMemory fused_buffer_dev;    // device memory for fused ops
-  // SUNMemory fused_buffer_host;   // host memory for fused ops
-  // size_t    fused_buffer_bytes;  // current size of the buffers
-  // size_t    fused_buffer_offset; // current offset into the buffer
+  // Fused vector operations workspace
+  SUNMemory fused_buffer_dev;    /* device memory for fused ops         */
+  SUNMemory fused_buffer_host;   /* host memory for fused ops           */
+  size_t    fused_buffer_bytes;  /* current size of the buffers         */
+  size_t    fused_buffer_offset; /* current offset into the buffer      */
+
 };
 typedef struct _N_PrivateVectorContent_ParHyp *N_PrivateVectorContent_ParHyp;
 #endif
@@ -253,16 +260,27 @@ static void VLin2_ParHyp(realtype a, N_Vector x, N_Vector y, N_Vector z);
 // #endif // NOT Unified Memory and CUDA
 
 /* Reduction buffer functions */
-static int InitializeDeviceCounter(N_Vector v);
-static int FreeDeviceCounter(N_Vector v);
-static int InitializeReductionBuffer(N_Vector v, realtype value, size_t n = 1);
-static void FreeReductionBuffer(N_Vector v);
-static int CopyReductionBufferFromDevice(N_Vector v, size_t n = 1);
+static int  DeviceCounter_Init(N_Vector v);
+static int  DeviceCounter_Free(N_Vector v);
+static int  ReductionBuffer_Init(N_Vector v, realtype value, size_t n = 1);
+static int  ReductionBuffer_CopyFromDevice(N_Vector v, size_t n = 1);
+static void ReductionBuffer_Free(N_Vector v);
+
+// Fused operation buffer functions
+static int  FusedBuffer_Init(N_Vector v, int nreal, int nptr);
+static int  FusedBuffer_CopyToDevice(N_Vector v);
+static int  FusedBuffer_CopyRealArray(N_Vector v, realtype *r_data, int nval,
+                                      realtype **shortcut);
+static int  FusedBuffer_CopyPtrArray1D(N_Vector v, N_Vector *X, int nvec,
+                                       realtype ***shortcut);
+static int  FusedBuffer_CopyPtrArray2D(N_Vector v, N_Vector **X, int nvec, int nsum,
+                                       realtype ***shortcut);
+static int  FusedBuffer_Free(N_Vector v);
 
 /* Kernel launch parameters */
-static int GetKernelParameters(N_Vector v, booleantype reduction, size_t& grid, size_t& block,
-                               size_t& shMemSize, NV_ADD_LANG_PREFIX_PH(Stream_t)& stream, size_t n = 0);
-static int GetKernelParameters(N_Vector v, booleantype reduction, size_t& grid, size_t& block,
+static int  GetKernelParameters(N_Vector v, booleantype reduction, size_t& grid, size_t& block,
+                                size_t& shMemSize, NV_ADD_LANG_PREFIX_PH(Stream_t)& stream, size_t n = 0);
+static int  GetKernelParameters(N_Vector v, booleantype reduction, size_t& grid, size_t& block,
                                size_t& shMemSize, NV_ADD_LANG_PREFIX_PH(Stream_t)& stream, bool& atomic, size_t n = 0);
 static void PostKernelLaunch();
 
@@ -384,15 +402,20 @@ N_Vector N_VNewEmpty_ParHyp(MPI_Comm comm,
   NV_CONTENT_PH(v)->stream_exec_policy         = NULL;
   NV_CONTENT_PH(v)->reduce_exec_policy         = NULL;
   NV_CONTENT_PH(v)->mem_helper                 = NULL;
+
   // NV_PRIVATE_PH(v)->use_managed_mem      = SUNFALSE;
-  NV_PRIVATE_PH(v)->device_counter       = NULL;
-  NV_PRIVATE_PH(v)->reduce_buffer_dev    = NULL;
-  NV_PRIVATE_PH(v)->reduce_buffer_host   = NULL;
-  NV_PRIVATE_PH(v)->reduce_buffer_bytes  = 0;
-  // NV_PRIVATE_PH(v)->fused_buffer_dev     = NULL;
-  // NV_PRIVATE_PH(v)->fused_buffer_host    = NULL;
-  // NV_PRIVATE_PH(v)->fused_buffer_bytes   = 0;
-  // NV_PRIVATE_PH(v)->fused_buffer_offset  = 0;
+
+  // Reduction workspace
+  NV_PRIVATE_PH(v)->device_counter       = NULL;  // device memory for a counter (used in LDS reductions)
+  NV_PRIVATE_PH(v)->reduce_buffer_dev    = NULL;  // device memory for reductions
+  NV_PRIVATE_PH(v)->reduce_buffer_host   = NULL;  // host memory for reductions
+  NV_PRIVATE_PH(v)->reduce_buffer_bytes  = 0;     // current size of reduction buffers
+
+  // Fused vector operations workspace
+  NV_PRIVATE_PH(v)->fused_buffer_dev     = NULL;  // device memory for fused ops
+  NV_PRIVATE_PH(v)->fused_buffer_host    = NULL;  // host memory for fused ops
+  NV_PRIVATE_PH(v)->fused_buffer_bytes   = 0;     // current size of the buffers
+  NV_PRIVATE_PH(v)->fused_buffer_offset  = 0;     // current offset into the buffer
 #endif
 
   return(v);
@@ -628,9 +651,9 @@ void N_VDestroy_ParHyp(N_Vector v)
 #if defined(SUNDIALS_HYPRE_BACKENDS_CUDA_OR_HIP)
   if (NV_PRIVATE_PH(v) != NULL)
   {
-    FreeDeviceCounter(v);
-    FreeReductionBuffer(v);
-    // FusedBuffer_Free(v);
+    DeviceCounter_Free(v);
+    ReductionBuffer_Free(v);
+    FusedBuffer_Free(v);
     free(NV_PRIVATE_PH(v));
     NV_CONTENT_PH(v)->priv = NULL;
   }
@@ -795,7 +818,7 @@ void N_VLinearSum_ParHyp(realtype a, N_Vector x, realtype b, N_Vector y, N_Vecto
   size_t grid, block, shMemSize;
   NV_ADD_LANG_PREFIX_PH(Stream_t) stream;
 
-  NV_CATCH_ERR_PH(GetKernelParameters(x, false, grid, block, shMemSize, stream))
+  NV_CATCH_PH(GetKernelParameters(x, false, grid, block, shMemSize, stream))
 
   linearSumKernel<<<grid, block, shMemSize, stream>>>
   (
@@ -840,7 +863,7 @@ void N_VProd_ParHyp(N_Vector x, N_Vector y, N_Vector z)
   size_t grid, block, shMemSize;
   NV_ADD_LANG_PREFIX_PH(Stream_t) stream;
 
-  NV_CATCH_ERR_PH(GetKernelParameters(x, false, grid, block, shMemSize, stream))
+  NV_CATCH_PH(GetKernelParameters(x, false, grid, block, shMemSize, stream))
 
   prodKernel<<<grid, block, shMemSize, stream>>>
   (
@@ -876,7 +899,7 @@ void N_VDiv_ParHyp(N_Vector x, N_Vector y, N_Vector z)
   size_t grid, block, shMemSize;
   NV_ADD_LANG_PREFIX_PH(Stream_t) stream;
 
-  NV_CATCH_ERR_PH(GetKernelParameters(x, false, grid, block, shMemSize, stream))
+  NV_CATCH_PH(GetKernelParameters(x, false, grid, block, shMemSize, stream))
 
   divKernel<<<grid, block, shMemSize, stream>>>
   (
@@ -920,7 +943,7 @@ void N_VAbs_ParHyp(N_Vector x, N_Vector z)
   size_t grid, block, shMemSize;
   NV_ADD_LANG_PREFIX_PH(Stream_t) stream;
 
-  NV_CATCH_ERR_PH(GetKernelParameters(x, false, grid, block, shMemSize, stream))
+  NV_CATCH_PH(GetKernelParameters(x, false, grid, block, shMemSize, stream))
 
   absKernel<<<grid, block, shMemSize, stream>>>
   (
@@ -951,7 +974,7 @@ void N_VInv_ParHyp(N_Vector x, N_Vector z)
   size_t grid, block, shMemSize;
   NV_ADD_LANG_PREFIX_PH(Stream_t) stream;
 
-  NV_CATCH_ERR_PH(GetKernelParameters(x, false, grid, block, shMemSize, stream))
+  NV_CATCH_PH(GetKernelParameters(x, false, grid, block, shMemSize, stream))
 
   invKernel<<<grid, block, shMemSize, stream>>>
   (
@@ -982,7 +1005,7 @@ void N_VAddConst_ParHyp(N_Vector x, realtype b, N_Vector z)
   size_t grid, block, shMemSize;
   NV_ADD_LANG_PREFIX_PH(Stream_t) stream;
 
-  NV_CATCH_ERR_PH(GetKernelParameters(x, false, grid, block, shMemSize, stream))
+  NV_CATCH_PH(GetKernelParameters(x, false, grid, block, shMemSize, stream))
 
   addConstKernel<<<grid, block, shMemSize, stream>>>
   (
@@ -1015,9 +1038,9 @@ realtype N_VDotProdLocal_ParHyp(N_Vector x, N_Vector y)
   size_t grid, block, shMemSize;
   NV_ADD_LANG_PREFIX_PH(Stream_t) stream;
 
-  NV_CATCH_ERR_PH(GetKernelParameters(x, true, grid, block, shMemSize, stream, atomic))
+  NV_CATCH_PH(GetKernelParameters(x, true, grid, block, shMemSize, stream, atomic))
   const size_t buffer_size = atomic ? 1 : grid;
-  NV_CATCH_ERR_PH(InitializeReductionBuffer(x, sum, buffer_size))
+  NV_CATCH_PH(ReductionBuffer_Init(x, sum, buffer_size))
 
   if (atomic)
   {
@@ -1044,7 +1067,7 @@ realtype N_VDotProdLocal_ParHyp(N_Vector x, N_Vector y)
   PostKernelLaunch();
 
   // Get result from the GPU
-  CopyReductionBufferFromDevice(x);
+  ReductionBuffer_CopyFromDevice(x);
   sum = NV_HBUFFERp_PH(x)[0];
 #endif
   return(sum);
@@ -1077,9 +1100,9 @@ realtype N_VMaxNormLocal_ParHyp(N_Vector x)
   size_t grid, block, shMemSize;
   NV_ADD_LANG_PREFIX_PH(Stream_t) stream;
 
-  NV_CATCH_ERR_PH(GetKernelParameters(x, true, grid, block, shMemSize, stream, atomic))
+  NV_CATCH_PH(GetKernelParameters(x, true, grid, block, shMemSize, stream, atomic))
   const size_t buffer_size = atomic ? 1 : grid;
-  NV_CATCH_ERR_PH(InitializeReductionBuffer(x, max, buffer_size))
+  NV_CATCH_PH(ReductionBuffer_Init(x, max, buffer_size))
 
   if (atomic)
   {
@@ -1104,7 +1127,7 @@ realtype N_VMaxNormLocal_ParHyp(N_Vector x)
   PostKernelLaunch();
 
   // Get result from the GPU
-  CopyReductionBufferFromDevice(x);
+  ReductionBuffer_CopyFromDevice(x);
   max = NV_HBUFFERp_PH(x)[0];
 #endif
   return(max);
@@ -1140,9 +1163,9 @@ realtype N_VWSqrSumLocal_ParHyp(N_Vector x, N_Vector w)
   size_t grid, block, shMemSize;
   NV_ADD_LANG_PREFIX_PH(Stream_t) stream;
 
-  NV_CATCH_ERR_PH(GetKernelParameters(x, true, grid, block, shMemSize, stream, atomic))
+  NV_CATCH_PH(GetKernelParameters(x, true, grid, block, shMemSize, stream, atomic))
   const size_t buffer_size = atomic ? 1 : grid;
-  NV_CATCH_ERR_PH(InitializeReductionBuffer(x, sum, buffer_size))
+  NV_CATCH_PH(ReductionBuffer_Init(x, sum, buffer_size))
 
   if (atomic)
   {
@@ -1169,7 +1192,7 @@ realtype N_VWSqrSumLocal_ParHyp(N_Vector x, N_Vector w)
   PostKernelLaunch();
 
   // Get result from the GPU
-  CopyReductionBufferFromDevice(x);
+  ReductionBuffer_CopyFromDevice(x);
   sum = NV_HBUFFERp_PH(x)[0];
 #endif
   return(sum);
@@ -1208,9 +1231,9 @@ realtype N_VWSqrSumMaskLocal_ParHyp(N_Vector x, N_Vector w, N_Vector id)
   size_t grid, block, shMemSize;
   NV_ADD_LANG_PREFIX_PH(Stream_t) stream;
 
-  NV_CATCH_ERR_PH(GetKernelParameters(x, true, grid, block, shMemSize, stream, atomic))
+  NV_CATCH_PH(GetKernelParameters(x, true, grid, block, shMemSize, stream, atomic))
   const size_t buffer_size = atomic ? 1 : grid;
-  NV_CATCH_ERR_PH(InitializeReductionBuffer(x, sum, buffer_size))
+  NV_CATCH_PH(ReductionBuffer_Init(x, sum, buffer_size))
 
   if (atomic)
   {
@@ -1239,7 +1262,7 @@ realtype N_VWSqrSumMaskLocal_ParHyp(N_Vector x, N_Vector w, N_Vector id)
   PostKernelLaunch();
 
   // Get result from the GPU
-  CopyReductionBufferFromDevice(x);
+  ReductionBuffer_CopyFromDevice(x);
   sum = NV_HBUFFERp_PH(x)[0];
 #endif
   return(sum);
@@ -1273,9 +1296,9 @@ realtype N_VMinLocal_ParHyp(N_Vector x)
   size_t grid, block, shMemSize;
   NV_ADD_LANG_PREFIX_PH(Stream_t) stream;
 
-  NV_CATCH_ERR_PH(GetKernelParameters(x, true, grid, block, shMemSize, stream, atomic))
+  NV_CATCH_PH(GetKernelParameters(x, true, grid, block, shMemSize, stream, atomic))
   const size_t buffer_size = atomic ? 1 : grid;
-  NV_CATCH_ERR_PH(InitializeReductionBuffer(x, min, buffer_size))
+  NV_CATCH_PH(ReductionBuffer_Init(x, min, buffer_size))
 
   if (atomic)
   {
@@ -1302,7 +1325,7 @@ realtype N_VMinLocal_ParHyp(N_Vector x)
   PostKernelLaunch();
 
   // Get result from the GPU
-  CopyReductionBufferFromDevice(x);
+  ReductionBuffer_CopyFromDevice(x);
   min = NV_HBUFFERp_PH(x)[0];
 #endif
   return(min);
@@ -1342,9 +1365,9 @@ realtype N_VL1NormLocal_ParHyp(N_Vector x)
   size_t grid, block, shMemSize;
   NV_ADD_LANG_PREFIX_PH(Stream_t) stream;
 
-  NV_CATCH_ERR_PH(GetKernelParameters(x, true, grid, block, shMemSize, stream, atomic))
+  NV_CATCH_PH(GetKernelParameters(x, true, grid, block, shMemSize, stream, atomic))
   const size_t buffer_size = atomic ? 1 : grid;
-  NV_CATCH_ERR_PH(InitializeReductionBuffer(x, sum, buffer_size))
+  NV_CATCH_PH(ReductionBuffer_Init(x, sum, buffer_size))
 
   if (atomic)
   {
@@ -1369,7 +1392,7 @@ realtype N_VL1NormLocal_ParHyp(N_Vector x)
   PostKernelLaunch();
 
   // Get result from the GPU
-  CopyReductionBufferFromDevice(x);
+  ReductionBuffer_CopyFromDevice(x);
   sum = NV_HBUFFERp_PH(x)[0];
 #endif
   return(sum);
@@ -1402,7 +1425,7 @@ void N_VCompare_ParHyp(realtype c, N_Vector x, N_Vector z)
   size_t grid, block, shMemSize;
   NV_ADD_LANG_PREFIX_PH(Stream_t) stream;
 
-  NV_CATCH_ERR_PH(GetKernelParameters(x, false, grid, block, shMemSize, stream))
+  NV_CATCH_PH(GetKernelParameters(x, false, grid, block, shMemSize, stream))
 
   compareKernel<<<grid, block, shMemSize, stream>>>
   (
@@ -1439,9 +1462,9 @@ booleantype N_VInvTestLocal_ParHyp(N_Vector x, N_Vector z)
   size_t grid, block, shMemSize;
   NV_ADD_LANG_PREFIX_PH(Stream_t) stream;
 
-  NV_CATCH_ERR_PH(GetKernelParameters(x, true, grid, block, shMemSize, stream, atomic))
+  NV_CATCH_PH(GetKernelParameters(x, true, grid, block, shMemSize, stream, atomic))
   const size_t buffer_size = atomic ? 1 : grid;
-  NV_CATCH_ERR_PH(InitializeReductionBuffer(x, flag, buffer_size))
+  NV_CATCH_PH(ReductionBuffer_Init(x, flag, buffer_size))
 
   if (atomic)
   {
@@ -1468,7 +1491,7 @@ booleantype N_VInvTestLocal_ParHyp(N_Vector x, N_Vector z)
   PostKernelLaunch();
 
   // Get result from the GPU
-  CopyReductionBufferFromDevice(x);
+  ReductionBuffer_CopyFromDevice(x);
   flag = NV_HBUFFERp_PH(x)[0];
 #endif
   /* Return false if any denominator x[i] is zero (flag raised) */
@@ -1518,9 +1541,9 @@ booleantype N_VConstrMaskLocal_ParHyp(N_Vector c, N_Vector x, N_Vector m)
   size_t grid, block, shMemSize;
   NV_ADD_LANG_PREFIX_PH(Stream_t) stream;
 
-  NV_CATCH_ERR_PH(GetKernelParameters(x, true, grid, block, shMemSize, stream, atomic))
+  NV_CATCH_PH(GetKernelParameters(x, true, grid, block, shMemSize, stream, atomic))
   const size_t buffer_size = atomic ? 1 : grid;
-  NV_CATCH_ERR_PH(InitializeReductionBuffer(x, flag, buffer_size))
+  NV_CATCH_PH(ReductionBuffer_Init(x, flag, buffer_size))
 
   if (atomic)
   {
@@ -1549,7 +1572,7 @@ booleantype N_VConstrMaskLocal_ParHyp(N_Vector c, N_Vector x, N_Vector m)
   PostKernelLaunch();
 
   // Get result from the GPU
-  CopyReductionBufferFromDevice(x);
+  ReductionBuffer_CopyFromDevice(x);
   flag = NV_HBUFFERp_PH(x)[0];
 #endif
   /* Return false if any constraint was violated (flag raised) */
@@ -1596,9 +1619,9 @@ realtype N_VMinQuotientLocal_ParHyp(N_Vector num, N_Vector denom)
   size_t grid, block, shMemSize;
   NV_ADD_LANG_PREFIX_PH(Stream_t) stream;
 
-  NV_CATCH_ERR_PH(GetKernelParameters(num, true, grid, block, shMemSize, stream, atomic))
+  NV_CATCH_PH(GetKernelParameters(num, true, grid, block, shMemSize, stream, atomic))
   const size_t buffer_size = atomic ? 1 : grid;
-  NV_CATCH_ERR_PH(InitializeReductionBuffer(num, min, buffer_size))
+  NV_CATCH_PH(ReductionBuffer_Init(num, min, buffer_size))
 
   if (atomic)
   {
@@ -1627,7 +1650,7 @@ realtype N_VMinQuotientLocal_ParHyp(N_Vector num, N_Vector denom)
   PostKernelLaunch();
 
   // Get result from the GPU
-  CopyReductionBufferFromDevice(num);
+  ReductionBuffer_CopyFromDevice(num);
   min = NV_HBUFFERp_PH(num)[0];
 #endif
   return(min);
@@ -1674,9 +1697,8 @@ int N_VLinearCombination_ParHyp(int nvec, realtype* c, N_Vector* X, N_Vector z)
   N  = NV_LOCLENGTH_PH(z);
   zd = NV_DATA_PH(z);
 
-  /*
-   * X[0] += c[i]*X[i], i = 1,...,nvec-1
-   */
+#if defined(SUNDIALS_HYPRE_BACKENDS_SERIAL)
+  /* X[0] += c[i]*X[i], i = 1,...,nvec-1 */
   if ((X[0] == z) && (c[0] == ONE)) {
     for (i=1; i<nvec; i++) {
       xd = NV_DATA_PH(X[i]);
@@ -1684,13 +1706,10 @@ int N_VLinearCombination_ParHyp(int nvec, realtype* c, N_Vector* X, N_Vector z)
         zd[j] += c[i] * xd[j];
       }
     }
-    return(0);
   }
 
-  /*
-   * X[0] = c[0] * X[0] + sum{ c[i] * X[i] }, i = 1,...,nvec-1
-   */
-  if (X[0] == z) {
+  /* X[0] = c[0] * X[0] + sum{ c[i] * X[i] }, i = 1,...,nvec-1 */
+  else if (X[0] == z) {
     for (j=0; j<N; j++) {
       zd[j] *= c[0];
     }
@@ -1700,22 +1719,23 @@ int N_VLinearCombination_ParHyp(int nvec, realtype* c, N_Vector* X, N_Vector z)
         zd[j] += c[i] * xd[j];
       }
     }
-    return(0);
   }
 
-  /*
-   * z = sum{ c[i] * X[i] }, i = 0,...,nvec-1
-   */
-  xd = NV_DATA_PH(X[0]);
-  for (j=0; j<N; j++) {
-    zd[j] = c[0] * xd[j];
-  }
-  for (i=1; i<nvec; i++) {
-    xd = NV_DATA_PH(X[i]);
+  /* z = sum{ c[i] * X[i] }, i = 0,...,nvec-1 */
+  else {
+    xd = NV_DATA_PH(X[0]);
     for (j=0; j<N; j++) {
-      zd[j] += c[i] * xd[j];
+      zd[j] = c[0] * xd[j];
+    }
+    for (i=1; i<nvec; i++) {
+      xd = NV_DATA_PH(X[i]);
+      for (j=0; j<N; j++) {
+        zd[j] += c[i] * xd[j];
+      }
     }
   }
+#elif defined(SUNDIALS_HYPRE_BACKENDS_CUDA_OR_HIP)
+#endif
   return(0);
 }
 
@@ -2362,7 +2382,7 @@ static void VSum_ParHyp(N_Vector x, N_Vector y, N_Vector z)
   size_t grid, block, shMemSize;
   NV_ADD_LANG_PREFIX_PH(Stream_t) stream;
 
-  NV_CATCH_ERR_PH(GetKernelParameters(x, false, grid, block, shMemSize, stream))
+  NV_CATCH_PH(GetKernelParameters(x, false, grid, block, shMemSize, stream))
 
   linearSumKernel<<<grid, block, shMemSize, stream>>>
   (
@@ -2397,7 +2417,7 @@ static void VDiff_ParHyp(N_Vector x, N_Vector y, N_Vector z)
   size_t grid, block, shMemSize;
   NV_ADD_LANG_PREFIX_PH(Stream_t) stream;
 
-  NV_CATCH_ERR_PH(GetKernelParameters(x, false, grid, block, shMemSize, stream))
+  NV_CATCH_PH(GetKernelParameters(x, false, grid, block, shMemSize, stream))
 
   linearSumKernel<<<grid, block, shMemSize, stream>>>
   (
@@ -2432,7 +2452,7 @@ static void VScaleSum_ParHyp(realtype c, N_Vector x, N_Vector y, N_Vector z)
   size_t grid, block, shMemSize;
   NV_ADD_LANG_PREFIX_PH(Stream_t) stream;
 
-  NV_CATCH_ERR_PH(GetKernelParameters(x, false, grid, block, shMemSize, stream))
+  NV_CATCH_PH(GetKernelParameters(x, false, grid, block, shMemSize, stream))
 
   linearSumKernel<<<grid, block, shMemSize, stream>>>
   (
@@ -2467,7 +2487,7 @@ static void VScaleDiff_ParHyp(realtype c, N_Vector x, N_Vector y, N_Vector z)
   size_t grid, block, shMemSize;
   NV_ADD_LANG_PREFIX_PH(Stream_t) stream;
 
-  NV_CATCH_ERR_PH(GetKernelParameters(x, false, grid, block, shMemSize, stream))
+  NV_CATCH_PH(GetKernelParameters(x, false, grid, block, shMemSize, stream))
 
   linearSumKernel<<<grid, block, shMemSize, stream>>>
   (
@@ -2502,7 +2522,7 @@ static void VLin1_ParHyp(realtype a, N_Vector x, N_Vector y, N_Vector z)
   size_t grid, block, shMemSize;
   NV_ADD_LANG_PREFIX_PH(Stream_t) stream;
 
-  NV_CATCH_ERR_PH(GetKernelParameters(x, false, grid, block, shMemSize, stream))
+  NV_CATCH_PH(GetKernelParameters(x, false, grid, block, shMemSize, stream))
 
   linearSumKernel<<<grid, block, shMemSize, stream>>>
   (
@@ -2537,7 +2557,7 @@ static void VLin2_ParHyp(realtype a, N_Vector x, N_Vector y, N_Vector z)
   size_t grid, block, shMemSize;
   NV_ADD_LANG_PREFIX_PH(Stream_t) stream;
 
-  NV_CATCH_ERR_PH(GetKernelParameters(x, false, grid, block, shMemSize, stream))
+  NV_CATCH_PH(GetKernelParameters(x, false, grid, block, shMemSize, stream))
 
   linearSumKernel<<<grid, block, shMemSize, stream>>>
   (
@@ -2809,9 +2829,9 @@ int N_VEnableDotProdMultiLocal_ParHyp(N_Vector v, booleantype tf)
  * -----------------------------------------------------------------
  */
 
-#if defined(SUNDIALS_HYPRE_BACKENDS_CUDA_OR_HIP)
+// #if defined(SUNDIALS_HYPRE_BACKENDS_CUDA_OR_HIP)
 
-static int InitializeDeviceCounter(N_Vector v)
+static int DeviceCounter_Init(N_Vector v)
 {
   int retval = 0;
   
@@ -2825,7 +2845,7 @@ static int InitializeDeviceCounter(N_Vector v)
   return retval;
 }
 
-static int FreeDeviceCounter(N_Vector v)
+static int DeviceCounter_Free(N_Vector v)
 {
   int retval = 0;
   if (NV_PRIVATE_PH(v)->device_counter)
@@ -2834,77 +2854,75 @@ static int FreeDeviceCounter(N_Vector v)
   return retval;
 }
 
-static int InitializeReductionBuffer(N_Vector v, realtype value, size_t n)
+static int ReductionBuffer_Init(N_Vector v, realtype value, size_t n)
 {
-  int         alloc_fail = 0;
-  int         copy_fail  = 0;
-  booleantype alloc_mem  = SUNFALSE;
-  size_t      bytes      = n * sizeof(realtype);
+  // Determine bytes needed
+  size_t bytes = n * sizeof(realtype);
 
   // Get the vector private memory structure
   N_PrivateVectorContent_ParHyp vcp = NV_PRIVATE_PH(v);
 
-  // Check if the existing reduction memory is not large enough
-  if (vcp->reduce_buffer_bytes < bytes)
+  // Define the allocation attempt function
+  int TryAlloc(SUNMemory *memptr, SUNMemoryType mem_type)
   {
-    FreeReductionBuffer(v);
-    alloc_mem = SUNTRUE;
+    SUNMemoryHelper_Alloc(NV_MEMHELP_PH(v), memptr, bytes, mem_type, (void*) NV_STREAM_PH(v));
   }
 
-  if (alloc_mem)
+  // If existing memory is insufficient, allocate more
+  if (vcp->reduce_buffer_bytes < bytes)
   {
-    // Allocate pinned memory on the host
-    alloc_fail = SUNMemoryHelper_Alloc(NV_MEMHELP_PH(v),
-                                       &(vcp->reduce_buffer_host), bytes,
-                                       SUNMEMTYPE_PINNED, (void*) NV_STREAM_PH(v));
-    if (alloc_fail)
+    ReductionBuffer_Free(v);
+
+    // Try to allocate pinned memory on the host
+    if (TryAlloc(&(vcp->reduce_buffer_host),SUNMEMTYPE_PINNED))
     {
-      SUNDIALS_DEBUG_PRINT("WARNING in InitializeReductionBuffer: SUNMemoryHelper_Alloc failed to alloc SUNMEMTYPE_PINNED, using SUNMEMTYPE_HOST instead\n");
+      SUNDIALS_DEBUG_PRINT("WARNING in ReductionBuffer_Init: SUNMemoryHelper_Alloc failed to alloc SUNMEMTYPE_PINNED, using SUNMEMTYPE_HOST instead\n");
 
       // If pinned alloc failed, allocate plain host memory
-      alloc_fail = SUNMemoryHelper_Alloc(NV_MEMHELP_PH(v),
-                                         &(vcp->reduce_buffer_host), bytes,
-                                         SUNMEMTYPE_HOST, (void*) NV_STREAM_PH(v));
-      if (alloc_fail)
-      {
-        SUNDIALS_DEBUG_PRINT("ERROR in InitializeReductionBuffer: SUNMemoryHelper_Alloc failed to alloc SUNMEMTYPE_HOST\n");
-      }
+      NV_CATCH_MSG_AND_RETURN_PH(TryAlloc(&(vcp->reduce_buffer_host),SUNMEMTYPE_HOST),
+        "SUNMemoryHelper_Alloc failed to alloc SUNMEMTYPE_HOST\n",-1)
     }
 
     // Allocate device memory
-    alloc_fail = SUNMemoryHelper_Alloc(NV_MEMHELP_PH(v),
-                                       &(vcp->reduce_buffer_dev), bytes,
-                                       SUNMEMTYPE_DEVICE, (void*) NV_STREAM_PH(v));
-    if (alloc_fail)
-    {
-      SUNDIALS_DEBUG_PRINT("ERROR in InitializeReductionBuffer: SUNMemoryHelper_Alloc failed to alloc SUNMEMTYPE_DEVICE\n");
-    }
+    NV_CATCH_MSG_AND_RETURN_PH(TryAlloc(&(vcp->reduce_buffer_dev),SUNMEMTYPE_DEVICE),
+      "SUNMemoryHelper_Alloc failed to alloc SUNMEMTYPE_HOST\n",-1)
   }
 
-  if (!alloc_fail)
-  {
-    // Store the size of the reduction memory buffer
-    vcp->reduce_buffer_bytes = bytes;
+  // Store the size of the reduction memory buffer
+  vcp->reduce_buffer_bytes = bytes;
 
-    // Initialize the host memory with the value
-    for (int i = 0; i < n; ++i)
-      ((realtype*)vcp->reduce_buffer_host->ptr)[i] = value;
+  // Initialize the host memory with the value
+  for (int i = 0; i < n; ++i)
+    ((realtype*)vcp->reduce_buffer_host->ptr)[i] = value;
 
-    // Initialize the device memory with the value
-    copy_fail = SUNMemoryHelper_CopyAsync(NV_MEMHELP_PH(v),
-                                          vcp->reduce_buffer_dev, vcp->reduce_buffer_host,
-                                          bytes, (void*) NV_STREAM_PH(v));
-
-    if (copy_fail)
-    {
-      SUNDIALS_DEBUG_PRINT("ERROR in InitializeReductionBuffer: SUNMemoryHelper_CopyAsync failed\n");
-    }
-  }
-
-  return((alloc_fail || copy_fail) ? -1 : 0);
+  // Initialize the device memory with the value
+  NV_CATCH_MSG_AND_RETURN_PH(
+    SUNMemoryHelper_CopyAsync(NV_MEMHELP_PH(v),
+                              vcp->reduce_buffer_dev, vcp->reduce_buffer_host,
+                              bytes, (void*) NV_STREAM_PH(v)),
+    "SUNMemoryHelper_CopyAsync failed\n",-1)
+  
+  return 0;
 }
 
-static void FreeReductionBuffer(N_Vector v)
+static int ReductionBuffer_CopyFromDevice(N_Vector v, size_t n)
+{
+  int copy_fail;
+  NV_ADD_LANG_PREFIX_PH(Error_t) err;
+
+  NV_CATCH_MSG_AND_RETURN_PH(
+    SUNMemoryHelper_CopyAsync(NV_MEMHELP_PH(v),
+                              NV_PRIVATE_PH(v)->reduce_buffer_host,
+                              NV_PRIVATE_PH(v)->reduce_buffer_dev,
+                              n * sizeof(realtype),
+                              (void*) NV_STREAM_PH(v)),
+  "SUNMemoryHelper_CopyAsync returned nonzero\n",-1)
+
+  err = NV_ADD_LANG_PREFIX_PH(StreamSynchronize)(*NV_STREAM_PH(v));
+  return (!NV_VERIFY_CALL_PH(err) ? -1 : 0);
+}
+
+static void ReductionBuffer_Free(N_Vector v)
 {
   N_PrivateVectorContent_ParHyp vcp = NV_PRIVATE_PH(v);
 
@@ -2926,24 +2944,191 @@ static void FreeReductionBuffer(N_Vector v)
   vcp->reduce_buffer_bytes = 0;
 }
 
-static int CopyReductionBufferFromDevice(N_Vector v, size_t n)
+static int FusedBuffer_Init(N_Vector v, int nreal, int nptr)
 {
-  int copy_fail;
-  NV_ADD_LANG_PREFIX_PH(Error_t) err;
+  // Determine bytes needed (with single precision padding if necessary)
+#if defined(SUNDIALS_SINGLE_PRECISION)
+  size_t bytes = nreal * 2 * sizeof(realtype) + nptr * sizeof(realtype*);
+#elif defined(SUNDIALS_DOUBLE_PRECISION)
+  size_t bytes = nreal * sizeof(realtype) + nptr * sizeof(realtype*);
+#else
+#error Incompatible precision for CUDA
+#endif
 
-  copy_fail = SUNMemoryHelper_CopyAsync(NV_MEMHELP_PH(v),
-                                        NV_PRIVATE_PH(v)->reduce_buffer_host,
-                                        NV_PRIVATE_PH(v)->reduce_buffer_dev,
-                                        n * sizeof(realtype),
-                                        (void*) NV_STREAM_PH(v));
+  // Get the vector private memory structure
+  N_PrivateVectorContent_ParHyp vcp = NV_PRIVATE_PH(v);
 
-  if (copy_fail)
+  // Define the allocation attempt function
+  int TryAlloc(SUNMemory *memptr, SUNMemoryType mem_type)
   {
-    SUNDIALS_DEBUG_PRINT("ERROR in CopyReductionBufferFromDevice: SUNMemoryHelper_CopyAsync returned nonzero\n");
+    SUNMemoryHelper_Alloc(NV_MEMHELP_PH(v), memptr, bytes, mem_type, (void*) NV_STREAM_PH(v));
   }
 
-  err = NV_ADD_LANG_PREFIX_PH(StreamSynchronize)(*NV_STREAM_PH(v));
-  return (!NV_VERIFY_CALL_PH(err) || copy_fail ? -1 : 0);
+  // If existing memory is insufficient, allocate more
+  if (vcp->fused_buffer_bytes < bytes)
+  {
+    FusedBuffer_Free(v);
+
+    // Try to allocate pinned memory on the host
+    if (TryAlloc(&(vcp->fused_buffer_host),SUNMEMTYPE_PINNED))
+    {
+      SUNDIALS_DEBUG_PRINT("WARNING in FusedBuffer_Init: SUNMemoryHelper_Alloc failed to alloc SUNMEMTYPE_PINNED, using SUNMEMTYPE_HOST instead\n");
+
+      // If pinned alloc failed, allocate plain host memory
+      NV_CATCH_MSG_AND_RETURN_PH(TryAlloc(&(vcp->fused_buffer_host),SUNMEMTYPE_HOST),
+        "SUNMemoryHelper_Alloc failed to alloc SUNMEMTYPE_HOST\n",-1)
+    }
+
+    // Allocate device memory
+    NV_CATCH_MSG_AND_RETURN_PH(TryAlloc(&(vcp->fused_buffer_dev),SUNMEMTYPE_DEVICE),
+      "SUNMemoryHelper_Alloc failed to alloc SUNMEMTYPE_HOST\n",-1)
+
+    // Store the size of the fused op buffer
+    vcp->fused_buffer_bytes = bytes;
+  }
+
+  // Reset the buffer offset
+  vcp->fused_buffer_offset = 0;
+
+  return 0;
+}
+
+static int FusedBuffer_CopyToDevice(N_Vector v)
+{
+  // Get the vector private memory structure
+  N_PrivateVectorContent_ParHyp vcp = NV_PRIVATE_PH(v);
+
+  // Copy the fused buffer to the device
+  NV_CATCH_MSG_AND_RETURN_PH(
+    SUNMemoryHelper_CopyAsync(NV_MEMHELP_PH(v),
+                              vcp->fused_buffer_dev,
+                              vcp->fused_buffer_host,
+                              vcp->fused_buffer_offset,
+                              (void*) NV_STREAM_PH(v)),
+    "SUNMemoryHelper_CopyAsync failed\n",-1)
+
+  // Synchronize with respect to the host, but only in this stream
+  NV_VERIFY_CALL_PH(NV_ADD_LANG_PREFIX_PH(StreamSynchronize)(*NV_STREAM_PH(v)));
+
+  return 0;
+}
+
+static int FusedBuffer_CopyRealArray(N_Vector v, realtype *rdata, int nval,
+                                     realtype **shortcut)
+{
+  // Get the vector private memory structure
+  N_PrivateVectorContent_ParHyp vcp = NV_PRIVATE_PH(v);
+
+  // Check buffer space and fill the host buffer
+  NV_CATCH_MSG_AND_RETURN_PH(vcp->fused_buffer_offset >= vcp->fused_buffer_bytes,
+    "Buffer offset exceeds the buffer size\n",-1)
+
+  realtype* h_buffer = (realtype*) ((char*)(vcp->fused_buffer_host->ptr) +
+                                    vcp->fused_buffer_offset);
+
+  for (int j = 0; j < nval; j++)
+  {
+    h_buffer[j] = rdata[j];
+  }
+
+  // Set shortcut to the device buffer and update offset
+  *shortcut = (realtype*) ((char*)(vcp->fused_buffer_dev->ptr) +
+                           vcp->fused_buffer_offset);
+
+  // accounting for buffer padding
+#if defined(SUNDIALS_SINGLE_PRECISION)
+  vcp->fused_buffer_offset += nval * 2 * sizeof(realtype);
+#elif defined(SUNDIALS_DOUBLE_PRECISION)
+  vcp->fused_buffer_offset += nval * sizeof(realtype);
+#else
+#error Incompatible precision for CUDA
+#endif
+
+  return 0;
+}
+
+static int FusedBuffer_CopyPtrArray1D(N_Vector v, N_Vector *X, int nvec,
+                                      realtype ***shortcut)
+{
+  // Get the vector private memory structure
+  N_PrivateVectorContent_ParHyp vcp = NV_PRIVATE_PH(v);
+
+  // Check buffer space and fill the host buffer
+  NV_CATCH_MSG_AND_RETURN_PH(vcp->fused_buffer_offset >= vcp->fused_buffer_bytes,
+    "Buffer offset exceeds the buffer size\n",-1)
+
+  realtype** h_buffer = (realtype**) ((char*)(vcp->fused_buffer_host->ptr) +
+                                      vcp->fused_buffer_offset);
+
+  for (int j = 0; j < nvec; j++)
+  {
+    h_buffer[j] = NV_DATA_PH(X[j]);
+  }
+
+  // Set shortcut to the device buffer and update offset
+  *shortcut = (realtype**) ((char*)(vcp->fused_buffer_dev->ptr) +
+                            vcp->fused_buffer_offset);
+
+  vcp->fused_buffer_offset += nvec * sizeof(realtype*);
+
+  return 0;
+}
+
+static int FusedBuffer_CopyPtrArray2D(N_Vector v, N_Vector **X, int nvec,
+                                      int nsum, realtype ***shortcut)
+{
+  // Get the vector private memory structure
+  N_PrivateVectorContent_ParHyp vcp = NV_PRIVATE_PH(v);
+
+  // Check buffer space and fill the host buffer
+ NV_CATCH_MSG_AND_RETURN_PH(vcp->fused_buffer_offset >= vcp->fused_buffer_bytes,
+  "Buffer offset exceeds the buffer size\n",-1)
+
+  realtype** h_buffer = (realtype**) ((char*)(vcp->fused_buffer_host->ptr) +
+                                      vcp->fused_buffer_offset);
+
+  for (int j = 0; j < nvec; j++)
+  {
+    for (int k = 0; k < nsum; k++)
+    {
+      h_buffer[j * nsum + k] = NV_DATA_PH(X[k][j]);
+    }
+  }
+
+  // Set shortcut to the device buffer and update offset
+  *shortcut = (realtype**) ((char*)(vcp->fused_buffer_dev->ptr) +
+                            vcp->fused_buffer_offset);
+
+  // Update the offset
+  vcp->fused_buffer_offset += nvec * nsum * sizeof(realtype*);
+
+  return 0;
+}
+
+static int FusedBuffer_Free(N_Vector v)
+{
+  N_PrivateVectorContent_ParHyp vcp = NV_PRIVATE_PH(v);
+
+  if (vcp == NULL) return 0;
+
+  if (vcp->fused_buffer_host)
+  {
+    SUNMemoryHelper_Dealloc(NV_MEMHELP_PH(v),
+                            vcp->fused_buffer_host, (void*) NV_STREAM_PH(v));
+    vcp->fused_buffer_host = NULL;
+  }
+
+  if (vcp->fused_buffer_dev)
+  {
+    SUNMemoryHelper_Dealloc(NV_MEMHELP_PH(v),
+                            vcp->fused_buffer_dev, (void*) NV_STREAM_PH(v));
+    vcp->fused_buffer_dev = NULL;
+  }
+
+  vcp->fused_buffer_bytes  = 0;
+  vcp->fused_buffer_offset = 0;
+
+  return 0;
 }
 
 static int GetKernelParameters(N_Vector v, booleantype reduction, size_t& grid,
@@ -2959,24 +3144,16 @@ static int GetKernelParameters(N_Vector v, booleantype reduction, size_t& grid,
     shMemSize = 0;
     stream    = *(reduce_exec_policy->stream());
     atomic    = reduce_exec_policy->atomic();
-
     if (!atomic)
     {
-      if (InitializeDeviceCounter(v))
-      {
-  #ifdef SUNDIALS_DEBUG
-        throw std::runtime_error("SUNMemoryHelper_Alloc returned nonzero\n");
-  #endif
-        return(-1);
-      }
+      NV_CATCH_MSG_AND_RETURN_PH(DeviceCounter_Init(v),
+        "SUNMemoryHelper_Alloc returned nonzero\n",-1)
     }
 
     if (block % sundials::NV_GPU_LANG_TOKEN_PH::WARP_SIZE)
     {
-#ifdef SUNDIALS_DEBUG
-      throw std::runtime_error("the block size must be a multiple must be of the " NV_BACKEND_STRING_PH " warp size");
-#endif
-      return(-1);
+      NV_CATCH_MSG_AND_RETURN_PH(DeviceCounter_Init(v),
+        "the block size must be a multiple must be of the " NV_BACKEND_STRING_PH " warp size",-1)
     }
   }
   else
@@ -3024,4 +3201,4 @@ static void PostKernelLaunch()
 #endif
 }
 
-#endif // CUDA or HIP
+// #endif // CUDA or HIP

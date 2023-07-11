@@ -99,7 +99,7 @@
 #endif
 
 #if defined(SUNDIALS_HYPRE_USING_UNIFIED_MEMORY) && defined(SUNDIALS_HYPRE_BACKENDS_CUDA)
-#define SUNDIALS_HYPRE_USING_UNIFIED_MEMORY_AND_CUDA
+#define SUNDIALS_HYPRE_UNIFIED_MEMORY_AND_CUDA
 #endif
 
 /* --- Wrapper to enable C++ usage --- */
@@ -116,16 +116,16 @@ extern "C" {
 
 struct _N_VectorContent_ParHyp
 {
-  sunindextype local_length;  /* local vector length               */
-  sunindextype global_length; /* global vector length              */
-  booleantype own_parvector;  /* ownership of HYPRE vector         */
-  MPI_Comm comm;              /* pointer to MPI communicator       */
-  HYPRE_ParVector x;          /* the actual HYPRE_ParVector object */
+  sunindextype    local_length;  /* local vector length               */
+  sunindextype    global_length; /* global vector length              */
+  booleantype     own_parvector; /* ownership of HYPRE vector         */
+  MPI_Comm        comm;          /* pointer to MPI communicator       */
+  HYPRE_ParVector x;             /* the actual HYPRE_ParVector object */
 #if defined(SUNDIALS_HYPRE_BACKENDS_CUDA_OR_HIP)
   NV_EXECPOLICY_TYPE_PH* stream_exec_policy;
   NV_EXECPOLICY_TYPE_PH* reduce_exec_policy;
-  SUNMemoryHelper           mem_helper;
-  void*                     priv;
+  SUNMemoryHelper        mem_helper;
+  void*                  priv;   /* private buffers, counters, etc.   */
 #endif
 };
 
