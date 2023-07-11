@@ -103,7 +103,6 @@ int main(int argc, char *argv[])
 {
   int             fails=0;          /* counter for test failures */
   int             passfail=0;       /* overall passfail flag     */
-  int             mpierr;           /* mpi error flag            */
   SUNLinearSolver LS;               /* linear solver object      */
   N_Vector        xhat, x, b;       /* test vectors              */
   UserData        ProbData;         /* problem data structure    */
@@ -158,8 +157,8 @@ int main(int argc, char *argv[])
   if (ProbData.myid == 0) {
     printf("\nPCG linear solver test:\n");
     printf("  nprocs = %i\n", ProbData.nprocs);
-    printf("  local/global problem sizes = %ld/%ld\n", ProbData.Nloc,
-           ProbData.nprocs * ProbData.Nloc, sunctx);
+    printf("  local/global problem sizes = %ld/%ld\n", (long int) ProbData.Nloc,
+           (long int) ProbData.nprocs * ProbData.Nloc);
     printf("  Maximum Krylov subspace dimension = %i\n", maxl);
     printf("  Solver Tolerance = %g\n", tol);
     printf("  timing output flag = %i\n\n", print_timing);
@@ -338,7 +337,7 @@ int main(int argc, char *argv[])
   }
 
   /* check if any other process failed */
-  mpierr = MPI_Allreduce(&passfail, &fails, 1, MPI_INT, MPI_MAX, ProbData.comm);
+  (void) MPI_Allreduce(&passfail, &fails, 1, MPI_INT, MPI_MAX, ProbData.comm);
 
   /* Free solver and vectors */
   SUNLinSolFree(LS);
@@ -489,8 +488,8 @@ static int check_flag(void *flagvalue, const char *funcname, int opt)
  * --------------------------------------------------------------------*/
 int check_vector(N_Vector X, N_Vector Y, realtype tol)
 {
-  int      failure = 0;
-  long int i;
+  int failure = 0;
+  sunindextype i;
   realtype *Xdata, *Ydata, maxerr;
 
   Xdata = N_VGetArrayPointer(X);
