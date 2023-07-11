@@ -15,16 +15,14 @@ import thicket as tt
 def main():
     parser = argparse.ArgumentParser(description='Compare Sundials performance results against previous results')
 
-    parser.add_argument('--calidir', dest='caliDir', type=str,help='name of folder containing caliper files', default="/usr/workspace/pan13/shrimp")
+    parser.add_argument('--calidir', dest='caliDir', type=str,help='name of folder containing caliper files', default="/usr/workspace/pan13/shrimp2")
 
-    parser.add_argument('--outpath', dest='outpath', type=str, help='path to file to write results to', default="/g/g20/pan13/shrimp/output.out")
+    parser.add_argument('--outdir', dest='outDir', type=str, help='path to directory to write results to', default="/g/g20/pan13/shrimp")
 
     args = parser.parse_args()
 
     caliDir = args.caliDir
     outPath = args.outpath
-
-    # add a thing to check if the output file exists and make sure it does
 
     # get the latest test run
     runDirs = glob.glob("%s/Testing/*" % caliDir, recursive = True)
@@ -34,13 +32,20 @@ def main():
     # Gather files to process
     testFiles = glob.glob("%s/*.cali" % (runDir))
 
-    # Compare test results against past runs. If a test performs below a threshold, output test name to file.
-    outFile = open(outPath, 'w')
+    if not os.path.exists(outPath):
+        os.mkdirs(outPath)
+    outFile = open("%s/output.out" % outPath, 'w')
+    
+
+    # Compare test results against past runs. If a test performs below a threshold, output test name to outFile.
     with mp.Pool() as pool:
         for res in pool.starmap(process_test, [(caliDir, i) for i in testFiles]):
             if res:
                 outFile.write(res + "\n")
     outFile.close()
+
+    # for file in testFiles:
+    #     process_test(caliDir, file)
 
     outFile = open(outPath, 'r')
     try:
@@ -53,13 +58,20 @@ def main():
     return 0
 
 def process_test(caliDir, file):
-
     th = tt.Thicket.from_caliperreader(file)
-
+    
     testName = th.metadata['env.TEST_NAME'].values[0]
-    files = glob.glob("%s/Testing/*/%s.*.cali" % (caliDir, testName), recursive=True)
-    th_files = tt.Thicket.from_caliperreader(files)
 
+    # Gather the last numRuns of tests and remove the current run from set of runs to aggregate
+    numRuns = 5
+    files = glob.glob("%s/Testing/*/%s.*.cali" % (caliDir, testName), recursive=True)
+    files.sort(key=os.path.getmtime, reverse=True)
+    files.pop(0) # remove current run
+    files = files[:numRuns]
+
+    files.sort(key=os.path.ge)
+
+    th_files = tt.Thicket.from_caliperreader(files)
     metrics = ['Max time/rank']
     tt.mean(th_files, columns=metrics)
     tt.mean(th, columns=metrics)
