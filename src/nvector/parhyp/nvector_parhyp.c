@@ -1399,7 +1399,6 @@ void N_VCompare_ParHyp(realtype c, N_Vector x, N_Vector z)
     zd[i] = (SUNRabs(xd[i]) >= c) ? ONE : ZERO;
   }
 #elif defined(SUNDIALS_HYPRE_BACKENDS_CUDA_OR_HIP)
-  printf("1.0 = ONE? %s", (1.0==ONE) ? "TRUE":"FALSE");
   size_t grid, block, shMemSize;
   NV_ADD_LANG_PREFIX_PH(Stream_t) stream;
 

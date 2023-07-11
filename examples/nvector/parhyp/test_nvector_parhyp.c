@@ -334,7 +334,7 @@ void set_element_range(N_Vector X, sunindextype is, sunindextype ie,
   realtype *host_data = (realtype*)malloc(sizeof(realtype)*sub_len);
   for(i = 0; i < sub_len; i++)
   {
-    printf("set x[%d] = %f\n",is+i,val);
+    // printf("set x[%d] = %f\n",is+i,val);
     host_data[i] = val;
   }
   NV_ADD_LANG_PREFIX_PH(Memcpy)
@@ -367,7 +367,7 @@ realtype get_element(N_Vector X, sunindextype i)
     sizeof(realtype),
     NV_ADD_LANG_PREFIX_PH(MemcpyDeviceToHost)
   );
-  printf("get x[%d] = %f\n",i,host_data);
+  // printf("get x[%d] = %f\n",i,host_data);
   return host_data;
 #endif
 
