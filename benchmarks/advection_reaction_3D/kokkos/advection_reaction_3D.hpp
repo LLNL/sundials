@@ -1,5 +1,6 @@
 /* -----------------------------------------------------------------------------
- * Programmer(s): David J. Gardner, Cody J. Balos @ LLNL
+ * Programmer(s): Daniel R. Reynolds @ SMU
+ *                David J. Gardner, Cody J. Balos @ LLNL
  * -----------------------------------------------------------------------------
  * SUNDIALS Copyright Start
  * Copyright (c) 2002-2023, Lawrence Livermore National Security
@@ -21,31 +22,22 @@
 #include <cmath>
 #include <mpi.h>
 
-#include <RAJA/RAJA.hpp>
 #include <sundials/sundials_context.h>
 #include <nvector/nvector_mpiplusx.h>
-
+#include "nvector/nvector_kokkos.hpp"
 #include "check_retval.h"
-#include "backends.hpp"
 #include "ParallelGrid.hpp"
+
+/* Set SUNDIALS Kokkos vector shortcut */
+using SUNVector = sundials::kokkos::Vector<ExecSpace>;
 
 using sundials_tools::ParallelGrid;
 using sundials_tools::BoundaryType;
 using sundials_tools::StencilType;
 using std::string;
 
-/* Number of dimensions */
-constexpr int NDIMS = 3;
-
 /* Maximum size of output directory string */
 constexpr int MXSTR = 2048;
-
-/* Accessor macro:
-   n = number of state variables
-   i = mesh node index
-   c = component */
-#define IDX(n,i,c) ((n)*(i)+(c))
-
 
 /*
  * Data structure for problem options
@@ -86,21 +78,21 @@ struct UserData
   int         nprocs;
   MPI_Request req[2];
 
-  /* should reactions be added to the advection or not */
+  /* Should reactions be added to the advection or not */
   bool add_reactions;
 
-  /* file handles for output */
+  /* File handles for output */
   FILE*  TFID;     /* time output file pointer     */
   FILE*  UFID;     /* solution output file pointer */
   FILE*  VFID;
   FILE*  WFID;
 
-  /* solution masks */
+  /* Solution masks */
   N_Vector umask;
   N_Vector vmask;
   N_Vector wmask;
 
-  /* problem paramaters */
+  /* Problem parameters */
   realtype  xmax; /* maximum x value              */
   realtype  A;    /* concentration of species A   */
   realtype  B;    /* w source rate                */
@@ -112,17 +104,20 @@ struct UserData
   realtype  k6;
   realtype  c;    /* advection coefficient        */
 
-  /* parallel mesh */
-  ParallelGrid<realtype,sunindextype,NDIMS>* grid;
+  /* Parallel mesh */
+  ParallelGrid<sunindextype>* grid;
 
-  /* count of implicit function evals by the task local nonlinear solver */
+  /* Count of implicit function evals by the task local nonlinear solver */
   long int nnlfi;
 
-  /* integrator options */
+  /* Integrator options */
   UserOptions* uopt;
 
-  /* constructor that takes the context */
-  UserData(SUNContext ctx) : ctx(ctx) {
+  /* Constructor that takes the context */
+  UserData(SUNContext ctx)
+    : ctx(ctx), umask(nullptr), vmask(nullptr), wmask(nullptr), uopt(nullptr),
+      TFID(nullptr), UFID(nullptr), VFID(nullptr), WFID(nullptr)
+  {
     SUNContext_GetProfiler(ctx, &prof);
   }
 
@@ -161,15 +156,14 @@ extern int EvolveDAEProblem(N_Vector y, UserData* udata, UserOptions* uopt);
 /* function to set initial condition */
 int SetIC(N_Vector y, UserData* udata);
 
-/* functions to exchange neighbor data */
-int ExchangeBCOnly(N_Vector y, UserData* udata);
-int ExchangeAllStart(N_Vector y, UserData* udata);
-int ExchangeAllEnd(UserData* udata);
+/* function to fill neighbor data */
+int FillSendBuffers(N_Vector y, UserData* udata);
 
 /* functions for processing command line args */
 int SetupProblem(int argc, char *argv[], UserData* udata, UserOptions* uopt,
-                 SUNMemoryHelper memhelper, SUNContext ctx);
+                 SUNContext ctx);
 void InputError(char *name);
+int ComponentMask(N_Vector mask, const int component, const UserData* udata);
 
 /* function to write solution to disk */
 int WriteOutput(realtype t, N_Vector y, UserData* udata, UserOptions* uopt);

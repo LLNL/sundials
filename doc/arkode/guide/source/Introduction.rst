@@ -126,6 +126,16 @@ default second order IMEX method in ARKStep. The explicit table is given by
 ``ARKODE_ARK2_ERK_3_1_2`` (see :numref:`Butcher.ARK2_ERK`) and the implicit
 table by ``ARKODE_ARK2_DIRK_3_1_2`` (see :numref:`Butcher.ARK2_DIRK`).
 
+Updated the F2003 utility routines :c:func:`SUNDIALSFileOpen` and :c:func:`SUNDIALSFileClose`
+to support user specification of ``stdout`` and ``stderr`` strings for the output
+file names.
+
+Updated the default ARKODE behavior when returning the solution when
+the internal time has reached a user-specified stop time.  Previously, the output
+solution was interpolated to the value of ``tstop``; the default is now to copy the
+internal solution vector.  Users who wish to revert to interpolation may call a new
+routine :c:func:`ARKStepSetInterpolateStopTime`,
+:c:func:`ERKStepSetInterpolateStopTime`, or :c:func:`MRIStepSetInterpolateStopTime`.
 
 Changes in v5.5.1
 -----------------
