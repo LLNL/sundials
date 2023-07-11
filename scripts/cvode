@@ -128,6 +128,8 @@ $tar $tarfile $distrobase/examples/cvode/serial/plot_cvPendulum.py
 
 $tar $tarfile $distrobase/examples/cvode/F2003_serial/README
 $tar $tarfile $distrobase/examples/cvode/F2003_serial/CMakeLists.txt
+$tar $tarfile $distrobase/examples/cvode/F2003_serial/cv_advdiff_bnd_f2003.f90
+$tar $tarfile $distrobase/examples/cvode/F2003_serial/cv_advdiff_bnd_f2003.out
 $tar $tarfile $distrobase/examples/cvode/F2003_serial/cv_analytic_fp_f2003.f90
 $tar $tarfile $distrobase/examples/cvode/F2003_serial/cv_analytic_fp_f2003.out
 $tar $tarfile $distrobase/examples/cvode/F2003_serial/cv_analytic_sys_dns_f2003.f90
@@ -138,6 +140,27 @@ $tar $tarfile $distrobase/examples/cvode/F2003_serial/cv_analytic_sys_klu_f2003.
 $tar $tarfile $distrobase/examples/cvode/F2003_serial/cv_analytic_sys_klu_f2003.out
 $tar $tarfile $distrobase/examples/cvode/F2003_serial/cv_brusselator_dns_f2003.f90
 $tar $tarfile $distrobase/examples/cvode/F2003_serial/cv_brusselator_dns_f2003.out
+$tar $tarfile $distrobase/examples/cvode/F2003_serial/cv_diurnal_kry_bp_f2003.f90
+$tar $tarfile $distrobase/examples/cvode/F2003_serial/cv_diurnal_kry_bp_f2003.out
+$tar $tarfile $distrobase/examples/cvode/F2003_serial/cv_diurnal_kry_f2003.f90
+$tar $tarfile $distrobase/examples/cvode/F2003_serial/cv_diurnal_kry_f2003.out
+$tar $tarfile $distrobase/examples/cvode/F2003_serial/cv_roberts_dns_constraints_f2003.f90
+$tar $tarfile $distrobase/examples/cvode/F2003_serial/cv_roberts_dns_constraints_f2003.out
+$tar $tarfile $distrobase/examples/cvode/F2003_serial/cv_roberts_dns_f2003.f90
+$tar $tarfile $distrobase/examples/cvode/F2003_serial/cv_roberts_dns_f2003.out
+$tar $tarfile $distrobase/examples/cvode/F2003_serial/cv_roberts_dnsL_f2003.f90
+$tar $tarfile $distrobase/examples/cvode/F2003_serial/cv_roberts_dnsL_f2003.out
+$tar $tarfile $distrobase/examples/cvode/F2003_serial/cv_roberts_klu_f2003.f90
+$tar $tarfile $distrobase/examples/cvode/F2003_serial/cv_roberts_klu_f2003.out
+
+$tar $tarfile $distrobase/examples/cvode/F2003_parallel/README
+$tar $tarfile $distrobase/examples/cvode/F2003_parallel/CMakeLists.txt
+$tar $tarfile $distrobase/examples/cvode/F2003_parallel/cv_diag_kry_bbd_f2003.f90
+$tar $tarfile $distrobase/examples/cvode/F2003_parallel/cv_diag_kry_bbd_f2003.out
+$tar $tarfile $distrobase/examples/cvode/F2003_parallel/cv_diag_kry_f2003.f90
+$tar $tarfile $distrobase/examples/cvode/F2003_parallel/cv_diag_kry_f2003.out
+$tar $tarfile $distrobase/examples/cvode/F2003_parallel/cv_diag_non_f2003.f90
+$tar $tarfile $distrobase/examples/cvode/F2003_parallel/cv_diag_non_f2003.out
 
 $tar $tarfile $distrobase/examples/cvode/C_openmp/README
 $tar $tarfile $distrobase/examples/cvode/C_openmp/CMakeLists.txt

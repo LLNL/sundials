@@ -1,5 +1,6 @@
 ! ------------------------------------------------------------------
 ! Programmer(s): Daniel R. Reynolds @ SMU
+!                modified by Daniel M. Margolis @ SMU
 ! ------------------------------------------------------------------
 ! SUNDIALS Copyright Start
 ! Copyright (c) 2002-2023, Lawrence Livermore National Security
@@ -23,7 +24,7 @@
 ! PDE is treated with central differences on a uniform M x M grid.
 ! The values of u at the interior points satisfy ODEs, and
 ! equations u = 0 at the boundaries are appended, to form a DAE
-! system of size N = M^2. Here M = 10.
+! system of size N = M^2. Here M = 100.
 !
 ! The system is solved with IDA using the Krylov linear solver
 ! SPGMR. The preconditioner uses the diagonal elements of the

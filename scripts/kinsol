@@ -136,12 +136,19 @@ $tar $tarfile $distrobase/examples/kinsol/CXX_parhyp/kin_heat2D_nonlin_hypre_pfm
 
 $tar $tarfile $distrobase/examples/kinsol/F2003_serial/README
 $tar $tarfile $distrobase/examples/kinsol/F2003_serial/CMakeLists.txt
+$tar $tarfile $distrobase/examples/kinsol/F2003_serial/kinDiagon_kry_f2003.f90
+$tar $tarfile $distrobase/examples/kinsol/F2003_serial/kinDiagon_kry_f2003.out
 $tar $tarfile $distrobase/examples/kinsol/F2003_serial/kinRoboKin_dns_f2003.f90
 $tar $tarfile $distrobase/examples/kinsol/F2003_serial/kinRoboKin_dns_f2003.out
 $tar $tarfile $distrobase/examples/kinsol/F2003_serial/kinLaplace_bnd_f2003.f90
 $tar $tarfile $distrobase/examples/kinsol/F2003_serial/kinLaplace_bnd_f2003.out
 $tar $tarfile $distrobase/examples/kinsol/F2003_serial/kinLaplace_picard_kry_f2003.f90
 $tar $tarfile $distrobase/examples/kinsol/F2003_serial/kinLaplace_picard_kry_f2003.out
+
+$tar $tarfile $distrobase/examples/kinsol/F2003_parallel/README
+$tar $tarfile $distrobase/examples/kinsol/F2003_parallel/CMakeLists.txt
+$tar $tarfile $distrobase/examples/kinsol/F2003_parallel/kin_diagon_kry_f2003.f90
+$tar $tarfile $distrobase/examples/kinsol/F2003_parallel/kin_diagon_kry_f2003.out
 
 echo "   --- Add kinsol unit tests to $tarfile"
 

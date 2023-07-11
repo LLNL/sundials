@@ -1,5 +1,6 @@
 !-----------------------------------------------------------------
 ! Programmer(s): Daniel R. Reynolds @ SMU
+!                modified by Daniel M. Margolis @ SMU
 !-----------------------------------------------------------------
 ! SUNDIALS Copyright Start
 ! Copyright (c) 2002-2023, Lawrence Livermore National Security
@@ -923,8 +924,8 @@ module Heat2DData
   
     do case = 1,2
       if (case == 2) then
-         mudq = 1
-         mldq = 1
+         mudq = 5
+         mldq = 5
          call InitProfile(sunvec_y, sunvec_f, sunvec_id, sunvec_res, sunvec_c, ierr)
          retval = FIDAReInit(ida_mem, t0, sunvec_y, sunvec_f)
          if (retval /= 0) then
@@ -965,8 +966,8 @@ module Heat2DData
       tout = T1
       if (outproc) then
          write(6,*) "   "
-         write(6,*) "        t      ||u||_max       k  nst   nni   nli   nre   nge       h      npe   nps"
-         write(6,*) "   ----------------------------------------------------------------------------------"
+         write(6,*) "        t      ||u||_max       k  nst   nni   nli   nre    nge       h      npe   nps"
+         write(6,*) "   ------------------------------------------------------------------------------------"
       end if
       do ioutput=1,Nt
    
@@ -980,7 +981,7 @@ module Heat2DData
          ! print solution stats and update internal time
          ymax = FN_VMaxNorm(sunvec_y)
          call getStats(ida_mem, retval, ierr)
-         if (outproc)        write(6,'(2x,f10.6,2x,es13.5,3x,i1,3x,i2,3x,i3,3x,i3,3x,i2,a,i2,3x,i3,3x,es9.2,3x,i2,3x,i3)') &
+         if (outproc)        write(6,'(2x,f10.6,2x,es13.5,3x,i1,3x,i2,3x,i3,3x,i3,3x,i3,a,i3,3x,i4,3x,es9.2,3x,i2,3x,i3)') &
                               t, ymax, k, nst, nni, nli, nre, "+", nreLS, nge, h, npre, npsol
          tout = 2.0d0 * tout
    
