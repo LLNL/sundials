@@ -108,11 +108,10 @@ module farkode_mod
  ! typedef enum ARKRelaxSolver
  enum, bind(c)
   enumerator :: ARK_RELAX_BRENT
-  enumerator :: ARK_RELAX_FIXEDPOINT
   enumerator :: ARK_RELAX_NEWTON
  end enum
  integer, parameter, public :: ARKRelaxSolver = kind(ARK_RELAX_BRENT)
- public :: ARK_RELAX_BRENT, ARK_RELAX_FIXEDPOINT, ARK_RELAX_NEWTON
+ public :: ARK_RELAX_BRENT, ARK_RELAX_NEWTON
  public :: FARKBandPrecInit
  public :: FARKBandPrecGetWorkSpace
  public :: FARKBandPrecGetNumRhsEvals

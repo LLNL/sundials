@@ -757,6 +757,20 @@ SWIGEXPORT int _wrap_FERKStepSetMaxStep(void *farg1, double const *farg2) {
 }
 
 
+SWIGEXPORT int _wrap_FERKStepSetInterpolateStopTime(void *farg1, int const *farg2) {
+  int fresult ;
+  void *arg1 = (void *) 0 ;
+  int arg2 ;
+  int result;
+  
+  arg1 = (void *)(farg1);
+  arg2 = (int)(*farg2);
+  result = (int)ERKStepSetInterpolateStopTime(arg1,arg2);
+  fresult = (int)(result);
+  return fresult;
+}
+
+
 SWIGEXPORT int _wrap_FERKStepSetStopTime(void *farg1, double const *farg2) {
   int fresult ;
   void *arg1 = (void *) 0 ;
@@ -1364,6 +1378,20 @@ SWIGEXPORT int _wrap_FERKStepSetRelaxFn(void *farg1, ARKRelaxFn farg2, ARKRelaxJ
 }
 
 
+SWIGEXPORT int _wrap_FERKStepSetRelaxBoundFactor(void *farg1, double const *farg2) {
+  int fresult ;
+  void *arg1 = (void *) 0 ;
+  sunrealtype arg2 ;
+  int result;
+  
+  arg1 = (void *)(farg1);
+  arg2 = (sunrealtype)(*farg2);
+  result = (int)ERKStepSetRelaxBoundFactor(arg1,arg2);
+  fresult = (int)(result);
+  return fresult;
+}
+
+
 SWIGEXPORT int _wrap_FERKStepSetRelaxEtaFail(void *farg1, double const *farg2) {
   int fresult ;
   void *arg1 = (void *) 0 ;
@@ -1373,20 +1401,6 @@ SWIGEXPORT int _wrap_FERKStepSetRelaxEtaFail(void *farg1, double const *farg2) {
   arg1 = (void *)(farg1);
   arg2 = (sunrealtype)(*farg2);
   result = (int)ERKStepSetRelaxEtaFail(arg1,arg2);
-  fresult = (int)(result);
-  return fresult;
-}
-
-
-SWIGEXPORT int _wrap_FERKStepSetRelaxLowerBound(void *farg1, double const *farg2) {
-  int fresult ;
-  void *arg1 = (void *) 0 ;
-  sunrealtype arg2 ;
-  int result;
-  
-  arg1 = (void *)(farg1);
-  arg2 = (sunrealtype)(*farg2);
-  result = (int)ERKStepSetRelaxLowerBound(arg1,arg2);
   fresult = (int)(result);
   return fresult;
 }
@@ -1464,20 +1478,6 @@ SWIGEXPORT int _wrap_FERKStepSetRelaxTol(void *farg1, double const *farg2, doubl
 }
 
 
-SWIGEXPORT int _wrap_FERKStepSetRelaxUpperBound(void *farg1, double const *farg2) {
-  int fresult ;
-  void *arg1 = (void *) 0 ;
-  sunrealtype arg2 ;
-  int result;
-  
-  arg1 = (void *)(farg1);
-  arg2 = (sunrealtype)(*farg2);
-  result = (int)ERKStepSetRelaxUpperBound(arg1,arg2);
-  fresult = (int)(result);
-  return fresult;
-}
-
-
 SWIGEXPORT int _wrap_FERKStepGetNumRelaxFnEvals(void *farg1, long *farg2) {
   int fresult ;
   void *arg1 = (void *) 0 ;
@@ -1515,6 +1515,20 @@ SWIGEXPORT int _wrap_FERKStepGetNumRelaxFails(void *farg1, long *farg2) {
   arg1 = (void *)(farg1);
   arg2 = (long *)(farg2);
   result = (int)ERKStepGetNumRelaxFails(arg1,arg2);
+  fresult = (int)(result);
+  return fresult;
+}
+
+
+SWIGEXPORT int _wrap_FERKStepGetNumRelaxBoundFails(void *farg1, long *farg2) {
+  int fresult ;
+  void *arg1 = (void *) 0 ;
+  long *arg2 = (long *) 0 ;
+  int result;
+  
+  arg1 = (void *)(farg1);
+  arg2 = (long *)(farg2);
+  result = (int)ERKStepGetNumRelaxBoundFails(arg1,arg2);
   fresult = (int)(result);
   return fresult;
 }
