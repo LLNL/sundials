@@ -575,9 +575,9 @@ N_Vector N_VCloneEmpty_ParHyp(N_Vector w)
   NV_OWN_PARVEC_PH(v)   = SUNFALSE;
   NV_HYPRE_PARVEC_PH(v) = NULL;
 
-  #if defined(SUNDIALS_HYPRE_BACKENDS_CUDA_OR_HIP)
+#if defined(SUNDIALS_HYPRE_BACKENDS_CUDA_OR_HIP)
   // ...
-  #endif
+#endif
 
 //   /* Create content */
 //   content = NULL;
@@ -1858,7 +1858,7 @@ int N_VDotProdMulti_ParHyp(int nvec, N_Vector x, N_Vector* Y,
 int N_VDotProdMultiLocal_ParHyp(int nvec, N_Vector x, N_Vector* Y,
                                 realtype* dotprods)
 {
-  sunindextype N;
+  sunindextype i, N;
   realtype*    xd=NULL;
 
   /* invalid number of vectors */
@@ -1875,7 +1875,7 @@ int N_VDotProdMultiLocal_ParHyp(int nvec, N_Vector x, N_Vector* Y,
   xd   = NV_DATA_PH(x);
 
 #if defined(SUNDIALS_HYPRE_BACKENDS_SERIAL)
-  sunindextype i, j;
+  sunindextype j;
   realtype*    yd=NULL;
   /* compute multiple dot products */
   for (i=0; i<nvec; i++) {
@@ -1894,9 +1894,10 @@ int N_VDotProdMultiLocal_ParHyp(int nvec, N_Vector x, N_Vector* Y,
   NV_CATCH_AND_RETURN_PH(FusedBuffer_CopyPtrArray1D(x, Y, nvec, &Yd), -1)
   NV_CATCH_AND_RETURN_PH(FusedBuffer_CopyToDevice(x),                 -1)
 
-  NV_CATCH_AND_RETURN_PH(GetKernelParameters(x, false, grid, block, shMemSize, stream), -1)
+  NV_CATCH_AND_RETURN_PH(ReductionBuffer_Init(x, ZERO, nvec), -1)
+
+  NV_CATCH_AND_RETURN_PH(GetKernelParameters(x, true, grid, block, shMemSize, stream), -1)
   grid = nvec;
-  NV_CATCH_AND_RETURN_PH(ReductionBuffer_Init(x, 0, nvec), -1)
 
   /* atomic only */
   dotProdMultiKernel<realtype, sunindextype, GridReducerAtomic><<<grid, block, shMemSize, stream>>>
@@ -1911,7 +1912,7 @@ int N_VDotProdMultiLocal_ParHyp(int nvec, N_Vector x, N_Vector* Y,
 
   // Get result from the GPU
   ReductionBuffer_CopyFromDevice(x, nvec);
-  for (sunindextype i = 0; i < nvec; ++i)
+  for (i = 0; i < nvec; ++i)
   {
     dotprods[i] = NV_HBUFFERp_PH(x)[i];
   }
@@ -2119,11 +2120,7 @@ int N_VConstVectorArray_ParHyp(int nvec, realtype c, N_Vector* Z)
 
 int N_VWrmsNormVectorArray_ParHyp(int nvec, N_Vector* X, N_Vector* W, realtype* nrm)
 {
-  int          i, retval;
-  sunindextype j, Nl, Ng;
-  realtype*    wd=NULL;
-  realtype*    xd=NULL;
-  MPI_Comm     comm;
+  sunindextype i, Nl, Ng;
 
   /* invalid number of vectors */
   if (nvec < 1) return(-1);
@@ -2135,10 +2132,13 @@ int N_VWrmsNormVectorArray_ParHyp(int nvec, N_Vector* X, N_Vector* W, realtype* 
   }
 
   /* get vector lengths and communicator */
-  Nl   = NV_LOCLENGTH_PH(X[0]);
-  Ng   = NV_GLOBLENGTH_PH(X[0]);
-  comm = NV_COMM_PH(X[0]);
+  Nl = NV_LOCLENGTH_PH(X[0]);
+  Ng = NV_GLOBLENGTH_PH(X[0]);
 
+#if defined(SUNDIALS_HYPRE_BACKENDS_SERIAL)
+  sunindextype j;
+  realtype*    xd=NULL;
+  realtype*    wd=NULL;
   /* compute the WRMS norm for each vector in the vector array */
   for (i=0; i<nvec; i++) {
     xd = NV_DATA_PH(X[i]);
@@ -2148,8 +2148,45 @@ int N_VWrmsNormVectorArray_ParHyp(int nvec, N_Vector* X, N_Vector* W, realtype* 
       nrm[i] += SUNSQR(xd[j] * wd[j]);
     }
   }
-  retval = MPI_Allreduce(MPI_IN_PLACE, nrm, nvec, MPI_SUNREALTYPE, MPI_SUM, comm);
+#elif defined(SUNDIALS_HYPRE_BACKENDS_CUDA_OR_HIP)
+  size_t grid, block, shMemSize;
+  NV_ADD_LANG_PREFIX_PH(Stream_t) stream;
+  realtype** Xd = NULL;
+  realtype** Wd = NULL;
 
+  NV_CATCH_AND_RETURN_PH(FusedBuffer_Init(W[0], 0, 2 * nvec),            -1)
+  NV_CATCH_AND_RETURN_PH(FusedBuffer_CopyPtrArray1D(W[0], X, nvec, &Xd), -1)
+  NV_CATCH_AND_RETURN_PH(FusedBuffer_CopyPtrArray1D(W[0], W, nvec, &Wd), -1)
+  NV_CATCH_AND_RETURN_PH(FusedBuffer_CopyToDevice(W[0]),                 -1)
+
+  NV_CATCH_AND_RETURN_PH(ReductionBuffer_Init(W[0], ZERO, nvec), -1)
+
+  NV_CATCH_AND_RETURN_PH(GetKernelParameters(W[0], true, grid, block, shMemSize, stream), -1)
+  grid = nvec;
+
+  /* Determine local square sum for each nvec, store in a device buffer (of length nvec) in W[0] */
+  wL2NormSquareVectorArrayKernel<realtype, sunindextype, GridReducerAtomic><<<grid, block, shMemSize, stream>>>
+  (
+    nvec,
+    Xd,
+    Wd,
+    NV_DBUFFERp_PH(W[0]),
+    Nl
+  );
+  PostKernelLaunch();
+
+  /* Copy local square sums from device buffer to host buffer */
+  ReductionBuffer_CopyFromDevice(W[0], nvec);
+  for (i = 0; i < nvec; ++i)
+  {
+    nrm[i] = NV_HBUFFERp_PH(x)[i];
+  }
+#endif
+
+  /* Reduce local square sums into global square sums */
+  int retval = MPI_Allreduce(MPI_IN_PLACE, nrm, nvec, MPI_SUNREALTYPE, MPI_SUM, NV_COMM_PH(X[0]));
+
+  /* Root of mean of global square sums */
   for (i=0; i<nvec; i++)
     nrm[i] = SUNRsqrt(nrm[i]/Ng);
 
