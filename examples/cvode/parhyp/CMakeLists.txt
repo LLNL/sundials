@@ -19,37 +19,57 @@
 
 # Examples using SUNDIALS linear solvers
 set(CVODE_examples
-  "cvAdvDiff_non_ph.c\;2\;2\;develop"
+  "cvAdvDiff_non_ph.c\; \" \" \;2\;2\;develop"
   )
 
-if(SUNDIALS_BUILD_PACKAGE_FUSED_KERNELS)
-  set(_fused_stubs sundials_cvode_fused_stubs)
+if(MPI_C_COMPILER)
+  set(CMAKE_C_COMPILER ${MPI_C_COMPILER})
+else()
+  include_directories(${MPI_INCLUDE_PATH})
 endif()
+
+# Specify libraries to link against
+set(CVODE_LIB sundials_cvode)
+set(NVECPARHYP_LIB sundials_nvecparhyp)
+
+if(SUNDIALS_BUILD_PACKAGE_FUSED_KERNELS)
+  set(APPEND CVODE_LIB sundials_cvode_fused_stubs)
+endif()
+
+# Set-up linker flags and link libraries
+set(SUNDIALS_LIBS ${CVODE_LIB} ${NVECPARHYP_LIB} ${EXE_EXTRA_LINK_LIBS})
 
 # Add the build and install targets for each example
 foreach(example_tuple ${CVODE_examples})
 
-  # parse the example tuple
-  list(GET example_tuple 0 example)
-  list(GET example_tuple 1 number_of_nodes)
-  list(GET example_tuple 2 number_of_tasks)
-  list(GET example_tuple 3 example_type)
+ # parse the example tuple using sundials_parse_tuple macro
+ sundials_parse_tuple( CVODE_examples 
+  FILENAME_VAR example
+  NODES_VAR number_of_nodes
+  NPROCS_VAR number_of_tasks
+  TYPE_VAR example_type
+)
 
-  # extract the file name without extension
-  get_filename_component(example_target ${example} NAME_WE)
-
+if(NOT TARGET ${example})
   # example source files
-  add_executable(${example_target} ${example})
-
-  set_target_properties(${example_target} PROPERTIES FOLDER "Examples")
+  add_executable(${example} ${example})
 
   # libraries to link against
-  target_link_libraries(${example_target}
-    PRIVATE
-    sundials_cvode
-    sundials_nvecparhyp
-    ${_fused_stubs}
-    ${EXE_EXTRA_LINK_LIBS})
+  target_link_libraries(${example} ${SUNDIALS_LIBS})
+
+  if(NOT MPI_C_COMPILER)
+    target_link_libraries(${example} ${MPI_LIBRARY} ${MPI_EXTRA_LIBRARIES})
+  endif()
+
+  set_target_properties(${example} PROPERTIES FOLDER "Examples")
+endif()
+
+  # check if example args are provided and set the test name
+  if("${example_args}" STREQUAL "")
+    set(test_name ${example})
+  else()
+    string(REGEX REPLACE " " "_" test_name ${example}_${example_args})
+  endif()
 
   # add example to regression tests
   sundials_add_test(${example_target} ${example_target}
@@ -65,21 +85,21 @@ endforeach(example_tuple ${CVODE_examples})
 if(EXAMPLES_INSTALL)
 
   if(SUNDIALS_BUILD_PACKAGE_FUSED_KERNELS)
-    set(_fused_stubs_target cvode_fused_stubs)
-    set(LIBS "-lsundials_cvode_fused_stubs ${LIBS}")
+    set(_include_cvode_fused_stubs cvode_fused_stubs)
   endif()
 
   sundials_install_examples(cvode CVODE_examples
+    HAS_MPI
     CMAKE_TEMPLATE
       cmakelists_C_MPI_ex.in
     MAKE_TEMPLATE
-      makefile_parhyp_C_ex.in
-    SOLVER_LIBRARY
-      sundials_cvode
+      makefile_parallel_C_ex.in
     SUNDIALS_TARGETS
       cvode
       nvecparhyp
-      ${_fused_stubs_target}
+      ${cvode_fused_stubs}
+    OTHER_TARGETS
+      SUNDIALS::HYPRE
     DESTINATION
       cvode/parhyp
     EXTRA_FILES
