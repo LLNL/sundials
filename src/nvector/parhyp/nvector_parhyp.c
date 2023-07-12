@@ -2069,9 +2069,7 @@ int N_VScaleVectorArray_ParHyp(int nvec, realtype* c, N_Vector* X, N_Vector* Z)
 
 int N_VConstVectorArray_ParHyp(int nvec, realtype c, N_Vector* Z)
 {
-  int          i;
-  sunindextype j, N;
-  realtype*    zd=NULL;
+  sunindextype N;
 
   /* invalid number of vectors */
   if (nvec < 1) return(-1);
@@ -2085,6 +2083,9 @@ int N_VConstVectorArray_ParHyp(int nvec, realtype c, N_Vector* Z)
   /* get vector length */
   N = NV_LOCLENGTH_PH(Z[0]);
 
+#if defined(SUNDIALS_HYPRE_BACKENDS_SERIAL)
+  sunindextype i, j;
+  realtype*    zd=NULL;
   /* set each vector in the vector array to a constant */
   for (i=0; i<nvec; i++) {
     zd = NV_DATA_PH(Z[i]);
@@ -2092,7 +2093,26 @@ int N_VConstVectorArray_ParHyp(int nvec, realtype c, N_Vector* Z)
       zd[j] = c;
     }
   }
+#elif defined(SUNDIALS_HYPRE_BACKENDS_CUDA_OR_HIP)
+  size_t grid, block, shMemSize;
+  NV_ADD_LANG_PREFIX_PH(Stream_t) stream;
+  realtype** Zd = NULL;
 
+  NV_CATCH_AND_RETURN_PH(FusedBuffer_Init(Z[0], 0, nvec),                -1)
+  NV_CATCH_AND_RETURN_PH(FusedBuffer_CopyPtrArray1D(Z[0], Z, nvec, &Zd), -1)
+  NV_CATCH_AND_RETURN_PH(FusedBuffer_CopyToDevice(Z[0]),                 -1)
+
+  NV_CATCH_AND_RETURN_PH(GetKernelParameters(Z[0], false, grid, block, shMemSize, stream), -1)
+
+  constVectorArrayKernel<<<grid, block, shMemSize, stream>>>
+  (
+    nvec,
+    c,
+    Zd,
+    N
+  );
+  PostKernelLaunch();
+#endif
   return(0);
 }
 
