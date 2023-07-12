@@ -2081,25 +2081,27 @@ Relaxation Methods
 ==================
 
 For cases where the problem :eq:`ARKODE_IVP` is conservative or dissipative with
-respect to a smooth convex function :math:`\xi(y(t))`, it is desirable to have
+respect to a smooth *convex* function :math:`\xi(y(t))`, it is desirable to have
 the numerical method preserve these properties. That is
 :math:`\xi(y_n) = \xi(y_{n-1}) = \ldots = \xi(y_{0})` for conservative problems
 and :math:`\xi(y_n) \leq \xi(y_{n-1})` for dissipative problems. To this end,
 ARKODE supports relaxation methods
-:cite:p:`ketcheson2019relaxation, kang2022entropy, ranocha2020relaxation` to
-ensure dissipation or preservation of a global function.
+:cite:p:`ketcheson2019relaxation, kang2022entropy, ranocha2020relaxation`
+applied to ERK, DIRK, or ARK methods to ensure dissipation or preservation of a
+global function.
 
-Relaxation methods compute a new solution
+The relaxed solution is given by
 
 .. math::
    y_r = y_{n-1} + r d = r y_n + (1 - r) y_{n - 1}
    :label: ARKODE_RELAX_SOL
 
-where :math:`d \equiv h_n \sum_{i=1}^{s}(b^E_i f^E_i + b^I_i f^I_i)` is the update
-direction and the relaxation factor, :math:`r`, is selected to ensure
-conservation or dissipation. Given a second order method with
-:math:`b^E_i \geq 0` and :math:`b^I_i \geq 0`, the factor :math:`r` is computed
-by solving the auxiliary scalar nonlinear system
+where :math:`d \equiv h_n \sum_{i=1}^{s}(b^E_i f^E_i + b^I_i f^I_i)` is the
+update direction and the relaxation factor, :math:`r`, is selected to ensure
+conservation or dissipation. Given an ERK, DIRK, or ARK method of at least
+second order with non-negative solution weights (i.e., :math:`b_i \geq 0` for
+ERKStep or :math:`b^E_i \geq 0` and :math:`b^I_i \geq 0` for ARKStep), the
+factor :math:`r` is computed by solving the auxiliary scalar nonlinear system
 
 .. math::
    F(r) = \xi(y_{n-1} + r d) - \xi(y_{n-1}) - r e = 0
@@ -2109,16 +2111,26 @@ at the end of each time step. The estimated change in :math:`\xi` is given by
 :math:`e \equiv h_n \sum_{i=1}^{s} \langle \xi'(z_i), b^E_i f^E_i + b^I_i f^I_i \rangle`
 where :math:`\xi'` is the Jacobian of :math:`\xi`.
 
-By default the nonlinear system :eq:`ARKODE_RELAX_NLS` is solved using Newton
-iteration. Optionally, a fixed-point iteration of Brent's method can be
-utilized. If this iteration fail to meet the specified tolerances in the
-maximum allowed number of iterations, the step size is reduced by the factor
-:math:`\eta_\text{rf}` (default 0.25) and the step is repeated. Additionally, a
-relaxation value greater than :math:`r_\text{max}` (default 0.8) or less than
-:math:`r_\text{min}` (default 1.2), will be considered as a failed solve and the
-and the step will be repeated with the step size reduced by
-:math:`\eta_\text{rf}`.
+Two iterative methods are provided for solving :eq:`ARKODE_RELAX_NLS`, Newton's
+method and Brent's method. When using Newton's method (the default), the
+iteration is halted either when the residual tolerance is met,
+:math:`F(r^{(k)}) < \epsilon_{\mathrm{relax\_res}}`, or when the difference
+between successive iterates satisfies the relative and absolute tolerances,
+:math:`|\delta_r^{(k)}| = |r^{(k)} - r^{(k-1)}| < \epsilon_{\mathrm{relax\_rtol}} |r^{(k-1)}| + \epsilon_{\mathrm{relax\_atol}}`.
+Brent's method applies the same residual tolerance check and the additionally
+halts when the bisection update satisfies the relative and absolute tolerances,
+:math:`|0.5 (r_c - r^{k})| < \epsilon_{\mathrm{relax\_rtol}} |r^{(k)}| + 0.5 \epsilon_{\mathrm{relax\_atol}}`
+where :math:`r_c` and :math:`r^{(k)}` bound the root.
 
-For more information on utilizing relaxation Runge-Kutta methods, see
+If the nonlinear fails to meet the specified tolerances within the maximum
+allowed number of iterations, the step size is reduced by the factor
+:math:`\eta_\mathrm{rf}` (default 0.25) and the step is repeated. The root of
+:eq:`ARKODE_RELAX_NLS` is :math:`1 + \mathcal{O}(h_n^{q - 1})` for a method
+of order :math:`q` :cite:p:`ranocha2020relaxation`. As such, if
+:math:`|r - 1| > \mathcal{B} |h_n|` (default :math:`\mathcal{B} = 0.5`, the
+computed :math:`r` value is considered invalid and the step will be repeated
+with the step size reduced by :math:`\eta_\mathrm{rf}`.
+
+For more information on utilizing relaxation Runge--Kutta methods, see
 :numref:`ARKODE.Usage.ERKStep.Relaxation` and
 :numref:`ARKODE.Usage.ARKStep.Relaxation`.

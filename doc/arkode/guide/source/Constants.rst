@@ -67,9 +67,6 @@ contains the ARKODE output constants.
    | :index:`ARK_RELAX_BRENT`                    | Specifies Brent's method as the relaxation nonlinear      |
    |                                             | solver.                                                   |
    +---------------------------------------------+-----------------------------------------------------------+
-   | :index:`ARK_RELAX_FIXEDPOINT`               | Specifies the fixed-point iteration as the relaxation     |
-   |                                             | nonlinear solver.                                         |
-   +---------------------------------------------+-----------------------------------------------------------+
    | :index:`ARK_RELAX_NEWTON`                   | Specifies Newton's method as the relaxation nonlinear     |
    |                                             | solver.                                                   |
    +---------------------------------------------+-----------------------------------------------------------+
@@ -390,7 +387,7 @@ contains the ARKODE output constants.
    +-------------------------------------+------+------------------------------------------------------------+
    | :index:`ARK_INVALID_TABLE`          | -41  | An invalid Butcher or MRI table was encountered.           |
    +-------------------------------------+------+------------------------------------------------------------+
-   | :index:`ARK_CONTEXT_ERR`            | -42  |                                                            |
+   | :index:`ARK_CONTEXT_ERR`            | -42  | An error occurred with the SUNDIALS context object         |
    +-------------------------------------+------+------------------------------------------------------------+
    | :index:`ARK_RELAX_FAIL`             | -43  | An error occurred in computing the relaxation parameter    |
    +-------------------------------------+------+------------------------------------------------------------+
