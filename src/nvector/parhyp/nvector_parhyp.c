@@ -1770,11 +1770,8 @@ int N_VLinearCombination_ParHyp(int nvec, realtype* c, N_Vector* X, N_Vector z)
 int N_VScaleAddMulti_ParHyp(int nvec, realtype* a, N_Vector x, N_Vector* Y,
                              N_Vector* Z)
 {
-  int          i;
-  sunindextype j, N;
+  sunindextype N;
   realtype*    xd=NULL;
-  realtype*    yd=NULL;
-  realtype*    zd=NULL;
 
   /* invalid number of vectors */
   if (nvec < 1) return(-1);
@@ -1789,9 +1786,11 @@ int N_VScaleAddMulti_ParHyp(int nvec, realtype* a, N_Vector x, N_Vector* Y,
   N  = NV_LOCLENGTH_PH(x);
   xd = NV_DATA_PH(x);
 
-  /*
-   * Y[i][j] += a[i] * x[j]
-   */
+#if defined(SUNDIALS_HYPRE_BACKENDS_SERIAL)
+  sunindextype i, j;
+  realtype*    yd=NULL;
+  realtype*    zd=NULL;
+  /* Y[i][j] += a[i] * x[j] */
   if (Y == Z) {
     for (i=0; i<nvec; i++) {
       yd = NV_DATA_PH(Y[i]);
@@ -1799,19 +1798,43 @@ int N_VScaleAddMulti_ParHyp(int nvec, realtype* a, N_Vector x, N_Vector* Y,
         yd[j] += a[i] * xd[j];
       }
     }
-    return(0);
   }
 
-  /*
-   * Z[i][j] = Y[i][j] + a[i] * x[j]
-   */
-  for (i=0; i<nvec; i++) {
-    yd = NV_DATA_PH(Y[i]);
-    zd = NV_DATA_PH(Z[i]);
-    for (j=0; j<N; j++) {
-      zd[j] = a[i] * xd[j] + yd[j];
+  /* Z[i][j] = Y[i][j] + a[i] * x[j] */
+  else {
+    for (i=0; i<nvec; i++) {
+      yd = NV_DATA_PH(Y[i]);
+      zd = NV_DATA_PH(Z[i]);
+      for (j=0; j<N; j++) {
+        zd[j] = a[i] * xd[j] + yd[j];
+      }
     }
   }
+#elif defined(SUNDIALS_HYPRE_BACKENDS_CUDA_OR_HIP)
+  size_t grid, block, shMemSize;
+  NV_ADD_LANG_PREFIX_PH(Stream_t) stream;
+  realtype*  cd = NULL;
+  realtype** Yd = NULL;
+  realtype** Zd = NULL;
+
+  NV_CATCH_AND_RETURN_PH(FusedBuffer_Init(x, nvec, 2 * nvec),         -1)
+  NV_CATCH_AND_RETURN_PH(FusedBuffer_CopyRealArray(x, a, nvec, &cd),  -1)
+  NV_CATCH_AND_RETURN_PH(FusedBuffer_CopyPtrArray1D(x, Y, nvec, &Yd), -1)
+  NV_CATCH_AND_RETURN_PH(FusedBuffer_CopyPtrArray1D(x, Z, nvec, &Zd), -1)
+  NV_CATCH_AND_RETURN_PH(FusedBuffer_CopyToDevice(x),                 -1)
+
+  NV_CATCH_AND_RETURN_PH(GetKernelParameters(x, false, grid, block, shMemSize, stream), -1)
+
+  scaleAddMultiKernel<<<grid, block, shMemSize, stream>>>
+  (
+    nvec,
+    cd,
+    Yd,
+    Zd,
+    N
+  );
+  PostKernelLaunch();
+#endif
   return(0);
 }
 
@@ -1819,10 +1842,9 @@ int N_VScaleAddMulti_ParHyp(int nvec, realtype* a, N_Vector x, N_Vector* Y,
 int N_VDotProdMulti_ParHyp(int nvec, N_Vector x, N_Vector* Y,
                            realtype* dotprods)
 {
-  int          i, retval;
-  sunindextype j, N;
+  int          retval;
+  sunindextype N;
   realtype*    xd=NULL;
-  realtype*    yd=NULL;
   MPI_Comm     comm;
 
   /* invalid number of vectors */
@@ -1839,6 +1861,9 @@ int N_VDotProdMulti_ParHyp(int nvec, N_Vector x, N_Vector* Y,
   xd   = NV_DATA_PH(x);
   comm = NV_COMM_PH(x);
 
+  #if defined(SUNDIALS_HYPRE_BACKENDS_SERIAL)
+  sunindextype i, j;
+  realtype*    yd=NULL;
   /* compute multiple dot products */
   for (i=0; i<nvec; i++) {
     yd = NV_DATA_PH(Y[i]);
@@ -1847,8 +1872,38 @@ int N_VDotProdMulti_ParHyp(int nvec, N_Vector x, N_Vector* Y,
       dotprods[i] += xd[j] * yd[j];
     }
   }
-  retval = MPI_Allreduce(MPI_IN_PLACE, dotprods, nvec, MPI_SUNREALTYPE, MPI_SUM, comm);
+#elif defined(SUNDIALS_HYPRE_BACKENDS_CUDA_OR_HIP)
+  size_t grid, block, shMemSize;
+  NV_ADD_LANG_PREFIX_PH(Stream_t) stream;
+  realtype** Yd = NULL;
 
+  NV_CATCH_AND_RETURN_PH(FusedBuffer_Init(x, 0, nvec),                -1)
+  NV_CATCH_AND_RETURN_PH(FusedBuffer_CopyPtrArray1D(x, Y, nvec, &Yd), -1)
+  NV_CATCH_AND_RETURN_PH(FusedBuffer_CopyToDevice(x),                 -1)
+
+  NV_CATCH_AND_RETURN_PH(GetKernelParameters(x, false, grid, block, shMemSize, stream), -1)
+  grid = nvec;
+  NV_CATCH_AND_RETURN_PH(ReductionBuffer_Init(x, 0, nvec), -1)
+
+  /* atomic only */
+  dotProdMultiKernel<realtype, sunindextype, GridReducerAtomic><<<grid, block, shMemSize, stream>>>
+  (
+    nvec,
+    xd,
+    Yd,
+    NV_DBUFFERp_PH(x),
+    N
+  );
+  PostKernelLaunch();
+
+  // Get result from the GPU
+  CopyReductionBufferFromDevice(x, nvec);
+  for (sunindextype i = 0; i < nvec; ++i)
+  {
+    dotprods[i] = NV_HBUFFERp_PH(x)[i];
+  }
+#endif
+  retval = MPI_Allreduce(MPI_IN_PLACE, dotprods, nvec, MPI_SUNREALTYPE, MPI_SUM, comm);
   return retval == MPI_SUCCESS ? 0 : -1;
 }
 
@@ -2856,7 +2911,7 @@ int N_VEnableDotProdMultiLocal_ParHyp(N_Vector v, booleantype tf)
  * -----------------------------------------------------------------
  */
 
-// #if defined(SUNDIALS_HYPRE_BACKENDS_CUDA_OR_HIP)
+#if defined(SUNDIALS_HYPRE_BACKENDS_CUDA_OR_HIP)
 
 static int DeviceCounter_Init(N_Vector v)
 {
@@ -3227,4 +3282,4 @@ static void PostKernelLaunch()
 #endif
 }
 
-// #endif // CUDA or HIP
+#endif // CUDA or HIP
