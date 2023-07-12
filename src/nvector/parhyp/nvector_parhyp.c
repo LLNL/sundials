@@ -1813,12 +1813,12 @@ int N_VScaleAddMulti_ParHyp(int nvec, realtype* a, N_Vector x, N_Vector* Y,
 #elif defined(SUNDIALS_HYPRE_BACKENDS_CUDA_OR_HIP)
   size_t grid, block, shMemSize;
   NV_ADD_LANG_PREFIX_PH(Stream_t) stream;
-  realtype*  cd = NULL;
+  realtype*  ad = NULL;
   realtype** Yd = NULL;
   realtype** Zd = NULL;
 
   NV_CATCH_AND_RETURN_PH(FusedBuffer_Init(x, nvec, 2 * nvec),         -1)
-  NV_CATCH_AND_RETURN_PH(FusedBuffer_CopyRealArray(x, a, nvec, &cd),  -1)
+  NV_CATCH_AND_RETURN_PH(FusedBuffer_CopyRealArray(x, a, nvec, &ad),  -1)
   NV_CATCH_AND_RETURN_PH(FusedBuffer_CopyPtrArray1D(x, Y, nvec, &Yd), -1)
   NV_CATCH_AND_RETURN_PH(FusedBuffer_CopyPtrArray1D(x, Z, nvec, &Zd), -1)
   NV_CATCH_AND_RETURN_PH(FusedBuffer_CopyToDevice(x),                 -1)
@@ -1828,7 +1828,7 @@ int N_VScaleAddMulti_ParHyp(int nvec, realtype* a, N_Vector x, N_Vector* Y,
   scaleAddMultiKernel<<<grid, block, shMemSize, stream>>>
   (
     nvec,
-    cd,
+    ad,
     xd,
     Yd,
     Zd,
@@ -2304,7 +2304,7 @@ int N_VScaleAddMultiVectorArray_ParHyp(int nvec, int nsum, realtype* a,
     YY = (N_Vector *) malloc(nsum * sizeof(N_Vector));
     ZZ = (N_Vector *) malloc(nsum * sizeof(N_Vector));
 
-    for (j=0; j<nsum; j++) {
+    for (sunindextype j=0; j<nsum; j++) {
       YY[j] = Y[j][0];
       ZZ[j] = Z[j][0];
     }
@@ -2372,7 +2372,7 @@ int N_VScaleAddMultiVectorArray_ParHyp(int nvec, int nsum, realtype* a,
   realtype** Zd = NULL;
 
   NV_CATCH_AND_RETURN_PH(FusedBuffer_Init(X[0], nsum, nvec + 2 * nvec * nsum), -1)
-  NV_CATCH_AND_RETURN_PH(FusedBuffer_CopyRealArray(X[0], c, nsum, &cd),        -1)
+  NV_CATCH_AND_RETURN_PH(FusedBuffer_CopyRealArray(X[0], a, nsum, &cd),        -1)
   NV_CATCH_AND_RETURN_PH(FusedBuffer_CopyPtrArray1D(X[0], X, nvec, &Xd),       -1)
   NV_CATCH_AND_RETURN_PH(FusedBuffer_CopyPtrArray2D(X[0], Y, nvec, nsum, &Yd), -1)
   NV_CATCH_AND_RETURN_PH(FusedBuffer_CopyPtrArray2D(X[0], Z, nvec, nsum, &Zd), -1)
