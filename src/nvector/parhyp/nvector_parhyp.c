@@ -190,12 +190,18 @@ using namespace sundials::hip::impl;
 
 /* --- Debug macros --- */
 
-#define NV_CATCH_PH(call)                          \
+#define NV_CATCH_PH(call)                              \
   if (call) {                                          \
     SUNDIALS_DEBUG_ERROR(#call " returned nonzero\n"); \
     }
 
-#define NV_CATCH_MSG_AND_RETURN_PH(call,msg,ret)   \
+#define NV_CATCH_AND_RETURN_PH(call,ret)               \
+  if (call) {                                          \
+    SUNDIALS_DEBUG_ERROR(#call " returned nonzero\n"); \
+    return(ret);                                       \
+    }
+
+#define NV_CATCH_MSG_AND_RETURN_PH(call,msg,ret)       \
   if (call) {                                          \
     SUNDIALS_DEBUG_ERROR(msg);                         \
     return(ret);                                       \
@@ -1735,6 +1741,28 @@ int N_VLinearCombination_ParHyp(int nvec, realtype* c, N_Vector* X, N_Vector z)
     }
   }
 #elif defined(SUNDIALS_HYPRE_BACKENDS_CUDA_OR_HIP)
+  size_t grid, block, shMemSize;
+  NV_ADD_LANG_PREFIX_PH(Stream_t) stream;
+  realtype*  cdata = NULL;
+  realtype** xdata = NULL;
+  realtype** zdata = NULL;
+
+  NV_CATCH_AND_RETURN_PH(FusedBuffer_Init(z, nvec, nvec),                -1)
+  NV_CATCH_AND_RETURN_PH(FusedBuffer_CopyRealArray(z, c, nvec, &cdata),  -1)
+  NV_CATCH_AND_RETURN_PH(FusedBuffer_CopyPtrArray1D(z, X, nvec, &xdata), -1)
+  NV_CATCH_AND_RETURN_PH(FusedBuffer_CopyToDevice(z),                    -1)
+
+  NV_CATCH_AND_RETURN_PH(GetKernelParameters(X[0], false, grid, block, shMemSize, stream), -1)
+
+  linearCombinationKernel<<<grid, block, shMemSize, stream>>>
+  (
+    nvec,
+    cdata,
+    xdata,
+    zd,
+    N
+  );
+  PostKernelLaunch();
 #endif
   return(0);
 }
@@ -1856,7 +1884,7 @@ int N_VDotProdMultiLocal_ParHyp(int nvec, N_Vector x, N_Vector* Y,
     }
   }
 
-  return 0;
+  return(0);
 }
 
 
@@ -2902,7 +2930,7 @@ static int ReductionBuffer_Init(N_Vector v, realtype value, size_t n)
                               bytes, (void*) NV_STREAM_PH(v)),
     "SUNMemoryHelper_CopyAsync failed\n",-1)
   
-  return 0;
+  return(0);
 }
 
 static int ReductionBuffer_CopyFromDevice(N_Vector v, size_t n)
@@ -2990,7 +3018,7 @@ static int FusedBuffer_Init(N_Vector v, int nreal, int nptr)
   // Reset the buffer offset
   vcp->fused_buffer_offset = 0;
 
-  return 0;
+  return(0);
 }
 
 static int FusedBuffer_CopyToDevice(N_Vector v)
@@ -3010,7 +3038,7 @@ static int FusedBuffer_CopyToDevice(N_Vector v)
   // Synchronize with respect to the host, but only in this stream
   NV_VERIFY_CALL_PH(NV_ADD_LANG_PREFIX_PH(StreamSynchronize)(*NV_STREAM_PH(v)));
 
-  return 0;
+  return(0);
 }
 
 static int FusedBuffer_CopyRealArray(N_Vector v, realtype *rdata, int nval,
@@ -3044,7 +3072,7 @@ static int FusedBuffer_CopyRealArray(N_Vector v, realtype *rdata, int nval,
 #error Incompatible precision for CUDA
 #endif
 
-  return 0;
+  return(0);
 }
 
 static int FusedBuffer_CopyPtrArray1D(N_Vector v, N_Vector *X, int nvec,
@@ -3071,7 +3099,7 @@ static int FusedBuffer_CopyPtrArray1D(N_Vector v, N_Vector *X, int nvec,
 
   vcp->fused_buffer_offset += nvec * sizeof(realtype*);
 
-  return 0;
+  return(0);
 }
 
 static int FusedBuffer_CopyPtrArray2D(N_Vector v, N_Vector **X, int nvec,
@@ -3102,14 +3130,14 @@ static int FusedBuffer_CopyPtrArray2D(N_Vector v, N_Vector **X, int nvec,
   // Update the offset
   vcp->fused_buffer_offset += nvec * nsum * sizeof(realtype*);
 
-  return 0;
+  return(0);
 }
 
 static int FusedBuffer_Free(N_Vector v)
 {
   N_PrivateVectorContent_ParHyp vcp = NV_PRIVATE_PH(v);
 
-  if (vcp == NULL) return 0;
+  if (vcp == NULL) return(0);
 
   if (vcp->fused_buffer_host)
   {
@@ -3128,7 +3156,7 @@ static int FusedBuffer_Free(N_Vector v)
   vcp->fused_buffer_bytes  = 0;
   vcp->fused_buffer_offset = 0;
 
-  return 0;
+  return(0);
 }
 
 static int GetKernelParameters(N_Vector v, booleantype reduction, size_t& grid,
