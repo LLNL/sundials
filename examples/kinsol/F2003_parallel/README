@@ -1,17 +1,6 @@
-List of serial CVODE F2003 examples
+List of serial KINSOL F2003 examples
 
-    cv_advdiff_bnd_f2003.f90             : 
-    cv_analytic_fp_f2003.f90             : simple example problem with an analytical solution (fixedpoint)
-    cv_analytic_sys_dns_f2003.f90        : simple example problem with an analytical solution (newton, dense)
-    cv_analytic_sys_dns_jac_f2003.f90    : simple example problem with an analytical solution (newton, dense, user-supplied jacobian)
-    cv_analytic_sys_klu_f2003.f90        : simple example problem with an analytical solution (newton, KLU)
-    cv_brusselator_dns_f2003.f90         : brusselator problem from chemical kinetics (newton, dense) 
-    cv_diurnal_kry_bp_f2003.f90          : 
-    cv_diurnal_kry_f2003.f90             : 
-    cv_roberts_dns_constraints_f2003.f90 : 
-    cv_roberts_dns_f2003.f90             : 
-    cv_roberts_dnsL_f2003.f90            : 
-    cv_roberts_klu_f2003.f90             : 
+    kinDiagon_kry_f2003.f90  : Diagonal algebraic equation (GMRES)
 
 The following CMake command was used to configure SUNDIALS:
 

@@ -1,6 +1,5 @@
 ! ------------------------------------------------------------------
-! Programmer(s): David J. Gardner, Cody J. Balos @ LLNL
-!                modified by Jean M. Sexton @ LBL
+! Programmer(s): Daniel R. Reynolds @ SMU
 !                modified by Daniel M. Margolis @ SMU
 ! ------------------------------------------------------------------
 ! SUNDIALS Copyright Start
@@ -240,7 +239,6 @@ module diurnal_mod
     type(SUNLinearSolver), pointer :: sunls         ! sundials linear solver
     type(SUNMatrix),       pointer :: sunmat_A      ! sundials matrix (empty)
     type(c_ptr)                    :: arkode_mem    ! ARKODE memory
-   !  double precision, pointer, dimension(2,mx,my) :: fvec(:,:,:) ! underlying vector
     double precision, pointer, dimension(2,mx,my) :: uvec(:,:,:) ! underlying vector
 
     ! output statistic variables

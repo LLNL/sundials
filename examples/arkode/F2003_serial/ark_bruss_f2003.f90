@@ -1,6 +1,5 @@
 ! ------------------------------------------------------------------
-! Programmer(s): David J. Gardner, Cody J. Balos @ LLNL
-!                modified by Jean M. Sexton @ LBL
+! Programmer(s): Daniel R. Reynolds @ SMU
 !                modified by Daniel M. Margolis @ SMU
 ! ------------------------------------------------------------------
 ! SUNDIALS Copyright Start
@@ -339,13 +338,6 @@ program main
     print *, 'Error in FARKStepSetNonlinConvCoef'
     stop 1
   end if
-
-!!$  mxsteps = 5000
-!!$  ierr = FARKStepSetMaxNumSteps(arkode_mem, mxsteps)
-!!$  if (ierr /= 0) then
-!!$    print *, 'Error in FARKStepSetNonlinConvCoef'
-!!$    stop 1
-!!$  end if
 
   imethod = 0
   idefault = 1

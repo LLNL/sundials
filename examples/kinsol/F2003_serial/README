@@ -1,5 +1,6 @@
 List of serial KINSOL F2003 examples
 
+    kinDiagon_kry_f2003.f90  : Diagonal algebraic equation (GMRES)
     kinLaplace_bnd_f2003.f90 : 2-D elliptic PDE (BAND)
     kinRoboKin_dns_f2003.f90 : Robot kinematics problem (DENSE)
 

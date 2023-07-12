@@ -1,6 +1,5 @@
 ! ------------------------------------------------------------------
-! Programmer(s): David J. Gardner, Cody J. Balos @ LLNL
-!                modified by Jean M. Sexton @ LBL
+! Programmer(s): Daniel R. Reynolds @ SMU
 !                modified by Daniel M. Margolis @ SMU
 ! ------------------------------------------------------------------
 ! SUNDIALS Copyright Start
@@ -63,7 +62,7 @@
 ! Run statistics (optional outputs) are printed at the end.
 ! ------------------------------------------------------------------
 
-module UserData
+module Bruss1D_UserData
 
    !======= Inclusions ===========
    use, intrinsic :: iso_c_binding
@@ -95,7 +94,7 @@ module UserData
      idx = neqreal*(ix - 1) + ivar - 1
    end function idx
 
-end module UserData
+end module Bruss1D_UserData
 
 ! finite element basis functions
 module FEM
@@ -170,11 +169,11 @@ contains
 
 end module Quadrature
 
-module ode_mod
+module bruss1D_ode_mod
 
    !======= Inclusions ===========
    use, intrinsic :: iso_c_binding
-   use UserData
+   use Bruss1D_UserData
 
    contains
 
@@ -1007,7 +1006,7 @@ module ode_mod
 
    end function Mass
 
-end module ode_mod
+end module bruss1D_ode_mod
 !-----------------------------------------------------------------
 
 
@@ -1021,7 +1020,7 @@ end module ode_mod
    !======= Inclusions ===========
    use, intrinsic :: iso_c_binding
 
-   use ode_mod                    ! custom problem-specification module
+   use bruss1D_ode_mod                    ! custom problem-specification module
    use farkode_mod                ! Fortran interface to the ARKode module
    use farkode_arkstep_mod        ! Fortran interface to the ARKStep module
    use fsundials_nvector_mod      ! Fortran interface to the generic N_Vector
@@ -1032,7 +1031,7 @@ end module ode_mod
    use fsunlinsol_klu_mod         ! Fortran interface to dense SUNLinearSolver
    use fsundials_context_mod      ! Fortran interface to SUNContext
    use fsundials_futils_mod       ! Extra Fortran utility routines
-   use UserData                   ! Declarations and indexing
+   use Bruss1D_UserData                   ! Declarations and indexing
 
    !======= Declarations =========
    implicit none
@@ -1277,7 +1276,7 @@ end module ode_mod
       write(503,*) ( yvec(3,i), i=1,N )
 
    end do
-   print *, ' ----------------------------------------------------'
+   print *, '  ----------------------------------------------------'
    close(501)
    close(502)
    close(503)

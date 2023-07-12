@@ -131,7 +131,7 @@ module DiagkryData
      
      ierr = firhs(t, sunvec_y, sunvec_g, user_data)
      if (ierr /= 0) then
-        write(0,*) "Error in firhs user-defined function, ierr = ", ierr
+        write(0,*) "Error in LocalgFn user-defined function, ierr = ", ierr
         stop 1
      end if
 
@@ -330,7 +330,7 @@ module DiagkryData
    mudq = 0
    mldq = 0
    retval = FARKBBDPrecInit(arkode_mem, nlocal, mudq, mldq, mu, ml, 0.d0, &
-         c_funloc(LocalgFn), c_funloc(CommFn))
+                            c_funloc(LocalgFn), c_funloc(CommFn))
    if (retval /= 0) then
       print *, "Error: FARKBBDPrecInit returned ",retval
       call MPI_Abort(comm, 1, ierr)
@@ -409,7 +409,7 @@ module DiagkryData
 
       end do
       if (outproc) then
-         write(6,*) "   ----------------------"
+         write(6,*) "   -------------------------------------------------"
       end if
 
       ! Get max. absolute error in the local vector.
@@ -421,7 +421,7 @@ module DiagkryData
 
       ! Get global max. error from MPI_Reduce call.
       call MPI_Reduce(errmax, gerrmax, 1, MPI_DOUBLE, MPI_MAX, &
-                     0, comm, ierr)
+                      0, comm, ierr)
       if (ierr /= MPI_SUCCESS) then
          print *, "Error in MPI_Reduce = ", ierr
          call MPI_Abort(comm, 1, ierr)

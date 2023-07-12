@@ -15,6 +15,7 @@
 ! Example problem:
 !
 ! Diagonal ODE example. Nonstiff case: alpha = 10/NEQ.
+! Uses ERKStep to explicitly solve nonstiff ODE.
 !
 !-----------------------------------------------------------------
 
@@ -259,7 +260,7 @@ module DiagnonData
 
    end do
    if (outproc) then
-      write(6,*) "   ----------------------"
+      write(6,*) "   -----------------------------------------"
    end if
 
    ! Get max. absolute error in the local vector.

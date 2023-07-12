@@ -27,7 +27,7 @@
 ! feature to find the points at which y1 = 1e-4 or at which
 ! y3 = 0.01.
 !
-! The problem is solved with ARKODE using the DENSE linear
+! The problem is solved with ARKODE using the LAPACK DENSE linear
 ! solver, with a user-supplied Jacobian. Output is printed at
 ! t = .4, 4, 40, ..., 4e10.
 ! ------------------------------------------------------------------
@@ -92,52 +92,6 @@ module dnsL_mod
     end function fcnirob
 
     ! ----------------------------------------------------------------
-    ! fcnerob: The explicit RHS operator function
-    !
-    ! Return values:
-    !    0 = success,
-    !    1 = recoverable error,
-    !   -1 = non-recoverable error
-    ! ----------------------------------------------------------------
-    integer(c_int) function fcnerob(tres, sunvec_y, sunvec_f, user_data) &
-         result(ierr) bind(C,name='fcnerob')
-
-      !======= Inclusions ===========
-      use, intrinsic :: iso_c_binding
-      use fsundials_nvector_mod
-      use fnvector_serial_mod
-
-      !======= Declarations =========
-      implicit none
-
-      ! calling variables
-      real(c_double), value :: tres      ! current time
-      type(N_Vector)        :: sunvec_y  ! solution N_Vector
-      type(N_Vector)        :: sunvec_f  ! function N_Vector
-      type(c_ptr),    value :: user_data ! user-defined data
-
-      ! pointers to data in SUNDIALS vectors
-      real(c_double), pointer :: yval(:)
-      real(c_double), pointer :: fval(:)
-
-      !======= Internals ============
-
-      ! get data arrays from SUNDIALS vectors
-      yval  => FN_VGetArrayPointer(sunvec_y)
-      fval  => FN_VGetArrayPointer(sunvec_f)
-
-      ! fill residual vector
-      fval(1)  = 0.d0
-      fval(2)  = 0.d0
-      fval(3)  = 0.d0
-
-      ! return success
-      ierr = 0
-      return
-
-    end function fcnerob
-
-    ! ----------------------------------------------------------------
     ! grob: The root function routine
     !
     ! Return values:
@@ -181,7 +135,7 @@ module dnsL_mod
     end function grob
 
     ! ----------------------------------------------------------------
-    ! jacrob: The DAE Jacobian function
+    ! jacrob: The ODE Jacobian function
     !
     ! Return values:
     !    0 = success,
@@ -279,7 +233,7 @@ module dnsL_mod
     type(c_ptr)                       :: arkode_mem    ! ARKODE memory
     type(c_ptr)                       :: sunctx        ! SUNDIALS simulation context
 
-    ! solution and tolerance vectors, neq is set in the dae_mod module
+    ! solution and tolerance vectors, neq is set in the dnsL_mod module
     real(c_double) :: yval(neq), fval(neq), avtol(neq), dkyval(neq)
 
     ! fine-tuning initialized here
@@ -329,7 +283,7 @@ module dnsL_mod
     call PrintHeader(rtol, avtol, yval)
 
     ! Call FARKStepCreate to initialize ARKODE memory
-    arkode_mem = FARKStepCreate(c_funloc(fcnerob), c_funloc(fcnirob), t0, sunvec_y, sunctx)
+    arkode_mem = FARKStepCreate(c_null_ptr, c_funloc(fcnirob), t0, sunvec_y, sunctx)
     if (.not. c_associated(arkode_mem)) print *, 'ERROR: arkode_mem = NULL'
 
     ! Call FARKStepSVtolerances to set tolerances
