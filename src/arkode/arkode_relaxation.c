@@ -245,7 +245,7 @@ static int arkRelaxBrentSolve(ARKodeMem ark_mem)
     tol = relax_mem->rel_tol * SUNRabs(xb) + HALF * relax_mem->abs_tol;
 
     /* Compute midpoint for bisection */
-    xm = SUN_RCONST(0.5) * (xc - xb);
+    xm = HALF * (xc - xb);
 
     /* Check for convergence */
     if (SUNRabs(xm) < tol || SUNRabs(fb) < relax_mem->res_tol)
@@ -328,31 +328,6 @@ static int arkRelaxBrentSolve(ARKodeMem ark_mem)
   return ARK_RELAX_SOLVE_RECV;
 }
 
-/* Solve the relaxation residual equation using Newton's method */
-static int arkRelaxFixedPointSolve(ARKodeMem ark_mem)
-{
-  int i, retval;
-  ARKodeRelaxMem relax_mem = ark_mem->relax_mem;
-
-  for (i = 0; i < ark_mem->relax_mem->max_iters; i++)
-  {
-    /* Compute the current residual */
-    retval = arkRelaxResidual(relax_mem->relax_param, &(relax_mem->res),
-                              ark_mem);
-    if (retval) return retval;
-
-    /* Check for convergence */
-    if (SUNRabs(relax_mem->res) < relax_mem->res_tol) { return ARK_SUCCESS; }
-
-    relax_mem->relax_param -= relax_mem->res;
-
-    /* Update iteration count */
-    relax_mem->nls_iters++;
-  }
-
-  return ARK_RELAX_SOLVE_RECV;
-}
-
 /* Compute and apply relaxation parameter */
 int arkRelaxSolve(ARKodeMem ark_mem, ARKodeRelaxMem relax_mem,
                   sunrealtype* relax_val_out)
@@ -387,9 +362,6 @@ int arkRelaxSolve(ARKodeMem ark_mem, ARKodeRelaxMem relax_mem,
     break;
   case(ARK_RELAX_NEWTON):
     retval = arkRelaxNewtonSolve(ark_mem);
-    break;
-  case(ARK_RELAX_FIXEDPOINT):
-    retval = arkRelaxFixedPointSolve(ark_mem);
     break;
   default:
     return ARK_ILL_INPUT;
@@ -501,6 +473,13 @@ int arkRelaxSetSolver(void* arkode_mem, ARKRelaxSolver solver)
   retval = arkRelaxAccessMem(arkode_mem, "arkRelaxSetSolver", &ark_mem,
                              &relax_mem);
   if (retval) return retval;
+
+  if (solver != ARK_RELAX_BRENT && solver != ARK_RELAX_NEWTON)
+  {
+    arkProcessError(ark_mem, ARK_ILL_INPUT, "ARKODE", "arkRelaxSetSolver",
+                    "An invalid relaxation solver option was provided.");
+    return ARK_ILL_INPUT;
+  }
 
   relax_mem->solver = solver;
 
