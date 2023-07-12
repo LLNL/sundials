@@ -2117,19 +2117,22 @@ iteration is halted either when the residual tolerance is met,
 :math:`F(r^{(k)}) < \epsilon_{\mathrm{relax\_res}}`, or when the difference
 between successive iterates satisfies the relative and absolute tolerances,
 :math:`|\delta_r^{(k)}| = |r^{(k)} - r^{(k-1)}| < \epsilon_{\mathrm{relax\_rtol}} |r^{(k-1)}| + \epsilon_{\mathrm{relax\_atol}}`.
-Brent's method applies the same residual tolerance check and the additionally
-halts when the bisection update satisfies the relative and absolute tolerances,
+Brent's method applies the same residual tolerance check and additionally halts
+when the bisection update satisfies the relative and absolute tolerances,
 :math:`|0.5 (r_c - r^{k})| < \epsilon_{\mathrm{relax\_rtol}} |r^{(k)}| + 0.5 \epsilon_{\mathrm{relax\_atol}}`
 where :math:`r_c` and :math:`r^{(k)}` bound the root.
 
-If the nonlinear fails to meet the specified tolerances within the maximum
+If the nonlinear solve fails to meet the specified tolerances within the maximum
 allowed number of iterations, the step size is reduced by the factor
-:math:`\eta_\mathrm{rf}` (default 0.25) and the step is repeated. The root of
-:eq:`ARKODE_RELAX_NLS` is :math:`1 + \mathcal{O}(h_n^{q - 1})` for a method
-of order :math:`q` :cite:p:`ranocha2020relaxation`. As such, if
-:math:`|r - 1| > \mathcal{B} |h_n|` (default :math:`\mathcal{B} = 0.5`, the
-computed :math:`r` value is considered invalid and the step will be repeated
-with the step size reduced by :math:`\eta_\mathrm{rf}`.
+:math:`\eta_\mathrm{rf}` (default 0.25) and the step is repeated. Additionally,
+the solution of :eq:`ARKODE_RELAX_NLS` should be
+:math:`r = 1 + \mathcal{O}(h_n^{q - 1})` for a method of order :math:`q`
+:cite:p:`ranocha2020relaxation`. As such, limits are imposed on the range of
+relaxation values allowed (i.e., limiting the maximum change in step size due to
+relaxation). A relaxation value greater than :math:`r_\text{max}` (default 1.2)
+or less than :math:`r_\text{min}` (default 0.8), is considered as a failed
+relaxation application and the step will is repeated with the step size reduced
+by :math:`\eta_\text{rf}`.
 
 For more information on utilizing relaxation Runge--Kutta methods, see
 :numref:`ARKODE.Usage.ERKStep.Relaxation` and

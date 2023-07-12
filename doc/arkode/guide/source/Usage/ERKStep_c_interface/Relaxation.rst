@@ -18,7 +18,7 @@ Relaxation Methods
 ==================
 
 This section describes user-callable functions for applying relaxation methods
-with ERKStep. For more information on relaxation Runge-Kutta methods see
+with ERKStep. For more information on relaxation Runge--Kutta methods see
 :numref:`ARKODE.Mathematics.Relaxation`.
 
 Enabling or Disabling Relaxation
@@ -32,12 +32,6 @@ Enabling or Disabling Relaxation
    Both ``rfn`` and ``rjac`` are required and an error will be returned if only
    one of the functions is ``NULL``. If both ``rfn`` and ``rjac`` are ``NULL``,
    relaxation is disabled.
-
-   When combined with fixed time step sizes, ERKStep will attempt each step
-   using the specified step size. If the step is successful, relaxation will be
-   applied, effectively modifying the step size for the current step. If the
-   step fails or applying relaxation fails, :c:func:`ERKStepEvolve` will
-   return with an error.
 
    :param arkode_mem: the ERKStep memory structure
    :param rfn: the user-defined function to compute the relaxation function
@@ -57,6 +51,14 @@ Enabling or Disabling Relaxation
       :math:`b_i \geq 0`. If these conditions are not satisfied,
       :c:func:`ERKStepEvolve` will return with an error during initialization.
 
+   .. note::
+
+      When combined with fixed time step sizes, ERKStep will attempt each step
+      using the specified step size. If the step is successful, relaxation will
+      be applied, effectively modifying the step size for the current step. If
+      the step fails or applying relaxation fails, :c:func:`ERKStepEvolve` will
+      return with an error.
+
    .. versionadded:: 5.6.0
 
 Optional Input Functions
@@ -65,20 +67,16 @@ Optional Input Functions
 This section describes optional input functions used to control applying
 relaxation.
 
-.. c:function:: int ERKStepSetRelaxBoundFactor(void* arkode_mem, sunrealtype bound_factor)
+.. c:function:: int ERKStepSetRelaxEtaFail(void* arkode_mem, sunrealtype eta_rf)
 
-   Sets the factor :math:`\mathcal{B}` used in determining an acceptable value
-   of the relaxation parameter, :math:`r`.
+   Sets the step size reduction factor applied after a failed relaxation
+   application.
 
-   If :math:`|r - 1| > \mathcal{B} h_n`, the value of :math:`r` is considered
-   unacceptable and the step will be repeated with a smaller step size
-   (determined by :c:func:`ERKStepSetRelaxEtaFail`).
-
-   The default value is 0.5. Input values :math:`\leq 0` will result in the
-   default value being used.
+   The default value is 0.25. Input values :math:`\leq 0` or :math:`\geq 1` will
+   result in the default value being used.
 
    :param arkode_mem: the ERKStep memory structure
-   :param bound_factor: the factor used to accept the relaxation parameter value
+   :param eta_rf: the step size reduction factor
 
    :retval ARK_SUCCESS: the value was successfully set
    :retval ARK_MEM_NULL: ``arkode_mem`` was ``NULL``
@@ -87,15 +85,40 @@ relaxation.
 
    .. versionadded:: 5.6.0
 
-.. c:function:: int ERKStepSetRelaxEtaFail(void* arkode_mem, sunrealtype eta_rf)
+.. c:function:: int ERKStepSetRelaxLowerBound(void* arkode_mem, sunrealtype lower)
 
-   Sets the step size reduction factor after a failed relaxation application.
+   Sets the smallest acceptable value for the relaxation parameter.
 
-   The default value is 0.25. Input values :math:`\leq 0` or :math:`\geq 1` will
+   Values smaller than the lower bound will result in a failed relaxation
+   application and the step will be repeated with a smaller step size
+   (determined by :c:func:`ERKStepSetRelaxEtaFail`).
+
+   The default value is 0.8. Input values :math:`\leq 0` or :math:`\geq 1` will
    result in the default value being used.
 
    :param arkode_mem: the ERKStep memory structure
-   :param eta_rf: the step size reduction factor
+   :param lower: the relaxation parameter lower bound
+
+   :retval ARK_SUCCESS: the value was successfully set
+   :retval ARK_MEM_NULL: ``arkode_mem`` was ``NULL``
+   :retval ARK_RELAX_MEM_NULL: the internal relaxation memory structure was
+                               ``NULL``
+
+   .. versionadded:: 5.6.0
+
+.. c:function:: int ERKStepSetRelaxUpperBound(void* arkode_mem, sunrealtype upper)
+
+   Sets the largest acceptable value for the relaxation parameter.
+
+   Values larger than the upper bound will result in a failed relaxation
+   application and the step will be repeated with a smaller step size
+   (determined by :c:func:`ERKStepSetRelaxEtaFail`).
+
+   The default value is 1.2. Input values :math:`\leq 1` will result in the
+   default value being used.
+
+   :param arkode_mem: the ERKStep memory structure
+   :param upper: the relaxation parameter upper bound
 
    :retval ARK_SUCCESS: the value was successfully set
    :retval ARK_MEM_NULL: ``arkode_mem`` was ``NULL``
@@ -215,7 +238,6 @@ relaxation.
 
    .. versionadded:: 5.6.0
 
-
 Optional Output Functions
 -------------------------
 
@@ -254,7 +276,7 @@ about the performance of the relaxation method.
 
    Get the total number of times applying relaxation failed.
 
-   The counter includes the sum of the number of nonlinear solver failure
+   The counter includes the sum of the number of nonlinear solver failures
    (see :c:func:`ERKStepGetNumRelaxSolveFails`) and the number of failures due
    an unacceptable relaxation value (see :c:func:`ERKStepSetRelaxBoundFactor`).
 
@@ -271,7 +293,7 @@ about the performance of the relaxation method.
 
 .. c:function:: int ERKStepGetNumRelaxBoundFails(void* arkode_mem, long int* fails)
 
-   Get the number of times the relaxation parameter as deemed unacceptable.
+   Get the number of times the relaxation parameter was deemed unacceptable.
 
    :param arkode_mem: the ERKStep memory structure
    :param fails: the number of failures due to an unacceptable relaxation
