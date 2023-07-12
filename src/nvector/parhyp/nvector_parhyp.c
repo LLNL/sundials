@@ -1939,11 +1939,7 @@ int N_VLinearSumVectorArray_ParHyp(int nvec,
                                    realtype b, N_Vector* Y,
                                    N_Vector* Z)
 {
-  int          i;
-  sunindextype j, N;
-  realtype*    xd=NULL;
-  realtype*    yd=NULL;
-  realtype*    zd=NULL;
+  sunindextype N;
 
   /* invalid number of vectors */
   if (nvec < 1) return(-1);
@@ -1957,6 +1953,11 @@ int N_VLinearSumVectorArray_ParHyp(int nvec,
   /* get vector length */
   N = NV_LOCLENGTH_PH(Z[0]);
 
+#if defined(SUNDIALS_HYPRE_BACKENDS_SERIAL)
+  sunindextype i, j;
+  realtype*    xd=NULL;
+  realtype*    yd=NULL;
+  realtype*    zd=NULL;
   /* compute linear sum for each vector pair in vector arrays */
   for (i=0; i<nvec; i++) {
     xd = NV_DATA_PH(X[i]);
@@ -1966,7 +1967,33 @@ int N_VLinearSumVectorArray_ParHyp(int nvec,
       zd[j] = a * xd[j] + b * yd[j];
     }
   }
+#elif defined(SUNDIALS_HYPRE_BACKENDS_CUDA_OR_HIP)
+  size_t grid, block, shMemSize;
+  NV_ADD_LANG_PREFIX_PH(Stream_t) stream;
+  realtype** Xd = NULL;
+  realtype** Yd = NULL;
+  realtype** Zd = NULL;
 
+  NV_CATCH_AND_RETURN_PH(FusedBuffer_Init(Z[0], 0, 3 * nvec),            -1)
+  NV_CATCH_AND_RETURN_PH(FusedBuffer_CopyPtrArray1D(Z[0], X, nvec, &Xd), -1)
+  NV_CATCH_AND_RETURN_PH(FusedBuffer_CopyPtrArray1D(Z[0], Y, nvec, &Yd), -1)
+  NV_CATCH_AND_RETURN_PH(FusedBuffer_CopyPtrArray1D(Z[0], Z, nvec, &Zd), -1)
+  NV_CATCH_AND_RETURN_PH(FusedBuffer_CopyToDevice(Z[0]),                 -1)
+
+  NV_CATCH_AND_RETURN_PH(GetKernelParameters(Z[0], false, grid, block, shMemSize, stream), -1)
+
+  linearSumVectorArrayKernel<<<grid, block, shMemSize, stream>>>
+  (
+    nvec,
+    a,
+    Xd,
+    b,
+    Yd,
+    Zd,
+    N
+  );
+  PostKernelLaunch();
+#endif
   return(0);
 }
 
