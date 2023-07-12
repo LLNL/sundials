@@ -1679,10 +1679,8 @@ realtype N_VMinQuotient_ParHyp(N_Vector num, N_Vector denom)
 
 int N_VLinearCombination_ParHyp(int nvec, realtype* c, N_Vector* X, N_Vector z)
 {
-  int          i;
-  sunindextype j, N;
+  sunindextype N;
   realtype*    zd=NULL;
-  realtype*    xd=NULL;
 
   /* invalid number of vectors */
   if (nvec < 1) return(-1);
@@ -1704,6 +1702,8 @@ int N_VLinearCombination_ParHyp(int nvec, realtype* c, N_Vector* X, N_Vector z)
   zd = NV_DATA_PH(z);
 
 #if defined(SUNDIALS_HYPRE_BACKENDS_SERIAL)
+  sunindextype i, j;
+  realtype*    xd=NULL;
   /* X[0] += c[i]*X[i], i = 1,...,nvec-1 */
   if ((X[0] == z) && (c[0] == ONE)) {
     for (i=1; i<nvec; i++) {
@@ -1745,7 +1745,6 @@ int N_VLinearCombination_ParHyp(int nvec, realtype* c, N_Vector* X, N_Vector z)
   NV_ADD_LANG_PREFIX_PH(Stream_t) stream;
   realtype*  cdata = NULL;
   realtype** xdata = NULL;
-  realtype** zdata = NULL;
 
   NV_CATCH_AND_RETURN_PH(FusedBuffer_Init(z, nvec, nvec),                -1)
   NV_CATCH_AND_RETURN_PH(FusedBuffer_CopyRealArray(z, c, nvec, &cdata),  -1)
@@ -2891,10 +2890,10 @@ static int ReductionBuffer_Init(N_Vector v, realtype value, size_t n)
   N_PrivateVectorContent_ParHyp vcp = NV_PRIVATE_PH(v);
 
   // Define the allocation attempt function
-  int TryAlloc(SUNMemory *memptr, SUNMemoryType mem_type)
+  int TryAlloc = [&](SUNMemory *memptr, SUNMemoryType mem_type)
   {
-    SUNMemoryHelper_Alloc(NV_MEMHELP_PH(v), memptr, bytes, mem_type, (void*) NV_STREAM_PH(v));
-  }
+    return SUNMemoryHelper_Alloc(NV_MEMHELP_PH(v), memptr, bytes, mem_type, (void*) NV_STREAM_PH(v));
+  };
 
   // If existing memory is insufficient, allocate more
   if (vcp->reduce_buffer_bytes < bytes)
@@ -2935,7 +2934,6 @@ static int ReductionBuffer_Init(N_Vector v, realtype value, size_t n)
 
 static int ReductionBuffer_CopyFromDevice(N_Vector v, size_t n)
 {
-  int copy_fail;
   NV_ADD_LANG_PREFIX_PH(Error_t) err;
 
   NV_CATCH_MSG_AND_RETURN_PH(
@@ -2987,10 +2985,10 @@ static int FusedBuffer_Init(N_Vector v, int nreal, int nptr)
   N_PrivateVectorContent_ParHyp vcp = NV_PRIVATE_PH(v);
 
   // Define the allocation attempt function
-  int TryAlloc(SUNMemory *memptr, SUNMemoryType mem_type)
+  int TryAlloc = [&](SUNMemory *memptr, SUNMemoryType mem_type)
   {
-    SUNMemoryHelper_Alloc(NV_MEMHELP_PH(v), memptr, bytes, mem_type, (void*) NV_STREAM_PH(v));
-  }
+    return SUNMemoryHelper_Alloc(NV_MEMHELP_PH(v), memptr, bytes, mem_type, (void*) NV_STREAM_PH(v));
+  };
 
   // If existing memory is insufficient, allocate more
   if (vcp->fused_buffer_bytes < bytes)
