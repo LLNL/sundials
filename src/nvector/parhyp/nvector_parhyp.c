@@ -2280,10 +2280,6 @@ int N_VScaleAddMultiVectorArray_ParHyp(int nvec, int nsum, realtype* a,
 {
   sunindextype N;
 
-  int          retval;
-  N_Vector*    YY;
-  N_Vector*    ZZ;
-
   /* invalid number of vectors */
   if (nvec < 1) return(-1);
   if (nsum < 1) return(-1);
@@ -2301,10 +2297,10 @@ int N_VScaleAddMultiVectorArray_ParHyp(int nvec, int nsum, realtype* a,
     }
 
     /* should have called N_VScaleAddMulti */
-    YY = (N_Vector *) malloc(nsum * sizeof(N_Vector));
-    ZZ = (N_Vector *) malloc(nsum * sizeof(N_Vector));
+    N_Vector* YY = (N_Vector *) malloc(nsum * sizeof(N_Vector));
+    N_Vector* ZZ = (N_Vector *) malloc(nsum * sizeof(N_Vector));
 
-    for (sunindextype j=0; j<nsum; j++) {
+    for (int j=0; j<nsum; j++) {
       YY[j] = Y[j][0];
       ZZ[j] = Z[j][0];
     }
@@ -2322,7 +2318,7 @@ int N_VScaleAddMultiVectorArray_ParHyp(int nvec, int nsum, realtype* a,
 
   /* should have called N_VLinearSumVectorArray */
   if (nsum == 1) {
-    retval = N_VLinearSumVectorArray_ParHyp(nvec, a[0], X, ONE, Y[0], Z[0]);
+    int retval = N_VLinearSumVectorArray_ParHyp(nvec, a[0], X, ONE, Y[0], Z[0]);
     return(retval);
   }
 
@@ -2333,7 +2329,9 @@ int N_VScaleAddMultiVectorArray_ParHyp(int nvec, int nsum, realtype* a,
   N  = NV_LOCLENGTH_PH(X[0]);
 
 #if defined(SUNDIALS_HYPRE_BACKENDS_SERIAL)
-  sunindextype i, j, k;
+  int          i; /* vector arrays index in summation [0,nsum) */
+  int          j; /* vector index in vector array     [0,nvec) */
+  sunindextype k; /* element index in vector          [0,N)    */
   realtype*    xd=NULL;
   realtype*    yd=NULL;
   realtype*    zd=NULL;
@@ -2401,15 +2399,7 @@ int N_VLinearCombinationVectorArray_ParHyp(int nvec, int nsum,
                                              N_Vector** X,
                                              N_Vector* Z)
 {
-  int          i; /* vector arrays index in summation [0,nsum) */
-  int          j; /* vector index in vector array     [0,nvec) */
-  sunindextype k; /* element index in vector          [0,N)    */
   sunindextype N;
-  realtype*    zd=NULL;
-  realtype*    xd=NULL;
-
-  realtype*    ctmp;
-  N_Vector*    Y;
 
   /* invalid number of vectors */
   if (nvec < 1) return(-1);
@@ -2434,9 +2424,9 @@ int N_VLinearCombinationVectorArray_ParHyp(int nvec, int nsum,
     }
 
     /* should have called N_VLinearCombination */
-    Y = (N_Vector *) malloc(nsum * sizeof(N_Vector));
+    N_Vector* Y = (N_Vector *) malloc(nsum * sizeof(N_Vector));
 
-    for (i=0; i<nsum; i++) {
+    for (int i=0; i<nsum; i++) {
       Y[i] = X[i][0];
     }
 
@@ -2453,9 +2443,9 @@ int N_VLinearCombinationVectorArray_ParHyp(int nvec, int nsum,
   /* should have called N_VScaleVectorArray */
   if (nsum == 1) {
 
-    ctmp = (realtype*) malloc(nvec * sizeof(realtype));
+    realtype* ctmp = (realtype*) malloc(nvec * sizeof(realtype));
 
-    for (j=0; j<nvec; j++) {
+    for (int j=0; j<nvec; j++) {
       ctmp[j] = c[0];
     }
 
@@ -2478,9 +2468,13 @@ int N_VLinearCombinationVectorArray_ParHyp(int nvec, int nsum,
   /* get vector length */
   N = NV_LOCLENGTH_PH(Z[0]);
 
-  /*
-   * X[0][j] += c[i]*X[i][j], i = 1,...,nvec-1
-   */
+#if defined(SUNDIALS_HYPRE_BACKENDS_SERIAL)
+  int          i; /* vector arrays index in summation [0,nsum) */
+  int          j; /* vector index in vector array     [0,nvec) */
+  sunindextype k; /* element index in vector          [0,N)    */
+  realtype*    xd=NULL;
+  realtype*    zd=NULL;
+  /* X[0][j] += c[i]*X[i][j], i = 1,...,nvec-1 */
   if ((X[0] == Z) && (c[0] == ONE)) {
     for (j=0; j<nvec; j++) {
       zd = NV_DATA_PH(Z[j]);
@@ -2494,9 +2488,7 @@ int N_VLinearCombinationVectorArray_ParHyp(int nvec, int nsum,
     return(0);
   }
 
-  /*
-   * X[0][j] = c[0] * X[0][j] + sum{ c[i] * X[i][j] }, i = 1,...,nvec-1
-   */
+  /* X[0][j] = c[0] * X[0][j] + sum{ c[i] * X[i][j] }, i = 1,...,nvec-1 */
   if (X[0] == Z) {
     for (j=0; j<nvec; j++) {
       zd = NV_DATA_PH(Z[j]);
@@ -2513,9 +2505,7 @@ int N_VLinearCombinationVectorArray_ParHyp(int nvec, int nsum,
     return(0);
   }
 
-  /*
-   * Z[j] = sum{ c[i] * X[i][j] }, i = 0,...,nvec-1
-   */
+  /* Z[j] = sum{ c[i] * X[i][j] }, i = 0,...,nvec-1 */
   for (j=0; j<nvec; j++) {
     xd = NV_DATA_PH(X[0][j]);
     zd = NV_DATA_PH(Z[j]);
@@ -2529,6 +2519,32 @@ int N_VLinearCombinationVectorArray_ParHyp(int nvec, int nsum,
       }
     }
   }
+#elif defined(SUNDIALS_HYPRE_BACKENDS_CUDA_OR_HIP)
+  size_t grid, block, shMemSize;
+  NV_ADD_LANG_PREFIX_PH(Stream_t) stream;
+  realtype*  cd = NULL;
+  realtype** Xd = NULL;
+  realtype** Zd = NULL;
+
+  NV_CATCH_AND_RETURN_PH(FusedBuffer_Init(Z[0], nsum, nvec + nvec * nsum),        -1)
+  NV_CATCH_AND_RETURN_PH(FusedBuffer_CopyRealArray(Z[0], c, nsum, &cdata),        -1)
+  NV_CATCH_AND_RETURN_PH(FusedBuffer_CopyPtrArray1D(Z[0], Z, nvec, &zdata),       -1)
+  NV_CATCH_AND_RETURN_PH(FusedBuffer_CopyPtrArray2D(Z[0], X, nvec, nsum, &xdata), -1)
+  NV_CATCH_AND_RETURN_PH(FusedBuffer_CopyToDevice(Z[0]),                          -1)
+
+  NV_CATCH_AND_RETURN_PH(GetKernelParameters(Z[0], false, grid, block, shMemSize, stream), -1)
+
+  linearCombinationVectorArrayKernel<<<grid, block, shMemSize, stream>>>
+  (
+    nvec,
+    nsum,
+    cd,
+    Xd,
+    Zd,
+    N
+  );
+  PostKernelLaunch();
+#endif
   return(0);
 }
 
