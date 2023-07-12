@@ -2289,6 +2289,9 @@ int N_VScaleAddMultiVectorArray_ParHyp(int nvec, int nsum, realtype* a,
    * --------------------------- */
 
   if (nvec == 1) {
+    int       j, retval;
+    N_Vector* YY;
+    N_Vector* ZZ;
 
     /* should have called N_VLinearSum */
     if (nsum == 1) {
@@ -2297,10 +2300,10 @@ int N_VScaleAddMultiVectorArray_ParHyp(int nvec, int nsum, realtype* a,
     }
 
     /* should have called N_VScaleAddMulti */
-    N_Vector* YY = (N_Vector *) malloc(nsum * sizeof(N_Vector));
-    N_Vector* ZZ = (N_Vector *) malloc(nsum * sizeof(N_Vector));
+    YY = (N_Vector *) malloc(nsum * sizeof(N_Vector));
+    ZZ = (N_Vector *) malloc(nsum * sizeof(N_Vector));
 
-    for (int j=0; j<nsum; j++) {
+    for (j=0; j<nsum; j++) {
       YY[j] = Y[j][0];
       ZZ[j] = Z[j][0];
     }
@@ -2410,6 +2413,8 @@ int N_VLinearCombinationVectorArray_ParHyp(int nvec, int nsum,
    * --------------------------- */
 
   if (nvec == 1) {
+    int       i;
+    N_Vector* Y;
 
     /* should have called N_VScale */
     if (nsum == 1) {
@@ -2424,9 +2429,9 @@ int N_VLinearCombinationVectorArray_ParHyp(int nvec, int nsum,
     }
 
     /* should have called N_VLinearCombination */
-    N_Vector* Y = (N_Vector *) malloc(nsum * sizeof(N_Vector));
+    Y = (N_Vector *) malloc(nsum * sizeof(N_Vector));
 
-    for (int i=0; i<nsum; i++) {
+    for (i=0; i<nsum; i++) {
       Y[i] = X[i][0];
     }
 
@@ -2442,10 +2447,12 @@ int N_VLinearCombinationVectorArray_ParHyp(int nvec, int nsum,
 
   /* should have called N_VScaleVectorArray */
   if (nsum == 1) {
+    int       j;
+    realtype* ctmp;
 
-    realtype* ctmp = (realtype*) malloc(nvec * sizeof(realtype));
+    ctmp = (realtype*) malloc(nvec * sizeof(realtype));
 
-    for (int j=0; j<nvec; j++) {
+    for (j=0; j<nvec; j++) {
       ctmp[j] = c[0];
     }
 
@@ -2526,11 +2533,11 @@ int N_VLinearCombinationVectorArray_ParHyp(int nvec, int nsum,
   realtype** Xd = NULL;
   realtype** Zd = NULL;
 
-  NV_CATCH_AND_RETURN_PH(FusedBuffer_Init(Z[0], nsum, nvec + nvec * nsum),        -1)
-  NV_CATCH_AND_RETURN_PH(FusedBuffer_CopyRealArray(Z[0], c, nsum, &cdata),        -1)
-  NV_CATCH_AND_RETURN_PH(FusedBuffer_CopyPtrArray1D(Z[0], Z, nvec, &zdata),       -1)
-  NV_CATCH_AND_RETURN_PH(FusedBuffer_CopyPtrArray2D(Z[0], X, nvec, nsum, &xdata), -1)
-  NV_CATCH_AND_RETURN_PH(FusedBuffer_CopyToDevice(Z[0]),                          -1)
+  NV_CATCH_AND_RETURN_PH(FusedBuffer_Init(Z[0], nsum, nvec + nvec * nsum),     -1)
+  NV_CATCH_AND_RETURN_PH(FusedBuffer_CopyRealArray(Z[0], c, nsum, &cd),        -1)
+  NV_CATCH_AND_RETURN_PH(FusedBuffer_CopyPtrArray2D(Z[0], X, nvec, nsum, &Xd), -1)
+  NV_CATCH_AND_RETURN_PH(FusedBuffer_CopyPtrArray1D(Z[0], Z, nvec, &Zd),       -1)
+  NV_CATCH_AND_RETURN_PH(FusedBuffer_CopyToDevice(Z[0]),                       -1)
 
   NV_CATCH_AND_RETURN_PH(GetKernelParameters(Z[0], false, grid, block, shMemSize, stream), -1)
 
