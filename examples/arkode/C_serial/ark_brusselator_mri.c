@@ -171,7 +171,7 @@ int main()
 
   /* Set the Lagrange interpolation module */
   retval = MRIStepSetInterpolantType(arkode_mem, ARK_INTERP_LAGRANGE);
-  if (check_retval(&retval, "ARKStepSetInterpolantType", 1)) return 1;
+  if (check_retval(&retval, "MRIStepSetInterpolantType", 1)) return 1;
 
   /*
    * Integrate ODE

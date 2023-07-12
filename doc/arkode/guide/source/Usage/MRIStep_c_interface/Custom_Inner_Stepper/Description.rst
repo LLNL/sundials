@@ -399,10 +399,16 @@ following member functions:
    **Example codes:**
       * ``examples/arkode/CXX_parallel/ark_diffusion_reaction_p.cpp``
 
-   **Notes:**
+   .. note::
+   
       This function will instead be required by MRIStep if: the Hermite interpolation
       module is used, the user requests temporal root-finding, or the user requests the
       now-deprecated "bootstrap" predictor method (see :c:func:`MRIStepSetPredictorMethod`).
+      
+      .. versionchanged:: 5.6.0
+
+         This function was made optional
+
 
 .. c:type:: int (*MRIStepInnerResetFn)(MRIStepInnerStepper stepper, realtype tR, N_Vector vR)
 

@@ -1776,9 +1776,7 @@ void arkFreeVectors(ARKodeMem ark_mem)
   arkFreeVec(ark_mem, &ark_mem->tempv3);
   arkFreeVec(ark_mem, &ark_mem->tempv4);
   arkFreeVec(ark_mem, &ark_mem->yn);
-  if (ark_mem->fn != NULL) {
     arkFreeVec(ark_mem, &ark_mem->fn);
-  }
   arkFreeVec(ark_mem, &ark_mem->Vabstol);
   arkFreeVec(ark_mem, &ark_mem->constraints);
 }
