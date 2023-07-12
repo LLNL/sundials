@@ -2000,10 +2000,7 @@ int N_VLinearSumVectorArray_ParHyp(int nvec,
 
 int N_VScaleVectorArray_ParHyp(int nvec, realtype* c, N_Vector* X, N_Vector* Z)
 {
-  int          i;
-  sunindextype j, N;
-  realtype*    xd=NULL;
-  realtype*    zd=NULL;
+  sunindextype N;
 
   /* invalid number of vectors */
   if (nvec < 1) return(-1);
@@ -2017,9 +2014,11 @@ int N_VScaleVectorArray_ParHyp(int nvec, realtype* c, N_Vector* X, N_Vector* Z)
   /* get vector length */
   N = NV_LOCLENGTH_PH(Z[0]);
 
-  /*
-   * X[i] *= c[i]
-   */
+#if defined(SUNDIALS_HYPRE_BACKENDS_SERIAL)
+  sunindextype i, j;
+  realtype*    xd=NULL;
+  realtype*    zd=NULL;
+  /* X[i] *= c[i] */
   if (X == Z) {
     for (i=0; i<nvec; i++) {
       xd = NV_DATA_PH(X[i]);
@@ -2027,20 +2026,43 @@ int N_VScaleVectorArray_ParHyp(int nvec, realtype* c, N_Vector* X, N_Vector* Z)
         xd[j] *= c[i];
       }
     }
-    return(0);
   }
 
-  /*
-   * Z[i] = c[i] * X[i]
-   */
-  for (i=0; i<nvec; i++) {
-    xd = NV_DATA_PH(X[i]);
-    zd = NV_DATA_PH(Z[i]);
-    for (j=0; j<N; j++) {
-      zd[j] = c[i] * xd[j];
+  /* Z[i] = c[i] * X[i] */
+  else {
+    for (i=0; i<nvec; i++) {
+      xd = NV_DATA_PH(X[i]);
+      zd = NV_DATA_PH(Z[i]);
+      for (j=0; j<N; j++) {
+        zd[j] = c[i] * xd[j];
+      }
     }
   }
+#elif defined(SUNDIALS_HYPRE_BACKENDS_CUDA_OR_HIP)
+  size_t grid, block, shMemSize;
+  NV_ADD_LANG_PREFIX_PH(Stream_t) stream;
+  realtype*  cd = NULL;
+  realtype** Xd = NULL;
+  realtype** Zd = NULL;
 
+  NV_CATCH_AND_RETURN_PH(FusedBuffer_Init(Z[0], nvec, 2 * nvec),         -1)
+  NV_CATCH_AND_RETURN_PH(FusedBuffer_CopyRealArray(Z[0], c, nvec, &cd),  -1)
+  NV_CATCH_AND_RETURN_PH(FusedBuffer_CopyPtrArray1D(Z[0], X, nvec, &Xd), -1)
+  NV_CATCH_AND_RETURN_PH(FusedBuffer_CopyPtrArray1D(Z[0], Z, nvec, &Zd), -1)
+  NV_CATCH_AND_RETURN_PH(FusedBuffer_CopyToDevice(Z[0]),                 -1)
+
+  NV_CATCH_AND_RETURN_PH(GetKernelParameters(Z[0], false, grid, block, shMemSize, stream), -1)
+
+  scaleVectorArrayKernel<<<grid, block, shMemSize, stream>>>
+  (
+    nvec,
+    cd,
+    Xd,
+    Zd,
+    N
+  );
+  PostKernelLaunch();
+#endif
   return(0);
 }
 
