@@ -2197,12 +2197,8 @@ int N_VWrmsNormVectorArray_ParHyp(int nvec, N_Vector* X, N_Vector* W, realtype* 
 int N_VWrmsNormMaskVectorArray_ParHyp(int nvec, N_Vector* X, N_Vector* W,
                                         N_Vector id, realtype* nrm)
 {
-  int          i, retval;
-  sunindextype j, Nl, Ng;
-  realtype*    wd=NULL;
-  realtype*    xd=NULL;
+  sunindextype i, Nl, Ng;
   realtype*    idd=NULL;
-  MPI_Comm     comm;
 
   /* invalid number of vectors */
   if (nvec < 1) return(-1);
@@ -2216,9 +2212,12 @@ int N_VWrmsNormMaskVectorArray_ParHyp(int nvec, N_Vector* X, N_Vector* W,
   /* get vector lengths, communicator, and mask data */
   Nl   = NV_LOCLENGTH_PH(X[0]);
   Ng   = NV_GLOBLENGTH_PH(X[0]);
-  comm = NV_COMM_PH(X[0]);
   idd  = NV_DATA_PH(id);
 
+#if defined(SUNDIALS_HYPRE_BACKENDS_SERIAL)
+  sunindextype j;
+  realtype*    xd=NULL;
+  realtype*    wd=NULL;
   /* compute the WRMS norm for each vector in the vector array */
   for (i=0; i<nvec; i++) {
     xd = NV_DATA_PH(X[i]);
@@ -2229,8 +2228,46 @@ int N_VWrmsNormMaskVectorArray_ParHyp(int nvec, N_Vector* X, N_Vector* W,
         nrm[i] += SUNSQR(xd[j] * wd[j]);
     }
   }
-  retval = MPI_Allreduce(MPI_IN_PLACE, nrm, nvec, MPI_SUNREALTYPE, MPI_SUM, comm);
+#elif defined(SUNDIALS_HYPRE_BACKENDS_CUDA_OR_HIP)
+  size_t grid, block, shMemSize;
+  NV_ADD_LANG_PREFIX_PH(Stream_t) stream;
+  realtype** Xd = NULL;
+  realtype** Wd = NULL;
 
+  NV_CATCH_AND_RETURN_PH(FusedBuffer_Init(W[0], 0, 2 * nvec),            -1)
+  NV_CATCH_AND_RETURN_PH(FusedBuffer_CopyPtrArray1D(W[0], X, nvec, &Xd), -1)
+  NV_CATCH_AND_RETURN_PH(FusedBuffer_CopyPtrArray1D(W[0], W, nvec, &Wd), -1)
+  NV_CATCH_AND_RETURN_PH(FusedBuffer_CopyToDevice(W[0]),                 -1)
+
+  NV_CATCH_AND_RETURN_PH(ReductionBuffer_Init(W[0], ZERO, nvec), -1)
+
+  NV_CATCH_AND_RETURN_PH(GetKernelParameters(W[0], true, grid, block, shMemSize, stream), -1)
+  grid = nvec;
+
+  /* Determine local square sum for each nvec, store in a device buffer (of length nvec) in W[0] */
+  wL2NormSquareMaskVectorArrayKernel<realtype, sunindextype, GridReducerAtomic><<<grid, block, shMemSize, stream>>>
+  (
+    nvec,
+    Xd,
+    Wd,
+    idd,
+    NV_DBUFFERp_PH(W[0]),
+    Nl
+  );
+  PostKernelLaunch();
+
+  /* Copy local square sums from device buffer to host buffer */
+  ReductionBuffer_CopyFromDevice(W[0], nvec);
+  for (i = 0; i < nvec; ++i)
+  {
+    nrm[i] = NV_HBUFFERp_PH(x)[i];
+  }
+#endif
+
+  /* Reduce local square sums into global square sums */
+  int retval = MPI_Allreduce(MPI_IN_PLACE, nrm, nvec, MPI_SUNREALTYPE, MPI_SUM, NV_COMM_PH(X[0]));
+
+  /* Root of mean of global square sums */
   for (i=0; i<nvec; i++)
     nrm[i] = SUNRsqrt(nrm[i]/Ng);
 
