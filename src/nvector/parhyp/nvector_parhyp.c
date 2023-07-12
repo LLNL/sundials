@@ -2890,7 +2890,7 @@ static int ReductionBuffer_Init(N_Vector v, realtype value, size_t n)
   N_PrivateVectorContent_ParHyp vcp = NV_PRIVATE_PH(v);
 
   // Define the allocation attempt function
-  int TryAlloc = [&](SUNMemory *memptr, SUNMemoryType mem_type)
+  auto TryAlloc = [&](SUNMemory *memptr, SUNMemoryType mem_type) -> int
   {
     return SUNMemoryHelper_Alloc(NV_MEMHELP_PH(v), memptr, bytes, mem_type, (void*) NV_STREAM_PH(v));
   };
@@ -2985,7 +2985,7 @@ static int FusedBuffer_Init(N_Vector v, int nreal, int nptr)
   N_PrivateVectorContent_ParHyp vcp = NV_PRIVATE_PH(v);
 
   // Define the allocation attempt function
-  int TryAlloc = [&](SUNMemory *memptr, SUNMemoryType mem_type)
+  auto TryAlloc = [&](SUNMemory *memptr, SUNMemoryType mem_type) -> int
   {
     return SUNMemoryHelper_Alloc(NV_MEMHELP_PH(v), memptr, bytes, mem_type, (void*) NV_STREAM_PH(v));
   };
