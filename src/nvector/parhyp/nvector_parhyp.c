@@ -1842,10 +1842,23 @@ int N_VScaleAddMulti_ParHyp(int nvec, realtype* a, N_Vector x, N_Vector* Y,
 int N_VDotProdMulti_ParHyp(int nvec, N_Vector x, N_Vector* Y,
                            realtype* dotprods)
 {
-  int          retval;
+  NV_CATCH_AND_RETURN_PH(N_VDotProdMultiLocal_ParHyp(nvec, x, Y, dotprods),  -1)
+  NV_CATCH_AND_RETURN_PH(N_VDotProdMultiAllReduce_ParHyp(nvec, x, dotprods), -1)
+  return(0);
+}
+
+
+/*
+ * -----------------------------------------------------------------
+ * Single buffer reduction operations
+ * -----------------------------------------------------------------
+ */
+
+int N_VDotProdMultiLocal_ParHyp(int nvec, N_Vector x, N_Vector* Y,
+                                realtype* dotprods)
+{
   sunindextype N;
   realtype*    xd=NULL;
-  MPI_Comm     comm;
 
   /* invalid number of vectors */
   if (nvec < 1) return(-1);
@@ -1859,9 +1872,8 @@ int N_VDotProdMulti_ParHyp(int nvec, N_Vector x, N_Vector* Y,
   /* get vector length, data array, and communicator */
   N    = NV_LOCLENGTH_PH(x);
   xd   = NV_DATA_PH(x);
-  comm = NV_COMM_PH(x);
 
-  #if defined(SUNDIALS_HYPRE_BACKENDS_SERIAL)
+#if defined(SUNDIALS_HYPRE_BACKENDS_SERIAL)
   sunindextype i, j;
   realtype*    yd=NULL;
   /* compute multiple dot products */
@@ -1903,41 +1915,6 @@ int N_VDotProdMulti_ParHyp(int nvec, N_Vector x, N_Vector* Y,
     dotprods[i] = NV_HBUFFERp_PH(x)[i];
   }
 #endif
-  retval = MPI_Allreduce(MPI_IN_PLACE, dotprods, nvec, MPI_SUNREALTYPE, MPI_SUM, comm);
-  return retval == MPI_SUCCESS ? 0 : -1;
-}
-
-
-/*
- * -----------------------------------------------------------------
- * Single buffer reduction operations
- * -----------------------------------------------------------------
- */
-
-int N_VDotProdMultiLocal_ParHyp(int nvec, N_Vector x, N_Vector* Y,
-                                realtype* dotprods)
-{
-  int          i;
-  sunindextype j, N;
-  realtype*    xd=NULL;
-  realtype*    yd=NULL;
-
-  /* invalid number of vectors */
-  if (nvec < 1) return(-1);
-
-  /* get vector length, data array, and communicator */
-  N  = NV_LOCLENGTH_PH(x);
-  xd = NV_DATA_PH(x);
-
-  /* compute multiple dot products */
-  for (i=0; i<nvec; i++) {
-    yd = NV_DATA_PH(Y[i]);
-    dotprods[i] = ZERO;
-    for (j=0; j<N; j++) {
-      dotprods[i] += xd[j] * yd[j];
-    }
-  }
-
   return(0);
 }
 
@@ -1945,8 +1922,7 @@ int N_VDotProdMultiLocal_ParHyp(int nvec, N_Vector x, N_Vector* Y,
 int N_VDotProdMultiAllReduce_ParHyp(int nvec, N_Vector x, realtype* sum)
 {
   int retval;
-  retval = MPI_Allreduce(MPI_IN_PLACE, sum, nvec, MPI_SUNREALTYPE, MPI_SUM,
-                         NV_COMM_PH(x));
+  retval = MPI_Allreduce(MPI_IN_PLACE, sum, nvec, MPI_SUNREALTYPE, MPI_SUM, NV_COMM_PH(x));
   return retval == MPI_SUCCESS ? 0 : -1;
 }
 
