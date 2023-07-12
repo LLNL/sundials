@@ -2278,11 +2278,7 @@ int N_VWrmsNormMaskVectorArray_ParHyp(int nvec, N_Vector* X, N_Vector* W,
 int N_VScaleAddMultiVectorArray_ParHyp(int nvec, int nsum, realtype* a,
                                           N_Vector* X, N_Vector** Y, N_Vector** Z)
 {
-  int          i, j;
-  sunindextype k, N;
-  realtype*    xd=NULL;
-  realtype*    yd=NULL;
-  realtype*    zd=NULL;
+  sunindextype N;
 
   int          retval;
   N_Vector*    YY;
@@ -2334,12 +2330,14 @@ int N_VScaleAddMultiVectorArray_ParHyp(int nvec, int nsum, realtype* a,
    * Compute multiple linear sums
    * ---------------------------- */
 
-  /* get vector length */
   N  = NV_LOCLENGTH_PH(X[0]);
 
-  /*
-   * Y[i][j] += a[i] * x[j]
-   */
+#if defined(SUNDIALS_HYPRE_BACKENDS_SERIAL)
+  sunindextype i, j, k;
+  realtype*    xd=NULL;
+  realtype*    yd=NULL;
+  realtype*    zd=NULL;
+  /* Y[i][j] += a[i] * x[j] */
   if (Y == Z) {
     for (i=0; i<nvec; i++) {
       xd = NV_DATA_PH(X[i]);
@@ -2350,22 +2348,50 @@ int N_VScaleAddMultiVectorArray_ParHyp(int nvec, int nsum, realtype* a,
         }
       }
     }
-    return(0);
   }
 
-  /*
-   * Z[i][j] = Y[i][j] + a[i] * x[j]
-   */
-  for (i=0; i<nvec; i++) {
-    xd = NV_DATA_PH(X[i]);
-    for (j=0; j<nsum; j++) {
-      yd = NV_DATA_PH(Y[j][i]);
-      zd = NV_DATA_PH(Z[j][i]);
-      for (k=0; k<N; k++) {
-        zd[k] = a[j] * xd[k] + yd[k];
+  /* Z[i][j] = Y[i][j] + a[i] * x[j] */
+  else {
+    for (i=0; i<nvec; i++) {
+      xd = NV_DATA_PH(X[i]);
+      for (j=0; j<nsum; j++) {
+        yd = NV_DATA_PH(Y[j][i]);
+        zd = NV_DATA_PH(Z[j][i]);
+        for (k=0; k<N; k++) {
+          zd[k] = a[j] * xd[k] + yd[k];
+        }
       }
     }
   }
+#elif defined(SUNDIALS_HYPRE_BACKENDS_CUDA_OR_HIP)
+  size_t grid, block, shMemSize;
+  NV_ADD_LANG_PREFIX_PH(Stream_t) stream;
+  realtype*  cd = NULL;
+  realtype** Xd = NULL;
+  realtype** Yd = NULL;
+  realtype** Zd = NULL;
+
+  NV_CATCH_AND_RETURN_PH(FusedBuffer_Init(X[0], nsum, nvec + 2 * nvec * nsum), -1)
+  NV_CATCH_AND_RETURN_PH(FusedBuffer_CopyRealArray(X[0], c, nsum, &cd),        -1)
+  NV_CATCH_AND_RETURN_PH(FusedBuffer_CopyPtrArray1D(X[0], X, nvec, &Xd),       -1)
+  NV_CATCH_AND_RETURN_PH(FusedBuffer_CopyPtrArray2D(X[0], Y, nvec, nsum, &Yd), -1)
+  NV_CATCH_AND_RETURN_PH(FusedBuffer_CopyPtrArray2D(X[0], Z, nvec, nsum, &Zd), -1)
+  NV_CATCH_AND_RETURN_PH(FusedBuffer_CopyToDevice(X[0]),                       -1)
+
+  NV_CATCH_AND_RETURN_PH(GetKernelParameters(X[0], false, grid, block, shMemSize, stream), -1)
+
+  scaleAddMultiVectorArrayKernel<<<grid, block, shMemSize, stream>>>
+  (
+    nvec,
+    nsum,
+    cd,
+    Xd,
+    Yd,
+    Zd,
+    N
+  );
+  PostKernelLaunch();
+#endif
   return(0);
 }
 
