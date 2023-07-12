@@ -1,17 +1,32 @@
 List of serial CVODE F2003 examples
 
-    cv_advdiff_bnd_f2003.f90             : 
+    cv_advdiff_bnd_f2003.f90             : simple example problem of advection-diffusion 
+                                           equation in 2D (newton, banded, user-supplied jacobian)
+
     cv_analytic_fp_f2003.f90             : simple example problem with an analytical solution (fixedpoint)
+
     cv_analytic_sys_dns_f2003.f90        : simple example problem with an analytical solution (newton, dense)
+
     cv_analytic_sys_dns_jac_f2003.f90    : simple example problem with an analytical solution (newton, dense, user-supplied jacobian)
+
     cv_analytic_sys_klu_f2003.f90        : simple example problem with an analytical solution (newton, KLU)
-    cv_brusselator_dns_f2003.f90         : brusselator problem from chemical kinetics (newton, dense) 
-    cv_diurnal_kry_bp_f2003.f90          : 
-    cv_diurnal_kry_f2003.f90             : 
-    cv_roberts_dns_constraints_f2003.f90 : 
-    cv_roberts_dns_f2003.f90             : 
-    cv_roberts_dnsL_f2003.f90            : 
-    cv_roberts_klu_f2003.f90             : 
+
+    cv_brusselator_dns_f2003.f90         : brusselator problem from chemical kinetics (newton, dense)
+
+    cv_diurnal_kry_bp_f2003.f90          : ODE generated from 2-species diurnal kinetics advection-diffusion 
+                                           PDE system in 2D space (newton, banded, banded preconditioner)
+
+    cv_diurnal_kry_f2003.f90             : same as above except solved via user-defined preconditioner 
+                                           (newton, GMRES, user-supplied preconditioner/jacobian/LU)
+
+    cv_roberts_dns_constraints_f2003.f90 : robertson problem from chemical kinetics with constraints enforced 
+                                           (newton, dense, user-supplied jacobian)
+
+    cv_roberts_dns_f2003.f90             : robertson problem from chemical kinetics (newton, dense, user-supplied jacobian)
+
+    cv_roberts_dnsL_f2003.f90            : robertson problem from chemical kinetics using LAPack (newton, dense, user-supplied jacobian)
+    
+    cv_roberts_klu_f2003.f90             : robertson problem from chemical kinetics using KLU solver (newton, sparse, user-supplied jacobian)
 
 The following CMake command was used to configure SUNDIALS:
 

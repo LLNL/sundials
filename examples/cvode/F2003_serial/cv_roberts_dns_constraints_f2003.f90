@@ -1,6 +1,10 @@
 ! ------------------------------------------------------------------
-! Programmer(s): Daniel R. Reynolds @ SMU
+! Programmer(s): Jimmy Almgren-Bell @ LLNL
+!   Based on prior version by: Scott D. Cohen, Alan C. Hindmarsh and
+!                              Radu Serban @ LLNL
+!
 !                modified by Daniel M. Margolis @ SMU
+!
 ! ------------------------------------------------------------------
 ! SUNDIALS Copyright Start
 ! Copyright (c) 2002-2023, Lawrence Livermore National Security

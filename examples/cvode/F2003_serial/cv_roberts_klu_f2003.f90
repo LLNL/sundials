@@ -1,5 +1,6 @@
 ! ------------------------------------------------------------------
-! Programmer(s): Daniel R. Reynolds @ SMU
+! Programmer(s): Ting Yan @ SMU
+!                Based on cvRoberts_klu.c and modified to Fortran 77
 !                modified by Daniel M. Margolis @ SMU
 ! ------------------------------------------------------------------
 ! SUNDIALS Copyright Start

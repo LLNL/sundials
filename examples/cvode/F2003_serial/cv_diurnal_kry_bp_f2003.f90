@@ -1,7 +1,5 @@
 ! ------------------------------------------------------------------
-! Programmer(s): David J. Gardner, Cody J. Balos @ LLNL
-!                modified by Jean M. Sexton @ LBL
-!                modified by Daniel M. Margolis @ SMU
+! Programmer(s): Daniel M. Margolis @ SMU
 ! ------------------------------------------------------------------
 ! SUNDIALS Copyright Start
 ! Copyright (c) 2002-2023, Lawrence Livermore National Security

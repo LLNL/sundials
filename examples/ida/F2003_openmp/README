@@ -1,6 +1,6 @@
-List of parallel KINSOL F2003 examples
+List of serial KINSOL F2003 examples
 
-    kinDiagon_kry_f2003.f90  : Diagonal algebraic equation (GMRES)
+    ida_heat2D_kry_omp_f2003.f90  : 2D heat equation (GMRES, user-supplied preconditioner)
 
 The following CMake command was used to configure SUNDIALS:
 
