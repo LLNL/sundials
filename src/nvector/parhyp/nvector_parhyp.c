@@ -1829,6 +1829,7 @@ int N_VScaleAddMulti_ParHyp(int nvec, realtype* a, N_Vector x, N_Vector* Y,
   (
     nvec,
     cd,
+    xd,
     Yd,
     Zd,
     N
@@ -1909,7 +1910,7 @@ int N_VDotProdMultiLocal_ParHyp(int nvec, N_Vector x, N_Vector* Y,
   PostKernelLaunch();
 
   // Get result from the GPU
-  CopyReductionBufferFromDevice(x, nvec);
+  ReductionBuffer_CopyFromDevice(x, nvec);
   for (sunindextype i = 0; i < nvec; ++i)
   {
     dotprods[i] = NV_HBUFFERp_PH(x)[i];
