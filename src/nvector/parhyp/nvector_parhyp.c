@@ -2179,7 +2179,7 @@ int N_VWrmsNormVectorArray_ParHyp(int nvec, N_Vector* X, N_Vector* W, realtype* 
   ReductionBuffer_CopyFromDevice(W[0], nvec);
   for (i = 0; i < nvec; ++i)
   {
-    nrm[i] = NV_HBUFFERp_PH(x)[i];
+    nrm[i] = NV_HBUFFERp_PH(W[0])[i];
   }
 #endif
 
@@ -2260,7 +2260,7 @@ int N_VWrmsNormMaskVectorArray_ParHyp(int nvec, N_Vector* X, N_Vector* W,
   ReductionBuffer_CopyFromDevice(W[0], nvec);
   for (i = 0; i < nvec; ++i)
   {
-    nrm[i] = NV_HBUFFERp_PH(x)[i];
+    nrm[i] = NV_HBUFFERp_PH(W[0])[i];
   }
 #endif
 
