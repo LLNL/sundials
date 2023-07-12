@@ -478,10 +478,10 @@ SUNDIALS_EXPORT int ARKStepCreateMRIStepInnerStepper(void *arkode_mem,
 /* Relaxation functions */
 SUNDIALS_EXPORT int ARKStepSetRelaxFn(void* arkode_mem, ARKRelaxFn rfn,
                                       ARKRelaxJacFn rjac);
-SUNDIALS_EXPORT int ARKStepSetRelaxBoundFactor(void* arkode_mem,
-                                               sunrealtype bound_factor);
 SUNDIALS_EXPORT int ARKStepSetRelaxEtaFail(void* arkode_mem,
                                            sunrealtype eta_rf);
+SUNDIALS_EXPORT int ARKStepSetRelaxLowerBound(void* arkode_mem,
+                                              sunrealtype lower);
 SUNDIALS_EXPORT int ARKStepSetRelaxMaxFails(void* arkode_mem, int max_fails);
 SUNDIALS_EXPORT int ARKStepSetRelaxMaxIters(void* arkode_mem, int max_iters);
 SUNDIALS_EXPORT int ARKStepSetRelaxSolver(void* arkode_mem,
@@ -490,6 +490,8 @@ SUNDIALS_EXPORT int ARKStepSetRelaxResTol(void* arkode_mem,
                                           sunrealtype res_tol);
 SUNDIALS_EXPORT int ARKStepSetRelaxTol(void* arkode_mem, sunrealtype rel_tol,
                                        sunrealtype abs_tol);
+SUNDIALS_EXPORT int ARKStepSetRelaxUpperBound(void* arkode_mem,
+                                              sunrealtype upper);
 SUNDIALS_EXPORT int ARKStepGetNumRelaxFnEvals(void* arkode_mem,
                                               long int* r_evals);
 SUNDIALS_EXPORT int ARKStepGetNumRelaxJacEvals(void* arkode_mem,

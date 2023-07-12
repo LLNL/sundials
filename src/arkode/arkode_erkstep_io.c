@@ -163,14 +163,14 @@ int ERKStepSetRelaxFn(void* arkode_mem, ARKRelaxFn rfn, ARKRelaxJacFn rjac)
                         erkStep_RelaxDeltaE, erkStep_GetOrder);
 }
 
-int ERKStepSetRelaxBoundFactor(void* arkode_mem, sunrealtype bound_factor)
-{
-  return arkRelaxSetBoundFactor(arkode_mem, bound_factor);
-}
-
 int ERKStepSetRelaxEtaFail(void* arkode_mem, sunrealtype eta_rf)
 {
   return arkRelaxSetEtaFail(arkode_mem, eta_rf);
+}
+
+int ERKStepSetRelaxLowerBound(void* arkode_mem, sunrealtype lower)
+{
+  return arkRelaxSetLowerBound(arkode_mem, lower);
 }
 
 int ERKStepSetRelaxMaxFails(void* arkode_mem, int max_fails)
@@ -197,6 +197,11 @@ int ERKStepSetRelaxTol(void* arkode_mem, sunrealtype rel_tol,
                        sunrealtype abs_tol)
 {
   return arkRelaxSetTol(arkode_mem, rel_tol, abs_tol);
+}
+
+int ERKStepSetRelaxUpperBound(void* arkode_mem, sunrealtype upper)
+{
+  return arkRelaxSetUpperBound(arkode_mem, upper);
 }
 
 int ERKStepGetNumRelaxFnEvals(void* arkode_mem, long int* r_evals)
