@@ -404,9 +404,10 @@ int arkRelaxSolve(ARKodeMem ark_mem, ARKodeRelaxMem relax_mem,
   }
 
   /* Check for bad relaxation value */
-  if (ark_mem->relax_mem->relax_param < relax_mem->lower_bound ||
-      ark_mem->relax_mem->relax_param > relax_mem->upper_bound)
+  if (SUNRabs(relax_mem->relax_param - ONE) >
+      relax_mem->bound_factor * SUNRabs(ark_mem->h))
   {
+    relax_mem->bound_fails++;
     return ARK_RELAX_SOLVE_RECV;
   }
 
@@ -427,6 +428,22 @@ int arkRelaxSolve(ARKodeMem ark_mem, ARKodeRelaxMem relax_mem,
  * Set functions
  * ---------------------------------------------------------------------------*/
 
+int arkRelaxSetBoundFactor(void* arkode_mem, sunrealtype bound_factor)
+{
+  int retval;
+  ARKodeMem ark_mem;
+  ARKodeRelaxMem relax_mem;
+
+  retval = arkRelaxAccessMem(arkode_mem, "arkRelaxSetBoundFactor", &ark_mem,
+                             &relax_mem);
+  if (retval) return retval;
+
+  if (bound_factor > ZERO) { relax_mem->bound_factor = bound_factor; }
+  else { relax_mem->bound_factor = ARK_RELAX_DEFAULT_BOUND_FACTOR; }
+
+  return ARK_SUCCESS;
+}
+
 int arkRelaxSetEtaFail(void* arkode_mem, sunrealtype eta_fail)
 {
   int retval;
@@ -437,24 +454,8 @@ int arkRelaxSetEtaFail(void* arkode_mem, sunrealtype eta_fail)
                              &relax_mem);
   if (retval) return retval;
 
-  if (eta_fail < SUN_RCONST(1.0)) relax_mem->eta_fail = eta_fail;
-  else relax_mem->eta_fail = ARK_RELAX_DEFAULT_ETA_FAIL;
-
-  return ARK_SUCCESS;
-}
-
-int arkRelaxSetLowerBound(void* arkode_mem, sunrealtype lower)
-{
-  int retval;
-  ARKodeMem ark_mem;
-  ARKodeRelaxMem relax_mem;
-
-  retval = arkRelaxAccessMem(arkode_mem, "arkRelaxSetLowerBound", &ark_mem,
-                             &relax_mem);
-  if (retval) return retval;
-
-  if (lower < SUN_RCONST(1.0)) relax_mem->lower_bound = lower;
-  else relax_mem->lower_bound = ARK_RELAX_DEFAULT_LOWER_BOUND;
+  if (eta_fail > ZERO && eta_fail < ONE) { relax_mem->eta_fail = eta_fail; }
+  else { relax_mem->eta_fail = ARK_RELAX_DEFAULT_ETA_FAIL; }
 
   return ARK_SUCCESS;
 }
@@ -469,8 +470,8 @@ int arkRelaxSetMaxFails(void* arkode_mem, int max_fails)
                              &relax_mem);
   if (retval) return retval;
 
-  if (max_fails > 0) relax_mem->max_fails = max_fails;
-  else relax_mem->max_fails = ARK_RELAX_DEFAULT_MAX_FAILS;
+  if (max_fails > 0) { relax_mem->max_fails = max_fails; }
+  else { relax_mem->max_fails = ARK_RELAX_DEFAULT_MAX_FAILS; }
 
   return ARK_SUCCESS;
 }
@@ -485,8 +486,8 @@ int arkRelaxSetMaxIters(void* arkode_mem, int max_iters)
                              &relax_mem);
   if (retval) return retval;
 
-  if (max_iters > 0) relax_mem->max_iters = max_iters;
-  else relax_mem->max_iters = ARK_RELAX_DEFAULT_MAX_ITERS;
+  if (max_iters > 0) { relax_mem->max_iters = max_iters; }
+  else { relax_mem->max_iters = ARK_RELAX_DEFAULT_MAX_ITERS; }
 
   return ARK_SUCCESS;
 }
@@ -516,8 +517,8 @@ int arkRelaxSetResTol(void* arkode_mem, sunrealtype res_tol)
                              &relax_mem);
   if (retval) return retval;
 
-  if (res_tol > SUN_RCONST(0.0)) relax_mem->res_tol = res_tol;
-  else relax_mem->res_tol = ARK_RELAX_DEFAULT_RES_TOL;
+  if (res_tol > ZERO) { relax_mem->res_tol = res_tol; }
+  else { relax_mem->res_tol = ARK_RELAX_DEFAULT_RES_TOL; }
 
   return ARK_SUCCESS;
 }
@@ -532,27 +533,11 @@ int arkRelaxSetTol(void* arkode_mem, sunrealtype rel_tol, sunrealtype abs_tol)
                              &relax_mem);
   if (retval) return retval;
 
-  if (rel_tol > SUN_RCONST(0.0)) relax_mem->rel_tol = rel_tol;
-  else relax_mem->rel_tol = ARK_RELAX_DEFAULT_REL_TOL;
+  if (rel_tol > ZERO) { relax_mem->rel_tol = rel_tol; }
+  else { relax_mem->rel_tol = ARK_RELAX_DEFAULT_REL_TOL; }
 
-  if (abs_tol > SUN_RCONST(0.0)) relax_mem->abs_tol = abs_tol;
-  else relax_mem->abs_tol = ARK_RELAX_DEFAULT_ABS_TOL;
-
-  return ARK_SUCCESS;
-}
-
-int arkRelaxSetUpperBound(void* arkode_mem, sunrealtype upper)
-{
-  int retval;
-  ARKodeMem ark_mem;
-  ARKodeRelaxMem relax_mem;
-
-  retval = arkRelaxAccessMem(arkode_mem, "arkRelaxSetUpperBound", &ark_mem,
-                             &relax_mem);
-  if (retval) return retval;
-
-  if (upper > SUN_RCONST(1.0)) relax_mem->upper_bound = upper;
-  else relax_mem->upper_bound = ARK_RELAX_DEFAULT_UPPER_BOUND;
+  if (abs_tol > ZERO) { relax_mem->abs_tol = abs_tol; }
+  else { relax_mem->abs_tol = ARK_RELAX_DEFAULT_ABS_TOL; }
 
   return ARK_SUCCESS;
 }
@@ -617,6 +602,21 @@ int arkRelaxGetNumRelaxSolveFails(void* arkode_mem, long int* fails)
   if (retval) return retval;
 
   *fails = relax_mem->nls_fails;
+
+  return ARK_SUCCESS;
+}
+
+int arkRelaxGetNumRelaxBoundFails(void* arkode_mem, long int* fails)
+{
+  int retval;
+  ARKodeMem ark_mem;
+  ARKodeRelaxMem relax_mem;
+
+  retval = arkRelaxAccessMem(arkode_mem, "arkRelaxGetNumRelaxBoundFails",
+                             &ark_mem, &relax_mem);
+  if (retval) return retval;
+
+  *fails = relax_mem->bound_fails;
 
   return ARK_SUCCESS;
 }
@@ -734,15 +734,14 @@ int arkRelaxCreate(void* arkode_mem, ARKRelaxFn relax_fn,
     memset(ark_mem->relax_mem, 0, sizeof(struct ARKodeRelaxMemRec));
 
     /* Set defaults */
-    ark_mem->relax_mem->max_fails   = ARK_RELAX_DEFAULT_MAX_FAILS;
-    ark_mem->relax_mem->lower_bound = ARK_RELAX_DEFAULT_LOWER_BOUND;
-    ark_mem->relax_mem->upper_bound = ARK_RELAX_DEFAULT_UPPER_BOUND;
-    ark_mem->relax_mem->eta_fail    = ARK_RELAX_DEFAULT_ETA_FAIL;
-    ark_mem->relax_mem->solver      = ARK_RELAX_NEWTON;
-    ark_mem->relax_mem->res_tol     = ARK_RELAX_DEFAULT_RES_TOL;
-    ark_mem->relax_mem->rel_tol     = ARK_RELAX_DEFAULT_REL_TOL;
-    ark_mem->relax_mem->abs_tol     = ARK_RELAX_DEFAULT_ABS_TOL;
-    ark_mem->relax_mem->max_iters   = ARK_RELAX_DEFAULT_MAX_ITERS;
+    ark_mem->relax_mem->max_fails    = ARK_RELAX_DEFAULT_MAX_FAILS;
+    ark_mem->relax_mem->bound_factor = ARK_RELAX_DEFAULT_BOUND_FACTOR;
+    ark_mem->relax_mem->eta_fail     = ARK_RELAX_DEFAULT_ETA_FAIL;
+    ark_mem->relax_mem->solver       = ARK_RELAX_NEWTON;
+    ark_mem->relax_mem->res_tol      = ARK_RELAX_DEFAULT_RES_TOL;
+    ark_mem->relax_mem->rel_tol      = ARK_RELAX_DEFAULT_REL_TOL;
+    ark_mem->relax_mem->abs_tol      = ARK_RELAX_DEFAULT_ABS_TOL;
+    ark_mem->relax_mem->max_iters    = ARK_RELAX_DEFAULT_MAX_ITERS;
 
     /* Initialize values */
     ark_mem->relax_mem->relax_param_prev = ONE;
@@ -798,15 +797,16 @@ int arkRelax(ARKodeMem ark_mem, int* relax_fails, realtype* dsm_inout,
     (*relax_fails)++;
 
     /* Check for max fails in a step */
-    if (*relax_fails == relax_mem->max_fails)
-      return ARK_RELAX_FAIL;
+    if (*relax_fails == relax_mem->max_fails) { return ARK_RELAX_FAIL; }
 
     /* Return with an error if |h| == hmin */
     if (SUNRabs(ark_mem->h) <= ark_mem->hmin * ONEPSM)
+    {
       return ARK_RELAX_FAIL;
+    }
 
     /* Return with error if using fixed step sizes */
-    if (ark_mem->fixedstep) return(ARK_RELAX_FAIL);
+    if (ark_mem->fixedstep) { return(ARK_RELAX_FAIL); }
 
     /* Cut step size and try again */
     ark_mem->eta = relax_mem->eta_fail;
