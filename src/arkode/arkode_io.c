@@ -1747,11 +1747,6 @@ int arkPrintAllStats(void *arkode_mem, FILE *outfile, SUNOutputFormat fmt)
       ark_root_mem = (ARKodeRootMem) ark_mem->root_mem;
       fprintf(outfile, "Root fn evals                = %ld\n", ark_root_mem->nge);
     }
-    if (ark_mem->relax_enabled)
-    {
-      retval = arkRelaxPrintAllStats(arkode_mem, outfile, fmt);
-      if (retval != ARK_SUCCESS) return(retval);
-    }
     break;
   case SUN_OUTPUTFORMAT_CSV:
     fprintf(outfile, "Time,%"RSYM, ark_mem->tcur);
@@ -1770,16 +1765,18 @@ int arkPrintAllStats(void *arkode_mem, FILE *outfile, SUNOutputFormat fmt)
       ark_root_mem = (ARKodeRootMem) ark_mem->root_mem;
       fprintf(outfile, ",Roof fn evals,%ld", ark_root_mem->nge);
     }
-    if (ark_mem->relax_enabled)
-    {
-      retval = arkRelaxPrintAllStats(arkode_mem, outfile, fmt);
-      if (retval != ARK_SUCCESS) return(retval);
-    }
     break;
   default:
     arkProcessError(ark_mem, ARK_ILL_INPUT, "ARKODE", "arkPrintAllStats",
                     "Invalid formatting option.");
     return(ARK_ILL_INPUT);
+  }
+
+  /* Print relaxation stats */
+  if (ark_mem->relax_enabled)
+  {
+    retval = arkRelaxPrintAllStats(arkode_mem, outfile, fmt);
+    if (retval != ARK_SUCCESS) return(retval);
   }
 
   return(ARK_SUCCESS);
