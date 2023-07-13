@@ -214,9 +214,12 @@ static int arkRelaxBrentSolve(ARKodeMem ark_mem)
   }
   if (fb < ZERO) { return ARK_RELAX_SOLVE_RECV; }
 
-  /* Initialize values bracketing values to lower bound */
+  /* Initialize values bracketing values to lower bound and updates */
   xc = xa;
   fc = fa;
+
+  old_update = ZERO;
+  new_update = ZERO;
 
   /* Find root */
   for (i = 0; i < ark_mem->relax_mem->max_iters; i++)
