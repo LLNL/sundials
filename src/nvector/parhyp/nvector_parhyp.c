@@ -177,7 +177,7 @@ using namespace sundials::hip::impl;
 
 #if defined(SUNDIALS_HYPRE_BACKENDS_CUDA_OR_HIP)
 #define NV_MEMHELP_PH(v)        (NV_CONTENT_PH(v)->mem_helper)
-#define NV_MEMSIZE_PH(v)        (NV_CONTENT_PH(v)->length * sizeof(realtype))
+#define NV_MEMSIZE_PH(v)        (NV_CONTENT_PH(v)->local_length * sizeof(realtype))
 #define NV_STREAM_PH(v)         (NV_CONTENT_PH(v)->stream_exec_policy->stream())
 #define NV_STREAM_POLICY_PH(v)  (NV_CONTENT_PH(v)->stream_exec_policy)
 #define NV_REDUCE_POLICY_PH(v)  (NV_CONTENT_PH(v)->reduce_exec_policy)
@@ -2562,48 +2562,92 @@ int N_VLinearCombinationVectorArray_ParHyp(int nvec, int nsum,
  * -----------------------------------------------------------------
  */
 
-int N_VBufSize_ParHyp(N_Vector x, sunindextype *size)
+int N_VBufSize_ParHyp(N_Vector x, sunindextype* size)
 {
   if (x == NULL) return(-1);
+#if defined(SUNDIALS_HYPRE_BACKENDS_SERIAL)
   *size = NV_LOCLENGTH_PH(x) * ((sunindextype)sizeof(realtype));
+#elif defined(SUNDIALS_HYPRE_BACKENDS_CUDA_OR_HIP)
+  *size = (sunindextype)NV_MEMSIZE_PH(x);
+#endif
   return(0);
 }
 
 
-int N_VBufPack_ParHyp(N_Vector x, void *buf)
+int N_VBufPack_ParHyp(N_Vector x, void* buf)
 {
-  sunindextype N;
-  realtype     *xd = NULL;
-  realtype     *bd = NULL;
-
   if (x == NULL || buf == NULL) return(-1);
+  
+  realtype* xd = NV_DATA_PH(x);
 
-  N  = NV_LOCLENGTH_PH(x);
-  xd = NV_DATA_PH(x);
-  bd = (realtype*) buf;
-
-  for (sunindextype i = 0; i < N; i++)
+#if defined(SUNDIALS_HYPRE_BACKENDS_SERIAL)
+  realtype* bd = (realtype*) buf;
+  for (sunindextype i = 0; i < NV_LOCLENGTH_PH(x); i++)
     bd[i] = xd[i];
+#elif defined(SUNDIALS_HYPRE_BACKENDS_CUDA_OR_HIP)
+  NV_ADD_LANG_PREFIX_PH(Error_t) err;
 
+  /* Create SUNMemory wrappers for buf and device data */
+  SUNMemory buf_mem = SUNMemoryHelper_Wrap(buf, SUNMEMTYPE_HOST);
+  SUNMemory dev_mem = SUNMemoryHelper_Wrap((void*) xd, SUNMEMTYPE_DEVICE);
+  NV_CATCH_AND_RETURN_PH(buf_mem == NULL || dev_mem == NULL, -1)
+
+  /* Use SUNMemoryHelper_CopyAsync functionality to copy from device to buf */
+  NV_CATCH_MSG_AND_RETURN_PH(
+    SUNMemoryHelper_CopyAsync(NV_MEMHELP_PH(x),
+                                        buf_mem,
+                                        dev_mem,
+                                        NV_MEMSIZE_PH(x),
+                                        (void*) NV_STREAM_PH(x)),
+    "SUNMemoryHelper_CopyAsync failed to copy from device to buffer\n",-1);
+
+  /* Synchronize current stream */
+  err = cudaStreamSynchronize(*NV_STREAM_PH(x));
+  NV_CATCH_AND_RETURN_PH(!NV_VERIFY_CALL_PH(err), -1)
+
+  /* Free the wrappers */
+  SUNMemoryHelper_Dealloc(NV_MEMHELP_PH(x), buf_mem, (void*) NV_STREAM_PH(x));
+  SUNMemoryHelper_Dealloc(NV_MEMHELP_PH(x), dev_mem, (void*) NV_STREAM_PH(x));
+#endif
   return(0);
 }
 
 
-int N_VBufUnpack_ParHyp(N_Vector x, void *buf)
+int N_VBufUnpack_ParHyp(N_Vector x, void* buf)
 {
-  sunindextype N;
-  realtype     *xd = NULL;
-  realtype     *bd = NULL;
-
   if (x == NULL || buf == NULL) return(-1);
 
-  N  = NV_LOCLENGTH_PH(x);
-  xd = NV_DATA_PH(x);
-  bd = (realtype*) buf;
+  realtype* xd = NV_DATA_PH(x);
 
-  for (sunindextype i = 0; i < N; i++)
+#if defined(SUNDIALS_HYPRE_BACKENDS_SERIAL)
+  realtype* bd = (realtype*) buf;
+  for (sunindextype i = 0; i < NV_LOCLENGTH_PH(x); i++)
     xd[i] = bd[i];
+#elif defined(SUNDIALS_HYPRE_BACKENDS_CUDA_OR_HIP)
+  NV_ADD_LANG_PREFIX_PH(Error_t) err;
 
+  /* Create SUNMemory wrappers for buf and device data */
+  SUNMemory buf_mem = SUNMemoryHelper_Wrap(buf, SUNMEMTYPE_HOST);
+  SUNMemory dev_mem = SUNMemoryHelper_Wrap((void*) xd, SUNMEMTYPE_DEVICE);
+  NV_CATCH_AND_RETURN_PH(buf_mem == NULL || dev_mem == NULL, -1)
+
+  /* Use SUNMemoryHelper_CopyAsync functionality to copy from device to buf */
+  NV_CATCH_MSG_AND_RETURN_PH(
+    SUNMemoryHelper_CopyAsync(NV_MEMHELP_PH(x),
+                                        dev_mem,
+                                        buf_mem,
+                                        NV_MEMSIZE_PH(x),
+                                        (void*) NV_STREAM_PH(x)),
+    "SUNMemoryHelper_CopyAsync failed to copy from device to buffer\n",-1);
+
+  /* Synchronize current stream */
+  err = cudaStreamSynchronize(*NV_STREAM_PH(x));
+  NV_CATCH_AND_RETURN_PH(!NV_VERIFY_CALL_PH(err), -1)
+
+  /* Free the wrappers */
+  SUNMemoryHelper_Dealloc(NV_MEMHELP_PH(x), buf_mem, (void*) NV_STREAM_PH(x));
+  SUNMemoryHelper_Dealloc(NV_MEMHELP_PH(x), dev_mem, (void*) NV_STREAM_PH(x));
+#endif
   return(0);
 }
 
