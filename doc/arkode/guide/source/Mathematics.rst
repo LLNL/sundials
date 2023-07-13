@@ -2096,12 +2096,14 @@ The relaxed solution is given by
    y_r = y_{n-1} + r d = r y_n + (1 - r) y_{n - 1}
    :label: ARKODE_RELAX_SOL
 
-where :math:`d \equiv h_n \sum_{i=1}^{s}(b^E_i f^E_i + b^I_i f^I_i)` is the
-update direction and the relaxation factor, :math:`r`, is selected to ensure
-conservation or dissipation. Given an ERK, DIRK, or ARK method of at least
-second order with non-negative solution weights (i.e., :math:`b_i \geq 0` for
-ERKStep or :math:`b^E_i \geq 0` and :math:`b^I_i \geq 0` for ARKStep), the
-factor :math:`r` is computed by solving the auxiliary scalar nonlinear system
+where :math:`d` is the update to :math:`y_n` (i.e.,
+:math:`h_n \sum_{i=1}^{s}(b^E_i \hat{f}^E_i + b^I_i \hat{f}^I_i)` for ARKStep
+and :math:`h_n \sum_{i=1}^{s} b_i f_i` for ERKStep) and :math:`r` is the
+relaxation factor selected to ensure conservation or dissipation. Given an ERK,
+DIRK, or ARK method of at least second order with non-negative solution weights
+(i.e., :math:`b_i \geq 0` for ERKStep or :math:`b^E_i \geq 0` and
+:math:`b^I_i \geq 0` for ARKStep), the factor :math:`r` is computed by solving
+the auxiliary scalar nonlinear system
 
 .. math::
    F(r) = \xi(y_{n-1} + r d) - \xi(y_{n-1}) - r e = 0

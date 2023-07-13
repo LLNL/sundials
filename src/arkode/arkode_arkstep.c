@@ -3098,6 +3098,13 @@ int arkStep_RelaxDeltaY(ARKodeMem ark_mem, N_Vector delta_y)
   retval = N_VLinearCombination(nvec, cvals, Xvecs, delta_y);
   if (retval) return ARK_VECTOROP_ERR;
 
+  if (step_mem->mass_type == MASS_FIXED)
+  {
+    /* Solve to compute update M^{-1} h * sum_j Ae[i,j] Fe[j] + Ai[i,j] Fi[j] */
+    retval = step_mem->msolve((void *) ark_mem, delta_y, step_mem->nlscoef);
+    if (retval) { return ARK_MASSSOLVE_FAIL; }
+  }
+
   return ARK_SUCCESS;
 }
 
@@ -3114,7 +3121,7 @@ int arkStep_RelaxDeltaY(ARKodeMem ark_mem, N_Vector delta_y)
  * stores the stages along the way but only when there is an implicit RHS.
  *
  * Future: when ARKStep can exploit the structure of low storage methods, it may
- * be necessary to compute the delta_e estimate along the way with explicit 
+ * be necessary to compute the delta_e estimate along the way with explicit
  * methods to avoid storing additional RHS or stage values.
  * ---------------------------------------------------------------------------*/
 
@@ -3128,6 +3135,7 @@ int arkStep_RelaxDeltaE(ARKodeMem ark_mem, ARKRelaxJacFn relax_jac_fn,
   ARKodeARKStepMem step_mem;
   N_Vector z_stage = ark_mem->tempv2;
   N_Vector J_relax = ark_mem->tempv3;
+  N_Vector rhs_tmp = NULL;
 
   /* Access the stepper memory structure */
   if (!(ark_mem->step_mem))
@@ -3154,22 +3162,49 @@ int arkStep_RelaxDeltaE(ARKodeMem ark_mem, ARKRelaxJacFn relax_jac_fn,
     }
     else
     {
-      /* Reconstruct explicit stages z[i] = y_n + h * sum_j Ae[i,j] Fe[j] */
-      nvec = 0;
-
-      cvals[nvec] = ONE;
-      Xvecs[nvec] = ark_mem->yn;
-      nvec++;
-
-      for (j = 0; j < i; j++)
+      /* Reconstruct explicit stages */
+      if (step_mem->mass_type == MASS_FIXED)
       {
-        cvals[nvec] = ark_mem->h * step_mem->Be->A[i][j];
-        Xvecs[nvec] = step_mem->Fe[j];
-        nvec++;
-      }
+        /* Fixed mass matrix: z[i] = y_n + M^{-1} h * sum_j Ae[i,j] Fe[j] */
+        nvec = 0;
 
-      retval = N_VLinearCombination(nvec, cvals, Xvecs, z_stage);
-      if (retval) return ARK_VECTOROP_ERR;
+        for (j = 0; j < i; j++)
+        {
+          cvals[nvec] = ark_mem->h * step_mem->Be->A[i][j];
+          Xvecs[nvec] = step_mem->Fe[j];
+          nvec++;
+        }
+
+        retval = N_VLinearCombination(nvec, cvals, Xvecs, z_stage);
+        if (retval) return ARK_VECTOROP_ERR;
+
+        /* Solve to compute update M^{-1} h * sum_j Ae[i,j] Fe[j] */
+        retval = step_mem->msolve((void *) ark_mem, z_stage, step_mem->nlscoef);
+        if (retval) { return ARK_MASSSOLVE_FAIL; }
+
+        /* Compute z[i] = y_n + update */
+        N_VLinearSum(ONE, ark_mem->yn, ONE, z_stage, z_stage);
+      }
+      else
+      {
+        /* Identity matrix: z[i] = y_n + h * sum_j Ae[i,j] Fe[j] or time
+           dependent matrix: z[i] = y_n + h * sum_j Ae[i,j] M(t)^{-1} Fe[j] */
+        nvec = 0;
+
+        cvals[nvec] = ONE;
+        Xvecs[nvec] = ark_mem->yn;
+        nvec++;
+
+        for (j = 0; j < i; j++)
+        {
+          cvals[nvec] = ark_mem->h * step_mem->Be->A[i][j];
+          Xvecs[nvec] = step_mem->Fe[j];
+          nvec++;
+        }
+
+        retval = N_VLinearCombination(nvec, cvals, Xvecs, z_stage);
+        if (retval) return ARK_VECTOROP_ERR;
+      }
     }
 
     /* Evaluate the Jacobian at z_i */
@@ -3178,46 +3213,54 @@ int arkStep_RelaxDeltaE(ARKodeMem ark_mem, ARKRelaxJacFn relax_jac_fn,
     if (retval < 0) { return ARK_RELAX_JAC_FAIL; }
     if (retval > 0) { return ARK_RELAX_JAC_RECV; }
 
-    /* Update estimate of relaxation function change */
-    if (J_relax->ops->nvdotprodlocal && J_relax->ops->nvdotprodmultiallreduce)
+    /* Reset temporary RHS alias */
+    rhs_tmp = z_stage;
+
+    /* Compute delta_e = h * sum_i b_i * <relax_jac(z_i), f_i> */
+    if (step_mem->explicit && step_mem->implicit)
     {
-      if (step_mem->explicit && step_mem->implicit)
+      N_VLinearSum(step_mem->Be->b[i], step_mem->Fe[i],
+                   step_mem->Bi->b[i], step_mem->Fi[i],
+                   rhs_tmp);
+    }
+    else if (step_mem->explicit)
+    {
+      if (step_mem->mass_type == MASS_FIXED)
       {
-        N_VLinearSum(step_mem->Be->b[i], step_mem->Fe[i],
-                     step_mem->Bi->b[i], step_mem->Fi[i],
-                     z_stage);
-        *delta_e_out += N_VDotProdLocal(J_relax, z_stage);
+        N_VScale(ONE, step_mem->Fe[i], rhs_tmp);
       }
-      else if (step_mem->explicit)
+      else
       {
-        *delta_e_out += step_mem->Be->b[i] * N_VDotProdLocal(J_relax,
-                                                             step_mem->Fe[i]);
-      }
-      else if (step_mem->implicit)
-      {
-        *delta_e_out += step_mem->Bi->b[i] * N_VDotProdLocal(J_relax,
-                                                             step_mem->Fi[i]);
+        rhs_tmp = step_mem->Fe[i];
       }
     }
     else
     {
-      if (step_mem->explicit && step_mem->implicit)
+      if (step_mem->mass_type == MASS_FIXED)
       {
-        N_VLinearSum(step_mem->Be->b[i], step_mem->Fe[i],
-                     step_mem->Bi->b[i], step_mem->Fi[i],
-                     z_stage);
-        *delta_e_out += N_VDotProd(J_relax, z_stage);
+        N_VScale(ONE, step_mem->Fi[i], rhs_tmp);
       }
-      else if (step_mem->explicit)
+      else
       {
-        *delta_e_out += step_mem->Be->b[i] * N_VDotProd(J_relax,
-                                                        step_mem->Fe[i]);
+        rhs_tmp = step_mem->Fi[i];
       }
-      else if (step_mem->implicit)
-      {
-        *delta_e_out += step_mem->Bi->b[i] * N_VDotProd(J_relax,
-                                                        step_mem->Fi[i]);
-      }
+    }
+
+    if (step_mem->mass_type == MASS_FIXED)
+    {
+      retval = step_mem->msolve((void *) ark_mem, rhs_tmp,
+                                step_mem->nlscoef);
+      if (retval) { return ARK_MASSSOLVE_FAIL; }
+    }
+
+    /* Update estimate of relaxation function change */
+    if (J_relax->ops->nvdotprodlocal && J_relax->ops->nvdotprodmultiallreduce)
+    {
+      *delta_e_out += N_VDotProdLocal(J_relax, rhs_tmp);
+    }
+    else
+    {
+      *delta_e_out += N_VDotProd(J_relax, rhs_tmp);
     }
   }
 
