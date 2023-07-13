@@ -1,6 +1,6 @@
-
+    
  Finished initialization, starting time steps
-
+    
        t          c1  (bottom left      middle       top right)  | lnst  lnst_att  lh
        t          c2  (bottom left      middle       top right)  | lnst  lnst_att  lh
   ----------------------------------------------------------------------------------------
@@ -29,7 +29,7 @@
     8.640000E+04    3.839423E-07   -3.953360E-16    9.927570E-09   7204 7233  5.999035E+02
                     3.351798E+11    9.106207E+11    4.162525E+11
   ----------------------------------------------------------------------------------------
-
+  
   General Solver Stats:
     Total internal steps taken      =     7204
     Total internal steps attempts   =     7233
@@ -47,3 +47,4 @@
     linear solver real/int workspace sizes =     2455          42
     ARKBandPre real/int workspace sizes    =     2800         622
     ARKBandPre number of f evaluations     =      600
+  

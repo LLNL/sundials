@@ -236,7 +236,6 @@ module dnsc_mod
     type(N_Vector),           pointer :: sunvec_av     ! sundials tolerance vector
     type(SUNMatrix),          pointer :: sunmat_A      ! sundials matrix
     type(SUNLinearSolver),    pointer :: sunlinsol_LS  ! sundials linear solver
-    type(SUNNonLinearSolver), pointer :: sunnonlin_NLS ! sundials nonlinear solver
     type(c_ptr)                       :: cvode_mem     ! ARKODE memory
     type(c_ptr)                       :: sunctx        ! SUNDIALS simulation context
 
@@ -391,9 +390,9 @@ module dnsc_mod
        stop 1
     end if
     print *, " "
-    print *, "------------------------------------------------------"
+    print *, "---------------------------------------------------"
     print *, "     Final      y1'          y2'          y3'"
-    print *, "------------------------------------------------------"
+    print *, "---------------------------------------------------"
     print '(13x,3(es12.4,1x))', dkyval
 
     call PrintFinalStats(cvode_mem)

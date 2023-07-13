@@ -338,7 +338,7 @@ module diurnal_bp_mod
     print *, '   '
     print *, '      t          c1  (bottom left      middle       top right)  | lnst  lh'
     print *, '      t          c2  (bottom left      middle       top right)  | lnst  lh'
-    print *, ' ----------------------------------------------------------------------------------'
+    print *, ' -----------------------------------------------------------------------------------'
     tout = twohr
     do outstep = 1,12
 
@@ -369,7 +369,7 @@ module diurnal_bp_mod
        tout = tout + twohr
 
     end do
-    print *, ' ----------------------------------------------------------------------------------'
+    print *, ' -----------------------------------------------------------------------------------'
 
     ! diagnostics output
     call CVodeStats(cvode_mem)

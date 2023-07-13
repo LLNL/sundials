@@ -1,4 +1,4 @@
-
+   
  Diagonal test problem:
    neq =   40
    nlocal =   10
@@ -9,7 +9,7 @@
     ydot_i = -alpha*i * y_i (i = 1,...,neq)
     Method is DIRK/NEWTON/SPGMR
     Precond is band-block-diagonal, using ARKBBDPRE
-
+   
     Preconditioning on left:
          t         steps   steps att.   fe     fi
     -------------------------------------------------
@@ -23,9 +23,9 @@
      0.800000      306      306        0     3275
      0.900000      312      312        0     3335
      1.000000      319      319        0     3410
-    ----------------------
+    -------------------------------------------------
 Max. absolute error is   7.56E-11
-
+   
  Final Solver Statistics:
    Internal solver steps =    319 (attempted =    319)
    Total explicit RHS evals =      0
@@ -42,9 +42,9 @@ Max. absolute error is   7.56E-11
    Linear solver real/int workspace sizes =    535   126
    BBD preconditioner real/int workspace sizes =    160    72
    Total number of g evals =     12
-
-
-
+    
+    
+    
     Preconditioning on right:
          t         steps   steps att.   fe     fi
     -------------------------------------------------
@@ -58,9 +58,9 @@ Max. absolute error is   7.56E-11
      0.800000      306      306        0     3275
      0.900000      312      312        0     3335
      1.000000      319      319        0     3410
-    ----------------------
+    -------------------------------------------------
 Max. absolute error is   7.56E-11
-
+   
  Final Solver Statistics:
    Internal solver steps =    319 (attempted =    319)
    Total explicit RHS evals =      0
@@ -77,5 +77,6 @@ Max. absolute error is   7.56E-11
    Linear solver real/int workspace sizes =    535   126
    BBD preconditioner real/int workspace sizes =    160    72
    Total number of g evals =     12
-
-
+    
+    
+    

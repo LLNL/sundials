@@ -291,6 +291,7 @@ module diagon_mod
        print *, " "
        print *, "Solution method: KIN_none"
        print '(a,i3)', "Problem size: neq = ", neq
+       print '(a,i3)', "Number of procs: nprocs = ", nprocs
     end if
   
     ! -------------------------

@@ -1,4 +1,4 @@
-
+   
  Diagonal test problem:
    neq =    8
    nlocal =    2
@@ -7,7 +7,7 @@
    atol =  1.00E-10
    alpha =  1.25E+00
     ydot_i = -alpha*i * y_i (i = 1,...,neq)
-
+   
          t      steps     steps att.    fe
     -----------------------------------------
      0.100000      12      13      67
@@ -20,9 +20,9 @@
      0.800000      71      72     362
      0.900000      80      81     407
      1.000000      88      89     447
-    ----------------------
+    -----------------------------------------
 Max. absolute error is   3.47E-09
-
+   
  Final Solver Statistics:
    Internal solver steps =     88 (attempted =     89)
    Total RHS evals =    447

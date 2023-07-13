@@ -417,7 +417,7 @@ module DiagkryData
  
        end do
        if (outproc) then
-          write(6,*) "   ----------------------"
+          write(6,*) "   --------------------------------"
        end if
  
        ! Get max. absolute error in the local vector.

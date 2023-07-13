@@ -349,7 +349,7 @@ module advdiff_mod
        tout = tout + dtout
 
     end do
-    print *, ' ----------------------------------------------------------------------------------'
+    print *, ' ------------------------------------------'
 
     ! diagnostics output
     call CVodeStats(cvode_mem)
