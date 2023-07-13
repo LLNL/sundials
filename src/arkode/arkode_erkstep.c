@@ -1269,12 +1269,23 @@ int erkStep_RelaxDeltaE(ARKodeMem ark_mem, ARKRelaxJacFn relax_jac_fn,
     if (retval > 0) { return ARK_RELAX_JAC_RECV; }
 
     /* Update estimates */
-    *delta_e_out += step_mem->B->b[i] * N_VDotProdLocal(J_relax,
-                                                        step_mem->F[i]);
+    if (J_relax->ops->nvdotprodlocal && J_relax->ops->nvdotprodmultiallreduce)
+    {
+      *delta_e_out += step_mem->B->b[i] * N_VDotProdLocal(J_relax,
+                                                          step_mem->F[i]);
+    }
+    else
+    {
+      *delta_e_out += step_mem->B->b[i] * N_VDotProd(J_relax,
+                                                     step_mem->F[i]);
+    }
   }
 
-  /* Ignore negative return for node-local vectors where this is a non-op */
-  N_VDotProdMultiAllReduce(1, J_relax, delta_e_out);
+  if (J_relax->ops->nvdotprodlocal && J_relax->ops->nvdotprodmultiallreduce)
+  {
+    retval = N_VDotProdMultiAllReduce(1, J_relax, delta_e_out);
+    if (retval) { return ARK_VECTOROP_ERR; }
+  }
 
   *delta_e_out *= ark_mem->h;
 

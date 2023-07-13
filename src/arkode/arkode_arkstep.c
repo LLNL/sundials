@@ -3179,27 +3179,53 @@ int arkStep_RelaxDeltaE(ARKodeMem ark_mem, ARKRelaxJacFn relax_jac_fn,
     if (retval > 0) { return ARK_RELAX_JAC_RECV; }
 
     /* Update estimate of relaxation function change */
-    if (step_mem->explicit && step_mem->implicit)
+    if (J_relax->ops->nvdotprodlocal && J_relax->ops->nvdotprodmultiallreduce)
     {
-      N_VLinearSum(step_mem->Be->b[i], step_mem->Fe[i],
-                   step_mem->Bi->b[i], step_mem->Fi[i],
-                   z_stage);
-      *delta_e_out += N_VDotProdLocal(J_relax, z_stage);
+      if (step_mem->explicit && step_mem->implicit)
+      {
+        N_VLinearSum(step_mem->Be->b[i], step_mem->Fe[i],
+                     step_mem->Bi->b[i], step_mem->Fi[i],
+                     z_stage);
+        *delta_e_out += N_VDotProdLocal(J_relax, z_stage);
+      }
+      else if (step_mem->explicit)
+      {
+        *delta_e_out += step_mem->Be->b[i] * N_VDotProdLocal(J_relax,
+                                                             step_mem->Fe[i]);
+      }
+      else if (step_mem->implicit)
+      {
+        *delta_e_out += step_mem->Bi->b[i] * N_VDotProdLocal(J_relax,
+                                                             step_mem->Fi[i]);
+      }
     }
-    else if (step_mem->explicit)
+    else
     {
-      *delta_e_out += step_mem->Be->b[i] * N_VDotProdLocal(J_relax,
-                                                           step_mem->Fe[i]);
-    }
-    else if (step_mem->implicit)
-    {
-      *delta_e_out += step_mem->Bi->b[i] * N_VDotProdLocal(J_relax,
-                                                           step_mem->Fi[i]);
+      if (step_mem->explicit && step_mem->implicit)
+      {
+        N_VLinearSum(step_mem->Be->b[i], step_mem->Fe[i],
+                     step_mem->Bi->b[i], step_mem->Fi[i],
+                     z_stage);
+        *delta_e_out += N_VDotProd(J_relax, z_stage);
+      }
+      else if (step_mem->explicit)
+      {
+        *delta_e_out += step_mem->Be->b[i] * N_VDotProd(J_relax,
+                                                        step_mem->Fe[i]);
+      }
+      else if (step_mem->implicit)
+      {
+        *delta_e_out += step_mem->Bi->b[i] * N_VDotProd(J_relax,
+                                                        step_mem->Fi[i]);
+      }
     }
   }
 
-  /* Ignore negative return for node-local vectors where this is a non-op */
-  N_VDotProdMultiAllReduce(1, J_relax, delta_e_out);
+  if (J_relax->ops->nvdotprodlocal && J_relax->ops->nvdotprodmultiallreduce)
+  {
+    retval = N_VDotProdMultiAllReduce(1, J_relax, delta_e_out);
+    if (retval) { return ARK_VECTOROP_ERR; }
+  }
 
   *delta_e_out *= ark_mem->h;
 
