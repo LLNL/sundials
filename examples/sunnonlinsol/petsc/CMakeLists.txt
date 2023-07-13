@@ -19,7 +19,7 @@
 
 # Example programs
 set(sunnonlinsol_petsc_examples
-  "test_sunnonlinsol_petscsnes\; \" \" \; \" \" "
+  "test_sunnonlinsol_petscsnes.c\;  \" \" \;1\;1\; \"\" "
 )
 
 if(MPI_C_COMPILER)
@@ -31,11 +31,11 @@ else()
 endif()
 
 # Specify libraries to link against
-set(SUNDIALS_LIBS sundials_nvecpetsc)
-list(APPEND SUNDIALS_LIBS sundials_sunnonlinsolpetscsnes)
+set(NVECS_LIB sundials_nvecpetsc)
+set(SUNNLS_LIB sundials_sunnonlinsolpetscsnes)
 
 # Set-up linker flags and link libraries
-list(APPEND SUNDIALS_LIBS ${EXE_EXTRA_LINK_LIBS})
+set(SUNDIALS_LIBS ${NVECS_LIB} ${SUNNLS_LIB} ${EXE_EXTRA_LINK_LIBS})
 
 # Add the build and install targets for each example
 foreach(example_tuple ${sunnonlinsol_petsc_examples})
@@ -44,6 +44,8 @@ foreach(example_tuple ${sunnonlinsol_petsc_examples})
   sundials_parse_tuple( sunnonlinsol_petsc_examples 
     FILENAME_VAR example
     PARAMS_VAR example_args
+    NODES_VAR number_of_nodes
+    NPROCS_VAR number_of_tasks
     TYPE_VAR example_type
   )
 
@@ -58,6 +60,10 @@ foreach(example_tuple ${sunnonlinsol_petsc_examples})
 
     # libraries to link against
     target_link_libraries(${example} ${SUNDIALS_LIBS})
+
+    if(NOT MPI_C_COMPILER)
+      target_link_libraries(${example} PRIVATE ${MPI_LIBRARIES})
+    endif()
   endif()
 
   # check if example args are provided and set the test name
@@ -70,6 +76,7 @@ foreach(example_tuple ${sunnonlinsol_petsc_examples})
   # add example to regression tests
   sundials_add_test(${test_name} ${example}
     TEST_ARGS ${example_args}
+    MPI_NPROCS ${number_of_tasks}
     EXAMPLE_TYPE ${example_type}
     NODIFF)
 
@@ -79,13 +86,16 @@ endforeach(example_tuple ${examples})
 if(EXAMPLES_INSTALL)
 
   sundials_install_examples(sunnonlinsol sunnonlinsol_petsc_examples
+    HAS_MPI
     CMAKE_TEMPLATE
-      cmakelists_C_ex.in
+      cmakelists_C_MPI_ex.in
     MAKE_TEMPLATE
-      makefile_serial_C_ex.in
+      makefile_parallel_C_ex.in
     SUNDIALS_TARGETS
       nvecpetsc
-      sunnonlinsolpetscnes
+      sunnonlinsolpetscsnes
+    OTHER_TARGETS
+      SUNDIALS::PETSC
     DESTINATION
       sunnonlinsol/petsc
     EXAMPLES_DEPENDENCIES
