@@ -19,25 +19,32 @@
 
 # Examples using SUNDIALS PETSc nvector
 set(nvector_petsc_examples
-  "test_nvector_petsc\;1000 0\;\;\;"    # run sequentially
-  "test_nvector_petsc\;1000 0\;1\;4\;"  # run 4 procs
+  "test_nvector_petsc.c\; \"1000 0\" \;1\;1\; \"\" "    # run sequentially
+  "test_nvector_petsc.c\; \"1000 0\" \;1\;4\; \"\" "  # run 4 procs
   )
 
 # Dependencies for nvector examples
 set(nvector_examples_dependencies
-  test_nvector
-  test_mpinvector
+  test_nvector.c
+  test_nvector.h
+  test_mpinvector.c
   )
+# Adding extra files 
+set(nvector_dependencies
+  ../test_nvector.c
+  ../test_nvector.h
+  ../test_mpinvector.c
+)
 
 # Add source directory to include directories
 include_directories(. ..)
-include_directories(${PETSC_INCLUDE_DIR})
 
 # Specify libraries to link against
 set(NVECS_LIB sundials_nvecpetsc)
+set(SUNNLS_LIB sundials_sunnonlinsolpetscsnes)
 
 # Set-up linker flags and link libraries
-set(SUNDIALS_LIBS ${NVECS_LIB} ${EXE_EXTRA_LINK_LIBS})
+set(SUNDIALS_LIBS ${NVECS_LIB} ${SUNNLS_LIB} ${EXE_EXTRA_LINK_LIBS})
 
 if(MPI_C_COMPILER)
   # use MPI wrapper as the compiler
@@ -51,18 +58,20 @@ endif()
 # Add the build and install targets for each nvector example
 foreach(example_tuple ${nvector_petsc_examples})
 
-  # parse the example tuple
-  list(GET example_tuple 0 example)
-  list(GET example_tuple 1 example_args)
-  list(GET example_tuple 2 number_of_nodes)
-  list(GET example_tuple 3 number_of_tasks)
-  list(GET example_tuple 4 example_type)
+  # parse the example tuple using sundials_parse_tuple macro
+  sundials_parse_tuple( nvector_petsc_examples 
+    FILENAME_VAR example
+    PARAMS_VAR example_args
+    NODES_VAR number_of_nodes
+    NPROCS_VAR number_of_tasks
+    TYPE_VAR example_type
+  )
 
   # check if this example has already been added, only need to add
   # example source files once for testing with different inputs
   if(NOT TARGET ${example})
     # example source files
-    add_executable(${example} ${example}.c)
+    add_executable(${example} ${example})
 
     # link vector test utilties
     target_link_libraries(${example} PRIVATE test_nvector_obj test_nvectormpi_obj)
@@ -80,17 +89,9 @@ foreach(example_tuple ${nvector_petsc_examples})
 
   # check if example args are provided and set the test name
   if("${example_args}" STREQUAL "")
-    if("${number_of_tasks}" STREQUAL "")
-      set(test_name ${example})
-    else()
-      string(REGEX REPLACE " " "_" test_name ${example}_${number_of_tasks})
-    endif()
+    set(test_name ${example})
   else()
-    if("${number_of_tasks}" STREQUAL "")
-      string(REGEX REPLACE " " "_" test_name ${example}_${example_args})
-    else()
-      string(REGEX REPLACE " " "_" test_name ${example}_${number_of_tasks}_${example_args})
-    endif()
+    string(REGEX REPLACE " " "_" test_name ${example}_${example_args})
   endif()
 
   # add example to regression tests
@@ -100,63 +101,30 @@ foreach(example_tuple ${nvector_petsc_examples})
     EXAMPLE_TYPE ${example_type}
     NODIFF)
 
-  # install example source files
-  if(EXAMPLES_INSTALL)
-    install(FILES ${example}.c
-      ../test_nvector.c
-      ../test_mpinvector.c
-      ../test_nvector.h
-      DESTINATION ${EXAMPLES_INSTALL_PATH}/nvector/petsc)
-  endif()
-
 endforeach(example_tuple ${nvector_petsc_examples})
-
 
 if(EXAMPLES_INSTALL)
 
-  # Install the README file
-  install(FILES DESTINATION ${EXAMPLES_INSTALL_PATH}/nvector/petsc)
-
-  # Prepare substitution variables for Makefile and/or CMakeLists templates
-  set(SOLVER_LIB "sundials_nvecpetsc")
-
-  examples2string(nvector_petsc_examples EXAMPLES)
-  examples2string(nvector_examples_dependencies EXAMPLES_DEPENDENCIES)
-
-  # Regardless of the platform we're on, we will generate and install
-  # CMakeLists.txt file for building the examples. This file  can then
-  # be used as a template for the user's own programs.
-
-  # generate CMakelists.txt in the binary directory
-  configure_file(
-    ${PROJECT_SOURCE_DIR}/examples/templates/cmakelists_petsc_C_ex.in
-    ${PROJECT_BINARY_DIR}/examples/nvector/petsc/CMakeLists.txt
-    @ONLY
-    )
-
-  # install CMakelists.txt
-  install(
-    FILES ${PROJECT_BINARY_DIR}/examples/nvector/petsc/CMakeLists.txt
-    DESTINATION ${EXAMPLES_INSTALL_PATH}/nvector/petsc
-    )
-
-  # On UNIX-type platforms, we also  generate and install a makefile for
-  # building the examples. This makefile can then be used as a template
-  # for the user's own programs.
-
-  if(UNIX)
-    # generate Makefile and place it in the binary dir
-    configure_file(
-      ${PROJECT_SOURCE_DIR}/examples/templates/makefile_petsc_C_ex.in
-      ${PROJECT_BINARY_DIR}/examples/nvector/petsc/Makefile_ex
-      @ONLY
-      )
-    # install the configured Makefile_ex as Makefile
-    install(
-      FILES ${PROJECT_BINARY_DIR}/examples/nvector/petsc/Makefile_ex
-      DESTINATION ${EXAMPLES_INSTALL_PATH}/nvector/petsc
-      RENAME Makefile
-      )
-  endif()
+  sundials_install_examples(nvector nvector_petsc_examples
+    HAS_MPI
+    CMAKE_TEMPLATE
+      cmakelists_C_MPI_ex.in
+    MAKE_TEMPLATE
+      makefile_parallel_C_ex.in
+    SUNDIALS_TARGETS
+      nvecpetsc
+      sunnonlinsolpetscsnes
+    OTHER_TARGETS
+      SUNDIALS::PETSC
+    DESTINATION
+      nvector/petsc
+    EXAMPLES_DEPENDENCIES
+      ${nvector_examples_dependencies}
+    EXTRA_FILES
+      ${nvector_dependencies}
+    TEST_INSTALL
+      petsc
+  )
 
 endif()
+
