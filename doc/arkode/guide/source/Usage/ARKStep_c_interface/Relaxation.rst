@@ -18,7 +18,7 @@ Relaxation Methods
 ==================
 
 This section describes user-callable functions for applying relaxation methods
-with ARKStep. For more information on relaxation Runge-Kutta methods see
+with ARKStep. For more information on relaxation Runge--Kutta methods see
 :numref:`ARKODE.Mathematics.Relaxation`.
 
 Enabling or Disabling Relaxation

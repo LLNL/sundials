@@ -41,7 +41,7 @@
  * ent'(u,v) = [ de/du de/dv ]^T = [ exp(u) exp(v) ]^T.
  *
  * The problem is advanced in time with an explicit or implicit relaxed
- * Runge-Kutta method to ensure conservation of the entropy.
+ * Runge-Kutta method from ARKStep to ensure conservation of the entropy.
  * ---------------------------------------------------------------------------*/
 
 /* Header files */
@@ -192,7 +192,7 @@ int main(int argc, char* argv[])
   ytdata = N_VGetArrayPointer(ytrue);
   if (check_ptr(ytdata, "N_VGetArrayPointer")) return 1;
 
-  /* Initialize the ARKStep */
+  /* Initialize ARKStep */
   if (implicit)
   {
     arkode_mem = ARKStepCreate(NULL, f, t0, y, ctx);
@@ -289,7 +289,7 @@ int main(int argc, char* argv[])
     u_err   = ydata[0] - ytdata[0];
     v_err   = ydata[1] - ytdata[1];
 
-    /* Output to the screen every periodically */
+    /* Output to the screen periodically */
     flag = ARKStepGetNumSteps(arkode_mem, &nst);
     check_flag(flag, "ARKStepGetNumSteps");
 

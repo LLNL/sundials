@@ -131,7 +131,7 @@ int main(int argc, char* argv[])
   int flag = Eng(y, &eng0, nullptr);
   if (check_flag(flag, "Eng")) return 1;
 
-  // Initialize the ARKStep
+  // Initialize ARKStep
   void* arkode_mem = nullptr;
   if (implicit) { arkode_mem = ARKStepCreate(nullptr, f, t0, y, ctx); }
   else { arkode_mem = ARKStepCreate(f, nullptr, t0, y, ctx); }
@@ -250,7 +250,7 @@ int main(int argc, char* argv[])
 
     sunrealtype eng_chng = eng - eng0;
 
-    /* Output to the screen every periodically */
+    /* Output to the screen periodically */
     long int nst;
     flag = ARKStepGetNumSteps(arkode_mem, &nst);
     check_flag(flag, "ARKStepGetNumSteps");

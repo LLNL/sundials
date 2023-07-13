@@ -41,7 +41,7 @@
  * ent'(u,v) = [ de/du de/dv ]^T = [ exp(u) exp(v) ]^T.
  *
  * The problem is advanced in time with an explicit relaxed
- * Runge-Kutta method to ensure conservation of the entropy.
+ * Runge-Kutta method from ERKStep to ensure conservation of the entropy.
  * ---------------------------------------------------------------------------*/
 
 /* Header files */

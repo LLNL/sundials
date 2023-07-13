@@ -147,7 +147,7 @@ static int arkRelaxNewtonSolve(ARKodeMem ark_mem)
   return ARK_RELAX_SOLVE_RECV;
 }
 
-/* Solve the relaxation residual equation using Newton's method */
+/* Solve the relaxation residual equation using Brent's method */
 static int arkRelaxBrentSolve(ARKodeMem ark_mem)
 {
   int i, retval;

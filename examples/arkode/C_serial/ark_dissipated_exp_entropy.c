@@ -172,7 +172,7 @@ int main(int argc, char* argv[])
   ytdata = N_VGetArrayPointer(ytrue);
   if (check_ptr(ytdata, "N_VGetArrayPointer")) return 1;
 
-  /* Initialize the ARKStep */
+  /* Initialize ARKStep */
   if (implicit)
   {
     arkode_mem = ARKStepCreate(NULL, f, t0, y, ctx);
