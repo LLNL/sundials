@@ -17,6 +17,12 @@ internal solution vector.  Users who wish to revert to interpolation may call a 
 routine `CVodeSetInterpolateStopTime`, `ARKStepSetInterpolateStopTime`,
 `ERKStepSetInterpolateStopTime`, or `MRIStepSetInterpolateStopTime`.
 
+A potential bug was fixed when using inequality constraint handling and
+calling `ARKStepGetEstLocalErrors` or `ERKStepGetEstLocalErrors` after a failed
+step in which an inequality constraint violation occurred. In this case, the
+values returned by `ARKStepGetEstLocalErrors` or `ERKStepGetEstLocalErrors` may
+be invalid.
+
 ## Changes to SUNDIALS in release 6.5.1
 
 Added the functions `ARKStepClearStopTime`, `ERKStepClearStopTime`,
