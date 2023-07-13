@@ -856,7 +856,11 @@ int arkEvolve(ARKodeMem ark_mem, realtype tout, N_Vector yout,
       kflag = arkCheckConvergence(ark_mem, &nflag, &ncf);
       if (kflag < 0)  break;
 
-      /* Perform relaxation */
+      /* Perform relaxation:
+           - computes relaxation parameter
+           - on success, updates ycur, h, and dsm
+           - on recoverable failure, updates eta and signals to retry step
+           - on fatal error, returns negative error flag */
       if (ark_mem->relax_enabled && (kflag == ARK_SUCCESS))
       {
         kflag = arkRelax(ark_mem, &relax_fails, &dsm, &nflag);
