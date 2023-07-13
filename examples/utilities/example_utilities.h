@@ -11,14 +11,15 @@
  * SPDX-License-Identifier: BSD-3-Clause
  * SUNDIALS Copyright End
  * -----------------------------------------------------------------------------
- * Utility functions for C examples
+ * This header file should *NOT* be included in user codes and exists *ONLY* to
+ * reduce duplicate utility functions and macros across example programs.
  * ---------------------------------------------------------------------------*/
 
 #include <stdio.h>
 
 #include <sundials/sundials_config.h>
 
-/* Check return flags */
+/* Check for an unrecoverable (negative) return flag from a SUNDIALS function */
 int check_flag(int flag, const char* funcname)
 {
   if (flag < 0)
@@ -29,7 +30,7 @@ int check_flag(int flag, const char* funcname)
   return 0;
 }
 
-/* Check return pointers */
+/* Check if a function returned a NULL pointer */
 int check_ptr(void* ptr, const char* funcname)
 {
   if (!ptr)
@@ -40,7 +41,9 @@ int check_ptr(void* ptr, const char* funcname)
   return 0;
 }
 
-/* Precision specific math function macros */
+/* Convince macros for calling common precision-specific math functions -- When
+   type-generic math macros are available (see tgmath.h) defining and using such
+   macros is unnecessary. */
 #if defined(SUNDIALS_DOUBLE_PRECISION)
 #define EXP(x)  (exp((x)))
 #define SIN(x)  (sin((x)))
@@ -64,7 +67,7 @@ int check_ptr(void* ptr, const char* funcname)
 #define LOG(x)  (logl((x)))
 #endif
 
-/* Precision specific output macros */
+/* Convince macros for using precision-specific format specifiers */
 #if defined(SUNDIALS_EXTENDED_PRECISION)
 #define GSYM "Lg"
 #define ESYM "Le"
