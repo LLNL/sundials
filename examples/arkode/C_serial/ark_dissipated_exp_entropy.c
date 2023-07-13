@@ -264,7 +264,7 @@ int main(int argc, char* argv[])
     delta_ent = ent - ent0;
     u_err     = ydata[0] - ytdata[0];
 
-    /* Output to the screen every periodically */
+    /* Output to the screen periodically */
     flag = ARKStepGetNumSteps(arkode_mem, &nst);
     check_flag(flag, "ARKStepGetNumSteps");
 

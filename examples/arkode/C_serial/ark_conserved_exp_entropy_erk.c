@@ -174,7 +174,7 @@ int main(int argc, char* argv[])
   ytdata = N_VGetArrayPointer(ytrue);
   if (check_ptr(ytdata, "N_VGetArrayPointer")) return 1;
 
-  /* Initialize the ERKStep */
+  /* Initialize ERKStep */
   arkode_mem = ERKStepCreate(f, t0, y, ctx);
   if (check_ptr(arkode_mem, "ERKStepCreate")) return 1;
 
@@ -241,7 +241,7 @@ int main(int argc, char* argv[])
     u_err   = ydata[0] - ytdata[0];
     v_err   = ydata[1] - ytdata[1];
 
-    /* Output to the screen every periodically */
+    /* Output to the screen periodically */
     flag = ERKStepGetNumSteps(arkode_mem, &nst);
     check_flag(flag, "ERKStepGetNumSteps");
 
