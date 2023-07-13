@@ -104,7 +104,7 @@ ARKodeMem arkCreate(SUNContext sunctx)
 
   /* Initialize lrw and liw */
   ark_mem->lrw = 18;
-  ark_mem->liw = 39;  /* fcn/data ptr, int, long int, sunindextype, booleantype */
+  ark_mem->liw = 41;  /* fcn/data ptr, int, long int, sunindextype, booleantype */
 
   /* No mallocs have been done yet */
   ark_mem->VabstolMallocDone     = SUNFALSE;

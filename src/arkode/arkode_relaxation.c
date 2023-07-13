@@ -744,6 +744,10 @@ int arkRelaxCreate(void* arkode_mem, ARKRelaxFn relax_fn,
 
     /* Initialize values */
     ark_mem->relax_mem->relax_param_prev = ONE;
+
+    /* Update workspace sizes */
+    ark_mem->lrw += 12;
+    ark_mem->liw += 14;
   }
 
   /* Set function pointers */
