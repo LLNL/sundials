@@ -241,8 +241,8 @@ static void SetIC(HYPRE_IJVector Uij, realtype dx, sunindextype my_length,
   realtype *udata;
 
   /* Set pointer to data array and get local length of u. */
-  udata   = (realtype*) malloc(my_length*sizeof(realtype));
   iglobal = (HYPRE_Int*) malloc(my_length*sizeof(HYPRE_Int));
+  udata   = (realtype*) malloc(my_length*sizeof(realtype));
 
   /* Load initial profile into u vector */
   for (i = 0; i < my_length; i++) {
@@ -250,7 +250,30 @@ static void SetIC(HYPRE_IJVector Uij, realtype dx, sunindextype my_length,
     x = (iglobal[i] + 1)*dx;
     udata[i] = x*(XMAX - x)*SUNRexp(RCONST(2.0)*x);
   }
+
+#if defined(SUNDIALS_HYPRE_BACKENDS_SERIAL)
+  /* For serial backend, HYPRE_IJVectorSetValues expects host pointers */
   HYPRE_IJVectorSetValues(Uij, my_length, iglobal, udata);
+#elif defined(SUNDIALS_HYPRE_BACKENDS_CUDA_OR_HIP)
+  /* With GPU backend, HYPRE_IJVectorSetValues expects device pointers */
+  HYPRE_Int* iglobal_dev;
+  realtype*  udata_dev;
+  
+  /* Copy host data to device */
+  NV_ADD_LANG_PREFIX_PH(Memcpy)(                  // Expands to "cudaMemcpy" or "hipMemcpy"
+    iglobal_dev, iglobal, my_length*sizeof(HYPRE_Int),
+    NV_ADD_LANG_PREFIX_PH(MemcpyHostToDevice)     // Expands to "cudaMemcpyHostToDevice" or "hipMemcpyHostToDevice"
+  );
+  NV_ADD_LANG_PREFIX_PH(Memcpy)(
+    udata_dev, udata, my_length*sizeof(realtype),
+    NV_ADD_LANG_PREFIX_PH(MemcpyHostToDevice)
+  );
+
+  HYPRE_IJVectorSetValues(Uij, my_length, iglobal_dev, udata_dev);
+
+  NV_ADD_LANG_PREFIX_PH(Free)(iglobal_dev);       // Expands to "cudaFree" or "hipFree"
+  NV_ADD_LANG_PREFIX_PH(Free)(udata_dev);
+#endif
   free(iglobal);
   free(udata);
 }
