@@ -141,7 +141,7 @@ A potential bug was fixed when using inequality constraint handling and
 calling :c:func:`ARKStepGetEstLocalErrors` or :c:func:`ERKStepGetEstLocalErrors`
 after a failed step in which an inequality constraint violation occurred. In
 this case, the values returned by :c:func:`ARKStepGetEstLocalErrors` or
-:c:func:`ERKStepGetEstLocalErrors` may be invalid.
+:c:func:`ERKStepGetEstLocalErrors` may have been invalid.
 
 Changes in v5.5.1
 -----------------
