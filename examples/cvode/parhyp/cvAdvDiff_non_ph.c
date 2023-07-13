@@ -254,25 +254,30 @@ static void SetIC(HYPRE_IJVector Uij, realtype dx, sunindextype my_length,
 #if defined(SUNDIALS_HYPRE_BACKENDS_SERIAL)
   /* For serial backend, HYPRE_IJVectorSetValues expects host pointers */
   HYPRE_IJVectorSetValues(Uij, my_length, iglobal, udata);
+
 #elif defined(SUNDIALS_HYPRE_BACKENDS_CUDA_OR_HIP)
   /* With GPU backend, HYPRE_IJVectorSetValues expects device pointers */
   HYPRE_Int* iglobal_dev;
   realtype*  udata_dev;
+
+  /* NOTE: The macro NV_ADD_LANG_PREFIX_PH(...) adds the prefix "cuda" or "hip" depending on the backend.
+   *       The user may use this macro for portability, or explicitly write cuda/hip calls.
+   *       Example: "NV_ADD_LANG_PREFIX_PH(Free)" expands to "cudaFree" when using the CUDA hypre backend.
+   */
+
+  /* Allocate device arrays */
+  NV_ADD_LANG_PREFIX_PH(Malloc)(&iglobal_dev, my_length*sizeof(HYPRE_Int));
+  NV_ADD_LANG_PREFIX_PH(Malloc)(&udata_dev, my_length*sizeof(realtype));
   
   /* Copy host data to device */
-  NV_ADD_LANG_PREFIX_PH(Memcpy)(                  // Expands to "cudaMemcpy" or "hipMemcpy"
-    iglobal_dev, iglobal, my_length*sizeof(HYPRE_Int),
-    NV_ADD_LANG_PREFIX_PH(MemcpyHostToDevice)     // Expands to "cudaMemcpyHostToDevice" or "hipMemcpyHostToDevice"
-  );
-  NV_ADD_LANG_PREFIX_PH(Memcpy)(
-    udata_dev, udata, my_length*sizeof(realtype),
-    NV_ADD_LANG_PREFIX_PH(MemcpyHostToDevice)
-  );
+  NV_ADD_LANG_PREFIX_PH(Memcpy)(iglobal_dev, iglobal, my_length*sizeof(HYPRE_Int), NV_ADD_LANG_PREFIX_PH(MemcpyHostToDevice));
+  NV_ADD_LANG_PREFIX_PH(Memcpy)(udata_dev, udata, my_length*sizeof(realtype), NV_ADD_LANG_PREFIX_PH(MemcpyHostToDevice));
 
+  /* Set hypre vector values from device arrays, then free the device arrays */
   HYPRE_IJVectorSetValues(Uij, my_length, iglobal_dev, udata_dev);
-
-  NV_ADD_LANG_PREFIX_PH(Free)(iglobal_dev);       // Expands to "cudaFree" or "hipFree"
+  NV_ADD_LANG_PREFIX_PH(Free)(iglobal_dev);
   NV_ADD_LANG_PREFIX_PH(Free)(udata_dev);
+  
 #endif
   free(iglobal);
   free(udata);
