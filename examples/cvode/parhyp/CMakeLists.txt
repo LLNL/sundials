@@ -97,7 +97,7 @@ if(EXAMPLES_INSTALL)
     SUNDIALS_TARGETS
       cvode
       nvecparhyp
-      ${cvode_fused_stubs}
+      ${_include_cvode_fused_stubs}
     OTHER_TARGETS
       SUNDIALS::HYPRE
     DESTINATION
