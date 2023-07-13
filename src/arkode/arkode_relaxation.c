@@ -15,9 +15,9 @@
  * functionality
  *
  * Temporary vectors utilized in the functions below:
- *   tempv1 - holds delta_y, the update direction vector
- *   tempv2 - holds y_relax, the relaxed solution vector
- *   tempv3 - holds J_relax, the Jacobian of the relaxation function
+ *   tempv2 - holds delta_y, the update direction vector
+ *   tempv3 - holds y_relax, the relaxed solution vector
+ *   tempv4 - holds J_relax, the Jacobian of the relaxation function
  * ---------------------------------------------------------------------------*/
 
 #include <stdarg.h>
@@ -62,8 +62,8 @@ static int arkRelaxResidual(sunrealtype relax_param, sunrealtype* relax_res,
   int retval;
   sunrealtype e_old   = ark_mem->relax_mem->e_old;
   sunrealtype delta_e = ark_mem->relax_mem->delta_e;
-  N_Vector delta_y    = ark_mem->tempv1;
-  N_Vector y_relax    = ark_mem->tempv2;
+  N_Vector delta_y    = ark_mem->tempv2;
+  N_Vector y_relax    = ark_mem->tempv3;
   void* user_data     = ark_mem->user_data;
 
   /* y_relax = y_n + r * delta_y */
@@ -86,9 +86,9 @@ static int arkRelaxResidualJacobian(sunrealtype relax_param,
                                     sunrealtype* relax_jac, ARKodeMem ark_mem)
 {
   int retval;
-  N_Vector delta_y    = ark_mem->tempv1;
-  N_Vector y_relax    = ark_mem->tempv2;
-  N_Vector J_relax    = ark_mem->tempv3;
+  N_Vector delta_y    = ark_mem->tempv2;
+  N_Vector y_relax    = ark_mem->tempv3;
+  N_Vector J_relax    = ark_mem->tempv4;
   sunrealtype delta_e = ark_mem->relax_mem->delta_e;
   void* user_data     = ark_mem->user_data;
 
@@ -337,15 +337,15 @@ int arkRelaxSolve(ARKodeMem ark_mem, ARKodeRelaxMem relax_mem,
 {
   int retval;
 
-  /* Get the change in entropy (uses temp vectors 1 and 2) */
+  /* Get the change in entropy (uses temp vectors 2 and 3) */
   retval = relax_mem->delta_e_fn(ark_mem,
                                  relax_mem->relax_jac_fn,
                                  &(relax_mem->num_relax_jac_evals),
                                  &(relax_mem->delta_e));
   if (retval) return retval;
 
-  /* Get the change in state (delta_y = tempv1) */
-  retval = relax_mem->delta_y_fn(ark_mem, ark_mem->tempv1);
+  /* Get the change in state (delta_y = tempv2) */
+  retval = relax_mem->delta_y_fn(ark_mem, ark_mem->tempv2);
   if (retval) return retval;
 
   /* Store the current relaxation function value */

@@ -1224,8 +1224,8 @@ int erkStep_RelaxDeltaE(ARKodeMem ark_mem, ARKRelaxJacFn relax_jac_fn,
   realtype* cvals;
   N_Vector* Xvecs;
   ARKodeERKStepMem step_mem;
-  N_Vector z_stage = ark_mem->tempv1;
-  N_Vector J_relax = ark_mem->tempv2;
+  N_Vector z_stage = ark_mem->tempv2;
+  N_Vector J_relax = ark_mem->tempv3;
 
   /* Access the stepper memory structure */
   if (!(ark_mem->step_mem))
