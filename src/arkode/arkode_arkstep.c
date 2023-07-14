@@ -1179,8 +1179,10 @@ int arkStep_Init(void* arkode_mem, int init_type)
       ark_mem->liw += step_mem->stages;  /* pointers */
     }
 
-    /* Allocate stage storage for relaxation with implicit/IMEX methods */
-    if (ark_mem->relax_enabled && step_mem->implicit)
+    /* Allocate stage storage for relaxation with implicit/IMEX methods or if a
+       fixed mass matrix is present (since we store f(t,y) not M^{-1} f(t,y)) */
+    if (ark_mem->relax_enabled && (step_mem->implicit ||
+                                   step_mem->mass_type == MASS_FIXED))
     {
       if (step_mem->z == NULL)
         step_mem->z = (N_Vector *) calloc(step_mem->stages, sizeof(N_Vector));
@@ -1756,7 +1758,8 @@ int arkStep_TakeStep_Z(void* arkode_mem, realtype *dsmPtr, int *nflagPtr)
     /* successful stage solve */
 
     /*    store stage (if necessary for relaxation) */
-    if (ark_mem->relax_enabled && step_mem->implicit)
+    if (ark_mem->relax_enabled && (step_mem->implicit ||
+                                   step_mem->mass_type == MASS_FIXED))
     {
       N_VScale(ONE, ark_mem->ycur, step_mem->z[is]);
     }
@@ -3118,7 +3121,9 @@ int arkStep_RelaxDeltaY(ARKodeMem ark_mem, N_Vector delta_y)
  * (or compute the delta_e estimate along the way) to avoid inconsistencies
  * between z_i, F(z_i), and J_relax(z_i) that arise from reconstructing stages
  * from stored RHS values like with ERK methods. As such the take step function
- * stores the stages along the way but only when there is an implicit RHS.
+ * stores the stages along the way but only when there is an implicit RHS. When
+ * a fixed mass matrix is present the stages are also stored to avoid additional
+ * mass matrix solves in reconstructing the stages for an ERK method.
  *
  * Future: when ARKStep can exploit the structure of low storage methods, it may
  * be necessary to compute the delta_e estimate along the way with explicit
@@ -3155,7 +3160,7 @@ int arkStep_RelaxDeltaE(ARKodeMem ark_mem, ARKRelaxJacFn relax_jac_fn,
 
   for (i = 0; i < step_mem->stages; i++)
   {
-    if (step_mem->implicit)
+    if (step_mem->implicit || step_mem->mass_type == MASS_FIXED)
     {
       /* Use stored stages */
       z_stage = step_mem->z[i];
@@ -3163,48 +3168,21 @@ int arkStep_RelaxDeltaE(ARKodeMem ark_mem, ARKRelaxJacFn relax_jac_fn,
     else
     {
       /* Reconstruct explicit stages */
-      if (step_mem->mass_type == MASS_FIXED)
+      nvec = 0;
+
+      cvals[nvec] = ONE;
+      Xvecs[nvec] = ark_mem->yn;
+      nvec++;
+
+      for (j = 0; j < i; j++)
       {
-        /* Fixed mass matrix: z[i] = y_n + M^{-1} h * sum_j Ae[i,j] Fe[j] */
-        nvec = 0;
-
-        for (j = 0; j < i; j++)
-        {
-          cvals[nvec] = ark_mem->h * step_mem->Be->A[i][j];
-          Xvecs[nvec] = step_mem->Fe[j];
-          nvec++;
-        }
-
-        retval = N_VLinearCombination(nvec, cvals, Xvecs, z_stage);
-        if (retval) return ARK_VECTOROP_ERR;
-
-        /* Solve to compute update M^{-1} h * sum_j Ae[i,j] Fe[j] */
-        retval = step_mem->msolve((void *) ark_mem, z_stage, step_mem->nlscoef);
-        if (retval) { return ARK_MASSSOLVE_FAIL; }
-
-        /* Compute z[i] = y_n + update */
-        N_VLinearSum(ONE, ark_mem->yn, ONE, z_stage, z_stage);
-      }
-      else
-      {
-        /* Identity matrix: z[i] = y_n + h * sum_j Ae[i,j] Fe[j] or time
-           dependent matrix: z[i] = y_n + h * sum_j Ae[i,j] M(t)^{-1} Fe[j] */
-        nvec = 0;
-
-        cvals[nvec] = ONE;
-        Xvecs[nvec] = ark_mem->yn;
+        cvals[nvec] = ark_mem->h * step_mem->Be->A[i][j];
+        Xvecs[nvec] = step_mem->Fe[j];
         nvec++;
-
-        for (j = 0; j < i; j++)
-        {
-          cvals[nvec] = ark_mem->h * step_mem->Be->A[i][j];
-          Xvecs[nvec] = step_mem->Fe[j];
-          nvec++;
-        }
-
-        retval = N_VLinearCombination(nvec, cvals, Xvecs, z_stage);
-        if (retval) return ARK_VECTOROP_ERR;
       }
+
+      retval = N_VLinearCombination(nvec, cvals, Xvecs, z_stage);
+      if (retval) return ARK_VECTOROP_ERR;
     }
 
     /* Evaluate the Jacobian at z_i */

@@ -33,9 +33,9 @@ Enabling or Disabling Relaxation
    one of the functions is ``NULL``. If both ``rfn`` and ``rjac`` are ``NULL``,
    relaxation is disabled.
 
-   With DIRK and IMEX-ARK methods, applying relaxation requires allocating
-   :math:`s` additional state vectors (where :math:`s` is the number of stages
-   in the method).
+   With DIRK and IMEX-ARK methods or when a fixed mass matrix is present,
+   applying relaxation requires allocating :math:`s` additional state vectors
+   (where :math:`s` is the number of stages in the method).
 
    :param arkode_mem: the ARKStep memory structure
    :param rfn: the user-defined function to compute the relaxation function
