@@ -19,7 +19,7 @@ Final Solver Statistics:
    Total Relaxation Fn evals    = 622
    Total Relaxation Jac evals   = 1019
    Total Relaxation fails       = 25
-   Total Relaxation bound fails = 25
+   Total Relaxation bound fails = 0
    Total Relaxation NLS fails   = 25
    Total Relaxation NLS iters   = 399
 

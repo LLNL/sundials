@@ -382,7 +382,7 @@ int main(int argc, char* argv[])
     printf("   Total Relaxation Fn evals    = %li\n", nre);
     printf("   Total Relaxation Jac evals   = %li\n", nrje);
     printf("   Total Relaxation fails       = %li\n", nrf);
-    printf("   Total Relaxation bound fails = %li\n", nrf);
+    printf("   Total Relaxation bound fails = %li\n", nrbf);
     printf("   Total Relaxation NLS fails   = %li\n", nrnlsf);
     printf("   Total Relaxation NLS iters   = %li\n", nrnlsi);
   }
