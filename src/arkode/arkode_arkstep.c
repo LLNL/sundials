@@ -3135,12 +3135,13 @@ int arkStep_RelaxDeltaE(ARKodeMem ark_mem, ARKRelaxJacFn relax_jac_fn,
                         sunrealtype* delta_e_out)
 {
   int i, j, nvec, retval;
-  realtype* cvals;
+  sunrealtype* cvals;
   N_Vector* Xvecs;
   ARKodeARKStepMem step_mem;
   N_Vector z_stage = ark_mem->tempv2;
   N_Vector J_relax = ark_mem->tempv3;
   N_Vector rhs_tmp = NULL;
+  sunrealtype bi   = ONE;
 
   /* Access the stepper memory structure */
   if (!(ark_mem->step_mem))
@@ -3200,6 +3201,7 @@ int arkStep_RelaxDeltaE(ARKodeMem ark_mem, ARKRelaxJacFn relax_jac_fn,
       N_VLinearSum(step_mem->Be->b[i], step_mem->Fe[i],
                    step_mem->Bi->b[i], step_mem->Fi[i],
                    rhs_tmp);
+      bi = ONE;
     }
     else if (step_mem->explicit)
     {
@@ -3211,6 +3213,7 @@ int arkStep_RelaxDeltaE(ARKodeMem ark_mem, ARKRelaxJacFn relax_jac_fn,
       {
         rhs_tmp = step_mem->Fe[i];
       }
+      bi = step_mem->Be->b[i];
     }
     else
     {
@@ -3222,6 +3225,7 @@ int arkStep_RelaxDeltaE(ARKodeMem ark_mem, ARKRelaxJacFn relax_jac_fn,
       {
         rhs_tmp = step_mem->Fi[i];
       }
+      bi = step_mem->Bi->b[i];
     }
 
     if (step_mem->mass_type == MASS_FIXED)
@@ -3234,11 +3238,11 @@ int arkStep_RelaxDeltaE(ARKodeMem ark_mem, ARKRelaxJacFn relax_jac_fn,
     /* Update estimate of relaxation function change */
     if (J_relax->ops->nvdotprodlocal && J_relax->ops->nvdotprodmultiallreduce)
     {
-      *delta_e_out += N_VDotProdLocal(J_relax, rhs_tmp);
+      *delta_e_out += bi * N_VDotProdLocal(J_relax, rhs_tmp);
     }
     else
     {
-      *delta_e_out += N_VDotProd(J_relax, rhs_tmp);
+      *delta_e_out += bi * N_VDotProd(J_relax, rhs_tmp);
     }
   }
 
