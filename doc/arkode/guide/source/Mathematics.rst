@@ -2080,17 +2080,17 @@ strategies as discussed in :numref:`ARKODE.Usage.ARKStep.Tolerances` and
 Relaxation Methods
 ==================
 
-For cases where the problem :eq:`ARKODE_IVP` is conservative or dissipative with
+When the solution of :eq:`ARKODE_IVP` is conservative or dissipative with
 respect to a smooth *convex* function :math:`\xi(y(t))`, it is desirable to have
 the numerical method preserve these properties. That is
-:math:`\xi(y_n) = \xi(y_{n-1}) = \ldots = \xi(y_{0})` for conservative problems
-and :math:`\xi(y_n) \leq \xi(y_{n-1})` for dissipative problems. To this end,
-ARKODE supports relaxation methods
-:cite:p:`ketcheson2019relaxation, kang2022entropy, ranocha2020relaxation`
-applied to ERK, DIRK, or ARK methods to ensure dissipation or preservation of a
-global function.
+:math:`\xi(y_n) = \xi(y_{n-1}) = \ldots = \xi(y_{0})` for conservative systems
+and :math:`\xi(y_n) \leq \xi(y_{n-1})` for dissipative systems. For examples
+of such problems, see the references below and the citations there in.
 
-The relaxed solution is given by
+For such problems, ARKODE supports relaxation methods
+:cite:p:`ketcheson2019relaxation, kang2022entropy, ranocha2020relaxation, ranocha2020hamiltonian`
+applied to ERK, DIRK, or ARK methods to ensure dissipation or preservation of
+the global function. The relaxed solution is given by
 
 .. math::
    y_r = y_{n-1} + r d = r y_n + (1 - r) y_{n - 1}
