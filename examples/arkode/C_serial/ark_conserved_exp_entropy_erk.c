@@ -144,7 +144,7 @@ int main(int argc, char* argv[])
 
   /* ARKODE statistics */
   long int nst, nst_a, nfe;
-  long int nrf, nre, nrje, nrnlsi, nrnlsf, netf;
+  long int nrf, nrbf, nre, nrje, nrnlsi, nrnlsf, netf;
 
   /* Output time and file */
   sunrealtype t;
@@ -316,26 +316,30 @@ int main(int argc, char* argv[])
 
   if (relax)
   {
-    flag = ERKStepGetNumRelaxFails(arkode_mem, &nrf);
-    check_flag(flag, "ERKStepGetNumRelaxFails");
-
     flag = ERKStepGetNumRelaxFnEvals(arkode_mem, &nre);
     check_flag(flag, "ERKStepGetNumRelaxFnEvals");
 
     flag = ERKStepGetNumRelaxJacEvals(arkode_mem, &nrje);
     check_flag(flag, "ERKStepGetNumRelaxJacEvals");
 
-    flag = ERKStepGetNumRelaxSolveIters(arkode_mem, &nrnlsi);
-    check_flag(flag, "ERKStepGetNumRelaxSolveIters");
+    flag = ERKStepGetNumRelaxFails(arkode_mem, &nrf);
+    check_flag(flag, "ERKStepGetNumRelaxFails");
+
+    flag = ERKStepGetNumRelaxBoundFails(arkode_mem, &nrbf);
+    check_flag(flag, "ERKStepGetNumRelaxBoundFails");
 
     flag = ERKStepGetNumRelaxSolveFails(arkode_mem, &nrnlsf);
     check_flag(flag, "ERKStepGetNumRelaxSolveFails");
 
-    printf("   Total Relaxation fails     = %li\n", nrf);
-    printf("   Total Relaxation Fn evals  = %li\n", nre);
-    printf("   Total Relaxation Jac evals = %li\n", nrje);
-    printf("   Total Relaxation NLS iters = %li\n", nrnlsi);
-    printf("   Total Relaxation NLS fails = %li\n", nrnlsf);
+    flag = ERKStepGetNumRelaxSolveIters(arkode_mem, &nrnlsi);
+    check_flag(flag, "ERKStepGetNumRelaxSolveIters");
+
+    printf("   Total Relaxation Fn evals    = %li\n", nre);
+    printf("   Total Relaxation Jac evals   = %li\n", nrje);
+    printf("   Total Relaxation fails       = %li\n", nrf);
+    printf("   Total Relaxation bound fails = %li\n", nrf);
+    printf("   Total Relaxation NLS fails   = %li\n", nrnlsf);
+    printf("   Total Relaxation NLS iters   = %li\n", nrnlsi);
   }
   printf("\n");
 

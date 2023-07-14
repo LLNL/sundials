@@ -217,6 +217,9 @@ int main(int argc, char* argv[])
   sunrealtype t = t0;
 
   // Output the initial condition and energy
+  int swidth = 8;
+  int rwidth = std::numeric_limits<sunrealtype>::digits10 + 8;
+
   std::ofstream outfile("ark_pendulum.txt");
   outfile << "# vars: t u v energy energy_err\n";
   outfile << std::scientific;
@@ -224,17 +227,19 @@ int main(int argc, char* argv[])
   outfile << t << " " << ydata[0] << " " << ydata[1] << " " << eng0 << " "
           << SUN_RCONST(0.0) << std::endl;
 
-  std::cout << std::setw(5) << "step" << std::setw(24) << "t" << std::setw(24)
-            << "u" << std::setw(24) << "v" << std::setw(24) << "e"
-            << std::setw(24) << "e err" << std::endl;
-  for (int i = 0; i < 9; i++) std::cout << "--------------";
+  std::cout << std::setw(swidth) << "step" << std::setw(rwidth) << "t"
+            << std::setw(rwidth) << "u" << std::setw(rwidth) << "v"
+            << std::setw(rwidth) << "e" << std::setw(rwidth) << "e err"
+            << std::endl;
+  for (int i = 0; i < swidth + 5 * rwidth; i++) std::cout << "-";
 
   std::cout << std::endl;
   std::cout << std::scientific;
   std::cout << std::setprecision(std::numeric_limits<realtype>::digits10);
-  std::cout << std::setw(5) << 0 << std::setw(24) << t << std::setw(24)
-            << ydata[0] << std::setw(24) << ydata[1] << std::setw(24) << eng0
-            << std::setw(24) << SUN_RCONST(0.0);
+  std::cout << std::setw(swidth) << 0 << std::setw(rwidth) << t
+            << std::setw(rwidth) << ydata[0] << std::setw(rwidth) << ydata[1]
+            << std::setw(rwidth) << eng0 << std::setw(rwidth)
+            << SUN_RCONST(0.0);
   std::cout << std::endl;
 
   while (t < tf)
@@ -257,9 +262,10 @@ int main(int argc, char* argv[])
 
     if (nst % 1000 == 0)
     {
-      std::cout << std::setw(5) << nst << std::setw(24) << t << std::setw(24)
-                << ydata[0] << std::setw(24) << ydata[1] << std::setw(24) << eng
-                << std::setw(24) << eng_chng << std::endl;
+      std::cout << std::setw(swidth) << nst << std::setw(rwidth) << t
+                << std::setw(rwidth) << ydata[0] << std::setw(rwidth)
+                << ydata[1] << std::setw(rwidth) << eng << std::setw(rwidth)
+                << eng_chng << std::endl;
     }
 
     /* Write all steps to file */
@@ -267,7 +273,7 @@ int main(int argc, char* argv[])
             << eng_chng << std::endl;
     }
 
-  for (int i = 0; i < 9; i++) std::cout << "--------------";
+  for (int i = 0; i < swidth + 5 * rwidth; i++) std::cout << "-";
   std::cout << std::endl;
   outfile.close();
 
@@ -276,9 +282,7 @@ int main(int argc, char* argv[])
    * ------------ */
 
   // ARKODE statistics
-  long int nst, nst_a, nfe, nfi;
-  long int nrf, nre, nrje, nrnlsi, nrnlsf;
-  long int nsetups, nje, nfeLS, nni, ncfn, netf;
+  long int nst, nst_a, netf, nfe, nfi;
 
   // Get final statistics on how the solve progressed
   flag = ARKStepGetNumSteps(arkode_mem, &nst);
@@ -302,6 +306,8 @@ int main(int argc, char* argv[])
 
   if (implicit)
   {
+    long int nsetups, nje, nfeLS, nni, ncfn;
+
     flag = ARKStepGetNumNonlinSolvIters(arkode_mem, &nni);
     check_flag(flag, "ARKStepGetNumNonlinSolvIters");
 
@@ -328,8 +334,7 @@ int main(int argc, char* argv[])
 
   if (relax)
   {
-    flag = ARKStepGetNumRelaxFails(arkode_mem, &nrf);
-    check_flag(flag, "ARKStepGetNumRelaxFails");
+    long int nre, nrje, nrf, nrbf, nrnlsi, nrnlsf;
 
     flag = ARKStepGetNumRelaxFnEvals(arkode_mem, &nre);
     check_flag(flag, "ARKStepGetNumRelaxFnEvals");
@@ -337,17 +342,24 @@ int main(int argc, char* argv[])
     flag = ARKStepGetNumRelaxJacEvals(arkode_mem, &nrje);
     check_flag(flag, "ARKStepGetNumRelaxJacEvals");
 
-    flag = ARKStepGetNumRelaxSolveIters(arkode_mem, &nrnlsi);
-    check_flag(flag, "ARKStepGetNumRelaxSolveIters");
+    flag = ARKStepGetNumRelaxFails(arkode_mem, &nrf);
+    check_flag(flag, "ARKStepGetNumRelaxFails");
+
+    flag = ARKStepGetNumRelaxBoundFails(arkode_mem, &nrbf);
+    check_flag(flag, "ARKStepGetNumRelaxBoundFails");
 
     flag = ARKStepGetNumRelaxSolveFails(arkode_mem, &nrnlsf);
     check_flag(flag, "ARKStepGetNumRelaxSolveFails");
 
-    std::cout << "  Total Relaxation fails     = " << nrf << "\n";
-    std::cout << "  Total Relaxation Fn evals  = " << nre << "\n";
-    std::cout << "  Total Relaxation Jac evals = " << nrje << "\n";
-    std::cout << "  Total Relaxation NLS iters = " << nrnlsi << "\n";
-    std::cout << "  Total Relaxation NLS fails = " << nrnlsf << "\n";
+    flag = ARKStepGetNumRelaxSolveIters(arkode_mem, &nrnlsi);
+    check_flag(flag, "ARKStepGetNumRelaxSolveIters");
+
+    std::cout << "  Total Relaxation Fn evals    = " << nre << "\n";
+    std::cout << "  Total Relaxation Jac evals   = " << nrje << "\n";
+    std::cout << "  Total Relaxation fails       = " << nrf << "\n";
+    std::cout << "  Total Relaxation bound fails = " << nrbf << "\n";
+    std::cout << "  Total Relaxation NLS fails   = " << nrnlsf << "\n";
+    std::cout << "  Total Relaxation NLS iters   = " << nrnlsi << "\n";
   }
   std::cout << "\n";
 
