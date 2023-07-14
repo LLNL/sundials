@@ -48,9 +48,6 @@
 #include <math.h>
 #include <stdio.h>
 
-/* Common utilities */
-#include <example_utilities.h>
-
 /* SUNDIALS headers */
 #include <arkode/arkode_arkstep.h>
 #include <nvector/nvector_serial.h>
@@ -59,6 +56,32 @@
 
 /* Value of the natural number e */
 #define EVAL 2.718281828459045235360287471352662497757247093699959574966
+
+/* Convince macros for calling precision-specific math functions */
+#if defined(SUNDIALS_DOUBLE_PRECISION)
+#define EXP(x)  (exp((x)))
+#define SQRT(x) (sqrt((x)))
+#define LOG(x)  (log((x)))
+#elif defined(SUNDIALS_SINGLE_PRECISION)
+#define EXP(x)  (expf((x)))
+#define SQRT(x) (sqrtf((x)))
+#define LOG(x)  (logf((x)))
+#elif defined(SUNDIALS_EXTENDED_PRECISION)
+#define EXP(x)  (expl((x)))
+#define SQRT(x) (sqrtl((x)))
+#define LOG(x)  (logl((x)))
+#endif
+
+/* Convince macros for using precision-specific format specifiers */
+#if defined(SUNDIALS_EXTENDED_PRECISION)
+#define GSYM "Lg"
+#define ESYM "Le"
+#define FSYM "Lf"
+#else
+#define GSYM "g"
+#define ESYM "e"
+#define FSYM "f"
+#endif
 
 /* ----------------------- *
  * User-supplied functions *
@@ -83,6 +106,12 @@ int JacEnt(N_Vector y, N_Vector J, void* user_data);
 
 /* Analytic solution */
 int ans(sunrealtype t, N_Vector y);
+
+/* Check for an unrecoverable (negative) return flag from a SUNDIALS function */
+int check_flag(int flag, const char* funcname);
+
+/* Check if a function returned a NULL pointer */
+int check_ptr(void* ptr, const char* funcname);
 
 /* ------------ *
  * Main Program *
@@ -469,5 +498,27 @@ int ans(sunrealtype t, N_Vector y)
   ydata[0] = LOG(EVAL + EXP(SUN_RCONST(1.5))) - LOG(b);
   ydata[1] = LOG(a * EXP(a * t)) - LOG(b);
 
+  return 0;
+}
+
+/* Check for an unrecoverable (negative) return flag from a SUNDIALS function */
+int check_flag(int flag, const char* funcname)
+{
+  if (flag < 0)
+  {
+    fprintf(stderr, "ERROR: %s() returned %d\n", funcname, flag);
+    return 1;
+  }
+  return 0;
+}
+
+/* Check if a function returned a NULL pointer */
+int check_ptr(void* ptr, const char* funcname)
+{
+  if (!ptr)
+  {
+    fprintf(stderr, "ERROR: %s() returned NULL\n", funcname);
+    return 1;
+  }
   return 0;
 }
