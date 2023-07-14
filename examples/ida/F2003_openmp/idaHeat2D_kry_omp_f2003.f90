@@ -64,7 +64,7 @@ contains
   !   -1 = non-recoverable error
   ! ----------------------------------------------------------------
   integer(c_int) function resHeat(tres, sunvec_u, sunvec_up, sunvec_r, user_data) &
-       result(ierr) bind(C,name='resHeat')
+          result(ierr) bind(C,name='resHeat')
 
     !======= Inclusions ===========
     use, intrinsic :: iso_c_binding
@@ -126,7 +126,7 @@ contains
   !   -1 = non-recoverable error
   ! ----------------------------------------------------------------
   integer(c_int) function PSetupHeat(t, sunvec_u, sunvec_up, sunvec_r, cj, prec_data) &
-       result(ierr) bind(C,name='PSetupHeat')
+          result(ierr) bind(C,name='PSetupHeat')
 
     !======= Inclusions ===========
     use, intrinsic :: iso_c_binding
@@ -177,7 +177,7 @@ contains
   !   -1 = non-recoverable error
   ! ----------------------------------------------------------------
   integer(c_int) function PSolveHeat(t, sunvec_u, sunvec_up, sunvec_r, sunvec_rhs, &
-       sunvec_sol, cj, delta, prec_data) result(ierr) bind(C,name='PSolveHeat')
+          sunvec_sol, cj, delta, prec_data) result(ierr) bind(C,name='PSolveHeat')
 
     !======= Inclusions ===========
     use, intrinsic :: iso_c_binding
@@ -604,7 +604,7 @@ subroutine PrintHeader(rtol, atol)
   print *, "         Discretized heat equation on 2D unit square."
   print *, "         Zero boundary conditions, polynomial initial conditions."
   print '(2(a,i4),a,i8)', "         Mesh dimensions: ", mgrid, " x ", mgrid, &
-       "        Total system size: ", neq
+        "        Total system size: ", neq
   print *, " "
   print *, " Number of OpenMP threads = ", omp_get_max_threads()
   print *, " "
@@ -704,6 +704,6 @@ subroutine PrintOutput(ida_mem, t, uu)
 
 
   print '(f5.2,1x,es13.5,4x,i1,2x,3(i3,2x),2(i4,2x),es9.2,2x,2(i3,1x))', &
-       t, umax, kused, nst, nni, nje, nre, nreLS, hused(1), npe, nps
+          t, umax, kused, nst, nni, nje, nre, nreLS, hused(1), npe, nps
 
 end subroutine PrintOutput

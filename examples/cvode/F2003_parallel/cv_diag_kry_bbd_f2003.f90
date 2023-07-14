@@ -331,7 +331,7 @@ module DiagkrybbdData
     mudq = 0
     mldq = 0
     retval = FCVBBDPrecInit(cvode_mem, nlocal, mudq, mldq, mu, ml, 0.d0, &
-          c_funloc(LocalgFn), c_funloc(CommFn))
+                            c_funloc(LocalgFn), c_funloc(CommFn))
     if (retval /= 0) then
        print *, "Error: FCVBBDPrecInit returned ", retval
        call MPI_Abort(comm, 1, ierr)
@@ -415,7 +415,7 @@ module DiagkrybbdData
  
        ! Get global max. error from MPI_Reduce call.
        call MPI_Reduce(errmax, gerrmax, 1, MPI_DOUBLE, MPI_MAX, &
-                      0, comm, ierr)
+                       0, comm, ierr)
        if (ierr /= MPI_SUCCESS) then
           print *, "Error in MPI_Reduce = ", ierr
           call MPI_Abort(comm, 1, ierr)

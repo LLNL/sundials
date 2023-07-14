@@ -247,7 +247,7 @@ module Heat2DData
     !---------------------------------------------------------------
   
     subroutine InitProfile(sunvec_y, sunvec_ydot, sunvec_id, &
-      sunvec_res, sunvec_c, ierr)
+                           sunvec_res, sunvec_c, ierr)
       use fnvector_parallel_mod
       implicit none
       type(N_Vector), pointer, intent(inout) :: sunvec_y
@@ -387,7 +387,7 @@ module Heat2DData
     ! ODE RHS function f(t,y).
     !-----------------------------------------------------------------
     integer(c_int) function resfn(t, sunvec_y, sunvec_ydot, sunvec_res, &
-      user_data) result(retval) bind(C)
+            user_data) result(retval) bind(C)
   
       !======= Inclusions ===========
       use, intrinsic :: iso_c_binding
@@ -428,7 +428,7 @@ module Heat2DData
     ! Perform neighbor exchange (Communication function)
     !-----------------------------------------------------------------
     integer(c_int) function Exchange(Nloc, t, sunvec_y, sunvec_ydot, &
-         sunvec_g, user_data) result(ierr) bind(C)
+            sunvec_g, user_data) result(ierr) bind(C)
   
       !======= Inclusions ===========
       use, intrinsic :: iso_c_binding
@@ -632,7 +632,7 @@ module Heat2DData
     ! Preconditioner solve routine
     !-----------------------------------------------------------------
     integer(c_int) function LocalFn(Nloc, t, sunvec_y, sunvec_ydot, sunvec_g, &
-         user_data) result(ierr) bind(C)
+            user_data) result(ierr) bind(C)
   
       !======= Inclusions ===========
       use, intrinsic :: iso_c_binding
@@ -873,7 +873,7 @@ module Heat2DData
     mu = 1
     ml = 1
     retval = FIDABBDPrecInit(ida_mem, N, mudq, mldq, mu, ml, 0.d0, &
-         c_funloc(LocalFn), c_funloc(Exchange))
+                             c_funloc(LocalFn), c_funloc(Exchange))
     if (retval /= 0) then
        print *, "Error: FIDASetPreconditioner returned ",retval
        call MPI_Abort(comm, 1, ierr)
@@ -983,7 +983,7 @@ module Heat2DData
          ymax = FN_VMaxNorm(sunvec_y)
          call getStats(ida_mem, retval, ierr)
          if (outproc)        write(6,'(2x,f10.6,2x,es13.5,3x,i1,3x,i2,3x,i3,3x,i3,3x,i3,a,i3,3x,i4,3x,es9.2,3x,i2,3x,i3)') &
-                              t, ymax, k, nst, nni, nli, nre, "+", nreLS, nge, h, npre, npsol
+                                   t, ymax, k, nst, nni, nli, nre, "+", nreLS, nge, h, npre, npsol
          tout = 2.0d0 * tout
    
          ! output results to disk

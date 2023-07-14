@@ -63,7 +63,7 @@ module DiagkryData
     ! ODE RHS function f(t,y) (implicit).
     !-----------------------------------------------------------------
     integer(c_int) function firhs(t, sunvec_y, sunvec_ydot, user_data) &
-      result(retval) bind(C)
+            result(retval) bind(C)
  
       !======= Inclusions ===========
       use, intrinsic :: iso_c_binding
@@ -429,7 +429,7 @@ module DiagkryData
  
        ! Get global max. error from MPI_Reduce call.
        call MPI_Reduce(errmax, gerrmax, 1, MPI_DOUBLE, MPI_MAX, &
-                      0, comm, ierr)
+                       0, comm, ierr)
        if (ierr /= MPI_SUCCESS) then
           print *, "Error in MPI_Reduce = ", ierr
           call MPI_Abort(comm, 1, ierr)

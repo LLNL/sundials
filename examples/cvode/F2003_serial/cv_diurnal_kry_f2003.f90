@@ -234,8 +234,8 @@ module diurnal_mod
       else    
       ! jok = 0. compute diagonal jacobian blocks.
       ! (using q4 value computed on last fcvfun call).
-         call Prec_Jac(mx, my, u, p_bd, &
-              q1, q2, q3, q4, c3, dy, hdco, vdco, ierr)
+         call Prec_Jac(mx, my, u, p_bd, q1, q2, q3, q4, &
+                       c3, dy, hdco, vdco, ierr)
          jcur = 1
       endif
 
@@ -290,7 +290,7 @@ module diurnal_mod
     end function PreSolve
 
     subroutine Prec_Jac(mmx, mmy, u, bd, qq1, qq2, qq3, qq4, cc3, &
-            ddy, hhdco, vvdco, ierr)
+                        ddy, hhdco, vvdco, ierr)
       
       implicit none
 

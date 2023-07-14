@@ -101,7 +101,7 @@ module diagon_mod
     !   -1 = non-recoverable error
     ! ----------------------------------------------------------------
     integer(c_int) function func(sunvec_u, sunvec_f, user_data) &
-         result(ierr) bind(C)
+            result(ierr) bind(C)
   
       !======= Inclusions ===========
       use fsundials_nvector_mod
@@ -143,7 +143,7 @@ module diagon_mod
     end function func
   
     integer(c_int) function kpsetup(sunvec_u, sunvec_s, sunvec_f, &
-         sunvec_fs, user_data) result(ierr) bind(C)
+            sunvec_fs, user_data) result(ierr) bind(C)
       
       !======= Inclusions ===========
       use fsundials_nvector_mod
@@ -181,7 +181,7 @@ module diagon_mod
     end function kpsetup
   
     integer(c_int) function kpsolve(sunvec_u, sunvec_s, sunvec_f, &
-         sunvec_fs, sunvec_v, user_data) result(ierr) bind(C)
+            sunvec_fs, sunvec_v, user_data) result(ierr) bind(C)
       
       !======= Inclusions ===========
       use fsundials_nvector_mod
