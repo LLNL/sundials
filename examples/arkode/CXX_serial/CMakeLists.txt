@@ -71,11 +71,6 @@ foreach(example_tuple ${ARKODE_examples})
 
     target_compile_features(${example_target} PRIVATE cxx_std_14)
 
-    # directories to include
-    target_include_directories(${example_target}
-      PRIVATE
-      ${PROJECT_SOURCE_DIR}/examples/utilities)
-
     # libraries to link against
     target_link_libraries(${example_target}
       sundials_arkode
@@ -128,7 +123,6 @@ if(EXAMPLES_INSTALL)
       README
       ${ARKODE_extras}
       ${ARKODE_headers}
-      "${PROJECT_SOURCE_DIR}/examples/utilities/example_utilities.hpp"
     TEST_INSTALL
       CXX_serial
   )

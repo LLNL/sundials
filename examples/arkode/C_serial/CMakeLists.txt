@@ -110,11 +110,6 @@ foreach(example_tuple ${ARKODE_examples})
     # folder for IDEs
     set_target_properties(${example} PROPERTIES FOLDER "Examples")
 
-    # directories to include
-    target_include_directories(${example}
-      PRIVATE
-      ${PROJECT_SOURCE_DIR}/examples/utilities)
-
     # libraries to link against
     target_link_libraries(${example}
       sundials_arkode
@@ -165,11 +160,6 @@ if(BUILD_SUNLINSOL_KLU)
       ANSWER_FILE ${example}.out
       EXAMPLE_TYPE ${example_type})
 
-    # directories to include
-    target_include_directories(${example}
-      PRIVATE
-      ${PROJECT_SOURCE_DIR}/examples/utilities)
-
     # libraries to link against
     target_link_libraries(${example}
       sundials_arkode
@@ -208,11 +198,6 @@ if(BUILD_SUNLINSOL_SUPERLUMT)
       ANSWER_FILE ${example}.out
       EXAMPLE_TYPE ${example_type})
 
-    # directories to include
-    target_include_directories(${example}
-      PRIVATE
-      ${PROJECT_SOURCE_DIR}/examples/utilities)
-
     # libraries to link against
     target_link_libraries(${example}
       sundials_arkode
@@ -241,9 +226,6 @@ if(EXAMPLES_INSTALL)
   foreach(extrafile ${ARKODE_extras})
     install(FILES ${extrafile} DESTINATION ${EXAMPLES_INSTALL_PATH}/arkode/C_serial)
   endforeach(extrafile ${ARKODE_extras})
-
-  install(FILES "${PROJECT_SOURCE_DIR}/examples/utilities/example_utilities.h"
-    DESTINATION ${EXAMPLES_INSTALL_PATH}/arkode/C_serial)
 
   # Prepare substitution variables for Makefile and/or CMakeLists templates
   set(SOLVER "ARKODE")
