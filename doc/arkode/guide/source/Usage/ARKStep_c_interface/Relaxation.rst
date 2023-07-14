@@ -21,6 +21,12 @@ This section describes user-callable functions for applying relaxation methods
 with ARKStep. For more information on relaxation Runge--Kutta methods see
 :numref:`ARKODE.Mathematics.Relaxation`.
 
+.. note::
+
+   Relaxation support as not been evaluated with non-identity mass matrices.
+   While this usage mode is supported, feedback from users who explore this
+   combination would be appreciated.
+
 Enabling or Disabling Relaxation
 --------------------------------
 
