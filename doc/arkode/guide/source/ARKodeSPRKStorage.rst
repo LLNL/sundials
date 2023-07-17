@@ -127,7 +127,7 @@ ARKodeSPRKStorage functions
 
 .. c:function:: ARKodeSPRKStorage ARKodeSPRKStorage_Alloc(int stages)
 
-   Allocate memory for an ARKodeSPRKStorage structure with the specified number of stages.
+   Allocate memory for an :c:type:`ARKodeSPRKStorage`` structure with the specified number of stages.
 
    :param stages: The number of stages.
    :return: ARKodeSPRKStorage structure for the loaded method.
