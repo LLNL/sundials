@@ -492,15 +492,19 @@ int main(int argc, char* argv[])
     sunrealtype con_orders[NUM_DT];
     sunrealtype acc_errors[NUM_DT];
     sunrealtype con_errors[NUM_DT];
-    int expected_order = ARKodeSPRKTable_LoadByName(args.method_name)->q;
-    N_Vector ref_sol   = N_VClone(result.sol);
-    N_Vector error     = N_VClone(result.sol);
+    ARKodeSPRKTable method = ARKodeSPRKTable_LoadByName(args.method_name);
+    int expected_order     = method->q;
+    N_Vector ref_sol       = N_VClone(result.sol);
+    N_Vector error         = N_VClone(result.sol);
     sunrealtype a11 = 0, a12 = 0, a21 = 0, a22 = 0;
     sunrealtype b1 = 0, b2 = 0, b1e = 0, b2e = 0;
     sunrealtype ord_max_acc = 0, ord_max_conv = 0, ord_avg = 0, ord_est = 0;
     sunrealtype refine = SUN_RCONST(.5);
     sunrealtype dt = (expected_order >= 3) ? SUN_RCONST(1e-1) : SUN_RCONST(1e-3);
     sunrealtype dts[NUM_DT];
+
+    /* Free method, we just needed it to get its order */
+    ARKodeSPRKTable_Free(method);
 
     /* Create a reference solution using 8th order ERK with a small time step */
     const int old_step_mode     = args.step_mode;
