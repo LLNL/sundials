@@ -14,7 +14,7 @@
 lassen_cuda_no_tpls:
   parallel:
     matrix:
-      - COMPILER_SPEC: [xl@16.1.1.12]
+      - COMPILER_SPEC: [xl@16.1.1.14]
         CUDA_SPEC: [cuda@10.1.243]
   variables:
       SPEC: "%${COMPILER_SPEC} cstd=99 cxxstd=14 precision=double ~int64 +mpi+openmp+cuda~raja~magma~superlu-dist~petsc~hypre~ginkgo cuda_arch=70 ^${CUDA_SPEC}+allow-unsupported-compilers"
