@@ -2944,7 +2944,7 @@ int arkCheckConstraints(ARKodeMem ark_mem, int *constrfails, int *nflag)
 {
   booleantype constraintsPassed;
   N_Vector mm  = ark_mem->tempv4;
-  N_Vector tmp = ark_mem->tempv1;
+  N_Vector tmp = ark_mem->tempv3;
 
   /* Check constraints and get mask vector mm for where constraints failed */
   constraintsPassed = N_VConstrMask(ark_mem->constraints, ark_mem->ycur, mm);
