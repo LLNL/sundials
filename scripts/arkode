@@ -83,8 +83,11 @@ $tar $tarfile $distrobase/src/arkode/arkode_mristep.c
 $tar $tarfile $distrobase/src/arkode/arkode_mristep_impl.h
 $tar $tarfile $distrobase/src/arkode/arkode_mristep_io.c
 $tar $tarfile $distrobase/src/arkode/arkode_mristep_nls.c
+$tar $tarfile $distrobase/src/arkode/arkode_relaxation.c
+$tar $tarfile $distrobase/src/arkode/arkode_relaxation_impl.h
 $tar $tarfile $distrobase/src/arkode/arkode_root.c
 $tar $tarfile $distrobase/src/arkode/arkode_root_impl.h
+$tar $tarfile $distrobase/src/arkode/arkode_types_impl.h
 
 $tar $tarfile $distrobase/src/arkode/xbraid/CMakeLists.txt
 $tar $tarfile $distrobase/src/arkode/xbraid/arkode_xbraid.c
@@ -184,6 +187,14 @@ $tar $tarfile $distrobase/examples/arkode/C_serial/ark_brusselator_mri.c
 $tar $tarfile $distrobase/examples/arkode/C_serial/ark_brusselator_mri.out
 $tar $tarfile $distrobase/examples/arkode/C_serial/ark_brusselator_1D_mri.c
 $tar $tarfile $distrobase/examples/arkode/C_serial/ark_brusselator_1D_mri.out
+$tar $tarfile $distrobase/examples/arkode/C_serial/ark_conserved_exp_entropy_ark.c
+$tar $tarfile $distrobase/examples/arkode/C_serial/ark_conserved_exp_entropy_ark_1_0.out
+$tar $tarfile $distrobase/examples/arkode/C_serial/ark_conserved_exp_entropy_ark_1_1.out
+$tar $tarfile $distrobase/examples/arkode/C_serial/ark_conserved_exp_entropy_erk.c
+$tar $tarfile $distrobase/examples/arkode/C_serial/ark_conserved_exp_entropy_erk_1.out
+$tar $tarfile $distrobase/examples/arkode/C_serial/ark_dissipated_exp_entropy.c
+$tar $tarfile $distrobase/examples/arkode/C_serial/ark_dissipated_exp_entropy_1_0.out
+$tar $tarfile $distrobase/examples/arkode/C_serial/ark_dissipated_exp_entropy_1_1.out
 $tar $tarfile $distrobase/examples/arkode/C_serial/ark_heat1D.c
 $tar $tarfile $distrobase/examples/arkode/C_serial/ark_heat1D.out
 $tar $tarfile $distrobase/examples/arkode/C_serial/ark_heat1D_adapt.c
@@ -284,6 +295,8 @@ $tar $tarfile $distrobase/examples/arkode/CXX_serial/ark_kpr_Mt_2_-5_0_-10.out
 $tar $tarfile $distrobase/examples/arkode/CXX_serial/ark_kpr_Mt_2_8_0_-10.out
 $tar $tarfile $distrobase/examples/arkode/CXX_serial/ark_kpr_Mt_0_4_0_-10_0_10_1.out
 $tar $tarfile $distrobase/examples/arkode/CXX_serial/ark_kpr_Mt_0_4_0_-10_1_10_1.out
+$tar $tarfile $distrobase/examples/arkode/CXX_serial/ark_pendulum.cpp
+$tar $tarfile $distrobase/examples/arkode/CXX_serial/ark_pendulum.out
 $tar $tarfile $distrobase/examples/arkode/CXX_serial/plot_heat2D.py
 $tar $tarfile $distrobase/examples/arkode/CXX_serial/plot_sol.py
 
