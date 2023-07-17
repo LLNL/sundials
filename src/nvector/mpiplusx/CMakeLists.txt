@@ -32,7 +32,8 @@ sundials_add_library(sundials_nvecmpiplusx
     ${SUNDIALS_SOURCE_DIR}/include/nvector/nvector_mpiplusx.h
   INCLUDE_SUBDIR
     nvector
-  LINK_LIBRARIES MPI::MPI_C
+  LINK_LIBRARIES 
+    PUBLIC MPI::MPI_C
   OBJECT_LIBRARIES
     sundials_generic_obj
     sundials_nvecmpimanyvector_obj

@@ -59,7 +59,8 @@ if(BUILD_NVECTOR_MPIMANYVECTOR)
       ${SUNDIALS_SOURCE_DIR}/include/nvector/nvector_mpimanyvector.h
     INCLUDE_SUBDIR
       nvector
-    LINK_LIBRARIES MPI::MPI_C
+    LINK_LIBRARIES 
+      PUBLIC MPI::MPI_C
     OBJECT_LIBRARIES
       sundials_generic_obj
     COMPILE_DEFINITIONS
