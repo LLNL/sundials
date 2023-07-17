@@ -3493,6 +3493,7 @@ Retrieve a pointer for user data                       :c:func:`ARKStepGetUserDa
 .. c:function:: char *ARKStepGetReturnFlagName(long int flag)
 
    Returns the name of the ARKStep constant corresponding to *flag*.
+   See :ref:`ARKODE.Constants`.
 
    **Arguments:**
       * *flag* -- a return flag from an ARKStep function.

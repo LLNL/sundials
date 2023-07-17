@@ -979,7 +979,7 @@ SWIGEXPORT void * _wrap_FARKodeSPRKTable_Copy(void *farg1) {
 }
 
 
-SWIGEXPORT void _wrap_FARKodeSPRKTableMempace(void *farg1, int64_t *farg2, int64_t *farg3) {
+SWIGEXPORT void _wrap_FARKodeSPRKTable_Space(void *farg1, int64_t *farg2, int64_t *farg3) {
   ARKodeSPRKTable arg1 = (ARKodeSPRKTable) 0 ;
   sunindextype *arg2 = (sunindextype *) 0 ;
   sunindextype *arg3 = (sunindextype *) 0 ;
@@ -987,7 +987,7 @@ SWIGEXPORT void _wrap_FARKodeSPRKTableMempace(void *farg1, int64_t *farg2, int64
   arg1 = (ARKodeSPRKTable)(farg1);
   arg2 = (sunindextype *)(farg2);
   arg3 = (sunindextype *)(farg3);
-  ARKodeSPRKTableMempace(arg1,arg2,arg3);
+  ARKodeSPRKTable_Space(arg1,arg2,arg3);
 }
 
 

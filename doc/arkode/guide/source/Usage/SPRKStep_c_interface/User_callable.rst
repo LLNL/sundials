@@ -99,11 +99,10 @@ called prior to a continuation call to :c:func:`SPRKStepEvolve()`.
    :param g: name of user-supplied function, of type :c:func:`ARKRootFn()`,
       defining the functions :math:`g_i` whose roots are sought.
 
-   :returns:
-      * *ARK_SUCCESS* if successful
-      * *ARK_MEM_NULL*  if the SPRKStep memory was ``NULL``
-      * *ARK_MEM_FAIL*  if there was a memory allocation failure
-      * *ARK_ILL_INPUT* if *nrtfn* is greater than zero but *g* = ``NULL``.
+   :retval ARK_SUCCESS: if successful
+   :retval ARK_MEM_NULL: if the SPRKStep memory was ``NULL``
+   :retval ARK_MEM_FAIL: if there was a memory allocation failure
+   :retval ARK_ILL_INPUT: if *nrtfn* is greater than zero but *g* = ``NULL``.
 
    **Notes:**
       To disable the rootfinding feature after it has already
@@ -295,12 +294,11 @@ Optional inputs for SPRKStep
 
    :param arkode_mem: pointer to the SPRKStep memory block.
 
-   :return:
-      * *ARK_SUCCESS* if successful
-      * *ARK_MEM_NULL* if the SPRKStep memory is ``NULL``
-      * *ARK_ILL_INPUT* if an argument has an illegal value
+   :retval ARK_SUCCESS: if successful
+   :retval ARK_MEM_NULL: if the SPRKStep memory is ``NULL``
+   :retval ARK_ILL_INPUT: if an argument has an illegal value
 
-   .. notes::
+   .. note::
 
       Does not change problem-defining function pointer *f*
       or the *user_data* pointer.
@@ -319,14 +317,13 @@ Optional inputs for SPRKStep
    :param arkode_mem: pointer to the SPRKStep memory block.
    :param itype: requested interpolant type (``ARK_INTERP_HERMITE`` or ``ARK_INTERP_LAGRANGE``)
 
-   :return:
-      * *ARK_SUCCESS* if successful
-      * *ARK_MEM_NULL* if the SPRKStep memory is ``NULL``
-      * *ARK_MEM_FAIL* if the interpolation module cannot be allocated
-      * *ARK_ILL_INPUT* if the *itype* argument is not recognized or the
-        interpolation module has already been initialized
+   :retval ARK_SUCCESS: if successful
+   :retval ARK_MEM_NULL: if the SPRKStep memory is ``NULL``
+   :retval ARK_MEM_FAIL: if the interpolation module cannot be allocated
+   :retval ARK_ILL_INPUT: if the *itype* argument is not recognized or the
+      interpolation module has already been initialized
 
-   .. notes::
+   .. note::
 
       The Hermite interpolation module is described in
       :numref:`ARKODE.Mathematics.Interpolation.Hermite`, and the Lagrange interpolation module
@@ -351,19 +348,18 @@ Optional inputs for SPRKStep
 
    Specifies the degree of the polynomial interpolant
    used for dense output (i.e. interpolation of solution output values).
+   Allowed values are between 0 and 5.
 
    :param arkode_mem: pointer to the SPRKStep memory block.
    :param degree: requested polynomial degree.
 
-   :return:
-      * *ARK_SUCCESS* if successful
-      * *ARK_MEM_NULL* if the SPRKStep memory or interpolation module are ``NULL``
-      * *ARK_INTERP_FAIL* if this is called after :c:func:`SPRKStepEvolve()`
-      * *ARK_ILL_INPUT* if an argument has an illegal value or the
-        interpolation module has already been initialized
+   :retval ARK_SUCCESS: if successful
+   :retval ARK_MEM_NULL: if the SPRKStep memory or interpolation module are ``NULL``
+   :retval ARK_INTERP_FAIL: if this is called after :c:func:`SPRKStepEvolve()`
+   :retval ARK_ILL_INPUT: if an argument has an illegal value or the
+      interpolation module has already been initialized
 
-   **Notes:**
-      Allowed values are between 0 and 5.
+   .. note::
 
       This routine should be called *after* :c:func:`SPRKStepCreate` and *before*
       :c:func:`SPRKStepEvolve()`. After the first call to :c:func:`SPRKStepEvolve()`
@@ -392,10 +388,9 @@ Optional inputs for SPRKStep
    :param arkode_mem: pointer to the SPRKStep memory block.
    :param errfp: pointer to the output file.
 
-   :return:
-      * *ARK_SUCCESS* if successful
-      * *ARK_MEM_NULL* if the SPRKStep memory is ``NULL``
-      * *ARK_ILL_INPUT* if an argument has an illegal value
+   :retval ARK_SUCCESS: if successful
+   :retval ARK_MEM_NULL: if the SPRKStep memory is ``NULL``
+   :retval ARK_ILL_INPUT: if an argument has an illegal value
 
    **Notes:**
       The default value for *errfp* is ``stderr``.
@@ -419,10 +414,9 @@ Optional inputs for SPRKStep
    :param ehfun: name of user-supplied error handler function.
    :param eh_data: pointer to user data passed to *ehfun* every time it is called.
 
-   :return:
-      * *ARK_SUCCESS* if successful
-      * *ARK_MEM_NULL* if the SPRKStep memory is ``NULL``
-      * *ARK_ILL_INPUT* if an argument has an illegal value
+   :retval ARK_SUCCESS: if successful
+   :retval ARK_MEM_NULL: if the SPRKStep memory is ``NULL``
+   :retval ARK_ILL_INPUT: if an argument has an illegal value
 
    **Notes:**
       Error messages indicating that the SPRKStep solver memory is
@@ -436,10 +430,9 @@ Optional inputs for SPRKStep
    :param arkode_mem: pointer to the SPRKStep memory block.
    :param hfixed: value of the fixed step size to use.
 
-   :return:
-      * *ARK_SUCCESS* if successful
-      * *ARK_MEM_NULL* if the SPRKStep memory is ``NULL``
-      * *ARK_ILL_INPUT* if an argument has an illegal value
+   :retval ARK_SUCCESS: if successful
+   :retval ARK_MEM_NULL: if the SPRKStep memory is ``NULL``
+   :retval ARK_ILL_INPUT: if an argument has an illegal value
 
    **Notes:**
       If both :c:func:`SPRKStepSetFixedStep()` and
@@ -459,10 +452,9 @@ Optional inputs for SPRKStep
    :param arkode_mem: pointer to the SPRKStep memory block.
    :param mxsteps: maximum allowed number of internal steps.
 
-   :return:
-      * *ARK_SUCCESS* if successful
-      * *ARK_MEM_NULL* if the SPRKStep memory is ``NULL``
-      * *ARK_ILL_INPUT* if an argument has an illegal value
+   :retval ARK_SUCCESS: if successful
+   :retval ARK_MEM_NULL: if the SPRKStep memory is ``NULL``
+   :retval ARK_ILL_INPUT: if an argument has an illegal value
 
    **Notes:**
       Passing *mxsteps* = 0 results in SPRKStep using the
@@ -478,10 +470,9 @@ Optional inputs for SPRKStep
    :param arkode_mem: pointer to the SPRKStep memory block.
    :param tstop: stopping time for the integrator.
 
-   :return:
-      * *ARK_SUCCESS* if successful
-      * *ARK_MEM_NULL* if the SPRKStep memory is ``NULL``
-      * *ARK_ILL_INPUT* if an argument has an illegal value
+   :retval ARK_SUCCESS: if successful
+   :retval ARK_MEM_NULL: if the SPRKStep memory is ``NULL``
+   :retval ARK_ILL_INPUT: if an argument has an illegal value
 
    **Notes:**
       The default is that no stop time is imposed.
@@ -518,10 +509,9 @@ Optional inputs for SPRKStep
    :param arkode_mem: pointer to the SPRKStep memory block.
    :param user_data: pointer to the user data.
 
-   :return:
-      * *ARK_SUCCESS* if successful
-      * *ARK_MEM_NULL* if the SPRKStep memory is ``NULL``
-      * *ARK_ILL_INPUT* if an argument has an illegal value
+   :retval ARK_SUCCESS: if successful
+   :retval ARK_MEM_NULL: if the SPRKStep memory is ``NULL``
+   :retval ARK_ILL_INPUT: if an argument has an illegal value
 
    **Notes:**
       If specified, the pointer to *user_data* is passed to all
@@ -537,17 +527,17 @@ Optional inputs for IVP method selection
 .. _ARKODE.Usage.SPRKStep.SPRKStepMethodInputTable:
 .. table:: Optional inputs for IVP method selection
 
-   +-----------------------------+-------------------------------------------+----------+
-   | Optional input              | Function name                             | Default  |
-   +=============================+===========================================+==========+
-   | Set integrator method order | :c:func:`SPRKStepSetOrder()`              | 4        |
-   +-----------------------------+-------------------------------------------+----------+
-   | Set SPRK method             | :c:func:`SPRKStepSetMethod()`             | internal |
-   +-----------------------------+-------------------------------------------+----------+
-   | Set SPRK method by name     | :c:func:`SPRKStepSetMethodName()`         | internal |
-   +-----------------------------+-------------------------------------------+----------+
-   | Use compensated summation   | :c:func:`SPRKStepSetUseCompensatedSums()` | false    |
-   +-----------------------------+-------------------------------------------+----------+
+   +-----------------------------+-------------------------------------------+-------------------------------------+
+   |       Optional input        |               Function name               |               Default               |
+   +=============================+===========================================+=====================================+
+   | Set integrator method order | :c:func:`SPRKStepSetOrder()`              | 4                                   |
+   +-----------------------------+-------------------------------------------+-------------------------------------+
+   | Set SPRK method             | :c:func:`SPRKStepSetMethod()`             | :c:type:`ARKODE_SPRK_MCLACHLAN_4_4` |
+   +-----------------------------+-------------------------------------------+-------------------------------------+
+   | Set SPRK method by name     | :c:func:`SPRKStepSetMethodName()`         | "ARKODE_SPRK_MCLACHLAN_4_4"         |
+   +-----------------------------+-------------------------------------------+-------------------------------------+
+   | Use compensated summation   | :c:func:`SPRKStepSetUseCompensatedSums()` | false                               |
+   +-----------------------------+-------------------------------------------+-------------------------------------+
 
 
 .. c:function:: int SPRKStepSetOrder(void* arkode_mem, int ord)
@@ -557,10 +547,9 @@ Optional inputs for IVP method selection
    :param arkode_mem: pointer to the SPRKStep memory block.
    :param ord: requested order of accuracy.
 
-   :return:
-      * *ARK_SUCCESS* if successful
-      * *ARK_MEM_NULL* if the SPRKStep memory is ``NULL``
-      * *ARK_ILL_INPUT* if an argument has an illegal value
+   :retval ARK_SUCCESS: if successful
+   :retval ARK_MEM_NULL: if the SPRKStep memory is ``NULL``
+   :retval ARK_ILL_INPUT: if an argument has an illegal value
 
    **Notes:**
       The allowed values are :math:`1,2,3,4,5,6,8,10`. 
@@ -583,10 +572,9 @@ Optional inputs for IVP method selection
    :param arkode_mem: pointer to the SPRKStep memory block.
    :param sprk_storage: the SPRK method coefficient structure.
 
-   :return:
-      * *ARK_SUCCESS* if successful
-      * *ARK_MEM_NULL* if the SPRKStep memory is ``NULL``
-      * *ARK_ILL_INPUT* if an argument has an illegal value
+   :retval ARK_SUCCESS: if successful
+   :retval ARK_MEM_NULL: if the SPRKStep memory is ``NULL``
+   :retval ARK_ILL_INPUT: if an argument has an illegal value
 
    **Notes:**
       No error checking is performed on the coefficients contained in the structure to ensure its declared order of accuracy.
@@ -600,10 +588,9 @@ Optional inputs for IVP method selection
    :param arkode_mem: pointer to the SPRKStep memory block.
    :param method: the SPRK method name.
 
-   :return:
-      * *ARK_SUCCESS* if successful
-      * *ARK_MEM_NULL* if the SPRKStep memory is ``NULL``
-      * *ARK_ILL_INPUT* if an argument has an illegal value
+   :retval ARK_SUCCESS: if successful
+   :retval ARK_MEM_NULL: if the SPRKStep memory is ``NULL``
+   :retval ARK_ILL_INPUT: if an argument has an illegal value
 
 
 .. c:function:: int SPRKStepSetUseCompensatedSums(void* arkode_mem, sunbooleantype onoff)
@@ -614,10 +601,9 @@ Optional inputs for IVP method selection
    :param arkode_mem: pointer to the SPRKStep memory block.
    :param onoff: should compensated summation be used (1) or not (0)
 
-   :return:
-      * *ARK_SUCCESS* if successful
-      * *ARK_MEM_NULL* if the SPRKStep memory is ``NULL``
-      * *ARK_ILL_INPUT* if an argument has an illegal value
+   :retval ARK_SUCCESS: if successful
+   :retval ARK_MEM_NULL: if the SPRKStep memory is ``NULL``
+   :retval ARK_ILL_INPUT: if an argument has an illegal value
 
    **Notes:**
       This increases the computational cost by 2 extra vector operations per stage and
@@ -662,10 +648,9 @@ described in :numref:`ARKODE.Mathematics.Rootfinding`.
       should report only zero-crossings where :math:`g_i` is
       increasing or decreasing, respectively.
 
-   :return:
-      * *ARK_SUCCESS* if successful
-      * *ARK_MEM_NULL* if the SPRKStep memory is ``NULL``
-      * *ARK_ILL_INPUT* if an argument has an illegal value
+   :retval ARK_SUCCESS: if successful
+   :retval ARK_MEM_NULL: if the SPRKStep memory is ``NULL``
+   :retval ARK_ILL_INPUT: if an argument has an illegal value
 
    **Notes:**
       The default behavior is to monitor for both zero-crossing directions.
@@ -838,9 +823,8 @@ Main solver optional output functions
    :param arkode_mem: pointer to the SPRKStep memory block.
    :param nsteps: number of steps taken in the solver.
 
-   :return:
-      * *ARK_SUCCESS* if successful
-      * *ARK_MEM_NULL* if the SPRKStep memory was ``NULL``
+   :retval ARK_SUCCESS: if successful
+   :retval ARK_MEM_NULL: if the SPRKStep memory was ``NULL``
 
 
 .. c:function:: int SPRKStepGetLastStep(void* arkode_mem, realtype* hlast)
@@ -851,9 +835,8 @@ Main solver optional output functions
    :param arkode_mem: pointer to the SPRKStep memory block.
    :param hlast: step size taken on the last internal step.
 
-   :return:
-      * *ARK_SUCCESS* if successful
-      * *ARK_MEM_NULL* if the SPRKStep memory was ``NULL``
+   :retval ARK_SUCCESS: if successful
+   :retval ARK_MEM_NULL: if the SPRKStep memory was ``NULL``
 
 
 .. c:function:: int SPRKStepGetCurrentStep(void* arkode_mem, realtype* hcur)
@@ -863,9 +846,8 @@ Main solver optional output functions
    :param arkode_mem: pointer to the SPRKStep memory block.
    :param hcur: step size to be attempted on the next internal step.
 
-   :return:
-      * *ARK_SUCCESS* if successful
-      * *ARK_MEM_NULL* if the SPRKStep memory was ``NULL``
+   :retval ARK_SUCCESS: if successful
+   :retval ARK_MEM_NULL: if the SPRKStep memory was ``NULL``
 
 
 .. c:function:: int SPRKStepGetCurrentTime(void* arkode_mem, realtype* tcur)
@@ -875,22 +857,19 @@ Main solver optional output functions
    :param arkode_mem: pointer to the SPRKStep memory block.
    :param tcur: current internal time reached.
 
-   :return:
-      * *ARK_SUCCESS* if successful
-      * *ARK_MEM_NULL* if the SPRKStep memory was ``NULL``
+   :retval ARK_SUCCESS: if successful
+   :retval ARK_MEM_NULL: if the SPRKStep memory was ``NULL``
 
 
 .. c:function:: int SPRKStepGetCurrentState(void *arkode_mem, N_Vector *ycur)
 
    Returns the current internal solution reached by the solver.
 
-   **Arguments:**
-      * *arkode_mem* -- pointer to the ARKStep memory block.
-      * *ycur* -- current internal solution.
+   :param arkode_mem: pointer to the SPRKStep memory block.
+   :param ycur: current internal solution
 
-   **Return value:**
-      * *ARK_SUCCESS* if successful
-      * *ARK_MEM_NULL* if the ARKStep memory was ``NULL``
+   :retval ARK_SUCCESS: if successful
+   :retval ARK_MEM_NULL: if the SPRKStep memory was ``NULL``
 
    .. warning::
 
@@ -910,27 +889,25 @@ Main solver optional output functions
    :param hcur: step size to be attempted on the next internal step.
    :param tcur: current internal time reached.
 
-   :return:
-      * *ARK_SUCCESS* if successful
-      * *ARK_MEM_NULL* if the SPRKStep memory was ``NULL``
+   :retval ARK_SUCCESS: if successful
+   :retval ARK_MEM_NULL: if the SPRKStep memory was ``NULL``
 
 
 .. c:function:: int SPRKStepPrintAllStats(void* arkode_mem, FILE* outfile, SUNOutputFormat fmt)
 
    Outputs all of the integrator statistics.
 
-     * *arkode_mem* -- pointer to the SPRKStep memory block.
-     * *outfile* -- pointer to output file.
-     * *fmt* -- the output format:
+   :param arkode_mem: pointer to the SPRKStep memory block.
+   :param outfile: pointer to output file.
+   :param fmt: the output format:
 
        * :c:enumerator:`SUN_OUTPUTFORMAT_TABLE` -- prints a table of values
        * :c:enumerator:`SUN_OUTPUTFORMAT_CSV` -- prints a comma-separated list
          of key and value pairs e.g., ``key1,value1,key2,value2,...``
 
-   :return:
-     * *ARK_SUCCESS* -- if the output was successfully.
-     * *CV_MEM_NULL* -- if the SPRKStep memory was ``NULL``.
-     * *CV_ILL_INPUT* -- if an invalid formatting option was provided.
+   :retval ARK_SUCCESS: -- if the output was successfully.
+   :retval ARK_MEM_NULL: -- if the SPRKStep memory was ``NULL``.
+   :retval ARK_ILL_INPUT: -- if an invalid formatting option was provided.
 
    .. note::
 
@@ -943,6 +920,7 @@ Main solver optional output functions
 .. c:function:: char *SPRKStepGetReturnFlagName(long int flag)
 
    Returns the name of the SPRKStep constant corresponding to *flag*.
+   See :ref:`ARKODE.Constants`.
 
    :param flag: a return flag from an SPRKStep function.
 
@@ -958,9 +936,8 @@ Main solver optional output functions
    :param arkode_mem: pointer to the SPRKStep memory block.
    :param step_attempts: number of steps attempted by solver.
 
-   :return:
-      * *ARK_SUCCESS* if successful
-      * *ARK_MEM_NULL* if the SPRKStep memory was ``NULL``
+   :retval ARK_SUCCESS: if successful
+   :retval ARK_MEM_NULL: if the SPRKStep memory was ``NULL``
 
 
 .. c:function:: int SPRKStepGetNumRhsEvals(void* arkode_mem, long int* nf1, long int* nf2)
@@ -972,9 +949,8 @@ Main solver optional output functions
    :param nf1: number of calls to the user's :math:`f_1(t,p)` function.
    :param nf2: number of calls to the user's :math:`f_2(t,q)` function.
 
-   :return:
-      * *ARK_SUCCESS* if successful
-      * *ARK_MEM_NULL* if the SPRKStep memory was ``NULL``
+   :retval ARK_SUCCESS: if successful
+   :retval ARK_MEM_NULL: if the SPRKStep memory was ``NULL``
 
 
 
@@ -985,9 +961,8 @@ Main solver optional output functions
    :param arkode_mem: pointer to the SPRKStep memory block.
    :param sprk_storage: pointer to the SPRK method coefficient structure.
 
-   :return:
-      * *ARK_SUCCESS* if successful
-      * *ARK_MEM_NULL* if the SPRKStep memory was ``NULL``
+   :retval ARK_SUCCESS: if successful
+   :retval ARK_MEM_NULL: if the SPRKStep memory was ``NULL``
 
 
 .. c:function:: int SPRKStepGetUserData(void* arkode_mem, void** user_data)
@@ -998,9 +973,8 @@ Main solver optional output functions
    :param arkode_mem: pointer to the SPRKStep memory block.
    :param user_data: memory reference to a user data pointer
 
-   :return:
-      * *ARK_SUCCESS* if successful
-      * *ARK_MEM_NULL* if the ARKStep memory was ``NULL``
+   :retval ARK_SUCCESS: if successful
+   :retval ARK_MEM_NULL: if the ARKStep memory was ``NULL``
 
 
 .. _ARKODE.Usage.SPRKStep.SPRKStepRootOutputs:
@@ -1035,9 +1009,8 @@ Rootfinding optional output functions
         *nrtfn*-1, ``rootsfound[i]`` is nonzero if :math:`g_i` has a
         root, and 0 if not.
 
-   :return:
-      * *ARK_SUCCESS* if successful
-      * *ARK_MEM_NULL* if the SPRKStep memory was ``NULL``
+   :retval ARK_SUCCESS: if successful
+   :retval ARK_MEM_NULL: if the SPRKStep memory was ``NULL``
 
    **Notes:**
       The user must allocate space for *rootsfound* prior to
@@ -1058,9 +1031,8 @@ Rootfinding optional output functions
    :param arkode_mem: pointer to the SPRKStep memory block.
    :param ngevals: number of calls made to :math:`g` so far.
 
-   :return:
-      * *ARK_SUCCESS* if successful
-      * *ARK_MEM_NULL* if the SPRKStep memory was ``NULL``
+   :retval ARK_SUCCESS: if successful
+   :retval ARK_MEM_NULL: if the SPRKStep memory was ``NULL``
 
 
 
@@ -1093,9 +1065,8 @@ for users wishing to better understand SPRKStep.
    :param arkode_mem: pointer to the SPRKStep memory block.
    :param fp: pointer to use for printing the solver parameters.
 
-   :return:
-      * *ARK_SUCCESS* if successful
-      * *ARK_MEM_NULL* if the SPRKStep memory was ``NULL``
+   :retval ARK_SUCCESS: if successful
+   :retval ARK_MEM_NULL: if the SPRKStep memory was ``NULL``
 
    **Notes:**
       The *fp* argument can be ``stdout`` or ``stderr``, or it

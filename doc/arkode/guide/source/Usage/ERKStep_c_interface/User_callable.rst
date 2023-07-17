@@ -1855,6 +1855,7 @@ Main solver optional output functions
 .. c:function:: char *ERKStepGetReturnFlagName(long int flag)
 
    Returns the name of the ERKStep constant corresponding to *flag*.
+   See :ref:`ARKODE.Constants`.
 
    **Arguments:**
       * *flag* -- a return flag from an ERKStep function.

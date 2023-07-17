@@ -302,7 +302,7 @@ module farkode_mod
  public :: FARKodeSPRKTable_Load
  public :: FARKodeSPRKTable_LoadByName
  public :: FARKodeSPRKTable_Copy
- public :: FARKodeSPRKTableMempace
+ public :: FARKodeSPRKTable_Space
  public :: FARKodeSPRKTable_Free
  public :: FARKodeSPRKTable_ToButcher
  integer(C_INT), parameter, public :: ARKLS_SUCCESS = 0_C_INT
@@ -772,8 +772,8 @@ type(C_PTR), value :: farg1
 type(C_PTR) :: fresult
 end function
 
-subroutine swigc_FARKodeSPRKTableMempace(farg1, farg2, farg3) &
-bind(C, name="_wrap_FARKodeSPRKTableMempace")
+subroutine swigc_FARKodeSPRKTable_Space(farg1, farg2, farg3) &
+bind(C, name="_wrap_FARKodeSPRKTable_Space")
 use, intrinsic :: ISO_C_BINDING
 type(C_PTR), value :: farg1
 type(C_PTR), value :: farg2
@@ -1569,7 +1569,7 @@ fresult = swigc_FARKodeSPRKTable_Copy(farg1)
 swig_result = fresult
 end function
 
-subroutine FARKodeSPRKTableMempace(sprk_storage, liw, lrw)
+subroutine FARKodeSPRKTable_Space(sprk_storage, liw, lrw)
 use, intrinsic :: ISO_C_BINDING
 type(C_PTR) :: sprk_storage
 integer(C_INT64_T), dimension(*), target, intent(inout) :: liw
@@ -1581,7 +1581,7 @@ type(C_PTR) :: farg3
 farg1 = sprk_storage
 farg2 = c_loc(liw(1))
 farg3 = c_loc(lrw(1))
-call swigc_FARKodeSPRKTableMempace(farg1, farg2, farg3)
+call swigc_FARKodeSPRKTable_Space(farg1, farg2, farg3)
 end subroutine
 
 subroutine FARKodeSPRKTable_Free(sprk_storage)

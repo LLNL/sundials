@@ -2551,6 +2551,7 @@ Main solver optional output functions
 .. c:function:: char *MRIStepGetReturnFlagName(long int flag)
 
    Returns the name of the MRIStep constant corresponding to *flag*.
+   See :ref:`ARKODE.Constants`.
 
    **Arguments:**
 

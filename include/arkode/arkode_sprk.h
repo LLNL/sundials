@@ -2,7 +2,7 @@
  * Programmer(s): Cody J. Balos @ LLNL
  * -----------------------------------------------------------------
  * SUNDIALS Copyright Start
- * Copyright (c) 2002-2022, Lawrence Livermore National Security
+ * Copyright (c) 2002-2023, Lawrence Livermore National Security
  * and Southern Methodist University.
  * All rights reserved.
  *
@@ -11,10 +11,11 @@
  * SPDX-License-Identifier: BSD-3-Clause
  * SUNDIALS Copyright End
  * -----------------------------------------------------------------
+ * This header file defines the ARKodeSPRKTable structure.
  * -----------------------------------------------------------------*/
 
-#ifndef _ARKODE_SPRKSTORAGE_H
-#define _ARKODE_SPRKSTORAGE_H
+#ifndef _ARKODE_SPRKTABLE_H
+#define _ARKODE_SPRKTABLE_H
 
 #include <arkode/arkode_butcher.h>
 #include <sundials/sundials_types.h>
@@ -58,6 +59,10 @@ typedef _SUNDIALS_STRUCT_ ARKodeSPRKTableMem* ARKodeSPRKTable;
 
 /* Utility routines to allocate/free/output SPRK structures */
 SUNDIALS_EXPORT
+ARKodeSPRKTable ARKodeSPRKStorage_Create(int s, int q, sunrealtype* a,
+                                         sunrealtype* ahat);
+
+SUNDIALS_EXPORT
 ARKodeSPRKTable ARKodeSPRKTable_Alloc(int stages);
 
 SUNDIALS_EXPORT
@@ -70,15 +75,18 @@ SUNDIALS_EXPORT
 ARKodeSPRKTable ARKodeSPRKTable_Copy(ARKodeSPRKTable that_sprk_storage);
 
 SUNDIALS_EXPORT
-void ARKodeSPRKTableMempace(ARKodeSPRKTable sprk_storage, sunindextype* liw,
-                             sunindextype* lrw);
+void ARKodeSPRKTable_Write(ARKodeSPRKTable sprk_table, FILE* outfile);
+
+SUNDIALS_EXPORT
+void ARKodeSPRKTable_Space(ARKodeSPRKTable sprk_storage, sunindextype* liw,
+                            sunindextype* lrw);
 SUNDIALS_EXPORT
 void ARKodeSPRKTable_Free(ARKodeSPRKTable sprk_storage);
 
 SUNDIALS_EXPORT
 int ARKodeSPRKTable_ToButcher(ARKodeSPRKTable sprk_storage,
-                                ARKodeButcherTable* erk_ptr,
-                                ARKodeButcherTable* dirk_ptr);
+                              ARKodeButcherTable* a_ptr,
+                              ARKodeButcherTable* b_ptr);
 
 /* Different methods */
 
