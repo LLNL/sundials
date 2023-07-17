@@ -526,8 +526,6 @@ int arkRootCheck3(void* arkode_mem)
   return(RTFOUND);
 }
 
-#define DIFFERENT_SIGN(a,b) ( ( (a) < 0 && (b) > 0 ) || ( (a) > 0 && (b) < 0 ) )
-
 /*---------------------------------------------------------------
   arkRootfind
 

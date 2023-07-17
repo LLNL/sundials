@@ -1717,6 +1717,7 @@ int arkGetUserData(void *arkode_mem, void** user_data)
 
 int arkPrintAllStats(void *arkode_mem, FILE *outfile, SUNOutputFormat fmt)
 {
+  int retval;
   ARKodeMem ark_mem;
   ARKodeRootMem ark_root_mem;
 
@@ -1769,6 +1770,13 @@ int arkPrintAllStats(void *arkode_mem, FILE *outfile, SUNOutputFormat fmt)
     arkProcessError(ark_mem, ARK_ILL_INPUT, "ARKODE", "arkPrintAllStats",
                     "Invalid formatting option.");
     return(ARK_ILL_INPUT);
+  }
+
+  /* Print relaxation stats */
+  if (ark_mem->relax_enabled)
+  {
+    retval = arkRelaxPrintAllStats(arkode_mem, outfile, fmt);
+    if (retval != ARK_SUCCESS) return(retval);
   }
 
   return(ARK_SUCCESS);
