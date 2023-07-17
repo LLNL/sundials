@@ -804,125 +804,125 @@ SWIGEXPORT void * _wrap_FARKodeButcherTable_LoadERKByName(SwigArrayWrapper *farg
 }
 
 
-SWIGEXPORT void _wrap_ARKodeSPRKStorage_s_q_set(SwigClassWrapper const *farg1, int const *farg2) {
-  struct ARKodeSPRKStorage_s *arg1 = (struct ARKodeSPRKStorage_s *) 0 ;
+SWIGEXPORT void _wrap_ARKodeSPRKTableMem_q_set(SwigClassWrapper const *farg1, int const *farg2) {
+  struct ARKodeSPRKTableMem *arg1 = (struct ARKodeSPRKTableMem *) 0 ;
   int arg2 ;
   
-  SWIG_check_mutable_nonnull(*farg1, "struct ARKodeSPRKStorage_s *", "ARKodeSPRKStorage_s", "ARKodeSPRKStorage_s::q", return );
-  arg1 = (struct ARKodeSPRKStorage_s *)(farg1->cptr);
+  SWIG_check_mutable_nonnull(*farg1, "struct ARKodeSPRKTableMem *", "ARKodeSPRKTableMem", "ARKodeSPRKTableMem::q", return );
+  arg1 = (struct ARKodeSPRKTableMem *)(farg1->cptr);
   arg2 = (int)(*farg2);
   if (arg1) (arg1)->q = arg2;
 }
 
 
-SWIGEXPORT int _wrap_ARKodeSPRKStorage_s_q_get(SwigClassWrapper const *farg1) {
+SWIGEXPORT int _wrap_ARKodeSPRKTableMem_q_get(SwigClassWrapper const *farg1) {
   int fresult ;
-  struct ARKodeSPRKStorage_s *arg1 = (struct ARKodeSPRKStorage_s *) 0 ;
+  struct ARKodeSPRKTableMem *arg1 = (struct ARKodeSPRKTableMem *) 0 ;
   int result;
   
-  SWIG_check_mutable_nonnull(*farg1, "struct ARKodeSPRKStorage_s *", "ARKodeSPRKStorage_s", "ARKodeSPRKStorage_s::q", return 0);
-  arg1 = (struct ARKodeSPRKStorage_s *)(farg1->cptr);
+  SWIG_check_mutable_nonnull(*farg1, "struct ARKodeSPRKTableMem *", "ARKodeSPRKTableMem", "ARKodeSPRKTableMem::q", return 0);
+  arg1 = (struct ARKodeSPRKTableMem *)(farg1->cptr);
   result = (int) ((arg1)->q);
   fresult = (int)(result);
   return fresult;
 }
 
 
-SWIGEXPORT void _wrap_ARKodeSPRKStorage_s_stages_set(SwigClassWrapper const *farg1, int const *farg2) {
-  struct ARKodeSPRKStorage_s *arg1 = (struct ARKodeSPRKStorage_s *) 0 ;
+SWIGEXPORT void _wrap_ARKodeSPRKTableMem_stages_set(SwigClassWrapper const *farg1, int const *farg2) {
+  struct ARKodeSPRKTableMem *arg1 = (struct ARKodeSPRKTableMem *) 0 ;
   int arg2 ;
   
-  SWIG_check_mutable_nonnull(*farg1, "struct ARKodeSPRKStorage_s *", "ARKodeSPRKStorage_s", "ARKodeSPRKStorage_s::stages", return );
-  arg1 = (struct ARKodeSPRKStorage_s *)(farg1->cptr);
+  SWIG_check_mutable_nonnull(*farg1, "struct ARKodeSPRKTableMem *", "ARKodeSPRKTableMem", "ARKodeSPRKTableMem::stages", return );
+  arg1 = (struct ARKodeSPRKTableMem *)(farg1->cptr);
   arg2 = (int)(*farg2);
   if (arg1) (arg1)->stages = arg2;
 }
 
 
-SWIGEXPORT int _wrap_ARKodeSPRKStorage_s_stages_get(SwigClassWrapper const *farg1) {
+SWIGEXPORT int _wrap_ARKodeSPRKTableMem_stages_get(SwigClassWrapper const *farg1) {
   int fresult ;
-  struct ARKodeSPRKStorage_s *arg1 = (struct ARKodeSPRKStorage_s *) 0 ;
+  struct ARKodeSPRKTableMem *arg1 = (struct ARKodeSPRKTableMem *) 0 ;
   int result;
   
-  SWIG_check_mutable_nonnull(*farg1, "struct ARKodeSPRKStorage_s *", "ARKodeSPRKStorage_s", "ARKodeSPRKStorage_s::stages", return 0);
-  arg1 = (struct ARKodeSPRKStorage_s *)(farg1->cptr);
+  SWIG_check_mutable_nonnull(*farg1, "struct ARKodeSPRKTableMem *", "ARKodeSPRKTableMem", "ARKodeSPRKTableMem::stages", return 0);
+  arg1 = (struct ARKodeSPRKTableMem *)(farg1->cptr);
   result = (int) ((arg1)->stages);
   fresult = (int)(result);
   return fresult;
 }
 
 
-SWIGEXPORT void _wrap_ARKodeSPRKStorage_s_a_set(SwigClassWrapper const *farg1, double *farg2) {
-  struct ARKodeSPRKStorage_s *arg1 = (struct ARKodeSPRKStorage_s *) 0 ;
+SWIGEXPORT void _wrap_ARKodeSPRKTableMem_a_set(SwigClassWrapper const *farg1, double *farg2) {
+  struct ARKodeSPRKTableMem *arg1 = (struct ARKodeSPRKTableMem *) 0 ;
   sunrealtype *arg2 = (sunrealtype *) 0 ;
   
-  SWIG_check_mutable_nonnull(*farg1, "struct ARKodeSPRKStorage_s *", "ARKodeSPRKStorage_s", "ARKodeSPRKStorage_s::a", return );
-  arg1 = (struct ARKodeSPRKStorage_s *)(farg1->cptr);
+  SWIG_check_mutable_nonnull(*farg1, "struct ARKodeSPRKTableMem *", "ARKodeSPRKTableMem", "ARKodeSPRKTableMem::a", return );
+  arg1 = (struct ARKodeSPRKTableMem *)(farg1->cptr);
   arg2 = (sunrealtype *)(farg2);
   if (arg1) (arg1)->a = arg2;
 }
 
 
-SWIGEXPORT double * _wrap_ARKodeSPRKStorage_s_a_get(SwigClassWrapper const *farg1) {
+SWIGEXPORT double * _wrap_ARKodeSPRKTableMem_a_get(SwigClassWrapper const *farg1) {
   double * fresult ;
-  struct ARKodeSPRKStorage_s *arg1 = (struct ARKodeSPRKStorage_s *) 0 ;
+  struct ARKodeSPRKTableMem *arg1 = (struct ARKodeSPRKTableMem *) 0 ;
   sunrealtype *result = 0 ;
   
-  SWIG_check_mutable_nonnull(*farg1, "struct ARKodeSPRKStorage_s *", "ARKodeSPRKStorage_s", "ARKodeSPRKStorage_s::a", return 0);
-  arg1 = (struct ARKodeSPRKStorage_s *)(farg1->cptr);
+  SWIG_check_mutable_nonnull(*farg1, "struct ARKodeSPRKTableMem *", "ARKodeSPRKTableMem", "ARKodeSPRKTableMem::a", return 0);
+  arg1 = (struct ARKodeSPRKTableMem *)(farg1->cptr);
   result = (sunrealtype *) ((arg1)->a);
   fresult = result;
   return fresult;
 }
 
 
-SWIGEXPORT void _wrap_ARKodeSPRKStorage_s_ahat_set(SwigClassWrapper const *farg1, double *farg2) {
-  struct ARKodeSPRKStorage_s *arg1 = (struct ARKodeSPRKStorage_s *) 0 ;
+SWIGEXPORT void _wrap_ARKodeSPRKTableMem_ahat_set(SwigClassWrapper const *farg1, double *farg2) {
+  struct ARKodeSPRKTableMem *arg1 = (struct ARKodeSPRKTableMem *) 0 ;
   sunrealtype *arg2 = (sunrealtype *) 0 ;
   
-  SWIG_check_mutable_nonnull(*farg1, "struct ARKodeSPRKStorage_s *", "ARKodeSPRKStorage_s", "ARKodeSPRKStorage_s::ahat", return );
-  arg1 = (struct ARKodeSPRKStorage_s *)(farg1->cptr);
+  SWIG_check_mutable_nonnull(*farg1, "struct ARKodeSPRKTableMem *", "ARKodeSPRKTableMem", "ARKodeSPRKTableMem::ahat", return );
+  arg1 = (struct ARKodeSPRKTableMem *)(farg1->cptr);
   arg2 = (sunrealtype *)(farg2);
   if (arg1) (arg1)->ahat = arg2;
 }
 
 
-SWIGEXPORT double * _wrap_ARKodeSPRKStorage_s_ahat_get(SwigClassWrapper const *farg1) {
+SWIGEXPORT double * _wrap_ARKodeSPRKTableMem_ahat_get(SwigClassWrapper const *farg1) {
   double * fresult ;
-  struct ARKodeSPRKStorage_s *arg1 = (struct ARKodeSPRKStorage_s *) 0 ;
+  struct ARKodeSPRKTableMem *arg1 = (struct ARKodeSPRKTableMem *) 0 ;
   sunrealtype *result = 0 ;
   
-  SWIG_check_mutable_nonnull(*farg1, "struct ARKodeSPRKStorage_s *", "ARKodeSPRKStorage_s", "ARKodeSPRKStorage_s::ahat", return 0);
-  arg1 = (struct ARKodeSPRKStorage_s *)(farg1->cptr);
+  SWIG_check_mutable_nonnull(*farg1, "struct ARKodeSPRKTableMem *", "ARKodeSPRKTableMem", "ARKodeSPRKTableMem::ahat", return 0);
+  arg1 = (struct ARKodeSPRKTableMem *)(farg1->cptr);
   result = (sunrealtype *) ((arg1)->ahat);
   fresult = result;
   return fresult;
 }
 
 
-SWIGEXPORT SwigClassWrapper _wrap_new_ARKodeSPRKStorage_s() {
+SWIGEXPORT SwigClassWrapper _wrap_new_ARKodeSPRKTableMem() {
   SwigClassWrapper fresult ;
-  struct ARKodeSPRKStorage_s *result = 0 ;
+  struct ARKodeSPRKTableMem *result = 0 ;
   
-  result = (struct ARKodeSPRKStorage_s *)calloc(1, sizeof(struct ARKodeSPRKStorage_s));
+  result = (struct ARKodeSPRKTableMem *)calloc(1, sizeof(struct ARKodeSPRKTableMem));
   fresult.cptr = result;
   fresult.cmemflags = SWIG_MEM_RVALUE | (1 ? SWIG_MEM_OWN : 0);
   return fresult;
 }
 
 
-SWIGEXPORT void _wrap_delete_ARKodeSPRKStorage_s(SwigClassWrapper *farg1) {
-  struct ARKodeSPRKStorage_s *arg1 = (struct ARKodeSPRKStorage_s *) 0 ;
+SWIGEXPORT void _wrap_delete_ARKodeSPRKTableMem(SwigClassWrapper *farg1) {
+  struct ARKodeSPRKTableMem *arg1 = (struct ARKodeSPRKTableMem *) 0 ;
   
-  SWIG_check_mutable(*farg1, "struct ARKodeSPRKStorage_s *", "ARKodeSPRKStorage_s", "ARKodeSPRKStorage_s::~ARKodeSPRKStorage_s()", return );
-  arg1 = (struct ARKodeSPRKStorage_s *)(farg1->cptr);
+  SWIG_check_mutable(*farg1, "struct ARKodeSPRKTableMem *", "ARKodeSPRKTableMem", "ARKodeSPRKTableMem::~ARKodeSPRKTableMem()", return );
+  arg1 = (struct ARKodeSPRKTableMem *)(farg1->cptr);
   free((char *) arg1);
 }
 
 
-SWIGEXPORT void _wrap_ARKodeSPRKStorage_s_op_assign__(SwigClassWrapper *farg1, SwigClassWrapper const *farg2) {
-  struct ARKodeSPRKStorage_s *arg1 = (struct ARKodeSPRKStorage_s *) 0 ;
-  struct ARKodeSPRKStorage_s *arg2 = 0 ;
+SWIGEXPORT void _wrap_ARKodeSPRKTableMem_op_assign__(SwigClassWrapper *farg1, SwigClassWrapper const *farg2) {
+  struct ARKodeSPRKTableMem *arg1 = (struct ARKodeSPRKTableMem *) 0 ;
+  struct ARKodeSPRKTableMem *arg2 = 0 ;
   
   (void)sizeof(arg1);
   (void)sizeof(arg2);
@@ -931,85 +931,85 @@ SWIGEXPORT void _wrap_ARKodeSPRKStorage_s_op_assign__(SwigClassWrapper *farg1, S
 }
 
 
-SWIGEXPORT void * _wrap_FARKodeSPRKStorage_Alloc(int const *farg1) {
+SWIGEXPORT void * _wrap_FARKodeSPRKTable_Alloc(int const *farg1) {
   void * fresult ;
   int arg1 ;
-  ARKodeSPRKStorage result;
+  ARKodeSPRKTable result;
   
   arg1 = (int)(*farg1);
-  result = (ARKodeSPRKStorage)ARKodeSPRKStorage_Alloc(arg1);
+  result = (ARKodeSPRKTable)ARKodeSPRKTable_Alloc(arg1);
   fresult = result;
   return fresult;
 }
 
 
-SWIGEXPORT void * _wrap_FARKodeSPRKStorage_Load(int const *farg1) {
+SWIGEXPORT void * _wrap_FARKodeSPRKTable_Load(int const *farg1) {
   void * fresult ;
   ARKODE_SPRKMethodID arg1 ;
-  ARKodeSPRKStorage result;
+  ARKodeSPRKTable result;
   
   arg1 = (ARKODE_SPRKMethodID)(*farg1);
-  result = (ARKodeSPRKStorage)ARKodeSPRKStorage_Load(arg1);
+  result = (ARKodeSPRKTable)ARKodeSPRKTable_Load(arg1);
   fresult = result;
   return fresult;
 }
 
 
-SWIGEXPORT void * _wrap_FARKodeSPRKStorage_LoadByName(SwigArrayWrapper *farg1) {
+SWIGEXPORT void * _wrap_FARKodeSPRKTable_LoadByName(SwigArrayWrapper *farg1) {
   void * fresult ;
   char *arg1 = (char *) 0 ;
-  ARKodeSPRKStorage result;
+  ARKodeSPRKTable result;
   
   arg1 = (char *)(farg1->data);
-  result = (ARKodeSPRKStorage)ARKodeSPRKStorage_LoadByName((char const *)arg1);
+  result = (ARKodeSPRKTable)ARKodeSPRKTable_LoadByName((char const *)arg1);
   fresult = result;
   return fresult;
 }
 
 
-SWIGEXPORT void * _wrap_FARKodeSPRKStorage_Copy(void *farg1) {
+SWIGEXPORT void * _wrap_FARKodeSPRKTable_Copy(void *farg1) {
   void * fresult ;
-  ARKodeSPRKStorage arg1 = (ARKodeSPRKStorage) 0 ;
-  ARKodeSPRKStorage result;
+  ARKodeSPRKTable arg1 = (ARKodeSPRKTable) 0 ;
+  ARKodeSPRKTable result;
   
-  arg1 = (ARKodeSPRKStorage)(farg1);
-  result = (ARKodeSPRKStorage)ARKodeSPRKStorage_Copy(arg1);
+  arg1 = (ARKodeSPRKTable)(farg1);
+  result = (ARKodeSPRKTable)ARKodeSPRKTable_Copy(arg1);
   fresult = result;
   return fresult;
 }
 
 
-SWIGEXPORT void _wrap_FARKodeSPRKStorage_Space(void *farg1, int64_t *farg2, int64_t *farg3) {
-  ARKodeSPRKStorage arg1 = (ARKodeSPRKStorage) 0 ;
+SWIGEXPORT void _wrap_FARKodeSPRKTableMempace(void *farg1, int64_t *farg2, int64_t *farg3) {
+  ARKodeSPRKTable arg1 = (ARKodeSPRKTable) 0 ;
   sunindextype *arg2 = (sunindextype *) 0 ;
   sunindextype *arg3 = (sunindextype *) 0 ;
   
-  arg1 = (ARKodeSPRKStorage)(farg1);
+  arg1 = (ARKodeSPRKTable)(farg1);
   arg2 = (sunindextype *)(farg2);
   arg3 = (sunindextype *)(farg3);
-  ARKodeSPRKStorage_Space(arg1,arg2,arg3);
+  ARKodeSPRKTableMempace(arg1,arg2,arg3);
 }
 
 
-SWIGEXPORT void _wrap_FARKodeSPRKStorage_Free(void *farg1) {
-  ARKodeSPRKStorage arg1 = (ARKodeSPRKStorage) 0 ;
+SWIGEXPORT void _wrap_FARKodeSPRKTable_Free(void *farg1) {
+  ARKodeSPRKTable arg1 = (ARKodeSPRKTable) 0 ;
   
-  arg1 = (ARKodeSPRKStorage)(farg1);
-  ARKodeSPRKStorage_Free(arg1);
+  arg1 = (ARKodeSPRKTable)(farg1);
+  ARKodeSPRKTable_Free(arg1);
 }
 
 
-SWIGEXPORT int _wrap_FARKodeSPRKStorage_ToButcher(void *farg1, void *farg2, void *farg3) {
+SWIGEXPORT int _wrap_FARKodeSPRKTable_ToButcher(void *farg1, void *farg2, void *farg3) {
   int fresult ;
-  ARKodeSPRKStorage arg1 = (ARKodeSPRKStorage) 0 ;
+  ARKodeSPRKTable arg1 = (ARKodeSPRKTable) 0 ;
   ARKodeButcherTable *arg2 = (ARKodeButcherTable *) 0 ;
   ARKodeButcherTable *arg3 = (ARKodeButcherTable *) 0 ;
   int result;
   
-  arg1 = (ARKodeSPRKStorage)(farg1);
+  arg1 = (ARKodeSPRKTable)(farg1);
   arg2 = (ARKodeButcherTable *)(farg2);
   arg3 = (ARKodeButcherTable *)(farg3);
-  result = (int)ARKodeSPRKStorage_ToButcher(arg1,arg2,arg3);
+  result = (int)ARKodeSPRKTable_ToButcher(arg1,arg2,arg3);
   fresult = (int)(result);
   return fresult;
 }

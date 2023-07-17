@@ -24,6 +24,6 @@ ARKODE Documentation
    Organization_link.rst
    Usage/index.rst
    ARKodeButcherTable_link.rst
-   ARKodeSPRKStorage_link.rst
+   ARKodeSPRKTable_link.rst
    Constants_link.rst
    Butcher_link.rst

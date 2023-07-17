@@ -39,8 +39,8 @@
 // Treat ARKodeButcherTable as an opaque pointer
 %apply void* { ARKodeButcherTable };
 
-// Treat ARKodeSPRKStorage as an opaque pointer
-%apply void* { ARKodeSPRKStorage };
+// Treat ARKodeSPRKTable as an opaque pointer
+%apply void* { ARKodeSPRKTable };
 
 // Process definitions from these files
 %include "arkode/arkode.h"

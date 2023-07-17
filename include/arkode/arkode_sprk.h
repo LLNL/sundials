@@ -42,7 +42,7 @@ typedef enum
   ARKODE_MAX_SPRK_NUM = ARKODE_SPRK_SOFRONIOU_10_36
 } ARKODE_SPRKMethodID;
 
-struct ARKodeSPRKStorage_s
+struct ARKodeSPRKTableMem
 {
   /* method order of accuracy */
   int q;
@@ -54,29 +54,29 @@ struct ARKodeSPRKStorage_s
   sunrealtype* ahat;
 };
 
-typedef _SUNDIALS_STRUCT_ ARKodeSPRKStorage_s* ARKodeSPRKStorage;
+typedef _SUNDIALS_STRUCT_ ARKodeSPRKTableMem* ARKodeSPRKTable;
 
 /* Utility routines to allocate/free/output SPRK structures */
 SUNDIALS_EXPORT
-ARKodeSPRKStorage ARKodeSPRKStorage_Alloc(int stages);
+ARKodeSPRKTable ARKodeSPRKTable_Alloc(int stages);
 
 SUNDIALS_EXPORT
-ARKodeSPRKStorage ARKodeSPRKStorage_Load(ARKODE_SPRKMethodID id);
+ARKodeSPRKTable ARKodeSPRKTable_Load(ARKODE_SPRKMethodID id);
 
 SUNDIALS_EXPORT
-ARKodeSPRKStorage ARKodeSPRKStorage_LoadByName(const char* method);
+ARKodeSPRKTable ARKodeSPRKTable_LoadByName(const char* method);
 
 SUNDIALS_EXPORT
-ARKodeSPRKStorage ARKodeSPRKStorage_Copy(ARKodeSPRKStorage that_sprk_storage);
+ARKodeSPRKTable ARKodeSPRKTable_Copy(ARKodeSPRKTable that_sprk_storage);
 
 SUNDIALS_EXPORT
-void ARKodeSPRKStorage_Space(ARKodeSPRKStorage sprk_storage, sunindextype* liw,
+void ARKodeSPRKTableMempace(ARKodeSPRKTable sprk_storage, sunindextype* liw,
                              sunindextype* lrw);
 SUNDIALS_EXPORT
-void ARKodeSPRKStorage_Free(ARKodeSPRKStorage sprk_storage);
+void ARKodeSPRKTable_Free(ARKodeSPRKTable sprk_storage);
 
 SUNDIALS_EXPORT
-int ARKodeSPRKStorage_ToButcher(ARKodeSPRKStorage sprk_storage,
+int ARKodeSPRKTable_ToButcher(ARKodeSPRKTable sprk_storage,
                                 ARKodeButcherTable* erk_ptr,
                                 ARKodeButcherTable* dirk_ptr);
 

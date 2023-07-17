@@ -492,7 +492,7 @@ int main(int argc, char* argv[])
     sunrealtype con_orders[NUM_DT];
     sunrealtype acc_errors[NUM_DT];
     sunrealtype con_errors[NUM_DT];
-    int expected_order = ARKodeSPRKStorage_LoadByName(args.method_name)->q;
+    int expected_order = ARKodeSPRKTable_LoadByName(args.method_name)->q;
     N_Vector ref_sol   = N_VClone(result.sol);
     N_Vector error     = N_VClone(result.sol);
     sunrealtype a11 = 0, a12 = 0, a21 = 0, a22 = 0;

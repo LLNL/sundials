@@ -20,9 +20,9 @@
 #include <sundials/sundials_math.h>
 #include <sundials/sundials_types.h>
 
-ARKodeSPRKStorage ARKodeSymplecticEuler()
+ARKodeSPRKTable ARKodeSymplecticEuler()
 {
-  ARKodeSPRKStorage sprk_storage = ARKodeSPRKStorage_Alloc(1);
+  ARKodeSPRKTable sprk_storage = ARKodeSPRKTable_Alloc(1);
   if (!sprk_storage) { return NULL; }
   sprk_storage->q       = 1;
   sprk_storage->stages  = 1;
@@ -40,9 +40,9 @@ ARKodeSPRKStorage ARKodeSymplecticEuler()
   https://doi.org/10.1016/0021-9991(91)90299-Z.
  */
 
-ARKodeSPRKStorage ARKodeSymplecticLeapfrog2()
+ARKodeSPRKTable ARKodeSymplecticLeapfrog2()
 {
-  ARKodeSPRKStorage sprk_storage = ARKodeSPRKStorage_Alloc(2);
+  ARKodeSPRKTable sprk_storage = ARKodeSPRKTable_Alloc(2);
   if (!sprk_storage) { return NULL; }
   sprk_storage->q       = 2;
   sprk_storage->stages  = 2;
@@ -53,9 +53,9 @@ ARKodeSPRKStorage ARKodeSymplecticLeapfrog2()
   return sprk_storage;
 }
 
-ARKodeSPRKStorage ARKodeSymplecticPseudoLeapfrog2()
+ARKodeSPRKTable ARKodeSymplecticPseudoLeapfrog2()
 {
-  ARKodeSPRKStorage sprk_storage = ARKodeSPRKStorage_Alloc(2);
+  ARKodeSPRKTable sprk_storage = ARKodeSPRKTable_Alloc(2);
   if (!sprk_storage) { return NULL; }
   sprk_storage->q       = 2;
   sprk_storage->stages  = 2;
@@ -66,9 +66,9 @@ ARKodeSPRKStorage ARKodeSymplecticPseudoLeapfrog2()
   return sprk_storage;
 }
 
-ARKodeSPRKStorage ARKodeSymplecticCandyRozmus4()
+ARKodeSPRKTable ARKodeSymplecticCandyRozmus4()
 {
-  ARKodeSPRKStorage sprk_storage = ARKodeSPRKStorage_Alloc(4);
+  ARKodeSPRKTable sprk_storage = ARKodeSPRKTable_Alloc(4);
   if (!sprk_storage) { return NULL; }
   sprk_storage->q      = 4;
   sprk_storage->stages = 4;
@@ -105,9 +105,9 @@ ARKodeSPRKStorage ARKodeSymplecticCandyRozmus4()
   https://accelconf.web.cern.ch/p83/PDF/PAC1983_2669.PDF
  */
 
-ARKodeSPRKStorage ARKodeSymplecticRuth3()
+ARKodeSPRKTable ARKodeSymplecticRuth3()
 {
-  ARKodeSPRKStorage sprk_storage = ARKodeSPRKStorage_Alloc(3);
+  ARKodeSPRKTable sprk_storage = ARKodeSPRKTable_Alloc(3);
   if (!sprk_storage) { return NULL; }
   sprk_storage->q       = 3;
   sprk_storage->stages  = 3;
@@ -127,9 +127,9 @@ ARKodeSPRKStorage ARKodeSymplecticRuth3()
   Nonlinearity. 5, 541–562 (1992). https://doi.org/10.1088/0951-7715/5/2/011
  */
 
-ARKodeSPRKStorage ARKodeSymplecticMcLachlan2()
+ARKodeSPRKTable ARKodeSymplecticMcLachlan2()
 {
-  ARKodeSPRKStorage sprk_storage = ARKodeSPRKStorage_Alloc(2);
+  ARKodeSPRKTable sprk_storage = ARKodeSPRKTable_Alloc(2);
   if (!sprk_storage) { return NULL; }
   sprk_storage->q      = 2;
   sprk_storage->stages = 2;
@@ -142,12 +142,12 @@ ARKodeSPRKStorage ARKodeSymplecticMcLachlan2()
   return sprk_storage;
 }
 
-ARKodeSPRKStorage ARKodeSymplecticMcLachlan3()
+ARKodeSPRKTable ARKodeSymplecticMcLachlan3()
 {
   sunrealtype w                  = 0.0;
   sunrealtype y                  = 0.0;
   sunrealtype z                  = 0.0;
-  ARKodeSPRKStorage sprk_storage = ARKodeSPRKStorage_Alloc(3);
+  ARKodeSPRKTable sprk_storage = ARKodeSPRKTable_Alloc(3);
   if (!sprk_storage) { return NULL; }
 
   sprk_storage->q      = 3;
@@ -171,9 +171,9 @@ ARKodeSPRKStorage ARKodeSymplecticMcLachlan3()
   return sprk_storage;
 }
 
-ARKodeSPRKStorage ARKodeSymplecticMcLachlan4()
+ARKodeSPRKTable ARKodeSymplecticMcLachlan4()
 {
-  ARKodeSPRKStorage sprk_storage = ARKodeSPRKStorage_Alloc(4);
+  ARKodeSPRKTable sprk_storage = ARKodeSPRKTable_Alloc(4);
   if (!sprk_storage) { return NULL; }
   sprk_storage->q       = 4;
   sprk_storage->stages  = 4;
@@ -188,9 +188,9 @@ ARKodeSPRKStorage ARKodeSymplecticMcLachlan4()
   return sprk_storage;
 }
 
-ARKodeSPRKStorage ARKodeSymplecticMcLachlan5()
+ARKodeSPRKTable ARKodeSymplecticMcLachlan5()
 {
-  ARKodeSPRKStorage sprk_storage = ARKodeSPRKStorage_Alloc(6);
+  ARKodeSPRKTable sprk_storage = ARKodeSPRKTable_Alloc(6);
   if (!sprk_storage) { return NULL; }
   sprk_storage->q       = 5;
   sprk_storage->stages  = 6;
@@ -218,9 +218,9 @@ ARKodeSPRKStorage ARKodeSymplecticMcLachlan5()
 
  */
 
-ARKodeSPRKStorage ARKodeSymplecticYoshida6()
+ARKodeSPRKTable ARKodeSymplecticYoshida6()
 {
-  ARKodeSPRKStorage sprk_storage = ARKodeSPRKStorage_Alloc(8);
+  ARKodeSPRKTable sprk_storage = ARKodeSPRKTable_Alloc(8);
   if (!sprk_storage) { return NULL; }
   sprk_storage->q      = 6;
   sprk_storage->stages = 8;
@@ -260,9 +260,9 @@ ARKodeSPRKStorage ARKodeSymplecticYoshida6()
 
  */
 
-ARKodeSPRKStorage ARKodeSymplecticSuzukiUmeno816()
+ARKodeSPRKTable ARKodeSymplecticSuzukiUmeno816()
 {
-  ARKodeSPRKStorage sprk_storage = ARKodeSPRKStorage_Alloc(16);
+  ARKodeSPRKTable sprk_storage = ARKodeSPRKTable_Alloc(16);
   if (!sprk_storage) { return NULL; }
   sprk_storage->q      = 8;
   sprk_storage->stages = 16;
@@ -317,9 +317,9 @@ ARKodeSPRKStorage ARKodeSymplecticSuzukiUmeno816()
 
  */
 
-ARKodeSPRKStorage ARKodeSymplecticSofroniou10()
+ARKodeSPRKTable ARKodeSymplecticSofroniou10()
 {
-  ARKodeSPRKStorage sprk_storage = ARKodeSPRKStorage_Alloc(36);
+  ARKodeSPRKTable sprk_storage = ARKodeSPRKTable_Alloc(36);
   if (!sprk_storage) { return NULL; }
   sprk_storage->q      = 10;
   sprk_storage->stages = 36;
@@ -417,26 +417,26 @@ ARKodeSPRKStorage ARKodeSymplecticSofroniou10()
   return sprk_storage;
 }
 
-ARKodeSPRKStorage ARKodeSPRKStorage_Alloc(int stages)
+ARKodeSPRKTable ARKodeSPRKTable_Alloc(int stages)
 {
-  ARKodeSPRKStorage sprk_storage = NULL;
+  ARKodeSPRKTable sprk_storage = NULL;
 
-  sprk_storage = (ARKodeSPRKStorage)malloc(sizeof(struct ARKodeSPRKStorage_s));
+  sprk_storage = (ARKodeSPRKTable)malloc(sizeof(struct ARKodeSPRKTableMem));
   if (!sprk_storage) { return NULL; }
 
-  memset(sprk_storage, 0, sizeof(struct ARKodeSPRKStorage_s));
+  memset(sprk_storage, 0, sizeof(struct ARKodeSPRKTableMem));
 
   sprk_storage->ahat = (sunrealtype*)malloc(stages * sizeof(sunrealtype));
   if (!(sprk_storage->ahat))
   {
-    ARKodeSPRKStorage_Free(sprk_storage);
+    ARKodeSPRKTable_Free(sprk_storage);
     return NULL;
   }
 
   sprk_storage->a = (sunrealtype*)malloc(stages * sizeof(sunrealtype));
   if (!(sprk_storage->a))
   {
-    ARKodeSPRKStorage_Free(sprk_storage);
+    ARKodeSPRKTable_Free(sprk_storage);
     return NULL;
   }
 
@@ -447,7 +447,7 @@ ARKodeSPRKStorage ARKodeSPRKStorage_Alloc(int stages)
   return sprk_storage;
 }
 
-ARKodeSPRKStorage ARKodeSPRKStorage_Load(ARKODE_SPRKMethodID id)
+ARKodeSPRKTable ARKodeSPRKTable_Load(ARKODE_SPRKMethodID id)
 {
   switch (id)
   {
@@ -468,7 +468,7 @@ ARKodeSPRKStorage ARKodeSPRKStorage_Load(ARKODE_SPRKMethodID id)
   }
 }
 
-ARKodeSPRKStorage ARKodeSPRKStorage_LoadByName(const char* method)
+ARKodeSPRKTable ARKodeSPRKTable_LoadByName(const char* method)
 {
   if (!strcmp(method, "ARKODE_SPRK_EULER_1_1"))
   {
@@ -521,12 +521,12 @@ ARKodeSPRKStorage ARKodeSPRKStorage_LoadByName(const char* method)
   return NULL;
 }
 
-ARKodeSPRKStorage ARKodeSPRKStorage_Copy(ARKodeSPRKStorage that_sprk_storage)
+ARKodeSPRKTable ARKodeSPRKTable_Copy(ARKodeSPRKTable that_sprk_storage)
 {
   int i                          = 0;
-  ARKodeSPRKStorage sprk_storage = NULL;
+  ARKodeSPRKTable sprk_storage = NULL;
 
-  sprk_storage = ARKodeSPRKStorage_Alloc(that_sprk_storage->stages);
+  sprk_storage = ARKodeSPRKTable_Alloc(that_sprk_storage->stages);
 
   sprk_storage->q = that_sprk_storage->q;
 
@@ -539,14 +539,14 @@ ARKodeSPRKStorage ARKodeSPRKStorage_Copy(ARKodeSPRKStorage that_sprk_storage)
   return sprk_storage;
 }
 
-void ARKodeSPRKStorage_Space(ARKodeSPRKStorage sprk_storage, sunindextype* liw,
+void ARKodeSPRKTableMempace(ARKodeSPRKTable sprk_storage, sunindextype* liw,
                              sunindextype* lrw)
 {
   *liw = 2;
   *lrw = sprk_storage->stages * 2;
 }
 
-void ARKodeSPRKStorage_Free(ARKodeSPRKStorage sprk_storage)
+void ARKodeSPRKTable_Free(ARKodeSPRKTable sprk_storage)
 {
   if (sprk_storage)
   {
@@ -556,7 +556,7 @@ void ARKodeSPRKStorage_Free(ARKodeSPRKStorage sprk_storage)
   }
 }
 
-int ARKodeSPRKStorage_ToButcher(ARKodeSPRKStorage sprk_storage,
+int ARKodeSPRKTable_ToButcher(ARKodeSPRKTable sprk_storage,
                                 ARKodeButcherTable* erk_ptr,
                                 ARKodeButcherTable* dirk_ptr)
 {

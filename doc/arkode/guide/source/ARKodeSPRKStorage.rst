@@ -75,7 +75,7 @@ The following enum values are used to identify different SPRK methods:
 
    Identifier for the Symplectic Sofroniou 10th order method with 36 stages.
 
-.. c:type:: ARKodeSPRKStorage_s
+.. c:type:: ARKodeSPRKTableMem
 
    Structure representing the SPRK method that holds the method coefficients.
 
@@ -97,81 +97,81 @@ The following enum values are used to identify different SPRK methods:
       Array of coefficients that generate the diagonally-implicit Butcher table.
       ``ahat[i]`` is the coefficient appearing in column i.
 
-.. c:type:: ARKodeSPRKStorage_s* ARKodeSPRKStorage
+.. c:type:: ARKodeSPRKTableMem* ARKodeSPRKTable
 
 
-ARKodeSPRKStorage functions
+ARKodeSPRKTable functions
 ---------------------------
 
-.. _ARKodeSPRKStorage.FunctionsTable:
-.. table:: ARKodeSPRKStorage functions
+.. _ARKodeSPRKTable.FunctionsTable:
+.. table:: ARKodeSPRKTable functions
 
    +----------------------------------------------+------------------------------------------------------------+
    | **Function name**                            | **Description**                                            |
    +==============================================+============================================================+
-   | :c:func:`ARKodeSPRKStorage_Alloc()`          | Allocate an empty storage structure                        |
+   | :c:func:`ARKodeSPRKTable_Alloc()`          | Allocate an empty storage structure                        |
    +----------------------------------------------+------------------------------------------------------------+
-   | :c:func:`ARKodeSPRKStorage_Load()`           | Load SPRK method using an identifier                       |
+   | :c:func:`ARKodeSPRKTable_Load()`           | Load SPRK method using an identifier                       |
    +----------------------------------------------+------------------------------------------------------------+
-   | :c:func:`ARKodeSPRKStorage_LoadByName()`     | Load SPRK method using a string version of the identifier  |
+   | :c:func:`ARKodeSPRKTable_LoadByName()`     | Load SPRK method using a string version of the identifier  |
    +----------------------------------------------+------------------------------------------------------------+
-   | :c:func:`ARKodeSPRKStorage_Create()`         | Create a new storage structure                             |
+   | :c:func:`ARKodeSPRKTable_Create()`         | Create a new storage structure                             |
    +----------------------------------------------+------------------------------------------------------------+
-   | :c:func:`ARKodeSPRKStorage_Copy()`           | Create a copy of a storage structure                       |
+   | :c:func:`ARKodeSPRKTable_Copy()`           | Create a copy of a storage structure                       |
    +----------------------------------------------+------------------------------------------------------------+
-   | :c:func:`ARKodeSPRKStorage_Space()`          | Get the storage structure real and integer workspace size  |
+   | :c:func:`ARKodeSPRKTableMempace()`          | Get the storage structure real and integer workspace size  |
    +----------------------------------------------+------------------------------------------------------------+
-   | :c:func:`ARKodeSPRKStorage_Free()`           | Deallocate a storage structure                             |
+   | :c:func:`ARKodeSPRKTable_Free()`           | Deallocate a storage structure                             |
    +----------------------------------------------+------------------------------------------------------------+
 
 
-.. c:function:: ARKodeSPRKStorage ARKodeSPRKStorage_Alloc(int stages)
+.. c:function:: ARKodeSPRKTable ARKodeSPRKTable_Alloc(int stages)
 
-   Allocate memory for an :c:type:`ARKodeSPRKStorage`` structure with the specified number of stages.
+   Allocate memory for an :c:type:`ARKodeSPRKTable`` structure with the specified number of stages.
 
    :param stages: The number of stages.
-   :return: ARKodeSPRKStorage structure for the loaded method.
+   :return: ARKodeSPRKTable structure for the loaded method.
 
-.. c:function:: ARKodeSPRKStorage ARKodeSPRKStorage_Load(ARKODE_SPRKMethodID id)
+.. c:function:: ARKodeSPRKTable ARKodeSPRKTable_Load(ARKODE_SPRKMethodID id)
 
-   Load the ARKodeSPRKStorage structure for the specified method ID.
+   Load the ARKodeSPRKTable structure for the specified method ID.
 
    :param id: The ID of the SPRK method. One of :ref:`SPRKStorage.id`.
-   :return: ARKodeSPRKStorage structure for the loaded method.
+   :return: ARKodeSPRKTable structure for the loaded method.
 
-.. c:function:: ARKodeSPRKStorage ARKodeSPRKStorage_LoadByName(const char* method)
+.. c:function:: ARKodeSPRKTable ARKodeSPRKTable_LoadByName(const char* method)
 
-   Load the ARKodeSPRKStorage structure for the specified method name.
+   Load the ARKodeSPRKTable structure for the specified method name.
 
    :param method: The name of the SPRK method. Must be one of :ref:`SPRKStorage.id` but as a string.
-   :return: ARKodeSPRKStorage structure for the loaded method.
+   :return: ARKodeSPRKTable structure for the loaded method.
 
 
-.. c:function:: ARKodeSPRKStorage ARKodeSPRKStorage_Copy(ARKodeSPRKStorage B)
+.. c:function:: ARKodeSPRKTable ARKodeSPRKTable_Copy(ARKodeSPRKTable B)
 
-   Create a copy of the ARKodeSPRKStorage structure.
+   Create a copy of the ARKodeSPRKTable structure.
 
-   :param B: The ARKodeSPRKStorage structure to copy.
-   :return: Pointer to the copied ARKodeSPRKStorage structure.
+   :param B: The ARKodeSPRKTable structure to copy.
+   :return: Pointer to the copied ARKodeSPRKTable structure.
 
-.. c:function:: void ARKodeSPRKStorage_Space(ARKodeSPRKStorage B, sunindextype* liw, sunindextype* lrw)
+.. c:function:: void ARKodeSPRKTableMempace(ARKodeSPRKTable B, sunindextype* liw, sunindextype* lrw)
 
-   Get the workspace sizes required for the ARKodeSPRKStorage structure.
+   Get the workspace sizes required for the ARKodeSPRKTable structure.
 
-   :param B: The ARKodeSPRKStorage structure.
+   :param B: The ARKodeSPRKTable structure.
    :param liw: Pointer to store the integer workspace size.
    :param lrw: Pointer to store the real workspace size.
 
-.. c:function:: void ARKodeSPRKStorage_Free(ARKodeSPRKStorage B)
+.. c:function:: void ARKodeSPRKTable_Free(ARKodeSPRKTable B)
 
-   Free the memory allocated for the ARKodeSPRKStorage structure.
+   Free the memory allocated for the ARKodeSPRKTable structure.
 
-   :param B: The ARKodeSPRKStorage structure to free.
+   :param B: The ARKodeSPRKTable structure to free.
 
-.. c:function:: int ARKodeSPRKStorage_ToButcher(ARKodeSPRKStorage sprk_storage, ARKodeSPRKStorage* a_ptr, ARKodeSPRKStorage* b_ptr)
+.. c:function:: int ARKodeSPRKTable_ToButcher(ARKodeSPRKTable sprk_storage, ARKodeSPRKTable* a_ptr, ARKodeSPRKTable* b_ptr)
 
-   Convert the ARKodeSPRKStorage structure to the Butcher table representation.
+   Convert the ARKodeSPRKTable structure to the Butcher table representation.
 
-   :param sprk_storage: The ARKodeSPRKStorage structure.
+   :param sprk_storage: The ARKodeSPRKTable structure.
    :param a_ptr: Pointer to store the explicit Butcher table.
    :param b_ptr: Pointer to store the diagonally-implicit Butcher table.

@@ -46,7 +46,7 @@ extern "C" {
 typedef struct ARKodeSPRKStepMemRec
 {
   /* SPRK method and storage */
-  ARKodeSPRKStorage method; /* method spec  */
+  ARKodeSPRKTable method; /* method spec  */
   int q;                    /* method order */
   N_Vector sdata;           /* persisted stage data */
   N_Vector yerr;            /* error vector for compensated summation */

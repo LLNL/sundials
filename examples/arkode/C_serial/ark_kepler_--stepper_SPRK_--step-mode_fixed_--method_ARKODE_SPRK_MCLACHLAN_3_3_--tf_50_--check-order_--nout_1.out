@@ -13,9 +13,9 @@ Direct leak of 24 byte(s) in 1 object(s) allocated from:
 
 Direct leak of 24 byte(s) in 1 object(s) allocated from:
     #0 0x7fb16997b07a in __interceptor_malloc /tmp/gardner48/spack-stage/spack-stage-gcc-5.5.0-khqnsyjkc36jajm2637pm3dftr2egjwk/spack-src/libsanitizer/asan/asan_malloc_linux.cc:62
-    #1 0x7fb16913d06c in ARKodeSPRKStorage_Alloc /home/gardner48/sundials/src/arkode/arkode_sprk.c:411
+    #1 0x7fb16913d06c in ARKodeSPRKTable_Alloc /home/gardner48/sundials/src/arkode/arkode_sprk.c:411
     #2 0x7fb169134275 in ARKodeSymplecticMcLachlan3 /home/gardner48/sundials/src/arkode/arkode_sprk.c:144
-    #3 0x7fb16913d43f in ARKodeSPRKStorage_LoadByName /home/gardner48/sundials/src/arkode/arkode_sprk.c:466
+    #3 0x7fb16913d43f in ARKodeSPRKTable_LoadByName /home/gardner48/sundials/src/arkode/arkode_sprk.c:466
     #4 0x40232f in main /home/gardner48/sundials/examples/arkode/C_serial/ark_kepler.c:163
     #5 0x7fb167537554 in __libc_start_main (/lib64/libc.so.6+0x22554)
 
@@ -62,17 +62,17 @@ Indirect leak of 32 byte(s) in 1 object(s) allocated from:
 
 Indirect leak of 24 byte(s) in 1 object(s) allocated from:
     #0 0x7fb16997b07a in __interceptor_malloc /tmp/gardner48/spack-stage/spack-stage-gcc-5.5.0-khqnsyjkc36jajm2637pm3dftr2egjwk/spack-src/libsanitizer/asan/asan_malloc_linux.cc:62
-    #1 0x7fb16913d1af in ARKodeSPRKStorage_Alloc /home/gardner48/sundials/src/arkode/arkode_sprk.c:416
+    #1 0x7fb16913d1af in ARKodeSPRKTable_Alloc /home/gardner48/sundials/src/arkode/arkode_sprk.c:416
     #2 0x7fb169134275 in ARKodeSymplecticMcLachlan3 /home/gardner48/sundials/src/arkode/arkode_sprk.c:144
-    #3 0x7fb16913d43f in ARKodeSPRKStorage_LoadByName /home/gardner48/sundials/src/arkode/arkode_sprk.c:466
+    #3 0x7fb16913d43f in ARKodeSPRKTable_LoadByName /home/gardner48/sundials/src/arkode/arkode_sprk.c:466
     #4 0x40232f in main /home/gardner48/sundials/examples/arkode/C_serial/ark_kepler.c:163
     #5 0x7fb167537554 in __libc_start_main (/lib64/libc.so.6+0x22554)
 
 Indirect leak of 24 byte(s) in 1 object(s) allocated from:
     #0 0x7fb16997b07a in __interceptor_malloc /tmp/gardner48/spack-stage/spack-stage-gcc-5.5.0-khqnsyjkc36jajm2637pm3dftr2egjwk/spack-src/libsanitizer/asan/asan_malloc_linux.cc:62
-    #1 0x7fb16913d149 in ARKodeSPRKStorage_Alloc /home/gardner48/sundials/src/arkode/arkode_sprk.c:415
+    #1 0x7fb16913d149 in ARKodeSPRKTable_Alloc /home/gardner48/sundials/src/arkode/arkode_sprk.c:415
     #2 0x7fb169134275 in ARKodeSymplecticMcLachlan3 /home/gardner48/sundials/src/arkode/arkode_sprk.c:144
-    #3 0x7fb16913d43f in ARKodeSPRKStorage_LoadByName /home/gardner48/sundials/src/arkode/arkode_sprk.c:466
+    #3 0x7fb16913d43f in ARKodeSPRKTable_LoadByName /home/gardner48/sundials/src/arkode/arkode_sprk.c:466
     #4 0x40232f in main /home/gardner48/sundials/examples/arkode/C_serial/ark_kepler.c:163
     #5 0x7fb167537554 in __libc_start_main (/lib64/libc.so.6+0x22554)
 

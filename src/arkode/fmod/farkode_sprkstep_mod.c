@@ -334,11 +334,11 @@ SWIGEXPORT int _wrap_FSPRKStepSetUseCompensatedSums(void *farg1, int const *farg
 SWIGEXPORT int _wrap_FSPRKStepSetMethod(void *farg1, void *farg2) {
   int fresult ;
   void *arg1 = (void *) 0 ;
-  ARKodeSPRKStorage arg2 = (ARKodeSPRKStorage) 0 ;
+  ARKodeSPRKTable arg2 = (ARKodeSPRKTable) 0 ;
   int result;
   
   arg1 = (void *)(farg1);
-  arg2 = (ARKodeSPRKStorage)(farg2);
+  arg2 = (ARKodeSPRKTable)(farg2);
   result = (int)SPRKStepSetMethod(arg1,arg2);
   fresult = (int)(result);
   return fresult;
@@ -569,11 +569,11 @@ SWIGEXPORT SwigArrayWrapper _wrap_FSPRKStepGetReturnFlagName(long const *farg1) 
 SWIGEXPORT int _wrap_FSPRKStepGetCurrentMethod(void *farg1, void *farg2) {
   int fresult ;
   void *arg1 = (void *) 0 ;
-  ARKodeSPRKStorage *arg2 = (ARKodeSPRKStorage *) 0 ;
+  ARKodeSPRKTable *arg2 = (ARKodeSPRKTable *) 0 ;
   int result;
   
   arg1 = (void *)(farg1);
-  arg2 = (ARKodeSPRKStorage *)(farg2);
+  arg2 = (ARKodeSPRKTable *)(farg2);
   result = (int)SPRKStepGetCurrentMethod(arg1,arg2);
   fresult = (int)(result);
   return fresult;

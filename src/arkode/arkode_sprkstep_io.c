@@ -248,7 +248,7 @@ int SPRKStepSetUseCompensatedSums(void* arkode_mem, sunbooleantype onoff)
   ** Note in documentation that this should not be called along
   with SPRKStepSetOrder. **
   ---------------------------------------------------------------*/
-int SPRKStepSetMethod(void* arkode_mem, ARKodeSPRKStorage sprk_storage)
+int SPRKStepSetMethod(void* arkode_mem, ARKodeSPRKTable sprk_storage)
 {
   ARKodeMem ark_mem          = NULL;
   ARKodeSPRKStepMem step_mem = NULL;
@@ -261,11 +261,11 @@ int SPRKStepSetMethod(void* arkode_mem, ARKodeSPRKStorage sprk_storage)
 
   if (step_mem->method)
   {
-    ARKodeSPRKStorage_Free(step_mem->method);
+    ARKodeSPRKTable_Free(step_mem->method);
     step_mem->method = NULL;
   }
 
-  step_mem->method = ARKodeSPRKStorage_Copy(sprk_storage);
+  step_mem->method = ARKodeSPRKTable_Copy(sprk_storage);
 
   return (ARK_SUCCESS);
 }
@@ -288,11 +288,11 @@ int SPRKStepSetMethodName(void* arkode_mem, const char* method)
 
   if (step_mem->method)
   {
-    ARKodeSPRKStorage_Free(step_mem->method);
+    ARKodeSPRKTable_Free(step_mem->method);
     step_mem->method = NULL;
   }
 
-  step_mem->method = ARKodeSPRKStorage_LoadByName(method);
+  step_mem->method = ARKodeSPRKTable_LoadByName(method);
 
   return step_mem->method ? ARK_SUCCESS : ARK_ILL_INPUT;
 }
@@ -324,7 +324,7 @@ int SPRKStepSetOrder(void* arkode_mem, int ord)
 
   if (step_mem->method)
   {
-    ARKodeSPRKStorage_Free(step_mem->method);
+    ARKodeSPRKTable_Free(step_mem->method);
     step_mem->method = NULL;
   }
 
@@ -362,7 +362,7 @@ int SPRKStepGetNumRhsEvals(void* arkode_mem, long int* nf1, long int* nf2)
 
   Returns the stepper method structure.
   ---------------------------------------------------------------*/
-int SPRKStepGetCurrentMethod(void* arkode_mem, ARKodeSPRKStorage* sprk_storage)
+int SPRKStepGetCurrentMethod(void* arkode_mem, ARKodeSPRKTable* sprk_storage)
 {
   ARKodeMem ark_mem          = NULL;
   ARKodeSPRKStepMem step_mem = NULL;

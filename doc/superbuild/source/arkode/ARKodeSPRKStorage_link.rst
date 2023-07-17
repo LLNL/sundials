@@ -10,4 +10,4 @@
    SUNDIALS Copyright End
    ----------------------------------------------------------------
 
-.. include:: ../../../arkode/guide/source/ARKodeSPRKStorage.rst
+.. include:: ../../../arkode/guide/source/ARKodeSPRKTable.rst

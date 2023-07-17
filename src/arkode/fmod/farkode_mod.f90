@@ -279,32 +279,32 @@ module farkode_mod
     ARKODE_SPRK_PSEUDO_LEAPFROG_2_2, ARKODE_SPRK_RUTH_3_3, ARKODE_SPRK_MCLACHLAN_2_2, ARKODE_SPRK_MCLACHLAN_3_3, &
     ARKODE_SPRK_CANDY_ROZMUS_4_4, ARKODE_SPRK_MCLACHLAN_4_4, ARKODE_SPRK_MCLACHLAN_5_6, ARKODE_SPRK_YOSHIDA_6_8, &
     ARKODE_SPRK_SUZUKI_UMENO_8_16, ARKODE_SPRK_SOFRONIOU_10_36, ARKODE_MAX_SPRK_NUM
- ! struct struct ARKodeSPRKStorage_s
- type, public :: ARKodeSPRKStorage_s
+ ! struct struct ARKodeSPRKTableMem
+ type, public :: ARKodeSPRKTableMem
   type(SwigClassWrapper), public :: swigdata
  contains
-  procedure :: set_q => swigf_ARKodeSPRKStorage_s_q_set
-  procedure :: get_q => swigf_ARKodeSPRKStorage_s_q_get
-  procedure :: set_stages => swigf_ARKodeSPRKStorage_s_stages_set
-  procedure :: get_stages => swigf_ARKodeSPRKStorage_s_stages_get
-  procedure :: set_a => swigf_ARKodeSPRKStorage_s_a_set
-  procedure :: get_a => swigf_ARKodeSPRKStorage_s_a_get
-  procedure :: set_ahat => swigf_ARKodeSPRKStorage_s_ahat_set
-  procedure :: get_ahat => swigf_ARKodeSPRKStorage_s_ahat_get
-  procedure :: release => swigf_release_ARKodeSPRKStorage_s
-  procedure, private :: swigf_ARKodeSPRKStorage_s_op_assign__
-  generic :: assignment(=) => swigf_ARKodeSPRKStorage_s_op_assign__
- end type ARKodeSPRKStorage_s
- interface ARKodeSPRKStorage_s
-  module procedure swigf_create_ARKodeSPRKStorage_s
+  procedure :: set_q => swigf_ARKodeSPRKTableMem_q_set
+  procedure :: get_q => swigf_ARKodeSPRKTableMem_q_get
+  procedure :: set_stages => swigf_ARKodeSPRKTableMem_stages_set
+  procedure :: get_stages => swigf_ARKodeSPRKTableMem_stages_get
+  procedure :: set_a => swigf_ARKodeSPRKTableMem_a_set
+  procedure :: get_a => swigf_ARKodeSPRKTableMem_a_get
+  procedure :: set_ahat => swigf_ARKodeSPRKTableMem_ahat_set
+  procedure :: get_ahat => swigf_ARKodeSPRKTableMem_ahat_get
+  procedure :: release => swigf_release_ARKodeSPRKTableMem
+  procedure, private :: swigf_ARKodeSPRKTableMem_op_assign__
+  generic :: assignment(=) => swigf_ARKodeSPRKTableMem_op_assign__
+ end type ARKodeSPRKTableMem
+ interface ARKodeSPRKTableMem
+  module procedure swigf_create_ARKodeSPRKTableMem
  end interface
- public :: FARKodeSPRKStorage_Alloc
- public :: FARKodeSPRKStorage_Load
- public :: FARKodeSPRKStorage_LoadByName
- public :: FARKodeSPRKStorage_Copy
- public :: FARKodeSPRKStorage_Space
- public :: FARKodeSPRKStorage_Free
- public :: FARKodeSPRKStorage_ToButcher
+ public :: FARKodeSPRKTable_Alloc
+ public :: FARKodeSPRKTable_Load
+ public :: FARKodeSPRKTable_LoadByName
+ public :: FARKodeSPRKTable_Copy
+ public :: FARKodeSPRKTableMempace
+ public :: FARKodeSPRKTable_Free
+ public :: FARKodeSPRKTable_ToButcher
  integer(C_INT), parameter, public :: ARKLS_SUCCESS = 0_C_INT
  integer(C_INT), parameter, public :: ARKLS_MEM_NULL = -1_C_INT
  integer(C_INT), parameter, public :: ARKLS_LMEM_NULL = -2_C_INT
@@ -648,16 +648,16 @@ type(SwigArrayWrapper) :: farg1
 type(C_PTR) :: fresult
 end function
 
-subroutine swigc_ARKodeSPRKStorage_s_q_set(farg1, farg2) &
-bind(C, name="_wrap_ARKodeSPRKStorage_s_q_set")
+subroutine swigc_ARKodeSPRKTableMem_q_set(farg1, farg2) &
+bind(C, name="_wrap_ARKodeSPRKTableMem_q_set")
 use, intrinsic :: ISO_C_BINDING
 import :: swigclasswrapper
 type(SwigClassWrapper) :: farg1
 integer(C_INT), intent(in) :: farg2
 end subroutine
 
-function swigc_ARKodeSPRKStorage_s_q_get(farg1) &
-bind(C, name="_wrap_ARKodeSPRKStorage_s_q_get") &
+function swigc_ARKodeSPRKTableMem_q_get(farg1) &
+bind(C, name="_wrap_ARKodeSPRKTableMem_q_get") &
 result(fresult)
 use, intrinsic :: ISO_C_BINDING
 import :: swigclasswrapper
@@ -665,16 +665,16 @@ type(SwigClassWrapper) :: farg1
 integer(C_INT) :: fresult
 end function
 
-subroutine swigc_ARKodeSPRKStorage_s_stages_set(farg1, farg2) &
-bind(C, name="_wrap_ARKodeSPRKStorage_s_stages_set")
+subroutine swigc_ARKodeSPRKTableMem_stages_set(farg1, farg2) &
+bind(C, name="_wrap_ARKodeSPRKTableMem_stages_set")
 use, intrinsic :: ISO_C_BINDING
 import :: swigclasswrapper
 type(SwigClassWrapper) :: farg1
 integer(C_INT), intent(in) :: farg2
 end subroutine
 
-function swigc_ARKodeSPRKStorage_s_stages_get(farg1) &
-bind(C, name="_wrap_ARKodeSPRKStorage_s_stages_get") &
+function swigc_ARKodeSPRKTableMem_stages_get(farg1) &
+bind(C, name="_wrap_ARKodeSPRKTableMem_stages_get") &
 result(fresult)
 use, intrinsic :: ISO_C_BINDING
 import :: swigclasswrapper
@@ -682,16 +682,16 @@ type(SwigClassWrapper) :: farg1
 integer(C_INT) :: fresult
 end function
 
-subroutine swigc_ARKodeSPRKStorage_s_a_set(farg1, farg2) &
-bind(C, name="_wrap_ARKodeSPRKStorage_s_a_set")
+subroutine swigc_ARKodeSPRKTableMem_a_set(farg1, farg2) &
+bind(C, name="_wrap_ARKodeSPRKTableMem_a_set")
 use, intrinsic :: ISO_C_BINDING
 import :: swigclasswrapper
 type(SwigClassWrapper) :: farg1
 type(C_PTR), value :: farg2
 end subroutine
 
-function swigc_ARKodeSPRKStorage_s_a_get(farg1) &
-bind(C, name="_wrap_ARKodeSPRKStorage_s_a_get") &
+function swigc_ARKodeSPRKTableMem_a_get(farg1) &
+bind(C, name="_wrap_ARKodeSPRKTableMem_a_get") &
 result(fresult)
 use, intrinsic :: ISO_C_BINDING
 import :: swigclasswrapper
@@ -699,16 +699,16 @@ type(SwigClassWrapper) :: farg1
 type(C_PTR) :: fresult
 end function
 
-subroutine swigc_ARKodeSPRKStorage_s_ahat_set(farg1, farg2) &
-bind(C, name="_wrap_ARKodeSPRKStorage_s_ahat_set")
+subroutine swigc_ARKodeSPRKTableMem_ahat_set(farg1, farg2) &
+bind(C, name="_wrap_ARKodeSPRKTableMem_ahat_set")
 use, intrinsic :: ISO_C_BINDING
 import :: swigclasswrapper
 type(SwigClassWrapper) :: farg1
 type(C_PTR), value :: farg2
 end subroutine
 
-function swigc_ARKodeSPRKStorage_s_ahat_get(farg1) &
-bind(C, name="_wrap_ARKodeSPRKStorage_s_ahat_get") &
+function swigc_ARKodeSPRKTableMem_ahat_get(farg1) &
+bind(C, name="_wrap_ARKodeSPRKTableMem_ahat_get") &
 result(fresult)
 use, intrinsic :: ISO_C_BINDING
 import :: swigclasswrapper
@@ -716,47 +716,47 @@ type(SwigClassWrapper) :: farg1
 type(C_PTR) :: fresult
 end function
 
-function swigc_new_ARKodeSPRKStorage_s() &
-bind(C, name="_wrap_new_ARKodeSPRKStorage_s") &
+function swigc_new_ARKodeSPRKTableMem() &
+bind(C, name="_wrap_new_ARKodeSPRKTableMem") &
 result(fresult)
 use, intrinsic :: ISO_C_BINDING
 import :: swigclasswrapper
 type(SwigClassWrapper) :: fresult
 end function
 
-subroutine swigc_delete_ARKodeSPRKStorage_s(farg1) &
-bind(C, name="_wrap_delete_ARKodeSPRKStorage_s")
+subroutine swigc_delete_ARKodeSPRKTableMem(farg1) &
+bind(C, name="_wrap_delete_ARKodeSPRKTableMem")
 use, intrinsic :: ISO_C_BINDING
 import :: swigclasswrapper
 type(SwigClassWrapper), intent(inout) :: farg1
 end subroutine
 
-subroutine swigc_ARKodeSPRKStorage_s_op_assign__(farg1, farg2) &
-bind(C, name="_wrap_ARKodeSPRKStorage_s_op_assign__")
+subroutine swigc_ARKodeSPRKTableMem_op_assign__(farg1, farg2) &
+bind(C, name="_wrap_ARKodeSPRKTableMem_op_assign__")
 use, intrinsic :: ISO_C_BINDING
 import :: swigclasswrapper
 type(SwigClassWrapper), intent(inout) :: farg1
 type(SwigClassWrapper) :: farg2
 end subroutine
 
-function swigc_FARKodeSPRKStorage_Alloc(farg1) &
-bind(C, name="_wrap_FARKodeSPRKStorage_Alloc") &
+function swigc_FARKodeSPRKTable_Alloc(farg1) &
+bind(C, name="_wrap_FARKodeSPRKTable_Alloc") &
 result(fresult)
 use, intrinsic :: ISO_C_BINDING
 integer(C_INT), intent(in) :: farg1
 type(C_PTR) :: fresult
 end function
 
-function swigc_FARKodeSPRKStorage_Load(farg1) &
-bind(C, name="_wrap_FARKodeSPRKStorage_Load") &
+function swigc_FARKodeSPRKTable_Load(farg1) &
+bind(C, name="_wrap_FARKodeSPRKTable_Load") &
 result(fresult)
 use, intrinsic :: ISO_C_BINDING
 integer(C_INT), intent(in) :: farg1
 type(C_PTR) :: fresult
 end function
 
-function swigc_FARKodeSPRKStorage_LoadByName(farg1) &
-bind(C, name="_wrap_FARKodeSPRKStorage_LoadByName") &
+function swigc_FARKodeSPRKTable_LoadByName(farg1) &
+bind(C, name="_wrap_FARKodeSPRKTable_LoadByName") &
 result(fresult)
 use, intrinsic :: ISO_C_BINDING
 import :: swigarraywrapper
@@ -764,30 +764,30 @@ type(SwigArrayWrapper) :: farg1
 type(C_PTR) :: fresult
 end function
 
-function swigc_FARKodeSPRKStorage_Copy(farg1) &
-bind(C, name="_wrap_FARKodeSPRKStorage_Copy") &
+function swigc_FARKodeSPRKTable_Copy(farg1) &
+bind(C, name="_wrap_FARKodeSPRKTable_Copy") &
 result(fresult)
 use, intrinsic :: ISO_C_BINDING
 type(C_PTR), value :: farg1
 type(C_PTR) :: fresult
 end function
 
-subroutine swigc_FARKodeSPRKStorage_Space(farg1, farg2, farg3) &
-bind(C, name="_wrap_FARKodeSPRKStorage_Space")
+subroutine swigc_FARKodeSPRKTableMempace(farg1, farg2, farg3) &
+bind(C, name="_wrap_FARKodeSPRKTableMempace")
 use, intrinsic :: ISO_C_BINDING
 type(C_PTR), value :: farg1
 type(C_PTR), value :: farg2
 type(C_PTR), value :: farg3
 end subroutine
 
-subroutine swigc_FARKodeSPRKStorage_Free(farg1) &
-bind(C, name="_wrap_FARKodeSPRKStorage_Free")
+subroutine swigc_FARKodeSPRKTable_Free(farg1) &
+bind(C, name="_wrap_FARKodeSPRKTable_Free")
 use, intrinsic :: ISO_C_BINDING
 type(C_PTR), value :: farg1
 end subroutine
 
-function swigc_FARKodeSPRKStorage_ToButcher(farg1, farg2, farg3) &
-bind(C, name="_wrap_FARKodeSPRKStorage_ToButcher") &
+function swigc_FARKodeSPRKTable_ToButcher(farg1, farg2, farg3) &
+bind(C, name="_wrap_FARKodeSPRKTable_ToButcher") &
 result(fresult)
 use, intrinsic :: ISO_C_BINDING
 type(C_PTR), value :: farg1
@@ -1379,144 +1379,144 @@ fresult = swigc_FARKodeButcherTable_LoadERKByName(farg1)
 swig_result = fresult
 end function
 
-subroutine swigf_ARKodeSPRKStorage_s_q_set(self, q)
+subroutine swigf_ARKodeSPRKTableMem_q_set(self, q)
 use, intrinsic :: ISO_C_BINDING
-class(ARKodeSPRKStorage_s), intent(in) :: self
+class(ARKodeSPRKTableMem), intent(in) :: self
 integer(C_INT), intent(in) :: q
 type(SwigClassWrapper) :: farg1 
 integer(C_INT) :: farg2 
 
 farg1 = self%swigdata
 farg2 = q
-call swigc_ARKodeSPRKStorage_s_q_set(farg1, farg2)
+call swigc_ARKodeSPRKTableMem_q_set(farg1, farg2)
 end subroutine
 
-function swigf_ARKodeSPRKStorage_s_q_get(self) &
+function swigf_ARKodeSPRKTableMem_q_get(self) &
 result(swig_result)
 use, intrinsic :: ISO_C_BINDING
 integer(C_INT) :: swig_result
-class(ARKodeSPRKStorage_s), intent(in) :: self
+class(ARKodeSPRKTableMem), intent(in) :: self
 integer(C_INT) :: fresult 
 type(SwigClassWrapper) :: farg1 
 
 farg1 = self%swigdata
-fresult = swigc_ARKodeSPRKStorage_s_q_get(farg1)
+fresult = swigc_ARKodeSPRKTableMem_q_get(farg1)
 swig_result = fresult
 end function
 
-subroutine swigf_ARKodeSPRKStorage_s_stages_set(self, stages)
+subroutine swigf_ARKodeSPRKTableMem_stages_set(self, stages)
 use, intrinsic :: ISO_C_BINDING
-class(ARKodeSPRKStorage_s), intent(in) :: self
+class(ARKodeSPRKTableMem), intent(in) :: self
 integer(C_INT), intent(in) :: stages
 type(SwigClassWrapper) :: farg1 
 integer(C_INT) :: farg2 
 
 farg1 = self%swigdata
 farg2 = stages
-call swigc_ARKodeSPRKStorage_s_stages_set(farg1, farg2)
+call swigc_ARKodeSPRKTableMem_stages_set(farg1, farg2)
 end subroutine
 
-function swigf_ARKodeSPRKStorage_s_stages_get(self) &
+function swigf_ARKodeSPRKTableMem_stages_get(self) &
 result(swig_result)
 use, intrinsic :: ISO_C_BINDING
 integer(C_INT) :: swig_result
-class(ARKodeSPRKStorage_s), intent(in) :: self
+class(ARKodeSPRKTableMem), intent(in) :: self
 integer(C_INT) :: fresult 
 type(SwigClassWrapper) :: farg1 
 
 farg1 = self%swigdata
-fresult = swigc_ARKodeSPRKStorage_s_stages_get(farg1)
+fresult = swigc_ARKodeSPRKTableMem_stages_get(farg1)
 swig_result = fresult
 end function
 
-subroutine swigf_ARKodeSPRKStorage_s_a_set(self, a)
+subroutine swigf_ARKodeSPRKTableMem_a_set(self, a)
 use, intrinsic :: ISO_C_BINDING
-class(ARKodeSPRKStorage_s), intent(in) :: self
+class(ARKodeSPRKTableMem), intent(in) :: self
 real(C_DOUBLE), target, intent(inout) :: a
 type(SwigClassWrapper) :: farg1 
 type(C_PTR) :: farg2 
 
 farg1 = self%swigdata
 farg2 = c_loc(a)
-call swigc_ARKodeSPRKStorage_s_a_set(farg1, farg2)
+call swigc_ARKodeSPRKTableMem_a_set(farg1, farg2)
 end subroutine
 
-function swigf_ARKodeSPRKStorage_s_a_get(self) &
+function swigf_ARKodeSPRKTableMem_a_get(self) &
 result(swig_result)
 use, intrinsic :: ISO_C_BINDING
 real(C_DOUBLE), pointer :: swig_result
-class(ARKodeSPRKStorage_s), intent(in) :: self
+class(ARKodeSPRKTableMem), intent(in) :: self
 type(C_PTR) :: fresult 
 type(SwigClassWrapper) :: farg1 
 
 farg1 = self%swigdata
-fresult = swigc_ARKodeSPRKStorage_s_a_get(farg1)
+fresult = swigc_ARKodeSPRKTableMem_a_get(farg1)
 call c_f_pointer(fresult, swig_result)
 end function
 
-subroutine swigf_ARKodeSPRKStorage_s_ahat_set(self, ahat)
+subroutine swigf_ARKodeSPRKTableMem_ahat_set(self, ahat)
 use, intrinsic :: ISO_C_BINDING
-class(ARKodeSPRKStorage_s), intent(in) :: self
+class(ARKodeSPRKTableMem), intent(in) :: self
 real(C_DOUBLE), target, intent(inout) :: ahat
 type(SwigClassWrapper) :: farg1 
 type(C_PTR) :: farg2 
 
 farg1 = self%swigdata
 farg2 = c_loc(ahat)
-call swigc_ARKodeSPRKStorage_s_ahat_set(farg1, farg2)
+call swigc_ARKodeSPRKTableMem_ahat_set(farg1, farg2)
 end subroutine
 
-function swigf_ARKodeSPRKStorage_s_ahat_get(self) &
+function swigf_ARKodeSPRKTableMem_ahat_get(self) &
 result(swig_result)
 use, intrinsic :: ISO_C_BINDING
 real(C_DOUBLE), pointer :: swig_result
-class(ARKodeSPRKStorage_s), intent(in) :: self
+class(ARKodeSPRKTableMem), intent(in) :: self
 type(C_PTR) :: fresult 
 type(SwigClassWrapper) :: farg1 
 
 farg1 = self%swigdata
-fresult = swigc_ARKodeSPRKStorage_s_ahat_get(farg1)
+fresult = swigc_ARKodeSPRKTableMem_ahat_get(farg1)
 call c_f_pointer(fresult, swig_result)
 end function
 
-function swigf_create_ARKodeSPRKStorage_s() &
+function swigf_create_ARKodeSPRKTableMem() &
 result(self)
 use, intrinsic :: ISO_C_BINDING
-type(ARKodeSPRKStorage_s) :: self
+type(ARKodeSPRKTableMem) :: self
 type(SwigClassWrapper) :: fresult 
 
-fresult = swigc_new_ARKodeSPRKStorage_s()
+fresult = swigc_new_ARKodeSPRKTableMem()
 self%swigdata = fresult
 end function
 
-subroutine swigf_release_ARKodeSPRKStorage_s(self)
+subroutine swigf_release_ARKodeSPRKTableMem(self)
 use, intrinsic :: ISO_C_BINDING
-class(ARKodeSPRKStorage_s), intent(inout) :: self
+class(ARKodeSPRKTableMem), intent(inout) :: self
 type(SwigClassWrapper) :: farg1 
 
 farg1 = self%swigdata
 if (btest(farg1%cmemflags, swig_cmem_own_bit)) then
-call swigc_delete_ARKodeSPRKStorage_s(farg1)
+call swigc_delete_ARKodeSPRKTableMem(farg1)
 endif
 farg1%cptr = C_NULL_PTR
 farg1%cmemflags = 0
 self%swigdata = farg1
 end subroutine
 
-subroutine swigf_ARKodeSPRKStorage_s_op_assign__(self, other)
+subroutine swigf_ARKodeSPRKTableMem_op_assign__(self, other)
 use, intrinsic :: ISO_C_BINDING
-class(ARKodeSPRKStorage_s), intent(inout) :: self
-type(ARKodeSPRKStorage_s), intent(in) :: other
+class(ARKodeSPRKTableMem), intent(inout) :: self
+type(ARKodeSPRKTableMem), intent(in) :: other
 type(SwigClassWrapper) :: farg1 
 type(SwigClassWrapper) :: farg2 
 
 farg1 = self%swigdata
 farg2 = other%swigdata
-call swigc_ARKodeSPRKStorage_s_op_assign__(farg1, farg2)
+call swigc_ARKodeSPRKTableMem_op_assign__(farg1, farg2)
 self%swigdata = farg1
 end subroutine
 
-function FARKodeSPRKStorage_Alloc(stages) &
+function FARKodeSPRKTable_Alloc(stages) &
 result(swig_result)
 use, intrinsic :: ISO_C_BINDING
 type(C_PTR) :: swig_result
@@ -1525,11 +1525,11 @@ type(C_PTR) :: fresult
 integer(C_INT) :: farg1 
 
 farg1 = stages
-fresult = swigc_FARKodeSPRKStorage_Alloc(farg1)
+fresult = swigc_FARKodeSPRKTable_Alloc(farg1)
 swig_result = fresult
 end function
 
-function FARKodeSPRKStorage_Load(id) &
+function FARKodeSPRKTable_Load(id) &
 result(swig_result)
 use, intrinsic :: ISO_C_BINDING
 type(C_PTR) :: swig_result
@@ -1538,11 +1538,11 @@ type(C_PTR) :: fresult
 integer(C_INT) :: farg1 
 
 farg1 = id
-fresult = swigc_FARKodeSPRKStorage_Load(farg1)
+fresult = swigc_FARKodeSPRKTable_Load(farg1)
 swig_result = fresult
 end function
 
-function FARKodeSPRKStorage_LoadByName(method) &
+function FARKodeSPRKTable_LoadByName(method) &
 result(swig_result)
 use, intrinsic :: ISO_C_BINDING
 type(C_PTR) :: swig_result
@@ -1552,11 +1552,11 @@ type(C_PTR) :: fresult
 type(SwigArrayWrapper) :: farg1 
 
 call SWIG_string_to_chararray(method, farg1_chars, farg1)
-fresult = swigc_FARKodeSPRKStorage_LoadByName(farg1)
+fresult = swigc_FARKodeSPRKTable_LoadByName(farg1)
 swig_result = fresult
 end function
 
-function FARKodeSPRKStorage_Copy(that_sprk_storage) &
+function FARKodeSPRKTable_Copy(that_sprk_storage) &
 result(swig_result)
 use, intrinsic :: ISO_C_BINDING
 type(C_PTR) :: swig_result
@@ -1565,11 +1565,11 @@ type(C_PTR) :: fresult
 type(C_PTR) :: farg1 
 
 farg1 = that_sprk_storage
-fresult = swigc_FARKodeSPRKStorage_Copy(farg1)
+fresult = swigc_FARKodeSPRKTable_Copy(farg1)
 swig_result = fresult
 end function
 
-subroutine FARKodeSPRKStorage_Space(sprk_storage, liw, lrw)
+subroutine FARKodeSPRKTableMempace(sprk_storage, liw, lrw)
 use, intrinsic :: ISO_C_BINDING
 type(C_PTR) :: sprk_storage
 integer(C_INT64_T), dimension(*), target, intent(inout) :: liw
@@ -1581,19 +1581,19 @@ type(C_PTR) :: farg3
 farg1 = sprk_storage
 farg2 = c_loc(liw(1))
 farg3 = c_loc(lrw(1))
-call swigc_FARKodeSPRKStorage_Space(farg1, farg2, farg3)
+call swigc_FARKodeSPRKTableMempace(farg1, farg2, farg3)
 end subroutine
 
-subroutine FARKodeSPRKStorage_Free(sprk_storage)
+subroutine FARKodeSPRKTable_Free(sprk_storage)
 use, intrinsic :: ISO_C_BINDING
 type(C_PTR) :: sprk_storage
 type(C_PTR) :: farg1 
 
 farg1 = sprk_storage
-call swigc_FARKodeSPRKStorage_Free(farg1)
+call swigc_FARKodeSPRKTable_Free(farg1)
 end subroutine
 
-function FARKodeSPRKStorage_ToButcher(sprk_storage, erk_ptr, dirk_ptr) &
+function FARKodeSPRKTable_ToButcher(sprk_storage, erk_ptr, dirk_ptr) &
 result(swig_result)
 use, intrinsic :: ISO_C_BINDING
 integer(C_INT) :: swig_result
@@ -1608,7 +1608,7 @@ type(C_PTR) :: farg3
 farg1 = sprk_storage
 farg2 = c_loc(erk_ptr)
 farg3 = c_loc(dirk_ptr)
-fresult = swigc_FARKodeSPRKStorage_ToButcher(farg1, farg2, farg3)
+fresult = swigc_FARKodeSPRKTable_ToButcher(farg1, farg2, farg3)
 swig_result = fresult
 end function
 

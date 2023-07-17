@@ -576,7 +576,7 @@ Optional inputs for IVP method selection
       :c:func:`SPRKStepSetMethod` or :c:func:`SPRKStepMethodByName`.
 
 
-.. c:function:: int SPRKStepSetMethod(void* arkode_mem, ARKodeSPRKStorage sprk_storage)
+.. c:function:: int SPRKStepSetMethod(void* arkode_mem, ARKodeSPRKTable sprk_storage)
 
    Specifies the SPRK method.
 
@@ -978,7 +978,7 @@ Main solver optional output functions
 
 
 
-.. c:function:: int SPRKStepGetCurrentMethod(void* arkode_mem, ARKodeSPRKStorage *sprk_storage)
+.. c:function:: int SPRKStepGetCurrentMethod(void* arkode_mem, ARKodeSPRKTable *sprk_storage)
 
    Returns the SPRK method coefficient structure currently in use by the solver.
 
