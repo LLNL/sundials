@@ -2,7 +2,7 @@
  * Programmer(s): Cody J. Balos @ LLNL
  *---------------------------------------------------------------
  * SUNDIALS Copyright Start
- * Copyright (c) 2002-2022, Lawrence Livermore National Security
+ * Copyright (c) 2002-2023, Lawrence Livermore National Security
  * and Southern Methodist University.
  * All rights reserved.
  *
@@ -23,10 +23,11 @@
 ARKodeSPRKStorage ARKodeSymplecticEuler()
 {
   ARKodeSPRKStorage sprk_storage = ARKodeSPRKStorage_Alloc(1);
-  sprk_storage->q                = 1;
-  sprk_storage->stages           = 1;
-  sprk_storage->a[0]             = SUN_RCONST(1.0);
-  sprk_storage->ahat[0]          = SUN_RCONST(1.0);
+  if (!sprk_storage) { return NULL; }
+  sprk_storage->q       = 1;
+  sprk_storage->stages  = 1;
+  sprk_storage->a[0]    = SUN_RCONST(1.0);
+  sprk_storage->ahat[0] = SUN_RCONST(1.0);
   return sprk_storage;
 }
 
@@ -42,32 +43,35 @@ ARKodeSPRKStorage ARKodeSymplecticEuler()
 ARKodeSPRKStorage ARKodeSymplecticLeapfrog2()
 {
   ARKodeSPRKStorage sprk_storage = ARKodeSPRKStorage_Alloc(2);
-  sprk_storage->q                = 2;
-  sprk_storage->stages           = 2;
-  sprk_storage->a[0]             = SUN_RCONST(0.5);
-  sprk_storage->a[1]             = SUN_RCONST(0.5);
-  sprk_storage->ahat[0]          = SUN_RCONST(0.0);
-  sprk_storage->ahat[1]          = SUN_RCONST(1.0);
+  if (!sprk_storage) { return NULL; }
+  sprk_storage->q       = 2;
+  sprk_storage->stages  = 2;
+  sprk_storage->a[0]    = SUN_RCONST(0.5);
+  sprk_storage->a[1]    = SUN_RCONST(0.5);
+  sprk_storage->ahat[0] = SUN_RCONST(0.0);
+  sprk_storage->ahat[1] = SUN_RCONST(1.0);
   return sprk_storage;
 }
 
 ARKodeSPRKStorage ARKodeSymplecticPseudoLeapfrog2()
 {
   ARKodeSPRKStorage sprk_storage = ARKodeSPRKStorage_Alloc(2);
-  sprk_storage->q                = 2;
-  sprk_storage->stages           = 2;
-  sprk_storage->a[0]             = SUN_RCONST(1.0);
-  sprk_storage->a[1]             = SUN_RCONST(0.0);
-  sprk_storage->ahat[0]          = SUN_RCONST(0.5);
-  sprk_storage->ahat[1]          = SUN_RCONST(0.5);
+  if (!sprk_storage) { return NULL; }
+  sprk_storage->q       = 2;
+  sprk_storage->stages  = 2;
+  sprk_storage->a[0]    = SUN_RCONST(1.0);
+  sprk_storage->a[1]    = SUN_RCONST(0.0);
+  sprk_storage->ahat[0] = SUN_RCONST(0.5);
+  sprk_storage->ahat[1] = SUN_RCONST(0.5);
   return sprk_storage;
 }
 
 ARKodeSPRKStorage ARKodeSymplecticCandyRozmus4()
 {
   ARKodeSPRKStorage sprk_storage = ARKodeSPRKStorage_Alloc(4);
-  sprk_storage->q                = 4;
-  sprk_storage->stages           = 4;
+  if (!sprk_storage) { return NULL; }
+  sprk_storage->q      = 4;
+  sprk_storage->stages = 4;
   sprk_storage->a[0] =
     (SUN_RCONST(2.0) +
      SUNRpowerR(SUN_RCONST(2.0), SUN_RCONST(1.0) / SUN_RCONST(3.0)) +
@@ -104,14 +108,15 @@ ARKodeSPRKStorage ARKodeSymplecticCandyRozmus4()
 ARKodeSPRKStorage ARKodeSymplecticRuth3()
 {
   ARKodeSPRKStorage sprk_storage = ARKodeSPRKStorage_Alloc(3);
-  sprk_storage->q                = 3;
-  sprk_storage->stages           = 3;
-  sprk_storage->a[0]             = SUN_RCONST(2.0) / SUN_RCONST(3.0);
-  sprk_storage->a[1]             = -SUN_RCONST(2.0) / SUN_RCONST(3.0);
-  sprk_storage->a[2]             = SUN_RCONST(1.0);
-  sprk_storage->ahat[0]          = SUN_RCONST(7.0) / SUN_RCONST(24.0);
-  sprk_storage->ahat[1]          = SUN_RCONST(3.0) / SUN_RCONST(4.0);
-  sprk_storage->ahat[2]          = -SUN_RCONST(1.0) / SUN_RCONST(24.0);
+  if (!sprk_storage) { return NULL; }
+  sprk_storage->q       = 3;
+  sprk_storage->stages  = 3;
+  sprk_storage->a[0]    = SUN_RCONST(2.0) / SUN_RCONST(3.0);
+  sprk_storage->a[1]    = -SUN_RCONST(2.0) / SUN_RCONST(3.0);
+  sprk_storage->a[2]    = SUN_RCONST(1.0);
+  sprk_storage->ahat[0] = SUN_RCONST(7.0) / SUN_RCONST(24.0);
+  sprk_storage->ahat[1] = SUN_RCONST(3.0) / SUN_RCONST(4.0);
+  sprk_storage->ahat[2] = -SUN_RCONST(1.0) / SUN_RCONST(24.0);
   return sprk_storage;
 }
 
@@ -125,9 +130,10 @@ ARKodeSPRKStorage ARKodeSymplecticRuth3()
 ARKodeSPRKStorage ARKodeSymplecticMcLachlan2()
 {
   ARKodeSPRKStorage sprk_storage = ARKodeSPRKStorage_Alloc(2);
-  sprk_storage->q                = 2;
-  sprk_storage->stages           = 2;
-  sprk_storage->a[1]             = SUN_RCONST(1.0) -
+  if (!sprk_storage) { return NULL; }
+  sprk_storage->q      = 2;
+  sprk_storage->stages = 2;
+  sprk_storage->a[1]   = SUN_RCONST(1.0) -
                        (SUN_RCONST(1.0) / SUN_RCONST(2.0)) * SUNRsqrt(2.0);
   sprk_storage->a[0] = SUN_RCONST(1.0) - sprk_storage->a[1];
   sprk_storage->ahat[1] =
@@ -142,8 +148,10 @@ ARKodeSPRKStorage ARKodeSymplecticMcLachlan3()
   sunrealtype y                  = 0.0;
   sunrealtype z                  = 0.0;
   ARKodeSPRKStorage sprk_storage = ARKodeSPRKStorage_Alloc(3);
-  sprk_storage->q                = 3;
-  sprk_storage->stages           = 3;
+  if (!sprk_storage) { return NULL; }
+
+  sprk_storage->q      = 3;
+  sprk_storage->stages = 3;
 
   z = -SUNRpowerR((SUN_RCONST(2.0) / SUN_RCONST(27.0)) -
                     SUN_RCONST(1.0) / (SUN_RCONST(9.0) * SUNRsqrt(3.0)),
@@ -166,36 +174,38 @@ ARKodeSPRKStorage ARKodeSymplecticMcLachlan3()
 ARKodeSPRKStorage ARKodeSymplecticMcLachlan4()
 {
   ARKodeSPRKStorage sprk_storage = ARKodeSPRKStorage_Alloc(4);
-  sprk_storage->q                = 4;
-  sprk_storage->stages           = 4;
-  sprk_storage->a[0]             = SUN_RCONST(0.515352837431122936);
-  sprk_storage->a[1]             = -SUN_RCONST(0.085782019412973646);
-  sprk_storage->a[2]             = SUN_RCONST(0.441583023616466524);
-  sprk_storage->a[3]             = SUN_RCONST(0.128846158365384185);
-  sprk_storage->ahat[0]          = SUN_RCONST(0.134496199277431089);
-  sprk_storage->ahat[1]          = -SUN_RCONST(0.224819803079420806);
-  sprk_storage->ahat[2]          = SUN_RCONST(0.756320000515668291);
-  sprk_storage->ahat[3]          = SUN_RCONST(0.33400360328632142);
+  if (!sprk_storage) { return NULL; }
+  sprk_storage->q       = 4;
+  sprk_storage->stages  = 4;
+  sprk_storage->a[0]    = SUN_RCONST(0.515352837431122936);
+  sprk_storage->a[1]    = -SUN_RCONST(0.085782019412973646);
+  sprk_storage->a[2]    = SUN_RCONST(0.441583023616466524);
+  sprk_storage->a[3]    = SUN_RCONST(0.128846158365384185);
+  sprk_storage->ahat[0] = SUN_RCONST(0.134496199277431089);
+  sprk_storage->ahat[1] = -SUN_RCONST(0.224819803079420806);
+  sprk_storage->ahat[2] = SUN_RCONST(0.756320000515668291);
+  sprk_storage->ahat[3] = SUN_RCONST(0.33400360328632142);
   return sprk_storage;
 }
 
 ARKodeSPRKStorage ARKodeSymplecticMcLachlan5()
 {
   ARKodeSPRKStorage sprk_storage = ARKodeSPRKStorage_Alloc(6);
-  sprk_storage->q                = 5;
-  sprk_storage->stages           = 6;
-  sprk_storage->a[0]             = SUN_RCONST(0.339839625839110000);
-  sprk_storage->a[1]             = -SUN_RCONST(0.088601336903027329);
-  sprk_storage->a[2]             = SUN_RCONST(0.5858564768259621188);
-  sprk_storage->a[3]             = -SUN_RCONST(0.603039356536491888);
-  sprk_storage->a[4]             = SUN_RCONST(0.3235807965546976394);
-  sprk_storage->a[5]             = SUN_RCONST(0.4423637942197494587);
-  sprk_storage->ahat[0]          = SUN_RCONST(0.1193900292875672758);
-  sprk_storage->ahat[1]          = SUN_RCONST(0.6989273703824752308);
-  sprk_storage->ahat[2]          = -SUN_RCONST(0.1713123582716007754);
-  sprk_storage->ahat[3]          = SUN_RCONST(0.4012695022513534480);
-  sprk_storage->ahat[4]          = SUN_RCONST(0.0107050818482359840);
-  sprk_storage->ahat[5]          = -SUN_RCONST(0.0589796254980311632);
+  if (!sprk_storage) { return NULL; }
+  sprk_storage->q       = 5;
+  sprk_storage->stages  = 6;
+  sprk_storage->a[0]    = SUN_RCONST(0.339839625839110000);
+  sprk_storage->a[1]    = -SUN_RCONST(0.088601336903027329);
+  sprk_storage->a[2]    = SUN_RCONST(0.5858564768259621188);
+  sprk_storage->a[3]    = -SUN_RCONST(0.603039356536491888);
+  sprk_storage->a[4]    = SUN_RCONST(0.3235807965546976394);
+  sprk_storage->a[5]    = SUN_RCONST(0.4423637942197494587);
+  sprk_storage->ahat[0] = SUN_RCONST(0.1193900292875672758);
+  sprk_storage->ahat[1] = SUN_RCONST(0.6989273703824752308);
+  sprk_storage->ahat[2] = -SUN_RCONST(0.1713123582716007754);
+  sprk_storage->ahat[3] = SUN_RCONST(0.4012695022513534480);
+  sprk_storage->ahat[4] = SUN_RCONST(0.0107050818482359840);
+  sprk_storage->ahat[5] = -SUN_RCONST(0.0589796254980311632);
   return sprk_storage;
 }
 
@@ -211,16 +221,17 @@ ARKodeSPRKStorage ARKodeSymplecticMcLachlan5()
 ARKodeSPRKStorage ARKodeSymplecticYoshida6()
 {
   ARKodeSPRKStorage sprk_storage = ARKodeSPRKStorage_Alloc(8);
-  sprk_storage->q                = 6;
-  sprk_storage->stages           = 8;
-  sprk_storage->a[0] = SUN_RCONST(0.7845136104775572638194976338663498757768);
-  sprk_storage->a[1] = SUN_RCONST(0.2355732133593581336847931829785346016865);
-  sprk_storage->a[2] = -SUN_RCONST(1.177679984178871006946415680964315734639);
-  sprk_storage->a[3] = SUN_RCONST(1.315186320683911218884249728238862514352);
-  sprk_storage->a[4] = sprk_storage->a[2];
-  sprk_storage->a[5] = sprk_storage->a[1];
-  sprk_storage->a[6] = sprk_storage->a[0];
-  sprk_storage->a[7] = SUN_RCONST(0.0);
+  if (!sprk_storage) { return NULL; }
+  sprk_storage->q      = 6;
+  sprk_storage->stages = 8;
+  sprk_storage->a[0]   = SUN_RCONST(0.7845136104775572638194976338663498757768);
+  sprk_storage->a[1]   = SUN_RCONST(0.2355732133593581336847931829785346016865);
+  sprk_storage->a[2]   = -SUN_RCONST(1.177679984178871006946415680964315734639);
+  sprk_storage->a[3]   = SUN_RCONST(1.315186320683911218884249728238862514352);
+  sprk_storage->a[4]   = sprk_storage->a[2];
+  sprk_storage->a[5]   = sprk_storage->a[1];
+  sprk_storage->a[6]   = sprk_storage->a[0];
+  sprk_storage->a[7]   = SUN_RCONST(0.0);
   sprk_storage->ahat[0] = sprk_storage->a[0] / SUN_RCONST(2.0);
   sprk_storage->ahat[1] = (sprk_storage->a[0] + sprk_storage->a[1]) /
                           SUN_RCONST(2.0);
@@ -252,9 +263,10 @@ ARKodeSPRKStorage ARKodeSymplecticYoshida6()
 ARKodeSPRKStorage ARKodeSymplecticSuzukiUmeno816()
 {
   ARKodeSPRKStorage sprk_storage = ARKodeSPRKStorage_Alloc(16);
-  sprk_storage->q                = 8;
-  sprk_storage->stages           = 16;
-  sprk_storage->a[0]  = SUN_RCONST(0.7416703643506129534482278017838063156035);
+  if (!sprk_storage) { return NULL; }
+  sprk_storage->q      = 8;
+  sprk_storage->stages = 16;
+  sprk_storage->a[0]   = SUN_RCONST(0.7416703643506129534482278017838063156035);
   sprk_storage->a[1]  = -SUN_RCONST(0.4091008258000315939973000958935634173099);
   sprk_storage->a[2]  = SUN_RCONST(0.1907547102962383799538762564503716627355);
   sprk_storage->a[3]  = -SUN_RCONST(0.5738624711160822666563877266355357421595);
@@ -308,8 +320,9 @@ ARKodeSPRKStorage ARKodeSymplecticSuzukiUmeno816()
 ARKodeSPRKStorage ARKodeSymplecticSofroniou10()
 {
   ARKodeSPRKStorage sprk_storage = ARKodeSPRKStorage_Alloc(36);
-  sprk_storage->q                = 10;
-  sprk_storage->stages           = 36;
+  if (!sprk_storage) { return NULL; }
+  sprk_storage->q      = 10;
+  sprk_storage->stages = 36;
 
   sprk_storage->a[0]    = SUN_RCONST(0.078795722521686419263907679337684);
   sprk_storage->a[1]    = SUN_RCONST(0.31309610341510852776481247192647);
@@ -409,8 +422,24 @@ ARKodeSPRKStorage ARKodeSPRKStorage_Alloc(int stages)
   ARKodeSPRKStorage sprk_storage = NULL;
 
   sprk_storage = (ARKodeSPRKStorage)malloc(sizeof(struct ARKodeSPRKStorage_s));
+  if (!sprk_storage) { return NULL; }
 
-  sprk_storage->q      = 0;
+  memset(sprk_storage, 0, sizeof(struct ARKodeSPRKStorage_s));
+
+  sprk_storage->ahat = (sunrealtype*)malloc(stages * sizeof(sunrealtype));
+  if (!(sprk_storage->ahat))
+  {
+    ARKodeSPRKStorage_Free(sprk_storage);
+    return NULL;
+  }
+
+  sprk_storage->a = (sunrealtype*)malloc(stages * sizeof(sunrealtype));
+  if (!(sprk_storage->a))
+  {
+    ARKodeSPRKStorage_Free(sprk_storage);
+    return NULL;
+  }
+
   sprk_storage->stages = stages;
   sprk_storage->ahat   = (sunrealtype*)malloc(stages * sizeof(sunrealtype));
   sprk_storage->a      = (sunrealtype*)malloc(stages * sizeof(sunrealtype));
@@ -521,8 +550,8 @@ void ARKodeSPRKStorage_Free(ARKodeSPRKStorage sprk_storage)
 {
   if (sprk_storage)
   {
-    free(sprk_storage->ahat);
-    free(sprk_storage->a);
+    if (sprk_storage->ahat) { free(sprk_storage->ahat); }
+    if (sprk_storage->a) { free(sprk_storage->a); }
     free(sprk_storage);
   }
 }
@@ -537,41 +566,45 @@ int ARKodeSPRKStorage_ToButcher(ARKodeSPRKStorage sprk_storage,
   ARKodeButcherTable b = NULL;
 
   a = ARKodeButcherTable_Alloc(sprk_storage->stages, SUNFALSE);
+  if (!a) { return ARK_MEM_FAIL; }
   b = ARKodeButcherTable_Alloc(sprk_storage->stages, SUNFALSE);
+  if (!b) { return ARK_MEM_FAIL; }
 
   /* DIRK table */
   for (i = 0; i < sprk_storage->stages; ++i)
   {
     b->b[i] = sprk_storage->ahat[i];
     for (j = 0; j <= i; ++j) { b->A[i][j] = sprk_storage->ahat[j]; }
+    /* Time weights: C_j = sum_{i=0}^{j} b_i */
+
+    /* Time weights: C_j = sum_{i=0}^{j-1} b_i */
+    for (j = 0; j < sprk_storage->stages; ++j)
+    {
+      for (i = 0; i <= j; ++i) { b->c[j] += sprk_storage->ahat[i]; }
+    }
+
+    /* Explicit table */
+    for (i = 0; i < sprk_storage->stages; ++i)
+    {
+      a->b[i] = sprk_storage->a[i];
+      for (j = 0; j < i; ++j) { a->A[i][j] = sprk_storage->a[j]; }
+    }
+
+    /* Time weights: c_j = sum_{i=0}^{j-1} a_i */
+    for (j = 0; j < sprk_storage->stages; ++j)
+    {
+      for (i = 0; i < j; ++i) { a->c[j] += sprk_storage->a[i]; }
+    }
+
+    /* Set method order */
+    a->q = sprk_storage->q;
+    b->q = sprk_storage->q;
+
+    /* No embedding, so set embedding order to 0 */
+    a->p = 0;
+    b->p = 0;
+
   }
-
-  /* Time weights: C_j = sum_{i=0}^{j-1} b_i */
-  for (j = 0; j < sprk_storage->stages; ++j)
-  {
-    for (i = 0; i < j; ++i) { b->c[j] += sprk_storage->ahat[i]; }
-  }
-
-  /* Explicit table */
-  for (i = 0; i < sprk_storage->stages; ++i)
-  {
-    a->b[i] = sprk_storage->a[i];
-    for (j = 0; j < i; ++j) { a->A[i][j] = sprk_storage->a[j]; }
-  }
-
-  /* Time weights: c_j = sum_{i=0}^{j-1} a_i */
-  for (j = 0; j < sprk_storage->stages; ++j)
-  {
-    for (i = 0; i < j; ++i) { a->c[j] += sprk_storage->a[i]; }
-  }
-
-  /* Set method order */
-  a->q = sprk_storage->q;
-  b->q = sprk_storage->q;
-
-  /* No embedding, so set embedding order to 0 */
-  a->p = 0;
-  b->p = 0;
 
   *erk_ptr  = a;
   *dirk_ptr = b;

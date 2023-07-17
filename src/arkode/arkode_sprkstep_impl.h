@@ -2,7 +2,7 @@
  * Programmer(s): Cody J. Balos @ LLNL
  *---------------------------------------------------------------
  * SUNDIALS Copyright Start
- * Copyright (c) 2002-2022, Lawrence Livermore National Security
+ * Copyright (c) 2002-2023, Lawrence Livermore National Security
  * and Southern Methodist University.
  * All rights reserved.
  *
@@ -53,7 +53,7 @@ typedef struct ARKodeSPRKStepMemRec
 
   /* SPRK problem specification */
   ARKRhsFn f1; /* p' = f1(t,q) = - dV(t,q)/dq  */
-  ARKRhsFn f2; /* q' = f2(p)   =   dT(p)/dp    */
+  ARKRhsFn f2; /* q' = f2(t,p) =   dT(t,p)/dp  */
 
   /* Counters */
   long int nf1; /* number of calls to f1        */
@@ -67,10 +67,10 @@ typedef struct ARKodeSPRKStepMemRec
   ===============================================================*/
 
 int sprkStep_Init(void* arkode_mem, int init_type);
-int sprkStep_FullRHS(void* arkode_mem, realtype t, N_Vector y, N_Vector f,
+int sprkStep_FullRHS(void* arkode_mem, sunrealtype t, N_Vector y, N_Vector f,
                      int mode);
-int sprkStep_TakeStep(void* arkode_mem, realtype* dsmPtr, int* nflagPtr);
-int sprkStep_TakeStep_Compensated(void* arkode_mem, realtype* dsmPtr,
+int sprkStep_TakeStep(void* arkode_mem, sunrealtype* dsmPtr, int* nflagPtr);
+int sprkStep_TakeStep_Compensated(void* arkode_mem, sunrealtype* dsmPtr,
                                   int* nflagPtr);
 
 /* Internal utility routines */
@@ -90,7 +90,6 @@ int sprkStep_f2(ARKodeSPRKStepMem step_mem, sunrealtype tcur, N_Vector ycur,
 
 /* Initialization and I/O error messages */
 #define MSG_SPRKSTEP_NO_MEM "Time step module memory is NULL."
-
 
 #ifdef __cplusplus
 }

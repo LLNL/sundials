@@ -2,7 +2,7 @@
  * Programmer(s): Cody J. Balos @ LLNL
  *---------------------------------------------------------------
  * SUNDIALS Copyright Start
- * Copyright (c) 2002-2022, Lawrence Livermore National Security
+ * Copyright (c) 2002-2023, Lawrence Livermore National Security
  * and Southern Methodist University.
  * All rights reserved.
  *
@@ -265,7 +265,7 @@ int SPRKStepSetMethod(void* arkode_mem, ARKodeSPRKStorage sprk_storage)
     step_mem->method = NULL;
   }
 
-  step_mem->method = sprk_storage;
+  step_mem->method = ARKodeSPRKStorage_Copy(sprk_storage);
 
   return (ARK_SUCCESS);
 }

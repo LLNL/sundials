@@ -27,7 +27,8 @@
 
 #include "arkode_impl.h"
 #include "arkode_interp_impl.h"
-#include "sundials/sundials_config.h"
+#include "sundials_utils.h"
+#include <sundials/sundials_config.h>
 #include <sundials/sundials_math.h>
 #include <sundials/sundials_types.h>
 
@@ -2339,15 +2340,6 @@ int arkYddNorm(ARKodeMem ark_mem, realtype hg, realtype *yddnrm)
   return(ARK_SUCCESS);
 }
 
-SUNDIALS_STATIC_INLINE
-void compensatedSum(sunrealtype base, sunrealtype inc, sunrealtype *sum, sunrealtype *error)
-{
-  sunrealtype err = *error;
-  volatile sunrealtype tmp1 = inc - err;
-  volatile sunrealtype tmp2 = base + tmp1;
-  *error = (tmp2 - base) - tmp1;
-  *sum = tmp2;
-}
 
 /*---------------------------------------------------------------
   arkCompleteStep
@@ -2375,7 +2367,7 @@ int arkCompleteStep(ARKodeMem ark_mem, realtype dsm)
   /* During long-time integration, roundoff can creep into tcur. 
      Compensated summation fixes this but with increased cost, so it is optional. */
   if (ark_mem->use_compensated_sums) {
-    compensatedSum(ark_mem->tn, ark_mem->h, &ark_mem->tcur, &ark_mem->terr); 
+    sunCompensatedSum(ark_mem->tn, ark_mem->h, &ark_mem->tcur, &ark_mem->terr); 
   } else {
     ark_mem->tcur = ark_mem->tn + ark_mem->h;
   }

@@ -195,6 +195,7 @@ $tar $tarfile $distrobase/examples/arkode/C_serial/ark_heat1D.out
 $tar $tarfile $distrobase/examples/arkode/C_serial/ark_heat1D_adapt.c
 $tar $tarfile $distrobase/examples/arkode/C_serial/ark_heat1D_adapt.out
 $tar $tarfile $distrobase/examples/arkode/C_serial/ark_kepler.c
+$tar $tarfile $distrobase/examples/arkode/C_serial/ark_kepler.h
 $tar $tarfile $distrobase/examples/arkode/C_serial/ark_kepler.out
 $tar $tarfile $distrobase/examples/arkode/C_serial/ark_kepler_--stepper_ERK_--step-mode_adapt.out
 $tar $tarfile $distrobase/examples/arkode/C_serial/ark_kepler_--stepper_ERK_--step-mode_fixed_--count-orbits.out
@@ -210,8 +211,10 @@ $tar $tarfile $distrobase/examples/arkode/C_serial/ark_kepler_--stepper_SPRK_--s
 $tar $tarfile $distrobase/examples/arkode/C_serial/ark_kepler_--stepper_SPRK_--step-mode_fixed_--method_ARKODE_SYMPLECTIC_YOSHIDA_6_8_--tf_50_--check-order_--nout_1.out
 $tar $tarfile $distrobase/examples/arkode/C_serial/ark_kepler_plot.py
 $tar $tarfile $distrobase/examples/arkode/C_serial/ark_harmonic_symplectic.c
+$tar $tarfile $distrobase/examples/arkode/C_serial/ark_harmonic_symplectic.h
 $tar $tarfile $distrobase/examples/arkode/C_serial/ark_harmonic_symplectic.out
 $tar $tarfile $distrobase/examples/arkode/C_serial/ark_damped_harmonic_symplectic.c
+$tar $tarfile $distrobase/examples/arkode/C_serial/ark_damped_harmonic_symplectic.h
 $tar $tarfile $distrobase/examples/arkode/C_serial/ark_damped_harmonic_symplectic.out
 $tar $tarfile $distrobase/examples/arkode/C_serial/ark_kpr_mri.c
 $tar $tarfile $distrobase/examples/arkode/C_serial/ark_kpr_mri.out

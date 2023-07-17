@@ -38,6 +38,9 @@
  * --------------------------------------------------------------------------*/
 /* clang-format: on */
 
+#include "ark_harmonic_symplectic.h"
+
+#include <arkode/arkode.h>
 #include <arkode/arkode_sprk.h>
 #include <arkode/arkode_sprkstep.h> /* prototypes for SPRKStep fcts., consts */
 #include <math.h>
@@ -48,35 +51,18 @@
 #include <sundials/sundials_nvector.h>
 #include <sundials/sundials_types.h>
 
-#include "arkode/arkode.h"
-
-#define PI SUN_RCONST(3.14159265358979323846264338327950)
-
 typedef struct
 {
   sunrealtype A, phi, omega;
 } UserData;
 
-typedef struct
-{
-  int order;
-  int num_output_times;
-  int use_compsums;
-  int use_tstop;
-  sunrealtype Tf;
-  sunrealtype dt;
-} ProgramArgs;
-
 /* RHS functions */
 static int xdot(sunrealtype t, N_Vector y, N_Vector ydot, void* user_data);
 static int vdot(sunrealtype t, N_Vector y, N_Vector ydot, void* user_data);
 
-/* Helper functions */
+/* Other helper functions */
 static void Solution(sunrealtype t, N_Vector y, N_Vector solvec, UserData* udata);
 static sunrealtype Energy(N_Vector yvec, sunrealtype dt, UserData* udata);
-static int ParseArgs(int argc, char* argv[], ProgramArgs* args);
-static void PrintHelp();
-static int check_retval(void* returnvalue, const char* funcname, int opt);
 
 int main(int argc, char* argv[])
 {
@@ -175,7 +161,7 @@ int main(int argc, char* argv[])
     err = sqrt(N_VDotProd(solution, solution));
 
     /* Output current integration status */
-    fprintf(stdout, "t = %.6Lf, x(t) = %.6Lf, E = %.6Lf, sol. err = %.16Lf\n",
+    fprintf(stdout, "t = %.6Lf, x(t) = %.6Lf, E = %.6Lf, sol. err = %.16Le\n",
             (long double)tret, (long double)ydata[0],
             (long double)Energy(y, dt, &udata), (long double)err);
 
@@ -251,116 +237,6 @@ int vdot(sunrealtype t, N_Vector yvec, N_Vector ydotvec, void* user_data)
   const sunrealtype omega2 = udata->omega * udata->omega;
 
   ydot[1] = -omega2 * x;
-
-  return 0;
-}
-
-int ParseArgs(int argc, char* argv[], ProgramArgs* args)
-{
-  int argi = 0;
-
-  args->order            = 4;
-  args->num_output_times = 8;
-  args->use_compsums     = 0;
-  args->use_tstop        = 1;
-  args->dt               = SUN_RCONST(1e-3);
-  args->Tf               = SUN_RCONST(2.0) * PI;
-
-  for (argi = 1; argi < argc; argi++)
-  {
-    if (!strcmp(argv[argi], "--order"))
-    {
-      argi++;
-      args->order = atoi(argv[argi]);
-    }
-    else if (!strcmp(argv[argi], "--tf"))
-    {
-      argi++;
-      args->Tf = atof(argv[argi]);
-    }
-    else if (!strcmp(argv[argi], "--dt"))
-    {
-      argi++;
-      args->dt = atof(argv[argi]);
-    }
-    else if (!strcmp(argv[argi], "--nout"))
-    {
-      argi++;
-      args->num_output_times = atoi(argv[argi]);
-    }
-    else if (!strcmp(argv[argi], "--use-compensated-sums"))
-    {
-      args->use_compsums = 1;
-    }
-    else if (!strcmp(argv[argi], "--disable-tstop")) { args->use_tstop = 0; }
-    else if (!strcmp(argv[argi], "--help"))
-    {
-      PrintHelp();
-      return 1;
-    }
-    else
-    {
-      fprintf(stderr, "ERROR: unrecognized argument %s\n", argv[argi]);
-      PrintHelp();
-      return 1;
-    }
-  }
-
-  return 0;
-}
-
-void PrintHelp()
-{
-  fprintf(stderr, "ark_harmonic_symplectic: an ARKODE example demonstrating "
-                  "the SPRKStep time-stepping module solving a simple harmonic "
-                  "oscillator\n");
-  /* clang-format off */
-  fprintf(stderr, "  --order <int>               the order of the method to use (default 4)\n");
-  fprintf(stderr, "  --dt <Real>                 the fixed-time step size to use (default 0.01)\n");
-  fprintf(stderr, "  --nout <int>                the number of output times (default 100)\n");
-  fprintf(stderr, "  --use-compensated-sums      turns on compensated summation in ARKODE where applicable\n");
-  fprintf(stderr, "  --disable-tstop             turns off tstop mode\n");
-  /* clang-format on */
-}
-
-/* Check function return value...
-    opt == 0 means SUNDIALS function allocates memory so check if
-             returned NULL pointer
-    opt == 1 means SUNDIALS function returns a retval so check if
-             retval < 0
-    opt == 2 means function allocates memory so check if returned
-             NULL pointer
-*/
-int check_retval(void* returnvalue, const char* funcname, int opt)
-{
-  int* retval;
-
-  /* Check if SUNDIALS function returned NULL pointer - no memory allocated */
-  if (opt == 0 && returnvalue == NULL)
-  {
-    fprintf(stderr, "\nERROR: %s() failed - returned NULL pointer\n\n", funcname);
-    return 1;
-  }
-
-  /* Check if retval < 0 */
-  else if (opt == 1)
-  {
-    retval = (int*)returnvalue;
-    if (*retval < 0)
-    {
-      fprintf(stderr, "\nERROR: %s() failed with retval = %d\n\n", funcname,
-              *retval);
-      return 1;
-    }
-  }
-
-  /* Check if function returned NULL pointer - no memory allocated */
-  else if (opt == 2 && returnvalue == NULL)
-  {
-    fprintf(stderr, "\nMEMORY_ERROR: %s() failed - returned NULL pointer\n\n",
-            funcname);
-    return 1;
-  }
 
   return 0;
 }

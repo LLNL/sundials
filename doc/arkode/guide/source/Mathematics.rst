@@ -521,9 +521,9 @@ of Butcher tableau,
    \end{array}.
 
 We use a compact storage of these coefficients in terms of two arrays, one for
-*a* and one for *b*. The time weights (which matter only for non-autonomous
-systems) are computed dynamically as :math:`c_j = \sum_{i=1}^j a_i` and
-:math:`\hat{c}_j = \sum_{i=1}^j \hat{a}_i` respectively
+*a* and one for *b*. The abscissae (only relevant for non-autonomous problems)
+are computed dynamically as :math:`c_j = \sum_{i=1}^j a_i` and
+:math:`\hat{c}_j = \sum_{i=1}^j \hat{a}_i`, respectively
 :cite:p:`Jay:21,Diele:11`. These methods approximately conserve a nearby
 Hamiltonian for exponentially long times :cite:p:`HaWa:06`. SPRKStep makes the
 assumption that the Hamiltonian is separable, in which case the schemes are
@@ -539,8 +539,8 @@ can be ignored).
 
 #. For :math:`i = 1,\ldots,s` do:
 
-   #. :math:`P_i = P_{i-1} + h_{n+1} \hat{a}_i f_1(Q_i, t_n + \hat{c}_i h)`
-   #. :math:`Q_{i+1} = Q_i + h_{n+1} a_i f_2(P_i, t_n + c_i h)`
+   #. :math:`P_i = P_{i-1} + h_{n+1} \hat{a}_i f_1(t_n + \hat{c}_i h, Q_i)`
+   #. :math:`Q_{i+1} = Q_i + h_{n+1} a_i f_2(t_n + c_i h, P_i)`
 
 #. Set :math:`p_{n+1} = P_s, q_{n+1} = Q_{s+1}`
 
@@ -549,15 +549,16 @@ can be ignored).
 Optionally, a different algorithm leveraging compensated summation can be used
 that is more robust to roundoff error at the expense of 2 extra vector operations
 per stage and an additional 5 per time step. It also requires one extra vector to
-be stored.  However, it signficantly more robust to roundoff error accumulation
-:cite:p:`Sof:02`.
+be stored.  However, it is signficantly more robust to roundoff error accumulation
+:cite:p:`Sof:02`. When compensated summation is enabled, the following incremental
+form is used to compute a time step:
 
 #. Set :math:`\Delta P_0 = 0, \Delta Q_1 = 0`
 
 #. For :math:`i = 1,\ldots,s` do:
 
-   #. :math:`\Delta P_i = \Delta P_{i-1} + h_{n+1} \hat{a}_i f_1(q_n + \Delta Q_i, t_n + c_i h)`
-   #. :math:`\Delta Q_{i+1} = \Delta Q_i + h_{n+1} a_i f_2(p_n + \Delta P_i, t_n + \hat{c}_i h)`
+   #. :math:`\Delta P_i = \Delta P_{i-1} + h_{n+1} \hat{a}_i f_1(t_n + \hat{c}_i h, q_n + \Delta Q_i)`
+   #. :math:`\Delta Q_{i+1} = \Delta Q_i + h_{n+1} a_i f_2(t_n + c_i h, p_n + \Delta P_i)`
 
 #. Set :math:`\Delta p_{n+1} = \Delta P_s, \Delta q_{n+1} = \Delta Q_{s+1}`
 
@@ -1129,7 +1130,7 @@ information.  In this mode, all internal time step adaptivity is disabled:
 
 .. note::
    Since temporal error based adaptive time-stepping is known to ruin the
-   conservation property of SPRK methods, the SPRKStep employs a fixed time-step
+   conservation property of SPRK methods, SPRKStep employs a fixed time-step
    size by default. 
    
 .. note:: 

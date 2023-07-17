@@ -82,11 +82,11 @@ with adaptive explicit methods of orders 2-8.
 *SPRKStep* focuses on Hamiltonian systems posed in the form,
 
 .. math::
-   H(p, q, t) = T(p) + V(q, t)
+   H(t, p, q) = T(t, p) + V(t, q)
 
 .. math::
-   \dot{p} = f_1(q,t) = \frac{\partial V(q,t)}{\partial q}, \quad 
-   \dot{q} = f_2(p) = \frac{\partial T(p)}{\partial p}, 
+   \dot{p} = f_1(t,q) = \frac{\partial V(t,q)}{\partial q}, \quad 
+   \dot{q} = f_2(t,p) = \frac{\partial T(t,p)}{\partial p}, 
    :label: ARKODE_ODE_hamiltonian
 
 allowing for conservation of quadratic invariants.

@@ -25,7 +25,8 @@ descriptions of the SPRKStep user-callable functions and user-supplied functions
 The example programs located in the source code ``examples/arkode`` folder, may 
 be helpful as templates for new codes. In particular,
 
-* ``examples/arkode/C_serial/ark_hookes_law.c``, and
+* ``examples/arkode/C_serial/ark_harmonic_symplectic.c``
+* ``examples/arkode/C_serial/ark_damped_harmonic_symplectic.c``, and
 * ``examples/arkode/C_serial/ark_kepler.c``
 
 demonstrate ``SPRKStep`` usage. 

@@ -2,7 +2,7 @@
  * Programmer(s): Cody J. Balos @ LLNL
  * -----------------------------------------------------------------
  * SUNDIALS Copyright Start
- * Copyright (c) 2002-2022, Lawrence Livermore National Security
+ * Copyright (c) 2002-2023, Lawrence Livermore National Security
  * and Southern Methodist University.
  * All rights reserved.
  *
@@ -14,8 +14,8 @@
  * This is the header file for the ARKode SPRKStep module.
  * -----------------------------------------------------------------*/
 
-#ifndef _SPRKSTEP_H
-#define _SPRKSTEP_H
+#ifndef _ARKODE_SPRKSTEP_H
+#define _ARKODE_SPRKSTEP_H
 
 #include <arkode/arkode.h>
 #include <arkode/arkode_sprk.h>
@@ -66,8 +66,6 @@ SUNDIALS_EXPORT int SPRKStepSetMethodName(void* arkode_mem, const char* method);
 SUNDIALS_EXPORT int SPRKStepSetOrder(void* arkode_mem, int maxord);
 SUNDIALS_EXPORT int SPRKStepSetInterpolantType(void* arkode_mem, int itype);
 SUNDIALS_EXPORT int SPRKStepSetInterpolantDegree(void* arkode_mem, int degree);
-/* TODO(CJB): should we remove this from the initial release and wait for the OO
- * adaptivity? */
 SUNDIALS_EXPORT int SPRKStepSetMaxNumSteps(void* arkode_mem, long int mxsteps);
 SUNDIALS_EXPORT int SPRKStepSetStopTime(void* arkode_mem, realtype tstop);
 SUNDIALS_EXPORT int SPRKStepSetFixedStep(void* arkode_mem, realtype hfixed);

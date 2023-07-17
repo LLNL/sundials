@@ -3,7 +3,7 @@
  * Programmer(s): Cody J. Balos @ LLNL
  * ----------------------------------------------------------------------------
  * SUNDIALS Copyright Start
- * Copyright (c) 2002-2022, Lawrence Livermore National Security
+ * Copyright (c) 2002-2023, Lawrence Livermore National Security
  * and Southern Methodist University.
  * All rights reserved.
  *
@@ -37,7 +37,7 @@
  * The rootfinding feature of SPRKStep is used to count the number of complete orbits. 
  * This is done by defining the function,
  *    g(q) = q2
- * and providing it to SPRKStep as the function to find the roots for.
+ * and providing it to SPRKStep as the function to find the roots for g(q).
  *
  * The program also accepts command line arguments to change the method
  * used and time-stepping strategy. The program has the following CLI arguments:
@@ -51,7 +51,7 @@
  *   --tf <Real>                 the final time for the simulation (default 100)
  *   --nout                      number of output times
  *   --count-orbits              use rootfinding to count the number of completed orbits
- *   --check-order               compute the order of the method used and check if it is within range of the expected 
+ *   --check-order               compute the order of the method used and check if it is within the expected range
  * 
  * References:
  *    Ernst Hairer, Christain Lubich, Gerhard Wanner
@@ -62,6 +62,9 @@
  * --------------------------------------------------------------------------*/
 /* clang-format on */
 
+#include "ark_kepler.h"
+
+#include <arkode/arkode.h>
 #include <arkode/arkode_arkstep.h> /* prototypes for ARKStep fcts., consts */
 #include <arkode/arkode_sprk.h>
 #include <arkode/arkode_sprkstep.h> /* prototypes for SPRKStep fcts., consts */
@@ -69,12 +72,10 @@
 #include <nvector/nvector_serial.h> /* serial N_Vector type, fcts., macros  */
 #include <stdio.h>
 #include <string.h>
+#include <sundials/sundials_context.h>
 #include <sundials/sundials_math.h> /* def. math fcns, 'sunrealtype'           */
 #include <sundials/sundials_nvector.h>
 #include <sundials/sundials_types.h>
-
-#include "arkode/arkode.h"
-#include "sundials/sundials_context.h"
 
 #define NUM_DT 8
 
@@ -90,187 +91,20 @@ typedef struct
   int method_order;
 } ProblemResult;
 
-typedef struct
-{
-  int step_mode;
-  int stepper;
-  int num_output_times;
-  int use_compsums;
-  int use_tstop;
-  int count_orbits;
-  int check_order;
-  sunrealtype dt;
-  sunrealtype tf;
-  const char* method_name;
-} ProgramArgs;
-
 /* Helper functions */
-static int ParseArgs(int argc, char* argv[], ProgramArgs* args);
-static void PrintArgs(ProgramArgs* args);
-static void PrintHelp();
-static int ComputeConvergence(int num_dt, sunrealtype* orders,
-                              sunrealtype expected_order, sunrealtype a11,
-                              sunrealtype a12, sunrealtype a21, sunrealtype a22,
-                              sunrealtype b1, sunrealtype b2,
-                              sunrealtype* ord_avg, sunrealtype* ord_max,
-                              sunrealtype* ord_est);
-static int check_retval(void* returnvalue, const char* funcname, int opt);
-
-/* These functions do the interesting work that offer a good example of how to
- * use SPRKStep */
 static int SolveProblem(ProgramArgs* args, ProblemResult* result,
                         SUNContext sunctx);
 static void InitialConditions(N_Vector y0, sunrealtype ecc);
 static sunrealtype Hamiltonian(N_Vector yvec);
 static sunrealtype AngularMomentum(N_Vector y);
+
+/* RHS callback functions */
 static int dydt(sunrealtype t, N_Vector y, N_Vector ydot, void* user_data);
 static int velocity(sunrealtype t, N_Vector y, N_Vector ydot, void* user_data);
 static int force(sunrealtype t, N_Vector y, N_Vector ydot, void* user_data);
+
+/* g(q) callback function for rootfinding */
 static int rootfn(sunrealtype t, N_Vector y, sunrealtype* gout, void* user_data);
-
-int main(int argc, char* argv[])
-{
-  ProgramArgs args;
-  ProblemResult result;
-  SUNContext sunctx = NULL;
-  int retval        = 0;
-
-  /* Create the SUNDIALS context object for this simulation */
-  retval = SUNContext_Create(NULL, &sunctx);
-  if (check_retval(&retval, "SUNContext_Create", 1)) { return 1; }
-
-  /* Parse the command line arguments */
-  if (ParseArgs(argc, argv, &args)) { return 1; };
-
-  /* Allocate space for result variables */
-  result.sol = N_VNew_Serial(4, sunctx);
-
-  if (!args.check_order)
-  {
-    /* SolveProblem calls a stepper to evolve the problem to Tf */
-    retval = SolveProblem(&args, &result, sunctx);
-    if (check_retval(&retval, "SolveProblem", 1)) { return 1; }
-  }
-  else
-  {
-    int i = 0;
-    /* Compute the order of accuracy of the method by testing
-       it with different step sizes. */
-    sunrealtype acc_orders[NUM_DT];
-    sunrealtype con_orders[NUM_DT];
-    sunrealtype acc_errors[NUM_DT];
-    sunrealtype con_errors[NUM_DT];
-    int expected_order = ARKodeSPRKStorage_LoadByName(args.method_name)->q;
-    N_Vector ref_sol   = N_VClone(result.sol);
-    N_Vector error     = N_VClone(result.sol);
-    sunrealtype a11 = 0, a12 = 0, a21 = 0, a22 = 0;
-    sunrealtype b1 = 0, b2 = 0, b1e = 0, b2e = 0;
-    sunrealtype ord_max_acc = 0, ord_max_conv = 0, ord_avg = 0, ord_est = 0;
-    sunrealtype refine = SUN_RCONST(.5);
-    sunrealtype dt = (expected_order >= 3) ? SUN_RCONST(1e-1) : SUN_RCONST(1e-3);
-    sunrealtype dts[NUM_DT];
-
-    /* Create a reference solution using 8th order ERK with a small time step */
-    const int old_step_mode     = args.step_mode;
-    const int old_stepper       = args.stepper;
-    const char* old_method_name = args.method_name;
-    args.dt                     = SUN_RCONST(1e-3);
-    args.step_mode              = 0;
-    args.stepper                = 1;
-    args.method_name            = "ARKODE_ARK548L2SAb_ERK_8_4_5";
-
-    /* SolveProblem calls a stepper to evolve the problem to Tf */
-    retval = SolveProblem(&args, &result, sunctx);
-    if (check_retval(&retval, "SolveProblem", 1)) { return 1; }
-
-    /* Store the reference solution */
-    N_VScale(SUN_RCONST(1.0), result.sol, ref_sol);
-
-    /* Restore the program args */
-    args.step_mode   = old_step_mode;
-    args.stepper     = old_stepper;
-    args.method_name = old_method_name;
-
-    for (i = 0; i < NUM_DT; i++) { dts[i] = dt * pow(refine, i); }
-
-    /* Compute the error with various step sizes */
-    for (i = 0; i < NUM_DT; i++)
-    {
-      /* Set the dt to use for this solve */
-      args.dt = dts[i];
-
-      /* SolveProblem calls a stepper to evolve the problem to Tf */
-      retval = SolveProblem(&args, &result, sunctx);
-      if (check_retval(&retval, "SolveProblem", 1)) { return 1; }
-
-      printf("\n");
-
-      /* Compute the error */
-      N_VLinearSum(SUN_RCONST(1.0), result.sol, -SUN_RCONST(1.0), ref_sol, error);
-      acc_errors[i] = SUNRsqrt(N_VDotProd(error, error)) /
-                      ((sunrealtype)N_VGetLength(error));
-      con_errors[i] = SUNRabs(result.energy_error);
-
-      a11 += 1;
-      a12 += log(dts[i]);
-      a21 += log(dts[i]);
-      a22 += (log(dts[i]) * log(dts[i]));
-      b1 += log(acc_errors[i]);
-      b2 += (log(acc_errors[i]) * log(dts[i]));
-      b1e += log(con_errors[i]);
-      b2e += (log(con_errors[i]) * log(dts[i]));
-
-      if (i >= 1)
-      {
-        acc_orders[i - 1] = log(acc_errors[i] / acc_errors[i - 1]) /
-                            log(dts[i] / dts[i - 1]);
-        con_orders[i - 1] = log(con_errors[i] / con_errors[i - 1]) /
-                            log(dts[i] / dts[i - 1]);
-      }
-    }
-
-    /* Compute the order of accuracy */
-    retval = ComputeConvergence(NUM_DT, acc_orders, expected_order, a11, a12, a21,
-                                a22, b1, b2, &ord_avg, &ord_max_acc, &ord_est);
-    printf("Order of accuracy wrt solution:    expected = %d, max = %.4Lf,  "
-           "avg "
-           "= %.4Lf,  "
-           "overall = %.4Lf\n",
-           expected_order, (long double)ord_max_acc, (long double)ord_avg,
-           (long double)ord_est);
-
-    /* Compute the order of accuracy with respect to conservation */
-    retval = ComputeConvergence(NUM_DT, con_orders, expected_order, a11, a12,
-                                a21, a22, b1e, b2e, &ord_avg, &ord_max_conv,
-                                &ord_est);
-
-    printf("Order of accuracy wrt Hamiltonian: expected = %d, max = %.4Lf,  "
-           "avg = %.4Lf,  overall = %.4Lf\n",
-           expected_order, (long double)ord_max_conv, (long double)ord_avg,
-           (long double)ord_est);
-
-    if (ord_max_acc < (expected_order - RCONST(0.5)))
-    {
-      printf(">>> FAILURE: computed order of accuracy wrt solution is below "
-             "expected (%d)\n",
-             expected_order);
-      return 1;
-    }
-
-    if (ord_max_conv < (expected_order - RCONST(0.5)))
-    {
-      printf(">>> FAILURE: computed order of accuracy wrt Hamiltonian is below "
-             "expected (%d)\n",
-             expected_order);
-      return 1;
-    }
-  }
-
-  N_VDestroy(result.sol);
-  SUNContext_Free(&sunctx);
-
-  return 0;
-}
 
 int SolveProblem(ProgramArgs* args, ProblemResult* result, SUNContext sunctx)
 {
@@ -442,14 +276,14 @@ int SolveProblem(ProgramArgs* args, ProblemResult* result, SUNContext sunctx)
         fprintf(stdout, "  g[0] = %3d, y[0] = %3Lg, y[1] = %3Lg, num. orbits is now %.2Lf\n",
                 rootsfound, (long double)ydata[0], (long double)ydata[1],
                 (long double)num_orbits);
-        fprintf(stdout, "t = %.4Lf, H(p,q)-H0 = %.16Lf, L(p,q)-L0 = %.16Lf\n",
+        fprintf(stdout, "t = %.4Lf, H(p,q)-H0 = %.16Le, L(p,q)-L0 = %.16Le\n",
                 (long double)tret, (long double)(Hamiltonian(y) - H0),
                 (long double)(AngularMomentum(y) - L0));
       }
       else if (retval >= 0)
       {
         /* Output current integration status */
-        fprintf(stdout, "t = %.4Lf, H(p,q)-H0 = %.16Lf, L(p,q)-L0 = %.16Lf\n",
+        fprintf(stdout, "t = %.4Lf, H(p,q)-H0 = %.16Le, L(p,q)-L0 = %.16Le\n",
                 (long double)tret, (long double)(Hamiltonian(y) - H0),
                 (long double)(AngularMomentum(y) - L0));
         fprintf(times_fp, "%.16Lf\n", (long double)tret);
@@ -489,14 +323,14 @@ int SolveProblem(ProgramArgs* args, ProblemResult* result, SUNContext sunctx)
         fprintf(stdout, "  g[0] = %3d, y[0] = %3Lg, y[1] = %3Lg, num. orbits is now %.2Lf\n",
                 rootsfound, (long double)ydata[0], (long double)ydata[1],
                 (long double)num_orbits);
-        fprintf(stdout, "t = %.4Lf, H(p,q)-H0 = %.16Lf, L(p,q)-L0 = %.16Lf\n",
+        fprintf(stdout, "t = %.4Lf, H(p,q)-H0 = %.16Le, L(p,q)-L0 = %.16Le\n",
                 (long double)tret, (long double)(Hamiltonian(y) - H0),
                 (long double)(AngularMomentum(y) - L0));
       }
       else if (retval >= 0)
       {
         /* Output current integration status */
-        fprintf(stdout, "t = %.4Lf, H(p,q)-H0 = %.16Lf, L(p,q)-L0 = %.16Lf\n",
+        fprintf(stdout, "t = %.4Lf, H(p,q)-H0 = %.16Le, L(p,q)-L0 = %.16Le\n",
                 (long double)tret, (long double)(Hamiltonian(y) - H0),
                 (long double)(AngularMomentum(y) - L0));
         fprintf(times_fp, "%.16Lf\n", (long double)tret);
@@ -626,187 +460,146 @@ int rootfn(sunrealtype t, N_Vector yvec, sunrealtype* gout, void* user_data)
   return 0;
 }
 
-int ComputeConvergence(int num_dt, sunrealtype* orders,
-                       sunrealtype expected_order, sunrealtype a11,
-                       sunrealtype a12, sunrealtype a21, sunrealtype a22,
-                       sunrealtype b1, sunrealtype b2, sunrealtype* ord_avg,
-                       sunrealtype* ord_max, sunrealtype* ord_est)
+int main(int argc, char* argv[])
 {
-  /* Compute/print overall estimated convergence rate */
-  int i           = 0;
-  sunrealtype det = 0;
-  *ord_avg = 0, *ord_max = 0, *ord_est = 0;
-  for (i = 1; i < num_dt; i++)
+  ProgramArgs args;
+  ProblemResult result;
+  SUNContext sunctx = NULL;
+  int retval        = 0;
+
+  /* Create the SUNDIALS context object for this simulation */
+  retval = SUNContext_Create(NULL, &sunctx);
+  if (check_retval(&retval, "SUNContext_Create", 1)) { return 1; }
+
+  /* Parse the command line arguments */
+  if (ParseArgs(argc, argv, &args)) { return 1; };
+
+  /* Allocate space for result variables */
+  result.sol = N_VNew_Serial(4, sunctx);
+
+  if (!args.check_order)
   {
-    *ord_avg += orders[i - 1];
-    *ord_max = SUNMAX(*ord_max, orders[i - 1]);
+    /* SolveProblem calls a stepper to evolve the problem to Tf */
+    retval = SolveProblem(&args, &result, sunctx);
+    if (check_retval(&retval, "SolveProblem", 1)) { return 1; }
   }
-  *ord_avg = *ord_avg / ((realtype)num_dt - 1);
-  det      = a11 * a22 - a12 * a21;
-  *ord_est = (a11 * b2 - a21 * b1) / det;
-  return 0;
-}
-
-int ParseArgs(int argc, char* argv[], ProgramArgs* args)
-{
-  int argi = 0;
-
-  args->step_mode        = 0;
-  args->stepper          = 0;
-  args->method_name      = NULL;
-  args->count_orbits     = 0;
-  args->use_compsums     = 0;
-  args->use_tstop        = 1;
-  args->dt               = SUN_RCONST(1e-2);
-  args->tf               = SUN_RCONST(100.);
-  args->check_order      = 0;
-  args->num_output_times = 50;
-
-  for (argi = 1; argi < argc; argi++)
+  else
   {
-    if (!strcmp(argv[argi], "--step-mode"))
+    int i = 0;
+    /* Compute the order of accuracy of the method by testing
+       it with different step sizes. */
+    sunrealtype acc_orders[NUM_DT];
+    sunrealtype con_orders[NUM_DT];
+    sunrealtype acc_errors[NUM_DT];
+    sunrealtype con_errors[NUM_DT];
+    int expected_order = ARKodeSPRKStorage_LoadByName(args.method_name)->q;
+    N_Vector ref_sol   = N_VClone(result.sol);
+    N_Vector error     = N_VClone(result.sol);
+    sunrealtype a11 = 0, a12 = 0, a21 = 0, a22 = 0;
+    sunrealtype b1 = 0, b2 = 0, b1e = 0, b2e = 0;
+    sunrealtype ord_max_acc = 0, ord_max_conv = 0, ord_avg = 0, ord_est = 0;
+    sunrealtype refine = SUN_RCONST(.5);
+    sunrealtype dt = (expected_order >= 3) ? SUN_RCONST(1e-1) : SUN_RCONST(1e-3);
+    sunrealtype dts[NUM_DT];
+
+    /* Create a reference solution using 8th order ERK with a small time step */
+    const int old_step_mode     = args.step_mode;
+    const int old_stepper       = args.stepper;
+    const char* old_method_name = args.method_name;
+    args.dt                     = SUN_RCONST(1e-3);
+    args.step_mode              = 0;
+    args.stepper                = 1;
+    args.method_name            = "ARKODE_ARK548L2SAb_ERK_8_4_5";
+
+    /* SolveProblem calls a stepper to evolve the problem to Tf */
+    retval = SolveProblem(&args, &result, sunctx);
+    if (check_retval(&retval, "SolveProblem", 1)) { return 1; }
+
+    /* Store the reference solution */
+    N_VScale(SUN_RCONST(1.0), result.sol, ref_sol);
+
+    /* Restore the program args */
+    args.step_mode   = old_step_mode;
+    args.stepper     = old_stepper;
+    args.method_name = old_method_name;
+
+    for (i = 0; i < NUM_DT; i++) { dts[i] = dt * pow(refine, i); }
+
+    /* Compute the error with various step sizes */
+    for (i = 0; i < NUM_DT; i++)
     {
-      argi++;
-      if (!strcmp(argv[argi], "fixed")) { args->step_mode = 0; }
-      else if (!strcmp(argv[argi], "adapt")) { args->step_mode = 1; }
-      else
+      /* Set the dt to use for this solve */
+      args.dt = dts[i];
+
+      /* SolveProblem calls a stepper to evolve the problem to Tf */
+      retval = SolveProblem(&args, &result, sunctx);
+      if (check_retval(&retval, "SolveProblem", 1)) { return 1; }
+
+      printf("\n");
+
+      /* Compute the error */
+      N_VLinearSum(SUN_RCONST(1.0), result.sol, -SUN_RCONST(1.0), ref_sol, error);
+      acc_errors[i] = SUNRsqrt(N_VDotProd(error, error)) /
+                      ((sunrealtype)N_VGetLength(error));
+      con_errors[i] = SUNRabs(result.energy_error);
+
+      a11 += 1;
+      a12 += log(dts[i]);
+      a21 += log(dts[i]);
+      a22 += (log(dts[i]) * log(dts[i]));
+      b1 += log(acc_errors[i]);
+      b2 += (log(acc_errors[i]) * log(dts[i]));
+      b1e += log(con_errors[i]);
+      b2e += (log(con_errors[i]) * log(dts[i]));
+
+      if (i >= 1)
       {
-        fprintf(stderr, "ERROR: --step-mode must be 'fixed' or 'adapt'\n");
-        return 1;
+        acc_orders[i - 1] = log(acc_errors[i] / acc_errors[i - 1]) /
+                            log(dts[i] / dts[i - 1]);
+        con_orders[i - 1] = log(con_errors[i] / con_errors[i - 1]) /
+                            log(dts[i] / dts[i - 1]);
       }
     }
-    else if (!strcmp(argv[argi], "--stepper"))
+
+    /* Compute the order of accuracy */
+    retval = ComputeConvergence(NUM_DT, acc_orders, expected_order, a11, a12, a21,
+                                a22, b1, b2, &ord_avg, &ord_max_acc, &ord_est);
+    printf("Order of accuracy wrt solution:    expected = %d, max = %.4Lf,  "
+           "avg "
+           "= %.4Lf,  "
+           "overall = %.4Lf\n",
+           expected_order, (long double)ord_max_acc, (long double)ord_avg,
+           (long double)ord_est);
+
+    /* Compute the order of accuracy with respect to conservation */
+    retval = ComputeConvergence(NUM_DT, con_orders, expected_order, a11, a12,
+                                a21, a22, b1e, b2e, &ord_avg, &ord_max_conv,
+                                &ord_est);
+
+    printf("Order of accuracy wrt Hamiltonian: expected = %d, max = %.4Lf,  "
+           "avg = %.4Lf,  overall = %.4Lf\n",
+           expected_order, (long double)ord_max_conv, (long double)ord_avg,
+           (long double)ord_est);
+
+    if (ord_max_acc < (expected_order - RCONST(0.5)))
     {
-      argi++;
-      if (!strcmp(argv[argi], "SPRK")) { args->stepper = 0; }
-      else if (!strcmp(argv[argi], "ERK")) { args->stepper = 1; }
-      else
-      {
-        fprintf(stderr, "ERROR: --stepper must be 'SPRK' or 'ERK'\n");
-        return 1;
-      }
-    }
-    else if (!strcmp(argv[argi], "--method"))
-    {
-      argi++;
-      args->method_name = argv[argi];
-    }
-    else if (!strcmp(argv[argi], "--dt"))
-    {
-      argi++;
-      args->dt = atof(argv[argi]);
-    }
-    else if (!strcmp(argv[argi], "--tf"))
-    {
-      argi++;
-      args->tf = atof(argv[argi]);
-    }
-    else if (!strcmp(argv[argi], "--nout"))
-    {
-      argi++;
-      args->num_output_times = atoi(argv[argi]);
-    }
-    else if (!strcmp(argv[argi], "--count-orbits")) { args->count_orbits = 1; }
-    else if (!strcmp(argv[argi], "--disable-tstop")) { args->use_tstop = 0; }
-    else if (!strcmp(argv[argi], "--use-compensated-sums"))
-    {
-      args->use_compsums = 1;
-    }
-    else if (!strcmp(argv[argi], "--check-order")) { args->check_order = 1; }
-    else if (!strcmp(argv[argi], "--help"))
-    {
-      PrintHelp();
+      printf(">>> FAILURE: computed order of accuracy wrt solution is below "
+             "expected (%d)\n",
+             expected_order);
       return 1;
     }
-    else
+
+    if (ord_max_conv < (expected_order - RCONST(0.5)))
     {
-      fprintf(stderr, "ERROR: unrecognized argument %s\n", argv[argi]);
-      PrintHelp();
+      printf(">>> FAILURE: computed order of accuracy wrt Hamiltonian is below "
+             "expected (%d)\n",
+             expected_order);
       return 1;
     }
   }
 
-  if (!args->method_name)
-  {
-    if (args->stepper == 0) { args->method_name = "ARKODE_SPRK_MCLACHLAN_4_4"; }
-    else if (args->stepper == 1)
-    {
-      args->method_name = "ARKODE_ZONNEVELD_5_3_4";
-    }
-  }
-
-  return 0;
-}
-
-void PrintArgs(ProgramArgs* args)
-{
-  fprintf(stdout, "Problem Arguments:\n");
-  fprintf(stdout, "  stepper:              %d\n", args->stepper);
-  fprintf(stdout, "  step mode:            %d\n", args->step_mode);
-  fprintf(stdout, "  use tstop:            %d\n", args->use_tstop);
-  fprintf(stdout, "  use compensated sums: %d\n", args->use_compsums);
-  fprintf(stdout, "  dt:                   %Lg\n", (long double)args->dt);
-  fprintf(stdout, "  Tf:                   %Lg\n", (long double)args->tf);
-  fprintf(stdout, "  nout:                 %d\n\n", args->num_output_times);
-}
-
-void PrintHelp()
-{
-  fprintf(stderr, "ark_kepler: an ARKODE example demonstrating the SPRKStep "
-                  "time-stepping module solving the Kepler problem\n");
-  /* clang-format off */
-  fprintf(stderr, "  --step-mode <fixed, adapt>  should we use a fixed time-step or adaptive time-step (default fixed)\n");
-  fprintf(stderr, "  --stepper <SPRK, ERK>       should we use SPRKStep or ARKStep with an ERK method (default SPRK)\n");
-  fprintf(stderr, "  --method <string>           which method to use (default ARKODE_SPRK_MCLACHLAN_4_4)\n");
-  fprintf(stderr, "  --use-compensated-sums      turns on compensated summation in ARKODE where applicable\n");
-  fprintf(stderr, "  --disable-tstop             turns off tstop mode\n");
-  fprintf(stderr, "  --dt <Real>                 the fixed-time step size to use if fixed time stepping is turned on (default 0.01)\n");
-  fprintf(stderr, "  --tf <Real>                 the final time for the simulation (default 100)\n");
-  fprintf(stderr, "  --nout <int>                the number of output times (default 100)\n");
-  fprintf(stderr, "  --count-orbits              use rootfinding to count the number of completed orbits\n");
-  fprintf(stderr, "  --check-order               compute the order of the method used and check if it is within range of the expected\n");
-  /* clang-format on */
-}
-
-/* Check function return value...
-    opt == 0 means SUNDIALS function allocates memory so check if
-             returned NULL pointer
-    opt == 1 means SUNDIALS function returns a retval so check if
-             retval < 0
-    opt == 2 means function allocates memory so check if returned
-             NULL pointer
-*/
-int check_retval(void* returnvalue, const char* funcname, int opt)
-{
-  int* retval = NULL;
-
-  /* Check if SUNDIALS function returned NULL pointer - no memory allocated */
-  if (opt == 0 && returnvalue == NULL)
-  {
-    fprintf(stderr, "\nSUNDIALS ERROR: %s() failed - returned NULL pointer\n\n",
-            funcname);
-    return 1;
-  }
-
-  /* Check if retval < 0 */
-  else if (opt == 1)
-  {
-    retval = (int*)returnvalue;
-    if (*retval < 0)
-    {
-      fprintf(stderr, "\nSUNDIALS ERROR: %s() failed with retval = %d\n\n",
-              funcname, *retval);
-      return 1;
-    }
-  }
-
-  /* Check if function returned NULL pointer - no memory allocated */
-  else if (opt == 2 && returnvalue == NULL)
-  {
-    fprintf(stderr, "\nMEMORY ERROR: %s() failed - returned NULL pointer\n\n",
-            funcname);
-    return 1;
-  }
+  N_VDestroy(result.sol);
+  SUNContext_Free(&sunctx);
 
   return 0;
 }

@@ -40,16 +40,16 @@ referenced.
    functions defined by the particular NVECTOR implementation.
    The vector should include both the ``q`` and ``p`` variables.
 
-   For native SUNDIALS vector implementations (except the CUDA and
-   RAJA based ones), use a call of the form
+   For most native SUNDIALS vector implementations, use a call of the form
 
    .. code-block:: c
 
       y0 = N_VMake_***(..., ydata);
 
    if the ``realtype`` array ``ydata`` containing the initial values of
-   :math:`y` already exists.  Otherwise, create a new vector by making
-   a call of the form
+   :math:`y` already exists. For some GPU-enabled vectors, a similar constructor
+   can be used to provide host  and device data pointers. If the data array
+   does not already exist, create a new vector by making a call of the form
 
    .. code-block:: c
 
@@ -72,7 +72,7 @@ referenced.
    this memory structure. See :numref:`ARKODE.Usage.SPRKStep.Initialization` for
    details.
 
-#. Specify time step size or adaptivity module 
+#. Specify time step size 
 
    Call :c:func:`SPRKStepSetFixedStep()` to set the fixed time step size.
    .. or :c:func:`SPRKStepAdaptivityFn()` to specify either a fixed time-step 
@@ -114,19 +114,19 @@ referenced.
 
 #. Deallocate memory for solution vector
 
-    Upon completion of the integration, deallocate memory for the
-    vector ``y`` (or ``yout``) by calling the NVECTOR destructor
-    function:
+   Upon completion of the integration, deallocate memory for the
+   vector ``y`` (or ``yout``) by calling the NVECTOR destructor
+   function:
 
-    .. code-block:: c
+   .. code-block:: c
 
-       N_VDestroy(y);
+      N_VDestroy(y);
 
 #. Free solver memory
 
-    Call :c:func:`SPRKStepFree()` to free the memory allocated for
-    the SPRKStep module.
+   Call :c:func:`SPRKStepFree()` to free the memory allocated for
+   the SPRKStep module.
 
 #. Finalize MPI, if used
 
-    Call ``MPI_Finalize`` to terminate MPI.
+   Call ``MPI_Finalize`` to terminate MPI.
