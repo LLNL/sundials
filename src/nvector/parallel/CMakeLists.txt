@@ -33,7 +33,7 @@ sundials_add_library(sundials_nvecparallel
   INCLUDE_SUBDIR
     nvector
   LINK_LIBRARIES 
-    PUBLIC MPI::MPI_C
+    $<IF:$<BOOL:${ENABLE_MPI}>, PUBLIC MPI::MPI_C, >
   OBJECT_LIBRARIES
     sundials_generic_obj
   OUTPUT_NAME
