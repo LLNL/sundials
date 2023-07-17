@@ -298,10 +298,12 @@ module farkode_mod
  interface ARKodeSPRKTableMem
   module procedure swigf_create_ARKodeSPRKTableMem
  end interface
+ public :: FARKodeSPRKStorage_Create
  public :: FARKodeSPRKTable_Alloc
  public :: FARKodeSPRKTable_Load
  public :: FARKodeSPRKTable_LoadByName
  public :: FARKodeSPRKTable_Copy
+ public :: FARKodeSPRKTable_Write
  public :: FARKodeSPRKTable_Space
  public :: FARKodeSPRKTable_Free
  public :: FARKodeSPRKTable_ToButcher
@@ -739,6 +741,17 @@ type(SwigClassWrapper), intent(inout) :: farg1
 type(SwigClassWrapper) :: farg2
 end subroutine
 
+function swigc_FARKodeSPRKStorage_Create(farg1, farg2, farg3, farg4) &
+bind(C, name="_wrap_FARKodeSPRKStorage_Create") &
+result(fresult)
+use, intrinsic :: ISO_C_BINDING
+integer(C_INT), intent(in) :: farg1
+integer(C_INT), intent(in) :: farg2
+type(C_PTR), value :: farg3
+type(C_PTR), value :: farg4
+type(C_PTR) :: fresult
+end function
+
 function swigc_FARKodeSPRKTable_Alloc(farg1) &
 bind(C, name="_wrap_FARKodeSPRKTable_Alloc") &
 result(fresult)
@@ -771,6 +784,13 @@ use, intrinsic :: ISO_C_BINDING
 type(C_PTR), value :: farg1
 type(C_PTR) :: fresult
 end function
+
+subroutine swigc_FARKodeSPRKTable_Write(farg1, farg2) &
+bind(C, name="_wrap_FARKodeSPRKTable_Write")
+use, intrinsic :: ISO_C_BINDING
+type(C_PTR), value :: farg1
+type(C_PTR), value :: farg2
+end subroutine
 
 subroutine swigc_FARKodeSPRKTable_Space(farg1, farg2, farg3) &
 bind(C, name="_wrap_FARKodeSPRKTable_Space")
@@ -1516,6 +1536,28 @@ call swigc_ARKodeSPRKTableMem_op_assign__(farg1, farg2)
 self%swigdata = farg1
 end subroutine
 
+function FARKodeSPRKStorage_Create(s, q, a, ahat) &
+result(swig_result)
+use, intrinsic :: ISO_C_BINDING
+type(C_PTR) :: swig_result
+integer(C_INT), intent(in) :: s
+integer(C_INT), intent(in) :: q
+real(C_DOUBLE), target, intent(inout) :: a
+real(C_DOUBLE), target, intent(inout) :: ahat
+type(C_PTR) :: fresult 
+integer(C_INT) :: farg1 
+integer(C_INT) :: farg2 
+type(C_PTR) :: farg3 
+type(C_PTR) :: farg4 
+
+farg1 = s
+farg2 = q
+farg3 = c_loc(a)
+farg4 = c_loc(ahat)
+fresult = swigc_FARKodeSPRKStorage_Create(farg1, farg2, farg3, farg4)
+swig_result = fresult
+end function
+
 function FARKodeSPRKTable_Alloc(stages) &
 result(swig_result)
 use, intrinsic :: ISO_C_BINDING
@@ -1569,6 +1611,18 @@ fresult = swigc_FARKodeSPRKTable_Copy(farg1)
 swig_result = fresult
 end function
 
+subroutine FARKodeSPRKTable_Write(sprk_table, outfile)
+use, intrinsic :: ISO_C_BINDING
+type(C_PTR) :: sprk_table
+type(C_PTR) :: outfile
+type(C_PTR) :: farg1 
+type(C_PTR) :: farg2 
+
+farg1 = sprk_table
+farg2 = outfile
+call swigc_FARKodeSPRKTable_Write(farg1, farg2)
+end subroutine
+
 subroutine FARKodeSPRKTable_Space(sprk_storage, liw, lrw)
 use, intrinsic :: ISO_C_BINDING
 type(C_PTR) :: sprk_storage
@@ -1593,21 +1647,21 @@ farg1 = sprk_storage
 call swigc_FARKodeSPRKTable_Free(farg1)
 end subroutine
 
-function FARKodeSPRKTable_ToButcher(sprk_storage, erk_ptr, dirk_ptr) &
+function FARKodeSPRKTable_ToButcher(sprk_storage, a_ptr, b_ptr) &
 result(swig_result)
 use, intrinsic :: ISO_C_BINDING
 integer(C_INT) :: swig_result
 type(C_PTR) :: sprk_storage
-type(C_PTR), target, intent(inout) :: erk_ptr
-type(C_PTR), target, intent(inout) :: dirk_ptr
+type(C_PTR), target, intent(inout) :: a_ptr
+type(C_PTR), target, intent(inout) :: b_ptr
 integer(C_INT) :: fresult 
 type(C_PTR) :: farg1 
 type(C_PTR) :: farg2 
 type(C_PTR) :: farg3 
 
 farg1 = sprk_storage
-farg2 = c_loc(erk_ptr)
-farg3 = c_loc(dirk_ptr)
+farg2 = c_loc(a_ptr)
+farg3 = c_loc(b_ptr)
 fresult = swigc_FARKodeSPRKTable_ToButcher(farg1, farg2, farg3)
 swig_result = fresult
 end function

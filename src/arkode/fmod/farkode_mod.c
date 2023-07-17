@@ -931,6 +931,24 @@ SWIGEXPORT void _wrap_ARKodeSPRKTableMem_op_assign__(SwigClassWrapper *farg1, Sw
 }
 
 
+SWIGEXPORT void * _wrap_FARKodeSPRKStorage_Create(int const *farg1, int const *farg2, double *farg3, double *farg4) {
+  void * fresult ;
+  int arg1 ;
+  int arg2 ;
+  sunrealtype *arg3 = (sunrealtype *) 0 ;
+  sunrealtype *arg4 = (sunrealtype *) 0 ;
+  ARKodeSPRKTable result;
+  
+  arg1 = (int)(*farg1);
+  arg2 = (int)(*farg2);
+  arg3 = (sunrealtype *)(farg3);
+  arg4 = (sunrealtype *)(farg4);
+  result = (ARKodeSPRKTable)ARKodeSPRKStorage_Create(arg1,arg2,arg3,arg4);
+  fresult = result;
+  return fresult;
+}
+
+
 SWIGEXPORT void * _wrap_FARKodeSPRKTable_Alloc(int const *farg1) {
   void * fresult ;
   int arg1 ;
@@ -976,6 +994,16 @@ SWIGEXPORT void * _wrap_FARKodeSPRKTable_Copy(void *farg1) {
   result = (ARKodeSPRKTable)ARKodeSPRKTable_Copy(arg1);
   fresult = result;
   return fresult;
+}
+
+
+SWIGEXPORT void _wrap_FARKodeSPRKTable_Write(void *farg1, void *farg2) {
+  ARKodeSPRKTable arg1 = (ARKodeSPRKTable) 0 ;
+  FILE *arg2 = (FILE *) 0 ;
+  
+  arg1 = (ARKodeSPRKTable)(farg1);
+  arg2 = (FILE *)(farg2);
+  ARKodeSPRKTable_Write(arg1,arg2);
 }
 
 
