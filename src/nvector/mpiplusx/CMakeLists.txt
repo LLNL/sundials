@@ -33,7 +33,8 @@ sundials_add_library(sundials_nvecmpiplusx
   INCLUDE_SUBDIR
     nvector
   LINK_LIBRARIES 
-    $<IF:$<BOOL:${ENABLE_MPI}>, PUBLIC MPI::MPI_C, >
+    PUBLIC
+    $<IF:$<BOOL:${ENABLE_MPI}>, MPI::MPI_C, >
   OBJECT_LIBRARIES
     sundials_generic_obj
     sundials_nvecmpimanyvector_obj
