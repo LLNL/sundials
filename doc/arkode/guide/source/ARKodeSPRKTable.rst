@@ -87,6 +87,16 @@ ARKodeSPRKTable functions
    +----------------------------------------------+------------------------------------------------------------+
 
 
+.. c:function:: ARKodeSPRKTable ARKodeSPRKTable_Create(int stages, int q, const sunrealtype* a, const sunrealtype* ahat)
+
+   Creates and allocates :c:type:`ARKodeSPRKTable` structure with the specified number of stages and the coefficients provided.
+
+   :param stages: The number of stages.
+   :param q: The order of the method.
+   :param a: An array of the coefficients for the ``a`` table.
+   :param ahat: An array of the coefficients for the ``ahat`` table.
+   :return: :c:type:`ARKodeSPRKTable` structure for the loaded method.
+
 .. c:function:: ARKodeSPRKTable ARKodeSPRKTable_Alloc(int stages)
 
    Allocate memory for an :c:type:`ARKodeSPRKTable` structure with the specified number of stages.
