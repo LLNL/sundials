@@ -236,10 +236,10 @@ module dnsc_mod
     type(N_Vector),           pointer :: sunvec_av     ! sundials tolerance vector
     type(SUNMatrix),          pointer :: sunmat_A      ! sundials matrix
     type(SUNLinearSolver),    pointer :: sunlinsol_LS  ! sundials linear solver
-    type(c_ptr)                       :: cvode_mem     ! ARKODE memory
+    type(c_ptr)                       :: cvode_mem     ! CVode memory
     type(c_ptr)                       :: sunctx        ! SUNDIALS simulation context
 
-    ! solution and tolerance vectors, neq is set in the dae_mod module
+    ! solution and tolerance vectors, neq is set in the dnsc_mod module
     real(c_double) :: yval(neq), cval(neq), avtol(neq), dkyval(neq)
 
     ! fine-tuning initialized here
@@ -290,7 +290,7 @@ module dnsc_mod
 
     call PrintHeader(rtol, avtol, yval, cval)
 
-    ! Call FCVodeCreate FCVodeInit to create and initialize ARKODE memory
+    ! Call FCVodeCreate and FCVodeInit to create and initialize CVode memory
     cvode_mem = FCVodeCreate(CV_BDF, sunctx)
     if (.not. c_associated(cvode_mem)) print *, 'ERROR: cvode_mem = NULL'
 
@@ -438,7 +438,6 @@ module dnsc_mod
     print '(a,f6.4,a,3(es7.0,1x))', "Tolerance parameters:  rtol = ",rtol,"   atol = ", avtol
     print '(a,3(f5.2,1x),a)', "Initial conditions y0 = (",y,")"
     print '(a,3(f5.2,1x),a)', "Constraints cval = (",c,")"
-    print *, "ID not used."
     print *, " "
     print *, "---------------------------------------------------"
     print *, "   t            y1           y2           y3"
@@ -539,13 +538,6 @@ module dnsc_mod
        print *, 'Error in FCVodeGetNumNonlinSolvConvFails, retval = ', retval, '; halting'
        stop 1
     end if
-
-    ! ! Alternatively
-    ! retval = FCVodeGetNonlinSolvStats(cvode_mem, nniters, nncfails)
-    ! if (retval /= 0) then
-    !    print *, 'Error in FCVodeGetNonlinSolvStats, retval = ', retval, '; halting'
-    !    stop 1
-    ! end if
 
     retval = FCVodeGetNumJacEvals(cvode_mem, njacevals)
     if (retval /= 0) then

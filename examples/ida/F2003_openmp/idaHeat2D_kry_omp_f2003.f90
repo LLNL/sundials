@@ -156,11 +156,9 @@ contains
     pelinv = 1.d0/(cj + 4.d0*coeff)
 
     ! set the interior points to the correct value for preconditioning
-    !$omp parallel
-    !$omp workshare
+    !$omp parallel workshare
     pp(2:mgrid-1, 2:mgrid-1) = pelinv
-    !$omp end workshare
-    !$omp end parallel
+    !$omp end parallel workshare
 
     ! return success
     ierr = 0
@@ -208,11 +206,9 @@ contains
     sol(1:mgrid, 1:mgrid) => FN_VGetArrayPointer(sunvec_sol)
 
     ! Apply preconditioner to rhs to create sol
-    !$omp parallel
-    !$omp workshare
+    !$omp parallel workshare
     sol = rhs * pp
-    !$omp end workshare
-    !$omp end parallel
+    !$omp end parallel workshare
 
     ! return success
     ierr = 0
@@ -545,8 +541,7 @@ subroutine SetInitialProfile(sunvec_u, sunvec_up, sunvec_r)
   !======= Internals ============
 
   ! Initialize uu on all grid points
-  !$omp parallel
-  !$omp do collapse(2)
+  !$omp parallel do collapse(2)
   do j = 1,mgrid
      yfact = dx * (j-1)
      do i = 1,mgrid
@@ -554,8 +549,7 @@ subroutine SetInitialProfile(sunvec_u, sunvec_up, sunvec_r)
         uu(i,j) = 16.d0 * xfact * (1.d0 - xfact) * yfact * (1.d0 - yfact)
      end do
   end do
-  !$omp end do
-  !$omp end parallel
+  !$omp end parallel do
 
   ! Initialize up vector to 0
   up = 0.d0

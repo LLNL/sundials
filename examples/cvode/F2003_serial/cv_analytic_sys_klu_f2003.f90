@@ -189,7 +189,6 @@ program main
   use fsundials_linearsolver_mod ! Fortran interface to generic SUNLinearSolver
   use fsundials_matrix_mod       ! Fortran interface to generic SUNMatrix
   use fsundials_nvector_mod      ! Fortran interface to generic N_Vector
-!   use fsundials_linearsolver_mod ! Fortran interface to generic SUNLinearSolver
   use ode_mod                    ! ODE functions
 
   !======= Declarations =========

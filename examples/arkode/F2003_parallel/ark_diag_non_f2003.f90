@@ -218,8 +218,9 @@ module DiagnonData
       call MPI_Abort(comm, 1, ierr)
    end if
 
-   ! Main time-stepping loop: calls ARKode to perform the integration, then
-   ! prints results.  Stops when the final time has been reached
+   ! Main time-stepping loop: calls FERKStepEvolve to perform the
+   ! integration, then prints results.  Stops when the final time
+   ! has been reached.
    t(1) = T0
    dTout = 0.1d0
    tout = T0+dTout

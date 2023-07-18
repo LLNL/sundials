@@ -24,7 +24,7 @@ List of serial CVODE F2003 examples
 
     cv_roberts_dns_f2003.f90             : robertson problem from chemical kinetics (newton, dense, user-supplied jacobian)
 
-    cv_roberts_dnsL_f2003.f90            : robertson problem from chemical kinetics using LAPack (newton, dense, user-supplied jacobian)
+    cv_roberts_dnsL_f2003.f90            : robertson problem from chemical kinetics using LAPACK (newton, dense, user-supplied jacobian)
     
     cv_roberts_klu_f2003.f90             : robertson problem from chemical kinetics using KLU solver (newton, sparse, user-supplied jacobian)
 

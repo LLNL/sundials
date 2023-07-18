@@ -1,5 +1,6 @@
 # ---------------------------------------------------------------
 # Programmer(s): David J. Gardner @ LLNL
+#                modified by Daniel M. Margolis @ SMU
 # ---------------------------------------------------------------
 # SUNDIALS Copyright Start
 # Copyright (c) 2002-2023, Lawrence Livermore National Security
@@ -16,19 +17,21 @@
 
 # Example lists are tuples "name\;nodes\;tasks\;type" where the
 # type is develop for examples excluded from 'make test' in releases
-if(SUNDIALS_LOGGING_ENABLE_MPI)
-  set(FARKODE_examples
-    "ark_brusselator1D_task_local_nls_f2003\;--monitor\;1\;4\;develop\;2"
-    "ark_brusselator1D_task_local_nls_f2003\;--monitor --global-nls\;1\;4\;develop\;2"
-    "ark_brusselator1D_task_local_nls_f2003\;--monitor --explicit --tf 3\;1\;4\;develop\;2"
-    "ark_diag_kry_bbd_f2003\;\;1\;4\;develop\;2"
-    "ark_diag_non_f2003\;\;1\;4\;develop\;2"
-    "ark_heat2D_f2003\;\;1\;4\;develop\;2")
-else()
-  set(FARKODE_examples
-    "ark_diag_kry_bbd_f2003\;\;1\;4\;develop\;2"
-    "ark_diag_non_f2003\;\;1\;4\;develop\;2"
-    "ark_heat2D_f2003\;\;1\;4\;develop\;2")
+if(MPI_ENABLED)
+  if(SUNDIALS_LOGGING_ENABLE_MPI)
+    set(FARKODE_examples
+      "ark_brusselator1D_task_local_nls_f2003\;--monitor\;1\;4\;develop\;2"
+      "ark_brusselator1D_task_local_nls_f2003\;--monitor --global-nls\;1\;4\;develop\;2"
+      "ark_brusselator1D_task_local_nls_f2003\;--monitor --explicit --tf 3\;1\;4\;develop\;2"
+      "ark_diag_kry_bbd_f2003\;\;1\;4\;develop\;2"
+      "ark_diag_non_f2003\;\;1\;4\;develop\;2"
+      "ark_heat2D_f2003\;\;1\;4\;develop\;2")
+  else()
+    set(FARKODE_examples
+      "ark_diag_kry_bbd_f2003\;\;1\;4\;develop\;2"
+      "ark_diag_non_f2003\;\;1\;4\;develop\;2"
+      "ark_heat2D_f2003\;\;1\;4\;develop\;2")
+  endif()
 endif()
 
 

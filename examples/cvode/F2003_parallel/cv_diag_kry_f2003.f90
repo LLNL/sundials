@@ -1,6 +1,6 @@
 !-----------------------------------------------------------------
-! Programmer(s): Daniel R. Reynolds @ SMU
-!                modified by Daniel M. Margolis @ SMU
+! Programmer(s): Daniel M. Margolis @ SMU
+!                modified from previous ARKODE examples
 !-----------------------------------------------------------------
 ! SUNDIALS Copyright Start
 ! Copyright (c) 2002-2023, Lawrence Livermore National Security
@@ -94,7 +94,7 @@ module DiagkryData
       ! Initialize ydot to zero
       ydot = 0.d0
  
-      ! Fill ydot with ERP rhs function
+      ! Fill ydot with rhs function
       do i = 1,nlocal
          ydot(i) = -alpha * (myid * nlocal + i) * y(i)
       end do
@@ -102,33 +102,6 @@ module DiagkryData
       retval = 0              ! Return with success
       return
     end function firhs
-    !-----------------------------------------------------------------
-
-    !-----------------------------------------------------------------
-    ! Trivial preconditioner setup function.
-    !-----------------------------------------------------------------
-    integer(c_int) function Psetup(t, sunvec_y, sunvec_f, jok, jcur, &
-            gamma, user_data) result(retval) bind(C)
- 
-      !======= Inclusions ===========
-      use, intrinsic :: iso_c_binding
-      use fsundials_nvector_mod
- 
-      !======= Declarations =========
-      implicit none
- 
-      ! calling variables
-      real(c_double), value :: t            ! current time
-      type(N_Vector)        :: sunvec_y     ! solution N_Vector
-      type(N_Vector)        :: sunvec_f     ! rhs N_Vector
-      integer(c_int), value :: jok
-      integer(c_int)        :: jcur
-      real(c_double), value :: gamma
-      type(c_ptr)           :: user_data    ! user-defined data
- 
-      retval = 0              ! Return with success
-      return
-    end function Psetup
     !-----------------------------------------------------------------
 
     !-----------------------------------------------------------------
@@ -211,7 +184,6 @@ module DiagkryData
     use fsundials_linearsolver_mod ! Fortran interface to generic SUNLinearSolver
     use fsunlinsol_spgmr_mod       ! Fortran interface to spgmr SUNLinearSolver
     use fsundials_context_mod      ! Access sundials context
- 
     use DiagkryData
  
     !======= Declarations =========
@@ -351,7 +323,7 @@ module DiagkryData
        call MPI_Abort(comm, 1, ierr)
     end if
 
-    retval = FCVodeSetPreconditioner(cvode_mem, c_funloc(Psetup), c_funloc(Psolve))
+    retval = FCVodeSetPreconditioner(cvode_mem, c_null_ptr, c_funloc(Psolve))
     if (retval /= 0) then
         print *, "Error: FCVodeSetPreconditioner returned ", retval
         call MPI_Abort(comm, 1, ierr)

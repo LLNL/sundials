@@ -1,5 +1,6 @@
 # ---------------------------------------------------------------
 # Programmer(s): David J. Gardner @ LLNL
+#                modified by Daniel M. Margolis @ SMU
 # ---------------------------------------------------------------
 # SUNDIALS Copyright Start
 # Copyright (c) 2002-2023, Lawrence Livermore National Security
@@ -16,10 +17,7 @@
 
 # Example lists are tuples "name\;nodes\;tasks\;type" where the
 # type is develop for examples excluded from 'make test' in releases
-if(SUNDIALS_LOGGING_ENABLE_MPI)
-  set(FKINSOL_examples
-    "kin_diagon_kry_f2003\;\;1\;4\;develop\;2")
-else()
+if(MPI_ENABLED)
   set(FKINSOL_examples
     "kin_diagon_kry_f2003\;\;1\;4\;develop\;2")
 endif()

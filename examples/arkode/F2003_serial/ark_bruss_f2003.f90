@@ -349,7 +349,7 @@ program main
      stop 1
   end if
 
-    ! Open output stream for results, output comment line
+  ! Open output stream for results, output comment line
   open(100, file='solution.txt')
   write(100,*) '# t u v w'
 

@@ -1,5 +1,7 @@
 ! ------------------------------------------------------------------
 ! Programmer(s): Daniel M. Margolis @ SMU
+!                based off the previous Fortran-77 example program, 
+!                cvode/fcmix_serial/fcvAdvDiff_bnd.f
 ! ------------------------------------------------------------------
 ! SUNDIALS Copyright Start
 ! Copyright (c) 2002-2023, Lawrence Livermore National Security
@@ -305,12 +307,6 @@ module advdiff_mod
        print *, 'Error in FCVodeSetJacFn, ierr = ', ierr, '; halting'
        stop 1
     end if
-
-    ! ierr = FCVodeSetMaxNumSteps(cvode_mem, mxsteps)
-    ! if (ierr /= 0) then
-    !    print *, 'Error in FCVodeSetMaxNumSteps'
-    !    stop 1
-    ! end if
 
     ! Start time stepping
     print *, '   '

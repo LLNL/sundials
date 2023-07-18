@@ -1,5 +1,6 @@
 # ---------------------------------------------------------------
 # Programmer(s): Cody J. Balos @ LLNL
+#                modified by Daniel M. Margolis @ SMU
 # ---------------------------------------------------------------
 # SUNDIALS Copyright Start
 # Copyright (c) 2002-2023, Lawrence Livermore National Security
@@ -28,12 +29,11 @@ set(FCVODE_examples
   "cv_diurnal_kry_bp_f2003\;develop"
   "cv_roberts_dns_constraints_f2003\;develop"
   "cv_roberts_dns_f2003\;develop"
-  #"cv_roberts_dnsL_f2003\;develop"
   )
 
 # Examples using LAPACK linear solvers
 set(FCVODE_examples_BL
-  )
+  "cv_roberts_dnsL_f2003\;develop")
 
 # Add sparse solvers examples for 64-bit indextype configurations only,
 # not compatible with 32-bit indextype

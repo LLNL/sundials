@@ -1,5 +1,7 @@
 ! ------------------------------------------------------------------
 ! Programmer(s): Daniel M. Margolis @ SMU
+!                based off the previous Fortran-77 example program, 
+!                cvode/fcmix_serial/fcvDiurnal_kry.f
 ! ------------------------------------------------------------------
 ! SUNDIALS Copyright Start
 ! Copyright (c) 2002-2023, Lawrence Livermore National Security
@@ -582,13 +584,11 @@ module diurnal_mod
 
     integer(c_long) :: nsteps(1)     ! num steps
     integer(c_long) :: nfe(1)        ! num function evals
-   !  integer(c_long) :: npsetups(1)   ! num preconditioner setups
     integer(c_long) :: netfails(1)   ! num error test fails
     integer(c_long) :: npe(1)        ! num preconditioner evals
     integer(c_long) :: nps(1)        ! num preconditioner solves
     integer(c_long) :: nniters(1)    ! nonlinear solver iterations
     integer(c_long) :: nliters(1)    ! linear solver iterations
-   !  integer(c_long) :: nmcf(1)       ! num mass convergence failures
     integer(c_long) :: ncf(1)        ! num convergence failures nonlinear
     integer(c_long) :: ncfl(1)       ! num convergence failures linear
     integer(c_long) :: nncfails(1)   ! nonlinear solver fails
@@ -614,12 +614,6 @@ module diurnal_mod
        print *, 'Error in FCVodeGetNumRhsEvals, ierr = ', ierr, '; halting'
        stop 1
     end if
-
-   !  ierr = FCVodeGetNumMassSetups(cvode_mem, npsetups)
-   !  if (ierr /= 0) then
-   !     print *, 'Error in FCVodeGetNumMassSetups, ierr = ', ierr, '; halting'
-   !     stop 1
-   !  end if
 
     ierr = FCVodeGetNumErrTestFails(cvode_mem, netfails)
     if (ierr /= 0) then
@@ -653,12 +647,6 @@ module diurnal_mod
 
     avdim = dble(nliters)/dble(nniters)
 
-   !  ierr = FCVodeGetNumMassConvFails(cvode_mem, nmcf)
-   !  if (ierr /= 0) then
-   !     print *, 'Error in FCVodeGetNumMassConvFails, ierr = ', ierr, '; halting'
-   !     stop 1
-   !  end if
-
     ierr = FCVodeGetNumLinConvFails(cvode_mem, ncfl)
     if (ierr /= 0) then
        print *, 'Error in FCVodeGetNumLinConvFails, ierr = ', ierr, '; halting'
@@ -687,7 +675,6 @@ module diurnal_mod
     print *, ' General Solver Stats:'
     print '(4x,A,i9)'       ,'Total internal steps taken      =',nsteps
     print '(4x,A,i9)'       ,'Total rhs function call         =',nfe
-   !  print '(4x,A,i9)'       ,'Num lin solver setup calls    =',npsetups
     print '(4x,A,i9)'       ,'Total num preconditioner evals  =',npe
     print '(4x,A,i9)'       ,'Total num preconditioner solves =',nps
     print '(4x,A,i9)'       ,'Num error test failures         =',netfails
@@ -696,7 +683,6 @@ module diurnal_mod
     print '(4x,A,es14.6)'   ,'Avg Krylov subspace dim         =',avdim
     print '(4x,A,i9)'       ,'Num nonlinear solver fails      =',ncf
     print '(4x,A,i9)'       ,'Num linear solver fails         =',ncfl
-   !  print '(4x,A,i9)'       ,'Num mass solver fails         =',nmcf
     print '(4x,A,2(i9,3x))' ,'main solver real/int workspace sizes   =',lenrw,leniw
     print '(4x,A,2(i9,3x))' ,'linear solver real/int workspace sizes =',lenrwls,leniwls
     print *, ' '

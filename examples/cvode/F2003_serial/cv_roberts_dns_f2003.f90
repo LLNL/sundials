@@ -1,5 +1,7 @@
 ! ------------------------------------------------------------------
 ! Programmer(s): Daniel M. Margolis @ SMU
+!                based off the previous Fortran-77 example program, 
+!                cvode/fcmix_serial/fcvRoberts_dns.f
 ! ------------------------------------------------------------------
 ! SUNDIALS Copyright Start
 ! Copyright (c) 2002-2023, Lawrence Livermore National Security
@@ -229,10 +231,10 @@ module dns_mod
     type(SUNMatrix),          pointer :: sunmat_A      ! sundials matrix
     type(SUNLinearSolver),    pointer :: sunlinsol_LS  ! sundials linear solver
     type(SUNNonLinearSolver), pointer :: sunnonlin_NLS ! sundials nonlinear solver
-    type(c_ptr)                       :: cvode_mem     ! ARKODE memory
+    type(c_ptr)                       :: cvode_mem     ! CVode memory
     type(c_ptr)                       :: sunctx        ! SUNDIALS simulation context
 
-    ! solution and tolerance vectors, neq is set in the dae_mod module
+    ! solution and tolerance vectors, neq is set in the dns_mod module
     real(c_double) :: yval(neq), avtol(neq), dkyval(neq)
 
     ! fine-tuning initialized here
@@ -274,7 +276,7 @@ module dns_mod
 
     call PrintHeader(rtol, avtol, yval)
 
-    ! Call FCVodeCreate FCVodeInit to create and initialize ARKODE memory
+    ! Call FCVodeCreate and FCVodeInit to create and initialize CVode memory
     cvode_mem = FCVodeCreate(CV_BDF, sunctx)
     if (.not. c_associated(cvode_mem)) print *, 'ERROR: cvode_mem = NULL'
 
@@ -414,7 +416,7 @@ module dns_mod
     print *, "Linear solver: DENSE, with user-supplied Jacobian."
     print '(a,f6.4,a,3(es7.0,1x))', "Tolerance parameters:  rtol = ",rtol,"   atol = ", avtol
     print '(a,3(f5.2,1x),a)', "Initial conditions y0 = (",y,")"
-    print *, "Constraints and ID not used."
+    print *, "Constraints not used."
     print *, " "
     print *, "---------------------------------------------------"
     print *, "   t            y1           y2           y3"
@@ -515,13 +517,6 @@ module dns_mod
        print *, 'Error in FCVodeGetNumNonlinSolvConvFails, retval = ', retval, '; halting'
        stop 1
     end if
-
-    ! ! Alternatively
-    ! retval = FCVodeGetNonlinSolvStats(cvode_mem, nniters, nncfails)
-    ! if (retval /= 0) then
-    !    print *, 'Error in FCVodeGetNonlinSolvStats, retval = ', retval, '; halting'
-    !    stop 1
-    ! end if
 
     retval = FCVodeGetNumJacEvals(cvode_mem, njacevals)
     if (retval /= 0) then

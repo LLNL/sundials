@@ -11,7 +11,7 @@ List of serial ARKODE F2003 examples
 
   ark_roberts_dns_f2003       : robertson chemical kinetics ODE with rootfinding (DIRK/DENSE)
 
-  ark_roberts_dnsL_f2003      : robertson chemical kinetics ODE with rootfinding using LAPack (DIRK/DENSE)
+  ark_roberts_dnsL_f2003      : robertson chemical kinetics ODE with rootfinding using LAPACK (DIRK/DENSE)
 
   test_ark_butcher_f2003      : smoke tests for the Fortran 2003 interface to the ARKodeButcherTable API
 

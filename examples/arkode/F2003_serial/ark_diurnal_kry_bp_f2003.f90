@@ -388,7 +388,7 @@ module diurnal_mod
   ! ----------------------------------------------------------------
   ! ARKStepStats
   !
-  ! Print ARKODE statstics to stdandard out
+  ! Print ARKODE statstics to standard out
   ! ----------------------------------------------------------------
   subroutine ARKStepStats(arkode_mem)
 
@@ -396,7 +396,6 @@ module diurnal_mod
     use iso_c_binding
     use farkode_mod
     use farkode_arkstep_mod
-    !use farkode_bandpre_mod
 
     !======= Declarations =========
     implicit none

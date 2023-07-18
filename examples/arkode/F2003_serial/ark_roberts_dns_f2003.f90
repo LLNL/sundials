@@ -46,7 +46,7 @@ module dns_mod
   contains
 
     ! ----------------------------------------------------------------
-    ! fcnirob: The implicit RSH operator function
+    ! fcnirob: The implicit RHS operator function
     !
     ! Return values:
     !    0 = success,
@@ -476,7 +476,7 @@ module dns_mod
     print *, "Linear solver: DENSE, with user-supplied Jacobian."
     print '(a,f6.4,a,3(es7.0,1x))', "Tolerance parameters:  rtol = ",rtol,"   atol = ", avtol
     print '(a,3(f5.2,1x),a)', "Initial conditions y0 = (",y,")"
-    print *, "Constraints and id not used."
+    print *, "Constraints not used."
     print *, " "
     print *, "----------------------------------------------------------------------"
     print *, "   t            y1           y2           y3       | nst      h"
@@ -532,7 +532,7 @@ module dns_mod
   ! ----------------------------------------------------------------
   ! PrintFinalStats
   !
-  ! Print ARKSOL statstics to standard out
+  ! Print ARKStep statstics to standard out
   ! ----------------------------------------------------------------
   subroutine PrintFinalStats(arkode_mem)
 

@@ -1,6 +1,6 @@
 !-----------------------------------------------------------------
-! Programmer(s): Daniel R. Reynolds @ SMU
-!                modified by Daniel M. Margolis @ SMU
+! Programmer(s): Daniel M. Margolis @ SMU
+!                modified from previous ARKODE examples
 !-----------------------------------------------------------------
 ! SUNDIALS Copyright Start
 ! Copyright (c) 2002-2023, Lawrence Livermore National Security
@@ -89,7 +89,7 @@ module DiagnonData
       ! Initialize ydot to zero
       ydot = 0.d0
  
-      ! Fill ydot with ERP rhs function
+      ! Fill ydot with rhs function
       do i = 1,nlocal
          ydot(i) = -alpha * (myid * nlocal + i) * y(i)
       end do
@@ -196,7 +196,7 @@ module DiagnonData
        write(6,'(A,es9.2)') "   atol = ", atol
        write(6,'(A,es9.2)') "   alpha = ", alpha
        write(6,*) "   ydot_i = -alpha*i * y_i (i = 1,...,neq)"
-       write(6,*) "   Method is ADAMS/FIXED-POINT/SPGMR"
+       write(6,*) "   Method is ADAMS/FIXED-POINT"
        write(6,*) "  "
     endif
  

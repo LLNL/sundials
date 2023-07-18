@@ -384,7 +384,7 @@ module Heat2DData
     end subroutine getStats
 
     !-----------------------------------------------------------------
-    ! ODE RHS function f(t,y).
+    ! DAE residual function r(t,y).
     !-----------------------------------------------------------------
     integer(c_int) function resfn(t, sunvec_y, sunvec_ydot, sunvec_res, &
             user_data) result(retval) bind(C)

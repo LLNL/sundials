@@ -107,7 +107,7 @@ module DiagkryData
    !-----------------------------------------------------------------
 
    !-----------------------------------------------------------------
-   ! ODE RHS function f(t,y) (implicit).
+   ! Local g function for BBD preconditioner (calls ODE RHS function).
    !-----------------------------------------------------------------
    integer(c_int) function LocalgFn(nnlocal, t, sunvec_y, sunvec_g, user_data) &
      result(retval) bind(C)
@@ -141,7 +141,7 @@ module DiagkryData
    !-----------------------------------------------------------------
 
    !-----------------------------------------------------------------
-   ! ODE RHS function f(t,y) (implicit).
+   ! Communication function for BBD preconditioner (Empty).
    !-----------------------------------------------------------------
    integer(c_int) function CommFn(nnlocal, t, sunvec_y, user_data) &
      result(retval) bind(C)

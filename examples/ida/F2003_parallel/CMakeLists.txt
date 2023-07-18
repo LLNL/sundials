@@ -17,10 +17,7 @@
 
 # Example lists are tuples "name\;nodes\;tasks\;type" where the
 # type is develop for examples excluded from 'make test' in releases
-if(SUNDIALS_LOGGING_ENABLE_MPI)
-  set(FIDA_examples
-    "ida_heat2D_kry_bbd_f2003\;\;1\;4\;develop\;2")
-else()
+if(MPI_ENABLED)
   set(FIDA_examples
     "ida_heat2D_kry_bbd_f2003\;\;1\;4\;develop\;2")
 endif()

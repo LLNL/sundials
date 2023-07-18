@@ -1,5 +1,7 @@
 ! ------------------------------------------------------------------
 ! Programmer(s): Daniel M. Margolis @ SMU
+!                based off the previous Fortran-77 example program, 
+!                cvode/fcmix_serial/fcvRoberts_dnsL.f
 ! ------------------------------------------------------------------
 ! SUNDIALS Copyright Start
 ! Copyright (c) 2002-2023, Lawrence Livermore National Security
@@ -26,7 +28,7 @@
 ! feature to find the points at which y1 = 1.e-4 or at which
 ! y3 = 0.01.
 !
-! The problem is solved with CVODE using the DENSE linear
+! The problem is solved with CVODE using the DENSE LAPACK linear
 ! solver, with a user-supplied Jacobian. Output is printed at
 ! t = .4, 4, 40, ..., 4e10. It uses ATOL much smaller for y2
 ! than y1 or y3 because y2 has much smaller values. At the end
@@ -228,10 +230,10 @@ module dnsL_mod
     type(N_Vector),           pointer :: sunvec_av     ! sundials tolerance vector
     type(SUNMatrix),          pointer :: sunmat_A      ! sundials matrix
     type(SUNLinearSolver),    pointer :: sunlinsol_LS  ! sundials linear solver
-    type(c_ptr)                       :: cvode_mem     ! ARKODE memory
+    type(c_ptr)                       :: cvode_mem     ! CVode memory
     type(c_ptr)                       :: sunctx        ! SUNDIALS simulation context
 
-    ! solution and tolerance vectors, neq is set in the dae_mod module
+    ! solution and tolerance vectors, neq is set in the dnsL_mod module
     real(c_double) :: yval(neq), avtol(neq), dkyval(neq)
 
     ! fine-tuning initialized here
@@ -273,7 +275,7 @@ module dnsL_mod
 
     call PrintHeader(rtol, avtol, yval)
 
-    ! Call FCVodeCreate FCVodeInit to create and initialize ARKODE memory
+    ! Call FCVodeCreate and FCVodeInit to create and initialize CVode memory
     cvode_mem = FCVodeCreate(CV_BDF, sunctx)
     if (.not. c_associated(cvode_mem)) print *, 'ERROR: cvode_mem = NULL'
 
@@ -413,7 +415,6 @@ module dnsL_mod
     print *, "Linear solver: LAPACK DENSE, with user-supplied Jacobian."
     print '(a,f6.4,a,3(es7.0,1x))', "Tolerance parameters:  rtol = ",rtol,"   atol = ", avtol
     print '(a,3(f5.2,1x),a)', "Initial conditions y0 = (",y,")"
-    print *, "Constraints and ID not used."
     print *, " "
     print *, "---------------------------------------------------"
     print *, "   t            y1           y2           y3"
@@ -514,13 +515,6 @@ module dnsL_mod
        print *, 'Error in FCVodeGetNumNonlinSolvConvFails, retval = ', retval, '; halting'
        stop 1
     end if
-
-    ! ! Alternatively
-    ! retval = FCVodeGetNonlinSolvStats(cvode_mem, nniters, nncfails)
-    ! if (retval /= 0) then
-    !    print *, 'Error in FCVodeGetNonlinSolvStats, retval = ', retval, '; halting'
-    !    stop 1
-    ! end if
 
     retval = FCVodeGetNumJacEvals(cvode_mem, njacevals)
     if (retval /= 0) then

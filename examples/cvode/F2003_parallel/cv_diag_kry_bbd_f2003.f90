@@ -1,6 +1,6 @@
 !-----------------------------------------------------------------
-! Programmer(s): Daniel R. Reynolds @ SMU
-!                modified by Daniel M. Margolis @ SMU
+! Programmer(s): Daniel M. Margolis @ SMU
+!                modified from previous ARKODE examples
 !-----------------------------------------------------------------
 ! SUNDIALS Copyright Start
 ! Copyright (c) 2002-2023, Lawrence Livermore National Security
@@ -94,7 +94,7 @@ module DiagkrybbdData
       ! Initialize ydot to zero
       ydot = 0.d0
  
-      ! Fill ydot with ERP rhs function
+      ! Fill ydot with rhs function
       do i = 1,nlocal
          ydot(i) = -alpha * (myid * nlocal + i) * y(i)
       end do
@@ -105,7 +105,7 @@ module DiagkrybbdData
     !-----------------------------------------------------------------
  
     !-----------------------------------------------------------------
-    ! ODE RHS function f(t,y) (implicit).
+    ! ODE RHS function used for BBD preconditioner.
     !-----------------------------------------------------------------
     integer(c_int) function LocalgFn(nnlocal, t, sunvec_y, sunvec_g, user_data) &
       result(retval) bind(C)
@@ -136,31 +136,6 @@ module DiagkrybbdData
       retval = 0              ! Return with success
       return
     end function LocalgFn
-    !-----------------------------------------------------------------
- 
-    !-----------------------------------------------------------------
-    ! ODE RHS function f(t,y) (implicit).
-    !-----------------------------------------------------------------
-    integer(c_int) function CommFn(nnlocal, t, sunvec_y, user_data) &
-      result(retval) bind(C)
- 
-      !======= Inclusions ===========
-      use, intrinsic :: iso_c_binding
-      use fsundials_nvector_mod
- 
-      !======= Declarations =========
-      implicit none
- 
-      ! calling variables
-      real(c_double), value :: t            ! current time
-      integer(c_long)       :: nnlocal      ! local space
-      type(N_Vector)        :: sunvec_y     ! solution N_Vector
-      type(N_Vector)        :: sunvec_ydot  ! rhs N_Vector
-      type(c_ptr)           :: user_data    ! user-defined data
- 
-      retval = 0              ! Return with success
-      return
-    end function CommFn
     !-----------------------------------------------------------------
  
   end module DiagkrybbdData
@@ -331,7 +306,7 @@ module DiagkrybbdData
     mudq = 0
     mldq = 0
     retval = FCVBBDPrecInit(cvode_mem, nlocal, mudq, mldq, mu, ml, 0.d0, &
-                            c_funloc(LocalgFn), c_funloc(CommFn))
+                            c_funloc(LocalgFn), c_null_ptr)
     if (retval /= 0) then
        print *, "Error: FCVBBDPrecInit returned ", retval
        call MPI_Abort(comm, 1, ierr)

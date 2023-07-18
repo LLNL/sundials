@@ -1,5 +1,5 @@
 ! ------------------------------------------------------------------
-! Programmer(s): Daniel R. Reynolds @ SMU
+! Programmer(s): Allan G. Taylor, Alan C. Hindmarsh and Radu Serban @ LLNL
 !                modified by Daniel M. Margolis @ SMU
 ! ------------------------------------------------------------------
 ! SUNDIALS Copyright Start
