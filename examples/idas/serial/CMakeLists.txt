@@ -296,6 +296,7 @@ if(EXAMPLES_INSTALL)
       "idasRoberts_FSA_klu.c\; \"-sensi stg t\" \;develop"
       "idasRoberts_klu.c\; \"\" \;develop"
     )
+    set(KLU_TARGET SUNDIALS::KLU)
   endif()
 
   if(BUILD_SUNLINSOL_LAPACKBAND AND BUILD_SUNLINSOL_LAPACKDENSE)
@@ -317,6 +318,7 @@ if(EXAMPLES_INSTALL)
       ${_include_sundials_sunlinsollapackdense}
     OTHER_TARGETS
       ${SUPERLUMT_TARGET}
+      ${KLU_TARGET}
     DESTINATION
       idas/serial
     EXTRA_FILES
