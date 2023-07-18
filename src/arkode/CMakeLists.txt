@@ -36,6 +36,7 @@ set(arkode_SOURCES
   arkode_mristep_io.c
   arkode_mristep_nls.c
   arkode_mristep.c
+  arkode_relaxation.c
   arkode_root.c
   arkode_sprkstep_io.c
   arkode_sprkstep.c

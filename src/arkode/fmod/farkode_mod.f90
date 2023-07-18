@@ -100,7 +100,18 @@ module farkode_mod
  integer(C_INT), parameter, public :: ARK_INTERP_FAIL = -40_C_INT
  integer(C_INT), parameter, public :: ARK_INVALID_TABLE = -41_C_INT
  integer(C_INT), parameter, public :: ARK_CONTEXT_ERR = -42_C_INT
+ integer(C_INT), parameter, public :: ARK_RELAX_FAIL = -43_C_INT
+ integer(C_INT), parameter, public :: ARK_RELAX_MEM_NULL = -44_C_INT
+ integer(C_INT), parameter, public :: ARK_RELAX_FUNC_FAIL = -45_C_INT
+ integer(C_INT), parameter, public :: ARK_RELAX_JAC_FAIL = -46_C_INT
  integer(C_INT), parameter, public :: ARK_UNRECOGNIZED_ERROR = -99_C_INT
+ ! typedef enum ARKRelaxSolver
+ enum, bind(c)
+  enumerator :: ARK_RELAX_BRENT
+  enumerator :: ARK_RELAX_NEWTON
+ end enum
+ integer, parameter, public :: ARKRelaxSolver = kind(ARK_RELAX_BRENT)
+ public :: ARK_RELAX_BRENT, ARK_RELAX_NEWTON
  public :: FARKBandPrecInit
  public :: FARKBandPrecGetWorkSpace
  public :: FARKBandPrecGetNumRhsEvals

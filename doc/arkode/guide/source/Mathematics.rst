@@ -2190,3 +2190,68 @@ step attempt, or fails with the minimum step size, then the integration is halte
 and an error is returned. In this case the user may need to employ other
 strategies as discussed in :numref:`ARKODE.Usage.ARKStep.Tolerances` and
 :numref:`ARKODE.Usage.ERKStep.Tolerances` to satisfy the inequality constraints.
+
+.. _ARKODE.Mathematics.Relaxation:
+
+Relaxation Methods
+==================
+
+When the solution of :eq:`ARKODE_IVP` is conservative or dissipative with
+respect to a smooth *convex* function :math:`\xi(y(t))`, it is desirable to have
+the numerical method preserve these properties. That is
+:math:`\xi(y_n) = \xi(y_{n-1}) = \ldots = \xi(y_{0})` for conservative systems
+and :math:`\xi(y_n) \leq \xi(y_{n-1})` for dissipative systems. For examples
+of such problems, see the references below and the citations there in.
+
+For such problems, ARKODE supports relaxation methods
+:cite:p:`ketcheson2019relaxation, kang2022entropy, ranocha2020relaxation, ranocha2020hamiltonian`
+applied to ERK, DIRK, or ARK methods to ensure dissipation or preservation of
+the global function. The relaxed solution is given by
+
+.. math::
+   y_r = y_{n-1} + r d = r y_n + (1 - r) y_{n - 1}
+   :label: ARKODE_RELAX_SOL
+
+where :math:`d` is the update to :math:`y_n` (i.e.,
+:math:`h_n \sum_{i=1}^{s}(b^E_i \hat{f}^E_i + b^I_i \hat{f}^I_i)` for ARKStep
+and :math:`h_n \sum_{i=1}^{s} b_i f_i` for ERKStep) and :math:`r` is the
+relaxation factor selected to ensure conservation or dissipation. Given an ERK,
+DIRK, or ARK method of at least second order with non-negative solution weights
+(i.e., :math:`b_i \geq 0` for ERKStep or :math:`b^E_i \geq 0` and
+:math:`b^I_i \geq 0` for ARKStep), the factor :math:`r` is computed by solving
+the auxiliary scalar nonlinear system
+
+.. math::
+   F(r) = \xi(y_{n-1} + r d) - \xi(y_{n-1}) - r e = 0
+   :label: ARKODE_RELAX_NLS
+
+at the end of each time step. The estimated change in :math:`\xi` is given by
+:math:`e \equiv h_n \sum_{i=1}^{s} \langle \xi'(z_i), b^E_i f^E_i + b^I_i f^I_i \rangle`
+where :math:`\xi'` is the Jacobian of :math:`\xi`.
+
+Two iterative methods are provided for solving :eq:`ARKODE_RELAX_NLS`, Newton's
+method and Brent's method. When using Newton's method (the default), the
+iteration is halted either when the residual tolerance is met,
+:math:`F(r^{(k)}) < \epsilon_{\mathrm{relax\_res}}`, or when the difference
+between successive iterates satisfies the relative and absolute tolerances,
+:math:`|\delta_r^{(k)}| = |r^{(k)} - r^{(k-1)}| < \epsilon_{\mathrm{relax\_rtol}} |r^{(k-1)}| + \epsilon_{\mathrm{relax\_atol}}`.
+Brent's method applies the same residual tolerance check and additionally halts
+when the bisection update satisfies the relative and absolute tolerances,
+:math:`|0.5 (r_c - r^{k})| < \epsilon_{\mathrm{relax\_rtol}} |r^{(k)}| + 0.5 \epsilon_{\mathrm{relax\_atol}}`
+where :math:`r_c` and :math:`r^{(k)}` bound the root.
+
+If the nonlinear solve fails to meet the specified tolerances within the maximum
+allowed number of iterations, the step size is reduced by the factor
+:math:`\eta_\mathrm{rf}` (default 0.25) and the step is repeated. Additionally,
+the solution of :eq:`ARKODE_RELAX_NLS` should be
+:math:`r = 1 + \mathcal{O}(h_n^{q - 1})` for a method of order :math:`q`
+:cite:p:`ranocha2020relaxation`. As such, limits are imposed on the range of
+relaxation values allowed (i.e., limiting the maximum change in step size due to
+relaxation). A relaxation value greater than :math:`r_\text{max}` (default 1.2)
+or less than :math:`r_\text{min}` (default 0.8), is considered as a failed
+relaxation application and the step will is repeated with the step size reduced
+by :math:`\eta_\text{rf}`.
+
+For more information on utilizing relaxation Runge--Kutta methods, see
+:numref:`ARKODE.Usage.ERKStep.Relaxation` and
+:numref:`ARKODE.Usage.ARKStep.Relaxation`.
