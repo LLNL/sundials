@@ -316,6 +316,7 @@ if(EXAMPLES_INSTALL)
       "cvsRoberts_FSA_klu.c\; \"-sensi stg1 t\" \;develop"
       "cvsRoberts_klu.c\; \"\" \;develop"
     )
+    set(KLU_TARGET SUNDIALS::KLU)
   endif()
 
   if(BUILD_SUNLINSOL_LAPACKBAND AND BUILD_SUNLINSOL_LAPACKDENSE)
@@ -341,6 +342,7 @@ if(EXAMPLES_INSTALL)
       ${_include_sundials_sunlinsollapackdense}
     OTHER_TARGETS
       ${SUPERLUMT_TARGET}
+      ${KLU_TARGET}
     DESTINATION
       cvodes/serial
     EXTRA_FILES
