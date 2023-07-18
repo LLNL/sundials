@@ -16,14 +16,6 @@
 
 install(CODE "MESSAGE(\"\nInstall NVECTOR_MPIPLUSX\n\")")
 
-if(MPI_C_FOUND AND MPI_C_COMPILER)
-  # use MPI wrapper as the compiler
-  set(CMAKE_C_COMPILER ${MPI_C_COMPILER})
-elseif(MPI_C_FOUND)
-  # add MPI_INCLUDE_PATH to include directories
-  include_directories(${MPI_INCLUDE_PATH})
-endif()
-
 # Create the library
 sundials_add_library(sundials_nvecmpiplusx
   SOURCES
@@ -33,8 +25,7 @@ sundials_add_library(sundials_nvecmpiplusx
   INCLUDE_SUBDIR
     nvector
   LINK_LIBRARIES 
-    PUBLIC
-    $<IF:$<BOOL:${ENABLE_MPI}>, MPI::MPI_C, >
+    PUBLIC MPI::MPI_C
   OBJECT_LIBRARIES
     sundials_generic_obj
     sundials_nvecmpimanyvector_obj

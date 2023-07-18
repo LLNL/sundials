@@ -43,14 +43,6 @@ endif()
 if(BUILD_NVECTOR_MPIMANYVECTOR)
   install(CODE "MESSAGE(\"\nInstall NVECTOR_MPIMANYVECTOR\n\")")
 
-  if(MPI_C_COMPILER)
-    # use MPI wrapper as the compiler
-    set(CMAKE_C_COMPILER ${MPI_C_COMPILER})
-  else()
-    # add MPI_INCLUDE_PATH to include directories
-    include_directories(${MPI_INCLUDE_PATH})
-  endif()
-
   # Create the sundials_nvecmpimanyvector library
   sundials_add_library(sundials_nvecmpimanyvector
     SOURCES
@@ -60,8 +52,7 @@ if(BUILD_NVECTOR_MPIMANYVECTOR)
     INCLUDE_SUBDIR
       nvector
     LINK_LIBRARIES 
-      PUBLIC
-      $<IF:$<BOOL:${ENABLE_MPI}>,  MPI::MPI_C, >
+      PUBLIC MPI::MPI_C
     OBJECT_LIBRARIES
       sundials_generic_obj
     COMPILE_DEFINITIONS
