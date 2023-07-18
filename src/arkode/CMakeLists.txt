@@ -46,16 +46,18 @@ set(arkode_SOURCES
 
 # Add variable arkode_HEADERS with the exported ARKODE header files
 set(arkode_HEADERS
+  arkode.h
   arkode_arkstep.h
   arkode_bandpre.h
   arkode_bbdpre.h
+  arkode_butcher.h
   arkode_butcher_dirk.h
   arkode_butcher_erk.h
-  arkode_butcher.h
   arkode_erkstep.h
   arkode_ls.h
   arkode_mristep.h
-  arkode.h
+  arkode_sprk.h
+  arkode_sprkstep.h
 )
 
 # Add prefix with complete path to the ARKODE header files
