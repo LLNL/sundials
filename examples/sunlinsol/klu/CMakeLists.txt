@@ -19,16 +19,22 @@
 
 # Examples using the KLU linear solver
 set(sunlinsol_klu_examples
-  "test_sunlinsol_klu\;300 0 0\;"
-  "test_sunlinsol_klu\;300 1 0\;"
-  "test_sunlinsol_klu\;1000 0 0\;"
-  "test_sunlinsol_klu\;1000 1 0\;"
+  "test_sunlinsol_klu.c\; \"300 0 0\" \; \"\" "
+  "test_sunlinsol_klu.c\; \"300 1 0\" \; \"\" "
+  "test_sunlinsol_klu.c\; \"1000 0 0\" \; \"\" "
+  "test_sunlinsol_klu.c\; \"1000 1 0\" \; \"\" "
   )
 
-# Dependencies for nvector examples
+# Dependencies for sunlinsol examples
 set(sunlinsol_klu_dependencies
-  test_sunlinsol
+  test_sunlinsol.c
+  test_sunlinsol.h
   )
+# Adding extra files  
+set(sunlinsol_klu_files
+  ../test_sunlinsol.c
+  ../test_sunlinsol.h
+)
 
 # If building F2003 tests
 if (BUILD_FORTRAN_MODULE_INTERFACE)
@@ -39,29 +45,40 @@ endif()
 # Add source directory to include directories
 include_directories(. ..)
 
+set(SUNLINSOL_KLU_LIB sundials_sunlinsolklu sundials_sunmatrixdense)
+set(NVECS_LIB sundials_nvecserial)
+if (BUILD_FORTRAN_MODULE_INTERFACE)
+  list(APPEND NVECS_LIB sundials_fnvecserial_mod)
+  list(APPEND SUNLINSOL_KLU_LIB sundials_fsunlinsolklu_mod sundials_fsunmatrixdense_mod)
+endif()
+
+# Set-up linker flags and link libraries
+set(SUNDIALS_LIBS ${SUNLINSOL_KLU_LIB} ${NVECS_LIB} ${EXE_EXTRA_LINK_LIBS})
+
 # Add the build and install targets for each example
 foreach(example_tuple ${sunlinsol_klu_examples})
 
-  # parse the example tuple
-  list(GET example_tuple 0 example)
-  list(GET example_tuple 1 example_args)
-  list(GET example_tuple 2 example_type)
+  # parse the example tuple using sundials_parse_tuple macro
+  sundials_parse_tuple( sunlinsol_klu_examples 
+    FILENAME_VAR example
+    PARAMS_VAR example_args
+    TYPE_VAR example_type
+  )
 
   # check if this example has already been added, only need to add
   # example source files once for testing with different inputs
   if(NOT TARGET ${example})
     # example source files
-    add_executable(${example} ${example}.c ../test_sunlinsol.c)
+    add_executable(${example} ${example})
+
+    # link vector test utilities 
+    target_link_libraries(${example} PRIVATE test_sunlinsol_obj)
+
+    # libraries to link against
+    target_link_libraries(${example} PRIVATE ${SUNDIALS_LIBS})
 
     # folder to organize targets in an IDE
     set_target_properties(${example} PROPERTIES FOLDER "Examples")
-
-    # libraries to link against
-    target_link_libraries(${example}
-      sundials_nvecserial
-      sundials_sunmatrixdense
-      sundials_sunlinsolklu
-      ${EXE_EXTRA_LINK_LIBS})
   endif()
 
   # check if example args are provided and set the test name
@@ -77,23 +94,17 @@ foreach(example_tuple ${sunlinsol_klu_examples})
     EXAMPLE_TYPE ${example_type}
     NODIFF)
 
-  # install example source files
-  if(EXAMPLES_INSTALL)
-    install(FILES ${example}.c
-      ../test_sunlinsol.h
-      ../test_sunlinsol.c
-      DESTINATION ${EXAMPLES_INSTALL_PATH}/sunlinsol/klu)
-  endif()
-
 endforeach(example_tuple ${sunlinsol_klu_examples})
 
 # Add the build and install targets for each example
 foreach(example_tuple ${sunlinsol_klu_fortran_examples})
 
-  # parse the example tuple
-  list(GET example_tuple 0 example)
-  list(GET example_tuple 1 example_args)
-  list(GET example_tuple 2 example_type)
+  # parse the example tuple using sundials_parse_tuple macro
+  sundials_parse_tuple( sunlinsol_klu_fortran_examples 
+    FILENAME_VAR example
+    PARAMS_VAR example_args
+    TYPE_VAR example_type
+  )
 
   # check if this example has already been added, only need to add
   # example source files once for testing with different inputs
@@ -110,14 +121,8 @@ foreach(example_tuple ${sunlinsol_klu_fortran_examples})
     set_target_properties(${example} PROPERTIES Fortran_MODULE_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR})
 
     # libraries to link against
-    target_link_libraries(${example}
-      sundials_nvecserial
-      sundials_fnvecserial_mod
-      sundials_sunmatrixdense
-      sundials_fsunmatrixdense_mod
-      sundials_sunlinsolklu
-      sundials_fsunlinsolklu_mod
-      ${EXE_EXTRA_LINK_LIBS})
+    target_link_libraries(${example} ${SUNDIALS_LIBS})
+  endif()
 
     # check if example args are provided and set the test name
     if("${example_args}" STREQUAL "")
@@ -131,60 +136,32 @@ foreach(example_tuple ${sunlinsol_klu_fortran_examples})
       TEST_ARGS ${example_args}
       EXAMPLE_TYPE ${example_type}
       NODIFF)
-  endif()
 
 endforeach(example_tuple ${sunlinsol_klu_fortran_examples})
 
+# create Makfile and CMakeLists.txt for examples
 if(EXAMPLES_INSTALL)
 
-  # Install the README file
-  install(FILES DESTINATION ${EXAMPLES_INSTALL_PATH}/sunlinsol/klu)
-
-  # Prepare substitution variables for Makefile and/or CMakeLists templates
-  set(SOLVER_LIB "sundials_sunlinsolklu")
-  set(LIBS "${LIBS} -lsundials_sunmatrixsparse -lsundials_sunmatrixdense")
-
-  # Set the link directory for the sparse and dense sunmatrix libraries
-  # The generated CMakeLists.txt does not use find_library() locate them
-  set(EXTRA_LIBS_DIR "${libdir}")
-
-  examples2string(sunlinsol_klu_examples EXAMPLES_KLU)
-  examples2string(sunlinsol_klu_dependencies EXAMPLES_DEPENDENCIES_KLU)
-
-  # Regardless of the platform we're on, we will generate and install
-  # CMakeLists.txt file for building the examples. This file  can then
-  # be used as a template for the user's own programs.
-
-  # generate CMakelists.txt in the binary directory
-  configure_file(
-    ${PROJECT_SOURCE_DIR}/examples/templates/cmakelists_serial_C_ex.in
-    ${PROJECT_BINARY_DIR}/examples/sunlinsol/klu/CMakeLists.txt
-    @ONLY
-    )
-
-  # install CMakelists.txt
-  install(
-    FILES ${PROJECT_BINARY_DIR}/examples/sunlinsol/klu/CMakeLists.txt
-    DESTINATION ${EXAMPLES_INSTALL_PATH}/sunlinsol/klu
-    )
-
-  # On UNIX-type platforms, we also  generate and install a makefile for
-  # building the examples. This makefile can then be used as a template
-  # for the user's own programs.
-
-  if(UNIX)
-    # generate Makefile and place it in the binary dir
-    configure_file(
-      ${PROJECT_SOURCE_DIR}/examples/templates/makefile_serial_C_ex.in
-      ${PROJECT_BINARY_DIR}/examples/sunlinsol/klu/Makefile_ex
-      @ONLY
-      )
-    # install the configured Makefile_ex as Makefile
-    install(
-      FILES ${PROJECT_BINARY_DIR}/examples/sunlinsol/klu/Makefile_ex
-      DESTINATION ${EXAMPLES_INSTALL_PATH}/sunlinsol/klu
-      RENAME Makefile
-      )
-  endif()
+  sundials_install_examples(sunlinsol sunlinsol_klu_examples
+    CMAKE_TEMPLATE
+      cmakelists_C_ex.in
+    MAKE_TEMPLATE
+      makefile_serial_C_ex.in
+    SUNDIALS_TARGETS
+      nvecserial
+      sunlinsolklu
+      sunmatrixdense
+    OTHER_TARGETS
+      SUNDIALS::KLU
+    DESTINATION
+      sunlinsol/klu
+    EXAMPLES_DEPENDENCIES
+      ${sunlinsol_klu_dependencies}
+    EXTRA_FILES
+      #README
+      ${sunlinsol_klu_files}
+    TEST_INSTALL
+      klu
+  )
 
 endif()
