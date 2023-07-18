@@ -281,10 +281,21 @@ if(EXAMPLES_INSTALL)
 
   if(BUILD_SUNLINSOL_SUPERLUMT)
     set(_include_sunlinsolsuperlumt sunlinsolsuperlumt)
+    list(APPEND IDAS_examples 
+      "idasRoberts_ASAi_sps.c\; \"\" \;exclude-single"
+      "idasRoberts_FSA_sps.c\; \"-sensi stg t\" \;exclude-single"
+      "idasRoberts_sps.c\; \"\" \;exclude-single"
+    )
+    set(SUPERLUMT_TARGET SUNDIALS::SUPERLUMT)
   endif()
 
   if(BUILD_SUNLINSOL_KLU)
     set(_include_sunlinsolklu sunlinsolklu)
+    list(APPEND IDAS_examples
+      "idasRoberts_ASAi_klu.c\; \"\" \;develop"
+      "idasRoberts_FSA_klu.c\; \"-sensi stg t\" \;develop"
+      "idasRoberts_klu.c\; \"\" \;develop"
+    )
   endif()
 
   if(BUILD_SUNLINSOL_LAPACKBAND AND BUILD_SUNLINSOL_LAPACKDENSE)
@@ -304,6 +315,8 @@ if(EXAMPLES_INSTALL)
       ${_include_sunlinsolklu}
       ${_include_sundials_sunlinsollapackband}
       ${_include_sundials_sunlinsollapackdense}
+    OTHER_TARGETS
+      ${SUPERLUMT_TARGET}
     DESTINATION
       idas/serial
     EXTRA_FILES
