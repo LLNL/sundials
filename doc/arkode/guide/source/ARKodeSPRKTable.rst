@@ -25,7 +25,7 @@ SPRK Method Table Structure
       The method order of accuracy.
 
    .. c:member:: int stages
-      
+
       The number of stages.
 
    .. c:member:: sunrealtype* a
@@ -40,7 +40,7 @@ SPRK Method Table Structure
          \vdots & \vdots & \ddots & \ddots & \vdots \\
          c_s & a_1 & \cdots & a_{s-1} & 0 \\
          \hline
-         & a_1 & \cdots & a_{s-1} & a_s 
+         & a_1 & \cdots & a_{s-1} & a_s
          \end{array}
          \end{array}.
 
@@ -82,7 +82,7 @@ ARKodeSPRKTable functions
    +----------------------------------------------+------------------------------------------------------------+
    | :c:func:`ARKodeSPRKTable_Copy()`             | Create a copy of a storage structure                       |
    +----------------------------------------------+------------------------------------------------------------+
-   | :c:func:`ARKodeSPRKTable_Space()`           | Get the storage structure real and integer workspace size  |
+   | :c:func:`ARKodeSPRKTable_Space()`            | Get the storage structure real and integer workspace size  |
    +----------------------------------------------+------------------------------------------------------------+
    | :c:func:`ARKodeSPRKTable_Free()`             | Deallocate a storage structure                             |
    +----------------------------------------------+------------------------------------------------------------+
@@ -118,7 +118,7 @@ ARKodeSPRKTable functions
 
 .. c:function:: void ARKodeSPRKTable_Write(ARKodeSPRKTable sprk_table, FILE* outfile)
 
-   Write the ARKodeSPRKTable out to the file. 
+   Write the ARKodeSPRKTable out to the file.
 
    :param sprk_table: The :c:type:`ARKodeSPRKTable` structure to write.
    :param outfile: The FILE that will be written to.
