@@ -228,6 +228,10 @@ if(EXAMPLES_INSTALL)
 
   if(BUILD_SUNLINSOL_KLU)
     set(_include_sunlinsolklu sunlinsolklu)
+    list(APPEND KINSOL_examples
+      "kinFerTron_klu.c\; \"\" \;develop"
+    )
+    set(KLU_TARGET SUNDIALS::KLU)
   endif()
 
   if(BUILD_SUNLINSOL_LAPACKBAND AND BUILD_SUNLINSOL_LAPACKDENSE)
@@ -249,6 +253,7 @@ if(EXAMPLES_INSTALL)
       ${_include_sundials_sunlinsollapackdense}
     OTHER_TARGETS
       ${SUPERLUMT_TARGET}
+      ${KLU_TARGET}
     DESTINATION
       kinsol/serial
     EXTRA_FILES
