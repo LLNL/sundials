@@ -271,10 +271,19 @@ if(EXAMPLES_INSTALL)
 
   if(BUILD_SUNLINSOL_SUPERLUMT)
     set(_include_sunlinsolsuperlumt sunlinsolsuperlumt)
+    list(APPEND IDA_examples 
+      "idaRoberts_sps.c\; \"\" \;develop"
+      #"idaHeat2D_sps\;develop" # not ready yet, incorrect answer.
+    )
+    set(SUPERLUMT_TARGET SUNDIALS::SUPERLUMT)
   endif()
 
   if(BUILD_SUNLINSOL_KLU)
     set(_include_sunlinsolklu sunlinsolklu)
+    list(APPEND IDA_examples
+      "idaHeat2D_klu.c\; \"\" \;develop"
+      "idaRoberts_klu.c\; \"\" \;develop"
+    )
   endif()
 
   if(BUILD_SUNLINSOL_LAPACKBAND AND BUILD_SUNLINSOL_LAPACKDENSE)
@@ -294,6 +303,8 @@ if(EXAMPLES_INSTALL)
       ${_include_sunlinsolklu}
       ${_include_sundials_sunlinsollapackband}
       ${_include_sundials_sunlinsollapackdense}
+    OTHER_TARGETS
+      ${SUPERLUMT_TARGET}
     DESTINATION
       ida/serial
     EXTRA_FILES
