@@ -19,14 +19,6 @@
 
 list(APPEND CVODE_examples "cvAdvDiff_sludist.cpp\;2 1\;2\;develop")
 
-if(MPI_CXX_COMPILER)
-  set(CMAKE_CXX_COMPILER ${MPI_CXX_COMPILER})
-  # disable C++ extensions (for known wrappers)
-  set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -DMPICH_SKIP_MPICXX -DOMPI_SKIP_MPICXX -DLAM_BUILDING")
-else()
-  include_directories(${MPI_INCLUDE_PATH})
-endif()
-
 if(SUNDIALS_BUILD_PACKAGE_FUSED_KERNELS)
   set(_fused_lib sundials_cvode_fused_stubs)
 endif()
@@ -69,15 +61,12 @@ foreach(example_tuple ${CVODE_examples})
 
   # libraries to link against
   target_link_libraries(${example_target} PRIVATE
+    MPI::MPI_CXX
     sundials_cvode
     sundials_nvecparallel
     sundials_sunlinsolsuperludist
     ${_fused_lib}
     ${EXE_EXTRA_LINK_LIBS})
-
-  if(NOT MPI_C_COMPILER)
-    target_link_libraries(${example_target} PRIVATE ${MPI_LIBRARY} ${MPI_EXTRA_LIBRARIES})
-  endif()
 
 endforeach(example_tuple ${CVODE_examples})
 
