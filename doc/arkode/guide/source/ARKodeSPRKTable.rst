@@ -41,7 +41,6 @@ SPRK Method Table Structure
          c_s & a_1 & \cdots & a_{s-1} & 0 \\
          \hline
          & a_1 & \cdots & a_{s-1} & a_s
-         \end{array}
          \end{array}.
 
    .. c:member:: sunrealtype* ahat
