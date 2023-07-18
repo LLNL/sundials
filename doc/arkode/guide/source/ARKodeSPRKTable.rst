@@ -99,14 +99,14 @@ ARKodeSPRKTable functions
 
    Load the :c:type:`ARKodeSPRKTable` structure for the specified method ID.
 
-   :param id: The ID of the SPRK method. One of :ref:`SPRKStorage.id`.
+   :param id: The ID of the SPRK method, see :ref:`Butcher.sprk`.
    :return: :c:type:`ARKodeSPRKTable` structure for the loaded method.
 
 .. c:function:: ARKodeSPRKTable ARKodeSPRKTable_LoadByName(const char* method)
 
    Load the :c:type:`ARKodeSPRKTable` structure for the specified method name.
 
-   :param method: The name of the SPRK method. Must be one of :ref:`SPRKStorage.id` but as a string.
+   :param method: The name of the SPRK method, see :ref:`Butcher.sprk`.
    :return: :c:type:`ARKodeSPRKTable` structure for the loaded method.
 
 .. c:function:: ARKodeSPRKTable ARKodeSPRKTable_Copy(ARKodeSPRKTable sprk_table)

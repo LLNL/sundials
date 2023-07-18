@@ -1707,7 +1707,7 @@ Butcher table pairs are as follows:
 
 
 
-.. _Butcher.symplectic:
+.. _Butcher.sprk:
 
 Symplectic Partitioned Butcher tables
 -------------------------------------
