@@ -284,6 +284,7 @@ if(EXAMPLES_INSTALL)
       "idaHeat2D_klu.c\; \"\" \;develop"
       "idaRoberts_klu.c\; \"\" \;develop"
     )
+    set(KLU_TARGET SUNDIALS::KLU)
   endif()
 
   if(BUILD_SUNLINSOL_LAPACKBAND AND BUILD_SUNLINSOL_LAPACKDENSE)
@@ -305,6 +306,7 @@ if(EXAMPLES_INSTALL)
       ${_include_sundials_sunlinsollapackdense}
     OTHER_TARGETS
       ${SUPERLUMT_TARGET}
+      ${KLU_TARGET}
     DESTINATION
       ida/serial
     EXTRA_FILES
