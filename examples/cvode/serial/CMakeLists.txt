@@ -289,15 +289,19 @@ if(EXAMPLES_INSTALL)
 
   if(BUILD_SUNLINSOL_SUPERLUMT)
     set(_include_sunlinsolsuperlumt sunlinsolsuperlumt)
+    list(APPEND CVODE_examples "cvRoberts_sps.c\; \"\" \;develop")
+    set(SUPERLUMT_TARGET SUNDIALS::SUPERLUMT)
   endif()
 
   if(BUILD_SUNLINSOL_KLU)
     set(_include_sunlinsolklu sunlinsolklu)
+    list(APPEND CVODE_examples "cvRoberts_block_klu.c\; \"\" \;develop" "cvRoberts_klu.c\; \"\" \;develop" )
   endif()
 
   if(BUILD_SUNLINSOL_LAPACKBAND AND BUILD_SUNLINSOL_LAPACKDENSE)
     set(_include_sundials_sunlinsollapackband sunlinsollapackband)
     set(_include_sundials_sunlinsollapackdense sunlinsollapackdense)
+    list(APPEND CVODE_examples "cvAdvDiff_bndL.c\; \"\" \;exclude-single" "cvRoberts_dnsL.c\; \"\" \;exclude-single")
   endif()
 
   if(SUNDIALS_BUILD_PACKAGE_FUSED_KERNELS)
@@ -319,6 +323,8 @@ if(EXAMPLES_INSTALL)
       ${cvode_fused_stubs}
     DESTINATION
       cvode/serial
+    OTHER_TARGETS
+      ${SUPERLUMT_TARGET}
     EXTRA_FILES
       README
       ${CVODE_extras}
