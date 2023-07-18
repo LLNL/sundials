@@ -68,7 +68,7 @@ set(CVODES_examples_KLU
 
 # Examples using SuperLU_MT linear solver
 set(CVODES_examples_SUPERLUMT
-  "cvsRoberts_ASAi_sps.c\ \"\" ;\;exclude-single"
+  "cvsRoberts_ASAi_sps.c\; \"\" \;exclude-single"
   "cvsRoberts_FSA_sps.c\; \"-sensi stg1 t\" \;exclude-single"
   "cvsRoberts_sps.c\; \"\" \;develop"
   )
@@ -301,15 +301,30 @@ if(EXAMPLES_INSTALL)
 
   if(BUILD_SUNLINSOL_SUPERLUMT)
     set(_include_sunlinsolsuperlumt sunlinsolsuperlumt)
+    list(APPEND CVODES_examples   
+      "cvsRoberts_ASAi_sps.c\; \"\" \;exclude-single"
+      "cvsRoberts_FSA_sps.c\; \"-sensi stg1 t\" \;exclude-single"
+      "cvsRoberts_sps.c\; \"\" \;develop"
+    )
+    set(SUPERLUMT_TARGET SUNDIALS::SUPERLUMT)
   endif()
 
   if(BUILD_SUNLINSOL_KLU)
     set(_include_sunlinsolklu sunlinsolklu)
+    list(APPEND CVODES_examples
+      "cvsRoberts_ASAi_klu.c\; \"\" \;develop"
+      "cvsRoberts_FSA_klu.c\; \"-sensi stg1 t\" \;develop"
+      "cvsRoberts_klu.c\; \"\" \;develop"
+    )
   endif()
 
   if(BUILD_SUNLINSOL_LAPACKBAND AND BUILD_SUNLINSOL_LAPACKDENSE)
     set(_include_sundials_sunlinsollapackband sunlinsollapackband)
     set(_include_sundials_sunlinsollapackdense sunlinsollapackdense)
+    list(APPEND CVODES_examples
+      "cvsAdvDiff_bndL.c\; \"\" \;exclude-single"
+      "cvsRoberts_dnsL.c\; \"\" \;exclude-single"
+    )
   endif()
 
   sundials_install_examples(cvodes CVODES_examples
@@ -324,6 +339,8 @@ if(EXAMPLES_INSTALL)
       ${_include_sunlinsolklu}
       ${_include_sundials_sunlinsollapackband}
       ${_include_sundials_sunlinsollapackdense}
+    OTHER_TARGETS
+      ${SUPERLUMT_TARGET}
     DESTINATION
       cvodes/serial
     EXTRA_FILES
