@@ -63,17 +63,17 @@ set(ARKODE_examples
   )
 
 if(SUNDIALS_BUILD_WITH_MONITORING)
-  list(APPEND ARKODE_examples "ark_brusselator_fp\; \"1\" \;exclude-single")
+  list(APPEND ARKODE_examples "ark_brusselator_fp.c\; \"1\" \;exclude-single")
 endif()
 
 # Examples using KLU linear solver
 set(ARKODE_examples_KLU
-  "ark_brusselator1D_klu\; \"\" \;develop"
+  "ark_brusselator1D_klu.c\; \"\" \;develop"
   )
 
 # Examples using SuperLU_MT linear solver
 set(ARKODE_examples_SUPERLUMT
-  "ark_brusselator1D_FEM_slu\; \"\" \;exclude-single"
+  "ark_brusselator1D_FEM_slu.c\; \"\" \;exclude-single"
   )
 
 # Auxiliary files to install
@@ -145,7 +145,7 @@ if(BUILD_SUNLINSOL_KLU)
   foreach(example_tuple ${ARKODE_examples_KLU})
 
     # parse the example tuple using sundials_parse_tuple macro
-    sundials_parse_tuple( ARKODE_examples 
+    sundials_parse_tuple( ARKODE_examples_KLU 
       FILENAME_VAR example
       PARAMS_VAR example_args
       TYPE_VAR example_type
@@ -182,7 +182,7 @@ if(BUILD_SUNLINSOL_SUPERLUMT)
   foreach(example_tuple ${ARKODE_examples_SUPERLUMT})
 
     # parse the example tuple using sundials_parse_tuple macro
-    sundials_parse_tuple( ARKODE_examples 
+    sundials_parse_tuple( ARKODE_examples_SUPERLUMT 
       FILENAME_VAR example
       PARAMS_VAR example_args
       TYPE_VAR example_type
@@ -211,10 +211,13 @@ if(EXAMPLES_INSTALL)
 
   if(BUILD_SUNLINSOL_SUPERLUMT)
     set(_include_sunlinsolsuperlumt sunlinsolsuperlumt)
+    list(APPEND ARKODE_examples "ark_brusselator1D_FEM_slu.c\; \"\" \;exclude-single" )
+    set(SUPERLUMT_TARGET SUNDIALS::SUPERLUMT)
   endif()
 
   if(BUILD_SUNLINSOL_KLU)
     set(_include_sunlinsolklu sunlinsolklu)
+    list(APPEND ARKODE_examples "ark_brusselator1D_klu.c\; \"\" \;develop" )
   endif()
 
   sundials_install_examples(arkode ARKODE_examples
@@ -227,6 +230,8 @@ if(EXAMPLES_INSTALL)
       arkode
       ${_include_sunlinsolsuperlumt}
       ${_include_sunlinsolklu}
+    OTHER_TARGETS
+      ${SUPERLUMT_TARGET}
     DESTINATION
       arkode/C_serial
     EXTRA_FILES
