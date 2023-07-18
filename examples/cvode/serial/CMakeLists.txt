@@ -296,6 +296,7 @@ if(EXAMPLES_INSTALL)
   if(BUILD_SUNLINSOL_KLU)
     set(_include_sunlinsolklu sunlinsolklu)
     list(APPEND CVODE_examples "cvRoberts_block_klu.c\; \"\" \;develop" "cvRoberts_klu.c\; \"\" \;develop" )
+    set(KLU_TARGET SUNDIALS::KLU)
   endif()
 
   if(BUILD_SUNLINSOL_LAPACKBAND AND BUILD_SUNLINSOL_LAPACKDENSE)
@@ -325,6 +326,7 @@ if(EXAMPLES_INSTALL)
       cvode/serial
     OTHER_TARGETS
       ${SUPERLUMT_TARGET}
+      ${KLU_TARGET}
     EXTRA_FILES
       README
       ${CVODE_extras}
