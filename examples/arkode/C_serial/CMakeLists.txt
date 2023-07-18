@@ -218,6 +218,7 @@ if(EXAMPLES_INSTALL)
   if(BUILD_SUNLINSOL_KLU)
     set(_include_sunlinsolklu sunlinsolklu)
     list(APPEND ARKODE_examples "ark_brusselator1D_klu.c\; \"\" \;develop" )
+    set(KLU_TARGET SUNDIALS::KLU)
   endif()
 
   sundials_install_examples(arkode ARKODE_examples
@@ -232,6 +233,7 @@ if(EXAMPLES_INSTALL)
       ${_include_sunlinsolklu}
     OTHER_TARGETS
       ${SUPERLUMT_TARGET}
+      ${KLU_TARGET}
     DESTINATION
       arkode/C_serial
     EXTRA_FILES
