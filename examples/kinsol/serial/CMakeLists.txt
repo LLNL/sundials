@@ -220,6 +220,10 @@ if(EXAMPLES_INSTALL)
 
   if(BUILD_SUNLINSOL_SUPERLUMT)
     set(_include_sunlinsolsuperlumt sunlinsolsuperlumt)
+    list(APPEND KINSOL_examples 
+      "kinRoboKin_slu.c\; \"\" \;develop"
+    )
+    set(SUPERLUMT_TARGET SUNDIALS::SUPERLUMT)
   endif()
 
   if(BUILD_SUNLINSOL_KLU)
@@ -243,6 +247,8 @@ if(EXAMPLES_INSTALL)
       ${_include_sunlinsolklu}
       ${_include_sundials_sunlinsollapackband}
       ${_include_sundials_sunlinsollapackdense}
+    OTHER_TARGETS
+      ${SUPERLUMT_TARGET}
     DESTINATION
       kinsol/serial
     EXTRA_FILES
