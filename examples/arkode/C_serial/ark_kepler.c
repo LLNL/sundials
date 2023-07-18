@@ -34,14 +34,14 @@
  * order symplectic integrator via the SPRKStep time-stepper of ARKODE with a
  * fixed time-step size.
  *
- * The rootfinding feature of SPRKStep is used to count the number of complete orbits. 
+ * The rootfinding feature of SPRKStep is used to count the number of complete orbits.
  * This is done by defining the function,
  *    g(q) = q2
  * and providing it to SPRKStep as the function to find the roots for g(q).
  *
  * The program also accepts command line arguments to change the method
  * used and time-stepping strategy. The program has the following CLI arguments:
- * 
+ *
  *   --step-mode <fixed, adapt>  should we use a fixed time-step or adaptive time-step (default fixed)
  *   --stepper <SPRK, ERK>       should we use SPRKStep or ARKStep with an ERK method (default SPRK)
  *   --method <string>           which method to use (default ARKODE_SPRK_MCLACHLAN_4_4)
@@ -52,7 +52,7 @@
  *   --nout                      number of output times
  *   --count-orbits              use rootfinding to count the number of completed orbits
  *   --check-order               compute the order of the method used and check if it is within the expected range
- * 
+ *
  * References:
  *    Ernst Hairer, Christain Lubich, Gerhard Wanner
  *    Geometric Numerical Integration: Structure-Preserving
@@ -503,9 +503,6 @@ int main(int argc, char* argv[])
     sunrealtype dt = (expected_order >= 3) ? SUN_RCONST(1e-1) : SUN_RCONST(1e-3);
     sunrealtype dts[NUM_DT];
 
-    /* Free method, we just needed it to get its order */
-    ARKodeSPRKTable_Free(method);
-
     /* Create a reference solution using 8th order ERK with a small time step */
     const int old_step_mode     = args.step_mode;
     const int old_stepper       = args.stepper;
@@ -514,6 +511,9 @@ int main(int argc, char* argv[])
     args.step_mode              = 0;
     args.stepper                = 1;
     args.method_name            = "ARKODE_ARK548L2SAb_ERK_8_4_5";
+
+    /* Free method, we just needed it to get its order */
+    ARKodeSPRKTable_Free(method);
 
     /* SolveProblem calls a stepper to evolve the problem to Tf */
     retval = SolveProblem(&args, &result, sunctx);
