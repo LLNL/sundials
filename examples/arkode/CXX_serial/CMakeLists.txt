@@ -69,8 +69,6 @@ foreach(example_tuple ${ARKODE_examples})
 
     set_target_properties(${example_target} PROPERTIES FOLDER "Examples")
 
-    target_compile_features(${example_target} PRIVATE cxx_std_14)
-
     # directories to include
     target_include_directories(${example_target}
       PRIVATE
