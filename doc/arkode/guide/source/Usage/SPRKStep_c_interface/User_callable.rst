@@ -434,14 +434,6 @@ Optional inputs for SPRKStep
    :retval ARK_MEM_NULL: if the SPRKStep memory is ``NULL``
    :retval ARK_ILL_INPUT: if an argument has an illegal value
 
-   **Notes:**
-      If both :c:func:`SPRKStepSetFixedStep()` and
-      :c:func:`SPRKStepSetStopTime()` are used, then the fixed step size will be
-      used for all steps until the final step preceding the provided stop time
-      (which may be shorter).  To resume use of the previous fixed step size,
-      another call to :c:func:`SPRKStepSetFixedStep()` must be made prior to
-      calling :c:func:`SPRKStepEvolve()` to resume integration.
-
 
 .. c:function:: int SPRKStepSetMaxNumSteps(void* arkode_mem, long int mxsteps)
 

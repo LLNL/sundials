@@ -316,7 +316,8 @@ int SPRKStepSetOrder(void* arkode_mem, int ord)
                                   &step_mem);
   if (retval != ARK_SUCCESS) { return (retval); }
 
-  if (ord == 7 || ord == 9 || ord > 10) { return ARK_ILL_INPUT; }
+  /* Invalid orders result in the default order being used. */
+  if (ord == 7 || ord == 9 || ord > 10) { ord = -1; }
 
   /* set user-provided value, or default, depending on argument */
   if (ord <= 0) { step_mem->q = 4; }
