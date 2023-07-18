@@ -18,14 +18,18 @@
 #define _ARKODE_IMPL_H
 
 #include <stdarg.h>
+
 #include <arkode/arkode.h>
 #include <arkode/arkode_butcher.h>
 #include <arkode/arkode_butcher_dirk.h>
 #include <arkode/arkode_butcher_erk.h>
-#include "arkode_adapt_impl.h"
-#include "arkode_root_impl.h"
 #include <sundials/sundials_context.h>
 #include <sundials/sundials_linearsolver.h>
+
+#include "arkode_types_impl.h"
+#include "arkode_adapt_impl.h"
+#include "arkode_relaxation_impl.h"
+#include "arkode_root_impl.h"
 #include "sundials_context_impl.h"
 #include "sundials_logger_impl.h"
 
@@ -49,6 +53,14 @@ extern "C" {
 #define ARK_LOGGER ark_mem->sunctx->logger
 
 /*===============================================================
+  MACROS
+  ===============================================================*/
+
+/* TODO(DJG): replace with signbit when C99+ is required */
+#define DIFFERENT_SIGN(a,b) ( ( (a) < 0 && (b) > 0 ) || ( (a) > 0 && (b) < 0 ) )
+#define SAME_SIGN(a,b) ( ( (a) > 0 && (b) > 0 ) || ( (a) < 0 && (b) < 0 ) )
+
+/*===============================================================
   ARKODE Private Constants
   ===============================================================*/
 
@@ -67,6 +79,7 @@ extern "C" {
 #define HALF   RCONST(0.5)      /* real 0.5     */
 #define ONE    RCONST(1.0)      /* real 1.0     */
 #define TWO    RCONST(2.0)      /* real 2.0     */
+#define THREE  RCONST(3.0)      /* real 3.0     */
 #define FOUR   RCONST(4.0)      /* real 4.0     */
 #define FIVE   RCONST(5.0)      /* real 5.0     */
 
@@ -272,8 +285,8 @@ typedef struct ARKodeMassMemRec {
   The type ARKodeMem is type pointer to struct ARKodeMemRec.
   This structure contains fields to keep track of problem state.
   ---------------------------------------------------------------*/
-typedef struct ARKodeMemRec {
-
+struct ARKodeMemRec
+{
   SUNContext sunctx;
 
   realtype uround;             /* machine unit roundoff */
@@ -405,6 +418,10 @@ typedef struct ARKodeMemRec {
   /* Rootfinding Data */
   ARKodeRootMem root_mem;          /* root-finding structure */
 
+  /* Relaxation Data */
+  sunbooleantype relax_enabled;    /* is relaxation enabled?    */
+  ARKodeRelaxMem relax_mem;        /* relaxation data structure */
+
   /* User-supplied step solution post-processing function */
   ARKPostProcessFn ProcessStep;
   void*                ps_data; /* pointer to user_data */
@@ -423,7 +440,7 @@ typedef struct ARKodeMemRec {
                               force_pass is true and is used by the XBraid
                               interface to determine if a time step passed or
                               failed the time step error test.  */
-} *ARKodeMem;
+};
 
 
 

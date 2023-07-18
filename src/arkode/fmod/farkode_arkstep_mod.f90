@@ -49,9 +49,11 @@ module farkode_arkstep_mod
  integer(C_INT), parameter, public :: ARKSTEP_DEFAULT_DIRK_3 = ARKODE_ARK324L2SA_DIRK_4_2_3
  integer(C_INT), parameter, public :: ARKSTEP_DEFAULT_DIRK_4 = ARKODE_SDIRK_5_3_4
  integer(C_INT), parameter, public :: ARKSTEP_DEFAULT_DIRK_5 = ARKODE_ARK548L2SA_DIRK_8_4_5
+ integer(C_INT), parameter, public :: ARKSTEP_DEFAULT_ARK_ETABLE_2 = ARKODE_ARK2_ERK_3_1_2
  integer(C_INT), parameter, public :: ARKSTEP_DEFAULT_ARK_ETABLE_3 = ARKODE_ARK324L2SA_ERK_4_2_3
  integer(C_INT), parameter, public :: ARKSTEP_DEFAULT_ARK_ETABLE_4 = ARKODE_ARK436L2SA_ERK_6_3_4
  integer(C_INT), parameter, public :: ARKSTEP_DEFAULT_ARK_ETABLE_5 = ARKODE_ARK548L2SA_ERK_8_4_5
+ integer(C_INT), parameter, public :: ARKSTEP_DEFAULT_ARK_ITABLE_2 = ARKODE_ARK2_DIRK_3_1_2
  integer(C_INT), parameter, public :: ARKSTEP_DEFAULT_ARK_ITABLE_3 = ARKODE_ARK324L2SA_DIRK_4_2_3
  integer(C_INT), parameter, public :: ARKSTEP_DEFAULT_ARK_ITABLE_4 = ARKODE_ARK436L2SA_DIRK_6_3_4
  integer(C_INT), parameter, public :: ARKSTEP_DEFAULT_ARK_ITABLE_5 = ARKODE_ARK548L2SA_DIRK_8_4_5
@@ -117,6 +119,7 @@ module farkode_arkstep_mod
  public :: FARKStepSetInitStep
  public :: FARKStepSetMinStep
  public :: FARKStepSetMaxStep
+ public :: FARKStepSetInterpolateStopTime
  public :: FARKStepSetStopTime
  public :: FARKStepClearStopTime
  public :: FARKStepSetFixedStep
@@ -210,6 +213,21 @@ module farkode_arkstep_mod
  public :: FARKStepFree
  public :: FARKStepPrintMem
  public :: FARKStepCreateMRIStepInnerStepper
+ public :: FARKStepSetRelaxFn
+ public :: FARKStepSetRelaxEtaFail
+ public :: FARKStepSetRelaxLowerBound
+ public :: FARKStepSetRelaxMaxFails
+ public :: FARKStepSetRelaxMaxIters
+ public :: FARKStepSetRelaxSolver
+ public :: FARKStepSetRelaxResTol
+ public :: FARKStepSetRelaxTol
+ public :: FARKStepSetRelaxUpperBound
+ public :: FARKStepGetNumRelaxFnEvals
+ public :: FARKStepGetNumRelaxJacEvals
+ public :: FARKStepGetNumRelaxFails
+ public :: FARKStepGetNumRelaxBoundFails
+ public :: FARKStepGetNumRelaxSolveFails
+ public :: FARKStepGetNumRelaxSolveIters
 
 ! WRAPPER DECLARATIONS
 interface
@@ -755,6 +773,15 @@ result(fresult)
 use, intrinsic :: ISO_C_BINDING
 type(C_PTR), value :: farg1
 real(C_DOUBLE), intent(in) :: farg2
+integer(C_INT) :: fresult
+end function
+
+function swigc_FARKStepSetInterpolateStopTime(farg1, farg2) &
+bind(C, name="_wrap_FARKStepSetInterpolateStopTime") &
+result(fresult)
+use, intrinsic :: ISO_C_BINDING
+type(C_PTR), value :: farg1
+integer(C_INT), intent(in) :: farg2
 integer(C_INT) :: fresult
 end function
 
@@ -1621,6 +1648,143 @@ end subroutine
 
 function swigc_FARKStepCreateMRIStepInnerStepper(farg1, farg2) &
 bind(C, name="_wrap_FARKStepCreateMRIStepInnerStepper") &
+result(fresult)
+use, intrinsic :: ISO_C_BINDING
+type(C_PTR), value :: farg1
+type(C_PTR), value :: farg2
+integer(C_INT) :: fresult
+end function
+
+function swigc_FARKStepSetRelaxFn(farg1, farg2, farg3) &
+bind(C, name="_wrap_FARKStepSetRelaxFn") &
+result(fresult)
+use, intrinsic :: ISO_C_BINDING
+type(C_PTR), value :: farg1
+type(C_FUNPTR), value :: farg2
+type(C_FUNPTR), value :: farg3
+integer(C_INT) :: fresult
+end function
+
+function swigc_FARKStepSetRelaxEtaFail(farg1, farg2) &
+bind(C, name="_wrap_FARKStepSetRelaxEtaFail") &
+result(fresult)
+use, intrinsic :: ISO_C_BINDING
+type(C_PTR), value :: farg1
+real(C_DOUBLE), intent(in) :: farg2
+integer(C_INT) :: fresult
+end function
+
+function swigc_FARKStepSetRelaxLowerBound(farg1, farg2) &
+bind(C, name="_wrap_FARKStepSetRelaxLowerBound") &
+result(fresult)
+use, intrinsic :: ISO_C_BINDING
+type(C_PTR), value :: farg1
+real(C_DOUBLE), intent(in) :: farg2
+integer(C_INT) :: fresult
+end function
+
+function swigc_FARKStepSetRelaxMaxFails(farg1, farg2) &
+bind(C, name="_wrap_FARKStepSetRelaxMaxFails") &
+result(fresult)
+use, intrinsic :: ISO_C_BINDING
+type(C_PTR), value :: farg1
+integer(C_INT), intent(in) :: farg2
+integer(C_INT) :: fresult
+end function
+
+function swigc_FARKStepSetRelaxMaxIters(farg1, farg2) &
+bind(C, name="_wrap_FARKStepSetRelaxMaxIters") &
+result(fresult)
+use, intrinsic :: ISO_C_BINDING
+type(C_PTR), value :: farg1
+integer(C_INT), intent(in) :: farg2
+integer(C_INT) :: fresult
+end function
+
+function swigc_FARKStepSetRelaxSolver(farg1, farg2) &
+bind(C, name="_wrap_FARKStepSetRelaxSolver") &
+result(fresult)
+use, intrinsic :: ISO_C_BINDING
+type(C_PTR), value :: farg1
+integer(C_INT), intent(in) :: farg2
+integer(C_INT) :: fresult
+end function
+
+function swigc_FARKStepSetRelaxResTol(farg1, farg2) &
+bind(C, name="_wrap_FARKStepSetRelaxResTol") &
+result(fresult)
+use, intrinsic :: ISO_C_BINDING
+type(C_PTR), value :: farg1
+real(C_DOUBLE), intent(in) :: farg2
+integer(C_INT) :: fresult
+end function
+
+function swigc_FARKStepSetRelaxTol(farg1, farg2, farg3) &
+bind(C, name="_wrap_FARKStepSetRelaxTol") &
+result(fresult)
+use, intrinsic :: ISO_C_BINDING
+type(C_PTR), value :: farg1
+real(C_DOUBLE), intent(in) :: farg2
+real(C_DOUBLE), intent(in) :: farg3
+integer(C_INT) :: fresult
+end function
+
+function swigc_FARKStepSetRelaxUpperBound(farg1, farg2) &
+bind(C, name="_wrap_FARKStepSetRelaxUpperBound") &
+result(fresult)
+use, intrinsic :: ISO_C_BINDING
+type(C_PTR), value :: farg1
+real(C_DOUBLE), intent(in) :: farg2
+integer(C_INT) :: fresult
+end function
+
+function swigc_FARKStepGetNumRelaxFnEvals(farg1, farg2) &
+bind(C, name="_wrap_FARKStepGetNumRelaxFnEvals") &
+result(fresult)
+use, intrinsic :: ISO_C_BINDING
+type(C_PTR), value :: farg1
+type(C_PTR), value :: farg2
+integer(C_INT) :: fresult
+end function
+
+function swigc_FARKStepGetNumRelaxJacEvals(farg1, farg2) &
+bind(C, name="_wrap_FARKStepGetNumRelaxJacEvals") &
+result(fresult)
+use, intrinsic :: ISO_C_BINDING
+type(C_PTR), value :: farg1
+type(C_PTR), value :: farg2
+integer(C_INT) :: fresult
+end function
+
+function swigc_FARKStepGetNumRelaxFails(farg1, farg2) &
+bind(C, name="_wrap_FARKStepGetNumRelaxFails") &
+result(fresult)
+use, intrinsic :: ISO_C_BINDING
+type(C_PTR), value :: farg1
+type(C_PTR), value :: farg2
+integer(C_INT) :: fresult
+end function
+
+function swigc_FARKStepGetNumRelaxBoundFails(farg1, farg2) &
+bind(C, name="_wrap_FARKStepGetNumRelaxBoundFails") &
+result(fresult)
+use, intrinsic :: ISO_C_BINDING
+type(C_PTR), value :: farg1
+type(C_PTR), value :: farg2
+integer(C_INT) :: fresult
+end function
+
+function swigc_FARKStepGetNumRelaxSolveFails(farg1, farg2) &
+bind(C, name="_wrap_FARKStepGetNumRelaxSolveFails") &
+result(fresult)
+use, intrinsic :: ISO_C_BINDING
+type(C_PTR), value :: farg1
+type(C_PTR), value :: farg2
+integer(C_INT) :: fresult
+end function
+
+function swigc_FARKStepGetNumRelaxSolveIters(farg1, farg2) &
+bind(C, name="_wrap_FARKStepGetNumRelaxSolveIters") &
 result(fresult)
 use, intrinsic :: ISO_C_BINDING
 type(C_PTR), value :: farg1
@@ -2644,6 +2808,22 @@ real(C_DOUBLE) :: farg2
 farg1 = arkode_mem
 farg2 = hmax
 fresult = swigc_FARKStepSetMaxStep(farg1, farg2)
+swig_result = fresult
+end function
+
+function FARKStepSetInterpolateStopTime(arkode_mem, interp) &
+result(swig_result)
+use, intrinsic :: ISO_C_BINDING
+integer(C_INT) :: swig_result
+type(C_PTR) :: arkode_mem
+integer(C_INT), intent(in) :: interp
+integer(C_INT) :: fresult 
+type(C_PTR) :: farg1 
+integer(C_INT) :: farg2 
+
+farg1 = arkode_mem
+farg2 = interp
+fresult = swigc_FARKStepSetInterpolateStopTime(farg1, farg2)
 swig_result = fresult
 end function
 
@@ -4231,6 +4411,252 @@ type(C_PTR) :: farg2
 farg1 = arkode_mem
 farg2 = c_loc(stepper)
 fresult = swigc_FARKStepCreateMRIStepInnerStepper(farg1, farg2)
+swig_result = fresult
+end function
+
+function FARKStepSetRelaxFn(arkode_mem, rfn, rjac) &
+result(swig_result)
+use, intrinsic :: ISO_C_BINDING
+integer(C_INT) :: swig_result
+type(C_PTR) :: arkode_mem
+type(C_FUNPTR), intent(in), value :: rfn
+type(C_FUNPTR), intent(in), value :: rjac
+integer(C_INT) :: fresult 
+type(C_PTR) :: farg1 
+type(C_FUNPTR) :: farg2 
+type(C_FUNPTR) :: farg3 
+
+farg1 = arkode_mem
+farg2 = rfn
+farg3 = rjac
+fresult = swigc_FARKStepSetRelaxFn(farg1, farg2, farg3)
+swig_result = fresult
+end function
+
+function FARKStepSetRelaxEtaFail(arkode_mem, eta_rf) &
+result(swig_result)
+use, intrinsic :: ISO_C_BINDING
+integer(C_INT) :: swig_result
+type(C_PTR) :: arkode_mem
+real(C_DOUBLE), intent(in) :: eta_rf
+integer(C_INT) :: fresult 
+type(C_PTR) :: farg1 
+real(C_DOUBLE) :: farg2 
+
+farg1 = arkode_mem
+farg2 = eta_rf
+fresult = swigc_FARKStepSetRelaxEtaFail(farg1, farg2)
+swig_result = fresult
+end function
+
+function FARKStepSetRelaxLowerBound(arkode_mem, lower) &
+result(swig_result)
+use, intrinsic :: ISO_C_BINDING
+integer(C_INT) :: swig_result
+type(C_PTR) :: arkode_mem
+real(C_DOUBLE), intent(in) :: lower
+integer(C_INT) :: fresult 
+type(C_PTR) :: farg1 
+real(C_DOUBLE) :: farg2 
+
+farg1 = arkode_mem
+farg2 = lower
+fresult = swigc_FARKStepSetRelaxLowerBound(farg1, farg2)
+swig_result = fresult
+end function
+
+function FARKStepSetRelaxMaxFails(arkode_mem, max_fails) &
+result(swig_result)
+use, intrinsic :: ISO_C_BINDING
+integer(C_INT) :: swig_result
+type(C_PTR) :: arkode_mem
+integer(C_INT), intent(in) :: max_fails
+integer(C_INT) :: fresult 
+type(C_PTR) :: farg1 
+integer(C_INT) :: farg2 
+
+farg1 = arkode_mem
+farg2 = max_fails
+fresult = swigc_FARKStepSetRelaxMaxFails(farg1, farg2)
+swig_result = fresult
+end function
+
+function FARKStepSetRelaxMaxIters(arkode_mem, max_iters) &
+result(swig_result)
+use, intrinsic :: ISO_C_BINDING
+integer(C_INT) :: swig_result
+type(C_PTR) :: arkode_mem
+integer(C_INT), intent(in) :: max_iters
+integer(C_INT) :: fresult 
+type(C_PTR) :: farg1 
+integer(C_INT) :: farg2 
+
+farg1 = arkode_mem
+farg2 = max_iters
+fresult = swigc_FARKStepSetRelaxMaxIters(farg1, farg2)
+swig_result = fresult
+end function
+
+function FARKStepSetRelaxSolver(arkode_mem, solver) &
+result(swig_result)
+use, intrinsic :: ISO_C_BINDING
+integer(C_INT) :: swig_result
+type(C_PTR) :: arkode_mem
+integer(ARKRelaxSolver), intent(in) :: solver
+integer(C_INT) :: fresult 
+type(C_PTR) :: farg1 
+integer(C_INT) :: farg2 
+
+farg1 = arkode_mem
+farg2 = solver
+fresult = swigc_FARKStepSetRelaxSolver(farg1, farg2)
+swig_result = fresult
+end function
+
+function FARKStepSetRelaxResTol(arkode_mem, res_tol) &
+result(swig_result)
+use, intrinsic :: ISO_C_BINDING
+integer(C_INT) :: swig_result
+type(C_PTR) :: arkode_mem
+real(C_DOUBLE), intent(in) :: res_tol
+integer(C_INT) :: fresult 
+type(C_PTR) :: farg1 
+real(C_DOUBLE) :: farg2 
+
+farg1 = arkode_mem
+farg2 = res_tol
+fresult = swigc_FARKStepSetRelaxResTol(farg1, farg2)
+swig_result = fresult
+end function
+
+function FARKStepSetRelaxTol(arkode_mem, rel_tol, abs_tol) &
+result(swig_result)
+use, intrinsic :: ISO_C_BINDING
+integer(C_INT) :: swig_result
+type(C_PTR) :: arkode_mem
+real(C_DOUBLE), intent(in) :: rel_tol
+real(C_DOUBLE), intent(in) :: abs_tol
+integer(C_INT) :: fresult 
+type(C_PTR) :: farg1 
+real(C_DOUBLE) :: farg2 
+real(C_DOUBLE) :: farg3 
+
+farg1 = arkode_mem
+farg2 = rel_tol
+farg3 = abs_tol
+fresult = swigc_FARKStepSetRelaxTol(farg1, farg2, farg3)
+swig_result = fresult
+end function
+
+function FARKStepSetRelaxUpperBound(arkode_mem, upper) &
+result(swig_result)
+use, intrinsic :: ISO_C_BINDING
+integer(C_INT) :: swig_result
+type(C_PTR) :: arkode_mem
+real(C_DOUBLE), intent(in) :: upper
+integer(C_INT) :: fresult 
+type(C_PTR) :: farg1 
+real(C_DOUBLE) :: farg2 
+
+farg1 = arkode_mem
+farg2 = upper
+fresult = swigc_FARKStepSetRelaxUpperBound(farg1, farg2)
+swig_result = fresult
+end function
+
+function FARKStepGetNumRelaxFnEvals(arkode_mem, r_evals) &
+result(swig_result)
+use, intrinsic :: ISO_C_BINDING
+integer(C_INT) :: swig_result
+type(C_PTR) :: arkode_mem
+integer(C_LONG), dimension(*), target, intent(inout) :: r_evals
+integer(C_INT) :: fresult 
+type(C_PTR) :: farg1 
+type(C_PTR) :: farg2 
+
+farg1 = arkode_mem
+farg2 = c_loc(r_evals(1))
+fresult = swigc_FARKStepGetNumRelaxFnEvals(farg1, farg2)
+swig_result = fresult
+end function
+
+function FARKStepGetNumRelaxJacEvals(arkode_mem, j_evals) &
+result(swig_result)
+use, intrinsic :: ISO_C_BINDING
+integer(C_INT) :: swig_result
+type(C_PTR) :: arkode_mem
+integer(C_LONG), dimension(*), target, intent(inout) :: j_evals
+integer(C_INT) :: fresult 
+type(C_PTR) :: farg1 
+type(C_PTR) :: farg2 
+
+farg1 = arkode_mem
+farg2 = c_loc(j_evals(1))
+fresult = swigc_FARKStepGetNumRelaxJacEvals(farg1, farg2)
+swig_result = fresult
+end function
+
+function FARKStepGetNumRelaxFails(arkode_mem, relax_fails) &
+result(swig_result)
+use, intrinsic :: ISO_C_BINDING
+integer(C_INT) :: swig_result
+type(C_PTR) :: arkode_mem
+integer(C_LONG), dimension(*), target, intent(inout) :: relax_fails
+integer(C_INT) :: fresult 
+type(C_PTR) :: farg1 
+type(C_PTR) :: farg2 
+
+farg1 = arkode_mem
+farg2 = c_loc(relax_fails(1))
+fresult = swigc_FARKStepGetNumRelaxFails(farg1, farg2)
+swig_result = fresult
+end function
+
+function FARKStepGetNumRelaxBoundFails(arkode_mem, fails) &
+result(swig_result)
+use, intrinsic :: ISO_C_BINDING
+integer(C_INT) :: swig_result
+type(C_PTR) :: arkode_mem
+integer(C_LONG), dimension(*), target, intent(inout) :: fails
+integer(C_INT) :: fresult 
+type(C_PTR) :: farg1 
+type(C_PTR) :: farg2 
+
+farg1 = arkode_mem
+farg2 = c_loc(fails(1))
+fresult = swigc_FARKStepGetNumRelaxBoundFails(farg1, farg2)
+swig_result = fresult
+end function
+
+function FARKStepGetNumRelaxSolveFails(arkode_mem, fails) &
+result(swig_result)
+use, intrinsic :: ISO_C_BINDING
+integer(C_INT) :: swig_result
+type(C_PTR) :: arkode_mem
+integer(C_LONG), dimension(*), target, intent(inout) :: fails
+integer(C_INT) :: fresult 
+type(C_PTR) :: farg1 
+type(C_PTR) :: farg2 
+
+farg1 = arkode_mem
+farg2 = c_loc(fails(1))
+fresult = swigc_FARKStepGetNumRelaxSolveFails(farg1, farg2)
+swig_result = fresult
+end function
+
+function FARKStepGetNumRelaxSolveIters(arkode_mem, iters) &
+result(swig_result)
+use, intrinsic :: ISO_C_BINDING
+integer(C_INT) :: swig_result
+type(C_PTR) :: arkode_mem
+integer(C_LONG), dimension(*), target, intent(inout) :: iters
+integer(C_INT) :: fresult 
+type(C_PTR) :: farg1 
+type(C_PTR) :: farg2 
+
+farg1 = arkode_mem
+farg2 = c_loc(iters(1))
+fresult = swigc_FARKStepGetNumRelaxSolveIters(farg1, farg2)
 swig_result = fresult
 end function
 

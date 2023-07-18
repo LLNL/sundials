@@ -94,13 +94,17 @@ ARKodeMem arkCreate(SUNContext sunctx)
   ark_mem->constraintsSet = SUNFALSE;
   ark_mem->constraints    = NULL;
 
+  /* Initialize relaxation variables */
+  ark_mem->relax_enabled = SUNFALSE;
+  ark_mem->relax_mem     = NULL;
+
   /* Initialize diagnostics reporting variables */
   ark_mem->report  = SUNFALSE;
   ark_mem->diagfp  = NULL;
 
   /* Initialize lrw and liw */
   ark_mem->lrw = 18;
-  ark_mem->liw = 39;  /* fcn/data ptr, int, long int, sunindextype, booleantype */
+  ark_mem->liw = 41;  /* fcn/data ptr, int, long int, sunindextype, booleantype */
 
   /* No mallocs have been done yet */
   ark_mem->VabstolMallocDone     = SUNFALSE;
@@ -642,6 +646,7 @@ int arkEvolve(ARKodeMem ark_mem, realtype tout, N_Vector yout,
   booleantype inactive_roots;
   realtype dsm;
   int nflag, attempts, ncf, nef, constrfails;
+  int relax_fails;
 
   /* Check and process inputs */
 
@@ -825,6 +830,7 @@ int arkEvolve(ARKodeMem ark_mem, realtype tout, N_Vector yout,
     /* Looping point for step attempts */
     dsm = ZERO;
     attempts = ncf = nef = constrfails = ark_mem->last_kflag = 0;
+    relax_fails = 0;
     nflag = FIRST_CALL;
     for(;;) {
 
@@ -849,6 +855,17 @@ int arkEvolve(ARKodeMem ark_mem, realtype tout, N_Vector yout,
       /* handle solver convergence failures */
       kflag = arkCheckConvergence(ark_mem, &nflag, &ncf);
       if (kflag < 0)  break;
+
+      /* Perform relaxation:
+           - computes relaxation parameter
+           - on success, updates ycur, h, and dsm
+           - on recoverable failure, updates eta and signals to retry step
+           - on fatal error, returns negative error flag */
+      if (ark_mem->relax_enabled && (kflag == ARK_SUCCESS))
+      {
+        kflag = arkRelax(ark_mem, &relax_fails, &dsm, &nflag);
+        if (kflag < 0) break;
+      }
 
       /* perform constraint-handling (if selected, and if solver check passed) */
       if (ark_mem->constraintsSet && (kflag == ARK_SUCCESS)) {
@@ -1096,6 +1113,13 @@ void arkFree(void **arkode_mem)
   if (ark_mem->root_mem != NULL) {
     (void) arkRootFree(*arkode_mem);
     ark_mem->root_mem = NULL;
+  }
+
+  /* free the relaxation module */
+  if (ark_mem->relax_mem)
+  {
+    (void) arkRelaxDestroy(ark_mem->relax_mem);
+    ark_mem->relax_mem = NULL;
   }
 
   free(*arkode_mem);
@@ -2518,6 +2542,23 @@ int arkHandleFailure(ARKodeMem ark_mem, int flag)
     arkProcessError(ark_mem, ARK_INVALID_TABLE, "ARKODE", "ARKODE",
                     "ARKODE was provided an invalid method table");
     break;
+  case ARK_RELAX_FAIL:
+    arkProcessError(ark_mem, ARK_RELAX_FAIL, "ARKODE", "ARKODE",
+                    "At t = %Lg the relaxation module failed",
+                    (long double) ark_mem->tcur);
+    break;
+  case ARK_RELAX_MEM_NULL:
+    arkProcessError(ark_mem, ARK_RELAX_MEM_NULL, "ARKODE", "ARKODE",
+                    "The ARKODE relaxation module memory is NULL");
+    break;
+  case ARK_RELAX_FUNC_FAIL:
+    arkProcessError(ark_mem, ARK_RELAX_FUNC_FAIL, "ARKODE", "ARKODE",
+                    "The relaxation function failed unrecoverably");
+    break;
+  case ARK_RELAX_JAC_FAIL:
+    arkProcessError(ark_mem, ARK_RELAX_JAC_FAIL, "ARKODE", "ARKODE",
+                    "The relaxation Jacobian failed unrecoverably");
+    break;
   default:
     /* This return should never happen */
     arkProcessError(ark_mem, ARK_UNRECOGNIZED_ERROR, "ARKODE", "ARKODE",
@@ -2903,7 +2944,7 @@ int arkCheckConstraints(ARKodeMem ark_mem, int *constrfails, int *nflag)
 {
   booleantype constraintsPassed;
   N_Vector mm  = ark_mem->tempv4;
-  N_Vector tmp = ark_mem->tempv1;
+  N_Vector tmp = ark_mem->tempv3;
 
   /* Check constraints and get mask vector mm for where constraints failed */
   constraintsPassed = N_VConstrMask(ark_mem->constraints, ark_mem->ycur, mm);

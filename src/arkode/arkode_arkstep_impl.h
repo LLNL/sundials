@@ -77,6 +77,7 @@ typedef struct ARKodeARKStepMemRec {
   /* ARK method storage and parameters */
   N_Vector *Fe;           /* explicit RHS at each stage */
   N_Vector *Fi;           /* implicit RHS at each stage */
+  N_Vector *z;            /* stages (for relaxation)    */
   N_Vector  sdata;        /* old stage data in residual */
   N_Vector  zpred;        /* predicted stage solution   */
   N_Vector  zcor;         /* stage correction           */
@@ -229,6 +230,11 @@ int arkStep_MRIStepInnerFullRhs(MRIStepInnerStepper stepper, realtype t,
 int arkStep_MRIStepInnerReset(MRIStepInnerStepper stepper, realtype tR,
                               N_Vector yR);
 
+/* private functions for relaxation */
+int arkStep_RelaxDeltaY(ARKodeMem ark_mem, N_Vector delta_y);
+int arkStep_RelaxDeltaE(ARKodeMem ark_mem, ARKRelaxJacFn relax_jac_fn,
+                        long int* relax_jac_fn_evals, sunrealtype* delta_e_out);
+int arkStep_GetOrder(ARKodeMem ark_mem);
 
 /*===============================================================
   Reusable ARKStep Error Messages
