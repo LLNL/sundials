@@ -309,7 +309,7 @@ module farkode_mod
  interface ARKodeSPRKTableMem
   module procedure swigf_create_ARKodeSPRKTableMem
  end interface
- public :: FARKodeSPRKStorage_Create
+ public :: FARKodeSPRKTable_Create
  public :: FARKodeSPRKTable_Alloc
  public :: FARKodeSPRKTable_Load
  public :: FARKodeSPRKTable_LoadByName
@@ -752,8 +752,8 @@ type(SwigClassWrapper), intent(inout) :: farg1
 type(SwigClassWrapper) :: farg2
 end subroutine
 
-function swigc_FARKodeSPRKStorage_Create(farg1, farg2, farg3, farg4) &
-bind(C, name="_wrap_FARKodeSPRKStorage_Create") &
+function swigc_FARKodeSPRKTable_Create(farg1, farg2, farg3, farg4) &
+bind(C, name="_wrap_FARKodeSPRKTable_Create") &
 result(fresult)
 use, intrinsic :: ISO_C_BINDING
 integer(C_INT), intent(in) :: farg1
@@ -1547,7 +1547,7 @@ call swigc_ARKodeSPRKTableMem_op_assign__(farg1, farg2)
 self%swigdata = farg1
 end subroutine
 
-function FARKodeSPRKStorage_Create(s, q, a, ahat) &
+function FARKodeSPRKTable_Create(s, q, a, ahat) &
 result(swig_result)
 use, intrinsic :: ISO_C_BINDING
 type(C_PTR) :: swig_result
@@ -1565,7 +1565,7 @@ farg1 = s
 farg2 = q
 farg3 = c_loc(a)
 farg4 = c_loc(ahat)
-fresult = swigc_FARKodeSPRKStorage_Create(farg1, farg2, farg3, farg4)
+fresult = swigc_FARKodeSPRKTable_Create(farg1, farg2, farg3, farg4)
 swig_result = fresult
 end function
 

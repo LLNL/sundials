@@ -400,6 +400,25 @@ ARKodeSPRKTable ARKodeSymplecticSofroniou10()
   return sprk_table;
 }
 
+ARKodeSPRKTable ARKodeSPRKTable_Create(int s, int q, sunrealtype* a,
+                                       sunrealtype* ahat)
+{
+  int i;
+
+  ARKodeSPRKTable sprk_table = ARKodeSPRKTable_Alloc(s);
+  if (!sprk_table) { return NULL; }
+
+  sprk_table->q = q;
+
+  for (i = 0; i < sprk_table->stages; ++i)
+  {
+    sprk_table->ahat[i] = ahat[i];
+    sprk_table->a[i]    = a[i];
+  }
+
+  return sprk_table;
+}
+
 ARKodeSPRKTable ARKodeSPRKTable_Alloc(int stages)
 {
   ARKodeSPRKTable sprk_table = NULL;
