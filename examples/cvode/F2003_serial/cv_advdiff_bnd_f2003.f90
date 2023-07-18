@@ -68,10 +68,7 @@ module advdiff_mod
     contains
 
     ! ----------------------------------------------------------------
-    ! RhsFn provides the right hand side implicit function for the
-    ! ODE: dy1/dt = f1(t,y1,y2,y3)
-    !      dy2/dt = f2(t,y1,y2,y3)
-    !      dy3/dt = f3(t,y1,y2,y3)
+    ! RhsFn provides the right hand side implicit function for the ODE.
     !
     ! Return values:
     !    0 = success,
@@ -140,6 +137,15 @@ module advdiff_mod
 
     end function RhsFn
 
+    ! ----------------------------------------------------------------
+    ! JacFn provides the user-supplied banded Jacobian 
+    ! function for the ODE.
+    !
+    ! Return values:
+    !    0 = success,
+    !    1 = recoverable error,
+    !   -1 = non-recoverable error
+    ! ----------------------------------------------------------------
     integer(c_int) function JacFn(t, sunvec_u, sunvec_f, sunmat_J, &
          user_data, sunvec_t1, sunvec_t2, sunvec_t3) result(ierr) &
          bind(C,name='JacFn')

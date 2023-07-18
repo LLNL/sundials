@@ -19,7 +19,7 @@
 
 # Examples using SUNDIALS linear solvers
 set(FKINSOL_examples
-  "kinDiagon_kry_f2003\;-ffpe-trap=invalid\;develop"
+  "kinDiagon_kry_f2003\;\;develop"
   "kinRoboKin_dns_f2003\;\;develop"
   "kinLaplace_bnd_f2003\;\;develop"
   "kinLaplace_picard_kry_f2003\;\;develop"

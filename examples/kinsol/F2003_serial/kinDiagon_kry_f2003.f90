@@ -124,6 +124,14 @@ contains
 
   end function func
 
+  ! ----------------------------------------------------------------
+  ! kpsetup: The KINSOL Preconditioner setup function
+  !
+  ! Return values:
+  !    0 = success,
+  !    1 = recoverable error,
+  !   -1 = non-recoverable error
+  ! ----------------------------------------------------------------
   integer(c_int) function kpsetup(sunvec_u, sunvec_s, sunvec_f, &
           sunvec_fs, user_data) result(ierr) bind(C)
     
@@ -162,6 +170,14 @@ contains
 
   end function kpsetup
 
+  ! ----------------------------------------------------------------
+  ! kpsolve: The KINSOL Preconditioner solve function
+  !
+  ! Return values:
+  !    0 = success,
+  !    1 = recoverable error,
+  !   -1 = non-recoverable error
+  ! ----------------------------------------------------------------
   integer(c_int) function kpsolve(sunvec_u, sunvec_s, sunvec_f, &
           sunvec_fs, sunvec_v, user_data) result(ierr) bind(C)
     

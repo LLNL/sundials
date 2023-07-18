@@ -629,7 +629,7 @@ module Heat2DData
   
   
     !-----------------------------------------------------------------
-    ! Preconditioner solve routine
+    ! Processor-local portion of the DAE residual function.
     !-----------------------------------------------------------------
     integer(c_int) function LocalFn(Nloc, t, sunvec_y, sunvec_ydot, sunvec_g, &
             user_data) result(ierr) bind(C)
@@ -768,7 +768,7 @@ module Heat2DData
     real(c_double), pointer :: f(:,:)          ! vector data
     type(SUNLinearSolver), pointer :: sun_LS   ! linear solver
     type(SUNMatrix),       pointer :: sunmat_A ! sundials matrix
-    type(c_ptr)     :: ida_mem                 ! IDAODE memory
+    type(c_ptr)     :: ida_mem                 ! IDA memory
     integer(c_int) :: retval
     integer :: ierr, case
     logical :: outproc

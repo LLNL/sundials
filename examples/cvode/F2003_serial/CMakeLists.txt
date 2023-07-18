@@ -32,8 +32,13 @@ set(FCVODE_examples
   )
 
 # Examples using LAPACK linear solvers
-set(FCVODE_examples_BL
-  "cv_roberts_dnsL_f2003\;develop")
+if(SUNDIALS_INDEX_SIZE MATCHES "64")
+
+  set(FCVODE_examples_LAPACK
+      "cv_roberts_dnsL_f2003\;develop"
+      )
+
+endif()
 
 # Add sparse solvers examples for 64-bit indextype configurations only,
 # not compatible with 32-bit indextype
@@ -121,6 +126,47 @@ if(BUILD_SUNLINSOL_KLU)
     endif()
 
   endforeach(example_tuple ${FCVODE_examples_KLU})
+
+endif()
+
+# Add the build and install targets for each LAPACK example (if needed)
+if(BUILD_SUNLINSOL_LAPACKBAND AND BUILD_SUNLINSOL_LAPACKDENSE)
+
+  # Sundials LAPACK linear solver modules
+  set(SUNLINSOLLAPACK_LIBS
+    sundials_sunlinsollapackdense
+    sundials_fsunlinsollapackdense_mod)
+
+  # LAPACK libraries
+  list(APPEND SUNLINSOLLAPACK_LIBS ${LAPACK_LIBRARIES})
+
+  foreach(example_tuple ${FCVODE_examples_LAPACK})
+
+    # parse the example tuple
+    list(GET example_tuple 0 example)
+    list(GET example_tuple 1 example_type)
+
+    # example source files
+    add_executable(${example} ${example}.f90)
+
+    set_target_properties(${example} PROPERTIES FOLDER "Examples")
+
+    # add example to regression tests
+    sundials_add_test(${example} ${example}
+      ANSWER_DIR ${CMAKE_CURRENT_SOURCE_DIR}
+      ANSWER_FILE ${example}.out
+      EXAMPLE_TYPE ${example_type})
+
+    # libraries to link against
+    target_link_libraries(${example} ${SUNDIALS_LIBS} ${SUNLINSOLLAPACK_LIBS})
+
+     # install example source and out files
+    if(EXAMPLES_INSTALL)
+      install(FILES ${example}.f ${example}.out
+        DESTINATION ${EXAMPLES_INSTALL_PATH}/cvode/F2003_serial)
+    endif()
+
+  endforeach(example_tuple ${FCVODE_examples_LAPACK})
 
 endif()
 

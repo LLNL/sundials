@@ -5,7 +5,7 @@
  Linear solver: LAPACK DENSE, with user-supplied Jacobian.
 Tolerance parameters:  rtol = 0.0001   atol =  1.E-08  1.E-11  1.E-08
 Initial conditions y0 = ( 1.00  0.00  0.00 )
- Constraints and id not used.
+ Constraints not used.
   
  ----------------------------------------------------------------------
     t            y1           y2           y3       | nst      h

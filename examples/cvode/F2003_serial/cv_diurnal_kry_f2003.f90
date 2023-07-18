@@ -98,9 +98,8 @@ module diurnal_mod
 
     ! ----------------------------------------------------------------
     ! RhsFn provides the right hand side implicit function for the
-    ! ODE: dy1/dt = f1(t,y1,y2,y3)
-    !      dy2/dt = f2(t,y1,y2,y3)
-    !      dy3/dt = f3(t,y1,y2,y3)
+    ! ODE: dc1/dt = f1(t,c1,c2)
+    !      dc2/dt = f2(t,c1,c2)
     !
     ! Return values:
     !    0 = success,
@@ -204,7 +203,17 @@ module diurnal_mod
       return
 
     end function RhsFn
-    
+
+    ! ----------------------------------------------------------------
+    ! PreSet provides the setup function for the Preconditioner of the
+    ! ODE: dc1/dt = f1(t,c1,c2)
+    !      dc2/dt = f2(t,c1,c2)
+    !
+    ! Return values:
+    !    0 = success,
+    !    1 = recoverable error,
+    !   -1 = non-recoverable error
+    ! ----------------------------------------------------------------
     integer(c_int) function PreSet(t, sunvec_u, sunvec_f, jok, jcur, gamma, user_data) &
             result(ierr) bind(C,name='PreSet')
 
@@ -253,6 +262,16 @@ module diurnal_mod
 
     end function PreSet
 
+    ! ----------------------------------------------------------------
+    ! PreSolve provides the solver function for the Preconditioner of
+    ! the ODE: dc1/dt = f1(t,c1,c2)
+    !          dc2/dt = f2(t,c1,c2)
+    !
+    ! Return values:
+    !    0 = success,
+    !    1 = recoverable error,
+    !   -1 = non-recoverable error
+    ! ----------------------------------------------------------------
     integer(c_int) function PreSolve(t, sunvec_u, sunvec_f, sunvec_r, sunvec_z, &
             gamma, delta, lr, user_data) result(ierr) bind(C,name='PreSolve')
 
@@ -291,6 +310,17 @@ module diurnal_mod
       
     end function PreSolve
 
+    ! ----------------------------------------------------------------
+    ! Prec_Jac provides the Jacobian routine for the Preconditioner of
+    ! the ODE, specifically the PreSet function, where the ODE is: 
+    !      dc1/dt = f1(t,c1,c2)
+    !      dc2/dt = f2(t,c1,c2)
+    !
+    ! Return values:
+    !    0 = success,
+    !    1 = recoverable error,
+    !   -1 = non-recoverable error
+    ! ----------------------------------------------------------------
     subroutine Prec_Jac(mmx, mmy, u, bd, qq1, qq2, qq3, qq4, cc3, &
                         ddy, hhdco, vvdco, ierr)
       
@@ -330,6 +360,17 @@ module diurnal_mod
    
     end subroutine Prec_Jac
     
+    ! ----------------------------------------------------------------
+    ! Prec_LU provides the LU Decomposition (2 x 2 inverse) routine 
+    ! for the Preconditioner of the ODE, specifically the PreSet 
+    ! function, where the ODE is: dc1/dt = f1(t,c1,c2)
+    !                             dc2/dt = f2(t,c1,c2)
+    !
+    ! Return values:
+    !    0 = success,
+    !    1 = recoverable error,
+    !   -1 = non-recoverable error
+    ! ----------------------------------------------------------------
     subroutine Prec_LU(mmm, p, ierr)
 
       implicit none
@@ -361,6 +402,18 @@ module diurnal_mod
    
     end subroutine Prec_LU
 
+    ! ----------------------------------------------------------------
+    ! Prec_Sol provides the Solver routine for the Preconditioner of
+    ! the ODE (functionally matrix-vector multiplication of our 2 x 2
+    ! matrix), specifically the PreSolve function, where the ODE is: 
+    !      dc1/dt = f1(t,c1,c2)
+    !      dc2/dt = f2(t,c1,c2)
+    !
+    ! Return values:
+    !    0 = success,
+    !    1 = recoverable error,
+    !   -1 = non-recoverable error
+    ! ----------------------------------------------------------------
     subroutine Prec_Sol(mmm, p, z)
     
       implicit none

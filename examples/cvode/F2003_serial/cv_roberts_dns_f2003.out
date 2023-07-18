@@ -5,7 +5,7 @@
  Linear solver: DENSE, with user-supplied Jacobian.
 Tolerance parameters:  rtol = 0.0001   atol =  1.E-08  1.E-14  1.E-06
 Initial conditions y0 = ( 1.00  0.00  0.00 )
- Constraints and ID not used.
+ Constraints not used.
   
  ---------------------------------------------------
     t            y1           y2           y3
