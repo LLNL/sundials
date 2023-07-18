@@ -100,17 +100,20 @@ set(ARKODE_examples_SUPERLUMT
 
 # Auxiliary files to install
 set(ARKODE_extras
-  ark_kepler_plot.py
-  plot_brusselator1D.py
-  plot_brusselator1D_FEM.py
-  plot_heat1D.py
-  plot_heat1D_adapt.py
-  plot_sol.py
-  plot_sol_log.py
   ark_analytic_nonlin_stats.csv
+  ark_damped_harmonic_symplectic.h
+  ark_harmonic_symplectic.h
+  ark_kepler_plot.py
+  ark_kepler.h
   ark_reaction_diffusion_mri_fast_stats.csv
   ark_reaction_diffusion_mri_slow_stats.csv
   ark_robertson_stats.csv
+  plot_brusselator1D_FEM.py
+  plot_brusselator1D.py
+  plot_heat1D_adapt.py
+  plot_heat1D.py
+  plot_sol_log.py
+  plot_sol.py
   )
 
 # Add the build and install targets for each ARKODE example
