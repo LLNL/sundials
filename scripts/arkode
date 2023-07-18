@@ -110,6 +110,8 @@ $tar $tarfile $distrobase/src/arkode/fmod/farkode_erkstep_mod.c
 $tar $tarfile $distrobase/src/arkode/fmod/farkode_erkstep_mod.f90
 $tar $tarfile $distrobase/src/arkode/fmod/farkode_mristep_mod.c
 $tar $tarfile $distrobase/src/arkode/fmod/farkode_mristep_mod.f90
+$tar $tarfile $distrobase/src/arkode/fmod/farkode_sprkstep_mod.c
+$tar $tarfile $distrobase/src/arkode/fmod/farkode_sprkstep_mod.f90
 
 echo "   --- Add arkode examples to $tarfile"
 
