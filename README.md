@@ -82,8 +82,8 @@ We thank Radu Serban for significant and critical past contributions.
 Other contributors to SUNDIALS include: James Almgren-Bell, Lawrence E. Banks,
 Peter N. Brown, George Byrne, Rujeko Chinomona, Scott D. Cohen, Aaron Collier,
 Keith E. Grant, Steven L. Lee, Shelby L. Lockhart, John Loffeld, Daniel McGreer,
-Yu Pan, Slaven Peles, Cosmin Petra, H. Hunter Schwartz, Jean M. Sexton,
-Dan Shumaker, Steve G. Smith, Shahbaj Sohal, Allan G. Taylor,
+Yu Pan, Slaven Peles, Cosmin Petra, Steven B. Roberts, H. Hunter Schwartz,
+Jean M. Sexton, Dan Shumaker, Steve G. Smith, Shahbaj Sohal, Allan G. Taylor,
 Hilari C. Tiedeman, Chris White, Ting Yan, and Ulrike M. Yang.
 
 ## License ##
