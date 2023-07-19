@@ -468,11 +468,11 @@ SPRKStep -- Symplectic Partitioned Runge--Kutta methods
 The SPRKStep time-stepping module in ARKODE is designed for IVPs of the form
 
 .. math::
-   \dot{p} = f_1(t, q) = \frac{\partial V(t, q)}{\partial q}, \quad 
-   \dot{q} = f_2(t, p) = \frac{\partial T(t, p)}{\partial p}, 
+   \dot{p} = f_1(t, q) = \frac{\partial V(t, q)}{\partial q}, \quad
+   \dot{q} = f_2(t, p) = \frac{\partial T(t, p)}{\partial p},
    \qquad p(t_0) = p_0,\quad q(t_0) = q_0,
    :label: ARKODE_IVP_Hamiltonian
-  
+
 where the system Hamiltonian
 
 .. math::
@@ -486,19 +486,19 @@ obtainable from the Hamiltonian :cite:p:`Struckmeier:02`.
 In solving the IVP :eq:`ARKODE_IVP_Hamiltonian`, we consider the problem in the form
 
 .. math::
-   \dot{y} = 
+   \dot{y} =
       \begin{bmatrix}
          f_1(t, q) \\
          f_2(t, p)
-      \end{bmatrix}, \qquad 
-      y(t_0) = 
+      \end{bmatrix}, \qquad
+      y(t_0) =
       \begin{bmatrix}
          p_0\\
          q_0
       \end{bmatrix}.
 
 In practice, the ordering  of the variables does not matter and is determined by the user.
-SPRKStep utilizes Symplectic Partitioned Runge-Kutta (SPRK) methods represented by the pair 
+SPRKStep utilizes Symplectic Partitioned Runge-Kutta (SPRK) methods represented by the pair
 of Butcher tableau,
 
 .. math::
@@ -508,7 +508,7 @@ of Butcher tableau,
    \vdots & \vdots & \ddots & \ddots & \vdots \\
    c_s & a_1 & \cdots & a_{s-1} & 0 \\
    \hline
-   & a_1 & \cdots & a_{s-1} & a_s 
+   & a_1 & \cdots & a_{s-1} & a_s
    \end{array}
    \qquad \qquad
    \begin{array}{c|cccc}
@@ -520,16 +520,12 @@ of Butcher tableau,
    & \hat{a}_1 & \hat{a}_2 & \cdots & \hat{a}_{s}
    \end{array}.
 
-We use a compact storage of these coefficients in terms of two arrays, one for
-*a* and one for *b*. The abscissae (only relevant for non-autonomous problems)
-are computed dynamically as :math:`c_j = \sum_{i=1}^j a_i` and
-:math:`\hat{c}_j = \sum_{i=1}^j \hat{a}_i`, respectively
-:cite:p:`Jay:21,Diele:11`. These methods approximately conserve a nearby
-Hamiltonian for exponentially long times :cite:p:`HaWa:06`. SPRKStep makes the
-assumption that the Hamiltonian is separable, in which case the schemes are
-explicit. SPRKStep provides methods with order of accuracy and conservation
-equal to :math:`q = \{1,2,3,4,5,6,8,10\}`. The tables for these methods, and the
-default methods used, are given in the section :numref:`SPRKStorage`.
+These methods approximately conserve a nearby Hamiltonian for exponentially long
+times :cite:p:`HaWa:06`. SPRKStep makes the assumption that the Hamiltonian is
+separable, in which case the schemes are explicit. SPRKStep provides methods
+with order of accuracy and conservation equal to
+:math:`q = \{1,2,3,4,5,6,8,10\}`. The references for these these methods and
+the default methods used are given in the section :numref:`Butcher.sprk`.
 
 In the default case, the algorithm for a single time-step is as follows
 (for autonomous Hamiltonian systems the times provided to :math:`f1` and :math:`f2`
@@ -564,12 +560,12 @@ form is used to compute a time step:
 
 #. Using compensated summation, set :math:`p_{n+1} = p_n + \Delta p_{n+1}, q_{n+1} = q_n + \Delta Q_{s+1}`
 
-Since temporal error based adaptive time-stepping is known to ruin the 
-conservation property :cite:p:`HaWa:06`,  SPRKStep employs a fixed time-step size. 
+Since temporal error based adaptive time-stepping is known to ruin the
+conservation property :cite:p:`HaWa:06`,  SPRKStep employs a fixed time-step size.
 
 .. However, it is possible for a user to provide a
 .. problem-specific adaptivity controller such as the one described in :cite:p:`HaSo:05`.
-.. The `ark_kepler.c` example demonstrates an implementation of such controller. 
+.. The `ark_kepler.c` example demonstrates an implementation of such controller.
 
 
 .. _ARKODE.Mathematics.MRIStep:
@@ -1131,9 +1127,9 @@ information.  In this mode, all internal time step adaptivity is disabled:
 .. note::
    Since temporal error based adaptive time-stepping is known to ruin the
    conservation property of SPRK methods, SPRKStep employs a fixed time-step
-   size by default. 
-   
-.. note:: 
+   size by default.
+
+.. note::
    Fixed-step mode is currently required for the slow time scale in the MRIStep module.
 
 
