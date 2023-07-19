@@ -28,7 +28,7 @@ On an error, each user-callable function returns a negative value  (or
 ``NULL`` if the function returns a pointer) and sends an error message
 to the error handler routine, which prints the message to ``stderr``
 by default. However, the user can set a file as error output or can
-provide her own error handler function (see
+provide their own error handler function (see
 :numref:`ARKODE.Usage.SPRKStep.OptionalInputs` for details).
 
 
