@@ -336,9 +336,9 @@ Optional inputs for SPRKStep
       not be changed without first calling :c:func:`SPRKStepReInit()`.
 
       If this routine is not called, the Lagrange interpolation module will be used.
-      
-      Our testing has shown that Lagrange interpolation typically performs well in 
-      this regard, while Hermite interpolation does not. 
+
+      Our testing has shown that Lagrange interpolation typically performs well in
+      this regard, while Hermite interpolation does not.
 
 
 
@@ -551,12 +551,12 @@ Optional inputs for IVP method selection
       :c:func:`SPRKStepSetMethod` or :c:func:`SPRKStepMethodByName`.
 
 
-.. c:function:: int SPRKStepSetMethod(void* arkode_mem, ARKodeSPRKTable sprk_storage)
+.. c:function:: int SPRKStepSetMethod(void* arkode_mem, ARKodeSPRKTable sprk_table)
 
    Specifies the SPRK method.
 
    :param arkode_mem: pointer to the SPRKStep memory block.
-   :param sprk_storage: the SPRK method coefficient structure.
+   :param sprk_table: the SPRK method table.
 
    :retval ARK_SUCCESS: if successful
    :retval ARK_MEM_NULL: if the SPRKStep memory is ``NULL``
@@ -565,7 +565,7 @@ Optional inputs for IVP method selection
    .. note::
 
       No error checking is performed on the coefficients contained in the
-      structure to ensure its declared order of accuracy.
+      table to ensure its declared order of accuracy.
 
 
 .. c:function:: int SPRKStepSetMethodName(void* arkode_mem, const char* method)
@@ -582,8 +582,8 @@ Optional inputs for IVP method selection
 
 .. c:function:: int SPRKStepSetUseCompensatedSums(void* arkode_mem, sunbooleantype onoff)
 
-   Specifies if :ref:`compensated summation (and the incremental form) <ARKODE.Mathematics.SPRKStep.Compensated>` 
-   should be used where applicable. 
+   Specifies if :ref:`compensated summation (and the incremental form) <ARKODE.Mathematics.SPRKStep.Compensated>`
+   should be used where applicable.
 
    This increases the computational cost by 2 extra vector operations per stage
    and an additional 5 per time step. It also requires one extra vector to be
@@ -932,12 +932,12 @@ Main solver optional output functions
 
 
 
-.. c:function:: int SPRKStepGetCurrentMethod(void* arkode_mem, ARKodeSPRKTable *sprk_storage)
+.. c:function:: int SPRKStepGetCurrentMethod(void* arkode_mem, ARKodeSPRKTable *sprk_table)
 
-   Returns the SPRK method coefficient structure currently in use by the solver.
+   Returns the SPRK method coefficient table currently in use by the solver.
 
    :param arkode_mem: pointer to the SPRKStep memory block.
-   :param sprk_storage: pointer to the SPRK method coefficient structure.
+   :param sprk_table: pointer to the SPRK method table.
 
    :retval ARK_SUCCESS: if successful
    :retval ARK_MEM_NULL: if the SPRKStep memory was ``NULL``
@@ -1015,8 +1015,8 @@ General usability functions
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 The following optional routine may be called by a user to inquire
-about existing solver parameters.  While it would not typically be called 
-during the course of solving an initial value problem, it may be useful 
+about existing solver parameters.  While it would not typically be called
+during the course of solving an initial value problem, it may be useful
 for users wishing to better understand SPRKStep.
 
 
@@ -1073,11 +1073,11 @@ for the previous problem.  This condition is automatically fulfilled
 if the method order *q* is left unchanged.
 
 One potential use of the :c:func:`SPRKStepReInit()` function is in the
-treating of jump discontinuities in the RHS function :cite:p:`Tao:22`. 
-In lieu of including if statements within the RHS function to handle 
-discontinuities, it may be more computationally efficient to stop at each 
+treating of jump discontinuities in the RHS function :cite:p:`Tao:22`.
+In lieu of including if statements within the RHS function to handle
+discontinuities, it may be more computationally efficient to stop at each
 point of discontinuity (e.g., through use of tstop or the rootfinding feature)
-and restart the integrator with a readjusted ODE model, using a call to 
+and restart the integrator with a readjusted ODE model, using a call to
 this routine. We note that for the solution to retain temporal accuracy,
 the RHS function should not incorporate the discontinuity.
 
