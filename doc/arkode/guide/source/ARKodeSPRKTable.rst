@@ -98,19 +98,19 @@ ARKodeSPRKTable functions
    +----------------------------------------------+------------------------------------------------------------+
    | **Function name**                            | **Description**                                            |
    +==============================================+============================================================+
-   | :c:func:`ARKodeSPRKTable_Alloc()`            | Allocate an empty storage structure                        |
+   | :c:func:`ARKodeSPRKTable_Alloc()`            | Allocate an empty table structure                          |
    +----------------------------------------------+------------------------------------------------------------+
    | :c:func:`ARKodeSPRKTable_Load()`             | Load SPRK method using an identifier                       |
    +----------------------------------------------+------------------------------------------------------------+
    | :c:func:`ARKodeSPRKTable_LoadByName()`       | Load SPRK method using a string version of the identifier  |
    +----------------------------------------------+------------------------------------------------------------+
-   | :c:func:`ARKodeSPRKTable_Create()`           | Create a new storage structure                             |
+   | :c:func:`ARKodeSPRKTable_Create()`           | Create a new table structure                               |
    +----------------------------------------------+------------------------------------------------------------+
-   | :c:func:`ARKodeSPRKTable_Copy()`             | Create a copy of a storage structure                       |
+   | :c:func:`ARKodeSPRKTable_Copy()`             | Create a copy of a table structure                         |
    +----------------------------------------------+------------------------------------------------------------+
-   | :c:func:`ARKodeSPRKTable_Space()`            | Get the storage structure real and integer workspace size  |
+   | :c:func:`ARKodeSPRKTable_Space()`            | Get the table structure real and integer workspace size    |
    +----------------------------------------------+------------------------------------------------------------+
-   | :c:func:`ARKodeSPRKTable_Free()`             | Deallocate a storage structure                             |
+   | :c:func:`ARKodeSPRKTable_Free()`             | Deallocate a table structure                               |
    +----------------------------------------------+------------------------------------------------------------+
 
 
