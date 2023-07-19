@@ -376,7 +376,7 @@ Optional inputs for SPRKStep
       :math:`q-1` and the input *degree*, for :math:`q > 1` where :math:`q` is
       the order of accuracy for the time integration method.
 
-      When , `q = 1` a linear interpolant is the default to ensure values
+      When `q = 1`, a linear interpolant is the default to ensure values
       obtained by the integrator are returned at the ends of the time interval.
 
 
