@@ -27,6 +27,8 @@
 
 #include "arkode_impl.h"
 #include "arkode_interp_impl.h"
+#include "sundials_utils.h"
+#include <sundials/sundials_config.h>
 #include <sundials/sundials_math.h>
 #include <sundials/sundials_types.h>
 
@@ -2385,7 +2387,15 @@ int arkCompleteStep(ARKodeMem ark_mem, realtype dsm)
      If tstop is enabled, it is possible for tn + h to be past
      tstop by roundoff, and in that case, we reset tn (after
      incrementing by h) to tstop. */
-  ark_mem->tcur = ark_mem->tn + ark_mem->h;
+
+  /* During long-time integration, roundoff can creep into tcur. 
+     Compensated summation fixes this but with increased cost, so it is optional. */
+  if (ark_mem->use_compensated_sums) {
+    sunCompensatedSum(ark_mem->tn, ark_mem->h, &ark_mem->tcur, &ark_mem->terr); 
+  } else {
+    ark_mem->tcur = ark_mem->tn + ark_mem->h;
+  }
+
   if ( ark_mem->tstopset ) {
     troundoff = FUZZ_FACTOR * ark_mem->uround *
       (SUNRabs(ark_mem->tcur) + SUNRabs(ark_mem->h));

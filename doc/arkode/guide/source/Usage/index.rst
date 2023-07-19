@@ -22,10 +22,10 @@ each of ARKODE's time-stepping modules, including locations and naming
 conventions for the library and header files, and discussion of data types in
 SUNDIALS.  We then separately discuss the C and C++ interfaces to each of
 ARKODE's time stepping modules: :ref:`ARKStep <ARKODE.Usage.ARKStep>`,
-:ref:`ERKStep <ARKODE.Usage.ERKStep>`, and :ref:`MRIStep
-<ARKODE.Usage.MRIStep>`. Following these, we describe set of :ref:`user-supplied
-routines <ARKODE.Usage.UserSupplied>` (both required and optional) that can be
-supplied to ARKODE.
+:ref:`ERKStep <ARKODE.Usage.ERKStep>`, :ref:`SPRKStep <ARKODE.Usage.SPRKStep>` 
+and :ref:`MRIStep <ARKODE.Usage.MRIStep>`. Following these, we describe the set of 
+:ref:`user-supplied routines <ARKODE.Usage.UserSupplied>` 
+(both required and optional) that can be supplied to ARKODE.
 
 .. toctree::
    :maxdepth: 1
@@ -33,5 +33,6 @@ supplied to ARKODE.
    General.rst
    ARKStep_c_interface/index.rst
    ERKStep_c_interface/index.rst
+   SPRKStep_c_interface/index.rst
    MRIStep_c_interface/index.rst
    User_supplied.rst

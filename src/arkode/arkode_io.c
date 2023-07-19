@@ -51,6 +51,7 @@ int arkSetDefaults(void *arkode_mem)
   ark_mem = (ARKodeMem) arkode_mem;
 
   /* Set default values for integrator optional inputs */
+  ark_mem->use_compensated_sums    = SUNFALSE; 
   ark_mem->fixedstep               = SUNFALSE;       /* default to use adaptive steps */
   ark_mem->reltol                  = RCONST(1.e-4);  /* relative tolerance */
   ark_mem->itol                    = ARK_SS;         /* scalar-scalar solution tolerances */
@@ -159,8 +160,10 @@ int arkSetInterpolantType(void *arkode_mem, int itype)
      the maximum possible interpolant degree. */
   if (itype == ARK_INTERP_HERMITE) {
     ark_mem->interp = arkInterpCreate_Hermite(arkode_mem, ARK_INTERP_MAX_DEGREE);
-  } else {
+  } else if (itype == ARK_INTERP_LAGRANGE) {
     ark_mem->interp = arkInterpCreate_Lagrange(arkode_mem, ARK_INTERP_MAX_DEGREE);
+  } else {
+    ark_mem->interp = NULL;
   }
   if (ark_mem->interp == NULL) {
     arkProcessError(ark_mem, ARK_MEM_FAIL, "ARKODE", "arkSetInterpolantType",
@@ -1279,6 +1282,30 @@ int arkSetMaxConvFails(void *arkode_mem, int maxncf)
   return(ARK_SUCCESS);
 }
 
+/*---------------------------------------------------------------
+  arkSetUseCompensatedSums:
+
+  Specifies that ARKODE should use compensated (Kahan) summation
+  where relevant to mitigate roundoff error.
+  ---------------------------------------------------------------*/
+int arkSetUseCompensatedSums(void *arkode_mem, sunbooleantype onoff)
+{
+  ARKodeMem ark_mem;
+  if (arkode_mem==NULL) {
+    arkProcessError(NULL, ARK_MEM_NULL, "ARKODE",
+                    "arkSetUseCompensatedSums", MSG_ARK_NO_MEM);
+    return(ARK_MEM_NULL);
+  }
+  ark_mem = (ARKodeMem) arkode_mem;
+
+  if (onoff) {
+    ark_mem->use_compensated_sums = SUNTRUE;
+  } else {
+    ark_mem->use_compensated_sums = SUNFALSE;
+  }
+
+  return(ARK_SUCCESS);
+}
 
 
 /*===============================================================

@@ -10,20 +10,4 @@
    SUNDIALS Copyright End
    ----------------------------------------------------------------
 
-********************
-ARKODE Documentation
-********************
-
-**Table of Contents**:
-
-.. toctree::
-   :maxdepth: 1
-
-   Introduction_link.rst
-   Mathematics_link.rst
-   Organization_link.rst
-   Usage/index.rst
-   ARKodeButcherTable_link.rst
-   ARKodeSPRKTable_link.rst
-   Constants_link.rst
-   Butcher_link.rst
+.. include:: ../../../arkode/guide/source/ARKodeSPRKTable.rst
