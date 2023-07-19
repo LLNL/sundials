@@ -359,7 +359,7 @@ struct ARKodeMemRec
   realtype hmax_inv;           /* |h| <= 1/hmax_inv                        */
   realtype hprime;             /* next actual step size to be used         */
   realtype next_h;             /* next dynamical step size (only used in
-                                  getCurrenStep); note that this could
+                                  getCurrentStep); note that this could
                                   overtake tstop */
   realtype eta;                /* eta = hprime / h                         */
   realtype tcur;               /* current internal value of t
@@ -399,6 +399,7 @@ struct ARKodeMemRec
   /* Saved Values */
   realtype    h0u;          /* actual initial stepsize                     */
   realtype    tn;           /* time of last successful step                */
+  realtype    terr;         /* error in tn for compensated sums            */
   realtype    hold;         /* last successful h value used                */
   realtype    tolsf;        /* tolerance scale factor (suggestion to user) */
   booleantype VabstolMallocDone;
@@ -428,6 +429,8 @@ struct ARKodeMemRec
 
   /* User-supplied stage solution post-processing function */
   ARKPostProcessFn ProcessStage;
+
+  sunbooleantype use_compensated_sums;
 
   /* XBraid interface variables */
   booleantype force_pass;  /* when true the step attempt loop will ignore the
@@ -1020,6 +1023,7 @@ int arkSetMaxCFailGrowth(void *arkode_mem, realtype etacf);
 int arkSetStabilityFn(void *arkode_mem, ARKExpStabFn EStab, void *estab_data);
 int arkSetMaxErrTestFails(void *arkode_mem, int maxnef);
 int arkSetMaxConvFails(void *arkode_mem, int maxncf);
+int arkSetUseCompensatedSums(void *arkode_mem, sunbooleantype onoff);
 int arkGetWorkSpace(void *arkode_mem, long int *lenrw, long int *leniw);
 int arkGetNumStepAttempts(void *arkode_mem, long int *nstep_attempts);
 int arkGetNumSteps(void *arkode_mem, long int *nsteps);
