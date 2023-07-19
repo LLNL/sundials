@@ -98,86 +98,88 @@ ARKodeSPRKTable functions
    +----------------------------------------------+------------------------------------------------------------+
    | **Function name**                            | **Description**                                            |
    +==============================================+============================================================+
-   | :c:func:`ARKodeSPRKTable_Alloc()`            | Allocate an empty table structure                          |
+   | :c:func:`ARKodeSPRKTable_Alloc()`            | Allocate an empty table                                    |
    +----------------------------------------------+------------------------------------------------------------+
    | :c:func:`ARKodeSPRKTable_Load()`             | Load SPRK method using an identifier                       |
    +----------------------------------------------+------------------------------------------------------------+
    | :c:func:`ARKodeSPRKTable_LoadByName()`       | Load SPRK method using a string version of the identifier  |
    +----------------------------------------------+------------------------------------------------------------+
-   | :c:func:`ARKodeSPRKTable_Create()`           | Create a new table structure                               |
+   | :c:func:`ARKodeSPRKTable_Create()`           | Create a new table                                         |
    +----------------------------------------------+------------------------------------------------------------+
-   | :c:func:`ARKodeSPRKTable_Copy()`             | Create a copy of a table structure                         |
+   | :c:func:`ARKodeSPRKTable_Copy()`             | Create a copy of a table                                   |
    +----------------------------------------------+------------------------------------------------------------+
-   | :c:func:`ARKodeSPRKTable_Space()`            | Get the table structure real and integer workspace size    |
+   | :c:func:`ARKodeSPRKTable_Space()`            | Get the table real and integer workspace size              |
    +----------------------------------------------+------------------------------------------------------------+
-   | :c:func:`ARKodeSPRKTable_Free()`             | Deallocate a table structure                               |
+   | :c:func:`ARKodeSPRKTable_Free()`             | Deallocate a table                                         |
    +----------------------------------------------+------------------------------------------------------------+
 
 
 .. c:function:: ARKodeSPRKTable ARKodeSPRKTable_Create(int stages, int q, const sunrealtype* a, const sunrealtype* ahat)
 
-   Creates and allocates :c:type:`ARKodeSPRKTable` structure with the specified number of stages and the coefficients provided.
+   Creates and allocates an :c:type:`ARKodeSPRKTable` with the specified number
+   of stages and the coefficients provided.
 
    :param stages: The number of stages.
    :param q: The order of the method.
    :param a: An array of the coefficients for the ``a`` table.
    :param ahat: An array of the coefficients for the ``ahat`` table.
-   :return: :c:type:`ARKodeSPRKTable` structure for the loaded method.
+   :return: :c:type:`ARKodeSPRKTable` for the loaded method.
 
 .. c:function:: ARKodeSPRKTable ARKodeSPRKTable_Alloc(int stages)
 
-   Allocate memory for an :c:type:`ARKodeSPRKTable` structure with the specified number of stages.
+   Allocate memory for an :c:type:`ARKodeSPRKTable` with the specified
+   number of stages.
 
    :param stages: The number of stages.
-   :return: :c:type:`ARKodeSPRKTable` structure for the loaded method.
+   :return: :c:type:`ARKodeSPRKTable` for the loaded method.
 
 .. c:function:: ARKodeSPRKTable ARKodeSPRKTable_Load(ARKODE_SPRKMethodID id)
 
-   Load the :c:type:`ARKodeSPRKTable` structure for the specified method ID.
+   Load the :c:type:`ARKodeSPRKTable` for the specified method ID.
 
    :param id: The ID of the SPRK method, see :ref:`Butcher.sprk`.
-   :return: :c:type:`ARKodeSPRKTable` structure for the loaded method.
+   :return: :c:type:`ARKodeSPRKTable` for the loaded method.
 
 .. c:function:: ARKodeSPRKTable ARKodeSPRKTable_LoadByName(const char* method)
 
-   Load the :c:type:`ARKodeSPRKTable` structure for the specified method name.
+   Load the :c:type:`ARKodeSPRKTable` for the specified method name.
 
    :param method: The name of the SPRK method, see :ref:`Butcher.sprk`.
-   :return: :c:type:`ARKodeSPRKTable` structure for the loaded method.
+   :return: :c:type:`ARKodeSPRKTable` for the loaded method.
 
 .. c:function:: ARKodeSPRKTable ARKodeSPRKTable_Copy(ARKodeSPRKTable sprk_table)
 
-   Create a copy of the :c:type:`ARKodeSPRKTable` structure.
+   Create a copy of the :c:type:`ARKodeSPRKTable`.
 
-   :param sprk_table: The :c:type:`ARKodeSPRKTable` structure to copy.
-   :return: Pointer to the copied :c:type:`ARKodeSPRKTable` structure.
+   :param sprk_table: The :c:type:`ARKodeSPRKTable` to copy.
+   :return: Pointer to the copied :c:type:`ARKodeSPRKTable`.
 
 .. c:function:: void ARKodeSPRKTable_Write(ARKodeSPRKTable sprk_table, FILE* outfile)
 
    Write the ARKodeSPRKTable out to the file.
 
-   :param sprk_table: The :c:type:`ARKodeSPRKTable` structure to write.
+   :param sprk_table: The :c:type:`ARKodeSPRKTable` to write.
    :param outfile: The FILE that will be written to.
    :return: void
 
 .. c:function:: void ARKodeSPRKTable_Space(ARKodeSPRKTable sprk_table, sunindextype* liw, sunindextype* lrw)
 
-   Get the workspace sizes required for the :c:type:`ARKodeSPRKTable` structure.
+   Get the workspace sizes required for the :c:type:`ARKodeSPRKTable`.
 
-   :param sprk_table: The :c:type:`ARKodeSPRKTable` structure.
+   :param sprk_table: The :c:type:`ARKodeSPRKTable`.
    :param liw: Pointer to store the integer workspace size.
    :param lrw: Pointer to store the real workspace size.
 
 .. c:function:: void ARKodeSPRKTable_Free(ARKodeSPRKTable sprk_table)
 
-   Free the memory allocated for the :c:type:`ARKodeSPRKTable` structure.
+   Free the memory allocated for the :c:type:`ARKodeSPRKTable`.
 
-   :param sprk_table: The :c:type:`ARKodeSPRKTable` structure to free.
+   :param sprk_table: The :c:type:`ARKodeSPRKTable` to free.
 
 .. c:function:: int ARKodeSPRKTable_ToButcher(ARKodeSPRKTable sprk_table, ARKodeButcherTable* a_ptr, ARKodeButcherTable* b_ptr)
 
-   Convert the :c:type:`ARKodeSPRKTable` structure to the Butcher table representation.
+   Convert the :c:type:`ARKodeSPRKTable` to the Butcher table representation.
 
-   :param sprk_table: The :c:type:`ARKodeSPRKTable` structure.
+   :param sprk_table: The :c:type:`ARKodeSPRKTable`.
    :param a_ptr: Pointer to store the explicit Butcher table.
    :param b_ptr: Pointer to store the diagonally-implicit Butcher table.
