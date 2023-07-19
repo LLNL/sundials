@@ -160,7 +160,6 @@ ARKodeSPRKTable functions
 
    :param sprk_table: The :c:type:`ARKodeSPRKTable` to write.
    :param outfile: The FILE that will be written to.
-   :return: void
 
 .. c:function:: void ARKodeSPRKTable_Space(ARKodeSPRKTable sprk_table, sunindextype* liw, sunindextype* lrw)
 
