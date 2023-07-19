@@ -174,10 +174,10 @@ ARKodeSPRKTable functions
 
    :param sprk_table: The :c:type:`ARKodeSPRKTable` structure to free.
 
-.. c:function:: int ARKodeSPRKTable_ToButcher(ARKodeSPRKTable sprk_storage, ARKodeSPRKTable* a_ptr, ARKodeSPRKTable* b_ptr)
+.. c:function:: int ARKodeSPRKTable_ToButcher(ARKodeSPRKTable sprk_table, ARKodeButcherTable* a_ptr, ARKodeButcherTable* b_ptr)
 
    Convert the :c:type:`ARKodeSPRKTable` structure to the Butcher table representation.
 
-   :param sprk_storage: The :c:type:`ARKodeSPRKTable` structure.
+   :param sprk_table: The :c:type:`ARKodeSPRKTable` structure.
    :param a_ptr: Pointer to store the explicit Butcher table.
    :param b_ptr: Pointer to store the diagonally-implicit Butcher table.
