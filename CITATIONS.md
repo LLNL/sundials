@@ -46,11 +46,15 @@ If any GPU features of SUNDIALS were utilized, please also cite:
 When using the ARKODE package from SUNDIALS, please also cite:
 
 ```bibtex
-@article{reynolds2022arkode,
+@article{reynolds2023arkode,
   title   = {{ARKODE: A flexible IVP solver infrastructure for one-step methods}},
   author  = {Reynolds, Daniel R and Gardner, David J and Woodward, Carol S and Chinomona, Rujeko},
-  journal = {arXiv preprint arXiv:2205.14077},
-  year    = {2022}
+  journal = {ACM Transactions on Mathematical Software},
+  volume  = {49},
+  number  = {2},
+  pages   = {1--26},
+  year    = {2023},
+  doi     = {10.1145/3594632}
 }
 ```
 
