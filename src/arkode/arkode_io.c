@@ -1298,7 +1298,6 @@ int arkSetUseCompensatedSums(void *arkode_mem, sunbooleantype onoff)
   }
   ark_mem = (ARKodeMem) arkode_mem;
 
-  /* argument <= 0 sets default, otherwise set input */
   if (onoff) {
     ark_mem->use_compensated_sums = SUNTRUE;
   } else {
