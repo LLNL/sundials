@@ -247,8 +247,8 @@ error message to the error handler function. All error return values are
 negative, so a test on the return arguments for negative values will catch all
 errors. Finally, a call to a ``SPRKStepSet***`` function can generally be made
 from the user's calling program at any time and, if successful, takes effect
-immediately. ``SPRKStepSet***`` functions that cannot be called at any time note
-this explicitly noted in the function documentation.
+immediately. For ``SPRKStepSet***`` functions that cannot be called at any time,
+this is explicitly noted in the function documentation.
 
 
 
