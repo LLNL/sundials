@@ -10,11 +10,61 @@
    SUNDIALS Copyright End
    ----------------------------------------------------------------
 
-.. _SPRKStorage:
+.. _ARKodeSPRKTable:
 
 ===========================
 SPRK Method Table Structure
 ===========================
+
+To store the pair of Butcher tables defining a SPRK method of order :math:`q`
+ARKODE provides the :c:type:`ARKodeSPRKTable` type and several related utility
+routines. We use the following notation
+
+.. math::
+
+   B \; \equiv \;
+   \begin{array}{r|c}
+     c & A \\
+     \hline
+       & b \\
+   \end{array}
+   \; = \;
+   \begin{array}{c|cccc}
+   c_1 & 0 & \cdots & 0 & 0 \\
+   c_2 & a_1 & 0 & \cdots & \vdots \\
+   \vdots & \vdots & \ddots & \ddots & \vdots \\
+   c_s & a_1 & \cdots & a_{s-1} & 0 \\
+   \hline
+   & a_1 & \cdots & a_{s-1} & a_s
+   \end{array}
+   \qquad
+   \qquad
+   \hat{B} \; \equiv \;
+   \begin{array}{r|c}
+     \hat{c} & \hat{A} \\
+     \hline
+             & \hat{b} \\
+   \end{array}
+   \; = \;
+   \begin{array}{c|cccc}
+   \hat{c}_1 & \hat{a}_1 & \cdots & 0 & 0 \\
+   \hat{c}_2 & \hat{a}_1 & \hat{a}_2 & \cdots & \vdots \\
+   \vdots & \vdots & \ddots & \ddots & \vdots \\
+   \hat{c}_s & \hat{a}_1 & \hat{a}_2 & \cdots & \hat{a}_{s} \\
+   \hline
+   & \hat{a}_1 & \hat{a}_2 & \cdots & \hat{a}_{s}
+   \end{array}
+
+where :math:`B` and :math:`\hat{B}` contain the coefficients for the explicit
+and diagonally implicit tables, respectively. We use a compact storage of these
+coefficients in terms of two arrays, one for :math:`a` values and one for
+:math:`\hat{a}` values. The abscissae (only relevant for non-autonomous
+problems) are computed dynamically as :math:`c_j = \sum_{i=1}^j a_i` and
+:math:`\hat{c}_j = \sum_{i=1}^j \hat{a}_i`, respectively
+:cite:p:`Jay:21,Diele:11`. The :c:type:`ARKodeSPRKTable` type is a pointer to
+the :c:type:`ARKodeSPRKTableMem` structure:
+
+.. c:type:: ARKodeSPRKTableMem* ARKodeSPRKTable
 
 .. c:type:: ARKodeSPRKTableMem
 
@@ -33,33 +83,10 @@ SPRK Method Table Structure
       Array of coefficients that generate the explicit Butcher table.
       ``a[i]`` is the coefficient appearing in column i+1.
 
-      .. math::
-         \begin{array}{c|cccc}
-         c_1 & 0 & \cdots & 0 & 0 \\
-         c_2 & a_1 & 0 & \cdots & \vdots \\
-         \vdots & \vdots & \ddots & \ddots & \vdots \\
-         c_s & a_1 & \cdots & a_{s-1} & 0 \\
-         \hline
-         & a_1 & \cdots & a_{s-1} & a_s
-         \end{array}.
-
    .. c:member:: sunrealtype* ahat
 
       Array of coefficients that generate the diagonally-implicit Butcher table.
       ``ahat[i]`` is the coefficient appearing in column i.
-
-      .. math::
-         \begin{array}{c|cccc}
-         \hat{c}_1 & \hat{a}_1 & \cdots & 0 & 0 \\
-         \hat{c}_2 & \hat{a}_1 & \hat{a}_2 & \cdots & \vdots \\
-         \vdots & \vdots & \ddots & \ddots & \vdots \\
-         \hat{c}_s & \hat{a}_1 & \hat{a}_2 & \cdots & \hat{a}_{s} \\
-         \hline
-         & \hat{a}_1 & \hat{a}_2 & \cdots & \hat{a}_{s}
-         \end{array}.
-
-
-.. c:type:: ARKodeSPRKTableMem* ARKodeSPRKTable
 
 
 ARKodeSPRKTable functions
