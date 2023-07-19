@@ -584,7 +584,11 @@ int ARKodeSPRKTable_ToButcher(ARKodeSPRKTable sprk_table,
   a = ARKodeButcherTable_Alloc(sprk_table->stages, SUNFALSE);
   if (!a) { return ARK_MEM_FAIL; }
   b = ARKodeButcherTable_Alloc(sprk_table->stages, SUNFALSE);
-  if (!b) { return ARK_MEM_FAIL; }
+  if (!b)
+  {
+    if (a) { ARKodeButcherTable_Free(a); }
+    return ARK_MEM_FAIL;
+  }
 
   /* DIRK table */
   for (i = 0; i < sprk_table->stages; ++i)
