@@ -204,9 +204,10 @@ has requested rootfinding.
       :math:`y_{n}` will be returned in the vector *yout*.  Once the
       integrator returns at a *tstop* time, any future testing for
       *tstop* is disabled (and can be re-enabled only though a new call
-      to :c:func:`SPRKStepSetStopTime()`). SPRKStep uses the ARKODE
-      Our testing has shown that Lagrange interpolation typically performs
-      well in this regard, while Hermite interpolation does not.
+      to :c:func:`SPRKStepSetStopTime()`). SPRKStep uses the Lagrange
+      interpolation module by default as our testing has shown that Lagrange
+      interpolation typically performs well in this regard, while Hermite
+      interpolation does not.
 
       On any error return in which one or more internal steps were taken
       by :c:func:`SPRKStepEvolve()`, the returned values of *tret* and
