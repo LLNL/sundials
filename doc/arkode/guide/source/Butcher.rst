@@ -19,7 +19,7 @@ Appendix: Butcher tables
 =========================
 
 Here we catalog the full set of Butcher tables included in ARKODE. We group
-these into four categories: *explicit*, *implicit*, *additive* and 
+these into four categories: *explicit*, *implicit*, *additive* and
 *symplectic partitioned*.
 However, since the methods that comprise an additive Runge--Kutta method are
 themselves explicit and implicit, their component Butcher tables are listed
@@ -62,14 +62,14 @@ where here
 * ``Q`` is the global order of accuracy for the method.
 
 For methods without an embedding (e.g., fixed-step methods) ``P`` is omitted so
-that methods follow the naming convention ``NAME-S-Q``. 
+that methods follow the naming convention ``NAME-S-Q``.
 
 For SPRK methods, the naming convention is ``SPRK-NAME-S-Q``.
 
 In the code, unique integer IDs are defined inside ``arkode_butcher_erk.h`` and
 ``arkode_butcher_dirk.h`` for each method, which may be used by calling routines
 to specify the desired method. SPRK methods are defined inside ``arkode_sprk.h``.
-These names are specified in ``fixed width font`` at the start of each method's 
+These names are specified in ``fixed width font`` at the start of each method's
 section below.
 
 Additionally, for each method we provide a plot of the linear
@@ -143,7 +143,7 @@ Explicit Butcher tables
 In the category of explicit Runge--Kutta methods, ARKODE includes
 methods that have orders 2 through 6, with embeddings that are of
 orders 1 through 5.  Each of ARKODE's explicit Butcher tables are
-specified via a unique ID:
+specified via a unique ID and name:
 
 .. c:enum:: ARKODE_ERKTableID
 
@@ -813,7 +813,7 @@ includes methods that have orders 2 through 5, with embeddings that are of
 orders 1 through 4.
 
 Each of ARKODE's diagonally-implicit Butcher tables are
-specified via a unique ID:
+specified via a unique ID and name:
 
 .. c:enum:: ARKODE_DIRKTableID
 
@@ -1712,6 +1712,11 @@ Butcher table pairs are as follows:
 Symplectic Partitioned Butcher tables
 -------------------------------------
 
+In the category of symplectic partitioned Runge-Kutta (SPRK) methods, ARKODE
+includes methods that have orders :math:`q = \{1,2,3,4,5,6,8,10\}`. Each of
+the ARKODE SPRK tables are specified via a unique ID and name.
+
+
 ARKODE_SPRK_EULER_1_1
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
@@ -1739,7 +1744,7 @@ ARKODE_SPRK_PSEUDO_LEAPFROG_2_2
 
 Accessible via the constant (or string) ``ARKODE_SPRK_PSEUDO_LEAPFROG_2_2`` to
 :c:func:`ARKodeSPRKTable_Load` or :c:func:`ARKodeSPRKTable_LoadByName`.
-This is the classic Pseudo Leapfrog/Verlet method. 
+This is the classic Pseudo Leapfrog/Verlet method.
 
 
 ARKODE_SPRK_MCLACHLAN_2_2
