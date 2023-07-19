@@ -432,9 +432,32 @@ int sprkStep_Init(void* arkode_mem, int init_type)
     }
   }
 
-  /* Limit max degree to at most one less than the method global order */
-  retval = arkInterpSetDegree(ark_mem, ark_mem->interp,
-                              -(step_mem->method->q - 1));
+  /* Limit max interpolant degree (negative input only overwrites the current
+     interpolant degree if it is greater than abs(input). */
+  if (ark_mem->interp != NULL)
+  {
+    if (step_mem->method->q > 1)
+    {
+      /* Limit max degree to at most one less than the method global order */
+      retval = arkInterpSetDegree(ark_mem, ark_mem->interp,
+                                  -(step_mem->method->q - 1));
+    }
+    else
+    {
+      /* Allow for linear interpolant with first order methods to ensure
+         solution values are returned at the time interval end points */
+      retval = arkInterpSetDegree(ark_mem, ark_mem->interp,
+                                  -(step_mem->method->q));
+    }
+
+    if (retval != ARK_SUCCESS)
+    {
+      arkProcessError(ark_mem, ARK_ILL_INPUT, "ARKODE::SPRKStep",
+                      "arkStep_Init",
+                      "Unable to update interpolation polynomial degree");
+      return (ARK_ILL_INPUT);
+    }
+  }
 
   /* Signal to shared arkode module that fullrhs is not required after each step
    */
