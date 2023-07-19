@@ -55,6 +55,10 @@ endforeach()
 
 ### ------- Create TPL imported targets
 
+if("@ENABLE_MPI@" AND NOT TARGET MPI::MPI_C)
+  find_dependency(MPI)
+endif()
+
 if("@ENABLE_OPENMP@" AND NOT TARGET OpenMP::OpenMP_C)
   find_dependency(OpenMP)
 endif()
