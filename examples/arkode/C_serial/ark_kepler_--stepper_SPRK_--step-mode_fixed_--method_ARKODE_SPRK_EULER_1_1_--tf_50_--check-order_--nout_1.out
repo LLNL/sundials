@@ -11,7 +11,7 @@ Problem Arguments:
   nout:                 1
 
 t = 0.0000, H(p,q) = -0.5000000000000000, L(p,q) = 0.8000000000000000
-t = 50.0000, H(p,q)-H0 = -0.0000000000002238, L(p,q)-L0 = -0.0000000000000500
+t = 50.0000, H(p,q)-H0 = -2.2382096176443156e-13, L(p,q)-L0 = -4.9960036108132044e-14
 Current time                 = 50
 Steps                        = 50001
 Step attempts                = 50001
@@ -42,7 +42,7 @@ Problem Arguments:
   nout:                 1
 
 t = 0.0000, H(p,q) = -0.5000000000000000, L(p,q) = 0.8000000000000000
-t = 50.0000, H(p,q)-H0 = -0.0012973337429578, L(p,q)-L0 = 0.0000000000000004
+t = 50.0000, H(p,q)-H0 = -1.2973337429578180e-03, L(p,q)-L0 = 4.4408920985006262e-16
 Current time                 = 50
 Steps                        = 50001
 Step attempts                = 50001
@@ -70,7 +70,7 @@ Problem Arguments:
   nout:                 1
 
 t = 0.0000, H(p,q) = -0.5000000000000000, L(p,q) = 0.8000000000000000
-t = 50.0000, H(p,q)-H0 = -0.0006522136203477, L(p,q)-L0 = -0.0000000000000224
+t = 50.0000, H(p,q)-H0 = -6.5221362034773023e-04, L(p,q)-L0 = -2.2426505097428162e-14
 Current time                 = 50
 Steps                        = 100000
 Step attempts                = 100000
@@ -98,7 +98,7 @@ Problem Arguments:
   nout:                 1
 
 t = 0.0000, H(p,q) = -0.5000000000000000, L(p,q) = 0.8000000000000000
-t = 50.0000, H(p,q)-H0 = -0.0003269003906117, L(p,q)-L0 = 0.0000000000000115
+t = 50.0000, H(p,q)-H0 = -3.2690039061167298e-04, L(p,q)-L0 = 1.1546319456101628e-14
 Current time                 = 50
 Steps                        = 200000
 Step attempts                = 200000
@@ -126,7 +126,7 @@ Problem Arguments:
   nout:                 1
 
 t = 0.0000, H(p,q) = -0.5000000000000000, L(p,q) = 0.8000000000000000
-t = 50.0000, H(p,q)-H0 = -0.0001636371851703, L(p,q)-L0 = -0.0000000000000148
+t = 50.0000, H(p,q)-H0 = -1.6363718517031778e-04, L(p,q)-L0 = -1.4765966227514582e-14
 Current time                 = 50
 Steps                        = 400001
 Step attempts                = 400001
@@ -154,7 +154,7 @@ Problem Arguments:
   nout:                 1
 
 t = 0.0000, H(p,q) = -0.5000000000000000, L(p,q) = 0.8000000000000000
-t = 50.0000, H(p,q)-H0 = -0.0000818639245175, L(p,q)-L0 = -0.0000000000001292
+t = 50.0000, H(p,q)-H0 = -8.1863924517477926e-05, L(p,q)-L0 = -1.2922996006636822e-13
 Current time                 = 50
 Steps                        = 800001
 Step attempts                = 800001
@@ -182,7 +182,7 @@ Problem Arguments:
   nout:                 1
 
 t = 0.0000, H(p,q) = -0.5000000000000000, L(p,q) = 0.8000000000000000
-t = 50.0000, H(p,q)-H0 = -0.0000409431186841, L(p,q)-L0 = -0.0000000000000142
+t = 50.0000, H(p,q)-H0 = -4.0943118684078073e-05, L(p,q)-L0 = -1.4210854715202004e-14
 Current time                 = 50
 Steps                        = 1600001
 Step attempts                = 1600001
@@ -210,7 +210,7 @@ Problem Arguments:
   nout:                 1
 
 t = 0.0000, H(p,q) = -0.5000000000000000, L(p,q) = 0.8000000000000000
-t = 50.0000, H(p,q)-H0 = -0.0000204743261560, L(p,q)-L0 = 0.0000000000000230
+t = 50.0000, H(p,q)-H0 = -2.0474326156039169e-05, L(p,q)-L0 = 2.2981616609740740e-14
 Current time                 = 50
 Steps                        = 3200000
 Step attempts                = 3200000
@@ -238,7 +238,7 @@ Problem Arguments:
   nout:                 1
 
 t = 0.0000, H(p,q) = -0.5000000000000000, L(p,q) = 0.8000000000000000
-t = 50.0000, H(p,q)-H0 = -0.0000102378522768, L(p,q)-L0 = -0.0000000000001756
+t = 50.0000, H(p,q)-H0 = -1.0237852276828718e-05, L(p,q)-L0 = -1.7563728249569976e-13
 Current time                 = 50
 Steps                        = 6400000
 Step attempts                = 6400000
@@ -254,98 +254,4 @@ f1 RHS fn evals              = 6400001
 f2 RHS fn evals              = 6400001
 
 Order of accuracy wrt solution:    expected = 1, max = 1.6317,  avg = 1.0843,  overall = 1.0418
-Order of accuracy wrt Hamiltonian: expe
-=================================================================
-==64418==ERROR: LeakSanitizer: detected memory leaks
-
-Direct leak of 24 byte(s) in 1 object(s) allocated from:
-    #0 0x7fdf15bed07a in __interceptor_malloc /tmp/gardner48/spack-stage/spack-stage-gcc-5.5.0-khqnsyjkc36jajm2637pm3dftr2egjwk/spack-src/libsanitizer/asan/asan_malloc_linux.cc:62
-    #1 0x7fdf153af06c in ARKodeSPRKTable_Alloc /home/gardner48/sundials/src/arkode/arkode_sprk.c:411
-    #2 0x7fdf153a485c in ARKodeSymplecticEuler /home/gardner48/sundials/src/arkode/arkode_sprk.c:25
-    #3 0x7fdf153af322 in ARKodeSPRKTable_LoadByName /home/gardner48/sundials/src/arkode/arkode_sprk.c:446
-    #4 0x40232f in main /home/gardner48/sundials/examples/arkode/C_serial/ark_kepler.c:163
-    #5 0x7fdf137a9554 in __libc_start_main (/lib64/libc.so.6+0x22554)
-
-Direct leak of 24 byte(s) in 1 object(s) allocated from:
-    #0 0x7fdf15bed07a in __interceptor_malloc /tmp/gardner48/spack-stage/spack-stage-gcc-5.5.0-khqnsyjkc36jajm2637pm3dftr2egjwk/spack-src/libsanitizer/asan/asan_malloc_linux.cc:62
-    #1 0x7fdf153ecbd2 in N_VNewEmpty /home/gardner48/sundials/src/sundials/sundials_nvector.c:48
-    #2 0x7fdf15403657 in N_VCloneEmpty_Serial /home/gardner48/sundials/src/nvector/serial/nvector_serial.c:295
-    #3 0x7fdf154038e1 in N_VClone_Serial /home/gardner48/sundials/src/nvector/serial/nvector_serial.c:324
-    #4 0x7fdf153f196a in N_VClone /home/gardner48/sundials/src/sundials/sundials_nvector.c:284
-    #5 0x402398 in main /home/gardner48/sundials/examples/arkode/C_serial/ark_kepler.c:164
-    #6 0x7fdf137a9554 in __libc_start_main (/lib64/libc.so.6+0x22554)
-
-Direct leak of 24 byte(s) in 1 object(s) allocated from:
-    #0 0x7fdf15bed07a in __interceptor_malloc /tmp/gardner48/spack-stage/spack-stage-gcc-5.5.0-khqnsyjkc36jajm2637pm3dftr2egjwk/spack-src/libsanitizer/asan/asan_malloc_linux.cc:62
-    #1 0x7fdf153ecbd2 in N_VNewEmpty /home/gardner48/sundials/src/sundials/sundials_nvector.c:48
-    #2 0x7fdf15403657 in N_VCloneEmpty_Serial /home/gardner48/sundials/src/nvector/serial/nvector_serial.c:295
-    #3 0x7fdf154038e1 in N_VClone_Serial /home/gardner48/sundials/src/nvector/serial/nvector_serial.c:324
-    #4 0x7fdf153f196a in N_VClone /home/gardner48/sundials/src/sundials/sundials_nvector.c:284
-    #5 0x4023ae in main /home/gardner48/sundials/examples/arkode/C_serial/ark_kepler.c:165
-    #6 0x7fdf137a9554 in __libc_start_main (/lib64/libc.so.6+0x22554)
-
-Indirect leak of 448 byte(s) in 1 object(s) allocated from:
-    #0 0x7fdf15bed07a in __interceptor_malloc /tmp/gardner48/spack-stage/spack-stage-gcc-5.5.0-khqnsyjkc36jajm2637pm3dftr2egjwk/spack-src/libsanitizer/asan/asan_malloc_linux.cc:62
-    #1 0x7fdf153ecbf9 in N_VNewEmpty /home/gardner48/sundials/src/sundials/sundials_nvector.c:53
-    #2 0x7fdf15403657 in N_VCloneEmpty_Serial /home/gardner48/sundials/src/nvector/serial/nvector_serial.c:295
-    #3 0x7fdf154038e1 in N_VClone_Serial /home/gardner48/sundials/src/nvector/serial/nvector_serial.c:324
-    #4 0x7fdf153f196a in N_VClone /home/gardner48/sundials/src/sundials/sundials_nvector.c:284
-    #5 0x4023ae in main /home/gardner48/sundials/examples/arkode/C_serial/ark_kepler.c:165
-    #6 0x7fdf137a9554 in __libc_start_main (/lib64/libc.so.6+0x22554)
-
-Indirect leak of 448 byte(s) in 1 object(s) allocated from:
-    #0 0x7fdf15bed07a in __interceptor_malloc /tmp/gardner48/spack-stage/spack-stage-gcc-5.5.0-khqnsyjkc36jajm2637pm3dftr2egjwk/spack-src/libsanitizer/asan/asan_malloc_linux.cc:62
-    #1 0x7fdf153ecbf9 in N_VNewEmpty /home/gardner48/sundials/src/sundials/sundials_nvector.c:53
-    #2 0x7fdf15403657 in N_VCloneEmpty_Serial /home/gardner48/sundials/src/nvector/serial/nvector_serial.c:295
-    #3 0x7fdf154038e1 in N_VClone_Serial /home/gardner48/sundials/src/nvector/serial/nvector_serial.c:324
-    #4 0x7fdf153f196a in N_VClone /home/gardner48/sundials/src/sundials/sundials_nvector.c:284
-    #5 0x402398 in main /home/gardner48/sundials/examples/arkode/C_serial/ark_kepler.c:164
-    #6 0x7fdf137a9554 in __libc_start_main (/lib64/libc.so.6+0x22554)
-
-Indirect leak of 32 byte(s) in 1 object(s) allocated from:
-    #0 0x7fdf15bed07a in __interceptor_malloc /tmp/gardner48/spack-stage/spack-stage-gcc-5.5.0-khqnsyjkc36jajm2637pm3dftr2egjwk/spack-src/libsanitizer/asan/asan_malloc_linux.cc:62
-    #1 0x7fdf154039af in N_VClone_Serial /home/gardner48/sundials/src/nvector/serial/nvector_serial.c:334
-    #2 0x7fdf153f196a in N_VClone /home/gardner48/sundials/src/sundials/sundials_nvector.c:284
-    #3 0x4023ae in main /home/gardner48/sundials/examples/arkode/C_serial/ark_kepler.c:165
-    #4 0x7fdf137a9554 in __libc_start_main (/lib64/libc.so.6+0x22554)
-
-Indirect leak of 32 byte(s) in 1 object(s) allocated from:
-    #0 0x7fdf15bed07a in __interceptor_malloc /tmp/gardner48/spack-stage/spack-stage-gcc-5.5.0-khqnsyjkc36jajm2637pm3dftr2egjwk/spack-src/libsanitizer/asan/asan_malloc_linux.cc:62
-    #1 0x7fdf154039af in N_VClone_Serial /home/gardner48/sundials/src/nvector/serial/nvector_serial.c:334
-    #2 0x7fdf153f196a in N_VClone /home/gardner48/sundials/src/sundials/sundials_nvector.c:284
-    #3 0x402398 in main /home/gardner48/sundials/examples/arkode/C_serial/ark_kepler.c:164
-    #4 0x7fdf137a9554 in __libc_start_main (/lib64/libc.so.6+0x22554)
-
-Indirect leak of 24 byte(s) in 1 object(s) allocated from:
-    #0 0x7fdf15bed07a in __interceptor_malloc /tmp/gardner48/spack-stage/spack-stage-gcc-5.5.0-khqnsyjkc36jajm2637pm3dftr2egjwk/spack-src/libsanitizer/asan/asan_malloc_linux.cc:62
-    #1 0x7fdf154036ab in N_VCloneEmpty_Serial /home/gardner48/sundials/src/nvector/serial/nvector_serial.c:303
-    #2 0x7fdf154038e1 in N_VClone_Serial /home/gardner48/sundials/src/nvector/serial/nvector_serial.c:324
-    #3 0x7fdf153f196a in N_VClone /home/gardner48/sundials/src/sundials/sundials_nvector.c:284
-    #4 0x402398 in main /home/gardner48/sundials/examples/arkode/C_serial/ark_kepler.c:164
-    #5 0x7fdf137a9554 in __libc_start_main (/lib64/libc.so.6+0x22554)
-
-Indirect leak of 24 byte(s) in 1 object(s) allocated from:
-    #0 0x7fdf15bed07a in __interceptor_malloc /tmp/gardner48/spack-stage/spack-stage-gcc-5.5.0-khqnsyjkc36jajm2637pm3dftr2egjwk/spack-src/libsanitizer/asan/asan_malloc_linux.cc:62
-    #1 0x7fdf154036ab in N_VCloneEmpty_Serial /home/gardner48/sundials/src/nvector/serial/nvector_serial.c:303
-    #2 0x7fdf154038e1 in N_VClone_Serial /home/gardner48/sundials/src/nvector/serial/nvector_serial.c:324
-    #3 0x7fdf153f196a in N_VClone /home/gardner48/sundials/src/sundials/sundials_nvector.c:284
-    #4 0x4023ae in main /home/gardner48/sundials/examples/arkode/C_serial/ark_kepler.c:165
-    #5 0x7fdf137a9554 in __libc_start_main (/lib64/libc.so.6+0x22554)
-
-Indirect leak of 8 byte(s) in 1 object(s) allocated from:
-    #0 0x7fdf15bed07a in __interceptor_malloc /tmp/gardner48/spack-stage/spack-stage-gcc-5.5.0-khqnsyjkc36jajm2637pm3dftr2egjwk/spack-src/libsanitizer/asan/asan_malloc_linux.cc:62
-    #1 0x7fdf153af149 in ARKodeSPRKTable_Alloc /home/gardner48/sundials/src/arkode/arkode_sprk.c:415
-    #2 0x7fdf153a485c in ARKodeSymplecticEuler /home/gardner48/sundials/src/arkode/arkode_sprk.c:25
-    #3 0x7fdf153af322 in ARKodeSPRKTable_LoadByName /home/gardner48/sundials/src/arkode/arkode_sprk.c:446
-    #4 0x40232f in main /home/gardner48/sundials/examples/arkode/C_serial/ark_kepler.c:163
-    #5 0x7fdf137a9554 in __libc_start_main (/lib64/libc.so.6+0x22554)
-
-Indirect leak of 8 byte(s) in 1 object(s) allocated from:
-    #0 0x7fdf15bed07a in __interceptor_malloc /tmp/gardner48/spack-stage/spack-stage-gcc-5.5.0-khqnsyjkc36jajm2637pm3dftr2egjwk/spack-src/libsanitizer/asan/asan_malloc_linux.cc:62
-    #1 0x7fdf153af1af in ARKodeSPRKTable_Alloc /home/gardner48/sundials/src/arkode/arkode_sprk.c:416
-    #2 0x7fdf153a485c in ARKodeSymplecticEuler /home/gardner48/sundials/src/arkode/arkode_sprk.c:25
-    #3 0x7fdf153af322 in ARKodeSPRKTable_LoadByName /home/gardner48/sundials/src/arkode/arkode_sprk.c:446
-    #4 0x40232f in main /home/gardner48/sundials/examples/arkode/C_serial/ark_kepler.c:163
-    #5 0x7fdf137a9554 in __libc_start_main (/lib64/libc.so.6+0x22554)
-
-SUMMARY: AddressSanitizer: 1096 byte(s) leaked in 11 allocation(s).
+Order of accuracy wrt Hamiltonian: expected = 1, max = 0.9999,  avg = 0.9979,  overall = 0.9983
