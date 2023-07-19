@@ -499,7 +499,7 @@ In solving the IVP :eq:`ARKODE_IVP_Hamiltonian`, we consider the problem in the 
 
 In practice, the ordering  of the variables does not matter and is determined by the user.
 SPRKStep utilizes Symplectic Partitioned Runge-Kutta (SPRK) methods represented by the pair
-of Butcher tableau,
+of explicit and diagonally implicit Butcher tableaux,
 
 .. math::
    \begin{array}{c|cccc}
@@ -522,8 +522,8 @@ of Butcher tableau,
 
 These methods approximately conserve a nearby Hamiltonian for exponentially long
 times :cite:p:`HaWa:06`. SPRKStep makes the assumption that the Hamiltonian is
-separable, in which case the schemes are explicit. SPRKStep provides methods
-with order of accuracy and conservation equal to
+separable, in which case the resulting method is explicit. SPRKStep provides
+schemes with order of accuracy and conservation equal to
 :math:`q = \{1,2,3,4,5,6,8,10\}`. The references for these these methods and
 the default methods used are given in the section :numref:`Butcher.sprk`.
 
