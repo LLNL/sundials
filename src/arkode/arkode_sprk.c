@@ -445,8 +445,6 @@ ARKodeSPRKTable ARKodeSPRKTable_Alloc(int stages)
   }
 
   sprk_table->stages = stages;
-  sprk_table->ahat   = (sunrealtype*)malloc(stages * sizeof(sunrealtype));
-  sprk_table->a      = (sunrealtype*)malloc(stages * sizeof(sunrealtype));
 
   return sprk_table;
 }
