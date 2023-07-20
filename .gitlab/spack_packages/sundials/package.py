@@ -26,7 +26,6 @@ class Sundials(CachedCMakePackage, CudaPackage, ROCmPackage):
     # ==========================================================================
     # Versions
     # ==========================================================================
-    version("develop", branch="feature/persistent-benchmarking-test-branch")
     # version("develop", branch="develop")
     version("6.5.1", sha256="4252303805171e4dbdd19a01e52c1dcfe0dafc599c3cfedb0a5c2ffb045a8a75")
     version("6.5.0", sha256="4e0b998dff292a2617e179609b539b511eb80836f5faacf800e688a886288502")
