@@ -65,8 +65,9 @@ set(EXTRA_LIBS
   @EXAMPLES_EXTRA_LIBS@
   CACHE STRING "Additional libraries")
 
-# Additional includes
-include_directories(. @EXTRA_INCLUDES@)
+# Include the current directory
+include_directories(.)
+
 # ------------------------------------------------------------------------------
 
 # Set the names of the examples to be built and their dependencies

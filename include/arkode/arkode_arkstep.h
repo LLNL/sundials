@@ -50,9 +50,11 @@ static const int ARKSTEP_DEFAULT_DIRK_4 = ARKODE_SDIRK_5_3_4;
 static const int ARKSTEP_DEFAULT_DIRK_5 = ARKODE_ARK548L2SA_DIRK_8_4_5;
 
 /*    ImEx */
+static const int ARKSTEP_DEFAULT_ARK_ETABLE_2 = ARKODE_ARK2_ERK_3_1_2;
 static const int ARKSTEP_DEFAULT_ARK_ETABLE_3 = ARKODE_ARK324L2SA_ERK_4_2_3;
 static const int ARKSTEP_DEFAULT_ARK_ETABLE_4 = ARKODE_ARK436L2SA_ERK_6_3_4;
 static const int ARKSTEP_DEFAULT_ARK_ETABLE_5 = ARKODE_ARK548L2SA_ERK_8_4_5;
+static const int ARKSTEP_DEFAULT_ARK_ITABLE_2 = ARKODE_ARK2_DIRK_3_1_2;
 static const int ARKSTEP_DEFAULT_ARK_ITABLE_3 = ARKODE_ARK324L2SA_DIRK_4_2_3;
 static const int ARKSTEP_DEFAULT_ARK_ITABLE_4 = ARKODE_ARK436L2SA_DIRK_6_3_4;
 static const int ARKSTEP_DEFAULT_ARK_ITABLE_5 = ARKODE_ARK548L2SA_DIRK_8_4_5;
@@ -238,6 +240,8 @@ SUNDIALS_EXPORT int ARKStepSetMinStep(void *arkode_mem,
                                       realtype hmin);
 SUNDIALS_EXPORT int ARKStepSetMaxStep(void *arkode_mem,
                                       realtype hmax);
+SUNDIALS_EXPORT int ARKStepSetInterpolateStopTime(void *arkode_mem,
+                                                  booleantype interp);
 SUNDIALS_EXPORT int ARKStepSetStopTime(void *arkode_mem,
                                        realtype tstop);
 SUNDIALS_EXPORT int ARKStepClearStopTime(void *arkode_mem);
@@ -470,6 +474,36 @@ SUNDIALS_EXPORT void ARKStepPrintMem(void* arkode_mem, FILE* outfile);
 /* MRIStep interface functions */
 SUNDIALS_EXPORT int ARKStepCreateMRIStepInnerStepper(void *arkode_mem,
                                                      MRIStepInnerStepper *stepper);
+
+/* Relaxation functions */
+SUNDIALS_EXPORT int ARKStepSetRelaxFn(void* arkode_mem, ARKRelaxFn rfn,
+                                      ARKRelaxJacFn rjac);
+SUNDIALS_EXPORT int ARKStepSetRelaxEtaFail(void* arkode_mem,
+                                           sunrealtype eta_rf);
+SUNDIALS_EXPORT int ARKStepSetRelaxLowerBound(void* arkode_mem,
+                                              sunrealtype lower);
+SUNDIALS_EXPORT int ARKStepSetRelaxMaxFails(void* arkode_mem, int max_fails);
+SUNDIALS_EXPORT int ARKStepSetRelaxMaxIters(void* arkode_mem, int max_iters);
+SUNDIALS_EXPORT int ARKStepSetRelaxSolver(void* arkode_mem,
+                                          ARKRelaxSolver solver);
+SUNDIALS_EXPORT int ARKStepSetRelaxResTol(void* arkode_mem,
+                                          sunrealtype res_tol);
+SUNDIALS_EXPORT int ARKStepSetRelaxTol(void* arkode_mem, sunrealtype rel_tol,
+                                       sunrealtype abs_tol);
+SUNDIALS_EXPORT int ARKStepSetRelaxUpperBound(void* arkode_mem,
+                                              sunrealtype upper);
+SUNDIALS_EXPORT int ARKStepGetNumRelaxFnEvals(void* arkode_mem,
+                                              long int* r_evals);
+SUNDIALS_EXPORT int ARKStepGetNumRelaxJacEvals(void* arkode_mem,
+                                               long int* J_evals);
+SUNDIALS_EXPORT int ARKStepGetNumRelaxFails(void* arkode_mem,
+                                            long int* relax_fails);
+SUNDIALS_EXPORT int ARKStepGetNumRelaxBoundFails(void* arkode_mem,
+                                                 long int* fails);
+SUNDIALS_EXPORT int ARKStepGetNumRelaxSolveFails(void* arkode_mem,
+                                                 long int* fails);
+SUNDIALS_EXPORT int ARKStepGetNumRelaxSolveIters(void* arkode_mem,
+                                                 long int* iters);
 
 #ifdef __cplusplus
 }

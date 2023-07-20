@@ -490,8 +490,10 @@ a C file pointer, SUNDIALS provides two utility functions for creating a
    the provided filename and I/O mode.
 
    **Arguments:**
-      * ``filename`` -- the full path to the file, that should have Fortran
-        type ``character(kind=C_CHAR, len=*)``.
+      * ``filename`` -- the path to the file, that should have Fortran
+        type ``character(kind=C_CHAR, len=*)``.  There are two special filenames:
+        ``stdout`` and ``stderr`` -- these two filenames will result in output
+        going to the standard output file and standard error file, respectively.
       * ``mode`` -- the I/O mode to use for the file.  This should have the
         Fortran type ``character(kind=C_CHAR, len=*)``.  The string begins
         with one of the following characters:
@@ -517,7 +519,9 @@ a C file pointer, SUNDIALS provides two utility functions for creating a
 
    **Arguments:**
       * ``fp`` -- the C ``FILE*`` that was previously obtained from ``fopen``.
-        This should have the Fortran type ``type(c_ptr)``.
+        This should have the Fortran type ``type(c_ptr)``.  Note that if either
+        ``stdout`` or ``stderr`` were opened using :c:func:`SUNDIALSFileOpen()`
+        then that stream *will not be closed* by this function.
 
 
 .. _SUNDIALS.Fortran.Portability:

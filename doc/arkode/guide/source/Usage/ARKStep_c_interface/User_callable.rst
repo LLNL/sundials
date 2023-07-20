@@ -30,7 +30,7 @@ On an error, each user-callable function returns a negative value (or
 ``NULL`` if the function returns a pointer) and sends an error message
 to the error handler routine, which prints the message to ``stderr``
 by default. However, the user can set a file as error output or can
-provide her own error handler function (see
+provide their own error handler function (see
 :numref:`ARKODE.Usage.ARKStep.OptionalInputs` for details).
 
 
@@ -876,6 +876,7 @@ Maximum no. of internal steps before *tout*       :c:func:`ARKStepSetMaxNumSteps
 Maximum absolute step size                        :c:func:`ARKStepSetMaxStep`              :math:`\infty`
 Minimum absolute step size                        :c:func:`ARKStepSetMinStep`              0.0
 Set a value for :math:`t_{stop}`                  :c:func:`ARKStepSetStopTime`             undefined
+Interpolate at :math:`t_{stop}`                   :c:func:`ARKStepSetInterpolateStopTime`  ``SUNFALSE``
 Disable the stop time                             :c:func:`ARKStepClearStopTime`           N/A
 Supply a pointer for user data                    :c:func:`ARKStepSetUserData`             ``NULL``
 Maximum no. of ARKStep error test failures        :c:func:`ARKStepSetMaxErrTestFails`      7
@@ -1267,6 +1268,23 @@ Set max number of constraint failures             :c:func:`ARKStepSetMaxNumConst
       :c:func:`ARKStepClearStopTime`.
 
 
+.. c:function:: int ARKStepSetInterpolateStopTime(void* arkode_mem, booleantype interp)
+
+   Specifies that the output solution should be interpolated when the current
+   :math:`t` equals the specified ``tstop`` (instead of merely copying the
+   internal solution :math:`y_n`).
+
+   **Arguments:**
+      * *arkode_mem* -- pointer to the ARKStep memory block.
+      * *interp* -- flag indicating to use interpolation (1) or copy (0).
+
+   **Return value:**
+      * *ARK_SUCCESS* if successful
+      * *ARK_MEM_NULL* if the ARKStep memory is ``NULL``
+
+   .. versionadded:: 5.6.0
+
+
 .. c:function:: int ARKStepClearStopTime(void* arkode_mem)
 
    Disables the stop time set with :c:func:`ARKStepSetStopTime`.
@@ -1454,7 +1472,7 @@ Set additive RK tables via their names    :c:func:`ARKStepSetTableName()`    int
       For explicit methods, the allowed values are :math:`2 \le`
       *ord* :math:`\le 8`.  For implicit methods, the allowed values are
       :math:`2\le` *ord* :math:`\le 5`, and for ImEx methods the allowed
-      values are :math:`3 \le` *ord* :math:`\le 5`.  Any illegal input
+      values are :math:`2 \le` *ord* :math:`\le 5`.  Any illegal input
       will result in the default value of 4.
 
       Since *ord* affects the memory requirements for the internal
@@ -3475,6 +3493,7 @@ Retrieve a pointer for user data                       :c:func:`ARKStepGetUserDa
 .. c:function:: char *ARKStepGetReturnFlagName(long int flag)
 
    Returns the name of the ARKStep constant corresponding to *flag*.
+   See :ref:`ARKODE.Constants`.
 
    **Arguments:**
       * *flag* -- a return flag from an ARKStep function.
