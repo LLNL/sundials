@@ -88,10 +88,18 @@ foreach(example_tuple ${nvector_parhyp_examples})
 
   # check if example args are provided and set the test name
   if("${example_args}" STREQUAL "")
-   set(test_name ${example})
- else()
-   string(REGEX REPLACE " " "_" test_name ${example}_${example_args})
- endif()
+    if("${number_of_tasks}" STREQUAL "")
+      set(test_name ${example})
+    else()
+      string(REGEX REPLACE " " "_" test_name ${example}_${number_of_tasks})
+    endif()
+  else()
+    if("${number_of_tasks}" STREQUAL "")
+      string(REGEX REPLACE " " "_" test_name ${example}_${example_args})
+    else()
+      string(REGEX REPLACE " " "_" test_name ${example}_${number_of_tasks}_${example_args})
+    endif()
+  endif()
 
   # add example to regression tests
   sundials_add_test(${test_name} ${example}
