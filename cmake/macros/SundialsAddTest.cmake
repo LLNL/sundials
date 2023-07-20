@@ -58,7 +58,7 @@ macro(SUNDIALS_ADD_TEST NAME EXECUTABLE)
   # INTEGER_PRECISION = integer percentage difference for failure comparison
   # ANSWER_DIR        = path to the directory containing the test answer file
   # ANSWER_FILE       = name of test answer file
-  # EXAMPLE_TYPE      = release or develop examples
+  # EXAMPLE_TYPE      = passfail, develop, or exclude-<precision>
   set(oneValueArgs "MPI_NPROCS" "FLOAT_PRECISION" "INTEGER_PRECISION"
     "ANSWER_DIR" "ANSWER_FILE" "EXAMPLE_TYPE")
 
@@ -169,7 +169,8 @@ macro(SUNDIALS_ADD_TEST NAME EXECUTABLE)
       # all tests are added during development and only unlabeled tests when released
       add_test(NAME ${NAME} COMMAND ${PYTHON_EXECUTABLE} ${TESTRUNNER} ${TEST_ARGS})
 
-    elseif(NOT SUNDIALS_ADD_TEST_EXAMPLE_TYPE)
+    elseif(SUNDIALS_ADD_TEST_EXAMPLE_TYPE STREQUAL "passfail" OR
+           (NOT SUNDIALS_ADD_TEST_EXAMPLE_TYPE))
 
       # if a test type was not set then it is a standard test that returns pass/fail
 
