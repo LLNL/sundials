@@ -31,7 +31,7 @@ Setting Up Your Own SPOT Visualizations
 ---------------------------------------
 
 To display data from non-GitLab jobs or create a local collection of runs,
-input into the SPOT search bar the absolute path to the directory containing the `,cali` files and refresh the page.
+input into the SPOT search bar the absolute path to the directory containing the `.cali` files and refresh the page.
 By default `.cali`` files will be generated in the build directory under
 ``Benchmarking/output`` and ``Testing/output``. To specify where `.cali` output
 files are placed, define the CMake option SUNDIALS_TEST_OUTPUT_DIR with the
