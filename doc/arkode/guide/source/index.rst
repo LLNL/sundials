@@ -59,6 +59,7 @@ with support by the `US Department of Energy <http://www.doe.gov>`_,
    sundials/index.rst
    Usage/index.rst
    ARKodeButcherTable
+   ARKodeSPRKTable
    nvectors/index.rst
    sunmatrix/index.rst
    sunlinsol/index.rst

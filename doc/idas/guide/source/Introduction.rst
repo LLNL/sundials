@@ -93,7 +93,6 @@ Updated the F2003 utility routines :c:func:`SUNDIALSFileOpen` and :c:func:`SUNDI
 to support user specification of ``stdout`` and ``stderr`` strings for the output
 file names.
 
-
 Changes in v5.5.1
 -----------------
 

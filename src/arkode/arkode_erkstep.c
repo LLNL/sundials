@@ -1061,6 +1061,29 @@ int erkStep_CheckButcherTable(ARKodeMem ark_mem)
     return(ARK_INVALID_TABLE);
   }
 
+  /* check if all b values are positive for relaxation */
+  if (ark_mem->relax_enabled)
+  {
+    if (step_mem->q < 2)
+    {
+      arkProcessError(ark_mem, ARK_INVALID_TABLE, "ARKODE::ERKStep",
+                      "erkStep_CheckButcherTables",
+                      "The Butcher table must be at least second order!");
+      return ARK_INVALID_TABLE;
+    }
+
+    for (i = 0; i < step_mem->stages; i++)
+    {
+      if (step_mem->B->b[i] < ZERO)
+      {
+        arkProcessError(ark_mem, ARK_INVALID_TABLE, "ARKODE::ERKStep",
+                        "erkStep_CheckButcherTable",
+                        "The Butcher table has a negative b value!");
+        return ARK_INVALID_TABLE;
+      }
+    }
+  }
+
   return(ARK_SUCCESS);
 }
 
@@ -1144,6 +1167,141 @@ int erkStep_ComputeSolutions(ARKodeMem ark_mem, realtype *dsmPtr)
   }
 
   return(ARK_SUCCESS);
+}
+
+/* -----------------------------------------------------------------------------
+ * erkStep_RelaxDeltaY
+ *
+ * Computes the RK update to yn for use in relaxation methods
+ * ---------------------------------------------------------------------------*/
+
+int erkStep_RelaxDeltaY(ARKodeMem ark_mem, N_Vector delta_y)
+{
+  int i, nvec, retval;
+  realtype* cvals;
+  N_Vector* Xvecs;
+  ARKodeERKStepMem step_mem;
+
+  /* Access the stepper memory structure */
+  if (!(ark_mem->step_mem))
+  {
+    arkProcessError(ark_mem, ARK_MEM_NULL, "ARKODE::ERKStep",
+                    "erkStep_RelaxDeltaY", MSG_ERKSTEP_NO_MEM);
+    return ARK_MEM_NULL;
+  }
+  step_mem = (ARKodeERKStepMem)(ark_mem->step_mem);
+
+  /* Set arrays for fused vector operation */
+  cvals = step_mem->cvals;
+  Xvecs = step_mem->Xvecs;
+
+  nvec = 0;
+  for (i = 0; i < step_mem->stages; i++)
+  {
+    cvals[nvec] = ark_mem->h * step_mem->B->b[i];
+    Xvecs[nvec] = step_mem->F[i];
+    nvec++;
+  }
+
+  /* Compute time step update (delta_y) */
+  retval = N_VLinearCombination(nvec, cvals, Xvecs, delta_y);
+  if (retval) return ARK_VECTOROP_ERR;
+
+  return ARK_SUCCESS;
+}
+
+/* -----------------------------------------------------------------------------
+ * erkStep_RelaxDeltaE
+ *
+ * Computes the change in the relaxation functions for use in relaxation methods
+ * delta_e = h * sum_i b_i * <rjac(z_i), f_i>
+ * ---------------------------------------------------------------------------*/
+
+int erkStep_RelaxDeltaE(ARKodeMem ark_mem, ARKRelaxJacFn relax_jac_fn,
+                        long int* num_relax_jac_evals, sunrealtype* delta_e_out)
+{
+  int i, j, nvec, retval;
+  realtype* cvals;
+  N_Vector* Xvecs;
+  ARKodeERKStepMem step_mem;
+  N_Vector z_stage = ark_mem->tempv2;
+  N_Vector J_relax = ark_mem->tempv3;
+
+  /* Access the stepper memory structure */
+  if (!(ark_mem->step_mem))
+  {
+    arkProcessError(ark_mem, ARK_MEM_NULL, "ARKODE::ERKStep",
+                    "erkStep_RelaxDeltaE", MSG_ERKSTEP_NO_MEM);
+    return ARK_MEM_NULL;
+  }
+  step_mem = (ARKodeERKStepMem)(ark_mem->step_mem);
+
+  /* Initialize output */
+  *delta_e_out = ZERO;
+
+  /* Set arrays for fused vector operation */
+  cvals = step_mem->cvals;
+  Xvecs = step_mem->Xvecs;
+
+  for (i = 0; i < step_mem->stages; i++)
+  {
+    /* Construct stages z[i] = y_n + h * sum_j Ae[i,j] Fe[j] + Ai[i,j] Fi[j] */
+    nvec = 0;
+
+    cvals[nvec] = ONE;
+    Xvecs[nvec] = ark_mem->yn;
+    nvec++;
+
+    for (j = 0; j < i; j++)
+    {
+      cvals[nvec] = ark_mem->h * step_mem->B->A[i][j];
+      Xvecs[nvec] = step_mem->F[j];
+      nvec++;
+    }
+
+    retval = N_VLinearCombination(nvec, cvals, Xvecs, z_stage);
+    if (retval) return ARK_VECTOROP_ERR;
+
+    /* Evaluate the Jacobian at z_i */
+    retval = relax_jac_fn(z_stage, J_relax, ark_mem->user_data);
+    (*num_relax_jac_evals)++;
+    if (retval < 0) { return ARK_RELAX_JAC_FAIL; }
+    if (retval > 0) { return ARK_RELAX_JAC_RECV; }
+
+    /* Update estimates */
+    if (J_relax->ops->nvdotprodlocal && J_relax->ops->nvdotprodmultiallreduce)
+    {
+      *delta_e_out += step_mem->B->b[i] * N_VDotProdLocal(J_relax,
+                                                          step_mem->F[i]);
+    }
+    else
+    {
+      *delta_e_out += step_mem->B->b[i] * N_VDotProd(J_relax,
+                                                     step_mem->F[i]);
+    }
+  }
+
+  if (J_relax->ops->nvdotprodlocal && J_relax->ops->nvdotprodmultiallreduce)
+  {
+    retval = N_VDotProdMultiAllReduce(1, J_relax, delta_e_out);
+    if (retval) { return ARK_VECTOROP_ERR; }
+  }
+
+  *delta_e_out *= ark_mem->h;
+
+  return ARK_SUCCESS;
+}
+
+/* -----------------------------------------------------------------------------
+ * erkStep_GetOrder
+ *
+ * Returns the method order
+ * ---------------------------------------------------------------------------*/
+
+int erkStep_GetOrder(ARKodeMem ark_mem)
+{
+  ARKodeERKStepMem step_mem = (ARKodeERKStepMem)(ark_mem->step_mem);
+  return step_mem->q;
 }
 
 /*===============================================================
