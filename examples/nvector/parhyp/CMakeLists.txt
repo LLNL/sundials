@@ -86,7 +86,7 @@ foreach(example_tuple ${nvector_parhyp_examples})
     endif()
   endif()
 
-  # check if example args are provided and set the test name
+  # check if example args and number of tasks are provided and set the test name; 
   if("${example_args}" STREQUAL "")
     if("${number_of_tasks}" STREQUAL "")
       set(test_name ${example})
