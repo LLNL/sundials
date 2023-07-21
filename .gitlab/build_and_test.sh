@@ -191,9 +191,8 @@ then
     $cmake_exe \
         -C "${hostconfig_path}" \
         -DCMAKE_INSTALL_PREFIX=${install_dir} \
-        -DSUNDIALS_TEST_OUTPUT_DIR="/usr/workspace/sundials/caliper/" \
         "${project_dir}"
-
+    
     # build
     VERBOSE_BUILD=${VERBOSE_BUILD:-"OFF"}
     if [[ "${VERBOSE_BUILD}" == "ON" ]]; then
