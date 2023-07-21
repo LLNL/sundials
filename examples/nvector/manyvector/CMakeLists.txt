@@ -19,14 +19,14 @@
 
 # Examples using SUNDIALS manyvector nvector
 set(nvector_manyvector_examples
-  "test_nvector_manyvector.c\; \"1000 100 0\" \; \"\" "
-  "test_nvector_manyvector.c\; \"100 1000 0\" \; \"\" "
+  "test_nvector_manyvector.c\; \"1000 100 0\" \;passfail"
+  "test_nvector_manyvector.c\; \"100 1000 0\" \;passfail"
   )
 
 # If building F2003 tests
 if (BUILD_FORTRAN_MODULE_INTERFACE)
   set(nvector_manyvector_fortran_examples
-    "test_fnvector_manyvector_mod\; \"\" \; \"\" ")
+    "test_fnvector_manyvector_mod\;<none>\;passfail")
 endif()
 
 # Dependencies for nvector serial examples

@@ -19,14 +19,14 @@
 
 # Examples using SUNDIALS serial nvector
 set(nvector_serial_examples
-  "test_nvector_serial.c\; \"1000 0\" \; \"\" "
-  "test_nvector_serial.c\; \"10000 0\" \; \"\" "
+  "test_nvector_serial.c\; \"1000 0\" \;passfail"
+  "test_nvector_serial.c\; \"10000 0\" \;passfail"
   )
 
 # If building F2003 tests
 if (BUILD_FORTRAN_MODULE_INTERFACE)
   set(nvector_serial_fortran_examples
-    "test_fnvector_serial_mod\; \"\" \; \"\" ")
+    "test_fnvector_serial_mod\;<none>\;passfail")
 endif()
 
 # Dependencies for nvector serial examples
