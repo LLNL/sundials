@@ -28,13 +28,13 @@ endif()
 
 # Examples using SUNDIALS PCG linear solver
 set(sunlinsol_pcg_examples
-  "test_sunlinsol_pcg_serial.c\; \"100 500 ${TOL} 0\" \; \"\" "
+  "test_sunlinsol_pcg_serial.c\; \"100 500 ${TOL} 0\" \;passfail"
   )
 
 # If building F2003 tests
 if (BUILD_FORTRAN_MODULE_INTERFACE)
   set(sunlinsol_pcg_fortran_examples
-    "test_fsunlinsol_pcg_mod_serial\; \"\" \; \"\" ")
+    "test_fsunlinsol_pcg_mod_serial\;<none>\;passfail")
 endif()
 
 # Dependencies for sunlinsol examples

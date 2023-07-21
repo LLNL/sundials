@@ -21,8 +21,8 @@
 # Note: threaded tests are excluded because of a potential bug in
 # SuperLU_MT that causes random test failures
 set(sunlinsol_superlumt_examples
-  "test_sunlinsol_superlumt.c\; \"300 0 1 0\" \; \"\" "
-  "test_sunlinsol_superlumt.c\; \"300 1 1 0\" \; \"\" "
+  "test_sunlinsol_superlumt.c\; \"300 0 1 0\" \;passfail"
+  "test_sunlinsol_superlumt.c\; \"300 1 1 0\" \;passfail"
   "test_sunlinsol_superlumt.c\; \"1000 0 3 0\" \;exclude"
   "test_sunlinsol_superlumt.c\; \"1000 1 3 0\" \;exclude"
 )

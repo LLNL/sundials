@@ -19,10 +19,10 @@
 
 # Examples using the LAPACK band linear solver
 set(sunlinsol_lapackband_examples
-  "test_sunlinsol_lapackband.c\; \"10 2 3 0 0\" \; \"\" "
-  "test_sunlinsol_lapackband.c\; \"300 7 4 0 0\" \; \"\" "
-  "test_sunlinsol_lapackband.c\; \"1000 8 8 0 0\" \; \"\" "
-  "test_sunlinsol_lapackband.c\; \"5000 3 100 0 0\" \; \"\" "
+  "test_sunlinsol_lapackband.c\; \"10 2 3 0 0\" \;passfail"
+  "test_sunlinsol_lapackband.c\; \"300 7 4 0 0\" \;passfail"
+  "test_sunlinsol_lapackband.c\; \"1000 8 8 0 0\" \;passfail"
+  "test_sunlinsol_lapackband.c\; \"5000 3 100 0 0\" \;passfail"
   )
 
 # Dependencies for nvector examples

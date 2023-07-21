@@ -28,14 +28,14 @@ endif()
 
 # Examples using SUNDIALS SPBCGS linear solver
 set(sunlinsol_spbcgs_examples
-  "test_sunlinsol_spbcgs_serial.c\; \"100 1 100 ${TOL} 0\" \; \"\" "
-  "test_sunlinsol_spbcgs_serial.c\; \"100 2 100 ${TOL} 0\" \; \"\" "
+  "test_sunlinsol_spbcgs_serial.c\; \"100 1 100 ${TOL} 0\" \;passfail"
+  "test_sunlinsol_spbcgs_serial.c\; \"100 2 100 ${TOL} 0\" \;passfail"
   )
 
 # If building F2003 tests
 if (BUILD_FORTRAN_MODULE_INTERFACE)
   set(sunlinsol_spbcgs_fortran_examples
-    "test_fsunlinsol_spbcgs_mod_serial\; \"\" \; \"\" ")
+    "test_fsunlinsol_spbcgs_mod_serial\;<none>\;passfail")
 endif()
 
 # Dependencies for sunlinsol examples

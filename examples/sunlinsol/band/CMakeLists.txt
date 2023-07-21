@@ -19,16 +19,16 @@
 
 # Examples using SUNDIALS band linear solver
 set(sunlinsol_band_examples
-  "test_sunlinsol_band.c\; \"10 2 3 0\" \; \"\" "
-  "test_sunlinsol_band.c\; \"300 7 4 0\" \; \"\" "
-  "test_sunlinsol_band.c\; \"1000 8 8 0\" \; \"\" "
-  "test_sunlinsol_band.c\; \"5000 3 100 0\" \; \"\" "
+  "test_sunlinsol_band.c\; \"10 2 3 0\" \;passfail"
+  "test_sunlinsol_band.c\; \"300 7 4 0\" \;passfail"
+  "test_sunlinsol_band.c\; \"1000 8 8 0\" \;passfail"
+  "test_sunlinsol_band.c\; \"5000 3 100 0\" \;passfail"
 )
 
 # If building F2003 tests
 if (BUILD_FORTRAN_MODULE_INTERFACE)
   set(sunlinsol_band_fortran_examples
-    "test_fsunlinsol_band_mod\; \"\" \; \"\" ")
+    "test_fsunlinsol_band_mod\;<none>\;passfail")
 endif()
 
 # Dependencies for sunlinsol examples

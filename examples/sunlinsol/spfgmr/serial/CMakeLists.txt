@@ -28,13 +28,13 @@ endif()
 
 # Examples using SUNDIALS SPFGMR linear solver
 set(sunlinsol_spfgmr_examples
-  "test_sunlinsol_spfgmr_serial.c\; \"100 1 100 ${TOL} 0\" \; \"\" "
-  "test_sunlinsol_spfgmr_serial.c\; \"100 2 100 ${TOL} 0\" \; \"\" "
+  "test_sunlinsol_spfgmr_serial.c\; \"100 1 100 ${TOL} 0\" \;passfail"
+  "test_sunlinsol_spfgmr_serial.c\; \"100 2 100 ${TOL} 0\" \;passfail"
   )
 
 if (BUILD_FORTRAN_MODULE_INTERFACE)
   set(sunlinsol_spfgmr_fortran_examples
-    "test_fsunlinsol_spfgmr_mod_serial\; \"\" \; \"\" ")
+    "test_fsunlinsol_spfgmr_mod_serial\;<none>\;passfail")
 endif()
 
 # Dependencies for sunlinsol examples

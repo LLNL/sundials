@@ -19,10 +19,10 @@
 
 # Examples using the KLU linear solver
 set(sunlinsol_klu_examples
-  "test_sunlinsol_klu.c\; \"300 0 0\" \; \"\" "
-  "test_sunlinsol_klu.c\; \"300 1 0\" \; \"\" "
-  "test_sunlinsol_klu.c\; \"1000 0 0\" \; \"\" "
-  "test_sunlinsol_klu.c\; \"1000 1 0\" \; \"\" "
+  "test_sunlinsol_klu.c\; \"300 0 0\" \;passfail"
+  "test_sunlinsol_klu.c\; \"300 1 0\" \;passfail"
+  "test_sunlinsol_klu.c\; \"1000 0 0\" \;passfail"
+  "test_sunlinsol_klu.c\; \"1000 1 0\" \;passfail"
   )
 
 # Dependencies for sunlinsol examples
