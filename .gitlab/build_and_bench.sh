@@ -13,7 +13,7 @@ job_timestamp=${CI_JOB_STARTED_AT:-""}
 # remove tailing number from hostname
 hostname=${hostname%%[0-9]*}
 
-benchmark_store_dir="/usr/workspace/sundials/benchmarks/${hostname}/${job_timestamp}_${job_unique_id}"
+benchmark_store_dir="/usr/workspace/sundials/caliper/benchmarks/${hostname}/${job_timestamp}_${job_unique_id}"
 
 nresg=$((BENCHMARK_NNODES * 4)) # Lassen has 4 GPUs per node
 nresc=$((BENCHMARK_NNODES * 40)) # Lassen has 40 cores per node
@@ -33,15 +33,6 @@ ls
 # We use synchronous kernel launches for benchmarking
 # because we are interested in individual region timings.
 export CUDA_LAUNCH_BLOCKING=1
-
-if [[ -d ${build_dir} ]]
-then 
-    module load cmake/3.23 # --test-dir flag requires cmake 3.20 or higher
-    date
-    export CALI_CONFIG="spot(output=${benchmark_store_dir}/test_suite.cali),runtime-report(calc.inclusive)"
-    ctest --output-on-failure --verbose --test-dir ${build_dir} -T  test 2>&1 | tee tests_output.txt
-    date
-fi
 
 if [[ -d ${ar3d_dir} ]]
 then
