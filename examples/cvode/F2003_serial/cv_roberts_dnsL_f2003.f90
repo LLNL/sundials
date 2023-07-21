@@ -409,7 +409,7 @@ module dnsL_mod
     !======= Internals ============
 
     print *, " "
-    print *, "cv_roberts_dns_constraints_f2003.f90: Robertson CV ODE serial example problem for CVODE"
+    print *, "cv_roberts_dnsL_f2003.f90: Robertson CV ODE serial example problem for CVODE"
     print *, "         Three equation chemical kinetics problem."
     print *, " "
     print *, "Linear solver: LAPACK DENSE, with user-supplied Jacobian."

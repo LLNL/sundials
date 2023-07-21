@@ -13,7 +13,7 @@
  * SPDX-License-Identifier: BSD-3-Clause
  * SUNDIALS Copyright End
  * -----------------------------------------------------------------------------
- * This example solves the equation for a particle moving conterclockwise with
+ * This example solves the equation for a particle moving counterclockwise with
  * velocity alpha on the unit circle in the xy-plane. The ODE system is given by
  *
  *   x' = -alpha * y
