@@ -20,22 +20,22 @@
 
 # Examples using SUNDIALS linear solvers
 set(KINSOL_examples
-  "kinAnalytic_fp.c\; \"\" \; \"\" "
+  "kinAnalytic_fp.c\;<none>\;passfail"
   "kinAnalytic_fp.c\; \"--damping_fp 0.5\" \;develop"
-  "kinAnalytic_fp.c\; \"--m_aa 2\" \; \"\" "
-  "kinAnalytic_fp.c\; \"--m_aa 2 --delay_aa 2\" \; \"\" "
+  "kinAnalytic_fp.c\; \"--m_aa 2\" \;passfail"
+  "kinAnalytic_fp.c\; \"--m_aa 2 --delay_aa 2\" \;passfail"
   "kinAnalytic_fp.c\; \"--m_aa 2 --damping_aa 0.5\" \;develop"
-  "kinAnalytic_fp.c\; \"--m_aa 2 --orth_aa 1\" \;  \"\" "
-  "kinAnalytic_fp.c\; \"--m_aa 2 --orth_aa 2\" \; \"\" "
-  "kinAnalytic_fp.c\; \"--m_aa 2 --orth_aa 3\" \;  \"\" "
-  "kinFerTron_dns.c\; \"\" \;develop"
-  "kinFoodWeb_kry.c\; \"\" \;exclude-single"
-  "kinKrylovDemo_ls.c\; \"\" \;exclude-single"
-  "kinLaplace_bnd.c\; \"\" \;exclude-single"
-  "kinLaplace_picard_bnd.c\; \"\" \;exclude-single"
-  "kinLaplace_picard_kry.c\; \"\" \;exclude-single"
-  "kinRoberts_fp.c\; \"\" \;develop"
-  "kinRoboKin_dns.c\; \"\" \;exclude-single"
+  "kinAnalytic_fp.c\; \"--m_aa 2 --orth_aa 1\" \;passfail"
+  "kinAnalytic_fp.c\; \"--m_aa 2 --orth_aa 2\" \;passfail"
+  "kinAnalytic_fp.c\; \"--m_aa 2 --orth_aa 3\" \;passfail"
+  "kinFerTron_dns.c\;<none>\;develop"
+  "kinFoodWeb_kry.c\;<none>\;exclude-single"
+  "kinKrylovDemo_ls.c\;<none>\;exclude-single"
+  "kinLaplace_bnd.c\;<none>\;exclude-single"
+  "kinLaplace_picard_bnd.c\;<none>\;exclude-single"
+  "kinLaplace_picard_kry.c\;<none>\;exclude-single"
+  "kinRoberts_fp.c\;<none>\;develop"
+  "kinRoboKin_dns.c\;<none>\;exclude-single"
   )
 
 # Examples using LAPACK linear solvers
@@ -44,12 +44,12 @@ set(KINSOL_examples_BL
 
 # Examples using KLU linear solver
 set(KINSOL_examples_KLU
-  "kinFerTron_klu.c\; \"\" \;develop"
+  "kinFerTron_klu.c\;<none>\;develop"
   )
 
 # Examples using SuperLU_MT linear solver
 set(KINSOL_examples_SUPERLUMT
-  "kinRoboKin_slu.c\; \"\" \;develop"
+  "kinRoboKin_slu.c\;<none>\;develop"
   )
 
 # Auxiliary files to install
@@ -221,7 +221,7 @@ if(EXAMPLES_INSTALL)
   if(BUILD_SUNLINSOL_SUPERLUMT)
     set(_include_sunlinsolsuperlumt sunlinsolsuperlumt)
     list(APPEND KINSOL_examples 
-      "kinRoboKin_slu.c\; \"\" \;develop"
+      "kinRoboKin_slu.c\;<none>\;develop"
     )
     set(SUPERLUMT_TARGET SUNDIALS::SUPERLUMT)
   endif()
@@ -229,7 +229,7 @@ if(EXAMPLES_INSTALL)
   if(BUILD_SUNLINSOL_KLU)
     set(_include_sunlinsolklu sunlinsolklu)
     list(APPEND KINSOL_examples
-      "kinFerTron_klu.c\; \"\" \;develop"
+      "kinFerTron_klu.c\;<none>\;develop"
     )
     set(KLU_TARGET SUNDIALS::KLU)
   endif()
