@@ -996,7 +996,7 @@ int CVodeResizeHistory(void *cvode_mem, sunrealtype* t_hist, N_Vector* y_hist,
   /*     return CV_ILL_INPUT; */
   /*   } */
   /* } */
-  retval = resize_fn(cv_mem->cv_zn[cv_mem->cv_qmax], cv_mem->cv_tempv,
+  retval = resize_fn(cv_mem->cv_zn[cv_mem->cv_qmax], cv_mem->cv_vtemp3,
                      cv_mem->cv_user_data);
 
   for (int j = 0; j <= maxord; j++)
@@ -1071,7 +1071,7 @@ int CVodeResizeHistory(void *cvode_mem, sunrealtype* t_hist, N_Vector* y_hist,
   /* { */
   /*   N_VScale(ONE, cv_mem->cv_tempv, cv_mem->cv_zn[cv_mem->cv_qmax]); */
   /* } */
-  N_VScale(ONE, cv_mem->cv_tempv, cv_mem->cv_zn[cv_mem->cv_qmax]);
+  N_VScale(ONE, cv_mem->cv_vtemp3, cv_mem->cv_zn[cv_mem->cv_qmax]);
 
   /* printf("Finish Resize\n"); */
   /* printf("tn = %g\n", cv_mem->cv_tn); */
