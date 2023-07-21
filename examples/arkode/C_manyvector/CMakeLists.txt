@@ -19,7 +19,7 @@
 
 # Examples using SUNDIALS linear solvers
 set(ARKODE_examples
-  "ark_brusselator1D_manyvec.c\; \" \" \;develop"
+  "ark_brusselator1D_manyvec.c\;<none>\;develop"
   )
 
 # Auxiliary files to install
