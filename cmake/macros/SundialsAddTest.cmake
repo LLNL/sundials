@@ -58,7 +58,7 @@ macro(SUNDIALS_ADD_TEST NAME EXECUTABLE)
   # INTEGER_PRECISION = integer percentage difference for failure comparison
   # ANSWER_DIR        = path to the directory containing the test answer file
   # ANSWER_FILE       = name of test answer file
-  # EXAMPLE_TYPE      = passfail, develop, or exclude-<precision>
+  # EXAMPLE_TYPE      = release or develop examples
   set(oneValueArgs "MPI_NPROCS" "FLOAT_PRECISION" "INTEGER_PRECISION"
     "ANSWER_DIR" "ANSWER_FILE" "EXAMPLE_TYPE")
 
@@ -151,6 +151,7 @@ macro(SUNDIALS_ADD_TEST NAME EXECUTABLE)
       # set the test input args
       if(SUNDIALS_ADD_TEST_TEST_ARGS)
         string(REPLACE ";" " " _user_args "${SUNDIALS_ADD_TEST_TEST_ARGS}")
+        string(REPLACE "<none>" "" _user_args "${_user_args}")
         set(_run_args "${_user_args}")
         unset(_user_args)
       endif()
@@ -169,14 +170,16 @@ macro(SUNDIALS_ADD_TEST NAME EXECUTABLE)
       # all tests are added during development and only unlabeled tests when released
       add_test(NAME ${NAME} COMMAND ${PYTHON_EXECUTABLE} ${TESTRUNNER} ${TEST_ARGS})
 
+    # if a test type was not set then it is a standard test that returns pass/fail    
     elseif(SUNDIALS_ADD_TEST_EXAMPLE_TYPE STREQUAL "passfail" OR
            (NOT SUNDIALS_ADD_TEST_EXAMPLE_TYPE))
 
-      # if a test type was not set then it is a standard test that returns pass/fail
+      cmake_policy(SET CMP0110 NEW)
 
       # convert string to list
       if(SUNDIALS_ADD_TEST_TEST_ARGS)
         string(REPLACE " " ";" TEST_ARGS "${SUNDIALS_ADD_TEST_TEST_ARGS}")
+        string(REPLACE "<none>" "" TEST_ARGS "${TEST_ARGS}")
       endif()
 
       # check if this test is run with MPI and add the test run command
