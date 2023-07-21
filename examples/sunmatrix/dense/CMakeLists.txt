@@ -20,15 +20,15 @@
 
 # Examples using SUNDIALS dense matrix
 set(sunmatrix_dense_examples
-  "test_sunmatrix_dense.c\; \"100 100 0\" \; \"\" "
-  "test_sunmatrix_dense.c\; \"200 1000 0\" \; \"\" "
-  "test_sunmatrix_dense.c\; \"2000 100 0\" \; \"\" "
+  "test_sunmatrix_dense.c\; \"100 100 0\" \;passfail"
+  "test_sunmatrix_dense.c\; \"200 1000 0\" \;passfail"
+  "test_sunmatrix_dense.c\; \"2000 100 0\" \;passfail"
   )
 
 # If building F2003 tests
 if (BUILD_FORTRAN_MODULE_INTERFACE)
   set(sunmatrix_dense_fortran_examples
-    "test_fsunmatrix_dense_mod\; \"\" \; \"\" ")
+    "test_fsunmatrix_dense_mod\;<none>\;passfail")
 endif()
 
 # Dependencies for sunmatrix examples

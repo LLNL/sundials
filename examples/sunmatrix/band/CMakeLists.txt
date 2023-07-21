@@ -20,16 +20,16 @@
 
 # Examples using SUNDIALS banded matrix
 set(sunmatrix_band_examples
-  "test_sunmatrix_band.c\; \"10 2 3 0\" \; \"\" "
-  "test_sunmatrix_band.c\; \"300 7 4 0\" \; \"\" "
-  "test_sunmatrix_band.c\; \"1000 8 8 0\" \; \"\" "
-  "test_sunmatrix_band.c\; \"5000 3 20 0\" \; \"\" "
+  "test_sunmatrix_band.c\; \"10 2 3 0\" \;passfail"
+  "test_sunmatrix_band.c\; \"300 7 4 0\" \;passfail"
+  "test_sunmatrix_band.c\; \"1000 8 8 0\" \;passfail"
+  "test_sunmatrix_band.c\; \"5000 3 20 0\" \;passfail"
 )
 
 # If building F2003 tests
 if (BUILD_FORTRAN_MODULE_INTERFACE)
   set(sunmatrix_band_fortran_examples
-    "test_fsunmatrix_band_mod\; \"\" \; \"\" ")
+    "test_fsunmatrix_band_mod\;<none>\;passfail")
 endif()
 
 # Dependencies for sunmatrix examples

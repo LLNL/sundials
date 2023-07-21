@@ -20,12 +20,12 @@
 
 # Examples using SUNDIALS sparse matrix
 set(sunmatrix_sparse_examples
-  "test_sunmatrix_sparse.c\; \"400 400 0 0\" \; \"\" "
-  "test_sunmatrix_sparse.c\; \"450 450 1 0\" \; \"\" "
-  "test_sunmatrix_sparse.c\; \"200 1000 0 0\" \; \"\" "
-  "test_sunmatrix_sparse.c\; \"6000 350 0 0\" \; \"\" "
-  "test_sunmatrix_sparse.c\; \"500 5000 1 0\" \; \"\" "
-  "test_sunmatrix_sparse.c\; \"4000 800 1 0\" \; \"\" "
+  "test_sunmatrix_sparse.c\; \"400 400 0 0\" \;passfail"
+  "test_sunmatrix_sparse.c\; \"450 450 1 0\" \;passfail"
+  "test_sunmatrix_sparse.c\; \"200 1000 0 0\" \;passfail"
+  "test_sunmatrix_sparse.c\; \"6000 350 0 0\" \;passfail"
+  "test_sunmatrix_sparse.c\; \"500 5000 1 0\" \;passfail"
+  "test_sunmatrix_sparse.c\; \"4000 800 1 0\" \;passfail"
 )
 
 # Dependencies for sunmatrix examples
@@ -42,7 +42,7 @@ set(sunmatrix_sparse_files
 # If building F2003 tests
 if (BUILD_FORTRAN_MODULE_INTERFACE)
   set(sunmatrix_sparse_fortran_examples
-    "test_fsunmatrix_sparse_mod\; \"\" \; \"\" ")
+    "test_fsunmatrix_sparse_mod\;<none>\;passfail")
 endif()
 
 # Add source directory to include directories
