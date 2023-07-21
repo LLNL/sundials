@@ -20,23 +20,23 @@
 
 # Examples using SUNDIALS linear solvers
 set(CVODE_examples
-  "cvAdvDiff_bnd.c\; \"\" \;develop"
-  "cvAnalytic_mels.c\; \"\" \;develop"
-  "cvDirectDemo_ls.c\; \"\" \;develop"
-  "cvDisc_dns.c\; \"\" \;develop"
-  "cvDiurnal_kry_bp.c\; \"\" \;develop"
-  "cvDiurnal_kry.c\; \"\" \;develop"
-  "cvKrylovDemo_ls.c\; \"\" \;develop"
+  "cvAdvDiff_bnd.c\;<none>\;develop"
+  "cvAnalytic_mels.c\;<none>\;develop"
+  "cvDirectDemo_ls.c\;<none>\;develop"
+  "cvDisc_dns.c\;<none>\;develop"
+  "cvDiurnal_kry_bp.c\;<none>\;develop"
+  "cvDiurnal_kry.c\;<none>\;develop"
+  "cvKrylovDemo_ls.c\;<none>\;develop"
   "cvKrylovDemo_ls.c\;\"1\"\;develop"
   "cvKrylovDemo_ls.c\;\"2\"\;develop"
-  "cvKrylovDemo_prec.c\; \"\" \;develop"
-  "cvParticle_dns.c\; \"\" \;develop"
-  "cvPendulum_dns.c\; \"\" \;exclude-single"
-  "cvRoberts_dns.c\; \"\" \; \"\" "
-  "cvRoberts_dns_constraints.c\; \"\" \;develop"
-  "cvRoberts_dns_negsol.c\; \"\" \;exclude-single"
-  "cvRoberts_dns_uw.c\; \"\" \;develop"
-  "cvRocket_dns.c\; \"\" \;develop"
+  "cvKrylovDemo_prec.c\;<none>\;develop"
+  "cvParticle_dns.c\;<none>\;develop"
+  "cvPendulum_dns.c\;<none>\;exclude-single"
+  "cvRoberts_dns.c\;<none>\;passfail"
+  "cvRoberts_dns_constraints.c\;<none>\;develop"
+  "cvRoberts_dns_negsol.c\;<none>\;exclude-single"
+  "cvRoberts_dns_uw.c\;<none>\;develop"
+  "cvRocket_dns.c\;<none>\;develop"
   )
 
 if(SUNDIALS_BUILD_WITH_MONITORING)
@@ -45,19 +45,19 @@ endif()
 
 # Examples using LAPACK linear solvers
 set(CVODE_examples_BL
-  "cvAdvDiff_bndL.c\; \"\" \;exclude-single"
-  "cvRoberts_dnsL.c\; \"\" \;exclude-single"
+  "cvAdvDiff_bndL.c\;<none>\;exclude-single"
+  "cvRoberts_dnsL.c\;<none>\;exclude-single"
   )
 
 # Examples using KLU linear solver
 set(CVODE_examples_KLU
-  "cvRoberts_block_klu.c\; \"\" \;develop"
-  "cvRoberts_klu.c\; \"\" \;develop"
+  "cvRoberts_block_klu.c\;<none>\;develop"
+  "cvRoberts_klu.c\;<none>\;develop"
   )
 
 # Examples using SuperLU_MT linear solver
 set(CVODE_examples_SUPERLUMT
-  "cvRoberts_sps.c\; \"\" \;develop"
+  "cvRoberts_sps.c\;<none>\;develop"
   )
 
 # Auxiliary files to install
@@ -289,20 +289,20 @@ if(EXAMPLES_INSTALL)
 
   if(BUILD_SUNLINSOL_SUPERLUMT)
     set(_include_sunlinsolsuperlumt sunlinsolsuperlumt)
-    list(APPEND CVODE_examples "cvRoberts_sps.c\; \"\" \;develop")
+    list(APPEND CVODE_examples "cvRoberts_sps.c\;<none>\;develop")
     set(SUPERLUMT_TARGET SUNDIALS::SUPERLUMT)
   endif()
 
   if(BUILD_SUNLINSOL_KLU)
     set(_include_sunlinsolklu sunlinsolklu)
-    list(APPEND CVODE_examples "cvRoberts_block_klu.c\; \"\" \;develop" "cvRoberts_klu.c\; \"\" \;develop" )
+    list(APPEND CVODE_examples "cvRoberts_block_klu.c\;<none>\;develop" "cvRoberts_klu.c\;<none>\;develop" )
     set(KLU_TARGET SUNDIALS::KLU)
   endif()
 
   if(BUILD_SUNLINSOL_LAPACKBAND AND BUILD_SUNLINSOL_LAPACKDENSE)
     set(_include_sundials_sunlinsollapackband sunlinsollapackband)
     set(_include_sundials_sunlinsollapackdense sunlinsollapackdense)
-    list(APPEND CVODE_examples "cvAdvDiff_bndL.c\; \"\" \;exclude-single" "cvRoberts_dnsL.c\; \"\" \;exclude-single")
+    list(APPEND CVODE_examples "cvAdvDiff_bndL.c\;<none>\;exclude-single" "cvRoberts_dnsL.c\;<none>\;exclude-single")
   endif()
 
   if(SUNDIALS_BUILD_PACKAGE_FUSED_KERNELS)
