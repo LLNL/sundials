@@ -190,18 +190,19 @@ int main(int argc, char* argv[])
     resize = atoi(argv[1]);
   }
 
+  int steps = 30;
+  if (argc > 2)
+  {
+    steps = atoi(argv[2]);
+  }
+
   if (resize == 0)
   {
     std::cout << "CVODE -- NO RESIZE" << std::endl;
   }
-  else if (resize == 1)
-  {
-    std::cout << "CVODE -- RESIZE" << std::endl;
-  }
   else
   {
-    std::cerr << "INVALID INPUT" << std::endl;
-    return 1;
+    std::cout << "CVODE -- RESIZE" << std::endl;
   }
 
   // Create problem data structure
@@ -243,8 +244,8 @@ int main(int argc, char* argv[])
   if (check_flag(flag, "CVodeSetUserData")) return 1;
 
   // Limit max order
-  // flag = CVodeSetMaxOrd(cvode_mem, 1);
-  // if (check_flag(flag, "CVodeSetMaxOrd")) return 1;
+  flag = CVodeSetMaxOrd(cvode_mem, 2);
+  if (check_flag(flag, "CVodeSetMaxOrd")) return 1;
 
   // Initial time and final times
   sunrealtype tf = SUN_RCONST(10.0);
@@ -270,6 +271,9 @@ int main(int argc, char* argv[])
 
   int hist_size = 1;
 
+  std::string file_name = "debug_resize_" + std::to_string(resize) + ".txt";
+  FILE* debug_file = std::fopen(file_name.c_str(), "w");
+
   // Initialize saved history
   thist[0] = ZERO;
   N_VScale(ONE, y, yhist[0]);
@@ -279,7 +283,7 @@ int main(int argc, char* argv[])
   // 14 steps - reach 3rd order
   // 22 steps - reach 4th order
   // 27 steps - reach 5th order
-  for (int i = 1; i <= 30; i++)
+  for (int i = 1; i <= steps; i++)
   {
     std::cout << std::flush;
     std::cerr << std::flush;
@@ -299,7 +303,7 @@ int main(int argc, char* argv[])
 
     std::cout << "\n========== End Step " << i << " ==========\n";
 
-    if (resize == 1)
+    if (resize)
     {
       // std::cout << "\n========== Start Resize " << i << " ==========\n";
       // Test 2: Copy and expand the state
@@ -346,7 +350,8 @@ int main(int argc, char* argv[])
       y = N_VNew_Serial(i + 1, sunctx);
       ytmp = N_VClone(y);
 
-      flag = CVodeResizeHistory(cvode_mem, thist, yhist, hist_size, resize_vec);
+      flag = CVodeResizeHistory(cvode_mem, thist, yhist, hist_size, resize_vec,
+                                resize, debug_file);
       if (check_flag(flag, "CVodeResizeHistory")) return 1;
 
       // "Resize" the nonlinear solver
@@ -368,6 +373,8 @@ int main(int argc, char* argv[])
     }
   }
   std::cout << std::endl;
+
+  std::fclose(debug_file);
 
   // Print some final statistics
   flag = CVodePrintAllStats(cvode_mem, stdout, SUN_OUTPUTFORMAT_TABLE);

@@ -889,7 +889,8 @@ int NewtonPolyMultiDerEval(sunrealtype* t, N_Vector* c, int M, sunrealtype s,
 
 
 int CVodeResizeHistory(void *cvode_mem, sunrealtype* t_hist, N_Vector* y_hist,
-                       int n_hist, CVResizeVecFn resize_fn)
+                       int n_hist, CVResizeVecFn resize_fn, int itype,
+                       FILE* debug_file)
 {
   int retval = 0;
 
@@ -929,20 +930,38 @@ int CVodeResizeHistory(void *cvode_mem, sunrealtype* t_hist, N_Vector* y_hist,
     return CV_ILL_INPUT;
   }
 
-  /* printf("Start Resize\n"); */
-  /* printf("tn             = %g\n", cv_mem->cv_tn); */
-  /* printf("current h      = %g\n", cv_mem->cv_h); */
-  /* printf("next h         = %g\n", cv_mem->cv_hprime); */
-  /* printf("next h (?)     = %g\n", cv_mem->cv_next_h); */
-  /* printf("h scale        = %g\n", cv_mem->cv_hscale); */
-  /* printf("current order  = %d\n", cv_mem->cv_q); */
-  /* printf("next order     = %d\n", cv_mem->cv_qprime); */
-  /* printf("next order (?) = %d\n", cv_mem->cv_next_q); */
-  /* for (int ord = 0; ord < 6; ord++) */
-  /* { */
-  /*   printf("zn[%d]\n", ord); */
-  /*   N_VPrint(cv_mem->cv_zn[ord]); */
-  /* } */
+  if (itype < 0 || itype > 2)
+  {
+    cvProcessError(cv_mem, CV_ILL_INPUT, "CVODE", "CVodeResizeHistory",
+                   "Invalid interpolation type");
+    return CV_ILL_INPUT;
+  }
+
+  if (debug_file)
+  {
+    fprintf(debug_file, "Start Resize\n");
+    fprintf(debug_file, "Input values\n");
+    fprintf(debug_file, "n_hist         = %d\n", n_hist);
+    for (int ithist = 0; ithist < n_hist; ithist++)
+    {
+      fprintf(debug_file, "t_hist[%d]      = %g\n", ithist, t_hist[ithist]);
+    }
+    fprintf(debug_file, "itype          = %d\n", itype);
+    fprintf(debug_file, "CVODE values\n");
+    fprintf(debug_file, "tn             = %g\n", cv_mem->cv_tn);
+    fprintf(debug_file, "current h      = %g\n", cv_mem->cv_h);
+    fprintf(debug_file, "next h         = %g\n", cv_mem->cv_hprime);
+    fprintf(debug_file, "next h (?)     = %g\n", cv_mem->cv_next_h);
+    fprintf(debug_file, "h scale        = %g\n", cv_mem->cv_hscale);
+    fprintf(debug_file, "current order  = %d\n", cv_mem->cv_q);
+    fprintf(debug_file, "next order     = %d\n", cv_mem->cv_qprime);
+    fprintf(debug_file, "next order (?) = %d\n", cv_mem->cv_next_q);
+    for (int ord = 0; ord < 6; ord++)
+    {
+      fprintf(debug_file, "zn[%d]\n", ord);
+      N_VPrintFile(cv_mem->cv_zn[ord], debug_file);
+    }
+  }
 
   /* Make sure number of inputs is sufficient for the current (next) order */
   /* Make sure times[0] == tn */
@@ -996,6 +1015,7 @@ int CVodeResizeHistory(void *cvode_mem, sunrealtype* t_hist, N_Vector* y_hist,
   /*     return CV_ILL_INPUT; */
   /*   } */
   /* } */
+  /* For now always save */
   retval = resize_fn(cv_mem->cv_zn[cv_mem->cv_qmax], cv_mem->cv_vtemp3,
                      cv_mem->cv_user_data);
 
@@ -1023,47 +1043,149 @@ int CVodeResizeHistory(void *cvode_mem, sunrealtype* t_hist, N_Vector* y_hist,
    * Construct Nordsieck Array (new) *
    * ------------------------------- */
 
-  /* >>>>> NOTE use use q + 1 not n_hist, so the interpolation order is
-   correct even if more history than desired is provided <<<<< */
 
-  /* Compute interpolation coefficients */
-  retval = NewtonPolyCoef(t_hist, y_hist, cv_mem->cv_q + 1,
-                          cv_mem->resize_wrk);
-  if (retval)
+    /* Force zn[1] = y'(t_n-1, y_n-1) -- ideally we would use the value computed
+       by the interpolant but it has a larger error -- FURTHER TESTING NEEDED */
+    /* retval = cv_mem->cv_f(cv_mem->cv_tn, cv_mem->cv_zn[0], */
+    /*                       cv_mem->cv_zn[1], cv_mem->cv_user_data); */
+    /* cv_mem->cv_nfe++; */
+    /* if (retval) */
+    /* { */
+    /*   cvProcessError(cv_mem, CV_RHSFUNC_FAIL, "CVODE", "CVode", */
+    /*                  MSGCV_RHSFUNC_FAILED, cv_mem->cv_tn); */
+    /*   return CV_RHSFUNC_FAIL; */
+    /* } */
+  if (itype == 0)
   {
-    cvProcessError(cv_mem, CV_ILL_INPUT, "CVODE", "CVodeResizeHistory",
-                   "NewtonPolyCoef failed");
-    return CV_ILL_INPUT;
+    if (debug_file)
+    {
+      fprintf(debug_file, "RESIZE COPY TEST\n");
+    }
+
+    /* Test 0: Input y_hist is actually a copy of zn. Output should match that */
+    /*    from the problem without resizing except for the duplicated values. */
+    /* for (int j = 0; j <= maxord; j++) */
+    /* { */
+    /*   N_VScale(ONE, y_hist[j], cv_mem->cv_zn[j]); */
+    /* } */
+
+    /* Copy history and re-evaluate f */
+    /* for (int j = 0; j <= maxord; j++) */
+    /* { */
+    /*   N_VScale(ONE, y_hist[j], cv_mem->cv_zn[j]); */
+    /* } */
+
+    /* retval = cv_mem->cv_f(t_hist[0], y_hist[0], */
+    /*                       cv_mem->cv_zn[1], cv_mem->cv_user_data); */
+    /* cv_mem->cv_nfe++; */
+    /* if (retval) */
+    /* { */
+    /*   cvProcessError(cv_mem, CV_RHSFUNC_FAIL, "CVODE", "CVode", */
+    /*                  MSGCV_RHSFUNC_FAILED, cv_mem->cv_tn); */
+    /*   return CV_RHSFUNC_FAIL; */
+    /* } */
+    /* N_VScale(cv_mem->cv_hscale, cv_mem->cv_zn[1], cv_mem->cv_zn[1]); */
+
+    /* Test 3: Copy yn, evaluate fn, and limit to first order (externally) */
+    /* zn[0] = y_n-1 */
+    N_VScale(ONE, y_hist[0], cv_mem->cv_zn[0]);
+
+    /* zn[1] = h_n-1 * y'(t_n-1, y_n-1) */
+    retval = cv_mem->cv_f(t_hist[0], y_hist[0],
+                          cv_mem->cv_zn[1], cv_mem->cv_user_data);
+    cv_mem->cv_nfe++;
+    if (retval)
+    {
+      cvProcessError(cv_mem, CV_RHSFUNC_FAIL, "CVODE", "CVode",
+                     MSGCV_RHSFUNC_FAILED, cv_mem->cv_tn);
+      return CV_RHSFUNC_FAIL;
+    }
+    N_VScale(cv_mem->cv_hscale, cv_mem->cv_zn[1], cv_mem->cv_zn[1]);
+
   }
-
-  retval = NewtonPolyMultiDerEval(t_hist, cv_mem->resize_wrk,
-                                  cv_mem->cv_q + 1,
-                                  cv_mem->cv_tn, cv_mem->cv_q,
-                                  cv_mem->cv_zn);
-  if (retval)
+  else if (itype == 1)
   {
-    cvProcessError(cv_mem, CV_ILL_INPUT, "CVODE", "CVodeResizeHistory",
-                   "NewtonPolyMultiDerEval failed");
-    return CV_ILL_INPUT;
+    if (debug_file)
+    {
+      fprintf(debug_file, "RESIZE LAGRANGE TEST\n");
+    }
+
+    /* Lagrange Polynomial -- Copy yn and evaluate fn (like above).
+       Compute higher order derivatives from polynomial interpolant */
+    sunrealtype a[4];
+
+    /* zn[0] = y_n-1 */
+    N_VScale(ONE, y_hist[0], cv_mem->cv_zn[0]);
+
+    /* zn[1] = h_n-1 * y'(t_n-1, y_n-1) */
+    retval = cv_mem->cv_f(cv_mem->cv_tn, y_hist[0],
+                          cv_mem->cv_zn[1], cv_mem->cv_user_data);
+    cv_mem->cv_nfe++;
+    if (retval)
+    {
+      cvProcessError(cv_mem, CV_RHSFUNC_FAIL, "CVODE", "CVode",
+                     MSGCV_RHSFUNC_FAILED, cv_mem->cv_tn);
+      return CV_RHSFUNC_FAIL;
+    }
+    N_VScale(cv_mem->cv_hscale, cv_mem->cv_zn[1], cv_mem->cv_zn[1]);
+
+    /* (>= 2nd order) zn[2] = ((h_n-1)^2 / 2) * y''(t_n-1, y_n-1) */
+    if (cv_mem->cv_qprime >= 2)
+    {
+      for (int j = 0; j < 3; j++) a[j] = LBasisD2(j, cv_mem->cv_tn, t_hist);
+      N_VLinearCombination(3, a, y_hist, cv_mem->cv_zn[2]);
+      N_VScale((cv_mem->cv_hscale * cv_mem->cv_hscale) / TWO,
+               cv_mem->cv_zn[2], cv_mem->cv_zn[2]);
+    }
+
+    /* (>= 3rd order) zn[3] = ((h_n-1)^3 / 6) * y'''(t_n-1, y_n-1) */
+    if (cv_mem->cv_qprime >= 3)
+    {
+      for (int j = 0; j < 4; j++) a[j] = LBasisD3(j, cv_mem->cv_tn, t_hist);
+      N_VLinearCombination(4, a, y_hist, cv_mem->cv_zn[3]);
+      N_VScale((cv_mem->cv_hscale * cv_mem->cv_hscale * cv_mem->cv_hscale) / SUN_RCONST(6.0),
+               cv_mem->cv_zn[3], cv_mem->cv_zn[3]);
+    }
   }
-
-  /* Force zn[1] = y'(t_n-1, y_n-1) -- ideally we would use the value computed
-     by the interpolant but it has a larger error -- FURTHER TESTING NEEDED */
-  /* retval = cv_mem->cv_f(cv_mem->cv_tn, cv_mem->cv_zn[0], */
-  /*                       cv_mem->cv_zn[1], cv_mem->cv_user_data); */
-  /* cv_mem->cv_nfe++; */
-  /* if (retval) */
-  /* { */
-  /*   cvProcessError(cv_mem, CV_RHSFUNC_FAIL, "CVODE", "CVode", */
-  /*                  MSGCV_RHSFUNC_FAILED, cv_mem->cv_tn); */
-  /*   return CV_RHSFUNC_FAIL; */
-  /* } */
-
-  sunrealtype scale = ONE;
-  for (int i = 1; i < cv_mem->cv_q + 1; i++)
+  else if (itype == 2)
   {
-    scale *= cv_mem->cv_hscale / ((sunrealtype) i);
-    N_VScale(scale, cv_mem->cv_zn[i], cv_mem->cv_zn[i]);
+    if (debug_file)
+    {
+      fprintf(debug_file, "RESIZE NEWTON TEST\n");
+    }
+
+    /* Newton Polynomial */
+
+    /* >>>>> NOTE use use q + 1 not n_hist, so the interpolation order is
+       correct even if more history than desired is provided <<<<< */
+
+    /* Compute interpolation coefficients */
+    retval = NewtonPolyCoef(t_hist, y_hist, cv_mem->cv_q + 1,
+                            cv_mem->resize_wrk);
+    if (retval)
+    {
+      cvProcessError(cv_mem, CV_ILL_INPUT, "CVODE", "CVodeResizeHistory",
+                     "NewtonPolyCoef failed");
+      return CV_ILL_INPUT;
+    }
+
+    retval = NewtonPolyMultiDerEval(t_hist, cv_mem->resize_wrk,
+                                    cv_mem->cv_q + 1,
+                                    cv_mem->cv_tn, cv_mem->cv_q,
+                                    cv_mem->cv_zn);
+    if (retval)
+    {
+      cvProcessError(cv_mem, CV_ILL_INPUT, "CVODE", "CVodeResizeHistory",
+                     "NewtonPolyMultiDerEval failed");
+      return CV_ILL_INPUT;
+    }
+
+    sunrealtype scale = ONE;
+    for (int i = 1; i < cv_mem->cv_q + 1; i++)
+    {
+      scale *= cv_mem->cv_hscale / ((sunrealtype) i);
+      N_VScale(scale, cv_mem->cv_zn[i], cv_mem->cv_zn[i]);
+    }
   }
 
   /* if (((cv_mem->cv_qwait == 1) && (cv_mem->cv_q != cv_mem->cv_qmax)) || */
@@ -1073,13 +1195,16 @@ int CVodeResizeHistory(void *cvode_mem, sunrealtype* t_hist, N_Vector* y_hist,
   /* } */
   N_VScale(ONE, cv_mem->cv_vtemp3, cv_mem->cv_zn[cv_mem->cv_qmax]);
 
-  /* printf("Finish Resize\n"); */
-  /* printf("tn = %g\n", cv_mem->cv_tn); */
-  /* for (int ord = 0; ord < 6; ord++) */
-  /* { */
-  /*   printf("zn[%d]\n", ord); */
-  /*   N_VPrint(cv_mem->cv_zn[ord]); */
-  /* } */
+  if (debug_file)
+  {
+    fprintf(debug_file, "Finish Resize\n");
+    fprintf(debug_file, "tn = %g\n", cv_mem->cv_tn);
+    for (int ord = 0; ord < 6; ord++)
+    {
+      fprintf(debug_file, "zn[%d]\n", ord);
+      N_VPrintFile(cv_mem->cv_zn[ord], debug_file);
+    }
+  }
 
   if (cv_mem->cv_VabstolMallocDone)
   {
