@@ -59,5 +59,6 @@ detailed in the following subsections.
 
    Skeleton
    User_callable
+   Relaxation
    Preconditioners
    XBraid
