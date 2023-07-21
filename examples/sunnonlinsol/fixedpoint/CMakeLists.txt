@@ -19,15 +19,15 @@
 
 # Example programs
 set(sunnonlinsol_fixedpoint_examples
-  "test_sunnonlinsol_fixedpoint.c\; \"\" \; \"\" "
-  "test_sunnonlinsol_fixedpoint.c\; \"2\" \; \"\" "
-  "test_sunnonlinsol_fixedpoint.c\; \"2 0.5\" \; \"\" "
+  "test_sunnonlinsol_fixedpoint.c\;<none>\;passfail"
+  "test_sunnonlinsol_fixedpoint.c\; \"2\" \;passfail"
+  "test_sunnonlinsol_fixedpoint.c\; \"2 0.5\" \;passfail"
 )
 
 # if building F2003 tests
 if (BUILD_FORTRAN_MODULE_INTERFACE)
   set(sunnonlinsol_fixedpoint_fortran_examples
-    "test_fsunnonlinsol_fixedpoint_mod\; \"\" \; \"\" "
+    "test_fsunnonlinsol_fixedpoint_mod\;<none>\;passfail"
   )
 endif()
 

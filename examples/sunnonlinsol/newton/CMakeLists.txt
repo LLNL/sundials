@@ -19,12 +19,12 @@
 
 # Example programs
 set(sunnonlinsol_newton_examples
-  "test_sunnonlinsol_newton.c\; \" \" \; \" \" "
+  "test_sunnonlinsol_newton.c\;<none>\;passfail"
 )
 
 if (BUILD_FORTRAN_MODULE_INTERFACE)
   set(sunnonlinsol_newton_fortran_examples
-    "test_fsunnonlinsol_newton_mod\; \"\" \; \"\" "
+    "test_fsunnonlinsol_newton_mod\;<none>\;passfail"
   )
 endif()
 
