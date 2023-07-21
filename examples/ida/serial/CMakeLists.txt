@@ -20,16 +20,16 @@
 
 # Examples using SUNDIALS linear solvers
 set(IDA_examples
-  "idaAnalytic_mels.c\; \"\" \;exclude-single"
-  "idaFoodWeb_bnd.c\; \"\" \;develop"
-  "idaFoodWeb_kry.c\; \"\" \;develop"
-  "idaHeat2D_bnd.c\; \"\" \;develop"
-  "idaHeat2D_kry.c\; \"\" \;develop"
-  "idaKrylovDemo_ls.c\; \"\" \;develop"
+  "idaAnalytic_mels.c\;<none>\;exclude-single"
+  "idaFoodWeb_bnd.c\;<none>\;develop"
+  "idaFoodWeb_kry.c\;<none>\;develop"
+  "idaHeat2D_bnd.c\;<none>\;develop"
+  "idaHeat2D_kry.c\;<none>\;develop"
+  "idaKrylovDemo_ls.c\;<none>\;develop"
   "idaKrylovDemo_ls.c\; \"1\" \;develop"
   "idaKrylovDemo_ls.c\; \"2\" \;develop"
-  "idaRoberts_dns.c\; \"\" \; \"\" "
-  "idaSlCrank_dns.c\; \"\" \;exclude-single"
+  "idaRoberts_dns.c\;<none>\;passfail"
+  "idaSlCrank_dns.c\;<none>\;exclude-single"
   )
 
 # Examples using LAPACK linear solvers
@@ -38,13 +38,13 @@ set(IDA_examples_BL
 
 # Examples using KLU linear solver
 set(IDA_examples_KLU
-  "idaHeat2D_klu.c\; \"\" \;develop"
-  "idaRoberts_klu.c\; \"\" \;develop"
+  "idaHeat2D_klu.c\;<none>\;develop"
+  "idaRoberts_klu.c\;<none>\;develop"
   )
 
 # Examples using SuperLU_MT linear solver
 set(IDA_examples_SUPERLUMT
-    "idaRoberts_sps.c\; \"\" \;develop"
+    "idaRoberts_sps.c\;<none>\;develop"
     #"idaHeat2D_sps\;develop" # not ready yet, incorrect answer.
     )
 
@@ -272,7 +272,7 @@ if(EXAMPLES_INSTALL)
   if(BUILD_SUNLINSOL_SUPERLUMT)
     set(_include_sunlinsolsuperlumt sunlinsolsuperlumt)
     list(APPEND IDA_examples 
-      "idaRoberts_sps.c\; \"\" \;develop"
+      "idaRoberts_sps.c\;<none>\;develop"
       #"idaHeat2D_sps\;develop" # not ready yet, incorrect answer.
     )
     set(SUPERLUMT_TARGET SUNDIALS::SUPERLUMT)
@@ -281,8 +281,8 @@ if(EXAMPLES_INSTALL)
   if(BUILD_SUNLINSOL_KLU)
     set(_include_sunlinsolklu sunlinsolklu)
     list(APPEND IDA_examples
-      "idaHeat2D_klu.c\; \"\" \;develop"
-      "idaRoberts_klu.c\; \"\" \;develop"
+      "idaHeat2D_klu.c\;<none>\;develop"
+      "idaRoberts_klu.c\;<none>\;develop"
     )
     set(KLU_TARGET SUNDIALS::KLU)
   endif()
