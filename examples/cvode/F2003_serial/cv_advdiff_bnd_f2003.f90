@@ -321,8 +321,8 @@ module advdiff_mod
     print *, '   '
     print *, 'Finished initialization, starting time steps'
     print *, '   '
-    print *, '      t         max.norm(u)      | lnst'
-    print *, ' ------------------------------------------'
+    print *, '    t       max.norm(u) | lnst'
+    print *, ' ------------------------------'
 
     unorm = maxval(abs(u))
     print '(2x,f6.2,2x,es14.6,2x,i5)', tcur, unorm, lnst
@@ -351,7 +351,7 @@ module advdiff_mod
        tout = tout + dtout
 
     end do
-    print *, ' ------------------------------------------'
+    print *, ' ------------------------------'
 
     ! diagnostics output
     call CVodeStats(cvode_mem)
