@@ -495,7 +495,7 @@ static int f(realtype t, N_Vector u, N_Vector udot, void *user_data)
 
   /* Nonblocking rightward flow of data */
   MPI_Irecv(&d->bufs[0],1,MPI_SUNREALTYPE,procleft ,0,d->comm,&request); // Receive from procleft
-  MPI_Send( &d->bufs[1],1,MPI_SUNREALTYPE,procright,0,d->comm);          // Send to procright
+  MPI_Send( &d->bufs[2],1,MPI_SUNREALTYPE,procright,0,d->comm);          // Send to procright
   MPI_Wait( &request,&status);
   // MPI_Isendrecv(&d->bufs[2],1,MPI_SUNREALTYPE,procright,0, // Send to procright
   //               &d->bufs[0],1,MPI_SUNREALTYPE,procleft,0,  // Receive from procleft
