@@ -383,7 +383,7 @@ N_Vector N_VNewEmpty_ParHyp(MPI_Comm comm,
 
   /* Create content */
   content = NULL;
-  content = (N_VectorContent_ParHyp) malloc(sizeof(_N_VectorContent_ParHyp));
+  content = (N_VectorContent_ParHyp) malloc(sizeof(struct _N_VectorContent_ParHyp));
   if (content == NULL) { N_VDestroy(v); return(NULL); }
 
   /* Create private content */
