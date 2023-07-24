@@ -492,8 +492,8 @@ static int f(realtype t, N_Vector u, N_Vector udot, void *user_data)
   d->bufs[1] = udata[0];          //  leftmost local gridpoint is sent left
   d->bufs[2] = udata[d->local_M]; // rightmost local gridpoint is sent right
 #elif defined(SUNDIALS_HYPRE_BACKENDS_CUDA_OR_HIP)
-  NV_ADD_LANG_PREFIX_PH(Memcpy)(&d->bufs[1],&udata[0],         sizeof(realtype),NV_ADD_LANG_PREFIX_PH(MemcpyDeviceToHost));
-  NV_ADD_LANG_PREFIX_PH(Memcpy)(&d->bufs[2],&udata[d->local_M],sizeof(realtype),NV_ADD_LANG_PREFIX_PH(MemcpyDeviceToHost));
+  NV_ADD_LANG_PREFIX_PH(Memcpy)(&d->bufs[1],&udata[0],           sizeof(realtype),NV_ADD_LANG_PREFIX_PH(MemcpyDeviceToHost));
+  NV_ADD_LANG_PREFIX_PH(Memcpy)(&d->bufs[2],&udata[d->local_M-1],sizeof(realtype),NV_ADD_LANG_PREFIX_PH(MemcpyDeviceToHost));
 #endif
 
   printf("checkpoint 1d\n");
@@ -540,7 +540,7 @@ static int f(realtype t, N_Vector u, N_Vector udot, void *user_data)
   int      i;
   realtype uleft, uright, ucenter, hdiff, hadv;
   /* Loop over all grid points in current process. */
-  for (i=1; i<=d->local_M; i++) {
+  for (i=0; i<d->local_M; i++) {
     /* Extract u at x_i and two neighboring points */
     uleft   = (i==0           ) ? ubufs[0] : udata[i-1];
     uright  = (i==d->local_M-1) ? ubufs[3] : udata[i+1];
