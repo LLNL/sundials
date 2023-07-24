@@ -212,15 +212,15 @@ int main(int argc, char *argv[])
   HYPRE_IJVectorGetObject(Uij, (void**) &Upar);
 
   u = N_VMake_ParHyp(Upar, sunctx);  /* Create wrapper u around hypre vector */
-  if(check_retval((void *)u, "N_VNew", 0, d->myproc)) MPI_Abort(comm, 1);
+  if(check_retval((void *)u, "N_VNew", 0, d->myproc)) MPI_Abort(d->comm, 1);
 
   /* Call CVodeCreate to create the solver memory and specify the
    * Adams-Moulton LMM */
   cvode_mem = CVodeCreate(CV_ADAMS, sunctx);
-  if(check_retval((void *)cvode_mem, "CVodeCreate", 0, d->myproc)) MPI_Abort(comm, 1);
+  if(check_retval((void *)cvode_mem, "CVodeCreate", 0, d->myproc)) MPI_Abort(d->comm, 1);
 
   retval = CVodeSetUserData(cvode_mem, d);
-  if(check_retval(&retval, "CVodeSetUserData", 1, d->myproc)) MPI_Abort(comm, 1);
+  if(check_retval(&retval, "CVodeSetUserData", 1, d->myproc)) MPI_Abort(d->comm, 1);
 
   /* Call CVodeInit to initialize the integrator memory and specify the
    * user's right hand side function in u'=f(t,u), the inital time T0, and
