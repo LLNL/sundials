@@ -23,7 +23,7 @@
  * form of the advection-diffusion equation in 1-D:
  *   du/dt = d^2 u / dx^2 + .5 du/dx
  * on the interval 0 <= x <= 2, and the time interval 0 <= t <= 5.
- * Homogeneous Dirichlet boundary conditions are posed, and the
+ * Homogeneous Dirichlet boundary conditions are imposed, and the
  * initial condition is the following:
  *   u(x,t=0) = x(2-x)exp(2x) .
  * The PDE is discretized on a uniform grid of size M+2 with
@@ -41,6 +41,28 @@
  *
  * Execute with Number of Processors = N,  with 1 <= N <= M.
  * -----------------------------------------------------------------
+ * Computational approach notes:
+ *  (1) Two hypre nvectors are used: u and udot. Depending on the
+ *      backend (SUNDIALS_HYPRE_BACKENDS), their data will be stored
+ *      either on the host or on the device.
+ *  (2) The interior M gridpoints are divided amongst the nprocs
+ *      processes so that local_M is either k+1 or k for all procs.
+ *  (3) Buffers: The four buffers used for MPI communications are
+ *      stored together in the array 'bufs'. The entries correspond
+ *      to [Lrecvbuf,Lsendbuf,Rsendbuf,Rrecvbuf]. If a device is in
+ *      use, we similarly allocate 'bufs_dev', though only the Recv
+ *      buffers are used by the device.
+ * -----------------------------------------------------------------
+ * GPU usage notes:
+ *  (1) As written, this example should work with SERIAL, CUDA, or
+ *      HIP backends (determined by SUNDIALS_HYPRE_BACKENDS).
+ *  (2) The macro NV_ADD_LANG_PREFIX_PH(...) adds the prefix "cuda"
+ *      or "hip" depending on the backend. The user may use this
+ *      macro for portability, or explicitly write cuda/hip calls.
+ *      Example: "NV_ADD_LANG_PREFIX_PH(Free)" expands to "cudaFree"
+ *      when using the CUDA hypre backend.
+ *  (3) The MPI installation is assumed to *not* be CUDA/HIP-aware,
+ *      so no device-to-device Send/Recv's are used here.
  */
 
 #include <stdio.h>
@@ -56,7 +78,7 @@
 #include <HYPRE.h>
 #include <HYPRE_IJ_mv.h>
 
-#include <mpi.h>                      /* MPI constants and types */
+#include <mpi.h>                                  /* MPI constants and types */
 
 /* Problem Constants */
 
@@ -66,8 +88,6 @@
 #define TWO   RCONST(2.0)
 
 #define XMAX  RCONST(2.0)    /* domain boundary           */
-// #define global_M    10             /* mesh dimension            */
-// #define NEQ   global_M             /* number of equations       */
 #define ATOL  RCONST(1.0e-5) /* scalar absolute tolerance */
 #define T0    ZERO           /* initial time              */
 #define T1    RCONST(0.5)    /* first output time         */
@@ -197,16 +217,6 @@ int main(int argc, char *argv[])
   reltol = ZERO;
   abstol = ATOL;
 
-// #if defined(SUNDIALS_HYPRE_BACKENDS_CUDA_OR_HIP)
-//   data_host = d;
-//   d = NULL;
-//   /* Allocate device UserData */
-//   NV_ADD_LANG_PREFIX_PH(Malloc)(&d, sizeof(UserData));
-  
-//   /* Copy host data to device */
-//   NV_ADD_LANG_PREFIX_PH(Memcpy)(d, data_host, sizeof(UserData), NV_ADD_LANG_PREFIX_PH(MemcpyHostToDevice));
-// #endif
-
   /* Initialize solution vector. */
   SetIC(Uij, d->dx, d->local_M, mybase);
   HYPRE_IJVectorAssemble(Uij);
@@ -322,11 +332,6 @@ static void SetIC(HYPRE_IJVector Uij, realtype dx, sunindextype local_M,
   HYPRE_Int* iglobal_dev;
   realtype*  udata_dev;
 
-  /* NOTE: The macro NV_ADD_LANG_PREFIX_PH(...) adds the prefix "cuda" or "hip" depending on the backend.
-   *       The user may use this macro for portability, or explicitly write cuda/hip calls.
-   *       Example: "NV_ADD_LANG_PREFIX_PH(Free)" expands to "cudaFree" when using the CUDA hypre backend.
-   */
-
   /* Allocate device arrays */
   NV_ADD_LANG_PREFIX_PH(Malloc)(&iglobal_dev, local_M*sizeof(HYPRE_Int));
   NV_ADD_LANG_PREFIX_PH(Malloc)(&udata_dev, local_M*sizeof(realtype));
@@ -350,7 +355,7 @@ static void SetIC(HYPRE_IJVector Uij, realtype dx, sunindextype local_M,
 static void PrintIntro(int M, int nprocs)
 {
   printf("\n 1-D advection-diffusion equation, mesh size =%3d \n", M);
-  printf("\n Number of PEs = %3d \n\n", nprocs);
+  printf("\n Number of MPI processes = %3d \n\n", nprocs);
 
   return;
 }
@@ -451,29 +456,6 @@ static int f(realtype t, N_Vector u, N_Vector udot, void *user_data)
   udata    = hypre_VectorData(hypre_ParVectorLocalVector(uhyp));
   udotdata = hypre_VectorData(hypre_ParVectorLocalVector(udothyp));
 
-//   comm     = d->comm;
-//   nprocs   = d->nprocs;
-//   myproc   = d->myproc;
-//   global_M = d->global_M;
-//   local_M  = d->local_M;
-//   hdcoef   = d->hdcoef;
-//   hacoef   = d->hacoef;
-//   bufs     = d->bufs
-// #if defined(SUNDIALS_HYPRE_BACKENDS_CUDA_OR_HIP)
-//   bufs_dev = d->bufs_dev;
-// #endif
-//     MPI_Comm  comm;               // MPI communicator
-//   int       nprocs, myproc;     // # of processes and my process id
-//   HYPRE_Int global_M, local_M;  // global/local problem size
-//   realtype  dx, hdcoef, hacoef; // gridpoint spacing and problem coefficients
-//   realtype  bufs[4];            // Send/Recv buffers: [Lrecvbuf,Lsendbuf,Rsendbuf,Rrecvbuf]
-// #if defined(SUNDIALS_HYPRE_BACKENDS_CUDA_OR_HIP)
-//   realtype* bufs_dev;           // Buffer space (4 realtypes) to be allocated on device
-// #endif
-
-  // local_M =  hypre_ParVectorLastIndex(uhyp)  /* Local length of uhyp   */
-  //            - hypre_ParVectorFirstIndex(uhyp) + 1;
-
   printf("checkpoint 1c\n");
   /* Relevant process ids (utilize behavior of MPI_PROC_NULL in Send/Recv's) */
   // Note: Send/Recv's with MPI_PROC_NULL immediately return successful without modifying buffers.
@@ -481,10 +463,6 @@ static int f(realtype t, N_Vector u, N_Vector udot, void *user_data)
   proclast  = d->nprocs-1;
   procleft  = (d->myproc==procfirst) ? MPI_PROC_NULL : d->myproc-1;
   procright = (d->myproc==proclast ) ? MPI_PROC_NULL : d->myproc+1;
-
-  // /* Store local segment of u in the working array bufs. */
-  // for (i = 1; i <= d->local_M; i++)
-  //   d->bufs[i] = udata[i - 1];
 
   /* Populate Send buffers */
   // Note: bufs order is [Lrecvbuf,Lsendbuf,Rsendbuf,Rrecvbuf]
@@ -507,10 +485,6 @@ static int f(realtype t, N_Vector u, N_Vector udot, void *user_data)
   MPI_Irecv(&d->bufs[0],1,MPI_SUNREALTYPE,procleft ,0,d->comm,&request); // Receive from procleft
   MPI_Send( &d->bufs[2],1,MPI_SUNREALTYPE,procright,0,d->comm);          // Send to procright
   MPI_Wait( &request,&status);
-  // MPI_Isendrecv(&d->bufs[2],1,MPI_SUNREALTYPE,procright,0, // Send to procright
-  //               &d->bufs[0],1,MPI_SUNREALTYPE,procleft,0,  // Receive from procleft
-  //               d->comm,&request);
-  // MPI_Wait(&request,&status);
 
   printf("checkpoint 1e\n");
   /* Move received data from host to GPU */
@@ -518,23 +492,6 @@ static int f(realtype t, N_Vector u, N_Vector udot, void *user_data)
   NV_ADD_LANG_PREFIX_PH(Memcpy)(&d->bufs_dev[0],&d->bufs[0],sizeof(realtype),NV_ADD_LANG_PREFIX_PH(MemcpyHostToDevice));
   NV_ADD_LANG_PREFIX_PH(Memcpy)(&d->bufs_dev[3],&d->bufs[3],sizeof(realtype),NV_ADD_LANG_PREFIX_PH(MemcpyHostToDevice));
 #endif
-
-  // /* Pass needed data to processes before and after current process. */
-  // if (d->myproc != procfirst)
-  //   MPI_Send(&d->bufs[1], 1, MPI_SUNREALTYPE, procleft, 0, d->comm);           // Send to left
-  // if (d->myproc != proclast)
-  //   MPI_Send(&d->bufs[local_M], 1, MPI_SUNREALTYPE, procright, 0, d->comm);  // Send to right
-
-  // /* Receive needed data from processes before and after current process. */
-  // if (d->myproc != procfirst)
-  //   MPI_Recv(&d->bufs[0], 1, MPI_SUNREALTYPE, procleft, 0, d->comm, &status);  // Recv from left
-  // else
-  //   d->bufs[0] = ZERO;
-  // if (d->myproc != proclast)
-  //   MPI_Recv(&d->bufs[d->local_M+1], 1, MPI_SUNREALTYPE, procright, 0, d->comm, // Recv from right
-  //            &status);
-  // else
-  //   d->bufs[d->local_M + 1] = ZERO;
 
   printf("checkpoint 1f\n");
 #if defined(SUNDIALS_HYPRE_BACKENDS_SERIAL)
