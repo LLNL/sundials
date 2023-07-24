@@ -173,11 +173,11 @@ int main(int argc, char *argv[])
   /* Create SUNDIALS context */
   retval = SUNContext_Create(&d->comm, &sunctx);
   if (check_retval(&retval, "SUNContex_Create", 1, d->myproc)) MPI_Abort(d->comm, 1);
--
+
   /* Populate remaining constants */
-  d->dx     = XMAX/((realtype)(global_M+1));
-  d->hdcoef = ONE/(dx*dx);
-  d->hacoef = HALF/(TWO*dx);
+  d->dx     = XMAX/((realtype)(M+1));
+  d->hdcoef = ONE/(d->dx*d->dx);
+  d->hacoef = HALF/(TWO*d->dx);
 
   /* Initialize Send/Recv buffers */
   // Note: We have zero Dirichlet b.c.; Bdry procs will always have zero in their outer Recv buffer
@@ -188,7 +188,7 @@ int main(int argc, char *argv[])
 #endif
 
   /* Allocate hypre vector */
-  HYPRE_IJVectorCreate(comm, mybase, mybase + local_M - 1, &Uij);
+  HYPRE_IJVectorCreate(comm, mybase, mybase + d->local_M - 1, &Uij);
   HYPRE_IJVectorSetObjectType(Uij, HYPRE_PARCSR);
   HYPRE_IJVectorInitialize(Uij);
 
@@ -207,7 +207,7 @@ int main(int argc, char *argv[])
 // #endif
 
   /* Initialize solution vector. */
-  SetIC(Uij, dx, local_M, mybase);
+  SetIC(Uij, d->dx, d->local_M, mybase);
   HYPRE_IJVectorAssemble(Uij);
   HYPRE_IJVectorGetObject(Uij, (void**) &Upar);
 
@@ -420,10 +420,8 @@ __global__ void fKernel(realtype* udata, realtype* udotdata, realtype* ubufs,
 
 static int f(realtype t, N_Vector u, N_Vector udot, void *user_data)
 {
-  int      i;
   // int      nprocs, myproc, local_M, global_M;
   int      procfirst, proclast, procleft, procright;
-  realtype uleft, uright, ucenter, hdiff, hadv; //hdcoef, hacoef;
   realtype *udata, *udotdata; // Both are length global_M (# of gridpoints excluding bdry)
 
   UserData        d;
@@ -526,6 +524,8 @@ static int f(realtype t, N_Vector u, N_Vector udot, void *user_data)
   //   d->bufs[d->local_M + 1] = ZERO;
 
 #if defined(SUNDIALS_HYPRE_BACKENDS_SERIAL)
+  int      i;
+  realtype uleft, uright, ucenter, hdiff, hadv;
   /* Loop over all grid points in current process. */
   for (i=1; i<=d->local_M; i++) {
     /* Extract u at x_i and two neighboring points */
@@ -541,7 +541,6 @@ static int f(realtype t, N_Vector u, N_Vector udot, void *user_data)
 #elif defined(SUNDIALS_HYPRE_BACKENDS_CUDA_OR_HIP)
   unsigned block = 256;
   unsigned grid  = (d->local_M + block - 1) / block;
-
   fKernel<<<grid,block>>>(udata, udotdata, d->bufs_dev, d->local_M, d->hdcoef, d->hacoef);
 #endif
   return(0);
