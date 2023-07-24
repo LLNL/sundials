@@ -252,12 +252,17 @@ int main(int argc, char *argv[])
 
   /* In loop over output points, call CVode, print results, test for error */
   for (iout=1, tout=T1; iout <= NOUT; iout++, tout += DTOUT) {
+    printf("checkpoint 1\n");
     /* Advance to next output time */
     retval = CVode(cvode_mem, tout, u, &t, CV_NORMAL);
     if(check_retval(&retval, "CVode", 1, d->myproc)) break;
+
+    printf("checkpoint 2\n");
     /* Get number of steps taken */
     retval = CVodeGetNumSteps(cvode_mem, &nst);
     if(check_retval(&retval, "CVodeGetNumSteps", 1, d->myproc)) break;
+
+    printf("checkpoint 3\n");
     /* Print time, current max norm, and # steps taken since last output */
     umax = N_VMaxNorm(u);
     if (d->myproc == 0) PrintData(t, umax, nst);
