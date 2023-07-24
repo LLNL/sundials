@@ -18,6 +18,7 @@
  * for the NVECTOR package.
  * -----------------------------------------------------------------*/
 #include <nvector/nvector_parhyp.h>
+#include "sundials_debug.h"
 
 /* --- Backend-specific headers --- */
 
@@ -31,7 +32,6 @@
 #include <cstdio>
 #include <cstdlib>
 #include <iostream>
-#include "sundials_debug.h"           /* located in src/nvector/sundials */
 #endif
 
 #if defined(SUNDIALS_HYPRE_BACKENDS_CUDA)
