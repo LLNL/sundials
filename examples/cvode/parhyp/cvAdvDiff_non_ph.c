@@ -425,6 +425,7 @@ __global__ void fKernel(realtype* udata, realtype* udotdata, realtype* ubufs,
 
 static int f(realtype t, N_Vector u, N_Vector udot, void *user_data)
 {
+  printf("checkpoint 1a\n");
   // int      nprocs, myproc, local_M, global_M;
   int      procfirst, proclast, procleft, procright;
   realtype *udata, *udotdata; // Both are length global_M (# of gridpoints excluding bdry)
@@ -437,6 +438,7 @@ static int f(realtype t, N_Vector u, N_Vector udot, void *user_data)
   HYPRE_ParVector uhyp;
   HYPRE_ParVector udothyp;
 
+  printf("checkpoint 1b\n");
   /* Get reference to UserData */
   d        = (UserData) user_data;
 
@@ -471,6 +473,7 @@ static int f(realtype t, N_Vector u, N_Vector udot, void *user_data)
   // local_M =  hypre_ParVectorLastIndex(uhyp)  /* Local length of uhyp   */
   //            - hypre_ParVectorFirstIndex(uhyp) + 1;
 
+  printf("checkpoint 1c\n");
   /* Relevant process ids (utilize behavior of MPI_PROC_NULL in Send/Recv's) */
   // Note: Send/Recv's with MPI_PROC_NULL immediately return successful without modifying buffers.
   procfirst = 0;
@@ -493,6 +496,7 @@ static int f(realtype t, N_Vector u, N_Vector udot, void *user_data)
   NV_ADD_LANG_PREFIX_PH(Memcpy)(&d->bufs[2],&udata[d->local_M],sizeof(realtype),NV_ADD_LANG_PREFIX_PH(MemcpyDeviceToHost));
 #endif
 
+  printf("checkpoint 1d\n");
   /* Nonblocking leftward flow of data */
   MPI_Irecv(&d->bufs[3],1,MPI_SUNREALTYPE,procright,0,d->comm,&request); // Receive from procright
   MPI_Send( &d->bufs[1],1,MPI_SUNREALTYPE,procleft ,0,d->comm);          // Send to procleft
@@ -507,6 +511,7 @@ static int f(realtype t, N_Vector u, N_Vector udot, void *user_data)
   //               d->comm,&request);
   // MPI_Wait(&request,&status);
 
+  printf("checkpoint 1e\n");
   /* Move received data from host to GPU */
 #if defined(SUNDIALS_HYPRE_BACKENDS_CUDA_OR_HIP)
   NV_ADD_LANG_PREFIX_PH(Memcpy)(&d->bufs_dev[0],&d->bufs[0],sizeof(realtype),NV_ADD_LANG_PREFIX_PH(MemcpyHostToDevice));
@@ -530,6 +535,7 @@ static int f(realtype t, N_Vector u, N_Vector udot, void *user_data)
   // else
   //   d->bufs[d->local_M + 1] = ZERO;
 
+  printf("checkpoint 1f\n");
 #if defined(SUNDIALS_HYPRE_BACKENDS_SERIAL)
   int      i;
   realtype uleft, uright, ucenter, hdiff, hadv;
