@@ -397,7 +397,7 @@ static void PrintFinalStats(void *cvode_mem)
 /****************************** GPU Kernels ******************************/
 
 #if defined(SUNDIALS_HYPRE_BACKENDS_CUDA_OR_HIP)
-__global__ void fKernel(realtype* udata, realtype* udotdata, realtype* ubufs,
+__global__ void fKernel(realtype* udata, realtype* udotdata, realtype* bufs_dev,
                         sunindextype local_M, realtype hdcoef, realtype hacoef)
 {
   realtype uleft, uright, ucenter, hdiff, hadv;
@@ -408,8 +408,8 @@ __global__ void fKernel(realtype* udata, realtype* udotdata, realtype* ubufs,
 
   /* Get u values (take from Recv buffers as needed) */
   if (tid < local_M) {
-    uleft   = (tid==0        ) ? ubufs[0] : udata[tid-1];
-    uright  = (tid==local_M-1) ? ubufs[3] : udata[tid+1];
+    uleft   = (tid==0        ) ? bufs_dev[0] : udata[tid-1];
+    uright  = (tid==local_M-1) ? bufs_dev[3] : udata[tid+1];
     ucenter = udata[tid];
 
     /* Set diffusion and advection terms and load into udot */
@@ -543,8 +543,8 @@ static int f(realtype t, N_Vector u, N_Vector udot, void *user_data)
   /* Loop over all grid points in current process. */
   for (i=0; i<d->local_M; i++) {
     /* Extract u at x_i and two neighboring points */
-    uleft   = (i==0           ) ? ubufs[0] : udata[i-1];
-    uright  = (i==d->local_M-1) ? ubufs[3] : udata[i+1];
+    uleft   = (i==0           ) ? bufs[0] : udata[i-1];
+    uright  = (i==d->local_M-1) ? bufs[3] : udata[i+1];
     ucenter = udata[i];
 
     /* Set diffusion and advection terms and load into udot */
