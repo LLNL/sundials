@@ -1,0 +1,80 @@
+   
+ Diagonal test problem:
+   neq =   40
+   nlocal =   10
+   nprocs =    4
+   rtol =  1.00E-05
+   atol =  1.00E-10
+   alpha =  1.00E+01
+    ydot_i = -alpha*i * y_i (i = 1,...,neq)
+    Method is BDF/NEWTON/SPGMR
+    Precond is band-block-diagonal, using CVBBDPRE
+   
+    Preconditioning on left:
+         t         steps     fe
+    --------------------------------
+     0.100000      221      261
+     0.200000      265      307
+     0.300000      290      333
+     0.400000      306      350
+     0.500000      319      364
+     0.600000      329      374
+     0.700000      339      385
+     0.800000      345      391
+     0.900000      352      398
+     1.000000      359      405
+    --------------------------------
+Max. absolute error is   2.83E-09
+   
+ Final Solver Statistics:
+   Internal solver steps =    359
+   Total RHS evals =    405
+   Total preconditioner setups =      7
+   Total preconditioner solves =    728
+   Total nonlinear iterations  =    402
+   Total linear iterations     =    364
+   Average Krylov subspace dimension =   0.9055
+   Total Convergence Failures - Nonlinear =      0
+                              - Linear    =      0
+   Total number of error test failures =      5
+   Main solver real/int workspace sizes =    609   144
+   Linear solver real/int workspace sizes =    534   126
+   BBD preconditioner real/int workspace sizes =    160    72
+   Total number of g evals =     14
+    
+    
+    
+    Preconditioning on right:
+         t         steps     fe
+    --------------------------------
+     0.100000      221      261
+     0.200000      265      307
+     0.300000      290      333
+     0.400000      306      350
+     0.500000      319      364
+     0.600000      329      374
+     0.700000      339      385
+     0.800000      345      391
+     0.900000      352      398
+     1.000000      359      405
+    --------------------------------
+Max. absolute error is   2.83E-09
+   
+ Final Solver Statistics:
+   Internal solver steps =    359
+   Total RHS evals =    405
+   Total preconditioner setups =      7
+   Total preconditioner solves =    728
+   Total nonlinear iterations  =    402
+   Total linear iterations     =    364
+   Average Krylov subspace dimension =   0.9055
+   Total Convergence Failures - Nonlinear =      0
+                              - Linear    =      0
+   Total number of error test failures =      5
+   Main solver real/int workspace sizes =    609   144
+   Linear solver real/int workspace sizes =    534   126
+   BBD preconditioner real/int workspace sizes =    160    72
+   Total number of g evals =     14
+    
+    
+    

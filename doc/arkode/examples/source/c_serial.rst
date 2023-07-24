@@ -54,7 +54,7 @@ The example routine solves this problem using a diagonally-implicit
 Runge-Kutta method.  Each stage is solved using the built-in modified
 Newton iteration, but since the ODE is linear in :math:`y` these
 should only require a single iteration per stage.  Internally, Newton
-will use the SUNLINSOL_DENSE linear solver via the ARKDLS interface,
+will use the SUNLINSOL_DENSE linear solver via the ARKStep interface,
 which in the case of this scalar-valued problem is just division.  The
 example file contains functions to evaluate both :math:`f(t,y)` and
 :math:`J(t,y)=\lambda`.  
@@ -181,8 +181,8 @@ Numerical method
 
 This program solves the problem with the DIRK method, using a
 Newton iteration with the SUNLINSOL_DENSE linear solver module via
-the ARKDLS interface.  Additionally, this example provides a routine
-to ARKDLS to compute the dense Jacobian. 
+the ARKStep interface.  Additionally, this example provides a routine
+to ARKStep to compute the dense Jacobian. 
 
 The problem is run using scalar relative and absolute tolerances of
 :math:`rtol=10^{-6}` and :math:`atol=10^{-10}`, respectively.
@@ -326,7 +326,7 @@ The problem implements the following testing scenario: :math:`u_0=1.2`,
 Numerical method
 ----------------
 
-This program solves the problem with the default thrid order method.
+This program solves the problem with the default third order method.
 
 The problem is run using a fixed slow step size :math:`hs=0.025` and fast step
 size :math:`0.001`.
@@ -361,8 +361,8 @@ Numerical method
 
 This program is constructed to solve the problem with the DIRK solver.
 Implicit subsystems are solved using a Newton iteration with the
-SUNLINSOL_DENSE dense linear solver module via the ARKDLS interface; a
-routine is provided to ARKDLS to supply the Jacobian matrix. 
+SUNLINSOL_DENSE dense linear solver module via the ARKStep interface; a
+routine is provided to ARKStep to supply the Jacobian matrix. 
 
 The problem is run using scalar relative and absolute tolerances of
 :math:`rtol=10^{-4}` and :math:`atol=10^{-11}`, respectively.
@@ -436,7 +436,7 @@ Numerical method
 
 This program solves the problem with the DIRK solver.  Implicit
 subsystems are solved using a Newton iteration with the
-SUNLINSOL_DENSE linear solver module via the ARKDLS interface; a
+SUNLINSOL_DENSE linear solver module via the ARKStep interface; a
 routine is supplied to provide the dense Jacobian matrix.
 
 The problem is run using scalar relative and vector absolute
@@ -536,7 +536,7 @@ relative and absolute solver tolerances of :math:`rtol=10^{-6}` and
 :math:`atol=10^{-10}`, respectively. 
  
 This program solves the problem with a DIRK method, using a Newton
-iteration with the SUNLINSOL_BAND linear solver module via the ARKDLS
+iteration with the SUNLINSOL_BAND linear solver module via the ARKStep
 interface; a routine is supplied to fill the banded Jacobian matrix.
 
 100 outputs are printed at equal intervals, and run statistics 
@@ -572,7 +572,7 @@ This problem is mathematically identical to the preceding problem,
 banded matrix module and SUNLINSOL_BAND linear solver module, it uses
 the SUNMATRIX_SPARSE sparse matrix module with the SUNLINSOL_KLU
 linear solver module.  These are still provided to ARKode using the
-ARKDLS direct linear solver interface, and again a routine is provided
+ARKStep direct linear solver interface, and again a routine is provided
 to supply a compressed-sparse-column version of the Jacobian matrix.
 Additionally, the solution is only output 10 times instead of 100.
 

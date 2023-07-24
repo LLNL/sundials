@@ -1,5 +1,5 @@
 ..
-   Programmer(s): Daniel R. Reynolds @ SMU
+   Programmer(s): Daniel M. Margolis @ SMU
    ----------------------------------------------------------------
    SUNDIALS Copyright Start
    Copyright (c) 2002-2023, Lawrence Livermore National Security
@@ -23,50 +23,48 @@ Parallel Hypre example problems
 
 
 
-.. _ark_diurnal_kry_ph:
+.. _cvAdvDiff_non_ph:
 
-ark_diurnal_kry_ph
+cvAdvDiff_non_ph
 ============================================
 
 This problem is mathematically identical to the parallel C example
-problem :ref:`ark_diurnal_kry_p`.  As before, this test problem models
-a two-species diurnal kinetics advection-diffusion PDE system in two
-spatial dimensions,
+problem :ref:`cvAdvDiff_non_p`.  As before, the problem is the 
+semi-discrete form of the advection-diffusion equation in 1-D:
 
 .. math::
 
-   \frac{\partial c_i}{\partial t} &= 
-     K_h \frac{\partial^2 c_i}{\partial x^2} + 
-     V \frac{\partial     c_i}{\partial x} + 
-     \frac{\partial}{\partial y}\left( K_v(y) 
-     \frac{\partial c_i}{\partial y}\right) + 
-     R_i(c_1,c_2,t),\quad i=1,2 
+   \frac{du}{dt} = \frac{d^2 u}{dx^2} + 0.5 \frac{du}{dx}
 
-where
+on the interval :math:`0 \leq x \leq 2`, and the time interval
+:math:`0 \leq t \leq 5`.  Homogeneous Dirichlet boundary conditions
+are posed, and the initial condition is the following:
 
 .. math::
 
-   R_1(c_1,c_2,t) &= -q_1*c_1*c_3 - q_2*c_1*c_2 + 2*q_3(t)*c_3 + q_4(t)*c_2, \\
-   R_2(c_1,c_2,t) &=  q_1*c_1*c_3 - q_2*c_1*c_2 - q_4(t)*c_2, \\
-   K_v(y) &= K_{v0} e^{y/5}.
+   u(x,t=0) = x \cdot (2 - x) \cdot e^{2x}.
 
-Here :math:`K_h`, :math:`V`, :math:`K_{v0}`, :math:`q_1`, :math:`q_2`,
-and :math:`c_3` are constants, and :math:`q_3(t)` and :math:`q_4(t)`
-vary diurnally.  The problem is posed on the square spatial domain
-:math:`(x,y) \in [0,20]\times[30,50]`, with homogeneous Neumann
-boundary conditions, and for time interval :math:`t\in [0,86400]` sec
-(1 day).
+The PDE is discretized on a uniform grid of size :math:`Mx+2` with
+central differencing, and with boundary values eliminated,
+leaving an ODE system of size :math:`NEQ = Mx`.
 
-We enforce the initial conditions 
+This program solves the problem with the ADAMS integration method,
+and with Newton iteration using diagonal approximate Jacobians.
+It uses scalar relative and absolute tolerances.
 
-.. math::
+Output is printed at :math:`t = 0.5, 1.0, \ldots, 5`.  Run
+statistics (optional outputs) are printed at the end.
 
-   c^1(x,y) &=  10^6 \chi(x)\eta(y) \\
-   c^2(x,y) &=  10^{12} \chi(x)\eta(y) \\
-   \chi(x) &= 1 - \sqrt{\frac{x - 10}{10}} + \frac12 \sqrt[4]{\frac{x - 10}{10}} \\
-   \eta(y) &= 1 - \sqrt{\frac{y - 40}{10}} + \frac12 \sqrt[4]{\frac{x - 10}{10}}.
+This version uses MPI for user routines.
 
+Execute with Number of Processors :math:`= N`,  with 
+:math:`1 \leq N \leq Mx`.
 
+Problem output
+---------------
+
+.. include:: ../../../../examples/cvode/parhyp/cvAdvDiff_non_ph.out
+   :literal:
 
 
 Numerical method

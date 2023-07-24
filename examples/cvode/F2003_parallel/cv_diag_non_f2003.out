@@ -1,0 +1,30 @@
+   
+ Diagonal test problem:
+   neq =    8
+   nlocal =    2
+   nprocs =    4
+   rtol =  1.00E-05
+   atol =  1.00E-10
+   alpha =  1.25E+00
+    ydot_i = -alpha*i * y_i (i = 1,...,neq)
+    Method is ADAMS/FIXED-POINT
+   
+         t      steps     fe
+    ----------------------------
+     0.100000      14      31
+     0.200000      22      39
+     0.300000      29      46
+     0.400000      37      54
+     0.500000      44      61
+     0.600000      51      68
+     0.700000      59      77
+     0.800000      66      84
+     0.900000      74      92
+     1.000000      81      99
+    --------------------------------
+Max. absolute error is   4.07E-08
+   
+ Final Solver Statistics:
+   Internal solver steps =     81
+   Total RHS evals =     99
+   Total number of error test failures =      3

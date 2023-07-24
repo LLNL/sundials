@@ -22,6 +22,9 @@
 CVode Example documentation
 ==============================================
 
+CVode Overview
+=============================
+
 This is the documentation for the CVode examples.  CVode is a
 Krylov method integration package for stiff, nonstiff and
 multi-rate systems of ordinary differential equations (ODEs).
@@ -62,83 +65,77 @@ the problem that is most closely related to your own.  We group these
 examples according to programming language (C, C++, Fortran 2003).
 
 
+Tables of Examples
+==========================
+
+C Examples
+-----------
+
 CVode example problems written in C are summarized in the table
 below, and are further described in the chapters :ref:`serial_c`,
-:ref:`openmp_c`, :ref:`parallel_c` and :ref:`parhyp_c`.
-
-C examples:
-
-* :ref:`cvAdvDiff_bnd` -- description
-
-* :ref:`cvAdvDiff_bndL` -- extended description onto two lines
-
-  * sub-bullet
-
-    * sub-sub-bullet
-
-* :ref:`cvAnalytic_mels`
-
-* :ref:`cvDirectDemo_ls` 
-
-* :ref:`cvDisc_dns`
-
+:ref:`openmp_c`, :ref:`openmpdev_c`, :ref:`parallel_c`, :ref:`parhyp_c`,
+and :ref:`mpimanyvec_c`.
 
 .. cssclass:: table-bordered
 
-================================   ============  ============  ==========  =============  =====================================================
+================================   ============  ============  ==========  =============  =========================================================
 Problem                            Integrator    Nonlinear     Linear      Size           Extras
-================================   ============  ============  ==========  =============  =====================================================
-:ref:`cvAdvDiff_bnd`               BDF           Newton        Band        1              user Jacobian
-:ref:`cvAdvDiff_bndL`              BDF           Newton        Band        1              LAPACK band solver, user Jacobian
-:ref:`cvAnalytic_mels`             ----          Newton        Dense       3
-:ref:`cvDirectDemo_ls`             BDF           Newton        Dense       3              Van der Pol (1) user (2) dif-quot (3) diag + 2
-                                   Adams         fixed-point   Band        1              2D advection (1) user (2) dif-quot (3) diag + 2
-:ref:`cvDisc_dns`                  ----          Newton        Dense       3
-:ref:`cvDirunal_kry`               BDF           Newton        SPGMR       200            block-diagonal preconditioner
-:ref:`cvDirunal_kry_bp`            BDF/BandPre   Newton        SPGMR       200            Solved twice with prec. on left and right
-:ref:`cvHeat2D_klu`                BDF           Newton        KLU
-:ref:`cvKrylovDemo_ls`             BDF           Newton        3 Krylov    200            SPGMR, SPBCGS, SPTFQMR used
-:ref:`cvKrylovDemo_prec`           GMRES         Newton        SPGMR       12             preconditioner matrix (1) implicit GS (2) block-diag
-:ref:`cvParticle_dns`              ----          Newton        PCG         N
-:ref:`cvPendulum_dns`              ----          Newton        PCG         (dynamic)      adaptive vector resizing
-:ref:`cvRoberts_block_klu`         ----          Newton        SPGMR       216            multiple preconditioners
-:ref:`cvRoberts_dns`               BDF           Newton        Dense       3              user rootfinding
-:ref:`cvRoberts_dns_constraints`   BDF           Newton        Dense       3              user rootfinding
-:ref:`cvRoberts_dns_negsol`        ----          Newton        SPGMR       200            HYPRE parallel vector
-:ref:`cvRoberts_dns_uw`            BDF           Newton        Dense       3              user error weight
-:ref:`cvRoberts_dnsL`              BDF           Newton        Dense       3              LAPACK dense solver, user rootfinding
-:ref:`cvRoberts_klu`               BDF           Newton        KLU         :math:`3N`     sparse matrices
-:ref:`cvRoberts_sps`               BDF           Newton        SuperLU_MT  :math:`3N`     finite-element, sparse matrices
-:ref:`cvRocket_dns`                ----          Newton        SPGMR       200            HYPRE parallel vector
-:ref:`cvAdvDiff_bnd_omp`           DIRK          Newton        SPGMR       200            HYPRE parallel vector
-:ref:`cvAdvDiff_kry_ompdev`        DIRK          Newton        SPGMR       200            HYPRE parallel vector
-:ref:`cvAdvDiff_diag_p`            DIRK          Newton        SPGMR       200            HYPRE parallel vector
-:ref:`cvAdvDiff_non_p`             DIRK          Newton        SPGMR       200            HYPRE parallel vector
-:ref:`cvAdvDiff_kry_bbd_p`         DIRK          Newton        SPGMR       200            HYPRE parallel vector
-:ref:`cvAdvDiff_kry_p`             DIRK          Newton        SPGMR       200            HYPRE parallel vector
-:ref:`cvAdvDiff_non_ph`            DIRK          Newton        SPGMR       200            HYPRE parallel vector
-:ref:`cvDirunal_kry_mpimanyvec`    DIRK          Newton        SPGMR       200            HYPRE parallel vector
-================================   ============  ============  ==========  =============  =====================================================
+================================   ============  ============  ==========  =============  =========================================================
+:ref:`cvAdvDiff_bnd`                BDF           Newton        Band        1              user Jacobian
+:ref:`cvAdvDiff_bndL`               BDF           Newton        Band        1              LAPACK band solver, user Jacobian
+:ref:`cvAnalytic_mels`              BDF           Newton        Custom      1              Matrix-embedded Custom Linear Solver
+:ref:`cvDirectDemo_ls`              BDF \\        Newton \\     Dense \\    3 \\           Van der Pol (1) user (2) dif-quot (3) diag + 2 \\
+                                    ADAMS         Fixed-point   Band        1              2D advection (1) user (2) dif-quot (3) diag + 2
+:ref:`cvDisc_dns`                   BDF           Newton        Dense       2              Solves two separate equations, the second twice
+:ref:`cvDiurnal_kry`                BDF           Newton        SPGMR       200            block-diagonal preconditioner
+:ref:`cvDiurnal_kry_bp`             BDF           Newton        SPGMR       200            Solved twice with banded prec. on left and right
+:ref:`cvHeat2D_klu`                 BDF           Newton        KLU         1100           sparse matrices
+:ref:`cvKrylovDemo_ls`              BDF           Newton        4 Krylov    200            SPGMR, SPBCGS, SPTFQMR used
+:ref:`cvKrylovDemo_prec`            BDF           Newton        SPGMR       216            preconditioner matrix (1) implicit GS (2) block-diag
+:ref:`cvParticle_dns`               BDF           Newton        Dense       2              user Jacobian and user projection
+:ref:`cvPendulum_dns`               BDF           Newton        Dense       4, 2           user projection, solves problem via inexact/exact meth.
+:ref:`cvRoberts_dns`                BDF           Newton        Dense       3              user Jacobian, root-finding
+:ref:`cvRoberts_dns_constraints`    BDF           Newton        Dense       3              user Jacobian, root-finding, constraints for all comp.
+:ref:`cvRoberts_dns_negsol`         BDF           Newton        Dense       3              user Jacobian, root-finding, negative solution comp.
+:ref:`cvRoberts_dns_uw`             BDF           Newton        Dense       3              user Jacobian, root-finding, user error weight
+:ref:`cvRoberts_dnsL`               BDF           Newton        Dense       3              user Jacobian, root-finding, LAPACK dense solver
+:ref:`cvRoberts_klu`                BDF           Newton        KLU         :math:`3N`     sparse matrices
+:ref:`cvRoberts_block_klu`          BDF           Newton        KLU         :math:`3N`     sparse matrices
+:ref:`cvRoberts_sps`                BDF           Newton        SuperLUMT   :math:`3N`     finite-element, sparse matrices
+:ref:`cvRocket_dns`                 BDF           Newton        Dense       2              user Jacobian, root-finding
+:ref:`cvAdvDiff_bnd_omp`            BDF           Newton        Band        50             user Jacobian, OpenMP
+:ref:`cvAdvDiff_kry_ompdev`         BDF           Newton        Band        50             user Jacobian, OpenMP-dev
+:ref:`cvAdvDiff_diag_p`             ADAMS         Newton        Diagonal    10             MPI for user routines
+:ref:`cvAdvDiff_non_p`              ADAMS         Fixed-point               10             MPI for user routines
+:ref:`cvDiurnal_kry_bbd_p`          BDF           Newton        SPGMR       200            MPI for user routines, solved twice with BBD prec.
+:ref:`cvDiurnal_kry_p`              BDF           Newton        SPGMR       200            MPI for user routines, block-diagonal left prec.
+:ref:`cvAdvDiff_non_ph`             ADAMS         Fixed-point               10             HYPRE parallel vector with IJ interface
+:ref:`cvDiurnal_kry_mpimanyvec`     BDF           Newton        SPGMR       200            MPI for user routines, MPIManyVector module
+================================   ============  ============  ==========  =============  =========================================================
 
+C++ Examples
+-------------
 
 CVode example problems written in C++ are summarized in the table
-below, and are further described in the chapters :ref:`serial_cpp`
-and :ref:`parallel_cpp`.
+below, and are further described in the chapters :ref:`serial_cpp`,
+:ref:`parallel_cpp`, :ref:`hypre_cpp`, :ref:`onemkl_cpp`, and :ref:`sycl_cpp`.
 
 .. cssclass:: table-bordered
 
-=================================  ==========  ===========  ======  =============  =================================
-Problem                            Integrator  Nonlinear    Linear  Size           Extras
-=================================  ==========  ===========  ======  =============  =================================
-:ref:`cv_heat2D`                    DIRK        Newton       PCG     :math:`nx*ny`  parallel
-:ref:`cv_kpr`                       DIRK        Newton       Dense   3
-:ref:`cv_heat2D_p`                  DIRK        Newton       Dense   3
-:ref:`cv_heat2D_hypre_ls`           DIRK        Newton       Dense   3
-:ref:`cv_heat2D_hypre_pfmg`         DIRK        Newton       Dense   3
-:ref:`cvRoberts_blockdiag_onemkl`   DIRK        Newton       Dense   3
-:ref:`cvAdvDiff_kry_sycl`           DIRK        Newton       Dense   3
-=================================  ==========  ===========  ======  =============  =================================
+=================================  ==========  ===========  ==============  ===============  ===================================
+Problem                            Integrator  Nonlinear    Linear          Size             Extras
+=================================  ==========  ===========  ==============  ===============  ===================================
+:ref:`cv_heat2D`                    BDF         Newton       PCG/SPGMR       :math:`nx*ny`
+:ref:`cv_kpr`                       BDF         Newton       Dense           2
+:ref:`cv_heat2D_p`                  BDF         Newton       PCG/SPGMR       :math:`nx*ny`    MPI parallel vector and routines
+:ref:`cv_heat2D_hypre_ls`           BDF         Newton       PCG/SPGMR       :math:`nx*ny`    HYPRE parallel vector
+:ref:`cv_heat2D_hypre_pfmg`         BDF         Newton       PCG/SPGMR       :math:`nx*ny`    HYPRE parallel vector, PFMG prec.
+:ref:`cvRoberts_blockdiag_onemkl`   BDF         Newton       oneMKL/SPGMR    300              oneMKL linear solver, user Jac.
+:ref:`cvAdvDiff_kry_sycl`           BDF         Newton       SPGMR           50               SYCL parallel vector
+=================================  ==========  ===========  ==============  ===============  ===================================
 
+Fortran Examples
+-----------------
 
 CVode example problems written in Fortran 2003 are summarized in the table
 below, and are further described in the chapters :ref:`serial_f2003` and
@@ -149,39 +146,45 @@ below, and are further described in the chapters :ref:`serial_f2003` and
 =================================   ==========  ===========  ======  =============  =================================================
 Problem                             Integrator  Nonlinear    Linear  Size           Extras
 =================================   ==========  ===========  ======  =============  =================================================
-:ref:`cv_analytic_fp`               DIRK        Newton       SPGMR   10             banded preconditioner
-:ref:`cv_analytic_sys_dns`          DIRK        Newton       Dense   3              LAPACK dense solver, rootfinding
-:ref:`cv_analytic_sys_dns_jac`      CV          Newton       Dense   3
-:ref:`cv_analytic_sys_klu`          DIRK        Newton       KLU     3N             finite-element, :math:`M\ne I`, sparse matrices
-:ref:`cv_brusselator_dns`           DIRK        Newton       SPGMR   10*NProcs      parallel BBD preconditioner
-:ref:`cv_roberts_dns_constraints`   ERK         N.A.         N.A.    10*NProcs      parallel
-:ref:`cv_roberts_dns`               DIRK        Newton       PCG     :math:`nx*ny`  parallel
-:ref:`cv_roberts_dnsL`              DIRK        Newton       PCG     :math:`nx*ny`  parallel
-:ref:`cv_roberts_klu`               DIRK        Newton       PCG     :math:`nx*ny`  parallel
-:ref:`cv_roberts_sps`               DIRK        Newton       PCG     :math:`nx*ny`  parallel
-:ref:`cv_diag_kry_bbd_p`            DIRK        Newton       PCG     :math:`nx*ny`  parallel
-:ref:`cv_diag_kry_p`                DIRK        Newton       PCG     :math:`nx*ny`  parallel
-:ref:`cv_diag_non_p`                DIRK        Newton       PCG     :math:`nx*ny`  parallel
+:ref:`cv_advdiff_bnd`               BDF         Newton       Band    50             banded preconditioner, user Jacobian
+:ref:`cv_analytic_fp`               ADAMS       Fixed-point          1
+:ref:`cv_analytic_sys_dns`          BDF         Newton       Dense   3
+:ref:`cv_analytic_sys_dns_jac`      BDF         Newton       Dense   3              user Jacobian matrix
+:ref:`cv_analytic_sys_klu`          BDF         Newton       KLU     3              sparse matrices, user Jacobian matrix
+:ref:`cv_brusselator_dns`           BDF         Newton       Dense   3              user Jacobian matrix
+:ref:`cv_diurnal_kry_bp`            BDF         Newton       SPGMR   200            banded preconditioner
+:ref:`cv_diurnal_kry`               BDF         Newton       SPGMR   200            user preconditioner and Jacobian
+:ref:`cv_roberts_dns`               BDF         Newton       Dense   3              user Jacobian, root-finding
+:ref:`cv_roberts_dns_constraints`   BDF         Newton       Dense   3              user Jacobian, root-finding, constraints set
+:ref:`cv_roberts_dnsL`              BDF         Newton       Dense   3              user Jacobian, root-finding, LAPACK dense solver 
+:ref:`cv_roberts_klu`               BDF         Newton       KLU     3              sparse matrices, root-finding, user Jacobian
+:ref:`cv_diag_kry_bbd_p`            BDF         Newton       SPGMR   128            parallel MPI, BBD prec. -- left and right solve
+:ref:`cv_diag_kry_p`                BDF         Newton       SPGMR   128            parallel MPI, user prec. -- left and right solve
+:ref:`cv_diag_non_p`                ADAMS       Fixed-point          128            parallel MPI
 =================================   ==========  ===========  ======  =============  =================================================
 
 
 
+Chapter List of Examples
+===========================================
 
-
-.. only:: html
-
-   Further details on many of the above-listed examples are provided
-   in the following chapters:
+Further details on many of the above-listed examples are provided
+in the following chapters:
 
 .. toctree::
    :maxdepth: 1
 
    c_serial
    c_openmp
+   c_openmpdev
    c_parallel
    c_parhyp
+   c_mpimanyvec
    cpp_serial
    cpp_parallel
+   cpp_hypre
+   cpp_onemkl
+   cpp_sycl
    f2003_serial
    f2003_parallel
    References

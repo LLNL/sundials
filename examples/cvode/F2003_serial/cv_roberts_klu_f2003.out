@@ -1,0 +1,44 @@
+  
+ cv_roberts_klu_f2003.f90: Robertson CV ODE serial example problem for CVODE
+          Three equation chemical kinetics problem.
+  
+ Linear solver: DENSE, with user-supplied Jacobian.
+Tolerance parameters:  rtol = 0.0001   atol =  1.E-06  1.E-12  1.E-04
+Initial conditions y0 = ( 1.00  0.00  0.00 )
+ Constraints not used.
+  
+ ---------------------------------------------------
+    t            y1           y2           y3
+ ---------------------------------------------------
+  2.6357E-01   9.8997E-01   3.4705E-05   1.0000E-02
+    rootsfound[] =  0   1
+  4.0000E-01   9.8514E-01   3.3859E-05   1.4822E-02
+  4.0000E+00   9.0543E-01   2.2394E-05   9.4551E-02
+  4.0000E+01   7.1583E-01   9.1857E-06   2.8416E-01
+  4.0000E+02   4.5056E-01   3.2234E-06   5.4944E-01
+  4.0000E+03   1.8324E-01   8.9446E-07   8.1676E-01
+  4.0000E+04   3.8981E-02   1.6217E-07   9.6102E-01
+  4.0000E+05   4.9378E-03   1.9848E-08   9.9506E-01
+  4.0000E+06   5.1595E-04   2.0648E-09   9.9948E-01
+  2.0821E+07   1.0000E-04   4.0004E-10   9.9990E-01
+    rootsfound[] = -1   0
+  4.0000E+07   5.1479E-05   2.0592E-10   9.9995E-01
+  4.0000E+08   5.4266E-06   2.1707E-11   9.9999E-01
+  4.0000E+09   4.6488E-07   1.8595E-12   1.0000E+00
+  4.0000E+10   4.8655E-08   1.9462E-13   1.0000E+00
+  
+ ---------------------------------------------------
+      Final      y1'          y2'          y3'
+ ---------------------------------------------------
+              -8.8152E-19  -3.5261E-24   8.8153E-19
+  
+  General Solver Stats:
+    Total internal steps taken    =      317
+    Total rhs function calls      =      941
+    Total Jacobian function calls =       40
+    Total root function calls     =      356
+    Total LU function calls       =      117
+    Num error test failures       =       11
+    Num nonlinear solver iters    =      940
+    Num nonlinear solver fails    =       40
+  

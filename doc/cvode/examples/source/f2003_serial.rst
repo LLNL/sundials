@@ -1,5 +1,5 @@
 ..
-   Programmer(s): Daniel R. Reynolds @ SMU
+   Programmer(s): Daniel M. Margolis @ SMU
    ----------------------------------------------------------------
    SUNDIALS Copyright Start
    Copyright (c) 2002-2023, Lawrence Livermore National Security
@@ -17,21 +17,286 @@
 
 .. _serial_f2003:
 
-====================================
+=======================================
 Serial Fortran 2003 example problems
-====================================
+=======================================
 
 
 
-.. _fark_diurnal_kry_bp:
+.. _cv_advdiff_bnd:
 
-fark_diurnal_kry_bp
+cv_advdiff_bnd
 ===================================================
 
-This problem is an ARKode clone of the CVODE problem,
-``fcv_diurnal_kry_bp``.  As described in [HSR2017]_, this problem
-models a two-species diurnal kinetics advection-diffusion PDE system
-in two spatial dimensions,
+Description
+------------
+
+This simple example problem is a serial Fortran 2003 implementation of
+previous serial C example ``cvAdvDiff_bnd``.
+
+
+Problem output
+---------------
+
+.. include:: ../../../../examples/cvode/F2003_serial/cv_advdiff_bnd_f2003.out
+   :literal:
+
+
+Numerical method
+----------------
+
+The numerical method is identical to the previous implementation,
+except that we now use Fortran 2003.
+
+
+
+.. _cv_analytic_fp:
+
+cv_analytic_fp
+===================================================
+
+Description
+------------
+
+This is a simple example problem with an analytical solution.
+Our problem is then:
+
+.. math::
+
+   \frac{dy}{dt} = \lambda \cdot y + \frac{1}{1 + t^2} - \lambda \cdot \text{atan} (t)
+
+for :math:`t` in the interval :math:`[0.0, 10.0]`, with initial
+condition :math:`y = 0`.
+
+The stiffness of the problem is directly proportional to the value
+of :math:`\lambda`. The value of :math:`\lambda` should be negative
+to result in a well-posed ODE; for values with magnitude larger than
+100, the problem becomes quite stiff.
+
+
+Problem output
+---------------
+
+.. include:: ../../../../examples/cvode/F2003_serial/cv_analytic_fp_f2003.out
+   :literal:
+
+
+Numerical method
+----------------
+
+The example routine solves this problem using a Adams-Moulton
+methods.  Each stage is solved using the SUNDIALS Fixed-point iteration.
+The example file contains a function to evaluate :math:`f(t,y)`.
+
+We specify the relative and absolute tolerances, :math:`rtol = 10^{-6}`
+and :math:`atol = 10^{-10}`, respectively.  Aside from these choices,
+this problem uses only the default CVode solver parameters.
+
+Output is printed every 1.0 units of time (10 total).
+Run statistics (optional outputs) are printed at the end.
+
+
+
+.. _cv_analytic_sys_dns:
+
+cv_analytic_sys_dns
+===================================================
+
+Description
+------------
+
+This is a simple example problem with an analytical solution.
+Our problem is then:
+
+.. math::
+
+   \frac{dy}{dt} = A * y
+
+where :math:`A = V * D * V^{-1}` and
+
+.. math::
+
+   A &=\begin{pmatrix} \frac{\lambda}{4} - \frac{23}{40} & 
+                       \frac{\lambda}{4} - \frac{3}{40} &
+                       \frac{\lambda}{4} - \frac{13}{40} \\
+                       \frac{\lambda}{4} + \frac{21}{40} &
+                       \frac{\lambda}{4} + \frac{1}{40} &
+                       \frac{\lambda}{4} - \frac{11}{40} \\
+                       \frac{\lambda}{2} + \frac{1}{20} &
+                       \frac{\lambda}{2} + \frac{1}{20} &
+                       \frac{\lambda}{2} - \frac{1}{20} &
+       \end{pmatrix} \\
+   V &=\begin{pmatrix} 1 & -1 & 1 \\
+                       -1 & 2 & 1 \\
+                       0 & -1 & 2
+       \end{pmatrix} \quad
+   D = \begin{pmatrix} -\frac{1}{2} & 0 & 0 \\
+                       0 & -\frac{1}{10} & 0 \\
+                       0 & 0 & \lambda
+       \end{pmatrix} \quad
+   V^{-1} = \begin{pmatrix} \frac{5}{4} & \frac{1}{4} & -\frac{3}{4} \\
+                            \frac{1}{2} & \frac{1}{2} & -\frac{1}{2} \\
+                            \frac{1}{4} & \frac{1}{4} & \frac{1}{4}
+            \end{pmatrix}
+
+and :math:`\lambda` is a large negative number. The analytical solution
+to this problem is:
+
+.. math::
+
+   y(t) = V * e^{D \cdot t} * Vi * y_0
+
+for :math:`t` in the interval :math:`[0.0, 0.05]`, with initial condition:
+:math:`y(0) = \begin{bmatrix} 1 \\ 1 \\ 1 \end{bmatrix}`.
+
+The stiffness of the problem is directly proportional to the value of :math:`\lambda`.
+The value of :math:`\lambda` should be negative to result in a well-posed ODE;
+for values with magnitude larger than 100 the problem becomes quite stiff.
+
+In this example, we choose :math:`\lambda = -100`.
+
+Output is printed every 1.0 units of time (10 total).
+Run statistics (optional outputs) are printed at the end.
+
+
+
+Problem output
+---------------
+
+.. include:: ../../../../examples/cvode/F2003_serial/cv_analytic_sys_dns_f2003.out
+   :literal:
+
+
+Numerical method
+----------------
+
+The example routine solves this problem using a Backwards Differentiation
+Formula in fixed-leading coefficient form.  Each stage is solved using the 
+built-in modified Newton iteration.  Internally, Newton will use the
+SUNLINSOL_DENSE linear solver via the CVode interface.  The example file
+contains a function to evaluate :math:`f(t,y)`.  
+
+We specify the relative and absolute tolerances, :math:`rtol=10^{-6}`
+and :math:`atol=10^{-10}`, respectively.  Aside from these choices,
+this problem uses only the default CVode solver parameters.
+
+
+.. _cv_analytic_sys_dns_jac:
+
+cv_analytic_sys_dns_jac
+===================================================
+
+Description
+------------
+
+This problem is exactly the same as :ref:`cv_analytic_sys_dns` above except
+that here, as the title suggests, we provide a user-supplied Jacobian function.
+
+
+Problem output
+---------------
+
+.. include:: ../../../../examples/cvode/F2003_serial/cv_analytic_sys_dns_jac_f2003.out
+   :literal:
+
+
+Numerical method
+----------------
+
+As previously stated, this problem is the same as ``cv_analytic_sys_dns``
+apart from the example file containing another function to evaluate our
+Jacobian denoted :math:`J(t,y)`.
+
+
+
+.. _cv_analytic_sys_klu:
+
+cv_analytic_sys_klu
+===================================================
+
+Description
+------------
+
+This problem is exactly the same as :ref:`cv_analytic_sys_dns` above except
+that here, as the title suggests, we use sparse matrices to operate the
+KLU linear solver module using the CVode interface.
+
+
+Problem output
+---------------
+
+.. include:: ../../../../examples/cvode/F2003_serial/cv_analytic_sys_klu_f2003.out
+   :literal:
+
+
+Numerical method
+----------------
+
+Again, this problem is the same as ``cv_analytic_sys_dns`` apart from
+using SUNLINSOL_KLU and consequentially, SUNMATRIX_SPARSE as well.
+
+
+.. _cv_brusselator_dns:
+
+cv_brusselator_dns
+===================================================
+
+Description
+------------
+
+This problem has 3 components, :math:`Y = \begin{bmatrix} u \\ v \\ w \end{bmatrix}`,
+that depend on the independent variable :math:`t` satisfying the
+equations,
+
+.. math::
+
+   \frac{du}{dt} &= a - (w + 1) u + v u^2, \\
+   \frac{dv}{dt} &= w u - v u^2, \\
+   \frac{dw}{dt} &= \frac{b - w}{\varepsilon} - w u.
+
+We integrate over the interval :math:`0 \leq t \leq 10`, with the
+initial conditions :math:`Y_0 = \begin{bmatrix} u(0) = 3.9 \\ v(0) = 1.1 \\ w(0) = 2.8 \end{bmatrix}`,
+and parameters :math:`a = 1.2`, :math:`b = 2.5` and :math:`\varepsilon = 10^{-5}`.
+
+Here, all three components exhibit a rapid transient change during
+the first :math:`0.2` time units, followed by a slow and smooth evolution.
+After each unit time interval, the solution is output to the screen.
+
+
+Problem output
+---------------
+
+.. include:: ../../../../examples/cvode/F2003_serial/cv_brusselator_dns_f2003.out
+   :literal:
+
+
+Numerical method
+----------------
+
+Since this driver and utility functions are written in Fortran 2003,
+this example demonstrates the use of the FCVODE interface for the
+CVode solver.  For time integration, the solver uses a BDF method.
+The implicit systems are solved using the built-in modified Newton
+iteration, with the SUNMATRIX_DENSE matrix module and accompanying
+SUNLINSOL_DENSE linear solver module, through the CVode interface.
+Both the Jacobian routine and right-hand side functions are supplied
+by functions provided in the example file.
+
+The only non-default solver options are the tolerances
+:math:`atol=10^{-10}` and :math:`rtol=10^{-6}`, adaptivity method 2 (I
+controller), a maximum of 8 Newton iterations per step, a nonlinear
+solver convergence coefficient :math:`nlscoef=10^{-8}`, and a maximum
+of :math:`1000` internal time steps.
+
+
+
+.. _cv_diurnal_kry_bp:
+
+cv_diurnal_kry_bp
+===================================================
+
+As described in [HSR2017]_, this problem models a two-species diurnal
+kinetics advection-diffusion PDE system in two spatial dimensions,
 
 .. math::
 
@@ -53,20 +318,26 @@ where
 Here :math:`K_h`, :math:`V`, :math:`K_{v0}`, :math:`q_1`, :math:`q_2`,
 and :math:`c_3` are constants, and :math:`q_3(t)` and :math:`q_4(t)`
 vary diurnally.  The problem is posed on the square spatial domain
-:math:`(x,y) \in [0,20]\times[30,50]`, with homogeneous Neumann
-boundary conditions, and for time interval :math:`t\in [0,86400]` sec
+:math:`(x,y) \in [0,20] \times [30,50]`, with homogeneous Neumann
+boundary conditions, and for time interval :math:`t \in [0,86400]` sec
 (1 day).
 
 We enforce the initial conditions 
 
 .. math::
 
-   c^1(x,y) &=  10^6 \chi(x)\eta(y) \\
-   c^2(x,y) &=  10^{12} \chi(x)\eta(y) \\
-   \chi(x) &= 1 - \sqrt{\frac{x - 10}{10}} + \frac12 \sqrt[4]{\frac{x - 10}{10}} \\
-   \eta(y) &= 1 - \sqrt{\frac{y - 40}{10}} + \frac12 \sqrt[4]{\frac{x - 10}{10}}.
+   c^1(x,y) &=  10^6 \chi(x) \eta(y) \\
+   c^2(x,y) &=  10^{12} \chi(x) \eta(y) \\
+   \chi(x) &= 1 - \sqrt{\frac{x - 10}{10}} + \frac{1}{2} \sqrt[4]{\frac{x - 10}{10}} \\
+   \eta(y) &= 1 - \sqrt{\frac{y - 40}{10}} + \frac{1}{2} \sqrt[4]{\frac{x - 10}{10}}.
 
 
+
+Problem output
+---------------
+
+.. include:: ../../../../examples/cvode/F2003_serial/cv_diurnal_kry_bp_f2003.out
+   :literal:
 
 
 Numerical method
@@ -76,17 +347,17 @@ We employ a method of lines approach, wherein we first semi-discretize
 in space to convert the system of 2 PDEs into a larger system of ODEs.
 To this end, the spatial derivatives are computed using second-order
 centered differences, with the data distributed over :math:`Mx*My`
-points on a uniform spatial grid.  As a result, ARKode approaches the
+points on a uniform spatial grid.  As a result, CVode approaches the
 problem as one involving :math:`2*Mx*My` coupled ODEs. In this
 problem, we use a relatively coarse uniform mesh with
-:math:`Mx=My=10`.  
+:math:`Mx = My = 10`.  
 
-This program solves the problem with a DIRK method, using a Newton
+This program solves the problem with a BDF method, using a Newton
 iteration with the preconditioned SUNLINSOL_SPGMR iterative linear
-solver module, and the ARKSPILS interface.
+solver module, and the CVODE interface.
 
 The left preconditioner used is a banded matrix, constructed using
-the ARKBP module.  The banded preconditioner matrix is generated using 
+the CVBANDPRE module.  The banded preconditioner matrix is generated using 
 difference quotients, with half-bandwidths ``mu = ml = 2``.
 
 Performance data and sampled solution values are printed at
@@ -95,28 +366,149 @@ on completion.
 
 
 
+.. _cv_diurnal_kry:
 
-
-
-.. _fark_roberts_dnsL:
-
-fark_roberts_dnsL
+cv_diurnal_kry
 ===================================================
 
-This problem is an ARKode clone of the CVODE problem,
-``fcv_roberts_dnsL``.  As described in [HSR2017]_, this problem models
+Description
+------------
+
+This problem is almost exactly similar to :ref:`cv_diurnal_kry_bp` above,
+except here, we don't use the built in Banded Preconditioner, instead
+supplying one. Interestingly, in doing so, we estimate a banded
+preconditioner with ``mu = ml = 2`` as before using only a :math:`2 \times 2`-
+block-diagonal matrix, treating each :math:`2 \times 2` block separately,
+and finding the inverse of each block as they're added to the identity.
+This method is employed to setup our user-supplied Preconditioner.
+
+
+Problem output
+---------------
+
+.. include:: ../../../../examples/cvode/F2003_serial/cv_diurnal_kry_f2003.out
+   :literal:
+
+
+Numerical method
+----------------
+
+Instead of relying on CVBANDPRE as previously, we use CVSETPRECONDITIONER instead.
+Interestingly, in doing so, we estimate a banded preconditioner with ``mu = ml = 2``
+as before using only a :math:`2 \times 2`-block-diagonal matrix, treating each
+:math:`2 \times 2` block separately, and finding the inverse of each block as they're
+added to the identity.  This method is employed to setup our user-supplied Preconditioner.
+For our Preconditioner's solver, we employ :math:`2 \times 2` matrix-vector multiplication.
+
+
+
+.. _cv_roberts_dns:
+
+cv_roberts_dns
+===================================================
+
+Description
+------------
+
+This problem is exactly the same problem as the C serial problem
+``cvRoberts_dns`` aside from using FCVODE as a consequence of running
+in Fortran 2003.  The details are significant enough to mention again.
+
+This example is a simple problem, with the coding needed for its
+solution completed via CVODE.  The problem is from chemical kinetics,
+and consists of the following three rate equations:
+
+.. math::
+
+   \frac{dy_1}{dt} &= -0.04 \cdot y_1 + 10^4 \cdot y_2 \cdot y_3 \\
+   \frac{dy_2}{dt} &= 0.04 \cdot y_1 - 10^4 \cdot y_2 \cdot y_3 - 3 \times 10^7 \cdot y_2^2 \\
+   \frac{dy_3}{dt} &= 3 \times 10^7 \cdot y_2^2
+
+on the interval from :math:`t = 0.0` to :math:`t = 4 \times 10^{10}`,
+with initial conditions: :math:`y_1 = 1.0`, :math:`y_2 = y_3 = 0`.
+The problem is stiff.
+
+While integrating the system, we also use the rootfinding feature to
+find the points at which :math:`y_1 = 10^{-4}` or at which :math:`y_3 = 0.01`. 
+This program solves the problem with the BDF method, Newton iteration
+with the dense linear solver, and a user-supplied Jacobian routine.
+
+
+Problem output
+---------------
+
+.. include:: ../../../../examples/cvode/F2003_serial/cv_roberts_dns_f2003.out
+   :literal:
+
+
+Numerical method
+----------------
+
+The example routine solves this problem using a Backwards Differentiation
+Formula in fixed-leading coefficient form.  Each stage is solved using the 
+built-in modified Newton iteration.  Internally, Newton will use the
+SUNLINSOL_DENSE linear solver via the CVode interface.  The example file
+contains functions to evaluate both :math:`f(t, y_1, y_2, y_3)` and 
+:math:`J(t, y_1, y_2, y_3)`.  Additionally, a root-finding function will,
+as previously mentioned, find roots at :math:`y_3 = 0.01` and 
+:math:`y_1 = 10^{-4}` using the built-in root-finding mechanism in CVode.
+
+We specify the scalar relative and vector-valued absolute tolerances, :math:`rtol=10^{-4}`
+and :math:`atol=\begin{Bmatrix} 10^{-8} \\ 10^{-14} \\ 10^{-6} \end{Bmatrix}`
+, respectively.  Aside from these choices, this problem uses only the default
+CVode solver parameters.
+
+11 normal + 2 root output times are printed at multiplicatively equally-spaced
+points as well as at the two roots, and run statistics are printed at the end.
+
+
+.. _cv_roberts_dns_constraints:
+
+cv_roberts_dns_constraints
+===================================================
+
+Description
+------------
+
+This example problem is the same as :ref:`cv_roberts_dns` above except that the
+constraint :math:`y_i \geq 0` is posed for all components :math:`i = 1, 2, 3`.
+
+
+Problem output
+---------------
+
+.. include:: ../../../../examples/cvode/F2003_serial/cv_roberts_dns_constraints_f2003.out
+   :literal:
+
+
+Numerical method
+----------------
+
+Here, we specify the scalar relative and vector-valued absolute tolerances,
+:math:`rtol=10^{-4}` and :math:`atol=\begin{Bmatrix} 10^{-6} \\ 10^{-11} \\ 10^{-5} \end{Bmatrix}`
+, respectively.
+
+Aside from this, see ``cv_roberts_dns`` above.
+
+
+.. _cv_roberts_dnsL:
+
+cv_roberts_dnsL
+===================================================
+
+As described in [HSR2017]_, this problem models
 the kinetics of a three-species autocatalytic reaction.  This is an
-ODE system with 3 components, :math:`Y = [y_1,\, y_2,\, y_3]^T`,
+ODE system with 3 components, :math:`Y = \begin{bmatrix} y_1 \\ y_2 \\ y_3 \end{bmatrix}`,
 satisfying the equations, 
 
 .. math::
 
    \frac{d y_1}{dt} &= -0.04 y_1 + 10^4 y_2 y_3, \\
-   \frac{d y_2}{dt} &= 0.04 y_1 - 10^4 y_2 y_3 - 3\cdot10^7 y_2^2, \\
-   \frac{d y_3}{dt} &= 3\cdot10^7 y_2^2.
+   \frac{d y_2}{dt} &= 0.04 y_1 - 10^4 y_2 y_3 - 3 \cdot 10^7 y_2^2, \\
+   \frac{d y_3}{dt} &= 3 \cdot 10^7 y_2^2.
 
-We integrate over the interval :math:`0\le t\le 4\cdot10^{10}`, with initial
-conditions  :math:`Y(0) = [1,\, 0,\, 0]^T`. 
+We integrate over the interval :math:`0 \leq t \leq 4 \cdot 10^{10}`, with initial
+conditions  :math:`Y(0) = \begin{bmatrix} 1 \\ 0 \\ 0 \end{bmatrix}`. 
 
 Additionally, we supply the following two root-finding equations:
 
@@ -130,110 +522,55 @@ easily serve the purpose of determining the times at which our
 solutions attain desired target values.
 
 
+Problem output
+---------------
+
+.. include:: ../../../../examples/cvode/F2003_serial/cv_roberts_dnsL_f2003.out
+   :literal:
+
+
 Numerical method
 ----------------
 
-This program solves the problem with a DIRK method, using a Newton
+This program solves the problem with a BDF method, using a Newton
 iteration with the SUNLINSOL_LAPACKDENSE linear solver module and
-ARKDLS interface.
+CVode interface.
 
-As with the :ref:`ark_robertson_root` problem, we enable ARKode's
+As with the :ref:`cv_roberts_dns` problem, we enable CVode's
 rootfinding module to find the times at which either :math:`u=10^{-4}`
 or :math:`w=10^{-2}`. 
 
 Performance data and solution values are printed at
-selected output times, along with additional output at rootfinding
+selected output times, along with additional output at root-finding
 events.  All performance counters are printed on completion.
 
 
 
 
 
+.. _cv_roberts_klu:
 
-.. _ark_bruss:
-
-ark_bruss
+cv_roberts_klu
 ===================================================
 
-This test problem is a Fortran-90 version of the same brusselator
-problem as before, :ref:`ark_brusselator`, in which the "test 1"
-parameters are hard-coded into the solver.  As with the previous test,
-this problem has 3 dependent variables :math:`u`, :math:`v` and
-:math:`w`, that depend on the independent variable :math:`t` via the
-IVP system
+Description
+------------
 
-.. math::
+This example problem is the same as :ref:`cv_roberts_dns` above except that
+here we use the KLU sparse linear solver instead of the dense linear
+solver.
 
-   \frac{du}{dt} &= a - (w+1)u + v u^2, \\
-   \frac{dv}{dt} &= w u - v u^2, \\
-   \frac{dw}{dt} &= \frac{b-w}{\varepsilon} - w u.
 
-We integrate over the interval :math:`0 \le t \le 10`, with the
-initial conditions :math:`u(0) = 3.9`, :math:`v(0) = 1.1`, 
-:math:`w(0) = 2.8`, and parameters :math:`a=1.2`, :math:`b=2.5` and
-:math:`\varepsilon=10^{-5}`.  After each unit time interval, the
-solution is output to the screen.
+Problem output
+---------------
+
+.. include:: ../../../../examples/cvode/F2003_serial/cv_roberts_klu_f2003.out
+   :literal:
 
 
 Numerical method
 ----------------
 
-Since this driver and utility functions are written in Fortran-90,
-this example demonstrates the use of the FARKODE interface for the
-ARKode solver.  For time integration, this example uses the
-fourth-order additive Runge-Kutta IMEX method, where the right-hand
-sides are broken up as
-
-.. math::
-
-   f_E(t,u,v,w) = \left(\begin{array}{c} a - (w+1)u + v u^2 \\ 
-     w u - v u^2 \\ - w u  \end{array}\right), \quad\text{and}\quad 
-   f_I(t,u,v,w) = \left(\begin{array}{c} 0\\0\\
-     \frac{b-w}{\varepsilon}\end{array}\right). 
-
-The implicit systems are solved using the built-in modified Newton
-iteration, with the SUNMATRIX_DENSE matrix module and accompanying
-SUNLINSOL_DENSE linear solver module, through the ARKDLS interface.
-Both the Jacobian routine and right-hand side functions are supplied
-by functions provided in the example file.
-
-The only non-default solver options are the tolerances
-:math:`atol=10^{-10}` and :math:`rtol=10^{-6}`, adaptivity method 2 (I
-controller), a maximum of 8 Newton iterations per step, a nonlinear
-solver convergence coefficient :math:`nlscoef=10^{-8}`, and a maximum
-of 1000 internal time steps.
-
-
-
-   
-
-Solutions
----------
-
-With this setup, all three solution components exhibit a rapid
-transient change during the first 0.2 time units, followed by a slow
-and smooth evolution, as seen in the figure below.  Note that these
-results identically match those from the previous C example with the
-same equations.  
-
-.. figure:: figs/plot-ark_bruss1.png
-   :scale: 70 %
-   :align: center
-
-
-
-
-
-.. _ark_bruss1D_FEM_klu:
-
-ark_bruss1D_FEM_klu
-===================================================
-
-This problem is mathematically identical to the C example problem
-:ref:`ark_brusselator1D_FEM_slu`, but is written in Fortran 90, stores
-the sparse Jacobian and mass matrices in compressed-sparse-row format,
-and uses the KLU sparse-direct linear solver.
-
-
+Aside from using SUNLINSOL_KLU, see ``cv_roberts_dns`` above.
 
 

@@ -15,36 +15,37 @@
 :tocdepth: 3
 
 
-.. _parallel_cpp:
+.. _sycl_cpp:
 
 ====================================
-Parallel C++ example problems
+SYCL C++ example problems
 ====================================
 
+.. _cvAdvDiff_kry_sycl:
 
-
-.. _cv_heat2D_p:
-
-cv_heat2D_p
-======================================================================
+cvAdvDiff_kry_sycl
+==============================
 
 Description
 ------------
 
-Exactly the same as ``cv_heat2D`` in :ref:`serial_cpp` except that here we
-are using multiple processors with MPI.
+This example problem is a simple demonstration of the method
+used to incorporate SYCL into SUNDIALS.  Otherwise, it is exactly
+the same problem as ``cvAdvDiff_bnd`` from :ref:`serial_c` except
+that here we use the SUNDIALS SPGMR linear solver instead.
 
 
 Problem output
 ---------------
 
-.. include:: ../../../../examples/cvode/CXX_parallel/cv_heat2D_p_--np_2_2.out
+.. include:: ../../../../examples/cvode/CPP_sycl/cvAdvDiff_kry_sycl.out
    :literal:
 
 
 Numerical method
-----------------
+-----------------
 
-The same as ``cv_heat2D`` aside from the use of NVECTOR_PARALLEL.
+As previously mentioned, the problem is exactly the same as ``cvAdvDiff_bnd``
+except that here we use SUNLINSOL_SPGMR and NVECTOR_SYCL for demonstration.
 
 

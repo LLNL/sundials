@@ -1,5 +1,5 @@
 ..
-   Programmer(s): Daniel R. Reynolds @ SMU
+   Programmer(s): Daniel M. Margolis @ SMU
    ----------------------------------------------------------------
    SUNDIALS Copyright Start
    Copyright (c) 2002-2023, Lawrence Livermore National Security
@@ -22,74 +22,136 @@ Serial C++ example problems
 ====================================
 
 
-.. _ark_analytic_sys:
 
-ark_analytic_sys
+.. _cv_heat2D:
+
+cv_heat2D
 ===============================================
 
-This example demonstrates the use of ARKode's fully implicit solver on
-a stiff ODE system that has a simple analytical solution.  The problem
-is that of a linear ODE system,
+Description
+------------
+
+This test example simulates a simple anisotropic 2D heat equation,
 
 .. math::
 
-   \frac{dy}{dt} = Ay
+   u_t = k_x u_{xx} + k_y u_{yy} + b,
 
-where :math:`A = V D V^{-1}`.  In this example, we use
-
-.. math::
-
-   V = \left[\begin{array}{rrr} 1 & -1 & 1\\ -1 & 2 & 1\\ 0 & -1 & 2
-       \end{array}\right], \qquad
-   V^{-1} = \frac14 \left[\begin{array}{rrr} 5 & 1 & -3\\ 2 & 2 & -2\\
-       1 & 1 & 1 \end{array}\right], \qquad
-   D = \left[\begin{array}{rrr} -1/2 & 0 & 0\\ 0 & -1/10 & 0\\ 0 & 0 &
-       \lambda \end{array}\right].
-
-where :math:`\lambda` is a large negative number. The analytical
-solution to this problem may be computed using the matrix exponential,
+for :math:`t` in :math:`[0, 1]` and :math:`(x, y)` in :math:`[0, 1]^2`,
+with initial conditions
 
 .. math::
 
-   Y(t) = V e^{Dt} V^{-1} Y(0).
+   u(0, x, y) = \sin^2 (\pi x) \sin^2 (\pi y) + 1,
 
-We evolve the problem for :math:`t` in the interval :math:`\left[0,\,
-\frac{1}{20}\right]`, with initial condition :math:`Y(0) = \left[1,\,
-1,\, 1\right]^T`.
+stationary boundary conditions
+
+.. math::
+
+   u_t (t, 0, y) = u_t (t, 1, y) = u_t (t, x, 0) = u_t (t, x, 1) = 0,
+
+and the heat source
+
+.. math::
+
+   b(t, x, y) = -2 \pi \sin^2(\pi x) \sin^2(\pi y) \sin(\pi t) \cos(\pi t)
+                -k_x 2 \pi^2 (\cos^2(\pi x) - \sin^2(\pi x)) \sin^2(\pi y) \cos^2(\pi t)
+                -k_y 2 \pi^2 (\cos^2(\pi y) - \sin^2(\pi y)) \sin^2(\pi x) \cos^2(\pi t).
+
+Under this setup, the problem has the analytical solution
+
+.. math::
+
+   u(t, x, y) =\sin^2(\pi x) \sin^2(\pi y) \cos^2(\pi t) + 1.
+
+The spatial derivatives are computed using second-order centered differences,
+with the data distributed over :math:`nx * ny` points on a uniform spatial grid. The
+problem is advanced in time with BDF methods using an inexact Newton method
+paired with the PCG or SPGMR linear solver. Several command line options are
+available to change the problem parameters and CVODE settings. Use the flag
+``--help`` for more information.
+
+
+Problem output
+---------------
+
+.. include:: ../../../../examples/cvode/CXX_serial/cv_heat2D.out
+   :literal:
 
 
 Numerical method
 ----------------
 
-The stiffness of the problem is directly proportional to the 
-value of :math:`\lambda`.  The value of :math:`\lambda` should be
-negative to result in a well-posed ODE; for values with magnitude
-larger than 100 the problem becomes quite stiff. 
+The example routine solves this problem using a Backwards Differentiation
+Formula in fixed-leading coefficient form.  Each stage is solved using the 
+built-in modified Newton iteration.  Internally, Newton will use the
+SUNLINSOL_PCG linear solver or the SUNLINSOL_SPGMR linear solver via the
+CVode interface.  The example file contains functions to evaluate both
+:math:`f(t,x,y)` and :math:`Pre\_Jac(t,x,y)`.  
 
-Here, we choose :math:`\lambda = -100`, along with scalar relative and
-absolute tolerances of :math:`rtol=10^{-6}` and :math:`atol=10^{-10}`,
-respectively. 
- 
-This program solves the problem with the DIRK method,
-Newton iteration with the SUNMATRIX_DENSE matrix module and
-accompanying SUNLINSOL_DENSE linear solver module, ARKDLS direct
-linear solver interface, and a user-supplied dense Jacobian
-routine.  Output is printed every 0.005 units of time (10 total). 
-Run statistics (optional outputs) are printed at the end.
+We specify the relative and absolute tolerances, :math:`rtol=0`
+and :math:`atol=10^{-8}`, respectively.  Aside from these choices,
+this problem uses only the default CVode solver parameters.
+
+12 outputs are printed, and run statistics are printed at the end as well.
 
 
    
-Solutions
----------
+.. _cv_kpr:
 
-This problem is included both as a simple example to test systems of
-ODE within ARKode on a problem having an analytical solution,
-:math:`Y(t) = V e^{Dt} V^{-1} Y(0)`.  As seen in the plots below, the
-computed solution tracks the analytical solution quite well (left),
-and results in errors with exactly the magnitude as specified by the
-requested error tolerances (right). 
+cv_kpr
+================
 
-.. image:: figs/plot-ark_analytic_sys.png
-   :width: 45 %
-.. image:: figs/plot-ark_analytic_sys_error.png
-   :width: 45 %
+Description
+------------
+
+This example problem is otherwise known as the Kvaerno-Prothero-Robinson
+ODE test problem, structured in the following way
+
+.. math::
+
+   \begin{bmatrix} u' \\ v' \end{bmatrix} =
+   \begin{bmatrix} a & b \\ c & d \end{bmatrix}
+   \begin{bmatrix} \frac{-1 + u^2 - r(t)}{2u} \\ 
+                   \frac{-2 + v^2 - s(t)}{2v} \end{bmatrix} +
+   \begin{bmatrix} \frac{r'(t)}{2u} \\ \frac{s'(t)}{2v} \end{bmatrix}.
+
+This problem has an analytical solution given by
+
+.. math::
+
+   u(t) = \sqrt{1 + r(t)}
+   v(t) = \sqrt{2 + s(t)}
+
+where, in this test, we use the functions
+
+.. math::
+
+   r(t) = 0.5 \cos(t)
+   s(t) = \cos(2t)
+
+
+
+Problem output
+---------------
+
+.. include:: ../../../../examples/cvode/CXX_serial/cv_kpr.out
+   :literal:
+
+
+Numerical method
+-----------------
+
+The example routine solves this problem using a Backwards Differentiation
+Formula in fixed-leading coefficient form.  Each stage is solved using the 
+built-in modified Newton iteration.  Internally, Newton will use the
+SUNLINSOL_DENSE linear solver via the CVode interface.  The example file
+contains functions to evaluate both :math:`f(t,u,v)` and :math:`J(t,u,v)`.  
+
+We specify the relative and absolute tolerances, :math:`rtol=10^{-6}`
+and :math:`atol=10^{-10}`, respectively.  Aside from these choices,
+this problem uses only the default CVode solver parameters.
+
+10 outputs are printed, and run statistics are printed at the end as well.
+
+
