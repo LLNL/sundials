@@ -31,11 +31,11 @@ Setting Up Your Own SPOT Visualizations
 ---------------------------------------
 
 To display data from non-GitLab jobs or create a local collection of runs,
-input into the SPOT search bar the absolute path to the directory containing the `.cali` files and refresh the page.
-By default `.cali`` files will be generated in the build directory under
-``Benchmarking/output`` and ``Testing/output``. To specify where `.cali` output
-files are placed, define the CMake option SUNDIALS_CALIPER_OUTPUT_DIR with the
-desired directory path.
+input into the SPOT search bar the absolute path to the directory containing
+the `.cali` files and refresh the page. By default `.cali`` files will be
+generated in the build directory under ``Benchmarking/output`` and
+``Testing/output``. To specify where `.cali` output files are placed, define
+the CMake option SUNDIALS_CALIPER_OUTPUT_DIR with the desired directory path.
 
 To retain the same filters as a given SPOT visualization link in
 :ref:`Bookmarks`, swap out the ``sf`` value in the URL with the 
@@ -46,7 +46,22 @@ directory path containing the `.cali` files.
 Bookmarks to Notable SPOT Visualizations
 ----------------------------------------------
 
-Links will be added as informative SPOT visualizations are found.
+Notes:
 
-.. future links to add: aggregations of examples
-.. 
+SPOT will be put into maintenance mode in the coming months
+(as of July 2023). The team behind SPOT plans to bring the functionality to
+`Thicket <https://github.com/llnl/thicket>`_ as SPOT's successor.
+
+Aggregate results for example runs on SPOT may not be accurate. The aggregation method
+involves combining `.cali` files in ways that do not necessarily equal the
+true sum of the results.
+
+Examples
+
+`Aggregated Runs <https://lc.llnl.gov/spot2/?sf=/usr/workspace/sundials/califiles/Example&ch_executable=1&ch_launchdate=1&groupby=cluster&aggregate=avg&xaxis=job_start_time&yaxis=Max%20time%2Frank>`_
+
+Benchmarks
+
+`Advection Reaction 3D - All Configurations <https://lc.llnl.gov/spot2/?sf=/usr/workspace/sundials/califiles/Benchmarking/advection_reaction_3D&ch_executable=1&ch_launchdate=1&groupby=cmdline&yaxis=Max%20time%2Frank&aggregate=avg>`_
+
+`Diffusion 2D - All Configurations <https://lc.llnl.gov/spot2/?sf=/usr/workspace/sundials/califiles/Benchmarking/diffusion_2D&ch_executable=1&ch_launchdate=1&groupby=executable&yaxis=Max%20time%2Frank&aggregate=avg>`_
