@@ -88,9 +88,9 @@ typedef struct {
   int       nprocs, myproc;     // # of processes and my process id
   HYPRE_Int global_M, local_M;  // global/local problem size
   realtype  dx, hdcoef, hacoef; // gridpoint spacing and problem coefficients
-  realtype  bufs[4];            // Send/Recv buffers: [Lrecvbuf,Lsendbuf,Rsendbuf,Rrecvbuf]
+  realtype  *bufs;              // Send/Recv buffers: [Lrecvbuf,Lsendbuf,Rsendbuf,Rrecvbuf]
 #if defined(SUNDIALS_HYPRE_BACKENDS_CUDA_OR_HIP)
-  realtype* bufs_dev;           // Buffer space (4 realtypes) to be allocated on device
+  realtype  *bufs_dev;           // Buffer space (4 realtypes) to be allocated on device
 #endif
 } *UserData;
 
@@ -181,7 +181,8 @@ int main(int argc, char *argv[])
 
   /* Initialize Send/Recv buffers */
   // Note: We have zero Dirichlet b.c.; Bdry procs will always have zero in their outer Recv buffer
-  memset(d->bufs, 0, 4*sizeof(realtype)); // 
+  d->bufs = (realtype*) malloc(4*sizeof(realtype));
+  memset(d->bufs, 0, 4*sizeof(realtype));
 #if defined(SUNDIALS_HYPRE_BACKENDS_CUDA_OR_HIP)
   NV_ADD_LANG_PREFIX_PH(Malloc)(&d->bufs_dev,    4*sizeof(realtype)); // e.g. cudaMalloc
   NV_ADD_LANG_PREFIX_PH(Memset)( d->bufs_dev, 0, 4*sizeof(realtype)); // e.g. cudaMemset
@@ -276,11 +277,11 @@ int main(int argc, char *argv[])
   HYPRE_IJVectorDestroy(Uij); /* Free the underlying hypre vector */
   CVodeFree(&cvode_mem);      /* Free the integrator memory */
   SUNNonlinSolFree(NLS);      /* Free the nonlinear solver */
-  free(d->bufs);           /* Free Send/Recv buffers */
+  free(d->bufs);              /* Free Send/Recv buffers */
 #if defined(SUNDIALS_HYPRE_BACKENDS_CUDA_OR_HIP)
   NV_ADD_LANG_PREFIX_PH(Free)(d->bufs_dev);
 #endif
-  free(d);                 /* Free user data */
+  free(d);                    /* Free user data */
   SUNContext_Free(&sunctx);   /* Free context */
 
   /* MPI Finalize */
