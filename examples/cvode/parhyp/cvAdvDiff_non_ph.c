@@ -98,7 +98,7 @@ typedef struct {
 
 static void SetIC(HYPRE_IJVector Uij, realtype dx, sunindextype local_M, sunindextype mybase);
 
-static void PrintIntro(int nprocs);
+static void PrintIntro(int M, int nprocs);
 
 static void PrintData(realtype t, realtype umax, long int nst);
 
@@ -188,7 +188,7 @@ int main(int argc, char *argv[])
 #endif
 
   /* Allocate hypre vector */
-  HYPRE_IJVectorCreate(comm, mybase, mybase + d->local_M - 1, &Uij);
+  HYPRE_IJVectorCreate(d->comm, mybase, mybase + d->local_M - 1, &Uij);
   HYPRE_IJVectorSetObjectType(Uij, HYPRE_PARCSR);
   HYPRE_IJVectorInitialize(Uij);
 
@@ -241,7 +241,7 @@ int main(int argc, char *argv[])
   retval = CVodeSetNonlinearSolver(cvode_mem, NLS);
   if(check_retval(&retval, "CVodeSetNonlinearSolver", 1, d->myproc)) return(1);
 
-  if (d->myproc == 0) PrintIntro(d->nprocs);
+  if (d->myproc == 0) PrintIntro(M, d->nprocs);
 
   /* Print initial statistics */
   umax = N_VMaxNorm(u);
@@ -341,9 +341,9 @@ static void SetIC(HYPRE_IJVector Uij, realtype dx, sunindextype local_M,
 
 /* Print problem introduction */
 
-static void PrintIntro(int nprocs)
+static void PrintIntro(int M, int nprocs)
 {
-  printf("\n 1-D advection-diffusion equation, mesh size =%3d \n", global_M);
+  printf("\n 1-D advection-diffusion equation, mesh size =%3d \n", M);
   printf("\n Number of PEs = %3d \n\n", nprocs);
 
   return;
@@ -489,16 +489,18 @@ static int f(realtype t, N_Vector u, N_Vector udot, void *user_data)
 #endif
 
   /* Nonblocking leftward flow of data */
-  MPI_Isendrecv(&d->bufs[1],1,MPI_SUNREALTYPE,procleft,0,  // Send to procleft
-                &d->bufs[3],1,MPI_SUNREALTYPE,procright,0, // Receive from procright
-                d->comm,&request);
-  MPI_Wait(&request,&status);
+  MPI_Irecv(&d->bufs[3],1,MPI_SUNREALTYPE,procright,0,d->comm,&request); // Receive from procright
+  MPI_Send( &d->bufs[1],1,MPI_SUNREALTYPE,procleft ,0,d->comm);          // Send to procleft
+  MPI_Wait( &request,&status);
 
   /* Nonblocking rightward flow of data */
-  MPI_Isendrecv(&d->bufs[2],1,MPI_SUNREALTYPE,procright,0, // Send to procright
-                &d->bufs[0],1,MPI_SUNREALTYPE,procleft,0,  // Receive from procleft
-                d->comm,&request);
-  MPI_Wait(&request,&status);
+  MPI_Irecv(&d->bufs[0],1,MPI_SUNREALTYPE,procleft ,0,d->comm,&request); // Receive from procleft
+  MPI_Send( &d->bufs[1],1,MPI_SUNREALTYPE,procright,0,d->comm);          // Send to procright
+  MPI_Wait( &request,&status);
+  // MPI_Isendrecv(&d->bufs[2],1,MPI_SUNREALTYPE,procright,0, // Send to procright
+  //               &d->bufs[0],1,MPI_SUNREALTYPE,procleft,0,  // Receive from procleft
+  //               d->comm,&request);
+  // MPI_Wait(&request,&status);
 
   /* Move received data from host to GPU */
 #if defined(SUNDIALS_HYPRE_BACKENDS_CUDA_OR_HIP)
