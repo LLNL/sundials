@@ -108,7 +108,7 @@ static void PrintFinalStats(void *cvode_mem);
 
 #if defined(SUNDIALS_HYPRE_BACKENDS_CUDA_OR_HIP)
 __global__ void fKernel(realtype *u, realtype *udot,
-                        sunindextype local_M, realtype hdcoef, realtype hacoef)
+                        sunindextype local_M, realtype hdcoef, realtype hacoef);
 #endif
 
 /* Functions Called by the Solver */
@@ -529,7 +529,7 @@ static int f(realtype t, N_Vector u, N_Vector udot, void *user_data)
   /* Loop over all grid points in current process. */
   for (i=1; i<=d->local_M; i++) {
     /* Extract u at x_i and two neighboring points */
-    uleft   = (i==0        )    ? ubufs[0] : udata[i-1];
+    uleft   = (i==0           ) ? ubufs[0] : udata[i-1];
     uright  = (i==d->local_M-1) ? ubufs[3] : udata[i+1];
     ucenter = udata[i];
 
