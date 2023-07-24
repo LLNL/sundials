@@ -543,8 +543,8 @@ static int f(realtype t, N_Vector u, N_Vector udot, void *user_data)
   /* Loop over all grid points in current process. */
   for (i=0; i<d->local_M; i++) {
     /* Extract u at x_i and two neighboring points */
-    uleft   = (i==0           ) ? bufs[0] : udata[i-1];
-    uright  = (i==d->local_M-1) ? bufs[3] : udata[i+1];
+    uleft   = (i==0           ) ? d->bufs[0] : udata[i-1];
+    uright  = (i==d->local_M-1) ? d->bufs[3] : udata[i+1];
     ucenter = udata[i];
 
     /* Set diffusion and advection terms and load into udot */
