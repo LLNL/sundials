@@ -52,6 +52,17 @@
  *      to [Lrecvbuf,Lsendbuf,Rsendbuf,Rrecvbuf]. If a device is in
  *      use, we similarly allocate 'bufs_dev', though only the Recv
  *      buffers are used by the device.
+ *  (4) The diagram below shows the relationship between the nvector
+ *      'u' (or 'udot') and the 4-element 'bufs' array used for MPI
+ *      transfers. When using CUDA/HIP, there is an additional array
+ *      'bufs_dev' on the device.
+ *  proc           p-1                  p                  p+1
+ *              0 1    k-1    ┊     0 1    k-1    ┊     0 1    k-1  
+ *  'udata'   × ■ ■ ┄ ■ ■ ×   ┊   × ■ ■ ┄ ■ ■ ×   ┊   × ■ ■ ┄ ■ ■ × 
+ *            ^ v       v ^   ┊   ^ v       v ^   ┊   ^ v       v ^ 
+ *  'bufs'    ■ ■       ■ ■  <->  ■ ■       ■ ■  <->  ■ ■       ■ ■ 
+ *            0 1       2 3  MPI  0 1       2 3  MPI  0 1       2 3 
+ *  send/recv R S       S R   ┊   R S       S R   ┊   R S       S R 
  * -----------------------------------------------------------------
  * GPU usage notes:
  *  (1) As written, this example should work with SERIAL, CUDA, or
@@ -94,10 +105,10 @@
 #define DTOUT RCONST(0.5)    /* output time increment     */
 #define NOUT  10             /* number of output times    */
 
-#define MPI_TEST(cond,d,msg,code)  \
-  if(cond) {                       \
-    if (d->myproc==0) printf(msg); \
-    MPI_Abort(d->comm,code);      \
+#define MPI_ASSERT(expr,msg,comm,myproc,code) \
+  if(!expr) {                                 \
+    if (myproc==0) printf(msg);               \
+    MPI_Abort(comm,code);                     \
   }
 
 /* Type : UserData
@@ -105,18 +116,22 @@
 
 typedef struct {
   MPI_Comm  comm;               // MPI communicator
-  int       nprocs, myproc;     // # of processes and my process id
-  HYPRE_Int global_M, local_M;  // global/local problem size
+  int       M, nprocs, myproc;  // global problem size, # of processes and my process id
+  HYPRE_Int local_M, mybase;    // local problem size and global starting index
   realtype  dx, hdcoef, hacoef; // gridpoint spacing and problem coefficients
   realtype  *bufs;              // Send/Recv buffers: [Lrecvbuf,Lsendbuf,Rsendbuf,Rrecvbuf]
 #if defined(SUNDIALS_HYPRE_BACKENDS_CUDA_OR_HIP)
-  realtype  *bufs_dev;           // Buffer space (4 realtypes) to be allocated on device
+  realtype  *bufs_dev;          // Buffer space (4 realtypes) to be allocated on device
 #endif
 } *UserData;
 
 /* Private Helper Functions */
 
-static void SetIC(HYPRE_IJVector Uij, realtype dx, sunindextype local_M, sunindextype mybase);
+static void InitUserData(UserData data, MPI_Comm comm, HYPRE_Int M);
+
+static void FreeUserData(UserData data);
+
+static void SetIC(HYPRE_IJVector Uij, UserData data);
 
 static void PrintIntro(int M, int nprocs);
 
@@ -128,7 +143,7 @@ static void PrintFinalStats(void *cvode_mem);
 
 #if defined(SUNDIALS_HYPRE_BACKENDS_CUDA_OR_HIP)
 __global__ void fKernel(realtype *u, realtype *udot,
-                        sunindextype local_M, realtype hdcoef, realtype hacoef);
+                        HYPRE_Int local_M, realtype hdcoef, realtype hacoef);
 #endif
 
 /* Functions Called by the Solver */
@@ -143,73 +158,56 @@ static int check_retval(void *returnvalue, const char *funcname, int opt, int id
 
 int main(int argc, char *argv[])
 {
-  realtype  reltol, abstol, t, tout, umax;
-  void*     cvode_mem;
-  int       iout, retval;
-  long int  nst;
+  void*              cvode_mem;
+  int                M, nprocs, myproc, iout, retval;
+  long int           nst;
+  realtype           reltol, abstol, t, tout, umax;
   
-  UserData           d;
+  UserData           data;
   N_Vector           u;
-  HYPRE_Int          M, nperproc, nrem, mybase;
-  HYPRE_ParVector    Upar; /* Declare HYPRE parallel vector */
-  HYPRE_IJVector     Uij;  /* Declare "IJ" interface to HYPRE vector */
   SUNNonlinearSolver NLS;
   SUNContext         sunctx;
 
+  MPI_Comm           comm;
+  HYPRE_ParVector    Upar; /* Declare HYPRE parallel vector */
+  HYPRE_IJVector     Uij;  /* Declare "IJ" interface to HYPRE vector */
+  
 /* Optional: create stream and choose policies to use instead of default */
 // #if defined(SUNDIALS_HYPRE_BACKENDS_CUDA_OR_HIP)
 //   NV_ADD_LANG_PREFIX_PH(Stream_t) stream;
 //   NV_ADD_LANG_PREFIX_PH(Error_t)  gpuerr;
 // #endif
 
-  d         = NULL;
+  data      = NULL;
   u         = NULL;
   cvode_mem = NULL;
 
   /* MPI Init */
   MPI_Init(&argc, &argv);
 
-  /* Allocate UserData */
-  d = (UserData) malloc(sizeof *d);
-  if(check_retval((void *)d, "malloc", 2, d->myproc)) MPI_Abort(d->comm, 1);
-
   /* Get MPI info */
-  d->comm = MPI_COMM_WORLD;
-  MPI_Comm_size(d->comm, &d->nprocs);
-  MPI_Comm_rank(d->comm, &d->myproc);
+  comm = MPI_COMM_WORLD;
+  MPI_Comm_size(comm, &nprocs);
+  MPI_Comm_rank(comm, &myproc);
 
   /* Parse inputs (required: M) */
-  MPI_TEST(argc<2, d, "ERROR: ONE (1) input required: M (# of interior gridpoints)\n", 1)
+  MPI_ASSERT(argc>=2,"ERROR: ONE (1) input required: M (# of interior gridpoints)\n",comm,myproc,1)
   M = (HYPRE_Int) atoi(argv[1]);
-  MPI_TEST(d->nprocs>M, d, "ERROR: There are more MPI processes than the number of interior gridpoints (M)\n", 1)
+  MPI_ASSERT(M>=nprocs,"ERROR: There are more MPI processes than the number of interior gridpoints (M)\n",comm,myproc,1)
 
-  /* Set partitioning */
-  d->global_M = M;
-  nperproc    = M / d->nprocs;
-  nrem        = M - d->nprocs*nperproc;
-  d->local_M  = (d->myproc < nrem) ? nperproc+1 : nperproc;
-  mybase      = (d->myproc < nrem) ? d->myproc*d->local_M : d->myproc*nperproc + nrem;
+  /* Allocate UserData */
+  data = (UserData) malloc(sizeof *data);
+  if(check_retval((void *)data, "malloc", 2, myproc)) MPI_Abort(comm, 1);
+
+  /* Initialize UserData */
+  InitUserData(data, comm, M);
 
   /* Create SUNDIALS context */
-  retval = SUNContext_Create(&d->comm, &sunctx);
-  if (check_retval(&retval, "SUNContex_Create", 1, d->myproc)) MPI_Abort(d->comm, 1);
-
-  /* Populate remaining constants */
-  d->dx     = XMAX/((realtype)(M+1));
-  d->hdcoef = ONE/(d->dx*d->dx);
-  d->hacoef = HALF/(TWO*d->dx);
-
-  /* Initialize Send/Recv buffers */
-  // Note: We have zero Dirichlet b.c.; Bdry procs will always have zero in their outer Recv buffer
-  d->bufs = (realtype*) malloc(4*sizeof(realtype));
-  memset(d->bufs, 0, 4*sizeof(realtype));
-#if defined(SUNDIALS_HYPRE_BACKENDS_CUDA_OR_HIP)
-  NV_ADD_LANG_PREFIX_PH(Malloc)(&d->bufs_dev,    4*sizeof(realtype)); // e.g. cudaMalloc
-  NV_ADD_LANG_PREFIX_PH(Memset)( d->bufs_dev, 0, 4*sizeof(realtype)); // e.g. cudaMemset
-#endif
+  retval = SUNContext_Create(&comm, &sunctx);
+  if (check_retval(&retval, "SUNContex_Create", 1, myproc)) MPI_Abort(comm, 1);
 
   /* Allocate hypre vector */
-  HYPRE_IJVectorCreate(d->comm, mybase, mybase + d->local_M - 1, &Uij);
+  HYPRE_IJVectorCreate(comm, data->mybase, data->mybase + data->local_M - 1, &Uij);
   HYPRE_IJVectorSetObjectType(Uij, HYPRE_PARCSR);
   HYPRE_IJVectorInitialize(Uij);
 
@@ -218,80 +216,76 @@ int main(int argc, char *argv[])
   abstol = ATOL;
 
   /* Initialize solution vector. */
-  SetIC(Uij, d->dx, d->local_M, mybase);
+  SetIC(Uij, data);
   HYPRE_IJVectorAssemble(Uij);
   HYPRE_IJVectorGetObject(Uij, (void**) &Upar);
 
   u = N_VMake_ParHyp(Upar, sunctx);  /* Create wrapper u around hypre vector */
-  if(check_retval((void *)u, "N_VNew", 0, d->myproc)) MPI_Abort(d->comm, 1);
+  if(check_retval((void *)u, "N_VNew", 0, myproc)) MPI_Abort(comm, 1);
 
   /* Call CVodeCreate to create the solver memory and specify the
    * Adams-Moulton LMM */
   cvode_mem = CVodeCreate(CV_ADAMS, sunctx);
-  if(check_retval((void *)cvode_mem, "CVodeCreate", 0, d->myproc)) MPI_Abort(d->comm, 1);
+  if(check_retval((void *)cvode_mem, "CVodeCreate", 0, myproc)) MPI_Abort(comm, 1);
 
-  retval = CVodeSetUserData(cvode_mem, d);
-  if(check_retval(&retval, "CVodeSetUserData", 1, d->myproc)) MPI_Abort(d->comm, 1);
+  retval = CVodeSetUserData(cvode_mem, data);
+  if(check_retval(&retval, "CVodeSetUserData", 1, myproc)) MPI_Abort(comm, 1);
 
   /* Call CVodeInit to initialize the integrator memory and specify the
    * user's right hand side function in u'=f(t,u), the inital time T0, and
    * the initial dependent variable vector u. */
   retval = CVodeInit(cvode_mem, f, T0, u);
-  if(check_retval(&retval, "CVodeInit", 1, d->myproc)) return(1);
+  if(check_retval(&retval, "CVodeInit", 1, myproc)) return(1);
 
   /* Call CVodeSStolerances to specify the scalar relative tolerance
    * and scalar absolute tolerances */
   retval = CVodeSStolerances(cvode_mem, reltol, abstol);
-  if (check_retval(&retval, "CVodeSStolerances", 1, d->myproc)) return(1);
+  if (check_retval(&retval, "CVodeSStolerances", 1, myproc)) return(1);
 
   /* Create fixed point nonlinear solver object */
   NLS = SUNNonlinSol_FixedPoint(u, 0, sunctx);
-  if(check_retval((void *)NLS, "SUNNonlinSol_FixedPoint", 0, d->myproc)) return(1);
+  if(check_retval((void *)NLS, "SUNNonlinSol_FixedPoint", 0, myproc)) return(1);
 
   /* Attach nonlinear solver object to CVode */
   retval = CVodeSetNonlinearSolver(cvode_mem, NLS);
-  if(check_retval(&retval, "CVodeSetNonlinearSolver", 1, d->myproc)) return(1);
+  if(check_retval(&retval, "CVodeSetNonlinearSolver", 1, myproc)) return(1);
 
-  if (d->myproc == 0) PrintIntro(M, d->nprocs);
+  if (myproc == 0) PrintIntro(M, nprocs);
 
   /* Print initial statistics */
   umax = N_VMaxNorm(u);
-  if (d->myproc == 0) {
+  if (myproc == 0) {
     t = T0;
     PrintData(t, umax, 0);
   }
 
   /* In loop over output points, call CVode, print results, test for error */
   for (iout=1, tout=T1; iout <= NOUT; iout++, tout += DTOUT) {
-    printf("checkpoint 1\n");
+    // printf("checkpoint 1\n");
     /* Advance to next output time */
     retval = CVode(cvode_mem, tout, u, &t, CV_NORMAL);
-    if(check_retval(&retval, "CVode", 1, d->myproc)) break;
+    if(check_retval(&retval, "CVode", 1, myproc)) break;
 
-    printf("checkpoint 2\n");
+    // printf("checkpoint 2\n");
     /* Get number of steps taken */
     retval = CVodeGetNumSteps(cvode_mem, &nst);
-    if(check_retval(&retval, "CVodeGetNumSteps", 1, d->myproc)) break;
+    if(check_retval(&retval, "CVodeGetNumSteps", 1, myproc)) break;
 
-    printf("checkpoint 3\n");
+    // printf("checkpoint 3\n");
     /* Print time, current max norm, and # steps taken since last output */
     umax = N_VMaxNorm(u);
-    if (d->myproc == 0) PrintData(t, umax, nst);
+    if (myproc == 0) PrintData(t, umax, nst);
   }
 
   /* Print some final statistics */
-  if (d->myproc == 0) PrintFinalStats(cvode_mem);  
+  if (myproc == 0) PrintFinalStats(cvode_mem);  
 
   /* Free memory */
+  FreeUserData(data)          /* Free UserData */
   N_VDestroy(u);              /* Free hypre vector wrapper */
   HYPRE_IJVectorDestroy(Uij); /* Free the underlying hypre vector */
   CVodeFree(&cvode_mem);      /* Free the integrator memory */
   SUNNonlinSolFree(NLS);      /* Free the nonlinear solver */
-  free(d->bufs);              /* Free Send/Recv buffers */
-#if defined(SUNDIALS_HYPRE_BACKENDS_CUDA_OR_HIP)
-  NV_ADD_LANG_PREFIX_PH(Free)(d->bufs_dev);
-#endif
-  free(d);                    /* Free user data */
   SUNContext_Free(&sunctx);   /* Free context */
 
   /* MPI Finalize */
@@ -302,10 +296,53 @@ int main(int argc, char *argv[])
 
 /************************ Private Helper Functions ***********************/
 
+/* Load constants in data */
+
+static void InitUserData(UserData data, MPI_Comm comm, HYPRE_Int M)
+{
+  int nperproc, nrem;
+
+  /* Attach MPI info */
+  data->comm = comm;
+  MPI_Comm_size(comm, &data->nprocs);
+  MPI_Comm_rank(comm, &data->myproc);
+
+  /* Set partitioning */
+  data->M       = M;
+  nperproc      = M / data->nprocs;
+  nrem          = M - data->nprocs*nperproc;
+  data->local_M = (data->myproc < nrem) ? nperproc+1 : nperproc;
+  data->mybase  = (data->myproc < nrem) ? data->myproc*data->local_M : data->myproc*nperproc + nrem;
+
+  /* Populate constants */
+  data->dx      = XMAX/((realtype)(M+1));
+  data->hdcoef  = ONE/(data->dx*data->dx);
+  data->hacoef  = HALF/(TWO*data->dx);
+
+  /* Initialize Send/Recv buffers */
+  // Note: We have zero Dirichlet b.c.; Bdry procs will always have zero in their outer Recv buffer
+  data->bufs = (realtype*) malloc(4*sizeof(realtype));
+  memset(data->bufs, 0, 4*sizeof(realtype));
+#if defined(SUNDIALS_HYPRE_BACKENDS_CUDA_OR_HIP)
+  NV_ADD_LANG_PREFIX_PH(Malloc)(&data->bufs_dev,    4*sizeof(realtype)); // e.g. cudaMalloc
+  NV_ADD_LANG_PREFIX_PH(Memset)( data->bufs_dev, 0, 4*sizeof(realtype)); // e.g. cudaMemset
+#endif
+}
+
+/* Free user data memory */
+
+static void FreeUserData(UserData data)
+{
+  free(data->bufs);
+#if defined(SUNDIALS_HYPRE_BACKENDS_CUDA_OR_HIP)
+  NV_ADD_LANG_PREFIX_PH(Free)(data->bufs_dev); // e.g. cudaFree
+#endif
+  free(data);
+}
+
 /* Set initial conditions in u vector */
 
-static void SetIC(HYPRE_IJVector Uij, realtype dx, sunindextype local_M,
-                  sunindextype mybase)
+static void SetIC(HYPRE_IJVector Uij, UserData data)
 {
   int i;
   HYPRE_Int *iglobal;
@@ -313,19 +350,19 @@ static void SetIC(HYPRE_IJVector Uij, realtype dx, sunindextype local_M,
   realtype *udata;
 
   /* Set pointer to data array and get local length of u. */
-  iglobal = (HYPRE_Int*) malloc(local_M*sizeof(HYPRE_Int));
-  udata   = (realtype*)  malloc(local_M*sizeof(realtype));
+  iglobal = (HYPRE_Int*) malloc(data->local_M*sizeof(HYPRE_Int));
+  udata   = (realtype*)  malloc(data->local_M*sizeof(realtype));
 
   /* Load initial profile into u vector */
-  for (i = 0; i < local_M; i++) {
-    iglobal[i] = mybase + i;
-    x = (iglobal[i] + 1)*dx;
+  for (i = 0; i < data->local_M; i++) {
+    iglobal[i] = data->mybase + i;
+    x = (iglobal[i] + 1)*data->dx;
     udata[i] = x*(XMAX - x)*SUNRexp(TWO*x);
   }
 
 #if defined(SUNDIALS_HYPRE_BACKENDS_SERIAL)
   /* For serial backend, HYPRE_IJVectorSetValues expects host pointers */
-  HYPRE_IJVectorSetValues(Uij, local_M, iglobal, udata);
+  HYPRE_IJVectorSetValues(Uij, data->local_M, iglobal, udata);
 
 #elif defined(SUNDIALS_HYPRE_BACKENDS_CUDA_OR_HIP)
   /* With GPU backend, HYPRE_IJVectorSetValues expects device pointers */
@@ -333,15 +370,15 @@ static void SetIC(HYPRE_IJVector Uij, realtype dx, sunindextype local_M,
   realtype*  udata_dev;
 
   /* Allocate device arrays */
-  NV_ADD_LANG_PREFIX_PH(Malloc)(&iglobal_dev, local_M*sizeof(HYPRE_Int));
-  NV_ADD_LANG_PREFIX_PH(Malloc)(&udata_dev, local_M*sizeof(realtype));
+  NV_ADD_LANG_PREFIX_PH(Malloc)(&iglobal_dev, data->local_M*sizeof(HYPRE_Int));
+  NV_ADD_LANG_PREFIX_PH(Malloc)(&udata_dev, data->local_M*sizeof(realtype));
   
   /* Copy host data to device */
-  NV_ADD_LANG_PREFIX_PH(Memcpy)(iglobal_dev, iglobal, local_M*sizeof(HYPRE_Int), NV_ADD_LANG_PREFIX_PH(MemcpyHostToDevice));
-  NV_ADD_LANG_PREFIX_PH(Memcpy)(udata_dev, udata, local_M*sizeof(realtype), NV_ADD_LANG_PREFIX_PH(MemcpyHostToDevice));
+  NV_ADD_LANG_PREFIX_PH(Memcpy)(iglobal_dev, iglobal, data->local_M*sizeof(HYPRE_Int), NV_ADD_LANG_PREFIX_PH(MemcpyHostToDevice));
+  NV_ADD_LANG_PREFIX_PH(Memcpy)(udata_dev, udata, data->local_M*sizeof(realtype), NV_ADD_LANG_PREFIX_PH(MemcpyHostToDevice));
 
   /* Set hypre vector values from device arrays, then free the device arrays */
-  HYPRE_IJVectorSetValues(Uij, local_M, iglobal_dev, udata_dev);
+  HYPRE_IJVectorSetValues(Uij, data->local_M, iglobal_dev, udata_dev);
   NV_ADD_LANG_PREFIX_PH(Free)(iglobal_dev);
   NV_ADD_LANG_PREFIX_PH(Free)(udata_dev);
 #endif
@@ -403,7 +440,7 @@ static void PrintFinalStats(void *cvode_mem)
 
 #if defined(SUNDIALS_HYPRE_BACKENDS_CUDA_OR_HIP)
 __global__ void fKernel(realtype* udata, realtype* udotdata, realtype* bufs_dev,
-                        sunindextype local_M, realtype hdcoef, realtype hacoef)
+                        HYPRE_Int local_M, realtype hdcoef, realtype hacoef)
 {
   realtype uleft, uright, ucenter, hdiff, hadv;
   sunindextype tid;
@@ -431,22 +468,26 @@ __global__ void fKernel(realtype* udata, realtype* udotdata, realtype* bufs_dev,
 
 static int f(realtype t, N_Vector u, N_Vector udot, void *user_data)
 {
-  printf("checkpoint 1a\n");
-  // int      nprocs, myproc, local_M, global_M;
-  int      procfirst, proclast, procleft, procright;
-  realtype *udata, *udotdata; // Both are length global_M (# of gridpoints excluding bdry)
+  // printf("checkpoint 1a\n");
+  int       nprocs, myproc, procfirst, proclast, procleft, procright;
+  realtype *udata, *udotdata; // Both are length M (# of gridpoints excluding bdry)
 
-  UserData        d;
+  UserData        data;
+  MPI_Comm        comm;
   MPI_Status      status;
   MPI_Request     request;
   // MPI_Status      status_leftward_flow, status_rightward_flow;
-  // MPI_Comm        comm;
   HYPRE_ParVector uhyp;
   HYPRE_ParVector udothyp;
 
-  printf("checkpoint 1b\n");
+  // printf("checkpoint 1b\n");
   /* Get reference to UserData */
-  d        = (UserData) user_data;
+  data     = (UserData) user_data;
+
+  /* Extract MPI info */
+  comm     = data->comm;
+  nprocs   = data->nprocs;
+  myproc   = data->myproc;
 
   /* Extract hypre vectors */
   uhyp     = N_VGetVector_ParHyp(u);
@@ -456,63 +497,63 @@ static int f(realtype t, N_Vector u, N_Vector udot, void *user_data)
   udata    = hypre_VectorData(hypre_ParVectorLocalVector(uhyp));
   udotdata = hypre_VectorData(hypre_ParVectorLocalVector(udothyp));
 
-  printf("checkpoint 1c\n");
+  // printf("checkpoint 1c\n");
   /* Relevant process ids (utilize behavior of MPI_PROC_NULL in Send/Recv's) */
   // Note: Send/Recv's with MPI_PROC_NULL immediately return successful without modifying buffers.
   procfirst = 0;
-  proclast  = d->nprocs-1;
-  procleft  = (d->myproc==procfirst) ? MPI_PROC_NULL : d->myproc-1;
-  procright = (d->myproc==proclast ) ? MPI_PROC_NULL : d->myproc+1;
+  proclast  = nprocs-1;
+  procleft  = (myproc==procfirst) ? MPI_PROC_NULL : myproc-1;
+  procright = (myproc==proclast ) ? MPI_PROC_NULL : myproc+1;
 
   /* Populate Send buffers */
   // Note: bufs order is [Lrecvbuf,Lsendbuf,Rsendbuf,Rrecvbuf]
   // Note: MPI transfers are host-to-host (if MPI is CUDA/HIP-aware, could do device-to-device)
 #if defined(SUNDIALS_HYPRE_BACKENDS_SERIAL)
-  d->bufs[1] = udata[0];          //  leftmost local gridpoint is sent left
-  d->bufs[2] = udata[d->local_M]; // rightmost local gridpoint is sent right
+  data->bufs[1] = udata[0];          //  leftmost local gridpoint is sent left
+  data->bufs[2] = udata[data->local_M]; // rightmost local gridpoint is sent right
 #elif defined(SUNDIALS_HYPRE_BACKENDS_CUDA_OR_HIP)
-  NV_ADD_LANG_PREFIX_PH(Memcpy)(&d->bufs[1],&udata[0],           sizeof(realtype),NV_ADD_LANG_PREFIX_PH(MemcpyDeviceToHost));
-  NV_ADD_LANG_PREFIX_PH(Memcpy)(&d->bufs[2],&udata[d->local_M-1],sizeof(realtype),NV_ADD_LANG_PREFIX_PH(MemcpyDeviceToHost));
+  NV_ADD_LANG_PREFIX_PH(Memcpy)(&data->bufs[1],&udata[0],              sizeof(realtype),NV_ADD_LANG_PREFIX_PH(MemcpyDeviceToHost));
+  NV_ADD_LANG_PREFIX_PH(Memcpy)(&data->bufs[2],&udata[data->local_M-1],sizeof(realtype),NV_ADD_LANG_PREFIX_PH(MemcpyDeviceToHost));
 #endif
 
-  printf("checkpoint 1d\n");
+  // printf("checkpoint 1d\n");
   /* Nonblocking leftward flow of data */
-  MPI_Irecv(&d->bufs[3],1,MPI_SUNREALTYPE,procright,0,d->comm,&request); // Receive from procright
-  MPI_Send( &d->bufs[1],1,MPI_SUNREALTYPE,procleft ,0,d->comm);          // Send to procleft
+  MPI_Irecv(&data->bufs[3],1,MPI_SUNREALTYPE,procright,0,comm,&request); // Receive from procright
+  MPI_Send( &data->bufs[1],1,MPI_SUNREALTYPE,procleft ,0,comm);          // Send to procleft
   MPI_Wait( &request,&status);
 
   /* Nonblocking rightward flow of data */
-  MPI_Irecv(&d->bufs[0],1,MPI_SUNREALTYPE,procleft ,0,d->comm,&request); // Receive from procleft
-  MPI_Send( &d->bufs[2],1,MPI_SUNREALTYPE,procright,0,d->comm);          // Send to procright
+  MPI_Irecv(&data->bufs[0],1,MPI_SUNREALTYPE,procleft ,0,comm,&request); // Receive from procleft
+  MPI_Send( &data->bufs[2],1,MPI_SUNREALTYPE,procright,0,comm);          // Send to procright
   MPI_Wait( &request,&status);
 
-  printf("checkpoint 1e\n");
+  // printf("checkpoint 1e\n");
   /* Move received data from host to GPU */
 #if defined(SUNDIALS_HYPRE_BACKENDS_CUDA_OR_HIP)
-  NV_ADD_LANG_PREFIX_PH(Memcpy)(&d->bufs_dev[0],&d->bufs[0],sizeof(realtype),NV_ADD_LANG_PREFIX_PH(MemcpyHostToDevice));
-  NV_ADD_LANG_PREFIX_PH(Memcpy)(&d->bufs_dev[3],&d->bufs[3],sizeof(realtype),NV_ADD_LANG_PREFIX_PH(MemcpyHostToDevice));
+  NV_ADD_LANG_PREFIX_PH(Memcpy)(&data->bufs_dev[0],&data->bufs[0],sizeof(realtype),NV_ADD_LANG_PREFIX_PH(MemcpyHostToDevice));
+  NV_ADD_LANG_PREFIX_PH(Memcpy)(&data->bufs_dev[3],&data->bufs[3],sizeof(realtype),NV_ADD_LANG_PREFIX_PH(MemcpyHostToDevice));
 #endif
 
-  printf("checkpoint 1f\n");
+  // printf("checkpoint 1f\n");
 #if defined(SUNDIALS_HYPRE_BACKENDS_SERIAL)
   int      i;
   realtype uleft, uright, ucenter, hdiff, hadv;
   /* Loop over all grid points in current process. */
-  for (i=0; i<d->local_M; i++) {
+  for (i=0; i<data->local_M; i++) {
     /* Extract u at x_i and two neighboring points */
-    uleft   = (i==0           ) ? d->bufs[0] : udata[i-1];
-    uright  = (i==d->local_M-1) ? d->bufs[3] : udata[i+1];
+    uleft   = (i==0              ) ? data->bufs[0] : udata[i-1];
+    uright  = (i==data->local_M-1) ? data->bufs[3] : udata[i+1];
     ucenter = udata[i];
 
     /* Set diffusion and advection terms and load into udot */
-    hdiff       = d->hdcoef*(uleft  - TWO*ucenter + uright);
-    hadv        = d->hacoef*(uright - uleft);
+    hdiff       = data->hdcoef*(uleft  - TWO*ucenter + uright);
+    hadv        = data->hacoef*(uright - uleft);
     udotdata[i] = hdiff + hadv;
   }
 #elif defined(SUNDIALS_HYPRE_BACKENDS_CUDA_OR_HIP)
   unsigned block = 256;
-  unsigned grid  = (d->local_M + block - 1) / block;
-  fKernel<<<grid,block>>>(udata, udotdata, d->bufs_dev, d->local_M, d->hdcoef, d->hacoef);
+  unsigned grid  = (data->local_M + block - 1) / block;
+  fKernel<<<grid,block>>>(udata, udotdata, data->bufs_dev, data->local_M, data->hdcoef, data->hacoef);
 #endif
   return(0);
 }
