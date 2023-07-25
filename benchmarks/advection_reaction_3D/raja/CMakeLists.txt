@@ -19,6 +19,13 @@ if(BUILD_ARKODE AND BUILD_CVODE AND BUILD_IDA)
     set(OTHER_LIBS OpenMP::OpenMP_CXX)
   endif()
 
+  # Set up parameters to run benchmarks with
+  set(BENCHMARK_VAR
+  "--method ARK-IMEX --nls tl-newton --tf 0.01 --dont-save\;arkimex_tlnewton"
+  "--method ARK-DIRK --nls newton --tf 0.01 --dont-save\;arkdirk_newton"
+  "--method CV-BDF --nls newton --tf 0.01 --dont-save\;cvbdf_newton"
+  "--method IDA --nls newton --tf 0.01 --dont-save\;ida_newton")
+
   # ----------------------------------------------------------------------------
   # MPI only
   # ----------------------------------------------------------------------------
@@ -58,18 +65,11 @@ if(BUILD_ARKODE AND BUILD_CVODE AND BUILD_IDA)
   install(FILES README.md ../scripts/compare_error.py ../scripts/compute_error.py ../scripts/pickle_solution_output.py
     DESTINATION "${BENCHMARKS_INSTALL_PATH}/advection_reaction_3D/raja")
 
-  set(BENCHMARK_VAR
-    "--method ARK-IMEX --nls tl-newton --tf 0.01 --dont-save\;arkimex_tlnewton_raja"
-    "--method ARK-DIRK --nls newton --tf 0.01 --dont-save\;arkdirk_newton_raja"
-    "--method CV-BDF --nls newton --tf 0.01 --dont-save\;cvbdf_newton_raja"
-    "--method IDA --nls newton --tf 0.01 --dont-save\;ida_newton_raja"
-    )
-
-  # NUM_CORES based on Lassen system for 1 node
   foreach(benchmark_tuple ${BENCHMARK_VAR})
     list(GET benchmark_tuple 0 benchmark_args)
     list(GET benchmark_tuple 1 identifier)
 
+    # NUM_CORES based on Lassen system for 1 node
     sundials_add_benchmark(advection_reaction_3D_raja advection_reaction_3D_raja advection_reaction_3D
       NUM_CORES 40
       BENCHMARK_ARGS ${benchmark_args}
@@ -124,17 +124,11 @@ if(BUILD_ARKODE AND BUILD_CVODE AND BUILD_IDA)
     install(TARGETS advection_reaction_3D_raja_mpicuda
       DESTINATION "${BENCHMARKS_INSTALL_PATH}/advection_reaction_3D/raja")
 
-    set(BENCHMARK_VAR
-        "--method ARK-IMEX --nls tl-newton --tf 0.01 --dont-save\;arkimex_tlnewton_raja_mpicuda"
-        "--method ARK-DIRK --nls newton --tf 0.01 --dont-save\;arkdirk_newton_raja_mpicuda"
-        "--method CV-BDF --nls newton --tf 0.01 --dont-save\;cvbdf_newton_raja_mpicuda"
-        "--method IDA --nls newton --tf 0.01 --dont-save\;ida_newton_raja_mpicuda")
-
-    # NUM_CORES based on Lassen system for 1 node
     foreach(benchmark_tuple ${BENCHMARK_VAR})
       list(GET benchmark_tuple 0 benchmark_args)
       list(GET benchmark_tuple 1 identifier)
 
+      # NUM_CORES based on Lassen system for 1 node
       sundials_add_benchmark(advection_reaction_3D_raja_mpicuda advection_reaction_3D_raja_mpicuda advection_reaction_3D
         ENABLE_GPU
         NUM_CORES 4
@@ -181,12 +175,6 @@ if(BUILD_ARKODE AND BUILD_CVODE AND BUILD_IDA)
 
     install(TARGETS advection_reaction_3D_raja_mpihip
       DESTINATION "${BENCHMARKS_INSTALL_PATH}/advection_reaction_3D/raja")
-
-    set(BENCHMARK_VAR 
-        "--method ARK-IMEX --nls tl-newton --tf 1.0 --dont-save\;arkimex_tlnewton_raja_mpihip"
-        "--method ARK-DIRK --nls newton --tf 1.0 --dont-save\;arkdirk_newton_raja_mpihip"
-        "--method CV-BDF --nls newton --tf 1.0 --dont-save\;cvbdf_newton_raja_mpihip"
-        "--method IDA --nls newton --tf 1.0 --dont-save\;ida_newton_raja_mpihip")
 
     foreach(benchmark_tuple ${BENCHMARK_VAR})
       list(GET benchmark_tuple 0 benchmark_args)

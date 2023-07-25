@@ -33,8 +33,8 @@ Setting Up Your Own SPOT Visualizations
 To display data from non-GitLab jobs or create a local collection of runs,
 input into the SPOT search bar the absolute path to the directory containing
 the `.cali` files and refresh the page. By default `.cali`` files will be
-generated in the build directory under ``Benchmarking/output`` and
-``Testing/output``. To specify where `.cali` output files are placed, define
+generated in the build directory under ``Benchmarking`` and
+``Testing/output/Caliper/Example``. To specify where `.cali` output files are placed, define
 the CMake option SUNDIALS_CALIPER_OUTPUT_DIR with the desired directory path.
 
 To retain the same filters as a given SPOT visualization link in
@@ -65,3 +65,21 @@ Benchmarks
 `Advection Reaction 3D - All Configurations <https://lc.llnl.gov/spot2/?sf=/usr/workspace/sundials/califiles/Benchmarking/advection_reaction_3D&ch_executable=1&ch_launchdate=1&groupby=cmdline&yaxis=Max%20time%2Frank&aggregate=avg>`_
 
 `Diffusion 2D - All Configurations <https://lc.llnl.gov/spot2/?sf=/usr/workspace/sundials/califiles/Benchmarking/diffusion_2D&ch_executable=1&ch_launchdate=1&groupby=executable&yaxis=Max%20time%2Frank&aggregate=avg>`_
+
+MPI Serial
+
+`Arkode Diffusion 2D <https://lc.llnl.gov/spot2/?sf=/usr/workspace/sundials/califiles/Benchmarking/diffusion_2D/arkode_diffusion_2D_mpi_d2d_arkode_serial&ch_executable=1&ch_launchdate=1&yaxis=Max%20time%2Frank>`_
+
+`Cvode Diffusion 2D <https://lc.llnl.gov/spot2/?sf=/usr/workspace/sundials/califiles/Benchmarking/diffusion_2D/cvode_diffusion_2D_mpi_d2d_cvode_serial&ch_executable=1&ch_launchdate=1&yaxis=Max%20time%2Frank>`_
+
+`Ida Diffusion 2D <https://lc.llnl.gov/spot2/?sf=/usr/workspace/sundials/califiles/Benchmarking/diffusion_2D/ida_diffusion_2D_mpi_d2d_ida_serial&ch_executable=1&ch_launchdate=1&yaxis=Max%20time%2Frank>`_
+
+MPI GPU
+
+Note: CUDA Diffusion 2D visualizations are not available as the benchmark errors out before completion.
+
+`Arkode Diffusion 2D - Hip <https://lc.llnl.gov/spot2/?sf=/usr/workspace/sundials/califiles/Benchmarking/diffusion_2D/arkode_diffusion_2D_mpihip_d2d_arkode_hip&ch_executable=1&ch_launchdate=1&aggregate=max>`_
+
+`Cvode Diffusion 2D - Hip <https://lc.llnl.gov/spot2/?sf=/usr/workspace/sundials/califiles/Benchmarking/diffusion_2D/cvode_diffusion_2D_mpihip_d2d_cvode_hip&ch_executable=1&ch_launchdate=1&aggregate=max>`_
+
+`Ida Diffusion 2D - Hip <https://lc.llnl.gov/spot2/?sf=/usr/workspace/sundials/califiles/Benchmarking/diffusion_2D/ida_diffusion_2D_mpihip_d2d_ida_hip&ch_executable=1&ch_launchdate=1&aggregate=max>`_
