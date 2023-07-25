@@ -56,30 +56,53 @@ Aggregate results for example runs on SPOT may not be accurate. The aggregation 
 involves combining `.cali` files in ways that do not necessarily equal the
 true sum of the results.
 
-Examples
+**Examples**
 
 `Aggregated Runs <https://lc.llnl.gov/spot2/?sf=/usr/workspace/sundials/califiles/Example&ch_executable=1&ch_launchdate=1&groupby=cluster&aggregate=avg&xaxis=job_start_time&yaxis=Max%20time%2Frank>`_
 
-Benchmarks
+**Benchmarks**
 
-`Advection Reaction 3D - All Configurations <https://lc.llnl.gov/spot2/?sf=/usr/workspace/sundials/califiles/Benchmarking/advection_reaction_3D&ch_executable=1&ch_launchdate=1&groupby=cmdline&yaxis=Max%20time%2Frank&aggregate=avg>`_
+**Advection Reaction 3D** 
 
-`Diffusion 2D - All Configurations <https://lc.llnl.gov/spot2/?sf=/usr/workspace/sundials/califiles/Benchmarking/diffusion_2D&ch_executable=1&ch_launchdate=1&groupby=executable&yaxis=Max%20time%2Frank&aggregate=avg>`_
+- `All configurations <https://lc.llnl.gov/spot2/?sf=/usr/workspace/sundials/califiles/Benchmarking/advection_reaction_3D&ch_executable=1&ch_launchdate=1&groupby=cmdline&yaxis=Max%20time%2Frank&aggregate=avg>`_
 
-MPI Serial
+- By configuration
 
-`Arkode Diffusion 2D <https://lc.llnl.gov/spot2/?sf=/usr/workspace/sundials/califiles/Benchmarking/diffusion_2D/arkode_diffusion_2D_mpi_d2d_arkode_serial&ch_executable=1&ch_launchdate=1&yaxis=Max%20time%2Frank>`_
+  - Serial
+   - `ARK-DIRK, Newton <https://lc.llnl.gov/spot2/?sf=/usr/workspace/sundials/califiles/Benchmarking/advection_reaction_3D/advection_reaction_3D_raja_arkdirk_newton&ch_executable=1&ch_launchdate=1&aggregate=&yaxis=Max%20time%2Frank&groupby=cluster>`_
+   - `ARK-IMEX, TL-Newton <https://lc.llnl.gov/spot2/?sf=/usr/workspace/sundials/califiles/Benchmarking/advection_reaction_3D/advection_reaction_3D_raja_arkimex_tlnewton&ch_executable=1&ch_launchdate=1&yaxis=Max%20time%2Frank&groupby=cluster>`_
+   - `CV-BDF, Newton <https://lc.llnl.gov/spot2/?sf=/usr/workspace/sundials/califiles/Benchmarking/advection_reaction_3D/advection_reaction_3D_raja_cvbdf_newton&ch_executable=1&ch_launchdate=1&yaxis=Max%20time%2Frank&groupby=cluster>`_
+   - `IDA, Newton <https://lc.llnl.gov/spot2/?sf=/usr/workspace/sundials/califiles/Benchmarking/advection_reaction_3D/advection_reaction_3D_raja_ida_newton&ch_executable=1&ch_launchdate=1&yaxis=Max%20time%2Frank&groupby=cluster>`_
+  - CUDA
+   - `ARK-DIRK, Newton <https://lc.llnl.gov/spot2/?sf=/usr/workspace/sundials/califiles/Benchmarking/advection_reaction_3D/advection_reaction_3D_raja_mpicuda_arkdirk_newton&ch_executable=1&ch_launchdate=1&yaxis=Max%20time%2Frank>`_
+   - `ARK-IMEX, TL-Newton <https://lc.llnl.gov/spot2/?sf=/usr/workspace/sundials/califiles/Benchmarking/advection_reaction_3D/advection_reaction_3D_raja_mpicuda_arkimex_tlnewton&ch_executable=1&ch_launchdate=1&yaxis=Max%20time%2Frank>`_
+   - `CV-BDF, Newton <https://lc.llnl.gov/spot2/?sf=/usr/workspace/sundials/califiles/Benchmarking/advection_reaction_3D/advection_reaction_3D_raja_mpicuda_cvbdf_newton&ch_executable=1&ch_launchdate=1&yaxis=Max%20time%2Frank>`_
+   - `IDA, Newton <https://lc.llnl.gov/spot2/?sf=/usr/workspace/sundials/califiles/Benchmarking/advection_reaction_3D/advection_reaction_3D_raja_mpicuda_ida_newton&ch_executable=1&ch_launchdate=1&yaxis=Max%20time%2Frank>`_
+  - HIP
+   - `ARK-DIRK, Newton <https://lc.llnl.gov/spot2/?sf=/usr/workspace/sundials/califiles/Benchmarking/advection_reaction_3D/advection_reaction_3D_raja_mpihip_arkdirk_newton&ch_executable=1&ch_launchdate=1&yaxis=Max%20time%2Frank>`_
+   - `ARK-IMEX, TL-Newton <https://lc.llnl.gov/spot2/?sf=/usr/workspace/sundials/califiles/Benchmarking/advection_reaction_3D/advection_reaction_3D_raja_mpihip_arkimex_tlnewton&ch_executable=1&ch_launchdate=1&yaxis=Max%20time%2Frank>`_
+   - `CV-BDF, Newton <https://lc.llnl.gov/spot2/?sf=/usr/workspace/sundials/califiles/Benchmarking/advection_reaction_3D/advection_reaction_3D_raja_mpihip_cvbdf_newton&ch_executable=1&ch_launchdate=1&yaxis=Max%20time%2Frank>`_
+   - `IDA, Newton <https://lc.llnl.gov/spot2/?sf=/usr/workspace/sundials/califiles/Benchmarking/advection_reaction_3D/advection_reaction_3D_raja_mpihip_ida_newton&ch_executable=1&ch_launchdate=1&yaxis=Max%20time%2Frank>`_
 
-`Cvode Diffusion 2D <https://lc.llnl.gov/spot2/?sf=/usr/workspace/sundials/califiles/Benchmarking/diffusion_2D/cvode_diffusion_2D_mpi_d2d_cvode_serial&ch_executable=1&ch_launchdate=1&yaxis=Max%20time%2Frank>`_
 
-`Ida Diffusion 2D <https://lc.llnl.gov/spot2/?sf=/usr/workspace/sundials/califiles/Benchmarking/diffusion_2D/ida_diffusion_2D_mpi_d2d_ida_serial&ch_executable=1&ch_launchdate=1&yaxis=Max%20time%2Frank>`_
-
-MPI GPU
+**Diffusion 2D**
 
 Note: CUDA Diffusion 2D visualizations are not available as the benchmark errors out before completion.
 
-`Arkode Diffusion 2D - Hip <https://lc.llnl.gov/spot2/?sf=/usr/workspace/sundials/califiles/Benchmarking/diffusion_2D/arkode_diffusion_2D_mpihip_d2d_arkode_hip&ch_executable=1&ch_launchdate=1&aggregate=max>`_
+- `All configurations <https://lc.llnl.gov/spot2/?sf=/usr/workspace/sundials/califiles/Benchmarking/diffusion_2D&ch_executable=1&ch_launchdate=1&groupby=executable&yaxis=Max%20time%2Frank&aggregate=avg>`_
 
-`Cvode Diffusion 2D - Hip <https://lc.llnl.gov/spot2/?sf=/usr/workspace/sundials/califiles/Benchmarking/diffusion_2D/cvode_diffusion_2D_mpihip_d2d_cvode_hip&ch_executable=1&ch_launchdate=1&aggregate=max>`_
+- MPI + Serial
 
-`Ida Diffusion 2D - Hip <https://lc.llnl.gov/spot2/?sf=/usr/workspace/sundials/califiles/Benchmarking/diffusion_2D/ida_diffusion_2D_mpihip_d2d_ida_hip&ch_executable=1&ch_launchdate=1&aggregate=max>`_
+  - `ARKODE <https://lc.llnl.gov/spot2/?sf=/usr/workspace/sundials/califiles/Benchmarking/diffusion_2D/arkode_diffusion_2D_mpi_d2d_arkode_serial&ch_executable=1&ch_launchdate=1&yaxis=Max%20time%2Frank>`_
+
+  - `CVODE <https://lc.llnl.gov/spot2/?sf=/usr/workspace/sundials/califiles/Benchmarking/diffusion_2D/cvode_diffusion_2D_mpi_d2d_cvode_serial&ch_executable=1&ch_launchdate=1&yaxis=Max%20time%2Frank>`_
+
+  - `IDA <https://lc.llnl.gov/spot2/?sf=/usr/workspace/sundials/califiles/Benchmarking/diffusion_2D/ida_diffusion_2D_mpi_d2d_ida_serial&ch_executable=1&ch_launchdate=1&yaxis=Max%20time%2Frank>`_
+
+- MPI + HIP
+
+  - `ARKODE <https://lc.llnl.gov/spot2/?sf=/usr/workspace/sundials/califiles/Benchmarking/diffusion_2D/arkode_diffusion_2D_mpihip_d2d_arkode_hip&ch_executable=1&ch_launchdate=1&aggregate=max>`_
+
+  - `CVODE <https://lc.llnl.gov/spot2/?sf=/usr/workspace/sundials/califiles/Benchmarking/diffusion_2D/cvode_diffusion_2D_mpihip_d2d_cvode_hip&ch_executable=1&ch_launchdate=1&aggregate=max>`_
+
+  - `IDA <https://lc.llnl.gov/spot2/?sf=/usr/workspace/sundials/califiles/Benchmarking/diffusion_2D/ida_diffusion_2D_mpihip_d2d_ida_hip&ch_executable=1&ch_launchdate=1&aggregate=max>`_
