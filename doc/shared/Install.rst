@@ -1499,7 +1499,7 @@ SUNDIALS has been tested with the CUDA toolkit versions 10 and 11.
 
 Building with HIP
 ^^^^^^^^^^^^^^^^^^^^^^
-HIP(heterogeneous-compute interface for portability) allows developers to create portable applications for AMD and NVIDIA GPUs. HIP can be obtained from `HIP GitHub repository<https://github.com/ROCm-Developer-Tools/HIP>`_.
+HIP(heterogeneous-compute interface for portability) allows developers to create portable applications for AMD and NVIDIA GPUs. HIP can be obtained from `HIP GitHub repository <https://github.com/ROCm-Developer-Tools/HIP>`_.
 
 To enable HIP, set ``ENABLE_HIP`` to ``ON`` and set ``AMDGPU_TARGETS`` to the desired target(ex. gfx705).
 In addition, set ``CMAKE_C_COMPILER`` and ``CMAKE_CXX_COMPILER`` to point to an installation of ``hipcc``.
