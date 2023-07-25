@@ -1886,15 +1886,6 @@ int arkInitialSetup(ARKodeMem ark_mem, realtype tout)
     }
   }
 
-  /* Check that time stepper provides fullrhs function (if applicable) */
-  if (ark_mem->call_fullrhs_start || ark_mem->call_fullrhs_end) {
-    if (ark_mem->step_fullrhs == NULL) {
-      arkProcessError(ark_mem, ARK_ILL_INPUT, "ARKODE",
-                      "arkInitialSetup", MSG_ARK_MISSING_FULLRHS);
-      return(ARK_ILL_INPUT);
-    }
-  }
-
   /* Load initial error weights */
   retval = ark_mem->efun(ark_mem->yn, ark_mem->ewt, ark_mem->e_data);
   if (retval != 0) {
@@ -1933,8 +1924,16 @@ int arkInitialSetup(ARKodeMem ark_mem, realtype tout)
     if (retval != 0)  return(retval);
   }
 
-  /* Allocate fn if fullrhs was requested by any subsidiary module */
+
+  /* If a stepper requested fullrhs, then we check that the fullrhs function
+     is provied and allocate fn to store the result of fullrhs. */
   if (ark_mem->call_fullrhs_start || ark_mem->call_fullrhs_end) {
+    if (ark_mem->step_fullrhs == NULL) {
+      arkProcessError(ark_mem, ARK_ILL_INPUT, "ARKODE",
+                      "arkInitialSetup", MSG_ARK_MISSING_FULLRHS);
+      return(ARK_ILL_INPUT);
+    }
+
     if (!arkAllocVec(ark_mem, ark_mem->yn, &ark_mem->fn)) {
       arkProcessError(ark_mem, ARK_MEM_FAIL, "ARKODE",
                       "arkInitialSetup", MSG_ARK_MEM_FAIL);
