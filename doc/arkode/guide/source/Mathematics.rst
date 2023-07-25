@@ -460,6 +460,114 @@ simplified form admits a more efficient and memory-friendly implementation
 than the more general form :eq:`ARKODE_IVP_simple_explicit`.
 
 
+.. _ARKODE.Mathematics.SPRKStep:
+
+SPRKStep -- Symplectic Partitioned Runge--Kutta methods
+=======================================================
+
+The SPRKStep time-stepping module in ARKODE is designed for IVPs of the form
+
+.. math::
+   \dot{p} = f_1(t, q) = \frac{\partial V(t, q)}{\partial q}, \quad
+   \dot{q} = f_2(t, p) = \frac{\partial T(t, p)}{\partial p},
+   \qquad p(t_0) = p_0,\quad q(t_0) = q_0,
+   :label: ARKODE_IVP_Hamiltonian
+
+where the system Hamiltonian
+
+.. math::
+   H(t, p, q) = T(t, p) + V(t, q)
+
+**is separable**. When *H* is autonomous, then *H* is a conserved quantity.
+Often this correponds to the conservation of energy (for example, in *n*-body
+problems). For non-autonomous *H*, the invariants are no longer directly
+obtainable from the Hamiltonian :cite:p:`Struckmeier:02`.
+
+In solving the IVP :eq:`ARKODE_IVP_Hamiltonian`, we consider the problem in the form
+
+.. math::
+   \dot{y} =
+      \begin{bmatrix}
+         f_1(t, q) \\
+         f_2(t, p)
+      \end{bmatrix}, \qquad
+      y(t_0) =
+      \begin{bmatrix}
+         p_0\\
+         q_0
+      \end{bmatrix}.
+
+In practice, the ordering  of the variables does not matter and is determined by the user.
+SPRKStep utilizes Symplectic Partitioned Runge-Kutta (SPRK) methods represented by the pair
+of explicit and diagonally implicit Butcher tableaux,
+
+.. math::
+   \begin{array}{c|cccc}
+   c_1 & 0 & \cdots & 0 & 0 \\
+   c_2 & a_1 & 0 & \cdots & \vdots \\
+   \vdots & \vdots & \ddots & \ddots & \vdots \\
+   c_s & a_1 & \cdots & a_{s-1} & 0 \\
+   \hline
+   & a_1 & \cdots & a_{s-1} & a_s
+   \end{array}
+   \qquad \qquad
+   \begin{array}{c|cccc}
+   \hat{c}_1 & \hat{a}_1 & \cdots & 0 & 0 \\
+   \hat{c}_2 & \hat{a}_1 & \hat{a}_2 & \cdots & \vdots \\
+   \vdots & \vdots & \ddots & \ddots & \vdots \\
+   \hat{c}_s & \hat{a}_1 & \hat{a}_2 & \cdots & \hat{a}_{s} \\
+   \hline
+   & \hat{a}_1 & \hat{a}_2 & \cdots & \hat{a}_{s}
+   \end{array}.
+
+These methods approximately conserve a nearby Hamiltonian for exponentially long
+times :cite:p:`HaWa:06`. SPRKStep makes the assumption that the Hamiltonian is
+separable, in which case the resulting method is explicit. SPRKStep provides
+schemes with order of accuracy and conservation equal to
+:math:`q = \{1,2,3,4,5,6,8,10\}`. The references for these these methods and
+the default methods used are given in the section :numref:`Butcher.sprk`.
+
+In the default case, the algorithm for a single time-step is as follows
+(for autonomous Hamiltonian systems the times provided to :math:`f1` and :math:`f2`
+can be ignored).
+
+#. Set :math:`P_0 = p_n, Q_1 = q_n`
+
+#. For :math:`i = 1,\ldots,s` do:
+
+   #. :math:`P_i = P_{i-1} + h_{n+1} \hat{a}_i f_1(t_n + \hat{c}_i h, Q_i)`
+   #. :math:`Q_{i+1} = Q_i + h_{n+1} a_i f_2(t_n + c_i h, P_i)`
+
+#. Set :math:`p_{n+1} = P_s, q_{n+1} = Q_{s+1}`
+
+.. _ARKODE.Mathematics.SPRKStep.Compensated:
+
+Optionally, a different algorithm leveraging compensated summation can be used
+that is more robust to roundoff error at the expense of 2 extra vector operations
+per stage and an additional 5 per time step. It also requires one extra vector to
+be stored.  However, it is signficantly more robust to roundoff error accumulation
+:cite:p:`Sof:02`. When compensated summation is enabled, the following incremental
+form is used to compute a time step:
+
+#. Set :math:`\Delta P_0 = 0, \Delta Q_1 = 0`
+
+#. For :math:`i = 1,\ldots,s` do:
+
+   #. :math:`\Delta P_i = \Delta P_{i-1} + h_{n+1} \hat{a}_i f_1(t_n + \hat{c}_i h, q_n + \Delta Q_i)`
+   #. :math:`\Delta Q_{i+1} = \Delta Q_i + h_{n+1} a_i f_2(t_n + c_i h, p_n + \Delta P_i)`
+
+#. Set :math:`\Delta p_{n+1} = \Delta P_s, \Delta q_{n+1} = \Delta Q_{s+1}`
+
+#. Using compensated summation, set :math:`p_{n+1} = p_n + \Delta p_{n+1}, q_{n+1} = q_n + \Delta Q_{s+1}`
+
+Since temporal error based adaptive time-stepping is known to ruin the
+conservation property :cite:p:`HaWa:06`,  SPRKStep employs a fixed time-step size.
+
+.. However, it is possible for a user to provide a
+.. problem-specific adaptivity controller such as the one described in :cite:p:`HaSo:05`.
+.. The `ark_kepler.c` example demonstrates an implementation of such controller.
+
+
 .. _ARKODE.Mathematics.MRIStep:
 
 MRIStep -- Multirate infinitesimal step methods
@@ -1002,14 +1110,12 @@ Here the explicit stability step factor :math:`c>0` (often called the
 Fixed time stepping
 ===================
 
-While both the ARKStep and ERKStep time-stepping modules are designed
-for tolerance-based time step adaptivity, they additionally support a
-"fixed-step" mode (*note: fixed-step mode is currently required for
-the slow time scale in the MRIStep module*).  This mode is typically
-used for debugging purposes, for verification against hand-coded
-Runge--Kutta methods, or for problems where the time steps should be
-chosen based on other problem-specific information.  In this mode,
-all internal time step adaptivity is disabled:
+While both the ARKStep and ERKStep time-stepping modules are
+designed for tolerance-based time step adaptivity, they additionally support a
+"fixed-step" mode. This mode is typically used for debugging
+purposes, for verification against hand-coded Runge--Kutta methods, or for
+problems where the time steps should be chosen based on other problem-specific
+information.  In this mode, all internal time step adaptivity is disabled:
 
 * temporal error control is disabled,
 
@@ -1018,14 +1124,20 @@ all internal time step adaptivity is disabled:
 
 * no check against an explicit stability condition is performed.
 
+.. note::
+   Since temporal error based adaptive time-stepping is known to ruin the
+   conservation property of SPRK methods, SPRKStep employs a fixed time-step
+   size by default.
+
+.. note::
+   Fixed-step mode is currently required for the slow time scale in the MRIStep module.
+
 
 Additional information on this mode is provided in the sections
 :ref:`ARKStep Optional Inputs <ARKODE.Usage.ARKStep.OptionalInputs>`,
-:ref:`ERKStep Optional Inputs <ARKODE.Usage.ERKStep.OptionalInputs>`, and
+:ref:`ERKStep Optional Inputs <ARKODE.Usage.ERKStep.OptionalInputs>`,
+:ref:`SPRKStep Optional Inputs <ARKODE.Usage.SPRKStep.OptionalInputs>`, and
 :ref:`MRIStep Optional Inputs <ARKODE.Usage.MRIStep.OptionalInputs>`.
-
-
-
 
 
 .. _ARKODE.Mathematics.AlgebraicSolvers:
@@ -2074,3 +2186,68 @@ step attempt, or fails with the minimum step size, then the integration is halte
 and an error is returned. In this case the user may need to employ other
 strategies as discussed in :numref:`ARKODE.Usage.ARKStep.Tolerances` and
 :numref:`ARKODE.Usage.ERKStep.Tolerances` to satisfy the inequality constraints.
+
+.. _ARKODE.Mathematics.Relaxation:
+
+Relaxation Methods
+==================
+
+When the solution of :eq:`ARKODE_IVP` is conservative or dissipative with
+respect to a smooth *convex* function :math:`\xi(y(t))`, it is desirable to have
+the numerical method preserve these properties. That is
+:math:`\xi(y_n) = \xi(y_{n-1}) = \ldots = \xi(y_{0})` for conservative systems
+and :math:`\xi(y_n) \leq \xi(y_{n-1})` for dissipative systems. For examples
+of such problems, see the references below and the citations there in.
+
+For such problems, ARKODE supports relaxation methods
+:cite:p:`ketcheson2019relaxation, kang2022entropy, ranocha2020relaxation, ranocha2020hamiltonian`
+applied to ERK, DIRK, or ARK methods to ensure dissipation or preservation of
+the global function. The relaxed solution is given by
+
+.. math::
+   y_r = y_{n-1} + r d = r y_n + (1 - r) y_{n - 1}
+   :label: ARKODE_RELAX_SOL
+
+where :math:`d` is the update to :math:`y_n` (i.e.,
+:math:`h_n \sum_{i=1}^{s}(b^E_i \hat{f}^E_i + b^I_i \hat{f}^I_i)` for ARKStep
+and :math:`h_n \sum_{i=1}^{s} b_i f_i` for ERKStep) and :math:`r` is the
+relaxation factor selected to ensure conservation or dissipation. Given an ERK,
+DIRK, or ARK method of at least second order with non-negative solution weights
+(i.e., :math:`b_i \geq 0` for ERKStep or :math:`b^E_i \geq 0` and
+:math:`b^I_i \geq 0` for ARKStep), the factor :math:`r` is computed by solving
+the auxiliary scalar nonlinear system
+
+.. math::
+   F(r) = \xi(y_{n-1} + r d) - \xi(y_{n-1}) - r e = 0
+   :label: ARKODE_RELAX_NLS
+
+at the end of each time step. The estimated change in :math:`\xi` is given by
+:math:`e \equiv h_n \sum_{i=1}^{s} \langle \xi'(z_i), b^E_i f^E_i + b^I_i f^I_i \rangle`
+where :math:`\xi'` is the Jacobian of :math:`\xi`.
+
+Two iterative methods are provided for solving :eq:`ARKODE_RELAX_NLS`, Newton's
+method and Brent's method. When using Newton's method (the default), the
+iteration is halted either when the residual tolerance is met,
+:math:`F(r^{(k)}) < \epsilon_{\mathrm{relax\_res}}`, or when the difference
+between successive iterates satisfies the relative and absolute tolerances,
+:math:`|\delta_r^{(k)}| = |r^{(k)} - r^{(k-1)}| < \epsilon_{\mathrm{relax\_rtol}} |r^{(k-1)}| + \epsilon_{\mathrm{relax\_atol}}`.
+Brent's method applies the same residual tolerance check and additionally halts
+when the bisection update satisfies the relative and absolute tolerances,
+:math:`|0.5 (r_c - r^{k})| < \epsilon_{\mathrm{relax\_rtol}} |r^{(k)}| + 0.5 \epsilon_{\mathrm{relax\_atol}}`
+where :math:`r_c` and :math:`r^{(k)}` bound the root.
+
+If the nonlinear solve fails to meet the specified tolerances within the maximum
+allowed number of iterations, the step size is reduced by the factor
+:math:`\eta_\mathrm{rf}` (default 0.25) and the step is repeated. Additionally,
+the solution of :eq:`ARKODE_RELAX_NLS` should be
+:math:`r = 1 + \mathcal{O}(h_n^{q - 1})` for a method of order :math:`q`
+:cite:p:`ranocha2020relaxation`. As such, limits are imposed on the range of
+relaxation values allowed (i.e., limiting the maximum change in step size due to
+relaxation). A relaxation value greater than :math:`r_\text{max}` (default 1.2)
+or less than :math:`r_\text{min}` (default 0.8), is considered as a failed
+relaxation application and the step will is repeated with the step size reduced
+by :math:`\eta_\text{rf}`.
+
+For more information on utilizing relaxation Runge--Kutta methods, see
+:numref:`ARKODE.Usage.ERKStep.Relaxation` and
+:numref:`ARKODE.Usage.ARKStep.Relaxation`.

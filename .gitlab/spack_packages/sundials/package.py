@@ -76,7 +76,7 @@ class Sundials(CachedCMakePackage, CudaPackage, ROCmPackage):
         "cxxstd",
         default="14",
         description="C++ language standard",
-        values=("99", "11", "14", "17"),
+        values=("14", "17"),
     )
 
     # Logging
@@ -181,7 +181,7 @@ class Sundials(CachedCMakePackage, CudaPackage, ROCmPackage):
     )
 
     # Scheduler
-    variant("scheduler", default="slurm", description="Specify which scheduler the system runs on.", values=("flux", "lsf", "slurm"))
+    variant("scheduler", default="default", description="Specify which scheduler the system runs on.", values=("flux", "lsf", "slurm", "default"))
 
     # ==========================================================================
     # Dependencies
@@ -764,7 +764,9 @@ class Sundials(CachedCMakePackage, CudaPackage, ROCmPackage):
                 self.cache_option_from_variant("RAJA_ENABLE", "raja"),
                 self.cache_option_from_variant("SUPERLUDIST_ENABLE", "superlu-dist"),
                 self.cache_option_from_variant("SUPERLUMT_ENABLE", "superlu-mt"),
-                self.cache_option_from_variant("Trilinos_ENABLE", "trilinos")
+                self.cache_option_from_variant("Trilinos_ENABLE", "trilinos"),
+                self.cache_option_from_variant("ENABLE_KOKKOS", "kokkos"),
+                self.cache_option_from_variant("ENABLE_KOKKOS_KERNELS", "kokkos-kernels")
             ]
         )
 
@@ -805,9 +807,9 @@ class Sundials(CachedCMakePackage, CudaPackage, ROCmPackage):
 
         # Building with Kokkos and KokkosKernels
         if "+kokkos" in spec:
-            entries.extend([self.cache_option_from_variant("Kokkos_DIR", spec["kokkos"].prefix)])
+            entries.extend([cmake_cache_path("Kokkos_DIR", spec["kokkos"].prefix)])
         if "+kokkos-kernels" in spec:
-            entries.extend([self.cache_option_from_variant("KokkosKernels_DIR", spec["kokkos-kernels"].prefix)])
+            entries.extend([cmake_cache_path("KokkosKernels_DIR", spec["kokkos-kernels"].prefix)])
 
         # Building with KLU
         if "+klu" in spec:
@@ -837,6 +839,11 @@ class Sundials(CachedCMakePackage, CudaPackage, ROCmPackage):
         if "+petsc" in spec:
             if spec.version >= Version("5"):
                 entries.append(cmake_cache_path("PETSC_DIR", spec["petsc"].prefix))
+                if "+kokkos" in spec["petsc"]:
+                    entries.extend([
+                        cmake_cache_path("Kokkos_DIR", spec["kokkos"].prefix),
+                        cmake_cache_path("KokkosKernels_DIR", spec["kokkos-kernels"].prefix)
+                    ])
             else:
                 entries.extend(
                     [

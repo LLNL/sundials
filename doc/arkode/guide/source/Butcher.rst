@@ -18,12 +18,13 @@
 Appendix: Butcher tables
 =========================
 
-Here we catalog the full set of Butcher tables included in ARKODE.
-We group these into three categories: *explicit*, *implicit* and
-*additive*.  However, since the methods that comprise an additive
-Runge--Kutta method are themselves explicit and implicit, their
-component Butcher tables are listed within their separate
-sections, but are referenced together in the additive section.
+Here we catalog the full set of Butcher tables included in ARKODE. We group
+these into four categories: *explicit*, *implicit*, *additive* and
+*symplectic partitioned*.
+However, since the methods that comprise an additive Runge--Kutta method are
+themselves explicit and implicit, their component Butcher tables are listed
+within their separate sections, but are referenced together in the additive
+section.
 
 In each of the following tables, we use the following notation (shown
 for a 3-stage method):
@@ -63,10 +64,13 @@ where here
 For methods without an embedding (e.g., fixed-step methods) ``P`` is omitted so
 that methods follow the naming convention ``NAME-S-Q``.
 
+For SPRK methods, the naming convention is ``SPRK-NAME-S-Q``.
+
 In the code, unique integer IDs are defined inside ``arkode_butcher_erk.h`` and
 ``arkode_butcher_dirk.h`` for each method, which may be used by calling routines
-to specify the desired method.  These names are specified in ``fixed width
-font`` at the start of each method's section below.
+to specify the desired method. SPRK methods are defined inside ``arkode_sprk.h``.
+These names are specified in ``fixed width font`` at the start of each method's
+section below.
 
 Additionally, for each method we provide a plot of the linear
 stability region in the complex plane.  These have been computed via
@@ -139,7 +143,7 @@ Explicit Butcher tables
 In the category of explicit Runge--Kutta methods, ARKODE includes
 methods that have orders 2 through 6, with embeddings that are of
 orders 1 through 5.  Each of ARKODE's explicit Butcher tables are
-specified via a unique ID:
+specified via a unique ID and name:
 
 .. c:enum:: ARKODE_ERKTableID
 
@@ -154,11 +158,11 @@ Heun-Euler-2-1-2
 .. index:: Heun-Euler-2-1-2 ERK method
 
 Accessible via the constant ``ARKODE_HEUN_EULER_2_1_2`` to
-:c:func:`ARKStepSetTableNum()`, :c:func:`ERKStepSetTableNum()` or
-:c:func:`ARKodeButcherTable_LoadERK()`.
+:c:func:`ARKStepSetTableNum`, :c:func:`ERKStepSetTableNum` or
+:c:func:`ARKodeButcherTable_LoadERK`.
 Accessible via the string ``"ARKODE_HEUN_EULER_2_1_2"`` to
-:c:func:`ARKStepSetTableName()`, :c:func:`ERKStepSetTableName()` or
-:c:func:`ARKodeButcherTable_LoadERKByName()`.
+:c:func:`ARKStepSetTableName`, :c:func:`ERKStepSetTableName` or
+:c:func:`ARKodeButcherTable_LoadERKByName`.
 This is the default 2nd order explicit method.
 
 .. math::
@@ -188,11 +192,11 @@ ARK2-ERK-3-1-2
 .. index:: ARK2-ERK-3-1-2
 
 Accessible via the constant ``ARKODE_ARK2_ERK_3_1_2`` to
-:c:func:`ARKStepSetTableNum()`, :c:func:`ERKStepSetTableNum()` or
-:c:func:`ARKodeButcherTable_LoadERK()`.
+:c:func:`ARKStepSetTableNum`, :c:func:`ERKStepSetTableNum` or
+:c:func:`ARKodeButcherTable_LoadERK`.
 Accessible via the string ``"ARKODE_ARK2_ERK_3_1_2"`` to
-:c:func:`ARKStepSetTableName()`, :c:func:`ERKStepSetTableName()` or
-:c:func:`ARKodeButcherTable_LoadERKByName()`.
+:c:func:`ARKStepSetTableName`, :c:func:`ERKStepSetTableName` or
+:c:func:`ARKodeButcherTable_LoadERKByName`.
 This is the explicit portion of the default 2nd order additive method (the
 explicit portion of the ARK2 method from :cite:p:`giraldo2013implicit`).
 
@@ -224,11 +228,11 @@ Bogacki-Shampine-4-2-3
 .. index:: Bogacki-Shampine-4-2-3 ERK method
 
 Accessible via the constant ``ARKODE_BOGACKI_SHAMPINE_4_2_3`` to
-:c:func:`ARKStepSetTableNum()`, :c:func:`ERKStepSetTableNum()` or
-:c:func:`ARKodeButcherTable_LoadERK()`.
+:c:func:`ARKStepSetTableNum`, :c:func:`ERKStepSetTableNum` or
+:c:func:`ARKodeButcherTable_LoadERK`.
 Accessible via the string ``"ARKODE_BOGACKI_SHAMPINE_4_2_3"`` to
-:c:func:`ARKStepSetTableName()`, :c:func:`ERKStepSetTableName()` or
-:c:func:`ARKodeButcherTable_LoadERKByName()`.
+:c:func:`ARKStepSetTableName`, :c:func:`ERKStepSetTableName` or
+:c:func:`ARKodeButcherTable_LoadERKByName`.
 This is the default 3rd order
 explicit method (from :cite:p:`Bogacki:89`).
 
@@ -263,11 +267,11 @@ ARK324L2SA-ERK-4-2-3
 .. index:: ARK324L2SA-ERK-4-2-3 method
 
 Accessible via the constant ``ARKODE_ARK324L2SA_ERK_4_2_3`` to
-:c:func:`ARKStepSetTableNum()`, :c:func:`ERKStepSetTableNum()` or
-:c:func:`ARKodeButcherTable_LoadERK()`.
+:c:func:`ARKStepSetTableNum`, :c:func:`ERKStepSetTableNum` or
+:c:func:`ARKodeButcherTable_LoadERK`.
 Accessible via the string ``"ARKODE_ARK324L2SA_ERK_4_2_3"`` to
-:c:func:`ARKStepSetTableName()`, :c:func:`ERKStepSetTableName()` or
-:c:func:`ARKodeButcherTable_LoadERKByName()`.
+:c:func:`ARKStepSetTableName`, :c:func:`ERKStepSetTableName` or
+:c:func:`ARKodeButcherTable_LoadERKByName`.
 This is the explicit portion of
 the default 3rd order additive method (the explicit portion of the ARK3(2)4L[2]SA
 method from :cite:p:`KenCarp:03`).
@@ -302,10 +306,10 @@ Knoth-Wolke-3-3
 .. index:: Knoth-Wolke-3-3 ERK method
 
 Accessible via the constant ``ARKODE_KNOTH_WOLKE_3_3`` to
-:c:func:`MRIStepSetMRITableNum()` or :c:func:`ARKodeButcherTable_LoadERK()`.
+:c:func:`MRIStepSetMRITableNum` or :c:func:`ARKodeButcherTable_LoadERK`.
 Accessible via the string ``"ARKODE_KNOTH_WOLKE_3_3"`` to
-:c:func:`ARKStepSetTableName()`, :c:func:`ERKStepSetTableName()` or
-:c:func:`ARKodeButcherTable_LoadERKByName()`.
+:c:func:`ARKStepSetTableName`, :c:func:`ERKStepSetTableName` or
+:c:func:`ARKodeButcherTable_LoadERKByName`.
 This is the default 3th order slow and fast MRIStep method (from
 :cite:p:`KnWo:98`).
 
@@ -336,11 +340,11 @@ Zonneveld-5-3-4
 .. index:: Zonneveld-5-3-4 ERK method
 
 Accessible via the constant ``ARKODE_ZONNEVELD_5_3_4`` to
-:c:func:`ARKStepSetTableNum()`, :c:func:`ERKStepSetTableNum()`
-or :c:func:`ARKodeButcherTable_LoadERK()`.
+:c:func:`ARKStepSetTableNum`, :c:func:`ERKStepSetTableNum`
+or :c:func:`ARKodeButcherTable_LoadERK`.
 Accessible via the string ``"ARKODE_ZONNEVELD_5_3_4"`` to
-:c:func:`ARKStepSetTableName()`, :c:func:`ERKStepSetTableName()` or
-:c:func:`ARKodeButcherTable_LoadERKByName()`.
+:c:func:`ARKStepSetTableName`, :c:func:`ERKStepSetTableName` or
+:c:func:`ARKodeButcherTable_LoadERKByName`.
 This is the default 4th order explicit method
 (from :cite:p:`Zon:63`).
 
@@ -377,11 +381,11 @@ ARK436L2SA-ERK-6-3-4
 .. index:: ARK436L2SA-ERK-6-3-4 method
 
 Accessible via the constant ``ARKODE_ARK436L2SA_ERK_6_3_4`` to
-:c:func:`ARKStepSetTableNum()`, :c:func:`ERKStepSetTableNum()`
-or :c:func:`ARKodeButcherTable_LoadERK()`.
+:c:func:`ARKStepSetTableNum`, :c:func:`ERKStepSetTableNum`
+or :c:func:`ARKodeButcherTable_LoadERK`.
 Accessible via the string ``"ARKODE_ARK436L2SA_ERK_6_3_4"`` to
-:c:func:`ARKStepSetTableName()`, :c:func:`ERKStepSetTableName()` or
-:c:func:`ARKodeButcherTable_LoadERKByName()`.
+:c:func:`ARKStepSetTableName`, :c:func:`ERKStepSetTableName` or
+:c:func:`ARKodeButcherTable_LoadERKByName`.
 This is the explicit portion of the default 4th order additive method (the
 explicit portion of the ARK4(3)6L[2]SA method from :cite:p:`KenCarp:03`).
 
@@ -418,11 +422,11 @@ ARK437L2SA-ERK-7-3-4
 .. index:: ARK437L2SA-ERK-7-3-4 method
 
 Accessible via the constant ``ARKODE_ARK437L2SA_ERK_7_3_4`` to
-:c:func:`ARKStepSetTableNum()`, :c:func:`ERKStepSetTableNum()`
-or :c:func:`ARKodeButcherTable_LoadERK()`.
+:c:func:`ARKStepSetTableNum`, :c:func:`ERKStepSetTableNum`
+or :c:func:`ARKodeButcherTable_LoadERK`.
 Accessible via the string ``"ARKODE_ARK437L2SA_ERK_7_3_4"`` to
-:c:func:`ARKStepSetTableName()`, :c:func:`ERKStepSetTableName()` or
-:c:func:`ARKodeButcherTable_LoadERKByName()`.
+:c:func:`ARKStepSetTableName`, :c:func:`ERKStepSetTableName` or
+:c:func:`ARKodeButcherTable_LoadERKByName`.
 This is the explicit portion of the 4th order additive method (the explicit
 portion of the ARK4(3)7L[2]SA method from :cite:p:`KenCarp:19`).
 
@@ -460,11 +464,11 @@ Sayfy-Aburub-6-3-4
 .. index:: Sayfy-Aburub-6-3-4 ERK method
 
 Accessible via the constant ``ARKODE_SAYFY_ABURUB_6_3_4`` to
-:c:func:`ARKStepSetTableNum()`, :c:func:`ERKStepSetTableNum()`
-or :c:func:`ARKodeButcherTable_LoadERK()`.
+:c:func:`ARKStepSetTableNum`, :c:func:`ERKStepSetTableNum`
+or :c:func:`ARKodeButcherTable_LoadERK`.
 Accessible via the string ``"ARKODE_SAYFY_ABURUB_6_3_4"`` to
-:c:func:`ARKStepSetTableName()`, :c:func:`ERKStepSetTableName()` or
-:c:func:`ARKodeButcherTable_LoadERKByName()`.
+:c:func:`ARKStepSetTableName`, :c:func:`ERKStepSetTableName` or
+:c:func:`ARKodeButcherTable_LoadERKByName`.
 (from :cite:p:`Sayfy:02`).
 
 .. math::
@@ -501,11 +505,11 @@ Cash-Karp-6-4-5
 .. index:: Cash-Karp-6-4-5 ERK method
 
 Accessible via the constant ``ARKODE_CASH_KARP_6_4_5`` to
-:c:func:`ARKStepSetTableNum()`, :c:func:`ERKStepSetTableNum()`
-or :c:func:`ARKodeButcherTable_LoadERK()`.
+:c:func:`ARKStepSetTableNum`, :c:func:`ERKStepSetTableNum`
+or :c:func:`ARKodeButcherTable_LoadERK`.
 Accessible via the string ``"ARKODE_CASH_KARP_6_4_5"`` to
-:c:func:`ARKStepSetTableName()`, :c:func:`ERKStepSetTableName()` or
-:c:func:`ARKodeButcherTable_LoadERKByName()`.
+:c:func:`ARKStepSetTableName`, :c:func:`ERKStepSetTableName` or
+:c:func:`ARKodeButcherTable_LoadERKByName`.
 This is the default 5th order explicit method (from :cite:p:`CashKarp:90`).
 
 .. math::
@@ -544,11 +548,11 @@ Fehlberg-6-4-5
 .. index:: Fehlberg-6-4-5 ERK method
 
 Accessible via the constant ``ARKODE_FEHLBERG_6_4_5`` to
-:c:func:`ARKStepSetTableNum()`, :c:func:`ERKStepSetTableNum()`
-or :c:func:`ARKodeButcherTable_LoadERK()`.
+:c:func:`ARKStepSetTableNum`, :c:func:`ERKStepSetTableNum`
+or :c:func:`ARKodeButcherTable_LoadERK`.
 Accessible via the string ``"ARKODE_FEHLBERG_6_4_5"`` to
-:c:func:`ARKStepSetTableName()`, :c:func:`ERKStepSetTableName()` or
-:c:func:`ARKodeButcherTable_LoadERKByName()`.
+:c:func:`ARKStepSetTableName`, :c:func:`ERKStepSetTableName` or
+:c:func:`ARKodeButcherTable_LoadERKByName`.
 (from :cite:p:`Fehlberg:69`).
 
 .. math::
@@ -585,11 +589,11 @@ Dormand-Prince-7-4-5
 .. index:: Dormand-Prince-7-4-5 ERK method
 
 Accessible via the constant ``ARKODE_DORMAND_PRINCE_7_4_5`` to
-:c:func:`ARKStepSetTableNum()`, :c:func:`ERKStepSetTableNum()`
-or :c:func:`ARKodeButcherTable_LoadERK()`.
+:c:func:`ARKStepSetTableNum`, :c:func:`ERKStepSetTableNum`
+or :c:func:`ARKodeButcherTable_LoadERK`.
 Accessible via the string ``"ARKODE_DORMAND_PRINCE_7_4_5"`` to
-:c:func:`ARKStepSetTableName()`, :c:func:`ERKStepSetTableName()` or
-:c:func:`ARKodeButcherTable_LoadERKByName()`.
+:c:func:`ARKStepSetTableName`, :c:func:`ERKStepSetTableName` or
+:c:func:`ARKodeButcherTable_LoadERKByName`.
 (from :cite:p:`DorPri:80`).
 
 .. math::
@@ -627,11 +631,11 @@ ARK548L2SA-ERK-8-4-5
 .. index:: ARK548L2SA-ERK-8-4-5 method
 
 Accessible via the constant ``ARKODE_ARK548L2SA_ERK_8_4_5`` to
-:c:func:`ARKStepSetTableNum()`, :c:func:`ERKStepSetTableNum()`
-or :c:func:`ARKodeButcherTable_LoadERK()`.
+:c:func:`ARKStepSetTableNum`, :c:func:`ERKStepSetTableNum`
+or :c:func:`ARKodeButcherTable_LoadERK`.
 Accessible via the string ``"ARKODE_ARK548L2SA_ERK_8_4_5"`` to
-:c:func:`ARKStepSetTableName()`, :c:func:`ERKStepSetTableName()` or
-:c:func:`ARKodeButcherTable_LoadERKByName()`.
+:c:func:`ARKStepSetTableName`, :c:func:`ERKStepSetTableName` or
+:c:func:`ARKodeButcherTable_LoadERKByName`.
 This is the explicit portion of the default 5th order additive method (the
 explicit portion of the ARK5(4)8L[2]SA method from :cite:p:`KenCarp:03`).
 
@@ -672,11 +676,11 @@ ARK548L2SAb-ERK-8-4-5
 .. index:: ARK548L2SAb-ERK-8-4-5 method
 
 Accessible via the constant ``ARKODE_ARK548L2SAb_ERK_8_4_5`` to
-:c:func:`ARKStepSetTableNum()`, :c:func:`ERKStepSetTableNum()`
-or :c:func:`ARKodeButcherTable_LoadERK()`.
+:c:func:`ARKStepSetTableNum`, :c:func:`ERKStepSetTableNum`
+or :c:func:`ARKodeButcherTable_LoadERK`.
 Accessible via the string ``"ARKODE_ARK548L2SAb_ERK_8_4_5"`` to
-:c:func:`ARKStepSetTableName()`, :c:func:`ERKStepSetTableName()` or
-:c:func:`ARKodeButcherTable_LoadERKByName()`.
+:c:func:`ARKStepSetTableName`, :c:func:`ERKStepSetTableName` or
+:c:func:`ARKodeButcherTable_LoadERKByName`.
 This is the explicit portion of the 5th order ARK5(4)8L[2]SA method from
 :cite:p:`KenCarp:19`.
 
@@ -716,11 +720,11 @@ Verner-8-5-6
 .. index:: Verner-8-5-6 ERK method
 
 Accessible via the constant ``ARKODE_VERNER_8_5_6`` to
-:c:func:`ARKStepSetTableNum()`, :c:func:`ERKStepSetTableNum()`
-or :c:func:`ARKodeButcherTable_LoadERK()`.
+:c:func:`ARKStepSetTableNum`, :c:func:`ERKStepSetTableNum`
+or :c:func:`ARKodeButcherTable_LoadERK`.
 Accessible via the string ``"ARKODE_VERNER_8_5_6"`` to
-:c:func:`ARKStepSetTableName()`, :c:func:`ERKStepSetTableName()` or
-:c:func:`ARKodeButcherTable_LoadERKByName()`.
+:c:func:`ARKStepSetTableName`, :c:func:`ERKStepSetTableName` or
+:c:func:`ARKodeButcherTable_LoadERKByName`.
 This is the default 6th order explicit method (from :cite:p:`Ver:78`).
 
 .. math::
@@ -757,11 +761,11 @@ Fehlberg-13-7-8
 .. index:: Fehlberg-13-7-8 ERK method
 
 Accessible via the constant ``ARKODE_FEHLBERG_13_7_8`` to
-:c:func:`ARKStepSetTableNum()`, :c:func:`ERKStepSetTableNum()`
-or :c:func:`ARKodeButcherTable_LoadERK()`.
+:c:func:`ARKStepSetTableNum`, :c:func:`ERKStepSetTableNum`
+or :c:func:`ARKodeButcherTable_LoadERK`.
 Accessible via the string ``"ARKODE_FEHLBERG_13_7_8"`` to
-:c:func:`ARKStepSetTableName()`, :c:func:`ERKStepSetTableName()` or
-:c:func:`ARKodeButcherTable_LoadERKByName()`.
+:c:func:`ARKStepSetTableName`, :c:func:`ERKStepSetTableName` or
+:c:func:`ARKodeButcherTable_LoadERKByName`.
 This is the default 8th order explicit method (from :cite:p:`Butcher:08`).
 
 .. math::
@@ -809,7 +813,7 @@ includes methods that have orders 2 through 5, with embeddings that are of
 orders 1 through 4.
 
 Each of ARKODE's diagonally-implicit Butcher tables are
-specified via a unique ID:
+specified via a unique ID and name:
 
 .. c:enum:: ARKODE_DIRKTableID
 
@@ -824,11 +828,11 @@ SDIRK-2-1-2
 .. index:: SDIRK-2-1-2 method
 
 Accessible via the constant ``ARKODE_SDIRK_2_1_2`` to
-:c:func:`ARKStepSetTableNum()` or
-:c:func:`ARKodeButcherTable_LoadDIRK()`.
+:c:func:`ARKStepSetTableNum` or
+:c:func:`ARKodeButcherTable_LoadDIRK`.
 Accessible via the string ``"ARKODE_SDIRK_2_1_2"`` to
-:c:func:`ARKStepSetTableName()` or
-:c:func:`ARKodeButcherTable_LoadDIRKByName()`.
+:c:func:`ARKStepSetTableName` or
+:c:func:`ARKodeButcherTable_LoadDIRKByName`.
 This is the default 2nd order implicit method.  Both the method and embedding
 are A- and B-stable.
 
@@ -859,11 +863,11 @@ ARK2-DIRK-3-1-2
 .. index:: ARK2-DIRK-3-1-2
 
 Accessible via the constant ``ARKODE_ARK2_DIRK_3_1_2`` to
-:c:func:`ARKStepSetTableNum()`, or
-:c:func:`ARKodeButcherTable_LoadDIRK()`.
+:c:func:`ARKStepSetTableNum`, or
+:c:func:`ARKodeButcherTable_LoadDIRK`.
 Accessible via the string ``"ARKODE_ARK2_DIRK_3_1_2"`` to
-:c:func:`ARKStepSetTableName()`, or
-:c:func:`ARKodeButcherTable_LoadDIRKByName()`.
+:c:func:`ARKStepSetTableName`, or
+:c:func:`ARKodeButcherTable_LoadDIRKByName`.
 This is the implicit portion of the default 2nd order additive method (the
 implicit portion of the ARK2 method from :cite:p:`giraldo2013implicit`).
 
@@ -895,11 +899,11 @@ Billington-3-3-2
 .. index:: Billington-3-3-2 SDIRK method
 
 Accessible via the constant ``ARKODE_BILLINGTON_3_3_2`` to
-:c:func:`ARKStepSetTableNum()` or
-:c:func:`ARKodeButcherTable_LoadDIRK()`.
+:c:func:`ARKStepSetTableNum` or
+:c:func:`ARKodeButcherTable_LoadDIRK`.
 Accessible via the string ``"ARKODE_BILLINGTON_3_3_2"`` to
-:c:func:`ARKStepSetTableName()` or
-:c:func:`ARKodeButcherTable_LoadDIRKByName()`.
+:c:func:`ARKStepSetTableName` or
+:c:func:`ARKodeButcherTable_LoadDIRKByName`.
 Here, the higher-order embedding is less stable than the lower-order method
 (from :cite:p:`Billington:83`).
 
@@ -935,11 +939,11 @@ TRBDF2-3-3-2
 .. index:: TRBDF2-3-3-2 ESDIRK method
 
 Accessible via the constant ``ARKODE_TRBDF2_3_3_2`` to
-:c:func:`ARKStepSetTableNum()` or
-:c:func:`ARKodeButcherTable_LoadDIRK()`.
+:c:func:`ARKStepSetTableNum` or
+:c:func:`ARKodeButcherTable_LoadDIRK`.
 Accessible via the string ``"ARKODE_TRBDF2_3_3_2"`` to
-:c:func:`ARKStepSetTableName()` or
-:c:func:`ARKodeButcherTable_LoadDIRKByName()`.
+:c:func:`ARKStepSetTableName` or
+:c:func:`ARKodeButcherTable_LoadDIRKByName`.
 As with Billington, here the higher-order embedding is less stable than the
 lower-order method (from :cite:p:`Bank:85`).
 
@@ -975,11 +979,11 @@ Kvaerno-4-2-3
 .. index:: Kvaerno-4-2-3 ESDIRK method
 
 Accessible via the constant ``ARKODE_KVAERNO_4_2_3`` to
-:c:func:`ARKStepSetTableNum()` or
-:c:func:`ARKodeButcherTable_LoadDIRK()`.
+:c:func:`ARKStepSetTableNum` or
+:c:func:`ARKodeButcherTable_LoadDIRK`.
 Accessible via the string ``"ARKODE_KVAERNO_4_2_3"`` to
-:c:func:`ARKStepSetTableName()` or
-:c:func:`ARKodeButcherTable_LoadDIRKByName()`.
+:c:func:`ARKStepSetTableName` or
+:c:func:`ARKodeButcherTable_LoadDIRKByName`.
 Both the method and embedding are A-stable; additionally the method is L-stable
 (from :cite:p:`Kva:04`).
 
@@ -1016,11 +1020,11 @@ ARK324L2SA-DIRK-4-2-3
 .. index:: ARK324L2SA-DIRK-4-2-3 method
 
 Accessible via the constant ``ARKODE_ARK324L2SA_DIRK_4_2_3`` to
-:c:func:`ARKStepSetTableNum()` or
-:c:func:`ARKodeButcherTable_LoadDIRK()`.
+:c:func:`ARKStepSetTableNum` or
+:c:func:`ARKodeButcherTable_LoadDIRK`.
 Accessible via the string ``"ARKODE_ARK324L2SA_DIRK_4_2_3"`` to
-:c:func:`ARKStepSetTableName()` or
-:c:func:`ARKodeButcherTable_LoadDIRKByName()`.
+:c:func:`ARKStepSetTableName` or
+:c:func:`ARKodeButcherTable_LoadDIRKByName`.
 This is the default 3rd order implicit method, and the implicit portion of the
 default 3rd order additive method.  Both the method and embedding are A-stable;
 additionally the method is L-stable (this is the implicit portion of the
@@ -1060,11 +1064,11 @@ Cash-5-2-4
 .. index:: Cash-5-2-4 SDIRK method
 
 Accessible via the constant ``ARKODE_CASH_5_2_4`` to
-:c:func:`ARKStepSetTableNum()` or
-:c:func:`ARKodeButcherTable_LoadDIRK()`.
+:c:func:`ARKStepSetTableNum` or
+:c:func:`ARKodeButcherTable_LoadDIRK`.
 Accessible via the string ``"ARKODE_CASH_5_2_4"`` to
-:c:func:`ARKStepSetTableName()` or
-:c:func:`ARKodeButcherTable_LoadDIRKByName()`.
+:c:func:`ARKStepSetTableName` or
+:c:func:`ARKodeButcherTable_LoadDIRKByName`.
 Both the method and embedding are A-stable; additionally the method is L-stable
 (from :cite:p:`Cash:79`).
 
@@ -1102,11 +1106,11 @@ Cash-5-3-4
 .. index:: Cash-5-3-4 SDIRK method
 
 Accessible via the constant ``ARKODE_CASH_5_3_4`` to
-:c:func:`ARKStepSetTableNum()` or
-:c:func:`ARKodeButcherTable_LoadDIRK()`.
+:c:func:`ARKStepSetTableNum` or
+:c:func:`ARKodeButcherTable_LoadDIRK`.
 Accessible via the string ``"ARKODE_CASH_5_3_4"`` to
-:c:func:`ARKStepSetTableName()` or
-:c:func:`ARKodeButcherTable_LoadDIRKByName()`.
+:c:func:`ARKStepSetTableName` or
+:c:func:`ARKodeButcherTable_LoadDIRKByName`.
 Both the method and embedding are A-stable; additionally the method is L-stable
 (from :cite:p:`Cash:79`).
 
@@ -1143,11 +1147,11 @@ SDIRK-5-3-4
 .. index:: SDIRK-5-3-4 method
 
 Accessible via the constant ``ARKODE_SDIRK_5_3_4`` to
-:c:func:`ARKStepSetTableNum()` or
-:c:func:`ARKodeButcherTable_LoadDIRK()`.
+:c:func:`ARKStepSetTableNum` or
+:c:func:`ARKodeButcherTable_LoadDIRK`.
 Accessible via the string ``"ARKODE_SDIRK_5_3_4"`` to
-:c:func:`ARKStepSetTableName()` or
-:c:func:`ARKodeButcherTable_LoadDIRKByName()`.
+:c:func:`ARKStepSetTableName` or
+:c:func:`ARKodeButcherTable_LoadDIRKByName`.
 This is the default 4th order implicit method.  Here, the method is both A- and
 L-stable, although the embedding has reduced stability
 (from :cite:p:`HaWa:91`).
@@ -1188,11 +1192,11 @@ Kvaerno-5-3-4
 .. index:: Kvaerno-5-3-4 ESDIRK method
 
 Accessible via the constant ``ARKODE_KVAERNO_5_3_4`` to
-:c:func:`ARKStepSetTableNum()` or
-:c:func:`ARKodeButcherTable_LoadDIRK()`.
+:c:func:`ARKStepSetTableNum` or
+:c:func:`ARKodeButcherTable_LoadDIRK`.
 Accessible via the string ``"ARKODE_KVAERNO_5_3_4"`` to
-:c:func:`ARKStepSetTableName()` or
-:c:func:`ARKodeButcherTable_LoadDIRKByName()`.
+:c:func:`ARKStepSetTableName` or
+:c:func:`ARKodeButcherTable_LoadDIRKByName`.
 Both the method and embedding are A-stable (from :cite:p:`Kva:04`).
 
 .. math::
@@ -1229,11 +1233,11 @@ ARK436L2SA-DIRK-6-3-4
 .. index:: ARK436L2SA-DIRK-6-3-4 method
 
 Accessible via the constant ``ARKODE_ARK436L2SA_DIRK_6_3_4`` to
-:c:func:`ARKStepSetTableNum()` or
-:c:func:`ARKodeButcherTable_LoadDIRK()`.
+:c:func:`ARKStepSetTableNum` or
+:c:func:`ARKodeButcherTable_LoadDIRK`.
 Accessible via the string ``"ARKODE_ARK436L2SA_DIRK_6_3_4"`` to
-:c:func:`ARKStepSetTableName()` or
-:c:func:`ARKodeButcherTable_LoadDIRKByName()`.
+:c:func:`ARKStepSetTableName` or
+:c:func:`ARKodeButcherTable_LoadDIRKByName`.
 This is the implicit portion of the default 4th order additive method. Both the
 method and embedding are A-stable; additionally the method is L-stable (this is
 the implicit portion of the ARK4(3)6L[2]SA method from :cite:p:`KenCarp:03`).
@@ -1273,11 +1277,11 @@ ARK437L2SA-DIRK-7-3-4
 .. index:: ARK437L2SA-DIRK-7-3-4 method
 
 Accessible via the constant ``ARKODE_ARK437L2SA_DIRK_7_3_4`` to
-:c:func:`ARKStepSetTableNum()` or
-:c:func:`ARKodeButcherTable_LoadDIRK()`.
+:c:func:`ARKStepSetTableNum` or
+:c:func:`ARKodeButcherTable_LoadDIRK`.
 Accessible via the string ``"ARKODE_ARK437L2SA_DIRK_7_3_4"`` to
-:c:func:`ARKStepSetTableName()` or
-:c:func:`ARKodeButcherTable_LoadDIRKByName()`.
+:c:func:`ARKStepSetTableName` or
+:c:func:`ARKodeButcherTable_LoadDIRKByName`.
 This is the implicit portion of the 4th order ARK4(3)7L[2]SA method from
 :cite:p:`KenCarp:19`.  Both the method and embedding are A- and L-stable.
 
@@ -1317,11 +1321,11 @@ Kvaerno-7-4-5
 .. index:: Kvaerno-7-4-5 ESDIRK method
 
 Accessible via the constant ``ARKODE_KVAERNO_7_4_5`` to
-:c:func:`ARKStepSetTableNum()` or
-:c:func:`ARKodeButcherTable_LoadDIRK()`.
+:c:func:`ARKStepSetTableNum` or
+:c:func:`ARKodeButcherTable_LoadDIRK`.
 Accessible via the string ``"ARKODE_KVAERNO_7_4_5"`` to
-:c:func:`ARKStepSetTableName()` or
-:c:func:`ARKodeButcherTable_LoadDIRKByName()`.
+:c:func:`ARKStepSetTableName` or
+:c:func:`ARKodeButcherTable_LoadDIRKByName`.
 Both the method and embedding are A-stable; additionally the method is
 L-stable (from :cite:p:`Kva:04`).
 
@@ -1362,11 +1366,11 @@ ARK548L2SA-ESDIRK-8-4-5
 .. index:: ARK548L2SA-ESDIRK-8-4-5 method
 
 Accessible via the constant ``ARKODE_ARK548L2SA_DIRK_8_4_5`` for
-:c:func:`ARKStepSetTableNum()` or
-:c:func:`ARKodeButcherTable_LoadDIRK()`.
+:c:func:`ARKStepSetTableNum` or
+:c:func:`ARKodeButcherTable_LoadDIRK`.
 Accessible via the string ``"ARKODE_ARK548L2SA_DIRK_8_4_5"`` to
-:c:func:`ARKStepSetTableName()` or
-:c:func:`ARKodeButcherTable_LoadDIRKByName()`.
+:c:func:`ARKStepSetTableName` or
+:c:func:`ARKodeButcherTable_LoadDIRKByName`.
 This is the default 5th order implicit method, and the implicit portion of the
 default 5th order additive method.  Both the method and embedding are A-stable;
 additionally the method is L-stable (the implicit portion of the ARK5(4)8L[2]SA
@@ -1407,11 +1411,11 @@ ARK548L2SAb-DIRK-8-4-5
 .. index:: ARK548L2SAb-DIRK-8-4-5 method
 
 Accessible via the constant ``ARKODE_ARK548L2SAb_DIRK_8_4_5`` for
-:c:func:`ARKStepSetTableNum()` or
-:c:func:`ARKodeButcherTable_LoadDIRK()`.
+:c:func:`ARKStepSetTableNum` or
+:c:func:`ARKodeButcherTable_LoadDIRK`.
 Accessible via the string ``"ARKODE_ARK548L2SAb_DIRK_8_4_5"`` to
-:c:func:`ARKStepSetTableName()` or
-:c:func:`ARKodeButcherTable_LoadDIRKByName()`.
+:c:func:`ARKStepSetTableName` or
+:c:func:`ARKodeButcherTable_LoadDIRKByName`.
 Both the method and embedding are A-stable; additionally the method is L-stable
 (this is the implicit portion of the 5th order ARK5(4)8L[2]SA method from
 :cite:p:`KenCarp:19`).
@@ -1451,10 +1455,10 @@ ESDIRK324L2SA-4-2-3
 .. index:: ESDIRK324L2SA-4-2-3 method
 
 Accessible via the constant ``ARKODE_ESDIRK324L2SA_4_2_3`` to
-:c:func:`ARKStepSetTableNum()` or :c:func:`ARKodeButcherTable_LoadDIRK()`.
+:c:func:`ARKStepSetTableNum` or :c:func:`ARKodeButcherTable_LoadDIRK`.
 Accessible via the string ``"ARKODE_ESDIRK324L2SA_4_2_3"`` to
-:c:func:`ARKStepSetTableName()` or
-:c:func:`ARKodeButcherTable_LoadDIRKByName()`.
+:c:func:`ARKStepSetTableName` or
+:c:func:`ARKodeButcherTable_LoadDIRKByName`.
 This is the ESDIRK3(2)4L[2]SA method from :cite:p:`KenCarp:19b`.
 Both the method and embedding are A- and L-stable.
 
@@ -1475,10 +1479,10 @@ ESDIRK325L2SA-5-2-3
 .. index:: ESDIRK325L2SA-5-2-3 method
 
 Accessible via the constant ``ARKODE_ESDIRK325L2SA_5_2_3`` to
-:c:func:`ARKStepSetTableNum()` or :c:func:`ARKodeButcherTable_LoadDIRK()`.
+:c:func:`ARKStepSetTableNum` or :c:func:`ARKodeButcherTable_LoadDIRK`.
 Accessible via the string ``"ARKODE_ESDIRK325L2SA_5_2_3"`` to
-:c:func:`ARKStepSetTableName()` or
-:c:func:`ARKodeButcherTable_LoadDIRKByName()`.
+:c:func:`ARKStepSetTableName` or
+:c:func:`ARKodeButcherTable_LoadDIRKByName`.
 This is the ESDIRK3(2)5L[2]SA method from :cite:p:`KenCarp:16`.
 Both the method and embedding are A- and L-stable.
 
@@ -1499,10 +1503,10 @@ ESDIRK32I5L2SA-5-2-3
 .. index:: ESDIRK32I5L2SA-5-2-3 method
 
 Accessible via the constant ``ARKODE_ESDIRK32I5L2SA_5_2_3`` to
-:c:func:`ARKStepSetTableNum()` or :c:func:`ARKodeButcherTable_LoadDIRK()`.
+:c:func:`ARKStepSetTableNum` or :c:func:`ARKodeButcherTable_LoadDIRK`.
 Accessible via the string ``"ARKODE_ESDIRK32I5L2SA_5_2_3"`` to
-:c:func:`ARKStepSetTableName()` or
-:c:func:`ARKodeButcherTable_LoadDIRKByName()`.
+:c:func:`ARKStepSetTableName` or
+:c:func:`ARKodeButcherTable_LoadDIRKByName`.
 This is the ESDIRK3(2I)5L[2]SA method from :cite:p:`KenCarp:16`.
 Both the method and embedding are A- and L-stable.
 
@@ -1522,10 +1526,10 @@ ESDIRK436L2SA-6-3-4
 .. index:: ESDIRK436L2SA-6-3-4 method
 
 Accessible via the constant ``ARKODE_ESDIRK436L2SA_6_3_4`` to
-:c:func:`ARKStepSetTableNum()` or :c:func:`ARKodeButcherTable_LoadDIRK()`.
+:c:func:`ARKStepSetTableNum` or :c:func:`ARKodeButcherTable_LoadDIRK`.
 Accessible via the string ``"ARKODE_ESDIRK436L2SA_6_3_4"`` to
-:c:func:`ARKStepSetTableName()` or
-:c:func:`ARKodeButcherTable_LoadDIRKByName()`.
+:c:func:`ARKStepSetTableName` or
+:c:func:`ARKodeButcherTable_LoadDIRKByName`.
 This is the ESDIRK4(3)6L[2]SA method from :cite:p:`KenCarp:16`.
 Both the method and embedding are A- and L-stable.
 
@@ -1545,10 +1549,10 @@ ESDIRK43I6L2SA-6-3-4
 .. index:: ESDIRK43I6L2SA-6-3-4 method
 
 Accessible via the constant ``ARKODE_ESDIRK43I6L2SA_6_3_4`` to
-:c:func:`ARKStepSetTableNum()` or :c:func:`ARKodeButcherTable_LoadDIRK()`.
+:c:func:`ARKStepSetTableNum` or :c:func:`ARKodeButcherTable_LoadDIRK`.
 Accessible via the string ``"ARKODE_ESDIRK43I6L2SA_6_3_4"`` to
-:c:func:`ARKStepSetTableName()` or
-:c:func:`ARKodeButcherTable_LoadDIRKByName()`.
+:c:func:`ARKStepSetTableName` or
+:c:func:`ARKodeButcherTable_LoadDIRKByName`.
 This is the ESDIRK4(3I)6L[2]SA method from :cite:p:`KenCarp:16`.
 Both the method and embedding are A- and L-stable.
 
@@ -1568,10 +1572,10 @@ QESDIRK436L2SA-6-3-4
 .. index:: QESDIRK436L2SA-6-3-4 method
 
 Accessible via the constant ``ARKODE_QESDIRK436L2SA_6_3_4`` to
-:c:func:`ARKStepSetTableNum()` or :c:func:`ARKodeButcherTable_LoadDIRK()`.
+:c:func:`ARKStepSetTableNum` or :c:func:`ARKodeButcherTable_LoadDIRK`.
 Accessible via the string ``"ARKODE_QESDIRK436L2SA_6_3_4"`` to
-:c:func:`ARKStepSetTableName()` or
-:c:func:`ARKodeButcherTable_LoadDIRKByName()`.
+:c:func:`ARKStepSetTableName` or
+:c:func:`ARKodeButcherTable_LoadDIRKByName`.
 This is the QESDIRK4(3)6L[2]SA method from :cite:p:`KenCarp:16`.
 Both the method and embedding are A- and L-stable.
 
@@ -1591,10 +1595,10 @@ ESDIRK437L2SA-7-3-4
 .. index:: ESDIRK437L2SA-7-3-4 method
 
 Accessible via the constant ``ARKODE_ESDIRK437L2SA_7_3_4`` to
-:c:func:`ARKStepSetTableNum()` or :c:func:`ARKodeButcherTable_LoadDIRK()`.
+:c:func:`ARKStepSetTableNum` or :c:func:`ARKodeButcherTable_LoadDIRK`.
 Accessible via the string ``"ARKODE_ESDIRK437L2SA_7_3_4"`` to
-:c:func:`ARKStepSetTableName()` or
-:c:func:`ARKodeButcherTable_LoadDIRKByName()`.
+:c:func:`ARKStepSetTableName` or
+:c:func:`ARKodeButcherTable_LoadDIRKByName`.
 This is the ESDIRK4(3)7L[2]SA method from :cite:p:`KenCarp:19b`.
 Both the method and embedding are A- and L-stable.
 
@@ -1614,10 +1618,10 @@ ESDIRK547L2SA-7-4-5
 .. index:: ESDIRK547L2SA-7-4-5 method
 
 Accessible via the constant ``ARKODE_ESDIRK547L2SA_7_4_5`` to
-:c:func:`ARKStepSetTableNum()` or :c:func:`ARKodeButcherTable_LoadDIRK()`.
+:c:func:`ARKStepSetTableNum` or :c:func:`ARKodeButcherTable_LoadDIRK`.
 Accessible via the string ``"ARKODE_ESDIRK547L2SA_7_4_5"`` to
-:c:func:`ARKStepSetTableName()` or
-:c:func:`ARKodeButcherTable_LoadDIRKByName()`.
+:c:func:`ARKStepSetTableName` or
+:c:func:`ARKodeButcherTable_LoadDIRKByName`.
 This is the ESDIRK5(4)7L[2]SA method from :cite:p:`KenCarp:16`.
 Both the method and embedding are A- and L-stable.
 
@@ -1637,10 +1641,10 @@ ESDIRK547L2SA2-7-4-5
 .. index:: ESDIRK547L2SA2-7-4-5 method
 
 Accessible via the constant ``ARKODE_ESDIRK547L2SA2_7_4_5`` to
-:c:func:`ARKStepSetTableNum()` or :c:func:`ARKodeButcherTable_LoadDIRK()`.
+:c:func:`ARKStepSetTableNum` or :c:func:`ARKodeButcherTable_LoadDIRK`.
 Accessible via the string ``"ARKODE_ESDIRK547L2SA2_7_4_5"`` to
-:c:func:`ARKStepSetTableName()` or
-:c:func:`ARKodeButcherTable_LoadDIRKByName()`.
+:c:func:`ARKStepSetTableName` or
+:c:func:`ARKodeButcherTable_LoadDIRKByName`.
 This is the ESDIRK5(4)7L[2]SA2 method from :cite:p:`KenCarp:19b`.
 Both the method and embedding are A- and L-stable.
 
@@ -1667,35 +1671,181 @@ Butcher table pairs are as follows:
 * :index:`2nd-order pair <ARK-3-1-2 ARK method>`:
   :numref:`Butcher.ARK2_ERK` with :numref:`Butcher.ARK2_DIRK`,
   corresponding to Butcher tables ``ARKODE_ARK2_ERK_3_1_2`` and
-  ``ARKODE_ARK2_DIRK_3_1_2`` for :c:func:`ARKStepSetTableNum()`
-  or :c:func:`ARKStepSetTableName()`.
+  ``ARKODE_ARK2_DIRK_3_1_2`` for :c:func:`ARKStepSetTableNum`
+  or :c:func:`ARKStepSetTableName`.
 
 * :index:`3rd-order pair <ARK-4-2-3 ARK method>`:
   :numref:`Butcher.ARK_4_2_3_E` with :numref:`Butcher.ARK_4_2_3_I`,
   corresponding to Butcher tables ``ARKODE_ARK324L2SA_ERK_4_2_3`` and
-  ``ARKODE_ARK324L2SA_DIRK_4_2_3`` for :c:func:`ARKStepSetTableNum()`
-  or :c:func:`ARKStepSetTableName()`.
+  ``ARKODE_ARK324L2SA_DIRK_4_2_3`` for :c:func:`ARKStepSetTableNum`
+  or :c:func:`ARKStepSetTableName`.
 
 * :index:`4th-order pair <ARK-6-3-4 ARK method>`:
   :numref:`Butcher.ARK_6_3_4_E` with :numref:`Butcher.ARK_6_3_4_I`,
   corresponding to Butcher tables ``ARKODE_ARK436L2SA_ERK_6_3_4`` and
-  ``ARKODE_ARK436L2SA_DIRK_6_3_4`` for :c:func:`ARKStepSetTableNum()`
-  or :c:func:`ARKStepSetTableName()`.
+  ``ARKODE_ARK436L2SA_DIRK_6_3_4`` for :c:func:`ARKStepSetTableNum`
+  or :c:func:`ARKStepSetTableName`.
 
 * :index:`4th-order pair <ARK-7-3-4 ARK method>`:
   :numref:`Butcher.ARK_7_3_4_E` with :numref:`Butcher.ARK_7_3_4_I`,
   corresponding to Butcher tables ``ARKODE_ARK437L2SA_ERK_7_3_4`` and
-  ``ARKODE_ARK437L2SA_DIRK_7_3_4`` for :c:func:`ARKStepSetTableNum()`
-  or :c:func:`ARKStepSetTableName()`.
+  ``ARKODE_ARK437L2SA_DIRK_7_3_4`` for :c:func:`ARKStepSetTableNum`
+  or :c:func:`ARKStepSetTableName`.
 
 * :index:`5th-order pair <ARK-8-4-5 ARK method>`:
   :numref:`Butcher.ARK_8_4_5_E` with :numref:`Butcher.ARK_8_4_5_I`,
   corresponding to Butcher tables ``ARKODE_ARK548L2SA_ERK_8_4_5`` and
-  ``ARKODE_ARK548L2SA_ERK_8_4_5`` for :c:func:`ARKStepSetTableNum()`
-  or :c:func:`ARKStepSetTableName()`.
+  ``ARKODE_ARK548L2SA_ERK_8_4_5`` for :c:func:`ARKStepSetTableNum`
+  or :c:func:`ARKStepSetTableName`.
 
 * :index:`5th-order pair <ARK-8-4-5b ARK method>`:
   :numref:`Butcher.ARK_8_4_5b_E` with :numref:`Butcher.ARK_8_4_5b_I`,
   corresponding to Butcher tables ``ARKODE_ARK548L2SAb_ERK_8_4_5`` and
-  ``ARKODE_ARK548L2SAb_ERK_8_4_5`` for :c:func:`ARKStepSetTableNum()`
-  or :c:func:`ARKStepSetTableName()`.
+  ``ARKODE_ARK548L2SAb_ERK_8_4_5`` for :c:func:`ARKStepSetTableNum`
+  or :c:func:`ARKStepSetTableName`.
+
+
+
+
+.. _Butcher.sprk:
+
+Symplectic Partitioned Butcher tables
+-------------------------------------
+
+In the category of symplectic partitioned Runge-Kutta (SPRK) methods, ARKODE
+includes methods that have orders :math:`q = \{1,2,3,4,5,6,8,10\}`. Each of
+the ARKODE SPRK tables are specified via a unique ID and name.
+
+
+ARKODE_SPRK_EULER_1_1
+^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+.. index:: 1st-order symplectic Euler method
+
+Accessible via the constant (or string) ``ARKODE_SPRK_EULER_1_1`` to
+:c:func:`ARKodeSPRKTable_Load` or :c:func:`ARKodeSPRKTable_LoadByName`.
+This is the classic Symplectic Euler method and the default 1st order method.
+
+
+ARKODE_SPRK_LEAPFROG_2_2
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+.. index:: 2nd-order Leapfrog method
+
+Accessible via the constant (or string) ``ARKODE_SPRK_LEAPFROG_2_2`` to
+:c:func:`ARKodeSPRKTable_Load` or :c:func:`ARKodeSPRKTable_LoadByName`.
+This is the classic Leapfrog/Verlet method and the default 2nd order method.
+
+
+ARKODE_SPRK_PSEUDO_LEAPFROG_2_2
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+.. index:: 2nd-order Pseudo Leapfrog method
+
+Accessible via the constant (or string) ``ARKODE_SPRK_PSEUDO_LEAPFROG_2_2`` to
+:c:func:`ARKodeSPRKTable_Load` or :c:func:`ARKodeSPRKTable_LoadByName`.
+This is the classic Pseudo Leapfrog/Verlet method.
+
+
+ARKODE_SPRK_MCLACHLAN_2_2
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+.. index:: 2nd-order McLachlan method
+
+Accessible via the constant (or string) ``ARKODE_SPRK_MCLACHLAN_2_2`` to
+:c:func:`ARKodeSPRKTable_Load` or :c:func:`ARKodeSPRKTable_LoadByName`.
+This is the 2nd order method given by McLachlan in :cite:p:`Mclachlan:92`.
+
+
+ARKODE_SPRK_RUTH_3_3
+^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+.. index:: 3rd-order Ruth method
+
+Accessible via the constant (or string) ``ARKODE_SPRK_RUTH_3_3`` to
+:c:func:`ARKodeSPRKTable_Load` or :c:func:`ARKodeSPRKTable_LoadByName`.
+This is the 3rd order method given by Ruth in :cite:p:`Ruth:93`.
+
+
+ARKODE_SPRK_MCLACHLAN_3_3
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+.. index:: 3rd-order McLachlan method
+
+Accessible via the constant (or string) ``ARKODE_SPRK_MCLACHLAN_3_3`` to
+:c:func:`ARKodeSPRKTable_Load` or :c:func:`ARKodeSPRKTable_LoadByName`.
+This is the 3rd order method given by McLachlan in :cite:p:`Mclachlan:92`
+and the default 3rd order method.
+
+
+ARKODE_SPRK_MCLACHLAN_4_4
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+.. index:: 4th-order McLachlan method
+
+Accessible via the constant (or string) ``ARKODE_SPRK_MCLACHLAN_4_4`` to
+:c:func:`ARKodeSPRKTable_Load` or :c:func:`ARKodeSPRKTable_LoadByName`.
+This is the 4th order method given by McLachlan in :cite:p:`Mclachlan:92`
+and the default 4th order method.
+
+.. warning::
+
+   This method only has coefficients sufficient for single or double precision.
+
+
+ARKODE_SPRK_CANDY_ROZMUS_4_4
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+.. index:: 4th-order Candy-Rozmus method
+
+Accessible via the constant (or string) ``ARKODE_SPRK_CANDY_ROZMUS_4_4`` to
+:c:func:`ARKodeSPRKTable_Load` or :c:func:`ARKodeSPRKTable_LoadByName`.
+This is the 4th order method given by Candy and Rozmus in :cite:p:`CandyRozmus:91`.
+
+
+ARKODE_SPRK_MCLACHLAN_5_6
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+.. index:: 5th-order McLachlan method
+
+Accessible via the constant (or string) ``ARKODE_SPRK_MCLACHLAN_5_6`` to
+:c:func:`ARKodeSPRKTable_Load` or :c:func:`ARKodeSPRKTable_LoadByName`.
+This is the 5th order method given by McLachlan in :cite:p:`Mclachlan:92`
+and the default 5th order method.
+
+.. warning::
+
+   This method only has coefficients sufficient for single or double precision.
+
+
+ARKODE_SPRK_YOSHIDA_6_8
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+.. index:: 6th-order Yoshida method
+
+Accessible via the constant (or string) ``ARKODE_SPRK_YOSHIDA_6_8`` to
+:c:func:`ARKodeSPRKTable_Load` or :c:func:`ARKodeSPRKTable_LoadByName`.
+This is the 6th order method given by Yoshida in :cite:p:`Yoshida:90`
+and the 6th order method.
+
+
+ARKODE_SPRK_SUZUKI_UMENO_8_16
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+.. index:: 8th-order Suzuki-Umeno method
+
+Accessible via the constant (or string) ``ARKODE_SPRK_SUZUKI_UMENO_8_16`` to
+:c:func:`ARKodeSPRKTable_Load` or :c:func:`ARKodeSPRKTable_LoadByName`.
+This is the 8th order method given by Suzuki and Umeno in :cite:p:`Suzuki:93`
+and the default 8th order method.
+
+
+ARKODE_SPRK_SOFRONIOU_10_36
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+.. index:: 10th-order Sofroniou-Spaletta method
+
+Accessible via the constant (or string) ``ARKODE_SPRK_SOFRONIOU_10_36`` to
+:c:func:`ARKodeSPRKTable_Load` or :c:func:`ARKodeSPRKTable_LoadByName`.
+This is the 10th order method given by Sofroniou and Spaletta in :cite:p:`Sofroniou:05`
+and the default 10th order method.
