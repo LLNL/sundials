@@ -461,7 +461,7 @@ int sprkStep_Init(void* arkode_mem, int init_type)
 
   /* Signal to shared arkode module that fullrhs is not required after each step
    */
-  ark_mem->call_fullrhs = SUNFALSE;
+  ark_mem->call_fullrhs_end = SUNFALSE;
 
   return (ARK_SUCCESS);
 }
