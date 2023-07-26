@@ -91,14 +91,18 @@
 #define YMIN         RCONST(30.0)         /* grid boundaries in y  */
 #define YMAX         RCONST(50.0)
 
-#define NPEX         2                    /* no. PEs in x direction of PE array */
-#define NPEY         2                    /* no. PEs in y direction of PE array */
-                                          /* Total no. PEs = NPEX*NPEY */
-#define MXSUB        5                    /* no. x points per subgrid */
-#define MYSUB        5                    /* no. y points per subgrid */
+/* TODO:
+ * User inputs: NPEX,NPEY,MX,MY
+ */
 
-#define MX           (NPEX*MXSUB)         /* MX = number of x mesh points */
-#define MY           (NPEY*MYSUB)         /* MY = number of y mesh points */
+// #define NPEX         2                    /* no. PEs in x direction of PE array */
+// #define NPEY         2                    /* no. PEs in y direction of PE array */
+//                                           /* Total no. PEs = NPEX*NPEY */
+// #define MXSUB        5                    /* no. x points per subgrid */
+// #define MYSUB        5                    /* no. y points per subgrid */
+
+// #define MX           (NPEX*MXSUB)         /* MX = number of x mesh points */
+// #define MY           (NPEY*MYSUB)         /* MY = number of y mesh points */
                                           /* Spatial mesh is MX by MY */
 
 /* initialization constants */
@@ -119,6 +123,13 @@
    arrays are indexed starting at 0, not 1. */
 #define IJth(a,i,j) (a[j-1][i-1])
 
+/* User-defined MPI assert macro */
+#define MPI_ASSERT(expr,msg,comm,myproc,code) \
+  if(!expr) {                                 \
+    if (myproc==0) printf(msg);               \
+    MPI_Abort(comm,code);                     \
+  }
+
 /* Type : UserData
    contains problem constants, preconditioner blocks, pivot arrays,
    grid constants, and processor indices, as well as data needed
@@ -127,31 +138,35 @@ typedef struct {
 
   realtype q4, om, dx, dy, hdco, haco, vdco;
   realtype uext[NVARS*(MXSUB+2)*(MYSUB+2)];
-  int my_pe, isubx, isuby;
+  int M, Mx, My, local_M, local_Mx, local_My; /* # of interior gridpoints M = Mx*My */
+  int N, local_N;                             /* # of equations N = 2*M             */
+  int nprocs, myproc, isubx, isuby;
   int nvmxsub, nvmxsub2;
   MPI_Comm comm;
 
   /* For preconditioner */
-  realtype **P[MXSUB][MYSUB], **Jbd[MXSUB][MYSUB];
-  sunindextype *pivot[MXSUB][MYSUB];
-
+  realtype ****P, ****Jbd;                    /* 2D arrays of 2D arrays of reals    */
+  sunindextype ***pivot;                      /* 2D arrays of 1D arrays of indices  */
+  // realtype **P[MXSUB][MYSUB], **Jbd[MXSUB][MYSUB]; /* 2D arrays of 2D arrays of reals    */
+  // sunindextype *pivot[MXSUB][MYSUB];               /* 2D arrays of 1D arrays of indices  */
 } *UserData;
 
 /* Private Helper Functions */
-static void InitUserData(int my_pe, MPI_Comm comm, UserData data);
+static void InitUserData(UserData data, MPI_Comm comm,
+                         int nprocsx, int nprocsy, int Mx, int My)
 static void FreeUserData(UserData data);
 static void SetInitialProfiles(HYPRE_IJVector Uij, UserData data,
                                sunindextype local_length,
                                sunindextype my_base);
-static void PrintOutput(void *arkode_mem, int my_pe, MPI_Comm comm,
+static void PrintOutput(void *arkode_mem, int myproc, MPI_Comm comm,
                         N_Vector u, realtype t);
 static void PrintFinalStats(void *arkode_mem);
 static void BSend(MPI_Comm comm,
-                  int my_pe, int isubx, int isuby,
+                  int myproc, int isubx, int isuby,
                   sunindextype dsizex, sunindextype dsizey,
                   realtype udata[]);
 static void BRecvPost(MPI_Comm comm, MPI_Request request[],
-                      int my_pe, int isubx, int isuby,
+                      int myproc, int isubx, int isuby,
                       sunindextype dsizex, sunindextype dsizey,
                       realtype uext[], realtype buffer[]);
 static void BRecvWait(MPI_Request request[],
@@ -180,62 +195,74 @@ static int check_flag(void *flagvalue, const char *funcname, int opt, int id);
 /***************************** Main Program ******************************/
 int main(int argc, char *argv[])
 {
-  SUNContext sunctx;
-  realtype abstol, reltol, t, tout;
-  N_Vector u;
-  UserData data;
-  SUNLinearSolver LS;
-  void *arkode_mem;
-  int iout, flag, my_pe, npes;
-  MPI_Comm comm;
+  int             iout, flag, myproc, nprocs, nprocsx, nprocsy, Mx, My;
+  void            *arkode_mem;
+  realtype        abstol, reltol, t, tout;
 
-  HYPRE_Int local_N;
+  UserData        data;
+  N_Vector        u;
+  SUNContext      sunctx;
+  SUNLinearSolver LS;
+
+  MPI_Comm        comm;
+  HYPRE_Int       local_M, local_Mx, local_My; /* # of interior gridpoints M = Mx*My */
   HYPRE_ParVector Upar; /* Declare HYPRE parallel vector */
   HYPRE_IJVector  Uij;  /* Declare "IJ" interface to HYPRE vector */
 
-  u = NULL;
-  data = NULL;
-  LS = NULL;
+  data       = NULL;
+  u          = NULL;
+  LS         = NULL;
   arkode_mem = NULL;
 
-  /* Get processor number and total number of pe's */
+  /* Get processor number and total number of proc's */
   MPI_Init(&argc, &argv);
   comm = MPI_COMM_WORLD;
-  MPI_Comm_size(comm, &npes);
-  MPI_Comm_rank(comm, &my_pe);
+  MPI_Comm_size(comm, &nprocs);
+  MPI_Comm_rank(comm, &myproc);
 
-  if (npes != NPEX*NPEY) {
-    if (my_pe == 0)
-      fprintf(stderr, "\nMPI_ERROR(0): npes = %d is not equal to NPEX*NPEY = %d\n\n",
-              npes,NPEX*NPEY);
-    MPI_Finalize();
-    return(1);
-  }
+  /* Parse inputs (required: nprocsx, nprocsy, Mx, My) */
+  MPI_ASSERT
+  (
+    argc>=5,
+    "ERROR: FOUR (4) inputs required:\n\
+     - nprocsx (# of procs in x)\n\
+     - nprocsy (# of procs in y)\n\
+     - Mx      (# of interior gridpoints in x)\n\
+     - My      (# of interior gridpoints in y)\n",
+    comm,myproc,1
+  )
+  nprocsx = atoi(argv[1]);
+  nprocsy = atoi(argv[2]);
+  Mx      = atoi(argv[3]);
+  My      = atoi(argv[4]);
+  MPI_ASSERT(nprocsx*nprocsy=nprocs,"ERROR: nprocsx*nprocsy =/= nprocs (Requested proc grid size does not equal available procs)\n",comm,myproc,1)
+  MPI_ASSERT(Mx>=nprocsx,"ERROR: Mx < nprocsx (We require at least one interior gridpoint per process)\n",comm,myproc,1)
+  MPI_ASSERT(My>=nprocsy,"ERROR: My < nprocsy (We require at least one interior gridpoint per process)\n",comm,myproc,1)
 
   /* Create the SUNDIALS context object for this simulation */
   flag = SUNContext_Create(&comm, &sunctx);
-  if (check_flag(&flag, "SUNContext_Create", 1, my_pe)) return 1;
+  if (check_flag(&flag, "SUNContext_Create", 1, myproc)) return 1;
 
   /* Set local length */
   local_N = NVARS*MXSUB*MYSUB;
 
   /* Allocate hypre vector */
-  HYPRE_IJVectorCreate(comm, my_pe*local_N, (my_pe + 1)*local_N - 1, &Uij);
+  HYPRE_IJVectorCreate(comm, myproc*local_N, (myproc + 1)*local_N - 1, &Uij);
   HYPRE_IJVectorSetObjectType(Uij, HYPRE_PARCSR);
   HYPRE_IJVectorInitialize(Uij);
 
   /* Allocate and load user data block; allocate preconditioner block */
   data = (UserData) malloc(sizeof *data);
-  if (check_flag((void *)data, "malloc", 2, my_pe)) MPI_Abort(comm, 1);
-  InitUserData(my_pe, comm, data);
+  if (check_flag((void *)data, "malloc", 2, myproc)) MPI_Abort(comm, 1);
+  InitUserData(myproc, comm, data);
 
   /* Set initial values and allocate u */
-  SetInitialProfiles(Uij, data, local_N, my_pe*local_N);
+  SetInitialProfiles(Uij, data, local_N, myproc*local_N);
   HYPRE_IJVectorAssemble(Uij);
   HYPRE_IJVectorGetObject(Uij, (void**) &Upar);
 
   u = N_VMake_ParHyp(Upar, sunctx);  /* Create wrapper u around hypre vector */
-  if (check_flag((void *)u, "N_VNew", 0, my_pe)) MPI_Abort(comm, 1);
+  if (check_flag((void *)u, "N_VNew", 0, myproc)) MPI_Abort(comm, 1);
 
   /* Set tolerances */
   abstol = ATOL; reltol = RTOL;
@@ -243,49 +270,49 @@ int main(int argc, char *argv[])
   /* Create SPGMR solver structure -- use left preconditioning
      and the default Krylov dimension maxl */
   LS = SUNLinSol_SPGMR(u, SUN_PREC_LEFT, 0, sunctx);
-  if (check_flag((void *)LS, "SUNLinSol_SPGMR", 0, my_pe)) MPI_Abort(comm, 1);
+  if (check_flag((void *)LS, "SUNLinSol_SPGMR", 0, myproc)) MPI_Abort(comm, 1);
 
   /* Call ARKStepCreate to initialize the integrator memory and specify the
      user's right hand side function in u'=fi(t,u) [here fe is NULL],
      the inital time T0, and the initial dependent variable vector u. */
   arkode_mem = ARKStepCreate(NULL, f, T0, u, sunctx);
-  if (check_flag((void *)arkode_mem, "ARKStepCreate", 0, my_pe)) MPI_Abort(comm, 1);
+  if (check_flag((void *)arkode_mem, "ARKStepCreate", 0, myproc)) MPI_Abort(comm, 1);
 
   /* Set the pointer to user-defined data */
   flag = ARKStepSetUserData(arkode_mem, data);
-  if (check_flag(&flag, "ARKStepSetUserData", 1, my_pe)) MPI_Abort(comm, 1);
+  if (check_flag(&flag, "ARKStepSetUserData", 1, myproc)) MPI_Abort(comm, 1);
 
   /* Call ARKStepSetMaxNumSteps to increase default */
   flag = ARKStepSetMaxNumSteps(arkode_mem, 10000);
-  if (check_flag(&flag, "ARKStepSetMaxNumSteps", 1, my_pe)) return(1);
+  if (check_flag(&flag, "ARKStepSetMaxNumSteps", 1, myproc)) return(1);
 
   /* Call ARKStepSStolerances to specify the scalar relative tolerance
      and scalar absolute tolerances */
   flag = ARKStepSStolerances(arkode_mem, reltol, abstol);
-  if (check_flag(&flag, "ARKStepSStolerances", 1, my_pe)) return(1);
+  if (check_flag(&flag, "ARKStepSStolerances", 1, myproc)) return(1);
 
   /* Attach SPGMR solver structure to ARKStep interface */
   flag = ARKStepSetLinearSolver(arkode_mem, LS, NULL);
-  if (check_flag(&flag, "ARKStepSetLinearSolver", 1, my_pe)) MPI_Abort(comm, 1);
+  if (check_flag(&flag, "ARKStepSetLinearSolver", 1, myproc)) MPI_Abort(comm, 1);
 
   /* Set preconditioner setup and solve routines Precond and PSolve,
      and the pointer to the user-defined block data */
   flag = ARKStepSetPreconditioner(arkode_mem, Precond, PSolve);
-  if (check_flag(&flag, "ARKStepSetPreconditioner", 1, my_pe)) MPI_Abort(comm, 1);
+  if (check_flag(&flag, "ARKStepSetPreconditioner", 1, myproc)) MPI_Abort(comm, 1);
 
   /* Print heading */
-  if (my_pe == 0)
+  if (myproc == 0)
     printf("\n2-species diurnal advection-diffusion problem\n\n");
 
   /* In loop over output points, call ARKStepEvolve, print results, test for error */
   for (iout=1, tout=TWOHR; iout<=NOUT; iout++, tout+=TWOHR) {
     flag = ARKStepEvolve(arkode_mem, tout, u, &t, ARK_NORMAL);
-    if (check_flag(&flag, "ARKStepEvolve", 1, my_pe)) break;
-    PrintOutput(arkode_mem, my_pe, comm, u, t);
+    if (check_flag(&flag, "ARKStepEvolve", 1, myproc)) break;
+    PrintOutput(arkode_mem, myproc, comm, u, t);
   }
 
   /* Print final statistics */
-  if (my_pe == 0) PrintFinalStats(arkode_mem);
+  if (myproc == 0) PrintFinalStats(arkode_mem);
 
   /* Free memory */
   N_VDestroy(u);              /* Free hypre vector wrapper */
@@ -302,38 +329,77 @@ int main(int argc, char *argv[])
 /*********************** Private Helper Functions ************************/
 
 /* Load constants in data */
-static void InitUserData(int my_pe, MPI_Comm comm, UserData data)
+static void InitUserData(UserData data, MPI_Comm comm,
+                         int nprocsx, int nprocsy, int Mx, int My)
 {
-  int isubx, isuby;
+  int nperprocx, nperprocy, nremx, nremy;
+  int p, px, py, pMx, pMy, pN;
   int lx, ly;
 
   /* Set problem constants */
-  data->om = PI/HALFDAY;
-  data->dx = (XMAX-XMIN)/((realtype)(MX-1));
-  data->dy = (YMAX-YMIN)/((realtype)(MY-1));
-  data->hdco = KH/SUNSQR(data->dx);
-  data->haco = VEL/(RCONST(2.0)*data->dx);
-  data->vdco = (RCONST(1.0)/SUNSQR(data->dy))*KV0;
+  data->om       = PI/HALFDAY;
+  data->dx       = (XMAX-XMIN)/((realtype)(MX-1));
+  data->dy       = (YMAX-YMIN)/((realtype)(MY-1));
+  data->hdco     = KH/SUNSQR(data->dx);
+  data->haco     = VEL/(RCONST(2.0)*data->dx);
+  data->vdco     = (RCONST(1.0)/SUNSQR(data->dy))*KV0;
 
   /* Set machine-related constants */
-  data->comm = comm;
-  data->my_pe = my_pe;
+  data->comm     = comm;
+  MPI_Comm_size(comm, &data->nprocs);
+  MPI_Comm_rank(comm, &data->myproc);
 
-  /* isubx and isuby are the PE grid indices corresponding to my_pe */
-  isuby = my_pe/NPEX;
-  isubx = my_pe - isuby*NPEX;
-  data->isubx = isubx;
-  data->isuby = isuby;
+  /* isubx and isuby are the proc grid indices corresponding to myproc */
+  // Note: grid indexed left to right (in x), bottom to top (in y)
+  data->isuby    = data->myproc / nprocsx;
+  data->isubx    = data->myproc - data->isuby*nprocsx;
+
+  /* Set partitioning (# of interior gridpoints M=Mx*My, # eqs N=2*M) */
+  data->Mx       = Mx;
+  data->My       = My;
+  data->M        = Mx*My;
+  data->N        = NVARS*data->M;
+  nperprocx      = Mx / nprocsx;
+  nremx          = Mx - nprocsx*nperprocx;
+  nperprocy      = My / nprocsy;
+  nremy          = My - nprocsy*nperprocy;
+  data->local_Mx = (data->isubx < nremx) ? nperprocx+1 : nperprocx;
+  data->local_My = (data->isuby < nremy) ? nperprocy+1 : nperprocy;
+  data->local_M  = data->local_Mx*data->local_My;
+  data->local_N  = NVARS*data->local_M;
+
+  /* Calculate equation offset (mybase) (see HYPRE_IJVectorCreate) */
+  data->mybase   = 0;
+  for (p = 0; p < myproc; p++) {
+    /* Get indices in proc grid of proc p */
+    py  = p / nprocsx;
+    px  = p - py*nprocsx;
+    /* Compute local_N of proc p */
+    pMx = (px < nremx) ? nperprocx+1 : nperprocx;
+    pMy = (py < nremy) ? nperprocy+1 : nperprocy;
+    pN  = NVARS*pMx*pMy;
+    /* Add to my equation offset */
+    data->mybase += pN;
+  }
+
+  // (data->myproc < nrem) ? data->myproc*data->local_M : data->myproc*nperproc + nrem;
 
   /* Set the sizes of a boundary x-line in u and uext */
-  data->nvmxsub = NVARS*MXSUB;
-  data->nvmxsub2 = NVARS*(MXSUB+2);
+  data->nvmxsub  = NVARS*data->local_Mx;
+  data->nvmxsub2 = NVARS*(data->local_Mx+2);
 
   /* Preconditioner-related fields */
-  for (lx = 0; lx < MXSUB; lx++) {
-    for (ly = 0; ly < MYSUB; ly++) {
-      (data->P)[lx][ly] = SUNDlsMat_newDenseMat(NVARS, NVARS);
-      (data->Jbd)[lx][ly] = SUNDlsMat_newDenseMat(NVARS, NVARS);
+  // Note: To each interior gridpoint, we associate two real matrices and one index array
+  data->P        = (realtype****)    malloc(data->local_Mx*sizeof(realtype***));
+  data->Jbd      = (realtype****)    malloc(data->local_Mx*sizeof(realtype***));
+  data->pivot    = (sunindextype***) malloc(data->local_Mx*sizeof(sunindextype**));
+  for (lx = 0; lx < data->local_Mx; lx++) {
+    data->P[lx]     = (realtype***)    malloc(data->local_My*sizeof(realtype**));
+    data->Jbd[lx]   = (realtype***)    malloc(data->local_My*sizeof(realtype**));
+    data->pivot[lx] = (sunindextype**) malloc(data->local_My*sizeof(sunindextype*));
+    for (ly = 0; ly < data->local_My; ly++) {
+      (data->P)[lx][ly]     = SUNDlsMat_newDenseMat(NVARS, NVARS);
+      (data->Jbd)[lx][ly]   = SUNDlsMat_newDenseMat(NVARS, NVARS);
       (data->pivot)[lx][ly] = SUNDlsMat_newIndexArray(NVARS);
     }
   }
@@ -349,7 +415,13 @@ static void FreeUserData(UserData data)
       SUNDlsMat_destroyMat((data->Jbd)[lx][ly]);
       SUNDlsMat_destroyArray((data->pivot)[lx][ly]);
     }
+    free(data->P[lx]);
+    free(data->Jbd[lx]);
+    free(data->pivot[lx]);
   }
+  free(data->P);
+  free(data->Jbd);
+  free(data->pivot);
   free(data);
 }
 
@@ -369,7 +441,7 @@ static void SetInitialProfiles(HYPRE_IJVector Uij, UserData data,
   iglobal = (HYPRE_Int*) malloc(local_length*sizeof(HYPRE_Int));
 
 
-  /* Get mesh spacings, and subgrid indices for this PE */
+  /* Get mesh spacings, and subgrid indices for this proc */
   dx = data->dx;         dy = data->dy;
   isubx = data->isubx;   isuby = data->isuby;
 
@@ -401,7 +473,7 @@ static void SetInitialProfiles(HYPRE_IJVector Uij, UserData data,
 }
 
 /* Print current t, step count, order, stepsize, and sampled c1,c2 values */
-static void PrintOutput(void *arkode_mem, int my_pe, MPI_Comm comm,
+static void PrintOutput(void *arkode_mem, int myproc, MPI_Comm comm,
                         N_Vector u, realtype t)
 {
   int flag;
@@ -417,8 +489,8 @@ static void PrintOutput(void *arkode_mem, int my_pe, MPI_Comm comm,
   uhyp  = N_VGetVector_ParHyp(u);
   udata = hypre_VectorData(hypre_ParVectorLocalVector(uhyp));
 
-  /* Send c1,c2 at top right mesh point to PE 0 */
-  if (my_pe == npelast) {
+  /* Send c1,c2 at top right mesh point to proc 0 */
+  if (myproc == npelast) {
     i0 = NVARS*MXSUB*MYSUB - 2;
     i1 = i0 + 1;
     if (npelast != 0)
@@ -429,15 +501,15 @@ static void PrintOutput(void *arkode_mem, int my_pe, MPI_Comm comm,
     }
   }
 
-  /* On PE 0, receive c1,c2 at top right, then print performance data
+  /* On proc 0, receive c1,c2 at top right, then print performance data
      and sampled solution values */
-  if (my_pe == 0) {
+  if (myproc == 0) {
     if (npelast != 0)
       MPI_Recv(&tempu[0], 2, MPI_SUNREALTYPE, npelast, 0, comm, &status);
     flag = ARKStepGetNumSteps(arkode_mem, &nst);
-    check_flag(&flag, "ARKStepGetNumSteps", 1, my_pe);
+    check_flag(&flag, "ARKStepGetNumSteps", 1, myproc);
     flag = ARKStepGetLastStep(arkode_mem, &hu);
-    check_flag(&flag, "ARKStepGetLastStep", 1, my_pe);
+    check_flag(&flag, "ARKStepGetLastStep", 1, myproc);
 
 #if defined(SUNDIALS_EXTENDED_PRECISION)
     printf("t = %.2Le   no. steps = %ld   stepsize = %.2Le\n",
@@ -507,7 +579,7 @@ static void PrintFinalStats(void *arkode_mem)
 }
 
 /* Routine to send boundary data to neighboring PEs */
-static void BSend(MPI_Comm comm, int my_pe, int isubx,
+static void BSend(MPI_Comm comm, int myproc, int isubx,
                   int isuby, sunindextype dsizex,
                   sunindextype dsizey, realtype udata[])
 {
@@ -517,12 +589,12 @@ static void BSend(MPI_Comm comm, int my_pe, int isubx,
 
   /* If isuby > 0, send data from bottom x-line of u */
   if (isuby != 0)
-    MPI_Send(&udata[0], dsizex, MPI_SUNREALTYPE, my_pe-NPEX, 0, comm);
+    MPI_Send(&udata[0], dsizex, MPI_SUNREALTYPE, myproc-NPEX, 0, comm);
 
   /* If isuby < NPEY-1, send data from top x-line of u */
   if (isuby != NPEY-1) {
     offsetu = (MYSUB-1)*dsizex;
-    MPI_Send(&udata[offsetu], dsizex, MPI_SUNREALTYPE, my_pe+NPEX, 0, comm);
+    MPI_Send(&udata[offsetu], dsizex, MPI_SUNREALTYPE, myproc+NPEX, 0, comm);
   }
 
   /* If isubx > 0, send data from left y-line of u (via bufleft) */
@@ -533,7 +605,7 @@ static void BSend(MPI_Comm comm, int my_pe, int isubx,
       for (i = 0; i < NVARS; i++)
         bufleft[offsetbuf+i] = udata[offsetu+i];
     }
-    MPI_Send(&bufleft[0], dsizey, MPI_SUNREALTYPE, my_pe-1, 0, comm);
+    MPI_Send(&bufleft[0], dsizey, MPI_SUNREALTYPE, myproc-1, 0, comm);
   }
 
   /* If isubx < NPEX-1, send data from right y-line of u (via bufright) */
@@ -544,7 +616,7 @@ static void BSend(MPI_Comm comm, int my_pe, int isubx,
       for (i = 0; i < NVARS; i++)
         bufright[offsetbuf+i] = udata[offsetu+i];
     }
-    MPI_Send(&bufright[0], dsizey, MPI_SUNREALTYPE, my_pe+1, 0, comm);
+    MPI_Send(&bufright[0], dsizey, MPI_SUNREALTYPE, myproc+1, 0, comm);
   }
 }
 
@@ -556,7 +628,7 @@ static void BSend(MPI_Comm comm, int my_pe, int isubx,
    2) request should have 4 entries, and should be passed in both calls also. */
 
 static void BRecvPost(MPI_Comm comm, MPI_Request request[],
-                      int my_pe, int isubx, int isuby,
+                      int myproc, int isubx, int isuby,
                       sunindextype dsizex, sunindextype dsizey,
                       realtype uext[], realtype buffer[])
 {
@@ -567,25 +639,25 @@ static void BRecvPost(MPI_Comm comm, MPI_Request request[],
   /* If isuby > 0, receive data for bottom x-line of uext */
   if (isuby != 0)
     MPI_Irecv(&uext[NVARS], dsizex, MPI_SUNREALTYPE,
-              my_pe-NPEX, 0, comm, &request[0]);
+              myproc-NPEX, 0, comm, &request[0]);
 
   /* If isuby < NPEY-1, receive data for top x-line of uext */
   if (isuby != NPEY-1) {
     offsetue = NVARS*(1 + (MYSUB+1)*(MXSUB+2));
     MPI_Irecv(&uext[offsetue], dsizex, MPI_SUNREALTYPE,
-                                         my_pe+NPEX, 0, comm, &request[1]);
+                                         myproc+NPEX, 0, comm, &request[1]);
   }
 
   /* If isubx > 0, receive data for left y-line of uext (via bufleft) */
   if (isubx != 0) {
     MPI_Irecv(&bufleft[0], dsizey, MPI_SUNREALTYPE,
-                                         my_pe-1, 0, comm, &request[2]);
+                                         myproc-1, 0, comm, &request[2]);
   }
 
   /* If isubx < NPEX-1, receive data for right y-line of uext (via bufright) */
   if (isubx != NPEX-1) {
     MPI_Irecv(&bufright[0], dsizey, MPI_SUNREALTYPE,
-                                         my_pe+1, 0, comm, &request[3]);
+                                         myproc+1, 0, comm, &request[3]);
   }
 }
 
@@ -651,7 +723,7 @@ static void ucomm(realtype t, N_Vector u, UserData data)
 
   realtype *udata, *uext, buffer[2*NVARS*MYSUB];
   MPI_Comm comm;
-  int my_pe, isubx, isuby;
+  int myproc, isubx, isuby;
   sunindextype nvmxsub, nvmysub;
   MPI_Request request[4];
   HYPRE_ParVector uhyp;
@@ -659,18 +731,18 @@ static void ucomm(realtype t, N_Vector u, UserData data)
   uhyp  = N_VGetVector_ParHyp(u);
   udata = hypre_VectorData(hypre_ParVectorLocalVector(uhyp));
 
-  /* Get comm, my_pe, subgrid indices, data sizes, extended array uext */
-  comm = data->comm;  my_pe = data->my_pe;
+  /* Get comm, myproc, subgrid indices, data sizes, extended array uext */
+  comm = data->comm;  myproc = data->myproc;
   isubx = data->isubx;   isuby = data->isuby;
   nvmxsub = data->nvmxsub;
   nvmysub = NVARS*MYSUB;
   uext = data->uext;
 
   /* Start receiving boundary data from neighboring PEs */
-  BRecvPost(comm, request, my_pe, isubx, isuby, nvmxsub, nvmysub, uext, buffer);
+  BRecvPost(comm, request, myproc, isubx, isuby, nvmxsub, nvmysub, uext, buffer);
 
   /* Send data from boundary of local grid to neighboring PEs */
-  BSend(comm, my_pe, isubx, isuby, nvmxsub, nvmysub, udata);
+  BSend(comm, myproc, isubx, isuby, nvmxsub, nvmysub, udata);
 
   /* Finish receiving boundary data from neighboring PEs */
   BRecvWait(request, isubx, isuby, nvmxsub, uext, buffer);
@@ -708,7 +780,7 @@ static void fcalc(realtype t, realtype udata[],
   }
 
   /* To facilitate homogeneous Neumann boundary conditions, when this is
-  a boundary PE, copy data from the first interior mesh line of u to uext */
+  a boundary proc, copy data from the first interior mesh line of u to uext */
 
   /* If isuby = 0, copy x-line 2 of u to uext */
   if (isuby == 0) {
@@ -856,7 +928,7 @@ static int Precond(realtype tn, N_Vector u, N_Vector fu,
   UserData data;
 
   /* Make local copies of pointers in user_data, pointer to u's data,
-     and PE index pair */
+     and proc index pair */
   data = (UserData) user_data;
   P = data->P;
   Jbd = data->Jbd;
