@@ -95,6 +95,7 @@ $tar $tarfile $distrobase/cmake/tpl/FindSUPERLUMT.cmake
 $tar $tarfile $distrobase/cmake/tpl/FindSUPERLUDIST.cmake
 $tar $tarfile $distrobase/cmake/tpl/FindTrilinos.cmake
 $tar $tarfile $distrobase/cmake/tpl/FindXBRAID.cmake
+$tar $tarfile $distrobase/cmake/tpl/SundialsAdiak.cmake
 $tar $tarfile $distrobase/cmake/tpl/SundialsCaliper.cmake
 $tar $tarfile $distrobase/cmake/tpl/SundialsGinkgo.cmake
 $tar $tarfile $distrobase/cmake/tpl/SundialsHypre.cmake
