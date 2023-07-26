@@ -199,8 +199,8 @@ class Sundials(CachedCMakePackage, CudaPackage, ROCmPackage):
         when="+adiak +caliper", 
         description="Build examples with profiling capabilities")
 
-    # Benchmarking
-    variant("benchmarks", default=False, description="Build benchmark programs")
+    # Caliper Directory
+    variant("caliper-dir", default="none", description="Specify where to place Caliper files")
 
     # ==========================================================================
     # Dependencies
@@ -764,6 +764,7 @@ class Sundials(CachedCMakePackage, CudaPackage, ROCmPackage):
                 self.cache_option_from_variant("SUNDIALS_TEST_PROFILE", "profile-examples"),
                 self.cache_option_from_variant("SUNDIALS_TEST_DEVTESTS", "profile-examples"),
                 cmake_cache_string("SPACK_VERSION", ".".join(map(str, spack.spack_version_info)))
+                
             ]
         )
 
@@ -807,6 +808,10 @@ class Sundials(CachedCMakePackage, CudaPackage, ROCmPackage):
             entries.append(cmake_cache_path("CALIPER_DIR", spec["caliper"].prefix))
             if "+adiak" in spec["caliper"]:
                 entries.append(cmake_cache_path("adiak_DIR", spec["adiak"].prefix.lib.cmake + "/adiak"))
+
+            if not "caliper-dir=none" in spec:
+                entries.append(self.cache_string_from_variant("SUNDIALS_CALIPER_OUTPUT_DIR", "caliper-dir"))
+
 
         # Building with Ginkgo
         if "+ginkgo" in spec:
@@ -940,9 +945,6 @@ class Sundials(CachedCMakePackage, CudaPackage, ROCmPackage):
         # Building with Trilinos
         if "+trilinos" in spec:
             entries.append(cmake_cache_path("Trilinos_DIR", spec["trilinos"].prefix))
-
-        if "+profile-examples" in spec:
-            entries.append(cmake_cache_path("SUNDIALS_CALIPER_OUTPUT_DIR"), "/usr/workspace/sundials/califiles")
 
         # Examples
         if spec.satisfies("@3:"):
