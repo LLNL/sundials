@@ -144,6 +144,7 @@ $tar $tarfile $distrobase/include/sundials/sundials_logger.h
 $tar $tarfile $distrobase/include/sundials/sundials_math.h
 $tar $tarfile $distrobase/include/sundials/sundials_matrix.h
 $tar $tarfile $distrobase/include/sundials/sundials_memory.h
+$tar $tarfile $distrobase/include/sundials/sundials_memory.hpp
 $tar $tarfile $distrobase/include/sundials/sundials_mpi_types.h
 $tar $tarfile $distrobase/include/sundials/sundials_nonlinearsolver.h
 $tar $tarfile $distrobase/include/sundials/sundials_nonlinearsolver.hpp
