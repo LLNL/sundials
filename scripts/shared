@@ -76,6 +76,7 @@ $tar $tarfile $distrobase/cmake/SundialsSetupFortran.cmake
 $tar $tarfile $distrobase/cmake/SundialsSetupTPLs.cmake
 $tar $tarfile $distrobase/cmake/SundialsSetupTesting.cmake
 $tar $tarfile $distrobase/cmake/SundialsTPLOptions.cmake
+$tar $tarfile $distrobase/cmake/macros/SundialsAddBenchmark.cmake
 $tar $tarfile $distrobase/cmake/macros/SundialsAddExamplesGinkgo.cmake
 $tar $tarfile $distrobase/cmake/macros/SundialsAddExecutable.cmake
 $tar $tarfile $distrobase/cmake/macros/SundialsAddLibrary.cmake
