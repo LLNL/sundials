@@ -69,9 +69,8 @@ if(BUILD_ARKODE AND BUILD_CVODE AND BUILD_IDA)
     list(GET benchmark_tuple 0 benchmark_args)
     list(GET benchmark_tuple 1 identifier)
 
-    # NUM_CORES based on Lassen system for 1 node
     sundials_add_benchmark(advection_reaction_3D_raja advection_reaction_3D_raja advection_reaction_3D
-      NUM_CORES 40
+      NUM_CORES ${SUNDIALS_BENCHMARK_NUM_CPUS}
       BENCHMARK_ARGS ${benchmark_args}
       IDENTIFIER ${identifier}
       )
@@ -128,10 +127,9 @@ if(BUILD_ARKODE AND BUILD_CVODE AND BUILD_IDA)
       list(GET benchmark_tuple 0 benchmark_args)
       list(GET benchmark_tuple 1 identifier)
 
-      # NUM_CORES based on Lassen system for 1 node
       sundials_add_benchmark(advection_reaction_3D_raja_mpicuda advection_reaction_3D_raja_mpicuda advection_reaction_3D
         ENABLE_GPU
-        NUM_CORES 4
+        NUM_CORES ${SUNDIALS_BENCHMARK_NUM_GPUS}
         BENCHMARK_ARGS ${benchmark_args}
         IDENTIFIER ${identifier})
     endforeach()
@@ -180,10 +178,9 @@ if(BUILD_ARKODE AND BUILD_CVODE AND BUILD_IDA)
       list(GET benchmark_tuple 0 benchmark_args)
       list(GET benchmark_tuple 1 identifier)
 
-      # NUM_CORES based on Corona system for 1 node
       sundials_add_benchmark(advection_reaction_3D_raja_mpihip advection_reaction_3D_raja_mpihip advection_reaction_3D
         ENABLE_GPU
-        NUM_CORES 8
+        NUM_CORES ${SUNDIALS_BENCHMARK_NUM_GPUS}
         BENCHMARK_ARGS ${benchmark_args}
         IDENTIFIER ${identifier})
     endforeach()

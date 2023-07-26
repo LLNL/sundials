@@ -298,3 +298,7 @@ sundials_option(SUNDIALS_TEST_UNITTESTS BOOL
 sundials_option(SUNDIALS_SCHEDULER_COMMAND STRING "Job scheduler command to use to launch SUNDIALS MPI tests" "" ADVANCED)
 
 sundials_option(SUNDIALS_CALIPER_OUTPUT_DIR PATH "Location to write caliper output files" "" ADVANCED)
+
+sundials_option(SUNDIALS_BENCHMARK_NUM_CPUS STRING "Number of CPU cores to run benchmarks with" "40" ADVANCED)
+
+sundials_option(SUNDIALS_BENCHMARK_NUM_GPUS STRING "Number of GPUs to run benchmarks with" "4" ADVANCED)
