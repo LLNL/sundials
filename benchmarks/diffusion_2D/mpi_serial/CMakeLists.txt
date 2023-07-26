@@ -75,7 +75,7 @@ foreach(test_tuple ${tests})
 
   sundials_add_benchmark(${target} ${target} diffusion_2D
     NUM_CORES ${SUNDIALS_BENCHMARK_NUM_CPUS}
-    IDENTIFIER "d2d_${package}_serial"
+    IDENTIFIER "serial"
   )
 
 endforeach()
