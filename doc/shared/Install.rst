@@ -1052,10 +1052,6 @@ illustration only.
 
    Default: OFF
 
-   .. note::
-      
-      Using Adiak requires setting :cmakeop:`ENABLE_CALIPER` and :cmakeop:`SUNDIALS_BUILD_WITH_PROFILING` to ``ON``.
-
 .. cmakeoption:: adiak_DIR
 
    Path to the root of an Adiak installation

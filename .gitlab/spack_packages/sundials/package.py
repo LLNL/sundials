@@ -120,7 +120,7 @@ class Sundials(CachedCMakePackage, CudaPackage, ROCmPackage):
     variant("sycl", default=False, when="@5.7.0:", description="Enable SYCL vector")
 
     # External libraries
-    variant("adiak", default=False, when="+caliper", description="Enable Adiak interfaces")
+    variant("adiak", default=False, when="@6.6.0:", description="Enable Adiak interfaces")
     variant(
         "caliper",
         default=False,
