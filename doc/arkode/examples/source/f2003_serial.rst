@@ -156,7 +156,11 @@ events.  All performance counters are printed on completion.
 ark_bruss
 ===================================================
 
+<<<<<<< HEAD
 This test problem is a Fortran 2003 version of the same brusselator
+=======
+This test problem is a Fortran-90 version of the same brusselator
+>>>>>>> origin/develop
 problem as before, :ref:`ark_brusselator`, in which the "test 1"
 parameters are hard-coded into the solver.  As with the previous test,
 this problem has 3 dependent variables :math:`u`, :math:`v` and
@@ -179,7 +183,11 @@ solution is output to the screen.
 Numerical method
 ----------------
 
+<<<<<<< HEAD
 Since this driver and utility functions are written in Fortran 2003,
+=======
+Since this driver and utility functions are written in Fortran-90,
+>>>>>>> origin/develop
 this example demonstrates the use of the FARKODE interface for the
 ARKode solver.  For time integration, this example uses the
 fourth-order additive Runge-Kutta IMEX method, where the right-hand
@@ -231,7 +239,11 @@ ark_bruss1D_FEM_klu
 ===================================================
 
 This problem is mathematically identical to the C example problem
+<<<<<<< HEAD
 :ref:`ark_brusselator1D_FEM_slu`, but is written in Fortran 2003, stores
+=======
+:ref:`ark_brusselator1D_FEM_slu`, but is written in Fortran 90, stores
+>>>>>>> origin/develop
 the sparse Jacobian and mass matrices in compressed-sparse-row format,
 and uses the KLU sparse-direct linear solver.
 

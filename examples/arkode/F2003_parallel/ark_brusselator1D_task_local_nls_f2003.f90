@@ -1333,7 +1333,7 @@ subroutine EvolveProblemIMEX(sunvec_y)
 
      ! Create linear solver
      sun_LS => FSUNLinSol_SPGMR(sunvec_y, SUN_PREC_LEFT, 0, sunctx)
-     if (.not. associated(sun_NLS)) then
+     if (.not. associated(sun_LS)) then
         print *, "Error: FSUNLinSol_SPGMR returned NULL"
         call MPI_Abort(comm, 1, ierr)
      end if

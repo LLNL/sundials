@@ -25,7 +25,7 @@
 ! than 100 the problem becomes quite stiff.
 ! ------------------------------------------------------------------
 
-module ode_mod
+module analytic_mod
 
   !======= Inclusions ===========
   use, intrinsic :: iso_c_binding
@@ -85,7 +85,7 @@ contains
 
   end function RhsFn
 
-end module ode_mod
+end module analytic_mod
 
 program main
 
@@ -101,7 +101,7 @@ program main
   use fsunmatrix_dense_mod       ! Fortran interface to dense SUNMatrix
   use fsunlinsol_dense_mod       ! Fortran interface to dense SUNLinearSolver
   use fsundials_context_mod      ! Fortran interface to SUNContext
-  use ode_mod                    ! ODE functions
+  use analytic_mod               ! ODE functions
 
   !======= Declarations =========
   implicit none

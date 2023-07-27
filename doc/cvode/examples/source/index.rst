@@ -22,9 +22,12 @@
 CVode Example documentation
 ==============================================
 
+<<<<<<< HEAD
 CVode Overview
 =============================
 
+=======
+>>>>>>> origin/develop
 This is the documentation for the CVode examples.  CVode is a
 Krylov method integration package for stiff, nonstiff and
 multi-rate systems of ordinary differential equations (ODEs).

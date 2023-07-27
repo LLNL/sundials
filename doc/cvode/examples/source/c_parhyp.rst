@@ -1,5 +1,9 @@
 ..
+<<<<<<< HEAD
    Programmer(s): Daniel M. Margolis @ SMU
+=======
+   Programmer(s): Daniel R. Reynolds @ SMU
+>>>>>>> origin/develop
    ----------------------------------------------------------------
    SUNDIALS Copyright Start
    Copyright (c) 2002-2023, Lawrence Livermore National Security
