@@ -19,12 +19,12 @@
 
 # Examples using SUNDIALS pthread nvector
 set(nvector_pthreads_examples
-  "test_nvector_pthreads.c\; \"1000 1 0\" \; \"\" "
-  "test_nvector_pthreads.c\; \"1000 2 0\" \; \"\" "
-  "test_nvector_pthreads.c\; \"1000 4 0\" \; \"\" "
-  "test_nvector_pthreads.c\; \"10000 1 0\" \; \"\" "
-  "test_nvector_pthreads.c\; \"10000 2 0\" \; \"\" "
-  "test_nvector_pthreads.c\; \"10000 4 0\" \; \"\" "
+  "test_nvector_pthreads.c\; \"1000 1 0\" \;passfail"
+  "test_nvector_pthreads.c\; \"1000 2 0\" \;passfail"
+  "test_nvector_pthreads.c\; \"1000 4 0\" \;passfail"
+  "test_nvector_pthreads.c\; \"10000 1 0\" \;passfail"
+  "test_nvector_pthreads.c\; \"10000 2 0\" \;passfail"
+  "test_nvector_pthreads.c\; \"10000 4 0\" \;passfail"
   )
 
 # Dependencies for nvector examples

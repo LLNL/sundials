@@ -19,12 +19,12 @@
 
 # Examples using SUNDIALS OpenMP nvector
 set(nvector_openmp_examples
-  "test_nvector_openmp.c\; \"1000 1 0\" \; \"\" "
-  "test_nvector_openmp.c\; \"1000 2 0\" \; \"\" "
-  "test_nvector_openmp.c\; \"1000 4 0\" \; \"\" "
-  "test_nvector_openmp.c\; \"10000 1 0\" \; \"\" "
-  "test_nvector_openmp.c\; \"10000 2 0\" \; \"\" "
-  "test_nvector_openmp.c\; \"10000 4 0\" \; \"\" "
+  "test_nvector_openmp.c\; \"1000 1 0\" \;passfail"
+  "test_nvector_openmp.c\; \"1000 2 0\" \;passfail"
+  "test_nvector_openmp.c\; \"1000 4 0\" \;passfail"
+  "test_nvector_openmp.c\; \"10000 1 0\" \;passfail"
+  "test_nvector_openmp.c\; \"10000 2 0\" \;passfail"
+  "test_nvector_openmp.c\; \"10000 4 0\" \;passfail"
   )
 
 # Dependencies for nvector examples

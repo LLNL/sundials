@@ -19,14 +19,14 @@
 
 # Examples using SUNDIALS MPI nvector
 set(nvector_parallel_examples
-  "test_nvector_mpi.c\; \"1000 0\" \; \"\" \; \"1\" \; \"\" "    # run sequentially
-  "test_nvector_mpi.c\; \"1000 0\" \;1\;4\; \"\" "  # run parallel on 4 procs
+  "test_nvector_mpi.c\; \"1000 0\" \;<none>\; \"1\" \;passfail"    # run sequentially
+  "test_nvector_mpi.c\; \"1000 0\" \;1\;4\;passfail"  # run parallel on 4 procs
   )
 
 # If building F2003 tests
 if (BUILD_FORTRAN_MODULE_INTERFACE)
   set(nvector_parallel_fortran_examples
-    "test_fnvector_parallel_mod\; \"\" \;1\;4\; \"\" ")
+    "test_fnvector_parallel_mod\;<none>\;1\;4\;passfail")
 endif()
 
 # Dependencies for nvector parallel examples

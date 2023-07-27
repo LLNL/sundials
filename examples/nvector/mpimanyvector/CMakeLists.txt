@@ -19,15 +19,15 @@
 
 # Examples using SUNDIALS MPIManyVector module
 set(nvector_mpimanyvector_examples
-  "test_nvector_mpimanyvector_parallel1.c\; \"1000 200 0\" \;1\;4\; \"\" "  # run parallel on 4 procs
-  "test_nvector_mpimanyvector_parallel2.c\; \"200 1000 0\" \;1\;4\; \"\" "  # run parallel on 4 procs
+  "test_nvector_mpimanyvector_parallel1.c\; \"1000 200 0\" \;1\;4\;passfail"  # run parallel on 4 procs
+  "test_nvector_mpimanyvector_parallel2.c\; \"200 1000 0\" \;1\;4\;passfail"  # run parallel on 4 procs
   )
 
 # If building F2003 tests
 if (BUILD_FORTRAN_MODULE_INTERFACE)
   set(nvector_mpimanyvector_fortran_examples
-    "test_fnvector_mpimanyvector_mod\; \"\" \;1\;1\; \"\" "
-    "test_fnvector_mpimanyvector_mod\; \"\" \;1\;4\; \"\" ")
+    "test_fnvector_mpimanyvector_mod\;<none>\;1\;1\;passfail"
+    "test_fnvector_mpimanyvector_mod\;<none>\;1\;4\;passfail")
 endif()
 
 # Dependencies for nvector parallel examples

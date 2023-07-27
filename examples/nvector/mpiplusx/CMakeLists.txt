@@ -19,7 +19,7 @@
 
 # Examples using SUNDIALS MPI nvector
 set(nvector_mpiplusx_examples
-  "test_nvector_mpiplusx.c\; \"1000 9\" \;1\;4\; \"\" "  # run parallel on 4 procs
+  "test_nvector_mpiplusx.c\; \"1000 9\" \;1\;4\;passfail"  # run parallel on 4 procs
   )
 
 # If building F2003 tests
