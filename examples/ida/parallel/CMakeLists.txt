@@ -19,10 +19,10 @@
 
 # Examples using SUNDIALS linear solvers
 set(IDA_examples
-  "idaFoodWeb_kry_bbd_p.c\; \"\" \;1\;4\;exclude-single"
-  "idaFoodWeb_kry_p.c\; \"\" \;1\;4\;exclude-single"
-  "idaHeat2D_kry_bbd_p.c\; \"\" \;1\;4\;exclude-single"
-  "idaHeat2D_kry_p.c\; \"\" \;1\;4\;exclude-single"
+  "idaFoodWeb_kry_bbd_p.c\;<none>\;1\;4\;exclude-single"
+  "idaFoodWeb_kry_p.c\;<none>\;1\;4\;exclude-single"
+  "idaHeat2D_kry_bbd_p.c\;<none>\;1\;4\;exclude-single"
+  "idaHeat2D_kry_p.c\;<none>\;1\;4\;exclude-single"
   )
 
 if(MPI_C_COMPILER)

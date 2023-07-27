@@ -19,8 +19,8 @@
 
 # Examples using SUNDIALS linear solvers
 set(IDA_examples
-  "idaHeat2D_petsc_spgmr.c\; \"\" \;1\;4\;develop"
-  "idaHeat2D_petsc_snes.c\; \"\" \;1\;4\;develop"
+  "idaHeat2D_petsc_spgmr.c\;<none>\;1\;4\;develop"
+  "idaHeat2D_petsc_snes.c\;<none>\;1\;4\;develop"
   "idaHeat2D_petsc_snes.c\; \"-pre\" \;1\;4\;develop"
   "idaHeat2D_petsc_snes.c\; \"-jac\" \;1\;4\;develop"
   "idaHeat2D_petsc_snes.c\; \"-jac -pre\" \;1\;4\;develop"
