@@ -144,7 +144,7 @@ to this problem is:
 
 .. math::
 
-   y(t) = V * e^{D \cdot t} * Vi * y_0
+   y(t) = V * e^{D \cdot t} * V^{-1} * y_0
 
 for :math:`t` in the interval :math:`[0.0, 0.05]`, with initial condition:
 :math:`y(0) = \begin{bmatrix} 1 \\ 1 \\ 1 \end{bmatrix}`.
