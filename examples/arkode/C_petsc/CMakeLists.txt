@@ -20,7 +20,7 @@
 # Examples using SUNDIALS linear solvers
 if(BUILD_SUNNONLINSOL_PETSCSNES)
   set(ARKODE_examples
-    "ark_petsc_ex25.c\; \" \" \;1\;1\;develop"
+    "ark_petsc_ex25.c\;<none>\;1\;1\;develop"
     )
 endif()
 

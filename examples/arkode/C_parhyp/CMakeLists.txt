@@ -19,7 +19,7 @@
 
 # Examples using SUNDIALS linear solvers
 set(ARKODE_examples
-  "ark_diurnal_kry_ph.c\; \" \" \;1\;4\;develop"
+  "ark_diurnal_kry_ph.c\;<none>\;1\;4\;develop"
   )
 
 if(MPI_C_COMPILER)
@@ -67,10 +67,10 @@ endif()
   endif()
 
   # add to regression tests
-  sundials_add_test(${example_target} ${example_target}
+  sundials_add_test(${test_name} ${example}
     MPI_NPROCS ${number_of_tasks}
     ANSWER_DIR ${CMAKE_CURRENT_SOURCE_DIR}
-    ANSWER_FILE ${example_target}.out
+    ANSWER_FILE ${test_name}.out
     EXAMPLE_TYPE ${example_type})
 
 endforeach(example_tuple ${ARKODE_examples})
