@@ -19,7 +19,7 @@
 
 # Example programs
 set(sunnonlinsol_petsc_examples
-  "test_sunnonlinsol_petscsnes.c\;  \" \" \;1\;1\; \"\" "
+  "test_sunnonlinsol_petscsnes.c\;<none>\;1\;1\;passfail"
 )
 
 if(MPI_C_COMPILER)
