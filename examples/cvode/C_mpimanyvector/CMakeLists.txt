@@ -19,7 +19,7 @@
 
 # Examples using SUNDIALS linear solvers
 set(CVODE_examples
-  "cvDiurnal_kry_mpimanyvec.c\; \" \" \;2\;4\;develop"
+  "cvDiurnal_kry_mpimanyvec.c\;<none>\;2\;4\;develop"
   )
 
 if(MPI_C_COMPILER)

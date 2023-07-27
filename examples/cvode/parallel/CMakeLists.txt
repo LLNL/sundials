@@ -19,10 +19,10 @@
 
 # Examples using SUNDIALS linear solvers
 set(CVODE_examples
-  "cvAdvDiff_diag_p.c\; \"\" \;2\;4\;exclude-single"
-  "cvAdvDiff_non_p.c\; \"\" \;2\;2\;exclude-single"
-  "cvDiurnal_kry_bbd_p.c\; \"\" \;2\;4\;exclude-sigle"
-  "cvDiurnal_kry_p.c\; \"\" \;2\;4\;exclude-single"
+  "cvAdvDiff_diag_p.c\;<none>\;2\;4\;exclude-single"
+  "cvAdvDiff_non_p.c\;<none>\;2\;2\;exclude-single"
+  "cvDiurnal_kry_bbd_p.c\;<none>\;2\;4\;exclude-sigle"
+  "cvDiurnal_kry_p.c\;<none>\;2\;4\;exclude-single"
   )
 
 if(MPI_C_COMPILER)

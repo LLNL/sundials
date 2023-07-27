@@ -19,8 +19,8 @@
 
 # Examples using SUNDIALS linear solvers
 set(CVODE_examples
-  "cv_petsc_ex7.c\; \"\" \;1\;1\;develop"
-  "cvAdvDiff_petsc.c\; \"\" \;1\;4\;develop"
+  "cv_petsc_ex7.c\;<none>\;1\;1\;develop"
+  "cvAdvDiff_petsc.c\;<none>\;1\;4\;develop"
   )
 
 if(MPI_C_COMPILER)

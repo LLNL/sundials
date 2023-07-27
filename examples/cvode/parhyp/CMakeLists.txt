@@ -19,7 +19,7 @@
 
 # Examples using SUNDIALS linear solvers
 set(CVODE_examples
-  "cvAdvDiff_non_ph.c\; \" \" \;2\;2\;develop"
+  "cvAdvDiff_non_ph.c\;<none>\;2\;2\;develop"
   )
 
 if(MPI_C_COMPILER)
@@ -72,10 +72,10 @@ endif()
   endif()
 
   # add example to regression tests
-  sundials_add_test(${example_target} ${example_target}
+  sundials_add_test(${test_name} ${example}
     MPI_NPROCS ${number_of_tasks}
     ANSWER_DIR ${CMAKE_CURRENT_SOURCE_DIR}
-    ANSWER_FILE ${example_target}.out
+    ANSWER_FILE ${test_name}.out
     EXAMPLE_TYPE ${example_type})
 
 endforeach(example_tuple ${CVODE_examples})
