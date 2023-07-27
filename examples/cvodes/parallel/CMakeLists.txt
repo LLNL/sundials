@@ -19,15 +19,15 @@
 
 # Examples using SUNDIALS linear solvers
 set(CVODES_examples
-  "cvsAdvDiff_ASAp_non_p.c\; \"\" \;2\;2\;exclude-single"
+  "cvsAdvDiff_ASAp_non_p.c\;<none>\;2\;2\;exclude-single"
   "cvsAdvDiff_FSA_non_p.c\; \"-sensi stg t\" \;2\;2\;exclude-single"
   "cvsAdvDiff_FSA_non_p.c\; \"-sensi sim t\" \;2\;2\;exclude-single"
-  "cvsAdvDiff_non_p.c\; \"\" \;2\;2\;exclude-single"
-  "cvsAtmDisp_ASAi_kry_bbd_p.c\; \"\" \;2\;4\;exclude-single"
+  "cvsAdvDiff_non_p.c\;<none>\;2\;2\;exclude-single"
+  "cvsAtmDisp_ASAi_kry_bbd_p.c\;<none>\;2\;4\;exclude-single"
   "cvsDiurnal_FSA_kry_p.c\; \"-sensi stg t\" \;2\;4\;exclude-single"
   "cvsDiurnal_FSA_kry_p.c\; \"-sensi sim t\" \;2\;4\;exclude-single"
-  "cvsDiurnal_kry_bbd_p.c\; \"\" \;2\;4\;exclude-single"
-  "cvsDiurnal_kry_p.c\; \"\" \;2\;4\;exclude-single"
+  "cvsDiurnal_kry_bbd_p.c\;<none>\;2\;4\;exclude-single"
+  "cvsDiurnal_kry_p.c\;<none>\;2\;4\;exclude-single"
   )
 
 if(MPI_C_COMPILER)
