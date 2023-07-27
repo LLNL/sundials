@@ -19,10 +19,10 @@
 
 # Examples using the SUNDIALS SPGMR linear solver
 set(sunlinsol_spgmr_examples
-  "test_sunlinsol_spgmr_parallel.c\; \"100 1 1 50 1e-3 0\" \;1\;4\; \"\" "
-  "test_sunlinsol_spgmr_parallel.c\; \"100 1 2 50 1e-3 0\" \;1\;4\; \"\" "
-  "test_sunlinsol_spgmr_parallel.c\; \"100 2 1 50 1e-3 0\" \;1\;4\; \"\" "
-  "test_sunlinsol_spgmr_parallel.c\; \"100 2 2 50 1e-3 0\" \;1\;4\; \"\" "
+  "test_sunlinsol_spgmr_parallel.c\; \"100 1 1 50 1e-3 0\" \;1\;4\;passfail"
+  "test_sunlinsol_spgmr_parallel.c\; \"100 1 2 50 1e-3 0\" \;1\;4\;passfail"
+  "test_sunlinsol_spgmr_parallel.c\; \"100 2 1 50 1e-3 0\" \;1\;4\;passfail"
+  "test_sunlinsol_spgmr_parallel.c\; \"100 2 2 50 1e-3 0\" \;1\;4\;passfail"
   )
 
 # Dependencies for sunlinsol examples

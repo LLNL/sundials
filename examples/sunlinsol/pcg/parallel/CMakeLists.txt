@@ -28,7 +28,7 @@ endif()
 
 # Examples using the SUNDIALS PCG linear solver
 set(sunlinsol_pcg_examples
-  "test_sunlinsol_pcg_parallel.c\; \"100 500 ${TOL} 0\" \;1\;4\;"
+  "test_sunlinsol_pcg_parallel.c\; \"100 500 ${TOL} 0\" \;1\;4\;passfail"
   )
 
 # Dependencies for sunlinsol examples

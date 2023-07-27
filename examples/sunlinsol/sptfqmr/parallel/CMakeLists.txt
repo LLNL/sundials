@@ -19,8 +19,8 @@
 
 # Examples using the SUNDIALS SPTFQMR linear solver
 set(sunlinsol_sptfqmr_examples
-  "test_sunlinsol_sptfqmr_parallel.c\; \"100 1 50 1e-3 0\" \;1\;4\; \"\" "
-  "test_sunlinsol_sptfqmr_parallel.c\; \"100 2 50 1e-3 0\" \;1\;4\; \"\" "
+  "test_sunlinsol_sptfqmr_parallel.c\; \"100 1 50 1e-3 0\" \;1\;4\;passfail"
+  "test_sunlinsol_sptfqmr_parallel.c\; \"100 2 50 1e-3 0\" \;1\;4\;passfail"
   )
 
 # Dependencies for sunlinsol examples

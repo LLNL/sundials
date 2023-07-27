@@ -19,8 +19,8 @@
 
 # Examples using the SUNDIALS SPBCGS linear solver
 set(sunlinsol_spbcgs_examples
-  "test_sunlinsol_spbcgs_parallel.c\; \"100 1 50 1e-3 0\" \;1\;4\; \"\" "
-  "test_sunlinsol_spbcgs_parallel.c\; \"100 2 50 1e-3 0\" \;1\;4\; \"\" "
+  "test_sunlinsol_spbcgs_parallel.c\; \"100 1 50 1e-3 0\" \;1\;4\;passfail"
+  "test_sunlinsol_spbcgs_parallel.c\; \"100 2 50 1e-3 0\" \;1\;4\;passfail"
   )
 
 # Dependencies for sunlinsol examples
