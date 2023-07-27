@@ -19,14 +19,14 @@
 
 # Examples using SUNDIALS linear solvers
 set(IDAS_examples
-  "idasBruss_ASAp_kry_bbd_p.c\; \"\" \;1\;4\;exclude-single"
-  "idasBruss_FSA_kry_bbd_p.c\; \"\" \;1\;4\;exclude-single"
-  "idasBruss_kry_bbd_p.c\; \"\" \;1\;4\;exclude-single"
-  "idasFoodWeb_kry_bbd_p.c\; \"\" \;1\;4\;exclude-single"
-  "idasFoodWeb_kry_p.c\; \"\" \;1\;4\;exclude-single"
+  "idasBruss_ASAp_kry_bbd_p.c\;<none>\;1\;4\;exclude-single"
+  "idasBruss_FSA_kry_bbd_p.c\;<none>\;1\;4\;exclude-single"
+  "idasBruss_kry_bbd_p.c\;<none>\;1\;4\;exclude-single"
+  "idasFoodWeb_kry_bbd_p.c\;<none>\;1\;4\;exclude-single"
+  "idasFoodWeb_kry_p.c\;<none>\;1\;4\;exclude-single"
   "idasHeat2D_FSA_kry_bbd_p.c\; \"-sensi stg t\" \;1\;4\;exclude-single"
-  "idasHeat2D_kry_bbd_p.c\; \"\" \;1\;4\;exclude-single"
-  "idasHeat2D_kry_p.c\; \"\" \;1\;4\;exclude-single"
+  "idasHeat2D_kry_bbd_p.c\;<none>\;1\;4\;exclude-single"
+  "idasHeat2D_kry_p.c\;<none>\;1\;4\;exclude-single"
   )
 
 if(MPI_C_COMPILER)
