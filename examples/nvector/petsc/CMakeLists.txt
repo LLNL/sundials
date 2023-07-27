@@ -19,8 +19,8 @@
 
 # Examples using SUNDIALS PETSc nvector
 set(nvector_petsc_examples
-  "test_nvector_petsc.c\; \"1000 0\" \;1\;1\; \"\" "    # run sequentially
-  "test_nvector_petsc.c\; \"1000 0\" \;1\;4\; \"\" "  # run 4 procs
+  "test_nvector_petsc.c\; \"1000 0\" \;1\;1\;passfail"    # run sequentially
+  "test_nvector_petsc.c\; \"1000 0\" \;1\;4\;passfail"  # run 4 procs
   )
 
 # Dependencies for nvector examples
@@ -89,10 +89,19 @@ foreach(example_tuple ${nvector_petsc_examples})
 
   # check if example args are provided and set the test name
   if("${example_args}" STREQUAL "")
-    set(test_name ${example})
+    if("${number_of_tasks}" STREQUAL "")
+      set(test_name ${example})
+    else()
+      string(REGEX REPLACE " " "_" test_name ${example}_${number_of_tasks})
+    endif()
   else()
-    string(REGEX REPLACE " " "_" test_name ${example}_${example_args})
+    if("${number_of_tasks}" STREQUAL "")
+      string(REGEX REPLACE " " "_" test_name ${example}_${example_args})
+    else()
+      string(REGEX REPLACE " " "_" test_name ${example}_${number_of_tasks}_${example_args})
+    endif()
   endif()
+
 
   # add example to regression tests
   sundials_add_test(${test_name} ${example}
