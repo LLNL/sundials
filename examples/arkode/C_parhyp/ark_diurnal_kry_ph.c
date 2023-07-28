@@ -228,6 +228,9 @@ int main(int argc, char *argv[])
   data = (UserData) malloc(sizeof *data);
   if (check_flag((void *)data, "malloc", 2, myproc)) MPI_Abort(comm, 1);
   InitUserData(data, comm, nprocsx, nprocsy, Mx, My);
+  
+  printf("Jbd[0][0]: [%f %f; %f %f]\n",data->Jbd[0][0][0][0],data->Jbd[0][0][1][0],
+                                       data->Jbd[0][0][0][1],data->Jbd[0][0][1][1]);
 
   /* Allocate hypre vector */
   HYPRE_IJVectorCreate(comm, data->mybase, data->mybase+data->local_N-1, &Uij);
@@ -394,8 +397,6 @@ static void InitUserData(UserData data, MPI_Comm comm, int nprocsx, int nprocsy,
       (data->pivot)[lx][ly] = SUNDlsMat_newIndexArray(NVARS);
     }
   }
-  printf("Jbd[0][0]: [%f %f; %f %f]\n",data->Jbd[0][0][0][0],data->Jbd[0][0][1][0],
-                                       data->Jbd[0][0][0][1],data->Jbd[0][0][1][1]);
 }
 
 /* Free user data memory */
@@ -925,7 +926,7 @@ static int Precond(realtype tn, N_Vector u, N_Vector fu,
         j      = data->Jbd[lx][ly];
         a      = data->P[lx][ly];
         printf("lx, ly, offset: %d %d %d\n",lx,ly,offset);
-        printf("j: %p", j);
+        printf("j: %p\n", j);
         data->Jbd[lx][ly][0][0] = (-Q1*C3 - Q2*c2) + diag;
         data->Jbd[lx][ly][1][0] =  -Q2*c1 + q4;
         data->Jbd[lx][ly][0][1] =   Q1*C3 - Q2*c2;
