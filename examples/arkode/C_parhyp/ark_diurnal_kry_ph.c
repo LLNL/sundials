@@ -228,7 +228,7 @@ int main(int argc, char *argv[])
   data = (UserData) malloc(sizeof *data);
   if (check_flag((void *)data, "malloc", 2, myproc)) MPI_Abort(comm, 1);
   InitUserData(data, comm, nprocsx, nprocsy, Mx, My);
-  
+
   printf("Jbd[0][0]: [%f %f; %f %f]\n",data->Jbd[0][0][0][0],data->Jbd[0][0][1][0],
                                        data->Jbd[0][0][0][1],data->Jbd[0][0][1][1]);
 
@@ -703,12 +703,15 @@ static void BRecvWait(UserData data, MPI_Request request[], realtype buffer[])
 static void ucomm(UserData data, realtype t, N_Vector u)
 {
 
-  realtype *udata, buffer[2*data->dsizey];
+  realtype *udata, *buffer;
   MPI_Request request[4];
   HYPRE_ParVector uhyp;
 
   uhyp  = N_VGetVector_ParHyp(u);
   udata = hypre_VectorData(hypre_ParVectorLocalVector(uhyp));
+
+  /* Allocate buffer */
+  buffer = (realtype*) malloc(2*data->dsizey*sizeof(realtype));
 
   /* Start receiving boundary data from neighboring PEs */
   BRecvPost(data, request, buffer);
