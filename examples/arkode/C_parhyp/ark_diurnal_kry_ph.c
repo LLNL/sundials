@@ -140,7 +140,7 @@ typedef struct {
   int nprocs, nprocsx, nprocsy;               /* # of processes nprocs=nprocsx*nprocsy     */
   int myproc, myprocx, myprocy;               /* my process indices, flat & Cartesian      */
   int dsizex, dsizey, dsizex2, dsizey2;       /* x/y size of u & uext                      */
-  bool isbottom, istop, isleft, isright;      /* whether the process lies on given bdry    */
+  int isbottom, istop, isleft, isright;       /* (bool) does process abut given boundary   */
   MPI_Comm comm;
 
   /* For preconditioner */
