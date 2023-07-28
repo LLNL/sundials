@@ -229,8 +229,8 @@ int main(int argc, char *argv[])
   if (check_flag((void *)data, "malloc", 2, myproc)) MPI_Abort(comm, 1);
   InitUserData(data, comm, nprocsx, nprocsy, Mx, My);
 
-  printf("Jbd[0][0]: [%f %f; %f %f]\n",data->Jbd[0][0][0][0],data->Jbd[0][0][1][0],
-                                       data->Jbd[0][0][0][1],data->Jbd[0][0][1][1]);
+  // printf("Jbd[0][0]: [%f %f; %f %f]\n",data->Jbd[0][0][0][0],data->Jbd[0][0][1][0],
+  //                                      data->Jbd[0][0][0][1],data->Jbd[0][0][1][1]);
 
   /* Allocate hypre vector */
   HYPRE_IJVectorCreate(comm, data->mybase, data->mybase+data->local_N-1, &Uij);
@@ -928,16 +928,16 @@ static int Precond(realtype tn, N_Vector u, N_Vector fu,
         c2     = udata[offset+1];
         j      = data->Jbd[lx][ly];
         a      = data->P[lx][ly];
-        printf("lx, ly, offset: %d %d %d\n",lx,ly,offset);
-        printf("j: %p\n", j);
-        data->Jbd[lx][ly][0][0] = (-Q1*C3 - Q2*c2) + diag;
-        data->Jbd[lx][ly][1][0] =  -Q2*c1 + q4;
-        data->Jbd[lx][ly][0][1] =   Q1*C3 - Q2*c2;
-        data->Jbd[lx][ly][1][1] = (-Q2*c1 - q4)    + diag;
-        // IJth(j,1,1) = (-Q1*C3 - Q2*c2) + diag;
-        // IJth(j,1,2) =  -Q2*c1 + q4;
-        // IJth(j,2,1) =   Q1*C3 - Q2*c2;
-        // IJth(j,2,2) = (-Q2*c1 - q4)    + diag;
+        // printf("lx, ly, offset: %d %d %d\n",lx,ly,offset);
+        // printf("j: %p\n", j);
+        // data->Jbd[lx][ly][0][0] = (-Q1*C3 - Q2*c2) + diag;
+        // data->Jbd[lx][ly][1][0] =  -Q2*c1 + q4;
+        // data->Jbd[lx][ly][0][1] =   Q1*C3 - Q2*c2;
+        // data->Jbd[lx][ly][1][1] = (-Q2*c1 - q4)    + diag;
+        IJth(j,1,1) = (-Q1*C3 - Q2*c2) + diag;
+        IJth(j,1,2) =  -Q2*c1 + q4;
+        IJth(j,2,1) =   Q1*C3 - Q2*c2;
+        IJth(j,2,2) = (-Q2*c1 - q4)    + diag;
         SUNDlsMat_denseCopy(j, a, NVARS, NVARS);
       }
     }
