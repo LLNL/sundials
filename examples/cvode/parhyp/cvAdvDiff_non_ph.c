@@ -193,7 +193,7 @@ int main(int argc, char *argv[])
   /* Parse inputs (required: M) */
   MPI_ASSERT(argc>=2,"ERROR: ONE (1) input required: M (# of interior gridpoints)\n",comm,myproc,1)
   M = (HYPRE_Int) atoi(argv[1]);
-  MPI_ASSERT(M>=nprocs,"ERROR: There are more MPI processes than the number of interior gridpoints (M)\n",comm,myproc,1)
+  MPI_ASSERT(M>=nprocs,"ERROR: M < nprocs (We require at least one interior gridpoint per process)\n",comm,myproc,1)
 
   /* Allocate UserData */
   data = (UserData) malloc(sizeof *data);
@@ -281,7 +281,7 @@ int main(int argc, char *argv[])
   if (myproc == 0) PrintFinalStats(cvode_mem);  
 
   /* Free memory */
-  FreeUserData(data)          /* Free UserData */
+  FreeUserData(data);         /* Free UserData */
   N_VDestroy(u);              /* Free hypre vector wrapper */
   HYPRE_IJVectorDestroy(Uij); /* Free the underlying hypre vector */
   CVodeFree(&cvode_mem);      /* Free the integrator memory */
