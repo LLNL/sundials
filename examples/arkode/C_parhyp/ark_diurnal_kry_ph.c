@@ -354,7 +354,7 @@ static void InitUserData(UserData data, MPI_Comm comm, int nprocsx, int nprocsy,
   data->local_N  = NVARS*data->local_M;
 
   /* Allocate uext */
-  data->uext     = (realtype*) malloc(NVARS*(local_Mx+2)*(local_My+2));
+  data->uext     = (realtype*) malloc(NVARS*(data->local_Mx+2)*(data->local_My+2));
 
   /* Calculate equation offset (mybase) (see HYPRE_IJVectorCreate) */
   data->mybase   = 0;
