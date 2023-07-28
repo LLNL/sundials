@@ -136,7 +136,7 @@ typedef struct {
   realtype q4, om, dx, dy, hdco, haco, vdco;  /* variables and coefficients                */
   realtype *uext;                             /* padded u matrix (flat); N=2*(Mx+2)*(My+2) */
   int M, Mx, My, local_M, local_Mx, local_My; /* # of interior gridpoints M=Mx*My          */
-  int N, local_N;                             /* # of equations N=2*M                      */
+  int N, local_N, mybase;                     /* # of equations N=2*M and glob. eq. offset */
   int nprocs, nprocsx, nprocsy;               /* # of processes nprocs=nprocsx*nprocsy     */
   int myproc, myprocx, myprocy;               /* my process indices, flat & Cartesian      */
   int dsizex, dsizey, dsizex2, dsizey2;       /* x/y size of u & uext                      */
@@ -153,7 +153,7 @@ static void InitUserData(UserData data, MPI_Comm comm, int nprocsx, int nprocsy,
 static void FreeUserData(UserData data);
 static void SetInitialProfiles(UserData data, HYPRE_IJVector Uij);
 static void PrintOutput(UserData data, void *arkode_mem, N_Vector u, realtype t);
-static void PrintFinalStats(UserData data, void *arkode_mem);
+static void PrintFinalStats(void *arkode_mem);
 static void BSend(UserData data, realtype udata[]);
 static void BRecvPost(UserData data, MPI_Request request[], realtype buffer[]);
 static void BRecvWait(UserData data, MPI_Request request[], realtype buffer[]);
@@ -215,7 +215,7 @@ int main(int argc, char *argv[])
   nprocsy = atoi(argv[2]);
   Mx      = atoi(argv[3]);
   My      = atoi(argv[4]);
-  MPI_ASSERT(nprocsx*nprocsy=nprocs,"ERROR: nprocsx*nprocsy =/= N (Requested proc grid size does not equal available procs)\n",comm,myproc,1)
+  MPI_ASSERT(nprocsx*nprocsy==nprocs,"ERROR: nprocsx*nprocsy =/= N (Requested proc grid size does not equal available procs)\n",comm,myproc,1)
   MPI_ASSERT(Mx>=nprocsx,"ERROR: Mx < nprocsx (We require at least one interior gridpoint per process)\n",comm,myproc,1)
   MPI_ASSERT(My>=nprocsy,"ERROR: My < nprocsy (We require at least one interior gridpoint per process)\n",comm,myproc,1)
 
@@ -231,7 +231,7 @@ int main(int argc, char *argv[])
   /* Allocate and load user data block; allocate preconditioner block */
   data = (UserData) malloc(sizeof *data);
   if (check_flag((void *)data, "malloc", 2, myproc)) MPI_Abort(comm, 1);
-  InitUserData(myproc, comm, data);
+  InitUserData(data, comm, nprocsx, nprocsy, Mx, My);
 
   /* Set initial values and allocate u */
   SetInitialProfiles(data, Uij);
@@ -433,10 +433,9 @@ static void SetInitialProfiles(UserData data, HYPRE_IJVector Uij)
   udata   = (realtype*) malloc(data->local_N*sizeof(realtype));
   iglobal = (HYPRE_Int*) malloc(data->local_N*sizeof(HYPRE_Int));
 
-  
-  /* Get mesh spacings, and subgrid indices for this proc */
-  dx      = data->dx;        dy      = data->dy;
-  myprocx = data->myprocx;   myprocy = data->myprocy;
+  /* Get mesh spacings for this proc */
+  dx      = data->dx;
+  dy      = data->dy;
 
   /* Load initial profiles of c1 and c2 into local u vector.
   Here lx and ly are local mesh point indices on the local subgrid,
@@ -460,7 +459,7 @@ static void SetInitialProfiles(UserData data, HYPRE_IJVector Uij)
       udata[offset++] = C2_SCALE*cx*cy;
     }
   }
-  HYPRE_IJVectorSetValues(Uij, local_length, iglobal, udata);
+  HYPRE_IJVectorSetValues(Uij, data->local_N, iglobal, udata);
   free(iglobal);
   free(udata);
 }
@@ -728,8 +727,15 @@ static void fcalc(UserData data, realtype t, realtype udata[], realtype dudata[]
   realtype qq1, qq2, qq3, qq4, rkin1, rkin2, s, vertd1, vertd2, ydn, yup;
   sunindextype offsetu, offsetue;
   
+  int dsizex, dsizex2, local_Mx, local_My;
   realtype *uext;
   realtype q4, dy, vdco, hdco, haco;
+
+  /* Make local copies of problem variables, for efficiency */
+  dsizex   = data->dsizex;   dsizex2  = data->dsizex2;
+  local_Mx = data->local_Mx; local_My = data->local_My;
+  dy       = data->dy;       vdco     = data->vdco;
+  hdco     = data->hdco;     haco     = data->haco;
 
   /* Copy local segment of u vector into the working extended array uext */
   uext     = data->uext;
@@ -751,16 +757,16 @@ static void fcalc(UserData data, realtype t, realtype udata[], realtype dudata[]
 
   /* If myprocy = nprocsy-1, copy x-line local_My-1 of u to uext */
   if (!data->istop) {
-    offsetu  = (data->local_My-2)*dsizex;
-    offsetue = (data->local_My+1)*dsizex2 + NVARS;
-    for (i = 0; i < data->dsizex; i++) uext[offsetue+i] = udata[offsetu+i];
+    offsetu  = (local_My-2)*dsizex;
+    offsetue = (local_My+1)*dsizex2 + NVARS;
+    for (i = 0; i < dsizex; i++) uext[offsetue+i] = udata[offsetu+i];
   }
 
   /* If myprocx = 0, copy y-line 2 of u to uext */
   if (!data->isleft) {
     for (ly = 0; ly < local_My; ly++) {
-      offsetu  = ly*data->dsizex + NVARS;
-      offsetue = (ly+1)*data->dsizex2;
+      offsetu  = ly*dsizex + NVARS;
+      offsetue = (ly+1)*dsizex2;
       for (i = 0; i < NVARS; i++) uext[offsetue+i] = udata[offsetu+i];
     }
   }
@@ -768,17 +774,11 @@ static void fcalc(UserData data, realtype t, realtype udata[], realtype dudata[]
   /* If myprocx = nprocsx-1, copy y-line local_Mx-1 of u to uext */
   if (!data->isright) {
     for (ly = 0; ly < local_My; ly++) {
-      offsetu  = (ly+1)*data->dsizex  - 2*NVARS;
-      offsetue = (ly+2)*data->dsizex2 - NVARS;
+      offsetu  = (ly+1)*dsizex  - 2*NVARS;
+      offsetue = (ly+2)*dsizex2 - NVARS;
       for (i = 0; i < NVARS; i++) uext[offsetue+i] = udata[offsetu+i];
     }
   }
-
-  /* Make local copies of problem variables, for efficiency */
-  dy   = data->dy;
-  vdco = data->vdco;
-  hdco = data->hdco;
-  haco = data->haco;
 
   /* Set diurnal rate coefficients as functions of t, and save q4 in
   data block for use by preconditioner evaluation routine */
@@ -793,19 +793,19 @@ static void fcalc(UserData data, realtype t, realtype udata[], realtype dudata[]
   data->q4 = q4;
 
   /* Loop over all grid points in local subgrid */
-  for (ly = 0; ly < data->local_My; ly++) {
+  for (ly = 0; ly < local_My; ly++) {
 
-    jy   = ly + data->myprocy*data->local_My;
+    jy   = ly + data->myprocy*local_My;
 
     /* Set vertical diffusion coefficients at jy +- 1/2 */
     ydn  = YMIN + (jy - RCONST(0.5))*dy;
     yup  = ydn + dy;
     cydn = vdco*SUNRexp(RCONST(0.2)*ydn);
     cyup = vdco*SUNRexp(RCONST(0.2)*yup);
-    for (lx = 0; lx < data->local_Mx; lx++) {
+    for (lx = 0; lx < local_Mx; lx++) {
 
       /* Extract c1 and c2, and set kinetic rate terms */
-      offsetue = (lx+1)*NVARS + (ly+1)*data->dsizex2;
+      offsetue = (lx+1)*NVARS + (ly+1)*dsizex2;
       c1       = uext[offsetue];
       c2       = uext[offsetue+1];
       qq1      = Q1*c1*C3;
@@ -834,7 +834,7 @@ static void fcalc(UserData data, realtype t, realtype udata[], realtype dudata[]
       horad2   = haco*(c2rt - c2lt);
 
       /* Load all terms into dudata */
-      offsetu  = lx*NVARS + ly*data->dsizex;
+      offsetu  = lx*NVARS + ly*dsizex;
       dudata[offsetu]   = vertd1 + hord1 + horad1 + rkin1;
       dudata[offsetu+1] = vertd2 + hord2 + horad2 + rkin2;
     }
