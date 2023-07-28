@@ -223,15 +223,16 @@ int main(int argc, char *argv[])
   flag = SUNContext_Create(&comm, &sunctx);
   if (check_flag(&flag, "SUNContext_Create", 1, myproc)) return 1;
 
-  /* Allocate hypre vector */
-  HYPRE_IJVectorCreate(comm, data->mybase, data->mybase+data->local_N-1, &Uij);
-  HYPRE_IJVectorSetObjectType(Uij, HYPRE_PARCSR);
-  HYPRE_IJVectorInitialize(Uij);
 
   /* Allocate and load user data block; allocate preconditioner block */
   data = (UserData) malloc(sizeof *data);
   if (check_flag((void *)data, "malloc", 2, myproc)) MPI_Abort(comm, 1);
   InitUserData(data, comm, nprocsx, nprocsy, Mx, My);
+
+  /* Allocate hypre vector */
+  HYPRE_IJVectorCreate(comm, data->mybase, data->mybase+data->local_N-1, &Uij);
+  HYPRE_IJVectorSetObjectType(Uij, HYPRE_PARCSR);
+  HYPRE_IJVectorInitialize(Uij);
 
   /* Set initial values and allocate u */
   SetInitialProfiles(data, Uij);
