@@ -20,9 +20,9 @@
 
 # Examples using SUNDIALS dense matrix
 set(sunmatrix_dense_examples
-  "test_sunmatrix_dense.c\; \"100 100 0\" \;passfail"
-  "test_sunmatrix_dense.c\; \"200 1000 0\" \;passfail"
-  "test_sunmatrix_dense.c\; \"2000 100 0\" \;passfail"
+  "test_sunmatrix_dense.c\;100 100 0\;passfail"
+  "test_sunmatrix_dense.c\;200 1000 0\;passfail"
+  "test_sunmatrix_dense.c\;2000 100 0\;passfail"
   )
 
 # If building F2003 tests
