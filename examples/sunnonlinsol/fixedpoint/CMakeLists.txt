@@ -20,8 +20,8 @@
 # Example programs
 set(sunnonlinsol_fixedpoint_examples
   "test_sunnonlinsol_fixedpoint.c\;<none>\;passfail"
-  "test_sunnonlinsol_fixedpoint.c\; \"2\" \;passfail"
-  "test_sunnonlinsol_fixedpoint.c\; \"2 0.5\" \;passfail"
+  "test_sunnonlinsol_fixedpoint.c\;2\;passfail"
+  "test_sunnonlinsol_fixedpoint.c\;2 0.5\;passfail"
 )
 
 # if building F2003 tests

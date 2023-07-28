@@ -19,8 +19,8 @@
 
 # Examples using SUNDIALS serial nvector
 set(nvector_serial_examples
-  "test_nvector_serial.c\; \"1000 0\" \;passfail"
-  "test_nvector_serial.c\; \"10000 0\" \;passfail"
+  "test_nvector_serial.c\;1000 0\;passfail"
+  "test_nvector_serial.c\;10000 0\;passfail"
   )
 
 # If building F2003 tests

@@ -28,7 +28,7 @@ endif()
 
 # Examples using SUNDIALS PCG linear solver
 set(sunlinsol_pcg_examples
-  "test_sunlinsol_pcg_serial.c\; \"100 500 ${TOL} 0\" \;passfail"
+  "test_sunlinsol_pcg_serial.c\;100 500 ${TOL} 0\;passfail"
   )
 
 # If building F2003 tests
