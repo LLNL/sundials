@@ -122,7 +122,7 @@
 
 /* User-defined MPI assert macro */
 #define MPI_ASSERT(expr,msg,comm,myproc,code) \
-  if(!expr) {                                 \
+  if(!(expr)) {                               \
     if (myproc==0) printf(msg);               \
     MPI_Abort(comm,code);                     \
   }
