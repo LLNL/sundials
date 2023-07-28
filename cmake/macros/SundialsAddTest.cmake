@@ -150,8 +150,9 @@ macro(SUNDIALS_ADD_TEST NAME EXECUTABLE)
 
       # set the test input args
       if(SUNDIALS_ADD_TEST_TEST_ARGS)
-        string(REPLACE ";" " " _user_args "${SUNDIALS_ADD_TEST_TEST_ARGS}")
-        string(REPLACE "<none>" "" _user_args "${_user_args}")
+        #testing
+        string(REPLACE "<none>" "" _user_args "${SUNDIALS_ADD_TEST_TEST_ARGS}")
+        separate_arguments(_user_args UNIX_COMMAND "${_user_args}")
         set(_run_args "${_user_args}")
         unset(_user_args)
       endif()
@@ -174,12 +175,10 @@ macro(SUNDIALS_ADD_TEST NAME EXECUTABLE)
     elseif(SUNDIALS_ADD_TEST_EXAMPLE_TYPE STREQUAL "passfail" OR
            (NOT SUNDIALS_ADD_TEST_EXAMPLE_TYPE))
 
-      cmake_policy(SET CMP0110 NEW)
-
       # convert string to list
       if(SUNDIALS_ADD_TEST_TEST_ARGS)
-        string(REPLACE " " ";" TEST_ARGS "${SUNDIALS_ADD_TEST_TEST_ARGS}")
-        string(REPLACE "<none>" "" TEST_ARGS "${TEST_ARGS}")
+        string(REPLACE "<none>" "" TEST_ARGS "${SUNDIALS_ADD_TEST_TEST_ARGS}")
+        separate_arguments(TEST_ARGS UNIX_COMMAND "${TEST_ARGS}")
       endif()
 
       # check if this test is run with MPI and add the test run command
