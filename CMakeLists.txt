@@ -21,6 +21,8 @@
 
 cmake_minimum_required(VERSION 3.12)
 
+cmake_policy(SET CMP0110 OLD)
+
 # Project SUNDIALS (initially only C supported)
 # sets PROJECT_SOURCE_DIR and PROJECT_BINARY_DIR variables.
 project(SUNDIALS C)
