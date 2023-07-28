@@ -578,7 +578,11 @@ static void BSend(UserData data, realtype udata[])
 {
   int i, ly;
   sunindextype offsetu, offsetbuf;
-  realtype bufleft[NVARS*data->local_My], bufright[NVARS*data->local_My];
+  realtype *bufleft, *bufright;
+
+  /* Allocate buffers */
+  bufleft  = (realtype*) malloc(data->dsizey*sizeof(realtype));
+  bufright = (realtype*) malloc(data->dsizey*sizeof(realtype));
 
   /* If myprocy > 0, send data from bottom x-line of u */
   if (!data->isbottom)
