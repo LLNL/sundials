@@ -925,10 +925,15 @@ static int Precond(realtype tn, N_Vector u, N_Vector fu,
         j      = data->Jbd[lx][ly];
         a      = data->P[lx][ly];
         printf("lx, ly, offset: %d %d %d\n",lx,ly,offset);
-        IJth(j,1,1) = (-Q1*C3 - Q2*c2) + diag;
-        IJth(j,1,2) =  -Q2*c1 + q4;
-        IJth(j,2,1) =   Q1*C3 - Q2*c2;
-        IJth(j,2,2) = (-Q2*c1 - q4)    + diag;
+        printf("j: %p", j);
+        Jbd[lx][ly][0][0] = (-Q1*C3 - Q2*c2) + diag;
+        Jbd[lx][ly][1][0] =  -Q2*c1 + q4;
+        Jbd[lx][ly][0][1] =   Q1*C3 - Q2*c2;
+        Jbd[lx][ly][1][1] = (-Q2*c1 - q4)    + diag;
+        // IJth(j,1,1) = (-Q1*C3 - Q2*c2) + diag;
+        // IJth(j,1,2) =  -Q2*c1 + q4;
+        // IJth(j,2,1) =   Q1*C3 - Q2*c2;
+        // IJth(j,2,2) = (-Q2*c1 - q4)    + diag;
         SUNDlsMat_denseCopy(j, a, NVARS, NVARS);
       }
     }
