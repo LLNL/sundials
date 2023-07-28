@@ -28,8 +28,8 @@ endif()
 
 # Examples using SUNDIALS SPTFQMR linear solver
 set(sunlinsol_sptfqmr_examples
-  "test_sunlinsol_sptfqmr_serial.c\; \"100 1 100 ${TOL} 0\" \;passfail"
-  "test_sunlinsol_sptfqmr_serial.c\; \"100 2 100 ${TOL} 0\" \;passfail"
+  "test_sunlinsol_sptfqmr_serial.c\;100 1 100 ${TOL} 0\;passfail"
+  "test_sunlinsol_sptfqmr_serial.c\;100 2 100 ${TOL} 0\;passfail"
   )
 
 # If building F2003 tests

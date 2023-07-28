@@ -26,8 +26,8 @@ set(IDA_examples
   "idaHeat2D_bnd.c\;<none>\;develop"
   "idaHeat2D_kry.c\;<none>\;develop"
   "idaKrylovDemo_ls.c\;<none>\;develop"
-  "idaKrylovDemo_ls.c\; \"1\" \;develop"
-  "idaKrylovDemo_ls.c\; \"2\" \;develop"
+  "idaKrylovDemo_ls.c\;1\;develop"
+  "idaKrylovDemo_ls.c\;2\;develop"
   "idaRoberts_dns.c\;<none>\;passfail"
   "idaSlCrank_dns.c\;<none>\;exclude-single"
   )

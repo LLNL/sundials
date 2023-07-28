@@ -28,8 +28,8 @@ endif()
 
 # Examples using SUNDIALS SPFGMR linear solver
 set(sunlinsol_spfgmr_examples
-  "test_sunlinsol_spfgmr_serial.c\; \"100 1 100 ${TOL} 0\" \;passfail"
-  "test_sunlinsol_spfgmr_serial.c\; \"100 2 100 ${TOL} 0\" \;passfail"
+  "test_sunlinsol_spfgmr_serial.c\;100 1 100 ${TOL} 0\;passfail"
+  "test_sunlinsol_spfgmr_serial.c\;100 2 100 ${TOL} 0\;passfail"
   )
 
 if (BUILD_FORTRAN_MODULE_INTERFACE)

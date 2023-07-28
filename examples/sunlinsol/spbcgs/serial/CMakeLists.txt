@@ -28,8 +28,8 @@ endif()
 
 # Examples using SUNDIALS SPBCGS linear solver
 set(sunlinsol_spbcgs_examples
-  "test_sunlinsol_spbcgs_serial.c\; \"100 1 100 ${TOL} 0\" \;passfail"
-  "test_sunlinsol_spbcgs_serial.c\; \"100 2 100 ${TOL} 0\" \;passfail"
+  "test_sunlinsol_spbcgs_serial.c\;100 1 100 ${TOL} 0\;passfail"
+  "test_sunlinsol_spbcgs_serial.c\;100 2 100 ${TOL} 0\;passfail"
   )
 
 # If building F2003 tests

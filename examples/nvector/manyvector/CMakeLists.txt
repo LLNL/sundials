@@ -19,8 +19,8 @@
 
 # Examples using SUNDIALS manyvector nvector
 set(nvector_manyvector_examples
-  "test_nvector_manyvector.c\; \"1000 100 0\" \;passfail"
-  "test_nvector_manyvector.c\; \"100 1000 0\" \;passfail"
+  "test_nvector_manyvector.c\;1000 100 0\;passfail"
+  "test_nvector_manyvector.c\;100 1000 0\;passfail"
   )
 
 # If building F2003 tests

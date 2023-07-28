@@ -28,10 +28,10 @@ set(IDAS_examples
   "idasHeat2D_kry.c\;<none>\;exclude-single"
   "idasHessian_ASA_FSA.c\;<none>\;exclude-single"
   "idasKrylovDemo_ls.c\;<none>\;develop"
-  "idasKrylovDemo_ls.c\; \"1\" \;develop"
-  "idasKrylovDemo_ls.c\; \"2\" \;develop"
+  "idasKrylovDemo_ls.c\;1\;develop"
+  "idasKrylovDemo_ls.c\;2\;develop"
   "idasRoberts_ASAi_dns.c\;<none>\;exclude-single"
-  "idasRoberts_FSA_dns.c\; \"-sensi stg t\" \;exclude-single"
+  "idasRoberts_FSA_dns.c\;-sensi stg t\;exclude-single"
   "idasRoberts_dns.c\;<none>\;passfail"
   "idasSlCrank_dns.c\;<none>\;exclude-single"
   "idasSlCrank_FSA_dns.c\;<none>\;exclude-single"
@@ -44,14 +44,14 @@ set(IDAS_examples_BL
 # Examples using KLU linear solver
 set(IDAS_examples_KLU
   "idasRoberts_ASAi_klu.c\;<none>\;develop"
-  "idasRoberts_FSA_klu.c\; \"-sensi stg t\" \;develop"
+  "idasRoberts_FSA_klu.c\;-sensi stg t\;develop"
   "idasRoberts_klu.c\;<none>\;develop"
   )
 
 # Examples using SuperLU_MT linear solver
 set(IDAS_examples_SUPERLUMT
   "idasRoberts_ASAi_sps.c\;<none>\;exclude-single"
-  "idasRoberts_FSA_sps.c\; \"-sensi stg t\" \;exclude-single"
+  "idasRoberts_FSA_sps.c\;-sensi stg t\;exclude-single"
   "idasRoberts_sps.c\;<none>\;exclude-single"
   )
 
@@ -283,7 +283,7 @@ if(EXAMPLES_INSTALL)
     set(_include_sunlinsolsuperlumt sunlinsolsuperlumt)
     list(APPEND IDAS_examples 
       "idasRoberts_ASAi_sps.c\;<none>\;exclude-single"
-      "idasRoberts_FSA_sps.c\; \"-sensi stg t\" \;exclude-single"
+      "idasRoberts_FSA_sps.c\;-sensi stg t\;exclude-single"
       "idasRoberts_sps.c\;<none>\;exclude-single"
     )
     set(SUPERLUMT_TARGET SUNDIALS::SUPERLUMT)
@@ -293,7 +293,7 @@ if(EXAMPLES_INSTALL)
     set(_include_sunlinsolklu sunlinsolklu)
     list(APPEND IDAS_examples
       "idasRoberts_ASAi_klu.c\;<none>\;develop"
-      "idasRoberts_FSA_klu.c\; \"-sensi stg t\" \;develop"
+      "idasRoberts_FSA_klu.c\;-sensi stg t\;develop"
       "idasRoberts_klu.c\;<none>\;develop"
     )
     set(KLU_TARGET SUNDIALS::KLU)

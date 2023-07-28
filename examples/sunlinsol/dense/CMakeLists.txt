@@ -20,10 +20,10 @@
 
 # Examples using SUNDIALS dense linear solver
 set(sunlinsol_dense_examples
-  "test_sunlinsol_dense.c\; \"10 0\" \;passfail"
-  "test_sunlinsol_dense.c\; \"100 0\" \;passfail"
-  "test_sunlinsol_dense.c\; \"500 0\" \;passfail"
-  "test_sunlinsol_dense.c\; \"1000 0\" \; passfail"
+  "test_sunlinsol_dense.c\;10 0\;passfail"
+  "test_sunlinsol_dense.c\;100 0\;passfail"
+  "test_sunlinsol_dense.c\;500 0\;passfail"
+  "test_sunlinsol_dense.c\;1000 0\; passfail"
 )
 
 # If building F2003 tests

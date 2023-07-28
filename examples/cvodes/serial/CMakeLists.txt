@@ -20,37 +20,37 @@
 
 # Examples using SUNDIALS linear solvers
 set(CVODES_examples
-  "cvsAdvDiff_FSA_non.c\; \"-sensi sim t\" \;exclude-single"
-  "cvsAdvDiff_FSA_non.c\; \"-sensi stg t\" \;exclude-single"
+  "cvsAdvDiff_FSA_non.c\;-sensi sim t\;exclude-single"
+  "cvsAdvDiff_FSA_non.c\;-sensi stg t\;exclude-single"
   "cvsAdvDiff_bnd.c\;<none>\;develop"
   "cvsAnalytic_mels.c\;<none>\;develop"
   "cvsDirectDemo_ls.c\;<none>\;develop"
-  "cvsDiurnal_FSA_kry.c\; \"-sensi sim t\" \;exclude-single"
-  "cvsDiurnal_FSA_kry.c\; \"-sensi stg t\" \;exclude-single"
+  "cvsDiurnal_FSA_kry.c\;-sensi sim t\;exclude-single"
+  "cvsDiurnal_FSA_kry.c\;-sensi stg t\;exclude-single"
   "cvsDiurnal_kry.c\;<none>\;develop"
   "cvsDiurnal_kry_bp.c\;<none>\;develop"
   "cvsFoodWeb_ASAi_kry.c\;<none>\;develop"
   "cvsFoodWeb_ASAp_kry.c\;<none>\;develop"
   "cvsHessian_ASA_FSA.c\;<none>\;exclude-single"
   "cvsKrylovDemo_ls.c\;<none>\;develop"
-  "cvsKrylovDemo_ls.c\; \"1\" \;develop"
-  "cvsKrylovDemo_ls.c\; \"2\" \;develop"
+  "cvsKrylovDemo_ls.c\;1\;develop"
+  "cvsKrylovDemo_ls.c\;2\;develop"
   "cvsKrylovDemo_prec.c\;<none>\;develop"
   "cvsParticle_dns.c\;<none>\;develop"
   "cvsPendulum_dns.c\;<none>\;exclude-single"
   "cvsRoberts_ASAi_dns.c\;<none>\;exclude-single"
   "cvsRoberts_ASAi_dns_constraints.c\;<none>\;develop"
-  "cvsRoberts_FSA_dns.c\; \"-sensi sim t\" \;exclude-single"
-  "cvsRoberts_FSA_dns.c\; \"-sensi stg1 t\" \;exclude-single"
+  "cvsRoberts_FSA_dns.c\;-sensi sim t\;exclude-single"
+  "cvsRoberts_FSA_dns.c\;-sensi stg1 t\;exclude-single"
   "cvsRoberts_FSA_dns_Switch.c\;<none>\;exclude-single"
-  "cvsRoberts_FSA_dns_constraints.c\; \"-sensi stg1 t\" \;exclude-single"
+  "cvsRoberts_FSA_dns_constraints.c\;-sensi stg1 t\;exclude-single"
   "cvsRoberts_dns.c\;<none>\;passfail"
   "cvsRoberts_dns_constraints.c\;<none>\;develop"
   "cvsRoberts_dns_uw.c\;<none>\;develop"
   )
 
 if(SUNDIALS_BUILD_WITH_MONITORING)
-  list(APPEND CVODE_examples "cvsKrylovDemo_ls.c\; \"0 1\" \;develop")
+  list(APPEND CVODE_examples "cvsKrylovDemo_ls.c\;0 1\;develop")
 endif()
 
 # Examples using LAPACK linear solvers
@@ -62,14 +62,14 @@ set(CVODES_examples_BL
 # Examples using KLU linear solver
 set(CVODES_examples_KLU
   "cvsRoberts_ASAi_klu.c\;<none>\;develop"
-  "cvsRoberts_FSA_klu.c\; \"-sensi stg1 t\" \;develop"
+  "cvsRoberts_FSA_klu.c\;-sensi stg1 t\;develop"
   "cvsRoberts_klu.c\;<none>\;develop"
   )
 
 # Examples using SuperLU_MT linear solver
 set(CVODES_examples_SUPERLUMT
   "cvsRoberts_ASAi_sps.c\;<none>\;exclude-single"
-  "cvsRoberts_FSA_sps.c\; \"-sensi stg1 t\" \;exclude-single"
+  "cvsRoberts_FSA_sps.c\;-sensi stg1 t\;exclude-single"
   "cvsRoberts_sps.c\;<none>\;develop"
   )
 
@@ -303,7 +303,7 @@ if(EXAMPLES_INSTALL)
     set(_include_sunlinsolsuperlumt sunlinsolsuperlumt)
     list(APPEND CVODES_examples   
       "cvsRoberts_ASAi_sps.c\;<none>\;exclude-single"
-      "cvsRoberts_FSA_sps.c\; \"-sensi stg1 t\" \;exclude-single"
+      "cvsRoberts_FSA_sps.c\;-sensi stg1 t\;exclude-single"
       "cvsRoberts_sps.c\;<none>\;develop"
     )
     set(SUPERLUMT_TARGET SUNDIALS::SUPERLUMT)
@@ -313,7 +313,7 @@ if(EXAMPLES_INSTALL)
     set(_include_sunlinsolklu sunlinsolklu)
     list(APPEND CVODES_examples
       "cvsRoberts_ASAi_klu.c\;<none>\;develop"
-      "cvsRoberts_FSA_klu.c\; \"-sensi stg1 t\" \;develop"
+      "cvsRoberts_FSA_klu.c\;-sensi stg1 t\;develop"
       "cvsRoberts_klu.c\;<none>\;develop"
     )
     set(KLU_TARGET SUNDIALS::KLU)

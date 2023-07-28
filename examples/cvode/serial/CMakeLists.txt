@@ -27,8 +27,8 @@ set(CVODE_examples
   "cvDiurnal_kry_bp.c\;<none>\;develop"
   "cvDiurnal_kry.c\;<none>\;develop"
   "cvKrylovDemo_ls.c\;<none>\;develop"
-  "cvKrylovDemo_ls.c\;\"1\"\;develop"
-  "cvKrylovDemo_ls.c\;\"2\"\;develop"
+  "cvKrylovDemo_ls.c\;1\;develop"
+  "cvKrylovDemo_ls.c\;2\;develop"
   "cvKrylovDemo_prec.c\;<none>\;develop"
   "cvParticle_dns.c\;<none>\;develop"
   "cvPendulum_dns.c\;<none>\;exclude-single"
@@ -40,7 +40,7 @@ set(CVODE_examples
   )
 
 if(SUNDIALS_BUILD_WITH_MONITORING)
-  list(APPEND CVODE_examples "cvKrylovDemo_ls.c\;\"0 1\"\;develop")
+  list(APPEND CVODE_examples "cvKrylovDemo_ls.c\;0 1\;develop")
 endif()
 
 # Examples using LAPACK linear solvers
