@@ -104,6 +104,7 @@ foreach(idx RANGE ${len})
   else()
     string(REGEX REPLACE " " "_" test_name ${example}_${example_args})
   endif()
+  string(REPLACE "<none>" "" example_args "${example_args}")
   separate_arguments(example_args_wo_quotes UNIX_COMMAND "${example_args}")
   add_test(NAME ${test_name} COMMAND ${example_target} ${example_args_wo_quotes})
 

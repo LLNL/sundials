@@ -127,6 +127,7 @@ foreach(idx RANGE ${len})
     string(REGEX REPLACE " " "_" test_name ${example}_${example_args}_${example_nprocs})
   endif()
   separate_arguments(example_args_wo_quotes UNIX_COMMAND "${example_args}")
+  string(REPLACE "<none>" "" example_args "${example_args}")
   add_test(NAME ${test_name} COMMAND mpirun -np ${example_nprocs} ${example_target} ${example_args_wo_quotes})
 
 endforeach()
