@@ -394,7 +394,8 @@ static void InitUserData(UserData data, MPI_Comm comm, int nprocsx, int nprocsy,
       (data->pivot)[lx][ly] = SUNDlsMat_newIndexArray(NVARS);
     }
   }
-  printf("%f\n",data->Jbd[0][0][0][0]);
+  printf("Jbd[0][0]: [%f %f; %f %f]\n",data->Jbd[0][0][0][0],data->Jbd[0][0][1][0],
+                                       data->Jbd[0][0][0][1],data->Jbd[0][0][1][1]);
 }
 
 /* Free user data memory */
@@ -923,6 +924,7 @@ static int Precond(realtype tn, N_Vector u, N_Vector fu,
         c2     = udata[offset+1];
         j      = data->Jbd[lx][ly];
         a      = data->P[lx][ly];
+        printf("lx, ly, offset: %d %d %d\n",lx,ly,offset);
         IJth(j,1,1) = (-Q1*C3 - Q2*c2) + diag;
         IJth(j,1,2) =  -Q2*c1 + q4;
         IJth(j,2,1) =   Q1*C3 - Q2*c2;
