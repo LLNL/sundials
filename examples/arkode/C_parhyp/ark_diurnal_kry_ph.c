@@ -394,7 +394,7 @@ static void InitUserData(UserData data, MPI_Comm comm, int nprocsx, int nprocsy,
       (data->pivot)[lx][ly] = SUNDlsMat_newIndexArray(NVARS);
     }
   }
-  printf("%f\n",Jbd[0][0][0][0]);
+  printf("%f\n",data->Jbd[0][0][0][0]);
 }
 
 /* Free user data memory */
