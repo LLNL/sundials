@@ -22,12 +22,9 @@
 CVode Example documentation
 ==============================================
 
-<<<<<<< HEAD
 CVode Overview
 =============================
 
-=======
->>>>>>> origin/develop
 This is the documentation for the CVode examples.  CVode is a
 Krylov method integration package for stiff, nonstiff and
 multi-rate systems of ordinary differential equations (ODEs).
@@ -85,14 +82,12 @@ and :ref:`mpimanyvec_c`.
 Problem                            Integrator    Nonlinear     Linear      Size           Extras
 ================================   ============  ============  ==========  =============  =========================================================
 :ref:`cvAdvDiff_bnd`                BDF           Newton        Band        1              user Jacobian
-:ref:`deep_dive.cvAdvDiff_bnd`
 :ref:`cvAdvDiff_bndL`               BDF           Newton        Band        1              LAPACK band solver, user Jacobian
 :ref:`cvAnalytic_mels`              BDF           Newton        Custom      1              Matrix-embedded Custom Linear Solver
 :ref:`cvDirectDemo_ls`              BDF \\        Newton \\     Dense \\    3 \\           Van der Pol (1) user (2) dif-quot (3) diag + 2 \\
                                     ADAMS         Fixed-point   Band        1              2D advection (1) user (2) dif-quot (3) diag + 2
 :ref:`cvDisc_dns`                   BDF           Newton        Dense       2              Solves two separate equations, the second twice
 :ref:`cvDiurnal_kry`                BDF           Newton        SPGMR       200            block-diagonal preconditioner
-:ref:`deep_dive.cvDiurnal_kry`
 :ref:`cvDiurnal_kry_bp`             BDF           Newton        SPGMR       200            Solved twice with banded prec. on left and right
 :ref:`cvHeat2D_klu`                 BDF           Newton        KLU         1100           sparse matrices
 :ref:`cvKrylovDemo_ls`              BDF           Newton        4 Krylov    200            SPGMR, SPBCGS, SPTFQMR used
@@ -100,7 +95,6 @@ Problem                            Integrator    Nonlinear     Linear      Size 
 :ref:`cvParticle_dns`               BDF           Newton        Dense       2              user Jacobian and user projection
 :ref:`cvPendulum_dns`               BDF           Newton        Dense       4, 2           user projection, solves problem via inexact/exact meth.
 :ref:`cvRoberts_dns`                BDF           Newton        Dense       3              user Jacobian, root-finding
-:ref:`deep_dive.cvRoberts_dns`
 :ref:`cvRoberts_dns_constraints`    BDF           Newton        Dense       3              user Jacobian, root-finding, constraints for all comp.
 :ref:`cvRoberts_dns_negsol`         BDF           Newton        Dense       3              user Jacobian, root-finding, negative solution comp.
 :ref:`cvRoberts_dns_uw`             BDF           Newton        Dense       3              user Jacobian, root-finding, user error weight
@@ -118,6 +112,28 @@ Problem                            Integrator    Nonlinear     Linear      Size 
 :ref:`cvAdvDiff_non_ph`             ADAMS         Fixed-point               10             HYPRE parallel vector with IJ interface
 :ref:`cvDiurnal_kry_mpimanyvec`     BDF           Newton        SPGMR       200            MPI for user routines, MPIManyVector module
 ================================   ============  ============  ==========  =============  =========================================================
+
+C Examples Deep Dives
+----------------------
+
+Deep dives into CVode example problems written in C are listed below,
+and are further described in great length in the chapters
+:ref:`serial_deep_c`, :ref:`parallel_deep_c`, and :ref:`parhyp_deep_c`.
+Further testing is discussed in :ref:`tests_deep_c`.
+
+.. cssclass:: table-bordered
+
+======================================   ========================
+Problem                                  Example Type
+======================================   ========================
+:ref:`deep_dive.cvRoberts_dns`            serial
+:ref:`deep_dive.cvAdvDiff_bnd`            serial
+:ref:`deep_dive.cvDiurnal_kry`            serial
+:ref:`deep_dive.cvAdvDiff_non_p`          parallel
+:ref:`deep_dive.cvDiurnal_kry_p`          parallel
+:ref:`deep_dive.cvDiurnal_kry_bbd_p`      parallel
+:ref:`deep_dive.cvAdvDiff_non_ph`         HYPRE parallel
+======================================   ========================
 
 C++ Examples
 -------------
@@ -169,6 +185,20 @@ Problem                             Integrator  Nonlinear    Linear  Size       
 :ref:`cv_diag_non_p`                ADAMS       Fixed-point          128            parallel MPI
 =================================   ==========  ===========  ======  =============  =================================================
 
+Fortran Deep Dives
+-------------------
+
+Deep dives into CVode example problems written in Fortran 2003 are listed
+below, and are further described in great length in the chapter :ref:`deep_f2003`.
+
+.. cssclass:: table-bordered
+
+======================================   =================
+Problem                                  Example Type
+======================================   =================
+:ref:`deep_dive.cv_diurnal_kry`           serial
+:ref:`deep_dive.cv_diag_kry_bbd_p`        parallel
+======================================   =================
 
 
 Chapter List of Examples and Deep Dives
@@ -181,16 +211,16 @@ in the following chapters:
    :maxdepth: 1
 
    c_serial
-   c_serial_deep
    c_openmp
    c_openmpdev
    c_parallel
-   c_parallel_deep
    c_parhyp
-   c_parhyp_deep
    c_mpimanyvec
    c_cuda
    c_raja
+   c_serial_deep
+   c_parallel_deep
+   c_parhyp_deep
    c_tests_deep
    cpp_serial
    cpp_parallel

@@ -259,7 +259,7 @@ tex_author = r'''
     {\em Southern Methodist University and LLNL}
     '''
 
-latex_documents = [('index', 'ark_examples.tex', project,
+latex_documents = [('index', 'cv_examples.tex', project,
                     tex_author, 'manual', False)]
 
 # make sure the doc logo gets copied to the build directory

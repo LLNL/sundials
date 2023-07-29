@@ -15,7 +15,7 @@
 :tocdepth: 3
 
 
-.. _f2003_deep_c:
+.. _deep_f2003:
 
 ===================================================
 Fortran 2003 example problems -- Deep dive
