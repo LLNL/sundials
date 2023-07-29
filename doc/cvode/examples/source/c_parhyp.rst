@@ -17,7 +17,7 @@
 .. _parhyp_c:
 
 ====================================
-Parallel Hypre example problems
+Parallel Hypre C example problems
 ====================================
 
 

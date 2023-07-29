@@ -66,7 +66,7 @@ each block is set to have half-bandwidths ``mudq = mldq = 0`` to
 retain only the diagonal portion.
 
 Two runs are made for this problem, first with left and then with
-right preconditioning (``IPRE`` is first set to 1 and then to 2).
+right preconditioning (``iPre`` is first set to :math:`1` and then to :math:`2`).
 
 Performance data is printed at equally-spaced output times, and maximum
 errors and final performance counters are printed on completion. 
