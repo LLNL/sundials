@@ -106,10 +106,11 @@
 #define NOUT  10             /* number of output times    */
 
 #define MPI_ASSERT(expr,msg,comm,myproc,code) \
-  if(!(expr)) {                                 \
-    if (myproc==0) printf(msg);               \
+  if(!(expr)) {                               \
+    SUNDIALS_DEBUG_ERROR(msg);                \
     MPI_Abort(comm,code);                     \
   }
+    // if (myproc==0) printf(msg);
 
 /* Type : UserData
    contains grid constants, parhyp machine parameters, work array. */
