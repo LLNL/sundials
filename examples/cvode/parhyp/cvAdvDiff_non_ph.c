@@ -195,9 +195,9 @@ int main(int argc, char *argv[])
   MPI_Comm_rank(comm, &myproc);
 
   /* Parse inputs (required: M) */
-  MPI_ASSERT(argc>=2,"ERROR: ONE (1) input required: M (# of interior gridpoints)\n",comm,myproc,1)
+  MPI_ASSERT(argc>=2,"ERROR: ONE (1) input required: M (# of interior gridpoints)",comm,myproc,1)
   M = (HYPRE_Int) atoi(argv[1]);
-  MPI_ASSERT(M>=nprocs,"ERROR: M < nprocs (We require at least one interior gridpoint per process)\n",comm,myproc,1)
+  MPI_ASSERT(M>=nprocs,"ERROR: M < nprocs (We require at least one interior gridpoint per process)",comm,myproc,1)
 
   /* Allocate UserData */
   data = (UserData) malloc(sizeof *data);
