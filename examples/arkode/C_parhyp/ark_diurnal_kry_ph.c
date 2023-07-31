@@ -48,6 +48,36 @@
  *
  * This example uses Hypre vector and MPI parallelization. User is
  * expected to be familiar with the Hypre library.
+ * ┌ ┐ └ ┘ ├ ┤ ┬ ┴ ┼ ─ │ ╭ ╮ ╯ ╰ ╱ ╲ ╳ ╶ ╴
+ *-----------------------------------------------------------------
+ * Data flow: SERIAL backend
+ *                  ╭                         ╮
+ *                  ┊ [+dt]╭─ udotdata <─╮[f] ┊
+ *         [Send] ^ ┊      v   [copy]    │    ┊ v [Irecv]
+ *              <╶┼────╴udata ┄┄┄┄┄┄┄┄> uext╶───┼╴<
+ *                v ┊           HOST          ┊ ^
+ *                  ╰                         ╯
+ * Note: uext is is (conceptually) a local_Mx+2 by local_My+2
+ *       matrix - a padded version of u. It is the "working" array,
+ *       into which udata is copied at each step. MPI receives are
+ *       stored in the padding of uext. Its length is
+ *       NVARS*(local_Mx+2)*(local_My+2).
+ *
+ * Data flow: CUDA/HIP backend
+ *               ╭                               ╮
+ *               ┊             DEVICE            ┊
+ *               ┊ [fill] ╭───<─[+dt]─<───╮      ┊
+ *               ┊ ╭┄┄┄╴udata╶─>─[f]─>─╴udotdata ┊
+ *               ┊ ╰>bufs_dev╶─>──╯              ┊
+ *        [Send] ┊      ┊╰┄┄┄<┄┄┄┄╮[memcpy]      ┊ [Irecv]
+ *             ^ ┊      ╰┄┄┄>┄┄┄┄╮┊              ┊ v 
+ *           <╶┼────────────<──╴bufs╶──<───────────┼╴<
+ *             v ┊              HOST             ┊ ^
+ *               ╰                               ╯
+ * Note: bufs[_dev] is a combined buffer for sends, receives, and
+ *       host-device transfers. It is conceptually subdivided into
+ *       [sendB,sendT,sendL,sendR,recvB,recvT,recvL,recvR], and its
+ *       length is 2*NVARS*(2*local_Mx + 2*local_My).
  *-----------------------------------------------------------------
  * Execution: mpiexec -n N ark_diurnal_kry_ph nprocsx nprocsy Mx My
  * 
@@ -121,10 +151,11 @@
 #define IJth(a,i,j) (a[j-1][i-1])
 
 /* User-defined MPI assert macro */
-#define MPI_ASSERT(expr,msg,comm,myproc,code) \
-  if(!(expr)) {                               \
-    if (myproc==0) printf(msg);               \
-    MPI_Abort(comm,code);                     \
+#define MPI_ASSERT(expr,msg,comm,myproc,code)                            \
+  if(!(expr)) {                                                          \
+    fprintf(stderr, "ERROR in %s (%s line %d): %s",                      \
+        __func__, __FILE__, __LINE__, "\n──> "msg"\n──> Aborting...\n"); \
+    MPI_Abort(comm,code);                                                \
   }
 
 /* Type : UserData
@@ -132,9 +163,7 @@
    grid constants, and processor indices, as well as data needed
    for the preconditiner */
 typedef struct {
-
   realtype q4, om, dx, dy, hdco, haco, vdco;  /* variables and coefficients                */
-  realtype *uext;                             /* padded u matrix (flat); N=2*(Mx+2)*(My+2) */
   int M, Mx, My, local_M, local_Mx, local_My; /* # of interior gridpoints M=Mx*My          */
   int N, local_N, mybase;                     /* # of equations N=2*M and glob. eq. offset */
   int nprocs, nprocsx, nprocsy;               /* # of processes nprocs=nprocsx*nprocsy     */
@@ -146,6 +175,16 @@ typedef struct {
   /* For preconditioner */
   realtype ****P, ****Jbd;                    /* 2D arrays of dense matrices (** to **)    */
   sunindextype ***pivot;                      /* 2D arrays of index arrays (** to * )      */
+
+  /* Backend-dependent working/buffer arrays */
+#if defined(SUNDIALS_HYPRE_BACKENDS_SERIAL)
+  realtype *uext;                             /* padded u matrix (flat); N=2*(Mx+2)*(My+2) */
+#elif defined(SUNDIALS_HYPRE_BACKENDS_CUDA_OR_HIP)
+  realtype *bufs;
+  realtype *bufs_dev;                         /* combined send and receive buffers         */
+  int      sendB, sendT, sendL, sendR;        /* index in uext of host send buffers        */
+  int      recvB, recvT, recvL, recvR;        /* index in uext of host receive buffers     */
+#endif
 } *UserData;
 
 /* Private Helper Functions */
@@ -173,6 +212,18 @@ static int PSolve(realtype tn, N_Vector u, N_Vector fu,
 /* Private function to check function return values */
 static int check_flag(void *flagvalue, const char *funcname, int opt, int id);
 
+/* Kernels and device helper functions (for CUDA/HIP backend) */
+#if defined(SUNDIALS_HYPRE_BACKENDS_CUDA_OR_HIP)
+__global__ void fKernel(realtype *u, realtype *udot,
+                        HYPRE_Int local_M, realtype hdcoef, realtype hacoef,
+                        int recvB, int recvT, int recvL, int recvR);
+__global__ void FillSendKernel (realtype *u,
+                        HYPRE_Int local_M, realtype hdcoef, realtype hacoef,
+                        int sendB, int sendT, int sendL, int sendR);
+__host__ void UserDataCopyToDevice(UserData data, UserData data_dev);
+__host__ void UserDataUpdateOnDevice(UserData data, UserData data_dev);
+                
+#endif
 
 /***************************** Main Program ******************************/
 int main(int argc, char *argv[])
@@ -358,7 +409,22 @@ static void InitUserData(UserData data, MPI_Comm comm, int nprocsx, int nprocsy,
   data->local_N  = NVARS*data->local_M;
 
   /* Allocate uext */
+#if defined(SUNDIALS_HYPRE_BACKENDS_SERIAL)
+  // Note: uext is a (conceptually) 2D matrix; a padded version of u.
   data->uext     = (realtype*) malloc(NVARS*(data->local_Mx+2)*(data->local_My+2)*sizeof(realtype));
+#elif defined(SUNDIALS_HYPRE_BACKENDS_CUDA_OR_HIP)
+  // Note: bufs[_dev] is combined buffer storage:  [sendB,sendT,sendL,sendR,recvB,recvT,recvL,recvR]
+  data->uext     = (realtype*) malloc(2*NVARS*(2*data->local_Mx+2*data->local_My)*sizeof(realtype));
+  data->sendB    = 0;
+  data->sendT    = data->sendB + NVARS*data->local_Mx;
+  data->sendL    = data->sendT + NVARS*data->local_Mx;
+  data->sendR    = data->sendL + NVARS*data->local_My;
+  data->recvB    = data->sendR + NVARS*data->local_My;
+  data->recvT    = data->recvB + NVARS*data->local_Mx;
+  data->recvL    = data->recvT + NVARS*data->local_Mx;
+  data->recvR    = data->recvL + NVARS*data->local_My;
+#endif
+  
 
   /* Calculate equation offset (mybase) (see HYPRE_IJVectorCreate) */
   data->mybase   = 0;
@@ -1033,3 +1099,55 @@ static int check_flag(void *flagvalue, const char *funcname, int opt, int id)
 
   return(0);
 }
+/****** Kernels and device helper functions (for CUDA/HIP backend) ******/
+#if defined(SUNDIALS_HYPRE_BACKENDS_CUDA_OR_HIP)
+__global__ void fKernel(realtype *u, realtype *udot,
+                        HYPRE_Int local_M, realtype hdcoef, realtype hacoef,
+                        int recvB, int recvT, int recvL, int recvR)
+{
+  return;
+}
+
+__global__ void FillSendKernel (realtype *u,
+                        HYPRE_Int local_M, realtype hdcoef, realtype hacoef,
+                        int sendB, int sendT, int sendL, int sendR)
+{
+  return;
+}
+/* Copy UserData entries to device (except pointers) */
+__host__ void UserDataCopyToDevice(UserData data, UserData data_dev)
+{
+  iglobal_dev, iglobal, data->local_M*sizeof(HYPRE_Int), NV_ADD_LANG_PREFIX_PH(MemcpyHostToDevice)
+  NV_ADD_LANG_PREFIX_PH(Memcpy)(data->q4,data_dev->q4,)
+  return;
+}
+
+__host__ void UserDataUpdateOnDevice(UserData data, UserData data_dev)
+{
+  return;
+}
+// typedef struct {
+//   realtype q4, om, dx, dy, hdco, haco, vdco;  /* variables and coefficients                */
+//   int M, Mx, My, local_M, local_Mx, local_My; /* # of interior gridpoints M=Mx*My          */
+//   int N, local_N, mybase;                     /* # of equations N=2*M and glob. eq. offset */
+//   int nprocs, nprocsx, nprocsy;               /* # of processes nprocs=nprocsx*nprocsy     */
+//   int myproc, myprocx, myprocy;               /* my process indices, flat & Cartesian      */
+//   int dsizex, dsizey, dsizex2, dsizey2;       /* x/y size of u & uext                      */
+//   int isbottom, istop, isleft, isright;       /* (bool) does process abut given boundary   */
+//   MPI_Comm comm;
+
+//   /* For preconditioner */
+//   realtype ****P, ****Jbd;                    /* 2D arrays of dense matrices (** to **)    */
+//   sunindextype ***pivot;                      /* 2D arrays of index arrays (** to * )      */
+
+//   /* Backend-dependent working/buffer arrays */
+// #if defined(SUNDIALS_HYPRE_BACKENDS_SERIAL)
+//   realtype *uext;                             /* padded u matrix (flat); N=2*(Mx+2)*(My+2) */
+// #elif defined(SUNDIALS_HYPRE_BACKENDS_CUDA_OR_HIP)
+//   realtype *bufs;
+//   realtype *bufs_dev;                         /* combined send and receive buffers         */
+//   int      sendB, sendT, sendL, sendR;        /* index in uext of host send buffers        */
+//   int      recvB, recvT, recvL, recvR;        /* index in uext of host receive buffers     */
+// #endif
+// } *UserData;
+#endif
