@@ -83,6 +83,7 @@
 #include <cvode/cvode.h>                          /* prototypes for CVODE fcts.                   */
 #include <sundials/sundials_types.h>              /* definition of realtype                       */
 #include <sundials/sundials_math.h>               /* definition of EXP                            */
+#include <sundials/sundials_debug.h>
 #include <nvector/nvector_parhyp.h>               /* nvector implementation                       */
 #include "sunnonlinsol/sunnonlinsol_fixedpoint.h" /* access to the fixed point SUNNonlinearSolver */
 
