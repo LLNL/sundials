@@ -106,11 +106,11 @@
 #define DTOUT RCONST(0.5)    /* output time increment     */
 #define NOUT  10             /* number of output times    */
 
-#define MPI_ASSERT(expr,msg,comm,myproc,code)       \
-  if(!(expr)) {                                     \
-    fprintf(stderr, "ERROR in %s (%s line %d): %s", \
-        __func__, __FILE__, __LINE__, msg);         \
-    MPI_Abort(comm,code);                           \
+#define MPI_ASSERT(expr,msg,comm,myproc,code)             \
+  if(!(expr)) {                                           \
+    fprintf(stderr, "ERROR in %s (%s line %d): %s",       \
+        __func__, __FILE__, __LINE__, "*\n* "msg"\n*\n"); \
+    MPI_Abort(comm,code);                                 \
   }
     // SUNDIALS_DEBUG_ERROR(msg);
     // if (myproc==0) printf(msg);
