@@ -74,7 +74,7 @@ C Examples
 CVode example problems written in C are summarized in the table
 below, and are further described in the chapters :ref:`serial_c`,
 :ref:`openmp_c`, :ref:`openmpdev_c`, :ref:`parallel_c`, :ref:`parhyp_c`,
-and :ref:`mpimanyvec_c`.
+:ref:`mpimanyvec_c`, :ref:`cuda_c`, and :ref:`raja_c`.
 
 .. cssclass:: table-bordered
 
@@ -111,6 +111,8 @@ Problem                            Integrator    Nonlinear     Linear      Size 
 :ref:`cvDiurnal_kry_p`              BDF           Newton        SPGMR       200            MPI for user routines, block-diagonal left prec.
 :ref:`cvAdvDiff_non_ph`             ADAMS         Fixed-point               10             HYPRE parallel vector with IJ interface
 :ref:`cvDiurnal_kry_mpimanyvec`     BDF           Newton        SPGMR       200            MPI for user routines, MPIManyVector module
+:ref:`cvAdvDiff_kry_cuda`
+:ref:`cvAdvDiff_kry_raja`
 ================================   ============  ============  ==========  =============  =========================================================
 
 C Examples Deep Dives
