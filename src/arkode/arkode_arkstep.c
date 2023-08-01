@@ -1341,7 +1341,7 @@ int arkStep_FullRHS(void* arkode_mem, realtype t, N_Vector y, N_Vector f,
 {
   ARKodeMem ark_mem;
   ARKodeARKStepMem step_mem;
-  int nvec, retval;
+  int i, s, nvec, retval;
   booleantype recomputeRHS;
   realtype* cvals;
   N_Vector* Xvecs;
@@ -1370,50 +1370,68 @@ int arkStep_FullRHS(void* arkode_mem, realtype t, N_Vector y, N_Vector f,
      possible reuse in the first stage of the subsequent time step */
   case ARK_FULLRHS_START:
 
-    /* call fe if the problem has an explicit component */
-    if (step_mem->explicit) {
-      retval = step_mem->fe(t, y, step_mem->Fe[0], ark_mem->user_data);
-      step_mem->nfe++;
-      if (retval != 0) {
-        arkProcessError(ark_mem, ARK_RHSFUNC_FAIL, "ARKODE::ARKStep",
-                        "arkStep_FullRHS", MSG_ARK_RHSFUNC_FAILED, t);
-        return(ARK_RHSFUNC_FAIL);
+    /* call f */
+    if (!(ark_mem->fn_current))
+    {
+      /* call fe if the problem has an explicit component */
+      if (step_mem->explicit)
+      {
+        retval = step_mem->fe(t, y, step_mem->Fe[0], ark_mem->user_data);
+        step_mem->nfe++;
+        if (retval != 0)
+        {
+          arkProcessError(ark_mem, ARK_RHSFUNC_FAIL, "ARKODE::ARKStep",
+                          "arkStep_FullRHS", MSG_ARK_RHSFUNC_FAILED, t);
+          return(ARK_RHSFUNC_FAIL);
+        }
+        /* apply external polynomial forcing */
+        if (step_mem->expforcing)
+        {
+          cvals[0] = ONE;
+          Xvecs[0] = step_mem->Fe[0];
+          nvec     = 1;
+          arkStep_ApplyForcing(step_mem, t, ONE, &nvec);
+          N_VLinearCombination(nvec, cvals, Xvecs, step_mem->Fe[0]);
+        }
       }
-      /* apply external polynomial forcing */
-      if (step_mem->expforcing) {
-        cvals[0] = ONE;
-        Xvecs[0] = step_mem->Fe[0];
-        nvec     = 1;
-        arkStep_ApplyForcing(step_mem, t, ONE, &nvec);
-        N_VLinearCombination(nvec, cvals, Xvecs, step_mem->Fe[0]);
-      }
-    }
 
-    /* call fi if the problem has an implicit component */
-    if (step_mem->implicit) {
-      retval = step_mem->fi(t, y, step_mem->Fi[0], ark_mem->user_data);
-      step_mem->nfi++;
-      if (retval != 0) {
-        arkProcessError(ark_mem, ARK_RHSFUNC_FAIL, "ARKODE::ARKStep",
-                        "arkStep_FullRHS", MSG_ARK_RHSFUNC_FAILED, t);
-        return(ARK_RHSFUNC_FAIL);
-      }
-      /* apply external polynomial forcing */
-      if (step_mem->impforcing) {
-        cvals[0] = ONE;
-        Xvecs[0] = step_mem->Fi[0];
-        nvec     = 1;
-        arkStep_ApplyForcing(step_mem, t, ONE, &nvec);
-        N_VLinearCombination(nvec, cvals, Xvecs, step_mem->Fi[0]);
+      /* call fi if the problem has an implicit component */
+      if (step_mem->implicit)
+      {
+        retval = step_mem->fi(t, y, step_mem->Fi[0], ark_mem->user_data);
+        step_mem->nfi++;
+        if (retval != 0)
+        {
+          arkProcessError(ark_mem, ARK_RHSFUNC_FAIL, "ARKODE::ARKStep",
+                          "arkStep_FullRHS", MSG_ARK_RHSFUNC_FAILED, t);
+          return(ARK_RHSFUNC_FAIL);
+        }
+        /* apply external polynomial forcing */
+        if (step_mem->impforcing)
+        {
+          cvals[0] = ONE;
+          Xvecs[0] = step_mem->Fi[0];
+          nvec     = 1;
+          arkStep_ApplyForcing(step_mem, t, ONE, &nvec);
+          N_VLinearCombination(nvec, cvals, Xvecs, step_mem->Fi[0]);
+        }
       }
     }
 
     /* combine RHS vector(s) into output */
-    if (step_mem->explicit && step_mem->implicit) { /* ImEx */
+    if (step_mem->explicit && step_mem->implicit)
+    {
+      /* ImEx */
       N_VLinearSum(ONE, step_mem->Fi[0], ONE, step_mem->Fe[0], f);
-    } else if (step_mem->implicit) {                   /* implicit */
+    }
+    else if (step_mem->implicit)
+    {
+      /* implicit */
       N_VScale(ONE, step_mem->Fi[0], f);
-    } else {                                           /* explicit */
+    }
+    else
+    {
+      /* explicit */
       N_VScale(ONE, step_mem->Fe[0], f);
     }
 
@@ -1426,66 +1444,110 @@ int arkStep_FullRHS(void* arkode_mem, realtype t, N_Vector y, N_Vector f,
      Copy the results to Fe[0] and Fi[0] if the ARK coefficients support it. */
   case ARK_FULLRHS_END:
 
-    /* determine if explicit/implicit RHS functions need to be recomputed */
-    recomputeRHS = SUNFALSE;
-    if ( step_mem->explicit && (SUNRabs(step_mem->Be->c[step_mem->stages-1]-ONE)>TINY) )
-      recomputeRHS = SUNTRUE;
-    if ( step_mem->implicit && (SUNRabs(step_mem->Bi->c[step_mem->stages-1]-ONE)>TINY) )
-      recomputeRHS = SUNTRUE;
+    /* determine if RHS functions need to be recomputed */
+    if (!(ark_mem->fn_current))
+    {
+      /* determine if explicit/implicit RHS functions need to be recomputed */
+      recomputeRHS = SUNFALSE;
 
-    /* base RHS calls on recomputeRHS argument */
-    if (recomputeRHS) {
-
-      /* call fe if the problem has an explicit component */
-      if (step_mem->explicit) {
-        retval = step_mem->fe(t, y, step_mem->Fe[0], ark_mem->user_data);
-        step_mem->nfe++;
-        if (retval != 0) {
-          arkProcessError(ark_mem, ARK_RHSFUNC_FAIL, "ARKODE::ARKStep",
-                          "arkStep_FullRHS", MSG_ARK_RHSFUNC_FAILED, t);
-          return(ARK_RHSFUNC_FAIL);
-        }
-        /* apply external polynomial forcing */
-        if (step_mem->expforcing) {
-          cvals[0] = ONE;
-          Xvecs[0] = step_mem->Fe[0];
-          nvec     = 1;
-          arkStep_ApplyForcing(step_mem, t, ONE, &nvec);
-          N_VLinearCombination(nvec, cvals, Xvecs, step_mem->Fe[0]);
-        }
-      }
-
-      /* call fi if the problem has an implicit component */
-      if (step_mem->implicit) {
-        retval = step_mem->fi(t, y, step_mem->Fi[0], ark_mem->user_data);
-        step_mem->nfi++;
-        if (retval != 0) {
-          arkProcessError(ark_mem, ARK_RHSFUNC_FAIL, "ARKODE::ARKStep",
-                          "arkStep_FullRHS", MSG_ARK_RHSFUNC_FAILED, t);
-          return(ARK_RHSFUNC_FAIL);
-        }
-        /* apply external polynomial forcing */
-        if (step_mem->impforcing) {
-          cvals[0] = ONE;
-          Xvecs[0] = step_mem->Fi[0];
-          nvec     = 1;
-          arkStep_ApplyForcing(step_mem, t, ONE, &nvec);
-          N_VLinearCombination(nvec, cvals, Xvecs, step_mem->Fi[0]);
-        }
-      }
-    } else {
       if (step_mem->explicit)
-        N_VScale(ONE, step_mem->Fe[step_mem->stages-1], step_mem->Fe[0]);
+      {
+        s = step_mem->Be->stages;
+        for (i = 0; i < s; i++)
+        {
+          if (SUNRabs(step_mem->Be->b[i] - step_mem->Be->A[s-1][i]) > TINY)
+          {
+            recomputeRHS = SUNTRUE;
+          }
+        }
+      }
+
       if (step_mem->implicit)
-        N_VScale(ONE, step_mem->Fi[step_mem->stages-1], step_mem->Fi[0]);
+      {
+        s = step_mem->Bi->stages;
+        for (i = 0; i < s; i++)
+        {
+          if (SUNRabs(step_mem->Bi->b[i] - step_mem->Bi->A[s-1][i]) > TINY)
+          {
+            recomputeRHS = SUNTRUE;
+          }
+        }
+      }
+
+      /* base RHS calls on recomputeRHS argument */
+      if (recomputeRHS)
+      {
+        /* call fe if the problem has an explicit component */
+        if (step_mem->explicit)
+        {
+          retval = step_mem->fe(t, y, step_mem->Fe[0], ark_mem->user_data);
+          step_mem->nfe++;
+          if (retval != 0)
+          {
+            arkProcessError(ark_mem, ARK_RHSFUNC_FAIL, "ARKODE::ARKStep",
+                            "arkStep_FullRHS", MSG_ARK_RHSFUNC_FAILED, t);
+            return(ARK_RHSFUNC_FAIL);
+          }
+          /* apply external polynomial forcing */
+          if (step_mem->expforcing)
+          {
+            cvals[0] = ONE;
+            Xvecs[0] = step_mem->Fe[0];
+            nvec     = 1;
+            arkStep_ApplyForcing(step_mem, t, ONE, &nvec);
+            N_VLinearCombination(nvec, cvals, Xvecs, step_mem->Fe[0]);
+          }
+        }
+
+        /* call fi if the problem has an implicit component */
+        if (step_mem->implicit)
+        {
+          retval = step_mem->fi(t, y, step_mem->Fi[0], ark_mem->user_data);
+          step_mem->nfi++;
+          if (retval != 0)
+          {
+            arkProcessError(ark_mem, ARK_RHSFUNC_FAIL, "ARKODE::ARKStep",
+                            "arkStep_FullRHS", MSG_ARK_RHSFUNC_FAILED, t);
+            return(ARK_RHSFUNC_FAIL);
+          }
+          /* apply external polynomial forcing */
+          if (step_mem->impforcing)
+          {
+            cvals[0] = ONE;
+            Xvecs[0] = step_mem->Fi[0];
+            nvec     = 1;
+            arkStep_ApplyForcing(step_mem, t, ONE, &nvec);
+            N_VLinearCombination(nvec, cvals, Xvecs, step_mem->Fi[0]);
+          }
+        }
+      }
+      else
+      {
+        if (step_mem->explicit)
+        {
+          N_VScale(ONE, step_mem->Fe[step_mem->stages-1], step_mem->Fe[0]);
+        }
+        if (step_mem->implicit)
+        {
+          N_VScale(ONE, step_mem->Fi[step_mem->stages-1], step_mem->Fi[0]);
+        }
+      }
     }
 
     /* combine RHS vector(s) into output */
-    if (step_mem->explicit && step_mem->implicit) { /* ImEx */
+    if (step_mem->explicit && step_mem->implicit)
+    {
+      /* ImEx */
       N_VLinearSum(ONE, step_mem->Fi[0], ONE, step_mem->Fe[0], f);
-    } else if (step_mem->implicit) {                   /* implicit */
+    }
+    else if (step_mem->implicit)
+    {
+      /* implicit */
       N_VScale(ONE, step_mem->Fi[0], f);
-    } else {                                           /* explicit */
+    }
+    else
+    {
+      /* explicit */
       N_VScale(ONE, step_mem->Fe[0], f);
     }
 
