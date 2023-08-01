@@ -150,9 +150,6 @@ macro(SUNDIALS_ADD_TEST NAME EXECUTABLE)
 
       # set the test input args
       if(SUNDIALS_ADD_TEST_TEST_ARGS)
-        #testing
-        string(REPLACE "<none>" "" _user_args "${SUNDIALS_ADD_TEST_TEST_ARGS}")
-        separate_arguments(_user_args UNIX_COMMAND "${_user_args}")
         set(_run_args "${_user_args}")
         unset(_user_args)
       endif()
