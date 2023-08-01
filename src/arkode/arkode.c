@@ -1910,13 +1910,15 @@ int arkInitialSetup(ARKodeMem ark_mem, realtype tout)
     }
   }
 
-  /* If necessary, temporarily set h as it is used to compute the tolerance in a
-     potential mass matrix solve when computing the full rhs */
-  if (ark_mem->h == ZERO) ark_mem->h = ONE;
+  /* Fill initial interpolation data (if needed) */
+  if (ark_mem->interp != NULL) {
+    retval = arkInterpInit(ark_mem, ark_mem->interp, ark_mem->tcur);
+    if (retval != 0)  return(retval);
+  }
 
   /* Call fullrhs (used in estimating initial step, explicit steppers, Hermite
      interpolation module, and possibly (but not always) arkRootCheck1) */
-  if (ark_mem->call_fullrhs)
+  if (ark_mem->call_fullrhs || ark_mem->hin == ZERO)
   {
     if (!ark_mem->step_fullrhs)
     {
@@ -1931,12 +1933,6 @@ int arkInitialSetup(ARKodeMem ark_mem, realtype tout)
                       "arkInitialSetup", MSG_ARK_MEM_FAIL);
       return(ARK_MEM_FAIL);
     }
-  }
-
-  /* Fill initial interpolation data (if needed) */
-  if (ark_mem->interp != NULL) {
-    retval = arkInterpInit(ark_mem, ark_mem->interp, ark_mem->tcur);
-    if (retval != 0)  return(retval);
   }
 
   /* initialization complete */
@@ -2228,6 +2224,10 @@ int arkHin(ARKodeMem ark_mem, realtype tout)
   /* call full RHS if needed */
   if (!(ark_mem->fn_current))
   {
+  /* NOTE: The step size (h) is used in setting the tolerance in a potential
+     mass matrix solve when computing the full RHS. Before calling arkHin, h is
+     set to |tout- tcur| or 1 and so we do not need to guard against h == 0 here
+     before calling the full RHS. */
     retval = ark_mem->step_fullrhs(ark_mem, ark_mem->tn, ark_mem->yn,
                                    ark_mem->fn, ARK_FULLRHS_START);
     if (retval) { return ARK_RHSFUNC_FAIL; }
