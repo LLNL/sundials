@@ -132,12 +132,9 @@ if(BUILD_SUNLINSOL_LAPACKBAND AND BUILD_SUNLINSOL_LAPACKDENSE)
       target_link_libraries(${example} ${SUNDIALS_LIBS} ${SUNLINSOLLAPACK_LIBS})
     endif()
 
-    # check if example args are provided and set the test name
-    if("${example_args}" STREQUAL "")
-      set(test_name ${example})
-    else()
-      string(REGEX REPLACE " " "_" test_name ${example}_${example_args})
-    endif()
+  # check if example args are provided and set the test name
+  sundials_create_test_name(${example} test_name
+    TEST_ARGS ${example_args})
 
     # add example to regression tests
     sundials_add_test(${test_name} ${example}
@@ -184,12 +181,9 @@ if(BUILD_SUNLINSOL_KLU)
       target_link_libraries(${example} ${SUNDIALS_LIBS} ${SUNLINSOLKLU_LIBS})
     endif()
 
-    # check if example args are provided and set the test name
-    if("${example_args}" STREQUAL "")
-      set(test_name ${example})
-    else()
-      string(REGEX REPLACE " " "_" test_name ${example}_${example_args})
-    endif()
+  # check if example args are provided and set the test name
+  sundials_create_test_name(${example} test_name
+    TEST_ARGS ${example_args})
 
     # add example to regression tests
     sundials_add_test(${test_name} ${example}
@@ -236,12 +230,9 @@ if(BUILD_SUNLINSOL_SUPERLUMT)
       target_link_libraries(${example} ${SUNDIALS_LIBS} ${SUNLINSOLSLUMT_LIBS})
     endif()
 
-    # check if example args are provided and set the test name
-    if("${example_args}" STREQUAL "")
-      set(test_name ${example})
-    else()
-      string(REGEX REPLACE " " "_" test_name ${example}_${example_args})
-    endif()
+  # check if example args are provided and set the test name
+  sundials_create_test_name(${example} test_name
+    TEST_ARGS ${example_args})
 
     # Do not include SuperLUMT examples in testing when the indextype is int64_t.
     # Answer files were generated with int32_t and minor differences in output

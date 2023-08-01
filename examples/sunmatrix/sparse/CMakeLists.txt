@@ -20,12 +20,12 @@
 
 # Examples using SUNDIALS sparse matrix
 set(sunmatrix_sparse_examples
-  "test_sunmatrix_sparse.c\; \"400 400 0 0\" \;passfail"
-  "test_sunmatrix_sparse.c\; \"450 450 1 0\" \;passfail"
-  "test_sunmatrix_sparse.c\; \"200 1000 0 0\" \;passfail"
-  "test_sunmatrix_sparse.c\; \"6000 350 0 0\" \;passfail"
-  "test_sunmatrix_sparse.c\; \"500 5000 1 0\" \;passfail"
-  "test_sunmatrix_sparse.c\; \"4000 800 1 0\" \;passfail"
+  "test_sunmatrix_sparse.c\;400 400 0 0\;passfail"
+  "test_sunmatrix_sparse.c\;450 450 1 0\;passfail"
+  "test_sunmatrix_sparse.c\;200 1000 0 0\;passfail"
+  "test_sunmatrix_sparse.c\;6000 350 0 0\;passfail"
+  "test_sunmatrix_sparse.c\;500 5000 1 0\;passfail"
+  "test_sunmatrix_sparse.c\;4000 800 1 0\;passfail"
 )
 
 # Dependencies for sunmatrix examples
@@ -87,11 +87,8 @@ foreach(example_tuple ${sunmatrix_sparse_examples})
   endif()
 
   # check if example args are provided and set the test name
-  if("${example_args}" STREQUAL "")
-    set(test_name ${example})
-  else()
-    string(REGEX REPLACE " " "_" test_name ${example}_${example_args})
-  endif()
+  sundials_create_test_name(${example} test_name
+    TEST_ARGS ${example_args})
 
   # add example to regression tests
   sundials_add_test(${test_name} ${example}
@@ -127,11 +124,8 @@ foreach(example_tuple ${sunmatrix_sparse_fortran_examples})
   endif()
 
   # check if example args are provided and set the test name
-  if("${example_args}" STREQUAL "")
-    set(test_name ${example})
-  else()
-    string(REGEX REPLACE " " "_" test_name ${example}_${example_args})
-  endif()
+  sundials_create_test_name(${example} test_name
+    TEST_ARGS ${example_args})
 
   # add example to regression tests
   sundials_add_test(${test_name} ${example}
