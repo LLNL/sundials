@@ -12,22 +12,12 @@
    SUNDIALS Copyright End
    -----------------------------------------------------------------------------
 
-#########################
-SUNDIALS Developers Guide
-#########################
+.. _Packages:
+
+Packages
+===========
 
 .. toctree::
-   :numbered:
    :maxdepth: 2
 
-   introduction/index
-   getting_started/index
-   style_guide/index
-   development/index
-   testing/index
-   benchmarks/index
-   pull_requests/index
-   releases/index
-   packages/index
-   appendix/index
-   references
+   ARKODE

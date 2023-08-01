@@ -34,7 +34,8 @@ needs_sphinx = '4.0'
 # Add any Sphinx extension module names here, as strings. They can be extensions
 # coming with Sphinx (named 'sphinx.ext.*') or your custom ones.
 extensions = ['sphinx_rtd_theme', 'sphinx.ext.ifconfig', 'sphinx.ext.mathjax',
-              'sphinxfortran.fortran_domain', 'sphinxcontrib.bibtex', 'sphinx_copybutton']
+              'sphinxfortran.fortran_domain', 'sphinxcontrib.bibtex',
+              'sphinx_copybutton', 'sphinx.ext.graphviz']
 
 # References
 bibtex_bibfiles = ['../../shared/sundials.bib']
