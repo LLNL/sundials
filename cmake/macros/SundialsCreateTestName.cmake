@@ -18,7 +18,7 @@ macro(sundials_create_test_name example test_name)
   set(options )
 
   # macro keyword inputs followed by a single value
-  set(oneValueArgs )
+  set(oneValueArgs "MPI_NPROCS")
 
   # macro keyword inputs followed by multiple values
   # TEST_ARGS = command line arguments to pass to the test executable
@@ -29,7 +29,13 @@ macro(sundials_create_test_name example test_name)
     "${options}" "${oneValueArgs}" "${multiValueArgs}" ${ARGN})
     
   get_filename_component(file_wo_ext ${example} NAME_WE)
-  if("${sundials_create_test_name_TEST_ARGS}" STREQUAL "<none>")
+  if(HAS_MPI)
+    if("${sundials_create_test_name_TEST_ARGS}" STREQUAL "<none>")
+      set(${test_name} ${file_wo_ext}_${sundials_create_test_name_MPI_NPROCS})
+    else()
+      string(REGEX REPLACE " " "_" ${test_name} ${file_wo_ext}_${sundials_create_test_name_TEST_ARGS}_${sundials_create_test_name_MPI_NPROCS})
+    endif()
+  elseif("${sundials_create_test_name_TEST_ARGS}" STREQUAL "<none>")
     set(${test_name} ${file_wo_ext})
   else()
     string(REGEX REPLACE " " "_" ${test_name} ${file_wo_ext}_${sundials_create_test_name_TEST_ARGS})
