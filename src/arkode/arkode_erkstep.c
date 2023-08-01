@@ -627,7 +627,7 @@ int erkStep_Init(void* arkode_mem, int init_type)
 int erkStep_FullRHS(void* arkode_mem, realtype t, N_Vector y, N_Vector f,
                     int mode)
 {
-  int retval;
+  int i, s, retval;
   ARKodeMem ark_mem;
   ARKodeERKStepMem step_mem;
   booleantype recomputeRHS;
@@ -646,12 +646,16 @@ int erkStep_FullRHS(void* arkode_mem, realtype t, N_Vector y, N_Vector f,
   case ARK_FULLRHS_START:
 
     /* call f */
-    retval = step_mem->f(t, y, step_mem->F[0], ark_mem->user_data);
-    step_mem->nfe++;
-    if (retval != 0) {
-      arkProcessError(ark_mem, ARK_RHSFUNC_FAIL, "ARKODE::ERKStep",
-                      "erkStep_FullRHS", MSG_ARK_RHSFUNC_FAILED, t);
-      return(ARK_RHSFUNC_FAIL);
+    if (!(ark_mem->fn_current))
+    {
+      retval = step_mem->f(t, y, step_mem->F[0], ark_mem->user_data);
+      step_mem->nfe++;
+      if (retval != 0)
+      {
+        arkProcessError(ark_mem, ARK_RHSFUNC_FAIL, "ARKODE::ERKStep",
+                        "erkStep_FullRHS", MSG_ARK_RHSFUNC_FAILED, t);
+        return(ARK_RHSFUNC_FAIL);
+      }
     }
 
     /* copy RHS vector into output */
@@ -667,24 +671,35 @@ int erkStep_FullRHS(void* arkode_mem, realtype t, N_Vector y, N_Vector f,
   case ARK_FULLRHS_END:
 
     /* determine if explicit RHS function needs to be recomputed */
-    recomputeRHS = SUNFALSE;
-    if (SUNRabs(step_mem->B->c[step_mem->stages - 1] - ONE) > TINY)
-      recomputeRHS = SUNTRUE;
-
-    /* base RHS calls on recomputeRHS argument */
-    if (recomputeRHS) {
-
-      /* call f */
-      retval = step_mem->f(t, y, step_mem->F[0], ark_mem->user_data);
-      step_mem->nfe++;
-      if (retval != 0) {
-        arkProcessError(ark_mem, ARK_RHSFUNC_FAIL, "ARKODE::ERKStep",
-                        "erkStep_FullRHS", MSG_ARK_RHSFUNC_FAILED, t);
-        return(ARK_RHSFUNC_FAIL);
+    if (!(ark_mem->fn_current))
+    {
+      recomputeRHS = SUNFALSE;
+      s = step_mem->B->stages;
+      for (i = 0; i < s; i++)
+      {
+        if (SUNRabs(step_mem->B->b[i] - step_mem->B->A[s-1][i]) > TINY)
+        {
+          recomputeRHS = SUNTRUE;
+        }
       }
 
-    } else {
-      N_VScale(ONE, step_mem->F[step_mem->stages-1], step_mem->F[0]);
+      /* base RHS calls on recomputeRHS argument */
+      if (recomputeRHS)
+      {
+        /* call f */
+        retval = step_mem->f(t, y, step_mem->F[0], ark_mem->user_data);
+        step_mem->nfe++;
+        if (retval != 0)
+        {
+          arkProcessError(ark_mem, ARK_RHSFUNC_FAIL, "ARKODE::ERKStep",
+                        "erkStep_FullRHS", MSG_ARK_RHSFUNC_FAILED, t);
+          return(ARK_RHSFUNC_FAIL);
+        }
+      }
+      else
+      {
+        N_VScale(ONE, step_mem->F[step_mem->stages-1], step_mem->F[0]);
+      }
     }
 
     /* copy RHS vector into output */
@@ -741,7 +756,7 @@ int erkStep_FullRHS(void* arkode_mem, realtype t, N_Vector y, N_Vector f,
   ---------------------------------------------------------------*/
 int erkStep_TakeStep(void* arkode_mem, realtype *dsmPtr, int *nflagPtr)
 {
-  int retval, is, js, nvec;
+  int retval, is, js, nvec, mode;
   realtype* cvals;
   N_Vector* Xvecs;
   ARKodeMem ark_mem;
@@ -776,6 +791,20 @@ int erkStep_TakeStep(void* arkode_mem, realtype *dsmPtr, int *nflagPtr)
                      "F[0] =", "");
   N_VPrintFile(step_mem->F[0], ARK_LOGGER->debug_fp);
 #endif
+
+  /* call full RHS if needed -- if this is the first step then we need to
+     evaluate or copy the RHS values at the start of the step. With subsequent
+     steps we are evaluating the RHS at the end of the just completed step i.e.,
+     the start of this step can may be able to use the last stage RHS at the end
+     of the last step (FSAL methods) or need a new function evaluation. */
+  if (!(ark_mem->fn_current))
+  {
+    mode = (ark_mem->initsetup) ? ARK_FULLRHS_START : ARK_FULLRHS_END;
+    retval = ark_mem->step_fullrhs(ark_mem, ark_mem->tn, ark_mem->yn,
+                                   ark_mem->fn, ARK_FULLRHS_START);
+    if (retval) { return ARK_RHSFUNC_FAIL; }
+    ark_mem->fn_current = SUNTRUE;
+  }
 
   /* Loop over internal stages to the step; since the method is explicit
      the first stage RHS is just the full RHS from the start of the step */

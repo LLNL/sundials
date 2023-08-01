@@ -330,15 +330,17 @@ struct ARKodeMemRec
   void                       *step_mem;
 
   /* N_Vector storage */
-  N_Vector ewt;           /* error weight vector                             */
-  N_Vector rwt;           /* residual weight vector                          */
-  booleantype rwt_is_ewt; /* SUNTRUE if rwt is a pointer to ewt              */
-  N_Vector ycur;          /* pointer to user-provided solution memory; used
-                             as evolving solution by the timestepper modules */
-  N_Vector yn;            /* solution from the last successful step          */
-  N_Vector fn;            /* full IVP right-hand side from last step         */
-  N_Vector tempv1;        /* temporary storage vectors (for local use and by */
-  N_Vector tempv2;        /* time-stepping modules)                          */
+  N_Vector ewt;              /* error weight vector                           */
+  N_Vector rwt;              /* residual weight vector                        */
+  booleantype rwt_is_ewt;    /* SUNTRUE if rwt is a pointer to ewt            */
+  N_Vector ycur;             /* pointer to user-provided solution memory; used
+                                as evolving solution by the time stepper
+                                modules */
+  N_Vector yn;               /* solution from the last successful step        */
+  N_Vector fn;               /* full IVP right-hand side from last step       */
+  sunbooleantype fn_current; /* SUNTRUE if fn has been evaluated at yn        */
+  N_Vector tempv1;           /* temporary storage vectors (for local use and  */
+  N_Vector tempv2;           /* by time-stepping modules)                     */
   N_Vector tempv3;
   N_Vector tempv4;
 
@@ -811,6 +813,14 @@ struct ARKodeMemRec
   maximize reuse between calls to this function and RHS
   evaluations inside the stepper itself.
 
+  This routine is only required to be supplied to ARKODE if:
+  * ARKODE's initial time step selection algorithm is used,
+  * the user requests temporal root-finding,
+  * the Hermite interpolation module is used, or
+  * the user requests the "bootstrap" implicit predictor.
+  Note that any stepper can itself require that this routine
+  exist for its own internal business (e.g., ERKStep).
+
   This routine should return 0 if successful, and a negative value
   otherwise.  If an error does occur, an appropriate message
   should be sent to the error handler function.
@@ -1154,6 +1164,7 @@ int arkGetLastKFlag(void *arkode_mem, int *last_kflag);
 #define MSG_ARK_POSTPROCESS_STAGE_FAIL "At " MSG_TIME ", the stage postprocessing routine failed in an unrecoverable manner."
 #define MSG_ARK_NULL_SUNCTX "sunctx = NULL illegal."
 #define MSG_ARK_CONTEXT_MISMATCH "Outer and inner steppers have different contexts."
+#define MSG_ARK_MISSING_FULLRHS "Time-stepping module missing fullrhs routine (required by requested solver configuration)."
 
 #ifdef __cplusplus
 }

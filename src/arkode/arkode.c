@@ -286,6 +286,7 @@ int arkResize(ARKodeMem ark_mem, N_Vector y0, realtype hscale,
 
   /* Copy y0 into ark_yn to set the current solution */
   N_VScale(ONE, y0, ark_mem->yn);
+  ark_mem->fn_current = SUNFALSE;
 
   /* Disable constraints */
   ark_mem->constraintsSet = SUNFALSE;
@@ -1316,6 +1317,7 @@ int arkInit(ARKodeMem ark_mem, realtype t0, N_Vector y0,
 
   /* Initialize yn */
   N_VScale(ONE, y0, ark_mem->yn);
+  ark_mem->fn_current = SUNFALSE;
 
   /* Clear any previous 'tstop' */
   ark_mem->tstopset = SUNFALSE;
@@ -1688,10 +1690,6 @@ booleantype arkAllocVectors(ARKodeMem ark_mem, N_Vector tmpl)
   if (!arkAllocVec(ark_mem, tmpl, &ark_mem->yn))
     return(SUNFALSE);
 
-  /* Allocate fn if needed */
-  if (!arkAllocVec(ark_mem, tmpl, &ark_mem->fn))
-    return(SUNFALSE);
-
   /* Allocate tempv1 if needed */
   if (!arkAllocVec(ark_mem, tmpl, &ark_mem->tempv1))
     return(SUNFALSE);
@@ -1918,9 +1916,22 @@ int arkInitialSetup(ARKodeMem ark_mem, realtype tout)
 
   /* Call fullrhs (used in estimating initial step, explicit steppers, Hermite
      interpolation module, and possibly (but not always) arkRootCheck1) */
-  retval = ark_mem->step_fullrhs(ark_mem, ark_mem->tcur, ark_mem->yn,
-                                 ark_mem->fn, ARK_FULLRHS_START);
-  if (retval != 0) return(ARK_RHSFUNC_FAIL);
+  if (ark_mem->call_fullrhs)
+  {
+    if (!ark_mem->step_fullrhs)
+    {
+      arkProcessError(ark_mem, ARK_ILL_INPUT, "ARKODE",
+                      "arkInitialSetup", MSG_ARK_MISSING_FULLRHS);
+      return ARK_ILL_INPUT;
+    }
+
+    if (!arkAllocVec(ark_mem, ark_mem->yn, &ark_mem->fn))
+    {
+      arkProcessError(ark_mem, ARK_MEM_FAIL, "ARKODE",
+                      "arkInitialSetup", MSG_ARK_MEM_FAIL);
+      return(ARK_MEM_FAIL);
+    }
+  }
 
   /* Fill initial interpolation data (if needed) */
   if (ark_mem->interp != NULL) {
@@ -2043,11 +2054,11 @@ int arkStopTests(ARKodeMem ark_mem, realtype tout, N_Vector yout,
       /* Shortcut to roots found in previous step */
       irfndp = ark_mem->root_mem->irfnd;
 
-      /* If the full rhs was not computed in the last call to arkCompleteStep
+      /* If the full RHS was not computed in the last call to arkCompleteStep
          and roots were found in the previous step, then compute the full rhs
          for possible use in arkRootCheck2 (not always necessary) */
-      if (!(ark_mem->call_fullrhs) && irfndp != 0) {
-        retval = ark_mem->step_fullrhs(ark_mem, ark_mem->tcur, ark_mem->yn,
+      if (!(ark_mem->fn_current) && irfndp != 0) {
+        retval = ark_mem->step_fullrhs(ark_mem, ark_mem->tn, ark_mem->yn,
                                        ark_mem->fn, ARK_FULLRHS_END);
         if (retval != 0) {
           arkProcessError(ark_mem, ARK_RHSFUNC_FAIL, "ARKODE", "arkStopTests",
@@ -2055,6 +2066,7 @@ int arkStopTests(ARKodeMem ark_mem, realtype tout, N_Vector yout,
           *ier = ARK_RHSFUNC_FAIL;
           return(1);
         }
+        ark_mem->fn_current = SUNTRUE;
       }
 
       retval = arkRootCheck2((void*) ark_mem);
@@ -2212,6 +2224,15 @@ int arkHin(ARKodeMem ark_mem, realtype tout)
   tround = ark_mem->uround * SUNMAX(SUNRabs(ark_mem->tcur), SUNRabs(tout));
 
   if (tdist < TWO*tround) return(ARK_TOO_CLOSE);
+
+  /* call full RHS if needed */
+  if (!(ark_mem->fn_current))
+  {
+    retval = ark_mem->step_fullrhs(ark_mem, ark_mem->tn, ark_mem->yn,
+                                   ark_mem->fn, ARK_FULLRHS_START);
+    if (retval) { return ARK_RHSFUNC_FAIL; }
+    ark_mem->fn_current = SUNTRUE;
+  }
 
   /* Set lower and upper bounds on h0, and take geometric mean
      as first trial value.
@@ -2424,16 +2445,9 @@ int arkCompleteStep(ARKodeMem ark_mem, realtype dsm)
     if (retval != ARK_SUCCESS)  return(retval);
   }
 
-  /* call fullrhs if needed */
-  if (ark_mem->call_fullrhs) {
-    mode = (ark_mem->ProcessStep != NULL) ? ARK_FULLRHS_START : ARK_FULLRHS_END;
-    retval = ark_mem->step_fullrhs(ark_mem, ark_mem->tcur, ark_mem->ycur,
-                                   ark_mem->fn, mode);
-    if (retval != 0) return(ARK_RHSFUNC_FAIL);
-  }
-
   /* update yn to current solution */
   N_VScale(ONE, ark_mem->ycur, ark_mem->yn);
+  ark_mem->fn_current = SUNFALSE;
 
   /* Update step size and error history arrays */
   ark_mem->hadapt_mem->ehist[1] = ark_mem->hadapt_mem->ehist[0];

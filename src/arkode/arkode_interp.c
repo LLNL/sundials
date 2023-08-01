@@ -402,13 +402,7 @@ int arkInterpInit_Hermite(void* arkode_mem, ARKInterp interp,
     }
   }
 
-  /* copy current solution into yold */
-  N_VScale(ONE, ark_mem->yn, HINT_YOLD(interp));
-
-  /* copy fnew into fold */
-  N_VScale(ONE, HINT_FNEW(interp), HINT_FOLD(interp));
-
-  /* signal that fullrhs is required after each step */
+  /* signal that a full RHS data is required for interpolation */
   ark_mem->call_fullrhs = SUNTRUE;
 
   /* return with success */
@@ -424,11 +418,22 @@ int arkInterpInit_Hermite(void* arkode_mem, ARKInterp interp,
   ---------------------------------------------------------------*/
 int arkInterpUpdate_Hermite(void* arkode_mem, ARKInterp interp, realtype tnew)
 {
+  int retval;
   ARKodeMem ark_mem;
 
   /* access ARKodeMem structure */
   if (arkode_mem == NULL)  return(ARK_MEM_NULL);
   ark_mem = (ARKodeMem) arkode_mem;
+
+  /* call full RHS if needed -- called just BEFORE the end of a step, so yn has
+     NOT been updated to ycur yet */
+  if (!(ark_mem->fn_current))
+  {
+    retval = ark_mem->step_fullrhs(ark_mem, ark_mem->tn, ark_mem->yn,
+                                   ark_mem->fn, ARK_FULLRHS_START);
+    if (retval) { return ARK_RHSFUNC_FAIL; }
+    ark_mem->fn_current = SUNTRUE;
+  }
 
   /* copy ynew and fnew into yold and fold, respectively */
   N_VScale(ONE, HINT_YNEW(interp), HINT_YOLD(interp));
@@ -509,6 +514,16 @@ int arkInterpEvaluate_Hermite(void* arkode_mem, ARKInterp interp,
                      "ARKODE::arkInterpEvaluate_Hermite", "interp-eval",
                      "tau = %"RSYM", d = %i, q = %i", tau, d, q);
 #endif
+
+  /* call full RHS if needed -- called just AFTER the end of a step, so yn has
+     been updated to ycur */
+  if (!(ark_mem->fn_current))
+  {
+    retval = ark_mem->step_fullrhs(ark_mem, ark_mem->tn, ark_mem->yn,
+                                   ark_mem->fn, ARK_FULLRHS_END);
+    if (retval) { return ARK_RHSFUNC_FAIL; }
+    ark_mem->fn_current = SUNTRUE;
+  }
 
   /* error on illegal d */
   if (d < 0) {
@@ -1052,7 +1067,7 @@ int arkInterpInit_Lagrange(void* arkode_mem, ARKInterp I,
     }
   }
 
-  /* update allocated size if necesary */
+  /* update allocated size if necessary */
   if (LINT_NMAX(I) > LINT_NMAXALLOC(I))
     LINT_NMAXALLOC(I) = LINT_NMAX(I);
 
