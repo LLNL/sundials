@@ -47,9 +47,7 @@ extern "C" {
 struct _ARKInterpContent_Hermite {
   int      degree;  /* maximum interpolant degree to use           */
   N_Vector fold;    /* f(t,y) at beginning of last successful step */
-  N_Vector fnew;    /* f(t,y) at end of last successful step       */
   N_Vector yold;    /* y at beginning of last successful step      */
-  N_Vector ynew;    /* y at end of last successful step            */
   N_Vector fa;      /* f(t,y) used in higher-order interpolation   */
   N_Vector fb;      /* f(t,y) used in higher-order interpolation   */
   realtype told;    /* t at beginning of last successful step      */
@@ -65,9 +63,7 @@ typedef struct _ARKInterpContent_Hermite *ARKInterpContent_Hermite;
 #define HINT_CONTENT(I)     ( (ARKInterpContent_Hermite)(I->content) )
 #define HINT_DEGREE(I)      ( HINT_CONTENT(I)->degree )
 #define HINT_FOLD(I)        ( HINT_CONTENT(I)->fold )
-#define HINT_FNEW(I)        ( HINT_CONTENT(I)->fnew )
 #define HINT_YOLD(I)        ( HINT_CONTENT(I)->yold )
-#define HINT_YNEW(I)        ( HINT_CONTENT(I)->ynew )
 #define HINT_FA(I)          ( HINT_CONTENT(I)->fa )
 #define HINT_FB(I)          ( HINT_CONTENT(I)->fb )
 #define HINT_TOLD(I)        ( HINT_CONTENT(I)->told )
