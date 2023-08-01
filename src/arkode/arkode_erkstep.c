@@ -801,7 +801,7 @@ int erkStep_TakeStep(void* arkode_mem, realtype *dsmPtr, int *nflagPtr)
   {
     mode = (ark_mem->initsetup) ? ARK_FULLRHS_START : ARK_FULLRHS_END;
     retval = ark_mem->step_fullrhs(ark_mem, ark_mem->tn, ark_mem->yn,
-                                   ark_mem->fn, ARK_FULLRHS_START);
+                                   ark_mem->fn, mode);
     if (retval) { return ARK_RHSFUNC_FAIL; }
     ark_mem->fn_current = SUNTRUE;
   }
