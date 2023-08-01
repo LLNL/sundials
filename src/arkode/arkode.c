@@ -2400,7 +2400,7 @@ int arkYddNorm(ARKodeMem ark_mem, realtype hg, realtype *yddnrm)
   ---------------------------------------------------------------*/
 int arkCompleteStep(ARKodeMem ark_mem, realtype dsm)
 {
-  int retval, mode;
+  int retval;
   realtype troundoff;
 
   /* Set current time to the end of the step (in case the last
