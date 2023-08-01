@@ -1657,7 +1657,7 @@ int arkStep_FullRHS(void* arkode_mem, realtype t, N_Vector y, N_Vector f,
   ---------------------------------------------------------------*/
 int arkStep_TakeStep_Z(void* arkode_mem, realtype *dsmPtr, int *nflagPtr)
 {
-  int retval, is, nvec;
+  int retval, is, is_start, nvec, mode;
   booleantype implicit_stage;
   booleantype deduce_stage;
   ARKodeMem ark_mem;
@@ -1689,8 +1689,35 @@ int arkStep_TakeStep_Z(void* arkode_mem, realtype *dsmPtr, int *nflagPtr)
       if (retval > 0) return(ARK_NLS_SETUP_RECVR);
     }
 
+  /* check for explicit first stage */
+  implicit_stage = SUNFALSE;
+  is_start = 1;
+  if (step_mem->implicit)
+  {
+    if (SUNRabs(step_mem->Bi->A[0][0]) > TINY)
+    {
+      implicit_stage = SUNTRUE;
+      is_start = 0;
+    }
+  }
+
+  /* call full RHS if needed for explicit first stage -- if this is the first
+     step then we need to evaluate or copy the RHS values at the start of the
+     step. With subsequent steps we are evaluating the RHS at the end of the
+     just completed step i.e., the start of this step can may be able to use the
+     last stage RHS at the end of the last step (FSAL methods) or need a new
+     function evaluation. */
+  if (!implicit_stage && !(ark_mem->fn_current))
+  {
+    mode = (ark_mem->initsetup) ? ARK_FULLRHS_START : ARK_FULLRHS_END;
+    retval = ark_mem->step_fullrhs(ark_mem, ark_mem->tn, ark_mem->yn,
+                                   ark_mem->fn, mode);
+    if (retval) { return ARK_RHSFUNC_FAIL; }
+    ark_mem->fn_current = SUNTRUE;
+  }
+
   /* loop over internal stages to the step */
-  for (is=0; is<step_mem->stages; is++) {
+  for (is = is_start; is < step_mem->stages; is++) {
 
     /* store current stage index */
     step_mem->istage = is;
