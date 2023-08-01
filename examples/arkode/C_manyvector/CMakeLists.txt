@@ -43,19 +43,29 @@ foreach(example_tuple ${ARKODE_examples})
     PARAMS_VAR example_args
     TYPE_VAR example_type
   ) 
-  # example source files
-  add_executable(${example} ${example})
+  # check if this example has already been added, only need to add
+  # example source files once for testing with different inputs
+  if(NOT TARGET ${example})
+    # example source files
+    add_executable(${example} ${example})
 
-  set_target_properties(${example} PROPERTIES FOLDER "Examples")
+    # folder to organize targets in an IDE
+    set_target_properties(${example} PROPERTIES FOLDER "Examples")
+
+    # libraries to link against
+    target_link_libraries(${example} ${SUNDIALS_LIBS})
+  endif()
+
+  # check if example args are provided and set the test name
+  sundials_create_test_name(${example} test_name
+    TEST_ARGS ${example_args})
+
 
   # add example to regression tests
   sundials_add_test(${example} ${example}
     ANSWER_DIR ${CMAKE_CURRENT_SOURCE_DIR}
     ANSWER_FILE ${example}.out
     EXAMPLE_TYPE ${example_type})
-
-  # libraries to link against
-  target_link_libraries(${example} ${SUNDIALS_LIBS})
 
 endforeach(example_tuple ${ARKODE_examples})
 

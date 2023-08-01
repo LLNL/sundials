@@ -140,11 +140,8 @@ foreach(example_tuple ${ARKODE_examples})
   endif()
 
   # check if example args are provided and set the test name
-  if("${example_args}" STREQUAL "")
-    set(test_name ${example})
-  else()
-    string(REGEX REPLACE " " "_" test_name ${example}_${example_args})
-  endif()
+  sundials_create_test_name(${example} test_name
+    TEST_ARGS ${example_args})
 
   # add example to regression tests
   sundials_add_test(${test_name} ${example}
@@ -167,16 +164,12 @@ if(BUILD_SUNLINSOL_KLU)
       TYPE_VAR example_type
     ) 
 
-    # example source files
-    add_executable(${example} ${example})
+    if (NOT TARGET ${example})
+      # example source files
+      add_executable(${example} ${example})
 
-    set_target_properties(${example} PROPERTIES FOLDER "Examples")
-
-    # add example to regression tests
-    sundials_add_test(${example} ${example}
-      ANSWER_DIR ${CMAKE_CURRENT_SOURCE_DIR}
-      ANSWER_FILE ${example}.out
-      EXAMPLE_TYPE ${example_type})
+      # folder for IDEs
+      set_target_properties(${example} PROPERTIES FOLDER "Examples")
 
     # libraries to link against
     target_link_libraries(${example}
@@ -184,6 +177,17 @@ if(BUILD_SUNLINSOL_KLU)
       sundials_nvecserial
       sundials_sunlinsolklu
       ${EXE_EXTRA_LINK_LIBS})
+    endif()
+
+    # check if example args are provided and set the test name
+    sundials_create_test_name(${example} test_name
+      TEST_ARGS ${example_args})
+
+    # add example to regression tests
+    sundials_add_test(${example} ${example}
+      ANSWER_DIR ${CMAKE_CURRENT_SOURCE_DIR}
+      ANSWER_FILE ${example}.out
+      EXAMPLE_TYPE ${example_type})
 
   endforeach(example_tuple ${ARKODE_examples_KLU})
 
@@ -202,16 +206,12 @@ if(BUILD_SUNLINSOL_SUPERLUMT)
       TYPE_VAR example_type
     ) 
 
+  if (NOT TARGET ${example})
     # example source files
     add_executable(${example} ${example})
 
+    # folder for IDEs
     set_target_properties(${example} PROPERTIES FOLDER "Examples")
-
-    # add example to regression tests
-    sundials_add_test(${example} ${example}
-      ANSWER_DIR ${CMAKE_CURRENT_SOURCE_DIR}
-      ANSWER_FILE ${example}.out
-      EXAMPLE_TYPE ${example_type})
 
     # libraries to link against
     target_link_libraries(${example}
@@ -219,6 +219,17 @@ if(BUILD_SUNLINSOL_SUPERLUMT)
       sundials_nvecserial
       sundials_sunlinsolsuperlumt
       ${EXE_EXTRA_LINK_LIBS})
+  endif()
+
+  # check if example args are provided and set the test name
+  sundials_create_test_name(${example} test_name
+  TEST_ARGS ${example_args})
+
+  # add example to regression tests
+  sundials_add_test(${example} ${example}
+    ANSWER_DIR ${CMAKE_CURRENT_SOURCE_DIR}
+    ANSWER_FILE ${example}.out
+    EXAMPLE_TYPE ${example_type})
 
   endforeach(example_tuple ${ARKODE_examples_SUPERLUMT})
 
