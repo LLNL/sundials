@@ -88,6 +88,12 @@ applications written in Fortran.
 Changes from previous versions
 ==============================
 
+Changes in vX.X.X
+-----------------
+
+Fixed a memory leak when destroying a CUDA, HIP, SYCL, or system SUNMemoryHelper
+object.
+
 Changes in v6.6.0
 -----------------
 
