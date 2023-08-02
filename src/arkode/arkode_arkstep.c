@@ -1237,10 +1237,6 @@ int arkStep_Init(void* arkode_mem, int init_type)
     if (step_mem->mass_type != MASS_IDENTITY)
       if ((step_mem->predictor == 4) || (step_mem->predictor == 5))
         step_mem->predictor = 0;
-
-    /* If the bootstrap predictor is enabled, signal to shared arkode module that
-       fullrhs is required after each step */
-    if (step_mem->predictor == 4)  ark_mem->call_fullrhs = SUNTRUE;
   }
 
   /* set appropriate TakeStep routine based on problem configuration */
@@ -1302,6 +1298,9 @@ int arkStep_Init(void* arkode_mem, int init_type)
       return(ARK_NLS_INIT_FAIL);
     }
   }
+
+  /* Signal to shared arkode module that full RHS evaluations are required */
+  ark_mem->call_fullrhs = SUNTRUE;
 
   return(ARK_SUCCESS);
 }
