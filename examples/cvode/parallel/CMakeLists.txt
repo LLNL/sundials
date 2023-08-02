@@ -76,7 +76,7 @@ foreach(example_tuple ${CVODE_examples})
   sundials_add_test(${test_name} ${example}
     MPI_NPROCS ${number_of_tasks}
     ANSWER_DIR ${CMAKE_CURRENT_SOURCE_DIR}
-    ANSWER_FILE ${example}.out
+    ANSWER_FILE ${test_name}.out
     EXAMPLE_TYPE ${example_type})
 
 endforeach(example_tuple ${CVODE_examples})
