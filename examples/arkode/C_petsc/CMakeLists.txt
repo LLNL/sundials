@@ -45,34 +45,31 @@ set(SUNDIALS_LIBS ${ARKODE_LIB} ${NVECP_LIB} ${SUNNLS_LIB} ${EXE_EXTRA_LINK_LIBS
 # Add the build and install targets for each example
 foreach(example_tuple ${ARKODE_examples})
 
- # parse the example tuple using sundials_parse_tuple macro
- sundials_parse_tuple( ARKODE_examples 
-  FILENAME_VAR example
-  NODES_VAR number_of_nodes
-  NPROCS_VAR number_of_tasks
-  TYPE_VAR example_type
-) 
+  # parse the example tuple using sundials_parse_tuple macro
+  sundials_parse_tuple( ARKODE_examples 
+    FILENAME_VAR example
+    NODES_VAR number_of_nodes
+    NPROCS_VAR number_of_tasks
+    TYPE_VAR example_type
+  ) 
 
-if(NOT TARGET ${example})
-  # example source files
-  add_executable(${example} ${example})
+  if(NOT TARGET ${example})
+    # example source files
+    add_executable(${example} ${example})
 
-  # libraries to link against
-  target_link_libraries(${example} ${SUNDIALS_LIBS})
+    # libraries to link against
+    target_link_libraries(${example} ${SUNDIALS_LIBS})
 
-  if(NOT MPI_C_COMPILER)
-    target_link_libraries(${example} ${MPI_LIBRARY} ${MPI_EXTRA_LIBRARIES})
+    if(NOT MPI_C_COMPILER)
+      target_link_libraries(${example} ${MPI_LIBRARY} ${MPI_EXTRA_LIBRARIES})
+    endif()
+
+    set_target_properties(${example} PROPERTIES FOLDER "Examples")
   endif()
-
-  set_target_properties(${example} PROPERTIES FOLDER "Examples")
-endif()
 
   # check if example args are provided and set the test name
-  if("${example_args}" STREQUAL "")
-    set(test_name ${example})
-  else()
-    string(REGEX REPLACE " " "_" test_name ${example}_${example_args})
-  endif()
+  sundials_create_test_name(${example} test_name MPI_TEST_NAME
+    TEST_ARGS ${example_args} MPI_NPROCS ${number_of_tasks})
 
   # add example to regression tests
   sundials_add_test(${example} ${example}
