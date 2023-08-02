@@ -19,8 +19,8 @@
 
 # Examples using SUNDIALS linear solvers
 set(IDA_examples
-  "idaFoodWeb_bnd_omp.c\; \"4\" \;develop"
-  "idaFoodWeb_kry_omp.c\; \"4\" \;develop"
+  "idaFoodWeb_bnd_omp.c\;4\;develop"
+  "idaFoodWeb_kry_omp.c\;4\;develop"
   )
 
 # Specify libraries to link against
@@ -54,11 +54,8 @@ foreach(example_tuple ${IDA_examples})
   endif()
 
   # check if example args are provided and set the test name
-  if("${example_args}" STREQUAL "")
-    set(test_name ${example})
-  else()
-    string(REGEX REPLACE " " "_" test_name ${example}_${example_args})
-  endif()
+  sundials_create_test_name(${example} test_name
+    TEST_ARGS ${example_args})
 
   # add example to regression tests
   sundials_add_test(${example} ${example}

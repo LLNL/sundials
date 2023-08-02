@@ -19,7 +19,7 @@
 
 # Examples using SUNDIALS linear solvers
 set(CVODE_examples
-  "cvAdvDiff_bnd_omp.c\; \"4\" \;develop"
+  "cvAdvDiff_bnd_omp.c\;4\;develop"
   #"cvAdvDiffReac_kry_omp\;4\;develop"
   )
 
@@ -55,11 +55,8 @@ foreach(example_tuple ${CVODE_examples})
   endif()
 
   # check if example args are provided and set the test name
-  if("${example_args}" STREQUAL "")
-    set(test_name ${example})
-  else()
-    string(REGEX REPLACE " " "_" test_name ${example}_${example_args})
-  endif()
+  sundials_create_test_name(${example} test_name
+    TEST_ARGS ${example_args})
 
   # add to regression tests
   sundials_add_test(${example} ${example}

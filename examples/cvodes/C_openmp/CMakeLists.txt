@@ -19,7 +19,7 @@
 
 # Examples using SUNDIALS linear solvers
 set(CVODES_omp_examples
-  "cvsAdvDiff_bnd_omp.c\; \"4\" \;develop"
+  "cvsAdvDiff_bnd_omp.c\;4\;develop"
   )
 
 # Specify libraries to link against
@@ -53,11 +53,8 @@ foreach(example_tuple ${CVODES_omp_examples})
   endif()
 
   # check if example args are provided and set the test name
-  if("${example_args}" STREQUAL "")
-    set(test_name ${example})
-  else()
-    string(REGEX REPLACE " " "_" test_name ${example}_${example_args})
-  endif()
+  sundials_create_test_name(${example} test_name
+    TEST_ARGS ${example_args})
 
   # add example to regression tests
   sundials_add_test(${example} ${example}

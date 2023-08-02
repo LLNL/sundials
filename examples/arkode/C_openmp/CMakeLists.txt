@@ -19,8 +19,8 @@
 
 # Examples using SUNDIALS linear solvers
 set(ARKODE_examples
-  "ark_brusselator1D_omp.c\; \"4\" \;exclude-single\;default\;default"
-  "ark_heat1D_omp.c\; \"4\" \;develop\;default\;10"
+  "ark_brusselator1D_omp.c\;4\;exclude-single\;default\;default"
+  "ark_heat1D_omp.c\;4\;develop\;default\;10"
   )
 
 # Auxiliary files to install
@@ -58,11 +58,8 @@ foreach(example_tuple ${ARKODE_examples})
   endif()
 
   # check if example args are provided and set the test name
-  if("${example_args}" STREQUAL "")
-    set(test_name ${example})
-  else()
-    string(REGEX REPLACE " " "_" test_name ${example}_${example_args})
-  endif()
+  sundials_create_test_name(${example} test_name
+    TEST_ARGS ${example_args})
 
   # add to regression tests
   sundials_add_test(${example} ${example}
