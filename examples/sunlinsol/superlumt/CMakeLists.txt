@@ -73,11 +73,8 @@ foreach(example_tuple ${sunlinsol_superlumt_examples})
   endif()
 
   # check if example args are provided and set the test name
-  if("${example_args}" STREQUAL "")
-    set(test_name ${example})
-  else()
-    string(REGEX REPLACE " " "_" test_name ${example}_${example_args})
-  endif()
+  sundials_create_test_name(${example} test_name
+    TEST_ARGS ${example_args})
 
   # add example to regression tests
   sundials_add_test(${test_name} ${example}
