@@ -120,17 +120,6 @@ foreach(idx RANGE ${len})
   target_link_libraries(${example_target}
     ${SUNDIALS_TARGETS} ${EXTRA_LIBS} MPI::MPI_C)
 
-  # # add the example to ctest
-  # if("${example_args}" STREQUAL "")
-  #   set(test_name ${example})
-  # else()
-  #   string(REGEX REPLACE " " "_" test_name ${example}_${example_args}_${example_nprocs})
-  # endif()
-  # string(REPLACE "<none>" "" example_args "${example_args}")
-  # separate_arguments(example_args_wo_quotes UNIX_COMMAND "${example_args}")
-  # message("${example_args}")
-  # add_test(NAME ${test_name} COMMAND mpirun -np ${example_nprocs} ${example_target} ${example_args_wo_quotes})
-
   if("${example_args}" MATCHES "<none>")
     set(test_name ${example_target}_${example_nprocs})
     add_test(NAME ${test_name} COMMAND COMMAND mpirun -np ${example_nprocs} ${example_target})
