@@ -97,15 +97,15 @@ foreach(idx RANGE ${len})
   # libraries to link against
   target_link_libraries(${example_target}
     ${SUNDIALS_TARGETS} ${EXTRA_LIBS} Threads::Threads)
-
+    
   # add the example to ctest
-  if("${example_args}" STREQUAL "")
-    set(test_name ${example})
+  if("${example_args}" MATCHES "<none>")
+    set(test_name ${example_target})
+    add_test(NAME ${test_name} COMMAND ${example_target})
   else()
-    string(REGEX REPLACE " " "_" test_name ${example}_${example_args})
+    string(REGEX REPLACE " " "_" test_name ${example_target}_${example_args})
+    separate_arguments(example_args_wo_quotes UNIX_COMMAND ${example_args})
+    add_test(NAME ${test_name} COMMAND ${example_target} ${example_args_wo_quotes})
   endif()
-  string(REPLACE "<none>" "" example_args "${example_args}")
-  separate_arguments(example_args_wo_quotes UNIX_COMMAND "${example_args}")
-  add_test(NAME ${test_name} COMMAND ${example_target} ${example_args_wo_quotes})
 
 endforeach()
