@@ -15,7 +15,7 @@
 macro(sundials_create_test_name example test_name)
 
   # macro options
-  set(options )
+  set(options MPI_TEST_NAME)
 
   # macro keyword inputs followed by a single value
   set(oneValueArgs "MPI_NPROCS")
@@ -29,7 +29,8 @@ macro(sundials_create_test_name example test_name)
     "${options}" "${oneValueArgs}" "${multiValueArgs}" ${ARGN})
     
   get_filename_component(file_wo_ext ${example} NAME_WE)
-  if(HAS_MPI)
+
+  if(${sundials_create_test_name_MPI_TEST_NAME})
     if("${sundials_create_test_name_TEST_ARGS}" STREQUAL "<none>")
       set(${test_name} ${file_wo_ext})
     else()
