@@ -19,8 +19,8 @@
 
 # Examples using the SUNDIALS SPTFQMR linear solver
 set(sunlinsol_sptfqmr_examples
-  "test_sunlinsol_sptfqmr_parallel.c\; \"100 1 50 1e-3 0\" \;1\;4\;passfail"
-  "test_sunlinsol_sptfqmr_parallel.c\; \"100 2 50 1e-3 0\" \;1\;4\;passfail"
+  "test_sunlinsol_sptfqmr_parallel.c\;100 1 50 1e-3 0\;1\;4\;passfail"
+  "test_sunlinsol_sptfqmr_parallel.c\;100 2 50 1e-3 0\;1\;4\;passfail"
   )
 
 # Dependencies for sunlinsol examples
@@ -85,11 +85,8 @@ foreach(example_tuple ${sunlinsol_sptfqmr_examples})
   endif()
 
   # check if example args are provided and set the test name
-  if("${example_args}" STREQUAL "")
-    set(test_name ${example})
-  else()
-    string(REGEX REPLACE " " "_" test_name ${example}_${example_args})
-  endif()
+  sundials_create_test_name(${example} test_name MPI_TEST_NAME
+    TEST_ARGS ${example_args} MPI_NPROCS ${number_of_tasks})
 
   # add example to regression tests
   sundials_add_test(${test_name} ${example}

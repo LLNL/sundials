@@ -54,24 +54,30 @@ foreach(example_tuple ${CVODE_examples})
     TYPE_VAR example_type
   ) 
 
-  # example source files
-  add_executable(${example} ${example})
+  if(NOT TARGET ${example})
+    # example source files
+    add_executable(${example} ${example})
 
-  set_target_properties(${example} PROPERTIES FOLDER "Examples")
+    set_target_properties(${example} PROPERTIES FOLDER "Examples")
+
+    # libraries to link against
+    target_link_libraries(${example} ${SUNDIALS_LIBS})
+
+    if(NOT MPI_C_COMPILER)
+      target_link_libraries(${example} ${MPI_LIBRARY} ${MPI_EXTRA_LIBRARIES})
+    endif()
+    
+  endif()
+  # check if example args are provided and set the test name
+  sundials_create_test_name(${example} test_name MPI_TEST_NAME
+    TEST_ARGS ${example_args} MPI_NPROCS ${number_of_tasks})
 
   # add example to regression tests
-  sundials_add_test(${example} ${example}
+  sundials_add_test(${test_name} ${example}
     MPI_NPROCS ${number_of_tasks}
     ANSWER_DIR ${CMAKE_CURRENT_SOURCE_DIR}
     ANSWER_FILE ${example}.out
     EXAMPLE_TYPE ${example_type})
-
-  # libraries to link against
-  target_link_libraries(${example} ${SUNDIALS_LIBS} ${EXE_EXTRA_LINK_LIBS})
-
-  if(NOT MPI_C_COMPILER)
-    target_link_libraries(${example} ${MPI_LIBRARY} ${MPI_EXTRA_LIBRARIES})
-  endif()
 
 endforeach(example_tuple ${CVODE_examples})
 

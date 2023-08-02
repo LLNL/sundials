@@ -64,10 +64,11 @@ foreach(example_tuple ${IDA_examples})
     if(NOT MPI_C_COMPILER)
       target_link_libraries(${example} ${MPI_LIBRARY} ${MPI_EXTRA_LIBRARIES})
     endif()
+
   endif()
   # check if example args are provided and set the test name
-  sundials_create_test_name(${example} test_name
-  TEST_ARGS ${example_args} MPI_NPROCS ${number_of_tasks})
+  sundials_create_test_name(${example} test_name  MPI_TEST_NAME
+    TEST_ARGS ${example_args} MPI_NPROCS ${number_of_tasks})
   
   # add example to regression tests
   sundials_add_test(${test_name} ${example}

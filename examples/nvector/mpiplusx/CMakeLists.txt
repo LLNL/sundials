@@ -19,7 +19,7 @@
 
 # Examples using SUNDIALS MPI nvector
 set(nvector_mpiplusx_examples
-  "test_nvector_mpiplusx.c\; \"1000 9\" \;1\;4\;passfail"  # run parallel on 4 procs
+  "test_nvector_mpiplusx.c\;1000 9\;1\;4\;passfail"  # run parallel on 4 procs
   )
 
 # If building F2003 tests
@@ -109,19 +109,8 @@ foreach(example_tuple ${nvector_mpiplusx_examples})
   endif()
 
   # check if example args are provided and set the test name
-  if("${example_args}" STREQUAL "")
-    if("${number_of_tasks}" STREQUAL "")
-      set(test_name ${example})
-    else()
-      string(REGEX REPLACE " " "_" test_name ${example}_${number_of_tasks})
-    endif()
-  else()
-    if("${number_of_tasks}" STREQUAL "")
-      string(REGEX REPLACE " " "_" test_name ${example}_${example_args})
-    else()
-      string(REGEX REPLACE " " "_" test_name ${example}_${number_of_tasks}_${example_args})
-    endif()
-  endif()
+  sundials_create_test_name(${example} test_name MPI_TEST_NAME
+    TEST_ARGS ${example_args} MPI_NPROCS ${number_of_tasks})
 
   # add example to regression tests
   sundials_add_test(${test_name} ${example}
@@ -166,19 +155,8 @@ foreach(example_tuple ${nvector_mpiplusx_fortran_examples})
   endif()
 
   # check if example args are provided and set the test name
-  if("${example_args}" STREQUAL "")
-    if("${number_of_tasks}" STREQUAL "")
-      set(test_name ${example})
-    else()
-      string(REGEX REPLACE " " "_" test_name ${example}_${number_of_tasks})
-    endif()
-  else()
-    if("${number_of_tasks}" STREQUAL "")
-      string(REGEX REPLACE " " "_" test_name ${example}_${example_args})
-    else()
-      string(REGEX REPLACE " " "_" test_name ${example}_${number_of_tasks}_${example_args})
-    endif()
-  endif()
+  sundials_create_test_name(${example} test_name MPI_TEST_NAME
+    TEST_ARGS ${example_args} MPI_NPROCS ${number_of_tasks})
 
   # add example to regression tests
   sundials_add_test(${test_name} ${example}

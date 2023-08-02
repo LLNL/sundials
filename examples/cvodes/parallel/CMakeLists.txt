@@ -20,12 +20,12 @@
 # Examples using SUNDIALS linear solvers
 set(CVODES_examples
   "cvsAdvDiff_ASAp_non_p.c\;<none>\;2\;2\;exclude-single"
-  "cvsAdvDiff_FSA_non_p.c\; \"-sensi stg t\" \;2\;2\;exclude-single"
-  "cvsAdvDiff_FSA_non_p.c\; \"-sensi sim t\" \;2\;2\;exclude-single"
+  "cvsAdvDiff_FSA_non_p.c\;-sensi stg t\;2\;2\;exclude-single"
+  "cvsAdvDiff_FSA_non_p.c\;-sensi sim t\;2\;2\;exclude-single"
   "cvsAdvDiff_non_p.c\;<none>\;2\;2\;exclude-single"
   "cvsAtmDisp_ASAi_kry_bbd_p.c\;<none>\;2\;4\;exclude-single"
-  "cvsDiurnal_FSA_kry_p.c\; \"-sensi stg t\" \;2\;4\;exclude-single"
-  "cvsDiurnal_FSA_kry_p.c\; \"-sensi sim t\" \;2\;4\;exclude-single"
+  "cvsDiurnal_FSA_kry_p.c\;-sensi stg t\;2\;4\;exclude-single"
+  "cvsDiurnal_FSA_kry_p.c\;-sensi sim t\;2\;4\;exclude-single"
   "cvsDiurnal_kry_bbd_p.c\;<none>\;2\;4\;exclude-single"
   "cvsDiurnal_kry_p.c\;<none>\;2\;4\;exclude-single"
   )
@@ -63,23 +63,19 @@ foreach(example_tuple ${CVODES_examples})
     # example source files
     add_executable(${example} ${example})
 
-    # folder to organize targets in an IDE
-    set_target_properties(${example} PROPERTIES FOLDER "Examples")
-
     # libraries to link against
     target_link_libraries(${example} ${SUNDIALS_LIBS})
 
     if(NOT MPI_C_COMPILER)
       target_link_libraries(${example} ${MPI_LIBRARY} ${MPI_EXTRA_LIBRARIES})
     endif()
+
+    set_target_properties(${example} PROPERTIES FOLDER "Examples")
   endif()
 
   # check if example args are provided and set the test name
-  if("${example_args}" STREQUAL "")
-    set(test_name ${example})
-  else()
-    string(REGEX REPLACE " " "_" test_name ${example}_${example_args})
-  endif()
+  sundials_create_test_name(${example} test_name  MPI_TEST_NAME
+    TEST_ARGS ${example_args})
 
   # add example to regression tests
   sundials_add_test(${test_name} ${example}

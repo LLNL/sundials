@@ -26,9 +26,9 @@ set(ARKODE_examples
 if(SUNDIALS_PRECISION MATCHES "DOUBLE" AND
    SUNDIALS_INDEX_SIZE MATCHES "64")
 
-  list(APPEND ARKODE_examples "ark_brusselator1D_task_local_nls.c\; \"--monitor\" \;1\;4\;develop\;2")
-  list(APPEND ARKODE_examples "ark_brusselator1D_task_local_nls.c\; \"--monitor --global-nls\" \;1\;4\;develop\;2")
-  list(APPEND ARKODE_examples "ark_brusselator1D_task_local_nls.c\; \"--monitor --explicit --tf 3\" \;1\;4\;develop\;2")
+  list(APPEND ARKODE_examples "ark_brusselator1D_task_local_nls.c\;--monitor\;1\;4\;develop\;2")
+  list(APPEND ARKODE_examples "ark_brusselator1D_task_local_nls.c\;--monitor --global-nls\;1\;4\;develop\;2")
+  list(APPEND ARKODE_examples "ark_brusselator1D_task_local_nls.c\;--monitor --explicit --tf 3\;1\;4\;develop\;2")
 
   #sundials_add_example(ARKODE_examples)
 
@@ -68,22 +68,19 @@ foreach(example_tuple ${ARKODE_examples})
     # example source files
     add_executable(${example} ${example})
 
+    set_target_properties(${example} PROPERTIES FOLDER "Examples")
+
     # libraries to link against
     target_link_libraries(${example} ${SUNDIALS_LIBS})
 
     if(NOT MPI_C_COMPILER)
       target_link_libraries(${example} ${MPI_LIBRARY} ${MPI_EXTRA_LIBRARIES})
     endif()
-
-    set_target_properties(${example} PROPERTIES FOLDER "Examples")
+    
   endif()
-
   # check if example args are provided and set the test name
-  if("${example_args}" STREQUAL "")
-    set(test_name ${example})
-  else()
-    string(REGEX REPLACE " " "_" test_name ${example}_${example_args})
-  endif()
+  sundials_create_test_name(${example} test_name MPI_TEST_NAME
+    TEST_ARGS ${example_args} MPI_NPROCS ${number_of_tasks})
 
   # add example to regression tests
   sundials_add_test(${test_name} ${example}

@@ -24,7 +24,7 @@ set(IDAS_examples
   "idasBruss_kry_bbd_p.c\;<none>\;1\;4\;exclude-single"
   "idasFoodWeb_kry_bbd_p.c\;<none>\;1\;4\;exclude-single"
   "idasFoodWeb_kry_p.c\;<none>\;1\;4\;exclude-single"
-  "idasHeat2D_FSA_kry_bbd_p.c\; \"-sensi stg t\" \;1\;4\;exclude-single"
+  "idasHeat2D_FSA_kry_bbd_p.c\;-sensi stg t\;1\;4\;exclude-single"
   "idasHeat2D_kry_bbd_p.c\;<none>\;1\;4\;exclude-single"
   "idasHeat2D_kry_p.c\;<none>\;1\;4\;exclude-single"
   )
@@ -63,7 +63,6 @@ foreach(example_tuple ${IDAS_examples})
     # example source files
     add_executable(${example} ${example})
 
-    # folder to organize targets in an IDE
     set_target_properties(${example} PROPERTIES FOLDER "Examples")
 
     # libraries to link against
@@ -72,14 +71,11 @@ foreach(example_tuple ${IDAS_examples})
     if(NOT MPI_C_COMPILER)
       target_link_libraries(${example} ${MPI_LIBRARY} ${MPI_EXTRA_LIBRARIES})
     endif()
+    
   endif()
-
   # check if example args are provided and set the test name
-  if("${example_args}" STREQUAL "")
-    set(test_name ${example})
-  else()
-    string(REGEX REPLACE " " "_" test_name ${example}_${example_args})
-  endif()
+  sundials_create_test_name(${example} test_name MPI_TEST_NAME
+    TEST_ARGS ${example_args} MPI_NPROCS ${number_of_tasks})
 
   # add example to regression tests
   sundials_add_test(${test_name} ${example}
