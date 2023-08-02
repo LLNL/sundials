@@ -344,9 +344,22 @@ int arkRelaxSolve(ARKodeMem ark_mem, ARKodeRelaxMem relax_mem,
                                  &(relax_mem->delta_e));
   if (retval) return retval;
 
+#ifdef SUNDIALS_LOGGING_EXTRA_DEBUG
+  SUNLogger_QueueMsg(ARK_LOGGER, SUN_LOGLEVEL_DEBUG,
+                     "ARKODE::arkRelaxSolve", "compute delta E",
+                     "delta_e = %"RSYM, relax_mem->delta_e);
+#endif
+
   /* Get the change in state (delta_y = tempv2) */
   retval = relax_mem->delta_y_fn(ark_mem, ark_mem->tempv2);
   if (retval) return retval;
+
+#ifdef SUNDIALS_LOGGING_EXTRA_DEBUG
+  SUNLogger_QueueMsg(ARK_LOGGER, SUN_LOGLEVEL_DEBUG,
+                     "ARKODE::arkRelaxSolve", "compute delta y",
+                     "delta_y =", "");
+  N_VPrintFile(ark_mem->tempv2, ARK_LOGGER->debug_fp);
+#endif
 
   /* Store the current relaxation function value */
   retval = relax_mem->relax_fn(ark_mem->yn, &(relax_mem->e_old),

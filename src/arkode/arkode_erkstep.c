@@ -683,6 +683,9 @@ int erkStep_FullRHS(void* arkode_mem, realtype t, N_Vector y, N_Vector f,
         }
       }
 
+      /* FSAL methods are not FSAL when when relaxation is enabled */
+      if (ark_mem->relax_enabled) { recomputeRHS = SUNTRUE; }
+
       /* base RHS calls on recomputeRHS argument */
       if (recomputeRHS)
       {

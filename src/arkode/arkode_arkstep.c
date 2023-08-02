@@ -1473,6 +1473,9 @@ int arkStep_FullRHS(void* arkode_mem, realtype t, N_Vector y, N_Vector f,
         }
       }
 
+      /* FSAL methods are not FSAL when when relaxation is enabled */
+      if (ark_mem->relax_enabled) { recomputeRHS = SUNTRUE; }
+
       /* base RHS calls on recomputeRHS argument */
       if (recomputeRHS)
       {
@@ -1659,6 +1662,7 @@ int arkStep_TakeStep_Z(void* arkode_mem, realtype *dsmPtr, int *nflagPtr)
   int retval, is, is_start, nvec, mode;
   booleantype implicit_stage;
   booleantype deduce_stage;
+  booleantype save_stages = SUNFALSE;
   ARKodeMem ark_mem;
   ARKodeARKStepMem step_mem;
   N_Vector zcor0;
@@ -1688,7 +1692,14 @@ int arkStep_TakeStep_Z(void* arkode_mem, realtype *dsmPtr, int *nflagPtr)
       if (retval > 0) return(ARK_NLS_SETUP_RECVR);
     }
 
-  /* check for explicit first stage */
+  /* check if we need to store stage values */
+  if (ark_mem->relax_enabled && (step_mem->implicit ||
+                                 step_mem->mass_type == MASS_FIXED))
+  {
+    save_stages = SUNTRUE;
+  }
+
+  /* check for implicit method with explicit first stage */
   implicit_stage = SUNFALSE;
   is_start = 1;
   if (step_mem->implicit)
@@ -1698,6 +1709,12 @@ int arkStep_TakeStep_Z(void* arkode_mem, realtype *dsmPtr, int *nflagPtr)
       implicit_stage = SUNTRUE;
       is_start = 0;
     }
+  }
+
+  /* explicit first stage -- store stage if necessary for relaxation */
+  if (is_start == 1 && save_stages)
+  {
+    N_VScale(ONE, ark_mem->yn, step_mem->z[0]);
   }
 
   /* call full RHS if needed for explicit first stage -- if this is the first
@@ -1714,6 +1731,36 @@ int arkStep_TakeStep_Z(void* arkode_mem, realtype *dsmPtr, int *nflagPtr)
     if (retval) { return ARK_RHSFUNC_FAIL; }
     ark_mem->fn_current = SUNTRUE;
   }
+
+#if SUNDIALS_LOGGING_LEVEL >= SUNDIALS_LOGGING_INFO
+  if (is_start == 1)
+  {
+    SUNLogger_QueueMsg(ARK_LOGGER, SUN_LOGLEVEL_INFO,
+                       "ARKODE::arkStep_TakeStep_Z", "start-stage",
+                       "step = %li, stage = %i, implicit = %i, h = %"RSYM", tcur = %"RSYM,
+                       ark_mem->nst, 0, implicit_stage, ark_mem->h, ark_mem->tcur);
+#ifdef SUNDIALS_LOGGING_EXTRA_DEBUG
+    SUNLogger_QueueMsg(ARK_LOGGER, SUN_LOGLEVEL_DEBUG,
+                       "ARKODE::arkStep_TakeStep_Z", "explicit stage",
+                       "z[%i] =", 0);
+    N_VPrintFile(ark_mem->ycur, ARK_LOGGER->debug_fp);
+    if (step_mem->implicit)
+    {
+      SUNLogger_QueueMsg(ARK_LOGGER, SUN_LOGLEVEL_DEBUG,
+                         "ARKODE::arkStep_TakeStep_Z", "implicit RHS",
+                         "Fi[%i] =", 0);
+      N_VPrintFile(step_mem->Fi[0], ARK_LOGGER->debug_fp);
+    }
+    if (step_mem->explicit)
+    {
+      SUNLogger_QueueMsg(ARK_LOGGER, SUN_LOGLEVEL_DEBUG,
+                         "ARKODE::arkStep_TakeStep_Z", "explicit RHS",
+                         "Fe[%i] =", 0);
+      N_VPrintFile(step_mem->Fe[0], ARK_LOGGER->debug_fp);
+    }
+#endif
+  }
+#endif
 
   /* loop over internal stages to the step */
   for (is = is_start; is < step_mem->stages; is++) {
@@ -1846,8 +1893,7 @@ int arkStep_TakeStep_Z(void* arkode_mem, realtype *dsmPtr, int *nflagPtr)
     /* successful stage solve */
 
     /*    store stage (if necessary for relaxation) */
-    if (ark_mem->relax_enabled && (step_mem->implicit ||
-                                   step_mem->mass_type == MASS_FIXED))
+    if (save_stages)
     {
       N_VScale(ONE, ark_mem->ycur, step_mem->z[is]);
     }
