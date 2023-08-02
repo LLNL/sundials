@@ -18,6 +18,7 @@
 set(unit_tests
   "ark_test_analytic_sys_mri.cpp\;0"
   "ark_test_analytic_sys_mri.cpp\;1"
+  "ark_test_dahlquist_ark.cpp\;"
   "ark_test_dahlquist_mri.cpp\;"
   "ark_test_butcher.cpp\;"
   "ark_test_getjac.cpp\;"

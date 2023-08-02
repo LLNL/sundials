@@ -17,9 +17,10 @@
  * ---------------------------------------------------------------------------*/
 
 // Header files
-#include <stdio.h>
+#include <cstdio>
+#include <iomanip>
 #include <iostream>
-#include <string.h>
+#include <string>
 #include <cmath>
 
 #include <arkode/arkode_arkstep.h>
