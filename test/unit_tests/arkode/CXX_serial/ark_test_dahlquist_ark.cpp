@@ -42,6 +42,7 @@
 #define NEG_ONE SUN_RCONST(-1.0)
 #define ZERO    SUN_RCONST(0.0)
 #define ONE     SUN_RCONST(1.0)
+#define TWO     SUN_RCONST(2.0)
 
 // Method types
 enum class method_type
@@ -63,9 +64,6 @@ struct ProblemOptions
 {
   // Initial time
   sunrealtype t0 = ZERO;
-
-  // Number of time steps
-  int nsteps = 3;
 
   // Relative and absolute tolerances
   sunrealtype reltol = SUN_RCONST(1.0e-4);
@@ -90,8 +88,19 @@ int Ji(sunrealtype t, N_Vector y, N_Vector fy, SUNMatrix J, void* user_data,
 int check_flag(void* flagvalue, const std::string funcname, int opt);
 
 // Test drivers
-int run_tests(method_type type, ProblemData& prob_data,
-              ProblemOptions& prob_opts, sundials::Context& sunctx);
+int run_tests(ARKodeButcherTable Be, ARKodeButcherTable Bi,
+              ProblemData& prob_data, ProblemOptions& prob_opts,
+              sundials::Context& sunctx);
+
+int get_method_properties(ARKodeButcherTable Be, ARKodeButcherTable Bi,
+                          int& stages, bool& explicit_first_stage, bool& fsal);
+
+int expected_rhs_evals(method_type type, int interp_type, int stages,
+                       bool explicit_first_stage, bool fsal, void* arkstep_mem,
+                       long int& nfe_expected, long int& nfi_expected);
+
+int check_rhs_evals(void* arkstep_mem, long int nfe_expected,
+                    long int nfi_expected);
 
 // -----------------------------------------------------------------------------
 // Main Program
@@ -111,7 +120,6 @@ int main(int argc, char* argv[])
             << "  lambda expl  = " << prob_data.lambda_e << "\n"
             << "  lambda impl  = " << prob_data.lambda_i << "\n"
             << "  step size    = " << prob_opts.h << "\n"
-            << "  num steps    = " << prob_opts.nsteps << "\n"
             << "  relative tol = " << prob_opts.reltol << "\n"
             << "  absolute tol = " << prob_opts.abstol << "\n"
             << "  interp type  = " << prob_opts.interp_type << "\n";
@@ -122,14 +130,74 @@ int main(int argc, char* argv[])
   // Test methods
   int numfails = 0;
 
+  ARKodeButcherTable Be = nullptr;
+  ARKodeButcherTable Bi = nullptr;
+
   // Explicit
-  numfails += run_tests(method_type::expl, prob_data, prob_opts, sunctx);
+  std::cout << "\n========================\n"
+            << "Test explicit RK methods\n"
+            << "========================\n";
+
+  // Explicit Euler
+  Be          = ARKodeButcherTable_Alloc(1, SUNFALSE);
+  Be->A[0][0] = ZERO;
+  Be->b[0]    = ONE;
+  Be->c[0]    = ZERO;
+  Be->q       = 1;
+  Bi          = nullptr;
+
+  numfails += run_tests(Be, Bi, prob_data, prob_opts, sunctx);
+
+  ARKodeButcherTable_Free(Be);
+  ARKodeButcherTable_Free(Bi);
+  Be = nullptr;
+  Bi = nullptr;
 
   // Implicit
-  numfails += run_tests(method_type::impl, prob_data, prob_opts, sunctx);
+  std::cout << "\n========================\n"
+            << "Test implicit RK methods\n"
+            << "========================\n";
+
+  // Implicit Euler
+  Bi          = ARKodeButcherTable_Alloc(1, SUNFALSE);
+  Bi->A[0][0] = ONE;
+  Bi->b[0]    = ONE;
+  Bi->c[0]    = ONE;
+  Bi->q       = 1;
+  Be          = nullptr;
+
+  numfails += run_tests(Be, Bi, prob_data, prob_opts, sunctx);
+
+  ARKodeButcherTable_Free(Be);
+  ARKodeButcherTable_Free(Bi);
+  Be = nullptr;
+  Bi = nullptr;
 
   // IMEX
-  numfails += run_tests(method_type::imex, prob_data, prob_opts, sunctx);
+
+  std::cout << "\n=====================\n"
+            << "Test IMEX ARK methods\n"
+            << "=====================\n";
+
+  // IMEX Euler
+  Be          = ARKodeButcherTable_Alloc(2, SUNFALSE);
+  Be->A[1][0] = ONE;
+  Be->b[0]    = ONE;
+  Be->c[1]    = ONE;
+  Be->q       = 1;
+
+  Bi          = ARKodeButcherTable_Alloc(2, SUNFALSE);
+  Bi->A[1][1] = ONE;
+  Bi->b[1]    = ONE;
+  Bi->c[1]    = ONE;
+  Bi->q       = 1;
+
+  numfails += run_tests(Be, Bi, prob_data, prob_opts, sunctx);
+
+  ARKodeButcherTable_Free(Be);
+  ARKodeButcherTable_Free(Bi);
+  Be = nullptr;
+  Bi = nullptr;
 
   if (numfails) { std::cout << "\n\nFailed " << numfails << " tests!\n"; }
   else { std::cout << "\n\nAll tests passed!\n"; }
@@ -142,14 +210,32 @@ int main(int argc, char* argv[])
 // Test drivers
 // -----------------------------------------------------------------------------
 
-int run_tests(method_type type, ProblemData& prob_data,
-              ProblemOptions& prob_opts, sundials::Context& sunctx)
+int run_tests(ARKodeButcherTable Be, ARKodeButcherTable Bi,
+              ProblemData& prob_data, ProblemOptions& prob_opts,
+              sundials::Context& sunctx)
 {
   // Reusable error-checking flag
   int flag;
 
   // Test failure counter
   int numfails = 0;
+
+  // Determine method type
+  method_type type;
+  if (Be && !Bi) { type = method_type::expl; }
+  else if (!Be && Bi) { type = method_type::impl; }
+  else if (Be && Bi) { type = method_type::imex; }
+  else
+  {
+    std::cerr << "ERROR: Both Butcher tables are NULL" << std::endl;
+    return 1;
+  }
+
+  // Get method properties
+  int stages;
+  bool explicit_first_stage, fsal;
+  flag = get_method_properties(Be, Bi, stages, explicit_first_stage, fsal);
+  if (check_flag(&flag, "get_method_properties", 1)) return 1;
 
   // Create initial condition vector
   N_Vector y = N_VNew_Serial(1, sunctx);
@@ -186,11 +272,10 @@ int run_tests(method_type type, ProblemData& prob_data,
   {
     arkstep_mem = ARKStepCreate(nullptr, fi, prob_opts.t0, y, sunctx);
   }
-  else if (type == method_type::imex)
+  else
   {
     arkstep_mem = ARKStepCreate(fe, fi, prob_opts.t0, y, sunctx);
   }
-  else { return 1; }
   if (check_flag((void*)arkstep_mem, "ARKStepCreate", 0)) return 1;
 
   // Set user data
@@ -227,271 +312,110 @@ int run_tests(method_type type, ProblemData& prob_data,
     if (check_flag(&flag, "ARKStepSetLinear", 1)) return 1;
   }
 
-  // ---------------------------
-  // Evolve with various methods
-  // ---------------------------
+  // Attach Butcher tables
+  flag = ARKStepSetTables(arkstep_mem, 1, 0, Bi, Be);
+  if (check_flag(&flag, "ARKStepSetTables", 1)) return 1;
 
-  // Methods to test
-  int num_methods;
+  // --------------
+  // Evolve in time
+  // --------------
 
-  if (type == method_type::expl)
+  sunrealtype t_ret = prob_opts.t0;
+  sunrealtype t_out = 3 * prob_opts.h;
+
+  long int nfe_expected, nfi_expected;
+
+  for (int i = 0; i < 3; i++)
   {
-    std::cout << "\n========================\n"
-              << "Test explicit RK methods\n"
-              << "========================\n";
-    num_methods = 1;
-  }
-  else if (type == method_type::impl)
-  {
-    std::cout << "\n========================\n"
-              << "Test implicit RK methods\n"
-              << "========================\n";
-    num_methods = 1;
-  }
-  else if (type == method_type::imex)
-  {
-    std::cout << "\n=====================\n"
-              << "Test IMEX ARK methods\n"
-              << "=====================\n";
-    num_methods = 1;
-  }
-  else { return 1; }
+    std::cout << "--------------------" << std::endl;
 
-  for (int i = 0; i < num_methods; i++)
-  {
-    std::cout << "\nTesting method " << i << "\n";
+    // Advance in time
+    flag = ARKStepEvolve(arkstep_mem, t_out, y, &t_ret, ARK_ONE_STEP);
+    if (check_flag(&flag, "ARKStepEvolve", 1)) return 1;
 
-    // -------------
-    // Select method
-    // -------------
+    // Update output time
+    t_out += prob_opts.h;
 
-    ARKodeButcherTable Be          = nullptr;
-    ARKodeButcherTable Bi          = nullptr;
-    int stages                     = 0;
-    bool fsal_explicit_first_stage = false;
-    bool implicit_first_stage      = false;
-
-    if (type == method_type::expl)
-    {
-      // Explicit Euler
-      stages                    = 1;
-      fsal_explicit_first_stage = false;
-      implicit_first_stage      = false;
-
-      Be          = ARKodeButcherTable_Alloc(stages, SUNFALSE);
-      Be->A[0][0] = ZERO;
-      Be->b[0]    = ONE;
-      Be->c[0]    = ZERO;
-      Be->q       = 1;
-      Bi          = nullptr;
-    }
-    else if (type == method_type::impl)
-    {
-      // Implicit Euler
-      stages                    = 1;
-      fsal_explicit_first_stage = false;
-      implicit_first_stage      = true;
-
-      Bi          = ARKodeButcherTable_Alloc(stages, SUNFALSE);
-      Bi->A[0][0] = ONE;
-      Bi->b[0]    = ONE;
-      Bi->c[0]    = ONE;
-      Bi->q       = 1;
-      Be          = nullptr;
-    }
-    else if (type == method_type::imex)
-    {
-      // IMEX Euler
-      stages                    = 2;
-      fsal_explicit_first_stage = true;
-      implicit_first_stage      = false;
-
-      Be          = ARKodeButcherTable_Alloc(stages, SUNFALSE);
-      Be->A[1][0] = ONE;
-      Be->b[0]    = ONE;
-      Be->c[1]    = ONE;
-      Be->q       = 1;
-
-      Bi          = ARKodeButcherTable_Alloc(stages, SUNFALSE);
-      Bi->A[1][1] = ONE;
-      Bi->b[1]    = ONE;
-      Bi->c[1]    = ONE;
-      Bi->q       = 1;
-    }
-    else { return 1; }
-
-    // Attach Butcher tables
-    flag = ARKStepSetTables(arkstep_mem, 1, 0, Bi, Be);
-    if (check_flag(&flag, "ARKStepSetTables", 1)) return 1;
-
-    ARKodeButcherTable_Free(Be);
-    ARKodeButcherTable_Free(Bi);
-    Be = nullptr;
-    Bi = nullptr;
-
-    // --------------
-    // Evolve in time
-    // --------------
-
-    sunrealtype t  = prob_opts.t0;
-    sunrealtype tf = prob_opts.nsteps * prob_opts.h;
-
-    for (int i = 0; i < prob_opts.nsteps; i++)
-    {
-      // Advance in time
-      flag = ARKStepEvolve(arkstep_mem, tf, y, &t, ARK_ONE_STEP);
-      if (check_flag(&flag, "ARKStepEvolve", 1)) return 1;
-
-      // Update output time
-      tf += prob_opts.h;
-    }
-
-    // -----------------
-    // Output statistics
-    // -----------------
-
-    long int nst, nfe, nfi;       // integrator
-    long int nni, ncfn;           // nonlinear solver
-    long int nsetups, nje, nfeLS; // linear solver
-
-    flag = ARKStepGetNumSteps(arkstep_mem, &nst);
-    if (check_flag(&flag, "ARKStepGetNumSteps", 1)) return 1;
-
-    flag = ARKStepGetNumRhsEvals(arkstep_mem, &nfe, &nfi);
-    if (check_flag(&flag, "ARKStepGetNumRhsEvals", 1)) return 1;
-
-    if (type == method_type::impl || type == method_type::imex)
-    {
-      flag = ARKStepGetNumNonlinSolvIters(arkstep_mem, &nni);
-      if (check_flag(&flag, "ARKStepGetNumNonlinSolvIters", 1)) return 1;
-
-      flag = ARKStepGetNumNonlinSolvConvFails(arkstep_mem, &ncfn);
-      if (check_flag(&flag, "ARKStepGetNumNonlinSolvConvFails", 1)) return 1;
-
-      flag = ARKStepGetNumLinSolvSetups(arkstep_mem, &nsetups);
-      if (check_flag(&flag, "ARKStepGetNumLinSolvSetups", 1)) return 1;
-
-      flag = ARKStepGetNumJacEvals(arkstep_mem, &nje);
-      if (check_flag(&flag, "ARKStepGetNumJacEvals", 1)) return 1;
-
-      flag = ARKStepGetNumLinRhsEvals(arkstep_mem, &nfeLS);
-      check_flag(&flag, "ARKStepGetNumLinRhsEvals", 1);
-    }
-
-    sunrealtype pow = ZERO;
-    if (type == method_type::expl || type == method_type::imex)
-    {
-      pow += prob_data.lambda_e;
-    }
-    if (type == method_type::impl || type == method_type::imex)
-    {
-      pow += prob_data.lambda_i;
-    }
-    sunrealtype ytrue = exp(pow * t);
-
-    sunrealtype* ydata = N_VGetArrayPointer(y);
-    sunrealtype error  = ytrue - ydata[0];
-
-    std::cout << "\nARKStep Statistics:\n"
-              << "  Time        = " << t << "\n"
-              << "  y(t)        = " << ytrue << "\n"
-              << "  y_n         = " << ydata[0] << "\n"
-              << "  Error       = " << error << "\n"
-              << "  Steps       = " << nst << "\n"
-              << "  Fe evals    = " << nfe << "\n"
-              << "  Fi evals    = " << nfi << "\n";
-
-    if (type == method_type::impl || type == method_type::imex)
-    {
-      std::cout << "  NLS iters   = " << nni << "\n"
-                << "  NLS fails   = " << ncfn << "\n"
-                << "  LS setups   = " << nsetups << "\n"
-                << "  LS Fi evals = " << nfeLS << "\n"
-                << "  Ji evals    = " << nje << "\n";
-    }
-
-    // ----------------
     // Check statistics
-    // ----------------
+    flag = expected_rhs_evals(type, prob_opts.interp_type, stages,
+                              explicit_first_stage, fsal, arkstep_mem,
+                              nfe_expected, nfi_expected);
+    if (check_flag(&flag, "expected_rhs_evals", 1)) return 1;
 
-    // expected number of explicit functions evaluations
+    numfails += check_rhs_evals(arkstep_mem, nfe_expected, nfi_expected);
+
+    if (numfails)
+    {
+      std::cout << "Failed " << numfails << " checks\n";
+      break;
+    }
+  }
+  std::cout << "--------------------" << std::endl;
+
+  // ----------------
+  // Get dense output
+  // ----------------
+
+  sunrealtype h_last;
+  flag = ARKStepGetLastStep(arkstep_mem, &h_last);
+  if (check_flag(&flag, "ARKStepGetLastStep", 1)) return 1;
+
+  flag = ARKStepGetDky(arkstep_mem, t_ret - h_last / TWO, 0, y);
+  if (check_flag(&flag, "ARKStepGetDky", 1)) return 1;
+
+  // FSAL methods do not require an additional RHS evaluation to get the new
+  // RHS value at the end of a step for dense output
+  if (!fsal)
+  {
     if (type == method_type::expl || type == method_type::imex)
     {
-      long int expected;
-
-      if (fsal_explicit_first_stage)
-      {
-        expected = stages + (stages - 1) * (prob_opts.nsteps - 1);
-      }
-      else { expected = stages * prob_opts.nsteps; }
-
-      if (prob_opts.interp_type == 0 && implicit_first_stage)
-      {
-        expected += prob_opts.nsteps;
-      }
-
-      if (nfe != expected)
-      {
-        numfails++;
-        std::cout << "Fe RHS evals:\n"
-                  << "  actual:   " << nfe << "\n"
-                  << "  expected: " << expected << "\n";
-      }
+      nfe_expected++;
     }
-
-    // expected number of implicit functions evaluations
     if (type == method_type::impl || type == method_type::imex)
     {
-      long int expected;
-
-      if (fsal_explicit_first_stage)
-      {
-        expected = stages + (stages - 1) * (prob_opts.nsteps - 1) + nni;
-      }
-      else { expected = stages * prob_opts.nsteps + nni; }
-
-      if (prob_opts.interp_type == 0 && implicit_first_stage)
-      {
-        expected += prob_opts.nsteps;
-      }
-
-      if (nfi != expected)
-      {
-        numfails++;
-        std::cout << "Fi RHS evals:\n"
-                  << "  actual:   " << nfi << "\n"
-                  << "  expected: " << expected << "\n";
-      }
+      nfi_expected++;
     }
-
-    if (numfails) { std::cout << "Failed " << numfails << " checks\n"; }
-    else { std::cout << "All checks passed\n"; }
-
-    // -------------------
-    // Setup for next test
-    // -------------------
-
-    // Free table(s)
-
-    // Reset state vector to the initial condition
-    N_VConst(SUN_RCONST(1.0), y);
-
-    // Re-initialize integrator based on type
-    if (type == method_type::expl)
-    {
-      flag = ARKStepReInit(arkstep_mem, fe, nullptr, prob_opts.t0, y);
-    }
-    else if (type == method_type::impl)
-    {
-      flag = ARKStepReInit(arkstep_mem, nullptr, fi, prob_opts.t0, y);
-    }
-    else if (type == method_type::imex)
-    {
-      flag = ARKStepReInit(arkstep_mem, fe, fi, prob_opts.t0, y);
-    }
-    else { return 1; }
-    if (check_flag(&flag, "ARKStepReInit", 1)) return 1;
   }
+  numfails += check_rhs_evals(arkstep_mem, nfe_expected, nfi_expected);
+
+  std::cout << "--------------------" << std::endl;
+
+  // --------------------
+  // Additional time step
+  // --------------------
+
+  // Advance in time
+  flag = ARKStepEvolve(arkstep_mem, t_out, y, &t_ret, ARK_ONE_STEP);
+  if (check_flag(&flag, "ARKStepEvolve", 1)) return 1;
+
+  // Update output time
+  t_out += prob_opts.h;
+
+  // Check statistics
+  flag = expected_rhs_evals(type, prob_opts.interp_type, stages,
+                            explicit_first_stage, fsal, arkstep_mem,
+                            nfe_expected, nfi_expected);
+  if (check_flag(&flag, "expected_rhs_evals", 1)) return 1;
+
+  // FSAL methods with an implicit first stage using the Hermite interpolation
+  // method do not have the additional RHS evaluation they usually would to save
+  // fn before updating the interpolation module
+
+  // >>>> So FSAL methods could have an RHS evaluation by saving fn before starting
+  // the next time step and don't need to delay the full RHS call <<<
+  if (!explicit_first_stage && fsal && prob_opts.interp_type == 0)
+  {
+    if (type == method_type::expl || type == method_type::imex)
+    {
+      nfe_expected--;
+    }
+    if (type == method_type::impl || type == method_type::imex)
+    {
+      nfi_expected--;
+    }
+  }
+
+  numfails += check_rhs_evals(arkstep_mem, nfe_expected, nfi_expected);
 
   // Clean up
   ARKStepFree(&arkstep_mem);
@@ -503,6 +427,128 @@ int run_tests(method_type type, ProblemData& prob_data,
   N_VDestroy(y);
 
   return numfails;
+}
+
+int get_method_properties(ARKodeButcherTable Be, ARKodeButcherTable Bi,
+                          int& stages, bool& explicit_first_stage, bool& fsal)
+{
+  stages = 0;
+  if (Bi) { stages = Bi->stages; }
+  else if (Be) { stages = Be->stages; }
+  else
+  {
+    std::cerr << "ERROR: Both Butcher tables are NULL!" << std::endl;
+    return 1;
+  }
+
+  // Check for explicit first stage
+  explicit_first_stage = true;
+  if (Bi)
+  {
+    if (std::abs(Bi->A[0][0]) > ZERO) { explicit_first_stage = false; }
+  }
+  if (Be)
+  {
+    if (std::abs(Be->A[0][0]) > ZERO) { explicit_first_stage = false; }
+  }
+
+  // Check for first same as last (FSAL) property
+  fsal = true;
+  if (Bi)
+  {
+    for (int i = 0; i < stages; i++)
+    {
+      if (std::abs(Bi->b[i] - Bi->A[stages - 1][i]) > ZERO) { fsal = false; }
+    }
+  }
+  if (Be)
+  {
+    for (int i = 0; i < stages; i++)
+    {
+      if (std::abs(Be->b[i] - Be->A[stages - 1][i]) > ZERO) { fsal = false; }
+    }
+  }
+
+  return 0;
+}
+
+int expected_rhs_evals(method_type type, int interp_type, int stages,
+                       bool explicit_first_stage, bool fsal, void* arkstep_mem,
+                       long int& nfe_expected, long int& nfi_expected)
+{
+  int flag = 0;
+
+  // Get number of steps and nonlinear solver iterations
+  long int nst = 0;
+  flag         = ARKStepGetNumSteps(arkstep_mem, &nst);
+  if (check_flag(&flag, "ARKStepGetNumSteps", 1)) return 1;
+
+  long int nni = 0;
+  if (type == method_type::impl || type == method_type::imex)
+  {
+    flag = ARKStepGetNumNonlinSolvIters(arkstep_mem, &nni);
+    if (check_flag(&flag, "ARKStepGetNumNonlinSolvIters", 1)) return 1;
+  }
+
+  // Expected number of explicit functions evaluations
+  nfe_expected = 0;
+  if (type == method_type::expl || type == method_type::imex)
+  {
+    if (explicit_first_stage && fsal)
+    {
+      nfe_expected = stages + (stages - 1) * (nst - 1);
+    }
+    else { nfe_expected = stages * nst; }
+
+    if (interp_type == 0 && !explicit_first_stage) { nfe_expected += nst; }
+  }
+
+  // Expected number of implicit functions evaluations
+  nfi_expected = 0;
+  if (type == method_type::impl || type == method_type::imex)
+  {
+    if (explicit_first_stage && fsal)
+    {
+      nfi_expected = stages + (stages - 1) * (nst - 1) + nni;
+    }
+    else { nfi_expected = stages * nst + nni; }
+
+    if (interp_type == 0 && !explicit_first_stage) { nfi_expected += nst; }
+  }
+
+  std::cout << "Steps: " << nst << std::endl;
+  std::cout << "NLS iters: " << nni << std::endl;
+
+  return 0;
+}
+
+int check_rhs_evals(void* arkstep_mem, long int nfe_expected,
+                    long int nfi_expected)
+{
+  int flag = 0;
+
+  long int nst = 0;
+  flag         = ARKStepGetNumSteps(arkstep_mem, &nst);
+  if (check_flag(&flag, "ARKStepGetNumSteps", 1)) return 1;
+
+  long int nfe, nfi;
+  flag = ARKStepGetNumRhsEvals(arkstep_mem, &nfe, &nfi);
+  if (check_flag(&flag, "ARKStepGetNumRhsEvals", 1)) return 1;
+
+  std::cout << "Fe RHS evals:\n"
+            << "  actual:   " << nfe << "\n"
+            << "  expected: " << nfe_expected << "\n";
+  std::cout << "Fi RHS evals:\n"
+            << "  actual:   " << nfi << "\n"
+            << "  expected: " << nfi_expected << "\n";
+
+  if (nfe != nfe_expected || nfi != nfi_expected)
+  {
+    std::cerr << ">>> Check failed <<<" << std::endl;
+    return 1;
+  }
+
+  return 0;
 }
 
 // -----------------------------------------------------------------------------
