@@ -365,7 +365,7 @@ int run_tests(ARKodeButcherTable Be, ARKodeButcherTable Bi,
 
   // FSAL methods do not require an additional RHS evaluation to get the new
   // RHS value at the end of a step for dense output
-  if (!fsal)
+  if (prob_opts.interp_type == 0 && !fsal)
   {
     if (type == method_type::expl || type == method_type::imex)
     {
@@ -397,27 +397,14 @@ int run_tests(ARKodeButcherTable Be, ARKodeButcherTable Bi,
                             nfe_expected, nfi_expected);
   if (check_flag(&flag, "expected_rhs_evals", 1)) return 1;
 
-  // FSAL methods with an implicit first stage using the Hermite interpolation
-  // method do not have the additional RHS evaluation they usually would to save
-  // fn before updating the interpolation module
-
-  // >>>> So FSAL methods could have an RHS evaluation by saving fn before starting
-  // the next time step and don't need to delay the full RHS call <<<
-  if (!explicit_first_stage && fsal && prob_opts.interp_type == 0)
-  {
-    if (type == method_type::expl || type == method_type::imex)
-    {
-      nfe_expected--;
-    }
-    if (type == method_type::impl || type == method_type::imex)
-    {
-      nfi_expected--;
-    }
-  }
-
   numfails += check_rhs_evals(arkstep_mem, nfe_expected, nfi_expected);
 
+  std::cout << "--------------------" << std::endl;
+
+  // --------
   // Clean up
+  // --------
+
   ARKStepFree(&arkstep_mem);
   if (type == method_type::impl || type == method_type::imex)
   {
@@ -500,7 +487,19 @@ int expected_rhs_evals(method_type type, int interp_type, int stages,
     }
     else { nfe_expected = stages * nst; }
 
-    if (interp_type == 0 && !explicit_first_stage) { nfe_expected += nst; }
+    if (interp_type == 0 && !explicit_first_stage)
+    {
+      if (!fsal)
+      {
+        // One extra evaluation in each step
+        nfe_expected += nst;
+      }
+      else
+      {
+        // One extra evaluation in the first step only
+        nfe_expected++;
+      }
+    }
   }
 
   // Expected number of implicit functions evaluations
@@ -513,7 +512,19 @@ int expected_rhs_evals(method_type type, int interp_type, int stages,
     }
     else { nfi_expected = stages * nst + nni; }
 
-    if (interp_type == 0 && !explicit_first_stage) { nfi_expected += nst; }
+    if (interp_type == 0 && !explicit_first_stage)
+    {
+      if (!fsal)
+      {
+        // One extra evaluation in each step
+        nfi_expected += nst;
+      }
+      else
+      {
+        // One extra evaluation in the first step only
+        nfi_expected++;
+      }
+    }
   }
 
   std::cout << "Steps: " << nst << std::endl;

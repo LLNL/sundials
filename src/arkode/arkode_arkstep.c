@@ -1663,6 +1663,7 @@ int arkStep_TakeStep_Z(void* arkode_mem, realtype *dsmPtr, int *nflagPtr)
   booleantype implicit_stage;
   booleantype deduce_stage;
   booleantype save_stages = SUNFALSE;
+  booleantype fsal = SUNTRUE;
   ARKodeMem ark_mem;
   ARKodeARKStepMem step_mem;
   N_Vector zcor0;
@@ -1717,13 +1718,42 @@ int arkStep_TakeStep_Z(void* arkode_mem, realtype *dsmPtr, int *nflagPtr)
     N_VScale(ONE, ark_mem->yn, step_mem->z[0]);
   }
 
+  /* check if the method is First Same As Last (FASL) */
+  if (step_mem->explicit)
+  {
+    for (is = 0; is < step_mem->stages; is++)
+    {
+      if (SUNRabs(step_mem->Be->b[is] - step_mem->Be->A[step_mem->stages - 1][is]) > TINY)
+      {
+        fsal = SUNFALSE;
+      }
+    }
+  }
+
+  if (step_mem->implicit)
+  {
+    for (is = 0; is < step_mem->stages; is++)
+    {
+      if (SUNRabs(step_mem->Bi->b[is] - step_mem->Bi->A[step_mem->stages - 1][is]) > TINY)
+      {
+        fsal = SUNFALSE;
+      }
+    }
+  }
+
   /* call full RHS if needed for explicit first stage -- if this is the first
      step then we need to evaluate or copy the RHS values at the start of the
      step. With subsequent steps we are evaluating the RHS at the end of the
      just completed step i.e., the start of this step can may be able to use the
      last stage RHS at the end of the last step (FSAL methods) or need a new
-     function evaluation. */
-  if (!implicit_stage && !(ark_mem->fn_current))
+     function evaluation.
+
+     It the method has an implicit first stage but is FSAL, call the full RHS to
+     copy fn from the end of the last step when using Hermite interpolation to
+     save a function evaluation per step. */
+
+  if ((!implicit_stage || (fsal && ark_mem->interp_type == ARK_INTERP_HERMITE))
+      && !(ark_mem->fn_current))
   {
     mode = (ark_mem->initsetup) ? ARK_FULLRHS_START : ARK_FULLRHS_END;
     retval = ark_mem->step_fullrhs(ark_mem, ark_mem->tn, ark_mem->yn,

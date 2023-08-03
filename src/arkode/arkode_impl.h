@@ -348,6 +348,7 @@ struct ARKodeMemRec
 
   /* Temporal interpolation module */
   ARKInterp interp;
+  int interp_type;
 
   /* Tstop information */
   booleantype tstopset;

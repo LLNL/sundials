@@ -135,6 +135,7 @@ ARKodeMem arkCreate(SUNContext sunctx)
 
   /* Initialize the interpolation structure to NULL */
   ark_mem->interp = NULL;
+  ark_mem->interp_type = -1;
 
   /* Initially, rwt should point to ewt */
   ark_mem->rwt_is_ewt = SUNTRUE;
@@ -1110,6 +1111,7 @@ void arkFree(void **arkode_mem)
   if (ark_mem->interp != NULL) {
     arkInterpFree(ark_mem, ark_mem->interp);
     ark_mem->interp = NULL;
+    ark_mem->interp_type = -1;
   }
 
   /* free the root-finding module */
@@ -1303,6 +1305,7 @@ int arkInit(ARKodeMem ark_mem, realtype t0, N_Vector y0,
                       "Unable to allocate interpolation module");
       return(ARK_MEM_FAIL);
     }
+    ark_mem->interp_type = ARK_INTERP_HERMITE;
 
     /* All allocations are complete */
     ark_mem->MallocDone = SUNTRUE;
