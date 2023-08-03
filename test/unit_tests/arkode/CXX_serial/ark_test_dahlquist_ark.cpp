@@ -93,11 +93,13 @@ int run_tests(ARKodeButcherTable Be, ARKodeButcherTable Bi,
               sundials::Context& sunctx);
 
 int get_method_properties(ARKodeButcherTable Be, ARKodeButcherTable Bi,
-                          int& stages, bool& explicit_first_stage, bool& fsal);
+                          int& stages, bool& explicit_first_stage,
+                          bool& stiffly_accurate, bool& fsal);
 
 int expected_rhs_evals(method_type type, int interp_type, int stages,
-                       bool explicit_first_stage, bool fsal, void* arkstep_mem,
-                       long int& nfe_expected, long int& nfi_expected);
+                       bool explicit_first_stage, bool stiffly_accurate,
+                       bool fsal, void* arkstep_mem, long int& nfe_expected,
+                       long int& nfi_expected);
 
 int check_rhs_evals(void* arkstep_mem, long int nfe_expected,
                     long int nfi_expected);
@@ -233,8 +235,9 @@ int run_tests(ARKodeButcherTable Be, ARKodeButcherTable Bi,
 
   // Get method properties
   int stages;
-  bool explicit_first_stage, fsal;
-  flag = get_method_properties(Be, Bi, stages, explicit_first_stage, fsal);
+  bool explicit_first_stage, stiffly_accurate, fsal;
+  flag = get_method_properties(Be, Bi, stages, explicit_first_stage,
+                               stiffly_accurate, fsal);
   if (check_flag(&flag, "get_method_properties", 1)) return 1;
 
   // Create initial condition vector
@@ -338,8 +341,8 @@ int run_tests(ARKodeButcherTable Be, ARKodeButcherTable Bi,
 
     // Check statistics
     flag = expected_rhs_evals(type, prob_opts.interp_type, stages,
-                              explicit_first_stage, fsal, arkstep_mem,
-                              nfe_expected, nfi_expected);
+                              explicit_first_stage, stiffly_accurate, fsal,
+                              arkstep_mem,nfe_expected, nfi_expected);
     if (check_flag(&flag, "expected_rhs_evals", 1)) return 1;
 
     numfails += check_rhs_evals(arkstep_mem, nfe_expected, nfi_expected);
@@ -363,9 +366,9 @@ int run_tests(ARKodeButcherTable Be, ARKodeButcherTable Bi,
   flag = ARKStepGetDky(arkstep_mem, t_ret - h_last / TWO, 0, y);
   if (check_flag(&flag, "ARKStepGetDky", 1)) return 1;
 
-  // FSAL methods do not require an additional RHS evaluation to get the new
-  // RHS value at the end of a step for dense output
-  if (prob_opts.interp_type == 0 && !fsal)
+  // Stiffly accurate (and FSAL) methods do not require an additional RHS
+  // evaluation to get the new RHS value at the end of a step for dense output
+  if (prob_opts.interp_type == 0 && !stiffly_accurate)
   {
     if (type == method_type::expl || type == method_type::imex)
     {
@@ -393,8 +396,8 @@ int run_tests(ARKodeButcherTable Be, ARKodeButcherTable Bi,
 
   // Check statistics
   flag = expected_rhs_evals(type, prob_opts.interp_type, stages,
-                            explicit_first_stage, fsal, arkstep_mem,
-                            nfe_expected, nfi_expected);
+                            explicit_first_stage, stiffly_accurate, fsal,
+                            arkstep_mem, nfe_expected, nfi_expected);
   if (check_flag(&flag, "expected_rhs_evals", 1)) return 1;
 
   numfails += check_rhs_evals(arkstep_mem, nfe_expected, nfi_expected);
@@ -417,7 +420,8 @@ int run_tests(ARKodeButcherTable Be, ARKodeButcherTable Bi,
 }
 
 int get_method_properties(ARKodeButcherTable Be, ARKodeButcherTable Bi,
-                          int& stages, bool& explicit_first_stage, bool& fsal)
+                          int& stages, bool& explicit_first_stage,
+                          bool& stiffly_accurate, bool& fsal)
 {
   stages = 0;
   if (Bi) { stages = Bi->stages; }
@@ -439,28 +443,38 @@ int get_method_properties(ARKodeButcherTable Be, ARKodeButcherTable Bi,
     if (std::abs(Be->A[0][0]) > ZERO) { explicit_first_stage = false; }
   }
 
-  // Check for first same as last (FSAL) property
-  fsal = true;
+  // Check for stiffly accurate method
+  stiffly_accurate = true;
   if (Bi)
   {
     for (int i = 0; i < stages; i++)
     {
-      if (std::abs(Bi->b[i] - Bi->A[stages - 1][i]) > ZERO) { fsal = false; }
+      if (std::abs(Bi->b[i] - Bi->A[stages - 1][i]) > ZERO)
+      {
+        stiffly_accurate = false;
+      }
     }
   }
   if (Be)
   {
     for (int i = 0; i < stages; i++)
     {
-      if (std::abs(Be->b[i] - Be->A[stages - 1][i]) > ZERO) { fsal = false; }
+      if (std::abs(Be->b[i] - Be->A[stages - 1][i]) > ZERO)
+      {
+        stiffly_accurate = false;
+      }
     }
   }
+
+  // Check for first same as last (FSAL) property
+  fsal = explicit_first_stage && stiffly_accurate;
 
   return 0;
 }
 
 int expected_rhs_evals(method_type type, int interp_type, int stages,
-                       bool explicit_first_stage, bool fsal, void* arkstep_mem,
+                       bool explicit_first_stage, bool stiffly_accurate,
+                       bool fsal, void* arkstep_mem,
                        long int& nfe_expected, long int& nfi_expected)
 {
   int flag = 0;
@@ -481,23 +495,27 @@ int expected_rhs_evals(method_type type, int interp_type, int stages,
   nfe_expected = 0;
   if (type == method_type::expl || type == method_type::imex)
   {
-    if (explicit_first_stage && fsal)
+    if (fsal)
     {
+      // Save one function evaluation after first step
       nfe_expected = stages + (stages - 1) * (nst - 1);
     }
-    else { nfe_expected = stages * nst; }
+    else
+    {
+      nfe_expected = stages * nst;
+    }
 
     if (interp_type == 0 && !explicit_first_stage)
     {
-      if (!fsal)
-      {
-        // One extra evaluation in each step
-        nfe_expected += nst;
-      }
-      else
+      if (stiffly_accurate)
       {
         // One extra evaluation in the first step only
         nfe_expected++;
+      }
+      else
+      {
+        // One extra evaluation in each step
+        nfe_expected += nst;
       }
     }
   }
@@ -506,23 +524,27 @@ int expected_rhs_evals(method_type type, int interp_type, int stages,
   nfi_expected = 0;
   if (type == method_type::impl || type == method_type::imex)
   {
-    if (explicit_first_stage && fsal)
+    if (fsal)
     {
+      // Save one function evaluation after first step
       nfi_expected = stages + (stages - 1) * (nst - 1) + nni;
     }
-    else { nfi_expected = stages * nst + nni; }
+    else
+    {
+      nfi_expected = stages * nst + nni;
+    }
 
     if (interp_type == 0 && !explicit_first_stage)
     {
-      if (!fsal)
-      {
-        // One extra evaluation in each step
-        nfi_expected += nst;
-      }
-      else
+      if (stiffly_accurate)
       {
         // One extra evaluation in the first step only
         nfi_expected++;
+      }
+      else
+      {
+        // One extra evaluation in each step
+        nfi_expected += nst;
       }
     }
   }
