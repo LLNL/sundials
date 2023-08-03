@@ -184,9 +184,9 @@ if(BUILD_SUNLINSOL_KLU)
       TEST_ARGS ${example_args})
 
     # add example to regression tests
-    sundials_add_test(${example} ${example}
+    sundials_add_test(${test_name} ${example}
       ANSWER_DIR ${CMAKE_CURRENT_SOURCE_DIR}
-      ANSWER_FILE ${example}.out
+      ANSWER_FILE ${test_name}.out
       EXAMPLE_TYPE ${example_type})
 
   endforeach(example_tuple ${ARKODE_examples_KLU})
@@ -226,9 +226,9 @@ if(BUILD_SUNLINSOL_SUPERLUMT)
   TEST_ARGS ${example_args})
 
   # add example to regression tests
-  sundials_add_test(${example} ${example}
+  sundials_add_test(${test_name} ${example}
     ANSWER_DIR ${CMAKE_CURRENT_SOURCE_DIR}
-    ANSWER_FILE ${example}.out
+    ANSWER_FILE ${test_name}.out
     EXAMPLE_TYPE ${example_type})
 
   endforeach(example_tuple ${ARKODE_examples_SUPERLUMT})
