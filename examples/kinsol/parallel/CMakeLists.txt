@@ -69,10 +69,10 @@ foreach(example_tuple ${KINSOL_examples})
     TEST_ARGS ${example_args} MPI_NPROCS ${number_of_tasks})
 
   # add example to regression tests
-  sundials_add_test(${example} ${example}
+  sundials_add_test(${test_name} ${example}
     MPI_NPROCS ${number_of_tasks}
     ANSWER_DIR ${CMAKE_CURRENT_SOURCE_DIR}
-    ANSWER_FILE ${example}.out
+    ANSWER_FILE ${test_name}.out
     EXAMPLE_TYPE ${example_type})
 
 endforeach(example_tuple ${KINSOL_examples})

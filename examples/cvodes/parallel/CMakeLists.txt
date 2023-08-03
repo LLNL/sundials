@@ -75,7 +75,7 @@ foreach(example_tuple ${CVODES_examples})
 
   # check if example args are provided and set the test name
   sundials_create_test_name(${example} test_name  MPI_TEST_NAME
-    TEST_ARGS ${example_args})
+    TEST_ARGS ${example_args} MPI_NPROCS ${number_of_tasks})
 
   # add example to regression tests
   sundials_add_test(${test_name} ${example}
