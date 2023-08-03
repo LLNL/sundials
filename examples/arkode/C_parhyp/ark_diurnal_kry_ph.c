@@ -53,7 +53,7 @@
  * Data flow: SERIAL backend
  *                  ╭                         ╮
  *                  ┊ [+dt]╭─ udotdata <─╮[f] ┊
- *         [Send] ^ ┊      v   [copy]    │    ┊ v [Irecv]
+ *         [Send] ^ ┊      v             │    ┊ v [Irecv]
  *              <╶┼────╴udata ┄┄┄┄┄┄┄┄> uext╶───┼╴<
  *                v ┊           HOST          ┊ ^
  *                  ╰                         ╯
@@ -69,7 +69,7 @@
  *               ┊ [fill] ╭───<─[+dt]─<───╮      ┊
  *               ┊ ╭┄┄┄╴udata╶─>─[f]─>─╴udotdata ┊
  *               ┊ ╰>bufs_dev╶─>──╯              ┊
- *        [Send] ┊      ┊╰┄┄┄<┄┄┄┄╮[memcpy]      ┊ [Irecv]
+ *        [Send] ┊      ┊╰┄┄┄<┄┄┄┄╮              ┊ [Irecv]
  *             ^ ┊      ╰┄┄┄>┄┄┄┄╮┊              ┊ v 
  *           <╶┼────────────<──╴bufs╶──<───────────┼╴<
  *             v ┊              HOST             ┊ ^
@@ -158,32 +158,40 @@
     MPI_Abort(comm,code);                                                \
   }
 
+/* User-defined GPU error checking */
+#define CHECK_LAST_ERROR() NV_VERIFY_CALL_PH(NV_ADD_LANG_PREFIX_PH(GetLastError)());
+
 /* Type : UserData
    contains problem constants, preconditioner blocks, pivot arrays,
    grid constants, and processor indices, as well as data needed
    for the preconditiner */
 typedef struct {
-  realtype q4, om, dx, dy, hdco, haco, vdco;  /* variables and coefficients                */
+  realtype q4, om, dx, dy, hdco, haco, vdco;  /* quantities (q4 depends on time of day)    */
   int M, Mx, My, local_M, local_Mx, local_My; /* # of interior gridpoints M=Mx*My          */
-  int N, local_N, mybase;                     /* # of equations N=2*M and glob. eq. offset */
+  int N, local_N;                             /* # of equations N=2*M                      */
+  int mybase, mybasex, mybasey;               /* global offset of first local gridpoint    */
   int nprocs, nprocsx, nprocsy;               /* # of processes nprocs=nprocsx*nprocsy     */
   int myproc, myprocx, myprocy;               /* my process indices, flat & Cartesian      */
   int dsizex, dsizey, dsizex2, dsizey2;       /* x/y size of u & uext                      */
   int isbottom, istop, isleft, isright;       /* (bool) does process abut given boundary   */
   MPI_Comm comm;
 
-  /* For preconditioner */
+
+#if defined(SUNDIALS_HYPRE_BACKENDS_SERIAL)
+  /* for preconditioner */
   realtype ****P, ****Jbd;                    /* 2D arrays of dense matrices (** to **)    */
   sunindextype ***pivot;                      /* 2D arrays of index arrays (** to * )      */
-
-  /* Backend-dependent working/buffer arrays */
-#if defined(SUNDIALS_HYPRE_BACKENDS_SERIAL)
+  /* working array/MPI buffer */
+  int uextlen;
   realtype *uext;                             /* padded u matrix (flat); N=2*(Mx+2)*(My+2) */
 #elif defined(SUNDIALS_HYPRE_BACKENDS_CUDA_OR_HIP)
-  realtype *bufs;
-  realtype *bufs_dev;                         /* combined send and receive buffers         */
+  void     *data_dev;                         /* give device a copy of UserData            */
   int      sendB, sendT, sendL, sendR;        /* index in uext of host send buffers        */
   int      recvB, recvT, recvL, recvR;        /* index in uext of host receive buffers     */
+  /* host/device buffers */
+  int bufslen;
+  realtype *bufs;
+  realtype *bufs_dev;                         /* combined send and receive buffers         */
 #endif
 } *UserData;
 
@@ -199,6 +207,14 @@ static void BRecvWait(UserData data, MPI_Request request[], realtype buffer[]);
 static void ucomm(UserData data, realtype t, N_Vector u);
 static void fcalc(UserData data, realtype t, realtype udata[], realtype dudata[]);
 
+/* Kernels and device helper functions (for CUDA/HIP backend) */
+#if defined(SUNDIALS_HYPRE_BACKENDS_CUDA_OR_HIP)
+__global__ void fcalcKernel(UserData data_dev, realtype t, realtype *udata, realtype *udotdata);
+__global__ void FillSendBufferKernel(UserData data_dev, realtype *udata);
+// __host__ void UserDataCopyToDevice(UserData data, UserData data_dev);
+// __host__ void UserDataUpdateOnDevice(UserData data, UserData data_dev);           
+#endif
+
 /* Functions Called by the Solver */
 static int f(realtype t, N_Vector u, N_Vector udot, void *user_data);
 static int Precond(realtype tn, N_Vector u, N_Vector fu,
@@ -212,18 +228,6 @@ static int PSolve(realtype tn, N_Vector u, N_Vector fu,
 /* Private function to check function return values */
 static int check_flag(void *flagvalue, const char *funcname, int opt, int id);
 
-/* Kernels and device helper functions (for CUDA/HIP backend) */
-#if defined(SUNDIALS_HYPRE_BACKENDS_CUDA_OR_HIP)
-__global__ void fKernel(realtype *u, realtype *udot,
-                        HYPRE_Int local_M, realtype hdcoef, realtype hacoef,
-                        int recvB, int recvT, int recvL, int recvR);
-__global__ void FillSendKernel (realtype *u,
-                        HYPRE_Int local_M, realtype hdcoef, realtype hacoef,
-                        int sendB, int sendT, int sendL, int sendR);
-__host__ void UserDataCopyToDevice(UserData data, UserData data_dev);
-__host__ void UserDataUpdateOnDevice(UserData data, UserData data_dev);
-                
-#endif
 
 /***************************** Main Program ******************************/
 int main(int argc, char *argv[])
@@ -266,9 +270,9 @@ int main(int argc, char *argv[])
   nprocsy = atoi(argv[2]);
   Mx      = atoi(argv[3]);
   My      = atoi(argv[4]);
-  MPI_ASSERT(nprocsx*nprocsy==nprocs,"ERROR: nprocsx*nprocsy =/= N (Requested proc grid size does not equal available procs)\n",comm,myproc,1)
-  MPI_ASSERT(Mx>=nprocsx,"ERROR: Mx < nprocsx (We require at least one interior gridpoint per process)\n",comm,myproc,1)
-  MPI_ASSERT(My>=nprocsy,"ERROR: My < nprocsy (We require at least one interior gridpoint per process)\n",comm,myproc,1)
+  MPI_ASSERT(nprocsx*nprocsy==nprocs,"ERROR: nprocsx*nprocsy =/= N (Requested proc grid size does not equal available procs)",comm,myproc,1)
+  MPI_ASSERT(Mx>=nprocsx,"ERROR: Mx < nprocsx (We require at least one interior gridpoint per process)",comm,myproc,1)
+  MPI_ASSERT(My>=nprocsy,"ERROR: My < nprocsy (We require at least one interior gridpoint per process)",comm,myproc,1)
 
   /* Create the SUNDIALS context object for this simulation */
   flag = SUNContext_Create(&comm, &sunctx);
@@ -280,11 +284,8 @@ int main(int argc, char *argv[])
   if (check_flag((void *)data, "malloc", 2, myproc)) MPI_Abort(comm, 1);
   InitUserData(data, comm, nprocsx, nprocsy, Mx, My);
 
-  // printf("Jbd[0][0]: [%f %f; %f %f]\n",data->Jbd[0][0][0][0],data->Jbd[0][0][1][0],
-  //                                      data->Jbd[0][0][0][1],data->Jbd[0][0][1][1]);
-
   /* Allocate hypre vector */
-  HYPRE_IJVectorCreate(comm, data->mybase, data->mybase+data->local_N-1, &Uij);
+  HYPRE_IJVectorCreate(comm, NVARS*data->mybase, NVARS*data->mybase+data->local_N-1, &Uij);
   HYPRE_IJVectorSetObjectType(Uij, HYPRE_PARCSR);
   HYPRE_IJVectorInitialize(Uij);
 
@@ -300,8 +301,15 @@ int main(int argc, char *argv[])
   abstol = ATOL; reltol = RTOL;
 
   /* Create SPGMR solver structure -- use left preconditioning
-     and the default Krylov dimension maxl */
+     and the defauL Krylov dimension maxl */
+  // Note: For CUDA/HIP, we could use MAGMA (Matrix Algebra on GPU and MuLi-
+  // core Architectures) to write preconditioner routines. Without it, for
+  // simplicity, we forego preconditioning in the CUDA/HIP case.
+#if defined(SUNDIALS_HYPRE_BACKENDS_SERIAL)
   LS = SUNLinSol_SPGMR(u, SUN_PREC_LEFT, 0, sunctx);
+#elif defined(SUNDIALS_HYPRE_BACKENDS_CUDA_OR_HIP)
+  LS = SUNLinSol_SPGMR(u, SUN_PREC_NONE, 0, sunctx);
+#endif
   if (check_flag((void *)LS, "SUNLinSol_SPGMR", 0, myproc)) MPI_Abort(comm, 1);
 
   /* Call ARKStepCreate to initialize the integrator memory and specify the
@@ -314,7 +322,7 @@ int main(int argc, char *argv[])
   flag = ARKStepSetUserData(arkode_mem, data);
   if (check_flag(&flag, "ARKStepSetUserData", 1, myproc)) MPI_Abort(comm, 1);
 
-  /* Call ARKStepSetMaxNumSteps to increase default */
+  /* Call ARKStepSetMaxNumSteps to increase defauL */
   flag = ARKStepSetMaxNumSteps(arkode_mem, 10000);
   if (check_flag(&flag, "ARKStepSetMaxNumSteps", 1, myproc)) return(1);
 
@@ -329,14 +337,16 @@ int main(int argc, char *argv[])
 
   /* Set preconditioner setup and solve routines Precond and PSolve,
      and the pointer to the user-defined block data */
+#if defined(SUNDIALS_HYPRE_BACKENDS_SERIAL)
   flag = ARKStepSetPreconditioner(arkode_mem, Precond, PSolve);
   if (check_flag(&flag, "ARKStepSetPreconditioner", 1, myproc)) MPI_Abort(comm, 1);
+#endif
 
   /* Print heading */
   if (myproc == 0)
     printf("\n2-species diurnal advection-diffusion problem\n\n");
 
-  /* In loop over output points, call ARKStepEvolve, print results, test for error */
+  /* In loop over output points, call ARKStepEvolve, print resuLs, test for error */
   for (iout=1, tout=TWOHR; iout<=NOUT; iout++, tout+=TWOHR) {
     flag = ARKStepEvolve(arkode_mem, tout, u, &t, ARK_NORMAL);
     if (check_flag(&flag, "ARKStepEvolve", 1, myproc)) break;
@@ -365,7 +375,7 @@ int main(int argc, char *argv[])
 static void InitUserData(UserData data, MPI_Comm comm, int nprocsx, int nprocsy, int Mx, int My)
 {
   int nperprocx, nperprocy, nremx, nremy;
-  int p, px, py, pMx, pMy, pN;
+  //int p, px, py, pMx, pMy, pN;
   int lx, ly;
 
   /* Set problem constants */
@@ -408,13 +418,18 @@ static void InitUserData(UserData data, MPI_Comm comm, int nprocsx, int nprocsy,
   data->local_M  = data->local_Mx*data->local_My;
   data->local_N  = NVARS*data->local_M;
 
-  /* Allocate uext */
+  /* Allocate uext OR bufs[_dev] */
 #if defined(SUNDIALS_HYPRE_BACKENDS_SERIAL)
   // Note: uext is a (conceptually) 2D matrix; a padded version of u.
-  data->uext     = (realtype*) malloc(NVARS*(data->local_Mx+2)*(data->local_My+2)*sizeof(realtype));
+  data->uextlen  = NVARS*(data->local_Mx+2)*(data->local_My+2);
+  data->uext     = (realtype*) malloc(data->uextlen*sizeof(realtype));
 #elif defined(SUNDIALS_HYPRE_BACKENDS_CUDA_OR_HIP)
   // Note: bufs[_dev] is combined buffer storage:  [sendB,sendT,sendL,sendR,recvB,recvT,recvL,recvR]
-  data->uext     = (realtype*) malloc(2*NVARS*(2*data->local_Mx+2*data->local_My)*sizeof(realtype));
+  data->bufslen  = 2*NVARS*(2*data->local_Mx+2*data->local_My);
+  data->bufs     = (realtype*) malloc(data->bufslen*sizeof(realtype));
+  NV_ADD_LANG_PREFIX_PH(Malloc)(&data->bufs_dev, data->bufslen*sizeof(realtype));
+  CHECK_LAST_ERROR();
+
   data->sendB    = 0;
   data->sendT    = data->sendB + NVARS*data->local_Mx;
   data->sendL    = data->sendT + NVARS*data->local_Mx;
@@ -425,22 +440,34 @@ static void InitUserData(UserData data, MPI_Comm comm, int nprocsx, int nprocsy,
   data->recvR    = data->recvL + NVARS*data->local_My;
 #endif
   
+  /* Calculate global offset of first local gridpoint */
+  // Note: This is *not* an equation offset. There are NVARS equations per gridpoint.
+  data->mybasex = (data->myprocx < nremx) ? (nperprocx+1)*data->myprocx : nremx+(nperprocx)*data->myprocx;
+  data->mybasey = (data->myprocy < nremy) ? (nperprocy+1)*data->myprocy : nremy+(nperprocy)*data->myprocy;
+  data->mybase  = (data->mybasey*data->Mx)+data->mybasex;
 
-  /* Calculate equation offset (mybase) (see HYPRE_IJVectorCreate) */
-  data->mybase   = 0;
-  for (p = 0; p < data->myproc; p++) {
-    /* Get indices in proc grid of proc p */
-    py  = p / nprocsx;
-    px  = p - py*nprocsx;
-    /* Compute local_N of proc p */
-    pMx = (px < nremx) ? nperprocx+1 : nperprocx;
-    pMy = (py < nremy) ? nperprocy+1 : nperprocy;
-    pN  = NVARS*pMx*pMy;
-    /* Add to my equation offset */
-    data->mybase += pN;
-  }
-
-  // (data->myproc < nrem) ? data->myproc*data->local_M : data->myproc*nperproc + nrem;
+  // data->mybasex = 0;
+  // for (px = 0; px < data->myprocx; px++) {
+  //   pMx = (px < nremx) ? nperprocx+1 : nperprocx;
+  //   data->mybasex += NVARS*pMx;
+  // }
+  // data->mybasey = 0;
+  // for (py = 0; py < data->myprocy; py++) {
+  //   pMy = (py < nremy) ? nperprocy+1 : nperprocy;
+  //   data->mybasey += NVARS*pMy;
+  // }
+  // data->mybase   = 0;
+  // for (p = 0; p < data->myproc; p++) {
+  //   /* Get indices in proc grid of proc p */
+  //   py  = p / nprocsx;
+  //   px  = p - py*nprocsx;
+  //   /* Compute local_N of proc p */
+  //   pMx = (px < nremx) ? nperprocx+1 : nperprocx;
+  //   pMy = (py < nremy) ? nperprocy+1 : nperprocy;
+  //   pN  = NVARS*pMx*pMy;
+  //   /* Add to my equation offset */
+  //   data->mybase += pN;
+  // }
 
   /* Set the sizes of a boundary x/y-line in u and uext */
   data->dsizex  = NVARS*data->local_Mx;
@@ -462,16 +489,25 @@ static void InitUserData(UserData data, MPI_Comm comm, int nprocsx, int nprocsy,
       (data->Jbd)[lx][ly]   = SUNDlsMat_newDenseMat(NVARS, NVARS);
       (data->pivot)[lx][ly] = SUNDlsMat_newIndexArray(NVARS);
     }
+  
+  /* Give device a copy of UserData */
+  // Note: In particular, data_dev will contain all constants and the correct pointer to bufs_dev
+#if defined(SUNDIALS_HYPRE_BACKENDS_CUDA_OR_HIP)
+  NV_ADD_LANG_PREFIX_PH(Malloc)((void**)&data->data_dev,sizeof *data);
+  CHECK_LAST_ERROR();
+  NV_ADD_LANG_PREFIX_PH(Memcpy)(data_dev,data,sizeof *data,NV_ADD_LANG_PREFIX_PH(MemcpyHostToDevice));
+  CHECK_LAST_ERROR();
+#endif
   }
 }
 
 /* Free user data memory */
 static void FreeUserData(UserData data)
 {
+
+#if defined(SUNDIALS_HYPRE_BACKENDS_SERIAL)
   int lx, ly;
-
   free(data->uext);
-
   /* Free preconditioner data */
   for (lx = 0; lx < data->local_Mx; lx++) {
     for (ly = 0; ly < data->local_My; ly++) {
@@ -486,7 +522,13 @@ static void FreeUserData(UserData data)
   free(data->P);
   free(data->Jbd);
   free(data->pivot);
-  
+#elif defined(SUNDIALS_HYPRE_BACKENDS_CUDA_OR_HIP)
+  free(data->bufs);
+  NV_ADD_LANG_PREFIX_PH(Free)(data->bufs_dev);
+  NV_ADD_LANG_PREFIX_PH(Free)(data->data_dev);
+  CHECK_LAST_ERROR();
+#endif
+
   free(data);
 }
 
@@ -642,36 +684,37 @@ static void PrintFinalStats(void *arkode_mem)
 /* Routine to send boundary data to neighboring PEs */
 static void BSend(UserData data, realtype udata[])
 {
+  MPI_Comm comm;
+  int      dsizex, dsizey;
+  int      myproc, procB, procT, procL, procR;
+
+  comm   = data->comm;
+  dsizex = data->dsizex;
+  dsizey = data->dsizey;
+  myproc = data->myproc;
+  procB  = (data->isbottom) ? MPI_PROC_NULL : myproc-data->nprocsx;
+  procT  = (data->istop   ) ? MPI_PROC_NULL : myproc+data->nprocsx;
+  procL  = (data->isleft  ) ? MPI_PROC_NULL : myproc-1;
+  procR  = (data->isright ) ? MPI_PROC_NULL : myproc+1;
+
+#if defined(SUNDIALS_HYPRE_BACKENDS_SERIAL)
   int i, ly;
   sunindextype offsetu, offsetbuf;
   realtype *bufleft, *bufright;
 
   /* Allocate buffers */
-  bufleft  = (realtype*) malloc(data->dsizey*sizeof(realtype));
-  bufright = (realtype*) malloc(data->dsizey*sizeof(realtype));
+  bufleft  = (realtype*) malloc(dsizey*sizeof(realtype));
+  bufright = (realtype*) malloc(dsizey*sizeof(realtype));
 
-  /* If myprocy > 0, send data from bottom x-line of u */
-  if (!data->isbottom)
-    MPI_Send(&udata[0], data->dsizex, MPI_SUNREALTYPE, data->myproc-data->nprocsx, 0, data->comm);
-
-  /* If myprocy < nprocsy-1, send data from top x-line of u */
-  if (!data->istop) {
-    offsetu = (data->local_My-1)*data->dsizex;
-    MPI_Send(&udata[offsetu], data->dsizex, MPI_SUNREALTYPE, data->myproc+data->nprocsx, 0, data->comm);
-  }
-
-  /* If myprocx > 0, send data from left y-line of u (via bufleft) */
+  /* Populate buffers */
   if (!data->isleft) {
     for (ly = 0; ly < data->local_My; ly++) {
       offsetbuf = ly*NVARS;
-      offsetu = ly*data->dsizex;
+      offsetu = ly*dsizex;
       for (i = 0; i < NVARS; i++)
         bufleft[offsetbuf+i] = udata[offsetu+i];
     }
-    MPI_Send(&bufleft[0], data->dsizey, MPI_SUNREALTYPE, data->myproc-1, 0, data->comm);
   }
-
-  /* If myprocx < nprocsx-1, send data from right y-line of u (via bufright) */
   if (!data->isright) {
     for (ly = 0; ly < data->local_My; ly++) {
       offsetbuf = ly*NVARS;
@@ -679,8 +722,23 @@ static void BSend(UserData data, realtype udata[])
       for (i = 0; i < NVARS; i++)
         bufright[offsetbuf+i] = udata[offsetu+i];
     }
-    MPI_Send(&bufright[0], data->dsizey, MPI_SUNREALTYPE, data->myproc+1, 0, data->comm);
   }
+
+  /* Send x-lines directly from udata, and y-lines via bufleft/bufright */
+  offsetu = (data->local_My-1)*dsizex;
+  MPI_Send(&udata[0],          dsizex, MPI_SUNREALTYPE, procB, 0, comm);
+  MPI_Send(&udata[offsetu],    dsizex, MPI_SUNREALTYPE, procT, 0, comm);
+  MPI_Send(&bufleft[0],        dsizey, MPI_SUNREALTYPE, procL, 0, comm);
+  MPI_Send(&bufright[0],       dsizey, MPI_SUNREALTYPE, procR, 0, comm);
+
+#elif defined(SUNDIALS_HYPRE_BACKENDS_CUDA_OR_HIP)
+  realtype *bufs = data->bufs;
+  MPI_Send(&bufs[data->sendB], dsizex, MPI_SUNREALTYPE, procB, 0, comm);
+  MPI_Send(&bufs[data->sendT], dsizex, MPI_SUNREALTYPE, procT, 0, comm);
+  MPI_Send(&bufs[data->sendL], dsizey, MPI_SUNREALTYPE, procL, 0, comm);
+  MPI_Send(&bufs[data->sendR], dsizey, MPI_SUNREALTYPE, procR, 0, comm);
+#endif
+
 }
 
 /* Routine to start receiving boundary data from neighboring PEs.
@@ -691,33 +749,35 @@ static void BSend(UserData data, realtype udata[])
    2) request should have 4 entries, and should be passed in both calls also. */
 static void BRecvPost(UserData data, MPI_Request request[], realtype buffer[])
 {
-  sunindextype offsetue;
+  MPI_Comm comm;
+  int      myproc, procB, procT, procL, procR;
+
+  comm   = data->comm;
+  myproc = data->myproc;
+  procB  = (data->isbottom) ? MPI_PROC_NULL : myproc-data->nprocsx;
+  procT  = (data->istop   ) ? MPI_PROC_NULL : myproc+data->nprocsx;
+  procL  = (data->isleft  ) ? MPI_PROC_NULL : myproc-1;
+  procR  = (data->isright ) ? MPI_PROC_NULL : myproc+1;
+
+#if defined(SUNDIALS_HYPRE_BACKENDS_SERIAL)
+  realtype *uext = data->uext;
+  sunindextype offsetue = NVARS*(1 + (data->local_My+1)*(data->local_Mx+2));
   /* Have bufleft and bufright use the same buffer */
   realtype *bufleft = buffer, *bufright = buffer+data->dsizey;
 
-  /* If myprocy > 0, receive data for bottom x-line of uext */
-  if (!data->isbottom)
-    MPI_Irecv(&data->uext[NVARS], data->dsizex, MPI_SUNREALTYPE,
-              data->myproc-data->nprocsx, 0, data->comm, &request[0]);
+  /* Receive x-lines directly into uext, and y-lines into bufleft/bufright */
+  MPI_Irecv(&uext[NVARS],       dsizex, MPI_SUNREALTYPE, procB, 0, comm, &request[0]);
+  MPI_Irecv(&uext[offsetue],    dsizex, MPI_SUNREALTYPE, procT, 0, comm, &request[1]);
+  MPI_Irecv(&bufleft[0],        dsizey, MPI_SUNREALTYPE, procL, 0, comm, &request[2]);
+  MPI_Irecv(&bufright[0],       dsizey, MPI_SUNREALTYPE, procR, 0, comm, &request[3]);
 
-  /* If myprocy < nprocsy-1, receive data for top x-line of uext */
-  if (!data->istop) {
-    offsetue = NVARS*(1 + (data->local_My+1)*(data->local_Mx+2));
-    MPI_Irecv(&data->uext[offsetue], data->dsizex, MPI_SUNREALTYPE,
-              data->myproc+data->nprocsx, 0, data->comm, &request[1]);
-  }
-
-  /* If myprocx > 0, receive data for left y-line of uext (via bufleft) */
-  if (!data->isleft) {
-    MPI_Irecv(&bufleft[0], data->dsizey, MPI_SUNREALTYPE,
-              data->myproc-1, 0, data->comm, &request[2]);
-  }
-
-  /* If myprocx < nprocsx-1, receive data for right y-line of uext (via bufright) */
-  if (!data->isright) {
-    MPI_Irecv(&bufright[0], data->dsizey, MPI_SUNREALTYPE,
-              data->myproc+1, 0, data->comm, &request[3]);
-  }
+#elif defined(SUNDIALS_HYPRE_BACKENDS_CUDA_OR_HIP)
+  realtype *bufs = data->bufs;
+  MPI_Irecv(&bufs[data->recvB], dsizex, MPI_SUNREALTYPE, procB, 0, comm, &request[0]);
+  MPI_Irecv(&bufs[data->recvT], dsizex, MPI_SUNREALTYPE, procT, 0, comm, &request[1]);
+  MPI_Irecv(&bufs[data->recvL], dsizey, MPI_SUNREALTYPE, procL, 0, comm, &request[2]);
+  MPI_Irecv(&bufs[data->recvR], dsizey, MPI_SUNREALTYPE, procR, 0, comm, &request[3]);
+#endif
 }
 
 /* Routine to finish receiving boundary data from neighboring PEs.
@@ -728,24 +788,17 @@ static void BRecvPost(UserData data, MPI_Request request[], realtype buffer[])
    2) request should have 4 entries, and should be passed in both calls also. */
 static void BRecvWait(UserData data, MPI_Request request[], realtype buffer[])
 {
+  MPI_Status status[4];
+
+  /* Wait for all requests  */
+  MPI_Waitall(request,status);
+
+#if defined(SUNDIALS_HYPRE_BACKENDS_SERIAL)
   int i, ly;
   sunindextype offsetue, offsetbuf;
   realtype *bufleft = buffer, *bufright = buffer+data->dsizey;
-  MPI_Status status;
-
-  /* If myprocy > 0, receive data for bottom x-line of uext */
-  if (!data->isbottom)
-    MPI_Wait(&request[0],&status);
-
-  /* If myprocy < nprocsy-1, receive data for top x-line of uext */
-  if (!data->istop)
-    MPI_Wait(&request[1],&status);
-
-  /* If myprocx > 0, receive data for left y-line of uext (via bufleft) */
+  /* Copy buffers to uext */
   if (!data->isleft) {
-    MPI_Wait(&request[2],&status);
-
-    /* Copy the buffer to uext */
     for (ly = 0; ly < data->local_My; ly++) {
       offsetbuf = ly*NVARS;
       offsetue = (ly+1)*data->dsizex2;
@@ -753,12 +806,7 @@ static void BRecvWait(UserData data, MPI_Request request[], realtype buffer[])
         data->uext[offsetue+i] = bufleft[offsetbuf+i];
     }
   }
-
-  /* If myprocx < nprocsx-1, receive data for right y-line of uext (via bufright) */
   if (!data->isright) {
-    MPI_Wait(&request[3],&status);
-
-    /* Copy the buffer to uext */
     for (ly = 0; ly < data->local_My; ly++) {
       offsetbuf = ly*NVARS;
       offsetue = (ly+2)*data->dsizex2 - NVARS;
@@ -766,13 +814,13 @@ static void BRecvWait(UserData data, MPI_Request request[], realtype buffer[])
         data->uext[offsetue+i] = bufright[offsetbuf+i];
     }
   }
+#endif
 }
 
 /* ucomm routine.  This routine performs all communication
    between processors of data needed to calculate f. */
 static void ucomm(UserData data, realtype t, N_Vector u)
 {
-
   realtype *udata, *buffer;
   MPI_Request request[4];
   HYPRE_ParVector uhyp;
@@ -782,6 +830,17 @@ static void ucomm(UserData data, realtype t, N_Vector u)
 
   /* Allocate buffer */
   buffer = (realtype*) malloc(2*data->dsizey*sizeof(realtype));
+
+  /* Fill device send buffer and copy to host */
+#if defined(SUNDIALS_HYPRE_BACKENDS_CUDA_OR_HIP)
+  unsigned sendlen = data->bufslen/2; 
+  unsigned block   = 256;
+  unsigned grid    = (sendlen/NVARS + block - 1) / block;
+  FillSendBufferKernel(data_dev, udata);
+
+  NV_ADD_LANG_PREFIX_PH(Memcpy)(&data->bufs,&data->bufs_dev,sendlen*sizeof(realtype),NV_ADD_LANG_PREFIX_PH(MemcpyDeviceToHost));
+  CHECK_LAST_ERROR();
+#endif
 
   /* Start receiving boundary data from neighboring PEs */
   BRecvPost(data, request, buffer);
@@ -798,15 +857,16 @@ static void ucomm(UserData data, realtype t, N_Vector u)
    and this data is in the work array uext. */
 static void fcalc(UserData data, realtype t, realtype udata[], realtype dudata[])
 {
-  int i, lx, ly, jy;
-  realtype q3, c1, c2, c1dn, c2dn, c1up, c2up, c1lt, c2lt;
-  realtype c1rt, c2rt, cydn, cyup, hord1, hord2, horad1, horad2;
-  realtype qq1, qq2, qq3, qq4, rkin1, rkin2, s, vertd1, vertd2, ydn, yup;
+  int          i, lx, ly, jy;
+
+  realtype     q3, q4, qq1, qq2, qq3, qq4, rkin1, rkin2, s, vertd1, vertd2, ydn, yup;
+  realtype     c1, c2, c1dn, c2dn, c1up, c2up, c1lt, c2lt, c1rt, c2rt, cydn, cyup;
+  realtype     hord1, hord2, horad1, horad2;
   sunindextype offsetu, offsetue;
   
-  int dsizex, dsizex2, local_Mx, local_My;
-  realtype *uext;
-  realtype q4, dy, vdco, hdco, haco;
+  int          dsizex, dsizex2, local_Mx, local_My;
+  realtype     dy, vdco, hdco, haco;
+  realtype     *uext;
 
   /* Make local copies of problem variables, for efficiency */
   dsizex   = data->dsizex;   dsizex2  = data->dsizex2;
@@ -872,7 +932,7 @@ static void fcalc(UserData data, realtype t, realtype udata[], realtype dudata[]
   /* Loop over all grid points in local subgrid */
   for (ly = 0; ly < local_My; ly++) {
 
-    jy   = ly + data->myprocy*local_My;
+    jy   = ly + data->mbasey;
 
     /* Set vertical diffusion coefficients at jy +- 1/2 */
     ydn  = YMIN + (jy - RCONST(0.5))*dy;
@@ -919,6 +979,122 @@ static void fcalc(UserData data, realtype t, realtype udata[], realtype dudata[]
 }
 
 
+/****** Kernels and device helper functions (for CUDA/HIP backend) ******/
+
+#if defined(SUNDIALS_HYPRE_BACKENDS_CUDA_OR_HIP)
+__global__ void fcalcKernel(UserData data_dev, realtype t, realtype *udata, realtype *udotdata)
+{
+  sunindextype tid, lx, ly, gy; // lx,ly: local gridpoint coords; gy: global gridpoint y coord
+
+  realtype     q3, q4, qq1, qq2, qq3, qq4, rkin1, rkin2, s, vertd1, vertd2, ydn, yup;
+  realtype     c1, c2, c1dn, c2dn, c1up, c2up, c1lt, c2lt, c1rt, c2rt, cydn, cyup;
+  realtype     hord1, hord2, horad1, horad2;
+  sunindextype offsetu, offsetue;
+  
+  int          local_Mx, local_My;
+  realtype     dy, vdco, hdco, haco;
+  int          recvB, recvT, recvL, recvR;
+  realtype     *bufs_dev;
+
+  /* Make local copies of problem variables, for efficiency */
+  local_Mx = data_dev->local_Mx; local_My = data_dev->local_My;
+  dy       = data_dev->dy;       vdco     = data_dev->vdco;
+  hdco     = data_dev->hdco;     haco     = data_dev->haco;
+  recvB    = data_dev->recvB;    recvT    = data_dev->recvT;
+  recvL    = data_dev->recvL;    recvR    = data_dev->recvR;
+  bufs_dev = data_dev->bufs_dev;
+
+  /* Get tid and calculate udot */
+  tid = blockDim.x * blockIdx.x + threadIdx.x;
+  if (tid < local_Mx*local_My)
+  {
+    ly   = tid/local_Mx; // Conceptually indexed L->R, B->T: ┌ 2 3 ┐
+    lx   = tid%local_Mx; //                                  └ 0 1 ┘
+    gy   = ly + data_dev->mybasey;
+
+    /* Get c1&c2 values from udata (take from Recv buffers as needed) */
+    // Note: [homogeneous Neumann BC] if a boundary proc, pull from interior instead of buffer
+    c1   = udata[NVARS*tid];
+    c2   = udata[NVARS*tid+1];
+    //   thread on proc bdry?  proc on domain bdry?   [Y,Y] pull from interior        [Y,N] pull from buffer        [N,Y/N] pull directly  
+    c1dn = (ly==0         ) ? ((data_dev->isbottom) ? udata[NVARS*(tid+local_Mx)  ] : bufs_dev[recvB+NVARS*lx  ]) : udata[NVARS*(tid-local_Mx)  ];
+    c2dn = (ly==0         ) ? ((data_dev->isbottom) ? udata[NVARS*(tid+local_Mx)+1] : bufs_dev[recvB+NVARS*lx+1]) : udata[NVARS*(tid-local_Mx)+1];
+    c1up = (ly==local_My-1) ? ((data_dev->istop   ) ? udata[NVARS*(tid-local_Mx)  ] : bufs_dev[recvT+NVARS*lx  ]) : udata[NVARS*(tid+local_Mx)  ];
+    c2up = (ly==local_My-1) ? ((data_dev->istop   ) ? udata[NVARS*(tid-local_Mx)+1] : bufs_dev[recvT+NVARS*lx+1]) : udata[NVARS*(tid+local_Mx)+1];
+    c1lt = (lx==0         ) ? ((data_dev->isleft  ) ? udata[NVARS*(tid+1)         ] : bufs_dev[recvL+NVARS*ly  ]) : udata[NVARS*(tid-1)         ];
+    c2lt = (lx==0         ) ? ((data_dev->isleft  ) ? udata[NVARS*(tid+1)+1       ] : bufs_dev[recvL+NVARS*ly+1]) : udata[NVARS*(tid-1)+1       ];
+    c1rt = (lx==local_Mx-1) ? ((data_dev->isright ) ? udata[NVARS*(tid-1)         ] : bufs_dev[recvR+NVARS*ly  ]) : udata[NVARS*(tid+1)         ];
+    c2rt = (lx==local_Mx-1) ? ((data_dev->isright ) ? udata[NVARS*(tid-1)+1       ] : bufs_dev[recvR+NVARS*ly+1]) : udata[NVARS*(tid+1)+1       ];
+
+    /* Set diurnal rate coefficients as functions of t */
+    s = sin((data_dev->om)*t);
+    if (s > RCONST(0.0)) {
+      q3 = SUNRexp(-A3/s);
+      q4 = SUNRexp(-A4/s);
+    } else {
+      q3 = RCONST(0.0);
+      q4 = RCONST(0.0);
+    }
+    // data_dev->q4 = q4; // Only need to export q4 if we later implement a preconditioner for GPU
+
+    /* Set vertical diffusion coefficients at jy +- 1/2 */
+    ydn    = YMIN + (gy - RCONST(0.5))*dy;
+    yup    = ydn + dy;
+    cydn   = vdco*SUNRexp(RCONST(0.2)*ydn);
+    cyup   = vdco*SUNRexp(RCONST(0.2)*yup);
+
+    /* Set kinetic rate terms */
+    qq1    = Q1*c1*C3;
+    qq2    = Q2*c1*c2;
+    qq3    = q3*C3;
+    qq4    = q4*c2;
+    rkin1  = -qq1 - qq2 + RCONST(2.0)*qq3 + qq4;
+    rkin2  = qq1 - qq2 - qq4;
+
+    /* Set vertical diffusion terms */
+    vertd1 = cyup*(c1up - c1) - cydn*(c1 - c1dn);
+    vertd2 = cyup*(c2up - c2) - cydn*(c2 - c2dn);
+
+    /* Set horizontal diffusion and advection terms */
+    hord1  = hdco*(c1rt - RCONST(2.0)*c1 + c1lt);
+    hord2  = hdco*(c2rt - RCONST(2.0)*c2 + c2lt);
+    horad1 = haco*(c1rt - c1lt);
+    horad2 = haco*(c2rt - c2lt);
+
+    /* Load all terms into dudata */
+    udotdata[NVARS*tid]   = vertd1 + hord1 + horad1 + rkin1;
+    udotdata[NVARS*tid+1] = vertd2 + hord2 + horad2 + rkin2;
+  }
+  return;
+}
+
+__global__ void FillSendBufferKernel(UserData data_dev, realtype *udata)
+{
+  sunindextype tid, lx, ly;
+  int offsetB, offsetT, offsetL, offsetR;
+  int local_Mx, local_My;
+  realtype *bufs_dev;
+
+  offsetB  = data_dev->sendB/NVARS; offsetT  = data_dev->sendT/NVARS;
+  offsetL  = data_dev->sendL/NVARS; offsetR  = data_dev->sendR/NVARS;
+  local_Mx = data_dev->local_Mx;    local_My = data_dev->local_My;
+  bufs_dev = data_dev->bufs_dev;
+
+  tid = blockDim.x * blockIdx.x + threadIdx.x;
+  if      (tid < offsetB) { ly = 0;           lx = tid-offsetB; }
+  else if (tid < offsetT) { ly = local_My-1;  lx = tid-offsetT; }
+  else if (tid < offsetL) { ly = tid-offsetL; lx = 0;           }
+  else if (tid < offsetR) { ly = tid-offsetR; lx = local_Mx-1;  }
+  else return;
+
+  bufs_dev[NVARS*tid]   = udata[NVARS*(ly*local_Mx + lx)  ];
+  bufs_dev[NVARS*tid+1] = udata[NVARS*(ly*local_Mx + lx)+1];
+
+  return;
+}
+#endif
+
+
 /***************** Functions Called by the Solver *************************/
 
 /* f routine.  Evaluate f(t,y).  First call ucomm to do communication of
@@ -927,24 +1103,35 @@ static int f(realtype t, N_Vector u, N_Vector udot, void *user_data)
 {
   realtype *udata, *udotdata;
   UserData data;
+#if defined(SUNDIALS_HYPRE_BACKENDS_CUDA_OR_HIP)
+  UserData *data_dev;
+#endif
   HYPRE_ParVector uhyp;
   HYPRE_ParVector udothyp;
 
   /* Extract hypre vectors */
-  uhyp  = N_VGetVector_ParHyp(u);
+  uhyp     = N_VGetVector_ParHyp(u);
   udothyp  = N_VGetVector_ParHyp(udot);
 
   /* Access hypre vectors local data */
-  udata = hypre_VectorData(hypre_ParVectorLocalVector(uhyp));
+  udata    = hypre_VectorData(hypre_ParVectorLocalVector(uhyp));
   udotdata = hypre_VectorData(hypre_ParVectorLocalVector(udothyp));
 
-  data = (UserData) user_data;
+  /* Extract UserData pointers*/
+  data     = (UserData) user_data;
+  data_dev = (UserData) data->data_dev;
 
   /* Call ucomm to do inter-processor communication */
   ucomm(data, t, u);
 
   /* Call fcalc to calculate all right-hand sides */
+#if defined(SUNDIALS_HYPRE_BACKENDS_SERIAL)
   fcalc(data, t, udata, udotdata);
+#elif defined(SUNDIALS_HYPRE_BACKENDS_CUDA_OR_HIP)
+  unsigned block = 256;
+  unsigned grid  = (data->local_M + block - 1) / block;
+  fcalcKernel(data_dev, t, udata, udotdata);
+#endif
 
   return(0);
 }
@@ -1066,7 +1253,7 @@ static int PSolve(realtype tn, N_Vector u, N_Vector fu,
 }
 
 
-/*********************** Private Helper Function ************************/
+/*********** Private function to check function return values ***********/
 
 /* Check function return value...
      opt == 0 means SUNDIALS function allocates memory so check if
@@ -1099,55 +1286,3 @@ static int check_flag(void *flagvalue, const char *funcname, int opt, int id)
 
   return(0);
 }
-/****** Kernels and device helper functions (for CUDA/HIP backend) ******/
-#if defined(SUNDIALS_HYPRE_BACKENDS_CUDA_OR_HIP)
-__global__ void fKernel(realtype *u, realtype *udot,
-                        HYPRE_Int local_M, realtype hdcoef, realtype hacoef,
-                        int recvB, int recvT, int recvL, int recvR)
-{
-  return;
-}
-
-__global__ void FillSendKernel (realtype *u,
-                        HYPRE_Int local_M, realtype hdcoef, realtype hacoef,
-                        int sendB, int sendT, int sendL, int sendR)
-{
-  return;
-}
-/* Copy UserData entries to device (except pointers) */
-__host__ void UserDataCopyToDevice(UserData data, UserData data_dev)
-{
-  iglobal_dev, iglobal, data->local_M*sizeof(HYPRE_Int), NV_ADD_LANG_PREFIX_PH(MemcpyHostToDevice)
-  NV_ADD_LANG_PREFIX_PH(Memcpy)(data->q4,data_dev->q4,)
-  return;
-}
-
-__host__ void UserDataUpdateOnDevice(UserData data, UserData data_dev)
-{
-  return;
-}
-// typedef struct {
-//   realtype q4, om, dx, dy, hdco, haco, vdco;  /* variables and coefficients                */
-//   int M, Mx, My, local_M, local_Mx, local_My; /* # of interior gridpoints M=Mx*My          */
-//   int N, local_N, mybase;                     /* # of equations N=2*M and glob. eq. offset */
-//   int nprocs, nprocsx, nprocsy;               /* # of processes nprocs=nprocsx*nprocsy     */
-//   int myproc, myprocx, myprocy;               /* my process indices, flat & Cartesian      */
-//   int dsizex, dsizey, dsizex2, dsizey2;       /* x/y size of u & uext                      */
-//   int isbottom, istop, isleft, isright;       /* (bool) does process abut given boundary   */
-//   MPI_Comm comm;
-
-//   /* For preconditioner */
-//   realtype ****P, ****Jbd;                    /* 2D arrays of dense matrices (** to **)    */
-//   sunindextype ***pivot;                      /* 2D arrays of index arrays (** to * )      */
-
-//   /* Backend-dependent working/buffer arrays */
-// #if defined(SUNDIALS_HYPRE_BACKENDS_SERIAL)
-//   realtype *uext;                             /* padded u matrix (flat); N=2*(Mx+2)*(My+2) */
-// #elif defined(SUNDIALS_HYPRE_BACKENDS_CUDA_OR_HIP)
-//   realtype *bufs;
-//   realtype *bufs_dev;                         /* combined send and receive buffers         */
-//   int      sendB, sendT, sendL, sendR;        /* index in uext of host send buffers        */
-//   int      recvB, recvT, recvL, recvR;        /* index in uext of host receive buffers     */
-// #endif
-// } *UserData;
-#endif
