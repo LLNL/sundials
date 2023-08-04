@@ -270,22 +270,22 @@ int main(int argc, char* argv[])
                       + 107 * t
                       + 90) / 10.0;
 
-    sunrealtype p0p1 = (4.0 * std::pow(t, 3)
-                        - 33.0 * std::pow(t, 2)
-                        + 10.0 * t
-                        + 107.0) / 10.0;
+    // sunrealtype p0p1 = (4.0 * std::pow(t, 3)
+    //                     - 33.0 * std::pow(t, 2)
+    //                     + 10.0 * t
+    //                     + 107.0) / 10.0;
 
-    sunrealtype p0p2 = 3.0 * (4.0 * t - 11.0) / 5.0;
+    // sunrealtype p0p2 = 3.0 * (4.0 * t - 11.0) / 5.0;
 
-    sunrealtype p0p3 = (3.0 * (5.0 * t * t - 4.0 * t - 47.0)) / 2500.0;
+    // sunrealtype p0p3 = (3.0 * (5.0 * t * t - 4.0 * t - 47.0)) / 2500.0;
 
-    sunrealtype p0p4 = 12.0 / 5.0;
+    // sunrealtype p0p4 = 12.0 / 5.0;
 
-    sunrealtype p1   =  std::sin(t);
-    sunrealtype p1p1 =  std::cos(t);
-    sunrealtype p1p2 = -std::sin(t);
-    sunrealtype p1p3 = -std::cos(t);
-    sunrealtype p1p4 =  std::sin(t);
+    // sunrealtype p1   =  std::sin(t);
+    // sunrealtype p1p1 =  std::cos(t);
+    // sunrealtype p1p2 = -std::sin(t);
+    // sunrealtype p1p3 = -std::cos(t);
+    // sunrealtype p1p4 =  std::sin(t);
 
     sunrealtype* pdata = N_VGetArrayPointer(p[0]);
 

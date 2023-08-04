@@ -649,23 +649,58 @@ int CVodeReInit(void *cvode_mem, realtype t0, N_Vector y0)
   return(CV_SUCCESS);
 }
 
-static sunrealtype LBasisD2(int j, sunrealtype t, sunrealtype* t_hist)
+
+/* Lagrange utility routines (basis functions and their derivatives) */
+realtype LBasis(int j, realtype t, sunrealtype* t_hist, int n_hist)
+{
+  realtype p = ONE;
+  for (int k = 0; k < n_hist; k++)
+  {
+    if (k == j) continue;
+    p *= (t - t_hist[k]) / (t_hist[j] - t_hist[k]);
+  }
+
+  return p;
+}
+
+realtype LBasisD(int j, realtype t, sunrealtype* t_hist, int n_hist)
+{
+  sunrealtype p, q;
+  p = ZERO;
+  for (int i = 0; i < n_hist; i++)
+  {
+    if (i == j) continue;
+    q = ONE;
+    for (int k = 0; k < n_hist; k++)
+    {
+      if (k == j) continue;
+      if (k == i) continue;
+      q *= (t-t_hist[k]) / (t_hist[j] - t_hist[k]);
+    }
+    p += q/(t_hist[j] - t_hist[i]);
+  }
+
+  return p;
+}
+
+static sunrealtype LBasisD2(int j, sunrealtype t, sunrealtype* t_hist,
+                            int n_hist)
 {
   sunrealtype p, q, r;
 
   p = ZERO;
-  for (int l = 0; l < 3; l++)
+  for (int l = 0; l < n_hist; l++)
   {
     if (l == j) continue;
     q = ZERO;
 
-    for (int i = 0; i < 3; i++)
+    for (int i = 0; i < n_hist; i++)
     {
       if (i == j) continue;
       if (i == l) continue;
       r = ONE;
 
-      for (int k = 0; k < 3; k++)
+      for (int k = 0; k < n_hist; k++)
       {
         if (k == j) continue;
         if (k == i) continue;
@@ -681,30 +716,30 @@ static sunrealtype LBasisD2(int j, sunrealtype t, sunrealtype* t_hist)
 }
 
 
-static realtype LBasisD3(int j, sunrealtype t, sunrealtype* t_hist)
+static realtype LBasisD3(int j, sunrealtype t, sunrealtype* t_hist, int n_hist)
 {
   sunrealtype p, q, r, s;
 
   p = ZERO;
-  for (int m = 0; m < 4; m++)
+  for (int m = 0; m < n_hist; m++)
   {
     if (m == j) continue;
     q = ZERO;
 
-    for (int l = 0; l < 4; l++)
+    for (int l = 0; l < n_hist; l++)
     {
       if (l == j) continue;
       if (l == m) continue;
       r = ZERO;
 
-      for (int i = 0; i < 4; i++)
+      for (int i = 0; i < n_hist; i++)
       {
         if (i == j) continue;
         if (i == m) continue;
         if (i == l) continue;
         s = ONE;
 
-        for (int k = 0; k < 4; k++)
+        for (int k = 0; k < n_hist; k++)
         {
           if (k == j) continue;
           if (k == m) continue;
@@ -930,7 +965,8 @@ int CVodeResizeHistory(void *cvode_mem, sunrealtype* t_hist, N_Vector* y_hist,
     return CV_ILL_INPUT;
   }
 
-  if (itype < 0 || itype > 2)
+  if (itype != 0 && itype != 10 && itype != 11 && itype != 12 && itype != 20
+      && itype != 21 && itype != 22)
   {
     cvProcessError(cv_mem, CV_ILL_INPUT, "CVODE", "CVodeResizeHistory",
                    "Invalid interpolation type");
@@ -1103,7 +1139,7 @@ int CVodeResizeHistory(void *cvode_mem, sunrealtype* t_hist, N_Vector* y_hist,
     N_VScale(cv_mem->cv_hscale, cv_mem->cv_zn[1], cv_mem->cv_zn[1]);
 
   }
-  else if (itype == 1)
+  else if (itype == 10 || itype == 11 || itype == 12)
   {
     if (debug_file)
     {
@@ -1114,26 +1150,63 @@ int CVodeResizeHistory(void *cvode_mem, sunrealtype* t_hist, N_Vector* y_hist,
        Compute higher order derivatives from polynomial interpolant */
     sunrealtype a[4];
 
-    /* zn[0] = y_n-1 */
-    N_VScale(ONE, y_hist[0], cv_mem->cv_zn[0]);
-
-    /* zn[1] = h_n-1 * y'(t_n-1, y_n-1) */
-    retval = cv_mem->cv_f(cv_mem->cv_tn, y_hist[0],
-                          cv_mem->cv_zn[1], cv_mem->cv_user_data);
-    cv_mem->cv_nfe++;
-    if (retval)
+    /* Copy state and re-evaluate RHS */
+    if (itype == 10)
     {
-      cvProcessError(cv_mem, CV_RHSFUNC_FAIL, "CVODE", "CVode",
-                     MSGCV_RHSFUNC_FAILED, cv_mem->cv_tn);
-      return CV_RHSFUNC_FAIL;
+      /* zn[0] = y_n-1 */
+      N_VScale(ONE, y_hist[0], cv_mem->cv_zn[0]);
+
+      /* zn[1] = h_n-1 * y'(t_n-1, y_n-1) */
+      retval = cv_mem->cv_f(cv_mem->cv_tn, y_hist[0],
+                            cv_mem->cv_zn[1], cv_mem->cv_user_data);
+      cv_mem->cv_nfe++;
+      if (retval)
+      {
+        cvProcessError(cv_mem, CV_RHSFUNC_FAIL, "CVODE", "CVode",
+                       MSGCV_RHSFUNC_FAILED, cv_mem->cv_tn);
+        return CV_RHSFUNC_FAIL;
+      }
+      N_VScale(cv_mem->cv_hscale, cv_mem->cv_zn[1], cv_mem->cv_zn[1]);
     }
-    N_VScale(cv_mem->cv_hscale, cv_mem->cv_zn[1], cv_mem->cv_zn[1]);
+
+    /* Copy state and interpolate RHS */
+    if (itype == 11)
+    {
+      N_VScale(ONE, y_hist[0], cv_mem->cv_zn[0]);
+
+      for (int j = 0; j < cv_mem->cv_q + 1; j++)
+      {
+        a[j] = LBasisD(j, cv_mem->cv_tn, t_hist, cv_mem->cv_q + 1);
+      }
+      N_VLinearCombination(cv_mem->cv_q + 1, a, y_hist, cv_mem->cv_zn[1]);
+      N_VScale(cv_mem->cv_hscale, cv_mem->cv_zn[1], cv_mem->cv_zn[1]);
+    }
+
+    /* Interpolate state and RHS */
+    if (itype == 12)
+    {
+      for (int j = 0; j < cv_mem->cv_q + 1; j++)
+      {
+        a[j] = LBasis(j, cv_mem->cv_tn, t_hist, cv_mem->cv_q + 1);
+      }
+      N_VLinearCombination(cv_mem->cv_q + 1, a, y_hist, cv_mem->cv_zn[0]);
+
+      for (int j = 0; j < cv_mem->cv_q + 1; j++)
+      {
+        a[j] = LBasisD(j, cv_mem->cv_tn, t_hist, cv_mem->cv_q + 1);
+      }
+      N_VLinearCombination(cv_mem->cv_q + 1, a, y_hist, cv_mem->cv_zn[1]);
+      N_VScale(cv_mem->cv_hscale, cv_mem->cv_zn[1], cv_mem->cv_zn[1]);
+    }
 
     /* (>= 2nd order) zn[2] = ((h_n-1)^2 / 2) * y''(t_n-1, y_n-1) */
     if (cv_mem->cv_qprime >= 2)
     {
-      for (int j = 0; j < 3; j++) a[j] = LBasisD2(j, cv_mem->cv_tn, t_hist);
-      N_VLinearCombination(3, a, y_hist, cv_mem->cv_zn[2]);
+      for (int j = 0; j < cv_mem->cv_q + 1; j++)
+      {
+        a[j] = LBasisD2(j, cv_mem->cv_tn, t_hist, cv_mem->cv_q + 1);
+      }
+      N_VLinearCombination(cv_mem->cv_q + 1, a, y_hist, cv_mem->cv_zn[2]);
       N_VScale((cv_mem->cv_hscale * cv_mem->cv_hscale) / TWO,
                cv_mem->cv_zn[2], cv_mem->cv_zn[2]);
     }
@@ -1141,13 +1214,16 @@ int CVodeResizeHistory(void *cvode_mem, sunrealtype* t_hist, N_Vector* y_hist,
     /* (>= 3rd order) zn[3] = ((h_n-1)^3 / 6) * y'''(t_n-1, y_n-1) */
     if (cv_mem->cv_qprime >= 3)
     {
-      for (int j = 0; j < 4; j++) a[j] = LBasisD3(j, cv_mem->cv_tn, t_hist);
-      N_VLinearCombination(4, a, y_hist, cv_mem->cv_zn[3]);
+      for (int j = 0; j < cv_mem->cv_q + 1; j++)
+      {
+        a[j] = LBasisD3(j, cv_mem->cv_tn, t_hist, cv_mem->cv_q + 1);
+      }
+      N_VLinearCombination(cv_mem->cv_q + 1, a, y_hist, cv_mem->cv_zn[3]);
       N_VScale((cv_mem->cv_hscale * cv_mem->cv_hscale * cv_mem->cv_hscale) / SUN_RCONST(6.0),
                cv_mem->cv_zn[3], cv_mem->cv_zn[3]);
     }
   }
-  else if (itype == 2)
+  else if (itype == 20 || itype == 21 || itype ==22)
   {
     if (debug_file)
     {
@@ -1187,6 +1263,33 @@ int CVodeResizeHistory(void *cvode_mem, sunrealtype* t_hist, N_Vector* y_hist,
       N_VScale(scale, cv_mem->cv_zn[i], cv_mem->cv_zn[i]);
     }
   }
+
+  /* Copy state and re-evaluate RHS */
+  if (itype == 20)
+  {
+    /* zn[0] = y_n-1 */
+    N_VScale(ONE, y_hist[0], cv_mem->cv_zn[0]);
+
+    /* zn[1] = h_n-1 * y'(t_n-1, y_n-1) */
+    retval = cv_mem->cv_f(cv_mem->cv_tn, y_hist[0],
+                          cv_mem->cv_zn[1], cv_mem->cv_user_data);
+    cv_mem->cv_nfe++;
+    if (retval)
+    {
+      cvProcessError(cv_mem, CV_RHSFUNC_FAIL, "CVODE", "CVode",
+                     MSGCV_RHSFUNC_FAILED, cv_mem->cv_tn);
+      return CV_RHSFUNC_FAIL;
+    }
+    N_VScale(cv_mem->cv_hscale, cv_mem->cv_zn[1], cv_mem->cv_zn[1]);
+  }
+
+  /* Copy state and interpolate RHS (done above) */
+  if (itype == 21)
+  {
+    N_VScale(ONE, y_hist[0], cv_mem->cv_zn[0]);
+  }
+
+  /* itype == 22 Interpolate state and RHS (done above) */
 
   /* if (((cv_mem->cv_qwait == 1) && (cv_mem->cv_q != cv_mem->cv_qmax)) || */
   /*     (cv_mem->cv_q != cv_mem->cv_qprime)) */
