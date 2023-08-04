@@ -51,19 +51,24 @@ macro(sundials_add_benchmark NAME EXECUTABLE BASE_BENCHMARK_NAME)
     set(SUNDIALS_BENCHMARK_OUTPUT_DIR ${PROJECT_BINARY_DIR}/Benchmarking/${BASE_BENCHMARK_NAME})
   endif()
 
-  # make the output directory if it doesn't exist
+  # make the caliper output directory if it doesn't exist
   if(NOT EXISTS ${SUNDIALS_BENCHMARK_OUTPUT_DIR}/${TARGET_NAME})
     file(MAKE_DIRECTORY ${SUNDIALS_BENCHMARK_OUTPUT_DIR}/${TARGET_NAME})
   endif()
 
+  # make the the output directory if it doesn't exist
+  if(NOT EXISTS ${SUNDIALS_BENCHMARK_OUTPUT_DIR}/output)
+    file(MAKE_DIRECTORY ${SUNDIALS_BENCHMARK_OUTPUT_DIR}/output)
+  endif()
+
   # command line arguments for the test runner script
   set(TEST_RUNNER_ARGS
+    "--profile"
     "--verbose"
     "--executablename=$<TARGET_FILE:${EXECUTABLE}>"
-    "--outputdir=${TEST_OUTPUT_DIR}"
+    "--outputdir=${SUNDIALS_BENCHMARK_OUTPUT_DIR}/output"
     "--calidir=${SUNDIALS_BENCHMARK_OUTPUT_DIR}/${TARGET_NAME}"
-    "--nodiff"
-    )
+    "--nodiff")
   
   # incorporate scheduler arguments into test_runner
   if(SUNDIALS_SCHEDULER_COMMAND STREQUAL "flux run")
@@ -78,21 +83,14 @@ macro(sundials_add_benchmark NAME EXECUTABLE BASE_BENCHMARK_NAME)
   string(REPLACE " " ";" SCHEDULER_ARGS "${SCHEDULER_STRING}")
   string(REPLACE " " ";" SCHEDULER_COMMAND_ARGS "${SUNDIALS_SCHEDULER_COMMAND}")
 
-  # taken from SundialsAddTest
   string(STRIP "${RUN_COMMAND}" RUN_COMMAND)
   set(RUN_COMMAND ${SCHEDULER_COMMAND_ARGS} ${SCHEDULER_ARGS})
   list(APPEND TEST_RUNNER_ARGS "--runcommand=\"${RUN_COMMAND}\"")
 
-  # enable test runner to set up caliper output paths and configs
-  if(SUNDIALS_TEST_PROFILE)
-    list(APPEND TEST_RUNNER_ARGS "--profile")
-  endif()
-
   list(APPEND TEST_RUNNER_ARGS "--runargs=${sundials_add_benchmark_BENCHMARK_ARGS}" "--testname=${TARGET_NAME}")
   add_custom_target(${TARGET_NAME}
     COMMENT "Running ${TARGET_NAME}"
-    COMMAND ${PYTHON_EXECUTABLE} ${TESTRUNNER} ${TEST_RUNNER_ARGS}
-    )
+    COMMAND ${PYTHON_EXECUTABLE} ${TESTRUNNER} ${TEST_RUNNER_ARGS})
   add_dependencies(benchmark ${TARGET_NAME})
 
 endmacro()
