@@ -11,7 +11,7 @@
  * SPDX-License-Identifier: BSD-3-Clause
  * SUNDIALS Copyright End
  * ---------------------------------------------------------------------------
- * IMEX multirate Dahlquist problem:
+ * IMEX Dahlquist problem:
  *
  * y' = lambda_e * y + lambda_i * y
  * ---------------------------------------------------------------------------*/
@@ -107,8 +107,8 @@ int expected_rhs_evals(method_type m_type, interp_type i_type, int stages,
                        bool fsal, void* arkstep_mem, long int& nfe_expected,
                        long int& nfi_expected);
 
-int check_rhs_evals(void* arkstep_mem, long int nfe_expected,
-                    long int nfi_expected);
+int check_rhs_evals(method_type m_type, void* arkstep_mem,
+                    long int nfe_expected, long int nfi_expected);
 
 // -----------------------------------------------------------------------------
 // Main Program
@@ -495,7 +495,7 @@ int run_tests(ARKodeButcherTable Be, ARKodeButcherTable Bi,
                               arkstep_mem,nfe_expected, nfi_expected);
     if (check_flag(&flag, "expected_rhs_evals", 1)) return 1;
 
-    numfails += check_rhs_evals(arkstep_mem, nfe_expected, nfi_expected);
+    numfails += check_rhs_evals(m_type, arkstep_mem, nfe_expected, nfi_expected);
 
     if (numfails)
     {
@@ -559,7 +559,7 @@ int run_tests(ARKodeButcherTable Be, ARKodeButcherTable Bi,
       }
     }
 
-    numfails += check_rhs_evals(arkstep_mem,
+    numfails += check_rhs_evals(m_type, arkstep_mem,
                                 nfe_expected + extra_fe_evals,
                                 nfi_expected + extra_fi_evals);
 
@@ -585,7 +585,7 @@ int run_tests(ARKodeButcherTable Be, ARKodeButcherTable Bi,
                               arkstep_mem, nfe_expected, nfi_expected);
     if (check_flag(&flag, "expected_rhs_evals", 1)) return 1;
 
-    numfails += check_rhs_evals(arkstep_mem,
+    numfails += check_rhs_evals(m_type, arkstep_mem,
                                 nfe_expected + extra_fe_evals,
                                 nfi_expected + extra_fi_evals);
 
@@ -748,13 +748,17 @@ int expected_rhs_evals(method_type m_type, interp_type i_type, int stages,
   }
 
   std::cout << "Steps: " << nst << std::endl;
-  std::cout << "NLS iters: " << nni << std::endl;
+
+  if (m_type == method_type::impl || m_type == method_type::imex)
+  {
+    std::cout << "NLS iters: " << nni << std::endl;
+  }
 
   return 0;
 }
 
-int check_rhs_evals(void* arkstep_mem, long int nfe_expected,
-                    long int nfi_expected)
+int check_rhs_evals(method_type m_type, void* arkstep_mem,
+                    long int nfe_expected, long int nfi_expected)
 {
   int flag = 0;
 
@@ -766,12 +770,19 @@ int check_rhs_evals(void* arkstep_mem, long int nfe_expected,
   flag = ARKStepGetNumRhsEvals(arkstep_mem, &nfe, &nfi);
   if (check_flag(&flag, "ARKStepGetNumRhsEvals", 1)) return 1;
 
-  std::cout << "Fe RHS evals:\n"
-            << "  actual:   " << nfe << "\n"
-            << "  expected: " << nfe_expected << "\n";
-  std::cout << "Fi RHS evals:\n"
-            << "  actual:   " << nfi << "\n"
-            << "  expected: " << nfi_expected << "\n";
+
+  if (m_type == method_type::expl || m_type == method_type::imex)
+  {
+    std::cout << "Fe RHS evals:\n"
+              << "  actual:   " << nfe << "\n"
+              << "  expected: " << nfe_expected << "\n";
+  }
+  if (m_type == method_type::impl || m_type == method_type::imex)
+  {
+    std::cout << "Fi RHS evals:\n"
+              << "  actual:   " << nfi << "\n"
+              << "  expected: " << nfi_expected << "\n";
+  }
 
   if (nfe != nfe_expected || nfi != nfi_expected)
   {
