@@ -333,11 +333,11 @@ int main(int argc, char *argv[])
 #endif
 
   /* Print heading */
+  printf("Process myproc=%d (myprocx=%d, myprocy=%d) shape: local_Mx=%d by local_My=%d (local_M=%d)\n",
+         data->myproc,data->myprocx,data->myprocy,data->local_Mx,data->local_My,data->local_M);
   if (myproc == 0) {
     printf("\n2-species diurnal advection-diffusion problem\n\n");
   }
-  printf("Process myproc=%d (myprocx=%d, myprocy=%d) shape: local_Mx=%d by local_My=%d (local_M=%d)\n",
-         data->myproc,data->myprocx,data->myprocy,data->local_Mx,data->local_My,data->local_M);
 
   /* In loop over output points, call ARKStepEvolve, print resuLs, test for error */
   PrintOutput(data, arkode_mem, u, t);
@@ -568,21 +568,24 @@ static void PrintOutput(UserData data, void *arkode_mem, N_Vector u, realtype t)
 
   /* Send c1,c2 at top right mesh point to proc 0 */
   if (data->myproc == npelast) {
-    i0 = data->local_N - 2;
+    i0 = data->local_N - NVARS;
     i1 = i0 + 1;
+#if defined(SUNDIALS_HYPRE_BACKENDS_SERIAL)
+    tempu[0] = udata[i0];
+    tempu[1] = udata[i1];
+#elif defined(SUNDIALS_HYPRE_BACKENDS_CUDA_OR_HIP)
+    NV_ADD_LANG_PREFIX_PH(Memcpy)(tempu,&udata[i0],NVARS*sizeof(realtype),NV_ADD_LANG_PREFIX_PH(MemcpyDeviceToHost));
+    CHECK_LAST_ERROR();
+#endif      
     if (npelast != 0)
-      MPI_Send(&udata[i0], 2, MPI_SUNREALTYPE, 0, 0, data->comm);
-    else {
-      tempu[0] = udata[i0];
-      tempu[1] = udata[i1];
-    }
+      MPI_Send(tempu, NVARS, MPI_SUNREALTYPE, 0, 0, data->comm);
   }
 
   /* On proc 0, receive c1,c2 at top right, then print performance data
      and sampled solution values */
   if (data->myproc == 0) {
     if (npelast != 0)
-      MPI_Recv(&tempu[0], 2, MPI_SUNREALTYPE, npelast, 0, data->comm, &status);
+      MPI_Recv(tempu, 2, MPI_SUNREALTYPE, npelast, 0, data->comm, &status);
     flag = ARKStepGetNumSteps(arkode_mem, &nst);
     check_flag(&flag, "ARKStepGetNumSteps", 1, data->myproc);
     flag = ARKStepGetLastStep(arkode_mem, &hu);
