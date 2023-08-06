@@ -530,12 +530,12 @@ static void SetInitialProfiles(UserData data, HYPRE_IJVector Uij)
   xmid   = RCONST(0.5)*(XMIN + XMAX);
   ymid   = RCONST(0.5)*(YMIN + YMAX);
   for (ly = 0; ly < data->local_My; ly++) {
-    jy = ly + data->myprocy*data->local_My;
+    jy = ly + data->mybasey;
     y  = YMIN + jy*dy;
     cy = SUNSQR(RCONST(0.1)*(y - ymid));
     cy = RCONST(1.0) - cy + RCONST(0.5)*SUNSQR(cy);
     for (lx = 0; lx < data->local_Mx; lx++) {
-      jx = lx + data->myprocx*data->local_Mx;
+      jx = lx + data->mybasex;
       x  = XMIN + jx*dx;
       cx = SUNSQR(RCONST(0.1)*(x - xmid));
       cx = RCONST(1.0) - cx + RCONST(0.5)*SUNSQR(cx);
@@ -545,9 +545,31 @@ static void SetInitialProfiles(UserData data, HYPRE_IJVector Uij)
       udata[offset++] = C2_SCALE*cx*cy;
     }
   }
+  #if defined(SUNDIALS_HYPRE_BACKENDS_SERIAL)
+  /* For SERIAL backend, HYPRE_IJVectorSetValues expects host pointers */
   HYPRE_IJVectorSetValues(Uij, data->local_N, iglobal, udata);
-  free(iglobal);
+
+#elif defined(SUNDIALS_HYPRE_BACKENDS_CUDA_OR_HIP)
+  /* With GPU backend, HYPRE_IJVectorSetValues expects device pointers */
+  realtype*  udata_dev;
+  HYPRE_Int* iglobal_dev;
+
+  /* Allocate device arrays */
+  NV_ADD_LANG_PREFIX_PH(Malloc)(&udata_dev, data->local_N*sizeof(realtype));
+  NV_ADD_LANG_PREFIX_PH(Malloc)(&iglobal_dev, data->local_N*sizeof(HYPRE_Int));
+  
+  /* Copy host data to device */
+  NV_ADD_LANG_PREFIX_PH(Memcpy)(udata_dev, udata, data->local_N*sizeof(realtype), NV_ADD_LANG_PREFIX_PH(MemcpyHostToDevice));
+  NV_ADD_LANG_PREFIX_PH(Memcpy)(iglobal_dev, iglobal, data->local_N*sizeof(HYPRE_Int), NV_ADD_LANG_PREFIX_PH(MemcpyHostToDevice));
+
+  /* Set hypre vector values from device arrays, then free the device arrays */
+  HYPRE_IJVectorSetValues(Uij, data->local_N, iglobal_dev, udata_dev);
+  NV_ADD_LANG_PREFIX_PH(Free)(udata_dev);
+  NV_ADD_LANG_PREFIX_PH(Free)(iglobal_dev);
+#endif
+
   free(udata);
+  free(iglobal);
 }
 
 /* Print current t, step count, order, stepsize, and sampled c1,c2 values */
