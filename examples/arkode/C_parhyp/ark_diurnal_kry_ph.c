@@ -118,7 +118,8 @@
 #define C2_SCALE     RCONST(1.0e12)
 
 #define T0           RCONST(0.0)          /* initial time */
-#define NOUT         12                   /* number of output times */
+#define NOUT         48//12                   /* number of output times */
+#define HALFHR       RCONST(1800.0)
 #define TWOHR        RCONST(7200.0)       /* number of seconds in two hours  */
 #define HALFDAY      RCONST(4.32e4)       /* number of seconds in a half day */
 #define PI       RCONST(3.1415926535898)  /* pi */
@@ -336,7 +337,7 @@ int main(int argc, char *argv[])
     printf("\n2-species diurnal advection-diffusion problem\n\n");
 
   /* In loop over output points, call ARKStepEvolve, print resuLs, test for error */
-  for (iout=1, tout=TWOHR; iout<=NOUT; iout++, tout+=TWOHR) {
+  for (iout=1, tout=HALFHR; iout<=NOUT; iout++, tout+=HALFHR) {
     flag = ARKStepEvolve(arkode_mem, tout, u, &t, ARK_NORMAL);
     if (check_flag(&flag, "ARKStepEvolve", 1, myproc)) break;
     PrintOutput(data, arkode_mem, u, t);
@@ -831,7 +832,7 @@ static void fcalc(UserData data, realtype t, realtype udata[], realtype dudata[]
 
   /* If myprocy = 0, copy x-line 2 of u to uext */
   if (data->isbottom) {
-    offsetu    = dsizex;
+    offsetu = dsizex;
     for (i = 0; i < dsizex; i++) bufs[recvB+i] = udata[offsetu+i];
   }
   /* If myprocy = nprocsy-1, copy x-line local_My-1 of u to uext */
