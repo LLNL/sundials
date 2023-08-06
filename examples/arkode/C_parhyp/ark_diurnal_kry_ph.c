@@ -268,7 +268,6 @@ int main(int argc, char *argv[])
   flag = SUNContext_Create(&comm, &sunctx);
   if (check_flag(&flag, "SUNContext_Create", 1, myproc)) return 1;
 
-
   /* Allocate and load user data block; allocate preconditioner block */
   data = (UserData) malloc(sizeof *data);
   if (check_flag((void *)data, "malloc", 2, myproc)) MPI_Abort(comm, 1);
@@ -801,7 +800,7 @@ static void fcalc(UserData data, realtype t, realtype udata[], realtype dudata[]
   realtype     q3, q4, qq1, qq2, qq3, qq4, rkin1, rkin2, s, vertd1, vertd2, ydn, yup;
   realtype     c1, c2, c1dn, c2dn, c1up, c2up, c1lt, c2lt, c1rt, c2rt, cydn, cyup;
   realtype     hord1, hord2, horad1, horad2;
-  sunindextype offsetu;//, offsetue;
+  sunindextype offsetbufs, offsetu;//, offsetue;
   
   int          dsizex, mybasey, local_Mx, local_My;
   realtype     dy, vdco, hdco, haco;
@@ -832,7 +831,7 @@ static void fcalc(UserData data, realtype t, realtype udata[], realtype dudata[]
 
   /* If myprocy = 0, copy x-line 2 of u to uext */
   if (data->isbottom) {
-    offsetu = dsizex;
+    offsetu    = dsizex;
     for (i = 0; i < dsizex; i++) bufs[recvB+i] = udata[offsetu+i];
   }
   /* If myprocy = nprocsy-1, copy x-line local_My-1 of u to uext */
@@ -843,15 +842,17 @@ static void fcalc(UserData data, realtype t, realtype udata[], realtype dudata[]
   /* If myprocx = 0, copy y-line 2 of u to uext */
   if (data->isleft) {
     for (ly = 0; ly < local_My; ly++) {
-      offsetu = ly*dsizex + NVARS;
-      for (i = 0; i < NVARS; i++) bufs[recvL+i] = udata[offsetu+i];
+      offsetbufs = recvL + ly*NVARS;
+      offsetu    = ly*dsizex + NVARS;
+      for (i = 0; i < NVARS; i++) bufs[offsetbufs+i] = udata[offsetu+i];
     }
   }
   /* If myprocx = nprocsx-1, copy y-line local_Mx-1 of u to uext */
   if (data->isright) {
     for (ly = 0; ly < local_My; ly++) {
-      offsetu = (ly+1)*dsizex - 2*NVARS;
-      for (i = 0; i < NVARS; i++) bufs[recvR+i] = udata[offsetu+i];
+      offsetbufs = recvR + ly*NVARS;
+      offsetu    = (ly+1)*dsizex - 2*NVARS;
+      for (i = 0; i < NVARS; i++) bufs[offsetbufs+i] = udata[offsetu+i];
     }
   }
 
