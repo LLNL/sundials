@@ -659,8 +659,6 @@ static void BSend(UserData data, realtype udata[])
   MPI_Comm comm;
   realtype *bufs;
   
-  bufs   = data->bufs;
-  comm   = data->comm;
   dsizex = data->dsizex;
   dsizey = data->dsizey;
   myproc = data->myproc;
@@ -668,6 +666,8 @@ static void BSend(UserData data, realtype udata[])
   procT  = (data->istop   ) ? MPI_PROC_NULL : myproc+data->nprocsx;
   procL  = (data->isleft  ) ? MPI_PROC_NULL : myproc-1;
   procR  = (data->isright ) ? MPI_PROC_NULL : myproc+1;
+  comm   = data->comm;
+  bufs   = data->bufs;
 
 #if defined(SUNDIALS_HYPRE_BACKENDS_SERIAL)
   int i, ly;
@@ -716,17 +716,20 @@ static void BSend(UserData data, realtype udata[])
    2) request should have 4 entries, and should be passed in both calls also. */
 static void BRecvPost(UserData data, MPI_Request request[])
 {
-  MPI_Comm comm;
+  int      dsizex, dsizey;
   int      myproc, procB, procT, procL, procR;
+  MPI_Comm comm;
   realtype *bufs;
   
-  bufs   = data->bufs;
-  comm   = data->comm;
+  dsizex = data->dsizex;
+  dsizey = data->dsizey;
   myproc = data->myproc;
   procB  = (data->isbottom) ? MPI_PROC_NULL : myproc-data->nprocsx;
   procT  = (data->istop   ) ? MPI_PROC_NULL : myproc+data->nprocsx;
   procL  = (data->isleft  ) ? MPI_PROC_NULL : myproc-1;
   procR  = (data->isright ) ? MPI_PROC_NULL : myproc+1;
+  comm   = data->comm;
+  bufs   = data->bufs;
 
   /* Receive x- and y-lines into bufs */
   MPI_Irecv(&bufs[data->recvB], dsizex, MPI_SUNREALTYPE, procB, 0, comm, &request[0]);
@@ -746,7 +749,7 @@ static void BRecvWait(UserData data, MPI_Request request[])
   MPI_Status status[4];
 
   /* Wait for all requests  */
-  MPI_Waitall(request,status);
+  MPI_Waitall(4,request,status);
 }
 
 /* ucomm routine.  This routine performs all communication
@@ -798,20 +801,21 @@ static void fcalc(UserData data, realtype t, realtype udata[], realtype dudata[]
   realtype     q3, q4, qq1, qq2, qq3, qq4, rkin1, rkin2, s, vertd1, vertd2, ydn, yup;
   realtype     c1, c2, c1dn, c2dn, c1up, c2up, c1lt, c2lt, c1rt, c2rt, cydn, cyup;
   realtype     hord1, hord2, horad1, horad2;
-  // sunindextype offsetu, offsetue;
+  sunindextype offsetu;//, offsetue;
   
   int          dsizex, mybasey, local_Mx, local_My;
   realtype     dy, vdco, hdco, haco;
   int          recvB, recvT, recvL, recvR;
-  // realtype     *uext;
+  realtype     *bufs;
 
   /* Make local copies of problem variables, for efficiency */
-  dsizex   = data->dsizex;    mybasey  = data->mybasey;
-  local_Mx = data->local_Mx;  local_My = data->local_My;
-  dy       = data->dy;        vdco     = data->vdco;
-  hdco     = data->hdco;      haco     = data->haco;
-  recvB    = data_dev->recvB; recvT    = data_dev->recvT;
-  recvL    = data_dev->recvL; recvR    = data_dev->recvR;
+  dsizex   = data->dsizex;   mybasey  = data->mybasey;
+  local_Mx = data->local_Mx; local_My = data->local_My;
+  dy       = data->dy;       vdco     = data->vdco;
+  hdco     = data->hdco;     haco     = data->haco;
+  recvB    = data->recvB;    recvT    = data->recvT;
+  recvL    = data->recvL;    recvR    = data->recvR;
+  bufs     = data->bufs;
 
   /* Copy local segment of u vector into the working extended array uext */
   // uext     = data->uext;
@@ -866,7 +870,7 @@ static void fcalc(UserData data, realtype t, realtype udata[], realtype dudata[]
   /* Loop over all grid points in local subgrid */
   for (ly = 0; ly < local_My; ly++) {
 
-    jy   = ly + mbasey;
+    jy   = ly + mybasey;
 
     /* Set vertical diffusion coefficients at jy +- 1/2 */
     ydn  = YMIN + (jy - RCONST(0.5))*dy;
