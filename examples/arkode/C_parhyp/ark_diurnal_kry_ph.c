@@ -333,10 +333,14 @@ int main(int argc, char *argv[])
 #endif
 
   /* Print heading */
-  if (myproc == 0)
+  if (myproc == 0) {
     printf("\n2-species diurnal advection-diffusion problem\n\n");
+  }
+  printf("Process myproc=%d (myprocx=%d, myprocy=%d) shape: local_Mx=%d by local_My=%d (local_M=%d)\n",
+         data->myproc,data->myprocx,data->myprocy,data->local_Mx,data->local_My,data->local_M);
 
   /* In loop over output points, call ARKStepEvolve, print resuLs, test for error */
+  PrintOutput(data, arkode_mem, u, t);
   for (iout=1, tout=HALFHR; iout<=NOUT; iout++, tout+=HALFHR) {
     flag = ARKStepEvolve(arkode_mem, tout, u, &t, ARK_NORMAL);
     if (check_flag(&flag, "ARKStepEvolve", 1, myproc)) break;
