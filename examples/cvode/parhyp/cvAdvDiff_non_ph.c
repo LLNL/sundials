@@ -99,12 +99,13 @@
 #define ONE   RCONST(1.0)
 #define TWO   RCONST(2.0)
 
-#define XMAX  RCONST(2.0)    /* domain boundary           */
-#define ATOL  RCONST(1.0e-5) /* scalar absolute tolerance */
-#define T0    ZERO           /* initial time              */
-#define T1    RCONST(0.5)    /* first output time         */
-#define DTOUT RCONST(0.5)    /* output time increment     */
-#define NOUT  10             /* number of output times    */
+#define XMAX  RCONST(2.0)    /* domain boundary             */
+#define ATOL  RCONST(1.0e-5) /* scalar absolute tolerance   */
+#define T0    ZERO           /* initial time                */
+#define T1    RCONST(0.5)    /* first output time           */
+#define DTOUT RCONST(0.5)    /* output time increment       */
+#define NOUT  10             /* number of output times      */
+#define MXSTP 5000 //500     /* max # steps between outputs */
 
 #define MPI_ASSERT(expr,msg,comm,myproc,code)                            \
   if(!(expr)) {                                                          \
@@ -260,6 +261,10 @@ int main(int argc, char *argv[])
 
   if (myproc == 0) PrintIntro(M, nprocs);
 
+  /* Set maximum number of steps (mxsteps) between output times */
+  retval = CVodeSetMaxNumSteps(cvode_mem, MXSTP);
+  if(check_retval(&retval, "CVodeSetMaxNumSteps", 1, myproc)) return(1);
+
   /* Print initial statistics */
   umax = N_VMaxNorm(u);
   if (myproc == 0) {
@@ -310,7 +315,7 @@ int main(int argc, char *argv[])
   if (myproc==0) printf("\n\nWith nprocs=%d and global problem size of M=%d...\n",nprocs,M);
   printf("─> Process %d reported total wall time of %.2fs and an average per-loop time of %.2fs/loop.\n",myproc,wttotal,wtperloop);
   MPI_Barrier(comm);
-  
+
   /* MPI Finalize */
   MPI_Finalize();
 
