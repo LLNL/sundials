@@ -166,6 +166,7 @@ int main(int argc, char *argv[])
   int                M, nprocs, myproc, iout, retval;
   long int           nst;
   realtype           reltol, abstol, t, tout, umax;
+  double             wtstart, wtend, wttotal, wtloopstart, wtloopend, wtperloop; // wall time
   
   UserData           data;
   N_Vector           u;
@@ -209,6 +210,9 @@ int main(int argc, char *argv[])
   /* Create SUNDIALS context */
   retval = SUNContext_Create(&comm, &sunctx);
   if (check_retval(&retval, "SUNContex_Create", 1, myproc)) MPI_Abort(comm, 1);
+
+  /* Start wall time */
+  wtstart = MPI_Wtime();
 
   /* Allocate hypre vector */
   HYPRE_IJVectorCreate(comm, data->mybase, data->mybase + data->local_M - 1, &Uij);
@@ -263,6 +267,9 @@ int main(int argc, char *argv[])
     PrintData(t, umax, 0);
   }
 
+  /* Start loop wall time */
+  wtloopstart = MPI_Wtime();
+
   /* In loop over output points, call CVode, print results, test for error */
   for (iout=1, tout=T1; iout <= NOUT; iout++, tout += DTOUT) {
     // printf("checkpoint 1\n");
@@ -281,6 +288,9 @@ int main(int argc, char *argv[])
     if (myproc == 0) PrintData(t, umax, nst);
   }
 
+  /* End loop wall time */
+  wtloopend = MPI_Wtime();
+
   /* Print some final statistics */
   if (myproc == 0) PrintFinalStats(cvode_mem);  
 
@@ -292,6 +302,15 @@ int main(int argc, char *argv[])
   SUNNonlinSolFree(NLS);      /* Free the nonlinear solver */
   SUNContext_Free(&sunctx);   /* Free context */
 
+  /* End wall time and report duration */
+  wtend     = MPI_Wtime();
+  wttotal   = wtend-wtstart;
+  wtperloop = (wtloopend-wtloopstart)/iout;
+  MPI_Barrier(comm);
+  if (myproc==0) printf("\n\nWith nprocs=%d and global problem size of M=%d...\n",nprocs,M);
+  printf("─> Process %d reported total wall time of %.2fs and an average per-loop time of %.2fs/loop.\n",myproc,wttotal,wtperloop);
+  MPI_Barrier(comm);
+  
   /* MPI Finalize */
   MPI_Finalize();
 
