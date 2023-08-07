@@ -239,7 +239,8 @@ void sunAdiakCollectMetadata() {
   adiak_namevalue("fortran_compiler_version", 2, NULL, "%s", SUN_FORTRAN_COMPILER_VERSION);
   adiak_namevalue("fortran_compiler_flags", 2, NULL, "%s", SUN_FORTRAN_COMPILER_FLAGS);
 
-  adiak_namevalue("sundials_version", 2, NULL, "%s", SUNDIALS_GIT_VERSION);
+  adiak_namevalue("sundials_version", 2, NULL, "%s", SUNDIALS_VERSION);
+  adiak_namevalue("sundials_git_version", 2, NULL, "%s", SUNDIALS_GIT_VERSION);
   adiak_namevalue("build_type", 2, NULL, "%s", SUN_BUILD_TYPE);
   adiak_namevalue("third_party_libraries", 2, NULL, "%s", SUN_TPL_LIST);
 #ifdef SUN_JOB_ID
