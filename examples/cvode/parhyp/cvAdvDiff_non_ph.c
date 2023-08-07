@@ -100,6 +100,7 @@
 #define TWO   RCONST(2.0)
 
 #define XMAX  RCONST(2.0)    /* domain boundary             */
+#define RTOL  RCONST(1.0e-10)
 #define ATOL  RCONST(1.0e-5) /* scalar absolute tolerance   */
 #define T0    ZERO           /* initial time                */
 #define T1    RCONST(0.5)    /* first output time           */
@@ -221,7 +222,7 @@ int main(int argc, char *argv[])
   HYPRE_IJVectorInitialize(Uij);
 
   /* Set tolerances */
-  reltol = ZERO;
+  reltol = RTOL;
   abstol = ATOL;
 
   /* Initialize solution vector. */
