@@ -105,7 +105,7 @@
 #define T1    RCONST(0.5)    /* first output time           */
 #define DTOUT RCONST(0.5)    /* output time increment       */
 #define NOUT  10             /* number of output times      */
-#define MXSTP 5000 //500     /* max # steps between outputs */
+#define MXSTP 50000 //500    /* max # steps between outputs */
 
 #define MPI_ASSERT(expr,msg,comm,myproc,code)                            \
   if(!(expr)) {                                                          \
