@@ -607,7 +607,7 @@ static void PrintOutput(UserData data, void *arkode_mem, N_Vector u, realtype t)
      and sampled solution values */
   if (data->myproc == 0) {
     if (npelast != 0)
-      MPI_Recv(tempu, 2, MPI_SUNREALTYPE, npelast, 0, data->comm, &status);
+      MPI_Recv(tempu, NVARS, MPI_SUNREALTYPE, npelast, 0, data->comm, &status);
     flag = ARKStepGetNumSteps(arkode_mem, &nst);
     check_flag(&flag, "ARKStepGetNumSteps", 1, data->myproc);
     flag = ARKStepGetLastStep(arkode_mem, &hu);
