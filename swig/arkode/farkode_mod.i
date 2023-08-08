@@ -25,6 +25,7 @@
 #include "arkode/arkode_butcher.h"
 #include "arkode/arkode_butcher_dirk.h"
 #include "arkode/arkode_butcher_erk.h"
+#include "arkode/arkode_sprk.h"
 #include "arkode/arkode_ls.h"
 %}
 
@@ -38,6 +39,9 @@
 // Treat ARKodeButcherTable as an opaque pointer
 %apply void* { ARKodeButcherTable };
 
+// Treat ARKodeSPRKTable as an opaque pointer
+%apply void* { ARKodeSPRKTable };
+
 // Process definitions from these files
 %include "arkode/arkode.h"
 %include "arkode/arkode_bandpre.h"
@@ -45,5 +49,6 @@
 %include "arkode/arkode_butcher.h"
 %include "arkode/arkode_butcher_dirk.h"
 %include "arkode/arkode_butcher_erk.h"
+%include "arkode/arkode_sprk.h"
 %include "arkode/arkode_ls.h"
 

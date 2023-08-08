@@ -17,10 +17,8 @@
 # Enable testing with 'make test'
 include(CTest)
 
-# Check if development tests are enabled
-if(SUNDIALS_TEST_DEVTESTS)
-
-  message("SUNDIALS Development testing")
+# Set up testRunner
+if (SUNDIALS_TEST_DEVTESTS OR BUILD_BENCHMARKS)
 
   # Python is needed to use the test runner
   find_package(PythonInterp REQUIRED)
@@ -34,10 +32,17 @@ if(SUNDIALS_TEST_DEVTESTS)
   # look for the testRunner script in the test directory
   find_program(TESTRUNNER testRunner PATHS test NO_DEFAULT_PATH)
   if(NOT TESTRUNNER)
-    print_error("Could not locate testRunner. Set SUNDIALS_TEST_DEVTESTS=OFF to continue.")
+    print_error("Could not locate testRunner. Set SUNDIALS_TEST_DEVTESTS=OFF or BUILD_BENCHMARKS=OFF to continue.")
   endif()
   message(STATUS "Found testRunner: ${TESTRUNNER}")
   set(TESTRUNNER ${TESTRUNNER} CACHE INTERNAL "")
+
+endif()
+
+# Check if development tests are enabled
+if(SUNDIALS_TEST_DEVTESTS)
+
+  message("SUNDIALS Development testing")
 
   # Create the default test output directory
   set(TEST_OUTPUT_DIR ${PROJECT_BINARY_DIR}/Testing/output)
@@ -65,8 +70,8 @@ if(SUNDIALS_TEST_DEVTESTS)
   # If a non-default caliper output directory was provided make sure it exists
   if(SUNDIALS_CALIPER_OUTPUT_DIR)
     message(STATUS "Using non-default caliper output directory: ${SUNDIALS_CALIPER_OUTPUT_DIR}")
-    if(NOT EXISTS ${SUNDIALS_CALIPER_OUTPUT_DIR}/Testing/${JOB_ID})
-      file(MAKE_DIRECTORY ${SUNDIALS_CALIPER_OUTPUT_DIR}/Testing/${JOB_ID})
+    if(NOT EXISTS ${SUNDIALS_CALIPER_OUTPUT_DIR}/Example/${JOB_ID})
+      file(MAKE_DIRECTORY ${SUNDIALS_CALIPER_OUTPUT_DIR}/Example/${JOB_ID})
     endif()
   endif()
 

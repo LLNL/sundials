@@ -26,8 +26,7 @@ class Sundials(CachedCMakePackage, CudaPackage, ROCmPackage):
     # ==========================================================================
     # Versions
     # ==========================================================================
-    version("develop", branch="feature/persistent-benchmarking-test-branch")
-    # version("develop", branch="develop")
+    version("develop", branch="develop")
     version("6.5.1", sha256="4252303805171e4dbdd19a01e52c1dcfe0dafc599c3cfedb0a5c2ffb045a8a75")
     version("6.5.0", sha256="4e0b998dff292a2617e179609b539b511eb80836f5faacf800e688a886288502")
     version("6.4.1", sha256="7bf10a8d2920591af3fba2db92548e91ad60eb7241ab23350a9b1bc51e05e8d0")
@@ -77,7 +76,7 @@ class Sundials(CachedCMakePackage, CudaPackage, ROCmPackage):
         "cxxstd",
         default="14",
         description="C++ language standard",
-        values=("99", "11", "14", "17"),
+        values=("14", "17"),
     )
 
     # Logging
@@ -121,7 +120,7 @@ class Sundials(CachedCMakePackage, CudaPackage, ROCmPackage):
     variant("sycl", default=False, when="@5.7.0:", description="Enable SYCL vector")
 
     # External libraries
-    variant("adiak", default=False, when="+caliper", description="Enable Adiak interfaces")
+    variant("adiak", default=False, when="@6.6.0:", description="Enable Adiak interfaces")
     variant(
         "caliper",
         default=False,
@@ -200,8 +199,8 @@ class Sundials(CachedCMakePackage, CudaPackage, ROCmPackage):
         when="+adiak +caliper", 
         description="Build examples with profiling capabilities")
 
-    # Benchmarking
-    variant("benchmarks", default=False, description="Build benchmark programs")
+    # Caliper Directory
+    variant("caliper-dir", default="none", description="Specify where to place Caliper files")
 
     # ==========================================================================
     # Dependencies
@@ -765,6 +764,7 @@ class Sundials(CachedCMakePackage, CudaPackage, ROCmPackage):
                 self.cache_option_from_variant("SUNDIALS_TEST_PROFILE", "profile-examples"),
                 self.cache_option_from_variant("SUNDIALS_TEST_DEVTESTS", "profile-examples"),
                 cmake_cache_string("SPACK_VERSION", ".".join(map(str, spack.spack_version_info)))
+                
             ]
         )
 
@@ -781,6 +781,9 @@ class Sundials(CachedCMakePackage, CudaPackage, ROCmPackage):
         # TPLs
         entries.extend(
             [
+                self.cache_option_from_variant("ENABLE_GINKGO", "ginkgo"),
+                self.cache_option_from_variant("ENABLE_KOKKOS_KERNELS", "kokkos-kernels"),
+                self.cache_option_from_variant("ENABLE_KOKKOS", "kokkos"),
                 self.cache_option_from_variant("ENABLE_SYCL", "sycl"),
                 self.cache_option_from_variant("EXAMPLES_INSTALL", "examples-install"),
                 self.cache_option_from_variant("HYPRE_ENABLE", "hypre"),
@@ -792,8 +795,7 @@ class Sundials(CachedCMakePackage, CudaPackage, ROCmPackage):
                 self.cache_option_from_variant("RAJA_ENABLE", "raja"),
                 self.cache_option_from_variant("SUPERLUDIST_ENABLE", "superlu-dist"),
                 self.cache_option_from_variant("SUPERLUMT_ENABLE", "superlu-mt"),
-                self.cache_option_from_variant("Trilinos_ENABLE", "trilinos"),
-                self.cache_option_from_variant("ENABLE_GINKGO", "ginkgo")
+                self.cache_option_from_variant("Trilinos_ENABLE", "trilinos")
             ]
         )
 
@@ -806,6 +808,10 @@ class Sundials(CachedCMakePackage, CudaPackage, ROCmPackage):
             entries.append(cmake_cache_path("CALIPER_DIR", spec["caliper"].prefix))
             if "+adiak" in spec["caliper"]:
                 entries.append(cmake_cache_path("adiak_DIR", spec["adiak"].prefix.lib.cmake + "/adiak"))
+
+            if not "caliper-dir=none" in spec:
+                entries.append(self.cache_string_from_variant("SUNDIALS_CALIPER_OUTPUT_DIR", "caliper-dir"))
+
 
         # Building with Ginkgo
         if "+ginkgo" in spec:
@@ -839,9 +845,9 @@ class Sundials(CachedCMakePackage, CudaPackage, ROCmPackage):
 
         # Building with Kokkos and KokkosKernels
         if "+kokkos" in spec:
-            entries.extend([self.cache_option_from_variant("Kokkos_DIR", spec["kokkos"].prefix)])
+            entries.extend([cmake_cache_path("Kokkos_DIR", spec["kokkos"].prefix)])
         if "+kokkos-kernels" in spec:
-            entries.extend([self.cache_option_from_variant("KokkosKernels_DIR", spec["kokkos-kernels"].prefix)])
+            entries.extend([cmake_cache_path("KokkosKernels_DIR", spec["kokkos-kernels"].prefix)])
 
         # Building with KLU
         if "+klu" in spec:
@@ -871,6 +877,11 @@ class Sundials(CachedCMakePackage, CudaPackage, ROCmPackage):
         if "+petsc" in spec:
             if spec.version >= Version("5"):
                 entries.append(cmake_cache_path("PETSC_DIR", spec["petsc"].prefix))
+                if "+kokkos" in spec["petsc"]:
+                    entries.extend([
+                        cmake_cache_path("Kokkos_DIR", spec["kokkos"].prefix),
+                        cmake_cache_path("KokkosKernels_DIR", spec["kokkos-kernels"].prefix)
+                    ])
             else:
                 entries.extend(
                     [
@@ -934,9 +945,6 @@ class Sundials(CachedCMakePackage, CudaPackage, ROCmPackage):
         # Building with Trilinos
         if "+trilinos" in spec:
             entries.append(cmake_cache_path("Trilinos_DIR", spec["trilinos"].prefix))
-
-        if "+profile-examples" in spec:
-            entries.append(cmake_cache_path("SUNDIALS_CALIPER_OUTPUT_DIR"), "/usr/workspace/sundials/califiles")
 
         # Examples
         if spec.satisfies("@3:"):

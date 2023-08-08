@@ -48,13 +48,15 @@ BUILD_JOBS=${BUILD_JOBS:-"1"}
 
 # load newer python to try the clingo concretizer
 # machine specific loads
-if [[ "${hostname}" == "corona" ]]; then
-    echo "module load python/3.9.12"
-    module load python/3.9.12
-    module load rocm/5.4.1
-else
+if [[ "${hostname}" == "lassen" ]]; then
     echo "module load python/3.8.2"
     module load python/3.8.2
+elif [[ "${hostname}" == "corona" ]]; then
+    echo "module load python/3.9.12"
+    module load python/3.9.12
+else
+    echo "module load python"
+    module load python
 fi
 
 if [[ "${option}" != "--build-only" && "${option}" != "--test-only" ]]
@@ -189,9 +191,8 @@ then
     $cmake_exe \
         -C "${hostconfig_path}" \
         -DCMAKE_INSTALL_PREFIX=${install_dir} \
-        -DSUNDIALS_TEST_OUTPUT_DIR="/usr/workspace/sundials/caliper/" \
         "${project_dir}"
-
+    
     # build
     VERBOSE_BUILD=${VERBOSE_BUILD:-"OFF"}
     if [[ "${VERBOSE_BUILD}" == "ON" ]]; then
