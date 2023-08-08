@@ -97,11 +97,20 @@ static void sunStartTiming(sunTimerStruct* entry)
 
 static void sunStopTiming(sunTimerStruct* entry)
 {
+  long s_difference = 0;
+  long ns_difference = 0;
+
   clock_gettime(CLOCK_MONOTONIC, entry->toc);
-  entry->elapsed +=
-    ((double) (entry->toc->tv_sec - entry->tic->tv_sec) +
-     (double) (entry->toc->tv_nsec - entry->tic->tv_nsec) * 1e-9);
-  /* Initialize to total value */
+
+  s_difference  = entry->toc->tv_sec - entry->tic->tv_sec;
+  ns_difference = entry->toc->tv_nsec - entry->tic->tv_nsec;
+  if (ns_difference < 0.0)
+  {
+    s_difference--;
+    ns_difference = 1000000000 + entry->toc->tv_nsec - entry->tic->tv_nsec;
+  }
+
+  entry->elapsed += ((double) s_difference) + ((double) ns_difference) * 1e-9;
   entry->average = entry->elapsed;
   entry->maximum = entry->elapsed;
 }
