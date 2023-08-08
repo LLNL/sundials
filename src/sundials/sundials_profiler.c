@@ -27,8 +27,8 @@
 #include <time.h>
 #include <stddef.h>
 #include <unistd.h>
-#else
-#error POSIX clock_gettime is required for profiling
+#elif !(defined(WIN32) || defined(_WIN32) || defined(__WIN32) && !defined(__CYGWIN__))
+#error POSIX is needed for clock_getttime
 #endif
 
 #include <stdio.h>
@@ -36,6 +36,7 @@
 
 #include <sundials/sundials_profiler.h>
 #include <sundials/sundials_math.h>
+#include "sundials_utils.h"
 #include "sundials_hashmap.h"
 #include "sundials_debug.h"
 
@@ -47,6 +48,7 @@ static int sunCollectTimers(SUNProfiler p);
 #endif
 static void sunPrintTimers(int idx, SUNHashMapKeyValue kv, FILE* fp, void* pvoid);
 static int sunCompareTimes(const void* l, const void* r);
+static int sunclock_gettime_monotonic(struct timespec* tp);
 
 /*
   sunTimerStruct.
@@ -92,7 +94,7 @@ static void sunTimerStructFree(void* TS)
 
 static void sunStartTiming(sunTimerStruct* entry)
 {
-  clock_gettime(CLOCK_MONOTONIC, entry->tic);
+  sunclock_gettime_monotonic(entry->tic);
 }
 
 static void sunStopTiming(sunTimerStruct* entry)
@@ -100,7 +102,7 @@ static void sunStopTiming(sunTimerStruct* entry)
   long s_difference = 0;
   long ns_difference = 0;
 
-  clock_gettime(CLOCK_MONOTONIC, entry->toc);
+  sunclock_gettime_monotonic(entry->toc);
 
   s_difference  = entry->toc->tv_sec - entry->tic->tv_sec;
   ns_difference = entry->toc->tv_nsec - entry->tic->tv_nsec;
@@ -356,8 +358,8 @@ int SUNProfiler_Print(SUNProfiler p, FILE* fp)
     fprintf(fp, "\n================================================================================================================\n");
     fprintf(fp, "SUNDIALS GIT VERSION: %s\n", SUNDIALS_GIT_VERSION);
     fprintf(fp, "SUNDIALS PROFILER: %s\n", p->title);
-    fprintf(fp, "Timer resolution: %ld nanoseconds\n", spec.tv_nsec);
-    fprintf(fp, "%-40s\t %% time (inclusive) \t max/rank \t average/rank \t count \n", "Results:");
+    fprintf(fp, "TIMER RESOLUTION: %gs\n", 1e-9 * ((double) spec.tv_nsec));
+    fprintf(fp, "%-40s\t %% time (inclusive) \t max/rank \t average/rank \t count \n", "RESULTS:");
     fprintf(fp, "================================================================================================================\n");
 
 #if SUNDIALS_MPI_ENABLED
@@ -502,4 +504,32 @@ int sunCompareTimes(const void* l, const void* r)
   if (left_max > right_max)
     return(-1);
   return(0);
+}
+
+int sunclock_gettime_monotonic(struct timespec* ts)
+{
+#if (defined(WIN32) || defined(_WIN32))
+  static LARGE_INTEGER ticks_per_sec;
+  LARGE_INTEGER ticks;
+
+  if (!ticks_per_sec.QuadPart)
+  {
+    QueryPerformanceFrequency(&ticks_per_sec);
+    if (!ticks_per_sec.QuadPart)
+    {
+      errno = ENOTSUP;
+      return -1;
+    }
+  }
+
+  QueryPerformanceCounter(&ticks);
+
+  ts->ts_sec  = (long)(ticks.QuadPart / ticks_per_sec.QuadPart);
+  ts->ts_nsec = (long)(((ticks.QuadPart % ticks_per_sec.QuadPart) * 1000000000) /
+                       ticks_per_sec.QuadPart);
+
+  return 0;
+#else
+  return clock_gettime(CLOCK_MONOTONIC, ts);
+#endif
 }
