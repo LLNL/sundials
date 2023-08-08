@@ -20,16 +20,16 @@
 
 # Examples using SUNDIALS linear solvers
 set(IDA_examples
-  "idaAnalytic_mels\;\;exclude-single"
-  "idaFoodWeb_bnd\;\;develop"
-  "idaFoodWeb_kry\;\;develop"
-  "idaHeat2D_bnd\;\;develop"
-  "idaHeat2D_kry\;\;develop"
-  "idaKrylovDemo_ls\;\;develop"
-  "idaKrylovDemo_ls\;1\;develop"
-  "idaKrylovDemo_ls\;2\;develop"
-  "idaRoberts_dns\;\;"
-  "idaSlCrank_dns\;\;exclude-single"
+  "idaAnalytic_mels.c\;<none>\;exclude-single"
+  "idaFoodWeb_bnd.c\;<none>\;develop"
+  "idaFoodWeb_kry.c\;<none>\;develop"
+  "idaHeat2D_bnd.c\;<none>\;develop"
+  "idaHeat2D_kry.c\;<none>\;develop"
+  "idaKrylovDemo_ls.c\;<none>\;develop"
+  "idaKrylovDemo_ls.c\;1\;develop"
+  "idaKrylovDemo_ls.c\;2\;develop"
+  "idaRoberts_dns.c\;<none>\;passfail"
+  "idaSlCrank_dns.c\;<none>\;exclude-single"
   )
 
 # Examples using LAPACK linear solvers
@@ -38,13 +38,13 @@ set(IDA_examples_BL
 
 # Examples using KLU linear solver
 set(IDA_examples_KLU
-  "idaHeat2D_klu\;\;develop"
-  "idaRoberts_klu\;\;develop"
+  "idaHeat2D_klu.c\;<none>\;develop"
+  "idaRoberts_klu.c\;<none>\;develop"
   )
 
 # Examples using SuperLU_MT linear solver
 set(IDA_examples_SUPERLUMT
-    "idaRoberts_sps\;\;develop"
+    "idaRoberts_sps.c\;<none>\;develop"
     #"idaHeat2D_sps\;develop" # not ready yet, incorrect answer.
     )
 
@@ -63,16 +63,18 @@ set(SUNDIALS_LIBS ${IDA_LIB} ${NVECS_LIB} ${EXE_EXTRA_LINK_LIBS})
 # Add the build and install targets for each example
 foreach(example_tuple ${IDA_examples})
 
-  # parse the example tuple
-  list(GET example_tuple 0 example)
-  list(GET example_tuple 1 example_args)
-  list(GET example_tuple 2 example_type)
+  # parse the example tuple using sundials_parse_tuple macro
+  sundials_parse_tuple( IDA_examples 
+    FILENAME_VAR example
+    PARAMS_VAR example_args
+    TYPE_VAR example_type
+  ) 
 
   # check if this example has already been added, only need to add
   # example source files once for testing with different inputs
   if(NOT TARGET ${example})
     # example source files
-    add_executable(${example} ${example}.c)
+    add_executable(${example} ${example})
 
     # folder to organize targets in an IDE
     set_target_properties(${example} PROPERTIES FOLDER "Examples")
@@ -82,11 +84,8 @@ foreach(example_tuple ${IDA_examples})
   endif()
 
   # check if example args are provided and set the test name
-  if("${example_args}" STREQUAL "")
-    set(test_name ${example})
-  else()
-    string(REGEX REPLACE " " "_" test_name ${example}_${example_args})
-  endif()
+  sundials_create_test_name(${example} test_name
+    TEST_ARGS ${example_args})
 
   # add example to regression tests
   sundials_add_test(${test_name} ${example}
@@ -98,14 +97,7 @@ foreach(example_tuple ${IDA_examples})
   # find all .out files for this example
   file(GLOB example_out ${example}*.out)
 
-  # install example source and .out files
-  if(EXAMPLES_INSTALL)
-    install(FILES ${example}.c ${example_out}
-      DESTINATION ${EXAMPLES_INSTALL_PATH}/ida/serial)
-  endif()
-
 endforeach(example_tuple ${IDA_examples})
-
 
 # Add the build and install targets for each LAPACK example (if needed)
 if(BUILD_SUNLINSOL_LAPACKBAND AND BUILD_SUNLINSOL_LAPACKDENSE)
@@ -120,16 +112,18 @@ if(BUILD_SUNLINSOL_LAPACKBAND AND BUILD_SUNLINSOL_LAPACKDENSE)
 
   foreach(example_tuple ${IDA_examples_BL})
 
-    # parse the example tuple
-    list(GET example_tuple 0 example)
-    list(GET example_tuple 1 example_args)
-    list(GET example_tuple 2 example_type)
+    # parse the example tuple using sundials_parse_tuple macro
+    sundials_parse_tuple( IDA_examples 
+      FILENAME_VAR example
+      PARAMS_VAR example_args
+      TYPE_VAR example_type
+    ) 
 
     # check if this example has already been added, only need to add
     # example source files once for testing with different inputs
     if(NOT TARGET ${example})
       # example source files
-      add_executable(${example} ${example}.c)
+      add_executable(${example} ${example})
 
       # folder to organize targets in an IDE
       set_target_properties(${example} PROPERTIES FOLDER "Examples")
@@ -138,12 +132,9 @@ if(BUILD_SUNLINSOL_LAPACKBAND AND BUILD_SUNLINSOL_LAPACKDENSE)
       target_link_libraries(${example} ${SUNDIALS_LIBS} ${SUNLINSOLLAPACK_LIBS})
     endif()
 
-    # check if example args are provided and set the test name
-    if("${example_args}" STREQUAL "")
-      set(test_name ${example})
-    else()
-      string(REGEX REPLACE " " "_" test_name ${example}_${example_args})
-    endif()
+  # check if example args are provided and set the test name
+  sundials_create_test_name(${example} test_name
+    TEST_ARGS ${example_args})
 
     # add example to regression tests
     sundials_add_test(${test_name} ${example}
@@ -155,16 +146,9 @@ if(BUILD_SUNLINSOL_LAPACKBAND AND BUILD_SUNLINSOL_LAPACKDENSE)
     # find all .out files for this example
     file(GLOB example_out ${example}*.out)
 
-    # install example source and .out files
-    if(EXAMPLES_INSTALL)
-      install(FILES ${example}.c ${example_out}
-        DESTINATION ${EXAMPLES_INSTALL_PATH}/ida/serial)
-    endif()
-
   endforeach(example_tuple ${IDA_examples_BL})
 
 endif()
-
 
 # Add the build and install targets for each KLU example (if needed)
 if(BUILD_SUNLINSOL_KLU)
@@ -177,16 +161,18 @@ if(BUILD_SUNLINSOL_KLU)
 
   foreach(example_tuple ${IDA_examples_KLU})
 
-    # parse the example tuple
-    list(GET example_tuple 0 example)
-    list(GET example_tuple 1 example_args)
-    list(GET example_tuple 2 example_type)
+    # parse the example tuple using sundials_parse_tuple macro
+    sundials_parse_tuple( IDA_examples 
+      FILENAME_VAR example
+      PARAMS_VAR example_args
+      TYPE_VAR example_type
+    ) 
 
     # check if this example has already been added, only need to add
     # example source files once for testing with different inputs
     if(NOT TARGET ${example})
       # add example source files
-      add_executable(${example} ${example}.c)
+      add_executable(${example} ${example})
 
       # folder to organize targets in an IDE
       set_target_properties(${example} PROPERTIES FOLDER "Examples")
@@ -195,12 +181,9 @@ if(BUILD_SUNLINSOL_KLU)
       target_link_libraries(${example} ${SUNDIALS_LIBS} ${SUNLINSOLKLU_LIBS})
     endif()
 
-    # check if example args are provided and set the test name
-    if("${example_args}" STREQUAL "")
-      set(test_name ${example})
-    else()
-      string(REGEX REPLACE " " "_" test_name ${example}_${example_args})
-    endif()
+  # check if example args are provided and set the test name
+  sundials_create_test_name(${example} test_name
+    TEST_ARGS ${example_args})
 
     # add example to regression tests
     sundials_add_test(${test_name} ${example}
@@ -212,16 +195,9 @@ if(BUILD_SUNLINSOL_KLU)
     # find all .out files for this example
     file(GLOB example_out ${example}*.out)
 
-    # install example source and .out files
-    if(EXAMPLES_INSTALL)
-      install(FILES ${example}.c ${example_out}
-        DESTINATION ${EXAMPLES_INSTALL_PATH}/ida/serial)
-    endif()
-
   endforeach(example_tuple ${IDA_examples_KLU})
 
 endif()
-
 
 # Add the build and install targets for each SuperLU_MT example (if needed)
 if(BUILD_SUNLINSOL_SUPERLUMT)
@@ -234,16 +210,18 @@ if(BUILD_SUNLINSOL_SUPERLUMT)
 
   foreach(example_tuple ${IDA_examples_SUPERLUMT})
 
-    # parse the example tuple
-    list(GET example_tuple 0 example)
-    list(GET example_tuple 1 example_args)
-    list(GET example_tuple 2 example_type)
+    # parse the example tuple using sundials_parse_tuple macro
+    sundials_parse_tuple( IDA_examples 
+      FILENAME_VAR example
+      PARAMS_VAR example_args
+      TYPE_VAR example_type
+    ) 
 
     # check if this example has already been added, only need to add
     # example source files once for testing with different inputs
     if(NOT TARGET ${example})
       # add example source files
-      add_executable(${example} ${example}.c)
+      add_executable(${example} ${example})
 
       # folder to organize targets in an IDE
       set_target_properties(${example} PROPERTIES FOLDER "Examples")
@@ -252,12 +230,9 @@ if(BUILD_SUNLINSOL_SUPERLUMT)
       target_link_libraries(${example} ${SUNDIALS_LIBS} ${SUNLINSOLSLUMT_LIBS})
     endif()
 
-    # check if example args are provided and set the test name
-    if("${example_args}" STREQUAL "")
-      set(test_name ${example})
-    else()
-      string(REGEX REPLACE " " "_" test_name ${example}_${example_args})
-    endif()
+  # check if example args are provided and set the test name
+  sundials_create_test_name(${example} test_name
+    TEST_ARGS ${example_args})
 
     # Do not include SuperLUMT examples in testing when the indextype is int64_t.
     # Answer files were generated with int32_t and minor differences in output
@@ -275,95 +250,59 @@ if(BUILD_SUNLINSOL_SUPERLUMT)
     # find all .out files for this example
     file(GLOB example_out ${example}*.out)
 
-    # install example source and .out files
-    if(EXAMPLES_INSTALL)
-      install(FILES ${example}.c ${example_out}
-        DESTINATION ${EXAMPLES_INSTALL_PATH}/ida/serial)
-    endif()
-
   endforeach(example_tuple ${IDA_examples_SUPERLUMT})
 
 endif()
 
-
 # create Makfile and CMakeLists.txt for examples
 if(EXAMPLES_INSTALL)
 
-  # Install the README file
-  install(FILES README DESTINATION ${EXAMPLES_INSTALL_PATH}/ida/serial)
-
-  # Install the extra files
-  foreach(extrafile ${IDA_extras})
-    install(FILES ${extrafile} DESTINATION ${EXAMPLES_INSTALL_PATH}/ida/serial)
-  endforeach()
-
-  # Prepare substitution variables for Makefile and/or CMakeLists templates
-  set(SOLVER "IDA")
-  set(SOLVER_LIB "sundials_ida")
-
-  examples2string(IDA_examples EXAMPLES)
-
-  if(BUILD_SUNLINSOL_LAPACKBAND AND BUILD_SUNLINSOL_LAPACKDENSE)
-    examples2string(IDA_examples_BL EXAMPLES_BL)
-  else()
-    set(EXAMPLES_BL "")
+  if(BUILD_SUNLINSOL_SUPERLUMT)
+    set(_include_sunlinsolsuperlumt sunlinsolsuperlumt)
+    list(APPEND IDA_examples 
+      "idaRoberts_sps.c\;<none>\;develop"
+      #"idaHeat2D_sps\;develop" # not ready yet, incorrect answer.
+    )
+    set(SUPERLUMT_TARGET SUNDIALS::SUPERLUMT)
   endif()
 
   if(BUILD_SUNLINSOL_KLU)
-    examples2string(IDA_examples_KLU EXAMPLES_KLU)
-  else()
-    set(EXAMPLES_KLU "")
-  endif()
-
-  if(BUILD_SUNLINSOL_SUPERLUMT)
-    examples2string(IDA_examples_SUPERLUMT EXAMPLES_SLUMT)
-    if (SUNDIALS_SUPERLUMT_THREAD_TYPE STREQUAL "PTHREAD")
-      set(THREAD_LIBRARY_SLUMT ${CMAKE_THREAD_LIBS_INIT})
-    else()
-      set(THREAD_LIBRARY_SLUMT "")
-    endif()
-  else()
-    set(EXAMPLES_SLUMT "")
-    set(THREAD_LIBRARY_SLUMT "")
-  endif()
-
-  # Regardless of the platform we're on, we will generate and install
-  # CMakeLists.txt file for building the examples. This file  can then
-  # be used as a template for the user's own programs.
-
-  # generate CMakelists.txt in the binary directory
-  configure_file(
-    ${PROJECT_SOURCE_DIR}/examples/templates/cmakelists_serial_C_ex.in
-    ${PROJECT_BINARY_DIR}/examples/ida/serial/CMakeLists.txt
-    @ONLY
+    set(_include_sunlinsolklu sunlinsolklu)
+    list(APPEND IDA_examples
+      "idaHeat2D_klu.c\;<none>\;develop"
+      "idaRoberts_klu.c\;<none>\;develop"
     )
-
-  # install CMakelists.txt
-  install(
-    FILES ${PROJECT_BINARY_DIR}/examples/ida/serial/CMakeLists.txt
-    DESTINATION ${EXAMPLES_INSTALL_PATH}/ida/serial
-    )
-
-  # On UNIX-type platforms, we also  generate and install a makefile for
-  # building the examples. This makefile can then be used as a template
-  # for the user's own programs.
-
-  if(UNIX)
-    # generate Makefile and place it in the binary dir
-    configure_file(
-      ${PROJECT_SOURCE_DIR}/examples/templates/makefile_serial_C_ex.in
-      ${PROJECT_BINARY_DIR}/examples/ida/serial/Makefile_ex
-      @ONLY
-      )
-    # install the configured Makefile_ex as Makefile
-    install(
-      FILES ${PROJECT_BINARY_DIR}/examples/ida/serial/Makefile_ex
-      DESTINATION ${EXAMPLES_INSTALL_PATH}/ida/serial
-      RENAME Makefile
-      )
+    set(KLU_TARGET SUNDIALS::KLU)
   endif()
 
-  # add test_install target
-  sundials_add_test_install(ida serial EXECUTABLE idaRoberts_dns)
+  if(BUILD_SUNLINSOL_LAPACKBAND AND BUILD_SUNLINSOL_LAPACKDENSE)
+    set(_include_sundials_sunlinsollapackband sunlinsollapackband)
+    set(_include_sundials_sunlinsollapackdense sunlinsollapackdense)
+  endif()
+
+  sundials_install_examples(ida IDA_examples
+    CMAKE_TEMPLATE
+      cmakelists_C_ex.in
+    MAKE_TEMPLATE
+      makefile_serial_C_ex.in
+    SUNDIALS_TARGETS
+      nvecserial
+      ida
+      ${_include_sunlinsolsuperlumt}
+      ${_include_sunlinsolklu}
+      ${_include_sundials_sunlinsollapackband}
+      ${_include_sundials_sunlinsollapackdense}
+    OTHER_TARGETS
+      ${SUPERLUMT_TARGET}
+      ${KLU_TARGET}
+    DESTINATION
+      ida/serial
+    EXTRA_FILES
+      README
+      ${IDA_extras}
+      ${IDA_headers}
+    TEST_INSTALL
+      serial
+  )
 
 endif()

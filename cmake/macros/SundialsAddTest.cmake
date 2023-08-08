@@ -169,13 +169,14 @@ macro(SUNDIALS_ADD_TEST NAME EXECUTABLE)
       # all tests are added during development and only unlabeled tests when released
       add_test(NAME ${NAME} COMMAND ${PYTHON_EXECUTABLE} ${TESTRUNNER} ${TEST_ARGS})
 
-    elseif(NOT SUNDIALS_ADD_TEST_EXAMPLE_TYPE)
-
-      # if a test type was not set then it is a standard test that returns pass/fail
+    # if a test type was not set then it is a standard test that returns pass/fail    
+    elseif(SUNDIALS_ADD_TEST_EXAMPLE_TYPE STREQUAL "passfail" OR
+           (NOT SUNDIALS_ADD_TEST_EXAMPLE_TYPE))
 
       # convert string to list
       if(SUNDIALS_ADD_TEST_TEST_ARGS)
-        string(REPLACE " " ";" TEST_ARGS "${SUNDIALS_ADD_TEST_TEST_ARGS}")
+        string(REPLACE "<none>" "" TEST_ARGS "${SUNDIALS_ADD_TEST_TEST_ARGS}")
+        separate_arguments(TEST_ARGS UNIX_COMMAND "${TEST_ARGS}")
       endif()
 
       # check if this test is run with MPI and add the test run command

@@ -19,36 +19,55 @@
 
 # Examples using SUNDIALS linear solvers
 set(ARKODE_examples
-  "ark_diurnal_kry_ph.c\;1\;4\;develop"
+  "ark_diurnal_kry_ph.c\;<none>\;1\;4\;develop"
   )
+
+if(MPI_C_COMPILER)
+  set(CMAKE_C_COMPILER ${MPI_C_COMPILER})
+else()
+  include_directories(${MPI_INCLUDE_PATH})
+endif()
+
+# Specify libraries to link against
+set(ARKODE_LIB sundials_arkode)
+set(NVECPARHYP_LIB sundials_nvecparhyp)
+
+# Set-up linker flags and link libraries
+set(SUNDIALS_LIBS ${ARKODE_LIB} ${NVECPARHYP_LIB} ${EXE_EXTRA_LINK_LIBS})
 
 # Add the build and install targets for each ARKODE example
 foreach(example_tuple ${ARKODE_examples})
 
-  list(GET example_tuple 0 example)
-  list(GET example_tuple 1 number_of_nodes)
-  list(GET example_tuple 2 number_of_tasks)
-  list(GET example_tuple 3 example_type)
+  # parse the example tuple using sundials_parse_tuple macro
+  sundials_parse_tuple( ARKODE_examples 
+    FILENAME_VAR example
+    NODES_VAR number_of_nodes
+    NPROCS_VAR number_of_tasks
+    TYPE_VAR example_type
+  ) 
+  if(NOT TARGET ${example})
+    # example source files
+    add_executable(${example} ${example})
 
-  # extract the file name without extension
-  get_filename_component(example_target ${example} NAME_WE)
+    # libraries to link against
+    target_link_libraries(${example} ${SUNDIALS_LIBS})
 
-  # create target
-  add_executable(${example_target} ${example})
+    if(NOT MPI_C_COMPILER)
+      target_link_libraries(${example} ${MPI_LIBRARY} ${MPI_EXTRA_LIBRARIES})
+    endif()
 
-  set_target_properties(${example_target} PROPERTIES FOLDER "Examples")
+    set_target_properties(${example} PROPERTIES FOLDER "Examples")
+  endif()
 
-  # libraries to link against
-  target_link_libraries(${example_target}
-    sundials_arkode
-    sundials_nvecparhyp
-    ${EXE_EXTRA_LINK_LIBS})
+  # check if example args are provided and set the test name
+  sundials_create_test_name(${example} test_name MPI_TEST_NAME
+    TEST_ARGS ${example_args} MPI_NPROCS ${number_of_tasks})
 
   # add to regression tests
-  sundials_add_test(${example_target} ${example_target}
+  sundials_add_test(${test_name} ${example}
     MPI_NPROCS ${number_of_tasks}
     ANSWER_DIR ${CMAKE_CURRENT_SOURCE_DIR}
-    ANSWER_FILE ${example_target}.out
+    ANSWER_FILE ${test_name}.out
     EXAMPLE_TYPE ${example_type})
 
 endforeach(example_tuple ${ARKODE_examples})
@@ -57,15 +76,18 @@ endforeach(example_tuple ${ARKODE_examples})
 if(EXAMPLES_INSTALL)
 
   sundials_install_examples(arkode ARKODE_examples
+    HAS_MPI
     CMAKE_TEMPLATE
       cmakelists_C_MPI_ex.in
     MAKE_TEMPLATE
-      makefile_parhyp_C_ex.in
+      makefile_parallel_C_ex.in
     SOLVER_LIBRARY
       sundials_arkode
     SUNDIALS_TARGETS
       arkode
       nvecparhyp
+    OTHER_TARGETS
+      SUNDIALS::HYPRE
     DESTINATION
       arkode/C_parhyp
     EXTRA_FILES

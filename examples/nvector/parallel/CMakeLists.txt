@@ -19,24 +19,41 @@
 
 # Examples using SUNDIALS MPI nvector
 set(nvector_parallel_examples
-  "test_nvector_mpi\;1000 0\;\;\;"    # run sequentially
-  "test_nvector_mpi\;1000 0\;1\;4\;"  # run parallel on 4 procs
-  )
-
-# Dependencies for nvector examples
-set(nvector_examples_dependencies
-  test_nvector
-  test_mpinvector
+  "test_nvector_mpi.c\;1000 0\;1\;1\;passfail"    # run sequentially
+  "test_nvector_mpi.c\;1000 0\;1\;4\;passfail"  # run parallel on 4 procs
   )
 
 # If building F2003 tests
 if (BUILD_FORTRAN_MODULE_INTERFACE)
   set(nvector_parallel_fortran_examples
-    "test_fnvector_parallel_mod\;\;1\;4\;")
+    "test_fnvector_parallel_mod\;<none>\;1\;4\;passfail")
 endif()
+
+# Dependencies for nvector parallel examples
+set(nvector_examples_dependencies
+  test_nvector.c
+  test_mpinvector.c
+  test_nvector.h
+  )
+
+# Adding extra files 
+set(nvector_dependencies
+  ../test_nvector.c
+  ../test_nvector.h
+  ../test_mpinvector.c
+) 
 
 # Add source directory to include directories
 include_directories(. ..)
+
+# Specify libraries to link against
+set(NVECS_LIB sundials_nvecparallel)
+if (BUILD_FORTRAN_MODULE_INTERFACE)
+  list(APPEND NVECS_LIB sundials_fnvecserial_mod)
+endif()
+
+# Set-up linker flags and link libraries
+set(SUNDIALS_LIBS ${NVECS_LIB} ${EXE_EXTRA_LINK_LIBS})
 
 if(MPI_C_COMPILER)
   # use MPI wrapper as the compiler
@@ -59,28 +76,28 @@ endif()
 # Add the build and install targets for each example
 foreach(example_tuple ${nvector_parallel_examples})
 
-  # parse the example tuple
-  list(GET example_tuple 0 example)
-  list(GET example_tuple 1 example_args)
-  list(GET example_tuple 2 number_of_nodes)
-  list(GET example_tuple 3 number_of_tasks)
-  list(GET example_tuple 4 example_type)
-
+  # parse the example tuple using sundials_parse_tuple macro
+  sundials_parse_tuple( nvector_parallel_examples 
+    FILENAME_VAR example
+    PARAMS_VAR example_args
+    NODES_VAR number_of_nodes
+    NPROCS_VAR number_of_tasks
+    TYPE_VAR example_type
+  )
   # check if this example has already been added, only need to add
   # example source files once for testing with different inputs
   if(NOT TARGET ${example})
     # example source files
-    add_executable(${example} ${example}.c)
+    add_executable(${example} ${example})
+
+    # link vector test utilities
+    target_link_libraries(${example} PRIVATE test_nvector_obj test_nvectormpi_obj)
 
     # folder to organize targets in an IDE
     set_target_properties(${example} PROPERTIES FOLDER "Examples")
 
     # libraries to link against
-    target_link_libraries(${example} PRIVATE
-      test_nvector_obj
-      test_nvectormpi_obj
-      sundials_nvecparallel
-      ${EXE_EXTRA_LINK_LIBS})
+    target_link_libraries(${example} PRIVATE ${SUNDIALS_LIBS})
 
     if(NOT MPI_C_COMPILER)
       target_link_libraries(${example} PRIVATE ${MPI_LIBRARIES})
@@ -88,19 +105,8 @@ foreach(example_tuple ${nvector_parallel_examples})
   endif()
 
   # check if example args are provided and set the test name
-  if("${example_args}" STREQUAL "")
-    if("${number_of_tasks}" STREQUAL "")
-      set(test_name ${example})
-    else()
-      string(REGEX REPLACE " " "_" test_name ${example}_${number_of_tasks})
-    endif()
-  else()
-    if("${number_of_tasks}" STREQUAL "")
-      string(REGEX REPLACE " " "_" test_name ${example}_${example_args})
-    else()
-      string(REGEX REPLACE " " "_" test_name ${example}_${number_of_tasks}_${example_args})
-    endif()
-  endif()
+  sundials_create_test_name(${example} test_name MPI_TEST_NAME
+    TEST_ARGS ${example_args} MPI_NPROCS ${number_of_tasks})
 
   # add example to regression tests
   sundials_add_test(${test_name} ${example}
@@ -109,27 +115,19 @@ foreach(example_tuple ${nvector_parallel_examples})
     EXAMPLE_TYPE ${example_type}
     NODIFF)
 
-  # install example source files
-  if(EXAMPLES_INSTALL)
-    install(FILES ${example}.c
-      ../test_nvector.c
-      ../test_mpinvector.c
-      ../test_nvector.h
-      DESTINATION ${EXAMPLES_INSTALL_PATH}/nvector/parallel)
-  endif()
-
 endforeach(example_tuple ${nvector_parallel_examples})
 
 # Add the build and install targets for each example
 foreach(example_tuple ${nvector_parallel_fortran_examples})
 
-  # parse the example tuple
-  list(GET example_tuple 0 example)
-  list(GET example_tuple 1 example_args)
-  list(GET example_tuple 2 number_of_nodes)
-  list(GET example_tuple 3 number_of_tasks)
-  list(GET example_tuple 4 example_type)
-
+  # parse the example tuple using sundials_parse_tuple macro
+  sundials_parse_tuple( nvector_parallel_fortran_examples 
+    FILENAME_VAR example
+    PARAMS_VAR example_args
+    NODES_VAR number_of_nodes
+    NPROCS_VAR number_of_tasks
+    TYPE_VAR example_type
+  )
   # check if this example has already been added, only need to add
   # example source files once for testing with different inputs
   if(NOT TARGET ${example})
@@ -154,19 +152,8 @@ foreach(example_tuple ${nvector_parallel_fortran_examples})
   endif()
 
   # check if example args are provided and set the test name
-  if("${example_args}" STREQUAL "")
-    if("${number_of_tasks}" STREQUAL "")
-      set(test_name ${example})
-    else()
-      string(REGEX REPLACE " " "_" test_name ${example}_${number_of_tasks})
-    endif()
-  else()
-    if("${number_of_tasks}" STREQUAL "")
-      string(REGEX REPLACE " " "_" test_name ${example}_${example_args})
-    else()
-      string(REGEX REPLACE " " "_" test_name ${example}_${number_of_tasks}_${example_args})
-    endif()
-  endif()
+  sundials_create_test_name(${example} test_name MPI_TEST_NAME
+    TEST_ARGS ${example_args} MPI_NPROCS ${number_of_tasks})
 
   # add example to regression tests
   sundials_add_test(${test_name} ${example}
@@ -177,52 +164,28 @@ foreach(example_tuple ${nvector_parallel_fortran_examples})
 
 endforeach(example_tuple ${nvector_parallel_fortran_examples})
 
-
+# create Makfile and CMakeLists.txt for examples
 if(EXAMPLES_INSTALL)
 
-  # Install the README file
-  install(FILES DESTINATION ${EXAMPLES_INSTALL_PATH}/nvector/parallel)
-
-  # Prepare substitution variables for Makefile and/or CMakeLists templates
-  set(SOLVER_LIB "sundials_nvecparallel")
-
-  examples2string(nvector_parallel_examples EXAMPLES)
-  examples2string(nvector_examples_dependencies EXAMPLES_DEPENDENCIES)
-
-  # Regardless of the platform we're on, we will generate and install
-  # CMakeLists.txt file for building the examples. This file  can then
-  # be used as a template for the user's own programs.
-
-  # generate CMakelists.txt in the binary directory
-  configure_file(
-    ${PROJECT_SOURCE_DIR}/examples/templates/cmakelists_parallel_C_ex.in
-    ${PROJECT_BINARY_DIR}/examples/nvector/parallel/CMakeLists.txt
-    @ONLY
-    )
-
-  # install CMakelists.txt
-  install(
-    FILES ${PROJECT_BINARY_DIR}/examples/nvector/parallel/CMakeLists.txt
-    DESTINATION ${EXAMPLES_INSTALL_PATH}/nvector/parallel
-    )
-
-  # On UNIX-type platforms, we also  generate and install a makefile for
-  # building the examples. This makefile can then be used as a template
-  # for the user's own programs.
-
-  if(UNIX)
-    # generate Makefile and place it in the binary dir
-    configure_file(
-      ${PROJECT_SOURCE_DIR}/examples/templates/makefile_parallel_C_ex.in
-      ${PROJECT_BINARY_DIR}/examples/nvector/parallel/Makefile_ex
-      @ONLY
-      )
-    # install the configured Makefile_ex as Makefile
-    install(
-      FILES ${PROJECT_BINARY_DIR}/examples/nvector/parallel/Makefile_ex
-      DESTINATION ${EXAMPLES_INSTALL_PATH}/nvector/parallel
-      RENAME Makefile
-      )
-  endif()
+  sundials_install_examples(nvector nvector_parallel_examples
+    HAS_MPI
+    CMAKE_TEMPLATE
+      cmakelists_C_MPI_ex.in
+    MAKE_TEMPLATE
+      makefile_parallel_C_ex.in
+    SUNDIALS_TARGETS
+      nvecparallel
+    DESTINATION
+      nvector/parallel
+    EXAMPLES_DEPENDENCIES
+      ${nvector_examples_dependencies}
+    EXTRA_FILES
+      #README
+      #${NVECTOR_extras}
+      #${NVECTOR_headers}
+      ${nvector_dependencies}
+    TEST_INSTALL
+      parallel
+  )
 
 endif()

@@ -19,15 +19,15 @@
 
 # Examples using SUNDIALS linear solvers
 set(CVODES_examples
-  "cvsAdvDiff_ASAp_non_p\;\;2\;2\;exclude-single"
-  "cvsAdvDiff_FSA_non_p\;-sensi stg t\;2\;2\;exclude-single"
-  "cvsAdvDiff_FSA_non_p\;-sensi sim t\;2\;2\;exclude-single"
-  "cvsAdvDiff_non_p\;\;2\;2\;exclude-single"
-  "cvsAtmDisp_ASAi_kry_bbd_p\;\;2\;4\;exclude-single"
-  "cvsDiurnal_FSA_kry_p\;-sensi stg t\;2\;4\;exclude-single"
-  "cvsDiurnal_FSA_kry_p\;-sensi sim t\;2\;4\;exclude-single"
-  "cvsDiurnal_kry_bbd_p\;\;2\;4\;exclude-single"
-  "cvsDiurnal_kry_p\;\;2\;4\;exclude-single"
+  "cvsAdvDiff_ASAp_non_p.c\;<none>\;2\;2\;exclude-single"
+  "cvsAdvDiff_FSA_non_p.c\;-sensi stg t\;2\;2\;exclude-single"
+  "cvsAdvDiff_FSA_non_p.c\;-sensi sim t\;2\;2\;exclude-single"
+  "cvsAdvDiff_non_p.c\;<none>\;2\;2\;exclude-single"
+  "cvsAtmDisp_ASAi_kry_bbd_p.c\;<none>\;2\;4\;exclude-single"
+  "cvsDiurnal_FSA_kry_p.c\;-sensi stg t\;2\;4\;exclude-single"
+  "cvsDiurnal_FSA_kry_p.c\;-sensi sim t\;2\;4\;exclude-single"
+  "cvsDiurnal_kry_bbd_p.c\;<none>\;2\;4\;exclude-single"
+  "cvsDiurnal_kry_p.c\;<none>\;2\;4\;exclude-single"
   )
 
 if(MPI_C_COMPILER)
@@ -45,25 +45,23 @@ set(NVECP_LIB sundials_nvecparallel)
 # Set-up linker flags and link libraries
 set(SUNDIALS_LIBS ${CVODES_LIB} ${NVECP_LIB} ${EXE_EXTRA_LINK_LIBS})
 
-
 # Add the build and install targets for each example
 foreach(example_tuple ${CVODES_examples})
 
-  # parse the example tuple
-  list(GET example_tuple 0 example)
-  list(GET example_tuple 1 example_args)
-  list(GET example_tuple 2 number_of_nodes)
-  list(GET example_tuple 3 number_of_tasks)
-  list(GET example_tuple 4 example_type)
+  # parse the example tuple using sundials_parse_tuple macro
+  sundials_parse_tuple( CVODES_examples 
+    FILENAME_VAR example
+    PARAMS_VAR example_args
+    NODES_VAR number_of_nodes
+    NPROCS_VAR number_of_tasks
+    TYPE_VAR example_type
+  )
 
   # check if this example has already been added, only need to add
   # example source files once for testing with different inputs
   if(NOT TARGET ${example})
     # example source files
-    add_executable(${example} ${example}.c)
-
-    # folder to organize targets in an IDE
-    set_target_properties(${example} PROPERTIES FOLDER "Examples")
+    add_executable(${example} ${example})
 
     # libraries to link against
     target_link_libraries(${example} ${SUNDIALS_LIBS})
@@ -71,14 +69,13 @@ foreach(example_tuple ${CVODES_examples})
     if(NOT MPI_C_COMPILER)
       target_link_libraries(${example} ${MPI_LIBRARY} ${MPI_EXTRA_LIBRARIES})
     endif()
+
+    set_target_properties(${example} PROPERTIES FOLDER "Examples")
   endif()
 
   # check if example args are provided and set the test name
-  if("${example_args}" STREQUAL "")
-    set(test_name ${example})
-  else()
-    string(REGEX REPLACE " " "_" test_name ${example}_${example_args})
-  endif()
+  sundials_create_test_name(${example} test_name  MPI_TEST_NAME
+    TEST_ARGS ${example_args} MPI_NPROCS ${number_of_tasks})
 
   # add example to regression tests
   sundials_add_test(${test_name} ${example}
@@ -91,64 +88,28 @@ foreach(example_tuple ${CVODES_examples})
   # find all .out files for this example
   file(GLOB example_out ${example}*.out)
 
-  # install example source and .out files
-  if(EXAMPLES_INSTALL)
-    install(FILES ${example}.c ${example_out}
-      DESTINATION ${EXAMPLES_INSTALL_PATH}/cvodes/parallel)
-  endif()
-
 endforeach(example_tuple ${CVODES_examples})
-
 
 # create Makfile and CMakeLists.txt for examples
 if(EXAMPLES_INSTALL)
 
-  # Install the README file
-  install(FILES README DESTINATION ${EXAMPLES_INSTALL_PATH}/cvodes/parallel)
-
-  # Prepare substitution variables for Makefile and/or CMakeLists templates
-  set(SOLVER "CVODES")
-  set(SOLVER_LIB "sundials_cvodes")
-
-  examples2string(CVODES_examples EXAMPLES)
-
-  # Regardless of the platform we're on, we will generate and install
-  # CMakeLists.txt file for building the examples. This file  can then
-  # be used as a template for the user's own programs.
-
-  # generate CMakelists.txt in the binary directory
-  configure_file(
-    ${PROJECT_SOURCE_DIR}/examples/templates/cmakelists_parallel_C_ex.in
-    ${PROJECT_BINARY_DIR}/examples/cvodes/parallel/CMakeLists.txt
-    @ONLY
-    )
-
-  # install CMakelists.txt
-  install(
-    FILES ${PROJECT_BINARY_DIR}/examples/cvodes/parallel/CMakeLists.txt
-    DESTINATION ${EXAMPLES_INSTALL_PATH}/cvodes/parallel
-    )
-
-  # On UNIX-type platforms, we also  generate and install a makefile for
-  # building the examples. This makefile can then be used as a template
-  # for the user's own programs.
-
-  if(UNIX)
-    # generate Makefile and place it in the binary dir
-    configure_file(
-      ${PROJECT_SOURCE_DIR}/examples/templates/makefile_parallel_C_ex.in
-      ${PROJECT_BINARY_DIR}/examples/cvodes/parallel/Makefile_ex
-      @ONLY
-      )
-    # install the configured Makefile_ex as Makefile
-    install(
-      FILES ${PROJECT_BINARY_DIR}/examples/cvodes/parallel/Makefile_ex
-      DESTINATION ${EXAMPLES_INSTALL_PATH}/cvodes/parallel
-      RENAME Makefile
-      )
-  endif()
-
-  # add test_install target
-  sundials_add_test_install(cvodes parallel)
+  sundials_install_examples(cvodes CVODES_examples
+    HAS_MPI
+    CMAKE_TEMPLATE
+      cmakelists_C_MPI_ex.in
+    MAKE_TEMPLATE
+      makefile_parallel_C_ex.in
+    SUNDIALS_TARGETS
+      nvecparallel
+      cvodes
+    DESTINATION
+      cvodes/parallel
+    EXTRA_FILES
+      README
+      ${CVODES_extras}
+      ${CVODES_headers}
+    TEST_INSTALL
+      parallel
+  )
 
 endif()
