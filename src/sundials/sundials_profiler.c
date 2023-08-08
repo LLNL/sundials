@@ -27,7 +27,7 @@
 #include <time.h>
 #include <stddef.h>
 #include <unistd.h>
-#elif !(defined(WIN32) || defined(_WIN32) || defined(__WIN32) && !defined(__CYGWIN__))
+#elif !(defined(WIN32) || defined(_WIN32))
 #error POSIX is needed for clock_getttime
 #endif
 
