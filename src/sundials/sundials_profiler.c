@@ -17,7 +17,9 @@
 #if SUNDIALS_MPI_ENABLED
 #include <sundials/sundials_mpi_types.h>
 #include <mpi.h>
-#elif defined(SUNDIALS_HAVE_POSIX_TIMERS)
+#endif
+
+#if defined(SUNDIALS_HAVE_POSIX_TIMERS)
 /* Minimum POSIX version needed for struct timespec and clock_monotonic */
 #if !defined(_POSIX_C_SOURCE) || (_POSIX_C_SOURCE < 199309L)
 #define _POSIX_C_SOURCE 199309L
@@ -26,7 +28,7 @@
 #include <stddef.h>
 #include <unistd.h>
 #else
-#error Either MPI_Wtime or clock_getttime is required but neither were found
+#error POSIX clock_gettime is required for profiling
 #endif
 
 #include <stdio.h>
@@ -53,13 +55,8 @@ static int sunCompareTimes(const void* l, const void* r);
 
 struct _sunTimerStruct
 {
-#if SUNDIALS_MPI_ENABLED
-  double tic;
-  double toc;
-#else
   struct timespec* tic;
   struct timespec* toc;
-#endif
   double average;
   double maximum;
   double elapsed;
@@ -71,15 +68,10 @@ typedef struct _sunTimerStruct sunTimerStruct;
 static sunTimerStruct* sunTimerStructNew()
 {
   sunTimerStruct* ts = (sunTimerStruct*) malloc(sizeof(sunTimerStruct));
-#if SUNDIALS_MPI_ENABLED
-  ts->tic = 0.0;
-  ts->toc = 0.0;
-#else
   ts->tic = (struct timespec *) malloc(sizeof(struct timespec));
   ts->toc = (struct timespec *) malloc(sizeof(struct timespec));
   ts->tic->tv_sec = 0;
   ts->tic->tv_nsec = 0;
-#endif
   ts->elapsed = 0.0;
   ts->average = 0.0;
   ts->maximum = 0.0;
@@ -92,34 +84,23 @@ static void sunTimerStructFree(void* TS)
   sunTimerStruct* ts = (sunTimerStruct*) TS;
   if (ts)
   {
-#if !SUNDIALS_MPI_ENABLED
     if (ts->tic) free(ts->tic);
     if (ts->toc) free(ts->toc);
-#endif
     free(ts);
   }
 }
 
 static void sunStartTiming(sunTimerStruct* entry)
 {
-#if SUNDIALS_MPI_ENABLED
-  entry->tic = MPI_Wtime();
-#else
   clock_gettime(CLOCK_MONOTONIC, entry->tic);
-#endif
 }
 
 static void sunStopTiming(sunTimerStruct* entry)
 {
-#if SUNDIALS_MPI_ENABLED
-  entry->toc = MPI_Wtime();
-  entry->elapsed += entry->toc - entry->tic;
-#else
   clock_gettime(CLOCK_MONOTONIC, entry->toc);
   entry->elapsed +=
     ((double) (entry->toc->tv_sec - entry->tic->tv_sec) +
      (double) (entry->toc->tv_nsec - entry->tic->tv_nsec) * 1e-9);
-#endif
   /* Initialize to total value */
   entry->average = entry->elapsed;
   entry->maximum = entry->elapsed;
@@ -127,15 +108,10 @@ static void sunStopTiming(sunTimerStruct* entry)
 
 static void sunResetTiming(sunTimerStruct* entry)
 {
-#if SUNDIALS_MPI_ENABLED
-  entry->tic = 0.0;
-  entry->toc = 0.0;
-#else
   entry->tic->tv_sec  = 0;
   entry->tic->tv_nsec = 0;
   entry->toc->tv_sec  = 0;
   entry->toc->tv_nsec = 0;
-#endif
   entry->elapsed = 0.0;
   entry->average = 0.0;
   entry->maximum = 0.0;
@@ -363,12 +339,15 @@ int SUNProfiler_Print(SUNProfiler p, FILE* fp)
 
   if (rank == 0)
   {
+    struct timespec spec;
     /* Sort the timers in descending order */
     if (SUNHashMap_Sort(p->map, &sorted, sunCompareTimes))
       return(-1);
+    clock_getres(CLOCK_MONOTONIC, &spec);
     fprintf(fp, "\n================================================================================================================\n");
     fprintf(fp, "SUNDIALS GIT VERSION: %s\n", SUNDIALS_GIT_VERSION);
     fprintf(fp, "SUNDIALS PROFILER: %s\n", p->title);
+    fprintf(fp, "Timer resolution: %ld nanoseconds\n", spec.tv_nsec);
     fprintf(fp, "%-40s\t %% time (inclusive) \t max/rank \t average/rank \t count \n", "Results:");
     fprintf(fp, "================================================================================================================\n");
 
