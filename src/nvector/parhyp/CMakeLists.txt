@@ -27,6 +27,7 @@ elseif(SUNDIALS_HYPRE_BACKENDS MATCHES "HIP")
   set(_gpu_cxx_std        cxx_std_14)
   set(_gpu_sunmem_lib     sundials_sunmemhip_obj)
   set(_gpu_extra_libs     hip::device)
+  set(_gpu_extra_includes ${CMAKE_SOURCE_DIR}/src/nvector/hip)
 endif()
 
 # Create the library

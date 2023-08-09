@@ -100,7 +100,7 @@
 #define TWO   RCONST(2.0)
 
 #define XMAX  RCONST(2.0)    /* domain boundary             */
-#define RTOL  RCONST(1.0e-10)
+#define RTOL  RCONST(1.0e-6) /* to obtain 0.01% acc         */
 #define ATOL  RCONST(1.0e-5) /* scalar absolute tolerance   */
 #define T0    ZERO           /* initial time                */
 #define T1    RCONST(0.5)    /* first output time           */
