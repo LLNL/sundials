@@ -2641,7 +2641,7 @@ int N_VBufUnpack_ParHyp(N_Vector x, void* buf)
     "SUNMemoryHelper_CopyAsync failed to copy from device to buffer\n",-1);
 
   /* Synchronize current stream */
-  err = cudaStreamSynchronize(*NV_STREAM_PH(x));
+  err = NV_ADD_LANG_PREFIX_PH(StreamSynchronize)(*NV_STREAM_PH(x));
   NV_CATCH_AND_RETURN_PH(!NV_VERIFY_CALL_PH(err), -1)
 
   /* Free the wrappers */
