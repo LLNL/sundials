@@ -111,7 +111,7 @@
 #define MPI_ASSERT(expr,msg,comm,myproc,code)                            \
   if(!(expr)) {                                                          \
     fprintf(stderr, "ERROR in %s (%s line %d): %s",                      \
-        __func__, __FILE__, __LINE__, "\n──> "msg"\n──> Aborting...\n"); \
+        __func__, __FILE__, __LINE__, "\n──> " msg "\n──> Aborting...\n"); \
     MPI_Abort(comm,code);                                                \
   }
     // SUNDIALS_DEBUG_ERROR(msg);
