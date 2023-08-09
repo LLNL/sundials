@@ -126,7 +126,7 @@ endif()
 if(SUNDIALS_HYPRE_BACKENDS MATCHES "CUDA")
   list(APPEND HYPRE_LIBRARIES CUDA::cublas CUDA::cusparse CUDA::cusolver CUDA::curand)
 elseif(SUNDIALS_HYPRE_BACKENDS MATCHES "HIP")
-  list(APPEND HYPRE_LIBRARIES roc::hipblas roc::hipsparse roc::hipsolver roc::hiprand)
+  # list(APPEND HYPRE_LIBRARIES roc::hipblas roc::hipsparse roc::hipsolver roc::hiprand)
   list(APPEND HYPRE_LIBRARIES roc::rocblas roc::rocsparse roc::rocsolver roc::rocrand)
 endif()
 
