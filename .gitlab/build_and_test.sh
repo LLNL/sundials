@@ -1,5 +1,14 @@
 #!/usr/bin/bash
 
+CI_COMMIT_BRANCH=main
+BUILD_JOBS=32
+
+COMPILER_SPEC=rocmcc@5.5.0
+AMDGPU_TARGET=gfx906
+CALIPER_DIR=/g/g20/pan13/test-release/
+
+SPEC="%${COMPILER_SPEC} cstd=99 cxxstd=14 precision=double amdgpu_target=${AMDGPU_TARGET} scheduler=flux +benchmarks+profiling+caliper+adiak+rocm+mpi+profile-examples"
+
 # make sure lmod is loaded
 if test -e /usr/share/lmod/lmod/init/bash
 then
@@ -97,9 +106,9 @@ then
         mkdir -p ${spack_user_cache}
     fi
 
-    if [[ -d /usr/workspace/sundials ]]
+    if [[ -d /usr/workspace/pan13 ]]
     then
-        upstream="/usr/workspace/sundials/spack_installs/${spack_prefix}/${hostname}"
+        upstream="/usr/workspace/pan13/spack_installs/${spack_prefix}/${hostname}"
         mkdir -p "${upstream}"
         upstream_opt="--upstream=${upstream}"
     fi
@@ -188,11 +197,23 @@ then
     $cmake_exe --version
 
     # configure
-    $cmake_exe \
-        -C "${hostconfig_path}" \
-        -DCMAKE_INSTALL_PREFIX=${install_dir} \
-        "${project_dir}"
-    
+    if [[ "${CI_COMMIT_BRANCH}" == "main" ]]
+    then
+        # redirect caliper files to release directory
+        sundials_version=$(cd ${project_dir}; git describe --abbrev=0)
+        $cmake_exe \
+            -C "${hostconfig_path}" \
+            -DCMAKE_INSTALL_PREFIX=${install_dir} \
+            -DSUNDIALS_CALIPER_OUTPUT_DIR="${CALIPER_DIR}/Release/${hostname}/${sundials_version}" \
+            "${project_dir}"
+
+    else
+        $cmake_exe \
+            -C "${hostconfig_path}" \
+            -DCMAKE_INSTALL_PREFIX=${install_dir} \
+            "${project_dir}"
+    fi
+
     # build
     VERBOSE_BUILD=${VERBOSE_BUILD:-"OFF"}
     if [[ "${VERBOSE_BUILD}" == "ON" ]]; then
