@@ -23,7 +23,7 @@ if(SUNDIALS_HYPRE_BACKENDS MATCHES "CUDA")
   set(_gpu_extra_includes ${CMAKE_SOURCE_DIR}/src/nvector/cuda)
   
 elseif(SUNDIALS_HYPRE_BACKENDS MATCHES "HIP")
-  set_source_files_properties(nvector_parhyp.c PROPERTIES LANGUAGE HIP)  
+  set_source_files_properties(nvector_parhyp.c PROPERTIES LANGUAGE CXX)  
   set(_gpu_cxx_std        cxx_std_14)
   set(_gpu_sunmem_lib     sundials_sunmemhip_obj)
   set(_gpu_extra_libs     hip::device)
