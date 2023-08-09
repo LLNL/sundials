@@ -64,12 +64,14 @@
 #include <cuda_runtime.h>
 #include <sundials/sundials_cuda_policies.hpp>
 #include <sunmemory/sunmemory_cuda.h>
+#include "sundials_cuda.h"            /* located in src/nvector/sundials */
 
 #elif defined(SUNDIALS_HYPRE_BACKENDS_HIP)
 #pragma message "hypre backend HIP confirmed from nvector_parhyp.h"
 #include <hip/hip_runtime.h>
 #include <sundials/sundials_hip_policies.hpp>
 #include <sunmemory/sunmemory_hip.h>
+#include "sundials_hip.h"             /* located in src/nvector/sundials */
 #endif
 
 /* --- Backend-specific definitions --- */
