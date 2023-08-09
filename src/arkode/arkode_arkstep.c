@@ -2009,15 +2009,12 @@ int arkStep_TakeStep_Z(void* arkode_mem, realtype *dsmPtr, int *nflagPtr)
      This can fail recoverably due to nonconvergence of the mass matrix solve,
      so handle that appropriately. */
   if (step_mem->mass_type == MASS_FIXED) {
-    retval = arkStep_ComputeSolutions_MassFixed(ark_mem, dsmPtr);
+    *nflagPtr = arkStep_ComputeSolutions_MassFixed(ark_mem, dsmPtr);
   } else {
-    retval = arkStep_ComputeSolutions(ark_mem, dsmPtr);
+    *nflagPtr = arkStep_ComputeSolutions(ark_mem, dsmPtr);
   }
-  if (retval < 0)  return(retval);
-  if (retval > 0) {
-    *nflagPtr = retval;
-    return(TRY_AGAIN);
-  }
+  if (*nflagPtr < 0) return(retval);
+  if (*nflagPtr > 0) return(TRY_AGAIN);
 
 #ifdef SUNDIALS_LOGGING_EXTRA_DEBUG
   SUNLogger_QueueMsg(ARK_LOGGER, SUN_LOGLEVEL_DEBUG,
@@ -2033,9 +2030,9 @@ int arkStep_TakeStep_Z(void* arkode_mem, realtype *dsmPtr, int *nflagPtr)
 
 #if SUNDIALS_LOGGING_LEVEL >= SUNDIALS_LOGGING_INFO
   SUNLogger_QueueMsg(ARK_LOGGER, SUN_LOGLEVEL_INFO,
-                     "ARKODE::arkStep_TakeStep_Z", "error-test",
-                     "step = %li, h = %"RSYM", dsm = %"RSYM,
-                     ark_mem->nst, ark_mem->h, *dsmPtr);
+                     "ARKODE::arkStep_TakeStep_Z", "end-step",
+                     "step = %li, h = %"RSYM", dsm = %"RSYM", nflag = %d",
+                     ark_mem->nst, ark_mem->h, *dsmPtr, *nflagPtr);
 #endif
 
   return(ARK_SUCCESS);
