@@ -456,6 +456,7 @@ static void InitUserData(UserData data, MPI_Comm comm, int nprocsx, int nprocsy,
       (data->Jbd)[lx][ly]   = SUNDlsMat_newDenseMat(NVARS, NVARS);
       (data->pivot)[lx][ly] = SUNDlsMat_newIndexArray(NVARS);
     }
+  }
 #endif
 
   /* Give device a copy of UserData */
@@ -463,10 +464,9 @@ static void InitUserData(UserData data, MPI_Comm comm, int nprocsx, int nprocsy,
 #if defined(SUNDIALS_HYPRE_BACKENDS_CUDA_OR_HIP)
   NV_ADD_LANG_PREFIX_PH(Malloc)((void**)&data->data_dev,sizeof *data);
   CHECK_LAST_ERROR();
-  NV_ADD_LANG_PREFIX_PH(Memcpy)(data_dev,data,sizeof *data,NV_ADD_LANG_PREFIX_PH(MemcpyHostToDevice));
+  NV_ADD_LANG_PREFIX_PH(Memcpy)(data->data_dev,data,sizeof *data,NV_ADD_LANG_PREFIX_PH(MemcpyHostToDevice));
   CHECK_LAST_ERROR();
 #endif
-  }
 }
 
 /* Free user data memory */
@@ -795,10 +795,12 @@ static void ucomm(UserData data, realtype t, N_Vector u)
 
   /* Fill device send buffer and copy to host */
 #if defined(SUNDIALS_HYPRE_BACKENDS_CUDA_OR_HIP)
-  unsigned sendlen = data->bufslen/2; 
-  unsigned block   = 256;
-  unsigned grid    = (sendlen/NVARS + block - 1) / block;
-  FillSendBufferKernel(data->data_dev, udata);
+  unsigned sendlen  = data->bufslen/2; 
+  unsigned block    = 256;
+  unsigned grid     = (sendlen/NVARS + block - 1) / block;
+  UserData data_dev = (UserData) data->data_dev;
+  
+  FillSendBufferKernel<<<grid,block>>>(data_dev, udata);
 
   NV_ADD_LANG_PREFIX_PH(Memcpy)(data->bufs,data->bufs_dev,sendlen*sizeof(realtype),NV_ADD_LANG_PREFIX_PH(MemcpyDeviceToHost));
   CHECK_LAST_ERROR();
@@ -1074,9 +1076,7 @@ static int f(realtype t, N_Vector u, N_Vector udot, void *user_data)
 {
   realtype *udata, *udotdata;
   UserData data;
-#if defined(SUNDIALS_HYPRE_BACKENDS_CUDA_OR_HIP)
-  UserData data_dev;
-#endif
+
   HYPRE_ParVector uhyp;
   HYPRE_ParVector udothyp;
 
@@ -1088,11 +1088,8 @@ static int f(realtype t, N_Vector u, N_Vector udot, void *user_data)
   udata    = hypre_VectorData(hypre_ParVectorLocalVector(uhyp));
   udotdata = hypre_VectorData(hypre_ParVectorLocalVector(udothyp));
 
-  /* Extract UserData pointers*/
+  /* Extract UserData */
   data     = (UserData) user_data;
-#if defined(SUNDIALS_HYPRE_BACKENDS_CUDA_OR_HIP)
-  data_dev = (UserData) data->data_dev;
-#endif
 
   /* Call ucomm to do inter-processor communication */
   ucomm(data, t, u);
@@ -1101,9 +1098,11 @@ static int f(realtype t, N_Vector u, N_Vector udot, void *user_data)
 #if defined(SUNDIALS_HYPRE_BACKENDS_SERIAL)
   fcalc(data, t, udata, udotdata);
 #elif defined(SUNDIALS_HYPRE_BACKENDS_CUDA_OR_HIP)
-  unsigned block = 256;
-  unsigned grid  = (data->local_M + block - 1) / block;
-  fcalcKernel(data_dev, t, udata, udotdata);
+  unsigned block    = 256;
+  unsigned grid     = (data->local_M + block - 1) / block;
+  UserData data_dev = (UserData) data->data_dev;
+
+  fcalcKernel<<<grid,block>>>(data_dev, t, udata, udotdata);
 #endif
 
   return(0);
