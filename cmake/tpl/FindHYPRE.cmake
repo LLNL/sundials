@@ -124,10 +124,10 @@ endif()
 
 # --- Add libraries for backend support ---
 if(SUNDIALS_HYPRE_BACKENDS MATCHES "CUDA")
-  list(APPEND HYPRE_LIBRARIES CUDA::cublas CUDA::cusparse CUDA::curand)
-#   find_package(CUDA REQUIRED)
-#   include_directories(${CUDA_INCLUDE_DIRS})
-#   list(APPEND HYPRE_INCLUDE_DIR ${CUDA_INCLUDE_DIRS})
+  list(APPEND HYPRE_LIBRARIES CUDA::cublas CUDA::cusparse CUDA::cusolver CUDA::curand)
+elseif(SUNDIALS_HYPRE_BACKENDS MATCHES "HIP")
+  list(APPEND HYPRE_LIBRARIES roc::hipblas roc::hipsparse roc::hipsolver roc::hiprand)
+  list(APPEND HYPRE_LIBRARIES roc::rocblas roc::rocsparse roc::rocsolver roc::rocrand)
 endif()
 
 # --- Set package variables including HYPRE_FOUND ---
