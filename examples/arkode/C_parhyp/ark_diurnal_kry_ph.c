@@ -148,11 +148,11 @@
 #define IJth(a,i,j) (a[j-1][i-1])
 
 /* User-defined MPI assert macro */
-#define MPI_ASSERT(expr,msg,comm,myproc,code)                            \
-  if(!(expr)) {                                                          \
-    fprintf(stderr, "ERROR in %s (%s line %d): %s",                      \
-        __func__, __FILE__, __LINE__, "\n──> "msg"\n──> Aborting...\n"); \
-    MPI_Abort(comm,code);                                                \
+#define MPI_ASSERT(expr,msg,comm,myproc,code)                              \
+  if(!(expr)) {                                                            \
+    fprintf(stderr, "ERROR in %s (%s line %d): %s",                        \
+        __func__, __FILE__, __LINE__, "\n──> " msg "\n──> Aborting...\n"); \
+    MPI_Abort(comm,code);                                                  \
   }
 
 /* User-defined GPU error checking */
@@ -1075,7 +1075,7 @@ static int f(realtype t, N_Vector u, N_Vector udot, void *user_data)
   realtype *udata, *udotdata;
   UserData data;
 #if defined(SUNDIALS_HYPRE_BACKENDS_CUDA_OR_HIP)
-  UserData *data_dev;
+  UserData data_dev;
 #endif
   HYPRE_ParVector uhyp;
   HYPRE_ParVector udothyp;
@@ -1110,6 +1110,7 @@ static int f(realtype t, N_Vector u, N_Vector udot, void *user_data)
 }
 
 /* Preconditioner setup routine. Generate and preprocess P. */
+#if defined(SUNDIALS_HYPRE_BACKENDS_SERIAL)
 static int Precond(realtype tn, N_Vector u, N_Vector fu,
                    booleantype jok, booleantype *jcurPtr,
                    realtype gamma, void *user_data)
@@ -1224,7 +1225,7 @@ static int PSolve(realtype tn, N_Vector u, N_Vector fu,
 
   return(0);
 }
-
+#endif // end SERIAL-only preconditioning
 
 /*********** Private function to check function return values ***********/
 
