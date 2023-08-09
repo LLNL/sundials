@@ -13,7 +13,11 @@
  * ---------------------------------------------------------------------------
  * IMEX Dahlquist problem:
  *
- * y' = lambda_e * y + lambda_i * y
+ * 1) y' = lambda_e * y + lambda_i * y
+ * 2) M y' = M (lambda_e * y + lambda_i * y)
+ * 3) M(t) y' = M(t) (lambda_e * y + lambda_i * y)
+ *
+ * >>>> WHY do FE and BE fail currently? <<<<<<
  * ---------------------------------------------------------------------------*/
 
 // Header files
@@ -45,6 +49,13 @@
 #define TWO     SUN_RCONST(2.0)
 
 // Method types
+enum class prob_type
+{
+  identity,
+  fixed_mass_matrix,
+  time_dependent_mass_matrix
+};
+
 enum class method_type
 {
   expl,
@@ -63,6 +74,7 @@ struct ProblemData
 {
   sunrealtype lambda_e = NEG_ONE;
   sunrealtype lambda_i = NEG_ONE;
+  prob_type   p_type   = prob_type::identity;
 };
 
 // Problem options
@@ -89,6 +101,8 @@ int fe(sunrealtype t, N_Vector y, N_Vector ydot, void* user_data);
 int fi(sunrealtype t, N_Vector y, N_Vector ydot, void* user_data);
 int Ji(sunrealtype t, N_Vector y, N_Vector fy, SUNMatrix J, void* user_data,
        N_Vector tmp1, N_Vector tmp2, N_Vector tmp3);
+int MassMatrix(sunrealtype t, SUNMatrix M, void *user_data, N_Vector tmp1,
+               N_Vector tmp2, N_Vector tmp3);
 
 // Private function to check function return values
 int check_flag(void* flagvalue, const std::string funcname, int opt);
@@ -123,19 +137,47 @@ int main(int argc, char* argv[])
   // Check for inputs
   if (argc > 1)
   {
-    if (std::stoi(argv[1]) == 0)
+    if (std::stoi(argv[1]) == 1)
     {
-      prob_opts.i_type = interp_type::hermite;
+      prob_data.p_type = prob_type::fixed_mass_matrix;
+    }
+    else if (std::stoi(argv[1]) == 2)
+    {
+      prob_data.p_type = prob_type::time_dependent_mass_matrix;
     }
     else
     {
+      prob_data.p_type = prob_type::identity;
+    }
+  }
+
+  if (argc > 2)
+  {
+    if (std::stoi(argv[2]) == 1)
+    {
       prob_opts.i_type = interp_type::lagrange;
+    }
+    else
+    {
+      prob_opts.i_type = interp_type::hermite;
     }
   }
 
   // Output problem setup
-  std::cout << "\nDahlquist ODE test problem:\n"
-            << "  lambda expl  = " << prob_data.lambda_e << "\n"
+  std::cout << "\nDahlquist ODE test problem:\n";
+  if (prob_data.p_type == prob_type::identity)
+  {
+    std::cout << "  problem type = Identity\n";
+  }
+  else if (prob_data.p_type == prob_type::fixed_mass_matrix)
+  {
+    std::cout << "  problem type = Fixed mass matrix\n";
+  }
+  else
+  {
+    std::cout << "  problem type = Time-dependent mass matrix\n";
+  }
+  std::cout << "  lambda expl  = " << prob_data.lambda_e << "\n"
             << "  lambda impl  = " << prob_data.lambda_i << "\n"
             << "  step size    = " << prob_opts.h << "\n"
             << "  relative tol = " << prob_opts.reltol << "\n"
@@ -396,20 +438,6 @@ int run_tests(ARKodeButcherTable Be, ARKodeButcherTable Bi,
 
   N_VConst(SUN_RCONST(1.0), y);
 
-  // Create matrix and linear solver (if necessary)
-  SUNMatrix A        = nullptr;
-  SUNLinearSolver LS = nullptr;
-
-  if (m_type == method_type::impl || m_type == method_type::imex)
-  {
-    // Initialize dense matrix data structures and solvers
-    A = SUNDenseMatrix(1, 1, sunctx);
-    if (check_flag((void*)A, "SUNDenseMatrix", 0)) return 1;
-
-    LS = SUNLinSol_Dense(y, A, sunctx);
-    if (check_flag((void*)LS, "SUNLinSol_Dense", 0)) return 1;
-  }
-
   // -----------------
   // Create integrator
   // -----------------
@@ -443,6 +471,10 @@ int run_tests(ARKodeButcherTable Be, ARKodeButcherTable Bi,
   flag = ARKStepSetFixedStep(arkstep_mem, prob_opts.h);
   if (check_flag(&flag, "ARKStepSetFixedStep", 1)) return 1;
 
+  // Attach Butcher tables <<<<<<< correct method order?
+  flag = ARKStepSetTables(arkstep_mem, 1, 0, Bi, Be);
+  if (check_flag(&flag, "ARKStepSetTables", 1)) return 1;
+
   // Lagrange interpolant (removes additional RHS evaluation with DIRK methods)
   if (prob_opts.i_type == interp_type::lagrange)
   {
@@ -450,8 +482,19 @@ int run_tests(ARKodeButcherTable Be, ARKodeButcherTable Bi,
     if (check_flag(&flag, "ARKStepSetInterpolantType", 1)) return 1;
   }
 
+  // Create matrix and linear solver (if necessary)
+  SUNMatrix A        = nullptr;
+  SUNLinearSolver LS = nullptr;
+
   if (m_type == method_type::impl || m_type == method_type::imex)
   {
+    // Initialize dense matrix data structures and solvers
+    A = SUNDenseMatrix(1, 1, sunctx);
+    if (check_flag((void*)A, "SUNDenseMatrix", 0)) return 1;
+
+    LS = SUNLinSol_Dense(y, A, sunctx);
+    if (check_flag((void*)LS, "SUNLinSol_Dense", 0)) return 1;
+
     // Attach linear solver
     flag = ARKStepSetLinearSolver(arkstep_mem, LS, A);
     if (check_flag(&flag, "ARKStepSetLinearSolver", 1)) return 1;
@@ -465,9 +508,29 @@ int run_tests(ARKodeButcherTable Be, ARKodeButcherTable Bi,
     if (check_flag(&flag, "ARKStepSetLinear", 1)) return 1;
   }
 
-  // Attach Butcher tables
-  flag = ARKStepSetTables(arkstep_mem, 1, 0, Bi, Be);
-  if (check_flag(&flag, "ARKStepSetTables", 1)) return 1;
+  // Create mass matrix and linear solver (if necessary)
+  SUNMatrix M = nullptr;
+  SUNLinearSolver MLS = nullptr;
+
+  if (prob_data.p_type == prob_type::fixed_mass_matrix ||
+      prob_data.p_type == prob_type::time_dependent_mass_matrix)
+  {
+    M = SUNDenseMatrix(1, 1, sunctx);
+    if (check_flag((void *)M, "SUNDenseMatrix", 0)) return 1;
+
+    MLS = SUNLinSol_Dense(y, M, sunctx);
+    if (check_flag((void *)MLS, "SUNLinSol_Dense", 0)) return 1;
+
+    int time_dep = 0;
+    if (prob_data.p_type == prob_type::time_dependent_mass_matrix)
+      time_dep = 1;
+
+    flag = ARKStepSetMassLinearSolver(arkstep_mem, MLS, M, time_dep);
+    if (check_flag(&flag, "ARKStepSetMassLinearSolver", 1)) return 1;
+
+    flag = ARKStepSetMassFn(arkstep_mem, MassMatrix);
+    if (check_flag(&flag, "ARKStepSetMassFn", 1)) return 1;
+  }
 
   // --------------
   // Evolve in time
@@ -597,11 +660,10 @@ int run_tests(ARKodeButcherTable Be, ARKodeButcherTable Bi,
   // --------
 
   ARKStepFree(&arkstep_mem);
-  if (m_type == method_type::impl || m_type == method_type::imex)
-  {
-    SUNLinSolFree(LS);
-    SUNMatDestroy(A);
-  }
+  SUNLinSolFree(LS);
+  SUNMatDestroy(A);
+  SUNLinSolFree(MLS);
+  SUNMatDestroy(M);
   N_VDestroy(y);
 
   return numfails;
@@ -806,6 +868,15 @@ int fe(sunrealtype t, N_Vector y, N_Vector ydot, void* user_data)
 
   yd_data[0] = prob_data->lambda_e * y_data[0];
 
+  if (prob_data->p_type == prob_type::fixed_mass_matrix)
+  {
+    yd_data[0] *= TWO;
+  }
+  else if (prob_data->p_type == prob_type::time_dependent_mass_matrix)
+  {
+    yd_data[0] *= TWO + std::cos(t);
+  }
+
   return 0;
 }
 
@@ -818,6 +889,15 @@ int fi(sunrealtype t, N_Vector y, N_Vector ydot, void* user_data)
 
   yd_data[0] = prob_data->lambda_i * y_data[0];
 
+  if (prob_data->p_type == prob_type::fixed_mass_matrix)
+  {
+    yd_data[0] *= TWO;
+  }
+  else if (prob_data->p_type == prob_type::time_dependent_mass_matrix)
+  {
+    yd_data[0] *= TWO + std::cos(t);
+  }
+
   return 0;
 }
 
@@ -829,6 +909,24 @@ int Ji(sunrealtype t, N_Vector y, N_Vector fy, SUNMatrix J, void* user_data,
   ProblemData* prob_data = static_cast<ProblemData*>(user_data);
 
   J_data[0] = prob_data->lambda_i;
+
+  return 0;
+}
+
+int MassMatrix(sunrealtype t, SUNMatrix M, void *user_data, N_Vector tmp1,
+               N_Vector tmp2, N_Vector tmp3)
+{
+  sunrealtype* M_data    = SUNDenseMatrix_Data(M);
+  ProblemData* prob_data = static_cast<ProblemData*>(user_data);
+
+  if (prob_data->p_type == prob_type::fixed_mass_matrix)
+  {
+    M_data[0] = TWO;
+  }
+  else
+  {
+    M_data[0] = TWO + std::cos(t);
+  }
 
   return 0;
 }
