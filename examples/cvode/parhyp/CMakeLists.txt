@@ -37,6 +37,8 @@ foreach(example_tuple ${CVODE_examples})
 
   if(SUNDIALS_HYPRE_BACKENDS MATCHES "CUDA")
     set_source_files_properties(${example} PROPERTIES LANGUAGE CUDA)
+  elseif(SUNDIALS_HYPRE_BACKENDS MATCHES "HIP")
+    set_source_files_properties(${example} PROPERTIES LANGUAGE HIP)
   endif()
 
   # extract the file name without extension

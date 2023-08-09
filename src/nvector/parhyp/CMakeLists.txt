@@ -18,9 +18,15 @@ install(CODE "MESSAGE(\"\nInstall NVECTOR_PARHYP with ${SUNDIALS_HYPRE_BACKENDS}
 
 if(SUNDIALS_HYPRE_BACKENDS MATCHES "CUDA")
   set_source_files_properties(nvector_parhyp.c PROPERTIES LANGUAGE CUDA)
-  set(_memhelper sundials_sunmemcuda_obj)
-  set(_cxx_std cxx_std_14)
-  set(_extra_includes ${CMAKE_SOURCE_DIR}/src/nvector/cuda)
+  set(_gpu_cxx_std        cxx_std_14)
+  set(_gpu_sunmem_lib     sundials_sunmemcuda_obj)
+  set(_gpu_extra_includes ${CMAKE_SOURCE_DIR}/src/nvector/cuda)
+  
+elseif(SUNDIALS_HYPRE_BACKENDS MATCHES "HIP")
+  set_source_files_properties(nvector_parhyp.c PROPERTIES LANGUAGE HIP)  
+  set(_gpu_cxx_std        cxx_std_14)
+  set(_gpu_sunmem_lib     sundials_sunmemhip_obj)
+  set(_gpu_extra_libs     hip::device)
 endif()
 
 # Create the library
@@ -33,17 +39,18 @@ sundials_add_library(sundials_nvecparhyp
     nvector
   OBJECT_LIBRARIES
     sundials_generic_obj
-    ${_memhelper}
+    ${_gpu_sunmem_lib}
   LINK_LIBRARIES
     PUBLIC
     MPI::MPI_C
     SUNDIALS::HYPRE
+    ${_gpu_extra_libs}
   INCLUDE_DIRECTORIES
     PRIVATE
-    ${_extra_includes}
+    ${_gpu_extra_includes}
   COMPILE_FEATURES
     PUBLIC
-    ${_cxx_std}
+    ${_gpu_cxx_std}
   OUTPUT_NAME
     sundials_nvecparhyp
   VERSION
