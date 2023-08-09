@@ -36,7 +36,6 @@ def main():
     runDir = runDirs[0]
 
     runFile = glob.glob(runDir)[0]
-    # Load in file to access release value
     th_temp = tt.Thicket.from_caliperreader(runFile) 
     if release:
         # Compare against the last release
@@ -44,7 +43,7 @@ def main():
         versionDirs.sort(key=os.path.getmtime, reverse=True)
         versionDir = versionDirs[1]
     else:
-        # Compare against latest release
+        # Compare against the release the run is a part of
         version = th_temp.metadata['sundials_version'].values[0]
         versionDir = "%s/%s" % (releaseDir, version)
 
@@ -62,7 +61,7 @@ def main():
                 outFile.write(res + "\n")
     outFile.close()
 
-    outFile = open("%s/output.out" % outPath, 'r')
+    outFile = open("%s/example_output.out" % outPath, 'r')
     try:
         outLines = outFile.readlines()
     finally:
@@ -72,20 +71,21 @@ def main():
         return -1 
     return 0
 
+
 def compare_against_release(releaseDir, file):
     th = tt.Thicket.from_caliperreader(file)
 
     testName = th.metadata['env.TEST_NAME'].values[0]
 
     # Gather release run
-    release_file = glob.glob("%s/Testing/*/%s.*.cali" % (releaseDir, testName), recursive=True)
-    release_th = tt.Thicket.from_caliperreader(release_file)
+    releaseFile = glob.glob("%s/Testing/*/%s.*.cali" % (releaseDir, testName), recursive=True)
+    th_release = tt.Thicket.from_caliperreader(releaseFile)
 
     metrics = ['Max time/rank']
-    tt.mean(release_th, columns=metrics)
+    tt.mean(th_release, columns=metrics)
     tt.mean(th, columns=metrics)
 
-    ratio = th.statsframe.dataframe['Max time/rank_mean'] / release_th.statsframe.dataframe['Max time/rank_mean']
+    ratio = th.statsframe.dataframe['Max time/rank_mean'] / th_release.statsframe.dataframe['Max time/rank_mean']
     print(ratio[0])
     tolerance = 0.0002
     if 1 - ratio[0] < tolerance:
