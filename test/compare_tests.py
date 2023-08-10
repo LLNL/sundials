@@ -37,15 +37,17 @@ def main():
 
     runFile = glob.glob(runDir)[0]
     th_temp = tt.Thicket.from_caliperreader(runFile) 
+    cluster = th_temp.metadata['cluster']
+    # get machine from the file
     if release:
         # Compare against the last release
-        versionDirs = glob.glob("%s/*" % releaseDir)
+        versionDirs = glob.glob("%s/%s/*" % (releaseDir, cluster))
         versionDirs.sort(key=os.path.getmtime, reverse=True)
         versionDir = versionDirs[1]
     else:
         # Compare against the release the run is a part of
         version = th_temp.metadata['sundials_version'].values[0]
-        versionDir = "%s/%s" % (releaseDir, version)
+        versionDir = "%s/%s/%s" % (releaseDir, cluster, version)
 
     # Gather files to process
     runFiles = glob.glob("%s/*.cali" % (runDir))

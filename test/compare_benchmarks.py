@@ -53,31 +53,30 @@ def main():
     return 0
 
 def process_benchmark(jobID, isRelease, releaseDir, benchmarkDir):
-
     # Get the current benchmark run
     benchmarkFiles = glob.glob("%s/*.cali" % benchmarkDir)
+    # Don't compare if the run didn't include this benchmark
+    if (len(benchmarkFiles) == 0):
+        return 
+    
     th_files = tt.Thicket.from_caliperreader(benchmarkFiles)
     curFilter = lambda x: x['job_id'] == jobID
     th_current = th_files.filter_metadata(curFilter)
 
-    # Don't compare if the run didn't include this benchmark
-    if (th_current.dataframe.size == 0):
-        return
-
     # Get the release caliper file
+    cluster = th_current.metadata['cluster'].values[0]
     if isRelease:
         # Get the last release
-        versionDirs = glob.glob("%s/*" % releaseDir)
+        versionDirs = glob.glob("%s/%s/*" % (releaseDir, cluster))
         versionDirs.sort(key=os.path.getmtime, reverse=True)
         versionDir = versionDirs[1]
     else:
         # Get the release the run is a part of
         version = th_current.metadata['sundials_version'].values[0]
-        versionDir = "%s/%s" % (releaseDir, version)
+        versionDir = "%s/%s/%s" % (releaseDir, cluster, version)
     benchmarkName = th_current.metadata['env.TEST_NAME'].values[0]
     releaseFile = glob.glob("%s/Benchmarking/*/%s/*.cali" % (versionDir, benchmarkName), recursive=True)
     th_compare = tt.Thicket.from_caliperreader(releaseFile)
-
     metrics = ['Max time/rank']
     tt.mean(th_current, columns=metrics)
     tt.mean(th_compare, columns=metrics)
