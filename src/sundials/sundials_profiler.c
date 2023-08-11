@@ -363,12 +363,16 @@ int SUNProfiler_Print(SUNProfiler p, FILE* fp)
     sunTimespec spec;
     /* Sort the timers in descending order */
     if (SUNHashMap_Sort(p->map, &sorted, sunCompareTimes)) return (-1);
+#if defined(SUNDIALS_HAVE_POSIX_TIMERS)
     clock_getres(CLOCK_MONOTONIC, &spec);
+#endif
     fprintf(fp, "\n============================================================"
                 "====================================================\n");
     fprintf(fp, "SUNDIALS GIT VERSION: %s\n", SUNDIALS_GIT_VERSION);
     fprintf(fp, "SUNDIALS PROFILER: %s\n", p->title);
+#if defined(SUNDIALS_HAVE_POSIX_TIMERS)
     fprintf(fp, "TIMER RESOLUTION: %gs\n", 1e-9 * ((double)spec.tv_nsec));
+#endif
     fprintf(fp, "%-40s\t %% time (inclusive) \t max/rank \t average/rank \t count \n",
             "RESULTS:");
     fprintf(fp, "=============================================================="
@@ -522,8 +526,8 @@ int sunCompareTimes(const void* l, const void* r)
 int sunclock_gettime_monotonic(sunTimespec* ts)
 {
 #if (defined(WIN32) || defined(_WIN32)) && !defined(SUNDIALS_HAVE_POSIX_TIMERS)
-  static long ticks_per_sec;
-  long ticks;
+  static LARGE_INTEGER ticks_per_sec;
+  LARGE_INTEGER ticks;
 
   if (!ticks_per_sec.QuadPart)
   {
