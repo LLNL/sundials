@@ -509,8 +509,8 @@ int sunCompareTimes(const void* l, const void* r)
 int sunclock_gettime_monotonic(struct timespec* ts)
 {
 #if (defined(WIN32) || defined(_WIN32))
-  static LARGE_INTEGER ticks_per_sec;
-  LARGE_INTEGER ticks;
+  static long ticks_per_sec;
+  long ticks;
 
   if (!ticks_per_sec.QuadPart)
   {
@@ -524,8 +524,8 @@ int sunclock_gettime_monotonic(struct timespec* ts)
 
   QueryPerformanceCounter(&ticks);
 
-  ts->ts_sec  = (long)(ticks.QuadPart / ticks_per_sec.QuadPart);
-  ts->ts_nsec = (long)(((ticks.QuadPart % ticks_per_sec.QuadPart) * 1000000000) /
+  ts->tv_sec  = (long)(ticks.QuadPart / ticks_per_sec.QuadPart);
+  ts->tv_nsec = (long)(((ticks.QuadPart % ticks_per_sec.QuadPart) * 1000000000) /
                        ticks_per_sec.QuadPart);
 
   return 0;
