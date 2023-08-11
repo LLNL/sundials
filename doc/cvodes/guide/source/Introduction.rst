@@ -132,6 +132,9 @@ Fixed scaling bug in ``SUNMatScaleAddI_Sparse`` for non-square matrices.
 Fixed missing soversions in some ``SUNLinearSolver`` and ``SUNNonlinearSolver``
 CMake targets.
 
+Changed the ``SUNProfiler`` so that it does not rely on ``MPI_WTime`` in any case.
+This fixes `GitHub Issue #312 <https://github.com/LLNL/sundials/issues/312>`_. 
+
 Changes in v6.6.1
 -----------------
 

@@ -110,6 +110,9 @@ Updated the Tpetra NVector interface to support Trilinos 14.
 Fixed a memory leak when destroying a CUDA, HIP, SYCL, or system SUNMemoryHelper
 object.
 
+Changed the ``SUNProfiler`` so that it does not rely on ``MPI_WTime`` in any case.
+This fixes `GitHub Issue #312 <https://github.com/LLNL/sundials/issues/312>`_. 
+
 Changes in v6.6.0
 -----------------
 
