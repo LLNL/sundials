@@ -19,6 +19,13 @@ if(BUILD_ARKODE AND BUILD_CVODE AND BUILD_IDA)
     set(OTHER_LIBS OpenMP::OpenMP_CXX)
   endif()
 
+  # Set up parameters to run benchmarks with
+  set(BENCHMARK_VAR
+  "--method ARK-IMEX --nls tl-newton --tf 0.01 --dont-save\;arkimex_tlnewton"
+  "--method ARK-DIRK --nls newton --tf 0.01 --dont-save\;arkdirk_newton"
+  "--method CV-BDF --nls newton --tf 0.01 --dont-save\;cvbdf_newton"
+  "--method IDA --nls newton --tf 0.01 --dont-save\;ida_newton")
+
   # ----------------------------------------------------------------------------
   # MPI only
   # ----------------------------------------------------------------------------
@@ -57,6 +64,17 @@ if(BUILD_ARKODE AND BUILD_CVODE AND BUILD_IDA)
 
   install(FILES README.md ../scripts/compare_error.py ../scripts/compute_error.py ../scripts/pickle_solution_output.py
     DESTINATION "${BENCHMARKS_INSTALL_PATH}/advection_reaction_3D/raja")
+
+  foreach(benchmark_tuple ${BENCHMARK_VAR})
+    list(GET benchmark_tuple 0 benchmark_args)
+    list(GET benchmark_tuple 1 identifier)
+
+    sundials_add_benchmark(advection_reaction_3D_raja advection_reaction_3D_raja advection_reaction_3D
+      NUM_CORES ${SUNDIALS_BENCHMARK_NUM_CPUS}
+      BENCHMARK_ARGS ${benchmark_args}
+      IDENTIFIER ${identifier}
+      )
+  endforeach()
 
   # ----------------------------------------------------------------------------
   # MPI + CUDA
@@ -105,6 +123,16 @@ if(BUILD_ARKODE AND BUILD_CVODE AND BUILD_IDA)
     install(TARGETS advection_reaction_3D_raja_mpicuda
       DESTINATION "${BENCHMARKS_INSTALL_PATH}/advection_reaction_3D/raja")
 
+    foreach(benchmark_tuple ${BENCHMARK_VAR})
+      list(GET benchmark_tuple 0 benchmark_args)
+      list(GET benchmark_tuple 1 identifier)
+
+      sundials_add_benchmark(advection_reaction_3D_raja_mpicuda advection_reaction_3D_raja_mpicuda advection_reaction_3D
+        ENABLE_GPU
+        NUM_CORES ${SUNDIALS_BENCHMARK_NUM_GPUS}
+        BENCHMARK_ARGS ${benchmark_args}
+        IDENTIFIER ${identifier})
+    endforeach()
   endif()
 
   # ----------------------------------------------------------------------------
@@ -146,6 +174,15 @@ if(BUILD_ARKODE AND BUILD_CVODE AND BUILD_IDA)
     install(TARGETS advection_reaction_3D_raja_mpihip
       DESTINATION "${BENCHMARKS_INSTALL_PATH}/advection_reaction_3D/raja")
 
-  endif()
+    foreach(benchmark_tuple ${BENCHMARK_VAR})
+      list(GET benchmark_tuple 0 benchmark_args)
+      list(GET benchmark_tuple 1 identifier)
 
+      sundials_add_benchmark(advection_reaction_3D_raja_mpihip advection_reaction_3D_raja_mpihip advection_reaction_3D
+        ENABLE_GPU
+        NUM_CORES ${SUNDIALS_BENCHMARK_NUM_GPUS}
+        BENCHMARK_ARGS ${benchmark_args}
+        IDENTIFIER ${identifier})
+    endforeach()
+  endif()
 endif()

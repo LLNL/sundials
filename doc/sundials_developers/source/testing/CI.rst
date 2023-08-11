@@ -11,8 +11,8 @@
    SUNDIALS Copyright End
    -----------------------------------------------------------------------------
 
-GitHub
-======
+GitHub CI Testing 
+=================
 
 There are two types of CI testing that we run on GitHub via `GitHub actions <https://github.com/LLNL/sundials/actions>`_:
 
@@ -95,8 +95,8 @@ GitHub action) every week against the latest Spack develop commit. This allows u
 the latest versions of dependencies reguarly and detect interface breakages.
 
 
-GitLab
-======
+GitLab CI Testing
+=================
 
 This section provides an overview of the GitLab continuous integration (CI)
 features and describes the SUNDIALS GitLab CI setup. For more information see
@@ -238,14 +238,7 @@ then used to create an environment variable ``SPEC`` with a Spack spec used by
 Benchmark Jobs
 ^^^^^^^^^^^^^^
 
-The CI suite can run the regular SUNDIALS tests, or it can run the SUNDIALS
-benchmark problems in ``becnhmarks/``.  The benchmark problems can be
-run instead of the regular test suite by setting the ``BENCHMARK`` variable
-to ``ON`` when running a pipeline from the GitLab CI UI. The benchmark
-problems are run with Caliper and a report for Spot and a human-readable
-runtime-report are generated. The runtime-report is printed to the stdout
-and can be viewed in the GitLab CI job output. The Spot output files are made
-available as job artifacts.
+See :ref:`SUNDIALS Continuous Performance Testing (CPT)<CPT>` for more details.
 
 GitLab CI Test Script
 ---------------------
@@ -265,7 +258,7 @@ build, and test SUNDIALS. This script leverages two Git submodules:
   repository that provides spack configuration files for various LLNL platfornms
   i.e., ``compilers.yaml`` and ``packages.yaml`` files for Quartz, Lassen, etc.
 
-These submodues work in conjunction with ``spack_packages/sundials/package.py``
+These submodules work in conjunction with ``spack_packages/sundials/package.py``
 to configure and build any third-party libraries needed by the SUNDIALS
 configuration and generates an initial CMake cache file for building SUNDIALS.
 Other packages can be added to ``spack_packages/<package name>/package.py``
@@ -277,9 +270,11 @@ Updating Spack
 
 To update the spack commit used for the CI:
 
-1. The first thing to do is update the spack commit in the ``.uberenv_config.json`` file.
-2. Then, a pipeline should be manually launched from the GitLab UI with the ``SHARED_SPACK`` CI variable set
-to ``ON`` and the ``SPACK_PREFIX`` variable to the version of spack being set in the uberenv_config.json. 
+1. The first thing to do is update the spack commit in the
+``.uberenv_config.json`` file.
+2. Then, a pipeline should be manually launched from the GitLab UI with the
+``SHARED_SPACK`` CI variable set to ``ON`` and the ``SPACK_PREFIX`` variable to
+the version of spack being set in the uberenv_config.json.
 
 This will create a new spack installation and rebuild all of the specs. 
 

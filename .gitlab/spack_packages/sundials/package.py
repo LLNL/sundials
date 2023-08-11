@@ -120,6 +120,7 @@ class Sundials(CachedCMakePackage, CudaPackage, ROCmPackage):
     variant("sycl", default=False, when="@5.7.0:", description="Enable SYCL vector")
 
     # External libraries
+    variant("adiak", default=False, when="@6.6.0:", description="Enable Adiak interfaces")
     variant(
         "caliper",
         default=False,
@@ -181,7 +182,25 @@ class Sundials(CachedCMakePackage, CudaPackage, ROCmPackage):
     )
 
     # Scheduler
-    variant("scheduler", default="default", description="Specify which scheduler the system runs on.", values=("flux", "lsf", "slurm", "default"))
+    variant(
+        "scheduler", 
+        default="slurm", 
+        description="Specify which scheduler the system runs on", 
+        values=("flux", "lsf", "slurm")
+    )
+
+    # Benchmarking
+    variant("benchmarks", default=False, description="Build benchmark programs")
+
+    # Profiling examples
+    variant(
+        "profile-examples", 
+        default=False, 
+        when="+adiak +caliper", 
+        description="Build examples with profiling capabilities")
+
+    # Caliper Directory
+    variant("caliper-dir", default="none", description="Specify where to place Caliper files")
 
     # ==========================================================================
     # Dependencies
@@ -203,6 +222,7 @@ class Sundials(CachedCMakePackage, CudaPackage, ROCmPackage):
     depends_on("raja+rocm", when="+raja +rocm")
 
     # External libraries
+    depends_on("adiak", when="+adiak")
     depends_on("caliper", when="+caliper")
     depends_on("ginkgo@1.5.0:", when="+ginkgo")
     depends_on("kokkos", when="+kokkos")
@@ -672,11 +692,11 @@ class Sundials(CachedCMakePackage, CudaPackage, ROCmPackage):
                 ]
             )
             if "scheduler=flux" in spec:
-                entries.append(cmake_cache_string("SUNDIALS_TEST_MPIRUN_COMMAND", "flux run"))
+                entries.append(cmake_cache_string("SUNDIALS_SCHEDULER_COMMAND", "flux run"))
             if "scheduler=slurm" in spec:
-                entries.append(cmake_cache_string("SUNDIALS_TEST_MPIRUN_COMMAND", "srun"))
+                entries.append(cmake_cache_string("SUNDIALS_SCHEDULER_COMMAND", "srun"))
             if "scheduler=lsf" in spec:
-                entries.append(cmake_cache_string("SUNDIALS_TEST_MPIRUN_COMMAND", "jsrun"))
+                entries.append(cmake_cache_string("SUNDIALS_SCHEDULER_COMMAND", "jsrun"))
                 
 
         return entries
@@ -736,7 +756,15 @@ class Sundials(CachedCMakePackage, CudaPackage, ROCmPackage):
                 self.cache_option_from_variant("SUNDIALS_BUILD_WITH_MONITORING", "monitoring"),
                 # Profiling
                 self.cache_option_from_variant("SUNDIALS_BUILD_WITH_PROFILING", "profiling"),
-                self.cache_option_from_variant("ENABLE_CALIPER", "caliper")
+                self.cache_option_from_variant("ENABLE_CALIPER", "caliper"),
+                self.cache_option_from_variant("ENABLE_ADIAK", "adiak"),
+                # Benchmarking
+                self.cache_option_from_variant("BUILD_BENCHMARKS", "benchmarks"),
+                # Profile examples
+                self.cache_option_from_variant("SUNDIALS_TEST_PROFILE", "profile-examples"),
+                self.cache_option_from_variant("SUNDIALS_TEST_DEVTESTS", "profile-examples"),
+                cmake_cache_string("SPACK_VERSION", ".".join(map(str, spack.spack_version_info)))
+                
             ]
         )
 
@@ -753,6 +781,9 @@ class Sundials(CachedCMakePackage, CudaPackage, ROCmPackage):
         # TPLs
         entries.extend(
             [
+                self.cache_option_from_variant("ENABLE_GINKGO", "ginkgo"),
+                self.cache_option_from_variant("ENABLE_KOKKOS_KERNELS", "kokkos-kernels"),
+                self.cache_option_from_variant("ENABLE_KOKKOS", "kokkos"),
                 self.cache_option_from_variant("ENABLE_SYCL", "sycl"),
                 self.cache_option_from_variant("EXAMPLES_INSTALL", "examples-install"),
                 self.cache_option_from_variant("HYPRE_ENABLE", "hypre"),
@@ -764,15 +795,23 @@ class Sundials(CachedCMakePackage, CudaPackage, ROCmPackage):
                 self.cache_option_from_variant("RAJA_ENABLE", "raja"),
                 self.cache_option_from_variant("SUPERLUDIST_ENABLE", "superlu-dist"),
                 self.cache_option_from_variant("SUPERLUMT_ENABLE", "superlu-mt"),
-                self.cache_option_from_variant("Trilinos_ENABLE", "trilinos"),
-                self.cache_option_from_variant("ENABLE_KOKKOS", "kokkos"),
-                self.cache_option_from_variant("ENABLE_KOKKOS_KERNELS", "kokkos-kernels")
+                self.cache_option_from_variant("Trilinos_ENABLE", "trilinos")
             ]
         )
+
+        # Building with Adiak
+        if "+adiak" in spec: 
+            entries.append(cmake_cache_path("adiak_DIR", spec["adiak"].prefix.lib.cmake + "/adiak"))
 
         # Building with Caliper
         if "+caliper" in spec:
             entries.append(cmake_cache_path("CALIPER_DIR", spec["caliper"].prefix))
+            if "+adiak" in spec["caliper"]:
+                entries.append(cmake_cache_path("adiak_DIR", spec["adiak"].prefix.lib.cmake + "/adiak"))
+
+            if not "caliper-dir=none" in spec:
+                entries.append(self.cache_string_from_variant("SUNDIALS_CALIPER_OUTPUT_DIR", "caliper-dir"))
+
 
         # Building with Ginkgo
         if "+ginkgo" in spec:
@@ -787,7 +826,6 @@ class Sundials(CachedCMakePackage, CudaPackage, ROCmPackage):
                 gko_backends.append("DPCPP")
             entries.extend(
                 [
-                    self.cache_option_from_variant("ENABLE_GINKGO", "ginkgo"),
                     cmake_cache_path("Ginkgo_DIR", spec["ginkgo"].prefix),
                     cmake_cache_string("SUNDIALS_GINKGO_BACKENDS", ";".join(gko_backends)),
                 ]
@@ -928,5 +966,4 @@ class Sundials(CachedCMakePackage, CudaPackage, ROCmPackage):
                     cmake_cache_option("F90_ENABLE", "+examples+fcmix" in spec),
                 ]
             )
-
         return entries

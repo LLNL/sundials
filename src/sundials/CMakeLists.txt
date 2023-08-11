@@ -35,6 +35,7 @@ set(sundials_HEADERS
   sundials_matrix.h
   sundials_matrix.hpp
   sundials_memory.h
+  sundials_memory.hpp
   sundials_mpi_types.h
   sundials_nonlinearsolver.h
   sundials_nonlinearsolver.hpp
@@ -111,8 +112,10 @@ if(SUNDIALS_BUILD_WITH_PROFILING OR SUNDIALS_LOGGING_ENABLE_MPI)
     set(_link_mpi_if_needed PUBLIC ${MPI_C_LIBRARIES})
   endif()
   if(ENABLE_CALIPER)
-    set(_include_caliper_if_needed PUBLIC ${caliper_INCLUDE_DIR})
     set(_link_caliper_if_needed PUBLIC caliper)
+  endif()
+  if(ENABLE_ADIAK)
+    set(_link_adiak_if_needed PUBLIC adiak::adiak ${CMAKE_DL_LIBS})
   endif()
 endif()
 
@@ -126,10 +129,10 @@ sundials_add_library(sundials_generic
     sundials
   INCLUDE_DIRECTORIES
     ${_include_mpi_if_needed}
-    ${_include_caliper_if_needed}
   LINK_LIBRARIES
     ${_link_mpi_if_needed}
     ${_link_caliper_if_needed}
+    ${_link_adiak_if_needed}
   OUTPUT_NAME
     sundials_generic
   VERSION

@@ -63,6 +63,10 @@ if("@ENABLE_CALIPER@" AND NOT TARGET caliper)
   find_dependency(CALIPER PATHS "@CALIPER_DIR@")
 endif()
 
+if("@ENABLE_ADIAK@" AND NOT TARGET adiak::adiak)
+  find_dependency(adiak PATHS "@adiak_DIR@")
+endif()
+
 if("@ENABLE_CUDA@" AND NOT (TARGET CUDA::cudart AND TARGET CUDA::cublas
    AND TARGET CUDA::cusparse AND TARGET CUDA::cusolver))
   find_dependency(CUDAToolkit)
