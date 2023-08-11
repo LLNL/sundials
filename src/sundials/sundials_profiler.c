@@ -29,6 +29,9 @@
 #include <unistd.h>
 #elif !(defined(WIN32) || defined(_WIN32))
 #error POSIX is needed for clock_getttime
+#else
+#include <winnt.h>
+#include <profileapi.h>
 #endif
 
 #include <stdio.h>
@@ -360,7 +363,9 @@ int SUNProfiler_Print(SUNProfiler p, FILE* fp)
 
   if (rank == 0)
   {
+#if defined(SUNDIALS_HAVE_POSIX_TIMERS)
     sunTimespec spec;
+#endif
     /* Sort the timers in descending order */
     if (SUNHashMap_Sort(p->map, &sorted, sunCompareTimes)) return (-1);
 #if defined(SUNDIALS_HAVE_POSIX_TIMERS)
@@ -534,7 +539,6 @@ int sunclock_gettime_monotonic(sunTimespec* ts)
     QueryPerformanceFrequency(&ticks_per_sec);
     if (!ticks_per_sec.QuadPart)
     {
-      errno = ENOTSUP;
       return -1;
     }
   }
