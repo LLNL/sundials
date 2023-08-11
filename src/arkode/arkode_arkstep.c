@@ -1383,6 +1383,7 @@ int arkStep_FullRHS(void* arkode_mem, realtype t, N_Vector y, N_Vector f,
                           "arkStep_FullRHS", MSG_ARK_RHSFUNC_FAILED, t);
           return(ARK_RHSFUNC_FAIL);
         }
+
         /* apply external polynomial forcing */
         if (step_mem->expforcing)
         {
@@ -1391,6 +1392,18 @@ int arkStep_FullRHS(void* arkode_mem, realtype t, N_Vector y, N_Vector f,
           nvec     = 1;
           arkStep_ApplyForcing(step_mem, t, ONE, &nvec);
           N_VLinearCombination(nvec, cvals, Xvecs, step_mem->Fe[0]);
+        }
+
+        if (step_mem->mass_type == MASS_TIMEDEP)
+        {
+          retval = step_mem->msolve((void *) ark_mem, step_mem->Fe[0],
+                                    step_mem->nlscoef / ark_mem->h);
+          if (retval)
+          {
+            arkProcessError(ark_mem, ARK_MASSSOLVE_FAIL, "ARKODE::ARKStep",
+                            "arkStep_FullRHS", "Mass matrix solver failure");
+            return ARK_MASSSOLVE_FAIL;
+          }
         }
       }
 
@@ -1405,6 +1418,7 @@ int arkStep_FullRHS(void* arkode_mem, realtype t, N_Vector y, N_Vector f,
                           "arkStep_FullRHS", MSG_ARK_RHSFUNC_FAILED, t);
           return(ARK_RHSFUNC_FAIL);
         }
+
         /* apply external polynomial forcing */
         if (step_mem->impforcing)
         {
@@ -1413,6 +1427,18 @@ int arkStep_FullRHS(void* arkode_mem, realtype t, N_Vector y, N_Vector f,
           nvec     = 1;
           arkStep_ApplyForcing(step_mem, t, ONE, &nvec);
           N_VLinearCombination(nvec, cvals, Xvecs, step_mem->Fi[0]);
+        }
+
+        if (step_mem->mass_type == MASS_TIMEDEP)
+        {
+          retval = step_mem->msolve((void *) ark_mem, step_mem->Fi[0],
+                                    step_mem->nlscoef / ark_mem->h);
+          if (retval)
+          {
+            arkProcessError(ark_mem, ARK_MASSSOLVE_FAIL, "ARKODE::ARKStep",
+                            "arkStep_FullRHS", "Mass matrix solver failure");
+            return ARK_MASSSOLVE_FAIL;
+          }
         }
       }
     }
@@ -1432,6 +1458,18 @@ int arkStep_FullRHS(void* arkode_mem, realtype t, N_Vector y, N_Vector f,
     {
       /* explicit */
       N_VScale(ONE, step_mem->Fe[0], f);
+    }
+
+    if (step_mem->mass_type == MASS_FIXED)
+    {
+      retval = step_mem->msolve((void *) ark_mem, f,
+                                step_mem->nlscoef / ark_mem->h);
+      if (retval)
+      {
+        arkProcessError(ark_mem, ARK_MASSSOLVE_FAIL, "ARKODE::ARKStep",
+                        "arkStep_FullRHS", "Mass matrix solver failure");
+        return ARK_MASSSOLVE_FAIL;
+      }
     }
 
     break;
@@ -1490,6 +1528,7 @@ int arkStep_FullRHS(void* arkode_mem, realtype t, N_Vector y, N_Vector f,
                             "arkStep_FullRHS", MSG_ARK_RHSFUNC_FAILED, t);
             return(ARK_RHSFUNC_FAIL);
           }
+
           /* apply external polynomial forcing */
           if (step_mem->expforcing)
           {
@@ -1498,6 +1537,18 @@ int arkStep_FullRHS(void* arkode_mem, realtype t, N_Vector y, N_Vector f,
             nvec     = 1;
             arkStep_ApplyForcing(step_mem, t, ONE, &nvec);
             N_VLinearCombination(nvec, cvals, Xvecs, step_mem->Fe[0]);
+          }
+
+          if (step_mem->mass_type == MASS_TIMEDEP)
+          {
+            retval = step_mem->msolve((void *) ark_mem, step_mem->Fe[0],
+                                      step_mem->nlscoef / ark_mem->h);
+            if (retval)
+            {
+              arkProcessError(ark_mem, ARK_MASSSOLVE_FAIL, "ARKODE::ARKStep",
+                              "arkStep_FullRHS", "Mass matrix solver failure");
+              return ARK_MASSSOLVE_FAIL;
+            }
           }
         }
 
@@ -1512,6 +1563,7 @@ int arkStep_FullRHS(void* arkode_mem, realtype t, N_Vector y, N_Vector f,
                             "arkStep_FullRHS", MSG_ARK_RHSFUNC_FAILED, t);
             return(ARK_RHSFUNC_FAIL);
           }
+
           /* apply external polynomial forcing */
           if (step_mem->impforcing)
           {
@@ -1520,6 +1572,18 @@ int arkStep_FullRHS(void* arkode_mem, realtype t, N_Vector y, N_Vector f,
             nvec     = 1;
             arkStep_ApplyForcing(step_mem, t, ONE, &nvec);
             N_VLinearCombination(nvec, cvals, Xvecs, step_mem->Fi[0]);
+          }
+
+          if (step_mem->mass_type == MASS_TIMEDEP)
+          {
+            retval = step_mem->msolve((void *) ark_mem, step_mem->Fi[0],
+                                      step_mem->nlscoef / ark_mem->h);
+            if (retval)
+            {
+              arkProcessError(ark_mem, ARK_MASSSOLVE_FAIL, "ARKODE::ARKStep",
+                              "arkStep_FullRHS", "Mass matrix solver failure");
+              return ARK_MASSSOLVE_FAIL;
+            }
           }
         }
       }
@@ -1551,6 +1615,18 @@ int arkStep_FullRHS(void* arkode_mem, realtype t, N_Vector y, N_Vector f,
     {
       /* explicit */
       N_VScale(ONE, step_mem->Fe[0], f);
+    }
+
+    if (step_mem->mass_type == MASS_FIXED)
+    {
+      retval = step_mem->msolve((void *) ark_mem, f,
+                                step_mem->nlscoef / ark_mem->h);
+      if (retval)
+      {
+        arkProcessError(ark_mem, ARK_MASSSOLVE_FAIL, "ARKODE::ARKStep",
+                        "arkStep_FullRHS", "Mass matrix solver failure");
+        return ARK_MASSSOLVE_FAIL;
+      }
     }
 
     break;
@@ -1607,6 +1683,19 @@ int arkStep_FullRHS(void* arkode_mem, realtype t, N_Vector y, N_Vector f,
       N_VScale(ONE, ark_mem->tempv2, f);
     }
 
+    /* if M != I, then update f = M^{-1}*f */
+    if (step_mem->mass_type != MASS_IDENTITY)
+    {
+      retval = step_mem->msolve((void *) ark_mem, f,
+                                step_mem->nlscoef / ark_mem->h);
+      if (retval)
+      {
+        arkProcessError(ark_mem, ARK_MASSSOLVE_FAIL, "ARKODE::ARKStep",
+                        "arkStep_FullRHS", "Mass matrix solver failure");
+        return ARK_MASSSOLVE_FAIL;
+      }
+    }
+
     break;
 
   default:
@@ -1614,17 +1703,6 @@ int arkStep_FullRHS(void* arkode_mem, realtype t, N_Vector y, N_Vector f,
     arkProcessError(ark_mem, ARK_RHSFUNC_FAIL, "ARKODE::ARKStep",
                     "arkStep_FullRHS", "Unknown full RHS mode");
     return(ARK_RHSFUNC_FAIL);
-  }
-
-  /* if M != I, then update f = M^{-1}*f */
-  if (step_mem->mass_type != MASS_IDENTITY) {
-    retval = step_mem->msolve((void *) ark_mem, f,
-                              step_mem->nlscoef/ark_mem->h);
-    if (retval != ARK_SUCCESS) {
-      arkProcessError(ark_mem, ARK_MASSSOLVE_FAIL, "ARKODE::ARKStep",
-                      "arkStep_FullRHS", "Mass matrix solver failure");
-      return(ARK_MASSSOLVE_FAIL);
-    }
   }
 
   return(ARK_SUCCESS);
@@ -1995,10 +2073,22 @@ int arkStep_TakeStep_Z(void* arkode_mem, realtype *dsmPtr, int *nflagPtr)
       /* If the implicit stage was deduced, it already includes M(t)^{-1} */
       if (step_mem->implicit && !deduce_stage) {
         *nflagPtr = step_mem->msolve((void *) ark_mem, step_mem->Fi[is], step_mem->nlscoef);
+#ifdef SUNDIALS_LOGGING_EXTRA_DEBUG
+        SUNLogger_QueueMsg(ARK_LOGGER, SUN_LOGLEVEL_DEBUG,
+                           "ARKODE::arkStep_TakeStep_Z", "M^{-1} implicit RHS",
+                           "Fi[%i] =", is);
+        N_VPrintFile(step_mem->Fi[is], ARK_LOGGER->debug_fp);
+#endif
         if (*nflagPtr != ARK_SUCCESS)  return(TRY_AGAIN);
       }
       if (step_mem->explicit) {
         *nflagPtr = step_mem->msolve((void *) ark_mem, step_mem->Fe[is], step_mem->nlscoef);
+#ifdef SUNDIALS_LOGGING_EXTRA_DEBUG
+        SUNLogger_QueueMsg(ARK_LOGGER, SUN_LOGLEVEL_DEBUG,
+                           "ARKODE::arkStep_TakeStep_Z", "M^{-1} explicit RHS",
+                           "Fe[%i] =", is);
+        N_VPrintFile(step_mem->Fe[is], ARK_LOGGER->debug_fp);
+#endif
         if (*nflagPtr != ARK_SUCCESS)  return(TRY_AGAIN);
       }
     }
