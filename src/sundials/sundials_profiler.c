@@ -508,7 +508,7 @@ int sunCompareTimes(const void* l, const void* r)
 
 int sunclock_gettime_monotonic(struct timespec* ts)
 {
-#if (defined(WIN32) || defined(_WIN32))
+#if (defined(WIN32) || defined(_WIN32)) && !defined(SUNDIALS_HAVE_POSIX_TIMERS)
   static long ticks_per_sec;
   long ticks;
 

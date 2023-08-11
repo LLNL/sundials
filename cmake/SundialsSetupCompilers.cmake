@@ -223,13 +223,13 @@ if(SUNDIALS_POSIX_TIMERS AND POSIX_TIMERS_NEED_POSIX_C_SOURCE)
   set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -D_POSIX_C_SOURCE=${SUNDIALS_POSIX_C_SOURCE}")
 endif()
 
-# Check if profiling is being built with no timers.
-if(SUNDIALS_BUILD_WITH_PROFILING AND
-   (NOT ENABLE_CALIPER) AND
-   (NOT ENABLE_MPI) AND
-   (NOT SUNDIALS_POSIX_TIMERS))
-  message(SEND_ERROR "The SUNDIALS native profiler requires POSIX timers or MPI_Wtime, but neither were found.")
-endif()
+# # Check if profiling is being built with no timers.
+# if(SUNDIALS_BUILD_WITH_PROFILING AND
+#    (NOT ENABLE_CALIPER) AND
+#    (NOT ENABLE_MPI) AND
+#    (NOT SUNDIALS_POSIX_TIMERS))
+#   message(SEND_ERROR "The SUNDIALS native profiler requires POSIX timers or MPI_Wtime, but neither were found.")
+# endif()
 
 # ---------------------------------------------------------------
 # Check for deprecated attribute with message
