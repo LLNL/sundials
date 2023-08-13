@@ -17,215 +17,267 @@
 ERKStep Full RHS
 ================
 
-Dotted lines signify execution paths that should not be possible.
-
 .. digraph:: erk_fullrhs
 
    node [shape=box]
+   splines=ortho
 
-   start [label="Initialize fn_current to False"];
-   h0    [label="Is h0 provided?", target="_top"];
-   f0q1  [label="Has f(t0, y0) been computed?"];
-   eval1 [label="Evaluate f(t0, y0)\lStore in F[0]\lCopy F[0] to fn\lSet fn_current to True"];
-   step1 [label="Start Step 1"];
+   // -----------------
+   // Before first step
+   // -----------------
 
-   start -> h0
-   h0 -> step1 [label="Yes"]
-   h0 -> f0q1 [label="No"]
-   f0q1 -> eval1 [label="No"]
-   eval1 -> step1
+   init    [label="Initialize integrator\lCopy t0, y0 to tn, yn\l"]
+   f0cur   [label="Set fn_current to False", style=filled, fillcolor=tomato1]
+   h0      [label="Is h0 provided?", target="_top"]
+   f0_q1   [label="Has f(tn, yn) been computed?"]
+   eval1   [label="Evaluate f(tn, yn)\lStore in F[0]\lCopy F[0] to fn\l", style=filled, fillcolor=lightskyblue]
+   fcur1   [label="Set fn_current to True", style=filled, fillcolor=lightgreen]
+   h0_comp [label="Compute h0"]
+   start   [label="Start Step"]
 
-   f0q2     [label="Has f(t0, y0) been computed?"];
-   eval2    [label="Evaluate f(t0, y0)\lStore in F[0]\lCopy F[0] to fn\lSet fn_current to True"];
+   init    -> f0cur -> h0
+   h0      -> start   [taillabel="Yes", labeldistance=2, labelangle=45]
+   h0      -> f0_q1   [taillabel="No", labeldistance=2, labelangle=-45]
+   f0_q1   -> h0_comp [taillabel="Yes", labeldistance=2, labelangle=-45]
+   f0_q1   -> eval1   [taillabel="No", labeldistance=2, labelangle=-45]
+   eval1   -> fcur1
+   fcur1   -> h0_comp
+   h0_comp -> start
+
+   // ----------
+   // First step
+   // ----------
+
+   f0q2     [label="Has f(tn, yn) been computed?"]
+   step_q   [label="Is this the first step after initial setup?"]
+   eval2    [label="Evaluate f(tn, yn)\lStore in F[0]\lCopy F[0] to fn\l", style=filled, fillcolor=lightskyblue]
+   fsal     [label="Is the method FSAL?", style=filled, fillcolor=slateblue1]
+   eval3    [label="Evaluate f(tn, yn)\lStore in F[0]\lCopy F[0] to fn\l", style=filled, fillcolor=slateblue1]
+   copy1    [label="Copy F[s-1] to F[0]\lCopy F[0] to fn\l", style=filled, fillcolor=slateblue1]
+   fcur2    [label="Set fn_current to True", style=filled, fillcolor=lightgreen]
    stages1  [label="Compute Stages"]
    complete [label="Complete Step"]
 
-   step1 -> f0q2
-   f0q2 -> stages1 [label="Yes"]
-   f0q2 -> eval2 [label="No"]
-   eval2 -> stages1
-   stages1 -> complete
+   start   -> f0q2
+   f0q2    -> stages1  [taillabel="Yes", labeldistance=2, labelangle=45]
+   f0q2    -> step_q   [taillabel="No", labeldistance=2, labelangle=-45]
+   step_q  -> eval2    [taillabel="Yes", labeldistance=2, labelangle=45]
+   eval2   -> fcur2
+   step_q  -> fsal     [taillabel="No", labeldistance=2, labelangle=-45]
+   fsal    -> eval3    [taillabel="No", labeldistance=2, labelangle=-45]
+   eval3   -> fcur2
+   fsal    -> copy1    [taillabel="Yes", labeldistance=2, labelangle=45]
+   copy1   -> fcur2
+   fcur2   -> stages1 -> complete
 
-   interp_update [label="Update interpolation module?"];
-   lagrange1     [label="Add ycur to history"]
-   f0q3          [label="Has f(t0, y0) been computed?"];
-   update_yn     [label="Copy tcur to tn\lCopy ycur to yn\lSet fn_current to False"];
+   // -------------
+   // Complete step
+   // -------------
 
-   complete -> interp_update
-   interp_update -> update_yn [label="No"]
-   interp_update -> lagrange1 [label="Lagrange"]
-   lagrange1 -> update_yn
-   interp_update -> f0q3 [label="Hermite"]
-   f0q3 -> update_yn [label="Yes"]
+   interp_update [label="Interpolation enabled?"]
+   interp_type1  [label="Using Hermite interpolation?"]
+   f0q3          [label="Has f(tn, yn) been computed?"]
+   update_yn     [label="Copy tcur, ycur to tn, yn"]
+   fcur3         [label="Set fn_current to False", style=filled, fillcolor=tomato1]
 
-   interp_eval [label="Evaluate interpolant?"]
-   step2       [label="Start Step 2"];
-   f1q1        [label="Has f(t1, y1) been computed?"];
-   fsal1       [label="Is the method FSAL?"]
-   eval3       [label="Evaluate f(t1, y1)\lStore in F[0]"];
-   copy1       [label="Copy F[s-1] to F[0]"];
-   fcur1       [label="Copy F[0] to fn\lSet fn_current to True"];
-   interp_yout [label="Compute yout"]
+   complete      -> interp_update
+   interp_update -> update_yn     [taillabel="No", labeldistance=2, labelangle=45]
+   interp_update -> interp_type1  [taillabel="Yes", labeldistance=2, labelangle=-45]
+   interp_type1  -> update_yn     [taillabel="No", labeldistance=2, labelangle=45]
+   interp_type1  -> f0q3          [taillabel="Yes", labeldistance=2, labelangle=-45]
+   f0q3          -> update_yn     [taillabel="Yes", labeldistance=2, labelangle=45]
+   update_yn     -> fcur3
 
-   update_yn -> interp_eval
-   interp_eval -> step2 [label="No"]
-   interp_eval -> interp_yout [label="Lagrange"]
-   interp_eval -> f1q1 [label="Hermite"]
-   f1q1 -> fsal1 [label="No"]
-   fsal1 -> eval3 [label="No"]
-   eval3 -> fcur1
-   fsal1 -> copy1 [label="Yes"]
-   copy1 -> fcur1
-   fcur1 -> interp_yout
-   interp_yout -> step2
+   // ----------
+   // After step
+   // ----------
 
-   f1q2    [label="Has f(t1, y1) been computed?"];
-   fsal2   [label="Is the method FSAL?"]
-   eval4   [label="Evaluate f(t1, y1)\lStore in F[0]"];
-   copy2   [label="Copy F[s-1] to F[0]"];
-   fcur2   [label="Copy F[0] to fn\lSet fn_current to True"];
-   stages2 [label="Compute Stages"]
+   interp_eval  [label="Evaluate interpolant?"]
+   interp_type2 [label="Using Hermite interpolation?"]
+   f1q1         [label="Has f(tn, yn) been computed?"]
+   fsal1        [label="Is the method FSAL?", style=filled, fillcolor=slateblue1]
+   eval4        [label="Evaluate f(tn, yn)\lStore in F[0]\lCopy F[0] to fn\l", style=filled, fillcolor=slateblue1]
+   copy2        [label="Copy F[s-1] to F[0]\lCopy F[0] to fn\l", style=filled, fillcolor=slateblue1]
+   fcur4        [label="Set fn_current to True", style=filled, fillcolor=lightgreen]
+   interp_yout  [label="Compute yout"]
+   step2        [label="Start Next Step"]
 
-   step2 -> f1q2
-   f1q2 -> stages2 [label="Yes"]
-   f1q2 -> fsal2 [label="No"]
-   fsal2 -> copy2 [label="Yes"]
-   copy2 -> fcur2
-   fsal2 -> eval4 [label="No"]
-   eval4 -> fcur2
-   fcur2 -> stages2
-   stages2 -> "Complete Step"
+   fcur3        -> interp_eval
+   interp_eval  -> step2        [taillabel="No", labeldistance=2, labelangle=45]
+   interp_eval  -> interp_type2 [taillabel="Yes", labeldistance=2, labelangle=-45]
+   interp_type2 -> interp_yout  [taillabel="No", labeldistance=2, labelangle=45]
+   interp_type2 -> f1q1         [taillabel="Yes", labeldistance=2, labelangle=-45]
+   f1q1         -> fsal1        [taillabel="No", labeldistance=2, labelangle=45]
+   fsal1        -> eval4        [taillabel="No", labeldistance=2, labelangle=-45]
+   eval4        -> fcur4
+   fsal1        -> copy2        [taillabel="Yes", labeldistance=2, labelangle=45]
+   copy2        -> fcur4
+   fcur4        -> interp_yout -> step2
 
 
 ARKStep Full RHS
 ================
 
-Dotted lines signify execution paths that should not be possible.
+.. digraph:: ark_fullrhs_start
+   :caption: ARKStep Full RHS Start
+
+   node [shape=box, style=filled, fillcolor=white]
+   splines=ortho
+   bgcolor=lightskyblue
+
+   // --------------
+   // Full RHS Start
+   // --------------
+
+   fcur   [label="Has f(tn, yn) been computed?"]
+   eval   [label="Evaluate fe(tn, yn), fi(tn,yn)\lStore in Fe[0], Fi[0]\l"]
+   mass_a [label="Is there a mass matrix?"]
+   mass_b [label="Is M time dependent?"]
+   mass_c [label="Solve M(t) u = Fe[0], M(t) v = Fi[0]\lStore u, v in Fe[0], Fi[0]\lCopy Fe[0] + Fi[0] to f\l"]
+   mass_d [label="Copy Fe[0] + Fi[0] to f\lSolve M x = f\lCopy x to f\l"]
+   copy   [label="Copy Fe[0] + Fi[0] to f"]
+   return [label="Set fn_current to True", style=filled, fillcolor=lightgreen]
+
+   fcur   -> copy   [taillabel="Yes", labeldistance=2, labelangle=45]
+   fcur   -> eval   [taillabel="No", labeldistance=2, labelangle=45]
+   eval   -> mass_a
+   mass_a -> copy   [taillabel="No", labeldistance=2, labelangle=45]
+   copy   -> return
+   mass_a -> mass_b [taillabel="Yes", labeldistance=2, labelangle=-45]
+   mass_b -> mass_c [taillabel="Yes", labeldistance=2, labelangle=-45]
+   mass_c -> return
+   mass_b -> mass_d [taillabel="No", labeldistance=2, labelangle=45]
+   mass_d -> return
+
+.. digraph:: ark_fullrhs_start
+   :caption: ARKStep Full RHS End
+
+   node [shape=box, style=filled, fillcolor=white]
+   splines=ortho
+   bgcolor=slateblue1
+
+   // ------------
+   // Full RHS End
+   // ------------
+
+   fcur    [label="Has f(tn, yn) been computed?"]
+   sa      [label="Is the method stiffly accurate?"]
+   eval    [label="Evaluate fe(tn, yn), fi(tn, yn)\lStore in Fe[0], Fi[0]\l"]
+   mass_a1 [label="Is there a mass matrix?"]
+   mass_a2 [label="Is there a mass matrix?"]
+   mass_b1 [label="Is M time dependent?"]
+   mass_b2 [label="Is M time dependent?"]
+   mass_c  [label="Solve M(t) u = Fe[0], M(t) v = Fi[0]\lStore u, v in Fe[0], Fi[0]\lCopy Fe[0] + Fi[0] to fn\l"]
+   mass_d1 [label="Solve M x = fn\lCopy x to fn\l"]
+   mass_d2 [label="Copy Fe[0] + Fi[0] to fn\lSolve M x = fn\lCopy x to fn\l"]
+   copy_1  [label="Copy Fe[0] + Fi[0] to fn"]
+   copy_2  [label="Copy Fe[s-1], Fi[s-1] to Fe[0], Fi[0]\lCopy Fe[0] + Fi[0] to fn\l"]
+   return  [label="Set fn_current to True", style=filled, fillcolor=lightgreen]
+
+   fcur         -> copy_1       [taillabel="Yes", labeldistance=2, labelangle=45]
+   fcur         -> sa           [taillabel="No", labeldistance=2, labelangle=45]
+   sa           -> copy_2       [taillabel="Yes", labeldistance=2, labelangle=45]
+   copy_2       -> mass_a1
+   mass_a1      -> return       [taillabel="No", labeldistance=2, labelangle=-45]
+   mass_a1      -> mass_b1      [taillabel="Yes", labeldistance=2, labelangle=45]
+   mass_b1      -> mass_d1      [taillabel="No", labeldistance=2, labelangle=-45]
+   mass_d1      -> return
+   mass_b1      -> return       [taillabel="Yes", labeldistance=2, labelangle=45]
+   sa           -> eval         [taillabel="No", labeldistance=2, labelangle=-45]
+   eval         -> mass_a2
+   mass_a2      -> copy_1       [taillabel="No", labeldistance=2, labelangle=45]
+   copy_1       -> return
+   mass_a2      -> mass_b2      [taillabel="Yes", labeldistance=2, labelangle=-45]
+   mass_b2      -> mass_c       [taillabel="Yes", labeldistance=2, labelangle=-45]
+   mass_c       -> return
+   mass_b2      -> mass_d2      [taillabel="No", labeldistance=2, labelangle=45]
+   mass_d2      -> return
+
 
 .. digraph:: ark_fullrhs
 
    node [shape=box]
+   splines=ortho
 
-   start  [label="Initialize fn_current to False"];
-   h0     [label="Is h0 provided?", target="_top"];
-   f0q1   [label="Has f(t0, y0) been computed?"];
-   eval1  [label="Evaluate fe(t0, y0), fi(t0,y0)\lStore in Fe[0], Fi[0]"];
-   mass1a [label="Is there a mass matrix?"];
-   mass1b [label="Solve M(t) u = Fe[0], M(t) v = Fi[0]\lStore u, v in Fe[0], Fi[0]\lCopy Fe[0] + Fi[0] to fn"];
-   mass1c [label="Copy Fe[0] + Fi[0] to fn\lSolve M x = fn\lCopy x to fn"];
-   fcur1  [label="Set fn_current to True"];
-   step1  [label="Start Step 1"];
+   // -----------------
+   // Before first step
+   // -----------------
 
-   start -> h0
-   h0 -> step1 [label="Yes"]
-   h0 -> f0q1 [label="No"]
-   f0q1 -> step1 [label="Yes", style="dotted"]
-   f0q1 -> eval1 [label="No"]
-   eval1 -> mass1a
-   mass1a -> mass1b [label="Yes\lM(t)"]
-   mass1a -> mass1c [label="Yes\lM"]
-   mass1a -> fcur1 [label="No"]
-   mass1b -> fcur1
-   mass1c -> fcur1
-   fcur1 -> step1
+   init    [label="Initialize integrator\lCopy t0, y0 to tn, yn\l"]
+   f0cur   [label="Set fn_current to False", style=filled, fillcolor=tomato1]
+   h0      [label="Is h0 provided?"]
+   f0_q    [label="Has f(tn, yn) been computed?"]
+   rhs_1   [label="Call Full RHS Start", style=filled, fillcolor=lightskyblue]
+   h0_comp [label="Compute h0"]
+   start   [label="Start Step"]
 
-   f0q2a    [label="Is the first stage explicit?\nor\nIs the method stiffly accurate and Hermite interpolation is used?"];
-   f0q2b    [label="Has f(t0, y0) been computed?"];
-   eval2    [label="Evaluate fe(t0, y0), fi(t0,y0)\lStore in Fe[0], Fi[0]"];
-   mass2a   [label="Is there a mass matrix?"];
-   mass2b   [label="Solve M(t) u = Fe[0], M(t) v = Fi[0]\lStore u, v in Fe[0], Fi[0]\lCopy Fe[0] + Fi[0] to fn"];
-   mass2c   [label="Copy Fe[0] + Fi[0] to fn\lSolve M x = fn\lCopy x to fn"];
-   fcur2    [label="Set fn_current to True"];
-   stages1  [label="Compute Stages"]
+   init -> f0cur -> h0
+   h0      -> start   [taillabel="Yes", labeldistance=2, labelangle=45]
+   h0      -> f0_q    [taillabel="No", labeldistance=2, labelangle=-45]
+   f0_q    -> h0_comp [taillabel="Yes", labeldistance=2, labelangle=45]
+   f0_q    -> rhs_1 [taillabel="No", labeldistance=2, labelangle=-45]
+   rhs_1   -> h0_comp
+   h0_comp -> start
+
+   // ----------
+   // Start step
+   // ----------
+
+   method_q [label="Is the first stage explicit?\nor\nIs the method stiffly accurate and Hermite interpolation is used?"]
+   step_q   [label="Is this the first step after initial setup?"]
+   fn_q     [label="Has f(tn, yn) been computed?"]
+   rhs_2    [label="Call Full RHS Start", style=filled, fillcolor=lightskyblue]
+   rhs_3    [label="Call Full RHS End", style=filled, fillcolor=slateblue1]
+   stages   [label="Compute Stages"]
    complete [label="Complete Step"]
 
-   step1 -> f0q2a
-   f0q2a -> f0q2b [label="Yes"]
-   f0q2a -> stages1 [label="No"]
-   f0q2b -> stages1 [label="Yes"]
-   f0q2b -> eval2 [label="No"]
-   eval2 -> mass2a
-   mass2a -> mass2b [label="Yes\lM(t)"]
-   mass2a -> mass2c [label="Yes\lM"]
-   mass2a -> fcur2 [label="No"]
-   mass2b -> fcur2
-   mass2c -> fcur2
-   fcur2 -> stages1
-   stages1 -> complete
+   start    -> method_q
+   method_q -> stages   [taillabel="No", labeldistance=2, labelangle=45]
+   method_q -> fn_q     [taillabel="Yes", labeldistance=2, labelangle=-45]
+   fn_q -> stages       [taillabel="Yes", labeldistance=2, labelangle=-45]
+   fn_q -> step_q       [taillabel="No", labeldistance=2, labelangle=-45]
+   step_q -> rhs_2      [taillabel="Yes", labeldistance=2, labelangle=-45]
+   step_q -> rhs_3      [taillabel="No", labeldistance=2, labelangle=-45]
+   rhs_2 -> stages
+   rhs_3 -> stages
+   stages -> complete
 
-   interp_update [label="Update interpolation module?"];
-   hermite1      [label="Hermite interpolation?"];
-   lagrange1     [label="Add ycur to history"]
-   f0q3          [label="Has f(t0, y0) been computed?"];
-   eval3         [label="Evaluate fe(t0, y0), fi(t0,y0)\lStore in Fe[0], Fi[0]"];
-   mass3a        [label="Is there a mass matrix?"];
-   mass3b        [label="Solve M(t) u = Fe[0], M(t) v = Fi[0]\lStore u, v in Fe[0], Fi[0]\lCopy Fe[0] + Fi[0] to fn"];
-   mass3c        [label="Copy Fe[0] + Fi[0] to fn\lSolve M x = fn\lCopy x to fn"];
-   fcur3         [label="Set fn_current to True"];
-   update_yn     [label="Copy tcur to tn\lCopy ycur to yn\lSet fn_current to False"];
+   // -------------
+   // Complete step
+   // -------------
 
-   complete -> interp_update
-   interp_update -> update_yn [label="No"]
-   interp_update -> hermite1 [label="Yes"]
-   hermite1 -> lagrange1 [label="No"]
-   hermite1 -> f0q3 [label="Yes"]
-   lagrange1 -> update_yn
-   f0q3 -> update_yn [label="Yes"]
-   f0q3 -> eval3 [label="No"]
-   eval3 -> mass3a
-   mass3a -> mass3b [label="Yes\lM(t)"]
-   mass3a -> mass3c [label="Yes\lM"]
-   mass3a -> fcur3 [label="No"]
-   mass3b -> fcur3
-   mass3c -> fcur3
-   fcur3 -> update_yn
+   interp_update [label="Interpolation enabled?"]
+   interp_type1  [label="Using Hermite interpolation?"]
+   f0q3          [label="Has f(tn, yn) been computed?"]
+   rhs3          [label="Call Full RHS Start", style=filled, fillcolor=lightskyblue]
+   update_yn     [label="Copy tcur, ycur to tn, yn"]
+   fcur1         [label="Set fn_current to False", style=filled, fillcolor=tomato1]
 
-   interp      [label="Interpolate output?"];
-   interp_eval [label="Evaluate interpolant"]
-   step2       [label="Start Step 2"];
-   f1q1        [label="Has f(t1, y1) been computed?"];
-   hermite2    [label="Hermite interpolation?"];
-   sa          [label="Is the method stiffly accurate?"]
-   eval4       [label="Evaluate fe(t1, y1), fi(t1, y1)\lStore in Fe[0], Fi[0]"];
-   mass4a      [label="Is there a mass matrix?"];
-   mass4b      [label="Solve M(t) u = Fe[0], M(t) v = Fi[0]\lStore u, v in Fe[0], Fi[0]"];
-   mass4c      [label="Solve M x = fn\lCopy x to fn"];
-   copy1       [label="Copy Fe[s-1], Fi[s-1] to Fe[0], Fi[0]"];
-   copy2       [label="Copy Fe[0] + Fi[0] to fn"];
-   fcur4       [label="Set fn_current to True"];
-   interp_yout [label="Compute yout"]
+   complete      -> interp_update
+   interp_update -> update_yn     [taillabel="No", labeldistance=2, labelangle=45]
+   interp_update -> interp_type1  [taillabel="Yes", labeldistance=2, labelangle=-45]
+   interp_type1  -> update_yn     [taillabel="No", labeldistance=2, labelangle=45]
+   interp_type1  -> f0q3          [taillabel="Yes", labeldistance=2, labelangle=-45]
+   f0q3          -> update_yn     [taillabel="Yes", labeldistance=2, labelangle=45]
+   f0q3          -> rhs3          [taillabel="No", labeldistance=2, labelangle=-45]
+   rhs3          -> update_yn -> fcur1
 
-   update_yn -> interp
-   interp -> step2 [label="No"]
-   interp -> interp_eval [label="Yes"]
-   interp_eval -> hermite2
-   hermite2 -> interp_yout [label="No"]
-   hermite2 -> f1q1 [label="Yes"]
-   f1q1 -> interp_yout [label="Yes", style="dotted"]
-   f1q1 -> sa [label="No"]
-   sa -> copy1 [label="Yes"]
-   sa -> eval4 [label="No"]
-   copy1 -> copy2
-   eval4 -> copy2
-   copy2 -> mass4a
-   mass4a -> mass4b [label="Yes\lM(t)"]
-   mass4a -> mass4c [label="Yes\lM"]
-   mass4a -> fcur4 [label="No"]
-   mass4c -> fcur4
-   fcur4 -> interp_yout
-   interp_yout -> step2
+   // ----------
+   // After step
+   // ----------
 
-   f1q2    [label="Has f(t1, y1) been computed?"];
-   fsal    [label="Is the method FSAL?"]
-   eval5   [label="Evaluate f(t1, y1)\lStore in F[0]\lCopy F[0] to fn\lSet fn_current to True"];
-   copy3   [label="Copy F[s-1] to F[0]\lCopy F[0] to fn\lSet fn_current to True"];
-   stages2 [label="Compute Stages"]
+   interp_eval  [label="Evaluate interpolant?"]
+   interp_type2 [label="Using Hermite interpolation?"]
+   f1q1         [label="Has f(tn, yn) been computed?"]
+   rhs4         [label="Call Full RHS End", style=filled, fillcolor=slateblue1]
+   interp_yout  [label="Compute yout"]
+   return       [label="Start Next Step"]
 
-   step2 -> f1q2
-   f1q2 -> stages2 [label="Yes"]
-   f1q2 -> fsal [label="No"]
-   fsal -> copy3 [label="Yes"]
-   fsal -> eval5 [label="No"]
-   copy3 -> stages2
-   eval5 -> stages2
-   stages2 -> "Complete Step"
+   fcur1        -> interp_eval
+   interp_eval  -> return       [taillabel="No", labeldistance=2, labelangle=45]
+   interp_eval  -> interp_type2 [taillabel="Yes", labeldistance=2, labelangle=-45]
+   interp_type2 -> interp_yout  [taillabel="No", labeldistance=2, labelangle=45]
+   interp_type2 -> f1q1         [taillabel="Yes", labeldistance=2, labelangle=-45]
+   f1q1         -> interp_yout  [taillabel="Yes", labeldistance=2, labelangle=45]
+   f1q1         -> rhs4         [taillabel="No", labeldistance=2, labelangle=45]
+   rhs4         -> interp_yout -> return
