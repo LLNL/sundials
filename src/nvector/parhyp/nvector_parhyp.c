@@ -1866,7 +1866,7 @@ int N_VDotProdMultiLocal_ParHyp(int nvec, N_Vector x, N_Vector* Y,
 
   /* should have called N_VDotProd */
   if (nvec == 1) {
-    dotprods[0] = N_VDotProd_ParHyp(x, Y[0]);
+    dotprods[0] = N_VDotProdLocal_ParHyp(x, Y[0]);
     return(0);
   }
 
