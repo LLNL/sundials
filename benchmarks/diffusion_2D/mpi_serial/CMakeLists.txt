@@ -48,6 +48,8 @@ foreach(test_tuple ${tests})
   # create executable
   add_executable(${target} ${sources})
 
+  add_dependencies(benchmark ${target})
+
   set_target_properties(${target} PROPERTIES FOLDER "Benchmarks")
 
   target_compile_definitions(${target} PRIVATE ${problem_type})
@@ -70,5 +72,9 @@ foreach(test_tuple ${tests})
 
   install(TARGETS ${target}
     DESTINATION "${BENCHMARKS_INSTALL_PATH}/diffusion_2D")
+
+  sundials_add_benchmark(${target} ${target} diffusion_2D
+    NUM_CORES ${SUNDIALS_BENCHMARK_NUM_CPUS}
+  )
 
 endforeach()
