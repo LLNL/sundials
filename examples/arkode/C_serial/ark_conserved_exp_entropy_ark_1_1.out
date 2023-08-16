@@ -38,7 +38,7 @@ Conserved Exponential Entropy problem:
 Final Solver Statistics:
    Internal solver steps = 1024 (attempted = 1376)
    Total number of error test failures = 86
-   Total RHS evals:  Fe = 0,  Fi = 9934
+   Total RHS evals:  Fe = 0,  Fi = 9581
    Total number of Newton iterations = 5803
    Total number of linear solver convergence failures = 37
    Total linear solver setups = 844
