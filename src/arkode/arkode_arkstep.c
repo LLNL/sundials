@@ -1384,16 +1384,6 @@ int arkStep_FullRHS(void* arkode_mem, realtype t, N_Vector y, N_Vector f,
           return(ARK_RHSFUNC_FAIL);
         }
 
-        /* apply external polynomial forcing */
-        if (step_mem->expforcing)
-        {
-          cvals[0] = ONE;
-          Xvecs[0] = step_mem->Fe[0];
-          nvec     = 1;
-          arkStep_ApplyForcing(step_mem, t, ONE, &nvec);
-          N_VLinearCombination(nvec, cvals, Xvecs, step_mem->Fe[0]);
-        }
-
         if (step_mem->mass_type == MASS_TIMEDEP)
         {
           retval = step_mem->msolve((void *) ark_mem, step_mem->Fe[0],
@@ -1417,16 +1407,6 @@ int arkStep_FullRHS(void* arkode_mem, realtype t, N_Vector y, N_Vector f,
           arkProcessError(ark_mem, ARK_RHSFUNC_FAIL, "ARKODE::ARKStep",
                           "arkStep_FullRHS", MSG_ARK_RHSFUNC_FAILED, t);
           return(ARK_RHSFUNC_FAIL);
-        }
-
-        /* apply external polynomial forcing */
-        if (step_mem->impforcing)
-        {
-          cvals[0] = ONE;
-          Xvecs[0] = step_mem->Fi[0];
-          nvec     = 1;
-          arkStep_ApplyForcing(step_mem, t, ONE, &nvec);
-          N_VLinearCombination(nvec, cvals, Xvecs, step_mem->Fi[0]);
         }
 
         if (step_mem->mass_type == MASS_TIMEDEP)
@@ -1470,6 +1450,16 @@ int arkStep_FullRHS(void* arkode_mem, realtype t, N_Vector y, N_Vector f,
                         "arkStep_FullRHS", "Mass matrix solver failure");
         return ARK_MASSSOLVE_FAIL;
       }
+    }
+
+    /* apply external polynomial (MRI) forcing (M = I required) */
+    if (step_mem->expforcing || step_mem->impforcing)
+    {
+      cvals[0] = ONE;
+      Xvecs[0] = f;
+      nvec     = 1;
+      arkStep_ApplyForcing(step_mem, t, ONE, &nvec);
+      N_VLinearCombination(nvec, cvals, Xvecs, f);
     }
 
     break;
@@ -1529,16 +1519,6 @@ int arkStep_FullRHS(void* arkode_mem, realtype t, N_Vector y, N_Vector f,
             return(ARK_RHSFUNC_FAIL);
           }
 
-          /* apply external polynomial forcing */
-          if (step_mem->expforcing)
-          {
-            cvals[0] = ONE;
-            Xvecs[0] = step_mem->Fe[0];
-            nvec     = 1;
-            arkStep_ApplyForcing(step_mem, t, ONE, &nvec);
-            N_VLinearCombination(nvec, cvals, Xvecs, step_mem->Fe[0]);
-          }
-
           if (step_mem->mass_type == MASS_TIMEDEP)
           {
             retval = step_mem->msolve((void *) ark_mem, step_mem->Fe[0],
@@ -1562,16 +1542,6 @@ int arkStep_FullRHS(void* arkode_mem, realtype t, N_Vector y, N_Vector f,
             arkProcessError(ark_mem, ARK_RHSFUNC_FAIL, "ARKODE::ARKStep",
                             "arkStep_FullRHS", MSG_ARK_RHSFUNC_FAILED, t);
             return(ARK_RHSFUNC_FAIL);
-          }
-
-          /* apply external polynomial forcing */
-          if (step_mem->impforcing)
-          {
-            cvals[0] = ONE;
-            Xvecs[0] = step_mem->Fi[0];
-            nvec     = 1;
-            arkStep_ApplyForcing(step_mem, t, ONE, &nvec);
-            N_VLinearCombination(nvec, cvals, Xvecs, step_mem->Fi[0]);
           }
 
           if (step_mem->mass_type == MASS_TIMEDEP)
@@ -1629,6 +1599,16 @@ int arkStep_FullRHS(void* arkode_mem, realtype t, N_Vector y, N_Vector f,
       }
     }
 
+    /* apply external polynomial (MRI) forcing (M = I required) */
+    if (step_mem->expforcing || step_mem->impforcing)
+    {
+      cvals[0] = ONE;
+      Xvecs[0] = f;
+      nvec     = 1;
+      arkStep_ApplyForcing(step_mem, t, ONE, &nvec);
+      N_VLinearCombination(nvec, cvals, Xvecs, f);
+    }
+
     break;
 
   /* ARK_FULLRHS_OTHER: called for dense output in-between steps or for
@@ -1645,14 +1625,6 @@ int arkStep_FullRHS(void* arkode_mem, realtype t, N_Vector y, N_Vector f,
                         "arkStep_FullRHS", MSG_ARK_RHSFUNC_FAILED, t);
         return(ARK_RHSFUNC_FAIL);
       }
-      /* apply external polynomial forcing */
-      if (step_mem->expforcing) {
-        cvals[0] = ONE;
-        Xvecs[0] = ark_mem->tempv2;
-        nvec     = 1;
-        arkStep_ApplyForcing(step_mem, t, ONE, &nvec);
-        N_VLinearCombination(nvec, cvals, Xvecs, ark_mem->tempv2);
-      }
     }
 
     /* call fi if the problem has an implicit component (store in sdata) */
@@ -1663,14 +1635,6 @@ int arkStep_FullRHS(void* arkode_mem, realtype t, N_Vector y, N_Vector f,
         arkProcessError(ark_mem, ARK_RHSFUNC_FAIL, "ARKODE::ARKStep",
                         "arkStep_FullRHS", MSG_ARK_RHSFUNC_FAILED, t);
         return(ARK_RHSFUNC_FAIL);
-      }
-      /* apply external polynomial forcing */
-      if (step_mem->impforcing) {
-        cvals[0] = ONE;
-        Xvecs[0] = step_mem->sdata;
-        nvec     = 1;
-        arkStep_ApplyForcing(step_mem, t, ONE, &nvec);
-        N_VLinearCombination(nvec, cvals, Xvecs, step_mem->sdata);
       }
     }
 
@@ -1694,6 +1658,16 @@ int arkStep_FullRHS(void* arkode_mem, realtype t, N_Vector y, N_Vector f,
                         "arkStep_FullRHS", "Mass matrix solver failure");
         return ARK_MASSSOLVE_FAIL;
       }
+    }
+
+    /* apply external polynomial (MRI) forcing (M = I required) */
+    if (step_mem->expforcing || step_mem->impforcing)
+    {
+      cvals[0] = ONE;
+      Xvecs[0] = f;
+      nvec     = 1;
+      arkStep_ApplyForcing(step_mem, t, ONE, &nvec);
+      N_VLinearCombination(nvec, cvals, Xvecs, f);
     }
 
     break;
@@ -1737,7 +1711,7 @@ int arkStep_FullRHS(void* arkode_mem, realtype t, N_Vector y, N_Vector f,
   ---------------------------------------------------------------*/
 int arkStep_TakeStep_Z(void* arkode_mem, realtype *dsmPtr, int *nflagPtr)
 {
-  int retval, is, is_start, nvec, mode;
+  int retval, is, is_start, mode;
   booleantype implicit_stage;
   booleantype deduce_stage;
   booleantype save_stages = SUNFALSE;
@@ -1745,17 +1719,11 @@ int arkStep_TakeStep_Z(void* arkode_mem, realtype *dsmPtr, int *nflagPtr)
   ARKodeMem ark_mem;
   ARKodeARKStepMem step_mem;
   N_Vector zcor0;
-  realtype* cvals;
-  N_Vector* Xvecs;
 
   /* access ARKodeARKStepMem structure */
   retval = arkStep_AccessStepMem(arkode_mem, "arkStep_TakeStep_Z",
                                  &ark_mem, &step_mem);
   if (retval != ARK_SUCCESS)  return(retval);
-
-  /* local shortcuts for use with fused vector operations */
-  cvals = step_mem->cvals;
-  Xvecs = step_mem->Xvecs;
 
   /* if problem will involve no algebraic solvers, initialize nflagPtr to success */
   if ((!step_mem->implicit) && (step_mem->mass_type == MASS_IDENTITY))
@@ -2023,49 +1991,32 @@ int arkStep_TakeStep_Z(void* arkode_mem, realtype *dsmPtr, int *nflagPtr)
                      -ONE / step_mem->gamma, step_mem->sdata, step_mem->Fi[is]);
       }
 
-      if (retval < 0)  return(ARK_RHSFUNC_FAIL);
-      if (retval > 0)  return(ARK_UNREC_RHSFUNC_ERR);
-      /* apply external polynomial forcing */
-      if (step_mem->impforcing) {
-        cvals[0] = ONE;
-        Xvecs[0] = step_mem->Fi[is];
-        nvec     = 1;
-        arkStep_ApplyForcing(step_mem, ark_mem->tcur, ONE, &nvec);
-        N_VLinearCombination(nvec, cvals, Xvecs, step_mem->Fi[is]);
-      }
-
 #ifdef SUNDIALS_LOGGING_EXTRA_DEBUG
       SUNLogger_QueueMsg(ARK_LOGGER, SUN_LOGLEVEL_DEBUG,
                          "ARKODE::arkStep_TakeStep_Z", "implicit RHS",
                          "Fi[%i] =", is);
       N_VPrintFile(step_mem->Fi[is], ARK_LOGGER->debug_fp);
 #endif
+
+      if (retval < 0)  return(ARK_RHSFUNC_FAIL);
+      if (retval > 0)  return(ARK_UNREC_RHSFUNC_ERR);
     }
 
     /*    store explicit RHS */
     if (step_mem->explicit) {
-        retval = step_mem->fe(ark_mem->tn + step_mem->Be->c[is]*ark_mem->h,
-                              ark_mem->ycur, step_mem->Fe[is], ark_mem->user_data);
-        step_mem->nfe++;
-
-        if (retval < 0)  return(ARK_RHSFUNC_FAIL);
-        if (retval > 0)  return(ARK_UNREC_RHSFUNC_ERR);
-        /* apply external polynomial forcing */
-        if (step_mem->expforcing) {
-          cvals[0] = ONE;
-          Xvecs[0] = step_mem->Fe[is];
-          nvec     = 1;
-          arkStep_ApplyForcing(step_mem, ark_mem->tn+step_mem->Be->c[is]*ark_mem->h,
-                               ONE, &nvec);
-          N_VLinearCombination(nvec, cvals, Xvecs, step_mem->Fe[is]);
-        }
+      retval = step_mem->fe(ark_mem->tn + step_mem->Be->c[is]*ark_mem->h,
+                            ark_mem->ycur, step_mem->Fe[is], ark_mem->user_data);
+      step_mem->nfe++;
 
 #ifdef SUNDIALS_LOGGING_EXTRA_DEBUG
-        SUNLogger_QueueMsg(ARK_LOGGER, SUN_LOGLEVEL_DEBUG,
-                           "ARKODE::arkStep_TakeStep_Z", "explicit RHS",
-                           "Fe[%i] =", is);
-        N_VPrintFile(step_mem->Fe[is], ARK_LOGGER->debug_fp);
+      SUNLogger_QueueMsg(ARK_LOGGER, SUN_LOGLEVEL_DEBUG,
+                         "ARKODE::arkStep_TakeStep_Z", "explicit RHS",
+                         "Fe[%i] =", is);
+      N_VPrintFile(step_mem->Fe[is], ARK_LOGGER->debug_fp);
 #endif
+
+      if (retval < 0)  return(ARK_RHSFUNC_FAIL);
+      if (retval > 0)  return(ARK_UNREC_RHSFUNC_ERR);
     }
 
     /* if using a time-dependent mass matrix, update Fe[is] and/or Fi[is] with M(t)^{-1} */
@@ -2732,7 +2683,10 @@ int arkStep_StageSetup(ARKodeMem ark_mem, booleantype implicit)
 {
   /* local data */
   ARKodeARKStepMem step_mem;
-  int retval, i, j, nvec;
+  int retval, i, j, k, jmax, nvec;
+  sunrealtype tj, tau, taui;
+  sunrealtype*  cj;
+  sunrealtype** Aij;
   realtype* cvals;
   N_Vector* Xvecs;
 
@@ -2746,12 +2700,6 @@ int arkStep_StageSetup(ARKodeMem ark_mem, booleantype implicit)
 
   /* Set shortcut to current stage index */
   i = step_mem->istage;
-
-  /* If this is the first stage, and explicit, just set sdata=0 and return */
-  if (!implicit && (i==0)) {
-    N_VConst(ZERO, step_mem->sdata);
-    return (ARK_SUCCESS);
-  }
 
   /* local shortcuts for fused vector operations */
   cvals = step_mem->cvals;
@@ -2816,10 +2764,46 @@ int arkStep_StageSetup(ARKodeMem ark_mem, booleantype implicit)
     }
   }
 
-  /* apply external polynomial forcing (updates nvec, cvals, Xvecs) */
-  if (step_mem->impforcing) {
-    arkStep_ApplyForcing(step_mem, ark_mem->tcur,
-                         ark_mem->h * step_mem->Bi->A[i][i], &nvec);
+  /* apply external polynomial (MRI) forcing (M = I required) */
+  if (step_mem->expforcing || step_mem->impforcing)
+  {
+    if (step_mem->expforcing)
+    {
+      jmax = i;
+      Aij  = step_mem->Be->A;
+      cj   = step_mem->Be->c;
+    }
+    else
+    {
+      jmax = i + 1;
+      Aij  = step_mem->Bi->A;
+      cj   = step_mem->Bi->c;
+    }
+
+    for (k = 0; k < step_mem->nforcing; k++)
+    {
+      cvals[nvec + k] = ZERO;
+    }
+
+    for (j = 0; j < jmax; j++)
+    {
+      tj   = ark_mem->tn + cj[j] * ark_mem->h;
+      tau  = (tj - step_mem->tshift) / (step_mem->tscale);
+      taui = ONE;
+
+      for (k = 0; k < step_mem->nforcing; k++)
+      {
+        cvals[nvec + k] += Aij[i][j] * taui;
+        taui *= tau;
+      }
+    }
+
+    for (k = 0; k < step_mem->nforcing; k++)
+    {
+      cvals[nvec + k] *= ark_mem->h;
+      Xvecs[nvec + k] = step_mem->forcing[k];
+    }
+    nvec += step_mem->nforcing;
   }
 
   /* call fused vector operation to do the work */
@@ -2848,8 +2832,12 @@ int arkStep_StageSetup(ARKodeMem ark_mem, booleantype implicit)
 int arkStep_ComputeSolutions(ARKodeMem ark_mem, realtype *dsmPtr)
 {
   /* local data */
-  int retval, j, nvec;
+  int retval, j, k, nvec;
   N_Vector y, yerr;
+  sunrealtype tj, tau, taui;
+  sunrealtype* cj;
+  sunrealtype* bj;
+  sunrealtype* dj;
   realtype* cvals;
   N_Vector* Xvecs;
   ARKodeARKStepMem step_mem;
@@ -2891,6 +2879,47 @@ int arkStep_ComputeSolutions(ARKodeMem ark_mem, realtype *dsmPtr)
     }
   }
 
+  /* apply external polynomial (MRI) forcing (M = I required) */
+  if (step_mem->expforcing || step_mem->impforcing)
+  {
+    if (step_mem->expforcing)
+    {
+      cj = step_mem->Be->c;
+      bj = step_mem->Be->b;
+    }
+    else
+    {
+      cj = step_mem->Bi->c;
+      bj = step_mem->Bi->b;
+    }
+
+
+    for (k = 0; k < step_mem->nforcing; k++)
+    {
+      cvals[nvec + k] = ZERO;
+    }
+
+    for (j = 0; j < step_mem->stages; j++)
+    {
+      tj   = ark_mem->tn + cj[j] * ark_mem->h;
+      tau  = (tj - step_mem->tshift) / (step_mem->tscale);
+      taui = ONE;
+
+      for (k = 0; k < step_mem->nforcing; k++)
+      {
+        cvals[nvec + k] += bj[j] * taui;
+        taui *= tau;
+      }
+    }
+
+    for (k = 0; k < step_mem->nforcing; k++)
+    {
+      cvals[nvec + k] *= ark_mem->h;
+      Xvecs[nvec + k] = step_mem->forcing[k];
+    }
+    nvec += step_mem->nforcing;
+  }
+
   /*   call fused vector operation to do the work */
   retval = N_VLinearCombination(nvec, cvals, Xvecs, y);
   if (retval != 0) return(ARK_VECTOROP_ERR);
@@ -2911,6 +2940,48 @@ int arkStep_ComputeSolutions(ARKodeMem ark_mem, realtype *dsmPtr)
         Xvecs[nvec] = step_mem->Fi[j];
         nvec += 1;
       }
+    }
+
+    /* apply external polynomial (MRI) forcing (M = I required) */
+    if (step_mem->expforcing || step_mem->impforcing)
+    {
+      if (step_mem->expforcing)
+      {
+        cj = step_mem->Be->c;
+        bj = step_mem->Be->b;
+        dj = step_mem->Be->d;
+      }
+      else
+      {
+        cj = step_mem->Bi->c;
+        bj = step_mem->Bi->b;
+        dj = step_mem->Bi->d;
+      }
+
+      for (k = 0; k < step_mem->nforcing; k++)
+      {
+        cvals[nvec + k] = ZERO;
+      }
+
+      for (j = 0; j < step_mem->stages; j++)
+      {
+        tj   = ark_mem->tn + cj[j] * ark_mem->h;
+        tau  = (tj - step_mem->tshift) / (step_mem->tscale);
+        taui = ONE;
+
+        for (k = 0; k < step_mem->nforcing; k++)
+        {
+          cvals[nvec + k] += (bj[j] - dj[j]) * taui;
+          taui *= tau;
+        }
+      }
+
+      for (k = 0; k < step_mem->nforcing; k++)
+      {
+        cvals[nvec + k] *= ark_mem->h;
+        Xvecs[nvec + k] = step_mem->forcing[k];
+      }
+      nvec += step_mem->nforcing;
     }
 
     /* call fused vector operation to do the work */

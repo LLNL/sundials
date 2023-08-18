@@ -705,7 +705,7 @@ characterized by nonzero values on or above the diagonal of the matrices
 :math:`\Gamma^{\{k\}}`. Typically, MRI-GARK and IMEX-MRI-GARK methods are at
 most diagonally-implicit (i.e., :math:`\gamma_{i,j}^{\{k\}}=0` for all
 :math:`j>i`). Furthermore, diagonally-implicit stages are characterized as being
-"solve-decoupled" if :math:`\Delta c_i^S = 0` when `\gamma_{i,i}^{\{k\}} \ne 0`,
+"solve-decoupled" if :math:`\Delta c_i^S = 0` when :math:`\gamma_{i,i}^{\{k\}} \ne 0`,
 in which case the stage is computed as standard ARK or DIRK update. Alternately,
 a diagonally-implicit stage :math:`i` is considered "solve-coupled" if
 :math:`\Delta c^S_i \gamma_{i,j}^{\{k\}} \ne 0`, in which
