@@ -39,6 +39,19 @@ else()
   set(SUNDIALS_USE_GENERIC_MATH TRUE)
 endif()
 
+if($ENV{CI_JOB_ID})
+  set(JOB_ID $ENV{CI_JOB_ID})
+else()
+  string(TIMESTAMP JOB_ID "%Y%m%d%H%M%S")
+endif()
+
+if($ENV{CI_JOB_STARTED_AT})
+  set(JOB_START_TIME $ENV{CI_JOB_STARTED_AT})
+else()
+  string(TIMESTAMP JOB_START_TIME "%Y%m%d%H%M%S")
+endif()
+
+
 # ============================================================================
 # Generate macros and substitution variables related to TPLs
 # that SUNDIALS is being built with.
@@ -53,15 +66,10 @@ foreach(_item ${SUNDIALS_BUILD_LIST})
   endif()
 endforeach()
 
-# prepare substitution variable SUNDIALS_CALIPER_ENABLED for sundials_config.h
-if(ENABLE_CALIPER)
-  set(SUNDIALS_CALIPER_ENABLED TRUE)
-endif()
-
-# prepare substitution variable SUNDIALS_MPI_ENABLED for sundials_config.h
-if(ENABLE_MPI)
-  set(SUNDIALS_MPI_ENABLED TRUE)
-endif()
+# prepare substitution variable SUNDIALS_${TPL NAME}_ENABLED for sundials_config.h
+foreach(tpl ${SUNDIALS_TPL_LIST})
+  set(SUNDIALS_${tpl}_ENABLED TRUE)
+endforeach()
 
 # prepare substitution variable SUNDIALS_TRILINOS_HAVE_MPI for sundials_config.h
 if(Trilinos_MPI)

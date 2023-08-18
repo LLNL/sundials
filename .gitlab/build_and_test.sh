@@ -48,14 +48,15 @@ BUILD_JOBS=${BUILD_JOBS:-"1"}
 
 # load newer python to try the clingo concretizer
 # machine specific loads
-if [[ "${hostname}" == "corona" ]]; then
-    echo "module load python/3.9.12"
-    module load python/3.9.12
-    echo "module load rocm/5.4.1"
-    module load rocm/5.4.1
-else
+if [[ "${hostname}" == "lassen" ]]; then
     echo "module load python/3.8.2"
     module load python/3.8.2
+elif [[ "${hostname}" == "corona" ]]; then
+    echo "module load python/3.9.12"
+    module load python/3.9.12
+else
+    echo "module load python"
+    module load python
 fi
 
 if [[ "${option}" != "--build-only" && "${option}" != "--test-only" ]]
@@ -154,9 +155,9 @@ fi
 # Build Directory
 if [[ -z ${build_root} ]]
 then
-    build_root="/dev/shm$(pwd)"
+    build_root="$(pwd)"
 else
-    build_root="/dev/shm${build_root}"
+    build_root="${build_root}"
 fi
 
 build_dir="${build_root}/build_${job_unique_id}_${hostconfig//.cmake/}"
@@ -191,7 +192,7 @@ then
         -C "${hostconfig_path}" \
         -DCMAKE_INSTALL_PREFIX=${install_dir} \
         "${project_dir}"
-
+    
     # build
     VERBOSE_BUILD=${VERBOSE_BUILD:-"OFF"}
     if [[ "${VERBOSE_BUILD}" == "ON" ]]; then

@@ -96,7 +96,7 @@ web pages.
    * ``doc/sundials/biblio.bib``
    * ``scripts/tarscript``
 
-   The following files are no longer maintaianed:
+   The following files are no longer maintained:
 
    * ``html/main.html`` (This is no longer maintained as of at least 2016)
    * ``sundialsTB/install_STB.m`` (This is no longer maintained as of 2016)

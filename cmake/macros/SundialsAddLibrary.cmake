@@ -239,7 +239,7 @@ macro(sundials_add_library target)
         foreach(_tmp ${_all_objs})
           # We use target_sources since target_link_libraries does not work
           # as expected with CMake 3.12 (see CMake issues 18090 and 18692).
-          # TODO(DJG): Update whenever we require CMake 3.14 or 3.21
+          # TODO(DJG): Update whenever we require CMake 3.14 or newer
           target_sources(${_actual_target_name} PRIVATE $<TARGET_OBJECTS:${_tmp}>)
         endforeach()
       endif()
@@ -262,6 +262,15 @@ macro(sundials_add_library target)
           # Workaround bug in CMake < 3.17.3 when using MPI::MPI_C and CUDA
           target_include_directories(${_actual_target_name} PUBLIC ${MPI_C_INCLUDE_DIRS})
           target_link_libraries(${_actual_target_name} PUBLIC ${MPI_C_LIBRARIES})
+        endif()
+      endif()
+
+      if(SUNDIALS_BUILD_WITH_PROFILING)
+        if(ENABLE_CALIPER)
+          target_link_libraries(${_actual_target_name} PUBLIC caliper)
+        endif()
+        if(ENABLE_ADIAK)
+          target_link_libraries(${_actual_target_name} PUBLIC adiak::adiak ${CMAKE_DL_LIBS})
         endif()
       endif()
 

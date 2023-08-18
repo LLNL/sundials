@@ -21,15 +21,6 @@
 set(IDA_examples
   "idaHeat2D_kry_p_mpicuda\;1\;4\;develop")
 
-# Add source directory to include directories
-include_directories(. ${MPI_CXX_INCLUDE_PATH})
-
-if(MPI_C_COMPILER)
-  # use MPI wrapper as the compiler
-  set(CMAKE_C_COMPILER ${MPI_C_COMPILER})
-  set(CMAKE_CXX_COMPILER ${MPI_CXX_COMPILER})
-endif()
-
 # Specify libraries to link against
 set(IDA_LIB sundials_ida)
 set(NVECS_LIB sundials_nvecmpiplusx sundials_nveccuda)
@@ -61,7 +52,8 @@ foreach(example_tuple ${IDA_examples})
     EXAMPLE_TYPE ${example_type})
 
   # libraries to link against
-  target_link_libraries(${example} PRIVATE ${SUNDIALS_LIBS} ${MPI_CXX_LIBRARIES})
+  target_link_libraries(${example} PRIVATE 
+    MPI::MPI_CXX ${SUNDIALS_LIBS})
 
   # install example source and out files
   if(EXAMPLES_INSTALL)
