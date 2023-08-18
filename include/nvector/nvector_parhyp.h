@@ -40,6 +40,7 @@
 
 #ifndef _NVECTOR_PARHYP_H
 #define _NVECTOR_PARHYP_H
+#endif
 
 #include <mpi.h>
 #include <stdio.h>
