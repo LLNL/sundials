@@ -643,6 +643,17 @@ illustration only.
    .. note:: See additional information on building with *hypre*
              enabled in  :numref:`Installation.CMake.ExternalLibraries`.
 
+.. cmakeoption:: SUNDIALS_HYPRE_BACKENDS
+
+   If building SUNDIALS with *hypre* support, this sets the *hypre* backend to target.
+   Values supported are SERIAL (MPI only), CUDA (MPI + NVidia GPU), or HIP (MPI + AMD GPU).
+
+   Default: SERIAL
+
+      .. note:: *hypre* must first be built with the chosen backend enabled (e.g. with ``--using-cuda`` or ``--using-hip``).
+                ``SUNDIALS_HYPRE_BACKENDS`` then specifies which of the enabled *hypre* backends to use (``SERIAL`` will
+                always be available).
+
 .. cmakeoption:: HYPRE_INCLUDE_DIR
 
    Path to *hypre* header files
@@ -1405,6 +1416,11 @@ National Laboratory and is available from the `hypre GitHub repository
 To enable *hypre*, set  ``ENABLE_HYPRE`` to ``ON``, set ``HYPRE_INCLUDE_DIR``
 to the ``include`` path of the *hypre* installation, and set the variable
 ``HYPRE_LIBRARY_DIR`` to the ``lib`` path of the *hypre* installation.
+
+CUDA/HIP interoperability: If the provided *hypre* installation was built with
+CUDA or HIP enabled, please set :cmakeop:`SUNDIALS_HYPRE_BACKENDS` to CUDA or HIP,
+respectively. This option is set to SERIAL by default, which uses MPI and has no
+GPU functionality.
 
 .. note::
 

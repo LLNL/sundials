@@ -27,18 +27,33 @@ pointer to an object of type ``hypre_ParVector``, an MPI communicator,
 and a boolean flag *own_parvector* indicating ownership of the
 HYPRE parallel vector object *x*.
 
+With the **CUDA** and **HIP** *hypre* backends, we have four additional content members:
+Pointers to execution policies that control how streaming and reduction kernels are launched,
+a :c:type:`SUNMemoryHelper` for performing memory operations,
+and a private data structure which holds additonal members that should not be accessed directly.
 
 .. code-block:: c
 
-   struct _N_VectorContent_ParHyp {
-     sunindextype local_length;
-     sunindextype global_length;
-     booleantype own_data;
-     booleantype own_parvector;
-     realtype *data;
-     MPI_Comm comm;
-     hypre_ParVector *x;
+   struct _N_VectorContent_ParHyp
+   {
+      sunindextype       local_length;        /* local vector length               */
+      sunindextype       global_length;       /* global vector length              */
+      booleantype        own_parvector;       /* ownership of HYPRE vector         */
+      MPI_Comm           comm;                /* pointer to MPI communicator       */
+      HYPRE_ParVector    x;                   /* the actual HYPRE_ParVector object */
+   #if defined(SUNDIALS_HYPRE_BACKENDS_CUDA)
+      SUNCudaExecPolicy *stream_exec_policy;
+      SUNCudaExecPolicy *reduce_exec_policy;
+      SUNMemoryHelper    mem_helper;
+      void              *priv;                /* private buffers, counters, etc.   */
+   #if defined(SUNDIALS_HYPRE_BACKENDS_HIP)
+      SUNHipExecPolicy  *stream_exec_policy;
+      SUNHipExecPolicy  *reduce_exec_policy;
+      SUNMemoryHelper    mem_helper;
+      void              *priv;                /* private buffers, counters, etc.   */
+   #endif
    };
+
 
 The header file to be included when using this module is ``nvector_parhyp.h``.
 The installed module library to link to is
@@ -49,6 +64,8 @@ Unlike native SUNDIALS vector types, NVECTOR_PARHYP does not provide macros
 to access its member variables.
 Note that NVECTOR_PARHYP requires SUNDIALS to be built with MPI support.
 
+The user specifies which *hypre* backend SUNDIALS should expect via the build option
+:cmakeop:`SUNDIALS_HYPRE_BACKENDS`.
 
 
 NVECTOR_PARHYP functions
@@ -187,6 +204,11 @@ options as the vector they are cloned from while vectors created with
   it is recommended to extract the HYPRE vector via
   ``x_vec = N_VGetVector_ParHyp(v)`` and then access components using
   appropriate HYPRE functions.
+  
+* A data pointer can be obtained via ``data = hypre_VectorData(hypre_ParVectorLocalVector(x_vec))``.
+  With a GPU *hypre* backend (CUDA/HIP), the vector data lives on the device (i.e. ``data`` is a
+  pointer to device memory). GPU operations (e.g. ``[cuda/hip]Memcpy``) can be called using the
+  ``data`` pointer. 
 
 * :c:func:`N_VNewEmpty_ParHyp`, :c:func:`N_VMake_ParHyp`, and
   :c:func:`N_VCloneVectorArrayEmpty_ParHyp()` set the field *own_parvector*
