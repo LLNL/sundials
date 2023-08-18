@@ -45,7 +45,7 @@
  *  (1) Two hypre nvectors are used: u and udot. Depending on the
  *      backend (SUNDIALS_HYPRE_BACKENDS), their data will be stored
  *      either on the host or on the device.
- *  (2) The interior M gridpoints are divided amongst the nprocs
+ *  (2) The interior M grid points are divided amongst the nprocs
  *      processes so that local_M is either k+1 or k for all procs.
  *  (3) Buffers: The four buffers used for MPI communications are
  *      stored together in the array 'bufs'. The entries correspond
@@ -85,7 +85,6 @@
 #include <sundials/sundials_math.h>               /* definition of EXP                            */
 #include <nvector/nvector_parhyp.h>               /* nvector implementation                       */
 #include "sunnonlinsol/sunnonlinsol_fixedpoint.h" /* access to the fixed point SUNNonlinearSolver */
-// #include "sundials_debug.h"
 
 #include <HYPRE.h>
 #include <HYPRE_IJ_mv.h>
@@ -108,14 +107,27 @@
 #define NOUT  10             /* number of output times      */
 #define MXSTP 50000 //500    /* max # steps between outputs */
 
+/* --- Backend-specific definitions --- */
+
+#if defined(SUNDIALS_HYPRE_BACKENDS_CUDA)
+#define NV_ADD_LANG_PREFIX_PH(token) cuda##token // token pasting; expands to ```cuda[token]```
+
+#elif defined(SUNDIALS_HYPRE_BACKENDS_HIP)
+#define NV_ADD_LANG_PREFIX_PH(token) hip##token // token pasting; expands to ```hip[token]```
+#endif
+
+#if defined(SUNDIALS_HYPRE_BACKENDS_CUDA) || defined(SUNDIALS_HYPRE_BACKENDS_HIP)
+#define SUNDIALS_HYPRE_BACKENDS_CUDA_OR_HIP
+#endif
+
+/* --- Error-checking macros --- */
+
 #define MPI_ASSERT(expr,msg,comm,myproc,code)                            \
   if(!(expr)) {                                                          \
     fprintf(stderr, "ERROR in %s (%s line %d): %s",                      \
         __func__, __FILE__, __LINE__, "\n──> " msg "\n──> Aborting...\n"); \
     MPI_Abort(comm,code);                                                \
   }
-    // SUNDIALS_DEBUG_ERROR(msg);
-    // if (myproc==0) printf(msg);
 
 /* Type : UserData
    contains grid constants, parhyp machine parameters, work array. */
@@ -124,7 +136,7 @@ typedef struct {
   MPI_Comm  comm;               // MPI communicator
   int       M, nprocs, myproc;  // global problem size, # of processes and my process id
   HYPRE_Int local_M, mybase;    // local problem size and global starting index
-  realtype  dx, hdcoef, hacoef; // gridpoint spacing and problem coefficients
+  realtype  dx, hdcoef, hacoef; // grid point spacing and problem coefficients
   realtype  *bufs;              // Send/Recv buffers: [Lrecvbuf,Lsendbuf,Rsendbuf,Rrecvbuf]
 #if defined(SUNDIALS_HYPRE_BACKENDS_CUDA_OR_HIP)
   realtype  *bufs_dev;          // Buffer space (4 realtypes) to be allocated on device
@@ -178,12 +190,6 @@ int main(int argc, char *argv[])
   MPI_Comm           comm;
   HYPRE_ParVector    Upar; /* Declare HYPRE parallel vector */
   HYPRE_IJVector     Uij;  /* Declare "IJ" interface to HYPRE vector */
-  
-/* Optional: create stream and choose policies to use instead of default */
-// #if defined(SUNDIALS_HYPRE_BACKENDS_CUDA_OR_HIP)
-//   NV_ADD_LANG_PREFIX_PH(Stream_t) stream;
-//   NV_ADD_LANG_PREFIX_PH(Error_t)  gpuerr;
-// #endif
 
   data      = NULL;
   u         = NULL;
@@ -198,9 +204,9 @@ int main(int argc, char *argv[])
   MPI_Comm_rank(comm, &myproc);
 
   /* Parse inputs (required: M) */
-  MPI_ASSERT(argc>=2,"ERROR: ONE (1) input required: M (# of interior gridpoints)",comm,myproc,1)
+  MPI_ASSERT(argc>=2,"ERROR: ONE (1) input required: M (# of interior grid points)",comm,myproc,1)
   M = (HYPRE_Int) atoi(argv[1]);
-  MPI_ASSERT(M>=nprocs,"ERROR: M < nprocs (We require at least one interior gridpoint per process)",comm,myproc,1)
+  MPI_ASSERT(M>=nprocs,"ERROR: M < nprocs (We require at least one interior grid point per process)",comm,myproc,1)
 
   /* Allocate UserData */
   data = (UserData) malloc(sizeof *data);
@@ -278,17 +284,14 @@ int main(int argc, char *argv[])
 
   /* In loop over output points, call CVode, print results, test for error */
   for (iout=1, tout=T1; iout <= NOUT; iout++, tout += DTOUT) {
-    // printf("checkpoint 1\n");
     /* Advance to next output time */
     retval = CVode(cvode_mem, tout, u, &t, CV_NORMAL);
     if(check_retval(&retval, "CVode", 1, myproc)) break;
 
-    // printf("checkpoint 2\n");
     /* Get number of steps taken */
     retval = CVodeGetNumSteps(cvode_mem, &nst);
     if(check_retval(&retval, "CVodeGetNumSteps", 1, myproc)) break;
 
-    // printf("checkpoint 3\n");
     /* Print time, current max norm, and # steps taken since last output */
     umax = N_VMaxNorm(u);
     if (myproc == 0) PrintData(t, umax, nst);
@@ -499,17 +502,15 @@ static int f(realtype t, N_Vector u, N_Vector udot, void *user_data)
 {
   // printf("checkpoint 1a\n");
   int       nprocs, myproc, procfirst, proclast, procleft, procright;
-  realtype *udata, *udotdata; // Both are length M (# of gridpoints excluding bdry)
+  realtype *udata, *udotdata; // Both are length M (# of grid points excluding bdry)
 
   UserData        data;
   MPI_Comm        comm;
   MPI_Status      status;
   MPI_Request     request;
-  // MPI_Status      status_leftward_flow, status_rightward_flow;
   HYPRE_ParVector uhyp;
   HYPRE_ParVector udothyp;
 
-  // printf("checkpoint 1b\n");
   /* Get reference to UserData */
   data     = (UserData) user_data;
 
@@ -526,7 +527,6 @@ static int f(realtype t, N_Vector u, N_Vector udot, void *user_data)
   udata    = hypre_VectorData(hypre_ParVectorLocalVector(uhyp));
   udotdata = hypre_VectorData(hypre_ParVectorLocalVector(udothyp));
 
-  // printf("checkpoint 1c\n");
   /* Relevant process ids (utilize behavior of MPI_PROC_NULL in Send/Recv's) */
   // Note: Send/Recv's with MPI_PROC_NULL immediately return successful without modifying buffers.
   procfirst = 0;
@@ -538,14 +538,13 @@ static int f(realtype t, N_Vector u, N_Vector udot, void *user_data)
   // Note: bufs order is [Lrecvbuf,Lsendbuf,Rsendbuf,Rrecvbuf]
   // Note: MPI transfers are host-to-host (if MPI is CUDA/HIP-aware, could do device-to-device)
 #if defined(SUNDIALS_HYPRE_BACKENDS_SERIAL)
-  data->bufs[1] = udata[0];          //  leftmost local gridpoint is sent left
-  data->bufs[2] = udata[data->local_M]; // rightmost local gridpoint is sent right
+  data->bufs[1] = udata[0];             //  leftmost local grid point is sent left
+  data->bufs[2] = udata[data->local_M]; // rightmost local grid point is sent right
 #elif defined(SUNDIALS_HYPRE_BACKENDS_CUDA_OR_HIP)
   NV_ADD_LANG_PREFIX_PH(Memcpy)(&data->bufs[1],&udata[0],              sizeof(realtype),NV_ADD_LANG_PREFIX_PH(MemcpyDeviceToHost));
   NV_ADD_LANG_PREFIX_PH(Memcpy)(&data->bufs[2],&udata[data->local_M-1],sizeof(realtype),NV_ADD_LANG_PREFIX_PH(MemcpyDeviceToHost));
 #endif
 
-  // printf("checkpoint 1d\n");
   /* Nonblocking leftward flow of data */
   MPI_Irecv(&data->bufs[3],1,MPI_SUNREALTYPE,procright,0,comm,&request); // Receive from procright
   MPI_Send( &data->bufs[1],1,MPI_SUNREALTYPE,procleft ,0,comm);          // Send to procleft
@@ -556,14 +555,12 @@ static int f(realtype t, N_Vector u, N_Vector udot, void *user_data)
   MPI_Send( &data->bufs[2],1,MPI_SUNREALTYPE,procright,0,comm);          // Send to procright
   MPI_Wait( &request,&status);
 
-  // printf("checkpoint 1e\n");
   /* Move received data from host to GPU */
 #if defined(SUNDIALS_HYPRE_BACKENDS_CUDA_OR_HIP)
   NV_ADD_LANG_PREFIX_PH(Memcpy)(&data->bufs_dev[0],&data->bufs[0],sizeof(realtype),NV_ADD_LANG_PREFIX_PH(MemcpyHostToDevice));
   NV_ADD_LANG_PREFIX_PH(Memcpy)(&data->bufs_dev[3],&data->bufs[3],sizeof(realtype),NV_ADD_LANG_PREFIX_PH(MemcpyHostToDevice));
 #endif
 
-  // printf("checkpoint 1f\n");
 #if defined(SUNDIALS_HYPRE_BACKENDS_SERIAL)
   int      i;
   realtype uleft, uright, ucenter, hdiff, hadv;

@@ -60,6 +60,32 @@ using namespace sundials::hip;
 using namespace sundials::hip::impl;
 #endif
 
+/* --- Backend-specific definitions --- */
+
+#if defined(SUNDIALS_HYPRE_BACKENDS_SERIAL)
+#define NV_BACKEND_STRING_PH "SERIAL"
+
+#elif defined(SUNDIALS_HYPRE_BACKENDS_CUDA)
+#define NV_BACKEND_STRING_PH "CUDA"
+#define NV_GPU_LANG_TOKEN_PH cuda
+#define NV_ADD_LANG_PREFIX_PH(token) cuda##token // token pasting; expands to ```cuda[token]```
+#define NV_EXECPOLICY_TYPE_PH SUNCudaExecPolicy
+#define NV_MEMHELP_STRUCT_PH SUNMemoryHelper_Cuda
+#define NV_VERIFY_CALL_PH SUNDIALS_CUDA_VERIFY
+
+#elif defined(SUNDIALS_HYPRE_BACKENDS_HIP)
+#define NV_BACKEND_STRING_PH "HIP"
+#define NV_GPU_LANG_TOKEN_PH hip
+#define NV_ADD_LANG_PREFIX_PH(token) hip##token // token pasting; expands to ```hip[token]```
+#define NV_EXECPOLICY_TYPE_PH SUNHipExecPolicy
+#define NV_MEMHELP_STRUCT_PH SUNMemoryHelper_Hip
+#define NV_VERIFY_CALL_PH SUNDIALS_HIP_VERIFY
+#endif
+
+#if defined(SUNDIALS_HYPRE_BACKENDS_CUDA) || defined(SUNDIALS_HYPRE_BACKENDS_HIP)
+#define SUNDIALS_HYPRE_BACKENDS_CUDA_OR_HIP
+#endif
+
 /* --- Defined constants --- */
 
 #define ZERO   RCONST(0.0)
@@ -129,37 +155,6 @@ using namespace sundials::hip::impl;
  *
  * -----------------------------------------------------------------
  */
-
-/* --- (TEMPORARY) Reference accesor macros defined by hypre --- */
-
-// For hypre ParVector
-// #define hypre_ParVectorComm(vector)             ((vector) -> comm)
-// #define hypre_ParVectorGlobalSize(vector)       ((vector) -> global_size)
-// #define hypre_ParVectorFirstIndex(vector)       ((vector) -> first_index)
-// #define hypre_ParVectorLastIndex(vector)        ((vector) -> last_index)
-// #define hypre_ParVectorPartitioning(vector)     ((vector) -> partitioning)
-// #define hypre_ParVectorActualLocalSize(vector)  ((vector) -> actual_local_size)
-// #define hypre_ParVectorLocalVector(vector)      ((vector) -> local_vector)
-// #define hypre_ParVectorOwnsData(vector)         ((vector) -> owns_data)
-// #define hypre_ParVectorAllZeros(vector)         ((vector) -> all_zeros)
-// #define hypre_ParVectorNumVectors(vector)       (hypre_VectorNumVectors(hypre_ParVectorLocalVector(vector)))
-// #define hypre_ParVectorAssumedPartition(vector) ((vector) -> assumed_partition)
-// static inline HYPRE_MemoryLocation
-// hypre_ParVectorMemoryLocation(hypre_ParVector *vector)
-// {
-//    return hypre_VectorMemoryLocation(hypre_ParVectorLocalVector(vector));
-// }
-
-// For hypre hypreVector (local_vector inside a ParVector)
-// #define hypre_VectorData(vector)                  ((vector) -> data)
-// #define hypre_VectorSize(vector)                  ((vector) -> size)
-// #define hypre_VectorComponent(vector)             ((vector) -> component)
-// #define hypre_VectorOwnsData(vector)              ((vector) -> owns_data)
-// #define hypre_VectorMemoryLocation(vector)        ((vector) -> memory_location)
-// #define hypre_VectorNumVectors(vector)            ((vector) -> num_vectors)
-// #define hypre_VectorMultiVecStorageMethod(vector) ((vector) -> multivec_storage_method)
-// #define hypre_VectorVectorStride(vector)          ((vector) -> vecstride)
-// #define hypre_VectorIndexStride(vector)           ((vector) -> idxstride)
 
 /* --- Common accessor macros --- */
 
@@ -409,8 +404,6 @@ N_Vector N_VNewEmpty_ParHyp(MPI_Comm comm,
   NV_CONTENT_PH(v)->reduce_exec_policy         = NULL;
   NV_CONTENT_PH(v)->mem_helper                 = NULL;
 
-  // NV_PRIVATE_PH(v)->use_managed_mem      = SUNFALSE;
-
   // Reduction workspace
   NV_PRIVATE_PH(v)->device_counter       = NULL;  // device memory for a counter (used in LDS reductions)
   NV_PRIVATE_PH(v)->reduce_buffer_dev    = NULL;  // device memory for reductions
@@ -556,7 +549,6 @@ void N_VPrintFile_ParHyp(N_Vector x, FILE *outfile)
 N_Vector N_VCloneEmpty_ParHyp(N_Vector w)
 {
   N_Vector v;
-  // N_VectorContent_ParHyp content;
 
   if (w == NULL) return(NULL);
 
@@ -569,37 +561,8 @@ N_Vector N_VCloneEmpty_ParHyp(N_Vector w)
   if (N_VCopyOps(w, v)) { N_VDestroy(v); return(NULL); }
 
   /* Set content */
-  // NV_LOCLENGTH_PH(v)    = NV_LOCLENGTH_PH(w);
-  // NV_GLOBLENGTH_PH(v)   = NV_GLOBLENGTH_PH(w);
-  // NV_COMM_PH(v)         = NV_COMM_PH(w);
   NV_OWN_PARVEC_PH(v)   = SUNFALSE;
   NV_HYPRE_PARVEC_PH(v) = NULL;
-
-#if defined(SUNDIALS_HYPRE_BACKENDS_CUDA_OR_HIP)
-  // ...
-#endif
-
-//   /* Create content */
-//   content = NULL;
-//   content = (N_VectorContent_ParHyp) malloc(sizeof *content);
-//   if (content == NULL) { N_VDestroy(v); return(NULL); }
-
-//   /* Create private content */
-// #if defined(SUNDIALS_HYPRE_BACKENDS_CUDA_OR_HIP)
-//   content->priv = NULL;
-//   content->priv = (N_PrivateVectorContent_ParHyp) malloc(sizeof(_N_PrivateVectorContent_ParHyp));
-//   if (content->priv == NULL) { N_VDestroy(v); return(NULL); }
-// #endif
-
-//   /* Attach content */
-//   v->content = content;
-
-  // /* Initialize content */
-  // content->local_length  = NV_LOCLENGTH_PH(w);
-  // content->global_length = NV_GLOBLENGTH_PH(w);
-  // content->comm          = NV_COMM_PH(w);
-  // content->own_parvector = SUNFALSE;
-  // content->x             = NULL;
 
   return(v);
 }
@@ -1608,17 +1571,8 @@ realtype N_VMinQuotientLocal_ParHyp(N_Vector num, N_Vector denom)
   min = BIG_REAL;
 
 #if defined(SUNDIALS_HYPRE_BACKENDS_SERIAL)
-  // booleantype notEvenOnce = SUNTRUE;
   for (sunindextype i = 0; i < N; i++) {
     if (dd[i] != ZERO) min = SUNMIN(min, nd[i]/dd[i]);
-    // if (dd[i] == ZERO) continue;
-    // else {
-    //   if (!notEvenOnce) min = SUNMIN(min, nd[i]/dd[i]);
-    //   else {
-    //     min = nd[i]/dd[i];
-    //     notEvenOnce = SUNFALSE;
-    //   }
-    // }
   }
 #elif defined(SUNDIALS_HYPRE_BACKENDS_CUDA_OR_HIP)
   bool atomic;
@@ -3488,7 +3442,6 @@ static int GetKernelParameters(N_Vector v, booleantype reduction, size_t& grid,
 
 static void PostKernelLaunch()
 {
-// TODO: implement "SUNDIALS_DEBUG_PARHYP_LASTERROR"?
 #if defined(SUNDIALS_DEBUG_CUDA_LASTERROR) || defined(SUNDIALS_DEBUG_HIP_LASTERROR)
   NV_ADD_LANG_PREFIX_PH(DeviceSynchronize)();
   NV_VERIFY_CALL_PH(NV_ADD_LANG_PREFIX_PH(GetLastError)());

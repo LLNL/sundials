@@ -74,36 +74,6 @@
 #include "sundials_hip.h"             /* located in src/nvector/sundials */
 #endif
 
-/* --- Backend-specific definitions --- */
-
-#if defined(SUNDIALS_HYPRE_BACKENDS_SERIAL)
-#define NV_BACKEND_STRING_PH "SERIAL"
-
-#elif defined(SUNDIALS_HYPRE_BACKENDS_CUDA)
-#define NV_BACKEND_STRING_PH "CUDA"
-#define NV_GPU_LANG_TOKEN_PH cuda
-#define NV_ADD_LANG_PREFIX_PH(token) cuda##token // token pasting; expands to ```cuda[token]```
-#define NV_EXECPOLICY_TYPE_PH SUNCudaExecPolicy
-#define NV_MEMHELP_STRUCT_PH SUNMemoryHelper_Cuda
-#define NV_VERIFY_CALL_PH SUNDIALS_CUDA_VERIFY
-
-#elif defined(SUNDIALS_HYPRE_BACKENDS_HIP)
-#define NV_BACKEND_STRING_PH "HIP"
-#define NV_GPU_LANG_TOKEN_PH hip
-#define NV_ADD_LANG_PREFIX_PH(token) hip##token // token pasting; expands to ```hip[token]```
-#define NV_EXECPOLICY_TYPE_PH SUNHipExecPolicy
-#define NV_MEMHELP_STRUCT_PH SUNMemoryHelper_Hip
-#define NV_VERIFY_CALL_PH SUNDIALS_HIP_VERIFY
-#endif
-
-#if defined(SUNDIALS_HYPRE_BACKENDS_CUDA) || defined(SUNDIALS_HYPRE_BACKENDS_HIP)
-#define SUNDIALS_HYPRE_BACKENDS_CUDA_OR_HIP
-#endif
-
-#if defined(SUNDIALS_HYPRE_USING_UNIFIED_MEMORY) && defined(SUNDIALS_HYPRE_BACKENDS_CUDA)
-#define SUNDIALS_HYPRE_UNIFIED_MEMORY_AND_CUDA
-#endif
-
 /* --- Wrapper to enable C++ usage --- */
 
 #ifdef __cplusplus
@@ -118,16 +88,21 @@ extern "C" {
 
 struct _N_VectorContent_ParHyp
 {
-  sunindextype    local_length;  /* local vector length               */
-  sunindextype    global_length; /* global vector length              */
-  booleantype     own_parvector; /* ownership of HYPRE vector         */
-  MPI_Comm        comm;          /* pointer to MPI communicator       */
-  HYPRE_ParVector x;             /* the actual HYPRE_ParVector object */
-#if defined(SUNDIALS_HYPRE_BACKENDS_CUDA_OR_HIP)
-  NV_EXECPOLICY_TYPE_PH* stream_exec_policy;
-  NV_EXECPOLICY_TYPE_PH* reduce_exec_policy;
-  SUNMemoryHelper        mem_helper;
-  void*                  priv;   /* private buffers, counters, etc.   */
+  sunindextype       local_length;        /* local vector length               */
+  sunindextype       global_length;       /* global vector length              */
+  booleantype        own_parvector;       /* ownership of HYPRE vector         */
+  MPI_Comm           comm;                /* pointer to MPI communicator       */
+  HYPRE_ParVector    x;                   /* the actual HYPRE_ParVector object */
+#if defined(SUNDIALS_HYPRE_BACKENDS_CUDA)
+  SUNCudaExecPolicy *stream_exec_policy;
+  SUNCudaExecPolicy *reduce_exec_policy;
+  SUNMemoryHelper    mem_helper;
+  void              *priv;                /* private buffers, counters, etc.   */
+#if defined(SUNDIALS_HYPRE_BACKENDS_HIP)
+  SUNHipExecPolicy  *stream_exec_policy;
+  SUNHipExecPolicy  *reduce_exec_policy;
+  SUNMemoryHelper    mem_helper;
+  void              *priv;                /* private buffers, counters, etc.   */
 #endif
 };
 
@@ -162,25 +137,6 @@ SUNDIALS_EXPORT realtype *N_VGetArrayPointer_ParHyp(N_Vector v);
 SUNDIALS_EXPORT void N_VSetArrayPointer_ParHyp(realtype *v_data, N_Vector v);
 SUNDIALS_EXPORT void *N_VGetCommunicator_ParHyp(N_Vector v);
 SUNDIALS_EXPORT sunindextype N_VGetLength_ParHyp(N_Vector v);
-
-/* --- Backend-specific operations --- */
-
-//TODO: add these in the .c file
-// #if defined(SUNDIALS_HYPRE_BACKENDS_CUDA_OR_HIP)
-// SUNDIALS_EXPORT booleantype N_VIsManagedMemory_ParHyp(N_Vector x);
-// SUNDIALS_EXPORT void N_VCopyToDevice_ParHyp(N_Vector v);
-// SUNDIALS_EXPORT void N_VCopyFromDevice_ParHyp(N_Vector v);
-// #endif
-
-// #if defined(SUNDIALS_HYPRE_BACKENDS_CUDA)
-// SUNDIALS_EXPORT int N_VSetKernelExecPolicy_ParHyp(N_Vector x,
-//                                                 SUNCudaExecPolicy* stream_exec_policy,
-//                                                 SUNCudaExecPolicy* reduce_exec_policy);
-// #elif defined(SUNDIALS_HYPRE_BACKENDS_HIP)
-// SUNDIALS_EXPORT int N_VSetKernelExecPolicy_ParHyp(N_Vector x,
-//                                                 SUNHipExecPolicy* stream_exec_policy,
-//                                                 SUNHipExecPolicy* reduce_exec_policy);
-// #endif
 
 /* --- Standard vector operations --- */
 

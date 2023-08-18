@@ -48,7 +48,6 @@
  *
  * This example uses Hypre vector and MPI parallelization. User is
  * expected to be familiar with the Hypre library.
- * ┌ ┐ └ ┘ ├ ┤ ┬ ┴ ┼ ─ │ ╭ ╮ ╯ ╰ ╱ ╲ ╳ ╶ ╴
  *-----------------------------------------------------------------
  * Data flow: SERIAL backend
  *                  ╭                          ╮
@@ -80,26 +79,26 @@
  * Four (4) arguments required:
  * - nprocsx (# of procs in x)
  * - nprocsy (# of procs in y)
- * - Mx      (# of interior gridpoints in x)
- * - My      (# of interior gridpoints in y)
+ * - Mx      (# of interior grid points in x)
+ * - My      (# of interior grid points in y)
  * 
  * Arguments must obey:
  *  (1) nprocsx*nprocsy = N
- *  (2) Mx >= nprocsx (at least one interior gridpoint per proc)
- *  (3) My >= nprocsy (at least one interior gridpoint per proc)
+ *  (2) Mx >= nprocsx (at least one interior grid point per proc)
+ *  (3) My >= nprocsy (at least one interior grid point per proc)
  * 
  * See other problem constants below.
  *-----------------------------------------------------------------*/
 #include <stdio.h>
 #include <stdlib.h>
 #include <math.h>
-#include <arkode/arkode_arkstep.h>     /* prototypes for ARKStep fcts., consts */
-#include <nvector/nvector_parhyp.h>    /* declaration of N_Vector  */
-#include <sunlinsol/sunlinsol_spgmr.h> /* access to SPGMR SUNLinearSolver  */
-#include <sundials/sundials_dense.h>   /* prototypes for small dense fcts. */
-#include <sundials/sundials_types.h>   /* definitions of realtype, booleantype */
-#include <sundials/sundials_math.h>    /* definition of macros SUNSQR and EXP */
-#include <mpi.h>                       /* MPI constants and types */
+#include <arkode/arkode_arkstep.h>        /* prototypes for ARKStep fcts., consts */
+#include <nvector/nvector_parhyp.h>       /* declaration of N_Vector              */
+#include <sunlinsol/sunlinsol_spgmr.h>    /* access to SPGMR SUNLinearSolver      */
+#include <sundials/sundials_dense.h>      /* prototypes for small dense fcts.     */
+#include <sundials/sundials_types.h>      /* definitions of realtype, booleantype */
+#include <sundials/sundials_math.h>       /* definition of macros SUNSQR and EXP  */
+#include <mpi.h>                          /* MPI constants and types              */
 
 #include <HYPRE.h>
 #include <HYPRE_IJ_mv.h>
@@ -118,11 +117,11 @@
 #define C2_SCALE     RCONST(1.0e12)
 
 #define T0           RCONST(0.0)          /* initial time */
-#define NOUT         48//12                   /* number of output times */
+#define NOUT         12                   /* number of output times */
 #define HALFHR       RCONST(1800.0)
 #define TWOHR        RCONST(7200.0)       /* number of seconds in two hours  */
 #define HALFDAY      RCONST(4.32e4)       /* number of seconds in a half day */
-#define PI       RCONST(3.1415926535898)  /* pi */
+#define PI        RCONST(3.1415926535898) /* pi */
 
 #define XMIN         RCONST(0.0)          /* grid boundaries in x  */
 #define XMAX         RCONST(20.0)
@@ -135,6 +134,24 @@
                                           /* change from relative to absolute      */
 #define ATOL    (RTOL*FLOOR)              /* scalar absolute tolerance */
 
+/* --- Backend-specific definitions --- */
+
+#if defined(SUNDIALS_HYPRE_BACKENDS_CUDA)
+#define NV_ADD_LANG_PREFIX_PH(token) cuda##token // token pasting; expands to ```cuda[token]```
+#define NV_VERIFY_CALL_PH SUNDIALS_CUDA_VERIFY
+
+#elif defined(SUNDIALS_HYPRE_BACKENDS_HIP)
+#define NV_ADD_LANG_PREFIX_PH(token) hip##token // token pasting; expands to ```hip[token]```
+#define NV_VERIFY_CALL_PH SUNDIALS_HIP_VERIFY
+#endif
+
+#if defined(SUNDIALS_HYPRE_BACKENDS_CUDA) || defined(SUNDIALS_HYPRE_BACKENDS_HIP)
+#define SUNDIALS_HYPRE_BACKENDS_CUDA_OR_HIP
+#endif
+
+/* --- Error-checking macros --- */
+
+#define CHECK_LAST_ERROR() NV_VERIFY_CALL_PH(NV_ADD_LANG_PREFIX_PH(GetLastError)());
 
 /* User-defined matrix accessor macro: IJth
 
@@ -155,8 +172,7 @@
     MPI_Abort(comm,code);                                                  \
   }
 
-/* User-defined GPU error checking */
-#define CHECK_LAST_ERROR() NV_VERIFY_CALL_PH(NV_ADD_LANG_PREFIX_PH(GetLastError)());
+
 
 /* Type : UserData
    contains problem constants, preconditioner blocks, pivot arrays,
@@ -164,12 +180,12 @@
    for the preconditiner */
 typedef struct {
   realtype q4, om, dx, dy, hdco, haco, vdco;  /* quantities (q4 depends on time of day)    */
-  int M, Mx, My, local_M, local_Mx, local_My; /* # of interior gridpoints M=Mx*My          */
+  int M, Mx, My, local_M, local_Mx, local_My; /* # of interior grid points M=Mx*My         */
   int N, local_N;                             /* # of equations N=2*M                      */
-  int mybase, mybasex, mybasey;               /* global offset of first local gridpoint    */
+  int mybase, mybasex, mybasey;               /* global offset of first local grid point   */
   int nprocs, nprocsx, nprocsy;               /* # of processes nprocs=nprocsx*nprocsy     */
   int myproc, myprocx, myprocy;               /* my process indices, flat & Cartesian      */
-  int dsizex, dsizey;//, dsizex2, dsizey2;       /* x/y size of u & uext                      */
+  int dsizex, dsizey;//, dsizex2, dsizey2;    /* x/y size of u & uext                      */
   int isbottom, istop, isleft, isright;       /* (bool) does process abut given boundary   */
   MPI_Comm comm;
 
@@ -253,8 +269,8 @@ int main(int argc, char *argv[])
     "ERROR: FOUR (4) inputs required:\n\
      - nprocsx (# of procs in x)\n\
      - nprocsy (# of procs in y)\n\
-     - Mx      (# of interior gridpoints in x)\n\
-     - My      (# of interior gridpoints in y)\n",
+     - Mx      (# of interior grid points in x)\n\
+     - My      (# of interior grid points in y)\n",
     comm,myproc,1
   )
   nprocsx = atoi(argv[1]);
@@ -262,8 +278,8 @@ int main(int argc, char *argv[])
   Mx      = atoi(argv[3]);
   My      = atoi(argv[4]);
   MPI_ASSERT(nprocsx*nprocsy==nprocs,"ERROR: nprocsx*nprocsy =/= N (Requested proc grid size does not equal available procs)",comm,myproc,1)
-  MPI_ASSERT(Mx>=nprocsx,"ERROR: Mx < nprocsx (We require at least one interior gridpoint per process)",comm,myproc,1)
-  MPI_ASSERT(My>=nprocsy,"ERROR: My < nprocsy (We require at least one interior gridpoint per process)",comm,myproc,1)
+  MPI_ASSERT(Mx>=nprocsx,"ERROR: Mx < nprocsx (We require at least one interior grid point per process)",comm,myproc,1)
+  MPI_ASSERT(My>=nprocsy,"ERROR: My < nprocsy (We require at least one interior grid point per process)",comm,myproc,1)
 
   /* Create the SUNDIALS context object for this simulation */
   flag = SUNContext_Create(&comm, &sunctx);
@@ -341,7 +357,7 @@ int main(int argc, char *argv[])
 
   /* In loop over output points, call ARKStepEvolve, print resuLs, test for error */
   PrintOutput(data, arkode_mem, u, t);
-  for (iout=1, tout=HALFHR; iout<=NOUT; iout++, tout+=HALFHR) {
+  for (iout=1, tout=TWOHR; iout<=NOUT; iout++, tout+=TWOHR) {
     flag = ARKStepEvolve(arkode_mem, tout, u, &t, ARK_NORMAL);
     if (check_flag(&flag, "ARKStepEvolve", 1, myproc)) break;
     PrintOutput(data, arkode_mem, u, t);
@@ -398,7 +414,7 @@ static void InitUserData(UserData data, MPI_Comm comm, int nprocsx, int nprocsy,
   data->isleft   = (data->myprocx==0)         ? 1 : 0;
   data->isright  = (data->myprocx==nprocsx-1) ? 1 : 0;
 
-  /* Set partitioning (# of interior gridpoints M=Mx*My, # eqs N=2*M) */
+  /* Set partitioning (# of interior grid points M=Mx*My, # eqs N=2*M) */
   data->Mx       = Mx;
   data->My       = My;
   data->M        = Mx*My;
@@ -429,8 +445,8 @@ static void InitUserData(UserData data, MPI_Comm comm, int nprocsx, int nprocsy,
   data->recvL    = data->recvT + NVARS*data->local_Mx;
   data->recvR    = data->recvL + NVARS*data->local_My;
   
-  /* Calculate global offset of first local gridpoint */
-  // Note: This is *not* an equation offset. There are NVARS equations per gridpoint.
+  /* Calculate global offset of first local grid point */
+  // Note: This is *not* an equation offset. There are NVARS equations per grid point.
   data->mybasex = (data->myprocx < nremx) ? (nperprocx+1)*data->myprocx : nremx+(nperprocx)*data->myprocx;
   data->mybasey = (data->myprocy < nremy) ? (nperprocy+1)*data->myprocy : nremy+(nperprocy)*data->myprocy;
   data->mybase  = (data->mybasey*data->Mx)+data->mybasex;
@@ -438,11 +454,9 @@ static void InitUserData(UserData data, MPI_Comm comm, int nprocsx, int nprocsy,
   /* Set the sizes of a boundary x/y-line in u and uext */
   data->dsizex  = NVARS*data->local_Mx;
   data->dsizey  = NVARS*data->local_My;
-  // data->dsizex2 = NVARS*(data->local_Mx+2);
-  // data->dsizey2 = NVARS*(data->local_My+2);
 
   /* Preconditioner-related fields */
-  // Note: To each interior gridpoint, we associate two real matrices and one index array
+  // Note: To each interior grid point, we associate two real matrices and one index array
 #if defined(SUNDIALS_HYPRE_BACKENDS_SERIAL)
   data->P        = (realtype****)    malloc(data->local_Mx*sizeof(realtype***));
   data->Jbd      = (realtype****)    malloc(data->local_Mx*sizeof(realtype***));
@@ -848,16 +862,6 @@ static void fcalc(UserData data, realtype t, realtype udata[], realtype dudata[]
   recvL    = data->recvL;    recvR    = data->recvR;
   bufs     = data->bufs;
 
-  /* Copy local segment of u vector into the working extended array uext */
-  // uext     = data->uext;
-  // offsetu  = 0;
-  // offsetue = data->dsizex2 + NVARS;
-  // for (ly = 0; ly < data->local_My; ly++) {
-  //   for (i = 0; i < data->dsizex; i++) uext[offsetue+i] = udata[offsetu+i];
-  //   offsetu  = offsetu  + data->dsizex;
-  //   offsetue = offsetue + data->dsizex2;
-  // }
-
   /* To facilitate homogeneous Neumann boundary conditions, when this is
   a boundary proc, copy data from the first interior mesh line of u to uext */
 
@@ -956,7 +960,7 @@ static void fcalc(UserData data, realtype t, realtype udata[], realtype dudata[]
 #if defined(SUNDIALS_HYPRE_BACKENDS_CUDA_OR_HIP)
 __global__ void fcalcKernel(UserData data_dev, realtype t, realtype *udata, realtype *udotdata)
 {
-  sunindextype tid, lx, ly, gy; // lx,ly: local gridpoint coords; gy: global gridpoint y coord
+  sunindextype tid, lx, ly, gy; // lx,ly: local grid point coords; gy: global grid point y coord
 
   realtype     q3, q4, qq1, qq2, qq3, qq4, rkin1, rkin2, s, vertd1, vertd2, ydn, yup;
   realtype     c1, c2, c1dn, c2dn, c1up, c2up, c1lt, c2lt, c1rt, c2rt, cydn, cyup;
@@ -1158,12 +1162,6 @@ static int Precond(realtype tn, N_Vector u, N_Vector fu,
         c2     = udata[offset+1];
         j      = data->Jbd[lx][ly];
         a      = data->P[lx][ly];
-        // printf("lx, ly, offset: %d %d %d\n",lx,ly,offset);
-        // printf("j: %p\n", j);
-        // data->Jbd[lx][ly][0][0] = (-Q1*C3 - Q2*c2) + diag;
-        // data->Jbd[lx][ly][1][0] =  -Q2*c1 + q4;
-        // data->Jbd[lx][ly][0][1] =   Q1*C3 - Q2*c2;
-        // data->Jbd[lx][ly][1][1] = (-Q2*c1 - q4)    + diag;
         IJth(j,1,1) = (-Q1*C3 - Q2*c2) + diag;
         IJth(j,1,2) =  -Q2*c1 + q4;
         IJth(j,2,1) =   Q1*C3 - Q2*c2;
