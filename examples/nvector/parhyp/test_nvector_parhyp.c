@@ -367,10 +367,8 @@ realtype get_element(N_Vector X, sunindextype i)
     sizeof(realtype),
     NV_ADD_LANG_PREFIX_PH(MemcpyDeviceToHost)
   );
-  // printf("get x[%d] = %f\n",i,host_data);
   return host_data;
 #endif
-
 }
 
 double max_time(N_Vector X, double time)

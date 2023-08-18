@@ -214,16 +214,10 @@ static void BSend(UserData data, realtype udata[]);
 static void BRecvPost(UserData data, MPI_Request request[]);
 static void BRecvWait(UserData data, MPI_Request request[]);
 static void ucomm(UserData data, realtype t, N_Vector u);
+
+/* RHS calculation and preconditioner functions for SERIAL hypre backend */
+#if defined(SUNDIALS_HYPRE_BACKENDS_SERIAL)
 static void fcalc(UserData data, realtype t, realtype udata[], realtype dudata[]);
-
-/* Kernels and device helper functions (for CUDA/HIP backend) */
-#if defined(SUNDIALS_HYPRE_BACKENDS_CUDA_OR_HIP)
-__global__ void fcalcKernel(UserData data_dev, realtype t, realtype *udata, realtype *udotdata);
-__global__ void FillSendBufferKernel(UserData data_dev, realtype *udata);      
-#endif
-
-/* Functions Called by the Solver */
-static int f(realtype t, N_Vector u, N_Vector udot, void *user_data);
 static int Precond(realtype tn, N_Vector u, N_Vector fu,
                    booleantype jok, booleantype *jcurPtr,
                    realtype gamma, void *user_data);
@@ -231,6 +225,16 @@ static int PSolve(realtype tn, N_Vector u, N_Vector fu,
                   N_Vector r, N_Vector z,
                   realtype gamma, realtype delta,
                   int lr, void *user_data);
+#endif
+
+/* RHS kernel and send buffer population kernel for CUDA/HIP hypre backend */
+#if defined(SUNDIALS_HYPRE_BACKENDS_CUDA_OR_HIP)
+__global__ void fcalcKernel(UserData data_dev, realtype t, realtype *udata, realtype *udotdata);
+__global__ void FillSendBufferKernel(UserData data_dev, realtype *udata);      
+#endif
+
+/* Functions Called by the Solver */
+static int f(realtype t, N_Vector u, N_Vector udot, void *user_data);
 
 /* Private function to check function return values */
 static int check_flag(void *flagvalue, const char *funcname, int opt, int id);
@@ -356,7 +360,7 @@ int main(int argc, char *argv[])
   }
 
   /* In loop over output points, call ARKStepEvolve, print resuLs, test for error */
-  PrintOutput(data, arkode_mem, u, t);
+  PrintOutput(data, arkode_mem, u, 0.0);
   for (iout=1, tout=TWOHR; iout<=NOUT; iout++, tout+=TWOHR) {
     flag = ARKStepEvolve(arkode_mem, tout, u, &t, ARK_NORMAL);
     if (check_flag(&flag, "ARKStepEvolve", 1, myproc)) break;
@@ -385,8 +389,6 @@ int main(int argc, char *argv[])
 static void InitUserData(UserData data, MPI_Comm comm, int nprocsx, int nprocsy, int Mx, int My)
 {
   int nperprocx, nperprocy, nremx, nremy;
-  //int p, px, py, pMx, pMy, pN;
-  int lx, ly;
 
   /* Set problem constants */
   data->om       = PI/HALFDAY;
@@ -458,6 +460,7 @@ static void InitUserData(UserData data, MPI_Comm comm, int nprocsx, int nprocsy,
   /* Preconditioner-related fields */
   // Note: To each interior grid point, we associate two real matrices and one index array
 #if defined(SUNDIALS_HYPRE_BACKENDS_SERIAL)
+  int lx, ly;
   data->P        = (realtype****)    malloc(data->local_Mx*sizeof(realtype***));
   data->Jbd      = (realtype****)    malloc(data->local_Mx*sizeof(realtype***));
   data->pivot    = (sunindextype***) malloc(data->local_Mx*sizeof(sunindextype**));
@@ -486,13 +489,12 @@ static void InitUserData(UserData data, MPI_Comm comm, int nprocsx, int nprocsy,
 /* Free user data memory */
 static void FreeUserData(UserData data)
 {
-  int lx, ly;
-  
   /* Free bufs */
   free(data->bufs);
 
   /* Free preconditioner-related fields */
 #if defined(SUNDIALS_HYPRE_BACKENDS_SERIAL)
+  int lx, ly;
   for (lx = 0; lx < data->local_Mx; lx++) {
     for (ly = 0; ly < data->local_My; ly++) {
       SUNDlsMat_destroyMat((data->P)[lx][ly]);
@@ -605,8 +607,8 @@ static void PrintOutput(UserData data, void *arkode_mem, N_Vector u, realtype t)
   /* Send c1,c2 at top right mesh point to proc 0 */
   if (data->myproc == npelast) {
     i0 = data->local_N - NVARS;
-    i1 = i0 + 1;
 #if defined(SUNDIALS_HYPRE_BACKENDS_SERIAL)
+    i1 = i0 + 1;
     tempu[0] = udata[i0];
     tempu[1] = udata[i1];
 #elif defined(SUNDIALS_HYPRE_BACKENDS_CUDA_OR_HIP)
@@ -836,6 +838,7 @@ static void ucomm(UserData data, realtype t, N_Vector u)
 #endif
 }
 
+#if defined(SUNDIALS_HYPRE_BACKENDS_SERIAL)
 /* fcalc routine. Compute f(t,y).  This routine assumes that communication
    between processors of data needed to calculate f has already been done,
    and this data is in the work array uext. */
@@ -953,7 +956,7 @@ static void fcalc(UserData data, realtype t, realtype udata[], realtype dudata[]
     }
   }
 }
-
+#endif // end SERIAL-only fcalc
 
 /****** Kernels and device helper functions (for CUDA/HIP backend) ******/
 
@@ -1069,7 +1072,7 @@ __global__ void FillSendBufferKernel(UserData data_dev, realtype *udata)
 
   return;
 }
-#endif
+#endif // end GPU-only kernels
 
 
 /***************** Functions Called by the Solver *************************/
