@@ -123,8 +123,8 @@ int arkAdapt(void* arkode_mem, ARKodeHAdaptMem hadapt_mem,
   /* Current error with bias factor */
   ecur = hadapt_mem->bias * dsm;
 
-  /* Set k as either p or q, based on pq flag */
-  k = (hadapt_mem->pq) ? hadapt_mem->q : hadapt_mem->p;
+  /* Set k as either p+1 or q+1, based on pq flag */
+  k = 1 + ((hadapt_mem->pq) ? hadapt_mem->q : hadapt_mem->p);
 
   /* Call algorithm-specific error adaptivity method */
   switch (hadapt_mem->imethod) {
