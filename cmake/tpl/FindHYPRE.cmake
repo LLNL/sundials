@@ -123,13 +123,10 @@ else()
 endif()
 
 # --- Add libraries for backend support ---
-if(SUNDIALS_HYPRE_BACKENDS MATCHES "CUDA")
-  find_package(cublas   REQUIRED)
-  find_package(cusparse REQUIRED)
-  find_package(cusolver REQUIRED)
-  find_package(curand   REQUIRED)
-  list(APPEND HYPRE_LIBRARIES CUDA::cublas CUDA::cusparse CUDA::cusolver CUDA::curand)
-elseif(SUNDIALS_HYPRE_BACKENDS MATCHES "HIP")
+# if(SUNDIALS_HYPRE_BACKENDS MATCHES "CUDA")
+
+  # list(APPEND HYPRE_LIBRARIES CUDA::cublas CUDA::cusparse CUDA::cusolver CUDA::curand)
+if(SUNDIALS_HYPRE_BACKENDS MATCHES "HIP")
   # list(APPEND HYPRE_LIBRARIES roc::hipblas roc::hipsparse roc::hipsolver roc::hiprand)
   find_package(rocblas   REQUIRED)
   find_package(rocsparse REQUIRED)
