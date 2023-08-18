@@ -20,6 +20,10 @@
 #include <nvector/nvector_parhyp.h>
 #include "sundials_debug.h"
 
+#if defined(SUNDIALS_HYPRE_BACKENDS_CUDA) || defined(SUNDIALS_HYPRE_BACKENDS_HIP)
+#define SUNDIALS_HYPRE_BACKENDS_CUDA_OR_HIP
+#endif
+
 /* --- Backend-specific headers --- */
 
 #if defined(SUNDIALS_HYPRE_BACKENDS_SERIAL)
@@ -80,10 +84,6 @@ using namespace sundials::hip::impl;
 #define NV_EXECPOLICY_TYPE_PH SUNHipExecPolicy
 #define NV_MEMHELP_STRUCT_PH SUNMemoryHelper_Hip
 #define NV_VERIFY_CALL_PH SUNDIALS_HIP_VERIFY
-#endif
-
-#if defined(SUNDIALS_HYPRE_BACKENDS_CUDA) || defined(SUNDIALS_HYPRE_BACKENDS_HIP)
-#define SUNDIALS_HYPRE_BACKENDS_CUDA_OR_HIP
 #endif
 
 /* --- Defined constants --- */
