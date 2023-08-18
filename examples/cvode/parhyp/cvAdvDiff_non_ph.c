@@ -105,6 +105,10 @@
 #define T1    RCONST(0.5)    /* first output time           */
 #define DTOUT RCONST(0.5)    /* output time increment       */
 #define NOUT  10             /* number of output times      */
+
+// NOTE: Without the use of a preconditioner, this problem does not
+// scale well and may terminate early if MXSTEP is set too low.
+// M<50 is recommended, with M=10 the standard size.
 #define MXSTP 50000 //500    /* max # steps between outputs */
 
 /* --- Definitions and macros for CUDA/HIP agnostic compilation --- */
