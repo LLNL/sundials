@@ -134,7 +134,11 @@
                                           /* change from relative to absolute      */
 #define ATOL    (RTOL*FLOOR)              /* scalar absolute tolerance */
 
-/* --- Backend-specific definitions --- */
+/* --- Definitions and macros for CUDA/HIP agnostic compilation --- */
+
+#if defined(SUNDIALS_HYPRE_BACKENDS_CUDA) || defined(SUNDIALS_HYPRE_BACKENDS_HIP)
+#define SUNDIALS_HYPRE_BACKENDS_CUDA_OR_HIP
+#endif
 
 #if defined(SUNDIALS_HYPRE_BACKENDS_CUDA)
 #define NV_ADD_LANG_PREFIX_PH(token) cuda##token // token pasting; expands to ```cuda[token]```
@@ -143,10 +147,6 @@
 #elif defined(SUNDIALS_HYPRE_BACKENDS_HIP)
 #define NV_ADD_LANG_PREFIX_PH(token) hip##token // token pasting; expands to ```hip[token]```
 #define NV_VERIFY_CALL_PH SUNDIALS_HIP_VERIFY
-#endif
-
-#if defined(SUNDIALS_HYPRE_BACKENDS_CUDA) || defined(SUNDIALS_HYPRE_BACKENDS_HIP)
-#define SUNDIALS_HYPRE_BACKENDS_CUDA_OR_HIP
 #endif
 
 /* --- Error-checking macros --- */

@@ -20,8 +20,30 @@
 #include <nvector/nvector_parhyp.h>
 #include "sundials_debug.h"
 
+/* --- Definitions and macros for CUDA/HIP agnostic compilation --- */
+
 #if defined(SUNDIALS_HYPRE_BACKENDS_CUDA) || defined(SUNDIALS_HYPRE_BACKENDS_HIP)
 #define SUNDIALS_HYPRE_BACKENDS_CUDA_OR_HIP
+#endif
+
+#if defined(SUNDIALS_HYPRE_BACKENDS_SERIAL)
+#define NV_BACKEND_STRING_PH "SERIAL"
+
+#elif defined(SUNDIALS_HYPRE_BACKENDS_CUDA)
+#define NV_BACKEND_STRING_PH "CUDA"
+#define NV_GPU_LANG_TOKEN_PH cuda
+#define NV_ADD_LANG_PREFIX_PH(token) cuda##token // token pasting; expands to ```cuda[token]```
+#define NV_EXECPOLICY_TYPE_PH SUNCudaExecPolicy
+#define NV_MEMHELP_STRUCT_PH SUNMemoryHelper_Cuda
+#define NV_VERIFY_CALL_PH SUNDIALS_CUDA_VERIFY
+
+#elif defined(SUNDIALS_HYPRE_BACKENDS_HIP)
+#define NV_BACKEND_STRING_PH "HIP"
+#define NV_GPU_LANG_TOKEN_PH hip
+#define NV_ADD_LANG_PREFIX_PH(token) hip##token // token pasting; expands to ```hip[token]```
+#define NV_EXECPOLICY_TYPE_PH SUNHipExecPolicy
+#define NV_MEMHELP_STRUCT_PH SUNMemoryHelper_Hip
+#define NV_VERIFY_CALL_PH SUNDIALS_HIP_VERIFY
 #endif
 
 /* --- Backend-specific headers --- */
@@ -62,28 +84,6 @@ using namespace sundials::cuda::impl;
 using namespace sundials;
 using namespace sundials::hip;
 using namespace sundials::hip::impl;
-#endif
-
-/* --- Backend-specific definitions --- */
-
-#if defined(SUNDIALS_HYPRE_BACKENDS_SERIAL)
-#define NV_BACKEND_STRING_PH "SERIAL"
-
-#elif defined(SUNDIALS_HYPRE_BACKENDS_CUDA)
-#define NV_BACKEND_STRING_PH "CUDA"
-#define NV_GPU_LANG_TOKEN_PH cuda
-#define NV_ADD_LANG_PREFIX_PH(token) cuda##token // token pasting; expands to ```cuda[token]```
-#define NV_EXECPOLICY_TYPE_PH SUNCudaExecPolicy
-#define NV_MEMHELP_STRUCT_PH SUNMemoryHelper_Cuda
-#define NV_VERIFY_CALL_PH SUNDIALS_CUDA_VERIFY
-
-#elif defined(SUNDIALS_HYPRE_BACKENDS_HIP)
-#define NV_BACKEND_STRING_PH "HIP"
-#define NV_GPU_LANG_TOKEN_PH hip
-#define NV_ADD_LANG_PREFIX_PH(token) hip##token // token pasting; expands to ```hip[token]```
-#define NV_EXECPOLICY_TYPE_PH SUNHipExecPolicy
-#define NV_MEMHELP_STRUCT_PH SUNMemoryHelper_Hip
-#define NV_VERIFY_CALL_PH SUNDIALS_HIP_VERIFY
 #endif
 
 /* --- Defined constants --- */

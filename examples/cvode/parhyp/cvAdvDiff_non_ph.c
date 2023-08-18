@@ -107,17 +107,19 @@
 #define NOUT  10             /* number of output times      */
 #define MXSTP 50000 //500    /* max # steps between outputs */
 
-/* --- Backend-specific definitions --- */
-
-#if defined(SUNDIALS_HYPRE_BACKENDS_CUDA)
-#define NV_ADD_LANG_PREFIX_PH(token) cuda##token // token pasting; expands to ```cuda[token]```
-
-#elif defined(SUNDIALS_HYPRE_BACKENDS_HIP)
-#define NV_ADD_LANG_PREFIX_PH(token) hip##token // token pasting; expands to ```hip[token]```
-#endif
+/* --- Definitions and macros for CUDA/HIP agnostic compilation --- */
 
 #if defined(SUNDIALS_HYPRE_BACKENDS_CUDA) || defined(SUNDIALS_HYPRE_BACKENDS_HIP)
 #define SUNDIALS_HYPRE_BACKENDS_CUDA_OR_HIP
+#endif
+
+#if defined(SUNDIALS_HYPRE_BACKENDS_CUDA)
+#define NV_ADD_LANG_PREFIX_PH(token) cuda##token // token pasting; expands to ```cuda[token]```
+#define NV_VERIFY_CALL_PH SUNDIALS_CUDA_VERIFY
+
+#elif defined(SUNDIALS_HYPRE_BACKENDS_HIP)
+#define NV_ADD_LANG_PREFIX_PH(token) hip##token // token pasting; expands to ```hip[token]```
+#define NV_VERIFY_CALL_PH SUNDIALS_HIP_VERIFY
 #endif
 
 /* --- Error-checking macros --- */
