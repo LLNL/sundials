@@ -314,14 +314,13 @@ int main(int argc, char *argv[])
   SUNContext_Free(&sunctx);   /* Free context */
 
   /* End wall time and report duration */
-  wtend     = MPI_Wtime();
-  wttotal   = wtend-wtstart;
-  wtperloop = (wtloopend-wtloopstart)/iout;
-  if (myproc==0) printf("\n\nWith nprocs=%d and global problem size of M=%d...\n",nprocs,M);
-  MPI_Barrier(comm);
-  printf("");
-  MPI_Barrier(comm);
-  printf("─> Process %d reported total wall time of %fs and an average per-loop time of %fs/loop.\n",myproc,wttotal,wtperloop);
+  if (myproc==0) {
+    wtend     = MPI_Wtime();
+    wttotal   = wtend-wtstart;
+    wtperloop = (wtloopend-wtloopstart)/iout;
+    printf("\nWith nprocs=%d and global problem size of M=%d,\n",nprocs,M);
+    printf("process %d reported total wall time of %fs and an average per-loop time of %fs/loop.\n\n",myproc,wttotal,wtperloop);
+  }
 
   /* MPI Finalize */
   MPI_Finalize();
