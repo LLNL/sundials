@@ -592,7 +592,7 @@ static void SetInitialProfiles(UserData data, HYPRE_IJVector Uij)
 static void PrintOutput(UserData data, void *arkode_mem, N_Vector u, realtype t)
 {
   int flag;
-  realtype hu, *udata, tempu[2];
+  realtype hu, *udata, uBL[2], uTR[2];
   int npelast;
   sunindextype i0, i1;
   long int nst;
@@ -604,26 +604,35 @@ static void PrintOutput(UserData data, void *arkode_mem, N_Vector u, realtype t)
   uhyp  = N_VGetVector_ParHyp(u);
   udata = hypre_VectorData(hypre_ParVectorLocalVector(uhyp));
 
-  /* Send c1,c2 at top right mesh point to proc 0 */
+  /* Get bottom left (BL) grid point */
+  #if defined(SUNDIALS_HYPRE_BACKENDS_SERIAL)
+    uBL[0] = udata[0];
+    uBL[1] = udata[1];
+  #elif defined(SUNDIALS_HYPRE_BACKENDS_CUDA_OR_HIP)
+    NV_ADD_LANG_PREFIX_PH(Memcpy)(uBL,&udata[0],NVARS*sizeof(realtype),NV_ADD_LANG_PREFIX_PH(MemcpyDeviceToHost));
+    CHECK_LAST_ERROR();
+  #endif
+
+  /* Send c1,c2 at top right (TR) grid point values to proc 0 */
   if (data->myproc == npelast) {
     i0 = data->local_N - NVARS;
 #if defined(SUNDIALS_HYPRE_BACKENDS_SERIAL)
     i1 = i0 + 1;
-    tempu[0] = udata[i0];
-    tempu[1] = udata[i1];
+    uTR[0] = udata[i0];
+    uTR[1] = udata[i1];
 #elif defined(SUNDIALS_HYPRE_BACKENDS_CUDA_OR_HIP)
-    NV_ADD_LANG_PREFIX_PH(Memcpy)(tempu,&udata[i0],NVARS*sizeof(realtype),NV_ADD_LANG_PREFIX_PH(MemcpyDeviceToHost));
+    NV_ADD_LANG_PREFIX_PH(Memcpy)(uTR,&udata[i0],NVARS*sizeof(realtype),NV_ADD_LANG_PREFIX_PH(MemcpyDeviceToHost));
     CHECK_LAST_ERROR();
 #endif      
     if (npelast != 0)
-      MPI_Send(tempu, NVARS, MPI_SUNREALTYPE, 0, 0, data->comm);
+      MPI_Send(uTR, NVARS, MPI_SUNREALTYPE, 0, 0, data->comm);
   }
 
   /* On proc 0, receive c1,c2 at top right, then print performance data
      and sampled solution values */
   if (data->myproc == 0) {
     if (npelast != 0)
-      MPI_Recv(tempu, NVARS, MPI_SUNREALTYPE, npelast, 0, data->comm, &status);
+      MPI_Recv(uTR, NVARS, MPI_SUNREALTYPE, npelast, 0, data->comm, &status);
     flag = ARKStepGetNumSteps(arkode_mem, &nst);
     check_flag(&flag, "ARKStepGetNumSteps", 1, data->myproc);
     flag = ARKStepGetLastStep(arkode_mem, &hu);
@@ -632,18 +641,18 @@ static void PrintOutput(UserData data, void *arkode_mem, N_Vector u, realtype t)
 #if defined(SUNDIALS_EXTENDED_PRECISION)
     printf("t = %.2Le   no. steps = %ld   stepsize = %.2Le\n",
            t, nst, hu);
-    printf("At bottom left:  c1, c2 = %12.3Le %12.3Le \n", udata[0], udata[1]);
-    printf("At top right:    c1, c2 = %12.3Le %12.3Le \n\n", tempu[0], tempu[1]);
+    printf("At bottom left:  c1, c2 = %12.3Le %12.3Le \n", uBL[0], uBL[1]);
+    printf("At top right:    c1, c2 = %12.3Le %12.3Le \n\n", uTR[0], uTR[1]);
 #elif defined(SUNDIALS_DOUBLE_PRECISION)
     printf("t = %.2e   no. steps = %ld   stepsize = %.2e\n",
            t, nst, hu);
-    printf("At bottom left:  c1, c2 = %12.3e %12.3e \n", udata[0], udata[1]);
-    printf("At top right:    c1, c2 = %12.3e %12.3e \n\n", tempu[0], tempu[1]);
+    printf("At bottom left:  c1, c2 = %12.3e %12.3e \n", uBL[0], uBL[1]);
+    printf("At top right:    c1, c2 = %12.3e %12.3e \n\n", uTR[0], uTR[1]);
 #else
     printf("t = %.2e   no. steps = %ld   stepsize = %.2e\n",
            t, nst, hu);
-    printf("At bottom left:  c1, c2 = %12.3e %12.3e \n", udata[0], udata[1]);
-    printf("At top right:    c1, c2 = %12.3e %12.3e \n\n", tempu[0], tempu[1]);
+    printf("At bottom left:  c1, c2 = %12.3e %12.3e \n", uBL[0], uBL[1]);
+    printf("At top right:    c1, c2 = %12.3e %12.3e \n\n", uTR[0], uTR[1]);
 #endif
   }
 }
