@@ -319,8 +319,8 @@ int main(int argc, char *argv[])
   wtperloop = (wtloopend-wtloopstart)/iout;
   MPI_Barrier(comm);
   if (myproc==0) printf("\n\nWith nprocs=%d and global problem size of M=%d...\n",nprocs,M);
-  printf("─> Process %d reported total wall time of %fs and an average per-loop time of %fs/loop.\n",myproc,wttotal,wtperloop);
   MPI_Barrier(comm);
+  printf("─> Process %d reported total wall time of %fs and an average per-loop time of %fs/loop.\n",myproc,wttotal,wtperloop);
 
   /* MPI Finalize */
   MPI_Finalize();
