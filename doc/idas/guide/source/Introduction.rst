@@ -91,6 +91,8 @@ Changes in vX.X.X
 
 Fixed a memory leak when destroying a CUDA, HIP, SYCL, or system SUNMemoryHelper
 object.
+Added CUDA and HIP hypre backend support. The hypre backend to use is selected
+at configuration time with SUNDIALS_HYPRE_BACKENDS.
 
 Changes in v5.6.0
 -----------------
