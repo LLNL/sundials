@@ -918,8 +918,8 @@ ERKStep modules.  It derives from those found in :cite:p:`KenCarp:03`, :cite:p:`
 :math:`\varepsilon_{n-2}` in determination of a prospective step size,
 
 .. math::
-   h' \;=\; h_n\; \varepsilon_n^{-k_1/p}\; \varepsilon_{n-1}^{k_2/p}\;
-        \varepsilon_{n-2}^{-k_3/p},
+   h' \;=\; h_n\; \varepsilon_n^{-k_1/q}\; \varepsilon_{n-1}^{k_2/q}\;
+        \varepsilon_{n-2}^{-k_3/q},
 
 where the constants :math:`k_1`, :math:`k_2` and :math:`k_3` default
 to 0.58, 0.21 and 0.1, respectively, and may be modified by the user.
@@ -939,7 +939,7 @@ that it only uses the two most recent step sizes in its adaptivity
 algorithm,
 
 .. math::
-   h' \;=\; h_n\; \varepsilon_n^{-k_1/p}\; \varepsilon_{n-1}^{k_2/p}.
+   h' \;=\; h_n\; \varepsilon_n^{-k_1/q}\; \varepsilon_{n-1}^{k_2/q}.
 
 Here, the default values of :math:`k_1` and :math:`k_2` default
 to 0.8 and 0.31, respectively, though they may be changed by the user.
@@ -956,7 +956,7 @@ publicly-available ODE solver codes.  It bases the prospective time step
 estimate entirely off of the current local error estimate,
 
 .. math::
-   h' \;=\; h_n\; \varepsilon_n^{-k_1/p}.
+   h' \;=\; h_n\; \varepsilon_n^{-k_1/q}.
 
 By default, :math:`k_1=1`, but that may be modified by the user.
 
@@ -974,9 +974,9 @@ In the notation of our earlier controllers, it has the form
 
 .. math::
    h' \;=\; \begin{cases}
-      h_1\; \varepsilon_1^{-1/p}, &\quad\text{on the first step}, \\
-      h_n\; \varepsilon_n^{-k_1/p}\;
-        \left(\dfrac{\varepsilon_n}{\varepsilon_{n-1}}\right)^{k_2/p}, &
+      h_1\; \varepsilon_1^{-1/q}, &\quad\text{on the first step}, \\
+      h_n\; \varepsilon_n^{-k_1/q}\;
+        \left(\dfrac{\varepsilon_n}{\varepsilon_{n-1}}\right)^{k_2/q}, &
       \quad\text{on subsequent steps}.
    \end{cases}
    :label: ARKODE_expGus
@@ -997,9 +997,9 @@ methods was introduced in :cite:p:`Gust:94`, and has the form
 
 .. math::
    h' = \begin{cases}
-      h_1 \varepsilon_1^{-1/p}, &\quad\text{on the first step}, \\
-      h_n \left(\dfrac{h_n}{h_{n-1}}\right) \varepsilon_n^{-k_1/p}
-        \left(\dfrac{\varepsilon_n}{\varepsilon_{n-1}}\right)^{-k_2/p}, &
+      h_1 \varepsilon_1^{-1/q}, &\quad\text{on the first step}, \\
+      h_n \left(\dfrac{h_n}{h_{n-1}}\right) \varepsilon_n^{-k_1/q}
+        \left(\dfrac{\varepsilon_n}{\varepsilon_{n-1}}\right)^{-k_2/q}, &
       \quad\text{on subsequent steps}.
    \end{cases}
    :label: ARKODE_impGus
