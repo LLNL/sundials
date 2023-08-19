@@ -895,7 +895,7 @@ step size :math:`h'` based on the asymptotic local error estimates
 :math:`\varepsilon_{n-1}` and :math:`\varepsilon_{n-2}` as
 
 .. math::
-   \varepsilon_k \ \equiv \ \|T_k\| \ = \ \beta \|y_k - \tilde{y}_k\|,
+   \varepsilon_n \ \equiv \ \|T_n\| \ = \ \beta \|y_n - \tilde{y}_n\|,
 
 corresponding to the local error estimates for three consecutive
 steps, :math:`t_{n-3} \to t_{n-2} \to t_{n-1} \to t_n`.  These local
