@@ -143,6 +143,10 @@ void* SPRKStepCreate(ARKRhsFn f1, ARKRhsFn f2, realtype t0, N_Vector y0,
   /* Zero yerr for compensated summation */
   if (ark_mem->use_compensated_sums) { N_VConst(ZERO, step_mem->yerr); }
 
+  /* SPRKStep uses Lagrange interpolation by default, since Hermite is
+     less compatible with these methods. */
+  arkSetInterpolantType(ark_mem, ARK_INTERP_LAGRANGE);
+
   /* Initialize main ARKODE infrastructure */
   retval = arkInit(ark_mem, t0, y0, FIRST_INIT);
   if (retval != ARK_SUCCESS)
@@ -152,10 +156,6 @@ void* SPRKStepCreate(ARKRhsFn f1, ARKRhsFn f2, realtype t0, N_Vector y0,
     SPRKStepFree((void**)&ark_mem);
     return (NULL);
   }
-
-  /* SPRKStep uses Lagrange interpolation by default, since Hermite is
-     less compatible with these methods. */
-  arkSetInterpolantType(ark_mem, ARK_INTERP_LAGRANGE);
 
   return ((void*)ark_mem);
 }
@@ -458,10 +458,6 @@ int sprkStep_Init(void* arkode_mem, int init_type)
       return (ARK_ILL_INPUT);
     }
   }
-
-  /* Signal to shared arkode module that fullrhs is not required after each step
-   */
-  ark_mem->call_fullrhs = SUNFALSE;
 
   return (ARK_SUCCESS);
 }

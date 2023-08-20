@@ -1311,13 +1311,16 @@ int arkInit(ARKodeMem ark_mem, realtype t0, N_Vector y0,
     }
 
     /* Create default Hermite interpolation module */
-    ark_mem->interp = arkInterpCreate_Hermite(ark_mem, ARK_INTERP_MAX_DEGREE);
-    if (ark_mem->interp == NULL) {
-      arkProcessError(ark_mem, ARK_MEM_FAIL, "ARKODE", "arkInit",
-                      "Unable to allocate interpolation module");
-      return(ARK_MEM_FAIL);
+    if (!(ark_mem->interp))
+    {
+      ark_mem->interp = arkInterpCreate_Hermite(ark_mem, ARK_INTERP_MAX_DEGREE);
+      if (ark_mem->interp == NULL) {
+        arkProcessError(ark_mem, ARK_MEM_FAIL, "ARKODE", "arkInit",
+                        "Unable to allocate interpolation module");
+        return(ARK_MEM_FAIL);
+      }
+      ark_mem->interp_type = ARK_INTERP_HERMITE;
     }
-    ark_mem->interp_type = ARK_INTERP_HERMITE;
 
     /* All allocations are complete */
     ark_mem->MallocDone = SUNTRUE;
