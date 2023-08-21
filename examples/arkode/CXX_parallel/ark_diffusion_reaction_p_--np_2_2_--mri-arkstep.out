@@ -96,4 +96,4 @@ Fast Integrator:
   Steps            = 472
   Step attempts    = 472
   Error test fails = 0
-  RHS reaction     = 1947
+  RHS reaction     = 1834
