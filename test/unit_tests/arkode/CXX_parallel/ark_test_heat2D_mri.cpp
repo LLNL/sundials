@@ -386,7 +386,7 @@ int main(int argc, char* argv[]) {
     if (outproc)
       cout << "  Internal solver steps error: " << ark_nst << " vs " << mri_nst << "\n";
   }
-  if ((ark_nfi - ark_nst) != mri_nfsi) {
+  if (ark_nfi != mri_nfsi) {
     numfails += 1;
     if (outproc)
       cout << "  RHS evals error: " << ark_nfi << " vs " << mri_nfsi << "\n";
