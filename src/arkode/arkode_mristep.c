@@ -965,7 +965,6 @@ int mriStep_GetGammas(void* arkode_mem, realtype *gamma,
   - sets/checks the ARK Butcher tables to be used
   - allocates any memory that depends on the number of ARK
     stages, method order, or solver options
-  - sets the call_fullrhs flag
 
   With other initialization types, this routine does nothing.
   ---------------------------------------------------------------*/
@@ -1207,9 +1206,6 @@ int mriStep_Init(void* arkode_mem, int init_type)
     }
   }
 
-  /* Signal to shared arkode module that fullrhs is required after each step */
-  ark_mem->call_fullrhs = SUNTRUE;
-
   return(ARK_SUCCESS);
 }
 
@@ -1254,6 +1250,14 @@ int mriStep_FullRHS(void* arkode_mem, realtype t, N_Vector y, N_Vector f,
   retval = mriStep_AccessStepMem(arkode_mem, "mriStep_FullRHS",
                                  &ark_mem, &step_mem);
   if (retval != ARK_SUCCESS) return(retval);
+
+  /* ensure that inner stepper provides fullrhs function */
+  if (!(step_mem->stepper->ops->fullrhs))
+  {
+    arkProcessError(ark_mem, ARK_ILL_INPUT, "ARKODE::MRIStep",
+                    "mriStep_FullRHS", MSG_ARK_MISSING_FULLRHS);
+    return ARK_ILL_INPUT;
+  }
 
   /* perform RHS functions contingent on 'mode' argument */
   switch(mode) {
@@ -1492,19 +1496,40 @@ int mriStep_TakeStep(void* arkode_mem, realtype *dsmPtr, int *nflagPtr)
 
   /* call nonlinear solver setup if it exists */
   if (step_mem->NLS)
+  {
     if ((step_mem->NLS)->ops->setup) {
       N_VConst(ZERO, ark_mem->tempv3);   /* set guess to 0 for predictor-corrector form */
       retval = SUNNonlinSolSetup(step_mem->NLS, ark_mem->tempv3, ark_mem);
       if (retval < 0) return(ARK_NLS_SETUP_FAIL);
       if (retval > 0) return(ARK_NLS_SETUP_RECVR);
     }
+  }
+
+  /* Call the full RHS if needed. NOTE: We do not use the full RHS function here
+     (unlike ERKStep and ARKStep) since it does not need to check for FSAL or SA
+     methods and this avoids potentially unnecessary evaluations of the inner
+     (fast) RHS function */
 
   if (!(ark_mem->fn_current))
   {
-    mode = (ark_mem->initsetup) ? ARK_FULLRHS_START : ARK_FULLRHS_END;
-    retval = ark_mem->step_fullrhs(ark_mem, ark_mem->tn, ark_mem->yn,
-                                   ark_mem->fn, mode);
-    if (retval) { return ARK_RHSFUNC_FAIL; }
+    /* compute the explicit component */
+    if (step_mem->explicit_rhs)
+    {
+      retval = step_mem->fse(ark_mem->tn, ark_mem->yn, step_mem->Fse[0],
+                             ark_mem->user_data);
+      step_mem->nfse++;
+      if (retval) { return ARK_RHSFUNC_FAIL; }
+    }
+
+    /* compute the implicit component */
+    if (step_mem->implicit_rhs)
+    {
+      retval = step_mem->fsi(ark_mem->tn, ark_mem->yn, step_mem->Fsi[0],
+                             ark_mem->user_data);
+      step_mem->nfsi++;
+      if (retval) { return ARK_RHSFUNC_FAIL; }
+    }
+
     ark_mem->fn_current = SUNTRUE;
   }
 
@@ -2771,7 +2796,7 @@ int mriStepInnerStepper_HasRequiredOps(MRIStepInnerStepper stepper)
   if (stepper == NULL) return ARK_ILL_INPUT;
   if (stepper->ops == NULL) return ARK_ILL_INPUT;
 
-  if (stepper->ops->evolve && stepper->ops->fullrhs)
+  if (stepper->ops->evolve)
     return ARK_SUCCESS;
   else
     return ARK_ILL_INPUT;
