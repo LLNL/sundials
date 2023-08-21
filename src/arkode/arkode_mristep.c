@@ -1482,7 +1482,6 @@ int mriStep_TakeStep(void* arkode_mem, realtype *dsmPtr, int *nflagPtr)
   ARKodeMRIStepMem step_mem;   /* outer stepper memory       */
   int is;                      /* current stage index        */
   int retval;                  /* reusable return flag       */
-  int mode;                    /* full RHS evaluation mode   */
 
   /* initialize algebraic solver convergence flag to success;
      error estimate to zero */
