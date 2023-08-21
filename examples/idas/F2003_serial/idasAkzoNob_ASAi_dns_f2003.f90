@@ -465,7 +465,7 @@ subroutine check_retval(retval, name)
   integer(c_int)   :: retval
 
   if (retval < 0) then
-    write(*,'(A,A,A,I)') 'ERROR: ', name,' returned ', retval
+    write(*,'(A,A,A,I4)') 'ERROR: ', name,' returned ', retval
     stop 1
   end if
 end subroutine
