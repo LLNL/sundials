@@ -807,9 +807,17 @@ struct ARKodeMemRec
   ODE RHS function supplied (e.g. ERK, DIRK, IRK), or it may be
   the sum of many ODE RHS functions (e.g. ARK, MRI).  The 'mode'
   indicates where this routine is called:
+
      ARK_FULLRHS_START -> called at the beginning of a simulation
-     ARK_FULLRHS_END   -> called at the end of a successful step
+                          i.e., at (tn, yn) = (t0, y0) or (tR, yR)
+
+     ARK_FULLRHS_END   -> called at the end of a successful step i.e,
+                          at (tcur, ycur) or the start of the subsequent
+                          step i.e., at (tn, yn) = (tcur, ycur) from
+                          the end of the last step
+
      ARK_FULLRHS_OTHER -> called elsewhere (e.g. for dense output)
+
   It is recommended that the stepper use the mode information to
   maximize reuse between calls to this function and RHS
   evaluations inside the stepper itself.

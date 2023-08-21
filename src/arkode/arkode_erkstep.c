@@ -600,30 +600,35 @@ int erkStep_Init(void* arkode_mem, int init_type)
 }
 
 
-/*---------------------------------------------------------------
+/*------------------------------------------------------------------------------
   erkStep_FullRHS:
 
-  This is just a wrapper to call the user-supplied RHS function,
-  f(t,y).
+  This is just a wrapper to call the user-supplied RHS function, f(t,y).
 
   This will be called in one of three 'modes':
-    ARK_FULLRHS_START -> called at the beginning of a simulation
-                         or after post processing at step
-    ARK_FULLRHS_END   -> called at the end of a successful step
-    ARK_FULLRHS_OTHER -> called elsewhere (e.g. for dense output)
 
-  If it is called in ARK_FULLRHS_START mode, we store the vectors
-  f(t,y) in F[0] for possible reuse in the first stage of the
-  subsequent time step.
+     ARK_FULLRHS_START -> called at the beginning of a simulation i.e., at
+                          (tn, yn) = (t0, y0) or (tR, yR)
 
-  If it is called in ARK_FULLRHS_END mode and the method coefficients
-  support it, we may just copy vectors F[stages] to fill f instead
-  of calling f().
+     ARK_FULLRHS_END   -> called at the end of a successful step i.e, at
+                          (tcur, ycur) or the start of the subsequent step i.e.,
+                          at (tn, yn) = (tcur, ycur) from the end of the last
+                          step
 
-  ARK_FULLRHS_OTHER mode is only called for dense output in-between
-  steps, so we strive to store the intermediate parts so that they
-  do not interfere with the other two modes.
-  ---------------------------------------------------------------*/
+     ARK_FULLRHS_OTHER -> called elsewhere (e.g. for dense output)
+
+  If this function is called in ARK_FULLRHS_START or ARK_FULLRHS_END mode and
+  evaluating the RHS functions is necessary, we store the vector f(t,y) in Fe[0]
+  for reuse in the first stage of the subsequent time step.
+
+  In ARK_FULLRHS_END mode we check if the method is "stiffly accurate" and, if
+  appropriate, copy the vector F[stages - 1] to F[0] for reuse in the first
+  stage of the subsequent time step.
+
+  ARK_FULLRHS_OTHER mode is only called for dense output in-between steps, or
+  when estimating the initial time step size, so we strive to store the
+  intermediate parts so that they do not interfere with the other two modes.
+  ----------------------------------------------------------------------------*/
 int erkStep_FullRHS(void* arkode_mem, realtype t, N_Vector y, N_Vector f,
                     int mode)
 {
@@ -640,12 +645,9 @@ int erkStep_FullRHS(void* arkode_mem, realtype t, N_Vector y, N_Vector f,
   /* perform RHS functions contingent on 'mode' argument */
   switch(mode) {
 
-  /* ARK_FULLRHS_START: called at the beginning of a simulation
-     Store the vectors f(t,y) in F[0] for possible reuse
-     in the first stage of the subsequent time step */
   case ARK_FULLRHS_START:
 
-    /* call f */
+    /* compute the RHS */
     if (!(ark_mem->fn_current))
     {
       retval = step_mem->f(t, y, step_mem->F[0], ark_mem->user_data);
@@ -663,14 +665,9 @@ int erkStep_FullRHS(void* arkode_mem, realtype t, N_Vector y, N_Vector f,
 
     break;
 
-
-  /* ARK_FULLRHS_END: called at the end of a successful step
-     If the method coefficients support it, we just copy the last stage RHS
-     vectors to fill f instead of calling f(t,y).
-     Copy the results to F[0] if the coefficients support it. */
   case ARK_FULLRHS_END:
 
-    /* determine if explicit RHS function needs to be recomputed */
+    /* determine if RHS function needs to be recomputed */
     if (!(ark_mem->fn_current))
     {
       recomputeRHS = SUNFALSE;
@@ -683,7 +680,7 @@ int erkStep_FullRHS(void* arkode_mem, realtype t, N_Vector y, N_Vector f,
         }
       }
 
-      /* FSAL methods are not FSAL when when relaxation is enabled */
+      /* First Same As Last methods are not FSAL when relaxation is enabled */
       if (ark_mem->relax_enabled) { recomputeRHS = SUNTRUE; }
 
       /* base RHS calls on recomputeRHS argument */
@@ -710,9 +707,6 @@ int erkStep_FullRHS(void* arkode_mem, realtype t, N_Vector y, N_Vector f,
 
     break;
 
-  /*  ARK_FULLRHS_OTHER: called for dense output in-between steps
-      store the intermediate calculations in such a way as to not
-      interfere with the other two modes */
   case ARK_FULLRHS_OTHER:
 
     /* call f */
@@ -795,11 +789,12 @@ int erkStep_TakeStep(void* arkode_mem, realtype *dsmPtr, int *nflagPtr)
   N_VPrintFile(step_mem->F[0], ARK_LOGGER->debug_fp);
 #endif
 
-  /* call full RHS if needed -- if this is the first step then we need to
-     evaluate or copy the RHS values at the start of the step. With subsequent
-     steps we are evaluating the RHS at the end of the just completed step i.e.,
-     the start of this step can may be able to use the last stage RHS at the end
-     of the last step (FSAL methods) or need a new function evaluation. */
+  /* Call the full RHS if needed. If this is the first step then we may need to
+     evaluate or copy the RHS values from an  earlier evaluation (e.g., to
+     compute h0). For subsequent steps treat this RHS evaluation as an
+     evaluation at the end of the just completed step to potentially reuse
+     (FSAL methods) RHS evaluations from the end of the last step. */
+
   if (!(ark_mem->fn_current))
   {
     mode = (ark_mem->initsetup) ? ARK_FULLRHS_START : ARK_FULLRHS_END;

@@ -1214,30 +1214,35 @@ int mriStep_Init(void* arkode_mem, int init_type)
 }
 
 
-/*---------------------------------------------------------------
+/*------------------------------------------------------------------------------
   mriStep_FullRHS:
 
   This is just a wrapper to call the user-supplied RHS functions,
   f(t,y) = fse(t,y) + fsi(t,y)  + ff(t,y).
 
   This will be called in one of three 'modes':
-    ARK_FULLRHS_START -> called at the beginning of a simulation
-                         or after post processing at step
-    ARK_FULLRHS_END   -> called at the end of a successful step
-    ARK_FULLRHS_OTHER -> called elsewhere (e.g. for dense output)
 
-  If it is called in ARK_FULLRHS_START mode, we store the vectors
-  f(t,y) in F[0] for possible reuse in the first stage of the
+     ARK_FULLRHS_START -> called at the beginning of a simulation i.e., at
+                          (tn, yn) = (t0, y0) or (tR, yR)
+
+     ARK_FULLRHS_END   -> called at the end of a successful step i.e, at
+                          (tcur, ycur) or the start of the subsequent step i.e.,
+                          at (tn, yn) = (tcur, ycur) from the end of the last
+                          step
+
+     ARK_FULLRHS_OTHER -> called elsewhere (e.g. for dense output)
+
+  If this function is called in ARK_FULLRHS_START or ARK_FULLRHS_END mode and
+  evaluating the RHS functions is necessary, we store the vectors fse(t,y) and
+  fsi(t,y) in Fse[0] and Fsi[0] for possible reuse in the first stage of the
   subsequent time step.
 
-  If it is called in ARK_FULLRHS_END mode, we reevauate f(t,y). At
-  this time no checks are made to see if the method coefficient
-  support copying vectors F[stages] to fill f instead of calling f().
+  ARK_FULLRHS_OTHER mode is only called for dense output in-between steps, or
+  when estimating the initial time step size, so we strive to store the
+  intermediate parts so that they do not interfere with the other two modes.
 
-  ARK_FULLRHS_OTHER mode is only called for dense output in-between
-  steps, so we strive to store the intermediate parts so that they
-  do not interfere with the other two modes.
-  ---------------------------------------------------------------*/
+  Presently ff(t,y) is always called with ARK_FULLRHS_OTHER mode.
+  ----------------------------------------------------------------------------*/
 int mriStep_FullRHS(void* arkode_mem, realtype t, N_Vector y, N_Vector f,
                     int mode)
 {
@@ -1253,15 +1258,12 @@ int mriStep_FullRHS(void* arkode_mem, realtype t, N_Vector y, N_Vector f,
   /* perform RHS functions contingent on 'mode' argument */
   switch(mode) {
 
-  /* ARK_FULLRHS_START: called at the beginning of a simulation
-     Store the vector fs(t,y) in F[0] for possible reuse
-     in the first stage of the subsequent time step */
   case ARK_FULLRHS_START:
 
-    /* call f */
+    /* compute the full RHS */
     if (!(ark_mem->fn_current))
     {
-      /* call fse if the problem has an explicit component */
+      /* compute the explicit component */
       if (step_mem->explicit_rhs)
       {
         retval = step_mem->fse(t, y, step_mem->Fse[0], ark_mem->user_data);
@@ -1274,7 +1276,7 @@ int mriStep_FullRHS(void* arkode_mem, realtype t, N_Vector y, N_Vector f,
         }
       }
 
-      /* call fsi if the problem has an implicit component */
+      /* compute the implicit component */
       if (step_mem->implicit_rhs)
       {
         retval = step_mem->fsi(t, y, step_mem->Fsi[0], ark_mem->user_data);
@@ -1287,7 +1289,7 @@ int mriStep_FullRHS(void* arkode_mem, realtype t, N_Vector y, N_Vector f,
         }
       }
 
-      /* call ff (force new RHS computation) */
+      /* compute the fast component (force new RHS computation) */
       retval = mriStepInnerStepper_FullRhs(step_mem->stepper, t, y, f,
                                            ARK_FULLRHS_OTHER);
       if (retval != ARK_SUCCESS)
@@ -1318,16 +1320,12 @@ int mriStep_FullRHS(void* arkode_mem, realtype t, N_Vector y, N_Vector f,
 
     break;
 
-
-  /* ARK_FULLRHS_END: called at the end of a successful step
-     This always recomputes the full RHS (i.e., this is the
-     same as case 0). */
   case ARK_FULLRHS_END:
 
-    /* determine if RHS functions need to be recomputed */
+    /* compute the full RHS */
     if (!(ark_mem->fn_current))
     {
-      /* call fse if the problem has an explicit component */
+      /* compute the explicit component */
       if (step_mem->explicit_rhs)
       {
         retval = step_mem->fse(t, y, step_mem->Fse[0], ark_mem->user_data);
@@ -1340,7 +1338,7 @@ int mriStep_FullRHS(void* arkode_mem, realtype t, N_Vector y, N_Vector f,
         }
       }
 
-      /* call fsi if the problem has an implicit component */
+      /* compute the implicit component */
       if (step_mem->implicit_rhs)
       {
         retval = step_mem->fsi(t, y, step_mem->Fsi[0], ark_mem->user_data);
@@ -1353,7 +1351,7 @@ int mriStep_FullRHS(void* arkode_mem, realtype t, N_Vector y, N_Vector f,
         }
       }
 
-      /* call ff (force new RHS computation) */
+      /* compute the fast component (force new RHS computation) */
       retval = mriStepInnerStepper_FullRhs(step_mem->stepper, t, y, f,
                                            ARK_FULLRHS_OTHER);
       if (retval != ARK_SUCCESS)
@@ -1384,12 +1382,9 @@ int mriStep_FullRHS(void* arkode_mem, realtype t, N_Vector y, N_Vector f,
 
     break;
 
-  /*  ARK_FULLRHS_OTHER: called for dense output in-between steps
-      store the intermediate calculations in such a way as to not
-      interfere with the other two modes */
   case ARK_FULLRHS_OTHER:
 
-    /* call fse if the problem has an explicit component (store in ark_tempv2) */
+    /* compute the explicit component and store in ark_tempv2 */
     if (step_mem->explicit_rhs) {
       retval = step_mem->fse(t, y, ark_mem->tempv2, ark_mem->user_data);
       step_mem->nfse++;
@@ -1400,7 +1395,7 @@ int mriStep_FullRHS(void* arkode_mem, realtype t, N_Vector y, N_Vector f,
       }
     }
 
-    /* call fsi if the problem has an implicit component (store in sdata) */
+    /* compute the implicit component and store in sdata */
     if (step_mem->implicit_rhs) {
       retval = step_mem->fsi(t, y, step_mem->sdata, ark_mem->user_data);
       step_mem->nfsi++;
@@ -1412,7 +1407,7 @@ int mriStep_FullRHS(void* arkode_mem, realtype t, N_Vector y, N_Vector f,
     }
 
 
-    /* call ff (force new RHS computation) */
+    /* compute the fast component (force new RHS computation) */
     retval = mriStepInnerStepper_FullRhs(step_mem->stepper, t, y, f,
                                          ARK_FULLRHS_OTHER);
     if (retval != ARK_SUCCESS) {
@@ -1422,15 +1417,21 @@ int mriStep_FullRHS(void* arkode_mem, realtype t, N_Vector y, N_Vector f,
     }
 
     /* combine RHS vectors into output */
-    if (step_mem->explicit_rhs && step_mem->implicit_rhs) { /* ImEx */
+    if (step_mem->explicit_rhs && step_mem->implicit_rhs)
+    {
+      /* ImEx */
       N_VLinearSum(ONE, ark_mem->tempv2, ONE, f, f);
       N_VLinearSum(ONE, step_mem->sdata, ONE, f, f);
-    } else {                   /* implicit */
-      if (step_mem->implicit_rhs) {
-        N_VLinearSum(ONE, step_mem->sdata, ONE, f, f);
-      } else {                                           /* explicit */
-        N_VLinearSum(ONE, ark_mem->tempv2, ONE, f, f);
-      }
+    }
+    else if (step_mem->implicit_rhs)
+    {
+      /* implicit */
+      N_VLinearSum(ONE, step_mem->sdata, ONE, f, f);
+    }
+    else
+    {
+      /* explicit */
+      N_VLinearSum(ONE, ark_mem->tempv2, ONE, f, f);
     }
 
     break;

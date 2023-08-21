@@ -1306,7 +1306,7 @@ int arkStep_Init(void* arkode_mem, int init_type)
 }
 
 
-/*---------------------------------------------------------------
+/*------------------------------------------------------------------------------
   arkStep_FullRHS:
 
   Rewriting the problem
@@ -1317,24 +1317,30 @@ int arkStep_Init(void* arkode_mem, int init_type)
     f = M^{-1}*[ fe(t,y) + fi(t,y) ]
 
   This will be called in one of three 'modes':
-    ARK_FULLRHS_START -> called at the beginning of a simulation
-                         or after post processing at step
-    ARK_FULLRHS_END   -> called at the end of a successful step
-    ARK_FULLRHS_OTHER -> called elsewhere (e.g. for dense output)
 
-  If it is called in ARK_FULLRHS_START mode, we store the vectors
-  fe(t,y) and fi(t,y) in Fe[0] and Fi[0] for possible reuse in the
-  first stage of the subsequent time step.
+     ARK_FULLRHS_START -> called at the beginning of a simulation i.e., at
+                          (tn, yn) = (t0, y0) or (tR, yR)
 
-  If it is called in ARK_FULLRHS_END mode and the ARK method
-  coefficients support it, we may just copy vectors Fe[stages] and
-  Fi[stages] to fill f instead of calling fe() and fi().
+     ARK_FULLRHS_END   -> called at the end of a successful step i.e, at
+                          (tcur, ycur) or the start of the subsequent step i.e.,
+                          at (tn, yn) = (tcur, ycur) from the end of the last
+                          step
 
-  ARK_FULLRHS_OTHER mode is only called for dense output in-between
-  steps, or when estimating the initial time step size, so we strive to
-  store the intermediate parts so that they do not interfere
-  with the other two modes.
-  ---------------------------------------------------------------*/
+     ARK_FULLRHS_OTHER -> called elsewhere (e.g. for dense output)
+
+  If this function is called in ARK_FULLRHS_START or ARK_FULLRHS_END mode and
+  evaluating the RHS functions is necessary, we store the vectors fe(t,y) and
+  fi(t,y) in Fe[0] and Fi[0] for possible reuse in the first stage of the
+  subsequent time step.
+
+  In ARK_FULLRHS_END mode we check if the method is stiffly accurate and, if
+  appropriate, copy the vectors Fe[stages - 1] and Fi[stages - 1] to Fe[0] and
+  Fi[0] for possible reuse in the first stage of the subsequent time step.
+
+  ARK_FULLRHS_OTHER mode is only called for dense output in-between steps, or
+  when estimating the initial time step size, so we strive to store the
+  intermediate parts so that they do not interfere with the other two modes.
+  ----------------------------------------------------------------------------*/
 int arkStep_FullRHS(void* arkode_mem, realtype t, N_Vector y, N_Vector f,
                     int mode)
 {
@@ -1364,15 +1370,12 @@ int arkStep_FullRHS(void* arkode_mem, realtype t, N_Vector y, N_Vector f,
   /* perform RHS functions contingent on 'mode' argument */
   switch(mode) {
 
-  /* ARK_FULLRHS_START: called at the beginning of a simulation
-     Store the vectors fe(t,y) and fi(t,y) in Fe[0] and Fi[0] for
-     possible reuse in the first stage of the subsequent time step */
   case ARK_FULLRHS_START:
 
-    /* call f */
+    /* compute the full RHS */
     if (!(ark_mem->fn_current))
     {
-      /* call fe if the problem has an explicit component */
+      /* compute the explicit component */
       if (step_mem->explicit)
       {
         retval = step_mem->fe(t, y, step_mem->Fe[0], ark_mem->user_data);
@@ -1384,6 +1387,7 @@ int arkStep_FullRHS(void* arkode_mem, realtype t, N_Vector y, N_Vector f,
           return(ARK_RHSFUNC_FAIL);
         }
 
+        /* compute and store M(t)^{-1} fe */
         if (step_mem->mass_type == MASS_TIMEDEP)
         {
           retval = step_mem->msolve((void *) ark_mem, step_mem->Fe[0],
@@ -1397,7 +1401,7 @@ int arkStep_FullRHS(void* arkode_mem, realtype t, N_Vector y, N_Vector f,
         }
       }
 
-      /* call fi if the problem has an implicit component */
+      /* compute the implicit component */
       if (step_mem->implicit)
       {
         retval = step_mem->fi(t, y, step_mem->Fi[0], ark_mem->user_data);
@@ -1409,6 +1413,7 @@ int arkStep_FullRHS(void* arkode_mem, realtype t, N_Vector y, N_Vector f,
           return(ARK_RHSFUNC_FAIL);
         }
 
+        /* compute and store M(t)^{-1} fi */
         if (step_mem->mass_type == MASS_TIMEDEP)
         {
           retval = step_mem->msolve((void *) ark_mem, step_mem->Fi[0],
@@ -1440,6 +1445,7 @@ int arkStep_FullRHS(void* arkode_mem, realtype t, N_Vector y, N_Vector f,
       N_VScale(ONE, step_mem->Fe[0], f);
     }
 
+    /* compute M^{-1} f for output but do not store */
     if (step_mem->mass_type == MASS_FIXED)
     {
       retval = step_mem->msolve((void *) ark_mem, f,
@@ -1464,17 +1470,12 @@ int arkStep_FullRHS(void* arkode_mem, realtype t, N_Vector y, N_Vector f,
 
     break;
 
-
-  /* ARK_FULLRHS_END: called at the end of a successful step
-     If the ARK method coefficients support it, we just copy the last stage RHS
-     vectors to fill f instead of calling fe() and fi().
-     Copy the results to Fe[0] and Fi[0] if the ARK coefficients support it. */
   case ARK_FULLRHS_END:
 
-    /* determine if RHS functions need to be recomputed */
+    /* compute the full RHS */
     if (!(ark_mem->fn_current))
     {
-      /* determine if explicit/implicit RHS functions need to be recomputed */
+      /* determine if RHS functions need to be recomputed */
       recomputeRHS = SUNFALSE;
 
       if (step_mem->explicit)
@@ -1501,13 +1502,13 @@ int arkStep_FullRHS(void* arkode_mem, realtype t, N_Vector y, N_Vector f,
         }
       }
 
-      /* FSAL methods are not FSAL when when relaxation is enabled */
+      /* Stiffly Accurate methods are not SA when relaxation is enabled */
       if (ark_mem->relax_enabled) { recomputeRHS = SUNTRUE; }
 
-      /* base RHS calls on recomputeRHS argument */
+      /* recompute RHS functions */
       if (recomputeRHS)
       {
-        /* call fe if the problem has an explicit component */
+        /* compute the explicit component */
         if (step_mem->explicit)
         {
           retval = step_mem->fe(t, y, step_mem->Fe[0], ark_mem->user_data);
@@ -1519,6 +1520,7 @@ int arkStep_FullRHS(void* arkode_mem, realtype t, N_Vector y, N_Vector f,
             return(ARK_RHSFUNC_FAIL);
           }
 
+          /* compute and store M(t)^{-1} fi */
           if (step_mem->mass_type == MASS_TIMEDEP)
           {
             retval = step_mem->msolve((void *) ark_mem, step_mem->Fe[0],
@@ -1532,7 +1534,7 @@ int arkStep_FullRHS(void* arkode_mem, realtype t, N_Vector y, N_Vector f,
           }
         }
 
-        /* call fi if the problem has an implicit component */
+        /* compute the implicit component */
         if (step_mem->implicit)
         {
           retval = step_mem->fi(t, y, step_mem->Fi[0], ark_mem->user_data);
@@ -1544,6 +1546,7 @@ int arkStep_FullRHS(void* arkode_mem, realtype t, N_Vector y, N_Vector f,
             return(ARK_RHSFUNC_FAIL);
           }
 
+          /* compute and store M(t)^{-1} fi */
           if (step_mem->mass_type == MASS_TIMEDEP)
           {
             retval = step_mem->msolve((void *) ark_mem, step_mem->Fi[0],
@@ -1587,6 +1590,7 @@ int arkStep_FullRHS(void* arkode_mem, realtype t, N_Vector y, N_Vector f,
       N_VScale(ONE, step_mem->Fe[0], f);
     }
 
+    /* compute M^{-1} f for output but do not store */
     if (step_mem->mass_type == MASS_FIXED)
     {
       retval = step_mem->msolve((void *) ark_mem, f,
@@ -1611,12 +1615,9 @@ int arkStep_FullRHS(void* arkode_mem, realtype t, N_Vector y, N_Vector f,
 
     break;
 
-  /* ARK_FULLRHS_OTHER: called for dense output in-between steps or for
-     estimation of the initial time step size, store the intermediate
-     calculations in such a way as to not interfere with the other two modes */
   case ARK_FULLRHS_OTHER:
 
-    /* call fe if the problem has an explicit component (store in ark_tempv2) */
+    /* compute the explicit component and store in ark_tempv2 */
     if (step_mem->explicit) {
       retval = step_mem->fe(t, y, ark_mem->tempv2, ark_mem->user_data);
       step_mem->nfe++;
@@ -1627,7 +1628,7 @@ int arkStep_FullRHS(void* arkode_mem, realtype t, N_Vector y, N_Vector f,
       }
     }
 
-    /* call fi if the problem has an implicit component (store in sdata) */
+    /* compute the implicit component and store in sdata */
     if (step_mem->implicit) {
       retval = step_mem->fi(t, y, step_mem->sdata, ark_mem->user_data);
       step_mem->nfi++;
@@ -1647,7 +1648,7 @@ int arkStep_FullRHS(void* arkode_mem, realtype t, N_Vector y, N_Vector f,
       N_VScale(ONE, ark_mem->tempv2, f);
     }
 
-    /* if M != I, then update f = M^{-1}*f */
+    /* compute M^{-1} f for output but do not store */
     if (step_mem->mass_type != MASS_IDENTITY)
     {
       retval = step_mem->msolve((void *) ark_mem, f,
@@ -1764,7 +1765,7 @@ int arkStep_TakeStep_Z(void* arkode_mem, realtype *dsmPtr, int *nflagPtr)
     N_VScale(ONE, ark_mem->yn, step_mem->z[0]);
   }
 
-  /* check if the method is First Same As Last (FASL) */
+  /* check if the method is Stiffly Accurate (SA) */
   if (step_mem->explicit)
   {
     for (is = 0; is < step_mem->stages; is++)
@@ -1787,16 +1788,13 @@ int arkStep_TakeStep_Z(void* arkode_mem, realtype *dsmPtr, int *nflagPtr)
     }
   }
 
-  /* call full RHS if needed for explicit first stage -- if this is the first
-     step then we need to evaluate or copy the RHS values at the start of the
-     step. With subsequent steps we are evaluating the RHS at the end of the
-     just completed step i.e., the start of this step can may be able to use the
-     last stage RHS at the end of the last step (FSAL methods) or need a new
-     function evaluation.
-
-     It the method has an implicit first stage but is stiffly accurate, call the
-     full RHS to copy fn from the end of the last step when using Hermite
-     interpolation to save a function evaluation per step. */
+  /* Call the full RHS if needed e.g., an explicit first stage. If this is the
+     first step then we may need to evaluate or copy the RHS values from an
+     earlier evaluation (e.g., to compute h0). For subsequent steps treat this
+     RHS evaluation as an evaluation at the end of the just completed step to
+     potentially reuse (FSAL methods) or save (stiffly accurate methods with an
+     implicit first stage using Hermite interpolation) RHS evaluations from the
+     end of the last step. */
 
   if ((!implicit_stage || (stiffly_accurate && ark_mem->interp_type == ARK_INTERP_HERMITE))
       && !(ark_mem->fn_current))
