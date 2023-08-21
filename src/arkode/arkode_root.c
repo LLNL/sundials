@@ -56,6 +56,13 @@ int arkRootInit(ARKodeMem ark_mem, int nrtfn, ARKRootFn g)
                       "arkRootInit", MSG_ARK_MISSING_FULLRHS);
       return ARK_ILL_INPUT;
     }
+
+    if (!arkAllocVec(ark_mem, ark_mem->yn, &ark_mem->fn))
+    {
+      arkProcessError(ark_mem, ARK_MEM_FAIL, "ARKODE",
+                      "arkInitialSetup", MSG_ARK_MEM_FAIL);
+      return(ARK_MEM_FAIL);
+    }
   }
 
   /* If unallocated, allocate rootfinding structure, set defaults, update space */

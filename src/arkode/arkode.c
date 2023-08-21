@@ -1923,7 +1923,8 @@ int arkInitialSetup(ARKodeMem ark_mem, realtype tout)
 
   /* Call fullrhs (used in estimating initial step, explicit steppers, Hermite
      interpolation module, and possibly (but not always) arkRootCheck1) */
-  if (ark_mem->call_fullrhs || (ark_mem->h0u == ZERO && ark_mem->hin == ZERO))
+  if (ark_mem->call_fullrhs || (ark_mem->h0u == ZERO && ark_mem->hin == ZERO)
+      || ark_mem->root_mem)
   {
     if (!ark_mem->step_fullrhs)
     {
