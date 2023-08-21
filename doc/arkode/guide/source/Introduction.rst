@@ -140,6 +140,9 @@ Fixed a bug in ERKStep where methods with :math:`c_s = 1` but
 :math:`a_{s,j} \neq b_j` were incorrectly treated as having the first same as
 last (FSAL) property.
 
+Fixed a bug in :c:func:`MRIStepCoupling_Write` where explicit coupling tables
+were not written to the output file pointer.
+
 ARKStep, ERKStep, MRIStep, and SPRKStep were updated to remove a potentially
 unnecessary right-hand side evaluation at the end of an integration, before
 reinitializing the integrator, or resizing the integrator when using one-step

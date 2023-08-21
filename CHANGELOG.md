@@ -8,6 +8,9 @@ object.
 Fixed a bug in ERKStep where methods with `c[s-1] = 1` but `a[s-1,j] != b[j]`
 were incorrectly treated as having the first same as last (FSAL) property.
 
+Fixed a bug in `MRIStepCoupling_Write` where explicit coupling tables were not
+written to the output file pointer.
+
 ARKStep, ERKStep, MRIStep, and SPRKStep were updated to remove a potentially
 unnecessary right-hand side evaluation at the end of an integration, before
 reinitializing the integrator, or resizing the integrator when using one-step

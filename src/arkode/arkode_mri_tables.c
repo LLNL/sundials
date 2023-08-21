@@ -62,8 +62,8 @@ MRIStepCoupling MRIStepCoupling_LoadTableByName(const char *method)
 #undef ARK_MRI_TABLE
 
   arkProcessError(NULL, ARK_ILL_INPUT, "ARKODE",
-	   "MRIStepCoupling_LoadTable",
-	   "Unknown coupling table");
+           "MRIStepCoupling_LoadTable",
+           "Unknown coupling table");
 
   return NULL;
 }
@@ -461,7 +461,8 @@ void MRIStepCoupling_Write(MRIStepCoupling MRIC, FILE *outfile)
 
   /* check for vaild coupling structure */
   if (!MRIC) return;
-  if (!(MRIC->G)) return;
+  if (!(MRIC->W) && !(MRIC->G)) return;
+  if (!(MRIC->c)) return;
 
   if (MRIC->W) {
     for (i = 0; i < MRIC->nmat; i++) {
@@ -479,13 +480,10 @@ void MRIStepCoupling_Write(MRIStepCoupling MRIC, FILE *outfile)
     }
   }
 
-  if (!(MRIC->c)) return;
-
   fprintf(outfile, "  nmat = %i\n", MRIC->nmat);
   fprintf(outfile, "  stages = %i\n", MRIC->stages);
   fprintf(outfile, "  method order (q) = %i\n", MRIC->q);
   fprintf(outfile, "  embedding order (p) = %i\n", MRIC->p);
-
   fprintf(outfile, "  c = ");
   for (i = 0; i < MRIC->stages; i++)
     fprintf(outfile, "%"RSYM"  ", MRIC->c[i]);
