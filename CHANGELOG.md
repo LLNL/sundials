@@ -5,6 +5,10 @@
 Fixed a memory leak when destroying a CUDA, HIP, SYCL, or system SUNMemoryHelper
 object.
 
+Fixed a bug in ARKODE, CVODE, and CVODES where the stop time may not be cleared
+and an unnecessary interpolation may occur when using normal mode if the
+requested output time is the same as the stop time.
+
 ## Changes to SUNDIALS in release 6.6.0
 
 A new time-stepping module, `SPRKStep`, was added to ARKODE. This time-stepper
