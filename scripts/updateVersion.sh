@@ -365,24 +365,37 @@ sedi '101s/.*/\ \ note   = {v'${idas_ver}'}/' $fn
 sedi '109s/.*/\ \ year   = {'${year}'},/' $fn
 sedi '110s/.*/\ \ note   = {v'${kin_ver}'}/' $fn
 
-# Update CHANGELOG and recent changes
+# Update all occurrences of x.x.x and X.X.X to the current version number
 fn="../CHANGELOG.md"
-sedi "s/x.x.x/${sun_ver}/" $fn
+sedi "s/x.x.x/${sun_ver}/gI" $fn
 
-fn="../doc/arkode/guide/source/Introduction.rst"
-sedi "s/x.x.x/${ark_ver}/" $fn
+for fn in $(grep -Iirl "x.x.x" ../doc/arkode/guide/source/*)
+do
+    echo "update: $fn"
+    sedi "s/x.x.x/${ark_ver}/gI" $fn
+done
 
-fn="../doc/cvode/guide/source/Introduction.rst"
-sedi "s/x.x.x/${cv_ver}/" $fn
+for fn in $(grep -Iirl "x.x.x" ../doc/cvode/guide/source/*)
+do
+    sedi "s/x.x.x/${cv_ver}/gI" $fn
+done
 
-fn="../doc/cvodes/guide/source/Introduction.rst"
-sedi "s/x.x.x/${cvs_ver}/" $fn
+for fn in $(grep -Iirl "x.x.x" ../doc/cvodes/guide/source/*)
+do
+    sedi "s/x.x.x/${cvs_ver}/gI" $fn
+done
 
-fn="../doc/ida/guide/source/Introduction.rst"
-sedi "s/x.x.x/${ida_ver}/" $fn
+for fn in $(grep -Iirl "x.x.x" ../doc/ida/guide/source/*)
+do
+    sedi "s/x.x.x/${ida_ver}/gI" $fn
+done
 
-fn="../doc/idas/guide/source/Introduction.rst"
-sedi "s/x.x.x/${idas_ver}/" $fn
+for fn in $(grep -Iirl "x.x.x" ../doc/idas/guide/source/*)
+do
+    sedi "s/x.x.x/${idas_ver}/gI" $fn
+done
 
-fn="../doc/kinsol/guide/source/Introduction.rst"
-sedi "s/x.x.x/${kin_ver}/" $fn
+for fn in $(grep -Iirl "x.x.x" ../doc/kinsol/guide/source/*)
+do
+    sedi "s/x.x.x/${kin_ver}/gI" $fn
+done

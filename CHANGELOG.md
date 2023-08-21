@@ -5,6 +5,20 @@
 Fixed a memory leak when destroying a CUDA, HIP, SYCL, or system SUNMemoryHelper
 object.
 
+Fixed a bug in ERKStep where methods with `c[s-1] = 1` but `a[s-1,j] != b[j]`
+were incorrectly treated as having the first same as last (FSAL) property.
+
+ARKStep, ERKStep, MRIStep, and SPRKStep were updated to remove a potentially
+unnecessary right-hand side evaluation at the end of an integration, before
+reinitializing the integrator, or resizing the integrator when using one-step
+mode or when a stop time is set and interpolation at the stop time is disabled.
+ARKStep was additionally updated to remove extra right-hand side evaluations
+when using an explicit method or an implicit method with an explicit first
+stage.
+
+The `MRIStepInnerStepper` class in MRIStep was updated to make supplying an
+`MRIStepInnerFullRhsFn` optional.
+
 ## Changes to SUNDIALS in release 6.6.0
 
 A new time-stepping module, `SPRKStep`, was added to ARKODE. This time-stepper

@@ -136,6 +136,21 @@ Changes in vX.X.X
 Fixed a memory leak when destroying a CUDA, HIP, SYCL, or system SUNMemoryHelper
 object.
 
+Fixed a bug in ERKStep where methods with :math:`c_s = 1` but
+:math:`a_{s,j} \neq b_j` were incorrectly treated as having the first same as
+last (FSAL) property.
+
+ARKStep, ERKStep, MRIStep, and SPRKStep were updated to remove a potentially
+unnecessary right-hand side evaluation at the end of an integration, before
+reinitializing the integrator, or resizing the integrator when using one-step
+mode or when a stop time is set and interpolation at the stop time is disabled.
+ARKStep was additionally updated to remove extra right-hand side evaluations
+when using an explicit method or an implicit method with an explicit first
+stage.
+
+The :c:type:`MRIStepInnerStepper` class in MRIStep was updated to make supplying
+an :c:func:`MRIStepInnerFullRhsFn` optional.
+
 Changes in v5.6.0
 -----------------
 
