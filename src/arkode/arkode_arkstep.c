@@ -2054,7 +2054,7 @@ int arkStep_TakeStep_Z(void* arkode_mem, realtype *dsmPtr, int *nflagPtr)
   } else {
     *nflagPtr = arkStep_ComputeSolutions(ark_mem, dsmPtr);
   }
-  if (*nflagPtr < 0) return(retval);
+  if (*nflagPtr < 0) return(*nflagPtr);
   if (*nflagPtr > 0) return(TRY_AGAIN);
 
 #ifdef SUNDIALS_LOGGING_EXTRA_DEBUG
