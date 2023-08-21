@@ -1489,8 +1489,7 @@ booleantype arkCheckTimestepper(ARKodeMem ark_mem)
 {
   if ( (ark_mem->step_init    == NULL) ||
        (ark_mem->step         == NULL) ||
-       (ark_mem->step_mem     == NULL) ||
-       (ark_mem->step_fullrhs == NULL) )
+       (ark_mem->step_mem     == NULL) )
     return(SUNFALSE);
   return(SUNTRUE);
 }
