@@ -854,22 +854,10 @@ int arkEvolve(ARKodeMem ark_mem, realtype tout, N_Vector yout,
            >0 => step encountered recoverable failure; reduce step if possible
            <0 => step encountered unrecoverable failure */
       kflag = ark_mem->step((void*) ark_mem, &dsm, &nflag);
-#if SUNDIALS_LOGGING_LEVEL >= SUNDIALS_LOGGING_DEBUG
-      SUNLogger_QueueMsg(ARK_LOGGER, SUN_LOGLEVEL_INFO,
-                         "ARKODE::arkEvolve", "step return",
-                         "step = %li, kflag = %d, nflag = %d",
-                         ark_mem->nst, kflag, nflag);
-#endif
       if (kflag < 0) break;
 
       /* handle solver convergence failures */
       kflag = arkCheckConvergence(ark_mem, &nflag, &ncf);
-#if SUNDIALS_LOGGING_LEVEL >= SUNDIALS_LOGGING_DEBUG
-      SUNLogger_QueueMsg(ARK_LOGGER, SUN_LOGLEVEL_INFO,
-                         "ARKODE::arkEvolve", "check convergence return",
-                         "step = %li, kflag = %d, nflag = %d, ncf = %d",
-                         ark_mem->nst, kflag, nflag, ncf);
-#endif
       if (kflag < 0) break;
 
       /* Perform relaxation:
