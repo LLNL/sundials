@@ -2444,7 +2444,10 @@ int arkCompleteStep(ARKodeMem ark_mem, realtype dsm)
     if (retval != 0) return(ARK_POSTPROCESS_STEP_FAIL);
   }
 
-  /* update interpolation structure */
+  /* update interpolation structure
+
+     NOTE: This must be called before updating yn towith ycur as the interpolation
+     module may need to save tn, yn from the start of this step */
   if (ark_mem->interp != NULL) {
     retval = arkInterpUpdate(ark_mem, ark_mem->interp, ark_mem->tcur);
     if (retval != ARK_SUCCESS)  return(retval);
