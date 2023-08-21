@@ -12,12 +12,9 @@ Fixed a bug in `MRIStepCoupling_Write` where explicit coupling tables were not
 written to the output file pointer.
 
 ARKStep, ERKStep, MRIStep, and SPRKStep were updated to remove a potentially
-unnecessary right-hand side evaluation at the end of an integration, before
-reinitializing the integrator, or resizing the integrator when using one-step
-mode or when a stop time is set and interpolation at the stop time is disabled.
-ARKStep was additionally updated to remove extra right-hand side evaluations
-when using an explicit method or an implicit method with an explicit first
-stage.
+unnecessary right-hand side evaluation at the end of an integration. ARKStep was
+additionally updated to remove extra right-hand side evaluations when using an
+explicit method or an implicit method with an explicit first stage.
 
 The `MRIStepInnerStepper` class in MRIStep was updated to make supplying an
 `MRIStepInnerFullRhsFn` optional.
