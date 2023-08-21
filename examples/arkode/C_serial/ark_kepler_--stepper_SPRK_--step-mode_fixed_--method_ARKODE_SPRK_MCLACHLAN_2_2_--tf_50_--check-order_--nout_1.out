@@ -22,8 +22,8 @@ NLS step fails               = 0
 Inequality constraint fails  = 0
 Initial step size            = 0.001
 Last step size               = 2.582822844487962e-11
-Current step size            = 2.582822844487962e-11
-Explicit RHS fn evals        = 400010
+Current step size            = 0.001
+Explicit RHS fn evals        = 400009
 Implicit RHS fn evals        = 0
 NLS iters                    = 0
 NLS fails                    = 0
@@ -53,7 +53,7 @@ NLS step fails               = 0
 Inequality constraint fails  = 0
 Initial step size            = 0.001
 Last step size               = 2.582822844487962e-11
-Current step size            = 2.582822844487962e-11
+Current step size            = 0.001
 f1 RHS fn evals              = 100003
 f2 RHS fn evals              = 100003
 
@@ -81,7 +81,7 @@ NLS step fails               = 0
 Inequality constraint fails  = 0
 Initial step size            = 0.0005
 Last step size               = 0.0004999999432868658
-Current step size            = 0.0004999999432868658
+Current step size            = 0.0005
 f1 RHS fn evals              = 200001
 f2 RHS fn evals              = 200001
 
@@ -109,7 +109,7 @@ NLS step fails               = 0
 Inequality constraint fails  = 0
 Initial step size            = 0.00025
 Last step size               = 0.0002499998522722533
-Current step size            = 0.0002499998522722533
+Current step size            = 0.00025
 f1 RHS fn evals              = 400001
 f2 RHS fn evals              = 400001
 
@@ -137,7 +137,7 @@ NLS step fails               = 0
 Inequality constraint fails  = 0
 Initial step size            = 0.000125
 Last step size               = 3.183586727573126e-10
-Current step size            = 3.183586727573126e-10
+Current step size            = 0.000125
 f1 RHS fn evals              = 800003
 f2 RHS fn evals              = 800003
 
@@ -165,7 +165,7 @@ NLS step fails               = 0
 Inequality constraint fails  = 0
 Initial step size            = 6.25e-05
 Last step size               = 7.503473398173804e-10
-Current step size            = 7.503473398173804e-10
+Current step size            = 6.25e-05
 f1 RHS fn evals              = 1600003
 f2 RHS fn evals              = 1600003
 
@@ -193,7 +193,7 @@ NLS step fails               = 0
 Inequality constraint fails  = 0
 Initial step size            = 3.125e-05
 Last step size               = 9.66345226061093e-10
-Current step size            = 9.66345226061093e-10
+Current step size            = 3.125e-05
 f1 RHS fn evals              = 3200003
 f2 RHS fn evals              = 3200003
 
@@ -221,7 +221,7 @@ NLS step fails               = 0
 Inequality constraint fails  = 0
 Initial step size            = 1.5625e-05
 Last step size               = 1.562198162474714e-05
-Current step size            = 1.562198162474714e-05
+Current step size            = 1.5625e-05
 f1 RHS fn evals              = 6400001
 f2 RHS fn evals              = 6400001
 
@@ -249,7 +249,7 @@ NLS step fails               = 0
 Inequality constraint fails  = 0
 Initial step size            = 7.8125e-06
 Last step size               = 7.805897645596353e-06
-Current step size            = 7.805897645596353e-06
+Current step size            = 7.8125e-06
 f1 RHS fn evals              = 12800001
 f2 RHS fn evals              = 12800001
 
