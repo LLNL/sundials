@@ -140,9 +140,9 @@ ARKodeMem arkCreate(SUNContext sunctx)
   /* Initially, rwt should point to ewt */
   ark_mem->rwt_is_ewt = SUNTRUE;
 
-  /* Indicate that evaluation of the full RHS is not required after each step,
-     this flag is updated to SUNTRUE by the interpolation module initialization
-     function and/or the stepper initialization function in arkInitialSetup */
+  /* Indicate that calling the full RHS function is not required, this flag is
+     updated to SUNTRUE by the interpolation module initialization function
+     and/or the stepper initialization function in arkInitialSetup */
   ark_mem->call_fullrhs = SUNFALSE;
 
   /* Indicate that the problem needs to be initialized */
@@ -1357,9 +1357,9 @@ int arkInit(ARKodeMem ark_mem, realtype t0, N_Vector y0,
     ark_mem->hadapt_mem->hhist[0] = ZERO;
     ark_mem->hadapt_mem->hhist[1] = ZERO;
 
-    /* Indicate that evaluation of the full RHS is not required after each step,
-       this flag is updated to SUNTRUE by the interpolation module initialization
-       function and/or the stepper initialization function in arkInitialSetup */
+    /* Indicate that calling the full RHS function is not required, this flag is
+       updated to SUNTRUE by the interpolation module initialization function
+       and/or the stepper initialization function in arkInitialSetup */
     ark_mem->call_fullrhs = SUNFALSE;
 
     /* Indicate that initialization has not been done before */
@@ -2230,10 +2230,10 @@ int arkHin(ARKodeMem ark_mem, realtype tout)
   /* call full RHS if needed */
   if (!(ark_mem->fn_current))
   {
-  /* NOTE: The step size (h) is used in setting the tolerance in a potential
-     mass matrix solve when computing the full RHS. Before calling arkHin, h is
-     set to |tout- tcur| or 1 and so we do not need to guard against h == 0 here
-     before calling the full RHS. */
+    /* NOTE: The step size (h) is used in setting the tolerance in a potential
+       mass matrix solve when computing the full RHS. Before calling arkHin, h
+       is set to |tout - tcur| or 1 and so we do not need to guard against
+       h == 0 here before calling the full RHS. */
     retval = ark_mem->step_fullrhs(ark_mem, ark_mem->tn, ark_mem->yn,
                                    ark_mem->fn, ARK_FULLRHS_START);
     if (retval) { return ARK_RHSFUNC_FAIL; }

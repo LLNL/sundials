@@ -412,7 +412,7 @@ struct ARKodeMemRec
   int         init_type;    /* initialization type (see constants above)  */
   booleantype firststage;   /* denotes first stage in simulation          */
   booleantype initialized;  /* denotes arkInitialSetup has been done      */
-  booleantype call_fullrhs; /* denotes fn needs updating after each step  */
+  booleantype call_fullrhs; /* denotes the full RHS fn will be called     */
 
   /* Error handler function and error ouput file */
   ARKErrHandlerFn ehfun;    /* error messages are handled by ehfun        */
