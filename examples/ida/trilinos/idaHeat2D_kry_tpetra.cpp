@@ -38,9 +38,14 @@
 #include <stdlib.h>
 #include <cmath>
 
+#include <Trilinos_version.h>
 #include <Tpetra_Core.hpp>
 #include <Tpetra_Vector.hpp>
 #include <Tpetra_Version.hpp>
+
+#if TRILINOS_MAJOR_VERSION > 13
+#include <Tpetra_Access.hpp>
+#endif
 
 #include <ida/ida.h>                   /* prototypes for IDA methods           */
 #include <nvector/trilinos/SundialsTpetraVectorInterface.hpp>
@@ -365,12 +370,21 @@ int resHeat(realtype tt,
   Teuchos::RCP<vector_type> uptp = N_VGetVector_Trilinos(up);
   Teuchos::RCP<vector_type> rrtp = N_VGetVector_Trilinos(rr);
 
+#if TRILINOS_MAJOR_VERSION < 14
   const auto uu_2d = uutp->getLocalView<memory_space>();
   const auto uu_1d = Kokkos::subview (uu_2d, Kokkos::ALL(), 0);
   const auto up_2d = uptp->getLocalView<memory_space>();
   const auto up_1d = Kokkos::subview (up_2d, Kokkos::ALL(), 0);
   auto rr_2d = rrtp->getLocalView<memory_space>();
   auto rr_1d = Kokkos::subview (rr_2d, Kokkos::ALL(), 0);
+#else
+  const auto uu_2d = uutp->getLocalView<memory_space>(Tpetra::Access::ReadOnly);
+  const auto uu_1d = Kokkos::subview (uu_2d, Kokkos::ALL(), 0);
+  const auto up_2d = uptp->getLocalView<memory_space>(Tpetra::Access::ReadOnly);
+  const auto up_1d = Kokkos::subview (up_2d, Kokkos::ALL(), 0);
+  auto rr_2d = rrtp->getLocalView<memory_space>(Tpetra::Access::ReadWrite);
+  auto rr_1d = Kokkos::subview (rr_2d, Kokkos::ALL(), 0);
+#endif
 
   coeff = data->coeff;
   mm    = data->mm;
@@ -424,9 +438,13 @@ int PsetupHeat(realtype tt,
 
   Teuchos::RCP<vector_type> pptp = N_VGetVector_Trilinos(data->pp);
 
+#if TRILINOS_MAJOR_VERSION < 14
   auto pp_2d = pptp->getLocalView<memory_space>();
   auto pp_1d = Kokkos::subview (pp_2d, Kokkos::ALL(), 0);
-
+#else
+  auto pp_2d = pptp->getLocalView<memory_space>(Tpetra::Access::ReadWrite);
+  auto pp_1d = Kokkos::subview (pp_2d, Kokkos::ALL(), 0);
+#endif
 
   Kokkos::parallel_for (Kokkos::RangePolicy<execution_space>(0, mm*mm),
     KOKKOS_LAMBDA (const local_ordinal_type &loc)
@@ -484,11 +502,15 @@ static int SetInitialProfile(UserData *data, N_Vector uu, N_Vector up,
   Teuchos::RCP<vector_type> p = N_VGetVector_Trilinos(up);
 
   /* Sync the host with the device if needed */
+#if TRILINOS_MAJOR_VERSION < 14
   u->sync<Kokkos::HostSpace>();
   auto u_2d = u->getLocalView<Kokkos::HostSpace>();
   auto u_1d = Kokkos::subview(u_2d, Kokkos::ALL(), 0);
-
   u->modify<Kokkos::HostSpace>();
+#else
+  auto u_2d = u->getLocalView<Kokkos::HostSpace>(Tpetra::Access::ReadWrite);
+  auto u_1d = Kokkos::subview(u_2d, Kokkos::ALL(), 0);
+#endif
 
   /* Initialize uu on all grid points. */
   for (j = 0; j < mm; j++) {
@@ -499,8 +521,10 @@ static int SetInitialProfile(UserData *data, N_Vector uu, N_Vector up,
     }
   }
 
+#if TRILINOS_MAJOR_VERSION < 14
   /* Sync the device with the host */
   u->sync<memory_space>();
+#endif
 
   /* Initialize up vector to 0. */
   N_VConst(ZERO, up);
@@ -512,8 +536,14 @@ static int SetInitialProfile(UserData *data, N_Vector uu, N_Vector up,
   N_VScale(-ONE, res, up);
 
   /* Set up at boundary points to zero. */
+#if TRILINOS_MAJOR_VERSION < 14
   auto p_2d = p->getLocalView<memory_space>();
   auto p_1d = Kokkos::subview(p_2d, Kokkos::ALL(), 0);
+#else
+  auto p_2d = p->getLocalView<memory_space>(Tpetra::Access::ReadWrite);
+  auto p_1d = Kokkos::subview(p_2d, Kokkos::ALL(), 0);
+#endif
+
   mm1 = mm - 1;
 
   Kokkos::parallel_for (Kokkos::RangePolicy<execution_space>(0, mm),
