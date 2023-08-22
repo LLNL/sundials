@@ -16,10 +16,13 @@
 #define _SUNDIALS_TPETRA_VECTOR_KERNELS_HPP_
 
 #include <Trilinos_version.h>
-#include <Tpetra_Access.hpp>
 #include <Tpetra_Vector.hpp>
 #include <Kokkos_Core.hpp>
 #include <nvector/trilinos/SundialsTpetraVectorInterface.hpp>
+
+#if TRILINOS_MAJOR_VERSION > 13
+#include <Tpetra_Access.hpp>
+#endif
 
 namespace sundials
 {
