@@ -16,8 +16,6 @@
  * 1) y' = lambda_e * y + lambda_i * y
  * 2) M y' = M (lambda_e * y + lambda_i * y)
  * 3) M(t) y' = M(t) (lambda_e * y + lambda_i * y)
- *
- * >>>> WHY do FE and BE fail currently? <<<<<<
  * ---------------------------------------------------------------------------*/
 
 // Header files
