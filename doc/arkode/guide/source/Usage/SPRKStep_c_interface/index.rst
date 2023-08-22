@@ -17,19 +17,19 @@ Using the SPRKStep time-stepping module
 ==========================================
 
 This chapter is concerned with the use of the SPRKStep time-stepping module for
-the solution of Hamiltonian initial value problems (IVPs) of the form
-:eq:`ARKODE_IVP_Hamiltonian` in a C or C++ language setting. The following sections
+the solution of initial value problems (IVPs) of the form
+:eq:`ARKODE_IVP_SPRK` in a C or C++ language setting. The following sections
 discuss the header files and the layout of the user's main program, and provide
 descriptions of the SPRKStep user-callable functions and user-supplied functions.
 
-The example programs located in the source code ``examples/arkode`` folder, may 
+The example programs located in the source code ``examples/arkode`` folder, may
 be helpful as templates for new codes. In particular,
 
 * ``examples/arkode/C_serial/ark_harmonic_symplectic.c``
 * ``examples/arkode/C_serial/ark_damped_harmonic_symplectic.c``, and
 * ``examples/arkode/C_serial/ark_kepler.c``
 
-demonstrate ``SPRKStep`` usage. 
+demonstrate ``SPRKStep`` usage.
 
 SPRKStep uses the input and output constants from the shared ARKODE infrastructure.
 These are defined as needed in this chapter, but for convenience the full list is

@@ -480,6 +480,7 @@ and the component partitioned IVP is given by
 .. math::
    \dot{p} &= f_1(t, q), \qquad p(t_0) = p_0 \\
    \dot{q} &= f_2(t, p), \qquad q(t_0) = q_0.
+   :label: ARKODE_IVP_SPRK
 
 The right-hand side functions :math:`f_1(t,p)` and :math:`f_2(t,q)` typically
 arise from the **separable** Hamiltonian system
