@@ -444,7 +444,7 @@ CVODES solver object, provide problem and solution specifications, and allocate
 internal memory for the backward problem.
 
 
-.. c:function:: int CVodeCreateB(void * cvode_mem, int lmmB, int which)
+.. c:function:: int CVodeCreateB(void * cvode_mem, int lmmB, int* which)
 
    The function :c:func:`CVodeCreateB` instantiates a CVODES solver object and
    specifies  the solution method for the backward problem.
