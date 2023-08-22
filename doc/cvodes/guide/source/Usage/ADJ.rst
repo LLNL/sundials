@@ -786,7 +786,7 @@ repeated calls will eventually advance all problems to ``tBout``.
 
 To obtain the solution ``yB`` to the backward problem, call the function :c:func:`CVodeGetB` as follows:
 
-.. c:function:: int CVodeGetB(void * cvode_mem, int which, realtype tret, N_Vector yB)
+.. c:function:: int CVodeGetB(void * cvode_mem, int which, realtype* tret, N_Vector yB)
 
    The function :c:func:`CVodeGetB` provides the solution ``yB`` of the backward
    ODE  problem.
