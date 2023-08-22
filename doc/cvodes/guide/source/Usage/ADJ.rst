@@ -383,7 +383,7 @@ use in Forward Sensitivity Analysis; for that, see :numref:`CVODES.Usage.FSA`.
 The call to this function has the form
 
 
-.. c:function:: int CVodeF(void * cvode_mem, realtype tout, N_Vector yret, realtype* tret, int itask, int ncheck)
+.. c:function:: int CVodeF(void * cvode_mem, realtype tout, N_Vector yret, realtype* tret, int itask, int* ncheck)
 
    The function :c:func:`CVodeF` integrates the forward problem over an interval
    in :math:`t`  and saves checkpointing data.
