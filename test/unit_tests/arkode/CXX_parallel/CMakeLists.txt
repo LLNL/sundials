@@ -78,11 +78,17 @@ foreach(test_tuple ${ARKODE_unit_tests})
     string(REGEX REPLACE " " "_" test_name ${test}_${test_args})
   endif()
 
+  if(SUNDIALS_PRECISION MATCHES "DOUBLE")
+    set(diff_output "")
+  else()
+    set(diff_output "NODIFF")
+  endif()
+
   # add test to regression tests
   sundials_add_test(${test_name} ${test}
     TEST_ARGS ${test_args}
     MPI_NPROCS ${number_of_tasks}
-    NODIFF)
+    ${diff_output})
 endforeach()
 
 message(STATUS "Added ARKODE CXX parallel unit tests")
