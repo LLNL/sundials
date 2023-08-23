@@ -11,5 +11,5 @@ Time-dependent Brusselator reaction-diffusion PDE in 1d. Demonstrates IMEX metho
 40 TS dt 3.953920e-02 time 7.000000
 47 TS dt 1.382022e-01 time 8.000000
 51 TS dt 2.211368e-01 time 9.000000
-55 TS dt 4.212273e-01 time 10.000000
+55 TS dt 2.106136e-02 time 10.000000
 Converged at time 10 after 55 steps.
