@@ -85,8 +85,8 @@ with adaptive explicit methods of orders 2-8.
    H(t, p, q) = T(t, p) + V(t, q)
 
 .. math::
-   \dot{p} = f_1(t,q) = \frac{\partial V(t,q)}{\partial q}, \quad 
-   \dot{q} = f_2(t,p) = \frac{\partial T(t,p)}{\partial p}, 
+   \dot{p} = f_1(t,q) = \frac{\partial V(t,q)}{\partial q}, \quad
+   \dot{q} = f_2(t,p) = \frac{\partial T(t,p)}{\partial p},
    :label: ARKODE_ODE_hamiltonian
 
 allowing for conservation of quadratic invariants.
@@ -135,6 +135,10 @@ Changes in vX.X.X
 
 Fixed a memory leak when destroying a CUDA, HIP, SYCL, or system SUNMemoryHelper
 object.
+
+Fixed a bug where the stop time may not be cleared and an unnecessary
+interpolation may occur when using normal mode if the requested output time is
+the same as the stop time.
 
 Fixed a bug in ERKStep where methods with :math:`c_s = 1` but
 :math:`a_{s,j} \neq b_j` were incorrectly treated as having the first same as

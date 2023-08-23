@@ -5,6 +5,11 @@
 Fixed a memory leak when destroying a CUDA, HIP, SYCL, or system SUNMemoryHelper
 object.
 
+Fixed a bug in ARKODE, CVODE, CVODES, IDA, and IDAS where the stop time may not
+be cleared when using normal mode if the requested output time is the same as
+the stop time. Additionally, with ARKODE, CVODE, and CVODES an unnecessary
+interpolation of the solution at the stop time may occur in this case.
+
 Fixed a bug in ERKStep where methods with `c[s-1] = 1` but `a[s-1,j] != b[j]`
 were incorrectly treated as having the first same as last (FSAL) property.
 

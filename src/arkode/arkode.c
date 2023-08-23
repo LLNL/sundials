@@ -968,16 +968,6 @@ int arkEvolve(ARKodeMem ark_mem, realtype tout, N_Vector yout,
       }
     }
 
-    /* In NORMAL mode, check if tout reached */
-    if ( (itask == ARK_NORMAL) &&
-         (ark_mem->tcur-tout)*ark_mem->h >= ZERO ) {
-      istate = ARK_SUCCESS;
-      ark_mem->tretlast = *tret = tout;
-      (void) arkGetDky(ark_mem, tout, 0, yout);
-      ark_mem->next_h = ark_mem->hprime;
-      break;
-    }
-
     /* Check if tn is at tstop or near tstop */
     if ( ark_mem->tstopset ) {
       troundoff = FUZZ_FACTOR*ark_mem->uround *
@@ -999,6 +989,16 @@ int arkEvolve(ARKodeMem ark_mem, realtype tout, N_Vector yout,
           (ONE-FOUR*ark_mem->uround);
         ark_mem->eta = ark_mem->hprime/ark_mem->h;
       }
+    }
+
+    /* In NORMAL mode, check if tout reached */
+    if ( (itask == ARK_NORMAL) &&
+         (ark_mem->tcur-tout)*ark_mem->h >= ZERO ) {
+      istate = ARK_SUCCESS;
+      ark_mem->tretlast = *tret = tout;
+      (void) arkGetDky(ark_mem, tout, 0, yout);
+      ark_mem->next_h = ark_mem->hprime;
+      break;
     }
 
     /* In ONE_STEP mode, copy y and exit loop */
@@ -2118,30 +2118,6 @@ int arkStopTests(ARKodeMem ark_mem, realtype tout, N_Vector yout,
 
     } /* end of root stop check */
 
-  /* In ARK_NORMAL mode, test if tout was reached */
-  if ( (itask == ARK_NORMAL) &&
-       ((ark_mem->tcur-tout)*ark_mem->h >= ZERO) ) {
-    ark_mem->tretlast = *tret = tout;
-    *ier = arkGetDky(ark_mem, tout, 0, yout);
-    if (*ier != ARK_SUCCESS) {
-      arkProcessError(ark_mem, ARK_ILL_INPUT, "ARKODE",
-                      "arkStopTests", MSG_ARK_BAD_TOUT, tout);
-      *ier = ARK_ILL_INPUT;
-      return(1);
-    }
-    *ier = ARK_SUCCESS;
-    return(1);
-  }
-
-  /* In ARK_ONE_STEP mode, test if tn was returned */
-  if ( itask == ARK_ONE_STEP &&
-       SUNRabs(ark_mem->tcur - ark_mem->tretlast) > troundoff ) {
-    ark_mem->tretlast = *tret = ark_mem->tcur;
-    N_VScale(ONE, ark_mem->yn, yout);
-    *ier = ARK_SUCCESS;
-    return(1);
-  }
-
   /* Test for tn at tstop or near tstop */
   if ( ark_mem->tstopset ) {
 
@@ -2164,6 +2140,30 @@ int arkStopTests(ARKodeMem ark_mem, realtype tout, N_Vector yout,
       ark_mem->hprime = (ark_mem->tstop - ark_mem->tcur)*(ONE-FOUR*ark_mem->uround);
       ark_mem->eta = ark_mem->hprime/ark_mem->h;
     }
+  }
+
+  /* In ARK_NORMAL mode, test if tout was reached */
+  if ( (itask == ARK_NORMAL) &&
+       ((ark_mem->tcur-tout)*ark_mem->h >= ZERO) ) {
+    ark_mem->tretlast = *tret = tout;
+    *ier = arkGetDky(ark_mem, tout, 0, yout);
+    if (*ier != ARK_SUCCESS) {
+      arkProcessError(ark_mem, ARK_ILL_INPUT, "ARKODE",
+                      "arkStopTests", MSG_ARK_BAD_TOUT, tout);
+      *ier = ARK_ILL_INPUT;
+      return(1);
+    }
+    *ier = ARK_SUCCESS;
+    return(1);
+  }
+
+  /* In ARK_ONE_STEP mode, test if tn was returned */
+  if ( itask == ARK_ONE_STEP &&
+       SUNRabs(ark_mem->tcur - ark_mem->tretlast) > troundoff ) {
+    ark_mem->tretlast = *tret = ark_mem->tcur;
+    N_VScale(ONE, ark_mem->yn, yout);
+    *ier = ARK_SUCCESS;
+    return(1);
   }
 
   return(0);
