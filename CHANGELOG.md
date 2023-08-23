@@ -7,6 +7,11 @@ Updated the Tpetra NVector interface to support Trilinos 14.
 Fixed a memory leak when destroying a CUDA, HIP, SYCL, or system SUNMemoryHelper
 object.
 
+Fixed a bug in ARKODE, CVODE, CVODES, IDA, and IDAS where the stop time may not
+be cleared when using normal mode if the requested output time is the same as
+the stop time. Additionally, with ARKODE, CVODE, and CVODES an unnecessary
+interpolation of the solution at the stop time may occur in this case.
+
 ## Changes to SUNDIALS in release 6.6.0
 
 A new time-stepping module, `SPRKStep`, was added to ARKODE. This time-stepper
