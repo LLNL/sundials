@@ -273,10 +273,12 @@ int SetIC(N_Vector y, UserData &udata);
 // Check function return flag
 int check_flag(int flag, const string funcname)
 {
-  if (!flag) return 0;
-  if (flag < 0) cerr << "ERROR: ";
-  cerr << funcname << " returned " << flag << endl;
-  return 1;
+  if (flag < 0)
+  {
+    cerr << "ERROR: " << funcname << " returned " << flag << endl;
+    return 1;
+  }
+  return 0;
 }
 
 
