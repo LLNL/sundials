@@ -2,6 +2,8 @@
 
 ## Changes to SUNDIALS in release x.x.x
 
+Updated the Tpetra NVector interface to support Trilinos 14.
+
 Fixed a memory leak when destroying a CUDA, HIP, SYCL, or system SUNMemoryHelper
 object.
 
