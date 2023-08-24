@@ -77,7 +77,7 @@ Final integrator statistics:
 
 Slow Integrator:
   Steps            = 132
-  RHS diffusion    = 793
+  RHS diffusion    = 792
   NLS iters        = 396
   NLS fails        = 0
   LS iters         = 1958
@@ -96,4 +96,4 @@ Fast Integrator:
   Steps            = 472
   Step attempts    = 472
   Error test fails = 0
-  RHS reaction     = 1834
+  RHS reaction     = 1833
