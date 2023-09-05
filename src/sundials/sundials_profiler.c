@@ -546,9 +546,11 @@ int sunclock_gettime_monotonic(sunTimespec* ts)
 
   QueryPerformanceCounter(&ticks);
 
+  /* QueryPerformanceCounter is ticks in microseconds */
+
   ts->tv_sec  = (long)(ticks.QuadPart / ticks_per_sec.QuadPart);
-  ts->tv_nsec = (long)(((ticks.QuadPart % ticks_per_sec.QuadPart) * 1000000000) /
-                       ticks_per_sec.QuadPart);
+  ts->tv_nsec = (long)(((ticks.QuadPart % ticks_per_sec.QuadPart) * 1000000) /
+                         ticks_per_sec.QuadPart);
 
   return 0;
 #else
