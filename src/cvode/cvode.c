@@ -3089,8 +3089,8 @@ static int cvStep(CVodeMem cv_mem)
   int eflag;                 /* error test return flag                   */
   booleantype doProjection;  /* flag to apply projection in this step    */
 
-  printf("Start cvStep\n");
-  printf("-----\n");
+  /* printf("Start cvStep\n"); */
+  /* printf("-----\n"); */
   /* printf("tn             = %g\n", cv_mem->cv_tn); */
   /* printf("current h      = %g\n", cv_mem->cv_h); */
   /* printf("next h         = %g\n", cv_mem->cv_hprime); */
@@ -3099,12 +3099,12 @@ static int cvStep(CVodeMem cv_mem)
   /* printf("current order  = %d\n", cv_mem->cv_q); */
   /* printf("next order     = %d\n", cv_mem->cv_qprime); */
   /* printf("next order (?) = %d\n", cv_mem->cv_next_q); */
-  for (int ord = 0; ord <= cv_mem->cv_qmax; ord++)
-  {
-    sunrealtype* vdata = N_VGetArrayPointer(cv_mem->cv_zn[ord]);
-    printf("zn[%d] = %23.16e\n", ord, vdata[0]);
-  }
-  printf("-----\n");
+  /* for (int ord = 0; ord <= cv_mem->cv_qmax; ord++) */
+  /* { */
+  /*   sunrealtype* vdata = N_VGetArrayPointer(cv_mem->cv_zn[ord]); */
+  /*   printf("zn[%d] = %23.16e\n", ord, vdata[0]); */
+  /* } */
+  /* printf("-----\n"); */
 
   /* Initialize local counters for convergence and error test failures */
 
@@ -3115,14 +3115,14 @@ static int cvStep(CVodeMem cv_mem)
     cvAdjustParams(cv_mem);
   }
 
-  printf("After AdjustParams\n");
-  printf("-----\n");
-  for (int ord = 0; ord <= cv_mem->cv_qmax; ord++)
-  {
-    sunrealtype* vdata = N_VGetArrayPointer(cv_mem->cv_zn[ord]);
-    printf("zn[%d] = %23.16e\n", ord, vdata[0]);
-  }
-  printf("-----\n");
+  /* printf("After AdjustParams\n"); */
+  /* printf("-----\n"); */
+  /* for (int ord = 0; ord <= cv_mem->cv_qmax; ord++) */
+  /* { */
+  /*   sunrealtype* vdata = N_VGetArrayPointer(cv_mem->cv_zn[ord]); */
+  /*   printf("zn[%d] = %23.16e\n", ord, vdata[0]); */
+  /* } */
+  /* printf("-----\n"); */
 
   /* Check if this step should be projected */
   doProjection = SUNFALSE;
@@ -3147,36 +3147,36 @@ static int cvStep(CVodeMem cv_mem)
 
     cvPredict(cv_mem);
 
-    printf("After Predict\n");
-    printf("-----\n");
-    for (int ord = 0; ord <= cv_mem->cv_qmax; ord++)
-    {
-      sunrealtype* vdata = N_VGetArrayPointer(cv_mem->cv_zn[ord]);
-      printf("zn[%d] = %23.16e\n", ord, vdata[0]);
-    }
-    printf("-----\n");
+    /* printf("After Predict\n"); */
+    /* printf("-----\n"); */
+    /* for (int ord = 0; ord <= cv_mem->cv_qmax; ord++) */
+    /* { */
+    /*   sunrealtype* vdata = N_VGetArrayPointer(cv_mem->cv_zn[ord]); */
+    /*   printf("zn[%d] = %23.16e\n", ord, vdata[0]); */
+    /* } */
+    /* printf("-----\n"); */
 
     cvSet(cv_mem);
 
-    printf("After Set\n");
-    printf("-----\n");
-    for (int ord = 0; ord <= cv_mem->cv_qmax; ord++)
-    {
-      sunrealtype* vdata = N_VGetArrayPointer(cv_mem->cv_zn[ord]);
-      printf("zn[%d] = %23.16e\n", ord, vdata[0]);
-    }
-    printf("-----\n");
+    /* printf("After Set\n"); */
+    /* printf("-----\n"); */
+    /* for (int ord = 0; ord <= cv_mem->cv_qmax; ord++) */
+    /* { */
+    /*   sunrealtype* vdata = N_VGetArrayPointer(cv_mem->cv_zn[ord]); */
+    /*   printf("zn[%d] = %23.16e\n", ord, vdata[0]); */
+    /* } */
+    /* printf("-----\n"); */
 
     nflag = cvNls(cv_mem, nflag);
 
-    printf("After NLS\n");
-    printf("-----\n");
-    for (int ord = 0; ord <= cv_mem->cv_qmax; ord++)
-    {
-      sunrealtype* vdata = N_VGetArrayPointer(cv_mem->cv_zn[ord]);
-      printf("zn[%d] = %23.16e\n", ord, vdata[0]);
-    }
-    printf("-----\n");
+    /* printf("After NLS\n"); */
+    /* printf("-----\n"); */
+    /* for (int ord = 0; ord <= cv_mem->cv_qmax; ord++) */
+    /* { */
+    /*   sunrealtype* vdata = N_VGetArrayPointer(cv_mem->cv_zn[ord]); */
+    /*   printf("zn[%d] = %23.16e\n", ord, vdata[0]); */
+    /* } */
+    /* printf("-----\n"); */
 
     kflag = cvHandleNFlag(cv_mem, &nflag, saved_t, &ncf);
 
@@ -3220,25 +3220,25 @@ static int cvStep(CVodeMem cv_mem)
 
   cvCompleteStep(cv_mem);
 
-  printf("After Complete Step\n");
-  printf("-----\n");
-  for (int ord = 0; ord <= cv_mem->cv_qmax; ord++)
-  {
-    sunrealtype* vdata = N_VGetArrayPointer(cv_mem->cv_zn[ord]);
-    printf("zn[%d] = %23.16e\n", ord, vdata[0]);
-  }
-  printf("-----\n");
+  /* printf("After Complete Step\n"); */
+  /* printf("-----\n"); */
+  /* for (int ord = 0; ord <= cv_mem->cv_qmax; ord++) */
+  /* { */
+  /*   sunrealtype* vdata = N_VGetArrayPointer(cv_mem->cv_zn[ord]); */
+  /*   printf("zn[%d] = %23.16e\n", ord, vdata[0]); */
+  /* } */
+  /* printf("-----\n"); */
 
   cvPrepareNextStep(cv_mem, dsm);
 
-  printf("After PrepareNextStep\n");
-  printf("-----\n");
-  for (int ord = 0; ord <= cv_mem->cv_qmax; ord++)
-  {
-    sunrealtype* vdata = N_VGetArrayPointer(cv_mem->cv_zn[ord]);
-    printf("zn[%d] = %23.16e\n", ord, vdata[0]);
-  }
-  printf("-----\n");
+  /* printf("After PrepareNextStep\n"); */
+  /* printf("-----\n"); */
+  /* for (int ord = 0; ord <= cv_mem->cv_qmax; ord++) */
+  /* { */
+  /*   sunrealtype* vdata = N_VGetArrayPointer(cv_mem->cv_zn[ord]); */
+  /*   printf("zn[%d] = %23.16e\n", ord, vdata[0]); */
+  /* } */
+  /* printf("-----\n"); */
 
   /* If Stablilty Limit Detection is turned on, call stability limit
      detection routine for possible order reduction. */
@@ -3253,8 +3253,8 @@ static int cvStep(CVodeMem cv_mem)
 
   N_VScale(cv_mem->cv_tq[2], cv_mem->cv_acor, cv_mem->cv_acor);
 
-  printf("End cvStep\n");
-  printf("-----\n");
+  /* printf("End cvStep\n"); */
+  /* printf("-----\n"); */
   /* printf("tn             = %g\n", cv_mem->cv_tn); */
   /* printf("current h      = %g\n", cv_mem->cv_h); */
   /* printf("next h         = %g\n", cv_mem->cv_hprime); */
@@ -3264,12 +3264,12 @@ static int cvStep(CVodeMem cv_mem)
   /* printf("next order     = %d\n", cv_mem->cv_qprime); */
   /* printf("next order (?) = %d\n", cv_mem->cv_next_q); */
   /* printf("zn[0]\n"); */
-  for (int ord = 0; ord <= cv_mem->cv_qmax; ord++)
-  {
-    sunrealtype* vdata = N_VGetArrayPointer(cv_mem->cv_zn[ord]);
-    printf("zn[%d] = %23.16e\n", ord, vdata[0]);
-  }
-  printf("-----\n");
+  /* for (int ord = 0; ord <= cv_mem->cv_qmax; ord++) */
+  /* { */
+  /*   sunrealtype* vdata = N_VGetArrayPointer(cv_mem->cv_zn[ord]); */
+  /*   printf("zn[%d] = %23.16e\n", ord, vdata[0]); */
+  /* } */
+  /* printf("-----\n"); */
 
   return(CV_SUCCESS);
 }
