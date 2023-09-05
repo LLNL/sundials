@@ -923,6 +923,181 @@ int NewtonPolyMultiDerEval(sunrealtype* t, N_Vector* c, int M, sunrealtype s,
 }
 
 
+
+
+
+
+
+/*
+ * Compute Hermite interpolating polynomial coefficients
+ *
+ * Inputs:
+ *   t  -- array (length M) of time values t_i
+ *   y  -- array (length M) of state vectors y_i
+ *   yp -- derivative of y_0 = f(t_0, y_0)
+ *   M  -- number of interpolation times
+ *
+ * Outputs:
+ *   c -- array (length M + 1) of coefficient vectors c_i
+ */
+int HermitePolyCoef(sunrealtype* t, N_Vector* y, N_Vector f, int M, N_Vector* c)
+{
+  int i, j;
+  int Mp1 = M + 1;
+  sunrealtype* t_ext = NULL;
+
+  /* Check for valid inputs */
+  if (!t || !y || !f || M < 1 || !c) return CV_ILL_INPUT;
+
+  for (i = 0; i < M; i++)
+  {
+    if (!y[i]) { return CV_ILL_INPUT; }
+  }
+
+  for (i = 0; i < Mp1; i++)
+  {
+    if (!c[i]) { return CV_ILL_INPUT; }
+  }
+
+  t_ext = (sunrealtype*) malloc(sizeof(sunrealtype) * (Mp1));
+
+  t_ext[0] = t[0];
+  t_ext[1] = t[0];
+
+  for (i = 1; i < M; i++)
+  {
+    t_ext[i + 1] = t[i];
+  }
+
+  /* Initialize coefficient arrays with values to interpolate */
+  N_VScale(ONE, y[0], c[0]);
+  N_VScale(ONE, y[0], c[1]);
+
+  for (i = 1; i < M; i++)
+  {
+    N_VScale(ONE, y[i], c[i+1]);
+  }
+
+  /* Compute coefficients from bottom up to write in place */
+  for (i = 1; i < Mp1; i++)
+  {
+    for (j = Mp1 - 1; j > i - 1; j--)
+    {
+      if (i == 1 && j == 1)
+      {
+        N_VScale(ONE, f, c[j]);
+      }
+      else
+      {
+        /* c_j = (c_j - c_{j - 1}) / (t_j - t_{j - i}) */
+        N_VLinearSum(ONE / (t_ext[j] - t_ext[j - i]), c[j],
+                     -ONE / (t_ext[j] - t_ext[j - i]), c[j - 1], c[j]);
+      }
+    }
+  }
+
+  free(t_ext);
+  t_ext = NULL;
+
+  return CV_SUCCESS;
+}
+
+/*
+ * Evaluate the interpolating polynomial and its derivatives up to order d at a
+ * given time
+ *
+ * Inputs:
+ *
+ * t -- array (length M) of interpolated time values, t_i
+ * c -- array (length M + 1) of polynomial coefficient vectors (length N), c_i
+ * s -- time at which to evaluate the polynomial, s
+ *
+ * Output:
+ *
+ * p -- array (length d + 1) of values p[0] = p(s), p[1] = p'[s], etc.
+ *
+ * Example:
+ *
+ * Consider the M = 3 case, we have the interpolation times t0, t1, t2 and
+ * the coefficients c0, c1, c2, c3. The Hermite interpolating polynomial is
+ *
+ * p(s) = c0 + c1 (s - t0) + c2 (s - t0)(s - t0) + c3 (s - t0)(s - t0)(s - t1)
+ *
+ * This can be rewritten as
+ *
+ * p(s) = a0 + (s - t0) [ a1 + (s - t1) [ a2 + (s - t2) a3 ] ]
+ *
+ * We can then write this recursively as P{k} = P{k + 1} (s - t{k}) + a{k} for
+ * k = M-1,...,0 where P{M - 1} = c{M - 1} and P0 = p
+ *
+ * Using this recursive definition we can also compute derivatives of the
+ * polynomial as P^(d){k} = P^(d){k + 1} (t - t{k}) + d P^(d - 1){k + 1} where
+ * P^(d){M - 1} = 0 for d > 0 and p^(d) = P^(d)0. For example, the first three
+ * derivatives are given by
+ *
+ * P'{k}   = P'{k + 1}   (t - t{k}) +   P{k + 1}
+ * P''{k}  = P''{k + 1}  (t - t{k}) + 2 P'{k + 1}
+ * P'''{k} = P'''{k + 1} (t - t{k}) + 3 P''{k + 1}
+ */
+
+int HermitePolyMultiDerEval(sunrealtype* t, N_Vector* c, int M, sunrealtype s,
+                            int d, N_Vector* p)
+{
+  int i, j;
+  int Mp1 = M + 1;
+  sunrealtype* t_ext = NULL;
+
+  /* Check for valid inputs */
+  if (!t || !c || M < 1 || d < 0 || !p) return CV_ILL_INPUT;
+
+  for (i = 0; i < Mp1; i++)
+  {
+    if (!c[i]) return CV_ILL_INPUT;
+  }
+
+  for (i = 0; i < d + 1; i++)
+  {
+    if (!p[i]) { return CV_ILL_INPUT; }
+  }
+
+  t_ext = (sunrealtype*) malloc(sizeof(sunrealtype) * (Mp1));
+
+  t_ext[0] = t[0];
+  t_ext[1] = t[0];
+
+  for (i = 1; i < M; i++)
+  {
+    t_ext[i + 1] = t[i];
+  }
+
+  /* Initialize interpolation output to P_{M-1} = c_{M-1} and derivative output
+     to zero */
+  N_VScale(ONE, c[Mp1 - 1], p[0]);
+  for (i = 1; i < d + 1; i++)
+  {
+    N_VConst(ZERO, p[i]);
+  }
+
+  /* Accumulate polynomial terms in-place i.e., P_{i+1} is stored in p[0] and
+     overwritten each iteration by P_{i} and similarly for P', P'', etc. */
+  for (i = Mp1 - 2; i >= 0; i--)
+  {
+    for (j = d; j > 0; j--)
+    {
+      // P^(j)_i = P_{j + 1} * (s - t_i) + j * P^(j - 1)_i
+      N_VLinearSum(s - t[i], p[j], j, p[j-1], p[j]);
+    }
+    // P_i = P_{i + 1} * (s - t_i) + c_i
+    N_VLinearSum(s - t[i], p[0], ONE, c[i], p[0]);
+  }
+
+  free(t_ext);
+  t_ext = NULL;
+
+  return CV_SUCCESS;
+}
+
+
 int CVodeResizeHistory(void *cvode_mem, sunrealtype* t_hist, N_Vector* y_hist,
                        int n_hist, CVResizeVecFn resize_fn, int itype,
                        FILE* debug_file)
@@ -966,7 +1141,7 @@ int CVodeResizeHistory(void *cvode_mem, sunrealtype* t_hist, N_Vector* y_hist,
   }
 
   if (itype != 0 && itype != 10 && itype != 11 && itype != 12 && itype != 20
-      && itype != 21 && itype != 22)
+      && itype != 21 && itype != 22 && itype != 30)
   {
     cvProcessError(cv_mem, CV_ILL_INPUT, "CVODE", "CVodeResizeHistory",
                    "Invalid interpolation type");
@@ -1223,7 +1398,7 @@ int CVodeResizeHistory(void *cvode_mem, sunrealtype* t_hist, N_Vector* y_hist,
                cv_mem->cv_zn[3], cv_mem->cv_zn[3]);
     }
   }
-  else if (itype == 20 || itype == 21 || itype ==22)
+  else if (itype == 20 || itype == 21 || itype == 22)
   {
     if (debug_file)
     {
@@ -1262,17 +1437,44 @@ int CVodeResizeHistory(void *cvode_mem, sunrealtype* t_hist, N_Vector* y_hist,
       scale *= cv_mem->cv_hscale / ((sunrealtype) i);
       N_VScale(scale, cv_mem->cv_zn[i], cv_mem->cv_zn[i]);
     }
+
+    /* Copy state and re-evaluate RHS */
+    if (itype == 20)
+    {
+      /* zn[0] = y_n-1 */
+      N_VScale(ONE, y_hist[0], cv_mem->cv_zn[0]);
+
+      /* zn[1] = h_n-1 * y'(t_n-1, y_n-1) */
+      retval = cv_mem->cv_f(cv_mem->cv_tn, y_hist[0],
+                            cv_mem->cv_zn[1], cv_mem->cv_user_data);
+      cv_mem->cv_nfe++;
+      if (retval)
+      {
+        cvProcessError(cv_mem, CV_RHSFUNC_FAIL, "CVODE", "CVode",
+                       MSGCV_RHSFUNC_FAILED, cv_mem->cv_tn);
+        return CV_RHSFUNC_FAIL;
+      }
+      N_VScale(cv_mem->cv_hscale, cv_mem->cv_zn[1], cv_mem->cv_zn[1]);
+    }
+
+    /* Copy state and interpolate RHS (done above) */
+    if (itype == 21)
+    {
+      N_VScale(ONE, y_hist[0], cv_mem->cv_zn[0]);
+    }
+
+    /* itype == 22 Interpolate state and RHS (done above) */
   }
-
-  /* Copy state and re-evaluate RHS */
-  if (itype == 20)
+  else if (itype == 30)
   {
-    /* zn[0] = y_n-1 */
-    N_VScale(ONE, y_hist[0], cv_mem->cv_zn[0]);
+    if (debug_file)
+    {
+      fprintf(debug_file, "RESIZE HERMITE TEST\n");
+    }
 
-    /* zn[1] = h_n-1 * y'(t_n-1, y_n-1) */
+    /* temporarily store y'(t_n-1, y_n-1) in zn[1] */
     retval = cv_mem->cv_f(cv_mem->cv_tn, y_hist[0],
-                          cv_mem->cv_zn[1], cv_mem->cv_user_data);
+                          cv_mem->cv_vtemp2, cv_mem->cv_user_data);
     cv_mem->cv_nfe++;
     if (retval)
     {
@@ -1280,16 +1482,38 @@ int CVodeResizeHistory(void *cvode_mem, sunrealtype* t_hist, N_Vector* y_hist,
                      MSGCV_RHSFUNC_FAILED, cv_mem->cv_tn);
       return CV_RHSFUNC_FAIL;
     }
-    N_VScale(cv_mem->cv_hscale, cv_mem->cv_zn[1], cv_mem->cv_zn[1]);
-  }
 
-  /* Copy state and interpolate RHS (done above) */
-  if (itype == 21)
-  {
+    /* Compute interpolation coefficients */
+    retval = HermitePolyCoef(t_hist, y_hist, cv_mem->cv_vtemp2, cv_mem->cv_q,
+                             cv_mem->resize_wrk);
+    if (retval)
+    {
+      cvProcessError(cv_mem, CV_ILL_INPUT, "CVODE", "CVodeResizeHistory",
+                     "HermitePolyCoef failed");
+      return CV_ILL_INPUT;
+    }
+
+    retval = HermitePolyMultiDerEval(t_hist, cv_mem->resize_wrk,
+                                     cv_mem->cv_q,
+                                     cv_mem->cv_tn, cv_mem->cv_q,
+                                     cv_mem->cv_zn);
+    if (retval)
+    {
+      cvProcessError(cv_mem, CV_ILL_INPUT, "CVODE", "CVodeResizeHistory",
+                     "NewtonPolyMultiDerEval failed");
+      return CV_ILL_INPUT;
+    }
+
     N_VScale(ONE, y_hist[0], cv_mem->cv_zn[0]);
-  }
+    N_VScale(ONE, cv_mem->cv_vtemp2, cv_mem->cv_zn[1]);
 
-  /* itype == 22 Interpolate state and RHS (done above) */
+    sunrealtype scale = ONE;
+    for (int i = 1; i < cv_mem->cv_q + 1; i++)
+    {
+      scale *= cv_mem->cv_hscale / ((sunrealtype) i);
+      N_VScale(scale, cv_mem->cv_zn[i], cv_mem->cv_zn[i]);
+    }
+  }
 
   /* if (((cv_mem->cv_qwait == 1) && (cv_mem->cv_q != cv_mem->cv_qmax)) || */
   /*     (cv_mem->cv_q != cv_mem->cv_qprime)) */
