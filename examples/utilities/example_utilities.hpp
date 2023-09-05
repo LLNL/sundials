@@ -16,6 +16,7 @@
 
 #include <algorithm>
 #include <iostream>
+#include <string>
 #include <vector>
 
 // Check function return flag
