@@ -130,7 +130,7 @@ provided with SUNDIALS, or again may utilize a user-supplied module.
 Changes from previous versions
 ==============================
 
-Changes in vX.X.X
+Changes in v5.6.1
 -----------------
 
 Updated the Tpetra NVector interface to support Trilinos 14.
