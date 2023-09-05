@@ -30,6 +30,7 @@
 #elif !(defined(WIN32) || defined(_WIN32))
 #error POSIX is needed for clock_getttime
 #else
+#include <windows.h>
 #include <winnt.h>
 #include <profileapi.h>
 #endif
