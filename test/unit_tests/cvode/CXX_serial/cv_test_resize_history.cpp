@@ -65,113 +65,21 @@ int resize_vec(N_Vector v_in, N_Vector v_out, void* user_data)
 }
 
 // Print CVODE Nordsieck History Array
-int PrintNordsieck(sunrealtype tret, N_Vector tmp, N_Vector* zn,
-                   sunrealtype step_size, int order, PRData& udata)
+int PrintNordsieck(CVodeMem cv_mem)
 {
   // const sunindextype N = N_VGetLength(tmp);
   const sunindextype N = 1;
   sunrealtype* vdata   = nullptr;
-  sunrealtype* tmpdata = N_VGetArrayPointer(tmp);
-  sunrealtype  scale   = ONE;
 
-
-  std::cout << std::setw(4) << "idx"
-            << std::setw(25) << "zn"
-            << std::setw(25) << "true value"
-            << std::setw(25) << "relative error"
-            << std::endl;
-
-  scale = ONE;
-  vdata = N_VGetArrayPointer(zn[0]);
-  PR_true_dot(tret, tmp, 0, udata);
-  for (sunindextype i = 0; i < N; i++)
+  std::cout << std::setw(4) << "idx" << std::setw(25) << "zn" << std::endl;
+  for (int i = 0; i <= cv_mem->cv_qmax; i++)
   {
-    sunrealtype z_tmp = scale * tmpdata[i];
-    std::cout << std::setw(4) << 0
-              << std::setw(25) << vdata[i]
-              << std::setw(25) << z_tmp
-              << std::setw(25) << std::abs(vdata[i] - z_tmp) / std::abs(z_tmp)
-              << std::endl;
-  }
-
-  scale = step_size;
-  vdata = N_VGetArrayPointer(zn[1]);
-  PR_true_dot(tret, tmp, 1, udata);
-  for (sunindextype i = 0; i < N; i++)
-  {
-    sunrealtype z_tmp = scale * tmpdata[i];
-    std::cout << std::setw(4) << 1
-              << std::setw(25) << vdata[i]
-              << std::setw(25) << z_tmp
-              << std::setw(25) << std::abs(vdata[i] - z_tmp) / std::abs(z_tmp)
-              << std::endl;
-  }
-
-
-  if (order > 1)
-  {
-    scale = std::pow(step_size, 2) / TWO;
-    vdata = N_VGetArrayPointer(zn[2]);
-    PR_true_dot(tret, tmp, 2, udata);
-    for (sunindextype i = 0; i < N; i++)
+    vdata = N_VGetArrayPointer(cv_mem->cv_zn[i]);
+    for (sunindextype j = 0; j < N; j++)
     {
-      sunrealtype z_tmp = scale * tmpdata[i];
-      std::cout << std::setw(4) << 2
-                << std::setw(25) << vdata[i]
-                << std::setw(25) << z_tmp
-                << std::setw(25) << std::abs(vdata[i] - z_tmp) / std::abs(z_tmp)
-                << std::endl;
+      std::cout << std::setw(4) << i << std::setw(25) << vdata[j] << std::endl;
     }
   }
-
-  if (order > 2)
-  {
-    scale = std::pow(step_size, 3) / SIX;
-    vdata = N_VGetArrayPointer(zn[3]);
-    PR_true_dot(tret, tmp, 3, udata);
-    for (sunindextype i = 0; i < N; i++)
-    {
-      sunrealtype z_tmp = scale * tmpdata[i];
-      std::cout << std::setw(4) << 3
-                << std::setw(25) << vdata[i]
-                << std::setw(25) << z_tmp
-                << std::setw(25) << std::abs(vdata[i] - z_tmp) / std::abs(z_tmp)
-                << std::endl;
-    }
-  }
-
-  if (order > 3)
-  {
-    scale = std::pow(step_size, 4) / TWENTYFOUR;
-    vdata = N_VGetArrayPointer(zn[4]);
-    PR_true_dot(tret, tmp, 4, udata);
-    for (sunindextype i = 0; i < N; i++)
-    {
-      sunrealtype z_tmp = scale * tmpdata[i];
-      std::cout << std::setw(4) << 4
-                << std::setw(25) << vdata[i]
-                << std::setw(25) << z_tmp
-                << std::setw(25) << std::abs(vdata[i] - z_tmp) / std::abs(z_tmp)
-                << std::endl;
-    }
-  }
-
-  if (order > 4)
-  {
-    scale = std::pow(step_size, 5) / ONEHUNDREDTWENTY;
-    vdata = N_VGetArrayPointer(zn[5]);
-    PR_true_dot(tret, tmp, 5, udata);
-    for (sunindextype i = 0; i < N; i++)
-    {
-      sunrealtype z_tmp = scale * tmpdata[i];
-      std::cout << std::setw(4) << 5
-                << std::setw(25) << vdata[i]
-                << std::setw(25) << z_tmp
-                << std::setw(25) << std::abs(vdata[i] - z_tmp) / std::abs(z_tmp)
-                << std::endl;
-    }
-  }
-
   std::cout << std::endl;
 
   return 0;
@@ -244,8 +152,8 @@ int main(int argc, char* argv[])
   if (check_flag(flag, "CVodeSetUserData")) return 1;
 
   // Limit max order
-  flag = CVodeSetMaxOrd(cvode_mem, 2);
-  if (check_flag(flag, "CVodeSetMaxOrd")) return 1;
+  // flag = CVodeSetMaxOrd(cvode_mem, 2);
+  // if (check_flag(flag, "CVodeSetMaxOrd")) return 1;
 
   // Initial time and final times
   sunrealtype tf = SUN_RCONST(10.0);
@@ -287,7 +195,7 @@ int main(int argc, char* argv[])
   {
     std::cout << std::flush;
     std::cerr << std::flush;
-    std::cout << "\n========== Start Step " << i << " ==========\n";
+    std::cout << "\n========== Start Step " << i << " ==========\n\n";
 
     flag = CVode(cvode_mem, tf, y, &(tret), CV_ONE_STEP);
     if (check_flag(flag, "CVode")) return 1;
@@ -298,10 +206,10 @@ int main(int argc, char* argv[])
               << " | Order: " << cv_mem->cv_q << std::endl;
 
     // Print Nordsieck array (length q_max + 1)
-    PrintNordsieck(tret, ytmp, cv_mem->cv_zn, cv_mem->cv_hscale, 6, udata);
+    PrintNordsieck(cv_mem);
     if (check_flag(flag, "PrintNordsieck")) return 1;
 
-    std::cout << "\n========== End Step " << i << " ==========\n";
+    std::cout << "========== End Step " << i << " ==========\n";
 
     if (resize)
     {
