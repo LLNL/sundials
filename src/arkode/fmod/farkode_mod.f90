@@ -100,7 +100,18 @@ module farkode_mod
  integer(C_INT), parameter, public :: ARK_INTERP_FAIL = -40_C_INT
  integer(C_INT), parameter, public :: ARK_INVALID_TABLE = -41_C_INT
  integer(C_INT), parameter, public :: ARK_CONTEXT_ERR = -42_C_INT
+ integer(C_INT), parameter, public :: ARK_RELAX_FAIL = -43_C_INT
+ integer(C_INT), parameter, public :: ARK_RELAX_MEM_NULL = -44_C_INT
+ integer(C_INT), parameter, public :: ARK_RELAX_FUNC_FAIL = -45_C_INT
+ integer(C_INT), parameter, public :: ARK_RELAX_JAC_FAIL = -46_C_INT
  integer(C_INT), parameter, public :: ARK_UNRECOGNIZED_ERROR = -99_C_INT
+ ! typedef enum ARKRelaxSolver
+ enum, bind(c)
+  enumerator :: ARK_RELAX_BRENT
+  enumerator :: ARK_RELAX_NEWTON
+ end enum
+ integer, parameter, public :: ARKRelaxSolver = kind(ARK_RELAX_BRENT)
+ public :: ARK_RELAX_BRENT, ARK_RELAX_NEWTON
  public :: FARKBandPrecInit
  public :: FARKBandPrecGetWorkSpace
  public :: FARKBandPrecGetNumRhsEvals
@@ -192,7 +203,8 @@ module farkode_mod
   enumerator :: ARKODE_ESDIRK437L2SA_7_3_4
   enumerator :: ARKODE_ESDIRK547L2SA_7_4_5
   enumerator :: ARKODE_ESDIRK547L2SA2_7_4_5
-  enumerator :: ARKODE_MAX_DIRK_NUM = ARKODE_ESDIRK547L2SA2_7_4_5
+  enumerator :: ARKODE_ARK2_DIRK_3_1_2
+  enumerator :: ARKODE_MAX_DIRK_NUM = ARKODE_ARK2_DIRK_3_1_2
  end enum
  integer, parameter, public :: ARKODE_DIRKTableID = kind(ARKODE_DIRK_NONE)
  public :: ARKODE_DIRK_NONE, ARKODE_MIN_DIRK_NUM, ARKODE_SDIRK_2_1_2, ARKODE_BILLINGTON_3_3_2, ARKODE_TRBDF2_3_3_2, &
@@ -200,7 +212,8 @@ module farkode_mod
     ARKODE_KVAERNO_5_3_4, ARKODE_ARK436L2SA_DIRK_6_3_4, ARKODE_KVAERNO_7_4_5, ARKODE_ARK548L2SA_DIRK_8_4_5, &
     ARKODE_ARK437L2SA_DIRK_7_3_4, ARKODE_ARK548L2SAb_DIRK_8_4_5, ARKODE_ESDIRK324L2SA_4_2_3, ARKODE_ESDIRK325L2SA_5_2_3, &
     ARKODE_ESDIRK32I5L2SA_5_2_3, ARKODE_ESDIRK436L2SA_6_3_4, ARKODE_ESDIRK43I6L2SA_6_3_4, ARKODE_QESDIRK436L2SA_6_3_4, &
-    ARKODE_ESDIRK437L2SA_7_3_4, ARKODE_ESDIRK547L2SA_7_4_5, ARKODE_ESDIRK547L2SA2_7_4_5, ARKODE_MAX_DIRK_NUM
+    ARKODE_ESDIRK437L2SA_7_3_4, ARKODE_ESDIRK547L2SA_7_4_5, ARKODE_ESDIRK547L2SA2_7_4_5, ARKODE_ARK2_DIRK_3_1_2, &
+    ARKODE_MAX_DIRK_NUM
  public :: FARKodeButcherTable_LoadDIRK
  type, bind(C) :: SwigArrayWrapper
   type(C_PTR), public :: data = C_NULL_PTR
@@ -243,16 +256,68 @@ module farkode_mod
   enumerator :: ARKODE_KNOTH_WOLKE_3_3
   enumerator :: ARKODE_ARK437L2SA_ERK_7_3_4
   enumerator :: ARKODE_ARK548L2SAb_ERK_8_4_5
-  enumerator :: ARKODE_MAX_ERK_NUM = ARKODE_ARK548L2SAb_ERK_8_4_5
+  enumerator :: ARKODE_ARK2_ERK_3_1_2
+  enumerator :: ARKODE_MAX_ERK_NUM = ARKODE_ARK2_ERK_3_1_2
  end enum
  integer, parameter, public :: ARKODE_ERKTableID = kind(ARKODE_ERK_NONE)
  public :: ARKODE_ERK_NONE, ARKODE_MIN_ERK_NUM, ARKODE_HEUN_EULER_2_1_2, ARKODE_BOGACKI_SHAMPINE_4_2_3, &
     ARKODE_ARK324L2SA_ERK_4_2_3, ARKODE_ZONNEVELD_5_3_4, ARKODE_ARK436L2SA_ERK_6_3_4, ARKODE_SAYFY_ABURUB_6_3_4, &
     ARKODE_CASH_KARP_6_4_5, ARKODE_FEHLBERG_6_4_5, ARKODE_DORMAND_PRINCE_7_4_5, ARKODE_ARK548L2SA_ERK_8_4_5, &
     ARKODE_VERNER_8_5_6, ARKODE_FEHLBERG_13_7_8, ARKODE_KNOTH_WOLKE_3_3, ARKODE_ARK437L2SA_ERK_7_3_4, &
-    ARKODE_ARK548L2SAb_ERK_8_4_5, ARKODE_MAX_ERK_NUM
+    ARKODE_ARK548L2SAb_ERK_8_4_5, ARKODE_ARK2_ERK_3_1_2, ARKODE_MAX_ERK_NUM
  public :: FARKodeButcherTable_LoadERK
  public :: FARKodeButcherTable_LoadERKByName
+ ! typedef enum ARKODE_SPRKMethodID
+ enum, bind(c)
+  enumerator :: ARKODE_SPRK_NONE = -1
+  enumerator :: ARKODE_MIN_SPRK_NUM = 0
+  enumerator :: ARKODE_SPRK_EULER_1_1 = ARKODE_MIN_SPRK_NUM
+  enumerator :: ARKODE_SPRK_LEAPFROG_2_2
+  enumerator :: ARKODE_SPRK_PSEUDO_LEAPFROG_2_2
+  enumerator :: ARKODE_SPRK_RUTH_3_3
+  enumerator :: ARKODE_SPRK_MCLACHLAN_2_2
+  enumerator :: ARKODE_SPRK_MCLACHLAN_3_3
+  enumerator :: ARKODE_SPRK_CANDY_ROZMUS_4_4
+  enumerator :: ARKODE_SPRK_MCLACHLAN_4_4
+  enumerator :: ARKODE_SPRK_MCLACHLAN_5_6
+  enumerator :: ARKODE_SPRK_YOSHIDA_6_8
+  enumerator :: ARKODE_SPRK_SUZUKI_UMENO_8_16
+  enumerator :: ARKODE_SPRK_SOFRONIOU_10_36
+  enumerator :: ARKODE_MAX_SPRK_NUM = ARKODE_SPRK_SOFRONIOU_10_36
+ end enum
+ integer, parameter, public :: ARKODE_SPRKMethodID = kind(ARKODE_SPRK_NONE)
+ public :: ARKODE_SPRK_NONE, ARKODE_MIN_SPRK_NUM, ARKODE_SPRK_EULER_1_1, ARKODE_SPRK_LEAPFROG_2_2, &
+    ARKODE_SPRK_PSEUDO_LEAPFROG_2_2, ARKODE_SPRK_RUTH_3_3, ARKODE_SPRK_MCLACHLAN_2_2, ARKODE_SPRK_MCLACHLAN_3_3, &
+    ARKODE_SPRK_CANDY_ROZMUS_4_4, ARKODE_SPRK_MCLACHLAN_4_4, ARKODE_SPRK_MCLACHLAN_5_6, ARKODE_SPRK_YOSHIDA_6_8, &
+    ARKODE_SPRK_SUZUKI_UMENO_8_16, ARKODE_SPRK_SOFRONIOU_10_36, ARKODE_MAX_SPRK_NUM
+ ! struct struct ARKodeSPRKTableMem
+ type, public :: ARKodeSPRKTableMem
+  type(SwigClassWrapper), public :: swigdata
+ contains
+  procedure :: set_q => swigf_ARKodeSPRKTableMem_q_set
+  procedure :: get_q => swigf_ARKodeSPRKTableMem_q_get
+  procedure :: set_stages => swigf_ARKodeSPRKTableMem_stages_set
+  procedure :: get_stages => swigf_ARKodeSPRKTableMem_stages_get
+  procedure :: set_a => swigf_ARKodeSPRKTableMem_a_set
+  procedure :: get_a => swigf_ARKodeSPRKTableMem_a_get
+  procedure :: set_ahat => swigf_ARKodeSPRKTableMem_ahat_set
+  procedure :: get_ahat => swigf_ARKodeSPRKTableMem_ahat_get
+  procedure :: release => swigf_release_ARKodeSPRKTableMem
+  procedure, private :: swigf_ARKodeSPRKTableMem_op_assign__
+  generic :: assignment(=) => swigf_ARKodeSPRKTableMem_op_assign__
+ end type ARKodeSPRKTableMem
+ interface ARKodeSPRKTableMem
+  module procedure swigf_create_ARKodeSPRKTableMem
+ end interface
+ public :: FARKodeSPRKTable_Create
+ public :: FARKodeSPRKTable_Alloc
+ public :: FARKodeSPRKTable_Load
+ public :: FARKodeSPRKTable_LoadByName
+ public :: FARKodeSPRKTable_Copy
+ public :: FARKodeSPRKTable_Write
+ public :: FARKodeSPRKTable_Space
+ public :: FARKodeSPRKTable_Free
+ public :: FARKodeSPRKTable_ToButcher
  integer(C_INT), parameter, public :: ARKLS_SUCCESS = 0_C_INT
  integer(C_INT), parameter, public :: ARKLS_MEM_NULL = -1_C_INT
  integer(C_INT), parameter, public :: ARKLS_LMEM_NULL = -2_C_INT
@@ -594,6 +659,172 @@ use, intrinsic :: ISO_C_BINDING
 import :: swigarraywrapper
 type(SwigArrayWrapper) :: farg1
 type(C_PTR) :: fresult
+end function
+
+subroutine swigc_ARKodeSPRKTableMem_q_set(farg1, farg2) &
+bind(C, name="_wrap_ARKodeSPRKTableMem_q_set")
+use, intrinsic :: ISO_C_BINDING
+import :: swigclasswrapper
+type(SwigClassWrapper) :: farg1
+integer(C_INT), intent(in) :: farg2
+end subroutine
+
+function swigc_ARKodeSPRKTableMem_q_get(farg1) &
+bind(C, name="_wrap_ARKodeSPRKTableMem_q_get") &
+result(fresult)
+use, intrinsic :: ISO_C_BINDING
+import :: swigclasswrapper
+type(SwigClassWrapper) :: farg1
+integer(C_INT) :: fresult
+end function
+
+subroutine swigc_ARKodeSPRKTableMem_stages_set(farg1, farg2) &
+bind(C, name="_wrap_ARKodeSPRKTableMem_stages_set")
+use, intrinsic :: ISO_C_BINDING
+import :: swigclasswrapper
+type(SwigClassWrapper) :: farg1
+integer(C_INT), intent(in) :: farg2
+end subroutine
+
+function swigc_ARKodeSPRKTableMem_stages_get(farg1) &
+bind(C, name="_wrap_ARKodeSPRKTableMem_stages_get") &
+result(fresult)
+use, intrinsic :: ISO_C_BINDING
+import :: swigclasswrapper
+type(SwigClassWrapper) :: farg1
+integer(C_INT) :: fresult
+end function
+
+subroutine swigc_ARKodeSPRKTableMem_a_set(farg1, farg2) &
+bind(C, name="_wrap_ARKodeSPRKTableMem_a_set")
+use, intrinsic :: ISO_C_BINDING
+import :: swigclasswrapper
+type(SwigClassWrapper) :: farg1
+type(C_PTR), value :: farg2
+end subroutine
+
+function swigc_ARKodeSPRKTableMem_a_get(farg1) &
+bind(C, name="_wrap_ARKodeSPRKTableMem_a_get") &
+result(fresult)
+use, intrinsic :: ISO_C_BINDING
+import :: swigclasswrapper
+type(SwigClassWrapper) :: farg1
+type(C_PTR) :: fresult
+end function
+
+subroutine swigc_ARKodeSPRKTableMem_ahat_set(farg1, farg2) &
+bind(C, name="_wrap_ARKodeSPRKTableMem_ahat_set")
+use, intrinsic :: ISO_C_BINDING
+import :: swigclasswrapper
+type(SwigClassWrapper) :: farg1
+type(C_PTR), value :: farg2
+end subroutine
+
+function swigc_ARKodeSPRKTableMem_ahat_get(farg1) &
+bind(C, name="_wrap_ARKodeSPRKTableMem_ahat_get") &
+result(fresult)
+use, intrinsic :: ISO_C_BINDING
+import :: swigclasswrapper
+type(SwigClassWrapper) :: farg1
+type(C_PTR) :: fresult
+end function
+
+function swigc_new_ARKodeSPRKTableMem() &
+bind(C, name="_wrap_new_ARKodeSPRKTableMem") &
+result(fresult)
+use, intrinsic :: ISO_C_BINDING
+import :: swigclasswrapper
+type(SwigClassWrapper) :: fresult
+end function
+
+subroutine swigc_delete_ARKodeSPRKTableMem(farg1) &
+bind(C, name="_wrap_delete_ARKodeSPRKTableMem")
+use, intrinsic :: ISO_C_BINDING
+import :: swigclasswrapper
+type(SwigClassWrapper), intent(inout) :: farg1
+end subroutine
+
+subroutine swigc_ARKodeSPRKTableMem_op_assign__(farg1, farg2) &
+bind(C, name="_wrap_ARKodeSPRKTableMem_op_assign__")
+use, intrinsic :: ISO_C_BINDING
+import :: swigclasswrapper
+type(SwigClassWrapper), intent(inout) :: farg1
+type(SwigClassWrapper) :: farg2
+end subroutine
+
+function swigc_FARKodeSPRKTable_Create(farg1, farg2, farg3, farg4) &
+bind(C, name="_wrap_FARKodeSPRKTable_Create") &
+result(fresult)
+use, intrinsic :: ISO_C_BINDING
+integer(C_INT), intent(in) :: farg1
+integer(C_INT), intent(in) :: farg2
+type(C_PTR), value :: farg3
+type(C_PTR), value :: farg4
+type(C_PTR) :: fresult
+end function
+
+function swigc_FARKodeSPRKTable_Alloc(farg1) &
+bind(C, name="_wrap_FARKodeSPRKTable_Alloc") &
+result(fresult)
+use, intrinsic :: ISO_C_BINDING
+integer(C_INT), intent(in) :: farg1
+type(C_PTR) :: fresult
+end function
+
+function swigc_FARKodeSPRKTable_Load(farg1) &
+bind(C, name="_wrap_FARKodeSPRKTable_Load") &
+result(fresult)
+use, intrinsic :: ISO_C_BINDING
+integer(C_INT), intent(in) :: farg1
+type(C_PTR) :: fresult
+end function
+
+function swigc_FARKodeSPRKTable_LoadByName(farg1) &
+bind(C, name="_wrap_FARKodeSPRKTable_LoadByName") &
+result(fresult)
+use, intrinsic :: ISO_C_BINDING
+import :: swigarraywrapper
+type(SwigArrayWrapper) :: farg1
+type(C_PTR) :: fresult
+end function
+
+function swigc_FARKodeSPRKTable_Copy(farg1) &
+bind(C, name="_wrap_FARKodeSPRKTable_Copy") &
+result(fresult)
+use, intrinsic :: ISO_C_BINDING
+type(C_PTR), value :: farg1
+type(C_PTR) :: fresult
+end function
+
+subroutine swigc_FARKodeSPRKTable_Write(farg1, farg2) &
+bind(C, name="_wrap_FARKodeSPRKTable_Write")
+use, intrinsic :: ISO_C_BINDING
+type(C_PTR), value :: farg1
+type(C_PTR), value :: farg2
+end subroutine
+
+subroutine swigc_FARKodeSPRKTable_Space(farg1, farg2, farg3) &
+bind(C, name="_wrap_FARKodeSPRKTable_Space")
+use, intrinsic :: ISO_C_BINDING
+type(C_PTR), value :: farg1
+type(C_PTR), value :: farg2
+type(C_PTR), value :: farg3
+end subroutine
+
+subroutine swigc_FARKodeSPRKTable_Free(farg1) &
+bind(C, name="_wrap_FARKodeSPRKTable_Free")
+use, intrinsic :: ISO_C_BINDING
+type(C_PTR), value :: farg1
+end subroutine
+
+function swigc_FARKodeSPRKTable_ToButcher(farg1, farg2, farg3) &
+bind(C, name="_wrap_FARKodeSPRKTable_ToButcher") &
+result(fresult)
+use, intrinsic :: ISO_C_BINDING
+type(C_PTR), value :: farg1
+type(C_PTR), value :: farg2
+type(C_PTR), value :: farg3
+integer(C_INT) :: fresult
 end function
 
 end interface
@@ -1176,6 +1407,273 @@ type(SwigArrayWrapper) :: farg1
 
 call SWIG_string_to_chararray(emethod, farg1_chars, farg1)
 fresult = swigc_FARKodeButcherTable_LoadERKByName(farg1)
+swig_result = fresult
+end function
+
+subroutine swigf_ARKodeSPRKTableMem_q_set(self, q)
+use, intrinsic :: ISO_C_BINDING
+class(ARKodeSPRKTableMem), intent(in) :: self
+integer(C_INT), intent(in) :: q
+type(SwigClassWrapper) :: farg1 
+integer(C_INT) :: farg2 
+
+farg1 = self%swigdata
+farg2 = q
+call swigc_ARKodeSPRKTableMem_q_set(farg1, farg2)
+end subroutine
+
+function swigf_ARKodeSPRKTableMem_q_get(self) &
+result(swig_result)
+use, intrinsic :: ISO_C_BINDING
+integer(C_INT) :: swig_result
+class(ARKodeSPRKTableMem), intent(in) :: self
+integer(C_INT) :: fresult 
+type(SwigClassWrapper) :: farg1 
+
+farg1 = self%swigdata
+fresult = swigc_ARKodeSPRKTableMem_q_get(farg1)
+swig_result = fresult
+end function
+
+subroutine swigf_ARKodeSPRKTableMem_stages_set(self, stages)
+use, intrinsic :: ISO_C_BINDING
+class(ARKodeSPRKTableMem), intent(in) :: self
+integer(C_INT), intent(in) :: stages
+type(SwigClassWrapper) :: farg1 
+integer(C_INT) :: farg2 
+
+farg1 = self%swigdata
+farg2 = stages
+call swigc_ARKodeSPRKTableMem_stages_set(farg1, farg2)
+end subroutine
+
+function swigf_ARKodeSPRKTableMem_stages_get(self) &
+result(swig_result)
+use, intrinsic :: ISO_C_BINDING
+integer(C_INT) :: swig_result
+class(ARKodeSPRKTableMem), intent(in) :: self
+integer(C_INT) :: fresult 
+type(SwigClassWrapper) :: farg1 
+
+farg1 = self%swigdata
+fresult = swigc_ARKodeSPRKTableMem_stages_get(farg1)
+swig_result = fresult
+end function
+
+subroutine swigf_ARKodeSPRKTableMem_a_set(self, a)
+use, intrinsic :: ISO_C_BINDING
+class(ARKodeSPRKTableMem), intent(in) :: self
+real(C_DOUBLE), target, intent(inout) :: a
+type(SwigClassWrapper) :: farg1 
+type(C_PTR) :: farg2 
+
+farg1 = self%swigdata
+farg2 = c_loc(a)
+call swigc_ARKodeSPRKTableMem_a_set(farg1, farg2)
+end subroutine
+
+function swigf_ARKodeSPRKTableMem_a_get(self) &
+result(swig_result)
+use, intrinsic :: ISO_C_BINDING
+real(C_DOUBLE), pointer :: swig_result
+class(ARKodeSPRKTableMem), intent(in) :: self
+type(C_PTR) :: fresult 
+type(SwigClassWrapper) :: farg1 
+
+farg1 = self%swigdata
+fresult = swigc_ARKodeSPRKTableMem_a_get(farg1)
+call c_f_pointer(fresult, swig_result)
+end function
+
+subroutine swigf_ARKodeSPRKTableMem_ahat_set(self, ahat)
+use, intrinsic :: ISO_C_BINDING
+class(ARKodeSPRKTableMem), intent(in) :: self
+real(C_DOUBLE), target, intent(inout) :: ahat
+type(SwigClassWrapper) :: farg1 
+type(C_PTR) :: farg2 
+
+farg1 = self%swigdata
+farg2 = c_loc(ahat)
+call swigc_ARKodeSPRKTableMem_ahat_set(farg1, farg2)
+end subroutine
+
+function swigf_ARKodeSPRKTableMem_ahat_get(self) &
+result(swig_result)
+use, intrinsic :: ISO_C_BINDING
+real(C_DOUBLE), pointer :: swig_result
+class(ARKodeSPRKTableMem), intent(in) :: self
+type(C_PTR) :: fresult 
+type(SwigClassWrapper) :: farg1 
+
+farg1 = self%swigdata
+fresult = swigc_ARKodeSPRKTableMem_ahat_get(farg1)
+call c_f_pointer(fresult, swig_result)
+end function
+
+function swigf_create_ARKodeSPRKTableMem() &
+result(self)
+use, intrinsic :: ISO_C_BINDING
+type(ARKodeSPRKTableMem) :: self
+type(SwigClassWrapper) :: fresult 
+
+fresult = swigc_new_ARKodeSPRKTableMem()
+self%swigdata = fresult
+end function
+
+subroutine swigf_release_ARKodeSPRKTableMem(self)
+use, intrinsic :: ISO_C_BINDING
+class(ARKodeSPRKTableMem), intent(inout) :: self
+type(SwigClassWrapper) :: farg1 
+
+farg1 = self%swigdata
+if (btest(farg1%cmemflags, swig_cmem_own_bit)) then
+call swigc_delete_ARKodeSPRKTableMem(farg1)
+endif
+farg1%cptr = C_NULL_PTR
+farg1%cmemflags = 0
+self%swigdata = farg1
+end subroutine
+
+subroutine swigf_ARKodeSPRKTableMem_op_assign__(self, other)
+use, intrinsic :: ISO_C_BINDING
+class(ARKodeSPRKTableMem), intent(inout) :: self
+type(ARKodeSPRKTableMem), intent(in) :: other
+type(SwigClassWrapper) :: farg1 
+type(SwigClassWrapper) :: farg2 
+
+farg1 = self%swigdata
+farg2 = other%swigdata
+call swigc_ARKodeSPRKTableMem_op_assign__(farg1, farg2)
+self%swigdata = farg1
+end subroutine
+
+function FARKodeSPRKTable_Create(s, q, a, ahat) &
+result(swig_result)
+use, intrinsic :: ISO_C_BINDING
+type(C_PTR) :: swig_result
+integer(C_INT), intent(in) :: s
+integer(C_INT), intent(in) :: q
+real(C_DOUBLE), target, intent(inout) :: a
+real(C_DOUBLE), target, intent(inout) :: ahat
+type(C_PTR) :: fresult 
+integer(C_INT) :: farg1 
+integer(C_INT) :: farg2 
+type(C_PTR) :: farg3 
+type(C_PTR) :: farg4 
+
+farg1 = s
+farg2 = q
+farg3 = c_loc(a)
+farg4 = c_loc(ahat)
+fresult = swigc_FARKodeSPRKTable_Create(farg1, farg2, farg3, farg4)
+swig_result = fresult
+end function
+
+function FARKodeSPRKTable_Alloc(stages) &
+result(swig_result)
+use, intrinsic :: ISO_C_BINDING
+type(C_PTR) :: swig_result
+integer(C_INT), intent(in) :: stages
+type(C_PTR) :: fresult 
+integer(C_INT) :: farg1 
+
+farg1 = stages
+fresult = swigc_FARKodeSPRKTable_Alloc(farg1)
+swig_result = fresult
+end function
+
+function FARKodeSPRKTable_Load(id) &
+result(swig_result)
+use, intrinsic :: ISO_C_BINDING
+type(C_PTR) :: swig_result
+integer(ARKODE_SPRKMethodID), intent(in) :: id
+type(C_PTR) :: fresult 
+integer(C_INT) :: farg1 
+
+farg1 = id
+fresult = swigc_FARKodeSPRKTable_Load(farg1)
+swig_result = fresult
+end function
+
+function FARKodeSPRKTable_LoadByName(method) &
+result(swig_result)
+use, intrinsic :: ISO_C_BINDING
+type(C_PTR) :: swig_result
+character(kind=C_CHAR, len=*), target :: method
+character(kind=C_CHAR), dimension(:), allocatable, target :: farg1_chars
+type(C_PTR) :: fresult 
+type(SwigArrayWrapper) :: farg1 
+
+call SWIG_string_to_chararray(method, farg1_chars, farg1)
+fresult = swigc_FARKodeSPRKTable_LoadByName(farg1)
+swig_result = fresult
+end function
+
+function FARKodeSPRKTable_Copy(that_sprk_storage) &
+result(swig_result)
+use, intrinsic :: ISO_C_BINDING
+type(C_PTR) :: swig_result
+type(C_PTR) :: that_sprk_storage
+type(C_PTR) :: fresult 
+type(C_PTR) :: farg1 
+
+farg1 = that_sprk_storage
+fresult = swigc_FARKodeSPRKTable_Copy(farg1)
+swig_result = fresult
+end function
+
+subroutine FARKodeSPRKTable_Write(sprk_table, outfile)
+use, intrinsic :: ISO_C_BINDING
+type(C_PTR) :: sprk_table
+type(C_PTR) :: outfile
+type(C_PTR) :: farg1 
+type(C_PTR) :: farg2 
+
+farg1 = sprk_table
+farg2 = outfile
+call swigc_FARKodeSPRKTable_Write(farg1, farg2)
+end subroutine
+
+subroutine FARKodeSPRKTable_Space(sprk_storage, liw, lrw)
+use, intrinsic :: ISO_C_BINDING
+type(C_PTR) :: sprk_storage
+integer(C_INT64_T), dimension(*), target, intent(inout) :: liw
+integer(C_INT64_T), dimension(*), target, intent(inout) :: lrw
+type(C_PTR) :: farg1 
+type(C_PTR) :: farg2 
+type(C_PTR) :: farg3 
+
+farg1 = sprk_storage
+farg2 = c_loc(liw(1))
+farg3 = c_loc(lrw(1))
+call swigc_FARKodeSPRKTable_Space(farg1, farg2, farg3)
+end subroutine
+
+subroutine FARKodeSPRKTable_Free(sprk_storage)
+use, intrinsic :: ISO_C_BINDING
+type(C_PTR) :: sprk_storage
+type(C_PTR) :: farg1 
+
+farg1 = sprk_storage
+call swigc_FARKodeSPRKTable_Free(farg1)
+end subroutine
+
+function FARKodeSPRKTable_ToButcher(sprk_storage, a_ptr, b_ptr) &
+result(swig_result)
+use, intrinsic :: ISO_C_BINDING
+integer(C_INT) :: swig_result
+type(C_PTR) :: sprk_storage
+type(C_PTR), target, intent(inout) :: a_ptr
+type(C_PTR), target, intent(inout) :: b_ptr
+integer(C_INT) :: fresult 
+type(C_PTR) :: farg1 
+type(C_PTR) :: farg2 
+type(C_PTR) :: farg3 
+
+farg1 = sprk_storage
+farg2 = c_loc(a_ptr)
+farg3 = c_loc(b_ptr)
+fresult = swigc_FARKodeSPRKTable_ToButcher(farg1, farg2, farg3)
 swig_result = fresult
 end function
 

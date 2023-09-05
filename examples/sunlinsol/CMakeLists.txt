@@ -39,6 +39,7 @@ endif()
 target_link_libraries(test_sunlinsol_obj PRIVATE sundials_sunlinsoldense)
 
 if(ENABLE_MPI AND MPI_C_FOUND)
+  add_subdirectory(pcg/parallel)
   add_subdirectory(spgmr/parallel)
   add_subdirectory(spfgmr/parallel)
   add_subdirectory(spbcgs/parallel)

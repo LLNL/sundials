@@ -238,6 +238,7 @@ enum {
 #include "arkode/arkode_butcher.h"
 #include "arkode/arkode_butcher_dirk.h"
 #include "arkode/arkode_butcher_erk.h"
+#include "arkode/arkode_sprk.h"
 #include "arkode/arkode_ls.h"
 
 
@@ -799,6 +800,245 @@ SWIGEXPORT void * _wrap_FARKodeButcherTable_LoadERKByName(SwigArrayWrapper *farg
   arg1 = (char *)(farg1->data);
   result = (ARKodeButcherTable)ARKodeButcherTable_LoadERKByName((char const *)arg1);
   fresult = result;
+  return fresult;
+}
+
+
+SWIGEXPORT void _wrap_ARKodeSPRKTableMem_q_set(SwigClassWrapper const *farg1, int const *farg2) {
+  struct ARKodeSPRKTableMem *arg1 = (struct ARKodeSPRKTableMem *) 0 ;
+  int arg2 ;
+  
+  SWIG_check_mutable_nonnull(*farg1, "struct ARKodeSPRKTableMem *", "ARKodeSPRKTableMem", "ARKodeSPRKTableMem::q", return );
+  arg1 = (struct ARKodeSPRKTableMem *)(farg1->cptr);
+  arg2 = (int)(*farg2);
+  if (arg1) (arg1)->q = arg2;
+}
+
+
+SWIGEXPORT int _wrap_ARKodeSPRKTableMem_q_get(SwigClassWrapper const *farg1) {
+  int fresult ;
+  struct ARKodeSPRKTableMem *arg1 = (struct ARKodeSPRKTableMem *) 0 ;
+  int result;
+  
+  SWIG_check_mutable_nonnull(*farg1, "struct ARKodeSPRKTableMem *", "ARKodeSPRKTableMem", "ARKodeSPRKTableMem::q", return 0);
+  arg1 = (struct ARKodeSPRKTableMem *)(farg1->cptr);
+  result = (int) ((arg1)->q);
+  fresult = (int)(result);
+  return fresult;
+}
+
+
+SWIGEXPORT void _wrap_ARKodeSPRKTableMem_stages_set(SwigClassWrapper const *farg1, int const *farg2) {
+  struct ARKodeSPRKTableMem *arg1 = (struct ARKodeSPRKTableMem *) 0 ;
+  int arg2 ;
+  
+  SWIG_check_mutable_nonnull(*farg1, "struct ARKodeSPRKTableMem *", "ARKodeSPRKTableMem", "ARKodeSPRKTableMem::stages", return );
+  arg1 = (struct ARKodeSPRKTableMem *)(farg1->cptr);
+  arg2 = (int)(*farg2);
+  if (arg1) (arg1)->stages = arg2;
+}
+
+
+SWIGEXPORT int _wrap_ARKodeSPRKTableMem_stages_get(SwigClassWrapper const *farg1) {
+  int fresult ;
+  struct ARKodeSPRKTableMem *arg1 = (struct ARKodeSPRKTableMem *) 0 ;
+  int result;
+  
+  SWIG_check_mutable_nonnull(*farg1, "struct ARKodeSPRKTableMem *", "ARKodeSPRKTableMem", "ARKodeSPRKTableMem::stages", return 0);
+  arg1 = (struct ARKodeSPRKTableMem *)(farg1->cptr);
+  result = (int) ((arg1)->stages);
+  fresult = (int)(result);
+  return fresult;
+}
+
+
+SWIGEXPORT void _wrap_ARKodeSPRKTableMem_a_set(SwigClassWrapper const *farg1, double *farg2) {
+  struct ARKodeSPRKTableMem *arg1 = (struct ARKodeSPRKTableMem *) 0 ;
+  sunrealtype *arg2 = (sunrealtype *) 0 ;
+  
+  SWIG_check_mutable_nonnull(*farg1, "struct ARKodeSPRKTableMem *", "ARKodeSPRKTableMem", "ARKodeSPRKTableMem::a", return );
+  arg1 = (struct ARKodeSPRKTableMem *)(farg1->cptr);
+  arg2 = (sunrealtype *)(farg2);
+  if (arg1) (arg1)->a = arg2;
+}
+
+
+SWIGEXPORT double * _wrap_ARKodeSPRKTableMem_a_get(SwigClassWrapper const *farg1) {
+  double * fresult ;
+  struct ARKodeSPRKTableMem *arg1 = (struct ARKodeSPRKTableMem *) 0 ;
+  sunrealtype *result = 0 ;
+  
+  SWIG_check_mutable_nonnull(*farg1, "struct ARKodeSPRKTableMem *", "ARKodeSPRKTableMem", "ARKodeSPRKTableMem::a", return 0);
+  arg1 = (struct ARKodeSPRKTableMem *)(farg1->cptr);
+  result = (sunrealtype *) ((arg1)->a);
+  fresult = result;
+  return fresult;
+}
+
+
+SWIGEXPORT void _wrap_ARKodeSPRKTableMem_ahat_set(SwigClassWrapper const *farg1, double *farg2) {
+  struct ARKodeSPRKTableMem *arg1 = (struct ARKodeSPRKTableMem *) 0 ;
+  sunrealtype *arg2 = (sunrealtype *) 0 ;
+  
+  SWIG_check_mutable_nonnull(*farg1, "struct ARKodeSPRKTableMem *", "ARKodeSPRKTableMem", "ARKodeSPRKTableMem::ahat", return );
+  arg1 = (struct ARKodeSPRKTableMem *)(farg1->cptr);
+  arg2 = (sunrealtype *)(farg2);
+  if (arg1) (arg1)->ahat = arg2;
+}
+
+
+SWIGEXPORT double * _wrap_ARKodeSPRKTableMem_ahat_get(SwigClassWrapper const *farg1) {
+  double * fresult ;
+  struct ARKodeSPRKTableMem *arg1 = (struct ARKodeSPRKTableMem *) 0 ;
+  sunrealtype *result = 0 ;
+  
+  SWIG_check_mutable_nonnull(*farg1, "struct ARKodeSPRKTableMem *", "ARKodeSPRKTableMem", "ARKodeSPRKTableMem::ahat", return 0);
+  arg1 = (struct ARKodeSPRKTableMem *)(farg1->cptr);
+  result = (sunrealtype *) ((arg1)->ahat);
+  fresult = result;
+  return fresult;
+}
+
+
+SWIGEXPORT SwigClassWrapper _wrap_new_ARKodeSPRKTableMem() {
+  SwigClassWrapper fresult ;
+  struct ARKodeSPRKTableMem *result = 0 ;
+  
+  result = (struct ARKodeSPRKTableMem *)calloc(1, sizeof(struct ARKodeSPRKTableMem));
+  fresult.cptr = result;
+  fresult.cmemflags = SWIG_MEM_RVALUE | (1 ? SWIG_MEM_OWN : 0);
+  return fresult;
+}
+
+
+SWIGEXPORT void _wrap_delete_ARKodeSPRKTableMem(SwigClassWrapper *farg1) {
+  struct ARKodeSPRKTableMem *arg1 = (struct ARKodeSPRKTableMem *) 0 ;
+  
+  SWIG_check_mutable(*farg1, "struct ARKodeSPRKTableMem *", "ARKodeSPRKTableMem", "ARKodeSPRKTableMem::~ARKodeSPRKTableMem()", return );
+  arg1 = (struct ARKodeSPRKTableMem *)(farg1->cptr);
+  free((char *) arg1);
+}
+
+
+SWIGEXPORT void _wrap_ARKodeSPRKTableMem_op_assign__(SwigClassWrapper *farg1, SwigClassWrapper const *farg2) {
+  struct ARKodeSPRKTableMem *arg1 = (struct ARKodeSPRKTableMem *) 0 ;
+  struct ARKodeSPRKTableMem *arg2 = 0 ;
+  
+  (void)sizeof(arg1);
+  (void)sizeof(arg2);
+  SWIG_assign(farg1, *farg2);
+  
+}
+
+
+SWIGEXPORT void * _wrap_FARKodeSPRKTable_Create(int const *farg1, int const *farg2, double const *farg3, double const *farg4) {
+  void * fresult ;
+  int arg1 ;
+  int arg2 ;
+  sunrealtype *arg3 = (sunrealtype *) 0 ;
+  sunrealtype *arg4 = (sunrealtype *) 0 ;
+  ARKodeSPRKTable result;
+  
+  arg1 = (int)(*farg1);
+  arg2 = (int)(*farg2);
+  arg3 = (sunrealtype *)(farg3);
+  arg4 = (sunrealtype *)(farg4);
+  result = (ARKodeSPRKTable)ARKodeSPRKTable_Create(arg1,arg2,(double const *)arg3,(double const *)arg4);
+  fresult = result;
+  return fresult;
+}
+
+
+SWIGEXPORT void * _wrap_FARKodeSPRKTable_Alloc(int const *farg1) {
+  void * fresult ;
+  int arg1 ;
+  ARKodeSPRKTable result;
+  
+  arg1 = (int)(*farg1);
+  result = (ARKodeSPRKTable)ARKodeSPRKTable_Alloc(arg1);
+  fresult = result;
+  return fresult;
+}
+
+
+SWIGEXPORT void * _wrap_FARKodeSPRKTable_Load(int const *farg1) {
+  void * fresult ;
+  ARKODE_SPRKMethodID arg1 ;
+  ARKodeSPRKTable result;
+  
+  arg1 = (ARKODE_SPRKMethodID)(*farg1);
+  result = (ARKodeSPRKTable)ARKodeSPRKTable_Load(arg1);
+  fresult = result;
+  return fresult;
+}
+
+
+SWIGEXPORT void * _wrap_FARKodeSPRKTable_LoadByName(SwigArrayWrapper *farg1) {
+  void * fresult ;
+  char *arg1 = (char *) 0 ;
+  ARKodeSPRKTable result;
+  
+  arg1 = (char *)(farg1->data);
+  result = (ARKodeSPRKTable)ARKodeSPRKTable_LoadByName((char const *)arg1);
+  fresult = result;
+  return fresult;
+}
+
+
+SWIGEXPORT void * _wrap_FARKodeSPRKTable_Copy(void *farg1) {
+  void * fresult ;
+  ARKodeSPRKTable arg1 = (ARKodeSPRKTable) 0 ;
+  ARKodeSPRKTable result;
+  
+  arg1 = (ARKodeSPRKTable)(farg1);
+  result = (ARKodeSPRKTable)ARKodeSPRKTable_Copy(arg1);
+  fresult = result;
+  return fresult;
+}
+
+
+SWIGEXPORT void _wrap_FARKodeSPRKTable_Write(void *farg1, void *farg2) {
+  ARKodeSPRKTable arg1 = (ARKodeSPRKTable) 0 ;
+  FILE *arg2 = (FILE *) 0 ;
+  
+  arg1 = (ARKodeSPRKTable)(farg1);
+  arg2 = (FILE *)(farg2);
+  ARKodeSPRKTable_Write(arg1,arg2);
+}
+
+
+SWIGEXPORT void _wrap_FARKodeSPRKTable_Space(void *farg1, int64_t *farg2, int64_t *farg3) {
+  ARKodeSPRKTable arg1 = (ARKodeSPRKTable) 0 ;
+  sunindextype *arg2 = (sunindextype *) 0 ;
+  sunindextype *arg3 = (sunindextype *) 0 ;
+  
+  arg1 = (ARKodeSPRKTable)(farg1);
+  arg2 = (sunindextype *)(farg2);
+  arg3 = (sunindextype *)(farg3);
+  ARKodeSPRKTable_Space(arg1,arg2,arg3);
+}
+
+
+SWIGEXPORT void _wrap_FARKodeSPRKTable_Free(void *farg1) {
+  ARKodeSPRKTable arg1 = (ARKodeSPRKTable) 0 ;
+  
+  arg1 = (ARKodeSPRKTable)(farg1);
+  ARKodeSPRKTable_Free(arg1);
+}
+
+
+SWIGEXPORT int _wrap_FARKodeSPRKTable_ToButcher(void *farg1, void *farg2, void *farg3) {
+  int fresult ;
+  ARKodeSPRKTable arg1 = (ARKodeSPRKTable) 0 ;
+  ARKodeButcherTable *arg2 = (ARKodeButcherTable *) 0 ;
+  ARKodeButcherTable *arg3 = (ARKodeButcherTable *) 0 ;
+  int result;
+  
+  arg1 = (ARKodeSPRKTable)(farg1);
+  arg2 = (ARKodeButcherTable *)(farg2);
+  arg3 = (ARKodeButcherTable *)(farg3);
+  result = (int)ARKodeSPRKTable_ToButcher(arg1,arg2,arg3);
+  fresult = (int)(result);
   return fresult;
 }
 

@@ -275,11 +275,11 @@ Caliper, as we need a newer version than in the Spack commit currently used.
 Updating Spack
 --------------
 
-To update the spack commit used for the CI, the first thing to do is update
-the spack commit in the ``.uberenv_config.json`` file. Then, a pipeline
-should be manually launched with the ``SHARED_SPACK`` CI variable set
-to ``ON``. This will cause Spack to re-concretize the specs and ideally
-update to newer packages. However, there is no guarantee that individual
-dependencies will be updated, so due dilligence is required (i.e., ensure
-that the output from the CI job shows that Spack has selected the versions
-of dependencies that you expected).
+To update the spack commit used for the CI:
+
+1. The first thing to do is update the spack commit in the ``.uberenv_config.json`` file.
+2. Then, a pipeline should be manually launched from the GitLab UI with the ``SHARED_SPACK`` CI variable set
+to ``ON`` and the ``SPACK_PREFIX`` variable to the version of spack being set in the uberenv_config.json. 
+
+This will create a new spack installation and rebuild all of the specs. 
+

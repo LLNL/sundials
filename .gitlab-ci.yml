@@ -50,6 +50,10 @@
 # ON_QUARTZ:
 # Should the Quartz pipeline run? Set to  "ON" or "OFF" to enable/disable.
 #
+# SPACK_PREFIX: prefix used for shared spack installation.
+# Usually this a spack version number that matches the version set in the uberenv_config.json file. 
+# Spack installs go in /usr/workspace/sundials/spack_installs/${SPACK_PREFIX}/$(hostname).
+#
 # SHARED_SPACK:
 # If "ON", then a shared spack install that has been pre-configured is utilized.
 # If "OFF", then a new spack instance is created for every build (meaning all TPLs have to be installed).
@@ -75,6 +79,8 @@ variables:
   VERBOSE_TEST: "OFF"
   ON_LASSEN: "ON"
   ON_QUARTZ: "ON"
+  ON_CORONA: "ON"
+  SPACK_PREFIX: "v0.19.1"
   SHARED_SPACK: "UPSTREAM"
   BENCHMARK: "OFF"
   BENCHMARK_NNODES: 4
@@ -89,7 +95,7 @@ stages:
   - q_build_and_test
   - l_build_and_test
   - l_build_and_bench
-  # - c_build_and_test
+  - c_build_and_test
 
 # These are also templates (.name) that define project specific build commands.
 # If an allocation exist with the name defined in this pipeline, the job will
@@ -101,9 +107,10 @@ stages:
       --job-name=${ALLOC_NAME} .gitlab/build_and_test.sh
 
 # Corona
-.build_toss_3_x86_64_ib_corona_script:
+.build_toss_4_x86_64_ib_corona_script:
   script:
-    - srun -p mi60 --interactive -t ${DEFAULT_TIME} -N 1 .gitlab/build_and_test.sh
+    - echo ${ALLOC_NAME}
+    - flux alloc -N 1 -t ${DEFAULT_TIME}  .gitlab/build_and_test.sh
 
 # CORAL systems use spectrum LSF instead of SLURM
 .build_blueos_3_ppc64le_ib_script:
@@ -123,3 +130,5 @@ include:
   - local: .gitlab/quartz-jobs.yml
   - local: .gitlab/lassen-templates.yml
   - local: .gitlab/lassen-jobs.yml
+  - local: .gitlab/corona-templates.yml
+  - local: .gitlab/corona-jobs.yml

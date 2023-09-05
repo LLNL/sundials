@@ -776,6 +776,20 @@ illustration only.
 
    Default: none
 
+.. cmakeoption:: SUNDIALS_ONEMKL_USE_GETRF_LOOP
+
+   This advanced debugging option replaces the batched LU factorization with a
+   loop over each system in the batch and a non-batched LU factorization.
+
+   Default: OFF
+
+.. cmakeoption:: SUNDIALS_ONEMKL_USE_GETRS_LOOP
+
+   This advanced debugging option replaces the batched LU solve with a loop over
+   each system in the batch and a non-batched solve.
+
+   Default: OFF
+
 .. cmakeoption:: ENABLE_OPENMP
 
    Enable OpenMP support (build the OpenMP NVector)
@@ -943,6 +957,14 @@ illustration only.
       the only supported SYCL compilers are the Intel oneAPI compilers i.e.,
       ``dpcpp`` and ``icpx``. When using ``icpx`` the ``-fsycl`` flag and any
       ahead of time compilation flags must be added to ``CMAKE_CXX_FLAGS``.
+
+.. cmakeoption:: SUNDIALS_SYCL_2020_UNSUPPORTED
+
+   This advanced option disables the use of *some* features from the SYCL 2020
+   standard in SUNDIALS libraries and examples. This can be used to work around
+   some cases of incomplete compiler support for SYCL 2020.
+
+   Default: OFF
 
 
 .. cmakeoption:: SUNDIALS_LOGGING_LEVEL

@@ -111,6 +111,19 @@ implementations.
 Changes from previous versions
 ==============================
 
+Changes in v6.6.0
+-----------------
+
+Updated the default CVODE behavior when returning the solution when
+the internal time has reached a user-specified stop time.  Previously, the output
+solution was interpolated to the value of ``tstop``; the default is now to copy the
+internal solution vector.  Users who wish to revert to interpolation may call the
+routine :c:func:`CVodeSetInterpolateStopTime`.
+
+Updated the F2003 utility routines :c:func:`SUNDIALSFileOpen` and :c:func:`SUNDIALSFileClose`
+to support user specification of ``stdout`` and ``stderr`` strings for the output
+file names.
+
 Changes in v6.5.1
 -----------------
 
@@ -145,7 +158,7 @@ Fixed the shape of the arrays returned by ``FN_VGetArrayPointer`` functions as w
 as the ``FSUNDenseMatrix_Data``, ``FSUNBandMatrix_Data``, ``FSUNSparseMatrix_Data``,
 ``FSUNSparseMatrix_IndexValues``, and ``FSUNSparseMatrix_IndexPointers`` functions.
 Compiling and running code that uses the SUNDIALS Fortran interfaces with
-bounds checking will now work. 
+bounds checking will now work.
 
 Changes in v6.4.1
 -----------------

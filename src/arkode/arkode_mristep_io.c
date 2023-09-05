@@ -48,6 +48,9 @@ int MRIStepSetMaxHnilWarns(void *arkode_mem, int mxhnil) {
   return(arkSetMaxHnilWarns(arkode_mem, mxhnil)); }
 int MRIStepSetStopTime(void *arkode_mem, realtype tstop) {
   return(arkSetStopTime(arkode_mem, tstop)); }
+int MRIStepSetInterpolateStopTime(void *arkode_mem,
+                                  booleantype interp) {
+  return(arkSetInterpolateStopTime(arkode_mem, interp)); }
 int MRIStepClearStopTime(void *arkode_mem) {
   return(arkClearStopTime(arkode_mem)); }
 int MRIStepSetRootDirection(void *arkode_mem, int *rootdir) {

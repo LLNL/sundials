@@ -72,6 +72,13 @@ systems.
 Changes from previous versions
 ==============================
 
+Changes in v6.6.0
+-----------------
+
+Updated the F2003 utility routines :c:func:`SUNDIALSFileOpen` and :c:func:`SUNDIALSFileClose`
+to support user specification of ``stdout`` and ``stderr`` strings for the output
+file names.
+
 Changes in v6.5.1
 -----------------
 
@@ -107,7 +114,7 @@ Fixed the shape of the arrays returned by ``FN_VGetArrayPointer`` functions as w
 as the ``FSUNDenseMatrix_Data``, ``FSUNBandMatrix_Data``, ``FSUNSparseMatrix_Data``,
 ``FSUNSparseMatrix_IndexValues``, and ``FSUNSparseMatrix_IndexPointers`` functions.
 Compiling and running code that uses the SUNDIALS Fortran interfaces with
-bounds checking will now work. 
+bounds checking will now work.
 
 Changes in v6.4.1
 -----------------

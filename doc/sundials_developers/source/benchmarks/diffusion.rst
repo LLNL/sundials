@@ -30,11 +30,11 @@ This code simulates the anisotropic 2D heat equation,
 
 .. math::
 
-    u_t = \nabla \cdot (D \nabla u) + b(t,\mathbf{x}),
+    \frac{\partial u}{\partial t} = \nabla \cdot (D \nabla u) + b(t,\mathbf{x}),
 
 where :math:`D` is a diagonal matrix with entries :math:`k_x` and :math:`k_y`.
 The system is evolved for :math:`t \in [0, t_f]` on the rectangular domain
-:math:`(x,y) \equiv \mathbf{x} \in [\mathbf{0}, \mathbf{x_{\text{max}}}]^2`,
+:math:`(x,y) \equiv \mathbf{x} \in [\mathbf{0}, \mathbf{x}_{\text{max}}]^2`,
 with the initial condition
 
 .. math::
@@ -45,8 +45,8 @@ and stationary boundary conditions
 
 .. math::
 
-   u_t(t,0,y) = u_t(t,x_{\text{max}},y) =
-   u_t(t,x,0) = u_t(t,x,y_{\text{max}}) = 0.
+   \frac{\partial u}{\partial t}(t,0,y) = \frac{\partial u}{\partial t}(t,x_{\text{max}},y) =
+   \frac{\partial u}{\partial t}(t,x,0) = \frac{\partial u}{\partial t}(t,x,y_{\text{max}}) = 0.
 
 The source term is given by
 
@@ -68,9 +68,12 @@ IDA. With ARKODE, an adaptive step diagonally implicit Runge-Kutta (DIRK) method
 is applied. When using CVODE or IDA, adaptive order and step BDF methods are
 used.
 
-In all cases, the nonlinear system(s) in each time step are solved using an
-inexact Newton method paired with a matrix-free PCG or GMRES linear solver and a
-Jacobi preconditioner.
+By default, the nonlinear system(s) in each time step are solved using an
+inexact Newton method paired with a matrix-free CG linear solver and a Jacobi
+preconditioner. A matrix-free GMRES linear solver may be selected at run time.
+If SUNDIALS is built with the SuperLU_DIST interface enabled a modified Newton
+method with SuperLU_DIST as the direct linear solver may also be selected at run
+time.
 
 
 Options
@@ -143,7 +146,8 @@ listed in :numref:`Benchmarks.Table.2D_diffusion_options`.
    |                               | ``ONE_STEP`` mode for debugging      |               |
    |                               | (0 uses ``NORMAL`` mode)             |               |
    +-------------------------------+--------------------------------------+---------------+
-   | ``--gmres``                   | Use GMRES rather than PCG            | PCG           |
+   | ``--ls``                      | Linear solver: ``cg``, ``gmres``,    | ``cg``        |
+   |                               | ``sludist``                          |               |
    +-------------------------------+--------------------------------------+---------------+
    | ``--lsinfo``                  | Output linear solver diagnostics     | Off           |
    +-------------------------------+--------------------------------------+---------------+
@@ -169,21 +173,32 @@ listed in :numref:`Benchmarks.Table.2D_diffusion_options`.
    +-------------------------------+--------------------------------------+---------------+
 
 
-Building and Running
-^^^^^^^^^^^^^^^^^^^^
+Building
+^^^^^^^^
 
 To build the benchmark executables SUNDIALS should be configured with ARKODE,
-CVODE, or IDA enabled and with MPI support on. Additionally, either CUDA or HIP
-support must be on to build executables utilizing NVIDIA or AMD GPUs. See the
-installation guide for more details on configuring, building, and installing
-SUNDIALS.
+CVODE, or IDA enabled, MPI support turned on, and benchmarks enabled. If
+SUNDIALS is configured with SuperLU_DIST enabled this linear solver can be
+selected at run time and may utilize OpenMP, CUDA, or ROCM (HIP) for on-node
+parallelism. If SUNDIALS is configured with CUDA or HIP support enabled
+additional executables utilizing CUDA and HIP will be built. See the SUNDIALS
+installation guide for more details on configuring, building, and installing.
+
+Running
+^^^^^^^
 
 Based on the configuration, executables for each integrator and backend option
-are built and installed in the ``<install prefix>/bin/benchmarks/diffusion_2D``
-directory. The executables follow the naming convention
-``<package>_diffusion_2D_<parallelism>`` where ``<package>`` is ``arkode``,
+are built and installed in ``<BENCHMARKS_INSTALL_PATH>/diffusion_2D``. The
+executables follow the naming convention
+```<package>_diffusion_2D_<parallelism>`` where ``<package>`` is ``arkode``,
 ``cvode``, or ``ida`` and ``<parallelism>`` is ``mpi`` for MPI only parallelism,
 ``mpicuda`` for MPI + CUDA, and ``mpihip`` for MPI + HIP.
+
+.. note::
+
+   When using the SuperLU_DIST linear solver computations will be offloaded to
+   the GPU in the MPI only executables if CUDA or ROCM support is enabled in
+   SuperLU_DIST.
 
 On Summit, with the default environment
 
@@ -209,3 +224,15 @@ an example ``jsrun`` command using CUDA-aware MPI
 .. code-block:: none
 
    jsrun -n 2 -a 1 -c 1 -g 1 ./cvode_diffusion_2D_mpicuda
+
+On Crusher, with the environment
+
+* Compiler: clang/14.0.2
+* MPI: cray-mpich/8.1.17
+* ROCM: rocm/5.2.0
+
+an example ``srun`` command is
+
+.. code-block:: none
+
+   srun -N1 -n8 -c1 --gpus-per-node=8 --gpu-bind=closest ./cvode_diffusion_2D_mpi

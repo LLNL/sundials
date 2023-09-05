@@ -716,8 +716,8 @@ $tar $tarfile $distrobase/examples/sunlinsol/magmadense/CMakeLists.txt
 $tar $tarfile $distrobase/examples/sunlinsol/onemkldense/CMakeLists.txt
 $tar $tarfile $distrobase/examples/sunlinsol/onemkldense/test_sunlinsol_onemkldense.cpp
 
-#$tar $tarfile $distrobase/examples/sunlinsol/pcg/parallel/test_sunlinsol_pcg_parallel.c
-#$tar $tarfile $distrobase/examples/sunlinsol/pcg/parallel/CMakeLists.txt
+$tar $tarfile $distrobase/examples/sunlinsol/pcg/parallel/test_sunlinsol_pcg_parallel.c
+$tar $tarfile $distrobase/examples/sunlinsol/pcg/parallel/CMakeLists.txt
 
 $tar $tarfile $distrobase/examples/sunlinsol/pcg/serial/test_sunlinsol_pcg_serial.c
 $tar $tarfile $distrobase/examples/sunlinsol/pcg/serial/test_fsunlinsol_pcg_mod_serial.f90

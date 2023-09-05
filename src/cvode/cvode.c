@@ -323,6 +323,7 @@ void *CVodeCreate(int lmm, SUNContext sunctx)
   cv_mem->cv_small_nst        = SMALL_NST_DEFAULT;
   cv_mem->cv_small_nef        = SMALL_NEF_DEFAULT;
   cv_mem->cv_tstopset         = SUNFALSE;
+  cv_mem->cv_tstopinterp      = SUNFALSE;
   cv_mem->cv_maxnef           = MXNEF;
   cv_mem->cv_maxncf           = MXNCF;
   cv_mem->cv_nlscoef          = CORTES;
@@ -1258,12 +1259,16 @@ int CVode(void *cvode_mem, realtype tout, N_Vector yout,
     if ( cv_mem->cv_tstopset ) {
 
       if ( SUNRabs(cv_mem->cv_tn - cv_mem->cv_tstop) <= troundoff ) {
-        ier =  CVodeGetDky(cv_mem, cv_mem->cv_tstop, 0, yout);
-        if (ier != CV_SUCCESS) {
-          cvProcessError(cv_mem, CV_ILL_INPUT, "CVODE", "CVode",
-                         MSGCV_BAD_TSTOP, cv_mem->cv_tstop, cv_mem->cv_tn);
-          SUNDIALS_MARK_FUNCTION_END(CV_PROFILER);
-          return(CV_ILL_INPUT);
+        if (cv_mem->cv_tstopinterp) {
+          ier =  CVodeGetDky(cv_mem, cv_mem->cv_tstop, 0, yout);
+          if (ier != CV_SUCCESS) {
+            cvProcessError(cv_mem, CV_ILL_INPUT, "CVODE", "CVode",
+                           MSGCV_BAD_TSTOP, cv_mem->cv_tstop, cv_mem->cv_tn);
+            SUNDIALS_MARK_FUNCTION_END(CV_PROFILER);
+            return(CV_ILL_INPUT);
+          }
+        } else {
+          N_VScale(ONE, cv_mem->cv_zn[0], yout);
         }
         cv_mem->cv_tretlast = *tret = cv_mem->cv_tstop;
         cv_mem->cv_tstopset = SUNFALSE;
@@ -1434,7 +1439,11 @@ int CVode(void *cvode_mem, realtype tout, N_Vector yout,
       troundoff = FUZZ_FACTOR * cv_mem->cv_uround *
         (SUNRabs(cv_mem->cv_tn) + SUNRabs(cv_mem->cv_h));
       if ( SUNRabs(cv_mem->cv_tn - cv_mem->cv_tstop) <= troundoff) {
-        (void) CVodeGetDky(cv_mem, cv_mem->cv_tstop, 0, yout);
+        if (cv_mem->cv_tstopinterp) {
+          (void) CVodeGetDky(cv_mem, cv_mem->cv_tstop, 0, yout);
+        } else {
+          N_VScale(ONE, cv_mem->cv_zn[0], yout);
+        }
         cv_mem->cv_tretlast = *tret = cv_mem->cv_tstop;
         cv_mem->cv_tstopset = SUNFALSE;
         istate = CV_TSTOP_RETURN;

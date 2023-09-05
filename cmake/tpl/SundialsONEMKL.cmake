@@ -64,6 +64,7 @@ find_package(MKL CONFIG
              NO_DEFAULT_PATH
              REQUIRED)
 
+message(STATUS "MKL Version: ${MKL_VERSION}")
 message(STATUS "MKL Targets: ${MKL_IMPORTED_TARGETS}")
 
 # -----------------------------------------------------------------------------

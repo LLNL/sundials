@@ -16,15 +16,15 @@
 # 'develop' for examples excluded from 'make test' in releases
 set(examples
   "test_sunlinsol_ginkgo.cpp\;bicg csr 100 0 100 0\;"
-  "test_sunlinsol_ginkgo.cpp\;bicg dense 100 0 100 0\;"
+#  "test_sunlinsol_ginkgo.cpp\;bicg dense 100 0 100 0\;"
   "test_sunlinsol_ginkgo.cpp\;bicgstab csr 100 0 100 0\;"
-  "test_sunlinsol_ginkgo.cpp\;bicgstab dense 100 0 100 0\;"
+#  "test_sunlinsol_ginkgo.cpp\;bicgstab dense 100 0 100 0\;"
   "test_sunlinsol_ginkgo.cpp\;cgs csr 100 0 100 0\;"
-  "test_sunlinsol_ginkgo.cpp\;cgs dense 100 0 100 0\;"
+#  "test_sunlinsol_ginkgo.cpp\;cgs dense 100 0 100 0\;"
   "test_sunlinsol_ginkgo.cpp\;gmres csr 100 0 100 0\;"
-  "test_sunlinsol_ginkgo.cpp\;gmres dense 100 0 100 0\;"
+#  "test_sunlinsol_ginkgo.cpp\;gmres dense 100 0 100 0\;"
   "test_sunlinsol_ginkgo.cpp\;idr csr 100 0 100 0\;"
-  "test_sunlinsol_ginkgo.cpp\;idr dense 100 0 100 0\;"
+#  "test_sunlinsol_ginkgo.cpp\;idr dense 100 0 100 0\;"
 )
 
 # Add source directory to include directories

@@ -16,6 +16,7 @@
 # 'develop' for examples excluded from 'make test' in releases
 set(examples_list
   "cv_bruss_batched_kokkos.cpp\;\;develop"
+  "cv_bruss_batched_kokkos_2D.cpp\;\;develop"
 )
 
 # Add the build targets for each example

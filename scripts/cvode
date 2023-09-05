@@ -221,6 +221,10 @@ $tar $tarfile $distrobase/examples/cvode/kokkos/cv_bruss_batched_kokkos.cpp
 $tar $tarfile $distrobase/examples/cvode/kokkos/cv_bruss_batched_kokkos.CUDA.out
 $tar $tarfile $distrobase/examples/cvode/kokkos/cv_bruss_batched_kokkos.OPENMP.out
 $tar $tarfile $distrobase/examples/cvode/kokkos/cv_bruss_batched_kokkos.SERIAL.out
+$tar $tarfile $distrobase/examples/cvode/kokkos/cv_bruss_batched_kokkos_2D.cpp
+$tar $tarfile $distrobase/examples/cvode/kokkos/cv_bruss_batched_kokkos_2D.CUDA.out
+$tar $tarfile $distrobase/examples/cvode/kokkos/cv_bruss_batched_kokkos_2D.OPENMP.out
+$tar $tarfile $distrobase/examples/cvode/kokkos/cv_bruss_batched_kokkos_2D.SERIAL.out
 
 $tar $tarfile $distrobase/examples/cvode/magma/README
 $tar $tarfile $distrobase/examples/cvode/magma/CMakeLists.txt

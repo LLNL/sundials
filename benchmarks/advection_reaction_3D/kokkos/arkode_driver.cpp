@@ -588,10 +588,7 @@ int TaskLocalLSolve(N_Vector delta, void* arkode_mem)
   SUNDIALS_CXX_MARK_FUNCTION(udata->prof);
 
   /* set up I - gamma*J and solve */
-  auto range = RAJA::make_tuple(RAJA::RangeSegment(0, udata->grid->nxl),
-                                RAJA::RangeSegment(0, udata->grid->nyl),
-                                RAJA::RangeSegment(0, udata->grid->nzl));
-  retval = SolveReactionLinSys(z, delta, delta, gamma, range, udata);
+  retval = SolveReactionLinSys(z, delta, delta, gamma, udata);
 
 
   return(retval);

@@ -20,6 +20,7 @@ job_unique_id=${CI_JOB_ID:-""}
 sys_type=${SYS_TYPE:-""}
 py_env_path=${PYTHON_ENVIRONMENT_PATH:-""}
 
+spack_prefix=${SHARED_SPACK_PREFIX:-"v0.19.1"}
 shared_spack=${SHARED_SPACK:-"UPSTREAM"}
 
 # Dependencies
@@ -46,8 +47,17 @@ hostname=${hostname%%[0-9]*}
 BUILD_JOBS=${BUILD_JOBS:-"1"}
 
 # load newer python to try the clingo concretizer
-echo "module load python/3.8.2"
-module load python/3.8.2
+# machine specific loads
+if [[ "${hostname}" == "lassen" ]]; then
+    echo "module load python/3.8.2"
+    module load python/3.8.2
+elif [[ "${hostname}" == "corona" ]]; then
+    echo "module load python/3.9.12"
+    module load python/3.9.12
+else
+    echo "module load python"
+    module load python
+fi
 
 if [[ "${option}" != "--build-only" && "${option}" != "--test-only" ]]
 then
@@ -89,7 +99,7 @@ then
 
     if [[ -d /usr/workspace/sundials ]]
     then
-        upstream="/usr/workspace/sundials/spack_installs/${hostname}"
+        upstream="/usr/workspace/sundials/spack_installs/${spack_prefix}/${hostname}"
         mkdir -p "${upstream}"
         upstream_opt="--upstream=${upstream}"
     fi
@@ -174,7 +184,7 @@ then
     mkdir -p "${build_dir}" && cd "${build_dir}"
 
     date
-    
+
     $cmake_exe --version
 
     # configure

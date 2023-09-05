@@ -3970,7 +3970,7 @@ then IDAS computes both a solution and quadratures at time ``t``. However,
 :c:func:`IDASolve` will still return only the solution :math:`y` in ``y``.
 Solution quadratures can be obtained using the following function:
 
-.. c:function:: int IDAGetQuad(void * ida_mem, realtype tret, N_Vector yQ)
+.. c:function:: int IDAGetQuad(void * ida_mem, realtype* tret, N_Vector yQ)
 
    The function :c:func:`IDAGetQuad` returns the quadrature solution vector after a  successful return from :c:func:`IDASolve`.
 
