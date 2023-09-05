@@ -63,11 +63,6 @@ set(arkode_HEADERS
 # Add prefix with complete path to the ARKODE header files
 add_prefix(${SUNDIALS_SOURCE_DIR}/include/arkode/ arkode_HEADERS)
 
-if(ENABLE_CALIPER AND SUNDIALS_BUILD_WITH_PROFILING)
-  set(_include_caliper_if_needed PUBLIC ${caliper_INCLUDE_DIR})
-  set(_link_caliper_if_needed PUBLIC caliper)
-endif()
-
 # Create the sundials_arkode library
 sundials_add_library(sundials_arkode
   SOURCES
@@ -76,8 +71,6 @@ sundials_add_library(sundials_arkode
     ${arkode_HEADERS}
   INCLUDE_SUBDIR
     arkode
-  INCLUDE_DIRECTORIES
-    ${_include_caliper_if_needed}
   OBJECT_LIBRARIES
     sundials_generic_obj
     sundials_sunmemsys_obj
@@ -94,9 +87,6 @@ sundials_add_library(sundials_arkode
     sundials_sunlinsolpcg_obj
     sundials_sunnonlinsolnewton_obj
     sundials_sunnonlinsolfixedpoint_obj
-  LINK_LIBRARIES
-    # Link to caliper if conditions are met.
-    ${_link_caliper_if_needed}
   OUTPUT_NAME
     sundials_arkode
   VERSION

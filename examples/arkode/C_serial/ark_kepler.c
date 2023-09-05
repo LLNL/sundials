@@ -600,6 +600,9 @@ int main(int argc, char* argv[])
              expected_order);
       return 1;
     }
+
+    N_VDestroy(ref_sol);
+    N_VDestroy(error);
   }
 
   N_VDestroy(result.sol);

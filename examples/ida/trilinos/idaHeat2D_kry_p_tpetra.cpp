@@ -44,9 +44,14 @@
 #include <string.h>
 #include <vector>
 
+#include <Trilinos_version.h>
 #include <Tpetra_Core.hpp>
 #include <Tpetra_Vector.hpp>
 #include <Tpetra_Version.hpp>
+
+#if TRILINOS_MAJOR_VERSION > 13
+#include <Tpetra_Access.hpp>
+#endif
 
 #include <ida/ida.h>
 #include <nvector/trilinos/SundialsTpetraVectorInterface.hpp>
@@ -418,8 +423,14 @@ int PsetupHeat(realtype tt, N_Vector yy, N_Vector yp, N_Vector rr,
 
   /* Get access to local data */
   Teuchos::RCP<vector_type> pptp = N_VGetVector_Trilinos(data->pp);
+
+#if TRILINOS_MAJOR_VERSION < 14
   auto pp_2d = pptp->getLocalView<memory_space>();
   auto pp_1d = Kokkos::subview (pp_2d, Kokkos::ALL(), 0);
+#else
+  auto pp_2d = pptp->getLocalView<memory_space>(Tpetra::Access::ReadWrite);
+  auto pp_1d = Kokkos::subview (pp_2d, Kokkos::ALL(), 0);
+#endif
 
   /* Calculate the value for the inverse element of the diagonal preconditioner */
   const realtype pelinv = ONE/(c_j + data->coeffxy);
@@ -522,12 +533,22 @@ static int reslocal(realtype tt, N_Vector uu, N_Vector up, N_Vector rr,
   Teuchos::RCP<vector_type> upv = N_VGetVector_Trilinos(up);
   Teuchos::RCP<vector_type> rrv = N_VGetVector_Trilinos(rr);
 
+#if TRILINOS_MAJOR_VERSION < 14
   const auto uu_2d = uuv->getLocalView<memory_space>();
   const auto uu_1d = Kokkos::subview (uu_2d, Kokkos::ALL(), 0);
   const auto up_2d = upv->getLocalView<memory_space>();
   const auto up_1d = Kokkos::subview (up_2d, Kokkos::ALL(), 0);
   auto rr_2d = rrv->getLocalView<memory_space>();
   auto rr_1d = Kokkos::subview (rr_2d, Kokkos::ALL(), 0);
+#else
+  const auto uu_2d = uuv->getLocalView<memory_space>(Tpetra::Access::ReadOnly);
+  const auto uu_1d = Kokkos::subview (uu_2d, Kokkos::ALL(), 0);
+  const auto up_2d = upv->getLocalView<memory_space>(Tpetra::Access::ReadOnly);
+  const auto up_1d = Kokkos::subview (up_2d, Kokkos::ALL(), 0);
+  auto rr_2d = rrv->getLocalView<memory_space>(Tpetra::Access::ReadWrite);
+  auto rr_1d = Kokkos::subview (rr_2d, Kokkos::ALL(), 0);
+#endif
+
   Kokkos::View<realtype*, memory_space> uext_1d = data->uext;
 
   /* Copy local segment of u vector into the working extended array uext.
@@ -604,8 +625,14 @@ static int BSend(N_Vector uu, void *user_data)
 
   /* Get solution vector data. */
   Teuchos::RCP<vector_type> uuv = N_VGetVector_Trilinos(uu);
+
+#if TRILINOS_MAJOR_VERSION < 14
   const auto uu_2d = uuv->getLocalView<memory_space>();
   const auto uu_1d = Kokkos::subview (uu_2d, Kokkos::ALL(), 0);
+#else
+  const auto uu_2d = uuv->getLocalView<memory_space>(Tpetra::Access::ReadOnly);
+  const auto uu_1d = Kokkos::subview (uu_2d, Kokkos::ALL(), 0);
+#endif
 
   /* If jysub > 0, send data from bottom x-line of u.  (via bufbottom) */
 
@@ -923,6 +950,7 @@ static int SetInitialProfile(N_Vector uu, N_Vector up,  N_Vector id,
   Teuchos::RCP<vector_type> ti = N_VGetVector_Trilinos(id);
 
   /* Get access to local uu and id data, sync the host with the device */
+#if TRILINOS_MAJOR_VERSION < 14
   tu->sync<Kokkos::HostSpace>();
   auto u_2d = tu->getLocalView<Kokkos::HostSpace>();
   auto u_1d = Kokkos::subview(u_2d, Kokkos::ALL(), 0);
@@ -932,6 +960,13 @@ static int SetInitialProfile(N_Vector uu, N_Vector up,  N_Vector id,
   auto id_2d = ti->getLocalView<Kokkos::HostSpace>();
   auto id_1d = Kokkos::subview(id_2d, Kokkos::ALL(), 0);
   ti->modify<Kokkos::HostSpace>();
+#else
+  auto u_2d = tu->getLocalView<Kokkos::HostSpace>(Tpetra::Access::ReadWrite);
+  auto u_1d = Kokkos::subview(u_2d, Kokkos::ALL(), 0);
+
+  auto id_2d = ti->getLocalView<Kokkos::HostSpace>(Tpetra::Access::ReadWrite);
+  auto id_1d = Kokkos::subview(id_2d, Kokkos::ALL(), 0);
+#endif
 
   /* Set mesh spacings and subgrid indices for this PE. */
   const realtype dx = data->dx;
@@ -966,9 +1001,11 @@ static int SetInitialProfile(N_Vector uu, N_Vector up,  N_Vector id,
     }
   }
 
+#if TRILINOS_MAJOR_VERSION < 14
   /* Sync the device with the host */
   tu->sync<memory_space>();
   ti->sync<memory_space>();
+#endif
 
   /* Initialize up. */
 

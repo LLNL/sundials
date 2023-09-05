@@ -15,9 +15,14 @@
 #ifndef _SUNDIALS_TPETRA_VECTOR_KERNELS_HPP_
 #define _SUNDIALS_TPETRA_VECTOR_KERNELS_HPP_
 
+#include <Trilinos_version.h>
 #include <Tpetra_Vector.hpp>
 #include <Kokkos_Core.hpp>
 #include <nvector/trilinos/SundialsTpetraVectorInterface.hpp>
+
+#if TRILINOS_MAJOR_VERSION > 13
+#include <Tpetra_Access.hpp>
+#endif
 
 namespace sundials
 {
@@ -63,6 +68,7 @@ namespace trilinos
       const local_ordinal_type N =
         static_cast<local_ordinal_type>(x.getLocalLength());
 
+#if TRILINOS_MAJOR_VERSION < 14
       if (x.need_sync<memory_space>())
         const_cast<vector_type&>(x).sync<memory_space>();
       if (y.need_sync<memory_space>())
@@ -76,6 +82,14 @@ namespace trilinos
       auto z_1d = Kokkos::subview (z_2d, Kokkos::ALL(), 0);
 
       z.modify<memory_space>();
+#else
+      auto x_2d = x.getLocalView<memory_space>(Tpetra::Access::ReadOnly);
+      auto x_1d = Kokkos::subview (x_2d, Kokkos::ALL(), 0);
+      auto y_2d = y.getLocalView<memory_space>(Tpetra::Access::ReadOnly);
+      auto y_1d = Kokkos::subview (y_2d, Kokkos::ALL(), 0);
+      auto z_2d = z.getLocalView<memory_space>(Tpetra::Access::ReadWrite);
+      auto z_1d = Kokkos::subview (z_2d, Kokkos::ALL(), 0);
+#endif
 
       Kokkos::parallel_for ("elementWiseDivide", Kokkos::RangePolicy<execution_space>(0, N),
         KOKKOS_LAMBDA (const local_ordinal_type &i)
@@ -94,6 +108,7 @@ namespace trilinos
       const local_ordinal_type N =
         static_cast<local_ordinal_type>(x.getLocalLength());
 
+#if TRILINOS_MAJOR_VERSION < 14
       if (x.need_sync<memory_space>())
         const_cast<vector_type&>(x).sync<memory_space>();
       if (z.need_sync<memory_space>())
@@ -105,6 +120,12 @@ namespace trilinos
       auto z_1d = Kokkos::subview (z_2d, Kokkos::ALL(), 0);
 
       z.modify<memory_space>();
+#else
+      auto x_2d = x.getLocalView<memory_space>(Tpetra::Access::ReadOnly);
+      auto x_1d = Kokkos::subview (x_2d, Kokkos::ALL(), 0);
+      auto z_2d = z.getLocalView<memory_space>(Tpetra::Access::ReadWrite);
+      auto z_1d = Kokkos::subview (z_2d, Kokkos::ALL(), 0);
+#endif
 
       Kokkos::parallel_for ("addConst", Kokkos::RangePolicy<execution_space>(0, N),
         KOKKOS_LAMBDA (const local_ordinal_type &i)
@@ -123,6 +144,7 @@ namespace trilinos
       const local_ordinal_type N =
         static_cast<local_ordinal_type>(x.getLocalLength());
 
+#if TRILINOS_MAJOR_VERSION < 14
       if (x.need_sync<memory_space>())
         const_cast<vector_type&>(x).sync<memory_space>();
       if (z.need_sync<memory_space>())
@@ -134,6 +156,12 @@ namespace trilinos
       auto z_1d = Kokkos::subview (z_2d, Kokkos::ALL(), 0);
 
       z.modify<memory_space>();
+#else
+      auto x_2d = x.getLocalView<memory_space>(Tpetra::Access::ReadOnly);
+      auto x_1d = Kokkos::subview (x_2d, Kokkos::ALL(), 0);
+      auto z_2d = z.getLocalView<memory_space>(Tpetra::Access::ReadWrite);
+      auto z_1d = Kokkos::subview (z_2d, Kokkos::ALL(), 0);
+#endif
 
       Kokkos::parallel_for ("compare", Kokkos::RangePolicy<execution_space>(0, N),
         KOKKOS_LAMBDA (const local_ordinal_type &i)
@@ -158,6 +186,7 @@ namespace trilinos
       const global_ordinal_type Nglob =
         static_cast<global_ordinal_type>(x.getGlobalLength());
 
+#if TRILINOS_MAJOR_VERSION < 14
       if (x.need_sync<memory_space>())
         const_cast<vector_type&>(x).sync<memory_space>();
       if (w.need_sync<memory_space>())
@@ -167,6 +196,12 @@ namespace trilinos
       auto x_1d = Kokkos::subview (x_2d, Kokkos::ALL(), 0);
       auto w_2d = w.getLocalView<memory_space>();
       auto w_1d = Kokkos::subview (w_2d, Kokkos::ALL(), 0);
+#else
+      auto x_2d = x.getLocalView<memory_space>(Tpetra::Access::ReadOnly);
+      auto x_1d = Kokkos::subview (x_2d, Kokkos::ALL(), 0);
+      auto w_2d = w.getLocalView<memory_space>(Tpetra::Access::ReadOnly);
+      auto w_1d = Kokkos::subview (w_2d, Kokkos::ALL(), 0);
+#endif
 
       mag_type sum = zero;
       Kokkos::parallel_reduce ("normWrms", Kokkos::RangePolicy<execution_space>(0, N),
@@ -192,6 +227,7 @@ namespace trilinos
       const global_ordinal_type Nglob =
         static_cast<global_ordinal_type>(x.getGlobalLength());
 
+#if TRILINOS_MAJOR_VERSION < 14
       if (x.need_sync<memory_space>())
         const_cast<vector_type&>(x).sync<memory_space>();
       if (w.need_sync<memory_space>())
@@ -205,6 +241,14 @@ namespace trilinos
       auto w_1d = Kokkos::subview (w_2d, Kokkos::ALL(), 0);
       auto id_2d = id.getLocalView<memory_space>();
       auto id_1d = Kokkos::subview (id_2d, Kokkos::ALL(), 0);
+#else
+      auto x_2d = x.getLocalView<memory_space>(Tpetra::Access::ReadOnly);
+      auto x_1d = Kokkos::subview (x_2d, Kokkos::ALL(), 0);
+      auto w_2d = w.getLocalView<memory_space>(Tpetra::Access::ReadOnly);
+      auto w_1d = Kokkos::subview (w_2d, Kokkos::ALL(), 0);
+      auto id_2d = id.getLocalView<memory_space>(Tpetra::Access::ReadOnly);
+      auto id_1d = Kokkos::subview (id_2d, Kokkos::ALL(), 0);
+#endif
 
       mag_type sum = zero;
       Kokkos::parallel_reduce ("normWrmsMask", Kokkos::RangePolicy<execution_space>(0, N),
@@ -229,11 +273,16 @@ namespace trilinos
       const local_ordinal_type  N =
         static_cast<local_ordinal_type>(x.getLocalLength());
 
+#if TRILINOS_MAJOR_VERSION < 14
       if (x.need_sync<memory_space>())
         const_cast<vector_type&>(x).sync<memory_space>();
 
       auto x_2d = x.getLocalView<memory_space>();
       auto x_1d = Kokkos::subview (x_2d, Kokkos::ALL(), 0);
+#else
+      auto x_2d = x.getLocalView<memory_space>(Tpetra::Access::ReadOnly);
+      auto x_1d = Kokkos::subview (x_2d, Kokkos::ALL(), 0);
+#endif
 
       scalar_type minimum;
       Min<scalar_type> min_reducer(minimum);
@@ -258,6 +307,7 @@ namespace trilinos
       const local_ordinal_type  N =
         static_cast<local_ordinal_type>(x.getLocalLength());
 
+#if TRILINOS_MAJOR_VERSION < 14
       if (x.need_sync<memory_space>())
         const_cast<vector_type&>(x).sync<memory_space>();
       if (w.need_sync<memory_space>())
@@ -267,6 +317,12 @@ namespace trilinos
       auto x_1d = Kokkos::subview (x_2d, Kokkos::ALL(), 0);
       auto w_2d = w.getLocalView<memory_space>();
       auto w_1d = Kokkos::subview (w_2d, Kokkos::ALL(), 0);
+#else
+      auto x_2d = x.getLocalView<memory_space>(Tpetra::Access::ReadOnly);
+      auto x_1d = Kokkos::subview (x_2d, Kokkos::ALL(), 0);
+      auto w_2d = w.getLocalView<memory_space>(Tpetra::Access::ReadOnly);
+      auto w_1d = Kokkos::subview (w_2d, Kokkos::ALL(), 0);
+#endif
 
       mag_type sum = zero;
       Kokkos::parallel_reduce ("normWL2", Kokkos::RangePolicy<execution_space>(0, N),
@@ -291,6 +347,7 @@ namespace trilinos
       const local_ordinal_type  N =
         static_cast<local_ordinal_type>(x.getLocalLength());
 
+#if TRILINOS_MAJOR_VERSION < 14
       if (x.need_sync<memory_space>())
         const_cast<vector_type&>(x).sync<memory_space>();
 
@@ -299,10 +356,16 @@ namespace trilinos
       auto z_2d = z.getLocalView<memory_space>();
       auto z_1d = Kokkos::subview (z_2d, Kokkos::ALL(), 0);
 
+      z.modify<memory_space>();
+#else
+      auto x_2d = x.getLocalView<memory_space>(Tpetra::Access::ReadOnly);
+      auto x_1d = Kokkos::subview (x_2d, Kokkos::ALL(), 0);
+      auto z_2d = z.getLocalView<memory_space>(Tpetra::Access::ReadWrite);
+      auto z_1d = Kokkos::subview (z_2d, Kokkos::ALL(), 0);
+#endif
+
       scalar_type minimum;
       Min<scalar_type> min_reducer(minimum);
-
-      z.modify<memory_space>();
 
       Kokkos::parallel_reduce ("invTest", Kokkos::RangePolicy<execution_space>(0, N),
         KOKKOS_LAMBDA (const local_ordinal_type &i, scalar_type &local_min)
@@ -334,6 +397,7 @@ namespace trilinos
       const local_ordinal_type  N =
         static_cast<local_ordinal_type>(x.getLocalLength());
 
+#if TRILINOS_MAJOR_VERSION < 14
       if (c.need_sync<memory_space>())
         const_cast<vector_type&>(c).sync<memory_space>();
       if (x.need_sync<memory_space>())
@@ -347,6 +411,14 @@ namespace trilinos
       auto m_1d = Kokkos::subview (m_2d, Kokkos::ALL(), 0);
 
       m.modify<memory_space>();
+#else
+      auto c_2d = c.getLocalView<memory_space>(Tpetra::Access::ReadOnly);
+      auto c_1d = Kokkos::subview (c_2d, Kokkos::ALL(), 0);
+      auto x_2d = x.getLocalView<memory_space>(Tpetra::Access::ReadOnly);
+      auto x_1d = Kokkos::subview (x_2d, Kokkos::ALL(), 0);
+      auto m_2d = m.getLocalView<memory_space>(Tpetra::Access::ReadWrite);
+      auto m_1d = Kokkos::subview (m_2d, Kokkos::ALL(), 0);
+#endif
 
       mag_type sum = zero;
       Kokkos::parallel_reduce ("constraintMask", Kokkos::RangePolicy<execution_space>(0, N),
@@ -374,6 +446,7 @@ namespace trilinos
       const local_ordinal_type  N =
         static_cast<local_ordinal_type>(num.getLocalLength());
 
+#if TRILINOS_MAJOR_VERSION < 14
       if (num.need_sync<memory_space>())
         const_cast<vector_type&>(num).sync<memory_space>();
       if (den.need_sync<memory_space>())
@@ -383,6 +456,12 @@ namespace trilinos
       auto num_1d = Kokkos::subview (num_2d, Kokkos::ALL(), 0);
       auto den_2d = den.getLocalView<memory_space>();
       auto den_1d = Kokkos::subview (den_2d, Kokkos::ALL(), 0);
+#else
+      auto num_2d = num.getLocalView<memory_space>(Tpetra::Access::ReadOnly);
+      auto num_1d = Kokkos::subview (num_2d, Kokkos::ALL(), 0);
+      auto den_2d = den.getLocalView<memory_space>(Tpetra::Access::ReadOnly);
+      auto den_1d = Kokkos::subview (den_2d, Kokkos::ALL(), 0);
+#endif
 
       scalar_type minimum;
       Min<scalar_type> min_reducer(minimum);
@@ -406,6 +485,8 @@ namespace trilinos
     {
       const local_ordinal_type  N =
         static_cast<local_ordinal_type>(x.getLocalLength());
+
+#if TRILINOS_MAJOR_VERSION < 14
       if (x.need_sync<memory_space>())
         const_cast<vector_type&>(x).sync<memory_space>();
       if (y.need_sync<memory_space>())
@@ -415,6 +496,12 @@ namespace trilinos
       auto x_1d = Kokkos::subview (x_2d, Kokkos::ALL(), 0);
       auto y_2d = y.getLocalView<memory_space>();
       auto y_1d = Kokkos::subview (y_2d, Kokkos::ALL(), 0);
+#else
+      auto x_2d = x.getLocalView<memory_space>(Tpetra::Access::ReadOnly);
+      auto x_1d = Kokkos::subview (x_2d, Kokkos::ALL(), 0);
+      auto y_2d = y.getLocalView<memory_space>(Tpetra::Access::ReadOnly);
+      auto y_1d = Kokkos::subview (y_2d, Kokkos::ALL(), 0);
+#endif
 
       scalar_type sum = zero;
       Kokkos::parallel_reduce ("dotProdLocal", Kokkos::RangePolicy<execution_space>(0, N),
@@ -434,11 +521,17 @@ namespace trilinos
 
       const local_ordinal_type  N =
         static_cast<local_ordinal_type>(x.getLocalLength());
+
+#if TRILINOS_MAJOR_VERSION < 14
       if (x.need_sync<memory_space>())
         const_cast<vector_type&>(x).sync<memory_space>();
 
       auto x_2d = x.getLocalView<memory_space>();
       auto x_1d = Kokkos::subview (x_2d, Kokkos::ALL(), 0);
+#else
+      auto x_2d = x.getLocalView<memory_space>(Tpetra::Access::ReadOnly);
+      auto x_1d = Kokkos::subview (x_2d, Kokkos::ALL(), 0);
+#endif
 
       mag_type maximum;
       Max<mag_type> max_reducer(maximum);
@@ -460,11 +553,17 @@ namespace trilinos
 
       const local_ordinal_type  N =
         static_cast<local_ordinal_type>(x.getLocalLength());
+
+#if TRILINOS_MAJOR_VERSION < 14
       if (x.need_sync<memory_space>())
         const_cast<vector_type&>(x).sync<memory_space>();
 
       auto x_2d = x.getLocalView<memory_space>();
       auto x_1d = Kokkos::subview (x_2d, Kokkos::ALL(), 0);
+#else
+      auto x_2d = x.getLocalView<memory_space>(Tpetra::Access::ReadOnly);
+      auto x_1d = Kokkos::subview (x_2d, Kokkos::ALL(), 0);
+#endif
 
       scalar_type minimum;
       Min<scalar_type> min_reducer(minimum);
@@ -486,11 +585,17 @@ namespace trilinos
 
       const local_ordinal_type  N =
         static_cast<local_ordinal_type>(x.getLocalLength());
+
+#if TRILINOS_MAJOR_VERSION < 14
       if (x.need_sync<memory_space>())
         const_cast<vector_type&>(x).sync<memory_space>();
 
       auto x_2d = x.getLocalView<memory_space>();
       auto x_1d = Kokkos::subview (x_2d, Kokkos::ALL(), 0);
+#else
+      auto x_2d = x.getLocalView<memory_space>(Tpetra::Access::ReadOnly);
+      auto x_1d = Kokkos::subview (x_2d, Kokkos::ALL(), 0);
+#endif
 
       mag_type sum = zero;
       Kokkos::parallel_reduce ("L1NormLocal", Kokkos::RangePolicy<execution_space>(0, N),
@@ -509,6 +614,8 @@ namespace trilinos
     {
       const local_ordinal_type  N =
         static_cast<local_ordinal_type>(x.getLocalLength());
+
+#if TRILINOS_MAJOR_VERSION < 14
       if (x.need_sync<memory_space>())
         const_cast<vector_type&>(x).sync<memory_space>();
       if (w.need_sync<memory_space>())
@@ -518,6 +625,12 @@ namespace trilinos
       auto x_1d = Kokkos::subview (x_2d, Kokkos::ALL(), 0);
       auto w_2d = w.getLocalView<memory_space>();
       auto w_1d = Kokkos::subview (w_2d, Kokkos::ALL(), 0);
+#else
+      auto x_2d = x.getLocalView<memory_space>(Tpetra::Access::ReadOnly);
+      auto x_1d = Kokkos::subview (x_2d, Kokkos::ALL(), 0);
+      auto w_2d = w.getLocalView<memory_space>(Tpetra::Access::ReadOnly);
+      auto w_1d = Kokkos::subview (w_2d, Kokkos::ALL(), 0);
+#endif
 
       mag_type sum = zero;
       Kokkos::parallel_reduce ("WSqrSumLocal", Kokkos::RangePolicy<execution_space>(0, N),
@@ -537,6 +650,8 @@ namespace trilinos
     {
       const local_ordinal_type  N =
         static_cast<local_ordinal_type>(x.getLocalLength());
+
+#if TRILINOS_MAJOR_VERSION < 14
       if (x.need_sync<memory_space>())
         const_cast<vector_type&>(x).sync<memory_space>();
       if (w.need_sync<memory_space>())
@@ -550,6 +665,14 @@ namespace trilinos
       auto w_1d = Kokkos::subview (w_2d, Kokkos::ALL(), 0);
       auto id_2d = id.getLocalView<memory_space>();
       auto id_1d = Kokkos::subview (id_2d, Kokkos::ALL(), 0);
+#else
+      auto x_2d = x.getLocalView<memory_space>(Tpetra::Access::ReadOnly);
+      auto x_1d = Kokkos::subview (x_2d, Kokkos::ALL(), 0);
+      auto w_2d = w.getLocalView<memory_space>(Tpetra::Access::ReadOnly);
+      auto w_1d = Kokkos::subview (w_2d, Kokkos::ALL(), 0);
+      auto id_2d = id.getLocalView<memory_space>(Tpetra::Access::ReadOnly);
+      auto id_1d = Kokkos::subview (id_2d, Kokkos::ALL(), 0);
+#endif
 
       mag_type sum = zero;
       Kokkos::parallel_reduce ("WSqrSumMaskLocal", Kokkos::RangePolicy<execution_space>(0, N),
@@ -571,6 +694,8 @@ namespace trilinos
 
       const local_ordinal_type  N =
         static_cast<local_ordinal_type>(x.getLocalLength());
+
+#if TRILINOS_MAJOR_VERSION < 14
       if (x.need_sync<memory_space>())
         const_cast<vector_type&>(x).sync<memory_space>();
 
@@ -579,10 +704,16 @@ namespace trilinos
       auto z_2d = z.getLocalView<memory_space>();
       auto z_1d = Kokkos::subview (z_2d, Kokkos::ALL(), 0);
 
+      z.modify<memory_space>();
+#else
+      auto x_2d = x.getLocalView<memory_space>(Tpetra::Access::ReadOnly);
+      auto x_1d = Kokkos::subview (x_2d, Kokkos::ALL(), 0);
+      auto z_2d = z.getLocalView<memory_space>(Tpetra::Access::ReadWrite);
+      auto z_1d = Kokkos::subview (z_2d, Kokkos::ALL(), 0);
+#endif
+
       scalar_type minimum;
       Min<scalar_type> min_reducer(minimum);
-
-      z.modify<memory_space>();
 
       Kokkos::parallel_reduce ("invTestLocal", Kokkos::RangePolicy<execution_space>(0, N),
         KOKKOS_LAMBDA (const local_ordinal_type &i, scalar_type &local_min)
@@ -610,6 +741,8 @@ namespace trilinos
     {
       const local_ordinal_type  N =
         static_cast<local_ordinal_type>(x.getLocalLength());
+
+#if TRILINOS_MAJOR_VERSION < 14
       if (c.need_sync<memory_space>())
         const_cast<vector_type&>(c).sync<memory_space>();
       if (x.need_sync<memory_space>())
@@ -623,6 +756,14 @@ namespace trilinos
       auto m_1d = Kokkos::subview (m_2d, Kokkos::ALL(), 0);
 
       m.modify<memory_space>();
+#else
+      auto c_2d = c.getLocalView<memory_space>(Tpetra::Access::ReadOnly);
+      auto c_1d = Kokkos::subview (c_2d, Kokkos::ALL(), 0);
+      auto x_2d = x.getLocalView<memory_space>(Tpetra::Access::ReadOnly);
+      auto x_1d = Kokkos::subview (x_2d, Kokkos::ALL(), 0);
+      auto m_2d = m.getLocalView<memory_space>(Tpetra::Access::ReadWrite);
+      auto m_1d = Kokkos::subview (m_2d, Kokkos::ALL(), 0);
+#endif
 
       mag_type sum = zero;
       Kokkos::parallel_reduce ("constraintMaskLocal", Kokkos::RangePolicy<execution_space>(0, N),
@@ -646,6 +787,8 @@ namespace trilinos
 
       const local_ordinal_type  N =
         static_cast<local_ordinal_type>(num.getLocalLength());
+
+#if TRILINOS_MAJOR_VERSION < 14
       if (num.need_sync<memory_space>())
         const_cast<vector_type&>(num).sync<memory_space>();
       if (den.need_sync<memory_space>())
@@ -655,6 +798,12 @@ namespace trilinos
       auto num_1d = Kokkos::subview (num_2d, Kokkos::ALL(), 0);
       auto den_2d = den.getLocalView<memory_space>();
       auto den_1d = Kokkos::subview (den_2d, Kokkos::ALL(), 0);
+#else
+      auto num_2d = num.getLocalView<memory_space>(Tpetra::Access::ReadOnly);
+      auto num_1d = Kokkos::subview (num_2d, Kokkos::ALL(), 0);
+      auto den_2d = den.getLocalView<memory_space>(Tpetra::Access::ReadOnly);
+      auto den_1d = Kokkos::subview (den_2d, Kokkos::ALL(), 0);
+#endif
 
       scalar_type minimum;
       Min<scalar_type> min_reducer(minimum);
