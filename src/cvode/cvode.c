@@ -3138,11 +3138,12 @@ static int cvStep(CVodeMem cv_mem)
 
   for(;;) {
 
-#if SUNDIALS_LOGGING_LEVEL >= SUNDIALS_LOGGING_DEBUG
-    SUNLogger_QueueMsg(CV_LOGGER, SUN_LOGLEVEL_DEBUG,
-      "CVODE::cvStep", "enter-step-attempt-loop",
-      "step = %li, h = %.16g, q = %d, t_n = %.16g",
-      cv_mem->cv_nst, cv_mem->cv_next_h, cv_mem->cv_next_q, cv_mem->cv_tn);
+#if SUNDIALS_LOGGING_LEVEL >= SUNDIALS_LOGGING_INFO
+    SUNLogger_QueueMsg(CV_LOGGER, SUN_LOGLEVEL_INFO,
+                       "CVODE::cvStep", "begin-step-attempt",
+                       "step = %li, t_n = %.16g, h = %.16g, q = %d",
+                       cv_mem->cv_nst, cv_mem->cv_tn, cv_mem->cv_h,
+                       cv_mem->cv_q);
 #endif
 
     cvPredict(cv_mem);
@@ -3180,6 +3181,16 @@ static int cvStep(CVodeMem cv_mem)
 
     kflag = cvHandleNFlag(cv_mem, &nflag, saved_t, &ncf);
 
+#if SUNDIALS_LOGGING_LEVEL >= SUNDIALS_LOGGING_INFO
+    if (kflag == PREDICT_AGAIN || kflag != DO_ERROR_TEST)
+    {
+      SUNLogger_QueueMsg(CV_LOGGER, SUN_LOGLEVEL_INFO,
+                         "CVODE::cvStep", "end-step-attempt",
+                         "Solve failure, kflag = %i",
+                         kflag);
+    }
+#endif
+
     /* Go back in loop if we need to predict again (nflag=PREV_CONV_FAIL) */
     if (kflag == PREDICT_AGAIN) continue;
 
@@ -3194,6 +3205,16 @@ static int cvStep(CVodeMem cv_mem)
       /* Perform projection (nflag=CV_SUCCESS) */
       pflag = cvDoProjection(cv_mem, &nflag, saved_t, &npf);
 
+#if SUNDIALS_LOGGING_LEVEL >= SUNDIALS_LOGGING_INFO
+      if (pflag != CV_SUCCESS)
+      {
+        SUNLogger_QueueMsg(CV_LOGGER, SUN_LOGLEVEL_INFO,
+                           "CVODE::cvStep", "end-step-attempt",
+                           "Projection failure, pflag = %i",
+                           pflag);
+      }
+#endif
+
       /* Go back in loop if we need to predict again (nflag=PREV_PROJ_FAIL) */
       if (pflag == PREDICT_AGAIN) continue;
 
@@ -3203,6 +3224,16 @@ static int cvStep(CVodeMem cv_mem)
 
     /* Perform error test (nflag=CV_SUCCESS) */
     eflag = cvDoErrorTest(cv_mem, &nflag, saved_t, &nef, &dsm);
+
+#if SUNDIALS_LOGGING_LEVEL >= SUNDIALS_LOGGING_INFO
+    if (eflag != CV_SUCCESS)
+    {
+      SUNLogger_QueueMsg(CV_LOGGER, SUN_LOGLEVEL_INFO,
+                         "CVODE::cvStep", "end-step-attempt",
+                         "Error test failure, eflag = %i",
+                         eflag);
+    }
+#endif
 
     /* Go back in loop if we need to predict again (nflag=PREV_ERR_FAIL) */
     if (eflag == TRY_AGAIN) continue;
@@ -3214,6 +3245,12 @@ static int cvStep(CVodeMem cv_mem)
     break;
 
   }
+
+#if SUNDIALS_LOGGING_LEVEL >= SUNDIALS_LOGGING_INFO
+    SUNLogger_QueueMsg(CV_LOGGER, SUN_LOGLEVEL_INFO,
+                       "CVODE::cvStep", "end-step-attempt",
+                       "Success");
+#endif
 
   /* Nonlinear system solve and error test were both successful.
      Update data, and consider change of step and/or order.       */
@@ -4083,8 +4120,7 @@ static int cvDoErrorTest(CVodeMem cv_mem, int *nflagPtr, realtype saved_t,
 
 #if SUNDIALS_LOGGING_LEVEL >= SUNDIALS_LOGGING_DEBUG
   SUNLogger_QueueMsg(CV_LOGGER, SUN_LOGLEVEL_DEBUG,
-    "CVODE::cvDoErrorTest", "error-test", "step = %li, h = %.16g, dsm = %.16g",
-    cv_mem->cv_nst, cv_mem->cv_h, dsm);
+                     "CVODE::cvDoErrorTest", "error-test", "dsm = %.16g", dsm);
 #endif
 
   /* If est. local error norm dsm passes test, return CV_SUCCESS */
