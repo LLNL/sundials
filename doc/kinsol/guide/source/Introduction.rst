@@ -88,7 +88,7 @@ applications written in Fortran.
 Changes from previous versions
 ==============================
 
-Changes in vX.X.X
+Changes in v6.6.1
 -----------------
 
 Updated the Tpetra NVector interface to support Trilinos 14.

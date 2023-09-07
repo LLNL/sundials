@@ -86,7 +86,7 @@ integrate any final-condition ODE dependent on the solution of the original IVP
 Changes from previous versions
 ==============================
 
-Changes in vX.X.X
+Changes in v5.6.1
 -----------------
 
 Updated the Tpetra NVector interface to support Trilinos 14.
