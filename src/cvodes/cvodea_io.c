@@ -570,7 +570,7 @@ int CVodeGetAdjCheckPointsInfo(void *cvode_mem, CVadjCheckPointRec *ckpnt)
 {
   CVodeMem cv_mem;
   CVadjMem ca_mem;
-  CkpntMem ck_mem;
+  CVckpntMem ck_mem;
   int i;
 
   /* Check if cvode_mem exists */
@@ -631,7 +631,7 @@ int CVodeGetAdjDataPointHermite(void *cvode_mem, int which,
   CVodeMem cv_mem;
   CVadjMem ca_mem;
   DtpntMem *dt_mem;
-  HermiteDataMem content;
+  CVhermiteDataMem content;
 
   /* Check if cvode_mem exists */
   if (cvode_mem == NULL) {
@@ -656,7 +656,7 @@ int CVodeGetAdjDataPointHermite(void *cvode_mem, int which,
 
   *t = dt_mem[which]->t;
 
-  content = (HermiteDataMem) (dt_mem[which]->content);
+  content = (CVhermiteDataMem) (dt_mem[which]->content);
 
   if (y != NULL)
     N_VScale(ONE, content->y, y);
@@ -680,7 +680,7 @@ int CVodeGetAdjDataPointPolynomial(void *cvode_mem, int which,
   CVodeMem cv_mem;
   CVadjMem ca_mem;
   DtpntMem *dt_mem;
-  PolynomialDataMem content;
+  CVpolynomialDataMem content;
 
   /* Check if cvode_mem exists */
   if (cvode_mem == NULL) {
@@ -705,7 +705,7 @@ int CVodeGetAdjDataPointPolynomial(void *cvode_mem, int which,
 
   *t = dt_mem[which]->t;
 
-  content = (PolynomialDataMem) (dt_mem[which]->content);
+  content = (CVpolynomialDataMem) (dt_mem[which]->content);
 
   if (y != NULL)
     N_VScale(ONE, content->y, y);
