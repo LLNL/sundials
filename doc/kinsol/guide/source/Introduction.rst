@@ -88,6 +88,14 @@ applications written in Fortran.
 Changes from previous versions
 ==============================
 
+Changes in v6.6.1
+-----------------
+
+Updated the Tpetra NVector interface to support Trilinos 14.
+
+Fixed a memory leak when destroying a CUDA, HIP, SYCL, or system SUNMemoryHelper
+object.
+
 Changes in v6.6.0
 -----------------
 
