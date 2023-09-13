@@ -1616,7 +1616,6 @@ int arkPrintAllStats(void *arkode_mem, FILE *outfile, SUNOutputFormat fmt)
   int retval;
   ARKodeMem ark_mem;
   ARKodeRootMem ark_root_mem;
-  int retval;
   long int nst_exp, nst_acc;
 
   if (arkode_mem == NULL) {
