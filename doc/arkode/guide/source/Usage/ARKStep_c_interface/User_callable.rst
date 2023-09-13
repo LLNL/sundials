@@ -908,10 +908,6 @@ Set max number of constraint failures             :c:func:`ARKStepSetMaxNumConst
       Also leaves alone any data structures or options related to
       root-finding (those can be reset using :c:func:`ARKStepRootInit()`).
 
-   .. deprecated:: 5.6.0
-
-      Use the SUNControl and SUNHeuristics infrastructures, along with other individual set routines,
-      instead (see :numref:`SUNControl.Description` and :numref:`SUNHeuristics.Description`).
 
 
 .. c:function:: int ARKStepSetInterpolantType(void* arkode_mem, int itype)
