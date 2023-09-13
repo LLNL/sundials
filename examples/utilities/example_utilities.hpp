@@ -17,6 +17,7 @@
 
 #include <algorithm>
 #include <iostream>
+#include <string>
 #include <vector>
 
 // Check for an unrecoverable (negative) return value from a SUNDIALS function
