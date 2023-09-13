@@ -111,8 +111,26 @@ implementations.
 Changes from previous versions
 ==============================
 
+Changes in v6.6.1
+-----------------
+
+Updated the Tpetra NVector interface to support Trilinos 14.
+
+Fixed a memory leak when destroying a CUDA, HIP, SYCL, or system SUNMemoryHelper
+object.
+
+Fixed a bug where the stop time may not be cleared and an unnecessary
+interpolation may occur when using normal mode if the requested output time is
+the same as the stop time.
+
 Changes in v6.6.0
 -----------------
+
+Updated the default CVODE behavior when returning the solution when
+the internal time has reached a user-specified stop time.  Previously, the output
+solution was interpolated to the value of ``tstop``; the default is now to copy the
+internal solution vector.  Users who wish to revert to interpolation may call the
+routine :c:func:`CVodeSetInterpolateStopTime`.
 
 Updated the F2003 utility routines :c:func:`SUNDIALSFileOpen` and :c:func:`SUNDIALSFileClose`
 to support user specification of ``stdout`` and ``stderr`` strings for the output

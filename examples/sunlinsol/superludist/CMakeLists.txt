@@ -38,11 +38,6 @@ else()
   set(_ex_lang CXX)
 endif()
 
-if(MPI_C_COMPILER AND MPI_CXX_COMPILER)
-  set(CMAKE_C_COMPILER ${MPI_C_COMPILER})
-  set(CMAKE_CXX_COMPILER ${MPI_CXX_COMPILER})
-endif()
-
 # Add source directory to include directories
 include_directories(. ..)
 
@@ -76,7 +71,8 @@ foreach(example_tuple ${sunlinsol_superludist_examples})
         sundials_sunmatrixslunrloc
         sundials_sunmatrixdense
         sundials_nvecparallel
-        sundials_nvecserial)
+        sundials_nvecserial
+        MPI::MPI_CXX)
   endif()
 
   # check if example args are provided and set the test name

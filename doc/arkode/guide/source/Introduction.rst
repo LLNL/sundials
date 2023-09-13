@@ -24,7 +24,8 @@ ordinary differential equations (ODEs).  ARKODE itself is structured
 to support a wide range of one-step (but multi-stage) methods,
 allowing for rapid development of parallel implementations of
 state-of-the-art time integration methods.  At present, ARKODE is
-packaged with two time-stepping modules, *ARKStep* and *ERKStep*.
+packaged with four time-stepping modules, *ARKStep*, *ERKStep*, *SPRKStep*,
+and *MRIStep*.
 
 
 *ARKStep* supports ODE systems posed in split, linearly-implicit form,
@@ -78,6 +79,17 @@ The algorithms used in ERKStep are adaptive- and fixed-step explicit
 Runge--Kutta methods.   As with ARKStep, the ERKStep module is packaged
 with adaptive explicit methods of orders 2-8.
 
+*SPRKStep* focuses on Hamiltonian systems posed in the form,
+
+.. math::
+   H(t, p, q) = T(t, p) + V(t, q)
+
+.. math::
+   \dot{p} = f_1(t,q) = \frac{\partial V(t,q)}{\partial q}, \quad 
+   \dot{q} = f_2(t,p) = \frac{\partial T(t,p)}{\partial p}, 
+   :label: ARKODE_ODE_hamiltonian
+
+allowing for conservation of quadratic invariants.
 
 *MRIStep* focuses specifically on problems posed in additive form,
 
@@ -118,13 +130,46 @@ provided with SUNDIALS, or again may utilize a user-supplied module.
 Changes from previous versions
 ==============================
 
+Changes in v5.6.1
+-----------------
+
+Updated the Tpetra NVector interface to support Trilinos 14.
+
+Fixed a memory leak when destroying a CUDA, HIP, SYCL, or system SUNMemoryHelper
+object.
+
+Fixed a bug where the stop time may not be cleared and an unnecessary
+interpolation may occur when using normal mode if the requested output time is
+the same as the stop time.
+
 Changes in v5.6.0
 -----------------
+
+A new time-stepping module, :ref:`SPRKStep <ARKODE.Mathematics.SPRKStep>`, was
+added to ARKODE. This time-stepper provides explicit symplectic partitioned
+Runge-Kutta methods up to order 10 for separable Hamiltonian systems.
+
+Added support for relaxation Runge-Kutta methods in ERKStep and ARKStep, see
+:numref:`ARKODE.Mathematics.Relaxation`, :numref:`ARKODE.Usage.ERKStep.Relaxation`,
+and :numref:`ARKODE.Usage.ARKStep.Relaxation` for more information.
 
 Added the second order IMEX method from :cite:p:`giraldo2013implicit` as the
 default second order IMEX method in ARKStep. The explicit table is given by
 ``ARKODE_ARK2_ERK_3_1_2`` (see :numref:`Butcher.ARK2_ERK`) and the implicit
 table by ``ARKODE_ARK2_DIRK_3_1_2`` (see :numref:`Butcher.ARK2_DIRK`).
+
+Updated the default ARKODE behavior when returning the solution when
+the internal time has reached a user-specified stop time.  Previously, the output
+solution was interpolated to the value of ``tstop``; the default is now to copy the
+internal solution vector.  Users who wish to revert to interpolation may call a new
+routine :c:func:`ARKStepSetInterpolateStopTime`,
+:c:func:`ERKStepSetInterpolateStopTime`, or :c:func:`MRIStepSetInterpolateStopTime`.
+
+A potential bug was fixed when using inequality constraint handling and
+calling :c:func:`ARKStepGetEstLocalErrors` or :c:func:`ERKStepGetEstLocalErrors`
+after a failed step in which an inequality constraint violation occurred. In
+this case, the values returned by :c:func:`ARKStepGetEstLocalErrors` or
+:c:func:`ERKStepGetEstLocalErrors` may have been invalid.
 
 Updated the F2003 utility routines :c:func:`SUNDIALSFileOpen` and :c:func:`SUNDIALSFileClose`
 to support user specification of ``stdout`` and ``stderr`` strings for the output

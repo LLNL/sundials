@@ -11,20 +11,23 @@
  * SPDX-License-Identifier: BSD-3-Clause
  * SUNDIALS Copyright End
  * -----------------------------------------------------------------------------
- * Utility functions for C++ examples
+ * This header file should *NOT* be included in user codes and exists *ONLY* to
+ * reduce duplicate utility functions across example programs.
  * ---------------------------------------------------------------------------*/
 
 #include <algorithm>
 #include <iostream>
 #include <vector>
 
-// Check function return flag
+// Check for an unrecoverable (negative) return value from a SUNDIALS function
 int check_flag(const int flag, const std::string funcname)
 {
-  if (!flag) return 0;
-  if (flag < 0) std::cerr << "ERROR: ";
-  std::cerr << funcname << " returned " << flag << std::endl;
-  return 1;
+  if (flag < 0)
+  {
+    std::cerr << "ERROR: " << funcname << " returned " << flag << std::endl;
+    return 1;
+  }
+  return 0;
 }
 
 // Check if a function returned a NULL pointer
@@ -35,17 +38,30 @@ int check_ptr(const void* ptr, const std::string funcname)
   return 1;
 }
 
-inline void find_arg(std::vector<std::string>& args, const std::string key, sunrealtype& dest)
+// Functions for parsing vectors of command line inputs
+inline void find_arg(std::vector<std::string>& args, const std::string key, float& dest)
 {
   auto it = std::find(args.begin(), args.end(), key);
   if (it != args.end()) {
-#if defined(SUNDIALS_SINGLE_PRECISION)
     dest = stof(*(it + 1));
-#elif defined(SUNDIALS_DOUBLE_PRECISION)
+    args.erase(it, it + 2);
+  }
+}
+
+inline void find_arg(std::vector<std::string>& args, const std::string key, double& dest)
+{
+  auto it = std::find(args.begin(), args.end(), key);
+  if (it != args.end()) {
     dest = stod(*(it + 1));
-#elif defined(SUNDIALS_EXTENDED_PRECISION)
+    args.erase(it, it + 2);
+  }
+}
+
+inline void find_arg(std::vector<std::string>& args, const std::string key, long double& dest)
+{
+  auto it = std::find(args.begin(), args.end(), key);
+  if (it != args.end()) {
     dest = stold(*(it + 1));
-#endif
     args.erase(it, it + 2);
   }
 }

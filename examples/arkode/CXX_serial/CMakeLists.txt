@@ -34,6 +34,7 @@ set(ARKODE_examples
   "ark_kpr_Mt.cpp\;2 4 0 -10 0\;develop"
   "ark_kpr_Mt.cpp\;0 4 0 -10 1 10 1\;develop"
   "ark_kpr_Mt.cpp\;0 4 0 -10 0 10 1\;develop"
+  "ark_pendulum.cpp\;\;develop"
   )
 
 # Header files to install
@@ -68,7 +69,10 @@ foreach(example_tuple ${ARKODE_examples})
 
     set_target_properties(${example_target} PROPERTIES FOLDER "Examples")
 
-    target_compile_features(${example_target} PRIVATE cxx_std_14)
+    # directories to include
+    target_include_directories(${example_target}
+      PRIVATE
+      ${PROJECT_SOURCE_DIR}/examples/utilities)
 
     # libraries to link against
     target_link_libraries(${example_target}
@@ -122,6 +126,7 @@ if(EXAMPLES_INSTALL)
       README
       ${ARKODE_extras}
       ${ARKODE_headers}
+      "${PROJECT_SOURCE_DIR}/examples/utilities/example_utilities.hpp"
     TEST_INSTALL
       CXX_serial
   )

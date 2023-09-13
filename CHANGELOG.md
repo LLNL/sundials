@@ -1,10 +1,42 @@
 # SUNDIALS Changelog
 
+## Changes to SUNDIALS in release 6.6.1
+
+Updated the Tpetra NVector interface to support Trilinos 14.
+
+Fixed a memory leak when destroying a CUDA, HIP, SYCL, or system SUNMemoryHelper
+object.
+
+Fixed a bug in ARKODE, CVODE, CVODES, IDA, and IDAS where the stop time may not
+be cleared when using normal mode if the requested output time is the same as
+the stop time. Additionally, with ARKODE, CVODE, and CVODES an unnecessary
+interpolation of the solution at the stop time may occur in this case.
+
 ## Changes to SUNDIALS in release 6.6.0
+
+A new time-stepping module, `SPRKStep`, was added to ARKODE. This time-stepper
+provides explicit symplectic partitioned Runge-Kutta methods up to order 10
+for separable Hamiltonian systems.
+
+Added support for relaxation Runge-Kutta methods to ERKStep and ARKStep in
+ARKODE.
 
 Added the second order IMEX method from Giraldo, Kelly, and Constantinescu 2013
 as the default second order IMEX method in ARKStep. The explicit table is given
 by `ARKODE_ARK2_ERK_3_1_2` and the implicit table by `ARKODE_ARK2_DIRK_3_1_2`.
+
+Updated CVODE, CVODES and ARKODE default behavior when returning the solution when
+the internal time has reached a user-specified stop time.  Previously, the output
+solution was interpolated to the value of `tstop`; the default is now to copy the
+internal solution vector.  Users who wish to revert to interpolation may call a new
+routine `CVodeSetInterpolateStopTime`, `ARKStepSetInterpolateStopTime`,
+`ERKStepSetInterpolateStopTime`, or `MRIStepSetInterpolateStopTime`.
+
+A potential bug was fixed when using inequality constraint handling and
+calling `ARKStepGetEstLocalErrors` or `ERKStepGetEstLocalErrors` after a failed
+step in which an inequality constraint violation occurred. In this case, the
+values returned by `ARKStepGetEstLocalErrors` or `ERKStepGetEstLocalErrors` may
+have been invalid.
 
 Updated the F2003 utility routines `SUNDIALSFileOpen` and `SUNDIALSFileClose`
 to support user specification of `stdout` and `stderr` strings for the output

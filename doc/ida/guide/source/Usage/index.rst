@@ -792,7 +792,7 @@ the user has set a stop time (with :c:func:`IDASetStopTime`) or requested
 rootfinding (with :c:func:`IDARootInit`).
 
 
-.. c:function:: int IDASolve(void * ida_mem, realtype tout, realtype tret, N_Vector yret, N_Vector ypret, int itask)
+.. c:function:: int IDASolve(void * ida_mem, realtype tout, realtype* tret, N_Vector yret, N_Vector ypret, int itask)
 
    The function ``IDASolve`` integrates the DAE over an interval in t.
 

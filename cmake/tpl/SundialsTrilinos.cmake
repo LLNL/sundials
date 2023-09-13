@@ -44,10 +44,20 @@ endif()
 find_package(Trilinos REQUIRED)
 
 # Check if Trilinos was built with MPI
-if(";${Trilinos_TPL_LIST};" MATCHES ";MPI;")
-  set(Trilinos_MPI TRUE)
+# Starting with TriBITS 2022-10-16 <Project_TPL_LIST> is no longer defined so we
+# base MPI support on ENABLE_MPI
+if(Trilinos_TPL_LIST)
+  if(";${Trilinos_TPL_LIST};" MATCHES ";MPI;")
+    set(Trilinos_MPI TRUE)
+  else()
+    set(Trilinos_MPI FALSE)
+  endif()
 else()
-  set(Trilinos_MPI FALSE)
+  if(ENABLE_MPI)
+    set(Trilinos_MPI TRUE)
+  else()
+    set(Trilinos_MPI FALSE)
+  endif()
 endif()
 
 # For XSDK compatibility, only use the user/spack provided compiler and flags to build

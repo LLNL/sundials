@@ -86,13 +86,23 @@ integrate any final-condition ODE dependent on the solution of the original IVP
 Changes from previous versions
 ==============================
 
+Changes in v5.6.1
+-----------------
+
+Updated the Tpetra NVector interface to support Trilinos 14.
+
+Fixed a memory leak when destroying a CUDA, HIP, SYCL, or system SUNMemoryHelper
+object.
+
+Fixed a bug where the stop time may not be cleared when using normal mode if the
+requested output time is the same as the stop time.
+
 Changes in v5.6.0
 -----------------
 
 Updated the F2003 utility routines :c:func:`SUNDIALSFileOpen` and :c:func:`SUNDIALSFileClose`
 to support user specification of ``stdout`` and ``stderr`` strings for the output
 file names.
-
 
 Changes in v5.5.1
 -----------------

@@ -1,5 +1,5 @@
 # KINSOL
-### Version 6.5.1 (Mar 2023)
+### Version 6.6.1 (Sep 2023)
 
 **Alan C. Hindmarsh, Radu Serban, Cody J. Balos, David J. Gardner,
   and Carol S. Woodward, Center for Applied Scientific Computing, LLNL**
@@ -48,11 +48,11 @@ the "SUNDIALS Release History" appendix of the KINSOL User Guide.
 
 * A. C. Hindmarsh, R. Serban, C. J. Balos, D. J. Gardner,
   D. R. Reynolds and C. S. Woodward,
-  "User Documentation for KINSOL v6.5.1," LLNL technical report
-  UCRL-SM-208116, Mar 2023.
+  "User Documentation for KINSOL v6.6.1," LLNL technical report
+  UCRL-SM-208116, Sep 2023.
 
-* A. M. Collier and R. Serban, "Example Programs for KINSOL v6.5.1,"
-  LLNL technical report UCRL-SM-208114, Mar 2023.
+* A. M. Collier and R. Serban, "Example Programs for KINSOL v6.6.1,"
+  LLNL technical report UCRL-SM-208114, Sep 2023.
 
 * A. C. Hindmarsh, P. N. Brown, K. E. Grant, S. L. Lee, R. Serban,
   D. E. Shumaker, and C. S. Woodward, "SUNDIALS, Suite of Nonlinear and

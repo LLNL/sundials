@@ -51,11 +51,6 @@ set(cvodes_HEADERS
 # Add prefix with complete path to the CVODES header files
 add_prefix(${SUNDIALS_SOURCE_DIR}/include/cvodes/ cvodes_HEADERS)
 
-if(ENABLE_CALIPER AND SUNDIALS_BUILD_WITH_PROFILING)
-  set(_include_caliper_if_needed PUBLIC ${caliper_INCLUDE_DIR})
-  set(_link_caliper_if_needed PUBLIC caliper)
-endif()
-
 # Create the library
 sundials_add_library(sundials_cvodes
   SOURCES
@@ -64,8 +59,6 @@ sundials_add_library(sundials_cvodes
     ${cvodes_HEADERS}
   INCLUDE_SUBDIR
     cvodes
-  INCLUDE_DIRECTORIES
-    ${_include_caliper_if_needed}
   OBJECT_LIBRARIES
     sundials_generic_obj
     sundials_sunmemsys_obj
@@ -82,9 +75,6 @@ sundials_add_library(sundials_cvodes
     sundials_sunlinsolpcg_obj
     sundials_sunnonlinsolnewton_obj
     sundials_sunnonlinsolfixedpoint_obj
-  LINK_LIBRARIES
-    # Link to caliper if conditions are met.
-    ${_link_caliper_if_needed}
   OUTPUT_NAME
     sundials_cvodes
   VERSION

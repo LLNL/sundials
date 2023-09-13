@@ -28,17 +28,6 @@ set(CVODE_extras
   plot_heat2D_p.py
   )
 
-if(MPI_CXX_COMPILER)
-  # use MPI wrapper as the compiler
-  set(CMAKE_CXX_COMPILER ${MPI_CXX_COMPILER})
-
-  # disable C++ extensions (for known wrappers)
-  set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -DMPICH_SKIP_MPICXX -DOMPI_SKIP_MPICXX -DLAM_BUILDING")
-else()
-  # add MPI_INCLUDE_PATH to include directories
-  include_directories(${MPI_INCLUDE_PATH})
-endif()
-
 # Specify libraries to link against
 set(CVODE_LIB sundials_cvode)
 set(NVECP_LIB sundials_nvecparallel)
@@ -70,11 +59,8 @@ foreach(example_tuple ${CVODE_examples})
     set_target_properties(${example} PROPERTIES FOLDER "Examples")
 
     # libraries to link against
-    target_link_libraries(${example} ${SUNDIALS_LIBS} SUNDIALS::HYPRE)
-
-    if(NOT MPI_CXX_COMPILER)
-      target_link_libraries(${example} ${MPI_LIBRARY} ${MPI_EXTRA_LIBRARIES})
-    endif()
+    target_link_libraries(${example} PRIVATE 
+      MPI::MPI_CXX ${SUNDIALS_LIBS} SUNDIALS::HYPRE)
   endif()
 
   # check if example args are provided and set the test name
