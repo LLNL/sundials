@@ -842,7 +842,7 @@ Optional inputs for ERKStep
    **Notes:**
       Pass *hmax* :math:`\le 0.0` to set the default value of :math:`\infty`.
 
-   .. deprecated:: 5.6.0
+   .. deprecated:: x.x.x
 
       Use the SUNHeuristics infrastructure instead (see :numref:`SUNHeuristics.Description`).
 
@@ -863,7 +863,7 @@ Optional inputs for ERKStep
    **Notes:**
       Pass *hmin* :math:`\le 0.0` to set the default value of 0.
 
-   .. deprecated:: 5.6.0
+   .. deprecated:: x.x.x
 
       Use the SUNHeuristics infrastructure instead (see :numref:`SUNHeuristics.Description`).
 
@@ -1256,7 +1256,7 @@ the code, is provided in :numref:`ARKODE.Mathematics.Adaptivity`.
       :c:func:`ERKStepSetStabilityFn()` should be used instead.
 
 
-   .. deprecated:: 5.6.0
+   .. deprecated:: x.x.x
 
       Use the SUNControl infrastructure instead (see :numref:`SUNControl.Description`).
 
@@ -1293,7 +1293,7 @@ the code, is provided in :numref:`ARKODE.Mathematics.Adaptivity`.
       a custom function through a call to :c:func:`ERKStepSetAdaptivityFn()`.
 
 
-   .. deprecated:: 5.6.0
+   .. deprecated:: x.x.x
 
       Use the SUNControl infrastructure instead (see :numref:`SUNControl.Description`).
 
@@ -1315,7 +1315,7 @@ the code, is provided in :numref:`ARKODE.Mathematics.Adaptivity`.
       Any non-positive parameter will imply a reset to the default
       value.
 
-   .. deprecated:: 5.6.0
+   .. deprecated:: x.x.x
 
       Use the SUNHeuristics infrastructure instead (see :numref:`SUNHeuristics.Description`).
 
@@ -1338,7 +1338,7 @@ the code, is provided in :numref:`ARKODE.Mathematics.Adaptivity`.
    **Notes:**
       Any value below 1.0 will imply a reset to the default value.
 
-   .. deprecated:: 5.6.0
+   .. deprecated:: x.x.x
 
       Use the SUNControl infrastructure instead (see :numref:`SUNControl.Description`).
 
@@ -1360,7 +1360,7 @@ the code, is provided in :numref:`ARKODE.Mathematics.Adaptivity`.
    **Notes:**
       Any interval *not* containing 1.0 will imply a reset to the default values.
 
-   .. deprecated:: 5.6.0
+   .. deprecated:: x.x.x
 
       Use the SUNHeuristics infrastructure instead (see :numref:`SUNHeuristics.Description`).
 
@@ -1382,7 +1382,7 @@ the code, is provided in :numref:`ARKODE.Mathematics.Adaptivity`.
    **Notes:**
       Any value outside the interval :math:`(0,1]` will imply a reset to the default value.
 
-   .. deprecated:: 5.6.0
+   .. deprecated:: x.x.x
 
       Use the SUNHeuristics infrastructure instead (see :numref:`SUNHeuristics.Description`).
 
@@ -1405,7 +1405,7 @@ the code, is provided in :numref:`ARKODE.Mathematics.Adaptivity`.
    **Notes:**
       Any value :math:`\le 1.0` will imply a reset to the default value.
 
-   .. deprecated:: 5.6.0
+   .. deprecated:: x.x.x
 
       Use the SUNHeuristics infrastructure instead (see :numref:`SUNHeuristics.Description`).
 
@@ -1428,7 +1428,7 @@ the code, is provided in :numref:`ARKODE.Mathematics.Adaptivity`.
       Any value :math:`\le 1.0` will imply a reset to the default
       value.
 
-   .. deprecated:: 5.6.0
+   .. deprecated:: x.x.x
 
       Use the SUNHeuristics infrastructure instead (see :numref:`SUNHeuristics.Description`).
 
@@ -1453,7 +1453,7 @@ the code, is provided in :numref:`ARKODE.Mathematics.Adaptivity`.
       Any value :math:`\ge 1.0` or :math:`\le 0.0` will imply a reset to
       the default value.
 
-   .. deprecated:: 5.6.0
+   .. deprecated:: x.x.x
 
       Use the SUNHeuristics infrastructure instead (see :numref:`SUNHeuristics.Description`).
 
@@ -1476,7 +1476,7 @@ the code, is provided in :numref:`ARKODE.Mathematics.Adaptivity`.
       Any non-positive parameter will imply a reset to the default
       value.
 
-   .. deprecated:: 5.6.0
+   .. deprecated:: x.x.x
 
       Use the SUNHeuristics infrastructure instead (see :numref:`SUNHeuristics.Description`).
 
@@ -1499,7 +1499,7 @@ the code, is provided in :numref:`ARKODE.Mathematics.Adaptivity`.
    **Notes:**
       Any non-positive parameter will imply a reset to the default value.
 
-   .. deprecated:: 5.6.0
+   .. deprecated:: x.x.x
 
       Use the SUNHeuristics infrastructure instead (see :numref:`SUNHeuristics.Description`).
 
@@ -1528,7 +1528,7 @@ the code, is provided in :numref:`ARKODE.Mathematics.Adaptivity`.
       where the right-hand side function :math:`f(t,y)` contains stiff
       terms.
 
-   .. deprecated:: 5.6.0
+   .. deprecated:: x.x.x
 
       Use the SUNHeuristics infrastructure instead (see :numref:`SUNHeuristics.Description`).
 

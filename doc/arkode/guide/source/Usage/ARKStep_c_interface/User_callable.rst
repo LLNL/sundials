@@ -1222,7 +1222,7 @@ Set max number of constraint failures             :c:func:`ARKStepSetMaxNumConst
    **Notes:**
       Pass *hmax* :math:`\le 0.0` to set the default value of :math:`\infty`.
 
-   .. deprecated:: 5.6.0
+   .. deprecated:: x.x.x
 
       Use the SUNHeuristics infrastructure instead (see :numref:`SUNHeuristics.Description`).
 
@@ -1244,7 +1244,7 @@ Set max number of constraint failures             :c:func:`ARKStepSetMaxNumConst
    **Notes:**
       Pass *hmin* :math:`\le 0.0` to set the default value of 0.
 
-   .. deprecated:: 5.6.0
+   .. deprecated:: x.x.x
 
       Use the SUNHeuristics infrastructure instead (see :numref:`SUNHeuristics.Description`).
 
@@ -1778,7 +1778,7 @@ Explicit stability function                                :c:func:`ARKStepSetSt
       :c:func:`ARKStepSetStabilityFn()` should be used instead.
 
 
-   .. deprecated:: 5.6.0
+   .. deprecated:: x.x.x
 
       Use the SUNControl infrastructure instead (see :numref:`SUNControl.Description`).
 
@@ -1816,7 +1816,7 @@ Explicit stability function                                :c:func:`ARKStepSetSt
       a custom function through a call to :c:func:`ARKStepSetAdaptivityFn()`.
 
 
-   .. deprecated:: 5.6.0
+   .. deprecated:: x.x.x
 
       Use the SUNControl infrastructure instead (see :numref:`SUNControl.Description`).
 
@@ -1839,7 +1839,7 @@ Explicit stability function                                :c:func:`ARKStepSetSt
       Any non-positive parameter will imply a reset to the default
       value.
 
-   .. deprecated:: 5.6.0
+   .. deprecated:: x.x.x
 
       Use the SUNHeuristics infrastructure instead (see :numref:`SUNHeuristics.Description`).
 
@@ -1864,7 +1864,7 @@ Explicit stability function                                :c:func:`ARKStepSetSt
       Any value below 1.0 will imply a reset to the default value.
 
 
-   .. deprecated:: 5.6.0
+   .. deprecated:: x.x.x
 
       Use the SUNControl infrastructure instead (see :numref:`SUNControl.Description`).
 
@@ -1887,7 +1887,7 @@ Explicit stability function                                :c:func:`ARKStepSetSt
    **Notes:**
       Any interval *not* containing 1.0 will imply a reset to the default values.
 
-   .. deprecated:: 5.6.0
+   .. deprecated:: x.x.x
 
       Use the SUNHeuristics infrastructure instead (see :numref:`SUNHeuristics.Description`).
 
@@ -1912,7 +1912,7 @@ Explicit stability function                                :c:func:`ARKStepSetSt
    **Notes:**
       Any value outside the interval :math:`(0,1]` will imply a reset to the default value.
 
-   .. deprecated:: 5.6.0
+   .. deprecated:: x.x.x
 
       Use the SUNHeuristics infrastructure instead (see :numref:`SUNHeuristics.Description`).
 
@@ -1955,7 +1955,7 @@ Explicit stability function                                :c:func:`ARKStepSetSt
    **Notes:**
       Any value :math:`\le 1.0` will imply a reset to the default value.
 
-   .. deprecated:: 5.6.0
+   .. deprecated:: x.x.x
 
       Use the SUNHeuristics infrastructure instead (see :numref:`SUNHeuristics.Description`).
 
@@ -1979,7 +1979,7 @@ Explicit stability function                                :c:func:`ARKStepSetSt
       Any value :math:`\le 1.0` will imply a reset to the default
       value.
 
-   .. deprecated:: 5.6.0
+   .. deprecated:: x.x.x
 
       Use the SUNHeuristics infrastructure instead (see :numref:`SUNHeuristics.Description`).
 
@@ -2005,7 +2005,7 @@ Explicit stability function                                :c:func:`ARKStepSetSt
       Any value outside the interval :math:`(0,1)` will imply a reset to
       the default value.
 
-   .. deprecated:: 5.6.0
+   .. deprecated:: x.x.x
 
       Use the SUNHeuristics infrastructure instead (see :numref:`SUNHeuristics.Description`).
 
@@ -2029,7 +2029,7 @@ Explicit stability function                                :c:func:`ARKStepSetSt
       Any value :math:`\le 0` will imply a reset to the default
       value.
 
-   .. deprecated:: 5.6.0
+   .. deprecated:: x.x.x
 
       Use the SUNHeuristics infrastructure instead (see :numref:`SUNHeuristics.Description`).
 
@@ -2053,7 +2053,7 @@ Explicit stability function                                :c:func:`ARKStepSetSt
    **Notes:**
       Any value :math:`\le 0` will imply a reset to the default value.
 
-   .. deprecated:: 5.6.0
+   .. deprecated:: x.x.x
 
       Use the SUNHeuristics infrastructure instead (see :numref:`SUNHeuristics.Description`).
 
@@ -2083,7 +2083,7 @@ Explicit stability function                                :c:func:`ARKStepSetSt
       be quite useful for problems where the explicit right-hand side
       function :math:`f^E(t,y)` contains stiff terms.
 
-   .. deprecated:: 5.6.0
+   .. deprecated:: x.x.x
 
       Use the SUNHeuristics infrastructure instead (see :numref:`SUNHeuristics.Description`).
 
