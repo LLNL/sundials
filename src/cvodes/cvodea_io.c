@@ -630,7 +630,7 @@ int CVodeGetAdjDataPointHermite(void *cvode_mem, int which,
 {
   CVodeMem cv_mem;
   CVadjMem ca_mem;
-  DtpntMem *dt_mem;
+  CVdtpntMem *dt_mem;
   CVhermiteDataMem content;
 
   /* Check if cvode_mem exists */
@@ -679,7 +679,7 @@ int CVodeGetAdjDataPointPolynomial(void *cvode_mem, int which,
 {
   CVodeMem cv_mem;
   CVadjMem ca_mem;
-  DtpntMem *dt_mem;
+  CVdtpntMem *dt_mem;
   CVpolynomialDataMem content;
 
   /* Check if cvode_mem exists */

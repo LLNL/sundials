@@ -69,12 +69,12 @@ static int CVAfindIndex(CVodeMem cv_mem, realtype t,
 static booleantype CVAhermiteMalloc(CVodeMem cv_mem);
 static void CVAhermiteFree(CVodeMem cv_mem);
 static int CVAhermiteGetY(CVodeMem cv_mem, realtype t, N_Vector y, N_Vector *yS);
-static int CVAhermiteStorePnt(CVodeMem cv_mem, DtpntMem d);
+static int CVAhermiteStorePnt(CVodeMem cv_mem, CVdtpntMem d);
 
 static booleantype CVApolynomialMalloc(CVodeMem cv_mem);
 static void CVApolynomialFree(CVodeMem cv_mem);
 static int CVApolynomialGetY(CVodeMem cv_mem, realtype t, N_Vector y, N_Vector *yS);
-static int CVApolynomialStorePnt(CVodeMem cv_mem, DtpntMem d);
+static int CVApolynomialStorePnt(CVodeMem cv_mem, CVdtpntMem d);
 
 /* Wrappers */
 
@@ -174,7 +174,7 @@ int CVodeAdjInit(void *cvode_mem, long int steps, int interp)
   /* Allocate space for the array of Data Point structures */
 
   ca_mem->dt_mem = NULL;
-  ca_mem->dt_mem = (DtpntMem *) malloc((steps+1)*sizeof(struct DtpntMemRec *));
+  ca_mem->dt_mem = (CVdtpntMem *) malloc((steps+1)*sizeof(struct CVdtpntMemRec *));
   if (ca_mem->dt_mem == NULL) {
     free(ca_mem); ca_mem = NULL;
     cvProcessError(cv_mem, CV_MEM_FAIL, "CVODEA", "CVodeAdjInit", MSGCV_MEM_FAIL);
@@ -184,7 +184,7 @@ int CVodeAdjInit(void *cvode_mem, long int steps, int interp)
 
   for (i=0; i<=steps; i++) {
     ca_mem->dt_mem[i] = NULL;
-    ca_mem->dt_mem[i] = (DtpntMem) malloc(sizeof(struct DtpntMemRec));
+    ca_mem->dt_mem[i] = (CVdtpntMem) malloc(sizeof(struct CVdtpntMemRec));
     if (ca_mem->dt_mem[i] == NULL) {
       for(ii=0; ii<i; ii++) {free(ca_mem->dt_mem[ii]); ca_mem->dt_mem[ii] = NULL;}
       free(ca_mem->dt_mem); ca_mem->dt_mem = NULL;
@@ -381,7 +381,7 @@ int CVodeF(void *cvode_mem, realtype tout, N_Vector yout,
   CVadjMem ca_mem;
   CVodeMem cv_mem;
   CVckpntMem tmp;
-  DtpntMem *dt_mem;
+  CVdtpntMem *dt_mem;
   long int nstloc;
   int flag, i;
   booleantype allocOK, earlyret;
@@ -2098,7 +2098,7 @@ static void CVAbckpbDelete(CVodeBMem *cvB_memPtr)
 static int CVAdataStore(CVodeMem cv_mem, CVckpntMem ck_mem)
 {
   CVadjMem ca_mem;
-  DtpntMem *dt_mem;
+  CVdtpntMem *dt_mem;
   realtype t;
   long int i;
   int flag, sign;
@@ -2310,7 +2310,7 @@ static int CVAfindIndex(CVodeMem cv_mem, realtype t,
                         long int *indx, booleantype *newpoint)
 {
   CVadjMem ca_mem;
-  DtpntMem *dt_mem;
+  CVdtpntMem *dt_mem;
   int sign;
   booleantype to_left, to_right;
 
@@ -2427,7 +2427,7 @@ int CVodeGetAdjY(void *cvode_mem, realtype t, N_Vector y)
 static booleantype CVAhermiteMalloc(CVodeMem cv_mem)
 {
   CVadjMem ca_mem;
-  DtpntMem *dt_mem;
+  CVdtpntMem *dt_mem;
   CVhermiteDataMem content;
   long int i, ii=0;
   booleantype allocOK;
@@ -2546,7 +2546,7 @@ static booleantype CVAhermiteMalloc(CVodeMem cv_mem)
 static void CVAhermiteFree(CVodeMem cv_mem)
 {
   CVadjMem ca_mem;
-  DtpntMem *dt_mem;
+  CVdtpntMem *dt_mem;
   CVhermiteDataMem content;
   long int i;
 
@@ -2580,7 +2580,7 @@ static void CVAhermiteFree(CVodeMem cv_mem)
  * Note that the time is already stored.
  */
 
-static int CVAhermiteStorePnt(CVodeMem cv_mem, DtpntMem d)
+static int CVAhermiteStorePnt(CVodeMem cv_mem, CVdtpntMem d)
 {
   CVadjMem ca_mem;
   CVhermiteDataMem content;
@@ -2647,7 +2647,7 @@ static int CVAhermiteGetY(CVodeMem cv_mem, realtype t,
                           N_Vector y, N_Vector *yS)
 {
   CVadjMem ca_mem;
-  DtpntMem *dt_mem;
+  CVdtpntMem *dt_mem;
   CVhermiteDataMem content0, content1;
 
   realtype t0, t1, delta;
@@ -2822,7 +2822,7 @@ static int CVAhermiteGetY(CVodeMem cv_mem, realtype t,
 static booleantype CVApolynomialMalloc(CVodeMem cv_mem)
 {
   CVadjMem ca_mem;
-  DtpntMem *dt_mem;
+  CVdtpntMem *dt_mem;
   CVpolynomialDataMem content;
   long int i, ii=0;
   booleantype allocOK;
@@ -2919,7 +2919,7 @@ static booleantype CVApolynomialMalloc(CVodeMem cv_mem)
 static void CVApolynomialFree(CVodeMem cv_mem)
 {
   CVadjMem ca_mem;
-  DtpntMem *dt_mem;
+  CVdtpntMem *dt_mem;
   CVpolynomialDataMem content;
   long int i;
 
@@ -2951,7 +2951,7 @@ static void CVApolynomialFree(CVodeMem cv_mem)
  * Note that the time is already stored.
  */
 
-static int CVApolynomialStorePnt(CVodeMem cv_mem, DtpntMem d)
+static int CVApolynomialStorePnt(CVodeMem cv_mem, CVdtpntMem d)
 {
   CVadjMem ca_mem;
   CVpolynomialDataMem content;
@@ -2989,7 +2989,7 @@ static int CVApolynomialGetY(CVodeMem cv_mem, realtype t,
                              N_Vector y, N_Vector *yS)
 {
   CVadjMem ca_mem;
-  DtpntMem *dt_mem;
+  CVdtpntMem *dt_mem;
   CVpolynomialDataMem content;
 
   int flag, dir, order, i, j, is, NS, retval;
