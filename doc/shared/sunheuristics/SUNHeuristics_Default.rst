@@ -17,9 +17,12 @@
 The SUNHeuristics_Default Module
 ======================================
 
-The default implementation of the SUNHeuristics class, SUNHeuristics_Default, implements a myriad of heuristics control features used throughout SUNDIALS integrators.
+The default implementation of the SUNHeuristics class, SUNHeuristics_Default,
+implements a myriad of heuristics control features used throughout SUNDIALS
+integrators.
 
-This is implemented as a derived SUNHeuristics class, and defines its *content* field as:
+This is implemented as a derived SUNHeuristics class, and defines its *content*
+field as:
 
 .. code-block:: c
 
@@ -43,7 +46,10 @@ This is implemented as a derived SUNHeuristics class, and defines its *content* 
      long int     nst_exp;
    };
 
-These entries of the *content* field contain parameters to store all options specified by "set" routines in the base SUNHeuristics class.  The one non-obvious of these parameters is ``etamax``, that is changed dynamically throughout the course of a calculation:
+These entries of the *content* field contain parameters to store all options
+specified by "set" routines in the base SUNHeuristics class.  The one
+non-obvious of these parameters is ``etamax``, that is changed dynamically
+throughout the course of a calculation:
 
 .. math::
    \text{etamax} = \begin{cases}
@@ -56,9 +62,14 @@ The header file to be included when using this module is
 ``sunheuristics/sunheuristics_default.h``.
 
 
-The SUNHeuristics_Default class provides implementations of all controller operations listed in :numref:`SUNHeuristics.Description.operations`. The SUNHeuristics_Default class also provides the following constructor routine:
+The SUNHeuristics_Default class provides implementations of all controller
+operations listed in :numref:`SUNHeuristics.Description.operations`. The
+SUNHeuristics_Default class also provides the following constructor routine:
 
 
 .. c:function:: SUNHeuristics SUNHeuristicsDefault(SUNContext sunctx)
 
-   This constructor function creates and allocates memory for a SUNHeuristics_Default object, and inserts its default parameters.  The only argument is the SUNDIALS context object.  Upon successful completion it will return a :c:type:`SUNHeuristics` object; otherwise it will return ``NULL``.
+   This constructor function creates and allocates memory for a
+   SUNHeuristics_Default object, and inserts its default parameters.  The only
+   argument is the SUNDIALS context object.  Upon successful completion it will
+   return a :c:type:`SUNHeuristics` object; otherwise it will return ``NULL``.

@@ -16,29 +16,27 @@
 The SUNControl API
 ==================
 
-The SUNControl base class provides a common API for accuracy-based
-adaptivity controllers to be used by SUNDIALS integrators. These
-controllers estimate step sizes (among other things) such that the
-next step solution satisfies a desired temporal accuracy, while
-striving to maximize computational efficiency.  We note that in the
-descriptions below, we frequently use the object *dsm* to represent
-temporal error.  This is **not** the raw temporal error estimate;
-instead, it is a norm of the temporal error estimate after scaling
-by the user-supplied accuracy tolerances (the SUNDIALS WRMS-norm),
+The SUNControl base class provides a common API for accuracy-based adaptivity
+controllers to be used by SUNDIALS integrators. These controllers estimate step
+sizes (among other things) such that the next step solution satisfies a desired
+temporal accuracy, while striving to maximize computational efficiency. We note
+that in the descriptions below, we frequently use the object *dsm* to represent
+temporal error. This is **not** the raw temporal error estimate; instead, it is
+a norm of the temporal error estimate after scaling by the user-supplied
+accuracy tolerances (the SUNDIALS WRMS-norm),
 
 .. math::
    \text{dsm} = \left( \frac{1}{N} \sum_{i=1}^N
    \left(\frac{\text{error}_i}{\text{rtol}\cdot |y_{n-1,i}| + \text{atol}_i}\right)^2\right)^{1/2}.
 
-Thus *dsm* values below one represent errors estimated to be more
-accurate than needed, whereas errors above one are considered to be
-larger than allowable.
+Thus *dsm* values below one represent errors estimated to be more accurate than
+needed, whereas errors above one are considered to be larger than allowable.
 
-The base ``SUNControl`` class is modeled after SUNDIALS' other
-object-oriented classes, in that this class contains a pointer to an
-implementation-specific *content*, an *ops* structure with generic
-controller operations, and a :c:type:`SUNContext` object.  Specifically,
-the type ``SUNControl`` is defined as:
+The base ``SUNControl`` class is modeled after SUNDIALS' other object-oriented
+classes, in that this class contains a pointer to an implementation-specific
+*content*, an *ops* structure with generic controller operations, and a
+:c:type:`SUNContext` object. Specifically, the type ``SUNControl`` is defined
+as:
 
 .. c:type:: struct _generic_SUNControl *SUNControl
 
@@ -82,10 +80,10 @@ SUNControl IDs
 --------------
 
 The time integrators in SUNDIALS adapt a variety of parameters to achieve
-accurate and efficient computations.  To this end, each SUNControl
-implementation should note its type, so that integrators will understand the
-types of adaptivity that the controller is designed to perform.  These are
-encoded in the following set of SUNControl types:
+accurate and efficient computations. To this end, each SUNControl implementation
+should note its type, so that integrators will understand the types of
+adaptivity that the controller is designed to perform. These are encoded in the
+following set of SUNControl types:
 
 .. _SUNControl.Description.controllerIDs:
 .. table:: Identifiers associated with SUNControl implementations
@@ -107,28 +105,32 @@ encoded in the following set of SUNControl types:
 SUNControl Operations
 ---------------------
 
-The base SUNControl class defines and implements all SUNControl functions.  Most of
-these routines are merely wrappers for the operations defined by a particular
+The base SUNControl class defines and implements all SUNControl functions. Most
+of these routines are merely wrappers for the operations defined by a particular
 SUNControl implementation, which are accessed through the *ops* field of the
-``SUNControl`` structure.  However, the base SUNControl class also provides the
+``SUNControl`` structure. However, the base SUNControl class also provides the
 convenience routine
 
 .. c:function:: SUNControl SUNControlNewEmpty(SUNContext sunctx)
 
-  This function allocates a new generic ``SUNControl`` object and initializes its
-  content pointer and the function pointers in the operations structure to ``NULL``.
+  This function allocates a new generic ``SUNControl`` object and initializes
+  its content pointer and the function pointers in the operations structure to
+  ``NULL``.
 
   :param sunctx: the :c:type:`SUNContext` object (see :numref:`SUNDIALS.SUNContext`)
 
-  :returns: If successful, a generic :c:type:`SUNControl` object.  If unsuccessful, a ``NULL`` pointer will be returned.
+  :returns: If successful, a generic :c:type:`SUNControl` object. If
+            unsuccessful, a ``NULL`` pointer will be returned.
 
-Each of the following routines are *optional* for any specific SUNControl implementation,
-however some may be required based on the implementation's SUNControl_ID (see table :numref:`SUNControl.Description.controllerIDs`).  We note these requirements, as well as
-the behavior of the base SUNControl wrapper routine, below.
+Each of the following routines are *optional* for any specific SUNControl
+implementation, however some may be required based on the implementation's
+SUNControl_ID (see table :numref:`SUNControl.Description.controllerIDs`). We
+note these requirements, as well as the behavior of the base SUNControl wrapper
+routine, below.
 
 .. c:function:: SUNControl_ID SUNControlGetID(SUNControl C)
 
-   Returns the type identifier for the controller *C*.  Returned values
+   Returns the type identifier for the controller *C*. Returned values
    are given in :numref:`SUNControl.Description.controllerIDs`
 
    :param C: the :c:type:`SUNControl` object.
@@ -142,11 +144,12 @@ the behavior of the base SUNControl wrapper routine, below.
 
 .. c:function:: void SUNControlDestroy(SUNControl C)
 
-   Deallocates the controller *C*.  If this is not provided by the implementation,
-   the base wrapper routine will free both the *content* and *ops* objects -- this
-   should be sufficient unless a controller implementation performs dynamic memory
-   allocation of its own (note that the SUNDIALS-provided SUNControll
-   implementations do not need to supply this routine).
+   Deallocates the controller *C*. If this is not provided by the
+   implementation, the base wrapper routine will free both the *content* and
+   *ops* objects -- this should be sufficient unless a controller implementation
+   performs dynamic memory allocation of its own (note that the
+   SUNDIALS-provided SUNControll implementations do not need to supply this
+   routine).
 
    :param C: the :c:type:`SUNControl` object.
 
@@ -158,14 +161,15 @@ the behavior of the base SUNControl wrapper routine, below.
 
 .. c:function:: int SUNControlEstimateStep(SUNControl C, realtype h, realtype dsm, realtype* hnew)
 
-   Estimates a single-rate step size.  This routine is required for controllers of
-   type ``SUNDIALS_CONTROL_H``.
+   Estimates a single-rate step size. This routine is required for controllers
+   of type ``SUNDIALS_CONTROL_H``.
 
    :param C: the :c:type:`SUNControl` object.
    :param h: the step size from the previous step attempt.
    :param dsm: the local temporal estimate from the previous step attempt.
    :param hnew: (output) pointer to the estimated step size.
-   :return: error code indicating success failure  (see :numref:`SUNControl.Description.errorCodes`).
+   :return: error code indicating success failure
+            (see :numref:`SUNControl.Description.errorCodes`).
 
    Usage:
 
@@ -175,16 +179,17 @@ the behavior of the base SUNControl wrapper routine, below.
 
 .. c:function:: int SUNControlEstimateStepAndOrder(SUNControl C, realtype h, int q, realtype dsm, realtype* hnew, int* qnew)
 
-   Estimates a single-rate step size and corresponding method order.  This routine is
-   required for controllers of type ``SUNDIALS_CONTROL_HQ``.
+   Estimates a single-rate step size and corresponding method order. This
+   routine is required for controllers of type ``SUNDIALS_CONTROL_HQ``.
 
-   :param C:  the :c:type:`SUNControl` object..
-   :param h:  the step size from the previous step attempt.
-   :param q:  the method order from the previous step attempt.
-   :param dsm:  the local temporal estimate from the previous step attempt.
+   :param C: the :c:type:`SUNControl` object..
+   :param h: the step size from the previous step attempt.
+   :param q: the method order from the previous step attempt.
+   :param dsm: the local temporal estimate from the previous step attempt.
    :param hnew: (output)  pointer to the estimated step size.
    :param qnew: (output)  pointer to the estimated method order.
-   :return: error code indicating success failure  (see :numref:`SUNControl.Description.errorCodes`).
+   :return: error code indicating success failure
+            (see :numref:`SUNControl.Description.errorCodes`).
 
    Usage:
 
@@ -194,17 +199,20 @@ the behavior of the base SUNControl wrapper routine, below.
 
 .. c:function:: int SUNControlEstimateMRISteps(SUNControl C, realtype H, realtype h, realtype DSM, realtype dsm, realtype* Hnew, realtype *hnew)
 
-   Estimates the slow and fast multirate step sizes.  This routine is required for
-   controllers of type ``SUNDIALS_CONTROL_MRI_H``.
+   Estimates the slow and fast multirate step sizes. This routine is required
+   for controllers of type ``SUNDIALS_CONTROL_MRI_H``.
 
-   :param C:  the :c:type:`SUNControl` object..
-   :param H:  the slow step size from the previous multirate step attempt.
-   :param h:  the fast step size from the previous multirate step attempt.
-   :param DSM: the local slow temporal error estimate from the previous step attempt.
-   :param dsm: the local fast temporal error estimate from the previous step attempt.
-   :param Hnew: (output)  pointer to the estimated slow step size.
-   :param hnew: (output)  pointer to the estimated fast step size.
-   :return: error code indicating success failure  (see :numref:`SUNControl.Description.errorCodes`).
+   :param C: the :c:type:`SUNControl` object..
+   :param H: the slow step size from the previous multirate step attempt.
+   :param h: the fast step size from the previous multirate step attempt.
+   :param DSM: the local slow temporal error estimate from the previous step
+               attempt.
+   :param dsm: the local fast temporal error estimate from the previous step
+               attempt.
+   :param Hnew: (output) pointer to the estimated slow step size.
+   :param hnew: (output) pointer to the estimated fast step size.
+   :return: error code indicating success failure
+            (see :numref:`SUNControl.Description.errorCodes`).
 
    Usage:
 
@@ -215,17 +223,23 @@ the behavior of the base SUNControl wrapper routine, below.
 .. c:function:: int SUNControlEstimateStepTol(SUNControl C, realtype H, realtype tolfac, realtype DSM, realtype *Hnew, realtype* tolfacnew)
 
    Estimates the slow step size and recommended fast relative tolerance factor
-   for a multirate step.  This routine is required for controllers of type
+   for a multirate step. This routine is required for controllers of type
    ``SUNDIALS_CONTROL_MRI_TOL``.
 
-   :param C:  the :c:type:`SUNControl` object..
-   :param H:  the slow step size from the previous multirate step attempt.
-   :param tolfac:  the ratio of fast/slow relative tolerances, :math:`\text{reltol}/\text{RELTOL}`, from the previous multirate step attempt.
-   :param DSM:  the local slow temporal error estimate from the previous step attempt.
-   :param dsm:  the local fast temporal error estimate from the previous step attempt.
-   :param Hnew: (output)  pointer to the estimated slow step size.
-   :param tolfacnew: (output)  pointer to the estimated relative tolerance ratio.
-   :return: error code indicating success failure  (see :numref:`SUNControl.Description.errorCodes`).
+   :param C: the :c:type:`SUNControl` object..
+   :param H: the slow step size from the previous multirate step attempt.
+   :param tolfac: the ratio of fast/slow relative tolerances,
+                  :math:`\text{reltol}/\text{RELTOL}`, from the previous
+                  multirate step attempt.
+   :param DSM: the local slow temporal error estimate from the previous step
+               attempt.
+   :param dsm: the local fast temporal error estimate from the previous step
+               attempt.
+   :param Hnew: (output) pointer to the estimated slow step size.
+   :param tolfacnew: (output)  pointer to the estimated relative tolerance
+                     ratio.
+   :return: error code indicating success failure
+            (see :numref:`SUNControl.Description.errorCodes`).
 
    Usage:
 
@@ -237,10 +251,12 @@ the behavior of the base SUNControl wrapper routine, below.
 
    Resets the controller to its initial state, e.g., if it stores a small number
    of previous *dsm* or *h* values. The return value is an integer flag denoting
-   success/failure of the routine (see :numref:`SUNControl.Description.errorCodes`).
+   success/failure of the routine (see
+   :numref:`SUNControl.Description.errorCodes`).
 
    :param C:  the :c:type:`SUNControl` object..
-   :return: error code indicating success failure  (see :numref:`SUNControl.Description.errorCodes`).
+   :return: error code indicating success failure
+            (see :numref:`SUNControl.Description.errorCodes`).
 
    Usage:
 
@@ -253,7 +269,8 @@ the behavior of the base SUNControl wrapper routine, below.
    Sets the controller parameters to their default values.
 
    :param C:  the :c:type:`SUNControl` object..
-   :return: error code indicating success failure  (see :numref:`SUNControl.Description.errorCodes`).
+   :return: error code indicating success failure
+            (see :numref:`SUNControl.Description.errorCodes`).
 
    Usage:
 
@@ -267,7 +284,8 @@ the behavior of the base SUNControl wrapper routine, below.
 
    :param C:  the :c:type:`SUNControl` object..
    :param fptr:  the output stream to write the parameters.
-   :return: error code indicating success failure  (see :numref:`SUNControl.Description.errorCodes`).
+   :return: error code indicating success failure
+            (see :numref:`SUNControl.Description.errorCodes`).
 
    Usage:
 
@@ -282,7 +300,8 @@ the behavior of the base SUNControl wrapper routine, below.
 
    :param C:  the :c:type:`SUNControl` object..
    :param q:  the asymptotic order of accuracy for the time integration method.
-   :return: error code indicating success failure  (see :numref:`SUNControl.Description.errorCodes`).
+   :return: error code indicating success failure
+            (see :numref:`SUNControl.Description.errorCodes`).
 
    Usage:
 
@@ -296,8 +315,10 @@ the behavior of the base SUNControl wrapper routine, below.
    order of accuracy for the method embedding.
 
    :param C:  the :c:type:`SUNControl` object..
-   :param p:  the asymptotic order of accuracy for the time integration method embedding.
-   :return: error code indicating success failure  (see :numref:`SUNControl.Description.errorCodes`).
+   :param p:  the asymptotic order of accuracy for the time integration method
+              embedding.
+   :return: error code indicating success failure
+            (see :numref:`SUNControl.Description.errorCodes`).
 
    Usage:
 
@@ -307,13 +328,14 @@ the behavior of the base SUNControl wrapper routine, below.
 
 .. c:function:: int SUNControlSetErrorBias(SUNControl C, realtype bias)
 
-   Sets an error bias factor for scaling the local error factors.  This is
+   Sets an error bias factor for scaling the local error factors. This is
    typically used to slightly exaggerate the temporal error during the
    estimation process, leading to a more conservative estimated step size.
 
    :param C:  the :c:type:`SUNControl` object..
    :param bias:  the error bias factor.
-   :return: error code indicating success failure  (see :numref:`SUNControl.Description.errorCodes`).
+   :return: error code indicating success failure
+            (see :numref:`SUNControl.Description.errorCodes`).
 
    Usage:
 
@@ -324,14 +346,15 @@ the behavior of the base SUNControl wrapper routine, below.
 .. c:function:: int SUNControlUpdate(SUNControl C, realtype h, realtype dsm)
 
    Notifies the controller of a successful time step of size *h* and with
-   temporal error estimate *dsm*.  This is typically used for controllers
-   that store a history of either step sizes or error estimates for performing
-   the estimation process.
+   temporal error estimate *dsm*. This is typically used for controllers that
+   store a history of either step sizes or error estimates for performing the
+   estimation process.
 
    :param C:  the :c:type:`SUNControl` object..
    :param h:  the successful step size.
    :param dsm:  the successful temporal error estimate.
-   :return: error code indicating success failure  (see :numref:`SUNControl.Description.errorCodes`).
+   :return: error code indicating success failure
+            (see :numref:`SUNControl.Description.errorCodes`).
 
    Usage:
 
@@ -341,17 +364,19 @@ the behavior of the base SUNControl wrapper routine, below.
 
 .. c:function:: int SUNControlUpdateMRIH(SUNControl C, realtype H, realtype h, realtype DSM, realtype dsm)
 
-   Notifies the controller of a successful multirate time step of sizes *H* and *h*,
-   and with temporal error estimates *DSM* and *dsm*.  This is used for controllers of
-   type *SUNDIALS_CONTROL_MRI_H* that store a history of either step size inputs or
-   resulting error estimates for performing the estimation process.
+   Notifies the controller of a successful multirate time step of sizes *H* and
+   *h*, and with temporal error estimates *DSM* and *dsm*. This is used for
+   controllers of type *SUNDIALS_CONTROL_MRI_H* that store a history of either
+   step size inputs or resulting error estimates for performing the estimation
+   process.
 
    :param C:  the :c:type:`SUNControl` object..
    :param H:  the successful slow step size.
    :param h:  the successful fast step size.
    :param DSM:  the successful slow temporal error estimate.
    :param dsm:  the successful fast temporal error estimate.
-   :return: error code indicating success failure  (see :numref:`SUNControl.Description.errorCodes`).
+   :return: error code indicating success failure
+            (see :numref:`SUNControl.Description.errorCodes`).
 
    Usage:
 
@@ -361,18 +386,19 @@ the behavior of the base SUNControl wrapper routine, below.
 
 .. c:function:: int SUNControlUpdateMRITol(SUNControl C, realtype H, realtype tolfac, realtype DSM, realtype dsm)
 
-   Notifies the controller of a successful multirate time step of size *H* and fast
-   tolerance factor *tolfac*, that resulted in temporal error estimates *DSM* and
-   *dsm*.  This is typically used for controllers of type *SUNDIALS_CONTROL_MRI_TOL*
-   that store a history of either control inputs or resulting error estimates for
-   performing the estimation process.
+   Notifies the controller of a successful multirate time step of size *H* and
+   fast tolerance factor *tolfac*, that resulted in temporal error estimates
+   *DSM* and *dsm*. This is typically used for controllers of type
+   *SUNDIALS_CONTROL_MRI_TOL* that store a history of either control inputs or
+   resulting error estimates for performing the estimation process.
 
    :param C:  the :c:type:`SUNControl` object..
    :param H:  the successful slow step size.
    :param tolfac:  the successful fast relative tolerance factor.
    :param DSM:  the successful slow temporal error estimate.
    :param dsm:  the successful fast temporal error estimate.
-   :return: error code indicating success failure  (see :numref:`SUNControl.Description.errorCodes`).
+   :return: error code indicating success failure
+            (see :numref:`SUNControl.Description.errorCodes`).
 
    Usage:
 
@@ -382,12 +408,17 @@ the behavior of the base SUNControl wrapper routine, below.
 
 .. c:function:: int SUNControlSpace(SUNControl C, long int *lenrw, long int *leniw)
 
-   Informative routine that returns the memory requirements of the :c:type:`SUNControl` object..
+   Informative routine that returns the memory requirements of the
+   :c:type:`SUNControl` object.
 
    :param C:  the :c:type:`SUNControl` object..
-   :param lenrw: (output)  number of ``sunrealtype`` words stored in the controller.
-   :param leniw: (output)  number of ``sunindextype`` words stored in the controller.  This may also include pointers, `int` and `long int` words.
-   :return: error code indicating success failure  (see :numref:`SUNControl.Description.errorCodes`).
+   :param lenrw: (output)  number of ``sunrealtype`` words stored in the
+                 controller.
+   :param leniw: (output)  number of ``sunindextype`` words stored in the
+                 controller. This may also include pointers, `int` and
+                 `long int` words.
+   :return: error code indicating success failure
+            (see :numref:`SUNControl.Description.errorCodes`).
 
    Usage:
 
@@ -418,9 +449,11 @@ SUNControl functions return one of the following set of error codes:
 C/C++ API Usage
 ---------------
 
-The SUNDIALS Controller module can be used in C and C++ programs by including the header file ``sundials/sundials_controller.h``.
+The SUNDIALS Controller module can be used in C and C++ programs by including
+the header file ``sundials/sundials_controller.h``.
 
-Example usage (here ``SUNControlXYZ`` is a placeholder for an actual SUNControl implementation constructor):
+Example usage (here ``SUNControlXYZ`` is a placeholder for an actual SUNControl
+implementation constructor):
 
 .. code-block:: c
 

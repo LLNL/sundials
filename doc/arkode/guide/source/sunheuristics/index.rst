@@ -16,7 +16,13 @@
 Heuristic Time Step Constraints
 #####################################
 
-The SUNDIALS library comes packaged with a variety of :c:type:`SUNHeuristics` implementations, designed to support various forms of heuristic time step constraints within SUNDIALS time integrators.  To support applications that may want to adjust or disable these heuristic controls, SUNDIALS provides a :c:type:`SUNHeuristics` base class, along with two default implementations: a "default" heuristics control module that encodes standard SUNDIALS heuristic controls, and an "unconstrained" module that disables these.
+The SUNDIALS library comes packaged with a variety of :c:type:`SUNHeuristics`
+implementations, designed to support various forms of heuristic time step
+constraints within SUNDIALS time integrators.  To support applications that may
+want to adjust or disable these heuristic controls, SUNDIALS provides a
+:c:type:`SUNHeuristics` base class, along with two default implementations: a
+"default" heuristics control module that encodes standard SUNDIALS heuristic
+controls, and an "unconstrained" module that disables these.
 
 .. toctree::
    :maxdepth: 1
