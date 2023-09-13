@@ -1734,8 +1734,7 @@ Explicit stability function                                :c:func:`ARKStepSetSt
       * *ARK_MEM_NULL* if the ARKStep memory is ``NULL``
       * *ARK_MEM_FAIL* if *C* was ``NULL`` and the PID controller could not be allocated.
 
-   **Notes:**
-      This function allows user customization over accuracy-based time step adaptivity.
+   .. versionadded:: x.x.x
 
 
 
@@ -1752,8 +1751,7 @@ Explicit stability function                                :c:func:`ARKStepSetSt
       * *ARK_MEM_NULL* if the ARKStep memory is ``NULL``
       * *ARK_MEM_FAIL* if *H* was ``NULL`` and the default heuristics object could not be allocated.
 
-   **Notes:**
-      This function allows user customization over time step heuristic constraints.
+   .. versionadded:: x.x.x
 
 
 
