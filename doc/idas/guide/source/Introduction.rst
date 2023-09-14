@@ -86,6 +86,11 @@ integrate any final-condition ODE dependent on the solution of the original IVP
 Changes from previous versions
 ==============================
 
+Changes in vX.X.X
+-----------------
+
+Renamed some internal types in CVODES and IDAS to allow both packages to be built together in the same binary.
+
 Changes in v5.6.1
 -----------------
 
