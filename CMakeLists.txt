@@ -27,6 +27,7 @@ project(SUNDIALS C)
 
 # Specify the location of additional CMAKE modules
 set(CMAKE_MODULE_PATH
+  ${CMAKE_MODULE_PATH}
   ${PROJECT_SOURCE_DIR}/cmake
   ${PROJECT_SOURCE_DIR}/cmake/macros
   ${PROJECT_SOURCE_DIR}/cmake/tpl
