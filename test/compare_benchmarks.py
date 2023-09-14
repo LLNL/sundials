@@ -5,7 +5,6 @@ import multiprocessing as mp
 
 import thicket as tt
 
-# Note: script does not work for advection_reaction_3D benchmarks currently.
 
 def main():
     parser = argparse.ArgumentParser(description='Compare Sundials performance results against previous results')
