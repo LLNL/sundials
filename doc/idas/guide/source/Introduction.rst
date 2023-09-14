@@ -86,6 +86,13 @@ integrate any final-condition ODE dependent on the solution of the original IVP
 Changes from previous versions
 ==============================
 
+Changes in vX.X.X
+-----------------
+
+Improved computational complexity of `SUNMatScaleAddI_Sparse` from `O(M*N)` to
+`O(NNZ)`.
+Fixed scaling bug in `SUNMatScaleAddI_Sparse` for non-square matrices.
+
 Changes in v5.6.1
 -----------------
 

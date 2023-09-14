@@ -598,9 +598,6 @@ int SUNMatScaleAddI_Sparse(realtype c, SUNMatrix A)
   if (SM_DATA_S(A))       Ax = SM_DATA_S(A);
   else  return (SUNMAT_MEM_FAIL);
 
-  /* create work array for storing row (column) indices */
-  w = (sunindextype *) malloc(M * sizeof(sunindextype));
-
 
   /* determine if A: contains values on the diagonal (so I can just be added in);
      if not, then increment counter for extra storage that should be required. */
@@ -611,7 +608,6 @@ int SUNMatScaleAddI_Sparse(realtype c, SUNMatrix A)
     for (i=Ap[j]; i<Ap[j+1]; i++) {
       if (Ai[i] == j) {
         found = SUNTRUE;
-        w[j] = i;      /* store row (column) index of diagonal element for case 1 */
         break;
       }
     }
@@ -631,23 +627,21 @@ int SUNMatScaleAddI_Sparse(realtype c, SUNMatrix A)
   /*   case 1: A already contains a diagonal */
   if (newvals == 0) {
 
-    /* iterate through elements, scaling by c */
-    for (i=0; i<Ap[N]; i++)
-      Ax[i] *= c;
-
-    /* iterate through diagonal, adding 1.0 */
+    /* iterate through columns, adding 1.0 to diagonal */
     for (j=0; j < SUNMIN(M,N); j++)
-      Ax[w[j]] += ONE;
-
-    /* clean up */
-    free(w);
+      for (i=Ap[j]; i<Ap[j+1]; i++)
+        if (Ai[i] == j) {
+          Ax[i] = ONE + c*Ax[i];
+        } else {
+          Ax[i] = c*Ax[i];
+        }
 
 
   /*   case 2: A has sufficient storage, but does not already contain a diagonal */
   } else if (!newmat) {
 
-
-    /* create work array for nonzero values in a single column (row) */
+    /* create work arrays for nonzero row (column) indices and values in a single column (row) */
+    w = (sunindextype *) malloc(M * sizeof(sunindextype));
     x = (realtype *) malloc(M * sizeof(realtype));
 
     /* determine storage location where last column (row) should end */
@@ -661,13 +655,12 @@ int SUNMatScaleAddI_Sparse(realtype c, SUNMatrix A)
     /* iterate through columns (rows) backwards */
     for (j=N-1; j>=0; j--) {
 
-      /* clear out diagonal element for this column (row) */
-      x[j] = RCONST(0.0);
+      /* reset diagonal entry, in case it's not in A */
+      x[j] = ZERO;
 
       /* iterate down column (row) of A, collecting nonzeros */
-      i = 0;
-      for (p=Ap[j]; p<cend; p++) {
-        w[i++] = Ai[p];        /* collect row (column) index */
+      for (p=Ap[j], i=0; p<cend; p++, i++) {
+        w[i] = Ai[p];        /* collect row (column) index */
         x[Ai[p]] = c*Ax[p];    /* collect/scale value */
       }
 
@@ -680,25 +673,20 @@ int SUNMatScaleAddI_Sparse(realtype c, SUNMatrix A)
       }
 
       /* fill entries of A with this column's (row's) data */
+      /* fill entries past diagonal */
       for (i=nw-1; i>=0 && w[i]>j; i--) {
         Ai[--nz] = w[i];
         Ax[nz] = x[w[i]];
       }
+      /* fill diagonal if applicable */
       if (w[i] != j) {
         Ai[--nz] = j;
         Ax[nz] = x[j];
       }
+      /* fill entries before diagonal */
       for (; i>=0; i--) {
         Ai[--nz] = w[i];
         Ax[nz] = x[w[i]];
-      }
-
-      /* clear out temporary values for this column (row) */
-      for (i=0; i<nw; i++) {
-        x[w[i]] = RCONST(0.0);
-      }
-      if (j < M) {
-        x[j] = RCONST(0.0);
       }
 
       /* store ptr past this col (row) from orig A, update value for new A */
@@ -714,9 +702,6 @@ int SUNMatScaleAddI_Sparse(realtype c, SUNMatrix A)
 
   /*   case 3: A must be reallocated with sufficient storage */
   } else {
-
-    /* clean up */
-    free(w);
 
     /* create work array for nonzero values in a single column (row) */
     x = (realtype *) malloc(M * sizeof(realtype));
@@ -745,8 +730,8 @@ int SUNMatScaleAddI_Sparse(realtype c, SUNMatrix A)
       /* set current column (row) pointer to current # nonzeros */
       Cp[j] = nz;
 
-      /* clear out diagonal element for this column (row) */
-      x[j] = RCONST(0.0);
+      /* reset diagonal entry, in case it's not in A */
+      x[j] = ZERO;
 
       /* iterate down column (along row) of A, collecting nonzeros */
       for (p=Ap[j]; p<Ap[j+1]; p++) {
@@ -759,25 +744,20 @@ int SUNMatScaleAddI_Sparse(realtype c, SUNMatrix A)
       }
 
       /* fill entries of C with this column's (row's) data */
+      /* fill entries before diagonal */
       for (p=Ap[j]; p<Ap[j+1] && Ai[p]<j; p++) {
         Ci[nz] = Ai[p];
         Cx[nz++] = x[Ai[p]];
       }
+      /* fill diagonal if applicable */
       if (Ai[p] != j || Ap[j] == Ap[j+1]) {
         Ci[nz] = j;
         Cx[nz++] = x[j];
       }
+      /* fill entries past diagonal */
       for (; p<Ap[j+1]; p++) {
         Ci[nz] = Ai[p];
         Cx[nz++] = x[Ai[p]];
-      }
-
-      /* clear out temporary values for this column (row) */
-      for (p=Ap[j]; p<Ap[j+1]; p++) {
-        x[Ai[p]] = RCONST(0.0);
-      }
-      if (j < M) {
-        x[j] = RCONST(0.0);
       }
     }
 

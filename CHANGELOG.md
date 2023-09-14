@@ -1,5 +1,11 @@
 # SUNDIALS Changelog
 
+## Changes to SUNDIALS in release x.x.x
+
+Improved computational complexity of `SUNMatScaleAddI_Sparse` from `O(M*N)` to
+`O(NNZ)`.
+Fixed scaling bug in `SUNMatScaleAddI_Sparse` for non-square matrices.
+
 ## Changes to SUNDIALS in release 6.6.1
 
 Updated the Tpetra NVector interface to support Trilinos 14.
@@ -51,10 +57,6 @@ disable a previously set stop time.
 Fixed build errors when using SuperLU_DIST with ROCM enabled to target AMD GPUs.
 
 Fixed compilation errors in some SYCL examples when using the `icx` compiler.
-
-Improved computational complexity of `SUNMatScaleAddI_Sparse` from `O(M*N)` to
-`O(NNZ)`.
-Fixed scaling bug in `SUNMatScaleAddI_Sparse` for non-square matrices.
 
 The default interpolant in ARKODE when using a first order method has been
 updated to a linear interpolant to ensure values obtained by the integrator are
