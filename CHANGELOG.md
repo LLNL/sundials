@@ -1,5 +1,9 @@
 # SUNDIALS Changelog
 
+## Changes to SUNDIALS in release X.X.X
+
+Renamed some internal types in CVODES and IDAS to allow both packages to be built together in the same binary.
+
 ## Changes to SUNDIALS in release 6.6.2
 
 Fixed the build system support for MAGMA when using a NVIDIA HPC SDK installation of CUDA
