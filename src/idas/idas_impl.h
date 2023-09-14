@@ -550,8 +550,8 @@ typedef struct IDAMemRec {
  */
 
 typedef struct IDAadjMemRec *IDAadjMem;
-typedef struct CkpntMemRec *CkpntMem;
-typedef struct DtpntMemRec *DtpntMem;
+typedef struct IDAckpntMemRec *IDAckpntMem;
+typedef struct IDAdtpntMemRec *IDAdtpntMem;
 typedef struct IDABMemRec *IDABMem;
 
 /*
@@ -574,19 +574,19 @@ typedef void (*IDAAMFreeFn)(IDAMem IDA_mem);
 typedef int (*IDAAGetYFn)(IDAMem IDA_mem, realtype t,
                           N_Vector yy, N_Vector yp,
                           N_Vector *yyS, N_Vector *ypS);
-typedef int (*IDAAStorePntFn)(IDAMem IDA_mem, DtpntMem d);
+typedef int (*IDAAStorePntFn)(IDAMem IDA_mem, IDAdtpntMem d);
 
 /*
  * -----------------------------------------------------------------
- * Types : struct CkpntMemRec, CkpntMem
+ * Types : struct IDAckpntMemRec, IDAckpntMem
  * -----------------------------------------------------------------
- * The type CkpntMem is type pointer to struct CkpntMemRec.
+ * The type IDAckpntMem is type pointer to struct IDAckpntMemRec.
  * This structure contains fields to store all information at a
  * check point that is needed to 'hot' start IDAS.
  * -----------------------------------------------------------------
  */
 
-struct CkpntMemRec {
+struct IDAckpntMemRec {
 
   /* Integration limits */
   realtype ck_t0;
@@ -646,12 +646,12 @@ struct CkpntMemRec {
   int          ck_phi_alloc;
 
   /* Pointer to next structure in list */
-  struct CkpntMemRec *ck_next;
+  struct IDAckpntMemRec *ck_next;
 };
 
 /*
  * -----------------------------------------------------------------
- * Type : struct DtpntMemRec
+ * Type : struct IDAdtpntMemRec
  * -----------------------------------------------------------------
  * This structure contains fields to store all information at a
  * data point that is needed to interpolate solution of forward
@@ -659,21 +659,21 @@ struct CkpntMemRec {
  * -----------------------------------------------------------------
  */
 
-struct DtpntMemRec {
+struct IDAdtpntMemRec {
   realtype t;    /* time */
   void *content; /* interpType-dependent content */
 };
 
 /* Data for cubic Hermite interpolation */
-typedef struct HermiteDataMemRec {
+typedef struct IDAhermiteDataMemRec {
   N_Vector y;
   N_Vector yd;
   N_Vector *yS;
   N_Vector *ySd;
-} *HermiteDataMem;
+} *IDAhermiteDataMem;
 
 /* Data for polynomial interpolation */
-typedef struct PolynomialDataMemRec {
+typedef struct IDApolynomialDataMemRec {
   N_Vector y;
   N_Vector *yS;
 
@@ -682,7 +682,7 @@ typedef struct PolynomialDataMemRec {
   N_Vector yd;
   N_Vector *ySd;
   int order;
-} *PolynomialDataMem;
+} *IDApolynomialDataMem;
 
 /*
  * -----------------------------------------------------------------
@@ -798,10 +798,10 @@ struct IDAadjMemRec {
    * ---------------- */
 
   /* Storage for check point information */
-  struct CkpntMemRec *ck_mem;
+  struct IDAckpntMemRec *ck_mem;
 
   /* address of the check point structure for which data is available */
-  struct CkpntMemRec *ia_ckpntData;
+  struct IDAckpntMemRec *ia_ckpntData;
 
   /* Number of checkpoints. */
   int ia_nckpnts;
@@ -817,7 +817,7 @@ struct IDAadjMemRec {
   long int ia_ilast;
 
   /* Storage for data from forward runs */
-  struct DtpntMemRec **dt_mem;
+  struct IDAdtpntMemRec **dt_mem;
 
   /* Actual number of data points saved in current dt_mem */
   /* Commonly, np = nsteps+1                              */

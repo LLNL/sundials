@@ -86,11 +86,10 @@ integrate any final-condition ODE dependent on the solution of the original IVP
 Changes from previous versions
 ==============================
 
-Changes in v5.6.2
+Changes in vX.X.X
 -----------------
 
-Fixed the build system support for MAGMA when using a NVIDIA HPC SDK installation of CUDA
-and fixed the targets used for rocBLAS and rocSPARSE.
+Renamed some internal types in CVODES and IDAS to allow both packages to be built together in the same binary.
 
 Changes in v5.6.1
 -----------------
