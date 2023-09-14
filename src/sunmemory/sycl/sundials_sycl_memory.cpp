@@ -304,7 +304,8 @@ int SUNMemoryHelper_Destroy_Sycl(SUNMemoryHelper helper)
 {
   if (helper)
   {
-    free(helper->content);
+    if (helper->content) { free(helper->content); }
+    if (helper->ops) { free(helper->ops); }
     free(helper);
   }
   return 0;

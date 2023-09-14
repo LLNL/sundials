@@ -52,6 +52,7 @@
      ARKODE_ARK548L2SAb_ERK_8_4_5*       N
      ARKODE_VERNER_8_5_6                 Y
      ARKODE_FEHLBERG_13_7_8              Y
+     ARKODE_ARK2_ERK_3_1_2               Y
     --------------------------------
      ARKODE_KNOTH_WOLKE_3_3^             Y
     --------------------------------
@@ -75,7 +76,42 @@ ARK_BUTCHER_TABLE(ARKODE_HEUN_EULER_2_1_2, { /* Heun-Euler-ERK */
 
     B->c[1] = RCONST(1.0);
     return B;
- }) 
+ })
+
+ARK_BUTCHER_TABLE(ARKODE_ARK2_ERK_3_1_2, { /* ARK2 Explicit Table */
+    ARKodeButcherTable B = ARKodeButcherTable_Alloc(3, SUNTRUE);
+
+    /* 1 - 1 / sqrt(2) */
+    const sunrealtype gamma = SUN_RCONST(1.0) - SUN_RCONST(1.0) / SUNRsqrt(SUN_RCONST(2.0));
+    /* (3 + 2 sqrt(2)) / 6 */
+    const sunrealtype alpha = (SUN_RCONST(3.0) + SUN_RCONST(2.0) * SUNRsqrt(SUN_RCONST(2.0))) / SUN_RCONST(6.0);
+    /* 1 / (2 sqrt(2)) */
+    const sunrealtype delta = SUN_RCONST(1.0) / (SUN_RCONST(2.0) * SUNRsqrt(SUN_RCONST(2.0)));
+    /* 2 - sqrt(2) */
+    const sunrealtype twogamma = SUN_RCONST(2.0) - SUNRsqrt(SUN_RCONST(2.0));
+    /* (4 - sqrt(2)) / 8 */
+    const sunrealtype beta = (SUN_RCONST(4.0) - SUNRsqrt(SUN_RCONST(2.0))) / SUN_RCONST(8.0);
+
+    B->q = 2;
+    B->p = 1;
+
+    B->A[1][0] = twogamma;
+    B->A[2][0] = SUN_RCONST(1.0) - alpha;
+    B->A[2][1] = alpha;
+
+    B->b[0] = delta;
+    B->b[1] = delta;
+    B->b[2] = gamma;
+
+    B->d[0] = beta;
+    B->d[1] = beta;
+    B->d[2] = SUN_RCONST(1.0) / (SUN_RCONST(2.0) * SUNRsqrt(SUN_RCONST(2.0)));
+
+    B->c[1] = twogamma;
+    B->c[2] = SUN_RCONST(1.0);
+
+    return B;
+  })
 
 ARK_BUTCHER_TABLE(ARKODE_BOGACKI_SHAMPINE_4_2_3, { /* Bogacki-Shampine-ERK */
     ARKodeButcherTable B = ARKodeButcherTable_Alloc(4, SUNTRUE);
@@ -684,4 +720,3 @@ ARK_BUTCHER_TABLE(ARKODE_KNOTH_WOLKE_3_3, { /* Knoth-Wolke-ERK */
     B->c[2] = RCONST(3.0)/RCONST(4.0);
     return B;
   })
-

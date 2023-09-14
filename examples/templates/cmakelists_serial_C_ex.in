@@ -83,6 +83,9 @@ set(SUNDIALS_LIBRARIES
   ${SUNDIALS_MANYVEC_LIB}
   ${SUNDIALS_EXTRA_LIBS})
 
+# Include the current directory
+include_directories(.)
+
 # ------------------------------------------------------------------------------
 
 # Set the names of the examples to be built and their dependencies

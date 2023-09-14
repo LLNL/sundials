@@ -27,7 +27,7 @@
 %
 @techreport{arkode_ug,
 author      = {Daniel R. Reynolds and David J. Gardner and Carol S. Woodward and Rujeko Chinomona and Cody J. Balos},
-title       = {{User Documentation for ARKODE v5.5.1}},
+title       = {{User Documentation for ARKODE v5.6.1}},
 institution = {LLNL},
 number      = {LLNL-SM-668082},
 year        = 2023
@@ -37,7 +37,7 @@ year        = 2023
 %
 @techreport{arkode_ex,
 author      = {Daniel R. Reynolds},
-title       = {{Example Programs for ARKODE v5.5.1}},
+title       = {{Example Programs for ARKODE v5.6.1}},
 institution = {Southern Methodist University},
 year        = 2023
 }
@@ -46,7 +46,7 @@ year        = 2023
 %
 @techreport{cvode_ug,
 author      = {Alan C. Hindmarsh and Radu Serban and Cody J. Balos and David J. Gardner and Daniel R. Reynolds and Carol S. Woodward},
-title       = {{User Documentation for CVODE v6.5.1}},
+title       = {{User Documentation for CVODE v6.6.1}},
 institution = {LLNL},
 number      = {UCRL-SM-208108},
 year        = 2023
@@ -56,7 +56,7 @@ year        = 2023
 %
 @techreport{cvode_ex,
 author      = {Alan C. Hindmarsh and Radu Serban},
-title       = {{Example Programs for CVODE v6.5.1}},
+title       = {{Example Programs for CVODE v6.6.1}},
 institution = {LLNL},
 note        = {UCRL-SM-208110},
 year        = 2023
@@ -66,7 +66,7 @@ year        = 2023
 %
 @techreport{cvodes_ug,
 author      = {Alan C. Hindmarsh and Radu Serban and Cody J. Balos and David J. Gardner and Daniel R. Reynolds and Carol S. Woodward},
-title       = {{User Documentation for CVODES v6.5.1}},
+title       = {{User Documentation for CVODES v6.6.1}},
 institution = {LLNL},
 note        = {UCRL-SM-208111},
 year        = 2023
@@ -76,7 +76,7 @@ year        = 2023
 %
 @techreport{cvodes_ex,
 author      = {Radu Serban and Alan C. Hindmarsh},
-title       = {{Example Programs for CVODES v6.5.1}},
+title       = {{Example Programs for CVODES v6.6.1}},
 institution = {LLNL},
 number      = {UCRL-SM-208115},
 year        = 2023
@@ -86,7 +86,7 @@ year        = 2023
 %
 @techreport{ida_ug,
 author      = {Alan C. Hindmarsh and Radu Serban and Cody J. Balos and David J. Gardner and Daniel R. Reynolds and Carol S. Woodward},
-title       = {{User Documentation for IDA v6.5.1}},
+title       = {{User Documentation for IDA v6.6.1}},
 institution = {LLNL},
 number      = {UCRL-SM-208112},
 year        = 2023
@@ -96,7 +96,7 @@ year        = 2023
 %
 @techreport{ida_ex,
 author      = {Alan C. Hindmarsh and Radu Serban and Aaron Collier},
-title       = {{Example Programs for IDA v6.5.1}},
+title       = {{Example Programs for IDA v6.6.1}},
 institution = {LLNL},
 number      = {UCRL-SM-208113},
 year        = 2023
@@ -106,7 +106,7 @@ year        = 2023
 %
 @techreport{idas_ug,
 author      = {Radu Serban and Cosmin Petra and Alan C. Hindmarsh and Cody J. Balos and David J. Gardner and Daniel R. Reynolds and Carol S. Woodward},
-title       = {{User Documentation for IDAS v5.5.1}},
+title       = {{User Documentation for IDAS v5.6.1}},
 institution = {LLNL},
 number      = {UCRL-SM-234051},
 year        = 2023
@@ -116,7 +116,7 @@ year        = 2023
 %
 @techreport{idas_ex,
 author      = {Radu Serban and Alan C. Hindmarsh},
-title       = {{Example Programs for IDAS v5.5.1}},
+title       = {{Example Programs for IDAS v5.6.1}},
 institution = {LLNL},
 number      = {LLNL-TR-437091},
 year        = 2023
@@ -126,7 +126,7 @@ year        = 2023
 %
 @techreport{kinsol_ug,
 author      = {Alan C. Hindmarsh and Radu Serban and Cody J. Balos and David J. Gardner and Daniel R. Reynolds and Carol S. Woodward},
-title       = {{User Documentation for KINSOL v6.5.1}},
+title       = {{User Documentation for KINSOL v6.6.1}},
 institution = {LLNL},
 number      = {UCRL-SM-208116},
 year        = 2023
@@ -136,7 +136,7 @@ year        = 2023
 %
 @techreport{kinsol_ex,
 author      = {Aaron M. Collier and Radu Serban},
-title       = {{Example Programs for KINSOL v6.5.1}},
+title       = {{Example Programs for KINSOL v6.6.1}},
 institution = {LLNL},
 number      = {UCRL-SM-208114},
 year        = 2023
@@ -443,7 +443,14 @@ author    = {E. Hairer and G. Wanner},
 title     = {{Solving Ordinary Differential Equations II, Stiff and Differential-Algebraic Problems}},
 publisher = {Springer-Verlag},
 address   = {Berlin},
-year      = 1991
+year      = 1991,
+}
+@book{HaWa:06, 
+author    = {Hairer, Ernst and Wanner, Gerhard and Lubich, Christian}, 
+title     = {{Geometric Numerical Integration, Structure-Preserving Algorithms for Ordinary Differential Equations}}, 
+publisher = {Springer Series in Computational Mathematics},
+doi       = {10.1007/3-540-30666-8},
+year      = {2006}
 }
 @article{GGL:85,
 author  = {C.W. Gear and B. Leimkuhler and G.K. Gupta},
@@ -1720,6 +1727,17 @@ doi     = {10.1109/MCSE.2019.2924204}
   year      = {2008}
 }
 
+@article{CandyRozmus:91,
+  title={A symplectic integration algorithm for separable Hamiltonian functions},
+  author={Candy, J and Rozmus, W},
+  journal={Journal of Computational Physics},
+  volume={92},
+  number={1},
+  pages={230--256},
+  year={1991},
+  publisher={Elsevier}
+}
+
 @article{Cash:79,
   author  = {Cash, J.R.},
   title   = {{Diagonally Implicit Runge-Kutta Formulae with Error Estimates}},
@@ -1754,6 +1772,18 @@ doi     = {10.1109/MCSE.2019.2924204}
   doi       = {10.1137/20M1354349}
 }
 
+@article{Diele:11,
+  year    = {2011},
+  title   = {{Explicit symplectic partitioned Runge–Kutta–Nyström methods for non-autonomous dynamics}},
+  author  = {Diele, Fasma and Marangi, Carmela},
+  journal = {Applied Numerical Mathematics},
+  issn    = {0168-9274},
+  doi     = {10.1016/j.apnum.2011.02.003},
+  pages   = {832--843},
+  number  = {7},
+  volume  = {61}
+}
+
 @article{DorPri:80,
   author  = {Dormand, J.R. and Prince, P.J.},
   title   = {A family of embedded Runge-Kutta formulae},
@@ -1763,6 +1793,17 @@ doi     = {10.1109/MCSE.2019.2924204}
   pages   = {19-26},
   year    = {1980},
   doi     = {10.1016/0771-050X(80)90013-3}
+}
+
+@article{HaSo:05,
+  title={Explicit, time reversible, adaptive step size control},
+  author={Hairer, Ernst and S{\"o}derlind, Gustaf},
+  journal={SIAM Journal on Scientific Computing},
+  volume={26},
+  number={6},
+  pages={1838--1851},
+  year={2005},
+  publisher={SIAM}
 }
 
 @article{FFKMS:14,
@@ -1782,6 +1823,19 @@ doi     = {10.1109/MCSE.2019.2924204}
   institution = {NASA},
   number      = {315},
   year        = {1969}
+}
+
+
+@article{giraldo2013implicit,
+  title     = {Implicit-explicit formulations of a three-dimensional nonhydrostatic unified model of the atmosphere (NUMA)},
+  author    = {Giraldo, F. X. and Kelly, J. F. and Constantinescu, E. M.},
+  journal   = {SIAM Journal on Scientific Computing},
+  volume    = {35},
+  number    = {5},
+  pages     = {B1162--B1194},
+  year      = {2013},
+  publisher = {SIAM},
+  doi       = {10.1137/120876034}
 }
 
 @article{Gust:91,
@@ -1804,6 +1858,17 @@ doi     = {10.1109/MCSE.2019.2924204}
   pages   = {496-512},
   year    = {1994},
   doi     = {10.1145/198429.198437}
+}
+
+@article{Jay:21,
+  title     = {Symplecticness conditions of some low order partitioned methods for non-autonomous Hamiltonian systems},
+  author    = {Jay, Laurent O},
+  journal   = {Numerical Algorithms},
+  volume    = {86},
+  number    = {2},
+  pages     = {495--514},
+  year      = {2021},
+  publisher = {Springer}
 }
 
 @article{KenCarp:03,
@@ -1854,6 +1919,17 @@ doi     = {10.1109/MCSE.2019.2924204}
   pages   = {489-502},
   year    = {2004},
   doi     = {10.1023/B:BITN.0000046811.70614.38}
+}
+
+@article{Mclachlan:92,
+  author     = {Mclachlan, Robert I AND Atela, Pau},
+  title      = {The accuracy of symplectic integrators},
+  journal    = {Nonlinearity},
+  volume     = {5},
+  number     = {2},
+  pages      = {541},
+  year       = {1992},
+  publisher  = {IOP Publishing}
 }
 
 @article{Sandu:19,
@@ -1953,6 +2029,30 @@ doi     = {10.1109/MCSE.2019.2924204}
   doi     = {10.1016/j.apnum.2005.04.026}
 }
 
+@article{Sof:03,
+  title   = {Increment formulations for rounding error reduction in the numerical solution of structured differential systems},
+  journal = {Future Generation Computer Systems},
+  volume  = {19},
+  number  = {3},
+  pages   = {375-383},
+  year    = {2003},
+  note    = {Special Issue on Geometric Numerical Algorithms},
+  issn    = {0167-739X},
+  doi     = {https://doi.org/10.1016/S0167-739X(02)00164-4},
+  url     = {https://www.sciencedirect.com/science/article/pii/S0167739X02001644},
+  author  = {Mark Sofroniou and Giulia Spaletta}
+}
+
+@article{Sof:02,
+  year    = {2002},
+  title   = {{Symplectic Methods for Separable Hamiltonian Systems}},
+  author  = {Sofroniou, Mark and Spaletta, Giulia},
+  journal = {Lecture Notes in Computer Science},
+  issn    = {0302-9743},
+  doi     = {10.1007/3-540-47789-6\_53},
+  pages   = {506--515}
+}
+
 @article{Ver:78,
   author  = {Verner, J.H},
   title   = {Explicit Runge-Kutta methods with estimates of the local truncation error},
@@ -1962,6 +2062,59 @@ doi     = {10.1109/MCSE.2019.2924204}
   pages   = {772-790},
   year    = {1978},
   doi     = {10.1137/0715051}
+}
+
+@article{Ruth:93,
+  title   = {A canonical integration technique},
+  author  = {Ruth, Ronald D},
+  journal = {IEEE Trans. Nucl. Sci.},
+  volume  = {30},
+  number  = {CERN-LEP-TH-83-14},
+  pages   = {2669--2671},
+  year    = {1983}
+}
+
+@article{Sofroniou:05,
+  title     = {Derivation of symmetric composition constants for symmetric integrators},
+  author    = {Sofroniou, Mark and Spaletta, Giulia},
+  journal   = {Optimization Methods and Software},
+  volume    = {20},
+  number    = {4-5},
+  pages     = {597--613},
+  year      = {2005},
+  publisher = {Taylor \& Francis}
+}
+
+@article{Struckmeier:02,
+  title     = {Canonical transformations and exact invariants for time-dependent Hamiltonian systems},
+  author    = {Struckmeier, J{\"u}rgen and Riedel, Claus},
+  journal   = {Annalen der Physik},
+  volume    = {11},
+  number    = {1},
+  pages     = {15--38},
+  year      = {2002},
+  publisher = {Wiley Online Library}
+}
+
+@article{Suzuki:93,
+  title   = {Higher-order decomposition theory of exponential operators and its applications to QMC and nonlinear dynamics},
+  author  = {Suzuki, M and Umeno, K},
+  journal = {Computer simulation studies in condensed-matter physics VI},
+  pages   = {74--86},
+  year    = {1993}
+}
+
+@article{Tao:22,
+  title    = {Accurate and efficient simulations of Hamiltonian mechanical systems with discontinuous potentials},
+  journal  = {Journal of Computational Physics},
+  volume   = {450},
+  pages    = {110846},
+  year     = {2022},
+  issn     = {0021-9991},
+  doi      = {https://doi.org/10.1016/j.jcp.2021.110846},
+  url      = {https://www.sciencedirect.com/science/article/pii/S0021999121007415},
+  author   = {Molei Tao and Shi Jin},
+  keywords = {Symplectic integrator, Time-reversible / symmetric integrator, Hamiltonian with discontinuous potential, Contact and impact at interface, Reflection and refraction, Sauteed mushroom}
 }
 
 @article{KnWo:98,
@@ -1980,6 +2133,17 @@ doi     = {10.1109/MCSE.2019.2924204}
   howpublished = {\url{http://llnl.gov/casc/xbraid}}
 }
 
+@article{Yoshida:90,
+  title={Construction of higher order symplectic integrators},
+  author={Yoshida, Haruo},
+  journal={Physics letters A},
+  volume={150},
+  number={5-7},
+  pages={262--268},
+  year={1990},
+  publisher={Elsevier}
+}
+
 @techreport{Zon:63,
   author      = {Zonneveld, J.A.},
   title       = {Automatic integration of ordinary differential equations},
@@ -1987,6 +2151,97 @@ doi     = {10.1109/MCSE.2019.2924204}
   address     = {Postbus 4079, 1009AB Amsterdam},
   number      = {R743},
   year        = {1963}
+}
+
+%
+% Relaxation Runge-Kutta Methods
+%
+
+% IMEX and Multirate Relaxation Methods
+@article{kang2022entropy,
+  title     = {{Entropy--Preserving and Entropy--Stable Relaxation IMEX and Multirate Time--Stepping Methods}},
+  author    = {Kang, Shinhoo and Constantinescu, Emil M},
+  journal   = {Journal of Scientific Computing},
+  volume    = {93},
+  number    = {1},
+  pages     = {1--31},
+  year      = {2022},
+  publisher = {Springer},
+  doi       = {10.1007/s10915-022-01982-w}
+}
+
+@article{ketcheson2019relaxation,
+  title     = {{Relaxation Runge--Kutta methods: Conservation and stability for inner-product norms}},
+  author    = {Ketcheson, David I},
+  journal   = {SIAM Journal on Numerical Analysis},
+  volume    = {57},
+  number    = {6},
+  pages     = {2850--2870},
+  year      = {2019},
+  publisher = {SIAM},
+  doi       = {10.1137/19M1263662}
+}
+
+% Local Relaxation Runge-Kutta
+@article{ranocha2020fully,
+  title     = {{Fully discrete explicit locally entropy-stable schemes for the compressible Euler and Navier--Stokes equations}},
+  author    = {Ranocha, Hendrik and Dalcin, Lisandro and Parsani, Matteo},
+  journal   = {Computers \& Mathematics with Applications},
+  volume    = {80},
+  number    = {5},
+  pages     = {1343--1359},
+  year      = {2020},
+  publisher = {Elsevier},
+  doi       = {10.1016/j.camwa.2020.06.016}
+}
+
+% Relaxation in Multistep and General Linear Methods
+@article{ranocha2020general,
+  title     = {General relaxation methods for initial-value problems with application to multistep schemes},
+  author    = {Ranocha, Hendrik and L{\'o}czi, Lajos and Ketcheson, David I},
+  journal   = {Numerische Mathematik},
+  volume    = {146},
+  number    = {4},
+  pages     = {875--906},
+  year      = {2020},
+  publisher = {Springer},
+  doi       = {10.1007/s00211-020-01158-4}
+}
+
+% Global Relaxation Runge-Kutta
+@article{ranocha2020relaxation,
+  title     = {{Relaxation Runge--Kutta Methods: Fully Discrete Explicit Entropy-Stable Schemes for the Compressible Euler and Navier--Stokes Equations}},
+  author    = {Ranocha, Hendrik and Sayyari, Mohammed and Dalcin, Lisandro and Parsani, Matteo and Ketcheson, David I},
+  journal   = {SIAM Journal on Scientific Computing},
+  volume    = {42},
+  number    = {2},
+  pages     = {A612--A638},
+  year      = {2020},
+  publisher = {SIAM},
+  doi       = {10.1137/19M1263480}
+}
+
+% Relaxation Hamiltontian
+@article{ranocha2020hamiltonian,
+  title     = {{Relaxation Runge--Kutta methods for Hamiltonian problems}},
+  author    = {Ranocha, Hendrik and Ketcheson, David I},
+  journal   = {Journal of Scientific Computing},
+  volume    = {84},
+  number    = {1},
+  pages     = {1--27},
+  year      = {2020},
+  publisher = {Springer},
+  doi       = {10.1007/s10915-020-01277-y}
+}
+
+@article{rogowski2022performance,
+  title     = {{Performance analysis of relaxation Runge--Kutta methods}},
+  author    = {Rogowski, Marcin and Dalcin, Lisandro and Parsani, Matteo and Keyes, David E},
+  journal   = {The International Journal of High Performance Computing Applications},
+  pages     = {10943420221085947},
+  year      = {2022},
+  publisher = {SAGE Publications Sage UK: London, England},
+  doi       = {10.1177/10943420221085947}
 }
 
 %

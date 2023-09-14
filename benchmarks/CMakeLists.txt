@@ -26,12 +26,9 @@ sundials_option(BENCHMARK_NVECTOR BOOL "NVector benchmarks are on" ON)
 # Add specific benchmarks
 #----------------------------------------
 
-if(ENABLE_MPI AND ENABLE_RAJA)
-  add_subdirectory(advection_reaction_3D)
-endif()
-
 if(ENABLE_MPI)
-  add_subdirectory(diffusion_2D)
+add_subdirectory(diffusion_2D)
+add_subdirectory(advection_reaction_3D)
 endif()
 
 # Add the nvector benchmarks

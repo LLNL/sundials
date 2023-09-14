@@ -76,6 +76,7 @@ $tar $tarfile $distrobase/cmake/SundialsSetupFortran.cmake
 $tar $tarfile $distrobase/cmake/SundialsSetupTPLs.cmake
 $tar $tarfile $distrobase/cmake/SundialsSetupTesting.cmake
 $tar $tarfile $distrobase/cmake/SundialsTPLOptions.cmake
+$tar $tarfile $distrobase/cmake/macros/SundialsAddBenchmark.cmake
 $tar $tarfile $distrobase/cmake/macros/SundialsAddExamplesGinkgo.cmake
 $tar $tarfile $distrobase/cmake/macros/SundialsAddExecutable.cmake
 $tar $tarfile $distrobase/cmake/macros/SundialsAddLibrary.cmake
@@ -94,6 +95,7 @@ $tar $tarfile $distrobase/cmake/tpl/FindSUPERLUMT.cmake
 $tar $tarfile $distrobase/cmake/tpl/FindSUPERLUDIST.cmake
 $tar $tarfile $distrobase/cmake/tpl/FindTrilinos.cmake
 $tar $tarfile $distrobase/cmake/tpl/FindXBRAID.cmake
+$tar $tarfile $distrobase/cmake/tpl/SundialsAdiak.cmake
 $tar $tarfile $distrobase/cmake/tpl/SundialsCaliper.cmake
 $tar $tarfile $distrobase/cmake/tpl/SundialsGinkgo.cmake
 $tar $tarfile $distrobase/cmake/tpl/SundialsHypre.cmake
@@ -143,6 +145,7 @@ $tar $tarfile $distrobase/include/sundials/sundials_logger.h
 $tar $tarfile $distrobase/include/sundials/sundials_math.h
 $tar $tarfile $distrobase/include/sundials/sundials_matrix.h
 $tar $tarfile $distrobase/include/sundials/sundials_memory.h
+$tar $tarfile $distrobase/include/sundials/sundials_memory.hpp
 $tar $tarfile $distrobase/include/sundials/sundials_mpi_types.h
 $tar $tarfile $distrobase/include/sundials/sundials_nonlinearsolver.h
 $tar $tarfile $distrobase/include/sundials/sundials_nonlinearsolver.hpp
@@ -716,8 +719,8 @@ $tar $tarfile $distrobase/examples/sunlinsol/magmadense/CMakeLists.txt
 $tar $tarfile $distrobase/examples/sunlinsol/onemkldense/CMakeLists.txt
 $tar $tarfile $distrobase/examples/sunlinsol/onemkldense/test_sunlinsol_onemkldense.cpp
 
-#$tar $tarfile $distrobase/examples/sunlinsol/pcg/parallel/test_sunlinsol_pcg_parallel.c
-#$tar $tarfile $distrobase/examples/sunlinsol/pcg/parallel/CMakeLists.txt
+$tar $tarfile $distrobase/examples/sunlinsol/pcg/parallel/test_sunlinsol_pcg_parallel.c
+$tar $tarfile $distrobase/examples/sunlinsol/pcg/parallel/CMakeLists.txt
 
 $tar $tarfile $distrobase/examples/sunlinsol/pcg/serial/test_sunlinsol_pcg_serial.c
 $tar $tarfile $distrobase/examples/sunlinsol/pcg/serial/test_fsunlinsol_pcg_mod_serial.f90

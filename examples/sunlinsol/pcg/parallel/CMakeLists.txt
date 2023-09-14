@@ -14,12 +14,21 @@
 # CMakeLists.txt file for sunlinsol PCG examples
 # ---------------------------------------------------------------
 
+# Set tolerance for linear solver test based on Sundials precision
+if(SUNDIALS_PRECISION MATCHES "SINGLE")
+  set(TOL "1e-2")
+elseif(SUNDIALS_PRECISION MATCHES "DOUBLE")
+  set(TOL "1e-10")
+else()
+  set(TOL "1e-13")
+endif()
+
 # Example lists are tuples "name\;args\;nodes\;tasks\;type" where the
 # type is develop for examples excluded from 'make test' in releases
 
 # Examples using the SUNDIALS PCG linear solver
 set(sunlinsol_pcg_examples
-  "test_sunlinsol_pcg_parallel\;100 100 1e-3 0\;1\;4\;"
+  "test_sunlinsol_pcg_parallel\;100 500 ${TOL} 0\;1\;4\;"
   )
 
 # Dependencies for nvector examples

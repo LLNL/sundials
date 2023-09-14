@@ -20,6 +20,8 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <stdarg.h>
+#include <sundials/sundials_config.h>
+#include <sundials/sundials_types.h>
 
 static int sunvsnprintf(char* buffer, size_t bufsz, const char* format, va_list vlist)
 {
@@ -84,5 +86,14 @@ static int sunvasnprintf(char** str, const char* fmt, va_list args)
   return size;
 }
 
+SUNDIALS_STATIC_INLINE
+void sunCompensatedSum(sunrealtype base, sunrealtype inc, sunrealtype *sum, sunrealtype *error)
+{
+  sunrealtype err = *error;
+  volatile sunrealtype tmp1 = inc - err;
+  volatile sunrealtype tmp2 = base + tmp1;
+  *error = (tmp2 - base) - tmp1;
+  *sum = tmp2;
+}
 
 #endif /* _SUNDIALS_UTILS_H */

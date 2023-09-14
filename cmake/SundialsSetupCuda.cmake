@@ -33,6 +33,11 @@ endif()
 # Configure the CUDA flags
 # ===============================================================
 
+# Do not allow decaying to previous standards -- generates error if the standard
+# is not supported
+sundials_option(CMAKE_CUDA_STANDARD_REQUIRED BOOL
+  "Require C++ standard version" ON)
+
 set(DOCSTR "The CUDA standard to use if CUDA is enabled (14, 17, 20)")
 sundials_option(CMAKE_CUDA_STANDARD STRING "${DOCSTR}" "${CMAKE_CXX_STANDARD}"
                 OPTIONS "14;17;20")

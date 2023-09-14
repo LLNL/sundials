@@ -384,6 +384,7 @@ typedef struct CVodeMemRec {
     -----------------*/
 
   booleantype cv_tstopset;
+  booleantype cv_tstopinterp;
   realtype cv_tstop;
 
   /*---------

@@ -29,7 +29,7 @@
 # quartz_gcc:
 #   parallel:
 #     matrix:
-#       - COMPILER_SPEC: gcc@10.2.1
+#       - COMPILER_SPEC: gcc@10.3.1
 #         INDEX_SPEC: [~int64, +int64]
 #         PRECISION_SPEC: [double]
 #   variables:
@@ -39,7 +39,7 @@
 # quartz_intel:
 #   parallel:
 #     matrix:
-#       - COMPILER_SPEC: intel@19.0.4
+#       - COMPILER_SPEC: intel@19.1.2
 #         INDEX_SPEC: [~int64, +int64]
 #         PRECISION_SPEC: [double]
 #   variables:
@@ -55,7 +55,7 @@
 quartz_clang_tpls:
   parallel:
     matrix:
-      - COMPILER_SPEC: clang@12.0.1
+      - COMPILER_SPEC: clang@14.0.6
         INDEX_SPEC: [~int64]
         PRECISION_SPEC: [double]
   variables:
@@ -65,19 +65,21 @@ quartz_clang_tpls:
 quartz_gcc_tpls:
   parallel:
     matrix:
-      - COMPILER_SPEC: gcc@10.2.1
+      - COMPILER_SPEC: gcc@10.3.1
         INDEX_SPEC: [~int64]
         PRECISION_SPEC: [double]
   variables:
-    SPEC: "%${COMPILER_SPEC} cstd=99 cxxstd=14 ${INDEX_SPEC} precision=${PRECISION_SPEC} +mpi +openmp +hypre +superlu-dist +lapack +klu +petsc ^suite-sparse@5.13.0"
+    # For some reason nvhpc gets picked up for lapack w/o ^openblas
+    SPEC: "%${COMPILER_SPEC} cstd=99 cxxstd=14 ${INDEX_SPEC} precision=${PRECISION_SPEC} +mpi +openmp +hypre +superlu-dist +lapack +klu +petsc ^suite-sparse@5.13.0 ^openblas"
   extends: .quartz_build_and_test
 
 quartz_intel_tpls:
   parallel:
     matrix:
-      - COMPILER_SPEC: intel@19.0.4
+      - COMPILER_SPEC: intel@19.1.2
         INDEX_SPEC: [~int64]
         PRECISION_SPEC: [double]
   variables:
-    SPEC: "%${COMPILER_SPEC} cstd=99 cxxstd=14 ${INDEX_SPEC} precision=${PRECISION_SPEC} +mpi +openmp +hypre ~superlu-dist +lapack +klu ^suite-sparse@5.13.0"
+    # perl@5.32.0 needed until spack v0.20.0: https://github.com/spack/spack/pull/35666 
+    SPEC: "%${COMPILER_SPEC} cstd=99 cxxstd=14 ${INDEX_SPEC} precision=${PRECISION_SPEC} +mpi +openmp +hypre ~superlu-dist +lapack +klu ^suite-sparse@5.13.0 ^perl@5.32.0"
   extends: .quartz_build_and_test

@@ -69,7 +69,7 @@ int main(int argc, char *argv[])
   SetTiming(print_timing, 0);
 
   /* Create an in-order GPU queue */
-#if SYCL_LANGUAGE_VERSION >= 2020
+#if SYCL_LANGUAGE_VERSION >= 2020 && !defined(SUNDIALS_SYCL_2020_UNSUPPORTED)
   sycl::queue myQueue(sycl::gpu_selector_v,
                       sycl::property_list{sycl::property::queue::in_order{}});
 #else

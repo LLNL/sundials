@@ -84,6 +84,7 @@ module farkode_erkstep_mod
  public :: FERKStepSetInitStep
  public :: FERKStepSetMinStep
  public :: FERKStepSetMaxStep
+ public :: FERKStepSetInterpolateStopTime
  public :: FERKStepSetStopTime
  public :: FERKStepClearStopTime
  public :: FERKStepSetFixedStep
@@ -125,6 +126,21 @@ module farkode_erkstep_mod
  public :: FERKStepGetStepStats
  public :: FERKStepFree
  public :: FERKStepPrintMem
+ public :: FERKStepSetRelaxFn
+ public :: FERKStepSetRelaxEtaFail
+ public :: FERKStepSetRelaxLowerBound
+ public :: FERKStepSetRelaxMaxFails
+ public :: FERKStepSetRelaxMaxIters
+ public :: FERKStepSetRelaxSolver
+ public :: FERKStepSetRelaxResTol
+ public :: FERKStepSetRelaxTol
+ public :: FERKStepSetRelaxUpperBound
+ public :: FERKStepGetNumRelaxFnEvals
+ public :: FERKStepGetNumRelaxJacEvals
+ public :: FERKStepGetNumRelaxFails
+ public :: FERKStepGetNumRelaxBoundFails
+ public :: FERKStepGetNumRelaxSolveFails
+ public :: FERKStepGetNumRelaxSolveIters
 
 ! WRAPPER DECLARATIONS
 interface
@@ -458,6 +474,15 @@ result(fresult)
 use, intrinsic :: ISO_C_BINDING
 type(C_PTR), value :: farg1
 real(C_DOUBLE), intent(in) :: farg2
+integer(C_INT) :: fresult
+end function
+
+function swigc_FERKStepSetInterpolateStopTime(farg1, farg2) &
+bind(C, name="_wrap_FERKStepSetInterpolateStopTime") &
+result(fresult)
+use, intrinsic :: ISO_C_BINDING
+type(C_PTR), value :: farg1
+integer(C_INT), intent(in) :: farg2
 integer(C_INT) :: fresult
 end function
 
@@ -843,6 +868,143 @@ use, intrinsic :: ISO_C_BINDING
 type(C_PTR), value :: farg1
 type(C_PTR), value :: farg2
 end subroutine
+
+function swigc_FERKStepSetRelaxFn(farg1, farg2, farg3) &
+bind(C, name="_wrap_FERKStepSetRelaxFn") &
+result(fresult)
+use, intrinsic :: ISO_C_BINDING
+type(C_PTR), value :: farg1
+type(C_FUNPTR), value :: farg2
+type(C_FUNPTR), value :: farg3
+integer(C_INT) :: fresult
+end function
+
+function swigc_FERKStepSetRelaxEtaFail(farg1, farg2) &
+bind(C, name="_wrap_FERKStepSetRelaxEtaFail") &
+result(fresult)
+use, intrinsic :: ISO_C_BINDING
+type(C_PTR), value :: farg1
+real(C_DOUBLE), intent(in) :: farg2
+integer(C_INT) :: fresult
+end function
+
+function swigc_FERKStepSetRelaxLowerBound(farg1, farg2) &
+bind(C, name="_wrap_FERKStepSetRelaxLowerBound") &
+result(fresult)
+use, intrinsic :: ISO_C_BINDING
+type(C_PTR), value :: farg1
+real(C_DOUBLE), intent(in) :: farg2
+integer(C_INT) :: fresult
+end function
+
+function swigc_FERKStepSetRelaxMaxFails(farg1, farg2) &
+bind(C, name="_wrap_FERKStepSetRelaxMaxFails") &
+result(fresult)
+use, intrinsic :: ISO_C_BINDING
+type(C_PTR), value :: farg1
+integer(C_INT), intent(in) :: farg2
+integer(C_INT) :: fresult
+end function
+
+function swigc_FERKStepSetRelaxMaxIters(farg1, farg2) &
+bind(C, name="_wrap_FERKStepSetRelaxMaxIters") &
+result(fresult)
+use, intrinsic :: ISO_C_BINDING
+type(C_PTR), value :: farg1
+integer(C_INT), intent(in) :: farg2
+integer(C_INT) :: fresult
+end function
+
+function swigc_FERKStepSetRelaxSolver(farg1, farg2) &
+bind(C, name="_wrap_FERKStepSetRelaxSolver") &
+result(fresult)
+use, intrinsic :: ISO_C_BINDING
+type(C_PTR), value :: farg1
+integer(C_INT), intent(in) :: farg2
+integer(C_INT) :: fresult
+end function
+
+function swigc_FERKStepSetRelaxResTol(farg1, farg2) &
+bind(C, name="_wrap_FERKStepSetRelaxResTol") &
+result(fresult)
+use, intrinsic :: ISO_C_BINDING
+type(C_PTR), value :: farg1
+real(C_DOUBLE), intent(in) :: farg2
+integer(C_INT) :: fresult
+end function
+
+function swigc_FERKStepSetRelaxTol(farg1, farg2, farg3) &
+bind(C, name="_wrap_FERKStepSetRelaxTol") &
+result(fresult)
+use, intrinsic :: ISO_C_BINDING
+type(C_PTR), value :: farg1
+real(C_DOUBLE), intent(in) :: farg2
+real(C_DOUBLE), intent(in) :: farg3
+integer(C_INT) :: fresult
+end function
+
+function swigc_FERKStepSetRelaxUpperBound(farg1, farg2) &
+bind(C, name="_wrap_FERKStepSetRelaxUpperBound") &
+result(fresult)
+use, intrinsic :: ISO_C_BINDING
+type(C_PTR), value :: farg1
+real(C_DOUBLE), intent(in) :: farg2
+integer(C_INT) :: fresult
+end function
+
+function swigc_FERKStepGetNumRelaxFnEvals(farg1, farg2) &
+bind(C, name="_wrap_FERKStepGetNumRelaxFnEvals") &
+result(fresult)
+use, intrinsic :: ISO_C_BINDING
+type(C_PTR), value :: farg1
+type(C_PTR), value :: farg2
+integer(C_INT) :: fresult
+end function
+
+function swigc_FERKStepGetNumRelaxJacEvals(farg1, farg2) &
+bind(C, name="_wrap_FERKStepGetNumRelaxJacEvals") &
+result(fresult)
+use, intrinsic :: ISO_C_BINDING
+type(C_PTR), value :: farg1
+type(C_PTR), value :: farg2
+integer(C_INT) :: fresult
+end function
+
+function swigc_FERKStepGetNumRelaxFails(farg1, farg2) &
+bind(C, name="_wrap_FERKStepGetNumRelaxFails") &
+result(fresult)
+use, intrinsic :: ISO_C_BINDING
+type(C_PTR), value :: farg1
+type(C_PTR), value :: farg2
+integer(C_INT) :: fresult
+end function
+
+function swigc_FERKStepGetNumRelaxBoundFails(farg1, farg2) &
+bind(C, name="_wrap_FERKStepGetNumRelaxBoundFails") &
+result(fresult)
+use, intrinsic :: ISO_C_BINDING
+type(C_PTR), value :: farg1
+type(C_PTR), value :: farg2
+integer(C_INT) :: fresult
+end function
+
+function swigc_FERKStepGetNumRelaxSolveFails(farg1, farg2) &
+bind(C, name="_wrap_FERKStepGetNumRelaxSolveFails") &
+result(fresult)
+use, intrinsic :: ISO_C_BINDING
+type(C_PTR), value :: farg1
+type(C_PTR), value :: farg2
+integer(C_INT) :: fresult
+end function
+
+function swigc_FERKStepGetNumRelaxSolveIters(farg1, farg2) &
+bind(C, name="_wrap_FERKStepGetNumRelaxSolveIters") &
+result(fresult)
+use, intrinsic :: ISO_C_BINDING
+type(C_PTR), value :: farg1
+type(C_PTR), value :: farg2
+integer(C_INT) :: fresult
+end function
 
 end interface
 
@@ -1476,6 +1638,22 @@ real(C_DOUBLE) :: farg2
 farg1 = arkode_mem
 farg2 = hmax
 fresult = swigc_FERKStepSetMaxStep(farg1, farg2)
+swig_result = fresult
+end function
+
+function FERKStepSetInterpolateStopTime(arkode_mem, interp) &
+result(swig_result)
+use, intrinsic :: ISO_C_BINDING
+integer(C_INT) :: swig_result
+type(C_PTR) :: arkode_mem
+integer(C_INT), intent(in) :: interp
+integer(C_INT) :: fresult 
+type(C_PTR) :: farg1 
+integer(C_INT) :: farg2 
+
+farg1 = arkode_mem
+farg2 = interp
+fresult = swigc_FERKStepSetInterpolateStopTime(farg1, farg2)
 swig_result = fresult
 end function
 
@@ -2177,6 +2355,252 @@ farg1 = arkode_mem
 farg2 = outfile
 call swigc_FERKStepPrintMem(farg1, farg2)
 end subroutine
+
+function FERKStepSetRelaxFn(arkode_mem, rfn, rjac) &
+result(swig_result)
+use, intrinsic :: ISO_C_BINDING
+integer(C_INT) :: swig_result
+type(C_PTR) :: arkode_mem
+type(C_FUNPTR), intent(in), value :: rfn
+type(C_FUNPTR), intent(in), value :: rjac
+integer(C_INT) :: fresult 
+type(C_PTR) :: farg1 
+type(C_FUNPTR) :: farg2 
+type(C_FUNPTR) :: farg3 
+
+farg1 = arkode_mem
+farg2 = rfn
+farg3 = rjac
+fresult = swigc_FERKStepSetRelaxFn(farg1, farg2, farg3)
+swig_result = fresult
+end function
+
+function FERKStepSetRelaxEtaFail(arkode_mem, eta_rf) &
+result(swig_result)
+use, intrinsic :: ISO_C_BINDING
+integer(C_INT) :: swig_result
+type(C_PTR) :: arkode_mem
+real(C_DOUBLE), intent(in) :: eta_rf
+integer(C_INT) :: fresult 
+type(C_PTR) :: farg1 
+real(C_DOUBLE) :: farg2 
+
+farg1 = arkode_mem
+farg2 = eta_rf
+fresult = swigc_FERKStepSetRelaxEtaFail(farg1, farg2)
+swig_result = fresult
+end function
+
+function FERKStepSetRelaxLowerBound(arkode_mem, lower) &
+result(swig_result)
+use, intrinsic :: ISO_C_BINDING
+integer(C_INT) :: swig_result
+type(C_PTR) :: arkode_mem
+real(C_DOUBLE), intent(in) :: lower
+integer(C_INT) :: fresult 
+type(C_PTR) :: farg1 
+real(C_DOUBLE) :: farg2 
+
+farg1 = arkode_mem
+farg2 = lower
+fresult = swigc_FERKStepSetRelaxLowerBound(farg1, farg2)
+swig_result = fresult
+end function
+
+function FERKStepSetRelaxMaxFails(arkode_mem, max_fails) &
+result(swig_result)
+use, intrinsic :: ISO_C_BINDING
+integer(C_INT) :: swig_result
+type(C_PTR) :: arkode_mem
+integer(C_INT), intent(in) :: max_fails
+integer(C_INT) :: fresult 
+type(C_PTR) :: farg1 
+integer(C_INT) :: farg2 
+
+farg1 = arkode_mem
+farg2 = max_fails
+fresult = swigc_FERKStepSetRelaxMaxFails(farg1, farg2)
+swig_result = fresult
+end function
+
+function FERKStepSetRelaxMaxIters(arkode_mem, max_iters) &
+result(swig_result)
+use, intrinsic :: ISO_C_BINDING
+integer(C_INT) :: swig_result
+type(C_PTR) :: arkode_mem
+integer(C_INT), intent(in) :: max_iters
+integer(C_INT) :: fresult 
+type(C_PTR) :: farg1 
+integer(C_INT) :: farg2 
+
+farg1 = arkode_mem
+farg2 = max_iters
+fresult = swigc_FERKStepSetRelaxMaxIters(farg1, farg2)
+swig_result = fresult
+end function
+
+function FERKStepSetRelaxSolver(arkode_mem, solver) &
+result(swig_result)
+use, intrinsic :: ISO_C_BINDING
+integer(C_INT) :: swig_result
+type(C_PTR) :: arkode_mem
+integer(ARKRelaxSolver), intent(in) :: solver
+integer(C_INT) :: fresult 
+type(C_PTR) :: farg1 
+integer(C_INT) :: farg2 
+
+farg1 = arkode_mem
+farg2 = solver
+fresult = swigc_FERKStepSetRelaxSolver(farg1, farg2)
+swig_result = fresult
+end function
+
+function FERKStepSetRelaxResTol(arkode_mem, res_tol) &
+result(swig_result)
+use, intrinsic :: ISO_C_BINDING
+integer(C_INT) :: swig_result
+type(C_PTR) :: arkode_mem
+real(C_DOUBLE), intent(in) :: res_tol
+integer(C_INT) :: fresult 
+type(C_PTR) :: farg1 
+real(C_DOUBLE) :: farg2 
+
+farg1 = arkode_mem
+farg2 = res_tol
+fresult = swigc_FERKStepSetRelaxResTol(farg1, farg2)
+swig_result = fresult
+end function
+
+function FERKStepSetRelaxTol(arkode_mem, rel_tol, abs_tol) &
+result(swig_result)
+use, intrinsic :: ISO_C_BINDING
+integer(C_INT) :: swig_result
+type(C_PTR) :: arkode_mem
+real(C_DOUBLE), intent(in) :: rel_tol
+real(C_DOUBLE), intent(in) :: abs_tol
+integer(C_INT) :: fresult 
+type(C_PTR) :: farg1 
+real(C_DOUBLE) :: farg2 
+real(C_DOUBLE) :: farg3 
+
+farg1 = arkode_mem
+farg2 = rel_tol
+farg3 = abs_tol
+fresult = swigc_FERKStepSetRelaxTol(farg1, farg2, farg3)
+swig_result = fresult
+end function
+
+function FERKStepSetRelaxUpperBound(arkode_mem, upper) &
+result(swig_result)
+use, intrinsic :: ISO_C_BINDING
+integer(C_INT) :: swig_result
+type(C_PTR) :: arkode_mem
+real(C_DOUBLE), intent(in) :: upper
+integer(C_INT) :: fresult 
+type(C_PTR) :: farg1 
+real(C_DOUBLE) :: farg2 
+
+farg1 = arkode_mem
+farg2 = upper
+fresult = swigc_FERKStepSetRelaxUpperBound(farg1, farg2)
+swig_result = fresult
+end function
+
+function FERKStepGetNumRelaxFnEvals(arkode_mem, r_evals) &
+result(swig_result)
+use, intrinsic :: ISO_C_BINDING
+integer(C_INT) :: swig_result
+type(C_PTR) :: arkode_mem
+integer(C_LONG), dimension(*), target, intent(inout) :: r_evals
+integer(C_INT) :: fresult 
+type(C_PTR) :: farg1 
+type(C_PTR) :: farg2 
+
+farg1 = arkode_mem
+farg2 = c_loc(r_evals(1))
+fresult = swigc_FERKStepGetNumRelaxFnEvals(farg1, farg2)
+swig_result = fresult
+end function
+
+function FERKStepGetNumRelaxJacEvals(arkode_mem, j_evals) &
+result(swig_result)
+use, intrinsic :: ISO_C_BINDING
+integer(C_INT) :: swig_result
+type(C_PTR) :: arkode_mem
+integer(C_LONG), dimension(*), target, intent(inout) :: j_evals
+integer(C_INT) :: fresult 
+type(C_PTR) :: farg1 
+type(C_PTR) :: farg2 
+
+farg1 = arkode_mem
+farg2 = c_loc(j_evals(1))
+fresult = swigc_FERKStepGetNumRelaxJacEvals(farg1, farg2)
+swig_result = fresult
+end function
+
+function FERKStepGetNumRelaxFails(arkode_mem, relax_fails) &
+result(swig_result)
+use, intrinsic :: ISO_C_BINDING
+integer(C_INT) :: swig_result
+type(C_PTR) :: arkode_mem
+integer(C_LONG), dimension(*), target, intent(inout) :: relax_fails
+integer(C_INT) :: fresult 
+type(C_PTR) :: farg1 
+type(C_PTR) :: farg2 
+
+farg1 = arkode_mem
+farg2 = c_loc(relax_fails(1))
+fresult = swigc_FERKStepGetNumRelaxFails(farg1, farg2)
+swig_result = fresult
+end function
+
+function FERKStepGetNumRelaxBoundFails(arkode_mem, fails) &
+result(swig_result)
+use, intrinsic :: ISO_C_BINDING
+integer(C_INT) :: swig_result
+type(C_PTR) :: arkode_mem
+integer(C_LONG), dimension(*), target, intent(inout) :: fails
+integer(C_INT) :: fresult 
+type(C_PTR) :: farg1 
+type(C_PTR) :: farg2 
+
+farg1 = arkode_mem
+farg2 = c_loc(fails(1))
+fresult = swigc_FERKStepGetNumRelaxBoundFails(farg1, farg2)
+swig_result = fresult
+end function
+
+function FERKStepGetNumRelaxSolveFails(arkode_mem, fails) &
+result(swig_result)
+use, intrinsic :: ISO_C_BINDING
+integer(C_INT) :: swig_result
+type(C_PTR) :: arkode_mem
+integer(C_LONG), dimension(*), target, intent(inout) :: fails
+integer(C_INT) :: fresult 
+type(C_PTR) :: farg1 
+type(C_PTR) :: farg2 
+
+farg1 = arkode_mem
+farg2 = c_loc(fails(1))
+fresult = swigc_FERKStepGetNumRelaxSolveFails(farg1, farg2)
+swig_result = fresult
+end function
+
+function FERKStepGetNumRelaxSolveIters(arkode_mem, iters) &
+result(swig_result)
+use, intrinsic :: ISO_C_BINDING
+integer(C_INT) :: swig_result
+type(C_PTR) :: arkode_mem
+integer(C_LONG), dimension(*), target, intent(inout) :: iters
+integer(C_INT) :: fresult 
+type(C_PTR) :: farg1 
+type(C_PTR) :: farg2 
+
+farg1 = arkode_mem
+farg2 = c_loc(iters(1))
+fresult = swigc_FERKStepGetNumRelaxSolveIters(farg1, farg2)
+swig_result = fresult
+end function
 
 
 end module

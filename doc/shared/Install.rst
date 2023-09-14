@@ -634,6 +634,18 @@ illustration only.
 
    Default: None
 
+.. cmakeoption:: ENABLE_HIP
+
+   Enable HIP Support
+
+   Default: ``OFF``
+
+.. cmakeoption:: AMDGPU_TARGETS
+
+   Specify which AMDGPU processor(s) to target.
+
+   Default: None
+
 .. cmakeoption:: ENABLE_HYPRE
 
    Flag to enable *hypre* support
@@ -775,6 +787,20 @@ illustration only.
    Path to oneMKL installation.
 
    Default: none
+
+.. cmakeoption:: SUNDIALS_ONEMKL_USE_GETRF_LOOP
+
+   This advanced debugging option replaces the batched LU factorization with a
+   loop over each system in the batch and a non-batched LU factorization.
+
+   Default: OFF
+
+.. cmakeoption:: SUNDIALS_ONEMKL_USE_GETRS_LOOP
+
+   This advanced debugging option replaces the batched LU solve with a loop over
+   each system in the batch and a non-batched solve.
+
+   Default: OFF
 
 .. cmakeoption:: ENABLE_OPENMP
 
@@ -944,6 +970,14 @@ illustration only.
       ``dpcpp`` and ``icpx``. When using ``icpx`` the ``-fsycl`` flag and any
       ahead of time compilation flags must be added to ``CMAKE_CXX_FLAGS``.
 
+.. cmakeoption:: SUNDIALS_SYCL_2020_UNSUPPORTED
+
+   This advanced option disables the use of *some* features from the SYCL 2020
+   standard in SUNDIALS libraries and examples. This can be used to work around
+   some cases of incomplete compiler support for SYCL 2020.
+
+   Default: OFF
+
 
 .. cmakeoption:: SUNDIALS_LOGGING_LEVEL
 
@@ -1009,6 +1043,18 @@ illustration only.
 .. cmakeoption:: CALIPER_DIR
 
    Path to the root of a Caliper installation
+
+   Default: None
+
+.. cmakeoption:: ENABLE_ADIAK
+   
+   Enable Adiak support
+
+   Default: OFF
+
+.. cmakeoption:: adiak_DIR
+
+   Path to the root of an Adiak installation
 
    Default: None
 
@@ -1443,6 +1489,18 @@ nonstandard location, you may be prompted to set the variable
 CUDA examples, set ``EXAMPLES_ENABLE_CUDA`` to ``ON``.
 
 SUNDIALS has been tested with the CUDA toolkit versions 10 and 11.
+
+
+.. _Installation.Cmake.ExternalLibraries.HIP:
+
+Building with HIP
+^^^^^^^^^^^^^^^^^^^^^^
+HIP(heterogeneous-compute interface for portability) allows developers to create portable applications for AMD and NVIDIA GPUs. HIP can be obtained from `HIP GitHub repository <https://github.com/ROCm-Developer-Tools/HIP>`_.
+
+To enable HIP, set ``ENABLE_HIP`` to ``ON`` and set ``AMDGPU_TARGETS`` to the desired target(ex. gfx705).
+In addition, set ``CMAKE_C_COMPILER`` and ``CMAKE_CXX_COMPILER`` to point to an installation of ``hipcc``.
+
+SUNDIALS has been tested with HIP versions between 5.0.0 to 5.4.3.
 
 
 .. _Installation.CMake.ExternalLibraries.RAJA:

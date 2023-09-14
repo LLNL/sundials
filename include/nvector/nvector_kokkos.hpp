@@ -650,6 +650,20 @@ void CopyFromDevice(VectorType& v)
   Kokkos::deep_copy(v.HostView(), v.View());
 }
 
+template<class VectorType, class view_type>
+view_type GetView(N_Vector v)
+{
+  auto vec{GetVec<VectorType>(v)};
+  return vec->View();
+}
+
+template<class VectorType, class host_view_type>
+host_view_type GetHostView(N_Vector v)
+{
+  auto vec{GetVec<VectorType>(v)};
+  return vec->HostView();
+}
+
 } // namespace kokkos
 } // namespace sundials
 

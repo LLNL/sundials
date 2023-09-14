@@ -253,6 +253,8 @@ SUNDIALS_EXPORT int MRIStepSetMaxHnilWarns(void *arkode_mem,
                                            int mxhnil);
 SUNDIALS_EXPORT int MRIStepSetStopTime(void *arkode_mem,
                                        realtype tstop);
+SUNDIALS_EXPORT int MRIStepSetInterpolateStopTime(void *arkode_mem,
+                                                  booleantype interp);
 SUNDIALS_EXPORT int MRIStepClearStopTime(void *arkode_mem);
 SUNDIALS_EXPORT int MRIStepSetFixedStep(void *arkode_mem,
                                         realtype hsfixed);

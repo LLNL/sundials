@@ -28,7 +28,6 @@
 #include <sundials/sundials_math.h>
 #include <sundials/sundials_types.h>
 
-
 /*===============================================================
   ARKStep Optional input functions (wrappers for generic ARKODE
   utility routines).  All are documented in arkode_io.c.
@@ -59,6 +58,9 @@ int ARKStepSetMaxStep(void *arkode_mem, realtype hmax) {
   return(arkSetMaxStep(arkode_mem, hmax)); }
 int ARKStepSetStopTime(void *arkode_mem, realtype tstop) {
   return(arkSetStopTime(arkode_mem, tstop)); }
+int ARKStepSetInterpolateStopTime(void *arkode_mem,
+                                  booleantype interp) {
+  return(arkSetInterpolateStopTime(arkode_mem, interp)); }
 int ARKStepClearStopTime(void *arkode_mem) {
   return(arkClearStopTime(arkode_mem)); }
 int ARKStepSetRootDirection(void *arkode_mem, int *rootdir) {
@@ -260,7 +262,86 @@ int ARKStepGetLastMassFlag(void *arkode_mem, long int *flag) {
 char *ARKStepGetLinReturnFlagName(long int flag) {
   return(arkLSGetReturnFlagName(flag)); }
 
+/* -----------------------------------------------------------------------------
+ * Wrappers for the ARKODE relaxation module
+ * ---------------------------------------------------------------------------*/
 
+int ARKStepSetRelaxFn(void* arkode_mem, ARKRelaxFn rfn, ARKRelaxJacFn rjac)
+{
+  return arkRelaxCreate(arkode_mem, rfn, rjac, arkStep_RelaxDeltaY,
+                        arkStep_RelaxDeltaE, arkStep_GetOrder);
+}
+
+int ARKStepSetRelaxEtaFail(void* arkode_mem, sunrealtype eta_rf)
+{
+  return arkRelaxSetEtaFail(arkode_mem, eta_rf);
+}
+
+int ARKStepSetRelaxLowerBound(void* arkode_mem, sunrealtype lower)
+{
+  return arkRelaxSetLowerBound(arkode_mem, lower);
+}
+
+int ARKStepSetRelaxMaxFails(void* arkode_mem, int max_fails)
+{
+  return arkRelaxSetMaxFails(arkode_mem, max_fails);
+}
+
+int ARKStepSetRelaxMaxIters(void* arkode_mem, int max_iters)
+{
+  return arkRelaxSetMaxIters(arkode_mem, max_iters);
+}
+
+int ARKStepSetRelaxSolver(void* arkode_mem, ARKRelaxSolver solver)
+{
+  return arkRelaxSetSolver(arkode_mem, solver);
+}
+
+int ARKStepSetRelaxResTol(void* arkode_mem, sunrealtype res_tol)
+{
+  return arkRelaxSetResTol(arkode_mem, res_tol);
+}
+
+int ARKStepSetRelaxTol(void* arkode_mem, sunrealtype rel_tol,
+                       sunrealtype abs_tol)
+{
+  return arkRelaxSetTol(arkode_mem, rel_tol, abs_tol);
+}
+
+int ARKStepSetRelaxUpperBound(void* arkode_mem, sunrealtype upper)
+{
+  return arkRelaxSetUpperBound(arkode_mem, upper);
+}
+
+int ARKStepGetNumRelaxFnEvals(void* arkode_mem, long int* r_evals)
+{
+  return arkRelaxGetNumRelaxFnEvals(arkode_mem, r_evals);
+}
+
+int ARKStepGetNumRelaxJacEvals(void* arkode_mem, long int* J_evals)
+{
+  return arkRelaxGetNumRelaxJacEvals(arkode_mem, J_evals);
+}
+
+int ARKStepGetNumRelaxFails(void* arkode_mem, long int* relax_fails)
+{
+  return arkRelaxGetNumRelaxFails(arkode_mem, relax_fails);
+}
+
+int ARKStepGetNumRelaxBoundFails(void* arkode_mem, long int* fails)
+{
+  return arkRelaxGetNumRelaxBoundFails(arkode_mem, fails);
+}
+
+int ARKStepGetNumRelaxSolveFails(void* arkode_mem, long int* fails)
+{
+  return arkRelaxGetNumRelaxSolveFails(arkode_mem, fails);
+}
+
+int ARKStepGetNumRelaxSolveIters(void* arkode_mem, long int* iters)
+{
+  return arkRelaxGetNumRelaxSolveIters(arkode_mem, iters);
+}
 
 /*===============================================================
   ARKStep optional input functions -- stepper-specific

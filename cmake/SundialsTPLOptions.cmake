@@ -61,6 +61,11 @@ sundials_option(ENABLE_HIP BOOL "Enable HIP support" OFF)
 # -------------------------------------------------------------
 sundials_option(ENABLE_SYCL BOOL "Enable SYCL support" OFF)
 
+sundials_option(SUNDIALS_SYCL_2020_UNSUPPORTED BOOL
+                "Disable the use of some SYCL 2020 features in SUNDIALS libraries and examples" OFF
+                DEPENDS_ON ENABLE_SYCL
+                ADVANCED)
+
 # ---------------------------------------------------------------
 # Enable LAPACK support?
 # ---------------------------------------------------------------
@@ -288,6 +293,16 @@ sundials_option(ONEMKL_WORKS BOOL "Set to ON to force CMake to accept a given on
                 DEPENDS_ON ENABLE_ONEMKL
                 ADVANCED)
 
+sundials_option(SUNDIALS_ONEMKL_USE_GETRF_LOOP BOOL
+                "Replace batched getrf call with loop over getrf" OFF
+                DEPENDS_ON ENABLE_ONEMKL
+                ADVANCED)
+
+sundials_option(SUNDIALS_ONEMKL_USE_GETRS_LOOP BOOL
+                "Replace batched getrs call with loop over getrs" OFF
+                DEPENDS_ON ENABLE_ONEMKL
+                ADVANCED)
+
 # ---------------------------------------------------------------
 # Enable Caliper support?
 # ---------------------------------------------------------------
@@ -302,6 +317,13 @@ sundials_option(CALIPER_WORKS BOOL "Set to ON to force CMake to accept a given C
                 DEPENDS_ON ENABLE_CALIPER
                 ADVANCED)
 
+# ---------------------------------------------------------------
+# Enable Adiak support?
+# ---------------------------------------------------------------
+
+sundials_option(ENABLE_ADIAK BOOL "Enable Adiak support" OFF DEPENDS_ON SUNDIALS_BUILD_WITH_PROFILING)
+
+sundials_option(adiak_DIR PATH "Path to the root of an Adiak installation" "${ADIAK_DIR}" DEPENDS_ON ENABLE_ADIAK)
 
 # ---------------------------------------------------------------
 # Enable Kokkos support?
