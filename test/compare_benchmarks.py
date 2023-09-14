@@ -1,3 +1,17 @@
+# -----------------------------------------------------------------------------
+# Programmer(s): Yu Pan @ LLNL
+# -----------------------------------------------------------------------------
+# SUNDIALS Copyright Start
+# Copyright (c) 2002-2023, Lawrence Livermore National Security
+# and Southern Methodist University.
+# All rights reserved.
+#
+# See the top-level LICENSE and NOTICE files for details.
+#
+# SPDX-License-Identifier: BSD-3-Clause
+# SUNDIALS Copyright End
+# -----------------------------------------------------------------------------
+
 import os
 import glob
 import argparse
@@ -15,9 +29,11 @@ def main():
 
     parser.add_argument('--releasedir', dest='releaseDir', type=str, help='path to directory containing release caliper files', default="/usr/workspace/sundials/califiles/Release")
 
-    parser.add_argument('--outpath', dest='outPath', type=str, help='path to directory to write results to', default="/g/g20/pan13/shrimp")
+    parser.add_argument('--outpath', dest='outPath', type=str, help='path to directory to write results to', default="/dev/null")
 
     parser.add_argument('--jobid', dest='jobID', type=int, help='job id of the current run to identify .cali files')
+
+    parser.add_argument('--threshold', dest="threshold", type=float, help='the percentage threshold in performance difference that indicates a regression', default=2.0)
 
     args = parser.parse_args()
 
@@ -26,6 +42,7 @@ def main():
     caliDir = args.caliDir
     outPath = args.outPath
     jobID = args.jobID
+    threshold = args.threshold
 
     # Get available benchmarks
     benchFiles = glob.glob("%s/Benchmarking/*/*" % caliDir)
@@ -36,7 +53,7 @@ def main():
 
     # thread per file
     with mp.Pool() as pool:
-        for res in pool.starmap(process_benchmark, [(jobID, release, releaseDir, i) for i in benchFiles]):
+        for res in pool.starmap(process_benchmark, [(jobID, release, releaseDir, i, threshold) for i in benchFiles]):
             if res:
                 outFile.write(res + "\n")
     outFile.close()
@@ -51,7 +68,7 @@ def main():
         return -1 
     return 0
 
-def process_benchmark(jobID, isRelease, releaseDir, benchmarkDir):
+def process_benchmark(jobID, isRelease, releaseDir, benchmarkDir, threshold):
     # Get the current benchmark run
     benchmarkFiles = glob.glob("%s/*.cali" % benchmarkDir)
     # Don't compare if the run didn't include this benchmark
@@ -82,7 +99,8 @@ def process_benchmark(jobID, isRelease, releaseDir, benchmarkDir):
 
     ratio = th_current.statsframe.dataframe['Max time/rank_mean'] / th_compare.statsframe.dataframe['Max time/rank_mean']
 
-    if 1 - ratio[0] < 0.0002:
+    tolerance = threshold/100
+    if 1 - ratio[0] < tolerance:
         return benchmarkName
 
 

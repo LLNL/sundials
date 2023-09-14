@@ -1,3 +1,18 @@
+#!/usr/bin/env python3
+# -----------------------------------------------------------------------------
+# Programmer(s): Yu Pan @ LLNL
+# -----------------------------------------------------------------------------
+# SUNDIALS Copyright Start
+# Copyright (c) 2002-2023, Lawrence Livermore National Security
+# and Southern Methodist University.
+# All rights reserved.
+#
+# See the top-level LICENSE and NOTICE files for details.
+#
+# SPDX-License-Identifier: BSD-3-Clause
+# SUNDIALS Copyright End
+# -----------------------------------------------------------------------------
+
 import os
 import subprocess
 import sys
@@ -21,7 +36,9 @@ def main():
 
     parser.add_argument('--releasedir', dest='releaseDir', type=str, help='path to directory containing release caliper files', default="/usr/workspace/sundials/califiles/Release")
 
-    parser.add_argument('--outpath', dest='outPath', type=str, help='path to directory to write results to', default="/g/g20/pan13/shrimp")
+    parser.add_argument('--outpath', dest='outPath', type=str, help='path to directory to write results to', default="/dev/null")
+
+    parser.add_argument('--threshold', dest="threshold", type=float, help='the percentage threshold in performance difference that indicates a regression', default=2.0)
 
     args = parser.parse_args()
 
@@ -29,6 +46,7 @@ def main():
     releaseDir = args.releaseDir
     caliDir = args.caliDir
     outPath = args.outPath
+    threshold = args.threshold
 
     # Get the latest test run
     runDirs = glob.glob("%s/Testing/*" % caliDir, recursive = True)
@@ -58,7 +76,7 @@ def main():
 
     # Compare test results against past runs. If a test performs below a threshold, output test name to outFile.
     with mp.Pool() as pool:
-        for res in pool.starmap(compare_against_release, [(versionDir, i) for i in runFiles]):
+        for res in pool.starmap(compare_against_release, [(versionDir, i, threshold) for i in runFiles]):
             if res:
                 outFile.write(res + "\n")
     outFile.close()
@@ -74,7 +92,7 @@ def main():
     return 0
 
 
-def compare_against_release(releaseDir, file):
+def compare_against_release(releaseDir, file, threshold):
     th = tt.Thicket.from_caliperreader(file)
 
     testName = th.metadata['env.TEST_NAME'].values[0]
@@ -89,7 +107,7 @@ def compare_against_release(releaseDir, file):
 
     ratio = th.statsframe.dataframe['Max time/rank_mean'] / th_release.statsframe.dataframe['Max time/rank_mean']
     print(ratio[0])
-    tolerance = 0.0002
+    tolerance = threshold/100
     if 1 - ratio[0] < tolerance:
         return testName
 
