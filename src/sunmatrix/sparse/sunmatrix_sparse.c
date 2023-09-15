@@ -678,8 +678,8 @@ int SUNMatScaleAddI_Sparse(realtype c, SUNMatrix A)
         Ai[--nz] = w[i];
         Ax[nz] = x[w[i]];
       }
-      /* fill diagonal if applicable */
-      if (w[i] != j) {
+      /* fill diagonal if applicable, i.e if column (row) is empty or diagonal was not in A */
+      if (i < 0 || w[i] != j) {
         Ai[--nz] = j;
         Ax[nz] = x[j];
       }
