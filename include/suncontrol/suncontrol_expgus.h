@@ -50,7 +50,7 @@ SUNDIALS_EXPORT
 int SUNControlExpGus_SetParams(SUNControl C, sunbooleantype pq,
                                realtype k1, realtype k2);
 SUNDIALS_EXPORT
-SUNControl_ID SUNControlGetID_ExpGus(SUNControl C);
+SUNControl_Type SUNControlGetType_ExpGus(SUNControl C);
 SUNDIALS_EXPORT
 int SUNControlEstimateStep_ExpGus(SUNControl C, realtype h,
                                   realtype dsm, realtype* hnew);

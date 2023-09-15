@@ -53,7 +53,7 @@ SUNDIALS_EXPORT
 SUNControl ARKUserControl(SUNContext sunctx, void* arkode_mem,
                           ARKAdaptFn hadapt, void* hadapt_data);
 SUNDIALS_EXPORT
-SUNControl_ID SUNControlGetID_ARKUserControl(SUNControl C);
+SUNControl_Type SUNControlGetType_ARKUserControl(SUNControl C);
 SUNDIALS_EXPORT
 int SUNControlEstimateStep_ARKUserControl(SUNControl C, realtype h,
                                           realtype dsm, realtype* hnew);

@@ -65,7 +65,7 @@ SUNControl SUNControlPID(SUNContext sunctx)
   if (C == NULL) { return (NULL); }
 
   /* Attach operations */
-  C->ops->getid             = SUNControlGetID_PID;
+  C->ops->getid             = SUNControlGetType_PID;
   C->ops->estimatestep      = SUNControlEstimateStep_PID;
   C->ops->reset             = SUNControlReset_PID;
   C->ops->setdefaults       = SUNControlSetDefaults_PID;
@@ -118,7 +118,7 @@ int SUNControlPID_SetParams(SUNControl C, sunbooleantype pq,
  * implementation of controller operations
  * ----------------------------------------------------------------- */
 
-SUNControl_ID SUNControlGetID_PID(SUNControl C) { return SUNDIALS_CONTROL_H; }
+SUNControl_Type SUNControlGetType_PID(SUNControl C) { return SUNDIALS_CONTROL_H; }
 
 int SUNControlEstimateStep_PID(SUNControl C, realtype h,
                                realtype dsm, realtype* hnew)

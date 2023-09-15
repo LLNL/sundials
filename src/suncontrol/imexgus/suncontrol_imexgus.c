@@ -68,7 +68,7 @@ SUNControl SUNControlImExGus(SUNContext sunctx)
   if (C == NULL) { return (NULL); }
 
   /* Attach operations */
-  C->ops->getid             = SUNControlGetID_ImExGus;
+  C->ops->getid             = SUNControlGetType_ImExGus;
   C->ops->estimatestep      = SUNControlEstimateStep_ImExGus;
   C->ops->reset             = SUNControlReset_ImExGus;
   C->ops->setdefaults       = SUNControlSetDefaults_ImExGus;
@@ -124,7 +124,7 @@ int SUNControlImExGus_SetParams(SUNControl C, sunbooleantype pq,
  * implementation of controller operations
  * ----------------------------------------------------------------- */
 
-SUNControl_ID SUNControlGetID_ImExGus(SUNControl C) { return SUNDIALS_CONTROL_H; }
+SUNControl_Type SUNControlGetType_ImExGus(SUNControl C) { return SUNDIALS_CONTROL_H; }
 
 int SUNControlEstimateStep_ImExGus(SUNControl C, realtype h,
                                    realtype dsm, realtype* hnew)

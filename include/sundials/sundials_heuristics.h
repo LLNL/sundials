@@ -53,13 +53,13 @@ typedef int (*SUNExpStabFn)(realtype *hstab, void *user_data);
  * ----------------------------------------------------------------- */
 
 /* Forward reference for pointer to SUNHeuristics_Ops object */
-typedef _SUNDIALS_STRUCT_ _generic_SUNHeuristics_Ops* SUNHeuristics_Ops;
+typedef _SUNDIALS_STRUCT_ generic_SUNHeuristics_Ops_* SUNHeuristics_Ops;
 
 /* Forward reference for pointer to SUNHeuristics object */
-typedef _SUNDIALS_STRUCT_ _generic_SUNHeuristics* SUNHeuristics;
+typedef _SUNDIALS_STRUCT_ generic_SUNHeuristics_* SUNHeuristics;
 
 /* Structure containing function pointers to heuristics operations  */
-struct _generic_SUNHeuristics_Ops
+struct generic_SUNHeuristics_Ops_
 {
   SUNHeuristics_ID (*getid)(SUNHeuristics H);
   void (*destroy)(SUNHeuristics H);
@@ -91,7 +91,7 @@ struct _generic_SUNHeuristics_Ops
   int (*getnumaccsteps)(SUNHeuristics H, long int* accsteps);
   int (*space)(SUNHeuristics H, long int *lenrw, long int *leniw);
 #ifdef __cplusplus
-  _generic_SUNHeuristics_Ops() = default;
+  generic_SUNHeuristics_Ops_() = default;
 #endif
 
 };
@@ -99,13 +99,13 @@ struct _generic_SUNHeuristics_Ops
 /* A SUNHeuristics is a structure with an implementation-dependent
    'content' field, and a pointer to a structure of
    operations corresponding to that implementation. */
-struct _generic_SUNHeuristics
+struct generic_SUNHeuristics_
 {
   void* content;
   SUNHeuristics_Ops ops;
   SUNContext sunctx;
 #ifdef __cplusplus
-  _generic_SUNHeuristics() = default;
+  generic_SUNHeuristics_() = default;
 #endif
 };
 

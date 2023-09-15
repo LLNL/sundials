@@ -63,7 +63,7 @@ SUNControl SUNControlExpGus(SUNContext sunctx)
   if (C == NULL) { return (NULL); }
 
   /* Attach operations */
-  C->ops->getid             = SUNControlGetID_ExpGus;
+  C->ops->getid             = SUNControlGetType_ExpGus;
   C->ops->estimatestep      = SUNControlEstimateStep_ExpGus;
   C->ops->reset             = SUNControlReset_ExpGus;
   C->ops->setdefaults       = SUNControlSetDefaults_ExpGus;
@@ -116,7 +116,7 @@ int SUNControlExpGus_SetParams(SUNControl C, sunbooleantype pq,
  * implementation of controller operations
  * ----------------------------------------------------------------- */
 
-SUNControl_ID SUNControlGetID_ExpGus(SUNControl C) { return SUNDIALS_CONTROL_H; }
+SUNControl_Type SUNControlGetType_ExpGus(SUNControl C) { return SUNDIALS_CONTROL_H; }
 
 int SUNControlEstimateStep_ExpGus(SUNControl C, realtype h,
                                realtype dsm, realtype* hnew)

@@ -38,46 +38,47 @@ classes, in that this class contains a pointer to an implementation-specific
 :c:type:`SUNContext` object. Specifically, the type ``SUNControl`` is defined
 as:
 
-.. c:type:: struct _generic_SUNControl *SUNControl
+.. c:type:: struct generic_SUNControl_ *SUNControl
 
 and the base class structure is defined as
 
 .. code-block:: C
 
-   struct _generic_SUNControl {
+   struct generic_SUNControl_ {
         void* content;
-        _generic_SUNControl_Ops* ops;
+        generic_SUNControl_Ops_* ops;
         SUNContext sunctx;
     };
 
-Here, ``_generic_SUNControl_Ops`` is the pointer to a structure containing
+Here, ``generic_SUNControl_Ops_`` is the pointer to a structure containing
 function pointers to the various controller operations, and is defined as
 
 .. code-block:: c
 
-    struct _generic_SUNControl_Ops {
-        SUNControl_ID (*getid)(SUNControl C);
-        void          (*destroy)(SUNControl C);
-        int           (*estimatestep)(SUNControl C, realtype h, realtype dsm, realtype* hnew);
-        int           (*estimatestepandorder)(SUNControl C, realtype h, int q, realtype dsm, realtype* hnew, int *qnew);
-        int           (*estimatemristeps)(SUNControl C, realtype H, realtype h, realtype DSM, realtype dsm, realtype* Hnew, realtype *hnew);
-        int           (*estimatesteptol)(SUNControl C, realtype H, realtype tolfac, realtype DSM, realtype dsm, realtype *Hnew, realtype* tolfacnew);
-        int           (*reset)(SUNControl C);
-        int           (*setdefaults)(SUNControl C);
-        int           (*write)(SUNControl C, FILE* fptr);
-        int           (*setmethodorder)(SUNControl C, int q);
-        int           (*setembeddingorder)(SUNControl C, int p);
-        int           (*seterrorbias)(SUNControl C, realtype bias);
-        int           (*update)(SUNControl C, realtype h, realtype dsm);
-        int           (*updatemrih)(SUNControl C, realtype H, realtype h, realtype DSM, realtype dsm);
-        int           (*updatemritol)(SUNControl C, realtype H, realtype tolfac, realtype DSM, realtype dsm);
-        int           (*space)(SUNControl C, long int *lenrw, long int *leniw);
+    struct generic_SUNControl_Ops_ {
+        SUNControl_Type (*getid)(SUNControl C);
+        void            (*destroy)(SUNControl C);
+        int             (*estimatestep)(SUNControl C, realtype h, realtype dsm, realtype* hnew);
+        int             (*estimatestepandorder)(SUNControl C, realtype h, int q, realtype dsm, realtype* hnew, int *qnew);
+        int             (*estimatemristeps)(SUNControl C, realtype H, realtype h, realtype DSM, realtype dsm, realtype* Hnew, realtype *hnew);
+        int             (*estimatesteptol)(SUNControl C, realtype H, realtype tolfac, realtype DSM, realtype dsm, realtype *Hnew, realtype* tolfacnew);
+        int             (*reset)(SUNControl C);
+        int             (*setdefaults)(SUNControl C);
+        int             (*write)(SUNControl C, FILE* fptr);
+        int             (*setmethodorder)(SUNControl C, int q);
+        int             (*setembeddingorder)(SUNControl C, int p);
+        int             (*seterrorbias)(SUNControl C, realtype bias);
+        int             (*update)(SUNControl C, realtype h, realtype dsm);
+        int             (*updatemrih)(SUNControl C, realtype H, realtype h, realtype DSM, realtype dsm);
+        int             (*updatemritol)(SUNControl C, realtype H, realtype tolfac, realtype DSM, realtype dsm);
+        int             (*space)(SUNControl C, long int *lenrw, long int *leniw);
     };
 
 
+.. _SUNControl.Description.controllerTypes:
 
-SUNControl IDs
---------------
+SUNControl Types
+----------------
 
 The time integrators in SUNDIALS adapt a variety of parameters to achieve
 accurate and efficient computations. To this end, each SUNControl implementation
@@ -85,19 +86,31 @@ should note its type, so that integrators will understand the types of
 adaptivity that the controller is designed to perform. These are encoded in the
 following set of SUNControl types:
 
-.. _SUNControl.Description.controllerIDs:
-.. table:: Identifiers associated with SUNControl implementations
-   :align: center
+.. c:enum:: SUNControl_Type
 
-   ========================  =====================================================
-   SUNControl ID             Intended form of adaptivity
-   ========================  =====================================================
-   SUNDIALS_CONTROL_NONE     Empty object that performs no control.
-   SUNDIALS_CONTROL_H        Controls a single-rate step size.
-   SUNDIALS_CONTROL_HQ       Controls a single-rate step size and method order.
-   SUNDIALS_CONTROL_MRI_H    Controls two multirate step sizes.
-   SUNDIALS_CONTROL_MRI_TOL  Controls slow multirate step size and fast tolerance.
-   ========================  =====================================================
+   The enumerated type :c:type:`SUNControl_Type` defines the enumeration
+   constants for SUNDIALS error controller types
+
+.. c:enumerator:: SUNDIALS_CONTROL_NONE
+
+   Empty object that performs no control.
+
+.. c:enumerator:: SUNDIALS_CONTROL_H
+
+   Controls a single-rate step size.
+
+.. c:enumerator:: SUNDIALS_CONTROL_HQ
+
+   Controls a single-rate step size and method order.
+
+.. c:enumerator:: SUNDIALS_CONTROL_MRI_H
+
+   Controls two multirate step sizes.
+
+.. c:enumerator:: SUNDIALS_CONTROL_MRI_TOL
+
+   Controls slow multirate step size and fast tolerance.
+
 
 
 .. _SUNControl.Description.operations:
@@ -124,23 +137,23 @@ convenience routine
 
 Each of the following routines are *optional* for any specific SUNControl
 implementation, however some may be required based on the implementation's
-SUNControl_ID (see table :numref:`SUNControl.Description.controllerIDs`). We
+SUNControl_Type (see Section :numref:`SUNControl.Description.controllerTypes`). We
 note these requirements, as well as the behavior of the base SUNControl wrapper
 routine, below.
 
-.. c:function:: SUNControl_ID SUNControlGetID(SUNControl C)
+.. c:function:: SUNControl_Type SUNControlGetType(SUNControl C)
 
    Returns the type identifier for the controller *C*. Returned values
-   are given in :numref:`SUNControl.Description.controllerIDs`
+   are given in Section :numref:`SUNControl.Description.controllerTypes`
 
    :param C: the :c:type:`SUNControl` object.
-   :return: :c:type:`SUNControl_ID` type identifier.
+   :return: :c:type:`SUNControl_Type` type identifier.
 
    Usage:
 
    .. code-block:: c
 
-      SUNControl_ID id = SUNControlGetID(C);
+      SUNControl_Type id = SUNControlGetType(C);
 
 .. c:function:: void SUNControlDestroy(SUNControl C)
 

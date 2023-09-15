@@ -62,7 +62,7 @@ SUNControl SUNControlPI(SUNContext sunctx)
   if (C == NULL) { return (NULL); }
 
   /* Attach operations */
-  C->ops->getid             = SUNControlGetID_PI;
+  C->ops->getid             = SUNControlGetType_PI;
   C->ops->estimatestep      = SUNControlEstimateStep_PI;
   C->ops->reset             = SUNControlReset_PI;
   C->ops->setdefaults       = SUNControlSetDefaults_PI;
@@ -114,7 +114,7 @@ int SUNControlPI_SetParams(SUNControl C, sunbooleantype pq,
  * implementation of controller operations
  * ----------------------------------------------------------------- */
 
-SUNControl_ID SUNControlGetID_PI(SUNControl C) { return SUNDIALS_CONTROL_H; }
+SUNControl_Type SUNControlGetType_PI(SUNControl C) { return SUNDIALS_CONTROL_H; }
 
 int SUNControlEstimateStep_PI(SUNControl C, realtype h,
                                realtype dsm, realtype* hnew)

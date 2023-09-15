@@ -49,7 +49,7 @@ SUNDIALS_EXPORT
 int SUNControlPI_SetParams(SUNControl C, sunbooleantype pq,
                            realtype k1, realtype k2);
 SUNDIALS_EXPORT
-SUNControl_ID SUNControlGetID_PI(SUNControl C);
+SUNControl_Type SUNControlGetType_PI(SUNControl C);
 SUNDIALS_EXPORT
 int SUNControlEstimateStep_PI(SUNControl C, realtype h,
                               realtype dsm, realtype* hnew);

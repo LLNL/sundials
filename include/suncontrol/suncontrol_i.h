@@ -47,7 +47,7 @@ SUNDIALS_EXPORT
 int SUNControlI_SetParams(SUNControl C, sunbooleantype pq,
                           realtype k1);
 SUNDIALS_EXPORT
-SUNControl_ID SUNControlGetID_I(SUNControl C);
+SUNControl_Type SUNControlGetType_I(SUNControl C);
 SUNDIALS_EXPORT
 int SUNControlEstimateStep_I(SUNControl C, realtype h,
                              realtype dsm, realtype* hnew);

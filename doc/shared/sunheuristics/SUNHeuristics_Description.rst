@@ -28,24 +28,24 @@ implementation-specific *content*, an *ops* structure with generic heuristics
 operations, and a :c:type:`SUNContext` object.  Specifically, the type
 ``SUNHeuristics`` is defined as:
 
-.. c:type:: struct _generic_SUNHeuristics *SUNHeuristics
+.. c:type:: struct generic_SUNHeuristics_ *SUNHeuristics
 
 and the base class structure is defined as
 
 .. code-block:: C
 
-   struct _generic_SUNHeuristics {
+   struct generic_SUNHeuristics_ {
         void* content;
-        _generic_SUNHeuristics_Ops* ops;
+        generic_SUNHeuristics_Ops_* ops;
         SUNContext sunctx;
     };
 
-Here, ``_generic_SUNHeuristics_Ops`` is the pointer to a structure containing
+Here, ``generic_SUNHeuristics_Ops_`` is the pointer to a structure containing
 function pointers to the various heuristics operations, and is defined as
 
 .. code-block:: c
 
-    struct _generic_SUNHeuristics_Ops {
+    struct generic_SUNHeuristics_Ops_ {
 
       SUNHeuristics_ID (*getid)(SUNHeuristics H);
       void             (*destroy)(SUNHeuristics H);

@@ -89,7 +89,7 @@ void SUNControlFreeEmpty(SUNControl C)
  * Required functions in the 'ops' structure for non-NULL controller
  * ----------------------------------------------------------------- */
 
-SUNControl_ID SUNControlGetID(SUNControl C)
+SUNControl_Type SUNControlGetType(SUNControl C)
 {
   if (C == NULL) { return SUNDIALS_CONTROL_NONE; }
   return(C->ops->getid(C));

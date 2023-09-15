@@ -59,7 +59,7 @@ SUNControl ARKUserControl(SUNContext sunctx, void* arkode_mem,
   if (C == NULL) { return (NULL); }
 
   /* Attach operations */
-  C->ops->getid             = SUNControlGetID_ARKUserControl;
+  C->ops->getid             = SUNControlGetType_ARKUserControl;
   C->ops->estimatestep      = SUNControlEstimateStep_ARKUserControl;
   C->ops->reset             = SUNControlReset_ARKUserControl;
   C->ops->write             = SUNControlWrite_ARKUserControl;
@@ -102,7 +102,7 @@ SUNControl ARKUserControl(SUNContext sunctx, void* arkode_mem,
  * implementation of controller operations
  * ----------------------------------------------------------------- */
 
-SUNControl_ID SUNControlGetID_ARKUserControl(SUNControl C)
+SUNControl_Type SUNControlGetType_ARKUserControl(SUNControl C)
 { return SUNDIALS_CONTROL_H; }
 
 int SUNControlEstimateStep_ARKUserControl(SUNControl C, realtype h,

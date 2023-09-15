@@ -46,23 +46,23 @@ typedef enum
   SUNDIALS_CONTROL_HQ,
   SUNDIALS_CONTROL_MRI_H,
   SUNDIALS_CONTROL_MRI_TOL
-} SUNControl_ID;
+} SUNControl_Type;
 
 /* -----------------------------------------------------------------
  * Generic definition of SUNControl
  * ----------------------------------------------------------------- */
 
 /* Forward reference for pointer to SUNControl_Ops object */
-typedef _SUNDIALS_STRUCT_ _generic_SUNControl_Ops* SUNControl_Ops;
+typedef _SUNDIALS_STRUCT_ generic_SUNControl_Ops_* SUNControl_Ops;
 
 /* Forward reference for pointer to SUNControl object */
-typedef _SUNDIALS_STRUCT_ _generic_SUNControl* SUNControl;
+typedef _SUNDIALS_STRUCT_ generic_SUNControl_* SUNControl;
 
 /* Structure containing function pointers to controller operations  */
-struct _generic_SUNControl_Ops
+struct generic_SUNControl_Ops_
 {
   /* REQUIRED of all controller implementations. */
-  SUNControl_ID (*getid)(SUNControl C);
+  SUNControl_Type (*getid)(SUNControl C);
   void (*destroy)(SUNControl C);
 
   /* REQUIRED for controllers of SUNDIALS_CONTROL_H type. */
@@ -97,7 +97,7 @@ struct _generic_SUNControl_Ops
                       realtype DSM, realtype dsm);
   int (*space)(SUNControl C, long int *lenrw, long int *leniw);
 #ifdef __cplusplus
-  _generic_SUNControl_Ops() = default;
+  generic_SUNControl_Ops_() = default;
 #endif
 
 };
@@ -105,13 +105,13 @@ struct _generic_SUNControl_Ops
 /* A SUNControl is a structure with an implementation-dependent
    'content' field, and a pointer to a structure of
    operations corresponding to that implementation. */
-struct _generic_SUNControl
+struct generic_SUNControl_
 {
   void* content;
   SUNControl_Ops ops;
   SUNContext sunctx;
 #ifdef __cplusplus
-  _generic_SUNControl() = default;
+  generic_SUNControl_() = default;
 #endif
 };
 
@@ -123,9 +123,9 @@ struct _generic_SUNControl
 SUNDIALS_EXPORT
 SUNControl SUNControlNewEmpty(SUNContext sunctx);
 
-/* Function to report the ID of a SUNHeuristics object. */
+/* Function to report the type of a SUNHeuristics object. */
 SUNDIALS_EXPORT
-SUNControl_ID SUNControlGetID(SUNControl C);
+SUNControl_Type SUNControlGetType(SUNControl C);
 
 /* Function to deallocate a SUNHeuristics object. */
 SUNDIALS_EXPORT
