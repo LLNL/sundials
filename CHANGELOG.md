@@ -1,6 +1,8 @@
 # SUNDIALS Changelog
 
-## Changes to SUNDIALS in release x.x.x
+## Changes to SUNDIALS in release X.X.X
+
+Renamed some internal types in CVODES and IDAS to allow both packages to be built together in the same binary.
 
 Improved computational complexity of `SUNMatScaleAddI_Sparse` from `O(M*N)` to
 `O(NNZ)`.

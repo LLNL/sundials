@@ -207,8 +207,8 @@ extern "C" {
  */
 
 typedef struct CVadjMemRec  *CVadjMem;
-typedef struct CkpntMemRec  *CkpntMem;
-typedef struct DtpntMemRec  *DtpntMem;
+typedef struct CVckpntMemRec  *CVckpntMem;
+typedef struct CVdtpntMemRec  *CVdtpntMem;
 typedef struct CVodeBMemRec *CVodeBMem;
 
 /*
@@ -704,15 +704,15 @@ typedef struct CVodeMemRec {
 
 /*
  * -----------------------------------------------------------------
- * Types : struct CkpntMemRec, CkpntMem
+ * Types : struct CVckpntMemRec, CVckpntMem
  * -----------------------------------------------------------------
- * The type CkpntMem is type pointer to struct CkpntMemRec.
+ * The type CVckpntMem is type pointer to struct CVckpntMemRec.
  * This structure contains fields to store all information at a
  * check point that is needed to 'hot' start cvodes.
  * -----------------------------------------------------------------
  */
 
-struct CkpntMemRec {
+struct CVckpntMemRec {
 
   /* Integration limits */
   realtype ck_t0;
@@ -768,7 +768,7 @@ struct CkpntMemRec {
   realtype ck_saved_tq5;
 
   /* Pointer to next structure in list */
-  struct CkpntMemRec *ck_next;
+  struct CVckpntMemRec *ck_next;
 
 };
 
@@ -790,11 +790,11 @@ struct CkpntMemRec {
 typedef booleantype (*cvaIMMallocFn)(CVodeMem cv_mem);
 typedef void (*cvaIMFreeFn)(CVodeMem cv_mem);
 typedef int (*cvaIMGetYFn)(CVodeMem cv_mem, realtype t, N_Vector y, N_Vector *yS);
-typedef int (*cvaIMStorePntFn)(CVodeMem cv_mem, DtpntMem d);
+typedef int (*cvaIMStorePntFn)(CVodeMem cv_mem, CVdtpntMem d);
 
 /*
  * -----------------------------------------------------------------
- * Type : struct DtpntMemRec
+ * Type : struct CVdtpntMemRec
  * -----------------------------------------------------------------
  * This structure contains fields to store all information at a
  * data point that is needed to interpolate solution of forward
@@ -802,25 +802,25 @@ typedef int (*cvaIMStorePntFn)(CVodeMem cv_mem, DtpntMem d);
  * -----------------------------------------------------------------
  */
 
-struct DtpntMemRec {
+struct CVdtpntMemRec {
   realtype t;    /* time */
   void *content; /* IMtype-dependent content */
 };
 
 /* Data for cubic Hermite interpolation */
-typedef struct HermiteDataMemRec {
+typedef struct CVhermiteDataMemRec {
   N_Vector y;
   N_Vector yd;
   N_Vector *yS;
   N_Vector *ySd;
-} *HermiteDataMem;
+} *CVhermiteDataMem;
 
 /* Data for polynomial interpolation */
-typedef struct PolynomialDataMemRec {
+typedef struct CVpolynomialDataMemRec {
   N_Vector y;
   N_Vector *yS;
   int order;
-} *PolynomialDataMem;
+} *CVpolynomialDataMem;
 
 
 /*
@@ -935,13 +935,13 @@ struct CVadjMemRec {
    * ---------------- */
 
   /* Storage for check point information */
-  struct CkpntMemRec *ck_mem;
+  struct CVckpntMemRec *ck_mem;
 
   /* Number of check points */
   int ca_nckpnts;
 
   /* address of the check point structure for which data is available */
-  struct CkpntMemRec *ca_ckpntData;
+  struct CVckpntMemRec *ca_ckpntData;
 
   /* ------------------
    * Interpolation data
@@ -954,7 +954,7 @@ struct CVadjMemRec {
   long int ca_ilast;
 
   /* Storage for data from forward runs */
-  struct DtpntMemRec **dt_mem;
+  struct CVdtpntMemRec **dt_mem;
 
   /* Actual number of data points in dt_mem (typically np=nsteps+1) */
   long int ca_np;
