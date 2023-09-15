@@ -265,7 +265,7 @@ int SUNNonlinSolSolve_FixedPoint(SUNNonlinearSolver NLS, N_Vector y0,
 #if SUNDIALS_LOGGING_LEVEL >= SUNDIALS_LOGGING_INFO
       SUNLogger_QueueMsg(NLS->sunctx->logger, SUN_LOGLEVEL_INFO,
                          "SUNNonlinSolSolve_FixedPoint", "end-nonlinear-solve",
-                         "Success");
+                         "success");
 #endif
       return(SUN_NLS_SUCCESS);
     }

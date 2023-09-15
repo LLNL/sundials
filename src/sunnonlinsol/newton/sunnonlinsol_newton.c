@@ -279,7 +279,7 @@ int SUNNonlinSolSolve_Newton(SUNNonlinearSolver NLS,
 #if SUNDIALS_LOGGING_LEVEL >= SUNDIALS_LOGGING_INFO
         SUNLogger_QueueMsg(NLS->sunctx->logger, SUN_LOGLEVEL_INFO,
                            "SUNNonlinSolSolve_Newton", "end-nonlinear-solve",
-                           "Success");
+                           "success");
 #endif
         NEWTON_CONTENT(NLS)->jcur = SUNFALSE;
         return(SUN_NLS_SUCCESS);

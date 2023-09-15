@@ -3214,7 +3214,7 @@ static int cvStep(CVodeMem cv_mem)
     {
       SUNLogger_QueueMsg(CV_LOGGER, SUN_LOGLEVEL_INFO,
                          "CVODE::cvStep", "end-step-attempt",
-                         "Solve failure, kflag = %i",
+                         "failed solve, kflag = %i",
                          kflag);
     }
 #endif
@@ -3238,7 +3238,7 @@ static int cvStep(CVodeMem cv_mem)
       {
         SUNLogger_QueueMsg(CV_LOGGER, SUN_LOGLEVEL_INFO,
                            "CVODE::cvStep", "end-step-attempt",
-                           "Projection failure, pflag = %i",
+                           "failed projection, pflag = %i",
                            pflag);
       }
 #endif
@@ -3258,8 +3258,8 @@ static int cvStep(CVodeMem cv_mem)
     {
       SUNLogger_QueueMsg(CV_LOGGER, SUN_LOGLEVEL_INFO,
                          "CVODE::cvStep", "end-step-attempt",
-                         "Error test failure, eflag = %i",
-                         eflag);
+                         "failed error-test, dsm = %.16g, eflag = %i",
+                         dsm, eflag);
     }
 #endif
 
@@ -3277,7 +3277,7 @@ static int cvStep(CVodeMem cv_mem)
 #if SUNDIALS_LOGGING_LEVEL >= SUNDIALS_LOGGING_INFO
     SUNLogger_QueueMsg(CV_LOGGER, SUN_LOGLEVEL_INFO,
                        "CVODE::cvStep", "end-step-attempt",
-                       "Success");
+                       "success, dsm = %.16g", dsm);
 #endif
 
   /* Nonlinear system solve and error test were both successful.
