@@ -236,7 +236,7 @@ routine, below.
    :param dsm: the local fast temporal error estimate from the previous step
                attempt.
    :param Hnew: (output) pointer to the estimated slow step size.
-   :param tolfacnew: (output)  pointer to the estimated relative tolerance
+   :param tolfacnew: (output) pointer to the estimated relative tolerance
                      ratio.
    :return: error code indicating success failure
             (see :numref:`SUNControl.Description.errorCodes`).
