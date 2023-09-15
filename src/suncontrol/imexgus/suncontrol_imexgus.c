@@ -64,11 +64,11 @@ SUNControl SUNControlImExGus(SUNContext sunctx)
 
   /* Create an empty controller object */
   C = NULL;
-  C = SUNControlNewEmpty(sunctx);
+  C = SUNControl_NewEmpty(sunctx);
   if (C == NULL) { return (NULL); }
 
   /* Attach operations */
-  C->ops->getid             = SUNControlGetType_ImExGus;
+  C->ops->gettype           = SUNControlGetType_ImExGus;
   C->ops->estimatestep      = SUNControlEstimateStep_ImExGus;
   C->ops->reset             = SUNControlReset_ImExGus;
   C->ops->setdefaults       = SUNControlSetDefaults_ImExGus;
@@ -84,7 +84,7 @@ SUNControl SUNControlImExGus(SUNContext sunctx)
   content = (SUNControlContent_ImExGus)malloc(sizeof *content);
   if (content == NULL)
   {
-    SUNControlDestroy(C);
+    SUNControl_Destroy(C);
     return (NULL);
   }
 

@@ -58,11 +58,11 @@ SUNControl SUNControlPI(SUNContext sunctx)
 
   /* Create an empty controller object */
   C = NULL;
-  C = SUNControlNewEmpty(sunctx);
+  C = SUNControl_NewEmpty(sunctx);
   if (C == NULL) { return (NULL); }
 
   /* Attach operations */
-  C->ops->getid             = SUNControlGetType_PI;
+  C->ops->gettype           = SUNControlGetType_PI;
   C->ops->estimatestep      = SUNControlEstimateStep_PI;
   C->ops->reset             = SUNControlReset_PI;
   C->ops->setdefaults       = SUNControlSetDefaults_PI;
@@ -78,7 +78,7 @@ SUNControl SUNControlPI(SUNContext sunctx)
   content = (SUNControlContent_PI)malloc(sizeof *content);
   if (content == NULL)
   {
-    SUNControlDestroy(C);
+    SUNControl_Destroy(C);
     return (NULL);
   }
 

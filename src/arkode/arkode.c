@@ -133,7 +133,7 @@ ARKodeMem arkCreate(SUNContext sunctx)
                     "Allocation of step controller object failed");
     return(NULL);
   }
-  (void) SUNControlSpace(ark_mem->hcontroller, &lenrw, &leniw);
+  (void) SUNControl_Space(ark_mem->hcontroller, &lenrw, &leniw);
   ark_mem->lrw += lenrw;
   ark_mem->liw += leniw;
 
@@ -144,7 +144,7 @@ ARKodeMem arkCreate(SUNContext sunctx)
                     "Allocation of step heuristics object failed");
     return(NULL);
   }
-  (void) SUNHeuristicsSpace(ark_mem->hconstraints, &lenrw, &leniw);
+  (void) SUNHeuristics_Space(ark_mem->hconstraints, &lenrw, &leniw);
   ark_mem->lrw += lenrw;
   ark_mem->liw += leniw;
 
@@ -1105,10 +1105,10 @@ void arkFree(void **arkode_mem)
   arkFreeVectors(ark_mem);
 
   /* free the time step controller object */
-  SUNControlDestroy(ark_mem->hcontroller);
+  SUNControl_Destroy(ark_mem->hcontroller);
 
   /* free the time step heuristics object */
-  SUNHeuristicsDestroy(ark_mem->hconstraints);
+  SUNHeuristics_Destroy(ark_mem->hconstraints);
 
   /* free the interpolation module */
   if (ark_mem->interp != NULL) {
@@ -1346,13 +1346,13 @@ int arkInit(ARKodeMem ark_mem, realtype t0, N_Vector y0,
     ark_mem->tolsf = ONE;
 
     /* Reset error controller and heuristics objects */
-    retval = SUNControlReset(ark_mem->hcontroller);
+    retval = SUNControl_Reset(ark_mem->hcontroller);
     if (retval != SUNCONTROL_SUCCESS) {
       arkProcessError(ark_mem, ARK_CONTROLLER_ERR, "ARKODE", "arkInit",
                       "Unable to reset error controller object");
       return(ARK_CONTROLLER_ERR);
     }
-    retval = SUNHeuristicsReset(ark_mem->hconstraints);
+    retval = SUNHeuristics_Reset(ark_mem->hconstraints);
     if (retval != SUNHEURISTICS_SUCCESS) {
       arkProcessError(ark_mem, ARK_HEURISTICS_ERR, "ARKODE", "arkInit",
                       "Unable to reset step heuristics object");
@@ -1433,10 +1433,10 @@ void arkPrintMem(ARKodeMem ark_mem, FILE *outfile)
   fprintf(outfile, "maxncf = %i\n", ark_mem->maxncf);
 
   /* output time-stepping controller object */
-  (void) SUNControlWrite(ark_mem->hcontroller, outfile);
+  (void) SUNControl_Write(ark_mem->hcontroller, outfile);
 
   /* output time-stepping heuristics object */
-  (void) SUNHeuristicsWrite(ark_mem->hconstraints, outfile);
+  (void) SUNHeuristics_Write(ark_mem->hconstraints, outfile);
 
   /* output inequality constraints quantities */
   fprintf(outfile, "constraintsSet = %i\n", ark_mem->constraintsSet);
@@ -1969,7 +1969,7 @@ int arkInitialSetup(ARKodeMem ark_mem, realtype tout)
         return(istate);
       }
       /* Reset time step heuristic controller object */
-      retval = SUNHeuristicsReset(ark_mem->hconstraints);
+      retval = SUNHeuristics_Reset(ark_mem->hconstraints);
       if (retval != 0) {
         arkProcessError(ark_mem, ARK_HEURISTICS_ERR, "ARKODE", "arkInitialSetup",
                         "Failure resetting heuristics object");
@@ -1977,7 +1977,7 @@ int arkInitialSetup(ARKodeMem ark_mem, realtype tout)
       }
     } else if (ark_mem->nst == 0) {
       /* Reset time step heuristic controller object */
-      retval = SUNHeuristicsReset(ark_mem->hconstraints);
+      retval = SUNHeuristics_Reset(ark_mem->hconstraints);
       if (retval != 0) {
         arkProcessError(ark_mem, ARK_HEURISTICS_ERR, "ARKODE", "arkInitialSetup",
                         "Failure resetting heuristics object");
@@ -1985,7 +1985,7 @@ int arkInitialSetup(ARKodeMem ark_mem, realtype tout)
       }
     } else {
       /* Notify time step heuristic controller object of previous successful steps */
-      retval = SUNHeuristicsUpdate(ark_mem->hconstraints);
+      retval = SUNHeuristics_Update(ark_mem->hconstraints);
       if (retval != 0) {
         arkProcessError(ark_mem, ARK_HEURISTICS_ERR, "ARKODE", "arkInitialSetup",
                         "Failure updating heuristics object");
@@ -1994,11 +1994,11 @@ int arkInitialSetup(ARKodeMem ark_mem, realtype tout)
     }
 
     /* Enforce step size bounds */
-    retval = SUNHeuristicsBoundFirstStep(ark_mem->hconstraints, ark_mem->h,
-                                         &(ark_mem->h));
+    retval = SUNHeuristics_BoundFirstStep(ark_mem->hconstraints, ark_mem->h,
+                                          &(ark_mem->h));
     if (retval != SUNHEURISTICS_SUCCESS) {
       arkProcessError(ark_mem, ARK_HEURISTICS_ERR, "ARKODE", "arkInitialSetup",
-                      "Error in call to SUNHeuristicsBoundFirstStep");
+                      "Error in call to SUNHeuristics_BoundFirstStep");
       return(ARK_HEURISTICS_ERR);
     }
 
@@ -2416,10 +2416,10 @@ int arkCompleteStep(ARKodeMem ark_mem, realtype dsm)
      tstop by roundoff, and in that case, we reset tn (after
      incrementing by h) to tstop. */
 
-  /* During long-time integration, roundoff can creep into tcur. 
+  /* During long-time integration, roundoff can creep into tcur.
      Compensated summation fixes this but with increased cost, so it is optional. */
   if (ark_mem->use_compensated_sums) {
-    sunCompensatedSum(ark_mem->tn, ark_mem->h, &ark_mem->tcur, &ark_mem->terr); 
+    sunCompensatedSum(ark_mem->tn, ark_mem->h, &ark_mem->tcur, &ark_mem->terr);
   } else {
     ark_mem->tcur = ark_mem->tn + ark_mem->h;
   }
@@ -2464,7 +2464,7 @@ int arkCompleteStep(ARKodeMem ark_mem, realtype dsm)
   N_VScale(ONE, ark_mem->ycur, ark_mem->yn);
 
   /* Notify time step controller object of successful step */
-  retval = SUNControlUpdate(ark_mem->hcontroller, ark_mem->h, dsm);
+  retval = SUNControl_Update(ark_mem->hcontroller, ark_mem->h, dsm);
   if (retval != 0) {
     arkProcessError(ark_mem, ARK_CONTROLLER_ERR, "ARKODE", "arkCompleteStep",
                     "Failure updating controller object");
@@ -2472,7 +2472,7 @@ int arkCompleteStep(ARKodeMem ark_mem, realtype dsm)
   }
 
   /* Notify time step heuristics object of successful step */
-  retval = SUNHeuristicsUpdate(ark_mem->hconstraints);
+  retval = SUNHeuristics_Update(ark_mem->hconstraints);
   if (retval != 0) {
     arkProcessError(ark_mem, ARK_HEURISTICS_ERR, "ARKODE", "arkCompleteStep",
                     "Failure updating heuristics object");
@@ -2954,7 +2954,7 @@ int arkCheckConvergence(ARKodeMem ark_mem, int *nflagPtr, int *ncfPtr)
   }
 
   /* Attempt step reduction via heuristics control */
-  retval = SUNHeuristicsConvFail(ark_mem->hconstraints, ark_mem->h, &hnew);
+  retval = SUNHeuristics_ConvFail(ark_mem->hconstraints, ark_mem->h, &hnew);
 
   /* If step reduction successful: store step 'eta', increment ncf, signal
      for Jacobian/preconditioner setup, and return to reattempt the step.
@@ -3012,7 +3012,7 @@ int arkCheckConstraints(ARKodeMem ark_mem, int *constrfails, int *nflag)
   hnew = ark_mem->h * SUNMAX(RCONST(0.9)*N_VMinQuotient(ark_mem->yn, tmp), TENTH);
 
   /* Check if step size reduction is possible; if so adjust recommended step to meet bounds */
-  retval = SUNHeuristicsBoundReduction(ark_mem->hconstraints, ark_mem->h, hnew, &hnew);
+  retval = SUNHeuristics_BoundReduction(ark_mem->hconstraints, ark_mem->h, hnew, &hnew);
   if (retval != SUNHEURISTICS_SUCCESS) { return(ARK_CONSTR_FAIL); }
 
   /* Compute step size change for subsequent use */
@@ -3050,7 +3050,7 @@ int arkCheckTemporalError(ARKodeMem ark_mem, int *nflagPtr, int *nefPtr, realtyp
   realtype hnew;
 
   /* Request new stepsize from controller */
-  retval = SUNControlEstimateStep(ark_mem->hcontroller, ark_mem->h, dsm, &hnew);
+  retval = SUNControl_EstimateStep(ark_mem->hcontroller, ark_mem->h, dsm, &hnew);
   if (retval != SUNCONTROL_SUCCESS) {
     arkProcessError(ark_mem, ARK_CONTROLLER_ERR, "ARKODE", "arkCheckTemporalError",
                     "Controller unable to recommend a step size");
@@ -3058,7 +3058,7 @@ int arkCheckTemporalError(ARKodeMem ark_mem, int *nflagPtr, int *nefPtr, realtyp
   }
 
   /* Perform heuristic controls on recommended step size */
-  retval = SUNHeuristicsConstrainStep(ark_mem->hconstraints, ark_mem->h, hnew, &hnew);
+  retval = SUNHeuristics_ConstrainStep(ark_mem->hconstraints, ark_mem->h, hnew, &hnew);
   if (retval != SUNHEURISTICS_SUCCESS) {
     arkProcessError(ark_mem, ARK_HEURISTICS_ERR, "ARKODE", "arkCheckTemporalError",
                     "Heuristics unable to constrain recommended step");
@@ -3080,8 +3080,8 @@ int arkCheckTemporalError(ARKodeMem ark_mem, int *nflagPtr, int *nefPtr, realtyp
   if (*nefPtr == ark_mem->maxnef)  return(ARK_ERR_FAILURE);
 
   /* Attempt step reduction via heuristics control */
-  retval = SUNHeuristicsETestFail(ark_mem->hconstraints, ark_mem->h,
-                                  hnew, *nefPtr, &hnew);
+  retval = SUNHeuristics_ETestFail(ark_mem->hconstraints, ark_mem->h,
+                                   hnew, *nefPtr, &hnew);
 
   /* If step reduction successful, store result and return to reattempt
      the step.  Otherwise, return ARK_ERR_FAILURE or ARK_HEURISTICS_ERR,

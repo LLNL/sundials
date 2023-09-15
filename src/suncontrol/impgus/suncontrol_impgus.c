@@ -60,11 +60,11 @@ SUNControl SUNControlImpGus(SUNContext sunctx)
 
   /* Create an empty controller object */
   C = NULL;
-  C = SUNControlNewEmpty(sunctx);
+  C = SUNControl_NewEmpty(sunctx);
   if (C == NULL) { return (NULL); }
 
   /* Attach operations */
-  C->ops->getid             = SUNControlGetType_ImpGus;
+  C->ops->gettype           = SUNControlGetType_ImpGus;
   C->ops->estimatestep      = SUNControlEstimateStep_ImpGus;
   C->ops->reset             = SUNControlReset_ImpGus;
   C->ops->setdefaults       = SUNControlSetDefaults_ImpGus;
@@ -80,7 +80,7 @@ SUNControl SUNControlImpGus(SUNContext sunctx)
   content = (SUNControlContent_ImpGus)malloc(sizeof *content);
   if (content == NULL)
   {
-    SUNControlDestroy(C);
+    SUNControl_Destroy(C);
     return (NULL);
   }
 

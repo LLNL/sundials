@@ -55,11 +55,11 @@ SUNControl ARKUserControl(SUNContext sunctx, void* arkode_mem,
 
   /* Create an empty controller object */
   C = NULL;
-  C = SUNControlNewEmpty(sunctx);
+  C = SUNControl_NewEmpty(sunctx);
   if (C == NULL) { return (NULL); }
 
   /* Attach operations */
-  C->ops->getid             = SUNControlGetType_ARKUserControl;
+  C->ops->gettype           = SUNControlGetType_ARKUserControl;
   C->ops->estimatestep      = SUNControlEstimateStep_ARKUserControl;
   C->ops->reset             = SUNControlReset_ARKUserControl;
   C->ops->write             = SUNControlWrite_ARKUserControl;
@@ -73,7 +73,7 @@ SUNControl ARKUserControl(SUNContext sunctx, void* arkode_mem,
   content = (ARKUserControlContent)malloc(sizeof *content);
   if (content == NULL)
   {
-    SUNControlDestroy(C);
+    SUNControl_Destroy(C);
     return (NULL);
   }
 

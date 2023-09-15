@@ -55,11 +55,11 @@ SUNControl SUNControlI(SUNContext sunctx)
 
   /* Create an empty controller object */
   C = NULL;
-  C = SUNControlNewEmpty(sunctx);
+  C = SUNControl_NewEmpty(sunctx);
   if (C == NULL) { return (NULL); }
 
   /* Attach operations */
-  C->ops->getid             = SUNControlGetType_I;
+  C->ops->gettype           = SUNControlGetType_I;
   C->ops->estimatestep      = SUNControlEstimateStep_I;
   C->ops->setdefaults       = SUNControlSetDefaults_I;
   C->ops->write             = SUNControlWrite_I;
@@ -73,7 +73,7 @@ SUNControl SUNControlI(SUNContext sunctx)
   content = (SUNControlContent_I)malloc(sizeof *content);
   if (content == NULL)
   {
-    SUNControlDestroy(C);
+    SUNControl_Destroy(C);
     return (NULL);
   }
 

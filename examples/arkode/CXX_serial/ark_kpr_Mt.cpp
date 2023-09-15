@@ -295,8 +295,8 @@ int main(int argc, char *argv[])
   if (rk_type == 2) {
     H = SUNHeuristicsDefault(ctx);
     if (check_retval((void *)H, "SUNHeuristicsDefault", 0)) return 1;
-    retval = SUNHeuristicsSetMaxStep(H, ONE/SUNRabs(udata.G));
-    if (check_retval(&retval, "SUNHeuristicsSetMaxStep", 1)) return(1);
+    retval = SUNHeuristics_SetMaxStep(H, ONE/SUNRabs(udata.G));
+    if (check_retval(&retval, "SUNHeuristics_SetMaxStep", 1)) return(1);
     retval = ARKStepSetHeuristics(arkode_mem, H);
     if (check_retval(&retval, "ARKStepSetHeuristics", 1)) return(1);
   }

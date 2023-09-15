@@ -808,8 +808,8 @@ int arkRelax(ARKodeMem ark_mem, int* relax_fails, realtype* dsm_inout,
 
     /* Check whether we can cut step size, if not then return with error */
     htest = ark_mem->h * relax_mem->eta_fail;
-    retval = SUNHeuristicsBoundReduction(ark_mem->hconstraints,
-                                         ark_mem->h, htest, &htest);
+    retval = SUNHeuristics_BoundReduction(ark_mem->hconstraints,
+                                          ark_mem->h, htest, &htest);
     if (retval == SUNHEURISTICS_CANNOT_DECREASE)
     {
       return ARK_RELAX_FAIL;

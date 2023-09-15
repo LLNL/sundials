@@ -124,7 +124,7 @@ SUNControl implementation, which are accessed through the *ops* field of the
 ``SUNControl`` structure. However, the base SUNControl class also provides the
 convenience routine
 
-.. c:function:: SUNControl SUNControlNewEmpty(SUNContext sunctx)
+.. c:function:: SUNControl SUNControl_NewEmpty(SUNContext sunctx)
 
   This function allocates a new generic ``SUNControl`` object and initializes
   its content pointer and the function pointers in the operations structure to
@@ -141,7 +141,7 @@ SUNControl_Type (see Section :numref:`SUNControl.Description.controllerTypes`). 
 note these requirements, as well as the behavior of the base SUNControl wrapper
 routine, below.
 
-.. c:function:: SUNControl_Type SUNControlGetType(SUNControl C)
+.. c:function:: SUNControl_Type SUNControl_GetType(SUNControl C)
 
    Returns the type identifier for the controller *C*. Returned values
    are given in Section :numref:`SUNControl.Description.controllerTypes`
@@ -153,9 +153,9 @@ routine, below.
 
    .. code-block:: c
 
-      SUNControl_Type id = SUNControlGetType(C);
+      SUNControl_Type id = SUNControl_GetType(C);
 
-.. c:function:: void SUNControlDestroy(SUNControl C)
+.. c:function:: void SUNControl_Destroy(SUNControl C)
 
    Deallocates the controller *C*. If this is not provided by the
    implementation, the base wrapper routine will free both the *content* and
@@ -170,9 +170,9 @@ routine, below.
 
    .. code-block:: c
 
-      SUNControlDestroy(C);
+      SUNControl_Destroy(C);
 
-.. c:function:: int SUNControlEstimateStep(SUNControl C, realtype h, realtype dsm, realtype* hnew)
+.. c:function:: int SUNControl_EstimateStep(SUNControl C, realtype h, realtype dsm, realtype* hnew)
 
    Estimates a single-rate step size. This routine is required for controllers
    of type ``SUNDIALS_CONTROL_H``.
@@ -188,14 +188,14 @@ routine, below.
 
    .. code-block:: c
 
-      retval = SUNControlEstimateStep(C, hcur, dsm, &hnew);
+      retval = SUNControl_EstimateStep(C, hcur, dsm, &hnew);
 
-.. c:function:: int SUNControlEstimateStepAndOrder(SUNControl C, realtype h, int q, realtype dsm, realtype* hnew, int* qnew)
+.. c:function:: int SUNControl_EstimateStepAndOrder(SUNControl C, realtype h, int q, realtype dsm, realtype* hnew, int* qnew)
 
    Estimates a single-rate step size and corresponding method order. This
    routine is required for controllers of type ``SUNDIALS_CONTROL_HQ``.
 
-   :param C: the :c:type:`SUNControl` object..
+   :param C: the :c:type:`SUNControl` object.
    :param h: the step size from the previous step attempt.
    :param q: the method order from the previous step attempt.
    :param dsm: the local temporal estimate from the previous step attempt.
@@ -208,14 +208,14 @@ routine, below.
 
    .. code-block:: c
 
-      retval = SUNControlEstimateStepAndOrder(C, hcur, qcur, dsm, &hnew, &qnew);
+      retval = SUNControl_EstimateStepAndOrder(C, hcur, qcur, dsm, &hnew, &qnew);
 
-.. c:function:: int SUNControlEstimateMRISteps(SUNControl C, realtype H, realtype h, realtype DSM, realtype dsm, realtype* Hnew, realtype *hnew)
+.. c:function:: int SUNControl_EstimateMRISteps(SUNControl C, realtype H, realtype h, realtype DSM, realtype dsm, realtype* Hnew, realtype *hnew)
 
    Estimates the slow and fast multirate step sizes. This routine is required
    for controllers of type ``SUNDIALS_CONTROL_MRI_H``.
 
-   :param C: the :c:type:`SUNControl` object..
+   :param C: the :c:type:`SUNControl` object.
    :param H: the slow step size from the previous multirate step attempt.
    :param h: the fast step size from the previous multirate step attempt.
    :param DSM: the local slow temporal error estimate from the previous step
@@ -231,15 +231,15 @@ routine, below.
 
    .. code-block:: c
 
-      retval = SUNControlEstimateMRISteps(C, Hcur, hcur, DSM, &Hnew, &hnew);
+      retval = SUNControl_EstimateMRISteps(C, Hcur, hcur, DSM, &Hnew, &hnew);
 
-.. c:function:: int SUNControlEstimateStepTol(SUNControl C, realtype H, realtype tolfac, realtype DSM, realtype *Hnew, realtype* tolfacnew)
+.. c:function:: int SUNControl_EstimateStepTol(SUNControl C, realtype H, realtype tolfac, realtype DSM, realtype *Hnew, realtype* tolfacnew)
 
    Estimates the slow step size and recommended fast relative tolerance factor
    for a multirate step. This routine is required for controllers of type
    ``SUNDIALS_CONTROL_MRI_TOL``.
 
-   :param C: the :c:type:`SUNControl` object..
+   :param C: the :c:type:`SUNControl` object.
    :param H: the slow step size from the previous multirate step attempt.
    :param tolfac: the ratio of fast/slow relative tolerances,
                   :math:`\text{reltol}/\text{RELTOL}`, from the previous
@@ -258,16 +258,16 @@ routine, below.
 
    .. code-block:: c
 
-      retval = SUNControlEstimateStepTol(C, Hcur, tolfaccur, DSM, &Hnew, &tolfacnew);
+      retval = SUNControl_EstimateStepTol(C, Hcur, tolfaccur, DSM, &Hnew, &tolfacnew);
 
-.. c:function:: int SUNControlReset(SUNControl C)
+.. c:function:: int SUNControl_Reset(SUNControl C)
 
    Resets the controller to its initial state, e.g., if it stores a small number
    of previous *dsm* or *h* values. The return value is an integer flag denoting
    success/failure of the routine (see
    :numref:`SUNControl.Description.errorCodes`).
 
-   :param C:  the :c:type:`SUNControl` object..
+   :param C:  the :c:type:`SUNControl` object.
    :return: error code indicating success failure
             (see :numref:`SUNControl.Description.errorCodes`).
 
@@ -275,9 +275,9 @@ routine, below.
 
    .. code-block:: c
 
-      retval = SUNControlReset(C);
+      retval = SUNControl_Reset(C);
 
-.. c:function:: int SUNControlSetDefaults(SUNControl C)
+.. c:function:: int SUNControl_SetDefaults(SUNControl C)
 
    Sets the controller parameters to their default values.
 
@@ -289,13 +289,13 @@ routine, below.
 
    .. code-block:: c
 
-      retval = SUNControlSetDefaults(C);
+      retval = SUNControl_SetDefaults(C);
 
-.. c:function:: int SUNControlWrite(SUNControl C, FILE* fptr)
+.. c:function:: int SUNControl_Write(SUNControl C, FILE* fptr)
 
    Writes all controller parameters to the indicated file pointer.
 
-   :param C:  the :c:type:`SUNControl` object..
+   :param C:  the :c:type:`SUNControl` object.
    :param fptr:  the output stream to write the parameters.
    :return: error code indicating success failure
             (see :numref:`SUNControl.Description.errorCodes`).
@@ -304,14 +304,14 @@ routine, below.
 
    .. code-block:: c
 
-      retval = SUNControlWrite(C, stdout);
+      retval = SUNControl_Write(C, stdout);
 
-.. c:function:: int SUNControlSetMethodOrder(SUNControl C, int q)
+.. c:function:: int SUNControl_SetMethodOrder(SUNControl C, int q)
 
    Called by the time integrator to inform the controller of the asymptotic
    order of accuracy for the method.
 
-   :param C:  the :c:type:`SUNControl` object..
+   :param C:  the :c:type:`SUNControl` object.
    :param q:  the asymptotic order of accuracy for the time integration method.
    :return: error code indicating success failure
             (see :numref:`SUNControl.Description.errorCodes`).
@@ -320,14 +320,14 @@ routine, below.
 
    .. code-block:: c
 
-      retval = SUNControlSetMethodOrder(C, 3);
+      retval = SUNControl_SetMethodOrder(C, 3);
 
-.. c:function:: int SUNControlSetEmbeddingOrder(SUNControl C, int p)
+.. c:function:: int SUNControl_SetEmbeddingOrder(SUNControl C, int p)
 
    Called by the time integrator to inform the controller of the asymptotic
    order of accuracy for the method embedding.
 
-   :param C:  the :c:type:`SUNControl` object..
+   :param C:  the :c:type:`SUNControl` object.
    :param p:  the asymptotic order of accuracy for the time integration method
               embedding.
    :return: error code indicating success failure
@@ -337,15 +337,15 @@ routine, below.
 
    .. code-block:: c
 
-      retval = SUNControlSetEmbeddingOrder(C, 2);
+      retval = SUNControl_SetEmbeddingOrder(C, 2);
 
-.. c:function:: int SUNControlSetErrorBias(SUNControl C, realtype bias)
+.. c:function:: int SUNControl_SetErrorBias(SUNControl C, realtype bias)
 
    Sets an error bias factor for scaling the local error factors. This is
    typically used to slightly exaggerate the temporal error during the
    estimation process, leading to a more conservative estimated step size.
 
-   :param C:  the :c:type:`SUNControl` object..
+   :param C:  the :c:type:`SUNControl` object.
    :param bias:  the error bias factor.
    :return: error code indicating success failure
             (see :numref:`SUNControl.Description.errorCodes`).
@@ -354,16 +354,16 @@ routine, below.
 
    .. code-block:: c
 
-      retval = SUNControlSetErrorBias(C, 1.2);
+      retval = SUNControl_SetErrorBias(C, 1.2);
 
-.. c:function:: int SUNControlUpdate(SUNControl C, realtype h, realtype dsm)
+.. c:function:: int SUNControl_Update(SUNControl C, realtype h, realtype dsm)
 
    Notifies the controller of a successful time step of size *h* and with
    temporal error estimate *dsm*. This is typically used for controllers that
    store a history of either step sizes or error estimates for performing the
    estimation process.
 
-   :param C:  the :c:type:`SUNControl` object..
+   :param C:  the :c:type:`SUNControl` object.
    :param h:  the successful step size.
    :param dsm:  the successful temporal error estimate.
    :return: error code indicating success failure
@@ -373,9 +373,9 @@ routine, below.
 
    .. code-block:: c
 
-      retval = SUNControlUpdate(C, h, dsm);
+      retval = SUNControl_Update(C, h, dsm);
 
-.. c:function:: int SUNControlUpdateMRIH(SUNControl C, realtype H, realtype h, realtype DSM, realtype dsm)
+.. c:function:: int SUNControl_UpdateMRIH(SUNControl C, realtype H, realtype h, realtype DSM, realtype dsm)
 
    Notifies the controller of a successful multirate time step of sizes *H* and
    *h*, and with temporal error estimates *DSM* and *dsm*. This is used for
@@ -383,7 +383,7 @@ routine, below.
    step size inputs or resulting error estimates for performing the estimation
    process.
 
-   :param C:  the :c:type:`SUNControl` object..
+   :param C:  the :c:type:`SUNControl` object.
    :param H:  the successful slow step size.
    :param h:  the successful fast step size.
    :param DSM:  the successful slow temporal error estimate.
@@ -395,9 +395,9 @@ routine, below.
 
    .. code-block:: c
 
-      retval = SUNControlUpdateMRIH(C, H, h, DSM, dsm);
+      retval = SUNControl_UpdateMRIH(C, H, h, DSM, dsm);
 
-.. c:function:: int SUNControlUpdateMRITol(SUNControl C, realtype H, realtype tolfac, realtype DSM, realtype dsm)
+.. c:function:: int SUNControl_UpdateMRITol(SUNControl C, realtype H, realtype tolfac, realtype DSM, realtype dsm)
 
    Notifies the controller of a successful multirate time step of size *H* and
    fast tolerance factor *tolfac*, that resulted in temporal error estimates
@@ -405,7 +405,7 @@ routine, below.
    *SUNDIALS_CONTROL_MRI_TOL* that store a history of either control inputs or
    resulting error estimates for performing the estimation process.
 
-   :param C:  the :c:type:`SUNControl` object..
+   :param C:  the :c:type:`SUNControl` object.
    :param H:  the successful slow step size.
    :param tolfac:  the successful fast relative tolerance factor.
    :param DSM:  the successful slow temporal error estimate.
@@ -417,9 +417,9 @@ routine, below.
 
    .. code-block:: c
 
-      retval = SUNControlUpdate(C, h, dsm);
+      retval = SUNControl_Update(C, h, dsm);
 
-.. c:function:: int SUNControlSpace(SUNControl C, long int *lenrw, long int *leniw)
+.. c:function:: int SUNControl_Space(SUNControl C, long int *lenrw, long int *leniw)
 
    Informative routine that returns the memory requirements of the
    :c:type:`SUNControl` object.
@@ -437,7 +437,7 @@ routine, below.
 
    .. code-block:: c
 
-      retval = SUNControlSpace(C, &lenrw, &leniw);
+      retval = SUNControl_Space(C, &lenrw, &leniw);
 
 
 
@@ -487,7 +487,7 @@ implementation constructor):
         /* Use the control object */
 
         /* Destroy the control object */
-        SUNControlDestroy(C);
+        SUNControl_Destroy(C);
 
         return 0;
     }

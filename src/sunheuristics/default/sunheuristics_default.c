@@ -77,7 +77,7 @@ SUNHeuristics SUNHeuristicsDefault(SUNContext sunctx)
 
   /* Create an empty heuristics object */
   H = NULL;
-  H = SUNHeuristicsNewEmpty(sunctx);
+  H = SUNHeuristics_NewEmpty(sunctx);
   if (H == NULL) { return (NULL); }
 
   /* Attach operations */
@@ -112,7 +112,7 @@ SUNHeuristics SUNHeuristicsDefault(SUNContext sunctx)
   content = (SUNHeuristicsContent_Default)malloc(sizeof *content);
   if (content == NULL)
   {
-    SUNHeuristicsDestroy(H);
+    SUNHeuristics_Destroy(H);
     return (NULL);
   }
 

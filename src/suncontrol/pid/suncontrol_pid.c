@@ -61,11 +61,11 @@ SUNControl SUNControlPID(SUNContext sunctx)
 
   /* Create an empty controller object */
   C = NULL;
-  C = SUNControlNewEmpty(sunctx);
+  C = SUNControl_NewEmpty(sunctx);
   if (C == NULL) { return (NULL); }
 
   /* Attach operations */
-  C->ops->getid             = SUNControlGetType_PID;
+  C->ops->gettype           = SUNControlGetType_PID;
   C->ops->estimatestep      = SUNControlEstimateStep_PID;
   C->ops->reset             = SUNControlReset_PID;
   C->ops->setdefaults       = SUNControlSetDefaults_PID;
@@ -81,7 +81,7 @@ SUNControl SUNControlPID(SUNContext sunctx)
   content = (SUNControlContent_PID)malloc(sizeof *content);
   if (content == NULL)
   {
-    SUNControlDestroy(C);
+    SUNControl_Destroy(C);
     return (NULL);
   }
 

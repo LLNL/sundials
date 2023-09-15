@@ -339,7 +339,7 @@ int ARKStepSetMinStep(void *arkode_mem, realtype hmin)
     return(ARK_MEM_NULL);
   }
   ark_mem = (ARKodeMem) arkode_mem;
-  retval = SUNHeuristicsSetMinStep(ark_mem->hconstraints, hmin);
+  retval = SUNHeuristics_SetMinStep(ark_mem->hconstraints, hmin);
   if (retval != SUNHEURISTICS_SUCCESS) { return(ARK_ILL_INPUT); }
   return(ARK_SUCCESS);
 }
@@ -358,7 +358,7 @@ int ARKStepSetMaxStep(void *arkode_mem, realtype hmax)
     return(ARK_MEM_NULL);
   }
   ark_mem = (ARKodeMem) arkode_mem;
-  retval = SUNHeuristicsSetMaxStep(ark_mem->hconstraints, hmax);
+  retval = SUNHeuristics_SetMaxStep(ark_mem->hconstraints, hmax);
   if (retval != SUNHEURISTICS_SUCCESS) { return(ARK_ILL_INPUT); }
   return(ARK_SUCCESS);
 }
@@ -377,7 +377,7 @@ int ARKStepSetCFLFraction(void *arkode_mem, realtype cfl_frac)
     return(ARK_MEM_NULL);
   }
   ark_mem = (ARKodeMem) arkode_mem;
-  retval = SUNHeuristicsSetCFLFraction(ark_mem->hconstraints, cfl_frac);
+  retval = SUNHeuristics_SetCFLFraction(ark_mem->hconstraints, cfl_frac);
   if (retval != SUNHEURISTICS_SUCCESS) { return(ARK_ILL_INPUT); }
   return(ARK_SUCCESS);
 }
@@ -396,7 +396,7 @@ int ARKStepSetSafetyFactor(void *arkode_mem, realtype safety)
     return(ARK_MEM_NULL);
   }
   ark_mem = (ARKodeMem) arkode_mem;
-  retval = SUNHeuristicsSetSafetyFactor(ark_mem->hconstraints, safety);
+  retval = SUNHeuristics_SetSafetyFactor(ark_mem->hconstraints, safety);
   if (retval != SUNHEURISTICS_SUCCESS) { return(ARK_ILL_INPUT); }
   return(ARK_SUCCESS);
 }
@@ -415,7 +415,7 @@ int ARKStepSetErrorBias(void *arkode_mem, realtype bias)
     return(ARK_MEM_NULL);
   }
   ark_mem = (ARKodeMem) arkode_mem;
-  retval = SUNControlSetErrorBias(ark_mem->hcontroller, bias);
+  retval = SUNControl_SetErrorBias(ark_mem->hcontroller, bias);
   if (retval != SUNCONTROL_SUCCESS) { return(ARK_ILL_INPUT); }
   return(ARK_SUCCESS);
 }
@@ -434,7 +434,7 @@ int ARKStepSetMaxGrowth(void *arkode_mem, realtype mx_growth)
     return(ARK_MEM_NULL);
   }
   ark_mem = (ARKodeMem) arkode_mem;
-  retval = SUNHeuristicsSetMaxGrowth(ark_mem->hconstraints, mx_growth);
+  retval = SUNHeuristics_SetMaxGrowth(ark_mem->hconstraints, mx_growth);
   if (retval != SUNHEURISTICS_SUCCESS) { return(ARK_ILL_INPUT); }
   return(ARK_SUCCESS);
 }
@@ -453,7 +453,7 @@ int ARKStepSetMinReduction(void *arkode_mem, realtype eta_min)
     return(ARK_MEM_NULL);
   }
   ark_mem = (ARKodeMem) arkode_mem;
-  retval = SUNHeuristicsSetMinReduction(ark_mem->hconstraints, eta_min);
+  retval = SUNHeuristics_SetMinReduction(ark_mem->hconstraints, eta_min);
   if (retval != SUNHEURISTICS_SUCCESS) { return(ARK_ILL_INPUT); }
   return(ARK_SUCCESS);
 }
@@ -472,7 +472,7 @@ int ARKStepSetFixedStepBounds(void *arkode_mem, realtype lb, realtype ub)
     return(ARK_MEM_NULL);
   }
   ark_mem = (ARKodeMem) arkode_mem;
-  retval = SUNHeuristicsSetFixedStepBounds(ark_mem->hconstraints, lb, ub);
+  retval = SUNHeuristics_SetFixedStepBounds(ark_mem->hconstraints, lb, ub);
   if (retval != SUNHEURISTICS_SUCCESS) { return(ARK_ILL_INPUT); }
   return(ARK_SUCCESS);
 }
@@ -506,7 +506,7 @@ int ARKStepSetMaxFirstGrowth(void *arkode_mem, realtype etamx1)
     return(ARK_MEM_NULL);
   }
   ark_mem = (ARKodeMem) arkode_mem;
-  retval = SUNHeuristicsSetMaxFirstGrowth(ark_mem->hconstraints, etamx1);
+  retval = SUNHeuristics_SetMaxFirstGrowth(ark_mem->hconstraints, etamx1);
   if (retval != SUNHEURISTICS_SUCCESS) { return(ARK_ILL_INPUT); }
   return(ARK_SUCCESS);
 }
@@ -525,7 +525,7 @@ int ARKStepSetMaxEFailGrowth(void *arkode_mem, realtype etamxf)
     return(ARK_MEM_NULL);
   }
   ark_mem = (ARKodeMem) arkode_mem;
-  retval = SUNHeuristicsSetMaxEFailGrowth(ark_mem->hconstraints, etamxf);
+  retval = SUNHeuristics_SetMaxEFailGrowth(ark_mem->hconstraints, etamxf);
   if (retval != SUNHEURISTICS_SUCCESS) { return(ARK_ILL_INPUT); }
   return(ARK_SUCCESS);
 }
@@ -544,7 +544,7 @@ int ARKStepSetSmallNumEFails(void *arkode_mem, int small_nef)
     return(ARK_MEM_NULL);
   }
   ark_mem = (ARKodeMem) arkode_mem;
-  retval = SUNHeuristicsSetSmallNumEFails(ark_mem->hconstraints, small_nef);
+  retval = SUNHeuristics_SetSmallNumEFails(ark_mem->hconstraints, small_nef);
   if (retval != SUNHEURISTICS_SUCCESS) { return(ARK_ILL_INPUT); }
   return(ARK_SUCCESS);
 }
@@ -563,7 +563,7 @@ int ARKStepSetMaxCFailGrowth(void *arkode_mem, realtype etacf)
     return(ARK_MEM_NULL);
   }
   ark_mem = (ARKodeMem) arkode_mem;
-  retval = SUNHeuristicsSetMaxCFailGrowth(ark_mem->hconstraints, etacf);
+  retval = SUNHeuristics_SetMaxCFailGrowth(ark_mem->hconstraints, etacf);
   if (retval != SUNHEURISTICS_SUCCESS) { return(ARK_ILL_INPUT); }
   return(ARK_SUCCESS);
 }
@@ -698,12 +698,12 @@ int ARKStepSetOptimalParams(void *arkode_mem)
   if (retval != ARK_SUCCESS)  return(retval);
 
   /* Remove current SUNHeuristics object, and replace with "Default" */
-  retval = SUNHeuristicsSpace(ark_mem->hconstraints, &lenrw, &leniw);
+  retval = SUNHeuristics_Space(ark_mem->hconstraints, &lenrw, &leniw);
   if (retval == SUNHEURISTICS_SUCCESS) {
     ark_mem->liw -= leniw;
     ark_mem->lrw -= lenrw;
   }
-  SUNHeuristicsDestroy(ark_mem->hconstraints);
+  SUNHeuristics_Destroy(ark_mem->hconstraints);
   ark_mem->hconstraints = NULL;
   ark_mem->hconstraints = SUNHeuristicsDefault(ark_mem->sunctx);
   if (ark_mem->hconstraints == NULL) {
@@ -712,7 +712,7 @@ int ARKStepSetOptimalParams(void *arkode_mem)
                     "SUNHeuristicsDefault allocation failure");
     return(ARK_MEM_FAIL);
   }
-  retval = SUNHeuristicsSpace(ark_mem->hconstraints, &lenrw, &leniw);
+  retval = SUNHeuristics_Space(ark_mem->hconstraints, &lenrw, &leniw);
   if (retval == SUNHEURISTICS_SUCCESS) {
     ark_mem->liw += leniw;
     ark_mem->lrw += lenrw;
@@ -720,12 +720,12 @@ int ARKStepSetOptimalParams(void *arkode_mem)
 
 
   /* Remove current SUNControl object */
-  retval = SUNControlSpace(ark_mem->hcontroller, &lenrw, &leniw);
+  retval = SUNControl_Space(ark_mem->hcontroller, &lenrw, &leniw);
   if (retval == SUNCONTROL_SUCCESS) {
     ark_mem->liw -= leniw;
     ark_mem->lrw -= lenrw;
   }
-  SUNControlDestroy(ark_mem->hcontroller);
+  SUNControl_Destroy(ark_mem->hcontroller);
   ark_mem->hcontroller = NULL;
 
 
@@ -740,12 +740,12 @@ int ARKStepSetOptimalParams(void *arkode_mem)
                       "SUNControlPI allocation failure");
       return(ARK_MEM_FAIL);
     }
-    (void) SUNControlSetErrorBias(ark_mem->hcontroller, RCONST(1.2));
+    (void) SUNControl_SetErrorBias(ark_mem->hcontroller, RCONST(1.2));
     (void) SUNControlPI_SetParams(ark_mem->hcontroller, SUNFALSE,
                                   RCONST(0.8), RCONST(0.31));
-    (void) SUNHeuristicsSetSafetyFactor(ark_mem->hconstraints, RCONST(0.99));
-    (void) SUNHeuristicsSetMaxGrowth(ark_mem->hconstraints, RCONST(25.0));
-    (void) SUNHeuristicsSetMaxEFailGrowth(ark_mem->hconstraints, RCONST(0.3));
+    (void) SUNHeuristics_SetSafetyFactor(ark_mem->hconstraints, RCONST(0.99));
+    (void) SUNHeuristics_SetMaxGrowth(ark_mem->hconstraints, RCONST(25.0));
+    (void) SUNHeuristics_SetMaxEFailGrowth(ark_mem->hconstraints, RCONST(0.3));
 
   /*    implicit */
   } else if (step_mem->implicit && !step_mem->explicit) {
@@ -773,10 +773,10 @@ int ARKStepSetOptimalParams(void *arkode_mem)
                         "SUNControlI allocation failure");
         return(ARK_MEM_FAIL);
       }
-      (void) SUNControlSetErrorBias(ark_mem->hcontroller, RCONST(1.9));
-      (void) SUNHeuristicsSetSafetyFactor(ark_mem->hconstraints, RCONST(0.957));
-      (void) SUNHeuristicsSetMaxGrowth(ark_mem->hconstraints, RCONST(17.6));
-      (void) SUNHeuristicsSetMaxEFailGrowth(ark_mem->hconstraints, RCONST(0.45));
+      (void) SUNControl_SetErrorBias(ark_mem->hcontroller, RCONST(1.9));
+      (void) SUNHeuristics_SetSafetyFactor(ark_mem->hconstraints, RCONST(0.957));
+      (void) SUNHeuristics_SetMaxGrowth(ark_mem->hconstraints, RCONST(17.6));
+      (void) SUNHeuristics_SetMaxEFailGrowth(ark_mem->hconstraints, RCONST(0.45));
       step_mem->nlscoef     = RCONST(0.22);
       step_mem->crdown      = RCONST(0.17);
       step_mem->rdiv        = RCONST(2.3);
@@ -791,12 +791,12 @@ int ARKStepSetOptimalParams(void *arkode_mem)
                         "SUNControlPID allocation failure");
         return(ARK_MEM_FAIL);
       }
-      (void) SUNControlSetErrorBias(ark_mem->hcontroller, RCONST(1.2));
+      (void) SUNControl_SetErrorBias(ark_mem->hcontroller, RCONST(1.2));
       (void) SUNControlPID_SetParams(ark_mem->hcontroller, SUNFALSE,
                                      RCONST(0.535), RCONST(0.209), RCONST(0.148));
-      (void) SUNHeuristicsSetSafetyFactor(ark_mem->hconstraints, RCONST(0.988));
-      (void) SUNHeuristicsSetMaxGrowth(ark_mem->hconstraints, RCONST(31.5));
-      (void) SUNHeuristicsSetMaxEFailGrowth(ark_mem->hconstraints, RCONST(0.33));
+      (void) SUNHeuristics_SetSafetyFactor(ark_mem->hconstraints, RCONST(0.988));
+      (void) SUNHeuristics_SetMaxGrowth(ark_mem->hconstraints, RCONST(31.5));
+      (void) SUNHeuristics_SetMaxEFailGrowth(ark_mem->hconstraints, RCONST(0.33));
       step_mem->nlscoef     = RCONST(0.24);
       step_mem->crdown      = RCONST(0.26);
       step_mem->rdiv        = RCONST(2.3);
@@ -811,12 +811,12 @@ int ARKStepSetOptimalParams(void *arkode_mem)
                         "SUNControlPID allocation failure");
         return(ARK_MEM_FAIL);
       }
-      (void) SUNControlSetErrorBias(ark_mem->hcontroller, RCONST(3.3));
+      (void) SUNControl_SetErrorBias(ark_mem->hcontroller, RCONST(3.3));
       (void) SUNControlPID_SetParams(ark_mem->hcontroller, SUNFALSE,
                                      RCONST(0.56), RCONST(0.338), RCONST(0.14));
-      (void) SUNHeuristicsSetSafetyFactor(ark_mem->hconstraints, RCONST(0.937));
-      (void) SUNHeuristicsSetMaxGrowth(ark_mem->hconstraints, RCONST(22.0));
-      (void) SUNHeuristicsSetMaxEFailGrowth(ark_mem->hconstraints, RCONST(0.44));
+      (void) SUNHeuristics_SetSafetyFactor(ark_mem->hconstraints, RCONST(0.937));
+      (void) SUNHeuristics_SetMaxGrowth(ark_mem->hconstraints, RCONST(22.0));
+      (void) SUNHeuristics_SetMaxEFailGrowth(ark_mem->hconstraints, RCONST(0.44));
       step_mem->nlscoef     = RCONST(0.25);
       step_mem->crdown      = RCONST(0.4);
       step_mem->rdiv        = RCONST(2.3);
@@ -851,12 +851,12 @@ int ARKStepSetOptimalParams(void *arkode_mem)
                         "SUNControlPID allocation failure");
         return(ARK_MEM_FAIL);
       }
-      (void) SUNControlSetErrorBias(ark_mem->hcontroller, RCONST(1.42));
+      (void) SUNControl_SetErrorBias(ark_mem->hcontroller, RCONST(1.42));
       (void) SUNControlPID_SetParams(ark_mem->hcontroller, SUNFALSE,
                                      RCONST(0.54), RCONST(0.36), RCONST(0.14));
-      (void) SUNHeuristicsSetSafetyFactor(ark_mem->hconstraints, RCONST(0.965));
-      (void) SUNHeuristicsSetMaxGrowth(ark_mem->hconstraints, RCONST(28.7));
-      (void) SUNHeuristicsSetMaxEFailGrowth(ark_mem->hconstraints, RCONST(0.46));
+      (void) SUNHeuristics_SetSafetyFactor(ark_mem->hconstraints, RCONST(0.965));
+      (void) SUNHeuristics_SetMaxGrowth(ark_mem->hconstraints, RCONST(28.7));
+      (void) SUNHeuristics_SetMaxEFailGrowth(ark_mem->hconstraints, RCONST(0.46));
       step_mem->nlscoef     = RCONST(0.22);
       step_mem->crdown      = RCONST(0.17);
       step_mem->rdiv        = RCONST(2.3);
@@ -871,12 +871,12 @@ int ARKStepSetOptimalParams(void *arkode_mem)
                         "SUNControlPID allocation failure");
         return(ARK_MEM_FAIL);
       }
-      (void) SUNControlSetErrorBias(ark_mem->hcontroller, RCONST(1.35));
+      (void) SUNControl_SetErrorBias(ark_mem->hcontroller, RCONST(1.35));
       (void) SUNControlPID_SetParams(ark_mem->hcontroller, SUNFALSE,
                                      RCONST(0.543), RCONST(0.297), RCONST(0.14));
-      (void) SUNHeuristicsSetSafetyFactor(ark_mem->hconstraints, RCONST(0.97));
-      (void) SUNHeuristicsSetMaxGrowth(ark_mem->hconstraints, RCONST(25.0));
-      (void) SUNHeuristicsSetMaxEFailGrowth(ark_mem->hconstraints, RCONST(0.47));
+      (void) SUNHeuristics_SetSafetyFactor(ark_mem->hconstraints, RCONST(0.97));
+      (void) SUNHeuristics_SetMaxGrowth(ark_mem->hconstraints, RCONST(25.0));
+      (void) SUNHeuristics_SetMaxEFailGrowth(ark_mem->hconstraints, RCONST(0.47));
       step_mem->nlscoef     = RCONST(0.24);
       step_mem->crdown      = RCONST(0.26);
       step_mem->rdiv        = RCONST(2.3);
@@ -891,12 +891,12 @@ int ARKStepSetOptimalParams(void *arkode_mem)
                         "SUNControlPI allocation failure");
         return(ARK_MEM_FAIL);
       }
-      (void) SUNControlSetErrorBias(ark_mem->hcontroller, RCONST(1.15));
+      (void) SUNControl_SetErrorBias(ark_mem->hcontroller, RCONST(1.15));
       (void) SUNControlPI_SetParams(ark_mem->hcontroller, SUNFALSE,
                                     RCONST(0.8), RCONST(0.35));
-      (void) SUNHeuristicsSetSafetyFactor(ark_mem->hconstraints, RCONST(0.993));
-      (void) SUNHeuristicsSetMaxGrowth(ark_mem->hconstraints, RCONST(28.5));
-      (void) SUNHeuristicsSetMaxEFailGrowth(ark_mem->hconstraints, RCONST(0.3));
+      (void) SUNHeuristics_SetSafetyFactor(ark_mem->hconstraints, RCONST(0.993));
+      (void) SUNHeuristics_SetMaxGrowth(ark_mem->hconstraints, RCONST(28.5));
+      (void) SUNHeuristics_SetMaxEFailGrowth(ark_mem->hconstraints, RCONST(0.3));
       step_mem->nlscoef     = RCONST(0.25);
       step_mem->crdown      = RCONST(0.4);
       step_mem->rdiv        = RCONST(2.3);
@@ -1925,9 +1925,9 @@ int ARKStepGetTimestepperStats(void *arkode_mem, long int *expsteps,
   *netfails      = ark_mem->netf;
 
   /* get expsteps and accsteps from heuristics object */
-  retval = SUNHeuristicsGetNumExpSteps(ark_mem->hconstraints, expsteps);
+  retval = SUNHeuristics_GetNumExpSteps(ark_mem->hconstraints, expsteps);
   if (retval != ARK_SUCCESS) { return(ARK_HEURISTICS_ERR); }
-  retval = SUNHeuristicsGetNumAccSteps(ark_mem->hconstraints, accsteps);
+  retval = SUNHeuristics_GetNumAccSteps(ark_mem->hconstraints, accsteps);
   if (retval != ARK_SUCCESS) { return(ARK_HEURISTICS_ERR); }
 
   return(ARK_SUCCESS);
@@ -2009,7 +2009,7 @@ int ARKStepGetNonlinSolvStats(void *arkode_mem, long int *nniters,
   Returns the current number of stability-limited steps.
 
   This is a convenience routine, that merely calls
-  SUNHeuristicsGetNumExpSteps for the result.
+  SUNHeuristics_GetNumExpSteps for the result.
   ---------------------------------------------------------------*/
 int ARKStepGetNumExpSteps(void *arkode_mem, long int *nsteps)
 {
@@ -2020,7 +2020,7 @@ int ARKStepGetNumExpSteps(void *arkode_mem, long int *nsteps)
     return(ARK_MEM_NULL);
   }
   ark_mem = (ARKodeMem) arkode_mem;
-  if (SUNHeuristicsGetNumExpSteps(ark_mem->hconstraints, nsteps)
+  if (SUNHeuristics_GetNumExpSteps(ark_mem->hconstraints, nsteps)
       != SUNHEURISTICS_SUCCESS) { return(ARK_HEURISTICS_ERR); }
   return(ARK_SUCCESS);
 }
@@ -2031,7 +2031,7 @@ int ARKStepGetNumExpSteps(void *arkode_mem, long int *nsteps)
   Returns the current number of accuracy-limited steps.
 
   This is a convenience routine, that merely calls
-  SUNHeuristicsGetNumAccSteps for the result.
+  SUNHeuristics_GetNumAccSteps for the result.
   ---------------------------------------------------------------*/
 int ARKStepGetNumAccSteps(void *arkode_mem, long int *nsteps)
 {
@@ -2042,7 +2042,7 @@ int ARKStepGetNumAccSteps(void *arkode_mem, long int *nsteps)
     return(ARK_MEM_NULL);
   }
   ark_mem = (ARKodeMem) arkode_mem;
-  if (SUNHeuristicsGetNumAccSteps(ark_mem->hconstraints, nsteps)
+  if (SUNHeuristics_GetNumAccSteps(ark_mem->hconstraints, nsteps)
       != SUNHEURISTICS_SUCCESS) { return(ARK_HEURISTICS_ERR); }
   return(ARK_SUCCESS);
 }

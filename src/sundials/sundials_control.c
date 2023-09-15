@@ -22,7 +22,7 @@
  * Create a new empty SUNControl object
  * ----------------------------------------------------------------- */
 
-SUNControl SUNControlNewEmpty(SUNContext sunctx)
+SUNControl SUNControl_NewEmpty(SUNContext sunctx)
 {
   SUNControl C;
   SUNControl_Ops ops;
@@ -41,7 +41,7 @@ SUNControl SUNControlNewEmpty(SUNContext sunctx)
   if (ops == NULL) { free(C); return(NULL); }
 
   /* initialize operations to NULL */
-  ops->getid                = NULL;
+  ops->gettype              = NULL;
   ops->destroy              = NULL;
   ops->reset                = NULL;
   ops->estimatestep         = NULL;
@@ -71,7 +71,7 @@ SUNControl SUNControlNewEmpty(SUNContext sunctx)
  * Free a generic SUNControl (assumes content is already empty)
  * ----------------------------------------------------------------- */
 
-void SUNControlFreeEmpty(SUNControl C)
+void SUNControl_FreeEmpty(SUNControl C)
 {
   if (C == NULL)  return;
 
@@ -89,17 +89,17 @@ void SUNControlFreeEmpty(SUNControl C)
  * Required functions in the 'ops' structure for non-NULL controller
  * ----------------------------------------------------------------- */
 
-SUNControl_Type SUNControlGetType(SUNControl C)
+SUNControl_Type SUNControl_GetType(SUNControl C)
 {
   if (C == NULL) { return SUNDIALS_CONTROL_NONE; }
-  return(C->ops->getid(C));
+  return(C->ops->gettype(C));
 }
 
 /* -----------------------------------------------------------------
  * Optional functions in the 'ops' structure
  * ----------------------------------------------------------------- */
 
-void SUNControlDestroy(SUNControl C)
+void SUNControl_Destroy(SUNControl C)
 {
   if (C == NULL) return;
 
@@ -116,8 +116,8 @@ void SUNControlDestroy(SUNControl C)
   return;
 }
 
-int SUNControlEstimateStep(SUNControl C, realtype h, realtype dsm,
-                           realtype* hnew)
+int SUNControl_EstimateStep(SUNControl C, realtype h, realtype dsm,
+                            realtype* hnew)
 {
   int ier = 0;
   *hnew = h;   /* initialize output with identity */
@@ -130,9 +130,9 @@ int SUNControlEstimateStep(SUNControl C, realtype h, realtype dsm,
 }
 
 
-int SUNControlEstimateStepAndOrder(SUNControl C, realtype h, int q,
-                                   realtype dsm, realtype* hnew,
-                                   int *qnew)
+int SUNControl_EstimateStepAndOrder(SUNControl C, realtype h, int q,
+                                    realtype dsm, realtype* hnew,
+                                    int *qnew)
 {
   int ier = 0;
   *hnew = h;   /* initialize outputs with identity */
@@ -145,9 +145,9 @@ int SUNControlEstimateStepAndOrder(SUNControl C, realtype h, int q,
   return(ier);
 }
 
-int SUNControlEstimateMRISteps(SUNControl C, realtype H, realtype h,
-                               realtype DSM, realtype dsm,
-                               realtype* Hnew, realtype *hnew)
+int SUNControl_EstimateMRISteps(SUNControl C, realtype H, realtype h,
+                                realtype DSM, realtype dsm,
+                                realtype* Hnew, realtype *hnew)
 {
   int ier = 0;
   *Hnew = H;   /* initialize outputs with identity */
@@ -160,10 +160,10 @@ int SUNControlEstimateMRISteps(SUNControl C, realtype H, realtype h,
   return(ier);
 }
 
-int SUNControlEstimateStepTol(SUNControl C, realtype H,
-                              realtype tolfac, realtype DSM,
-                              realtype dsm, realtype *Hnew,
-                              realtype* tolfacnew)
+int SUNControl_EstimateStepTol(SUNControl C, realtype H,
+                               realtype tolfac, realtype DSM,
+                               realtype dsm, realtype *Hnew,
+                               realtype* tolfacnew)
 {
   int ier = 0;
   *Hnew = H;   /* initialize outputs with identity */
@@ -177,7 +177,7 @@ int SUNControlEstimateStepTol(SUNControl C, realtype H,
   return(ier);
 }
 
-int SUNControlReset(SUNControl C)
+int SUNControl_Reset(SUNControl C)
 {
   int ier = 0;
   if (C == NULL) { return ier; }
@@ -185,14 +185,14 @@ int SUNControlReset(SUNControl C)
   return(ier);
 }
 
-int SUNControlSetDefaults(SUNControl C)
+int SUNControl_SetDefaults(SUNControl C)
 {
   int ier = 0;
   if (C->ops->setdefaults) { ier = C->ops->setdefaults(C); }
   return(ier);
 }
 
-int SUNControlWrite(SUNControl C, FILE* fptr)
+int SUNControl_Write(SUNControl C, FILE* fptr)
 {
   int ier = 0;
   if (C == NULL) { return ier; }
@@ -200,7 +200,7 @@ int SUNControlWrite(SUNControl C, FILE* fptr)
   return(ier);
 }
 
-int SUNControlSetMethodOrder(SUNControl C, int q)
+int SUNControl_SetMethodOrder(SUNControl C, int q)
 {
   int ier = 0;
   if (C == NULL) { return ier; }
@@ -208,7 +208,7 @@ int SUNControlSetMethodOrder(SUNControl C, int q)
   return(ier);
 }
 
-int SUNControlSetEmbeddingOrder(SUNControl C, int p)
+int SUNControl_SetEmbeddingOrder(SUNControl C, int p)
 {
   int ier = 0;
   if (C == NULL) { return ier; }
@@ -216,7 +216,7 @@ int SUNControlSetEmbeddingOrder(SUNControl C, int p)
   return(ier);
 }
 
-int SUNControlSetErrorBias(SUNControl C, realtype bias)
+int SUNControl_SetErrorBias(SUNControl C, realtype bias)
 {
   int ier = 0;
   if (C == NULL) { return ier; }
@@ -224,7 +224,7 @@ int SUNControlSetErrorBias(SUNControl C, realtype bias)
   return(ier);
 }
 
-int SUNControlUpdate(SUNControl C, realtype h, realtype dsm)
+int SUNControl_Update(SUNControl C, realtype h, realtype dsm)
 {
   int ier = 0;
   if (C == NULL) { return ier; }
@@ -232,8 +232,8 @@ int SUNControlUpdate(SUNControl C, realtype h, realtype dsm)
   return(ier);
 }
 
-int SUNControlUpdateMRIH(SUNControl C, realtype H, realtype h,
-                         realtype DSM, realtype dsm)
+int SUNControl_UpdateMRIH(SUNControl C, realtype H, realtype h,
+                          realtype DSM, realtype dsm)
 {
   int ier = 0;
   if (C == NULL) { return ier; }
@@ -241,8 +241,8 @@ int SUNControlUpdateMRIH(SUNControl C, realtype H, realtype h,
   return(ier);
 }
 
-int SUNControlUpdateMRITol(SUNControl C, realtype H, realtype tolfac,
-                           realtype DSM, realtype dsm)
+int SUNControl_UpdateMRITol(SUNControl C, realtype H, realtype tolfac,
+                            realtype DSM, realtype dsm)
 {
   int ier = 0;
   if (C == NULL) { return ier; }
@@ -251,7 +251,7 @@ int SUNControlUpdateMRITol(SUNControl C, realtype H, realtype tolfac,
   return(ier);
 }
 
-int SUNControlSpace(SUNControl C, long int *lenrw, long int *leniw)
+int SUNControl_Space(SUNControl C, long int *lenrw, long int *leniw)
 {
   int ier = 0;
   *lenrw = 0;   /* initialize outputs with identity */

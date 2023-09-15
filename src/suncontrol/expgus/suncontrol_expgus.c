@@ -59,11 +59,11 @@ SUNControl SUNControlExpGus(SUNContext sunctx)
 
   /* Create an empty controller object */
   C = NULL;
-  C = SUNControlNewEmpty(sunctx);
+  C = SUNControl_NewEmpty(sunctx);
   if (C == NULL) { return (NULL); }
 
   /* Attach operations */
-  C->ops->getid             = SUNControlGetType_ExpGus;
+  C->ops->gettype           = SUNControlGetType_ExpGus;
   C->ops->estimatestep      = SUNControlEstimateStep_ExpGus;
   C->ops->reset             = SUNControlReset_ExpGus;
   C->ops->setdefaults       = SUNControlSetDefaults_ExpGus;
@@ -79,7 +79,7 @@ SUNControl SUNControlExpGus(SUNContext sunctx)
   content = (SUNControlContent_ExpGus)malloc(sizeof *content);
   if (content == NULL)
   {
-    SUNControlDestroy(C);
+    SUNControl_Destroy(C);
     return (NULL);
   }
 
