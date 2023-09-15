@@ -85,8 +85,8 @@ with adaptive explicit methods of orders 2-8.
    H(t, p, q) = T(t, p) + V(t, q)
 
 .. math::
-   \dot{p} = f_1(t,q) = \frac{\partial V(t,q)}{\partial q}, \quad 
-   \dot{q} = f_2(t,p) = \frac{\partial T(t,p)}{\partial p}, 
+   \dot{p} = f_1(t,q) = \frac{\partial V(t,q)}{\partial q}, \quad
+   \dot{q} = f_2(t,p) = \frac{\partial T(t,p)}{\partial p},
    :label: ARKODE_ODE_hamiltonian
 
 allowing for conservation of quadratic invariants.
@@ -129,6 +129,19 @@ provided with SUNDIALS, or again may utilize a user-supplied module.
 
 Changes from previous versions
 ==============================
+
+Changes in vX.X.X
+-----------------
+
+Added :c:type:`SUNControl` and :c:type:`SUNHeuristics` base classes.  Ported
+ARKODE's internal implementations of time step control and heuristic
+constraints into implementations of these classes, and updated ARKODE to use
+these objects instead of its own implementations.  Added
+:c:func:`ARKStepSetController`,  :c:func:`ARKStepSetHeuristics`,
+:c:func:`ERKStepSetController`, and :c:func:`ERKStepSetHeuristics` routines
+so that users can modify controller/heuristic parameters, or even provide
+custom implementations.
+
 
 Changes in v5.6.1
 -----------------
@@ -174,15 +187,6 @@ this case, the values returned by :c:func:`ARKStepGetEstLocalErrors` or
 Updated the F2003 utility routines :c:func:`SUNDIALSFileOpen` and :c:func:`SUNDIALSFileClose`
 to support user specification of ``stdout`` and ``stderr`` strings for the output
 file names.
-
-Added :c:type:`SUNControl` and :c:type:`SUNHeuristics` base classes.  Ported
-ARKODE's internal implementations of time step control and heuristic
-constraints into implementations of these classes, and updated ARKODE to use
-these objects instead of its own implementations.  Added
-:c:func:`ARKStepSetController`,  :c:func:`ARKStepSetHeuristics`,
-:c:func:`ERKStepSetController`, and :c:func:`ERKStepSetHeuristics` routines
-so that users can modify controller/heuristic parameters, or even provide
-custom implementations.
 
 Changes in v5.5.1
 -----------------

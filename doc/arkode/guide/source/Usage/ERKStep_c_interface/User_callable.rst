@@ -842,6 +842,9 @@ Optional inputs for ERKStep
    **Notes:**
       Pass *hmax* :math:`\le 0.0` to set the default value of :math:`\infty`.
 
+      If both this and :c:func:`ERKStepSetHeuristics` will be called, then this
+      routine must be called *second*.
+
    .. deprecated:: x.x.x
 
       Use the SUNHeuristics infrastructure instead (see :numref:`SUNHeuristics.Description`).
@@ -862,6 +865,9 @@ Optional inputs for ERKStep
 
    **Notes:**
       Pass *hmin* :math:`\le 0.0` to set the default value of 0.
+
+      If both this and :c:func:`ERKStepSetHeuristics` will be called, then this
+      routine must be called *second*.
 
    .. deprecated:: x.x.x
 
@@ -1313,6 +1319,9 @@ the code, is provided in :numref:`ARKODE.Mathematics.Adaptivity`.
       Any non-positive parameter will imply a reset to the default
       value.
 
+      If both this and :c:func:`ERKStepSetHeuristics` will be called, then this
+      routine must be called *second*.
+
    .. deprecated:: x.x.x
 
       Use the SUNHeuristics infrastructure instead (see :numref:`SUNHeuristics.Description`).
@@ -1336,6 +1345,10 @@ the code, is provided in :numref:`ARKODE.Mathematics.Adaptivity`.
    **Notes:**
       Any value below 1.0 will imply a reset to the default value.
 
+      If both this and one of :c:func:`ERKStepSetAdaptivityMethod` or
+      :c:func:`ERKStepSetController` will be called, then this routine must be called
+      *second*.
+
    .. deprecated:: x.x.x
 
       Use the SUNControl infrastructure instead (see :numref:`SUNControl.Description`).
@@ -1358,6 +1371,9 @@ the code, is provided in :numref:`ARKODE.Mathematics.Adaptivity`.
    **Notes:**
       Any interval *not* containing 1.0 will imply a reset to the default values.
 
+      If both this and :c:func:`ERKStepSetHeuristics` will be called, then this
+      routine must be called *second*.
+
    .. deprecated:: x.x.x
 
       Use the SUNHeuristics infrastructure instead (see :numref:`SUNHeuristics.Description`).
@@ -1379,6 +1395,9 @@ the code, is provided in :numref:`ARKODE.Mathematics.Adaptivity`.
 
    **Notes:**
       Any value outside the interval :math:`(0,1]` will imply a reset to the default value.
+
+      If both this and :c:func:`ERKStepSetHeuristics` will be called, then this
+      routine must be called *second*.
 
    .. deprecated:: x.x.x
 
@@ -1403,6 +1422,9 @@ the code, is provided in :numref:`ARKODE.Mathematics.Adaptivity`.
    **Notes:**
       Any value :math:`\le 1.0` will imply a reset to the default value.
 
+      If both this and :c:func:`ERKStepSetHeuristics` will be called, then this
+      routine must be called *second*.
+
    .. deprecated:: x.x.x
 
       Use the SUNHeuristics infrastructure instead (see :numref:`SUNHeuristics.Description`).
@@ -1425,6 +1447,9 @@ the code, is provided in :numref:`ARKODE.Mathematics.Adaptivity`.
    **Notes:**
       Any value :math:`\le 1.0` will imply a reset to the default
       value.
+
+      If both this and :c:func:`ERKStepSetHeuristics` will be called, then this
+      routine must be called *second*.
 
    .. deprecated:: x.x.x
 
@@ -1451,6 +1476,9 @@ the code, is provided in :numref:`ARKODE.Mathematics.Adaptivity`.
       Any value :math:`\ge 1.0` or :math:`\le 0.0` will imply a reset to
       the default value.
 
+      If both this and :c:func:`ERKStepSetHeuristics` will be called, then this
+      routine must be called *second*.
+
    .. deprecated:: x.x.x
 
       Use the SUNHeuristics infrastructure instead (see :numref:`SUNHeuristics.Description`).
@@ -1474,6 +1502,9 @@ the code, is provided in :numref:`ARKODE.Mathematics.Adaptivity`.
       Any non-positive parameter will imply a reset to the default
       value.
 
+      If both this and :c:func:`ERKStepSetHeuristics` will be called, then this
+      routine must be called *second*.
+
    .. deprecated:: x.x.x
 
       Use the SUNHeuristics infrastructure instead (see :numref:`SUNHeuristics.Description`).
@@ -1496,6 +1527,9 @@ the code, is provided in :numref:`ARKODE.Mathematics.Adaptivity`.
 
    **Notes:**
       Any non-positive parameter will imply a reset to the default value.
+
+      If both this and :c:func:`ERKStepSetHeuristics` will be called, then this
+      routine must be called *second*.
 
    .. deprecated:: x.x.x
 
@@ -1525,6 +1559,9 @@ the code, is provided in :numref:`ARKODE.Mathematics.Adaptivity`.
       for retaining stability, but this can be quite useful for problems
       where the right-hand side function :math:`f(t,y)` contains stiff
       terms.
+
+      If both this and :c:func:`ERKStepSetHeuristics` will be called, then this
+      routine must be called *second*.
 
    .. deprecated:: x.x.x
 
