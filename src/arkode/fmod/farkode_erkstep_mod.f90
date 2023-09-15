@@ -67,6 +67,14 @@ module farkode_erkstep_mod
   integer(C_SIZE_T), public :: size = 0
  end type
  public :: FERKStepSetTableName
+
+ integer, parameter :: swig_cmem_own_bit = 0
+ integer, parameter :: swig_cmem_rvalue_bit = 1
+ integer, parameter :: swig_cmem_const_bit = 2
+ type, bind(C) :: SwigClassWrapper
+  type(C_PTR), public :: cptr = C_NULL_PTR
+  integer(C_INT), public :: cmemflags = 0
+ end type
  public :: FERKStepSetController
  public :: FERKStepSetHeuristics
  public :: FERKStepSetCFLFraction
@@ -308,8 +316,9 @@ function swigc_FERKStepSetController(farg1, farg2) &
 bind(C, name="_wrap_FERKStepSetController") &
 result(fresult)
 use, intrinsic :: ISO_C_BINDING
+import :: swigclasswrapper
 type(C_PTR), value :: farg1
-type(C_PTR), value :: farg2
+type(SwigClassWrapper) :: farg2
 integer(C_INT) :: fresult
 end function
 
@@ -317,8 +326,9 @@ function swigc_FERKStepSetHeuristics(farg1, farg2) &
 bind(C, name="_wrap_FERKStepSetHeuristics") &
 result(fresult)
 use, intrinsic :: ISO_C_BINDING
+import :: swigclasswrapper
 type(C_PTR), value :: farg1
-type(C_PTR), value :: farg2
+type(SwigClassWrapper) :: farg2
 integer(C_INT) :: fresult
 end function
 
@@ -1346,13 +1356,13 @@ result(swig_result)
 use, intrinsic :: ISO_C_BINDING
 integer(C_INT) :: swig_result
 type(C_PTR) :: arkode_mem
-type(SUNControl), target, intent(inout) :: c
+class(generic_SUNControl_), intent(in) :: c
 integer(C_INT) :: fresult 
 type(C_PTR) :: farg1 
-type(C_PTR) :: farg2 
+type(SwigClassWrapper) :: farg2 
 
 farg1 = arkode_mem
-farg2 = c_loc(c)
+farg2 = c%swigdata
 fresult = swigc_FERKStepSetController(farg1, farg2)
 swig_result = fresult
 end function
@@ -1362,13 +1372,13 @@ result(swig_result)
 use, intrinsic :: ISO_C_BINDING
 integer(C_INT) :: swig_result
 type(C_PTR) :: arkode_mem
-type(SUNHeuristics), target, intent(inout) :: h
+class(generic_SUNHeuristics_), intent(in) :: h
 integer(C_INT) :: fresult 
 type(C_PTR) :: farg1 
-type(C_PTR) :: farg2 
+type(SwigClassWrapper) :: farg2 
 
 farg1 = arkode_mem
-farg2 = c_loc(h)
+farg2 = h%swigdata
 fresult = swigc_FERKStepSetHeuristics(farg1, farg2)
 swig_result = fresult
 end function

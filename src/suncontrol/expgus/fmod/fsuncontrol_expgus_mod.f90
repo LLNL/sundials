@@ -27,9 +27,17 @@ module fsuncontrol_expgus_mod
  private
 
  ! DECLARATION CONSTRUCTS
+
+ integer, parameter :: swig_cmem_own_bit = 0
+ integer, parameter :: swig_cmem_rvalue_bit = 1
+ integer, parameter :: swig_cmem_const_bit = 2
+ type, bind(C) :: SwigClassWrapper
+  type(C_PTR), public :: cptr = C_NULL_PTR
+  integer(C_INT), public :: cmemflags = 0
+ end type
  public :: FSUNControlExpGus
  public :: FSUNControlExpGus_SetParams
- public :: FSUNControlGetID_ExpGus
+ public :: FSUNControlGetType_ExpGus
  public :: FSUNControlEstimateStep_ExpGus
  public :: FSUNControlReset_ExpGus
  public :: FSUNControlSetDefaults_ExpGus
@@ -46,26 +54,29 @@ function swigc_FSUNControlExpGus(farg1) &
 bind(C, name="_wrap_FSUNControlExpGus") &
 result(fresult)
 use, intrinsic :: ISO_C_BINDING
+import :: swigclasswrapper
 type(C_PTR), value :: farg1
-type(C_PTR) :: fresult
+type(SwigClassWrapper) :: fresult
 end function
 
 function swigc_FSUNControlExpGus_SetParams(farg1, farg2, farg3, farg4) &
 bind(C, name="_wrap_FSUNControlExpGus_SetParams") &
 result(fresult)
 use, intrinsic :: ISO_C_BINDING
-type(C_PTR), value :: farg1
+import :: swigclasswrapper
+type(SwigClassWrapper) :: farg1
 integer(C_INT), intent(in) :: farg2
 real(C_DOUBLE), intent(in) :: farg3
 real(C_DOUBLE), intent(in) :: farg4
 integer(C_INT) :: fresult
 end function
 
-function swigc_FSUNControlGetID_ExpGus(farg1) &
-bind(C, name="_wrap_FSUNControlGetID_ExpGus") &
+function swigc_FSUNControlGetType_ExpGus(farg1) &
+bind(C, name="_wrap_FSUNControlGetType_ExpGus") &
 result(fresult)
 use, intrinsic :: ISO_C_BINDING
-type(C_PTR), value :: farg1
+import :: swigclasswrapper
+type(SwigClassWrapper) :: farg1
 integer(C_INT) :: fresult
 end function
 
@@ -73,7 +84,8 @@ function swigc_FSUNControlEstimateStep_ExpGus(farg1, farg2, farg3, farg4) &
 bind(C, name="_wrap_FSUNControlEstimateStep_ExpGus") &
 result(fresult)
 use, intrinsic :: ISO_C_BINDING
-type(C_PTR), value :: farg1
+import :: swigclasswrapper
+type(SwigClassWrapper) :: farg1
 real(C_DOUBLE), intent(in) :: farg2
 real(C_DOUBLE), intent(in) :: farg3
 type(C_PTR), value :: farg4
@@ -84,7 +96,8 @@ function swigc_FSUNControlReset_ExpGus(farg1) &
 bind(C, name="_wrap_FSUNControlReset_ExpGus") &
 result(fresult)
 use, intrinsic :: ISO_C_BINDING
-type(C_PTR), value :: farg1
+import :: swigclasswrapper
+type(SwigClassWrapper) :: farg1
 integer(C_INT) :: fresult
 end function
 
@@ -92,7 +105,8 @@ function swigc_FSUNControlSetDefaults_ExpGus(farg1) &
 bind(C, name="_wrap_FSUNControlSetDefaults_ExpGus") &
 result(fresult)
 use, intrinsic :: ISO_C_BINDING
-type(C_PTR), value :: farg1
+import :: swigclasswrapper
+type(SwigClassWrapper) :: farg1
 integer(C_INT) :: fresult
 end function
 
@@ -100,7 +114,8 @@ function swigc_FSUNControlWrite_ExpGus(farg1, farg2) &
 bind(C, name="_wrap_FSUNControlWrite_ExpGus") &
 result(fresult)
 use, intrinsic :: ISO_C_BINDING
-type(C_PTR), value :: farg1
+import :: swigclasswrapper
+type(SwigClassWrapper) :: farg1
 type(C_PTR), value :: farg2
 integer(C_INT) :: fresult
 end function
@@ -109,7 +124,8 @@ function swigc_FSUNControlSetMethodOrder_ExpGus(farg1, farg2) &
 bind(C, name="_wrap_FSUNControlSetMethodOrder_ExpGus") &
 result(fresult)
 use, intrinsic :: ISO_C_BINDING
-type(C_PTR), value :: farg1
+import :: swigclasswrapper
+type(SwigClassWrapper) :: farg1
 integer(C_INT), intent(in) :: farg2
 integer(C_INT) :: fresult
 end function
@@ -118,7 +134,8 @@ function swigc_FSUNControlSetEmbeddingOrder_ExpGus(farg1, farg2) &
 bind(C, name="_wrap_FSUNControlSetEmbeddingOrder_ExpGus") &
 result(fresult)
 use, intrinsic :: ISO_C_BINDING
-type(C_PTR), value :: farg1
+import :: swigclasswrapper
+type(SwigClassWrapper) :: farg1
 integer(C_INT), intent(in) :: farg2
 integer(C_INT) :: fresult
 end function
@@ -127,7 +144,8 @@ function swigc_FSUNControlSetErrorBias_ExpGus(farg1, farg2) &
 bind(C, name="_wrap_FSUNControlSetErrorBias_ExpGus") &
 result(fresult)
 use, intrinsic :: ISO_C_BINDING
-type(C_PTR), value :: farg1
+import :: swigclasswrapper
+type(SwigClassWrapper) :: farg1
 real(C_DOUBLE), intent(in) :: farg2
 integer(C_INT) :: fresult
 end function
@@ -136,7 +154,8 @@ function swigc_FSUNControlUpdate_ExpGus(farg1, farg2, farg3) &
 bind(C, name="_wrap_FSUNControlUpdate_ExpGus") &
 result(fresult)
 use, intrinsic :: ISO_C_BINDING
-type(C_PTR), value :: farg1
+import :: swigclasswrapper
+type(SwigClassWrapper) :: farg1
 real(C_DOUBLE), intent(in) :: farg2
 real(C_DOUBLE), intent(in) :: farg3
 integer(C_INT) :: fresult
@@ -146,7 +165,8 @@ function swigc_FSUNControlSpace_ExpGus(farg1, farg2, farg3) &
 bind(C, name="_wrap_FSUNControlSpace_ExpGus") &
 result(fresult)
 use, intrinsic :: ISO_C_BINDING
-type(C_PTR), value :: farg1
+import :: swigclasswrapper
+type(SwigClassWrapper) :: farg1
 type(C_PTR), value :: farg2
 type(C_PTR), value :: farg3
 integer(C_INT) :: fresult
@@ -160,31 +180,31 @@ contains
 function FSUNControlExpGus(sunctx) &
 result(swig_result)
 use, intrinsic :: ISO_C_BINDING
-type(SUNControl), pointer :: swig_result
+type(generic_SUNControl_) :: swig_result
 type(C_PTR) :: sunctx
-type(C_PTR) :: fresult 
+type(SwigClassWrapper) :: fresult 
 type(C_PTR) :: farg1 
 
 farg1 = sunctx
 fresult = swigc_FSUNControlExpGus(farg1)
-call c_f_pointer(fresult, swig_result)
+swig_result%swigdata = fresult
 end function
 
 function FSUNControlExpGus_SetParams(c, pq, k1, k2) &
 result(swig_result)
 use, intrinsic :: ISO_C_BINDING
 integer(C_INT) :: swig_result
-type(SUNControl), target, intent(inout) :: c
+class(generic_SUNControl_), intent(in) :: c
 integer(C_INT), intent(in) :: pq
 real(C_DOUBLE), intent(in) :: k1
 real(C_DOUBLE), intent(in) :: k2
 integer(C_INT) :: fresult 
-type(C_PTR) :: farg1 
+type(SwigClassWrapper) :: farg1 
 integer(C_INT) :: farg2 
 real(C_DOUBLE) :: farg3 
 real(C_DOUBLE) :: farg4 
 
-farg1 = c_loc(c)
+farg1 = c%swigdata
 farg2 = pq
 farg3 = k1
 farg4 = k2
@@ -192,16 +212,16 @@ fresult = swigc_FSUNControlExpGus_SetParams(farg1, farg2, farg3, farg4)
 swig_result = fresult
 end function
 
-function FSUNControlGetID_ExpGus(c) &
+function FSUNControlGetType_ExpGus(c) &
 result(swig_result)
 use, intrinsic :: ISO_C_BINDING
-integer(SUNControl_ID) :: swig_result
-type(SUNControl), target, intent(inout) :: c
+integer(SUNControl_Type) :: swig_result
+class(generic_SUNControl_), intent(in) :: c
 integer(C_INT) :: fresult 
-type(C_PTR) :: farg1 
+type(SwigClassWrapper) :: farg1 
 
-farg1 = c_loc(c)
-fresult = swigc_FSUNControlGetID_ExpGus(farg1)
+farg1 = c%swigdata
+fresult = swigc_FSUNControlGetType_ExpGus(farg1)
 swig_result = fresult
 end function
 
@@ -209,17 +229,17 @@ function FSUNControlEstimateStep_ExpGus(c, h, dsm, hnew) &
 result(swig_result)
 use, intrinsic :: ISO_C_BINDING
 integer(C_INT) :: swig_result
-type(SUNControl), target, intent(inout) :: c
+class(generic_SUNControl_), intent(in) :: c
 real(C_DOUBLE), intent(in) :: h
 real(C_DOUBLE), intent(in) :: dsm
 real(C_DOUBLE), dimension(*), target, intent(inout) :: hnew
 integer(C_INT) :: fresult 
-type(C_PTR) :: farg1 
+type(SwigClassWrapper) :: farg1 
 real(C_DOUBLE) :: farg2 
 real(C_DOUBLE) :: farg3 
 type(C_PTR) :: farg4 
 
-farg1 = c_loc(c)
+farg1 = c%swigdata
 farg2 = h
 farg3 = dsm
 farg4 = c_loc(hnew(1))
@@ -231,11 +251,11 @@ function FSUNControlReset_ExpGus(c) &
 result(swig_result)
 use, intrinsic :: ISO_C_BINDING
 integer(C_INT) :: swig_result
-type(SUNControl), target, intent(inout) :: c
+class(generic_SUNControl_), intent(in) :: c
 integer(C_INT) :: fresult 
-type(C_PTR) :: farg1 
+type(SwigClassWrapper) :: farg1 
 
-farg1 = c_loc(c)
+farg1 = c%swigdata
 fresult = swigc_FSUNControlReset_ExpGus(farg1)
 swig_result = fresult
 end function
@@ -244,11 +264,11 @@ function FSUNControlSetDefaults_ExpGus(c) &
 result(swig_result)
 use, intrinsic :: ISO_C_BINDING
 integer(C_INT) :: swig_result
-type(SUNControl), target, intent(inout) :: c
+class(generic_SUNControl_), intent(in) :: c
 integer(C_INT) :: fresult 
-type(C_PTR) :: farg1 
+type(SwigClassWrapper) :: farg1 
 
-farg1 = c_loc(c)
+farg1 = c%swigdata
 fresult = swigc_FSUNControlSetDefaults_ExpGus(farg1)
 swig_result = fresult
 end function
@@ -257,13 +277,13 @@ function FSUNControlWrite_ExpGus(c, fptr) &
 result(swig_result)
 use, intrinsic :: ISO_C_BINDING
 integer(C_INT) :: swig_result
-type(SUNControl), target, intent(inout) :: c
+class(generic_SUNControl_), intent(in) :: c
 type(C_PTR) :: fptr
 integer(C_INT) :: fresult 
-type(C_PTR) :: farg1 
+type(SwigClassWrapper) :: farg1 
 type(C_PTR) :: farg2 
 
-farg1 = c_loc(c)
+farg1 = c%swigdata
 farg2 = fptr
 fresult = swigc_FSUNControlWrite_ExpGus(farg1, farg2)
 swig_result = fresult
@@ -273,13 +293,13 @@ function FSUNControlSetMethodOrder_ExpGus(c, q) &
 result(swig_result)
 use, intrinsic :: ISO_C_BINDING
 integer(C_INT) :: swig_result
-type(SUNControl), target, intent(inout) :: c
+class(generic_SUNControl_), intent(in) :: c
 integer(C_INT), intent(in) :: q
 integer(C_INT) :: fresult 
-type(C_PTR) :: farg1 
+type(SwigClassWrapper) :: farg1 
 integer(C_INT) :: farg2 
 
-farg1 = c_loc(c)
+farg1 = c%swigdata
 farg2 = q
 fresult = swigc_FSUNControlSetMethodOrder_ExpGus(farg1, farg2)
 swig_result = fresult
@@ -289,13 +309,13 @@ function FSUNControlSetEmbeddingOrder_ExpGus(c, p) &
 result(swig_result)
 use, intrinsic :: ISO_C_BINDING
 integer(C_INT) :: swig_result
-type(SUNControl), target, intent(inout) :: c
+class(generic_SUNControl_), intent(in) :: c
 integer(C_INT), intent(in) :: p
 integer(C_INT) :: fresult 
-type(C_PTR) :: farg1 
+type(SwigClassWrapper) :: farg1 
 integer(C_INT) :: farg2 
 
-farg1 = c_loc(c)
+farg1 = c%swigdata
 farg2 = p
 fresult = swigc_FSUNControlSetEmbeddingOrder_ExpGus(farg1, farg2)
 swig_result = fresult
@@ -305,13 +325,13 @@ function FSUNControlSetErrorBias_ExpGus(c, bias) &
 result(swig_result)
 use, intrinsic :: ISO_C_BINDING
 integer(C_INT) :: swig_result
-type(SUNControl), target, intent(inout) :: c
+class(generic_SUNControl_), intent(in) :: c
 real(C_DOUBLE), intent(in) :: bias
 integer(C_INT) :: fresult 
-type(C_PTR) :: farg1 
+type(SwigClassWrapper) :: farg1 
 real(C_DOUBLE) :: farg2 
 
-farg1 = c_loc(c)
+farg1 = c%swigdata
 farg2 = bias
 fresult = swigc_FSUNControlSetErrorBias_ExpGus(farg1, farg2)
 swig_result = fresult
@@ -321,15 +341,15 @@ function FSUNControlUpdate_ExpGus(c, h, dsm) &
 result(swig_result)
 use, intrinsic :: ISO_C_BINDING
 integer(C_INT) :: swig_result
-type(SUNControl), target, intent(inout) :: c
+class(generic_SUNControl_), intent(in) :: c
 real(C_DOUBLE), intent(in) :: h
 real(C_DOUBLE), intent(in) :: dsm
 integer(C_INT) :: fresult 
-type(C_PTR) :: farg1 
+type(SwigClassWrapper) :: farg1 
 real(C_DOUBLE) :: farg2 
 real(C_DOUBLE) :: farg3 
 
-farg1 = c_loc(c)
+farg1 = c%swigdata
 farg2 = h
 farg3 = dsm
 fresult = swigc_FSUNControlUpdate_ExpGus(farg1, farg2, farg3)
@@ -340,15 +360,15 @@ function FSUNControlSpace_ExpGus(c, lenrw, leniw) &
 result(swig_result)
 use, intrinsic :: ISO_C_BINDING
 integer(C_INT) :: swig_result
-type(SUNControl), target, intent(inout) :: c
+class(generic_SUNControl_), intent(in) :: c
 integer(C_LONG), dimension(*), target, intent(inout) :: lenrw
 integer(C_LONG), dimension(*), target, intent(inout) :: leniw
 integer(C_INT) :: fresult 
-type(C_PTR) :: farg1 
+type(SwigClassWrapper) :: farg1 
 type(C_PTR) :: farg2 
 type(C_PTR) :: farg3 
 
-farg1 = c_loc(c)
+farg1 = c%swigdata
 farg2 = c_loc(lenrw(1))
 farg3 = c_loc(leniw(1))
 fresult = swigc_FSUNControlSpace_ExpGus(farg1, farg2, farg3)

@@ -178,6 +178,22 @@
  { printf("In " DECL ": " MSG); assert(0); RETURNNULL; }
 
 
+enum {
+    SWIG_MEM_OWN = 0x01,
+    SWIG_MEM_RVALUE = 0x02,
+    SWIG_MEM_CONST = 0x04
+};
+
+
+#define SWIG_check_mutable(SWIG_CLASS_WRAPPER, TYPENAME, FNAME, FUNCNAME, RETURNNULL) \
+    if ((SWIG_CLASS_WRAPPER).cmemflags & SWIG_MEM_CONST) { \
+        SWIG_exception_impl(FUNCNAME, SWIG_TypeError, \
+            "Cannot pass const " TYPENAME " (class " FNAME ") " \
+            "as a mutable reference", \
+            RETURNNULL); \
+    }
+
+
 #include <stdio.h>
 #if defined(_MSC_VER) || defined(__BORLANDC__) || defined(_WATCOM)
 # ifndef snprintf
@@ -208,31 +224,47 @@
 
 #include "sunheuristics/sunheuristics_default.h"
 
-SWIGEXPORT SUNHeuristics _wrap_FSUNHeuristicsDefault(void *farg1) {
-  SUNHeuristics fresult ;
+
+typedef struct {
+    void* cptr;
+    int cmemflags;
+} SwigClassWrapper;
+
+
+SWIGINTERN SwigClassWrapper SwigClassWrapper_uninitialized() {
+    SwigClassWrapper result;
+    result.cptr = NULL;
+    result.cmemflags = 0;
+    return result;
+}
+
+SWIGEXPORT SwigClassWrapper _wrap_FSUNHeuristicsDefault(void *farg1) {
+  SwigClassWrapper fresult ;
   SUNContext arg1 = (SUNContext) 0 ;
   SUNHeuristics result;
   
   arg1 = (SUNContext)(farg1);
   result = (SUNHeuristics)SUNHeuristicsDefault(arg1);
-  fresult = result;
+  fresult.cptr = result;
+  fresult.cmemflags = SWIG_MEM_RVALUE | (0 ? SWIG_MEM_OWN : 0);
   return fresult;
 }
 
 
-SWIGEXPORT int _wrap_FSUNHeuristicsGetID_Default(SUNHeuristics farg1) {
+SWIGEXPORT int _wrap_FSUNHeuristicsGetID_Default(SwigClassWrapper const *farg1) {
   int fresult ;
   SUNHeuristics arg1 = (SUNHeuristics) 0 ;
   SUNHeuristics_ID result;
   
-  arg1 = (SUNHeuristics)(farg1);
+  SWIG_check_mutable(*farg1, "SUNHeuristics", "generic_SUNHeuristics_", "SUNHeuristicsGetID_Default(SUNHeuristics)", return 0);
+  arg1 = (SUNHeuristics)(farg1->cptr);
   result = (SUNHeuristics_ID)SUNHeuristicsGetID_Default(arg1);
   fresult = (int)(result);
   return fresult;
 }
 
 
-SWIGEXPORT int _wrap_FSUNHeuristicsConstrainStep_Default(SUNHeuristics farg1, double const *farg2, double const *farg3, double *farg4) {
+SWIGEXPORT int _wrap_FSUNHeuristicsConstrainStep_Default(SwigClassWrapper const *farg1, double const *farg2, double const *farg3, double *farg4) {
   int fresult ;
   SUNHeuristics arg1 = (SUNHeuristics) 0 ;
   realtype arg2 ;
@@ -240,7 +272,8 @@ SWIGEXPORT int _wrap_FSUNHeuristicsConstrainStep_Default(SUNHeuristics farg1, do
   realtype *arg4 = (realtype *) 0 ;
   int result;
   
-  arg1 = (SUNHeuristics)(farg1);
+  SWIG_check_mutable(*farg1, "SUNHeuristics", "generic_SUNHeuristics_", "SUNHeuristicsConstrainStep_Default(SUNHeuristics,realtype,realtype,realtype *)", return 0);
+  arg1 = (SUNHeuristics)(farg1->cptr);
   arg2 = (realtype)(*farg2);
   arg3 = (realtype)(*farg3);
   arg4 = (realtype *)(farg4);
@@ -250,7 +283,7 @@ SWIGEXPORT int _wrap_FSUNHeuristicsConstrainStep_Default(SUNHeuristics farg1, do
 }
 
 
-SWIGEXPORT int _wrap_FSUNHeuristicsETestFail_Default(SUNHeuristics farg1, double const *farg2, double const *farg3, int const *farg4, double *farg5) {
+SWIGEXPORT int _wrap_FSUNHeuristicsETestFail_Default(SwigClassWrapper const *farg1, double const *farg2, double const *farg3, int const *farg4, double *farg5) {
   int fresult ;
   SUNHeuristics arg1 = (SUNHeuristics) 0 ;
   realtype arg2 ;
@@ -259,7 +292,8 @@ SWIGEXPORT int _wrap_FSUNHeuristicsETestFail_Default(SUNHeuristics farg1, double
   realtype *arg5 = (realtype *) 0 ;
   int result;
   
-  arg1 = (SUNHeuristics)(farg1);
+  SWIG_check_mutable(*farg1, "SUNHeuristics", "generic_SUNHeuristics_", "SUNHeuristicsETestFail_Default(SUNHeuristics,realtype,realtype,int,realtype *)", return 0);
+  arg1 = (SUNHeuristics)(farg1->cptr);
   arg2 = (realtype)(*farg2);
   arg3 = (realtype)(*farg3);
   arg4 = (int)(*farg4);
@@ -270,14 +304,15 @@ SWIGEXPORT int _wrap_FSUNHeuristicsETestFail_Default(SUNHeuristics farg1, double
 }
 
 
-SWIGEXPORT int _wrap_FSUNHeuristicsConvFail_Default(SUNHeuristics farg1, double const *farg2, double *farg3) {
+SWIGEXPORT int _wrap_FSUNHeuristicsConvFail_Default(SwigClassWrapper const *farg1, double const *farg2, double *farg3) {
   int fresult ;
   SUNHeuristics arg1 = (SUNHeuristics) 0 ;
   realtype arg2 ;
   realtype *arg3 = (realtype *) 0 ;
   int result;
   
-  arg1 = (SUNHeuristics)(farg1);
+  SWIG_check_mutable(*farg1, "SUNHeuristics", "generic_SUNHeuristics_", "SUNHeuristicsConvFail_Default(SUNHeuristics,realtype,realtype *)", return 0);
+  arg1 = (SUNHeuristics)(farg1->cptr);
   arg2 = (realtype)(*farg2);
   arg3 = (realtype *)(farg3);
   result = (int)SUNHeuristicsConvFail_Default(arg1,arg2,arg3);
@@ -286,7 +321,7 @@ SWIGEXPORT int _wrap_FSUNHeuristicsConvFail_Default(SUNHeuristics farg1, double 
 }
 
 
-SWIGEXPORT int _wrap_FSUNHeuristicsBoundReduction_Default(SUNHeuristics farg1, double const *farg2, double const *farg3, double *farg4) {
+SWIGEXPORT int _wrap_FSUNHeuristicsBoundReduction_Default(SwigClassWrapper const *farg1, double const *farg2, double const *farg3, double *farg4) {
   int fresult ;
   SUNHeuristics arg1 = (SUNHeuristics) 0 ;
   realtype arg2 ;
@@ -294,7 +329,8 @@ SWIGEXPORT int _wrap_FSUNHeuristicsBoundReduction_Default(SUNHeuristics farg1, d
   realtype *arg4 = (realtype *) 0 ;
   int result;
   
-  arg1 = (SUNHeuristics)(farg1);
+  SWIG_check_mutable(*farg1, "SUNHeuristics", "generic_SUNHeuristics_", "SUNHeuristicsBoundReduction_Default(SUNHeuristics,realtype,realtype,realtype *)", return 0);
+  arg1 = (SUNHeuristics)(farg1->cptr);
   arg2 = (realtype)(*farg2);
   arg3 = (realtype)(*farg3);
   arg4 = (realtype *)(farg4);
@@ -304,14 +340,15 @@ SWIGEXPORT int _wrap_FSUNHeuristicsBoundReduction_Default(SUNHeuristics farg1, d
 }
 
 
-SWIGEXPORT int _wrap_FSUNHeuristicsBoundFirstStep_Default(SUNHeuristics farg1, double const *farg2, double *farg3) {
+SWIGEXPORT int _wrap_FSUNHeuristicsBoundFirstStep_Default(SwigClassWrapper const *farg1, double const *farg2, double *farg3) {
   int fresult ;
   SUNHeuristics arg1 = (SUNHeuristics) 0 ;
   realtype arg2 ;
   realtype *arg3 = (realtype *) 0 ;
   int result;
   
-  arg1 = (SUNHeuristics)(farg1);
+  SWIG_check_mutable(*farg1, "SUNHeuristics", "generic_SUNHeuristics_", "SUNHeuristicsBoundFirstStep_Default(SUNHeuristics,realtype,realtype *)", return 0);
+  arg1 = (SUNHeuristics)(farg1->cptr);
   arg2 = (realtype)(*farg2);
   arg3 = (realtype *)(farg3);
   result = (int)SUNHeuristicsBoundFirstStep_Default(arg1,arg2,arg3);
@@ -320,49 +357,53 @@ SWIGEXPORT int _wrap_FSUNHeuristicsBoundFirstStep_Default(SUNHeuristics farg1, d
 }
 
 
-SWIGEXPORT int _wrap_FSUNHeuristicsReset_Default(SUNHeuristics farg1) {
+SWIGEXPORT int _wrap_FSUNHeuristicsReset_Default(SwigClassWrapper const *farg1) {
   int fresult ;
   SUNHeuristics arg1 = (SUNHeuristics) 0 ;
   int result;
   
-  arg1 = (SUNHeuristics)(farg1);
+  SWIG_check_mutable(*farg1, "SUNHeuristics", "generic_SUNHeuristics_", "SUNHeuristicsReset_Default(SUNHeuristics)", return 0);
+  arg1 = (SUNHeuristics)(farg1->cptr);
   result = (int)SUNHeuristicsReset_Default(arg1);
   fresult = (int)(result);
   return fresult;
 }
 
 
-SWIGEXPORT int _wrap_FSUNHeuristicsUpdate_Default(SUNHeuristics farg1) {
+SWIGEXPORT int _wrap_FSUNHeuristicsUpdate_Default(SwigClassWrapper const *farg1) {
   int fresult ;
   SUNHeuristics arg1 = (SUNHeuristics) 0 ;
   int result;
   
-  arg1 = (SUNHeuristics)(farg1);
+  SWIG_check_mutable(*farg1, "SUNHeuristics", "generic_SUNHeuristics_", "SUNHeuristicsUpdate_Default(SUNHeuristics)", return 0);
+  arg1 = (SUNHeuristics)(farg1->cptr);
   result = (int)SUNHeuristicsUpdate_Default(arg1);
   fresult = (int)(result);
   return fresult;
 }
 
 
-SWIGEXPORT int _wrap_FSUNHeuristicsSetDefaults_Default(SUNHeuristics farg1) {
+SWIGEXPORT int _wrap_FSUNHeuristicsSetDefaults_Default(SwigClassWrapper const *farg1) {
   int fresult ;
   SUNHeuristics arg1 = (SUNHeuristics) 0 ;
   int result;
   
-  arg1 = (SUNHeuristics)(farg1);
+  SWIG_check_mutable(*farg1, "SUNHeuristics", "generic_SUNHeuristics_", "SUNHeuristicsSetDefaults_Default(SUNHeuristics)", return 0);
+  arg1 = (SUNHeuristics)(farg1->cptr);
   result = (int)SUNHeuristicsSetDefaults_Default(arg1);
   fresult = (int)(result);
   return fresult;
 }
 
 
-SWIGEXPORT int _wrap_FSUNHeuristicsWrite_Default(SUNHeuristics farg1, void *farg2) {
+SWIGEXPORT int _wrap_FSUNHeuristicsWrite_Default(SwigClassWrapper const *farg1, void *farg2) {
   int fresult ;
   SUNHeuristics arg1 = (SUNHeuristics) 0 ;
   FILE *arg2 = (FILE *) 0 ;
   int result;
   
-  arg1 = (SUNHeuristics)(farg1);
+  SWIG_check_mutable(*farg1, "SUNHeuristics", "generic_SUNHeuristics_", "SUNHeuristicsWrite_Default(SUNHeuristics,FILE *)", return 0);
+  arg1 = (SUNHeuristics)(farg1->cptr);
   arg2 = (FILE *)(farg2);
   result = (int)SUNHeuristicsWrite_Default(arg1,arg2);
   fresult = (int)(result);
@@ -370,13 +411,14 @@ SWIGEXPORT int _wrap_FSUNHeuristicsWrite_Default(SUNHeuristics farg1, void *farg
 }
 
 
-SWIGEXPORT int _wrap_FSUNHeuristicsSetMaxStep_Default(SUNHeuristics farg1, double const *farg2) {
+SWIGEXPORT int _wrap_FSUNHeuristicsSetMaxStep_Default(SwigClassWrapper const *farg1, double const *farg2) {
   int fresult ;
   SUNHeuristics arg1 = (SUNHeuristics) 0 ;
   realtype arg2 ;
   int result;
   
-  arg1 = (SUNHeuristics)(farg1);
+  SWIG_check_mutable(*farg1, "SUNHeuristics", "generic_SUNHeuristics_", "SUNHeuristicsSetMaxStep_Default(SUNHeuristics,realtype)", return 0);
+  arg1 = (SUNHeuristics)(farg1->cptr);
   arg2 = (realtype)(*farg2);
   result = (int)SUNHeuristicsSetMaxStep_Default(arg1,arg2);
   fresult = (int)(result);
@@ -384,13 +426,14 @@ SWIGEXPORT int _wrap_FSUNHeuristicsSetMaxStep_Default(SUNHeuristics farg1, doubl
 }
 
 
-SWIGEXPORT int _wrap_FSUNHeuristicsSetMinStep_Default(SUNHeuristics farg1, double const *farg2) {
+SWIGEXPORT int _wrap_FSUNHeuristicsSetMinStep_Default(SwigClassWrapper const *farg1, double const *farg2) {
   int fresult ;
   SUNHeuristics arg1 = (SUNHeuristics) 0 ;
   realtype arg2 ;
   int result;
   
-  arg1 = (SUNHeuristics)(farg1);
+  SWIG_check_mutable(*farg1, "SUNHeuristics", "generic_SUNHeuristics_", "SUNHeuristicsSetMinStep_Default(SUNHeuristics,realtype)", return 0);
+  arg1 = (SUNHeuristics)(farg1->cptr);
   arg2 = (realtype)(*farg2);
   result = (int)SUNHeuristicsSetMinStep_Default(arg1,arg2);
   fresult = (int)(result);
@@ -398,14 +441,15 @@ SWIGEXPORT int _wrap_FSUNHeuristicsSetMinStep_Default(SUNHeuristics farg1, doubl
 }
 
 
-SWIGEXPORT int _wrap_FSUNHeuristicsSetExpStabFn_Default(SUNHeuristics farg1, SUNExpStabFn farg2, void *farg3) {
+SWIGEXPORT int _wrap_FSUNHeuristicsSetExpStabFn_Default(SwigClassWrapper const *farg1, SUNExpStabFn farg2, void *farg3) {
   int fresult ;
   SUNHeuristics arg1 = (SUNHeuristics) 0 ;
   SUNExpStabFn arg2 = (SUNExpStabFn) 0 ;
   void *arg3 = (void *) 0 ;
   int result;
   
-  arg1 = (SUNHeuristics)(farg1);
+  SWIG_check_mutable(*farg1, "SUNHeuristics", "generic_SUNHeuristics_", "SUNHeuristicsSetExpStabFn_Default(SUNHeuristics,SUNExpStabFn,void *)", return 0);
+  arg1 = (SUNHeuristics)(farg1->cptr);
   arg2 = (SUNExpStabFn)(farg2);
   arg3 = (void *)(farg3);
   result = (int)SUNHeuristicsSetExpStabFn_Default(arg1,arg2,arg3);
@@ -414,13 +458,14 @@ SWIGEXPORT int _wrap_FSUNHeuristicsSetExpStabFn_Default(SUNHeuristics farg1, SUN
 }
 
 
-SWIGEXPORT int _wrap_FSUNHeuristicsSetCFLFraction_Default(SUNHeuristics farg1, double const *farg2) {
+SWIGEXPORT int _wrap_FSUNHeuristicsSetCFLFraction_Default(SwigClassWrapper const *farg1, double const *farg2) {
   int fresult ;
   SUNHeuristics arg1 = (SUNHeuristics) 0 ;
   realtype arg2 ;
   int result;
   
-  arg1 = (SUNHeuristics)(farg1);
+  SWIG_check_mutable(*farg1, "SUNHeuristics", "generic_SUNHeuristics_", "SUNHeuristicsSetCFLFraction_Default(SUNHeuristics,realtype)", return 0);
+  arg1 = (SUNHeuristics)(farg1->cptr);
   arg2 = (realtype)(*farg2);
   result = (int)SUNHeuristicsSetCFLFraction_Default(arg1,arg2);
   fresult = (int)(result);
@@ -428,13 +473,14 @@ SWIGEXPORT int _wrap_FSUNHeuristicsSetCFLFraction_Default(SUNHeuristics farg1, d
 }
 
 
-SWIGEXPORT int _wrap_FSUNHeuristicsSetSafetyFactor_Default(SUNHeuristics farg1, double const *farg2) {
+SWIGEXPORT int _wrap_FSUNHeuristicsSetSafetyFactor_Default(SwigClassWrapper const *farg1, double const *farg2) {
   int fresult ;
   SUNHeuristics arg1 = (SUNHeuristics) 0 ;
   realtype arg2 ;
   int result;
   
-  arg1 = (SUNHeuristics)(farg1);
+  SWIG_check_mutable(*farg1, "SUNHeuristics", "generic_SUNHeuristics_", "SUNHeuristicsSetSafetyFactor_Default(SUNHeuristics,realtype)", return 0);
+  arg1 = (SUNHeuristics)(farg1->cptr);
   arg2 = (realtype)(*farg2);
   result = (int)SUNHeuristicsSetSafetyFactor_Default(arg1,arg2);
   fresult = (int)(result);
@@ -442,13 +488,14 @@ SWIGEXPORT int _wrap_FSUNHeuristicsSetSafetyFactor_Default(SUNHeuristics farg1, 
 }
 
 
-SWIGEXPORT int _wrap_FSUNHeuristicsSetMaxGrowth_Default(SUNHeuristics farg1, double const *farg2) {
+SWIGEXPORT int _wrap_FSUNHeuristicsSetMaxGrowth_Default(SwigClassWrapper const *farg1, double const *farg2) {
   int fresult ;
   SUNHeuristics arg1 = (SUNHeuristics) 0 ;
   realtype arg2 ;
   int result;
   
-  arg1 = (SUNHeuristics)(farg1);
+  SWIG_check_mutable(*farg1, "SUNHeuristics", "generic_SUNHeuristics_", "SUNHeuristicsSetMaxGrowth_Default(SUNHeuristics,realtype)", return 0);
+  arg1 = (SUNHeuristics)(farg1->cptr);
   arg2 = (realtype)(*farg2);
   result = (int)SUNHeuristicsSetMaxGrowth_Default(arg1,arg2);
   fresult = (int)(result);
@@ -456,13 +503,14 @@ SWIGEXPORT int _wrap_FSUNHeuristicsSetMaxGrowth_Default(SUNHeuristics farg1, dou
 }
 
 
-SWIGEXPORT int _wrap_FSUNHeuristicsSetMinReduction_Default(SUNHeuristics farg1, double const *farg2) {
+SWIGEXPORT int _wrap_FSUNHeuristicsSetMinReduction_Default(SwigClassWrapper const *farg1, double const *farg2) {
   int fresult ;
   SUNHeuristics arg1 = (SUNHeuristics) 0 ;
   realtype arg2 ;
   int result;
   
-  arg1 = (SUNHeuristics)(farg1);
+  SWIG_check_mutable(*farg1, "SUNHeuristics", "generic_SUNHeuristics_", "SUNHeuristicsSetMinReduction_Default(SUNHeuristics,realtype)", return 0);
+  arg1 = (SUNHeuristics)(farg1->cptr);
   arg2 = (realtype)(*farg2);
   result = (int)SUNHeuristicsSetMinReduction_Default(arg1,arg2);
   fresult = (int)(result);
@@ -470,14 +518,15 @@ SWIGEXPORT int _wrap_FSUNHeuristicsSetMinReduction_Default(SUNHeuristics farg1, 
 }
 
 
-SWIGEXPORT int _wrap_FSUNHeuristicsSetFixedStepBounds_Default(SUNHeuristics farg1, double const *farg2, double const *farg3) {
+SWIGEXPORT int _wrap_FSUNHeuristicsSetFixedStepBounds_Default(SwigClassWrapper const *farg1, double const *farg2, double const *farg3) {
   int fresult ;
   SUNHeuristics arg1 = (SUNHeuristics) 0 ;
   realtype arg2 ;
   realtype arg3 ;
   int result;
   
-  arg1 = (SUNHeuristics)(farg1);
+  SWIG_check_mutable(*farg1, "SUNHeuristics", "generic_SUNHeuristics_", "SUNHeuristicsSetFixedStepBounds_Default(SUNHeuristics,realtype,realtype)", return 0);
+  arg1 = (SUNHeuristics)(farg1->cptr);
   arg2 = (realtype)(*farg2);
   arg3 = (realtype)(*farg3);
   result = (int)SUNHeuristicsSetFixedStepBounds_Default(arg1,arg2,arg3);
@@ -486,13 +535,14 @@ SWIGEXPORT int _wrap_FSUNHeuristicsSetFixedStepBounds_Default(SUNHeuristics farg
 }
 
 
-SWIGEXPORT int _wrap_FSUNHeuristicsSetMaxFirstGrowth_Default(SUNHeuristics farg1, double const *farg2) {
+SWIGEXPORT int _wrap_FSUNHeuristicsSetMaxFirstGrowth_Default(SwigClassWrapper const *farg1, double const *farg2) {
   int fresult ;
   SUNHeuristics arg1 = (SUNHeuristics) 0 ;
   realtype arg2 ;
   int result;
   
-  arg1 = (SUNHeuristics)(farg1);
+  SWIG_check_mutable(*farg1, "SUNHeuristics", "generic_SUNHeuristics_", "SUNHeuristicsSetMaxFirstGrowth_Default(SUNHeuristics,realtype)", return 0);
+  arg1 = (SUNHeuristics)(farg1->cptr);
   arg2 = (realtype)(*farg2);
   result = (int)SUNHeuristicsSetMaxFirstGrowth_Default(arg1,arg2);
   fresult = (int)(result);
@@ -500,13 +550,14 @@ SWIGEXPORT int _wrap_FSUNHeuristicsSetMaxFirstGrowth_Default(SUNHeuristics farg1
 }
 
 
-SWIGEXPORT int _wrap_FSUNHeuristicsSetMaxEFailGrowth_Default(SUNHeuristics farg1, double const *farg2) {
+SWIGEXPORT int _wrap_FSUNHeuristicsSetMaxEFailGrowth_Default(SwigClassWrapper const *farg1, double const *farg2) {
   int fresult ;
   SUNHeuristics arg1 = (SUNHeuristics) 0 ;
   realtype arg2 ;
   int result;
   
-  arg1 = (SUNHeuristics)(farg1);
+  SWIG_check_mutable(*farg1, "SUNHeuristics", "generic_SUNHeuristics_", "SUNHeuristicsSetMaxEFailGrowth_Default(SUNHeuristics,realtype)", return 0);
+  arg1 = (SUNHeuristics)(farg1->cptr);
   arg2 = (realtype)(*farg2);
   result = (int)SUNHeuristicsSetMaxEFailGrowth_Default(arg1,arg2);
   fresult = (int)(result);
@@ -514,13 +565,14 @@ SWIGEXPORT int _wrap_FSUNHeuristicsSetMaxEFailGrowth_Default(SUNHeuristics farg1
 }
 
 
-SWIGEXPORT int _wrap_FSUNHeuristicsSetSmallNumEFails_Default(SUNHeuristics farg1, int const *farg2) {
+SWIGEXPORT int _wrap_FSUNHeuristicsSetSmallNumEFails_Default(SwigClassWrapper const *farg1, int const *farg2) {
   int fresult ;
   SUNHeuristics arg1 = (SUNHeuristics) 0 ;
   int arg2 ;
   int result;
   
-  arg1 = (SUNHeuristics)(farg1);
+  SWIG_check_mutable(*farg1, "SUNHeuristics", "generic_SUNHeuristics_", "SUNHeuristicsSetSmallNumEFails_Default(SUNHeuristics,int)", return 0);
+  arg1 = (SUNHeuristics)(farg1->cptr);
   arg2 = (int)(*farg2);
   result = (int)SUNHeuristicsSetSmallNumEFails_Default(arg1,arg2);
   fresult = (int)(result);
@@ -528,13 +580,14 @@ SWIGEXPORT int _wrap_FSUNHeuristicsSetSmallNumEFails_Default(SUNHeuristics farg1
 }
 
 
-SWIGEXPORT int _wrap_FSUNHeuristicsSetMaxCFailGrowth_Default(SUNHeuristics farg1, double const *farg2) {
+SWIGEXPORT int _wrap_FSUNHeuristicsSetMaxCFailGrowth_Default(SwigClassWrapper const *farg1, double const *farg2) {
   int fresult ;
   SUNHeuristics arg1 = (SUNHeuristics) 0 ;
   realtype arg2 ;
   int result;
   
-  arg1 = (SUNHeuristics)(farg1);
+  SWIG_check_mutable(*farg1, "SUNHeuristics", "generic_SUNHeuristics_", "SUNHeuristicsSetMaxCFailGrowth_Default(SUNHeuristics,realtype)", return 0);
+  arg1 = (SUNHeuristics)(farg1->cptr);
   arg2 = (realtype)(*farg2);
   result = (int)SUNHeuristicsSetMaxCFailGrowth_Default(arg1,arg2);
   fresult = (int)(result);
@@ -542,13 +595,14 @@ SWIGEXPORT int _wrap_FSUNHeuristicsSetMaxCFailGrowth_Default(SUNHeuristics farg1
 }
 
 
-SWIGEXPORT int _wrap_FSUNHeuristicsGetNumExpSteps_Default(SUNHeuristics farg1, long *farg2) {
+SWIGEXPORT int _wrap_FSUNHeuristicsGetNumExpSteps_Default(SwigClassWrapper const *farg1, long *farg2) {
   int fresult ;
   SUNHeuristics arg1 = (SUNHeuristics) 0 ;
   long *arg2 = (long *) 0 ;
   int result;
   
-  arg1 = (SUNHeuristics)(farg1);
+  SWIG_check_mutable(*farg1, "SUNHeuristics", "generic_SUNHeuristics_", "SUNHeuristicsGetNumExpSteps_Default(SUNHeuristics,long *)", return 0);
+  arg1 = (SUNHeuristics)(farg1->cptr);
   arg2 = (long *)(farg2);
   result = (int)SUNHeuristicsGetNumExpSteps_Default(arg1,arg2);
   fresult = (int)(result);
@@ -556,13 +610,14 @@ SWIGEXPORT int _wrap_FSUNHeuristicsGetNumExpSteps_Default(SUNHeuristics farg1, l
 }
 
 
-SWIGEXPORT int _wrap_FSUNHeuristicsGetNumAccSteps_Default(SUNHeuristics farg1, long *farg2) {
+SWIGEXPORT int _wrap_FSUNHeuristicsGetNumAccSteps_Default(SwigClassWrapper const *farg1, long *farg2) {
   int fresult ;
   SUNHeuristics arg1 = (SUNHeuristics) 0 ;
   long *arg2 = (long *) 0 ;
   int result;
   
-  arg1 = (SUNHeuristics)(farg1);
+  SWIG_check_mutable(*farg1, "SUNHeuristics", "generic_SUNHeuristics_", "SUNHeuristicsGetNumAccSteps_Default(SUNHeuristics,long *)", return 0);
+  arg1 = (SUNHeuristics)(farg1->cptr);
   arg2 = (long *)(farg2);
   result = (int)SUNHeuristicsGetNumAccSteps_Default(arg1,arg2);
   fresult = (int)(result);
@@ -570,14 +625,15 @@ SWIGEXPORT int _wrap_FSUNHeuristicsGetNumAccSteps_Default(SUNHeuristics farg1, l
 }
 
 
-SWIGEXPORT int _wrap_FSUNHeuristicsSpace_Default(SUNHeuristics farg1, long *farg2, long *farg3) {
+SWIGEXPORT int _wrap_FSUNHeuristicsSpace_Default(SwigClassWrapper const *farg1, long *farg2, long *farg3) {
   int fresult ;
   SUNHeuristics arg1 = (SUNHeuristics) 0 ;
   long *arg2 = (long *) 0 ;
   long *arg3 = (long *) 0 ;
   int result;
   
-  arg1 = (SUNHeuristics)(farg1);
+  SWIG_check_mutable(*farg1, "SUNHeuristics", "generic_SUNHeuristics_", "SUNHeuristicsSpace_Default(SUNHeuristics,long *,long *)", return 0);
+  arg1 = (SUNHeuristics)(farg1->cptr);
   arg2 = (long *)(farg2);
   arg3 = (long *)(farg3);
   result = (int)SUNHeuristicsSpace_Default(arg1,arg2,arg3);
