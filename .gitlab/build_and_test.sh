@@ -188,11 +188,23 @@ then
     $cmake_exe --version
 
     # configure
-    $cmake_exe \
-        -C "${hostconfig_path}" \
-        -DCMAKE_INSTALL_PREFIX=${install_dir} \
-        "${project_dir}"
-    
+    if [[ "${CI_COMMIT_BRANCH}" == "main" ]]
+    then
+        # redirect caliper files to release directory
+        sundials_version=$(cd ${project_dir}; git describe --abbrev=0)
+        $cmake_exe \
+            -C "${hostconfig_path}" \
+            -DCMAKE_INSTALL_PREFIX=${install_dir} \
+            -DSUNDIALS_CALIPER_OUTPUT_DIR="${CALIPER_DIR}/Release/${hostname}/${sundials_version}" \
+            "${project_dir}"
+
+    else
+        $cmake_exe \
+            -C "${hostconfig_path}" \
+            -DCMAKE_INSTALL_PREFIX=${install_dir} \
+            "${project_dir}"
+    fi
+
     # build
     VERBOSE_BUILD=${VERBOSE_BUILD:-"OFF"}
     if [[ "${VERBOSE_BUILD}" == "ON" ]]; then
