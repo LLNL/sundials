@@ -1226,9 +1226,13 @@ int CVodeResizeHistory(void *cvode_mem, sunrealtype* t_hist, N_Vector* y_hist,
   /*     return CV_ILL_INPUT; */
   /*   } */
   /* } */
+
   /* For now always save */
-  retval = resize_fn(cv_mem->cv_zn[cv_mem->cv_qmax], cv_mem->cv_vtemp3,
-                     cv_mem->cv_user_data);
+  if (cv_mem->cv_q < cv_mem->cv_qmax)
+  {
+    retval = resize_fn(cv_mem->cv_zn[cv_mem->cv_qmax], cv_mem->cv_vtemp3,
+                       cv_mem->cv_user_data);
+  }
 
   for (int j = 0; j <= maxord; j++)
   {
@@ -1520,7 +1524,10 @@ int CVodeResizeHistory(void *cvode_mem, sunrealtype* t_hist, N_Vector* y_hist,
   /* { */
   /*   N_VScale(ONE, cv_mem->cv_tempv, cv_mem->cv_zn[cv_mem->cv_qmax]); */
   /* } */
-  N_VScale(ONE, cv_mem->cv_vtemp3, cv_mem->cv_zn[cv_mem->cv_qmax]);
+  if (cv_mem->cv_q < cv_mem->cv_qmax)
+  {
+    N_VScale(ONE, cv_mem->cv_vtemp3, cv_mem->cv_zn[cv_mem->cv_qmax]);
+  }
 
   if (debug_file)
   {
