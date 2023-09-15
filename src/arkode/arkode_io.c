@@ -60,7 +60,7 @@ int arkSetDefaults(void *arkode_mem)
   ark_mem = (ARKodeMem) arkode_mem;
 
   /* Set default values for integrator optional inputs */
-  ark_mem->use_compensated_sums    = SUNFALSE; 
+  ark_mem->use_compensated_sums    = SUNFALSE;
   ark_mem->fixedstep               = SUNFALSE;       /* default to use adaptive steps */
   ark_mem->reltol                  = RCONST(1.e-4);  /* relative tolerance */
   ark_mem->itol                    = ARK_SS;         /* scalar-scalar solution tolerances */

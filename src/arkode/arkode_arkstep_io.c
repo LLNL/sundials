@@ -319,6 +319,264 @@ int ARKStepGetNumRelaxSolveIters(void* arkode_mem, long int* iters)
   return arkRelaxGetNumRelaxSolveIters(arkode_mem, iters);
 }
 
+
+
+/*===============================================================
+  DEPRECATED ARKStep optional input/output functions
+  ===============================================================*/
+
+/*---------------------------------------------------------------
+  ARKStepSetMinStep: user should create/attach a
+  SUNHeuristics object, and set this directly therein.
+  ---------------------------------------------------------------*/
+int ARKStepSetMinStep(void *arkode_mem, realtype hmin)
+{
+  int retval;
+  ARKodeMem ark_mem;
+  if (arkode_mem==NULL) {
+    arkProcessError(NULL, ARK_MEM_NULL, "ARKStep",
+                    "ARKStepSetMinStep", MSG_ARK_NO_MEM);
+    return(ARK_MEM_NULL);
+  }
+  ark_mem = (ARKodeMem) arkode_mem;
+  retval = SUNHeuristicsSetMinStep(ark_mem->hconstraints, hmin);
+  if (retval != SUNHEURISTICS_SUCCESS) { return(ARK_ILL_INPUT); }
+  return(ARK_SUCCESS);
+}
+
+/*---------------------------------------------------------------
+  ARKStepSetMaxStep: user should create/attach a
+  SUNHeuristics object, and set this directly therein.
+  ---------------------------------------------------------------*/
+int ARKStepSetMaxStep(void *arkode_mem, realtype hmax)
+{
+  int retval;
+  ARKodeMem ark_mem;
+  if (arkode_mem==NULL) {
+    arkProcessError(NULL, ARK_MEM_NULL, "ARKStep",
+                    "ARKStepSetMaxStep", MSG_ARK_NO_MEM);
+    return(ARK_MEM_NULL);
+  }
+  ark_mem = (ARKodeMem) arkode_mem;
+  retval = SUNHeuristicsSetMaxStep(ark_mem->hconstraints, hmax);
+  if (retval != SUNHEURISTICS_SUCCESS) { return(ARK_ILL_INPUT); }
+  return(ARK_SUCCESS);
+}
+
+/*---------------------------------------------------------------
+  ARKStepSetCFLFraction: user should create/attach a
+  SUNHeuristics object, and set this directly therein.
+  ---------------------------------------------------------------*/
+int ARKStepSetCFLFraction(void *arkode_mem, realtype cfl_frac)
+{
+  int retval;
+  ARKodeMem ark_mem;
+  if (arkode_mem==NULL) {
+    arkProcessError(NULL, ARK_MEM_NULL, "ARKStep",
+                    "ARKStepSetCFLFraction", MSG_ARK_NO_MEM);
+    return(ARK_MEM_NULL);
+  }
+  ark_mem = (ARKodeMem) arkode_mem;
+  retval = SUNHeuristicsSetCFLFraction(ark_mem->hconstraints, cfl_frac);
+  if (retval != SUNHEURISTICS_SUCCESS) { return(ARK_ILL_INPUT); }
+  return(ARK_SUCCESS);
+}
+
+/*---------------------------------------------------------------
+  ARKStepSetSafetyFactor: user should create/attach a
+  SUNHeuristics object, and set this directly therein.
+  ---------------------------------------------------------------*/
+int ARKStepSetSafetyFactor(void *arkode_mem, realtype safety)
+{
+  int retval;
+  ARKodeMem ark_mem;
+  if (arkode_mem==NULL) {
+    arkProcessError(NULL, ARK_MEM_NULL, "ARKStep",
+                    "ARKStepSetSafetyFactor", MSG_ARK_NO_MEM);
+    return(ARK_MEM_NULL);
+  }
+  ark_mem = (ARKodeMem) arkode_mem;
+  retval = SUNHeuristicsSetSafetyFactor(ark_mem->hconstraints, safety);
+  if (retval != SUNHEURISTICS_SUCCESS) { return(ARK_ILL_INPUT); }
+  return(ARK_SUCCESS);
+}
+
+/*---------------------------------------------------------------
+  ARKStepSetErrorBias: user should create/attach a
+  SUNControl object, and set this directly therein.
+  ---------------------------------------------------------------*/
+int ARKStepSetErrorBias(void *arkode_mem, realtype bias)
+{
+  int retval;
+  ARKodeMem ark_mem;
+  if (arkode_mem==NULL) {
+    arkProcessError(NULL, ARK_MEM_NULL, "ARKStep",
+                    "ARKStepSetErrorBias", MSG_ARK_NO_MEM);
+    return(ARK_MEM_NULL);
+  }
+  ark_mem = (ARKodeMem) arkode_mem;
+  retval = SUNControlSetErrorBias(ark_mem->hcontroller, bias);
+  if (retval != SUNCONTROL_SUCCESS) { return(ARK_ILL_INPUT); }
+  return(ARK_SUCCESS);
+}
+
+/*---------------------------------------------------------------
+  ARKStepSetMaxGrowth: user should create/attach a
+  SUNHeuristics object, and set this directly therein.
+  ---------------------------------------------------------------*/
+int ARKStepSetMaxGrowth(void *arkode_mem, realtype mx_growth)
+{
+  int retval;
+  ARKodeMem ark_mem;
+  if (arkode_mem==NULL) {
+    arkProcessError(NULL, ARK_MEM_NULL, "ARKStep",
+                    "ARKStepSetMaxGrowth", MSG_ARK_NO_MEM);
+    return(ARK_MEM_NULL);
+  }
+  ark_mem = (ARKodeMem) arkode_mem;
+  retval = SUNHeuristicsSetMaxGrowth(ark_mem->hconstraints, mx_growth);
+  if (retval != SUNHEURISTICS_SUCCESS) { return(ARK_ILL_INPUT); }
+  return(ARK_SUCCESS);
+}
+
+/*---------------------------------------------------------------
+  ARKStepSetMinReduction: user should create/attach a
+  SUNHeuristics object, and set this directly therein.
+  ---------------------------------------------------------------*/
+int ARKStepSetMinReduction(void *arkode_mem, realtype eta_min)
+{
+  int retval;
+  ARKodeMem ark_mem;
+  if (arkode_mem==NULL) {
+    arkProcessError(NULL, ARK_MEM_NULL, "ARKStep",
+                    "ARKStepSetMinReduction", MSG_ARK_NO_MEM);
+    return(ARK_MEM_NULL);
+  }
+  ark_mem = (ARKodeMem) arkode_mem;
+  retval = SUNHeuristicsSetMinReduction(ark_mem->hconstraints, eta_min);
+  if (retval != SUNHEURISTICS_SUCCESS) { return(ARK_ILL_INPUT); }
+  return(ARK_SUCCESS);
+}
+
+/*---------------------------------------------------------------
+  ARKStepSetFixedStepBounds: user should create/attach a
+  SUNHeuristics object, and set this directly therein.
+  ---------------------------------------------------------------*/
+int ARKStepSetFixedStepBounds(void *arkode_mem, realtype lb, realtype ub)
+{
+  int retval;
+  ARKodeMem ark_mem;
+  if (arkode_mem==NULL) {
+    arkProcessError(NULL, ARK_MEM_NULL, "ARKStep",
+                    "ARKStepSetFixedStepBounds", MSG_ARK_NO_MEM);
+    return(ARK_MEM_NULL);
+  }
+  ark_mem = (ARKodeMem) arkode_mem;
+  retval = SUNHeuristicsSetFixedStepBounds(ark_mem->hconstraints, lb, ub);
+  if (retval != SUNHEURISTICS_SUCCESS) { return(ARK_ILL_INPUT); }
+  return(ARK_SUCCESS);
+}
+
+/*---------------------------------------------------------------
+  ARKStepSetAdaptivityMethod: user should create/attach a
+  specific SUNControl object.
+  ---------------------------------------------------------------*/
+int ARKStepSetAdaptivityMethod(void *arkode_mem, int imethod, int idefault,
+                               int pq, realtype adapt_params[3]) {
+  return(arkSetAdaptivityMethod(arkode_mem, imethod, idefault, pq, adapt_params)); }
+
+/*---------------------------------------------------------------
+  ARKStepSetAdaptivityFn: user should create/attach a custom
+  SUNControl object.
+  ---------------------------------------------------------------*/
+int ARKStepSetAdaptivityFn(void *arkode_mem, ARKAdaptFn hfun, void *h_data) {
+  return(arkSetAdaptivityFn(arkode_mem, hfun, h_data)); }
+
+/*---------------------------------------------------------------
+  ARKStepSetMaxFirstGrowth: user should create/attach a
+  SUNHeuristics object, and set this directly therein.
+  ---------------------------------------------------------------*/
+int ARKStepSetMaxFirstGrowth(void *arkode_mem, realtype etamx1)
+{
+  int retval;
+  ARKodeMem ark_mem;
+  if (arkode_mem==NULL) {
+    arkProcessError(NULL, ARK_MEM_NULL, "ARKStep",
+                    "ARKStepSetMaxFirstGrowth", MSG_ARK_NO_MEM);
+    return(ARK_MEM_NULL);
+  }
+  ark_mem = (ARKodeMem) arkode_mem;
+  retval = SUNHeuristicsSetMaxFirstGrowth(ark_mem->hconstraints, etamx1);
+  if (retval != SUNHEURISTICS_SUCCESS) { return(ARK_ILL_INPUT); }
+  return(ARK_SUCCESS);
+}
+
+/*---------------------------------------------------------------
+  ARKStepSetMaxEFailGrowth: user should create/attach a
+  SUNHeuristics object, and set this directly therein.
+  ---------------------------------------------------------------*/
+int ARKStepSetMaxEFailGrowth(void *arkode_mem, realtype etamxf)
+{
+  int retval;
+  ARKodeMem ark_mem;
+  if (arkode_mem==NULL) {
+    arkProcessError(NULL, ARK_MEM_NULL, "ARKStep",
+                    "ARKStepSetMaxEFailGrowth", MSG_ARK_NO_MEM);
+    return(ARK_MEM_NULL);
+  }
+  ark_mem = (ARKodeMem) arkode_mem;
+  retval = SUNHeuristicsSetMaxEFailGrowth(ark_mem->hconstraints, etamxf);
+  if (retval != SUNHEURISTICS_SUCCESS) { return(ARK_ILL_INPUT); }
+  return(ARK_SUCCESS);
+}
+
+/*---------------------------------------------------------------
+  ARKStepSetSmallNumEFails: user should create/attach a
+  SUNHeuristics object, and set this directly therein.
+  ---------------------------------------------------------------*/
+int ARKStepSetSmallNumEFails(void *arkode_mem, int small_nef)
+{
+  int retval;
+  ARKodeMem ark_mem;
+  if (arkode_mem==NULL) {
+    arkProcessError(NULL, ARK_MEM_NULL, "ARKStep",
+                    "ARKStepSetSmallNumEFails", MSG_ARK_NO_MEM);
+    return(ARK_MEM_NULL);
+  }
+  ark_mem = (ARKodeMem) arkode_mem;
+  retval = SUNHeuristicsSetSmallNumEFails(ark_mem->hconstraints, small_nef);
+  if (retval != SUNHEURISTICS_SUCCESS) { return(ARK_ILL_INPUT); }
+  return(ARK_SUCCESS);
+}
+
+/*---------------------------------------------------------------
+  ARKStepSetMaxCFailGrowth: user should create/attach a
+  SUNHeuristics object, and set this directly therein.
+  ---------------------------------------------------------------*/
+int ARKStepSetMaxCFailGrowth(void *arkode_mem, realtype etacf)
+{
+  int retval;
+  ARKodeMem ark_mem;
+  if (arkode_mem==NULL) {
+    arkProcessError(NULL, ARK_MEM_NULL, "ARKStep",
+                    "ARKStepSetMaxCFailGrowth", MSG_ARK_NO_MEM);
+    return(ARK_MEM_NULL);
+  }
+  ark_mem = (ARKodeMem) arkode_mem;
+  retval = SUNHeuristicsSetMaxCFailGrowth(ark_mem->hconstraints, etacf);
+  if (retval != SUNHEURISTICS_SUCCESS) { return(ARK_ILL_INPUT); }
+  return(ARK_SUCCESS);
+}
+
+/*---------------------------------------------------------------
+  ARKStepSetStabilityFn: user should create/attach a
+  SUNHeuristics object, and set this directly therein.
+  ---------------------------------------------------------------*/
+int ARKStepSetStabilityFn(void *arkode_mem, ARKExpStabFn EStab, void *estab_data) {
+  return(arkSetStabilityFn(arkode_mem, EStab, estab_data)); }
+
+
+
 /*===============================================================
   ARKStep optional input functions -- stepper-specific
   ===============================================================*/
