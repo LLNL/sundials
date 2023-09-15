@@ -63,7 +63,7 @@ struct generic_SUNControl_Ops_
 {
   /* REQUIRED of all controller implementations. */
   SUNControl_Type (*gettype)(SUNControl C);
-  void (*destroy)(SUNControl C);
+  int (*destroy)(SUNControl C);
 
   /* REQUIRED for controllers of SUNDIALS_CONTROL_H type. */
   int (*estimatestep)(SUNControl C, realtype h,
@@ -127,9 +127,12 @@ SUNControl SUNControl_NewEmpty(SUNContext sunctx);
 SUNDIALS_EXPORT
 SUNControl_Type SUNControl_GetType(SUNControl C);
 
-/* Function to deallocate a SUNHeuristics object. */
+/* Function to deallocate a SUNHeuristics object.
+
+   Any return value other than SUNCONTROL_SUCCESS will be treated as
+   an unrecoverable failure. */
 SUNDIALS_EXPORT
-void SUNControl_Destroy(SUNControl C);
+int SUNControl_Destroy(SUNControl C);
 
 /* Main step size controller function.  This is called following
    a time step with size 'h' and local error factor 'dsm', and the

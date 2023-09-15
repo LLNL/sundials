@@ -81,7 +81,7 @@ SUNControl SUNControlPID(SUNContext sunctx)
   content = (SUNControlContent_PID)malloc(sizeof *content);
   if (content == NULL)
   {
-    SUNControl_Destroy(C);
+    (void) SUNControl_Destroy(C);
     return (NULL);
   }
 

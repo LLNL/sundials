@@ -62,7 +62,7 @@ typedef _SUNDIALS_STRUCT_ generic_SUNHeuristics_* SUNHeuristics;
 struct generic_SUNHeuristics_Ops_
 {
   SUNHeuristics_ID (*getid)(SUNHeuristics H);
-  void (*destroy)(SUNHeuristics H);
+  int (*destroy)(SUNHeuristics H);
   int (*constrainstep)(SUNHeuristics H, realtype hcur,
                        realtype hnew, realtype *hconstr);
   int (*etestfail)(SUNHeuristics H, realtype hcur,
@@ -121,9 +121,12 @@ SUNHeuristics SUNHeuristics_NewEmpty(SUNContext sunctx);
 SUNDIALS_EXPORT
 SUNHeuristics_ID SUNHeuristics_GetID(SUNHeuristics H);
 
-/* Function to deallocate a SUNHeuristics object. */
+/* Function to deallocate a SUNHeuristics object.
+
+   Any return value other than SUNHEURISTICS_SUCCESS will be treated as
+   an unrecoverable failure. */
 SUNDIALS_EXPORT
-void SUNHeuristics_Destroy(SUNHeuristics H);
+int SUNHeuristics_Destroy(SUNHeuristics H);
 
 /* Main constraint-application function.  This will attempt to
    change the step hcur to hnew, applying any heuristic bounds

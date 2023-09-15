@@ -80,7 +80,7 @@ SUNControl SUNControlImpGus(SUNContext sunctx)
   content = (SUNControlContent_ImpGus)malloc(sizeof *content);
   if (content == NULL)
   {
-    SUNControl_Destroy(C);
+    (void) SUNControl_Destroy(C);
     return (NULL);
   }
 

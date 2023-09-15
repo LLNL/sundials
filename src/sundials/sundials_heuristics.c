@@ -92,13 +92,13 @@ SUNHeuristics_ID SUNHeuristics_GetID(SUNHeuristics H)
  * Optional functions in the 'ops' structure
  * ----------------------------------------------------------------- */
 
-void SUNHeuristics_Destroy(SUNHeuristics H)
+int SUNHeuristics_Destroy(SUNHeuristics H)
 {
   if (H == NULL) return;
 
   /* if the destroy operation exists use it */
   if (H->ops)
-    if (H->ops->destroy) { H->ops->destroy(H); return; }
+    if (H->ops->destroy) { return(H->ops->destroy(H)); }
 
   /* if we reach this point, either ops == NULL or destroy == NULL,
      try to cleanup by freeing the content, ops, and matrix */
@@ -106,7 +106,7 @@ void SUNHeuristics_Destroy(SUNHeuristics H)
   if (H->ops) { free(H->ops); H->ops = NULL; }
   free(H); H = NULL;
 
-  return;
+  return(SUNHEURISTICS_SUCCESS);
 }
 
 int SUNHeuristics_ConstrainStep(SUNHeuristics H, realtype hcur,

@@ -99,13 +99,13 @@ SUNControl_Type SUNControl_GetType(SUNControl C)
  * Optional functions in the 'ops' structure
  * ----------------------------------------------------------------- */
 
-void SUNControl_Destroy(SUNControl C)
+int SUNControl_Destroy(SUNControl C)
 {
   if (C == NULL) return;
 
   /* if the destroy operation exists use it */
   if (C->ops)
-    if (C->ops->destroy) { C->ops->destroy(C); return; }
+    if (C->ops->destroy) { return(C->ops->destroy(C)); }
 
   /* if we reach this point, either ops == NULL or destroy == NULL,
      try to cleanup by freeing the content, ops, and matrix */
@@ -113,7 +113,7 @@ void SUNControl_Destroy(SUNControl C)
   if (C->ops) { free(C->ops); C->ops = NULL; }
   free(C); C = NULL;
 
-  return;
+  return(SUNCONTROL_SUCCESS);
 }
 
 int SUNControl_EstimateStep(SUNControl C, realtype h, realtype dsm,

@@ -57,7 +57,7 @@ function pointers to the various controller operations, and is defined as
 
     struct generic_SUNControl_Ops_ {
         SUNControl_Type (*getid)(SUNControl C);
-        void            (*destroy)(SUNControl C);
+        int             (*destroy)(SUNControl C);
         int             (*estimatestep)(SUNControl C, realtype h, realtype dsm, realtype* hnew);
         int             (*estimatestepandorder)(SUNControl C, realtype h, int q, realtype dsm, realtype* hnew, int *qnew);
         int             (*estimatemristeps)(SUNControl C, realtype H, realtype h, realtype DSM, realtype dsm, realtype* Hnew, realtype *hnew);
@@ -155,7 +155,7 @@ routine, below.
 
       SUNControl_Type id = SUNControl_GetType(C);
 
-.. c:function:: void SUNControl_Destroy(SUNControl C)
+.. c:function:: int SUNControl_Destroy(SUNControl C)
 
    Deallocates the controller *C*. If this is not provided by the
    implementation, the base wrapper routine will free both the *content* and
@@ -165,12 +165,14 @@ routine, below.
    routine).
 
    :param C: the :c:type:`SUNControl` object.
+   :return: error code indicating success failure
+            (see :numref:`SUNControl.Description.errorCodes`).
 
    Usage:
 
    .. code-block:: c
 
-      SUNControl_Destroy(C);
+      retval = SUNControl_Destroy(C);
 
 .. c:function:: int SUNControl_EstimateStep(SUNControl C, realtype h, realtype dsm, realtype* hnew)
 
@@ -487,7 +489,7 @@ implementation constructor):
         /* Use the control object */
 
         /* Destroy the control object */
-        SUNControl_Destroy(C);
+        retval = SUNControl_Destroy(C);
 
         return 0;
     }

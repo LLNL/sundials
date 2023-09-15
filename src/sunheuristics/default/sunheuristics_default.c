@@ -112,7 +112,7 @@ SUNHeuristics SUNHeuristicsDefault(SUNContext sunctx)
   content = (SUNHeuristicsContent_Default)malloc(sizeof *content);
   if (content == NULL)
   {
-    SUNHeuristics_Destroy(H);
+    (void) SUNHeuristics_Destroy(H);
     return (NULL);
   }
 

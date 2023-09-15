@@ -48,7 +48,7 @@ function pointers to the various heuristics operations, and is defined as
     struct generic_SUNHeuristics_Ops_ {
 
       SUNHeuristics_ID (*getid)(SUNHeuristics H);
-      void             (*destroy)(SUNHeuristics H);
+      int              (*destroy)(SUNHeuristics H);
       int              (*constrainstep)(SUNHeuristics H, realtype hcur,
                            realtype hnew, realtype *hconstr);
       int              (*etestfail)(SUNHeuristics H, realtype hcur,
@@ -161,7 +161,7 @@ Each of the following routines are *optional* for any specific SUNHeuristics imp
 
       SUNHeuristics_ID id = SUNHeuristics_GetID(H);
 
-.. c:function:: void SUNHeuristics_Destroy(SUNHeuristics H)
+.. c:function:: int SUNHeuristics_Destroy(SUNHeuristics H)
 
    Deallocates the heuristics object *H*.  If this is not provided by the
    implementation, the base wrapper routine will free both the *content* and
@@ -171,12 +171,14 @@ Each of the following routines are *optional* for any specific SUNHeuristics imp
    routine).
 
    :param H: the :c:type:`SUNHeuristics` object.
+   :return: error code indicating success failure (see
+            :numref:`SUNHeuristics.Description.errorCodes`).
 
    Usage:
 
    .. code-block:: c
 
-      SUNHeuristics_Destroy(H);
+      retval = SUNHeuristics_Destroy(H);
 
 .. c:function:: int SUNHeuristics_ConstrainStep(SUNHeuristics H, realtype hcur, realtype hnew, realtype* hconstr)
 
@@ -645,7 +647,7 @@ SUNHeuristics implementation constructor):
         /* Use the heuristics object */
 
         /* Destroy the heuristics object */
-        SUNHeuristics_Destroy(C);
+        retval = SUNHeuristics_Destroy(C);
 
         return 0;
     }

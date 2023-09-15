@@ -73,7 +73,7 @@ SUNControl ARKUserControl(SUNContext sunctx, void* arkode_mem,
   content = (ARKUserControlContent)malloc(sizeof *content);
   if (content == NULL)
   {
-    SUNControl_Destroy(C);
+    (void) SUNControl_Destroy(C);
     return (NULL);
   }
 

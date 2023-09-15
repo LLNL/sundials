@@ -61,7 +61,7 @@ SUNHeuristics SUNHeuristicsUnconstrained(SUNContext sunctx)
   content = (SUNHeuristicsContent_Unconstrained)malloc(sizeof *content);
   if (content == NULL)
   {
-    SUNHeuristics_Destroy(H);
+    (void) SUNHeuristics_Destroy(H);
     return (NULL);
   }
 
