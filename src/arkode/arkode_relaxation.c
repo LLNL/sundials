@@ -783,6 +783,7 @@ int arkRelax(ARKodeMem ark_mem, int* relax_fails, realtype* dsm_inout,
 {
   int retval;
   sunrealtype relax_val;
+  sunrealtype htest;
   ARKodeRelaxMem relax_mem = ark_mem->relax_mem;
 
   /* Get the relaxation memory structure */
@@ -805,17 +806,17 @@ int arkRelax(ARKodeMem ark_mem, int* relax_fails, realtype* dsm_inout,
     /* Check for max fails in a step */
     if (*relax_fails == relax_mem->max_fails) { return ARK_RELAX_FAIL; }
 
-    /* Return with an error if |h| == hmin */
-    if (SUNRabs(ark_mem->h) <= ark_mem->hmin * ONEPSM)
+    /* Check whether we can cut step size, if not then return with error */
+    htest = ark_mem->h * relax_mem->eta_fail;
+    retval = SUNHeuristicsBoundReduction(ark_mem->hconstraints,
+                                         ark_mem->h, htest, &htest);
+    if (retval == SUNHEURISTICS_CANNOT_DECREASE)
     {
       return ARK_RELAX_FAIL;
     }
 
-    /* Return with error if using fixed step sizes */
-    if (ark_mem->fixedstep) { return(ARK_RELAX_FAIL); }
-
     /* Cut step size and try again */
-    ark_mem->eta = relax_mem->eta_fail;
+    ark_mem->eta = htest / ark_mem->h;
 
 #if SUNDIALS_LOGGING_LEVEL >= SUNDIALS_LOGGING_INFO
     SUNLogger_QueueMsg(ARK_LOGGER, SUN_LOGLEVEL_INFO,
