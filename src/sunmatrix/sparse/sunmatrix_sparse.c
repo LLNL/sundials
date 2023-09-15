@@ -678,8 +678,8 @@ int SUNMatScaleAddI_Sparse(realtype c, SUNMatrix A)
         Ai[--nz] = w[i];
         Ax[nz] = x[w[i]];
       }
-      /* fill diagonal if applicable, i.e if column (row) is empty or diagonal was not in A */
-      if (i < 0 || w[i] != j) {
+      /* fill diagonal if applicable */
+      if (i < 0 /* empty or insert at front */ || w[i] != j /* insert behind front */) {
         Ai[--nz] = j;
         Ax[nz] = x[j];
       }
@@ -750,7 +750,7 @@ int SUNMatScaleAddI_Sparse(realtype c, SUNMatrix A)
         Cx[nz++] = x[Ai[p]];
       }
       /* fill diagonal if applicable */
-      if (Ai[p] != j || Ap[j] == Ap[j+1]) {
+      if (p >= Ap[j+1] /* empty or insert at end */ ||  Ai[p] != j /* insert before end */) {
         Ci[nz] = j;
         Cx[nz++] = x[j];
       }
