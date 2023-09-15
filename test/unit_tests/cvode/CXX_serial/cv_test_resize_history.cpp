@@ -258,8 +258,8 @@ int main(int argc, char* argv[])
       y = N_VNew_Serial(i + 1, sunctx);
       ytmp = N_VClone(y);
 
-      flag = CVodeResizeHistory(cvode_mem, thist, yhist, hist_size, resize_vec,
-                                resize, debug_file);
+      flag = CVodeResizeHistory(cvode_mem, thist, yhist, hist_size, nullptr,
+                                resize_vec, resize, debug_file);
       if (check_flag(flag, "CVodeResizeHistory")) return 1;
 
       // "Resize" the nonlinear solver

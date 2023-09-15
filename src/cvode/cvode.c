@@ -1099,8 +1099,8 @@ int HermitePolyMultiDerEval(sunrealtype* t, N_Vector* c, int M, sunrealtype s,
 
 
 int CVodeResizeHistory(void *cvode_mem, sunrealtype* t_hist, N_Vector* y_hist,
-                       int n_hist, CVResizeVecFn resize_fn, int itype,
-                       FILE* debug_file)
+                       int n_hist, N_Vector f_cur, CVResizeVecFn resize_fn,
+                       int itype, FILE* debug_file)
 {
   int retval = 0;
 
@@ -1238,9 +1238,6 @@ int CVodeResizeHistory(void *cvode_mem, sunrealtype* t_hist, N_Vector* y_hist,
   {
     N_VDestroy(cv_mem->cv_zn[j]);
     cv_mem->cv_zn[j] = N_VClone(tmpl);
-    // >>>>>
-    // TODO(DJG): Add option to set all values to NAN
-    // <<<<<
     N_VConst(NAN, cv_mem->cv_zn[j]);
   }
 
@@ -1248,16 +1245,12 @@ int CVodeResizeHistory(void *cvode_mem, sunrealtype* t_hist, N_Vector* y_hist,
   {
     N_VDestroy(cv_mem->resize_wrk[j]);
     cv_mem->resize_wrk[j] = N_VClone(tmpl);
-    // >>>>>
-    // TODO(DJG): Add option to set all values to NAN
-    // <<<<<
     N_VConst(NAN, cv_mem->resize_wrk[j]);
   }
 
   /* ------------------------------- *
    * Construct Nordsieck Array (new) *
    * ------------------------------- */
-
 
     /* Force zn[1] = y'(t_n-1, y_n-1) -- ideally we would use the value computed
        by the interpolant but it has a larger error -- FURTHER TESTING NEEDED */
@@ -1305,15 +1298,22 @@ int CVodeResizeHistory(void *cvode_mem, sunrealtype* t_hist, N_Vector* y_hist,
     /* zn[0] = y_n-1 */
     N_VScale(ONE, y_hist[0], cv_mem->cv_zn[0]);
 
-    /* zn[1] = h_n-1 * y'(t_n-1, y_n-1) */
-    retval = cv_mem->cv_f(t_hist[0], y_hist[0],
-                          cv_mem->cv_zn[1], cv_mem->cv_user_data);
-    cv_mem->cv_nfe++;
-    if (retval)
+    if (!f_cur)
     {
-      cvProcessError(cv_mem, CV_RHSFUNC_FAIL, "CVODE", "CVode",
-                     MSGCV_RHSFUNC_FAILED, cv_mem->cv_tn);
-      return CV_RHSFUNC_FAIL;
+      /* zn[1] = h_n-1 * y'(t_n-1, y_n-1) */
+      retval = cv_mem->cv_f(t_hist[0], y_hist[0],
+                            cv_mem->cv_zn[1], cv_mem->cv_user_data);
+      cv_mem->cv_nfe++;
+      if (retval)
+      {
+        cvProcessError(cv_mem, CV_RHSFUNC_FAIL, "CVODE", "CVode",
+                       MSGCV_RHSFUNC_FAILED, cv_mem->cv_tn);
+        return CV_RHSFUNC_FAIL;
+      }
+    }
+    else
+    {
+      N_VScale(ONE, f_cur, cv_mem->cv_zn[1]);
     }
     N_VScale(cv_mem->cv_hscale, cv_mem->cv_zn[1], cv_mem->cv_zn[1]);
 
@@ -1336,14 +1336,21 @@ int CVodeResizeHistory(void *cvode_mem, sunrealtype* t_hist, N_Vector* y_hist,
       N_VScale(ONE, y_hist[0], cv_mem->cv_zn[0]);
 
       /* zn[1] = h_n-1 * y'(t_n-1, y_n-1) */
-      retval = cv_mem->cv_f(cv_mem->cv_tn, y_hist[0],
-                            cv_mem->cv_zn[1], cv_mem->cv_user_data);
-      cv_mem->cv_nfe++;
-      if (retval)
+      if (!f_cur)
       {
-        cvProcessError(cv_mem, CV_RHSFUNC_FAIL, "CVODE", "CVode",
-                       MSGCV_RHSFUNC_FAILED, cv_mem->cv_tn);
-        return CV_RHSFUNC_FAIL;
+        retval = cv_mem->cv_f(cv_mem->cv_tn, y_hist[0],
+                              cv_mem->cv_zn[1], cv_mem->cv_user_data);
+        cv_mem->cv_nfe++;
+        if (retval)
+        {
+          cvProcessError(cv_mem, CV_RHSFUNC_FAIL, "CVODE", "CVode",
+                         MSGCV_RHSFUNC_FAILED, cv_mem->cv_tn);
+          return CV_RHSFUNC_FAIL;
+        }
+      }
+      else
+      {
+        N_VScale(ONE, f_cur, cv_mem->cv_zn[1]);
       }
       N_VScale(cv_mem->cv_hscale, cv_mem->cv_zn[1], cv_mem->cv_zn[1]);
     }
@@ -1449,14 +1456,21 @@ int CVodeResizeHistory(void *cvode_mem, sunrealtype* t_hist, N_Vector* y_hist,
       N_VScale(ONE, y_hist[0], cv_mem->cv_zn[0]);
 
       /* zn[1] = h_n-1 * y'(t_n-1, y_n-1) */
-      retval = cv_mem->cv_f(cv_mem->cv_tn, y_hist[0],
-                            cv_mem->cv_zn[1], cv_mem->cv_user_data);
-      cv_mem->cv_nfe++;
-      if (retval)
+      if (!f_cur)
       {
-        cvProcessError(cv_mem, CV_RHSFUNC_FAIL, "CVODE", "CVode",
-                       MSGCV_RHSFUNC_FAILED, cv_mem->cv_tn);
-        return CV_RHSFUNC_FAIL;
+        retval = cv_mem->cv_f(cv_mem->cv_tn, y_hist[0],
+                              cv_mem->cv_zn[1], cv_mem->cv_user_data);
+        cv_mem->cv_nfe++;
+        if (retval)
+        {
+          cvProcessError(cv_mem, CV_RHSFUNC_FAIL, "CVODE", "CVode",
+                         MSGCV_RHSFUNC_FAILED, cv_mem->cv_tn);
+          return CV_RHSFUNC_FAIL;
+        }
+      }
+      else
+      {
+        N_VScale(ONE, f_cur, cv_mem->cv_zn[1]);
       }
       N_VScale(cv_mem->cv_hscale, cv_mem->cv_zn[1], cv_mem->cv_zn[1]);
     }
@@ -1477,14 +1491,21 @@ int CVodeResizeHistory(void *cvode_mem, sunrealtype* t_hist, N_Vector* y_hist,
     }
 
     /* temporarily store y'(t_n-1, y_n-1) in zn[1] */
-    retval = cv_mem->cv_f(cv_mem->cv_tn, y_hist[0],
-                          cv_mem->cv_vtemp2, cv_mem->cv_user_data);
-    cv_mem->cv_nfe++;
-    if (retval)
+    if (!f_cur)
     {
-      cvProcessError(cv_mem, CV_RHSFUNC_FAIL, "CVODE", "CVode",
-                     MSGCV_RHSFUNC_FAILED, cv_mem->cv_tn);
-      return CV_RHSFUNC_FAIL;
+      retval = cv_mem->cv_f(cv_mem->cv_tn, y_hist[0],
+                            cv_mem->cv_vtemp2, cv_mem->cv_user_data);
+      cv_mem->cv_nfe++;
+      if (retval)
+      {
+        cvProcessError(cv_mem, CV_RHSFUNC_FAIL, "CVODE", "CVode",
+                       MSGCV_RHSFUNC_FAILED, cv_mem->cv_tn);
+        return CV_RHSFUNC_FAIL;
+      }
+    }
+    else
+    {
+      N_VScale(ONE, f_cur, cv_mem->cv_vtemp2);
     }
 
     /* Compute interpolation coefficients */
