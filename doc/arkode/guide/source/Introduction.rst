@@ -85,8 +85,8 @@ with adaptive explicit methods of orders 2-8.
    H(t, p, q) = T(t, p) + V(t, q)
 
 .. math::
-   \dot{p} = f_1(t,q) = \frac{\partial V(t,q)}{\partial q}, \quad 
-   \dot{q} = f_2(t,p) = \frac{\partial T(t,p)}{\partial p}, 
+   \dot{p} = f_1(t,q) = \frac{\partial V(t,q)}{\partial q}, \quad
+   \dot{q} = f_2(t,p) = \frac{\partial T(t,p)}{\partial p},
    :label: ARKODE_ODE_hamiltonian
 
 allowing for conservation of quadratic invariants.
