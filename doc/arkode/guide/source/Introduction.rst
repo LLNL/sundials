@@ -85,8 +85,8 @@ with adaptive explicit methods of orders 2-8.
    H(t, p, q) = T(t, p) + V(t, q)
 
 .. math::
-   \dot{p} = f_1(t,q) = \frac{\partial V(t,q)}{\partial q}, \quad 
-   \dot{q} = f_2(t,p) = \frac{\partial T(t,p)}{\partial p}, 
+   \dot{p} = f_1(t,q) = \frac{\partial V(t,q)}{\partial q}, \quad
+   \dot{q} = f_2(t,p) = \frac{\partial T(t,p)}{\partial p},
    :label: ARKODE_ODE_hamiltonian
 
 allowing for conservation of quadratic invariants.
@@ -129,6 +129,13 @@ provided with SUNDIALS, or again may utilize a user-supplied module.
 
 Changes from previous versions
 ==============================
+
+Changes in vX.X.X
+-----------------
+
+Improved computational complexity of `SUNMatScaleAddI_Sparse` from `O(M*N)` to
+`O(NNZ)`.
+Fixed scaling bug in `SUNMatScaleAddI_Sparse` for non-square matrices.
 
 Changes in v5.6.2
 -----------------

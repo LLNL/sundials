@@ -4,6 +4,11 @@
 
 Renamed some internal types in CVODES and IDAS to allow both packages to be built together in the same binary.
 
+Improved computational complexity of `SUNMatScaleAddI_Sparse` from `O(M*N)` to
+`O(NNZ)`.
+
+Fixed scaling bug in `SUNMatScaleAddI_Sparse` for non-square matrices.
+
 ## Changes to SUNDIALS in release 6.6.2
 
 Fixed the build system support for MAGMA when using a NVIDIA HPC SDK installation of CUDA
