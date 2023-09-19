@@ -137,11 +137,17 @@ int main(int argc, char* argv[])
     resize = atoi(argv[1]);
   }
 
-  int method = CV_BDF;
+  int itype = 30;
   if (argc > 2)
   {
-    if (atoi(argv[2]) == 1) { method = CV_ADAMS; }
-    else if (atoi(argv[2]) == 2) { method = CV_BDF; }
+    itype = atoi(argv[2]);
+  }
+
+  int method = CV_BDF;
+  if (argc > 3)
+  {
+    if (atoi(argv[3]) == 1) { method = CV_ADAMS; }
+    else if (atoi(argv[3]) == 2) { method = CV_BDF; }
     else
     {
       std::cerr << "Invalid method option" << std::endl;
@@ -149,10 +155,10 @@ int main(int argc, char* argv[])
     }
   }
 
-  int steps = 60;
-  if (argc > 2)
+  int steps = 20;
+  if (argc > 4)
   {
-    steps = atoi(argv[2]);
+    steps = atoi(argv[4]);
   }
 
   if (resize == 0)
@@ -214,7 +220,8 @@ int main(int argc, char* argv[])
 
   // Set output formatting
   std::cout << std::scientific;
-  std::cout << std::setprecision(std::numeric_limits<sunrealtype>::digits10);
+  std::cout << std::setprecision(16);
+  // std::cout << std::setprecision(std::numeric_limits<sunrealtype>::digits10);
   std::cout << std::endl;
 
   // Access private CVODE memory to output Nordsieck array
@@ -243,6 +250,8 @@ int main(int argc, char* argv[])
   // 27 steps - reach 5th order
   for (int i = 1; i <= steps; i++)
   {
+    N_Vector tmp = N_VClone(y);
+
     std::cout << std::flush;
     std::cerr << std::flush;
     std::cout << "\n========== Start Step " << i << " ==========\n\n";
@@ -263,6 +272,37 @@ int main(int argc, char* argv[])
     PrintNordsieck(cv_mem);
     if (check_flag(flag, "PrintNordsieck")) { return 1; }
 
+    std::cout << "zn[1]:" << std::endl;
+    N_VPrint(cv_mem->cv_zn[1]);
+
+    std::cout << "hscale * f(tn, yn) ?= zn[1]:" << std::endl;
+    flag = ode_rhs(t_ret, y, tmp, &udata);
+    N_VScale(cv_mem->cv_hscale, tmp, tmp);
+    N_VPrint(tmp);
+
+    std::cout << "hscale * f_interp(tn, yn) ?= zn[1]:" << std::endl;
+    CVodeGetDky(cvode_mem, t_ret, 1, tmp);
+    N_VScale(cv_mem->cv_hscale, tmp, tmp);
+    N_VPrint(tmp);
+
+    std::cout << "zn[1] / h_scale ?= f(tn, yn):" << std::endl;
+    N_VScale(ONE / cv_mem->cv_hscale, cv_mem->cv_zn[1], tmp);
+    N_VPrint(tmp);
+
+    std::cout << "f(tn, yn):" << std::endl;
+    flag = ode_rhs(t_ret, y, tmp, &udata);
+    N_VPrint(tmp);
+
+    std::cout << "f_interp(tn, yn):" << std::endl;
+    CVodeGetDky(cvode_mem, t_ret, 1, tmp);
+    N_VPrint(tmp);
+
+    flag = PR_true(t_ret, tmp, udata);
+    if (check_flag(flag, "PR_true")) { return 1; }
+    N_VLinearSum(ONE, y, ONE, tmp, tmp);
+    N_VAbs(tmp, tmp);
+    std::cout << "Error: " << N_VMaxNorm(tmp) << std::endl;
+
     std::cout << "========== End Step " << i << " ==========\n";
 
     if (resize == 1)
@@ -270,9 +310,12 @@ int main(int argc, char* argv[])
       // Save history but do not update problem size
       flag = save_history(t_ret, y, t_hist, y_hist, hist_size, i);
 
+      // CVodeGetDky(cvode_mem, t_ret, 1, tmp);
+      N_VScale(ONE / cv_mem->cv_hscale, cv_mem->cv_zn[1], tmp);
+
       int n_hist = (i < hist_size) ? i + 1 : hist_size;
-      flag = CVodeResizeHistory(cvode_mem, t_hist, y_hist, nullptr, n_hist,
-                                resize_vec, debug_file);
+      flag = CVodeResizeHistory(cvode_mem, t_hist, y_hist, &tmp, n_hist,
+                                resize_vec, itype, debug_file);
       if (check_flag(flag, "CVodeResizeHistory")) { return 1; }
     }
     else if (resize == 2)
@@ -284,7 +327,7 @@ int main(int argc, char* argv[])
 
       int n_hist = (i < hist_size) ? i + 1 : hist_size;
       flag = CVodeResizeHistory(cvode_mem, t_hist, y_hist, nullptr, n_hist,
-                                resize_vec, debug_file);
+                                resize_vec, itype, debug_file);
       if (check_flag(flag, "CVodeResizeHistory")) { return 1; }
 
       // "Resize" vectors and nonlinear solver
@@ -301,6 +344,8 @@ int main(int argc, char* argv[])
       flag = CVodeSetMaxNonlinIters(cvode_mem, 10);
       if (check_flag(flag, "CVodeSetMaxNonlinIters")) { return 1; }
     }
+
+    N_VDestroy(tmp);
   }
   std::cout << std::endl;
 
