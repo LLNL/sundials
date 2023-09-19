@@ -137,17 +137,11 @@ int main(int argc, char* argv[])
     resize = atoi(argv[1]);
   }
 
-  int itype = 30;
+  int method = CV_BDF;
   if (argc > 2)
   {
-    itype = atoi(argv[2]);
-  }
-
-  int method = CV_BDF;
-  if (argc > 3)
-  {
-    if (atoi(argv[3]) == 1) { method = CV_ADAMS; }
-    else if (atoi(argv[3]) == 2) { method = CV_BDF; }
+    if (atoi(argv[2]) == 1) { method = CV_ADAMS; }
+    else if (atoi(argv[2]) == 2) { method = CV_BDF; }
     else
     {
       std::cerr << "Invalid method option" << std::endl;
@@ -156,9 +150,9 @@ int main(int argc, char* argv[])
   }
 
   int steps = 20;
-  if (argc > 4)
+  if (argc > 3)
   {
-    steps = atoi(argv[4]);
+    steps = atoi(argv[3]);
   }
 
   if (resize == 0)
@@ -241,7 +235,8 @@ int main(int argc, char* argv[])
   N_VScale(ONE, y, y_hist[0]);
 
   std::string file_name = "debug_resize_" + std::to_string(resize) + ".txt";
-  FILE* debug_file = std::fopen(file_name.c_str(), "w");
+  // FILE* debug_file = std::fopen(file_name.c_str(), "w");
+  FILE* debug_file = stdout;
 
   // Advance in time
   // 11 steps - reach 2nd order
@@ -315,7 +310,7 @@ int main(int argc, char* argv[])
 
       int n_hist = (i < hist_size) ? i + 1 : hist_size;
       flag = CVodeResizeHistory(cvode_mem, t_hist, y_hist, &tmp, n_hist,
-                                resize_vec, itype, debug_file);
+                                resize_vec, debug_file);
       if (check_flag(flag, "CVodeResizeHistory")) { return 1; }
     }
     else if (resize == 2)
@@ -327,7 +322,7 @@ int main(int argc, char* argv[])
 
       int n_hist = (i < hist_size) ? i + 1 : hist_size;
       flag = CVodeResizeHistory(cvode_mem, t_hist, y_hist, nullptr, n_hist,
-                                resize_vec, itype, debug_file);
+                                resize_vec, debug_file);
       if (check_flag(flag, "CVodeResizeHistory")) { return 1; }
 
       // "Resize" vectors and nonlinear solver

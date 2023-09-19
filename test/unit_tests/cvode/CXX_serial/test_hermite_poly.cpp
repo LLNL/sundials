@@ -34,6 +34,8 @@
 #include "test_pr.hpp"
 #include "test_utilities.hpp"
 
+#define PI 3.14159265358979323846
+
 /*
  * Compute Hermite interpolating polynomial coefficients
  *
@@ -46,59 +48,78 @@
  * Outputs:
  *   c -- array (length M + 1) of coefficient vectors c_i
  */
-int HermitePolyCoef(sunrealtype* t, N_Vector* y, N_Vector f, int M, N_Vector* c)
+int HermitePolyCoef(sunrealtype* t, N_Vector* y, N_Vector f, int n_times,
+                    N_Vector* coeff)
 {
   int i, j;
-  int Mp1 = M + 1;
+  int n_coeff = n_times + 1; // n_times state values + 1 derivative
   sunrealtype* t_ext = NULL;
 
   /* Check for valid inputs */
-  if (!t || !y || !f || M < 1 || !c) return CV_ILL_INPUT;
+  if (!t || !y || !f || n_times < 1 || !coeff) { return CV_ILL_INPUT; }
 
-  for (i = 0; i < M; i++)
+  /* Check for valid solution vectors */
+  for (i = 0; i < n_times; i++)
   {
     if (!y[i]) { return CV_ILL_INPUT; }
   }
 
-  for (i = 0; i < Mp1; i++)
+  /* Check for valid coefficient vector */
+  for (i = 0; i < n_coeff; i++)
   {
-    if (!c[i]) { return CV_ILL_INPUT; }
+    if (!coeff[i]) { return CV_ILL_INPUT; }
   }
 
-  t_ext = (sunrealtype*) malloc(sizeof(sunrealtype) * (Mp1));
+  /* Setup extended array of times to incorporate derivative value */
+  t_ext = (sunrealtype*) malloc(sizeof(sunrealtype) * (n_coeff));
 
   t_ext[0] = t[0];
   t_ext[1] = t[0];
 
-  for (i = 1; i < M; i++)
+  for (i = 1; i < n_times; i++)
   {
     t_ext[i + 1] = t[i];
   }
 
-  /* Initialize coefficient arrays with values to interpolate */
-  N_VScale(ONE, y[0], c[0]);
-  N_VScale(ONE, y[0], c[1]);
-
-  for (i = 1; i < M; i++)
+  std::cout << "t_ext" << std::endl;
+  for (i = 0; i < n_coeff; i++)
   {
-    N_VScale(ONE, y[i], c[i+1]);
+    std::cout << t_ext[i] << std::endl;
   }
 
-  /* Compute coefficients from bottom up to write in place */
-  for (i = 1; i < Mp1; i++)
+  /* Initialize coefficient arrays with values to interpolate */
+  N_VScale(ONE, y[0], coeff[0]);
+  N_VScale(ONE, y[0], coeff[1]);
+
+  for (i = 1; i < n_times; i++)
   {
-    for (j = Mp1 - 1; j > i - 1; j--)
+    N_VScale(ONE, y[i], coeff[i + 1]);
+  }
+
+  std::cout << "coeff" << std::endl;
+  for (i = 0; i < n_coeff; i++)
+  {
+    N_VPrint(coeff[i]);
+  }
+  std::cout << std::endl;
+
+  /* Compute coefficients from bottom up to write in place */
+  for (i = 1; i < n_coeff; i++)
+  {
+    for (j = n_coeff - 1; j > i - 1; j--)
     {
+      /* Replace with actual derivative value */
       if (i == 1 && j == 1)
       {
-        N_VScale(ONE, f, c[j]);
+        N_VScale(ONE, f, coeff[j]);
       }
       else
       {
-        /* c_j = (c_j - c_{j - 1}) / (t_j - t_{j - i}) */
-        N_VLinearSum(ONE / (t_ext[j] - t_ext[j - i]), c[j],
-                     -ONE / (t_ext[j] - t_ext[j - i]), c[j - 1], c[j]);
+        sunrealtype denom = ONE / (t_ext[j - 1] - t_ext[j]);
+        N_VLinearSum(denom, coeff[j - 1], -denom, coeff[j], coeff[j]);
       }
+      std::cout << "i, j " << i << "," << j << std::endl;
+      N_VPrint(coeff[j]);
     }
   }
 
@@ -146,55 +167,61 @@ int HermitePolyCoef(sunrealtype* t, N_Vector* y, N_Vector f, int M, N_Vector* c)
  * P'''{k} = P'''{k + 1} (t - t{k}) + 3 P''{k + 1}
  */
 
-int HermitePolyMultiDerEval(sunrealtype* t, N_Vector* c, int M, sunrealtype s,
-                            int d, N_Vector* p)
+int HermitePolyMultiDerEval(sunrealtype* t, N_Vector* coeff, int n_times,
+                            sunrealtype s, int derv, N_Vector* p)
 {
   int i, j;
-  int Mp1 = M + 1;
+  int n_coeff = n_times + 1; // n_times state values + 1 derivative
   sunrealtype* t_ext = NULL;
 
   /* Check for valid inputs */
-  if (!t || !c || M < 1 || d < 0 || !p) return CV_ILL_INPUT;
+  if (!t || !coeff || n_times < 1 || derv < 0 || !p) { return CV_ILL_INPUT; }
 
-  for (i = 0; i < Mp1; i++)
+  for (i = 0; i < n_coeff; i++)
   {
-    if (!c[i]) return CV_ILL_INPUT;
+    if (!coeff[i]) return CV_ILL_INPUT;
   }
 
-  for (i = 0; i < d + 1; i++)
+  for (i = 0; i < derv + 1; i++)
   {
     if (!p[i]) { return CV_ILL_INPUT; }
   }
 
-  t_ext = (sunrealtype*) malloc(sizeof(sunrealtype) * (Mp1));
+  t_ext = (sunrealtype*) malloc(sizeof(sunrealtype) * (n_coeff));
 
   t_ext[0] = t[0];
   t_ext[1] = t[0];
 
-  for (i = 1; i < M; i++)
+  for (i = 1; i < n_times; i++)
   {
     t_ext[i + 1] = t[i];
   }
 
-  /* Initialize interpolation output to P_{M-1} = c_{M-1} and derivative output
+  std::cout << "t_ext" << std::endl;
+  for (i = 0; i < n_coeff; i++)
+  {
+    std::cout << t_ext[i] << std::endl;
+  }
+
+  /* Initialize interpolation output to P_{n_times-1} = c_{n_times-1} and derivative output
      to zero */
-  N_VScale(ONE, c[Mp1 - 1], p[0]);
-  for (i = 1; i < d + 1; i++)
+  N_VScale(ONE, coeff[n_coeff - 1], p[0]);
+  for (i = 1; i < derv + 1; i++)
   {
     N_VConst(ZERO, p[i]);
   }
 
   /* Accumulate polynomial terms in-place i.e., P_{i+1} is stored in p[0] and
      overwritten each iteration by P_{i} and similarly for P', P'', etc. */
-  for (i = Mp1 - 2; i >= 0; i--)
+  for (i = n_coeff - 2; i >= 0; i--)
   {
-    for (j = d; j > 0; j--)
+    for (j = derv; j > 0; j--)
     {
       // P^(j)_i = P_{j + 1} * (s - t_i) + j * P^(j - 1)_i
-      N_VLinearSum(s - t[i], p[j], j, p[j-1], p[j]);
+      N_VLinearSum(s - t_ext[i], p[j], j, p[j-1], p[j]);
     }
     // P_i = P_{i + 1} * (s - t_i) + c_i
-    N_VLinearSum(s - t[i], p[0], ONE, c[i], p[0]);
+    N_VLinearSum(s - t_ext[i], p[0], ONE, coeff[i], p[0]);
   }
 
   free(t_ext);
@@ -209,7 +236,8 @@ int main(int argc, char* argv[])
 {
   // Set output formatting
   std::cout << std::scientific;
-  std::cout << std::setprecision(std::numeric_limits<sunrealtype>::digits10);
+  // std::cout << std::setprecision(std::numeric_limits<sunrealtype>::digits10);
+  std::cout << std::setprecision(16);
   std::cout << std::endl;
 
   // SUNDIALS context object for this simulation
@@ -228,7 +256,7 @@ int main(int argc, char* argv[])
 
   for (int i = 0; i < n_hist; i++)
   {
-    t_hist[i] = 10.0 - i * 0.25;
+    t_hist[i] = (5.0 * PI / 6.0) - i * PI / 6.0;
   }
 
   N_Vector* y = N_VCloneVectorArray(n_hist, tmp);
@@ -237,11 +265,13 @@ int main(int argc, char* argv[])
   N_Vector yp = N_VClone(tmp);
   if (check_ptr(yp, "N_VClone")) return 1;
 
+
+  std::cout << "y_hist:" << std::endl;
   for (int i = 0; i < n_hist; i++)
   {
     sunrealtype* data = N_VGetArrayPointer(y[i]);
     data[0] = std::sin(t_hist[i]);
-    std::cout << "y_hist[" << i << "] = " << std::endl;
+    std::cout << i << ": t = " << t_hist[i] << std::endl;
     N_VPrint(y[i]);
   }
   sunrealtype* ypdata = N_VGetArrayPointer(yp);

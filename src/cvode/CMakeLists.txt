@@ -28,6 +28,7 @@ set(cvode_SOURCES
   cvode_ls.c
   cvode_nls.c
   cvode_proj.c
+  cvode_resize.c
   cvode_spils.c
   )
 
