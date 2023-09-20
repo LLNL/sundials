@@ -44,32 +44,32 @@ typedef struct SUNAdaptControllerContent_PI_ *SUNAdaptControllerContent_PI;
  * ------------------ */
 
 SUNDIALS_EXPORT
-SUNAdaptController SUNAdaptControllerPI(SUNContext sunctx);
+SUNAdaptController SUNAdaptController_PI(SUNContext sunctx);
 SUNDIALS_EXPORT
-int SUNAdaptControllerPI_SetParams(SUNAdaptController C, sunbooleantype pq,
-                                   realtype k1, realtype k2);
+int SUNAdaptController_SetParams_PI(SUNAdaptController C, sunbooleantype pq,
+                                    realtype k1, realtype k2);
 SUNDIALS_EXPORT
-SUNAdaptController_Type SUNAdaptControllerGetType_PI(SUNAdaptController C);
+SUNAdaptController_Type SUNAdaptController_GetType_PI(SUNAdaptController C);
 SUNDIALS_EXPORT
-int SUNAdaptControllerEstimateStep_PI(SUNAdaptController C, realtype h,
-                                      realtype dsm, realtype* hnew);
+int SUNAdaptController_EstimateStep_PI(SUNAdaptController C, realtype h,
+                                       realtype dsm, realtype* hnew);
 SUNDIALS_EXPORT
-int SUNAdaptControllerReset_PI(SUNAdaptController C);
+int SUNAdaptController_Reset_PI(SUNAdaptController C);
 SUNDIALS_EXPORT
-int SUNAdaptControllerSetDefaults_PI(SUNAdaptController C);
+int SUNAdaptController_SetDefaults_PI(SUNAdaptController C);
 SUNDIALS_EXPORT
-int SUNAdaptControllerWrite_PI(SUNAdaptController C, FILE* fptr);
+int SUNAdaptController_Write_PI(SUNAdaptController C, FILE* fptr);
 SUNDIALS_EXPORT
-int SUNAdaptControllerSetMethodOrder_PI(SUNAdaptController C, int q);
+int SUNAdaptController_SetMethodOrder_PI(SUNAdaptController C, int q);
 SUNDIALS_EXPORT
-int SUNAdaptControllerSetEmbeddingOrder_PI(SUNAdaptController C, int p);
+int SUNAdaptController_SetEmbeddingOrder_PI(SUNAdaptController C, int p);
 SUNDIALS_EXPORT
-int SUNAdaptControllerSetErrorBias_PI(SUNAdaptController C, realtype bias);
+int SUNAdaptController_SetErrorBias_PI(SUNAdaptController C, realtype bias);
 SUNDIALS_EXPORT
-int SUNAdaptControllerUpdate_PI(SUNAdaptController C, realtype h, realtype dsm);
+int SUNAdaptController_Update_PI(SUNAdaptController C, realtype h, realtype dsm);
 SUNDIALS_EXPORT
-int SUNAdaptControllerSpace_PI(SUNAdaptController C, long int *lenrw,
-                               long int *leniw);
+int SUNAdaptController_Space_PI(SUNAdaptController C, long int *lenrw,
+                                long int *leniw);
 
 #ifdef __cplusplus
 }

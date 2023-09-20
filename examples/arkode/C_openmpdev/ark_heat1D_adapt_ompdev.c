@@ -189,8 +189,8 @@ int main() {
   if (check_flag(&flag, "ARKStepSetPredictorMethod", 1)) return 1;
 
   /* Specify I-controller with default parameters */
-  C = SUNAdaptControllerI(ctx);
-  if (check_flag((void *)C, "SUNAdaptControllerI", 0)) return 1;
+  C = SUNAdaptController_I(ctx);
+  if (check_flag((void *)C, "SUNAdaptController_I", 0)) return 1;
   flag = ARKStepSetAdaptController(arkode_mem, C);
   if (check_flag(&flag, "ARKStepSetAdaptController", 1)) return 1;
 

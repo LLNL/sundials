@@ -465,12 +465,12 @@ int main(int argc, char* argv[])
   {
     SUNAdaptController C = NULL;
     switch (udata->controller) {
-    case (ARK_ADAPT_PID):      C = SUNAdaptControllerPID(ctx);     break;
-    case (ARK_ADAPT_PI):       C = SUNAdaptControllerPI(ctx);      break;
-    case (ARK_ADAPT_I):        C = SUNAdaptControllerI(ctx);       break;
-    case (ARK_ADAPT_EXP_GUS):  C = SUNAdaptControllerExpGus(ctx);  break;
-    case (ARK_ADAPT_IMP_GUS):  C = SUNAdaptControllerImpGus(ctx);  break;
-    case (ARK_ADAPT_IMEX_GUS): C = SUNAdaptControllerImExGus(ctx); break;
+    case (ARK_ADAPT_PID):      C = SUNAdaptController_PID(ctx);     break;
+    case (ARK_ADAPT_PI):       C = SUNAdaptController_PI(ctx);      break;
+    case (ARK_ADAPT_I):        C = SUNAdaptController_I(ctx);       break;
+    case (ARK_ADAPT_EXP_GUS):  C = SUNAdaptController_ExpGus(ctx);  break;
+    case (ARK_ADAPT_IMP_GUS):  C = SUNAdaptController_ImpGus(ctx);  break;
+    case (ARK_ADAPT_IMEX_GUS): C = SUNAdaptController_ImExGus(ctx); break;
     }
     flag = ARKStepSetAdaptController(arkode_mem, C);
     if (check_flag(&flag, "ARKStepSetAdaptController", 1)) return 1;

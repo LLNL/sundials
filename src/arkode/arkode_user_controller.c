@@ -59,14 +59,14 @@ SUNAdaptController ARKUserControl(SUNContext sunctx, void* arkode_mem,
   if (C == NULL) { return (NULL); }
 
   /* Attach operations */
-  C->ops->gettype           = SUNAdaptControllerGetType_ARKUserControl;
-  C->ops->estimatestep      = SUNAdaptControllerEstimateStep_ARKUserControl;
-  C->ops->reset             = SUNAdaptControllerReset_ARKUserControl;
-  C->ops->write             = SUNAdaptControllerWrite_ARKUserControl;
-  C->ops->setmethodorder    = SUNAdaptControllerSetMethodOrder_ARKUserControl;
-  C->ops->setembeddingorder = SUNAdaptControllerSetEmbeddingOrder_ARKUserControl;
-  C->ops->update            = SUNAdaptControllerUpdate_ARKUserControl;
-  C->ops->space             = SUNAdaptControllerSpace_ARKUserControl;
+  C->ops->gettype           = SUNAdaptController_GetType_ARKUserControl;
+  C->ops->estimatestep      = SUNAdaptController_EstimateStep_ARKUserControl;
+  C->ops->reset             = SUNAdaptController_Reset_ARKUserControl;
+  C->ops->write             = SUNAdaptController_Write_ARKUserControl;
+  C->ops->setmethodorder    = SUNAdaptController_SetMethodOrder_ARKUserControl;
+  C->ops->setembeddingorder = SUNAdaptController_SetEmbeddingOrder_ARKUserControl;
+  C->ops->update            = SUNAdaptController_Update_ARKUserControl;
+  C->ops->space             = SUNAdaptController_Space_ARKUserControl;
 
   /* Create content */
   content = NULL;
@@ -92,7 +92,7 @@ SUNAdaptController ARKUserControl(SUNContext sunctx, void* arkode_mem,
   content->q = 1;
 
   /* Fill content with default/reset values */
-  SUNAdaptControllerReset_ARKUserControl(C);
+  SUNAdaptController_Reset_ARKUserControl(C);
 
   return (C);
 }
@@ -102,11 +102,11 @@ SUNAdaptController ARKUserControl(SUNContext sunctx, void* arkode_mem,
  * implementation of controller operations
  * ----------------------------------------------------------------- */
 
-SUNAdaptController_Type SUNAdaptControllerGetType_ARKUserControl(SUNAdaptController C)
+SUNAdaptController_Type SUNAdaptController_GetType_ARKUserControl(SUNAdaptController C)
 { return SUN_ADAPTCONTROLLER_H; }
 
-int SUNAdaptControllerEstimateStep_ARKUserControl(SUNAdaptController C, realtype h,
-                                                  realtype dsm, realtype* hnew)
+int SUNAdaptController_EstimateStep_ARKUserControl(SUNAdaptController C, realtype h,
+                                                   realtype dsm, realtype* hnew)
 {
   /* call user-provided function to compute new step */
   int retval = SC_HADAPT(C)(SC_ARKMEM(C)->ycur, SC_ARKMEM(C)->tn, h, SC_HP(C),
@@ -116,7 +116,7 @@ int SUNAdaptControllerEstimateStep_ARKUserControl(SUNAdaptController C, realtype
   return SUNADAPTCONTROLLER_SUCCESS;
 }
 
-int SUNAdaptControllerReset_ARKUserControl(SUNAdaptController C)
+int SUNAdaptController_Reset_ARKUserControl(SUNAdaptController C)
 {
   SC_EP(C)  = RCONST(1.0);
   SC_EPP(C) = RCONST(1.0);
@@ -125,7 +125,7 @@ int SUNAdaptControllerReset_ARKUserControl(SUNAdaptController C)
   return SUNADAPTCONTROLLER_SUCCESS;
 }
 
-int SUNAdaptControllerWrite_ARKUserControl(SUNAdaptController C, FILE *fptr)
+int SUNAdaptController_Write_ARKUserControl(SUNAdaptController C, FILE *fptr)
 {
   fprintf(fptr, "ARKUserControl module:\n");
 #if defined(SUNDIALS_EXTENDED_PRECISION)
@@ -145,7 +145,7 @@ int SUNAdaptControllerWrite_ARKUserControl(SUNAdaptController C, FILE *fptr)
   return SUNADAPTCONTROLLER_SUCCESS;
 }
 
-int SUNAdaptControllerSetMethodOrder_ARKUserControl(SUNAdaptController C, int q)
+int SUNAdaptController_SetMethodOrder_ARKUserControl(SUNAdaptController C, int q)
 {
   /* check for legal input */
   if (q <= 0) { return SUNADAPTCONTROLLER_ILL_INPUT; }
@@ -155,7 +155,7 @@ int SUNAdaptControllerSetMethodOrder_ARKUserControl(SUNAdaptController C, int q)
   return SUNADAPTCONTROLLER_SUCCESS;
 }
 
-int SUNAdaptControllerSetEmbeddingOrder_ARKUserControl(SUNAdaptController C, int p)
+int SUNAdaptController_SetEmbeddingOrder_ARKUserControl(SUNAdaptController C, int p)
 {
   /* check for legal input */
   if (p <= 0) { return SUNADAPTCONTROLLER_ILL_INPUT; }
@@ -165,7 +165,7 @@ int SUNAdaptControllerSetEmbeddingOrder_ARKUserControl(SUNAdaptController C, int
   return SUNADAPTCONTROLLER_SUCCESS;
 }
 
-int SUNAdaptControllerUpdate_ARKUserControl(SUNAdaptController C, realtype h, realtype dsm)
+int SUNAdaptController_Update_ARKUserControl(SUNAdaptController C, realtype h, realtype dsm)
 {
   SC_HPP(C) = SC_HP(C);
   SC_HP(C) = h;
@@ -174,8 +174,8 @@ int SUNAdaptControllerUpdate_ARKUserControl(SUNAdaptController C, realtype h, re
   return SUNADAPTCONTROLLER_SUCCESS;
 }
 
-int SUNAdaptControllerSpace_ARKUserControl(SUNAdaptController C, long int* lenrw,
-                                           long int* leniw)
+int SUNAdaptController_Space_ARKUserControl(SUNAdaptController C, long int* lenrw,
+                                            long int* leniw)
 {
   *lenrw = 4;
   *leniw = 5;

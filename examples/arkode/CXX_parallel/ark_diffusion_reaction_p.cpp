@@ -1018,12 +1018,12 @@ static int SetupARK(SUNContext ctx, UserData* udata, N_Vector u,
   {
     SUNAdaptController Ctrl = NULL;
     switch (udata->controller) {
-    case (ARK_ADAPT_PID):      Ctrl = SUNAdaptControllerPID(ctx);     break;
-    case (ARK_ADAPT_PI):       Ctrl = SUNAdaptControllerPI(ctx);      break;
-    case (ARK_ADAPT_I):        Ctrl = SUNAdaptControllerI(ctx);       break;
-    case (ARK_ADAPT_EXP_GUS):  Ctrl = SUNAdaptControllerExpGus(ctx);  break;
-    case (ARK_ADAPT_IMP_GUS):  Ctrl = SUNAdaptControllerImpGus(ctx);  break;
-    case (ARK_ADAPT_IMEX_GUS): Ctrl = SUNAdaptControllerImExGus(ctx); break;
+    case (ARK_ADAPT_PID):      Ctrl = SUNAdaptController_PID(ctx);     break;
+    case (ARK_ADAPT_PI):       Ctrl = SUNAdaptController_PI(ctx);      break;
+    case (ARK_ADAPT_I):        Ctrl = SUNAdaptController_I(ctx);       break;
+    case (ARK_ADAPT_EXP_GUS):  Ctrl = SUNAdaptController_ExpGus(ctx);  break;
+    case (ARK_ADAPT_IMP_GUS):  Ctrl = SUNAdaptController_ImpGus(ctx);  break;
+    case (ARK_ADAPT_IMEX_GUS): Ctrl = SUNAdaptController_ImExGus(ctx); break;
     }
     flag = ARKStepSetAdaptController(*arkode_mem, Ctrl);
     if (check_flag(&flag, "ARKStepSetAdaptController", 1)) return 1;
@@ -1085,12 +1085,12 @@ static int SetupMRI(SUNContext ctx, UserData* udata, N_Vector y,
   {
     SUNAdaptController Ctrl = NULL;
     switch (udata->controller) {
-    case (ARK_ADAPT_PID):      Ctrl = SUNAdaptControllerPID(ctx);     break;
-    case (ARK_ADAPT_PI):       Ctrl = SUNAdaptControllerPI(ctx);      break;
-    case (ARK_ADAPT_I):        Ctrl = SUNAdaptControllerI(ctx);       break;
-    case (ARK_ADAPT_EXP_GUS):  Ctrl = SUNAdaptControllerExpGus(ctx);  break;
-    case (ARK_ADAPT_IMP_GUS):  Ctrl = SUNAdaptControllerImpGus(ctx);  break;
-    case (ARK_ADAPT_IMEX_GUS): Ctrl = SUNAdaptControllerImExGus(ctx); break;
+    case (ARK_ADAPT_PID):      Ctrl = SUNAdaptController_PID(ctx);     break;
+    case (ARK_ADAPT_PI):       Ctrl = SUNAdaptController_PI(ctx);      break;
+    case (ARK_ADAPT_I):        Ctrl = SUNAdaptController_I(ctx);       break;
+    case (ARK_ADAPT_EXP_GUS):  Ctrl = SUNAdaptController_ExpGus(ctx);  break;
+    case (ARK_ADAPT_IMP_GUS):  Ctrl = SUNAdaptController_ImpGus(ctx);  break;
+    case (ARK_ADAPT_IMEX_GUS): Ctrl = SUNAdaptController_ImExGus(ctx); break;
     }
     flag = ARKStepSetAdaptController(inner_arkode_mem, Ctrl);
     if (check_flag(&flag, "ARKStepSetAdaptController", 1)) return 1;

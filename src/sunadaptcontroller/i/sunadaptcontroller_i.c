@@ -49,7 +49,7 @@
  * Function to create a new I controller
  */
 
-SUNAdaptController SUNAdaptControllerI(SUNContext sunctx)
+SUNAdaptController SUNAdaptController_I(SUNContext sunctx)
 {
   SUNAdaptController C;
   SUNAdaptControllerContent_I content;
@@ -60,14 +60,14 @@ SUNAdaptController SUNAdaptControllerI(SUNContext sunctx)
   if (C == NULL) { return (NULL); }
 
   /* Attach operations */
-  C->ops->gettype           = SUNAdaptControllerGetType_I;
-  C->ops->estimatestep      = SUNAdaptControllerEstimateStep_I;
-  C->ops->setdefaults       = SUNAdaptControllerSetDefaults_I;
-  C->ops->write             = SUNAdaptControllerWrite_I;
-  C->ops->setmethodorder    = SUNAdaptControllerSetMethodOrder_I;
-  C->ops->setembeddingorder = SUNAdaptControllerSetEmbeddingOrder_I;
-  C->ops->seterrorbias      = SUNAdaptControllerSetErrorBias_I;
-  C->ops->space             = SUNAdaptControllerSpace_I;
+  C->ops->gettype           = SUNAdaptController_GetType_I;
+  C->ops->estimatestep      = SUNAdaptController_EstimateStep_I;
+  C->ops->setdefaults       = SUNAdaptController_SetDefaults_I;
+  C->ops->write             = SUNAdaptController_Write_I;
+  C->ops->setmethodorder    = SUNAdaptController_SetMethodOrder_I;
+  C->ops->setembeddingorder = SUNAdaptController_SetEmbeddingOrder_I;
+  C->ops->seterrorbias      = SUNAdaptController_SetErrorBias_I;
+  C->ops->space             = SUNAdaptController_Space_I;
 
   /* Create content */
   content = NULL;
@@ -85,7 +85,7 @@ SUNAdaptController SUNAdaptControllerI(SUNContext sunctx)
   content->p = 1;
 
   /* Fill content with default values */
-  SUNAdaptControllerSetDefaults_I(C);
+  SUNAdaptController_SetDefaults_I(C);
 
   return (C);
 }
@@ -94,8 +94,8 @@ SUNAdaptController SUNAdaptControllerI(SUNContext sunctx)
  * Function to set I parameters
  */
 
-int SUNAdaptControllerI_SetParams(SUNAdaptController C, sunbooleantype pq,
-                                  realtype k1)
+int SUNAdaptController_SetParams_I(SUNAdaptController C, sunbooleantype pq,
+                                   realtype k1)
 {
   /* store legal inputs, and return with success */
   SACI_PQ(C) = pq;
@@ -109,11 +109,11 @@ int SUNAdaptControllerI_SetParams(SUNAdaptController C, sunbooleantype pq,
  * implementation of controller operations
  * ----------------------------------------------------------------- */
 
-SUNAdaptController_Type SUNAdaptControllerGetType_I(SUNAdaptController C)
+SUNAdaptController_Type SUNAdaptController_GetType_I(SUNAdaptController C)
 { return SUN_ADAPTCONTROLLER_H; }
 
-int SUNAdaptControllerEstimateStep_I(SUNAdaptController C, realtype h,
-                                     realtype dsm, realtype* hnew)
+int SUNAdaptController_EstimateStep_I(SUNAdaptController C, realtype h,
+                                      realtype dsm, realtype* hnew)
 {
   /* set usable time-step adaptivity parameters */
   const realtype k1 = -SACI_K1(C) / SACI_P(C);
@@ -125,7 +125,7 @@ int SUNAdaptControllerEstimateStep_I(SUNAdaptController C, realtype h,
   return SUNADAPTCONTROLLER_SUCCESS;
 }
 
-int SUNAdaptControllerSetDefaults_I(SUNAdaptController C)
+int SUNAdaptController_SetDefaults_I(SUNAdaptController C)
 {
   SACI_K1(C)     = DEFAULT_K1;
   SACI_BIAS(C)   = DEFAULT_BIAS;
@@ -133,7 +133,7 @@ int SUNAdaptControllerSetDefaults_I(SUNAdaptController C)
   return SUNADAPTCONTROLLER_SUCCESS;
 }
 
-int SUNAdaptControllerWrite_I(SUNAdaptController C, FILE *fptr)
+int SUNAdaptController_Write_I(SUNAdaptController C, FILE *fptr)
 {
   fprintf(fptr, "I SUNAdaptController module:\n");
 #if defined(SUNDIALS_EXTENDED_PRECISION)
@@ -154,7 +154,7 @@ int SUNAdaptControllerWrite_I(SUNAdaptController C, FILE *fptr)
   return SUNADAPTCONTROLLER_SUCCESS;
 }
 
-int SUNAdaptControllerSetMethodOrder_I(SUNAdaptController C, int q)
+int SUNAdaptController_SetMethodOrder_I(SUNAdaptController C, int q)
 {
   /* check for legal input */
   if (q <= 0) { return SUNADAPTCONTROLLER_ILL_INPUT; }
@@ -164,7 +164,7 @@ int SUNAdaptControllerSetMethodOrder_I(SUNAdaptController C, int q)
   return SUNADAPTCONTROLLER_SUCCESS;
 }
 
-int SUNAdaptControllerSetEmbeddingOrder_I(SUNAdaptController C, int p)
+int SUNAdaptController_SetEmbeddingOrder_I(SUNAdaptController C, int p)
 {
   /* check for legal input */
   if (p <= 0) { return SUNADAPTCONTROLLER_ILL_INPUT; }
@@ -174,7 +174,7 @@ int SUNAdaptControllerSetEmbeddingOrder_I(SUNAdaptController C, int p)
   return SUNADAPTCONTROLLER_SUCCESS;
 }
 
-int SUNAdaptControllerSetErrorBias_I(SUNAdaptController C, realtype bias)
+int SUNAdaptController_SetErrorBias_I(SUNAdaptController C, realtype bias)
 {
   /* set allowed value, otherwise set default */
   if (bias <= RCONST(0.0)) {
@@ -186,7 +186,7 @@ int SUNAdaptControllerSetErrorBias_I(SUNAdaptController C, realtype bias)
   return SUNADAPTCONTROLLER_SUCCESS;
 }
 
-int SUNAdaptControllerSpace_I(SUNAdaptController C, long int* lenrw, long int* leniw)
+int SUNAdaptController_Space_I(SUNAdaptController C, long int* lenrw, long int* leniw)
 {
   *lenrw = 3;
   *leniw = 2;

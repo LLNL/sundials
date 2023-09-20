@@ -507,8 +507,8 @@ int main(int argc, char* argv[])
   if (udata->x_refine)
   {
     // Use I controller with default parameters
-    SUNAdaptController C = SUNAdaptControllerI(ctx);
-    if (check_flag((void*) C, "SUNAdaptControllerI", 0)) return 1;
+    SUNAdaptController C = SUNAdaptController_I(ctx);
+    if (check_flag((void*) C, "SUNAdaptController_I", 0)) return 1;
     flag = ARKStepSetAdaptController(arkode_mem, C);
     if (check_flag(&flag, "ARKStepSetAdaptController", 1)) return 1;
 

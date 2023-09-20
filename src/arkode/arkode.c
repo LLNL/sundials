@@ -127,7 +127,7 @@ ARKodeMem arkCreate(SUNContext sunctx)
   ark_mem->user_data = NULL;
 
   /* Allocate default step controller (PID) and note storage */
-  ark_mem->hcontroller = SUNAdaptControllerPID(sunctx);
+  ark_mem->hcontroller = SUNAdaptController_PID(sunctx);
   if (ark_mem->hcontroller == NULL) {
     arkProcessError(NULL, ARK_MEM_FAIL, "ARKODE", "arkCreate",
                     "Allocation of step controller object failed");

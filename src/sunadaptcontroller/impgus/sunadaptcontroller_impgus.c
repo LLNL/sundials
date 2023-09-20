@@ -54,7 +54,7 @@
  * Function to create a new ImpGus controller
  */
 
-SUNAdaptController SUNAdaptControllerImpGus(SUNContext sunctx)
+SUNAdaptController SUNAdaptController_ImpGus(SUNContext sunctx)
 {
   SUNAdaptController C;
   SUNAdaptControllerContent_ImpGus content;
@@ -65,16 +65,16 @@ SUNAdaptController SUNAdaptControllerImpGus(SUNContext sunctx)
   if (C == NULL) { return (NULL); }
 
   /* Attach operations */
-  C->ops->gettype           = SUNAdaptControllerGetType_ImpGus;
-  C->ops->estimatestep      = SUNAdaptControllerEstimateStep_ImpGus;
-  C->ops->reset             = SUNAdaptControllerReset_ImpGus;
-  C->ops->setdefaults       = SUNAdaptControllerSetDefaults_ImpGus;
-  C->ops->write             = SUNAdaptControllerWrite_ImpGus;
-  C->ops->setmethodorder    = SUNAdaptControllerSetMethodOrder_ImpGus;
-  C->ops->setembeddingorder = SUNAdaptControllerSetEmbeddingOrder_ImpGus;
-  C->ops->seterrorbias      = SUNAdaptControllerSetErrorBias_ImpGus;
-  C->ops->update            = SUNAdaptControllerUpdate_ImpGus;
-  C->ops->space             = SUNAdaptControllerSpace_ImpGus;
+  C->ops->gettype           = SUNAdaptController_GetType_ImpGus;
+  C->ops->estimatestep      = SUNAdaptController_EstimateStep_ImpGus;
+  C->ops->reset             = SUNAdaptController_Reset_ImpGus;
+  C->ops->setdefaults       = SUNAdaptController_SetDefaults_ImpGus;
+  C->ops->write             = SUNAdaptController_Write_ImpGus;
+  C->ops->setmethodorder    = SUNAdaptController_SetMethodOrder_ImpGus;
+  C->ops->setembeddingorder = SUNAdaptController_SetEmbeddingOrder_ImpGus;
+  C->ops->seterrorbias      = SUNAdaptController_SetErrorBias_ImpGus;
+  C->ops->update            = SUNAdaptController_Update_ImpGus;
+  C->ops->space             = SUNAdaptController_Space_ImpGus;
 
   /* Create content */
   content = NULL;
@@ -92,8 +92,8 @@ SUNAdaptController SUNAdaptControllerImpGus(SUNContext sunctx)
   content->p = 1;
 
   /* Fill content with default/reset values */
-  SUNAdaptControllerSetDefaults_ImpGus(C);
-  SUNAdaptControllerReset_ImpGus(C);
+  SUNAdaptController_SetDefaults_ImpGus(C);
+  SUNAdaptController_Reset_ImpGus(C);
 
   return (C);
 }
@@ -102,8 +102,8 @@ SUNAdaptController SUNAdaptControllerImpGus(SUNContext sunctx)
  * Function to set ImpGus parameters
  */
 
-int SUNAdaptControllerImpGus_SetParams(SUNAdaptController C, sunbooleantype pq,
-                                       realtype k1, realtype k2)
+int SUNAdaptController_SetParams_ImpGus(SUNAdaptController C, sunbooleantype pq,
+                                        realtype k1, realtype k2)
 {
   /* store legal inputs, and return with success */
   SACIMPGUS_PQ(C) = pq;
@@ -118,11 +118,11 @@ int SUNAdaptControllerImpGus_SetParams(SUNAdaptController C, sunbooleantype pq,
  * implementation of controller operations
  * ----------------------------------------------------------------- */
 
-SUNAdaptController_Type SUNAdaptControllerGetType_ImpGus(SUNAdaptController C)
+SUNAdaptController_Type SUNAdaptController_GetType_ImpGus(SUNAdaptController C)
 { return SUN_ADAPTCONTROLLER_H; }
 
-int SUNAdaptControllerEstimateStep_ImpGus(SUNAdaptController C, realtype h,
-                                          realtype dsm, realtype* hnew)
+int SUNAdaptController_EstimateStep_ImpGus(SUNAdaptController C, realtype h,
+                                           realtype dsm, realtype* hnew)
 {
   /* modified method for first step */
   if (SACIMPGUS_FIRSTSTEP(C))
@@ -152,14 +152,14 @@ int SUNAdaptControllerEstimateStep_ImpGus(SUNAdaptController C, realtype h,
   return SUNADAPTCONTROLLER_SUCCESS;
 }
 
-int SUNAdaptControllerReset_ImpGus(SUNAdaptController C)
+int SUNAdaptController_Reset_ImpGus(SUNAdaptController C)
 {
   SACIMPGUS_EP(C) = RCONST(1.0);
   SACIMPGUS_FIRSTSTEP(C) = SUNTRUE;
   return SUNADAPTCONTROLLER_SUCCESS;
 }
 
-int SUNAdaptControllerSetDefaults_ImpGus(SUNAdaptController C)
+int SUNAdaptController_SetDefaults_ImpGus(SUNAdaptController C)
 {
   SACIMPGUS_K1(C)     = DEFAULT_K1;
   SACIMPGUS_K2(C)     = DEFAULT_K2;
@@ -168,7 +168,7 @@ int SUNAdaptControllerSetDefaults_ImpGus(SUNAdaptController C)
   return SUNADAPTCONTROLLER_SUCCESS;
 }
 
-int SUNAdaptControllerWrite_ImpGus(SUNAdaptController C, FILE *fptr)
+int SUNAdaptController_Write_ImpGus(SUNAdaptController C, FILE *fptr)
 {
   fprintf(fptr, "Implicit Gustafsson SUNAdaptController module:\n");
 #if defined(SUNDIALS_EXTENDED_PRECISION)
@@ -195,7 +195,7 @@ int SUNAdaptControllerWrite_ImpGus(SUNAdaptController C, FILE *fptr)
   return SUNADAPTCONTROLLER_SUCCESS;
 }
 
-int SUNAdaptControllerSetMethodOrder_ImpGus(SUNAdaptController C, int q)
+int SUNAdaptController_SetMethodOrder_ImpGus(SUNAdaptController C, int q)
 {
   /* check for legal input */
   if (q <= 0) { return SUNADAPTCONTROLLER_ILL_INPUT; }
@@ -205,7 +205,7 @@ int SUNAdaptControllerSetMethodOrder_ImpGus(SUNAdaptController C, int q)
   return SUNADAPTCONTROLLER_SUCCESS;
 }
 
-int SUNAdaptControllerSetEmbeddingOrder_ImpGus(SUNAdaptController C, int p)
+int SUNAdaptController_SetEmbeddingOrder_ImpGus(SUNAdaptController C, int p)
 {
   /* check for legal input */
   if (p <= 0) { return SUNADAPTCONTROLLER_ILL_INPUT; }
@@ -215,7 +215,7 @@ int SUNAdaptControllerSetEmbeddingOrder_ImpGus(SUNAdaptController C, int p)
   return SUNADAPTCONTROLLER_SUCCESS;
 }
 
-int SUNAdaptControllerSetErrorBias_ImpGus(SUNAdaptController C, realtype bias)
+int SUNAdaptController_SetErrorBias_ImpGus(SUNAdaptController C, realtype bias)
 {
   /* set allowed value, otherwise set default */
   if (bias <= RCONST(0.0)) {
@@ -227,7 +227,7 @@ int SUNAdaptControllerSetErrorBias_ImpGus(SUNAdaptController C, realtype bias)
   return SUNADAPTCONTROLLER_SUCCESS;
 }
 
-int SUNAdaptControllerUpdate_ImpGus(SUNAdaptController C, realtype h, realtype dsm)
+int SUNAdaptController_Update_ImpGus(SUNAdaptController C, realtype h, realtype dsm)
 {
   SACIMPGUS_EP(C) = SACIMPGUS_BIAS(C) * dsm;
   SACIMPGUS_HP(C) = h;
@@ -235,7 +235,7 @@ int SUNAdaptControllerUpdate_ImpGus(SUNAdaptController C, realtype h, realtype d
   return SUNADAPTCONTROLLER_SUCCESS;
 }
 
-int SUNAdaptControllerSpace_ImpGus(SUNAdaptController C, long int* lenrw, long int* leniw)
+int SUNAdaptController_Space_ImpGus(SUNAdaptController C, long int* lenrw, long int* leniw)
 {
   *lenrw = 6;
   *leniw = 3;

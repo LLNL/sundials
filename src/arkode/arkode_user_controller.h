@@ -53,23 +53,23 @@ SUNDIALS_EXPORT
 SUNAdaptController ARKUserControl(SUNContext sunctx, void* arkode_mem,
                                   ARKAdaptFn hadapt, void* hadapt_data);
 SUNDIALS_EXPORT
-SUNAdaptController_Type SUNAdaptControllerGetType_ARKUserControl(SUNAdaptController C);
+SUNAdaptController_Type SUNAdaptController_GetType_ARKUserControl(SUNAdaptController C);
 SUNDIALS_EXPORT
-int SUNAdaptControllerEstimateStep_ARKUserControl(SUNAdaptController C, realtype h,
-                                                  realtype dsm, realtype* hnew);
+int SUNAdaptController_EstimateStep_ARKUserControl(SUNAdaptController C, realtype h,
+                                                   realtype dsm, realtype* hnew);
 SUNDIALS_EXPORT
-int SUNAdaptControllerReset_ARKUserControl(SUNAdaptController C);
+int SUNAdaptController_Reset_ARKUserControl(SUNAdaptController C);
 SUNDIALS_EXPORT
-int SUNAdaptControllerWrite_ARKUserControl(SUNAdaptController C, FILE* fptr);
+int SUNAdaptController_Write_ARKUserControl(SUNAdaptController C, FILE* fptr);
 SUNDIALS_EXPORT
-int SUNAdaptControllerSetMethodOrder_ARKUserControl(SUNAdaptController C, int q);
+int SUNAdaptController_SetMethodOrder_ARKUserControl(SUNAdaptController C, int q);
 SUNDIALS_EXPORT
-int SUNAdaptControllerSetEmbeddingOrder_ARKUserControl(SUNAdaptController C, int p);
+int SUNAdaptController_SetEmbeddingOrder_ARKUserControl(SUNAdaptController C, int p);
 SUNDIALS_EXPORT
-int SUNAdaptControllerUpdate_ARKUserControl(SUNAdaptController C, realtype h, realtype dsm);
+int SUNAdaptController_Update_ARKUserControl(SUNAdaptController C, realtype h, realtype dsm);
 SUNDIALS_EXPORT
-int SUNAdaptControllerSpace_ARKUserControl(SUNAdaptController C, long int *lenrw,
-                                           long int *leniw);
+int SUNAdaptController_Space_ARKUserControl(SUNAdaptController C, long int *lenrw,
+                                            long int *leniw);
 
 #ifdef __cplusplus
 }

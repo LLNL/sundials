@@ -206,8 +206,8 @@ int main(int argc, char **argv)
   ierr = ARKStepSetNonlinearSolver(arkode_mem,NLS);
   if (check_retval(&ierr,"ARKStepSetNonlinearSolver",1)) return 1;
 
-  C = SUNAdaptControllerI(ctx);
-  if (check_retval((void *)C, "SUNAdaptControllerI", 0)) return 1;
+  C = SUNAdaptController_I(ctx);
+  if (check_retval((void *)C, "SUNAdaptController_I", 0)) return 1;
   ierr = ARKStepSetAdaptController(arkode_mem, C);
   if (check_retval(&ierr, "ARKStepSetAdaptController", 1)) return 1;
 

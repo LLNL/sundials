@@ -122,45 +122,33 @@ SUNDIALS_EXPORT int ERKStepSetTableName(void *arkode_mem, const char *etable);
 SUNDIALS_EXPORT int ERKStepSetAdaptController(void *arkode_mem, SUNAdaptController C);
 SUNDIALS_EXPORT int ERKStepSetTimestepHeuristics(void *arkode_mem, SUNTimestepHeuristics H);
 SUNDIALS_DEPRECATED_EXPORT_MSG("use SUNTimestepHeuristics instead")
-SUNDIALS_EXPORT int ERKStepSetCFLFraction(void *arkode_mem,
-                                          realtype cfl_frac);
+int ERKStepSetCFLFraction(void *arkode_mem, realtype cfl_frac);
 SUNDIALS_DEPRECATED_EXPORT_MSG("use SUNTimestepHeuristics instead")
-SUNDIALS_EXPORT int ERKStepSetSafetyFactor(void *arkode_mem,
-                                           realtype safety);
+int ERKStepSetSafetyFactor(void *arkode_mem, realtype safety);
 SUNDIALS_DEPRECATED_EXPORT_MSG("use SUNAdaptController instead")
-SUNDIALS_EXPORT int ERKStepSetErrorBias(void *arkode_mem,
-                                        realtype bias);
+int ERKStepSetErrorBias(void *arkode_mem, realtype bias);
 SUNDIALS_DEPRECATED_EXPORT_MSG("use SUNTimestepHeuristics instead")
-SUNDIALS_EXPORT int ERKStepSetMaxGrowth(void *arkode_mem,
-                                        realtype mx_growth);
+int ERKStepSetMaxGrowth(void *arkode_mem, realtype mx_growth);
 SUNDIALS_DEPRECATED_EXPORT_MSG("use SUNTimestepHeuristics instead")
-SUNDIALS_EXPORT int ERKStepSetMinReduction(void *arkode_mem,
-                                           realtype eta_min);
+int ERKStepSetMinReduction(void *arkode_mem, realtype eta_min);
 SUNDIALS_DEPRECATED_EXPORT_MSG("use SUNTimestepHeuristics instead")
-SUNDIALS_EXPORT int ERKStepSetFixedStepBounds(void *arkode_mem,
-                                              realtype lb, realtype ub);
+int ERKStepSetFixedStepBounds(void *arkode_mem, realtype lb, realtype ub);
 SUNDIALS_DEPRECATED_EXPORT_MSG("use SUNAdaptController instead")
-SUNDIALS_EXPORT int ERKStepSetAdaptivityMethod(void *arkode_mem,
-                                               int imethod,
-                                               int idefault, int pq,
-                                               realtype adapt_params[3]);
+int ERKStepSetAdaptivityMethod(void *arkode_mem, int imethod,
+                               int idefault, int pq,
+                               realtype adapt_params[3]);
 SUNDIALS_DEPRECATED_EXPORT_MSG("use SUNAdaptController instead")
-SUNDIALS_EXPORT int ERKStepSetAdaptivityFn(void *arkode_mem,
-                                           ARKAdaptFn hfun,
-                                           void *h_data);
+int ERKStepSetAdaptivityFn(void *arkode_mem, ARKAdaptFn hfun,
+                           void *h_data);
 SUNDIALS_DEPRECATED_EXPORT_MSG("use SUNTimestepHeuristics instead")
-SUNDIALS_EXPORT int ERKStepSetMaxFirstGrowth(void *arkode_mem,
-                                             realtype etamx1);
+int ERKStepSetMaxFirstGrowth(void *arkode_mem, realtype etamx1);
 SUNDIALS_DEPRECATED_EXPORT_MSG("use SUNTimestepHeuristics instead")
-SUNDIALS_EXPORT int ERKStepSetMaxEFailGrowth(void *arkode_mem,
-                                             realtype etamxf);
+int ERKStepSetMaxEFailGrowth(void *arkode_mem, realtype etamxf);
 SUNDIALS_DEPRECATED_EXPORT_MSG("use SUNTimestepHeuristics instead")
-SUNDIALS_EXPORT int ERKStepSetSmallNumEFails(void *arkode_mem,
-                                             int small_nef);
+int ERKStepSetSmallNumEFails(void *arkode_mem, int small_nef);
 SUNDIALS_DEPRECATED_EXPORT_MSG("use SUNTimestepHeuristics instead")
-SUNDIALS_EXPORT int ERKStepSetStabilityFn(void *arkode_mem,
-                                          ARKExpStabFn EStab,
-                                          void *estab_data);
+int ERKStepSetStabilityFn(void *arkode_mem, ARKExpStabFn EStab,
+                          void *estab_data);
 SUNDIALS_EXPORT int ERKStepSetMaxErrTestFails(void *arkode_mem,
                                               int maxnef);
 SUNDIALS_EXPORT int ERKStepSetConstraints(void *arkode_mem,
@@ -172,11 +160,9 @@ SUNDIALS_EXPORT int ERKStepSetMaxHnilWarns(void *arkode_mem,
 SUNDIALS_EXPORT int ERKStepSetInitStep(void *arkode_mem,
                                        realtype hin);
 SUNDIALS_DEPRECATED_EXPORT_MSG("use SUNTimestepHeuristics instead")
-SUNDIALS_EXPORT int ERKStepSetMinStep(void *arkode_mem,
-                                      realtype hmin);
+int ERKStepSetMinStep(void *arkode_mem, realtype hmin);
 SUNDIALS_DEPRECATED_EXPORT_MSG("use SUNTimestepHeuristics instead")
-SUNDIALS_EXPORT int ERKStepSetMaxStep(void *arkode_mem,
-                                      realtype hmax);
+int ERKStepSetMaxStep(void *arkode_mem, realtype hmax);
 SUNDIALS_EXPORT int ERKStepSetInterpolateStopTime(void *arkode_mem,
                                                   booleantype interp);
 SUNDIALS_EXPORT int ERKStepSetStopTime(void *arkode_mem,

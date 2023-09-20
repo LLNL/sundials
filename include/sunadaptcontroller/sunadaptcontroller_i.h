@@ -42,28 +42,28 @@ typedef struct SUNAdaptControllerContent_I_ *SUNAdaptControllerContent_I;
  * ------------------ */
 
 SUNDIALS_EXPORT
-SUNAdaptController SUNAdaptControllerI(SUNContext sunctx);
+SUNAdaptController SUNAdaptController_I(SUNContext sunctx);
 SUNDIALS_EXPORT
-int SUNAdaptControllerI_SetParams(SUNAdaptController C, sunbooleantype pq,
-                                  realtype k1);
+int SUNAdaptController_SetParams_I(SUNAdaptController C, sunbooleantype pq,
+                                   realtype k1);
 SUNDIALS_EXPORT
-SUNAdaptController_Type SUNAdaptControllerGetType_I(SUNAdaptController C);
+SUNAdaptController_Type SUNAdaptController_GetType_I(SUNAdaptController C);
 SUNDIALS_EXPORT
-int SUNAdaptControllerEstimateStep_I(SUNAdaptController C, realtype h,
-                                     realtype dsm, realtype* hnew);
+int SUNAdaptController_EstimateStep_I(SUNAdaptController C, realtype h,
+                                      realtype dsm, realtype* hnew);
 SUNDIALS_EXPORT
-int SUNAdaptControllerSetDefaults_I(SUNAdaptController C);
+int SUNAdaptController_SetDefaults_I(SUNAdaptController C);
 SUNDIALS_EXPORT
-int SUNAdaptControllerWrite_I(SUNAdaptController C, FILE* fptr);
+int SUNAdaptController_Write_I(SUNAdaptController C, FILE* fptr);
 SUNDIALS_EXPORT
-int SUNAdaptControllerSetMethodOrder_I(SUNAdaptController C, int q);
+int SUNAdaptController_SetMethodOrder_I(SUNAdaptController C, int q);
 SUNDIALS_EXPORT
-int SUNAdaptControllerSetEmbeddingOrder_I(SUNAdaptController C, int p);
+int SUNAdaptController_SetEmbeddingOrder_I(SUNAdaptController C, int p);
 SUNDIALS_EXPORT
-int SUNAdaptControllerSetErrorBias_I(SUNAdaptController C, realtype bias);
+int SUNAdaptController_SetErrorBias_I(SUNAdaptController C, realtype bias);
 SUNDIALS_EXPORT
-int SUNAdaptControllerSpace_I(SUNAdaptController C, long int *lenrw,
-                              long int *leniw);
+int SUNAdaptController_Space_I(SUNAdaptController C, long int *lenrw,
+                               long int *leniw);
 
 #ifdef __cplusplus
 }

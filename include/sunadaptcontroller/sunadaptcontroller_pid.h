@@ -46,32 +46,32 @@ typedef struct SUNAdaptControllerContent_PID_ *SUNAdaptControllerContent_PID;
  * ------------------ */
 
 SUNDIALS_EXPORT
-SUNAdaptController SUNAdaptControllerPID(SUNContext sunctx);
+SUNAdaptController SUNAdaptController_PID(SUNContext sunctx);
 SUNDIALS_EXPORT
-int SUNAdaptControllerPID_SetParams(SUNAdaptController C, sunbooleantype pq,
-                                    realtype k1, realtype k2, realtype k3);
+int SUNAdaptController_SetParams_PID(SUNAdaptController C, sunbooleantype pq,
+                                     realtype k1, realtype k2, realtype k3);
 SUNDIALS_EXPORT
-SUNAdaptController_Type SUNAdaptControllerGetType_PID(SUNAdaptController C);
+SUNAdaptController_Type SUNAdaptController_GetType_PID(SUNAdaptController C);
 SUNDIALS_EXPORT
-int SUNAdaptControllerEstimateStep_PID(SUNAdaptController C, realtype h,
-                                       realtype dsm, realtype* hnew);
+int SUNAdaptController_EstimateStep_PID(SUNAdaptController C, realtype h,
+                                        realtype dsm, realtype* hnew);
 SUNDIALS_EXPORT
-int SUNAdaptControllerReset_PID(SUNAdaptController C);
+int SUNAdaptController_Reset_PID(SUNAdaptController C);
 SUNDIALS_EXPORT
-int SUNAdaptControllerSetDefaults_PID(SUNAdaptController C);
+int SUNAdaptController_SetDefaults_PID(SUNAdaptController C);
 SUNDIALS_EXPORT
-int SUNAdaptControllerWrite_PID(SUNAdaptController C, FILE* fptr);
+int SUNAdaptController_Write_PID(SUNAdaptController C, FILE* fptr);
 SUNDIALS_EXPORT
-int SUNAdaptControllerSetMethodOrder_PID(SUNAdaptController C, int q);
+int SUNAdaptController_SetMethodOrder_PID(SUNAdaptController C, int q);
 SUNDIALS_EXPORT
-int SUNAdaptControllerSetEmbeddingOrder_PID(SUNAdaptController C, int p);
+int SUNAdaptController_SetEmbeddingOrder_PID(SUNAdaptController C, int p);
 SUNDIALS_EXPORT
-int SUNAdaptControllerSetErrorBias_PID(SUNAdaptController C, realtype bias);
+int SUNAdaptController_SetErrorBias_PID(SUNAdaptController C, realtype bias);
 SUNDIALS_EXPORT
-int SUNAdaptControllerUpdate_PID(SUNAdaptController C, realtype h, realtype dsm);
+int SUNAdaptController_Update_PID(SUNAdaptController C, realtype h, realtype dsm);
 SUNDIALS_EXPORT
-int SUNAdaptControllerSpace_PID(SUNAdaptController C, long int *lenrw,
-                                long int *leniw);
+int SUNAdaptController_Space_PID(SUNAdaptController C, long int *lenrw,
+                                 long int *leniw);
 
 #ifdef __cplusplus
 }

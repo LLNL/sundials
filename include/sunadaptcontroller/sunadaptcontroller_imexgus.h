@@ -48,33 +48,33 @@ typedef struct SUNAdaptControllerContent_ImExGus_ *SUNAdaptControllerContent_ImE
  * ------------------ */
 
 SUNDIALS_EXPORT
-SUNAdaptController SUNAdaptControllerImExGus(SUNContext sunctx);
+SUNAdaptController SUNAdaptController_ImExGus(SUNContext sunctx);
 SUNDIALS_EXPORT
-int SUNAdaptControllerImExGus_SetParams(SUNAdaptController C, sunbooleantype pq,
-                                        realtype k1e, realtype k2e,
-                                        realtype k1i, realtype k2i);
+int SUNAdaptController_SetParams_ImExGus(SUNAdaptController C, sunbooleantype pq,
+                                         realtype k1e, realtype k2e,
+                                         realtype k1i, realtype k2i);
 SUNDIALS_EXPORT
-SUNAdaptController_Type SUNAdaptControllerGetType_ImExGus(SUNAdaptController C);
+SUNAdaptController_Type SUNAdaptController_GetType_ImExGus(SUNAdaptController C);
 SUNDIALS_EXPORT
-int SUNAdaptControllerEstimateStep_ImExGus(SUNAdaptController C, realtype h,
-                                           realtype dsm, realtype* hnew);
+int SUNAdaptController_EstimateStep_ImExGus(SUNAdaptController C, realtype h,
+                                            realtype dsm, realtype* hnew);
 SUNDIALS_EXPORT
-int SUNAdaptControllerReset_ImExGus(SUNAdaptController C);
+int SUNAdaptController_Reset_ImExGus(SUNAdaptController C);
 SUNDIALS_EXPORT
-int SUNAdaptControllerSetDefaults_ImExGus(SUNAdaptController C);
+int SUNAdaptController_SetDefaults_ImExGus(SUNAdaptController C);
 SUNDIALS_EXPORT
-int SUNAdaptControllerWrite_ImExGus(SUNAdaptController C, FILE* fptr);
+int SUNAdaptController_Write_ImExGus(SUNAdaptController C, FILE* fptr);
 SUNDIALS_EXPORT
-int SUNAdaptControllerSetMethodOrder_ImExGus(SUNAdaptController C, int q);
+int SUNAdaptController_SetMethodOrder_ImExGus(SUNAdaptController C, int q);
 SUNDIALS_EXPORT
-int SUNAdaptControllerSetEmbeddingOrder_ImExGus(SUNAdaptController C, int p);
+int SUNAdaptController_SetEmbeddingOrder_ImExGus(SUNAdaptController C, int p);
 SUNDIALS_EXPORT
-int SUNAdaptControllerSetErrorBias_ImExGus(SUNAdaptController C, realtype bias);
+int SUNAdaptController_SetErrorBias_ImExGus(SUNAdaptController C, realtype bias);
 SUNDIALS_EXPORT
-int SUNAdaptControllerUpdate_ImExGus(SUNAdaptController C, realtype h, realtype dsm);
+int SUNAdaptController_Update_ImExGus(SUNAdaptController C, realtype h, realtype dsm);
 SUNDIALS_EXPORT
-int SUNAdaptControllerSpace_ImExGus(SUNAdaptController C, long int *lenrw,
-                                    long int *leniw);
+int SUNAdaptController_Space_ImExGus(SUNAdaptController C, long int *lenrw,
+                                     long int *leniw);
 
 #ifdef __cplusplus
 }

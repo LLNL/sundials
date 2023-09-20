@@ -55,7 +55,7 @@
  * Function to create a new PID controller
  */
 
-SUNAdaptController SUNAdaptControllerPID(SUNContext sunctx)
+SUNAdaptController SUNAdaptController_PID(SUNContext sunctx)
 {
   SUNAdaptController C;
   SUNAdaptControllerContent_PID content;
@@ -66,16 +66,16 @@ SUNAdaptController SUNAdaptControllerPID(SUNContext sunctx)
   if (C == NULL) { return (NULL); }
 
   /* Attach operations */
-  C->ops->gettype           = SUNAdaptControllerGetType_PID;
-  C->ops->estimatestep      = SUNAdaptControllerEstimateStep_PID;
-  C->ops->reset             = SUNAdaptControllerReset_PID;
-  C->ops->setdefaults       = SUNAdaptControllerSetDefaults_PID;
-  C->ops->write             = SUNAdaptControllerWrite_PID;
-  C->ops->setmethodorder    = SUNAdaptControllerSetMethodOrder_PID;
-  C->ops->setembeddingorder = SUNAdaptControllerSetEmbeddingOrder_PID;
-  C->ops->seterrorbias      = SUNAdaptControllerSetErrorBias_PID;
-  C->ops->update            = SUNAdaptControllerUpdate_PID;
-  C->ops->space             = SUNAdaptControllerSpace_PID;
+  C->ops->gettype           = SUNAdaptController_GetType_PID;
+  C->ops->estimatestep      = SUNAdaptController_EstimateStep_PID;
+  C->ops->reset             = SUNAdaptController_Reset_PID;
+  C->ops->setdefaults       = SUNAdaptController_SetDefaults_PID;
+  C->ops->write             = SUNAdaptController_Write_PID;
+  C->ops->setmethodorder    = SUNAdaptController_SetMethodOrder_PID;
+  C->ops->setembeddingorder = SUNAdaptController_SetEmbeddingOrder_PID;
+  C->ops->seterrorbias      = SUNAdaptController_SetErrorBias_PID;
+  C->ops->update            = SUNAdaptController_Update_PID;
+  C->ops->space             = SUNAdaptController_Space_PID;
 
   /* Create content */
   content = NULL;
@@ -93,8 +93,8 @@ SUNAdaptController SUNAdaptControllerPID(SUNContext sunctx)
   content->p = 1;
 
   /* Fill content with default/reset values */
-  SUNAdaptControllerSetDefaults_PID(C);
-  SUNAdaptControllerReset_PID(C);
+  SUNAdaptController_SetDefaults_PID(C);
+  SUNAdaptController_Reset_PID(C);
 
   return (C);
 }
@@ -103,8 +103,8 @@ SUNAdaptController SUNAdaptControllerPID(SUNContext sunctx)
  * Function to set PID parameters
  */
 
-int SUNAdaptControllerPID_SetParams(SUNAdaptController C, sunbooleantype pq,
-                                    realtype k1, realtype k2, realtype k3)
+int SUNAdaptController_SetParams_PID(SUNAdaptController C, sunbooleantype pq,
+                                     realtype k1, realtype k2, realtype k3)
 {
   /* store legal inputs, and return with success */
   SACPID_PQ(C) = pq;
@@ -119,11 +119,11 @@ int SUNAdaptControllerPID_SetParams(SUNAdaptController C, sunbooleantype pq,
  * implementation of controller operations
  * ----------------------------------------------------------------- */
 
-SUNAdaptController_Type SUNAdaptControllerGetType_PID(SUNAdaptController C)
+SUNAdaptController_Type SUNAdaptController_GetType_PID(SUNAdaptController C)
 { return SUN_ADAPTCONTROLLER_H; }
 
-int SUNAdaptControllerEstimateStep_PID(SUNAdaptController C, realtype h,
-                                       realtype dsm, realtype* hnew)
+int SUNAdaptController_EstimateStep_PID(SUNAdaptController C, realtype h,
+                                        realtype dsm, realtype* hnew)
 {
   /* set usable time-step adaptivity parameters */
   const realtype k1 = -SACPID_K1(C) / SACPID_P(C);
@@ -139,14 +139,14 @@ int SUNAdaptControllerEstimateStep_PID(SUNAdaptController C, realtype h,
   return SUNADAPTCONTROLLER_SUCCESS;
 }
 
-int SUNAdaptControllerReset_PID(SUNAdaptController C)
+int SUNAdaptController_Reset_PID(SUNAdaptController C)
 {
   SACPID_EP(C)  = RCONST(1.0);
   SACPID_EPP(C) = RCONST(1.0);
   return SUNADAPTCONTROLLER_SUCCESS;
 }
 
-int SUNAdaptControllerSetDefaults_PID(SUNAdaptController C)
+int SUNAdaptController_SetDefaults_PID(SUNAdaptController C)
 {
   SACPID_K1(C)     = DEFAULT_K1;
   SACPID_K2(C)     = DEFAULT_K2;
@@ -156,7 +156,7 @@ int SUNAdaptControllerSetDefaults_PID(SUNAdaptController C)
   return SUNADAPTCONTROLLER_SUCCESS;
 }
 
-int SUNAdaptControllerWrite_PID(SUNAdaptController C, FILE *fptr)
+int SUNAdaptController_Write_PID(SUNAdaptController C, FILE *fptr)
 {
   fprintf(fptr, "PID SUNAdaptController module:\n");
 #if defined(SUNDIALS_EXTENDED_PRECISION)
@@ -183,7 +183,7 @@ int SUNAdaptControllerWrite_PID(SUNAdaptController C, FILE *fptr)
   return SUNADAPTCONTROLLER_SUCCESS;
 }
 
-int SUNAdaptControllerSetMethodOrder_PID(SUNAdaptController C, int q)
+int SUNAdaptController_SetMethodOrder_PID(SUNAdaptController C, int q)
 {
   /* check for legal input */
   if (q <= 0) { return SUNADAPTCONTROLLER_ILL_INPUT; }
@@ -193,7 +193,7 @@ int SUNAdaptControllerSetMethodOrder_PID(SUNAdaptController C, int q)
   return SUNADAPTCONTROLLER_SUCCESS;
 }
 
-int SUNAdaptControllerSetEmbeddingOrder_PID(SUNAdaptController C, int p)
+int SUNAdaptController_SetEmbeddingOrder_PID(SUNAdaptController C, int p)
 {
   /* check for legal input */
   if (p <= 0) { return SUNADAPTCONTROLLER_ILL_INPUT; }
@@ -203,7 +203,7 @@ int SUNAdaptControllerSetEmbeddingOrder_PID(SUNAdaptController C, int p)
   return SUNADAPTCONTROLLER_SUCCESS;
 }
 
-int SUNAdaptControllerSetErrorBias_PID(SUNAdaptController C, realtype bias)
+int SUNAdaptController_SetErrorBias_PID(SUNAdaptController C, realtype bias)
 {
   /* set allowed value, otherwise set default */
   if (bias <= RCONST(0.0)) {
@@ -215,14 +215,14 @@ int SUNAdaptControllerSetErrorBias_PID(SUNAdaptController C, realtype bias)
   return SUNADAPTCONTROLLER_SUCCESS;
 }
 
-int SUNAdaptControllerUpdate_PID(SUNAdaptController C, realtype h, realtype dsm)
+int SUNAdaptController_Update_PID(SUNAdaptController C, realtype h, realtype dsm)
 {
   SACPID_EPP(C) = SACPID_EP(C);
   SACPID_EP(C) = SACPID_BIAS(C) * dsm;
   return SUNADAPTCONTROLLER_SUCCESS;
 }
 
-int SUNAdaptControllerSpace_PID(SUNAdaptController C, long int* lenrw, long int* leniw)
+int SUNAdaptController_Space_PID(SUNAdaptController C, long int* lenrw, long int* leniw)
 {
   *lenrw = 7;
   *leniw = 2;

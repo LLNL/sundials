@@ -184,7 +184,7 @@ program main
      stop 1
   end if
 
-  sunCtrl => FSUNAdaptControllerImpGus(ctx)
+  sunCtrl => FSUNAdaptController_ImpGus(ctx)
   if (.not. associated(sunCtrl)) then
      print *, 'ERROR: sunCtrl = NULL'
      stop 1

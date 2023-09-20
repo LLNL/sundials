@@ -58,7 +58,7 @@
  * Function to create a new ImExGus controller
  */
 
-SUNAdaptController SUNAdaptControllerImExGus(SUNContext sunctx)
+SUNAdaptController SUNAdaptController_ImExGus(SUNContext sunctx)
 {
   SUNAdaptController C;
   SUNAdaptControllerContent_ImExGus content;
@@ -69,16 +69,16 @@ SUNAdaptController SUNAdaptControllerImExGus(SUNContext sunctx)
   if (C == NULL) { return (NULL); }
 
   /* Attach operations */
-  C->ops->gettype           = SUNAdaptControllerGetType_ImExGus;
-  C->ops->estimatestep      = SUNAdaptControllerEstimateStep_ImExGus;
-  C->ops->reset             = SUNAdaptControllerReset_ImExGus;
-  C->ops->setdefaults       = SUNAdaptControllerSetDefaults_ImExGus;
-  C->ops->write             = SUNAdaptControllerWrite_ImExGus;
-  C->ops->setmethodorder    = SUNAdaptControllerSetMethodOrder_ImExGus;
-  C->ops->setembeddingorder = SUNAdaptControllerSetEmbeddingOrder_ImExGus;
-  C->ops->seterrorbias      = SUNAdaptControllerSetErrorBias_ImExGus;
-  C->ops->update            = SUNAdaptControllerUpdate_ImExGus;
-  C->ops->space             = SUNAdaptControllerSpace_ImExGus;
+  C->ops->gettype           = SUNAdaptController_GetType_ImExGus;
+  C->ops->estimatestep      = SUNAdaptController_EstimateStep_ImExGus;
+  C->ops->reset             = SUNAdaptController_Reset_ImExGus;
+  C->ops->setdefaults       = SUNAdaptController_SetDefaults_ImExGus;
+  C->ops->write             = SUNAdaptController_Write_ImExGus;
+  C->ops->setmethodorder    = SUNAdaptController_SetMethodOrder_ImExGus;
+  C->ops->setembeddingorder = SUNAdaptController_SetEmbeddingOrder_ImExGus;
+  C->ops->seterrorbias      = SUNAdaptController_SetErrorBias_ImExGus;
+  C->ops->update            = SUNAdaptController_Update_ImExGus;
+  C->ops->space             = SUNAdaptController_Space_ImExGus;
 
   /* Create content */
   content = NULL;
@@ -96,8 +96,8 @@ SUNAdaptController SUNAdaptControllerImExGus(SUNContext sunctx)
   content->p = 1;
 
   /* Fill content with default/reset values */
-  SUNAdaptControllerSetDefaults_ImExGus(C);
-  SUNAdaptControllerReset_ImExGus(C);
+  SUNAdaptController_SetDefaults_ImExGus(C);
+  SUNAdaptController_Reset_ImExGus(C);
 
   return (C);
 }
@@ -106,9 +106,9 @@ SUNAdaptController SUNAdaptControllerImExGus(SUNContext sunctx)
  * Function to set ImExGus parameters
  */
 
-int SUNAdaptControllerImExGus_SetParams(SUNAdaptController C, sunbooleantype pq,
-                                        realtype k1e, realtype k2e,
-                                        realtype k1i, realtype k2i)
+int SUNAdaptController_SetParams_ImExGus(SUNAdaptController C, sunbooleantype pq,
+                                         realtype k1e, realtype k2e,
+                                         realtype k1i, realtype k2i)
 {
   /* store legal inputs, and return with success */
   SACIMEXGUS_PQ(C) = pq;
@@ -125,11 +125,11 @@ int SUNAdaptControllerImExGus_SetParams(SUNAdaptController C, sunbooleantype pq,
  * implementation of controller operations
  * ----------------------------------------------------------------- */
 
-SUNAdaptController_Type SUNAdaptControllerGetType_ImExGus(SUNAdaptController C)
+SUNAdaptController_Type SUNAdaptController_GetType_ImExGus(SUNAdaptController C)
 { return SUN_ADAPTCONTROLLER_H; }
 
-int SUNAdaptControllerEstimateStep_ImExGus(SUNAdaptController C, realtype h,
-                                           realtype dsm, realtype* hnew)
+int SUNAdaptController_EstimateStep_ImExGus(SUNAdaptController C, realtype h,
+                                            realtype dsm, realtype* hnew)
 {
   /* modified method for first step */
   if (SACIMEXGUS_FIRSTSTEP(C))
@@ -161,14 +161,14 @@ int SUNAdaptControllerEstimateStep_ImExGus(SUNAdaptController C, realtype h,
   return SUNADAPTCONTROLLER_SUCCESS;
 }
 
-int SUNAdaptControllerReset_ImExGus(SUNAdaptController C)
+int SUNAdaptController_Reset_ImExGus(SUNAdaptController C)
 {
   SACIMEXGUS_EP(C) = RCONST(1.0);
   SACIMEXGUS_FIRSTSTEP(C) = SUNTRUE;
   return SUNADAPTCONTROLLER_SUCCESS;
 }
 
-int SUNAdaptControllerSetDefaults_ImExGus(SUNAdaptController C)
+int SUNAdaptController_SetDefaults_ImExGus(SUNAdaptController C)
 {
   SACIMEXGUS_K1E(C)    = DEFAULT_K1E;
   SACIMEXGUS_K2E(C)    = DEFAULT_K2E;
@@ -179,7 +179,7 @@ int SUNAdaptControllerSetDefaults_ImExGus(SUNAdaptController C)
   return SUNADAPTCONTROLLER_SUCCESS;
 }
 
-int SUNAdaptControllerWrite_ImExGus(SUNAdaptController C, FILE *fptr)
+int SUNAdaptController_Write_ImExGus(SUNAdaptController C, FILE *fptr)
 {
   fprintf(fptr, "ImEx Gustafsson SUNAdaptController module:\n");
 #if defined(SUNDIALS_EXTENDED_PRECISION)
@@ -210,7 +210,7 @@ int SUNAdaptControllerWrite_ImExGus(SUNAdaptController C, FILE *fptr)
   return SUNADAPTCONTROLLER_SUCCESS;
 }
 
-int SUNAdaptControllerSetMethodOrder_ImExGus(SUNAdaptController C, int q)
+int SUNAdaptController_SetMethodOrder_ImExGus(SUNAdaptController C, int q)
 {
   /* check for legal input */
   if (q <= 0) { return SUNADAPTCONTROLLER_ILL_INPUT; }
@@ -220,7 +220,7 @@ int SUNAdaptControllerSetMethodOrder_ImExGus(SUNAdaptController C, int q)
   return SUNADAPTCONTROLLER_SUCCESS;
 }
 
-int SUNAdaptControllerSetEmbeddingOrder_ImExGus(SUNAdaptController C, int p)
+int SUNAdaptController_SetEmbeddingOrder_ImExGus(SUNAdaptController C, int p)
 {
   /* check for legal input */
   if (p <= 0) { return SUNADAPTCONTROLLER_ILL_INPUT; }
@@ -230,7 +230,7 @@ int SUNAdaptControllerSetEmbeddingOrder_ImExGus(SUNAdaptController C, int p)
   return SUNADAPTCONTROLLER_SUCCESS;
 }
 
-int SUNAdaptControllerSetErrorBias_ImExGus(SUNAdaptController C, realtype bias)
+int SUNAdaptController_SetErrorBias_ImExGus(SUNAdaptController C, realtype bias)
 {
   /* set allowed value, otherwise set default */
   if (bias <= RCONST(0.0)) {
@@ -242,7 +242,7 @@ int SUNAdaptControllerSetErrorBias_ImExGus(SUNAdaptController C, realtype bias)
   return SUNADAPTCONTROLLER_SUCCESS;
 }
 
-int SUNAdaptControllerUpdate_ImExGus(SUNAdaptController C, realtype h, realtype dsm)
+int SUNAdaptController_Update_ImExGus(SUNAdaptController C, realtype h, realtype dsm)
 {
   SACIMEXGUS_EP(C) = SACIMEXGUS_BIAS(C) * dsm;
   SACIMEXGUS_HP(C) = h;
@@ -250,7 +250,7 @@ int SUNAdaptControllerUpdate_ImExGus(SUNAdaptController C, realtype h, realtype 
   return SUNADAPTCONTROLLER_SUCCESS;
 }
 
-int SUNAdaptControllerSpace_ImExGus(SUNAdaptController C, long int* lenrw, long int* leniw)
+int SUNAdaptController_Space_ImExGus(SUNAdaptController C, long int* lenrw, long int* leniw)
 {
   *lenrw = 8;
   *leniw = 3;

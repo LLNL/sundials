@@ -430,12 +430,12 @@ int SetupERK(SUNContext ctx, UserData &udata, UserOptions &uopts, N_Vector y,
   else if (uopts.controller >= 0)
   {
     switch (uopts.controller) {
-    case (ARK_ADAPT_PID):      *C = SUNAdaptControllerPID(ctx);     break;
-    case (ARK_ADAPT_PI):       *C = SUNAdaptControllerPI(ctx);      break;
-    case (ARK_ADAPT_I):        *C = SUNAdaptControllerI(ctx);       break;
-    case (ARK_ADAPT_EXP_GUS):  *C = SUNAdaptControllerExpGus(ctx);  break;
-    case (ARK_ADAPT_IMP_GUS):  *C = SUNAdaptControllerImpGus(ctx);  break;
-    case (ARK_ADAPT_IMEX_GUS): *C = SUNAdaptControllerImExGus(ctx); break;
+    case (ARK_ADAPT_PID):      *C = SUNAdaptController_PID(ctx);     break;
+    case (ARK_ADAPT_PI):       *C = SUNAdaptController_PI(ctx);      break;
+    case (ARK_ADAPT_I):        *C = SUNAdaptController_I(ctx);       break;
+    case (ARK_ADAPT_EXP_GUS):  *C = SUNAdaptController_ExpGus(ctx);  break;
+    case (ARK_ADAPT_IMP_GUS):  *C = SUNAdaptController_ImpGus(ctx);  break;
+    case (ARK_ADAPT_IMEX_GUS): *C = SUNAdaptController_ImExGus(ctx); break;
     }
     flag = ERKStepSetAdaptController(*arkode_mem, *C);
     if (check_flag(flag, "ERKStepSetAdaptController")) return 1;
@@ -684,12 +684,12 @@ int SetupARK(SUNContext ctx, UserData &udata, UserOptions &uopts, N_Vector y,
   else if (uopts.controller >= 0)
   {
     switch (uopts.controller) {
-    case (ARK_ADAPT_PID):      *C = SUNAdaptControllerPID(ctx);     break;
-    case (ARK_ADAPT_PI):       *C = SUNAdaptControllerPI(ctx);      break;
-    case (ARK_ADAPT_I):        *C = SUNAdaptControllerI(ctx);       break;
-    case (ARK_ADAPT_EXP_GUS):  *C = SUNAdaptControllerExpGus(ctx);  break;
-    case (ARK_ADAPT_IMP_GUS):  *C = SUNAdaptControllerImpGus(ctx);  break;
-    case (ARK_ADAPT_IMEX_GUS): *C = SUNAdaptControllerImExGus(ctx); break;
+    case (ARK_ADAPT_PID):      *C = SUNAdaptController_PID(ctx);     break;
+    case (ARK_ADAPT_PI):       *C = SUNAdaptController_PI(ctx);      break;
+    case (ARK_ADAPT_I):        *C = SUNAdaptController_I(ctx);       break;
+    case (ARK_ADAPT_EXP_GUS):  *C = SUNAdaptController_ExpGus(ctx);  break;
+    case (ARK_ADAPT_IMP_GUS):  *C = SUNAdaptController_ImpGus(ctx);  break;
+    case (ARK_ADAPT_IMEX_GUS): *C = SUNAdaptController_ImExGus(ctx); break;
     }
     flag = ARKStepSetAdaptController(*arkode_mem, *C);
     if (check_flag(flag, "ARKStepSetAdaptController")) return 1;
@@ -824,12 +824,12 @@ int SetupMRIARK(SUNContext ctx, UserData &udata, UserOptions &uopts,
   else if (uopts.controller_fast >= 0)
   {
     switch (uopts.controller_fast) {
-    case (ARK_ADAPT_PID):      *C = SUNAdaptControllerPID(ctx);     break;
-    case (ARK_ADAPT_PI):       *C = SUNAdaptControllerPI(ctx);      break;
-    case (ARK_ADAPT_I):        *C = SUNAdaptControllerI(ctx);       break;
-    case (ARK_ADAPT_EXP_GUS):  *C = SUNAdaptControllerExpGus(ctx);  break;
-    case (ARK_ADAPT_IMP_GUS):  *C = SUNAdaptControllerImpGus(ctx);  break;
-    case (ARK_ADAPT_IMEX_GUS): *C = SUNAdaptControllerImExGus(ctx); break;
+    case (ARK_ADAPT_PID):      *C = SUNAdaptController_PID(ctx);     break;
+    case (ARK_ADAPT_PI):       *C = SUNAdaptController_PI(ctx);      break;
+    case (ARK_ADAPT_I):        *C = SUNAdaptController_I(ctx);       break;
+    case (ARK_ADAPT_EXP_GUS):  *C = SUNAdaptController_ExpGus(ctx);  break;
+    case (ARK_ADAPT_IMP_GUS):  *C = SUNAdaptController_ImpGus(ctx);  break;
+    case (ARK_ADAPT_IMEX_GUS): *C = SUNAdaptController_ImExGus(ctx); break;
     }
     flag = ARKStepSetAdaptController(fast_arkode_mem, *C);
     if (check_flag(flag, "ARKStepSetAdaptController")) return 1;

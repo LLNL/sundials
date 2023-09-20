@@ -350,12 +350,12 @@ int arkSetAdaptController(void *arkode_mem, SUNAdaptController C)
     ark_mem->liw -= leniw;
     ark_mem->lrw -= lenrw;
   }
-  SUNAdaptController_Destroy(ark_mem->hcontroller);
+  (void) SUNAdaptController_Destroy(ark_mem->hcontroller);
   ark_mem->hcontroller = NULL;
 
   /* On NULL-valued input, create default SUNAdaptController object */
   if (C == NULL) {
-    C = SUNAdaptControllerPID(ark_mem->sunctx);
+    C = SUNAdaptController_PID(ark_mem->sunctx);
     if (C == NULL) {
       arkProcessError(ark_mem, ARK_MEM_FAIL, "ARKODE", "arkSetAdaptController",
                       "SUNAdaptControllerPID allocation failure");
@@ -617,7 +617,7 @@ int arkSetFixedStep(void *arkode_mem, realtype hfixed)
     ark_mem->liw -= leniw;
     ark_mem->lrw -= lenrw;
   }
-  SUNAdaptController_Destroy(ark_mem->hcontroller);
+  (void) SUNAdaptController_Destroy(ark_mem->hcontroller);
   ark_mem->hcontroller = NULL;
 
   /* If re-enabling time adaptivity, create default PID controller
@@ -625,7 +625,7 @@ int arkSetFixedStep(void *arkode_mem, realtype hfixed)
   SUNAdaptController C = NULL;
   if (hfixed == 0)
   {
-    C = SUNAdaptControllerPID(ark_mem->sunctx);
+    C = SUNAdaptController_PID(ark_mem->sunctx);
     if (C == NULL) {
       arkProcessError(ark_mem, ARK_MEM_FAIL, "ARKODE", "arkSetFixedStep",
                       "SUNAdaptControllerPID allocation failure");
@@ -907,7 +907,7 @@ int arkSetAdaptivityMethod(void *arkode_mem, int imethod, int idefault,
     ark_mem->liw -= leniw;
     ark_mem->lrw -= lenrw;
   }
-  SUNAdaptController_Destroy(ark_mem->hcontroller);
+  (void) SUNAdaptController_Destroy(ark_mem->hcontroller);
   ark_mem->hcontroller = NULL;
 
   /* set adaptivity parameters from inputs or signal use of defaults */
@@ -926,86 +926,86 @@ int arkSetAdaptivityMethod(void *arkode_mem, int imethod, int idefault,
   SUNAdaptController C = NULL;
   switch (imethod) {
   case (ARK_ADAPT_PID):
-    C = SUNAdaptControllerPID(ark_mem->sunctx);
+    C = SUNAdaptController_PID(ark_mem->sunctx);
     if (C == NULL) {
       arkProcessError(ark_mem, ARK_MEM_FAIL, "ARKODE", "arkSetAdaptivityMethod",
-                      "SUNAdaptControllerPID allocation failure");
+                      "SUNAdaptController_PID allocation failure");
       return(ARK_MEM_FAIL);
     }
-    retval = SUNAdaptControllerPID_SetParams(C, pq, k1, k2, k3);
+    retval = SUNAdaptController_SetParams_PID(C, pq, k1, k2, k3);
     if (retval != SUNADAPTCONTROLLER_SUCCESS) {
       arkProcessError(ark_mem, ARK_CONTROLLER_ERR, "ARKODE",
-                      "arkSetAdaptivityMethod", "SUNAdaptControllerPID_SetParams failure");
+                      "arkSetAdaptivityMethod", "SUNAdaptController_SetParams_PID failure");
       return(ARK_CONTROLLER_ERR);
     }
     break;
   case (ARK_ADAPT_PI):
-    C = SUNAdaptControllerPI(ark_mem->sunctx);
+    C = SUNAdaptController_PI(ark_mem->sunctx);
     if (C == NULL) {
       arkProcessError(ark_mem, ARK_MEM_FAIL, "ARKODE", "arkSetAdaptivityMethod",
-                      "SUNAdaptControllerPI allocation failure");
+                      "SUNAdaptController_PI allocation failure");
       return(ARK_MEM_FAIL);
     }
-    retval = SUNAdaptControllerPI_SetParams(C, pq, k1, k2);
+    retval = SUNAdaptController_SetParams_PI(C, pq, k1, k2);
     if (retval != SUNADAPTCONTROLLER_SUCCESS) {
       arkProcessError(ark_mem, ARK_CONTROLLER_ERR, "ARKODE",
-                      "arkSetAdaptivityMethod", "SUNAdaptControllerPI_SetParams failure");
+                      "arkSetAdaptivityMethod", "SUNAdaptController_SetParams_PI failure");
       return(ARK_CONTROLLER_ERR);
     }
     break;
   case (ARK_ADAPT_I):
-    C = SUNAdaptControllerI(ark_mem->sunctx);
+    C = SUNAdaptController_I(ark_mem->sunctx);
     if (C == NULL) {
       arkProcessError(ark_mem, ARK_MEM_FAIL, "ARKODE", "arkSetAdaptivityMethod",
-                      "SUNAdaptControllerI allocation failure");
+                      "SUNAdaptController_I allocation failure");
       return(ARK_MEM_FAIL);
     }
-    retval = SUNAdaptControllerI_SetParams(C, pq, k1);
+    retval = SUNAdaptController_SetParams_I(C, pq, k1);
     if (retval != SUNADAPTCONTROLLER_SUCCESS) {
       arkProcessError(ark_mem, ARK_CONTROLLER_ERR, "ARKODE",
-                      "arkSetAdaptivityMethod", "SUNAdaptControllerI_SetParams failure");
+                      "arkSetAdaptivityMethod", "SUNAdaptController_SetParams_I failure");
       return(ARK_CONTROLLER_ERR);
     }
     break;
   case (ARK_ADAPT_EXP_GUS):
-    C = SUNAdaptControllerExpGus(ark_mem->sunctx);
+    C = SUNAdaptController_ExpGus(ark_mem->sunctx);
     if (C == NULL) {
       arkProcessError(ark_mem, ARK_MEM_FAIL, "ARKODE", "arkSetAdaptivityMethod",
-                      "SUNAdaptControllerExpGus allocation failure");
+                      "SUNAdaptController_ExpGus allocation failure");
       return(ARK_MEM_FAIL);
     }
-    retval = SUNAdaptControllerExpGus_SetParams(C, pq, k1, k2);
+    retval = SUNAdaptController_SetParams_ExpGus(C, pq, k1, k2);
     if (retval != SUNADAPTCONTROLLER_SUCCESS) {
       arkProcessError(ark_mem, ARK_CONTROLLER_ERR, "ARKODE",
-                      "arkSetAdaptivityMethod", "SUNAdaptControllerExpGus_SetParams failure");
+                      "arkSetAdaptivityMethod", "SUNAdaptController_SetParams_ExpGus failure");
       return(ARK_CONTROLLER_ERR);
     }
     break;
   case (ARK_ADAPT_IMP_GUS):
-    C = SUNAdaptControllerImpGus(ark_mem->sunctx);
+    C = SUNAdaptController_ImpGus(ark_mem->sunctx);
     if (C == NULL) {
       arkProcessError(ark_mem, ARK_MEM_FAIL, "ARKODE", "arkSetAdaptivityMethod",
-                      "SUNAdaptControllerImpGus allocation failure");
+                      "SUNAdaptController_ImpGus allocation failure");
       return(ARK_MEM_FAIL);
     }
-    retval = SUNAdaptControllerImpGus_SetParams(C, pq, k1, k2);
+    retval = SUNAdaptController_SetParams_ImpGus(C, pq, k1, k2);
     if (retval != SUNADAPTCONTROLLER_SUCCESS) {
       arkProcessError(ark_mem, ARK_CONTROLLER_ERR, "ARKODE",
-                      "arkSetAdaptivityMethod", "SUNAdaptControllerImpGus_SetParams failure");
+                      "arkSetAdaptivityMethod", "SUNAdaptController_SetParams_ImpGus failure");
       return(ARK_CONTROLLER_ERR);
     }
     break;
   case (ARK_ADAPT_IMEX_GUS):
-    C = SUNAdaptControllerImExGus(ark_mem->sunctx);
+    C = SUNAdaptController_ImExGus(ark_mem->sunctx);
     if (C == NULL) {
       arkProcessError(ark_mem, ARK_MEM_FAIL, "ARKODE", "arkSetAdaptivityMethod",
-                      "SUNAdaptControllerImExGus allocation failure");
+                      "SUNAdaptController_ImExGus allocation failure");
       return(ARK_MEM_FAIL);
     }
-    retval = SUNAdaptControllerImExGus_SetParams(C, pq, k1, k2, k3, k3);
+    retval = SUNAdaptController_SetParams_ImExGus(C, pq, k1, k2, k3, k3);
     if (retval != SUNADAPTCONTROLLER_SUCCESS) {
       arkProcessError(ark_mem, ARK_CONTROLLER_ERR, "ARKODE",
-                      "arkSetAdaptivityMethod", "SUNAdaptControllerImExGus_SetParams failure");
+                      "arkSetAdaptivityMethod", "SUNAdaptController_SetParams_ImExGus failure");
       return(ARK_CONTROLLER_ERR);
     }
     break;
@@ -1056,16 +1056,16 @@ int arkSetAdaptivityFn(void *arkode_mem, ARKAdaptFn hfun, void *h_data)
     ark_mem->liw -= leniw;
     ark_mem->lrw -= lenrw;
   }
-  SUNAdaptController_Destroy(ark_mem->hcontroller);
+  (void) SUNAdaptController_Destroy(ark_mem->hcontroller);
   ark_mem->hcontroller = NULL;
 
   /* Create new SUNAdaptController object depending on NULL-ity of 'hfun' */
   SUNAdaptController C = NULL;
   if (hfun == NULL) {
-    C = SUNAdaptControllerPID(ark_mem->sunctx);
+    C = SUNAdaptController_PID(ark_mem->sunctx);
     if (C == NULL) {
       arkProcessError(ark_mem, ARK_MEM_FAIL, "ARKODE", "arkSetAdaptivityFn",
-                      "SUNAdaptControllerPID allocation failure");
+                      "SUNAdaptController_PID allocation failure");
       return(ARK_MEM_FAIL);
     }
   } else {

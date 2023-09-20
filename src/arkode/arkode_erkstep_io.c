@@ -504,7 +504,7 @@ int ERKStepSetDefaults(void* arkode_mem)
   }
   (void) SUNAdaptController_Destroy(ark_mem->hcontroller);
   ark_mem->hcontroller = NULL;
-  ark_mem->hcontroller = SUNAdaptControllerPI(ark_mem->sunctx);
+  ark_mem->hcontroller = SUNAdaptController_PI(ark_mem->sunctx);
   if (ark_mem->hcontroller == NULL) {
     arkProcessError(ark_mem, ARK_MEM_FAIL, "ARKODE::ERKStep",
                     "ERKStepSetDefaults",
@@ -519,8 +519,8 @@ int ERKStepSetDefaults(void* arkode_mem)
   step_mem->stages = 0;                        /* no stages */
   step_mem->B = NULL;                          /* no Butcher table */
   (void) SUNAdaptController_SetErrorBias(ark_mem->hcontroller, RCONST(1.2));
-  (void) SUNAdaptControllerPI_SetParams(ark_mem->hcontroller, SUNFALSE,
-                                        RCONST(0.8), RCONST(0.31));
+  (void) SUNAdaptController_SetParams_PI(ark_mem->hcontroller, SUNFALSE,
+                                         RCONST(0.8), RCONST(0.31));
   (void) SUNTimestepHeuristics_SetSafetyFactor(ark_mem->hconstraints, RCONST(0.99));
   (void) SUNTimestepHeuristics_SetMaxEFailGrowth(ark_mem->hconstraints, RCONST(0.3));
   (void) SUNTimestepHeuristics_SetMaxGrowth(ark_mem->hconstraints, RCONST(25.0));

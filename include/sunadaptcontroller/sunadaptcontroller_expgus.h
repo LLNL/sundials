@@ -45,32 +45,32 @@ typedef struct SUNAdaptControllerContent_ExpGus_ *SUNAdaptControllerContent_ExpG
  * ------------------ */
 
 SUNDIALS_EXPORT
-SUNAdaptController SUNAdaptControllerExpGus(SUNContext sunctx);
+SUNAdaptController SUNAdaptController_ExpGus(SUNContext sunctx);
 SUNDIALS_EXPORT
-int SUNAdaptControllerExpGus_SetParams(SUNAdaptController C, sunbooleantype pq,
-                                       realtype k1, realtype k2);
+int SUNAdaptController_SetParams_ExpGus(SUNAdaptController C, sunbooleantype pq,
+                                        realtype k1, realtype k2);
 SUNDIALS_EXPORT
-SUNAdaptController_Type SUNAdaptControllerGetType_ExpGus(SUNAdaptController C);
+SUNAdaptController_Type SUNAdaptController_GetType_ExpGus(SUNAdaptController C);
 SUNDIALS_EXPORT
-int SUNAdaptControllerEstimateStep_ExpGus(SUNAdaptController C, realtype h,
-                                          realtype dsm, realtype* hnew);
+int SUNAdaptController_EstimateStep_ExpGus(SUNAdaptController C, realtype h,
+                                           realtype dsm, realtype* hnew);
 SUNDIALS_EXPORT
-int SUNAdaptControllerReset_ExpGus(SUNAdaptController C);
+int SUNAdaptController_Reset_ExpGus(SUNAdaptController C);
 SUNDIALS_EXPORT
-int SUNAdaptControllerSetDefaults_ExpGus(SUNAdaptController C);
+int SUNAdaptController_SetDefaults_ExpGus(SUNAdaptController C);
 SUNDIALS_EXPORT
-int SUNAdaptControllerWrite_ExpGus(SUNAdaptController C, FILE* fptr);
+int SUNAdaptController_Write_ExpGus(SUNAdaptController C, FILE* fptr);
 SUNDIALS_EXPORT
-int SUNAdaptControllerSetMethodOrder_ExpGus(SUNAdaptController C, int q);
+int SUNAdaptController_SetMethodOrder_ExpGus(SUNAdaptController C, int q);
 SUNDIALS_EXPORT
-int SUNAdaptControllerSetEmbeddingOrder_ExpGus(SUNAdaptController C, int p);
+int SUNAdaptController_SetEmbeddingOrder_ExpGus(SUNAdaptController C, int p);
 SUNDIALS_EXPORT
-int SUNAdaptControllerSetErrorBias_ExpGus(SUNAdaptController C, realtype bias);
+int SUNAdaptController_SetErrorBias_ExpGus(SUNAdaptController C, realtype bias);
 SUNDIALS_EXPORT
-int SUNAdaptControllerUpdate_ExpGus(SUNAdaptController C, realtype h, realtype dsm);
+int SUNAdaptController_Update_ExpGus(SUNAdaptController C, realtype h, realtype dsm);
 SUNDIALS_EXPORT
-int SUNAdaptControllerSpace_ExpGus(SUNAdaptController C, long int *lenrw,
-                                   long int *leniw);
+int SUNAdaptController_Space_ExpGus(SUNAdaptController C, long int *lenrw,
+                                    long int *leniw);
 
 #ifdef __cplusplus
 }
