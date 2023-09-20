@@ -21,15 +21,14 @@ install(CODE "MESSAGE(\"\nInstall shared components\n\")")
 
 # Add variable sundials_HEADERS with the exported SUNDIALS header files
 set(sundials_HEADERS
+  sundials_adaptcontroller.h
   sundials_base.hpp
   sundials_band.h
   sundials_context.h
   sundials_context.hpp
-  sundials_adaptcontroller.h
   sundials_convertibleto.hpp
   sundials_dense.h
   sundials_direct.h
-  sundials_heuristics.h
   sundials_iterative.h
   sundials_linearsolver.h
   sundials_linearsolver.hpp
@@ -45,6 +44,7 @@ set(sundials_HEADERS
   sundials_nvector.hpp
   sundials_profiler.h
   sundials_logger.h
+  sundials_timestepheuristics.h
   sundials_types.h
   sundials_version.h
   )
@@ -79,12 +79,11 @@ endif()
 add_prefix(${SUNDIALS_SOURCE_DIR}/include/sundials/ sundials_HEADERS)
 
 set(sundials_SOURCES
+  sundials_adaptcontroller.c
   sundials_band.c
   sundials_context.c
-  sundials_adaptcontroller.c
   sundials_dense.c
   sundials_direct.c
-  sundials_heuristics.c
   sundials_iterative.c
   sundials_linearsolver.c
   sundials_logger.c
@@ -94,6 +93,7 @@ set(sundials_SOURCES
   sundials_nonlinearsolver.c
   sundials_nvector.c
   sundials_nvector_senswrapper.c
+  sundials_timestepheuristics.c
   sundials_version.c
   )
 

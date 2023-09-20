@@ -1222,12 +1222,12 @@ Set max number of constraint failures             :c:func:`ARKStepSetMaxNumConst
    **Notes:**
       Pass *hmax* :math:`\le 0.0` to set the default value of :math:`\infty`.
 
-      If both this and :c:func:`ARKStepSetHeuristics` will be called, then this
+      If both this and :c:func:`ARKStepSetTimestepHeuristics` will be called, then this
       routine must be called *second*.
 
    .. deprecated:: x.x.x
 
-      Use the SUNHeuristics infrastructure instead (see :numref:`SUNHeuristics.Description`).
+      Use the SUNTimestepHeuristics infrastructure instead (see :numref:`SUNTimestepHeuristics.Description`).
 
 
 
@@ -1247,12 +1247,12 @@ Set max number of constraint failures             :c:func:`ARKStepSetMaxNumConst
    **Notes:**
       Pass *hmin* :math:`\le 0.0` to set the default value of 0.
 
-      If both this and :c:func:`ARKStepSetHeuristics` will be called, then this
+      If both this and :c:func:`ARKStepSetTimestepHeuristics` will be called, then this
       routine must be called *second*.
 
    .. deprecated:: x.x.x
 
-      Use the SUNHeuristics infrastructure instead (see :numref:`SUNHeuristics.Description`).
+      Use the SUNTimestepHeuristics infrastructure instead (see :numref:`SUNTimestepHeuristics.Description`).
 
 
 
@@ -1705,25 +1705,25 @@ the code, is provided in :numref:`ARKODE.Mathematics.Adaptivity`.
 
 .. cssclass:: table-bordered
 
-==========================================================   ======================================  ========
-Optional input                                               Function name                           Default
-==========================================================   ======================================  ========
-Provide a :c:type:`SUNAdaptController` for ARKStep to use    :c:func:`ARKStepSetAdaptController()`   PID
-Provide a :c:type:`SUNHeuristics` for ARKStep to use         :c:func:`ARKStepSetHeuristics()`        Default
-Set a custom time step adaptivity function                   :c:func:`ARKStepSetAdaptivityFn()`      internal
-Choose an existing time step adaptivity method               :c:func:`ARKStepSetAdaptivityMethod()`  0
-Explicit stability safety factor                             :c:func:`ARKStepSetCFLFraction()`       0.5
-Time step error bias factor                                  :c:func:`ARKStepSetErrorBias()`         1.5
-Bounds determining no change in step size                    :c:func:`ARKStepSetFixedStepBounds()`   1.0  1.5
-Maximum step growth factor on convergence fail               :c:func:`ARKStepSetMaxCFailGrowth()`    0.25
-Maximum step growth factor on error test fail                :c:func:`ARKStepSetMaxEFailGrowth()`    0.3
-Maximum first step growth factor                             :c:func:`ARKStepSetMaxFirstGrowth()`    10000.0
-Maximum allowed general step growth factor                   :c:func:`ARKStepSetMaxGrowth()`         20.0
-Minimum allowed step reduction factor on error test fail     :c:func:`ARKStepSetMinReduction()`      0.1
-Time step safety factor                                      :c:func:`ARKStepSetSafetyFactor()`      0.96
-Error fails before MaxEFailGrowth takes effect               :c:func:`ARKStepSetSmallNumEFails()`    2
-Explicit stability function                                  :c:func:`ARKStepSetStabilityFn()`       none
-==========================================================   ======================================  ========
+============================================================   ========================================  ========
+Optional input                                                 Function name                             Default
+============================================================   ========================================  ========
+Provide a :c:type:`SUNAdaptController` for ARKStep to use      :c:func:`ARKStepSetAdaptController()`     PID
+Provide a :c:type:`SUNTimestepHeuristics` for ARKStep to use   :c:func:`ARKStepSetTimestepHeuristics()`  Default
+Set a custom time step adaptivity function                     :c:func:`ARKStepSetAdaptivityFn()`        internal
+Choose an existing time step adaptivity method                 :c:func:`ARKStepSetAdaptivityMethod()`    0
+Explicit stability safety factor                               :c:func:`ARKStepSetCFLFraction()`         0.5
+Time step error bias factor                                    :c:func:`ARKStepSetErrorBias()`           1.5
+Bounds determining no change in step size                      :c:func:`ARKStepSetFixedStepBounds()`     1.0  1.5
+Maximum step growth factor on convergence fail                 :c:func:`ARKStepSetMaxCFailGrowth()`      0.25
+Maximum step growth factor on error test fail                  :c:func:`ARKStepSetMaxEFailGrowth()`      0.3
+Maximum first step growth factor                               :c:func:`ARKStepSetMaxFirstGrowth()`      10000.0
+Maximum allowed general step growth factor                     :c:func:`ARKStepSetMaxGrowth()`           20.0
+Minimum allowed step reduction factor on error test fail       :c:func:`ARKStepSetMinReduction()`        0.1
+Time step safety factor                                        :c:func:`ARKStepSetSafetyFactor()`        0.96
+Error fails before MaxEFailGrowth takes effect                 :c:func:`ARKStepSetSmallNumEFails()`      2
+Explicit stability function                                    :c:func:`ARKStepSetStabilityFn()`         none
+============================================================   ========================================  ========
 
 
 
@@ -1744,13 +1744,13 @@ Explicit stability function                                  :c:func:`ARKStepSet
 
 
 
-.. c:function:: int ARKStepSetHeuristics(void* arkode_mem, SUNHeuristics H)
+.. c:function:: int ARKStepSetTimestepHeuristics(void* arkode_mem, SUNTimestepHeuristics H)
 
    Sets a user-supplied time-step heuristics constraint object.
 
    **Arguments:**
       * *arkode_mem* -- pointer to the ARKStep memory block.
-      * *H* -- user-supplied time step heuristic constraint object.  If ``NULL`` then the default heuristics object will be created (see :numref:`SUNHeuristics.Default`).
+      * *H* -- user-supplied time step heuristic constraint object.  If ``NULL`` then the default heuristics object will be created (see :numref:`SUNTimestepHeuristics.Default`).
 
    **Return value:**
       * *ARK_SUCCESS* if successful
@@ -1843,12 +1843,12 @@ Explicit stability function                                  :c:func:`ARKStepSet
       Any non-positive parameter will imply a reset to the default
       value.
 
-      If both this and :c:func:`ARKStepSetHeuristics` will be called, then this
+      If both this and :c:func:`ARKStepSetTimestepHeuristics` will be called, then this
       routine must be called *second*.
 
    .. deprecated:: x.x.x
 
-      Use the SUNHeuristics infrastructure instead (see :numref:`SUNHeuristics.Description`).
+      Use the SUNTimestepHeuristics infrastructure instead (see :numref:`SUNTimestepHeuristics.Description`).
 
 
 
@@ -1897,12 +1897,12 @@ Explicit stability function                                  :c:func:`ARKStepSet
    **Notes:**
       Any interval *not* containing 1.0 will imply a reset to the default values.
 
-      If both this and :c:func:`ARKStepSetHeuristics` will be called, then this
+      If both this and :c:func:`ARKStepSetTimestepHeuristics` will be called, then this
       routine must be called *second*.
 
    .. deprecated:: x.x.x
 
-      Use the SUNHeuristics infrastructure instead (see :numref:`SUNHeuristics.Description`).
+      Use the SUNTimestepHeuristics infrastructure instead (see :numref:`SUNTimestepHeuristics.Description`).
 
 
 
@@ -1925,12 +1925,12 @@ Explicit stability function                                  :c:func:`ARKStepSet
    **Notes:**
       Any value outside the interval :math:`(0,1]` will imply a reset to the default value.
 
-      If both this and :c:func:`ARKStepSetHeuristics` will be called, then this
+      If both this and :c:func:`ARKStepSetTimestepHeuristics` will be called, then this
       routine must be called *second*.
 
    .. deprecated:: x.x.x
 
-      Use the SUNHeuristics infrastructure instead (see :numref:`SUNHeuristics.Description`).
+      Use the SUNTimestepHeuristics infrastructure instead (see :numref:`SUNTimestepHeuristics.Description`).
 
 
 
@@ -1971,12 +1971,12 @@ Explicit stability function                                  :c:func:`ARKStepSet
    **Notes:**
       Any value :math:`\le 1.0` will imply a reset to the default value.
 
-      If both this and :c:func:`ARKStepSetHeuristics` will be called, then this
+      If both this and :c:func:`ARKStepSetTimestepHeuristics` will be called, then this
       routine must be called *second*.
 
    .. deprecated:: x.x.x
 
-      Use the SUNHeuristics infrastructure instead (see :numref:`SUNHeuristics.Description`).
+      Use the SUNTimestepHeuristics infrastructure instead (see :numref:`SUNTimestepHeuristics.Description`).
 
 
 
@@ -1998,12 +1998,12 @@ Explicit stability function                                  :c:func:`ARKStepSet
       Any value :math:`\le 1.0` will imply a reset to the default
       value.
 
-      If both this and :c:func:`ARKStepSetHeuristics` will be called, then this
+      If both this and :c:func:`ARKStepSetTimestepHeuristics` will be called, then this
       routine must be called *second*.
 
    .. deprecated:: x.x.x
 
-      Use the SUNHeuristics infrastructure instead (see :numref:`SUNHeuristics.Description`).
+      Use the SUNTimestepHeuristics infrastructure instead (see :numref:`SUNTimestepHeuristics.Description`).
 
 
 
@@ -2027,12 +2027,12 @@ Explicit stability function                                  :c:func:`ARKStepSet
       Any value outside the interval :math:`(0,1)` will imply a reset to
       the default value.
 
-      If both this and :c:func:`ARKStepSetHeuristics` will be called, then this
+      If both this and :c:func:`ARKStepSetTimestepHeuristics` will be called, then this
       routine must be called *second*.
 
    .. deprecated:: x.x.x
 
-      Use the SUNHeuristics infrastructure instead (see :numref:`SUNHeuristics.Description`).
+      Use the SUNTimestepHeuristics infrastructure instead (see :numref:`SUNTimestepHeuristics.Description`).
 
 
 
@@ -2054,12 +2054,12 @@ Explicit stability function                                  :c:func:`ARKStepSet
       Any value :math:`\le 0` will imply a reset to the default
       value.
 
-      If both this and :c:func:`ARKStepSetHeuristics` will be called, then this
+      If both this and :c:func:`ARKStepSetTimestepHeuristics` will be called, then this
       routine must be called *second*.
 
    .. deprecated:: x.x.x
 
-      Use the SUNHeuristics infrastructure instead (see :numref:`SUNHeuristics.Description`).
+      Use the SUNTimestepHeuristics infrastructure instead (see :numref:`SUNTimestepHeuristics.Description`).
 
 
 
@@ -2081,12 +2081,12 @@ Explicit stability function                                  :c:func:`ARKStepSet
    **Notes:**
       Any value :math:`\le 0` will imply a reset to the default value.
 
-      If both this and :c:func:`ARKStepSetHeuristics` will be called, then this
+      If both this and :c:func:`ARKStepSetTimestepHeuristics` will be called, then this
       routine must be called *second*.
 
    .. deprecated:: x.x.x
 
-      Use the SUNHeuristics infrastructure instead (see :numref:`SUNHeuristics.Description`).
+      Use the SUNTimestepHeuristics infrastructure instead (see :numref:`SUNTimestepHeuristics.Description`).
 
 
 
@@ -2114,12 +2114,12 @@ Explicit stability function                                  :c:func:`ARKStepSet
       be quite useful for problems where the explicit right-hand side
       function :math:`f^E(t,y)` contains stiff terms.
 
-      If both this and :c:func:`ARKStepSetHeuristics` will be called, then this
+      If both this and :c:func:`ARKStepSetTimestepHeuristics` will be called, then this
       routine must be called *second*.
 
    .. deprecated:: x.x.x
 
-      Use the SUNHeuristics infrastructure instead (see :numref:`SUNHeuristics.Description`).
+      Use the SUNTimestepHeuristics infrastructure instead (see :numref:`SUNTimestepHeuristics.Description`).
 
 
 

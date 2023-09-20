@@ -12,9 +12,9 @@
    SUNDIALS Copyright End
    ----------------------------------------------------------------
 
-.. include:: ../../../shared/sunheuristics/SUNHeuristics_Description.rst
+.. include:: ../../../shared/suntimestepheuristics/SUNTimestepHeuristics_Description.rst
 
 .. toctree::
    :maxdepth: 1
 
-   SUNHeuristics_links.rst
+   SUNTimestepHeuristics_links.rst

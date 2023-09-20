@@ -29,7 +29,7 @@
 #include <sundials/sundials_context.h>
 #include <sundials/sundials_linearsolver.h>
 #include <sundials/sundials_adaptcontroller.h>
-#include <sundials/sundials_heuristics.h>
+#include <sundials/sundials_timestepheuristics.h>
 #include "sundials_context_impl.h"
 #include "sundials_logger_impl.h"
 
@@ -384,7 +384,7 @@ struct ARKodeMemRec
   realtype tretlast;           /* value of tret last returned by ARKODE    */
   booleantype fixedstep;       /* flag to disable temporal adaptivity      */
   SUNAdaptController hcontroller; /* temporal error controller             */
-  SUNHeuristics hconstraints;  /* time step constraint heuristics          */
+  SUNTimestepHeuristics hconstraints;  /* time step constraint heuristics  */
 
 
   /* Limits and various solver parameters */
@@ -997,7 +997,7 @@ int arkCheckTemporalError(ARKodeMem ark_mem, int *nflagPtr, int *nefPtr,
                           realtype dsm);
 
 int arkSetAdaptController(void *arkode_mem, SUNAdaptController C);
-int arkSetHeuristics(void *arkode_mem, SUNHeuristics H);
+int arkSetTimestepHeuristics(void *arkode_mem, SUNTimestepHeuristics H);
 int arkSetDefaults(void *arkode_mem);
 int arkSetDenseOrder(void *arkode_mem, int dord);
 int arkSetInterpolantType(void *arkode_mem, int itype);

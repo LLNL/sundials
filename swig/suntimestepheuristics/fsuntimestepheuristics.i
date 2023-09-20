@@ -18,14 +18,14 @@
 %include "../sundials/fsundials.i"
 
 %{
-#include "sundials/sundials_heuristics.h"
+#include "sundials/sundials_timestepheuristics.h"
 %}
 
 // Load the typedefs and generate "use" statements
 %import "../sundials/fsundials_nvector_mod.i"
-%import "../sundials/fsundials_heuristics_mod.i"
+%import "../sundials/fsundials_timestepheuristics_mod.i"
 
 // Macro for creating an interface to an N_Vector
-%define %sunheuristics_impl(TYPE)
-  %ignore _SUNHeuristicsContent_## TYPE ##;
+%define %suntimestepheuristics_impl(TYPE)
+  %ignore SUNTimestepHeuristicsContent_##_ TYPE ##;
 %enddef

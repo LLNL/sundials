@@ -62,7 +62,7 @@
 #include "braid.h"                     // access to XBraid
 #include "arkode/arkode_xbraid.h"      // access to ARKStep + XBraid interface
 #include "sunadaptcontroller/sunadaptcontroller_i.h" // I-controller
-#include "sunheuristics/sunheuristics_default.h"     // heuristic time step constraints
+#include "suntimestepheuristics/suntimestepheuristics_default.h" // heuristic time step constraints
 
 
 // Macros for problem constants
@@ -568,16 +568,16 @@ int main(int argc, char* argv[])
     if (check_flag(&flag, "ARKStepSetAdaptController", 1)) return 1;
 
     // Use default heuristics constraints with some options
-    SUNHeuristics H = SUNHeuristicsDefault(ctx);
-    if (check_flag((void*) H, "SUNHeuristicsDefault", 0)) return 1;
+    SUNTimestepHeuristics H = SUNTimestepHeuristicsDefault(ctx);
+    if (check_flag((void*) H, "SUNTimestepHeuristicsDefault", 0)) return 1;
     //   Set the step size reduction factor limit (1 / refinement factor limit)
-    flag = SUNHeuristicsSetMinReduction(H, ONE / udata->x_rfactor_limit);
-    if (check_flag(&flag, "SUNHeuristicsSetMinReduction", 1)) return 1;
+    flag = SUNTimestepHeuristicsSetMinReduction(H, ONE / udata->x_rfactor_limit);
+    if (check_flag(&flag, "SUNTimestepHeuristicsSetMinReduction", 1)) return 1;
     //   Set the failed solve step size reduction factor (1 / refinement factor)
-    flag = SUNHeuristicsSetMaxCFailGrowth(H, ONE / udata->x_rfactor_fail);
-    if (check_flag(&flag, "SUNHeuristicsSetMaxCFailGrowth", 1)) return 1;
-    flag = ARKStepSetHeuristics(arkode_mem, H);
-    if (check_flag(&flag, "ARKStepSetHeuristics", 1)) return 1;
+    flag = SUNTimestepHeuristicsSetMaxCFailGrowth(H, ONE / udata->x_rfactor_fail);
+    if (check_flag(&flag, "SUNTimestepHeuristicsSetMaxCFailGrowth", 1)) return 1;
+    flag = ARKStepSetTimestepHeuristics(arkode_mem, H);
+    if (check_flag(&flag, "ARKStepSetTimestepHeuristics", 1)) return 1;
   }
 
   // Set diagnostics output file

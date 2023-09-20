@@ -133,13 +133,13 @@ Changes from previous versions
 Changes in vX.X.X
 -----------------
 
-Added :c:type:`SUNAdaptController` and :c:type:`SUNHeuristics` base classes.  Ported
-ARKODE's internal implementations of time step control and heuristic
+Added :c:type:`SUNAdaptController` and :c:type:`SUNTimestepHeuristics` base classes.
+Ported ARKODE's internal implementations of time step control and heuristic
 constraints into implementations of these classes, and updated ARKODE to use
 these objects instead of its own implementations.  Added
-:c:func:`ARKStepSetAdaptController`,  :c:func:`ARKStepSetHeuristics`,
-:c:func:`ERKStepSetAdaptController`, and :c:func:`ERKStepSetHeuristics` routines
-so that users can modify controller/heuristic parameters, or even provide
+:c:func:`ARKStepSetAdaptController`,  :c:func:`ARKStepSetTimestepHeuristics`,
+:c:func:`ERKStepSetAdaptController`, and :c:func:`ERKStepSetTimestepHeuristics`
+routines so that users can modify controller/heuristic parameters, or even provide
 custom implementations.
 
 

@@ -4,13 +4,13 @@
 
 Renamed some internal types in CVODES and IDAS to allow both packages to be built together in the same binary.
 
-Added `SUNAdaptController` and `SUNHeuristics` base classes.  Ported ARKODE's internal
-implementations of time step control and heuristic constraints into
-implementations of these classes, and updated ARKODE to use these objects
+Added `SUNAdaptController` and `SUNTimestepHeuristics` base classes.  Ported
+ARKODE's internal implementations of time step control and heuristic constraints
+into implementations of these classes, and updated ARKODE to use these objects
 instead of its own implementations.  Added `ARKStepSetAdaptController`,
-`ARKStepSetHeuristics`, `ERKStepSetAdaptController`, and `ERKStepSetHeuristics`
-routines so that users can modify controller/heuristic parameters, or even
-provide custom implementations.
+`ARKStepSetTimestepHeuristics`, `ERKStepSetAdaptController`, and
+`ERKStepSetTimestepHeuristics` routines so that users can modify
+controller/heuristic parameters, or even provide custom implementations.
 
 ## Changes to SUNDIALS in release 6.6.1
 

@@ -13,13 +13,13 @@
 # ---------------------------------------------------------------
 
 # Create a library out of the generic sundials modules
-sundials_add_library(sundials_sunheuristicsdefault
+sundials_add_library(sundials_suntimestepheuristicsdefault
   SOURCES
-    sunheuristics_default.c
+    suntimestepheuristics_default.c
   HEADERS
-    ${SUNDIALS_SOURCE_DIR}/include/sunheuristics/sunheuristics_default.h
+    ${SUNDIALS_SOURCE_DIR}/include/suntimestepheuristics/suntimestepheuristics_default.h
   INCLUDE_SUBDIR
-    sunheuristics
+    suntimestepheuristics
   OBJECT_LIB_ONLY
 )
 

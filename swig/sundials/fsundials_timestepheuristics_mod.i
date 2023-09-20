@@ -14,16 +14,16 @@
 // Swig interface file
 // ---------------------------------------------------------------
 
-%module fsunheuristics_default_mod
+%module fsundials_timestepheuristics_mod
 
-// include code common to all implementations
-%include "fsunheuristics.i"
+// Load the typedefs and generate a "use" statement in the module
+%import "../sundials/fsundials_types_mod.i"
+%import "../sundials/fsundials_context_mod.i"
+%import "../sundials/fsundials_nvector_mod.i"
 
 %{
-#include "sunheuristics/sunheuristics_default.h"
+#include "sundials/sundials_timestepheuristics.h"
 %}
 
-%sunheuristics_impl(Default)
-
 // Process and wrap functions in the following files
-%include "sunheuristics/sunheuristics_default.h"
+%include "sundials/sundials_timestepheuristics.h"

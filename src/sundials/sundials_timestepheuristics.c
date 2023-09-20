@@ -11,34 +11,35 @@
  * SPDX-License-Identifier: BSD-3-Clause
  * SUNDIALS Copyright End
  * -----------------------------------------------------------------
- * This is the implementation file for a generic SUNHeuristics
- * package. It contains the implementation of the SUNHeuristics
- * operations listed in sundials_heuristics.h
+ * This is the implementation file for a generic
+ * SUNTimestepHeuristics package. It contains the implementation of
+ * the SUNTimestepHeuristics operations listed in
+ * sundials_timestepheuristics.h
  * -----------------------------------------------------------------*/
 
-#include <sundials/sundials_heuristics.h>
+#include <sundials/sundials_timestepheuristics.h>
 #include <sundials/sundials_nvector.h>
 
 /* -----------------------------------------------------------------
- * Create a new empty SUNHeuristics object
+ * Create a new empty SUNTimestepHeuristics object
  * ----------------------------------------------------------------- */
 
-SUNHeuristics SUNHeuristics_NewEmpty(SUNContext sunctx)
+SUNTimestepHeuristics SUNTimestepHeuristics_NewEmpty(SUNContext sunctx)
 {
-  SUNHeuristics H;
-  SUNHeuristics_Ops ops;
+  SUNTimestepHeuristics H;
+  SUNTimestepHeuristics_Ops ops;
 
   /* a context is required */
   if (sunctx == NULL) return(NULL);
 
   /* create heuristics object */
   H = NULL;
-  H = (SUNHeuristics) malloc(sizeof *H);
+  H = (SUNTimestepHeuristics) malloc(sizeof *H);
   if (H == NULL) return(NULL);
 
   /* create matrix ops structure */
   ops = NULL;
-  ops = (SUNHeuristics_Ops) malloc(sizeof *ops);
+  ops = (SUNTimestepHeuristics_Ops) malloc(sizeof *ops);
   if (ops == NULL) { free(H); return(NULL); }
 
   /* initialize operations to NULL */
@@ -82,9 +83,9 @@ SUNHeuristics SUNHeuristics_NewEmpty(SUNContext sunctx)
  * Required functions in the 'ops' structure
  * ----------------------------------------------------------------- */
 
-SUNHeuristics_ID SUNHeuristics_GetID(SUNHeuristics H)
+SUNTimestepHeuristics_ID SUNTimestepHeuristics_GetID(SUNTimestepHeuristics H)
 {
-  if (H == NULL) { return SUNDIALS_HEURISTICS_NULL; }
+  if (H == NULL) { return SUN_TIMESTEPHEURISTICS_NULL; }
   return(H->ops->getid(H));
 }
 
@@ -92,9 +93,9 @@ SUNHeuristics_ID SUNHeuristics_GetID(SUNHeuristics H)
  * Optional functions in the 'ops' structure
  * ----------------------------------------------------------------- */
 
-int SUNHeuristics_Destroy(SUNHeuristics H)
+int SUNTimestepHeuristics_Destroy(SUNTimestepHeuristics H)
 {
-  if (H == NULL) return(SUNHEURISTICS_SUCCESS);
+  if (H == NULL) return(SUNTIMESTEPHEURISTICS_SUCCESS);
 
   /* if the destroy operation exists use it */
   if (H->ops)
@@ -106,11 +107,12 @@ int SUNHeuristics_Destroy(SUNHeuristics H)
   if (H->ops) { free(H->ops); H->ops = NULL; }
   free(H); H = NULL;
 
-  return(SUNHEURISTICS_SUCCESS);
+  return(SUNTIMESTEPHEURISTICS_SUCCESS);
 }
 
-int SUNHeuristics_ConstrainStep(SUNHeuristics H, realtype hcur,
-                                realtype hnew, realtype *hconstr)
+int SUNTimestepHeuristics_ConstrainStep(SUNTimestepHeuristics H,
+                                        realtype hcur,
+                                        realtype hnew, realtype *hconstr)
 {
   int ier = 0;
   *hconstr = hnew;   /* initialize output with identity */
@@ -121,8 +123,10 @@ int SUNHeuristics_ConstrainStep(SUNHeuristics H, realtype hcur,
   return(ier);
 }
 
-int SUNHeuristics_ETestFail(SUNHeuristics H, realtype hcur,
-                            realtype hnew, int nef, realtype *hconstr)
+int SUNTimestepHeuristics_ETestFail(SUNTimestepHeuristics H,
+                                    realtype hcur,
+                                    realtype hnew, int nef,
+                                    realtype *hconstr)
 {
   int ier = 0;
   *hconstr = hnew;   /* initialize output with identity */
@@ -133,8 +137,9 @@ int SUNHeuristics_ETestFail(SUNHeuristics H, realtype hcur,
   return(ier);
 }
 
-int SUNHeuristics_ConvFail(SUNHeuristics H, realtype hcur,
-                           realtype *hconstr)
+int SUNTimestepHeuristics_ConvFail(SUNTimestepHeuristics H,
+                                   realtype hcur,
+                                   realtype *hconstr)
 {
   int ier = 0;
   *hconstr = hcur;   /* initialize output with identity */
@@ -145,8 +150,10 @@ int SUNHeuristics_ConvFail(SUNHeuristics H, realtype hcur,
   return(ier);
 }
 
-int SUNHeuristics_BoundReduction(SUNHeuristics H, realtype hcur,
-                                 realtype hnew, realtype *hconstr)
+int SUNTimestepHeuristics_BoundReduction(SUNTimestepHeuristics H,
+                                         realtype hcur,
+                                         realtype hnew,
+                                         realtype *hconstr)
 {
   int ier = 0;
   *hconstr = hnew;   /* initialize output with identity */
@@ -158,8 +165,9 @@ int SUNHeuristics_BoundReduction(SUNHeuristics H, realtype hcur,
 }
 
 
-int SUNHeuristics_BoundFirstStep(SUNHeuristics H, realtype h0,
-                                 realtype *h0constr)
+int SUNTimestepHeuristics_BoundFirstStep(SUNTimestepHeuristics H,
+                                         realtype h0,
+                                         realtype *h0constr)
 {
   int ier = 0;
   *h0constr = h0;   /* initialize output with identity */
@@ -171,35 +179,36 @@ int SUNHeuristics_BoundFirstStep(SUNHeuristics H, realtype h0,
 }
 
 
-int SUNHeuristics_Reset(SUNHeuristics H)
+int SUNTimestepHeuristics_Reset(SUNTimestepHeuristics H)
 {
   int ier = 0;
   if (H->ops->reset) { ier = H->ops->reset(H); }
   return(ier);
 }
 
-int SUNHeuristics_Update(SUNHeuristics H)
+int SUNTimestepHeuristics_Update(SUNTimestepHeuristics H)
 {
   int ier = 0;
   if (H->ops->update) { ier = H->ops->update(H); }
   return(ier);
 }
 
-int SUNHeuristics_SetDefaults(SUNHeuristics H)
+int SUNTimestepHeuristics_SetDefaults(SUNTimestepHeuristics H)
 {
   int ier = 0;
   if (H->ops->setdefaults) { ier = H->ops->setdefaults(H); }
   return(ier);
 }
 
-int SUNHeuristics_Write(SUNHeuristics H, FILE* fptr)
+int SUNTimestepHeuristics_Write(SUNTimestepHeuristics H, FILE* fptr)
 {
   int ier = 0;
   if (H->ops->write) { ier = H->ops->write(H, fptr); }
   return(ier);
 }
 
-int SUNHeuristics_SetMaxStep(SUNHeuristics H, realtype hmax)
+int SUNTimestepHeuristics_SetMaxStep(SUNTimestepHeuristics H,
+                                     realtype hmax)
 {
   int ier = 0;
   if (H->ops->setmaxstep)
@@ -209,7 +218,8 @@ int SUNHeuristics_SetMaxStep(SUNHeuristics H, realtype hmax)
   return(ier);
 }
 
-int SUNHeuristics_SetMinStep(SUNHeuristics H, realtype hmin)
+int SUNTimestepHeuristics_SetMinStep(SUNTimestepHeuristics H,
+                                     realtype hmin)
 {
   int ier = 0;
   if (H->ops->setminstep)
@@ -219,9 +229,9 @@ int SUNHeuristics_SetMinStep(SUNHeuristics H, realtype hmin)
   return(ier);
 }
 
-int SUNHeuristics_SetExpStabFn(SUNHeuristics H,
-                               SUNExpStabFn EStab,
-                               void* estab_data)
+int SUNTimestepHeuristics_SetExpStabFn(SUNTimestepHeuristics H,
+                                       SUNExpStabFn EStab,
+                                       void* estab_data)
 {
   int ier = 0;
   if (H->ops->setexpstabfn)
@@ -231,8 +241,8 @@ int SUNHeuristics_SetExpStabFn(SUNHeuristics H,
   return(ier);
 }
 
-int SUNHeuristics_SetCFLFraction(SUNHeuristics H,
-                                 realtype cfl_frac)
+int SUNTimestepHeuristics_SetCFLFraction(SUNTimestepHeuristics H,
+                                         realtype cfl_frac)
 {
   int ier = 0;
   if (H->ops->setcflfraction)
@@ -242,7 +252,8 @@ int SUNHeuristics_SetCFLFraction(SUNHeuristics H,
   return(ier);
 }
 
-int SUNHeuristics_SetSafetyFactor(SUNHeuristics H, realtype safety)
+int SUNTimestepHeuristics_SetSafetyFactor(SUNTimestepHeuristics H,
+                                          realtype safety)
 {
   int ier = 0;
   if (H->ops->setsafetyfactor)
@@ -252,8 +263,8 @@ int SUNHeuristics_SetSafetyFactor(SUNHeuristics H, realtype safety)
   return(ier);
 }
 
-int SUNHeuristics_SetMaxGrowth(SUNHeuristics H,
-                               realtype mx_growth)
+int SUNTimestepHeuristics_SetMaxGrowth(SUNTimestepHeuristics H,
+                                       realtype mx_growth)
 {
   int ier = 0;
   if (H->ops->setmaxgrowth)
@@ -263,8 +274,8 @@ int SUNHeuristics_SetMaxGrowth(SUNHeuristics H,
   return(ier);
 }
 
-int SUNHeuristics_SetMinReduction(SUNHeuristics H,
-                                  realtype eta_min)
+int SUNTimestepHeuristics_SetMinReduction(SUNTimestepHeuristics H,
+                                          realtype eta_min)
 {
   int ier = 0;
   if (H->ops->setminreduction)
@@ -274,8 +285,8 @@ int SUNHeuristics_SetMinReduction(SUNHeuristics H,
   return(ier);
 }
 
-int SUNHeuristics_SetFixedStepBounds(SUNHeuristics H,
-                                     realtype lb, realtype ub)
+int SUNTimestepHeuristics_SetFixedStepBounds(SUNTimestepHeuristics H,
+                                             realtype lb, realtype ub)
 {
   int ier = 0;
   if (H->ops->setfixedstepbounds)
@@ -285,8 +296,8 @@ int SUNHeuristics_SetFixedStepBounds(SUNHeuristics H,
   return(ier);
 }
 
-int SUNHeuristics_SetMaxFirstGrowth(SUNHeuristics H,
-                                    realtype etamx1)
+int SUNTimestepHeuristics_SetMaxFirstGrowth(SUNTimestepHeuristics H,
+                                            realtype etamx1)
 {
   int ier = 0;
   if (H->ops->setmaxfirstgrowth)
@@ -296,8 +307,8 @@ int SUNHeuristics_SetMaxFirstGrowth(SUNHeuristics H,
   return(ier);
 }
 
-int SUNHeuristics_SetMaxEFailGrowth(SUNHeuristics H,
-                                    realtype etamxf)
+int SUNTimestepHeuristics_SetMaxEFailGrowth(SUNTimestepHeuristics H,
+                                            realtype etamxf)
 {
   int ier = 0;
   if (H->ops->setmaxefailgrowth)
@@ -307,8 +318,8 @@ int SUNHeuristics_SetMaxEFailGrowth(SUNHeuristics H,
   return(ier);
 }
 
-int SUNHeuristics_SetSmallNumEFails(SUNHeuristics H,
-                                    int small_nef)
+int SUNTimestepHeuristics_SetSmallNumEFails(SUNTimestepHeuristics H,
+                                            int small_nef)
 {
   int ier = 0;
   if (H->ops->setsmallnumefails)
@@ -318,8 +329,8 @@ int SUNHeuristics_SetSmallNumEFails(SUNHeuristics H,
   return(ier);
 }
 
-int SUNHeuristics_SetMaxCFailGrowth(SUNHeuristics H,
-                                    realtype etacf)
+int SUNTimestepHeuristics_SetMaxCFailGrowth(SUNTimestepHeuristics H,
+                                            realtype etacf)
 {
   int ier = 0;
   if (H->ops->setmaxcfailgrowth)
@@ -329,8 +340,8 @@ int SUNHeuristics_SetMaxCFailGrowth(SUNHeuristics H,
   return(ier);
 }
 
-int SUNHeuristics_GetNumExpSteps(SUNHeuristics H,
-                                 long int* expsteps)
+int SUNTimestepHeuristics_GetNumExpSteps(SUNTimestepHeuristics H,
+                                         long int* expsteps)
 {
   int ier = 0;
   *expsteps = 0;   /* initialize output with identity */
@@ -341,8 +352,8 @@ int SUNHeuristics_GetNumExpSteps(SUNHeuristics H,
   return(ier);
 }
 
-int SUNHeuristics_GetNumAccSteps(SUNHeuristics H,
-                                 long int* accsteps)
+int SUNTimestepHeuristics_GetNumAccSteps(SUNTimestepHeuristics H,
+                                         long int* accsteps)
 {
   int ier = 0;
   *accsteps = 0;   /* initialize output with identity */
@@ -353,8 +364,9 @@ int SUNHeuristics_GetNumAccSteps(SUNHeuristics H,
   return(ier);
 }
 
-int SUNHeuristics_Space(SUNHeuristics H, long int *lenrw,
-                        long int *leniw)
+int SUNTimestepHeuristics_Space(SUNTimestepHeuristics H,
+                                long int *lenrw,
+                                long int *leniw)
 {
   int ier = 0;
   *lenrw = 0;   /* initialize outputs with identity */

@@ -12,21 +12,21 @@
    SUNDIALS Copyright End
    ----------------------------------------------------------------
 
-.. _SUNHeuristics.Default:
+.. _SUNTimestepHeuristics.Default:
 
-The SUNHeuristics_Default Module
-======================================
+The SUNTimestepHeuristics_Default Module
+========================================
 
-The default implementation of the SUNHeuristics class, SUNHeuristics_Default,
+The default implementation of the SUNTimestepHeuristics class, SUNTimestepHeuristics_Default,
 implements a myriad of heuristics control features used throughout SUNDIALS
 integrators.
 
-This is implemented as a derived SUNHeuristics class, and defines its *content*
+This is implemented as a derived SUNTimestepHeuristics class, and defines its *content*
 field as:
 
 .. code-block:: c
 
-   struct _SUNHeuristicsContent_Default {
+   struct SUNTimestepHeuristicsContent_Default_ {
      realtype     hmax_inv;
      realtype     hmin;
      realtype     etamax;
@@ -47,7 +47,7 @@ field as:
    };
 
 These entries of the *content* field contain parameters to store all options
-specified by "set" routines in the base SUNHeuristics class.  The one
+specified by "set" routines in the base SUNTimestepHeuristics class.  The one
 non-obvious of these parameters is ``etamax``, that is changed dynamically
 throughout the course of a calculation:
 
@@ -59,17 +59,15 @@ throughout the course of a calculation:
    \end{cases}
 
 The header file to be included when using this module is
-``sunheuristics/sunheuristics_default.h``.
+``suntimestepheuristics/suntimestepheuristics_default.h``.
 
+The SUNTimestepHeuristics_Default class provides implementations of all controller
+operations listed in :numref:`SUNTimestepHeuristics.Description.operations`. The
+SUNTimestepHeuristics_Default class also provides the following constructor routine:
 
-The SUNHeuristics_Default class provides implementations of all controller
-operations listed in :numref:`SUNHeuristics.Description.operations`. The
-SUNHeuristics_Default class also provides the following constructor routine:
-
-
-.. c:function:: SUNHeuristics SUNHeuristicsDefault(SUNContext sunctx)
+.. c:function:: SUNTimestepHeuristics SUNTimestepHeuristicsDefault(SUNContext sunctx)
 
    This constructor function creates and allocates memory for a
-   SUNHeuristics_Default object, and inserts its default parameters.  The only
+   SUNTimestepHeuristics_Default object, and inserts its default parameters.  The only
    argument is the SUNDIALS context object.  Upon successful completion it will
-   return a :c:type:`SUNHeuristics` object; otherwise it will return ``NULL``.
+   return a :c:type:`SUNTimestepHeuristics` object; otherwise it will return ``NULL``.

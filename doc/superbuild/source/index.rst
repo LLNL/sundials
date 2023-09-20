@@ -40,7 +40,7 @@ SUNDIALS is developed on `GitHub <https://github.com/LLNL/sundials>`_.
    sunlinsol/index.rst
    sunnonlinsol/index.rst
    sunadaptcontroller/index.rst
-   sunheuristics/index.rst
+   suntimestepheuristics/index.rst
    sunmemory/index.rst
    Install_link.rst
    History_link.rst

@@ -10,5 +10,5 @@
    SUNDIALS Copyright End
    ----------------------------------------------------------------
 
-.. include:: ../../../shared/sunheuristics/SUNHeuristics_Default.rst
-.. include:: ../../../shared/sunheuristics/SUNHeuristics_Unconstrained.rst
+.. include:: ../../../shared/suntimestepheuristics/SUNTimestepHeuristics_Default.rst
+.. include:: ../../../shared/suntimestepheuristics/SUNTimestepHeuristics_Unconstrained.rst

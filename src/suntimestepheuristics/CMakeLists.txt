@@ -11,7 +11,7 @@
 # SPDX-License-Identifier: BSD-3-Clause
 # SUNDIALS Copyright End
 # ------------------------------------------------------------------------------
-# heuristics level CMakeLists.txt for SUNDIALS
+# suntimestepheuristics level CMakeLists.txt for SUNDIALS
 # ------------------------------------------------------------------------------
 
 # required native matrices

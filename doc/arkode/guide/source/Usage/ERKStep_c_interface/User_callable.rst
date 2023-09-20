@@ -842,12 +842,12 @@ Optional inputs for ERKStep
    **Notes:**
       Pass *hmax* :math:`\le 0.0` to set the default value of :math:`\infty`.
 
-      If both this and :c:func:`ERKStepSetHeuristics` will be called, then this
+      If both this and :c:func:`ERKStepSetTimestepHeuristics` will be called, then this
       routine must be called *second*.
 
    .. deprecated:: x.x.x
 
-      Use the SUNHeuristics infrastructure instead (see :numref:`SUNHeuristics.Description`).
+      Use the SUNTimestepHeuristics infrastructure instead (see :numref:`SUNTimestepHeuristics.Description`).
 
 
 .. c:function:: int ERKStepSetMinStep(void* arkode_mem, realtype hmin)
@@ -866,12 +866,12 @@ Optional inputs for ERKStep
    **Notes:**
       Pass *hmin* :math:`\le 0.0` to set the default value of 0.
 
-      If both this and :c:func:`ERKStepSetHeuristics` will be called, then this
+      If both this and :c:func:`ERKStepSetTimestepHeuristics` will be called, then this
       routine must be called *second*.
 
    .. deprecated:: x.x.x
 
-      Use the SUNHeuristics infrastructure instead (see :numref:`SUNHeuristics.Description`).
+      Use the SUNTimestepHeuristics infrastructure instead (see :numref:`SUNTimestepHeuristics.Description`).
 
 
 .. c:function:: int ERKStepSetStopTime(void* arkode_mem, realtype tstop)
@@ -1171,37 +1171,38 @@ the code, is provided in :numref:`ARKODE.Mathematics.Adaptivity`.
 .. _ARKODE.Usage.ERKStep.ERKStepAdaptivityInputTable:
 .. table:: Optional inputs for time step adaptivity
 
-   +-----------------------------------------------------------+----------------------------------------+-----------+
-   | Optional input                                            | Function name                          | Default   |
-   +-----------------------------------------------------------+----------------------------------------+-----------+
-   | Provide a :c:type:`SUNAdaptController` for ERKStep to use | :c:func:`ERKStepSetAdaptController()`  | PI        |
-   +-----------------------------------------------------------+----------------------------------------+-----------+
-   | Provide a :c:type:`SUNHeuristics` for ERKStep to use      | :c:func:`ERKStepSetHeuristics()`       | Default   |
-   +-----------------------------------------------------------+----------------------------------------+-----------+
-   | Set a custom time step adaptivity function                | :c:func:`ERKStepSetAdaptivityFn()`     | internal  |
-   +-----------------------------------------------------------+----------------------------------------+-----------+
-   | Choose an existing time step adaptivity method            | :c:func:`ERKStepSetAdaptivityMethod()` | 0         |
-   +-----------------------------------------------------------+----------------------------------------+-----------+
-   | Explicit stability safety factor                          | :c:func:`ERKStepSetCFLFraction()`      | 0.5       |
-   +-----------------------------------------------------------+----------------------------------------+-----------+
-   | Time step error bias factor                               | :c:func:`ERKStepSetErrorBias()`        | 1.5       |
-   +-----------------------------------------------------------+----------------------------------------+-----------+
-   | Bounds determining no change in step size                 | :c:func:`ERKStepSetFixedStepBounds()`  | 1.0  1.5  |
-   +-----------------------------------------------------------+----------------------------------------+-----------+
-   | Maximum step growth factor on error test fail             | :c:func:`ERKStepSetMaxEFailGrowth()`   | 0.3       |
-   +-----------------------------------------------------------+----------------------------------------+-----------+
-   | Maximum first step growth factor                          | :c:func:`ERKStepSetMaxFirstGrowth()`   | 10000.0   |
-   +-----------------------------------------------------------+----------------------------------------+-----------+
-   | Maximum allowed general step growth factor                | :c:func:`ERKStepSetMaxGrowth()`        | 20.0      |
-   +-----------------------------------------------------------+----------------------------------------+-----------+
-   | Minimum allowed step reduction factor on error test fail  | :c:func:`ERKStepSetMinReduction()`     | 0.1       |
-   +-----------------------------------------------------------+----------------------------------------+-----------+
-   | Time step safety factor                                   | :c:func:`ERKStepSetSafetyFactor()`     | 0.96      |
-   +-----------------------------------------------------------+----------------------------------------+-----------+
-   | Error fails before MaxEFailGrowth takes effect            | :c:func:`ERKStepSetSmallNumEFails()`   | 2         |
-   +-----------------------------------------------------------+----------------------------------------+-----------+
-   | Explicit stability function                               | :c:func:`ERKStepSetStabilityFn()`      | none      |
-   +-----------------------------------------------------------+----------------------------------------+-----------+
+   +-----------------------------------------------------------+------------------------------------------+-----------+
+   | Optional input                                            | Function name                            | Default   |
+   +-----------------------------------------------------------+------------------------------------------+-----------+
+   | Provide a :c:type:`SUNAdaptController` for ERKStep to use | :c:func:`ERKStepSetAdaptController()`    | PI        |
+   +-----------------------------------------------------------+------------------------------------------+-----------+
+   | Provide a :c:type:`SUNTimestepHeuristics` for ERKStep to  | :c:func:`ERKStepSetTimestepHeuristics()` | Default   |
+   | use                                                       |                                          |           |
+   +-----------------------------------------------------------+------------------------------------------+-----------+
+   | Set a custom time step adaptivity function                | :c:func:`ERKStepSetAdaptivityFn()`       | internal  |
+   +-----------------------------------------------------------+------------------------------------------+-----------+
+   | Choose an existing time step adaptivity method            | :c:func:`ERKStepSetAdaptivityMethod()`   | 0         |
+   +-----------------------------------------------------------+------------------------------------------+-----------+
+   | Explicit stability safety factor                          | :c:func:`ERKStepSetCFLFraction()`        | 0.5       |
+   +-----------------------------------------------------------+------------------------------------------+-----------+
+   | Time step error bias factor                               | :c:func:`ERKStepSetErrorBias()`          | 1.5       |
+   +-----------------------------------------------------------+------------------------------------------+-----------+
+   | Bounds determining no change in step size                 | :c:func:`ERKStepSetFixedStepBounds()`    | 1.0  1.5  |
+   +-----------------------------------------------------------+------------------------------------------+-----------+
+   | Maximum step growth factor on error test fail             | :c:func:`ERKStepSetMaxEFailGrowth()`     | 0.3       |
+   +-----------------------------------------------------------+------------------------------------------+-----------+
+   | Maximum first step growth factor                          | :c:func:`ERKStepSetMaxFirstGrowth()`     | 10000.0   |
+   +-----------------------------------------------------------+------------------------------------------+-----------+
+   | Maximum allowed general step growth factor                | :c:func:`ERKStepSetMaxGrowth()`          | 20.0      |
+   +-----------------------------------------------------------+------------------------------------------+-----------+
+   | Minimum allowed step reduction factor on error test fail  | :c:func:`ERKStepSetMinReduction()`       | 0.1       |
+   +-----------------------------------------------------------+------------------------------------------+-----------+
+   | Time step safety factor                                   | :c:func:`ERKStepSetSafetyFactor()`       | 0.96      |
+   +-----------------------------------------------------------+------------------------------------------+-----------+
+   | Error fails before MaxEFailGrowth takes effect            | :c:func:`ERKStepSetSmallNumEFails()`     | 2         |
+   +-----------------------------------------------------------+------------------------------------------+-----------+
+   | Explicit stability function                               | :c:func:`ERKStepSetStabilityFn()`        | none      |
+   +-----------------------------------------------------------+------------------------------------------+-----------+
 
 
 
@@ -1222,13 +1223,13 @@ the code, is provided in :numref:`ARKODE.Mathematics.Adaptivity`.
 
 
 
-.. c:function:: int ERKStepSetHeuristics(void* arkode_mem, SUNHeuristics H)
+.. c:function:: int ERKStepSetTimestepHeuristics(void* arkode_mem, SUNTimestepHeuristics H)
 
    Sets a user-supplied time-step heuristics constraint object.
 
    **Arguments:**
       * *arkode_mem* -- pointer to the ERKStep memory block.
-      * *H* -- user-supplied time step heuristic constraint object.  If ``NULL`` then the default heuristics object will be created (see :numref:`SUNHeuristics.Default`).
+      * *H* -- user-supplied time step heuristic constraint object.  If ``NULL`` then the default heuristics object will be created (see :numref:`SUNTimestepHeuristics.Default`).
 
    **Return value:**
       * *ARK_SUCCESS* if successful
@@ -1319,12 +1320,12 @@ the code, is provided in :numref:`ARKODE.Mathematics.Adaptivity`.
       Any non-positive parameter will imply a reset to the default
       value.
 
-      If both this and :c:func:`ERKStepSetHeuristics` will be called, then this
+      If both this and :c:func:`ERKStepSetTimestepHeuristics` will be called, then this
       routine must be called *second*.
 
    .. deprecated:: x.x.x
 
-      Use the SUNHeuristics infrastructure instead (see :numref:`SUNHeuristics.Description`).
+      Use the SUNTimestepHeuristics infrastructure instead (see :numref:`SUNTimestepHeuristics.Description`).
 
 
 .. c:function:: int ERKStepSetErrorBias(void* arkode_mem, realtype bias)
@@ -1371,12 +1372,12 @@ the code, is provided in :numref:`ARKODE.Mathematics.Adaptivity`.
    **Notes:**
       Any interval *not* containing 1.0 will imply a reset to the default values.
 
-      If both this and :c:func:`ERKStepSetHeuristics` will be called, then this
+      If both this and :c:func:`ERKStepSetTimestepHeuristics` will be called, then this
       routine must be called *second*.
 
    .. deprecated:: x.x.x
 
-      Use the SUNHeuristics infrastructure instead (see :numref:`SUNHeuristics.Description`).
+      Use the SUNTimestepHeuristics infrastructure instead (see :numref:`SUNTimestepHeuristics.Description`).
 
 
 .. c:function:: int ERKStepSetMaxEFailGrowth(void* arkode_mem, realtype etamxf)
@@ -1396,12 +1397,12 @@ the code, is provided in :numref:`ARKODE.Mathematics.Adaptivity`.
    **Notes:**
       Any value outside the interval :math:`(0,1]` will imply a reset to the default value.
 
-      If both this and :c:func:`ERKStepSetHeuristics` will be called, then this
+      If both this and :c:func:`ERKStepSetTimestepHeuristics` will be called, then this
       routine must be called *second*.
 
    .. deprecated:: x.x.x
 
-      Use the SUNHeuristics infrastructure instead (see :numref:`SUNHeuristics.Description`).
+      Use the SUNTimestepHeuristics infrastructure instead (see :numref:`SUNTimestepHeuristics.Description`).
 
 
 .. c:function:: int ERKStepSetMaxFirstGrowth(void* arkode_mem, realtype etamx1)
@@ -1422,12 +1423,12 @@ the code, is provided in :numref:`ARKODE.Mathematics.Adaptivity`.
    **Notes:**
       Any value :math:`\le 1.0` will imply a reset to the default value.
 
-      If both this and :c:func:`ERKStepSetHeuristics` will be called, then this
+      If both this and :c:func:`ERKStepSetTimestepHeuristics` will be called, then this
       routine must be called *second*.
 
    .. deprecated:: x.x.x
 
-      Use the SUNHeuristics infrastructure instead (see :numref:`SUNHeuristics.Description`).
+      Use the SUNTimestepHeuristics infrastructure instead (see :numref:`SUNTimestepHeuristics.Description`).
 
 
 .. c:function:: int ERKStepSetMaxGrowth(void* arkode_mem, realtype mx_growth)
@@ -1448,12 +1449,12 @@ the code, is provided in :numref:`ARKODE.Mathematics.Adaptivity`.
       Any value :math:`\le 1.0` will imply a reset to the default
       value.
 
-      If both this and :c:func:`ERKStepSetHeuristics` will be called, then this
+      If both this and :c:func:`ERKStepSetTimestepHeuristics` will be called, then this
       routine must be called *second*.
 
    .. deprecated:: x.x.x
 
-      Use the SUNHeuristics infrastructure instead (see :numref:`SUNHeuristics.Description`).
+      Use the SUNTimestepHeuristics infrastructure instead (see :numref:`SUNTimestepHeuristics.Description`).
 
 
 .. c:function:: int ERKStepSetMinReduction(void* arkode_mem, realtype eta_min)
@@ -1476,12 +1477,12 @@ the code, is provided in :numref:`ARKODE.Mathematics.Adaptivity`.
       Any value :math:`\ge 1.0` or :math:`\le 0.0` will imply a reset to
       the default value.
 
-      If both this and :c:func:`ERKStepSetHeuristics` will be called, then this
+      If both this and :c:func:`ERKStepSetTimestepHeuristics` will be called, then this
       routine must be called *second*.
 
    .. deprecated:: x.x.x
 
-      Use the SUNHeuristics infrastructure instead (see :numref:`SUNHeuristics.Description`).
+      Use the SUNTimestepHeuristics infrastructure instead (see :numref:`SUNTimestepHeuristics.Description`).
 
 
 .. c:function:: int ERKStepSetSafetyFactor(void* arkode_mem, realtype safety)
@@ -1502,12 +1503,12 @@ the code, is provided in :numref:`ARKODE.Mathematics.Adaptivity`.
       Any non-positive parameter will imply a reset to the default
       value.
 
-      If both this and :c:func:`ERKStepSetHeuristics` will be called, then this
+      If both this and :c:func:`ERKStepSetTimestepHeuristics` will be called, then this
       routine must be called *second*.
 
    .. deprecated:: x.x.x
 
-      Use the SUNHeuristics infrastructure instead (see :numref:`SUNHeuristics.Description`).
+      Use the SUNTimestepHeuristics infrastructure instead (see :numref:`SUNTimestepHeuristics.Description`).
 
 
 .. c:function:: int ERKStepSetSmallNumEFails(void* arkode_mem, int small_nef)
@@ -1528,12 +1529,12 @@ the code, is provided in :numref:`ARKODE.Mathematics.Adaptivity`.
    **Notes:**
       Any non-positive parameter will imply a reset to the default value.
 
-      If both this and :c:func:`ERKStepSetHeuristics` will be called, then this
+      If both this and :c:func:`ERKStepSetTimestepHeuristics` will be called, then this
       routine must be called *second*.
 
    .. deprecated:: x.x.x
 
-      Use the SUNHeuristics infrastructure instead (see :numref:`SUNHeuristics.Description`).
+      Use the SUNTimestepHeuristics infrastructure instead (see :numref:`SUNTimestepHeuristics.Description`).
 
 
 .. c:function:: int ERKStepSetStabilityFn(void* arkode_mem, ARKExpStabFn EStab, void* estab_data)
@@ -1560,12 +1561,12 @@ the code, is provided in :numref:`ARKODE.Mathematics.Adaptivity`.
       where the right-hand side function :math:`f(t,y)` contains stiff
       terms.
 
-      If both this and :c:func:`ERKStepSetHeuristics` will be called, then this
+      If both this and :c:func:`ERKStepSetTimestepHeuristics` will be called, then this
       routine must be called *second*.
 
    .. deprecated:: x.x.x
 
-      Use the SUNHeuristics infrastructure instead (see :numref:`SUNHeuristics.Description`).
+      Use the SUNTimestepHeuristics infrastructure instead (see :numref:`SUNTimestepHeuristics.Description`).
 
 
 

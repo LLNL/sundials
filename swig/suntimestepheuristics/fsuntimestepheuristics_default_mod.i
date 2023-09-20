@@ -14,16 +14,16 @@
 // Swig interface file
 // ---------------------------------------------------------------
 
-%module fsunheuristics_unconstrained_mod
+%module fsuntimestepheuristics_default_mod
 
 // include code common to all implementations
-%include "fsunheuristics.i"
+%include "fsuntimestepheuristics.i"
 
 %{
-#include "sunheuristics/sunheuristics_unconstrained.h"
+#include "suntimestepheuristics/suntimestepheuristics_default.h"
 %}
 
-%sunheuristics_impl(Unconstrained)
+%suntimestepheuristics_impl(Default)
 
 // Process and wrap functions in the following files
-%include "sunheuristics/sunheuristics_unconstrained.h"
+%include "suntimestepheuristics/suntimestepheuristics_default.h"

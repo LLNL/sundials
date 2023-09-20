@@ -16,7 +16,7 @@
 
 #include <stdio.h>
 #include <stdlib.h>
-#include <sundials/sundials_heuristics.h>
+#include <sundials/sundials_timestepheuristics.h>
 #include "arkode_impl.h"
 
 
@@ -63,10 +63,10 @@ void ARKUserStability_Free(void* sdata)
 int ARKControlExpStab(realtype *hstab, void* sdata)
 {
   int retval;
-  if (sdata == NULL) { return(SUNHEURISTICS_USER_FCN_FAIL); }
+  if (sdata == NULL) { return(SUNTIMESTEPHEURISTICS_USER_FCN_FAIL); }
   ARKUserStabilityData X = (ARKUserStabilityData) sdata;
   ARKodeMem ark_mem = (ARKodeMem) (X->arkode_mem);
   retval = (X->EStab)(ark_mem->ycur, ark_mem->tn, hstab, X->estab_data);
-  if (retval != ARK_SUCCESS) { return(SUNHEURISTICS_USER_FCN_FAIL); }
-  return(SUNHEURISTICS_SUCCESS);
+  if (retval != ARK_SUCCESS) { return(SUNTIMESTEPHEURISTICS_USER_FCN_FAIL); }
+  return(SUNTIMESTEPHEURISTICS_SUCCESS);
 }

@@ -126,7 +126,6 @@ $tar $tarfile $distrobase/include/sundials/sundials_context.h
 $tar $tarfile $distrobase/include/sundials/sundials_context.hpp
 $tar $tarfile $distrobase/include/sundials/sundials_convertibleto.hpp
 $tar $tarfile $distrobase/include/sundials/sundials_cuda_policies.hpp
-$tar $tarfile $distrobase/include/sundials/sundials_heuristics.h
 $tar $tarfile $distrobase/include/sundials/sundials_hip_policies.hpp
 $tar $tarfile $distrobase/include/sundials/sundials_types.h
 $tar $tarfile $distrobase/include/sundials/sundials_mpi_types.h
@@ -155,6 +154,7 @@ $tar $tarfile $distrobase/include/sundials/sundials_nvector_senswrapper.h
 $tar $tarfile $distrobase/include/sundials/sundials_nvector.h
 $tar $tarfile $distrobase/include/sundials/sundials_profiler.h
 $tar $tarfile $distrobase/include/sundials/sundials_sycl_policies.hpp
+$tar $tarfile $distrobase/include/sundials/sundials_timestepheuristics.h
 $tar $tarfile $distrobase/include/sundials/sundials_types.h
 $tar $tarfile $distrobase/include/sundials/sundials_version.h
 $tar $tarfile $distrobase/include/sundials/sundials_xbraid.h
@@ -185,8 +185,8 @@ $tar $tarfile $distrobase/include/sunadaptcontroller/sunadaptcontroller_impgus.h
 $tar $tarfile $distrobase/include/sunadaptcontroller/sunadaptcontroller_pi.h
 $tar $tarfile $distrobase/include/sunadaptcontroller/sunadaptcontroller_pid.h
 
-$tar $tarfile $distrobase/include/sunheuristics/sunheuristics_default.h
-$tar $tarfile $distrobase/include/sunheuristics/sunheuristics_unconstrained.h
+$tar $tarfile $distrobase/include/suntimestepheuristics/suntimestepheuristics_default.h
+$tar $tarfile $distrobase/include/suntimestepheuristics/suntimestepheuristics_unconstrained.h
 
 $tar $tarfile $distrobase/include/sunmatrix/sunmatrix_band.h
 $tar $tarfile $distrobase/include/sunmatrix/sunmatrix_cusparse.h
@@ -265,7 +265,6 @@ $tar $tarfile $distrobase/src/sundials/sundials_dense.c
 $tar $tarfile $distrobase/src/sundials/sundials_direct.c
 $tar $tarfile $distrobase/src/sundials/sundials_futils.c
 $tar $tarfile $distrobase/src/sundials/sundials_hashmap.h
-$tar $tarfile $distrobase/src/sundials/sundials_heuristics.c
 $tar $tarfile $distrobase/src/sundials/sundials_hip.h
 $tar $tarfile $distrobase/src/sundials/sundials_hip_kernels.hip.hpp
 $tar $tarfile $distrobase/src/sundials/sundials_iterative_impl.h
@@ -283,6 +282,7 @@ $tar $tarfile $distrobase/src/sundials/sundials_nvector_senswrapper.c
 $tar $tarfile $distrobase/src/sundials/sundials_profiler.c
 $tar $tarfile $distrobase/src/sundials/sundials_reductions.hpp
 $tar $tarfile $distrobase/src/sundials/sundials_sycl.h
+$tar $tarfile $distrobase/src/sundials/sundials_timestepheuristics.c
 $tar $tarfile $distrobase/src/sundials/sundials_utils.h
 $tar $tarfile $distrobase/src/sundials/sundials_version.c
 $tar $tarfile $distrobase/src/sundials/sundials_xbraid.c
@@ -419,19 +419,19 @@ echo "   --- Add sunadaptcontroller/pid_control module to $tarfile"
 $tar $tarfile $distrobase/src/sunadaptcontroller/pid/CMakeLists.txt
 $tar $tarfile $distrobase/src/sunadaptcontroller/pid/sunadaptcontroller_pid.c
 
-echo "   --- Add sunheuristics modules to $tarfile"
+echo "   --- Add suntimestepheuristics modules to $tarfile"
 
-$tar $tarfile $distrobase/src/sunheuristics/CMakeLists.txt
+$tar $tarfile $distrobase/src/suntimestepheuristics/CMakeLists.txt
 
-echo "   --- Add sunheuristics/default module to $tarfile"
+echo "   --- Add suntimestepheuristics/default module to $tarfile"
 
-$tar $tarfile $distrobase/src/sunheuristics/default/CMakeLists.txt
-$tar $tarfile $distrobase/src/sunheuristics/default/sunheuristics_default.c
+$tar $tarfile $distrobase/src/suntimestepheuristics/default/CMakeLists.txt
+$tar $tarfile $distrobase/src/suntimestepheuristics/default/suntimestepheuristics_default.c
 
-echo "   --- Add sunheuristics/unconstrained module to $tarfile"
+echo "   --- Add suntimestepheuristics/unconstrained module to $tarfile"
 
-$tar $tarfile $distrobase/src/sunheuristics/unconstrained/CMakeLists.txt
-$tar $tarfile $distrobase/src/sunheuristics/unconstrained/sunheuristics_unconstrained.c
+$tar $tarfile $distrobase/src/suntimestepheuristics/unconstrained/CMakeLists.txt
+$tar $tarfile $distrobase/src/suntimestepheuristics/unconstrained/suntimestepheuristics_unconstrained.c
 
 echo "   --- Add sunmatrix modules to $tarfile"
 

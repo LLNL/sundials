@@ -428,7 +428,8 @@ contains the ARKODE output constants.
    +-------------------------------------+------+------------------------------------------------------------+
    | :index:`ARK_CONTROLLER_ERR`         | -47  | An error with a SUNAdaptController object was encountered. |
    +-------------------------------------+------+------------------------------------------------------------+
-   | :index:`ARK_HEURISTICS_ERR`         | -48  | An error with the SUNHeuristics object was encountered.    |
+   | :index:`ARK_HEURISTICS_ERR`         | -48  | An error with the SUNTimestepHeuristics object was         |
+   |                                     |      | encountered.                                               |
    +-------------------------------------+------+------------------------------------------------------------+
    | :index:`ARK_UNRECOGNIZED_ERROR`     | -99  | An unknown error was encountered.                          |
    +-------------------------------------+------+------------------------------------------------------------+

@@ -478,7 +478,7 @@ int main(int argc, char* argv[])
     case (ARK_ADAPT_IMP_GUS):  C = SUNAdaptControllerImpGus(ctx);  break;
     case (ARK_ADAPT_IMEX_GUS): C = SUNAdaptControllerImExGus(ctx); break;
     }
-    flag = ARKStepSetyController(arkode_mem, C);
+    flag = ARKStepSetAdaptController(arkode_mem, C);
     if (check_flag(&flag, "ARKStepSetAdaptController", 1)) return 1;
   }
 

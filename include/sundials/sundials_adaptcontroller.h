@@ -119,15 +119,15 @@ struct generic_SUNAdaptController_
  * Functions exported by SUNAdaptController module
  * ----------------------------------------------------------------- */
 
-/* Function to create an empty SUNHeuristics data structure. */
+/* Function to create an empty SUNAdaptController data structure. */
 SUNDIALS_EXPORT
 SUNAdaptController SUNAdaptController_NewEmpty(SUNContext sunctx);
 
-/* Function to report the type of a SUNHeuristics object. */
+/* Function to report the type of a SUNAdaptController object. */
 SUNDIALS_EXPORT
 SUNAdaptController_Type SUNAdaptController_GetType(SUNAdaptController C);
 
-/* Function to deallocate a SUNHeuristics object.
+/* Function to deallocate a SUNAdaptController object.
 
    Any return value other than SUNADAPTCONTROLLER_SUCCESS will be treated as
    an unrecoverable failure. */

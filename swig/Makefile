@@ -20,19 +20,19 @@ CVODES=fcvodes_mod
 IDA=fida_mod
 IDAS=fidas_mod
 KINSOL=fkinsol_mod
-GENERIC=fsundials_types_mod fsundials_nvector_mod fsundials_matrix_mod fsundials_linearsolver_mod fsundials_nonlinearsolver_mod fsundials_futils_mod fsundials_context_mod fsundials_profiler_mod fsundials_logger_mod fsundials_adaptcontroller_mod fsundials_heuristics_mod
+GENERIC=fsundials_types_mod fsundials_nvector_mod fsundials_matrix_mod fsundials_linearsolver_mod fsundials_nonlinearsolver_mod fsundials_futils_mod fsundials_context_mod fsundials_profiler_mod fsundials_logger_mod fsundials_adaptcontroller_mod fsundials_timestepheuristics_mod
 NVECTOR=openmp pthreads serial parallel manyvector mpiplusx
 SUNMATRIX=band dense sparse
-SUNHEURISTICS=default unconstrained
+SUNTIMESTEPHEURISTICS=default unconstrained
 SUNADAPTCONTROLLER=expgus imexgus i impgus pid pi
 SUNLINSOL=band dense klu spbcgs spfgmr spgmr sptfqmr pcg
 SUNNONLINSOL=newton fixedpoint
 
 INCLUDES=-I../include
 
-.PHONY: generic arkode cvode cvodes ida idas kinsol nvector sunmatrix sunlinsol sunnonlinsol sunadaptcontroller sunheuristics patch
+.PHONY: generic arkode cvode cvodes ida idas kinsol nvector sunmatrix sunlinsol sunnonlinsol sunadaptcontroller suntimestepheuristics patch
 
-all: generic arkode cvode cvodes ida idas kinsol nvector sunmatrix sunlinsol sunnonlinsol sunadaptcontroller sunheuristics patch
+all: generic arkode cvode cvodes ida idas kinsol nvector sunmatrix sunlinsol sunnonlinsol sunadaptcontroller suntimestepheuristics patch
 
 arkode: $(ARKODE:%:arkode/%.i)
 	@for i in ${ARKODE} ; do \
@@ -110,10 +110,10 @@ sunadaptcontroller: $(SUNADAPTCONTROLLER:%:sunadaptcontroller/fsunadaptcontrolle
 		swig -fortran -outdir ../src/sunadaptcontroller/$${i}/fmod -o ../src/sunadaptcontroller/$${i}/fmod/fsunadaptcontroller_$${i}_mod.c ${INCLUDES} sunadaptcontroller/fsunadaptcontroller_$${i}_mod.i ; \
 	done
 
-sunheuristics: $(SUNHEURISTICS:%:sunheuristics/fsunheuristics_%_mod.i)
-	@for i in ${SUNHEURISTICS} ; do \
-		echo "swig -fortran -outdir ../src/sunheuristics/$${i}/fmod -o ../src/sunheuristics/$${i}/fmod ${INCLUDES} sunheuristics/fsunheuristics_$${i}_mod.i" ; \
-		swig -fortran -outdir ../src/sunheuristics/$${i}/fmod -o ../src/sunheuristics/$${i}/fmod/fsunheuristics_$${i}_mod.c ${INCLUDES} sunheuristics/fsunheuristics_$${i}_mod.i ; \
+suntimestepheuristics: $(SUNTIMESTEPHEURISTICS:%:suntimestepheuristics/fsuntimestepheuristics_%_mod.i)
+	@for i in ${SUNTIMESTEPHEURISTICS} ; do \
+		echo "swig -fortran -outdir ../src/suntimestepheuristics/$${i}/fmod -o ../src/suntimestepheuristics/$${i}/fmod ${INCLUDES} suntimestepheuristics/fsuntimestepheuristics_$${i}_mod.i" ; \
+		swig -fortran -outdir ../src/suntimestepheuristics/$${i}/fmod -o ../src/suntimestepheuristics/$${i}/fmod/fsuntimestepheuristics_$${i}_mod.c ${INCLUDES} suntimestepheuristics/fsuntimestepheuristics_$${i}_mod.i ; \
 	done
 
 patch: .FORCE
