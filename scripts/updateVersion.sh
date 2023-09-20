@@ -20,7 +20,7 @@
 # releases the label string is "".
 sun_major=${1:-6}
 sun_minor=${2:-6}
-sun_patch=${3:-0}
+sun_patch=${3:-1}
 sun_label=${4:-""}
 month=${5:-$(date +"%b")}
 year=${6:-$(date +"%Y")}
@@ -352,18 +352,18 @@ sedi '23 a\
 
 # Update CITATIONS.md
 fn="../CITATIONS.md"
-sedi '64s/.*/\ \ year   = {'${year}'},/' $fn
-sedi '65s/.*/\ \ note   = {v'${ark_ver}'}/' $fn
-sedi '73s/.*/\ \ year   = {'${year}'},/' $fn
-sedi '74s/.*/\ \ note   = {v'${cv_ver}'}/' $fn
-sedi '82s/.*/\ \ year   = {'${year}'},/' $fn
-sedi '83s/.*/\ \ note   = {v'${cvs_ver}'}/' $fn
-sedi '91s/.*/\ \ year   = {'${year}'},/' $fn
-sedi '92s/.*/\ \ note   = {v'${ida_ver}'}/' $fn
-sedi '100s/.*/\ \ year   = {'${year}'},/' $fn
-sedi '101s/.*/\ \ note   = {v'${idas_ver}'}/' $fn
-sedi '109s/.*/\ \ year   = {'${year}'},/' $fn
-sedi '110s/.*/\ \ note   = {v'${kin_ver}'}/' $fn
+sedi '68s/.*/\ \ year   = {'${year}'},/' $fn
+sedi '69s/.*/\ \ note   = {v'${ark_ver}'}/' $fn
+sedi '77s/.*/\ \ year   = {'${year}'},/' $fn
+sedi '78s/.*/\ \ note   = {v'${cv_ver}'}/' $fn
+sedi '86s/.*/\ \ year   = {'${year}'},/' $fn
+sedi '87s/.*/\ \ note   = {v'${cvs_ver}'}/' $fn
+sedi '95s/.*/\ \ year   = {'${year}'},/' $fn
+sedi '96s/.*/\ \ note   = {v'${ida_ver}'}/' $fn
+sedi '104s/.*/\ \ year   = {'${year}'},/' $fn
+sedi '105s/.*/\ \ note   = {v'${idas_ver}'}/' $fn
+sedi '113s/.*/\ \ year   = {'${year}'},/' $fn
+sedi '114s/.*/\ \ note   = {v'${kin_ver}'}/' $fn
 
 # Update all occurrences of x.x.x and X.X.X to the current version number
 fn="../CHANGELOG.md"
@@ -371,7 +371,6 @@ sedi "s/x.x.x/${sun_ver}/gI" $fn
 
 for fn in $(grep -Iirl "x.x.x" ../doc/arkode/guide/source/*)
 do
-    echo "update: $fn"
     sedi "s/x.x.x/${ark_ver}/gI" $fn
 done
 

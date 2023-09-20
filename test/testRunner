@@ -201,6 +201,8 @@ def main():
             dateTime = datetime.datetime.now().strftime("%m%d%Y_%H%M%S")
             profilePath = os.path.join(caliDir, args.testName+".%s.cali" % dateTime)
             os.environ['CALI_SERVICES_ENABLE'] = 'env'
+            os.environ['TEST_NAME'] = testName
+            os.environ['CALI_ENV_EXTRA'] = 'TEST_NAME'
             os.environ['CALI_CONFIG'] = 'spot(output=%s)' % profilePath
 
         # if user supplies precision info overide the default choices
