@@ -94,7 +94,7 @@ SUNHeuristics_ID SUNHeuristics_GetID(SUNHeuristics H)
 
 int SUNHeuristics_Destroy(SUNHeuristics H)
 {
-  if (H == NULL) return;
+  if (H == NULL) return(SUNHEURISTICS_SUCCESS);
 
   /* if the destroy operation exists use it */
   if (H->ops)

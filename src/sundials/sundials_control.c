@@ -101,7 +101,7 @@ SUNControl_Type SUNControl_GetType(SUNControl C)
 
 int SUNControl_Destroy(SUNControl C)
 {
-  if (C == NULL) return;
+  if (C == NULL) return(SUNCONTROL_SUCCESS);
 
   /* if the destroy operation exists use it */
   if (C->ops)
