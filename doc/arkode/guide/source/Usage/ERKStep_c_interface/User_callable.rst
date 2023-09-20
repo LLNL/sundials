@@ -1174,7 +1174,7 @@ the code, is provided in :numref:`ARKODE.Mathematics.Adaptivity`.
    +-----------------------------------------------------------+----------------------------------------+-----------+
    | Optional input                                            | Function name                          | Default   |
    +-----------------------------------------------------------+----------------------------------------+-----------+
-   | Provide a :c:type:`SUNControl` for ERKStep to use         | :c:func:`ERKStepSetController()`       | PI        |
+   | Provide a :c:type:`SUNAdaptController` for ERKStep to use | :c:func:`ERKStepSetAdaptController()`  | PI        |
    +-----------------------------------------------------------+----------------------------------------+-----------+
    | Provide a :c:type:`SUNHeuristics` for ERKStep to use      | :c:func:`ERKStepSetHeuristics()`       | Default   |
    +-----------------------------------------------------------+----------------------------------------+-----------+
@@ -1205,13 +1205,13 @@ the code, is provided in :numref:`ARKODE.Mathematics.Adaptivity`.
 
 
 
-.. c:function:: int ERKStepSetController(void* arkode_mem, SUNControl C)
+.. c:function:: int ERKStepSetAdaptController(void* arkode_mem, SUNAdaptController C)
 
    Sets a user-supplied time-step controller object.
 
    **Arguments:**
       * *arkode_mem* -- pointer to the ERKStep memory block.
-      * *C* -- user-supplied time adaptivity controller.  If ``NULL`` then the PID controller will be created (see :numref:`SUNControl.PID`).
+      * *C* -- user-supplied time adaptivity controller.  If ``NULL`` then the PID controller will be created (see :numref:`SUNAdaptController.PID`).
 
    **Return value:**
       * *ARK_SUCCESS* if successful
@@ -1262,7 +1262,7 @@ the code, is provided in :numref:`ARKODE.Mathematics.Adaptivity`.
 
    .. deprecated:: x.x.x
 
-      Use the SUNControl infrastructure instead (see :numref:`SUNControl.Description`).
+      Use the SUNAdaptController infrastructure instead (see :numref:`SUNAdaptController.Description`).
 
 
 .. c:function:: int ERKStepSetAdaptivityMethod(void* arkode_mem, int imethod, int idefault, int pq, realtype* adapt_params)
@@ -1299,7 +1299,7 @@ the code, is provided in :numref:`ARKODE.Mathematics.Adaptivity`.
 
    .. deprecated:: x.x.x
 
-      Use the SUNControl infrastructure instead (see :numref:`SUNControl.Description`).
+      Use the SUNAdaptController infrastructure instead (see :numref:`SUNAdaptController.Description`).
 
 
 .. c:function:: int ERKStepSetCFLFraction(void* arkode_mem, realtype cfl_frac)
@@ -1346,12 +1346,12 @@ the code, is provided in :numref:`ARKODE.Mathematics.Adaptivity`.
       Any value below 1.0 will imply a reset to the default value.
 
       If both this and one of :c:func:`ERKStepSetAdaptivityMethod` or
-      :c:func:`ERKStepSetController` will be called, then this routine must be called
+      :c:func:`ERKStepSetAdaptController` will be called, then this routine must be called
       *second*.
 
    .. deprecated:: x.x.x
 
-      Use the SUNControl infrastructure instead (see :numref:`SUNControl.Description`).
+      Use the SUNAdaptController infrastructure instead (see :numref:`SUNAdaptController.Description`).
 
 
 .. c:function:: int ERKStepSetFixedStepBounds(void* arkode_mem, realtype lb, realtype ub)

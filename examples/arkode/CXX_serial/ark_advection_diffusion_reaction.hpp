@@ -33,12 +33,12 @@
 #include "nvector/nvector_serial.h"
 #include "sunmatrix/sunmatrix_band.h"
 #include "sunlinsol/sunlinsol_band.h"
-#include "suncontrol/suncontrol_pid.h"
-#include "suncontrol/suncontrol_pi.h"
-#include "suncontrol/suncontrol_i.h"
-#include "suncontrol/suncontrol_expgus.h"
-#include "suncontrol/suncontrol_impgus.h"
-#include "suncontrol/suncontrol_imexgus.h"
+#include "sunadaptcontroller/sunadaptcontroller_pid.h"
+#include "sunadaptcontroller/sunadaptcontroller_pi.h"
+#include "sunadaptcontroller/sunadaptcontroller_i.h"
+#include "sunadaptcontroller/sunadaptcontroller_expgus.h"
+#include "sunadaptcontroller/sunadaptcontroller_impgus.h"
+#include "sunadaptcontroller/sunadaptcontroller_imexgus.h"
 
 // Macros for problem constants
 #define PI    RCONST(3.141592653589793238462643383279502884197169)
@@ -254,14 +254,14 @@ int J_adv_diff_react(realtype t, N_Vector y, N_Vector fy, SUNMatrix J,
 
 // Integrator setup functions
 int SetupERK(SUNContext ctx, UserData &udata, UserOptions &uopts, N_Vector y,
-             SUNControl* C, void** arkode_mem);
+             SUNAdaptController* C, void** arkode_mem);
 
 int SetupARK(SUNContext ctx, UserData &udata, UserOptions &uopts, N_Vector y,
-             SUNMatrix* A, SUNLinearSolver* LS, SUNControl* C, void** arkode_mem);
+             SUNMatrix* A, SUNLinearSolver* LS, SUNAdaptController* C, void** arkode_mem);
 
 int SetupMRIARK(SUNContext ctx, UserData &udata, UserOptions &uopts,
                 N_Vector y, SUNMatrix* A, SUNLinearSolver* LS,
-                SUNMatrix* A_fast, SUNLinearSolver* LS_fast, SUNControl* C_fast,
+                SUNMatrix* A_fast, SUNLinearSolver* LS_fast, SUNAdaptController* C_fast,
                 MRIStepInnerStepper* fast_mem, void** arkode_mem);
 
 int SetupMRICVODE(SUNContext ctx, UserData &udata, UserOptions &uopts,

@@ -64,7 +64,7 @@ with support by the `US Department of Energy <http://www.doe.gov>`_,
    sunmatrix/index.rst
    sunlinsol/index.rst
    sunnonlinsol/index.rst
-   suncontrol/index.rst
+   sunadaptcontroller/index.rst
    sunheuristics/index.rst
    sunmemory/index.rst
    Install_link.rst

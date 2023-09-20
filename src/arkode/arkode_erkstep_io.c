@@ -25,7 +25,7 @@
 #include "arkode_erkstep_impl.h"
 #include <sundials/sundials_math.h>
 #include <sundials/sundials_types.h>
-#include <suncontrol/suncontrol_pi.h>
+#include <sunadaptcontroller/sunadaptcontroller_pi.h>
 #include <sunheuristics/sunheuristics_default.h>
 
 
@@ -80,8 +80,8 @@ int ERKStepSetMaxErrTestFails(void *arkode_mem, int maxnef) {
   return(arkSetMaxErrTestFails(arkode_mem, maxnef)); }
 int ERKStepSetFixedStep(void *arkode_mem, realtype hfixed) {
   return(arkSetFixedStep(arkode_mem, hfixed)); }
-int ERKStepSetController(void *arkode_mem, SUNControl C) {
-  return(arkSetController(arkode_mem, C)); }
+int ERKStepSetAdaptController(void *arkode_mem, SUNAdaptController C) {
+  return(arkSetAdaptController(arkode_mem, C)); }
 int ERKStepSetHeuristics(void *arkode_mem, SUNHeuristics H) {
   return(arkSetHeuristics(arkode_mem, H)); }
 
@@ -289,7 +289,7 @@ int ERKStepSetSafetyFactor(void *arkode_mem, realtype safety)
 
 /*---------------------------------------------------------------
   ERKStepSetErrorBias: user should create/attach a
-  SUNControl object, and set this directly therein.
+  SUNAdaptController object, and set this directly therein.
   ---------------------------------------------------------------*/
 int ERKStepSetErrorBias(void *arkode_mem, realtype bias)
 {
@@ -301,8 +301,8 @@ int ERKStepSetErrorBias(void *arkode_mem, realtype bias)
     return(ARK_MEM_NULL);
   }
   ark_mem = (ARKodeMem) arkode_mem;
-  retval = SUNControl_SetErrorBias(ark_mem->hcontroller, bias);
-  if (retval != SUNCONTROL_SUCCESS) { return(ARK_ILL_INPUT); }
+  retval = SUNAdaptController_SetErrorBias(ark_mem->hcontroller, bias);
+  if (retval != SUNADAPTCONTROLLER_SUCCESS) { return(ARK_ILL_INPUT); }
   return(ARK_SUCCESS);
 }
 
@@ -365,7 +365,7 @@ int ERKStepSetFixedStepBounds(void *arkode_mem, realtype lb, realtype ub)
 
 /*---------------------------------------------------------------
   ERKStepSetAdaptivityMethod: user should create/attach a
-  specific SUNControl object.
+  specific SUNAdaptController object.
   ---------------------------------------------------------------*/
 int ERKStepSetAdaptivityMethod(void *arkode_mem, int imethod, int idefault,
                                int pq, realtype adapt_params[3]) {
@@ -373,7 +373,7 @@ int ERKStepSetAdaptivityMethod(void *arkode_mem, int imethod, int idefault,
 
 /*---------------------------------------------------------------
   ERKStepSetAdaptivityFn: user should create/attach a custom
-  SUNControl object.
+  SUNAdaptController object.
   ---------------------------------------------------------------*/
 int ERKStepSetAdaptivityFn(void *arkode_mem, ARKAdaptFn hfun, void *h_data) {
   return(arkSetAdaptivityFn(arkode_mem, hfun, h_data)); }
@@ -498,19 +498,19 @@ int ERKStepSetDefaults(void* arkode_mem)
     ark_mem->lrw += lenrw;
   }
 
-  /* Remove current SUNControl object, and replace with "PI" */
-  retval = SUNControl_Space(ark_mem->hcontroller, &lenrw, &leniw);
-  if (retval == SUNCONTROL_SUCCESS) {
+  /* Remove current SUNAdaptController object, and replace with "PI" */
+  retval = SUNAdaptController_Space(ark_mem->hcontroller, &lenrw, &leniw);
+  if (retval == SUNADAPTCONTROLLER_SUCCESS) {
     ark_mem->liw -= leniw;
     ark_mem->lrw -= lenrw;
   }
-  SUNControl_Destroy(ark_mem->hcontroller);
+  SUNAdaptController_Destroy(ark_mem->hcontroller);
   ark_mem->hcontroller = NULL;
-  ark_mem->hcontroller = SUNControlPI(ark_mem->sunctx);
+  ark_mem->hcontroller = SUNAdaptControllerPI(ark_mem->sunctx);
   if (ark_mem->hcontroller == NULL) {
     arkProcessError(ark_mem, ARK_MEM_FAIL, "ARKODE::ERKStep",
                     "ERKStepSetDefaults",
-                    "SUNControlPI allocation failure");
+                    "SUNAdaptControllerPI allocation failure");
     return(ARK_MEM_FAIL);
   }
 
@@ -520,9 +520,9 @@ int ERKStepSetDefaults(void* arkode_mem)
   step_mem->p = 0;                             /* embedding order */
   step_mem->stages = 0;                        /* no stages */
   step_mem->B = NULL;                          /* no Butcher table */
-  (void) SUNControl_SetErrorBias(ark_mem->hcontroller, RCONST(1.2));
-  (void) SUNControlPI_SetParams(ark_mem->hcontroller, SUNFALSE,
-                                RCONST(0.8), RCONST(0.31));
+  (void) SUNAdaptController_SetErrorBias(ark_mem->hcontroller, RCONST(1.2));
+  (void) SUNAdaptControllerPI_SetParams(ark_mem->hcontroller, SUNFALSE,
+                                        RCONST(0.8), RCONST(0.31));
   (void) SUNHeuristics_SetSafetyFactor(ark_mem->hconstraints, RCONST(0.99));
   (void) SUNHeuristics_SetMaxEFailGrowth(ark_mem->hconstraints, RCONST(0.3));
   (void) SUNHeuristics_SetMaxGrowth(ark_mem->hconstraints, RCONST(25.0));

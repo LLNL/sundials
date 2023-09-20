@@ -20,7 +20,7 @@
 #include <sundials/sundials_nvector.h>
 #include <sundials/sundials_linearsolver.h>
 #include <sundials/sundials_nonlinearsolver.h>
-#include <sundials/sundials_control.h>
+#include <sundials/sundials_adaptcontroller.h>
 #include <sundials/sundials_heuristics.h>
 #include <arkode/arkode.h>
 #include <arkode/arkode_ls.h>
@@ -183,7 +183,7 @@ SUNDIALS_EXPORT int ARKStepSetTableNum(void *arkode_mem,
                                        ARKODE_DIRKTableID itable, ARKODE_ERKTableID etable);
 SUNDIALS_EXPORT int ARKStepSetTableName(void *arkode_mem,
                                         const char *itable, const char *etable);
-SUNDIALS_EXPORT int ARKStepSetController(void *arkode_mem, SUNControl C);
+SUNDIALS_EXPORT int ARKStepSetAdaptController(void *arkode_mem, SUNAdaptController C);
 SUNDIALS_EXPORT int ARKStepSetHeuristics(void *arkode_mem, SUNHeuristics H);
 SUNDIALS_DEPRECATED_EXPORT_MSG("use SUNHeuristics instead")
 SUNDIALS_EXPORT int ARKStepSetCFLFraction(void *arkode_mem,
@@ -191,7 +191,7 @@ SUNDIALS_EXPORT int ARKStepSetCFLFraction(void *arkode_mem,
 SUNDIALS_DEPRECATED_EXPORT_MSG("use SUNHeuristics instead")
 SUNDIALS_EXPORT int ARKStepSetSafetyFactor(void *arkode_mem,
                                            realtype safety);
-SUNDIALS_DEPRECATED_EXPORT_MSG("use SUNControl instead")
+SUNDIALS_DEPRECATED_EXPORT_MSG("use SUNAdaptController instead")
 SUNDIALS_EXPORT int ARKStepSetErrorBias(void *arkode_mem,
                                         realtype bias);
 SUNDIALS_DEPRECATED_EXPORT_MSG("use SUNHeuristics instead")
@@ -203,12 +203,12 @@ SUNDIALS_EXPORT int ARKStepSetMinReduction(void *arkode_mem,
 SUNDIALS_DEPRECATED_EXPORT_MSG("use SUNHeuristics instead")
 SUNDIALS_EXPORT int ARKStepSetFixedStepBounds(void *arkode_mem,
                                               realtype lb, realtype ub);
-SUNDIALS_DEPRECATED_EXPORT_MSG("use SUNControl instead")
+SUNDIALS_DEPRECATED_EXPORT_MSG("use SUNAdaptController instead")
 SUNDIALS_EXPORT int ARKStepSetAdaptivityMethod(void *arkode_mem,
                                                int imethod,
                                                int idefault, int pq,
                                                realtype adapt_params[3]);
-SUNDIALS_DEPRECATED_EXPORT_MSG("use SUNControl instead")
+SUNDIALS_DEPRECATED_EXPORT_MSG("use SUNAdaptController instead")
 SUNDIALS_EXPORT int ARKStepSetAdaptivityFn(void *arkode_mem,
                                            ARKAdaptFn hfun,
                                            void *h_data);

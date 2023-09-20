@@ -426,7 +426,7 @@ contains the ARKODE output constants.
    | :index:`ARK_RELAX_JAC_FAIL`         | -46  | The relaxation Jacobian function returned an unrecoverable |
    |                                     |      | error                                                      |
    +-------------------------------------+------+------------------------------------------------------------+
-   | :index:`ARK_CONTROLLER_ERR`         | -47  | An error with the SUNController object was encountered.    |
+   | :index:`ARK_CONTROLLER_ERR`         | -47  | An error with a SUNAdaptController object was encountered. |
    +-------------------------------------+------+------------------------------------------------------------+
    | :index:`ARK_HEURISTICS_ERR`         | -48  | An error with the SUNHeuristics object was encountered.    |
    +-------------------------------------+------+------------------------------------------------------------+

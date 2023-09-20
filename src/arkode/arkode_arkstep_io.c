@@ -27,12 +27,12 @@
 #include "arkode_ls_impl.h"
 #include <sundials/sundials_math.h>
 #include <sundials/sundials_types.h>
-#include <suncontrol/suncontrol_pid.h>
-#include <suncontrol/suncontrol_pi.h>
-#include <suncontrol/suncontrol_i.h>
-#include <suncontrol/suncontrol_expgus.h>
-#include <suncontrol/suncontrol_impgus.h>
-#include <suncontrol/suncontrol_imexgus.h>
+#include <sunadaptcontroller/sunadaptcontroller_pid.h>
+#include <sunadaptcontroller/sunadaptcontroller_pi.h>
+#include <sunadaptcontroller/sunadaptcontroller_i.h>
+#include <sunadaptcontroller/sunadaptcontroller_expgus.h>
+#include <sunadaptcontroller/sunadaptcontroller_impgus.h>
+#include <sunadaptcontroller/sunadaptcontroller_imexgus.h>
 #include <sunheuristics/sunheuristics_default.h>
 
 /*===============================================================
@@ -86,8 +86,8 @@ int ARKStepSetFixedStep(void *arkode_mem, realtype hfixed) {
   return(arkSetFixedStep(arkode_mem, hfixed)); }
 int ARKStepSetMaxConvFails(void *arkode_mem, int maxncf) {
   return(arkSetMaxConvFails(arkode_mem, maxncf)); }
-int ARKStepSetController(void *arkode_mem, SUNControl C) {
-  return(arkSetController(arkode_mem, C)); }
+int ARKStepSetAdaptController(void *arkode_mem, SUNAdaptController C) {
+  return(arkSetAdaptController(arkode_mem, C)); }
 int ARKStepSetHeuristics(void *arkode_mem, SUNHeuristics H) {
   return(arkSetHeuristics(arkode_mem, H)); }
 
@@ -403,7 +403,7 @@ int ARKStepSetSafetyFactor(void *arkode_mem, realtype safety)
 
 /*---------------------------------------------------------------
   ARKStepSetErrorBias: user should create/attach a
-  SUNControl object, and set this directly therein.
+  SUNAdaptController object, and set this directly therein.
   ---------------------------------------------------------------*/
 int ARKStepSetErrorBias(void *arkode_mem, realtype bias)
 {
@@ -415,8 +415,8 @@ int ARKStepSetErrorBias(void *arkode_mem, realtype bias)
     return(ARK_MEM_NULL);
   }
   ark_mem = (ARKodeMem) arkode_mem;
-  retval = SUNControl_SetErrorBias(ark_mem->hcontroller, bias);
-  if (retval != SUNCONTROL_SUCCESS) { return(ARK_ILL_INPUT); }
+  retval = SUNAdaptController_SetErrorBias(ark_mem->hcontroller, bias);
+  if (retval != SUNADAPTCONTROLLER_SUCCESS) { return(ARK_ILL_INPUT); }
   return(ARK_SUCCESS);
 }
 
@@ -479,7 +479,7 @@ int ARKStepSetFixedStepBounds(void *arkode_mem, realtype lb, realtype ub)
 
 /*---------------------------------------------------------------
   ARKStepSetAdaptivityMethod: user should create/attach a
-  specific SUNControl object.
+  specific SUNAdaptController object.
   ---------------------------------------------------------------*/
 int ARKStepSetAdaptivityMethod(void *arkode_mem, int imethod, int idefault,
                                int pq, realtype adapt_params[3]) {
@@ -487,7 +487,7 @@ int ARKStepSetAdaptivityMethod(void *arkode_mem, int imethod, int idefault,
 
 /*---------------------------------------------------------------
   ARKStepSetAdaptivityFn: user should create/attach a custom
-  SUNControl object.
+  SUNAdaptController object.
   ---------------------------------------------------------------*/
 int ARKStepSetAdaptivityFn(void *arkode_mem, ARKAdaptFn hfun, void *h_data) {
   return(arkSetAdaptivityFn(arkode_mem, hfun, h_data)); }
@@ -719,13 +719,13 @@ int ARKStepSetOptimalParams(void *arkode_mem)
   }
 
 
-  /* Remove current SUNControl object */
-  retval = SUNControl_Space(ark_mem->hcontroller, &lenrw, &leniw);
-  if (retval == SUNCONTROL_SUCCESS) {
+  /* Remove current SUNAdaptController object */
+  retval = SUNAdaptController_Space(ark_mem->hcontroller, &lenrw, &leniw);
+  if (retval == SUNADAPTCONTROLLER_SUCCESS) {
     ark_mem->liw -= leniw;
     ark_mem->lrw -= lenrw;
   }
-  SUNControl_Destroy(ark_mem->hcontroller);
+  SUNAdaptController_Destroy(ark_mem->hcontroller);
   ark_mem->hcontroller = NULL;
 
 
@@ -733,16 +733,16 @@ int ARKStepSetOptimalParams(void *arkode_mem)
 
   /*    explicit */
   if (step_mem->explicit && !step_mem->implicit) {
-    ark_mem->hcontroller = SUNControlPI(ark_mem->sunctx);
+    ark_mem->hcontroller = SUNAdaptControllerPI(ark_mem->sunctx);
     if (ark_mem->hcontroller == NULL) {
       arkProcessError(ark_mem, ARK_MEM_FAIL, "ARKODE::ARKStep",
                       "ARKStepSetOptimalParams",
-                      "SUNControlPI allocation failure");
+                      "SUNAdaptControllerPI allocation failure");
       return(ARK_MEM_FAIL);
     }
-    (void) SUNControl_SetErrorBias(ark_mem->hcontroller, RCONST(1.2));
-    (void) SUNControlPI_SetParams(ark_mem->hcontroller, SUNFALSE,
-                                  RCONST(0.8), RCONST(0.31));
+    (void) SUNAdaptController_SetErrorBias(ark_mem->hcontroller, RCONST(1.2));
+    (void) SUNAdaptControllerPI_SetParams(ark_mem->hcontroller, SUNFALSE,
+                                          RCONST(0.8), RCONST(0.31));
     (void) SUNHeuristics_SetSafetyFactor(ark_mem->hconstraints, RCONST(0.99));
     (void) SUNHeuristics_SetMaxGrowth(ark_mem->hconstraints, RCONST(25.0));
     (void) SUNHeuristics_SetMaxEFailGrowth(ark_mem->hconstraints, RCONST(0.3));
@@ -751,11 +751,11 @@ int ARKStepSetOptimalParams(void *arkode_mem)
   } else if (step_mem->implicit && !step_mem->explicit) {
     switch (step_mem->q) {
     case 2:   /* just use standard defaults since better ones unknown */
-      ark_mem->hcontroller = SUNControlPID(ark_mem->sunctx);
+      ark_mem->hcontroller = SUNAdaptControllerPID(ark_mem->sunctx);
       if (ark_mem->hcontroller == NULL) {
         arkProcessError(ark_mem, ARK_MEM_FAIL, "ARKODE::ARKStep",
                         "ARKStepSetOptimalParams",
-                        "SUNControlPID allocation failure");
+                        "SUNAdaptControllerPID allocation failure");
         return(ARK_MEM_FAIL);
       }
       step_mem->nlscoef     = RCONST(0.001);
@@ -766,14 +766,14 @@ int ARKStepSetOptimalParams(void *arkode_mem)
       step_mem->msbp        = MSBP;
       break;
     case 3:
-      ark_mem->hcontroller = SUNControlI(ark_mem->sunctx);
+      ark_mem->hcontroller = SUNAdaptControllerI(ark_mem->sunctx);
       if (ark_mem->hcontroller == NULL) {
         arkProcessError(ark_mem, ARK_MEM_FAIL, "ARKODE::ARKStep",
                         "ARKStepSetOptimalParams",
-                        "SUNControlI allocation failure");
+                        "SUNAdaptControllerI allocation failure");
         return(ARK_MEM_FAIL);
       }
-      (void) SUNControl_SetErrorBias(ark_mem->hcontroller, RCONST(1.9));
+      (void) SUNAdaptController_SetErrorBias(ark_mem->hcontroller, RCONST(1.9));
       (void) SUNHeuristics_SetSafetyFactor(ark_mem->hconstraints, RCONST(0.957));
       (void) SUNHeuristics_SetMaxGrowth(ark_mem->hconstraints, RCONST(17.6));
       (void) SUNHeuristics_SetMaxEFailGrowth(ark_mem->hconstraints, RCONST(0.45));
@@ -784,16 +784,16 @@ int ARKStepSetOptimalParams(void *arkode_mem)
       step_mem->msbp        = 60;
       break;
     case 4:
-      ark_mem->hcontroller = SUNControlPID(ark_mem->sunctx);
+      ark_mem->hcontroller = SUNAdaptControllerPID(ark_mem->sunctx);
       if (ark_mem->hcontroller == NULL) {
         arkProcessError(ark_mem, ARK_MEM_FAIL, "ARKODE::ARKStep",
                         "ARKStepSetOptimalParams",
-                        "SUNControlPID allocation failure");
+                        "SUNAdaptControllerPID allocation failure");
         return(ARK_MEM_FAIL);
       }
-      (void) SUNControl_SetErrorBias(ark_mem->hcontroller, RCONST(1.2));
-      (void) SUNControlPID_SetParams(ark_mem->hcontroller, SUNFALSE,
-                                     RCONST(0.535), RCONST(0.209), RCONST(0.148));
+      (void) SUNAdaptController_SetErrorBias(ark_mem->hcontroller, RCONST(1.2));
+      (void) SUNAdaptControllerPID_SetParams(ark_mem->hcontroller, SUNFALSE,
+                                             RCONST(0.535), RCONST(0.209), RCONST(0.148));
       (void) SUNHeuristics_SetSafetyFactor(ark_mem->hconstraints, RCONST(0.988));
       (void) SUNHeuristics_SetMaxGrowth(ark_mem->hconstraints, RCONST(31.5));
       (void) SUNHeuristics_SetMaxEFailGrowth(ark_mem->hconstraints, RCONST(0.33));
@@ -804,16 +804,16 @@ int ARKStepSetOptimalParams(void *arkode_mem)
       step_mem->msbp        = 31;
       break;
     case 5:
-      ark_mem->hcontroller = SUNControlPID(ark_mem->sunctx);
+      ark_mem->hcontroller = SUNAdaptControllerPID(ark_mem->sunctx);
       if (ark_mem->hcontroller == NULL) {
         arkProcessError(ark_mem, ARK_MEM_FAIL, "ARKODE::ARKStep",
                         "ARKStepSetOptimalParams",
-                        "SUNControlPID allocation failure");
+                        "SUNAdaptControllerPID allocation failure");
         return(ARK_MEM_FAIL);
       }
-      (void) SUNControl_SetErrorBias(ark_mem->hcontroller, RCONST(3.3));
-      (void) SUNControlPID_SetParams(ark_mem->hcontroller, SUNFALSE,
-                                     RCONST(0.56), RCONST(0.338), RCONST(0.14));
+      (void) SUNAdaptController_SetErrorBias(ark_mem->hcontroller, RCONST(3.3));
+      (void) SUNAdaptControllerPID_SetParams(ark_mem->hcontroller, SUNFALSE,
+                                             RCONST(0.56), RCONST(0.338), RCONST(0.14));
       (void) SUNHeuristics_SetSafetyFactor(ark_mem->hconstraints, RCONST(0.937));
       (void) SUNHeuristics_SetMaxGrowth(ark_mem->hconstraints, RCONST(22.0));
       (void) SUNHeuristics_SetMaxEFailGrowth(ark_mem->hconstraints, RCONST(0.44));
@@ -829,11 +829,11 @@ int ARKStepSetOptimalParams(void *arkode_mem)
   } else {
     switch (step_mem->q) {
     case 2:   /* just use standard defaults since better ones unknown */
-      ark_mem->hcontroller = SUNControlPID(ark_mem->sunctx);
+      ark_mem->hcontroller = SUNAdaptControllerPID(ark_mem->sunctx);
       if (ark_mem->hcontroller == NULL) {
         arkProcessError(ark_mem, ARK_MEM_FAIL, "ARKODE::ARKStep",
                         "ARKStepSetOptimalParams",
-                        "SUNControlPID allocation failure");
+                        "SUNAdaptControllerPID allocation failure");
         return(ARK_MEM_FAIL);
       }
       step_mem->nlscoef     = RCONST(0.001);
@@ -844,16 +844,16 @@ int ARKStepSetOptimalParams(void *arkode_mem)
       step_mem->msbp        = MSBP;
       break;
     case 3:
-      ark_mem->hcontroller = SUNControlPID(ark_mem->sunctx);
+      ark_mem->hcontroller = SUNAdaptControllerPID(ark_mem->sunctx);
       if (ark_mem->hcontroller == NULL) {
         arkProcessError(ark_mem, ARK_MEM_FAIL, "ARKODE::ARKStep",
                         "ARKStepSetOptimalParams",
-                        "SUNControlPID allocation failure");
+                        "SUNAdaptControllerPID allocation failure");
         return(ARK_MEM_FAIL);
       }
-      (void) SUNControl_SetErrorBias(ark_mem->hcontroller, RCONST(1.42));
-      (void) SUNControlPID_SetParams(ark_mem->hcontroller, SUNFALSE,
-                                     RCONST(0.54), RCONST(0.36), RCONST(0.14));
+      (void) SUNAdaptController_SetErrorBias(ark_mem->hcontroller, RCONST(1.42));
+      (void) SUNAdaptControllerPID_SetParams(ark_mem->hcontroller, SUNFALSE,
+                                             RCONST(0.54), RCONST(0.36), RCONST(0.14));
       (void) SUNHeuristics_SetSafetyFactor(ark_mem->hconstraints, RCONST(0.965));
       (void) SUNHeuristics_SetMaxGrowth(ark_mem->hconstraints, RCONST(28.7));
       (void) SUNHeuristics_SetMaxEFailGrowth(ark_mem->hconstraints, RCONST(0.46));
@@ -864,16 +864,16 @@ int ARKStepSetOptimalParams(void *arkode_mem)
       step_mem->msbp        = 60;
       break;
     case 4:
-      ark_mem->hcontroller = SUNControlPID(ark_mem->sunctx);
+      ark_mem->hcontroller = SUNAdaptControllerPID(ark_mem->sunctx);
       if (ark_mem->hcontroller == NULL) {
         arkProcessError(ark_mem, ARK_MEM_FAIL, "ARKODE::ARKStep",
                         "ARKStepSetOptimalParams",
-                        "SUNControlPID allocation failure");
+                        "SUNAdaptControllerPID allocation failure");
         return(ARK_MEM_FAIL);
       }
-      (void) SUNControl_SetErrorBias(ark_mem->hcontroller, RCONST(1.35));
-      (void) SUNControlPID_SetParams(ark_mem->hcontroller, SUNFALSE,
-                                     RCONST(0.543), RCONST(0.297), RCONST(0.14));
+      (void) SUNAdaptController_SetErrorBias(ark_mem->hcontroller, RCONST(1.35));
+      (void) SUNAdaptControllerPID_SetParams(ark_mem->hcontroller, SUNFALSE,
+                                             RCONST(0.543), RCONST(0.297), RCONST(0.14));
       (void) SUNHeuristics_SetSafetyFactor(ark_mem->hconstraints, RCONST(0.97));
       (void) SUNHeuristics_SetMaxGrowth(ark_mem->hconstraints, RCONST(25.0));
       (void) SUNHeuristics_SetMaxEFailGrowth(ark_mem->hconstraints, RCONST(0.47));
@@ -884,16 +884,16 @@ int ARKStepSetOptimalParams(void *arkode_mem)
       step_mem->msbp        = 31;
       break;
     case 5:
-      ark_mem->hcontroller = SUNControlPI(ark_mem->sunctx);
+      ark_mem->hcontroller = SUNAdaptControllerPI(ark_mem->sunctx);
       if (ark_mem->hcontroller == NULL) {
         arkProcessError(ark_mem, ARK_MEM_FAIL, "ARKODE::ARKStep",
                         "ARKStepSetOptimalParams",
-                        "SUNControlPI allocation failure");
+                        "SUNAdaptControllerPI allocation failure");
         return(ARK_MEM_FAIL);
       }
-      (void) SUNControl_SetErrorBias(ark_mem->hcontroller, RCONST(1.15));
-      (void) SUNControlPI_SetParams(ark_mem->hcontroller, SUNFALSE,
-                                    RCONST(0.8), RCONST(0.35));
+      (void) SUNAdaptController_SetErrorBias(ark_mem->hcontroller, RCONST(1.15));
+      (void) SUNAdaptControllerPI_SetParams(ark_mem->hcontroller, SUNFALSE,
+                                            RCONST(0.8), RCONST(0.35));
       (void) SUNHeuristics_SetSafetyFactor(ark_mem->hconstraints, RCONST(0.993));
       (void) SUNHeuristics_SetMaxGrowth(ark_mem->hconstraints, RCONST(28.5));
       (void) SUNHeuristics_SetMaxEFailGrowth(ark_mem->hconstraints, RCONST(0.3));

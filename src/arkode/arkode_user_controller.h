@@ -12,7 +12,7 @@
  * SUNDIALS Copyright End
  * -----------------------------------------------------------------
  * This is the header file for a user-provided controller function
- * SUNControl module implementation.  This provides backwards-
+ * SUNAdaptController module implementation.  This provides backwards-
  * compatibility for ARKODE's previous "ARKAdaptFn"
  * -----------------------------------------------------------------*/
 
@@ -20,18 +20,18 @@
 #define _ARK_USERCONTROL_H
 
 #include <stdio.h>
-#include <sundials/sundials_control.h>
+#include <sundials/sundials_adaptcontroller.h>
 #include "arkode_impl.h"
 
 #ifdef __cplusplus  /* wrapper to enable C++ usage */
 extern "C" {
 #endif
 
-/* -------------------------------------------
- * ARKUserControl implementation of SUNControl
- * ------------------------------------------- */
+/* ---------------------------------------------------
+ * ARKUserControl implementation of SUNAdaptController
+ * --------------------------------------------------- */
 
-struct _ARKUserControlContent {
+struct ARKUserControlContent_ {
   realtype hp;        /* h from previous step */
   realtype hpp;       /* h from 2 steps ago */
   realtype ep;        /* error from previous step */
@@ -43,33 +43,33 @@ struct _ARKUserControlContent {
   void* hadapt_data;  /* user-provided data pointer */
 };
 
-typedef struct _ARKUserControlContent *ARKUserControlContent;
+typedef struct ARKUserControlContent_ *ARKUserControlContent;
 
 /* ------------------
  * Exported Functions
  * ------------------ */
 
 SUNDIALS_EXPORT
-SUNControl ARKUserControl(SUNContext sunctx, void* arkode_mem,
-                          ARKAdaptFn hadapt, void* hadapt_data);
+SUNAdaptController ARKUserControl(SUNContext sunctx, void* arkode_mem,
+                                  ARKAdaptFn hadapt, void* hadapt_data);
 SUNDIALS_EXPORT
-SUNControl_Type SUNControlGetType_ARKUserControl(SUNControl C);
+SUNAdaptController_Type SUNAdaptControllerGetType_ARKUserControl(SUNAdaptController C);
 SUNDIALS_EXPORT
-int SUNControlEstimateStep_ARKUserControl(SUNControl C, realtype h,
-                                          realtype dsm, realtype* hnew);
+int SUNAdaptControllerEstimateStep_ARKUserControl(SUNAdaptController C, realtype h,
+                                                  realtype dsm, realtype* hnew);
 SUNDIALS_EXPORT
-int SUNControlReset_ARKUserControl(SUNControl C);
+int SUNAdaptControllerReset_ARKUserControl(SUNAdaptController C);
 SUNDIALS_EXPORT
-int SUNControlWrite_ARKUserControl(SUNControl C, FILE* fptr);
+int SUNAdaptControllerWrite_ARKUserControl(SUNAdaptController C, FILE* fptr);
 SUNDIALS_EXPORT
-int SUNControlSetMethodOrder_ARKUserControl(SUNControl C, int q);
+int SUNAdaptControllerSetMethodOrder_ARKUserControl(SUNAdaptController C, int q);
 SUNDIALS_EXPORT
-int SUNControlSetEmbeddingOrder_ARKUserControl(SUNControl C, int p);
+int SUNAdaptControllerSetEmbeddingOrder_ARKUserControl(SUNAdaptController C, int p);
 SUNDIALS_EXPORT
-int SUNControlUpdate_ARKUserControl(SUNControl C, realtype h, realtype dsm);
+int SUNAdaptControllerUpdate_ARKUserControl(SUNAdaptController C, realtype h, realtype dsm);
 SUNDIALS_EXPORT
-int SUNControlSpace_ARKUserControl(SUNControl C, long int *lenrw,
-                                   long int *leniw);
+int SUNAdaptControllerSpace_ARKUserControl(SUNAdaptController C, long int *lenrw,
+                                           long int *leniw);
 
 #ifdef __cplusplus
 }

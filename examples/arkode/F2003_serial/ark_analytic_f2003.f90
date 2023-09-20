@@ -92,18 +92,18 @@ program main
   !======= Inclusions ===========
   use, intrinsic :: iso_c_binding
 
-  use farkode_mod                ! Fortran interface to the ARKODE
-  use farkode_arkstep_mod        ! Fortran interface to the ARKStep time-stepper module
-  use fsundials_nvector_mod      ! Fortran interface to the generic N_Vector
-  use fsundials_matrix_mod       ! Fortran interface to the generic SUNMatrix
-  use fsundials_linearsolver_mod ! Fortran interface to the generic SUNLinearSolver
-  use fnvector_serial_mod        ! Fortran interface to serial N_Vector
-  use fsunmatrix_dense_mod       ! Fortran interface to dense SUNMatrix
-  use fsunlinsol_dense_mod       ! Fortran interface to dense SUNLinearSolver
-  use fsundials_context_mod      ! Fortran interface to SUNContext
-  use fsundials_control_mod      ! Fortran interface to the generic SUNControl
-  use fsuncontrol_impgus_mod     ! Fortran interface to ImpGus controller
-  use ode_mod                    ! ODE functions
+  use farkode_mod                    ! Fortran interface to the ARKODE
+  use farkode_arkstep_mod            ! Fortran interface to the ARKStep time-stepper module
+  use fsundials_nvector_mod          ! Fortran interface to the generic N_Vector
+  use fsundials_matrix_mod           ! Fortran interface to the generic SUNMatrix
+  use fsundials_linearsolver_mod     ! Fortran interface to the generic SUNLinearSolver
+  use fnvector_serial_mod            ! Fortran interface to serial N_Vector
+  use fsunmatrix_dense_mod           ! Fortran interface to dense SUNMatrix
+  use fsunlinsol_dense_mod           ! Fortran interface to dense SUNLinearSolver
+  use fsundials_context_mod          ! Fortran interface to SUNContext
+  use fsundials_adaptcontroller_mod  ! Fortran interface to the generic SUNAdaptController
+  use fsunadaptcontroller_impgus_mod ! Fortran interface to ImpGus controller
+  use ode_mod                        ! ODE functions
 
   !======= Declarations =========
   implicit none
@@ -120,12 +120,12 @@ program main
   integer(c_int) :: nout                     ! number of outputs
   integer(c_int) :: outstep                  ! output loop counter
 
-  type(N_Vector),        pointer :: sunvec_y    ! sundials vector
-  type(SUNMatrix),       pointer :: sunmat_A    ! sundials matrix
-  type(SUNLinearSolver), pointer :: sunls       ! sundials linear solver
-  type(SUNControl),      pointer :: sunCtrl     ! sundials linear solver
-  type(c_ptr)                    :: arkode_mem  ! ARKODE memory
-  real(c_double),        pointer :: yvec(:)     ! underlying vector
+  type(N_Vector),           pointer :: sunvec_y    ! sundials vector
+  type(SUNMatrix),          pointer :: sunmat_A    ! sundials matrix
+  type(SUNLinearSolver),    pointer :: sunls       ! sundials linear solver
+  type(SUNAdaptController), pointer :: sunCtrl     ! sundials linear solver
+  type(c_ptr)                       :: arkode_mem  ! ARKODE memory
+  real(c_double),           pointer :: yvec(:)     ! underlying vector
 
   !======= Internals ============
 
@@ -184,14 +184,14 @@ program main
      stop 1
   end if
 
-  sunCtrl => FSUNControlImpGus(ctx)
+  sunCtrl => FSUNAdaptControllerImpGus(ctx)
   if (.not. associated(sunCtrl)) then
      print *, 'ERROR: sunCtrl = NULL'
      stop 1
   end if
-  ierr = FARKStepSetController(arkode_mem, sunCtrl)
+  ierr = FARKStepSetAdaptController(arkode_mem, sunCtrl)
   if (ierr /= 0) then
-     write(*,*) 'Error in FARKStepSetController, ierr = ', ierr, '; halting'
+     write(*,*) 'Error in FARKStepSetAdaptController, ierr = ', ierr, '; halting'
      stop 1
   end if
 

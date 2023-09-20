@@ -60,8 +60,8 @@
 #include "mpi.h"                       // MPI header file
 #include "braid.h"                     // access to XBraid
 #include "arkode/arkode_xbraid.h"      // access to ARKStep + XBraid interface
-#include "suncontrol/suncontrol_i.h"   // I-controller
-#include "sunheuristics/sunheuristics_default.h" // heuristic time step constraints
+#include "sunadaptcontroller/sunadaptcontroller_i.h" // I-controller
+#include "sunheuristics/sunheuristics_default.h"     // heuristic time step constraints
 
 
 // Macros for problem constants
@@ -447,10 +447,10 @@ int main(int argc, char* argv[])
   if (udata->x_refine)
   {
     // Use I controller with default parameters
-    SUNControl C = SUNControlI(ctx);
-    if (check_flag((void*) C, "SUNControlI", 0)) return 1;
-    flag = ARKStepSetController(arkode_mem, C);
-    if (check_flag(&flag, "ARKStepSetController", 1)) return 1;
+    SUNAdaptController C = SUNAdaptControllerI(ctx);
+    if (check_flag((void*) C, "SUNAdaptControllerI", 0)) return 1;
+    flag = ARKStepSetAdaptController(arkode_mem, C);
+    if (check_flag(&flag, "ARKStepSetAdaptController", 1)) return 1;
 
     // Use default heuristics constraints with some options
     SUNHeuristics H = SUNHeuristicsDefault(ctx);

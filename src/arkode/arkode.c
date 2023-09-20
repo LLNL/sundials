@@ -31,7 +31,7 @@
 #include <sundials/sundials_config.h>
 #include <sundials/sundials_math.h>
 #include <sundials/sundials_types.h>
-#include <suncontrol/suncontrol_pid.h>
+#include <sunadaptcontroller/sunadaptcontroller_pid.h>
 #include <sunheuristics/sunheuristics_default.h>
 
 
@@ -127,13 +127,13 @@ ARKodeMem arkCreate(SUNContext sunctx)
   ark_mem->user_data = NULL;
 
   /* Allocate default step controller (PID) and note storage */
-  ark_mem->hcontroller = SUNControlPID(sunctx);
+  ark_mem->hcontroller = SUNAdaptControllerPID(sunctx);
   if (ark_mem->hcontroller == NULL) {
     arkProcessError(NULL, ARK_MEM_FAIL, "ARKODE", "arkCreate",
                     "Allocation of step controller object failed");
     return(NULL);
   }
-  (void) SUNControl_Space(ark_mem->hcontroller, &lenrw, &leniw);
+  (void) SUNAdaptController_Space(ark_mem->hcontroller, &lenrw, &leniw);
   ark_mem->lrw += lenrw;
   ark_mem->liw += leniw;
 
@@ -1105,10 +1105,10 @@ void arkFree(void **arkode_mem)
   arkFreeVectors(ark_mem);
 
   /* free the time step controller object */
-  SUNControl_Destroy(ark_mem->hcontroller);
+  (void) SUNAdaptController_Destroy(ark_mem->hcontroller);
 
   /* free the time step heuristics object */
-  SUNHeuristics_Destroy(ark_mem->hconstraints);
+  (void) SUNHeuristics_Destroy(ark_mem->hconstraints);
 
   /* free the interpolation module */
   if (ark_mem->interp != NULL) {
@@ -1346,8 +1346,8 @@ int arkInit(ARKodeMem ark_mem, realtype t0, N_Vector y0,
     ark_mem->tolsf = ONE;
 
     /* Reset error controller and heuristics objects */
-    retval = SUNControl_Reset(ark_mem->hcontroller);
-    if (retval != SUNCONTROL_SUCCESS) {
+    retval = SUNAdaptController_Reset(ark_mem->hcontroller);
+    if (retval != SUNADAPTCONTROLLER_SUCCESS) {
       arkProcessError(ark_mem, ARK_CONTROLLER_ERR, "ARKODE", "arkInit",
                       "Unable to reset error controller object");
       return(ARK_CONTROLLER_ERR);
@@ -1433,7 +1433,7 @@ void arkPrintMem(ARKodeMem ark_mem, FILE *outfile)
   fprintf(outfile, "maxncf = %i\n", ark_mem->maxncf);
 
   /* output time-stepping controller object */
-  (void) SUNControl_Write(ark_mem->hcontroller, outfile);
+  (void) SUNAdaptController_Write(ark_mem->hcontroller, outfile);
 
   /* output time-stepping heuristics object */
   (void) SUNHeuristics_Write(ark_mem->hconstraints, outfile);
@@ -2464,8 +2464,8 @@ int arkCompleteStep(ARKodeMem ark_mem, realtype dsm)
   N_VScale(ONE, ark_mem->ycur, ark_mem->yn);
 
   /* Notify time step controller object of successful step */
-  retval = SUNControl_Update(ark_mem->hcontroller, ark_mem->h, dsm);
-  if (retval != 0) {
+  retval = SUNAdaptController_Update(ark_mem->hcontroller, ark_mem->h, dsm);
+  if (retval != SUNADAPTCONTROLLER_SUCCESS) {
     arkProcessError(ark_mem, ARK_CONTROLLER_ERR, "ARKODE", "arkCompleteStep",
                     "Failure updating controller object");
     return(ARK_CONTROLLER_ERR);
@@ -3050,8 +3050,8 @@ int arkCheckTemporalError(ARKodeMem ark_mem, int *nflagPtr, int *nefPtr, realtyp
   realtype hnew;
 
   /* Request new stepsize from controller */
-  retval = SUNControl_EstimateStep(ark_mem->hcontroller, ark_mem->h, dsm, &hnew);
-  if (retval != SUNCONTROL_SUCCESS) {
+  retval = SUNAdaptController_EstimateStep(ark_mem->hcontroller, ark_mem->h, dsm, &hnew);
+  if (retval != SUNADAPTCONTROLLER_SUCCESS) {
     arkProcessError(ark_mem, ARK_CONTROLLER_ERR, "ARKODE", "arkCheckTemporalError",
                     "Controller unable to recommend a step size");
     return(ARK_CONTROLLER_ERR);

@@ -45,7 +45,7 @@
 #include <arkode/arkode_arkstep.h>     /* prototypes for ARKStep fcts., consts */
 #include <nvector/nvector_openmpdev.h> /* OpenMPDEV N_Vector types, fcts., macros */
 #include <sunlinsol/sunlinsol_pcg.h>   /* access to PCG SUNLinearSolver        */
-#include <suncontrol/suncontrol_i.h>   /* access to I-controller               */
+#include <sunadaptcontroller/sunadaptcontroller_i.h>  /* access to I-controller */
 #include <sundials/sundials_types.h>   /* defs. of realtype, sunindextype, etc */
 #include <sundials/sundials_math.h>    /* def. of SUNRsqrt, etc.               */
 
@@ -122,7 +122,7 @@ int main() {
   N_Vector yt = NULL;          /* empty vector for swapping */
   SUNLinearSolver LS = NULL;   /* empty linear solver object */
   void *arkode_mem = NULL;     /* empty ARKode memory structure */
-  SUNControl C = NULL;         /* empty controller object */
+  SUNAdaptController C = NULL; /* empty controller object */
   FILE *XFID, *UFID;
   realtype t, olddt, newdt;
   realtype *xnew_host = NULL;
@@ -190,10 +190,10 @@ int main() {
   if (check_flag(&flag, "ARKStepSetPredictorMethod", 1)) return 1;
 
   /* Specify I-controller with default parameters */
-  C = SUNControlI(ctx);
-  if (check_flag((void *)C, "SUNControlI", 0)) return 1;
-  flag = ARKStepSetController(arkode_mem, C);
-  if (check_flag(&flag, "ARKStepSetController", 1)) return 1;
+  C = SUNAdaptControllerI(ctx);
+  if (check_flag((void *)C, "SUNAdaptControllerI", 0)) return 1;
+  flag = ARKStepSetAdaptController(arkode_mem, C);
+  if (check_flag(&flag, "ARKStepSetAdaptController", 1)) return 1;
 
   /* Specify linearly implicit RHS, with time-dependent Jacobian */
   flag = ARKStepSetLinear(arkode_mem, 1);

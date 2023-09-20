@@ -1705,35 +1705,35 @@ the code, is provided in :numref:`ARKODE.Mathematics.Adaptivity`.
 
 .. cssclass:: table-bordered
 
-========================================================   ======================================  ========
-Optional input                                             Function name                           Default
-========================================================   ======================================  ========
-Provide a :c:type:`SUNControl` for ARKStep to use          :c:func:`ARKStepSetController()`        PID
-Provide a :c:type:`SUNHeuristics` for ARKStep to use       :c:func:`ARKStepSetHeuristics()`        Default
-Set a custom time step adaptivity function                 :c:func:`ARKStepSetAdaptivityFn()`      internal
-Choose an existing time step adaptivity method             :c:func:`ARKStepSetAdaptivityMethod()`  0
-Explicit stability safety factor                           :c:func:`ARKStepSetCFLFraction()`       0.5
-Time step error bias factor                                :c:func:`ARKStepSetErrorBias()`         1.5
-Bounds determining no change in step size                  :c:func:`ARKStepSetFixedStepBounds()`   1.0  1.5
-Maximum step growth factor on convergence fail             :c:func:`ARKStepSetMaxCFailGrowth()`    0.25
-Maximum step growth factor on error test fail              :c:func:`ARKStepSetMaxEFailGrowth()`    0.3
-Maximum first step growth factor                           :c:func:`ARKStepSetMaxFirstGrowth()`    10000.0
-Maximum allowed general step growth factor                 :c:func:`ARKStepSetMaxGrowth()`         20.0
-Minimum allowed step reduction factor on error test fail   :c:func:`ARKStepSetMinReduction()`      0.1
-Time step safety factor                                    :c:func:`ARKStepSetSafetyFactor()`      0.96
-Error fails before MaxEFailGrowth takes effect             :c:func:`ARKStepSetSmallNumEFails()`    2
-Explicit stability function                                :c:func:`ARKStepSetStabilityFn()`       none
-========================================================   ======================================  ========
+==========================================================   ======================================  ========
+Optional input                                               Function name                           Default
+==========================================================   ======================================  ========
+Provide a :c:type:`SUNAdaptController` for ARKStep to use    :c:func:`ARKStepSetAdaptController()`   PID
+Provide a :c:type:`SUNHeuristics` for ARKStep to use         :c:func:`ARKStepSetHeuristics()`        Default
+Set a custom time step adaptivity function                   :c:func:`ARKStepSetAdaptivityFn()`      internal
+Choose an existing time step adaptivity method               :c:func:`ARKStepSetAdaptivityMethod()`  0
+Explicit stability safety factor                             :c:func:`ARKStepSetCFLFraction()`       0.5
+Time step error bias factor                                  :c:func:`ARKStepSetErrorBias()`         1.5
+Bounds determining no change in step size                    :c:func:`ARKStepSetFixedStepBounds()`   1.0  1.5
+Maximum step growth factor on convergence fail               :c:func:`ARKStepSetMaxCFailGrowth()`    0.25
+Maximum step growth factor on error test fail                :c:func:`ARKStepSetMaxEFailGrowth()`    0.3
+Maximum first step growth factor                             :c:func:`ARKStepSetMaxFirstGrowth()`    10000.0
+Maximum allowed general step growth factor                   :c:func:`ARKStepSetMaxGrowth()`         20.0
+Minimum allowed step reduction factor on error test fail     :c:func:`ARKStepSetMinReduction()`      0.1
+Time step safety factor                                      :c:func:`ARKStepSetSafetyFactor()`      0.96
+Error fails before MaxEFailGrowth takes effect               :c:func:`ARKStepSetSmallNumEFails()`    2
+Explicit stability function                                  :c:func:`ARKStepSetStabilityFn()`       none
+==========================================================   ======================================  ========
 
 
 
-.. c:function:: int ARKStepSetController(void* arkode_mem, SUNControl C)
+.. c:function:: int ARKStepSetAdaptController(void* arkode_mem, SUNAdaptController C)
 
    Sets a user-supplied time-step controller object.
 
    **Arguments:**
       * *arkode_mem* -- pointer to the ARKStep memory block.
-      * *C* -- user-supplied time adaptivity controller.  If ``NULL`` then the PID controller will be created (see :numref:`SUNControl.PID`).
+      * *C* -- user-supplied time adaptivity controller.  If ``NULL`` then the PID controller will be created (see :numref:`SUNAdaptController.PID`).
 
    **Return value:**
       * *ARK_SUCCESS* if successful
@@ -1784,7 +1784,7 @@ Explicit stability function                                :c:func:`ARKStepSetSt
 
    .. deprecated:: x.x.x
 
-      Use the SUNControl infrastructure instead (see :numref:`SUNControl.Description`).
+      Use the SUNAdaptController infrastructure instead (see :numref:`SUNAdaptController.Description`).
 
 
 
@@ -1822,7 +1822,7 @@ Explicit stability function                                :c:func:`ARKStepSetSt
 
    .. deprecated:: x.x.x
 
-      Use the SUNControl infrastructure instead (see :numref:`SUNControl.Description`).
+      Use the SUNAdaptController infrastructure instead (see :numref:`SUNAdaptController.Description`).
 
 
 
@@ -1871,12 +1871,12 @@ Explicit stability function                                :c:func:`ARKStepSetSt
       Any value below 1.0 will imply a reset to the default value.
 
       If both this and one of :c:func:`ARKStepSetAdaptivityMethod` or
-      :c:func:`ARKStepSetController` will be called, then this routine must be called
+      :c:func:`ARKStepSetAdaptController` will be called, then this routine must be called
       *second*.
 
    .. deprecated:: x.x.x
 
-      Use the SUNControl infrastructure instead (see :numref:`SUNControl.Description`).
+      Use the SUNAdaptController infrastructure instead (see :numref:`SUNAdaptController.Description`).
 
 
 

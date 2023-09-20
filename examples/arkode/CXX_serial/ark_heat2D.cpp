@@ -57,12 +57,12 @@
 #include "nvector/nvector_serial.h"    // access to the serial N_Vector
 #include "sunlinsol/sunlinsol_pcg.h"   // access to PCG SUNLinearSolver
 #include "sunlinsol/sunlinsol_spgmr.h" // access to SPGMR SUNLinearSolver
-#include "suncontrol/suncontrol_pid.h"
-#include "suncontrol/suncontrol_pi.h"
-#include "suncontrol/suncontrol_i.h"
-#include "suncontrol/suncontrol_expgus.h"
-#include "suncontrol/suncontrol_impgus.h"
-#include "suncontrol/suncontrol_imexgus.h"
+#include "sunadaptcontroller/sunadaptcontroller_pid.h"
+#include "sunadaptcontroller/sunadaptcontroller_pi.h"
+#include "sunadaptcontroller/sunadaptcontroller_i.h"
+#include "sunadaptcontroller/sunadaptcontroller_expgus.h"
+#include "sunadaptcontroller/sunadaptcontroller_impgus.h"
+#include "sunadaptcontroller/sunadaptcontroller_imexgus.h"
 
 
 // Macros for problem constants
@@ -208,13 +208,13 @@ static int check_flag(void *flagvalue, const string funcname, int opt);
 
 int main(int argc, char* argv[])
 {
-  int flag;                   // reusable error-checking flag
-  UserData *udata    = NULL;  // user data structure
-  N_Vector u         = NULL;  // vector for storing solution
-  SUNLinearSolver LS = NULL;  // linear solver memory structure
-  void *arkode_mem   = NULL;  // ARKODE memory structure
-  SUNControl C       = NULL;  // Adaptivity controller
-  FILE *diagfp       = NULL;  // diagnostics output file
+  int flag;                     // reusable error-checking flag
+  UserData *udata      = NULL;  // user data structure
+  N_Vector u           = NULL;  // vector for storing solution
+  SUNLinearSolver LS   = NULL;  // linear solver memory structure
+  void *arkode_mem     = NULL;  // ARKODE memory structure
+  SUNAdaptController C = NULL;  // Adaptivity controller
+  FILE *diagfp         = NULL;  // diagnostics output file
 
   // Timing variables
   chrono::time_point<chrono::steady_clock> t1;
@@ -379,15 +379,15 @@ int main(int argc, char* argv[])
   else
   {
     switch (udata->controller) {
-    case (ARK_ADAPT_PID):      C = SUNControlPID(ctx);     break;
-    case (ARK_ADAPT_PI):       C = SUNControlPI(ctx);      break;
-    case (ARK_ADAPT_I):        C = SUNControlI(ctx);       break;
-    case (ARK_ADAPT_EXP_GUS):  C = SUNControlExpGus(ctx);  break;
-    case (ARK_ADAPT_IMP_GUS):  C = SUNControlImpGus(ctx);  break;
-    case (ARK_ADAPT_IMEX_GUS): C = SUNControlImExGus(ctx); break;
+    case (ARK_ADAPT_PID):      C = SUNAdaptControllerPID(ctx);     break;
+    case (ARK_ADAPT_PI):       C = SUNAdaptControllerPI(ctx);      break;
+    case (ARK_ADAPT_I):        C = SUNAdaptControllerI(ctx);       break;
+    case (ARK_ADAPT_EXP_GUS):  C = SUNAdaptControllerExpGus(ctx);  break;
+    case (ARK_ADAPT_IMP_GUS):  C = SUNAdaptControllerImpGus(ctx);  break;
+    case (ARK_ADAPT_IMEX_GUS): C = SUNAdaptControllerImExGus(ctx); break;
     }
-    flag = ARKStepSetController(arkode_mem, C);
-    if (check_flag(&flag, "ARKStepSetController", 1)) return 1;
+    flag = ARKStepSetAdaptController(arkode_mem, C);
+    if (check_flag(&flag, "ARKStepSetAdaptController", 1)) return 1;
   }
 
   // Specify linearly implicit non-time-dependent RHS

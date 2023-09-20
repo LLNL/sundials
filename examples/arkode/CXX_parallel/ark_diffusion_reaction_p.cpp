@@ -76,12 +76,12 @@
 #include "sunlinsol/sunlinsol_pcg.h"
 #include "sunlinsol/sunlinsol_spgmr.h"
 #include "sunnonlinsol/sunnonlinsol_fixedpoint.h"
-#include "suncontrol/suncontrol_pid.h"
-#include "suncontrol/suncontrol_pi.h"
-#include "suncontrol/suncontrol_i.h"
-#include "suncontrol/suncontrol_expgus.h"
-#include "suncontrol/suncontrol_impgus.h"
-#include "suncontrol/suncontrol_imexgus.h"
+#include "sunadaptcontroller/sunadaptcontroller_pid.h"
+#include "sunadaptcontroller/sunadaptcontroller_pi.h"
+#include "sunadaptcontroller/sunadaptcontroller_i.h"
+#include "sunadaptcontroller/sunadaptcontroller_expgus.h"
+#include "sunadaptcontroller/sunadaptcontroller_impgus.h"
+#include "sunadaptcontroller/sunadaptcontroller_imexgus.h"
 
 // Macros for problem constants
 #define PI    RCONST(3.141592653589793238462643383279502884197169)
@@ -1022,17 +1022,17 @@ static int SetupARK(SUNContext ctx, UserData* udata, N_Vector u,
   }
   else
   {
-    SUNControl Ctrl = NULL;
+    SUNAdaptController Ctrl = NULL;
     switch (udata->controller) {
-    case (ARK_ADAPT_PID):      Ctrl = SUNControlPID(ctx);     break;
-    case (ARK_ADAPT_PI):       Ctrl = SUNControlPI(ctx);      break;
-    case (ARK_ADAPT_I):        Ctrl = SUNControlI(ctx);       break;
-    case (ARK_ADAPT_EXP_GUS):  Ctrl = SUNControlExpGus(ctx);  break;
-    case (ARK_ADAPT_IMP_GUS):  Ctrl = SUNControlImpGus(ctx);  break;
-    case (ARK_ADAPT_IMEX_GUS): Ctrl = SUNControlImExGus(ctx); break;
+    case (ARK_ADAPT_PID):      Ctrl = SUNAdaptControllerPID(ctx);     break;
+    case (ARK_ADAPT_PI):       Ctrl = SUNAdaptControllerPI(ctx);      break;
+    case (ARK_ADAPT_I):        Ctrl = SUNAdaptControllerI(ctx);       break;
+    case (ARK_ADAPT_EXP_GUS):  Ctrl = SUNAdaptControllerExpGus(ctx);  break;
+    case (ARK_ADAPT_IMP_GUS):  Ctrl = SUNAdaptControllerImpGus(ctx);  break;
+    case (ARK_ADAPT_IMEX_GUS): Ctrl = SUNAdaptControllerImExGus(ctx); break;
     }
-    flag = ARKStepSetController(*arkode_mem, Ctrl);
-    if (check_flag(&flag, "ARKStepSetController", 1)) return 1;
+    flag = ARKStepSetAdaptController(*arkode_mem, Ctrl);
+    if (check_flag(&flag, "ARKStepSetAdaptController", 1)) return 1;
   }
 
   // Set max steps between outputs
@@ -1089,17 +1089,17 @@ static int SetupMRI(SUNContext ctx, UserData* udata, N_Vector y,
   }
   else
   {
-    SUNControl Ctrl = NULL;
+    SUNAdaptController Ctrl = NULL;
     switch (udata->controller) {
-    case (ARK_ADAPT_PID):      Ctrl = SUNControlPID(ctx);     break;
-    case (ARK_ADAPT_PI):       Ctrl = SUNControlPI(ctx);      break;
-    case (ARK_ADAPT_I):        Ctrl = SUNControlI(ctx);       break;
-    case (ARK_ADAPT_EXP_GUS):  Ctrl = SUNControlExpGus(ctx);  break;
-    case (ARK_ADAPT_IMP_GUS):  Ctrl = SUNControlImpGus(ctx);  break;
-    case (ARK_ADAPT_IMEX_GUS): Ctrl = SUNControlImExGus(ctx); break;
+    case (ARK_ADAPT_PID):      Ctrl = SUNAdaptControllerPID(ctx);     break;
+    case (ARK_ADAPT_PI):       Ctrl = SUNAdaptControllerPI(ctx);      break;
+    case (ARK_ADAPT_I):        Ctrl = SUNAdaptControllerI(ctx);       break;
+    case (ARK_ADAPT_EXP_GUS):  Ctrl = SUNAdaptControllerExpGus(ctx);  break;
+    case (ARK_ADAPT_IMP_GUS):  Ctrl = SUNAdaptControllerImpGus(ctx);  break;
+    case (ARK_ADAPT_IMEX_GUS): Ctrl = SUNAdaptControllerImExGus(ctx); break;
     }
-    flag = ARKStepSetController(inner_arkode_mem, Ctrl);
-    if (check_flag(&flag, "ARKStepSetController", 1)) return 1;
+    flag = ARKStepSetAdaptController(inner_arkode_mem, Ctrl);
+    if (check_flag(&flag, "ARKStepSetAdaptController", 1)) return 1;
   }
 
   // Set max steps between outputs

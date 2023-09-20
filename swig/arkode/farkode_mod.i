@@ -34,7 +34,7 @@
 %import "../sundials/fsundials_matrix_mod.i"
 %import "../sundials/fsundials_linearsolver_mod.i"
 %import "../sundials/fsundials_nonlinearsolver_mod.i"
-%import "../sundials/fsundials_control_mod.i"
+%import "../sundials/fsundials_adaptcontroller_mod.i"
 %import "../sundials/fsundials_heuristics_mod.i"
 %import "../sundials/fsundials_types_mod.i"
 

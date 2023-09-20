@@ -186,7 +186,7 @@ int main(int argc, char* argv[])
   SUNLinearSolver LS = nullptr;
 
   // Adaptivity controller for DIRK, IMEX or MRI fast integrators
-  SUNControl C = nullptr;
+  SUNAdaptController C = nullptr;
 
   // Matrix and linear solver for MRI fast integrator
   SUNMatrix       A_fast  = nullptr;
@@ -379,7 +379,7 @@ int main(int argc, char* argv[])
 
 
 int SetupERK(SUNContext ctx, UserData &udata, UserOptions &uopts, N_Vector y,
-             SUNControl* C, void** arkode_mem)
+             SUNAdaptController* C, void** arkode_mem)
 {
   // Problem configuration
   ARKRhsFn f_RHS; // explicit RHS function
@@ -430,15 +430,15 @@ int SetupERK(SUNContext ctx, UserData &udata, UserOptions &uopts, N_Vector y,
   else if (uopts.controller >= 0)
   {
     switch (uopts.controller) {
-    case (ARK_ADAPT_PID):      *C = SUNControlPID(ctx);     break;
-    case (ARK_ADAPT_PI):       *C = SUNControlPI(ctx);      break;
-    case (ARK_ADAPT_I):        *C = SUNControlI(ctx);       break;
-    case (ARK_ADAPT_EXP_GUS):  *C = SUNControlExpGus(ctx);  break;
-    case (ARK_ADAPT_IMP_GUS):  *C = SUNControlImpGus(ctx);  break;
-    case (ARK_ADAPT_IMEX_GUS): *C = SUNControlImExGus(ctx); break;
+    case (ARK_ADAPT_PID):      *C = SUNAdaptControllerPID(ctx);     break;
+    case (ARK_ADAPT_PI):       *C = SUNAdaptControllerPI(ctx);      break;
+    case (ARK_ADAPT_I):        *C = SUNAdaptControllerI(ctx);       break;
+    case (ARK_ADAPT_EXP_GUS):  *C = SUNAdaptControllerExpGus(ctx);  break;
+    case (ARK_ADAPT_IMP_GUS):  *C = SUNAdaptControllerImpGus(ctx);  break;
+    case (ARK_ADAPT_IMEX_GUS): *C = SUNAdaptControllerImExGus(ctx); break;
     }
-    flag = ERKStepSetController(*arkode_mem, *C);
-    if (check_flag(flag, "ERKStepSetController")) return 1;
+    flag = ERKStepSetAdaptController(*arkode_mem, *C);
+    if (check_flag(flag, "ERKStepSetAdaptController")) return 1;
   }
 
   // Set max steps between outputs
@@ -454,7 +454,7 @@ int SetupERK(SUNContext ctx, UserData &udata, UserOptions &uopts, N_Vector y,
 
 
 int SetupARK(SUNContext ctx, UserData &udata, UserOptions &uopts, N_Vector y,
-             SUNMatrix* A, SUNLinearSolver* LS, SUNControl* C, void** arkode_mem)
+             SUNMatrix* A, SUNLinearSolver* LS, SUNAdaptController* C, void** arkode_mem)
 {
   // Problem configuration
   ARKRhsFn   fe_RHS;  // explicit RHS function
@@ -684,15 +684,15 @@ int SetupARK(SUNContext ctx, UserData &udata, UserOptions &uopts, N_Vector y,
   else if (uopts.controller >= 0)
   {
     switch (uopts.controller) {
-    case (ARK_ADAPT_PID):      *C = SUNControlPID(ctx);     break;
-    case (ARK_ADAPT_PI):       *C = SUNControlPI(ctx);      break;
-    case (ARK_ADAPT_I):        *C = SUNControlI(ctx);       break;
-    case (ARK_ADAPT_EXP_GUS):  *C = SUNControlExpGus(ctx);  break;
-    case (ARK_ADAPT_IMP_GUS):  *C = SUNControlImpGus(ctx);  break;
-    case (ARK_ADAPT_IMEX_GUS): *C = SUNControlImExGus(ctx); break;
+    case (ARK_ADAPT_PID):      *C = SUNAdaptControllerPID(ctx);     break;
+    case (ARK_ADAPT_PI):       *C = SUNAdaptControllerPI(ctx);      break;
+    case (ARK_ADAPT_I):        *C = SUNAdaptControllerI(ctx);       break;
+    case (ARK_ADAPT_EXP_GUS):  *C = SUNAdaptControllerExpGus(ctx);  break;
+    case (ARK_ADAPT_IMP_GUS):  *C = SUNAdaptControllerImpGus(ctx);  break;
+    case (ARK_ADAPT_IMEX_GUS): *C = SUNAdaptControllerImExGus(ctx); break;
     }
-    flag = ARKStepSetController(*arkode_mem, *C);
-    if (check_flag(flag, "ARKStepSetController")) return 1;
+    flag = ARKStepSetAdaptController(*arkode_mem, *C);
+    if (check_flag(flag, "ARKStepSetAdaptController")) return 1;
   }
 
   // Set max steps between outputs
@@ -710,7 +710,7 @@ int SetupARK(SUNContext ctx, UserData &udata, UserOptions &uopts, N_Vector y,
 int SetupMRIARK(SUNContext ctx, UserData &udata, UserOptions &uopts,
                 N_Vector y, SUNMatrix* A, SUNLinearSolver* LS,
                 SUNMatrix* A_fast, SUNLinearSolver* LS_fast,
-                SUNControl* C, MRIStepInnerStepper* fast_mem,
+                SUNAdaptController* C, MRIStepInnerStepper* fast_mem,
                 void** arkode_mem)
 {
   // Problem configuration
@@ -824,15 +824,15 @@ int SetupMRIARK(SUNContext ctx, UserData &udata, UserOptions &uopts,
   else if (uopts.controller_fast >= 0)
   {
     switch (uopts.controller_fast) {
-    case (ARK_ADAPT_PID):      *C = SUNControlPID(ctx);     break;
-    case (ARK_ADAPT_PI):       *C = SUNControlPI(ctx);      break;
-    case (ARK_ADAPT_I):        *C = SUNControlI(ctx);       break;
-    case (ARK_ADAPT_EXP_GUS):  *C = SUNControlExpGus(ctx);  break;
-    case (ARK_ADAPT_IMP_GUS):  *C = SUNControlImpGus(ctx);  break;
-    case (ARK_ADAPT_IMEX_GUS): *C = SUNControlImExGus(ctx); break;
+    case (ARK_ADAPT_PID):      *C = SUNAdaptControllerPID(ctx);     break;
+    case (ARK_ADAPT_PI):       *C = SUNAdaptControllerPI(ctx);      break;
+    case (ARK_ADAPT_I):        *C = SUNAdaptControllerI(ctx);       break;
+    case (ARK_ADAPT_EXP_GUS):  *C = SUNAdaptControllerExpGus(ctx);  break;
+    case (ARK_ADAPT_IMP_GUS):  *C = SUNAdaptControllerImpGus(ctx);  break;
+    case (ARK_ADAPT_IMEX_GUS): *C = SUNAdaptControllerImExGus(ctx); break;
     }
-    flag = ARKStepSetController(fast_arkode_mem, *C);
-    if (check_flag(flag, "ARKStepSetController")) return 1;
+    flag = ARKStepSetAdaptController(fast_arkode_mem, *C);
+    if (check_flag(flag, "ARKStepSetAdaptController")) return 1;
   }
 
   // Set max steps between outputs

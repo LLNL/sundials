@@ -118,12 +118,12 @@ $tar $tarfile $distrobase/cmake/tpl/SundialsXBRAID.cmake
 
 echo "   --- Add include files to $tarfile"
 
+$tar $tarfile $distrobase/include/sundials/sundials_adaptcontroller.h
 $tar $tarfile $distrobase/include/sundials/sundials_band.h
 $tar $tarfile $distrobase/include/sundials/sundials_base.hpp
 $tar $tarfile $distrobase/include/sundials/sundials_config.in
 $tar $tarfile $distrobase/include/sundials/sundials_context.h
 $tar $tarfile $distrobase/include/sundials/sundials_context.hpp
-$tar $tarfile $distrobase/include/sundials/sundials_control.h
 $tar $tarfile $distrobase/include/sundials/sundials_convertibleto.hpp
 $tar $tarfile $distrobase/include/sundials/sundials_cuda_policies.hpp
 $tar $tarfile $distrobase/include/sundials/sundials_heuristics.h
@@ -178,12 +178,12 @@ $tar $tarfile $distrobase/include/nvector/nvector_trilinos.h
 $tar $tarfile $distrobase/include/nvector/trilinos/SundialsTpetraVectorInterface.hpp
 $tar $tarfile $distrobase/include/nvector/trilinos/SundialsTpetraVectorKernels.hpp
 
-$tar $tarfile $distrobase/include/suncontrol/suncontrol_expgus.h
-$tar $tarfile $distrobase/include/suncontrol/suncontrol_i.h
-$tar $tarfile $distrobase/include/suncontrol/suncontrol_imexgus.h
-$tar $tarfile $distrobase/include/suncontrol/suncontrol_impgus.h
-$tar $tarfile $distrobase/include/suncontrol/suncontrol_pi.h
-$tar $tarfile $distrobase/include/suncontrol/suncontrol_pid.h
+$tar $tarfile $distrobase/include/sunadaptcontroller/sunadaptcontroller_expgus.h
+$tar $tarfile $distrobase/include/sunadaptcontroller/sunadaptcontroller_i.h
+$tar $tarfile $distrobase/include/sunadaptcontroller/sunadaptcontroller_imexgus.h
+$tar $tarfile $distrobase/include/sunadaptcontroller/sunadaptcontroller_impgus.h
+$tar $tarfile $distrobase/include/sunadaptcontroller/sunadaptcontroller_pi.h
+$tar $tarfile $distrobase/include/sunadaptcontroller/sunadaptcontroller_pid.h
 
 $tar $tarfile $distrobase/include/sunheuristics/sunheuristics_default.h
 $tar $tarfile $distrobase/include/sunheuristics/sunheuristics_unconstrained.h
@@ -254,6 +254,7 @@ $tar $tarfile $distrobase/src/sundials/fmod/fsundials_profiler_mod.c
 $tar $tarfile $distrobase/src/sundials/fmod/fsundials_profiler_mod.f90
 $tar $tarfile $distrobase/src/sundials/fmod/fsundials_types_mod.c
 $tar $tarfile $distrobase/src/sundials/fmod/fsundials_types_mod.f90
+$tar $tarfile $distrobase/src/sundials/sundials_adaptcontroller.c
 $tar $tarfile $distrobase/src/sundials/sundials_band.c
 $tar $tarfile $distrobase/src/sundials/sundials_context_impl.h
 $tar $tarfile $distrobase/src/sundials/sundials_context.c
@@ -264,6 +265,7 @@ $tar $tarfile $distrobase/src/sundials/sundials_dense.c
 $tar $tarfile $distrobase/src/sundials/sundials_direct.c
 $tar $tarfile $distrobase/src/sundials/sundials_futils.c
 $tar $tarfile $distrobase/src/sundials/sundials_hashmap.h
+$tar $tarfile $distrobase/src/sundials/sundials_heuristics.c
 $tar $tarfile $distrobase/src/sundials/sundials_hip.h
 $tar $tarfile $distrobase/src/sundials/sundials_hip_kernels.hip.hpp
 $tar $tarfile $distrobase/src/sundials/sundials_iterative_impl.h
@@ -383,39 +385,39 @@ $tar $tarfile $distrobase/src/nvector/mpiplusx/fmod/CMakeLists.txt
 $tar $tarfile $distrobase/src/nvector/mpiplusx/fmod/fnvector_mpiplusx_mod.c
 $tar $tarfile $distrobase/src/nvector/mpiplusx/fmod/fnvector_mpiplusx_mod.f90
 
-echo "   --- Add suncontrol modules to $tarfile"
+echo "   --- Add sunadaptcontroller modules to $tarfile"
 
-$tar $tarfile $distrobase/src/suncontrol/CMakeLists.txt
+$tar $tarfile $distrobase/src/sunadaptcontroller/CMakeLists.txt
 
-echo "   --- Add suncontrol/exp_gus module to $tarfile"
+echo "   --- Add sunadaptcontroller/exp_gus module to $tarfile"
 
-$tar $tarfile $distrobase/src/suncontrol/exp_gus/CMakeLists.txt
-$tar $tarfile $distrobase/src/suncontrol/exp_gus/suncontrol_expgus.c
+$tar $tarfile $distrobase/src/sunadaptcontroller/expgus/CMakeLists.txt
+$tar $tarfile $distrobase/src/sunadaptcontroller/expgus/sunadaptcontroller_expgus.c
 
-echo "   --- Add suncontrol/i_control module to $tarfile"
+echo "   --- Add sunadaptcontroller/i_control module to $tarfile"
 
-$tar $tarfile $distrobase/src/suncontrol/i_control/CMakeLists.txt
-$tar $tarfile $distrobase/src/suncontrol/i_control/suncontrol_i.c
+$tar $tarfile $distrobase/src/sunadaptcontroller/i/CMakeLists.txt
+$tar $tarfile $distrobase/src/sunadaptcontroller/i/sunadaptcontroller_i.c
 
-echo "   --- Add suncontrol/imex_gus module to $tarfile"
+echo "   --- Add sunadaptcontroller/imex_gus module to $tarfile"
 
-$tar $tarfile $distrobase/src/suncontrol/imex_gus/CMakeLists.txt
-$tar $tarfile $distrobase/src/suncontrol/imex_gus/suncontrol_imexgus.c
+$tar $tarfile $distrobase/src/sunadaptcontroller/imexgus/CMakeLists.txt
+$tar $tarfile $distrobase/src/sunadaptcontroller/imexgus/sunadaptcontroller_imexgus.c
 
-echo "   --- Add suncontrol/imp_gus module to $tarfile"
+echo "   --- Add sunadaptcontroller/imp_gus module to $tarfile"
 
-$tar $tarfile $distrobase/src/suncontrol/imp_gus/CMakeLists.txt
-$tar $tarfile $distrobase/src/suncontrol/imp_gus/suncontrol_impgus.c
+$tar $tarfile $distrobase/src/sunadaptcontroller/impgus/CMakeLists.txt
+$tar $tarfile $distrobase/src/sunadaptcontroller/impgus/sunadaptcontroller_impgus.c
 
-echo "   --- Add suncontrol/pi_control module to $tarfile"
+echo "   --- Add sunadaptcontroller/pi_control module to $tarfile"
 
-$tar $tarfile $distrobase/src/suncontrol/pi_control/CMakeLists.txt
-$tar $tarfile $distrobase/src/suncontrol/pi_control/suncontrol_pi.c
+$tar $tarfile $distrobase/src/sunadaptcontroller/pi/CMakeLists.txt
+$tar $tarfile $distrobase/src/sunadaptcontroller/pi/sunadaptcontroller_pi.c
 
-echo "   --- Add suncontrol/pid_control module to $tarfile"
+echo "   --- Add sunadaptcontroller/pid_control module to $tarfile"
 
-$tar $tarfile $distrobase/src/suncontrol/pid_control/CMakeLists.txt
-$tar $tarfile $distrobase/src/suncontrol/pid_control/suncontrol_pid.c
+$tar $tarfile $distrobase/src/sunadaptcontroller/pid/CMakeLists.txt
+$tar $tarfile $distrobase/src/sunadaptcontroller/pid/sunadaptcontroller_pid.c
 
 echo "   --- Add sunheuristics modules to $tarfile"
 

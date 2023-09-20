@@ -539,16 +539,16 @@ int erkStep_Init(void* arkode_mem, int init_type)
   /* Retrieve/store method and embedding orders now that table is finalized */
   step_mem->q = step_mem->B->q;
   step_mem->p = step_mem->B->p;
-  retval = SUNControl_SetMethodOrder(ark_mem->hcontroller, step_mem->q);
-  if (retval != ARK_SUCCESS) {
+  retval = SUNAdaptController_SetMethodOrder(ark_mem->hcontroller, step_mem->q);
+  if (retval != SUNADAPTCONTROLLER_SUCCESS) {
     arkProcessError(ark_mem, ARK_CONTROLLER_ERR, "ARKODE::ERKStep",
-                    "erkStep_Init", "SUNControlSetMethodOrder error");
+                    "erkStep_Init", "SUNAdaptControllerSetMethodOrder error");
     return(ARK_CONTROLLER_ERR);
   }
-  retval = SUNControl_SetEmbeddingOrder(ark_mem->hcontroller, step_mem->p);
-  if (retval != ARK_SUCCESS) {
+  retval = SUNAdaptController_SetEmbeddingOrder(ark_mem->hcontroller, step_mem->p);
+  if (retval != SUNADAPTCONTROLLER_SUCCESS) {
     arkProcessError(ark_mem, ARK_CONTROLLER_ERR, "ARKODE::ERKStep",
-                    "erkStep_Init", "SUNControlSetEmbeddingOrder error");
+                    "erkStep_Init", "SUNAdaptControllerSetEmbeddingOrder error");
     return(ARK_CONTROLLER_ERR);
   }
 

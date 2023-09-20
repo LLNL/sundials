@@ -12,7 +12,7 @@
  * SUNDIALS Copyright End
  * -----------------------------------------------------------------
  * This is the implementation file for the ARKUserControl
- * SUNControl module.
+ * SUNAdaptController module.
  * -----------------------------------------------------------------*/
 
 #include <stdio.h>
@@ -44,10 +44,10 @@
  * Function to create a new ARKUserControl controller
  */
 
-SUNControl ARKUserControl(SUNContext sunctx, void* arkode_mem,
-                          ARKAdaptFn hadapt, void* hadapt_data)
+SUNAdaptController ARKUserControl(SUNContext sunctx, void* arkode_mem,
+                                  ARKAdaptFn hadapt, void* hadapt_data)
 {
-  SUNControl C;
+  SUNAdaptController C;
   ARKUserControlContent content;
 
   /* Return with failure if hadapt or arkode_mem are NULL */
@@ -55,25 +55,25 @@ SUNControl ARKUserControl(SUNContext sunctx, void* arkode_mem,
 
   /* Create an empty controller object */
   C = NULL;
-  C = SUNControl_NewEmpty(sunctx);
+  C = SUNAdaptController_NewEmpty(sunctx);
   if (C == NULL) { return (NULL); }
 
   /* Attach operations */
-  C->ops->gettype           = SUNControlGetType_ARKUserControl;
-  C->ops->estimatestep      = SUNControlEstimateStep_ARKUserControl;
-  C->ops->reset             = SUNControlReset_ARKUserControl;
-  C->ops->write             = SUNControlWrite_ARKUserControl;
-  C->ops->setmethodorder    = SUNControlSetMethodOrder_ARKUserControl;
-  C->ops->setembeddingorder = SUNControlSetEmbeddingOrder_ARKUserControl;
-  C->ops->update            = SUNControlUpdate_ARKUserControl;
-  C->ops->space             = SUNControlSpace_ARKUserControl;
+  C->ops->gettype           = SUNAdaptControllerGetType_ARKUserControl;
+  C->ops->estimatestep      = SUNAdaptControllerEstimateStep_ARKUserControl;
+  C->ops->reset             = SUNAdaptControllerReset_ARKUserControl;
+  C->ops->write             = SUNAdaptControllerWrite_ARKUserControl;
+  C->ops->setmethodorder    = SUNAdaptControllerSetMethodOrder_ARKUserControl;
+  C->ops->setembeddingorder = SUNAdaptControllerSetEmbeddingOrder_ARKUserControl;
+  C->ops->update            = SUNAdaptControllerUpdate_ARKUserControl;
+  C->ops->space             = SUNAdaptControllerSpace_ARKUserControl;
 
   /* Create content */
   content = NULL;
   content = (ARKUserControlContent)malloc(sizeof *content);
   if (content == NULL)
   {
-    (void) SUNControl_Destroy(C);
+    (void) SUNAdaptController_Destroy(C);
     return (NULL);
   }
 
@@ -92,7 +92,7 @@ SUNControl ARKUserControl(SUNContext sunctx, void* arkode_mem,
   content->q = 1;
 
   /* Fill content with default/reset values */
-  SUNControlReset_ARKUserControl(C);
+  SUNAdaptControllerReset_ARKUserControl(C);
 
   return (C);
 }
@@ -102,30 +102,30 @@ SUNControl ARKUserControl(SUNContext sunctx, void* arkode_mem,
  * implementation of controller operations
  * ----------------------------------------------------------------- */
 
-SUNControl_Type SUNControlGetType_ARKUserControl(SUNControl C)
-{ return SUNDIALS_CONTROL_H; }
+SUNAdaptController_Type SUNAdaptControllerGetType_ARKUserControl(SUNAdaptController C)
+{ return SUN_ADAPTCONTROLLER_H; }
 
-int SUNControlEstimateStep_ARKUserControl(SUNControl C, realtype h,
-                                          realtype dsm, realtype* hnew)
+int SUNAdaptControllerEstimateStep_ARKUserControl(SUNAdaptController C, realtype h,
+                                                  realtype dsm, realtype* hnew)
 {
   /* call user-provided function to compute new step */
   int retval = SC_HADAPT(C)(SC_ARKMEM(C)->ycur, SC_ARKMEM(C)->tn, h, SC_HP(C),
                             SC_HPP(C), dsm, SC_EP(C), SC_EPP(C), SC_Q(C),
                             SC_P(C), hnew, SC_DATA(C));
-  if (retval != SUNCONTROL_SUCCESS) { return(SUNCONTROL_USER_FCN_FAIL); }
-  return SUNCONTROL_SUCCESS;
+  if (retval != SUNADAPTCONTROLLER_SUCCESS) { return(SUNADAPTCONTROLLER_USER_FCN_FAIL); }
+  return SUNADAPTCONTROLLER_SUCCESS;
 }
 
-int SUNControlReset_ARKUserControl(SUNControl C)
+int SUNAdaptControllerReset_ARKUserControl(SUNAdaptController C)
 {
   SC_EP(C)  = RCONST(1.0);
   SC_EPP(C) = RCONST(1.0);
   SC_HP(C)  = RCONST(0.0);
   SC_HPP(C) = RCONST(0.0);
-  return SUNCONTROL_SUCCESS;
+  return SUNADAPTCONTROLLER_SUCCESS;
 }
 
-int SUNControlWrite_ARKUserControl(SUNControl C, FILE *fptr)
+int SUNAdaptControllerWrite_ARKUserControl(SUNAdaptController C, FILE *fptr)
 {
   fprintf(fptr, "ARKUserControl module:\n");
 #if defined(SUNDIALS_EXTENDED_PRECISION)
@@ -142,42 +142,42 @@ int SUNControlWrite_ARKUserControl(SUNControl C, FILE *fptr)
   fprintf(fptr, "  p = %i\n", SC_P(C));
   fprintf(fptr, "  q = %i\n", SC_Q(C));
   fprintf(fptr, "  hadapt_data = %p\n", SC_DATA(C));
-  return SUNCONTROL_SUCCESS;
+  return SUNADAPTCONTROLLER_SUCCESS;
 }
 
-int SUNControlSetMethodOrder_ARKUserControl(SUNControl C, int q)
+int SUNAdaptControllerSetMethodOrder_ARKUserControl(SUNAdaptController C, int q)
 {
   /* check for legal input */
-  if (q <= 0) { return SUNCONTROL_ILL_INPUT; }
+  if (q <= 0) { return SUNADAPTCONTROLLER_ILL_INPUT; }
 
   /* store value and return */
   SC_Q(C) = q;
-  return SUNCONTROL_SUCCESS;
+  return SUNADAPTCONTROLLER_SUCCESS;
 }
 
-int SUNControlSetEmbeddingOrder_ARKUserControl(SUNControl C, int p)
+int SUNAdaptControllerSetEmbeddingOrder_ARKUserControl(SUNAdaptController C, int p)
 {
   /* check for legal input */
-  if (p <= 0) { return SUNCONTROL_ILL_INPUT; }
+  if (p <= 0) { return SUNADAPTCONTROLLER_ILL_INPUT; }
 
   /* store value and return */
   SC_P(C) = p;
-  return SUNCONTROL_SUCCESS;
+  return SUNADAPTCONTROLLER_SUCCESS;
 }
 
-int SUNControlUpdate_ARKUserControl(SUNControl C, realtype h, realtype dsm)
+int SUNAdaptControllerUpdate_ARKUserControl(SUNAdaptController C, realtype h, realtype dsm)
 {
   SC_HPP(C) = SC_HP(C);
   SC_HP(C) = h;
   SC_EPP(C) = SC_EP(C);
   SC_EP(C) = dsm;
-  return SUNCONTROL_SUCCESS;
+  return SUNADAPTCONTROLLER_SUCCESS;
 }
 
-int SUNControlSpace_ARKUserControl(SUNControl C, long int* lenrw,
-                                   long int* leniw)
+int SUNAdaptControllerSpace_ARKUserControl(SUNAdaptController C, long int* lenrw,
+                                           long int* leniw)
 {
   *lenrw = 4;
   *leniw = 5;
-  return SUNCONTROL_SUCCESS;
+  return SUNADAPTCONTROLLER_SUCCESS;
 }

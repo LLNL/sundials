@@ -37,7 +37,7 @@ static const char help[] = "ARKode example based on PETSc TS ex25.c.\nTime-depen
 #include <arkode/arkode_arkstep.h>
 #include <nvector/nvector_petsc.h>
 #include <sunnonlinsol/sunnonlinsol_petscsnes.h>
-#include <suncontrol/suncontrol_i.h>
+#include <sunadaptcontroller/sunadaptcontroller_i.h>
 
 typedef struct {
   PetscScalar u,v;
@@ -75,7 +75,7 @@ int main(int argc, char **argv)
   N_Vector           nvecx;      /* SUNDIALS N_Vector wrapper of X */
   SUNNonlinearSolver NLS;        /* SUNDIALS nonlinear solver */
   SUNContext         ctx;        /* SUNDIALS context */
-  SUNControl         C;          /* SUNDIALS controller object */
+  SUNAdaptController C;          /* SUNDIALS controller object */
 
   /* PETSc data structures */
   SNES              snes;       /* nonlinear solver */
@@ -207,10 +207,10 @@ int main(int argc, char **argv)
   ierr = ARKStepSetNonlinearSolver(arkode_mem,NLS);
   if (check_retval(&ierr,"ARKStepSetNonlinearSolver",1)) return 1;
 
-  C = SUNControlI(ctx);
-  if (check_retval((void *)C, "SUNControlI", 0)) return 1;
-  ierr = ARKStepSetController(arkode_mem, C);
-  if (check_retval(&ierr, "ARKStepSetController", 1)) return 1;
+  C = SUNAdaptControllerI(ctx);
+  if (check_retval((void *)C, "SUNAdaptControllerI", 0)) return 1;
+  ierr = ARKStepSetAdaptController(arkode_mem, C);
+  if (check_retval(&ierr, "ARKStepSetAdaptController", 1)) return 1;
 
   ierr = ARKStepSetInitStep(arkode_mem,dt);
   if (check_retval(&ierr,"ARKStepSetInitStep",1)) return 1;
