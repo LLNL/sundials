@@ -90,10 +90,6 @@ struct generic_SUNTimestepHeuristics_Ops_
   int (*getnumexpsteps)(SUNTimestepHeuristics H, long int* expsteps);
   int (*getnumaccsteps)(SUNTimestepHeuristics H, long int* accsteps);
   int (*space)(SUNTimestepHeuristics H, long int *lenrw, long int *leniw);
-#ifdef __cplusplus
-  generic_SUNTimestepHeuristics_Ops_() = default;
-#endif
-
 };
 
 /* A SUNTimestepHeuristics is a structure with an implementation-dependent
@@ -104,9 +100,6 @@ struct generic_SUNTimestepHeuristics_
   void* content;
   SUNTimestepHeuristics_Ops ops;
   SUNContext sunctx;
-#ifdef __cplusplus
-  generic_SUNTimestepHeuristics_() = default;
-#endif
 };
 
 /* -----------------------------------------------------------------

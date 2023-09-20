@@ -96,10 +96,6 @@ struct generic_SUNAdaptController_Ops_
   int (*updatemritol)(SUNAdaptController C, realtype H, realtype tolfac,
                       realtype DSM, realtype dsm);
   int (*space)(SUNAdaptController C, long int *lenrw, long int *leniw);
-#ifdef __cplusplus
-  generic_SUNAdaptController_Ops_() = default;
-#endif
-
 };
 
 /* A SUNAdaptController is a structure with an implementation-dependent
@@ -110,9 +106,6 @@ struct generic_SUNAdaptController_
   void* content;
   SUNAdaptController_Ops ops;
   SUNContext sunctx;
-#ifdef __cplusplus
-  generic_SUNAdaptController_() = default;
-#endif
 };
 
 /* -----------------------------------------------------------------
