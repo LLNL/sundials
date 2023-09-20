@@ -208,9 +208,9 @@ int main(int argc, char **argv)
   if (check_retval(&ierr,"ARKStepSetNonlinearSolver",1)) return 1;
 
   C = SUNControlI(ctx);
-  if (check_flag((void *)C, "SUNControlI", 0)) return 1;
+  if (check_retval((void *)C, "SUNControlI", 0)) return 1;
   ierr = ARKStepSetController(arkode_mem, C);
-  if (check_flag(&ierr, "ARKStepSetController", 1)) return 1;
+  if (check_retval(&ierr, "ARKStepSetController", 1)) return 1;
 
   ierr = ARKStepSetInitStep(arkode_mem,dt);
   if (check_retval(&ierr,"ARKStepSetInitStep",1)) return 1;
