@@ -43,7 +43,6 @@
 #include <nvector/nvector_serial.h>   /* serial N_Vector types, fcts., macros */
 #include <sunlinsol/sunlinsol_pcg.h>  /* access to PCG SUNLinearSolver        */
 #include <sundials/sundials_types.h>  /* defs. of realtype, sunindextype, etc */
-#include <sunadaptcontroller/sunadaptcontroller_i.h>  /* access to I-controller */
 
 #if defined(SUNDIALS_EXTENDED_PRECISION)
 #define GSYM "Lg"

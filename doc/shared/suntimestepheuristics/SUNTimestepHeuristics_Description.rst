@@ -16,6 +16,8 @@
 The SUNTimestepHeuristics API
 =============================
 
+.. versionadded:: x.x.x
+
 The SUNTimestepHeuristics base class provides a common API for time step heuristic
 constraints that may be applied to step sizes by SUNDIALS integrators.  These
 heuristics can include a variety of things, including bounds on how much the

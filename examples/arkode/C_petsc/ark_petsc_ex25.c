@@ -37,7 +37,6 @@ static const char help[] = "ARKode example based on PETSc TS ex25.c.\nTime-depen
 #include <arkode/arkode_arkstep.h>
 #include <nvector/nvector_petsc.h>
 #include <sunnonlinsol/sunnonlinsol_petscsnes.h>
-#include <sunadaptcontroller/sunadaptcontroller_i.h>
 
 typedef struct {
   PetscScalar u,v;

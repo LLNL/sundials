@@ -25,7 +25,7 @@
 #include <vector>
 #include <algorithm>
 
-// Include desired integrators, vectors, linear solvers, nonlinear solvers, and controllers
+// Include desired integrators, vectors, linear solvers, and nonlinear solvers
 #include "arkode/arkode_erkstep.h"
 #include "arkode/arkode_arkstep.h"
 #include "arkode/arkode_mristep.h"
@@ -33,12 +33,6 @@
 #include "nvector/nvector_serial.h"
 #include "sunmatrix/sunmatrix_band.h"
 #include "sunlinsol/sunlinsol_band.h"
-#include "sunadaptcontroller/sunadaptcontroller_pid.h"
-#include "sunadaptcontroller/sunadaptcontroller_pi.h"
-#include "sunadaptcontroller/sunadaptcontroller_i.h"
-#include "sunadaptcontroller/sunadaptcontroller_expgus.h"
-#include "sunadaptcontroller/sunadaptcontroller_impgus.h"
-#include "sunadaptcontroller/sunadaptcontroller_imexgus.h"
 
 // Macros for problem constants
 #define PI    RCONST(3.141592653589793238462643383279502884197169)

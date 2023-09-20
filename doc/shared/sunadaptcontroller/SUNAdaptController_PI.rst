@@ -61,8 +61,9 @@ These entries of the *content* field contain the following information:
 The header file to be included when using this module is
 ``sunadaptcontroller/sunadaptcontroller_pi.h``.
 
-The SUNAdaptController_PI class provides implementations of all controller operations
-listed in :numref:`SUNAdaptController.Description.operations`. The SUNAdaptController_PI class
+The SUNAdaptController_PI class provides implementations of all operations
+relevant to a `SUN_ADAPTCONTROLLER_H` controller listed in
+:numref:`SUNAdaptController.Description.operations`. The SUNAdaptController_PI class
 also provides the following additional user-callable routines:
 
 

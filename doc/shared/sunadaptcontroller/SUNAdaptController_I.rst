@@ -56,8 +56,9 @@ These entries of the *content* field contain the following information:
 The header file to be included when using this module is
 ``sunadaptcontroller/sunadaptcontroller_i.h``.
 
-The SUNAdaptController_I class provides implementations of all controller operations
-listed in :numref:`SUNAdaptController.Description.operations`. The SUNAdaptController_I class
+The SUNAdaptController_I class provides implementations of all operations
+relevant to a `SUN_ADAPTCONTROLLER_H` controller listed in
+:numref:`SUNAdaptController.Description.operations`. The SUNAdaptController_I class
 also provides the following additional user-callable routines:
 
 

@@ -68,8 +68,9 @@ The header file to be included when using this module is
 ``sunadaptcontroller/sunadaptcontroller_pid.h``.
 
 
-The SUNAdaptController_PID class provides implementations of all controller operations
-listed in :numref:`SUNAdaptController.Description.operations`. The SUNAdaptController_PID class
+The SUNAdaptController_PID class provides implementations of all operations
+relevant to a `SUN_ADAPTCONTROLLER_H` controller listed in
+:numref:`SUNAdaptController.Description.operations`. The SUNAdaptController_PID class
 also provides the following additional user-callable routines:
 
 

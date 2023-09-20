@@ -20,8 +20,14 @@
 #include <sundials/sundials_nvector.h>
 #include <sundials/sundials_linearsolver.h>
 #include <sundials/sundials_nonlinearsolver.h>
-#include <sundials/sundials_adaptcontroller.h>
-#include <sundials/sundials_timestepheuristics.h>
+#include <sunadaptcontroller/sunadaptcontroller_pid.h>
+#include <sunadaptcontroller/sunadaptcontroller_pi.h>
+#include <sunadaptcontroller/sunadaptcontroller_i.h>
+#include <sunadaptcontroller/sunadaptcontroller_expgus.h>
+#include <sunadaptcontroller/sunadaptcontroller_impgus.h>
+#include <sunadaptcontroller/sunadaptcontroller_imexgus.h>
+#include <suntimestepheuristics/suntimestepheuristics_default.h>
+#include <suntimestepheuristics/suntimestepheuristics_unconstrained.h>
 #include <arkode/arkode.h>
 #include <arkode/arkode_ls.h>
 #include <arkode/arkode_butcher_erk.h>

@@ -45,7 +45,6 @@
 #include <arkode/arkode_arkstep.h>     /* prototypes for ARKStep fcts., consts */
 #include <nvector/nvector_openmpdev.h> /* OpenMPDEV N_Vector types, fcts., macros */
 #include <sunlinsol/sunlinsol_pcg.h>   /* access to PCG SUNLinearSolver        */
-#include <sunadaptcontroller/sunadaptcontroller_i.h>  /* access to I-controller */
 #include <sundials/sundials_types.h>   /* defs. of realtype, sunindextype, etc */
 #include <sundials/sundials_math.h>    /* def. of SUNRsqrt, etc.               */
 

@@ -27,13 +27,6 @@
 #include "arkode_ls_impl.h"
 #include <sundials/sundials_math.h>
 #include <sundials/sundials_types.h>
-#include <sunadaptcontroller/sunadaptcontroller_pid.h>
-#include <sunadaptcontroller/sunadaptcontroller_pi.h>
-#include <sunadaptcontroller/sunadaptcontroller_i.h>
-#include <sunadaptcontroller/sunadaptcontroller_expgus.h>
-#include <sunadaptcontroller/sunadaptcontroller_impgus.h>
-#include <sunadaptcontroller/sunadaptcontroller_imexgus.h>
-#include <suntimestepheuristics/suntimestepheuristics_default.h>
 
 /*===============================================================
   ARKStep Optional input functions (wrappers for generic ARKODE

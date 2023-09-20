@@ -57,12 +57,6 @@
 #include "nvector/nvector_serial.h"    // access to the serial N_Vector
 #include "sunlinsol/sunlinsol_pcg.h"   // access to PCG SUNLinearSolver
 #include "sunlinsol/sunlinsol_spgmr.h" // access to SPGMR SUNLinearSolver
-#include "sunadaptcontroller/sunadaptcontroller_pid.h"
-#include "sunadaptcontroller/sunadaptcontroller_pi.h"
-#include "sunadaptcontroller/sunadaptcontroller_i.h"
-#include "sunadaptcontroller/sunadaptcontroller_expgus.h"
-#include "sunadaptcontroller/sunadaptcontroller_impgus.h"
-#include "sunadaptcontroller/sunadaptcontroller_imexgus.h"
 
 
 // Macros for problem constants

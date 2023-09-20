@@ -16,6 +16,8 @@
 The SUNAdaptController API
 ==========================
 
+.. versionadded:: x.x.x
+
 The SUNAdaptController base class provides a common API for accuracy-based adaptivity
 controllers to be used by SUNDIALS integrators. These controllers estimate step
 sizes (among other things) such that the next step solution satisfies a desired
@@ -464,11 +466,11 @@ SUNAdaptController functions return one of the following set of error codes:
 C/C++ API Usage
 ---------------
 
-The SUNDIALS Controller module can be used in C and C++ programs by including
-the header file ``sundials/sundials_adaptcontroller.h``.
+Specific SUNDIALS adaptivity controller modules can be used in C and C++ programs by including
+the corresponding header file for that module, e.g. ``sunadaptcontroller/sunadaptcontrollerXYZ.h``.
 
 Example usage (here ``SUNAdaptControllerXYZ`` is a placeholder for an actual SUNAdaptController
-implementation constructor):
+constructor):
 
 .. code-block:: c
 
@@ -476,7 +478,7 @@ implementation constructor):
     #include <stdlib.h>
     #include <sundials/sundials_context.h>
     #include <sundials/sundials_types.h>
-    #include <sundials/sundials_adaptcontroller.h>
+    #include <sunadaptcontroller/sunadaptcontrollerXYZ.h>
 
     int main()
     {

@@ -61,8 +61,6 @@
 #include "mpi.h"                       // MPI header file
 #include "braid.h"                     // access to XBraid
 #include "arkode/arkode_xbraid.h"      // access to ARKStep + XBraid interface
-#include "sunadaptcontroller/sunadaptcontroller_i.h" // I-controller
-#include "suntimestepheuristics/suntimestepheuristics_default.h" // heuristic time step constraints
 
 
 // Macros for problem constants

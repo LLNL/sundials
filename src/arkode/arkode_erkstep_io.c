@@ -25,8 +25,6 @@
 #include "arkode_erkstep_impl.h"
 #include <sundials/sundials_math.h>
 #include <sundials/sundials_types.h>
-#include <sunadaptcontroller/sunadaptcontroller_pi.h>
-#include <suntimestepheuristics/suntimestepheuristics_default.h>
 
 
 /*===============================================================

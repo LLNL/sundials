@@ -58,12 +58,6 @@
 #include "sunlinsol/sunlinsol_pcg.h"   // access to PCG SUNLinearSolver
 #include "sunlinsol/sunlinsol_spgmr.h" // access to SPGMR SUNLinearSolver
 #include "HYPRE_struct_ls.h"           // HYPRE structured grid solver interface
-#include "sunadaptcontroller/sunadaptcontroller_pid.h" // controller implementations
-#include "sunadaptcontroller/sunadaptcontroller_pi.h"
-#include "sunadaptcontroller/sunadaptcontroller_i.h"
-#include "sunadaptcontroller/sunadaptcontroller_expgus.h"
-#include "sunadaptcontroller/sunadaptcontroller_impgus.h"
-#include "sunadaptcontroller/sunadaptcontroller_imexgus.h"
 #include "mpi.h"                       // MPI header file
 
 
