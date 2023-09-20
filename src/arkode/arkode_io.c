@@ -623,7 +623,7 @@ int arkSetFixedStep(void *arkode_mem, realtype hfixed)
   /* If re-enabling time adaptivity, create default PID controller
      and attach object to ARKODE */
   SUNAdaptController C = NULL;
-  if (hfixed == 0)
+  if (hfixed == ZERO)
   {
     C = SUNAdaptController_PID(ark_mem->sunctx);
     if (C == NULL) {
