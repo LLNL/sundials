@@ -115,7 +115,7 @@ int HermitePolyCoef(sunrealtype* t, N_Vector* y, N_Vector f, int n_times,
       }
       else
       {
-        sunrealtype denom = ONE / (t_ext[j - 1] - t_ext[j]);
+        sunrealtype denom = ONE / (t_ext[j - i] - t_ext[j]);
         N_VLinearSum(denom, coeff[j - 1], -denom, coeff[j], coeff[j]);
       }
       std::cout << "i, j " << i << "," << j << std::endl;
@@ -251,7 +251,7 @@ int main(int argc, char* argv[])
   // Create history data
   // -------------------
 
-  const int n_hist = 5;
+  const int n_hist = 3;
   sunrealtype t_hist[n_hist];
 
   for (int i = 0; i < n_hist; i++)
@@ -323,10 +323,20 @@ int main(int argc, char* argv[])
 
     sunrealtype* p_data = N_VGetArrayPointer(p[i]);
 
+    sunrealtype err  = abs(p_data[0] - p_true);
+    sunrealtype rerr = err / abs(p_true);
+
+    std::cout << std::scientific;
+    std::cout << std::setprecision(16);
     std::cout << i << std::endl
-              << " p_data: " << std::setw(22) << p_data[0] << std::endl
-              << " p_true: " << std::setw(22) << p_true  << std::endl
-              << " error:  " << std::setw(22) << p_data[0] - p_true << std::endl
+              << " p_data:    " << std::setw(24) << p_data[0] << std::endl
+              << " p_true:    " << std::setw(24) << p_true  << std::endl
+              << " ab error:  " << std::setw(24) << err << std::endl
+              << " rel error: " << std::setw(24) << rerr << std::endl;
+
+    std::cout << std::fixed;
+    std::cout << std::setprecision(2);
+    std::cout << " % error:   " << std::setw(24) << 100 * rerr << std::endl
               << std::endl;
   }
   std::cout << std::endl;

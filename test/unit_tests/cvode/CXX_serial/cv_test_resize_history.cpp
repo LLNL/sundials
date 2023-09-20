@@ -137,11 +137,17 @@ int main(int argc, char* argv[])
     resize = atoi(argv[1]);
   }
 
-  int method = CV_BDF;
+  int reuse_fn = 1;
   if (argc > 2)
   {
-    if (atoi(argv[2]) == 1) { method = CV_ADAMS; }
-    else if (atoi(argv[2]) == 2) { method = CV_BDF; }
+    resize = atoi(argv[2]);
+  }
+
+  int method = CV_BDF;
+  if (argc > 3)
+  {
+    if (atoi(argv[3]) == 1) { method = CV_ADAMS; }
+    else if (atoi(argv[3]) == 2) { method = CV_BDF; }
     else
     {
       std::cerr << "Invalid method option" << std::endl;
@@ -149,10 +155,10 @@ int main(int argc, char* argv[])
     }
   }
 
-  int steps = 20;
-  if (argc > 3)
+  int steps = 60;
+  if (argc > 4)
   {
-    steps = atoi(argv[3]);
+    steps = atoi(argv[4]);
   }
 
   if (resize == 0)
@@ -236,7 +242,8 @@ int main(int argc, char* argv[])
 
   std::string file_name = "debug_resize_" + std::to_string(resize) + ".txt";
   // FILE* debug_file = std::fopen(file_name.c_str(), "w");
-  FILE* debug_file = stdout;
+  // FILE* debug_file = stdout;
+  FILE* debug_file = nullptr;
 
   // Advance in time
   // 11 steps - reach 2nd order
@@ -306,10 +313,15 @@ int main(int argc, char* argv[])
       flag = save_history(t_ret, y, t_hist, y_hist, hist_size, i);
 
       // CVodeGetDky(cvode_mem, t_ret, 1, tmp);
-      N_VScale(ONE / cv_mem->cv_hscale, cv_mem->cv_zn[1], tmp);
+      N_Vector f_hist = nullptr;
+      if (reuse_fn)
+      {
+        N_VScale(ONE / cv_mem->cv_hscale, cv_mem->cv_zn[1], tmp);
+        f_hist = tmp;
+      }
 
       int n_hist = (i < hist_size) ? i + 1 : hist_size;
-      flag = CVodeResizeHistory(cvode_mem, t_hist, y_hist, &tmp, n_hist,
+      flag = CVodeResizeHistory(cvode_mem, t_hist, y_hist, &f_hist, n_hist,
                                 resize_vec, debug_file);
       if (check_flag(flag, "CVodeResizeHistory")) { return 1; }
     }
@@ -344,7 +356,7 @@ int main(int argc, char* argv[])
   }
   std::cout << std::endl;
 
-  std::fclose(debug_file);
+  if (debug_file) { std::fclose(debug_file); }
 
   // Print some final statistics
   flag = CVodePrintAllStats(cvode_mem, stdout, SUN_OUTPUTFORMAT_TABLE);
