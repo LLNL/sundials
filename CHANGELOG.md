@@ -1,5 +1,7 @@
 # SUNDIALS Changelog
 
+Fixed missing soversions.
+
 ## Changes to SUNDIALS in release 6.6.1
 
 Updated the Tpetra NVector interface to support Trilinos 14.
