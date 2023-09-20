@@ -825,16 +825,16 @@ int arkSetConstraints(void *arkode_mem, N_Vector constraints)
       constraints->ops->nvcompare     == NULL ||
       constraints->ops->nvconstrmask  == NULL ||
       constraints->ops->nvminquotient == NULL) {
-    arkProcessError(ark_mem, ARK_ILL_INPUT, "ARKODE::ARKStep",
-                    "ARKStepSetConstraints", MSG_ARK_BAD_NVECTOR);
+    arkProcessError(ark_mem, ARK_ILL_INPUT, "ARKODE",
+                    "arkSetConstraints", MSG_ARK_BAD_NVECTOR);
     return(ARK_ILL_INPUT);
   }
 
   /* Check the constraints vector */
   temptest = N_VMaxNorm(constraints);
   if ((temptest > RCONST(2.5)) || (temptest < HALF)) {
-    arkProcessError(ark_mem, ARK_ILL_INPUT, "ARKODE::ARKStep",
-                    "ARKStepSetConstraints", MSG_ARK_BAD_CONSTR);
+    arkProcessError(ark_mem, ARK_ILL_INPUT, "ARKODE",
+                    "arkSetConstraints", MSG_ARK_BAD_CONSTR);
     return(ARK_ILL_INPUT);
   }
 
@@ -900,6 +900,14 @@ int arkSetAdaptivityMethod(void *arkode_mem, int imethod, int idefault,
     return(ARK_MEM_NULL);
   }
   ark_mem = (ARKodeMem) arkode_mem;
+
+  /* Check for illegal inputs */
+  if ((idefault != 1) && (adapt_params == NULL)) {
+    arkProcessError(ark_mem, ARK_ILL_INPUT, "ARKODE",
+                    "arkSetAdaptivityMethod",
+                    "NULL-valued adapt_params provided");
+    return(ARK_ILL_INPUT);
+  }
 
   /* Remove current SUNAdaptController object */
   retval = SUNAdaptController_Space(ark_mem->hcontroller, &lenrw, &leniw);
