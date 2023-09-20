@@ -38,17 +38,17 @@ relies on the base class implementation for most of the operations from
 * It self-identifies as having :c:type:`SUNTimestepHeuristics_ID` type as
   ``SUN_TIMESTEPHEURISTICS_NULL``.
 
-* At each call to :c:func:`SUNTimestepHeuristicsConstrainStep` it updates the
+* At each call to :c:func:`SUNTimestepHeuristics_ConstrainStep` it updates the
   ``nst_acc`` counter and sets the "constrained" step to be the same value as
   what was requested.
 
-* Its :c:func:`SUNTimestepHeuristicsConvFail` routine does not adjust the input step
+* Its :c:func:`SUNTimestepHeuristics_ConvFail` routine does not adjust the input step
   size, and returns the failure code ``SUNHEURISTICS_CANNOT_DECREASE``.
 
-* Its :c:func:`SUNTimestepHeuristicsReset` routine resets ``nst_acc`` to zero.
+* Its :c:func:`SUNTimestepHeuristics_Reset` routine resets ``nst_acc`` to zero.
 
-* Its :c:func:`SUNTimestepHeuristicsWrite`, :c:func:`SUNTimestepHeuristicsGetNumAccSteps` and
-  :c:func:`SUNTimestepHeuristicsSpace` routines perform as expected, given the class'
+* Its :c:func:`SUNTimestepHeuristics_Write`, :c:func:`SUNTimestepHeuristics_GetNumAccSteps` and
+  :c:func:`SUNTimestepHeuristics_Space` routines perform as expected, given the class'
   storage of the ``nst_acc`` counter.
 
 The header file to be included when using this module is
@@ -57,7 +57,7 @@ The header file to be included when using this module is
 In addition to the routines mentioned above, the SUNTimestepHeuristics_Unconstrained
 class provides the following constructor routine:
 
-.. c:function:: SUNTimestepHeuristics SUNTimestepHeuristicsUnconstrained(SUNContext sunctx)
+.. c:function:: SUNTimestepHeuristics SUNTimestepHeuristics_Unconstrained(SUNContext sunctx)
 
    This constructor function creates and allocates memory for a
    SUNTimestepHeuristics_Unconstrained object, and initializes its ``nst_acc`` counter

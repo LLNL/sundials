@@ -96,7 +96,7 @@ SUNAdaptController_ImExGus class also provides the following additional user-cal
 routines:
 
 
-.. c:function:: SUNAdaptController SUNAdaptControllerImExGus(SUNContext sunctx)
+.. c:function:: SUNAdaptController SUNAdaptController_ImExGus(SUNContext sunctx)
 
    This constructor function creates and allocates memory for a
    SUNAdaptController_ImExGus object, and inserts its default parameters.  The only
@@ -104,7 +104,7 @@ routines:
    return a :c:type:`SUNAdaptController` object; otherwise it will return ``NULL``.
 
 
-.. c:function:: int SUNAdaptControllerImExGus_SetParams(SUNAdaptController C, sunbooleantype pq, realtype k1e, realtype k2e, realtype k1i, realtype k2i)
+.. c:function:: int SUNAdaptController_SetParams_ImExGus(SUNAdaptController C, sunbooleantype pq, realtype k1e, realtype k2e, realtype k1i, realtype k2i)
 
    This user-callable function provides control over the relevant parameters
    above.  The *pq* input is stored directly.  The *k1e*, *k2e*, *k1i* and *k2i*

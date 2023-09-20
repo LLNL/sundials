@@ -73,7 +73,7 @@ SUNAdaptController_ExpGus class also provides the following additional user-call
 routines:
 
 
-.. c:function:: SUNAdaptController SUNAdaptControllerExpGus(SUNContext sunctx)
+.. c:function:: SUNAdaptController SUNAdaptController_ExpGus(SUNContext sunctx)
 
    This constructor function creates and allocates memory for a
    SUNAdaptController_ExpGus object, and inserts its default parameters.  The only
@@ -81,7 +81,7 @@ routines:
    return a :c:type:`SUNAdaptController` object; otherwise it will return ``NULL``.
 
 
-.. c:function:: int SUNAdaptControllerExpGus_SetParams(SUNAdaptController C, sunbooleantype pq, realtype k1, realtype k2)
+.. c:function:: int SUNAdaptController_SetParams_ExpGus(SUNAdaptController C, sunbooleantype pq, realtype k1, realtype k2)
 
    This user-callable function provides control over the relevant parameters
    above.  The *pq* input is stored directly.  The *k1* and *k2* parameters are

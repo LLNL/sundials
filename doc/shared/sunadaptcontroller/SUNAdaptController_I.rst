@@ -33,7 +33,7 @@ field as:
 
 .. code-block:: c
 
-   struct SUNAdaptControllerContent_PI_ {
+   struct SUNAdaptControllerContent_I_ {
      realtype k1;
      realtype bias;
      int p;
@@ -62,7 +62,7 @@ relevant to a `SUN_ADAPTCONTROLLER_H` controller listed in
 also provides the following additional user-callable routines:
 
 
-.. c:function:: SUNAdaptController SUNAdaptControllerI(SUNContext sunctx)
+.. c:function:: SUNAdaptController SUNAdaptController_I(SUNContext sunctx)
 
    This constructor function creates and allocates memory for a SUNAdaptController_I
    object, and inserts its default parameters.  The only argument is the
@@ -70,7 +70,7 @@ also provides the following additional user-callable routines:
    :c:type:`SUNAdaptController` object; otherwise it will return ``NULL``.
 
 
-.. c:function:: int SUNAdaptControllerI_SetParams(SUNAdaptController C, sunbooleantype pq, realtype k1)
+.. c:function:: int SUNAdaptController_SetParams_I(SUNAdaptController C, sunbooleantype pq, realtype k1)
 
    This user-callable function provides control over the relevant parameters
    above.  The *pq* input is stored directly.  The *k1* parameter is only stored

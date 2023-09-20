@@ -65,7 +65,7 @@ The SUNTimestepHeuristics_Default class provides implementations of all controll
 operations listed in :numref:`SUNTimestepHeuristics.Description.operations`. The
 SUNTimestepHeuristics_Default class also provides the following constructor routine:
 
-.. c:function:: SUNTimestepHeuristics SUNTimestepHeuristicsDefault(SUNContext sunctx)
+.. c:function:: SUNTimestepHeuristics SUNTimestepHeuristics_Default(SUNContext sunctx)
 
    This constructor function creates and allocates memory for a
    SUNTimestepHeuristics_Default object, and inserts its default parameters.  The only

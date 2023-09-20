@@ -74,7 +74,7 @@ relevant to a `SUN_ADAPTCONTROLLER_H` controller listed in
 also provides the following additional user-callable routines:
 
 
-.. c:function:: SUNAdaptController SUNAdaptControllerPID(SUNContext sunctx)
+.. c:function:: SUNAdaptController SUNAdaptController_PID(SUNContext sunctx)
 
    This constructor function creates and allocates memory for a SUNAdaptController_PID
    object, and inserts its default parameters.  The only argument is the
@@ -82,7 +82,7 @@ also provides the following additional user-callable routines:
    :c:type:`SUNAdaptController` object; otherwise it will return ``NULL``.
 
 
-.. c:function:: int SUNAdaptControllerPID_SetParams(SUNAdaptController C, sunbooleantype pq, realtype k1, realtype k2, realtype k3)
+.. c:function:: int SUNAdaptController_SetParams_PID(SUNAdaptController C, sunbooleantype pq, realtype k1, realtype k2, realtype k3)
 
    This user-callable function provides control over the relevant parameters
    above.  The *pq* input is stored directly.  The *k1*, *k2* and *k3* are only
