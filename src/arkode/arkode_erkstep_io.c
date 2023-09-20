@@ -483,11 +483,11 @@ int ERKStepSetDefaults(void* arkode_mem)
   }
   (void) SUNTimestepHeuristics_Destroy(ark_mem->hconstraints);
   ark_mem->hconstraints = NULL;
-  ark_mem->hconstraints = SUNTimestepHeuristicsDefault(ark_mem->sunctx);
+  ark_mem->hconstraints = SUNTimestepHeuristics_Default(ark_mem->sunctx);
   if (ark_mem->hconstraints == NULL) {
     arkProcessError(ark_mem, ARK_MEM_FAIL, "ARKODE::ERKStep",
                     "ERKStepSetDefaults",
-                    "SUNTimestepHeuristicsDefault allocation failure");
+                    "SUNTimestepHeuristics_Default allocation failure");
     return(ARK_MEM_FAIL);
   }
   retval = SUNTimestepHeuristics_Space(ark_mem->hconstraints, &lenrw, &leniw);

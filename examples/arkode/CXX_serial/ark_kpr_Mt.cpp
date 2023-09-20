@@ -293,8 +293,8 @@ int main(int argc, char *argv[])
 
   // Set maximum stepsize for ERK run
   if (rk_type == 2) {
-    H = SUNTimestepHeuristicsDefault(ctx);
-    if (check_retval((void *)H, "SUNTimestepHeuristicsDefault", 0)) return 1;
+    H = SUNTimestepHeuristics_Default(ctx);
+    if (check_retval((void *)H, "SUNTimestepHeuristics_Default", 0)) return 1;
     retval = SUNTimestepHeuristics_SetMaxStep(H, ONE/SUNRabs(udata.G));
     if (check_retval(&retval, "SUNTimestepHeuristics_SetMaxStep", 1)) return(1);
     retval = ARKStepSetTimestepHeuristics(arkode_mem, H);

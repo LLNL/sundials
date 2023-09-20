@@ -405,10 +405,10 @@ int arkSetTimestepHeuristics(void *arkode_mem, SUNTimestepHeuristics H)
 
   /* On NULL-valued input, create default SUNTimestepHeuristics object */
   if (H == NULL) {
-    H = SUNTimestepHeuristicsDefault(ark_mem->sunctx);
+    H = SUNTimestepHeuristics_Default(ark_mem->sunctx);
     if (H == NULL) {
       arkProcessError(ark_mem, ARK_MEM_FAIL, "ARKODE", "arkSetTimestepHeuristics",
-                      "SUNTimestepHeuristicsDefault allocation failure");
+                      "SUNTimestepHeuristics_Default allocation failure");
       return(ARK_MEM_FAIL);
     }
   }

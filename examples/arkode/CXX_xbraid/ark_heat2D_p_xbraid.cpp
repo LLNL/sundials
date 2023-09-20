@@ -513,14 +513,14 @@ int main(int argc, char* argv[])
     if (check_flag(&flag, "ARKStepSetAdaptController", 1)) return 1;
 
     // Use default heuristics constraints with some options
-    SUNTimestepHeuristics H = SUNTimestepHeuristicsDefault(ctx);
-    if (check_flag((void*) H, "SUNTimestepHeuristicsDefault", 0)) return 1;
+    SUNTimestepHeuristics H = SUNTimestepHeuristics_Default(ctx);
+    if (check_flag((void*) H, "SUNTimestepHeuristics_Default", 0)) return 1;
     //   Set the step size reduction factor limit (1 / refinement factor limit)
-    flag = SUNTimestepHeuristicsSetMinReduction(H, ONE / udata->x_rfactor_limit);
-    if (check_flag(&flag, "SUNTimestepHeuristicsSetMinReduction", 1)) return 1;
+    flag = SUNTimestepHeuristics_SetMinReduction(H, ONE / udata->x_rfactor_limit);
+    if (check_flag(&flag, "SUNTimestepHeuristics_SetMinReduction", 1)) return 1;
     //   Set the failed solve step size reduction factor (1 / refinement factor)
-    flag = SUNTimestepHeuristicsSetMaxCFailGrowth(H, ONE / udata->x_rfactor_fail);
-    if (check_flag(&flag, "SUNTimestepHeuristicsSetMaxCFailGrowth", 1)) return 1;
+    flag = SUNTimestepHeuristics_SetMaxCFailGrowth(H, ONE / udata->x_rfactor_fail);
+    if (check_flag(&flag, "SUNTimestepHeuristics_SetMaxCFailGrowth", 1)) return 1;
     flag = ARKStepSetTimestepHeuristics(arkode_mem, H);
     if (check_flag(&flag, "ARKStepSetTimestepHeuristics", 1)) return 1;
   }

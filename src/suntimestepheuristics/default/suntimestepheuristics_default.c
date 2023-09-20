@@ -70,7 +70,7 @@
  * Function to create a new default heuristics module
  */
 
-SUNTimestepHeuristics SUNTimestepHeuristicsDefault(SUNContext sunctx)
+SUNTimestepHeuristics SUNTimestepHeuristics_Default(SUNContext sunctx)
 {
   SUNTimestepHeuristics H;
   SUNTimestepHeuristicsContent_Default content;
@@ -81,31 +81,31 @@ SUNTimestepHeuristics SUNTimestepHeuristicsDefault(SUNContext sunctx)
   if (H == NULL) { return (NULL); }
 
   /* Attach operations */
-  H->ops->getid              = SUNTimestepHeuristicsGetID_Default;
-  H->ops->constrainstep      = SUNTimestepHeuristicsConstrainStep_Default;
-  H->ops->etestfail          = SUNTimestepHeuristicsETestFail_Default;
-  H->ops->convfail           = SUNTimestepHeuristicsConvFail_Default;
-  H->ops->boundreduction     = SUNTimestepHeuristicsBoundReduction_Default;
-  H->ops->boundfirststep     = SUNTimestepHeuristicsBoundFirstStep_Default;
-  H->ops->reset              = SUNTimestepHeuristicsReset_Default;
-  H->ops->update             = SUNTimestepHeuristicsUpdate_Default;
-  H->ops->setdefaults        = SUNTimestepHeuristicsSetDefaults_Default;
-  H->ops->write              = SUNTimestepHeuristicsWrite_Default;
-  H->ops->setmaxstep         = SUNTimestepHeuristicsSetMaxStep_Default;
-  H->ops->setminstep         = SUNTimestepHeuristicsSetMinStep_Default;
-  H->ops->setexpstabfn       = SUNTimestepHeuristicsSetExpStabFn_Default;
-  H->ops->setcflfraction     = SUNTimestepHeuristicsSetCFLFraction_Default;
-  H->ops->setsafetyfactor    = SUNTimestepHeuristicsSetSafetyFactor_Default;
-  H->ops->setmaxgrowth       = SUNTimestepHeuristicsSetMaxGrowth_Default;
-  H->ops->setminreduction    = SUNTimestepHeuristicsSetMinReduction_Default;
-  H->ops->setfixedstepbounds = SUNTimestepHeuristicsSetFixedStepBounds_Default;
-  H->ops->setmaxfirstgrowth  = SUNTimestepHeuristicsSetMaxFirstGrowth_Default;
-  H->ops->setmaxefailgrowth  = SUNTimestepHeuristicsSetMaxEFailGrowth_Default;
-  H->ops->setsmallnumefails  = SUNTimestepHeuristicsSetSmallNumEFails_Default;
-  H->ops->setmaxcfailgrowth  = SUNTimestepHeuristicsSetMaxCFailGrowth_Default;
-  H->ops->getnumexpsteps     = SUNTimestepHeuristicsGetNumExpSteps_Default;
-  H->ops->getnumaccsteps     = SUNTimestepHeuristicsGetNumAccSteps_Default;
-  H->ops->space              = SUNTimestepHeuristicsSpace_Default;
+  H->ops->getid              = SUNTimestepHeuristics_GetID_Default;
+  H->ops->constrainstep      = SUNTimestepHeuristics_ConstrainStep_Default;
+  H->ops->etestfail          = SUNTimestepHeuristics_ETestFail_Default;
+  H->ops->convfail           = SUNTimestepHeuristics_ConvFail_Default;
+  H->ops->boundreduction     = SUNTimestepHeuristics_BoundReduction_Default;
+  H->ops->boundfirststep     = SUNTimestepHeuristics_BoundFirstStep_Default;
+  H->ops->reset              = SUNTimestepHeuristics_Reset_Default;
+  H->ops->update             = SUNTimestepHeuristics_Update_Default;
+  H->ops->setdefaults        = SUNTimestepHeuristics_SetDefaults_Default;
+  H->ops->write              = SUNTimestepHeuristics_Write_Default;
+  H->ops->setmaxstep         = SUNTimestepHeuristics_SetMaxStep_Default;
+  H->ops->setminstep         = SUNTimestepHeuristics_SetMinStep_Default;
+  H->ops->setexpstabfn       = SUNTimestepHeuristics_SetExpStabFn_Default;
+  H->ops->setcflfraction     = SUNTimestepHeuristics_SetCFLFraction_Default;
+  H->ops->setsafetyfactor    = SUNTimestepHeuristics_SetSafetyFactor_Default;
+  H->ops->setmaxgrowth       = SUNTimestepHeuristics_SetMaxGrowth_Default;
+  H->ops->setminreduction    = SUNTimestepHeuristics_SetMinReduction_Default;
+  H->ops->setfixedstepbounds = SUNTimestepHeuristics_SetFixedStepBounds_Default;
+  H->ops->setmaxfirstgrowth  = SUNTimestepHeuristics_SetMaxFirstGrowth_Default;
+  H->ops->setmaxefailgrowth  = SUNTimestepHeuristics_SetMaxEFailGrowth_Default;
+  H->ops->setsmallnumefails  = SUNTimestepHeuristics_SetSmallNumEFails_Default;
+  H->ops->setmaxcfailgrowth  = SUNTimestepHeuristics_SetMaxCFailGrowth_Default;
+  H->ops->getnumexpsteps     = SUNTimestepHeuristics_GetNumExpSteps_Default;
+  H->ops->getnumaccsteps     = SUNTimestepHeuristics_GetNumAccSteps_Default;
+  H->ops->space              = SUNTimestepHeuristics_Space_Default;
 
   /* Create content */
   content = NULL;
@@ -120,8 +120,8 @@ SUNTimestepHeuristics SUNTimestepHeuristicsDefault(SUNContext sunctx)
   H->content = content;
 
   /* Fill content with default/reset values */
-  SUNTimestepHeuristicsSetDefaults_Default(H);
-  SUNTimestepHeuristicsReset_Default(H);
+  SUNTimestepHeuristics_SetDefaults_Default(H);
+  SUNTimestepHeuristics_Reset_Default(H);
 
   /* Initialize explicit stability function and data */
   content->expstab = NULL;
@@ -135,13 +135,13 @@ SUNTimestepHeuristics SUNTimestepHeuristicsDefault(SUNContext sunctx)
  * implementation of heuristic operations
  * ----------------------------------------------------------------- */
 
-SUNTimestepHeuristics_ID SUNTimestepHeuristicsGetID_Default(SUNTimestepHeuristics H)
+SUNTimestepHeuristics_ID SUNTimestepHeuristics_GetID_Default(SUNTimestepHeuristics H)
 { return SUN_TIMESTEPHEURISTICS_STD; }
 
-int SUNTimestepHeuristicsConstrainStep_Default(SUNTimestepHeuristics H,
-                                               realtype hcur,
-                                               realtype h_acc,
-                                               realtype* hconstr)
+int SUNTimestepHeuristics_ConstrainStep_Default(SUNTimestepHeuristics H,
+                                                realtype hcur,
+                                                realtype h_acc,
+                                                realtype* hconstr)
 {
   /* Determine direction of integration, int_dir */
   realtype int_dir = hcur / SUNRabs(hcur);
@@ -181,13 +181,13 @@ int SUNTimestepHeuristicsConstrainStep_Default(SUNTimestepHeuristics H,
   hnew /= SUNMAX(RCONST(1.0), SUNRabs(hnew) * SH_HMAX_INV(H));
 
   /* Bound any requested stepsize reduction, and return */
-  return (SUNTimestepHeuristicsBoundReduction_Default(H, hcur, hnew, hconstr));
+  return (SUNTimestepHeuristics_BoundReduction_Default(H, hcur, hnew, hconstr));
 }
 
-int SUNTimestepHeuristicsETestFail_Default(SUNTimestepHeuristics H,
-                                           realtype hcur,
-                                           realtype hnew, int nef,
-                                           realtype* hconstr)
+int SUNTimestepHeuristics_ETestFail_Default(SUNTimestepHeuristics H,
+                                            realtype hcur,
+                                            realtype hnew, int nef,
+                                            realtype* hconstr)
 {
   /* Set etamax to 1.0 for next step attempt */
   SH_ETAMAX(H) = RCONST(1.0);
@@ -196,12 +196,12 @@ int SUNTimestepHeuristicsETestFail_Default(SUNTimestepHeuristics H,
   if (nef >= SH_SMALL_NEF(H)) { hnew = SUNMIN(hnew, hcur*SH_ETAMXF(H)); }
 
   /* Bound any requested stepsize reduction, and return */
-  return (SUNTimestepHeuristicsBoundReduction_Default(H, hcur, hnew, hconstr));
+  return (SUNTimestepHeuristics_BoundReduction_Default(H, hcur, hnew, hconstr));
 }
 
-int SUNTimestepHeuristicsConvFail_Default(SUNTimestepHeuristics H,
-                                          realtype hcur,
-                                          realtype* hconstr)
+int SUNTimestepHeuristics_ConvFail_Default(SUNTimestepHeuristics H,
+                                           realtype hcur,
+                                           realtype* hconstr)
 {
   /* Set etamax to 1.0 for next step attempt */
   SH_ETAMAX(H) = RCONST(1.0);
@@ -210,13 +210,13 @@ int SUNTimestepHeuristicsConvFail_Default(SUNTimestepHeuristics H,
   realtype hnew = hcur*SH_ETACF(H);
 
   /* Bound any requested stepsize reduction, and return */
-  return (SUNTimestepHeuristicsBoundReduction_Default(H, hcur, hnew, hconstr));
+  return (SUNTimestepHeuristics_BoundReduction_Default(H, hcur, hnew, hconstr));
 }
 
-int SUNTimestepHeuristicsBoundReduction_Default(SUNTimestepHeuristics H,
-                                                realtype hcur,
-                                                realtype hnew,
-                                                realtype *hconstr)
+int SUNTimestepHeuristics_BoundReduction_Default(SUNTimestepHeuristics H,
+                                                 realtype hcur,
+                                                 realtype hnew,
+                                                 realtype *hconstr)
 {
   /* If reduction requested first ensure that it its possible. */
   if ((SUNRabs(hcur) <= SH_HMIN(H)*ONEPSM) && (SUNRabs(hnew) <= SUNRabs(hcur)))
@@ -227,9 +227,9 @@ int SUNTimestepHeuristicsBoundReduction_Default(SUNTimestepHeuristics H,
   return SUNTIMESTEPHEURISTICS_SUCCESS;
 }
 
-int SUNTimestepHeuristicsBoundFirstStep_Default(SUNTimestepHeuristics H,
-                                                realtype h0,
-                                                realtype *h0constr)
+int SUNTimestepHeuristics_BoundFirstStep_Default(SUNTimestepHeuristics H,
+                                                 realtype h0,
+                                                 realtype *h0constr)
 {
   /* Enforce max step size */
   h0 /= SUNMAX(RCONST(1.0), SUNRabs(h0) * SH_HMAX_INV(H));
@@ -239,7 +239,7 @@ int SUNTimestepHeuristicsBoundFirstStep_Default(SUNTimestepHeuristics H,
   return SUNTIMESTEPHEURISTICS_SUCCESS;
 }
 
-int SUNTimestepHeuristicsReset_Default(SUNTimestepHeuristics H)
+int SUNTimestepHeuristics_Reset_Default(SUNTimestepHeuristics H)
 {
   SH_ETAMAX(H) = SH_ETAMX1(H);
   SH_NST_ACC(H) = 0;
@@ -247,13 +247,13 @@ int SUNTimestepHeuristicsReset_Default(SUNTimestepHeuristics H)
   return SUNTIMESTEPHEURISTICS_SUCCESS;
 }
 
-int SUNTimestepHeuristicsUpdate_Default(SUNTimestepHeuristics H)
+int SUNTimestepHeuristics_Update_Default(SUNTimestepHeuristics H)
 {
   SH_ETAMAX(H) = SH_GROWTH(H);
   return SUNTIMESTEPHEURISTICS_SUCCESS;
 }
 
-int SUNTimestepHeuristicsSetDefaults_Default(SUNTimestepHeuristics H)
+int SUNTimestepHeuristics_SetDefaults_Default(SUNTimestepHeuristics H)
 {
   SH_HMAX_INV(H) = RCONST(0.0);
   SH_HMIN(H) = RCONST(0.0);
@@ -270,7 +270,7 @@ int SUNTimestepHeuristicsSetDefaults_Default(SUNTimestepHeuristics H)
   return SUNTIMESTEPHEURISTICS_SUCCESS;
 }
 
-int SUNTimestepHeuristicsWrite_Default(SUNTimestepHeuristics H, FILE *fptr)
+int SUNTimestepHeuristics_Write_Default(SUNTimestepHeuristics H, FILE *fptr)
 {
   fprintf(fptr, "Default SUNTimestepHeuristics module:\n");
 #if defined(SUNDIALS_EXTENDED_PRECISION)
@@ -309,8 +309,8 @@ int SUNTimestepHeuristicsWrite_Default(SUNTimestepHeuristics H, FILE *fptr)
   return SUNTIMESTEPHEURISTICS_SUCCESS;
 }
 
-int SUNTimestepHeuristicsSetMaxStep_Default(SUNTimestepHeuristics H,
-                                            realtype hmax)
+int SUNTimestepHeuristics_SetMaxStep_Default(SUNTimestepHeuristics H,
+                                             realtype hmax)
 {
   /* Passing a value <= 0 sets hmax = infinity */
   if (hmax <= RCONST(0.0))
@@ -325,8 +325,8 @@ int SUNTimestepHeuristicsSetMaxStep_Default(SUNTimestepHeuristics H,
   return SUNTIMESTEPHEURISTICS_SUCCESS;
 }
 
-int SUNTimestepHeuristicsSetMinStep_Default(SUNTimestepHeuristics H,
-                                            realtype hmin)
+int SUNTimestepHeuristics_SetMinStep_Default(SUNTimestepHeuristics H,
+                                             realtype hmin)
 {
   /* Passing a value <= 0 sets hmin = 0 */
   if (hmin <= RCONST(0.0))
@@ -340,17 +340,17 @@ int SUNTimestepHeuristicsSetMinStep_Default(SUNTimestepHeuristics H,
   return SUNTIMESTEPHEURISTICS_SUCCESS;
 }
 
-int SUNTimestepHeuristicsSetExpStabFn_Default(SUNTimestepHeuristics H,
-                                              SUNExpStabFn EStab,
-                                              void* estab_data)
+int SUNTimestepHeuristics_SetExpStabFn_Default(SUNTimestepHeuristics H,
+                                               SUNExpStabFn EStab,
+                                               void* estab_data)
 {
   SH_EXPSTAB(H) = EStab;
   SH_ESTAB_DATA(H) = estab_data;
   return SUNTIMESTEPHEURISTICS_SUCCESS;
 }
 
-int SUNTimestepHeuristicsSetCFLFraction_Default(SUNTimestepHeuristics H,
-                                                realtype cfl_frac)
+int SUNTimestepHeuristics_SetCFLFraction_Default(SUNTimestepHeuristics H,
+                                                 realtype cfl_frac)
 {
   /* check for allowable parameters */
   if (cfl_frac >= RCONST(1.0))
@@ -370,8 +370,8 @@ int SUNTimestepHeuristicsSetCFLFraction_Default(SUNTimestepHeuristics H,
   return SUNTIMESTEPHEURISTICS_SUCCESS;
 }
 
-int SUNTimestepHeuristicsSetSafetyFactor_Default(SUNTimestepHeuristics H,
-                                                 realtype safety)
+int SUNTimestepHeuristics_SetSafetyFactor_Default(SUNTimestepHeuristics H,
+                                                  realtype safety)
 {
   /* check for legal input */
   if (safety >= RCONST(1.0)) { return SUNTIMESTEPHEURISTICS_ILL_INPUT; }
@@ -386,8 +386,8 @@ int SUNTimestepHeuristicsSetSafetyFactor_Default(SUNTimestepHeuristics H,
   return SUNTIMESTEPHEURISTICS_SUCCESS;
 }
 
-int SUNTimestepHeuristicsSetMaxGrowth_Default(SUNTimestepHeuristics H,
-                                              realtype mx_growth)
+int SUNTimestepHeuristics_SetMaxGrowth_Default(SUNTimestepHeuristics H,
+                                               realtype mx_growth)
 {
   /* set allowed value, otherwise set default */
   if (mx_growth <= RCONST(1.0))
@@ -401,8 +401,8 @@ int SUNTimestepHeuristicsSetMaxGrowth_Default(SUNTimestepHeuristics H,
   return SUNTIMESTEPHEURISTICS_SUCCESS;
 }
 
-int SUNTimestepHeuristicsSetMinReduction_Default(SUNTimestepHeuristics H,
-                                                 realtype eta_min)
+int SUNTimestepHeuristics_SetMinReduction_Default(SUNTimestepHeuristics H,
+                                                  realtype eta_min)
 {
   /* set allowed value, otherwise set default */
   if (eta_min >= RCONST(1.0) || eta_min <= RCONST(0.0))
@@ -414,8 +414,8 @@ int SUNTimestepHeuristicsSetMinReduction_Default(SUNTimestepHeuristics H,
   return SUNTIMESTEPHEURISTICS_SUCCESS;
 }
 
-int SUNTimestepHeuristicsSetFixedStepBounds_Default(SUNTimestepHeuristics H,
-                                                    realtype lb, realtype ub)
+int SUNTimestepHeuristics_SetFixedStepBounds_Default(SUNTimestepHeuristics H,
+                                                     realtype lb, realtype ub)
 {
   /* set allowable interval, otherwise set defaults */
   if ((lb <= RCONST(1.0)) && (ub >= RCONST(1.0))) {
@@ -428,8 +428,8 @@ int SUNTimestepHeuristicsSetFixedStepBounds_Default(SUNTimestepHeuristics H,
   return SUNTIMESTEPHEURISTICS_SUCCESS;
 }
 
-int SUNTimestepHeuristicsSetMaxFirstGrowth_Default(SUNTimestepHeuristics H,
-                                                   realtype etamx1)
+int SUNTimestepHeuristics_SetMaxFirstGrowth_Default(SUNTimestepHeuristics H,
+                                                    realtype etamx1)
 {
   /* if argument legal set it, otherwise set default */
   if (etamx1 <= RCONST(1.0))
@@ -443,8 +443,8 @@ int SUNTimestepHeuristicsSetMaxFirstGrowth_Default(SUNTimestepHeuristics H,
   return SUNTIMESTEPHEURISTICS_SUCCESS;
 }
 
-int SUNTimestepHeuristicsSetMaxEFailGrowth_Default(SUNTimestepHeuristics H,
-                                                   realtype etamxf)
+int SUNTimestepHeuristics_SetMaxEFailGrowth_Default(SUNTimestepHeuristics H,
+                                                    realtype etamxf)
 {
   /* if argument legal set it, otherwise set default */
   if ((etamxf <= RCONST(0.0)) || (etamxf > RCONST(1.0)))
@@ -458,8 +458,8 @@ int SUNTimestepHeuristicsSetMaxEFailGrowth_Default(SUNTimestepHeuristics H,
   return SUNTIMESTEPHEURISTICS_SUCCESS;
 }
 
-int SUNTimestepHeuristicsSetSmallNumEFails_Default(SUNTimestepHeuristics H,
-                                                   int small_nef)
+int SUNTimestepHeuristics_SetSmallNumEFails_Default(SUNTimestepHeuristics H,
+                                                    int small_nef)
 {
   /* if argument legal set it, otherwise set default */
   if (small_nef <= 0)
@@ -473,8 +473,8 @@ int SUNTimestepHeuristicsSetSmallNumEFails_Default(SUNTimestepHeuristics H,
   return SUNTIMESTEPHEURISTICS_SUCCESS;
 }
 
-int SUNTimestepHeuristicsSetMaxCFailGrowth_Default(SUNTimestepHeuristics H,
-                                                   realtype etacf)
+int SUNTimestepHeuristics_SetMaxCFailGrowth_Default(SUNTimestepHeuristics H,
+                                                    realtype etacf)
 {
   /* if argument legal set it, otherwise set default */
   if ((etacf <= RCONST(0.0)) || (etacf > RCONST(1.0)))
@@ -488,22 +488,22 @@ int SUNTimestepHeuristicsSetMaxCFailGrowth_Default(SUNTimestepHeuristics H,
   return SUNTIMESTEPHEURISTICS_SUCCESS;
 }
 
-int SUNTimestepHeuristicsGetNumExpSteps_Default(SUNTimestepHeuristics H,
-                                                long int* expsteps)
+int SUNTimestepHeuristics_GetNumExpSteps_Default(SUNTimestepHeuristics H,
+                                                 long int* expsteps)
 {
   *expsteps = SH_NST_EXP(H);
   return SUNTIMESTEPHEURISTICS_SUCCESS;
 }
 
-int SUNTimestepHeuristicsGetNumAccSteps_Default(SUNTimestepHeuristics H,
-                                                long int* accsteps)
+int SUNTimestepHeuristics_GetNumAccSteps_Default(SUNTimestepHeuristics H,
+                                                 long int* accsteps)
 {
   *accsteps = SH_NST_ACC(H);
   return SUNTIMESTEPHEURISTICS_SUCCESS;
 }
 
-int SUNTimestepHeuristicsSpace_Default(SUNTimestepHeuristics H,
-                                       long int* lenrw, long int* leniw)
+int SUNTimestepHeuristics_Space_Default(SUNTimestepHeuristics H,
+                                        long int* lenrw, long int* leniw)
 {
   *lenrw = 11;
   *leniw = 5;

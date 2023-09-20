@@ -40,26 +40,26 @@ typedef struct SUNTimestepHeuristicsContent_Unconstrained_ *SUNTimestepHeuristic
  * ------------------ */
 
 SUNDIALS_EXPORT
-SUNTimestepHeuristics SUNTimestepHeuristicsUnconstrained(SUNContext sunctx);
+SUNTimestepHeuristics SUNTimestepHeuristics_Unconstrained(SUNContext sunctx);
 SUNDIALS_EXPORT
-SUNTimestepHeuristics_ID SUNTimestepHeuristicsGetID_Unconstrained(SUNTimestepHeuristics H);
+SUNTimestepHeuristics_ID SUNTimestepHeuristics_GetID_Unconstrained(SUNTimestepHeuristics H);
 SUNDIALS_EXPORT
-int SUNTimestepHeuristicsConstrainStep_Unconstrained(SUNTimestepHeuristics H,
-                                                     realtype hcur,
-                                                     realtype hnew,
-                                                     realtype* hconstr);
+int SUNTimestepHeuristics_ConstrainStep_Unconstrained(SUNTimestepHeuristics H,
+                                                      realtype hcur,
+                                                      realtype hnew,
+                                                      realtype* hconstr);
 SUNDIALS_EXPORT
-int SUNTimestepHeuristicsConvFail_Unconstrained(SUNTimestepHeuristics H, realtype hcur,
-                                                realtype* hconstr);
+int SUNTimestepHeuristics_ConvFail_Unconstrained(SUNTimestepHeuristics H, realtype hcur,
+                                                 realtype* hconstr);
 SUNDIALS_EXPORT
-int SUNTimestepHeuristicsReset_Unconstrained(SUNTimestepHeuristics H);
+int SUNTimestepHeuristics_Reset_Unconstrained(SUNTimestepHeuristics H);
 SUNDIALS_EXPORT
-int SUNTimestepHeuristicsWrite_Unconstrained(SUNTimestepHeuristics H, FILE* fptr);
-int SUNTimestepHeuristicsGetNumAccSteps_Unconstrained(SUNTimestepHeuristics H,
-                                                      long int* accsteps);
+int SUNTimestepHeuristics_Write_Unconstrained(SUNTimestepHeuristics H, FILE* fptr);
+int SUNTimestepHeuristics_GetNumAccSteps_Unconstrained(SUNTimestepHeuristics H,
+                                                       long int* accsteps);
 SUNDIALS_EXPORT
-int SUNTimestepHeuristicsSpace_Unconstrained(SUNTimestepHeuristics H, long int *lenrw,
-                                             long int *leniw);
+int SUNTimestepHeuristics_Space_Unconstrained(SUNTimestepHeuristics H, long int *lenrw,
+                                              long int *leniw);
 
 #ifdef __cplusplus
 }

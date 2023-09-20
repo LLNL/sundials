@@ -138,7 +138,7 @@ ARKodeMem arkCreate(SUNContext sunctx)
   ark_mem->liw += leniw;
 
   /* Allocate default heuristic structure and note storage */
-  ark_mem->hconstraints = SUNTimestepHeuristicsDefault(sunctx);
+  ark_mem->hconstraints = SUNTimestepHeuristics_Default(sunctx);
   if (ark_mem->hconstraints == NULL) {
     arkProcessError(NULL, ARK_MEM_FAIL, "ARKODE", "arkCreate",
                     "Allocation of step heuristics object failed");
@@ -1995,7 +1995,7 @@ int arkInitialSetup(ARKodeMem ark_mem, realtype tout)
 
     /* Enforce step size bounds */
     retval = SUNTimestepHeuristics_BoundFirstStep(ark_mem->hconstraints, ark_mem->h,
-                                          &(ark_mem->h));
+                                                  &(ark_mem->h));
     if (retval != SUNTIMESTEPHEURISTICS_SUCCESS) {
       arkProcessError(ark_mem, ARK_HEURISTICS_ERR, "ARKODE", "arkInitialSetup",
                       "Error in call to SUNTimestepHeuristics_BoundFirstStep");

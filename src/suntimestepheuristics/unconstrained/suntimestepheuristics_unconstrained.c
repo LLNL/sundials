@@ -37,7 +37,7 @@
  * Function to create a new unconstrained heuristics module
  */
 
-SUNTimestepHeuristics SUNTimestepHeuristicsUnconstrained(SUNContext sunctx)
+SUNTimestepHeuristics SUNTimestepHeuristics_Unconstrained(SUNContext sunctx)
 {
   SUNTimestepHeuristics H;
   SUNTimestepHeuristicsContent_Unconstrained content;
@@ -48,13 +48,13 @@ SUNTimestepHeuristics SUNTimestepHeuristicsUnconstrained(SUNContext sunctx)
   if (H == NULL) { return (NULL); }
 
   /* Attach operations */
-  H->ops->getid          = SUNTimestepHeuristicsGetID_Unconstrained;
-  H->ops->constrainstep  = SUNTimestepHeuristicsConstrainStep_Unconstrained;
-  H->ops->convfail       = SUNTimestepHeuristicsConvFail_Unconstrained;
-  H->ops->reset          = SUNTimestepHeuristicsReset_Unconstrained;
-  H->ops->write          = SUNTimestepHeuristicsWrite_Unconstrained;
-  H->ops->getnumaccsteps = SUNTimestepHeuristicsGetNumAccSteps_Unconstrained;
-  H->ops->space          = SUNTimestepHeuristicsSpace_Unconstrained;
+  H->ops->getid          = SUNTimestepHeuristics_GetID_Unconstrained;
+  H->ops->constrainstep  = SUNTimestepHeuristics_ConstrainStep_Unconstrained;
+  H->ops->convfail       = SUNTimestepHeuristics_ConvFail_Unconstrained;
+  H->ops->reset          = SUNTimestepHeuristics_Reset_Unconstrained;
+  H->ops->write          = SUNTimestepHeuristics_Write_Unconstrained;
+  H->ops->getnumaccsteps = SUNTimestepHeuristics_GetNumAccSteps_Unconstrained;
+  H->ops->space          = SUNTimestepHeuristics_Space_Unconstrained;
 
   /* Create content */
   content = NULL;
@@ -69,7 +69,7 @@ SUNTimestepHeuristics SUNTimestepHeuristicsUnconstrained(SUNContext sunctx)
   H->content = content;
 
   /* Fill content with default/reset values */
-  SUNTimestepHeuristicsReset_Unconstrained(H);
+  SUNTimestepHeuristics_Reset_Unconstrained(H);
 
   return (H);
 }
@@ -79,13 +79,13 @@ SUNTimestepHeuristics SUNTimestepHeuristicsUnconstrained(SUNContext sunctx)
  * implementation of heuristic operations
  * ----------------------------------------------------------------- */
 
-SUNTimestepHeuristics_ID SUNTimestepHeuristicsGetID_Unconstrained(SUNTimestepHeuristics H)
+SUNTimestepHeuristics_ID SUNTimestepHeuristics_GetID_Unconstrained(SUNTimestepHeuristics H)
 { return SUN_TIMESTEPHEURISTICS_NULL; }
 
-int SUNTimestepHeuristicsConstrainStep_Unconstrained(SUNTimestepHeuristics H,
-                                                     realtype hcur,
-                                                     realtype h_acc,
-                                                     realtype* hconstr)
+int SUNTimestepHeuristics_ConstrainStep_Unconstrained(SUNTimestepHeuristics H,
+                                                      realtype hcur,
+                                                      realtype h_acc,
+                                                      realtype* hconstr)
 {
   /* All steps are considered accuracy-limited */
   SH_NST_ACC(H)++;
@@ -95,39 +95,39 @@ int SUNTimestepHeuristicsConstrainStep_Unconstrained(SUNTimestepHeuristics H,
   return SUNTIMESTEPHEURISTICS_SUCCESS;
 }
 
-int SUNTimestepHeuristicsConvFail_Unconstrained(SUNTimestepHeuristics H,
-                                                realtype hcur,
-                                                realtype* hconstr)
+int SUNTimestepHeuristics_ConvFail_Unconstrained(SUNTimestepHeuristics H,
+                                                 realtype hcur,
+                                                 realtype* hconstr)
 {
   /* No recovery is possible upon an algebraic solver convergence failure */
   *hconstr = hcur;
   return SUNTIMESTEPHEURISTICS_CANNOT_DECREASE;
 }
 
-int SUNTimestepHeuristicsReset_Unconstrained(SUNTimestepHeuristics H)
+int SUNTimestepHeuristics_Reset_Unconstrained(SUNTimestepHeuristics H)
 {
   SH_NST_ACC(H) = 0;
   return SUNTIMESTEPHEURISTICS_SUCCESS;
 }
 
-int SUNTimestepHeuristicsWrite_Unconstrained(SUNTimestepHeuristics H,
-                                             FILE *fptr)
+int SUNTimestepHeuristics_Write_Unconstrained(SUNTimestepHeuristics H,
+                                              FILE *fptr)
 {
   fprintf(fptr, "Unconstrained SUNTimestepHeuristics module:\n");
   fprintf(fptr, "  Current step count = %li\n", SH_NST_ACC(H));
   return SUNTIMESTEPHEURISTICS_SUCCESS;
 }
 
-int SUNTimestepHeuristicsGetNumAccSteps_Unconstrained(SUNTimestepHeuristics H,
-                                                      long int* accsteps)
+int SUNTimestepHeuristics_GetNumAccSteps_Unconstrained(SUNTimestepHeuristics H,
+                                                       long int* accsteps)
 {
   *accsteps = SH_NST_ACC(H);
   return SUNTIMESTEPHEURISTICS_SUCCESS;
 }
 
-int SUNTimestepHeuristicsSpace_Unconstrained(SUNTimestepHeuristics H,
-                                             long int* lenrw,
-                                             long int* leniw)
+int SUNTimestepHeuristics_Space_Unconstrained(SUNTimestepHeuristics H,
+                                              long int* lenrw,
+                                              long int* leniw)
 {
   *lenrw = 0;
   *leniw = 1;
