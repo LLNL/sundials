@@ -1504,10 +1504,10 @@ int mriStep_TakeStep(void* arkode_mem, realtype *dsmPtr, int *nflagPtr)
     }
   }
 
-  /* Call the full RHS if needed. NOTE: We do not use the full RHS function here
-     (unlike ERKStep and ARKStep) since it does not need to check for FSAL or SA
-     methods and this avoids potentially unnecessary evaluations of the inner
-     (fast) RHS function */
+  /* Evaluate the slow RHS functions if needed. NOTE: We do not use the full RHS
+     function here (unlike ERKStep and ARKStep) since it does not need to check
+     for FSAL or SA methods and thus avoids potentially unnecessary evaluations
+     of the inner (fast) RHS function */
 
   if (!(ark_mem->fn_current))
   {
