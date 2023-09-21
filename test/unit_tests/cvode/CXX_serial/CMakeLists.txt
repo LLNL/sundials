@@ -31,6 +31,7 @@ set(unit_tests
   "cv_test_resize_history.cpp\;"
   "test_newton_poly.cpp\;"
   "test_hermite_poly.cpp\;"
+  "cv_test_poly.cpp\;"
 )
 
 # Add the build and install targets for each test
