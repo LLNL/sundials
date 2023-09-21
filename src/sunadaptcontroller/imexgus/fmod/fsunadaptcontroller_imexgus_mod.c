@@ -178,35 +178,6 @@
  { printf("In " DECL ": " MSG); assert(0); RETURNNULL; }
 
 
-enum {
-    SWIG_MEM_OWN = 0x01,
-    SWIG_MEM_RVALUE = 0x02,
-    SWIG_MEM_CONST = 0x04
-};
-
-
-#define SWIG_check_mutable(SWIG_CLASS_WRAPPER, TYPENAME, FNAME, FUNCNAME, RETURNNULL) \
-    if ((SWIG_CLASS_WRAPPER).cmemflags & SWIG_MEM_CONST) { \
-        SWIG_exception_impl(FUNCNAME, SWIG_TypeError, \
-            "Cannot pass const " TYPENAME " (class " FNAME ") " \
-            "as a mutable reference", \
-            RETURNNULL); \
-    }
-
-
-#define SWIG_check_nonnull(SWIG_CLASS_WRAPPER, TYPENAME, FNAME, FUNCNAME, RETURNNULL) \
-  if (!(SWIG_CLASS_WRAPPER).cptr) { \
-    SWIG_exception_impl(FUNCNAME, SWIG_TypeError, \
-                        "Cannot pass null " TYPENAME " (class " FNAME ") " \
-                        "as a reference", RETURNNULL); \
-  }
-
-
-#define SWIG_check_mutable_nonnull(SWIG_CLASS_WRAPPER, TYPENAME, FNAME, FUNCNAME, RETURNNULL) \
-    SWIG_check_nonnull(SWIG_CLASS_WRAPPER, TYPENAME, FNAME, FUNCNAME, RETURNNULL); \
-    SWIG_check_mutable(SWIG_CLASS_WRAPPER, TYPENAME, FNAME, FUNCNAME, RETURNNULL);
-
-
 #include <stdio.h>
 #if defined(_MSC_VER) || defined(__BORLANDC__) || defined(_WATCOM)
 # ifndef snprintf
@@ -237,351 +208,19 @@ enum {
 
 #include "sunadaptcontroller/sunadaptcontroller_imexgus.h"
 
-
-typedef struct {
-    void* cptr;
-    int cmemflags;
-} SwigClassWrapper;
-
-
-SWIGINTERN SwigClassWrapper SwigClassWrapper_uninitialized() {
-    SwigClassWrapper result;
-    result.cptr = NULL;
-    result.cmemflags = 0;
-    return result;
-}
-
-
-#include <stdlib.h>
-#ifdef _MSC_VER
-# ifndef strtoull
-#  define strtoull _strtoui64
-# endif
-# ifndef strtoll
-#  define strtoll _strtoi64
-# endif
-#endif
-
-
-#include <string.h>
-
-
-SWIGINTERN void SWIG_assign(SwigClassWrapper* self, SwigClassWrapper other) {
-  if (self->cptr == NULL) {
-    /* LHS is unassigned */
-    if (other.cmemflags & SWIG_MEM_RVALUE) {
-      /* Capture pointer from RHS, clear 'moving' flag */
-      self->cptr = other.cptr;
-      self->cmemflags = other.cmemflags & (~SWIG_MEM_RVALUE);
-    } else {
-      /* Become a reference to the other object */
-      self->cptr = other.cptr;
-      self->cmemflags = other.cmemflags & (~SWIG_MEM_OWN);
-    }
-  } else if (other.cptr == NULL) {
-    /* Replace LHS with a null pointer */
-    free(self->cptr);
-    *self = SwigClassWrapper_uninitialized();
-  } else {
-    if (self->cmemflags & SWIG_MEM_OWN) {
-      free(self->cptr);
-    }
-    self->cptr = other.cptr;
-    if (other.cmemflags & SWIG_MEM_RVALUE) {
-      /* Capture RHS */
-      self->cmemflags = other.cmemflags & ~SWIG_MEM_RVALUE;
-    } else {
-      /* Point to RHS */
-      self->cmemflags = other.cmemflags & ~SWIG_MEM_OWN;
-    }
-  }
-}
-
-SWIGEXPORT void _wrap_SUNAdaptControllerContent_ImExGus__k1i_set(SwigClassWrapper const *farg1, double const *farg2) {
-  struct SUNAdaptControllerContent_ImExGus_ *arg1 = (struct SUNAdaptControllerContent_ImExGus_ *) 0 ;
-  realtype arg2 ;
-  
-  SWIG_check_mutable_nonnull(*farg1, "struct SUNAdaptControllerContent_ImExGus_ *", "SUNAdaptControllerContent_ImExGus_", "SUNAdaptControllerContent_ImExGus_::k1i", return );
-  arg1 = (struct SUNAdaptControllerContent_ImExGus_ *)(farg1->cptr);
-  arg2 = (realtype)(*farg2);
-  if (arg1) (arg1)->k1i = arg2;
-}
-
-
-SWIGEXPORT double _wrap_SUNAdaptControllerContent_ImExGus__k1i_get(SwigClassWrapper const *farg1) {
-  double fresult ;
-  struct SUNAdaptControllerContent_ImExGus_ *arg1 = (struct SUNAdaptControllerContent_ImExGus_ *) 0 ;
-  realtype result;
-  
-  SWIG_check_mutable_nonnull(*farg1, "struct SUNAdaptControllerContent_ImExGus_ *", "SUNAdaptControllerContent_ImExGus_", "SUNAdaptControllerContent_ImExGus_::k1i", return 0);
-  arg1 = (struct SUNAdaptControllerContent_ImExGus_ *)(farg1->cptr);
-  result = (realtype) ((arg1)->k1i);
-  fresult = (realtype)(result);
-  return fresult;
-}
-
-
-SWIGEXPORT void _wrap_SUNAdaptControllerContent_ImExGus__k2i_set(SwigClassWrapper const *farg1, double const *farg2) {
-  struct SUNAdaptControllerContent_ImExGus_ *arg1 = (struct SUNAdaptControllerContent_ImExGus_ *) 0 ;
-  realtype arg2 ;
-  
-  SWIG_check_mutable_nonnull(*farg1, "struct SUNAdaptControllerContent_ImExGus_ *", "SUNAdaptControllerContent_ImExGus_", "SUNAdaptControllerContent_ImExGus_::k2i", return );
-  arg1 = (struct SUNAdaptControllerContent_ImExGus_ *)(farg1->cptr);
-  arg2 = (realtype)(*farg2);
-  if (arg1) (arg1)->k2i = arg2;
-}
-
-
-SWIGEXPORT double _wrap_SUNAdaptControllerContent_ImExGus__k2i_get(SwigClassWrapper const *farg1) {
-  double fresult ;
-  struct SUNAdaptControllerContent_ImExGus_ *arg1 = (struct SUNAdaptControllerContent_ImExGus_ *) 0 ;
-  realtype result;
-  
-  SWIG_check_mutable_nonnull(*farg1, "struct SUNAdaptControllerContent_ImExGus_ *", "SUNAdaptControllerContent_ImExGus_", "SUNAdaptControllerContent_ImExGus_::k2i", return 0);
-  arg1 = (struct SUNAdaptControllerContent_ImExGus_ *)(farg1->cptr);
-  result = (realtype) ((arg1)->k2i);
-  fresult = (realtype)(result);
-  return fresult;
-}
-
-
-SWIGEXPORT void _wrap_SUNAdaptControllerContent_ImExGus__k1e_set(SwigClassWrapper const *farg1, double const *farg2) {
-  struct SUNAdaptControllerContent_ImExGus_ *arg1 = (struct SUNAdaptControllerContent_ImExGus_ *) 0 ;
-  realtype arg2 ;
-  
-  SWIG_check_mutable_nonnull(*farg1, "struct SUNAdaptControllerContent_ImExGus_ *", "SUNAdaptControllerContent_ImExGus_", "SUNAdaptControllerContent_ImExGus_::k1e", return );
-  arg1 = (struct SUNAdaptControllerContent_ImExGus_ *)(farg1->cptr);
-  arg2 = (realtype)(*farg2);
-  if (arg1) (arg1)->k1e = arg2;
-}
-
-
-SWIGEXPORT double _wrap_SUNAdaptControllerContent_ImExGus__k1e_get(SwigClassWrapper const *farg1) {
-  double fresult ;
-  struct SUNAdaptControllerContent_ImExGus_ *arg1 = (struct SUNAdaptControllerContent_ImExGus_ *) 0 ;
-  realtype result;
-  
-  SWIG_check_mutable_nonnull(*farg1, "struct SUNAdaptControllerContent_ImExGus_ *", "SUNAdaptControllerContent_ImExGus_", "SUNAdaptControllerContent_ImExGus_::k1e", return 0);
-  arg1 = (struct SUNAdaptControllerContent_ImExGus_ *)(farg1->cptr);
-  result = (realtype) ((arg1)->k1e);
-  fresult = (realtype)(result);
-  return fresult;
-}
-
-
-SWIGEXPORT void _wrap_SUNAdaptControllerContent_ImExGus__k2e_set(SwigClassWrapper const *farg1, double const *farg2) {
-  struct SUNAdaptControllerContent_ImExGus_ *arg1 = (struct SUNAdaptControllerContent_ImExGus_ *) 0 ;
-  realtype arg2 ;
-  
-  SWIG_check_mutable_nonnull(*farg1, "struct SUNAdaptControllerContent_ImExGus_ *", "SUNAdaptControllerContent_ImExGus_", "SUNAdaptControllerContent_ImExGus_::k2e", return );
-  arg1 = (struct SUNAdaptControllerContent_ImExGus_ *)(farg1->cptr);
-  arg2 = (realtype)(*farg2);
-  if (arg1) (arg1)->k2e = arg2;
-}
-
-
-SWIGEXPORT double _wrap_SUNAdaptControllerContent_ImExGus__k2e_get(SwigClassWrapper const *farg1) {
-  double fresult ;
-  struct SUNAdaptControllerContent_ImExGus_ *arg1 = (struct SUNAdaptControllerContent_ImExGus_ *) 0 ;
-  realtype result;
-  
-  SWIG_check_mutable_nonnull(*farg1, "struct SUNAdaptControllerContent_ImExGus_ *", "SUNAdaptControllerContent_ImExGus_", "SUNAdaptControllerContent_ImExGus_::k2e", return 0);
-  arg1 = (struct SUNAdaptControllerContent_ImExGus_ *)(farg1->cptr);
-  result = (realtype) ((arg1)->k2e);
-  fresult = (realtype)(result);
-  return fresult;
-}
-
-
-SWIGEXPORT void _wrap_SUNAdaptControllerContent_ImExGus__bias_set(SwigClassWrapper const *farg1, double const *farg2) {
-  struct SUNAdaptControllerContent_ImExGus_ *arg1 = (struct SUNAdaptControllerContent_ImExGus_ *) 0 ;
-  realtype arg2 ;
-  
-  SWIG_check_mutable_nonnull(*farg1, "struct SUNAdaptControllerContent_ImExGus_ *", "SUNAdaptControllerContent_ImExGus_", "SUNAdaptControllerContent_ImExGus_::bias", return );
-  arg1 = (struct SUNAdaptControllerContent_ImExGus_ *)(farg1->cptr);
-  arg2 = (realtype)(*farg2);
-  if (arg1) (arg1)->bias = arg2;
-}
-
-
-SWIGEXPORT double _wrap_SUNAdaptControllerContent_ImExGus__bias_get(SwigClassWrapper const *farg1) {
-  double fresult ;
-  struct SUNAdaptControllerContent_ImExGus_ *arg1 = (struct SUNAdaptControllerContent_ImExGus_ *) 0 ;
-  realtype result;
-  
-  SWIG_check_mutable_nonnull(*farg1, "struct SUNAdaptControllerContent_ImExGus_ *", "SUNAdaptControllerContent_ImExGus_", "SUNAdaptControllerContent_ImExGus_::bias", return 0);
-  arg1 = (struct SUNAdaptControllerContent_ImExGus_ *)(farg1->cptr);
-  result = (realtype) ((arg1)->bias);
-  fresult = (realtype)(result);
-  return fresult;
-}
-
-
-SWIGEXPORT void _wrap_SUNAdaptControllerContent_ImExGus__ep_set(SwigClassWrapper const *farg1, double const *farg2) {
-  struct SUNAdaptControllerContent_ImExGus_ *arg1 = (struct SUNAdaptControllerContent_ImExGus_ *) 0 ;
-  realtype arg2 ;
-  
-  SWIG_check_mutable_nonnull(*farg1, "struct SUNAdaptControllerContent_ImExGus_ *", "SUNAdaptControllerContent_ImExGus_", "SUNAdaptControllerContent_ImExGus_::ep", return );
-  arg1 = (struct SUNAdaptControllerContent_ImExGus_ *)(farg1->cptr);
-  arg2 = (realtype)(*farg2);
-  if (arg1) (arg1)->ep = arg2;
-}
-
-
-SWIGEXPORT double _wrap_SUNAdaptControllerContent_ImExGus__ep_get(SwigClassWrapper const *farg1) {
-  double fresult ;
-  struct SUNAdaptControllerContent_ImExGus_ *arg1 = (struct SUNAdaptControllerContent_ImExGus_ *) 0 ;
-  realtype result;
-  
-  SWIG_check_mutable_nonnull(*farg1, "struct SUNAdaptControllerContent_ImExGus_ *", "SUNAdaptControllerContent_ImExGus_", "SUNAdaptControllerContent_ImExGus_::ep", return 0);
-  arg1 = (struct SUNAdaptControllerContent_ImExGus_ *)(farg1->cptr);
-  result = (realtype) ((arg1)->ep);
-  fresult = (realtype)(result);
-  return fresult;
-}
-
-
-SWIGEXPORT void _wrap_SUNAdaptControllerContent_ImExGus__hp_set(SwigClassWrapper const *farg1, double const *farg2) {
-  struct SUNAdaptControllerContent_ImExGus_ *arg1 = (struct SUNAdaptControllerContent_ImExGus_ *) 0 ;
-  realtype arg2 ;
-  
-  SWIG_check_mutable_nonnull(*farg1, "struct SUNAdaptControllerContent_ImExGus_ *", "SUNAdaptControllerContent_ImExGus_", "SUNAdaptControllerContent_ImExGus_::hp", return );
-  arg1 = (struct SUNAdaptControllerContent_ImExGus_ *)(farg1->cptr);
-  arg2 = (realtype)(*farg2);
-  if (arg1) (arg1)->hp = arg2;
-}
-
-
-SWIGEXPORT double _wrap_SUNAdaptControllerContent_ImExGus__hp_get(SwigClassWrapper const *farg1) {
-  double fresult ;
-  struct SUNAdaptControllerContent_ImExGus_ *arg1 = (struct SUNAdaptControllerContent_ImExGus_ *) 0 ;
-  realtype result;
-  
-  SWIG_check_mutable_nonnull(*farg1, "struct SUNAdaptControllerContent_ImExGus_ *", "SUNAdaptControllerContent_ImExGus_", "SUNAdaptControllerContent_ImExGus_::hp", return 0);
-  arg1 = (struct SUNAdaptControllerContent_ImExGus_ *)(farg1->cptr);
-  result = (realtype) ((arg1)->hp);
-  fresult = (realtype)(result);
-  return fresult;
-}
-
-
-SWIGEXPORT void _wrap_SUNAdaptControllerContent_ImExGus__p_set(SwigClassWrapper const *farg1, int const *farg2) {
-  struct SUNAdaptControllerContent_ImExGus_ *arg1 = (struct SUNAdaptControllerContent_ImExGus_ *) 0 ;
-  int arg2 ;
-  
-  SWIG_check_mutable_nonnull(*farg1, "struct SUNAdaptControllerContent_ImExGus_ *", "SUNAdaptControllerContent_ImExGus_", "SUNAdaptControllerContent_ImExGus_::p", return );
-  arg1 = (struct SUNAdaptControllerContent_ImExGus_ *)(farg1->cptr);
-  arg2 = (int)(*farg2);
-  if (arg1) (arg1)->p = arg2;
-}
-
-
-SWIGEXPORT int _wrap_SUNAdaptControllerContent_ImExGus__p_get(SwigClassWrapper const *farg1) {
-  int fresult ;
-  struct SUNAdaptControllerContent_ImExGus_ *arg1 = (struct SUNAdaptControllerContent_ImExGus_ *) 0 ;
-  int result;
-  
-  SWIG_check_mutable_nonnull(*farg1, "struct SUNAdaptControllerContent_ImExGus_ *", "SUNAdaptControllerContent_ImExGus_", "SUNAdaptControllerContent_ImExGus_::p", return 0);
-  arg1 = (struct SUNAdaptControllerContent_ImExGus_ *)(farg1->cptr);
-  result = (int) ((arg1)->p);
-  fresult = (int)(result);
-  return fresult;
-}
-
-
-SWIGEXPORT void _wrap_SUNAdaptControllerContent_ImExGus__pq_set(SwigClassWrapper const *farg1, int const *farg2) {
-  struct SUNAdaptControllerContent_ImExGus_ *arg1 = (struct SUNAdaptControllerContent_ImExGus_ *) 0 ;
-  int arg2 ;
-  
-  SWIG_check_mutable_nonnull(*farg1, "struct SUNAdaptControllerContent_ImExGus_ *", "SUNAdaptControllerContent_ImExGus_", "SUNAdaptControllerContent_ImExGus_::pq", return );
-  arg1 = (struct SUNAdaptControllerContent_ImExGus_ *)(farg1->cptr);
-  arg2 = (int)(*farg2);
-  if (arg1) (arg1)->pq = arg2;
-}
-
-
-SWIGEXPORT int _wrap_SUNAdaptControllerContent_ImExGus__pq_get(SwigClassWrapper const *farg1) {
-  int fresult ;
-  struct SUNAdaptControllerContent_ImExGus_ *arg1 = (struct SUNAdaptControllerContent_ImExGus_ *) 0 ;
-  int result;
-  
-  SWIG_check_mutable_nonnull(*farg1, "struct SUNAdaptControllerContent_ImExGus_ *", "SUNAdaptControllerContent_ImExGus_", "SUNAdaptControllerContent_ImExGus_::pq", return 0);
-  arg1 = (struct SUNAdaptControllerContent_ImExGus_ *)(farg1->cptr);
-  result = (int) ((arg1)->pq);
-  fresult = (int)(result);
-  return fresult;
-}
-
-
-SWIGEXPORT void _wrap_SUNAdaptControllerContent_ImExGus__firststep_set(SwigClassWrapper const *farg1, int const *farg2) {
-  struct SUNAdaptControllerContent_ImExGus_ *arg1 = (struct SUNAdaptControllerContent_ImExGus_ *) 0 ;
-  int arg2 ;
-  
-  SWIG_check_mutable_nonnull(*farg1, "struct SUNAdaptControllerContent_ImExGus_ *", "SUNAdaptControllerContent_ImExGus_", "SUNAdaptControllerContent_ImExGus_::firststep", return );
-  arg1 = (struct SUNAdaptControllerContent_ImExGus_ *)(farg1->cptr);
-  arg2 = (int)(*farg2);
-  if (arg1) (arg1)->firststep = arg2;
-}
-
-
-SWIGEXPORT int _wrap_SUNAdaptControllerContent_ImExGus__firststep_get(SwigClassWrapper const *farg1) {
-  int fresult ;
-  struct SUNAdaptControllerContent_ImExGus_ *arg1 = (struct SUNAdaptControllerContent_ImExGus_ *) 0 ;
-  int result;
-  
-  SWIG_check_mutable_nonnull(*farg1, "struct SUNAdaptControllerContent_ImExGus_ *", "SUNAdaptControllerContent_ImExGus_", "SUNAdaptControllerContent_ImExGus_::firststep", return 0);
-  arg1 = (struct SUNAdaptControllerContent_ImExGus_ *)(farg1->cptr);
-  result = (int) ((arg1)->firststep);
-  fresult = (int)(result);
-  return fresult;
-}
-
-
-SWIGEXPORT SwigClassWrapper _wrap_new_SUNAdaptControllerContent_ImExGus_() {
-  SwigClassWrapper fresult ;
-  struct SUNAdaptControllerContent_ImExGus_ *result = 0 ;
-  
-  result = (struct SUNAdaptControllerContent_ImExGus_ *)calloc(1, sizeof(struct SUNAdaptControllerContent_ImExGus_));
-  fresult.cptr = result;
-  fresult.cmemflags = SWIG_MEM_RVALUE | (1 ? SWIG_MEM_OWN : 0);
-  return fresult;
-}
-
-
-SWIGEXPORT void _wrap_delete_SUNAdaptControllerContent_ImExGus_(SwigClassWrapper *farg1) {
-  struct SUNAdaptControllerContent_ImExGus_ *arg1 = (struct SUNAdaptControllerContent_ImExGus_ *) 0 ;
-  
-  SWIG_check_mutable(*farg1, "struct SUNAdaptControllerContent_ImExGus_ *", "SUNAdaptControllerContent_ImExGus_", "SUNAdaptControllerContent_ImExGus_::~SUNAdaptControllerContent_ImExGus_()", return );
-  arg1 = (struct SUNAdaptControllerContent_ImExGus_ *)(farg1->cptr);
-  free((char *) arg1);
-}
-
-
-SWIGEXPORT void _wrap_SUNAdaptControllerContent_ImExGus__op_assign__(SwigClassWrapper *farg1, SwigClassWrapper const *farg2) {
-  struct SUNAdaptControllerContent_ImExGus_ *arg1 = (struct SUNAdaptControllerContent_ImExGus_ *) 0 ;
-  struct SUNAdaptControllerContent_ImExGus_ *arg2 = 0 ;
-  
-  (void)sizeof(arg1);
-  (void)sizeof(arg2);
-  SWIG_assign(farg1, *farg2);
-  
-}
-
-
-SWIGEXPORT SwigClassWrapper _wrap_FSUNAdaptController_ImExGus(void *farg1) {
-  SwigClassWrapper fresult ;
+SWIGEXPORT SUNAdaptController _wrap_FSUNAdaptController_ImExGus(void *farg1) {
+  SUNAdaptController fresult ;
   SUNContext arg1 = (SUNContext) 0 ;
   SUNAdaptController result;
   
   arg1 = (SUNContext)(farg1);
   result = (SUNAdaptController)SUNAdaptController_ImExGus(arg1);
-  fresult.cptr = result;
-  fresult.cmemflags = SWIG_MEM_RVALUE | (0 ? SWIG_MEM_OWN : 0);
+  fresult = result;
   return fresult;
 }
 
 
-SWIGEXPORT int _wrap_FSUNAdaptController_SetParams_ImExGus(SwigClassWrapper const *farg1, int const *farg2, double const *farg3, double const *farg4, double const *farg5, double const *farg6) {
+SWIGEXPORT int _wrap_FSUNAdaptController_SetParams_ImExGus(SUNAdaptController farg1, int const *farg2, double const *farg3, double const *farg4, double const *farg5, double const *farg6) {
   int fresult ;
   SUNAdaptController arg1 = (SUNAdaptController) 0 ;
   int arg2 ;
@@ -591,8 +230,7 @@ SWIGEXPORT int _wrap_FSUNAdaptController_SetParams_ImExGus(SwigClassWrapper cons
   realtype arg6 ;
   int result;
   
-  SWIG_check_mutable(*farg1, "SUNAdaptController", "generic_SUNAdaptController_", "SUNAdaptController_SetParams_ImExGus(SUNAdaptController,int,realtype,realtype,realtype,realtype)", return 0);
-  arg1 = (SUNAdaptController)(farg1->cptr);
+  arg1 = (SUNAdaptController)(farg1);
   arg2 = (int)(*farg2);
   arg3 = (realtype)(*farg3);
   arg4 = (realtype)(*farg4);
@@ -604,20 +242,19 @@ SWIGEXPORT int _wrap_FSUNAdaptController_SetParams_ImExGus(SwigClassWrapper cons
 }
 
 
-SWIGEXPORT int _wrap_FSUNAdaptController_GetType_ImExGus(SwigClassWrapper const *farg1) {
+SWIGEXPORT int _wrap_FSUNAdaptController_GetType_ImExGus(SUNAdaptController farg1) {
   int fresult ;
   SUNAdaptController arg1 = (SUNAdaptController) 0 ;
   SUNAdaptController_Type result;
   
-  SWIG_check_mutable(*farg1, "SUNAdaptController", "generic_SUNAdaptController_", "SUNAdaptController_GetType_ImExGus(SUNAdaptController)", return 0);
-  arg1 = (SUNAdaptController)(farg1->cptr);
+  arg1 = (SUNAdaptController)(farg1);
   result = (SUNAdaptController_Type)SUNAdaptController_GetType_ImExGus(arg1);
   fresult = (int)(result);
   return fresult;
 }
 
 
-SWIGEXPORT int _wrap_FSUNAdaptController_EstimateStep_ImExGus(SwigClassWrapper const *farg1, double const *farg2, double const *farg3, double *farg4) {
+SWIGEXPORT int _wrap_FSUNAdaptController_EstimateStep_ImExGus(SUNAdaptController farg1, double const *farg2, double const *farg3, double *farg4) {
   int fresult ;
   SUNAdaptController arg1 = (SUNAdaptController) 0 ;
   realtype arg2 ;
@@ -625,8 +262,7 @@ SWIGEXPORT int _wrap_FSUNAdaptController_EstimateStep_ImExGus(SwigClassWrapper c
   realtype *arg4 = (realtype *) 0 ;
   int result;
   
-  SWIG_check_mutable(*farg1, "SUNAdaptController", "generic_SUNAdaptController_", "SUNAdaptController_EstimateStep_ImExGus(SUNAdaptController,realtype,realtype,realtype *)", return 0);
-  arg1 = (SUNAdaptController)(farg1->cptr);
+  arg1 = (SUNAdaptController)(farg1);
   arg2 = (realtype)(*farg2);
   arg3 = (realtype)(*farg3);
   arg4 = (realtype *)(farg4);
@@ -636,40 +272,37 @@ SWIGEXPORT int _wrap_FSUNAdaptController_EstimateStep_ImExGus(SwigClassWrapper c
 }
 
 
-SWIGEXPORT int _wrap_FSUNAdaptController_Reset_ImExGus(SwigClassWrapper const *farg1) {
+SWIGEXPORT int _wrap_FSUNAdaptController_Reset_ImExGus(SUNAdaptController farg1) {
   int fresult ;
   SUNAdaptController arg1 = (SUNAdaptController) 0 ;
   int result;
   
-  SWIG_check_mutable(*farg1, "SUNAdaptController", "generic_SUNAdaptController_", "SUNAdaptController_Reset_ImExGus(SUNAdaptController)", return 0);
-  arg1 = (SUNAdaptController)(farg1->cptr);
+  arg1 = (SUNAdaptController)(farg1);
   result = (int)SUNAdaptController_Reset_ImExGus(arg1);
   fresult = (int)(result);
   return fresult;
 }
 
 
-SWIGEXPORT int _wrap_FSUNAdaptController_SetDefaults_ImExGus(SwigClassWrapper const *farg1) {
+SWIGEXPORT int _wrap_FSUNAdaptController_SetDefaults_ImExGus(SUNAdaptController farg1) {
   int fresult ;
   SUNAdaptController arg1 = (SUNAdaptController) 0 ;
   int result;
   
-  SWIG_check_mutable(*farg1, "SUNAdaptController", "generic_SUNAdaptController_", "SUNAdaptController_SetDefaults_ImExGus(SUNAdaptController)", return 0);
-  arg1 = (SUNAdaptController)(farg1->cptr);
+  arg1 = (SUNAdaptController)(farg1);
   result = (int)SUNAdaptController_SetDefaults_ImExGus(arg1);
   fresult = (int)(result);
   return fresult;
 }
 
 
-SWIGEXPORT int _wrap_FSUNAdaptController_Write_ImExGus(SwigClassWrapper const *farg1, void *farg2) {
+SWIGEXPORT int _wrap_FSUNAdaptController_Write_ImExGus(SUNAdaptController farg1, void *farg2) {
   int fresult ;
   SUNAdaptController arg1 = (SUNAdaptController) 0 ;
   FILE *arg2 = (FILE *) 0 ;
   int result;
   
-  SWIG_check_mutable(*farg1, "SUNAdaptController", "generic_SUNAdaptController_", "SUNAdaptController_Write_ImExGus(SUNAdaptController,FILE *)", return 0);
-  arg1 = (SUNAdaptController)(farg1->cptr);
+  arg1 = (SUNAdaptController)(farg1);
   arg2 = (FILE *)(farg2);
   result = (int)SUNAdaptController_Write_ImExGus(arg1,arg2);
   fresult = (int)(result);
@@ -677,14 +310,13 @@ SWIGEXPORT int _wrap_FSUNAdaptController_Write_ImExGus(SwigClassWrapper const *f
 }
 
 
-SWIGEXPORT int _wrap_FSUNAdaptController_SetMethodOrder_ImExGus(SwigClassWrapper const *farg1, int const *farg2) {
+SWIGEXPORT int _wrap_FSUNAdaptController_SetMethodOrder_ImExGus(SUNAdaptController farg1, int const *farg2) {
   int fresult ;
   SUNAdaptController arg1 = (SUNAdaptController) 0 ;
   int arg2 ;
   int result;
   
-  SWIG_check_mutable(*farg1, "SUNAdaptController", "generic_SUNAdaptController_", "SUNAdaptController_SetMethodOrder_ImExGus(SUNAdaptController,int)", return 0);
-  arg1 = (SUNAdaptController)(farg1->cptr);
+  arg1 = (SUNAdaptController)(farg1);
   arg2 = (int)(*farg2);
   result = (int)SUNAdaptController_SetMethodOrder_ImExGus(arg1,arg2);
   fresult = (int)(result);
@@ -692,14 +324,13 @@ SWIGEXPORT int _wrap_FSUNAdaptController_SetMethodOrder_ImExGus(SwigClassWrapper
 }
 
 
-SWIGEXPORT int _wrap_FSUNAdaptController_SetEmbeddingOrder_ImExGus(SwigClassWrapper const *farg1, int const *farg2) {
+SWIGEXPORT int _wrap_FSUNAdaptController_SetEmbeddingOrder_ImExGus(SUNAdaptController farg1, int const *farg2) {
   int fresult ;
   SUNAdaptController arg1 = (SUNAdaptController) 0 ;
   int arg2 ;
   int result;
   
-  SWIG_check_mutable(*farg1, "SUNAdaptController", "generic_SUNAdaptController_", "SUNAdaptController_SetEmbeddingOrder_ImExGus(SUNAdaptController,int)", return 0);
-  arg1 = (SUNAdaptController)(farg1->cptr);
+  arg1 = (SUNAdaptController)(farg1);
   arg2 = (int)(*farg2);
   result = (int)SUNAdaptController_SetEmbeddingOrder_ImExGus(arg1,arg2);
   fresult = (int)(result);
@@ -707,14 +338,13 @@ SWIGEXPORT int _wrap_FSUNAdaptController_SetEmbeddingOrder_ImExGus(SwigClassWrap
 }
 
 
-SWIGEXPORT int _wrap_FSUNAdaptController_SetErrorBias_ImExGus(SwigClassWrapper const *farg1, double const *farg2) {
+SWIGEXPORT int _wrap_FSUNAdaptController_SetErrorBias_ImExGus(SUNAdaptController farg1, double const *farg2) {
   int fresult ;
   SUNAdaptController arg1 = (SUNAdaptController) 0 ;
   realtype arg2 ;
   int result;
   
-  SWIG_check_mutable(*farg1, "SUNAdaptController", "generic_SUNAdaptController_", "SUNAdaptController_SetErrorBias_ImExGus(SUNAdaptController,realtype)", return 0);
-  arg1 = (SUNAdaptController)(farg1->cptr);
+  arg1 = (SUNAdaptController)(farg1);
   arg2 = (realtype)(*farg2);
   result = (int)SUNAdaptController_SetErrorBias_ImExGus(arg1,arg2);
   fresult = (int)(result);
@@ -722,15 +352,14 @@ SWIGEXPORT int _wrap_FSUNAdaptController_SetErrorBias_ImExGus(SwigClassWrapper c
 }
 
 
-SWIGEXPORT int _wrap_FSUNAdaptController_Update_ImExGus(SwigClassWrapper const *farg1, double const *farg2, double const *farg3) {
+SWIGEXPORT int _wrap_FSUNAdaptController_Update_ImExGus(SUNAdaptController farg1, double const *farg2, double const *farg3) {
   int fresult ;
   SUNAdaptController arg1 = (SUNAdaptController) 0 ;
   realtype arg2 ;
   realtype arg3 ;
   int result;
   
-  SWIG_check_mutable(*farg1, "SUNAdaptController", "generic_SUNAdaptController_", "SUNAdaptController_Update_ImExGus(SUNAdaptController,realtype,realtype)", return 0);
-  arg1 = (SUNAdaptController)(farg1->cptr);
+  arg1 = (SUNAdaptController)(farg1);
   arg2 = (realtype)(*farg2);
   arg3 = (realtype)(*farg3);
   result = (int)SUNAdaptController_Update_ImExGus(arg1,arg2,arg3);
@@ -739,15 +368,14 @@ SWIGEXPORT int _wrap_FSUNAdaptController_Update_ImExGus(SwigClassWrapper const *
 }
 
 
-SWIGEXPORT int _wrap_FSUNAdaptController_Space_ImExGus(SwigClassWrapper const *farg1, long *farg2, long *farg3) {
+SWIGEXPORT int _wrap_FSUNAdaptController_Space_ImExGus(SUNAdaptController farg1, long *farg2, long *farg3) {
   int fresult ;
   SUNAdaptController arg1 = (SUNAdaptController) 0 ;
   long *arg2 = (long *) 0 ;
   long *arg3 = (long *) 0 ;
   int result;
   
-  SWIG_check_mutable(*farg1, "SUNAdaptController", "generic_SUNAdaptController_", "SUNAdaptController_Space_ImExGus(SUNAdaptController,long *,long *)", return 0);
-  arg1 = (SUNAdaptController)(farg1->cptr);
+  arg1 = (SUNAdaptController)(farg1);
   arg2 = (long *)(farg2);
   arg3 = (long *)(farg3);
   result = (int)SUNAdaptController_Space_ImExGus(arg1,arg2,arg3);

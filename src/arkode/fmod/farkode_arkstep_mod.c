@@ -178,22 +178,6 @@
  { printf("In " DECL ": " MSG); assert(0); RETURNNULL; }
 
 
-enum {
-    SWIG_MEM_OWN = 0x01,
-    SWIG_MEM_RVALUE = 0x02,
-    SWIG_MEM_CONST = 0x04
-};
-
-
-#define SWIG_check_mutable(SWIG_CLASS_WRAPPER, TYPENAME, FNAME, FUNCNAME, RETURNNULL) \
-    if ((SWIG_CLASS_WRAPPER).cmemflags & SWIG_MEM_CONST) { \
-        SWIG_exception_impl(FUNCNAME, SWIG_TypeError, \
-            "Cannot pass const " TYPENAME " (class " FNAME ") " \
-            "as a mutable reference", \
-            RETURNNULL); \
-    }
-
-
 #include <stdio.h>
 #if defined(_MSC_VER) || defined(__BORLANDC__) || defined(_WATCOM)
 # ifndef snprintf
@@ -244,20 +228,6 @@ SWIGINTERN SwigArrayWrapper SwigArrayWrapper_uninitialized() {
   result.data = NULL;
   result.size = 0;
   return result;
-}
-
-
-typedef struct {
-    void* cptr;
-    int cmemflags;
-} SwigClassWrapper;
-
-
-SWIGINTERN SwigClassWrapper SwigClassWrapper_uninitialized() {
-    SwigClassWrapper result;
-    result.cptr = NULL;
-    result.cmemflags = 0;
-    return result;
 }
 
 
@@ -715,30 +685,28 @@ SWIGEXPORT int _wrap_FARKStepSetTableName(void *farg1, SwigArrayWrapper *farg2, 
 }
 
 
-SWIGEXPORT int _wrap_FARKStepSetAdaptController(void *farg1, SwigClassWrapper const *farg2) {
+SWIGEXPORT int _wrap_FARKStepSetAdaptController(void *farg1, SUNAdaptController farg2) {
   int fresult ;
   void *arg1 = (void *) 0 ;
   SUNAdaptController arg2 = (SUNAdaptController) 0 ;
   int result;
   
   arg1 = (void *)(farg1);
-  SWIG_check_mutable(*farg2, "SUNAdaptController", "generic_SUNAdaptController_", "ARKStepSetAdaptController(void *,SUNAdaptController)", return 0);
-  arg2 = (SUNAdaptController)(farg2->cptr);
+  arg2 = (SUNAdaptController)(farg2);
   result = (int)ARKStepSetAdaptController(arg1,arg2);
   fresult = (int)(result);
   return fresult;
 }
 
 
-SWIGEXPORT int _wrap_FARKStepSetTimestepHeuristics(void *farg1, SwigClassWrapper const *farg2) {
+SWIGEXPORT int _wrap_FARKStepSetTimestepHeuristics(void *farg1, SUNTimestepHeuristics farg2) {
   int fresult ;
   void *arg1 = (void *) 0 ;
   SUNTimestepHeuristics arg2 = (SUNTimestepHeuristics) 0 ;
   int result;
   
   arg1 = (void *)(farg1);
-  SWIG_check_mutable(*farg2, "SUNTimestepHeuristics", "generic_SUNTimestepHeuristics_", "ARKStepSetTimestepHeuristics(void *,SUNTimestepHeuristics)", return 0);
-  arg2 = (SUNTimestepHeuristics)(farg2->cptr);
+  arg2 = (SUNTimestepHeuristics)(farg2);
   result = (int)ARKStepSetTimestepHeuristics(arg1,arg2);
   fresult = (int)(result);
   return fresult;

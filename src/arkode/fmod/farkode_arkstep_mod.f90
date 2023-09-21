@@ -93,14 +93,6 @@ module farkode_arkstep_mod
   integer(C_SIZE_T), public :: size = 0
  end type
  public :: FARKStepSetTableName
-
- integer, parameter :: swig_cmem_own_bit = 0
- integer, parameter :: swig_cmem_rvalue_bit = 1
- integer, parameter :: swig_cmem_const_bit = 2
- type, bind(C) :: SwigClassWrapper
-  type(C_PTR), public :: cptr = C_NULL_PTR
-  integer(C_INT), public :: cmemflags = 0
- end type
  public :: FARKStepSetAdaptController
  public :: FARKStepSetTimestepHeuristics
  public :: FARKStepSetCFLFraction
@@ -534,9 +526,8 @@ function swigc_FARKStepSetAdaptController(farg1, farg2) &
 bind(C, name="_wrap_FARKStepSetAdaptController") &
 result(fresult)
 use, intrinsic :: ISO_C_BINDING
-import :: swigclasswrapper
 type(C_PTR), value :: farg1
-type(SwigClassWrapper) :: farg2
+type(C_PTR), value :: farg2
 integer(C_INT) :: fresult
 end function
 
@@ -544,9 +535,8 @@ function swigc_FARKStepSetTimestepHeuristics(farg1, farg2) &
 bind(C, name="_wrap_FARKStepSetTimestepHeuristics") &
 result(fresult)
 use, intrinsic :: ISO_C_BINDING
-import :: swigclasswrapper
 type(C_PTR), value :: farg1
-type(SwigClassWrapper) :: farg2
+type(C_PTR), value :: farg2
 integer(C_INT) :: fresult
 end function
 
@@ -2382,13 +2372,13 @@ result(swig_result)
 use, intrinsic :: ISO_C_BINDING
 integer(C_INT) :: swig_result
 type(C_PTR) :: arkode_mem
-class(generic_SUNAdaptController_), intent(in) :: c
+type(SUNAdaptController), target, intent(inout) :: c
 integer(C_INT) :: fresult 
 type(C_PTR) :: farg1 
-type(SwigClassWrapper) :: farg2 
+type(C_PTR) :: farg2 
 
 farg1 = arkode_mem
-farg2 = c%swigdata
+farg2 = c_loc(c)
 fresult = swigc_FARKStepSetAdaptController(farg1, farg2)
 swig_result = fresult
 end function
@@ -2398,13 +2388,13 @@ result(swig_result)
 use, intrinsic :: ISO_C_BINDING
 integer(C_INT) :: swig_result
 type(C_PTR) :: arkode_mem
-class(generic_SUNTimestepHeuristics_), intent(in) :: h
+type(SUNTimestepHeuristics), target, intent(inout) :: h
 integer(C_INT) :: fresult 
 type(C_PTR) :: farg1 
-type(SwigClassWrapper) :: farg2 
+type(C_PTR) :: farg2 
 
 farg1 = arkode_mem
-farg2 = h%swigdata
+farg2 = c_loc(h)
 fresult = swigc_FARKStepSetTimestepHeuristics(farg1, farg2)
 swig_result = fresult
 end function

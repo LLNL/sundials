@@ -178,35 +178,6 @@
  { printf("In " DECL ": " MSG); assert(0); RETURNNULL; }
 
 
-enum {
-    SWIG_MEM_OWN = 0x01,
-    SWIG_MEM_RVALUE = 0x02,
-    SWIG_MEM_CONST = 0x04
-};
-
-
-#define SWIG_check_mutable(SWIG_CLASS_WRAPPER, TYPENAME, FNAME, FUNCNAME, RETURNNULL) \
-    if ((SWIG_CLASS_WRAPPER).cmemflags & SWIG_MEM_CONST) { \
-        SWIG_exception_impl(FUNCNAME, SWIG_TypeError, \
-            "Cannot pass const " TYPENAME " (class " FNAME ") " \
-            "as a mutable reference", \
-            RETURNNULL); \
-    }
-
-
-#define SWIG_check_nonnull(SWIG_CLASS_WRAPPER, TYPENAME, FNAME, FUNCNAME, RETURNNULL) \
-  if (!(SWIG_CLASS_WRAPPER).cptr) { \
-    SWIG_exception_impl(FUNCNAME, SWIG_TypeError, \
-                        "Cannot pass null " TYPENAME " (class " FNAME ") " \
-                        "as a reference", RETURNNULL); \
-  }
-
-
-#define SWIG_check_mutable_nonnull(SWIG_CLASS_WRAPPER, TYPENAME, FNAME, FUNCNAME, RETURNNULL) \
-    SWIG_check_nonnull(SWIG_CLASS_WRAPPER, TYPENAME, FNAME, FUNCNAME, RETURNNULL); \
-    SWIG_check_mutable(SWIG_CLASS_WRAPPER, TYPENAME, FNAME, FUNCNAME, RETURNNULL);
-
-
 #include <stdio.h>
 #if defined(_MSC_VER) || defined(__BORLANDC__) || defined(_WATCOM)
 # ifndef snprintf
@@ -237,303 +208,19 @@ enum {
 
 #include "sunadaptcontroller/sunadaptcontroller_pid.h"
 
-
-typedef struct {
-    void* cptr;
-    int cmemflags;
-} SwigClassWrapper;
-
-
-SWIGINTERN SwigClassWrapper SwigClassWrapper_uninitialized() {
-    SwigClassWrapper result;
-    result.cptr = NULL;
-    result.cmemflags = 0;
-    return result;
-}
-
-
-#include <stdlib.h>
-#ifdef _MSC_VER
-# ifndef strtoull
-#  define strtoull _strtoui64
-# endif
-# ifndef strtoll
-#  define strtoll _strtoi64
-# endif
-#endif
-
-
-#include <string.h>
-
-
-SWIGINTERN void SWIG_assign(SwigClassWrapper* self, SwigClassWrapper other) {
-  if (self->cptr == NULL) {
-    /* LHS is unassigned */
-    if (other.cmemflags & SWIG_MEM_RVALUE) {
-      /* Capture pointer from RHS, clear 'moving' flag */
-      self->cptr = other.cptr;
-      self->cmemflags = other.cmemflags & (~SWIG_MEM_RVALUE);
-    } else {
-      /* Become a reference to the other object */
-      self->cptr = other.cptr;
-      self->cmemflags = other.cmemflags & (~SWIG_MEM_OWN);
-    }
-  } else if (other.cptr == NULL) {
-    /* Replace LHS with a null pointer */
-    free(self->cptr);
-    *self = SwigClassWrapper_uninitialized();
-  } else {
-    if (self->cmemflags & SWIG_MEM_OWN) {
-      free(self->cptr);
-    }
-    self->cptr = other.cptr;
-    if (other.cmemflags & SWIG_MEM_RVALUE) {
-      /* Capture RHS */
-      self->cmemflags = other.cmemflags & ~SWIG_MEM_RVALUE;
-    } else {
-      /* Point to RHS */
-      self->cmemflags = other.cmemflags & ~SWIG_MEM_OWN;
-    }
-  }
-}
-
-SWIGEXPORT void _wrap_SUNAdaptControllerContent_PID__k1_set(SwigClassWrapper const *farg1, double const *farg2) {
-  struct SUNAdaptControllerContent_PID_ *arg1 = (struct SUNAdaptControllerContent_PID_ *) 0 ;
-  realtype arg2 ;
-  
-  SWIG_check_mutable_nonnull(*farg1, "struct SUNAdaptControllerContent_PID_ *", "SUNAdaptControllerContent_PID_", "SUNAdaptControllerContent_PID_::k1", return );
-  arg1 = (struct SUNAdaptControllerContent_PID_ *)(farg1->cptr);
-  arg2 = (realtype)(*farg2);
-  if (arg1) (arg1)->k1 = arg2;
-}
-
-
-SWIGEXPORT double _wrap_SUNAdaptControllerContent_PID__k1_get(SwigClassWrapper const *farg1) {
-  double fresult ;
-  struct SUNAdaptControllerContent_PID_ *arg1 = (struct SUNAdaptControllerContent_PID_ *) 0 ;
-  realtype result;
-  
-  SWIG_check_mutable_nonnull(*farg1, "struct SUNAdaptControllerContent_PID_ *", "SUNAdaptControllerContent_PID_", "SUNAdaptControllerContent_PID_::k1", return 0);
-  arg1 = (struct SUNAdaptControllerContent_PID_ *)(farg1->cptr);
-  result = (realtype) ((arg1)->k1);
-  fresult = (realtype)(result);
-  return fresult;
-}
-
-
-SWIGEXPORT void _wrap_SUNAdaptControllerContent_PID__k2_set(SwigClassWrapper const *farg1, double const *farg2) {
-  struct SUNAdaptControllerContent_PID_ *arg1 = (struct SUNAdaptControllerContent_PID_ *) 0 ;
-  realtype arg2 ;
-  
-  SWIG_check_mutable_nonnull(*farg1, "struct SUNAdaptControllerContent_PID_ *", "SUNAdaptControllerContent_PID_", "SUNAdaptControllerContent_PID_::k2", return );
-  arg1 = (struct SUNAdaptControllerContent_PID_ *)(farg1->cptr);
-  arg2 = (realtype)(*farg2);
-  if (arg1) (arg1)->k2 = arg2;
-}
-
-
-SWIGEXPORT double _wrap_SUNAdaptControllerContent_PID__k2_get(SwigClassWrapper const *farg1) {
-  double fresult ;
-  struct SUNAdaptControllerContent_PID_ *arg1 = (struct SUNAdaptControllerContent_PID_ *) 0 ;
-  realtype result;
-  
-  SWIG_check_mutable_nonnull(*farg1, "struct SUNAdaptControllerContent_PID_ *", "SUNAdaptControllerContent_PID_", "SUNAdaptControllerContent_PID_::k2", return 0);
-  arg1 = (struct SUNAdaptControllerContent_PID_ *)(farg1->cptr);
-  result = (realtype) ((arg1)->k2);
-  fresult = (realtype)(result);
-  return fresult;
-}
-
-
-SWIGEXPORT void _wrap_SUNAdaptControllerContent_PID__k3_set(SwigClassWrapper const *farg1, double const *farg2) {
-  struct SUNAdaptControllerContent_PID_ *arg1 = (struct SUNAdaptControllerContent_PID_ *) 0 ;
-  realtype arg2 ;
-  
-  SWIG_check_mutable_nonnull(*farg1, "struct SUNAdaptControllerContent_PID_ *", "SUNAdaptControllerContent_PID_", "SUNAdaptControllerContent_PID_::k3", return );
-  arg1 = (struct SUNAdaptControllerContent_PID_ *)(farg1->cptr);
-  arg2 = (realtype)(*farg2);
-  if (arg1) (arg1)->k3 = arg2;
-}
-
-
-SWIGEXPORT double _wrap_SUNAdaptControllerContent_PID__k3_get(SwigClassWrapper const *farg1) {
-  double fresult ;
-  struct SUNAdaptControllerContent_PID_ *arg1 = (struct SUNAdaptControllerContent_PID_ *) 0 ;
-  realtype result;
-  
-  SWIG_check_mutable_nonnull(*farg1, "struct SUNAdaptControllerContent_PID_ *", "SUNAdaptControllerContent_PID_", "SUNAdaptControllerContent_PID_::k3", return 0);
-  arg1 = (struct SUNAdaptControllerContent_PID_ *)(farg1->cptr);
-  result = (realtype) ((arg1)->k3);
-  fresult = (realtype)(result);
-  return fresult;
-}
-
-
-SWIGEXPORT void _wrap_SUNAdaptControllerContent_PID__bias_set(SwigClassWrapper const *farg1, double const *farg2) {
-  struct SUNAdaptControllerContent_PID_ *arg1 = (struct SUNAdaptControllerContent_PID_ *) 0 ;
-  realtype arg2 ;
-  
-  SWIG_check_mutable_nonnull(*farg1, "struct SUNAdaptControllerContent_PID_ *", "SUNAdaptControllerContent_PID_", "SUNAdaptControllerContent_PID_::bias", return );
-  arg1 = (struct SUNAdaptControllerContent_PID_ *)(farg1->cptr);
-  arg2 = (realtype)(*farg2);
-  if (arg1) (arg1)->bias = arg2;
-}
-
-
-SWIGEXPORT double _wrap_SUNAdaptControllerContent_PID__bias_get(SwigClassWrapper const *farg1) {
-  double fresult ;
-  struct SUNAdaptControllerContent_PID_ *arg1 = (struct SUNAdaptControllerContent_PID_ *) 0 ;
-  realtype result;
-  
-  SWIG_check_mutable_nonnull(*farg1, "struct SUNAdaptControllerContent_PID_ *", "SUNAdaptControllerContent_PID_", "SUNAdaptControllerContent_PID_::bias", return 0);
-  arg1 = (struct SUNAdaptControllerContent_PID_ *)(farg1->cptr);
-  result = (realtype) ((arg1)->bias);
-  fresult = (realtype)(result);
-  return fresult;
-}
-
-
-SWIGEXPORT void _wrap_SUNAdaptControllerContent_PID__ep_set(SwigClassWrapper const *farg1, double const *farg2) {
-  struct SUNAdaptControllerContent_PID_ *arg1 = (struct SUNAdaptControllerContent_PID_ *) 0 ;
-  realtype arg2 ;
-  
-  SWIG_check_mutable_nonnull(*farg1, "struct SUNAdaptControllerContent_PID_ *", "SUNAdaptControllerContent_PID_", "SUNAdaptControllerContent_PID_::ep", return );
-  arg1 = (struct SUNAdaptControllerContent_PID_ *)(farg1->cptr);
-  arg2 = (realtype)(*farg2);
-  if (arg1) (arg1)->ep = arg2;
-}
-
-
-SWIGEXPORT double _wrap_SUNAdaptControllerContent_PID__ep_get(SwigClassWrapper const *farg1) {
-  double fresult ;
-  struct SUNAdaptControllerContent_PID_ *arg1 = (struct SUNAdaptControllerContent_PID_ *) 0 ;
-  realtype result;
-  
-  SWIG_check_mutable_nonnull(*farg1, "struct SUNAdaptControllerContent_PID_ *", "SUNAdaptControllerContent_PID_", "SUNAdaptControllerContent_PID_::ep", return 0);
-  arg1 = (struct SUNAdaptControllerContent_PID_ *)(farg1->cptr);
-  result = (realtype) ((arg1)->ep);
-  fresult = (realtype)(result);
-  return fresult;
-}
-
-
-SWIGEXPORT void _wrap_SUNAdaptControllerContent_PID__epp_set(SwigClassWrapper const *farg1, double const *farg2) {
-  struct SUNAdaptControllerContent_PID_ *arg1 = (struct SUNAdaptControllerContent_PID_ *) 0 ;
-  realtype arg2 ;
-  
-  SWIG_check_mutable_nonnull(*farg1, "struct SUNAdaptControllerContent_PID_ *", "SUNAdaptControllerContent_PID_", "SUNAdaptControllerContent_PID_::epp", return );
-  arg1 = (struct SUNAdaptControllerContent_PID_ *)(farg1->cptr);
-  arg2 = (realtype)(*farg2);
-  if (arg1) (arg1)->epp = arg2;
-}
-
-
-SWIGEXPORT double _wrap_SUNAdaptControllerContent_PID__epp_get(SwigClassWrapper const *farg1) {
-  double fresult ;
-  struct SUNAdaptControllerContent_PID_ *arg1 = (struct SUNAdaptControllerContent_PID_ *) 0 ;
-  realtype result;
-  
-  SWIG_check_mutable_nonnull(*farg1, "struct SUNAdaptControllerContent_PID_ *", "SUNAdaptControllerContent_PID_", "SUNAdaptControllerContent_PID_::epp", return 0);
-  arg1 = (struct SUNAdaptControllerContent_PID_ *)(farg1->cptr);
-  result = (realtype) ((arg1)->epp);
-  fresult = (realtype)(result);
-  return fresult;
-}
-
-
-SWIGEXPORT void _wrap_SUNAdaptControllerContent_PID__p_set(SwigClassWrapper const *farg1, int const *farg2) {
-  struct SUNAdaptControllerContent_PID_ *arg1 = (struct SUNAdaptControllerContent_PID_ *) 0 ;
-  int arg2 ;
-  
-  SWIG_check_mutable_nonnull(*farg1, "struct SUNAdaptControllerContent_PID_ *", "SUNAdaptControllerContent_PID_", "SUNAdaptControllerContent_PID_::p", return );
-  arg1 = (struct SUNAdaptControllerContent_PID_ *)(farg1->cptr);
-  arg2 = (int)(*farg2);
-  if (arg1) (arg1)->p = arg2;
-}
-
-
-SWIGEXPORT int _wrap_SUNAdaptControllerContent_PID__p_get(SwigClassWrapper const *farg1) {
-  int fresult ;
-  struct SUNAdaptControllerContent_PID_ *arg1 = (struct SUNAdaptControllerContent_PID_ *) 0 ;
-  int result;
-  
-  SWIG_check_mutable_nonnull(*farg1, "struct SUNAdaptControllerContent_PID_ *", "SUNAdaptControllerContent_PID_", "SUNAdaptControllerContent_PID_::p", return 0);
-  arg1 = (struct SUNAdaptControllerContent_PID_ *)(farg1->cptr);
-  result = (int) ((arg1)->p);
-  fresult = (int)(result);
-  return fresult;
-}
-
-
-SWIGEXPORT void _wrap_SUNAdaptControllerContent_PID__pq_set(SwigClassWrapper const *farg1, int const *farg2) {
-  struct SUNAdaptControllerContent_PID_ *arg1 = (struct SUNAdaptControllerContent_PID_ *) 0 ;
-  int arg2 ;
-  
-  SWIG_check_mutable_nonnull(*farg1, "struct SUNAdaptControllerContent_PID_ *", "SUNAdaptControllerContent_PID_", "SUNAdaptControllerContent_PID_::pq", return );
-  arg1 = (struct SUNAdaptControllerContent_PID_ *)(farg1->cptr);
-  arg2 = (int)(*farg2);
-  if (arg1) (arg1)->pq = arg2;
-}
-
-
-SWIGEXPORT int _wrap_SUNAdaptControllerContent_PID__pq_get(SwigClassWrapper const *farg1) {
-  int fresult ;
-  struct SUNAdaptControllerContent_PID_ *arg1 = (struct SUNAdaptControllerContent_PID_ *) 0 ;
-  int result;
-  
-  SWIG_check_mutable_nonnull(*farg1, "struct SUNAdaptControllerContent_PID_ *", "SUNAdaptControllerContent_PID_", "SUNAdaptControllerContent_PID_::pq", return 0);
-  arg1 = (struct SUNAdaptControllerContent_PID_ *)(farg1->cptr);
-  result = (int) ((arg1)->pq);
-  fresult = (int)(result);
-  return fresult;
-}
-
-
-SWIGEXPORT SwigClassWrapper _wrap_new_SUNAdaptControllerContent_PID_() {
-  SwigClassWrapper fresult ;
-  struct SUNAdaptControllerContent_PID_ *result = 0 ;
-  
-  result = (struct SUNAdaptControllerContent_PID_ *)calloc(1, sizeof(struct SUNAdaptControllerContent_PID_));
-  fresult.cptr = result;
-  fresult.cmemflags = SWIG_MEM_RVALUE | (1 ? SWIG_MEM_OWN : 0);
-  return fresult;
-}
-
-
-SWIGEXPORT void _wrap_delete_SUNAdaptControllerContent_PID_(SwigClassWrapper *farg1) {
-  struct SUNAdaptControllerContent_PID_ *arg1 = (struct SUNAdaptControllerContent_PID_ *) 0 ;
-  
-  SWIG_check_mutable(*farg1, "struct SUNAdaptControllerContent_PID_ *", "SUNAdaptControllerContent_PID_", "SUNAdaptControllerContent_PID_::~SUNAdaptControllerContent_PID_()", return );
-  arg1 = (struct SUNAdaptControllerContent_PID_ *)(farg1->cptr);
-  free((char *) arg1);
-}
-
-
-SWIGEXPORT void _wrap_SUNAdaptControllerContent_PID__op_assign__(SwigClassWrapper *farg1, SwigClassWrapper const *farg2) {
-  struct SUNAdaptControllerContent_PID_ *arg1 = (struct SUNAdaptControllerContent_PID_ *) 0 ;
-  struct SUNAdaptControllerContent_PID_ *arg2 = 0 ;
-  
-  (void)sizeof(arg1);
-  (void)sizeof(arg2);
-  SWIG_assign(farg1, *farg2);
-  
-}
-
-
-SWIGEXPORT SwigClassWrapper _wrap_FSUNAdaptController_PID(void *farg1) {
-  SwigClassWrapper fresult ;
+SWIGEXPORT SUNAdaptController _wrap_FSUNAdaptController_PID(void *farg1) {
+  SUNAdaptController fresult ;
   SUNContext arg1 = (SUNContext) 0 ;
   SUNAdaptController result;
   
   arg1 = (SUNContext)(farg1);
   result = (SUNAdaptController)SUNAdaptController_PID(arg1);
-  fresult.cptr = result;
-  fresult.cmemflags = SWIG_MEM_RVALUE | (0 ? SWIG_MEM_OWN : 0);
+  fresult = result;
   return fresult;
 }
 
 
-SWIGEXPORT int _wrap_FSUNAdaptController_SetParams_PID(SwigClassWrapper const *farg1, int const *farg2, double const *farg3, double const *farg4, double const *farg5) {
+SWIGEXPORT int _wrap_FSUNAdaptController_SetParams_PID(SUNAdaptController farg1, int const *farg2, double const *farg3, double const *farg4, double const *farg5) {
   int fresult ;
   SUNAdaptController arg1 = (SUNAdaptController) 0 ;
   int arg2 ;
@@ -542,8 +229,7 @@ SWIGEXPORT int _wrap_FSUNAdaptController_SetParams_PID(SwigClassWrapper const *f
   realtype arg5 ;
   int result;
   
-  SWIG_check_mutable(*farg1, "SUNAdaptController", "generic_SUNAdaptController_", "SUNAdaptController_SetParams_PID(SUNAdaptController,int,realtype,realtype,realtype)", return 0);
-  arg1 = (SUNAdaptController)(farg1->cptr);
+  arg1 = (SUNAdaptController)(farg1);
   arg2 = (int)(*farg2);
   arg3 = (realtype)(*farg3);
   arg4 = (realtype)(*farg4);
@@ -554,20 +240,19 @@ SWIGEXPORT int _wrap_FSUNAdaptController_SetParams_PID(SwigClassWrapper const *f
 }
 
 
-SWIGEXPORT int _wrap_FSUNAdaptController_GetType_PID(SwigClassWrapper const *farg1) {
+SWIGEXPORT int _wrap_FSUNAdaptController_GetType_PID(SUNAdaptController farg1) {
   int fresult ;
   SUNAdaptController arg1 = (SUNAdaptController) 0 ;
   SUNAdaptController_Type result;
   
-  SWIG_check_mutable(*farg1, "SUNAdaptController", "generic_SUNAdaptController_", "SUNAdaptController_GetType_PID(SUNAdaptController)", return 0);
-  arg1 = (SUNAdaptController)(farg1->cptr);
+  arg1 = (SUNAdaptController)(farg1);
   result = (SUNAdaptController_Type)SUNAdaptController_GetType_PID(arg1);
   fresult = (int)(result);
   return fresult;
 }
 
 
-SWIGEXPORT int _wrap_FSUNAdaptController_EstimateStep_PID(SwigClassWrapper const *farg1, double const *farg2, double const *farg3, double *farg4) {
+SWIGEXPORT int _wrap_FSUNAdaptController_EstimateStep_PID(SUNAdaptController farg1, double const *farg2, double const *farg3, double *farg4) {
   int fresult ;
   SUNAdaptController arg1 = (SUNAdaptController) 0 ;
   realtype arg2 ;
@@ -575,8 +260,7 @@ SWIGEXPORT int _wrap_FSUNAdaptController_EstimateStep_PID(SwigClassWrapper const
   realtype *arg4 = (realtype *) 0 ;
   int result;
   
-  SWIG_check_mutable(*farg1, "SUNAdaptController", "generic_SUNAdaptController_", "SUNAdaptController_EstimateStep_PID(SUNAdaptController,realtype,realtype,realtype *)", return 0);
-  arg1 = (SUNAdaptController)(farg1->cptr);
+  arg1 = (SUNAdaptController)(farg1);
   arg2 = (realtype)(*farg2);
   arg3 = (realtype)(*farg3);
   arg4 = (realtype *)(farg4);
@@ -586,40 +270,37 @@ SWIGEXPORT int _wrap_FSUNAdaptController_EstimateStep_PID(SwigClassWrapper const
 }
 
 
-SWIGEXPORT int _wrap_FSUNAdaptController_Reset_PID(SwigClassWrapper const *farg1) {
+SWIGEXPORT int _wrap_FSUNAdaptController_Reset_PID(SUNAdaptController farg1) {
   int fresult ;
   SUNAdaptController arg1 = (SUNAdaptController) 0 ;
   int result;
   
-  SWIG_check_mutable(*farg1, "SUNAdaptController", "generic_SUNAdaptController_", "SUNAdaptController_Reset_PID(SUNAdaptController)", return 0);
-  arg1 = (SUNAdaptController)(farg1->cptr);
+  arg1 = (SUNAdaptController)(farg1);
   result = (int)SUNAdaptController_Reset_PID(arg1);
   fresult = (int)(result);
   return fresult;
 }
 
 
-SWIGEXPORT int _wrap_FSUNAdaptController_SetDefaults_PID(SwigClassWrapper const *farg1) {
+SWIGEXPORT int _wrap_FSUNAdaptController_SetDefaults_PID(SUNAdaptController farg1) {
   int fresult ;
   SUNAdaptController arg1 = (SUNAdaptController) 0 ;
   int result;
   
-  SWIG_check_mutable(*farg1, "SUNAdaptController", "generic_SUNAdaptController_", "SUNAdaptController_SetDefaults_PID(SUNAdaptController)", return 0);
-  arg1 = (SUNAdaptController)(farg1->cptr);
+  arg1 = (SUNAdaptController)(farg1);
   result = (int)SUNAdaptController_SetDefaults_PID(arg1);
   fresult = (int)(result);
   return fresult;
 }
 
 
-SWIGEXPORT int _wrap_FSUNAdaptController_Write_PID(SwigClassWrapper const *farg1, void *farg2) {
+SWIGEXPORT int _wrap_FSUNAdaptController_Write_PID(SUNAdaptController farg1, void *farg2) {
   int fresult ;
   SUNAdaptController arg1 = (SUNAdaptController) 0 ;
   FILE *arg2 = (FILE *) 0 ;
   int result;
   
-  SWIG_check_mutable(*farg1, "SUNAdaptController", "generic_SUNAdaptController_", "SUNAdaptController_Write_PID(SUNAdaptController,FILE *)", return 0);
-  arg1 = (SUNAdaptController)(farg1->cptr);
+  arg1 = (SUNAdaptController)(farg1);
   arg2 = (FILE *)(farg2);
   result = (int)SUNAdaptController_Write_PID(arg1,arg2);
   fresult = (int)(result);
@@ -627,14 +308,13 @@ SWIGEXPORT int _wrap_FSUNAdaptController_Write_PID(SwigClassWrapper const *farg1
 }
 
 
-SWIGEXPORT int _wrap_FSUNAdaptController_SetMethodOrder_PID(SwigClassWrapper const *farg1, int const *farg2) {
+SWIGEXPORT int _wrap_FSUNAdaptController_SetMethodOrder_PID(SUNAdaptController farg1, int const *farg2) {
   int fresult ;
   SUNAdaptController arg1 = (SUNAdaptController) 0 ;
   int arg2 ;
   int result;
   
-  SWIG_check_mutable(*farg1, "SUNAdaptController", "generic_SUNAdaptController_", "SUNAdaptController_SetMethodOrder_PID(SUNAdaptController,int)", return 0);
-  arg1 = (SUNAdaptController)(farg1->cptr);
+  arg1 = (SUNAdaptController)(farg1);
   arg2 = (int)(*farg2);
   result = (int)SUNAdaptController_SetMethodOrder_PID(arg1,arg2);
   fresult = (int)(result);
@@ -642,14 +322,13 @@ SWIGEXPORT int _wrap_FSUNAdaptController_SetMethodOrder_PID(SwigClassWrapper con
 }
 
 
-SWIGEXPORT int _wrap_FSUNAdaptController_SetEmbeddingOrder_PID(SwigClassWrapper const *farg1, int const *farg2) {
+SWIGEXPORT int _wrap_FSUNAdaptController_SetEmbeddingOrder_PID(SUNAdaptController farg1, int const *farg2) {
   int fresult ;
   SUNAdaptController arg1 = (SUNAdaptController) 0 ;
   int arg2 ;
   int result;
   
-  SWIG_check_mutable(*farg1, "SUNAdaptController", "generic_SUNAdaptController_", "SUNAdaptController_SetEmbeddingOrder_PID(SUNAdaptController,int)", return 0);
-  arg1 = (SUNAdaptController)(farg1->cptr);
+  arg1 = (SUNAdaptController)(farg1);
   arg2 = (int)(*farg2);
   result = (int)SUNAdaptController_SetEmbeddingOrder_PID(arg1,arg2);
   fresult = (int)(result);
@@ -657,14 +336,13 @@ SWIGEXPORT int _wrap_FSUNAdaptController_SetEmbeddingOrder_PID(SwigClassWrapper 
 }
 
 
-SWIGEXPORT int _wrap_FSUNAdaptController_SetErrorBias_PID(SwigClassWrapper const *farg1, double const *farg2) {
+SWIGEXPORT int _wrap_FSUNAdaptController_SetErrorBias_PID(SUNAdaptController farg1, double const *farg2) {
   int fresult ;
   SUNAdaptController arg1 = (SUNAdaptController) 0 ;
   realtype arg2 ;
   int result;
   
-  SWIG_check_mutable(*farg1, "SUNAdaptController", "generic_SUNAdaptController_", "SUNAdaptController_SetErrorBias_PID(SUNAdaptController,realtype)", return 0);
-  arg1 = (SUNAdaptController)(farg1->cptr);
+  arg1 = (SUNAdaptController)(farg1);
   arg2 = (realtype)(*farg2);
   result = (int)SUNAdaptController_SetErrorBias_PID(arg1,arg2);
   fresult = (int)(result);
@@ -672,15 +350,14 @@ SWIGEXPORT int _wrap_FSUNAdaptController_SetErrorBias_PID(SwigClassWrapper const
 }
 
 
-SWIGEXPORT int _wrap_FSUNAdaptController_Update_PID(SwigClassWrapper const *farg1, double const *farg2, double const *farg3) {
+SWIGEXPORT int _wrap_FSUNAdaptController_Update_PID(SUNAdaptController farg1, double const *farg2, double const *farg3) {
   int fresult ;
   SUNAdaptController arg1 = (SUNAdaptController) 0 ;
   realtype arg2 ;
   realtype arg3 ;
   int result;
   
-  SWIG_check_mutable(*farg1, "SUNAdaptController", "generic_SUNAdaptController_", "SUNAdaptController_Update_PID(SUNAdaptController,realtype,realtype)", return 0);
-  arg1 = (SUNAdaptController)(farg1->cptr);
+  arg1 = (SUNAdaptController)(farg1);
   arg2 = (realtype)(*farg2);
   arg3 = (realtype)(*farg3);
   result = (int)SUNAdaptController_Update_PID(arg1,arg2,arg3);
@@ -689,15 +366,14 @@ SWIGEXPORT int _wrap_FSUNAdaptController_Update_PID(SwigClassWrapper const *farg
 }
 
 
-SWIGEXPORT int _wrap_FSUNAdaptController_Space_PID(SwigClassWrapper const *farg1, long *farg2, long *farg3) {
+SWIGEXPORT int _wrap_FSUNAdaptController_Space_PID(SUNAdaptController farg1, long *farg2, long *farg3) {
   int fresult ;
   SUNAdaptController arg1 = (SUNAdaptController) 0 ;
   long *arg2 = (long *) 0 ;
   long *arg3 = (long *) 0 ;
   int result;
   
-  SWIG_check_mutable(*farg1, "SUNAdaptController", "generic_SUNAdaptController_", "SUNAdaptController_Space_PID(SUNAdaptController,long *,long *)", return 0);
-  arg1 = (SUNAdaptController)(farg1->cptr);
+  arg1 = (SUNAdaptController)(farg1);
   arg2 = (long *)(farg2);
   arg3 = (long *)(farg3);
   result = (int)SUNAdaptController_Space_PID(arg1,arg2,arg3);

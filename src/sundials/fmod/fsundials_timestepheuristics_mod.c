@@ -163,35 +163,6 @@
  { printf("In " DECL ": " MSG); assert(0); RETURNNULL; }
 
 
-enum {
-    SWIG_MEM_OWN = 0x01,
-    SWIG_MEM_RVALUE = 0x02,
-    SWIG_MEM_CONST = 0x04
-};
-
-
-#define SWIG_check_mutable(SWIG_CLASS_WRAPPER, TYPENAME, FNAME, FUNCNAME, RETURNNULL) \
-    if ((SWIG_CLASS_WRAPPER).cmemflags & SWIG_MEM_CONST) { \
-        SWIG_exception_impl(FUNCNAME, SWIG_TypeError, \
-            "Cannot pass const " TYPENAME " (class " FNAME ") " \
-            "as a mutable reference", \
-            RETURNNULL); \
-    }
-
-
-#define SWIG_check_nonnull(SWIG_CLASS_WRAPPER, TYPENAME, FNAME, FUNCNAME, RETURNNULL) \
-  if (!(SWIG_CLASS_WRAPPER).cptr) { \
-    SWIG_exception_impl(FUNCNAME, SWIG_TypeError, \
-                        "Cannot pass null " TYPENAME " (class " FNAME ") " \
-                        "as a reference", RETURNNULL); \
-  }
-
-
-#define SWIG_check_mutable_nonnull(SWIG_CLASS_WRAPPER, TYPENAME, FNAME, FUNCNAME, RETURNNULL) \
-    SWIG_check_nonnull(SWIG_CLASS_WRAPPER, TYPENAME, FNAME, FUNCNAME, RETURNNULL); \
-    SWIG_check_mutable(SWIG_CLASS_WRAPPER, TYPENAME, FNAME, FUNCNAME, RETURNNULL);
-
-
 #include <stdio.h>
 #if defined(_MSC_VER) || defined(__BORLANDC__) || defined(_WATCOM)
 # ifndef snprintf
@@ -219,892 +190,43 @@ enum {
 
 #include "sundials/sundials_timestepheuristics.h"
 
-
-typedef struct {
-    void* cptr;
-    int cmemflags;
-} SwigClassWrapper;
-
-
-SWIGINTERN SwigClassWrapper SwigClassWrapper_uninitialized() {
-    SwigClassWrapper result;
-    result.cptr = NULL;
-    result.cmemflags = 0;
-    return result;
-}
-
-
-#include <stdlib.h>
-#ifdef _MSC_VER
-# ifndef strtoull
-#  define strtoull _strtoui64
-# endif
-# ifndef strtoll
-#  define strtoll _strtoi64
-# endif
-#endif
-
-
-#include <string.h>
-
-
-SWIGINTERN void SWIG_assign(SwigClassWrapper* self, SwigClassWrapper other) {
-  if (self->cptr == NULL) {
-    /* LHS is unassigned */
-    if (other.cmemflags & SWIG_MEM_RVALUE) {
-      /* Capture pointer from RHS, clear 'moving' flag */
-      self->cptr = other.cptr;
-      self->cmemflags = other.cmemflags & (~SWIG_MEM_RVALUE);
-    } else {
-      /* Become a reference to the other object */
-      self->cptr = other.cptr;
-      self->cmemflags = other.cmemflags & (~SWIG_MEM_OWN);
-    }
-  } else if (other.cptr == NULL) {
-    /* Replace LHS with a null pointer */
-    free(self->cptr);
-    *self = SwigClassWrapper_uninitialized();
-  } else {
-    if (self->cmemflags & SWIG_MEM_OWN) {
-      free(self->cptr);
-    }
-    self->cptr = other.cptr;
-    if (other.cmemflags & SWIG_MEM_RVALUE) {
-      /* Capture RHS */
-      self->cmemflags = other.cmemflags & ~SWIG_MEM_RVALUE;
-    } else {
-      /* Point to RHS */
-      self->cmemflags = other.cmemflags & ~SWIG_MEM_OWN;
-    }
-  }
-}
-
-SWIGEXPORT void _wrap_generic_SUNTimestepHeuristics_Ops__getid_set(SwigClassWrapper const *farg1, SUNTimestepHeuristics_ID (*farg2)(SUNTimestepHeuristics)) {
-  struct generic_SUNTimestepHeuristics_Ops_ *arg1 = (struct generic_SUNTimestepHeuristics_Ops_ *) 0 ;
-  SUNTimestepHeuristics_ID (*arg2)(SUNTimestepHeuristics) = (SUNTimestepHeuristics_ID (*)(SUNTimestepHeuristics)) 0 ;
-  
-  SWIG_check_mutable_nonnull(*farg1, "struct generic_SUNTimestepHeuristics_Ops_ *", "generic_SUNTimestepHeuristics_Ops_", "generic_SUNTimestepHeuristics_Ops_::getid", return );
-  arg1 = (struct generic_SUNTimestepHeuristics_Ops_ *)(farg1->cptr);
-  arg2 = (SUNTimestepHeuristics_ID (*)(SUNTimestepHeuristics))(farg2);
-  if (arg1) (arg1)->getid = arg2;
-}
-
-
-typedef SUNTimestepHeuristics_ID (*generic_SUNTimestepHeuristics_Ops__getid_get_swigrtype)(SUNTimestepHeuristics);
-SWIGEXPORT generic_SUNTimestepHeuristics_Ops__getid_get_swigrtype _wrap_generic_SUNTimestepHeuristics_Ops__getid_get(SwigClassWrapper const *farg1) {
-  generic_SUNTimestepHeuristics_Ops__getid_get_swigrtype fresult ;
-  struct generic_SUNTimestepHeuristics_Ops_ *arg1 = (struct generic_SUNTimestepHeuristics_Ops_ *) 0 ;
-  SUNTimestepHeuristics_ID (*result)(SUNTimestepHeuristics) = 0 ;
-  
-  SWIG_check_mutable_nonnull(*farg1, "struct generic_SUNTimestepHeuristics_Ops_ *", "generic_SUNTimestepHeuristics_Ops_", "generic_SUNTimestepHeuristics_Ops_::getid", return 0);
-  arg1 = (struct generic_SUNTimestepHeuristics_Ops_ *)(farg1->cptr);
-  result = (SUNTimestepHeuristics_ID (*)(SUNTimestepHeuristics)) ((arg1)->getid);
-  fresult = result;
-  return fresult;
-}
-
-
-SWIGEXPORT void _wrap_generic_SUNTimestepHeuristics_Ops__destroy_set(SwigClassWrapper const *farg1, int (*farg2)(SUNTimestepHeuristics)) {
-  struct generic_SUNTimestepHeuristics_Ops_ *arg1 = (struct generic_SUNTimestepHeuristics_Ops_ *) 0 ;
-  int (*arg2)(SUNTimestepHeuristics) = (int (*)(SUNTimestepHeuristics)) 0 ;
-  
-  SWIG_check_mutable_nonnull(*farg1, "struct generic_SUNTimestepHeuristics_Ops_ *", "generic_SUNTimestepHeuristics_Ops_", "generic_SUNTimestepHeuristics_Ops_::destroy", return );
-  arg1 = (struct generic_SUNTimestepHeuristics_Ops_ *)(farg1->cptr);
-  arg2 = (int (*)(SUNTimestepHeuristics))(farg2);
-  if (arg1) (arg1)->destroy = arg2;
-}
-
-
-typedef int (*generic_SUNTimestepHeuristics_Ops__destroy_get_swigrtype)(SUNTimestepHeuristics);
-SWIGEXPORT generic_SUNTimestepHeuristics_Ops__destroy_get_swigrtype _wrap_generic_SUNTimestepHeuristics_Ops__destroy_get(SwigClassWrapper const *farg1) {
-  generic_SUNTimestepHeuristics_Ops__destroy_get_swigrtype fresult ;
-  struct generic_SUNTimestepHeuristics_Ops_ *arg1 = (struct generic_SUNTimestepHeuristics_Ops_ *) 0 ;
-  int (*result)(SUNTimestepHeuristics) = 0 ;
-  
-  SWIG_check_mutable_nonnull(*farg1, "struct generic_SUNTimestepHeuristics_Ops_ *", "generic_SUNTimestepHeuristics_Ops_", "generic_SUNTimestepHeuristics_Ops_::destroy", return 0);
-  arg1 = (struct generic_SUNTimestepHeuristics_Ops_ *)(farg1->cptr);
-  result = (int (*)(SUNTimestepHeuristics)) ((arg1)->destroy);
-  fresult = result;
-  return fresult;
-}
-
-
-SWIGEXPORT void _wrap_generic_SUNTimestepHeuristics_Ops__constrainstep_set(SwigClassWrapper const *farg1, int (*farg2)(SUNTimestepHeuristics,realtype,realtype,realtype *)) {
-  struct generic_SUNTimestepHeuristics_Ops_ *arg1 = (struct generic_SUNTimestepHeuristics_Ops_ *) 0 ;
-  int (*arg2)(SUNTimestepHeuristics,realtype,realtype,realtype *) = (int (*)(SUNTimestepHeuristics,realtype,realtype,realtype *)) 0 ;
-  
-  SWIG_check_mutable_nonnull(*farg1, "struct generic_SUNTimestepHeuristics_Ops_ *", "generic_SUNTimestepHeuristics_Ops_", "generic_SUNTimestepHeuristics_Ops_::constrainstep", return );
-  arg1 = (struct generic_SUNTimestepHeuristics_Ops_ *)(farg1->cptr);
-  arg2 = (int (*)(SUNTimestepHeuristics,realtype,realtype,realtype *))(farg2);
-  if (arg1) (arg1)->constrainstep = arg2;
-}
-
-
-typedef int (*generic_SUNTimestepHeuristics_Ops__constrainstep_get_swigrtype)(SUNTimestepHeuristics,realtype,realtype,realtype *);
-SWIGEXPORT generic_SUNTimestepHeuristics_Ops__constrainstep_get_swigrtype _wrap_generic_SUNTimestepHeuristics_Ops__constrainstep_get(SwigClassWrapper const *farg1) {
-  generic_SUNTimestepHeuristics_Ops__constrainstep_get_swigrtype fresult ;
-  struct generic_SUNTimestepHeuristics_Ops_ *arg1 = (struct generic_SUNTimestepHeuristics_Ops_ *) 0 ;
-  int (*result)(SUNTimestepHeuristics,realtype,realtype,realtype *) = 0 ;
-  
-  SWIG_check_mutable_nonnull(*farg1, "struct generic_SUNTimestepHeuristics_Ops_ *", "generic_SUNTimestepHeuristics_Ops_", "generic_SUNTimestepHeuristics_Ops_::constrainstep", return 0);
-  arg1 = (struct generic_SUNTimestepHeuristics_Ops_ *)(farg1->cptr);
-  result = (int (*)(SUNTimestepHeuristics,realtype,realtype,realtype *)) ((arg1)->constrainstep);
-  fresult = result;
-  return fresult;
-}
-
-
-SWIGEXPORT void _wrap_generic_SUNTimestepHeuristics_Ops__etestfail_set(SwigClassWrapper const *farg1, int (*farg2)(SUNTimestepHeuristics,realtype,realtype,int,realtype *)) {
-  struct generic_SUNTimestepHeuristics_Ops_ *arg1 = (struct generic_SUNTimestepHeuristics_Ops_ *) 0 ;
-  int (*arg2)(SUNTimestepHeuristics,realtype,realtype,int,realtype *) = (int (*)(SUNTimestepHeuristics,realtype,realtype,int,realtype *)) 0 ;
-  
-  SWIG_check_mutable_nonnull(*farg1, "struct generic_SUNTimestepHeuristics_Ops_ *", "generic_SUNTimestepHeuristics_Ops_", "generic_SUNTimestepHeuristics_Ops_::etestfail", return );
-  arg1 = (struct generic_SUNTimestepHeuristics_Ops_ *)(farg1->cptr);
-  arg2 = (int (*)(SUNTimestepHeuristics,realtype,realtype,int,realtype *))(farg2);
-  if (arg1) (arg1)->etestfail = arg2;
-}
-
-
-typedef int (*generic_SUNTimestepHeuristics_Ops__etestfail_get_swigrtype)(SUNTimestepHeuristics,realtype,realtype,int,realtype *);
-SWIGEXPORT generic_SUNTimestepHeuristics_Ops__etestfail_get_swigrtype _wrap_generic_SUNTimestepHeuristics_Ops__etestfail_get(SwigClassWrapper const *farg1) {
-  generic_SUNTimestepHeuristics_Ops__etestfail_get_swigrtype fresult ;
-  struct generic_SUNTimestepHeuristics_Ops_ *arg1 = (struct generic_SUNTimestepHeuristics_Ops_ *) 0 ;
-  int (*result)(SUNTimestepHeuristics,realtype,realtype,int,realtype *) = 0 ;
-  
-  SWIG_check_mutable_nonnull(*farg1, "struct generic_SUNTimestepHeuristics_Ops_ *", "generic_SUNTimestepHeuristics_Ops_", "generic_SUNTimestepHeuristics_Ops_::etestfail", return 0);
-  arg1 = (struct generic_SUNTimestepHeuristics_Ops_ *)(farg1->cptr);
-  result = (int (*)(SUNTimestepHeuristics,realtype,realtype,int,realtype *)) ((arg1)->etestfail);
-  fresult = result;
-  return fresult;
-}
-
-
-SWIGEXPORT void _wrap_generic_SUNTimestepHeuristics_Ops__convfail_set(SwigClassWrapper const *farg1, int (*farg2)(SUNTimestepHeuristics,realtype,realtype *)) {
-  struct generic_SUNTimestepHeuristics_Ops_ *arg1 = (struct generic_SUNTimestepHeuristics_Ops_ *) 0 ;
-  int (*arg2)(SUNTimestepHeuristics,realtype,realtype *) = (int (*)(SUNTimestepHeuristics,realtype,realtype *)) 0 ;
-  
-  SWIG_check_mutable_nonnull(*farg1, "struct generic_SUNTimestepHeuristics_Ops_ *", "generic_SUNTimestepHeuristics_Ops_", "generic_SUNTimestepHeuristics_Ops_::convfail", return );
-  arg1 = (struct generic_SUNTimestepHeuristics_Ops_ *)(farg1->cptr);
-  arg2 = (int (*)(SUNTimestepHeuristics,realtype,realtype *))(farg2);
-  if (arg1) (arg1)->convfail = arg2;
-}
-
-
-typedef int (*generic_SUNTimestepHeuristics_Ops__convfail_get_swigrtype)(SUNTimestepHeuristics,realtype,realtype *);
-SWIGEXPORT generic_SUNTimestepHeuristics_Ops__convfail_get_swigrtype _wrap_generic_SUNTimestepHeuristics_Ops__convfail_get(SwigClassWrapper const *farg1) {
-  generic_SUNTimestepHeuristics_Ops__convfail_get_swigrtype fresult ;
-  struct generic_SUNTimestepHeuristics_Ops_ *arg1 = (struct generic_SUNTimestepHeuristics_Ops_ *) 0 ;
-  int (*result)(SUNTimestepHeuristics,realtype,realtype *) = 0 ;
-  
-  SWIG_check_mutable_nonnull(*farg1, "struct generic_SUNTimestepHeuristics_Ops_ *", "generic_SUNTimestepHeuristics_Ops_", "generic_SUNTimestepHeuristics_Ops_::convfail", return 0);
-  arg1 = (struct generic_SUNTimestepHeuristics_Ops_ *)(farg1->cptr);
-  result = (int (*)(SUNTimestepHeuristics,realtype,realtype *)) ((arg1)->convfail);
-  fresult = result;
-  return fresult;
-}
-
-
-SWIGEXPORT void _wrap_generic_SUNTimestepHeuristics_Ops__boundreduction_set(SwigClassWrapper const *farg1, int (*farg2)(SUNTimestepHeuristics,realtype,realtype,realtype *)) {
-  struct generic_SUNTimestepHeuristics_Ops_ *arg1 = (struct generic_SUNTimestepHeuristics_Ops_ *) 0 ;
-  int (*arg2)(SUNTimestepHeuristics,realtype,realtype,realtype *) = (int (*)(SUNTimestepHeuristics,realtype,realtype,realtype *)) 0 ;
-  
-  SWIG_check_mutable_nonnull(*farg1, "struct generic_SUNTimestepHeuristics_Ops_ *", "generic_SUNTimestepHeuristics_Ops_", "generic_SUNTimestepHeuristics_Ops_::boundreduction", return );
-  arg1 = (struct generic_SUNTimestepHeuristics_Ops_ *)(farg1->cptr);
-  arg2 = (int (*)(SUNTimestepHeuristics,realtype,realtype,realtype *))(farg2);
-  if (arg1) (arg1)->boundreduction = arg2;
-}
-
-
-typedef int (*generic_SUNTimestepHeuristics_Ops__boundreduction_get_swigrtype)(SUNTimestepHeuristics,realtype,realtype,realtype *);
-SWIGEXPORT generic_SUNTimestepHeuristics_Ops__boundreduction_get_swigrtype _wrap_generic_SUNTimestepHeuristics_Ops__boundreduction_get(SwigClassWrapper const *farg1) {
-  generic_SUNTimestepHeuristics_Ops__boundreduction_get_swigrtype fresult ;
-  struct generic_SUNTimestepHeuristics_Ops_ *arg1 = (struct generic_SUNTimestepHeuristics_Ops_ *) 0 ;
-  int (*result)(SUNTimestepHeuristics,realtype,realtype,realtype *) = 0 ;
-  
-  SWIG_check_mutable_nonnull(*farg1, "struct generic_SUNTimestepHeuristics_Ops_ *", "generic_SUNTimestepHeuristics_Ops_", "generic_SUNTimestepHeuristics_Ops_::boundreduction", return 0);
-  arg1 = (struct generic_SUNTimestepHeuristics_Ops_ *)(farg1->cptr);
-  result = (int (*)(SUNTimestepHeuristics,realtype,realtype,realtype *)) ((arg1)->boundreduction);
-  fresult = result;
-  return fresult;
-}
-
-
-SWIGEXPORT void _wrap_generic_SUNTimestepHeuristics_Ops__boundfirststep_set(SwigClassWrapper const *farg1, int (*farg2)(SUNTimestepHeuristics,realtype,realtype *)) {
-  struct generic_SUNTimestepHeuristics_Ops_ *arg1 = (struct generic_SUNTimestepHeuristics_Ops_ *) 0 ;
-  int (*arg2)(SUNTimestepHeuristics,realtype,realtype *) = (int (*)(SUNTimestepHeuristics,realtype,realtype *)) 0 ;
-  
-  SWIG_check_mutable_nonnull(*farg1, "struct generic_SUNTimestepHeuristics_Ops_ *", "generic_SUNTimestepHeuristics_Ops_", "generic_SUNTimestepHeuristics_Ops_::boundfirststep", return );
-  arg1 = (struct generic_SUNTimestepHeuristics_Ops_ *)(farg1->cptr);
-  arg2 = (int (*)(SUNTimestepHeuristics,realtype,realtype *))(farg2);
-  if (arg1) (arg1)->boundfirststep = arg2;
-}
-
-
-typedef int (*generic_SUNTimestepHeuristics_Ops__boundfirststep_get_swigrtype)(SUNTimestepHeuristics,realtype,realtype *);
-SWIGEXPORT generic_SUNTimestepHeuristics_Ops__boundfirststep_get_swigrtype _wrap_generic_SUNTimestepHeuristics_Ops__boundfirststep_get(SwigClassWrapper const *farg1) {
-  generic_SUNTimestepHeuristics_Ops__boundfirststep_get_swigrtype fresult ;
-  struct generic_SUNTimestepHeuristics_Ops_ *arg1 = (struct generic_SUNTimestepHeuristics_Ops_ *) 0 ;
-  int (*result)(SUNTimestepHeuristics,realtype,realtype *) = 0 ;
-  
-  SWIG_check_mutable_nonnull(*farg1, "struct generic_SUNTimestepHeuristics_Ops_ *", "generic_SUNTimestepHeuristics_Ops_", "generic_SUNTimestepHeuristics_Ops_::boundfirststep", return 0);
-  arg1 = (struct generic_SUNTimestepHeuristics_Ops_ *)(farg1->cptr);
-  result = (int (*)(SUNTimestepHeuristics,realtype,realtype *)) ((arg1)->boundfirststep);
-  fresult = result;
-  return fresult;
-}
-
-
-SWIGEXPORT void _wrap_generic_SUNTimestepHeuristics_Ops__reset_set(SwigClassWrapper const *farg1, int (*farg2)(SUNTimestepHeuristics)) {
-  struct generic_SUNTimestepHeuristics_Ops_ *arg1 = (struct generic_SUNTimestepHeuristics_Ops_ *) 0 ;
-  int (*arg2)(SUNTimestepHeuristics) = (int (*)(SUNTimestepHeuristics)) 0 ;
-  
-  SWIG_check_mutable_nonnull(*farg1, "struct generic_SUNTimestepHeuristics_Ops_ *", "generic_SUNTimestepHeuristics_Ops_", "generic_SUNTimestepHeuristics_Ops_::reset", return );
-  arg1 = (struct generic_SUNTimestepHeuristics_Ops_ *)(farg1->cptr);
-  arg2 = (int (*)(SUNTimestepHeuristics))(farg2);
-  if (arg1) (arg1)->reset = arg2;
-}
-
-
-typedef int (*generic_SUNTimestepHeuristics_Ops__reset_get_swigrtype)(SUNTimestepHeuristics);
-SWIGEXPORT generic_SUNTimestepHeuristics_Ops__reset_get_swigrtype _wrap_generic_SUNTimestepHeuristics_Ops__reset_get(SwigClassWrapper const *farg1) {
-  generic_SUNTimestepHeuristics_Ops__reset_get_swigrtype fresult ;
-  struct generic_SUNTimestepHeuristics_Ops_ *arg1 = (struct generic_SUNTimestepHeuristics_Ops_ *) 0 ;
-  int (*result)(SUNTimestepHeuristics) = 0 ;
-  
-  SWIG_check_mutable_nonnull(*farg1, "struct generic_SUNTimestepHeuristics_Ops_ *", "generic_SUNTimestepHeuristics_Ops_", "generic_SUNTimestepHeuristics_Ops_::reset", return 0);
-  arg1 = (struct generic_SUNTimestepHeuristics_Ops_ *)(farg1->cptr);
-  result = (int (*)(SUNTimestepHeuristics)) ((arg1)->reset);
-  fresult = result;
-  return fresult;
-}
-
-
-SWIGEXPORT void _wrap_generic_SUNTimestepHeuristics_Ops__update_set(SwigClassWrapper const *farg1, int (*farg2)(SUNTimestepHeuristics)) {
-  struct generic_SUNTimestepHeuristics_Ops_ *arg1 = (struct generic_SUNTimestepHeuristics_Ops_ *) 0 ;
-  int (*arg2)(SUNTimestepHeuristics) = (int (*)(SUNTimestepHeuristics)) 0 ;
-  
-  SWIG_check_mutable_nonnull(*farg1, "struct generic_SUNTimestepHeuristics_Ops_ *", "generic_SUNTimestepHeuristics_Ops_", "generic_SUNTimestepHeuristics_Ops_::update", return );
-  arg1 = (struct generic_SUNTimestepHeuristics_Ops_ *)(farg1->cptr);
-  arg2 = (int (*)(SUNTimestepHeuristics))(farg2);
-  if (arg1) (arg1)->update = arg2;
-}
-
-
-typedef int (*generic_SUNTimestepHeuristics_Ops__update_get_swigrtype)(SUNTimestepHeuristics);
-SWIGEXPORT generic_SUNTimestepHeuristics_Ops__update_get_swigrtype _wrap_generic_SUNTimestepHeuristics_Ops__update_get(SwigClassWrapper const *farg1) {
-  generic_SUNTimestepHeuristics_Ops__update_get_swigrtype fresult ;
-  struct generic_SUNTimestepHeuristics_Ops_ *arg1 = (struct generic_SUNTimestepHeuristics_Ops_ *) 0 ;
-  int (*result)(SUNTimestepHeuristics) = 0 ;
-  
-  SWIG_check_mutable_nonnull(*farg1, "struct generic_SUNTimestepHeuristics_Ops_ *", "generic_SUNTimestepHeuristics_Ops_", "generic_SUNTimestepHeuristics_Ops_::update", return 0);
-  arg1 = (struct generic_SUNTimestepHeuristics_Ops_ *)(farg1->cptr);
-  result = (int (*)(SUNTimestepHeuristics)) ((arg1)->update);
-  fresult = result;
-  return fresult;
-}
-
-
-SWIGEXPORT void _wrap_generic_SUNTimestepHeuristics_Ops__setdefaults_set(SwigClassWrapper const *farg1, int (*farg2)(SUNTimestepHeuristics)) {
-  struct generic_SUNTimestepHeuristics_Ops_ *arg1 = (struct generic_SUNTimestepHeuristics_Ops_ *) 0 ;
-  int (*arg2)(SUNTimestepHeuristics) = (int (*)(SUNTimestepHeuristics)) 0 ;
-  
-  SWIG_check_mutable_nonnull(*farg1, "struct generic_SUNTimestepHeuristics_Ops_ *", "generic_SUNTimestepHeuristics_Ops_", "generic_SUNTimestepHeuristics_Ops_::setdefaults", return );
-  arg1 = (struct generic_SUNTimestepHeuristics_Ops_ *)(farg1->cptr);
-  arg2 = (int (*)(SUNTimestepHeuristics))(farg2);
-  if (arg1) (arg1)->setdefaults = arg2;
-}
-
-
-typedef int (*generic_SUNTimestepHeuristics_Ops__setdefaults_get_swigrtype)(SUNTimestepHeuristics);
-SWIGEXPORT generic_SUNTimestepHeuristics_Ops__setdefaults_get_swigrtype _wrap_generic_SUNTimestepHeuristics_Ops__setdefaults_get(SwigClassWrapper const *farg1) {
-  generic_SUNTimestepHeuristics_Ops__setdefaults_get_swigrtype fresult ;
-  struct generic_SUNTimestepHeuristics_Ops_ *arg1 = (struct generic_SUNTimestepHeuristics_Ops_ *) 0 ;
-  int (*result)(SUNTimestepHeuristics) = 0 ;
-  
-  SWIG_check_mutable_nonnull(*farg1, "struct generic_SUNTimestepHeuristics_Ops_ *", "generic_SUNTimestepHeuristics_Ops_", "generic_SUNTimestepHeuristics_Ops_::setdefaults", return 0);
-  arg1 = (struct generic_SUNTimestepHeuristics_Ops_ *)(farg1->cptr);
-  result = (int (*)(SUNTimestepHeuristics)) ((arg1)->setdefaults);
-  fresult = result;
-  return fresult;
-}
-
-
-SWIGEXPORT void _wrap_generic_SUNTimestepHeuristics_Ops__write_set(SwigClassWrapper const *farg1, int (*farg2)(SUNTimestepHeuristics,FILE *)) {
-  struct generic_SUNTimestepHeuristics_Ops_ *arg1 = (struct generic_SUNTimestepHeuristics_Ops_ *) 0 ;
-  int (*arg2)(SUNTimestepHeuristics,FILE *) = (int (*)(SUNTimestepHeuristics,FILE *)) 0 ;
-  
-  SWIG_check_mutable_nonnull(*farg1, "struct generic_SUNTimestepHeuristics_Ops_ *", "generic_SUNTimestepHeuristics_Ops_", "generic_SUNTimestepHeuristics_Ops_::write", return );
-  arg1 = (struct generic_SUNTimestepHeuristics_Ops_ *)(farg1->cptr);
-  arg2 = (int (*)(SUNTimestepHeuristics,FILE *))(farg2);
-  if (arg1) (arg1)->write = arg2;
-}
-
-
-typedef int (*generic_SUNTimestepHeuristics_Ops__write_get_swigrtype)(SUNTimestepHeuristics,FILE *);
-SWIGEXPORT generic_SUNTimestepHeuristics_Ops__write_get_swigrtype _wrap_generic_SUNTimestepHeuristics_Ops__write_get(SwigClassWrapper const *farg1) {
-  generic_SUNTimestepHeuristics_Ops__write_get_swigrtype fresult ;
-  struct generic_SUNTimestepHeuristics_Ops_ *arg1 = (struct generic_SUNTimestepHeuristics_Ops_ *) 0 ;
-  int (*result)(SUNTimestepHeuristics,FILE *) = 0 ;
-  
-  SWIG_check_mutable_nonnull(*farg1, "struct generic_SUNTimestepHeuristics_Ops_ *", "generic_SUNTimestepHeuristics_Ops_", "generic_SUNTimestepHeuristics_Ops_::write", return 0);
-  arg1 = (struct generic_SUNTimestepHeuristics_Ops_ *)(farg1->cptr);
-  result = (int (*)(SUNTimestepHeuristics,FILE *)) ((arg1)->write);
-  fresult = result;
-  return fresult;
-}
-
-
-SWIGEXPORT void _wrap_generic_SUNTimestepHeuristics_Ops__setmaxstep_set(SwigClassWrapper const *farg1, int (*farg2)(SUNTimestepHeuristics,realtype)) {
-  struct generic_SUNTimestepHeuristics_Ops_ *arg1 = (struct generic_SUNTimestepHeuristics_Ops_ *) 0 ;
-  int (*arg2)(SUNTimestepHeuristics,realtype) = (int (*)(SUNTimestepHeuristics,realtype)) 0 ;
-  
-  SWIG_check_mutable_nonnull(*farg1, "struct generic_SUNTimestepHeuristics_Ops_ *", "generic_SUNTimestepHeuristics_Ops_", "generic_SUNTimestepHeuristics_Ops_::setmaxstep", return );
-  arg1 = (struct generic_SUNTimestepHeuristics_Ops_ *)(farg1->cptr);
-  arg2 = (int (*)(SUNTimestepHeuristics,realtype))(farg2);
-  if (arg1) (arg1)->setmaxstep = arg2;
-}
-
-
-typedef int (*generic_SUNTimestepHeuristics_Ops__setmaxstep_get_swigrtype)(SUNTimestepHeuristics,realtype);
-SWIGEXPORT generic_SUNTimestepHeuristics_Ops__setmaxstep_get_swigrtype _wrap_generic_SUNTimestepHeuristics_Ops__setmaxstep_get(SwigClassWrapper const *farg1) {
-  generic_SUNTimestepHeuristics_Ops__setmaxstep_get_swigrtype fresult ;
-  struct generic_SUNTimestepHeuristics_Ops_ *arg1 = (struct generic_SUNTimestepHeuristics_Ops_ *) 0 ;
-  int (*result)(SUNTimestepHeuristics,realtype) = 0 ;
-  
-  SWIG_check_mutable_nonnull(*farg1, "struct generic_SUNTimestepHeuristics_Ops_ *", "generic_SUNTimestepHeuristics_Ops_", "generic_SUNTimestepHeuristics_Ops_::setmaxstep", return 0);
-  arg1 = (struct generic_SUNTimestepHeuristics_Ops_ *)(farg1->cptr);
-  result = (int (*)(SUNTimestepHeuristics,realtype)) ((arg1)->setmaxstep);
-  fresult = result;
-  return fresult;
-}
-
-
-SWIGEXPORT void _wrap_generic_SUNTimestepHeuristics_Ops__setminstep_set(SwigClassWrapper const *farg1, int (*farg2)(SUNTimestepHeuristics,realtype)) {
-  struct generic_SUNTimestepHeuristics_Ops_ *arg1 = (struct generic_SUNTimestepHeuristics_Ops_ *) 0 ;
-  int (*arg2)(SUNTimestepHeuristics,realtype) = (int (*)(SUNTimestepHeuristics,realtype)) 0 ;
-  
-  SWIG_check_mutable_nonnull(*farg1, "struct generic_SUNTimestepHeuristics_Ops_ *", "generic_SUNTimestepHeuristics_Ops_", "generic_SUNTimestepHeuristics_Ops_::setminstep", return );
-  arg1 = (struct generic_SUNTimestepHeuristics_Ops_ *)(farg1->cptr);
-  arg2 = (int (*)(SUNTimestepHeuristics,realtype))(farg2);
-  if (arg1) (arg1)->setminstep = arg2;
-}
-
-
-typedef int (*generic_SUNTimestepHeuristics_Ops__setminstep_get_swigrtype)(SUNTimestepHeuristics,realtype);
-SWIGEXPORT generic_SUNTimestepHeuristics_Ops__setminstep_get_swigrtype _wrap_generic_SUNTimestepHeuristics_Ops__setminstep_get(SwigClassWrapper const *farg1) {
-  generic_SUNTimestepHeuristics_Ops__setminstep_get_swigrtype fresult ;
-  struct generic_SUNTimestepHeuristics_Ops_ *arg1 = (struct generic_SUNTimestepHeuristics_Ops_ *) 0 ;
-  int (*result)(SUNTimestepHeuristics,realtype) = 0 ;
-  
-  SWIG_check_mutable_nonnull(*farg1, "struct generic_SUNTimestepHeuristics_Ops_ *", "generic_SUNTimestepHeuristics_Ops_", "generic_SUNTimestepHeuristics_Ops_::setminstep", return 0);
-  arg1 = (struct generic_SUNTimestepHeuristics_Ops_ *)(farg1->cptr);
-  result = (int (*)(SUNTimestepHeuristics,realtype)) ((arg1)->setminstep);
-  fresult = result;
-  return fresult;
-}
-
-
-SWIGEXPORT void _wrap_generic_SUNTimestepHeuristics_Ops__setexpstabfn_set(SwigClassWrapper const *farg1, int (*farg2)(SUNTimestepHeuristics,SUNExpStabFn,void *)) {
-  struct generic_SUNTimestepHeuristics_Ops_ *arg1 = (struct generic_SUNTimestepHeuristics_Ops_ *) 0 ;
-  int (*arg2)(SUNTimestepHeuristics,SUNExpStabFn,void *) = (int (*)(SUNTimestepHeuristics,SUNExpStabFn,void *)) 0 ;
-  
-  SWIG_check_mutable_nonnull(*farg1, "struct generic_SUNTimestepHeuristics_Ops_ *", "generic_SUNTimestepHeuristics_Ops_", "generic_SUNTimestepHeuristics_Ops_::setexpstabfn", return );
-  arg1 = (struct generic_SUNTimestepHeuristics_Ops_ *)(farg1->cptr);
-  arg2 = (int (*)(SUNTimestepHeuristics,SUNExpStabFn,void *))(farg2);
-  if (arg1) (arg1)->setexpstabfn = arg2;
-}
-
-
-typedef int (*generic_SUNTimestepHeuristics_Ops__setexpstabfn_get_swigrtype)(SUNTimestepHeuristics,SUNExpStabFn,void *);
-SWIGEXPORT generic_SUNTimestepHeuristics_Ops__setexpstabfn_get_swigrtype _wrap_generic_SUNTimestepHeuristics_Ops__setexpstabfn_get(SwigClassWrapper const *farg1) {
-  generic_SUNTimestepHeuristics_Ops__setexpstabfn_get_swigrtype fresult ;
-  struct generic_SUNTimestepHeuristics_Ops_ *arg1 = (struct generic_SUNTimestepHeuristics_Ops_ *) 0 ;
-  int (*result)(SUNTimestepHeuristics,SUNExpStabFn,void *) = 0 ;
-  
-  SWIG_check_mutable_nonnull(*farg1, "struct generic_SUNTimestepHeuristics_Ops_ *", "generic_SUNTimestepHeuristics_Ops_", "generic_SUNTimestepHeuristics_Ops_::setexpstabfn", return 0);
-  arg1 = (struct generic_SUNTimestepHeuristics_Ops_ *)(farg1->cptr);
-  result = (int (*)(SUNTimestepHeuristics,SUNExpStabFn,void *)) ((arg1)->setexpstabfn);
-  fresult = result;
-  return fresult;
-}
-
-
-SWIGEXPORT void _wrap_generic_SUNTimestepHeuristics_Ops__setcflfraction_set(SwigClassWrapper const *farg1, int (*farg2)(SUNTimestepHeuristics,realtype)) {
-  struct generic_SUNTimestepHeuristics_Ops_ *arg1 = (struct generic_SUNTimestepHeuristics_Ops_ *) 0 ;
-  int (*arg2)(SUNTimestepHeuristics,realtype) = (int (*)(SUNTimestepHeuristics,realtype)) 0 ;
-  
-  SWIG_check_mutable_nonnull(*farg1, "struct generic_SUNTimestepHeuristics_Ops_ *", "generic_SUNTimestepHeuristics_Ops_", "generic_SUNTimestepHeuristics_Ops_::setcflfraction", return );
-  arg1 = (struct generic_SUNTimestepHeuristics_Ops_ *)(farg1->cptr);
-  arg2 = (int (*)(SUNTimestepHeuristics,realtype))(farg2);
-  if (arg1) (arg1)->setcflfraction = arg2;
-}
-
-
-typedef int (*generic_SUNTimestepHeuristics_Ops__setcflfraction_get_swigrtype)(SUNTimestepHeuristics,realtype);
-SWIGEXPORT generic_SUNTimestepHeuristics_Ops__setcflfraction_get_swigrtype _wrap_generic_SUNTimestepHeuristics_Ops__setcflfraction_get(SwigClassWrapper const *farg1) {
-  generic_SUNTimestepHeuristics_Ops__setcflfraction_get_swigrtype fresult ;
-  struct generic_SUNTimestepHeuristics_Ops_ *arg1 = (struct generic_SUNTimestepHeuristics_Ops_ *) 0 ;
-  int (*result)(SUNTimestepHeuristics,realtype) = 0 ;
-  
-  SWIG_check_mutable_nonnull(*farg1, "struct generic_SUNTimestepHeuristics_Ops_ *", "generic_SUNTimestepHeuristics_Ops_", "generic_SUNTimestepHeuristics_Ops_::setcflfraction", return 0);
-  arg1 = (struct generic_SUNTimestepHeuristics_Ops_ *)(farg1->cptr);
-  result = (int (*)(SUNTimestepHeuristics,realtype)) ((arg1)->setcflfraction);
-  fresult = result;
-  return fresult;
-}
-
-
-SWIGEXPORT void _wrap_generic_SUNTimestepHeuristics_Ops__setsafetyfactor_set(SwigClassWrapper const *farg1, int (*farg2)(SUNTimestepHeuristics,realtype)) {
-  struct generic_SUNTimestepHeuristics_Ops_ *arg1 = (struct generic_SUNTimestepHeuristics_Ops_ *) 0 ;
-  int (*arg2)(SUNTimestepHeuristics,realtype) = (int (*)(SUNTimestepHeuristics,realtype)) 0 ;
-  
-  SWIG_check_mutable_nonnull(*farg1, "struct generic_SUNTimestepHeuristics_Ops_ *", "generic_SUNTimestepHeuristics_Ops_", "generic_SUNTimestepHeuristics_Ops_::setsafetyfactor", return );
-  arg1 = (struct generic_SUNTimestepHeuristics_Ops_ *)(farg1->cptr);
-  arg2 = (int (*)(SUNTimestepHeuristics,realtype))(farg2);
-  if (arg1) (arg1)->setsafetyfactor = arg2;
-}
-
-
-typedef int (*generic_SUNTimestepHeuristics_Ops__setsafetyfactor_get_swigrtype)(SUNTimestepHeuristics,realtype);
-SWIGEXPORT generic_SUNTimestepHeuristics_Ops__setsafetyfactor_get_swigrtype _wrap_generic_SUNTimestepHeuristics_Ops__setsafetyfactor_get(SwigClassWrapper const *farg1) {
-  generic_SUNTimestepHeuristics_Ops__setsafetyfactor_get_swigrtype fresult ;
-  struct generic_SUNTimestepHeuristics_Ops_ *arg1 = (struct generic_SUNTimestepHeuristics_Ops_ *) 0 ;
-  int (*result)(SUNTimestepHeuristics,realtype) = 0 ;
-  
-  SWIG_check_mutable_nonnull(*farg1, "struct generic_SUNTimestepHeuristics_Ops_ *", "generic_SUNTimestepHeuristics_Ops_", "generic_SUNTimestepHeuristics_Ops_::setsafetyfactor", return 0);
-  arg1 = (struct generic_SUNTimestepHeuristics_Ops_ *)(farg1->cptr);
-  result = (int (*)(SUNTimestepHeuristics,realtype)) ((arg1)->setsafetyfactor);
-  fresult = result;
-  return fresult;
-}
-
-
-SWIGEXPORT void _wrap_generic_SUNTimestepHeuristics_Ops__setmaxgrowth_set(SwigClassWrapper const *farg1, int (*farg2)(SUNTimestepHeuristics,realtype)) {
-  struct generic_SUNTimestepHeuristics_Ops_ *arg1 = (struct generic_SUNTimestepHeuristics_Ops_ *) 0 ;
-  int (*arg2)(SUNTimestepHeuristics,realtype) = (int (*)(SUNTimestepHeuristics,realtype)) 0 ;
-  
-  SWIG_check_mutable_nonnull(*farg1, "struct generic_SUNTimestepHeuristics_Ops_ *", "generic_SUNTimestepHeuristics_Ops_", "generic_SUNTimestepHeuristics_Ops_::setmaxgrowth", return );
-  arg1 = (struct generic_SUNTimestepHeuristics_Ops_ *)(farg1->cptr);
-  arg2 = (int (*)(SUNTimestepHeuristics,realtype))(farg2);
-  if (arg1) (arg1)->setmaxgrowth = arg2;
-}
-
-
-typedef int (*generic_SUNTimestepHeuristics_Ops__setmaxgrowth_get_swigrtype)(SUNTimestepHeuristics,realtype);
-SWIGEXPORT generic_SUNTimestepHeuristics_Ops__setmaxgrowth_get_swigrtype _wrap_generic_SUNTimestepHeuristics_Ops__setmaxgrowth_get(SwigClassWrapper const *farg1) {
-  generic_SUNTimestepHeuristics_Ops__setmaxgrowth_get_swigrtype fresult ;
-  struct generic_SUNTimestepHeuristics_Ops_ *arg1 = (struct generic_SUNTimestepHeuristics_Ops_ *) 0 ;
-  int (*result)(SUNTimestepHeuristics,realtype) = 0 ;
-  
-  SWIG_check_mutable_nonnull(*farg1, "struct generic_SUNTimestepHeuristics_Ops_ *", "generic_SUNTimestepHeuristics_Ops_", "generic_SUNTimestepHeuristics_Ops_::setmaxgrowth", return 0);
-  arg1 = (struct generic_SUNTimestepHeuristics_Ops_ *)(farg1->cptr);
-  result = (int (*)(SUNTimestepHeuristics,realtype)) ((arg1)->setmaxgrowth);
-  fresult = result;
-  return fresult;
-}
-
-
-SWIGEXPORT void _wrap_generic_SUNTimestepHeuristics_Ops__setminreduction_set(SwigClassWrapper const *farg1, int (*farg2)(SUNTimestepHeuristics,realtype)) {
-  struct generic_SUNTimestepHeuristics_Ops_ *arg1 = (struct generic_SUNTimestepHeuristics_Ops_ *) 0 ;
-  int (*arg2)(SUNTimestepHeuristics,realtype) = (int (*)(SUNTimestepHeuristics,realtype)) 0 ;
-  
-  SWIG_check_mutable_nonnull(*farg1, "struct generic_SUNTimestepHeuristics_Ops_ *", "generic_SUNTimestepHeuristics_Ops_", "generic_SUNTimestepHeuristics_Ops_::setminreduction", return );
-  arg1 = (struct generic_SUNTimestepHeuristics_Ops_ *)(farg1->cptr);
-  arg2 = (int (*)(SUNTimestepHeuristics,realtype))(farg2);
-  if (arg1) (arg1)->setminreduction = arg2;
-}
-
-
-typedef int (*generic_SUNTimestepHeuristics_Ops__setminreduction_get_swigrtype)(SUNTimestepHeuristics,realtype);
-SWIGEXPORT generic_SUNTimestepHeuristics_Ops__setminreduction_get_swigrtype _wrap_generic_SUNTimestepHeuristics_Ops__setminreduction_get(SwigClassWrapper const *farg1) {
-  generic_SUNTimestepHeuristics_Ops__setminreduction_get_swigrtype fresult ;
-  struct generic_SUNTimestepHeuristics_Ops_ *arg1 = (struct generic_SUNTimestepHeuristics_Ops_ *) 0 ;
-  int (*result)(SUNTimestepHeuristics,realtype) = 0 ;
-  
-  SWIG_check_mutable_nonnull(*farg1, "struct generic_SUNTimestepHeuristics_Ops_ *", "generic_SUNTimestepHeuristics_Ops_", "generic_SUNTimestepHeuristics_Ops_::setminreduction", return 0);
-  arg1 = (struct generic_SUNTimestepHeuristics_Ops_ *)(farg1->cptr);
-  result = (int (*)(SUNTimestepHeuristics,realtype)) ((arg1)->setminreduction);
-  fresult = result;
-  return fresult;
-}
-
-
-SWIGEXPORT void _wrap_generic_SUNTimestepHeuristics_Ops__setfixedstepbounds_set(SwigClassWrapper const *farg1, int (*farg2)(SUNTimestepHeuristics,realtype,realtype)) {
-  struct generic_SUNTimestepHeuristics_Ops_ *arg1 = (struct generic_SUNTimestepHeuristics_Ops_ *) 0 ;
-  int (*arg2)(SUNTimestepHeuristics,realtype,realtype) = (int (*)(SUNTimestepHeuristics,realtype,realtype)) 0 ;
-  
-  SWIG_check_mutable_nonnull(*farg1, "struct generic_SUNTimestepHeuristics_Ops_ *", "generic_SUNTimestepHeuristics_Ops_", "generic_SUNTimestepHeuristics_Ops_::setfixedstepbounds", return );
-  arg1 = (struct generic_SUNTimestepHeuristics_Ops_ *)(farg1->cptr);
-  arg2 = (int (*)(SUNTimestepHeuristics,realtype,realtype))(farg2);
-  if (arg1) (arg1)->setfixedstepbounds = arg2;
-}
-
-
-typedef int (*generic_SUNTimestepHeuristics_Ops__setfixedstepbounds_get_swigrtype)(SUNTimestepHeuristics,realtype,realtype);
-SWIGEXPORT generic_SUNTimestepHeuristics_Ops__setfixedstepbounds_get_swigrtype _wrap_generic_SUNTimestepHeuristics_Ops__setfixedstepbounds_get(SwigClassWrapper const *farg1) {
-  generic_SUNTimestepHeuristics_Ops__setfixedstepbounds_get_swigrtype fresult ;
-  struct generic_SUNTimestepHeuristics_Ops_ *arg1 = (struct generic_SUNTimestepHeuristics_Ops_ *) 0 ;
-  int (*result)(SUNTimestepHeuristics,realtype,realtype) = 0 ;
-  
-  SWIG_check_mutable_nonnull(*farg1, "struct generic_SUNTimestepHeuristics_Ops_ *", "generic_SUNTimestepHeuristics_Ops_", "generic_SUNTimestepHeuristics_Ops_::setfixedstepbounds", return 0);
-  arg1 = (struct generic_SUNTimestepHeuristics_Ops_ *)(farg1->cptr);
-  result = (int (*)(SUNTimestepHeuristics,realtype,realtype)) ((arg1)->setfixedstepbounds);
-  fresult = result;
-  return fresult;
-}
-
-
-SWIGEXPORT void _wrap_generic_SUNTimestepHeuristics_Ops__setmaxfirstgrowth_set(SwigClassWrapper const *farg1, int (*farg2)(SUNTimestepHeuristics,realtype)) {
-  struct generic_SUNTimestepHeuristics_Ops_ *arg1 = (struct generic_SUNTimestepHeuristics_Ops_ *) 0 ;
-  int (*arg2)(SUNTimestepHeuristics,realtype) = (int (*)(SUNTimestepHeuristics,realtype)) 0 ;
-  
-  SWIG_check_mutable_nonnull(*farg1, "struct generic_SUNTimestepHeuristics_Ops_ *", "generic_SUNTimestepHeuristics_Ops_", "generic_SUNTimestepHeuristics_Ops_::setmaxfirstgrowth", return );
-  arg1 = (struct generic_SUNTimestepHeuristics_Ops_ *)(farg1->cptr);
-  arg2 = (int (*)(SUNTimestepHeuristics,realtype))(farg2);
-  if (arg1) (arg1)->setmaxfirstgrowth = arg2;
-}
-
-
-typedef int (*generic_SUNTimestepHeuristics_Ops__setmaxfirstgrowth_get_swigrtype)(SUNTimestepHeuristics,realtype);
-SWIGEXPORT generic_SUNTimestepHeuristics_Ops__setmaxfirstgrowth_get_swigrtype _wrap_generic_SUNTimestepHeuristics_Ops__setmaxfirstgrowth_get(SwigClassWrapper const *farg1) {
-  generic_SUNTimestepHeuristics_Ops__setmaxfirstgrowth_get_swigrtype fresult ;
-  struct generic_SUNTimestepHeuristics_Ops_ *arg1 = (struct generic_SUNTimestepHeuristics_Ops_ *) 0 ;
-  int (*result)(SUNTimestepHeuristics,realtype) = 0 ;
-  
-  SWIG_check_mutable_nonnull(*farg1, "struct generic_SUNTimestepHeuristics_Ops_ *", "generic_SUNTimestepHeuristics_Ops_", "generic_SUNTimestepHeuristics_Ops_::setmaxfirstgrowth", return 0);
-  arg1 = (struct generic_SUNTimestepHeuristics_Ops_ *)(farg1->cptr);
-  result = (int (*)(SUNTimestepHeuristics,realtype)) ((arg1)->setmaxfirstgrowth);
-  fresult = result;
-  return fresult;
-}
-
-
-SWIGEXPORT void _wrap_generic_SUNTimestepHeuristics_Ops__setmaxefailgrowth_set(SwigClassWrapper const *farg1, int (*farg2)(SUNTimestepHeuristics,realtype)) {
-  struct generic_SUNTimestepHeuristics_Ops_ *arg1 = (struct generic_SUNTimestepHeuristics_Ops_ *) 0 ;
-  int (*arg2)(SUNTimestepHeuristics,realtype) = (int (*)(SUNTimestepHeuristics,realtype)) 0 ;
-  
-  SWIG_check_mutable_nonnull(*farg1, "struct generic_SUNTimestepHeuristics_Ops_ *", "generic_SUNTimestepHeuristics_Ops_", "generic_SUNTimestepHeuristics_Ops_::setmaxefailgrowth", return );
-  arg1 = (struct generic_SUNTimestepHeuristics_Ops_ *)(farg1->cptr);
-  arg2 = (int (*)(SUNTimestepHeuristics,realtype))(farg2);
-  if (arg1) (arg1)->setmaxefailgrowth = arg2;
-}
-
-
-typedef int (*generic_SUNTimestepHeuristics_Ops__setmaxefailgrowth_get_swigrtype)(SUNTimestepHeuristics,realtype);
-SWIGEXPORT generic_SUNTimestepHeuristics_Ops__setmaxefailgrowth_get_swigrtype _wrap_generic_SUNTimestepHeuristics_Ops__setmaxefailgrowth_get(SwigClassWrapper const *farg1) {
-  generic_SUNTimestepHeuristics_Ops__setmaxefailgrowth_get_swigrtype fresult ;
-  struct generic_SUNTimestepHeuristics_Ops_ *arg1 = (struct generic_SUNTimestepHeuristics_Ops_ *) 0 ;
-  int (*result)(SUNTimestepHeuristics,realtype) = 0 ;
-  
-  SWIG_check_mutable_nonnull(*farg1, "struct generic_SUNTimestepHeuristics_Ops_ *", "generic_SUNTimestepHeuristics_Ops_", "generic_SUNTimestepHeuristics_Ops_::setmaxefailgrowth", return 0);
-  arg1 = (struct generic_SUNTimestepHeuristics_Ops_ *)(farg1->cptr);
-  result = (int (*)(SUNTimestepHeuristics,realtype)) ((arg1)->setmaxefailgrowth);
-  fresult = result;
-  return fresult;
-}
-
-
-SWIGEXPORT void _wrap_generic_SUNTimestepHeuristics_Ops__setsmallnumefails_set(SwigClassWrapper const *farg1, int (*farg2)(SUNTimestepHeuristics,int)) {
-  struct generic_SUNTimestepHeuristics_Ops_ *arg1 = (struct generic_SUNTimestepHeuristics_Ops_ *) 0 ;
-  int (*arg2)(SUNTimestepHeuristics,int) = (int (*)(SUNTimestepHeuristics,int)) 0 ;
-  
-  SWIG_check_mutable_nonnull(*farg1, "struct generic_SUNTimestepHeuristics_Ops_ *", "generic_SUNTimestepHeuristics_Ops_", "generic_SUNTimestepHeuristics_Ops_::setsmallnumefails", return );
-  arg1 = (struct generic_SUNTimestepHeuristics_Ops_ *)(farg1->cptr);
-  arg2 = (int (*)(SUNTimestepHeuristics,int))(farg2);
-  if (arg1) (arg1)->setsmallnumefails = arg2;
-}
-
-
-typedef int (*generic_SUNTimestepHeuristics_Ops__setsmallnumefails_get_swigrtype)(SUNTimestepHeuristics,int);
-SWIGEXPORT generic_SUNTimestepHeuristics_Ops__setsmallnumefails_get_swigrtype _wrap_generic_SUNTimestepHeuristics_Ops__setsmallnumefails_get(SwigClassWrapper const *farg1) {
-  generic_SUNTimestepHeuristics_Ops__setsmallnumefails_get_swigrtype fresult ;
-  struct generic_SUNTimestepHeuristics_Ops_ *arg1 = (struct generic_SUNTimestepHeuristics_Ops_ *) 0 ;
-  int (*result)(SUNTimestepHeuristics,int) = 0 ;
-  
-  SWIG_check_mutable_nonnull(*farg1, "struct generic_SUNTimestepHeuristics_Ops_ *", "generic_SUNTimestepHeuristics_Ops_", "generic_SUNTimestepHeuristics_Ops_::setsmallnumefails", return 0);
-  arg1 = (struct generic_SUNTimestepHeuristics_Ops_ *)(farg1->cptr);
-  result = (int (*)(SUNTimestepHeuristics,int)) ((arg1)->setsmallnumefails);
-  fresult = result;
-  return fresult;
-}
-
-
-SWIGEXPORT void _wrap_generic_SUNTimestepHeuristics_Ops__setmaxcfailgrowth_set(SwigClassWrapper const *farg1, int (*farg2)(SUNTimestepHeuristics,realtype)) {
-  struct generic_SUNTimestepHeuristics_Ops_ *arg1 = (struct generic_SUNTimestepHeuristics_Ops_ *) 0 ;
-  int (*arg2)(SUNTimestepHeuristics,realtype) = (int (*)(SUNTimestepHeuristics,realtype)) 0 ;
-  
-  SWIG_check_mutable_nonnull(*farg1, "struct generic_SUNTimestepHeuristics_Ops_ *", "generic_SUNTimestepHeuristics_Ops_", "generic_SUNTimestepHeuristics_Ops_::setmaxcfailgrowth", return );
-  arg1 = (struct generic_SUNTimestepHeuristics_Ops_ *)(farg1->cptr);
-  arg2 = (int (*)(SUNTimestepHeuristics,realtype))(farg2);
-  if (arg1) (arg1)->setmaxcfailgrowth = arg2;
-}
-
-
-typedef int (*generic_SUNTimestepHeuristics_Ops__setmaxcfailgrowth_get_swigrtype)(SUNTimestepHeuristics,realtype);
-SWIGEXPORT generic_SUNTimestepHeuristics_Ops__setmaxcfailgrowth_get_swigrtype _wrap_generic_SUNTimestepHeuristics_Ops__setmaxcfailgrowth_get(SwigClassWrapper const *farg1) {
-  generic_SUNTimestepHeuristics_Ops__setmaxcfailgrowth_get_swigrtype fresult ;
-  struct generic_SUNTimestepHeuristics_Ops_ *arg1 = (struct generic_SUNTimestepHeuristics_Ops_ *) 0 ;
-  int (*result)(SUNTimestepHeuristics,realtype) = 0 ;
-  
-  SWIG_check_mutable_nonnull(*farg1, "struct generic_SUNTimestepHeuristics_Ops_ *", "generic_SUNTimestepHeuristics_Ops_", "generic_SUNTimestepHeuristics_Ops_::setmaxcfailgrowth", return 0);
-  arg1 = (struct generic_SUNTimestepHeuristics_Ops_ *)(farg1->cptr);
-  result = (int (*)(SUNTimestepHeuristics,realtype)) ((arg1)->setmaxcfailgrowth);
-  fresult = result;
-  return fresult;
-}
-
-
-SWIGEXPORT void _wrap_generic_SUNTimestepHeuristics_Ops__getnumexpsteps_set(SwigClassWrapper const *farg1, int (*farg2)(SUNTimestepHeuristics,long *)) {
-  struct generic_SUNTimestepHeuristics_Ops_ *arg1 = (struct generic_SUNTimestepHeuristics_Ops_ *) 0 ;
-  int (*arg2)(SUNTimestepHeuristics,long *) = (int (*)(SUNTimestepHeuristics,long *)) 0 ;
-  
-  SWIG_check_mutable_nonnull(*farg1, "struct generic_SUNTimestepHeuristics_Ops_ *", "generic_SUNTimestepHeuristics_Ops_", "generic_SUNTimestepHeuristics_Ops_::getnumexpsteps", return );
-  arg1 = (struct generic_SUNTimestepHeuristics_Ops_ *)(farg1->cptr);
-  arg2 = (int (*)(SUNTimestepHeuristics,long *))(farg2);
-  if (arg1) (arg1)->getnumexpsteps = arg2;
-}
-
-
-typedef int (*generic_SUNTimestepHeuristics_Ops__getnumexpsteps_get_swigrtype)(SUNTimestepHeuristics,long *);
-SWIGEXPORT generic_SUNTimestepHeuristics_Ops__getnumexpsteps_get_swigrtype _wrap_generic_SUNTimestepHeuristics_Ops__getnumexpsteps_get(SwigClassWrapper const *farg1) {
-  generic_SUNTimestepHeuristics_Ops__getnumexpsteps_get_swigrtype fresult ;
-  struct generic_SUNTimestepHeuristics_Ops_ *arg1 = (struct generic_SUNTimestepHeuristics_Ops_ *) 0 ;
-  int (*result)(SUNTimestepHeuristics,long *) = 0 ;
-  
-  SWIG_check_mutable_nonnull(*farg1, "struct generic_SUNTimestepHeuristics_Ops_ *", "generic_SUNTimestepHeuristics_Ops_", "generic_SUNTimestepHeuristics_Ops_::getnumexpsteps", return 0);
-  arg1 = (struct generic_SUNTimestepHeuristics_Ops_ *)(farg1->cptr);
-  result = (int (*)(SUNTimestepHeuristics,long *)) ((arg1)->getnumexpsteps);
-  fresult = result;
-  return fresult;
-}
-
-
-SWIGEXPORT void _wrap_generic_SUNTimestepHeuristics_Ops__getnumaccsteps_set(SwigClassWrapper const *farg1, int (*farg2)(SUNTimestepHeuristics,long *)) {
-  struct generic_SUNTimestepHeuristics_Ops_ *arg1 = (struct generic_SUNTimestepHeuristics_Ops_ *) 0 ;
-  int (*arg2)(SUNTimestepHeuristics,long *) = (int (*)(SUNTimestepHeuristics,long *)) 0 ;
-  
-  SWIG_check_mutable_nonnull(*farg1, "struct generic_SUNTimestepHeuristics_Ops_ *", "generic_SUNTimestepHeuristics_Ops_", "generic_SUNTimestepHeuristics_Ops_::getnumaccsteps", return );
-  arg1 = (struct generic_SUNTimestepHeuristics_Ops_ *)(farg1->cptr);
-  arg2 = (int (*)(SUNTimestepHeuristics,long *))(farg2);
-  if (arg1) (arg1)->getnumaccsteps = arg2;
-}
-
-
-typedef int (*generic_SUNTimestepHeuristics_Ops__getnumaccsteps_get_swigrtype)(SUNTimestepHeuristics,long *);
-SWIGEXPORT generic_SUNTimestepHeuristics_Ops__getnumaccsteps_get_swigrtype _wrap_generic_SUNTimestepHeuristics_Ops__getnumaccsteps_get(SwigClassWrapper const *farg1) {
-  generic_SUNTimestepHeuristics_Ops__getnumaccsteps_get_swigrtype fresult ;
-  struct generic_SUNTimestepHeuristics_Ops_ *arg1 = (struct generic_SUNTimestepHeuristics_Ops_ *) 0 ;
-  int (*result)(SUNTimestepHeuristics,long *) = 0 ;
-  
-  SWIG_check_mutable_nonnull(*farg1, "struct generic_SUNTimestepHeuristics_Ops_ *", "generic_SUNTimestepHeuristics_Ops_", "generic_SUNTimestepHeuristics_Ops_::getnumaccsteps", return 0);
-  arg1 = (struct generic_SUNTimestepHeuristics_Ops_ *)(farg1->cptr);
-  result = (int (*)(SUNTimestepHeuristics,long *)) ((arg1)->getnumaccsteps);
-  fresult = result;
-  return fresult;
-}
-
-
-SWIGEXPORT void _wrap_generic_SUNTimestepHeuristics_Ops__space_set(SwigClassWrapper const *farg1, int (*farg2)(SUNTimestepHeuristics,long *,long *)) {
-  struct generic_SUNTimestepHeuristics_Ops_ *arg1 = (struct generic_SUNTimestepHeuristics_Ops_ *) 0 ;
-  int (*arg2)(SUNTimestepHeuristics,long *,long *) = (int (*)(SUNTimestepHeuristics,long *,long *)) 0 ;
-  
-  SWIG_check_mutable_nonnull(*farg1, "struct generic_SUNTimestepHeuristics_Ops_ *", "generic_SUNTimestepHeuristics_Ops_", "generic_SUNTimestepHeuristics_Ops_::space", return );
-  arg1 = (struct generic_SUNTimestepHeuristics_Ops_ *)(farg1->cptr);
-  arg2 = (int (*)(SUNTimestepHeuristics,long *,long *))(farg2);
-  if (arg1) (arg1)->space = arg2;
-}
-
-
-typedef int (*generic_SUNTimestepHeuristics_Ops__space_get_swigrtype)(SUNTimestepHeuristics,long *,long *);
-SWIGEXPORT generic_SUNTimestepHeuristics_Ops__space_get_swigrtype _wrap_generic_SUNTimestepHeuristics_Ops__space_get(SwigClassWrapper const *farg1) {
-  generic_SUNTimestepHeuristics_Ops__space_get_swigrtype fresult ;
-  struct generic_SUNTimestepHeuristics_Ops_ *arg1 = (struct generic_SUNTimestepHeuristics_Ops_ *) 0 ;
-  int (*result)(SUNTimestepHeuristics,long *,long *) = 0 ;
-  
-  SWIG_check_mutable_nonnull(*farg1, "struct generic_SUNTimestepHeuristics_Ops_ *", "generic_SUNTimestepHeuristics_Ops_", "generic_SUNTimestepHeuristics_Ops_::space", return 0);
-  arg1 = (struct generic_SUNTimestepHeuristics_Ops_ *)(farg1->cptr);
-  result = (int (*)(SUNTimestepHeuristics,long *,long *)) ((arg1)->space);
-  fresult = result;
-  return fresult;
-}
-
-
-SWIGEXPORT SwigClassWrapper _wrap_new_generic_SUNTimestepHeuristics_Ops_() {
-  SwigClassWrapper fresult ;
-  struct generic_SUNTimestepHeuristics_Ops_ *result = 0 ;
-  
-  result = (struct generic_SUNTimestepHeuristics_Ops_ *)calloc(1, sizeof(struct generic_SUNTimestepHeuristics_Ops_));
-  fresult.cptr = result;
-  fresult.cmemflags = SWIG_MEM_RVALUE | (1 ? SWIG_MEM_OWN : 0);
-  return fresult;
-}
-
-
-SWIGEXPORT void _wrap_delete_generic_SUNTimestepHeuristics_Ops_(SwigClassWrapper *farg1) {
-  struct generic_SUNTimestepHeuristics_Ops_ *arg1 = (struct generic_SUNTimestepHeuristics_Ops_ *) 0 ;
-  
-  SWIG_check_mutable(*farg1, "struct generic_SUNTimestepHeuristics_Ops_ *", "generic_SUNTimestepHeuristics_Ops_", "generic_SUNTimestepHeuristics_Ops_::~generic_SUNTimestepHeuristics_Ops_()", return );
-  arg1 = (struct generic_SUNTimestepHeuristics_Ops_ *)(farg1->cptr);
-  free((char *) arg1);
-}
-
-
-SWIGEXPORT void _wrap_generic_SUNTimestepHeuristics_Ops__op_assign__(SwigClassWrapper *farg1, SwigClassWrapper const *farg2) {
-  struct generic_SUNTimestepHeuristics_Ops_ *arg1 = (struct generic_SUNTimestepHeuristics_Ops_ *) 0 ;
-  struct generic_SUNTimestepHeuristics_Ops_ *arg2 = 0 ;
-  
-  (void)sizeof(arg1);
-  (void)sizeof(arg2);
-  SWIG_assign(farg1, *farg2);
-  
-}
-
-
-SWIGEXPORT void _wrap_generic_SUNTimestepHeuristics__content_set(SwigClassWrapper const *farg1, void *farg2) {
-  struct generic_SUNTimestepHeuristics_ *arg1 = (struct generic_SUNTimestepHeuristics_ *) 0 ;
-  void *arg2 = (void *) 0 ;
-  
-  SWIG_check_mutable_nonnull(*farg1, "struct generic_SUNTimestepHeuristics_ *", "generic_SUNTimestepHeuristics_", "generic_SUNTimestepHeuristics_::content", return );
-  arg1 = (struct generic_SUNTimestepHeuristics_ *)(farg1->cptr);
-  arg2 = (void *)(farg2);
-  if (arg1) (arg1)->content = arg2;
-}
-
-
-SWIGEXPORT void * _wrap_generic_SUNTimestepHeuristics__content_get(SwigClassWrapper const *farg1) {
-  void * fresult ;
-  struct generic_SUNTimestepHeuristics_ *arg1 = (struct generic_SUNTimestepHeuristics_ *) 0 ;
-  void *result = 0 ;
-  
-  SWIG_check_mutable_nonnull(*farg1, "struct generic_SUNTimestepHeuristics_ *", "generic_SUNTimestepHeuristics_", "generic_SUNTimestepHeuristics_::content", return 0);
-  arg1 = (struct generic_SUNTimestepHeuristics_ *)(farg1->cptr);
-  result = (void *) ((arg1)->content);
-  fresult = result;
-  return fresult;
-}
-
-
-SWIGEXPORT void _wrap_generic_SUNTimestepHeuristics__ops_set(SwigClassWrapper const *farg1, SwigClassWrapper const *farg2) {
-  struct generic_SUNTimestepHeuristics_ *arg1 = (struct generic_SUNTimestepHeuristics_ *) 0 ;
-  SUNTimestepHeuristics_Ops arg2 = (SUNTimestepHeuristics_Ops) 0 ;
-  
-  SWIG_check_mutable_nonnull(*farg1, "struct generic_SUNTimestepHeuristics_ *", "generic_SUNTimestepHeuristics_", "generic_SUNTimestepHeuristics_::ops", return );
-  arg1 = (struct generic_SUNTimestepHeuristics_ *)(farg1->cptr);
-  SWIG_check_mutable(*farg2, "SUNTimestepHeuristics_Ops", "generic_SUNTimestepHeuristics_Ops_", "generic_SUNTimestepHeuristics_::ops", return );
-  arg2 = (SUNTimestepHeuristics_Ops)(farg2->cptr);
-  if (arg1) (arg1)->ops = arg2;
-}
-
-
-SWIGEXPORT SwigClassWrapper _wrap_generic_SUNTimestepHeuristics__ops_get(SwigClassWrapper const *farg1) {
-  SwigClassWrapper fresult ;
-  struct generic_SUNTimestepHeuristics_ *arg1 = (struct generic_SUNTimestepHeuristics_ *) 0 ;
-  SUNTimestepHeuristics_Ops result;
-  
-  SWIG_check_mutable_nonnull(*farg1, "struct generic_SUNTimestepHeuristics_ *", "generic_SUNTimestepHeuristics_", "generic_SUNTimestepHeuristics_::ops", return SwigClassWrapper_uninitialized());
-  arg1 = (struct generic_SUNTimestepHeuristics_ *)(farg1->cptr);
-  result = (SUNTimestepHeuristics_Ops) ((arg1)->ops);
-  fresult.cptr = result;
-  fresult.cmemflags = SWIG_MEM_RVALUE | (0 ? SWIG_MEM_OWN : 0);
-  return fresult;
-}
-
-
-SWIGEXPORT void _wrap_generic_SUNTimestepHeuristics__sunctx_set(SwigClassWrapper const *farg1, void *farg2) {
-  struct generic_SUNTimestepHeuristics_ *arg1 = (struct generic_SUNTimestepHeuristics_ *) 0 ;
-  SUNContext arg2 = (SUNContext) 0 ;
-  
-  SWIG_check_mutable_nonnull(*farg1, "struct generic_SUNTimestepHeuristics_ *", "generic_SUNTimestepHeuristics_", "generic_SUNTimestepHeuristics_::sunctx", return );
-  arg1 = (struct generic_SUNTimestepHeuristics_ *)(farg1->cptr);
-  arg2 = (SUNContext)(farg2);
-  if (arg1) (arg1)->sunctx = arg2;
-}
-
-
-SWIGEXPORT void * _wrap_generic_SUNTimestepHeuristics__sunctx_get(SwigClassWrapper const *farg1) {
-  void * fresult ;
-  struct generic_SUNTimestepHeuristics_ *arg1 = (struct generic_SUNTimestepHeuristics_ *) 0 ;
-  SUNContext result;
-  
-  SWIG_check_mutable_nonnull(*farg1, "struct generic_SUNTimestepHeuristics_ *", "generic_SUNTimestepHeuristics_", "generic_SUNTimestepHeuristics_::sunctx", return 0);
-  arg1 = (struct generic_SUNTimestepHeuristics_ *)(farg1->cptr);
-  result = (SUNContext) ((arg1)->sunctx);
-  fresult = result;
-  return fresult;
-}
-
-
-SWIGEXPORT SwigClassWrapper _wrap_new_generic_SUNTimestepHeuristics_() {
-  SwigClassWrapper fresult ;
-  struct generic_SUNTimestepHeuristics_ *result = 0 ;
-  
-  result = (struct generic_SUNTimestepHeuristics_ *)calloc(1, sizeof(struct generic_SUNTimestepHeuristics_));
-  fresult.cptr = result;
-  fresult.cmemflags = SWIG_MEM_RVALUE | (1 ? SWIG_MEM_OWN : 0);
-  return fresult;
-}
-
-
-SWIGEXPORT void _wrap_delete_generic_SUNTimestepHeuristics_(SwigClassWrapper *farg1) {
-  struct generic_SUNTimestepHeuristics_ *arg1 = (struct generic_SUNTimestepHeuristics_ *) 0 ;
-  
-  SWIG_check_mutable(*farg1, "struct generic_SUNTimestepHeuristics_ *", "generic_SUNTimestepHeuristics_", "generic_SUNTimestepHeuristics_::~generic_SUNTimestepHeuristics_()", return );
-  arg1 = (struct generic_SUNTimestepHeuristics_ *)(farg1->cptr);
-  free((char *) arg1);
-}
-
-
-SWIGEXPORT void _wrap_generic_SUNTimestepHeuristics__op_assign__(SwigClassWrapper *farg1, SwigClassWrapper const *farg2) {
-  struct generic_SUNTimestepHeuristics_ *arg1 = (struct generic_SUNTimestepHeuristics_ *) 0 ;
-  struct generic_SUNTimestepHeuristics_ *arg2 = 0 ;
-  
-  (void)sizeof(arg1);
-  (void)sizeof(arg2);
-  SWIG_assign(farg1, *farg2);
-  
-}
-
-
-SWIGEXPORT SwigClassWrapper _wrap_FSUNTimestepHeuristics_NewEmpty(void *farg1) {
-  SwigClassWrapper fresult ;
+SWIGEXPORT SUNTimestepHeuristics _wrap_FSUNTimestepHeuristics_NewEmpty(void *farg1) {
+  SUNTimestepHeuristics fresult ;
   SUNContext arg1 = (SUNContext) 0 ;
   SUNTimestepHeuristics result;
   
   arg1 = (SUNContext)(farg1);
   result = (SUNTimestepHeuristics)SUNTimestepHeuristics_NewEmpty(arg1);
-  fresult.cptr = result;
-  fresult.cmemflags = SWIG_MEM_RVALUE | (0 ? SWIG_MEM_OWN : 0);
+  fresult = result;
   return fresult;
 }
 
 
-SWIGEXPORT int _wrap_FSUNTimestepHeuristics_GetID(SwigClassWrapper const *farg1) {
+SWIGEXPORT int _wrap_FSUNTimestepHeuristics_GetID(SUNTimestepHeuristics farg1) {
   int fresult ;
   SUNTimestepHeuristics arg1 = (SUNTimestepHeuristics) 0 ;
   SUNTimestepHeuristics_ID result;
   
-  SWIG_check_mutable(*farg1, "SUNTimestepHeuristics", "generic_SUNTimestepHeuristics_", "SUNTimestepHeuristics_GetID(SUNTimestepHeuristics)", return 0);
-  arg1 = (SUNTimestepHeuristics)(farg1->cptr);
+  arg1 = (SUNTimestepHeuristics)(farg1);
   result = (SUNTimestepHeuristics_ID)SUNTimestepHeuristics_GetID(arg1);
   fresult = (int)(result);
   return fresult;
 }
 
 
-SWIGEXPORT int _wrap_FSUNTimestepHeuristics_Destroy(SwigClassWrapper const *farg1) {
+SWIGEXPORT int _wrap_FSUNTimestepHeuristics_Destroy(SUNTimestepHeuristics farg1) {
   int fresult ;
   SUNTimestepHeuristics arg1 = (SUNTimestepHeuristics) 0 ;
   int result;
   
-  SWIG_check_mutable(*farg1, "SUNTimestepHeuristics", "generic_SUNTimestepHeuristics_", "SUNTimestepHeuristics_Destroy(SUNTimestepHeuristics)", return 0);
-  arg1 = (SUNTimestepHeuristics)(farg1->cptr);
+  arg1 = (SUNTimestepHeuristics)(farg1);
   result = (int)SUNTimestepHeuristics_Destroy(arg1);
   fresult = (int)(result);
   return fresult;
 }
 
 
-SWIGEXPORT int _wrap_FSUNTimestepHeuristics_ConstrainStep(SwigClassWrapper const *farg1, double const *farg2, double const *farg3, double *farg4) {
+SWIGEXPORT int _wrap_FSUNTimestepHeuristics_ConstrainStep(SUNTimestepHeuristics farg1, double const *farg2, double const *farg3, double *farg4) {
   int fresult ;
   SUNTimestepHeuristics arg1 = (SUNTimestepHeuristics) 0 ;
   realtype arg2 ;
@@ -1112,8 +234,7 @@ SWIGEXPORT int _wrap_FSUNTimestepHeuristics_ConstrainStep(SwigClassWrapper const
   realtype *arg4 = (realtype *) 0 ;
   int result;
   
-  SWIG_check_mutable(*farg1, "SUNTimestepHeuristics", "generic_SUNTimestepHeuristics_", "SUNTimestepHeuristics_ConstrainStep(SUNTimestepHeuristics,realtype,realtype,realtype *)", return 0);
-  arg1 = (SUNTimestepHeuristics)(farg1->cptr);
+  arg1 = (SUNTimestepHeuristics)(farg1);
   arg2 = (realtype)(*farg2);
   arg3 = (realtype)(*farg3);
   arg4 = (realtype *)(farg4);
@@ -1123,7 +244,7 @@ SWIGEXPORT int _wrap_FSUNTimestepHeuristics_ConstrainStep(SwigClassWrapper const
 }
 
 
-SWIGEXPORT int _wrap_FSUNTimestepHeuristics_ETestFail(SwigClassWrapper const *farg1, double const *farg2, double const *farg3, int const *farg4, double *farg5) {
+SWIGEXPORT int _wrap_FSUNTimestepHeuristics_ETestFail(SUNTimestepHeuristics farg1, double const *farg2, double const *farg3, int const *farg4, double *farg5) {
   int fresult ;
   SUNTimestepHeuristics arg1 = (SUNTimestepHeuristics) 0 ;
   realtype arg2 ;
@@ -1132,8 +253,7 @@ SWIGEXPORT int _wrap_FSUNTimestepHeuristics_ETestFail(SwigClassWrapper const *fa
   realtype *arg5 = (realtype *) 0 ;
   int result;
   
-  SWIG_check_mutable(*farg1, "SUNTimestepHeuristics", "generic_SUNTimestepHeuristics_", "SUNTimestepHeuristics_ETestFail(SUNTimestepHeuristics,realtype,realtype,int,realtype *)", return 0);
-  arg1 = (SUNTimestepHeuristics)(farg1->cptr);
+  arg1 = (SUNTimestepHeuristics)(farg1);
   arg2 = (realtype)(*farg2);
   arg3 = (realtype)(*farg3);
   arg4 = (int)(*farg4);
@@ -1144,7 +264,7 @@ SWIGEXPORT int _wrap_FSUNTimestepHeuristics_ETestFail(SwigClassWrapper const *fa
 }
 
 
-SWIGEXPORT int _wrap_FSUNTimestepHeuristics_BoundReduction(SwigClassWrapper const *farg1, double const *farg2, double const *farg3, double *farg4) {
+SWIGEXPORT int _wrap_FSUNTimestepHeuristics_BoundReduction(SUNTimestepHeuristics farg1, double const *farg2, double const *farg3, double *farg4) {
   int fresult ;
   SUNTimestepHeuristics arg1 = (SUNTimestepHeuristics) 0 ;
   realtype arg2 ;
@@ -1152,8 +272,7 @@ SWIGEXPORT int _wrap_FSUNTimestepHeuristics_BoundReduction(SwigClassWrapper cons
   realtype *arg4 = (realtype *) 0 ;
   int result;
   
-  SWIG_check_mutable(*farg1, "SUNTimestepHeuristics", "generic_SUNTimestepHeuristics_", "SUNTimestepHeuristics_BoundReduction(SUNTimestepHeuristics,realtype,realtype,realtype *)", return 0);
-  arg1 = (SUNTimestepHeuristics)(farg1->cptr);
+  arg1 = (SUNTimestepHeuristics)(farg1);
   arg2 = (realtype)(*farg2);
   arg3 = (realtype)(*farg3);
   arg4 = (realtype *)(farg4);
@@ -1163,15 +282,14 @@ SWIGEXPORT int _wrap_FSUNTimestepHeuristics_BoundReduction(SwigClassWrapper cons
 }
 
 
-SWIGEXPORT int _wrap_FSUNTimestepHeuristics_BoundFirstStep(SwigClassWrapper const *farg1, double const *farg2, double *farg3) {
+SWIGEXPORT int _wrap_FSUNTimestepHeuristics_BoundFirstStep(SUNTimestepHeuristics farg1, double const *farg2, double *farg3) {
   int fresult ;
   SUNTimestepHeuristics arg1 = (SUNTimestepHeuristics) 0 ;
   realtype arg2 ;
   realtype *arg3 = (realtype *) 0 ;
   int result;
   
-  SWIG_check_mutable(*farg1, "SUNTimestepHeuristics", "generic_SUNTimestepHeuristics_", "SUNTimestepHeuristics_BoundFirstStep(SUNTimestepHeuristics,realtype,realtype *)", return 0);
-  arg1 = (SUNTimestepHeuristics)(farg1->cptr);
+  arg1 = (SUNTimestepHeuristics)(farg1);
   arg2 = (realtype)(*farg2);
   arg3 = (realtype *)(farg3);
   result = (int)SUNTimestepHeuristics_BoundFirstStep(arg1,arg2,arg3);
@@ -1180,15 +298,14 @@ SWIGEXPORT int _wrap_FSUNTimestepHeuristics_BoundFirstStep(SwigClassWrapper cons
 }
 
 
-SWIGEXPORT int _wrap_FSUNTimestepHeuristics_ConvFail(SwigClassWrapper const *farg1, double const *farg2, double *farg3) {
+SWIGEXPORT int _wrap_FSUNTimestepHeuristics_ConvFail(SUNTimestepHeuristics farg1, double const *farg2, double *farg3) {
   int fresult ;
   SUNTimestepHeuristics arg1 = (SUNTimestepHeuristics) 0 ;
   realtype arg2 ;
   realtype *arg3 = (realtype *) 0 ;
   int result;
   
-  SWIG_check_mutable(*farg1, "SUNTimestepHeuristics", "generic_SUNTimestepHeuristics_", "SUNTimestepHeuristics_ConvFail(SUNTimestepHeuristics,realtype,realtype *)", return 0);
-  arg1 = (SUNTimestepHeuristics)(farg1->cptr);
+  arg1 = (SUNTimestepHeuristics)(farg1);
   arg2 = (realtype)(*farg2);
   arg3 = (realtype *)(farg3);
   result = (int)SUNTimestepHeuristics_ConvFail(arg1,arg2,arg3);
@@ -1197,53 +314,49 @@ SWIGEXPORT int _wrap_FSUNTimestepHeuristics_ConvFail(SwigClassWrapper const *far
 }
 
 
-SWIGEXPORT int _wrap_FSUNTimestepHeuristics_Reset(SwigClassWrapper const *farg1) {
+SWIGEXPORT int _wrap_FSUNTimestepHeuristics_Reset(SUNTimestepHeuristics farg1) {
   int fresult ;
   SUNTimestepHeuristics arg1 = (SUNTimestepHeuristics) 0 ;
   int result;
   
-  SWIG_check_mutable(*farg1, "SUNTimestepHeuristics", "generic_SUNTimestepHeuristics_", "SUNTimestepHeuristics_Reset(SUNTimestepHeuristics)", return 0);
-  arg1 = (SUNTimestepHeuristics)(farg1->cptr);
+  arg1 = (SUNTimestepHeuristics)(farg1);
   result = (int)SUNTimestepHeuristics_Reset(arg1);
   fresult = (int)(result);
   return fresult;
 }
 
 
-SWIGEXPORT int _wrap_FSUNTimestepHeuristics_Update(SwigClassWrapper const *farg1) {
+SWIGEXPORT int _wrap_FSUNTimestepHeuristics_Update(SUNTimestepHeuristics farg1) {
   int fresult ;
   SUNTimestepHeuristics arg1 = (SUNTimestepHeuristics) 0 ;
   int result;
   
-  SWIG_check_mutable(*farg1, "SUNTimestepHeuristics", "generic_SUNTimestepHeuristics_", "SUNTimestepHeuristics_Update(SUNTimestepHeuristics)", return 0);
-  arg1 = (SUNTimestepHeuristics)(farg1->cptr);
+  arg1 = (SUNTimestepHeuristics)(farg1);
   result = (int)SUNTimestepHeuristics_Update(arg1);
   fresult = (int)(result);
   return fresult;
 }
 
 
-SWIGEXPORT int _wrap_FSUNTimestepHeuristics_SetDefaults(SwigClassWrapper const *farg1) {
+SWIGEXPORT int _wrap_FSUNTimestepHeuristics_SetDefaults(SUNTimestepHeuristics farg1) {
   int fresult ;
   SUNTimestepHeuristics arg1 = (SUNTimestepHeuristics) 0 ;
   int result;
   
-  SWIG_check_mutable(*farg1, "SUNTimestepHeuristics", "generic_SUNTimestepHeuristics_", "SUNTimestepHeuristics_SetDefaults(SUNTimestepHeuristics)", return 0);
-  arg1 = (SUNTimestepHeuristics)(farg1->cptr);
+  arg1 = (SUNTimestepHeuristics)(farg1);
   result = (int)SUNTimestepHeuristics_SetDefaults(arg1);
   fresult = (int)(result);
   return fresult;
 }
 
 
-SWIGEXPORT int _wrap_FSUNTimestepHeuristics_Write(SwigClassWrapper const *farg1, void *farg2) {
+SWIGEXPORT int _wrap_FSUNTimestepHeuristics_Write(SUNTimestepHeuristics farg1, void *farg2) {
   int fresult ;
   SUNTimestepHeuristics arg1 = (SUNTimestepHeuristics) 0 ;
   FILE *arg2 = (FILE *) 0 ;
   int result;
   
-  SWIG_check_mutable(*farg1, "SUNTimestepHeuristics", "generic_SUNTimestepHeuristics_", "SUNTimestepHeuristics_Write(SUNTimestepHeuristics,FILE *)", return 0);
-  arg1 = (SUNTimestepHeuristics)(farg1->cptr);
+  arg1 = (SUNTimestepHeuristics)(farg1);
   arg2 = (FILE *)(farg2);
   result = (int)SUNTimestepHeuristics_Write(arg1,arg2);
   fresult = (int)(result);
@@ -1251,14 +364,13 @@ SWIGEXPORT int _wrap_FSUNTimestepHeuristics_Write(SwigClassWrapper const *farg1,
 }
 
 
-SWIGEXPORT int _wrap_FSUNTimestepHeuristics_SetMaxStep(SwigClassWrapper const *farg1, double const *farg2) {
+SWIGEXPORT int _wrap_FSUNTimestepHeuristics_SetMaxStep(SUNTimestepHeuristics farg1, double const *farg2) {
   int fresult ;
   SUNTimestepHeuristics arg1 = (SUNTimestepHeuristics) 0 ;
   realtype arg2 ;
   int result;
   
-  SWIG_check_mutable(*farg1, "SUNTimestepHeuristics", "generic_SUNTimestepHeuristics_", "SUNTimestepHeuristics_SetMaxStep(SUNTimestepHeuristics,realtype)", return 0);
-  arg1 = (SUNTimestepHeuristics)(farg1->cptr);
+  arg1 = (SUNTimestepHeuristics)(farg1);
   arg2 = (realtype)(*farg2);
   result = (int)SUNTimestepHeuristics_SetMaxStep(arg1,arg2);
   fresult = (int)(result);
@@ -1266,14 +378,13 @@ SWIGEXPORT int _wrap_FSUNTimestepHeuristics_SetMaxStep(SwigClassWrapper const *f
 }
 
 
-SWIGEXPORT int _wrap_FSUNTimestepHeuristics_SetMinStep(SwigClassWrapper const *farg1, double const *farg2) {
+SWIGEXPORT int _wrap_FSUNTimestepHeuristics_SetMinStep(SUNTimestepHeuristics farg1, double const *farg2) {
   int fresult ;
   SUNTimestepHeuristics arg1 = (SUNTimestepHeuristics) 0 ;
   realtype arg2 ;
   int result;
   
-  SWIG_check_mutable(*farg1, "SUNTimestepHeuristics", "generic_SUNTimestepHeuristics_", "SUNTimestepHeuristics_SetMinStep(SUNTimestepHeuristics,realtype)", return 0);
-  arg1 = (SUNTimestepHeuristics)(farg1->cptr);
+  arg1 = (SUNTimestepHeuristics)(farg1);
   arg2 = (realtype)(*farg2);
   result = (int)SUNTimestepHeuristics_SetMinStep(arg1,arg2);
   fresult = (int)(result);
@@ -1281,15 +392,14 @@ SWIGEXPORT int _wrap_FSUNTimestepHeuristics_SetMinStep(SwigClassWrapper const *f
 }
 
 
-SWIGEXPORT int _wrap_FSUNTimestepHeuristics_SetExpStabFn(SwigClassWrapper const *farg1, SUNExpStabFn farg2, void *farg3) {
+SWIGEXPORT int _wrap_FSUNTimestepHeuristics_SetExpStabFn(SUNTimestepHeuristics farg1, SUNExpStabFn farg2, void *farg3) {
   int fresult ;
   SUNTimestepHeuristics arg1 = (SUNTimestepHeuristics) 0 ;
   SUNExpStabFn arg2 = (SUNExpStabFn) 0 ;
   void *arg3 = (void *) 0 ;
   int result;
   
-  SWIG_check_mutable(*farg1, "SUNTimestepHeuristics", "generic_SUNTimestepHeuristics_", "SUNTimestepHeuristics_SetExpStabFn(SUNTimestepHeuristics,SUNExpStabFn,void *)", return 0);
-  arg1 = (SUNTimestepHeuristics)(farg1->cptr);
+  arg1 = (SUNTimestepHeuristics)(farg1);
   arg2 = (SUNExpStabFn)(farg2);
   arg3 = (void *)(farg3);
   result = (int)SUNTimestepHeuristics_SetExpStabFn(arg1,arg2,arg3);
@@ -1298,14 +408,13 @@ SWIGEXPORT int _wrap_FSUNTimestepHeuristics_SetExpStabFn(SwigClassWrapper const 
 }
 
 
-SWIGEXPORT int _wrap_FSUNTimestepHeuristics_SetCFLFraction(SwigClassWrapper const *farg1, double const *farg2) {
+SWIGEXPORT int _wrap_FSUNTimestepHeuristics_SetCFLFraction(SUNTimestepHeuristics farg1, double const *farg2) {
   int fresult ;
   SUNTimestepHeuristics arg1 = (SUNTimestepHeuristics) 0 ;
   realtype arg2 ;
   int result;
   
-  SWIG_check_mutable(*farg1, "SUNTimestepHeuristics", "generic_SUNTimestepHeuristics_", "SUNTimestepHeuristics_SetCFLFraction(SUNTimestepHeuristics,realtype)", return 0);
-  arg1 = (SUNTimestepHeuristics)(farg1->cptr);
+  arg1 = (SUNTimestepHeuristics)(farg1);
   arg2 = (realtype)(*farg2);
   result = (int)SUNTimestepHeuristics_SetCFLFraction(arg1,arg2);
   fresult = (int)(result);
@@ -1313,14 +422,13 @@ SWIGEXPORT int _wrap_FSUNTimestepHeuristics_SetCFLFraction(SwigClassWrapper cons
 }
 
 
-SWIGEXPORT int _wrap_FSUNTimestepHeuristics_SetSafetyFactor(SwigClassWrapper const *farg1, double const *farg2) {
+SWIGEXPORT int _wrap_FSUNTimestepHeuristics_SetSafetyFactor(SUNTimestepHeuristics farg1, double const *farg2) {
   int fresult ;
   SUNTimestepHeuristics arg1 = (SUNTimestepHeuristics) 0 ;
   realtype arg2 ;
   int result;
   
-  SWIG_check_mutable(*farg1, "SUNTimestepHeuristics", "generic_SUNTimestepHeuristics_", "SUNTimestepHeuristics_SetSafetyFactor(SUNTimestepHeuristics,realtype)", return 0);
-  arg1 = (SUNTimestepHeuristics)(farg1->cptr);
+  arg1 = (SUNTimestepHeuristics)(farg1);
   arg2 = (realtype)(*farg2);
   result = (int)SUNTimestepHeuristics_SetSafetyFactor(arg1,arg2);
   fresult = (int)(result);
@@ -1328,14 +436,13 @@ SWIGEXPORT int _wrap_FSUNTimestepHeuristics_SetSafetyFactor(SwigClassWrapper con
 }
 
 
-SWIGEXPORT int _wrap_FSUNTimestepHeuristics_SetMaxGrowth(SwigClassWrapper const *farg1, double const *farg2) {
+SWIGEXPORT int _wrap_FSUNTimestepHeuristics_SetMaxGrowth(SUNTimestepHeuristics farg1, double const *farg2) {
   int fresult ;
   SUNTimestepHeuristics arg1 = (SUNTimestepHeuristics) 0 ;
   realtype arg2 ;
   int result;
   
-  SWIG_check_mutable(*farg1, "SUNTimestepHeuristics", "generic_SUNTimestepHeuristics_", "SUNTimestepHeuristics_SetMaxGrowth(SUNTimestepHeuristics,realtype)", return 0);
-  arg1 = (SUNTimestepHeuristics)(farg1->cptr);
+  arg1 = (SUNTimestepHeuristics)(farg1);
   arg2 = (realtype)(*farg2);
   result = (int)SUNTimestepHeuristics_SetMaxGrowth(arg1,arg2);
   fresult = (int)(result);
@@ -1343,14 +450,13 @@ SWIGEXPORT int _wrap_FSUNTimestepHeuristics_SetMaxGrowth(SwigClassWrapper const 
 }
 
 
-SWIGEXPORT int _wrap_FSUNTimestepHeuristics_SetMaxFirstGrowth(SwigClassWrapper const *farg1, double const *farg2) {
+SWIGEXPORT int _wrap_FSUNTimestepHeuristics_SetMaxFirstGrowth(SUNTimestepHeuristics farg1, double const *farg2) {
   int fresult ;
   SUNTimestepHeuristics arg1 = (SUNTimestepHeuristics) 0 ;
   realtype arg2 ;
   int result;
   
-  SWIG_check_mutable(*farg1, "SUNTimestepHeuristics", "generic_SUNTimestepHeuristics_", "SUNTimestepHeuristics_SetMaxFirstGrowth(SUNTimestepHeuristics,realtype)", return 0);
-  arg1 = (SUNTimestepHeuristics)(farg1->cptr);
+  arg1 = (SUNTimestepHeuristics)(farg1);
   arg2 = (realtype)(*farg2);
   result = (int)SUNTimestepHeuristics_SetMaxFirstGrowth(arg1,arg2);
   fresult = (int)(result);
@@ -1358,15 +464,14 @@ SWIGEXPORT int _wrap_FSUNTimestepHeuristics_SetMaxFirstGrowth(SwigClassWrapper c
 }
 
 
-SWIGEXPORT int _wrap_FSUNTimestepHeuristics_SetFixedStepBounds(SwigClassWrapper const *farg1, double const *farg2, double const *farg3) {
+SWIGEXPORT int _wrap_FSUNTimestepHeuristics_SetFixedStepBounds(SUNTimestepHeuristics farg1, double const *farg2, double const *farg3) {
   int fresult ;
   SUNTimestepHeuristics arg1 = (SUNTimestepHeuristics) 0 ;
   realtype arg2 ;
   realtype arg3 ;
   int result;
   
-  SWIG_check_mutable(*farg1, "SUNTimestepHeuristics", "generic_SUNTimestepHeuristics_", "SUNTimestepHeuristics_SetFixedStepBounds(SUNTimestepHeuristics,realtype,realtype)", return 0);
-  arg1 = (SUNTimestepHeuristics)(farg1->cptr);
+  arg1 = (SUNTimestepHeuristics)(farg1);
   arg2 = (realtype)(*farg2);
   arg3 = (realtype)(*farg3);
   result = (int)SUNTimestepHeuristics_SetFixedStepBounds(arg1,arg2,arg3);
@@ -1375,14 +480,13 @@ SWIGEXPORT int _wrap_FSUNTimestepHeuristics_SetFixedStepBounds(SwigClassWrapper 
 }
 
 
-SWIGEXPORT int _wrap_FSUNTimestepHeuristics_SetMinReduction(SwigClassWrapper const *farg1, double const *farg2) {
+SWIGEXPORT int _wrap_FSUNTimestepHeuristics_SetMinReduction(SUNTimestepHeuristics farg1, double const *farg2) {
   int fresult ;
   SUNTimestepHeuristics arg1 = (SUNTimestepHeuristics) 0 ;
   realtype arg2 ;
   int result;
   
-  SWIG_check_mutable(*farg1, "SUNTimestepHeuristics", "generic_SUNTimestepHeuristics_", "SUNTimestepHeuristics_SetMinReduction(SUNTimestepHeuristics,realtype)", return 0);
-  arg1 = (SUNTimestepHeuristics)(farg1->cptr);
+  arg1 = (SUNTimestepHeuristics)(farg1);
   arg2 = (realtype)(*farg2);
   result = (int)SUNTimestepHeuristics_SetMinReduction(arg1,arg2);
   fresult = (int)(result);
@@ -1390,14 +494,13 @@ SWIGEXPORT int _wrap_FSUNTimestepHeuristics_SetMinReduction(SwigClassWrapper con
 }
 
 
-SWIGEXPORT int _wrap_FSUNTimestepHeuristics_SetMaxEFailGrowth(SwigClassWrapper const *farg1, double const *farg2) {
+SWIGEXPORT int _wrap_FSUNTimestepHeuristics_SetMaxEFailGrowth(SUNTimestepHeuristics farg1, double const *farg2) {
   int fresult ;
   SUNTimestepHeuristics arg1 = (SUNTimestepHeuristics) 0 ;
   realtype arg2 ;
   int result;
   
-  SWIG_check_mutable(*farg1, "SUNTimestepHeuristics", "generic_SUNTimestepHeuristics_", "SUNTimestepHeuristics_SetMaxEFailGrowth(SUNTimestepHeuristics,realtype)", return 0);
-  arg1 = (SUNTimestepHeuristics)(farg1->cptr);
+  arg1 = (SUNTimestepHeuristics)(farg1);
   arg2 = (realtype)(*farg2);
   result = (int)SUNTimestepHeuristics_SetMaxEFailGrowth(arg1,arg2);
   fresult = (int)(result);
@@ -1405,14 +508,13 @@ SWIGEXPORT int _wrap_FSUNTimestepHeuristics_SetMaxEFailGrowth(SwigClassWrapper c
 }
 
 
-SWIGEXPORT int _wrap_FSUNTimestepHeuristics_SetSmallNumEFails(SwigClassWrapper const *farg1, int const *farg2) {
+SWIGEXPORT int _wrap_FSUNTimestepHeuristics_SetSmallNumEFails(SUNTimestepHeuristics farg1, int const *farg2) {
   int fresult ;
   SUNTimestepHeuristics arg1 = (SUNTimestepHeuristics) 0 ;
   int arg2 ;
   int result;
   
-  SWIG_check_mutable(*farg1, "SUNTimestepHeuristics", "generic_SUNTimestepHeuristics_", "SUNTimestepHeuristics_SetSmallNumEFails(SUNTimestepHeuristics,int)", return 0);
-  arg1 = (SUNTimestepHeuristics)(farg1->cptr);
+  arg1 = (SUNTimestepHeuristics)(farg1);
   arg2 = (int)(*farg2);
   result = (int)SUNTimestepHeuristics_SetSmallNumEFails(arg1,arg2);
   fresult = (int)(result);
@@ -1420,14 +522,13 @@ SWIGEXPORT int _wrap_FSUNTimestepHeuristics_SetSmallNumEFails(SwigClassWrapper c
 }
 
 
-SWIGEXPORT int _wrap_FSUNTimestepHeuristics_SetMaxCFailGrowth(SwigClassWrapper const *farg1, double const *farg2) {
+SWIGEXPORT int _wrap_FSUNTimestepHeuristics_SetMaxCFailGrowth(SUNTimestepHeuristics farg1, double const *farg2) {
   int fresult ;
   SUNTimestepHeuristics arg1 = (SUNTimestepHeuristics) 0 ;
   realtype arg2 ;
   int result;
   
-  SWIG_check_mutable(*farg1, "SUNTimestepHeuristics", "generic_SUNTimestepHeuristics_", "SUNTimestepHeuristics_SetMaxCFailGrowth(SUNTimestepHeuristics,realtype)", return 0);
-  arg1 = (SUNTimestepHeuristics)(farg1->cptr);
+  arg1 = (SUNTimestepHeuristics)(farg1);
   arg2 = (realtype)(*farg2);
   result = (int)SUNTimestepHeuristics_SetMaxCFailGrowth(arg1,arg2);
   fresult = (int)(result);
@@ -1435,14 +536,13 @@ SWIGEXPORT int _wrap_FSUNTimestepHeuristics_SetMaxCFailGrowth(SwigClassWrapper c
 }
 
 
-SWIGEXPORT int _wrap_FSUNTimestepHeuristics_GetNumExpSteps(SwigClassWrapper const *farg1, long *farg2) {
+SWIGEXPORT int _wrap_FSUNTimestepHeuristics_GetNumExpSteps(SUNTimestepHeuristics farg1, long *farg2) {
   int fresult ;
   SUNTimestepHeuristics arg1 = (SUNTimestepHeuristics) 0 ;
   long *arg2 = (long *) 0 ;
   int result;
   
-  SWIG_check_mutable(*farg1, "SUNTimestepHeuristics", "generic_SUNTimestepHeuristics_", "SUNTimestepHeuristics_GetNumExpSteps(SUNTimestepHeuristics,long *)", return 0);
-  arg1 = (SUNTimestepHeuristics)(farg1->cptr);
+  arg1 = (SUNTimestepHeuristics)(farg1);
   arg2 = (long *)(farg2);
   result = (int)SUNTimestepHeuristics_GetNumExpSteps(arg1,arg2);
   fresult = (int)(result);
@@ -1450,14 +550,13 @@ SWIGEXPORT int _wrap_FSUNTimestepHeuristics_GetNumExpSteps(SwigClassWrapper cons
 }
 
 
-SWIGEXPORT int _wrap_FSUNTimestepHeuristics_GetNumAccSteps(SwigClassWrapper const *farg1, long *farg2) {
+SWIGEXPORT int _wrap_FSUNTimestepHeuristics_GetNumAccSteps(SUNTimestepHeuristics farg1, long *farg2) {
   int fresult ;
   SUNTimestepHeuristics arg1 = (SUNTimestepHeuristics) 0 ;
   long *arg2 = (long *) 0 ;
   int result;
   
-  SWIG_check_mutable(*farg1, "SUNTimestepHeuristics", "generic_SUNTimestepHeuristics_", "SUNTimestepHeuristics_GetNumAccSteps(SUNTimestepHeuristics,long *)", return 0);
-  arg1 = (SUNTimestepHeuristics)(farg1->cptr);
+  arg1 = (SUNTimestepHeuristics)(farg1);
   arg2 = (long *)(farg2);
   result = (int)SUNTimestepHeuristics_GetNumAccSteps(arg1,arg2);
   fresult = (int)(result);
@@ -1465,15 +564,14 @@ SWIGEXPORT int _wrap_FSUNTimestepHeuristics_GetNumAccSteps(SwigClassWrapper cons
 }
 
 
-SWIGEXPORT int _wrap_FSUNTimestepHeuristics_Space(SwigClassWrapper const *farg1, long *farg2, long *farg3) {
+SWIGEXPORT int _wrap_FSUNTimestepHeuristics_Space(SUNTimestepHeuristics farg1, long *farg2, long *farg3) {
   int fresult ;
   SUNTimestepHeuristics arg1 = (SUNTimestepHeuristics) 0 ;
   long *arg2 = (long *) 0 ;
   long *arg3 = (long *) 0 ;
   int result;
   
-  SWIG_check_mutable(*farg1, "SUNTimestepHeuristics", "generic_SUNTimestepHeuristics_", "SUNTimestepHeuristics_Space(SUNTimestepHeuristics,long *,long *)", return 0);
-  arg1 = (SUNTimestepHeuristics)(farg1->cptr);
+  arg1 = (SUNTimestepHeuristics)(farg1);
   arg2 = (long *)(farg2);
   arg3 = (long *)(farg3);
   result = (int)SUNTimestepHeuristics_Space(arg1,arg2,arg3);

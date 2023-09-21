@@ -22,74 +22,31 @@ module fsundials_adaptcontroller_mod
  integer, parameter, public :: SUNAdaptController_Type = kind(SUN_ADAPTCONTROLLER_NONE)
  public :: SUN_ADAPTCONTROLLER_NONE, SUN_ADAPTCONTROLLER_H, SUN_ADAPTCONTROLLER_HQ, SUN_ADAPTCONTROLLER_MRI_H, &
     SUN_ADAPTCONTROLLER_MRI_TOL
-
- integer, parameter :: swig_cmem_own_bit = 0
- integer, parameter :: swig_cmem_rvalue_bit = 1
- integer, parameter :: swig_cmem_const_bit = 2
- type, bind(C) :: SwigClassWrapper
-  type(C_PTR), public :: cptr = C_NULL_PTR
-  integer(C_INT), public :: cmemflags = 0
- end type
- ! struct struct generic_SUNAdaptController_Ops_
- type, public :: generic_SUNAdaptController_Ops_
-  type(SwigClassWrapper), public :: swigdata
- contains
-  procedure :: set_gettype => swigf_generic_SUNAdaptController_Ops__gettype_set
-  procedure :: get_gettype => swigf_generic_SUNAdaptController_Ops__gettype_get
-  procedure :: set_estimatestep => swigf_generic_SUNAdaptController_Ops__estimatestep_set
-  procedure :: get_estimatestep => swigf_generic_SUNAdaptController_Ops__estimatestep_get
-  procedure :: set_estimatestepandorder => swigf_generic_SUNAdaptController_Ops__estimatestepandorder_set
-  procedure :: get_estimatestepandorder => swigf_generic_SUNAdaptController_Ops__estimatestepandorder_get
-  procedure :: set_estimatemristeps => swigf_generic_SUNAdaptController_Ops__estimatemristeps_set
-  procedure :: get_estimatemristeps => swigf_generic_SUNAdaptController_Ops__estimatemristeps_get
-  procedure :: set_estimatesteptol => swigf_generic_SUNAdaptController_Ops__estimatesteptol_set
-  procedure :: get_estimatesteptol => swigf_generic_SUNAdaptController_Ops__estimatesteptol_get
-  procedure :: set_destroy => swigf_generic_SUNAdaptController_Ops__destroy_set
-  procedure :: get_destroy => swigf_generic_SUNAdaptController_Ops__destroy_get
-  procedure :: set_reset => swigf_generic_SUNAdaptController_Ops__reset_set
-  procedure :: get_reset => swigf_generic_SUNAdaptController_Ops__reset_get
-  procedure :: set_setdefaults => swigf_generic_SUNAdaptController_Ops__setdefaults_set
-  procedure :: get_setdefaults => swigf_generic_SUNAdaptController_Ops__setdefaults_get
-  procedure :: set_write => swigf_generic_SUNAdaptController_Ops__write_set
-  procedure :: get_write => swigf_generic_SUNAdaptController_Ops__write_get
-  procedure :: set_setmethodorder => swigf_generic_SUNAdaptController_Ops__setmethodorder_set
-  procedure :: get_setmethodorder => swigf_generic_SUNAdaptController_Ops__setmethodorder_get
-  procedure :: set_setembeddingorder => swigf_generic_SUNAdaptController_Ops__setembeddingorder_set
-  procedure :: get_setembeddingorder => swigf_generic_SUNAdaptController_Ops__setembeddingorder_get
-  procedure :: set_seterrorbias => swigf_generic_SUNAdaptController_Ops__seterrorbias_set
-  procedure :: get_seterrorbias => swigf_generic_SUNAdaptController_Ops__seterrorbias_get
-  procedure :: set_update => swigf_generic_SUNAdaptController_Ops__update_set
-  procedure :: get_update => swigf_generic_SUNAdaptController_Ops__update_get
-  procedure :: set_updatemrih => swigf_generic_SUNAdaptController_Ops__updatemrih_set
-  procedure :: get_updatemrih => swigf_generic_SUNAdaptController_Ops__updatemrih_get
-  procedure :: set_updatemritol => swigf_generic_SUNAdaptController_Ops__updatemritol_set
-  procedure :: get_updatemritol => swigf_generic_SUNAdaptController_Ops__updatemritol_get
-  procedure :: set_space => swigf_generic_SUNAdaptController_Ops__space_set
-  procedure :: get_space => swigf_generic_SUNAdaptController_Ops__space_get
-  procedure :: release => swigf_release_generic_SUNAdaptController_Ops_
-  procedure, private :: swigf_generic_SUNAdaptController_Ops__op_assign__
-  generic :: assignment(=) => swigf_generic_SUNAdaptController_Ops__op_assign__
- end type generic_SUNAdaptController_Ops_
- interface generic_SUNAdaptController_Ops_
-  module procedure swigf_create_generic_SUNAdaptController_Ops_
- end interface
- ! struct struct generic_SUNAdaptController_
- type, public :: generic_SUNAdaptController_
-  type(SwigClassWrapper), public :: swigdata
- contains
-  procedure :: set_content => swigf_generic_SUNAdaptController__content_set
-  procedure :: get_content => swigf_generic_SUNAdaptController__content_get
-  procedure :: set_ops => swigf_generic_SUNAdaptController__ops_set
-  procedure :: get_ops => swigf_generic_SUNAdaptController__ops_get
-  procedure :: set_sunctx => swigf_generic_SUNAdaptController__sunctx_set
-  procedure :: get_sunctx => swigf_generic_SUNAdaptController__sunctx_get
-  procedure :: release => swigf_release_generic_SUNAdaptController_
-  procedure, private :: swigf_generic_SUNAdaptController__op_assign__
-  generic :: assignment(=) => swigf_generic_SUNAdaptController__op_assign__
- end type generic_SUNAdaptController_
- interface generic_SUNAdaptController_
-  module procedure swigf_create_generic_SUNAdaptController_
- end interface
+ ! struct struct _generic_SUNAdaptController_Ops
+ type, bind(C), public :: SUNAdaptController_Ops
+  type(C_FUNPTR), public :: gettype
+  type(C_FUNPTR), public :: estimatestep
+  type(C_FUNPTR), public :: estimatestepandorder
+  type(C_FUNPTR), public :: estimatemristeps
+  type(C_FUNPTR), public :: estimatesteptol
+  type(C_FUNPTR), public :: destroy
+  type(C_FUNPTR), public :: reset
+  type(C_FUNPTR), public :: setdefaults
+  type(C_FUNPTR), public :: write
+  type(C_FUNPTR), public :: setmethodorder
+  type(C_FUNPTR), public :: setembeddingorder
+  type(C_FUNPTR), public :: seterrorbias
+  type(C_FUNPTR), public :: update
+  type(C_FUNPTR), public :: updatemrih
+  type(C_FUNPTR), public :: updatemritol
+  type(C_FUNPTR), public :: space
+ end type SUNAdaptController_Ops
+ ! struct struct _generic_SUNAdaptController
+ type, bind(C), public :: SUNAdaptController
+  type(C_PTR), public :: content
+  type(C_PTR), public :: ops
+  type(C_PTR), public :: sunctx
+ end type SUNAdaptController
  public :: FSUNAdaptController_NewEmpty
  public :: FSUNAdaptController_GetType
  public :: FSUNAdaptController_Destroy
@@ -115,390 +72,19 @@ module fsundials_adaptcontroller_mod
 
 ! WRAPPER DECLARATIONS
 interface
-subroutine swigc_generic_SUNAdaptController_Ops__gettype_set(farg1, farg2) &
-bind(C, name="_wrap_generic_SUNAdaptController_Ops__gettype_set")
-use, intrinsic :: ISO_C_BINDING
-import :: swigclasswrapper
-type(SwigClassWrapper) :: farg1
-type(C_FUNPTR), value :: farg2
-end subroutine
-
-function swigc_generic_SUNAdaptController_Ops__gettype_get(farg1) &
-bind(C, name="_wrap_generic_SUNAdaptController_Ops__gettype_get") &
-result(fresult)
-use, intrinsic :: ISO_C_BINDING
-import :: swigclasswrapper
-type(SwigClassWrapper) :: farg1
-type(C_FUNPTR) :: fresult
-end function
-
-subroutine swigc_generic_SUNAdaptController_Ops__estimatestep_set(farg1, farg2) &
-bind(C, name="_wrap_generic_SUNAdaptController_Ops__estimatestep_set")
-use, intrinsic :: ISO_C_BINDING
-import :: swigclasswrapper
-type(SwigClassWrapper) :: farg1
-type(C_FUNPTR), value :: farg2
-end subroutine
-
-function swigc_generic_SUNAdaptController_Ops__estimatestep_get(farg1) &
-bind(C, name="_wrap_generic_SUNAdaptController_Ops__estimatestep_get") &
-result(fresult)
-use, intrinsic :: ISO_C_BINDING
-import :: swigclasswrapper
-type(SwigClassWrapper) :: farg1
-type(C_FUNPTR) :: fresult
-end function
-
-subroutine swigc_generic_SUNAdaptController_Ops__estimatestepandorder_set(farg1, farg2) &
-bind(C, name="_wrap_generic_SUNAdaptController_Ops__estimatestepandorder_set")
-use, intrinsic :: ISO_C_BINDING
-import :: swigclasswrapper
-type(SwigClassWrapper) :: farg1
-type(C_FUNPTR), value :: farg2
-end subroutine
-
-function swigc_generic_SUNAdaptController_Ops__estimatestepandorder_get(farg1) &
-bind(C, name="_wrap_generic_SUNAdaptController_Ops__estimatestepandorder_get") &
-result(fresult)
-use, intrinsic :: ISO_C_BINDING
-import :: swigclasswrapper
-type(SwigClassWrapper) :: farg1
-type(C_FUNPTR) :: fresult
-end function
-
-subroutine swigc_generic_SUNAdaptController_Ops__estimatemristeps_set(farg1, farg2) &
-bind(C, name="_wrap_generic_SUNAdaptController_Ops__estimatemristeps_set")
-use, intrinsic :: ISO_C_BINDING
-import :: swigclasswrapper
-type(SwigClassWrapper) :: farg1
-type(C_FUNPTR), value :: farg2
-end subroutine
-
-function swigc_generic_SUNAdaptController_Ops__estimatemristeps_get(farg1) &
-bind(C, name="_wrap_generic_SUNAdaptController_Ops__estimatemristeps_get") &
-result(fresult)
-use, intrinsic :: ISO_C_BINDING
-import :: swigclasswrapper
-type(SwigClassWrapper) :: farg1
-type(C_FUNPTR) :: fresult
-end function
-
-subroutine swigc_generic_SUNAdaptController_Ops__estimatesteptol_set(farg1, farg2) &
-bind(C, name="_wrap_generic_SUNAdaptController_Ops__estimatesteptol_set")
-use, intrinsic :: ISO_C_BINDING
-import :: swigclasswrapper
-type(SwigClassWrapper) :: farg1
-type(C_FUNPTR), value :: farg2
-end subroutine
-
-function swigc_generic_SUNAdaptController_Ops__estimatesteptol_get(farg1) &
-bind(C, name="_wrap_generic_SUNAdaptController_Ops__estimatesteptol_get") &
-result(fresult)
-use, intrinsic :: ISO_C_BINDING
-import :: swigclasswrapper
-type(SwigClassWrapper) :: farg1
-type(C_FUNPTR) :: fresult
-end function
-
-subroutine swigc_generic_SUNAdaptController_Ops__destroy_set(farg1, farg2) &
-bind(C, name="_wrap_generic_SUNAdaptController_Ops__destroy_set")
-use, intrinsic :: ISO_C_BINDING
-import :: swigclasswrapper
-type(SwigClassWrapper) :: farg1
-type(C_FUNPTR), value :: farg2
-end subroutine
-
-function swigc_generic_SUNAdaptController_Ops__destroy_get(farg1) &
-bind(C, name="_wrap_generic_SUNAdaptController_Ops__destroy_get") &
-result(fresult)
-use, intrinsic :: ISO_C_BINDING
-import :: swigclasswrapper
-type(SwigClassWrapper) :: farg1
-type(C_FUNPTR) :: fresult
-end function
-
-subroutine swigc_generic_SUNAdaptController_Ops__reset_set(farg1, farg2) &
-bind(C, name="_wrap_generic_SUNAdaptController_Ops__reset_set")
-use, intrinsic :: ISO_C_BINDING
-import :: swigclasswrapper
-type(SwigClassWrapper) :: farg1
-type(C_FUNPTR), value :: farg2
-end subroutine
-
-function swigc_generic_SUNAdaptController_Ops__reset_get(farg1) &
-bind(C, name="_wrap_generic_SUNAdaptController_Ops__reset_get") &
-result(fresult)
-use, intrinsic :: ISO_C_BINDING
-import :: swigclasswrapper
-type(SwigClassWrapper) :: farg1
-type(C_FUNPTR) :: fresult
-end function
-
-subroutine swigc_generic_SUNAdaptController_Ops__setdefaults_set(farg1, farg2) &
-bind(C, name="_wrap_generic_SUNAdaptController_Ops__setdefaults_set")
-use, intrinsic :: ISO_C_BINDING
-import :: swigclasswrapper
-type(SwigClassWrapper) :: farg1
-type(C_FUNPTR), value :: farg2
-end subroutine
-
-function swigc_generic_SUNAdaptController_Ops__setdefaults_get(farg1) &
-bind(C, name="_wrap_generic_SUNAdaptController_Ops__setdefaults_get") &
-result(fresult)
-use, intrinsic :: ISO_C_BINDING
-import :: swigclasswrapper
-type(SwigClassWrapper) :: farg1
-type(C_FUNPTR) :: fresult
-end function
-
-subroutine swigc_generic_SUNAdaptController_Ops__write_set(farg1, farg2) &
-bind(C, name="_wrap_generic_SUNAdaptController_Ops__write_set")
-use, intrinsic :: ISO_C_BINDING
-import :: swigclasswrapper
-type(SwigClassWrapper) :: farg1
-type(C_FUNPTR), value :: farg2
-end subroutine
-
-function swigc_generic_SUNAdaptController_Ops__write_get(farg1) &
-bind(C, name="_wrap_generic_SUNAdaptController_Ops__write_get") &
-result(fresult)
-use, intrinsic :: ISO_C_BINDING
-import :: swigclasswrapper
-type(SwigClassWrapper) :: farg1
-type(C_FUNPTR) :: fresult
-end function
-
-subroutine swigc_generic_SUNAdaptController_Ops__setmethodorder_set(farg1, farg2) &
-bind(C, name="_wrap_generic_SUNAdaptController_Ops__setmethodorder_set")
-use, intrinsic :: ISO_C_BINDING
-import :: swigclasswrapper
-type(SwigClassWrapper) :: farg1
-type(C_FUNPTR), value :: farg2
-end subroutine
-
-function swigc_generic_SUNAdaptController_Ops__setmethodorder_get(farg1) &
-bind(C, name="_wrap_generic_SUNAdaptController_Ops__setmethodorder_get") &
-result(fresult)
-use, intrinsic :: ISO_C_BINDING
-import :: swigclasswrapper
-type(SwigClassWrapper) :: farg1
-type(C_FUNPTR) :: fresult
-end function
-
-subroutine swigc_generic_SUNAdaptController_Ops__setembeddingorder_set(farg1, farg2) &
-bind(C, name="_wrap_generic_SUNAdaptController_Ops__setembeddingorder_set")
-use, intrinsic :: ISO_C_BINDING
-import :: swigclasswrapper
-type(SwigClassWrapper) :: farg1
-type(C_FUNPTR), value :: farg2
-end subroutine
-
-function swigc_generic_SUNAdaptController_Ops__setembeddingorder_get(farg1) &
-bind(C, name="_wrap_generic_SUNAdaptController_Ops__setembeddingorder_get") &
-result(fresult)
-use, intrinsic :: ISO_C_BINDING
-import :: swigclasswrapper
-type(SwigClassWrapper) :: farg1
-type(C_FUNPTR) :: fresult
-end function
-
-subroutine swigc_generic_SUNAdaptController_Ops__seterrorbias_set(farg1, farg2) &
-bind(C, name="_wrap_generic_SUNAdaptController_Ops__seterrorbias_set")
-use, intrinsic :: ISO_C_BINDING
-import :: swigclasswrapper
-type(SwigClassWrapper) :: farg1
-type(C_FUNPTR), value :: farg2
-end subroutine
-
-function swigc_generic_SUNAdaptController_Ops__seterrorbias_get(farg1) &
-bind(C, name="_wrap_generic_SUNAdaptController_Ops__seterrorbias_get") &
-result(fresult)
-use, intrinsic :: ISO_C_BINDING
-import :: swigclasswrapper
-type(SwigClassWrapper) :: farg1
-type(C_FUNPTR) :: fresult
-end function
-
-subroutine swigc_generic_SUNAdaptController_Ops__update_set(farg1, farg2) &
-bind(C, name="_wrap_generic_SUNAdaptController_Ops__update_set")
-use, intrinsic :: ISO_C_BINDING
-import :: swigclasswrapper
-type(SwigClassWrapper) :: farg1
-type(C_FUNPTR), value :: farg2
-end subroutine
-
-function swigc_generic_SUNAdaptController_Ops__update_get(farg1) &
-bind(C, name="_wrap_generic_SUNAdaptController_Ops__update_get") &
-result(fresult)
-use, intrinsic :: ISO_C_BINDING
-import :: swigclasswrapper
-type(SwigClassWrapper) :: farg1
-type(C_FUNPTR) :: fresult
-end function
-
-subroutine swigc_generic_SUNAdaptController_Ops__updatemrih_set(farg1, farg2) &
-bind(C, name="_wrap_generic_SUNAdaptController_Ops__updatemrih_set")
-use, intrinsic :: ISO_C_BINDING
-import :: swigclasswrapper
-type(SwigClassWrapper) :: farg1
-type(C_FUNPTR), value :: farg2
-end subroutine
-
-function swigc_generic_SUNAdaptController_Ops__updatemrih_get(farg1) &
-bind(C, name="_wrap_generic_SUNAdaptController_Ops__updatemrih_get") &
-result(fresult)
-use, intrinsic :: ISO_C_BINDING
-import :: swigclasswrapper
-type(SwigClassWrapper) :: farg1
-type(C_FUNPTR) :: fresult
-end function
-
-subroutine swigc_generic_SUNAdaptController_Ops__updatemritol_set(farg1, farg2) &
-bind(C, name="_wrap_generic_SUNAdaptController_Ops__updatemritol_set")
-use, intrinsic :: ISO_C_BINDING
-import :: swigclasswrapper
-type(SwigClassWrapper) :: farg1
-type(C_FUNPTR), value :: farg2
-end subroutine
-
-function swigc_generic_SUNAdaptController_Ops__updatemritol_get(farg1) &
-bind(C, name="_wrap_generic_SUNAdaptController_Ops__updatemritol_get") &
-result(fresult)
-use, intrinsic :: ISO_C_BINDING
-import :: swigclasswrapper
-type(SwigClassWrapper) :: farg1
-type(C_FUNPTR) :: fresult
-end function
-
-subroutine swigc_generic_SUNAdaptController_Ops__space_set(farg1, farg2) &
-bind(C, name="_wrap_generic_SUNAdaptController_Ops__space_set")
-use, intrinsic :: ISO_C_BINDING
-import :: swigclasswrapper
-type(SwigClassWrapper) :: farg1
-type(C_FUNPTR), value :: farg2
-end subroutine
-
-function swigc_generic_SUNAdaptController_Ops__space_get(farg1) &
-bind(C, name="_wrap_generic_SUNAdaptController_Ops__space_get") &
-result(fresult)
-use, intrinsic :: ISO_C_BINDING
-import :: swigclasswrapper
-type(SwigClassWrapper) :: farg1
-type(C_FUNPTR) :: fresult
-end function
-
-function swigc_new_generic_SUNAdaptController_Ops_() &
-bind(C, name="_wrap_new_generic_SUNAdaptController_Ops_") &
-result(fresult)
-use, intrinsic :: ISO_C_BINDING
-import :: swigclasswrapper
-type(SwigClassWrapper) :: fresult
-end function
-
-subroutine swigc_delete_generic_SUNAdaptController_Ops_(farg1) &
-bind(C, name="_wrap_delete_generic_SUNAdaptController_Ops_")
-use, intrinsic :: ISO_C_BINDING
-import :: swigclasswrapper
-type(SwigClassWrapper), intent(inout) :: farg1
-end subroutine
-
-subroutine swigc_generic_SUNAdaptController_Ops__op_assign__(farg1, farg2) &
-bind(C, name="_wrap_generic_SUNAdaptController_Ops__op_assign__")
-use, intrinsic :: ISO_C_BINDING
-import :: swigclasswrapper
-type(SwigClassWrapper), intent(inout) :: farg1
-type(SwigClassWrapper) :: farg2
-end subroutine
-
-subroutine swigc_generic_SUNAdaptController__content_set(farg1, farg2) &
-bind(C, name="_wrap_generic_SUNAdaptController__content_set")
-use, intrinsic :: ISO_C_BINDING
-import :: swigclasswrapper
-type(SwigClassWrapper) :: farg1
-type(C_PTR), value :: farg2
-end subroutine
-
-function swigc_generic_SUNAdaptController__content_get(farg1) &
-bind(C, name="_wrap_generic_SUNAdaptController__content_get") &
-result(fresult)
-use, intrinsic :: ISO_C_BINDING
-import :: swigclasswrapper
-type(SwigClassWrapper) :: farg1
-type(C_PTR) :: fresult
-end function
-
-subroutine swigc_generic_SUNAdaptController__ops_set(farg1, farg2) &
-bind(C, name="_wrap_generic_SUNAdaptController__ops_set")
-use, intrinsic :: ISO_C_BINDING
-import :: swigclasswrapper
-type(SwigClassWrapper) :: farg1
-type(SwigClassWrapper) :: farg2
-end subroutine
-
-function swigc_generic_SUNAdaptController__ops_get(farg1) &
-bind(C, name="_wrap_generic_SUNAdaptController__ops_get") &
-result(fresult)
-use, intrinsic :: ISO_C_BINDING
-import :: swigclasswrapper
-type(SwigClassWrapper) :: farg1
-type(SwigClassWrapper) :: fresult
-end function
-
-subroutine swigc_generic_SUNAdaptController__sunctx_set(farg1, farg2) &
-bind(C, name="_wrap_generic_SUNAdaptController__sunctx_set")
-use, intrinsic :: ISO_C_BINDING
-import :: swigclasswrapper
-type(SwigClassWrapper) :: farg1
-type(C_PTR), value :: farg2
-end subroutine
-
-function swigc_generic_SUNAdaptController__sunctx_get(farg1) &
-bind(C, name="_wrap_generic_SUNAdaptController__sunctx_get") &
-result(fresult)
-use, intrinsic :: ISO_C_BINDING
-import :: swigclasswrapper
-type(SwigClassWrapper) :: farg1
-type(C_PTR) :: fresult
-end function
-
-function swigc_new_generic_SUNAdaptController_() &
-bind(C, name="_wrap_new_generic_SUNAdaptController_") &
-result(fresult)
-use, intrinsic :: ISO_C_BINDING
-import :: swigclasswrapper
-type(SwigClassWrapper) :: fresult
-end function
-
-subroutine swigc_delete_generic_SUNAdaptController_(farg1) &
-bind(C, name="_wrap_delete_generic_SUNAdaptController_")
-use, intrinsic :: ISO_C_BINDING
-import :: swigclasswrapper
-type(SwigClassWrapper), intent(inout) :: farg1
-end subroutine
-
-subroutine swigc_generic_SUNAdaptController__op_assign__(farg1, farg2) &
-bind(C, name="_wrap_generic_SUNAdaptController__op_assign__")
-use, intrinsic :: ISO_C_BINDING
-import :: swigclasswrapper
-type(SwigClassWrapper), intent(inout) :: farg1
-type(SwigClassWrapper) :: farg2
-end subroutine
-
 function swigc_FSUNAdaptController_NewEmpty(farg1) &
 bind(C, name="_wrap_FSUNAdaptController_NewEmpty") &
 result(fresult)
 use, intrinsic :: ISO_C_BINDING
-import :: swigclasswrapper
 type(C_PTR), value :: farg1
-type(SwigClassWrapper) :: fresult
+type(C_PTR) :: fresult
 end function
 
 function swigc_FSUNAdaptController_GetType(farg1) &
 bind(C, name="_wrap_FSUNAdaptController_GetType") &
 result(fresult)
 use, intrinsic :: ISO_C_BINDING
-import :: swigclasswrapper
-type(SwigClassWrapper) :: farg1
+type(C_PTR), value :: farg1
 integer(C_INT) :: fresult
 end function
 
@@ -506,8 +92,7 @@ function swigc_FSUNAdaptController_Destroy(farg1) &
 bind(C, name="_wrap_FSUNAdaptController_Destroy") &
 result(fresult)
 use, intrinsic :: ISO_C_BINDING
-import :: swigclasswrapper
-type(SwigClassWrapper) :: farg1
+type(C_PTR), value :: farg1
 integer(C_INT) :: fresult
 end function
 
@@ -515,8 +100,7 @@ function swigc_FSUNAdaptController_EstimateStep(farg1, farg2, farg3, farg4) &
 bind(C, name="_wrap_FSUNAdaptController_EstimateStep") &
 result(fresult)
 use, intrinsic :: ISO_C_BINDING
-import :: swigclasswrapper
-type(SwigClassWrapper) :: farg1
+type(C_PTR), value :: farg1
 real(C_DOUBLE), intent(in) :: farg2
 real(C_DOUBLE), intent(in) :: farg3
 type(C_PTR), value :: farg4
@@ -527,8 +111,7 @@ function swigc_FSUNAdaptController_EstimateStepAndOrder(farg1, farg2, farg3, far
 bind(C, name="_wrap_FSUNAdaptController_EstimateStepAndOrder") &
 result(fresult)
 use, intrinsic :: ISO_C_BINDING
-import :: swigclasswrapper
-type(SwigClassWrapper) :: farg1
+type(C_PTR), value :: farg1
 real(C_DOUBLE), intent(in) :: farg2
 integer(C_INT), intent(in) :: farg3
 real(C_DOUBLE), intent(in) :: farg4
@@ -541,8 +124,7 @@ function swigc_FSUNAdaptController_EstimateMRISteps(farg1, farg2, farg3, farg4, 
 bind(C, name="_wrap_FSUNAdaptController_EstimateMRISteps") &
 result(fresult)
 use, intrinsic :: ISO_C_BINDING
-import :: swigclasswrapper
-type(SwigClassWrapper) :: farg1
+type(C_PTR), value :: farg1
 real(C_DOUBLE), intent(in) :: farg2
 real(C_DOUBLE), intent(in) :: farg3
 real(C_DOUBLE), intent(in) :: farg4
@@ -556,8 +138,7 @@ function swigc_FSUNAdaptController_EstimateStepTol(farg1, farg2, farg3, farg4, f
 bind(C, name="_wrap_FSUNAdaptController_EstimateStepTol") &
 result(fresult)
 use, intrinsic :: ISO_C_BINDING
-import :: swigclasswrapper
-type(SwigClassWrapper) :: farg1
+type(C_PTR), value :: farg1
 real(C_DOUBLE), intent(in) :: farg2
 real(C_DOUBLE), intent(in) :: farg3
 real(C_DOUBLE), intent(in) :: farg4
@@ -571,8 +152,7 @@ function swigc_FSUNAdaptController_Reset(farg1) &
 bind(C, name="_wrap_FSUNAdaptController_Reset") &
 result(fresult)
 use, intrinsic :: ISO_C_BINDING
-import :: swigclasswrapper
-type(SwigClassWrapper) :: farg1
+type(C_PTR), value :: farg1
 integer(C_INT) :: fresult
 end function
 
@@ -580,8 +160,7 @@ function swigc_FSUNAdaptController_SetDefaults(farg1) &
 bind(C, name="_wrap_FSUNAdaptController_SetDefaults") &
 result(fresult)
 use, intrinsic :: ISO_C_BINDING
-import :: swigclasswrapper
-type(SwigClassWrapper) :: farg1
+type(C_PTR), value :: farg1
 integer(C_INT) :: fresult
 end function
 
@@ -589,8 +168,7 @@ function swigc_FSUNAdaptController_Write(farg1, farg2) &
 bind(C, name="_wrap_FSUNAdaptController_Write") &
 result(fresult)
 use, intrinsic :: ISO_C_BINDING
-import :: swigclasswrapper
-type(SwigClassWrapper) :: farg1
+type(C_PTR), value :: farg1
 type(C_PTR), value :: farg2
 integer(C_INT) :: fresult
 end function
@@ -599,8 +177,7 @@ function swigc_FSUNAdaptController_SetMethodOrder(farg1, farg2) &
 bind(C, name="_wrap_FSUNAdaptController_SetMethodOrder") &
 result(fresult)
 use, intrinsic :: ISO_C_BINDING
-import :: swigclasswrapper
-type(SwigClassWrapper) :: farg1
+type(C_PTR), value :: farg1
 integer(C_INT), intent(in) :: farg2
 integer(C_INT) :: fresult
 end function
@@ -609,8 +186,7 @@ function swigc_FSUNAdaptController_SetEmbeddingOrder(farg1, farg2) &
 bind(C, name="_wrap_FSUNAdaptController_SetEmbeddingOrder") &
 result(fresult)
 use, intrinsic :: ISO_C_BINDING
-import :: swigclasswrapper
-type(SwigClassWrapper) :: farg1
+type(C_PTR), value :: farg1
 integer(C_INT), intent(in) :: farg2
 integer(C_INT) :: fresult
 end function
@@ -619,8 +195,7 @@ function swigc_FSUNAdaptController_SetErrorBias(farg1, farg2) &
 bind(C, name="_wrap_FSUNAdaptController_SetErrorBias") &
 result(fresult)
 use, intrinsic :: ISO_C_BINDING
-import :: swigclasswrapper
-type(SwigClassWrapper) :: farg1
+type(C_PTR), value :: farg1
 real(C_DOUBLE), intent(in) :: farg2
 integer(C_INT) :: fresult
 end function
@@ -629,8 +204,7 @@ function swigc_FSUNAdaptController_Update(farg1, farg2, farg3) &
 bind(C, name="_wrap_FSUNAdaptController_Update") &
 result(fresult)
 use, intrinsic :: ISO_C_BINDING
-import :: swigclasswrapper
-type(SwigClassWrapper) :: farg1
+type(C_PTR), value :: farg1
 real(C_DOUBLE), intent(in) :: farg2
 real(C_DOUBLE), intent(in) :: farg3
 integer(C_INT) :: fresult
@@ -640,8 +214,7 @@ function swigc_FSUNAdaptController_UpdateMRIH(farg1, farg2, farg3, farg4, farg5)
 bind(C, name="_wrap_FSUNAdaptController_UpdateMRIH") &
 result(fresult)
 use, intrinsic :: ISO_C_BINDING
-import :: swigclasswrapper
-type(SwigClassWrapper) :: farg1
+type(C_PTR), value :: farg1
 real(C_DOUBLE), intent(in) :: farg2
 real(C_DOUBLE), intent(in) :: farg3
 real(C_DOUBLE), intent(in) :: farg4
@@ -653,8 +226,7 @@ function swigc_FSUNAdaptController_UpdateMRITol(farg1, farg2, farg3, farg4, farg
 bind(C, name="_wrap_FSUNAdaptController_UpdateMRITol") &
 result(fresult)
 use, intrinsic :: ISO_C_BINDING
-import :: swigclasswrapper
-type(SwigClassWrapper) :: farg1
+type(C_PTR), value :: farg1
 real(C_DOUBLE), intent(in) :: farg2
 real(C_DOUBLE), intent(in) :: farg3
 real(C_DOUBLE), intent(in) :: farg4
@@ -666,8 +238,7 @@ function swigc_FSUNAdaptController_Space(farg1, farg2, farg3) &
 bind(C, name="_wrap_FSUNAdaptController_Space") &
 result(fresult)
 use, intrinsic :: ISO_C_BINDING
-import :: swigclasswrapper
-type(SwigClassWrapper) :: farg1
+type(C_PTR), value :: farg1
 type(C_PTR), value :: farg2
 type(C_PTR), value :: farg3
 integer(C_INT) :: fresult
@@ -678,577 +249,28 @@ end interface
 
 contains
  ! MODULE SUBPROGRAMS
-subroutine swigf_generic_SUNAdaptController_Ops__gettype_set(self, gettype)
-use, intrinsic :: ISO_C_BINDING
-class(generic_SUNAdaptController_Ops_), intent(in) :: self
-type(C_FUNPTR), intent(in), value :: gettype
-type(SwigClassWrapper) :: farg1 
-type(C_FUNPTR) :: farg2 
-
-farg1 = self%swigdata
-farg2 = gettype
-call swigc_generic_SUNAdaptController_Ops__gettype_set(farg1, farg2)
-end subroutine
-
-function swigf_generic_SUNAdaptController_Ops__gettype_get(self) &
-result(swig_result)
-use, intrinsic :: ISO_C_BINDING
-type(C_FUNPTR) :: swig_result
-class(generic_SUNAdaptController_Ops_), intent(in) :: self
-type(C_FUNPTR) :: fresult 
-type(SwigClassWrapper) :: farg1 
-
-farg1 = self%swigdata
-fresult = swigc_generic_SUNAdaptController_Ops__gettype_get(farg1)
-swig_result = fresult
-end function
-
-subroutine swigf_generic_SUNAdaptController_Ops__estimatestep_set(self, estimatestep)
-use, intrinsic :: ISO_C_BINDING
-class(generic_SUNAdaptController_Ops_), intent(in) :: self
-type(C_FUNPTR), intent(in), value :: estimatestep
-type(SwigClassWrapper) :: farg1 
-type(C_FUNPTR) :: farg2 
-
-farg1 = self%swigdata
-farg2 = estimatestep
-call swigc_generic_SUNAdaptController_Ops__estimatestep_set(farg1, farg2)
-end subroutine
-
-function swigf_generic_SUNAdaptController_Ops__estimatestep_get(self) &
-result(swig_result)
-use, intrinsic :: ISO_C_BINDING
-type(C_FUNPTR) :: swig_result
-class(generic_SUNAdaptController_Ops_), intent(in) :: self
-type(C_FUNPTR) :: fresult 
-type(SwigClassWrapper) :: farg1 
-
-farg1 = self%swigdata
-fresult = swigc_generic_SUNAdaptController_Ops__estimatestep_get(farg1)
-swig_result = fresult
-end function
-
-subroutine swigf_generic_SUNAdaptController_Ops__estimatestepandorder_set(self, estimatestepandorder)
-use, intrinsic :: ISO_C_BINDING
-class(generic_SUNAdaptController_Ops_), intent(in) :: self
-type(C_FUNPTR), intent(in), value :: estimatestepandorder
-type(SwigClassWrapper) :: farg1 
-type(C_FUNPTR) :: farg2 
-
-farg1 = self%swigdata
-farg2 = estimatestepandorder
-call swigc_generic_SUNAdaptController_Ops__estimatestepandorder_set(farg1, farg2)
-end subroutine
-
-function swigf_generic_SUNAdaptController_Ops__estimatestepandorder_get(self) &
-result(swig_result)
-use, intrinsic :: ISO_C_BINDING
-type(C_FUNPTR) :: swig_result
-class(generic_SUNAdaptController_Ops_), intent(in) :: self
-type(C_FUNPTR) :: fresult 
-type(SwigClassWrapper) :: farg1 
-
-farg1 = self%swigdata
-fresult = swigc_generic_SUNAdaptController_Ops__estimatestepandorder_get(farg1)
-swig_result = fresult
-end function
-
-subroutine swigf_generic_SUNAdaptController_Ops__estimatemristeps_set(self, estimatemristeps)
-use, intrinsic :: ISO_C_BINDING
-class(generic_SUNAdaptController_Ops_), intent(in) :: self
-type(C_FUNPTR), intent(in), value :: estimatemristeps
-type(SwigClassWrapper) :: farg1 
-type(C_FUNPTR) :: farg2 
-
-farg1 = self%swigdata
-farg2 = estimatemristeps
-call swigc_generic_SUNAdaptController_Ops__estimatemristeps_set(farg1, farg2)
-end subroutine
-
-function swigf_generic_SUNAdaptController_Ops__estimatemristeps_get(self) &
-result(swig_result)
-use, intrinsic :: ISO_C_BINDING
-type(C_FUNPTR) :: swig_result
-class(generic_SUNAdaptController_Ops_), intent(in) :: self
-type(C_FUNPTR) :: fresult 
-type(SwigClassWrapper) :: farg1 
-
-farg1 = self%swigdata
-fresult = swigc_generic_SUNAdaptController_Ops__estimatemristeps_get(farg1)
-swig_result = fresult
-end function
-
-subroutine swigf_generic_SUNAdaptController_Ops__estimatesteptol_set(self, estimatesteptol)
-use, intrinsic :: ISO_C_BINDING
-class(generic_SUNAdaptController_Ops_), intent(in) :: self
-type(C_FUNPTR), intent(in), value :: estimatesteptol
-type(SwigClassWrapper) :: farg1 
-type(C_FUNPTR) :: farg2 
-
-farg1 = self%swigdata
-farg2 = estimatesteptol
-call swigc_generic_SUNAdaptController_Ops__estimatesteptol_set(farg1, farg2)
-end subroutine
-
-function swigf_generic_SUNAdaptController_Ops__estimatesteptol_get(self) &
-result(swig_result)
-use, intrinsic :: ISO_C_BINDING
-type(C_FUNPTR) :: swig_result
-class(generic_SUNAdaptController_Ops_), intent(in) :: self
-type(C_FUNPTR) :: fresult 
-type(SwigClassWrapper) :: farg1 
-
-farg1 = self%swigdata
-fresult = swigc_generic_SUNAdaptController_Ops__estimatesteptol_get(farg1)
-swig_result = fresult
-end function
-
-subroutine swigf_generic_SUNAdaptController_Ops__destroy_set(self, destroy)
-use, intrinsic :: ISO_C_BINDING
-class(generic_SUNAdaptController_Ops_), intent(in) :: self
-type(C_FUNPTR), intent(in), value :: destroy
-type(SwigClassWrapper) :: farg1 
-type(C_FUNPTR) :: farg2 
-
-farg1 = self%swigdata
-farg2 = destroy
-call swigc_generic_SUNAdaptController_Ops__destroy_set(farg1, farg2)
-end subroutine
-
-function swigf_generic_SUNAdaptController_Ops__destroy_get(self) &
-result(swig_result)
-use, intrinsic :: ISO_C_BINDING
-type(C_FUNPTR) :: swig_result
-class(generic_SUNAdaptController_Ops_), intent(in) :: self
-type(C_FUNPTR) :: fresult 
-type(SwigClassWrapper) :: farg1 
-
-farg1 = self%swigdata
-fresult = swigc_generic_SUNAdaptController_Ops__destroy_get(farg1)
-swig_result = fresult
-end function
-
-subroutine swigf_generic_SUNAdaptController_Ops__reset_set(self, reset)
-use, intrinsic :: ISO_C_BINDING
-class(generic_SUNAdaptController_Ops_), intent(in) :: self
-type(C_FUNPTR), intent(in), value :: reset
-type(SwigClassWrapper) :: farg1 
-type(C_FUNPTR) :: farg2 
-
-farg1 = self%swigdata
-farg2 = reset
-call swigc_generic_SUNAdaptController_Ops__reset_set(farg1, farg2)
-end subroutine
-
-function swigf_generic_SUNAdaptController_Ops__reset_get(self) &
-result(swig_result)
-use, intrinsic :: ISO_C_BINDING
-type(C_FUNPTR) :: swig_result
-class(generic_SUNAdaptController_Ops_), intent(in) :: self
-type(C_FUNPTR) :: fresult 
-type(SwigClassWrapper) :: farg1 
-
-farg1 = self%swigdata
-fresult = swigc_generic_SUNAdaptController_Ops__reset_get(farg1)
-swig_result = fresult
-end function
-
-subroutine swigf_generic_SUNAdaptController_Ops__setdefaults_set(self, setdefaults)
-use, intrinsic :: ISO_C_BINDING
-class(generic_SUNAdaptController_Ops_), intent(in) :: self
-type(C_FUNPTR), intent(in), value :: setdefaults
-type(SwigClassWrapper) :: farg1 
-type(C_FUNPTR) :: farg2 
-
-farg1 = self%swigdata
-farg2 = setdefaults
-call swigc_generic_SUNAdaptController_Ops__setdefaults_set(farg1, farg2)
-end subroutine
-
-function swigf_generic_SUNAdaptController_Ops__setdefaults_get(self) &
-result(swig_result)
-use, intrinsic :: ISO_C_BINDING
-type(C_FUNPTR) :: swig_result
-class(generic_SUNAdaptController_Ops_), intent(in) :: self
-type(C_FUNPTR) :: fresult 
-type(SwigClassWrapper) :: farg1 
-
-farg1 = self%swigdata
-fresult = swigc_generic_SUNAdaptController_Ops__setdefaults_get(farg1)
-swig_result = fresult
-end function
-
-subroutine swigf_generic_SUNAdaptController_Ops__write_set(self, write)
-use, intrinsic :: ISO_C_BINDING
-class(generic_SUNAdaptController_Ops_), intent(in) :: self
-type(C_FUNPTR), intent(in), value :: write
-type(SwigClassWrapper) :: farg1 
-type(C_FUNPTR) :: farg2 
-
-farg1 = self%swigdata
-farg2 = write
-call swigc_generic_SUNAdaptController_Ops__write_set(farg1, farg2)
-end subroutine
-
-function swigf_generic_SUNAdaptController_Ops__write_get(self) &
-result(swig_result)
-use, intrinsic :: ISO_C_BINDING
-type(C_FUNPTR) :: swig_result
-class(generic_SUNAdaptController_Ops_), intent(in) :: self
-type(C_FUNPTR) :: fresult 
-type(SwigClassWrapper) :: farg1 
-
-farg1 = self%swigdata
-fresult = swigc_generic_SUNAdaptController_Ops__write_get(farg1)
-swig_result = fresult
-end function
-
-subroutine swigf_generic_SUNAdaptController_Ops__setmethodorder_set(self, setmethodorder)
-use, intrinsic :: ISO_C_BINDING
-class(generic_SUNAdaptController_Ops_), intent(in) :: self
-type(C_FUNPTR), intent(in), value :: setmethodorder
-type(SwigClassWrapper) :: farg1 
-type(C_FUNPTR) :: farg2 
-
-farg1 = self%swigdata
-farg2 = setmethodorder
-call swigc_generic_SUNAdaptController_Ops__setmethodorder_set(farg1, farg2)
-end subroutine
-
-function swigf_generic_SUNAdaptController_Ops__setmethodorder_get(self) &
-result(swig_result)
-use, intrinsic :: ISO_C_BINDING
-type(C_FUNPTR) :: swig_result
-class(generic_SUNAdaptController_Ops_), intent(in) :: self
-type(C_FUNPTR) :: fresult 
-type(SwigClassWrapper) :: farg1 
-
-farg1 = self%swigdata
-fresult = swigc_generic_SUNAdaptController_Ops__setmethodorder_get(farg1)
-swig_result = fresult
-end function
-
-subroutine swigf_generic_SUNAdaptController_Ops__setembeddingorder_set(self, setembeddingorder)
-use, intrinsic :: ISO_C_BINDING
-class(generic_SUNAdaptController_Ops_), intent(in) :: self
-type(C_FUNPTR), intent(in), value :: setembeddingorder
-type(SwigClassWrapper) :: farg1 
-type(C_FUNPTR) :: farg2 
-
-farg1 = self%swigdata
-farg2 = setembeddingorder
-call swigc_generic_SUNAdaptController_Ops__setembeddingorder_set(farg1, farg2)
-end subroutine
-
-function swigf_generic_SUNAdaptController_Ops__setembeddingorder_get(self) &
-result(swig_result)
-use, intrinsic :: ISO_C_BINDING
-type(C_FUNPTR) :: swig_result
-class(generic_SUNAdaptController_Ops_), intent(in) :: self
-type(C_FUNPTR) :: fresult 
-type(SwigClassWrapper) :: farg1 
-
-farg1 = self%swigdata
-fresult = swigc_generic_SUNAdaptController_Ops__setembeddingorder_get(farg1)
-swig_result = fresult
-end function
-
-subroutine swigf_generic_SUNAdaptController_Ops__seterrorbias_set(self, seterrorbias)
-use, intrinsic :: ISO_C_BINDING
-class(generic_SUNAdaptController_Ops_), intent(in) :: self
-type(C_FUNPTR), intent(in), value :: seterrorbias
-type(SwigClassWrapper) :: farg1 
-type(C_FUNPTR) :: farg2 
-
-farg1 = self%swigdata
-farg2 = seterrorbias
-call swigc_generic_SUNAdaptController_Ops__seterrorbias_set(farg1, farg2)
-end subroutine
-
-function swigf_generic_SUNAdaptController_Ops__seterrorbias_get(self) &
-result(swig_result)
-use, intrinsic :: ISO_C_BINDING
-type(C_FUNPTR) :: swig_result
-class(generic_SUNAdaptController_Ops_), intent(in) :: self
-type(C_FUNPTR) :: fresult 
-type(SwigClassWrapper) :: farg1 
-
-farg1 = self%swigdata
-fresult = swigc_generic_SUNAdaptController_Ops__seterrorbias_get(farg1)
-swig_result = fresult
-end function
-
-subroutine swigf_generic_SUNAdaptController_Ops__update_set(self, update)
-use, intrinsic :: ISO_C_BINDING
-class(generic_SUNAdaptController_Ops_), intent(in) :: self
-type(C_FUNPTR), intent(in), value :: update
-type(SwigClassWrapper) :: farg1 
-type(C_FUNPTR) :: farg2 
-
-farg1 = self%swigdata
-farg2 = update
-call swigc_generic_SUNAdaptController_Ops__update_set(farg1, farg2)
-end subroutine
-
-function swigf_generic_SUNAdaptController_Ops__update_get(self) &
-result(swig_result)
-use, intrinsic :: ISO_C_BINDING
-type(C_FUNPTR) :: swig_result
-class(generic_SUNAdaptController_Ops_), intent(in) :: self
-type(C_FUNPTR) :: fresult 
-type(SwigClassWrapper) :: farg1 
-
-farg1 = self%swigdata
-fresult = swigc_generic_SUNAdaptController_Ops__update_get(farg1)
-swig_result = fresult
-end function
-
-subroutine swigf_generic_SUNAdaptController_Ops__updatemrih_set(self, updatemrih)
-use, intrinsic :: ISO_C_BINDING
-class(generic_SUNAdaptController_Ops_), intent(in) :: self
-type(C_FUNPTR), intent(in), value :: updatemrih
-type(SwigClassWrapper) :: farg1 
-type(C_FUNPTR) :: farg2 
-
-farg1 = self%swigdata
-farg2 = updatemrih
-call swigc_generic_SUNAdaptController_Ops__updatemrih_set(farg1, farg2)
-end subroutine
-
-function swigf_generic_SUNAdaptController_Ops__updatemrih_get(self) &
-result(swig_result)
-use, intrinsic :: ISO_C_BINDING
-type(C_FUNPTR) :: swig_result
-class(generic_SUNAdaptController_Ops_), intent(in) :: self
-type(C_FUNPTR) :: fresult 
-type(SwigClassWrapper) :: farg1 
-
-farg1 = self%swigdata
-fresult = swigc_generic_SUNAdaptController_Ops__updatemrih_get(farg1)
-swig_result = fresult
-end function
-
-subroutine swigf_generic_SUNAdaptController_Ops__updatemritol_set(self, updatemritol)
-use, intrinsic :: ISO_C_BINDING
-class(generic_SUNAdaptController_Ops_), intent(in) :: self
-type(C_FUNPTR), intent(in), value :: updatemritol
-type(SwigClassWrapper) :: farg1 
-type(C_FUNPTR) :: farg2 
-
-farg1 = self%swigdata
-farg2 = updatemritol
-call swigc_generic_SUNAdaptController_Ops__updatemritol_set(farg1, farg2)
-end subroutine
-
-function swigf_generic_SUNAdaptController_Ops__updatemritol_get(self) &
-result(swig_result)
-use, intrinsic :: ISO_C_BINDING
-type(C_FUNPTR) :: swig_result
-class(generic_SUNAdaptController_Ops_), intent(in) :: self
-type(C_FUNPTR) :: fresult 
-type(SwigClassWrapper) :: farg1 
-
-farg1 = self%swigdata
-fresult = swigc_generic_SUNAdaptController_Ops__updatemritol_get(farg1)
-swig_result = fresult
-end function
-
-subroutine swigf_generic_SUNAdaptController_Ops__space_set(self, space)
-use, intrinsic :: ISO_C_BINDING
-class(generic_SUNAdaptController_Ops_), intent(in) :: self
-type(C_FUNPTR), intent(in), value :: space
-type(SwigClassWrapper) :: farg1 
-type(C_FUNPTR) :: farg2 
-
-farg1 = self%swigdata
-farg2 = space
-call swigc_generic_SUNAdaptController_Ops__space_set(farg1, farg2)
-end subroutine
-
-function swigf_generic_SUNAdaptController_Ops__space_get(self) &
-result(swig_result)
-use, intrinsic :: ISO_C_BINDING
-type(C_FUNPTR) :: swig_result
-class(generic_SUNAdaptController_Ops_), intent(in) :: self
-type(C_FUNPTR) :: fresult 
-type(SwigClassWrapper) :: farg1 
-
-farg1 = self%swigdata
-fresult = swigc_generic_SUNAdaptController_Ops__space_get(farg1)
-swig_result = fresult
-end function
-
-function swigf_create_generic_SUNAdaptController_Ops_() &
-result(self)
-use, intrinsic :: ISO_C_BINDING
-type(generic_SUNAdaptController_Ops_) :: self
-type(SwigClassWrapper) :: fresult 
-
-fresult = swigc_new_generic_SUNAdaptController_Ops_()
-self%swigdata = fresult
-end function
-
-subroutine swigf_release_generic_SUNAdaptController_Ops_(self)
-use, intrinsic :: ISO_C_BINDING
-class(generic_SUNAdaptController_Ops_), intent(inout) :: self
-type(SwigClassWrapper) :: farg1 
-
-farg1 = self%swigdata
-if (btest(farg1%cmemflags, swig_cmem_own_bit)) then
-call swigc_delete_generic_SUNAdaptController_Ops_(farg1)
-endif
-farg1%cptr = C_NULL_PTR
-farg1%cmemflags = 0
-self%swigdata = farg1
-end subroutine
-
-subroutine swigf_generic_SUNAdaptController_Ops__op_assign__(self, other)
-use, intrinsic :: ISO_C_BINDING
-class(generic_SUNAdaptController_Ops_), intent(inout) :: self
-type(generic_SUNAdaptController_Ops_), intent(in) :: other
-type(SwigClassWrapper) :: farg1 
-type(SwigClassWrapper) :: farg2 
-
-farg1 = self%swigdata
-farg2 = other%swigdata
-call swigc_generic_SUNAdaptController_Ops__op_assign__(farg1, farg2)
-self%swigdata = farg1
-end subroutine
-
-subroutine swigf_generic_SUNAdaptController__content_set(self, content)
-use, intrinsic :: ISO_C_BINDING
-class(generic_SUNAdaptController_), intent(in) :: self
-type(C_PTR) :: content
-type(SwigClassWrapper) :: farg1 
-type(C_PTR) :: farg2 
-
-farg1 = self%swigdata
-farg2 = content
-call swigc_generic_SUNAdaptController__content_set(farg1, farg2)
-end subroutine
-
-function swigf_generic_SUNAdaptController__content_get(self) &
-result(swig_result)
-use, intrinsic :: ISO_C_BINDING
-type(C_PTR) :: swig_result
-class(generic_SUNAdaptController_), intent(in) :: self
-type(C_PTR) :: fresult 
-type(SwigClassWrapper) :: farg1 
-
-farg1 = self%swigdata
-fresult = swigc_generic_SUNAdaptController__content_get(farg1)
-swig_result = fresult
-end function
-
-subroutine swigf_generic_SUNAdaptController__ops_set(self, ops)
-use, intrinsic :: ISO_C_BINDING
-class(generic_SUNAdaptController_), intent(in) :: self
-class(generic_SUNAdaptController_Ops_), intent(in) :: ops
-type(SwigClassWrapper) :: farg1 
-type(SwigClassWrapper) :: farg2 
-
-farg1 = self%swigdata
-farg2 = ops%swigdata
-call swigc_generic_SUNAdaptController__ops_set(farg1, farg2)
-end subroutine
-
-function swigf_generic_SUNAdaptController__ops_get(self) &
-result(swig_result)
-use, intrinsic :: ISO_C_BINDING
-type(generic_SUNAdaptController_Ops_) :: swig_result
-class(generic_SUNAdaptController_), intent(in) :: self
-type(SwigClassWrapper) :: fresult 
-type(SwigClassWrapper) :: farg1 
-
-farg1 = self%swigdata
-fresult = swigc_generic_SUNAdaptController__ops_get(farg1)
-swig_result%swigdata = fresult
-end function
-
-subroutine swigf_generic_SUNAdaptController__sunctx_set(self, sunctx)
-use, intrinsic :: ISO_C_BINDING
-class(generic_SUNAdaptController_), intent(in) :: self
-type(C_PTR) :: sunctx
-type(SwigClassWrapper) :: farg1 
-type(C_PTR) :: farg2 
-
-farg1 = self%swigdata
-farg2 = sunctx
-call swigc_generic_SUNAdaptController__sunctx_set(farg1, farg2)
-end subroutine
-
-function swigf_generic_SUNAdaptController__sunctx_get(self) &
-result(swig_result)
-use, intrinsic :: ISO_C_BINDING
-type(C_PTR) :: swig_result
-class(generic_SUNAdaptController_), intent(in) :: self
-type(C_PTR) :: fresult 
-type(SwigClassWrapper) :: farg1 
-
-farg1 = self%swigdata
-fresult = swigc_generic_SUNAdaptController__sunctx_get(farg1)
-swig_result = fresult
-end function
-
-function swigf_create_generic_SUNAdaptController_() &
-result(self)
-use, intrinsic :: ISO_C_BINDING
-type(generic_SUNAdaptController_) :: self
-type(SwigClassWrapper) :: fresult 
-
-fresult = swigc_new_generic_SUNAdaptController_()
-self%swigdata = fresult
-end function
-
-subroutine swigf_release_generic_SUNAdaptController_(self)
-use, intrinsic :: ISO_C_BINDING
-class(generic_SUNAdaptController_), intent(inout) :: self
-type(SwigClassWrapper) :: farg1 
-
-farg1 = self%swigdata
-if (btest(farg1%cmemflags, swig_cmem_own_bit)) then
-call swigc_delete_generic_SUNAdaptController_(farg1)
-endif
-farg1%cptr = C_NULL_PTR
-farg1%cmemflags = 0
-self%swigdata = farg1
-end subroutine
-
-subroutine swigf_generic_SUNAdaptController__op_assign__(self, other)
-use, intrinsic :: ISO_C_BINDING
-class(generic_SUNAdaptController_), intent(inout) :: self
-type(generic_SUNAdaptController_), intent(in) :: other
-type(SwigClassWrapper) :: farg1 
-type(SwigClassWrapper) :: farg2 
-
-farg1 = self%swigdata
-farg2 = other%swigdata
-call swigc_generic_SUNAdaptController__op_assign__(farg1, farg2)
-self%swigdata = farg1
-end subroutine
-
 function FSUNAdaptController_NewEmpty(sunctx) &
 result(swig_result)
 use, intrinsic :: ISO_C_BINDING
-type(generic_SUNAdaptController_) :: swig_result
+type(SUNAdaptController), pointer :: swig_result
 type(C_PTR) :: sunctx
-type(SwigClassWrapper) :: fresult 
+type(C_PTR) :: fresult 
 type(C_PTR) :: farg1 
 
 farg1 = sunctx
 fresult = swigc_FSUNAdaptController_NewEmpty(farg1)
-swig_result%swigdata = fresult
+call c_f_pointer(fresult, swig_result)
 end function
 
 function FSUNAdaptController_GetType(c) &
 result(swig_result)
 use, intrinsic :: ISO_C_BINDING
 integer(SUNAdaptController_Type) :: swig_result
-class(generic_SUNAdaptController_), intent(in) :: c
+type(SUNAdaptController), target, intent(inout) :: c
 integer(C_INT) :: fresult 
-type(SwigClassWrapper) :: farg1 
+type(C_PTR) :: farg1 
 
-farg1 = c%swigdata
+farg1 = c_loc(c)
 fresult = swigc_FSUNAdaptController_GetType(farg1)
 swig_result = fresult
 end function
@@ -1257,11 +279,11 @@ function FSUNAdaptController_Destroy(c) &
 result(swig_result)
 use, intrinsic :: ISO_C_BINDING
 integer(C_INT) :: swig_result
-class(generic_SUNAdaptController_), intent(in) :: c
+type(SUNAdaptController), target, intent(inout) :: c
 integer(C_INT) :: fresult 
-type(SwigClassWrapper) :: farg1 
+type(C_PTR) :: farg1 
 
-farg1 = c%swigdata
+farg1 = c_loc(c)
 fresult = swigc_FSUNAdaptController_Destroy(farg1)
 swig_result = fresult
 end function
@@ -1270,17 +292,17 @@ function FSUNAdaptController_EstimateStep(c, h, dsm, hnew) &
 result(swig_result)
 use, intrinsic :: ISO_C_BINDING
 integer(C_INT) :: swig_result
-class(generic_SUNAdaptController_), intent(in) :: c
+type(SUNAdaptController), target, intent(inout) :: c
 real(C_DOUBLE), intent(in) :: h
 real(C_DOUBLE), intent(in) :: dsm
 real(C_DOUBLE), dimension(*), target, intent(inout) :: hnew
 integer(C_INT) :: fresult 
-type(SwigClassWrapper) :: farg1 
+type(C_PTR) :: farg1 
 real(C_DOUBLE) :: farg2 
 real(C_DOUBLE) :: farg3 
 type(C_PTR) :: farg4 
 
-farg1 = c%swigdata
+farg1 = c_loc(c)
 farg2 = h
 farg3 = dsm
 farg4 = c_loc(hnew(1))
@@ -1292,21 +314,21 @@ function FSUNAdaptController_EstimateStepAndOrder(c, h, q, dsm, hnew, qnew) &
 result(swig_result)
 use, intrinsic :: ISO_C_BINDING
 integer(C_INT) :: swig_result
-class(generic_SUNAdaptController_), intent(in) :: c
+type(SUNAdaptController), target, intent(inout) :: c
 real(C_DOUBLE), intent(in) :: h
 integer(C_INT), intent(in) :: q
 real(C_DOUBLE), intent(in) :: dsm
 real(C_DOUBLE), dimension(*), target, intent(inout) :: hnew
 integer(C_INT), dimension(*), target, intent(inout) :: qnew
 integer(C_INT) :: fresult 
-type(SwigClassWrapper) :: farg1 
+type(C_PTR) :: farg1 
 real(C_DOUBLE) :: farg2 
 integer(C_INT) :: farg3 
 real(C_DOUBLE) :: farg4 
 type(C_PTR) :: farg5 
 type(C_PTR) :: farg6 
 
-farg1 = c%swigdata
+farg1 = c_loc(c)
 farg2 = h
 farg3 = q
 farg4 = dsm
@@ -1320,7 +342,7 @@ function FSUNAdaptController_EstimateMRISteps(c, h, h2, dsm, dsm4, hnew, hnew6) 
 result(swig_result)
 use, intrinsic :: ISO_C_BINDING
 integer(C_INT) :: swig_result
-class(generic_SUNAdaptController_), intent(in) :: c
+type(SUNAdaptController), target, intent(inout) :: c
 real(C_DOUBLE), intent(in) :: h
 real(C_DOUBLE), intent(in) :: h2
 real(C_DOUBLE), intent(in) :: dsm
@@ -1328,7 +350,7 @@ real(C_DOUBLE), intent(in) :: dsm4
 real(C_DOUBLE), dimension(*), target, intent(inout) :: hnew
 real(C_DOUBLE), dimension(*), target, intent(inout) :: hnew6
 integer(C_INT) :: fresult 
-type(SwigClassWrapper) :: farg1 
+type(C_PTR) :: farg1 
 real(C_DOUBLE) :: farg2 
 real(C_DOUBLE) :: farg3 
 real(C_DOUBLE) :: farg4 
@@ -1336,7 +358,7 @@ real(C_DOUBLE) :: farg5
 type(C_PTR) :: farg6 
 type(C_PTR) :: farg7 
 
-farg1 = c%swigdata
+farg1 = c_loc(c)
 farg2 = h
 farg3 = h2
 farg4 = dsm
@@ -1351,7 +373,7 @@ function FSUNAdaptController_EstimateStepTol(c, h, tolfac, dsm, dsm4, hnew, tolf
 result(swig_result)
 use, intrinsic :: ISO_C_BINDING
 integer(C_INT) :: swig_result
-class(generic_SUNAdaptController_), intent(in) :: c
+type(SUNAdaptController), target, intent(inout) :: c
 real(C_DOUBLE), intent(in) :: h
 real(C_DOUBLE), intent(in) :: tolfac
 real(C_DOUBLE), intent(in) :: dsm
@@ -1359,7 +381,7 @@ real(C_DOUBLE), intent(in) :: dsm4
 real(C_DOUBLE), dimension(*), target, intent(inout) :: hnew
 real(C_DOUBLE), dimension(*), target, intent(inout) :: tolfacnew
 integer(C_INT) :: fresult 
-type(SwigClassWrapper) :: farg1 
+type(C_PTR) :: farg1 
 real(C_DOUBLE) :: farg2 
 real(C_DOUBLE) :: farg3 
 real(C_DOUBLE) :: farg4 
@@ -1367,7 +389,7 @@ real(C_DOUBLE) :: farg5
 type(C_PTR) :: farg6 
 type(C_PTR) :: farg7 
 
-farg1 = c%swigdata
+farg1 = c_loc(c)
 farg2 = h
 farg3 = tolfac
 farg4 = dsm
@@ -1382,11 +404,11 @@ function FSUNAdaptController_Reset(c) &
 result(swig_result)
 use, intrinsic :: ISO_C_BINDING
 integer(C_INT) :: swig_result
-class(generic_SUNAdaptController_), intent(in) :: c
+type(SUNAdaptController), target, intent(inout) :: c
 integer(C_INT) :: fresult 
-type(SwigClassWrapper) :: farg1 
+type(C_PTR) :: farg1 
 
-farg1 = c%swigdata
+farg1 = c_loc(c)
 fresult = swigc_FSUNAdaptController_Reset(farg1)
 swig_result = fresult
 end function
@@ -1395,11 +417,11 @@ function FSUNAdaptController_SetDefaults(c) &
 result(swig_result)
 use, intrinsic :: ISO_C_BINDING
 integer(C_INT) :: swig_result
-class(generic_SUNAdaptController_), intent(in) :: c
+type(SUNAdaptController), target, intent(inout) :: c
 integer(C_INT) :: fresult 
-type(SwigClassWrapper) :: farg1 
+type(C_PTR) :: farg1 
 
-farg1 = c%swigdata
+farg1 = c_loc(c)
 fresult = swigc_FSUNAdaptController_SetDefaults(farg1)
 swig_result = fresult
 end function
@@ -1408,13 +430,13 @@ function FSUNAdaptController_Write(c, fptr) &
 result(swig_result)
 use, intrinsic :: ISO_C_BINDING
 integer(C_INT) :: swig_result
-class(generic_SUNAdaptController_), intent(in) :: c
+type(SUNAdaptController), target, intent(inout) :: c
 type(C_PTR) :: fptr
 integer(C_INT) :: fresult 
-type(SwigClassWrapper) :: farg1 
+type(C_PTR) :: farg1 
 type(C_PTR) :: farg2 
 
-farg1 = c%swigdata
+farg1 = c_loc(c)
 farg2 = fptr
 fresult = swigc_FSUNAdaptController_Write(farg1, farg2)
 swig_result = fresult
@@ -1424,13 +446,13 @@ function FSUNAdaptController_SetMethodOrder(c, q) &
 result(swig_result)
 use, intrinsic :: ISO_C_BINDING
 integer(C_INT) :: swig_result
-class(generic_SUNAdaptController_), intent(in) :: c
+type(SUNAdaptController), target, intent(inout) :: c
 integer(C_INT), intent(in) :: q
 integer(C_INT) :: fresult 
-type(SwigClassWrapper) :: farg1 
+type(C_PTR) :: farg1 
 integer(C_INT) :: farg2 
 
-farg1 = c%swigdata
+farg1 = c_loc(c)
 farg2 = q
 fresult = swigc_FSUNAdaptController_SetMethodOrder(farg1, farg2)
 swig_result = fresult
@@ -1440,13 +462,13 @@ function FSUNAdaptController_SetEmbeddingOrder(c, p) &
 result(swig_result)
 use, intrinsic :: ISO_C_BINDING
 integer(C_INT) :: swig_result
-class(generic_SUNAdaptController_), intent(in) :: c
+type(SUNAdaptController), target, intent(inout) :: c
 integer(C_INT), intent(in) :: p
 integer(C_INT) :: fresult 
-type(SwigClassWrapper) :: farg1 
+type(C_PTR) :: farg1 
 integer(C_INT) :: farg2 
 
-farg1 = c%swigdata
+farg1 = c_loc(c)
 farg2 = p
 fresult = swigc_FSUNAdaptController_SetEmbeddingOrder(farg1, farg2)
 swig_result = fresult
@@ -1456,13 +478,13 @@ function FSUNAdaptController_SetErrorBias(c, bias) &
 result(swig_result)
 use, intrinsic :: ISO_C_BINDING
 integer(C_INT) :: swig_result
-class(generic_SUNAdaptController_), intent(in) :: c
+type(SUNAdaptController), target, intent(inout) :: c
 real(C_DOUBLE), intent(in) :: bias
 integer(C_INT) :: fresult 
-type(SwigClassWrapper) :: farg1 
+type(C_PTR) :: farg1 
 real(C_DOUBLE) :: farg2 
 
-farg1 = c%swigdata
+farg1 = c_loc(c)
 farg2 = bias
 fresult = swigc_FSUNAdaptController_SetErrorBias(farg1, farg2)
 swig_result = fresult
@@ -1472,15 +494,15 @@ function FSUNAdaptController_Update(c, h, dsm) &
 result(swig_result)
 use, intrinsic :: ISO_C_BINDING
 integer(C_INT) :: swig_result
-class(generic_SUNAdaptController_), intent(in) :: c
+type(SUNAdaptController), target, intent(inout) :: c
 real(C_DOUBLE), intent(in) :: h
 real(C_DOUBLE), intent(in) :: dsm
 integer(C_INT) :: fresult 
-type(SwigClassWrapper) :: farg1 
+type(C_PTR) :: farg1 
 real(C_DOUBLE) :: farg2 
 real(C_DOUBLE) :: farg3 
 
-farg1 = c%swigdata
+farg1 = c_loc(c)
 farg2 = h
 farg3 = dsm
 fresult = swigc_FSUNAdaptController_Update(farg1, farg2, farg3)
@@ -1491,19 +513,19 @@ function FSUNAdaptController_UpdateMRIH(c, h, h2, dsm, dsm4) &
 result(swig_result)
 use, intrinsic :: ISO_C_BINDING
 integer(C_INT) :: swig_result
-class(generic_SUNAdaptController_), intent(in) :: c
+type(SUNAdaptController), target, intent(inout) :: c
 real(C_DOUBLE), intent(in) :: h
 real(C_DOUBLE), intent(in) :: h2
 real(C_DOUBLE), intent(in) :: dsm
 real(C_DOUBLE), intent(in) :: dsm4
 integer(C_INT) :: fresult 
-type(SwigClassWrapper) :: farg1 
+type(C_PTR) :: farg1 
 real(C_DOUBLE) :: farg2 
 real(C_DOUBLE) :: farg3 
 real(C_DOUBLE) :: farg4 
 real(C_DOUBLE) :: farg5 
 
-farg1 = c%swigdata
+farg1 = c_loc(c)
 farg2 = h
 farg3 = h2
 farg4 = dsm
@@ -1516,19 +538,19 @@ function FSUNAdaptController_UpdateMRITol(c, h, tolfac, dsm, dsm4) &
 result(swig_result)
 use, intrinsic :: ISO_C_BINDING
 integer(C_INT) :: swig_result
-class(generic_SUNAdaptController_), intent(in) :: c
+type(SUNAdaptController), target, intent(inout) :: c
 real(C_DOUBLE), intent(in) :: h
 real(C_DOUBLE), intent(in) :: tolfac
 real(C_DOUBLE), intent(in) :: dsm
 real(C_DOUBLE), intent(in) :: dsm4
 integer(C_INT) :: fresult 
-type(SwigClassWrapper) :: farg1 
+type(C_PTR) :: farg1 
 real(C_DOUBLE) :: farg2 
 real(C_DOUBLE) :: farg3 
 real(C_DOUBLE) :: farg4 
 real(C_DOUBLE) :: farg5 
 
-farg1 = c%swigdata
+farg1 = c_loc(c)
 farg2 = h
 farg3 = tolfac
 farg4 = dsm
@@ -1541,15 +563,15 @@ function FSUNAdaptController_Space(c, lenrw, leniw) &
 result(swig_result)
 use, intrinsic :: ISO_C_BINDING
 integer(C_INT) :: swig_result
-class(generic_SUNAdaptController_), intent(in) :: c
+type(SUNAdaptController), target, intent(inout) :: c
 integer(C_LONG), dimension(*), target, intent(inout) :: lenrw
 integer(C_LONG), dimension(*), target, intent(inout) :: leniw
 integer(C_INT) :: fresult 
-type(SwigClassWrapper) :: farg1 
+type(C_PTR) :: farg1 
 type(C_PTR) :: farg2 
 type(C_PTR) :: farg3 
 
-farg1 = c%swigdata
+farg1 = c_loc(c)
 farg2 = c_loc(lenrw(1))
 farg3 = c_loc(leniw(1))
 fresult = swigc_FSUNAdaptController_Space(farg1, farg2, farg3)

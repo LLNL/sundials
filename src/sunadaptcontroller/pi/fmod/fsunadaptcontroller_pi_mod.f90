@@ -27,37 +27,6 @@ module fsunadaptcontroller_pi_mod
  private
 
  ! DECLARATION CONSTRUCTS
-
- integer, parameter :: swig_cmem_own_bit = 0
- integer, parameter :: swig_cmem_rvalue_bit = 1
- integer, parameter :: swig_cmem_const_bit = 2
- type, bind(C) :: SwigClassWrapper
-  type(C_PTR), public :: cptr = C_NULL_PTR
-  integer(C_INT), public :: cmemflags = 0
- end type
- ! struct struct SUNAdaptControllerContent_PI_
- type, public :: SUNAdaptControllerContent_PI_
-  type(SwigClassWrapper), public :: swigdata
- contains
-  procedure :: set_k1 => swigf_SUNAdaptControllerContent_PI__k1_set
-  procedure :: get_k1 => swigf_SUNAdaptControllerContent_PI__k1_get
-  procedure :: set_k2 => swigf_SUNAdaptControllerContent_PI__k2_set
-  procedure :: get_k2 => swigf_SUNAdaptControllerContent_PI__k2_get
-  procedure :: set_bias => swigf_SUNAdaptControllerContent_PI__bias_set
-  procedure :: get_bias => swigf_SUNAdaptControllerContent_PI__bias_get
-  procedure :: set_ep => swigf_SUNAdaptControllerContent_PI__ep_set
-  procedure :: get_ep => swigf_SUNAdaptControllerContent_PI__ep_get
-  procedure :: set_p => swigf_SUNAdaptControllerContent_PI__p_set
-  procedure :: get_p => swigf_SUNAdaptControllerContent_PI__p_get
-  procedure :: set_pq => swigf_SUNAdaptControllerContent_PI__pq_set
-  procedure :: get_pq => swigf_SUNAdaptControllerContent_PI__pq_get
-  procedure :: release => swigf_release_SUNAdaptControllerContent_PI_
-  procedure, private :: swigf_SUNAdaptControllerContent_PI__op_assign__
-  generic :: assignment(=) => swigf_SUNAdaptControllerContent_PI__op_assign__
- end type SUNAdaptControllerContent_PI_
- interface SUNAdaptControllerContent_PI_
-  module procedure swigf_create_SUNAdaptControllerContent_PI_
- end interface
  public :: FSUNAdaptController_PI
  public :: FSUNAdaptController_SetParams_PI
  public :: FSUNAdaptController_GetType_PI
@@ -73,146 +42,19 @@ module fsunadaptcontroller_pi_mod
 
 ! WRAPPER DECLARATIONS
 interface
-subroutine swigc_SUNAdaptControllerContent_PI__k1_set(farg1, farg2) &
-bind(C, name="_wrap_SUNAdaptControllerContent_PI__k1_set")
-use, intrinsic :: ISO_C_BINDING
-import :: swigclasswrapper
-type(SwigClassWrapper) :: farg1
-real(C_DOUBLE), intent(in) :: farg2
-end subroutine
-
-function swigc_SUNAdaptControllerContent_PI__k1_get(farg1) &
-bind(C, name="_wrap_SUNAdaptControllerContent_PI__k1_get") &
-result(fresult)
-use, intrinsic :: ISO_C_BINDING
-import :: swigclasswrapper
-type(SwigClassWrapper) :: farg1
-real(C_DOUBLE) :: fresult
-end function
-
-subroutine swigc_SUNAdaptControllerContent_PI__k2_set(farg1, farg2) &
-bind(C, name="_wrap_SUNAdaptControllerContent_PI__k2_set")
-use, intrinsic :: ISO_C_BINDING
-import :: swigclasswrapper
-type(SwigClassWrapper) :: farg1
-real(C_DOUBLE), intent(in) :: farg2
-end subroutine
-
-function swigc_SUNAdaptControllerContent_PI__k2_get(farg1) &
-bind(C, name="_wrap_SUNAdaptControllerContent_PI__k2_get") &
-result(fresult)
-use, intrinsic :: ISO_C_BINDING
-import :: swigclasswrapper
-type(SwigClassWrapper) :: farg1
-real(C_DOUBLE) :: fresult
-end function
-
-subroutine swigc_SUNAdaptControllerContent_PI__bias_set(farg1, farg2) &
-bind(C, name="_wrap_SUNAdaptControllerContent_PI__bias_set")
-use, intrinsic :: ISO_C_BINDING
-import :: swigclasswrapper
-type(SwigClassWrapper) :: farg1
-real(C_DOUBLE), intent(in) :: farg2
-end subroutine
-
-function swigc_SUNAdaptControllerContent_PI__bias_get(farg1) &
-bind(C, name="_wrap_SUNAdaptControllerContent_PI__bias_get") &
-result(fresult)
-use, intrinsic :: ISO_C_BINDING
-import :: swigclasswrapper
-type(SwigClassWrapper) :: farg1
-real(C_DOUBLE) :: fresult
-end function
-
-subroutine swigc_SUNAdaptControllerContent_PI__ep_set(farg1, farg2) &
-bind(C, name="_wrap_SUNAdaptControllerContent_PI__ep_set")
-use, intrinsic :: ISO_C_BINDING
-import :: swigclasswrapper
-type(SwigClassWrapper) :: farg1
-real(C_DOUBLE), intent(in) :: farg2
-end subroutine
-
-function swigc_SUNAdaptControllerContent_PI__ep_get(farg1) &
-bind(C, name="_wrap_SUNAdaptControllerContent_PI__ep_get") &
-result(fresult)
-use, intrinsic :: ISO_C_BINDING
-import :: swigclasswrapper
-type(SwigClassWrapper) :: farg1
-real(C_DOUBLE) :: fresult
-end function
-
-subroutine swigc_SUNAdaptControllerContent_PI__p_set(farg1, farg2) &
-bind(C, name="_wrap_SUNAdaptControllerContent_PI__p_set")
-use, intrinsic :: ISO_C_BINDING
-import :: swigclasswrapper
-type(SwigClassWrapper) :: farg1
-integer(C_INT), intent(in) :: farg2
-end subroutine
-
-function swigc_SUNAdaptControllerContent_PI__p_get(farg1) &
-bind(C, name="_wrap_SUNAdaptControllerContent_PI__p_get") &
-result(fresult)
-use, intrinsic :: ISO_C_BINDING
-import :: swigclasswrapper
-type(SwigClassWrapper) :: farg1
-integer(C_INT) :: fresult
-end function
-
-subroutine swigc_SUNAdaptControllerContent_PI__pq_set(farg1, farg2) &
-bind(C, name="_wrap_SUNAdaptControllerContent_PI__pq_set")
-use, intrinsic :: ISO_C_BINDING
-import :: swigclasswrapper
-type(SwigClassWrapper) :: farg1
-integer(C_INT), intent(in) :: farg2
-end subroutine
-
-function swigc_SUNAdaptControllerContent_PI__pq_get(farg1) &
-bind(C, name="_wrap_SUNAdaptControllerContent_PI__pq_get") &
-result(fresult)
-use, intrinsic :: ISO_C_BINDING
-import :: swigclasswrapper
-type(SwigClassWrapper) :: farg1
-integer(C_INT) :: fresult
-end function
-
-function swigc_new_SUNAdaptControllerContent_PI_() &
-bind(C, name="_wrap_new_SUNAdaptControllerContent_PI_") &
-result(fresult)
-use, intrinsic :: ISO_C_BINDING
-import :: swigclasswrapper
-type(SwigClassWrapper) :: fresult
-end function
-
-subroutine swigc_delete_SUNAdaptControllerContent_PI_(farg1) &
-bind(C, name="_wrap_delete_SUNAdaptControllerContent_PI_")
-use, intrinsic :: ISO_C_BINDING
-import :: swigclasswrapper
-type(SwigClassWrapper), intent(inout) :: farg1
-end subroutine
-
-subroutine swigc_SUNAdaptControllerContent_PI__op_assign__(farg1, farg2) &
-bind(C, name="_wrap_SUNAdaptControllerContent_PI__op_assign__")
-use, intrinsic :: ISO_C_BINDING
-import :: swigclasswrapper
-type(SwigClassWrapper), intent(inout) :: farg1
-type(SwigClassWrapper) :: farg2
-end subroutine
-
 function swigc_FSUNAdaptController_PI(farg1) &
 bind(C, name="_wrap_FSUNAdaptController_PI") &
 result(fresult)
 use, intrinsic :: ISO_C_BINDING
-import :: swigclasswrapper
 type(C_PTR), value :: farg1
-type(SwigClassWrapper) :: fresult
+type(C_PTR) :: fresult
 end function
 
 function swigc_FSUNAdaptController_SetParams_PI(farg1, farg2, farg3, farg4) &
 bind(C, name="_wrap_FSUNAdaptController_SetParams_PI") &
 result(fresult)
 use, intrinsic :: ISO_C_BINDING
-import :: swigclasswrapper
-type(SwigClassWrapper) :: farg1
+type(C_PTR), value :: farg1
 integer(C_INT), intent(in) :: farg2
 real(C_DOUBLE), intent(in) :: farg3
 real(C_DOUBLE), intent(in) :: farg4
@@ -223,8 +65,7 @@ function swigc_FSUNAdaptController_GetType_PI(farg1) &
 bind(C, name="_wrap_FSUNAdaptController_GetType_PI") &
 result(fresult)
 use, intrinsic :: ISO_C_BINDING
-import :: swigclasswrapper
-type(SwigClassWrapper) :: farg1
+type(C_PTR), value :: farg1
 integer(C_INT) :: fresult
 end function
 
@@ -232,8 +73,7 @@ function swigc_FSUNAdaptController_EstimateStep_PI(farg1, farg2, farg3, farg4) &
 bind(C, name="_wrap_FSUNAdaptController_EstimateStep_PI") &
 result(fresult)
 use, intrinsic :: ISO_C_BINDING
-import :: swigclasswrapper
-type(SwigClassWrapper) :: farg1
+type(C_PTR), value :: farg1
 real(C_DOUBLE), intent(in) :: farg2
 real(C_DOUBLE), intent(in) :: farg3
 type(C_PTR), value :: farg4
@@ -244,8 +84,7 @@ function swigc_FSUNAdaptController_Reset_PI(farg1) &
 bind(C, name="_wrap_FSUNAdaptController_Reset_PI") &
 result(fresult)
 use, intrinsic :: ISO_C_BINDING
-import :: swigclasswrapper
-type(SwigClassWrapper) :: farg1
+type(C_PTR), value :: farg1
 integer(C_INT) :: fresult
 end function
 
@@ -253,8 +92,7 @@ function swigc_FSUNAdaptController_SetDefaults_PI(farg1) &
 bind(C, name="_wrap_FSUNAdaptController_SetDefaults_PI") &
 result(fresult)
 use, intrinsic :: ISO_C_BINDING
-import :: swigclasswrapper
-type(SwigClassWrapper) :: farg1
+type(C_PTR), value :: farg1
 integer(C_INT) :: fresult
 end function
 
@@ -262,8 +100,7 @@ function swigc_FSUNAdaptController_Write_PI(farg1, farg2) &
 bind(C, name="_wrap_FSUNAdaptController_Write_PI") &
 result(fresult)
 use, intrinsic :: ISO_C_BINDING
-import :: swigclasswrapper
-type(SwigClassWrapper) :: farg1
+type(C_PTR), value :: farg1
 type(C_PTR), value :: farg2
 integer(C_INT) :: fresult
 end function
@@ -272,8 +109,7 @@ function swigc_FSUNAdaptController_SetMethodOrder_PI(farg1, farg2) &
 bind(C, name="_wrap_FSUNAdaptController_SetMethodOrder_PI") &
 result(fresult)
 use, intrinsic :: ISO_C_BINDING
-import :: swigclasswrapper
-type(SwigClassWrapper) :: farg1
+type(C_PTR), value :: farg1
 integer(C_INT), intent(in) :: farg2
 integer(C_INT) :: fresult
 end function
@@ -282,8 +118,7 @@ function swigc_FSUNAdaptController_SetEmbeddingOrder_PI(farg1, farg2) &
 bind(C, name="_wrap_FSUNAdaptController_SetEmbeddingOrder_PI") &
 result(fresult)
 use, intrinsic :: ISO_C_BINDING
-import :: swigclasswrapper
-type(SwigClassWrapper) :: farg1
+type(C_PTR), value :: farg1
 integer(C_INT), intent(in) :: farg2
 integer(C_INT) :: fresult
 end function
@@ -292,8 +127,7 @@ function swigc_FSUNAdaptController_SetErrorBias_PI(farg1, farg2) &
 bind(C, name="_wrap_FSUNAdaptController_SetErrorBias_PI") &
 result(fresult)
 use, intrinsic :: ISO_C_BINDING
-import :: swigclasswrapper
-type(SwigClassWrapper) :: farg1
+type(C_PTR), value :: farg1
 real(C_DOUBLE), intent(in) :: farg2
 integer(C_INT) :: fresult
 end function
@@ -302,8 +136,7 @@ function swigc_FSUNAdaptController_Update_PI(farg1, farg2, farg3) &
 bind(C, name="_wrap_FSUNAdaptController_Update_PI") &
 result(fresult)
 use, intrinsic :: ISO_C_BINDING
-import :: swigclasswrapper
-type(SwigClassWrapper) :: farg1
+type(C_PTR), value :: farg1
 real(C_DOUBLE), intent(in) :: farg2
 real(C_DOUBLE), intent(in) :: farg3
 integer(C_INT) :: fresult
@@ -313,8 +146,7 @@ function swigc_FSUNAdaptController_Space_PI(farg1, farg2, farg3) &
 bind(C, name="_wrap_FSUNAdaptController_Space_PI") &
 result(fresult)
 use, intrinsic :: ISO_C_BINDING
-import :: swigclasswrapper
-type(SwigClassWrapper) :: farg1
+type(C_PTR), value :: farg1
 type(C_PTR), value :: farg2
 type(C_PTR), value :: farg3
 integer(C_INT) :: fresult
@@ -325,221 +157,34 @@ end interface
 
 contains
  ! MODULE SUBPROGRAMS
-subroutine swigf_SUNAdaptControllerContent_PI__k1_set(self, k1)
-use, intrinsic :: ISO_C_BINDING
-class(SUNAdaptControllerContent_PI_), intent(in) :: self
-real(C_DOUBLE), intent(in) :: k1
-type(SwigClassWrapper) :: farg1 
-real(C_DOUBLE) :: farg2 
-
-farg1 = self%swigdata
-farg2 = k1
-call swigc_SUNAdaptControllerContent_PI__k1_set(farg1, farg2)
-end subroutine
-
-function swigf_SUNAdaptControllerContent_PI__k1_get(self) &
-result(swig_result)
-use, intrinsic :: ISO_C_BINDING
-real(C_DOUBLE) :: swig_result
-class(SUNAdaptControllerContent_PI_), intent(in) :: self
-real(C_DOUBLE) :: fresult 
-type(SwigClassWrapper) :: farg1 
-
-farg1 = self%swigdata
-fresult = swigc_SUNAdaptControllerContent_PI__k1_get(farg1)
-swig_result = fresult
-end function
-
-subroutine swigf_SUNAdaptControllerContent_PI__k2_set(self, k2)
-use, intrinsic :: ISO_C_BINDING
-class(SUNAdaptControllerContent_PI_), intent(in) :: self
-real(C_DOUBLE), intent(in) :: k2
-type(SwigClassWrapper) :: farg1 
-real(C_DOUBLE) :: farg2 
-
-farg1 = self%swigdata
-farg2 = k2
-call swigc_SUNAdaptControllerContent_PI__k2_set(farg1, farg2)
-end subroutine
-
-function swigf_SUNAdaptControllerContent_PI__k2_get(self) &
-result(swig_result)
-use, intrinsic :: ISO_C_BINDING
-real(C_DOUBLE) :: swig_result
-class(SUNAdaptControllerContent_PI_), intent(in) :: self
-real(C_DOUBLE) :: fresult 
-type(SwigClassWrapper) :: farg1 
-
-farg1 = self%swigdata
-fresult = swigc_SUNAdaptControllerContent_PI__k2_get(farg1)
-swig_result = fresult
-end function
-
-subroutine swigf_SUNAdaptControllerContent_PI__bias_set(self, bias)
-use, intrinsic :: ISO_C_BINDING
-class(SUNAdaptControllerContent_PI_), intent(in) :: self
-real(C_DOUBLE), intent(in) :: bias
-type(SwigClassWrapper) :: farg1 
-real(C_DOUBLE) :: farg2 
-
-farg1 = self%swigdata
-farg2 = bias
-call swigc_SUNAdaptControllerContent_PI__bias_set(farg1, farg2)
-end subroutine
-
-function swigf_SUNAdaptControllerContent_PI__bias_get(self) &
-result(swig_result)
-use, intrinsic :: ISO_C_BINDING
-real(C_DOUBLE) :: swig_result
-class(SUNAdaptControllerContent_PI_), intent(in) :: self
-real(C_DOUBLE) :: fresult 
-type(SwigClassWrapper) :: farg1 
-
-farg1 = self%swigdata
-fresult = swigc_SUNAdaptControllerContent_PI__bias_get(farg1)
-swig_result = fresult
-end function
-
-subroutine swigf_SUNAdaptControllerContent_PI__ep_set(self, ep)
-use, intrinsic :: ISO_C_BINDING
-class(SUNAdaptControllerContent_PI_), intent(in) :: self
-real(C_DOUBLE), intent(in) :: ep
-type(SwigClassWrapper) :: farg1 
-real(C_DOUBLE) :: farg2 
-
-farg1 = self%swigdata
-farg2 = ep
-call swigc_SUNAdaptControllerContent_PI__ep_set(farg1, farg2)
-end subroutine
-
-function swigf_SUNAdaptControllerContent_PI__ep_get(self) &
-result(swig_result)
-use, intrinsic :: ISO_C_BINDING
-real(C_DOUBLE) :: swig_result
-class(SUNAdaptControllerContent_PI_), intent(in) :: self
-real(C_DOUBLE) :: fresult 
-type(SwigClassWrapper) :: farg1 
-
-farg1 = self%swigdata
-fresult = swigc_SUNAdaptControllerContent_PI__ep_get(farg1)
-swig_result = fresult
-end function
-
-subroutine swigf_SUNAdaptControllerContent_PI__p_set(self, p)
-use, intrinsic :: ISO_C_BINDING
-class(SUNAdaptControllerContent_PI_), intent(in) :: self
-integer(C_INT), intent(in) :: p
-type(SwigClassWrapper) :: farg1 
-integer(C_INT) :: farg2 
-
-farg1 = self%swigdata
-farg2 = p
-call swigc_SUNAdaptControllerContent_PI__p_set(farg1, farg2)
-end subroutine
-
-function swigf_SUNAdaptControllerContent_PI__p_get(self) &
-result(swig_result)
-use, intrinsic :: ISO_C_BINDING
-integer(C_INT) :: swig_result
-class(SUNAdaptControllerContent_PI_), intent(in) :: self
-integer(C_INT) :: fresult 
-type(SwigClassWrapper) :: farg1 
-
-farg1 = self%swigdata
-fresult = swigc_SUNAdaptControllerContent_PI__p_get(farg1)
-swig_result = fresult
-end function
-
-subroutine swigf_SUNAdaptControllerContent_PI__pq_set(self, pq)
-use, intrinsic :: ISO_C_BINDING
-class(SUNAdaptControllerContent_PI_), intent(in) :: self
-integer(C_INT), intent(in) :: pq
-type(SwigClassWrapper) :: farg1 
-integer(C_INT) :: farg2 
-
-farg1 = self%swigdata
-farg2 = pq
-call swigc_SUNAdaptControllerContent_PI__pq_set(farg1, farg2)
-end subroutine
-
-function swigf_SUNAdaptControllerContent_PI__pq_get(self) &
-result(swig_result)
-use, intrinsic :: ISO_C_BINDING
-integer(C_INT) :: swig_result
-class(SUNAdaptControllerContent_PI_), intent(in) :: self
-integer(C_INT) :: fresult 
-type(SwigClassWrapper) :: farg1 
-
-farg1 = self%swigdata
-fresult = swigc_SUNAdaptControllerContent_PI__pq_get(farg1)
-swig_result = fresult
-end function
-
-function swigf_create_SUNAdaptControllerContent_PI_() &
-result(self)
-use, intrinsic :: ISO_C_BINDING
-type(SUNAdaptControllerContent_PI_) :: self
-type(SwigClassWrapper) :: fresult 
-
-fresult = swigc_new_SUNAdaptControllerContent_PI_()
-self%swigdata = fresult
-end function
-
-subroutine swigf_release_SUNAdaptControllerContent_PI_(self)
-use, intrinsic :: ISO_C_BINDING
-class(SUNAdaptControllerContent_PI_), intent(inout) :: self
-type(SwigClassWrapper) :: farg1 
-
-farg1 = self%swigdata
-if (btest(farg1%cmemflags, swig_cmem_own_bit)) then
-call swigc_delete_SUNAdaptControllerContent_PI_(farg1)
-endif
-farg1%cptr = C_NULL_PTR
-farg1%cmemflags = 0
-self%swigdata = farg1
-end subroutine
-
-subroutine swigf_SUNAdaptControllerContent_PI__op_assign__(self, other)
-use, intrinsic :: ISO_C_BINDING
-class(SUNAdaptControllerContent_PI_), intent(inout) :: self
-type(SUNAdaptControllerContent_PI_), intent(in) :: other
-type(SwigClassWrapper) :: farg1 
-type(SwigClassWrapper) :: farg2 
-
-farg1 = self%swigdata
-farg2 = other%swigdata
-call swigc_SUNAdaptControllerContent_PI__op_assign__(farg1, farg2)
-self%swigdata = farg1
-end subroutine
-
 function FSUNAdaptController_PI(sunctx) &
 result(swig_result)
 use, intrinsic :: ISO_C_BINDING
-type(generic_SUNAdaptController_) :: swig_result
+type(SUNAdaptController), pointer :: swig_result
 type(C_PTR) :: sunctx
-type(SwigClassWrapper) :: fresult 
+type(C_PTR) :: fresult 
 type(C_PTR) :: farg1 
 
 farg1 = sunctx
 fresult = swigc_FSUNAdaptController_PI(farg1)
-swig_result%swigdata = fresult
+call c_f_pointer(fresult, swig_result)
 end function
 
 function FSUNAdaptController_SetParams_PI(c, pq, k1, k2) &
 result(swig_result)
 use, intrinsic :: ISO_C_BINDING
 integer(C_INT) :: swig_result
-class(generic_SUNAdaptController_), intent(in) :: c
+type(SUNAdaptController), target, intent(inout) :: c
 integer(C_INT), intent(in) :: pq
 real(C_DOUBLE), intent(in) :: k1
 real(C_DOUBLE), intent(in) :: k2
 integer(C_INT) :: fresult 
-type(SwigClassWrapper) :: farg1 
+type(C_PTR) :: farg1 
 integer(C_INT) :: farg2 
 real(C_DOUBLE) :: farg3 
 real(C_DOUBLE) :: farg4 
 
-farg1 = c%swigdata
+farg1 = c_loc(c)
 farg2 = pq
 farg3 = k1
 farg4 = k2
@@ -551,11 +196,11 @@ function FSUNAdaptController_GetType_PI(c) &
 result(swig_result)
 use, intrinsic :: ISO_C_BINDING
 integer(SUNAdaptController_Type) :: swig_result
-class(generic_SUNAdaptController_), intent(in) :: c
+type(SUNAdaptController), target, intent(inout) :: c
 integer(C_INT) :: fresult 
-type(SwigClassWrapper) :: farg1 
+type(C_PTR) :: farg1 
 
-farg1 = c%swigdata
+farg1 = c_loc(c)
 fresult = swigc_FSUNAdaptController_GetType_PI(farg1)
 swig_result = fresult
 end function
@@ -564,17 +209,17 @@ function FSUNAdaptController_EstimateStep_PI(c, h, dsm, hnew) &
 result(swig_result)
 use, intrinsic :: ISO_C_BINDING
 integer(C_INT) :: swig_result
-class(generic_SUNAdaptController_), intent(in) :: c
+type(SUNAdaptController), target, intent(inout) :: c
 real(C_DOUBLE), intent(in) :: h
 real(C_DOUBLE), intent(in) :: dsm
 real(C_DOUBLE), dimension(*), target, intent(inout) :: hnew
 integer(C_INT) :: fresult 
-type(SwigClassWrapper) :: farg1 
+type(C_PTR) :: farg1 
 real(C_DOUBLE) :: farg2 
 real(C_DOUBLE) :: farg3 
 type(C_PTR) :: farg4 
 
-farg1 = c%swigdata
+farg1 = c_loc(c)
 farg2 = h
 farg3 = dsm
 farg4 = c_loc(hnew(1))
@@ -586,11 +231,11 @@ function FSUNAdaptController_Reset_PI(c) &
 result(swig_result)
 use, intrinsic :: ISO_C_BINDING
 integer(C_INT) :: swig_result
-class(generic_SUNAdaptController_), intent(in) :: c
+type(SUNAdaptController), target, intent(inout) :: c
 integer(C_INT) :: fresult 
-type(SwigClassWrapper) :: farg1 
+type(C_PTR) :: farg1 
 
-farg1 = c%swigdata
+farg1 = c_loc(c)
 fresult = swigc_FSUNAdaptController_Reset_PI(farg1)
 swig_result = fresult
 end function
@@ -599,11 +244,11 @@ function FSUNAdaptController_SetDefaults_PI(c) &
 result(swig_result)
 use, intrinsic :: ISO_C_BINDING
 integer(C_INT) :: swig_result
-class(generic_SUNAdaptController_), intent(in) :: c
+type(SUNAdaptController), target, intent(inout) :: c
 integer(C_INT) :: fresult 
-type(SwigClassWrapper) :: farg1 
+type(C_PTR) :: farg1 
 
-farg1 = c%swigdata
+farg1 = c_loc(c)
 fresult = swigc_FSUNAdaptController_SetDefaults_PI(farg1)
 swig_result = fresult
 end function
@@ -612,13 +257,13 @@ function FSUNAdaptController_Write_PI(c, fptr) &
 result(swig_result)
 use, intrinsic :: ISO_C_BINDING
 integer(C_INT) :: swig_result
-class(generic_SUNAdaptController_), intent(in) :: c
+type(SUNAdaptController), target, intent(inout) :: c
 type(C_PTR) :: fptr
 integer(C_INT) :: fresult 
-type(SwigClassWrapper) :: farg1 
+type(C_PTR) :: farg1 
 type(C_PTR) :: farg2 
 
-farg1 = c%swigdata
+farg1 = c_loc(c)
 farg2 = fptr
 fresult = swigc_FSUNAdaptController_Write_PI(farg1, farg2)
 swig_result = fresult
@@ -628,13 +273,13 @@ function FSUNAdaptController_SetMethodOrder_PI(c, q) &
 result(swig_result)
 use, intrinsic :: ISO_C_BINDING
 integer(C_INT) :: swig_result
-class(generic_SUNAdaptController_), intent(in) :: c
+type(SUNAdaptController), target, intent(inout) :: c
 integer(C_INT), intent(in) :: q
 integer(C_INT) :: fresult 
-type(SwigClassWrapper) :: farg1 
+type(C_PTR) :: farg1 
 integer(C_INT) :: farg2 
 
-farg1 = c%swigdata
+farg1 = c_loc(c)
 farg2 = q
 fresult = swigc_FSUNAdaptController_SetMethodOrder_PI(farg1, farg2)
 swig_result = fresult
@@ -644,13 +289,13 @@ function FSUNAdaptController_SetEmbeddingOrder_PI(c, p) &
 result(swig_result)
 use, intrinsic :: ISO_C_BINDING
 integer(C_INT) :: swig_result
-class(generic_SUNAdaptController_), intent(in) :: c
+type(SUNAdaptController), target, intent(inout) :: c
 integer(C_INT), intent(in) :: p
 integer(C_INT) :: fresult 
-type(SwigClassWrapper) :: farg1 
+type(C_PTR) :: farg1 
 integer(C_INT) :: farg2 
 
-farg1 = c%swigdata
+farg1 = c_loc(c)
 farg2 = p
 fresult = swigc_FSUNAdaptController_SetEmbeddingOrder_PI(farg1, farg2)
 swig_result = fresult
@@ -660,13 +305,13 @@ function FSUNAdaptController_SetErrorBias_PI(c, bias) &
 result(swig_result)
 use, intrinsic :: ISO_C_BINDING
 integer(C_INT) :: swig_result
-class(generic_SUNAdaptController_), intent(in) :: c
+type(SUNAdaptController), target, intent(inout) :: c
 real(C_DOUBLE), intent(in) :: bias
 integer(C_INT) :: fresult 
-type(SwigClassWrapper) :: farg1 
+type(C_PTR) :: farg1 
 real(C_DOUBLE) :: farg2 
 
-farg1 = c%swigdata
+farg1 = c_loc(c)
 farg2 = bias
 fresult = swigc_FSUNAdaptController_SetErrorBias_PI(farg1, farg2)
 swig_result = fresult
@@ -676,15 +321,15 @@ function FSUNAdaptController_Update_PI(c, h, dsm) &
 result(swig_result)
 use, intrinsic :: ISO_C_BINDING
 integer(C_INT) :: swig_result
-class(generic_SUNAdaptController_), intent(in) :: c
+type(SUNAdaptController), target, intent(inout) :: c
 real(C_DOUBLE), intent(in) :: h
 real(C_DOUBLE), intent(in) :: dsm
 integer(C_INT) :: fresult 
-type(SwigClassWrapper) :: farg1 
+type(C_PTR) :: farg1 
 real(C_DOUBLE) :: farg2 
 real(C_DOUBLE) :: farg3 
 
-farg1 = c%swigdata
+farg1 = c_loc(c)
 farg2 = h
 farg3 = dsm
 fresult = swigc_FSUNAdaptController_Update_PI(farg1, farg2, farg3)
@@ -695,15 +340,15 @@ function FSUNAdaptController_Space_PI(c, lenrw, leniw) &
 result(swig_result)
 use, intrinsic :: ISO_C_BINDING
 integer(C_INT) :: swig_result
-class(generic_SUNAdaptController_), intent(in) :: c
+type(SUNAdaptController), target, intent(inout) :: c
 integer(C_LONG), dimension(*), target, intent(inout) :: lenrw
 integer(C_LONG), dimension(*), target, intent(inout) :: leniw
 integer(C_INT) :: fresult 
-type(SwigClassWrapper) :: farg1 
+type(C_PTR) :: farg1 
 type(C_PTR) :: farg2 
 type(C_PTR) :: farg3 
 
-farg1 = c%swigdata
+farg1 = c_loc(c)
 farg2 = c_loc(lenrw(1))
 farg3 = c_loc(leniw(1))
 fresult = swigc_FSUNAdaptController_Space_PI(farg1, farg2, farg3)
