@@ -37,7 +37,7 @@ and defines its *content* field as:
 
 .. code-block:: c
 
-   struct SUNAdaptControllerContent_ImpGus_ {
+   struct _SUNAdaptControllerContent_ImpGus {
      realtype k1;
      realtype k2;
      realtype bias;

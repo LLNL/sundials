@@ -53,13 +53,13 @@ typedef int (*SUNExpStabFn)(realtype *hstab, void *user_data);
  * ----------------------------------------------------------------- */
 
 /* Forward reference for pointer to SUNTimestepHeuristics_Ops object */
-typedef _SUNDIALS_STRUCT_ generic_SUNTimestepHeuristics_Ops_* SUNTimestepHeuristics_Ops;
+typedef _SUNDIALS_STRUCT_ _generic_SUNTimestepHeuristics_Ops_* SUNTimestepHeuristics_Ops;
 
 /* Forward reference for pointer to SUNTimestepHeuristics object */
-typedef _SUNDIALS_STRUCT_ generic_SUNTimestepHeuristics_* SUNTimestepHeuristics;
+typedef _SUNDIALS_STRUCT_ _generic_SUNTimestepHeuristics_* SUNTimestepHeuristics;
 
 /* Structure containing function pointers to heuristics operations  */
-struct generic_SUNTimestepHeuristics_Ops_
+struct _generic_SUNTimestepHeuristics_Ops_
 {
   SUNTimestepHeuristics_ID (*getid)(SUNTimestepHeuristics H);
   int (*destroy)(SUNTimestepHeuristics H);
@@ -95,7 +95,7 @@ struct generic_SUNTimestepHeuristics_Ops_
 /* A SUNTimestepHeuristics is a structure with an implementation-dependent
    'content' field, and a pointer to a structure of
    operations corresponding to that implementation. */
-struct generic_SUNTimestepHeuristics_
+struct _generic_SUNTimestepHeuristics_
 {
   void* content;
   SUNTimestepHeuristics_Ops ops;

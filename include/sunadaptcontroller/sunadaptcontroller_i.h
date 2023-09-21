@@ -28,14 +28,14 @@ extern "C" {
  * I implementation of SUNAdaptController
  * -------------------------------------- */
 
-struct SUNAdaptControllerContent_I_ {
+struct _SUNAdaptControllerContent_I {
   realtype k1;        /* internal controller parameters */
   realtype bias;      /* error bias factor */
   int p;              /* order of accuracy to use for controller */
   sunbooleantype pq;  /* p is embedding order (FALSE) or method order (TRUE) */
 };
 
-typedef struct SUNAdaptControllerContent_I_ *SUNAdaptControllerContent_I;
+typedef struct _SUNAdaptControllerContent_I *SUNAdaptControllerContent_I;
 
 /* ------------------
  * Exported Functions

@@ -29,11 +29,11 @@ extern "C" {
  * Unconstrained implementation of SUNTimestepHeuristics
  * ----------------------------------------------------- */
 
-struct SUNTimestepHeuristicsContent_Unconstrained_ {
+struct _SUNTimestepHeuristicsContent_Unconstrained {
   long int nst_acc; /* num accuracy-limited internal steps */
 };
 
-typedef struct SUNTimestepHeuristicsContent_Unconstrained_ *SUNTimestepHeuristicsContent_Unconstrained;
+typedef struct _SUNTimestepHeuristicsContent_Unconstrained *SUNTimestepHeuristicsContent_Unconstrained;
 
 /* ------------------
  * Exported Functions

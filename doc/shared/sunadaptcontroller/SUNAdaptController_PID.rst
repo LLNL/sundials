@@ -37,7 +37,7 @@ field as:
 
 .. code-block:: c
 
-   struct SUNAdaptControllerContent_PID_ {
+   struct _SUNAdaptControllerContent_PID {
      realtype k1;
      realtype k2;
      realtype k3;

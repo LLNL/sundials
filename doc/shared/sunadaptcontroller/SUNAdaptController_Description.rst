@@ -40,24 +40,24 @@ classes, in that this class contains a pointer to an implementation-specific
 :c:type:`SUNContext` object. Specifically, the type ``SUNAdaptController`` is defined
 as:
 
-.. c:type:: struct generic_SUNAdaptController_ *SUNAdaptController
+.. c:type:: struct _generic_SUNAdaptController *SUNAdaptController
 
 and the base class structure is defined as
 
 .. code-block:: C
 
-   struct generic_SUNAdaptController_ {
+   struct _generic_SUNAdaptController {
         void* content;
         generic_SUNAdaptController_Ops_* ops;
         SUNContext sunctx;
     };
 
-Here, ``generic_SUNAdaptController_Ops_`` is the pointer to a structure containing
+Here, ``_generic_SUNAdaptController_Ops`` is the pointer to a structure containing
 function pointers to the various controller operations, and is defined as
 
 .. code-block:: c
 
-    struct generic_SUNAdaptController_Ops_ {
+    struct _generic_SUNAdaptController_Ops {
         SUNAdaptController_Type (*getid)(SUNAdaptController C);
         int (*destroy)(SUNAdaptController C);
         int (*estimatestep)(SUNAdaptController C, realtype h, realtype dsm, realtype* hnew);

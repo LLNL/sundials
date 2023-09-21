@@ -28,7 +28,7 @@ extern "C" {
  * ImEx Gustafsson implementation of SUNAdaptController
  * ---------------------------------------------------- */
 
-struct SUNAdaptControllerContent_ImExGus_ {
+struct _SUNAdaptControllerContent_ImExGus {
   realtype k1i;             /* internal controller parameters */
   realtype k2i;
   realtype k1e;
@@ -41,7 +41,7 @@ struct SUNAdaptControllerContent_ImExGus_ {
   sunbooleantype firststep; /* flag indicating first step */
 };
 
-typedef struct SUNAdaptControllerContent_ImExGus_ *SUNAdaptControllerContent_ImExGus;
+typedef struct _SUNAdaptControllerContent_ImExGus *SUNAdaptControllerContent_ImExGus;
 
 /* ------------------
  * Exported Functions

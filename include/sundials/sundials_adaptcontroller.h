@@ -53,13 +53,13 @@ typedef enum
  * ----------------------------------------------------------------- */
 
 /* Forward reference for pointer to SUNAdaptController_Ops object */
-typedef _SUNDIALS_STRUCT_ generic_SUNAdaptController_Ops_* SUNAdaptController_Ops;
+typedef _SUNDIALS_STRUCT_ _generic_SUNAdaptController_Ops* SUNAdaptController_Ops;
 
 /* Forward reference for pointer to SUNAdaptController object */
-typedef _SUNDIALS_STRUCT_ generic_SUNAdaptController_* SUNAdaptController;
+typedef _SUNDIALS_STRUCT_ _generic_SUNAdaptController* SUNAdaptController;
 
 /* Structure containing function pointers to controller operations  */
-struct generic_SUNAdaptController_Ops_
+struct _generic_SUNAdaptController_Ops
 {
   /* REQUIRED of all controller implementations. */
   SUNAdaptController_Type (*gettype)(SUNAdaptController C);
@@ -101,7 +101,7 @@ struct generic_SUNAdaptController_Ops_
 /* A SUNAdaptController is a structure with an implementation-dependent
    'content' field, and a pointer to a structure of
    operations corresponding to that implementation. */
-struct generic_SUNAdaptController_
+struct _generic_SUNAdaptController
 {
   void* content;
   SUNAdaptController_Ops ops;

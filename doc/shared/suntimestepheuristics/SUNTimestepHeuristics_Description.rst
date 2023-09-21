@@ -36,7 +36,7 @@ and the base class structure is defined as
 
 .. code-block:: C
 
-   struct generic_SUNTimestepHeuristics_ {
+   struct _generic_SUNTimestepHeuristics_ {
         void* content;
         generic_SUNTimestepHeuristics_Ops_* ops;
         SUNContext sunctx;
@@ -47,7 +47,7 @@ function pointers to the various heuristics operations, and is defined as
 
 .. code-block:: c
 
-    struct generic_SUNTimestepHeuristics_Ops_ {
+    struct _generic_SUNTimestepHeuristics_Ops_ {
 
       SUNTimestepHeuristics_ID (*getid)(SUNTimestepHeuristics H);
       int (*destroy)(SUNTimestepHeuristics H);

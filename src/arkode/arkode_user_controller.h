@@ -31,7 +31,7 @@ extern "C" {
  * ARKUserControl implementation of SUNAdaptController
  * --------------------------------------------------- */
 
-struct ARKUserControlContent_ {
+struct _ARKUserControlContent {
   realtype hp;        /* h from previous step */
   realtype hpp;       /* h from 2 steps ago */
   realtype ep;        /* error from previous step */
@@ -43,7 +43,7 @@ struct ARKUserControlContent_ {
   void* hadapt_data;  /* user-provided data pointer */
 };
 
-typedef struct ARKUserControlContent_ *ARKUserControlContent;
+typedef struct _ARKUserControlContent *ARKUserControlContent;
 
 /* ------------------
  * Exported Functions

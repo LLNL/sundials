@@ -29,7 +29,7 @@ extern "C" {
  * Default implementation of SUNTimestepHeuristics
  * ----------------------------------------------- */
 
-struct SUNTimestepHeuristicsContent_Default_ {
+struct _SUNTimestepHeuristicsContent_Default {
   realtype     hmax_inv;   /* inverse of maximum allowable time step     */
   realtype     hmin;       /* minimum allowable time step                */
   realtype     etamax;     /* eta <= etamax                              */
@@ -49,7 +49,7 @@ struct SUNTimestepHeuristicsContent_Default_ {
   long int     nst_exp;    /* num stability-limited internal steps       */
 };
 
-typedef struct SUNTimestepHeuristicsContent_Default_ *SUNTimestepHeuristicsContent_Default;
+typedef struct _SUNTimestepHeuristicsContent_Default *SUNTimestepHeuristicsContent_Default;
 
 /* ------------------
  * Exported Functions

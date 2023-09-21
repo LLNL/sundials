@@ -33,7 +33,7 @@ field as:
 
 .. code-block:: c
 
-   struct SUNAdaptControllerContent_I_ {
+   struct _SUNAdaptControllerContent_I {
      realtype k1;
      realtype bias;
      int p;

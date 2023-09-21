@@ -28,7 +28,7 @@ extern "C" {
  * PI implementation of SUNAdaptController
  * --------------------------------------- */
 
-struct SUNAdaptControllerContent_PI_ {
+struct _SUNAdaptControllerContent_PI {
   realtype k1;        /* internal controller parameters */
   realtype k2;
   realtype bias;      /* error bias factor */
@@ -37,7 +37,7 @@ struct SUNAdaptControllerContent_PI_ {
   sunbooleantype pq;  /* p is embedding order (FALSE) or method order (TRUE) */
 };
 
-typedef struct SUNAdaptControllerContent_PI_ *SUNAdaptControllerContent_PI;
+typedef struct _SUNAdaptControllerContent_PI *SUNAdaptControllerContent_PI;
 
 /* ------------------
  * Exported Functions

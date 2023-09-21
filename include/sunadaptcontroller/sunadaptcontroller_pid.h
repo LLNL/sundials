@@ -28,7 +28,7 @@ extern "C" {
  * PID implementation of SUNAdaptController
  * ---------------------------------------- */
 
-struct SUNAdaptControllerContent_PID_ {
+struct _SUNAdaptControllerContent_PID {
   realtype k1;        /* internal controller parameters */
   realtype k2;
   realtype k3;
@@ -39,7 +39,7 @@ struct SUNAdaptControllerContent_PID_ {
   sunbooleantype pq;  /* p is embedding order (FALSE) or method order (TRUE) */
 };
 
-typedef struct SUNAdaptControllerContent_PID_ *SUNAdaptControllerContent_PID;
+typedef struct _SUNAdaptControllerContent_PID *SUNAdaptControllerContent_PID;
 
 /* ------------------
  * Exported Functions

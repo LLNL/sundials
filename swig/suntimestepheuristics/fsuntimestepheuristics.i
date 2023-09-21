@@ -27,5 +27,5 @@
 
 // Macro for creating an interface to an N_Vector
 %define %suntimestepheuristics_impl(TYPE)
-  %ignore SUNTimestepHeuristicsContent_## TYPE ##;
+  %ignore _SUNTimestepHeuristicsContent_## TYPE ##;
 %enddef

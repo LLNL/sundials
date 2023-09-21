@@ -123,7 +123,7 @@ program main
   type(N_Vector),           pointer :: sunvec_y    ! sundials vector
   type(SUNMatrix),          pointer :: sunmat_A    ! sundials matrix
   type(SUNLinearSolver),    pointer :: sunls       ! sundials linear solver
-  type(SUNAdaptController), pointer :: sunCtrl     ! sundials linear solver
+  type(SUNAdaptController), pointer :: sunCtrl     ! time step controller
   type(c_ptr)                       :: arkode_mem  ! ARKODE memory
   real(c_double),           pointer :: yvec(:)     ! underlying vector
 

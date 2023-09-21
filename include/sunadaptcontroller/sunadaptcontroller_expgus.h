@@ -28,7 +28,7 @@ extern "C" {
  * Explicit Gustafsson implementation of SUNAdaptController
  * -------------------------------------------------------- */
 
-struct SUNAdaptControllerContent_ExpGus_ {
+struct _SUNAdaptControllerContent_ExpGus {
   realtype k1;              /* internal controller parameters */
   realtype k2;
   realtype bias;            /* error bias factor */
@@ -38,7 +38,7 @@ struct SUNAdaptControllerContent_ExpGus_ {
   sunbooleantype firststep; /* flag indicating first step */
 };
 
-typedef struct SUNAdaptControllerContent_ExpGus_ *SUNAdaptControllerContent_ExpGus;
+typedef struct _SUNAdaptControllerContent_ExpGus *SUNAdaptControllerContent_ExpGus;
 
 /* ------------------
  * Exported Functions

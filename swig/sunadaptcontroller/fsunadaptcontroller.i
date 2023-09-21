@@ -26,5 +26,5 @@
 
 // Macro for creating an interface to a SUNAdaptController
 %define %sunadaptcontroller_impl(TYPE)
-  %ignore SUNAdaptControllerContent_## TYPE ##;
+  %ignore _SUNAdaptControllerContent_## TYPE ##;
 %enddef

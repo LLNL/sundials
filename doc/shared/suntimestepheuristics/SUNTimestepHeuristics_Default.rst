@@ -26,7 +26,7 @@ field as:
 
 .. code-block:: c
 
-   struct SUNTimestepHeuristicsContent_Default_ {
+   struct _SUNTimestepHeuristicsContent_Default {
      realtype     hmax_inv;
      realtype     hmin;
      realtype     etamax;
