@@ -41,7 +41,7 @@ int HermitePolyCoef(sunrealtype* t, N_Vector* y, N_Vector f, int n_times,
                     N_Vector* coeff)
 {
   int i, j;
-  int n_coeff = n_times + 1; // n_times state values + 1 derivative
+  int n_coeff = n_times + 1; /* n_times state values + 1 derivative */
   sunrealtype* t_ext = NULL;
 
   /* Check for valid inputs */
@@ -145,7 +145,7 @@ int HermitePolyMultiDerEval(sunrealtype* t, N_Vector* coeff, int n_times,
                             sunrealtype s, int derv, N_Vector* p)
 {
   int i, j;
-  int n_coeff = n_times + 1; // n_times state values + 1 derivative
+  int n_coeff = n_times + 1; /* n_times state values + 1 derivative */
   sunrealtype* t_ext = NULL;
 
   /* Check for valid inputs */
@@ -185,10 +185,10 @@ int HermitePolyMultiDerEval(sunrealtype* t, N_Vector* coeff, int n_times,
   {
     for (j = derv; j > 0; j--)
     {
-      // P^(j)_i = P_{j + 1} * (s - t_i) + j * P^(j - 1)_i
+      /* P^(j)_i = P_{j + 1} * (s - t_i) + j * P^(j - 1)_i */
       N_VLinearSum(s - t_ext[i], p[j], j, p[j-1], p[j]);
     }
-    // P_i = P_{i + 1} * (s - t_i) + c_i
+    /* P_i = P_{i + 1} * (s - t_i) + c_i */
     N_VLinearSum(s - t_ext[i], p[0], ONE, coeff[i], p[0]);
   }
 
@@ -209,7 +209,12 @@ int CVodeResizeHistory(void *cvode_mem, sunrealtype* t_hist, N_Vector* y_hist,
                        N_Vector* f_hist, int n_hist, CVResizeVecFn resize_fn,
                        FILE* debug_file)
 {
+  CVodeMem cv_mem = NULL;
   int retval = 0;
+  int i, j, ithist, ord;
+  N_Vector tmpl;
+  int maxord;
+  sunrealtype scale;
 
   if (!cvode_mem)
   {
@@ -217,7 +222,7 @@ int CVodeResizeHistory(void *cvode_mem, sunrealtype* t_hist, N_Vector* y_hist,
                    MSGCV_NO_MEM);
     return CV_MEM_NULL;
   }
-  CVodeMem cv_mem = (CVodeMem) cvode_mem;
+  cv_mem = (CVodeMem) cvode_mem;
 
   if (!t_hist)
   {
@@ -252,7 +257,7 @@ int CVodeResizeHistory(void *cvode_mem, sunrealtype* t_hist, N_Vector* y_hist,
     fprintf(debug_file, "Start Resize\n");
     fprintf(debug_file, "Input values\n");
     fprintf(debug_file, "n_hist         = %d\n", n_hist);
-    for (int ithist = 0; ithist < n_hist; ithist++)
+    for (ithist = 0; ithist < n_hist; ithist++)
     {
       fprintf(debug_file, "t_hist[%d]      = %g\n", ithist, t_hist[ithist]);
     }
@@ -265,7 +270,7 @@ int CVodeResizeHistory(void *cvode_mem, sunrealtype* t_hist, N_Vector* y_hist,
     fprintf(debug_file, "current order  = %d\n", cv_mem->cv_q);
     fprintf(debug_file, "next order     = %d\n", cv_mem->cv_qprime);
     fprintf(debug_file, "next order (?) = %d\n", cv_mem->cv_next_q);
-    for (int ord = 0; ord < 6; ord++)
+    for (ord = 0; ord < 6; ord++)
     {
       fprintf(debug_file, "zn[%d]\n", ord);
       N_VPrintFile(cv_mem->cv_zn[ord], debug_file);
@@ -275,8 +280,8 @@ int CVodeResizeHistory(void *cvode_mem, sunrealtype* t_hist, N_Vector* y_hist,
   /* Make sure number of inputs is sufficient for the current (next) order */
   /* Make sure times[0] == tn */
 
-  N_Vector tmpl = y_hist[0];
-  int maxord = cv_mem->cv_qmax_alloc;
+  tmpl = y_hist[0];
+  maxord = cv_mem->cv_qmax_alloc;
 
   /* -------------- *
    * Resize vectors *
@@ -332,14 +337,14 @@ int CVodeResizeHistory(void *cvode_mem, sunrealtype* t_hist, N_Vector* y_hist,
                        cv_mem->cv_user_data);
   }
 
-  for (int j = 0; j <= maxord; j++)
+  for (j = 0; j <= maxord; j++)
   {
     N_VDestroy(cv_mem->cv_zn[j]);
     cv_mem->cv_zn[j] = N_VClone(tmpl);
     N_VConst(NAN, cv_mem->cv_zn[j]);
   }
 
-  for (int j = 0; j <= maxord; j++)
+  for (j = 0; j <= maxord; j++)
   {
     N_VDestroy(cv_mem->resize_wrk[j]);
     cv_mem->resize_wrk[j] = N_VClone(tmpl);
@@ -392,8 +397,8 @@ int CVodeResizeHistory(void *cvode_mem, sunrealtype* t_hist, N_Vector* y_hist,
   N_VScale(ONE, y_hist[0], cv_mem->cv_zn[0]);
   N_VScale(ONE, cv_mem->cv_vtemp2, cv_mem->cv_zn[1]);
 
-  sunrealtype scale = ONE;
-  for (int i = 1; i < cv_mem->cv_q + 1; i++)
+  scale = ONE;
+  for (i = 1; i < cv_mem->cv_q + 1; i++)
   {
     scale *= cv_mem->cv_hscale / ((sunrealtype) i);
     N_VScale(scale, cv_mem->cv_zn[i], cv_mem->cv_zn[i]);
@@ -413,7 +418,7 @@ int CVodeResizeHistory(void *cvode_mem, sunrealtype* t_hist, N_Vector* y_hist,
   {
     fprintf(debug_file, "Finish Resize\n");
     fprintf(debug_file, "tn = %g\n", cv_mem->cv_tn);
-    for (int ord = 0; ord < 6; ord++)
+    for (ord = 0; ord < 6; ord++)
     {
       fprintf(debug_file, "zn[%d]\n", ord);
       N_VPrintFile(cv_mem->cv_zn[ord], debug_file);
