@@ -12,14 +12,14 @@
 # SUNDIALS Copyright End
 # ---------------------------------------------------------------
 
-sundials_add_f2003_library(sundials_fsunheuristicsdefault_mod
+sundials_add_f2003_library(sundials_fsuntimestepheuristicsdefault_mod
   SOURCES
-    fsunheuristics_default_mod.f90 fsunheuristics_default_mod.c
+    fsuntimestepheuristics_default_mod.f90 fsuntimestepheuristics_default_mod.c
   OBJECT_LIBRARIES
     sundials_fgeneric_mod_obj
   OUTPUT_NAME
-    sundials_fsunheuristics_default_mod
+    sundials_fsuntimestepheuristics_default_mod
   OBJECT_LIB_ONLY
 )
 
-message(STATUS "Added SUNHeuristics_Default F2003 interface")
+message(STATUS "Added SUNTimestepHeuristics_Default F2003 interface")

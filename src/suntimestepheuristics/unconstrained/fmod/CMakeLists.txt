@@ -12,14 +12,14 @@
 # SUNDIALS Copyright End
 # ---------------------------------------------------------------
 
-sundials_add_f2003_library(sundials_fsunheuristicsunconstrained_mod
+sundials_add_f2003_library(sundials_fsuntimestepheuristicsunconstrained_mod
   SOURCES
-    fsunheuristics_unconstrained_mod.f90 fsunheuristics_unconstrained_mod.c
+    fsuntimestepheuristics_unconstrained_mod.f90 fsuntimestepheuristics_unconstrained_mod.c
   OBJECT_LIBRARIES
     sundials_fgeneric_mod_obj
   OUTPUT_NAME
-    sundials_fsunheuristics_unconstrained_mod
+    sundials_fsuntimestepheuristics_unconstrained_mod
   OBJECT_LIB_ONLY
 )
 
-message(STATUS "Added SUNHeuristics_Unconstrained F2003 interface")
+message(STATUS "Added SUNTimestepHeuristics_Unconstrained F2003 interface")

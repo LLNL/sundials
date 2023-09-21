@@ -43,7 +43,7 @@ relies on the base class implementation for most of the operations from
   what was requested.
 
 * Its :c:func:`SUNTimestepHeuristics_ConvFail` routine does not adjust the input step
-  size, and returns the failure code ``SUNHEURISTICS_CANNOT_DECREASE``.
+  size, and returns the failure code ``SUNTIMESTEPHEURISTICS_CANNOT_DECREASE``.
 
 * Its :c:func:`SUNTimestepHeuristics_Reset` routine resets ``nst_acc`` to zero.
 
