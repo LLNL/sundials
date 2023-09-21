@@ -194,6 +194,19 @@ enum {
     }
 
 
+#define SWIG_check_nonnull(SWIG_CLASS_WRAPPER, TYPENAME, FNAME, FUNCNAME, RETURNNULL) \
+  if (!(SWIG_CLASS_WRAPPER).cptr) { \
+    SWIG_exception_impl(FUNCNAME, SWIG_TypeError, \
+                        "Cannot pass null " TYPENAME " (class " FNAME ") " \
+                        "as a reference", RETURNNULL); \
+  }
+
+
+#define SWIG_check_mutable_nonnull(SWIG_CLASS_WRAPPER, TYPENAME, FNAME, FUNCNAME, RETURNNULL) \
+    SWIG_check_nonnull(SWIG_CLASS_WRAPPER, TYPENAME, FNAME, FUNCNAME, RETURNNULL); \
+    SWIG_check_mutable(SWIG_CLASS_WRAPPER, TYPENAME, FNAME, FUNCNAME, RETURNNULL);
+
+
 #include <stdio.h>
 #if defined(_MSC_VER) || defined(__BORLANDC__) || defined(_WATCOM)
 # ifndef snprintf
@@ -219,10 +232,10 @@ enum {
 #define SWIG_as_voidptrptr(a) ((void)SWIG_as_voidptr(*a),(void**)(a)) 
 
 
-#include "sundials/sundials_heuristics.h"
+#include "sundials/sundials_timestepheuristics.h"
 
 
-#include "sunheuristics/sunheuristics_unconstrained.h"
+#include "suntimestepheuristics/suntimestepheuristics_unconstrained.h"
 
 
 typedef struct {
@@ -238,123 +251,224 @@ SWIGINTERN SwigClassWrapper SwigClassWrapper_uninitialized() {
     return result;
 }
 
-SWIGEXPORT SwigClassWrapper _wrap_FSUNHeuristicsUnconstrained(void *farg1) {
+
+#include <stdlib.h>
+#ifdef _MSC_VER
+# ifndef strtoull
+#  define strtoull _strtoui64
+# endif
+# ifndef strtoll
+#  define strtoll _strtoi64
+# endif
+#endif
+
+
+#include <string.h>
+
+
+SWIGINTERN void SWIG_assign(SwigClassWrapper* self, SwigClassWrapper other) {
+  if (self->cptr == NULL) {
+    /* LHS is unassigned */
+    if (other.cmemflags & SWIG_MEM_RVALUE) {
+      /* Capture pointer from RHS, clear 'moving' flag */
+      self->cptr = other.cptr;
+      self->cmemflags = other.cmemflags & (~SWIG_MEM_RVALUE);
+    } else {
+      /* Become a reference to the other object */
+      self->cptr = other.cptr;
+      self->cmemflags = other.cmemflags & (~SWIG_MEM_OWN);
+    }
+  } else if (other.cptr == NULL) {
+    /* Replace LHS with a null pointer */
+    free(self->cptr);
+    *self = SwigClassWrapper_uninitialized();
+  } else {
+    if (self->cmemflags & SWIG_MEM_OWN) {
+      free(self->cptr);
+    }
+    self->cptr = other.cptr;
+    if (other.cmemflags & SWIG_MEM_RVALUE) {
+      /* Capture RHS */
+      self->cmemflags = other.cmemflags & ~SWIG_MEM_RVALUE;
+    } else {
+      /* Point to RHS */
+      self->cmemflags = other.cmemflags & ~SWIG_MEM_OWN;
+    }
+  }
+}
+
+SWIGEXPORT void _wrap_SUNTimestepHeuristicsContent_Unconstrained__nst_acc_set(SwigClassWrapper const *farg1, long const *farg2) {
+  struct SUNTimestepHeuristicsContent_Unconstrained_ *arg1 = (struct SUNTimestepHeuristicsContent_Unconstrained_ *) 0 ;
+  long arg2 ;
+  
+  SWIG_check_mutable_nonnull(*farg1, "struct SUNTimestepHeuristicsContent_Unconstrained_ *", "SUNTimestepHeuristicsContent_Unconstrained_", "SUNTimestepHeuristicsContent_Unconstrained_::nst_acc", return );
+  arg1 = (struct SUNTimestepHeuristicsContent_Unconstrained_ *)(farg1->cptr);
+  arg2 = (long)(*farg2);
+  if (arg1) (arg1)->nst_acc = arg2;
+}
+
+
+SWIGEXPORT long _wrap_SUNTimestepHeuristicsContent_Unconstrained__nst_acc_get(SwigClassWrapper const *farg1) {
+  long fresult ;
+  struct SUNTimestepHeuristicsContent_Unconstrained_ *arg1 = (struct SUNTimestepHeuristicsContent_Unconstrained_ *) 0 ;
+  long result;
+  
+  SWIG_check_mutable_nonnull(*farg1, "struct SUNTimestepHeuristicsContent_Unconstrained_ *", "SUNTimestepHeuristicsContent_Unconstrained_", "SUNTimestepHeuristicsContent_Unconstrained_::nst_acc", return 0);
+  arg1 = (struct SUNTimestepHeuristicsContent_Unconstrained_ *)(farg1->cptr);
+  result = (long) ((arg1)->nst_acc);
+  fresult = (long)(result);
+  return fresult;
+}
+
+
+SWIGEXPORT SwigClassWrapper _wrap_new_SUNTimestepHeuristicsContent_Unconstrained_() {
+  SwigClassWrapper fresult ;
+  struct SUNTimestepHeuristicsContent_Unconstrained_ *result = 0 ;
+  
+  result = (struct SUNTimestepHeuristicsContent_Unconstrained_ *)calloc(1, sizeof(struct SUNTimestepHeuristicsContent_Unconstrained_));
+  fresult.cptr = result;
+  fresult.cmemflags = SWIG_MEM_RVALUE | (1 ? SWIG_MEM_OWN : 0);
+  return fresult;
+}
+
+
+SWIGEXPORT void _wrap_delete_SUNTimestepHeuristicsContent_Unconstrained_(SwigClassWrapper *farg1) {
+  struct SUNTimestepHeuristicsContent_Unconstrained_ *arg1 = (struct SUNTimestepHeuristicsContent_Unconstrained_ *) 0 ;
+  
+  SWIG_check_mutable(*farg1, "struct SUNTimestepHeuristicsContent_Unconstrained_ *", "SUNTimestepHeuristicsContent_Unconstrained_", "SUNTimestepHeuristicsContent_Unconstrained_::~SUNTimestepHeuristicsContent_Unconstrained_()", return );
+  arg1 = (struct SUNTimestepHeuristicsContent_Unconstrained_ *)(farg1->cptr);
+  free((char *) arg1);
+}
+
+
+SWIGEXPORT void _wrap_SUNTimestepHeuristicsContent_Unconstrained__op_assign__(SwigClassWrapper *farg1, SwigClassWrapper const *farg2) {
+  struct SUNTimestepHeuristicsContent_Unconstrained_ *arg1 = (struct SUNTimestepHeuristicsContent_Unconstrained_ *) 0 ;
+  struct SUNTimestepHeuristicsContent_Unconstrained_ *arg2 = 0 ;
+  
+  (void)sizeof(arg1);
+  (void)sizeof(arg2);
+  SWIG_assign(farg1, *farg2);
+  
+}
+
+
+SWIGEXPORT SwigClassWrapper _wrap_FSUNTimestepHeuristics_Unconstrained(void *farg1) {
   SwigClassWrapper fresult ;
   SUNContext arg1 = (SUNContext) 0 ;
-  SUNHeuristics result;
+  SUNTimestepHeuristics result;
   
   arg1 = (SUNContext)(farg1);
-  result = (SUNHeuristics)SUNHeuristicsUnconstrained(arg1);
+  result = (SUNTimestepHeuristics)SUNTimestepHeuristics_Unconstrained(arg1);
   fresult.cptr = result;
   fresult.cmemflags = SWIG_MEM_RVALUE | (0 ? SWIG_MEM_OWN : 0);
   return fresult;
 }
 
 
-SWIGEXPORT int _wrap_FSUNHeuristicsGetID_Unconstrained(SwigClassWrapper const *farg1) {
+SWIGEXPORT int _wrap_FSUNTimestepHeuristics_GetID_Unconstrained(SwigClassWrapper const *farg1) {
   int fresult ;
-  SUNHeuristics arg1 = (SUNHeuristics) 0 ;
-  SUNHeuristics_ID result;
+  SUNTimestepHeuristics arg1 = (SUNTimestepHeuristics) 0 ;
+  SUNTimestepHeuristics_ID result;
   
-  SWIG_check_mutable(*farg1, "SUNHeuristics", "generic_SUNHeuristics_", "SUNHeuristicsGetID_Unconstrained(SUNHeuristics)", return 0);
-  arg1 = (SUNHeuristics)(farg1->cptr);
-  result = (SUNHeuristics_ID)SUNHeuristicsGetID_Unconstrained(arg1);
+  SWIG_check_mutable(*farg1, "SUNTimestepHeuristics", "generic_SUNTimestepHeuristics_", "SUNTimestepHeuristics_GetID_Unconstrained(SUNTimestepHeuristics)", return 0);
+  arg1 = (SUNTimestepHeuristics)(farg1->cptr);
+  result = (SUNTimestepHeuristics_ID)SUNTimestepHeuristics_GetID_Unconstrained(arg1);
   fresult = (int)(result);
   return fresult;
 }
 
 
-SWIGEXPORT int _wrap_FSUNHeuristicsConstrainStep_Unconstrained(SwigClassWrapper const *farg1, double const *farg2, double const *farg3, double *farg4) {
+SWIGEXPORT int _wrap_FSUNTimestepHeuristics_ConstrainStep_Unconstrained(SwigClassWrapper const *farg1, double const *farg2, double const *farg3, double *farg4) {
   int fresult ;
-  SUNHeuristics arg1 = (SUNHeuristics) 0 ;
+  SUNTimestepHeuristics arg1 = (SUNTimestepHeuristics) 0 ;
   realtype arg2 ;
   realtype arg3 ;
   realtype *arg4 = (realtype *) 0 ;
   int result;
   
-  SWIG_check_mutable(*farg1, "SUNHeuristics", "generic_SUNHeuristics_", "SUNHeuristicsConstrainStep_Unconstrained(SUNHeuristics,realtype,realtype,realtype *)", return 0);
-  arg1 = (SUNHeuristics)(farg1->cptr);
+  SWIG_check_mutable(*farg1, "SUNTimestepHeuristics", "generic_SUNTimestepHeuristics_", "SUNTimestepHeuristics_ConstrainStep_Unconstrained(SUNTimestepHeuristics,realtype,realtype,realtype *)", return 0);
+  arg1 = (SUNTimestepHeuristics)(farg1->cptr);
   arg2 = (realtype)(*farg2);
   arg3 = (realtype)(*farg3);
   arg4 = (realtype *)(farg4);
-  result = (int)SUNHeuristicsConstrainStep_Unconstrained(arg1,arg2,arg3,arg4);
+  result = (int)SUNTimestepHeuristics_ConstrainStep_Unconstrained(arg1,arg2,arg3,arg4);
   fresult = (int)(result);
   return fresult;
 }
 
 
-SWIGEXPORT int _wrap_FSUNHeuristicsConvFail_Unconstrained(SwigClassWrapper const *farg1, double const *farg2, double *farg3) {
+SWIGEXPORT int _wrap_FSUNTimestepHeuristics_ConvFail_Unconstrained(SwigClassWrapper const *farg1, double const *farg2, double *farg3) {
   int fresult ;
-  SUNHeuristics arg1 = (SUNHeuristics) 0 ;
+  SUNTimestepHeuristics arg1 = (SUNTimestepHeuristics) 0 ;
   realtype arg2 ;
   realtype *arg3 = (realtype *) 0 ;
   int result;
   
-  SWIG_check_mutable(*farg1, "SUNHeuristics", "generic_SUNHeuristics_", "SUNHeuristicsConvFail_Unconstrained(SUNHeuristics,realtype,realtype *)", return 0);
-  arg1 = (SUNHeuristics)(farg1->cptr);
+  SWIG_check_mutable(*farg1, "SUNTimestepHeuristics", "generic_SUNTimestepHeuristics_", "SUNTimestepHeuristics_ConvFail_Unconstrained(SUNTimestepHeuristics,realtype,realtype *)", return 0);
+  arg1 = (SUNTimestepHeuristics)(farg1->cptr);
   arg2 = (realtype)(*farg2);
   arg3 = (realtype *)(farg3);
-  result = (int)SUNHeuristicsConvFail_Unconstrained(arg1,arg2,arg3);
+  result = (int)SUNTimestepHeuristics_ConvFail_Unconstrained(arg1,arg2,arg3);
   fresult = (int)(result);
   return fresult;
 }
 
 
-SWIGEXPORT int _wrap_FSUNHeuristicsReset_Unconstrained(SwigClassWrapper const *farg1) {
+SWIGEXPORT int _wrap_FSUNTimestepHeuristics_Reset_Unconstrained(SwigClassWrapper const *farg1) {
   int fresult ;
-  SUNHeuristics arg1 = (SUNHeuristics) 0 ;
+  SUNTimestepHeuristics arg1 = (SUNTimestepHeuristics) 0 ;
   int result;
   
-  SWIG_check_mutable(*farg1, "SUNHeuristics", "generic_SUNHeuristics_", "SUNHeuristicsReset_Unconstrained(SUNHeuristics)", return 0);
-  arg1 = (SUNHeuristics)(farg1->cptr);
-  result = (int)SUNHeuristicsReset_Unconstrained(arg1);
+  SWIG_check_mutable(*farg1, "SUNTimestepHeuristics", "generic_SUNTimestepHeuristics_", "SUNTimestepHeuristics_Reset_Unconstrained(SUNTimestepHeuristics)", return 0);
+  arg1 = (SUNTimestepHeuristics)(farg1->cptr);
+  result = (int)SUNTimestepHeuristics_Reset_Unconstrained(arg1);
   fresult = (int)(result);
   return fresult;
 }
 
 
-SWIGEXPORT int _wrap_FSUNHeuristicsWrite_Unconstrained(SwigClassWrapper const *farg1, void *farg2) {
+SWIGEXPORT int _wrap_FSUNTimestepHeuristics_Write_Unconstrained(SwigClassWrapper const *farg1, void *farg2) {
   int fresult ;
-  SUNHeuristics arg1 = (SUNHeuristics) 0 ;
+  SUNTimestepHeuristics arg1 = (SUNTimestepHeuristics) 0 ;
   FILE *arg2 = (FILE *) 0 ;
   int result;
   
-  SWIG_check_mutable(*farg1, "SUNHeuristics", "generic_SUNHeuristics_", "SUNHeuristicsWrite_Unconstrained(SUNHeuristics,FILE *)", return 0);
-  arg1 = (SUNHeuristics)(farg1->cptr);
+  SWIG_check_mutable(*farg1, "SUNTimestepHeuristics", "generic_SUNTimestepHeuristics_", "SUNTimestepHeuristics_Write_Unconstrained(SUNTimestepHeuristics,FILE *)", return 0);
+  arg1 = (SUNTimestepHeuristics)(farg1->cptr);
   arg2 = (FILE *)(farg2);
-  result = (int)SUNHeuristicsWrite_Unconstrained(arg1,arg2);
+  result = (int)SUNTimestepHeuristics_Write_Unconstrained(arg1,arg2);
   fresult = (int)(result);
   return fresult;
 }
 
 
-SWIGEXPORT int _wrap_FSUNHeuristicsGetNumAccSteps_Unconstrained(SwigClassWrapper const *farg1, long *farg2) {
+SWIGEXPORT int _wrap_FSUNTimestepHeuristics_GetNumAccSteps_Unconstrained(SwigClassWrapper const *farg1, long *farg2) {
   int fresult ;
-  SUNHeuristics arg1 = (SUNHeuristics) 0 ;
+  SUNTimestepHeuristics arg1 = (SUNTimestepHeuristics) 0 ;
   long *arg2 = (long *) 0 ;
   int result;
   
-  SWIG_check_mutable(*farg1, "SUNHeuristics", "generic_SUNHeuristics_", "SUNHeuristicsGetNumAccSteps_Unconstrained(SUNHeuristics,long *)", return 0);
-  arg1 = (SUNHeuristics)(farg1->cptr);
+  SWIG_check_mutable(*farg1, "SUNTimestepHeuristics", "generic_SUNTimestepHeuristics_", "SUNTimestepHeuristics_GetNumAccSteps_Unconstrained(SUNTimestepHeuristics,long *)", return 0);
+  arg1 = (SUNTimestepHeuristics)(farg1->cptr);
   arg2 = (long *)(farg2);
-  result = (int)SUNHeuristicsGetNumAccSteps_Unconstrained(arg1,arg2);
+  result = (int)SUNTimestepHeuristics_GetNumAccSteps_Unconstrained(arg1,arg2);
   fresult = (int)(result);
   return fresult;
 }
 
 
-SWIGEXPORT int _wrap_FSUNHeuristicsSpace_Unconstrained(SwigClassWrapper const *farg1, long *farg2, long *farg3) {
+SWIGEXPORT int _wrap_FSUNTimestepHeuristics_Space_Unconstrained(SwigClassWrapper const *farg1, long *farg2, long *farg3) {
   int fresult ;
-  SUNHeuristics arg1 = (SUNHeuristics) 0 ;
+  SUNTimestepHeuristics arg1 = (SUNTimestepHeuristics) 0 ;
   long *arg2 = (long *) 0 ;
   long *arg3 = (long *) 0 ;
   int result;
   
-  SWIG_check_mutable(*farg1, "SUNHeuristics", "generic_SUNHeuristics_", "SUNHeuristicsSpace_Unconstrained(SUNHeuristics,long *,long *)", return 0);
-  arg1 = (SUNHeuristics)(farg1->cptr);
+  SWIG_check_mutable(*farg1, "SUNTimestepHeuristics", "generic_SUNTimestepHeuristics_", "SUNTimestepHeuristics_Space_Unconstrained(SUNTimestepHeuristics,long *,long *)", return 0);
+  arg1 = (SUNTimestepHeuristics)(farg1->cptr);
   arg2 = (long *)(farg2);
   arg3 = (long *)(farg3);
-  result = (int)SUNHeuristicsSpace_Unconstrained(arg1,arg2,arg3);
+  result = (int)SUNTimestepHeuristics_Space_Unconstrained(arg1,arg2,arg3);
   fresult = (int)(result);
   return fresult;
 }

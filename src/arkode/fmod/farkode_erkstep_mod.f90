@@ -34,8 +34,8 @@ module farkode_erkstep_mod
  use fsundials_context_mod
  use fsundials_types_mod
  use fsundials_nonlinearsolver_mod
- use fsundials_control_mod
- use fsundials_heuristics_mod
+ use fsundials_adaptcontroller_mod
+ use fsundials_timestepheuristics_mod
  use fsundials_types_mod
  implicit none
  private
@@ -75,8 +75,8 @@ module farkode_erkstep_mod
   type(C_PTR), public :: cptr = C_NULL_PTR
   integer(C_INT), public :: cmemflags = 0
  end type
- public :: FERKStepSetController
- public :: FERKStepSetHeuristics
+ public :: FERKStepSetAdaptController
+ public :: FERKStepSetTimestepHeuristics
  public :: FERKStepSetCFLFraction
  public :: FERKStepSetSafetyFactor
  public :: FERKStepSetErrorBias
@@ -312,8 +312,8 @@ type(SwigArrayWrapper) :: farg2
 integer(C_INT) :: fresult
 end function
 
-function swigc_FERKStepSetController(farg1, farg2) &
-bind(C, name="_wrap_FERKStepSetController") &
+function swigc_FERKStepSetAdaptController(farg1, farg2) &
+bind(C, name="_wrap_FERKStepSetAdaptController") &
 result(fresult)
 use, intrinsic :: ISO_C_BINDING
 import :: swigclasswrapper
@@ -322,8 +322,8 @@ type(SwigClassWrapper) :: farg2
 integer(C_INT) :: fresult
 end function
 
-function swigc_FERKStepSetHeuristics(farg1, farg2) &
-bind(C, name="_wrap_FERKStepSetHeuristics") &
+function swigc_FERKStepSetTimestepHeuristics(farg1, farg2) &
+bind(C, name="_wrap_FERKStepSetTimestepHeuristics") &
 result(fresult)
 use, intrinsic :: ISO_C_BINDING
 import :: swigclasswrapper
@@ -1351,35 +1351,35 @@ fresult = swigc_FERKStepSetTableName(farg1, farg2)
 swig_result = fresult
 end function
 
-function FERKStepSetController(arkode_mem, c) &
+function FERKStepSetAdaptController(arkode_mem, c) &
 result(swig_result)
 use, intrinsic :: ISO_C_BINDING
 integer(C_INT) :: swig_result
 type(C_PTR) :: arkode_mem
-class(generic_SUNControl_), intent(in) :: c
+class(generic_SUNAdaptController_), intent(in) :: c
 integer(C_INT) :: fresult 
 type(C_PTR) :: farg1 
 type(SwigClassWrapper) :: farg2 
 
 farg1 = arkode_mem
 farg2 = c%swigdata
-fresult = swigc_FERKStepSetController(farg1, farg2)
+fresult = swigc_FERKStepSetAdaptController(farg1, farg2)
 swig_result = fresult
 end function
 
-function FERKStepSetHeuristics(arkode_mem, h) &
+function FERKStepSetTimestepHeuristics(arkode_mem, h) &
 result(swig_result)
 use, intrinsic :: ISO_C_BINDING
 integer(C_INT) :: swig_result
 type(C_PTR) :: arkode_mem
-class(generic_SUNHeuristics_), intent(in) :: h
+class(generic_SUNTimestepHeuristics_), intent(in) :: h
 integer(C_INT) :: fresult 
 type(C_PTR) :: farg1 
 type(SwigClassWrapper) :: farg2 
 
 farg1 = arkode_mem
 farg2 = h%swigdata
-fresult = swigc_FERKStepSetHeuristics(farg1, farg2)
+fresult = swigc_FERKStepSetTimestepHeuristics(farg1, farg2)
 swig_result = fresult
 end function
 

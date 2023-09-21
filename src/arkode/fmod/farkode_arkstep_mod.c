@@ -715,31 +715,31 @@ SWIGEXPORT int _wrap_FARKStepSetTableName(void *farg1, SwigArrayWrapper *farg2, 
 }
 
 
-SWIGEXPORT int _wrap_FARKStepSetController(void *farg1, SwigClassWrapper const *farg2) {
+SWIGEXPORT int _wrap_FARKStepSetAdaptController(void *farg1, SwigClassWrapper const *farg2) {
   int fresult ;
   void *arg1 = (void *) 0 ;
-  SUNControl arg2 = (SUNControl) 0 ;
+  SUNAdaptController arg2 = (SUNAdaptController) 0 ;
   int result;
   
   arg1 = (void *)(farg1);
-  SWIG_check_mutable(*farg2, "SUNControl", "generic_SUNControl_", "ARKStepSetController(void *,SUNControl)", return 0);
-  arg2 = (SUNControl)(farg2->cptr);
-  result = (int)ARKStepSetController(arg1,arg2);
+  SWIG_check_mutable(*farg2, "SUNAdaptController", "generic_SUNAdaptController_", "ARKStepSetAdaptController(void *,SUNAdaptController)", return 0);
+  arg2 = (SUNAdaptController)(farg2->cptr);
+  result = (int)ARKStepSetAdaptController(arg1,arg2);
   fresult = (int)(result);
   return fresult;
 }
 
 
-SWIGEXPORT int _wrap_FARKStepSetHeuristics(void *farg1, SwigClassWrapper const *farg2) {
+SWIGEXPORT int _wrap_FARKStepSetTimestepHeuristics(void *farg1, SwigClassWrapper const *farg2) {
   int fresult ;
   void *arg1 = (void *) 0 ;
-  SUNHeuristics arg2 = (SUNHeuristics) 0 ;
+  SUNTimestepHeuristics arg2 = (SUNTimestepHeuristics) 0 ;
   int result;
   
   arg1 = (void *)(farg1);
-  SWIG_check_mutable(*farg2, "SUNHeuristics", "generic_SUNHeuristics_", "ARKStepSetHeuristics(void *,SUNHeuristics)", return 0);
-  arg2 = (SUNHeuristics)(farg2->cptr);
-  result = (int)ARKStepSetHeuristics(arg1,arg2);
+  SWIG_check_mutable(*farg2, "SUNTimestepHeuristics", "generic_SUNTimestepHeuristics_", "ARKStepSetTimestepHeuristics(void *,SUNTimestepHeuristics)", return 0);
+  arg2 = (SUNTimestepHeuristics)(farg2->cptr);
+  result = (int)ARKStepSetTimestepHeuristics(arg1,arg2);
   fresult = (int)(result);
   return fresult;
 }
