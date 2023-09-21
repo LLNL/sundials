@@ -109,7 +109,8 @@ int SUNAdaptController_EstimateStep_ARKUserControl(SUNAdaptController C, realtyp
                                                    realtype dsm, realtype* hnew)
 {
   /* call user-provided function to compute new step */
-  int retval = SC_HADAPT(C)(SC_ARKMEM(C)->ycur, SC_ARKMEM(C)->tn, h, SC_HP(C),
+  sunrealtype ttmp = (dsm <= ONE) ? SC_ARKMEM(C)->tn + SC_ARKMEM(C)->h : SC_ARKMEM(C)->tn;
+  int retval = SC_HADAPT(C)(SC_ARKMEM(C)->ycur, ttmp, h, SC_HP(C),
                             SC_HPP(C), dsm, SC_EP(C), SC_EPP(C), SC_Q(C),
                             SC_P(C), hnew, SC_DATA(C));
   if (retval != SUNADAPTCONTROLLER_SUCCESS) { return(SUNADAPTCONTROLLER_USER_FCN_FAIL); }

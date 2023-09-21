@@ -1172,23 +1172,24 @@ int arkSetStabilityFn(void *arkode_mem, ARKExpStabFn EStab, void *estab_data)
                       "arkSetStabilityFn", "SUNTimestepHeuristics_SetExpStabFn failure");
       return(ARK_HEURISTICS_ERR);
     }
-  }
+  } else {
 
-  /* Otherwise create wrapper structure */
-  void* wrapper_data = ARKUserStability(arkode_mem, EStab, estab_data);
-  if (wrapper_data == NULL) {
-    arkProcessError(ark_mem, ARK_MEM_FAIL, "ARKODE", "arkSetStabilityFn",
-                    "ARKUserStability failure");
-    return(ARK_MEM_FAIL);
-  }
+    /* Otherwise create wrapper structure */
+    void* wrapper_data = ARKUserStability(arkode_mem, EStab, estab_data);
+    if (wrapper_data == NULL) {
+      arkProcessError(ark_mem, ARK_MEM_FAIL, "ARKODE", "arkSetStabilityFn",
+                      "ARKUserStability failure");
+      return(ARK_MEM_FAIL);
+    }
 
-  /* Attach ARKODE function and wrapper structure to heuristics object */
-  retval = SUNTimestepHeuristics_SetExpStabFn(ark_mem->hconstraints,
-                                      ARKControlExpStab, wrapper_data);
-  if (retval != SUNTIMESTEPHEURISTICS_SUCCESS) {
-    arkProcessError(ark_mem, ARK_HEURISTICS_ERR, "ARKODE",
-                    "arkSetStabilityFn", "SUNTimestepHeuristics_SetExpStabFn failure");
-    return(ARK_HEURISTICS_ERR);
+    /* Attach ARKODE function and wrapper structure to heuristics object */
+    retval = SUNTimestepHeuristics_SetExpStabFn(ark_mem->hconstraints,
+                                                ARKControlExpStab, wrapper_data);
+    if (retval != SUNTIMESTEPHEURISTICS_SUCCESS) {
+      arkProcessError(ark_mem, ARK_HEURISTICS_ERR, "ARKODE",
+                      "arkSetStabilityFn", "SUNTimestepHeuristics_SetExpStabFn failure");
+      return(ARK_HEURISTICS_ERR);
+    }
   }
 
   return(ARK_SUCCESS);
