@@ -88,7 +88,7 @@ int resize_vec(N_Vector v_in, N_Vector v_out, void* user_data)
   sunrealtype* v_out_data = N_VGetArrayPointer(v_out);
 
   sunindextype N_in = N_VGetLocalLength(v_in);
-  sunindextype N_out = N_VGetLocalLength(v_in);
+  sunindextype N_out = N_VGetLocalLength(v_out);
 
   for (int i = 0; i < N_in; i++)
   {
@@ -140,7 +140,7 @@ int main(int argc, char* argv[])
   int reuse_fn = 1;
   if (argc > 2)
   {
-    resize = atoi(argv[2]);
+    reuse_fn = atoi(argv[2]);
   }
 
   int method = CV_BDF;
@@ -188,8 +188,8 @@ int main(int argc, char* argv[])
   if (check_flag(flag, "CVodeInit")) { return 1; }
 
   // Relative and absolute tolerances
-  const sunrealtype rtol = SUN_RCONST(1.0e-6);
-  const sunrealtype atol = SUN_RCONST(1.0e-10);
+  const sunrealtype rtol = SUN_RCONST(1.0e-5);
+  const sunrealtype atol = SUN_RCONST(1.0e-8);
 
   flag = CVodeSStolerances(cvode_mem, rtol, atol);
   if (check_flag(flag, "CVodeSStolerances")) { return 1; }
@@ -301,9 +301,9 @@ int main(int argc, char* argv[])
 
     flag = PR_true(t_ret, tmp, udata);
     if (check_flag(flag, "PR_true")) { return 1; }
-    N_VLinearSum(ONE, y, ONE, tmp, tmp);
-    N_VAbs(tmp, tmp);
-    std::cout << "Error: " << N_VMaxNorm(tmp) << std::endl;
+
+    N_VLinearSum(ONE, y, -ONE, tmp, tmp);
+    std::cout << "Error:  " << N_VMaxNorm(tmp) << std::endl;
 
     std::cout << "========== End Step " << i << " ==========\n";
 
@@ -312,17 +312,19 @@ int main(int argc, char* argv[])
       // Save history but do not update problem size
       flag = save_history(t_ret, y, t_hist, y_hist, hist_size, i);
 
-      // CVodeGetDky(cvode_mem, t_ret, 1, tmp);
-      N_Vector f_hist = nullptr;
+      int n_hist = (i < hist_size) ? i + 1 : hist_size;
+
       if (reuse_fn)
       {
         N_VScale(ONE / cv_mem->cv_hscale, cv_mem->cv_zn[1], tmp);
-        f_hist = tmp;
+        flag = CVodeResizeHistory(cvode_mem, t_hist, y_hist, &tmp, n_hist,
+                                  resize_vec, debug_file);
       }
-
-      int n_hist = (i < hist_size) ? i + 1 : hist_size;
-      flag = CVodeResizeHistory(cvode_mem, t_hist, y_hist, &f_hist, n_hist,
-                                resize_vec, debug_file);
+      else
+      {
+        flag = CVodeResizeHistory(cvode_mem, t_hist, y_hist, nullptr, n_hist,
+                                  resize_vec, debug_file);
+      }
       if (check_flag(flag, "CVodeResizeHistory")) { return 1; }
     }
     else if (resize == 2)
