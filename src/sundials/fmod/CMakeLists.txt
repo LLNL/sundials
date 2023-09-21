@@ -31,10 +31,10 @@ set(sundials_SOURCES
   fsundials_types_mod.c
   fsundials_context_mod.f90
   fsundials_context_mod.c
-  fsundials_control_mod.f90
-  fsundials_control_mod.c
-  fsundials_heuristics_mod.f90
-  fsundials_heuristics_mod.c)
+  fsundials_adaptcontrol_mod.f90
+  fsundials_adaptcontrol_mod.c
+  fsundials_timestepheuristics_mod.f90
+  fsundials_timestepheuristics_mod.c)
 
 if(SUNDIALS_BUILD_WITH_PROFILING)
   list(APPEND sundials_SOURCES
