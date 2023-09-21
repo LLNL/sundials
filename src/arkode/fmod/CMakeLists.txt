@@ -33,13 +33,12 @@ sundials_add_f2003_library(sundials_farkode_mod
   OBJECT_LIBRARIES
     sundials_fgeneric_mod_obj
     sundials_fnvecserial_mod_obj
-    sundials_fsuncontrolexpgus_mod_obj
-    sundials_fsuncontroli_mod_obj
-    sundials_fsuncontrolimpgus_mod_obj
-    sundials_fsuncontrolpi_mod_obj
-    sundials_fsuncontrolimexgus_mod_obj
-    sundials_fsunheuristicsdefault_mod_obj
-    sundials_fsunheuristicsunconstrained_mod_obj
+    sundials_fsunadaptcontrollerexpgus_mod_obj
+    sundials_fsunadaptcontrolleri_mod_obj
+    sundials_fsunadaptcontrollerimexgus_mod_obj
+    sundials_fsunadaptcontrollerimpgus_mod_obj
+    sundials_fsunadaptcontrollerpi_mod_obj
+    sundials_fsunadaptcontrollerpid_mod_obj
     sundials_fsunmatrixband_mod_obj
     sundials_fsunmatrixdense_mod_obj
     sundials_fsunmatrixsparse_mod_obj
@@ -52,6 +51,8 @@ sundials_add_f2003_library(sundials_farkode_mod
     sundials_fsunlinsolpcg_mod_obj
     sundials_fsunnonlinsolnewton_mod_obj
     sundials_fsunnonlinsolfixedpoint_mod_obj
+    sundials_fsuntimestepheuristicsdefault_mod_obj
+    sundials_fsuntimestepheuristicsunconstrained_mod_obj
   OUTPUT_NAME
     sundials_farkode_mod
   VERSION

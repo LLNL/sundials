@@ -12,14 +12,14 @@
 # SUNDIALS Copyright End
 # ---------------------------------------------------------------
 
-sundials_add_f2003_library(sundials_fsuncontrolimpgus_mod
+sundials_add_f2003_library(sundials_fsunadaptcontrollerimpgus_mod
   SOURCES
-    fsuncontrol_impgus_mod.f90 fsuncontrol_impgus_mod.c
+    fsunadaptcontroller_impgus_mod.f90 fsunadaptcontroller_impgus_mod.c
   OBJECT_LIBRARIES
     sundials_fgeneric_mod_obj
   OUTPUT_NAME
-    sundials_fsuncontrolimpgus_mod
+    sundials_fsunadaptcontrollerimpgus_mod
   OBJECT_LIB_ONLY
 )
 
-message(STATUS "Added SUNControl_ImpGus F2003 interface")
+message(STATUS "Added SUNAdaptController_ImpGus F2003 interface")

@@ -12,14 +12,14 @@
 # SUNDIALS Copyright End
 # ---------------------------------------------------------------
 
-sundials_add_f2003_library(sundials_fsuncontrolpi_mod
+sundials_add_f2003_library(sundials_fsunadaptcontrollerpi_mod
   SOURCES
-    fsuncontrol_pi_mod.f90 fsuncontrol_pi_mod.c
+    fsunadaptcontroller_pi_mod.f90 fsunadaptcontroller_pi_mod.c
   OBJECT_LIBRARIES
     sundials_fgeneric_mod_obj
   OUTPUT_NAME
-    sundials_fsuncontrolpi_mod
+    sundials_fsunadaptcontrollerpi_mod
   OBJECT_LIB_ONLY
 )
 
-message(STATUS "Added SUNControl_PI F2003 interface")
+message(STATUS "Added SUNAdaptController_PI F2003 interface")

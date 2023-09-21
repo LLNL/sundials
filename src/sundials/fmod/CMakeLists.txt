@@ -31,8 +31,8 @@ set(sundials_SOURCES
   fsundials_types_mod.c
   fsundials_context_mod.f90
   fsundials_context_mod.c
-  fsundials_adaptcontrol_mod.f90
-  fsundials_adaptcontrol_mod.c
+  fsundials_adaptcontroller_mod.f90
+  fsundials_adaptcontroller_mod.c
   fsundials_timestepheuristics_mod.f90
   fsundials_timestepheuristics_mod.c)
 
