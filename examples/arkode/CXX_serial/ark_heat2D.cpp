@@ -487,12 +487,13 @@ int main(int argc, char* argv[])
 
   if (udata->diagnostics || udata->lsinfo) fclose(diagfp);
 
-  ARKStepFree(&arkode_mem);  // Free integrator memory
-  SUNLinSolFree(LS);         // Free linear solver
-  N_VDestroy(u);             // Free vectors
-  FreeUserData(udata);       // Free user data
+  ARKStepFree(&arkode_mem);             // Free integrator memory
+  SUNLinSolFree(LS);                    // Free linear solver
+  N_VDestroy(u);                        // Free vectors
+  FreeUserData(udata);                  // Free user data
   delete udata;
-  SUNContext_Free(&ctx);     // Free context
+  (void) SUNAdaptController_Destroy(C); // Free time adaptivity controller
+  SUNContext_Free(&ctx);                // Free context
 
   return 0;
 }

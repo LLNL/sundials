@@ -314,13 +314,14 @@ int main() {
   /* Clean up and return with successful completion */
   fclose(UFID);
   fclose(XFID);
-  N_VDestroy(y);               /* Free vectors */
-  free(udata->x_host);         /* Free user data */
+  N_VDestroy(y);                         /* Free vectors */
+  free(udata->x_host);                   /* Free user data */
   omp_target_free(udata->x_dev, dev);
   free(udata);
-  ARKStepFree(&arkode_mem);    /* Free integrator memory */
-  SUNLinSolFree(LS);           /* Free linear solver */
-  SUNContext_Free(&ctx);       /* Free context */
+  ARKStepFree(&arkode_mem);              /* Free integrator memory */
+  SUNLinSolFree(LS);                     /* Free linear solver */
+  (void) SUNAdaptController_Destroy(C);  /* Free time adaptivity controller */
+  SUNContext_Free(&ctx);                 /* Free context */
 
   return 0;
 }

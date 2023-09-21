@@ -356,13 +356,14 @@ static int check_flag(void *flagvalue, const string funcname, int opt);
 
 int main(int argc, char* argv[])
 {
-  int flag;                   // reusable error-checking flag
-  UserData *udata    = NULL;  // user data structure
-  N_Vector u         = NULL;  // vector for storing solution
-  SUNMatrix A        = NULL;  // matrix for Jacobian
-  SUNLinearSolver LS = NULL;  // linear solver memory structure
-  void *arkode_mem   = NULL;  // ARKODE memory structure
-  FILE *diagfp       = NULL;  // diagnostics output file
+  int flag;                     // reusable error-checking flag
+  UserData *udata      = NULL;  // user data structure
+  N_Vector u           = NULL;  // vector for storing solution
+  SUNMatrix A          = NULL;  // matrix for Jacobian
+  SUNLinearSolver LS   = NULL;  // linear solver memory structure
+  void *arkode_mem     = NULL;  // ARKODE memory structure
+  FILE *diagfp         = NULL;  // diagnostics output file
+  SUNAdaptController C = NULL;  // timestep adaptivity controller
 
   // Timing variables
   double t1 = 0.0;
@@ -513,7 +514,6 @@ int main(int argc, char* argv[])
   }
   else
   {
-    SUNAdaptController C = NULL;
     switch (udata->controller) {
     case (ARK_ADAPT_PID):      C = SUNAdaptController_PID(ctx);     break;
     case (ARK_ADAPT_PI):       C = SUNAdaptController_PI(ctx);      break;
@@ -632,14 +632,15 @@ int main(int argc, char* argv[])
 
   if (udata->diagnostics && outproc) fclose(diagfp);
 
-  ARKStepFree(&arkode_mem);  // Free integrator memory
-  SUNLinSolFree(LS);         // Free linear solver
-  SUNMatDestroy(A);          // Free matrix
-  N_VDestroy(u);             // Free vectors
-  FreeUserData(udata);       // Free user data
+  ARKStepFree(&arkode_mem);              // Free integrator memory
+  SUNLinSolFree(LS);                     // Free linear solver
+  SUNMatDestroy(A);                      // Free matrix
+  N_VDestroy(u);                         // Free vectors
+  FreeUserData(udata);                   // Free user data
   delete udata;
-  SUNContext_Free(&ctx);     // Free context
-  flag = MPI_Finalize();     // Finalize MPI
+  (void) SUNAdaptController_Destroy(C);  // Free time adaptivity controller
+  SUNContext_Free(&ctx);                 // Free context
+  flag = MPI_Finalize();                 // Finalize MPI
   return 0;
 }
 

@@ -133,6 +133,7 @@ ARKodeMem arkCreate(SUNContext sunctx)
                     "Allocation of step controller object failed");
     return(NULL);
   }
+  ark_mem->owncontroller = SUNTRUE;
   (void) SUNAdaptController_Space(ark_mem->hcontroller, &lenrw, &leniw);
   ark_mem->lrw += lenrw;
   ark_mem->liw += leniw;
@@ -144,6 +145,7 @@ ARKodeMem arkCreate(SUNContext sunctx)
                     "Allocation of step heuristics object failed");
     return(NULL);
   }
+  ark_mem->ownconstraints = SUNTRUE;
   (void) SUNTimestepHeuristics_Space(ark_mem->hconstraints, &lenrw, &leniw);
   ark_mem->lrw += lenrw;
   ark_mem->liw += leniw;
@@ -1104,11 +1106,15 @@ void arkFree(void **arkode_mem)
   /* free vector storage */
   arkFreeVectors(ark_mem);
 
-  /* free the time step controller object */
-  (void) SUNAdaptController_Destroy(ark_mem->hcontroller);
+  /* free the time step controller object if owned */
+  if (ark_mem->owncontroller) {
+    (void) SUNAdaptController_Destroy(ark_mem->hcontroller);
+  }
 
-  /* free the time step heuristics object */
-  (void) SUNTimestepHeuristics_Destroy(ark_mem->hconstraints);
+  /* free the time step heuristics object if owned */
+  if (ark_mem->ownconstraints) {
+    (void) SUNTimestepHeuristics_Destroy(ark_mem->hconstraints);
+  }
 
   /* free the interpolation module */
   if (ark_mem->interp != NULL) {

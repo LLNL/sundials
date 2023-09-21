@@ -384,7 +384,9 @@ struct ARKodeMemRec
   realtype tretlast;           /* value of tret last returned by ARKODE    */
   booleantype fixedstep;       /* flag to disable temporal adaptivity      */
   SUNAdaptController hcontroller; /* temporal error controller             */
+  booleantype  owncontroller;  /* flag indicating hcontroller ownership    */
   SUNTimestepHeuristics hconstraints;  /* time step constraint heuristics  */
+  booleantype  ownconstraints; /* flag indicating hconstraints ownership   */
 
 
   /* Limits and various solver parameters */

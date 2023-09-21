@@ -696,7 +696,14 @@ int ARKStepSetOptimalParams(void *arkode_mem)
     ark_mem->liw -= leniw;
     ark_mem->lrw -= lenrw;
   }
-  (void) SUNTimestepHeuristics_Destroy(ark_mem->hconstraints);
+  if (ark_mem->ownconstraints) {
+    retval = SUNTimestepHeuristics_Destroy(ark_mem->hconstraints);
+    if (retval != SUNTIMESTEPHEURISTICS_SUCCESS) {
+      arkProcessError(ark_mem, ARK_MEM_FAIL, "ARKODE", "ARKStepSetOptimalParams",
+                      "SUNTimestepHeuristics_Destroy failure");
+      return(ARK_MEM_FAIL);
+    }
+  }
   ark_mem->hconstraints = NULL;
   ark_mem->hconstraints = SUNTimestepHeuristics_Default(ark_mem->sunctx);
   if (ark_mem->hconstraints == NULL) {
@@ -705,6 +712,7 @@ int ARKStepSetOptimalParams(void *arkode_mem)
                     "SUNTimestepHeuristics_Default allocation failure");
     return(ARK_MEM_FAIL);
   }
+  ark_mem->ownconstraints = SUNTRUE;
   retval = SUNTimestepHeuristics_Space(ark_mem->hconstraints, &lenrw, &leniw);
   if (retval == SUNTIMESTEPHEURISTICS_SUCCESS) {
     ark_mem->liw += leniw;
@@ -718,7 +726,14 @@ int ARKStepSetOptimalParams(void *arkode_mem)
     ark_mem->liw -= leniw;
     ark_mem->lrw -= lenrw;
   }
-  (void) SUNAdaptController_Destroy(ark_mem->hcontroller);
+  if (ark_mem->owncontroller) {
+    retval = SUNAdaptController_Destroy(ark_mem->hcontroller);
+    if (retval != SUNADAPTCONTROLLER_SUCCESS) {
+      arkProcessError(ark_mem, ARK_MEM_FAIL, "ARKODE", "ARKStepSetOptimalParams",
+                      "SUNAdaptController_Destroy failure");
+      return(ARK_MEM_FAIL);
+    }
+  }
   ark_mem->hcontroller = NULL;
 
 
@@ -896,6 +911,13 @@ int ARKStepSetOptimalParams(void *arkode_mem)
       step_mem->dgmax       = RCONST(0.32);
       step_mem->msbp        = 31;
       break;
+    }
+    ark_mem->owncontroller = SUNTRUE;
+
+    retval = SUNAdaptController_Space(ark_mem->hcontroller, &lenrw, &leniw);
+    if (retval == SUNADAPTCONTROLLER_SUCCESS) {
+      ark_mem->liw += leniw;
+      ark_mem->lrw += lenrw;
     }
 
   }

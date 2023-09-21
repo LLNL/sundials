@@ -225,6 +225,7 @@ program main
   call FN_VDestroy(sunvec_y)
   call FSUNMatDestroy(sunmat_A)
   ierr = FSUNLinSolFree(sunls)
+  ierr = FSUNAdaptController_Destroy(sunCtrl)
   ierr = FSUNContext_Free(ctx)
 
 end program main

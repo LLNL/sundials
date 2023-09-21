@@ -251,9 +251,10 @@ int main(int argc, char **argv)
    - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - */
 
   /* Free SUNDIALS data structures */
-  N_VDestroy(nvecx);           /* Free x nvector         */
-  SUNNonlinSolFree(NLS);       /* Free nonlinear solver  */
-  ARKStepFree(&arkode_mem);    /* Free integrator memory */
+  N_VDestroy(nvecx);                    /* Free x nvector                  */
+  SUNNonlinSolFree(NLS);                /* Free nonlinear solver           */
+  ARKStepFree(&arkode_mem);             /* Free integrator memory          */
+  (void) SUNAdaptController_Destroy(C); /* Free time adaptivity controller */
 
   /* Free petsc data structures */
   ierr = MatDestroy(&J);CHKERRQ(ierr);

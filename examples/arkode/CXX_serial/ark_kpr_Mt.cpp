@@ -334,13 +334,14 @@ int main(int argc, char *argv[])
 
 
   // Clean up and return
-  ARKStepFree(&arkode_mem);       // Free integrator memory
-  SUNLinSolFree(LS);              // free system linear solver
-  SUNLinSolFree(MLS);             // free mass linear solver
-  SUNNonlinSolFree(NLS);          // free nonlinear solver
-  SUNMatDestroy(A);               // free system matrix
-  SUNMatDestroy(M);               // free mass matrix
-  N_VDestroy(y);                  // Free y vector
+  ARKStepFree(&arkode_mem);                 // Free integrator memory
+  SUNLinSolFree(LS);                        // free system linear solver
+  SUNLinSolFree(MLS);                       // free mass linear solver
+  SUNNonlinSolFree(NLS);                    // free nonlinear solver
+  SUNMatDestroy(A);                         // free system matrix
+  SUNMatDestroy(M);                         // free mass matrix
+  N_VDestroy(y);                            // Free y vector
+  (void) SUNTimestepHeuristics_Destroy(H);  // Free timestep heuristics object
   return 0;
 }
 

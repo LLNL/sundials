@@ -315,9 +315,10 @@ static int check_flag(void *flagvalue, const string funcname, int opt);
 int main(int argc, char* argv[])
 {
   int flag;                      // reusable error-checking flag
-  N_Vector u         = NULL;     // vector for storing solution
-  SUNLinearSolver LS = NULL;     // linear solver memory structure
-  void *arkode_mem   = NULL;     // ARKode memory structure
+  N_Vector u           = NULL;   // vector for storing solution
+  SUNLinearSolver LS   = NULL;   // linear solver memory structure
+  void *arkode_mem     = NULL;   // ARKode memory structure
+  SUNAdaptController C = NULL;   // Time adaptivity controller
 
   // Timing variables
   double t1 = 0.0;
@@ -444,7 +445,6 @@ int main(int argc, char* argv[])
     }
     else
     {
-      SUNAdaptController C = NULL;
       switch (udata.controller) {
       case (ARK_ADAPT_PID):      C = SUNAdaptController_PID(sunctx);     break;
       case (ARK_ADAPT_PI):       C = SUNAdaptController_PI(sunctx);      break;
@@ -542,10 +542,11 @@ int main(int argc, char* argv[])
     // Clean up and return
     // --------------------
 
-    ARKStepFree(&arkode_mem);       // Free integrator memory
-    SUNLinSolFree(LS);              // Free linear solver
-    N_VDestroy(u);                  // Free vectors
-    FreeUserData(&udata);           // Free user data
+    ARKStepFree(&arkode_mem);              // Free integrator memory
+    SUNLinSolFree(LS);                     // Free linear solver
+    N_VDestroy(u);                         // Free vectors
+    FreeUserData(&udata);                  // Free user data
+    (void) SUNAdaptController_Destroy(C);  // Free time adaptivity controller
   }
 
   // Finalize MPI

@@ -325,6 +325,7 @@ int main(int argc, char* argv[])
   void *inner_arkode_mem = NULL;            // ARKode memory structure
   MRIStepInnerStepper inner_stepper = NULL; // inner stepper
   MRIStepCoupling C = NULL;                 // slow coupling coefficients
+  SUNAdaptController Ctrl = NULL;           // timestep adaptivity controller
 
   // Timing variables
   double t1 = 0.0;
@@ -439,16 +440,15 @@ int main(int argc, char* argv[])
     }
     else
     {
-      SUNAdaptController C = NULL;
       switch (udata.controller) {
-      case (ARK_ADAPT_PID):      C = SUNAdaptController_PID(sunctx);     break;
-      case (ARK_ADAPT_PI):       C = SUNAdaptController_PI(sunctx);      break;
-      case (ARK_ADAPT_I):        C = SUNAdaptController_I(sunctx);       break;
-      case (ARK_ADAPT_EXP_GUS):  C = SUNAdaptController_ExpGus(sunctx);  break;
-      case (ARK_ADAPT_IMP_GUS):  C = SUNAdaptController_ImpGus(sunctx);  break;
-      case (ARK_ADAPT_IMEX_GUS): C = SUNAdaptController_ImExGus(sunctx); break;
+      case (ARK_ADAPT_PID):      Ctrl = SUNAdaptController_PID(sunctx);     break;
+      case (ARK_ADAPT_PI):       Ctrl = SUNAdaptController_PI(sunctx);      break;
+      case (ARK_ADAPT_I):        Ctrl = SUNAdaptController_I(sunctx);       break;
+      case (ARK_ADAPT_EXP_GUS):  Ctrl = SUNAdaptController_ExpGus(sunctx);  break;
+      case (ARK_ADAPT_IMP_GUS):  Ctrl = SUNAdaptController_ImpGus(sunctx);  break;
+      case (ARK_ADAPT_IMEX_GUS): Ctrl = SUNAdaptController_ImExGus(sunctx); break;
       }
-      flag = ARKStepSetAdaptController(inner_arkode_mem, C);
+      flag = ARKStepSetAdaptController(inner_arkode_mem, Ctrl);
       if (check_flag(&flag, "ARKStepSetAdaptController", 1)) return 1;
     }
 
@@ -614,6 +614,7 @@ int main(int argc, char* argv[])
     SUNLinSolFree(LSf);                        // Free linear solver
     N_VDestroy(u);                             // Free vectors
     FreeUserData(&udata);                      // Free user data
+    (void) SUNAdaptController_Destroy(Ctrl);   // Free timestep adaptivity controller
   }
 
   // Finalize MPI

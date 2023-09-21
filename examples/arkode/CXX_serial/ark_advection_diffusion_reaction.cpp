@@ -368,6 +368,7 @@ int main(int argc, char* argv[])
   SUNLinSolFree(LS);
   SUNMatDestroy(A_fast);
   SUNLinSolFree(LS_fast);
+  (void) SUNAdaptController_Destroy(C);
 
   return 0;
 }

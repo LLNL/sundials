@@ -344,13 +344,21 @@ int arkSetAdaptController(void *arkode_mem, SUNAdaptController C)
   }
   ark_mem = (ARKodeMem) arkode_mem;
 
-  /* Remove current SUNAdaptController object */
+  /* Remove current SUNAdaptController object
+     (delete if owned, and then nullify pointer) */
   retval = SUNAdaptController_Space(ark_mem->hcontroller, &lenrw, &leniw);
   if (retval == SUNADAPTCONTROLLER_SUCCESS) {
     ark_mem->liw -= leniw;
     ark_mem->lrw -= lenrw;
   }
-  (void) SUNAdaptController_Destroy(ark_mem->hcontroller);
+  if (ark_mem->owncontroller) {
+    retval = SUNAdaptController_Destroy(ark_mem->hcontroller);
+    if (retval != SUNADAPTCONTROLLER_SUCCESS) {
+      arkProcessError(ark_mem, ARK_MEM_FAIL, "ARKODE", "arkSetAdaptController",
+                      "SUNAdaptController_Destroy failure");
+      return(ARK_MEM_FAIL);
+    }
+  }
   ark_mem->hcontroller = NULL;
 
   /* On NULL-valued input, create default SUNAdaptController object */
@@ -361,6 +369,9 @@ int arkSetAdaptController(void *arkode_mem, SUNAdaptController C)
                       "SUNAdaptControllerPID allocation failure");
       return(ARK_MEM_FAIL);
     }
+    ark_mem->owncontroller = SUNTRUE;
+  } else {
+    ark_mem->owncontroller = SUNFALSE;
   }
 
   /* Attach new SUNAdaptController object */
@@ -394,13 +405,21 @@ int arkSetTimestepHeuristics(void *arkode_mem, SUNTimestepHeuristics H)
   }
   ark_mem = (ARKodeMem) arkode_mem;
 
-  /* Remove current SUNTimestepHeuristics object */
+  /* Remove current SUNTimestepHeuristics object
+     (delete if owned, and then nullify pointer) */
   retval = SUNTimestepHeuristics_Space(ark_mem->hconstraints, &lenrw, &leniw);
   if (retval == SUNTIMESTEPHEURISTICS_SUCCESS) {
     ark_mem->liw -= leniw;
     ark_mem->lrw -= lenrw;
   }
-  SUNTimestepHeuristics_Destroy(ark_mem->hconstraints);
+  if (ark_mem->ownconstraints) {
+    retval = SUNTimestepHeuristics_Destroy(ark_mem->hconstraints);
+    if (retval != SUNTIMESTEPHEURISTICS_SUCCESS) {
+      arkProcessError(ark_mem, ARK_MEM_FAIL, "ARKODE", "arkSetTimestepHeuristics",
+                      "SUNTimestepHeuristics_Destroy failure");
+      return(ARK_MEM_FAIL);
+    }
+  }
   ark_mem->hconstraints = NULL;
 
   /* On NULL-valued input, create default SUNTimestepHeuristics object */
@@ -411,6 +430,9 @@ int arkSetTimestepHeuristics(void *arkode_mem, SUNTimestepHeuristics H)
                       "SUNTimestepHeuristics_Default allocation failure");
       return(ARK_MEM_FAIL);
     }
+    ark_mem->ownconstraints = SUNTRUE;
+  } else {
+    ark_mem->ownconstraints = SUNFALSE;
   }
 
   /* Attach new SUNTimestepHeuristics object */
@@ -611,13 +633,21 @@ int arkSetFixedStep(void *arkode_mem, realtype hfixed)
   }
   ark_mem = (ARKodeMem) arkode_mem;
 
-  /* Remove current SUNAdaptController object */
+  /* Remove current SUNAdaptController object
+     (delete if owned, and then nullify pointer) */
   retval = SUNAdaptController_Space(ark_mem->hcontroller, &lenrw, &leniw);
   if (retval == SUNADAPTCONTROLLER_SUCCESS) {
     ark_mem->liw -= leniw;
     ark_mem->lrw -= lenrw;
   }
-  (void) SUNAdaptController_Destroy(ark_mem->hcontroller);
+  if (ark_mem->owncontroller) {
+    retval = SUNAdaptController_Destroy(ark_mem->hcontroller);
+    if (retval != SUNADAPTCONTROLLER_SUCCESS) {
+      arkProcessError(ark_mem, ARK_MEM_FAIL, "ARKODE", "arkSetFixedStep",
+                      "SUNAdaptController_Destroy failure");
+      return(ARK_MEM_FAIL);
+    }
+  }
   ark_mem->hcontroller = NULL;
 
   /* If re-enabling time adaptivity, create default PID controller
@@ -638,6 +668,7 @@ int arkSetFixedStep(void *arkode_mem, realtype hfixed)
       ark_mem->lrw += lenrw;
     }
     ark_mem->hcontroller = C;
+    ark_mem->owncontroller = SUNTRUE;
   }
 
   /* re-attach internal error weight functions if necessary */
@@ -909,13 +940,21 @@ int arkSetAdaptivityMethod(void *arkode_mem, int imethod, int idefault,
     return(ARK_ILL_INPUT);
   }
 
-  /* Remove current SUNAdaptController object */
+  /* Remove current SUNAdaptController object
+     (delete if owned, and then nullify pointer) */
   retval = SUNAdaptController_Space(ark_mem->hcontroller, &lenrw, &leniw);
   if (retval == SUNADAPTCONTROLLER_SUCCESS) {
     ark_mem->liw -= leniw;
     ark_mem->lrw -= lenrw;
   }
-  (void) SUNAdaptController_Destroy(ark_mem->hcontroller);
+  if (ark_mem->owncontroller) {
+    retval = SUNAdaptController_Destroy(ark_mem->hcontroller);
+    if (retval != SUNADAPTCONTROLLER_SUCCESS) {
+      arkProcessError(ark_mem, ARK_MEM_FAIL, "ARKODE", "arkSetAdaptivityMethod",
+                      "SUNAdaptController_Destroy failure");
+      return(ARK_MEM_FAIL);
+    }
+  }
   ark_mem->hcontroller = NULL;
 
   /* set adaptivity parameters from inputs or signal use of defaults */
@@ -1030,6 +1069,7 @@ int arkSetAdaptivityMethod(void *arkode_mem, int imethod, int idefault,
     ark_mem->lrw += lenrw;
   }
   ark_mem->hcontroller = C;
+  ark_mem->owncontroller = SUNTRUE;
 
   return(ARK_SUCCESS);
 }
@@ -1058,13 +1098,21 @@ int arkSetAdaptivityFn(void *arkode_mem, ARKAdaptFn hfun, void *h_data)
   }
   ark_mem = (ARKodeMem) arkode_mem;
 
-  /* Remove current SUNAdaptController object */
+  /* Remove current SUNAdaptController object
+     (delete if owned, and then nullify pointer) */
   retval = SUNAdaptController_Space(ark_mem->hcontroller, &lenrw, &leniw);
   if (retval == SUNADAPTCONTROLLER_SUCCESS) {
     ark_mem->liw -= leniw;
     ark_mem->lrw -= lenrw;
   }
-  (void) SUNAdaptController_Destroy(ark_mem->hcontroller);
+  if (ark_mem->owncontroller) {
+    retval = SUNAdaptController_Destroy(ark_mem->hcontroller);
+    if (retval != SUNADAPTCONTROLLER_SUCCESS) {
+      arkProcessError(ark_mem, ARK_MEM_FAIL, "ARKODE", "arkSetAdaptivityFn",
+                      "SUNAdaptController_Destroy failure");
+      return(ARK_MEM_FAIL);
+    }
+  }
   ark_mem->hcontroller = NULL;
 
   /* Create new SUNAdaptController object depending on NULL-ity of 'hfun' */
@@ -1092,6 +1140,7 @@ int arkSetAdaptivityFn(void *arkode_mem, ARKAdaptFn hfun, void *h_data)
     ark_mem->lrw += lenrw;
   }
   ark_mem->hcontroller = C;
+  ark_mem->owncontroller = SUNTRUE;
 
   return(ARK_SUCCESS);
 }

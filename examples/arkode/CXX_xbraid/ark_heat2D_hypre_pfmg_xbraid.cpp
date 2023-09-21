@@ -350,14 +350,16 @@ static int check_flag(void *flagvalue, const string funcname, int opt);
 
 int main(int argc, char* argv[])
 {
-  int flag;                   // reusable error-checking flag
-  UserData *udata    = NULL;  // user data structure
-  N_Vector u         = NULL;  // vector for storing solution
-  SUNLinearSolver LS = NULL;  // linear solver memory structure
-  void *arkode_mem   = NULL;  // ARKODE memory structure
-  FILE *diagfp       = NULL;  // diagnostics output file
-  braid_Core core    = NULL;  // XBraid memory structure
-  braid_App app      = NULL;  // ARKode + XBraid interface structure
+  int flag;                        // reusable error-checking flag
+  UserData *udata         = NULL;  // user data structure
+  N_Vector u              = NULL;  // vector for storing solution
+  SUNLinearSolver LS      = NULL;  // linear solver memory structure
+  void *arkode_mem        = NULL;  // ARKODE memory structure
+  FILE *diagfp            = NULL;  // diagnostics output file
+  braid_Core core         = NULL;  // XBraid memory structure
+  braid_App app           = NULL;  // ARKode + XBraid interface structure
+  SUNAdaptController    C = NULL;  // time step adaptivity controller
+  SUNTimestepHeuristics H = NULL;  // time step heuristics
 
   // Timing variables
   double t1 = 0.0;
@@ -560,13 +562,13 @@ int main(int argc, char* argv[])
   if (udata->x_refine)
   {
     // Use I controller with default parameters
-    SUNAdaptController C = SUNAdaptController_I(ctx);
+    C = SUNAdaptController_I(ctx);
     if (check_flag((void*) C, "SUNAdaptController_I", 0)) return 1;
     flag = ARKStepSetAdaptController(arkode_mem, C);
     if (check_flag(&flag, "ARKStepSetAdaptController", 1)) return 1;
 
     // Use default heuristics constraints with some options
-    SUNTimestepHeuristics H = SUNTimestepHeuristics_Default(ctx);
+    H = SUNTimestepHeuristics_Default(ctx);
     if (check_flag((void*) H, "SUNTimestepHeuristics_Default", 0)) return 1;
     //   Set the step size reduction factor limit (1 / refinement factor limit)
     flag = SUNTimestepHeuristics_SetMinReduction(H, ONE / udata->x_rfactor_limit);
@@ -747,15 +749,17 @@ int main(int argc, char* argv[])
 
   if ((udata->diagnostics || udata->lsinfo) && udata->myid_c == 0) fclose(diagfp);
 
-  ARKStepFree(&arkode_mem);  // Free integrator memory
-  SUNLinSolFree(LS);         // Free linear solver
-  N_VDestroy(u);             // Free vectors
-  FreeUserData(udata);       // Free user data
+  ARKStepFree(&arkode_mem);                // Free integrator memory
+  SUNLinSolFree(LS);                       // Free linear solver
+  N_VDestroy(u);                           // Free vectors
+  FreeUserData(udata);                     // Free user data
   delete udata;
-  braid_Destroy(core);       // Free braid memory
-  ARKBraid_Free(&app);       // Free interface memory
-  SUNContext_Free(&ctx);     // Free context
-  flag = MPI_Finalize();     // Finalize MPI
+  braid_Destroy(core);                     // Free braid memory
+  ARKBraid_Free(&app);                     // Free interface memory
+  (void) SUNAdaptController_Destroy(C);    // Free time adaptivity controller
+  (void) SUNTimestepHeuristics_Destroy(H); // Free timestep heuristics object
+  SUNContext_Free(&ctx);                   // Free context
+  flag = MPI_Finalize();                   // Finalize MPI
 
   return 0;
 }
