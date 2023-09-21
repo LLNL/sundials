@@ -236,6 +236,8 @@ echo "   --- Add shared source files to $tarfile"
 $tar $tarfile $distrobase/src/CMakeLists.txt
 $tar $tarfile $distrobase/src/sundials/CMakeLists.txt
 $tar $tarfile $distrobase/src/sundials/fmod/CMakeLists.txt
+$tar $tarfile $distrobase/src/sundials/fmod/fsundials_adaptcontroller_mod.c
+$tar $tarfile $distrobase/src/sundials/fmod/fsundials_adaptcontroller_mod.f90
 $tar $tarfile $distrobase/src/sundials/fmod/fsundials_context_mod.c
 $tar $tarfile $distrobase/src/sundials/fmod/fsundials_context_mod.f90
 $tar $tarfile $distrobase/src/sundials/fmod/fsundials_futils_mod.c
@@ -252,6 +254,8 @@ $tar $tarfile $distrobase/src/sundials/fmod/fsundials_nvector_mod.c
 $tar $tarfile $distrobase/src/sundials/fmod/fsundials_nvector_mod.f90
 $tar $tarfile $distrobase/src/sundials/fmod/fsundials_profiler_mod.c
 $tar $tarfile $distrobase/src/sundials/fmod/fsundials_profiler_mod.f90
+$tar $tarfile $distrobase/src/sundials/fmod/fsundials_timestepheuristics_mod.c
+$tar $tarfile $distrobase/src/sundials/fmod/fsundials_timestepheuristics_mod.f90
 $tar $tarfile $distrobase/src/sundials/fmod/fsundials_types_mod.c
 $tar $tarfile $distrobase/src/sundials/fmod/fsundials_types_mod.f90
 $tar $tarfile $distrobase/src/sundials/sundials_adaptcontroller.c
@@ -393,31 +397,43 @@ echo "   --- Add sunadaptcontroller/exp_gus module to $tarfile"
 
 $tar $tarfile $distrobase/src/sunadaptcontroller/expgus/CMakeLists.txt
 $tar $tarfile $distrobase/src/sunadaptcontroller/expgus/sunadaptcontroller_expgus.c
+$tar $tarfile $distrobase/src/sunadaptcontroller/expgus/fmod/fsunadaptcontroller_expgus_mod.c
+$tar $tarfile $distrobase/src/sunadaptcontroller/expgus/fmod/fsunadaptcontroller_expgus_mod.f90
 
 echo "   --- Add sunadaptcontroller/i_control module to $tarfile"
 
 $tar $tarfile $distrobase/src/sunadaptcontroller/i/CMakeLists.txt
 $tar $tarfile $distrobase/src/sunadaptcontroller/i/sunadaptcontroller_i.c
+$tar $tarfile $distrobase/src/sunadaptcontroller/i/fmod/fsunadaptcontroller_i_mod.c
+$tar $tarfile $distrobase/src/sunadaptcontroller/i/fmod/fsunadaptcontroller_i_mod.f90
 
 echo "   --- Add sunadaptcontroller/imex_gus module to $tarfile"
 
 $tar $tarfile $distrobase/src/sunadaptcontroller/imexgus/CMakeLists.txt
 $tar $tarfile $distrobase/src/sunadaptcontroller/imexgus/sunadaptcontroller_imexgus.c
+$tar $tarfile $distrobase/src/sunadaptcontroller/imexgus/fmod/fsunadaptcontroller_imexgus_mod.c
+$tar $tarfile $distrobase/src/sunadaptcontroller/imexgus/fmod/fsunadaptcontroller_imexgus_mod.f90
 
 echo "   --- Add sunadaptcontroller/imp_gus module to $tarfile"
 
 $tar $tarfile $distrobase/src/sunadaptcontroller/impgus/CMakeLists.txt
 $tar $tarfile $distrobase/src/sunadaptcontroller/impgus/sunadaptcontroller_impgus.c
+$tar $tarfile $distrobase/src/sunadaptcontroller/impgus/fmod/fsunadaptcontroller_impgus_mod.c
+$tar $tarfile $distrobase/src/sunadaptcontroller/impgus/fmod/fsunadaptcontroller_impgus_mod.f90
 
 echo "   --- Add sunadaptcontroller/pi_control module to $tarfile"
 
 $tar $tarfile $distrobase/src/sunadaptcontroller/pi/CMakeLists.txt
 $tar $tarfile $distrobase/src/sunadaptcontroller/pi/sunadaptcontroller_pi.c
+$tar $tarfile $distrobase/src/sunadaptcontroller/pi/fmod/fsunadaptcontroller_pi_mod.c
+$tar $tarfile $distrobase/src/sunadaptcontroller/pi/fmod/fsunadaptcontroller_pi_mod.f90
 
 echo "   --- Add sunadaptcontroller/pid_control module to $tarfile"
 
 $tar $tarfile $distrobase/src/sunadaptcontroller/pid/CMakeLists.txt
 $tar $tarfile $distrobase/src/sunadaptcontroller/pid/sunadaptcontroller_pid.c
+$tar $tarfile $distrobase/src/sunadaptcontroller/pid/fmod/fsunadaptcontroller_pid_mod.c
+$tar $tarfile $distrobase/src/sunadaptcontroller/pid/fmod/fsunadaptcontroller_pid_mod.f90
 
 echo "   --- Add suntimestepheuristics modules to $tarfile"
 
@@ -427,11 +443,15 @@ echo "   --- Add suntimestepheuristics/default module to $tarfile"
 
 $tar $tarfile $distrobase/src/suntimestepheuristics/default/CMakeLists.txt
 $tar $tarfile $distrobase/src/suntimestepheuristics/default/suntimestepheuristics_default.c
+$tar $tarfile $distrobase/src/suntimestepheuristics/default/fmod/fsuntimestepheuristics_default_mod.c
+$tar $tarfile $distrobase/src/suntimestepheuristics/default/fmod/fsuntimestepheuristics_default_mod.f90
 
 echo "   --- Add suntimestepheuristics/unconstrained module to $tarfile"
 
 $tar $tarfile $distrobase/src/suntimestepheuristics/unconstrained/CMakeLists.txt
 $tar $tarfile $distrobase/src/suntimestepheuristics/unconstrained/suntimestepheuristics_unconstrained.c
+$tar $tarfile $distrobase/src/suntimestepheuristics/unconstrained/fmod/fsuntimestepheuristics_default_mod.c
+$tar $tarfile $distrobase/src/suntimestepheuristics/unconstrained/fmod/fsuntimestepheuristics_default_mod.f90
 
 echo "   --- Add sunmatrix modules to $tarfile"
 
