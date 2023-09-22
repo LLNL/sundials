@@ -24,9 +24,11 @@ the prospective time step estimate entirely off of the current local error
 estimate,
 
 .. math::
-   h' \;=\; h_n\; \varepsilon_n^{-k_1/p}.
+   h' \;=\; h_n\; \varepsilon_n^{-k_1/ord},
 
-By default the constant :math:`k_1=1`.
+where :math:`ord = p+1+adj`, where both :math:`p` and :math:`adj` are
+described below. In this estimate, a floor of :math:`\varepsilon > 10^{-10}` is enforced to
+avoid division-by-zero errors. By default the constant :math:`k_1=1`.
 
 This is implemented as a derived SUNAdaptController class, and defines its *content*
 field as:
@@ -34,10 +36,11 @@ field as:
 .. code-block:: c
 
    struct _SUNAdaptControllerContent_I {
-     realtype k1;
-     realtype bias;
+     sunrealtype k1;
+     sunrealtype bias;
      int p;
-     sunbooleantype pq;
+     int adj;
+     int pq;
    };
 
 These entries of the *content* field contain the following information:
@@ -49,8 +52,11 @@ These entries of the *content* field contain the following information:
 
 * ``p`` - asymptotic order to use in error control.
 
+* ``adj`` - order of accuracy adjustment to use within the controller [default ``-1``].
+
 * ``pq`` - flag indicating whether ``p`` corresponds to the order of accuracy
-  for the time integration method (``SUNTRUE``) or the embedding (``SUNFALSE``).
+  for the time integration method (``1``), the embedding (``0``), or the
+  minimum of the two (``-1``) [default ``0``].
 
 
 The header file to be included when using this module is
@@ -65,14 +71,30 @@ also provides the following additional user-callable routines:
 .. c:function:: SUNAdaptController SUNAdaptController_I(SUNContext sunctx)
 
    This constructor function creates and allocates memory for a SUNAdaptController_I
-   object, and inserts its default parameters.  The only argument is the
-   SUNDIALS context object.  Upon successful completion it will return a
-   :c:type:`SUNAdaptController` object; otherwise it will return ``NULL``.
+   object, and inserts its default parameters.
 
+   :param sunctx: the current :c:type:`SUNContext` object.
+   :return: if successful, a usable :c:type:`SUNAdaptController` object; otherwise it will return ``NULL``.
 
-.. c:function:: int SUNAdaptController_SetParams_I(SUNAdaptController C, sunbooleantype pq, realtype k1)
+   Usage:
+
+   .. code-block:: c
+
+      SUNAdaptController C = SUNAdaptController_I(sunctx);
+
+.. c:function:: int SUNAdaptController_SetParams_I(SUNAdaptController C, int pq, sunrealtype k1)
 
    This user-callable function provides control over the relevant parameters
-   above.  The *pq* input is stored directly.  The *k1* parameter is only stored
-   if the input is non-negative.  Upon completion, this returns
-   ``SUNADAPTCONTROLLER_SUCCESS``.
+   above.  This should be called *before* the time integrator is called to evolve
+   the problem.
+
+   :param C: the SUNAdaptController_I object
+   :param pq: the integer parameter indicating how to interpret the method and embedding orders of accuracy
+   :param k1: parameter used within the controller time step estimate (only stored if non-negative)
+   :return: error code indication success or failure (see :numref:`SUNAdaptController.Description.errorCodes`).
+
+   Usage:
+
+   .. code-block:: c
+
+      retval = SUNAdaptController_SetParams_I(C, -1, 0.95);

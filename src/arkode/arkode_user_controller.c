@@ -64,7 +64,6 @@ SUNAdaptController ARKUserControl(SUNContext sunctx, void* arkode_mem,
   C->ops->reset             = SUNAdaptController_Reset_ARKUserControl;
   C->ops->write             = SUNAdaptController_Write_ARKUserControl;
   C->ops->setmethodorder    = SUNAdaptController_SetMethodOrder_ARKUserControl;
-  C->ops->setembeddingorder = SUNAdaptController_SetEmbeddingOrder_ARKUserControl;
   C->ops->update            = SUNAdaptController_Update_ARKUserControl;
   C->ops->space             = SUNAdaptController_Space_ARKUserControl;
 
@@ -146,23 +145,15 @@ int SUNAdaptController_Write_ARKUserControl(SUNAdaptController C, FILE *fptr)
   return SUNADAPTCONTROLLER_SUCCESS;
 }
 
-int SUNAdaptController_SetMethodOrder_ARKUserControl(SUNAdaptController C, int q)
-{
-  /* check for legal input */
-  if (q <= 0) { return SUNADAPTCONTROLLER_ILL_INPUT; }
-
-  /* store value and return */
-  SC_Q(C) = q;
-  return SUNADAPTCONTROLLER_SUCCESS;
-}
-
-int SUNAdaptController_SetEmbeddingOrder_ARKUserControl(SUNAdaptController C, int p)
+int SUNAdaptController_SetMethodOrder_ARKUserControl(SUNAdaptController C, int p, int q)
 {
   /* check for legal input */
   if (p <= 0) { return SUNADAPTCONTROLLER_ILL_INPUT; }
+  if (q <= 0) { return SUNADAPTCONTROLLER_ILL_INPUT; }
 
   /* store value and return */
   SC_P(C) = p;
+  SC_Q(C) = q;
   return SUNADAPTCONTROLLER_SUCCESS;
 }
 

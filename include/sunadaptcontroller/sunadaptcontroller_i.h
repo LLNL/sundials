@@ -29,10 +29,11 @@ extern "C" {
  * -------------------------------------- */
 
 struct _SUNAdaptControllerContent_I {
-  realtype k1;        /* internal controller parameters */
-  realtype bias;      /* error bias factor */
-  int p;              /* order of accuracy to use for controller */
-  sunbooleantype pq;  /* p is embedding order (FALSE) or method order (TRUE) */
+  sunrealtype k1;    /* internal controller parameters */
+  sunrealtype bias;  /* error bias factor */
+  int p;             /* method/embedding order of accuracy */
+  int adj;           /* order of accuracy adjustment to use for controller */
+  int pq;            /* p is order of embedding (0), method (1), or minimum (-1) */
 };
 
 typedef struct _SUNAdaptControllerContent_I *SUNAdaptControllerContent_I;
@@ -44,23 +45,23 @@ typedef struct _SUNAdaptControllerContent_I *SUNAdaptControllerContent_I;
 SUNDIALS_EXPORT
 SUNAdaptController SUNAdaptController_I(SUNContext sunctx);
 SUNDIALS_EXPORT
-int SUNAdaptController_SetParams_I(SUNAdaptController C, sunbooleantype pq,
-                                   realtype k1);
+int SUNAdaptController_SetParams_I(SUNAdaptController C, int pq,
+                                   sunrealtype k1);
 SUNDIALS_EXPORT
 SUNAdaptController_Type SUNAdaptController_GetType_I(SUNAdaptController C);
 SUNDIALS_EXPORT
-int SUNAdaptController_EstimateStep_I(SUNAdaptController C, realtype h,
-                                      realtype dsm, realtype* hnew);
+int SUNAdaptController_EstimateStep_I(SUNAdaptController C, sunrealtype h,
+                                      sunrealtype dsm, sunrealtype* hnew);
 SUNDIALS_EXPORT
 int SUNAdaptController_SetDefaults_I(SUNAdaptController C);
 SUNDIALS_EXPORT
 int SUNAdaptController_Write_I(SUNAdaptController C, FILE* fptr);
 SUNDIALS_EXPORT
-int SUNAdaptController_SetMethodOrder_I(SUNAdaptController C, int q);
+int SUNAdaptController_SetMethodOrder_I(SUNAdaptController C, int p, int q);
 SUNDIALS_EXPORT
-int SUNAdaptController_SetEmbeddingOrder_I(SUNAdaptController C, int p);
+int SUNAdaptController_AdjustControllerOrder_I(SUNAdaptController C, int adj);
 SUNDIALS_EXPORT
-int SUNAdaptController_SetErrorBias_I(SUNAdaptController C, realtype bias);
+int SUNAdaptController_SetErrorBias_I(SUNAdaptController C, sunrealtype bias);
 SUNDIALS_EXPORT
 int SUNAdaptController_Space_I(SUNAdaptController C, long int *lenrw,
                                long int *leniw);

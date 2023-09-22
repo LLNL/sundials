@@ -27,7 +27,7 @@ field as:
 
 .. code-block:: c
 
-   struct SUNTimestepHeuristicsContent_Unconstrained_ { long int nst_acc; };
+   struct _SUNTimestepHeuristicsContent_Unconstrained { long int nst_acc; };
 
 Note that the only entry in the *content* field is a counter, that keeps track
 of the number of calls made to its :c:func:`SUNTimestepHeuristicsConstrainStep` routine.
@@ -61,6 +61,8 @@ class provides the following constructor routine:
 
    This constructor function creates and allocates memory for a
    SUNTimestepHeuristics_Unconstrained object, and initializes its ``nst_acc`` counter
-   to zero.  The only argument is the SUNDIALS context object.  Upon successful
-   completion it will return a :c:type:`SUNTimestepHeuristics` object; otherwise it will
-   return ``NULL``.
+   to zero.
+
+   :param sunctx: the :c:type:`SUNContext` object (see :numref:`SUNDIALS.SUNContext`).
+   :returns: If successful, a SUNTimestepHeuristics_Unconstrained object.  If
+             unsuccessful, a ``NULL`` pointer will be returned.

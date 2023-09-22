@@ -30,21 +30,21 @@ extern "C" {
  * ----------------------------------------------- */
 
 struct _SUNTimestepHeuristicsContent_Default {
-  realtype     hmax_inv;   /* inverse of maximum allowable time step     */
-  realtype     hmin;       /* minimum allowable time step                */
-  realtype     etamax;     /* eta <= etamax                              */
-  realtype     etamx1;     /* max step size change on first step         */
-  realtype     etamxf;     /* h reduction factor on multiple error fails */
-  realtype     etamin;     /* eta >= etamin on error test fail           */
+  sunrealtype  hmax_inv;   /* inverse of maximum allowable time step     */
+  sunrealtype  hmin;       /* minimum allowable time step                */
+  sunrealtype  etamax;     /* eta <= etamax                              */
+  sunrealtype  etamx1;     /* max step size change on first step         */
+  sunrealtype  etamxf;     /* h reduction factor on multiple error fails */
+  sunrealtype  etamin;     /* eta >= etamin on error test fail           */
   int          small_nef;  /* bound to determine 'multiple' above        */
-  realtype     etacf;      /* h reduction factor on nonlinear conv fail  */
+  sunrealtype  etacf;      /* h reduction factor on nonlinear conv fail  */
   SUNExpStabFn expstab;    /* step stability function                    */
   void*        estab_data; /* user pointer passed to expstab             */
-  realtype     cfl;        /* cfl safety factor                          */
-  realtype     safety;     /* step safety factor                         */
-  realtype     growth;     /* maximum step growth safety factor          */
-  realtype     lbound;     /* eta lower bound to leave h unchanged       */
-  realtype     ubound;     /* eta upper bound to leave h unchanged       */
+  sunrealtype  cfl;        /* cfl safety factor                          */
+  sunrealtype  safety;     /* step safety factor                         */
+  sunrealtype  growth;     /* maximum step growth safety factor          */
+  sunrealtype  lbound;     /* eta lower bound to leave h unchanged       */
+  sunrealtype  ubound;     /* eta upper bound to leave h unchanged       */
   long int     nst_acc;    /* num accuracy-limited internal steps        */
   long int     nst_exp;    /* num stability-limited internal steps       */
 };
@@ -61,22 +61,22 @@ SUNDIALS_EXPORT
 SUNTimestepHeuristics_ID SUNTimestepHeuristics_GetID_Default(SUNTimestepHeuristics H);
 SUNDIALS_EXPORT
 int SUNTimestepHeuristics_ConstrainStep_Default(SUNTimestepHeuristics H,
-                                                realtype hcur,
-                                                realtype hnew, realtype* hconstr);
+                                                sunrealtype hcur,
+                                                sunrealtype hnew, sunrealtype* hconstr);
 SUNDIALS_EXPORT
-int SUNTimestepHeuristics_ETestFail_Default(SUNTimestepHeuristics H, realtype hcur,
-                                            realtype hnew, int nef,
-                                            realtype* hconstr);
+int SUNTimestepHeuristics_ETestFail_Default(SUNTimestepHeuristics H, sunrealtype hcur,
+                                            sunrealtype hnew, int nef,
+                                            sunrealtype* hconstr);
 SUNDIALS_EXPORT
-int SUNTimestepHeuristics_ConvFail_Default(SUNTimestepHeuristics H, realtype hcur,
-                                           realtype* hconstr);
+int SUNTimestepHeuristics_ConvFail_Default(SUNTimestepHeuristics H, sunrealtype hcur,
+                                           sunrealtype* hconstr);
 SUNDIALS_EXPORT
 int SUNTimestepHeuristics_BoundReduction_Default(SUNTimestepHeuristics H,
-                                                 realtype hcur,
-                                                 realtype hnew, realtype* hconstr);
+                                                 sunrealtype hcur,
+                                                 sunrealtype hnew, sunrealtype* hconstr);
 SUNDIALS_EXPORT
-int SUNTimestepHeuristics_BoundFirstStep_Default(SUNTimestepHeuristics H, realtype h0,
-                                                 realtype* h0constr);
+int SUNTimestepHeuristics_BoundFirstStep_Default(SUNTimestepHeuristics H, sunrealtype h0,
+                                                 sunrealtype* h0constr);
 SUNDIALS_EXPORT
 int SUNTimestepHeuristics_Reset_Default(SUNTimestepHeuristics H);
 SUNDIALS_EXPORT
@@ -86,39 +86,39 @@ int SUNTimestepHeuristics_SetDefaults_Default(SUNTimestepHeuristics H);
 SUNDIALS_EXPORT
 int SUNTimestepHeuristics_Write_Default(SUNTimestepHeuristics H, FILE* fptr);
 SUNDIALS_EXPORT
-int SUNTimestepHeuristics_SetMaxStep_Default(SUNTimestepHeuristics H, realtype hmax);
+int SUNTimestepHeuristics_SetMaxStep_Default(SUNTimestepHeuristics H, sunrealtype hmax);
 SUNDIALS_EXPORT
-int SUNTimestepHeuristics_SetMinStep_Default(SUNTimestepHeuristics H, realtype hmin);
+int SUNTimestepHeuristics_SetMinStep_Default(SUNTimestepHeuristics H, sunrealtype hmin);
 SUNDIALS_EXPORT
 int SUNTimestepHeuristics_SetExpStabFn_Default(SUNTimestepHeuristics H,
                                                SUNExpStabFn EStab, void* estab_data);
 SUNDIALS_EXPORT
 int SUNTimestepHeuristics_SetCFLFraction_Default(SUNTimestepHeuristics H,
-                                                 realtype cfl_frac);
+                                                 sunrealtype cfl_frac);
 SUNDIALS_EXPORT
 int SUNTimestepHeuristics_SetSafetyFactor_Default(SUNTimestepHeuristics H,
-                                                  realtype safety);
+                                                  sunrealtype safety);
 SUNDIALS_EXPORT
 int SUNTimestepHeuristics_SetMaxGrowth_Default(SUNTimestepHeuristics H,
-                                               realtype mx_growth);
+                                               sunrealtype mx_growth);
 SUNDIALS_EXPORT
 int SUNTimestepHeuristics_SetMinReduction_Default(SUNTimestepHeuristics H,
-                                                  realtype eta_min);
+                                                  sunrealtype eta_min);
 SUNDIALS_EXPORT
 int SUNTimestepHeuristics_SetFixedStepBounds_Default(SUNTimestepHeuristics H,
-                                                     realtype lb, realtype ub);
+                                                     sunrealtype lb, sunrealtype ub);
 SUNDIALS_EXPORT
 int SUNTimestepHeuristics_SetMaxFirstGrowth_Default(SUNTimestepHeuristics H,
-                                                    realtype etamx1);
+                                                    sunrealtype etamx1);
 SUNDIALS_EXPORT
 int SUNTimestepHeuristics_SetMaxEFailGrowth_Default(SUNTimestepHeuristics H,
-                                                    realtype etamxf);
+                                                    sunrealtype etamxf);
 SUNDIALS_EXPORT
 int SUNTimestepHeuristics_SetSmallNumEFails_Default(SUNTimestepHeuristics H,
                                                     int small_nef);
 SUNDIALS_EXPORT
 int SUNTimestepHeuristics_SetMaxCFailGrowth_Default(SUNTimestepHeuristics H,
-                                                    realtype etacf);
+                                                    sunrealtype etacf);
 SUNDIALS_EXPORT
 int SUNTimestepHeuristics_GetNumExpSteps_Default(SUNTimestepHeuristics H,
                                                  long int* expsteps);

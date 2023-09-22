@@ -24,27 +24,31 @@ is primarily useful with explicit Runge--Kutta methods, and has the form
 
 .. math::
    h' \;=\; \begin{cases}
-      h_1\; \varepsilon_1^{-1/p}, &\quad\text{on the first step}, \\
-      h_n\; \varepsilon_n^{-k_1/p}\;
-        \left(\dfrac{\varepsilon_n}{\varepsilon_{n-1}}\right)^{k_2/p}, &
+      h_1\; \varepsilon_1^{-1/ord}, &\quad\text{on the first step}, \\
+      h_n\; \varepsilon_n^{-k_1/ord}\;
+        \left(\dfrac{\varepsilon_n}{\varepsilon_{n-1}}\right)^{k_2/ord}, &
       \quad\text{on subsequent steps}.
    \end{cases}
    :label: expGusController
 
 The default values of :math:`k_1` and :math:`k_2` are 0.367 and 0.268,
-respectively.  Gustafsson proposed a controller for implicit Runge--Kutta
-methods in :cite:p:`Gust:94`, with the form
+respectively, and :math:`ord = p+1+adj`, where both :math:`p` and :math:`adj` are
+described below. In this estimate, a floor of :math:`\varepsilon > 10^{-10}` is enforced to
+avoid division-by-zero errors.
+
+Gustafsson also proposed a controller for implicit Runge--Kutta methods in :cite:p:`Gust:94`,
+with the form
 
 .. math::
    h' = \begin{cases}
-      h_1 \varepsilon_1^{-1/p}, &\quad\text{on the first step}, \\
-      h_n \left(\dfrac{h_n}{h_{n-1}}\right) \varepsilon_n^{-k_1/p}
-        \left(\dfrac{\varepsilon_n}{\varepsilon_{n-1}}\right)^{-k_2/p}, &
-      \quad\text{on subsequent steps}.
+      h_1 \varepsilon_1^{-1/ord}, &\quad\text{on the first step}, \\
+      h_n \left(\dfrac{h_n}{h_{n-1}}\right) \varepsilon_n^{-k_1/ord}
+        \left(\dfrac{\varepsilon_n}{\varepsilon_{n-1}}\right)^{-k_2/ord}, &
+      \quad\text{on subsequent steps},
    \end{cases}
    :label: impGusController
 
-The default parameter values are :math:`k_1 = 0.98` and :math:`k_2 = 0.95`.
+where the default parameter values are :math:`k_1 = 0.98` and :math:`k_2 = 0.95`.
 
 The SUNAdaptController_ImExGus controller implements both formulas
 :eq:`expGusController` and :eq:`impGusController`, and sets its recommended step
@@ -54,15 +58,16 @@ class, and defines its *content* field as:
 .. code-block:: c
 
    struct _SUNAdaptControllerContent_ImExGus {
-     realtype k1e;
-     realtype k2e;
-     realtype k1i;
-     realtype k2i;
-     realtype bias;
-     realtype ep;
-     realtype hp;
+     sunrealtype k1e;
+     sunrealtype k2e;
+     sunrealtype k1i;
+     sunrealtype k2i;
+     sunrealtype bias;
+     sunrealtype ep;
+     sunrealtype hp;
      int p;
-     sunbooleantype pq;
+     int adj;
+     int pq;
      sunbooleantype firststep;
    };
 
@@ -81,9 +86,14 @@ These entries of the *content* field contain the following information:
 
 * ``p`` - asymptotic order to use in error control.
 
-* ``pq`` - flag indicating whether ``p`` corresponds to the order of accuracy
-  for the time integration method (``SUNTRUE``) or the embedding (``SUNFALSE``).
+* ``adj`` - order of accuracy adjustment to use within the controller [default ``-1``].
 
+* ``pq`` - flag indicating whether ``p`` corresponds to the order of accuracy
+  for the time integration method (``1``), the embedding (``0``), or the
+  minimum of the two (``-1``) [default ``0``].
+
+* ``firststep`` - flag indicating whether a step has completed successfully, allowing
+  the formulas above to transition between :math:`h_1` and :math:`h_n`.
 
 The header file to be included when using this module is
 ``sunadaptcontroller/sunadaptcontroller_imexgus.h``.
@@ -98,15 +108,34 @@ routines:
 
 .. c:function:: SUNAdaptController SUNAdaptController_ImExGus(SUNContext sunctx)
 
-   This constructor function creates and allocates memory for a
-   SUNAdaptController_ImExGus object, and inserts its default parameters.  The only
-   argument is the SUNDIALS context object.  Upon successful completion it will
-   return a :c:type:`SUNAdaptController` object; otherwise it will return ``NULL``.
+   This constructor function creates and allocates memory for a SUNAdaptController_ImExGus
+   object, and inserts its default parameters.
 
+   :param sunctx: the current :c:type:`SUNContext` object.
+   :return: if successful, a usable :c:type:`SUNAdaptController` object; otherwise it will return ``NULL``.
 
-.. c:function:: int SUNAdaptController_SetParams_ImExGus(SUNAdaptController C, sunbooleantype pq, realtype k1e, realtype k2e, realtype k1i, realtype k2i)
+   Usage:
+
+   .. code-block:: c
+
+      SUNAdaptController C = SUNAdaptController_ImExGus(sunctx);
+
+.. c:function:: int SUNAdaptController_SetParams_ImExGus(SUNAdaptController C, int pq, sunrealtype k1e, sunrealtype k2e, sunrealtype k1i, sunrealtype k2i)
 
    This user-callable function provides control over the relevant parameters
-   above.  The *pq* input is stored directly.  The *k1e*, *k2e*, *k1i* and *k2i*
-   parameters are only stored if the corresponding input is non-negative.  Upon
-   completion, this returns ``SUNADAPTCONTROLLER_SUCCESS``.
+   above.  This should be called *before* the time integrator is called to evolve
+   the problem.
+
+   :param C: the SUNAdaptController_ImExGus object
+   :param pq: the integer parameter indicating how to interpret the method and embedding orders of accuracy
+   :param k1e: parameter used within the controller time step estimate (only stored if non-negative)
+   :param k2e: parameter used within the controller time step estimate (only stored if non-negative)
+   :param k1i: parameter used within the controller time step estimate (only stored if non-negative)
+   :param k2i: parameter used within the controller time step estimate (only stored if non-negative)
+   :return: error code indication success or failure (see :numref:`SUNAdaptController.Description.errorCodes`).
+
+   Usage:
+
+   .. code-block:: c
+
+      retval = SUNAdaptController_SetParams_ImExGus(C, -1, 0.4, 0.3, -1.0, 1.0);

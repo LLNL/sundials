@@ -60,19 +60,19 @@ function pointers to the various controller operations, and is defined as
     struct _generic_SUNAdaptController_Ops {
         SUNAdaptController_Type (*getid)(SUNAdaptController C);
         int (*destroy)(SUNAdaptController C);
-        int (*estimatestep)(SUNAdaptController C, realtype h, realtype dsm, realtype* hnew);
-        int (*estimatestepandorder)(SUNAdaptController C, realtype h, int q, realtype dsm, realtype* hnew, int *qnew);
-        int (*estimatemristeps)(SUNAdaptController C, realtype H, realtype h, realtype DSM, realtype dsm, realtype* Hnew, realtype *hnew);
-        int (*estimatesteptol)(SUNAdaptController C, realtype H, realtype tolfac, realtype DSM, realtype dsm, realtype *Hnew, realtype* tolfacnew);
+        int (*estimatestep)(SUNAdaptController C, sunrealtype h, sunrealtype dsm, sunrealtype* hnew);
+        int (*estimatestepandorder)(SUNAdaptController C, sunrealtype h, int q, sunrealtype dsm, sunrealtype* hnew, int *qnew);
+        int (*estimatemristeps)(SUNAdaptController C, sunrealtype H, sunrealtype h, sunrealtype DSM, sunrealtype dsm, sunrealtype* Hnew, sunrealtype *hnew);
+        int (*estimatesteptol)(SUNAdaptController C, sunrealtype H, sunrealtype tolfac, sunrealtype DSM, sunrealtype dsm, sunrealtype *Hnew, sunrealtype* tolfacnew);
         int (*reset)(SUNAdaptController C);
         int (*setdefaults)(SUNAdaptController C);
         int (*write)(SUNAdaptController C, FILE* fptr);
-        int (*setmethodorder)(SUNAdaptController C, int q);
-        int (*setembeddingorder)(SUNAdaptController C, int p);
-        int (*seterrorbias)(SUNAdaptController C, realtype bias);
-        int (*update)(SUNAdaptController C, realtype h, realtype dsm);
-        int (*updatemrih)(SUNAdaptController C, realtype H, realtype h, realtype DSM, realtype dsm);
-        int (*updatemritol)(SUNAdaptController C, realtype H, realtype tolfac, realtype DSM, realtype dsm);
+        int (*setmethodorder)(SUNAdaptController C, int p, int q);
+        int (*adjustcontrollerorder)(SUNAdaptController C, int adj);
+        int (*seterrorbias)(SUNAdaptController C, sunrealtype bias);
+        int (*update)(SUNAdaptController C, sunrealtype h, sunrealtype dsm);
+        int (*updatemrih)(SUNAdaptController C, sunrealtype H, sunrealtype h, sunrealtype DSM, sunrealtype dsm);
+        int (*updatemritol)(SUNAdaptController C, sunrealtype H, sunrealtype tolfac, sunrealtype DSM, sunrealtype dsm);
         int (*space)(SUNAdaptController C, long int *lenrw, long int *leniw);
     };
 
@@ -176,7 +176,7 @@ routine, below.
 
       retval = SUNAdaptController_Destroy(C);
 
-.. c:function:: int SUNAdaptController_EstimateStep(SUNAdaptController C, realtype h, realtype dsm, realtype* hnew)
+.. c:function:: int SUNAdaptController_EstimateStep(SUNAdaptController C, sunrealtype h, sunrealtype dsm, sunrealtype* hnew)
 
    Estimates a single-rate step size. This routine is required for controllers
    of type ``SUN_ADAPTCONTROLLER_H``.
@@ -194,7 +194,7 @@ routine, below.
 
       retval = SUNAdaptController_EstimateStep(C, hcur, dsm, &hnew);
 
-.. c:function:: int SUNAdaptController_EstimateStepAndOrder(SUNAdaptController C, realtype h, int q, realtype dsm, realtype* hnew, int* qnew)
+.. c:function:: int SUNAdaptController_EstimateStepAndOrder(SUNAdaptController C, sunrealtype h, int q, sunrealtype dsm, sunrealtype* hnew, int* qnew)
 
    Estimates a single-rate step size and corresponding method order. This
    routine is required for controllers of type ``SUN_ADAPTCONTROLLER_HQ``.
@@ -214,7 +214,7 @@ routine, below.
 
       retval = SUNAdaptController_EstimateStepAndOrder(C, hcur, qcur, dsm, &hnew, &qnew);
 
-.. c:function:: int SUNAdaptController_EstimateMRISteps(SUNAdaptController C, realtype H, realtype h, realtype DSM, realtype dsm, realtype* Hnew, realtype *hnew)
+.. c:function:: int SUNAdaptController_EstimateMRISteps(SUNAdaptController C, sunrealtype H, sunrealtype h, sunrealtype DSM, sunrealtype dsm, sunrealtype* Hnew, sunrealtype *hnew)
 
    Estimates the slow and fast multirate step sizes. This routine is required
    for controllers of type ``SUN_ADAPTCONTROLLER_MRI_H``.
@@ -237,7 +237,7 @@ routine, below.
 
       retval = SUNAdaptController_EstimateMRISteps(C, Hcur, hcur, DSM, &Hnew, &hnew);
 
-.. c:function:: int SUNAdaptController_EstimateStepTol(SUNAdaptController C, realtype H, realtype tolfac, realtype DSM, realtype *Hnew, realtype* tolfacnew)
+.. c:function:: int SUNAdaptController_EstimateStepTol(SUNAdaptController C, sunrealtype H, sunrealtype tolfac, sunrealtype DSM, sunrealtype *Hnew, sunrealtype* tolfacnew)
 
    Estimates the slow step size and recommended fast relative tolerance factor
    for a multirate step. This routine is required for controllers of type
@@ -310,13 +310,14 @@ routine, below.
 
       retval = SUNAdaptController_Write(C, stdout);
 
-.. c:function:: int SUNAdaptController_SetMethodOrder(SUNAdaptController C, int q)
+.. c:function:: int SUNAdaptController_SetMethodOrder(SUNAdaptController C, int p, int q)
 
    Called by the time integrator to inform the controller of the asymptotic
-   order of accuracy for the method.
+   order of accuracy for the method and its embedding.
 
    :param C:  the :c:type:`SUNAdaptController` object.
-   :param q:  the asymptotic order of accuracy for the time integration method.
+   :param p:  the asymptotic order of accuracy for the time integration method.
+   :param q:  the asymptotic order of accuracy for the time integration method embedding.
    :return: error code indicating success failure
             (see :numref:`SUNAdaptController.Description.errorCodes`).
 
@@ -324,26 +325,30 @@ routine, below.
 
    .. code-block:: c
 
-      retval = SUNAdaptController_SetMethodOrder(C, 3);
+      retval = SUNAdaptController_SetMethodOrder(C, 3, 2);
 
-.. c:function:: int SUNAdaptController_SetEmbeddingOrder(SUNAdaptController C, int p)
+.. c:function:: int SUNAdaptController_AdjustControllerOrder(SUNAdaptController C, int adj)
 
-   Called by the time integrator to inform the controller of the asymptotic
-   order of accuracy for the method embedding.
+   Called by a user to request that the controller adjust the order specified by the time
+   integration method when performing temporal adaptivity, e.g., if the user expects order
+   reduction due to problem stiffness, they may request that the controller assume a
+   reduced order of accuracy for the method by specifying a value :math:`adj < 0`.  This
+   adjustment will apply to all subsequent time step adaptivity estimates used by the
+   controller, and may be undone by a call with :math:`adj = 0`.
 
    :param C:  the :c:type:`SUNAdaptController` object.
-   :param p:  the asymptotic order of accuracy for the time integration method
-              embedding.
-   :return: error code indicating success failure
-            (see :numref:`SUNAdaptController.Description.errorCodes`).
+   :param p:  the adjustment that will be applied to the values *p* and *q* from
+              :c:func:`SUNAdaptController_SetMethodOrder`.
+   :return:  error code indicating success failure
+             (see :numref:`SUNAdaptController.Description.errorCodes`).
 
    Usage:
 
    .. code-block:: c
 
-      retval = SUNAdaptController_SetEmbeddingOrder(C, 2);
+      retval = SUNAdaptController_AdjustControllerOrder(C, -1);
 
-.. c:function:: int SUNAdaptController_SetErrorBias(SUNAdaptController C, realtype bias)
+.. c:function:: int SUNAdaptController_SetErrorBias(SUNAdaptController C, sunrealtype bias)
 
    Sets an error bias factor for scaling the local error factors. This is
    typically used to slightly exaggerate the temporal error during the
@@ -360,7 +365,7 @@ routine, below.
 
       retval = SUNAdaptController_SetErrorBias(C, 1.2);
 
-.. c:function:: int SUNAdaptController_Update(SUNAdaptController C, realtype h, realtype dsm)
+.. c:function:: int SUNAdaptController_Update(SUNAdaptController C, sunrealtype h, sunrealtype dsm)
 
    Notifies the controller of a successful time step of size *h* and with
    temporal error estimate *dsm*. This is typically used for controllers that
@@ -379,7 +384,7 @@ routine, below.
 
       retval = SUNAdaptController_Update(C, h, dsm);
 
-.. c:function:: int SUNAdaptController_UpdateMRIH(SUNAdaptController C, realtype H, realtype h, realtype DSM, realtype dsm)
+.. c:function:: int SUNAdaptController_UpdateMRIH(SUNAdaptController C, sunrealtype H, sunrealtype h, sunrealtype DSM, sunrealtype dsm)
 
    Notifies the controller of a successful multirate time step of sizes *H* and
    *h*, and with temporal error estimates *DSM* and *dsm*. This is used for
@@ -401,7 +406,7 @@ routine, below.
 
       retval = SUNAdaptController_UpdateMRIH(C, H, h, DSM, dsm);
 
-.. c:function:: int SUNAdaptController_UpdateMRITol(SUNAdaptController C, realtype H, realtype tolfac, realtype DSM, realtype dsm)
+.. c:function:: int SUNAdaptController_UpdateMRITol(SUNAdaptController C, sunrealtype H, sunrealtype tolfac, sunrealtype DSM, sunrealtype dsm)
 
    Notifies the controller of a successful multirate time step of size *H* and
    fast tolerance factor *tolfac*, that resulted in temporal error estimates
@@ -429,7 +434,7 @@ routine, below.
    :c:type:`SUNAdaptController` object.
 
    :param C:  the :c:type:`SUNAdaptController` object..
-   :param lenrw: (output)  number of ``sunrealtype`` words stored in the
+   :param lenrw: (output)  number of ``sunsunrealtype`` words stored in the
                  controller.
    :param leniw: (output)  number of ``sunindextype`` words stored in the
                  controller. This may also include pointers, `int` and

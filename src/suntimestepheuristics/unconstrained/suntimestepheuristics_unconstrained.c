@@ -83,9 +83,9 @@ SUNTimestepHeuristics_ID SUNTimestepHeuristics_GetID_Unconstrained(SUNTimestepHe
 { return SUN_TIMESTEPHEURISTICS_NULL; }
 
 int SUNTimestepHeuristics_ConstrainStep_Unconstrained(SUNTimestepHeuristics H,
-                                                      realtype hcur,
-                                                      realtype h_acc,
-                                                      realtype* hconstr)
+                                                      sunrealtype hcur,
+                                                      sunrealtype h_acc,
+                                                      sunrealtype* hconstr)
 {
   /* All steps are considered accuracy-limited */
   SH_NST_ACC(H)++;
@@ -96,8 +96,8 @@ int SUNTimestepHeuristics_ConstrainStep_Unconstrained(SUNTimestepHeuristics H,
 }
 
 int SUNTimestepHeuristics_ConvFail_Unconstrained(SUNTimestepHeuristics H,
-                                                 realtype hcur,
-                                                 realtype* hconstr)
+                                                 sunrealtype hcur,
+                                                 sunrealtype* hconstr)
 {
   /* No recovery is possible upon an algebraic solver convergence failure */
   *hconstr = hcur;

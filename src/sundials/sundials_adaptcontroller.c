@@ -41,22 +41,22 @@ SUNAdaptController SUNAdaptController_NewEmpty(SUNContext sunctx)
   if (ops == NULL) { free(C); return(NULL); }
 
   /* initialize operations to NULL */
-  ops->gettype              = NULL;
-  ops->destroy              = NULL;
-  ops->reset                = NULL;
-  ops->estimatestep         = NULL;
-  ops->estimatestepandorder = NULL;
-  ops->estimatemristeps     = NULL;
-  ops->estimatesteptol      = NULL;
-  ops->setdefaults          = NULL;
-  ops->write                = NULL;
-  ops->setmethodorder       = NULL;
-  ops->setembeddingorder    = NULL;
-  ops->seterrorbias         = NULL;
-  ops->update               = NULL;
-  ops->updatemrih           = NULL;
-  ops->updatemritol         = NULL;
-  ops->space                = NULL;
+  ops->gettype               = NULL;
+  ops->destroy               = NULL;
+  ops->reset                 = NULL;
+  ops->estimatestep          = NULL;
+  ops->estimatestepandorder  = NULL;
+  ops->estimatemristeps      = NULL;
+  ops->estimatesteptol       = NULL;
+  ops->setdefaults           = NULL;
+  ops->write                 = NULL;
+  ops->setmethodorder        = NULL;
+  ops->adjustcontrollerorder = NULL;
+  ops->seterrorbias          = NULL;
+  ops->update                = NULL;
+  ops->updatemrih            = NULL;
+  ops->updatemritol          = NULL;
+  ops->space                 = NULL;
 
   /* attach ops and initialize content to NULL */
   C->ops     = ops;
@@ -116,8 +116,8 @@ int SUNAdaptController_Destroy(SUNAdaptController C)
   return(SUNADAPTCONTROLLER_SUCCESS);
 }
 
-int SUNAdaptController_EstimateStep(SUNAdaptController C, realtype h, realtype dsm,
-                                    realtype* hnew)
+int SUNAdaptController_EstimateStep(SUNAdaptController C, sunrealtype h, sunrealtype dsm,
+                                    sunrealtype* hnew)
 {
   int ier = 0;
   *hnew = h;   /* initialize output with identity */
@@ -130,8 +130,8 @@ int SUNAdaptController_EstimateStep(SUNAdaptController C, realtype h, realtype d
 }
 
 
-int SUNAdaptController_EstimateStepAndOrder(SUNAdaptController C, realtype h, int q,
-                                            realtype dsm, realtype* hnew,
+int SUNAdaptController_EstimateStepAndOrder(SUNAdaptController C, sunrealtype h, int q,
+                                            sunrealtype dsm, sunrealtype* hnew,
                                             int *qnew)
 {
   int ier = 0;
@@ -145,9 +145,9 @@ int SUNAdaptController_EstimateStepAndOrder(SUNAdaptController C, realtype h, in
   return(ier);
 }
 
-int SUNAdaptController_EstimateMRISteps(SUNAdaptController C, realtype H, realtype h,
-                                        realtype DSM, realtype dsm,
-                                        realtype* Hnew, realtype *hnew)
+int SUNAdaptController_EstimateMRISteps(SUNAdaptController C, sunrealtype H, sunrealtype h,
+                                        sunrealtype DSM, sunrealtype dsm,
+                                        sunrealtype* Hnew, sunrealtype *hnew)
 {
   int ier = 0;
   *Hnew = H;   /* initialize outputs with identity */
@@ -160,10 +160,10 @@ int SUNAdaptController_EstimateMRISteps(SUNAdaptController C, realtype H, realty
   return(ier);
 }
 
-int SUNAdaptController_EstimateStepTol(SUNAdaptController C, realtype H,
-                                       realtype tolfac, realtype DSM,
-                                       realtype dsm, realtype *Hnew,
-                                       realtype* tolfacnew)
+int SUNAdaptController_EstimateStepTol(SUNAdaptController C, sunrealtype H,
+                                       sunrealtype tolfac, sunrealtype DSM,
+                                       sunrealtype dsm, sunrealtype *Hnew,
+                                       sunrealtype* tolfacnew)
 {
   int ier = 0;
   *Hnew = H;   /* initialize outputs with identity */
@@ -200,23 +200,23 @@ int SUNAdaptController_Write(SUNAdaptController C, FILE* fptr)
   return(ier);
 }
 
-int SUNAdaptController_SetMethodOrder(SUNAdaptController C, int q)
+int SUNAdaptController_SetMethodOrder(SUNAdaptController C, int p, int q)
 {
   int ier = 0;
   if (C == NULL) { return ier; }
-  if (C->ops->setmethodorder) { ier = C->ops->setmethodorder(C, q); }
+  if (C->ops->setmethodorder) { ier = C->ops->setmethodorder(C, p, q); }
   return(ier);
 }
 
-int SUNAdaptController_SetEmbeddingOrder(SUNAdaptController C, int p)
+int SUNAdaptController_AdjustControllerOrder(SUNAdaptController C, int adj)
 {
   int ier = 0;
   if (C == NULL) { return ier; }
-  if (C->ops->setembeddingorder) { ier = C->ops->setembeddingorder(C, p); }
+  if (C->ops->adjustcontrollerorder) { ier = C->ops->adjustcontrollerorder(C, adj); }
   return(ier);
 }
 
-int SUNAdaptController_SetErrorBias(SUNAdaptController C, realtype bias)
+int SUNAdaptController_SetErrorBias(SUNAdaptController C, sunrealtype bias)
 {
   int ier = 0;
   if (C == NULL) { return ier; }
@@ -224,7 +224,7 @@ int SUNAdaptController_SetErrorBias(SUNAdaptController C, realtype bias)
   return(ier);
 }
 
-int SUNAdaptController_Update(SUNAdaptController C, realtype h, realtype dsm)
+int SUNAdaptController_Update(SUNAdaptController C, sunrealtype h, sunrealtype dsm)
 {
   int ier = 0;
   if (C == NULL) { return ier; }
@@ -232,8 +232,8 @@ int SUNAdaptController_Update(SUNAdaptController C, realtype h, realtype dsm)
   return(ier);
 }
 
-int SUNAdaptController_UpdateMRIH(SUNAdaptController C, realtype H, realtype h,
-                                  realtype DSM, realtype dsm)
+int SUNAdaptController_UpdateMRIH(SUNAdaptController C, sunrealtype H, sunrealtype h,
+                                  sunrealtype DSM, sunrealtype dsm)
 {
   int ier = 0;
   if (C == NULL) { return ier; }
@@ -241,8 +241,8 @@ int SUNAdaptController_UpdateMRIH(SUNAdaptController C, realtype H, realtype h,
   return(ier);
 }
 
-int SUNAdaptController_UpdateMRITol(SUNAdaptController C, realtype H, realtype tolfac,
-                                    realtype DSM, realtype dsm)
+int SUNAdaptController_UpdateMRITol(SUNAdaptController C, sunrealtype H, sunrealtype tolfac,
+                                    sunrealtype DSM, sunrealtype dsm)
 {
   int ier = 0;
   if (C == NULL) { return ier; }

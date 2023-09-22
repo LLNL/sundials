@@ -32,6 +32,7 @@
 #define SACEXPGUS_EP(C)          ( SACEXPGUS_CONTENT(C)->ep )
 #define SACEXPGUS_P(C)           ( SACEXPGUS_CONTENT(C)->p )
 #define SACEXPGUS_PQ(C)          ( SACEXPGUS_CONTENT(C)->pq )
+#define SACEXPGUS_ADJ(C)         ( SACEXPGUS_CONTENT(C)->adj )
 #define SACEXPGUS_FIRSTSTEP(C)   ( SACEXPGUS_CONTENT(C)->firststep )
 
 /* ------------------
@@ -41,7 +42,8 @@
 #define DEFAULT_K1     RCONST(0.367)
 #define DEFAULT_K2     RCONST(0.268)
 #define DEFAULT_BIAS   RCONST(1.5)
-#define DEFAULT_PQ     SUNFALSE
+#define DEFAULT_PQ     0
+#define DEFAULT_ADJ    -1
 #define TINY           RCONST(1.0e-10)
 
 
@@ -64,16 +66,16 @@ SUNAdaptController SUNAdaptController_ExpGus(SUNContext sunctx)
   if (C == NULL) { return (NULL); }
 
   /* Attach operations */
-  C->ops->gettype           = SUNAdaptController_GetType_ExpGus;
-  C->ops->estimatestep      = SUNAdaptController_EstimateStep_ExpGus;
-  C->ops->reset             = SUNAdaptController_Reset_ExpGus;
-  C->ops->setdefaults       = SUNAdaptController_SetDefaults_ExpGus;
-  C->ops->write             = SUNAdaptController_Write_ExpGus;
-  C->ops->setmethodorder    = SUNAdaptController_SetMethodOrder_ExpGus;
-  C->ops->setembeddingorder = SUNAdaptController_SetEmbeddingOrder_ExpGus;
-  C->ops->seterrorbias      = SUNAdaptController_SetErrorBias_ExpGus;
-  C->ops->update            = SUNAdaptController_Update_ExpGus;
-  C->ops->space             = SUNAdaptController_Space_ExpGus;
+  C->ops->gettype               = SUNAdaptController_GetType_ExpGus;
+  C->ops->estimatestep          = SUNAdaptController_EstimateStep_ExpGus;
+  C->ops->reset                 = SUNAdaptController_Reset_ExpGus;
+  C->ops->setdefaults           = SUNAdaptController_SetDefaults_ExpGus;
+  C->ops->write                 = SUNAdaptController_Write_ExpGus;
+  C->ops->setmethodorder        = SUNAdaptController_SetMethodOrder_ExpGus;
+  C->ops->adjustcontrollerorder = SUNAdaptController_AdjustControllerOrder_ExpGus;
+  C->ops->seterrorbias          = SUNAdaptController_SetErrorBias_ExpGus;
+  C->ops->update                = SUNAdaptController_Update_ExpGus;
+  C->ops->space                 = SUNAdaptController_Space_ExpGus;
 
   /* Create content */
   content = NULL;
@@ -101,8 +103,8 @@ SUNAdaptController SUNAdaptController_ExpGus(SUNContext sunctx)
  * Function to set ExpGus parameters
  */
 
-int SUNAdaptController_SetParams_ExpGus(SUNAdaptController C, sunbooleantype pq,
-                                        realtype k1, realtype k2)
+int SUNAdaptController_SetParams_ExpGus(SUNAdaptController C, int pq,
+                                        sunrealtype k1, sunrealtype k2)
 {
   /* store legal inputs, and return with success */
   SACEXPGUS_PQ(C) = pq;
@@ -120,15 +122,18 @@ int SUNAdaptController_SetParams_ExpGus(SUNAdaptController C, sunbooleantype pq,
 SUNAdaptController_Type SUNAdaptController_GetType_ExpGus(SUNAdaptController C)
 { return SUN_ADAPTCONTROLLER_H; }
 
-int SUNAdaptController_EstimateStep_ExpGus(SUNAdaptController C, realtype h,
-                                           realtype dsm, realtype* hnew)
+int SUNAdaptController_EstimateStep_ExpGus(SUNAdaptController C, sunrealtype h,
+                                           sunrealtype dsm, sunrealtype* hnew)
 {
+  /* order parameter to use in controller */
+  const int ord = SACEXPGUS_P(C) + SACEXPGUS_ADJ(C);
+
   /* modified method for first step */
   if (SACEXPGUS_FIRSTSTEP(C))
   {
     /* set usable time-step adaptivity parameters */
-    const realtype k = -RCONST(1.0) / SACEXPGUS_P(C);
-    const realtype e = SUNMAX(SACEXPGUS_BIAS(C) * dsm, TINY);
+    const sunrealtype k = -RCONST(1.0) / ord;
+    const sunrealtype e = SUNMAX(SACEXPGUS_BIAS(C) * dsm, TINY);
 
     /* compute estimated optimal time step size */
     *hnew = h * SUNRpowerR(e,k);
@@ -136,11 +141,11 @@ int SUNAdaptController_EstimateStep_ExpGus(SUNAdaptController C, realtype h,
   else
   {
     /* set usable time-step adaptivity parameters */
-    const realtype k1 = -SACEXPGUS_K1(C) / SACEXPGUS_P(C);
-    const realtype k2 = -SACEXPGUS_K2(C) / SACEXPGUS_P(C);
-    const realtype ecur = SACEXPGUS_BIAS(C) * dsm;
-    const realtype e1 = SUNMAX(ecur, TINY);
-    const realtype e2 = e1 / SUNMAX(SACEXPGUS_EP(C), TINY);
+    const sunrealtype k1 = -SACEXPGUS_K1(C) / ord;
+    const sunrealtype k2 = -SACEXPGUS_K2(C) / ord;
+    const sunrealtype ecur = SACEXPGUS_BIAS(C) * dsm;
+    const sunrealtype e1 = SUNMAX(ecur, TINY);
+    const sunrealtype e2 = e1 / SUNMAX(SACEXPGUS_EP(C), TINY);
 
     /* compute estimated optimal time step size */
     *hnew = h * SUNRpowerR(e1,k1) * SUNRpowerR(e2,k2);
@@ -163,6 +168,7 @@ int SUNAdaptController_SetDefaults_ExpGus(SUNAdaptController C)
   SACEXPGUS_K2(C)     = DEFAULT_K2;
   SACEXPGUS_BIAS(C)   = DEFAULT_BIAS;
   SACEXPGUS_PQ(C)     = DEFAULT_PQ;
+  SACEXPGUS_ADJ(C)    = DEFAULT_ADJ;
   return SUNADAPTCONTROLLER_SUCCESS;
 }
 
@@ -180,38 +186,45 @@ int SUNAdaptController_Write_ExpGus(SUNAdaptController C, FILE *fptr)
   fprintf(fptr, "  bias factor = %16g\n", SACEXPGUS_BIAS(C));
   fprintf(fptr, "  previous error = %16g\n", SACEXPGUS_EP(C));
 #endif
-  if (SACEXPGUS_PQ(C))
+  if (SACEXPGUS_PQ(C) == 1)
   {
     fprintf(fptr, "  p = %i (method order)\n", SACEXPGUS_P(C));
   }
-  else
+  else if (SACEXPGUS_PQ(C) == 0)
   {
     fprintf(fptr, "  p = %i (embedding order)\n", SACEXPGUS_P(C));
+  }
+  else
+  {
+    fprintf(fptr, "  p = %i (minimum of method & embedding order)\n", SACEXPGUS_P(C));
+  }
+  fprintf(fptr, "  adj = %i\n", SACEXPGUS_ADJ(C));
+  return SUNADAPTCONTROLLER_SUCCESS;
+}
+
+int SUNAdaptController_SetMethodOrder_ExpGus(SUNAdaptController C, int p, int q)
+{
+  /* check for legal inputs */
+  if ((p <= 0) || (q <= 0)) { return SUNADAPTCONTROLLER_ILL_INPUT; }
+
+  /* store appropriate value based on "pq" */
+  if (SACEXPGUS_PQ(C) == 1) {
+    SACEXPGUS_P(C) = p;
+  } else if (SACEXPGUS_PQ(C) == 0) {
+    SACEXPGUS_P(C) = q;
+  } else {
+    SACEXPGUS_P(C) = SUNMIN(p,q);
   }
   return SUNADAPTCONTROLLER_SUCCESS;
 }
 
-int SUNAdaptController_SetMethodOrder_ExpGus(SUNAdaptController C, int q)
+int SUNAdaptController_AdjustControllerOrder_ExpGus(SUNAdaptController C, int adj)
 {
-  /* check for legal input */
-  if (q <= 0) { return SUNADAPTCONTROLLER_ILL_INPUT; }
-
-  /* store if "pq" specifies to use method order */
-  if (SACEXPGUS_PQ(C)) { SACEXPGUS_P(C) = q; }
+  SACEXPGUS_ADJ(C) = adj;
   return SUNADAPTCONTROLLER_SUCCESS;
 }
 
-int SUNAdaptController_SetEmbeddingOrder_ExpGus(SUNAdaptController C, int p)
-{
-  /* check for legal input */
-  if (p <= 0) { return SUNADAPTCONTROLLER_ILL_INPUT; }
-
-  /* store if "pq" specifies to use method order */
-  if (!SACEXPGUS_PQ(C)) { SACEXPGUS_P(C) = p; }
-  return SUNADAPTCONTROLLER_SUCCESS;
-}
-
-int SUNAdaptController_SetErrorBias_ExpGus(SUNAdaptController C, realtype bias)
+int SUNAdaptController_SetErrorBias_ExpGus(SUNAdaptController C, sunrealtype bias)
 {
   /* set allowed value, otherwise set default */
   if (bias <= RCONST(0.0)) {
@@ -223,7 +236,7 @@ int SUNAdaptController_SetErrorBias_ExpGus(SUNAdaptController C, realtype bias)
   return SUNADAPTCONTROLLER_SUCCESS;
 }
 
-int SUNAdaptController_Update_ExpGus(SUNAdaptController C, realtype h, realtype dsm)
+int SUNAdaptController_Update_ExpGus(SUNAdaptController C, sunrealtype h, sunrealtype dsm)
 {
   SACEXPGUS_EP(C) = SACEXPGUS_BIAS(C) * dsm;
   SACEXPGUS_FIRSTSTEP(C) = SUNFALSE;
@@ -233,6 +246,6 @@ int SUNAdaptController_Update_ExpGus(SUNAdaptController C, realtype h, realtype 
 int SUNAdaptController_Space_ExpGus(SUNAdaptController C, long int* lenrw, long int* leniw)
 {
   *lenrw = 5;
-  *leniw = 3;
+  *leniw = 4;
   return SUNADAPTCONTROLLER_SUCCESS;
 }

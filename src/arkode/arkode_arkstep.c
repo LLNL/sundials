@@ -1140,16 +1140,10 @@ int arkStep_Init(void* arkode_mem, int init_type)
       step_mem->q = step_mem->Be->q;
       step_mem->p = step_mem->Be->p;
     }
-    retval = SUNAdaptController_SetMethodOrder(ark_mem->hcontroller, step_mem->q);
+    retval = SUNAdaptController_SetMethodOrder(ark_mem->hcontroller, step_mem->q, step_mem->p);
     if (retval != SUNADAPTCONTROLLER_SUCCESS) {
       arkProcessError(ark_mem, ARK_CONTROLLER_ERR, "ARKODE::ARKStep",
                       "arkStep_Init", "SUNAdaptController_SetMethodOrder error");
-      return(ARK_CONTROLLER_ERR);
-    }
-    retval = SUNAdaptController_SetEmbeddingOrder(ark_mem->hcontroller, step_mem->p);
-    if (retval != SUNADAPTCONTROLLER_SUCCESS) {
-      arkProcessError(ark_mem, ARK_CONTROLLER_ERR, "ARKODE::ARKStep",
-                      "arkStep_Init", "SUNAdaptController_SetEmbeddingOrder error");
       return(ARK_CONTROLLER_ERR);
     }
 

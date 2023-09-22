@@ -25,12 +25,13 @@ and uses three temporal error estimates, :math:`\varepsilon_n`,
 prospective step size,
 
 .. math::
-   h' \;=\; h_n\; \varepsilon_n^{-k_1/p}\; \varepsilon_{n-1}^{k_2/p}\;
-        \varepsilon_{n-2}^{-k_3/p},
+   h' \;=\; h_n\; \varepsilon_n^{-k_1/ord}\; \varepsilon_{n-1}^{k_2/ord}\;
+        \varepsilon_{n-2}^{-k_3/ord},
 
 where the constants :math:`k_1`, :math:`k_2` and :math:`k_3` default to 0.58,
-0.21 and 0.1, respectively. In this estimate, a floor of :math:`\varepsilon >
-10^{-10}` is enforced to avoid division-by-zero errors.
+0.21 and 0.1, respectively, and :math:`ord = p+1+adj`, where both :math:`p` and :math:`adj` are
+described below. In this estimate, a floor of :math:`\varepsilon > 10^{-10}` is enforced to
+avoid division-by-zero errors.
 
 This is implemented as a derived SUNAdaptController class, and defines its *content*
 field as:
@@ -38,14 +39,15 @@ field as:
 .. code-block:: c
 
    struct _SUNAdaptControllerContent_PID {
-     realtype k1;
-     realtype k2;
-     realtype k3;
-     realtype bias;
-     realtype ep;
-     realtype epp;
+     sunrealtype k1;
+     sunrealtype k2;
+     sunrealtype k3;
+     sunrealtype bias;
+     sunrealtype ep;
+     sunrealtype epp;
      int p;
-     sunbooleantype pq;
+     int adj;
+     int pq;
    };
 
 These entries of the *content* field contain the following information:
@@ -60,8 +62,11 @@ These entries of the *content* field contain the following information:
 
 * ``p`` - asymptotic order to use in error control.
 
+* ``adj`` - order of accuracy adjustment to use within the controller [default ``-1``].
+
 * ``pq`` - flag indicating whether ``p`` corresponds to the order of accuracy
-  for the time integration method (``SUNTRUE``) or the embedding (``SUNFALSE``).
+  for the time integration method (``1``), the embedding (``0``), or the
+  minimum of the two (``-1``) [default ``0``].
 
 
 The header file to be included when using this module is
@@ -77,14 +82,32 @@ also provides the following additional user-callable routines:
 .. c:function:: SUNAdaptController SUNAdaptController_PID(SUNContext sunctx)
 
    This constructor function creates and allocates memory for a SUNAdaptController_PID
-   object, and inserts its default parameters.  The only argument is the
-   SUNDIALS context object.  Upon successful completion it will return a
-   :c:type:`SUNAdaptController` object; otherwise it will return ``NULL``.
+   object, and inserts its default parameters.
 
+   :param sunctx: the current :c:type:`SUNContext` object.
+   :return: if successful, a usable :c:type:`SUNAdaptController` object; otherwise it will return ``NULL``.
 
-.. c:function:: int SUNAdaptController_SetParams_PID(SUNAdaptController C, sunbooleantype pq, realtype k1, realtype k2, realtype k3)
+   Usage:
+
+   .. code-block:: c
+
+      SUNAdaptController C = SUNAdaptController_PID(sunctx);
+
+.. c:function:: int SUNAdaptController_SetParams_PID(SUNAdaptController C, int pq, sunrealtype k1, sunrealtype k2, sunrealtype k3)
 
    This user-callable function provides control over the relevant parameters
-   above.  The *pq* input is stored directly.  The *k1*, *k2* and *k3* are only
-   stored if the corresponding input is non-negative.  Upon completion, this
-   returns ``SUNADAPTCONTROLLER_SUCCESS``.
+   above.  This should be called *before* the time integrator is called to evolve
+   the problem.
+
+   :param C: the SUNAdaptController_PID object
+   :param pq: the integer parameter indicating how to interpret the method and embedding orders of accuracy
+   :param k1: parameter used within the controller time step estimate (only stored if non-negative)
+   :param k2: parameter used within the controller time step estimate (only stored if non-negative)
+   :param k3: parameter used within the controller time step estimate (only stored if non-negative)
+   :return: error code indication success or failure (see :numref:`SUNAdaptController.Description.errorCodes`).
+
+   Usage:
+
+   .. code-block:: c
+
+      retval = SUNAdaptController_SetParams_PID(C, -1, 0.6, 0.2, -1.0);

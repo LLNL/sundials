@@ -24,13 +24,15 @@ form
 
 .. math::
    h' \;=\; \begin{cases}
-      h_1\; \varepsilon_1^{-1/p}, &\quad\text{on the first step}, \\
-      h_n\; \varepsilon_n^{-k_1/p}\;
-        \left(\dfrac{\varepsilon_n}{\varepsilon_{n-1}}\right)^{k_2/p}, &
+      h_1\; \varepsilon_1^{-1/ord}, &\quad\text{on the first step}, \\
+      h_n\; \varepsilon_n^{-k_1/ord}\;
+        \left(\dfrac{\varepsilon_n}{\varepsilon_{n-1}}\right)^{k_2/ord}, &
       \quad\text{on subsequent steps},
    \end{cases}
 
-with default values :math:`k_1=0.367` and :math:`k_2=0.268`.
+with default values :math:`k_1=0.367` and :math:`k_2=0.268`, and where :math:`ord = p+1+adj`,
+with both :math:`p` and :math:`adj` described below. In this estimate, a floor of
+:math:`\varepsilon > 10^{-10}` is enforced to avoid division-by-zero errors.
 
 The SUNAdaptController_ExpGus controller is implemented as a derived SUNAdaptController class,
 and defines its *content* field as:
@@ -38,12 +40,13 @@ and defines its *content* field as:
 .. code-block:: c
 
    struct _SUNAdaptControllerContent_ExpGus {
-     realtype k1;
-     realtype k2;
-     realtype bias;
-     realtype ep;
+     sunrealtype k1;
+     sunrealtype k2;
+     sunrealtype bias;
+     sunrealtype ep;
      int p;
-     sunbooleantype pq;
+     int adj;
+     int pq;
      sunbooleantype firststep;
    };
 
@@ -58,9 +61,14 @@ These entries of the *content* field contain the following information:
 
 * ``p`` - asymptotic order to use in error control.
 
-* ``pq`` - flag indicating whether ``p`` corresponds to the order of accuracy
-  for the time integration method (``SUNTRUE``) or the embedding (``SUNFALSE``).
+* ``adj`` - order of accuracy adjustment to use within the controller [default ``-1``].
 
+* ``pq`` - flag indicating whether ``p`` corresponds to the order of accuracy
+  for the time integration method (``1``), the embedding (``0``), or the
+  minimum of the two (``-1``) [default ``0``].
+
+* ``firststep`` - flag indicating whether a step has successfully completed, in which
+  case the formula above transitions from :math:`h_1` to :math:`h_n`.
 
 The header file to be included when using this module is
 ``sunadaptcontroller/sunadaptcontroller_expgus.h``.
@@ -75,15 +83,28 @@ routines:
 
 .. c:function:: SUNAdaptController SUNAdaptController_ExpGus(SUNContext sunctx)
 
-   This constructor function creates and allocates memory for a
-   SUNAdaptController_ExpGus object, and inserts its default parameters.  The only
-   argument is the SUNDIALS context object.  Upon successful completion it will
-   return a :c:type:`SUNAdaptController` object; otherwise it will return ``NULL``.
+   This constructor function creates and allocates memory for a SUNAdaptController_ExpGus
+   object, and inserts its default parameters.
 
+   :param sunctx: the current :c:type:`SUNContext` object.
+   :return: if successful, a usable :c:type:`SUNAdaptController` object; otherwise it will return ``NULL``.
 
-.. c:function:: int SUNAdaptController_SetParams_ExpGus(SUNAdaptController C, sunbooleantype pq, realtype k1, realtype k2)
+   Usage:
 
-   This user-callable function provides control over the relevant parameters
-   above.  The *pq* input is stored directly.  The *k1* and *k2* parameters are
-   only stored if the corresponding input is non-negative.  Upon completion,
-   this returns ``SUNADAPTCONTROLLER_SUCCESS``.
+   .. code-block:: c
+
+      SUNAdaptController C = SUNAdaptController_ExpGus(sunctx);
+
+.. c:function:: int SUNAdaptController_SetParams_ExpGus(SUNAdaptController C, int pq, sunrealtype k1, sunrealtype k2)
+
+   :param C: the SUNAdaptController_ExpGus object
+   :param pq: the integer parameter indicating how to interpret the method and embedding orders of accuracy
+   :param k1: parameter used within the controller time step estimate (only stored if non-negative)
+   :param k2: parameter used within the controller time step estimate (only stored if non-negative)
+   :return: error code indication success or failure (see :numref:`SUNAdaptController.Description.errorCodes`).
+
+   Usage:
+
+   .. code-block:: c
+
+      retval = SUNAdaptController_SetParams_ExpGus(C, -1, 0.4, 0.25);

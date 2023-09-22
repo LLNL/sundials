@@ -27,21 +27,21 @@ field as:
 .. code-block:: c
 
    struct _SUNTimestepHeuristicsContent_Default {
-     realtype     hmax_inv;
-     realtype     hmin;
-     realtype     etamax;
-     realtype     etamx1;
-     realtype     etamxf;
-     realtype     etamin;
+     sunrealtype  hmax_inv;
+     sunrealtype  hmin;
+     sunrealtype  etamax;
+     sunrealtype  etamx1;
+     sunrealtype  etamxf;
+     sunrealtype  etamin;
      int          small_nef;
-     realtype     etacf;
+     sunrealtype  etacf;
      SUNExpStabFn expstab;
      void*        estab_data;
-     realtype     cfl;
-     realtype     safety;
-     realtype     growth;
-     realtype     lbound;
-     realtype     ubound;
+     sunrealtype  cfl;
+     sunrealtype  safety;
+     sunrealtype  growth;
+     sunrealtype  lbound;
+     sunrealtype  ubound;
      long int     nst_acc;
      long int     nst_exp;
    };
@@ -68,6 +68,8 @@ SUNTimestepHeuristics_Default class also provides the following constructor rout
 .. c:function:: SUNTimestepHeuristics SUNTimestepHeuristics_Default(SUNContext sunctx)
 
    This constructor function creates and allocates memory for a
-   SUNTimestepHeuristics_Default object, and inserts its default parameters.  The only
-   argument is the SUNDIALS context object.  Upon successful completion it will
-   return a :c:type:`SUNTimestepHeuristics` object; otherwise it will return ``NULL``.
+   SUNTimestepHeuristics_Default object, and inserts its default parameters.
+
+   :param sunctx: the :c:type:`SUNContext` object (see :numref:`SUNDIALS.SUNContext`).
+   :returns: If successful, a SUNTimestepHeuristics_Default object.  If
+             unsuccessful, a ``NULL`` pointer will be returned.

@@ -65,36 +65,36 @@ struct _generic_SUNAdaptController_Ops
   SUNAdaptController_Type (*gettype)(SUNAdaptController C);
 
   /* REQUIRED for controllers of SUN_ADAPTCONTROLLER_H type. */
-  int (*estimatestep)(SUNAdaptController C, realtype h,
-                      realtype dsm, realtype* hnew);
+  int (*estimatestep)(SUNAdaptController C, sunrealtype h,
+                      sunrealtype dsm, sunrealtype* hnew);
 
   /* REQUIRED for controllers of SUN_ADAPTCONTROLLER_HQ type. */
-  int (*estimatestepandorder)(SUNAdaptController C, realtype h, int q,
-                              realtype dsm, realtype* hnew, int *qnew);
+  int (*estimatestepandorder)(SUNAdaptController C, sunrealtype h, int q,
+                              sunrealtype dsm, sunrealtype* hnew, int *qnew);
 
   /* REQUIRED for controllers of SUN_ADAPTCONTROLLER_MRI_H type. */
-  int (*estimatemristeps)(SUNAdaptController C, realtype H, realtype h,
-                          realtype DSM, realtype dsm,
-                          realtype* Hnew, realtype *hnew);
+  int (*estimatemristeps)(SUNAdaptController C, sunrealtype H, sunrealtype h,
+                          sunrealtype DSM, sunrealtype dsm,
+                          sunrealtype* Hnew, sunrealtype *hnew);
 
   /* REQUIRED for controllers of SUN_ADAPTCONTROLLER_MRI_TOL type. */
-  int (*estimatesteptol)(SUNAdaptController C, realtype H, realtype tolfac,
-                         realtype DSM, realtype dsm, realtype *Hnew,
-                         realtype* tolfacnew);
+  int (*estimatesteptol)(SUNAdaptController C, sunrealtype H, sunrealtype tolfac,
+                         sunrealtype DSM, sunrealtype dsm, sunrealtype *Hnew,
+                         sunrealtype* tolfacnew);
 
   /* OPTIONAL for all SUNAdaptController implementations. */
   int (*destroy)(SUNAdaptController C);
   int (*reset)(SUNAdaptController C);
   int (*setdefaults)(SUNAdaptController C);
   int (*write)(SUNAdaptController C, FILE* fptr);
-  int (*setmethodorder)(SUNAdaptController C, int q);
-  int (*setembeddingorder)(SUNAdaptController C, int p);
-  int (*seterrorbias)(SUNAdaptController C, realtype bias);
-  int (*update)(SUNAdaptController C, realtype h, realtype dsm);
-  int (*updatemrih)(SUNAdaptController C, realtype H, realtype h,
-                    realtype DSM, realtype dsm);
-  int (*updatemritol)(SUNAdaptController C, realtype H, realtype tolfac,
-                      realtype DSM, realtype dsm);
+  int (*setmethodorder)(SUNAdaptController C, int p, int q);
+  int (*adjustcontrollerorder)(SUNAdaptController C, int adj);
+  int (*seterrorbias)(SUNAdaptController C, sunrealtype bias);
+  int (*update)(SUNAdaptController C, sunrealtype h, sunrealtype dsm);
+  int (*updatemrih)(SUNAdaptController C, sunrealtype H, sunrealtype h,
+                    sunrealtype DSM, sunrealtype dsm);
+  int (*updatemritol)(SUNAdaptController C, sunrealtype H, sunrealtype tolfac,
+                      sunrealtype DSM, sunrealtype dsm);
   int (*space)(SUNAdaptController C, long int *lenrw, long int *leniw);
 };
 
@@ -135,8 +135,8 @@ int SUNAdaptController_Destroy(SUNAdaptController C);
    Any return value other than SUNADAPTCONTROLLER_SUCCESS will be treated as
    an unrecoverable failure. */
 SUNDIALS_EXPORT
-int SUNAdaptController_EstimateStep(SUNAdaptController C, realtype h,
-                                    realtype dsm, realtype* hnew);
+int SUNAdaptController_EstimateStep(SUNAdaptController C, sunrealtype h,
+                                    sunrealtype dsm, sunrealtype* hnew);
 
 /* Combined step size + order controller function.  This is called
    following a time step with size 'h' and order 'q' that has local
@@ -144,9 +144,9 @@ int SUNAdaptController_EstimateStep(SUNAdaptController C, realtype h,
    'qnew' so that the ensuing step will have 'dsm' value JUST BELOW 1
    with minimal computational effort. */
 SUNDIALS_EXPORT
-int SUNAdaptController_EstimateStepAndOrder(SUNAdaptController C, realtype h,
-                                            int q, realtype dsm,
-                                            realtype* hnew, int *qnew);
+int SUNAdaptController_EstimateStepAndOrder(SUNAdaptController C, sunrealtype h,
+                                            int q, sunrealtype dsm,
+                                            sunrealtype* hnew, int *qnew);
 
 /* Combined slow/fast multirate step size controller function.  This
    is called following a slow multirate time step with sizes 'H' and
@@ -156,9 +156,9 @@ int SUNAdaptController_EstimateStepAndOrder(SUNAdaptController C, realtype h,
    have 'DSM' and 'dsm' values JUST BELOW 1 with minimal computational
    effort. */
 SUNDIALS_EXPORT
-int SUNAdaptController_EstimateMRISteps(SUNAdaptController C, realtype H,
-                                        realtype h, realtype DSM, realtype dsm,
-                                        realtype* Hnew, realtype *hnew);
+int SUNAdaptController_EstimateMRISteps(SUNAdaptController C, sunrealtype H,
+                                        sunrealtype h, sunrealtype DSM, sunrealtype dsm,
+                                        sunrealtype* Hnew, sunrealtype *hnew);
 
 /* Combined slow step/fast tolerance multirate controller function.
    This is called following a slow multirate time step with size 'H'
@@ -168,10 +168,10 @@ int SUNAdaptController_EstimateMRISteps(SUNAdaptController C, realtype H,
    'tolfacnew', so that the ensuing step will have 'DSM' and 'dsm'
    values JUST BELOW 1 with minimal computational effort. */
 SUNDIALS_EXPORT
-int SUNAdaptController_EstimateStepTol(SUNAdaptController C, realtype H,
-                                       realtype tolfac, realtype DSM,
-                                       realtype dsm, realtype *Hnew,
-                                       realtype* tolfacnew);
+int SUNAdaptController_EstimateStepTol(SUNAdaptController C, sunrealtype H,
+                                       sunrealtype tolfac, sunrealtype DSM,
+                                       sunrealtype dsm, sunrealtype *Hnew,
+                                       sunrealtype* tolfacnew);
 
 /* Function to reset the controller to its initial state, e.g., if
    it stores a small number of previous dsm or step size values. */
@@ -187,40 +187,41 @@ int SUNAdaptController_SetDefaults(SUNAdaptController C);
 SUNDIALS_EXPORT
 int SUNAdaptController_Write(SUNAdaptController C, FILE* fptr);
 
-/* Function to set the asymptotic order of accuracy for the method. */
+/* Function to set the asymptotic order of accuracy for the method and
+   its embedding. */
 SUNDIALS_EXPORT
-int SUNAdaptController_SetMethodOrder(SUNAdaptController C, int q);
+int SUNAdaptController_SetMethodOrder(SUNAdaptController C, int p, int q);
 
-/* Function to set the asymptotic order of accuracy for the embedding. */
+/* Function to adjust the order of accuracy used within the controller. */
 SUNDIALS_EXPORT
-int SUNAdaptController_SetEmbeddingOrder(SUNAdaptController C, int p);
+int SUNAdaptController_AdjustControllerOrder(SUNAdaptController C, int adj);
 
 /* Function to set an error bias factor to use for scaling the local error
    'dsm' factors above. */
 SUNDIALS_EXPORT
-int SUNAdaptController_SetErrorBias(SUNAdaptController C, realtype bias);
+int SUNAdaptController_SetErrorBias(SUNAdaptController C, sunrealtype bias);
 
 /* Function to notify the controller of a successful time step with size
    h and local error factor dsm, indicating that the step size or local
    error factor can be saved for subsequent controller functions. */
 SUNDIALS_EXPORT
-int SUNAdaptController_Update(SUNAdaptController C, realtype h, realtype dsm);
+int SUNAdaptController_Update(SUNAdaptController C, sunrealtype h, sunrealtype dsm);
 
 /* Function to notify the controller of a successful multirate time step
    with sizes H and h, and local error factors DSM and dsm, indicating that
    the step sizes or local error factors can be saved for subsequent
    controller functions. */
 SUNDIALS_EXPORT
-int SUNAdaptController_UpdateMRIH(SUNAdaptController C, realtype H, realtype h,
-                                  realtype DSM, realtype dsm);
+int SUNAdaptController_UpdateMRIH(SUNAdaptController C, sunrealtype H, sunrealtype h,
+                                  sunrealtype DSM, sunrealtype dsm);
 
 /* Function to notify the controller of a successful multirate time step
    with size H and fast tolerance factor tolfac, and local error factors
    DSM and dsm, indicating that the step size, tolerance factor, or local
    error factors can be saved for subsequent controller functions. */
 SUNDIALS_EXPORT
-int SUNAdaptController_UpdateMRITol(SUNAdaptController C, realtype H, realtype tolfac,
-                                    realtype DSM, realtype dsm);
+int SUNAdaptController_UpdateMRITol(SUNAdaptController C, sunrealtype H, sunrealtype tolfac,
+                                    sunrealtype DSM, sunrealtype dsm);
 
 /* Function to return the memory requirements of the controller object. */
 SUNDIALS_EXPORT

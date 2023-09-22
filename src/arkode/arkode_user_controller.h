@@ -62,9 +62,7 @@ int SUNAdaptController_Reset_ARKUserControl(SUNAdaptController C);
 SUNDIALS_EXPORT
 int SUNAdaptController_Write_ARKUserControl(SUNAdaptController C, FILE* fptr);
 SUNDIALS_EXPORT
-int SUNAdaptController_SetMethodOrder_ARKUserControl(SUNAdaptController C, int q);
-SUNDIALS_EXPORT
-int SUNAdaptController_SetEmbeddingOrder_ARKUserControl(SUNAdaptController C, int p);
+int SUNAdaptController_SetMethodOrder_ARKUserControl(SUNAdaptController C, int p, int q);
 SUNDIALS_EXPORT
 int SUNAdaptController_Update_ARKUserControl(SUNAdaptController C, realtype h, realtype dsm);
 SUNDIALS_EXPORT

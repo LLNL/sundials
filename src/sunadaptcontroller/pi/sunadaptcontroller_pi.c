@@ -32,6 +32,7 @@
 #define SACPI_EP(C)          ( SACPI_CONTENT(C)->ep )
 #define SACPI_P(C)           ( SACPI_CONTENT(C)->p )
 #define SACPI_PQ(C)          ( SACPI_CONTENT(C)->pq )
+#define SACPI_ADJ(C)         ( SACPI_CONTENT(C)->adj )
 
 /* ------------------
  * Default parameters
@@ -40,7 +41,8 @@
 #define DEFAULT_K1     RCONST(0.8)
 #define DEFAULT_K2     RCONST(0.31)
 #define DEFAULT_BIAS   RCONST(1.5)
-#define DEFAULT_PQ     SUNFALSE
+#define DEFAULT_PQ     0
+#define DEFAULT_ADJ    -1
 #define TINY           RCONST(1.0e-10)
 
 
@@ -63,16 +65,16 @@ SUNAdaptController SUNAdaptController_PI(SUNContext sunctx)
   if (C == NULL) { return (NULL); }
 
   /* Attach operations */
-  C->ops->gettype           = SUNAdaptController_GetType_PI;
-  C->ops->estimatestep      = SUNAdaptController_EstimateStep_PI;
-  C->ops->reset             = SUNAdaptController_Reset_PI;
-  C->ops->setdefaults       = SUNAdaptController_SetDefaults_PI;
-  C->ops->write             = SUNAdaptController_Write_PI;
-  C->ops->setmethodorder    = SUNAdaptController_SetMethodOrder_PI;
-  C->ops->setembeddingorder = SUNAdaptController_SetEmbeddingOrder_PI;
-  C->ops->seterrorbias      = SUNAdaptController_SetErrorBias_PI;
-  C->ops->update            = SUNAdaptController_Update_PI;
-  C->ops->space             = SUNAdaptController_Space_PI;
+  C->ops->gettype               = SUNAdaptController_GetType_PI;
+  C->ops->estimatestep          = SUNAdaptController_EstimateStep_PI;
+  C->ops->reset                 = SUNAdaptController_Reset_PI;
+  C->ops->setdefaults           = SUNAdaptController_SetDefaults_PI;
+  C->ops->write                 = SUNAdaptController_Write_PI;
+  C->ops->setmethodorder        = SUNAdaptController_SetMethodOrder_PI;
+  C->ops->adjustcontrollerorder = SUNAdaptController_AdjustControllerOrder_PI;
+  C->ops->seterrorbias          = SUNAdaptController_SetErrorBias_PI;
+  C->ops->update                = SUNAdaptController_Update_PI;
+  C->ops->space                 = SUNAdaptController_Space_PI;
 
   /* Create content */
   content = NULL;
@@ -100,8 +102,8 @@ SUNAdaptController SUNAdaptController_PI(SUNContext sunctx)
  * Function to set PI parameters
  */
 
-int SUNAdaptController_SetParams_PI(SUNAdaptController C, sunbooleantype pq,
-                                    realtype k1, realtype k2)
+int SUNAdaptController_SetParams_PI(SUNAdaptController C, int pq,
+                                    sunrealtype k1, sunrealtype k2)
 {
   /* store legal inputs, and return with success */
   SACPI_PQ(C) = pq;
@@ -118,15 +120,16 @@ int SUNAdaptController_SetParams_PI(SUNAdaptController C, sunbooleantype pq,
 SUNAdaptController_Type SUNAdaptController_GetType_PI(SUNAdaptController C)
 { return SUN_ADAPTCONTROLLER_H; }
 
-int SUNAdaptController_EstimateStep_PI(SUNAdaptController C, realtype h,
-                                      realtype dsm, realtype* hnew)
+int SUNAdaptController_EstimateStep_PI(SUNAdaptController C, sunrealtype h,
+                                      sunrealtype dsm, sunrealtype* hnew)
 {
   /* set usable time-step adaptivity parameters */
-  const realtype k1 = -SACPI_K1(C) / SACPI_P(C);
-  const realtype k2 =  SACPI_K2(C) / SACPI_P(C);
-  const realtype ecur = SACPI_BIAS(C) * dsm;
-  const realtype e1 = SUNMAX(ecur, TINY);
-  const realtype e2 = SUNMAX(SACPI_EP(C), TINY);
+  const int ord = SACPI_P(C) + SACPI_ADJ(C);
+  const sunrealtype k1 = -SACPI_K1(C) / ord;
+  const sunrealtype k2 =  SACPI_K2(C) / ord;
+  const sunrealtype ecur = SACPI_BIAS(C) * dsm;
+  const sunrealtype e1 = SUNMAX(ecur, TINY);
+  const sunrealtype e2 = SUNMAX(SACPI_EP(C), TINY);
 
   /* compute estimated optimal time step size and return with success */
   *hnew = h * SUNRpowerR(e1,k1) * SUNRpowerR(e2,k2);
@@ -141,10 +144,11 @@ int SUNAdaptController_Reset_PI(SUNAdaptController C)
 
 int SUNAdaptController_SetDefaults_PI(SUNAdaptController C)
 {
-  SACPI_K1(C)     = DEFAULT_K1;
-  SACPI_K2(C)     = DEFAULT_K2;
-  SACPI_BIAS(C)   = DEFAULT_BIAS;
-  SACPI_PQ(C)     = DEFAULT_PQ;
+  SACPI_K1(C)   = DEFAULT_K1;
+  SACPI_K2(C)   = DEFAULT_K2;
+  SACPI_BIAS(C) = DEFAULT_BIAS;
+  SACPI_PQ(C)   = DEFAULT_PQ;
+  SACPI_ADJ(C)  = DEFAULT_ADJ;
   return SUNADAPTCONTROLLER_SUCCESS;
 }
 
@@ -162,38 +166,45 @@ int SUNAdaptController_Write_PI(SUNAdaptController C, FILE *fptr)
   fprintf(fptr, "  bias factor = %16g\n", SACPI_BIAS(C));
   fprintf(fptr, "  previous error = %16g\n", SACPI_EP(C));
 #endif
-  if (SACPI_PQ(C))
+  if (SACPI_PQ(C) == 1)
   {
     fprintf(fptr, "  p = %i (method order)\n", SACPI_P(C));
   }
-  else
+  else if (SACPI_PQ(C) == 0)
   {
     fprintf(fptr, "  p = %i (embedding order)\n", SACPI_P(C));
+  }
+  else
+  {
+    fprintf(fptr, "  p = %i (minimum of method & embedding order)\n", SACPI_P(C));
+  }
+  fprintf(fptr, "  adj = %i\n", SACPI_ADJ(C));
+  return SUNADAPTCONTROLLER_SUCCESS;
+}
+
+int SUNAdaptController_SetMethodOrder_PI(SUNAdaptController C, int p, int q)
+{
+  /* check for legal inputs */
+  if ((p <= 0) || (q <= 0)) { return SUNADAPTCONTROLLER_ILL_INPUT; }
+
+  /* store appropriate value based on "pq" */
+  if (SACPI_PQ(C) == 1) {
+    SACPI_P(C) = p;
+  } else if (SACPI_PQ(C) == 0) {
+    SACPI_P(C) = q;
+  } else {
+    SACPI_P(C) = SUNMIN(p,q);
   }
   return SUNADAPTCONTROLLER_SUCCESS;
 }
 
-int SUNAdaptController_SetMethodOrder_PI(SUNAdaptController C, int q)
+int SUNAdaptController_AdjustControllerOrder_PI(SUNAdaptController C, int adj)
 {
-  /* check for legal input */
-  if (q <= 0) { return SUNADAPTCONTROLLER_ILL_INPUT; }
-
-  /* store if "pq" specifies to use method order */
-  if (SACPI_PQ(C)) { SACPI_P(C) = q; }
+  SACPI_ADJ(C) = adj;
   return SUNADAPTCONTROLLER_SUCCESS;
 }
 
-int SUNAdaptController_SetEmbeddingOrder_PI(SUNAdaptController C, int p)
-{
-  /* check for legal input */
-  if (p <= 0) { return SUNADAPTCONTROLLER_ILL_INPUT; }
-
-  /* store if "pq" specifies to use method order */
-  if (!SACPI_PQ(C)) { SACPI_P(C) = p; }
-  return SUNADAPTCONTROLLER_SUCCESS;
-}
-
-int SUNAdaptController_SetErrorBias_PI(SUNAdaptController C, realtype bias)
+int SUNAdaptController_SetErrorBias_PI(SUNAdaptController C, sunrealtype bias)
 {
   /* set allowed value, otherwise set default */
   if (bias <= RCONST(0.0)) {
@@ -205,7 +216,7 @@ int SUNAdaptController_SetErrorBias_PI(SUNAdaptController C, realtype bias)
   return SUNADAPTCONTROLLER_SUCCESS;
 }
 
-int SUNAdaptController_Update_PI(SUNAdaptController C, realtype h, realtype dsm)
+int SUNAdaptController_Update_PI(SUNAdaptController C, sunrealtype h, sunrealtype dsm)
 {
   SACPI_EP(C) = SACPI_BIAS(C) * dsm;
   return SUNADAPTCONTROLLER_SUCCESS;
@@ -214,6 +225,6 @@ int SUNAdaptController_Update_PI(SUNAdaptController C, realtype h, realtype dsm)
 int SUNAdaptController_Space_PI(SUNAdaptController C, long int* lenrw, long int* leniw)
 {
   *lenrw = 5;
-  *leniw = 2;
+  *leniw = 3;
   return SUNADAPTCONTROLLER_SUCCESS;
 }

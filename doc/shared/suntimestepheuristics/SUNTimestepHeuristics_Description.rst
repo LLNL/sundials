@@ -30,53 +30,53 @@ implementation-specific *content*, an *ops* structure with generic heuristics
 operations, and a :c:type:`SUNContext` object.  Specifically, the type
 ``SUNTimestepHeuristics`` is defined as:
 
-.. c:type:: struct generic_SUNTimestepHeuristics_ *SUNTimestepHeuristics
+.. c:type:: struct _generic_SUNTimestepHeuristics *SUNTimestepHeuristics
 
 and the base class structure is defined as
 
 .. code-block:: C
 
-   struct _generic_SUNTimestepHeuristics_ {
+   struct _generic_SUNTimestepHeuristics {
         void* content;
         generic_SUNTimestepHeuristics_Ops_* ops;
         SUNContext sunctx;
     };
 
-Here, ``generic_SUNTimestepHeuristics_Ops_`` is the pointer to a structure containing
+Here, ``_generic_SUNTimestepHeuristics_Ops`` is the pointer to a structure containing
 function pointers to the various heuristics operations, and is defined as
 
 .. code-block:: c
 
-    struct _generic_SUNTimestepHeuristics_Ops_ {
+    struct _generic_SUNTimestepHeuristics_Ops {
 
       SUNTimestepHeuristics_ID (*getid)(SUNTimestepHeuristics H);
       int (*destroy)(SUNTimestepHeuristics H);
-      int (*constrainstep)(SUNTimestepHeuristics H, realtype hcur,
-                           realtype hnew, realtype *hconstr);
-      int (*etestfail)(SUNTimestepHeuristics H, realtype hcur,
-                       realtype hnew, int nef, realtype *hconstr);
-      int (*convfail)(SUNTimestepHeuristics H, realtype hcur, realtype *hconstr);
-      int (*boundreduction)(SUNTimestepHeuristics H, realtype hcur,
-                            realtype hnew, realtype *hconstr);
-      int (*boundfirststep)(SUNTimestepHeuristics H, realtype h0,
-                            realtype *h0constr);
+      int (*constrainstep)(SUNTimestepHeuristics H, sunrealtype hcur,
+                           sunrealtype hnew, sunrealtype *hconstr);
+      int (*etestfail)(SUNTimestepHeuristics H, sunrealtype hcur,
+                       sunrealtype hnew, int nef, sunrealtype *hconstr);
+      int (*convfail)(SUNTimestepHeuristics H, sunrealtype hcur, sunrealtype *hconstr);
+      int (*boundreduction)(SUNTimestepHeuristics H, sunrealtype hcur,
+                            sunrealtype hnew, sunrealtype *hconstr);
+      int (*boundfirststep)(SUNTimestepHeuristics H, sunrealtype h0,
+                            sunrealtype *h0constr);
       int (*reset)(SUNTimestepHeuristics H);
       int (*update)(SUNTimestepHeuristics H);
       int (*setdefaults)(SUNTimestepHeuristics H);
       int (*write)(SUNTimestepHeuristics H, FILE* fptr);
-      int (*setmaxstep)(SUNTimestepHeuristics H, realtype hmax);
-      int (*setminstep)(SUNTimestepHeuristics H, realtype hmin);
+      int (*setmaxstep)(SUNTimestepHeuristics H, sunrealtype hmax);
+      int (*setminstep)(SUNTimestepHeuristics H, sunrealtype hmin);
       int (*setexpstabfn)(SUNTimestepHeuristics H, SUNExpStabFn EStab,
                           void* estab_data);
-      int (*setcflfraction)(SUNTimestepHeuristics H, realtype cfl_frac);
-      int (*setsafetyfactor)(SUNTimestepHeuristics H, realtype safety);
-      int (*setmaxgrowth)(SUNTimestepHeuristics H, realtype mx_growth);
-      int (*setminreduction)(SUNTimestepHeuristics H, realtype eta_min);
-      int (*setfixedstepbounds)(SUNTimestepHeuristics H, realtype lb, realtype ub);
-      int (*setmaxfirstgrowth)(SUNTimestepHeuristics H, realtype etamx1);
-      int (*setmaxefailgrowth)(SUNTimestepHeuristics H, realtype etamxf);
+      int (*setcflfraction)(SUNTimestepHeuristics H, sunrealtype cfl_frac);
+      int (*setsafetyfactor)(SUNTimestepHeuristics H, sunrealtype safety);
+      int (*setmaxgrowth)(SUNTimestepHeuristics H, sunrealtype mx_growth);
+      int (*setminreduction)(SUNTimestepHeuristics H, sunrealtype eta_min);
+      int (*setfixedstepbounds)(SUNTimestepHeuristics H, sunrealtype lb, sunrealtype ub);
+      int (*setmaxfirstgrowth)(SUNTimestepHeuristics H, sunrealtype etamx1);
+      int (*setmaxefailgrowth)(SUNTimestepHeuristics H, sunrealtype etamxf);
       int (*setsmallnumefails)(SUNTimestepHeuristics H, int small_nef);
-      int (*setmaxcfailgrowth)(SUNTimestepHeuristics H, realtype etacf);
+      int (*setmaxcfailgrowth)(SUNTimestepHeuristics H, sunrealtype etacf);
       int (*getnumexpsteps)(SUNTimestepHeuristics H, long int* expsteps);
       int (*getnumaccsteps)(SUNTimestepHeuristics H, long int* accsteps);
       int (*space)(SUNTimestepHeuristics H, long int *lenrw, long int *leniw);
@@ -111,7 +111,7 @@ of whether they perform heuristic control or not:
 Additionally, if the heuristics object can be used to limit stepsizes based on
 explicit stability, then we define the following user-supplied function type:
 
-.. c:type:: int (*SUNExpStabFn)(realtype *hstab, void *user_data)
+.. c:type:: int (*SUNExpStabFn)(sunrealtype *hstab, void *user_data)
 
    This function predicts a maximum stable step size.
 
@@ -141,7 +141,7 @@ also provides the convenience routine
   ``NULL``.
 
   :param sunctx: the :c:type:`SUNContext` object (see
-                 :numref:`SUNDIALS.SUNContext`)
+                 :numref:`SUNDIALS.SUNContext`).
   :returns: If successful, a generic :c:type:`SUNTimestepHeuristics` object.  If
             unsuccessful, a ``NULL`` pointer will be returned.
 
@@ -182,7 +182,7 @@ Each of the following routines are *optional* for any specific SUNTimestepHeuris
 
       retval = SUNTimestepHeuristics_Destroy(H);
 
-.. c:function:: int SUNTimestepHeuristics_ConstrainStep(SUNTimestepHeuristics H, realtype hcur, realtype hnew, realtype* hconstr)
+.. c:function:: int SUNTimestepHeuristics_ConstrainStep(SUNTimestepHeuristics H, sunrealtype hcur, sunrealtype hnew, sunrealtype* hconstr)
 
    Main constraint-application function.  This will attempt to change the step
    *hcur* to *hnew*, applying any heuristic bounds on the step size adjustments.
@@ -201,7 +201,7 @@ Each of the following routines are *optional* for any specific SUNTimestepHeuris
 
       retval = SUNTimestepHeuristics_ConstrainStep(H, hcur, hnew, &hnew);
 
-.. c:function:: int SUNTimestepHeuristics_ETestFail(SUNTimestepHeuristics H, realtype hcur, realtype hnew, int nef, realtype* hconstr)
+.. c:function:: int SUNTimestepHeuristics_ETestFail(SUNTimestepHeuristics H, sunrealtype hcur, sunrealtype hnew, int nef, sunrealtype* hconstr)
 
    Function to apply constraints following a step with unacceptable temporal
    error.
@@ -222,7 +222,7 @@ Each of the following routines are *optional* for any specific SUNTimestepHeuris
 
       retval = SUNTimestepHeuristics_ETestFail(H, hcur, hnew, nef, &hnew);
 
-.. c:function:: int SUNTimestepHeuristics_BoundReduction(SUNTimestepHeuristics H, realtype hcur, realtype hnew, realtype *hconstr)
+.. c:function:: int SUNTimestepHeuristics_BoundReduction(SUNTimestepHeuristics H, sunrealtype hcur, sunrealtype hnew, sunrealtype *hconstr)
 
    This ensures that a step size reduction is within user-prescribed bounds.
 
@@ -242,7 +242,7 @@ Each of the following routines are *optional* for any specific SUNTimestepHeuris
 
       retval = SUNTimestepHeuristics_BoundReduction(H, hcur, hnew, &hnew);
 
-.. c:function:: int SUNTimestepHeuristics_BoundFirstStep(SUNTimestepHeuristics H, realtype h0, realtype *h0constr)
+.. c:function:: int SUNTimestepHeuristics_BoundFirstStep(SUNTimestepHeuristics H, sunrealtype h0, sunrealtype *h0constr)
 
    This bounds the initial step by user-provided min/max step values.
 
@@ -258,7 +258,7 @@ Each of the following routines are *optional* for any specific SUNTimestepHeuris
 
       retval = SUNTimestepHeuristics_BoundFirstStep(H, h0, &h0);
 
-.. c:function:: int SUNTimestepHeuristics_ConvFail(SUNTimestepHeuristics H, realtype hcur, realtype *hconstr)
+.. c:function:: int SUNTimestepHeuristics_ConvFail(SUNTimestepHeuristics H, sunrealtype hcur, sunrealtype *hconstr)
 
    Function to apply constraints following a step with an algebraic solver
    convergence failure.
@@ -335,7 +335,7 @@ Each of the following routines are *optional* for any specific SUNTimestepHeuris
 
       retval = SUNTimestepHeuristics_Write(H, stdout);
 
-.. c:function::int SUNTimestepHeuristics_SetMaxStep(SUNTimestepHeuristics H, realtype hmax)
+.. c:function::int SUNTimestepHeuristics_SetMaxStep(SUNTimestepHeuristics H, sunrealtype hmax)
 
    Function to inform the heuristics object about a maximum allowed absolute
    step size.
@@ -352,7 +352,7 @@ Each of the following routines are *optional* for any specific SUNTimestepHeuris
 
       retval = SUNTimestepHeuristics_SetMaxStep(H, 1.0e-2);
 
-.. c:function::int SUNTimestepHeuristics_SetMinStep(SUNTimestepHeuristics H, realtype hmin)
+.. c:function::int SUNTimestepHeuristics_SetMinStep(SUNTimestepHeuristics H, sunrealtype hmin)
 
    Function to inform the heuristics object about a minimum allowed absolute
    step size.
@@ -388,7 +388,7 @@ Each of the following routines are *optional* for any specific SUNTimestepHeuris
 
       retval = SUNTimestepHeuristics_SetExpStabFn(H, CFLStabilityBound, (void*) (&mystruct));
 
-.. c:function::int SUNTimestepHeuristics_SetCFLFraction(SUNTimestepHeuristics H, realtype cfl_frac)
+.. c:function::int SUNTimestepHeuristics_SetCFLFraction(SUNTimestepHeuristics H, sunrealtype cfl_frac)
 
    Function to set a CFL safety factor that should be applied to the outputs of
    *EStab*, above.
@@ -406,7 +406,7 @@ Each of the following routines are *optional* for any specific SUNTimestepHeuris
 
       retval = SUNTimestepHeuristics_SetCFLFraction(H, 0.5);
 
-.. c:function::int SUNTimestepHeuristics_SetSafetyFactor(SUNTimestepHeuristics C, realtype safety)
+.. c:function::int SUNTimestepHeuristics_SetSafetyFactor(SUNTimestepHeuristics C, sunrealtype safety)
 
    Function to set a step size safety factor that should be used to constrain an
    error-controller-recommended step size.
@@ -424,7 +424,7 @@ Each of the following routines are *optional* for any specific SUNTimestepHeuris
 
       retval = SUNTimestepHeuristics_SetSafetyFactor(H, 0.95);
 
-.. c:function::int SUNTimestepHeuristics_SetMaxGrowth(SUNTimestepHeuristics H, realtype mx_growth)
+.. c:function::int SUNTimestepHeuristics_SetMaxGrowth(SUNTimestepHeuristics H, sunrealtype mx_growth)
 
    Function to set maximum stepsize growth factor for general steps.
 
@@ -442,7 +442,7 @@ Each of the following routines are *optional* for any specific SUNTimestepHeuris
 
       retval = SUNTimestepHeuristics_SetMaxGrowth(H, 20.0);
 
-.. c:function::int SUNTimestepHeuristics_SetMaxFirstGrowth(SUNTimestepHeuristics H, realtype etamx1)
+.. c:function::int SUNTimestepHeuristics_SetMaxFirstGrowth(SUNTimestepHeuristics H, sunrealtype etamx1)
 
    Function to set maximum stepsize growth factor for the first internal time
    step.
@@ -460,7 +460,7 @@ Each of the following routines are *optional* for any specific SUNTimestepHeuris
 
       retval = SUNTimestepHeuristics_SetMaxFirstGrowth(H, 10000.0);
 
-.. c:function::int SUNTimestepHeuristics_SetFixedStepBounds(SUNTimestepHeuristics H, realtype lb, realtype ub)
+.. c:function::int SUNTimestepHeuristics_SetFixedStepBounds(SUNTimestepHeuristics H, sunrealtype lb, sunrealtype ub)
 
    Function to specify the step size growth interval within which the step size
    will remain unchanged.  Allowable values must enclose the value 1.0.  Any
@@ -478,7 +478,7 @@ Each of the following routines are *optional* for any specific SUNTimestepHeuris
 
       retval = SUNTimestepHeuristics_SetFixedStepBounds(H, 1.0, 1.5);
 
-.. c:function::int SUNTimestepHeuristics_SetMinReduction(SUNTimestepHeuristics H, realtype eta_min)
+.. c:function::int SUNTimestepHeuristics_SetMinReduction(SUNTimestepHeuristics H, sunrealtype eta_min)
 
    Function to set a lower bound for the stepsize adjustment factor following a
    temporal error failure.
@@ -496,7 +496,7 @@ Each of the following routines are *optional* for any specific SUNTimestepHeuris
 
       retval = SUNTimestepHeuristics_SetMinReduction(H, 1.0e-2);
 
-.. c:function::int SUNTimestepHeuristics_SetMaxEFailGrowth(SUNTimestepHeuristics H, realtype etamxf)
+.. c:function::int SUNTimestepHeuristics_SetMaxEFailGrowth(SUNTimestepHeuristics H, sunrealtype etamxf)
 
    Function to set an upper bound for the stepsize adjustment factor following a
    temporal error failure (once at least *small_nef* failures have occurred, see
@@ -533,7 +533,7 @@ Each of the following routines are *optional* for any specific SUNTimestepHeuris
 
       retval = SUNTimestepHeuristics_SetSmallNumEFails(H, 3);
 
-.. c:function::int SUNTimestepHeuristics_SetMaxCFailGrowth(SUNTimestepHeuristics H, realtype etacf)
+.. c:function::int SUNTimestepHeuristics_SetMaxCFailGrowth(SUNTimestepHeuristics H, sunrealtype etacf)
 
    Function to specify an upper bound for the stepsize adjustment factor
    following an algebraic solver convergence failure.
