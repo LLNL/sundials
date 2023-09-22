@@ -641,7 +641,7 @@ int main(int argc, char* argv[])
   delete udata;
   braid_Destroy(core);                      // Free braid memory
   ARKBraid_Free(&app);                      // Free interface memory
-  (void) SUNAdaptController_Destroy(H);     // Free time adaptivity controller
+  (void) SUNAdaptController_Destroy(C);     // Free time adaptivity controller
   (void) SUNTimestepHeuristics_Destroy(H);  // Free timestep heuristics object
   SUNContext_Free(&ctx);                    // Free context
   flag = MPI_Finalize();                    // Finalize MPI
