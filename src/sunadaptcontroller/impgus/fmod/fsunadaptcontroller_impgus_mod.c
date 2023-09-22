@@ -224,14 +224,14 @@ SWIGEXPORT int _wrap_FSUNAdaptController_SetParams_ImpGus(SUNAdaptController far
   int fresult ;
   SUNAdaptController arg1 = (SUNAdaptController) 0 ;
   int arg2 ;
-  realtype arg3 ;
-  realtype arg4 ;
+  sunrealtype arg3 ;
+  sunrealtype arg4 ;
   int result;
   
   arg1 = (SUNAdaptController)(farg1);
   arg2 = (int)(*farg2);
-  arg3 = (realtype)(*farg3);
-  arg4 = (realtype)(*farg4);
+  arg3 = (sunrealtype)(*farg3);
+  arg4 = (sunrealtype)(*farg4);
   result = (int)SUNAdaptController_SetParams_ImpGus(arg1,arg2,arg3,arg4);
   fresult = (int)(result);
   return fresult;
@@ -253,15 +253,15 @@ SWIGEXPORT int _wrap_FSUNAdaptController_GetType_ImpGus(SUNAdaptController farg1
 SWIGEXPORT int _wrap_FSUNAdaptController_EstimateStep_ImpGus(SUNAdaptController farg1, double const *farg2, double const *farg3, double *farg4) {
   int fresult ;
   SUNAdaptController arg1 = (SUNAdaptController) 0 ;
-  realtype arg2 ;
-  realtype arg3 ;
-  realtype *arg4 = (realtype *) 0 ;
+  sunrealtype arg2 ;
+  sunrealtype arg3 ;
+  sunrealtype *arg4 = (sunrealtype *) 0 ;
   int result;
   
   arg1 = (SUNAdaptController)(farg1);
-  arg2 = (realtype)(*farg2);
-  arg3 = (realtype)(*farg3);
-  arg4 = (realtype *)(farg4);
+  arg2 = (sunrealtype)(*farg2);
+  arg3 = (sunrealtype)(*farg3);
+  arg4 = (sunrealtype *)(farg4);
   result = (int)SUNAdaptController_EstimateStep_ImpGus(arg1,arg2,arg3,arg4);
   fresult = (int)(result);
   return fresult;
@@ -306,21 +306,23 @@ SWIGEXPORT int _wrap_FSUNAdaptController_Write_ImpGus(SUNAdaptController farg1, 
 }
 
 
-SWIGEXPORT int _wrap_FSUNAdaptController_SetMethodOrder_ImpGus(SUNAdaptController farg1, int const *farg2) {
+SWIGEXPORT int _wrap_FSUNAdaptController_SetMethodOrder_ImpGus(SUNAdaptController farg1, int const *farg2, int const *farg3) {
   int fresult ;
   SUNAdaptController arg1 = (SUNAdaptController) 0 ;
   int arg2 ;
+  int arg3 ;
   int result;
   
   arg1 = (SUNAdaptController)(farg1);
   arg2 = (int)(*farg2);
-  result = (int)SUNAdaptController_SetMethodOrder_ImpGus(arg1,arg2);
+  arg3 = (int)(*farg3);
+  result = (int)SUNAdaptController_SetMethodOrder_ImpGus(arg1,arg2,arg3);
   fresult = (int)(result);
   return fresult;
 }
 
 
-SWIGEXPORT int _wrap_FSUNAdaptController_SetEmbeddingOrder_ImpGus(SUNAdaptController farg1, int const *farg2) {
+SWIGEXPORT int _wrap_FSUNAdaptController_AdjustControllerOrder_ImpGus(SUNAdaptController farg1, int const *farg2) {
   int fresult ;
   SUNAdaptController arg1 = (SUNAdaptController) 0 ;
   int arg2 ;
@@ -328,7 +330,7 @@ SWIGEXPORT int _wrap_FSUNAdaptController_SetEmbeddingOrder_ImpGus(SUNAdaptContro
   
   arg1 = (SUNAdaptController)(farg1);
   arg2 = (int)(*farg2);
-  result = (int)SUNAdaptController_SetEmbeddingOrder_ImpGus(arg1,arg2);
+  result = (int)SUNAdaptController_AdjustControllerOrder_ImpGus(arg1,arg2);
   fresult = (int)(result);
   return fresult;
 }
@@ -337,11 +339,11 @@ SWIGEXPORT int _wrap_FSUNAdaptController_SetEmbeddingOrder_ImpGus(SUNAdaptContro
 SWIGEXPORT int _wrap_FSUNAdaptController_SetErrorBias_ImpGus(SUNAdaptController farg1, double const *farg2) {
   int fresult ;
   SUNAdaptController arg1 = (SUNAdaptController) 0 ;
-  realtype arg2 ;
+  sunrealtype arg2 ;
   int result;
   
   arg1 = (SUNAdaptController)(farg1);
-  arg2 = (realtype)(*farg2);
+  arg2 = (sunrealtype)(*farg2);
   result = (int)SUNAdaptController_SetErrorBias_ImpGus(arg1,arg2);
   fresult = (int)(result);
   return fresult;
@@ -351,13 +353,13 @@ SWIGEXPORT int _wrap_FSUNAdaptController_SetErrorBias_ImpGus(SUNAdaptController 
 SWIGEXPORT int _wrap_FSUNAdaptController_Update_ImpGus(SUNAdaptController farg1, double const *farg2, double const *farg3) {
   int fresult ;
   SUNAdaptController arg1 = (SUNAdaptController) 0 ;
-  realtype arg2 ;
-  realtype arg3 ;
+  sunrealtype arg2 ;
+  sunrealtype arg3 ;
   int result;
   
   arg1 = (SUNAdaptController)(farg1);
-  arg2 = (realtype)(*farg2);
-  arg3 = (realtype)(*farg3);
+  arg2 = (sunrealtype)(*farg2);
+  arg3 = (sunrealtype)(*farg3);
   result = (int)SUNAdaptController_Update_ImpGus(arg1,arg2,arg3);
   fresult = (int)(result);
   return fresult;

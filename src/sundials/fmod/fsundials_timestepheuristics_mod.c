@@ -229,15 +229,15 @@ SWIGEXPORT int _wrap_FSUNTimestepHeuristics_Destroy(SUNTimestepHeuristics farg1)
 SWIGEXPORT int _wrap_FSUNTimestepHeuristics_ConstrainStep(SUNTimestepHeuristics farg1, double const *farg2, double const *farg3, double *farg4) {
   int fresult ;
   SUNTimestepHeuristics arg1 = (SUNTimestepHeuristics) 0 ;
-  realtype arg2 ;
-  realtype arg3 ;
-  realtype *arg4 = (realtype *) 0 ;
+  sunrealtype arg2 ;
+  sunrealtype arg3 ;
+  sunrealtype *arg4 = (sunrealtype *) 0 ;
   int result;
   
   arg1 = (SUNTimestepHeuristics)(farg1);
-  arg2 = (realtype)(*farg2);
-  arg3 = (realtype)(*farg3);
-  arg4 = (realtype *)(farg4);
+  arg2 = (sunrealtype)(*farg2);
+  arg3 = (sunrealtype)(*farg3);
+  arg4 = (sunrealtype *)(farg4);
   result = (int)SUNTimestepHeuristics_ConstrainStep(arg1,arg2,arg3,arg4);
   fresult = (int)(result);
   return fresult;
@@ -247,17 +247,17 @@ SWIGEXPORT int _wrap_FSUNTimestepHeuristics_ConstrainStep(SUNTimestepHeuristics 
 SWIGEXPORT int _wrap_FSUNTimestepHeuristics_ETestFail(SUNTimestepHeuristics farg1, double const *farg2, double const *farg3, int const *farg4, double *farg5) {
   int fresult ;
   SUNTimestepHeuristics arg1 = (SUNTimestepHeuristics) 0 ;
-  realtype arg2 ;
-  realtype arg3 ;
+  sunrealtype arg2 ;
+  sunrealtype arg3 ;
   int arg4 ;
-  realtype *arg5 = (realtype *) 0 ;
+  sunrealtype *arg5 = (sunrealtype *) 0 ;
   int result;
   
   arg1 = (SUNTimestepHeuristics)(farg1);
-  arg2 = (realtype)(*farg2);
-  arg3 = (realtype)(*farg3);
+  arg2 = (sunrealtype)(*farg2);
+  arg3 = (sunrealtype)(*farg3);
   arg4 = (int)(*farg4);
-  arg5 = (realtype *)(farg5);
+  arg5 = (sunrealtype *)(farg5);
   result = (int)SUNTimestepHeuristics_ETestFail(arg1,arg2,arg3,arg4,arg5);
   fresult = (int)(result);
   return fresult;
@@ -267,15 +267,15 @@ SWIGEXPORT int _wrap_FSUNTimestepHeuristics_ETestFail(SUNTimestepHeuristics farg
 SWIGEXPORT int _wrap_FSUNTimestepHeuristics_BoundReduction(SUNTimestepHeuristics farg1, double const *farg2, double const *farg3, double *farg4) {
   int fresult ;
   SUNTimestepHeuristics arg1 = (SUNTimestepHeuristics) 0 ;
-  realtype arg2 ;
-  realtype arg3 ;
-  realtype *arg4 = (realtype *) 0 ;
+  sunrealtype arg2 ;
+  sunrealtype arg3 ;
+  sunrealtype *arg4 = (sunrealtype *) 0 ;
   int result;
   
   arg1 = (SUNTimestepHeuristics)(farg1);
-  arg2 = (realtype)(*farg2);
-  arg3 = (realtype)(*farg3);
-  arg4 = (realtype *)(farg4);
+  arg2 = (sunrealtype)(*farg2);
+  arg3 = (sunrealtype)(*farg3);
+  arg4 = (sunrealtype *)(farg4);
   result = (int)SUNTimestepHeuristics_BoundReduction(arg1,arg2,arg3,arg4);
   fresult = (int)(result);
   return fresult;
@@ -285,13 +285,13 @@ SWIGEXPORT int _wrap_FSUNTimestepHeuristics_BoundReduction(SUNTimestepHeuristics
 SWIGEXPORT int _wrap_FSUNTimestepHeuristics_BoundFirstStep(SUNTimestepHeuristics farg1, double const *farg2, double *farg3) {
   int fresult ;
   SUNTimestepHeuristics arg1 = (SUNTimestepHeuristics) 0 ;
-  realtype arg2 ;
-  realtype *arg3 = (realtype *) 0 ;
+  sunrealtype arg2 ;
+  sunrealtype *arg3 = (sunrealtype *) 0 ;
   int result;
   
   arg1 = (SUNTimestepHeuristics)(farg1);
-  arg2 = (realtype)(*farg2);
-  arg3 = (realtype *)(farg3);
+  arg2 = (sunrealtype)(*farg2);
+  arg3 = (sunrealtype *)(farg3);
   result = (int)SUNTimestepHeuristics_BoundFirstStep(arg1,arg2,arg3);
   fresult = (int)(result);
   return fresult;
@@ -301,13 +301,13 @@ SWIGEXPORT int _wrap_FSUNTimestepHeuristics_BoundFirstStep(SUNTimestepHeuristics
 SWIGEXPORT int _wrap_FSUNTimestepHeuristics_ConvFail(SUNTimestepHeuristics farg1, double const *farg2, double *farg3) {
   int fresult ;
   SUNTimestepHeuristics arg1 = (SUNTimestepHeuristics) 0 ;
-  realtype arg2 ;
-  realtype *arg3 = (realtype *) 0 ;
+  sunrealtype arg2 ;
+  sunrealtype *arg3 = (sunrealtype *) 0 ;
   int result;
   
   arg1 = (SUNTimestepHeuristics)(farg1);
-  arg2 = (realtype)(*farg2);
-  arg3 = (realtype *)(farg3);
+  arg2 = (sunrealtype)(*farg2);
+  arg3 = (sunrealtype *)(farg3);
   result = (int)SUNTimestepHeuristics_ConvFail(arg1,arg2,arg3);
   fresult = (int)(result);
   return fresult;
@@ -367,11 +367,11 @@ SWIGEXPORT int _wrap_FSUNTimestepHeuristics_Write(SUNTimestepHeuristics farg1, v
 SWIGEXPORT int _wrap_FSUNTimestepHeuristics_SetMaxStep(SUNTimestepHeuristics farg1, double const *farg2) {
   int fresult ;
   SUNTimestepHeuristics arg1 = (SUNTimestepHeuristics) 0 ;
-  realtype arg2 ;
+  sunrealtype arg2 ;
   int result;
   
   arg1 = (SUNTimestepHeuristics)(farg1);
-  arg2 = (realtype)(*farg2);
+  arg2 = (sunrealtype)(*farg2);
   result = (int)SUNTimestepHeuristics_SetMaxStep(arg1,arg2);
   fresult = (int)(result);
   return fresult;
@@ -381,11 +381,11 @@ SWIGEXPORT int _wrap_FSUNTimestepHeuristics_SetMaxStep(SUNTimestepHeuristics far
 SWIGEXPORT int _wrap_FSUNTimestepHeuristics_SetMinStep(SUNTimestepHeuristics farg1, double const *farg2) {
   int fresult ;
   SUNTimestepHeuristics arg1 = (SUNTimestepHeuristics) 0 ;
-  realtype arg2 ;
+  sunrealtype arg2 ;
   int result;
   
   arg1 = (SUNTimestepHeuristics)(farg1);
-  arg2 = (realtype)(*farg2);
+  arg2 = (sunrealtype)(*farg2);
   result = (int)SUNTimestepHeuristics_SetMinStep(arg1,arg2);
   fresult = (int)(result);
   return fresult;
@@ -411,11 +411,11 @@ SWIGEXPORT int _wrap_FSUNTimestepHeuristics_SetExpStabFn(SUNTimestepHeuristics f
 SWIGEXPORT int _wrap_FSUNTimestepHeuristics_SetCFLFraction(SUNTimestepHeuristics farg1, double const *farg2) {
   int fresult ;
   SUNTimestepHeuristics arg1 = (SUNTimestepHeuristics) 0 ;
-  realtype arg2 ;
+  sunrealtype arg2 ;
   int result;
   
   arg1 = (SUNTimestepHeuristics)(farg1);
-  arg2 = (realtype)(*farg2);
+  arg2 = (sunrealtype)(*farg2);
   result = (int)SUNTimestepHeuristics_SetCFLFraction(arg1,arg2);
   fresult = (int)(result);
   return fresult;
@@ -425,11 +425,11 @@ SWIGEXPORT int _wrap_FSUNTimestepHeuristics_SetCFLFraction(SUNTimestepHeuristics
 SWIGEXPORT int _wrap_FSUNTimestepHeuristics_SetSafetyFactor(SUNTimestepHeuristics farg1, double const *farg2) {
   int fresult ;
   SUNTimestepHeuristics arg1 = (SUNTimestepHeuristics) 0 ;
-  realtype arg2 ;
+  sunrealtype arg2 ;
   int result;
   
   arg1 = (SUNTimestepHeuristics)(farg1);
-  arg2 = (realtype)(*farg2);
+  arg2 = (sunrealtype)(*farg2);
   result = (int)SUNTimestepHeuristics_SetSafetyFactor(arg1,arg2);
   fresult = (int)(result);
   return fresult;
@@ -439,11 +439,11 @@ SWIGEXPORT int _wrap_FSUNTimestepHeuristics_SetSafetyFactor(SUNTimestepHeuristic
 SWIGEXPORT int _wrap_FSUNTimestepHeuristics_SetMaxGrowth(SUNTimestepHeuristics farg1, double const *farg2) {
   int fresult ;
   SUNTimestepHeuristics arg1 = (SUNTimestepHeuristics) 0 ;
-  realtype arg2 ;
+  sunrealtype arg2 ;
   int result;
   
   arg1 = (SUNTimestepHeuristics)(farg1);
-  arg2 = (realtype)(*farg2);
+  arg2 = (sunrealtype)(*farg2);
   result = (int)SUNTimestepHeuristics_SetMaxGrowth(arg1,arg2);
   fresult = (int)(result);
   return fresult;
@@ -453,11 +453,11 @@ SWIGEXPORT int _wrap_FSUNTimestepHeuristics_SetMaxGrowth(SUNTimestepHeuristics f
 SWIGEXPORT int _wrap_FSUNTimestepHeuristics_SetMaxFirstGrowth(SUNTimestepHeuristics farg1, double const *farg2) {
   int fresult ;
   SUNTimestepHeuristics arg1 = (SUNTimestepHeuristics) 0 ;
-  realtype arg2 ;
+  sunrealtype arg2 ;
   int result;
   
   arg1 = (SUNTimestepHeuristics)(farg1);
-  arg2 = (realtype)(*farg2);
+  arg2 = (sunrealtype)(*farg2);
   result = (int)SUNTimestepHeuristics_SetMaxFirstGrowth(arg1,arg2);
   fresult = (int)(result);
   return fresult;
@@ -467,13 +467,13 @@ SWIGEXPORT int _wrap_FSUNTimestepHeuristics_SetMaxFirstGrowth(SUNTimestepHeurist
 SWIGEXPORT int _wrap_FSUNTimestepHeuristics_SetFixedStepBounds(SUNTimestepHeuristics farg1, double const *farg2, double const *farg3) {
   int fresult ;
   SUNTimestepHeuristics arg1 = (SUNTimestepHeuristics) 0 ;
-  realtype arg2 ;
-  realtype arg3 ;
+  sunrealtype arg2 ;
+  sunrealtype arg3 ;
   int result;
   
   arg1 = (SUNTimestepHeuristics)(farg1);
-  arg2 = (realtype)(*farg2);
-  arg3 = (realtype)(*farg3);
+  arg2 = (sunrealtype)(*farg2);
+  arg3 = (sunrealtype)(*farg3);
   result = (int)SUNTimestepHeuristics_SetFixedStepBounds(arg1,arg2,arg3);
   fresult = (int)(result);
   return fresult;
@@ -483,11 +483,11 @@ SWIGEXPORT int _wrap_FSUNTimestepHeuristics_SetFixedStepBounds(SUNTimestepHeuris
 SWIGEXPORT int _wrap_FSUNTimestepHeuristics_SetMinReduction(SUNTimestepHeuristics farg1, double const *farg2) {
   int fresult ;
   SUNTimestepHeuristics arg1 = (SUNTimestepHeuristics) 0 ;
-  realtype arg2 ;
+  sunrealtype arg2 ;
   int result;
   
   arg1 = (SUNTimestepHeuristics)(farg1);
-  arg2 = (realtype)(*farg2);
+  arg2 = (sunrealtype)(*farg2);
   result = (int)SUNTimestepHeuristics_SetMinReduction(arg1,arg2);
   fresult = (int)(result);
   return fresult;
@@ -497,11 +497,11 @@ SWIGEXPORT int _wrap_FSUNTimestepHeuristics_SetMinReduction(SUNTimestepHeuristic
 SWIGEXPORT int _wrap_FSUNTimestepHeuristics_SetMaxEFailGrowth(SUNTimestepHeuristics farg1, double const *farg2) {
   int fresult ;
   SUNTimestepHeuristics arg1 = (SUNTimestepHeuristics) 0 ;
-  realtype arg2 ;
+  sunrealtype arg2 ;
   int result;
   
   arg1 = (SUNTimestepHeuristics)(farg1);
-  arg2 = (realtype)(*farg2);
+  arg2 = (sunrealtype)(*farg2);
   result = (int)SUNTimestepHeuristics_SetMaxEFailGrowth(arg1,arg2);
   fresult = (int)(result);
   return fresult;
@@ -525,11 +525,11 @@ SWIGEXPORT int _wrap_FSUNTimestepHeuristics_SetSmallNumEFails(SUNTimestepHeurist
 SWIGEXPORT int _wrap_FSUNTimestepHeuristics_SetMaxCFailGrowth(SUNTimestepHeuristics farg1, double const *farg2) {
   int fresult ;
   SUNTimestepHeuristics arg1 = (SUNTimestepHeuristics) 0 ;
-  realtype arg2 ;
+  sunrealtype arg2 ;
   int result;
   
   arg1 = (SUNTimestepHeuristics)(farg1);
-  arg2 = (realtype)(*farg2);
+  arg2 = (sunrealtype)(*farg2);
   result = (int)SUNTimestepHeuristics_SetMaxCFailGrowth(arg1,arg2);
   fresult = (int)(result);
   return fresult;

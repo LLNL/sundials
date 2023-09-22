@@ -34,7 +34,7 @@ module fsundials_adaptcontroller_mod
   type(C_FUNPTR), public :: setdefaults
   type(C_FUNPTR), public :: write
   type(C_FUNPTR), public :: setmethodorder
-  type(C_FUNPTR), public :: setembeddingorder
+  type(C_FUNPTR), public :: adjustcontrollerorder
   type(C_FUNPTR), public :: seterrorbias
   type(C_FUNPTR), public :: update
   type(C_FUNPTR), public :: updatemrih
@@ -58,7 +58,7 @@ module fsundials_adaptcontroller_mod
  public :: FSUNAdaptController_SetDefaults
  public :: FSUNAdaptController_Write
  public :: FSUNAdaptController_SetMethodOrder
- public :: FSUNAdaptController_SetEmbeddingOrder
+ public :: FSUNAdaptController_AdjustControllerOrder
  public :: FSUNAdaptController_SetErrorBias
  public :: FSUNAdaptController_Update
  public :: FSUNAdaptController_UpdateMRIH
@@ -173,17 +173,18 @@ type(C_PTR), value :: farg2
 integer(C_INT) :: fresult
 end function
 
-function swigc_FSUNAdaptController_SetMethodOrder(farg1, farg2) &
+function swigc_FSUNAdaptController_SetMethodOrder(farg1, farg2, farg3) &
 bind(C, name="_wrap_FSUNAdaptController_SetMethodOrder") &
 result(fresult)
 use, intrinsic :: ISO_C_BINDING
 type(C_PTR), value :: farg1
 integer(C_INT), intent(in) :: farg2
+integer(C_INT), intent(in) :: farg3
 integer(C_INT) :: fresult
 end function
 
-function swigc_FSUNAdaptController_SetEmbeddingOrder(farg1, farg2) &
-bind(C, name="_wrap_FSUNAdaptController_SetEmbeddingOrder") &
+function swigc_FSUNAdaptController_AdjustControllerOrder(farg1, farg2) &
+bind(C, name="_wrap_FSUNAdaptController_AdjustControllerOrder") &
 result(fresult)
 use, intrinsic :: ISO_C_BINDING
 type(C_PTR), value :: farg1
@@ -295,7 +296,7 @@ integer(C_INT) :: swig_result
 type(SUNAdaptController), target, intent(inout) :: c
 real(C_DOUBLE), intent(in) :: h
 real(C_DOUBLE), intent(in) :: dsm
-real(C_DOUBLE), dimension(*), target, intent(inout) :: hnew
+real(C_DOUBLE), target, intent(inout) :: hnew
 integer(C_INT) :: fresult 
 type(C_PTR) :: farg1 
 real(C_DOUBLE) :: farg2 
@@ -305,7 +306,7 @@ type(C_PTR) :: farg4
 farg1 = c_loc(c)
 farg2 = h
 farg3 = dsm
-farg4 = c_loc(hnew(1))
+farg4 = c_loc(hnew)
 fresult = swigc_FSUNAdaptController_EstimateStep(farg1, farg2, farg3, farg4)
 swig_result = fresult
 end function
@@ -318,7 +319,7 @@ type(SUNAdaptController), target, intent(inout) :: c
 real(C_DOUBLE), intent(in) :: h
 integer(C_INT), intent(in) :: q
 real(C_DOUBLE), intent(in) :: dsm
-real(C_DOUBLE), dimension(*), target, intent(inout) :: hnew
+real(C_DOUBLE), target, intent(inout) :: hnew
 integer(C_INT), dimension(*), target, intent(inout) :: qnew
 integer(C_INT) :: fresult 
 type(C_PTR) :: farg1 
@@ -332,7 +333,7 @@ farg1 = c_loc(c)
 farg2 = h
 farg3 = q
 farg4 = dsm
-farg5 = c_loc(hnew(1))
+farg5 = c_loc(hnew)
 farg6 = c_loc(qnew(1))
 fresult = swigc_FSUNAdaptController_EstimateStepAndOrder(farg1, farg2, farg3, farg4, farg5, farg6)
 swig_result = fresult
@@ -347,8 +348,8 @@ real(C_DOUBLE), intent(in) :: h
 real(C_DOUBLE), intent(in) :: h2
 real(C_DOUBLE), intent(in) :: dsm
 real(C_DOUBLE), intent(in) :: dsm4
-real(C_DOUBLE), dimension(*), target, intent(inout) :: hnew
-real(C_DOUBLE), dimension(*), target, intent(inout) :: hnew6
+real(C_DOUBLE), target, intent(inout) :: hnew
+real(C_DOUBLE), target, intent(inout) :: hnew6
 integer(C_INT) :: fresult 
 type(C_PTR) :: farg1 
 real(C_DOUBLE) :: farg2 
@@ -363,8 +364,8 @@ farg2 = h
 farg3 = h2
 farg4 = dsm
 farg5 = dsm4
-farg6 = c_loc(hnew(1))
-farg7 = c_loc(hnew6(1))
+farg6 = c_loc(hnew)
+farg7 = c_loc(hnew6)
 fresult = swigc_FSUNAdaptController_EstimateMRISteps(farg1, farg2, farg3, farg4, farg5, farg6, farg7)
 swig_result = fresult
 end function
@@ -378,8 +379,8 @@ real(C_DOUBLE), intent(in) :: h
 real(C_DOUBLE), intent(in) :: tolfac
 real(C_DOUBLE), intent(in) :: dsm
 real(C_DOUBLE), intent(in) :: dsm4
-real(C_DOUBLE), dimension(*), target, intent(inout) :: hnew
-real(C_DOUBLE), dimension(*), target, intent(inout) :: tolfacnew
+real(C_DOUBLE), target, intent(inout) :: hnew
+real(C_DOUBLE), target, intent(inout) :: tolfacnew
 integer(C_INT) :: fresult 
 type(C_PTR) :: farg1 
 real(C_DOUBLE) :: farg2 
@@ -394,8 +395,8 @@ farg2 = h
 farg3 = tolfac
 farg4 = dsm
 farg5 = dsm4
-farg6 = c_loc(hnew(1))
-farg7 = c_loc(tolfacnew(1))
+farg6 = c_loc(hnew)
+farg7 = c_loc(tolfacnew)
 fresult = swigc_FSUNAdaptController_EstimateStepTol(farg1, farg2, farg3, farg4, farg5, farg6, farg7)
 swig_result = fresult
 end function
@@ -442,35 +443,38 @@ fresult = swigc_FSUNAdaptController_Write(farg1, farg2)
 swig_result = fresult
 end function
 
-function FSUNAdaptController_SetMethodOrder(c, q) &
-result(swig_result)
-use, intrinsic :: ISO_C_BINDING
-integer(C_INT) :: swig_result
-type(SUNAdaptController), target, intent(inout) :: c
-integer(C_INT), intent(in) :: q
-integer(C_INT) :: fresult 
-type(C_PTR) :: farg1 
-integer(C_INT) :: farg2 
-
-farg1 = c_loc(c)
-farg2 = q
-fresult = swigc_FSUNAdaptController_SetMethodOrder(farg1, farg2)
-swig_result = fresult
-end function
-
-function FSUNAdaptController_SetEmbeddingOrder(c, p) &
+function FSUNAdaptController_SetMethodOrder(c, p, q) &
 result(swig_result)
 use, intrinsic :: ISO_C_BINDING
 integer(C_INT) :: swig_result
 type(SUNAdaptController), target, intent(inout) :: c
 integer(C_INT), intent(in) :: p
+integer(C_INT), intent(in) :: q
+integer(C_INT) :: fresult 
+type(C_PTR) :: farg1 
+integer(C_INT) :: farg2 
+integer(C_INT) :: farg3 
+
+farg1 = c_loc(c)
+farg2 = p
+farg3 = q
+fresult = swigc_FSUNAdaptController_SetMethodOrder(farg1, farg2, farg3)
+swig_result = fresult
+end function
+
+function FSUNAdaptController_AdjustControllerOrder(c, adj) &
+result(swig_result)
+use, intrinsic :: ISO_C_BINDING
+integer(C_INT) :: swig_result
+type(SUNAdaptController), target, intent(inout) :: c
+integer(C_INT), intent(in) :: adj
 integer(C_INT) :: fresult 
 type(C_PTR) :: farg1 
 integer(C_INT) :: farg2 
 
 farg1 = c_loc(c)
-farg2 = p
-fresult = swigc_FSUNAdaptController_SetEmbeddingOrder(farg1, farg2)
+farg2 = adj
+fresult = swigc_FSUNAdaptController_AdjustControllerOrder(farg1, farg2)
 swig_result = fresult
 end function
 

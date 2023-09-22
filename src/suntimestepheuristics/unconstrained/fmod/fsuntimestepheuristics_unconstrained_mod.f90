@@ -153,7 +153,7 @@ integer(C_INT) :: swig_result
 type(SUNTimestepHeuristics), target, intent(inout) :: h
 real(C_DOUBLE), intent(in) :: hcur
 real(C_DOUBLE), intent(in) :: hnew
-real(C_DOUBLE), dimension(*), target, intent(inout) :: hconstr
+real(C_DOUBLE), target, intent(inout) :: hconstr
 integer(C_INT) :: fresult 
 type(C_PTR) :: farg1 
 real(C_DOUBLE) :: farg2 
@@ -163,7 +163,7 @@ type(C_PTR) :: farg4
 farg1 = c_loc(h)
 farg2 = hcur
 farg3 = hnew
-farg4 = c_loc(hconstr(1))
+farg4 = c_loc(hconstr)
 fresult = swigc_FSUNTimestepHeuristics_ConstrainStep_Unconstrained(farg1, farg2, farg3, farg4)
 swig_result = fresult
 end function
@@ -174,7 +174,7 @@ use, intrinsic :: ISO_C_BINDING
 integer(C_INT) :: swig_result
 type(SUNTimestepHeuristics), target, intent(inout) :: h
 real(C_DOUBLE), intent(in) :: hcur
-real(C_DOUBLE), dimension(*), target, intent(inout) :: hconstr
+real(C_DOUBLE), target, intent(inout) :: hconstr
 integer(C_INT) :: fresult 
 type(C_PTR) :: farg1 
 real(C_DOUBLE) :: farg2 
@@ -182,7 +182,7 @@ type(C_PTR) :: farg3
 
 farg1 = c_loc(h)
 farg2 = hcur
-farg3 = c_loc(hconstr(1))
+farg3 = c_loc(hconstr)
 fresult = swigc_FSUNTimestepHeuristics_ConvFail_Unconstrained(farg1, farg2, farg3)
 swig_result = fresult
 end function
