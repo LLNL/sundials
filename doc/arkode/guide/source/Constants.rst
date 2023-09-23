@@ -113,7 +113,7 @@ contains the ARKODE output constants.
    |                                               | (ARKODE_BOGACKI_SHAMPINE_4_2_3).                           |
    +-----------------------------------------------+------------------------------------------------------------+
    | :index:`ARKSTEP_DEFAULT_ERK_4`                | Use ARKStep's default fourth-order ERK method              |
-   |                                               | (ARKODE_ZONNEVELD_5_3_4).                                  |
+   |                                               | (ARKODE_SOFRONIOU_SPALETTA_5_3_4).                         |
    +-----------------------------------------------+------------------------------------------------------------+
    | :index:`ARKSTEP_DEFAULT_ERK_5`                | Use ARKStep's default fifth-order ERK method               |
    |                                               | (ARKODE_CASH_KARP_6_4_5).                                  |
@@ -131,7 +131,7 @@ contains the ARKODE output constants.
    |                                               | (ARKODE_BOGACKI_SHAMPINE_4_2_3).                           |
    +-----------------------------------------------+------------------------------------------------------------+
    | :index:`ERKSTEP_DEFAULT_4`                    | Use ERKStep's default fourth-order ERK method              |
-   |                                               | (ARKODE_ZONNEVELD_5_3_4).                                  |
+   |                                               | (ARKODE_SOFRONIOU_SPALETTA_5_3_4).                         |
    +-----------------------------------------------+------------------------------------------------------------+
    | :index:`ERKSTEP_DEFAULT_5`                    | Use ERKStep's default fifth-order ERK method               |
    |                                               | (ARKODE_CASH_KARP_6_4_5).                                  |

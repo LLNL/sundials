@@ -331,6 +331,43 @@ This is the default 3th order slow and fast MRIStep method (from
    Linear stability region for the Knoth-Wolke method
 
 
+.. _Butcher.Sofroniou_Spaletta:
+
+Sofroniou-Spaletta-5-3-4
+^^^^^^^^^^^^^^^^^^^^^^^^
+
+.. index:: Sofroniou-Spaletta-5-3-4 ERK method
+
+Accessible via the constant ``ARKODE_SOFRONIOU_SPALETTA_5_3_4`` to
+:c:func:`ARKStepSetTableNum`, :c:func:`ERKStepSetTableNum`
+or :c:func:`ARKodeButcherTable_LoadERK`.
+Accessible via the string ``"ARKODE_SOFRONIOU_SPALETTA_5_3_4"`` to
+:c:func:`ARKStepSetTableName`, :c:func:`ERKStepSetTableName` or
+:c:func:`ARKodeButcherTable_LoadERKByName`.
+This is the default 4th order explicit method
+(from :cite:p:`SoSp:04`).
+
+.. math::
+
+   \renewcommand{\arraystretch}{1.5}
+     0 & 0 & 0 & 0 & 0 & 0 \\
+     \frac{2}{5} & \frac{2}{5} & 0 & 0 & 0 & 0 \\
+     \frac{3}{5} & -\frac{3}{20} & \frac{3}{4} & 0 & 0 & 0 \\
+     1 & \frac{19}{44} & -\frac{15}{44} & \frac{10}{11} & 0 & 0 \\
+     1 & \frac{11}{72} & \frac{25}{72} & \frac{25}{72} & \frac{11}{72} & 0 \\
+     4 & \frac{11}{72} & \frac{25}{72} & \frac{25}{72} & \frac{11}{72} & 0 \\
+     3 & \frac{1251515}{8970912} & \frac{3710105}{8970912} & \frac{2519695}{8970912} & \frac{61105}{8970912} & \frac{119041}{747576} \\
+   \end{array}
+
+.. figure:: /figs/arkode/sofroniou_spaletta_erk_stab_region.png
+   :scale: 50 %
+   :align: center
+
+   Linear stability region for the Sofroniou-Spaletta method.  The method's
+   region is outlined in blue; the embedding's region is in red.
+
+
+
 
 .. _Butcher.Zonneveld:
 
@@ -345,7 +382,6 @@ or :c:func:`ARKodeButcherTable_LoadERK`.
 Accessible via the string ``"ARKODE_ZONNEVELD_5_3_4"`` to
 :c:func:`ARKStepSetTableName`, :c:func:`ERKStepSetTableName` or
 :c:func:`ARKodeButcherTable_LoadERKByName`.
-This is the default 4th order explicit method
 (from :cite:p:`Zon:63`).
 
 .. math::
