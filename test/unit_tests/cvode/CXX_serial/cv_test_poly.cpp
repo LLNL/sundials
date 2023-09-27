@@ -121,10 +121,44 @@ int resize_vec(N_Vector v_in, N_Vector v_out, void* user_data)
   sunrealtype* v_in_data  = N_VGetArrayPointer(v_in);
   sunrealtype* v_out_data = N_VGetArrayPointer(v_out);
 
-  // >>> NEED TO SET NEW VALUES TO ZERO, COPY OLD VALUES TO RIGHT LOCATION <<<
-  for (int i = 0; i < N_VGetLocalLength(v_out); i++)
+  // Copy value
+  // for (int i = 0; i < N_VGetLength(v_out); i++)
+  // {
+  //   v_out_data[i] = v_in_data[0];
+  // }
+
+  int steps = (static_cast<UserData*>(user_data))->steps;
+  int old_idx = 0;
+  int new_idx = 0;
+
+  // Copy above diagonal values
+  for (int i = 0; i < steps * NVAR * CPLX; i++, new_idx++, old_idx++)
   {
-    v_out_data[i] = v_in_data[0];
+    v_out_data[new_idx] = v_in_data[old_idx];
+  }
+
+  // Insert new value above diagonal
+  for (int i = 0; i < NVAR * CPLX; i++, new_idx++)
+  {
+    v_out_data[new_idx] = ZERO;
+  }
+
+  // Copy diagonal
+  for (int i = 0; i < NVAR * CPLX; i++, new_idx++, old_idx++)
+  {
+    v_out_data[new_idx] = v_in_data[old_idx];
+  }
+
+  // Insert new value below diagonal
+  for (int i = 0; i < NVAR * CPLX; i++, new_idx++)
+  {
+    v_out_data[new_idx] = ZERO;
+  }
+
+  // Copy below diagonal values
+  for (int i = 0; i < steps * NVAR * CPLX; i++, new_idx++, old_idx++)
+  {
+    v_out_data[new_idx] = v_in_data[old_idx];
   }
 
   return 0;
@@ -200,10 +234,10 @@ int main(int argc, char* argv[])
   }
 
   // Number of steps to take
-  int steps = 20;
+  int max_steps = 20;
   if (argc > 5)
   {
-    steps = atoi(argv[5]);
+    max_steps = atoi(argv[5]);
   }
 
   if (resize == 0)
@@ -297,7 +331,7 @@ int main(int argc, char* argv[])
   std::cout << "Error:  " << ZERO << std::endl;
 
   // Advance in time
-  for (int i = 1; i <= steps; i++)
+  for (int i = 1; i <= max_steps; i++)
   {
     N_Vector tmp = N_VClone(y);
 
@@ -311,6 +345,9 @@ int main(int argc, char* argv[])
 
     flag = CVode(cvode_mem, tf, y, &(t_ret), CV_ONE_STEP);
     if (check_flag(flag, "CVode")) { return 1; }
+
+    // Update number of completed steps
+    udata.steps++;
 
     std::cout << " Step Number: " << std::setw(3) << i
               << " | Time: " << std::setw(21) << t_ret
