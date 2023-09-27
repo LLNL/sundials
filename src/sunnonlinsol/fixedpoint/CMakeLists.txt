@@ -31,7 +31,7 @@ sundials_add_library(sundials_sunnonlinsolfixedpoint
   VERSION
     ${sunnonlinsollib_VERSION}
   SOVERSION
-    ${sunnonlinsollib_VERSION}
+    ${sunnonlinsollib_SOVERSION}
 )
 
 message(STATUS "Added SUNNONLINSOL_FIXEDPOINT module")
