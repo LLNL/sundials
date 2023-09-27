@@ -553,7 +553,7 @@ int IDAGetAdjCheckPointsInfo(void *ida_mem, IDAadjCheckPointRec *ckpnt)
 {
   IDAMem IDA_mem;
   IDAadjMem IDAADJ_mem;
-  CkpntMem ck_mem;
+  IDAckpntMem ck_mem;
   int i;
   
   /* Is ida_mem valid? */
@@ -666,8 +666,8 @@ int IDAGetAdjDataPointHermite(void *ida_mem, int which,
 {
   IDAMem IDA_mem;
   IDAadjMem IDAADJ_mem;
-  DtpntMem *dt_mem;
-  HermiteDataMem content;
+  IDAdtpntMem *dt_mem;
+  IDAhermiteDataMem content;
 
     /* Is ida_mem valid? */
   if (ida_mem == NULL) {
@@ -691,7 +691,7 @@ int IDAGetAdjDataPointHermite(void *ida_mem, int which,
   }
 
   *t = dt_mem[which]->t;
-  content = (HermiteDataMem) dt_mem[which]->content;
+  content = (IDAhermiteDataMem) dt_mem[which]->content;
 
   if (yy != NULL) N_VScale(ONE, content->y, yy);
   if (yd != NULL) N_VScale(ONE, content->yd, yd);
@@ -716,8 +716,8 @@ int IDAGetAdjDataPointPolynomial(void *ida_mem, int which,
 {
   IDAMem IDA_mem;
   IDAadjMem IDAADJ_mem;
-  DtpntMem *dt_mem;
-  PolynomialDataMem content;
+  IDAdtpntMem *dt_mem;
+  IDApolynomialDataMem content;
   /* Is ida_mem valid? */
   if (ida_mem == NULL) {
     IDAProcessError(NULL, IDA_MEM_NULL, "IDAA", "IDAGetAdjDataPointPolynomial", MSGAM_NULL_IDAMEM);
@@ -740,7 +740,7 @@ int IDAGetAdjDataPointPolynomial(void *ida_mem, int which,
   }
 
   *t = dt_mem[which]->t;
-  content = (PolynomialDataMem) dt_mem[which]->content;
+  content = (IDApolynomialDataMem) dt_mem[which]->content;
  
   if (y != NULL) N_VScale(ONE, content->y, y); 
 
