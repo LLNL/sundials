@@ -8,6 +8,14 @@ Improved computational complexity of `SUNMatScaleAddI_Sparse` from `O(M*N)` to
 `O(NNZ)`.
 Fixed scaling bug in `SUNMatScaleAddI_Sparse` for non-square matrices.
 
+Changed the default fourth order DIRK method to `ARKODE_ARK436L2SA_DIRK_6_3_4`
+for improved accuracy and embedded stability. To revert to the previous default,
+use `ARKStepSetTableNum(arkode_mem, ARKODE_SDIRK_5_3_4, ARKODE_ERK_NONE)`.
+
+Added the ERK method `ARKODE_SOFRONIOU_SPALETTA_5_3_4` which is now the default
+fourth order ERK method. To revert to the previous default, use
+`ERKStepSetTableNum(arkode_mem, ARKODE_ZONNEVELD_5_3_4)`.
+
 ## Changes to SUNDIALS in release 6.6.1
 
 Updated the Tpetra NVector interface to support Trilinos 14.
