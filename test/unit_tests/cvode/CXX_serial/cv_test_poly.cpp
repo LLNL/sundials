@@ -36,6 +36,8 @@
 #define ONE  SUN_RCONST(1.0)
 
 #define NVAR 4
+#define CPLX 2
+
 
 struct UserData
 {
@@ -95,7 +97,7 @@ int save_history(sunrealtype t_n, N_Vector y_n, sunrealtype* t_hist,
 int resize_history(N_Vector* y_hist, int hist_size, SUNContext sunctx)
 {
   // Resize and fill all history vectors
-  int new_size = N_VGetLength(y_hist[0]) + 2 * NVAR;
+  int new_size = N_VGetLength(y_hist[0]) + 2 * NVAR * CPLX;
 
   for (int i = 0; i < hist_size; i++)
   {
@@ -214,7 +216,7 @@ int main(int argc, char* argv[])
   }
 
   int problem_size = 1;
-  if (resize > 1) { problem_size = 3 * NVAR; }
+  if (resize > 1) { problem_size = 3 * NVAR * CPLX; }
 
   // Create initial condition
   N_Vector y = N_VNew_Serial(problem_size, sunctx);
@@ -285,9 +287,9 @@ int main(int argc, char* argv[])
   N_VScale(ONE, y, y_hist[0]);
 
   std::string file_name = "debug_resize_" + std::to_string(resize) + ".txt";
-  // FILE* debug_file = std::fopen(file_name.c_str(), "w");
+  FILE* debug_file = std::fopen(file_name.c_str(), "w");
   // FILE* debug_file = stdout;
-  FILE* debug_file = nullptr;
+  // FILE* debug_file = nullptr;
 
   std::cout << "t:      " << ZERO << std::endl;
   std::cout << "y:      " << N_VGetArrayPointer(y)[0] << std::endl;
