@@ -3524,6 +3524,23 @@ static realtype cvComputeEtaqp1(CVodeMem cv_mem)
                  cv_mem->cv_acor, cv_mem->cv_tempv);
     dup = N_VWrmsNorm(cv_mem->cv_tempv, cv_mem->cv_ewt) * cv_mem->cv_tq[3];
     cv_mem->cv_etaqp1 = ONE / (SUNRpowerR(BIAS3*dup, ONE/(cv_mem->cv_L+1)) + ADDON);
+
+#ifdef SUNDIALS_LOGGING_EXTRA_DEBUG
+    fprintf(cv_mem->cv_sunctx->logger->debug_fp, "zn[qmax]\n");
+    N_VPrintFile(cv_mem->cv_zn[cv_mem->cv_qmax], cv_mem->cv_sunctx->logger->debug_fp);
+    fprintf(cv_mem->cv_sunctx->logger->debug_fp, "acor\n");
+    N_VPrintFile(cv_mem->cv_acor, cv_mem->cv_sunctx->logger->debug_fp);
+    fprintf(cv_mem->cv_sunctx->logger->debug_fp, "tempv\n");
+    N_VPrintFile(cv_mem->cv_tempv, cv_mem->cv_sunctx->logger->debug_fp);
+    fprintf(cv_mem->cv_sunctx->logger->debug_fp, "ewt\n");
+    N_VPrintFile(cv_mem->cv_ewt, cv_mem->cv_sunctx->logger->debug_fp);
+#endif
+#if SUNDIALS_LOGGING_LEVEL >= SUNDIALS_LOGGING_DEBUG
+    SUNLogger_QueueMsg(CV_LOGGER, SUN_LOGLEVEL_DEBUG,
+                       "CVODE::cvChooseEta", "select-order",
+                       "cquot = %.16g, dup = %.16g",
+                       cquot, dup);
+#endif
   }
   return(cv_mem->cv_etaqp1);
 }
@@ -3543,6 +3560,13 @@ static realtype cvComputeEtaqp1(CVodeMem cv_mem)
 static void cvChooseEta(CVodeMem cv_mem)
 {
   realtype etam;
+
+#if SUNDIALS_LOGGING_LEVEL >= SUNDIALS_LOGGING_DEBUG
+  SUNLogger_QueueMsg(CV_LOGGER, SUN_LOGLEVEL_DEBUG,
+                     "CVODE::cvChooseEta", "select-order",
+                     "eta_q = %.16g, eta_q-1 = %.16g, eta_q+1 = %.16g",
+                     cv_mem->cv_etaq, cv_mem->cv_etaqm1, cv_mem->cv_etaqp1);
+#endif
 
   etam = SUNMAX(cv_mem->cv_etaqm1, SUNMAX(cv_mem->cv_etaq, cv_mem->cv_etaqp1));
 
