@@ -43,6 +43,7 @@ struct UserData
 {
   int power = 3;
   int steps = 0;
+  int resize = 0;
 };
 
 // ODE RHS function
@@ -121,44 +122,51 @@ int resize_vec(N_Vector v_in, N_Vector v_out, void* user_data)
   sunrealtype* v_in_data  = N_VGetArrayPointer(v_in);
   sunrealtype* v_out_data = N_VGetArrayPointer(v_out);
 
+  int resize = (static_cast<UserData*>(user_data))->resize;
+
   // Copy value
-  // for (int i = 0; i < N_VGetLength(v_out); i++)
-  // {
-  //   v_out_data[i] = v_in_data[0];
-  // }
-
-  int steps = (static_cast<UserData*>(user_data))->steps;
-  int old_idx = 0;
-  int new_idx = 0;
-
-  // Copy above diagonal values
-  for (int i = 0; i < steps * NVAR * CPLX; i++, new_idx++, old_idx++)
+  if (resize == 1 || resize == 2)
   {
-    v_out_data[new_idx] = v_in_data[old_idx];
+    for (int i = 0; i < N_VGetLength(v_out); i++)
+    {
+      v_out_data[i] = v_in_data[0];
+    }
   }
-
-  // Insert new value above diagonal
-  for (int i = 0; i < NVAR * CPLX; i++, new_idx++)
+  else if (resize == 3)
   {
-    v_out_data[new_idx] = ZERO;
-  }
+    int steps = (static_cast<UserData*>(user_data))->steps;
+    int old_idx = 0;
+    int new_idx = 0;
 
-  // Copy diagonal
-  for (int i = 0; i < NVAR * CPLX; i++, new_idx++, old_idx++)
-  {
-    v_out_data[new_idx] = v_in_data[old_idx];
-  }
+    // Copy above diagonal values
+    for (int i = 0; i < steps * NVAR * CPLX; i++, new_idx++, old_idx++)
+    {
+      v_out_data[new_idx] = v_in_data[old_idx];
+    }
 
-  // Insert new value below diagonal
-  for (int i = 0; i < NVAR * CPLX; i++, new_idx++)
-  {
-    v_out_data[new_idx] = ZERO;
-  }
+    // Insert new value above diagonal
+    for (int i = 0; i < NVAR * CPLX; i++, new_idx++)
+    {
+      v_out_data[new_idx] = ZERO;
+    }
 
-  // Copy below diagonal values
-  for (int i = 0; i < steps * NVAR * CPLX; i++, new_idx++, old_idx++)
-  {
-    v_out_data[new_idx] = v_in_data[old_idx];
+    // Copy diagonal
+    for (int i = 0; i < NVAR * CPLX; i++, new_idx++, old_idx++)
+    {
+      v_out_data[new_idx] = v_in_data[old_idx];
+    }
+
+    // Insert new value below diagonal
+    for (int i = 0; i < NVAR * CPLX; i++, new_idx++)
+    {
+      v_out_data[new_idx] = ZERO;
+    }
+
+    // Copy below diagonal values
+    for (int i = 0; i < steps * NVAR * CPLX; i++, new_idx++, old_idx++)
+    {
+      v_out_data[new_idx] = v_in_data[old_idx];
+    }
   }
 
   return 0;
@@ -194,11 +202,13 @@ int main(int argc, char* argv[])
 
   // resize = 0 -- do not resize
   // resize = 1 -- call resize but with the same problem size
-  // resize = 2 -- grow the problem each time step
+  // resize = 2 -- grow the problem each time step, copy vec resize
+  // resize = 3 -- grow the problem each time step, zero vec resize
   int resize = 0;
   if (argc > 1)
   {
     resize = atoi(argv[1]);
+    udata.resize = resize;
   }
 
   // power to use in polynomial
@@ -390,7 +400,7 @@ int main(int argc, char* argv[])
       }
       if (check_flag(flag, "CVodeResizeHistory")) { return 1; }
     }
-    else if (resize == 2)
+    else if (resize == 2 || resize == 3)
     {
       // Save history and update problem size
       flag = save_history(t_ret, y, t_hist, y_hist, hist_size, i);
