@@ -476,6 +476,7 @@ typedef struct CVodeMemRec {
 
   /* Resize history workspace */
   N_Vector resize_wrk[L_MAX];
+  booleantype first_step_after_resize;
 
 } *CVodeMem;
 

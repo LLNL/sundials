@@ -374,7 +374,8 @@ int CVodeResizeHistory(void *cvode_mem, sunrealtype* t_hist, N_Vector* y_hist,
   }
 
   /* Compute interpolation coefficients */
-  retval = HermitePolyCoef(t_hist, y_hist, cv_mem->cv_vtemp2, cv_mem->cv_q,
+  /* >>> TODO(DJG): use q' for BDF and q for ADAMS <<< */
+  retval = HermitePolyCoef(t_hist, y_hist, cv_mem->cv_vtemp2, cv_mem->cv_qprime,
                            cv_mem->resize_wrk);
   if (retval)
   {
@@ -383,9 +384,10 @@ int CVodeResizeHistory(void *cvode_mem, sunrealtype* t_hist, N_Vector* y_hist,
     return CV_ILL_INPUT;
   }
 
+  /*  >>> TODO(DJG): use q' for BDF and q for ADAMS <<< */
   retval = HermitePolyMultiDerEval(t_hist, cv_mem->resize_wrk,
-                                   cv_mem->cv_q,
-                                   cv_mem->cv_tn, cv_mem->cv_q,
+                                   cv_mem->cv_qprime,
+                                   cv_mem->cv_tn, cv_mem->cv_qprime,
                                    cv_mem->cv_zn);
   if (retval)
   {
@@ -397,8 +399,9 @@ int CVodeResizeHistory(void *cvode_mem, sunrealtype* t_hist, N_Vector* y_hist,
   N_VScale(ONE, y_hist[0], cv_mem->cv_zn[0]);
   N_VScale(ONE, cv_mem->cv_vtemp2, cv_mem->cv_zn[1]);
 
+  /* >>> TODO(DJG): use q' for BDF and q for ADAMS <<< */
   scale = ONE;
-  for (i = 1; i < cv_mem->cv_q + 1; i++)
+  for (i = 1; i < cv_mem->cv_qprime + 1; i++)
   {
     scale *= cv_mem->cv_hscale / ((sunrealtype) i);
     N_VScale(scale, cv_mem->cv_zn[i], cv_mem->cv_zn[i]);
@@ -438,6 +441,8 @@ int CVodeResizeHistory(void *cvode_mem, sunrealtype* t_hist, N_Vector* y_hist,
     cv_mem->cv_constraintsMallocDone = SUNFALSE;
     cv_mem->cv_constraintsSet = SUNFALSE;
   }
+
+  cv_mem->first_step_after_resize = SUNTRUE;
 
   return CV_SUCCESS;
 }

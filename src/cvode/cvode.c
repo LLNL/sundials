@@ -350,6 +350,9 @@ void *CVodeCreate(int lmm, SUNContext sunctx)
   cv_mem->proj_enabled = SUNFALSE;
   cv_mem->proj_applied = SUNFALSE;
 
+  /* Initialize resize variables */
+  cv_mem->first_step_after_resize = SUNFALSE;
+
   /* Set the saved value for qmax_alloc */
 
   cv_mem->cv_qmax_alloc = maxord;
@@ -2581,6 +2584,12 @@ static void cvIncreaseBDF(CVodeMem cv_mem)
   realtype alpha0, alpha1, prod, xi, xiold, hsum, A1;
   int i, j;
 
+  if (cv_mem->first_step_after_resize)
+  {
+    cv_mem->first_step_after_resize = SUNFALSE;
+    return;
+  }
+
   for (i=0; i <= cv_mem->cv_qmax; i++) cv_mem->cv_l[i] = ZERO;
   cv_mem->cv_l[2] = alpha1 = prod = xiold = ONE;
   alpha0 = -ONE;
@@ -2622,6 +2631,12 @@ static void cvDecreaseBDF(CVodeMem cv_mem)
 {
   realtype hsum, xi;
   int i, j;
+
+  if (cv_mem->first_step_after_resize)
+  {
+    cv_mem->first_step_after_resize = SUNFALSE;
+    return;
+  }
 
   for (i=0; i <= cv_mem->cv_qmax; i++) cv_mem->cv_l[i] = ZERO;
   cv_mem->cv_l[2] = ONE;
