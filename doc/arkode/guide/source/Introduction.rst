@@ -130,6 +130,20 @@ provided with SUNDIALS, or again may utilize a user-supplied module.
 Changes from previous versions
 ==============================
 
+Changes in vX.X.X
+-----------------
+
+Fixed a bug in :c:func:`ARKStepSetTableNum` wherein it did not recognize
+`ARKODE_ARK2_ERK_3_1_2` and `ARKODE_ARK2_DIRK_3_1_2` as a valid additive
+Runge--Kutta Butcher table pair.
+
+Improved computational complexity of ``SUNMatScaleAddI_Sparse`` from ``O(M*N)`` to
+``O(NNZ)``.
+
+Fixed scaling bug in ``SUNMatScaleAddI_Sparse`` for non-square matrices.
+
+Fixed missing soversions in some ``SUNLinearSolver`` CMake targets.
+
 Changes in v5.6.2
 -----------------
 

@@ -1,5 +1,13 @@
 # SUNDIALS Changelog
 
+
+## Changes to SUNDIALS in release X.X.X
+
+Fixed a bug in `ARKStepSetTableNum` wherein it did not recognize `ARKODE_ARK2_ERK_3_1_2` and
+`ARKODE_ARK2_DIRK_3_1_2` as a valid additive Runge--Kutta Butcher table pair.
+
+Renamed some internal types in CVODES and IDAS to allow both packages to be built together in the same binary.
+
 Improved computational complexity of `SUNMatScaleAddI_Sparse` from `O(M*N)` to
 `O(NNZ)`.
 
