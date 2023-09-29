@@ -223,11 +223,11 @@ int main(int argc, char* argv[])
   int reuse_fn = 0;
   if (argc > 3)
   {
-    if (resize > 1)
+    reuse_fn = atoi(argv[3]);
+    if (resize > 1 && reuse_fn != 0)
     {
       std::cerr << "reuse_fn not compatible with resize" << std::endl;
     }
-    reuse_fn = atoi(argv[3]);
   }
 
   // Switch between BDF and ADAMS
@@ -354,7 +354,11 @@ int main(int argc, char* argv[])
     // if (check_flag(flag, "PrintNordsieck")) { return 1; }
 
     flag = CVode(cvode_mem, tf, y, &(t_ret), CV_ONE_STEP);
-    if (check_flag(flag, "CVode")) { return 1; }
+    if (check_flag(flag, "CVode"))
+    {
+      N_VDestroy(tmp);
+      break;
+    }
 
     // Update number of completed steps
     udata.steps++;
