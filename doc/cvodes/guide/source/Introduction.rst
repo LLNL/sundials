@@ -116,6 +116,13 @@ Changes in vX.X.X
 
 Renamed some internal types in CVODES and IDAS to allow both packages to be built together in the same binary.
 
+Improved computational complexity of ``SUNMatScaleAddI_Sparse`` from ``O(M*N)`` to
+``O(NNZ)``.
+
+Fixed scaling bug in ``SUNMatScaleAddI_Sparse`` for non-square matrices.
+
+Fixed missing soversions in some ``SUNLinearSolver`` CMake targets.
+
 Changes in v6.6.1
 -----------------
 

@@ -39,7 +39,7 @@ sundials_add_library(sundials_sunlinsolsuperludist
   VERSION
     ${sunlinsollib_VERSION}
   SOVERSION
-    ${sunlinsollib_VERSION}
+  ${sunlinsollib_SOVERSION}
 )
 
 message(STATUS "Added SUNLINSOL_SUPERLUDIST module")

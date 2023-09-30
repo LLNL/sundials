@@ -72,6 +72,16 @@ systems.
 Changes from previous versions
 ==============================
 
+Changes in vX.X.X
+-----------------
+
+Improved computational complexity of ``SUNMatScaleAddI_Sparse`` from ``O(M*N)`` to
+``O(NNZ)``.
+
+Fixed scaling bug in ``SUNMatScaleAddI_Sparse`` for non-square matrices.
+
+Fixed missing soversions in some ``SUNLinearSolver`` CMake targets.
+
 Changes in v6.6.1
 -----------------
 

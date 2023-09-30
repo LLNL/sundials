@@ -1444,7 +1444,8 @@ int ARKStepSetTableNum(void *arkode_mem, ARKODE_DIRKTableID itable, ARKODE_ERKTa
          !((etable == ARKODE_ARK436L2SA_ERK_6_3_4) && (itable == ARKODE_ARK436L2SA_DIRK_6_3_4)) &&
          !((etable == ARKODE_ARK437L2SA_ERK_7_3_4) && (itable == ARKODE_ARK437L2SA_DIRK_7_3_4)) &&
          !((etable == ARKODE_ARK548L2SA_ERK_8_4_5) && (itable == ARKODE_ARK548L2SA_DIRK_8_4_5)) &&
-         !((etable == ARKODE_ARK548L2SAb_ERK_8_4_5) && (itable == ARKODE_ARK548L2SAb_DIRK_8_4_5)) ) {
+         !((etable == ARKODE_ARK548L2SAb_ERK_8_4_5) && (itable == ARKODE_ARK548L2SAb_DIRK_8_4_5)) &&
+         !((etable == ARKODE_ARK2_ERK_3_1_2) && (itable == ARKODE_ARK2_DIRK_3_1_2)) ) {
       arkProcessError(ark_mem, ARK_ILL_INPUT, "ARKODE::ARKStep",
                       "ARKStepSetTableNum",
                       "Incompatible Butcher tables for ARK method");

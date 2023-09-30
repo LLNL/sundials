@@ -1,8 +1,7 @@
 # SUNDIALS Changelog
 
-## Changes to SUNDIALS in release X.X.X
 
-Renamed some internal types in CVODES and IDAS to allow both packages to be built together in the same binary.
+## Changes to SUNDIALS in release X.X.X
 
 Added `SUNAdaptController` and `SUNTimestepHeuristics` base classes.  Ported
 ARKODE's internal implementations of time step control and heuristic constraints
@@ -11,6 +10,18 @@ instead of its own implementations.  Added `ARKStepSetAdaptController`,
 `ARKStepSetTimestepHeuristics`, `ERKStepSetAdaptController`, and
 `ERKStepSetTimestepHeuristics` routines so that users can modify
 controller/heuristic parameters, or even provide custom implementations.
+
+Fixed a bug in `ARKStepSetTableNum` wherein it did not recognize `ARKODE_ARK2_ERK_3_1_2` and
+`ARKODE_ARK2_DIRK_3_1_2` as a valid additive Runge--Kutta Butcher table pair.
+
+Renamed some internal types in CVODES and IDAS to allow both packages to be built together in the same binary.
+
+Improved computational complexity of `SUNMatScaleAddI_Sparse` from `O(M*N)` to
+`O(NNZ)`.
+
+Fixed scaling bug in `SUNMatScaleAddI_Sparse` for non-square matrices.
+
+Fixed missing soversions in some `SUNLinearSolver` CMake targets.
 
 ## Changes to SUNDIALS in release 6.6.1
 

@@ -142,6 +142,16 @@ these objects instead of its own implementations.  Added
 routines so that users can modify controller/heuristic parameters, or even provide
 custom implementations.
 
+Fixed a bug in :c:func:`ARKStepSetTableNum` wherein it did not recognize
+`ARKODE_ARK2_ERK_3_1_2` and `ARKODE_ARK2_DIRK_3_1_2` as a valid additive
+Runge--Kutta Butcher table pair.
+
+Improved computational complexity of ``SUNMatScaleAddI_Sparse`` from ``O(M*N)`` to
+``O(NNZ)``.
+
+Fixed scaling bug in ``SUNMatScaleAddI_Sparse`` for non-square matrices.
+
+Fixed missing soversions in some ``SUNLinearSolver`` CMake targets.
 
 Changes in v5.6.1
 -----------------
