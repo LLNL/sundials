@@ -975,7 +975,8 @@ int arkEvolve(ARKodeMem ark_mem, realtype tout, N_Vector yout,
       if ( SUNRabs(ark_mem->tcur - ark_mem->tstop) <= troundoff)
       {
         /* Ensure tout >= tstop, otherwise check for tout return below */
-        if ((tout - ark_mem->tstop) * ark_mem->h >= ZERO)
+        if ((tout - ark_mem->tstop) * ark_mem->h >= ZERO ||
+            SUNRabs(tout - ark_mem->tstop) <= troundoff)
         {
           if (ark_mem->tstopinterp) {
             (void) arkGetDky(ark_mem, ark_mem->tstop, 0, yout);
@@ -2118,7 +2119,8 @@ int arkStopTests(ARKodeMem ark_mem, realtype tout, N_Vector yout,
     if ( SUNRabs(ark_mem->tcur - ark_mem->tstop) <= troundoff)
     {
       /* Ensure tout >= tstop, otherwise check for tout return below */
-      if ((tout - ark_mem->tstop) * ark_mem->h >= ZERO)
+      if ((tout - ark_mem->tstop) * ark_mem->h >= ZERO ||
+          SUNRabs(tout - ark_mem->tstop) <= troundoff)
       {
         if (ark_mem->tstopinterp)
         {

@@ -3065,7 +3065,8 @@ int CVode(void *cvode_mem, realtype tout, N_Vector yout,
       if ( SUNRabs(cv_mem->cv_tn - cv_mem->cv_tstop) <= troundoff )
       {
         /* Ensure tout >= tstop, otherwise check for tout return below */
-        if ((tout - cv_mem->cv_tstop) * cv_mem->cv_h >= ZERO)
+        if ((tout - cv_mem->cv_tstop) * cv_mem->cv_h >= ZERO ||
+            SUNRabs(tout - cv_mem->cv_tstop) <= troundoff)
         {
           if (cv_mem->cv_tstopinterp) {
             ier =  CVodeGetDky(cv_mem, cv_mem->cv_tstop, 0, yout);
@@ -3308,7 +3309,8 @@ int CVode(void *cvode_mem, realtype tout, N_Vector yout,
       if ( SUNRabs(cv_mem->cv_tn - cv_mem->cv_tstop) <= troundoff)
       {
         /* Ensure tout >= tstop, otherwise check for tout return below */
-        if ((tout - cv_mem->cv_tstop) * cv_mem->cv_h >= ZERO)
+        if ((tout - cv_mem->cv_tstop) * cv_mem->cv_h >= ZERO ||
+            SUNRabs(tout - cv_mem->cv_tstop) <= troundoff)
         {
           if (cv_mem->cv_tstopinterp) {
             (void) CVodeGetDky(cv_mem, cv_mem->cv_tstop, 0, yout);
