@@ -8,6 +8,10 @@ CVODE, CVODES, IDA, and IDAS would return at the stop time rather than the
 requested output time if the stop time was reached in the same step in which the
 output time was passed.
 
+Fixed a bug in ARKODE where `ARKStepSetInterpolateStopTime` would return an
+interpolated solution at the stop time in some cases when interpolation was
+disabled.
+
 Fixed a bug in `ARKStepSetTableNum` wherein it did not recognize
 `ARKODE_ARK2_ERK_3_1_2` and `ARKODE_ARK2_DIRK_3_1_2` as a valid additive
 Runge--Kutta Butcher table pair.
