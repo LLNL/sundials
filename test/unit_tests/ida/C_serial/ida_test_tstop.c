@@ -68,9 +68,8 @@ int main(int argc, char *argv[])
   int         i        = 0;
   sunrealtype tout     = SUN_RCONST(0.10);
   sunrealtype dt_tout  = SUN_RCONST(0.25);
-  sunrealtype tstop1   = SUN_RCONST(0.30);
-  sunrealtype tstop2   = SUN_RCONST(0.60);
-  sunrealtype tstop3   = SUN_RCONST(0.90);
+  sunrealtype tstop    = SUN_RCONST(0.30);
+  sunrealtype dt_tstop = SUN_RCONST(0.30);
   sunrealtype tret     = ZERO;
   sunrealtype tcur     = ZERO;
 
@@ -125,15 +124,15 @@ int main(int argc, char *argv[])
   flag = IDASetMaxOrd(ida_mem, 1);
   if (flag) { return 1; }
 
-  flag = IDASetStopTime(ida_mem, tstop1);
+  flag = IDASetStopTime(ida_mem, tstop);
   if (flag) { return 1; }
 
   /* ---------------
    * Advance in time
    * --------------- */
 
-  printf("0: tout = %" GSYM ", tret = %" GSYM ", tcur = %" GSYM "\n",
-         tout, tret, tcur);
+  printf("0: tout = %" GSYM ", tstop = %" GSYM ", tret = %" GSYM ", tcur = %" GSYM "\n",
+         tout, tstop, tret, tcur);
 
   for (i = 1; i <= 6; i++)
   {
@@ -143,8 +142,8 @@ int main(int argc, char *argv[])
     flag = IDAGetCurrentTime(ida_mem, &tcur);
     if (flag) { break; }
 
-    printf("%i: tout = %" GSYM ", tret = %" GSYM ", tcur = %" GSYM ", return = %i\n",
-           i, tout, tret, tcur, ida_flag);
+    printf("%i: tout = %" GSYM ", tstop = %" GSYM ", tret = %" GSYM ", tcur = %" GSYM ", return = %i\n",
+           i, tout, tstop, tret, tcur, ida_flag);
 
     /* First return: output time < stop time */
     if (i == 1 && ida_flag != IDA_SUCCESS)
@@ -165,7 +164,8 @@ int main(int argc, char *argv[])
       }
 
       /* Update stop time */
-      flag = IDASetStopTime(ida_mem, tstop2);
+      tstop += dt_tstop;
+      flag = IDASetStopTime(ida_mem, tstop);
       if (flag) { break; }
     }
 
@@ -180,7 +180,8 @@ int main(int argc, char *argv[])
       }
 
       /* Update stop time */
-      flag = IDASetStopTime(ida_mem, tstop3);
+      tstop += dt_tstop;
+      flag = IDASetStopTime(ida_mem, tstop);
       if (flag) { break; }
     }
 
@@ -196,7 +197,25 @@ int main(int argc, char *argv[])
       }
     }
 
-    /* TODO(DJG): Add IDA_ROOT_RETURN test */
+    /* Fifth return: output time > stop time after step where both output time
+       and the stop time were overtaken in the same step */
+    if (i == 5)
+    {
+      if (ida_flag != IDA_TSTOP_RETURN)
+      {
+        printf("ERROR: Expected stop return!\n");
+        flag = 1;
+        break;
+      }
+    }
+
+    /* Sixth return: output time < stop time (not updated) */
+    if (i == 6 && ida_flag != IDA_SUCCESS)
+    {
+      printf("ERROR: Expected output return!\n");
+      flag = 1;
+      break;
+    }
 
     /* update output time */
     tout += dt_tout;
