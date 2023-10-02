@@ -17,15 +17,18 @@
 
 #include <algorithm>
 #include <iostream>
+#include <string>
 #include <vector>
 
 // Check for an unrecoverable (negative) return value from a SUNDIALS function
 int check_flag(const int flag, const std::string funcname)
 {
-  if (!flag) return 0;
-  if (flag < 0) std::cerr << "ERROR: ";
-  std::cerr << funcname << " returned " << flag << std::endl;
-  return 1;
+  if (flag < 0)
+  {
+    std::cerr << "ERROR: " << funcname << " returned " << flag << std::endl;
+    return 1;
+  }
+  return 0;
 }
 
 // Check if a function returned a NULL pointer

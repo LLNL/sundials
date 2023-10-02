@@ -42,7 +42,6 @@ endif()
 
 find_package(CALIPER
              PATHS "${CALIPER_DIR}"
-             NO_DEFAULT_PATH
              REQUIRED)
 
 message(STATUS "CALIPER_LIB_DIR:     ${caliper_LIB_DIR}")

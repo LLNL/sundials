@@ -85,8 +85,8 @@ with adaptive explicit methods of orders 2-8.
    H(t, p, q) = T(t, p) + V(t, q)
 
 .. math::
-   \dot{p} = f_1(t,q) = \frac{\partial V(t,q)}{\partial q}, \quad 
-   \dot{q} = f_2(t,p) = \frac{\partial T(t,p)}{\partial p}, 
+   \dot{p} = f_1(t,q) = \frac{\partial V(t,q)}{\partial q}, \quad
+   \dot{q} = f_2(t,p) = \frac{\partial T(t,p)}{\partial p},
    :label: ARKODE_ODE_hamiltonian
 
 allowing for conservation of quadratic invariants.
@@ -129,6 +129,32 @@ provided with SUNDIALS, or again may utilize a user-supplied module.
 
 Changes from previous versions
 ==============================
+
+Changes in vX.X.X
+-----------------
+
+Fixed a bug in :c:func:`ARKStepSetTableNum` wherein it did not recognize
+`ARKODE_ARK2_ERK_3_1_2` and `ARKODE_ARK2_DIRK_3_1_2` as a valid additive
+Runge--Kutta Butcher table pair.
+
+Improved computational complexity of ``SUNMatScaleAddI_Sparse`` from ``O(M*N)`` to
+``O(NNZ)``.
+
+Fixed scaling bug in ``SUNMatScaleAddI_Sparse`` for non-square matrices.
+
+Fixed missing soversions in some ``SUNLinearSolver`` CMake targets.
+
+Changes in v5.6.1
+-----------------
+
+Updated the Tpetra NVector interface to support Trilinos 14.
+
+Fixed a memory leak when destroying a CUDA, HIP, SYCL, or system SUNMemoryHelper
+object.
+
+Fixed a bug where the stop time may not be cleared and an unnecessary
+interpolation may occur when using normal mode if the requested output time is
+the same as the stop time.
 
 Changes in v5.6.0
 -----------------

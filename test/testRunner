@@ -72,6 +72,8 @@ def main():
     parser.add_argument('-v', '--verbose', dest='verbose', action='store_true',
                         help='run verbosely')
 
+    parser.add_argument('--calidir', dest='caliDir', type=str, help='path to directory to write .cali files to')
+
     args = parser.parse_args()
 
     if(args.verbose):
@@ -85,10 +87,12 @@ def main():
         print("buildDir=%s"%(args.buildDir))
         print("buildCmd=%s"%(args.buildCmd))
         print("profile=%s"%(args.profile))
+        print("caliDir=%s"%{args.caliDir})
 
     # regression test name and output directory
     testName  = args.testName
     outDir    = args.outputDir
+    caliDir   = args.caliDir
 
     # path to Sundials test directory
     testDir = os.path.dirname(sys.argv[0])
@@ -100,7 +104,7 @@ def main():
         answerDir = os.path.join(testDir, "answers")
 
     if(args.verbose):
-        print("testName %s"%testDir)
+        print("testName %s"%testName)
         print("outDir %s"%outDir)
         print("testDir %s"%testDir)
         print("answerDir %s"%answerDir)
@@ -195,13 +199,11 @@ def main():
         # If profiling set the CALI_CONFIG environment variable
         if(args.profile):
             dateTime = datetime.datetime.now().strftime("%m%d%Y_%H%M%S")
-            profilePath = os.path.join(outDir, args.testName+".%s.caliper" % dateTime)
-            os.environ['SUNDIALS_VERSION'] = subprocess.check_output(
-                    ['git', 'describe', '--abbrev=12', '--dirty', '--always', '--tags']
-                ).decode('UTF-8').strip()
+            profilePath = os.path.join(caliDir, args.testName+".%s.cali" % dateTime)
             os.environ['CALI_SERVICES_ENABLE'] = 'env'
-            os.environ['CALI_ENV_EXTRA'] = 'SUNDIALS_VERSION'
-            os.environ['CALI_CONFIG'] = 'runtime-report,hatchet-region-profile,output=%s' % profilePath
+            os.environ['TEST_NAME'] = testName
+            os.environ['CALI_ENV_EXTRA'] = 'TEST_NAME'
+            os.environ['CALI_CONFIG'] = 'spot(output=%s)' % profilePath
 
         # if user supplies precision info overide the default choices
         if(args.floatPrecision >= 0):

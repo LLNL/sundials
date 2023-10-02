@@ -88,6 +88,24 @@ applications written in Fortran.
 Changes from previous versions
 ==============================
 
+Changes in vX.X.X
+-----------------
+
+Improved computational complexity of ``SUNMatScaleAddI_Sparse`` from ``O(M*N)`` to
+``O(NNZ)``.
+
+Fixed scaling bug in ``SUNMatScaleAddI_Sparse`` for non-square matrices.
+
+Fixed missing soversions in some ``SUNLinearSolver`` CMake targets.
+
+Changes in v6.6.1
+-----------------
+
+Updated the Tpetra NVector interface to support Trilinos 14.
+
+Fixed a memory leak when destroying a CUDA, HIP, SYCL, or system SUNMemoryHelper
+object.
+
 Changes in v6.6.0
 -----------------
 

@@ -1,5 +1,32 @@
 # SUNDIALS Changelog
 
+
+## Changes to SUNDIALS in release X.X.X
+
+Fixed a bug in `ARKStepSetTableNum` wherein it did not recognize `ARKODE_ARK2_ERK_3_1_2` and
+`ARKODE_ARK2_DIRK_3_1_2` as a valid additive Runge--Kutta Butcher table pair.
+
+Renamed some internal types in CVODES and IDAS to allow both packages to be built together in the same binary.
+
+Improved computational complexity of `SUNMatScaleAddI_Sparse` from `O(M*N)` to
+`O(NNZ)`.
+
+Fixed scaling bug in `SUNMatScaleAddI_Sparse` for non-square matrices.
+
+Fixed missing soversions in some `SUNLinearSolver` CMake targets.
+
+## Changes to SUNDIALS in release 6.6.1
+
+Updated the Tpetra NVector interface to support Trilinos 14.
+
+Fixed a memory leak when destroying a CUDA, HIP, SYCL, or system SUNMemoryHelper
+object.
+
+Fixed a bug in ARKODE, CVODE, CVODES, IDA, and IDAS where the stop time may not
+be cleared when using normal mode if the requested output time is the same as
+the stop time. Additionally, with ARKODE, CVODE, and CVODES an unnecessary
+interpolation of the solution at the stop time may occur in this case.
+
 ## Changes to SUNDIALS in release 6.6.0
 
 A new time-stepping module, `SPRKStep`, was added to ARKODE. This time-stepper

@@ -155,9 +155,9 @@ fi
 # Build Directory
 if [[ -z ${build_root} ]]
 then
-    build_root="/dev/shm$(pwd)"
+    build_root="$(pwd)"
 else
-    build_root="/dev/shm${build_root}"
+    build_root="${build_root}"
 fi
 
 build_dir="${build_root}/build_${job_unique_id}_${hostconfig//.cmake/}"
@@ -188,10 +188,22 @@ then
     $cmake_exe --version
 
     # configure
-    $cmake_exe \
-        -C "${hostconfig_path}" \
-        -DCMAKE_INSTALL_PREFIX=${install_dir} \
-        "${project_dir}"
+    if [[ "${CI_COMMIT_BRANCH}" == "main" ]]
+    then
+        # redirect caliper files to release directory
+        sundials_version=$(cd ${project_dir}; git describe --abbrev=0)
+        $cmake_exe \
+            -C "${hostconfig_path}" \
+            -DCMAKE_INSTALL_PREFIX=${install_dir} \
+            -DSUNDIALS_CALIPER_OUTPUT_DIR="${CALIPER_DIR}/Release/${hostname}/${sundials_version}" \
+            "${project_dir}"
+
+    else
+        $cmake_exe \
+            -C "${hostconfig_path}" \
+            -DCMAKE_INSTALL_PREFIX=${install_dir} \
+            "${project_dir}"
+    fi
 
     # build
     VERBOSE_BUILD=${VERBOSE_BUILD:-"OFF"}

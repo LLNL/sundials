@@ -72,6 +72,27 @@ systems.
 Changes from previous versions
 ==============================
 
+Changes in vX.X.X
+-----------------
+
+Improved computational complexity of ``SUNMatScaleAddI_Sparse`` from ``O(M*N)`` to
+``O(NNZ)``.
+
+Fixed scaling bug in ``SUNMatScaleAddI_Sparse`` for non-square matrices.
+
+Fixed missing soversions in some ``SUNLinearSolver`` CMake targets.
+
+Changes in v6.6.1
+-----------------
+
+Updated the Tpetra NVector interface to support Trilinos 14.
+
+Fixed a memory leak when destroying a CUDA, HIP, SYCL, or system SUNMemoryHelper
+object.
+
+Fixed a bug where the stop time may not be cleared when using normal mode if the
+requested output time is the same as the stop time.
+
 Changes in v6.6.0
 -----------------
 
