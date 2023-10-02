@@ -89,14 +89,20 @@ Changes from previous versions
 Changes in vX.X.X
 -----------------
 
-Renamed some internal types in CVODES and IDAS to allow both packages to be built together in the same binary.
+Fixed a regression introduced by the stop time bug fix in v6.6.1 where IDAS
+would return at the stop time rather than the requested output time if the stop
+time was reached in the same step in which the output time was passed.
 
-Improved computational complexity of ``SUNMatScaleAddI_Sparse`` from ``O(M*N)`` to
-``O(NNZ)``.
+Renamed some internal types in CVODES and IDAS to allow both packages to be
+built together in the same binary.
+
+Improved computational complexity of ``SUNMatScaleAddI_Sparse`` from ``O(M*N)``
+to ``O(NNZ)``.
 
 Fixed scaling bug in ``SUNMatScaleAddI_Sparse`` for non-square matrices.
 
-Fixed missing soversions in some ``SUNLinearSolver`` CMake targets.
+Fixed missing soversions in some ``SUNLinearSolver`` and ``SUNNonlinearSolver``
+CMake targets.
 
 Changes in v5.6.1
 -----------------
