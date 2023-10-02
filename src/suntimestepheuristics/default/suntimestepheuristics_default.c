@@ -223,7 +223,7 @@ int SUNTimestepHeuristics_BoundReduction_Default(SUNTimestepHeuristics H,
   { return SUNTIMESTEPHEURISTICS_CANNOT_DECREASE; }
 
   /* Enforce minimum step size and return. */
-  *hconstr = SUNMAX(SUNRabs(hnew), SH_HMIN(H));
+  *hconstr = SUNMAX(SUNRabs(hnew), SH_HMIN(H)) * hnew / SUNRabs(hnew);
   return SUNTIMESTEPHEURISTICS_SUCCESS;
 }
 
