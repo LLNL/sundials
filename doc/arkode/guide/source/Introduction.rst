@@ -161,9 +161,10 @@ Updated the Tpetra NVector interface to support Trilinos 14.
 Fixed a memory leak when destroying a CUDA, HIP, SYCL, or system SUNMemoryHelper
 object.
 
-Fixed a bug where the stop time may not be cleared and an unnecessary
-interpolation may occur when using normal mode if the requested output time is
-the same as the stop time.
+Fixed a bug where the stop time may not be cleared when using normal mode if the
+requested output time is the same as the stop time. Additionally, this fix
+removes an unnecessary interpolation of the solution at the stop time that could
+occur in this case.
 
 Changes in v5.6.0
 -----------------

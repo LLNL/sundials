@@ -36,8 +36,9 @@ object.
 
 Fixed a bug in ARKODE, CVODE, CVODES, IDA, and IDAS where the stop time may not
 be cleared when using normal mode if the requested output time is the same as
-the stop time. Additionally, with ARKODE, CVODE, and CVODES an unnecessary
-interpolation of the solution at the stop time may occur in this case.
+the stop time. Additionally, with ARKODE, CVODE, and CVODES this fix removes an
+unnecessary interpolation of the solution at the stop time that could occur in
+this case.
 
 ## Changes to SUNDIALS in release 6.6.0
 
