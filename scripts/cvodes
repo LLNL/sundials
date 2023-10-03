@@ -190,22 +190,4 @@ $tar $tarfile $distrobase/examples/cvodes/F2003_serial/cvsAdvDiff_FSA_non_f2003_
 
 echo "   --- Add cvodes unit tests to $tarfile"
 
-$tar $tarfile $distrobase/test/unit_tests/cvodes/CMakeLists.txt
-$tar $tarfile $distrobase/test/unit_tests/cvodes/C_serial/CMakeLists.txt
-$tar $tarfile $distrobase/test/unit_tests/cvodes/C_serial/cvs_test_getuserdata.c
-$tar $tarfile $distrobase/test/unit_tests/cvodes/CXX_serial/CMakeLists.txt
-$tar $tarfile $distrobase/test/unit_tests/cvodes/CXX_serial/cvs_test_getjac.cpp
-$tar $tarfile $distrobase/test/unit_tests/cvodes/CXX_serial/cvs_test_getjac.out
-$tar $tarfile $distrobase/test/unit_tests/cvodes/CXX_serial/cvs_test_kpr.cpp
-$tar $tarfile $distrobase/test/unit_tests/cvodes/CXX_serial/cvs_test_kpr.hpp
-$tar $tarfile $distrobase/test/unit_tests/cvodes/CXX_serial/cvs_test_kpr.out
-$tar $tarfile $distrobase/test/unit_tests/cvodes/CXX_serial/cvs_test_kpr_--dgmax_jbad_1.0.out
-$tar $tarfile $distrobase/test/unit_tests/cvodes/CXX_serial/cvs_test_kpr_--dgmax_lsetup_0.0.out
-$tar $tarfile $distrobase/test/unit_tests/cvodes/CXX_serial/cvs_test_kpr_--eta_cf_0.5.out
-$tar $tarfile $distrobase/test/unit_tests/cvodes/CXX_serial/cvs_test_kpr_--eta_max_ef_0.1_--small_nef_1.out
-$tar $tarfile $distrobase/test/unit_tests/cvodes/CXX_serial/cvs_test_kpr_--eta_max_fs_2.out
-$tar $tarfile $distrobase/test/unit_tests/cvodes/CXX_serial/cvs_test_kpr_--eta_min_ef_0.5.out
-$tar $tarfile $distrobase/test/unit_tests/cvodes/CXX_serial/cvs_test_kpr_--eta_min_es_2_--small_nst_5.out
-$tar $tarfile $distrobase/test/unit_tests/cvodes/CXX_serial/cvs_test_kpr_--eta_min_fx_1.0_--eta_max_fx_2.0.out
-$tar $tarfile $distrobase/test/unit_tests/cvodes/CXX_serial/cvs_test_kpr_--eta_min_fx_1.0_--eta_min_0.5.out
-$tar $tarfile $distrobase/test/unit_tests/cvodes/CXX_serial/cvs_test_kpr_--eta_min_gs_2.out
+$tar $tarfile $distrobase/test/unit_tests/cvodes
