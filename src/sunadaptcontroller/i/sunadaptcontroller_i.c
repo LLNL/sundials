@@ -118,7 +118,7 @@ int SUNAdaptController_EstimateStep_I(SUNAdaptController C, sunrealtype h,
                                       sunrealtype dsm, sunrealtype* hnew)
 {
   /* set usable time-step adaptivity parameters */
-  const int ord = SACI_P(C) + SACI_ADJ(C);
+  const int ord = SACI_P(C) + SACI_ADJ(C) + 1;
   const sunrealtype k1 = -SACI_K1(C) / ord;
   const sunrealtype ecur = SACI_BIAS(C) * dsm;
   const sunrealtype e1 = SUNMAX(ecur, TINY);

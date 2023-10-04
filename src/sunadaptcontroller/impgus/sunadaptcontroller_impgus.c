@@ -127,7 +127,7 @@ int SUNAdaptController_EstimateStep_ImpGus(SUNAdaptController C, sunrealtype h,
                                            sunrealtype dsm, sunrealtype* hnew)
 {
   /* order parameter to use */
-  const int ord = SACIMPGUS_P(C) + SACIMPGUS_ADJ(C);
+  const int ord = SACIMPGUS_P(C) + SACIMPGUS_ADJ(C) + 1;
 
   /* modified method for first step */
   if (SACIMPGUS_FIRSTSTEP(C))

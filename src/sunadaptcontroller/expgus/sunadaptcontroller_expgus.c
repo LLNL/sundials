@@ -126,7 +126,7 @@ int SUNAdaptController_EstimateStep_ExpGus(SUNAdaptController C, sunrealtype h,
                                            sunrealtype dsm, sunrealtype* hnew)
 {
   /* order parameter to use in controller */
-  const int ord = SACEXPGUS_P(C) + SACEXPGUS_ADJ(C);
+  const int ord = SACEXPGUS_P(C) + SACEXPGUS_ADJ(C) + 1;
 
   /* modified method for first step */
   if (SACEXPGUS_FIRSTSTEP(C))

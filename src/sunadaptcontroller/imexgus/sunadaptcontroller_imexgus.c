@@ -134,7 +134,7 @@ int SUNAdaptController_EstimateStep_ImExGus(SUNAdaptController C, sunrealtype h,
                                             sunrealtype dsm, sunrealtype* hnew)
 {
   /* order parameter to use */
-  const int ord = SACIMEXGUS_P(C) + SACIMEXGUS_ADJ(C);
+  const int ord = SACIMEXGUS_P(C) + SACIMEXGUS_ADJ(C) + 1;
 
   /* modified method for first step */
   if (SACIMEXGUS_FIRSTSTEP(C))

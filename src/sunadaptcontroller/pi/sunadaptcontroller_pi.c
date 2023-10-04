@@ -124,7 +124,7 @@ int SUNAdaptController_EstimateStep_PI(SUNAdaptController C, sunrealtype h,
                                       sunrealtype dsm, sunrealtype* hnew)
 {
   /* set usable time-step adaptivity parameters */
-  const int ord = SACPI_P(C) + SACPI_ADJ(C);
+  const int ord = SACPI_P(C) + SACPI_ADJ(C) + 1;
   const sunrealtype k1 = -SACPI_K1(C) / ord;
   const sunrealtype k2 =  SACPI_K2(C) / ord;
   const sunrealtype ecur = SACPI_BIAS(C) * dsm;

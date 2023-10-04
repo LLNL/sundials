@@ -128,7 +128,7 @@ int SUNAdaptController_EstimateStep_PID(SUNAdaptController C, sunrealtype h,
                                         sunrealtype dsm, sunrealtype* hnew)
 {
   /* set usable time-step adaptivity parameters */
-  const int ord = SACPID_P(C) + SACPID_ADJ(C);
+  const int ord = SACPID_P(C) + SACPID_ADJ(C) + 1;
   const sunrealtype k1 = -SACPID_K1(C) / ord;
   const sunrealtype k2 =  SACPID_K2(C) / ord;
   const sunrealtype k3 = -SACPID_K3(C) / ord;
