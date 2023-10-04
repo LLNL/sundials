@@ -96,7 +96,8 @@ Improved computational complexity of ``SUNMatScaleAddI_Sparse`` from ``O(M*N)`` 
 
 Fixed scaling bug in ``SUNMatScaleAddI_Sparse`` for non-square matrices.
 
-Fixed missing soversions in some ``SUNLinearSolver`` CMake targets.
+Fixed missing soversions in some ``SUNLinearSolver`` and ``SUNNonlinearSolver``
+CMake targets.
 
 Changes in v6.6.2
 -----------------
