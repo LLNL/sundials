@@ -150,6 +150,12 @@ contains the ARKODE output constants.
    +-----------------------------------------------+------------------------------------------------------------+
    | :index:`ARKODE_BILLINGTON_3_3_2`              | Use the Billington-3-3-2 SDIRK method.                     |
    +-----------------------------------------------+------------------------------------------------------------+
+   | :index:`ARKODE_ESDIRK324L2SA_4_2_3`           | Use the ESDIRK324L2SA-4-2-3 ESDIRK method.                 |
+   +-----------------------------------------------+------------------------------------------------------------+
+   | :index:`ARKODE_ESDIRK325L2SA_5_2_3`           | Use the ESDIRK325L2SA-5-2-3 ESDIRK method.                 |
+   +-----------------------------------------------+------------------------------------------------------------+
+   | :index:`ARKODE_ESDIRK32I5L2SA_5_2_3`          | Use the ESDIRK32I5L2SA-5-2-3 ESDIRK method.                |
+   +-----------------------------------------------+------------------------------------------------------------+
    | :index:`ARKODE_TRBDF2_3_3_2`                  | Use the TRBDF2-3-3-2 ESDIRK method.                        |
    +-----------------------------------------------+------------------------------------------------------------+
    | :index:`ARKODE_KVAERNO_4_2_3`                 | Use the Kvaerno-4-2-3 ESDIRK method.                       |
@@ -168,11 +174,23 @@ contains the ARKODE output constants.
    +-----------------------------------------------+------------------------------------------------------------+
    | :index:`ARKODE_KVAERNO_7_4_5`                 | Use the Kvaerno-7-4-5 ESDIRK method.                       |
    +-----------------------------------------------+------------------------------------------------------------+
+   | :index:`ARKODE_ESDIRK436L2SA_6_3_4`           | Use the ESDIRK436L2SA-6-3-4 method.                        |
+   +-----------------------------------------------+------------------------------------------------------------+
+   | :index:`ARKODE_ESDIRK43I6L2SA_6_3_4`          | Use the ESDIRK43I6L2SA-6-3-4 method.                       |
+   +-----------------------------------------------+------------------------------------------------------------+
+   | :index:`ARKODE_QESDIRK436L2SA_6_3_4`          | Use the QESDIRK436L2SA-6-3-4 method.                       |
+   +-----------------------------------------------+------------------------------------------------------------+
+   | :index:`ARKODE_ESDIRK437L2SA_7_3_4`           | Use the ESDIRK437L2SA-7-3-4 method.                        |
+   +-----------------------------------------------+------------------------------------------------------------+
    | :index:`ARKODE_ARK548L2SA_DIRK_8_4_5`         | Use the ARK-8-4-5 ESDIRK method.                           |
    +-----------------------------------------------+------------------------------------------------------------+
    | :index:`ARKODE_ARK437L2SA_DIRK_7_3_4`         | Use the ARK-7-3-4 ESDIRK method.                           |
    +-----------------------------------------------+------------------------------------------------------------+
    | :index:`ARKODE_ARK548L2SAb_DIRK_8_4_5`        | Use the ARK-8-4-5b ESDIRK method.                          |
+   +-----------------------------------------------+------------------------------------------------------------+
+   | :index:`ARKODE_ESDIRK547L2SA_7_4_5`           | Use the ESDIRK547L2SA-7-4-5 ESDIRK method.                 |
+   +-----------------------------------------------+------------------------------------------------------------+
+   | :index:`ARKODE_ESDIRK547L2SA2_7_4_5`          | Use the ESDIRK547L2SA2-7-4-5 ESDIRK method.                |
    +-----------------------------------------------+------------------------------------------------------------+
    | :index:`ARKSTEP_DEFAULT_DIRK_2`               | Use ARKStep's default second-order DIRK method             |
    |                                               | (ARKODE_SDIRK_2_1_2).                                      |
@@ -217,33 +235,33 @@ contains the ARKODE output constants.
    | :index:`ARKSTEP_DEFAULT_ARK_ITABLE_5`         | (ARKODE_ARK548L2SA_ERK_8_4_5 and                           |
    |                                               | ARKODE_ARK548L2SA_DIRK_8_4_5).                             |
    +-----------------------------------------------+------------------------------------------------------------+
-   |                                               | +                                                          |
+   |                                               |                                                            |
    +-----------------------------------------------+------------------------------------------------------------+
    | **Symplectic Method storage specification**   |                                                            |
    +-----------------------------------------------+------------------------------------------------------------+
-   | :c:macro:`ARKODE_SPRK_EULER_1_1`              | Symplectic Euler 1st order method with 1 stage.            |
+   | :index:`ARKODE_SPRK_EULER_1_1`                | Symplectic Euler 1st order method with 1 stage.            |
    +-----------------------------------------------+------------------------------------------------------------+
-   | :c:macro:`ARKODE_SPRK_LEAPFROG_2_2`           | Symplectic Leapfrog 2nd order method with 2 stages.        |
+   | :index:`ARKODE_SPRK_LEAPFROG_2_2`             | Symplectic Leapfrog 2nd order method with 2 stages.        |
    +-----------------------------------------------+------------------------------------------------------------+
-   | :c:macro:`ARKODE_SPRK_PSEUDO_LEAPFROG_2_2`    | Symplectic Pseudo Leapfrog 2nd order method with 2 stages. |
+   | :index:`ARKODE_SPRK_PSEUDO_LEAPFROG_2_2`      | Symplectic Pseudo Leapfrog 2nd order method with 2 stages. |
    +-----------------------------------------------+------------------------------------------------------------+
-   | :c:macro:`ARKODE_SPRK_RUTH_3_3`               | Symplectic Ruth 3rd order method with 3 stages.            |
+   | :index:`ARKODE_SPRK_RUTH_3_3`                 | Symplectic Ruth 3rd order method with 3 stages.            |
    +-----------------------------------------------+------------------------------------------------------------+
-   | :c:macro:`ARKODE_SPRK_MCLACHLAN_2_2`          | Symplectic McLachlan 2nd order method with 2 stages.       |
+   | :index:`ARKODE_SPRK_MCLACHLAN_2_2`            | Symplectic McLachlan 2nd order method with 2 stages.       |
    +-----------------------------------------------+------------------------------------------------------------+
-   | :c:macro:`ARKODE_SPRK_MCLACHLAN_3_3`          | Symplectic McLachlan 3rd order method with 3 stages.       |
+   | :index:`ARKODE_SPRK_MCLACHLAN_3_3`            | Symplectic McLachlan 3rd order method with 3 stages.       |
    +-----------------------------------------------+------------------------------------------------------------+
-   | :c:macro:`ARKODE_SPRK_CANDY_ROZMUS_4_4`       | Symplectic Candy-Rozmus 4th order method with 4 stages.    |
+   | :index:`ARKODE_SPRK_CANDY_ROZMUS_4_4`         | Symplectic Candy-Rozmus 4th order method with 4 stages.    |
    +-----------------------------------------------+------------------------------------------------------------+
-   | :c:macro:`ARKODE_SPRK_MCLACHLAN_4_4`          | Symplectic McLachlan 4th order method with 4 stages.       |
+   | :index:`ARKODE_SPRK_MCLACHLAN_4_4`            | Symplectic McLachlan 4th order method with 4 stages.       |
    +-----------------------------------------------+------------------------------------------------------------+
-   | :c:macro:`ARKODE_SPRK_MCLACHLAN_5_6`          | Symplectic McLachlan 5th order method with 6 stages.       |
+   | :index:`ARKODE_SPRK_MCLACHLAN_5_6`            | Symplectic McLachlan 5th order method with 6 stages.       |
    +-----------------------------------------------+------------------------------------------------------------+
-   | :c:macro:`ARKODE_SPRK_YOSHIDA_6_8`            | Symplectic Yoshida 6th order method with 8 stages.         |
+   | :index:`ARKODE_SPRK_YOSHIDA_6_8`              | Symplectic Yoshida 6th order method with 8 stages.         |
    +-----------------------------------------------+------------------------------------------------------------+
-   | :c:macro:`ARKODE_SPRK_SUZUKI_UMENO_8_16`      | Symplectic McLachlan 8th order method with 16 stages.      |
+   | :index:`ARKODE_SPRK_SUZUKI_UMENO_8_16`        | Symplectic McLachlan 8th order method with 16 stages.      |
    +-----------------------------------------------+------------------------------------------------------------+
-   | :c:macro:`ARKODE_SPRK_SOFRONIOU_10_36`        | Symplectic Sofroniou 10th order method with 36 stages.     |
+   | :index:`ARKODE_SPRK_SOFRONIOU_10_36`          | Symplectic Sofroniou 10th order method with 36 stages.     |
    +-----------------------------------------------+------------------------------------------------------------+
    |                                               |                                                            |
    +-----------------------------------------------+------------------------------------------------------------+

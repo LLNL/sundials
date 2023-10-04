@@ -1003,8 +1003,75 @@ lower-order method (from :cite:p:`Bank:85`).
    region is outlined in blue; the embedding's region is in red.
 
 
+.. _Butcher.ESDIRK324L2SA:
+
+ESDIRK324L2SA-4-2-3
+^^^^^^^^^^^^^^^^^^^^^
+
+.. index:: ESDIRK324L2SA-4-2-3 method
+
+Accessible via the constant ``ARKODE_ESDIRK324L2SA_4_2_3`` to
+:c:func:`ARKStepSetTableNum` or :c:func:`ARKodeButcherTable_LoadDIRK`.
+Accessible via the string ``"ARKODE_ESDIRK324L2SA_4_2_3"`` to
+:c:func:`ARKStepSetTableName` or
+:c:func:`ARKodeButcherTable_LoadDIRKByName`.
+This is the ESDIRK3(2)4L[2]SA method from :cite:p:`KenCarp:19b`.
+Both the method and embedding are A- and L-stable.
+
+.. figure:: /figs/arkode/stab_region_25.png
+   :scale: 50 %
+   :align: center
+
+   Linear stability region for the ESDIRK324L2SA-4-2-3 method method.  The method's
+   region is outlined in blue; the embedding's region is in red.
 
 
+
+.. _Butcher.ESDIRK325L2SA:
+
+ESDIRK325L2SA-5-2-3
+^^^^^^^^^^^^^^^^^^^^^
+
+.. index:: ESDIRK325L2SA-5-2-3 method
+
+Accessible via the constant ``ARKODE_ESDIRK325L2SA_5_2_3`` to
+:c:func:`ARKStepSetTableNum` or :c:func:`ARKodeButcherTable_LoadDIRK`.
+Accessible via the string ``"ARKODE_ESDIRK325L2SA_5_2_3"`` to
+:c:func:`ARKStepSetTableName` or
+:c:func:`ARKodeButcherTable_LoadDIRKByName`.
+This is the ESDIRK3(2)5L[2]SA method from :cite:p:`KenCarp:16`.
+Both the method and embedding are A- and L-stable.
+
+.. figure:: /figs/arkode/stab_region_26.png
+   :scale: 50 %
+   :align: center
+
+   Linear stability region for the ESDIRK325L2SA-5-2-3 method method.  The method's
+   region is outlined in blue; the embedding's region is in red.
+
+
+
+.. _Butcher.ESDIRK32I5L2SA:
+
+ESDIRK32I5L2SA-5-2-3
+^^^^^^^^^^^^^^^^^^^^^^^
+
+.. index:: ESDIRK32I5L2SA-5-2-3 method
+
+Accessible via the constant ``ARKODE_ESDIRK32I5L2SA_5_2_3`` to
+:c:func:`ARKStepSetTableNum` or :c:func:`ARKodeButcherTable_LoadDIRK`.
+Accessible via the string ``"ARKODE_ESDIRK32I5L2SA_5_2_3"`` to
+:c:func:`ARKStepSetTableName` or
+:c:func:`ARKodeButcherTable_LoadDIRKByName`.
+This is the ESDIRK3(2I)5L[2]SA method from :cite:p:`KenCarp:16`.
+Both the method and embedding are A- and L-stable.
+
+.. figure:: /figs/arkode/stab_region_27.png
+   :scale: 50 %
+   :align: center
+
+   Linear stability region for the ESDIRK32I5L2SA-5-2-3 method method.  The method's
+   region is outlined in blue; the embedding's region is in red.
 
 
 .. _Butcher.Kvaerno_4_2_3:
@@ -1345,8 +1412,96 @@ This is the implicit portion of the 4th order ARK4(3)7L[2]SA method from
    region is outlined in blue; the embedding's region is in red.
 
 
+.. _Butcher.ESDIRK436L2SA:
+
+ESDIRK436L2SA-6-3-4
+^^^^^^^^^^^^^^^^^^^^
+
+.. index:: ESDIRK436L2SA-6-3-4 method
+
+Accessible via the constant ``ARKODE_ESDIRK436L2SA_6_3_4`` to
+:c:func:`ARKStepSetTableNum` or :c:func:`ARKodeButcherTable_LoadDIRK`.
+Accessible via the string ``"ARKODE_ESDIRK436L2SA_6_3_4"`` to
+:c:func:`ARKStepSetTableName` or
+:c:func:`ARKodeButcherTable_LoadDIRKByName`.
+This is the ESDIRK4(3)6L[2]SA method from :cite:p:`KenCarp:16`.
+Both the method and embedding are A- and L-stable.
+
+.. figure:: /figs/arkode/stab_region_28.png
+   :scale: 50 %
+   :align: center
+
+   Linear stability region for the ESDIRK436L2SA-6-3-4 method method.  The method's
+   region is outlined in blue; the embedding's region is in red.
 
 
+.. _Butcher.ESDIRK43I6L2SA:
+
+ESDIRK43I6L2SA-6-3-4
+^^^^^^^^^^^^^^^^^^^^
+
+.. index:: ESDIRK43I6L2SA-6-3-4 method
+
+Accessible via the constant ``ARKODE_ESDIRK43I6L2SA_6_3_4`` to
+:c:func:`ARKStepSetTableNum` or :c:func:`ARKodeButcherTable_LoadDIRK`.
+Accessible via the string ``"ARKODE_ESDIRK43I6L2SA_6_3_4"`` to
+:c:func:`ARKStepSetTableName` or
+:c:func:`ARKodeButcherTable_LoadDIRKByName`.
+This is the ESDIRK4(3I)6L[2]SA method from :cite:p:`KenCarp:16`.
+Both the method and embedding are A- and L-stable.
+
+.. figure:: /figs/arkode/stab_region_29.png
+   :scale: 50 %
+   :align: center
+
+   Linear stability region for the ESDIRK43I6L2SA-6-3-4 method method.  The method's
+   region is outlined in blue; the embedding's region is in red.
+
+
+.. _Butcher.QESDIRK436L2SA:
+
+QESDIRK436L2SA-6-3-4
+^^^^^^^^^^^^^^^^^^^^
+
+.. index:: QESDIRK436L2SA-6-3-4 method
+
+Accessible via the constant ``ARKODE_QESDIRK436L2SA_6_3_4`` to
+:c:func:`ARKStepSetTableNum` or :c:func:`ARKodeButcherTable_LoadDIRK`.
+Accessible via the string ``"ARKODE_QESDIRK436L2SA_6_3_4"`` to
+:c:func:`ARKStepSetTableName` or
+:c:func:`ARKodeButcherTable_LoadDIRKByName`.
+This is the QESDIRK4(3)6L[2]SA method from :cite:p:`KenCarp:16`.
+Both the method and embedding are A- and L-stable.
+
+.. figure:: /figs/arkode/stab_region_30.png
+   :scale: 50 %
+   :align: center
+
+   Linear stability region for the QESDIRK436L2SA-6-3-4 method method.  The method's
+   region is outlined in blue; the embedding's region is in red.
+
+
+.. _Butcher.ESDIRK437L2SA:
+
+ESDIRK437L2SA-7-3-4
+^^^^^^^^^^^^^^^^^^^
+
+.. index:: ESDIRK437L2SA-7-3-4 method
+
+Accessible via the constant ``ARKODE_ESDIRK437L2SA_7_3_4`` to
+:c:func:`ARKStepSetTableNum` or :c:func:`ARKodeButcherTable_LoadDIRK`.
+Accessible via the string ``"ARKODE_ESDIRK437L2SA_7_3_4"`` to
+:c:func:`ARKStepSetTableName` or
+:c:func:`ARKodeButcherTable_LoadDIRKByName`.
+This is the ESDIRK4(3)7L[2]SA method from :cite:p:`KenCarp:19b`.
+Both the method and embedding are A- and L-stable.
+
+.. figure:: /figs/arkode/stab_region_31.png
+   :scale: 50 %
+   :align: center
+
+   Linear stability region for the ESDIRK437L2SA-7-3-4 method method.  The method's
+   region is outlined in blue; the embedding's region is in red.
 
 
 .. _Butcher.Kvaerno_7_4_5:
@@ -1479,170 +1634,6 @@ Both the method and embedding are A-stable; additionally the method is L-stable
    :align: center
 
    Linear stability region for the ARK548L2SAb-DIRK-8-4-5 method.  The method's
-   region is outlined in blue; the embedding's region is in red.
-
-
-
-.. _Butcher.ESDIRK324L2SA:
-
-ESDIRK324L2SA-4-2-3
-^^^^^^^^^^^^^^^^^^^^^
-
-.. index:: ESDIRK324L2SA-4-2-3 method
-
-Accessible via the constant ``ARKODE_ESDIRK324L2SA_4_2_3`` to
-:c:func:`ARKStepSetTableNum` or :c:func:`ARKodeButcherTable_LoadDIRK`.
-Accessible via the string ``"ARKODE_ESDIRK324L2SA_4_2_3"`` to
-:c:func:`ARKStepSetTableName` or
-:c:func:`ARKodeButcherTable_LoadDIRKByName`.
-This is the ESDIRK3(2)4L[2]SA method from :cite:p:`KenCarp:19b`.
-Both the method and embedding are A- and L-stable.
-
-.. figure:: /figs/arkode/stab_region_25.png
-   :scale: 50 %
-   :align: center
-
-   Linear stability region for the ESDIRK324L2SA-4-2-3 method method.  The method's
-   region is outlined in blue; the embedding's region is in red.
-
-
-
-.. _Butcher.ESDIRK325L2SA:
-
-ESDIRK325L2SA-5-2-3
-^^^^^^^^^^^^^^^^^^^^^
-
-.. index:: ESDIRK325L2SA-5-2-3 method
-
-Accessible via the constant ``ARKODE_ESDIRK325L2SA_5_2_3`` to
-:c:func:`ARKStepSetTableNum` or :c:func:`ARKodeButcherTable_LoadDIRK`.
-Accessible via the string ``"ARKODE_ESDIRK325L2SA_5_2_3"`` to
-:c:func:`ARKStepSetTableName` or
-:c:func:`ARKodeButcherTable_LoadDIRKByName`.
-This is the ESDIRK3(2)5L[2]SA method from :cite:p:`KenCarp:16`.
-Both the method and embedding are A- and L-stable.
-
-.. figure:: /figs/arkode/stab_region_26.png
-   :scale: 50 %
-   :align: center
-
-   Linear stability region for the ESDIRK325L2SA-5-2-3 method method.  The method's
-   region is outlined in blue; the embedding's region is in red.
-
-
-
-.. _Butcher.ESDIRK32I5L2SA:
-
-ESDIRK32I5L2SA-5-2-3
-^^^^^^^^^^^^^^^^^^^^^^^
-
-.. index:: ESDIRK32I5L2SA-5-2-3 method
-
-Accessible via the constant ``ARKODE_ESDIRK32I5L2SA_5_2_3`` to
-:c:func:`ARKStepSetTableNum` or :c:func:`ARKodeButcherTable_LoadDIRK`.
-Accessible via the string ``"ARKODE_ESDIRK32I5L2SA_5_2_3"`` to
-:c:func:`ARKStepSetTableName` or
-:c:func:`ARKodeButcherTable_LoadDIRKByName`.
-This is the ESDIRK3(2I)5L[2]SA method from :cite:p:`KenCarp:16`.
-Both the method and embedding are A- and L-stable.
-
-.. figure:: /figs/arkode/stab_region_27.png
-   :scale: 50 %
-   :align: center
-
-   Linear stability region for the ESDIRK32I5L2SA-5-2-3 method method.  The method's
-   region is outlined in blue; the embedding's region is in red.
-
-
-.. _Butcher.ESDIRK436L2SA:
-
-ESDIRK436L2SA-6-3-4
-^^^^^^^^^^^^^^^^^^^^
-
-.. index:: ESDIRK436L2SA-6-3-4 method
-
-Accessible via the constant ``ARKODE_ESDIRK436L2SA_6_3_4`` to
-:c:func:`ARKStepSetTableNum` or :c:func:`ARKodeButcherTable_LoadDIRK`.
-Accessible via the string ``"ARKODE_ESDIRK436L2SA_6_3_4"`` to
-:c:func:`ARKStepSetTableName` or
-:c:func:`ARKodeButcherTable_LoadDIRKByName`.
-This is the ESDIRK4(3)6L[2]SA method from :cite:p:`KenCarp:16`.
-Both the method and embedding are A- and L-stable.
-
-.. figure:: /figs/arkode/stab_region_28.png
-   :scale: 50 %
-   :align: center
-
-   Linear stability region for the ESDIRK436L2SA-6-3-4 method method.  The method's
-   region is outlined in blue; the embedding's region is in red.
-
-
-.. _Butcher.ESDIRK43I6L2SA:
-
-ESDIRK43I6L2SA-6-3-4
-^^^^^^^^^^^^^^^^^^^^
-
-.. index:: ESDIRK43I6L2SA-6-3-4 method
-
-Accessible via the constant ``ARKODE_ESDIRK43I6L2SA_6_3_4`` to
-:c:func:`ARKStepSetTableNum` or :c:func:`ARKodeButcherTable_LoadDIRK`.
-Accessible via the string ``"ARKODE_ESDIRK43I6L2SA_6_3_4"`` to
-:c:func:`ARKStepSetTableName` or
-:c:func:`ARKodeButcherTable_LoadDIRKByName`.
-This is the ESDIRK4(3I)6L[2]SA method from :cite:p:`KenCarp:16`.
-Both the method and embedding are A- and L-stable.
-
-.. figure:: /figs/arkode/stab_region_29.png
-   :scale: 50 %
-   :align: center
-
-   Linear stability region for the ESDIRK43I6L2SA-6-3-4 method method.  The method's
-   region is outlined in blue; the embedding's region is in red.
-
-
-.. _Butcher.QESDIRK436L2SA:
-
-QESDIRK436L2SA-6-3-4
-^^^^^^^^^^^^^^^^^^^^
-
-.. index:: QESDIRK436L2SA-6-3-4 method
-
-Accessible via the constant ``ARKODE_QESDIRK436L2SA_6_3_4`` to
-:c:func:`ARKStepSetTableNum` or :c:func:`ARKodeButcherTable_LoadDIRK`.
-Accessible via the string ``"ARKODE_QESDIRK436L2SA_6_3_4"`` to
-:c:func:`ARKStepSetTableName` or
-:c:func:`ARKodeButcherTable_LoadDIRKByName`.
-This is the QESDIRK4(3)6L[2]SA method from :cite:p:`KenCarp:16`.
-Both the method and embedding are A- and L-stable.
-
-.. figure:: /figs/arkode/stab_region_30.png
-   :scale: 50 %
-   :align: center
-
-   Linear stability region for the QESDIRK436L2SA-6-3-4 method method.  The method's
-   region is outlined in blue; the embedding's region is in red.
-
-
-.. _Butcher.ESDIRK437L2SA:
-
-ESDIRK437L2SA-7-3-4
-^^^^^^^^^^^^^^^^^^^
-
-.. index:: ESDIRK437L2SA-7-3-4 method
-
-Accessible via the constant ``ARKODE_ESDIRK437L2SA_7_3_4`` to
-:c:func:`ARKStepSetTableNum` or :c:func:`ARKodeButcherTable_LoadDIRK`.
-Accessible via the string ``"ARKODE_ESDIRK437L2SA_7_3_4"`` to
-:c:func:`ARKStepSetTableName` or
-:c:func:`ARKodeButcherTable_LoadDIRKByName`.
-This is the ESDIRK4(3)7L[2]SA method from :cite:p:`KenCarp:19b`.
-Both the method and embedding are A- and L-stable.
-
-.. figure:: /figs/arkode/stab_region_31.png
-   :scale: 50 %
-   :align: center
-
-   Linear stability region for the ESDIRK437L2SA-7-3-4 method method.  The method's
    region is outlined in blue; the embedding's region is in red.
 
 

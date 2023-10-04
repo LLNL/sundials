@@ -34,7 +34,7 @@ sundials_add_library(sundials_sunlinsoldense
   VERSION
     ${sunlinsollib_VERSION}
   SOVERSION
-    ${sunlinsollib_VERSION}
+    ${sunlinsollib_SOVERSION}
 )
 
 message(STATUS "Added SUNLINSOL_DENSE module")
