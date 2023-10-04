@@ -114,12 +114,17 @@ Changes from previous versions
 Changes in vX.X.X
 -----------------
 
-Improved computational complexity of ``SUNMatScaleAddI_Sparse`` from ``O(M*N)`` to
-``O(NNZ)``.
+Fixed a regression introduced by the stop time bug fix in v6.6.1 where CVODE
+would return at the stop time rather than the requested output time if the stop
+time was reached in the same step in which the output time was passed.
+
+Improved computational complexity of ``SUNMatScaleAddI_Sparse`` from ``O(M*N)``
+to ``O(NNZ)``.
 
 Fixed scaling bug in ``SUNMatScaleAddI_Sparse`` for non-square matrices.
 
-Fixed missing soversions in some ``SUNLinearSolver`` CMake targets.
+Fixed missing soversions in some ``SUNLinearSolver`` and ``SUNNonlinearSolver``
+CMake targets.
 
 Changes in v6.6.1
 -----------------
@@ -129,9 +134,10 @@ Updated the Tpetra NVector interface to support Trilinos 14.
 Fixed a memory leak when destroying a CUDA, HIP, SYCL, or system SUNMemoryHelper
 object.
 
-Fixed a bug where the stop time may not be cleared and an unnecessary
-interpolation may occur when using normal mode if the requested output time is
-the same as the stop time.
+Fixed a bug where the stop time may not be cleared when using normal mode if the
+requested output time is the same as the stop time. Additionally, this fix
+removes an unnecessary interpolation of the solution at the stop time that could
+occur in this case.
 
 Changes in v6.6.0
 -----------------

@@ -151,18 +151,4 @@ $tar $tarfile $distrobase/examples/idas/F2003_serial/idasHeat2D_kry_f2003.out
 
 echo "   --- Add idas unit tests to $tarfile"
 
-$tar $tarfile $distrobase/test/unit_tests/idas/CMakeLists.txt
-$tar $tarfile $distrobase/test/unit_tests/idas/C_serial/CMakeLists.txt
-$tar $tarfile $distrobase/test/unit_tests/idas/C_serial/idas_test_getuserdata.c
-$tar $tarfile $distrobase/test/unit_tests/idas/CXX_serial/CMakeLists.txt
-$tar $tarfile $distrobase/test/unit_tests/idas/CXX_serial/idas_test_getjac.cpp
-$tar $tarfile $distrobase/test/unit_tests/idas/CXX_serial/idas_test_getjac.out
-$tar $tarfile $distrobase/test/unit_tests/idas/CXX_serial/idas_test_kpr.cpp
-$tar $tarfile $distrobase/test/unit_tests/idas/CXX_serial/idas_test_kpr.hpp
-$tar $tarfile $distrobase/test/unit_tests/idas/CXX_serial/idas_test_kpr.out
-$tar $tarfile $distrobase/test/unit_tests/idas/CXX_serial/idas_test_kpr_--dcj_0.9.out
-$tar $tarfile $distrobase/test/unit_tests/idas/CXX_serial/idas_test_kpr_--eta_cf_0.5.out
-$tar $tarfile $distrobase/test/unit_tests/idas/CXX_serial/idas_test_kpr_--eta_min_2.out
-$tar $tarfile $distrobase/test/unit_tests/idas/CXX_serial/idas_test_kpr_--eta_min_ef_0.5.out
-$tar $tarfile $distrobase/test/unit_tests/idas/CXX_serial/idas_test_kpr_--eta_min_fx_1.0_--eta_max_fx_2.0.out
-$tar $tarfile $distrobase/test/unit_tests/idas/CXX_serial/idas_test_kpr_--eta_min_fx_1.0_--eta_min_0.5.out
+$tar $tarfile $distrobase/test/unit_tests/idas

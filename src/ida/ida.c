@@ -1977,28 +1977,42 @@ static int IDAStopTest1(IDAMem IDA_mem, realtype tout, realtype *tret,
   int ier;
   realtype troundoff;
 
-  if (IDA_mem->ida_tstopset) {
-    /* Test for tn past tstop, tn = tretlast, tn past tout, tn near tstop. */
-    if ( (IDA_mem->ida_tn - IDA_mem->ida_tstop)*IDA_mem->ida_hh > ZERO) {
+  if (IDA_mem->ida_tstopset)
+  {
+    /* Test for tn past tstop */
+    if ( (IDA_mem->ida_tn - IDA_mem->ida_tstop)*IDA_mem->ida_hh > ZERO)
+    {
       IDAProcessError(IDA_mem, IDA_ILL_INPUT, "IDA", "IDASolve",
                       MSG_BAD_TSTOP, IDA_mem->ida_tstop, IDA_mem->ida_tn);
       return(IDA_ILL_INPUT);
     }
 
     troundoff = HUNDRED * IDA_mem->ida_uround * (SUNRabs(IDA_mem->ida_tn) + SUNRabs(IDA_mem->ida_hh));
-    if (SUNRabs(IDA_mem->ida_tn - IDA_mem->ida_tstop) <= troundoff) {
-      ier = IDAGetSolution(IDA_mem, IDA_mem->ida_tstop, yret, ypret);
-      if (ier != IDA_SUCCESS) {
-        IDAProcessError(IDA_mem, IDA_ILL_INPUT, "IDA", "IDASolve",
-                        MSG_BAD_TSTOP, IDA_mem->ida_tstop, IDA_mem->ida_tn);
-        return(IDA_ILL_INPUT);
+
+    /* Test for tn at tstop */
+    if (SUNRabs(IDA_mem->ida_tn - IDA_mem->ida_tstop) <= troundoff)
+    {
+      /* Ensure tout >= tstop, otherwise check for tout return below */
+      if ((tout - IDA_mem->ida_tstop) * IDA_mem->ida_hh >= ZERO ||
+          SUNRabs(tout - IDA_mem->ida_tstop) <= troundoff)
+      {
+        ier = IDAGetSolution(IDA_mem, IDA_mem->ida_tstop, yret, ypret);
+        if (ier != IDA_SUCCESS)
+        {
+          IDAProcessError(IDA_mem, IDA_ILL_INPUT, "IDA", "IDASolve",
+                          MSG_BAD_TSTOP, IDA_mem->ida_tstop, IDA_mem->ida_tn);
+          return(IDA_ILL_INPUT);
+        }
+        *tret = IDA_mem->ida_tretlast = IDA_mem->ida_tstop;
+        IDA_mem->ida_tstopset = SUNFALSE;
+        return(IDA_TSTOP_RETURN);
       }
-      *tret = IDA_mem->ida_tretlast = IDA_mem->ida_tstop;
-      IDA_mem->ida_tstopset = SUNFALSE;
-      return(IDA_TSTOP_RETURN);
     }
-    if ((IDA_mem->ida_tn + IDA_mem->ida_hh - IDA_mem->ida_tstop)*IDA_mem->ida_hh > ZERO)
+    /* Test for tn approaching tstop */
+    else if ((IDA_mem->ida_tn + IDA_mem->ida_hh - IDA_mem->ida_tstop)*IDA_mem->ida_hh > ZERO)
+    {
       IDA_mem->ida_hh = (IDA_mem->ida_tstop - IDA_mem->ida_tn)*(ONE - FOUR * IDA_mem->ida_uround);
+    }
   }
 
   switch (itask) {
@@ -2065,17 +2079,28 @@ static int IDAStopTest2(IDAMem IDA_mem, realtype tout, realtype *tret,
   /* int ier; */
   realtype troundoff;
 
-  if (IDA_mem->ida_tstopset) {
-    /* Test for tn at tstop and for tn near tstop */
+  if (IDA_mem->ida_tstopset)
+  {
     troundoff = HUNDRED * IDA_mem->ida_uround * (SUNRabs(IDA_mem->ida_tn) + SUNRabs(IDA_mem->ida_hh));
-    if (SUNRabs(IDA_mem->ida_tn - IDA_mem->ida_tstop) <= troundoff) {
-      /* ier = */ IDAGetSolution(IDA_mem, IDA_mem->ida_tstop, yret, ypret);
-      *tret = IDA_mem->ida_tretlast = IDA_mem->ida_tstop;
-      IDA_mem->ida_tstopset = SUNFALSE;
-      return(IDA_TSTOP_RETURN);
+
+    /* Test for tn at tstop */
+    if (SUNRabs(IDA_mem->ida_tn - IDA_mem->ida_tstop) <= troundoff)
+    {
+      /* Ensure tout >= tstop, otherwise check for tout return below */
+      if ((tout - IDA_mem->ida_tstop) * IDA_mem->ida_hh >= ZERO ||
+          SUNRabs(tout - IDA_mem->ida_tstop) <= troundoff)
+      {
+        /* ier = */ IDAGetSolution(IDA_mem, IDA_mem->ida_tstop, yret, ypret);
+        *tret = IDA_mem->ida_tretlast = IDA_mem->ida_tstop;
+        IDA_mem->ida_tstopset = SUNFALSE;
+        return(IDA_TSTOP_RETURN);
+      }
     }
-    if ((IDA_mem->ida_tn + IDA_mem->ida_hh - IDA_mem->ida_tstop)*IDA_mem->ida_hh > ZERO)
+    /* Test for tn approaching tstop */
+    else if ((IDA_mem->ida_tn + IDA_mem->ida_hh - IDA_mem->ida_tstop)*IDA_mem->ida_hh > ZERO)
+    {
       IDA_mem->ida_hh = (IDA_mem->ida_tstop - IDA_mem->ida_tn)*(ONE - FOUR * IDA_mem->ida_uround);
+    }
   }
 
   switch (itask) {
