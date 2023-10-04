@@ -969,22 +969,31 @@ int arkEvolve(ARKodeMem ark_mem, realtype tout, N_Vector yout,
     }
 
     /* Check if tn is at tstop or near tstop */
-    if ( ark_mem->tstopset ) {
+    if ( ark_mem->tstopset )
+    {
       troundoff = FUZZ_FACTOR*ark_mem->uround *
         (SUNRabs(ark_mem->tcur) + SUNRabs(ark_mem->h));
-      if ( SUNRabs(ark_mem->tcur - ark_mem->tstop) <= troundoff) {
-        if (ark_mem->tstopinterp) {
-          (void) arkGetDky(ark_mem, ark_mem->tstop, 0, yout);
-        } else {
-          N_VScale(ONE, ark_mem->yn, yout);
+
+      if ( SUNRabs(ark_mem->tcur - ark_mem->tstop) <= troundoff)
+      {
+        /* Ensure tout >= tstop, otherwise check for tout return below */
+        if ((tout - ark_mem->tstop) * ark_mem->h >= ZERO ||
+            SUNRabs(tout - ark_mem->tstop) <= troundoff)
+        {
+          if (ark_mem->tstopinterp) {
+            (void) arkGetDky(ark_mem, ark_mem->tstop, 0, yout);
+          } else {
+            N_VScale(ONE, ark_mem->yn, yout);
+          }
+          ark_mem->tretlast = *tret = ark_mem->tstop;
+          ark_mem->tstopset = SUNFALSE;
+          istate = ARK_TSTOP_RETURN;
+          break;
         }
-        ark_mem->tretlast = *tret = ark_mem->tstop;
-        ark_mem->tstopset = SUNFALSE;
-        istate = ARK_TSTOP_RETURN;
-        break;
       }
       /* limit upcoming step if it will overcome tstop */
-      if ( (ark_mem->tcur + ark_mem->hprime - ark_mem->tstop)*ark_mem->h > ZERO ) {
+      else if ( (ark_mem->tcur + ark_mem->hprime - ark_mem->tstop)*ark_mem->h > ZERO )
+      {
         ark_mem->hprime = (ark_mem->tstop - ark_mem->tcur) *
           (ONE-FOUR*ark_mem->uround);
         ark_mem->eta = ark_mem->hprime/ark_mem->h;
@@ -2119,24 +2128,35 @@ int arkStopTests(ARKodeMem ark_mem, realtype tout, N_Vector yout,
     } /* end of root stop check */
 
   /* Test for tn at tstop or near tstop */
-  if ( ark_mem->tstopset ) {
-
-    if ( SUNRabs(ark_mem->tcur - ark_mem->tstop) <= troundoff) {
-      *ier = arkGetDky(ark_mem, ark_mem->tstop, 0, yout);
-      if (*ier != ARK_SUCCESS) {
-        arkProcessError(ark_mem, ARK_ILL_INPUT, "ARKODE", "arkStopTests",
-                        MSG_ARK_BAD_TSTOP, ark_mem->tstop, ark_mem->tcur);
-        *ier = ARK_ILL_INPUT;
+  if ( ark_mem->tstopset )
+  {
+    if ( SUNRabs(ark_mem->tcur - ark_mem->tstop) <= troundoff)
+    {
+      /* Ensure tout >= tstop, otherwise check for tout return below */
+      if ((tout - ark_mem->tstop) * ark_mem->h >= ZERO ||
+          SUNRabs(tout - ark_mem->tstop) <= troundoff)
+      {
+        if (ark_mem->tstopinterp)
+        {
+          *ier = arkGetDky(ark_mem, ark_mem->tstop, 0, yout);
+          if (*ier != ARK_SUCCESS) {
+            arkProcessError(ark_mem, ARK_ILL_INPUT, "ARKODE", "arkStopTests",
+                            MSG_ARK_BAD_TSTOP, ark_mem->tstop, ark_mem->tcur);
+            *ier = ARK_ILL_INPUT;
+            return(1);
+          }
+        } else {
+          N_VScale(ONE, ark_mem->yn, yout);
+        }
+        ark_mem->tretlast = *tret = ark_mem->tstop;
+        ark_mem->tstopset = SUNFALSE;
+        *ier = ARK_TSTOP_RETURN;
         return(1);
       }
-      ark_mem->tretlast = *tret = ark_mem->tstop;
-      ark_mem->tstopset = SUNFALSE;
-      *ier = ARK_TSTOP_RETURN;
-      return(1);
     }
-
     /* If next step would overtake tstop, adjust stepsize */
-    if ( (ark_mem->tcur + ark_mem->hprime - ark_mem->tstop)*ark_mem->h > ZERO ) {
+    else if ( (ark_mem->tcur + ark_mem->hprime - ark_mem->tstop)*ark_mem->h > ZERO )
+    {
       ark_mem->hprime = (ark_mem->tstop - ark_mem->tcur)*(ONE-FOUR*ark_mem->uround);
       ark_mem->eta = ark_mem->hprime/ark_mem->h;
     }
