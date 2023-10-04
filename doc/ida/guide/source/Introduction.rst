@@ -72,6 +72,21 @@ systems.
 Changes from previous versions
 ==============================
 
+Changes in vX.X.X
+-----------------
+
+Fixed a regression introduced by the stop time bug fix in v6.6.1 where IDA would
+return at the stop time rather than the requested output time if the stop time
+was reached in the same step in which the output time was passed.
+
+Improved computational complexity of ``SUNMatScaleAddI_Sparse`` from ``O(M*N)``
+to ``O(NNZ)``.
+
+Fixed scaling bug in ``SUNMatScaleAddI_Sparse`` for non-square matrices.
+
+Fixed missing soversions in some ``SUNLinearSolver`` and ``SUNNonlinearSolver``
+CMake targets.
+
 Changes in v6.6.2
 -----------------
 
