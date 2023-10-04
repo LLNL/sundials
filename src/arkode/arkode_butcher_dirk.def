@@ -44,11 +44,11 @@
      ARKODE_ESDIRK32I5L2SA_5_2_3      ESDIRK     Y         Y       Y
      ARKODE_CASH_5_2_4                 SDIRK     Y         Y       N
      ARKODE_CASH_5_3_4                 SDIRK     Y         Y       N
+     ARKODE_ESDIRK436L2SA_6_3_4       ESDIRK     Y         Y       N
      ARKODE_SDIRK_5_3_4                SDIRK     Y         Y       Y
      ARKODE_KVAERNO_5_3_4             ESDIRK     Y         N       N
      ARKODE_ARK436L2SA_DIRK_6_3_4*    ESDIRK     Y         Y       N
      ARKODE_ARK437L2SA_DIRK_7_3_4*    ESDIRK     Y         Y       N
-     ARKODE_ESDIRK436L2SA_6_3_4       ESDIRK     Y         Y       N
      ARKODE_ESDIRK43I6L2SA_6_3_4      ESDIRK     Y         Y       N
      ARKODE_QESDIRK436L2SA_6_3_4      ESDIRK     Y         Y       N
      ARKODE_ESDIRK437L2SA_7_3_4       ESDIRK     Y         Y       N
@@ -301,6 +301,54 @@ ARK_BUTCHER_TABLE(ARKODE_CASH_5_3_4, { /* Cash(5,3,4)-SDIRK */
     B->c[2] = RCONST(0.8);
     B->c[3] = RCONST(0.924556761814);
     B->c[4] = RCONST(1.0);
+    return B;
+  })
+
+ARK_BUTCHER_TABLE(ARKODE_ESDIRK436L2SA_6_3_4, { /* ESDIRK4(3)6L[2]SA (A,L stable) */
+    ARKodeButcherTable B = ARKodeButcherTable_Alloc(6, SUNTRUE);
+    B->q = 4;
+    B->p = 3;
+
+    B->c[1] = RCONST(0.5);
+    B->c[2] = (RCONST(2.0)-SUNRsqrt(RCONST(2.0)))/RCONST(4.0);
+    B->c[3] = RCONST(5.0)/RCONST(8.0);
+    B->c[4] = RCONST(26.0)/RCONST(25.0);
+    B->c[5] = RCONST(1.0);
+
+    B->b[0] = (RCONST(1181.0)-RCONST(987.0)*SUNRsqrt(RCONST(2.0)))/RCONST(13782.0);
+    B->b[1] = (RCONST(1181.0)-RCONST(987.0)*SUNRsqrt(RCONST(2.0)))/RCONST(13782.0);
+    B->b[2] = RCONST(47.0)*(-RCONST(267.0)+RCONST(1783.0)*SUNRsqrt(RCONST(2.0)))/RCONST(273343.0);
+    B->b[3] = -RCONST(16.0)*(-RCONST(22922.0)+RCONST(3525.0)*SUNRsqrt(RCONST(2.0)))/RCONST(571953.0);
+    B->b[4] = -RCONST(15625.0)*(RCONST(97.0)+RCONST(376.0)*SUNRsqrt(RCONST(2.0)))/RCONST(90749876.0);
+    B->b[5] = RCONST(1.0)/RCONST(4.0);
+
+    B->d[0] = -RCONST(480923228411.0)/RCONST(4982971448372.0);
+    B->d[1] = -RCONST(480923228411.0)/RCONST(4982971448372.0);
+    B->d[2] = RCONST(6709447293961.0)/RCONST(12833189095359.0);
+    B->d[3] = RCONST(3513175791894.0)/RCONST(6748737351361.0);
+    B->d[4] = -RCONST(498863281070.0)/RCONST(6042575550617.0);
+    B->d[5] = RCONST(2077005547802.0)/RCONST(8945017530137.0);
+
+    B->A[1][1] = RCONST(0.25);
+    B->A[2][1] = (RCONST(1.0)-SUNRsqrt(RCONST(2.0)))/RCONST(8.0);
+    B->A[2][2] = RCONST(0.25);
+    B->A[3][1] = (RCONST(5.0)-RCONST(7.0)*SUNRsqrt(RCONST(2.0)))/RCONST(64.0);
+    B->A[3][2] = RCONST(7.0)*(RCONST(1.0)+SUNRsqrt(RCONST(2.0)))/RCONST(32.0);
+    B->A[3][3] = RCONST(0.25);
+    B->A[4][1] = -(RCONST(13796.0)+RCONST(54539.0)*SUNRsqrt(RCONST(2.0)))/RCONST(125000.0);
+    B->A[4][2] = (RCONST(506605.0)+RCONST(132109.0)*SUNRsqrt(RCONST(2.0)))/RCONST(437500.0);
+    B->A[4][3] = RCONST(166.0)*(-RCONST(97.0)+RCONST(376.0)*SUNRsqrt(RCONST(2.0)))/RCONST(109375.0);
+    B->A[4][4] = RCONST(0.25);
+    B->A[5][0] = B->b[0];
+    B->A[5][1] = B->b[1];
+    B->A[5][2] = B->b[2];
+    B->A[5][3] = B->b[3];
+    B->A[5][4] = B->b[4];
+    B->A[5][5] = B->b[5];
+    B->A[1][0] = B->c[1] - B->A[1][1];
+    B->A[2][0] = B->c[2] - B->A[2][1] - B->A[2][2];
+    B->A[3][0] = B->c[3] - B->A[3][1] - B->A[3][2] - B->A[3][3];
+    B->A[4][0] = B->c[4] - B->A[4][1] - B->A[4][2] - B->A[4][3] - B->A[4][4];
     return B;
   })
 
@@ -762,54 +810,6 @@ ARK_BUTCHER_TABLE(ARKODE_ESDIRK32I5L2SA_5_2_3, { /* ESDIRK3(2I)5L[2]SA (A,L stab
     B->A[4][2] = B->b[2];
     B->A[4][3] = B->b[3];
     B->A[4][4] = B->b[4];
-    return B;
-  })
-
-ARK_BUTCHER_TABLE(ARKODE_ESDIRK436L2SA_6_3_4, { /* ESDIRK4(3)6L[2]SA (A,L stable) */
-    ARKodeButcherTable B = ARKodeButcherTable_Alloc(6, SUNTRUE);
-    B->q = 4;
-    B->p = 3;
-
-    B->c[1] = RCONST(0.5);
-    B->c[2] = (RCONST(2.0)-SUNRsqrt(RCONST(2.0)))/RCONST(4.0);
-    B->c[3] = RCONST(5.0)/RCONST(8.0);
-    B->c[4] = RCONST(26.0)/RCONST(25.0);
-    B->c[5] = RCONST(1.0);
-
-    B->b[0] = (RCONST(1181.0)-RCONST(987.0)*SUNRsqrt(RCONST(2.0)))/RCONST(13782.0);
-    B->b[1] = (RCONST(1181.0)-RCONST(987.0)*SUNRsqrt(RCONST(2.0)))/RCONST(13782.0);
-    B->b[2] = RCONST(47.0)*(-RCONST(267.0)+RCONST(1783.0)*SUNRsqrt(RCONST(2.0)))/RCONST(273343.0);
-    B->b[3] = -RCONST(16.0)*(-RCONST(22922.0)+RCONST(3525.0)*SUNRsqrt(RCONST(2.0)))/RCONST(571953.0);
-    B->b[4] = -RCONST(15625.0)*(RCONST(97.0)+RCONST(376.0)*SUNRsqrt(RCONST(2.0)))/RCONST(90749876.0);
-    B->b[5] = RCONST(1.0)/RCONST(4.0);
-
-    B->d[0] = -RCONST(480923228411.0)/RCONST(4982971448372.0);
-    B->d[1] = -RCONST(480923228411.0)/RCONST(4982971448372.0);
-    B->d[2] = RCONST(6709447293961.0)/RCONST(12833189095359.0);
-    B->d[3] = RCONST(3513175791894.0)/RCONST(6748737351361.0);
-    B->d[4] = -RCONST(498863281070.0)/RCONST(6042575550617.0);
-    B->d[5] = RCONST(2077005547802.0)/RCONST(8945017530137.0);
-
-    B->A[1][1] = RCONST(0.25);
-    B->A[2][1] = (RCONST(1.0)-SUNRsqrt(RCONST(2.0)))/RCONST(8.0);
-    B->A[2][2] = RCONST(0.25);
-    B->A[3][1] = (RCONST(5.0)-RCONST(7.0)*SUNRsqrt(RCONST(2.0)))/RCONST(64.0);
-    B->A[3][2] = RCONST(7.0)*(RCONST(1.0)+SUNRsqrt(RCONST(2.0)))/RCONST(32.0);
-    B->A[3][3] = RCONST(0.25);
-    B->A[4][1] = -(RCONST(13796.0)+RCONST(54539.0)*SUNRsqrt(RCONST(2.0)))/RCONST(125000.0);
-    B->A[4][2] = (RCONST(506605.0)+RCONST(132109.0)*SUNRsqrt(RCONST(2.0)))/RCONST(437500.0);
-    B->A[4][3] = RCONST(166.0)*(-RCONST(97.0)+RCONST(376.0)*SUNRsqrt(RCONST(2.0)))/RCONST(109375.0);
-    B->A[4][4] = RCONST(0.25);
-    B->A[5][0] = B->b[0];
-    B->A[5][1] = B->b[1];
-    B->A[5][2] = B->b[2];
-    B->A[5][3] = B->b[3];
-    B->A[5][4] = B->b[4];
-    B->A[5][5] = B->b[5];
-    B->A[1][0] = B->c[1] - B->A[1][1];
-    B->A[2][0] = B->c[2] - B->A[2][1] - B->A[2][2];
-    B->A[3][0] = B->c[3] - B->A[3][1] - B->A[3][2] - B->A[3][3];
-    B->A[4][0] = B->c[4] - B->A[4][1] - B->A[4][2] - B->A[4][3] - B->A[4][4];
     return B;
   })
 

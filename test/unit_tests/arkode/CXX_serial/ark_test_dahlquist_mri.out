@@ -248,7 +248,7 @@ MRIStep Statistics:
    Time        = 0.01
    y(t)        = 0.970446
    y_n         = 0.970446
-   Error       = -2.09771e-11
+   Error       = -2.0977e-11
    Steps       = 1
    Fe evals    = 7
    Fi evals    = 12
