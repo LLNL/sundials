@@ -314,35 +314,6 @@ int CVodeResizeHistory(void *cvode_mem, sunrealtype* t_hist, N_Vector* y_hist,
   N_VDestroy(cv_mem->cv_vtemp3);
   cv_mem->cv_vtemp3 = N_VClone(tmpl);
 
-  /* If there could be an order change in the next step resize and fill the
-     saved correction vector to use in the q+1 error estimate */
-  /* if (((cv_mem->cv_qwait == 1) && (cv_mem->cv_q != cv_mem->cv_qmax)) || */
-  /*     (cv_mem->cv_q != cv_mem->cv_qprime)) */
-  /* { */
-  /*   SUNLogger_QueueMsg(CV_LOGGER, SUN_LOGLEVEL_DEBUG, */
-  /*                      "CVODE::CVodeResizeHistory", "resize acor prev", */
-  /*                      "%s", "Resizing previous correction"); */
-  /*   // resize_vector(old vec, new vec, user_data) */
-  /*   retval = resize_fn(cv_mem->cv_zn[cv_mem->cv_qmax], cv_mem->cv_tempv, */
-  /*                      cv_mem->cv_user_data); */
-  /*   if (retval) */
-  /*   { */
-  /*     // >>>>> */
-  /*     // TODO(DJG): Change return value */
-  /*     // <<<<< */
-  /*     cvProcessError(cv_mem, CV_ILL_INPUT, "CVODE", "CVodeResizeHistory", */
-  /*                    "Resize function is NULL"); */
-  /*     return CV_ILL_INPUT; */
-  /*   } */
-  /* } */
-
-  /* For now always save */
-  if (cv_mem->cv_q < cv_mem->cv_qmax)
-  {
-    retval = resize_fn(cv_mem->cv_zn[cv_mem->cv_qmax], cv_mem->cv_vtemp3,
-                       cv_mem->cv_user_data);
-  }
-
   for (j = 0; j <= maxord; j++)
   {
     N_VDestroy(cv_mem->cv_zn[j]);
@@ -357,11 +328,60 @@ int CVodeResizeHistory(void *cvode_mem, sunrealtype* t_hist, N_Vector* y_hist,
     N_VConst(NAN, cv_mem->resize_wrk[j]);
   }
 
-  /* ------------------------------- *
-   * Construct Nordsieck Array (new) *
-   * ------------------------------- */
+  /* ------------------------------------------------------------------------ *
+   * Construct Nordsieck array at the old time but with the new size to
+   * compute correction vector at the new state size.
+   * ------------------------------------------------------------------------ */
 
-  /* temporarily store y'(t_n-1, y_n-1) in zn[1] */
+  if (cv_mem->cv_q < cv_mem->cv_qmax)
+  {
+    if (!f_hist)
+    {
+      retval = cv_mem->cv_f(t_hist[1], y_hist[1],
+                            cv_mem->cv_vtemp2, cv_mem->cv_user_data);
+      cv_mem->cv_nfe++;
+      if (retval)
+      {
+        cvProcessError(cv_mem, CV_RHSFUNC_FAIL, "CVODE", "CVode",
+                       MSGCV_RHSFUNC_FAILED, cv_mem->cv_tn);
+        return CV_RHSFUNC_FAIL;
+      }
+    }
+    else
+    {
+      N_VScale(ONE, f_hist[1], cv_mem->cv_vtemp2);
+    }
+
+    /* Compute interpolation coefficients */
+    retval = HermitePolyCoef(t_hist + 1, y_hist + 1, cv_mem->cv_vtemp2, cv_mem->cv_q,
+                             cv_mem->resize_wrk);
+    if (retval)
+    {
+      cvProcessError(cv_mem, CV_ILL_INPUT, "CVODE", "CVodeResizeHistory",
+                     "HermitePolyCoef failed");
+      return CV_ILL_INPUT;
+    }
+
+    /* Get predicted value */
+    retval = HermitePolyMultiDerEval(t_hist + 1, cv_mem->resize_wrk,
+                                     cv_mem->cv_q,
+                                     cv_mem->cv_tn, 0,
+                                     &(cv_mem->cv_vtemp2));
+    if (retval)
+    {
+      cvProcessError(cv_mem, CV_ILL_INPUT, "CVODE", "CVodeResizeHistory",
+                     "NewtonPolyMultiDerEval failed");
+      return CV_ILL_INPUT;
+    }
+
+    N_VLinearSum(ONE, y_hist[0], -ONE, cv_mem->cv_vtemp2, cv_mem->cv_vtemp2);
+    N_VScale(ONE, cv_mem->cv_vtemp2, cv_mem->cv_zn[cv_mem->cv_qmax]);
+  }
+
+  /* ----------------------------- *
+   * Construct new Nordsieck Array *
+   * ----------------------------- */
+
   if (!f_hist)
   {
     retval = cv_mem->cv_f(cv_mem->cv_tn, y_hist[0],
@@ -411,16 +431,6 @@ int CVodeResizeHistory(void *cvode_mem, sunrealtype* t_hist, N_Vector* y_hist,
   {
     scale *= cv_mem->cv_hscale / ((sunrealtype) i);
     N_VScale(scale, cv_mem->cv_zn[i], cv_mem->cv_zn[i]);
-  }
-
-  /* if (((cv_mem->cv_qwait == 1) && (cv_mem->cv_q != cv_mem->cv_qmax)) || */
-  /*     (cv_mem->cv_q != cv_mem->cv_qprime)) */
-  /* { */
-  /*   N_VScale(ONE, cv_mem->cv_tempv, cv_mem->cv_zn[cv_mem->cv_qmax]); */
-  /* } */
-  if (cv_mem->cv_q < cv_mem->cv_qmax)
-  {
-    N_VScale(ONE, cv_mem->cv_vtemp3, cv_mem->cv_zn[cv_mem->cv_qmax]);
   }
 
   if (debug_file)
