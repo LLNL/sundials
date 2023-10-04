@@ -210,6 +210,11 @@ int main(int argc, char* argv[])
     resize = atoi(argv[1]);
     udata.resize = resize;
   }
+  if (resize > 3)
+  {
+    std::cerr << "invalid resize value" << std::endl;
+    return 1;
+  }
 
   // power to use in polynomial
   if (argc > 2)

@@ -254,12 +254,18 @@ int CVodeResizeHistory(void *cvode_mem, sunrealtype* t_hist, N_Vector* y_hist,
 
   if (debug_file)
   {
+    fprintf(debug_file, "---------------\n");
     fprintf(debug_file, "Start Resize\n");
     fprintf(debug_file, "Input values\n");
     fprintf(debug_file, "n_hist         = %d\n", n_hist);
     for (ithist = 0; ithist < n_hist; ithist++)
     {
       fprintf(debug_file, "t_hist[%d]      = %g\n", ithist, t_hist[ithist]);
+    }
+    for (ithist = 0; ithist < n_hist; ithist++)
+    {
+      fprintf(debug_file, "y_hist[%d]\n", ithist);
+      N_VPrintFile(y_hist[ithist], debug_file);
     }
     fprintf(debug_file, "CVODE values\n");
     fprintf(debug_file, "tn             = %g\n", cv_mem->cv_tn);
@@ -270,7 +276,7 @@ int CVodeResizeHistory(void *cvode_mem, sunrealtype* t_hist, N_Vector* y_hist,
     fprintf(debug_file, "current order  = %d\n", cv_mem->cv_q);
     fprintf(debug_file, "next order     = %d\n", cv_mem->cv_qprime);
     fprintf(debug_file, "next order (?) = %d\n", cv_mem->cv_next_q);
-    for (ord = 0; ord < 6; ord++)
+    for (ord = 0; ord <= cv_mem->cv_qmax_alloc; ord++)
     {
       fprintf(debug_file, "zn[%d]\n", ord);
       N_VPrintFile(cv_mem->cv_zn[ord], debug_file);
@@ -421,11 +427,12 @@ int CVodeResizeHistory(void *cvode_mem, sunrealtype* t_hist, N_Vector* y_hist,
   {
     fprintf(debug_file, "Finish Resize\n");
     fprintf(debug_file, "tn = %g\n", cv_mem->cv_tn);
-    for (ord = 0; ord < 6; ord++)
+    for (ord = 0; ord <= cv_mem->cv_qmax_alloc; ord++)
     {
       fprintf(debug_file, "zn[%d]\n", ord);
       N_VPrintFile(cv_mem->cv_zn[ord], debug_file);
     }
+    fprintf(debug_file, "---------------\n");
   }
 
   if (cv_mem->cv_VabstolMallocDone)
