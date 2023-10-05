@@ -153,6 +153,14 @@ Fixed scaling bug in ``SUNMatScaleAddI_Sparse`` for non-square matrices.
 
 Fixed missing soversions in some ``SUNLinearSolver`` CMake targets.
 
+Changed the default fourth order DIRK method to `ARKODE_ARK436L2SA_DIRK_6_3_4`
+for improved accuracy and embedded stability. To revert to the previous default,
+use `ARKStepSetTableNum(arkode_mem, ARKODE_SDIRK_5_3_4, ARKODE_ERK_NONE)`.
+
+Added the ERK method `ARKODE_SOFRONIOU_SPALETTA_5_3_4` which is now the default
+fourth order ERK method. To revert to the previous default, use
+`ERKStepSetTableNum(arkode_mem, ARKODE_ZONNEVELD_5_3_4)`.
+
 Changes in v5.6.1
 -----------------
 
