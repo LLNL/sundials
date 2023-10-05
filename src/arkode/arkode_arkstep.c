@@ -713,6 +713,21 @@ void ARKStepFree(void **arkode_mem)
     }
     step_mem->nfusedopvecs = 0;
 
+    /* free work arrays for MRI forcing */
+    if (step_mem->stage_times)
+    {
+      free(step_mem->stage_times);
+      step_mem->stage_times = NULL;
+      ark_mem->lrw -= step_mem->stages;
+    }
+
+    if (step_mem->stage_coefs)
+    {
+      free(step_mem->stage_coefs);
+      step_mem->stage_coefs = NULL;
+      ark_mem->lrw -= step_mem->stages;
+    }
+
     /* free the time stepper module itself */
     free(ark_mem->step_mem);
     ark_mem->step_mem = NULL;
@@ -1208,6 +1223,27 @@ int arkStep_Init(void* arkode_mem, int init_type)
       ark_mem->liw += step_mem->nfusedopvecs;   /* pointers */
     }
 
+    /* Allocate workspace for MRI forcing -- need to allocate here as the
+       number of stages may not bet set before this point and we assume
+       SetInnerForcing has been called before the first step i.e., methods
+       start with a fast integration */
+    if (step_mem->expforcing || step_mem->impforcing)
+    {
+      if (!(step_mem->stage_times))
+      {
+        step_mem->stage_times = (realtype*) calloc(step_mem->stages,
+                                                   sizeof(realtype));
+        ark_mem->lrw += step_mem->stages;
+      }
+
+      if (!(step_mem->stage_coefs))
+      {
+        step_mem->stage_coefs = (realtype*) calloc(step_mem->stages,
+                                                   sizeof(realtype));
+        ark_mem->lrw += step_mem->stages;
+      }
+    }
+
     /* Limit max interpolant degree (negative input only overwrites the current
        interpolant degree if it is greater than abs(input). */
     if (ark_mem->interp != NULL)
@@ -1350,6 +1386,7 @@ int arkStep_FullRHS(void* arkode_mem, realtype t, N_Vector y, N_Vector f,
   booleantype recomputeRHS;
   realtype* cvals;
   N_Vector* Xvecs;
+  realtype stage_coefs = ONE;
 
   /* access ARKodeARKStepMem structure */
   retval = arkStep_AccessStepMem(arkode_mem, "arkStep_FullRHS",
@@ -1464,7 +1501,7 @@ int arkStep_FullRHS(void* arkode_mem, realtype t, N_Vector y, N_Vector f,
       cvals[0] = ONE;
       Xvecs[0] = f;
       nvec     = 1;
-      arkStep_ApplyForcing(step_mem, t, ONE, &nvec);
+      arkStep_ApplyForcing(step_mem, &t, &stage_coefs, 1, &nvec);
       N_VLinearCombination(nvec, cvals, Xvecs, f);
     }
 
@@ -1609,7 +1646,7 @@ int arkStep_FullRHS(void* arkode_mem, realtype t, N_Vector y, N_Vector f,
       cvals[0] = ONE;
       Xvecs[0] = f;
       nvec     = 1;
-      arkStep_ApplyForcing(step_mem, t, ONE, &nvec);
+      arkStep_ApplyForcing(step_mem, &t, &stage_coefs, 1, &nvec);
       N_VLinearCombination(nvec, cvals, Xvecs, f);
     }
 
@@ -1667,7 +1704,7 @@ int arkStep_FullRHS(void* arkode_mem, realtype t, N_Vector y, N_Vector f,
       cvals[0] = ONE;
       Xvecs[0] = f;
       nvec     = 1;
-      arkStep_ApplyForcing(step_mem, t, ONE, &nvec);
+      arkStep_ApplyForcing(step_mem, &t, &stage_coefs, 1, &nvec);
       N_VLinearCombination(nvec, cvals, Xvecs, f);
     }
 
@@ -2681,8 +2718,7 @@ int arkStep_StageSetup(ARKodeMem ark_mem, booleantype implicit)
 {
   /* local data */
   ARKodeARKStepMem step_mem;
-  int retval, i, j, k, jmax, nvec;
-  sunrealtype tj, tau, taui;
+  int retval, i, j, jmax, nvec;
   sunrealtype*  cj;
   sunrealtype** Aij;
   realtype* cvals;
@@ -2719,7 +2755,12 @@ int arkStep_StageSetup(ARKodeMem ark_mem, booleantype implicit)
     /* apply external polynomial forcing (updates nvec, cvals, Xvecs) */
     if (step_mem->impforcing) {
       nvec = 0;
-      arkStep_ApplyForcing(step_mem, ark_mem->tcur, step_mem->gamma, &nvec);
+
+      step_mem->stage_times[0] = ark_mem->tcur;
+      step_mem->stage_coefs[0] = step_mem->gamma;
+
+      arkStep_ApplyForcing(step_mem, step_mem->stage_times,
+                           step_mem->stage_coefs, 1, &nvec);
       retval = N_VLinearCombination(nvec, cvals, Xvecs, step_mem->sdata);
       if (retval != 0) return(ARK_VECTOROP_ERR);
     } else {
@@ -2778,30 +2819,14 @@ int arkStep_StageSetup(ARKodeMem ark_mem, booleantype implicit)
       cj   = step_mem->Bi->c;
     }
 
-    for (k = 0; k < step_mem->nforcing; k++)
-    {
-      cvals[nvec + k] = ZERO;
-    }
-
     for (j = 0; j < jmax; j++)
     {
-      tj   = ark_mem->tn + cj[j] * ark_mem->h;
-      tau  = (tj - step_mem->tshift) / (step_mem->tscale);
-      taui = ONE;
-
-      for (k = 0; k < step_mem->nforcing; k++)
-      {
-        cvals[nvec + k] += Aij[i][j] * taui;
-        taui *= tau;
-      }
+      step_mem->stage_times[j] = ark_mem->tn + cj[j] * ark_mem->h;
+      step_mem->stage_coefs[j] = ark_mem->h * Aij[i][j];
     }
 
-    for (k = 0; k < step_mem->nforcing; k++)
-    {
-      cvals[nvec + k] *= ark_mem->h;
-      Xvecs[nvec + k] = step_mem->forcing[k];
-    }
-    nvec += step_mem->nforcing;
+    arkStep_ApplyForcing(step_mem, step_mem->stage_times, step_mem->stage_coefs,
+                         jmax, &nvec);
   }
 
   /* call fused vector operation to do the work */
@@ -2830,9 +2855,8 @@ int arkStep_StageSetup(ARKodeMem ark_mem, booleantype implicit)
 int arkStep_ComputeSolutions(ARKodeMem ark_mem, realtype *dsmPtr)
 {
   /* local data */
-  int retval, j, k, nvec;
+  int retval, j, nvec;
   N_Vector y, yerr;
-  sunrealtype tj, tau, taui;
   sunrealtype* cj;
   sunrealtype* bj;
   sunrealtype* dj;
@@ -2891,31 +2915,14 @@ int arkStep_ComputeSolutions(ARKodeMem ark_mem, realtype *dsmPtr)
       bj = step_mem->Bi->b;
     }
 
-
-    for (k = 0; k < step_mem->nforcing; k++)
-    {
-      cvals[nvec + k] = ZERO;
-    }
-
     for (j = 0; j < step_mem->stages; j++)
     {
-      tj   = ark_mem->tn + cj[j] * ark_mem->h;
-      tau  = (tj - step_mem->tshift) / (step_mem->tscale);
-      taui = ONE;
-
-      for (k = 0; k < step_mem->nforcing; k++)
-      {
-        cvals[nvec + k] += bj[j] * taui;
-        taui *= tau;
-      }
+      step_mem->stage_times[j] = ark_mem->tn + cj[j] * ark_mem->h;
+      step_mem->stage_coefs[j] = ark_mem->h * bj[j];
     }
 
-    for (k = 0; k < step_mem->nforcing; k++)
-    {
-      cvals[nvec + k] *= ark_mem->h;
-      Xvecs[nvec + k] = step_mem->forcing[k];
-    }
-    nvec += step_mem->nforcing;
+    arkStep_ApplyForcing(step_mem, step_mem->stage_times, step_mem->stage_coefs,
+                         step_mem->stages, &nvec);
   }
 
   /*   call fused vector operation to do the work */
@@ -2956,30 +2963,14 @@ int arkStep_ComputeSolutions(ARKodeMem ark_mem, realtype *dsmPtr)
         dj = step_mem->Bi->d;
       }
 
-      for (k = 0; k < step_mem->nforcing; k++)
-      {
-        cvals[nvec + k] = ZERO;
-      }
-
       for (j = 0; j < step_mem->stages; j++)
       {
-        tj   = ark_mem->tn + cj[j] * ark_mem->h;
-        tau  = (tj - step_mem->tshift) / (step_mem->tscale);
-        taui = ONE;
-
-        for (k = 0; k < step_mem->nforcing; k++)
-        {
-          cvals[nvec + k] += (bj[j] - dj[j]) * taui;
-          taui *= tau;
-        }
+        step_mem->stage_times[j] = ark_mem->tn + cj[j] * ark_mem->h;
+        step_mem->stage_coefs[j] = ark_mem->h * (bj[j] - dj[j]);
       }
 
-      for (k = 0; k < step_mem->nforcing; k++)
-      {
-        cvals[nvec + k] *= ark_mem->h;
-        Xvecs[nvec + k] = step_mem->forcing[k];
-      }
-      nvec += step_mem->nforcing;
+      arkStep_ApplyForcing(step_mem, step_mem->stage_times,
+                           step_mem->stage_coefs, step_mem->stages, &nvec);
     }
 
     /* call fused vector operation to do the work */
@@ -3248,34 +3239,62 @@ int arkStep_MRIStepInnerReset(MRIStepInnerStepper stepper, realtype tR,
 /*------------------------------------------------------------------------------
   arkStep_ApplyForcing
 
-  Determines the linear combination coefficients and vectors to apply forcing
-  at a given value of the independent variable (t).  This occurs through
-  appending coefficients and N_Vector pointers to the underlying cvals and Xvecs
-  arrays in the step_mem structure.  The dereferenced input *nvec should indicate
-  the next available entry in the cvals/Xvecs arrays.  The input 's' is a
-  scaling factor that should be applied to each of these coefficients.
+  Determines the scaling values and vectors necessary for the MRI polynomial
+  forcing terms. This occurs through appending scaling values and N_Vector
+  pointers to the underlying cvals and Xvecs arrays in the step_mem structure.
+
+  stage_times -- The times at which to evaluate the forcing.
+
+  stage_coefs -- Scaling factors (method A, b, or b - d coefficients) applied to
+  forcing vectors.
+
+  jmax -- the number of values in stage_times and stage_coefs (the stage index
+  for explicit methods or the index + 1 for implicit methods).
+
+  nvec -- On input, nvec is the next available entry in the cvals/Xvecs arrays.
+  This value is incremented for each value/vector appended to the cvals/Xvecs
+  arrays so on return it is the total number of values/vectors in the linear
+  combination.
   ----------------------------------------------------------------------------*/
 
-void arkStep_ApplyForcing(ARKodeARKStepMem step_mem, realtype t,
-                          realtype s, int *nvec)
+void arkStep_ApplyForcing(ARKodeARKStepMem step_mem, realtype* stage_times,
+                          realtype* stage_coefs, int jmax, int* nvec)
 {
   realtype tau, taui;
-  int i;
+  int j, k;
 
-  /* always append the constant forcing term */
-  step_mem->cvals[*nvec] = s;
-  step_mem->Xvecs[*nvec] = step_mem->forcing[0];
-  (*nvec) += 1;
+  /* Shortcuts to step_mem data */
+  realtype* vals     = step_mem->cvals;
+  N_Vector* vecs     = step_mem->Xvecs;
+  realtype  tshift   = step_mem->tshift;
+  realtype  tscale   = step_mem->tscale;
+  int       nforcing = step_mem->nforcing;
+  N_Vector* forcing  = step_mem->forcing;
 
-  /* compute normalized time tau and initialize tau^i */
-  tau  = (t - step_mem->tshift) / (step_mem->tscale);
-  taui = tau;
-  for (i=1; i<step_mem->nforcing; i++) {
-    step_mem->cvals[*nvec] = s*taui;
-    step_mem->Xvecs[*nvec] = step_mem->forcing[i];
-    taui *= tau;
-    (*nvec) += 1;
+  /* Offset into vals and vecs arrays */
+  int offset = *nvec;
+
+  /* Initialize scaling values, set vectors */
+  for (k = 0; k < nforcing; k++)
+  {
+    vals[offset + k] = ZERO;
+    vecs[offset + k] = forcing[k];
   }
+
+  for (j = 0; j < jmax; j++)
+  {
+    tau  = (stage_times[j] - tshift) / tscale;
+    taui = ONE;
+
+    for (k = 0; k < nforcing; k++)
+    {
+      vals[offset + k] += stage_coefs[j] * taui;
+      taui *= tau;
+    }
+  }
+
+  /* Update vector count for linear combination */
+  *nvec += nforcing;
 }
 
 /*------------------------------------------------------------------------------
