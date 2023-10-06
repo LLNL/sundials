@@ -1265,7 +1265,7 @@ int mriStep_FullRHS(void* arkode_mem, realtype t, N_Vector y, N_Vector f,
   case ARK_FULLRHS_START:
 
     /* compute the full RHS */
-    if (!(ark_mem->fn_current))
+    if (!(ark_mem->fn_is_current))
     {
       /* compute the explicit component */
       if (step_mem->explicit_rhs)
@@ -1327,7 +1327,7 @@ int mriStep_FullRHS(void* arkode_mem, realtype t, N_Vector y, N_Vector f,
   case ARK_FULLRHS_END:
 
     /* compute the full RHS */
-    if (!(ark_mem->fn_current))
+    if (!(ark_mem->fn_is_current))
     {
       /* compute the explicit component */
       if (step_mem->explicit_rhs)
@@ -1509,7 +1509,7 @@ int mriStep_TakeStep(void* arkode_mem, realtype *dsmPtr, int *nflagPtr)
      for FSAL or SA methods and thus avoids potentially unnecessary evaluations
      of the inner (fast) RHS function */
 
-  if (!(ark_mem->fn_current))
+  if (!(ark_mem->fn_is_current))
   {
     /* compute the explicit component */
     if (step_mem->explicit_rhs)
@@ -1529,7 +1529,7 @@ int mriStep_TakeStep(void* arkode_mem, realtype *dsmPtr, int *nflagPtr)
       if (retval) { return ARK_RHSFUNC_FAIL; }
     }
 
-    ark_mem->fn_current = SUNTRUE;
+    ark_mem->fn_is_current = SUNTRUE;
   }
 
 #ifdef SUNDIALS_DEBUG

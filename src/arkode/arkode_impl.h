@@ -330,17 +330,17 @@ struct ARKodeMemRec
   void                       *step_mem;
 
   /* N_Vector storage */
-  N_Vector ewt;              /* error weight vector                           */
-  N_Vector rwt;              /* residual weight vector                        */
-  booleantype rwt_is_ewt;    /* SUNTRUE if rwt is a pointer to ewt            */
-  N_Vector ycur;             /* pointer to user-provided solution memory; used
-                                as evolving solution by the time stepper
-                                modules */
-  N_Vector yn;               /* solution from the last successful step        */
-  N_Vector fn;               /* full IVP right-hand side from last step       */
-  sunbooleantype fn_current; /* SUNTRUE if fn has been evaluated at yn        */
-  N_Vector tempv1;           /* temporary storage vectors (for local use and  */
-  N_Vector tempv2;           /* by time-stepping modules)                     */
+  N_Vector ewt;                 /* error weight vector                        */
+  N_Vector rwt;                 /* residual weight vector                     */
+  booleantype rwt_is_ewt;       /* SUNTRUE if rwt is a pointer to ewt         */
+  N_Vector ycur;                /* pointer to user-provided solution memory;
+                                   used as evolving solution by the time stepper
+                                   modules */
+  N_Vector yn;                  /* solution from the last successful step     */
+  N_Vector fn;                  /* full IVP right-hand side from last step    */
+  sunbooleantype fn_is_current; /* SUNTRUE if fn has been evaluated at yn     */
+  N_Vector tempv1;              /* temporary storage vectors (for local use   */
+  N_Vector tempv2;              /* and by time-stepping modules)              */
   N_Vector tempv3;
   N_Vector tempv4;
 

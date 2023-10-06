@@ -287,7 +287,7 @@ int arkResize(ARKodeMem ark_mem, N_Vector y0, realtype hscale,
 
   /* Copy y0 into ark_yn to set the current solution */
   N_VScale(ONE, y0, ark_mem->yn);
-  ark_mem->fn_current = SUNFALSE;
+  ark_mem->fn_is_current = SUNFALSE;
 
   /* Disable constraints */
   ark_mem->constraintsSet = SUNFALSE;
@@ -1332,7 +1332,7 @@ int arkInit(ARKodeMem ark_mem, realtype t0, N_Vector y0,
 
   /* Initialize yn */
   N_VScale(ONE, y0, ark_mem->yn);
-  ark_mem->fn_current = SUNFALSE;
+  ark_mem->fn_is_current = SUNFALSE;
 
   /* Clear any previous 'tstop' */
   ark_mem->tstopset = SUNFALSE;
@@ -2069,7 +2069,7 @@ int arkStopTests(ARKodeMem ark_mem, realtype tout, N_Vector yout,
       /* If the full RHS was not computed in the last call to arkCompleteStep
          and roots were found in the previous step, then compute the full rhs
          for possible use in arkRootCheck2 (not always necessary) */
-      if (!(ark_mem->fn_current) && irfndp != 0) {
+      if (!(ark_mem->fn_is_current) && irfndp != 0) {
         retval = ark_mem->step_fullrhs(ark_mem, ark_mem->tn, ark_mem->yn,
                                        ark_mem->fn, ARK_FULLRHS_END);
         if (retval != 0) {
@@ -2078,7 +2078,7 @@ int arkStopTests(ARKodeMem ark_mem, realtype tout, N_Vector yout,
           *ier = ARK_RHSFUNC_FAIL;
           return(1);
         }
-        ark_mem->fn_current = SUNTRUE;
+        ark_mem->fn_is_current = SUNTRUE;
       }
 
       retval = arkRootCheck2((void*) ark_mem);
@@ -2249,7 +2249,7 @@ int arkHin(ARKodeMem ark_mem, realtype tout)
   if (tdist < TWO*tround) return(ARK_TOO_CLOSE);
 
   /* call full RHS if needed */
-  if (!(ark_mem->fn_current))
+  if (!(ark_mem->fn_is_current))
   {
     /* NOTE: The step size (h) is used in setting the tolerance in a potential
        mass matrix solve when computing the full RHS. Before calling arkHin, h
@@ -2258,7 +2258,7 @@ int arkHin(ARKodeMem ark_mem, realtype tout)
     retval = ark_mem->step_fullrhs(ark_mem, ark_mem->tn, ark_mem->yn,
                                    ark_mem->fn, ARK_FULLRHS_START);
     if (retval) { return ARK_RHSFUNC_FAIL; }
-    ark_mem->fn_current = SUNTRUE;
+    ark_mem->fn_is_current = SUNTRUE;
   }
 
   /* Set lower and upper bounds on h0, and take geometric mean
@@ -2477,7 +2477,7 @@ int arkCompleteStep(ARKodeMem ark_mem, realtype dsm)
 
   /* update yn to current solution */
   N_VScale(ONE, ark_mem->ycur, ark_mem->yn);
-  ark_mem->fn_current = SUNFALSE;
+  ark_mem->fn_is_current = SUNFALSE;
 
   /* Update step size and error history arrays */
   ark_mem->hadapt_mem->ehist[1] = ark_mem->hadapt_mem->ehist[0];

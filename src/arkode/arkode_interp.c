@@ -415,12 +415,12 @@ int arkInterpUpdate_Hermite(void* arkode_mem, ARKInterp interp, realtype tnew)
 
   /* call full RHS if needed -- called just BEFORE the end of a step, so yn has
      NOT been updated to ycur yet */
-  if (!(ark_mem->fn_current))
+  if (!(ark_mem->fn_is_current))
   {
     retval = ark_mem->step_fullrhs(ark_mem, ark_mem->tn, ark_mem->yn,
                                    ark_mem->fn, ARK_FULLRHS_START);
     if (retval) { return ARK_RHSFUNC_FAIL; }
-    ark_mem->fn_current = SUNTRUE;
+    ark_mem->fn_is_current = SUNTRUE;
   }
 
   /* copy ynew and fnew into yold and fold, respectively */
@@ -505,12 +505,12 @@ int arkInterpEvaluate_Hermite(void* arkode_mem, ARKInterp interp,
 
   /* call full RHS if needed -- called just AFTER the end of a step, so yn has
      been updated to ycur */
-  if (!(ark_mem->fn_current))
+  if (!(ark_mem->fn_is_current))
   {
     retval = ark_mem->step_fullrhs(ark_mem, ark_mem->tn, ark_mem->yn,
                                    ark_mem->fn, ARK_FULLRHS_END);
     if (retval) { return ARK_RHSFUNC_FAIL; }
-    ark_mem->fn_current = SUNTRUE;
+    ark_mem->fn_is_current = SUNTRUE;
   }
 
   /* error on illegal d */

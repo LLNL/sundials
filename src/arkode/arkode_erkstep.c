@@ -648,7 +648,7 @@ int erkStep_FullRHS(void* arkode_mem, realtype t, N_Vector y, N_Vector f,
   case ARK_FULLRHS_START:
 
     /* compute the RHS */
-    if (!(ark_mem->fn_current))
+    if (!(ark_mem->fn_is_current))
     {
       retval = step_mem->f(t, y, step_mem->F[0], ark_mem->user_data);
       step_mem->nfe++;
@@ -668,7 +668,7 @@ int erkStep_FullRHS(void* arkode_mem, realtype t, N_Vector y, N_Vector f,
   case ARK_FULLRHS_END:
 
     /* determine if RHS function needs to be recomputed */
-    if (!(ark_mem->fn_current))
+    if (!(ark_mem->fn_is_current))
     {
       recomputeRHS = SUNFALSE;
       s = step_mem->B->stages;
@@ -795,13 +795,13 @@ int erkStep_TakeStep(void* arkode_mem, realtype *dsmPtr, int *nflagPtr)
      evaluation at the end of the just completed step to potentially reuse
      (FSAL methods) RHS evaluations from the end of the last step. */
 
-  if (!(ark_mem->fn_current))
+  if (!(ark_mem->fn_is_current))
   {
     mode = (ark_mem->initsetup) ? ARK_FULLRHS_START : ARK_FULLRHS_END;
     retval = ark_mem->step_fullrhs(ark_mem, ark_mem->tn, ark_mem->yn,
                                    ark_mem->fn, mode);
     if (retval) { return ARK_RHSFUNC_FAIL; }
-    ark_mem->fn_current = SUNTRUE;
+    ark_mem->fn_is_current = SUNTRUE;
   }
 
   /* Loop over internal stages to the step; since the method is explicit

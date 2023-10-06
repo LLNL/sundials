@@ -1410,7 +1410,7 @@ int arkStep_FullRHS(void* arkode_mem, realtype t, N_Vector y, N_Vector f,
   case ARK_FULLRHS_START:
 
     /* compute the full RHS */
-    if (!(ark_mem->fn_current))
+    if (!(ark_mem->fn_is_current))
     {
       /* compute the explicit component */
       if (step_mem->explicit)
@@ -1510,7 +1510,7 @@ int arkStep_FullRHS(void* arkode_mem, realtype t, N_Vector y, N_Vector f,
   case ARK_FULLRHS_END:
 
     /* compute the full RHS */
-    if (!(ark_mem->fn_current))
+    if (!(ark_mem->fn_is_current))
     {
       /* determine if RHS functions need to be recomputed */
       recomputeRHS = SUNFALSE;
@@ -1834,13 +1834,13 @@ int arkStep_TakeStep_Z(void* arkode_mem, realtype *dsmPtr, int *nflagPtr)
      end of the last step. */
 
   if ((!implicit_stage || (stiffly_accurate && ark_mem->interp_type == ARK_INTERP_HERMITE))
-      && !(ark_mem->fn_current))
+      && !(ark_mem->fn_is_current))
   {
     mode = (ark_mem->initsetup) ? ARK_FULLRHS_START : ARK_FULLRHS_END;
     retval = ark_mem->step_fullrhs(ark_mem, ark_mem->tn, ark_mem->yn,
                                    ark_mem->fn, mode);
     if (retval) { return ARK_RHSFUNC_FAIL; }
-    ark_mem->fn_current = SUNTRUE;
+    ark_mem->fn_is_current = SUNTRUE;
   }
 
 #if SUNDIALS_LOGGING_LEVEL >= SUNDIALS_LOGGING_INFO

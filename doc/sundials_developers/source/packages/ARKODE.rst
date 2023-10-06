@@ -27,11 +27,11 @@ ERKStep Full RHS
    // -----------------
 
    init    [label="Initialize integrator\lCopy t0, y0 to tn, yn\l"]
-   f0cur   [label="Set fn_current to False", style=filled, fillcolor=tomato1]
+   f0cur   [label="Set fn_is_current to False", style=filled, fillcolor=tomato1]
    h0      [label="Is h0 provided?", target="_top"]
    f0_q1   [label="Has f(tn, yn) been computed?"]
    eval1   [label="Evaluate f(tn, yn)\lStore in F[0]\lCopy F[0] to fn\l", style=filled, fillcolor=lightskyblue]
-   fcur1   [label="Set fn_current to True", style=filled, fillcolor=lightgreen]
+   fcur1   [label="Set fn_is_current to True", style=filled, fillcolor=lightgreen]
    h0_comp [label="Compute h0"]
    start   [label="Start Step"]
 
@@ -54,7 +54,7 @@ ERKStep Full RHS
    fsal     [label="Is the method FSAL?", style=filled, fillcolor=slateblue1]
    eval3    [label="Evaluate f(tn, yn)\lStore in F[0]\lCopy F[0] to fn\l", style=filled, fillcolor=slateblue1]
    copy1    [label="Copy F[s-1] to F[0]\lCopy F[0] to fn\l", style=filled, fillcolor=slateblue1]
-   fcur2    [label="Set fn_current to True", style=filled, fillcolor=lightgreen]
+   fcur2    [label="Set fn_is_current to True", style=filled, fillcolor=lightgreen]
    stages1  [label="Compute Stages"]
    complete [label="Complete Step"]
 
@@ -78,7 +78,7 @@ ERKStep Full RHS
    interp_type1  [label="Using Hermite interpolation?"]
    f0q3          [label="Has f(tn, yn) been computed?"]
    update_yn     [label="Copy tcur, ycur to tn, yn"]
-   fcur3         [label="Set fn_current to False", style=filled, fillcolor=tomato1]
+   fcur3         [label="Set fn_is_current to False", style=filled, fillcolor=tomato1]
 
    complete      -> interp_update
    interp_update -> update_yn     [taillabel="No", labeldistance=2, labelangle=45]
@@ -98,7 +98,7 @@ ERKStep Full RHS
    fsal1        [label="Is the method FSAL?", style=filled, fillcolor=slateblue1]
    eval4        [label="Evaluate f(tn, yn)\lStore in F[0]\lCopy F[0] to fn\l", style=filled, fillcolor=slateblue1]
    copy2        [label="Copy F[s-1] to F[0]\lCopy F[0] to fn\l", style=filled, fillcolor=slateblue1]
-   fcur4        [label="Set fn_current to True", style=filled, fillcolor=lightgreen]
+   fcur4        [label="Set fn_is_current to True", style=filled, fillcolor=lightgreen]
    interp_yout  [label="Compute yout"]
    step2        [label="Start Next Step"]
 
@@ -136,7 +136,7 @@ ARKStep Full RHS
    mass_c [label="Solve M(t) u = Fe[0], M(t) v = Fi[0]\lStore u, v in Fe[0], Fi[0]\lCopy Fe[0] + Fi[0] to f\l"]
    mass_d [label="Copy Fe[0] + Fi[0] to f\lSolve M x = f\lCopy x to f\l"]
    copy   [label="Copy Fe[0] + Fi[0] to f"]
-   return [label="Set fn_current to True", style=filled, fillcolor=lightgreen]
+   return [label="Set fn_is_current to True", style=filled, fillcolor=lightgreen]
 
    fcur   -> copy   [taillabel="Yes", labeldistance=2, labelangle=45]
    fcur   -> eval   [taillabel="No", labeldistance=2, labelangle=45]
@@ -172,7 +172,7 @@ ARKStep Full RHS
    mass_d2 [label="Copy Fe[0] + Fi[0] to fn\lSolve M x = fn\lCopy x to fn\l"]
    copy_1  [label="Copy Fe[0] + Fi[0] to fn"]
    copy_2  [label="Copy Fe[s-1], Fi[s-1] to Fe[0], Fi[0]\lCopy Fe[0] + Fi[0] to fn\l"]
-   return  [label="Set fn_current to True", style=filled, fillcolor=lightgreen]
+   return  [label="Set fn_is_current to True", style=filled, fillcolor=lightgreen]
 
    fcur         -> copy_1       [taillabel="Yes", labeldistance=2, labelangle=45]
    fcur         -> sa           [taillabel="No", labeldistance=2, labelangle=45]
@@ -204,7 +204,7 @@ ARKStep Full RHS
    // -----------------
 
    init    [label="Initialize integrator\lCopy t0, y0 to tn, yn\l"]
-   f0cur   [label="Set fn_current to False", style=filled, fillcolor=tomato1]
+   f0cur   [label="Set fn_is_current to False", style=filled, fillcolor=tomato1]
    h0      [label="Is h0 provided?"]
    f0_q    [label="Has f(tn, yn) been computed?"]
    rhs_1   [label="Call Full RHS Start", style=filled, fillcolor=lightskyblue]
@@ -251,7 +251,7 @@ ARKStep Full RHS
    f0q3          [label="Has f(tn, yn) been computed?"]
    rhs3          [label="Call Full RHS Start", style=filled, fillcolor=lightskyblue]
    update_yn     [label="Copy tcur, ycur to tn, yn"]
-   fcur1         [label="Set fn_current to False", style=filled, fillcolor=tomato1]
+   fcur1         [label="Set fn_is_current to False", style=filled, fillcolor=tomato1]
 
    complete      -> interp_update
    interp_update -> update_yn     [taillabel="No", labeldistance=2, labelangle=45]
