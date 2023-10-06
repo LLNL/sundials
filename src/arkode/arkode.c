@@ -1930,8 +1930,9 @@ int arkInitialSetup(ARKodeMem ark_mem, realtype tout)
     if (retval != 0)  return(retval);
   }
 
-  /* Call fullrhs (used in estimating initial step, explicit steppers, Hermite
-     interpolation module, and possibly (but not always) arkRootCheck1) */
+  /* If fullrhs will be called (to estimate initial step, explicit steppers, Hermite
+     interpolation module, and possibly (but not always) arkRootCheck1), then
+     ensure that it is provided, and space is allocated for fn. */
   if (ark_mem->call_fullrhs || (ark_mem->h0u == ZERO && ark_mem->hin == ZERO)
       || ark_mem->root_mem)
   {
@@ -2467,7 +2468,7 @@ int arkCompleteStep(ARKodeMem ark_mem, realtype dsm)
 
   /* update interpolation structure
 
-     NOTE: This must be called before updating yn towith ycur as the interpolation
+     NOTE: This must be called before updating yn with ycur as the interpolation
      module may need to save tn, yn from the start of this step */
   if (ark_mem->interp != NULL) {
     retval = arkInterpUpdate(ark_mem, ark_mem->interp, ark_mem->tcur);
