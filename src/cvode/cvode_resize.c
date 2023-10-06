@@ -267,6 +267,11 @@ int CVodeResizeHistory(void *cvode_mem, sunrealtype* t_hist, N_Vector* y_hist,
       fprintf(debug_file, "y_hist[%d]\n", ithist);
       N_VPrintFile(y_hist[ithist], debug_file);
     }
+    for (ithist = 0; ithist < n_hist; ithist++)
+    {
+      fprintf(debug_file, "f_hist[%d]\n", ithist);
+      N_VPrintFile(f_hist[ithist], debug_file);
+    }
     fprintf(debug_file, "CVODE values\n");
     fprintf(debug_file, "tn             = %g\n", cv_mem->cv_tn);
     fprintf(debug_file, "current h      = %g\n", cv_mem->cv_h);
