@@ -15,7 +15,7 @@
 # Script to update example output files for failed tests
 #
 # Example usage:
-#   $ ./updateOutFiles.py sundials/build sundials/examples
+#   $ ./updateOutFiles.py ../build ../.
 # -----------------------------------------------------------------------------
 
 # -----------------------------------------------------------------------------
@@ -29,7 +29,7 @@ def main():
     parser = argparse.ArgumentParser(description='Update output files')
 
     parser.add_argument('source', type=str,
-                        help='Full path of build directory to files read from')
+                        help='Full path of build directory to read files from')
     parser.add_argument('destination', type=str,
                         help='Full path of sundials location to write files to')
     parser.add_argument('--all','-a', action='store_true',
