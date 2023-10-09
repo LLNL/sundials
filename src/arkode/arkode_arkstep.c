@@ -19,6 +19,7 @@
 #include <stdlib.h>
 #include <string.h>
 
+#include "arkode/arkode_butcher.h"
 #include "arkode_impl.h"
 #include "arkode_arkstep_impl.h"
 #include "arkode_interp_impl.h"
@@ -1517,25 +1518,17 @@ int arkStep_FullRHS(void* arkode_mem, realtype t, N_Vector y, N_Vector f,
 
       if (step_mem->explicit)
       {
-        s = step_mem->Be->stages;
-        for (i = 0; i < s; i++)
+        if (!ARKodeButcherTable_IsStifflyAccurate(step_mem->Be))
         {
-          if (SUNRabs(step_mem->Be->b[i] - step_mem->Be->A[s-1][i]) > TINY)
-          {
-            recomputeRHS = SUNTRUE;
-          }
+          recomputeRHS = SUNTRUE;
         }
       }
 
       if (step_mem->implicit)
       {
-        s = step_mem->Bi->stages;
-        for (i = 0; i < s; i++)
+        if (!ARKodeButcherTable_IsStifflyAccurate(step_mem->Bi))
         {
-          if (SUNRabs(step_mem->Bi->b[i] - step_mem->Bi->A[s-1][i]) > TINY)
-          {
-            recomputeRHS = SUNTRUE;
-          }
+          recomputeRHS = SUNTRUE;
         }
       }
 
@@ -1752,8 +1745,8 @@ int arkStep_TakeStep_Z(void* arkode_mem, realtype *dsmPtr, int *nflagPtr)
   int retval, is, is_start, mode;
   booleantype implicit_stage;
   booleantype deduce_stage;
-  booleantype save_stages = SUNFALSE;
-  booleantype stiffly_accurate = SUNTRUE;
+  booleantype save_stages;
+  booleantype stiffly_accurate;
   ARKodeMem ark_mem;
   ARKodeARKStepMem step_mem;
   N_Vector zcor0;
@@ -1778,6 +1771,7 @@ int arkStep_TakeStep_Z(void* arkode_mem, realtype *dsmPtr, int *nflagPtr)
     }
 
   /* check if we need to store stage values */
+  save_stages = SUNFALSE;
   if (ark_mem->relax_enabled && (step_mem->implicit ||
                                  step_mem->mass_type == MASS_FIXED))
   {
@@ -1803,25 +1797,20 @@ int arkStep_TakeStep_Z(void* arkode_mem, realtype *dsmPtr, int *nflagPtr)
   }
 
   /* check if the method is Stiffly Accurate (SA) */
+  stiffly_accurate = SUNTRUE;
   if (step_mem->explicit)
   {
-    for (is = 0; is < step_mem->stages; is++)
+    if (!ARKodeButcherTable_IsStifflyAccurate(step_mem->Be))
     {
-      if (SUNRabs(step_mem->Be->b[is] - step_mem->Be->A[step_mem->stages - 1][is]) > TINY)
-      {
-        stiffly_accurate = SUNFALSE;
-      }
+      stiffly_accurate = SUNFALSE;
     }
   }
 
   if (step_mem->implicit)
   {
-    for (is = 0; is < step_mem->stages; is++)
+    if (!ARKodeButcherTable_IsStifflyAccurate(step_mem->Bi))
     {
-      if (SUNRabs(step_mem->Bi->b[is] - step_mem->Bi->A[step_mem->stages - 1][is]) > TINY)
-      {
-        stiffly_accurate = SUNFALSE;
-      }
+      stiffly_accurate = SUNFALSE;
     }
   }
 

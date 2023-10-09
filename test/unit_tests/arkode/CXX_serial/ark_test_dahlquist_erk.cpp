@@ -25,6 +25,7 @@
 
 #include <arkode/arkode_erkstep.h>
 #include <nvector/nvector_serial.h>
+#include "arkode/arkode_butcher.h"
 
 #if defined(SUNDIALS_EXTENDED_PRECISION)
 #define GSYM "Lg"
@@ -404,14 +405,7 @@ int get_method_properties(ARKodeButcherTable Be, int& stages, int& order,
   if (std::abs(Be->A[0][0]) > ZERO) { explicit_first_stage = false; }
 
   // Check for stiffly accurate method
-  stiffly_accurate = true;
-  for (int i = 0; i < stages; i++)
-  {
-    if (std::abs(Be->b[i] - Be->A[stages - 1][i]) > ZERO)
-    {
-      stiffly_accurate = false;
-    }
-  }
+  stiffly_accurate = ARKodeButcherTable_IsStifflyAccurate(Be);
 
   // Check for first same as last (FSAL) property
   fsal = explicit_first_stage && stiffly_accurate;

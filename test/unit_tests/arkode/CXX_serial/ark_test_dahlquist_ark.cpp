@@ -29,6 +29,7 @@
 #include <nvector/nvector_serial.h>
 #include <sunlinsol/sunlinsol_dense.h>
 #include <sunmatrix/sunmatrix_dense.h>
+#include "arkode/arkode_butcher.h"
 
 #if defined(SUNDIALS_EXTENDED_PRECISION)
 #define GSYM "Lg"
@@ -705,22 +706,16 @@ int get_method_properties(ARKodeButcherTable Be, ARKodeButcherTable Bi,
   stiffly_accurate = true;
   if (Bi)
   {
-    for (int i = 0; i < stages; i++)
+    if (!ARKodeButcherTable_IsStifflyAccurate(Bi))
     {
-      if (std::abs(Bi->b[i] - Bi->A[stages - 1][i]) > ZERO)
-      {
-        stiffly_accurate = false;
-      }
+      stiffly_accurate = false;
     }
   }
   if (Be)
   {
-    for (int i = 0; i < stages; i++)
+    if (!ARKodeButcherTable_IsStifflyAccurate(Be))
     {
-      if (std::abs(Be->b[i] - Be->A[stages - 1][i]) > ZERO)
-      {
-        stiffly_accurate = false;
-      }
+      stiffly_accurate = false;
     }
   }
 

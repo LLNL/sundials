@@ -19,6 +19,7 @@
 #include <stdlib.h>
 #include <string.h>
 
+#include "arkode/arkode_butcher.h"
 #include "arkode_impl.h"
 #include "arkode_erkstep_impl.h"
 #include "arkode_interp_impl.h"
@@ -670,15 +671,7 @@ int erkStep_FullRHS(void* arkode_mem, realtype t, N_Vector y, N_Vector f,
     /* determine if RHS function needs to be recomputed */
     if (!(ark_mem->fn_is_current))
     {
-      recomputeRHS = SUNFALSE;
-      s = step_mem->B->stages;
-      for (i = 0; i < s; i++)
-      {
-        if (SUNRabs(step_mem->B->b[i] - step_mem->B->A[s-1][i]) > TINY)
-        {
-          recomputeRHS = SUNTRUE;
-        }
-      }
+      recomputeRHS = !ARKodeButcherTable_IsStifflyAccurate(step_mem->B);
 
       /* First Same As Last methods are not FSAL when relaxation is enabled */
       if (ark_mem->relax_enabled) { recomputeRHS = SUNTRUE; }
