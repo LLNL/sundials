@@ -1174,6 +1174,7 @@ int arkGetLastKFlag(void *arkode_mem, int *last_kflag);
 #define MSG_ARK_NULL_SUNCTX "sunctx = NULL illegal."
 #define MSG_ARK_CONTEXT_MISMATCH "Outer and inner steppers have different contexts."
 #define MSG_ARK_MISSING_FULLRHS "Time-stepping module missing fullrhs routine (required by requested solver configuration)."
+#define MSG_ARK_INTERPOLATION_FAIL "At " MSG_TIME ", interpolating the solution failed."
 
 #ifdef __cplusplus
 }

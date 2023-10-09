@@ -981,7 +981,14 @@ int arkEvolve(ARKodeMem ark_mem, realtype tout, N_Vector yout,
             SUNRabs(tout - ark_mem->tstop) <= troundoff)
         {
           if (ark_mem->tstopinterp) {
-            (void) arkGetDky(ark_mem, ark_mem->tstop, 0, yout);
+            retval = arkGetDky(ark_mem, ark_mem->tstop, 0, yout);
+            if (retval != ARK_SUCCESS)
+            {
+              arkProcessError(ark_mem, retval, "ARKODE", "arkEvolve",
+                              MSG_ARK_INTERPOLATION_FAIL, ark_mem->tstop);
+              istate = retval;
+              break;
+            }
           } else {
             N_VScale(ONE, ark_mem->yn, yout);
           }
@@ -1002,11 +1009,19 @@ int arkEvolve(ARKodeMem ark_mem, realtype tout, N_Vector yout,
 
     /* In NORMAL mode, check if tout reached */
     if ( (itask == ARK_NORMAL) &&
-         (ark_mem->tcur-tout)*ark_mem->h >= ZERO ) {
-      istate = ARK_SUCCESS;
+         (ark_mem->tcur-tout)*ark_mem->h >= ZERO )
+    {
+      retval = arkGetDky(ark_mem, tout, 0, yout);
+      if (retval != ARK_SUCCESS)
+      {
+        arkProcessError(ark_mem, retval, "ARKODE", "arkEvolve",
+                        MSG_ARK_INTERPOLATION_FAIL, tout);
+        istate = retval;
+        break;
+      }
       ark_mem->tretlast = *tret = tout;
-      (void) arkGetDky(ark_mem, tout, 0, yout);
       ark_mem->next_h = ark_mem->hprime;
+      istate = ARK_SUCCESS;
       break;
     }
 
