@@ -633,7 +633,7 @@ int erkStep_Init(void* arkode_mem, int init_type)
 int erkStep_FullRHS(void* arkode_mem, realtype t, N_Vector y, N_Vector f,
                     int mode)
 {
-  int i, s, retval;
+  int retval;
   ARKodeMem ark_mem;
   ARKodeERKStepMem step_mem;
   booleantype recomputeRHS;

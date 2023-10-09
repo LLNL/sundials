@@ -1383,7 +1383,7 @@ int arkStep_FullRHS(void* arkode_mem, realtype t, N_Vector y, N_Vector f,
 {
   ARKodeMem ark_mem;
   ARKodeARKStepMem step_mem;
-  int i, s, nvec, retval;
+  int nvec, retval;
   booleantype recomputeRHS;
   realtype* cvals;
   N_Vector* Xvecs;
