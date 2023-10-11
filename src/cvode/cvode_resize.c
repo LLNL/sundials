@@ -262,12 +262,12 @@ int CVodeResizeHistory(void *cvode_mem, sunrealtype* t_hist, N_Vector* y_hist,
     {
       fprintf(debug_file, "t_hist[%d]      = %g\n", ithist, t_hist[ithist]);
     }
-    for (ithist = 0; ithist < n_hist; ithist++)
+    for (ithist = 0; ithist < n_hist; ithist++) /* n_hist is for BDF */
     {
       fprintf(debug_file, "y_hist[%d]\n", ithist);
       N_VPrintFile(y_hist[ithist], debug_file);
     }
-    for (ithist = 0; ithist < n_hist; ithist++)
+    for (ithist = 0; ithist < 2; ithist++) /* 2 is for BDF */
     {
       fprintf(debug_file, "f_hist[%d]\n", ithist);
       N_VPrintFile(f_hist[ithist], debug_file);
