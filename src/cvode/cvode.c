@@ -2510,7 +2510,13 @@ static void cvAdjustAdams(CVodeMem cv_mem, int deltaq)
 
   /* On an order increase, set new column of zn to zero and return */
 
-  if (deltaq==1) {
+  if (deltaq == 1)
+  {
+    if (cv_mem->first_step_after_resize)
+    {
+      cv_mem->first_step_after_resize = SUNFALSE;
+      return;
+    }
     N_VConst(ZERO, cv_mem->cv_zn[cv_mem->cv_L]);
     return;
   }

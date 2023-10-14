@@ -43,7 +43,6 @@ struct UserData
 {
   int power = 3;
   int steps = 0;
-  int resize = 0;
 };
 
 // ODE RHS function
@@ -71,9 +70,10 @@ int y_true(sunrealtype t, N_Vector y, int power)
   return 0;
 }
 
-// Update saved time and state history
+// Update saved history
 int save_history(sunrealtype t_n, N_Vector y_n, sunrealtype* t_hist,
-                 N_Vector* y_hist, int hist_size, int step)
+                 N_Vector* y_hist, N_Vector* f_hist, int hist_size, int step,
+                 UserData udata)
 {
   // Shuffle over old values
   int i_start = hist_size - 2;
@@ -88,14 +88,18 @@ int save_history(sunrealtype t_n, N_Vector y_n, sunrealtype* t_hist,
   for (int i = i_start; i >= 0; i--)
   {
     N_VScale(ONE, y_hist[i], y_hist[i + 1]);
+    N_VScale(ONE, f_hist[i], f_hist[i + 1]);
   }
   N_VScale(ONE, y_n, y_hist[0]);
+  int retval = ode_rhs(t_n, y_n, f_hist[0], &udata);
+  if (retval) { return 1; }
 
   return 0;
 }
 
-// Resize saved state history
-int resize_history(N_Vector* y_hist, int hist_size, SUNContext sunctx)
+// Resize saved history
+int resize_history(sunrealtype* t_hist, N_Vector* y_hist, N_Vector* f_hist,
+                   int hist_size, SUNContext sunctx, UserData udata)
 {
   // Resize and fill all history vectors
   int new_size = N_VGetLength(y_hist[0]) + 2 * NVAR * CPLX;
@@ -114,59 +118,12 @@ int resize_history(N_Vector* y_hist, int hist_size, SUNContext sunctx)
     y_hist[i] = new_vec;
   }
 
-  return 0;
-}
-
-int resize_vec(N_Vector v_in, N_Vector v_out, void* user_data)
-{
-  sunrealtype* v_in_data  = N_VGetArrayPointer(v_in);
-  sunrealtype* v_out_data = N_VGetArrayPointer(v_out);
-
-  int resize = (static_cast<UserData*>(user_data))->resize;
-
-  // Copy value
-  if (resize == 1 || resize == 2)
+  for (int i = 0; i < hist_size; i++)
   {
-    for (int i = 0; i < N_VGetLength(v_out); i++)
-    {
-      v_out_data[i] = v_in_data[0];
-    }
-  }
-  else if (resize == 3)
-  {
-    int steps = (static_cast<UserData*>(user_data))->steps;
-    int old_idx = 0;
-    int new_idx = 0;
-
-    // Copy above diagonal values
-    for (int i = 0; i < steps * NVAR * CPLX; i++, new_idx++, old_idx++)
-    {
-      v_out_data[new_idx] = v_in_data[old_idx];
-    }
-
-    // Insert new value above diagonal
-    for (int i = 0; i < NVAR * CPLX; i++, new_idx++)
-    {
-      v_out_data[new_idx] = ZERO;
-    }
-
-    // Copy diagonal
-    for (int i = 0; i < NVAR * CPLX; i++, new_idx++, old_idx++)
-    {
-      v_out_data[new_idx] = v_in_data[old_idx];
-    }
-
-    // Insert new value below diagonal
-    for (int i = 0; i < NVAR * CPLX; i++, new_idx++)
-    {
-      v_out_data[new_idx] = ZERO;
-    }
-
-    // Copy below diagonal values
-    for (int i = 0; i < steps * NVAR * CPLX; i++, new_idx++, old_idx++)
-    {
-      v_out_data[new_idx] = v_in_data[old_idx];
-    }
+    N_VDestroy(f_hist[i]);
+    f_hist[i] = N_VClone(y_hist[i]);
+    int retval = ode_rhs(t_hist[i], y_hist[i], f_hist[i], &udata);
+    if (retval) { return 1; }
   }
 
   return 0;
@@ -202,15 +159,13 @@ int main(int argc, char* argv[])
 
   // resize = 0 -- do not resize
   // resize = 1 -- call resize but with the same problem size
-  // resize = 2 -- grow the problem each time step, copy vec resize
-  // resize = 3 -- grow the problem each time step, zero vec resize
+  // resize = 2 -- grow the problem each time step
   int resize = 0;
   if (argc > 1)
   {
     resize = atoi(argv[1]);
-    udata.resize = resize;
   }
-  if (resize > 3)
+  if (resize > 2)
   {
     std::cerr << "invalid resize value" << std::endl;
     return 1;
@@ -222,25 +177,20 @@ int main(int argc, char* argv[])
     udata.power = atoi(argv[2]);
   }
 
-  // 0 is only valid with resize 0 or 1
-  // reuse_fn = 0 -- evaluate RHS
-  // reuse_fn = 1 -- copy old z[1]
-  int reuse_fn = 0;
-  if (argc > 3)
-  {
-    reuse_fn = atoi(argv[3]);
-    if (resize > 1 && reuse_fn != 0)
-    {
-      std::cerr << "reuse_fn not compatible with resize" << std::endl;
-    }
-  }
-
   // Switch between BDF and ADAMS
   int method = CV_BDF;
-  if (argc > 4)
+  if (argc > 3)
   {
-    if (atoi(argv[4]) == 1) { method = CV_ADAMS; }
-    else if (atoi(argv[4]) == 2) { method = CV_BDF; }
+    if (atoi(argv[3]) == 1)
+    {
+      std::cout << "CVODE ADAMS" << std::endl;
+      method = CV_ADAMS;
+    }
+    else if (atoi(argv[3]) == 2)
+    {
+      std::cout << "CVODE BDF" << std::endl;
+      method = CV_BDF;
+    }
     else
     {
       std::cerr << "Invalid method option" << std::endl;
@@ -250,9 +200,9 @@ int main(int argc, char* argv[])
 
   // Number of steps to take
   int max_steps = 20;
-  if (argc > 5)
+  if (argc > 4)
   {
-    max_steps = atoi(argv[5]);
+    max_steps = atoi(argv[4]);
   }
 
   if (resize == 0)
@@ -275,7 +225,7 @@ int main(int argc, char* argv[])
   if (check_flag(flag, "y_true")) { return 1; }
 
   // Create CVODE memory structure
-  void* cvode_mem = CVodeCreate(CV_BDF, sunctx);
+  void* cvode_mem = CVodeCreate(method, sunctx);
   if (check_ptr(cvode_mem, "CVodeCreate")) { return 1; }
 
   flag = CVodeInit(cvode_mem, ode_rhs, ZERO, y);
@@ -327,6 +277,9 @@ int main(int argc, char* argv[])
 
   N_Vector* y_hist = N_VCloneVectorArray(hist_size, y);
   if (check_ptr(y_hist, "N_VCloneVectorArray") != 0) { return 1; }
+
+  N_Vector* f_hist = N_VCloneVectorArray(hist_size, y);
+  if (check_ptr(f_hist, "N_VCloneVectorArray") != 0) { return 1; }
 
   sunrealtype* t_hist = new sunrealtype[hist_size];
   for (int i = 0; i < hist_size; i++) { t_hist[i] = ZERO; }
@@ -392,33 +345,25 @@ int main(int argc, char* argv[])
     if (resize == 1)
     {
       // Save history but do not update problem size
-      flag = save_history(t_ret, y, t_hist, y_hist, hist_size, i);
+      flag = save_history(t_ret, y, t_hist, y_hist, f_hist, hist_size, i, udata);
 
       int n_hist = (i < hist_size) ? i + 1 : hist_size;
 
-      if (reuse_fn)
-      {
-        N_VScale(ONE / cv_mem->cv_hscale, cv_mem->cv_zn[1], tmp);
-        flag = CVodeResizeHistory(cvode_mem, t_hist, y_hist, &tmp, n_hist,
-                                  resize_vec, debug_file);
-      }
-      else
-      {
-        flag = CVodeResizeHistory(cvode_mem, t_hist, y_hist, nullptr, n_hist,
-                                  resize_vec, debug_file);
-      }
+      N_VScale(ONE / cv_mem->cv_hscale, cv_mem->cv_zn[1], tmp);
+      flag = CVodeResizeHistory(cvode_mem, t_hist, y_hist, f_hist, n_hist,
+                                debug_file);
       if (check_flag(flag, "CVodeResizeHistory")) { return 1; }
     }
-    else if (resize == 2 || resize == 3)
+    else if (resize == 2)
     {
       // Save history and update problem size
-      flag = save_history(t_ret, y, t_hist, y_hist, hist_size, i);
+      flag = save_history(t_ret, y, t_hist, y_hist, f_hist, hist_size, i, udata);
 
-      flag = resize_history(y_hist, hist_size, sunctx);
+      flag = resize_history(t_hist, y_hist, f_hist, hist_size, sunctx, udata);
 
       int n_hist = (i < hist_size) ? i + 1 : hist_size;
-      flag = CVodeResizeHistory(cvode_mem, t_hist, y_hist, nullptr, n_hist,
-                                resize_vec, debug_file);
+      flag = CVodeResizeHistory(cvode_mem, t_hist, y_hist, f_hist, n_hist,
+                                debug_file);
       if (check_flag(flag, "CVodeResizeHistory")) { return 1; }
 
       // "Resize" vectors and nonlinear solver
@@ -449,6 +394,7 @@ int main(int argc, char* argv[])
   // Clean up and return with successful completion
   N_VDestroy(y);
   N_VDestroyVectorArray(y_hist, hist_size);
+  N_VDestroyVectorArray(f_hist, hist_size);
   SUNNonlinSolFree(NLS);
   CVodeFree(&cvode_mem);
   delete [] t_hist;

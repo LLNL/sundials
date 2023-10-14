@@ -119,8 +119,7 @@ SUNDIALS_EXPORT int CVodeInit(void *cvode_mem, CVRhsFn f, realtype t0,
 SUNDIALS_EXPORT int CVodeReInit(void *cvode_mem, realtype t0, N_Vector y0);
 SUNDIALS_EXPORT int CVodeResizeHistory(void *cvode_mem, sunrealtype* times,
                                        N_Vector* y_hist, N_Vector* f_hist,
-                                       int n_hist, CVResizeVecFn resize_fn,
-                                       FILE* debug_file);
+                                       int n_hist, FILE* debug_file);
 
 /* Tolerance input functions */
 SUNDIALS_EXPORT int CVodeSStolerances(void *cvode_mem, realtype reltol,

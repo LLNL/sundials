@@ -82,27 +82,6 @@ int resize_history(N_Vector* y_hist, int hist_size, int step, SUNContext sunctx)
   return 0;
 }
 
-int resize_vec(N_Vector v_in, N_Vector v_out, void* user_data)
-{
-  sunrealtype* v_in_data  = N_VGetArrayPointer(v_in);
-  sunrealtype* v_out_data = N_VGetArrayPointer(v_out);
-
-  sunindextype N_in = N_VGetLocalLength(v_in);
-  sunindextype N_out = N_VGetLocalLength(v_out);
-
-  for (int i = 0; i < N_in; i++)
-  {
-    v_out_data[i] = v_in_data[i];
-  }
-
-  if (N_out > N_in)
-  {
-    v_out_data[N_in] = v_in_data[N_in - 1];
-  }
-
-  return 0;
-}
-
 // Print CVODE Nordsieck History Array
 int PrintNordsieck(CVodeMem cv_mem)
 {
@@ -318,12 +297,12 @@ int main(int argc, char* argv[])
       {
         N_VScale(ONE / cv_mem->cv_hscale, cv_mem->cv_zn[1], tmp);
         flag = CVodeResizeHistory(cvode_mem, t_hist, y_hist, &tmp, n_hist,
-                                  resize_vec, debug_file);
+                                  debug_file);
       }
       else
       {
         flag = CVodeResizeHistory(cvode_mem, t_hist, y_hist, nullptr, n_hist,
-                                  resize_vec, debug_file);
+                                  debug_file);
       }
       if (check_flag(flag, "CVodeResizeHistory")) { return 1; }
     }
@@ -336,7 +315,7 @@ int main(int argc, char* argv[])
 
       int n_hist = (i < hist_size) ? i + 1 : hist_size;
       flag = CVodeResizeHistory(cvode_mem, t_hist, y_hist, nullptr, n_hist,
-                                resize_vec, debug_file);
+                                debug_file);
       if (check_flag(flag, "CVodeResizeHistory")) { return 1; }
 
       // "Resize" vectors and nonlinear solver

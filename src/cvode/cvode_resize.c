@@ -19,202 +19,207 @@
 #include <stdarg.h>
 #include <string.h>
 
+#include "cvode/cvode.h"
 #include "cvode_impl.h"
 #include <sundials/sundials_types.h>
 
 #define ZERO    RCONST(0.0)     /* real 0.0     */
 #define ONE     RCONST(1.0)     /* real 1.0     */
 
-/*
- * Compute Hermite interpolating polynomial coefficients
- *
- * Inputs:
- *   t  -- array (length M) of time values t_i
- *   y  -- array (length M) of state vectors y_i
- *   yp -- derivative of y_0 = f(t_0, y_0)
- *   M  -- number of interpolation times
- *
- * Outputs:
- *   c -- array (length M + 1) of coefficient vectors c_i
- */
-int HermitePolyCoef(sunrealtype* t, N_Vector* y, N_Vector f, int n_times,
-                    N_Vector* coeff)
+/* -----------------------------------------------------------------------------
+ * Build Adams Nordsieck array from f(t,y) history
+ * ---------------------------------------------------------------------------*/
+
+int BuildNordsieckArrayAdams(sunrealtype* t, N_Vector y, N_Vector* f,
+                             N_Vector* wrk, int order, sunrealtype hscale,
+                             N_Vector* zn)
 {
-  int i, j;
-  int n_coeff = n_times + 1; /* n_times state values + 1 derivative */
-  sunrealtype* t_ext = NULL;
-
   /* Check for valid inputs */
-  if (!t || !y || !f || n_times < 1 || !coeff) { return CV_ILL_INPUT; }
+  if (!t || !y || !f || !wrk || order < 1 || !zn)
+  {
+    return CV_ILL_INPUT;
+  }
 
-  /* Check for valid solution vectors */
-  for (i = 0; i < n_times; i++)
+  for (int i = 0; i < order; i++)
+  {
+    if (!f[i]) { return CV_ILL_INPUT; }
+    if (!wrk[i]) { return CV_ILL_INPUT; }
+  }
+
+  /* Compute Nordsieck array */
+  if (order > 1)
+  {
+    /* Compute Newton polynomial coefficients interpolating f history */
+    for (int i = 0; i < order; i++)
+    {
+      N_VScale(ONE, f[i], wrk[i]);
+    }
+
+    for (int i = 1; i < order; i++)
+    {
+      for (int j = order - 1; j >= i; j--)
+      {
+        /* Divided difference */
+        sunrealtype delta_t = ONE / (t[j - i] - t[j]);
+        N_VLinearSum(delta_t, wrk[j - 1], -delta_t, wrk[j], wrk[j]);
+      }
+    }
+
+    /* Compute derivatives of Newton polynomial of f history */
+    N_VScale(ONE, wrk[order - 1], zn[1]);
+    for (int i = 2; i <= order; i++)
+    {
+      N_VConst(ZERO, zn[i]);
+    }
+
+    for (int i = order - 2; i >= 0; i--)
+    {
+      for (int j = order - 1; j > 0; j--)
+      {
+        N_VLinearSum(t[0] - t[i], zn[j + 1], j, zn[j], zn[j + 1]);
+      }
+      N_VLinearSum(t[0] - t[i], zn[1], ONE, wrk[i], zn[1]);
+    }
+  }
+
+  /* Overwrite first two columns with input values */
+  N_VScale(ONE, y, zn[0]);
+  N_VScale(ONE, f[0], zn[1]);
+
+  /* Scale entries */
+  sunrealtype scale = ONE;
+  for (int i = 1; i <= order; i++)
+  {
+    scale *= hscale / ((sunrealtype) i);
+    N_VScale(scale, zn[i], zn[i]);
+  }
+
+  return CV_SUCCESS;
+}
+
+/* -----------------------------------------------------------------------------
+ * Function to build BDF Nordsieck array
+ * ---------------------------------------------------------------------------*/
+
+int BuildNordsieckArrayBDF(sunrealtype* t, N_Vector* y, N_Vector f,
+                           N_Vector* wrk, int order, sunrealtype hscale,
+                           N_Vector* zn)
+{
+  /* Check for valid inputs */
+  if (!t || !y || !f || !wrk || order < 1 || !zn)
+  {
+    return CV_ILL_INPUT;
+  }
+
+  for (int i = 0; i < order; i++)
   {
     if (!y[i]) { return CV_ILL_INPUT; }
   }
 
-  /* Check for valid coefficient vector */
-  for (i = 0; i < n_coeff; i++)
+  for (int i = 0; i < order + 1; i++)
   {
-    if (!coeff[i]) { return CV_ILL_INPUT; }
+    if (!wrk[i]) { return CV_ILL_INPUT; }
   }
 
-  /* Setup extended array of times to incorporate derivative value */
-  t_ext = (sunrealtype*) malloc(sizeof(sunrealtype) * (n_coeff));
-
-  t_ext[0] = t[0];
-  t_ext[1] = t[0];
-
-  for (i = 1; i < n_times; i++)
+  if (order > 1)
   {
-    t_ext[i + 1] = t[i];
-  }
+    /* Setup extended array of times to incorporate derivative value */
+    sunrealtype t_ext[6];
 
-  /* Initialize coefficient arrays with values to interpolate */
-  N_VScale(ONE, y[0], coeff[0]);
-  N_VScale(ONE, y[0], coeff[1]);
-
-  for (i = 1; i < n_times; i++)
-  {
-    N_VScale(ONE, y[i], coeff[i + 1]);
-  }
-
-  /* Compute coefficients from bottom up to write in place */
-  for (i = 1; i < n_coeff; i++)
-  {
-    for (j = n_coeff - 1; j > i - 1; j--)
+    t_ext[0] = t[0];
+    for (int i = 1; i <= order; i++)
     {
-      /* Replace with actual derivative value */
-      if (i == 1 && j == 1)
+      t_ext[i] = t[i - 1];
+    }
+
+    /* Compute Hermite polynomial coefficients interpolating y history and f */
+    N_VScale(ONE, y[0], wrk[0]);
+    for (int i = 1; i <= order; i++)
+    {
+      N_VScale(ONE, y[i - 1], wrk[i]);
+    }
+
+    for (int i = 1; i <= order; i++)
+    {
+      for (int j = order; j > i - 1; j--)
       {
-        N_VScale(ONE, f, coeff[j]);
+        if (i == 1 && j == 1)
+        {
+          /* Replace with actual derivative value */
+          N_VScale(ONE, f, wrk[j]);
+        }
+        else
+        {
+          /* Divided difference */
+          sunrealtype delta_t = ONE / (t_ext[j - i] - t_ext[j]);
+          N_VLinearSum(delta_t, wrk[j - 1], -delta_t, wrk[j], wrk[j]);
+        }
       }
-      else
+    }
+
+    /* Compute derivatives of Hermite polynomial */
+    N_VScale(ONE, wrk[order], zn[0]);
+    for (int i = 1; i <= order; i++)
+    {
+      N_VConst(ZERO, zn[i]);
+    }
+
+    for (int i = order - 1; i >= 0; i--)
+    {
+      for (int j = order; j > 0; j--)
       {
-        sunrealtype denom = ONE / (t_ext[j - i] - t_ext[j]);
-        N_VLinearSum(denom, coeff[j - 1], -denom, coeff[j], coeff[j]);
+        N_VLinearSum(t_ext[0] - t_ext[i], zn[j], j, zn[j - 1], zn[j]);
       }
+      N_VLinearSum(t_ext[0] - t_ext[i], zn[0], ONE, wrk[i], zn[0]);
     }
   }
 
-  free(t_ext);
-  t_ext = NULL;
+  /* Overwrite first two columns with input values */
+  N_VScale(ONE, y[0], zn[0]);
+  N_VScale(ONE, f, zn[1]);
+
+  /* Scale entries */
+  sunrealtype scale = ONE;
+  for (int i = 1; i <= order; i++)
+  {
+    scale *= hscale / ((sunrealtype) i);
+    N_VScale(scale, zn[i], zn[i]);
+  }
 
   return CV_SUCCESS;
 }
 
-/*
- * Evaluate the interpolating polynomial and its derivatives up to order d at a
- * given time
- *
- * Inputs:
- *
- * t -- array (length M) of interpolated time values, t_i
- * c -- array (length M + 1) of polynomial coefficient vectors (length N), c_i
- * s -- time at which to evaluate the polynomial, s
- *
- * Output:
- *
- * p -- array (length d + 1) of values p[0] = p(s), p[1] = p'[s], etc.
- *
- * Example:
- *
- * Consider the M = 3 case, we have the interpolation times t0, t1, t2 and
- * the coefficients c0, c1, c2, c3. The Hermite interpolating polynomial is
- *
- * p(s) = c0 + c1 (s - t0) + c2 (s - t0)(s - t0) + c3 (s - t0)(s - t0)(s - t1)
- *
- * This can be rewritten as
- *
- * p(s) = a0 + (s - t0) [ a1 + (s - t1) [ a2 + (s - t2) a3 ] ]
- *
- * We can then write this recursively as P{k} = P{k + 1} (s - t{k}) + a{k} for
- * k = M-1,...,0 where P{M - 1} = c{M - 1} and P0 = p
- *
- * Using this recursive definition we can also compute derivatives of the
- * polynomial as P^(d){k} = P^(d){k + 1} (t - t{k}) + d P^(d - 1){k + 1} where
- * P^(d){M - 1} = 0 for d > 0 and p^(d) = P^(d)0. For example, the first three
- * derivatives are given by
- *
- * P'{k}   = P'{k + 1}   (t - t{k}) +   P{k + 1}
- * P''{k}  = P''{k + 1}  (t - t{k}) + 2 P'{k + 1}
- * P'''{k} = P'''{k + 1} (t - t{k}) + 3 P''{k + 1}
- */
+/* -----------------------------------------------------------------------------
+ * Function to compute predicted new state (simplified cvPredict)
+ * ---------------------------------------------------------------------------*/
 
-int HermitePolyMultiDerEval(sunrealtype* t, N_Vector* coeff, int n_times,
-                            sunrealtype s, int derv, N_Vector* p)
+int PredictY(int order, N_Vector* zn, N_Vector ypred)
 {
-  int i, j;
-  int n_coeff = n_times + 1; /* n_times state values + 1 derivative */
-  sunrealtype* t_ext = NULL;
-
-  /* Check for valid inputs */
-  if (!t || !coeff || n_times < 1 || derv < 0 || !p) { return CV_ILL_INPUT; }
-
-  for (i = 0; i < n_coeff; i++)
+  N_VScale(ONE, zn[0], ypred);
+  for (int j = 1; j <= order; j++)
   {
-    if (!coeff[i]) return CV_ILL_INPUT;
+    N_VLinearSum(ONE, zn[j], ONE, ypred, ypred);
   }
-
-  for (i = 0; i < derv + 1; i++)
-  {
-    if (!p[i]) { return CV_ILL_INPUT; }
-  }
-
-  t_ext = (sunrealtype*) malloc(sizeof(sunrealtype) * (n_coeff));
-
-  t_ext[0] = t[0];
-  t_ext[1] = t[0];
-
-  for (i = 1; i < n_times; i++)
-  {
-    t_ext[i + 1] = t[i];
-  }
-
-  /* Initialize interpolation output to P_{n_times-1} = c_{n_times-1} and derivative output
-     to zero */
-  N_VScale(ONE, coeff[n_coeff - 1], p[0]);
-  for (i = 1; i < derv + 1; i++)
-  {
-    N_VConst(ZERO, p[i]);
-  }
-
-  /* Accumulate polynomial terms in-place i.e., P_{i+1} is stored in p[0] and
-     overwritten each iteration by P_{i} and similarly for P', P'', etc. */
-  for (i = n_coeff - 2; i >= 0; i--)
-  {
-    for (j = derv; j > 0; j--)
-    {
-      /* P^(j)_i = P_{j + 1} * (s - t_i) + j * P^(j - 1)_i */
-      N_VLinearSum(s - t_ext[i], p[j], j, p[j-1], p[j]);
-    }
-    /* P_i = P_{i + 1} * (s - t_i) + c_i */
-    N_VLinearSum(s - t_ext[i], p[0], ONE, coeff[i], p[0]);
-  }
-
-  free(t_ext);
-  t_ext = NULL;
 
   return CV_SUCCESS;
 }
 
-
-/*
+/* -----------------------------------------------------------------------------
+ * Function to resize CVODE and initialize with new history
+ *
  * t_hist = [ t_{n}, t_{n - 1}, ..., t_{n - n_hist - 1} ]
  * y_hist = [ y_{n}, y_{n - 1}, ..., y_{n - n_hist - 1} ]
  * f_hist = [ f_{n}, f_{n - 1}, ..., f_{n - n_hist - 1} ]
- */
+ * ---------------------------------------------------------------------------*/
 
 int CVodeResizeHistory(void *cvode_mem, sunrealtype* t_hist, N_Vector* y_hist,
-                       N_Vector* f_hist, int n_hist, CVResizeVecFn resize_fn,
-                       FILE* debug_file)
+                       N_Vector* f_hist, int n_hist, FILE* debug_file)
 {
   CVodeMem cv_mem = NULL;
   int retval = 0;
-  int i, j, ithist, ord;
+  int j, ithist, ord;
   N_Vector tmpl;
   int maxord;
-  sunrealtype scale;
 
   if (!cvode_mem)
   {
@@ -238,17 +243,17 @@ int CVodeResizeHistory(void *cvode_mem, sunrealtype* t_hist, N_Vector* y_hist,
     return CV_ILL_INPUT;
   }
 
+  if (!f_hist)
+  {
+    cvProcessError(cv_mem, CV_ILL_INPUT, "CVODE", "CVodeResizeHistory",
+                   "RHS history array is NULL");
+    return CV_ILL_INPUT;
+  }
+
   if (n_hist < 1)
   {
     cvProcessError(cv_mem, CV_ILL_INPUT, "CVODE", "CVodeResizeHistory",
                    "Invalid history size value");
-    return CV_ILL_INPUT;
-  }
-
-  if (!resize_fn)
-  {
-    cvProcessError(cv_mem, CV_ILL_INPUT, "CVODE", "CVodeResizeHistory",
-                   "Resize function is NULL");
     return CV_ILL_INPUT;
   }
 
@@ -340,38 +345,30 @@ int CVodeResizeHistory(void *cvode_mem, sunrealtype* t_hist, N_Vector* y_hist,
 
   if (cv_mem->cv_q < cv_mem->cv_qmax)
   {
-    if (!f_hist)
+    /* Compute z_{n-1} with new history size */
+    if (cv_mem->cv_lmm == CV_ADAMS)
     {
-      retval = cv_mem->cv_f(t_hist[1], y_hist[1],
-                            cv_mem->cv_vtemp2, cv_mem->cv_user_data);
-      cv_mem->cv_nfe++;
-      if (retval)
-      {
-        cvProcessError(cv_mem, CV_RHSFUNC_FAIL, "CVODE", "CVode",
-                       MSGCV_RHSFUNC_FAILED, cv_mem->cv_tn);
-        return CV_RHSFUNC_FAIL;
-      }
+      retval = BuildNordsieckArrayAdams(t_hist + 1, y_hist[1], f_hist + 1,
+                                        cv_mem->resize_wrk, cv_mem->cv_q,
+                                        cv_mem->cv_hscale, cv_mem->cv_zn);
     }
     else
     {
-      N_VScale(ONE, f_hist[1], cv_mem->cv_vtemp2);
+      retval = BuildNordsieckArrayBDF(t_hist + 1, y_hist + 1, f_hist[1],
+                                      cv_mem->resize_wrk, cv_mem->cv_q,
+                                      cv_mem->cv_hscale, cv_mem->cv_zn);
     }
 
-    /* Compute interpolation coefficients */
-    retval = HermitePolyCoef(t_hist + 1, y_hist + 1, cv_mem->cv_vtemp2, cv_mem->cv_q,
-                             cv_mem->resize_wrk);
     if (retval)
     {
       cvProcessError(cv_mem, CV_ILL_INPUT, "CVODE", "CVodeResizeHistory",
-                     "HermitePolyCoef failed");
+                     "BuildNordsieckArray failed");
       return CV_ILL_INPUT;
     }
 
     /* Get predicted value */
-    retval = HermitePolyMultiDerEval(t_hist + 1, cv_mem->resize_wrk,
-                                     cv_mem->cv_q,
-                                     cv_mem->cv_tn, 0,
-                                     &(cv_mem->cv_vtemp2));
+    retval = PredictY(cv_mem->cv_q, cv_mem->cv_zn, cv_mem->cv_vtemp1);
+
     if (retval)
     {
       cvProcessError(cv_mem, CV_ILL_INPUT, "CVODE", "CVodeResizeHistory",
@@ -379,63 +376,32 @@ int CVodeResizeHistory(void *cvode_mem, sunrealtype* t_hist, N_Vector* y_hist,
       return CV_ILL_INPUT;
     }
 
-    N_VLinearSum(ONE, y_hist[0], -ONE, cv_mem->cv_vtemp2, cv_mem->cv_vtemp2);
-    N_VScale(ONE, cv_mem->cv_vtemp2, cv_mem->cv_zn[cv_mem->cv_qmax]);
+    N_VLinearSum(ONE, y_hist[0], -ONE, cv_mem->cv_vtemp1,
+                 cv_mem->cv_zn[cv_mem->cv_qmax]);
   }
 
   /* ----------------------------- *
    * Construct new Nordsieck Array *
    * ----------------------------- */
 
-  if (!f_hist)
+  if (cv_mem->cv_lmm == CV_ADAMS)
   {
-    retval = cv_mem->cv_f(cv_mem->cv_tn, y_hist[0],
-                          cv_mem->cv_vtemp2, cv_mem->cv_user_data);
-    cv_mem->cv_nfe++;
-    if (retval)
-    {
-      cvProcessError(cv_mem, CV_RHSFUNC_FAIL, "CVODE", "CVode",
-                     MSGCV_RHSFUNC_FAILED, cv_mem->cv_tn);
-      return CV_RHSFUNC_FAIL;
-    }
+    retval = BuildNordsieckArrayAdams(t_hist, y_hist[0], f_hist,
+                                      cv_mem->resize_wrk, cv_mem->cv_qprime,
+                                      cv_mem->cv_hscale, cv_mem->cv_zn);
   }
   else
   {
-    N_VScale(ONE, f_hist[0], cv_mem->cv_vtemp2);
+    retval = BuildNordsieckArrayBDF(t_hist, y_hist, f_hist[0],
+                                    cv_mem->resize_wrk, cv_mem->cv_qprime,
+                                    cv_mem->cv_hscale, cv_mem->cv_zn);
   }
 
-  /* Compute interpolation coefficients */
-  /* >>> TODO(DJG): use q' for BDF and q for ADAMS <<< */
-  retval = HermitePolyCoef(t_hist, y_hist, cv_mem->cv_vtemp2, cv_mem->cv_qprime,
-                           cv_mem->resize_wrk);
   if (retval)
   {
     cvProcessError(cv_mem, CV_ILL_INPUT, "CVODE", "CVodeResizeHistory",
-                   "HermitePolyCoef failed");
+                   "BuildNordsieckArray failed");
     return CV_ILL_INPUT;
-  }
-
-  /*  >>> TODO(DJG): use q' for BDF and q for ADAMS <<< */
-  retval = HermitePolyMultiDerEval(t_hist, cv_mem->resize_wrk,
-                                   cv_mem->cv_qprime,
-                                   cv_mem->cv_tn, cv_mem->cv_qprime,
-                                   cv_mem->cv_zn);
-  if (retval)
-  {
-    cvProcessError(cv_mem, CV_ILL_INPUT, "CVODE", "CVodeResizeHistory",
-                   "NewtonPolyMultiDerEval failed");
-    return CV_ILL_INPUT;
-  }
-
-  N_VScale(ONE, y_hist[0], cv_mem->cv_zn[0]);
-  N_VScale(ONE, cv_mem->cv_vtemp2, cv_mem->cv_zn[1]);
-
-  /* >>> TODO(DJG): use q' for BDF and q for ADAMS <<< */
-  scale = ONE;
-  for (i = 1; i < cv_mem->cv_qprime + 1; i++)
-  {
-    scale *= cv_mem->cv_hscale / ((sunrealtype) i);
-    N_VScale(scale, cv_mem->cv_zn[i], cv_mem->cv_zn[i]);
   }
 
   if (debug_file)
