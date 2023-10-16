@@ -12,8 +12,6 @@
    SUNDIALS Copyright End
    ----------------------------------------------------------------
 
-.. include:: ../../../shared/sunadaptcontroller/SUNAdaptController_Description.rst
-
 .. toctree::
    :maxdepth: 1
 

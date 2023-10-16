@@ -12,8 +12,6 @@
    SUNDIALS Copyright End
    ----------------------------------------------------------------
 
-.. include:: ../../../shared/suntimestepheuristics/SUNTimestepHeuristics_Description.rst
-
 .. toctree::
    :maxdepth: 1
 

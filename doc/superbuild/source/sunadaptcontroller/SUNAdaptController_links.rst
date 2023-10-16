@@ -10,6 +10,7 @@
    SUNDIALS Copyright End
    ----------------------------------------------------------------
 
+.. include:: ../../../shared/sunadaptcontroller/SUNAdaptController_Description.rst
 .. include:: ../../../shared/sunadaptcontroller/SUNAdaptController_PID.rst
 .. include:: ../../../shared/sunadaptcontroller/SUNAdaptController_PI.rst
 .. include:: ../../../shared/sunadaptcontroller/SUNAdaptController_I.rst
