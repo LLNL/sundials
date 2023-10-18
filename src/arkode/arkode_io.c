@@ -32,6 +32,7 @@
 #include <sunadaptcontroller/sunadaptcontroller_expgus.h>
 #include <sunadaptcontroller/sunadaptcontroller_impgus.h>
 #include <sunadaptcontroller/sunadaptcontroller_imexgus.h>
+#include <sunadaptcontroller/sunadaptcontroller_noop.h>
 
 
 /*===============================================================
@@ -671,25 +672,32 @@ int arkSetFixedStep(void *arkode_mem, realtype hfixed)
   ark_mem->hadapt_mem->hcontroller = NULL;
 
   /* If re-enabling time adaptivity, create default PID controller
-     and attach object to ARKODE */
+     and attach object to ARKODE.
+     Otherwise, create No-op controller and attach to ARKODE. */
   SUNAdaptController C = NULL;
   if (hfixed == ZERO)
   {
     C = SUNAdaptController_PID(ark_mem->sunctx);
     if (C == NULL) {
       arkProcessError(ark_mem, ARK_MEM_FAIL, "ARKODE", "arkSetFixedStep",
-                      "SUNAdaptControllerPID allocation failure");
+                      "SUNAdaptController_PID allocation failure");
       return(ARK_MEM_FAIL);
     }
-
-    retval = SUNAdaptController_Space(C, &lenrw, &leniw);
-    if (retval == SUNADAPTCONTROLLER_SUCCESS) {
-      ark_mem->liw += leniw;
-      ark_mem->lrw += lenrw;
+  } else {
+    C = SUNAdaptController_NoOp(ark_mem->sunctx);
+    if (C == NULL) {
+      arkProcessError(ark_mem, ARK_MEM_FAIL, "ARKODE", "arkSetFixedStep",
+                      "SUNAdaptController_NoOp allocation failure");
+      return(ARK_MEM_FAIL);
     }
-    ark_mem->hadapt_mem->hcontroller = C;
-    ark_mem->hadapt_mem->owncontroller = SUNTRUE;
   }
+  retval = SUNAdaptController_Space(C, &lenrw, &leniw);
+  if (retval == SUNADAPTCONTROLLER_SUCCESS) {
+    ark_mem->liw += leniw;
+    ark_mem->lrw += lenrw;
+  }
+  ark_mem->hadapt_mem->hcontroller = C;
+  ark_mem->hadapt_mem->owncontroller = SUNTRUE;
 
   /* re-attach internal error weight functions if necessary */
   if ((hfixed == ZERO) && (!ark_mem->user_efun)) {
