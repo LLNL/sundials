@@ -902,13 +902,6 @@ int arkEvolve(ARKodeMem ark_mem, realtype tout, N_Vector yout,
         if (kflag < 0)  break;
       }
 
-      /* if we've made it here then no nonrecoverable failures occurred; someone above
-         has recommended an 'eta' value for the next step -- enforce bounds on that value
-         and set upcoming step size */
-      ark_mem->eta = SUNMIN(ark_mem->eta, ark_mem->hadapt_mem->etamax);
-      ark_mem->eta = SUNMAX(ark_mem->eta, ark_mem->hmin / SUNRabs(ark_mem->h));
-      ark_mem->eta /= SUNMAX(ONE, SUNRabs(ark_mem->h) * ark_mem->hmax_inv*ark_mem->eta);
-
       /* if ignoring temporal error test result (XBraid) force step to pass */
       if (ark_mem->force_pass) {
         ark_mem->last_kflag = kflag;
@@ -3073,6 +3066,13 @@ int arkCheckTemporalError(ARKodeMem ark_mem, int *nflagPtr, int *nefPtr, realtyp
   retval = arkAdapt((void*) ark_mem, hadapt_mem, ark_mem->ycur, ttmp,
                     ark_mem->h, dsm, nsttmp);
   if (retval != ARK_SUCCESS)  return(ARK_ERR_FAILURE);
+
+  /* if we've made it here then no nonrecoverable failures occurred; someone above
+     has recommended an 'eta' value for the next step -- enforce bounds on that value
+     and set upcoming step size */
+  ark_mem->eta = SUNMIN(ark_mem->eta, ark_mem->hadapt_mem->etamax);
+  ark_mem->eta = SUNMAX(ark_mem->eta, ark_mem->hmin / SUNRabs(ark_mem->h));
+  ark_mem->eta /= SUNMAX(ONE, SUNRabs(ark_mem->h) * ark_mem->hmax_inv*ark_mem->eta);
 
   /* If est. local error norm dsm passes test, return ARK_SUCCESS */
   if (dsm <= ONE) return(ARK_SUCCESS);
