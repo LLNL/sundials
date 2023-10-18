@@ -3088,9 +3088,14 @@ int arkCheckTemporalError(ARKodeMem ark_mem, int *nflagPtr, int *nefPtr, realtyp
   /* Set etamax=1 to prevent step size increase at end of this step */
   hadapt_mem->etamax = ONE;
 
-  /* Enforce failure bounds on eta, update h, and return for retry of step */
+  /* Enforce failure bounds on eta */
   if (*nefPtr >= hadapt_mem->small_nef)
     ark_mem->eta = SUNMIN(ark_mem->eta, hadapt_mem->etamxf);
+
+  /* Enforce min/max step bounds once again due to adjustments above */
+  ark_mem->eta = SUNMIN(ark_mem->eta, ark_mem->hadapt_mem->etamax);
+  ark_mem->eta = SUNMAX(ark_mem->eta, ark_mem->hmin / SUNRabs(ark_mem->h));
+  ark_mem->eta /= SUNMAX(ONE, SUNRabs(ark_mem->h) * ark_mem->hmax_inv*ark_mem->eta);
 
   return(TRY_AGAIN);
 }
