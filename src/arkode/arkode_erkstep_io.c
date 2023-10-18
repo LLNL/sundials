@@ -90,11 +90,6 @@ int ERKStepSetMinReduction(void *arkode_mem, realtype eta_min) {
   return(arkSetMinReduction(arkode_mem, eta_min)); }
 int ERKStepSetFixedStepBounds(void *arkode_mem, realtype lb, realtype ub) {
   return(arkSetFixedStepBounds(arkode_mem, lb, ub)); }
-int ERKStepSetAdaptivityMethod(void *arkode_mem, int imethod, int idefault,
-                               int pq, realtype adapt_params[3]) {
-  return(arkSetAdaptivityMethod(arkode_mem, imethod, idefault, pq, adapt_params)); }
-int ERKStepSetAdaptivityFn(void *arkode_mem, ARKAdaptFn hfun, void *h_data) {
-  return(arkSetAdaptivityFn(arkode_mem, hfun, h_data)); }
 int ERKStepSetMaxFirstGrowth(void *arkode_mem, realtype etamx1) {
   return(arkSetMaxFirstGrowth(arkode_mem, etamx1)); }
 int ERKStepSetMaxEFailGrowth(void *arkode_mem, realtype etamxf) {
@@ -107,6 +102,8 @@ int ERKStepSetMaxErrTestFails(void *arkode_mem, int maxnef) {
   return(arkSetMaxErrTestFails(arkode_mem, maxnef)); }
 int ERKStepSetFixedStep(void *arkode_mem, realtype hfixed) {
   return(arkSetFixedStep(arkode_mem, hfixed)); }
+int ERKStepSetAdaptController(void *arkode_mem, SUNAdaptController C) {
+  return(arkSetAdaptController(arkode_mem, C)); }
 
 
 /*===============================================================
@@ -234,6 +231,27 @@ int ERKStepGetNumRelaxSolveIters(void* arkode_mem, long int* iters)
   return arkRelaxGetNumRelaxSolveIters(arkode_mem, iters);
 }
 
+
+/*===============================================================
+  DEPRECATED ERKStep optional input/output functions
+  ===============================================================*/
+
+/*---------------------------------------------------------------
+  ERKStepSetAdaptivityMethod: user should create/attach a
+  specific SUNAdaptController object.
+  ---------------------------------------------------------------*/
+int ERKStepSetAdaptivityMethod(void *arkode_mem, int imethod, int idefault,
+                               int pq, realtype adapt_params[3]) {
+  return(arkSetAdaptivityMethod(arkode_mem, imethod, idefault, pq, adapt_params)); }
+
+/*---------------------------------------------------------------
+  ERKStepSetAdaptivityFn: user should create/attach a custom
+  SUNAdaptController object.
+  ---------------------------------------------------------------*/
+int ERKStepSetAdaptivityFn(void *arkode_mem, ARKAdaptFn hfun, void *h_data) {
+  return(arkSetAdaptivityFn(arkode_mem, hfun, h_data)); }
+
+
 /*===============================================================
   ERKStep optional input functions -- stepper-specific
   ===============================================================*/
@@ -250,6 +268,7 @@ int ERKStepSetDefaults(void* arkode_mem)
   ARKodeMem ark_mem;
   ARKodeERKStepMem step_mem;
   int retval;
+  long int lenrw, leniw;
 
   /* access ARKodeERKStepMem structure */
   retval = erkStep_AccessStepMem(arkode_mem, "ERKStepSetDefaults",
@@ -265,19 +284,47 @@ int ERKStepSetDefaults(void* arkode_mem)
     return(retval);
   }
 
+  /* Remove current SUNAdaptController object, and replace with "PI" */
+  retval = SUNAdaptController_Space(ark_mem->hadapt_mem->hcontroller, &lenrw, &leniw);
+  if (retval == SUNADAPTCONTROLLER_SUCCESS) {
+    ark_mem->liw -= leniw;
+    ark_mem->lrw -= lenrw;
+  }
+  if (ark_mem->hadapt_mem->owncontroller) {
+    retval = SUNAdaptController_Destroy(ark_mem->hadapt_mem->hcontroller);
+    if (retval != SUNADAPTCONTROLLER_SUCCESS) {
+      arkProcessError(ark_mem, ARK_MEM_FAIL, "ARKODE", "ERKStepSetDefaults",
+                      "SUNAdaptController_Destroy failure");
+      return(ARK_MEM_FAIL);
+    }
+  }
+  ark_mem->hadapt_mem->hcontroller = NULL;
+  ark_mem->hadapt_mem->hcontroller = SUNAdaptController_PI(ark_mem->sunctx);
+  if (ark_mem->hadapt_mem->hcontroller == NULL) {
+    arkProcessError(ark_mem, ARK_MEM_FAIL, "ARKODE::ERKStep",
+                    "ERKStepSetDefaults",
+                    "SUNAdaptControllerPI allocation failure");
+    return(ARK_MEM_FAIL);
+  }
+  ark_mem->hadapt_mem->owncontroller = SUNTRUE;
+  retval = SUNAdaptController_Space(ark_mem->hadapt_mem->hcontroller, &lenrw, &leniw);
+  if (retval == SUNADAPTCONTROLLER_SUCCESS) {
+    ark_mem->liw += leniw;
+    ark_mem->lrw += lenrw;
+  }
+
   /* Set default values for integrator optional inputs
      (overwrite some adaptivity params for ERKStep use) */
   step_mem->q = Q_DEFAULT;                     /* method order */
   step_mem->p = 0;                             /* embedding order */
-  ark_mem->hadapt_mem->etamxf  = RCONST(0.3);  /* max change on error-failed step */
-  ark_mem->hadapt_mem->imethod = ARK_ADAPT_PI; /* PI controller */
-  ark_mem->hadapt_mem->safety  = RCONST(0.99); /* step adaptivity safety factor  */
-  ark_mem->hadapt_mem->bias    = RCONST(1.2);  /* step adaptivity error bias */
-  ark_mem->hadapt_mem->growth  = RCONST(25.0); /* step adaptivity growth factor */
-  ark_mem->hadapt_mem->k1      = RCONST(0.8);  /* step adaptivity parameter */
-  ark_mem->hadapt_mem->k2      = RCONST(0.31); /* step adaptivity parameter */
   step_mem->stages = 0;                        /* no stages */
   step_mem->B = NULL;                          /* no Butcher table */
+  ark_mem->hadapt_mem->etamxf  = RCONST(0.3);  /* max change on error-failed step */
+  ark_mem->hadapt_mem->safety  = RCONST(0.99); /* step adaptivity safety factor  */
+  ark_mem->hadapt_mem->growth  = RCONST(25.0); /* step adaptivity growth factor */
+  (void) SUNAdaptController_SetErrorBias(ark_mem->hadapt_mem->hcontroller, RCONST(1.2));
+  (void) SUNAdaptController_SetParams_PI(ark_mem->hadapt_mem->hcontroller, SUNFALSE,
+                                         RCONST(0.8), RCONST(0.31));
   return(ARK_SUCCESS);
 }
 

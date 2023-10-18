@@ -93,6 +93,8 @@ $tar $tarfile $distrobase/src/arkode/arkode_relaxation.c
 $tar $tarfile $distrobase/src/arkode/arkode_relaxation_impl.h
 $tar $tarfile $distrobase/src/arkode/arkode_root.c
 $tar $tarfile $distrobase/src/arkode/arkode_root_impl.h
+$tar $tarfile $distrobase/src/arkode/arkode_user_controller.h
+$tar $tarfile $distrobase/src/arkode/arkode_user_controller.c
 $tar $tarfile $distrobase/src/arkode/arkode_types_impl.h
 
 $tar $tarfile $distrobase/src/arkode/xbraid/CMakeLists.txt

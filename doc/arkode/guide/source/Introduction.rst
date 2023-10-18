@@ -133,6 +133,13 @@ Changes from previous versions
 Changes in vX.X.X
 -----------------
 
+Added the :c:type:`SUNAdaptController` base class, ported ARKODE's internal 
+implementations of time step controllers into implementations of this class, 
+and updated ARKODE to use these objects instead of its own implementations.  Added
+:c:func:`ARKStepSetAdaptController` and :c:func:`ERKStepSetAdaptController`
+routines so that users can modify controller parameters, or even provide custom 
+implementations.
+
 Fixed a regression introduced by the stop time bug fix in v6.6.1 where ARKODE
 steppers would return at the stop time rather than the requested output time if
 the stop time was reached in the same step in which the output time was passed.

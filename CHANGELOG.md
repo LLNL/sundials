@@ -3,6 +3,13 @@
 
 ## Changes to SUNDIALS in release X.X.X
 
+Added the `SUNAdaptController` base class, ported ARKODE's internal 
+implementations of time step controllers into implementations of this class, 
+and updated ARKODE to use these objects instead of its own implementations.  
+Added `ARKStepSetAdaptController` and `ERKStepSetAdaptController` routines 
+so that users can modify controller parameters, or even provide custom 
+implementations.
+
 Fixed a regression introduced by the stop time bug fix in v6.6.1 where ARKODE,
 CVODE, CVODES, IDA, and IDAS would return at the stop time rather than the
 requested output time if the stop time was reached in the same step in which the

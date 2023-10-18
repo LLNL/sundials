@@ -33,6 +33,12 @@ sundials_add_f2003_library(sundials_farkode_mod
   OBJECT_LIBRARIES
     sundials_fgeneric_mod_obj
     sundials_fnvecserial_mod_obj
+    sundials_fsunadaptcontrollerexpgus_mod_obj
+    sundials_fsunadaptcontrolleri_mod_obj
+    sundials_fsunadaptcontrollerimexgus_mod_obj
+    sundials_fsunadaptcontrollerimpgus_mod_obj
+    sundials_fsunadaptcontrollerpi_mod_obj
+    sundials_fsunadaptcontrollerpid_mod_obj
     sundials_fsunmatrixband_mod_obj
     sundials_fsunmatrixdense_mod_obj
     sundials_fsunmatrixsparse_mod_obj

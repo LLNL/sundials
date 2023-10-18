@@ -1162,6 +1162,8 @@ the code, is provided in :numref:`ARKODE.Mathematics.Adaptivity`.
    +-----------------------------------------------------------+----------------------------------------+-----------+
    | Optional input                                            | Function name                          | Default   |
    +-----------------------------------------------------------+----------------------------------------+-----------+
+   | Provide a :c:type:`SUNAdaptController` for ERKStep to use | :c:func:`ERKStepSetAdaptController()`  | PI        |
+   +-----------------------------------------------------------+----------------------------------------+-----------+
    | Set a custom time step adaptivity function                | :c:func:`ERKStepSetAdaptivityFn()`     | internal  |
    +-----------------------------------------------------------+----------------------------------------+-----------+
    | Choose an existing time step adaptivity method            | :c:func:`ERKStepSetAdaptivityMethod()` | 0         |
@@ -1189,6 +1191,22 @@ the code, is provided in :numref:`ARKODE.Mathematics.Adaptivity`.
 
 
 
+.. c:function:: int ERKStepSetAdaptController(void* arkode_mem, SUNAdaptController C)
+
+   Sets a user-supplied time-step controller object.
+
+   **Arguments:**
+      * *arkode_mem* -- pointer to the ERKStep memory block.
+      * *C* -- user-supplied time adaptivity controller.  If ``NULL`` then the PID controller will be created (see :numref:`SUNAdaptController.PID`).
+
+   **Return value:**
+      * *ARK_SUCCESS* if successful
+      * *ARK_MEM_NULL* if the ERKStep memory is ``NULL``
+      * *ARK_MEM_FAIL* if *C* was ``NULL`` and the PID controller could not be allocated.
+
+   .. versionadded:: x.x.x
+
+
 .. c:function:: int ERKStepSetAdaptivityFn(void* arkode_mem, ARKAdaptFn hfun, void* h_data)
 
    Sets a user-supplied time-step adaptivity function.
@@ -1209,6 +1227,10 @@ the code, is provided in :numref:`ARKODE.Mathematics.Adaptivity`.
       estimation; for stability based time steps the function
       :c:func:`ERKStepSetStabilityFn()` should be used instead.
 
+
+   .. deprecated:: x.x.x
+
+      Use the SUNAdaptController infrastructure instead (see :numref:`SUNAdaptController.Description`).
 
 
 .. c:function:: int ERKStepSetAdaptivityMethod(void* arkode_mem, int imethod, int idefault, int pq, realtype* adapt_params)
@@ -1242,6 +1264,10 @@ the code, is provided in :numref:`ARKODE.Mathematics.Adaptivity`.
       parameter values are desired, it is recommended to instead provide
       a custom function through a call to :c:func:`ERKStepSetAdaptivityFn()`.
 
+
+   .. deprecated:: x.x.x
+
+      Use the SUNAdaptController infrastructure instead (see :numref:`SUNAdaptController.Description`).
 
 
 .. c:function:: int ERKStepSetCFLFraction(void* arkode_mem, realtype cfl_frac)
@@ -1280,6 +1306,10 @@ the code, is provided in :numref:`ARKODE.Mathematics.Adaptivity`.
 
    **Notes:**
       Any value below 1.0 will imply a reset to the default value.
+
+      If both this and one of :c:func:`ERKStepSetAdaptivityMethod` or
+      :c:func:`ERKStepSetAdaptController` will be called, then this routine must be called
+      *second*.
 
 
 

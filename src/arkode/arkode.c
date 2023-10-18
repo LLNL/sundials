@@ -31,6 +31,7 @@
 #include <sundials/sundials_config.h>
 #include <sundials/sundials_math.h>
 #include <sundials/sundials_types.h>
+#include <sunadaptcontroller/sunadaptcontroller_pid.h>
 
 
 /*===============================================================
@@ -49,6 +50,7 @@
 ARKodeMem arkCreate(SUNContext sunctx)
 {
   int iret;
+  long int lenrw, leniw;
   ARKodeMem ark_mem;
 
   if (!sunctx) {
@@ -132,6 +134,18 @@ ARKodeMem arkCreate(SUNContext sunctx)
   }
   ark_mem->lrw += ARK_ADAPT_LRW;
   ark_mem->liw += ARK_ADAPT_LIW;
+
+  /* Allocate default step controller (PID) and note storage */
+  ark_mem->hadapt_mem->hcontroller = SUNAdaptController_PID(sunctx);
+  if (ark_mem->hadapt_mem->hcontroller == NULL) {
+    arkProcessError(NULL, ARK_MEM_FAIL, "ARKODE", "arkCreate",
+                    "Allocation of step controller object failed");
+    return(NULL);
+  }
+  ark_mem->hadapt_mem->owncontroller = SUNTRUE;
+  (void) SUNAdaptController_Space(ark_mem->hadapt_mem->hcontroller, &lenrw, &leniw);
+  ark_mem->lrw += lenrw;
+  ark_mem->liw += leniw;
 
   /* Initialize the interpolation structure to NULL */
   ark_mem->interp = NULL;
@@ -1110,6 +1124,9 @@ void arkFree(void **arkode_mem)
 
   /* free the time step adaptivity module */
   if (ark_mem->hadapt_mem != NULL) {
+    if (ark_mem->hadapt_mem->owncontroller) {
+      (void) SUNAdaptController_Destroy(ark_mem->hadapt_mem->hcontroller);
+    }
     free(ark_mem->hadapt_mem);
     ark_mem->hadapt_mem = NULL;
   }
@@ -1247,6 +1264,7 @@ int arkInit(ARKodeMem ark_mem, realtype t0, N_Vector y0,
             int init_type)
 {
   booleantype stepperOK, nvectorOK, allocOK;
+  int retval;
   sunindextype lrw1, liw1;
 
   /* Check ark_mem */
@@ -1348,15 +1366,18 @@ int arkInit(ARKodeMem ark_mem, realtype t0, N_Vector y0,
     /* Tolerance scale factor */
     ark_mem->tolsf = ONE;
 
+    /* Reset error controller object */
+    retval = SUNAdaptController_Reset(ark_mem->hadapt_mem->hcontroller);
+    if (retval != SUNADAPTCONTROLLER_SUCCESS) {
+      arkProcessError(ark_mem, ARK_CONTROLLER_ERR, "ARKODE", "arkInit",
+                      "Unable to reset error controller object");
+      return(ARK_CONTROLLER_ERR);
+    }
+
     /* Adaptivity counters */
     ark_mem->hadapt_mem->nst_acc = 0;
     ark_mem->hadapt_mem->nst_exp = 0;
 
-    /* Error and step size history */
-    ark_mem->hadapt_mem->ehist[0] = ONE;
-    ark_mem->hadapt_mem->ehist[1] = ONE;
-    ark_mem->hadapt_mem->hhist[0] = ZERO;
-    ark_mem->hadapt_mem->hhist[1] = ZERO;
 
     /* Indicate that evaluation of the full RHS is not required after each step,
        this flag is updated to SUNTRUE by the interpolation module initialization
@@ -2408,10 +2429,10 @@ int arkCompleteStep(ARKodeMem ark_mem, realtype dsm)
      tstop by roundoff, and in that case, we reset tn (after
      incrementing by h) to tstop. */
 
-  /* During long-time integration, roundoff can creep into tcur. 
+  /* During long-time integration, roundoff can creep into tcur.
      Compensated summation fixes this but with increased cost, so it is optional. */
   if (ark_mem->use_compensated_sums) {
-    sunCompensatedSum(ark_mem->tn, ark_mem->h, &ark_mem->tcur, &ark_mem->terr); 
+    sunCompensatedSum(ark_mem->tn, ark_mem->h, &ark_mem->tcur, &ark_mem->terr);
   } else {
     ark_mem->tcur = ark_mem->tn + ark_mem->h;
   }
@@ -2455,11 +2476,14 @@ int arkCompleteStep(ARKodeMem ark_mem, realtype dsm)
   /* update yn to current solution */
   N_VScale(ONE, ark_mem->ycur, ark_mem->yn);
 
-  /* Update step size and error history arrays */
-  ark_mem->hadapt_mem->ehist[1] = ark_mem->hadapt_mem->ehist[0];
-  ark_mem->hadapt_mem->ehist[0] = dsm*ark_mem->hadapt_mem->bias;
-  ark_mem->hadapt_mem->hhist[1] = ark_mem->hadapt_mem->hhist[0];
-  ark_mem->hadapt_mem->hhist[0] = ark_mem->h;
+  /* Notify time step controller object of successful step */
+  retval = SUNAdaptController_Update(ark_mem->hadapt_mem->hcontroller, ark_mem->h, dsm);
+  if (retval != SUNADAPTCONTROLLER_SUCCESS) {
+    arkProcessError(ark_mem, ARK_CONTROLLER_ERR, "ARKODE", "arkCompleteStep",
+                    "Failure updating controller object");
+    return(ARK_CONTROLLER_ERR);
+  }
+
 
   /* update scalar quantities */
   ark_mem->nst++;

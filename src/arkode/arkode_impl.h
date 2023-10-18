@@ -25,6 +25,7 @@
 #include <arkode/arkode_butcher_erk.h>
 #include <sundials/sundials_context.h>
 #include <sundials/sundials_linearsolver.h>
+#include <sundials/sundials_adaptcontroller.h>
 
 #include "arkode_types_impl.h"
 #include "arkode_adapt_impl.h"
@@ -980,6 +981,7 @@ int arkCheckTemporalError(ARKodeMem ark_mem, int *nflagPtr, int *nefPtr,
 int arkAccessHAdaptMem(void* arkode_mem, const char *fname,
                        ARKodeMem *ark_mem, ARKodeHAdaptMem *hadapt_mem);
 
+int arkSetAdaptController(void *arkode_mem, SUNAdaptController C);
 int arkSetDefaults(void *arkode_mem);
 int arkSetDenseOrder(void *arkode_mem, int dord);
 int arkSetInterpolantType(void *arkode_mem, int itype);
