@@ -647,6 +647,7 @@ int arkSetFixedStep(void *arkode_mem, realtype hfixed)
   int retval;
   long int lenrw, leniw;
   ARKodeMem ark_mem;
+  SUNAdaptController C;
   if (arkode_mem==NULL) {
     arkProcessError(NULL, ARK_MEM_NULL, "ARKODE",
                     "arkSetFixedStep", MSG_ARK_NO_MEM);
@@ -674,7 +675,7 @@ int arkSetFixedStep(void *arkode_mem, realtype hfixed)
   /* If re-enabling time adaptivity, create default PID controller
      and attach object to ARKODE.
      Otherwise, create No-op controller and attach to ARKODE. */
-  SUNAdaptController C = NULL;
+  C = NULL;
   if (hfixed == ZERO)
   {
     C = SUNAdaptController_PID(ark_mem->sunctx);
@@ -949,6 +950,7 @@ int arkSetAdaptivityMethod(void *arkode_mem, int imethod, int idefault,
   long int lenrw, leniw;
   realtype k1, k2, k3;
   ARKodeMem ark_mem;
+  SUNAdaptController C;
   if (arkode_mem==NULL) {
     arkProcessError(NULL, ARK_MEM_NULL, "ARKODE",
                     "arkSetController", MSG_ARK_NO_MEM);
@@ -994,7 +996,7 @@ int arkSetAdaptivityMethod(void *arkode_mem, int imethod, int idefault,
 
   /* Create new SUNAdaptController object based on "imethod" input, optionally setting
      the specified controller parameters */
-  SUNAdaptController C = NULL;
+  C = NULL;
   switch (imethod) {
   case (ARK_ADAPT_PID):
     C = SUNAdaptController_PID(ark_mem->sunctx);
@@ -1115,6 +1117,7 @@ int arkSetAdaptivityFn(void *arkode_mem, ARKAdaptFn hfun, void *h_data)
   int retval;
   long int lenrw, leniw;
   ARKodeMem ark_mem;
+  SUNAdaptController C;
   if (arkode_mem==NULL) {
     arkProcessError(NULL, ARK_MEM_NULL, "ARKODE",
                     "arkSetAdaptivityFn", MSG_ARK_NO_MEM);
@@ -1140,7 +1143,7 @@ int arkSetAdaptivityFn(void *arkode_mem, ARKAdaptFn hfun, void *h_data)
   ark_mem->hadapt_mem->hcontroller = NULL;
 
   /* Create new SUNAdaptController object depending on NULL-ity of 'hfun' */
-  SUNAdaptController C = NULL;
+  C = NULL;
   if (hfun == NULL) {
     C = SUNAdaptController_PID(ark_mem->sunctx);
     if (C == NULL) {
