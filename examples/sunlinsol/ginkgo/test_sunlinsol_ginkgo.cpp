@@ -20,6 +20,7 @@
 #include <cstdlib>
 #include <ginkgo/ginkgo.hpp>
 #include <map>
+#include <memory>
 #include <random>
 #include <sundials/sundials_context.hpp>
 #include <sundials/sundials_math.h>
@@ -31,15 +32,19 @@
 
 #if defined(USE_HIP)
 #include <nvector/nvector_hip.h>
-#define HIP_OR_CUDA(a, b) a
+#define HIP_OR_CUDA_OR_SYCL(a, b, c) a
 constexpr auto N_VNew = N_VNew_Hip;
 #elif defined(USE_CUDA)
 #include <nvector/nvector_cuda.h>
-#define HIP_OR_CUDA(a, b) b
+#define HIP_OR_CUDA_OR_SYCL(a, b, c) b
 constexpr auto N_VNew = N_VNew_Cuda;
+#elif defined(USE_DPCPP)
+#include <nvector/nvector_sycl.h>
+#define HIP_OR_CUDA_OR_SYCL(a, b, c) c
+constexpr auto N_VNew = N_VNew_Sycl;
 #elif defined(USE_OMP)
 #include <nvector/nvector_openmp.h>
-#define HIP_OR_CUDA(a, b)
+#define HIP_OR_CUDA_OR_SYCL(a, b, c)
 auto N_VNew = [](sunindextype length, SUNContext sunctx) {
   auto omp_num_threads_var{std::getenv("OMP_NUM_THREADS")};
   int num_threads{1};
@@ -50,7 +55,7 @@ auto N_VNew = [](sunindextype length, SUNContext sunctx) {
 };
 #else
 #include <nvector/nvector_serial.h>
-#define HIP_OR_CUDA(a, b)
+#define HIP_OR_CUDA_OR_SYCL(a, b, c)
 constexpr auto N_VNew = N_VNew_Serial;
 #endif
 
@@ -143,7 +148,45 @@ void fill_matrix(gko::matrix::Csr<sunrealtype, sunindextype>* matrix)
   unsigned num_blocks        = (mat_rows + threads_per_block - 1) / threads_per_block;
 
   fill_kernel<<<num_blocks, threads_per_block>>>(mat_rows, mat_cols, row_ptrs, col_idxs, mat_data);
-  HIP_OR_CUDA(hipDeviceSynchronize();, cudaDeviceSynchronize(););
+  HIP_OR_CUDA_OR_SYCL(hipDeviceSynchronize(), cudaDeviceSynchronize(), matrix->get_executor()->synchronize());
+#elif defined(USE_DPCPP)
+  std::dynamic_pointer_cast<const gko::DpcppExecutor>(matrix->get_executor())->get_queue()->submit([&](sycl::handler& cgh) {
+    cgh.parallel_for(mat_rows, [=](sycl::id<1> id) {
+      const sunindextype row = id[0];
+      // copied from fill_kernel for csr`
+      const sunindextype nnz = 3 * mat_rows - 2;
+
+      if (row == 0) {
+        // first row
+        mat_data[0] = 2;
+        mat_data[1] = -1;
+        col_idxs[0] = 0;
+        col_idxs[1] = 1;
+        row_ptrs[0] = 0;
+      }
+      else if (row == mat_rows - 1) {
+        // last row
+        mat_data[nnz - 2]      = -1;
+        mat_data[nnz - 1]      = 2;
+        col_idxs[nnz - 2]      = mat_rows - 2;
+        col_idxs[nnz - 1]      = mat_rows - 1;
+        row_ptrs[mat_rows - 1] = nnz - 2;
+        row_ptrs[mat_rows]     = nnz;
+      }
+      else if (row < mat_rows) {
+        // other rows
+        sunindextype idx  = 3 * row - 1;
+        mat_data[idx]     = -1;
+        mat_data[idx + 1] = 2;
+        mat_data[idx + 2] = -1;
+        col_idxs[idx]     = row - 1;
+        col_idxs[idx + 1] = row;
+        col_idxs[idx + 2] = row + 1;
+        row_ptrs[row]     = idx;
+      } 
+    });
+  });
+  matrix->get_executor()->synchronize();
 #else
   // Matrix entries
   const sunrealtype vals[] = {-1, 2, -1};
@@ -171,12 +214,37 @@ void fill_matrix(gko::matrix::Dense<sunrealtype>* matrix)
   sunindextype mat_cols = matrix->get_size()[1];
   sunrealtype* mat_data = matrix->get_values();
 
-#if defined(USE_CUDA)
+#if defined(USE_CUDA) || defined(USE_HIP)
   unsigned threads_per_block = 256;
   unsigned num_blocks        = (mat_rows + threads_per_block - 1) / threads_per_block;
 
   fill_kernel<<<num_blocks, threads_per_block>>>(mat_rows, mat_cols, mat_data);
-  HIP_OR_CUDA(hipDeviceSynchronize();, cudaDeviceSynchronize(););
+  HIP_OR_CUDA(hipDeviceSynchronize(), cudaDeviceSynchronize(), matrix->get_executor()->synchronize());
+#elif defined(USE_DPCPP)
+  std::dynamic_pointer_cast<const gko::DpcppExecutor>(matrix->get_executor())->get_queue()->submit([&](sycl::handler& cgh) {
+    cgh.parallel_for(mat_rows, [=](sycl::id<1> id) {
+      const sunindextype row = id[0];
+      // copied from fill_kernel for dense
+      if (row == 0) {
+        // first row
+        mat_data[0] = 2;
+        mat_data[1] = -1;
+      }
+      else if (row == mat_rows - 1) {
+        // last row
+        mat_data[mat_cols * mat_rows - 2] = -1;
+        mat_data[mat_cols * mat_rows - 1] = 2;
+      }
+      else if (row < mat_rows) {
+        // other rows
+        sunindextype idx  = mat_cols * row + row;
+        mat_data[idx - 1] = -1;
+        mat_data[idx]     = 2;
+        mat_data[idx + 1] = -1;
+      }
+    });
+  });
+  matrix->get_executor()->synchronize();
 #else
   // Matrix entries
   const sunrealtype vals[] = {-1, 2, -1};
@@ -220,6 +288,12 @@ void Test_Move(std::unique_ptr<typename GkoSolverType::Factory>&& gko_solver_fac
 }
 
 /* -------------------------------------------------------------------------- *
+ * Global Executor for sync_device                                            *
+ * -------------------------------------------------------------------------- */
+// sycl only provides synchronize on queue
+std::shared_ptr<const gko::Executor> global_exec;
+
+/* -------------------------------------------------------------------------- *
  * SUNLinSol_Ginkgo Testing Routine                                           *
  * -------------------------------------------------------------------------- */
 
@@ -234,11 +308,16 @@ int main(int argc, char* argv[])
   auto gko_exec{gko::HipExecutor::create(0, gko::OmpExecutor::create(), false, gko::allocation_mode::device)};
 #elif defined(USE_CUDA)
   auto gko_exec{gko::CudaExecutor::create(0, gko::OmpExecutor::create(), false, gko::allocation_mode::device)};
+#elif defined(USE_DPCPP)
+  auto gko_exec{gko::DpcppExecutor::create(0, gko::ReferenceExecutor::create())};
 #elif defined(USE_OMP)
   auto gko_exec{gko::OmpExecutor::create()};
 #else
   auto gko_exec{gko::ReferenceExecutor::create()};
 #endif
+
+  // For sync_device
+  global_exec = gko_exec;
 
   /* ------------ *
    * Check inputs *
@@ -314,7 +393,11 @@ int main(int argc, char* argv[])
    * Create solution and RHS vectors *
    * ------------------------------- */
 
+#if defined(USE_DPCPP)
+  N_Vector x{N_VNew(matcols, gko_exec->get_queue(), sunctx)};
+#else
   N_Vector x{N_VNew(matcols, sunctx)};
+#endif
   N_Vector b{N_VClone(x)};
 
   /* Fill x with random data */
@@ -325,7 +408,7 @@ int main(int argc, char* argv[])
   for (sunindextype i = 0; i < matcols; i++) {
     xdata[i] = distribution_real(engine);
   }
-  HIP_OR_CUDA(N_VCopyToDevice_Hip(x), N_VCopyToDevice_Cuda(x));
+  HIP_OR_CUDA_OR_SYCL(N_VCopyToDevice_Hip(x), N_VCopyToDevice_Cuda(x), N_VCopyToDevice_Sycl(x));
 
   /* -------------------- *
    * Create system matrix *
@@ -536,6 +619,9 @@ int main(int argc, char* argv[])
             << std::endl;
   std::cout << "Final residual norm: " << SUNLinSolResNorm(LS->Convert()) << std::endl;
 
+  // clear global_exec
+  global_exec = nullptr;
+
   /* Free solver, matrix and vectors */
   N_VDestroy(x);
   N_VDestroy(b);
@@ -552,8 +638,8 @@ int check_vector(N_Vector expected, N_Vector actual, sunrealtype check_tol)
   int failure{0};
 
   /* copy vectors to host */
-  HIP_OR_CUDA(N_VCopyFromDevice_Hip(actual), N_VCopyFromDevice_Cuda(actual));
-  HIP_OR_CUDA(N_VCopyFromDevice_Hip(expected), N_VCopyFromDevice_Cuda(expected));
+  HIP_OR_CUDA_OR_SYCL(N_VCopyFromDevice_Hip(actual), N_VCopyFromDevice_Cuda(actual), N_VCopyFromDevice_Sycl(actual));
+  HIP_OR_CUDA_OR_SYCL(N_VCopyFromDevice_Hip(expected), N_VCopyFromDevice_Cuda(expected), N_VCopyFromDevice_Sycl(expected));
 
   /* get vector data */
   auto xdata{N_VGetArrayPointer(actual)};
@@ -588,5 +674,5 @@ int check_vector(N_Vector expected, N_Vector actual, sunrealtype check_tol)
 
 void sync_device()
 {
-  HIP_OR_CUDA(hipDeviceSynchronize(), cudaDeviceSynchronize());
+  HIP_OR_CUDA_OR_SYCL(hipDeviceSynchronize(), cudaDeviceSynchronize(), global_exec->synchronize());
 }
