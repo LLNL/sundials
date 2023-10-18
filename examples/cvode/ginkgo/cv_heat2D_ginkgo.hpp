@@ -31,7 +31,11 @@
 #include <nvector/nvector_cuda.h>
 #elif defined(USE_HIP)
 #include <nvector/nvector_hip.h>
+#elif defined(USE_DPCPP)
+#include <nvector/nvector_sycl.h>
 #endif
+
+#include <ginkgo/ginkgo.hpp>
 
 // Common utility functions
 #include <example_utilities.hpp>
@@ -117,7 +121,7 @@ void solution_kernel(const sunindextype nx, const sunindextype ny,
 #endif
 
 // Compute the exact solution
-int Solution(sunrealtype t, N_Vector u, UserData &udata)
+int Solution(sunrealtype t, N_Vector u, UserData &udata, std::shared_ptr<const gko::Executor> exec)
 {
   // Access problem data and set shortcuts
   const auto nx = udata.nx;
@@ -145,7 +149,27 @@ int Solution(sunrealtype t, N_Vector u, UserData &udata)
 
   solution_kernel<<<num_blocks, threads_per_block>>>
     (nx, ny, dx, dy, cos_sqr_t, uarray);
+#elif defined(USE_DPCPP)
+  sunrealtype *uarray = N_VGetDeviceArrayPointer(u);
+  if (check_ptr(uarray, "N_VGetDeviceArrayPointer")) return -1;
+  std::dynamic_pointer_cast<const gko::DpcppExecutor>(exec)->get_queue()->submit([&](sycl::handler& cgh) {
+    cgh.parallel_for(sycl::range<2>(ny, nx), [=](sycl::id<2> id) {
+      const sunindextype i = id[1];
+      const sunindextype j = id[0];
 
+      if (i > 0 && i < nx - 1 && j > 0 && j < ny - 1)
+      {
+        auto x = i * dx;
+        auto y = j * dy;
+
+        auto sin_sqr_x = sin(PI * x) * sin(PI * x);
+        auto sin_sqr_y = sin(PI * y) * sin(PI * y);
+
+        auto idx = i + j * nx;
+        uarray[idx] = sin_sqr_x * sin_sqr_y * cos_sqr_t + ONE;
+      } 
+    });
+  });
 #else
 
   sunrealtype *uarray = N_VGetArrayPointer(u);
@@ -167,15 +191,15 @@ int Solution(sunrealtype t, N_Vector u, UserData &udata)
   }
 
 #endif
-
+  exec->synchronize();
   return 0;
 }
 
 // Compute the solution error
-int SolutionError(sunrealtype t, N_Vector u, N_Vector e, UserData &udata)
+int SolutionError(sunrealtype t, N_Vector u, N_Vector e, UserData &udata, std::shared_ptr<const gko::Executor> exec)
 {
   // Compute true solution
-  int flag = Solution(t, e, udata);
+  int flag = Solution(t, e, udata, exec);
   if (flag != 0) return -1;
 
   // Compute absolute error
@@ -310,10 +334,10 @@ int OpenOutput(UserData &udata)
 }
 
 // Write output
-int WriteOutput(sunrealtype t, N_Vector u, N_Vector e, UserData &udata)
+int WriteOutput(sunrealtype t, N_Vector u, N_Vector e, UserData &udata, std::shared_ptr<const gko::Executor> exec)
 {
   // Compute the error
-  int flag = SolutionError(t, u, e, udata);
+  int flag = SolutionError(t, u, e, udata, exec);
   if (check_flag(flag, "SolutionError")) return 1;
 
   // Compute max error
@@ -335,6 +359,9 @@ int WriteOutput(sunrealtype t, N_Vector u, N_Vector e, UserData &udata)
 #elif defined(USE_HIP)
     N_VCopyFromDevice_Hip(u);
     N_VCopyFromDevice_Hip(e);
+#elif defined(USE_DPCPP)
+    N_VCopyFromDevice_Sycl(u);
+    N_VCopyFromDevice_Sycl(e);
 #endif
 
     // Access host data array
