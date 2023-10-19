@@ -71,8 +71,7 @@ if(MAGMA_LIBRARY AND MAGMA_INCLUDE_DIR)
             OR lib STREQUAL "-L\${libdir}" OR lib STREQUAL "") )
 
         # Remove -l only from the beginning of the string
-        string(REPLACE "^-l" "" lib ${lib})
-        list(APPEND _interface_libraires ${lib})
+        string(REPLACE "-l" "" lib "${lib}")
 
         # Check if we need to find roc::hipblas or roc::hipsparse
         if(SUNDIALS_MAGMA_BACKENDS MATCHES "HIP")
@@ -83,6 +82,21 @@ if(MAGMA_LIBRARY AND MAGMA_INCLUDE_DIR)
             find_package(hipsparse REQUIRED)
           endif()
         endif()
+        
+        # Check if we need to find cusparse or cublas
+        if(SUNDIALS_MAGMA_BACKENDS MATCHES "CUDA")
+          if (NOT TARGET CUDA::cublas)
+            find_package(CUDAToolkit)
+          endif() 
+          # Ignore cublas, cusolver, cusparse because the library path in the magma pc is not reliable.
+          # Sepcifically, the path is wrong on systems like Perlmutter where the NVIDIA HPC SDK is used.
+          # We just link to these in the relevant sundials targets  using the CMake CUDA targets instead.
+          if((lib STREQUAL "cublas") OR (lib STREQUAL "cusolver") OR (lib STREQUAL "cusparse"))
+            continue()
+          endif()
+        endif()
+        
+        list(APPEND _interface_libraires ${lib})
 
       endif()
     endforeach()
