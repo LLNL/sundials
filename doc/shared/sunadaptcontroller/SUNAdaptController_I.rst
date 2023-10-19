@@ -24,9 +24,9 @@ the prospective time step estimate entirely off of the current local error
 estimate,
 
 .. math::
-   h' \;=\; h_n\; \varepsilon_n^{-k_1/ord},
+   h' \;=\; h_n\; \varepsilon_n^{-k_1/(p+1)},
 
-where :math:`ord = p+1`, where :math:`p` is described below. In this estimate, a floor of
+where :math:`p` is described below. In this estimate, a floor of
 :math:`\varepsilon > 10^{-10}` is enforced to avoid division-by-zero errors. By default
 the constant :math:`k_1=1`.
 

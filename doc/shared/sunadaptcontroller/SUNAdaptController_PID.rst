@@ -25,11 +25,11 @@ and uses three temporal error estimates, :math:`\varepsilon_n`,
 prospective step size,
 
 .. math::
-   h' \;=\; h_n\; \varepsilon_n^{-k_1/ord}\; \varepsilon_{n-1}^{k_2/ord}\;
-        \varepsilon_{n-2}^{-k_3/ord},
+   h' \;=\; h_n\; \varepsilon_n^{-k_1/(p+1)}\; \varepsilon_{n-1}^{k_2/(p+1)}\;
+        \varepsilon_{n-2}^{-k_3/(p+1)},
 
 where the constants :math:`k_1`, :math:`k_2` and :math:`k_3` default to 0.58,
-0.21 and 0.1, respectively, and :math:`ord = p+1`, where :math:`p` is described below.
+0.21 and 0.1, respectively, and :math:`p` is described below.
 In this estimate, a floor of :math:`\varepsilon > 10^{-10}` is enforced to avoid
 division-by-zero errors.
 

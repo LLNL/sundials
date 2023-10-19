@@ -24,14 +24,14 @@ form
 
 .. math::
    h' \;=\; \begin{cases}
-      h_1\; \varepsilon_1^{-1/ord}, &\quad\text{on the first step}, \\
-      h_n\; \varepsilon_n^{-k_1/ord}\;
-        \left(\dfrac{\varepsilon_n}{\varepsilon_{n-1}}\right)^{k_2/ord}, &
+      h_1\; \varepsilon_1^{-1/(p+1)}, &\quad\text{on the first step}, \\
+      h_n\; \varepsilon_n^{-k_1/(p+1)}\;
+        \left(\dfrac{\varepsilon_n}{\varepsilon_{n-1}}\right)^{k_2/(p+1)}, &
       \quad\text{on subsequent steps},
    \end{cases}
 
-with default values :math:`k_1=0.367` and :math:`k_2=0.268`, and where :math:`ord = p+1`,
-with :math:`p` is described below. In this estimate, a floor of :math:`\varepsilon > 10^{-10}`
+with default values :math:`k_1=0.367` and :math:`k_2=0.268`, and where :math:`p` is
+described below. In this estimate, a floor of :math:`\varepsilon > 10^{-10}`
 is enforced to avoid division-by-zero errors.
 
 The SUNAdaptController_ExpGus controller is implemented as a derived SUNAdaptController class,
