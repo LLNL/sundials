@@ -36,7 +36,6 @@ struct _SUNAdaptControllerContent_PID {
   sunrealtype ep;    /* error from previous step */
   sunrealtype epp;   /* error from 2 steps ago */
   int p;             /* method/embedding order of accuracy */
-  int adj;           /* order of accuracy adjustment to use for controller */
 };
 
 typedef struct _SUNAdaptControllerContent_PID *SUNAdaptControllerContent_PID;
@@ -63,8 +62,6 @@ SUNDIALS_EXPORT
 int SUNAdaptController_Write_PID(SUNAdaptController C, FILE* fptr);
 SUNDIALS_EXPORT
 int SUNAdaptController_SetMethodOrder_PID(SUNAdaptController C, int p);
-SUNDIALS_EXPORT
-int SUNAdaptController_AdjustControllerOrder_PID(SUNAdaptController C, int adj);
 SUNDIALS_EXPORT
 int SUNAdaptController_SetErrorBias_PID(SUNAdaptController C, sunrealtype bias);
 SUNDIALS_EXPORT

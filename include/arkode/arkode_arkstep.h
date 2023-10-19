@@ -187,6 +187,7 @@ SUNDIALS_EXPORT int ARKStepSetTableNum(void *arkode_mem,
 SUNDIALS_EXPORT int ARKStepSetTableName(void *arkode_mem,
                                         const char *itable, const char *etable);
 SUNDIALS_EXPORT int ARKStepSetAdaptController(void *arkode_mem, SUNAdaptController C);
+SUNDIALS_EXPORT int ARKStepSetAdaptivityAdjustment(void *arkode_mem, int adjust);
 SUNDIALS_EXPORT int ARKStepSetCFLFraction(void *arkode_mem,
                                           realtype cfl_frac);
 SUNDIALS_EXPORT int ARKStepSetSafetyFactor(void *arkode_mem,

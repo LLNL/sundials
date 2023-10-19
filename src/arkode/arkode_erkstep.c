@@ -540,11 +540,11 @@ int erkStep_Init(void* arkode_mem, int init_type)
   step_mem->q = ark_mem->hadapt_mem->q = step_mem->B->q;
   step_mem->p = ark_mem->hadapt_mem->p = step_mem->B->p;
   if (ark_mem->hadapt_mem->pq == 0) {
-    controller_order = step_mem->p;
+    controller_order = step_mem->p + ark_mem->hadapt_mem->adjust;
   } else if (ark_mem->hadapt_mem->pq == 1) {
-    controller_order = step_mem->q;
+    controller_order = step_mem->q + ark_mem->hadapt_mem->adjust;
   } else {
-    controller_order = SUNMIN(step_mem->p, step_mem->q);
+    controller_order = SUNMIN(step_mem->p, step_mem->q) + ark_mem->hadapt_mem->adjust;
   }
   retval = SUNAdaptController_SetMethodOrder(ark_mem->hadapt_mem->hcontroller, controller_order);
   if (retval != SUNADAPTCONTROLLER_SUCCESS) {

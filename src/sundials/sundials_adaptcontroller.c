@@ -41,22 +41,21 @@ SUNAdaptController SUNAdaptController_NewEmpty(SUNContext sunctx)
   if (ops == NULL) { free(C); return(NULL); }
 
   /* initialize operations to NULL */
-  ops->gettype               = NULL;
-  ops->destroy               = NULL;
-  ops->reset                 = NULL;
-  ops->estimatestep          = NULL;
-  ops->estimatestepandorder  = NULL;
-  ops->estimatemristeps      = NULL;
-  ops->estimatesteptol       = NULL;
-  ops->setdefaults           = NULL;
-  ops->write                 = NULL;
-  ops->setmethodorder        = NULL;
-  ops->adjustcontrollerorder = NULL;
-  ops->seterrorbias          = NULL;
-  ops->update                = NULL;
-  ops->updatemrih            = NULL;
-  ops->updatemritol          = NULL;
-  ops->space                 = NULL;
+  ops->gettype              = NULL;
+  ops->destroy              = NULL;
+  ops->reset                = NULL;
+  ops->estimatestep         = NULL;
+  ops->estimatestepandorder = NULL;
+  ops->estimatemristeps     = NULL;
+  ops->estimatesteptol      = NULL;
+  ops->setdefaults          = NULL;
+  ops->write                = NULL;
+  ops->setmethodorder       = NULL;
+  ops->seterrorbias         = NULL;
+  ops->update               = NULL;
+  ops->updatemrih           = NULL;
+  ops->updatemritol         = NULL;
+  ops->space                = NULL;
 
   /* attach ops and initialize content to NULL */
   C->ops     = ops;
@@ -205,14 +204,6 @@ int SUNAdaptController_SetMethodOrder(SUNAdaptController C, int p)
   int ier = 0;
   if (C == NULL) { return ier; }
   if (C->ops->setmethodorder) { ier = C->ops->setmethodorder(C, p); }
-  return(ier);
-}
-
-int SUNAdaptController_AdjustControllerOrder(SUNAdaptController C, int adj)
-{
-  int ier = 0;
-  if (C == NULL) { return ier; }
-  if (C->ops->adjustcontrollerorder) { ier = C->ops->adjustcontrollerorder(C, adj); }
   return(ier);
 }
 

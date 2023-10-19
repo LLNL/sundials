@@ -29,7 +29,6 @@
 #define SACI_K1(C)          ( SACI_CONTENT(C)->k1 )
 #define SACI_BIAS(C)        ( SACI_CONTENT(C)->bias )
 #define SACI_P(C)           ( SACI_CONTENT(C)->p )
-#define SACI_ADJ(C)         ( SACI_CONTENT(C)->adj )
 
 /* ------------------
  * Default parameters
@@ -37,8 +36,6 @@
 
 #define DEFAULT_K1     RCONST(1.0)
 #define DEFAULT_BIAS   RCONST(1.5)
-#define DEFAULT_ADJ    -1
-/* #define DEFAULT_ADJ    0 */
 #define TINY           RCONST(1.0e-10)
 
 
@@ -61,14 +58,13 @@ SUNAdaptController SUNAdaptController_I(SUNContext sunctx)
   if (C == NULL) { return (NULL); }
 
   /* Attach operations */
-  C->ops->gettype               = SUNAdaptController_GetType_I;
-  C->ops->estimatestep          = SUNAdaptController_EstimateStep_I;
-  C->ops->setdefaults           = SUNAdaptController_SetDefaults_I;
-  C->ops->write                 = SUNAdaptController_Write_I;
-  C->ops->setmethodorder        = SUNAdaptController_SetMethodOrder_I;
-  C->ops->adjustcontrollerorder = SUNAdaptController_AdjustControllerOrder_I;
-  C->ops->seterrorbias          = SUNAdaptController_SetErrorBias_I;
-  C->ops->space                 = SUNAdaptController_Space_I;
+  C->ops->gettype        = SUNAdaptController_GetType_I;
+  C->ops->estimatestep   = SUNAdaptController_EstimateStep_I;
+  C->ops->setdefaults    = SUNAdaptController_SetDefaults_I;
+  C->ops->write          = SUNAdaptController_Write_I;
+  C->ops->setmethodorder = SUNAdaptController_SetMethodOrder_I;
+  C->ops->seterrorbias   = SUNAdaptController_SetErrorBias_I;
+  C->ops->space          = SUNAdaptController_Space_I;
 
   /* Create content */
   content = NULL;
@@ -115,7 +111,7 @@ int SUNAdaptController_EstimateStep_I(SUNAdaptController C, sunrealtype h,
                                       sunrealtype dsm, sunrealtype* hnew)
 {
   /* set usable time-step adaptivity parameters */
-  const int ord = SACI_P(C) + SACI_ADJ(C) + 1;
+  const int ord = SACI_P(C) + 1;
   const sunrealtype k1 = -SACI_K1(C) / ord;
   const sunrealtype ecur = SACI_BIAS(C) * dsm;
   const sunrealtype e1 = SUNMAX(ecur, TINY);
@@ -129,7 +125,6 @@ int SUNAdaptController_SetDefaults_I(SUNAdaptController C)
 {
   SACI_K1(C)     = DEFAULT_K1;
   SACI_BIAS(C)   = DEFAULT_BIAS;
-  SACI_ADJ(C)    = DEFAULT_ADJ;
   return SUNADAPTCONTROLLER_SUCCESS;
 }
 
@@ -144,21 +139,14 @@ int SUNAdaptController_Write_I(SUNAdaptController C, FILE *fptr)
   fprintf(fptr, "  bias factor = %16g\n", SACI_BIAS(C));
 #endif
   fprintf(fptr, "  p = %i\n", SACI_P(C));
-  fprintf(fptr, "  adj = %i\n", SACI_ADJ(C));
   return SUNADAPTCONTROLLER_SUCCESS;
 }
 
 int SUNAdaptController_SetMethodOrder_I(SUNAdaptController C, int p)
 {
   /* check for legal inputs */
-  if (p <= 0) { return SUNADAPTCONTROLLER_ILL_INPUT; }
+  if (p < 0) { return SUNADAPTCONTROLLER_ILL_INPUT; }
   SACI_P(C) = p;
-  return SUNADAPTCONTROLLER_SUCCESS;
-}
-
-int SUNAdaptController_AdjustControllerOrder_I(SUNAdaptController C, int adj)
-{
-  SACI_ADJ(C) = adj;
   return SUNADAPTCONTROLLER_SUCCESS;
 }
 
@@ -176,7 +164,7 @@ int SUNAdaptController_SetErrorBias_I(SUNAdaptController C, sunrealtype bias)
 
 int SUNAdaptController_Space_I(SUNAdaptController C, long int* lenrw, long int* leniw)
 {
-  *lenrw = 3;
-  *leniw = 3;
+  *lenrw = 2;
+  *leniw = 1;
   return SUNADAPTCONTROLLER_SUCCESS;
 }

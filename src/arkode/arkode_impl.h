@@ -1009,6 +1009,7 @@ int arkSetPostprocessStageFn(void *arkode_mem,
                              ARKPostProcessFn ProcessStage);
 int arkSetConstraints(void *arkode_mem, N_Vector constraints);
 int arkSetMaxNumConstrFails(void *arkode_mem, int maxfails);
+int arkSetAdaptivityAdjustment(void *arkode_mem, int adjust);
 int arkSetCFLFraction(void *arkode_mem, realtype cfl_frac);
 int arkSetSafetyFactor(void *arkode_mem, realtype safety);
 int arkSetErrorBias(void *arkode_mem, realtype bias);

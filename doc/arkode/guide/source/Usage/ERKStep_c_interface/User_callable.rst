@@ -732,8 +732,9 @@ Optional inputs for ERKStep
       :c:func:`ERKStepSetMaxGrowth()`,
       :c:func:`ERKStepSetMinReduction()`,
       :c:func:`ERKStepSetSafetyFactor()`,
-      :c:func:`ERKStepSetSmallNumEFails()` and
-      :c:func:`ERKStepSetStabilityFn()`
+      :c:func:`ERKStepSetSmallNumEFails()`,
+      :c:func:`ERKStepSetStabilityFn()`, and
+      :c:func:`ERKStepSetAdaptController()`
       will be ignored, since temporal adaptivity is disabled.
 
       If both :c:func:`ERKStepSetFixedStep()` and
@@ -1159,35 +1160,37 @@ the code, is provided in :numref:`ARKODE.Mathematics.Adaptivity`.
 .. _ARKODE.Usage.ERKStep.ERKStepAdaptivityInputTable:
 .. table:: Optional inputs for time step adaptivity
 
-   +-----------------------------------------------------------+----------------------------------------+-----------+
-   | Optional input                                            | Function name                          | Default   |
-   +-----------------------------------------------------------+----------------------------------------+-----------+
-   | Provide a :c:type:`SUNAdaptController` for ERKStep to use | :c:func:`ERKStepSetAdaptController()`  | PI        |
-   +-----------------------------------------------------------+----------------------------------------+-----------+
-   | Set a custom time step adaptivity function                | :c:func:`ERKStepSetAdaptivityFn()`     | internal  |
-   +-----------------------------------------------------------+----------------------------------------+-----------+
-   | Choose an existing time step adaptivity method            | :c:func:`ERKStepSetAdaptivityMethod()` | 0         |
-   +-----------------------------------------------------------+----------------------------------------+-----------+
-   | Explicit stability safety factor                          | :c:func:`ERKStepSetCFLFraction()`      | 0.5       |
-   +-----------------------------------------------------------+----------------------------------------+-----------+
-   | Time step error bias factor                               | :c:func:`ERKStepSetErrorBias()`        | 1.5       |
-   +-----------------------------------------------------------+----------------------------------------+-----------+
-   | Bounds determining no change in step size                 | :c:func:`ERKStepSetFixedStepBounds()`  | 1.0  1.5  |
-   +-----------------------------------------------------------+----------------------------------------+-----------+
-   | Maximum step growth factor on error test fail             | :c:func:`ERKStepSetMaxEFailGrowth()`   | 0.3       |
-   +-----------------------------------------------------------+----------------------------------------+-----------+
-   | Maximum first step growth factor                          | :c:func:`ERKStepSetMaxFirstGrowth()`   | 10000.0   |
-   +-----------------------------------------------------------+----------------------------------------+-----------+
-   | Maximum allowed general step growth factor                | :c:func:`ERKStepSetMaxGrowth()`        | 20.0      |
-   +-----------------------------------------------------------+----------------------------------------+-----------+
-   | Minimum allowed step reduction factor on error test fail  | :c:func:`ERKStepSetMinReduction()`     | 0.1       |
-   +-----------------------------------------------------------+----------------------------------------+-----------+
-   | Time step safety factor                                   | :c:func:`ERKStepSetSafetyFactor()`     | 0.96      |
-   +-----------------------------------------------------------+----------------------------------------+-----------+
-   | Error fails before MaxEFailGrowth takes effect            | :c:func:`ERKStepSetSmallNumEFails()`   | 2         |
-   +-----------------------------------------------------------+----------------------------------------+-----------+
-   | Explicit stability function                               | :c:func:`ERKStepSetStabilityFn()`      | none      |
-   +-----------------------------------------------------------+----------------------------------------+-----------+
+   +-----------------------------------------------------------+--------------------------------------------+-----------+
+   | Optional input                                            | Function name                              | Default   |
+   +-----------------------------------------------------------+--------------------------------------------+-----------+
+   | Provide a :c:type:`SUNAdaptController` for ERKStep to use | :c:func:`ERKStepSetAdaptController()`      | PI        |
+   +-----------------------------------------------------------+--------------------------------------------+-----------+
+   | Set a custom time step adaptivity function                | :c:func:`ERKStepSetAdaptivityFn()`         | internal  |
+   +-----------------------------------------------------------+--------------------------------------------+-----------+
+   | Choose an existing time step adaptivity method            | :c:func:`ERKStepSetAdaptivityMethod()`     | 0         |
+   +-----------------------------------------------------------+--------------------------------------------+-----------+
+   | Adjust the method order used in the controller            | :c:func:`ERKStepSetAdaptivityAdjustment()` | -1        |
+   +-----------------------------------------------------------+--------------------------------------------+-----------+
+   | Explicit stability safety factor                          | :c:func:`ERKStepSetCFLFraction()`          | 0.5       |
+   +-----------------------------------------------------------+--------------------------------------------+-----------+
+   | Time step error bias factor                               | :c:func:`ERKStepSetErrorBias()`            | 1.5       |
+   +-----------------------------------------------------------+--------------------------------------------+-----------+
+   | Bounds determining no change in step size                 | :c:func:`ERKStepSetFixedStepBounds()`      | 1.0  1.5  |
+   +-----------------------------------------------------------+--------------------------------------------+-----------+
+   | Maximum step growth factor on error test fail             | :c:func:`ERKStepSetMaxEFailGrowth()`       | 0.3       |
+   +-----------------------------------------------------------+--------------------------------------------+-----------+
+   | Maximum first step growth factor                          | :c:func:`ERKStepSetMaxFirstGrowth()`       | 10000.0   |
+   +-----------------------------------------------------------+--------------------------------------------+-----------+
+   | Maximum allowed general step growth factor                | :c:func:`ERKStepSetMaxGrowth()`            | 20.0      |
+   +-----------------------------------------------------------+--------------------------------------------+-----------+
+   | Minimum allowed step reduction factor on error test fail  | :c:func:`ERKStepSetMinReduction()`         | 0.1       |
+   +-----------------------------------------------------------+--------------------------------------------+-----------+
+   | Time step safety factor                                   | :c:func:`ERKStepSetSafetyFactor()`         | 0.96      |
+   +-----------------------------------------------------------+--------------------------------------------+-----------+
+   | Error fails before MaxEFailGrowth takes effect            | :c:func:`ERKStepSetSmallNumEFails()`       | 2         |
+   +-----------------------------------------------------------+--------------------------------------------+-----------+
+   | Explicit stability function                               | :c:func:`ERKStepSetStabilityFn()`          | none      |
+   +-----------------------------------------------------------+--------------------------------------------+-----------+
 
 
 
@@ -1268,6 +1271,28 @@ the code, is provided in :numref:`ARKODE.Mathematics.Adaptivity`.
    .. deprecated:: x.x.x
 
       Use the SUNAdaptController infrastructure instead (see :numref:`SUNAdaptController.Description`).
+
+
+.. c:function:: int ERKStepSetAdaptivityAdjustment(void* arkode_mem, int adjust)
+
+   Called by a user to adjust the method order supplied to the temporal adaptivity
+   controller.  For example, if the user expects order reduction due to problem stiffness,
+   they may request that the controller assume a reduced order of accuracy for the method
+   by specifying a value :math:`adjust < 0`.
+
+   **Arguments:**
+      * *arkode_mem* -- pointer to the ERKStep memory block.
+      * *adjust* -- adjustment factor (default is -1).
+
+   **Return value:**
+      * *ARK_SUCCESS* if successful
+      * *ARK_MEM_NULL* if the ERKStep memory is ``NULL``
+      * *ARK_ILL_INPUT* if an argument has an illegal value
+
+   **Notes:**
+      This should be called prior to calling :c:func:`ERKStepEvolve()`, and can only be
+      reset following a call to :c:func:`ERKStepReInit()`.
+
 
 
 .. c:function:: int ERKStepSetCFLFraction(void* arkode_mem, realtype cfl_frac)

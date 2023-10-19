@@ -1110,8 +1110,9 @@ Set max number of constraint failures             :c:func:`ARKStepSetMaxNumConst
       :c:func:`ARKStepSetMaxGrowth()`,
       :c:func:`ARKStepSetMinReduction()`,
       :c:func:`ARKStepSetSafetyFactor()`,
-      :c:func:`ARKStepSetSmallNumEFails()` and
-      :c:func:`ARKStepSetStabilityFn()`
+      :c:func:`ARKStepSetSmallNumEFails()`,
+      :c:func:`ARKStepSetStabilityFn()`, and
+      :c:func:`ARKStepSetAdaptController()`
       will be ignored, since temporal adaptivity is disabled.
 
       If both :c:func:`ARKStepSetFixedStep()` and
@@ -1691,24 +1692,25 @@ the code, is provided in :numref:`ARKODE.Mathematics.Adaptivity`.
 
 .. cssclass:: table-bordered
 
-=========================================================   ======================================  ========
-Optional input                                              Function name                           Default
-=========================================================   ======================================  ========
-Provide a :c:type:`SUNAdaptController` for ARKStep to use   :c:func:`ARKStepSetAdaptController()`   PID
-Set a custom time step adaptivity function                  :c:func:`ARKStepSetAdaptivityFn()`      internal
-Choose an existing time step adaptivity method              :c:func:`ARKStepSetAdaptivityMethod()`  0
-Explicit stability safety factor                            :c:func:`ARKStepSetCFLFraction()`       0.5
-Time step error bias factor                                 :c:func:`ARKStepSetErrorBias()`         1.5
-Bounds determining no change in step size                   :c:func:`ARKStepSetFixedStepBounds()`   1.0  1.5
-Maximum step growth factor on convergence fail              :c:func:`ARKStepSetMaxCFailGrowth()`    0.25
-Maximum step growth factor on error test fail               :c:func:`ARKStepSetMaxEFailGrowth()`    0.3
-Maximum first step growth factor                            :c:func:`ARKStepSetMaxFirstGrowth()`    10000.0
-Maximum allowed general step growth factor                  :c:func:`ARKStepSetMaxGrowth()`         20.0
-Minimum allowed step reduction factor on error test fail    :c:func:`ARKStepSetMinReduction()`      0.1
-Time step safety factor                                     :c:func:`ARKStepSetSafetyFactor()`      0.96
-Error fails before MaxEFailGrowth takes effect              :c:func:`ARKStepSetSmallNumEFails()`    2
-Explicit stability function                                 :c:func:`ARKStepSetStabilityFn()`       none
-=========================================================   ======================================  ========
+=========================================================   ==========================================  ========
+Optional input                                              Function name                               Default
+=========================================================   ==========================================  ========
+Provide a :c:type:`SUNAdaptController` for ARKStep to use   :c:func:`ARKStepSetAdaptController()`       PID
+Set a custom time step adaptivity function                  :c:func:`ARKStepSetAdaptivityFn()`          internal
+Choose an existing time step adaptivity method              :c:func:`ARKStepSetAdaptivityMethod()`      0
+Adjust the method order used in the controller              :c:func:`ERKStepSetAdaptivityAdjustment()`  -1
+Explicit stability safety factor                            :c:func:`ARKStepSetCFLFraction()`           0.5
+Time step error bias factor                                 :c:func:`ARKStepSetErrorBias()`             1.5
+Bounds determining no change in step size                   :c:func:`ARKStepSetFixedStepBounds()`       1.0  1.5
+Maximum step growth factor on convergence fail              :c:func:`ARKStepSetMaxCFailGrowth()`        0.25
+Maximum step growth factor on error test fail               :c:func:`ARKStepSetMaxEFailGrowth()`        0.3
+Maximum first step growth factor                            :c:func:`ARKStepSetMaxFirstGrowth()`        10000.0
+Maximum allowed general step growth factor                  :c:func:`ARKStepSetMaxGrowth()`             20.0
+Minimum allowed step reduction factor on error test fail    :c:func:`ARKStepSetMinReduction()`          0.1
+Time step safety factor                                     :c:func:`ARKStepSetSafetyFactor()`          0.96
+Error fails before MaxEFailGrowth takes effect              :c:func:`ARKStepSetSmallNumEFails()`        2
+Explicit stability function                                 :c:func:`ARKStepSetStabilityFn()`           none
+=========================================================   ==========================================  ========
 
 
 
@@ -1790,6 +1792,28 @@ Explicit stability function                                 :c:func:`ARKStepSetS
    .. deprecated:: x.x.x
 
       Use the SUNAdaptController infrastructure instead (see :numref:`SUNAdaptController.Description`).
+
+
+
+.. c:function:: int ARKStepSetAdaptivityAdjustment(void* arkode_mem, int adjust)
+
+   Called by a user to adjust the method order supplied to the temporal adaptivity
+   controller.  For example, if the user expects order reduction due to problem stiffness,
+   they may request that the controller assume a reduced order of accuracy for the method
+   by specifying a value :math:`adjust < 0`.
+
+   **Arguments:**
+      * *arkode_mem* -- pointer to the ARKStep memory block.
+      * *adjust* -- adjustment factor (default is -1).
+
+   **Return value:**
+      * *ARK_SUCCESS* if successful
+      * *ARK_MEM_NULL* if the ARKStep memory is ``NULL``
+      * *ARK_ILL_INPUT* if an argument has an illegal value
+
+   **Notes:**
+      This should be called prior to calling :c:func:`ARKStepEvolve()`, and can only be
+      reset following a call to :c:func:`ARKStepReInit()`.
 
 
 

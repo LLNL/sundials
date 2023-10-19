@@ -35,7 +35,6 @@ struct _SUNAdaptControllerContent_ImpGus {
   sunrealtype ep;           /* error from previous step */
   sunrealtype hp;           /* previous step size */
   int p;                    /* method/embedding order of accuracy */
-  int adj;                  /* order of accuracy adjustment to use for controller */
   sunbooleantype firststep; /* flag indicating first step */
 };
 
@@ -63,8 +62,6 @@ SUNDIALS_EXPORT
 int SUNAdaptController_Write_ImpGus(SUNAdaptController C, FILE* fptr);
 SUNDIALS_EXPORT
 int SUNAdaptController_SetMethodOrder_ImpGus(SUNAdaptController C, int p);
-SUNDIALS_EXPORT
-int SUNAdaptController_AdjustControllerOrder_ImpGus(SUNAdaptController C, int adj);
 SUNDIALS_EXPORT
 int SUNAdaptController_SetErrorBias_ImpGus(SUNAdaptController C, sunrealtype bias);
 SUNDIALS_EXPORT

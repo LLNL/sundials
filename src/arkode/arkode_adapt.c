@@ -73,6 +73,7 @@ void arkPrintAdaptMem(ARKodeHAdaptMem hadapt_mem, FILE *outfile)
     fprintf(outfile, "ark_hadapt: pq = %i\n", hadapt_mem->pq);
     fprintf(outfile, "ark_hadapt: p = %i\n", hadapt_mem->p);
     fprintf(outfile, "ark_hadapt: q = %i\n", hadapt_mem->q);
+    fprintf(outfile, "ark_hadapt: adjust = %i\n", hadapt_mem->adjust);
     if (hadapt_mem->expstab == arkExpStab) {
       fprintf(outfile, "  ark_hadapt: Default explicit stability function\n");
     } else {

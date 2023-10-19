@@ -30,9 +30,9 @@ form
       \quad\text{on subsequent steps},
    \end{cases}
 
-with default values :math:`k_1=0.367` and :math:`k_2=0.268`, and where :math:`ord = p+1+adj`,
-with both :math:`p` and :math:`adj` described below. In this estimate, a floor of
-:math:`\varepsilon > 10^{-10}` is enforced to avoid division-by-zero errors.
+with default values :math:`k_1=0.367` and :math:`k_2=0.268`, and where :math:`ord = p+1`,
+with :math:`p` is described below. In this estimate, a floor of :math:`\varepsilon > 10^{-10}`
+is enforced to avoid division-by-zero errors.
 
 The SUNAdaptController_ExpGus controller is implemented as a derived SUNAdaptController class,
 and defines its *content* field as:
@@ -45,7 +45,6 @@ and defines its *content* field as:
      sunrealtype bias;
      sunrealtype ep;
      int p;
-     int adj;
      sunbooleantype firststep;
    };
 
@@ -58,11 +57,7 @@ These entries of the *content* field contain the following information:
 
 * ``ep`` - storage for the previous error estimate, :math:`\varepsilon_{n-1}`.
 
-* ``p`` - asymptotic order to use in error control.  This is provided by
-  the time integrator, corresponding to the order of accuracy for the time
-  integration method, the embedding, or the minimum of the two.
-
-* ``adj`` - order of accuracy adjustment to use within the controller [default ``-1``].
+* ``p`` - asymptotic order to use in error control (provided by the time integrator).
 
 * ``firststep`` - flag indicating whether a step has successfully completed, in which
   case the formula above transitions from :math:`h_1` to :math:`h_n`.

@@ -109,6 +109,7 @@ int arkSetDefaults(void *arkode_mem)
   ark_mem->hadapt_mem->pq          = PQ;             /* embedding order */
   ark_mem->hadapt_mem->p           = 0;              /* no default embedding order */
   ark_mem->hadapt_mem->q           = 0;              /* no default method order */
+  ark_mem->hadapt_mem->adjust      = ADJUST;         /* controller order adjustment */
 
   /* Set default values for controller object */
   retval = SUNAdaptController_SetDefaults(ark_mem->hadapt_mem->hcontroller);
@@ -1207,6 +1208,30 @@ int arkSetCFLFraction(void *arkode_mem, realtype cfl_frac)
     hadapt_mem->cfl = cfl_frac;
   }
 
+  return(ARK_SUCCESS);
+}
+
+
+/*---------------------------------------------------------------
+  arkSetAdaptivityAdjustment:
+
+  Adjusts the method order supplied to the temporal adaptivity
+  controller.  For example, if the user expects order reduction
+  due to problem stiffness, they may request that the controller
+  assume a reduced order of accuracy for the method by specifying
+  a value adjust < 0.
+  ---------------------------------------------------------------*/
+int arkSetAdaptivityAdjustment(void *arkode_mem, int adjust)
+{
+  int retval;
+  ARKodeHAdaptMem hadapt_mem;
+  ARKodeMem ark_mem;
+  retval = arkAccessHAdaptMem(arkode_mem, "arkSetAdaptivityAdjustment",
+                              &ark_mem, &hadapt_mem);
+  if (retval != ARK_SUCCESS)  return(retval);
+
+  /* store requested adjustment */
+  hadapt_mem->adjust = adjust;
   return(ARK_SUCCESS);
 }
 

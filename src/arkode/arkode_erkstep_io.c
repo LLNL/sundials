@@ -78,6 +78,8 @@ int ERKStepSetPostprocessStepFn(void *arkode_mem,
 int ERKStepSetPostprocessStageFn(void *arkode_mem,
                                 ARKPostProcessFn ProcessStage) {
   return(arkSetPostprocessStageFn(arkode_mem, ProcessStage)); }
+int ERKStepSetAdaptivityAdjustment(void *arkode_mem, int adjust) {
+  return(arkSetAdaptivityAdjustment(arkode_mem, adjust)); }
 int ERKStepSetCFLFraction(void *arkode_mem, realtype cfl_frac) {
   return(arkSetCFLFraction(arkode_mem, cfl_frac)); }
 int ERKStepSetSafetyFactor(void *arkode_mem, realtype safety) {

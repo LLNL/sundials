@@ -68,7 +68,6 @@ function pointers to the various controller operations, and is defined as
         int (*setdefaults)(SUNAdaptController C);
         int (*write)(SUNAdaptController C, FILE* fptr);
         int (*setmethodorder)(SUNAdaptController C, int p);
-        int (*adjustcontrollerorder)(SUNAdaptController C, int adj);
         int (*seterrorbias)(SUNAdaptController C, sunrealtype bias);
         int (*update)(SUNAdaptController C, sunrealtype h, sunrealtype dsm);
         int (*updatemrih)(SUNAdaptController C, sunrealtype H, sunrealtype h, sunrealtype DSM, sunrealtype dsm);
@@ -325,27 +324,6 @@ routine, below.
    .. code-block:: c
 
       retval = SUNAdaptController_SetMethodOrder(C, 3, 2);
-
-.. c:function:: int SUNAdaptController_AdjustControllerOrder(SUNAdaptController C, int adj)
-
-   Called by a user to request that the controller adjust the order specified by the time
-   integration method when performing temporal adaptivity, e.g., if the user expects order
-   reduction due to problem stiffness, they may request that the controller assume a
-   reduced order of accuracy for the method by specifying a value :math:`adj < 0`.  This
-   adjustment will apply to all subsequent time step adaptivity estimates used by the
-   controller, and may be undone by a call with :math:`adj = 0`.
-
-   :param C:  the :c:type:`SUNAdaptController` object.
-   :param p:  the adjustment that will be applied to the values *p* and *q* from
-              :c:func:`SUNAdaptController_SetMethodOrder`.
-   :return:  error code indicating success failure
-             (see :numref:`SUNAdaptController.Description.errorCodes`).
-
-   Usage:
-
-   .. code-block:: c
-
-      retval = SUNAdaptController_AdjustControllerOrder(C, -1);
 
 .. c:function:: int SUNAdaptController_SetErrorBias(SUNAdaptController C, sunrealtype bias)
 

@@ -34,7 +34,6 @@ module fsunadaptcontroller_i_mod
  public :: FSUNAdaptController_SetDefaults_I
  public :: FSUNAdaptController_Write_I
  public :: FSUNAdaptController_SetMethodOrder_I
- public :: FSUNAdaptController_AdjustControllerOrder_I
  public :: FSUNAdaptController_SetErrorBias_I
  public :: FSUNAdaptController_Space_I
 
@@ -95,15 +94,6 @@ end function
 
 function swigc_FSUNAdaptController_SetMethodOrder_I(farg1, farg2) &
 bind(C, name="_wrap_FSUNAdaptController_SetMethodOrder_I") &
-result(fresult)
-use, intrinsic :: ISO_C_BINDING
-type(C_PTR), value :: farg1
-integer(C_INT), intent(in) :: farg2
-integer(C_INT) :: fresult
-end function
-
-function swigc_FSUNAdaptController_AdjustControllerOrder_I(farg1, farg2) &
-bind(C, name="_wrap_FSUNAdaptController_AdjustControllerOrder_I") &
 result(fresult)
 use, intrinsic :: ISO_C_BINDING
 type(C_PTR), value :: farg1
@@ -241,22 +231,6 @@ integer(C_INT) :: farg2
 farg1 = c_loc(c)
 farg2 = p
 fresult = swigc_FSUNAdaptController_SetMethodOrder_I(farg1, farg2)
-swig_result = fresult
-end function
-
-function FSUNAdaptController_AdjustControllerOrder_I(c, adj) &
-result(swig_result)
-use, intrinsic :: ISO_C_BINDING
-integer(C_INT) :: swig_result
-type(SUNAdaptController), target, intent(inout) :: c
-integer(C_INT), intent(in) :: adj
-integer(C_INT) :: fresult 
-type(C_PTR) :: farg1 
-integer(C_INT) :: farg2 
-
-farg1 = c_loc(c)
-farg2 = adj
-fresult = swigc_FSUNAdaptController_AdjustControllerOrder_I(farg1, farg2)
 swig_result = fresult
 end function
 

@@ -29,9 +29,9 @@ prospective step size,
         \varepsilon_{n-2}^{-k_3/ord},
 
 where the constants :math:`k_1`, :math:`k_2` and :math:`k_3` default to 0.58,
-0.21 and 0.1, respectively, and :math:`ord = p+1+adj`, where both :math:`p` and :math:`adj` are
-described below. In this estimate, a floor of :math:`\varepsilon > 10^{-10}` is enforced to
-avoid division-by-zero errors.
+0.21 and 0.1, respectively, and :math:`ord = p+1`, where :math:`p` is described below.
+In this estimate, a floor of :math:`\varepsilon > 10^{-10}` is enforced to avoid
+division-by-zero errors.
 
 This is implemented as a derived SUNAdaptController class, and defines its *content*
 field as:
@@ -46,7 +46,6 @@ field as:
      sunrealtype ep;
      sunrealtype epp;
      int p;
-     int adj;
    };
 
 These entries of the *content* field contain the following information:
@@ -59,11 +58,7 @@ These entries of the *content* field contain the following information:
 * ``ep, epp`` - storage for the two previous error estimates,
   :math:`\varepsilon_{n-1}` and :math:`varepsilon_{n-2}`.
 
-* ``p`` - asymptotic order to use in error control.  This is provided by
-  the time integrator, corresponding to the order of accuracy for the time
-  integration method, the embedding, or the minimum of the two.
-
-* ``adj`` - order of accuracy adjustment to use within the controller [default ``-1``].
+* ``p`` - asymptotic order to use in error control (provided by the time integrator).
 
 
 The header file to be included when using this module is

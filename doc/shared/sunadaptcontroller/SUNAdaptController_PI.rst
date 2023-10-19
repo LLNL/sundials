@@ -27,9 +27,8 @@ two most recent step sizes in its adaptivity algorithm,
    h' \;=\; h_n\; \varepsilon_n^{-k_1/ord}\; \varepsilon_{n-1}^{k_2/ord}.
 
 where the constants :math:`k_1` and :math:`k_2` default to 0.8 and 0.31,
-respectively, and :math:`ord = p+1+adj`, where both :math:`p` and :math:`adj` are
-described below. In this estimate, a floor of :math:`\varepsilon > 10^{-10}` is enforced to
-avoid division-by-zero errors.
+respectively, and :math:`ord = p+1`, where :math:`p` is described below. In this estimate,
+a floor of :math:`\varepsilon > 10^{-10}` is enforced to avoid division-by-zero errors.
 
 This is implemented as a derived SUNAdaptController class, and defines its *content*
 field as:
@@ -42,7 +41,6 @@ field as:
      sunrealtype bias;
      sunrealtype ep;
      int p;
-     int adj;
    };
 
 These entries of the *content* field contain the following information:
@@ -54,11 +52,7 @@ These entries of the *content* field contain the following information:
 
 * ``ep`` - storage for the previous error estimate, :math:`\varepsilon_{n-1}`.
 
-* ``p`` - asymptotic order to use in error control.  This is provided by
-  the time integrator, corresponding to the order of accuracy for the time
-  integration method, the embedding, or the minimum of the two.
-
-* ``adj`` - order of accuracy adjustment to use within the controller [default ``-1``].
+* ``p`` - asymptotic order to use in error control (provided by the time integrator).
 
 
 The header file to be included when using this module is

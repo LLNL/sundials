@@ -35,7 +35,6 @@ module fsunadaptcontroller_imexgus_mod
  public :: FSUNAdaptController_SetDefaults_ImExGus
  public :: FSUNAdaptController_Write_ImExGus
  public :: FSUNAdaptController_SetMethodOrder_ImExGus
- public :: FSUNAdaptController_AdjustControllerOrder_ImExGus
  public :: FSUNAdaptController_SetErrorBias_ImExGus
  public :: FSUNAdaptController_Update_ImExGus
  public :: FSUNAdaptController_Space_ImExGus
@@ -108,15 +107,6 @@ end function
 
 function swigc_FSUNAdaptController_SetMethodOrder_ImExGus(farg1, farg2) &
 bind(C, name="_wrap_FSUNAdaptController_SetMethodOrder_ImExGus") &
-result(fresult)
-use, intrinsic :: ISO_C_BINDING
-type(C_PTR), value :: farg1
-integer(C_INT), intent(in) :: farg2
-integer(C_INT) :: fresult
-end function
-
-function swigc_FSUNAdaptController_AdjustControllerOrder_ImExGus(farg1, farg2) &
-bind(C, name="_wrap_FSUNAdaptController_AdjustControllerOrder_ImExGus") &
 result(fresult)
 use, intrinsic :: ISO_C_BINDING
 type(C_PTR), value :: farg1
@@ -286,22 +276,6 @@ integer(C_INT) :: farg2
 farg1 = c_loc(c)
 farg2 = p
 fresult = swigc_FSUNAdaptController_SetMethodOrder_ImExGus(farg1, farg2)
-swig_result = fresult
-end function
-
-function FSUNAdaptController_AdjustControllerOrder_ImExGus(c, adj) &
-result(swig_result)
-use, intrinsic :: ISO_C_BINDING
-integer(C_INT) :: swig_result
-type(SUNAdaptController), target, intent(inout) :: c
-integer(C_INT), intent(in) :: adj
-integer(C_INT) :: fresult 
-type(C_PTR) :: farg1 
-integer(C_INT) :: farg2 
-
-farg1 = c_loc(c)
-farg2 = adj
-fresult = swigc_FSUNAdaptController_AdjustControllerOrder_ImExGus(farg1, farg2)
 swig_result = fresult
 end function
 

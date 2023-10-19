@@ -54,6 +54,8 @@ extern "C" {
 #define PQ        0                /* order to use for controller: 0=embedding,
                                       1=method, -1=min(method,embedding)
                                       REMOVE AT SAME TIME AS ARKStepSetAdaptivityMethod */
+#define ADJUST    -1               /* adjustment to apply within controller to method
+                                      order of accuracy */
 
 
 /*===============================================================
@@ -83,6 +85,7 @@ typedef struct ARKodeHAdaptMemRec {
   int          p;           /* embedding order                            */
   int          q;           /* method order                               */
   int          pq;          /* decision flag for controller order         */
+  int          adjust;      /* controller order adjustment factor         */
 
   SUNAdaptController hcontroller; /* temporal error controller            */
   booleantype  owncontroller;  /* flag indicating hcontroller ownership   */

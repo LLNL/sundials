@@ -304,20 +304,6 @@ SWIGEXPORT int _wrap_FSUNAdaptController_SetMethodOrder_I(SUNAdaptController far
 }
 
 
-SWIGEXPORT int _wrap_FSUNAdaptController_AdjustControllerOrder_I(SUNAdaptController farg1, int const *farg2) {
-  int fresult ;
-  SUNAdaptController arg1 = (SUNAdaptController) 0 ;
-  int arg2 ;
-  int result;
-  
-  arg1 = (SUNAdaptController)(farg1);
-  arg2 = (int)(*farg2);
-  result = (int)SUNAdaptController_AdjustControllerOrder_I(arg1,arg2);
-  fresult = (int)(result);
-  return fresult;
-}
-
-
 SWIGEXPORT int _wrap_FSUNAdaptController_SetErrorBias_I(SUNAdaptController farg1, double const *farg2) {
   int fresult ;
   SUNAdaptController arg1 = (SUNAdaptController) 0 ;

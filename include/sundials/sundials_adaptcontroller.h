@@ -88,7 +88,6 @@ struct _generic_SUNAdaptController_Ops
   int (*setdefaults)(SUNAdaptController C);
   int (*write)(SUNAdaptController C, FILE* fptr);
   int (*setmethodorder)(SUNAdaptController C, int p);
-  int (*adjustcontrollerorder)(SUNAdaptController C, int adj);
   int (*seterrorbias)(SUNAdaptController C, sunrealtype bias);
   int (*update)(SUNAdaptController C, sunrealtype h, sunrealtype dsm);
   int (*updatemrih)(SUNAdaptController C, sunrealtype H, sunrealtype h,
@@ -191,10 +190,6 @@ int SUNAdaptController_Write(SUNAdaptController C, FILE* fptr);
    its embedding. */
 SUNDIALS_EXPORT
 int SUNAdaptController_SetMethodOrder(SUNAdaptController C, int p);
-
-/* Function to adjust the order of accuracy used within the controller. */
-SUNDIALS_EXPORT
-int SUNAdaptController_AdjustControllerOrder(SUNAdaptController C, int adj);
 
 /* Function to set an error bias factor to use for scaling the local error
    'dsm' factors above. */

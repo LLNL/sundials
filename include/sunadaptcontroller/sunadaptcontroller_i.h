@@ -32,7 +32,6 @@ struct _SUNAdaptControllerContent_I {
   sunrealtype k1;    /* internal controller parameters */
   sunrealtype bias;  /* error bias factor */
   int p;             /* method/embedding order of accuracy */
-  int adj;           /* order of accuracy adjustment to use for controller */
 };
 
 typedef struct _SUNAdaptControllerContent_I *SUNAdaptControllerContent_I;
@@ -56,8 +55,6 @@ SUNDIALS_EXPORT
 int SUNAdaptController_Write_I(SUNAdaptController C, FILE* fptr);
 SUNDIALS_EXPORT
 int SUNAdaptController_SetMethodOrder_I(SUNAdaptController C, int p);
-SUNDIALS_EXPORT
-int SUNAdaptController_AdjustControllerOrder_I(SUNAdaptController C, int adj);
 SUNDIALS_EXPORT
 int SUNAdaptController_SetErrorBias_I(SUNAdaptController C, sunrealtype bias);
 SUNDIALS_EXPORT
