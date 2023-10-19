@@ -85,14 +85,14 @@ if(MAGMA_LIBRARY AND MAGMA_INCLUDE_DIR)
         
         # Check if we need to find cusparse or cublas
         if(SUNDIALS_MAGMA_BACKENDS MATCHES "CUDA")
-          if (NOT TARGET CUDA::cublas)
+          if (NOT TARGET CUDA::cudart)
             find_package(CUDAToolkit)
           endif() 
           # Ignore cublas, cusolver, cusparse because the library path in the magma pc is not reliable.
           # Sepcifically, the path is wrong on systems like Perlmutter where the NVIDIA HPC SDK is used.
           # We just link to these in the relevant sundials targets  using the CMake CUDA targets instead.
           if((lib STREQUAL "cublas") OR (lib STREQUAL "cusolver") OR (lib STREQUAL "cusparse"))
-            continue()
+            set(lib "CUDA::${lib}")
           endif()
         endif()
         
