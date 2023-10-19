@@ -220,21 +220,19 @@ SWIGEXPORT SUNAdaptController _wrap_FSUNAdaptController_PID(void *farg1) {
 }
 
 
-SWIGEXPORT int _wrap_FSUNAdaptController_SetParams_PID(SUNAdaptController farg1, int const *farg2, double const *farg3, double const *farg4, double const *farg5) {
+SWIGEXPORT int _wrap_FSUNAdaptController_SetParams_PID(SUNAdaptController farg1, double const *farg2, double const *farg3, double const *farg4) {
   int fresult ;
   SUNAdaptController arg1 = (SUNAdaptController) 0 ;
-  int arg2 ;
+  sunrealtype arg2 ;
   sunrealtype arg3 ;
   sunrealtype arg4 ;
-  sunrealtype arg5 ;
   int result;
   
   arg1 = (SUNAdaptController)(farg1);
-  arg2 = (int)(*farg2);
+  arg2 = (sunrealtype)(*farg2);
   arg3 = (sunrealtype)(*farg3);
   arg4 = (sunrealtype)(*farg4);
-  arg5 = (sunrealtype)(*farg5);
-  result = (int)SUNAdaptController_SetParams_PID(arg1,arg2,arg3,arg4,arg5);
+  result = (int)SUNAdaptController_SetParams_PID(arg1,arg2,arg3,arg4);
   fresult = (int)(result);
   return fresult;
 }
@@ -308,17 +306,15 @@ SWIGEXPORT int _wrap_FSUNAdaptController_Write_PID(SUNAdaptController farg1, voi
 }
 
 
-SWIGEXPORT int _wrap_FSUNAdaptController_SetMethodOrder_PID(SUNAdaptController farg1, int const *farg2, int const *farg3) {
+SWIGEXPORT int _wrap_FSUNAdaptController_SetMethodOrder_PID(SUNAdaptController farg1, int const *farg2) {
   int fresult ;
   SUNAdaptController arg1 = (SUNAdaptController) 0 ;
   int arg2 ;
-  int arg3 ;
   int result;
   
   arg1 = (SUNAdaptController)(farg1);
   arg2 = (int)(*farg2);
-  arg3 = (int)(*farg3);
-  result = (int)SUNAdaptController_SetMethodOrder_PID(arg1,arg2,arg3);
+  result = (int)SUNAdaptController_SetMethodOrder_PID(arg1,arg2);
   fresult = (int)(result);
   return fresult;
 }

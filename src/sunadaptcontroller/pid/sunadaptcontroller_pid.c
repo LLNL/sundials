@@ -33,7 +33,6 @@
 #define SACPID_EP(C)          ( SACPID_CONTENT(C)->ep )
 #define SACPID_EPP(C)         ( SACPID_CONTENT(C)->epp )
 #define SACPID_P(C)           ( SACPID_CONTENT(C)->p )
-#define SACPID_PQ(C)          ( SACPID_CONTENT(C)->pq )
 #define SACPID_ADJ(C)         ( SACPID_CONTENT(C)->adj )
 
 /* ------------------
@@ -44,9 +43,7 @@
 #define DEFAULT_K2     RCONST(0.21)
 #define DEFAULT_K3     RCONST(0.1)
 #define DEFAULT_BIAS   RCONST(1.5)
-#define DEFAULT_PQ     0
 #define DEFAULT_ADJ    -1
-/* #define DEFAULT_PQ     -1 */
 /* #define DEFAULT_ADJ    0 */
 #define TINY           RCONST(1.0e-10)
 
@@ -107,11 +104,10 @@ SUNAdaptController SUNAdaptController_PID(SUNContext sunctx)
  * Function to set PID parameters
  */
 
-int SUNAdaptController_SetParams_PID(SUNAdaptController C, int pq,
-                                     sunrealtype k1, sunrealtype k2, sunrealtype k3)
+int SUNAdaptController_SetParams_PID(SUNAdaptController C, sunrealtype k1,
+                                     sunrealtype k2, sunrealtype k3)
 {
   /* store legal inputs, and return with success */
-  SACPID_PQ(C) = pq;
   if (k1 >= RCONST(0.0)) { SACPID_K1(C) = k1; }
   if (k2 >= RCONST(0.0)) { SACPID_K2(C) = k2; }
   if (k3 >= RCONST(0.0)) { SACPID_K3(C) = k3; }
@@ -157,7 +153,6 @@ int SUNAdaptController_SetDefaults_PID(SUNAdaptController C)
   SACPID_K2(C)     = DEFAULT_K2;
   SACPID_K3(C)     = DEFAULT_K3;
   SACPID_BIAS(C)   = DEFAULT_BIAS;
-  SACPID_PQ(C)     = DEFAULT_PQ;
   SACPID_ADJ(C)    = DEFAULT_ADJ;
   return SUNADAPTCONTROLLER_SUCCESS;
 }
@@ -178,35 +173,16 @@ int SUNAdaptController_Write_PID(SUNAdaptController C, FILE *fptr)
   fprintf(fptr, "  bias factor = %16g\n", SACPID_BIAS(C));
   fprintf(fptr, "  previous errors = %16g  %16g\n", SACPID_EP(C), SACPID_EPP(C));
 #endif
-  if (SACPID_PQ(C) == 1)
-  {
-    fprintf(fptr, "  p = %i (method order)\n", SACPID_P(C));
-  }
-  else if (SACPID_PQ(C) == 0)
-  {
-    fprintf(fptr, "  p = %i (embedding order)\n", SACPID_P(C));
-  }
-  else
-  {
-    fprintf(fptr, "  p = %i (minimum of method & embedding order)\n", SACPID_P(C));
-  }
+  fprintf(fptr, "  p = %i\n", SACPID_P(C));
   fprintf(fptr, "  adj = %i\n", SACPID_ADJ(C));
   return SUNADAPTCONTROLLER_SUCCESS;
 }
 
-int SUNAdaptController_SetMethodOrder_PID(SUNAdaptController C, int p, int q)
+int SUNAdaptController_SetMethodOrder_PID(SUNAdaptController C, int p)
 {
   /* check for legal inputs */
-  if ((p <= 0) || (q <= 0)) { return SUNADAPTCONTROLLER_ILL_INPUT; }
-
-  /* store appropriate value based on "pq" */
-  if (SACPID_PQ(C) == 1) {
-    SACPID_P(C) = p;
-  } else if (SACPID_PQ(C) == 0) {
-    SACPID_P(C) = q;
-  } else {
-    SACPID_P(C) = SUNMIN(p,q);
-  }
+  if (p <= 0) { return SUNADAPTCONTROLLER_ILL_INPUT; }
+  SACPID_P(C) = p;
   return SUNADAPTCONTROLLER_SUCCESS;
 }
 

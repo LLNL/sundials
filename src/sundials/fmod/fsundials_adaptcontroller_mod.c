@@ -352,17 +352,15 @@ SWIGEXPORT int _wrap_FSUNAdaptController_Write(SUNAdaptController farg1, void *f
 }
 
 
-SWIGEXPORT int _wrap_FSUNAdaptController_SetMethodOrder(SUNAdaptController farg1, int const *farg2, int const *farg3) {
+SWIGEXPORT int _wrap_FSUNAdaptController_SetMethodOrder(SUNAdaptController farg1, int const *farg2) {
   int fresult ;
   SUNAdaptController arg1 = (SUNAdaptController) 0 ;
   int arg2 ;
-  int arg3 ;
   int result;
   
   arg1 = (SUNAdaptController)(farg1);
   arg2 = (int)(*farg2);
-  arg3 = (int)(*farg3);
-  result = (int)SUNAdaptController_SetMethodOrder(arg1,arg2,arg3);
+  result = (int)SUNAdaptController_SetMethodOrder(arg1,arg2);
   fresult = (int)(result);
   return fresult;
 }

@@ -323,7 +323,7 @@ int ERKStepSetDefaults(void* arkode_mem)
   ark_mem->hadapt_mem->safety  = RCONST(0.99); /* step adaptivity safety factor  */
   ark_mem->hadapt_mem->growth  = RCONST(25.0); /* step adaptivity growth factor */
   (void) SUNAdaptController_SetErrorBias(ark_mem->hadapt_mem->hcontroller, RCONST(1.2));
-  (void) SUNAdaptController_SetParams_PI(ark_mem->hadapt_mem->hcontroller, SUNFALSE,
+  (void) SUNAdaptController_SetParams_PI(ark_mem->hadapt_mem->hcontroller,
                                          RCONST(0.8), RCONST(0.31));
   return(ARK_SUCCESS);
 }

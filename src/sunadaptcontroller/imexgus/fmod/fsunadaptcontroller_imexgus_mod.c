@@ -220,23 +220,21 @@ SWIGEXPORT SUNAdaptController _wrap_FSUNAdaptController_ImExGus(void *farg1) {
 }
 
 
-SWIGEXPORT int _wrap_FSUNAdaptController_SetParams_ImExGus(SUNAdaptController farg1, int const *farg2, double const *farg3, double const *farg4, double const *farg5, double const *farg6) {
+SWIGEXPORT int _wrap_FSUNAdaptController_SetParams_ImExGus(SUNAdaptController farg1, double const *farg2, double const *farg3, double const *farg4, double const *farg5) {
   int fresult ;
   SUNAdaptController arg1 = (SUNAdaptController) 0 ;
-  int arg2 ;
+  sunrealtype arg2 ;
   sunrealtype arg3 ;
   sunrealtype arg4 ;
   sunrealtype arg5 ;
-  sunrealtype arg6 ;
   int result;
   
   arg1 = (SUNAdaptController)(farg1);
-  arg2 = (int)(*farg2);
+  arg2 = (sunrealtype)(*farg2);
   arg3 = (sunrealtype)(*farg3);
   arg4 = (sunrealtype)(*farg4);
   arg5 = (sunrealtype)(*farg5);
-  arg6 = (sunrealtype)(*farg6);
-  result = (int)SUNAdaptController_SetParams_ImExGus(arg1,arg2,arg3,arg4,arg5,arg6);
+  result = (int)SUNAdaptController_SetParams_ImExGus(arg1,arg2,arg3,arg4,arg5);
   fresult = (int)(result);
   return fresult;
 }
@@ -310,17 +308,15 @@ SWIGEXPORT int _wrap_FSUNAdaptController_Write_ImExGus(SUNAdaptController farg1,
 }
 
 
-SWIGEXPORT int _wrap_FSUNAdaptController_SetMethodOrder_ImExGus(SUNAdaptController farg1, int const *farg2, int const *farg3) {
+SWIGEXPORT int _wrap_FSUNAdaptController_SetMethodOrder_ImExGus(SUNAdaptController farg1, int const *farg2) {
   int fresult ;
   SUNAdaptController arg1 = (SUNAdaptController) 0 ;
   int arg2 ;
-  int arg3 ;
   int result;
   
   arg1 = (SUNAdaptController)(farg1);
   arg2 = (int)(*farg2);
-  arg3 = (int)(*farg3);
-  result = (int)SUNAdaptController_SetMethodOrder_ImExGus(arg1,arg2,arg3);
+  result = (int)SUNAdaptController_SetMethodOrder_ImExGus(arg1,arg2);
   fresult = (int)(result);
   return fresult;
 }

@@ -67,7 +67,6 @@ class, and defines its *content* field as:
      sunrealtype hp;
      int p;
      int adj;
-     int pq;
      sunbooleantype firststep;
    };
 
@@ -84,13 +83,11 @@ These entries of the *content* field contain the following information:
 
 * ``hp`` - storage for the previous step size, :math:`h_{n-1}`.
 
-* ``p`` - asymptotic order to use in error control.
+* ``p`` - asymptotic order to use in error control.  This is provided by
+  the time integrator, corresponding to the order of accuracy for the time
+  integration method, the embedding, or the minimum of the two.
 
 * ``adj`` - order of accuracy adjustment to use within the controller [default ``-1``].
-
-* ``pq`` - flag indicating whether ``p`` corresponds to the order of accuracy
-  for the time integration method (``1``), the embedding (``0``), or the
-  minimum of the two (``-1``) [default ``0``].
 
 * ``firststep`` - flag indicating whether a step has completed successfully, allowing
   the formulas above to transition between :math:`h_1` and :math:`h_n`.
@@ -120,22 +117,21 @@ routines:
 
       SUNAdaptController C = SUNAdaptController_ImExGus(sunctx);
 
-.. c:function:: int SUNAdaptController_SetParams_ImExGus(SUNAdaptController C, int pq, sunrealtype k1e, sunrealtype k2e, sunrealtype k1i, sunrealtype k2i)
+.. c:function:: int SUNAdaptController_SetParams_ImExGus(SUNAdaptController C, sunrealtype k1e, sunrealtype k2e, sunrealtype k1i, sunrealtype k2i)
 
    This user-callable function provides control over the relevant parameters
    above.  This should be called *before* the time integrator is called to evolve
    the problem.
 
-   :param C: the SUNAdaptController_ImExGus object
-   :param pq: the integer parameter indicating how to interpret the method and embedding orders of accuracy
-   :param k1e: parameter used within the controller time step estimate (only stored if non-negative)
-   :param k2e: parameter used within the controller time step estimate (only stored if non-negative)
-   :param k1i: parameter used within the controller time step estimate (only stored if non-negative)
-   :param k2i: parameter used within the controller time step estimate (only stored if non-negative)
+   :param C: the SUNAdaptController_ImExGus object.
+   :param k1e: parameter used within the controller time step estimate (only stored if non-negative).
+   :param k2e: parameter used within the controller time step estimate (only stored if non-negative).
+   :param k1i: parameter used within the controller time step estimate (only stored if non-negative).
+   :param k2i: parameter used within the controller time step estimate (only stored if non-negative).
    :return: error code indication success or failure (see :numref:`SUNAdaptController.Description.errorCodes`).
 
    Usage:
 
    .. code-block:: c
 
-      retval = SUNAdaptController_SetParams_ImExGus(C, -1, 0.4, 0.3, -1.0, 1.0);
+      retval = SUNAdaptController_SetParams_ImExGus(C, 0.4, 0.3, -1.0, 1.0);

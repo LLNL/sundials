@@ -29,8 +29,6 @@
 #define SC_HPP(C)         ( SC_CONTENT(C)->hpp )
 #define SC_EP(C)          ( SC_CONTENT(C)->ep )
 #define SC_EPP(C)         ( SC_CONTENT(C)->epp )
-#define SC_P(C)           ( SC_CONTENT(C)->p )
-#define SC_Q(C)           ( SC_CONTENT(C)->q )
 #define SC_ARKMEM(C)      ( SC_CONTENT(C)->ark_mem )
 #define SC_HADAPT(C)      ( SC_CONTENT(C)->hadapt )
 #define SC_DATA(C)        ( SC_CONTENT(C)->hadapt_data )
@@ -59,13 +57,12 @@ SUNAdaptController ARKUserControl(SUNContext sunctx, void* arkode_mem,
   if (C == NULL) { return (NULL); }
 
   /* Attach operations */
-  C->ops->gettype           = SUNAdaptController_GetType_ARKUserControl;
-  C->ops->estimatestep      = SUNAdaptController_EstimateStep_ARKUserControl;
-  C->ops->reset             = SUNAdaptController_Reset_ARKUserControl;
-  C->ops->write             = SUNAdaptController_Write_ARKUserControl;
-  C->ops->setmethodorder    = SUNAdaptController_SetMethodOrder_ARKUserControl;
-  C->ops->update            = SUNAdaptController_Update_ARKUserControl;
-  C->ops->space             = SUNAdaptController_Space_ARKUserControl;
+  C->ops->gettype      = SUNAdaptController_GetType_ARKUserControl;
+  C->ops->estimatestep = SUNAdaptController_EstimateStep_ARKUserControl;
+  C->ops->reset        = SUNAdaptController_Reset_ARKUserControl;
+  C->ops->write        = SUNAdaptController_Write_ARKUserControl;
+  C->ops->update       = SUNAdaptController_Update_ARKUserControl;
+  C->ops->space        = SUNAdaptController_Space_ARKUserControl;
 
   /* Create content */
   content = NULL;
@@ -110,8 +107,9 @@ int SUNAdaptController_EstimateStep_ARKUserControl(SUNAdaptController C, realtyp
   /* call user-provided function to compute new step */
   sunrealtype ttmp = (dsm <= ONE) ? SC_ARKMEM(C)->tn + SC_ARKMEM(C)->h : SC_ARKMEM(C)->tn;
   int retval = SC_HADAPT(C)(SC_ARKMEM(C)->ycur, ttmp, h, SC_HP(C),
-                            SC_HPP(C), dsm, SC_EP(C), SC_EPP(C), SC_Q(C),
-                            SC_P(C), hnew, SC_DATA(C));
+                            SC_HPP(C), dsm, SC_EP(C), SC_EPP(C),
+                            SC_ARKMEM(C)->hadapt_mem->q, SC_ARKMEM(C)->hadapt_mem->p,
+                            hnew, SC_DATA(C));
   if (retval != SUNADAPTCONTROLLER_SUCCESS) { return(SUNADAPTCONTROLLER_USER_FCN_FAIL); }
   return SUNADAPTCONTROLLER_SUCCESS;
 }
@@ -139,21 +137,7 @@ int SUNAdaptController_Write_ARKUserControl(SUNAdaptController C, FILE *fptr)
   fprintf(fptr, "  ep = %12g\n", SC_EP(C));
   fprintf(fptr, "  epp = %12g\n", SC_EPP(C));
 #endif
-  fprintf(fptr, "  p = %i\n", SC_P(C));
-  fprintf(fptr, "  q = %i\n", SC_Q(C));
   fprintf(fptr, "  hadapt_data = %p\n", SC_DATA(C));
-  return SUNADAPTCONTROLLER_SUCCESS;
-}
-
-int SUNAdaptController_SetMethodOrder_ARKUserControl(SUNAdaptController C, int p, int q)
-{
-  /* check for legal input */
-  if (p <= 0) { return SUNADAPTCONTROLLER_ILL_INPUT; }
-  if (q <= 0) { return SUNADAPTCONTROLLER_ILL_INPUT; }
-
-  /* store value and return */
-  SC_P(C) = p;
-  SC_Q(C) = q;
   return SUNADAPTCONTROLLER_SUCCESS;
 }
 

@@ -37,7 +37,6 @@ struct _SUNAdaptControllerContent_PID {
   sunrealtype epp;   /* error from 2 steps ago */
   int p;             /* method/embedding order of accuracy */
   int adj;           /* order of accuracy adjustment to use for controller */
-  int pq;            /* p is order of embedding (0), method (1), or minimum (-1) */
 };
 
 typedef struct _SUNAdaptControllerContent_PID *SUNAdaptControllerContent_PID;
@@ -49,8 +48,8 @@ typedef struct _SUNAdaptControllerContent_PID *SUNAdaptControllerContent_PID;
 SUNDIALS_EXPORT
 SUNAdaptController SUNAdaptController_PID(SUNContext sunctx);
 SUNDIALS_EXPORT
-int SUNAdaptController_SetParams_PID(SUNAdaptController C, int pq,
-                                     sunrealtype k1, sunrealtype k2, sunrealtype k3);
+int SUNAdaptController_SetParams_PID(SUNAdaptController C, sunrealtype k1,
+                                     sunrealtype k2, sunrealtype k3);
 SUNDIALS_EXPORT
 SUNAdaptController_Type SUNAdaptController_GetType_PID(SUNAdaptController C);
 SUNDIALS_EXPORT
@@ -63,7 +62,7 @@ int SUNAdaptController_SetDefaults_PID(SUNAdaptController C);
 SUNDIALS_EXPORT
 int SUNAdaptController_Write_PID(SUNAdaptController C, FILE* fptr);
 SUNDIALS_EXPORT
-int SUNAdaptController_SetMethodOrder_PID(SUNAdaptController C, int p, int q);
+int SUNAdaptController_SetMethodOrder_PID(SUNAdaptController C, int p);
 SUNDIALS_EXPORT
 int SUNAdaptController_AdjustControllerOrder_PID(SUNAdaptController C, int adj);
 SUNDIALS_EXPORT

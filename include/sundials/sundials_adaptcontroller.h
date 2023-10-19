@@ -87,7 +87,7 @@ struct _generic_SUNAdaptController_Ops
   int (*reset)(SUNAdaptController C);
   int (*setdefaults)(SUNAdaptController C);
   int (*write)(SUNAdaptController C, FILE* fptr);
-  int (*setmethodorder)(SUNAdaptController C, int p, int q);
+  int (*setmethodorder)(SUNAdaptController C, int p);
   int (*adjustcontrollerorder)(SUNAdaptController C, int adj);
   int (*seterrorbias)(SUNAdaptController C, sunrealtype bias);
   int (*update)(SUNAdaptController C, sunrealtype h, sunrealtype dsm);
@@ -190,7 +190,7 @@ int SUNAdaptController_Write(SUNAdaptController C, FILE* fptr);
 /* Function to set the asymptotic order of accuracy for the method and
    its embedding. */
 SUNDIALS_EXPORT
-int SUNAdaptController_SetMethodOrder(SUNAdaptController C, int p, int q);
+int SUNAdaptController_SetMethodOrder(SUNAdaptController C, int p);
 
 /* Function to adjust the order of accuracy used within the controller. */
 SUNDIALS_EXPORT

@@ -43,7 +43,6 @@ field as:
      sunrealtype ep;
      int p;
      int adj;
-     int pq;
    };
 
 These entries of the *content* field contain the following information:
@@ -55,13 +54,11 @@ These entries of the *content* field contain the following information:
 
 * ``ep`` - storage for the previous error estimate, :math:`\varepsilon_{n-1}`.
 
-* ``p`` - asymptotic order to use in error control.
+* ``p`` - asymptotic order to use in error control.  This is provided by
+  the time integrator, corresponding to the order of accuracy for the time
+  integration method, the embedding, or the minimum of the two.
 
 * ``adj`` - order of accuracy adjustment to use within the controller [default ``-1``].
-
-* ``pq`` - flag indicating whether ``p`` corresponds to the order of accuracy
-  for the time integration method (``1``), the embedding (``0``), or the
-  minimum of the two (``-1``) [default ``0``].
 
 
 The header file to be included when using this module is
@@ -87,20 +84,19 @@ also provides the following additional user-callable routines:
 
       SUNAdaptController C = SUNAdaptController_PI(sunctx);
 
-.. c:function:: int SUNAdaptController_SetParams_PI(SUNAdaptController C, int pq, sunrealtype k1, sunrealtype k2)
+.. c:function:: int SUNAdaptController_SetParams_PI(SUNAdaptController C, sunrealtype k1, sunrealtype k2)
 
    This user-callable function provides control over the relevant parameters
    above.  This should be called *before* the time integrator is called to evolve
    the problem.
 
-   :param C: the SUNAdaptController_PI object
-   :param pq: the integer parameter indicating how to interpret the method and embedding orders of accuracy
-   :param k1: parameter used within the controller time step estimate (only stored if non-negative)
-   :param k2: parameter used within the controller time step estimate (only stored if non-negative)
+   :param C: the SUNAdaptController_PI object.
+   :param k1: parameter used within the controller time step estimate (only stored if non-negative).
+   :param k2: parameter used within the controller time step estimate (only stored if non-negative).
    :return: error code indication success or failure (see :numref:`SUNAdaptController.Description.errorCodes`).
 
    Usage:
 
    .. code-block:: c
 
-      retval = SUNAdaptController_SetParams_PI(C, -1, 0.9, 0.3);
+      retval = SUNAdaptController_SetParams_PI(C, 0.9, 0.3);

@@ -67,7 +67,7 @@ function pointers to the various controller operations, and is defined as
         int (*reset)(SUNAdaptController C);
         int (*setdefaults)(SUNAdaptController C);
         int (*write)(SUNAdaptController C, FILE* fptr);
-        int (*setmethodorder)(SUNAdaptController C, int p, int q);
+        int (*setmethodorder)(SUNAdaptController C, int p);
         int (*adjustcontrollerorder)(SUNAdaptController C, int adj);
         int (*seterrorbias)(SUNAdaptController C, sunrealtype bias);
         int (*update)(SUNAdaptController C, sunrealtype h, sunrealtype dsm);
@@ -310,14 +310,13 @@ routine, below.
 
       retval = SUNAdaptController_Write(C, stdout);
 
-.. c:function:: int SUNAdaptController_SetMethodOrder(SUNAdaptController C, int p, int q)
+.. c:function:: int SUNAdaptController_SetMethodOrder(SUNAdaptController C, int p)
 
    Called by the time integrator to inform the controller of the asymptotic
-   order of accuracy for the method and its embedding.
+   order of accuracy for the method.
 
    :param C:  the :c:type:`SUNAdaptController` object.
-   :param p:  the asymptotic order of accuracy for the time integration method.
-   :param q:  the asymptotic order of accuracy for the time integration method embedding.
+   :param p:  the asymptotic method order of accuracy to use.
    :return: error code indicating success failure
             (see :numref:`SUNAdaptController.Description.errorCodes`).
 
@@ -467,6 +466,12 @@ SUNAdaptController functions return one of the following set of error codes:
 * ``SUNADAPTCONTROLLER_USER_FCN_FAIL`` (-1003) -- a user-supplied function returned a nonzero [error] value.
 
 * ``SUNADAPTCONTROLLER_OPERATION_FAIL`` (-1004) -- catch-all for errors not in the above list.
+
+.. note::
+   The SUNDIALS time integrators do not rely on these specific return values (only
+   on whether the returned values are 0 (successful) or negative (failure).  Thus,
+   user-defined implementations are not required to use these specific error codes,
+   so long as the zero/negative structure is followed.
 
 
 C/C++ API Usage

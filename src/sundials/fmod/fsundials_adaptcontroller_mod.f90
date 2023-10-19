@@ -173,13 +173,12 @@ type(C_PTR), value :: farg2
 integer(C_INT) :: fresult
 end function
 
-function swigc_FSUNAdaptController_SetMethodOrder(farg1, farg2, farg3) &
+function swigc_FSUNAdaptController_SetMethodOrder(farg1, farg2) &
 bind(C, name="_wrap_FSUNAdaptController_SetMethodOrder") &
 result(fresult)
 use, intrinsic :: ISO_C_BINDING
 type(C_PTR), value :: farg1
 integer(C_INT), intent(in) :: farg2
-integer(C_INT), intent(in) :: farg3
 integer(C_INT) :: fresult
 end function
 
@@ -443,22 +442,19 @@ fresult = swigc_FSUNAdaptController_Write(farg1, farg2)
 swig_result = fresult
 end function
 
-function FSUNAdaptController_SetMethodOrder(c, p, q) &
+function FSUNAdaptController_SetMethodOrder(c, p) &
 result(swig_result)
 use, intrinsic :: ISO_C_BINDING
 integer(C_INT) :: swig_result
 type(SUNAdaptController), target, intent(inout) :: c
 integer(C_INT), intent(in) :: p
-integer(C_INT), intent(in) :: q
 integer(C_INT) :: fresult 
 type(C_PTR) :: farg1 
 integer(C_INT) :: farg2 
-integer(C_INT) :: farg3 
 
 farg1 = c_loc(c)
 farg2 = p
-farg3 = q
-fresult = swigc_FSUNAdaptController_SetMethodOrder(farg1, farg2, farg3)
+fresult = swigc_FSUNAdaptController_SetMethodOrder(farg1, farg2)
 swig_result = fresult
 end function
 

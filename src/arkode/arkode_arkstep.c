@@ -1085,7 +1085,7 @@ int arkStep_Init(void* arkode_mem, int init_type)
 {
   ARKodeMem ark_mem;
   ARKodeARKStepMem step_mem;
-  int j, retval;
+  int j, retval, controller_order;
   booleantype reset_efun;
 
   /* access ARKodeARKStepMem structure */
@@ -1134,13 +1134,20 @@ int arkStep_Init(void* arkode_mem, int init_type)
 
     /* Retrieve/store method and embedding orders now that tables are finalized */
     if (step_mem->Bi != NULL) {
-      step_mem->q = step_mem->Bi->q;
-      step_mem->p = step_mem->Bi->p;
+      step_mem->q = ark_mem->hadapt_mem->q = step_mem->Bi->q;
+      step_mem->p = ark_mem->hadapt_mem->p = step_mem->Bi->p;
     } else {
-      step_mem->q = step_mem->Be->q;
-      step_mem->p = step_mem->Be->p;
+      step_mem->q = ark_mem->hadapt_mem->q = step_mem->Be->q;
+      step_mem->p = ark_mem->hadapt_mem->p = step_mem->Be->p;
     }
-    retval = SUNAdaptController_SetMethodOrder(ark_mem->hadapt_mem->hcontroller, step_mem->q, step_mem->p);
+    if (ark_mem->hadapt_mem->pq == 0) {
+      controller_order = step_mem->p;
+    } else if (ark_mem->hadapt_mem->pq == 1) {
+      controller_order = step_mem->q;
+    } else {
+      controller_order = SUNMIN(step_mem->p, step_mem->q);
+    }
+    retval = SUNAdaptController_SetMethodOrder(ark_mem->hadapt_mem->hcontroller, controller_order);
     if (retval != SUNADAPTCONTROLLER_SUCCESS) {
       arkProcessError(ark_mem, ARK_CONTROLLER_ERR, "ARKODE::ARKStep",
                       "arkStep_Init", "SUNAdaptController_SetMethodOrder error");

@@ -200,11 +200,11 @@ int SUNAdaptController_Write(SUNAdaptController C, FILE* fptr)
   return(ier);
 }
 
-int SUNAdaptController_SetMethodOrder(SUNAdaptController C, int p, int q)
+int SUNAdaptController_SetMethodOrder(SUNAdaptController C, int p)
 {
   int ier = 0;
   if (C == NULL) { return ier; }
-  if (C->ops->setmethodorder) { ier = C->ops->setmethodorder(C, p, q); }
+  if (C->ops->setmethodorder) { ier = C->ops->setmethodorder(C, p); }
   return(ier);
 }
 

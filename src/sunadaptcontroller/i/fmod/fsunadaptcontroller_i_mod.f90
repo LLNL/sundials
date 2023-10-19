@@ -48,13 +48,12 @@ type(C_PTR), value :: farg1
 type(C_PTR) :: fresult
 end function
 
-function swigc_FSUNAdaptController_SetParams_I(farg1, farg2, farg3) &
+function swigc_FSUNAdaptController_SetParams_I(farg1, farg2) &
 bind(C, name="_wrap_FSUNAdaptController_SetParams_I") &
 result(fresult)
 use, intrinsic :: ISO_C_BINDING
 type(C_PTR), value :: farg1
-integer(C_INT), intent(in) :: farg2
-real(C_DOUBLE), intent(in) :: farg3
+real(C_DOUBLE), intent(in) :: farg2
 integer(C_INT) :: fresult
 end function
 
@@ -94,13 +93,12 @@ type(C_PTR), value :: farg2
 integer(C_INT) :: fresult
 end function
 
-function swigc_FSUNAdaptController_SetMethodOrder_I(farg1, farg2, farg3) &
+function swigc_FSUNAdaptController_SetMethodOrder_I(farg1, farg2) &
 bind(C, name="_wrap_FSUNAdaptController_SetMethodOrder_I") &
 result(fresult)
 use, intrinsic :: ISO_C_BINDING
 type(C_PTR), value :: farg1
 integer(C_INT), intent(in) :: farg2
-integer(C_INT), intent(in) :: farg3
 integer(C_INT) :: fresult
 end function
 
@@ -150,22 +148,19 @@ fresult = swigc_FSUNAdaptController_I(farg1)
 call c_f_pointer(fresult, swig_result)
 end function
 
-function FSUNAdaptController_SetParams_I(c, pq, k1) &
+function FSUNAdaptController_SetParams_I(c, k1) &
 result(swig_result)
 use, intrinsic :: ISO_C_BINDING
 integer(C_INT) :: swig_result
 type(SUNAdaptController), target, intent(inout) :: c
-integer(C_INT), intent(in) :: pq
 real(C_DOUBLE), intent(in) :: k1
 integer(C_INT) :: fresult 
 type(C_PTR) :: farg1 
-integer(C_INT) :: farg2 
-real(C_DOUBLE) :: farg3 
+real(C_DOUBLE) :: farg2 
 
 farg1 = c_loc(c)
-farg2 = pq
-farg3 = k1
-fresult = swigc_FSUNAdaptController_SetParams_I(farg1, farg2, farg3)
+farg2 = k1
+fresult = swigc_FSUNAdaptController_SetParams_I(farg1, farg2)
 swig_result = fresult
 end function
 
@@ -233,22 +228,19 @@ fresult = swigc_FSUNAdaptController_Write_I(farg1, farg2)
 swig_result = fresult
 end function
 
-function FSUNAdaptController_SetMethodOrder_I(c, p, q) &
+function FSUNAdaptController_SetMethodOrder_I(c, p) &
 result(swig_result)
 use, intrinsic :: ISO_C_BINDING
 integer(C_INT) :: swig_result
 type(SUNAdaptController), target, intent(inout) :: c
 integer(C_INT), intent(in) :: p
-integer(C_INT), intent(in) :: q
 integer(C_INT) :: fresult 
 type(C_PTR) :: farg1 
 integer(C_INT) :: farg2 
-integer(C_INT) :: farg3 
 
 farg1 = c_loc(c)
 farg2 = p
-farg3 = q
-fresult = swigc_FSUNAdaptController_SetMethodOrder_I(farg1, farg2, farg3)
+fresult = swigc_FSUNAdaptController_SetMethodOrder_I(farg1, farg2)
 swig_result = fresult
 end function
 

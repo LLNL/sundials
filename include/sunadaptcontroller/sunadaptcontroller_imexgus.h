@@ -38,7 +38,6 @@ struct _SUNAdaptControllerContent_ImExGus {
   sunrealtype hp;           /* previous step size */
   int p;                    /* method/embedding order of accuracy */
   int adj;                  /* order of accuracy adjustment to use for controller */
-  int pq;                   /* p is order of embedding (0), method (1), or minimum (-1) */
   sunbooleantype firststep; /* flag indicating first step */
 };
 
@@ -51,7 +50,7 @@ typedef struct _SUNAdaptControllerContent_ImExGus *SUNAdaptControllerContent_ImE
 SUNDIALS_EXPORT
 SUNAdaptController SUNAdaptController_ImExGus(SUNContext sunctx);
 SUNDIALS_EXPORT
-int SUNAdaptController_SetParams_ImExGus(SUNAdaptController C, int pq,
+int SUNAdaptController_SetParams_ImExGus(SUNAdaptController C,
                                          sunrealtype k1e, sunrealtype k2e,
                                          sunrealtype k1i, sunrealtype k2i);
 SUNDIALS_EXPORT
@@ -66,7 +65,7 @@ int SUNAdaptController_SetDefaults_ImExGus(SUNAdaptController C);
 SUNDIALS_EXPORT
 int SUNAdaptController_Write_ImExGus(SUNAdaptController C, FILE* fptr);
 SUNDIALS_EXPORT
-int SUNAdaptController_SetMethodOrder_ImExGus(SUNAdaptController C, int p, int q);
+int SUNAdaptController_SetMethodOrder_ImExGus(SUNAdaptController C, int p);
 SUNDIALS_EXPORT
 int SUNAdaptController_AdjustControllerOrder_ImExGus(SUNAdaptController C, int adj);
 SUNDIALS_EXPORT

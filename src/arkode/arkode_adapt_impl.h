@@ -51,6 +51,9 @@ extern "C" {
                                       convergence failure */
 #define SMALL_NEF 2                /* if an error failure occurs and SMALL_NEF <= nef,
                                       then reset  eta = MIN(eta, ETAMXF) */
+#define PQ        0                /* order to use for controller: 0=embedding,
+                                      1=method, -1=min(method,embedding)
+                                      REMOVE AT SAME TIME AS ARKStepSetAdaptivityMethod */
 
 
 /*===============================================================
@@ -77,9 +80,12 @@ typedef struct ARKodeHAdaptMemRec {
   realtype     growth;      /* maximum step growth safety factor          */
   realtype     lbound;      /* eta lower bound to leave h unchanged       */
   realtype     ubound;      /* eta upper bound to leave h unchanged       */
+  int          p;           /* embedding order                            */
+  int          q;           /* method order                               */
+  int          pq;          /* decision flag for controller order         */
 
-  SUNAdaptController hcontroller; /* temporal error controller             */
-  booleantype  owncontroller;  /* flag indicating hcontroller ownership    */
+  SUNAdaptController hcontroller; /* temporal error controller            */
+  booleantype  owncontroller;  /* flag indicating hcontroller ownership   */
 
   ARKExpStabFn expstab;     /* step stability function                    */
   void        *estab_data;  /* user pointer passed to expstab             */

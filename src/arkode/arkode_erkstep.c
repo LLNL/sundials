@@ -501,7 +501,7 @@ int erkStep_Init(void* arkode_mem, int init_type)
 {
   ARKodeMem ark_mem;
   ARKodeERKStepMem step_mem;
-  int retval, j;
+  int retval, j, controller_order;
 
   /* access ARKodeERKStepMem structure */
   retval = erkStep_AccessStepMem(arkode_mem, "erkStep_Init",
@@ -537,9 +537,16 @@ int erkStep_Init(void* arkode_mem, int init_type)
   }
 
   /* Retrieve/store method and embedding orders now that table is finalized */
-  step_mem->q = step_mem->B->q;
-  step_mem->p = step_mem->B->p;
-  retval = SUNAdaptController_SetMethodOrder(ark_mem->hadapt_mem->hcontroller, step_mem->q, step_mem->p);
+  step_mem->q = ark_mem->hadapt_mem->q = step_mem->B->q;
+  step_mem->p = ark_mem->hadapt_mem->p = step_mem->B->p;
+  if (ark_mem->hadapt_mem->pq == 0) {
+    controller_order = step_mem->p;
+  } else if (ark_mem->hadapt_mem->pq == 1) {
+    controller_order = step_mem->q;
+  } else {
+    controller_order = SUNMIN(step_mem->p, step_mem->q);
+  }
+  retval = SUNAdaptController_SetMethodOrder(ark_mem->hadapt_mem->hcontroller, controller_order);
   if (retval != SUNADAPTCONTROLLER_SUCCESS) {
     arkProcessError(ark_mem, ARK_CONTROLLER_ERR, "ARKODE::ERKStep",
                     "erkStep_Init", "SUNAdaptControllerSetMethodOrder error");

@@ -34,7 +34,6 @@
 #define SACIMEXGUS_EP(C)          ( SACIMEXGUS_CONTENT(C)->ep )
 #define SACIMEXGUS_HP(C)          ( SACIMEXGUS_CONTENT(C)->hp )
 #define SACIMEXGUS_P(C)           ( SACIMEXGUS_CONTENT(C)->p )
-#define SACIMEXGUS_PQ(C)          ( SACIMEXGUS_CONTENT(C)->pq )
 #define SACIMEXGUS_ADJ(C)         ( SACIMEXGUS_CONTENT(C)->adj )
 #define SACIMEXGUS_FIRSTSTEP(C)   ( SACIMEXGUS_CONTENT(C)->firststep )
 
@@ -47,9 +46,7 @@
 #define DEFAULT_K1I    RCONST(0.95)
 #define DEFAULT_K2I    RCONST(0.95)
 #define DEFAULT_BIAS   RCONST(1.5)
-#define DEFAULT_PQ     0
 #define DEFAULT_ADJ    -1
-/* #define DEFAULT_PQ     -1 */
 /* #define DEFAULT_ADJ    0 */
 #define TINY           RCONST(1.0e-10)
 
@@ -110,12 +107,11 @@ SUNAdaptController SUNAdaptController_ImExGus(SUNContext sunctx)
  * Function to set ImExGus parameters
  */
 
-int SUNAdaptController_SetParams_ImExGus(SUNAdaptController C, int pq,
+int SUNAdaptController_SetParams_ImExGus(SUNAdaptController C,
                                          sunrealtype k1e, sunrealtype k2e,
                                          sunrealtype k1i, sunrealtype k2i)
 {
   /* store legal inputs, and return with success */
-  SACIMEXGUS_PQ(C) = pq;
   if (k1e >= RCONST(0.0)) { SACIMEXGUS_K1E(C) = k1e; }
   if (k2e >= RCONST(0.0)) { SACIMEXGUS_K2E(C) = k2e; }
   if (k1i >= RCONST(0.0)) { SACIMEXGUS_K1I(C) = k1i; }
@@ -182,7 +178,6 @@ int SUNAdaptController_SetDefaults_ImExGus(SUNAdaptController C)
   SACIMEXGUS_K1I(C)    = DEFAULT_K1I;
   SACIMEXGUS_K2I(C)    = DEFAULT_K2I;
   SACIMEXGUS_BIAS(C)   = DEFAULT_BIAS;
-  SACIMEXGUS_PQ(C)     = DEFAULT_PQ;
   SACIMEXGUS_ADJ(C)    = DEFAULT_ADJ;
   return SUNADAPTCONTROLLER_SUCCESS;
 }
@@ -207,35 +202,16 @@ int SUNAdaptController_Write_ImExGus(SUNAdaptController C, FILE *fptr)
   fprintf(fptr, "  previous error = %16g\n", SACIMEXGUS_EP(C));
   fprintf(fptr, "  previous step = %16g\n", SACIMEXGUS_HP(C));
 #endif
-  if (SACIMEXGUS_PQ(C) == 1)
-  {
-    fprintf(fptr, "  p = %i (method order)\n", SACIMEXGUS_P(C));
-  }
-  else if (SACIMEXGUS_PQ(C) == 0)
-  {
-    fprintf(fptr, "  p = %i (embedding order)\n", SACIMEXGUS_P(C));
-  }
-  else
-  {
-    fprintf(fptr, "  p = %i (minimum of method & embedding order)\n", SACIMEXGUS_P(C));
-  }
+  fprintf(fptr, "  p = %i\n", SACIMEXGUS_P(C));
   fprintf(fptr, "  adj = %i\n", SACIMEXGUS_ADJ(C));
   return SUNADAPTCONTROLLER_SUCCESS;
 }
 
-int SUNAdaptController_SetMethodOrder_ImExGus(SUNAdaptController C, int p, int q)
+int SUNAdaptController_SetMethodOrder_ImExGus(SUNAdaptController C, int p)
 {
   /* check for legal inputs */
-  if ((p <= 0) || (q <= 0)) { return SUNADAPTCONTROLLER_ILL_INPUT; }
-
-  /* store appropriate value based on "pq" */
-  if (SACIMEXGUS_PQ(C) == 1) {
-    SACIMEXGUS_P(C) = p;
-  } else if (SACIMEXGUS_PQ(C) == 0) {
-    SACIMEXGUS_P(C) = q;
-  } else {
-    SACIMEXGUS_P(C) = SUNMIN(p,q);
-  }
+  if (p <= 0) { return SUNADAPTCONTROLLER_ILL_INPUT; }
+  SACIMEXGUS_P(C) = p;
   return SUNADAPTCONTROLLER_SUCCESS;
 }
 

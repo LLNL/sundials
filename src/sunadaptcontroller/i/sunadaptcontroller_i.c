@@ -29,7 +29,6 @@
 #define SACI_K1(C)          ( SACI_CONTENT(C)->k1 )
 #define SACI_BIAS(C)        ( SACI_CONTENT(C)->bias )
 #define SACI_P(C)           ( SACI_CONTENT(C)->p )
-#define SACI_PQ(C)          ( SACI_CONTENT(C)->pq )
 #define SACI_ADJ(C)         ( SACI_CONTENT(C)->adj )
 
 /* ------------------
@@ -38,9 +37,7 @@
 
 #define DEFAULT_K1     RCONST(1.0)
 #define DEFAULT_BIAS   RCONST(1.5)
-#define DEFAULT_PQ     0
 #define DEFAULT_ADJ    -1
-/* #define DEFAULT_PQ     -1 */
 /* #define DEFAULT_ADJ    0 */
 #define TINY           RCONST(1.0e-10)
 
@@ -98,11 +95,9 @@ SUNAdaptController SUNAdaptController_I(SUNContext sunctx)
  * Function to set I parameters
  */
 
-int SUNAdaptController_SetParams_I(SUNAdaptController C, int pq,
-                                   sunrealtype k1)
+int SUNAdaptController_SetParams_I(SUNAdaptController C, sunrealtype k1)
 {
   /* store legal inputs, and return with success */
-  SACI_PQ(C) = pq;
   if (k1 >= RCONST(0.0)) { SACI_K1(C) = k1; }
   return SUNADAPTCONTROLLER_SUCCESS;
 }
@@ -134,7 +129,6 @@ int SUNAdaptController_SetDefaults_I(SUNAdaptController C)
 {
   SACI_K1(C)     = DEFAULT_K1;
   SACI_BIAS(C)   = DEFAULT_BIAS;
-  SACI_PQ(C)     = DEFAULT_PQ;
   SACI_ADJ(C)    = DEFAULT_ADJ;
   return SUNADAPTCONTROLLER_SUCCESS;
 }
@@ -149,35 +143,16 @@ int SUNAdaptController_Write_I(SUNAdaptController C, FILE *fptr)
   fprintf(fptr, "  k1 = %16g\n", SACI_K1(C));
   fprintf(fptr, "  bias factor = %16g\n", SACI_BIAS(C));
 #endif
-  if (SACI_PQ(C) == 1)
-  {
-    fprintf(fptr, "  p = %i (method order)\n", SACI_P(C));
-  }
-  else if (SACI_PQ(C) == 0)
-  {
-    fprintf(fptr, "  p = %i (embedding order)\n", SACI_P(C));
-  }
-  else
-  {
-    fprintf(fptr, "  p = %i (minimum of method & embedding order)\n", SACI_P(C));
-  }
+  fprintf(fptr, "  p = %i\n", SACI_P(C));
   fprintf(fptr, "  adj = %i\n", SACI_ADJ(C));
   return SUNADAPTCONTROLLER_SUCCESS;
 }
 
-int SUNAdaptController_SetMethodOrder_I(SUNAdaptController C, int p, int q)
+int SUNAdaptController_SetMethodOrder_I(SUNAdaptController C, int p)
 {
   /* check for legal inputs */
-  if ((p <= 0) || (q <= 0)) { return SUNADAPTCONTROLLER_ILL_INPUT; }
-
-  /* store appropriate value based on "pq" */
-  if (SACI_PQ(C) == 1) {
-    SACI_P(C) = p;
-  } else if (SACI_PQ(C) == 0) {
-    SACI_P(C) = q;
-  } else {
-    SACI_P(C) = SUNMIN(p,q);
-  }
+  if (p <= 0) { return SUNADAPTCONTROLLER_ILL_INPUT; }
+  SACI_P(C) = p;
   return SUNADAPTCONTROLLER_SUCCESS;
 }
 

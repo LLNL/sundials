@@ -46,7 +46,6 @@ and defines its *content* field as:
      sunrealtype ep;
      int p;
      int adj;
-     int pq;
      sunbooleantype firststep;
    };
 
@@ -59,13 +58,11 @@ These entries of the *content* field contain the following information:
 
 * ``ep`` - storage for the previous error estimate, :math:`\varepsilon_{n-1}`.
 
-* ``p`` - asymptotic order to use in error control.
+* ``p`` - asymptotic order to use in error control.  This is provided by
+  the time integrator, corresponding to the order of accuracy for the time
+  integration method, the embedding, or the minimum of the two.
 
 * ``adj`` - order of accuracy adjustment to use within the controller [default ``-1``].
-
-* ``pq`` - flag indicating whether ``p`` corresponds to the order of accuracy
-  for the time integration method (``1``), the embedding (``0``), or the
-  minimum of the two (``-1``) [default ``0``].
 
 * ``firststep`` - flag indicating whether a step has successfully completed, in which
   case the formula above transitions from :math:`h_1` to :math:`h_n`.
@@ -95,16 +92,15 @@ routines:
 
       SUNAdaptController C = SUNAdaptController_ExpGus(sunctx);
 
-.. c:function:: int SUNAdaptController_SetParams_ExpGus(SUNAdaptController C, int pq, sunrealtype k1, sunrealtype k2)
+.. c:function:: int SUNAdaptController_SetParams_ExpGus(SUNAdaptController C, sunrealtype k1, sunrealtype k2)
 
-   :param C: the SUNAdaptController_ExpGus object
-   :param pq: the integer parameter indicating how to interpret the method and embedding orders of accuracy
-   :param k1: parameter used within the controller time step estimate (only stored if non-negative)
-   :param k2: parameter used within the controller time step estimate (only stored if non-negative)
+   :param C: the SUNAdaptController_ExpGus object.
+   :param k1: parameter used within the controller time step estimate (only stored if non-negative).
+   :param k2: parameter used within the controller time step estimate (only stored if non-negative).
    :return: error code indication success or failure (see :numref:`SUNAdaptController.Description.errorCodes`).
 
    Usage:
 
    .. code-block:: c
 
-      retval = SUNAdaptController_SetParams_ExpGus(C, -1, 0.4, 0.25);
+      retval = SUNAdaptController_SetParams_ExpGus(C, 0.4, 0.25);

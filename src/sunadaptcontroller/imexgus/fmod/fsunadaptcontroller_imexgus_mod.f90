@@ -50,16 +50,15 @@ type(C_PTR), value :: farg1
 type(C_PTR) :: fresult
 end function
 
-function swigc_FSUNAdaptController_SetParams_ImExGus(farg1, farg2, farg3, farg4, farg5, farg6) &
+function swigc_FSUNAdaptController_SetParams_ImExGus(farg1, farg2, farg3, farg4, farg5) &
 bind(C, name="_wrap_FSUNAdaptController_SetParams_ImExGus") &
 result(fresult)
 use, intrinsic :: ISO_C_BINDING
 type(C_PTR), value :: farg1
-integer(C_INT), intent(in) :: farg2
+real(C_DOUBLE), intent(in) :: farg2
 real(C_DOUBLE), intent(in) :: farg3
 real(C_DOUBLE), intent(in) :: farg4
 real(C_DOUBLE), intent(in) :: farg5
-real(C_DOUBLE), intent(in) :: farg6
 integer(C_INT) :: fresult
 end function
 
@@ -107,13 +106,12 @@ type(C_PTR), value :: farg2
 integer(C_INT) :: fresult
 end function
 
-function swigc_FSUNAdaptController_SetMethodOrder_ImExGus(farg1, farg2, farg3) &
+function swigc_FSUNAdaptController_SetMethodOrder_ImExGus(farg1, farg2) &
 bind(C, name="_wrap_FSUNAdaptController_SetMethodOrder_ImExGus") &
 result(fresult)
 use, intrinsic :: ISO_C_BINDING
 type(C_PTR), value :: farg1
 integer(C_INT), intent(in) :: farg2
-integer(C_INT), intent(in) :: farg3
 integer(C_INT) :: fresult
 end function
 
@@ -173,31 +171,28 @@ fresult = swigc_FSUNAdaptController_ImExGus(farg1)
 call c_f_pointer(fresult, swig_result)
 end function
 
-function FSUNAdaptController_SetParams_ImExGus(c, pq, k1e, k2e, k1i, k2i) &
+function FSUNAdaptController_SetParams_ImExGus(c, k1e, k2e, k1i, k2i) &
 result(swig_result)
 use, intrinsic :: ISO_C_BINDING
 integer(C_INT) :: swig_result
 type(SUNAdaptController), target, intent(inout) :: c
-integer(C_INT), intent(in) :: pq
 real(C_DOUBLE), intent(in) :: k1e
 real(C_DOUBLE), intent(in) :: k2e
 real(C_DOUBLE), intent(in) :: k1i
 real(C_DOUBLE), intent(in) :: k2i
 integer(C_INT) :: fresult 
 type(C_PTR) :: farg1 
-integer(C_INT) :: farg2 
+real(C_DOUBLE) :: farg2 
 real(C_DOUBLE) :: farg3 
 real(C_DOUBLE) :: farg4 
 real(C_DOUBLE) :: farg5 
-real(C_DOUBLE) :: farg6 
 
 farg1 = c_loc(c)
-farg2 = pq
-farg3 = k1e
-farg4 = k2e
-farg5 = k1i
-farg6 = k2i
-fresult = swigc_FSUNAdaptController_SetParams_ImExGus(farg1, farg2, farg3, farg4, farg5, farg6)
+farg2 = k1e
+farg3 = k2e
+farg4 = k1i
+farg5 = k2i
+fresult = swigc_FSUNAdaptController_SetParams_ImExGus(farg1, farg2, farg3, farg4, farg5)
 swig_result = fresult
 end function
 
@@ -278,22 +273,19 @@ fresult = swigc_FSUNAdaptController_Write_ImExGus(farg1, farg2)
 swig_result = fresult
 end function
 
-function FSUNAdaptController_SetMethodOrder_ImExGus(c, p, q) &
+function FSUNAdaptController_SetMethodOrder_ImExGus(c, p) &
 result(swig_result)
 use, intrinsic :: ISO_C_BINDING
 integer(C_INT) :: swig_result
 type(SUNAdaptController), target, intent(inout) :: c
 integer(C_INT), intent(in) :: p
-integer(C_INT), intent(in) :: q
 integer(C_INT) :: fresult 
 type(C_PTR) :: farg1 
 integer(C_INT) :: farg2 
-integer(C_INT) :: farg3 
 
 farg1 = c_loc(c)
 farg2 = p
-farg3 = q
-fresult = swigc_FSUNAdaptController_SetMethodOrder_ImExGus(farg1, farg2, farg3)
+fresult = swigc_FSUNAdaptController_SetMethodOrder_ImExGus(farg1, farg2)
 swig_result = fresult
 end function
 

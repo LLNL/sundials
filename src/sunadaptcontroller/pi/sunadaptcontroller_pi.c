@@ -31,7 +31,6 @@
 #define SACPI_BIAS(C)        ( SACPI_CONTENT(C)->bias )
 #define SACPI_EP(C)          ( SACPI_CONTENT(C)->ep )
 #define SACPI_P(C)           ( SACPI_CONTENT(C)->p )
-#define SACPI_PQ(C)          ( SACPI_CONTENT(C)->pq )
 #define SACPI_ADJ(C)         ( SACPI_CONTENT(C)->adj )
 
 /* ------------------
@@ -41,9 +40,7 @@
 #define DEFAULT_K1     RCONST(0.8)
 #define DEFAULT_K2     RCONST(0.31)
 #define DEFAULT_BIAS   RCONST(1.5)
-#define DEFAULT_PQ     0
 #define DEFAULT_ADJ    -1
-/* #define DEFAULT_PQ     -1 */
 /* #define DEFAULT_ADJ    0 */
 #define TINY           RCONST(1.0e-10)
 
@@ -104,11 +101,10 @@ SUNAdaptController SUNAdaptController_PI(SUNContext sunctx)
  * Function to set PI parameters
  */
 
-int SUNAdaptController_SetParams_PI(SUNAdaptController C, int pq,
+int SUNAdaptController_SetParams_PI(SUNAdaptController C,
                                     sunrealtype k1, sunrealtype k2)
 {
   /* store legal inputs, and return with success */
-  SACPI_PQ(C) = pq;
   if (k1 >= RCONST(0.0)) { SACPI_K1(C) = k1; }
   if (k2 >= RCONST(0.0)) { SACPI_K2(C) = k2; }
   return SUNADAPTCONTROLLER_SUCCESS;
@@ -149,7 +145,6 @@ int SUNAdaptController_SetDefaults_PI(SUNAdaptController C)
   SACPI_K1(C)   = DEFAULT_K1;
   SACPI_K2(C)   = DEFAULT_K2;
   SACPI_BIAS(C) = DEFAULT_BIAS;
-  SACPI_PQ(C)   = DEFAULT_PQ;
   SACPI_ADJ(C)  = DEFAULT_ADJ;
   return SUNADAPTCONTROLLER_SUCCESS;
 }
@@ -168,35 +163,16 @@ int SUNAdaptController_Write_PI(SUNAdaptController C, FILE *fptr)
   fprintf(fptr, "  bias factor = %16g\n", SACPI_BIAS(C));
   fprintf(fptr, "  previous error = %16g\n", SACPI_EP(C));
 #endif
-  if (SACPI_PQ(C) == 1)
-  {
-    fprintf(fptr, "  p = %i (method order)\n", SACPI_P(C));
-  }
-  else if (SACPI_PQ(C) == 0)
-  {
-    fprintf(fptr, "  p = %i (embedding order)\n", SACPI_P(C));
-  }
-  else
-  {
-    fprintf(fptr, "  p = %i (minimum of method & embedding order)\n", SACPI_P(C));
-  }
+  fprintf(fptr, "  p = %i\n", SACPI_P(C));
   fprintf(fptr, "  adj = %i\n", SACPI_ADJ(C));
   return SUNADAPTCONTROLLER_SUCCESS;
 }
 
-int SUNAdaptController_SetMethodOrder_PI(SUNAdaptController C, int p, int q)
+int SUNAdaptController_SetMethodOrder_PI(SUNAdaptController C, int p)
 {
   /* check for legal inputs */
-  if ((p <= 0) || (q <= 0)) { return SUNADAPTCONTROLLER_ILL_INPUT; }
-
-  /* store appropriate value based on "pq" */
-  if (SACPI_PQ(C) == 1) {
-    SACPI_P(C) = p;
-  } else if (SACPI_PQ(C) == 0) {
-    SACPI_P(C) = q;
-  } else {
-    SACPI_P(C) = SUNMIN(p,q);
-  }
+  if (p <= 0) { return SUNADAPTCONTROLLER_ILL_INPUT; }
+  SACPI_P(C) = p;
   return SUNADAPTCONTROLLER_SUCCESS;
 }
 

@@ -31,7 +31,6 @@
 #define SACEXPGUS_BIAS(C)        ( SACEXPGUS_CONTENT(C)->bias )
 #define SACEXPGUS_EP(C)          ( SACEXPGUS_CONTENT(C)->ep )
 #define SACEXPGUS_P(C)           ( SACEXPGUS_CONTENT(C)->p )
-#define SACEXPGUS_PQ(C)          ( SACEXPGUS_CONTENT(C)->pq )
 #define SACEXPGUS_ADJ(C)         ( SACEXPGUS_CONTENT(C)->adj )
 #define SACEXPGUS_FIRSTSTEP(C)   ( SACEXPGUS_CONTENT(C)->firststep )
 
@@ -42,9 +41,7 @@
 #define DEFAULT_K1     RCONST(0.367)
 #define DEFAULT_K2     RCONST(0.268)
 #define DEFAULT_BIAS   RCONST(1.5)
-#define DEFAULT_PQ     0
 #define DEFAULT_ADJ    -1
-/* #define DEFAULT_PQ     -1 */
 /* #define DEFAULT_ADJ    0 */
 #define TINY           RCONST(1.0e-10)
 
@@ -105,11 +102,10 @@ SUNAdaptController SUNAdaptController_ExpGus(SUNContext sunctx)
  * Function to set ExpGus parameters
  */
 
-int SUNAdaptController_SetParams_ExpGus(SUNAdaptController C, int pq,
+int SUNAdaptController_SetParams_ExpGus(SUNAdaptController C,
                                         sunrealtype k1, sunrealtype k2)
 {
   /* store legal inputs, and return with success */
-  SACEXPGUS_PQ(C) = pq;
   if (k1 >= RCONST(0.0)) { SACEXPGUS_K1(C) = k1; }
   if (k2 >= RCONST(0.0)) { SACEXPGUS_K2(C) = k2; }
   return SUNADAPTCONTROLLER_SUCCESS;
@@ -169,7 +165,6 @@ int SUNAdaptController_SetDefaults_ExpGus(SUNAdaptController C)
   SACEXPGUS_K1(C)     = DEFAULT_K1;
   SACEXPGUS_K2(C)     = DEFAULT_K2;
   SACEXPGUS_BIAS(C)   = DEFAULT_BIAS;
-  SACEXPGUS_PQ(C)     = DEFAULT_PQ;
   SACEXPGUS_ADJ(C)    = DEFAULT_ADJ;
   return SUNADAPTCONTROLLER_SUCCESS;
 }
@@ -188,35 +183,16 @@ int SUNAdaptController_Write_ExpGus(SUNAdaptController C, FILE *fptr)
   fprintf(fptr, "  bias factor = %16g\n", SACEXPGUS_BIAS(C));
   fprintf(fptr, "  previous error = %16g\n", SACEXPGUS_EP(C));
 #endif
-  if (SACEXPGUS_PQ(C) == 1)
-  {
-    fprintf(fptr, "  p = %i (method order)\n", SACEXPGUS_P(C));
-  }
-  else if (SACEXPGUS_PQ(C) == 0)
-  {
-    fprintf(fptr, "  p = %i (embedding order)\n", SACEXPGUS_P(C));
-  }
-  else
-  {
-    fprintf(fptr, "  p = %i (minimum of method & embedding order)\n", SACEXPGUS_P(C));
-  }
+  fprintf(fptr, "  p = %i\n", SACEXPGUS_P(C));
   fprintf(fptr, "  adj = %i\n", SACEXPGUS_ADJ(C));
   return SUNADAPTCONTROLLER_SUCCESS;
 }
 
-int SUNAdaptController_SetMethodOrder_ExpGus(SUNAdaptController C, int p, int q)
+int SUNAdaptController_SetMethodOrder_ExpGus(SUNAdaptController C, int p)
 {
   /* check for legal inputs */
-  if ((p <= 0) || (q <= 0)) { return SUNADAPTCONTROLLER_ILL_INPUT; }
-
-  /* store appropriate value based on "pq" */
-  if (SACEXPGUS_PQ(C) == 1) {
-    SACEXPGUS_P(C) = p;
-  } else if (SACEXPGUS_PQ(C) == 0) {
-    SACEXPGUS_P(C) = q;
-  } else {
-    SACEXPGUS_P(C) = SUNMIN(p,q);
-  }
+  if (p <= 0) { return SUNADAPTCONTROLLER_ILL_INPUT; }
+  SACEXPGUS_P(C) = p;
   return SUNADAPTCONTROLLER_SUCCESS;
 }
 
