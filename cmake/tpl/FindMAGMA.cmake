@@ -82,7 +82,7 @@ if(MAGMA_LIBRARY AND MAGMA_INCLUDE_DIR)
             find_package(hipsparse REQUIRED)
           endif()
           # MAGMA does not reliably include these in the pkgconfig file
-          set(lib "roc::hipblas roc::hipsparse")
+          set(lib "roc::hipblas;roc::hipsparse")
         endif()
         
         # Check if we need to find cusparse or cublas
