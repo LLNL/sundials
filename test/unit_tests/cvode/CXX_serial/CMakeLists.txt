@@ -29,8 +29,7 @@ set(unit_tests
   "cv_test_kpr.cpp\;--dgmax_jbad 1.0"
   "cv_test_getjac.cpp\;"
   "cv_test_resize_history.cpp\;"
-  "test_newton_poly.cpp\;"
-  "test_hermite_poly.cpp\;"
+  "test_nordsieck.cpp\;"
   "cv_test_poly.cpp\;"
 )
 
