@@ -12,15 +12,12 @@
    SUNDIALS Copyright End
    -----------------------------------------------------------------------------
 
-.. _Benchmarks:
+.. _Development:
 
-Benchmarks
-==========
-
-The following sections describe the SUNDIALS performance benchmark problems.
+Development
+===========
 
 .. toctree::
-   :maxdepth: 2
+   :maxdepth: 1
 
-   advection_reaction.rst
-   diffusion.rst
+   Checklist

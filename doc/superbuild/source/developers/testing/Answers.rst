@@ -63,11 +63,11 @@ is expected/desired. Changing output files requires careful verification that th
      used for the GitHub Actions CI). Like with the embedded `.out` files, you can try and use the
      output generated on your machine, but it may be different enough from what is produced on the
      GitHub actions to trigger a failure. You can download the output files generated on the GitHub
-     machines by clicking going to `https://github.com/LLNL/sundials/actions`_ finding your failing
+     machines by going to `<https://github.com/LLNL/sundials/actions>`_ finding your failing
      test, clicking it, then at the bottom downloading the "artifacts" (you can also find your
      failing test at the bottom of a PR). The downloaded zip file will be the SUNDIALS build
      directory. The ``.out`` files you want are in
-     `build_that_you_downloaded_and_extracted/Testing/output`.
+     ``build_that_you_downloaded_and_extracted/Testing/output``.
 
   #. Create a pull-request in `sundials-codes/answers <https://github.com/sundials-codes/answers>`_
      with your updates. 

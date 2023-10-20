@@ -12,18 +12,12 @@
    SUNDIALS Copyright End
    -----------------------------------------------------------------------------
 
-.. _Testing:
+.. _Appendix:
 
-*******
-Testing
-*******
-
-The following sections describe the SUNDIALS CI suite as well as a testing workflow for developers.
+Appendix
+========
 
 .. toctree::
-   :maxdepth: 2
+   :maxdepth: 1
 
-   CI
-   Local
-   Benchmarking
-   Spot
+   GitCheatSheet

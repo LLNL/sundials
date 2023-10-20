@@ -12,16 +12,29 @@
    SUNDIALS Copyright End
    -----------------------------------------------------------------------------
 
-.. _Development:
+****************
+Developers Guide
+****************
 
-Development
-===========
+
+.. only:: html
+
+   **Table of Contents**
 
 .. toctree::
-   :maxdepth: 2
+   :maxdepth: 1
 
-   Checklist
+   introduction/index
+   getting_started/index
+   style_guide/index
+   development/index
+   testing/index
+   benchmarks/index
+   pull_requests/index
+   releases/index
+   appendix/index
 
-..
-   Debugging
-   FortranInterfaces
+.. only:: html
+
+   * :ref:`genindex`
+

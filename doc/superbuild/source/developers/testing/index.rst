@@ -1,4 +1,5 @@
 ..
+   Author(s): David J. Gardner @ LLNL
    -----------------------------------------------------------------------------
    SUNDIALS Copyright Start
    Copyright (c) 2002-2023, Lawrence Livermore National Security
@@ -7,14 +8,14 @@
 
    See the top-level LICENSE and NOTICE files for details.
 
-   SPDX-License-Identifier: BSD-3-Clause SUNDIALS Copyright End
+   SPDX-License-Identifier: BSD-3-Clause
+   SUNDIALS Copyright End
    -----------------------------------------------------------------------------
 
+.. _Testing:
 
-.. _Overview:
-
-Overview of SUNDIALS Testing
-============================
+Testing
+=======
 
 We include several types of tests in SUNDIALS: unit tests, integration test and performance tests.
 These tests are run via as part of our :ref:`Continuous Integration suite <CI>`.
@@ -39,4 +40,14 @@ Performance Tests
 -----------------
 
 These tests are benchmarks of SUNDIALS performance and are found in ``benchmarks/``. Refer to
-:ref:`Benchmarking <Benchmarking>` for more detail.
+:ref:`Continuous Performance Testing <CPT>` for more detail.
+
+.. toctree::
+   :maxdepth: 1
+
+   CI
+   Local
+   Answers
+   Benchmarking
+   Spot
+   
