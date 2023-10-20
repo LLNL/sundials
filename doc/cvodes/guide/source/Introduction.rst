@@ -111,18 +111,49 @@ Fortran.
 Changes from previous versions
 ==============================
 
-Changes in v6.6.0
+Changes in vX.X.X
 -----------------
 
-Updated the F2003 utility routines :c:func:`SUNDIALSFileOpen` and :c:func:`SUNDIALSFileClose`
-to support user specification of ``stdout`` and ``stderr`` strings for the output
-file names.
+Fixed a regression introduced by the stop time bug fix in v6.6.1 where CVODES
+would return at the stop time rather than the requested output time if the stop
+time was reached in the same step in which the output time was passed.
+
+Renamed some internal types in CVODES and IDAS to allow both packages to be
+built together in the same binary.
+
+Improved computational complexity of ``SUNMatScaleAddI_Sparse`` from ``O(M*N)``
+to ``O(NNZ)``.
+
+Fixed scaling bug in ``SUNMatScaleAddI_Sparse`` for non-square matrices.
+
+Fixed missing soversions in some ``SUNLinearSolver`` and ``SUNNonlinearSolver``
+CMake targets.
+
+Changes in v6.6.1
+-----------------
+
+Updated the Tpetra NVector interface to support Trilinos 14.
+
+Fixed a memory leak when destroying a CUDA, HIP, SYCL, or system SUNMemoryHelper
+object.
+
+Fixed a bug where the stop time may not be cleared when using normal mode if the
+requested output time is the same as the stop time. Additionally, this fix
+removes an unnecessary interpolation of the solution at the stop time that could
+occur in this case.
+
+Changes in v6.6.0
+-----------------
 
 Updated the default CVODES behavior when returning the solution when
 the internal time has reached a user-specified stop time.  Previously, the output
 solution was interpolated to the value of ``tstop``; the default is now to copy the
 internal solution vector.  Users who wish to revert to interpolation may call the
 routine :c:func:`CVodeSetInterpolateStopTime`.
+
+Updated the F2003 utility routines :c:func:`SUNDIALSFileOpen` and :c:func:`SUNDIALSFileClose`
+to support user specification of ``stdout`` and ``stderr`` strings for the output
+file names.
 
 Changes in v6.5.1
 -----------------

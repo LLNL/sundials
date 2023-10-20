@@ -63,6 +63,9 @@ The user-supplied functions for ARKODE consist of:
   by the outer integrator to the inner integrator, or state data supplied
   by the inner integrator to the outer integrator.
 
+* if relaxation is enabled (optional), a function that evaluates the
+  conservative or dissipative function :math:`\xi(y(t))` (required) and a
+  function to evaluate its Jacobian :math:`\xi'(y(t))` (required).
 
 
 .. _ARKODE.Usage.ODERHS:
@@ -186,8 +189,7 @@ in :numref:`ARKODE.Mathematics.Error.Norm`.
         weight vector is to be computed.
       * *ewt* -- the output vector containing the error weights.
       * *user_data* -- a pointer to user data, the same as the
-        *user_data* parameter that was passed to :c:func:`ARKStepSetUserData`,
-        :c:func:`ERKStepSetUserData`, or :c:func:`MRIStepSetUserData`.
+        *user_data* parameter that was passed to the ``SetUserData`` function
 
    **Return value:**
       An *ARKEwtFn* function must return 0 if it
@@ -397,8 +399,7 @@ ODE system, the user must supply a function of type :c:type:`ARKRootFn`.
       * *y* -- the current value of the dependent variable vector.
       * *gout* -- the output array, of length *nrtfn*, with components :math:`g_i(t,y)`.
       * *user_data* -- a pointer to user data, the same as the
-        *user_data* parameter that was passed to :c:func:`ARKStepSetUserData`,
-        :c:func:`ERKStepSetUserData`, or :c:func:`MRIStepSetUserData`.
+        *user_data* parameter that was passed to the ``SetUserData`` function
 
    **Return value:**
       An *ARKRootFn* function should return 0 if successful
@@ -1114,3 +1115,49 @@ outer integrator for the outer integration.
    **Notes:**
       In a heterogeneous computing environment if any data copies between the host
       and device vector data are necessary, this is where that should occur.
+
+
+.. _ARKODE.Usage.RelaxFn:
+
+Relaxation function
+-------------------
+
+.. c:type:: int (*ARKRelaxFn)(N_Vector y, realtype* r, void* user_data)
+
+   When applying relaxation, an :c:func:`ARKRelaxFn` function is required to
+   compute the conservative or dissipative function :math:`\xi(y)`.
+
+   **Arguments:**
+      * *y* -- the current value of the dependent variable vector.
+      * *r* -- the value of :math:`\xi(y)`.
+      * *user_data* -- the ``user_data`` pointer that was passed to
+        :c:func:`ARKStepSetUserData`.
+
+   **Return value:**
+      An :c:func:`ARKRelaxFn` function should return 0 if successful, a positive
+      value if a recoverable error occurred, or a negative value if an
+      unrecoverable error occurred. If a recoverable error occurs, the step size
+      will be reduced and the step repeated.
+
+.. _ARKODE.Usage.RelaxJacFn:
+
+Relaxation Jacobian function
+----------------------------
+
+.. c:type:: int (*ARKRelaxJacFn)(N_Vector y, N_Vector J, void* user_data);
+
+   When applying relaxation, an :c:func:`ARKRelaxJacFn` function is required to
+   compute the Jacobian :math:`\xi'(y)` of the :c:func:`ARKRelaxFn`
+   :math:`\xi(y)`.
+
+   **Arguments:**
+      * *y* -- the current value of the dependent variable vector.
+      * *J* -- the Jacobian vector :math:`\xi'(y)`.
+      * *user_data* -- the ``user_data`` pointer that was passed to
+        :c:func:`ARKStepSetUserData`.
+
+   **Return value:**
+      An :c:func:`ARKRelaxJacFn` function should return 0 if successful, a
+      positive value if a recoverable error occurred, or a negative value if an
+      unrecoverable error occurred. If a recoverable error occurs, the step size
+      will be reduced and the step repeated.

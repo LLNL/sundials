@@ -13,14 +13,7 @@
 import sys, os
 sys.path.append(os.path.dirname(os.path.abspath('../../../shared/versions.py')))
 from versions import *
-
-# -- Create new object types --------------------------------------------------
-
-from sphinx.application import Sphinx
-
-def setup(app: Sphinx):
-    app.add_object_type('cmakeoption', 'cmakeop', 'single: %s (CMake option)')
-    app.add_config_value('package_name', '', 'env', types=[str])
+sys.path.append(os.path.dirname(os.path.abspath('../../../shared')))
 
 # -- General configuration ----------------------------------------------------
 
@@ -34,13 +27,14 @@ needs_sphinx = '4.0'
 # Add any Sphinx extension module names here, as strings. They can be extensions
 # coming with Sphinx (named 'sphinx.ext.*') or your custom ones.
 extensions = ['sphinx_rtd_theme', 'sphinx.ext.ifconfig', 'sphinx.ext.mathjax',
-              'sphinxfortran.fortran_domain', 'sphinxcontrib.bibtex', 'sphinx_copybutton']
+              'sphinxfortran.fortran_domain', 'sphinxcontrib.bibtex',
+              'sphinx_copybutton', 'sphinx_sundials']
 
 # References
 bibtex_bibfiles = ['../../../shared/sundials.bib']
 
 # Add any paths that contain templates here, relative to this directory.
-templates_path = ['_templates']
+templates_path = ['../../../shared/_templates']
 
 # The suffix of source filenames.
 source_suffix = '.rst'

@@ -10,75 +10,23 @@
 # SUNDIALS Copyright End
 # ------------------------------------------------------------------------------
 
-# ------------------------------------------------------------------------------
-# CPU ONLY
-# ------------------------------------------------------------------------------
-
-# Builds without tpls
-# lassen_gcc:
-#   parallel:
-#     matrix:
-#       - COMPILER_SPEC: gcc@8.3.1
-#         INDEX_SPEC: [~int64, +int64]
-#         PRECISION_SPEC: [double]
-#   variables:
-#     SPEC: "%${COMPILER_SPEC} ${INDEX_SPEC} precision=${PRECISION_SPEC} ~cuda"
-#   extends: .lassen_build_and_test
-
-# lassen_xl:
-#   parallel:
-#     matrix:
-#       - COMPILER_SPEC: xl@16.1.1.10
-#         INDEX_SPEC: [~int64, +int64]
-#         PRECISION_SPEC: [double]
-#   variables:
-#     SPEC: "%${COMPILER_SPEC} ${INDEX_SPEC} precision=${PRECISION_SPEC} ~cuda"
-#   extends: .lassen_build_and_test
-
-# ------------------------------------------------------------------------------
-# CUDA
-# ------------------------------------------------------------------------------
-
-# # Builds with CUDA, RAJA and other TPLs
-# lassen_xl_cuda:
-#   parallel:
-#     matrix:
-#       - COMPILER_SPEC: xl@16.1.1.10
-#         CUDA_SPEC: [cuda@10.2.89, cuda@11.2.0]
-#   variables:
-#     SPEC: "%${COMPILER_SPEC} ~int64 precision=double +cuda cuda_arch=70 ^${CUDA_SPEC}"
-#   extends: .lassen_build_and_test
-
-# lassen_gcc_cuda:
-#   parallel:
-#     matrix:
-#       - COMPILER_SPEC: gcc@8.3.1
-#         CUDA_SPEC: [cuda@10.2.89, cuda@11.2.0]
-#   variables:
-#     SPEC: "%${COMPILER_SPEC} ~int64 precision=double +cuda cuda_arch=70 ^${CUDA_SPEC}"
-#   extends: .lassen_build_and_test
-
-# ------------------------------------------------------------------------------
-# CUDA + Extras
-# ------------------------------------------------------------------------------
-
 # Builds with CUDA, RAJA and other TPLs
-lassen_xl_cuda_tpls:
+lassen_cuda_no_tpls:
   parallel:
     matrix:
-      - COMPILER_SPEC: xl@16.1.1.10
+      - COMPILER_SPEC: [xl@16.1.1.14]
         CUDA_SPEC: [cuda@10.1.243]
   variables:
-    SPEC: "%${COMPILER_SPEC} cstd=99 cxxstd=14 precision=double ~int64 +mpi+openmp+cuda~raja+magma+superlu-dist cuda_arch=70 ^superlu-dist+cuda cuda_arch=70 ^magma+cuda cuda_arch=70 ^${CUDA_SPEC}"
+      SPEC: "%${COMPILER_SPEC} cstd=99 cxxstd=14 precision=double ~int64 +mpi+openmp+cuda~raja~magma~superlu-dist~petsc~hypre~ginkgo cuda_arch=70 ^${CUDA_SPEC}+allow-unsupported-compilers"
   extends: .lassen_build_and_test
 
 lassen_gcc_cuda_tpls:
   parallel:
     matrix:
       - COMPILER_SPEC: gcc@8.3.1
-        CUDA_SPEC: [cuda@11.5.0]
+        CUDA_SPEC: [cuda@11.8.0]
   variables:
-    SPEC: "%${COMPILER_SPEC} cstd=99 cxxstd=14 precision=double ~int64 +mpi+openmp+cuda+raja+magma+superlu-dist+petsc+hypre+ginkgo cuda_arch=70 ^ginkgo+cuda cuda_arch=70 ^hypre ^petsc+cuda cuda_arch=70 ^superlu-dist+cuda cuda_arch=70 ^magma+cuda cuda_arch=70 ^raja+cuda~openmp~examples~exercises cuda_arch=70 ^${CUDA_SPEC}"
+      SPEC: "%${COMPILER_SPEC} cstd=99 cxxstd=14 precision=double ~int64 +mpi+openmp+cuda+raja+magma+superlu-dist+petsc+hypre+ginkgo cuda_arch=70 ^ginkgo+cuda cuda_arch=70 ^hypre~cuda ^petsc~cuda ^superlu-dist+cuda cuda_arch=70 ^magma+cuda cuda_arch=70 ^raja+cuda~openmp~examples~exercises cuda_arch=70 ^${CUDA_SPEC}+allow-unsupported-compilers"
   extends: .lassen_build_and_test
 
 # ------------------------------------------------------------------------------
@@ -89,8 +37,9 @@ lassen_gcc_cuda_bench:
   parallel:
     matrix:
       - COMPILER_SPEC: gcc@8.3.1
-        CUDA_SPEC: [cuda@11.5.0]
+        CUDA_SPEC: [cuda@11.8.0]
+        CALIPER_DIR: /usr/workspace/sundials/califiles
   variables:
-    SPEC: "%${COMPILER_SPEC} cstd=99 cxxstd=14 build_type=Release precision=double ~int64 +benchmarks+profiling+caliper +mpi+openmp+cuda+raja cuda_arch=70 ^raja+cuda~openmp~examples~exercises cuda_arch=70 ^caliper+cuda cuda_arch=70 ^${CUDA_SPEC}"
+    SPEC: "%${COMPILER_SPEC} cstd=99 cxxstd=14 build_type=Release precision=double scheduler=lsf caliper-dir=${CALIPER_DIR} ~int64 +benchmarks+profiling+caliper+adiak+mpi+openmp+cuda+raja cuda_arch=70 ^raja+cuda~openmp~examples~exercises cuda_arch=70 ^caliper+adiak+cuda cuda_arch=70 ^${CUDA_SPEC}+allow-unsupported-compilers"
   extends: .lassen_build_and_bench
 

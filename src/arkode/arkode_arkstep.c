@@ -691,6 +691,15 @@ void ARKStepFree(void **arkode_mem)
       ark_mem->liw -= step_mem->stages;
     }
 
+    /* free stage vectors */
+    if (step_mem->z != NULL) {
+      for(j=0; j<step_mem->stages; j++)
+        arkFreeVec(ark_mem, &step_mem->z[j]);
+      free(step_mem->z);
+      step_mem->z = NULL;
+      ark_mem->liw -= step_mem->stages;
+    }
+
     /* free the reusable arrays for fused vector interface */
     if (step_mem->cvals != NULL) {
       free(step_mem->cvals);
@@ -1139,6 +1148,14 @@ int arkStep_Init(void* arkode_mem, int init_type)
       return(ARK_ILL_INPUT);
     }
 
+    /* Relaxation is incompatible with implicit RHS deduction */
+    if (ark_mem->relax_enabled && step_mem->implicit && step_mem->deduce_rhs)
+    {
+      arkProcessError(ark_mem, ARK_ILL_INPUT, "ARKODE::ARKStep",
+                      "arkStep_Init", "Relaxation cannot be performed when deducing implicit RHS values");
+      return ARK_ILL_INPUT;
+    }
+
     /* Allocate ARK RHS vector memory, update storage requirements */
     /*   Allocate Fe[0] ... Fe[stages-1] if needed */
     if (step_mem->explicit) {
@@ -1157,6 +1174,20 @@ int arkStep_Init(void* arkode_mem, int init_type)
         step_mem->Fi = (N_Vector *) calloc(step_mem->stages, sizeof(N_Vector));
       for (j=0; j<step_mem->stages; j++) {
         if (!arkAllocVec(ark_mem, ark_mem->ewt, &(step_mem->Fi[j])))
+          return(ARK_MEM_FAIL);
+      }
+      ark_mem->liw += step_mem->stages;  /* pointers */
+    }
+
+    /* Allocate stage storage for relaxation with implicit/IMEX methods or if a
+       fixed mass matrix is present (since we store f(t,y) not M^{-1} f(t,y)) */
+    if (ark_mem->relax_enabled && (step_mem->implicit ||
+                                   step_mem->mass_type == MASS_FIXED))
+    {
+      if (step_mem->z == NULL)
+        step_mem->z = (N_Vector *) calloc(step_mem->stages, sizeof(N_Vector));
+      for (j = 0; j < step_mem->stages; j++) {
+        if (!arkAllocVec(ark_mem, ark_mem->ewt, &(step_mem->z[j])))
           return(ARK_MEM_FAIL);
       }
       ark_mem->liw += step_mem->stages;  /* pointers */
@@ -1725,6 +1756,14 @@ int arkStep_TakeStep_Z(void* arkode_mem, realtype *dsmPtr, int *nflagPtr)
     }
 
     /* successful stage solve */
+
+    /*    store stage (if necessary for relaxation) */
+    if (ark_mem->relax_enabled && (step_mem->implicit ||
+                                   step_mem->mass_type == MASS_FIXED))
+    {
+      N_VScale(ONE, ark_mem->ycur, step_mem->z[is]);
+    }
+
     /*    store implicit RHS (value in Fi[is] is from preceding nonlinear iteration) */
     if (step_mem->implicit) {
 
@@ -2161,6 +2200,48 @@ int arkStep_CheckButcherTables(ARKodeMem ark_mem)
                       "arkStep_CheckButcherTables",
                       "Ai Butcher table has entries above diagonal!");
       return(ARK_INVALID_TABLE);
+    }
+  }
+
+  /* Check if the method is compatible with relaxation */
+  if (ark_mem->relax_enabled)
+  {
+    if (step_mem->q < 2)
+    {
+      arkProcessError(ark_mem, ARK_INVALID_TABLE, "ARKODE::ARKStep",
+                      "arkStep_CheckButcherTables",
+                      "The Butcher table(s) must be at least second order!");
+      return ARK_INVALID_TABLE;
+    }
+
+    if (step_mem->explicit)
+    {
+      /* Check if all b values are positive */
+      for (i = 0; i < step_mem->stages; i++)
+      {
+        if (step_mem->Be->b[i] < ZERO)
+        {
+          arkProcessError(ark_mem, ARK_INVALID_TABLE, "ARKODE::ARKStep",
+                          "arkStep_CheckButcherTables",
+                          "The explicit Butcher table has a negative b value!");
+          return ARK_INVALID_TABLE;
+        }
+      }
+    }
+
+    if (step_mem->implicit)
+    {
+      /* Check if all b values are positive */
+      for (i = 0; i < step_mem->stages; i++)
+      {
+        if (step_mem->Bi->b[i] < ZERO)
+        {
+          arkProcessError(ark_mem, ARK_INVALID_TABLE, "ARKODE::ARKStep",
+                          "arkStep_CheckButcherTables",
+                          "The implicit Butcher table has a negative b value!");
+          return ARK_INVALID_TABLE;
+        }
+      }
     }
   }
 
@@ -2969,6 +3050,223 @@ int arkStep_SetInnerForcing(void* arkode_mem, realtype tshift, realtype tscale,
   }
 
   return(0);
+}
+
+/* -----------------------------------------------------------------------------
+ * arkStep_RelaxDeltaY
+ *
+ * Computes the RK update to yn for use in relaxation methods
+ * ---------------------------------------------------------------------------*/
+
+int arkStep_RelaxDeltaY(ARKodeMem ark_mem, N_Vector delta_y)
+{
+  int i, nvec, retval;
+  realtype* cvals;
+  N_Vector* Xvecs;
+  ARKodeARKStepMem step_mem;
+
+  /* Access the stepper memory structure */
+  if (!(ark_mem->step_mem))
+  {
+    arkProcessError(ark_mem, ARK_MEM_NULL, "ARKODE::ARKStep",
+                    "arkStep_RelaxDeltaY", MSG_ARKSTEP_NO_MEM);
+    return ARK_MEM_NULL;
+  }
+  step_mem = (ARKodeARKStepMem)(ark_mem->step_mem);
+
+  /* Set arrays for fused vector operation */
+  cvals = step_mem->cvals;
+  Xvecs = step_mem->Xvecs;
+
+  nvec = 0;
+  for (i = 0; i < step_mem->stages; i++)
+  {
+    /* Explicit pieces */
+    if (step_mem->explicit)
+    {
+      cvals[nvec] = ark_mem->h * step_mem->Be->b[i];
+      Xvecs[nvec] = step_mem->Fe[i];
+      nvec++;
+    }
+    /* Implicit pieces */
+    if (step_mem->implicit)
+    {
+      cvals[nvec] = ark_mem->h * step_mem->Bi->b[i];
+      Xvecs[nvec] = step_mem->Fi[i];
+      nvec++;
+    }
+  }
+
+  /* Compute time step update (delta_y) */
+  retval = N_VLinearCombination(nvec, cvals, Xvecs, delta_y);
+  if (retval) return ARK_VECTOROP_ERR;
+
+  if (step_mem->mass_type == MASS_FIXED)
+  {
+    /* Solve to compute update M^{-1} h * sum_j Ae[i,j] Fe[j] + Ai[i,j] Fi[j] */
+    retval = step_mem->msolve((void *) ark_mem, delta_y, step_mem->nlscoef);
+    if (retval) { return ARK_MASSSOLVE_FAIL; }
+  }
+
+  return ARK_SUCCESS;
+}
+
+/* -----------------------------------------------------------------------------
+ * arkStep_RelaxDeltaE
+ *
+ * Computes the change in the relaxation functions for use in relaxation methods
+ * delta_e = h * sum_i b_i * <relax_jac(z_i), f_i>
+ *
+ * With implicit and IMEX methods it is necessary to store the method stages
+ * (or compute the delta_e estimate along the way) to avoid inconsistencies
+ * between z_i, F(z_i), and J_relax(z_i) that arise from reconstructing stages
+ * from stored RHS values like with ERK methods. As such the take step function
+ * stores the stages along the way but only when there is an implicit RHS. When
+ * a fixed mass matrix is present the stages are also stored to avoid additional
+ * mass matrix solves in reconstructing the stages for an ERK method.
+ *
+ * Future: when ARKStep can exploit the structure of low storage methods, it may
+ * be necessary to compute the delta_e estimate along the way with explicit
+ * methods to avoid storing additional RHS or stage values.
+ * ---------------------------------------------------------------------------*/
+
+int arkStep_RelaxDeltaE(ARKodeMem ark_mem, ARKRelaxJacFn relax_jac_fn,
+                        long int* num_relax_jac_evals,
+                        sunrealtype* delta_e_out)
+{
+  int i, j, nvec, retval;
+  sunrealtype* cvals;
+  N_Vector* Xvecs;
+  ARKodeARKStepMem step_mem;
+  N_Vector z_stage = ark_mem->tempv2;
+  N_Vector J_relax = ark_mem->tempv3;
+  N_Vector rhs_tmp = NULL;
+  sunrealtype bi   = ONE;
+
+  /* Access the stepper memory structure */
+  if (!(ark_mem->step_mem))
+  {
+    arkProcessError(ark_mem, ARK_MEM_NULL, "ARKODE::ARKStep",
+                    "arkStep_RelaxDeltaE", MSG_ARKSTEP_NO_MEM);
+    return ARK_MEM_NULL;
+  }
+  step_mem = (ARKodeARKStepMem)(ark_mem->step_mem);
+
+  /* Initialize output */
+  *delta_e_out = ZERO;
+
+  /* Set arrays for fused vector operation */
+  cvals = step_mem->cvals;
+  Xvecs = step_mem->Xvecs;
+
+  for (i = 0; i < step_mem->stages; i++)
+  {
+    if (step_mem->implicit || step_mem->mass_type == MASS_FIXED)
+    {
+      /* Use stored stages */
+      z_stage = step_mem->z[i];
+    }
+    else
+    {
+      /* Reconstruct explicit stages */
+      nvec = 0;
+
+      cvals[nvec] = ONE;
+      Xvecs[nvec] = ark_mem->yn;
+      nvec++;
+
+      for (j = 0; j < i; j++)
+      {
+        cvals[nvec] = ark_mem->h * step_mem->Be->A[i][j];
+        Xvecs[nvec] = step_mem->Fe[j];
+        nvec++;
+      }
+
+      retval = N_VLinearCombination(nvec, cvals, Xvecs, z_stage);
+      if (retval) return ARK_VECTOROP_ERR;
+    }
+
+    /* Evaluate the Jacobian at z_i */
+    retval = relax_jac_fn(z_stage, J_relax, ark_mem->user_data);
+    (*num_relax_jac_evals)++;
+    if (retval < 0) { return ARK_RELAX_JAC_FAIL; }
+    if (retval > 0) { return ARK_RELAX_JAC_RECV; }
+
+    /* Reset temporary RHS alias */
+    rhs_tmp = z_stage;
+
+    /* Compute delta_e = h * sum_i b_i * <relax_jac(z_i), f_i> */
+    if (step_mem->explicit && step_mem->implicit)
+    {
+      N_VLinearSum(step_mem->Be->b[i], step_mem->Fe[i],
+                   step_mem->Bi->b[i], step_mem->Fi[i],
+                   rhs_tmp);
+      bi = ONE;
+    }
+    else if (step_mem->explicit)
+    {
+      if (step_mem->mass_type == MASS_FIXED)
+      {
+        N_VScale(ONE, step_mem->Fe[i], rhs_tmp);
+      }
+      else
+      {
+        rhs_tmp = step_mem->Fe[i];
+      }
+      bi = step_mem->Be->b[i];
+    }
+    else
+    {
+      if (step_mem->mass_type == MASS_FIXED)
+      {
+        N_VScale(ONE, step_mem->Fi[i], rhs_tmp);
+      }
+      else
+      {
+        rhs_tmp = step_mem->Fi[i];
+      }
+      bi = step_mem->Bi->b[i];
+    }
+
+    if (step_mem->mass_type == MASS_FIXED)
+    {
+      retval = step_mem->msolve((void *) ark_mem, rhs_tmp,
+                                step_mem->nlscoef);
+      if (retval) { return ARK_MASSSOLVE_FAIL; }
+    }
+
+    /* Update estimate of relaxation function change */
+    if (J_relax->ops->nvdotprodlocal && J_relax->ops->nvdotprodmultiallreduce)
+    {
+      *delta_e_out += bi * N_VDotProdLocal(J_relax, rhs_tmp);
+    }
+    else
+    {
+      *delta_e_out += bi * N_VDotProd(J_relax, rhs_tmp);
+    }
+  }
+
+  if (J_relax->ops->nvdotprodlocal && J_relax->ops->nvdotprodmultiallreduce)
+  {
+    retval = N_VDotProdMultiAllReduce(1, J_relax, delta_e_out);
+    if (retval) { return ARK_VECTOROP_ERR; }
+  }
+
+  *delta_e_out *= ark_mem->h;
+
+  return ARK_SUCCESS;
+}
+
+/* -----------------------------------------------------------------------------
+ * arkStep_GetOrder
+ *
+ * Returns the method order
+ * ---------------------------------------------------------------------------*/
+
+int arkStep_GetOrder(ARKodeMem ark_mem)
+{
+  ARKodeARKStepMem step_mem = (ARKodeARKStepMem)(ark_mem->step_mem);
+  return step_mem->q;
 }
 
 /*===============================================================

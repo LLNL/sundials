@@ -25,3 +25,5 @@ The following sections describe the SUNDIALS CI suite as well as a testing workf
 
    CI
    Local
+   Benchmarking
+   Spot

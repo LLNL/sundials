@@ -33,7 +33,7 @@ sundials_add_library(sundials_sunlinsollapackband
   VERSION
     ${sunlinsollib_VERSION}
   SOVERSION
-    ${sunlinsollib_VERSION}
+  ${sunlinsollib_SOVERSION}
 )
 
 message(STATUS "Added SUNLINSOL_LAPACKBAND module")

@@ -147,7 +147,7 @@ int SUNMemoryHelper_GetAllocStats(SUNMemoryHelper helper, SUNMemoryType mem_type
   if (helper->ops->getallocstats) {
     return helper->ops->getallocstats(helper, mem_type, num_allocations, num_deallocations, bytes_allocated, bytes_high_watermark);
   } else {
-    ier = -1;
+    ier = helper->ops->getallocstats(helper, mem_type, num_allocations, num_deallocations, bytes_allocated, bytes_high_watermark);
   }
   SUNDIALS_MARK_FUNCTION_END(getSUNProfiler(helper));
   return(ier);

@@ -403,9 +403,9 @@ contributions.\\
 Other contributors to SUNDIALS include: James Almgren-Bell, Lawrence E. Banks,
 Peter N. Brown, George Byrne, Rujeko Chinomona, Scott D. Cohen, Aaron Collier,
 Keith E. Grant, Steven L. Lee, Shelby L. Lockhart, John Loffeld, Daniel McGreer,
-Slaven Peles, Cosmin Petra, H. Hunter Schwartz, Jean M. Sexton,
-Dan Shumaker, Steve G. Smith, Allan G. Taylor, Hilari C. Tiedeman, Chris White,
-Ting Yan, and Ulrike M. Yang.
+Yu Pan, Slaven Peles, Cosmin Petra, Steven B. Roberts, H. Hunter Schwartz,
+Jean M. Sexton, Dan Shumaker, Steve G. Smith, Shahbaj Sohal, Allan G. Taylor,
+Hilari C. Tiedeman, Chris White, Ting Yan, and Ulrike M. Yang.
 \clearpage
 
 % clear empty double page
