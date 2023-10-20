@@ -3380,64 +3380,6 @@ int arkStep_SetInnerForcing(void* arkode_mem, realtype tshift, realtype tscale,
   return(0);
 }
 
-/* -----------------------------------------------------------------------------
- * arkStep_RelaxDeltaY
- *
- * Computes the RK update to yn for use in relaxation methods
- * ---------------------------------------------------------------------------*/
-
-int arkStep_RelaxDeltaY(ARKodeMem ark_mem, N_Vector delta_y)
-{
-  int i, nvec, retval;
-  realtype* cvals;
-  N_Vector* Xvecs;
-  ARKodeARKStepMem step_mem;
-
-  /* Access the stepper memory structure */
-  if (!(ark_mem->step_mem))
-  {
-    arkProcessError(ark_mem, ARK_MEM_NULL, "ARKODE::ARKStep",
-                    "arkStep_RelaxDeltaY", MSG_ARKSTEP_NO_MEM);
-    return ARK_MEM_NULL;
-  }
-  step_mem = (ARKodeARKStepMem)(ark_mem->step_mem);
-
-  /* Set arrays for fused vector operation */
-  cvals = step_mem->cvals;
-  Xvecs = step_mem->Xvecs;
-
-  nvec = 0;
-  for (i = 0; i < step_mem->stages; i++)
-  {
-    /* Explicit pieces */
-    if (step_mem->explicit)
-    {
-      cvals[nvec] = ark_mem->h * step_mem->Be->b[i];
-      Xvecs[nvec] = step_mem->Fe[i];
-      nvec++;
-    }
-    /* Implicit pieces */
-    if (step_mem->implicit)
-    {
-      cvals[nvec] = ark_mem->h * step_mem->Bi->b[i];
-      Xvecs[nvec] = step_mem->Fi[i];
-      nvec++;
-    }
-  }
-
-  /* Compute time step update (delta_y) */
-  retval = N_VLinearCombination(nvec, cvals, Xvecs, delta_y);
-  if (retval) return ARK_VECTOROP_ERR;
-
-  if (step_mem->mass_type == MASS_FIXED)
-  {
-    /* Solve to compute update M^{-1} h * sum_j Ae[i,j] Fe[j] + Ai[i,j] Fi[j] */
-    retval = step_mem->msolve((void *) ark_mem, delta_y, step_mem->nlscoef);
-    if (retval) { return ARK_MASSSOLVE_FAIL; }
-  }
-
-  return ARK_SUCCESS;
-}
 
 /* -----------------------------------------------------------------------------
  * arkStep_RelaxDeltaE
