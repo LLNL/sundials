@@ -17,6 +17,7 @@
 # List of test tuples of the form "name\;args"
 set(unit_tests
   "ida_test_getuserdata\;"
+  "ida_test_tstop\;"
   )
 
 # Add the build and install targets for each test

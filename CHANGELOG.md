@@ -3,17 +3,29 @@
 
 ## Changes to SUNDIALS in release X.X.X
 
-Fixed a bug in `ARKStepSetTableNum` wherein it did not recognize `ARKODE_ARK2_ERK_3_1_2` and
-`ARKODE_ARK2_DIRK_3_1_2` as a valid additive Runge--Kutta Butcher table pair.
+Fixed a regression introduced by the stop time bug fix in v6.6.1 where ARKODE,
+CVODE, CVODES, IDA, and IDAS would return at the stop time rather than the
+requested output time if the stop time was reached in the same step in which the
+output time was passed.
 
-Renamed some internal types in CVODES and IDAS to allow both packages to be built together in the same binary.
+Fixed a bug in ARKODE where `ARKStepSetInterpolateStopTime` would return an
+interpolated solution at the stop time in some cases when interpolation was
+disabled.
+
+Fixed a bug in `ARKStepSetTableNum` wherein it did not recognize
+`ARKODE_ARK2_ERK_3_1_2` and `ARKODE_ARK2_DIRK_3_1_2` as a valid additive
+Runge--Kutta Butcher table pair.
+
+Renamed some internal types in CVODES and IDAS to allow both packages to be
+built together in the same binary.
 
 Improved computational complexity of `SUNMatScaleAddI_Sparse` from `O(M*N)` to
 `O(NNZ)`.
 
 Fixed scaling bug in `SUNMatScaleAddI_Sparse` for non-square matrices.
 
-Fixed missing soversions in some `SUNLinearSolver` CMake targets.
+Fixed missing soversions in some `SUNLinearSolver` and `SUNNonlinearSolver`
+CMake targets.
 
 ## Changes to SUNDIALS in release 6.6.1
 
@@ -24,8 +36,9 @@ object.
 
 Fixed a bug in ARKODE, CVODE, CVODES, IDA, and IDAS where the stop time may not
 be cleared when using normal mode if the requested output time is the same as
-the stop time. Additionally, with ARKODE, CVODE, and CVODES an unnecessary
-interpolation of the solution at the stop time may occur in this case.
+the stop time. Additionally, with ARKODE, CVODE, and CVODES this fix removes an
+unnecessary interpolation of the solution at the stop time that could occur in
+this case.
 
 ## Changes to SUNDIALS in release 6.6.0
 
