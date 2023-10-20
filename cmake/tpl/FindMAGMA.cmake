@@ -75,20 +75,22 @@ if(MAGMA_LIBRARY AND MAGMA_INCLUDE_DIR)
 
         # Check if we need to find roc::hipblas or roc::hipsparse
         if(SUNDIALS_MAGMA_BACKENDS MATCHES "HIP")
-          if((lib STREQUAL "roc::hipblas") AND (NOT TARGET roc::hipblas))
+          if(NOT TARGET roc::hipblas)
             find_package(hipblas REQUIRED)
           endif()
-          if((lib STREQUAL "roc::hipsparse") AND (NOT TARGET roc::hipsparse))
+          if(NOT TARGET roc::hipsparse)
             find_package(hipsparse REQUIRED)
           endif()
+          # MAGMA does not reliably include these in the pkgconfig file
+          set(lib "roc::hipblas roc::hipsparse")
         endif()
         
         # Check if we need to find cusparse or cublas
         if(SUNDIALS_MAGMA_BACKENDS MATCHES "CUDA")
           if (NOT TARGET CUDA::cudart)
-            find_package(CUDAToolkit)
+            find_package(CUDAToolkit REQUIRED)
           endif() 
-          # Ignore cublas, cusolver, cusparse because the library path in the magma pc is not reliable.
+          # Ignore cublas, cusolver, cusparse because the library path in the magma pkgconfig is not reliable.
           # Sepcifically, the path is wrong on systems like Perlmutter where the NVIDIA HPC SDK is used.
           # We just link to these in the relevant sundials targets  using the CMake CUDA targets instead.
           if((lib STREQUAL "cublas") OR (lib STREQUAL "cusolver") OR (lib STREQUAL "cusparse"))
