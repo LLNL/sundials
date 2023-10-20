@@ -2854,6 +2854,7 @@ int arkStep_ComputeSolutions(ARKodeMem ark_mem, realtype *dsmPtr)
   sunrealtype* cj;
   sunrealtype* bj;
   sunrealtype* dj;
+  booleantype stiffly_accurate;
   realtype* cvals;
   N_Vector* Xvecs;
   ARKodeARKStepMem step_mem;
@@ -2877,51 +2878,75 @@ int arkStep_ComputeSolutions(ARKodeMem ark_mem, realtype *dsmPtr)
   /* initialize output */
   *dsmPtr = ZERO;
 
-  /* Compute time step solution */
-  /*   set arrays for fused vector operation */
-  cvals[0] = ONE;
-  Xvecs[0] = ark_mem->yn;
-  nvec = 1;
-  for (j=0; j<step_mem->stages; j++) {
-    if (step_mem->explicit) {      /* Explicit pieces */
-      cvals[nvec] = ark_mem->h * step_mem->Be->b[j];
-      Xvecs[nvec] = step_mem->Fe[j];
-      nvec += 1;
-    }
-    if (step_mem->implicit) {      /* Implicit pieces */
-      cvals[nvec] = ark_mem->h * step_mem->Bi->b[j];
-      Xvecs[nvec] = step_mem->Fi[j];
-      nvec += 1;
-    }
-  }
+  /* check if the method is stiffly accurate */
+  stiffly_accurate = SUNTRUE;
 
-  /* apply external polynomial (MRI) forcing (M = I required) */
-  if (step_mem->expforcing || step_mem->impforcing)
+  if (step_mem->explicit)
   {
-    if (step_mem->expforcing)
+    if (!ARKodeButcherTable_IsStifflyAccurate(step_mem->Be))
     {
-      cj = step_mem->Be->c;
-      bj = step_mem->Be->b;
+      stiffly_accurate = SUNFALSE;
     }
-    else
-    {
-      cj = step_mem->Bi->c;
-      bj = step_mem->Bi->b;
-    }
-
-    for (j = 0; j < step_mem->stages; j++)
-    {
-      step_mem->stage_times[j] = ark_mem->tn + cj[j] * ark_mem->h;
-      step_mem->stage_coefs[j] = ark_mem->h * bj[j];
-    }
-
-    arkStep_ApplyForcing(step_mem, step_mem->stage_times, step_mem->stage_coefs,
-                         step_mem->stages, &nvec);
   }
 
-  /*   call fused vector operation to do the work */
-  retval = N_VLinearCombination(nvec, cvals, Xvecs, y);
-  if (retval != 0) return(ARK_VECTOROP_ERR);
+  if (step_mem->implicit)
+  {
+    if (!ARKodeButcherTable_IsStifflyAccurate(step_mem->Bi))
+    {
+      stiffly_accurate = SUNFALSE;
+    }
+  }
+
+  /* If the method is stiffly accurate, ycur is already the new solution */
+
+  if (!stiffly_accurate)
+  {
+    /* Compute time step solution (if necessary) */
+    /*   set arrays for fused vector operation */
+    cvals[0] = ONE;
+    Xvecs[0] = ark_mem->yn;
+    nvec = 1;
+    for (j=0; j<step_mem->stages; j++) {
+      if (step_mem->explicit) {      /* Explicit pieces */
+        cvals[nvec] = ark_mem->h * step_mem->Be->b[j];
+        Xvecs[nvec] = step_mem->Fe[j];
+        nvec += 1;
+      }
+      if (step_mem->implicit) {      /* Implicit pieces */
+        cvals[nvec] = ark_mem->h * step_mem->Bi->b[j];
+        Xvecs[nvec] = step_mem->Fi[j];
+        nvec += 1;
+      }
+    }
+
+    /* apply external polynomial (MRI) forcing (M = I required) */
+    if (step_mem->expforcing || step_mem->impforcing)
+    {
+      if (step_mem->expforcing)
+      {
+        cj = step_mem->Be->c;
+        bj = step_mem->Be->b;
+      }
+      else
+      {
+        cj = step_mem->Bi->c;
+        bj = step_mem->Bi->b;
+      }
+
+      for (j = 0; j < step_mem->stages; j++)
+      {
+        step_mem->stage_times[j] = ark_mem->tn + cj[j] * ark_mem->h;
+        step_mem->stage_coefs[j] = ark_mem->h * bj[j];
+      }
+
+      arkStep_ApplyForcing(step_mem, step_mem->stage_times, step_mem->stage_coefs,
+                           step_mem->stages, &nvec);
+    }
+
+    /*   call fused vector operation to do the work */
+    retval = N_VLinearCombination(nvec, cvals, Xvecs, y);
+    if (retval != 0) return(ARK_VECTOROP_ERR);
+  }
 
   /* Compute yerr (if step adaptivity enabled) */
   if (!ark_mem->fixedstep) {
@@ -2997,6 +3022,7 @@ int arkStep_ComputeSolutions_MassFixed(ARKodeMem ark_mem, realtype *dsmPtr)
   /* local data */
   int retval, j, nvec;
   N_Vector y, yerr;
+  booleantype stiffly_accurate;
   realtype* cvals;
   N_Vector* Xvecs;
   ARKodeARKStepMem step_mem;
@@ -3020,37 +3046,60 @@ int arkStep_ComputeSolutions_MassFixed(ARKodeMem ark_mem, realtype *dsmPtr)
   /* initialize output */
   *dsmPtr = ZERO;
 
-  /* compute y RHS (store in y) */
-  /*   set arrays for fused vector operation */
-  nvec = 0;
-  for (j=0; j<step_mem->stages; j++) {
-    if (step_mem->explicit) {      /* Explicit pieces */
-      cvals[nvec] = ark_mem->h * step_mem->Be->b[j];
-      Xvecs[nvec] = step_mem->Fe[j];
-      nvec += 1;
-    }
-    if (step_mem->implicit) {      /* Implicit pieces */
-      cvals[nvec] = ark_mem->h * step_mem->Bi->b[j];
-      Xvecs[nvec] = step_mem->Fi[j];
-      nvec += 1;
+  /* check if the method is stiffly accurate */
+  stiffly_accurate = SUNTRUE;
+
+  if (step_mem->explicit)
+  {
+    if (!ARKodeButcherTable_IsStifflyAccurate(step_mem->Be))
+    {
+      stiffly_accurate = SUNFALSE;
     }
   }
 
-  /*   call fused vector operation to compute RHS */
-  retval = N_VLinearCombination(nvec, cvals, Xvecs, y);
-  if (retval != 0) return(ARK_VECTOROP_ERR);
-
-  /* solve for y update (stored in y) */
-  retval = step_mem->msolve((void *) ark_mem, y, step_mem->nlscoef);
-  if (retval < 0) {
-    *dsmPtr = RCONST(2.0);   /* indicate too much error, step with smaller step */
-    N_VScale(ONE, ark_mem->yn, y);      /* place old solution into y */
-    return(CONV_FAIL);
+  if (step_mem->implicit)
+  {
+    if (!ARKodeButcherTable_IsStifflyAccurate(step_mem->Bi))
+    {
+      stiffly_accurate = SUNFALSE;
+    }
   }
 
-  /* compute y = yn + update */
-  N_VLinearSum(ONE, ark_mem->yn, ONE, y, y);
+  /* If the method is stiffly accurate, ycur is already the new solution */
 
+  if (!stiffly_accurate)
+  {
+    /* compute y RHS (store in y) */
+    /*   set arrays for fused vector operation */
+    nvec = 0;
+    for (j=0; j<step_mem->stages; j++) {
+      if (step_mem->explicit) {      /* Explicit pieces */
+        cvals[nvec] = ark_mem->h * step_mem->Be->b[j];
+        Xvecs[nvec] = step_mem->Fe[j];
+        nvec += 1;
+      }
+      if (step_mem->implicit) {      /* Implicit pieces */
+        cvals[nvec] = ark_mem->h * step_mem->Bi->b[j];
+        Xvecs[nvec] = step_mem->Fi[j];
+        nvec += 1;
+      }
+    }
+
+    /*   call fused vector operation to compute RHS */
+    retval = N_VLinearCombination(nvec, cvals, Xvecs, y);
+    if (retval != 0) return(ARK_VECTOROP_ERR);
+
+    /* solve for y update (stored in y) */
+    retval = step_mem->msolve((void *) ark_mem, y, step_mem->nlscoef);
+    if (retval < 0) {
+      *dsmPtr = RCONST(2.0);   /* indicate too much error, step with smaller step */
+      N_VScale(ONE, ark_mem->yn, y);      /* place old solution into y */
+      return(CONV_FAIL);
+    }
+
+    /* compute y = yn + update */
+    N_VLinearSum(ONE, ark_mem->yn, ONE, y, y);
+  }
 
   /* compute yerr (if step adaptivity enabled) */
   if (!ark_mem->fixedstep) {
