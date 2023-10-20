@@ -16,15 +16,15 @@
 Developers Guide
 ****************
 
-
-.. only:: html
-
-   **Table of Contents**
+The SUite of Nonlinear and DIfferential/ALgebraic equation Solvers (SUNDIALS) consists of the time
+integration packages CVODE, IDA, and ARKODE, the sensitivity analysis enabled variants CVODES and
+IDAS, and the nonlinear solver package KINSOL. This is the part of the SUNDIALS documentation is
+meant for SUNDIALS developers.
 
 .. toctree::
    :maxdepth: 1
 
-   introduction/index
+   History
    getting_started/index
    style_guide/index
    development/index
