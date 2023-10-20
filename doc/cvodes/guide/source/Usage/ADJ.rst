@@ -24,7 +24,7 @@ several supporting user-callable functions. For this reason, in the following
 sections we refer to the *backward problem* and not to the *adjoint problem*
 when discussing details relevant to the ODEs that are integrated backward in
 time. The backward problem can be the adjoint problem :eq:`CVODES_adj_eqns` or
-:eq:`CVODES_adj_eqns`, and can be augmented with some quadrature differential
+:eq:`CVODES_adj1_eqns`, and can be augmented with some quadrature differential
 equations.
 
 CVODES uses various constants for both input and output. These are defined as
