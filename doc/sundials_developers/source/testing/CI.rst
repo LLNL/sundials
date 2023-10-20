@@ -14,7 +14,7 @@
 GitHub CI Testing 
 =================
 
-There are two types of CI testing that we run on GitHub via `GitHub actions <https://github.com/LLNL/sundials/actions>`_:
+There are two categories of CI testing that we run on GitHub via `GitHub actions <https://github.com/LLNL/sundials/actions>`_:
 
 1. Comprehensive (excluding GPUs)
 2. Minimal/Short
