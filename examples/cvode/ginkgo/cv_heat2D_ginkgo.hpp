@@ -22,6 +22,7 @@
 #include <limits>
 #include <cmath>
 #include <string>
+#include <memory>
 
 // SUNDIALS types
 #include <sundials/sundials_types.h>
@@ -35,6 +36,7 @@
 #include <nvector/nvector_sycl.h>
 #endif
 
+// Ginkgo Type
 #include <ginkgo/ginkgo.hpp>
 
 // Common utility functions
@@ -89,6 +91,9 @@ struct UserData
   int           nout   = 20;    // number of output times
   std::ofstream uout;           // output file stream
   std::ofstream eout;           // error file stream
+
+  // Ginkgo executor for synchronization on sycl
+  std::shared_ptr<const gko::Executor> exec;
 };
 
 // -----------------------------------------------------------------------------
@@ -121,7 +126,7 @@ void solution_kernel(const sunindextype nx, const sunindextype ny,
 #endif
 
 // Compute the exact solution
-int Solution(sunrealtype t, N_Vector u, UserData &udata, std::shared_ptr<const gko::Executor> exec)
+int Solution(sunrealtype t, N_Vector u, UserData &udata)
 {
   // Access problem data and set shortcuts
   const auto nx = udata.nx;
@@ -152,7 +157,7 @@ int Solution(sunrealtype t, N_Vector u, UserData &udata, std::shared_ptr<const g
 #elif defined(USE_DPCPP)
   sunrealtype *uarray = N_VGetDeviceArrayPointer(u);
   if (check_ptr(uarray, "N_VGetDeviceArrayPointer")) return -1;
-  std::dynamic_pointer_cast<const gko::DpcppExecutor>(exec)->get_queue()->submit([&](sycl::handler& cgh) {
+  std::dynamic_pointer_cast<const gko::DpcppExecutor>(udata.exec)->get_queue()->submit([&](sycl::handler& cgh) {
     cgh.parallel_for(sycl::range<2>(ny, nx), [=](sycl::id<2> id) {
       const sunindextype i = id[1];
       const sunindextype j = id[0];
@@ -191,15 +196,15 @@ int Solution(sunrealtype t, N_Vector u, UserData &udata, std::shared_ptr<const g
   }
 
 #endif
-  exec->synchronize();
+  udata.exec->synchronize();
   return 0;
 }
 
 // Compute the solution error
-int SolutionError(sunrealtype t, N_Vector u, N_Vector e, UserData &udata, std::shared_ptr<const gko::Executor> exec)
+int SolutionError(sunrealtype t, N_Vector u, N_Vector e, UserData &udata)
 {
   // Compute true solution
-  int flag = Solution(t, e, udata, exec);
+  int flag = Solution(t, e, udata);
   if (flag != 0) return -1;
 
   // Compute absolute error
@@ -216,7 +221,7 @@ void InputHelp()
     << std::endl
     << "Command line options:\n"
     << "  --nx <nx>          : number of x mesh points\n"
-    << "  --nx <nx>          : number of y mesh points\n"
+    << "  --ny <ny>          : number of y mesh points\n"
     << "  --xu <xu>          : x upper bound\n"
     << "  --yu <yu>          : y upper bound\n"
     << "  --kx <kx>          : x diffusion coefficient\n"
@@ -334,10 +339,10 @@ int OpenOutput(UserData &udata)
 }
 
 // Write output
-int WriteOutput(sunrealtype t, N_Vector u, N_Vector e, UserData &udata, std::shared_ptr<const gko::Executor> exec)
+int WriteOutput(sunrealtype t, N_Vector u, N_Vector e, UserData &udata)
 {
   // Compute the error
-  int flag = SolutionError(t, u, e, udata, exec);
+  int flag = SolutionError(t, u, e, udata);
   if (check_flag(flag, "SolutionError")) return 1;
 
   // Compute max error

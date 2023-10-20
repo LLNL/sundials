@@ -53,22 +53,27 @@
 
 #if defined(USE_CUDA)
 #include <nvector/nvector_cuda.h>
+#define HIP_OR_CUDA(a, b) b
 #define HIP_OR_CUDA_SYCL(a, b, c) b
 constexpr auto N_VNew = N_VNew_Cuda;
 #elif defined(USE_HIP)
 #include <nvector/nvector_hip.h>
+#define HIP_OR_CUDA(a, b) a
 #define HIP_OR_CUDA_SYCL(a, b, c) a
 constexpr auto N_VNew = N_VNew_Hip;
 #elif defined(USE_DPCPP)
 #include <nvector/nvector_sycl.h>
+#define HIP_OR_CUDA(a, b)
 #define HIP_OR_CUDA_SYCL(a, b, c) c
 constexpr auto N_VNew = N_VNew_Sycl;
 #elif defined(USE_OMP)
 #include <nvector/nvector_serial.h>
+#define HIP_OR_CUDA(a, b)
 #define HIP_OR_CUDA_SYCL(a, b, c)
 constexpr auto N_VNew = N_VNew_Serial;
 #else
 #include <nvector/nvector_serial.h>
+#define HIP_OR_CUDA(a, b)
 #define HIP_OR_CUDA_SYCL(a, b, c)
 constexpr auto N_VNew = N_VNew_Serial;
 #endif
@@ -89,11 +94,6 @@ int f(sunrealtype t, N_Vector u, N_Vector f, void* user_data);
 // Jacobian of RHS function
 int J(sunrealtype t, N_Vector y, N_Vector fy, SUNMatrix J, void* user_data, N_Vector tmp1, N_Vector tmp2, N_Vector tmp3);
 
-
-// -----------------------------------------------------------------------------
-// Ginkgo Global Executor for passing queue
-// -----------------------------------------------------------------------------
-std::shared_ptr<const gko::Executor> global_exec;
 
 // -----------------------------------------------------------------------------
 // Main Program
@@ -130,7 +130,7 @@ int main(int argc, char* argv[])
   auto gko_exec{gko::ReferenceExecutor::create()};
 #endif
 
-  global_exec = gko_exec;
+  udata.exec = gko_exec;
 
   // ---------------
   // Create vectors
@@ -145,7 +145,7 @@ int main(int argc, char* argv[])
   if (check_ptr(u, "N_VNew")) return 1;
 
   // Set initial condition
-  int flag = Solution(ZERO, u, udata, gko_exec);
+  int flag = Solution(ZERO, u, udata);
   if (check_flag(flag, "Solution")) return 1;
 
   // Create error vector
@@ -221,7 +221,7 @@ int main(int argc, char* argv[])
   flag = OpenOutput(udata);
   if (check_flag(flag, "OpenOutput")) return 1;
 
-  flag = WriteOutput(t, u, e, udata, gko_exec);
+  flag = WriteOutput(t, u, e, udata);
   if (check_flag(flag, "WriteOutput")) return 1;
 
   for (int iout = 0; iout < udata.nout; iout++) {
@@ -230,7 +230,7 @@ int main(int argc, char* argv[])
     if (check_flag(flag, "CVode")) break;
 
     // Output solution and error
-    flag = WriteOutput(t, u, e, udata, gko_exec);
+    flag = WriteOutput(t, u, e, udata);
     if (check_flag(flag, "WriteOutput")) return 1;
 
     // Update output time
@@ -252,7 +252,7 @@ int main(int argc, char* argv[])
   if (check_flag(flag, "CVodePrintAllStats")) return 1;
 
   // Output final error
-  flag = SolutionError(t, u, e, udata, gko_exec);
+  flag = SolutionError(t, u, e, udata);
   if (check_flag(flag, "SolutionError")) return 1;
 
   sunrealtype maxerr = N_VMaxNorm(e);
@@ -264,7 +264,7 @@ int main(int argc, char* argv[])
   // Clean up and return
   // --------------------
 
-  global_exec = nullptr;
+  udata.exec = nullptr;
   CVodeFree(&cvode_mem); // Free integrator memory
   N_VDestroy(u);         // Free vectors
   N_VDestroy(e);
@@ -353,7 +353,7 @@ int f(sunrealtype t, N_Vector u, N_Vector f, void* user_data)
 
   f_kernel<<<num_blocks, threads_per_block>>>(nx, ny, dx, dy, cx, cy, cc, bx, by, sin_t_cos_t, cos_sqr_t, uarray, farray);
 
-  HIP_OR_CUDA_OR_SYCL(hipDeviceSynchronize(), cudaDeviceSynchronize(), global_exec->synchronize());
+  HIP_OR_CUDA(hipDeviceSynchronize(), cudaDeviceSynchronize());
 
 #elif defined(USE_DPCPP)
   // Access device data arrays
@@ -363,7 +363,7 @@ int f(sunrealtype t, N_Vector u, N_Vector f, void* user_data)
   sunrealtype* farray = N_VGetDeviceArrayPointer(f);
   if (check_ptr(farray, "N_VGetDeviceArrayPointer")) return -1;
 
-  std::dynamic_pointer_cast<const gko::DpcppExecutor>(global_exec)->get_queue()->submit([&](sycl::handler& cgh) {
+  std::dynamic_pointer_cast<const gko::DpcppExecutor>(udata->exec)->get_queue()->submit([&](sycl::handler& cgh) {
     cgh.parallel_for(sycl::range<2>(ny, nx), [=](sycl::id<2> id) {
       const sunindextype i = id[1];
       const sunindextype j = id[0];
@@ -391,7 +391,7 @@ int f(sunrealtype t, N_Vector u, N_Vector f, void* user_data)
       }
     });
   });
-  global_exec->synchronize();
+  udata->exec->synchronize();
 #else
 
   // Access host data arrays
@@ -564,9 +564,9 @@ int J(sunrealtype t, N_Vector y, N_Vector fy, SUNMatrix J, void* user_data, N_Ve
 
   J_kernel<<<num_blocks_i, threads_per_block_i>>>(nx, ny, cx, cy, cc, row_ptrs, col_idxs, mat_data);
 
-  HIP_OR_CUDA_OR_SYCL(hipDeviceSynchronize(), cudaDeviceSynchronize(), global_exec->synchronize());
+  HIP_OR_CUDA(hipDeviceSynchronize(), cudaDeviceSynchronize());
 #elif defined(USE_DPCPP)
-  auto queue = std::dynamic_pointer_cast<const gko::DpcppExecutor>(global_exec)->get_queue();
+  auto queue = std::dynamic_pointer_cast<const gko::DpcppExecutor>(udata->exec)->get_queue();
   // J_sn_kernel
   queue->submit([&](sycl::handler& cgh) {
     cgh.parallel_for(nx, [=](sycl::id<1> id) {
@@ -644,7 +644,7 @@ int J(sunrealtype t, N_Vector y, N_Vector fy, SUNMatrix J, void* user_data, N_Ve
       }
     });
   });
-  global_exec->synchronize();
+  udata->exec->synchronize();
 #else
 
   // Fill southern boundary entries (j = 0)

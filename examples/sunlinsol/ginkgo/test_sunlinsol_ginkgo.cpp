@@ -32,18 +32,22 @@
 
 #if defined(USE_HIP)
 #include <nvector/nvector_hip.h>
+#define HIP_OR_CUDA(a, b) a
 #define HIP_OR_CUDA_OR_SYCL(a, b, c) a
 constexpr auto N_VNew = N_VNew_Hip;
 #elif defined(USE_CUDA)
 #include <nvector/nvector_cuda.h>
+#define HIP_OR_CUDA(a, b) b
 #define HIP_OR_CUDA_OR_SYCL(a, b, c) b
 constexpr auto N_VNew = N_VNew_Cuda;
 #elif defined(USE_DPCPP)
 #include <nvector/nvector_sycl.h>
+#define HIP_OR_CUDA(a, b)
 #define HIP_OR_CUDA_OR_SYCL(a, b, c) c
 constexpr auto N_VNew = N_VNew_Sycl;
 #elif defined(USE_OMP)
 #include <nvector/nvector_openmp.h>
+#define HIP_OR_CUDA(a, b)
 #define HIP_OR_CUDA_OR_SYCL(a, b, c)
 auto N_VNew = [](sunindextype length, SUNContext sunctx) {
   auto omp_num_threads_var{std::getenv("OMP_NUM_THREADS")};
@@ -55,6 +59,7 @@ auto N_VNew = [](sunindextype length, SUNContext sunctx) {
 };
 #else
 #include <nvector/nvector_serial.h>
+#define HIP_OR_CUDA(a, b)
 #define HIP_OR_CUDA_OR_SYCL(a, b, c)
 constexpr auto N_VNew = N_VNew_Serial;
 #endif
@@ -148,7 +153,7 @@ void fill_matrix(gko::matrix::Csr<sunrealtype, sunindextype>* matrix)
   unsigned num_blocks        = (mat_rows + threads_per_block - 1) / threads_per_block;
 
   fill_kernel<<<num_blocks, threads_per_block>>>(mat_rows, mat_cols, row_ptrs, col_idxs, mat_data);
-  HIP_OR_CUDA_OR_SYCL(hipDeviceSynchronize(), cudaDeviceSynchronize(), matrix->get_executor()->synchronize());
+  HIP_OR_CUDA(hipDeviceSynchronize(), cudaDeviceSynchronize());
 #elif defined(USE_DPCPP)
   std::dynamic_pointer_cast<const gko::DpcppExecutor>(matrix->get_executor())->get_queue()->submit([&](sycl::handler& cgh) {
     cgh.parallel_for(mat_rows, [=](sycl::id<1> id) {
@@ -219,7 +224,7 @@ void fill_matrix(gko::matrix::Dense<sunrealtype>* matrix)
   unsigned num_blocks        = (mat_rows + threads_per_block - 1) / threads_per_block;
 
   fill_kernel<<<num_blocks, threads_per_block>>>(mat_rows, mat_cols, mat_data);
-  HIP_OR_CUDA(hipDeviceSynchronize(), cudaDeviceSynchronize(), matrix->get_executor()->synchronize());
+  HIP_OR_CUDA(hipDeviceSynchronize(), cudaDeviceSynchronize());
 #elif defined(USE_DPCPP)
   std::dynamic_pointer_cast<const gko::DpcppExecutor>(matrix->get_executor())->get_queue()->submit([&](sycl::handler& cgh) {
     cgh.parallel_for(mat_rows, [=](sycl::id<1> id) {
