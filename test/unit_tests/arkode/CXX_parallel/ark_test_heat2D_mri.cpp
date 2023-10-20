@@ -103,6 +103,8 @@ static int SetupDecomp(UserData *udata);
 static int Exchange(N_Vector y, UserData *udata);
 //    frees memory allocated within UserData
 static int FreeUserData(UserData *udata);
+//    check if relative difference is within tolerance
+static bool Compare(long int a, long int b, sunrealtype tol);
 
 // Main Program
 int main(int argc, char* argv[]) {
@@ -396,17 +398,17 @@ int main(int argc, char* argv[]) {
     if (outproc)
       cout << "  Linear solver setups error: " << ark_nsetups << " vs " << mri_nsetups << "\n";
   }
-  if (ark_nli < mri_nli) {
+  if (!Compare(ark_nli, mri_nli, ONE)) {
     numfails += 1;
     if (outproc)
       cout << "  Linear iterations error: " << ark_nli << " vs " << mri_nli << "\n";
   }
-  if (ark_nJv < mri_nJv) {
+  if (!Compare(ark_nJv, mri_nJv, ONE)) {
     numfails += 1;
     if (outproc)
       cout << "  Jacobian-vector products error: " << ark_nJv << " vs " << mri_nJv << "\n";
   }
-  if (ark_nps < mri_nps) {
+  if (!Compare(ark_nps, mri_nps, ONE)) {
     numfails += 1;
     if (outproc)
       cout << "  Preconditioner solves error: " << ark_nps << " vs " << mri_nps << "\n";
@@ -943,5 +945,13 @@ static int FreeUserData(UserData *udata)
   return 0;     // return with success flag
 }
 
+// Check if relative difference of a and b is less than tolerance
+static bool Compare(long int a, long int b, sunrealtype tol)
+{
+  sunrealtype rel_diff = SUN_RCONST(100.0) *
+    abs(static_cast<sunrealtype>(a - b) / static_cast<sunrealtype>(a));
+
+  return (rel_diff > tol) ? false : true;
+}
 
 //---- end of file ----
