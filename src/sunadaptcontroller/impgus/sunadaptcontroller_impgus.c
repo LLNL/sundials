@@ -31,7 +31,6 @@
 #define SACIMPGUS_BIAS(C)        ( SACIMPGUS_CONTENT(C)->bias )
 #define SACIMPGUS_EP(C)          ( SACIMPGUS_CONTENT(C)->ep )
 #define SACIMPGUS_HP(C)          ( SACIMPGUS_CONTENT(C)->hp )
-#define SACIMPGUS_P(C)           ( SACIMPGUS_CONTENT(C)->p )
 #define SACIMPGUS_FIRSTSTEP(C)   ( SACIMPGUS_CONTENT(C)->firststep )
 
 /* ------------------
@@ -68,7 +67,6 @@ SUNAdaptController SUNAdaptController_ImpGus(SUNContext sunctx)
   C->ops->reset          = SUNAdaptController_Reset_ImpGus;
   C->ops->setdefaults    = SUNAdaptController_SetDefaults_ImpGus;
   C->ops->write          = SUNAdaptController_Write_ImpGus;
-  C->ops->setmethodorder = SUNAdaptController_SetMethodOrder_ImpGus;
   C->ops->seterrorbias   = SUNAdaptController_SetErrorBias_ImpGus;
   C->ops->update         = SUNAdaptController_Update_ImpGus;
   C->ops->space          = SUNAdaptController_Space_ImpGus;
@@ -84,9 +82,6 @@ SUNAdaptController SUNAdaptController_ImpGus(SUNContext sunctx)
 
   /* Attach content */
   C->content = content;
-
-  /* Initialize method order */
-  content->p = 1;
 
   /* Fill content with default/reset values */
   SUNAdaptController_SetDefaults_ImpGus(C);
@@ -118,10 +113,10 @@ SUNAdaptController_Type SUNAdaptController_GetType_ImpGus(SUNAdaptController C)
 { return SUN_ADAPTCONTROLLER_H; }
 
 int SUNAdaptController_EstimateStep_ImpGus(SUNAdaptController C, sunrealtype h,
-                                           sunrealtype dsm, sunrealtype* hnew)
+                                           int p, sunrealtype dsm, sunrealtype* hnew)
 {
   /* order parameter to use */
-  const int ord = SACIMPGUS_P(C) + 1;
+  const int ord = p + 1;
 
   /* modified method for first step */
   if (SACIMPGUS_FIRSTSTEP(C))
@@ -182,15 +177,6 @@ int SUNAdaptController_Write_ImpGus(SUNAdaptController C, FILE *fptr)
   fprintf(fptr, "  previous error = %16g\n", SACIMPGUS_EP(C));
   fprintf(fptr, "  previous step = %16g\n", SACIMPGUS_HP(C));
 #endif
-  fprintf(fptr, "  p = %i\n", SACIMPGUS_P(C));
-  return SUNADAPTCONTROLLER_SUCCESS;
-}
-
-int SUNAdaptController_SetMethodOrder_ImpGus(SUNAdaptController C, int p)
-{
-  /* check for legal inputs */
-  if (p < 0) { return SUNADAPTCONTROLLER_ILL_INPUT; }
-  SACIMPGUS_P(C) = p;
   return SUNADAPTCONTROLLER_SUCCESS;
 }
 

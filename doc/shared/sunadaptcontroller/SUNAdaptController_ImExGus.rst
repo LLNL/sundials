@@ -32,8 +32,9 @@ is primarily useful with explicit Runge--Kutta methods, and has the form
    :label: expGusController
 
 The default values of :math:`k_1` and :math:`k_2` are 0.367 and 0.268,
-respectively, and :math:`p` is described below. In this estimate,
-a floor of :math:`\varepsilon > 10^{-10}` is enforced to avoid division-by-zero errors.
+respectively, and :math:`p` is the global order of the time
+integration method.  In this estimate, a floor of :math:`\varepsilon > 10^{-10}`
+is enforced to avoid division-by-zero errors.
 
 Gustafsson also proposed a controller for implicit Runge--Kutta methods in :cite:p:`Gust:94`,
 with the form
@@ -64,7 +65,6 @@ class, and defines its *content* field as:
      sunrealtype bias;
      sunrealtype ep;
      sunrealtype hp;
-     int p;
      sunbooleantype firststep;
    };
 
@@ -80,8 +80,6 @@ These entries of the *content* field contain the following information:
 * ``ep`` - storage for the previous error estimate, :math:`\varepsilon_{n-1}`.
 
 * ``hp`` - storage for the previous step size, :math:`h_{n-1}`.
-
-* ``p`` - asymptotic order to use in error control (provided by the time integrator).
 
 * ``firststep`` - flag indicating whether a step has completed successfully, allowing
   the formulas above to transition between :math:`h_1` and :math:`h_n`.

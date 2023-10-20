@@ -26,9 +26,9 @@ estimate,
 .. math::
    h' \;=\; h_n\; \varepsilon_n^{-k_1/(p+1)},
 
-where :math:`p` is described below. In this estimate, a floor of
-:math:`\varepsilon > 10^{-10}` is enforced to avoid division-by-zero errors. By default
-the constant :math:`k_1=1`.
+where :math:`p` is the global order of the time integration method. In this estimate,
+a floor of :math:`\varepsilon > 10^{-10}` is enforced to avoid division-by-zero errors.
+By default the constant :math:`k_1=1`.
 
 This is implemented as a derived SUNAdaptController class, and defines its *content*
 field as:
@@ -38,7 +38,6 @@ field as:
    struct _SUNAdaptControllerContent_I {
      sunrealtype k1;
      sunrealtype bias;
-     int p;
    };
 
 These entries of the *content* field contain the following information:
@@ -47,8 +46,6 @@ These entries of the *content* field contain the following information:
 
 * ``bias`` - error bias factor, that converts from an input temporal error
   estimate via :math:`\varepsilon = \text{bias}*\text{dsm}`.
-
-* ``p`` - asymptotic order to use in error control (provided by the time integrator).
 
 
 The header file to be included when using this module is

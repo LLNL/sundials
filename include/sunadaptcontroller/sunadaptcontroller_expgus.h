@@ -33,7 +33,6 @@ struct _SUNAdaptControllerContent_ExpGus {
   sunrealtype k2;
   sunrealtype bias;         /* error bias factor */
   sunrealtype ep;           /* error from previous step */
-  int p;                    /* method/embedding order of accuracy */
   sunbooleantype firststep; /* flag indicating first step */
 };
 
@@ -52,15 +51,13 @@ SUNDIALS_EXPORT
 SUNAdaptController_Type SUNAdaptController_GetType_ExpGus(SUNAdaptController C);
 SUNDIALS_EXPORT
 int SUNAdaptController_EstimateStep_ExpGus(SUNAdaptController C, sunrealtype h,
-                                           sunrealtype dsm, sunrealtype* hnew);
+                                           int p, sunrealtype dsm, sunrealtype* hnew);
 SUNDIALS_EXPORT
 int SUNAdaptController_Reset_ExpGus(SUNAdaptController C);
 SUNDIALS_EXPORT
 int SUNAdaptController_SetDefaults_ExpGus(SUNAdaptController C);
 SUNDIALS_EXPORT
 int SUNAdaptController_Write_ExpGus(SUNAdaptController C, FILE* fptr);
-SUNDIALS_EXPORT
-int SUNAdaptController_SetMethodOrder_ExpGus(SUNAdaptController C, int p);
 SUNDIALS_EXPORT
 int SUNAdaptController_SetErrorBias_ExpGus(SUNAdaptController C, sunrealtype bias);
 SUNDIALS_EXPORT

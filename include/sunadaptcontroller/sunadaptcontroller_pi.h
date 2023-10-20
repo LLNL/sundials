@@ -33,7 +33,6 @@ struct _SUNAdaptControllerContent_PI {
   sunrealtype k2;
   sunrealtype bias;   /* error bias factor */
   sunrealtype ep;     /* error from previous step */
-  int p;              /* method/embedding order of accuracy */
 };
 
 typedef struct _SUNAdaptControllerContent_PI *SUNAdaptControllerContent_PI;
@@ -51,15 +50,13 @@ SUNDIALS_EXPORT
 SUNAdaptController_Type SUNAdaptController_GetType_PI(SUNAdaptController C);
 SUNDIALS_EXPORT
 int SUNAdaptController_EstimateStep_PI(SUNAdaptController C, sunrealtype h,
-                                       sunrealtype dsm, sunrealtype* hnew);
+                                       int p, sunrealtype dsm, sunrealtype* hnew);
 SUNDIALS_EXPORT
 int SUNAdaptController_Reset_PI(SUNAdaptController C);
 SUNDIALS_EXPORT
 int SUNAdaptController_SetDefaults_PI(SUNAdaptController C);
 SUNDIALS_EXPORT
 int SUNAdaptController_Write_PI(SUNAdaptController C, FILE* fptr);
-SUNDIALS_EXPORT
-int SUNAdaptController_SetMethodOrder_PI(SUNAdaptController C, int p);
 SUNDIALS_EXPORT
 int SUNAdaptController_SetErrorBias_PI(SUNAdaptController C, sunrealtype bias);
 SUNDIALS_EXPORT

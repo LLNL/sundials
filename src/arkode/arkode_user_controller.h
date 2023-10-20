@@ -36,8 +36,6 @@ struct _ARKUserControlContent {
   realtype hpp;       /* h from 2 steps ago */
   realtype ep;        /* error from previous step */
   realtype epp;       /* error from 2 steps ago */
-  int p;              /* embedding order of accuracy */
-  int q;              /* method order of accuracy */
   ARKodeMem ark_mem;  /* main ARKODE memory structure */
   ARKAdaptFn hadapt;  /* user-provided adaptivity fn */
   void* hadapt_data;  /* user-provided data pointer */
@@ -56,7 +54,7 @@ SUNDIALS_EXPORT
 SUNAdaptController_Type SUNAdaptController_GetType_ARKUserControl(SUNAdaptController C);
 SUNDIALS_EXPORT
 int SUNAdaptController_EstimateStep_ARKUserControl(SUNAdaptController C, realtype h,
-                                                   realtype dsm, realtype* hnew);
+                                                   int p, realtype dsm, realtype* hnew);
 SUNDIALS_EXPORT
 int SUNAdaptController_Reset_ARKUserControl(SUNAdaptController C);
 SUNDIALS_EXPORT

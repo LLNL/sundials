@@ -28,7 +28,6 @@
 #define SACI_CONTENT(C)     ( (SUNAdaptControllerContent_I)(C->content) )
 #define SACI_K1(C)          ( SACI_CONTENT(C)->k1 )
 #define SACI_BIAS(C)        ( SACI_CONTENT(C)->bias )
-#define SACI_P(C)           ( SACI_CONTENT(C)->p )
 
 /* ------------------
  * Default parameters
@@ -62,7 +61,6 @@ SUNAdaptController SUNAdaptController_I(SUNContext sunctx)
   C->ops->estimatestep   = SUNAdaptController_EstimateStep_I;
   C->ops->setdefaults    = SUNAdaptController_SetDefaults_I;
   C->ops->write          = SUNAdaptController_Write_I;
-  C->ops->setmethodorder = SUNAdaptController_SetMethodOrder_I;
   C->ops->seterrorbias   = SUNAdaptController_SetErrorBias_I;
   C->ops->space          = SUNAdaptController_Space_I;
 
@@ -77,9 +75,6 @@ SUNAdaptController SUNAdaptController_I(SUNContext sunctx)
 
   /* Attach content */
   C->content = content;
-
-  /* Initialize method order */
-  content->p = 1;
 
   /* Fill content with default values */
   SUNAdaptController_SetDefaults_I(C);
@@ -108,10 +103,10 @@ SUNAdaptController_Type SUNAdaptController_GetType_I(SUNAdaptController C)
 { return SUN_ADAPTCONTROLLER_H; }
 
 int SUNAdaptController_EstimateStep_I(SUNAdaptController C, sunrealtype h,
-                                      sunrealtype dsm, sunrealtype* hnew)
+                                      int p, sunrealtype dsm, sunrealtype* hnew)
 {
   /* set usable time-step adaptivity parameters */
-  const int ord = SACI_P(C) + 1;
+  const int ord = p + 1;
   const sunrealtype k1 = -SACI_K1(C) / ord;
   const sunrealtype ecur = SACI_BIAS(C) * dsm;
   const sunrealtype e1 = SUNMAX(ecur, TINY);
@@ -138,15 +133,6 @@ int SUNAdaptController_Write_I(SUNAdaptController C, FILE *fptr)
   fprintf(fptr, "  k1 = %16g\n", SACI_K1(C));
   fprintf(fptr, "  bias factor = %16g\n", SACI_BIAS(C));
 #endif
-  fprintf(fptr, "  p = %i\n", SACI_P(C));
-  return SUNADAPTCONTROLLER_SUCCESS;
-}
-
-int SUNAdaptController_SetMethodOrder_I(SUNAdaptController C, int p)
-{
-  /* check for legal inputs */
-  if (p < 0) { return SUNADAPTCONTROLLER_ILL_INPUT; }
-  SACI_P(C) = p;
   return SUNADAPTCONTROLLER_SUCCESS;
 }
 

@@ -35,7 +35,6 @@ struct _SUNAdaptControllerContent_PID {
   sunrealtype bias;  /* error bias factor */
   sunrealtype ep;    /* error from previous step */
   sunrealtype epp;   /* error from 2 steps ago */
-  int p;             /* method/embedding order of accuracy */
 };
 
 typedef struct _SUNAdaptControllerContent_PID *SUNAdaptControllerContent_PID;
@@ -53,15 +52,13 @@ SUNDIALS_EXPORT
 SUNAdaptController_Type SUNAdaptController_GetType_PID(SUNAdaptController C);
 SUNDIALS_EXPORT
 int SUNAdaptController_EstimateStep_PID(SUNAdaptController C, sunrealtype h,
-                                        sunrealtype dsm, sunrealtype* hnew);
+                                        int p, sunrealtype dsm, sunrealtype* hnew);
 SUNDIALS_EXPORT
 int SUNAdaptController_Reset_PID(SUNAdaptController C);
 SUNDIALS_EXPORT
 int SUNAdaptController_SetDefaults_PID(SUNAdaptController C);
 SUNDIALS_EXPORT
 int SUNAdaptController_Write_PID(SUNAdaptController C, FILE* fptr);
-SUNDIALS_EXPORT
-int SUNAdaptController_SetMethodOrder_PID(SUNAdaptController C, int p);
 SUNDIALS_EXPORT
 int SUNAdaptController_SetErrorBias_PID(SUNAdaptController C, sunrealtype bias);
 SUNDIALS_EXPORT

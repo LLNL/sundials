@@ -83,10 +83,6 @@ SUNAdaptController ARKUserControl(SUNContext sunctx, void* arkode_mem,
   content->hadapt = hadapt;
   content->hadapt_data = hadapt_data;
 
-  /* Initialize method and embedding orders */
-  content->p = 1;
-  content->q = 1;
-
   /* Fill content with default/reset values */
   SUNAdaptController_Reset_ARKUserControl(C);
 
@@ -102,7 +98,7 @@ SUNAdaptController_Type SUNAdaptController_GetType_ARKUserControl(SUNAdaptContro
 { return SUN_ADAPTCONTROLLER_H; }
 
 int SUNAdaptController_EstimateStep_ARKUserControl(SUNAdaptController C, realtype h,
-                                                   realtype dsm, realtype* hnew)
+                                                   int p, realtype dsm, realtype* hnew)
 {
   /* call user-provided function to compute new step */
   sunrealtype ttmp = (dsm <= ONE) ? SC_ARKMEM(C)->tn + SC_ARKMEM(C)->h : SC_ARKMEM(C)->tn;
@@ -154,6 +150,6 @@ int SUNAdaptController_Space_ARKUserControl(SUNAdaptController C, long int* lenr
                                             long int* leniw)
 {
   *lenrw = 4;
-  *leniw = 5;
+  *leniw = 2;
   return SUNADAPTCONTROLLER_SUCCESS;
 }

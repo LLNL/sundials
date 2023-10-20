@@ -30,9 +30,10 @@ form
       \quad\text{on subsequent steps},
    \end{cases}
 
-with default parameter values :math:`k_1 = 0.98` and :math:`k_2 = 0.95`, and where
-:math:`p` is described below. In this estimate, a floor of
-:math:`\varepsilon > 10^{-10}` is enforced to avoid division-by-zero errors.
+with default parameter values :math:`k_1 = 0.98` and :math:`k_2 = 0.95`, and
+:math:`p` is the global order of the time integration method.  In this estimate,
+a floor of :math:`\varepsilon > 10^{-10}` is enforced to avoid division-by-zero
+errors.
 
 The SUNAdaptController_ImpGus controller is implemented as a derived SUNAdaptController class,
 and defines its *content* field as:
@@ -45,7 +46,6 @@ and defines its *content* field as:
      sunrealtype bias;
      sunrealtype ep;
      sunrealtype hp;
-     int p;
      sunbooleantype firststep;
    };
 
@@ -59,8 +59,6 @@ These entries of the *content* field contain the following information:
 * ``ep`` - storage for the previous error estimate, :math:`\varepsilon_{n-1}`.
 
 * ``hp`` - storage for the previous step size, :math:`h_{n-1}`.
-
-* ``p`` - asymptotic order to use in error control (provided by the time integrator).
 
 * ``firststep`` - flag indicating whether any time steps have completed
   successfully (and thus to transition from :math:`h_1` to :math:`h_n` in

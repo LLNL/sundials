@@ -29,9 +29,9 @@ prospective step size,
         \varepsilon_{n-2}^{-k_3/(p+1)},
 
 where the constants :math:`k_1`, :math:`k_2` and :math:`k_3` default to 0.58,
-0.21 and 0.1, respectively, and :math:`p` is described below.
-In this estimate, a floor of :math:`\varepsilon > 10^{-10}` is enforced to avoid
-division-by-zero errors.
+0.21 and 0.1, respectively, and :math:`p` is the global order of the time
+integration method.  In this estimate, a floor of :math:`\varepsilon > 10^{-10}`
+is enforced to avoid division-by-zero errors.
 
 This is implemented as a derived SUNAdaptController class, and defines its *content*
 field as:
@@ -45,7 +45,6 @@ field as:
      sunrealtype bias;
      sunrealtype ep;
      sunrealtype epp;
-     int p;
    };
 
 These entries of the *content* field contain the following information:
@@ -57,8 +56,6 @@ These entries of the *content* field contain the following information:
 
 * ``ep, epp`` - storage for the two previous error estimates,
   :math:`\varepsilon_{n-1}` and :math:`varepsilon_{n-2}`.
-
-* ``p`` - asymptotic order to use in error control (provided by the time integrator).
 
 
 The header file to be included when using this module is

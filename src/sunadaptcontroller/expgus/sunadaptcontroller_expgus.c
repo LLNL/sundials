@@ -30,7 +30,6 @@
 #define SACEXPGUS_K2(C)          ( SACEXPGUS_CONTENT(C)->k2 )
 #define SACEXPGUS_BIAS(C)        ( SACEXPGUS_CONTENT(C)->bias )
 #define SACEXPGUS_EP(C)          ( SACEXPGUS_CONTENT(C)->ep )
-#define SACEXPGUS_P(C)           ( SACEXPGUS_CONTENT(C)->p )
 #define SACEXPGUS_FIRSTSTEP(C)   ( SACEXPGUS_CONTENT(C)->firststep )
 
 /* ------------------
@@ -67,7 +66,6 @@ SUNAdaptController SUNAdaptController_ExpGus(SUNContext sunctx)
   C->ops->reset          = SUNAdaptController_Reset_ExpGus;
   C->ops->setdefaults    = SUNAdaptController_SetDefaults_ExpGus;
   C->ops->write          = SUNAdaptController_Write_ExpGus;
-  C->ops->setmethodorder = SUNAdaptController_SetMethodOrder_ExpGus;
   C->ops->seterrorbias   = SUNAdaptController_SetErrorBias_ExpGus;
   C->ops->update         = SUNAdaptController_Update_ExpGus;
   C->ops->space          = SUNAdaptController_Space_ExpGus;
@@ -83,9 +81,6 @@ SUNAdaptController SUNAdaptController_ExpGus(SUNContext sunctx)
 
   /* Attach content */
   C->content = content;
-
-  /* Initialize method order */
-  content->p = 1;
 
   /* Fill content with default/reset values */
   SUNAdaptController_SetDefaults_ExpGus(C);
@@ -117,10 +112,10 @@ SUNAdaptController_Type SUNAdaptController_GetType_ExpGus(SUNAdaptController C)
 { return SUN_ADAPTCONTROLLER_H; }
 
 int SUNAdaptController_EstimateStep_ExpGus(SUNAdaptController C, sunrealtype h,
-                                           sunrealtype dsm, sunrealtype* hnew)
+                                           int p, sunrealtype dsm, sunrealtype* hnew)
 {
   /* order parameter to use in controller */
-  const int ord = SACEXPGUS_P(C) + 1;
+  const int ord = p + 1;
 
   /* modified method for first step */
   if (SACEXPGUS_FIRSTSTEP(C))
@@ -178,15 +173,6 @@ int SUNAdaptController_Write_ExpGus(SUNAdaptController C, FILE *fptr)
   fprintf(fptr, "  bias factor = %16g\n", SACEXPGUS_BIAS(C));
   fprintf(fptr, "  previous error = %16g\n", SACEXPGUS_EP(C));
 #endif
-  fprintf(fptr, "  p = %i\n", SACEXPGUS_P(C));
-  return SUNADAPTCONTROLLER_SUCCESS;
-}
-
-int SUNAdaptController_SetMethodOrder_ExpGus(SUNAdaptController C, int p)
-{
-  /* check for legal inputs */
-  if (p < 0) { return SUNADAPTCONTROLLER_ILL_INPUT; }
-  SACEXPGUS_P(C) = p;
   return SUNADAPTCONTROLLER_SUCCESS;
 }
 
@@ -212,6 +198,6 @@ int SUNAdaptController_Update_ExpGus(SUNAdaptController C, sunrealtype h, sunrea
 int SUNAdaptController_Space_ExpGus(SUNAdaptController C, long int* lenrw, long int* leniw)
 {
   *lenrw = 4;
-  *leniw = 2;
+  *leniw = 1;
   return SUNADAPTCONTROLLER_SUCCESS;
 }

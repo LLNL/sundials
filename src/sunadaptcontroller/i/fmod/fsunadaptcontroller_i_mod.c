@@ -246,19 +246,21 @@ SWIGEXPORT int _wrap_FSUNAdaptController_GetType_I(SUNAdaptController farg1) {
 }
 
 
-SWIGEXPORT int _wrap_FSUNAdaptController_EstimateStep_I(SUNAdaptController farg1, double const *farg2, double const *farg3, double *farg4) {
+SWIGEXPORT int _wrap_FSUNAdaptController_EstimateStep_I(SUNAdaptController farg1, double const *farg2, int const *farg3, double const *farg4, double *farg5) {
   int fresult ;
   SUNAdaptController arg1 = (SUNAdaptController) 0 ;
   sunrealtype arg2 ;
-  sunrealtype arg3 ;
-  sunrealtype *arg4 = (sunrealtype *) 0 ;
+  int arg3 ;
+  sunrealtype arg4 ;
+  sunrealtype *arg5 = (sunrealtype *) 0 ;
   int result;
   
   arg1 = (SUNAdaptController)(farg1);
   arg2 = (sunrealtype)(*farg2);
-  arg3 = (sunrealtype)(*farg3);
-  arg4 = (sunrealtype *)(farg4);
-  result = (int)SUNAdaptController_EstimateStep_I(arg1,arg2,arg3,arg4);
+  arg3 = (int)(*farg3);
+  arg4 = (sunrealtype)(*farg4);
+  arg5 = (sunrealtype *)(farg5);
+  result = (int)SUNAdaptController_EstimateStep_I(arg1,arg2,arg3,arg4,arg5);
   fresult = (int)(result);
   return fresult;
 }
@@ -285,20 +287,6 @@ SWIGEXPORT int _wrap_FSUNAdaptController_Write_I(SUNAdaptController farg1, void 
   arg1 = (SUNAdaptController)(farg1);
   arg2 = (FILE *)(farg2);
   result = (int)SUNAdaptController_Write_I(arg1,arg2);
-  fresult = (int)(result);
-  return fresult;
-}
-
-
-SWIGEXPORT int _wrap_FSUNAdaptController_SetMethodOrder_I(SUNAdaptController farg1, int const *farg2) {
-  int fresult ;
-  SUNAdaptController arg1 = (SUNAdaptController) 0 ;
-  int arg2 ;
-  int result;
-  
-  arg1 = (SUNAdaptController)(farg1);
-  arg2 = (int)(*farg2);
-  result = (int)SUNAdaptController_SetMethodOrder_I(arg1,arg2);
   fresult = (int)(result);
   return fresult;
 }

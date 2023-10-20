@@ -33,7 +33,6 @@
 #define SACIMEXGUS_BIAS(C)        ( SACIMEXGUS_CONTENT(C)->bias )
 #define SACIMEXGUS_EP(C)          ( SACIMEXGUS_CONTENT(C)->ep )
 #define SACIMEXGUS_HP(C)          ( SACIMEXGUS_CONTENT(C)->hp )
-#define SACIMEXGUS_P(C)           ( SACIMEXGUS_CONTENT(C)->p )
 #define SACIMEXGUS_FIRSTSTEP(C)   ( SACIMEXGUS_CONTENT(C)->firststep )
 
 /* ------------------
@@ -72,7 +71,6 @@ SUNAdaptController SUNAdaptController_ImExGus(SUNContext sunctx)
   C->ops->reset          = SUNAdaptController_Reset_ImExGus;
   C->ops->setdefaults    = SUNAdaptController_SetDefaults_ImExGus;
   C->ops->write          = SUNAdaptController_Write_ImExGus;
-  C->ops->setmethodorder = SUNAdaptController_SetMethodOrder_ImExGus;
   C->ops->seterrorbias   = SUNAdaptController_SetErrorBias_ImExGus;
   C->ops->update         = SUNAdaptController_Update_ImExGus;
   C->ops->space          = SUNAdaptController_Space_ImExGus;
@@ -88,9 +86,6 @@ SUNAdaptController SUNAdaptController_ImExGus(SUNContext sunctx)
 
   /* Attach content */
   C->content = content;
-
-  /* Initialize method order */
-  content->p = 1;
 
   /* Fill content with default/reset values */
   SUNAdaptController_SetDefaults_ImExGus(C);
@@ -125,10 +120,10 @@ SUNAdaptController_Type SUNAdaptController_GetType_ImExGus(SUNAdaptController C)
 { return SUN_ADAPTCONTROLLER_H; }
 
 int SUNAdaptController_EstimateStep_ImExGus(SUNAdaptController C, sunrealtype h,
-                                            sunrealtype dsm, sunrealtype* hnew)
+                                            int p, sunrealtype dsm, sunrealtype* hnew)
 {
   /* order parameter to use */
-  const int ord = SACIMEXGUS_P(C) + 1;
+  const int ord = p + 1;
 
   /* modified method for first step */
   if (SACIMEXGUS_FIRSTSTEP(C))
@@ -197,15 +192,6 @@ int SUNAdaptController_Write_ImExGus(SUNAdaptController C, FILE *fptr)
   fprintf(fptr, "  previous error = %16g\n", SACIMEXGUS_EP(C));
   fprintf(fptr, "  previous step = %16g\n", SACIMEXGUS_HP(C));
 #endif
-  fprintf(fptr, "  p = %i\n", SACIMEXGUS_P(C));
-  return SUNADAPTCONTROLLER_SUCCESS;
-}
-
-int SUNAdaptController_SetMethodOrder_ImExGus(SUNAdaptController C, int p)
-{
-  /* check for legal inputs */
-  if (p < 0) { return SUNADAPTCONTROLLER_ILL_INPUT; }
-  SACIMEXGUS_P(C) = p;
   return SUNADAPTCONTROLLER_SUCCESS;
 }
 
@@ -232,6 +218,6 @@ int SUNAdaptController_Update_ImExGus(SUNAdaptController C, sunrealtype h, sunre
 int SUNAdaptController_Space_ImExGus(SUNAdaptController C, long int* lenrw, long int* leniw)
 {
   *lenrw = 7;
-  *leniw = 2;
+  *leniw = 1;
   return SUNADAPTCONTROLLER_SUCCESS;
 }

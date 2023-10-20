@@ -1085,7 +1085,7 @@ int arkStep_Init(void* arkode_mem, int init_type)
 {
   ARKodeMem ark_mem;
   ARKodeARKStepMem step_mem;
-  int j, retval, controller_order;
+  int j, retval;
   booleantype reset_efun;
 
   /* access ARKodeARKStepMem structure */
@@ -1139,19 +1139,6 @@ int arkStep_Init(void* arkode_mem, int init_type)
     } else {
       step_mem->q = ark_mem->hadapt_mem->q = step_mem->Be->q;
       step_mem->p = ark_mem->hadapt_mem->p = step_mem->Be->p;
-    }
-    if (ark_mem->hadapt_mem->pq == 0) {
-      controller_order = step_mem->p + ark_mem->hadapt_mem->adjust;
-    } else if (ark_mem->hadapt_mem->pq == 1) {
-      controller_order = step_mem->q + ark_mem->hadapt_mem->adjust;
-    } else {
-      controller_order = SUNMIN(step_mem->p, step_mem->q) + ark_mem->hadapt_mem->adjust;
-    }
-    retval = SUNAdaptController_SetMethodOrder(ark_mem->hadapt_mem->hcontroller, controller_order);
-    if (retval != SUNADAPTCONTROLLER_SUCCESS) {
-      arkProcessError(ark_mem, ARK_CONTROLLER_ERR, "ARKODE::ARKStep",
-                      "arkStep_Init", "SUNAdaptController_SetMethodOrder error");
-      return(ARK_CONTROLLER_ERR);
     }
 
     /* Ensure that if adaptivity is enabled, then method includes embedding coefficients */

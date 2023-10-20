@@ -100,6 +100,7 @@ int arkAdapt(void* arkode_mem, ARKodeHAdaptMem hadapt_mem,
   int retval;
   realtype h_acc, h_cfl, int_dir;
   ARKodeMem ark_mem;
+  int controller_order;
   if (arkode_mem == NULL) {
     arkProcessError(NULL, ARK_MEM_NULL, "ARKODE",
                     "arkAdapt", MSG_ARK_NO_MEM);
@@ -108,8 +109,15 @@ int arkAdapt(void* arkode_mem, ARKodeHAdaptMem hadapt_mem,
   ark_mem = (ARKodeMem) arkode_mem;
 
   /* Request error-based step size from adaptivity controller */
-  retval = SUNAdaptController_EstimateStep(hadapt_mem->hcontroller,
-                                           hcur, dsm, &h_acc);
+  if (hadapt_mem->pq == 0) {
+    controller_order = hadapt_mem->p + hadapt_mem->adjust;
+  } else if (hadapt_mem->pq == 1) {
+    controller_order = hadapt_mem->q + hadapt_mem->adjust;
+  } else {
+    controller_order = SUNMIN(hadapt_mem->p, hadapt_mem->q) + hadapt_mem->adjust;
+  }
+  retval = SUNAdaptController_EstimateStep(hadapt_mem->hcontroller, hcur,
+                                           controller_order, dsm, &h_acc);
   if (retval != SUNADAPTCONTROLLER_SUCCESS) {
     arkProcessError(ark_mem, ARK_CONTROLLER_ERR, "ARKODE", "arkAdapt",
                     "SUNAdaptController_EstimateStep failure.");

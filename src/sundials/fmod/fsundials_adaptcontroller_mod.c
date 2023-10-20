@@ -226,19 +226,21 @@ SWIGEXPORT int _wrap_FSUNAdaptController_Destroy(SUNAdaptController farg1) {
 }
 
 
-SWIGEXPORT int _wrap_FSUNAdaptController_EstimateStep(SUNAdaptController farg1, double const *farg2, double const *farg3, double *farg4) {
+SWIGEXPORT int _wrap_FSUNAdaptController_EstimateStep(SUNAdaptController farg1, double const *farg2, int const *farg3, double const *farg4, double *farg5) {
   int fresult ;
   SUNAdaptController arg1 = (SUNAdaptController) 0 ;
   sunrealtype arg2 ;
-  sunrealtype arg3 ;
-  sunrealtype *arg4 = (sunrealtype *) 0 ;
+  int arg3 ;
+  sunrealtype arg4 ;
+  sunrealtype *arg5 = (sunrealtype *) 0 ;
   int result;
   
   arg1 = (SUNAdaptController)(farg1);
   arg2 = (sunrealtype)(*farg2);
-  arg3 = (sunrealtype)(*farg3);
-  arg4 = (sunrealtype *)(farg4);
-  result = (int)SUNAdaptController_EstimateStep(arg1,arg2,arg3,arg4);
+  arg3 = (int)(*farg3);
+  arg4 = (sunrealtype)(*farg4);
+  arg5 = (sunrealtype *)(farg5);
+  result = (int)SUNAdaptController_EstimateStep(arg1,arg2,arg3,arg4,arg5);
   fresult = (int)(result);
   return fresult;
 }
@@ -266,49 +268,55 @@ SWIGEXPORT int _wrap_FSUNAdaptController_EstimateStepAndOrder(SUNAdaptController
 }
 
 
-SWIGEXPORT int _wrap_FSUNAdaptController_EstimateMRISteps(SUNAdaptController farg1, double const *farg2, double const *farg3, double const *farg4, double const *farg5, double *farg6, double *farg7) {
+SWIGEXPORT int _wrap_FSUNAdaptController_EstimateMRISteps(SUNAdaptController farg1, double const *farg2, double const *farg3, int const *farg4, int const *farg5, double const *farg6, double const *farg7, double *farg8, double *farg9) {
   int fresult ;
   SUNAdaptController arg1 = (SUNAdaptController) 0 ;
   sunrealtype arg2 ;
   sunrealtype arg3 ;
-  sunrealtype arg4 ;
-  sunrealtype arg5 ;
-  sunrealtype *arg6 = (sunrealtype *) 0 ;
-  sunrealtype *arg7 = (sunrealtype *) 0 ;
+  int arg4 ;
+  int arg5 ;
+  sunrealtype arg6 ;
+  sunrealtype arg7 ;
+  sunrealtype *arg8 = (sunrealtype *) 0 ;
+  sunrealtype *arg9 = (sunrealtype *) 0 ;
   int result;
   
   arg1 = (SUNAdaptController)(farg1);
   arg2 = (sunrealtype)(*farg2);
   arg3 = (sunrealtype)(*farg3);
-  arg4 = (sunrealtype)(*farg4);
-  arg5 = (sunrealtype)(*farg5);
-  arg6 = (sunrealtype *)(farg6);
-  arg7 = (sunrealtype *)(farg7);
-  result = (int)SUNAdaptController_EstimateMRISteps(arg1,arg2,arg3,arg4,arg5,arg6,arg7);
+  arg4 = (int)(*farg4);
+  arg5 = (int)(*farg5);
+  arg6 = (sunrealtype)(*farg6);
+  arg7 = (sunrealtype)(*farg7);
+  arg8 = (sunrealtype *)(farg8);
+  arg9 = (sunrealtype *)(farg9);
+  result = (int)SUNAdaptController_EstimateMRISteps(arg1,arg2,arg3,arg4,arg5,arg6,arg7,arg8,arg9);
   fresult = (int)(result);
   return fresult;
 }
 
 
-SWIGEXPORT int _wrap_FSUNAdaptController_EstimateStepTol(SUNAdaptController farg1, double const *farg2, double const *farg3, double const *farg4, double const *farg5, double *farg6, double *farg7) {
+SWIGEXPORT int _wrap_FSUNAdaptController_EstimateStepTol(SUNAdaptController farg1, double const *farg2, int const *farg3, double const *farg4, double const *farg5, double const *farg6, double *farg7, double *farg8) {
   int fresult ;
   SUNAdaptController arg1 = (SUNAdaptController) 0 ;
   sunrealtype arg2 ;
-  sunrealtype arg3 ;
+  int arg3 ;
   sunrealtype arg4 ;
   sunrealtype arg5 ;
-  sunrealtype *arg6 = (sunrealtype *) 0 ;
+  sunrealtype arg6 ;
   sunrealtype *arg7 = (sunrealtype *) 0 ;
+  sunrealtype *arg8 = (sunrealtype *) 0 ;
   int result;
   
   arg1 = (SUNAdaptController)(farg1);
   arg2 = (sunrealtype)(*farg2);
-  arg3 = (sunrealtype)(*farg3);
+  arg3 = (int)(*farg3);
   arg4 = (sunrealtype)(*farg4);
   arg5 = (sunrealtype)(*farg5);
-  arg6 = (sunrealtype *)(farg6);
+  arg6 = (sunrealtype)(*farg6);
   arg7 = (sunrealtype *)(farg7);
-  result = (int)SUNAdaptController_EstimateStepTol(arg1,arg2,arg3,arg4,arg5,arg6,arg7);
+  arg8 = (sunrealtype *)(farg8);
+  result = (int)SUNAdaptController_EstimateStepTol(arg1,arg2,arg3,arg4,arg5,arg6,arg7,arg8);
   fresult = (int)(result);
   return fresult;
 }
@@ -347,20 +355,6 @@ SWIGEXPORT int _wrap_FSUNAdaptController_Write(SUNAdaptController farg1, void *f
   arg1 = (SUNAdaptController)(farg1);
   arg2 = (FILE *)(farg2);
   result = (int)SUNAdaptController_Write(arg1,arg2);
-  fresult = (int)(result);
-  return fresult;
-}
-
-
-SWIGEXPORT int _wrap_FSUNAdaptController_SetMethodOrder(SUNAdaptController farg1, int const *farg2) {
-  int fresult ;
-  SUNAdaptController arg1 = (SUNAdaptController) 0 ;
-  int arg2 ;
-  int result;
-  
-  arg1 = (SUNAdaptController)(farg1);
-  arg2 = (int)(*farg2);
-  result = (int)SUNAdaptController_SetMethodOrder(arg1,arg2);
   fresult = (int)(result);
   return fresult;
 }

@@ -30,7 +30,6 @@
 #define SACPI_K2(C)          ( SACPI_CONTENT(C)->k2 )
 #define SACPI_BIAS(C)        ( SACPI_CONTENT(C)->bias )
 #define SACPI_EP(C)          ( SACPI_CONTENT(C)->ep )
-#define SACPI_P(C)           ( SACPI_CONTENT(C)->p )
 
 /* ------------------
  * Default parameters
@@ -66,7 +65,6 @@ SUNAdaptController SUNAdaptController_PI(SUNContext sunctx)
   C->ops->reset          = SUNAdaptController_Reset_PI;
   C->ops->setdefaults    = SUNAdaptController_SetDefaults_PI;
   C->ops->write          = SUNAdaptController_Write_PI;
-  C->ops->setmethodorder = SUNAdaptController_SetMethodOrder_PI;
   C->ops->seterrorbias   = SUNAdaptController_SetErrorBias_PI;
   C->ops->update         = SUNAdaptController_Update_PI;
   C->ops->space          = SUNAdaptController_Space_PI;
@@ -82,9 +80,6 @@ SUNAdaptController SUNAdaptController_PI(SUNContext sunctx)
 
   /* Attach content */
   C->content = content;
-
-  /* Initialize method order */
-  content->p = 1;
 
   /* Fill content with default/reset values */
   SUNAdaptController_SetDefaults_PI(C);
@@ -115,10 +110,10 @@ SUNAdaptController_Type SUNAdaptController_GetType_PI(SUNAdaptController C)
 { return SUN_ADAPTCONTROLLER_H; }
 
 int SUNAdaptController_EstimateStep_PI(SUNAdaptController C, sunrealtype h,
-                                      sunrealtype dsm, sunrealtype* hnew)
+                                       int p, sunrealtype dsm, sunrealtype* hnew)
 {
   /* set usable time-step adaptivity parameters */
-  const int ord = SACPI_P(C) + 1;
+  const int ord = p + 1;
   const sunrealtype k1 = -SACPI_K1(C) / ord;
   const sunrealtype k2 =  SACPI_K2(C) / ord;
   const sunrealtype ecur = SACPI_BIAS(C) * dsm;
@@ -158,15 +153,6 @@ int SUNAdaptController_Write_PI(SUNAdaptController C, FILE *fptr)
   fprintf(fptr, "  bias factor = %16g\n", SACPI_BIAS(C));
   fprintf(fptr, "  previous error = %16g\n", SACPI_EP(C));
 #endif
-  fprintf(fptr, "  p = %i\n", SACPI_P(C));
-  return SUNADAPTCONTROLLER_SUCCESS;
-}
-
-int SUNAdaptController_SetMethodOrder_PI(SUNAdaptController C, int p)
-{
-  /* check for legal inputs */
-  if (p < 0) { return SUNADAPTCONTROLLER_ILL_INPUT; }
-  SACPI_P(C) = p;
   return SUNADAPTCONTROLLER_SUCCESS;
 }
 
