@@ -102,11 +102,10 @@ int SUNAdaptController_SetParams_ImExGus(SUNAdaptController C,
                                          sunrealtype k1e, sunrealtype k2e,
                                          sunrealtype k1i, sunrealtype k2i)
 {
-  /* store legal inputs, and return with success */
-  if (k1e >= RCONST(0.0)) { SACIMEXGUS_K1E(C) = k1e; }
-  if (k2e >= RCONST(0.0)) { SACIMEXGUS_K2E(C) = k2e; }
-  if (k1i >= RCONST(0.0)) { SACIMEXGUS_K1I(C) = k1i; }
-  if (k2i >= RCONST(0.0)) { SACIMEXGUS_K2I(C) = k2i; }
+  SACIMEXGUS_K1E(C) = k1e;
+  SACIMEXGUS_K2E(C) = k2e;
+  SACIMEXGUS_K1I(C) = k1i;
+  SACIMEXGUS_K2I(C) = k2i;
   return SUNADAPTCONTROLLER_SUCCESS;
 }
 

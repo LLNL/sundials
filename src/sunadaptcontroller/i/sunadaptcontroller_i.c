@@ -88,8 +88,7 @@ SUNAdaptController SUNAdaptController_I(SUNContext sunctx)
 
 int SUNAdaptController_SetParams_I(SUNAdaptController C, sunrealtype k1)
 {
-  /* store legal inputs, and return with success */
-  if (k1 >= RCONST(0.0)) { SACI_K1(C) = k1; }
+  SACI_K1(C) = k1;
   return SUNADAPTCONTROLLER_SUCCESS;
 }
 

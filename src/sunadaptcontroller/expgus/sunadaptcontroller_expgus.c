@@ -96,9 +96,8 @@ SUNAdaptController SUNAdaptController_ExpGus(SUNContext sunctx)
 int SUNAdaptController_SetParams_ExpGus(SUNAdaptController C,
                                         sunrealtype k1, sunrealtype k2)
 {
-  /* store legal inputs, and return with success */
-  if (k1 >= RCONST(0.0)) { SACEXPGUS_K1(C) = k1; }
-  if (k2 >= RCONST(0.0)) { SACEXPGUS_K2(C) = k2; }
+  SACEXPGUS_K1(C) = k1;
+  SACEXPGUS_K2(C) = k2;
   return SUNADAPTCONTROLLER_SUCCESS;
 }
 

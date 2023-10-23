@@ -97,9 +97,8 @@ SUNAdaptController SUNAdaptController_ImpGus(SUNContext sunctx)
 int SUNAdaptController_SetParams_ImpGus(SUNAdaptController C,
                                         sunrealtype k1, sunrealtype k2)
 {
-  /* store legal inputs, and return with success */
-  if (k1 >= RCONST(0.0)) { SACIMPGUS_K1(C) = k1; }
-  if (k2 >= RCONST(0.0)) { SACIMPGUS_K2(C) = k2; }
+  SACIMPGUS_K1(C) = k1;
+  SACIMPGUS_K2(C) = k2;
   return SUNADAPTCONTROLLER_SUCCESS;
 }
 

@@ -98,10 +98,9 @@ SUNAdaptController SUNAdaptController_PID(SUNContext sunctx)
 int SUNAdaptController_SetParams_PID(SUNAdaptController C, sunrealtype k1,
                                      sunrealtype k2, sunrealtype k3)
 {
-  /* store legal inputs, and return with success */
-  if (k1 >= RCONST(0.0)) { SACPID_K1(C) = k1; }
-  if (k2 >= RCONST(0.0)) { SACPID_K2(C) = k2; }
-  if (k3 >= RCONST(0.0)) { SACPID_K3(C) = k3; }
+  SACPID_K1(C) = k1;
+  SACPID_K2(C) = k2;
+  SACPID_K3(C) = k3;
   return SUNADAPTCONTROLLER_SUCCESS;
 }
 

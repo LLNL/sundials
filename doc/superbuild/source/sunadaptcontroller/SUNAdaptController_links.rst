@@ -16,3 +16,4 @@
 .. include:: ../../../shared/sunadaptcontroller/SUNAdaptController_ExpGus.rst
 .. include:: ../../../shared/sunadaptcontroller/SUNAdaptController_ImpGus.rst
 .. include:: ../../../shared/sunadaptcontroller/SUNAdaptController_ImExGus.rst
+.. include:: ../../../shared/sunadaptcontroller/SUNAdaptController_Soderlind.rst

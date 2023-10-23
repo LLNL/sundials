@@ -95,9 +95,8 @@ SUNAdaptController SUNAdaptController_PI(SUNContext sunctx)
 int SUNAdaptController_SetParams_PI(SUNAdaptController C,
                                     sunrealtype k1, sunrealtype k2)
 {
-  /* store legal inputs, and return with success */
-  if (k1 >= RCONST(0.0)) { SACPI_K1(C) = k1; }
-  if (k2 >= RCONST(0.0)) { SACPI_K2(C) = k2; }
+  SACPI_K1(C) = k1;
+  SACPI_K2(C) = k2;
   return SUNADAPTCONTROLLER_SUCCESS;
 }
 

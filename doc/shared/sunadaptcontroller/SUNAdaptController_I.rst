@@ -78,7 +78,7 @@ also provides the following additional user-callable routines:
    the problem.
 
    :param C: the SUNAdaptController_I object.
-   :param k1: parameter used within the controller time step estimate (only stored if non-negative).
+   :param k1: parameter used within the controller time step estimate.
    :return: error code indication success or failure (see :numref:`SUNAdaptController.Description.errorCodes`).
 
    Usage:
