@@ -77,10 +77,7 @@ sundials_add_library(sundials_arkode
     sundials_sunmemsys_obj
     sundials_nvecserial_obj
     sundials_sunadaptcontrollerexpgus_obj
-    sundials_sunadaptcontrolleri_obj
-    sundials_sunadaptcontrollerpid_obj
     sundials_sunadaptcontrollerimpgus_obj
-    sundials_sunadaptcontrollerpi_obj
     sundials_sunadaptcontrollerimexgus_obj
     sundials_sunadaptcontrollernoop_obj
     sundials_sunadaptcontrollersoderlind_obj

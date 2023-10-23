@@ -42,13 +42,19 @@
  * Default parameters
  * ------------------ */
 
-#define DEFAULT_K1     RCONST(1.25)    /* H_{0}321 parameters */
-#define DEFAULT_K2     RCONST(0.5)
-#define DEFAULT_K3     RCONST(-0.75)
-#define DEFAULT_K4     RCONST(0.25)
-#define DEFAULT_K5     RCONST(0.75)
-#define DEFAULT_BIAS   RCONST(1.5)
-#define TINY           RCONST(1.0e-10)
+#define DEFAULT_K1       RCONST(1.25)    /* H_{0}321 parameters */
+#define DEFAULT_K2       RCONST(0.5)
+#define DEFAULT_K3       RCONST(-0.75)
+#define DEFAULT_K4       RCONST(0.25)
+#define DEFAULT_K5       RCONST(0.75)
+#define DEFAULT_PID_K1   RCONST(0.58)    /* PID parameters */
+#define DEFAULT_PID_K2  -RCONST(0.21)
+#define DEFAULT_PID_K3   RCONST(0.1)
+#define DEFAULT_PI_K1    RCONST(0.8)     /* PI parameters */
+#define DEFAULT_PI_K2   -RCONST(0.31)
+#define DEFAULT_I_K1     RCONST(1.0)
+#define DEFAULT_BIAS     RCONST(1.5)     /* I parameter */
+#define TINY             RCONST(1.0e-10)
 
 
 /* -----------------------------------------------------------------
@@ -70,14 +76,14 @@ SUNAdaptController SUNAdaptController_Soderlind(SUNContext sunctx)
   if (C == NULL) { return (NULL); }
 
   /* Attach operations */
-  C->ops->gettype        = SUNAdaptController_GetType_Soderlind;
-  C->ops->estimatestep   = SUNAdaptController_EstimateStep_Soderlind;
-  C->ops->reset          = SUNAdaptController_Reset_Soderlind;
-  C->ops->setdefaults    = SUNAdaptController_SetDefaults_Soderlind;
-  C->ops->write          = SUNAdaptController_Write_Soderlind;
-  C->ops->seterrorbias   = SUNAdaptController_SetErrorBias_Soderlind;
-  C->ops->update         = SUNAdaptController_Update_Soderlind;
-  C->ops->space          = SUNAdaptController_Space_Soderlind;
+  C->ops->gettype      = SUNAdaptController_GetType_Soderlind;
+  C->ops->estimatestep = SUNAdaptController_EstimateStep_Soderlind;
+  C->ops->reset        = SUNAdaptController_Reset_Soderlind;
+  C->ops->setdefaults  = SUNAdaptController_SetDefaults_Soderlind;
+  C->ops->write        = SUNAdaptController_Write_Soderlind;
+  C->ops->seterrorbias = SUNAdaptController_SetErrorBias_Soderlind;
+  C->ops->update       = SUNAdaptController_Update_Soderlind;
+  C->ops->space        = SUNAdaptController_Space_Soderlind;
 
   /* Create content */
   content = NULL;
@@ -112,6 +118,92 @@ int SUNAdaptController_SetParams_Soderlind(SUNAdaptController C,
   SODERLIND_K3(C) = k3;
   SODERLIND_K4(C) = k4;
   SODERLIND_K5(C) = k5;
+  return SUNADAPTCONTROLLER_SUCCESS;
+}
+
+/* -----------------------------------------------------------------
+ * Function to create a PID controller (subset of Soderlind)
+ */
+
+SUNAdaptController SUNAdaptController_PID(SUNContext sunctx)
+{
+  SUNAdaptController C;
+  C = SUNAdaptController_Soderlind(sunctx);
+  (void) SUNAdaptController_SetParams_PID(C,
+                                          DEFAULT_PID_K1,
+                                          DEFAULT_PID_K2,
+                                          DEFAULT_PID_K3);
+  return (C);
+}
+
+/* -----------------------------------------------------------------
+ * Function to set PID parameters
+ */
+
+int SUNAdaptController_SetParams_PID(SUNAdaptController C,
+                                     sunrealtype k1, sunrealtype k2,
+                                     sunrealtype k3)
+{
+  SODERLIND_K1(C) = k1;
+  SODERLIND_K2(C) = k2;
+  SODERLIND_K3(C) = k3;
+  SODERLIND_K4(C) = RCONST(0.0);
+  SODERLIND_K5(C) = RCONST(0.0);
+  return SUNADAPTCONTROLLER_SUCCESS;
+}
+
+/* -----------------------------------------------------------------
+ * Function to create a PI controller (subset of Soderlind)
+ */
+
+SUNAdaptController SUNAdaptController_PI(SUNContext sunctx)
+{
+  SUNAdaptController C;
+  C = SUNAdaptController_Soderlind(sunctx);
+  (void) SUNAdaptController_SetParams_PI(C,
+                                         DEFAULT_PI_K1,
+                                         DEFAULT_PI_K2);
+  return (C);
+}
+
+/* -----------------------------------------------------------------
+ * Function to set PI parameters
+ */
+
+int SUNAdaptController_SetParams_PI(SUNAdaptController C,
+                                    sunrealtype k1, sunrealtype k2)
+{
+  SODERLIND_K1(C) = k1;
+  SODERLIND_K2(C) = k2;
+  SODERLIND_K3(C) = RCONST(0.0);
+  SODERLIND_K4(C) = RCONST(0.0);
+  SODERLIND_K5(C) = RCONST(0.0);
+  return SUNADAPTCONTROLLER_SUCCESS;
+}
+
+/* -----------------------------------------------------------------
+ * Function to create an I controller (subset of Soderlind)
+ */
+
+SUNAdaptController SUNAdaptController_I(SUNContext sunctx)
+{
+  SUNAdaptController C;
+  C = SUNAdaptController_Soderlind(sunctx);
+  (void) SUNAdaptController_SetParams_I(C, DEFAULT_I_K1);
+  return (C);
+}
+
+/* -----------------------------------------------------------------
+ * Function to set PI parameters
+ */
+
+int SUNAdaptController_SetParams_I(SUNAdaptController C, sunrealtype k1)
+{
+  SODERLIND_K1(C) = k1;
+  SODERLIND_K2(C) = RCONST(0.0);
+  SODERLIND_K3(C) = RCONST(0.0);
+  SODERLIND_K4(C) = RCONST(0.0);
+  SODERLIND_K5(C) = RCONST(0.0);
   return SUNADAPTCONTROLLER_SUCCESS;
 }
 

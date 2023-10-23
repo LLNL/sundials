@@ -72,8 +72,10 @@ The header file to be included when using this module is
 ``sunadaptcontroller/sunadaptcontroller_soderlind.h``.
 
 We note that through appropriate selection of the parameters :math:`k_1 - k_5`,
-this controller may replicate the behavior of each of the PID, PI and I
-SUNController implementations.
+this controller may create a wide range of proposed temporal adaptivity controllers,
+including the PID, PI and I controllers.  As a convenience, utility routines to
+create these controllers and set their parameters (as special cases of the
+SUNAdaptController_Soderlind) are provided.
 
 The SUNAdaptController_Soderlind class provides implementations of all operations
 relevant to a `SUN_ADAPTCONTROLLER_H` controller listed in
@@ -116,3 +118,105 @@ also provides the following additional user-callable routines:
 
       /* Specify parameters for Soderlind's H_{0}312 controller */
       retval = SUNAdaptController_SetParams_Soderlind(C, 0.25, 0.5, 0.25, -0.75, -0.25);
+
+
+.. c:function:: SUNAdaptController SUNAdaptController_PID(SUNContext sunctx)
+
+   This constructor function creates and allocates memory for a SUNAdaptController_Soderlind
+   object, set up to replicate a PID controller, and inserts its default parameters
+   (:math:`k_1=0.58`, :math:`k_2=-0.21`, :math:`k_3=0.1`, and :math:`k_4=k_5=0`).
+
+   :param sunctx: the current :c:type:`SUNContext` object.
+   :return: if successful, a usable :c:type:`SUNAdaptController` object;
+            otherwise it will return ``NULL``.
+
+   Usage:
+
+   .. code-block:: c
+
+      SUNAdaptController C = SUNAdaptController_PID(sunctx);
+
+.. c:function:: int SUNAdaptController_SetParams_PID(SUNAdaptController C, sunrealtype k1, sunrealtype k2, sunrealtype k3)
+
+   This user-callable function provides control over the relevant parameters
+   above, setting :math:`k_4 = k_5 = 0`.  This should be called *before* the
+   time integrator is called to evolve the problem.
+
+   :param C: the SUNAdaptController_Soderlind object.
+   :param k1: parameter used within the controller time step estimate.
+   :param k2: parameter used within the controller time step estimate.
+   :param k3: parameter used within the controller time step estimate.
+   :return: error code indication success or failure (see :numref:`SUNAdaptController.Description.errorCodes`).
+
+   Usage:
+
+   .. code-block:: c
+
+      retval = SUNAdaptController_SetParams_PID(C, 0.58, -0.21, 0.1);
+
+
+.. c:function:: SUNAdaptController SUNAdaptController_PI(SUNContext sunctx)
+
+   This constructor function creates and allocates memory for a SUNAdaptController_Soderlind
+   object, set up to replicate a PI controller, and inserts its default parameters
+   (:math:`k_1=0.8`, :math:`k_2=-0.31`, and :math:`k_3=k_4=k_5=0`).
+
+   :param sunctx: the current :c:type:`SUNContext` object.
+   :return: if successful, a usable :c:type:`SUNAdaptController` object;
+            otherwise it will return ``NULL``.
+
+   Usage:
+
+   .. code-block:: c
+
+      SUNAdaptController C = SUNAdaptController_PI(sunctx);
+
+.. c:function:: int SUNAdaptController_SetParams_PI(SUNAdaptController C, sunrealtype k1, sunrealtype k2)
+
+   This user-callable function provides control over the relevant parameters
+   above, setting :math:`k_3 = k_4 = k_5 = 0`.  This should be called *before* the
+   time integrator is called to evolve the problem.
+
+   :param C: the SUNAdaptController_Soderlind object.
+   :param k1: parameter used within the controller time step estimate.
+   :param k2: parameter used within the controller time step estimate.
+   :return: error code indication success or failure (see :numref:`SUNAdaptController.Description.errorCodes`).
+
+   Usage:
+
+   .. code-block:: c
+
+      retval = SUNAdaptController_SetParams_PI(C, 0.8, -0.31);
+
+
+.. c:function:: SUNAdaptController SUNAdaptController_I(SUNContext sunctx)
+
+   This constructor function creates and allocates memory for a SUNAdaptController_Soderlind
+   object, set up to replicate an I controller, and inserts its default parameters
+   (:math:`k_1=1.0` and :math:`k_2=k_3=k_4=k_5=0`).
+
+   :param sunctx: the current :c:type:`SUNContext` object.
+   :return: if successful, a usable :c:type:`SUNAdaptController` object;
+            otherwise it will return ``NULL``.
+
+   Usage:
+
+   .. code-block:: c
+
+      SUNAdaptController C = SUNAdaptController_I(sunctx);
+
+.. c:function:: int SUNAdaptController_SetParams_I(SUNAdaptController C, sunrealtype k1)
+
+   This user-callable function provides control over the relevant parameters
+   above, setting :math:`k_2 = k_3 = k_4 = k_5 = 0`.  This should be called *before* the
+   time integrator is called to evolve the problem.
+
+   :param C: the SUNAdaptController_Soderlind object.
+   :param k1: parameter used within the controller time step estimate.
+   :return: error code indication success or failure (see :numref:`SUNAdaptController.Description.errorCodes`).
+
+   Usage:
+
+   .. code-block:: c
+
+      retval = SUNAdaptController_SetParams_I(C, 1.0);

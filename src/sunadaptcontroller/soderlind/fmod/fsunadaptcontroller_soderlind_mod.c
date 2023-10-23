@@ -358,4 +358,88 @@ SWIGEXPORT int _wrap_FSUNAdaptController_Space_Soderlind(SUNAdaptController farg
 }
 
 
+SWIGEXPORT SUNAdaptController _wrap_FSUNAdaptController_PID(void *farg1) {
+  SUNAdaptController fresult ;
+  SUNContext arg1 = (SUNContext) 0 ;
+  SUNAdaptController result;
+  
+  arg1 = (SUNContext)(farg1);
+  result = (SUNAdaptController)SUNAdaptController_PID(arg1);
+  fresult = result;
+  return fresult;
+}
+
+
+SWIGEXPORT int _wrap_FSUNAdaptController_SetParams_PID(SUNAdaptController farg1, double const *farg2, double const *farg3, double const *farg4) {
+  int fresult ;
+  SUNAdaptController arg1 = (SUNAdaptController) 0 ;
+  sunrealtype arg2 ;
+  sunrealtype arg3 ;
+  sunrealtype arg4 ;
+  int result;
+  
+  arg1 = (SUNAdaptController)(farg1);
+  arg2 = (sunrealtype)(*farg2);
+  arg3 = (sunrealtype)(*farg3);
+  arg4 = (sunrealtype)(*farg4);
+  result = (int)SUNAdaptController_SetParams_PID(arg1,arg2,arg3,arg4);
+  fresult = (int)(result);
+  return fresult;
+}
+
+
+SWIGEXPORT SUNAdaptController _wrap_FSUNAdaptController_PI(void *farg1) {
+  SUNAdaptController fresult ;
+  SUNContext arg1 = (SUNContext) 0 ;
+  SUNAdaptController result;
+  
+  arg1 = (SUNContext)(farg1);
+  result = (SUNAdaptController)SUNAdaptController_PI(arg1);
+  fresult = result;
+  return fresult;
+}
+
+
+SWIGEXPORT int _wrap_FSUNAdaptController_SetParams_PI(SUNAdaptController farg1, double const *farg2, double const *farg3) {
+  int fresult ;
+  SUNAdaptController arg1 = (SUNAdaptController) 0 ;
+  sunrealtype arg2 ;
+  sunrealtype arg3 ;
+  int result;
+  
+  arg1 = (SUNAdaptController)(farg1);
+  arg2 = (sunrealtype)(*farg2);
+  arg3 = (sunrealtype)(*farg3);
+  result = (int)SUNAdaptController_SetParams_PI(arg1,arg2,arg3);
+  fresult = (int)(result);
+  return fresult;
+}
+
+
+SWIGEXPORT SUNAdaptController _wrap_FSUNAdaptController_I(void *farg1) {
+  SUNAdaptController fresult ;
+  SUNContext arg1 = (SUNContext) 0 ;
+  SUNAdaptController result;
+  
+  arg1 = (SUNContext)(farg1);
+  result = (SUNAdaptController)SUNAdaptController_I(arg1);
+  fresult = result;
+  return fresult;
+}
+
+
+SWIGEXPORT int _wrap_FSUNAdaptController_SetParams_I(SUNAdaptController farg1, double const *farg2) {
+  int fresult ;
+  SUNAdaptController arg1 = (SUNAdaptController) 0 ;
+  sunrealtype arg2 ;
+  int result;
+  
+  arg1 = (SUNAdaptController)(farg1);
+  arg2 = (sunrealtype)(*farg2);
+  result = (int)SUNAdaptController_SetParams_I(arg1,arg2);
+  fresult = (int)(result);
+  return fresult;
+}
+
+
 

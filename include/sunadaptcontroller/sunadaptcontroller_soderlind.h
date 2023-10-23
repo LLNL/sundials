@@ -75,6 +75,23 @@ SUNDIALS_EXPORT
 int SUNAdaptController_Space_Soderlind(SUNAdaptController C, long int *lenrw,
                                        long int *leniw);
 
+/* Convenience routines to construct subsidiary controllers */
+SUNDIALS_EXPORT
+SUNAdaptController SUNAdaptController_PID(SUNContext sunctx);
+SUNDIALS_EXPORT
+int SUNAdaptController_SetParams_PID(SUNAdaptController C,
+                                     sunrealtype k1, sunrealtype k2,
+                                     sunrealtype k3);
+SUNDIALS_EXPORT
+SUNAdaptController SUNAdaptController_PI(SUNContext sunctx);
+SUNDIALS_EXPORT
+int SUNAdaptController_SetParams_PI(SUNAdaptController C,
+                                    sunrealtype k1, sunrealtype k2);
+SUNDIALS_EXPORT
+SUNAdaptController SUNAdaptController_I(SUNContext sunctx);
+SUNDIALS_EXPORT
+int SUNAdaptController_SetParams_I(SUNAdaptController C, sunrealtype k1);
+
 #ifdef __cplusplus
 }
 #endif

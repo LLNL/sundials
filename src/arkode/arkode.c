@@ -31,7 +31,7 @@
 #include <sundials/sundials_config.h>
 #include <sundials/sundials_math.h>
 #include <sundials/sundials_types.h>
-#include <sunadaptcontroller/sunadaptcontroller_pid.h>
+#include <sunadaptcontroller/sunadaptcontroller_soderlind.h>
 
 
 /*===============================================================

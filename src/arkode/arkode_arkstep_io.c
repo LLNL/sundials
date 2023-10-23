@@ -523,7 +523,7 @@ int ARKStepSetOptimalParams(void *arkode_mem)
     }
     (void) SUNAdaptController_SetErrorBias(hadapt_mem->hcontroller, RCONST(1.2));
     (void) SUNAdaptController_SetParams_PI(hadapt_mem->hcontroller, RCONST(0.8),
-                                           RCONST(0.31));
+                                           -RCONST(0.31));
     hadapt_mem->safety = RCONST(0.99);
     hadapt_mem->growth = RCONST(25.0);
     hadapt_mem->etamxf = RCONST(0.3);
@@ -584,7 +584,7 @@ int ARKStepSetOptimalParams(void *arkode_mem)
       }
       (void) SUNAdaptController_SetErrorBias(hadapt_mem->hcontroller, RCONST(1.2));
       (void) SUNAdaptController_SetParams_PID(hadapt_mem->hcontroller, RCONST(0.535),
-                                              RCONST(0.209), RCONST(0.148));
+                                              -RCONST(0.209), RCONST(0.148));
       hadapt_mem->safety    = RCONST(0.988);
       hadapt_mem->growth    = RCONST(31.5);
       hadapt_mem->etamxf    = RCONST(0.33);
@@ -607,7 +607,7 @@ int ARKStepSetOptimalParams(void *arkode_mem)
       }
       (void) SUNAdaptController_SetErrorBias(hadapt_mem->hcontroller, RCONST(3.3));
       (void) SUNAdaptController_SetParams_PID(hadapt_mem->hcontroller, RCONST(0.56),
-                                              RCONST(0.338), RCONST(0.14));
+                                              -RCONST(0.338), RCONST(0.14));
       hadapt_mem->safety    = RCONST(0.937);
       hadapt_mem->growth    = RCONST(22.0);
       hadapt_mem->etamxf    = RCONST(0.44);
@@ -656,7 +656,7 @@ int ARKStepSetOptimalParams(void *arkode_mem)
       }
       (void) SUNAdaptController_SetErrorBias(hadapt_mem->hcontroller, RCONST(1.42));
       (void) SUNAdaptController_SetParams_PID(hadapt_mem->hcontroller, RCONST(0.54),
-                                              RCONST(0.36), RCONST(0.14));
+                                              -RCONST(0.36), RCONST(0.14));
       hadapt_mem->safety    = RCONST(0.965);
       hadapt_mem->growth    = RCONST(28.7);
       hadapt_mem->etamxf    = RCONST(0.46);
@@ -679,7 +679,7 @@ int ARKStepSetOptimalParams(void *arkode_mem)
       }
       (void) SUNAdaptController_SetErrorBias(hadapt_mem->hcontroller, RCONST(1.35));
       (void) SUNAdaptController_SetParams_PID(hadapt_mem->hcontroller, RCONST(0.543),
-                                              RCONST(0.297), RCONST(0.14));
+                                              -RCONST(0.297), RCONST(0.14));
       hadapt_mem->safety    = RCONST(0.97);
       hadapt_mem->growth    = RCONST(25.0);
       hadapt_mem->etamxf    = RCONST(0.47);
@@ -702,7 +702,7 @@ int ARKStepSetOptimalParams(void *arkode_mem)
       }
       (void) SUNAdaptController_SetErrorBias(hadapt_mem->hcontroller, RCONST(1.15));
       (void) SUNAdaptController_SetParams_PI(hadapt_mem->hcontroller, RCONST(0.8),
-                                             RCONST(0.35));
+                                             -RCONST(0.35));
       hadapt_mem->safety    = RCONST(0.993);
       hadapt_mem->growth    = RCONST(28.5);
       hadapt_mem->etamxf    = RCONST(0.3);
