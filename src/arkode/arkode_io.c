@@ -49,7 +49,6 @@
 int arkSetDefaults(void *arkode_mem)
 {
   ARKodeMem ark_mem;
-  int retval;
   if (arkode_mem==NULL) {
     arkProcessError(NULL, ARK_MEM_NULL, "ARKODE",
                     "arkSetDefaults", MSG_ARK_NO_MEM);
