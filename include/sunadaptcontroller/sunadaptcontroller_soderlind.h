@@ -92,6 +92,18 @@ SUNAdaptController SUNAdaptController_I(SUNContext sunctx);
 SUNDIALS_EXPORT
 int SUNAdaptController_SetParams_I(SUNAdaptController C, sunrealtype k1);
 
+SUNDIALS_EXPORT
+SUNAdaptController SUNAdaptController_ExpGus(SUNContext sunctx);
+SUNDIALS_EXPORT
+int SUNAdaptController_SetParams_ExpGus(SUNAdaptController C,
+                                        sunrealtype k1, sunrealtype k2);
+
+SUNDIALS_EXPORT
+SUNAdaptController SUNAdaptController_ImpGus(SUNContext sunctx);
+SUNDIALS_EXPORT
+int SUNAdaptController_SetParams_ImpGus(SUNAdaptController C,
+                                        sunrealtype k1, sunrealtype k2);
+
 #ifdef __cplusplus
 }
 #endif

@@ -73,7 +73,8 @@ The header file to be included when using this module is
 
 We note that through appropriate selection of the parameters :math:`k_1 - k_5`,
 this controller may create a wide range of proposed temporal adaptivity controllers,
-including the PID, PI and I controllers.  As a convenience, utility routines to
+including the PID, PI, I, as well as Gustafsson's explicit and implicit controllers,
+:cite:p:`Gust:91` and :cite:p:`Gust:94`.  As a convenience, utility routines to
 create these controllers and set their parameters (as special cases of the
 SUNAdaptController_Soderlind) are provided.
 
@@ -220,3 +221,91 @@ also provides the following additional user-callable routines:
    .. code-block:: c
 
       retval = SUNAdaptController_SetParams_I(C, 1.0);
+
+
+.. c:function:: SUNAdaptController SUNAdaptController_ExpGus(SUNContext sunctx)
+
+   This constructor function creates and allocates memory for a SUNAdaptController_Soderlind
+   object, set up to replicate Gustafsson's explicit controller :cite:p:`Gust:91`, and
+   inserts its default parameters (:math:`k_1=0.635`, :math:`k_2=-0.268`, and
+   :math:`k_3=k_4=k_5=0`).
+
+   :param sunctx: the current :c:type:`SUNContext` object.
+   :return: if successful, a usable :c:type:`SUNAdaptController` object;
+            otherwise it will return ``NULL``.
+
+   Usage:
+
+   .. code-block:: c
+
+      SUNAdaptController C = SUNAdaptController_ExpGus(sunctx);
+
+.. c:function:: int SUNAdaptController_SetParams_ExpGus(SUNAdaptController C, sunrealtype k1, sunrealtype k2)
+
+   This user-callable function provides control over the relevant parameters
+   above, setting :math:`k_3 = k_4 = k_5 = 0`.  This should be called *before* the
+   time integrator is called to evolve the problem.
+
+   Note that the Gustafsson's explicit controller has the form
+
+   .. math::
+      h' = h_n \varepsilon_n^{-\hat{k}_1/(p+1)} \left(\frac{\varepsilon_n}{\varepsilon_{n-1}}\right)^{-\hat{k}_2/(p+1)}.
+
+   The inputs to this function correspond to the values of :math:`\hat{k}_1` and :math:`\hat{k}_2`,
+   which are internally transformed into the Soderlind coeficients :math:`k_1 = \hat{k}_1+\hat{k}_2`
+   and :math:`k_2 = -\hat{k}_2`.
+
+   :param C: the SUNAdaptController_Soderlind object.
+   :param k1: parameter used within the explicit Gustafsson controller time step estimate.
+   :param k2: parameter used within the explicit Gustafsson controller time step estimate.
+   :return: error code indication success or failure (see :numref:`SUNAdaptController.Description.errorCodes`).
+
+   Usage:
+
+   .. code-block:: c
+
+      retval = SUNAdaptController_SetParams_ExpGus(C, 0.367, 0.268);
+
+
+.. c:function:: SUNAdaptController SUNAdaptController_ImpGus(SUNContext sunctx)
+
+   This constructor function creates and allocates memory for a SUNAdaptController_Soderlind
+   object, set up to replicate Gustafsson's implicit controller :cite:p:`Gust:94`, and
+   inserts its default parameters (:math:`k_1=1.93`, :math:`k_2=-0.95`, :math:`k_4=1`, and
+   :math:`k_3=k_5=0`).
+
+   :param sunctx: the current :c:type:`SUNContext` object.
+   :return: if successful, a usable :c:type:`SUNAdaptController` object;
+            otherwise it will return ``NULL``.
+
+   Usage:
+
+   .. code-block:: c
+
+      SUNAdaptController C = SUNAdaptController_ImpGus(sunctx);
+
+.. c:function:: int SUNAdaptController_SetParams_ImpGus(SUNAdaptController C, sunrealtype k1, sunrealtype k2)
+
+   This user-callable function provides control over the relevant parameters
+   above, setting :math:`k_3 = k_4 = k_5 = 0`.  This should be called *before* the
+   time integrator is called to evolve the problem.
+
+   Note that the Gustafsson's implicit controller has the form
+
+   .. math::
+      h' = h_n \varepsilon_n^{-\hat{k}_1/(p+1)} \left(\frac{\varepsilon_n}{\varepsilon_{n-1}}\right)^{-\hat{k}_2/(p+1)} \left(\frac{h_n}{h_{n-1}}\right).
+
+   The inputs to this function correspond to the values of :math:`\hat{k}_1` and :math:`\hat{k}_2`,
+   which are internally transformed into the Soderlind coeficients :math:`k_1 = \hat{k}_1+\hat{k}_2`,
+   :math:`k_2 = -\hat{k}_2`, and :math:`k_4=1`.
+
+   :param C: the SUNAdaptController_Soderlind object.
+   :param k1: parameter used within the implicit Gustafsson controller time step estimate.
+   :param k2: parameter used within the implicit Gustafsson controller time step estimate.
+   :return: error code indication success or failure (see :numref:`SUNAdaptController.Description.errorCodes`).
+
+   Usage:
+
+   .. code-block:: c
+
+      retval = SUNAdaptController_SetParams_ImpGus(C, 0.98, 0.95);

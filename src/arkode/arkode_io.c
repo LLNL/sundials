@@ -27,8 +27,6 @@
 #include <sundials/sundials_math.h>
 #include <sundials/sundials_types.h>
 #include <sunadaptcontroller/sunadaptcontroller_soderlind.h>
-#include <sunadaptcontroller/sunadaptcontroller_expgus.h>
-#include <sunadaptcontroller/sunadaptcontroller_impgus.h>
 #include <sunadaptcontroller/sunadaptcontroller_imexgus.h>
 #include <sunadaptcontroller/sunadaptcontroller_noop.h>
 

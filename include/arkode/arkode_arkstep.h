@@ -21,8 +21,6 @@
 #include <sundials/sundials_linearsolver.h>
 #include <sundials/sundials_nonlinearsolver.h>
 #include <sunadaptcontroller/sunadaptcontroller_soderlind.h>
-#include <sunadaptcontroller/sunadaptcontroller_expgus.h>
-#include <sunadaptcontroller/sunadaptcontroller_impgus.h>
 #include <sunadaptcontroller/sunadaptcontroller_imexgus.h>
 #include <arkode/arkode.h>
 #include <arkode/arkode_ls.h>

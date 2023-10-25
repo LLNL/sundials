@@ -42,19 +42,23 @@
  * Default parameters
  * ------------------ */
 
-#define DEFAULT_K1       RCONST(1.25)    /* H_{0}321 parameters */
-#define DEFAULT_K2       RCONST(0.5)
-#define DEFAULT_K3       RCONST(-0.75)
-#define DEFAULT_K4       RCONST(0.25)
-#define DEFAULT_K5       RCONST(0.75)
-#define DEFAULT_PID_K1   RCONST(0.58)    /* PID parameters */
-#define DEFAULT_PID_K2  -RCONST(0.21)
-#define DEFAULT_PID_K3   RCONST(0.1)
-#define DEFAULT_PI_K1    RCONST(0.8)     /* PI parameters */
-#define DEFAULT_PI_K2   -RCONST(0.31)
-#define DEFAULT_I_K1     RCONST(1.0)
-#define DEFAULT_BIAS     RCONST(1.5)     /* I parameter */
-#define TINY             RCONST(1.0e-10)
+#define DEFAULT_K1          RCONST(1.25)    /* H_{0}321 parameters */
+#define DEFAULT_K2          RCONST(0.5)
+#define DEFAULT_K3          RCONST(-0.75)
+#define DEFAULT_K4          RCONST(0.25)
+#define DEFAULT_K5          RCONST(0.75)
+#define DEFAULT_PID_K1      RCONST(0.58)    /* PID parameters */
+#define DEFAULT_PID_K2     -RCONST(0.21)
+#define DEFAULT_PID_K3      RCONST(0.1)
+#define DEFAULT_PI_K1       RCONST(0.8)     /* PI parameters */
+#define DEFAULT_PI_K2      -RCONST(0.31)
+#define DEFAULT_I_K1        RCONST(1.0)     /* I parameters */
+#define DEFAULT_EXPGUS_K1   RCONST(0.367)   /* Explicit Gustafsson parameters */
+#define DEFAULT_EXPGUS_K2   RCONST(0.268)
+#define DEFAULT_IMPGUS_K1   RCONST(0.98)    /* Implicit Gustafsson parameters */
+#define DEFAULT_IMPGUS_K2   RCONST(0.95)
+#define DEFAULT_BIAS        RCONST(1.5)
+#define TINY                RCONST(1.0e-10)
 
 
 /* -----------------------------------------------------------------
@@ -203,6 +207,64 @@ int SUNAdaptController_SetParams_I(SUNAdaptController C, sunrealtype k1)
   SODERLIND_K2(C) = RCONST(0.0);
   SODERLIND_K3(C) = RCONST(0.0);
   SODERLIND_K4(C) = RCONST(0.0);
+  SODERLIND_K5(C) = RCONST(0.0);
+  return SUNADAPTCONTROLLER_SUCCESS;
+}
+
+/* -----------------------------------------------------------------
+ * Function to create an explicit Gustafsson controller
+ */
+
+SUNAdaptController SUNAdaptController_ExpGus(SUNContext sunctx)
+{
+  SUNAdaptController C;
+  C = SUNAdaptController_Soderlind(sunctx);
+  (void) SUNAdaptController_SetParams_ExpGus(C,
+                                             DEFAULT_EXPGUS_K1,
+                                             DEFAULT_EXPGUS_K2);
+  return (C);
+}
+
+/* -----------------------------------------------------------------
+ * Function to set explicit Gustafsson parameters
+ */
+
+int SUNAdaptController_SetParams_ExpGus(SUNAdaptController C,
+                                        sunrealtype k1, sunrealtype k2)
+{
+  SODERLIND_K1(C) = k1+k2;
+  SODERLIND_K2(C) = -k2;
+  SODERLIND_K3(C) = RCONST(0.0);
+  SODERLIND_K4(C) = RCONST(0.0);
+  SODERLIND_K5(C) = RCONST(0.0);
+  return SUNADAPTCONTROLLER_SUCCESS;
+}
+
+/* -----------------------------------------------------------------
+ * Function to create an implicit Gustafsson controller
+ */
+
+SUNAdaptController SUNAdaptController_ImpGus(SUNContext sunctx)
+{
+  SUNAdaptController C;
+  C = SUNAdaptController_Soderlind(sunctx);
+  (void) SUNAdaptController_SetParams_ImpGus(C,
+                                             DEFAULT_IMPGUS_K1,
+                                             DEFAULT_IMPGUS_K2);
+  return (C);
+}
+
+/* -----------------------------------------------------------------
+ * Function to set explicit Gustafsson parameters
+ */
+
+int SUNAdaptController_SetParams_ImpGus(SUNAdaptController C,
+                                        sunrealtype k1, sunrealtype k2)
+{
+  SODERLIND_K1(C) = k1+k2;
+  SODERLIND_K2(C) = -k2;
+  SODERLIND_K3(C) = RCONST(0.0);
+  SODERLIND_K4(C) = RCONST(1.0);
   SODERLIND_K5(C) = RCONST(0.0);
   return SUNADAPTCONTROLLER_SUCCESS;
 }

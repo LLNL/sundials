@@ -43,6 +43,10 @@ module fsunadaptcontroller_soderlind_mod
  public :: FSUNAdaptController_SetParams_PI
  public :: FSUNAdaptController_I
  public :: FSUNAdaptController_SetParams_I
+ public :: FSUNAdaptController_ExpGus
+ public :: FSUNAdaptController_SetParams_ExpGus
+ public :: FSUNAdaptController_ImpGus
+ public :: FSUNAdaptController_SetParams_ImpGus
 
 ! WRAPPER DECLARATIONS
 interface
@@ -192,6 +196,42 @@ result(fresult)
 use, intrinsic :: ISO_C_BINDING
 type(C_PTR), value :: farg1
 real(C_DOUBLE), intent(in) :: farg2
+integer(C_INT) :: fresult
+end function
+
+function swigc_FSUNAdaptController_ExpGus(farg1) &
+bind(C, name="_wrap_FSUNAdaptController_ExpGus") &
+result(fresult)
+use, intrinsic :: ISO_C_BINDING
+type(C_PTR), value :: farg1
+type(C_PTR) :: fresult
+end function
+
+function swigc_FSUNAdaptController_SetParams_ExpGus(farg1, farg2, farg3) &
+bind(C, name="_wrap_FSUNAdaptController_SetParams_ExpGus") &
+result(fresult)
+use, intrinsic :: ISO_C_BINDING
+type(C_PTR), value :: farg1
+real(C_DOUBLE), intent(in) :: farg2
+real(C_DOUBLE), intent(in) :: farg3
+integer(C_INT) :: fresult
+end function
+
+function swigc_FSUNAdaptController_ImpGus(farg1) &
+bind(C, name="_wrap_FSUNAdaptController_ImpGus") &
+result(fresult)
+use, intrinsic :: ISO_C_BINDING
+type(C_PTR), value :: farg1
+type(C_PTR) :: fresult
+end function
+
+function swigc_FSUNAdaptController_SetParams_ImpGus(farg1, farg2, farg3) &
+bind(C, name="_wrap_FSUNAdaptController_SetParams_ImpGus") &
+result(fresult)
+use, intrinsic :: ISO_C_BINDING
+type(C_PTR), value :: farg1
+real(C_DOUBLE), intent(in) :: farg2
+real(C_DOUBLE), intent(in) :: farg3
 integer(C_INT) :: fresult
 end function
 
@@ -468,6 +508,70 @@ real(C_DOUBLE) :: farg2
 farg1 = c_loc(c)
 farg2 = k1
 fresult = swigc_FSUNAdaptController_SetParams_I(farg1, farg2)
+swig_result = fresult
+end function
+
+function FSUNAdaptController_ExpGus(sunctx) &
+result(swig_result)
+use, intrinsic :: ISO_C_BINDING
+type(SUNAdaptController), pointer :: swig_result
+type(C_PTR) :: sunctx
+type(C_PTR) :: fresult 
+type(C_PTR) :: farg1 
+
+farg1 = sunctx
+fresult = swigc_FSUNAdaptController_ExpGus(farg1)
+call c_f_pointer(fresult, swig_result)
+end function
+
+function FSUNAdaptController_SetParams_ExpGus(c, k1, k2) &
+result(swig_result)
+use, intrinsic :: ISO_C_BINDING
+integer(C_INT) :: swig_result
+type(SUNAdaptController), target, intent(inout) :: c
+real(C_DOUBLE), intent(in) :: k1
+real(C_DOUBLE), intent(in) :: k2
+integer(C_INT) :: fresult 
+type(C_PTR) :: farg1 
+real(C_DOUBLE) :: farg2 
+real(C_DOUBLE) :: farg3 
+
+farg1 = c_loc(c)
+farg2 = k1
+farg3 = k2
+fresult = swigc_FSUNAdaptController_SetParams_ExpGus(farg1, farg2, farg3)
+swig_result = fresult
+end function
+
+function FSUNAdaptController_ImpGus(sunctx) &
+result(swig_result)
+use, intrinsic :: ISO_C_BINDING
+type(SUNAdaptController), pointer :: swig_result
+type(C_PTR) :: sunctx
+type(C_PTR) :: fresult 
+type(C_PTR) :: farg1 
+
+farg1 = sunctx
+fresult = swigc_FSUNAdaptController_ImpGus(farg1)
+call c_f_pointer(fresult, swig_result)
+end function
+
+function FSUNAdaptController_SetParams_ImpGus(c, k1, k2) &
+result(swig_result)
+use, intrinsic :: ISO_C_BINDING
+integer(C_INT) :: swig_result
+type(SUNAdaptController), target, intent(inout) :: c
+real(C_DOUBLE), intent(in) :: k1
+real(C_DOUBLE), intent(in) :: k2
+integer(C_INT) :: fresult 
+type(C_PTR) :: farg1 
+real(C_DOUBLE) :: farg2 
+real(C_DOUBLE) :: farg3 
+
+farg1 = c_loc(c)
+farg2 = k1
+farg3 = k2
+fresult = swigc_FSUNAdaptController_SetParams_ImpGus(farg1, farg2, farg3)
 swig_result = fresult
 end function
 

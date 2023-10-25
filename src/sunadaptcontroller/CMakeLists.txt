@@ -15,8 +15,6 @@
 # ------------------------------------------------------------------------------
 
 # required native matrices
-add_subdirectory(expgus)
 add_subdirectory(imexgus)
-add_subdirectory(impgus)
 add_subdirectory(noop)
 add_subdirectory(soderlind)

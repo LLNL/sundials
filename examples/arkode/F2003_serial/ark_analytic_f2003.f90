@@ -102,7 +102,7 @@ program main
   use fsunlinsol_dense_mod       ! Fortran interface to dense SUNLinearSolver
   use fsundials_context_mod      ! Fortran interface to SUNContext
   use fsundials_adaptcontroller_mod  ! Fortran interface to the generic SUNAdaptController
-  use fsunadaptcontroller_impgus_mod ! Fortran interface to ImpGus controller
+  use fsunadaptcontroller_soderlind_mod ! Fortran interface to Soderlind controller
   use ode_mod                    ! ODE functions
 
   !======= Declarations =========
