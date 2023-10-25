@@ -15,6 +15,8 @@ jobs:
       matrix:
         indexsize: [32, 64]
         precision: ['double']
+        buildtype: ['Debug', 'Release']
+        errorchecks: ['OFF', 'ON']
     steps:
       - name: Checkout repository
         uses: actions/checkout@v3
@@ -25,6 +27,9 @@ jobs:
         with:
           indexsize: ${{ matrix.indexsize }}
           precision: ${{ matrix.precision }}
+        env:
+          SUNDIALS_DISABLE_ERROR_CHECKS: ${{ matrix.errorchecks }}
+          CMAKE_BUILD_TYPE: ${{ matrix.buildtype }}
       - name: Archive build files from failed build
         uses: actions/upload-artifact@v2.2.4
         if: failure()

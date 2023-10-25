@@ -1,5 +1,5 @@
 ..
-   Author(s): David J. Gardner @ LLNL
+   Author(s): David J. Gardner, Cody J. Balos @ LLNL
    -----------------------------------------------------------------------------
    SUNDIALS Copyright Start
    Copyright (c) 2002-2023, Lawrence Livermore National Security
@@ -12,13 +12,10 @@
    SUNDIALS Copyright End
    -----------------------------------------------------------------------------
 
-.. _Style.Code:
+.. _Style.Naming:
 
-Coding Style
-============
-
-Naming conventions
-------------------
+Naming
+======
 
 All exported symbols that will be publically available must be namespaced
 appropriately!
@@ -32,24 +29,21 @@ appropriately!
 - ``sundials::<somename>::impl`` for C++ code that is private (implementation
   only)
 
-Themes
-^^^^^^
-
 Generally Pascal case (e.g. ``DoSomething``) is used for public names and
 camelcase for private names (e.g. ``doSomething``).
 
 Macros/Constants
-^^^^^^^^^^^^^^^^
+----------------
 
 Upper case should be used for macros and constants.
 
 Variable names
-^^^^^^^^^^^^^^
+--------------
 
 Snake case is preferred for local variable names e.g. ``foo_bar``.
 
 C function names
-^^^^^^^^^^^^^^^^
+----------------
 
 Functions should have a descriptive name that lets a reader know what it does.
 For functions that return a boolean value, prefer the convention
@@ -58,67 +52,315 @@ namespace prefix) should be used for all public function names that are not
 class functions (see :ref:`Style.Classes` for class naming conventions).
 
 C++ function names
-^^^^^^^^^^^^^^^^^^
+------------------
 
 All functions should be in the ``sundials::`` namespace. Pascal case should be
 used for public function names. Camelcase should be used for private function
 names.
 
+Names for Vectors, Matrices, and Solvers
+----------------------------------------
 
-Formatting
-----------
+The SUNDIALS vector, matrix, linear solver, and nonlinear solver classes use the
+naming convention ``<short class name><method>`` for base class methods where
+each component of the name uses Pascal case. See
+:numref:`Style.Table.OldBaseClassMethodNaming` for examples.
 
-All new code added to SUNDIALS should be linted with  `clang-tidy
-<https://clang.llvm.org/extra/clang-tidy/>`_ and formatted with `clang-format
-<https://clang.llvm.org/docs/ClangFormat.html>`_. The ``.clang-tidy`` and
-``.clang-format`` files in the root of the project define our configurations
-for the tools respectively.
+.. note::
 
-It may be necessary to override clang-tidy at times. This can be done with the
-``NOLINT`` magic comments e.g.,
+   This naming convention *only* applies to the vector, matrix, and solver
+   classes. All other classes should follow the naming convention described in
+   :ref:`Style.Naming.NewClasses`.
 
-.. code-block:: cpp
+.. _Style.Table.OldBaseClassMethodNaming:
 
-  template<class GkoSolverType, class GkoMatrixType>
-  int SUNLinSolFree_Ginkgo(SUNLinearSolver S)
-  {
-    auto solver{static_cast<LinearSolver<GkoSolverType, GkoMatrixType>*>(S->content)};
-    delete solver; // NOLINT
-    return SUNLS_SUCCESS;
-  }
+.. Table:: SUNDIALS base class naming convention examples for vectors, matrices,
+           linear solvers and nonlinear solvers.
 
-  class BaseObject {
-  protected:
-    // NOLINTNEXTLINE(cppcoreguidelines-non-private-member-variables-in-classes)
-    SUNContext sunctx_{};
-  };
+   +-----------------------+------------------+------------+-----------------------+
+   | Base Class            | Short Name       | Operation  | Method                |
+   +-----------------------+------------------+------------+-----------------------+
+   | ``N_Vector``          | ``N_V``          | Linear Sum | ``N_VLinearSum``      |
+   +-----------------------+------------------+------------+-----------------------+
+   | ``SUNMatrix``         | ``SUNMat``       | Zero       | ``SUNMatZero``        |
+   +-----------------------+------------------+------------+-----------------------+
+   | ``SUNLinearSolver``   | ``SUNLinSol``    | Setup      | ``SUNLinSolSetup``    |
+   +-----------------------+------------------+------------+-----------------------+
+   | ``SUNNonlinarSolver`` | ``SUNNonlinSol`` | Solve      | ``SUNNonlinSolSolve`` |
+   +-----------------------+------------------+------------+-----------------------+
 
-See the clang-tidy documentation for more details.
+Derived class implementations of the base class methods should follow the naming
+convention ``<short class name><method>_<implementation>``. See
+:numref:`Style.Table.OldDerivedClassMethodNaming` for examples.
 
-Indentation
-^^^^^^^^^^^
+.. _Style.Table.OldDerivedClassMethodNaming:
 
-Spaces not tabs
+.. Table:: SUNDIALS derived class naming convention examples for vectors,
+           matrices, linear solvers and nonlinear solvers.
 
-Comments
---------
+   +---------------+-----------------------+------------------------------+
+   | Derived Class | Base Class Method     | Method Implementation        |
+   +---------------+-----------------------+------------------------------+
+   | Serial        | ``N_VLinearSum``      | ``N_VLinearSum_Serial``      |
+   +---------------+-----------------------+------------------------------+
+   | Dense         | ``SUNMatZero``        | ``SUNMatZero_Dense``         |
+   +---------------+-----------------------+------------------------------+
+   | SPGMR         | ``SUNLinSolSetup``    | ``SUNLinSolSetup_SPGMR``     |
+   +---------------+-----------------------+------------------------------+
+   | Newton        | ``SUNNonlinSolSolve`` | ``SUNNonlinSolSolve_Newton`` |
+   +---------------+-----------------------+------------------------------+
 
-TODO Comments
-^^^^^^^^^^^^^
+Implementation specific methods do not currently have a consistent naming
+convention across the different derived classes. When adding new methods to an
+existing class, follow the naming style used within that class. When adding a
+new derived class, use the same style as above for implementations of the base
+class method i.e., ``<short class name><method>_<implementation>``.
 
-Following the Google Style Guide [GoogleStyle]_, TODO comments are used to note
-code that is "temporary, a short-term solution, or good-enough but not perfect."
+.. _Style.Naming.NewClasses:
 
-A consistent TODO comment format provides an easy to search for keyword with
-details on how to get more information. TODO comments should start with ``TODO``
-followed by a unique identifier, enclosed in parentheses, for the person most
-knowledgeable about the issue and a brief description of the TODO item.
-Generally, these comments should be used sparingly and are not a substitute for
-creating an issue or bug report. When applicable, the comment should include the
-relevant issue or bug report number.
+Names for New Classes
+---------------------
 
-Examples:
+All new base classes should use the naming convention ``<class name>_<method>``
+for the base class methods. See
+:numref:`Style.Table.NewBaseClassMethodNaming` for examples.
 
-.. code-block:: c
+.. _Style.Table.NewBaseClassMethodNaming:
 
-   /* TODO(DJG): Update to new API in the next major release (Issue #256) */
+.. Table:: SUNDIALS naming conventions for methods in new base classes.
+
+   +-----------------------+------------+---------------------------+
+   | Base Class            | Operation  | Method                    |
+   +-----------------------+------------+---------------------------+
+   | ``SUNMemoryHelper``   | Alloc      | ``SUNMemoryHelper_Alloc`` |
+   +-----------------------+------------+---------------------------+
+
+Derived class implementations of the base class methods should follow the naming
+convention  ``<class name>_<method>_<implementation>``. See
+:numref:`Style.Table.NewDerivedClassMethodNaming` for examples.
+
+.. _Style.Table.NewDerivedClassMethodNaming:
+
+.. Table:: SUNDIALS naming conventions for derived class implementations of
+           methods in new base classes.
+
+   +---------------+---------------------------+--------------------------------+
+   | Derived Class | Base Class Method         | Method Implementation          |
+   +---------------+---------------------------+--------------------------------+
+   | CUDA          | ``SUNMemoryHelper_Alloc`` | ``SUNMemoryHelper_Alloc_Cuda`` |
+   +---------------+---------------------------+--------------------------------+
+
+For destructor functions, use ``Destroy`` rather than ``Free`` or some other alternative.
+
+
+.. _Style.Classes.Cpp:
+
+Naming Convention for C++ Classes
+---------------------------------
+
+C++ classes should have a descriptive name. The class name should not be
+prefixed with ``SUN``, but it should reside in the ``sundials::`` namespace.
+Public C++ class functions should use Pascal case (e.g. ``DoSomething``).
+Private C++ class functions should use camelcase (e.g. ``doSomething``).
+
+C++ private class members should use snake case with a trailing underscore
+(e.g. ``some_var_``).
+
+.. _Style.Code:
+
+Coding Conventions and Rules 
+============================
+
+#. Do not use language features that are not compatible with C99, C++14,
+   and MSVC v1900+ (Visual Studio 2015). Examples of such features include
+   variable-length arrays. Exceptions are allowed when interfacing with a
+   library which requires a newer standard.
+
+#. All new code added to SUNDIALS should be linted with  `clang-tidy
+   <https://clang.llvm.org/extra/clang-tidy/>`_ and formatted with `clang-format
+   <https://clang.llvm.org/docs/ClangFormat.html>`_. The ``.clang-tidy`` and
+   ``.clang-format`` files in the root of the project define our configurations for
+   the tools respectively.
+
+#. Split very long lines when it improves code readability by using ``//``.
+
+#. It may be necessary to override clang-tidy at times. This can be done with
+   the ``NOLINT`` magic comments e.g.,
+
+   .. code-block:: cpp
+
+      template<class GkoSolverType, class GkoMatrixType>
+      int SUNLinSolFree_Ginkgo(SUNLinearSolver S)
+      {
+        auto solver{static_cast<LinearSolver<GkoSolverType, GkoMatrixType>*>(S->content)};
+        delete solver; // NOLINT
+        return SUNLS_SUCCESS;
+      }
+
+      class BaseObject {
+      protected:
+        // NOLINTNEXTLINE(cppcoreguidelines-non-private-member-variables-in-classes)
+        SUNContext sunctx_{};
+      };
+
+   See the clang-tidy documentation for more details.
+
+#. Spaces not tabs.
+
+#. All comments should use ``/* */``.
+
+#. Comments should use proper spelling and grammar.
+
+#. Following the Google Style Guide [GoogleStyle]_, TODO comments are used to note
+   code that is "temporary, a short-term solution, or good-enough but not perfect."
+
+   A consistent TODO comment format provides an easy to search for keyword with
+   details on how to get more information. TODO comments should start with ``TODO``
+   followed by a unique identifier, enclosed in parentheses, for the person most
+   knowledgeable about the issue and a brief description of the TODO item.
+   Generally, these comments should be used sparingly and are not a substitute for
+   creating an issue or bug report. When applicable, the comment should include the
+   relevant issue or bug report number.
+
+   Examples:
+
+   .. code-block:: c
+
+     /* TODO(DJG): Update to new API in the next major release (Issue #256) */
+
+#. All SUNDIALS data structures should hold onto a ``SUNContext`` object. Exceptions 
+   are the ``SUNLogger`` and ``SUNProfiler`` classes.
+
+#. All SUNDIALS functions should return a ``SUNErrCode``. Many older functions
+   do not do this and are exceptions to the rule for backwards compatiblilty. 
+   In addition, internal helper functions may or may-not return a ``SUNErrCode``.
+
+#. Functions that need a ``SUNContext`` object should unpack it from the first argument
+   that has a reference to the object using the ``SUNAssignSUNCTX()`` macro. This
+   should be done before any other line in the function when possible, otherwise
+   it should be done as soon as possible.  For example,
+
+   .. code-block:: c
+
+      SUNErrCode N_VLinearCombination_Serial(int nvec, realtype* c, N_Vector* X, N_Vector z)
+      {
+         SUNAssignSUNCTX(X[0]->sunctx); // Correct
+         
+         int          i;
+         sunindextype j, N;
+         realtype*    zd=NULL;
+         realtype*    xd=NULL;
+
+         /* invalid number of vectors */
+         SUNAssert(nvec >= 1, SUN_ERR_ARG_OUTOFRANGE);
+
+         /* should have called N_VScale */
+         if (nvec == 1) {
+            SUNCheckCallLastErr(N_VScale_Serial(c[0], X[0], z));
+            return SUN_SUCCESS;
+         }
+
+         // ...
+      }
+
+      SUNErrCode N_VLinearCombination_Serial(int nvec, realtype* c, N_Vector* X, N_Vector z)
+      {
+         int          i;
+         sunindextype j, N;
+         realtype*    zd=NULL;
+         realtype*    xd=NULL;
+
+         SUNAssignSUNCTX(X[0]->sunctx); // Incorrect
+
+         /* invalid number of vectors */
+         SUNAssert(nvec >= 1, SUN_ERR_ARG_OUTOFRANGE);
+
+         /* should have called N_VScale */
+         if (nvec == 1) {
+            SUNCheckCallLastErr(N_VScale_Serial(c[0], X[0], z));
+            return SUN_SUCCESS;
+         }
+
+         // ...
+      }
+
+
+      int CVodeGetEstLocalErrors(void *cvode_mem, N_Vector ele)
+      {
+         CVodeMem cv_mem;
+
+         if (cvode_mem==NULL) {
+            cvProcessError(NULL, CV_MEM_NULL, __LINE__, __func__, __FILE__, MSGCV_NO_MEM);
+            return(CV_MEM_NULL);
+         }
+
+         cv_mem = (CVodeMem) cvode_mem;
+
+         SUNAssignSUNCTX(cv_mem->sunctx); // Correct
+
+         // ...
+      }
+
+
+#. All references to ``SUNContext`` objects should be done via the ``SUNCTX``
+   macro. The only exceptions are functions in the ``SUNContext`` class. 
+
+#. All calls to SUNDIALS functions that return a ``SUNErrCode`` should have
+   their return value checked with a macro from the ``SUNCheckCall`` family.
+
+   .. code-block:: c
+
+    SUNCheckCall(N_VLinearCombination(...)); // Correct
+
+   Avoid storing the return value and then checking the stored value except when absolutely necessary.
+
+   .. code-block:: c
+
+    SUNErrCode err;
+    err = N_VLinearCombination(...);
+    SUNCheckCall(err); // Avoid except when absolutely necessary.
+
+#. All calls to SUNDIALS functions that *do not* return a ``SUNErrCode`` should
+   be followed by checking the last error stored in the ``SUNContext``. 
+   The exception to this rule is for internal helper functions. 
+   These should not be checked unless they return a ``SUNErrCode``. 
+   These checks are done with the ``SUNCheckCallLastErr`` macros. 
+
+   .. code-block:: c
+
+    // Correct
+    SUNCheckCallLastErr(N_VLinearSum(...)); 
+
+    // Incorrect
+    SUNCheckCallLastErr(SUNRsqrt(N_VDotProd(...))); 
+
+    // Correct
+    sunrealtype tmp = SUNCheckCallLastErr(N_VDotProd(...)); 
+    tmp = SUNRsqrt(tmp);
+
+#. Programmer errors should be checked with the ``SUNAssert`` or ``SUNMPIAssert`` macro.
+   By programmer errors we mean, for example, illegal inputs such as mismatching dimensions or a
+   ``NULL`` value for something that should not be. 
+
+   .. code-block:: c
+      
+      SUNLinearSolver SUNLinSol_Band(N_Vector y, SUNMatrix A, SUNContext sunctx)
+      {
+         SUNAssignSUNCTX(sunctx);
+         SUNLinearSolver S;
+         SUNLinearSolverContent_Band content;
+         sunindextype MatrixRows;
+
+         // Correct - check these with SUNAssert
+         SUNAssert(SUNMatGetID(A) == SUNMATRIX_BAND, SUN_ERR_ARG_WRONGTYPE);
+         SUNAssert(SUNBandMatrix_Rows(A) == SUNBandMatrix_Columns(A), SUN_ERR_ARG_DIMSMISMATCH);
+         SUNAssert(y->ops->nvgetarraypointer, SUN_ERR_ARG_INCOMPATIBLE);
+
+         // ...
+      }
+
+#. If statements and loops should always have braces even if they are one line.
+
+#. Return statements should not unecessarily use parentheses. prefer ``return
+   x;`` to ``return(x);``. Note, however, lots of older SUNDIALS source code
+   uses ``return(x);``. 

@@ -18,22 +18,20 @@
 #define _SUNDIALS_MEMORY_H
 
 #include <stdlib.h>
-
 #include <sundials/sundials_context.h>
 #include <sundials/sundials_types.h>
 
-#ifdef __cplusplus  /* wrapper to enable C++ usage */
+#ifdef __cplusplus /* wrapper to enable C++ usage */
 extern "C" {
 #endif
 
 typedef enum
 {
-  SUNMEMTYPE_HOST,      /* pageable memory accessible on the host     */
-  SUNMEMTYPE_PINNED,    /* page-locked memory accesible on the host   */
-  SUNMEMTYPE_DEVICE,    /* memory accessible from the device          */
-  SUNMEMTYPE_UVM        /* memory accessible from the host or device  */
+  SUNMEMTYPE_HOST,   /* pageable memory accessible on the host     */
+  SUNMEMTYPE_PINNED, /* page-locked memory accesible on the host   */
+  SUNMEMTYPE_DEVICE, /* memory accessible from the device          */
+  SUNMEMTYPE_UVM     /* memory accessible from the host or device  */
 } SUNMemoryType;
-
 
 /*
  * SUNMemory is a simple abstraction of a pointer to some
@@ -41,14 +39,14 @@ typedef enum
  * and its ownership.
  */
 
-typedef struct _SUNMemory *SUNMemory;
+typedef struct _SUNMemory* SUNMemory;
 
 struct _SUNMemory
 {
-  void*         ptr;
+  void* ptr;
   SUNMemoryType type;
-  booleantype   own;
-  size_t        bytes;
+  booleantype own;
+  size_t bytes;
 };
 
 /* Creates a new SUNMemory object with a NULL ptr */
@@ -59,35 +57,35 @@ SUNDIALS_EXPORT SUNMemory SUNMemoryNewEmpty();
  * and copy SUNMemory.
  */
 
-typedef struct _SUNMemoryHelper_Ops *SUNMemoryHelper_Ops;
-typedef struct _SUNMemoryHelper *SUNMemoryHelper;
+typedef struct _SUNMemoryHelper_Ops* SUNMemoryHelper_Ops;
+typedef struct _SUNMemoryHelper* SUNMemoryHelper;
 
 struct _SUNMemoryHelper
 {
-  void*               content;
+  void* content;
   SUNMemoryHelper_Ops ops;
-  SUNContext          sunctx;
+  SUNContext sunctx;
 };
 
 struct _SUNMemoryHelper_Ops
 {
   /* operations that implementations are required to provide */
-  int             (*alloc)(SUNMemoryHelper, SUNMemory* memptr, size_t mem_size,
-                           SUNMemoryType mem_type, void* queue);
-  int             (*dealloc)(SUNMemoryHelper, SUNMemory mem, void* queue);
-  int             (*copy)(SUNMemoryHelper, SUNMemory dst, SUNMemory src,
-                          size_t mem_size, void* queue);
+  int (*alloc)(SUNMemoryHelper, SUNMemory* memptr, size_t mem_size,
+               SUNMemoryType mem_type, void* queue);
+  int (*dealloc)(SUNMemoryHelper, SUNMemory mem, void* queue);
+  int (*copy)(SUNMemoryHelper, SUNMemory dst, SUNMemory src, size_t mem_size,
+              void* queue);
 
   /* operations that provide default implementations */
-  int             (*copyasync)(SUNMemoryHelper, SUNMemory dst, SUNMemory src,
-                               size_t mem_size, void* queue);
-  int             (*getallocstats)(SUNMemoryHelper, SUNMemoryType mem_type, unsigned long* num_allocations,
-                                   unsigned long* num_deallocations, size_t* bytes_allocated,
-                                   size_t* bytes_high_watermark);
+  int (*copyasync)(SUNMemoryHelper, SUNMemory dst, SUNMemory src,
+                   size_t mem_size, void* queue);
+  int (*getallocstats)(SUNMemoryHelper, SUNMemoryType mem_type,
+                       unsigned long* num_allocations,
+                       unsigned long* num_deallocations,
+                       size_t* bytes_allocated, size_t* bytes_high_watermark);
   SUNMemoryHelper (*clone)(SUNMemoryHelper);
-  int             (*destroy)(SUNMemoryHelper);
+  int (*destroy)(SUNMemoryHelper);
 };
-
 
 /*
  * Generic SUNMemoryHelper functions that work without a SUNMemoryHelper object.
@@ -97,63 +95,67 @@ struct _SUNMemoryHelper_Ops
  * SUNMemory object.
  * The SUNMemory returned will not own the ptr, therefore, it will not free
  * the ptr in Dealloc. */
-SUNDIALS_EXPORT SUNMemory SUNMemoryHelper_Alias(SUNMemory mem);
+SUNDIALS_EXPORT
+SUNMemory SUNMemoryHelper_Alias(SUNMemory mem);
 
 /* Creates a new SUNMemory object with ptr set to the user provided pointer
  * The SUNMemory returned will not own the ptr, therefore, it will not free
  * the ptr in Dealloc. */
-SUNDIALS_EXPORT SUNMemory SUNMemoryHelper_Wrap(void* ptr, SUNMemoryType mem_type);
+SUNDIALS_EXPORT
+SUNMemory SUNMemoryHelper_Wrap(void* ptr, SUNMemoryType mem_type);
 
 /*
  * Required SUNMemoryHelper operations.
  */
 
+SUNDIALS_EXPORT SUNErrCode
+SUNMemoryHelper_Alloc(SUNMemoryHelper, SUNMemory* memptr, size_t mem_size,
+                      SUNMemoryType mem_type, void* queue);
 
 SUNDIALS_EXPORT
-int SUNMemoryHelper_Alloc(SUNMemoryHelper, SUNMemory* memptr, size_t mem_size,
-                          SUNMemoryType mem_type, void* queue);
+SUNErrCode SUNMemoryHelper_Dealloc(SUNMemoryHelper, SUNMemory mem, void* queue);
 
-SUNDIALS_EXPORT
-int SUNMemoryHelper_Dealloc(SUNMemoryHelper, SUNMemory mem, void* queue);
-
-SUNDIALS_EXPORT
-int SUNMemoryHelper_Copy(SUNMemoryHelper, SUNMemory dst, SUNMemory src,
-                         size_t mem_size, void* queue);
+SUNDIALS_EXPORT SUNErrCode SUNMemoryHelper_Copy(
+  SUNMemoryHelper, SUNMemory dst, SUNMemory src, size_t mem_size, void* queue);
 
 /*
  * Optional SUNMemoryHelper operations.
  */
 
 SUNDIALS_EXPORT
-int SUNMemoryHelper_CopyAsync(SUNMemoryHelper, SUNMemory dst, SUNMemory src,
-                              size_t mem_size, void* queue);
+SUNErrCode SUNMemoryHelper_CopyAsync(SUNMemoryHelper, SUNMemory dst,
+                                     SUNMemory src, size_t mem_size, void* queue);
 
-SUNDIALS_EXPORT 
-int SUNMemoryHelper_GetAllocStats(SUNMemoryHelper, SUNMemoryType mem_type, unsigned long* num_allocations,
-                                  unsigned long* num_deallocations, size_t* bytes_allocated,
-                                  size_t* bytes_high_watermark);
+SUNDIALS_EXPORT
+SUNErrCode SUNMemoryHelper_GetAllocStats(SUNMemoryHelper, SUNMemoryType mem_type,
+                                         unsigned long* num_allocations,
+                                         unsigned long* num_deallocations,
+                                         size_t* bytes_allocated,
+                                         size_t* bytes_high_watermark);
 
 /* Clones the SUNMemoryHelper */
-SUNDIALS_EXPORT SUNMemoryHelper SUNMemoryHelper_Clone(SUNMemoryHelper);
+SUNDIALS_EXPORT
+SUNMemoryHelper SUNMemoryHelper_Clone(SUNMemoryHelper);
 
 /* Frees the SUNMemoryHelper */
-SUNDIALS_EXPORT int SUNMemoryHelper_Destroy(SUNMemoryHelper);
+SUNDIALS_EXPORT
+SUNErrCode SUNMemoryHelper_Destroy(SUNMemoryHelper);
 
 /*
  * Utility SUNMemoryHelper functions.
  */
 
 /* Creates an empty SUNMemoryHelper object */
-SUNDIALS_EXPORT SUNMemoryHelper SUNMemoryHelper_NewEmpty(SUNContext sunctx);
+SUNDIALS_EXPORT
+SUNMemoryHelper SUNMemoryHelper_NewEmpty(SUNContext sunctx);
 
 /* Copyies the SUNMemoryHelper ops structure from src->ops to dst->ops. */
-SUNDIALS_EXPORT int SUNMemoryHelper_CopyOps(SUNMemoryHelper src,
-                                            SUNMemoryHelper dst);
+SUNDIALS_EXPORT
+SUNErrCode SUNMemoryHelper_CopyOps(SUNMemoryHelper src, SUNMemoryHelper dst);
 
 /* Checks that all required SUNMemoryHelper ops are provided */
 SUNDIALS_EXPORT
 booleantype SUNMemoryHelper_ImplementsRequiredOps(SUNMemoryHelper);
-
 
 #ifdef __cplusplus
 }

@@ -17,9 +17,9 @@
 #ifndef _ARKODE_XBRAID_H
 #define _ARKODE_XBRAID_H
 
-#include "sundials/sundials_xbraid.h"
-#include "braid.h"
-#include "mpi.h"
+#include <mpi.h>
+#include <braid.h>
+#include <sundials/sundials_xbraid.h>
 
 #ifdef __cplusplus  /* wrapper to enable C++ usage */
 extern "C" {

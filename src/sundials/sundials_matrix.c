@@ -19,9 +19,8 @@
  * -----------------------------------------------------------------*/
 
 #include <stdlib.h>
-#include <sundials/sundials_matrix.h>
-#include <sundials/sundials_nvector.h>
-#include "sundials_context_impl.h"
+#include <sundials/sundials_core.h>
+#include <sundials/impl/sundials_errors_impl.h>
 
 #if defined(SUNDIALS_BUILD_WITH_PROFILING)
 static SUNProfiler getSUNProfiler(SUNMatrix A)
@@ -36,21 +35,19 @@ static SUNProfiler getSUNProfiler(SUNMatrix A)
 
 SUNMatrix SUNMatNewEmpty(SUNContext sunctx)
 {
+  SUNAssignSUNCTX(sunctx);
   SUNMatrix     A;
   SUNMatrix_Ops ops;
-
-  /* a context is required */
-  if (sunctx == NULL) return(NULL);
 
   /* create matrix object */
   A = NULL;
   A = (SUNMatrix) malloc(sizeof *A);
-  if (A == NULL) return(NULL);
+  SUNAssert(A, SUN_ERR_MALLOC_FAIL);
 
   /* create matrix ops structure */
   ops = NULL;
   ops = (SUNMatrix_Ops) malloc(sizeof *ops);
-  if (ops == NULL) { free(A); return(NULL); }
+  SUNAssert(ops, SUN_ERR_MALLOC_FAIL);
 
   /* initialize operations to NULL */
   ops->getid       = NULL;
@@ -95,11 +92,12 @@ void SUNMatFreeEmpty(SUNMatrix A)
  * Copy a matrix 'ops' structure
  * -----------------------------------------------------------------*/
 
-int SUNMatCopyOps(SUNMatrix A, SUNMatrix B)
+SUNErrCode SUNMatCopyOps(SUNMatrix A, SUNMatrix B)
 {
+  SUNAssignSUNCTX(A->sunctx);
   /* Check that ops structures exist */
-  if (A == NULL || B == NULL) return(-1);
-  if (A->ops == NULL || B->ops == NULL) return(-1);
+  SUNAssert(A && A->ops && A && A->ops, SUN_ERR_ARG_CORRUPT);
+  SUNAssert(B && B->ops && B && B->ops, SUN_ERR_ARG_CORRUPT);
 
   /* Copy ops from A to B */
   B->ops->getid       = A->ops->getid;
@@ -155,45 +153,45 @@ void SUNMatDestroy(SUNMatrix A)
   return;
 }
 
-int SUNMatZero(SUNMatrix A)
+SUNErrCode SUNMatZero(SUNMatrix A)
 {
-  int ier;
+  SUNErrCode ier;
   SUNDIALS_MARK_FUNCTION_BEGIN(getSUNProfiler(A));
   ier = A->ops->zero(A);
   SUNDIALS_MARK_FUNCTION_END(getSUNProfiler(A));
   return(ier);
 }
 
-int SUNMatCopy(SUNMatrix A, SUNMatrix B)
+SUNErrCode SUNMatCopy(SUNMatrix A, SUNMatrix B)
 {
-  int ier;
+  SUNErrCode ier;
   SUNDIALS_MARK_FUNCTION_BEGIN(getSUNProfiler(A));
   ier = A->ops->copy(A, B);
   SUNDIALS_MARK_FUNCTION_END(getSUNProfiler(A));
   return(ier);
 }
 
-int SUNMatScaleAdd(realtype c, SUNMatrix A, SUNMatrix B)
+SUNErrCode SUNMatScaleAdd(realtype c, SUNMatrix A, SUNMatrix B)
 {
-  int ier;
+  SUNErrCode ier;
   SUNDIALS_MARK_FUNCTION_BEGIN(getSUNProfiler(A));
   ier = A->ops->scaleadd(c, A, B);
   SUNDIALS_MARK_FUNCTION_END(getSUNProfiler(A));
   return(ier);
 }
 
-int SUNMatScaleAddI(realtype c, SUNMatrix A)
+SUNErrCode SUNMatScaleAddI(realtype c, SUNMatrix A)
 {
-  int ier;
+  SUNErrCode ier;
   SUNDIALS_MARK_FUNCTION_BEGIN(getSUNProfiler(A));
   ier = A->ops->scaleaddi(c, A);
   SUNDIALS_MARK_FUNCTION_END(getSUNProfiler(A));
   return(ier);
 }
 
-int SUNMatMatvecSetup(SUNMatrix A)
+SUNErrCode SUNMatMatvecSetup(SUNMatrix A)
 {
-  int ier = 0;
+  SUNErrCode ier = 0;
   SUNDIALS_MARK_FUNCTION_BEGIN(getSUNProfiler(A));
   if (A->ops->matvecsetup)
     ier = A->ops->matvecsetup(A);
@@ -201,18 +199,18 @@ int SUNMatMatvecSetup(SUNMatrix A)
   return(ier);
 }
 
-int SUNMatMatvec(SUNMatrix A, N_Vector x, N_Vector y)
+SUNErrCode SUNMatMatvec(SUNMatrix A, N_Vector x, N_Vector y)
 {
-  int ier;
+  SUNErrCode ier;
   SUNDIALS_MARK_FUNCTION_BEGIN(getSUNProfiler(A));
   ier = A->ops->matvec(A, x, y);
   SUNDIALS_MARK_FUNCTION_END(getSUNProfiler(A));
   return(ier);
 }
 
-int SUNMatSpace(SUNMatrix A, long int *lenrw, long int *leniw)
+SUNErrCode SUNMatSpace(SUNMatrix A, long int *lenrw, long int *leniw)
 {
-  int ier;
+  SUNErrCode ier;
   SUNDIALS_MARK_FUNCTION_BEGIN(getSUNProfiler(A));
   ier = A->ops->space(A, lenrw, leniw);
   SUNDIALS_MARK_FUNCTION_END(getSUNProfiler(A));

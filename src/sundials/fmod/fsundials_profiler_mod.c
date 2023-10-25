@@ -236,11 +236,11 @@ SWIGINTERN SwigArrayWrapper SwigArrayWrapper_uninitialized() {
 SWIGEXPORT int _wrap_FSUNProfiler_Free(void *farg1) {
   int fresult ;
   SUNProfiler *arg1 = (SUNProfiler *) 0 ;
-  int result;
+  SUNErrCode result;
   
   arg1 = (SUNProfiler *)(farg1);
-  result = (int)SUNProfiler_Free(arg1);
-  fresult = (int)(result);
+  result = (SUNErrCode)SUNProfiler_Free(arg1);
+  fresult = (SUNErrCode)(result);
   return fresult;
 }
 
@@ -249,12 +249,12 @@ SWIGEXPORT int _wrap_FSUNProfiler_Begin(void *farg1, SwigArrayWrapper *farg2) {
   int fresult ;
   SUNProfiler arg1 = (SUNProfiler) 0 ;
   char *arg2 = (char *) 0 ;
-  int result;
+  SUNErrCode result;
   
   arg1 = (SUNProfiler)(farg1);
   arg2 = (char *)(farg2->data);
-  result = (int)SUNProfiler_Begin(arg1,(char const *)arg2);
-  fresult = (int)(result);
+  result = (SUNErrCode)SUNProfiler_Begin(arg1,(char const *)arg2);
+  fresult = (SUNErrCode)(result);
   return fresult;
 }
 
@@ -263,12 +263,12 @@ SWIGEXPORT int _wrap_FSUNProfiler_End(void *farg1, SwigArrayWrapper *farg2) {
   int fresult ;
   SUNProfiler arg1 = (SUNProfiler) 0 ;
   char *arg2 = (char *) 0 ;
-  int result;
+  SUNErrCode result;
   
   arg1 = (SUNProfiler)(farg1);
   arg2 = (char *)(farg2->data);
-  result = (int)SUNProfiler_End(arg1,(char const *)arg2);
-  fresult = (int)(result);
+  result = (SUNErrCode)SUNProfiler_End(arg1,(char const *)arg2);
+  fresult = (SUNErrCode)(result);
   return fresult;
 }
 
@@ -277,12 +277,12 @@ SWIGEXPORT int _wrap_FSUNProfiler_Print(void *farg1, void *farg2) {
   int fresult ;
   SUNProfiler arg1 = (SUNProfiler) 0 ;
   FILE *arg2 = (FILE *) 0 ;
-  int result;
+  SUNErrCode result;
   
   arg1 = (SUNProfiler)(farg1);
   arg2 = (FILE *)(farg2);
-  result = (int)SUNProfiler_Print(arg1,arg2);
-  fresult = (int)(result);
+  result = (SUNErrCode)SUNProfiler_Print(arg1,arg2);
+  fresult = (SUNErrCode)(result);
   return fresult;
 }
 
@@ -290,11 +290,11 @@ SWIGEXPORT int _wrap_FSUNProfiler_Print(void *farg1, void *farg2) {
 SWIGEXPORT int _wrap_FSUNProfiler_Reset(void *farg1) {
   int fresult ;
   SUNProfiler arg1 = (SUNProfiler) 0 ;
-  int result;
+  SUNErrCode result;
   
   arg1 = (SUNProfiler)(farg1);
-  result = (int)SUNProfiler_Reset(arg1);
-  fresult = (int)(result);
+  result = (SUNErrCode)SUNProfiler_Reset(arg1);
+  fresult = (SUNErrCode)(result);
   return fresult;
 }
 

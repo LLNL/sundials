@@ -106,16 +106,11 @@ case "$SUNDIALS_TEST_TYPE" in
         ;;
 esac
 
-# C and C++ standards. Note only double precision math functions are supported
-# in ISO C89/C90. While profiling requires C99 for __func__ some compilers still
-# define __func__ with ISO C89/C90. As such we do not consider if profiling is
-# enabled and let the environment script override this setting if necessary.
-if [ "${SUNDIALS_TPLS}" == "OFF" ] && [ "${SUNDIALS_PRECISION}" == "double" ]
-then
-    export CMAKE_C_STANDARD="90"
-else
-    export CMAKE_C_STANDARD="99"
-fi
+# Build Type
+export CMAKE_BUILD_TYPE="Debug"
+
+# C and C++ standards.
+export CMAKE_C_STANDARD="99"
 export CMAKE_CXX_STANDARD="14"
 
 # Disable compiler extensions by default. The user's environment script may

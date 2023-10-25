@@ -19,9 +19,7 @@
 #define _CVODE_H
 
 #include <stdio.h>
-#include <sundials/sundials_context.h>
-#include <sundials/sundials_nvector.h>
-#include <sundials/sundials_nonlinearsolver.h>
+#include <sundials/sundials_core.h>
 #include <cvode/cvode_ls.h>
 #include <cvode/cvode_proj.h>
 
@@ -83,6 +81,10 @@ extern "C" {
 #define CV_REPTD_PROJFUNC_ERR   -31
 
 #define CV_CONTEXT_ERR          -32
+
+#define CV_BANDPRE_SETUP_FAIL   -33
+
+#define CV_SUNMAT_FAIL          -34
 
 #define CV_UNRECOGNIZED_ERR     -99
 

@@ -16,7 +16,11 @@
 
 %module fsundials_logger_mod
 
-%include "../sundials/fsundials.i"
+// Load the typedefs and generate a "use fsundials_types_mod" statement in the module
+%import "../sundials/fsundials_context_mod.i"
+%import "../sundials/fsundials_types_mod.i"
+
+%include "../sundials/fcopyright.i"
 
 // insert the include into the swig wrapper
 %{
@@ -28,7 +32,6 @@
 
 %apply void* { SUNLogger };
 %apply void** { SUNLogger* };
-
 
 // We have to manually insert the wrapper code for SUNLogger_Create
 // to handle the Fortran to MPI MPI_Comm translation.
@@ -44,7 +47,7 @@ SWIGEXPORT int _wrap_FSUNLogger_Create(void *farg1, int const *farg2, void *farg
   void *arg1 = (void *) 0 ;
   int arg2 ;
   SUNLogger *arg3 = (SUNLogger *) 0 ;
-  int result;
+  SUNErrCode result;
 #ifdef SUNDIALS_LOGGING_ENABLE_MPI
   MPI_Comm comm;
 #endif
@@ -55,15 +58,15 @@ SWIGEXPORT int _wrap_FSUNLogger_Create(void *farg1, int const *farg2, void *farg
 #ifdef SUNDIALS_LOGGING_ENABLE_MPI
   if (arg1 != NULL) {
     comm = MPI_Comm_f2c(*((MPI_Fint *) arg1));
-    result = (int)SUNLogger_Create((void*)&comm,arg2,arg3);
+    result = (SUNErrCode)SUNLogger_Create((void*)&comm,arg2,arg3);
   }
   else {
-    result = (int)SUNLogger_Create(arg1,arg2,arg3);
+    result = (SUNErrCode)SUNLogger_Create(arg1,arg2,arg3);
   }
 #else
-  result = (int)SUNLogger_Create(arg1,arg2,arg3);
+  result = (SUNErrCode)SUNLogger_Create(arg1,arg2,arg3);
 #endif
-  fresult = (int)(result);
+  fresult = (SUNErrCode)(result);
   return fresult;
 }
 %}

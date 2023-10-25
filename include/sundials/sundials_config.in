@@ -19,6 +19,14 @@
 
 #include "sundials/sundials_export.h"
 
+/* Indicates that the function will not report an error via last_err,
+   a return code. In C++, it is just defined as noexcept. */
+#if defined(__cplusplus)
+#define SUNDIALS_NOEXCEPT noexcept
+#else
+#define SUNDIALS_NOEXCEPT
+#endif
+
 #ifndef SUNDIALS_DEPRECATED_MSG
 #  define SUNDIALS_DEPRECATED_MSG(msg) @SUNDIALS_DEPRECATED_MSG_MACRO@
 #endif
@@ -51,6 +59,7 @@
 #cmakedefine SUNDIALS_C_COMPILER_HAS_MATH_PRECISIONS
 #cmakedefine SUNDIALS_C_COMPILER_HAS_ISINF_ISNAN
 #cmakedefine SUNDIALS_C_COMPILER_HAS_INLINE
+#cmakedefine SUNDIALS_C_COMPILER_HAS_BUILTIN_EXPECT
 
 /* Define precision of SUNDIALS data type 'realtype'
  * Depending on the precision level, one of the following
@@ -92,6 +101,9 @@
 
 /* BUILD SUNDIALS with profiling functionalities */
 #cmakedefine SUNDIALS_BUILD_WITH_PROFILING
+
+/* Disable error checking (SUNCheck family of macros) */
+#cmakedefine SUNDIALS_DISABLE_ERROR_CHECKS
 
 /* BUILD SUNDIALS with logging functionalities */
 #define SUNDIALS_LOGGING_LEVEL @SUNDIALS_LOGGING_LEVEL@
@@ -335,3 +347,14 @@
 #define SUNDIALS_STATIC_INLINE static SUNDIALS_INLINE
 
 #endif /* _SUNDIALS_CONFIG_H */
+
+/* ------------------------------------------------------------------
+ * SUNDIALS __builtin_expect related macros.
+ * -----------------------------------------------------------------*/
+
+/* Hint to the compiler that the branch is unlikely to be taken */
+#ifdef SUNDIALS_C_COMPILER_HAS_BUILTIN_EXPECT
+#define SUNHintFalse(cond) __builtin_expect((cond), 0)
+#else
+#define SUNHintFalse(cond) (cond)
+#endif

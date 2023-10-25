@@ -18,22 +18,36 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+
 #include <sundials/sundials_context.h>
 #include <sundials/sundials_logger.h>
 #include <sundials/sundials_profiler.h>
-
-#include "sundials_context_impl.h"
+#include <sundials/impl/sundials_errors_impl.h>
+#include <sundials/impl/sundials_context_impl.h>
 #include "sundials_debug.h"
 
+#if SUNDIALS_LOGGING_LEVEL > 0
 #ifdef SUNDIALS_ADIAK_ENABLED
 #include <adiak.h>
 void sunAdiakCollectMetadata();
 #endif
 
-int SUNContext_Create(void* comm, SUNContext* sunctx)
+SUNErrCode SUNContext_Create(void* comm, SUNContext* sunctx_ptr)
 {
   SUNProfiler profiler = NULL;
   SUNLogger logger     = NULL;
+  SUNContext sunctx    = NULL;
+
+  sunctx = (SUNContext)malloc(sizeof(struct SUNContext_));
+
+  /* SUNContext_Create cannot assert or log since the SUNContext is not yet
+   * created */
+  if (!sunctx) {
+    return SUN_ERR_MALLOC_FAIL;
+  }
+
+  SUNAssignSUNCTX(sunctx);
+
 #if defined(SUNDIALS_BUILD_WITH_PROFILING) && !defined(SUNDIALS_CALIPER_ENABLED)
   if (SUNProfiler_Create(comm, "SUNContext Default", &profiler)) return (-1);
 #endif
@@ -45,51 +59,87 @@ int SUNContext_Create(void* comm, SUNContext* sunctx)
 
 #if SUNDIALS_LOGGING_LEVEL > 0 
 #if defined(SUNDIALS_LOGGING_ENABLE_MPI)
-  if (SUNLogger_CreateFromEnv(comm, &logger))
-#else
-  if (SUNLogger_CreateFromEnv(NULL, &logger))
-#endif
-  {
-    return (-1);
+  if (SUNLogger_CreateFromEnv(comm, &logger)) {
+    return SUN_ERR_LOGGER_CORRUPT;
   }
 #else
-  if (SUNLogger_Create(NULL, 0, &logger)) 
-  {
-    return (-1);
+  if (SUNLogger_CreateFromEnv(NULL, &logger)) {
+    return SUN_ERR_LOGGER_CORRUPT;
   }
-  SUNLogger_SetErrorFilename(logger, "");
-  SUNLogger_SetWarningFilename(logger, "");
-  SUNLogger_SetInfoFilename(logger, "");
-  SUNLogger_SetDebugFilename(logger, "");
+#endif
+#else
+  if (SUNLogger_Create(NULL, 0, &logger)) {
+    return SUN_ERR_LOGGER_CORRUPT;
+  }
+  SUNCheckCall(SUNLogger_SetErrorFilename(logger, ""));
+  SUNCheckCall(SUNLogger_SetWarningFilename(logger, ""));
+  SUNCheckCall(SUNLogger_SetInfoFilename(logger, ""));
+  SUNCheckCall(SUNLogger_SetDebugFilename(logger, ""));
 #endif
 
-  *sunctx = NULL;
-  *sunctx = (SUNContext)malloc(sizeof(struct _SUNContext));
-
-  if (*sunctx == NULL)
-  {
 #if defined(SUNDIALS_BUILD_WITH_PROFILING) && !defined(SUNDIALS_CALIPER_ENABLED)
-    SUNProfiler_Free(&profiler);
+  SUNCheckCall(SUNProfiler_Create(comm, "SUNContext Default", &profiler));
 #endif
-    SUNLogger_Destroy(&logger);
-    return (-1);
-  }
 
-  (*sunctx)->logger       = logger;
-  (*sunctx)->own_logger   = logger != NULL;
-  (*sunctx)->profiler     = profiler;
-  (*sunctx)->own_profiler = profiler != NULL;
+  sunctx->logger        = logger;
+  sunctx->own_logger    = logger != NULL;
+  sunctx->profiler      = profiler;
+  sunctx->own_profiler  = profiler != NULL;
+  sunctx->last_err      = 0;
+  sunctx->err_handler   = SUNErrHandler_Create(SUNLogErrHandlerFn, NULL);
+  sunctx->comm          = comm;
 
-  return (0);
+  *sunctx_ptr = sunctx;
+
+  return SUN_SUCCESS;
 }
 
-int SUNContext_GetProfiler(SUNContext sunctx, SUNProfiler* profiler)
+SUNErrCode SUNContext_GetLastError(SUNContext sunctx, SUNErrCode* last_err)
 {
-  if (sunctx == NULL)
-  {
-    return (-1);
-  }
+  *last_err = sunctx->last_err;
+  sunctx->last_err = SUN_SUCCESS;
+  return SUN_SUCCESS;
+}
 
+SUNErrCode SUNContext_PeekLastError(SUNContext sunctx, SUNErrCode* last_err)
+{
+  *last_err = sunctx->last_err;
+  return SUN_SUCCESS;
+}
+
+SUNErrHandler SUNContext_PushErrHandler(SUNContext sunctx, SUNErrHandlerFn err_fn, void* err_user_data)
+{
+  SUNErrHandler new_err_handler = SUNErrHandler_Create(err_fn, err_user_data);
+  new_err_handler->previous = sunctx->err_handler;
+  sunctx->err_handler = new_err_handler;
+  return new_err_handler;
+}
+
+SUNErrCode SUNContext_PopErrHandler(SUNContext sunctx)
+{
+  if (sunctx->err_handler) {
+    SUNErrHandler eh = sunctx->err_handler;
+    if (sunctx->err_handler->previous) {
+      sunctx->err_handler = sunctx->err_handler->previous;
+    } else {
+      sunctx->err_handler = NULL;
+    }
+    free(eh);
+  }
+  return SUN_SUCCESS;
+}
+
+SUNErrCode SUNContext_ClearHandlers(SUNContext sunctx)
+{
+  while (sunctx->err_handler != NULL)
+  {
+    SUNContext_PopErrHandler(sunctx);
+  }
+  return SUN_SUCCESS;
+}
+
+SUNErrCode SUNContext_GetProfiler(SUNContext sunctx, SUNProfiler* profiler)
+{
 #ifdef SUNDIALS_BUILD_WITH_PROFILING
   /* get profiler */
   *profiler = sunctx->profiler;
@@ -97,21 +147,15 @@ int SUNContext_GetProfiler(SUNContext sunctx, SUNProfiler* profiler)
   *profiler = NULL;
 #endif
 
-  return (0);
+  return SUN_SUCCESS;
 }
 
-int SUNContext_SetProfiler(SUNContext sunctx, SUNProfiler profiler)
+SUNErrCode SUNContext_SetProfiler(SUNContext sunctx, SUNProfiler profiler)
 {
-  if (sunctx == NULL)
-  {
-    return (-1);
-  }
-
 #ifdef SUNDIALS_BUILD_WITH_PROFILING
   /* free any existing profiler */
-  if (sunctx->profiler && sunctx->own_profiler)
-  {
-    if (SUNProfiler_Free(&(sunctx->profiler))) return (-1);
+  if (sunctx->profiler && sunctx->own_profiler) {
+    if (SUNProfiler_Free(&(sunctx->profiler))) return -1;
     sunctx->profiler = NULL;
   }
 
@@ -120,35 +164,22 @@ int SUNContext_SetProfiler(SUNContext sunctx, SUNProfiler profiler)
   sunctx->own_profiler = SUNFALSE;
 #endif
 
-  return (0);
+  return SUN_SUCCESS;
 }
 
-int SUNContext_GetLogger(SUNContext sunctx, SUNLogger* logger)
+SUNErrCode SUNContext_GetLogger(SUNContext sunctx, SUNLogger* logger)
 {
-  if (sunctx == NULL)
-  {
-    return (-1);
-  }
-
   /* get logger */
   *logger = sunctx->logger;
-
-  return (0);
+  return SUN_SUCCESS;
 }
 
-int SUNContext_SetLogger(SUNContext sunctx, SUNLogger logger)
+SUNErrCode SUNContext_SetLogger(SUNContext sunctx, SUNLogger logger)
 {
-  if (sunctx == NULL)
-  {
-    return (-1);
-  }
-
   /* free any existing logger */
-  if (sunctx->logger && sunctx->own_logger)
-  {
-    if (SUNLogger_Destroy(&(sunctx->logger)))
-    {
-      return (-1);
+  if (sunctx->logger && sunctx->own_logger) {
+    if (SUNLogger_Destroy(&(sunctx->logger))) {
+      return -1;
     }
     sunctx->logger = NULL;
   }
@@ -157,35 +188,27 @@ int SUNContext_SetLogger(SUNContext sunctx, SUNLogger logger)
   sunctx->logger     = logger;
   sunctx->own_logger = SUNFALSE;
 
-  return (0);
+  return SUN_SUCCESS;
 }
 
-int SUNContext_Free(SUNContext* sunctx)
+SUNErrCode SUNContext_Free(SUNContext* sunctx)
 {
 #if defined(SUNDIALS_BUILD_WITH_PROFILING) && !defined(SUNDIALS_CALIPER_ENABLED)
   FILE* fp;
   char* sunprofiler_print_env;
 #endif
 
-  if (!sunctx)
-  {
-    return (0);
-  }
-  if (!(*sunctx))
-  {
-    return (0);
+  if (!sunctx || !(*sunctx)) {
+    return SUN_SUCCESS;
   }
 
 #if defined(SUNDIALS_BUILD_WITH_PROFILING) && !defined(SUNDIALS_CALIPER_ENABLED)
   /* Find out where we are printing to */
   sunprofiler_print_env = getenv("SUNPROFILER_PRINT");
   fp                    = NULL;
-  if (sunprofiler_print_env)
-  {
-    if (!strcmp(sunprofiler_print_env, "0"))
-      fp = NULL;
-    else if (!strcmp(sunprofiler_print_env, "1") ||
-             !strcmp(sunprofiler_print_env, "TRUE") ||
+  if (sunprofiler_print_env) {
+    if (!strcmp(sunprofiler_print_env, "0")) fp = NULL;
+    else if (!strcmp(sunprofiler_print_env, "1") || !strcmp(sunprofiler_print_env, "TRUE") ||
              !strcmp(sunprofiler_print_env, "stdout"))
       fp = stdout;
     else
@@ -194,8 +217,7 @@ int SUNContext_Free(SUNContext* sunctx)
 
   /* Enforce that the profiler is freed before finalizing,
      if it is not owned by the sunctx. */
-  if ((*sunctx)->profiler)
-  {
+  if ((*sunctx)->profiler) {
     if (fp) SUNProfiler_Print((*sunctx)->profiler, fp);
     if (fp) fclose(fp);
     if ((*sunctx)->own_profiler) SUNProfiler_Free(&(*sunctx)->profiler);
@@ -211,10 +233,12 @@ int SUNContext_Free(SUNContext* sunctx)
     SUNLogger_Destroy(&(*sunctx)->logger);
   }
 
+  SUNErrHandler_Destroy((*sunctx)->err_handler);
+
   free(*sunctx);
   *sunctx = NULL;
 
-  return (0);
+  return SUN_SUCCESS;
 }
 
 #ifdef SUNDIALS_ADIAK_ENABLED

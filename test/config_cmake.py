@@ -49,6 +49,10 @@ def main():
                                       '''Options for setting the C, C++,
                                       Fortran, and CUDA compiler and flags.''')
 
+    # Build type
+    add_arg(group, '--build-type', 'CMAKE_BUILD_TYPE', 'CMAKE_BUILD_TYPE', 'Debug', 'STRING',
+            'CMake build type (Debug, RelWithDebInfo, Release)')
+
     # C compiler
     add_arg(group, '--c-compiler', 'CC', 'CMAKE_C_COMPILER', None, 'FILEPATH',
             'C compiler')
@@ -228,6 +232,12 @@ def main():
     add_arg(group, '--fused-kernels', 'SUNDIALS_FUSED_KERNELS',
             'SUNDIALS_BUILD_PACKAGE_FUSED_KERNELS', 'OFF', 'BOOL',
             'package fused kernels')
+
+    # error checks
+    add_arg(group, '--disable-error-checks', 'SUNDIALS_DISABLE_ERROR_CHECKS',
+            'SUNDIALS_DISABLE_ERROR_CHECKS', 'OFF', 'BOOL',
+            'disable error checks')
+
 
     # -----------
     # Interfaces

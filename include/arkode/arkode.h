@@ -29,8 +29,7 @@
 #define _ARKODE_H
 
 #include <stdio.h>
-#include <sundials/sundials_context.h>
-#include <sundials/sundials_nvector.h>
+#include <sundials/sundials_core.h>
 #include <arkode/arkode_butcher.h>
 
 #ifdef __cplusplus  /* wrapper to enable C++ usage */

@@ -21,21 +21,26 @@ install(CODE "MESSAGE(\"\nInstall shared components\n\")")
 
 # Add variable sundials_HEADERS with the exported SUNDIALS header files
 set(sundials_HEADERS
-  sundials_base.hpp
   sundials_band.h
+  sundials_base.hpp
   sundials_context.h
   sundials_context.hpp
   sundials_convertibleto.hpp
+  sundials_core.h
+  sundials_core.hpp
   sundials_dense.h
   sundials_direct.h
+  sundials_errors.h
   sundials_iterative.h
   sundials_linearsolver.h
   sundials_linearsolver.hpp
+  sundials_logger.h
   sundials_math.h
   sundials_matrix.h
   sundials_matrix.hpp
   sundials_memory.h
   sundials_memory.hpp
+  sundials_mpi_errors.h
   sundials_mpi_types.h
   sundials_nonlinearsolver.h
   sundials_nonlinearsolver.hpp
@@ -82,6 +87,7 @@ set(sundials_SOURCES
   sundials_context.c
   sundials_dense.c
   sundials_direct.c
+  sundials_errors.c
   sundials_iterative.c
   sundials_linearsolver.c
   sundials_logger.c
@@ -89,8 +95,8 @@ set(sundials_SOURCES
   sundials_matrix.c
   sundials_memory.c
   sundials_nonlinearsolver.c
-  sundials_nvector.c
   sundials_nvector_senswrapper.c
+  sundials_nvector.c
   sundials_version.c
   )
 
@@ -141,6 +147,12 @@ sundials_add_library(sundials_generic
   SOVERSION
     ${sundialslib_SOVERSION}
 )
+
+# Install private headers
+install(FILES 
+  ${SUNDIALS_SOURCE_DIR}/include/sundials/impl/sundials_context_impl.h
+  ${SUNDIALS_SOURCE_DIR}/include/sundials/impl/sundials_errors_impl.h
+  DESTINATION "${CMAKE_INSTALL_INCLUDEDIR}/sundials/impl")
 
 # SUNDIALS_EXPORT macro
 include(GenerateExportHeader)

@@ -48,13 +48,12 @@
 #ifndef _SUNDIALS_TYPES_H
 #define _SUNDIALS_TYPES_H
 
-#include <sundials/sundials_config.h>
-
 #include <float.h>
 #include <stddef.h>
 #include <stdint.h>
+#include <sundials/sundials_config.h>
 
-#ifdef __cplusplus  /* wrapper to enable C++ usage */
+#ifdef __cplusplus /* wrapper to enable C++ usage */
 extern "C" {
 #endif
 
@@ -73,6 +72,8 @@ extern "C" {
 #define _SUNDIALS_STRUCT_ struct
 #endif
 
+typedef void* SUNMPIComm;
+
 /*
  *------------------------------------------------------------------
  * Type sunrealtype
@@ -85,49 +86,48 @@ extern "C" {
 
 /* deprecated */
 typedef float realtype;
-# define RCONST(x) x##F
-# define BIG_REAL FLT_MAX
-# define SMALL_REAL FLT_MIN
-# define UNIT_ROUNDOFF FLT_EPSILON
+#define RCONST(x)     x##F
+#define BIG_REAL      FLT_MAX
+#define SMALL_REAL    FLT_MIN
+#define UNIT_ROUNDOFF FLT_EPSILON
 
 typedef float sunrealtype;
-# define SUN_RCONST(x) x##F
-# define SUN_BIG_REAL FLT_MAX
-# define SUN_SMALL_REAL FLT_MIN
-# define SUN_UNIT_ROUNDOFF FLT_EPSILON
+#define SUN_RCONST(x)     x##F
+#define SUN_BIG_REAL      FLT_MAX
+#define SUN_SMALL_REAL    FLT_MIN
+#define SUN_UNIT_ROUNDOFF FLT_EPSILON
 
 #elif defined(SUNDIALS_DOUBLE_PRECISION)
 
 /* deprecated */
 typedef double realtype;
-# define RCONST(x) x
-# define BIG_REAL DBL_MAX
-# define SMALL_REAL DBL_MIN
-# define UNIT_ROUNDOFF DBL_EPSILON
+#define RCONST(x)         x
+#define BIG_REAL          DBL_MAX
+#define SMALL_REAL        DBL_MIN
+#define UNIT_ROUNDOFF     DBL_EPSILON
 
 typedef double sunrealtype;
-# define SUN_RCONST(x) x
-# define SUN_BIG_REAL DBL_MAX
-# define SUN_SMALL_REAL DBL_MIN
-# define SUN_UNIT_ROUNDOFF DBL_EPSILON
+#define SUN_RCONST(x)     x
+#define SUN_BIG_REAL      DBL_MAX
+#define SUN_SMALL_REAL    DBL_MIN
+#define SUN_UNIT_ROUNDOFF DBL_EPSILON
 
 #elif defined(SUNDIALS_EXTENDED_PRECISION)
 
 /* deprecated */
 typedef long double realtype;
-# define RCONST(x) x##L
-# define BIG_REAL LDBL_MAX
-# define SMALL_REAL LDBL_MIN
-# define UNIT_ROUNDOFF LDBL_EPSILON
+#define RCONST(x)         x##L
+#define BIG_REAL          LDBL_MAX
+#define SMALL_REAL        LDBL_MIN
+#define UNIT_ROUNDOFF     LDBL_EPSILON
 
 typedef long double sunrealtype;
-# define SUN_RCONST(x) x##L
-# define SUN_BIG_REAL LDBL_MAX
-# define SUN_SMALL_REAL LDBL_MIN
-# define SUN_UNIT_ROUNDOFF LDBL_EPSILON
+#define SUN_RCONST(x)     x##L
+#define SUN_BIG_REAL      LDBL_MAX
+#define SUN_SMALL_REAL    LDBL_MIN
+#define SUN_UNIT_ROUNDOFF LDBL_EPSILON
 
 #endif
-
 
 /*
  *------------------------------------------------------------------
@@ -178,19 +178,55 @@ typedef SUNDIALS_INDEX_TYPE sunindextype;
 
 /*
  *------------------------------------------------------------------
- * Type : sunoutputformat
+ * Type : SUNOutputFormat
  *------------------------------------------------------------------
  * Constants for different output formats
  *------------------------------------------------------------------
  */
 
-typedef enum {
+typedef enum
+{
   SUN_OUTPUTFORMAT_TABLE,
   SUN_OUTPUTFORMAT_CSV
 } SUNOutputFormat;
+
+/*
+ *------------------------------------------------------------------
+ * Type : SUNErrCode
+ *------------------------------------------------------------------
+ * Error code type
+ *------------------------------------------------------------------
+ */
+
+typedef int SUNErrCode;
+
+/* -----------------------------------------------------------------------------
+ * Forward declarations of SUNDIALS objects
+ * ---------------------------------------------------------------------------*/
+
+/* SUNDIALS context -- see sundials_context_impl.h */
+typedef struct SUNContext_* SUNContext;
+
+/* SUNDIALS error handler -- see sundials_errors.h */
+typedef struct SUNErrHandler_* SUNErrHandler;
+
+/* SUNDIALS profiler */
+typedef struct _SUNProfiler* SUNProfiler;
+
+/* SUNDIALS logger */
+typedef struct SUNLogger_* SUNLogger;
+
+/* -----------------------------------------------------------------------------
+ * SUNDIALS function types
+ * ---------------------------------------------------------------------------*/
+
+/* Error handler function */
+typedef int (*SUNErrHandlerFn)(int line, const char* func, const char* file,
+                               const char* msg, SUNErrCode err_code,
+                               void* err_user_data, SUNContext sunctx);
 
 #ifdef __cplusplus
 }
 #endif
 
-#endif  /* _SUNDIALS_TYPES_H */
+#endif /* _SUNDIALS_TYPES_H */

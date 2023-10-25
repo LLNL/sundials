@@ -17,7 +17,6 @@
 #ifndef _ERKSTEP_H
 #define _ERKSTEP_H
 
-#include <sundials/sundials_nvector.h>
 #include <arkode/arkode.h>
 #include <arkode/arkode_butcher_erk.h>
 

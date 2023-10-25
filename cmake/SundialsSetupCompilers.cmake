@@ -209,16 +209,28 @@ check_c_source_compiles("
 " SUNDIALS_C_COMPILER_HAS_INLINE)
 
 # ---------------------------------------------------------------
+# Check for __builtin_expect
+# ---------------------------------------------------------------
+
+check_c_source_compiles("
+  int main() {
+    double a = 0.0;
+    if (__builtin_expect(a < 0, 0)) {
+      a = 0.0;
+    }
+    a = a + 1.0;
+  }
+" SUNDIALS_C_COMPILER_HAS_BUILTIN_EXPECT)
+
+
+# ---------------------------------------------------------------
 # Check for POSIX timers
-#
-# 199309L is the minimum POSIX version needed for struct timespec
-# and clock_monotonic()
 # ---------------------------------------------------------------
 include(SundialsPOSIXTimers)
 
 if(SUNDIALS_POSIX_TIMERS AND POSIX_TIMERS_NEED_POSIX_C_SOURCE)
   set(DOCSTR "Value of _POSIX_C_SOURCE")
-  sundials_option(SUNDIALS_POSIX_C_SOURCE STRING "${DOCSTR}" "199309L"
+  sundials_option(SUNDIALS_POSIX_C_SOURCE STRING "${DOCSTR}" "200112L"
                   ADVANCED)
   set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -D_POSIX_C_SOURCE=${SUNDIALS_POSIX_C_SOURCE}")
 endif()
@@ -340,7 +352,7 @@ endif()
 # C++ settings
 # ===============================================================
 
-if(BUILD_BENCHMARKS OR EXAMPLES_ENABLE_CXX OR
+if(BUILD_BENCHMARKS OR SUNDIALS_TEST_UNITTESTS OR EXAMPLES_ENABLE_CXX OR
     ENABLE_CUDA OR
     ENABLE_HIP OR
     ENABLE_SYCL OR
