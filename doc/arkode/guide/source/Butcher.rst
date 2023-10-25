@@ -344,7 +344,7 @@ or :c:func:`ARKodeButcherTable_LoadERK`.
 Accessible via the string ``"ARKODE_SOFRONIOU_SPALETTA_5_3_4"`` to
 :c:func:`ARKStepSetTableName`, :c:func:`ERKStepSetTableName` or
 :c:func:`ARKodeButcherTable_LoadERKByName`.
-(from :cite:p:`SoSp:04`).
+(from :cite:p:`Sof:04`).
 
 .. math::
 
