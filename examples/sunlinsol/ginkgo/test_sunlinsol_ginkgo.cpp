@@ -158,7 +158,7 @@ void fill_matrix(gko::matrix::Csr<sunrealtype, sunindextype>* matrix)
 
   fill_kernel<<<num_blocks, threads_per_block>>>(mat_rows, mat_cols, row_ptrs,
                                                  col_idxs, mat_data);
-  HIP_OR_CUDA_SYCL(hipDeviceSynchronize(), cudaDeviceSynchronize(), );
+  HIP_OR_CUDA_OR_SYCL(hipDeviceSynchronize(), cudaDeviceSynchronize(), );
 #elif defined(USE_DPCPP)
   std::dynamic_pointer_cast<const gko::DpcppExecutor>(matrix->get_executor())
     ->get_queue()
