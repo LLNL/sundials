@@ -129,6 +129,8 @@ Fixed scaling bug in ``SUNMatScaleAddI_Sparse`` for non-square matrices.
 Fixed missing soversions in some ``SUNLinearSolver`` and ``SUNNonlinearSolver``
 CMake targets.
 
+Added Fortran support for the LAPACK ``SUNLinearSolver`` implementations.
+
 Changes in v6.6.1
 -----------------
 

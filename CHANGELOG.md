@@ -27,6 +27,8 @@ Fixed scaling bug in `SUNMatScaleAddI_Sparse` for non-square matrices.
 Fixed missing soversions in some `SUNLinearSolver` and `SUNNonlinearSolver`
 CMake targets.
 
+Added Fortran support for the LAPACK `SUNLinearSolver` implementations.
+
 ## Changes to SUNDIALS in release 6.6.1
 
 Updated the Tpetra NVector interface to support Trilinos 14.
