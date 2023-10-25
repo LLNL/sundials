@@ -43,7 +43,7 @@ sundials_add_library(sundials_sunlinsolsuperlumt
   VERSION
     ${sunlinsollib_VERSION}
   SOVERSION
-    ${sunlinsollib_VERSION}
+  ${sunlinsollib_SOVERSION}
 )
 
 message(STATUS "Added SUNLINSOL_SUPERLUMT module")

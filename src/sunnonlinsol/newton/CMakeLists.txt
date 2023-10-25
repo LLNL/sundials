@@ -31,7 +31,7 @@ sundials_add_library(sundials_sunnonlinsolnewton
   VERSION
     ${sunnonlinsollib_VERSION}
   SOVERSION
-    ${sunnonlinsollib_VERSION}
+  ${sunnonlinsollib_SOVERSION}
 )
 
 message(STATUS "Added SUNNONLINSOL_NEWTON module")

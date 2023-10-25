@@ -713,7 +713,7 @@ of two modes as to where CVODE is to return a solution. But these
 modes are modified if the user has set a stop time (with :c:func:`CVodeSetStopTime`) or requested
 rootfinding.
 
-.. c:function:: int CVode(void* cvode_mem, realtype tout, N_Vector yout, realtype tret, int itask)
+.. c:function:: int CVode(void* cvode_mem, realtype tout, N_Vector yout, realtype* tret, int itask)
 
    The function ``CVode`` integrates the ODE over an interval in t.
 
@@ -851,6 +851,9 @@ Main solver optional input functions
    | Maximum absolute step size    | :c:func:`CVodeSetMaxStep`                   | :math:`\infty` |
    +-------------------------------+---------------------------------------------+----------------+
    | Value of :math:`t_{stop}`     | :c:func:`CVodeSetStopTime`                  | undefined      |
+   +-------------------------------+---------------------------------------------+----------------+
+   | Interpolate at                | :c:func:`CVodeSetInterpolateStopTime`       | ``SUNFALSE``   |
+   | :math:`t_{stop}`              |                                             |                |
    +-------------------------------+---------------------------------------------+----------------+
    | Disable the stop time         | :c:func:`CVodeClearStopTime`                | N/A            |
    +-------------------------------+---------------------------------------------+----------------+
@@ -1090,6 +1093,22 @@ Main solver optional input functions
 
       A stop time not reached before a call to :c:func:`CVodeReInit` will
       remain active but can be disabled by calling :c:func:`CVodeClearStopTime`.
+
+.. c:function:: int CVodeSetInterpolateStopTime(void* cvode_mem, booleantype interp)
+
+   The function ``CVodeSetInterpolateStopTime`` specifies that the output solution should be
+   interpolated when the current :math:`t` equals the specified ``tstop`` (instead of
+   merely copying the internal solution :math:`y_n`).
+
+   **Arguments:**
+     * ``cvode_mem`` -- pointer to the CVODES memory block.
+     * ``interp`` -- flag indicating to use interpolation (1) or copy (0).
+
+   **Return value:**
+     * ``CV_SUCCESS`` -- The optional value has been successfully set.
+     * ``CV_MEM_NULL`` -- The CVODES memory block was not initialized through a previous call to :c:func:`CVodeCreate`.
+
+   .. versionadded:: 6.6.0
 
 .. c:function:: int CVodeClearStopTime(void* cvode_mem)
 
@@ -1630,8 +1649,8 @@ the :c:func:`CVodeSetEpsLin` function.
 
 .. _CVODE.Usage.CC.optional_input.optin_nls:
 
-Linear solver interface optional input functions
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+Nonlinear solver interface optional input functions
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 .. _CVODE.Usage.CC.optional_input.optin_nls_table:
 

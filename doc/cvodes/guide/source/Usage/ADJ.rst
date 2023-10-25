@@ -24,7 +24,7 @@ several supporting user-callable functions. For this reason, in the following
 sections we refer to the *backward problem* and not to the *adjoint problem*
 when discussing details relevant to the ODEs that are integrated backward in
 time. The backward problem can be the adjoint problem :eq:`CVODES_adj_eqns` or
-:eq:`CVODES_adj_eqns`, and can be augmented with some quadrature differential
+:eq:`CVODES_adj1_eqns`, and can be augmented with some quadrature differential
 equations.
 
 CVODES uses various constants for both input and output. These are defined as
@@ -383,7 +383,7 @@ use in Forward Sensitivity Analysis; for that, see :numref:`CVODES.Usage.FSA`.
 The call to this function has the form
 
 
-.. c:function:: int CVodeF(void * cvode_mem, realtype tout, N_Vector yret, realtype tret, int itask, int ncheck)
+.. c:function:: int CVodeF(void * cvode_mem, realtype tout, N_Vector yret, realtype* tret, int itask, int* ncheck)
 
    The function :c:func:`CVodeF` integrates the forward problem over an interval
    in :math:`t`  and saves checkpointing data.
@@ -444,7 +444,7 @@ CVODES solver object, provide problem and solution specifications, and allocate
 internal memory for the backward problem.
 
 
-.. c:function:: int CVodeCreateB(void * cvode_mem, int lmmB, int which)
+.. c:function:: int CVodeCreateB(void * cvode_mem, int lmmB, int* which)
 
    The function :c:func:`CVodeCreateB` instantiates a CVODES solver object and
    specifies  the solution method for the backward problem.
@@ -786,7 +786,7 @@ repeated calls will eventually advance all problems to ``tBout``.
 
 To obtain the solution ``yB`` to the backward problem, call the function :c:func:`CVodeGetB` as follows:
 
-.. c:function:: int CVodeGetB(void * cvode_mem, int which, realtype tret, N_Vector yB)
+.. c:function:: int CVodeGetB(void * cvode_mem, int which, realtype* tret, N_Vector yB)
 
    The function :c:func:`CVodeGetB` provides the solution ``yB`` of the backward
    ODE  problem.
@@ -1353,7 +1353,7 @@ To extract the values of the quadrature variables at the last return time of
 :c:func:`CVodeGetQuad`.
 
 
-.. c:function:: int CVodeGetQuadB(void * cvode_mem, whichrealtype tret, N_Vector yQB)
+.. c:function:: int CVodeGetQuadB(void * cvode_mem, int which, realtype* tret, N_Vector yQB)
 
    The function :c:func:`CVodeGetQuadB` returns the quadrature solution vector
    after  a successful return from :c:func:`CVodeB`.

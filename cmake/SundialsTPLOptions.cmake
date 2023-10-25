@@ -317,6 +317,13 @@ sundials_option(CALIPER_WORKS BOOL "Set to ON to force CMake to accept a given C
                 DEPENDS_ON ENABLE_CALIPER
                 ADVANCED)
 
+# ---------------------------------------------------------------
+# Enable Adiak support?
+# ---------------------------------------------------------------
+
+sundials_option(ENABLE_ADIAK BOOL "Enable Adiak support" OFF DEPENDS_ON SUNDIALS_BUILD_WITH_PROFILING)
+
+sundials_option(adiak_DIR PATH "Path to the root of an Adiak installation" "${ADIAK_DIR}" DEPENDS_ON ENABLE_ADIAK)
 
 # ---------------------------------------------------------------
 # Enable Kokkos support?

@@ -73,8 +73,13 @@ if(BUILD_NVECTOR_KOKKOS)
   install(CODE "MESSAGE(\"\nInstall NVECTOR_KOKKOS\n\")")
   message(STATUS "Added BUILD_NVECTOR_KOKKOS module")
   add_library(sundials_nveckokkos INTERFACE)
-  target_link_libraries(sundials_nveckokkos INTERFACE
+  if(ENABLE_HIP)
+    target_link_libraries(sundials_nveckokkos INTERFACE
+    Kokkos::kokkos hip::device)
+  else()
+    target_link_libraries(sundials_nveckokkos INTERFACE
     Kokkos::kokkos)
+  endif()
   target_include_directories(sundials_nveckokkos INTERFACE
     $<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}/include>
     $<BUILD_INTERFACE:${PROJECT_BINARY_DIR}/include>

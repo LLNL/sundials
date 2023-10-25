@@ -26,3 +26,4 @@ sundials_add_nvector_benchmark(nvector_openmp_benchmark
   SUNDIALS_TARGETS sundials_nvecopenmp
   INSTALL_SUBDIR nvector/openmp
   )
+

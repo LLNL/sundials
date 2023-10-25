@@ -51,6 +51,7 @@ int arkSetDefaults(void *arkode_mem)
   ark_mem = (ARKodeMem) arkode_mem;
 
   /* Set default values for integrator optional inputs */
+  ark_mem->use_compensated_sums    = SUNFALSE; 
   ark_mem->fixedstep               = SUNFALSE;       /* default to use adaptive steps */
   ark_mem->reltol                  = RCONST(1.e-4);  /* relative tolerance */
   ark_mem->itol                    = ARK_SS;         /* scalar-scalar solution tolerances */
@@ -80,6 +81,7 @@ int arkSetDefaults(void *arkode_mem)
   ark_mem->hmin                    = ZERO;           /* no minimum step size */
   ark_mem->hmax_inv                = ZERO;           /* no maximum step size */
   ark_mem->tstopset                = SUNFALSE;       /* no stop time set */
+  ark_mem->tstopinterp             = SUNFALSE;       /* copy at stop time */
   ark_mem->tstop                   = ZERO;           /* no fixed stop time */
   ark_mem->diagfp                  = NULL;           /* no solver diagnostics file */
   ark_mem->report                  = SUNFALSE;       /* don't report solver diagnostics */
@@ -158,8 +160,10 @@ int arkSetInterpolantType(void *arkode_mem, int itype)
      the maximum possible interpolant degree. */
   if (itype == ARK_INTERP_HERMITE) {
     ark_mem->interp = arkInterpCreate_Hermite(arkode_mem, ARK_INTERP_MAX_DEGREE);
-  } else {
+  } else if (itype == ARK_INTERP_LAGRANGE) {
     ark_mem->interp = arkInterpCreate_Lagrange(arkode_mem, ARK_INTERP_MAX_DEGREE);
+  } else {
+    ark_mem->interp = NULL;
   }
   if (ark_mem->interp == NULL) {
     arkProcessError(ark_mem, ARK_MEM_FAIL, "ARKODE", "arkSetInterpolantType",
@@ -514,6 +518,26 @@ int arkSetStopTime(void *arkode_mem, realtype tstop)
   ark_mem->tstop    = tstop;
   ark_mem->tstopset = SUNTRUE;
 
+  return(ARK_SUCCESS);
+}
+
+
+/*---------------------------------------------------------------
+  arkSetInterpolateStopTime:
+
+  Specifies to use interpolation to fill the solution output at
+  the stop time (instead of a copy).
+  ---------------------------------------------------------------*/
+int arkSetInterpolateStopTime(void *arkode_mem, booleantype interp)
+{
+  ARKodeMem ark_mem;
+  if (arkode_mem==NULL) {
+    arkProcessError(NULL, ARK_MEM_NULL, "ARKODE",
+                    "arkSetInterpolateStopTime", MSG_ARK_NO_MEM);
+    return (ARK_MEM_NULL);
+  }
+  ark_mem = (ARKodeMem) arkode_mem;
+  ark_mem->tstopinterp = interp;
   return(ARK_SUCCESS);
 }
 
@@ -1258,6 +1282,30 @@ int arkSetMaxConvFails(void *arkode_mem, int maxncf)
   return(ARK_SUCCESS);
 }
 
+/*---------------------------------------------------------------
+  arkSetUseCompensatedSums:
+
+  Specifies that ARKODE should use compensated (Kahan) summation
+  where relevant to mitigate roundoff error.
+  ---------------------------------------------------------------*/
+int arkSetUseCompensatedSums(void *arkode_mem, sunbooleantype onoff)
+{
+  ARKodeMem ark_mem;
+  if (arkode_mem==NULL) {
+    arkProcessError(NULL, ARK_MEM_NULL, "ARKODE",
+                    "arkSetUseCompensatedSums", MSG_ARK_NO_MEM);
+    return(ARK_MEM_NULL);
+  }
+  ark_mem = (ARKodeMem) arkode_mem;
+
+  if (onoff) {
+    ark_mem->use_compensated_sums = SUNTRUE;
+  } else {
+    ark_mem->use_compensated_sums = SUNFALSE;
+  }
+
+  return(ARK_SUCCESS);
+}
 
 
 /*===============================================================
@@ -1696,6 +1744,7 @@ int arkGetUserData(void *arkode_mem, void** user_data)
 
 int arkPrintAllStats(void *arkode_mem, FILE *outfile, SUNOutputFormat fmt)
 {
+  int retval;
   ARKodeMem ark_mem;
   ARKodeRootMem ark_root_mem;
 
@@ -1748,6 +1797,13 @@ int arkPrintAllStats(void *arkode_mem, FILE *outfile, SUNOutputFormat fmt)
     arkProcessError(ark_mem, ARK_ILL_INPUT, "ARKODE", "arkPrintAllStats",
                     "Invalid formatting option.");
     return(ARK_ILL_INPUT);
+  }
+
+  /* Print relaxation stats */
+  if (ark_mem->relax_enabled)
+  {
+    retval = arkRelaxPrintAllStats(arkode_mem, outfile, fmt);
+    if (retval != ARK_SUCCESS) return(retval);
   }
 
   return(ARK_SUCCESS);

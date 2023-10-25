@@ -16,10 +16,6 @@
 
 install(CODE "MESSAGE(\"\nInstall SUNLINSOL_SUPERLUDIST\n\")")
 
-# Use MPI
-set(CMAKE_C_COMPILER ${MPI_C_COMPILER})
-set(CMAKE_CXX_COMPILER ${MPI_CXX_COMPILER})
-
 # Add the library
 sundials_add_library(sundials_sunlinsolsuperludist
   SOURCES
@@ -35,6 +31,7 @@ sundials_add_library(sundials_sunlinsolsuperludist
     sundials_sunmatrixslunrloc
     SUNDIALS::SUPERLUDIST
     $<IF:$<BOOL:${SUPERLUDIST_OpenMP}>,OpenMP::OpenMP_C,>
+    MPI::MPI_C
   COMPILE_OPTIONS
     PRIVATE ${_compile_options}
   OUTPUT_NAME
@@ -42,7 +39,7 @@ sundials_add_library(sundials_sunlinsolsuperludist
   VERSION
     ${sunlinsollib_VERSION}
   SOVERSION
-    ${sunlinsollib_VERSION}
+  ${sunlinsollib_SOVERSION}
 )
 
 message(STATUS "Added SUNLINSOL_SUPERLUDIST module")

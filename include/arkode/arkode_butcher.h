@@ -17,6 +17,7 @@
 #ifndef _ARKODE_BUTCHER_H
 #define _ARKODE_BUTCHER_H
 
+#include <stdio.h>
 #include <sundials/sundials_types.h>
 
 #ifdef __cplusplus  /* wrapper to enable C++ usage */
@@ -59,7 +60,6 @@ SUNDIALS_EXPORT void ARKodeButcherTable_Space(ARKodeButcherTable B,
 SUNDIALS_EXPORT void ARKodeButcherTable_Free(ARKodeButcherTable B);
 SUNDIALS_EXPORT void ARKodeButcherTable_Write(ARKodeButcherTable B,
                                               FILE *outfile);
-
 SUNDIALS_EXPORT int ARKodeButcherTable_CheckOrder(ARKodeButcherTable B, int *q,
                                                   int *p, FILE *outfile);
 SUNDIALS_EXPORT int ARKodeButcherTable_CheckARKOrder(ARKodeButcherTable B1,

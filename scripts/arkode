@@ -45,6 +45,8 @@ $tar $tarfile $distrobase/include/arkode/arkode_erkstep.h
 $tar $tarfile $distrobase/include/arkode/arkode_ls.h
 $tar $tarfile $distrobase/include/arkode/arkode_mristep.h
 $tar $tarfile $distrobase/include/arkode/arkode_xbraid.h
+$tar $tarfile $distrobase/include/arkode/arkode_sprkstep.h
+$tar $tarfile $distrobase/include/arkode/arkode_sprk.h
 
 $tar $tarfile $distrobase/src/arkode/LICENSE
 $tar $tarfile $distrobase/src/arkode/NOTICE
@@ -70,6 +72,10 @@ $tar $tarfile $distrobase/src/arkode/arkode_butcher_erk.def
 $tar $tarfile $distrobase/src/arkode/arkode_erkstep.c
 $tar $tarfile $distrobase/src/arkode/arkode_erkstep_impl.h
 $tar $tarfile $distrobase/src/arkode/arkode_erkstep_io.c
+$tar $tarfile $distrobase/src/arkode/arkode_sprk.c
+$tar $tarfile $distrobase/src/arkode/arkode_sprkstep.c
+$tar $tarfile $distrobase/src/arkode/arkode_sprkstep_impl.h
+$tar $tarfile $distrobase/src/arkode/arkode_sprkstep_io.c
 $tar $tarfile $distrobase/src/arkode/arkode_impl.h
 $tar $tarfile $distrobase/src/arkode/arkode_interp.c
 $tar $tarfile $distrobase/src/arkode/arkode_interp_impl.h
@@ -83,8 +89,11 @@ $tar $tarfile $distrobase/src/arkode/arkode_mristep.c
 $tar $tarfile $distrobase/src/arkode/arkode_mristep_impl.h
 $tar $tarfile $distrobase/src/arkode/arkode_mristep_io.c
 $tar $tarfile $distrobase/src/arkode/arkode_mristep_nls.c
+$tar $tarfile $distrobase/src/arkode/arkode_relaxation.c
+$tar $tarfile $distrobase/src/arkode/arkode_relaxation_impl.h
 $tar $tarfile $distrobase/src/arkode/arkode_root.c
 $tar $tarfile $distrobase/src/arkode/arkode_root_impl.h
+$tar $tarfile $distrobase/src/arkode/arkode_types_impl.h
 
 $tar $tarfile $distrobase/src/arkode/xbraid/CMakeLists.txt
 $tar $tarfile $distrobase/src/arkode/xbraid/arkode_xbraid.c
@@ -101,6 +110,8 @@ $tar $tarfile $distrobase/src/arkode/fmod/farkode_erkstep_mod.c
 $tar $tarfile $distrobase/src/arkode/fmod/farkode_erkstep_mod.f90
 $tar $tarfile $distrobase/src/arkode/fmod/farkode_mristep_mod.c
 $tar $tarfile $distrobase/src/arkode/fmod/farkode_mristep_mod.f90
+$tar $tarfile $distrobase/src/arkode/fmod/farkode_sprkstep_mod.c
+$tar $tarfile $distrobase/src/arkode/fmod/farkode_sprkstep_mod.f90
 
 echo "   --- Add arkode examples to $tarfile"
 
@@ -184,10 +195,40 @@ $tar $tarfile $distrobase/examples/arkode/C_serial/ark_brusselator_mri.c
 $tar $tarfile $distrobase/examples/arkode/C_serial/ark_brusselator_mri.out
 $tar $tarfile $distrobase/examples/arkode/C_serial/ark_brusselator_1D_mri.c
 $tar $tarfile $distrobase/examples/arkode/C_serial/ark_brusselator_1D_mri.out
+$tar $tarfile $distrobase/examples/arkode/C_serial/ark_conserved_exp_entropy_ark.c
+$tar $tarfile $distrobase/examples/arkode/C_serial/ark_conserved_exp_entropy_ark_1_0.out
+$tar $tarfile $distrobase/examples/arkode/C_serial/ark_conserved_exp_entropy_ark_1_1.out
+$tar $tarfile $distrobase/examples/arkode/C_serial/ark_conserved_exp_entropy_erk.c
+$tar $tarfile $distrobase/examples/arkode/C_serial/ark_conserved_exp_entropy_erk_1.out
+$tar $tarfile $distrobase/examples/arkode/C_serial/ark_dissipated_exp_entropy.c
+$tar $tarfile $distrobase/examples/arkode/C_serial/ark_dissipated_exp_entropy_1_0.out
+$tar $tarfile $distrobase/examples/arkode/C_serial/ark_dissipated_exp_entropy_1_1.out
 $tar $tarfile $distrobase/examples/arkode/C_serial/ark_heat1D.c
 $tar $tarfile $distrobase/examples/arkode/C_serial/ark_heat1D.out
 $tar $tarfile $distrobase/examples/arkode/C_serial/ark_heat1D_adapt.c
 $tar $tarfile $distrobase/examples/arkode/C_serial/ark_heat1D_adapt.out
+$tar $tarfile $distrobase/examples/arkode/C_serial/ark_kepler.c
+$tar $tarfile $distrobase/examples/arkode/C_serial/ark_kepler.h
+$tar $tarfile $distrobase/examples/arkode/C_serial/ark_kepler.out
+$tar $tarfile $distrobase/examples/arkode/C_serial/ark_kepler_--stepper_ERK_--step-mode_adapt.out
+$tar $tarfile $distrobase/examples/arkode/C_serial/ark_kepler_--stepper_ERK_--step-mode_fixed_--count-orbits.out
+$tar $tarfile $distrobase/examples/arkode/C_serial/ark_kepler_--stepper_SPRK_--step-mode_fixed_--count-orbits_--use-compensated-sums.out
+$tar $tarfile $distrobase/examples/arkode/C_serial/ark_kepler_--stepper_SPRK_--step-mode_fixed_--method_ARKODE_SPRK_EULER_1_1_--tf_50_--check-order_--nout_1.out
+$tar $tarfile $distrobase/examples/arkode/C_serial/ark_kepler_--stepper_SPRK_--step-mode_fixed_--method_ARKODE_SPRK_LEAPFROG_2_2_--tf_50_--check-order_--nout_1.out
+$tar $tarfile $distrobase/examples/arkode/C_serial/ark_kepler_--stepper_SPRK_--step-mode_fixed_--method_ARKODE_SPRK_MCLACHLAN_2_2_--tf_50_--check-order_--nout_1.out
+$tar $tarfile $distrobase/examples/arkode/C_serial/ark_kepler_--stepper_SPRK_--step-mode_fixed_--method_ARKODE_SPRK_MCLACHLAN_3_3_--tf_50_--check-order_--nout_1.out
+$tar $tarfile $distrobase/examples/arkode/C_serial/ark_kepler_--stepper_SPRK_--step-mode_fixed_--method_ARKODE_SPRK_MCLACHLAN_4_4_--tf_50_--check-order_--nout_1.out
+$tar $tarfile $distrobase/examples/arkode/C_serial/ark_kepler_--stepper_SPRK_--step-mode_fixed_--method_ARKODE_SPRK_MCLACHLAN_5_6_--tf_50_--check-order_--nout_1.out
+$tar $tarfile $distrobase/examples/arkode/C_serial/ark_kepler_--stepper_SPRK_--step-mode_fixed_--method_ARKODE_SPRK_PSEUDO_LEAPFROG_2_2_--tf_50_--check-order_--nout_1.out
+$tar $tarfile $distrobase/examples/arkode/C_serial/ark_kepler_--stepper_SPRK_--step-mode_fixed_--method_ARKODE_SPRK_RUTH_3_3_--tf_50_--check-order_--nout_1.out
+$tar $tarfile $distrobase/examples/arkode/C_serial/ark_kepler_--stepper_SPRK_--step-mode_fixed_--method_ARKODE_SPRK_YOSHIDA_6_8_--tf_50_--check-order_--nout_1.out
+$tar $tarfile $distrobase/examples/arkode/C_serial/ark_kepler_plot.py
+$tar $tarfile $distrobase/examples/arkode/C_serial/ark_harmonic_symplectic.c
+$tar $tarfile $distrobase/examples/arkode/C_serial/ark_harmonic_symplectic.h
+$tar $tarfile $distrobase/examples/arkode/C_serial/ark_harmonic_symplectic.out
+$tar $tarfile $distrobase/examples/arkode/C_serial/ark_damped_harmonic_symplectic.c
+$tar $tarfile $distrobase/examples/arkode/C_serial/ark_damped_harmonic_symplectic.h
+$tar $tarfile $distrobase/examples/arkode/C_serial/ark_damped_harmonic_symplectic.out
 $tar $tarfile $distrobase/examples/arkode/C_serial/ark_kpr_mri.c
 $tar $tarfile $distrobase/examples/arkode/C_serial/ark_kpr_mri.out
 $tar $tarfile $distrobase/examples/arkode/C_serial/ark_kpr_mri_0_0.002.out
@@ -284,6 +325,8 @@ $tar $tarfile $distrobase/examples/arkode/CXX_serial/ark_kpr_Mt_2_-5_0_-10.out
 $tar $tarfile $distrobase/examples/arkode/CXX_serial/ark_kpr_Mt_2_8_0_-10.out
 $tar $tarfile $distrobase/examples/arkode/CXX_serial/ark_kpr_Mt_0_4_0_-10_0_10_1.out
 $tar $tarfile $distrobase/examples/arkode/CXX_serial/ark_kpr_Mt_0_4_0_-10_1_10_1.out
+$tar $tarfile $distrobase/examples/arkode/CXX_serial/ark_pendulum.cpp
+$tar $tarfile $distrobase/examples/arkode/CXX_serial/ark_pendulum.out
 $tar $tarfile $distrobase/examples/arkode/CXX_serial/plot_heat2D.py
 $tar $tarfile $distrobase/examples/arkode/CXX_serial/plot_sol.py
 
@@ -344,25 +387,4 @@ $tar $tarfile $distrobase/examples/arkode/F2003_serial/test_ark_butcher_f2003.f9
 
 echo "   --- Add arkode unit tests to $tarfile"
 
-$tar $tarfile $distrobase/test/unit_tests/arkode/CMakeLists.txt
-$tar $tarfile $distrobase/test/unit_tests/arkode/C_serial/CMakeLists.txt
-$tar $tarfile $distrobase/test/unit_tests/arkode/C_serial/ark_test_arkstepsetforcing.c
-$tar $tarfile $distrobase/test/unit_tests/arkode/C_serial/ark_test_getuserdata.c
-$tar $tarfile $distrobase/test/unit_tests/arkode/C_serial/ark_test_interp.c
-$tar $tarfile $distrobase/test/unit_tests/arkode/C_serial/ark_test_reset.c
-$tar $tarfile $distrobase/test/unit_tests/arkode/CXX_serial/CMakeLists.txt
-$tar $tarfile $distrobase/test/unit_tests/arkode/CXX_serial/ark_test_analytic_sys_mri.cpp
-$tar $tarfile $distrobase/test/unit_tests/arkode/CXX_serial/ark_test_analytic_sys_mri_0.out
-$tar $tarfile $distrobase/test/unit_tests/arkode/CXX_serial/ark_test_analytic_sys_mri_1.out
-$tar $tarfile $distrobase/test/unit_tests/arkode/CXX_serial/ark_test_butcher.cpp
-$tar $tarfile $distrobase/test/unit_tests/arkode/CXX_serial/ark_test_butcher.out
-$tar $tarfile $distrobase/test/unit_tests/arkode/CXX_serial/ark_test_dahlquist_mri.cpp
-$tar $tarfile $distrobase/test/unit_tests/arkode/CXX_serial/ark_test_dahlquist_mri.out
-$tar $tarfile $distrobase/test/unit_tests/arkode/CXX_serial/ark_test_getjac.cpp
-$tar $tarfile $distrobase/test/unit_tests/arkode/CXX_serial/ark_test_getjac.out
-$tar $tarfile $distrobase/test/unit_tests/arkode/CXX_serial/ark_test_getjac_mri.cpp
-$tar $tarfile $distrobase/test/unit_tests/arkode/CXX_serial/ark_test_getjac_mri.out
-$tar $tarfile $distrobase/test/unit_tests/arkode/CXX_parallel/CMakeLists.txt
-$tar $tarfile $distrobase/test/unit_tests/arkode/CXX_parallel/ark_test_heat2D_mri.cpp
-$tar $tarfile $distrobase/test/unit_tests/arkode/F2003_serial/CMakeLists.txt
-$tar $tarfile $distrobase/test/unit_tests/arkode/F2003_serial/ark_test_table_f2003.f90
+$tar $tarfile $distrobase/test/unit_tests/arkode

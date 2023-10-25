@@ -21,6 +21,7 @@
 #include <Tpetra_Core.hpp>
 #include <Tpetra_Vector.hpp>
 #include <Tpetra_Version.hpp>
+#include <Trilinos_version.h>
 
 #include <sundials/sundials_types.h>
 #include <sundials/sundials_math.h>
@@ -80,7 +81,7 @@ int main (int argc, char *argv[])
   /* Choose zero-based (C-style) indexing. */
   const sunindextype index_base = 0;
 
-  /* Construct am MPI Map */
+  /* Construct an MPI Map */
   RCP<const map_type> testMap =
     rcp(new map_type (global_length, index_base, comm,
                       Tpetra::GloballyDistributed));
@@ -215,10 +216,15 @@ int check_ans(realtype ans, N_Vector X, sunindextype local_length)
   Teuchos::RCP<TpetraVectorInterface::vector_type> xv =
     N_VGetVector_Trilinos(X);
 
+#if TRILINOS_MAJOR_VERSION < 14
   /* Sync the host with the device if needed */
   xv->sync<Kokkos::HostSpace>();
   const auto x_2d = xv->getLocalView<Kokkos::HostSpace>();
   const auto x_1d = Kokkos::subview(x_2d, Kokkos::ALL(), 0);
+#else
+  const auto x_2d = xv->getLocalView<Kokkos::HostSpace>(Tpetra::Access::ReadOnly);
+  const auto x_1d = Kokkos::subview(x_2d, Kokkos::ALL(), 0);
+#endif
 
   int failure = 0;
   sunindextype i;
@@ -259,22 +265,30 @@ void set_element_range(N_Vector X, sunindextype is, sunindextype ie,
                        realtype val)
 {
   typedef TpetraVectorInterface::vector_type vector_type;
+#if TRILINOS_MAJOR_VERSION < 14
   typedef vector_type::node_type::memory_space memory_space;
+#endif
 
   Teuchos::RCP<vector_type> xv = N_VGetVector_Trilinos(X);
 
+#if TRILINOS_MAJOR_VERSION < 14
   /* Sync the host with the device if needed */
   xv->sync<Kokkos::HostSpace>();
   const auto x_2d = xv->getLocalView<Kokkos::HostSpace>();
   const auto x_1d = Kokkos::subview(x_2d, Kokkos::ALL(), 0);
-
   xv->modify<Kokkos::HostSpace>();
+#else
+  const auto x_2d = xv->getLocalView<Kokkos::HostSpace>(Tpetra::Access::ReadWrite);
+  const auto x_1d = Kokkos::subview(x_2d, Kokkos::ALL(), 0);
+#endif
 
   sunindextype i;
   for(i = is; i <= ie; i++) x_1d(i) = val;
 
+#if TRILINOS_MAJOR_VERSION < 14
   /* Sync the device with the host */
   xv->sync<memory_space>();
+#endif
 }
 
 /*
@@ -285,10 +299,15 @@ realtype get_element(N_Vector X, sunindextype i)
   Teuchos::RCP<TpetraVectorInterface::vector_type> xv =
     N_VGetVector_Trilinos(X);
 
+#if TRILINOS_MAJOR_VERSION < 14
   /* Sync the host with the device if needed */
   xv->sync<Kokkos::HostSpace>();
   const auto x_2d = xv->getLocalView<Kokkos::HostSpace>();
   const auto x_1d = Kokkos::subview(x_2d, Kokkos::ALL(), 0);
+#else
+  const auto x_2d = xv->getLocalView<Kokkos::HostSpace>(Tpetra::Access::ReadOnly);
+  const auto x_1d = Kokkos::subview(x_2d, Kokkos::ALL(), 0);
+#endif
 
   return x_1d(i);
 }

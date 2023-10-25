@@ -162,19 +162,4 @@ $tar $tarfile $distrobase/examples/ida/F2003_serial/idaRoberts_dns_f2003.out
 
 echo "   --- Add ida unit tests to $tarfile"
 
-$tar $tarfile $distrobase/test/unit_tests/ida/CMakeLists.txt
-$tar $tarfile $distrobase/test/unit_tests/ida/C_serial/CMakeLists.txt
-$tar $tarfile $distrobase/test/unit_tests/ida/C_serial/ida_test_getuserdata.c
-$tar $tarfile $distrobase/test/unit_tests/ida/CXX_serial/CMakeLists.txt
-$tar $tarfile $distrobase/test/unit_tests/ida/CXX_serial/ida_test_getjac.cpp
-$tar $tarfile $distrobase/test/unit_tests/ida/CXX_serial/ida_test_getjac.out
-$tar $tarfile $distrobase/test/unit_tests/ida/CXX_serial/ida_test_kpr.cpp
-$tar $tarfile $distrobase/test/unit_tests/ida/CXX_serial/ida_test_kpr.hpp
-$tar $tarfile $distrobase/test/unit_tests/ida/CXX_serial/ida_test_kpr.out
-$tar $tarfile $distrobase/test/unit_tests/ida/CXX_serial/ida_test_kpr_--dcj_0.9.out
-$tar $tarfile $distrobase/test/unit_tests/ida/CXX_serial/ida_test_kpr_--eta_cf_0.5.out
-$tar $tarfile $distrobase/test/unit_tests/ida/CXX_serial/ida_test_kpr_--eta_max_fs_2.out
-$tar $tarfile $distrobase/test/unit_tests/ida/CXX_serial/ida_test_kpr_--eta_min_2.out
-$tar $tarfile $distrobase/test/unit_tests/ida/CXX_serial/ida_test_kpr_--eta_min_ef_0.5.out
-$tar $tarfile $distrobase/test/unit_tests/ida/CXX_serial/ida_test_kpr_--eta_min_fx_1.0_--eta_max_fx_2.0.out
-$tar $tarfile $distrobase/test/unit_tests/ida/CXX_serial/ida_test_kpr_--eta_min_fx_1.0_--eta_min_0.5.out
+$tar $tarfile $distrobase/test/unit_tests/ida
