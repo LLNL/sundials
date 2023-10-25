@@ -89,6 +89,9 @@ Changes from previous versions
 Changes in vX.X.X
 -----------------
 
+Fixed the build system support for MAGMA when using a NVIDIA HPC SDK installation of CUDA
+and fixed the targets used for rocBLAS ans rocSPARSE.
+
 Fixed a regression introduced by the stop time bug fix in v6.6.1 where IDAS
 would return at the stop time rather than the requested output time if the stop
 time was reached in the same step in which the output time was passed.
