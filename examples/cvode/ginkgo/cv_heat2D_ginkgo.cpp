@@ -54,23 +54,23 @@
 
 #if defined(USE_CUDA)
 #include <nvector/nvector_cuda.h>
-#define HIP_OR_CUDA_SYCL(a, b, c) b
+#define HIP_OR_CUDA_OR_SYCL(a, b, c) b
 constexpr auto N_VNew = N_VNew_Cuda;
 #elif defined(USE_HIP)
 #include <nvector/nvector_hip.h>
-#define HIP_OR_CUDA_SYCL(a, b, c) a
+#define HIP_OR_CUDA_OR_SYCL(a, b, c) a
 constexpr auto N_VNew = N_VNew_Hip;
 #elif defined(USE_DPCPP)
 #include <nvector/nvector_sycl.h>
-#define HIP_OR_CUDA_SYCL(a, b, c) c
+#define HIP_OR_CUDA_OR_SYCL(a, b, c) c
 constexpr auto N_VNew = N_VNew_Sycl;
 #elif defined(USE_OMP)
 #include <nvector/nvector_serial.h>
-#define HIP_OR_CUDA_SYCL(a, b, c)
+#define HIP_OR_CUDA_OR_SYCL(a, b, c)
 constexpr auto N_VNew = N_VNew_Serial;
 #else
 #include <nvector/nvector_serial.h>
-#define HIP_OR_CUDA_SYCL(a, b, c)
+#define HIP_OR_CUDA_OR_SYCL(a, b, c)
 constexpr auto N_VNew = N_VNew_Serial;
 #endif
 
