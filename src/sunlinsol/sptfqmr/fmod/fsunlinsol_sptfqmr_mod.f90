@@ -53,8 +53,6 @@ module fsunlinsol_sptfqmr_mod
  public :: FSUNLinSolLastFlag_SPTFQMR
  public :: FSUNLinSolSpace_SPTFQMR
  public :: FSUNLinSolFree_SPTFQMR
- public :: FSUNLinSolSetInfoFile_SPTFQMR
- public :: FSUNLinSolSetPrintLevel_SPTFQMR
 
 ! WRAPPER DECLARATIONS
 interface
@@ -219,24 +217,6 @@ bind(C, name="_wrap_FSUNLinSolFree_SPTFQMR") &
 result(fresult)
 use, intrinsic :: ISO_C_BINDING
 type(C_PTR), value :: farg1
-integer(C_INT) :: fresult
-end function
-
-function swigc_FSUNLinSolSetInfoFile_SPTFQMR(farg1, farg2) &
-bind(C, name="_wrap_FSUNLinSolSetInfoFile_SPTFQMR") &
-result(fresult)
-use, intrinsic :: ISO_C_BINDING
-type(C_PTR), value :: farg1
-type(C_PTR), value :: farg2
-integer(C_INT) :: fresult
-end function
-
-function swigc_FSUNLinSolSetPrintLevel_SPTFQMR(farg1, farg2) &
-bind(C, name="_wrap_FSUNLinSolSetPrintLevel_SPTFQMR") &
-result(fresult)
-use, intrinsic :: ISO_C_BINDING
-type(C_PTR), value :: farg1
-integer(C_INT), intent(in) :: farg2
 integer(C_INT) :: fresult
 end function
 
@@ -536,38 +516,6 @@ type(C_PTR) :: farg1
 
 farg1 = c_loc(s)
 fresult = swigc_FSUNLinSolFree_SPTFQMR(farg1)
-swig_result = fresult
-end function
-
-function FSUNLinSolSetInfoFile_SPTFQMR(ls, info_file) &
-result(swig_result)
-use, intrinsic :: ISO_C_BINDING
-integer(C_INT) :: swig_result
-type(SUNLinearSolver), target, intent(inout) :: ls
-type(C_PTR) :: info_file
-integer(C_INT) :: fresult 
-type(C_PTR) :: farg1 
-type(C_PTR) :: farg2 
-
-farg1 = c_loc(ls)
-farg2 = info_file
-fresult = swigc_FSUNLinSolSetInfoFile_SPTFQMR(farg1, farg2)
-swig_result = fresult
-end function
-
-function FSUNLinSolSetPrintLevel_SPTFQMR(ls, print_level) &
-result(swig_result)
-use, intrinsic :: ISO_C_BINDING
-integer(C_INT) :: swig_result
-type(SUNLinearSolver), target, intent(inout) :: ls
-integer(C_INT), intent(in) :: print_level
-integer(C_INT) :: fresult 
-type(C_PTR) :: farg1 
-integer(C_INT) :: farg2 
-
-farg1 = c_loc(ls)
-farg2 = print_level
-fresult = swigc_FSUNLinSolSetPrintLevel_SPTFQMR(farg1, farg2)
 swig_result = fresult
 end function
 

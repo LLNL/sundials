@@ -683,20 +683,6 @@ SWIGEXPORT int _wrap_FKINSetInfoHandlerFn(void *farg1, KINInfoHandlerFn farg2, v
 }
 
 
-SWIGEXPORT int _wrap_FKINSetInfoFile(void *farg1, void *farg2) {
-  int fresult ;
-  void *arg1 = (void *) 0 ;
-  FILE *arg2 = (FILE *) 0 ;
-  int result;
-  
-  arg1 = (void *)(farg1);
-  arg2 = (FILE *)(farg2);
-  result = (int)KINSetInfoFile(arg1,arg2);
-  fresult = (int)(result);
-  return fresult;
-}
-
-
 SWIGEXPORT int _wrap_FKINSetPrintLevel(void *farg1, int const *farg2) {
   int fresult ;
   void *arg1 = (void *) 0 ;
@@ -706,20 +692,6 @@ SWIGEXPORT int _wrap_FKINSetPrintLevel(void *farg1, int const *farg2) {
   arg1 = (void *)(farg1);
   arg2 = (int)(*farg2);
   result = (int)KINSetPrintLevel(arg1,arg2);
-  fresult = (int)(result);
-  return fresult;
-}
-
-
-SWIGEXPORT int _wrap_FKINSetDebugFile(void *farg1, void *farg2) {
-  int fresult ;
-  void *arg1 = (void *) 0 ;
-  FILE *arg2 = (FILE *) 0 ;
-  int result;
-  
-  arg1 = (void *)(farg1);
-  arg2 = (FILE *)(farg2);
-  result = (int)KINSetDebugFile(arg1,arg2);
   fresult = (int)(result);
   return fresult;
 }

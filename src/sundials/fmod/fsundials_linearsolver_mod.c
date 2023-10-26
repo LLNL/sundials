@@ -211,26 +211,6 @@ SWIGEXPORT int _wrap_FSUNModifiedGS(void *farg1, void *farg2, int const *farg3, 
 }
 
 
-SWIGEXPORT int _wrap_FModifiedGS(void *farg1, void *farg2, int const *farg3, int const *farg4, double *farg5) {
-  int fresult ;
-  N_Vector *arg1 = (N_Vector *) 0 ;
-  realtype **arg2 = (realtype **) 0 ;
-  int arg3 ;
-  int arg4 ;
-  realtype *arg5 = (realtype *) 0 ;
-  int result;
-  
-  arg1 = (N_Vector *)(farg1);
-  arg2 = (realtype **)(farg2);
-  arg3 = (int)(*farg3);
-  arg4 = (int)(*farg4);
-  arg5 = (realtype *)(farg5);
-  result = (int)ModifiedGS(arg1,arg2,arg3,arg4,arg5);
-  fresult = (int)(result);
-  return fresult;
-}
-
-
 SWIGEXPORT int _wrap_FSUNClassicalGS(void *farg1, void *farg2, int const *farg3, int const *farg4, double *farg5, double *farg6, void *farg7) {
   int fresult ;
   N_Vector *arg1 = (N_Vector *) 0 ;
@@ -255,30 +235,6 @@ SWIGEXPORT int _wrap_FSUNClassicalGS(void *farg1, void *farg2, int const *farg3,
 }
 
 
-SWIGEXPORT int _wrap_FClassicalGS(void *farg1, void *farg2, int const *farg3, int const *farg4, double *farg5, double *farg6, void *farg7) {
-  int fresult ;
-  N_Vector *arg1 = (N_Vector *) 0 ;
-  realtype **arg2 = (realtype **) 0 ;
-  int arg3 ;
-  int arg4 ;
-  realtype *arg5 = (realtype *) 0 ;
-  realtype *arg6 = (realtype *) 0 ;
-  N_Vector *arg7 = (N_Vector *) 0 ;
-  int result;
-  
-  arg1 = (N_Vector *)(farg1);
-  arg2 = (realtype **)(farg2);
-  arg3 = (int)(*farg3);
-  arg4 = (int)(*farg4);
-  arg5 = (realtype *)(farg5);
-  arg6 = (realtype *)(farg6);
-  arg7 = (N_Vector *)(farg7);
-  result = (int)ClassicalGS(arg1,arg2,arg3,arg4,arg5,arg6,arg7);
-  fresult = (int)(result);
-  return fresult;
-}
-
-
 SWIGEXPORT int _wrap_FSUNQRfact(int const *farg1, void *farg2, double *farg3, int const *farg4) {
   int fresult ;
   int arg1 ;
@@ -297,24 +253,6 @@ SWIGEXPORT int _wrap_FSUNQRfact(int const *farg1, void *farg2, double *farg3, in
 }
 
 
-SWIGEXPORT int _wrap_FQRfact(int const *farg1, void *farg2, double *farg3, int const *farg4) {
-  int fresult ;
-  int arg1 ;
-  realtype **arg2 = (realtype **) 0 ;
-  realtype *arg3 = (realtype *) 0 ;
-  int arg4 ;
-  int result;
-  
-  arg1 = (int)(*farg1);
-  arg2 = (realtype **)(farg2);
-  arg3 = (realtype *)(farg3);
-  arg4 = (int)(*farg4);
-  result = (int)QRfact(arg1,arg2,arg3,arg4);
-  fresult = (int)(result);
-  return fresult;
-}
-
-
 SWIGEXPORT int _wrap_FSUNQRsol(int const *farg1, void *farg2, double *farg3, double *farg4) {
   int fresult ;
   int arg1 ;
@@ -328,24 +266,6 @@ SWIGEXPORT int _wrap_FSUNQRsol(int const *farg1, void *farg2, double *farg3, dou
   arg3 = (realtype *)(farg3);
   arg4 = (realtype *)(farg4);
   result = (int)SUNQRsol(arg1,arg2,arg3,arg4);
-  fresult = (int)(result);
-  return fresult;
-}
-
-
-SWIGEXPORT int _wrap_FQRsol(int const *farg1, void *farg2, double *farg3, double *farg4) {
-  int fresult ;
-  int arg1 ;
-  realtype **arg2 = (realtype **) 0 ;
-  realtype *arg3 = (realtype *) 0 ;
-  realtype *arg4 = (realtype *) 0 ;
-  int result;
-  
-  arg1 = (int)(*farg1);
-  arg2 = (realtype **)(farg2);
-  arg3 = (realtype *)(farg3);
-  arg4 = (realtype *)(farg4);
-  result = (int)QRsol(arg1,arg2,arg3,arg4);
   fresult = (int)(result);
   return fresult;
 }
