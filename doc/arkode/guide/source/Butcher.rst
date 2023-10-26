@@ -349,6 +349,7 @@ Accessible via the string ``"ARKODE_SOFRONIOU_SPALETTA_5_3_4"`` to
 .. math::
 
    \renewcommand{\arraystretch}{1.5}
+   \begin{array}{r|ccccc}
      0 & 0 & 0 & 0 & 0 & 0 \\
      \frac{2}{5} & \frac{2}{5} & 0 & 0 & 0 & 0 \\
      \frac{3}{5} & -\frac{3}{20} & \frac{3}{4} & 0 & 0 & 0 \\
