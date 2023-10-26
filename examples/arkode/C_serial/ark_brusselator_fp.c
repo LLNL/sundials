@@ -59,6 +59,7 @@
 #include <nvector/nvector_serial.h>                 /* serial N_Vector types, fcts., macros */
 #include <sunnonlinsol/sunnonlinsol_fixedpoint.h>   /* access to FP nonlinear solver        */
 #include <sundials/sundials_types.h>                /* def. of type 'realtype'              */
+#include <sundials/sundials_logger.h>
 
 #if defined(SUNDIALS_EXTENDED_PRECISION)
 #define GSYM "Lg"
@@ -96,24 +97,39 @@ int main(int argc, char *argv[])
   int monitor = 0;               /* turn on/off monitoring */
 
   /* general problem variables */
+  SUNContext ctx = NULL;
+  SUNLogger logger = NULL;
+  const char* info_fname = "ark_brusselator_fp-info.txt";
   int flag;                       /* reusable error-checking flag */
   N_Vector y = NULL;              /* empty vector for storing solution */
   SUNNonlinearSolver NLS = NULL;  /* empty nonlinear solver object */
   void *arkode_mem = NULL;        /* empty ARKode memory structure */
-  FILE *UFID, *INFOFID;
+  FILE *UFID;
   realtype t, tout;
   int iout;
   long int nst, nst_a, nfe, nfi, nni, ncfn, netf;
-
-  /* Create SUNDIALS context */
-  SUNContext ctx = NULL;
-  flag = SUNContext_Create(NULL, &ctx);
-  if (check_flag(&flag, "SUNContext_Create", 1)) return 1;
 
   /* read inputs */
   if (argc == 2) {
     monitor = atoi(argv[1]);
   }
+
+  /* create SUNDIALS context and a logger which will record
+     nonlinear solver info (e.g., residual) amongst other things. */
+  
+  flag = SUNContext_Create(NULL, &ctx);
+  if (check_flag(&flag, "SUNContext_Create", 1)) return 1;
+
+  flag = SUNLogger_Create(NULL, 0, &logger);
+  if (check_flag(&flag, "SUNLogger_Create", 1)) return 1;
+
+  if (monitor) {
+    flag = SUNLogger_SetInfoFilename(logger, info_fname);   
+    if (check_flag(&flag, "SUNLogger_SetInfoFilename", 1)) return 1;
+  }
+
+  flag = SUNContext_SetLogger(ctx, logger);
+  if (check_flag(&flag, "SUNContext_SetLogger", 1)) return 1;
 
   /* set up the test problem according to the desired test */
   if (test == 1) {
@@ -145,10 +161,6 @@ int main(int argc, char *argv[])
   printf("    problem parameters:  a = %"GSYM",  b = %"GSYM",  ep = %"GSYM"\n",a,b,ep);
   printf("    reltol = %.1"ESYM",  abstol = %.1"ESYM"\n\n",reltol,abstol);
 
-  /* Open up info output file */
-  INFOFID = NULL;
-  if (monitor) INFOFID = fopen("ark_brusselator_fp-info.txt","w");
-
   /* Initialize data structures */
   rdata[0] = a;    /* set user data  */
   rdata[1] = b;
@@ -168,12 +180,7 @@ int main(int argc, char *argv[])
   /* Initialize fixed-point nonlinear solver and attach to ARKStep */
   NLS = SUNNonlinSol_FixedPoint(y, fp_m, ctx);
   if (check_flag((void *)NLS, "SUNNonlinSol_FixedPoint", 0)) return 1;
-  if (monitor) {
-    flag = SUNNonlinSolSetPrintLevel_FixedPoint(NLS, 1);
-    if (check_flag(&flag, "SUNNonlinSolSetPrintLevel_Newton", 1)) return(1);
-    flag = SUNNonlinSolSetInfoFile_FixedPoint(NLS, INFOFID);
-    if (check_flag(&flag, "SUNNonlinSolSetPrintLevel_Newton", 1)) return(1);
-  }
+
   flag = ARKStepSetNonlinearSolver(arkode_mem, NLS);
   if (check_flag(&flag, "ARKStepSetNonlinearSolver", 1)) return 1;
 
@@ -217,7 +224,6 @@ int main(int argc, char *argv[])
   }
   printf("   ----------------------------------------------\n");
   fclose(UFID);
-  if (monitor) fclose(INFOFID);
 
   /* Print some final statistics */
   flag = ARKStepGetNumSteps(arkode_mem, &nst);
@@ -241,10 +247,11 @@ int main(int argc, char *argv[])
   printf("   Total number of error test failures = %li\n\n", netf);
 
   /* Clean up and return with successful completion */
-  N_VDestroy(y);               /* Free y vector */
-  ARKStepFree(&arkode_mem);    /* Free integrator memory */
-  SUNNonlinSolFree(NLS);       /* Free NLS object */
-  SUNContext_Free(&ctx);       /* Free context */
+  N_VDestroy(y);
+  ARKStepFree(&arkode_mem);
+  SUNNonlinSolFree(NLS);
+  SUNLogger_Destroy(&logger);
+  SUNContext_Free(&ctx);
 
   return 0;
 }
