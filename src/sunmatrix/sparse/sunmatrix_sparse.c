@@ -31,8 +31,8 @@
 #define ONE  SUN_RCONST(1.0)
 
 /* Private function prototypes */
-static booleantype SMCompatible_Sparse(SUNMatrix A, SUNMatrix B);
-static booleantype SMCompatible2_Sparse(SUNMatrix A, N_Vector x, N_Vector y);
+static sunbooleantype SMCompatible_Sparse(SUNMatrix A, SUNMatrix B);
+static sunbooleantype SMCompatible2_Sparse(SUNMatrix A, N_Vector x, N_Vector y);
 static int Matvec_SparseCSC(SUNMatrix A, N_Vector x, N_Vector y);
 static int Matvec_SparseCSR(SUNMatrix A, N_Vector x, N_Vector y);
 static int format_convert(const SUNMatrix A, SUNMatrix B);
@@ -573,7 +573,7 @@ int SUNMatCopy_Sparse(SUNMatrix A, SUNMatrix B)
 int SUNMatScaleAddI_Sparse(sunrealtype c, SUNMatrix A)
 {
   sunindextype j, i, p, nz, newvals, M, N, cend, nw;
-  booleantype newmat, found;
+  sunbooleantype newmat, found;
   sunindextype *w, *Ap, *Ai, *Cp, *Ci;
   sunrealtype *x, *Ax, *Cx;
   SUNMatrix C;
@@ -794,7 +794,7 @@ int SUNMatScaleAddI_Sparse(sunrealtype c, SUNMatrix A)
 int SUNMatScaleAdd_Sparse(sunrealtype c, SUNMatrix A, SUNMatrix B)
 {
   sunindextype j, i, p, nz, newvals, M, N, cend;
-  booleantype newmat;
+  sunbooleantype newmat;
   sunindextype *w, *Ap, *Ai, *Bp, *Bi, *Cp, *Ci;
   sunrealtype *x, *Ax, *Bx, *Cx;
   SUNMatrix C;
@@ -1047,7 +1047,7 @@ int SUNMatSpace_Sparse(SUNMatrix A, long int *lenrw, long int *leniw)
  * Function to check compatibility of two sparse SUNMatrix objects
  */
 
-static booleantype SMCompatible_Sparse(SUNMatrix A, SUNMatrix B)
+static sunbooleantype SMCompatible_Sparse(SUNMatrix A, SUNMatrix B)
 {
   /* both matrices must be sparse */
   if ( (SUNMatGetID(A) != SUNMATRIX_SPARSE) ||
@@ -1071,7 +1071,7 @@ static booleantype SMCompatible_Sparse(SUNMatrix A, SUNMatrix B)
  * N_Vectors (A*x = b)
  */
 
-static booleantype SMCompatible2_Sparse(SUNMatrix A, N_Vector x, N_Vector y)
+static sunbooleantype SMCompatible2_Sparse(SUNMatrix A, N_Vector x, N_Vector y)
 {
   /* vectors must implement N_VGetArrayPointer */
   if ( (x->ops->nvgetarraypointer == NULL) ||

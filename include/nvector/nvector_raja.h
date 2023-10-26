@@ -41,7 +41,7 @@ extern "C" {
 
 struct _N_VectorContent_Raja {
   sunindextype    length;
-  booleantype     own_helper;
+  sunbooleantype     own_helper;
   SUNMemory       host_data;
   SUNMemory       device_data;
   SUNMemoryHelper mem_helper;
@@ -61,7 +61,7 @@ SUNDIALS_EXPORT N_Vector N_VNew_Raja(sunindextype length, SUNContext sunctx);
 SUNDIALS_EXPORT N_Vector N_VNewManaged_Raja(sunindextype length,
                                             SUNContext sunctx);
 SUNDIALS_EXPORT N_Vector N_VNewWithMemHelp_Raja(sunindextype length,
-                                                booleantype use_managed_mem,
+                                                sunbooleantype use_managed_mem,
                                                 SUNMemoryHelper helper,
                                                 SUNContext sunctx);
 SUNDIALS_EXPORT N_Vector N_VMake_Raja(sunindextype length, sunrealtype *h_vdata,
@@ -72,7 +72,7 @@ SUNDIALS_EXPORT N_Vector N_VMakeManaged_Raja(sunindextype length,
 SUNDIALS_EXPORT void N_VSetHostArrayPointer_Raja(sunrealtype* h_vdata, N_Vector v);
 SUNDIALS_EXPORT void N_VSetDeviceArrayPointer_Raja(sunrealtype* d_vdata,
                                                    N_Vector v);
-SUNDIALS_EXPORT booleantype N_VIsManagedMemory_Raja(N_Vector x);
+SUNDIALS_EXPORT sunbooleantype N_VIsManagedMemory_Raja(N_Vector x);
 SUNDIALS_EXPORT void N_VCopyToDevice_Raja(N_Vector v);
 SUNDIALS_EXPORT void N_VCopyFromDevice_Raja(N_Vector v);
 
@@ -133,8 +133,8 @@ SUNDIALS_EXPORT sunrealtype N_VMin_Raja(N_Vector x);
 SUNDIALS_EXPORT sunrealtype N_VWL2Norm_Raja(N_Vector x, N_Vector w);
 SUNDIALS_EXPORT sunrealtype N_VL1Norm_Raja(N_Vector x);
 SUNDIALS_EXPORT void N_VCompare_Raja(sunrealtype c, N_Vector x, N_Vector z);
-SUNDIALS_EXPORT booleantype N_VInvTest_Raja(N_Vector x, N_Vector z);
-SUNDIALS_EXPORT booleantype N_VConstrMask_Raja(N_Vector c, N_Vector x, N_Vector m);
+SUNDIALS_EXPORT sunbooleantype N_VInvTest_Raja(N_Vector x, N_Vector z);
+SUNDIALS_EXPORT sunbooleantype N_VConstrMask_Raja(N_Vector c, N_Vector x, N_Vector m);
 SUNDIALS_EXPORT sunrealtype N_VMinQuotient_Raja(N_Vector num, N_Vector denom);
 
 /* fused vector operations */
@@ -179,16 +179,16 @@ SUNDIALS_EXPORT void N_VPrintFile_Raja(N_Vector v, FILE *outfile);
  * -----------------------------------------------------------------
  */
 
-SUNDIALS_EXPORT int N_VEnableFusedOps_Raja(N_Vector v, booleantype tf);
+SUNDIALS_EXPORT int N_VEnableFusedOps_Raja(N_Vector v, sunbooleantype tf);
 
-SUNDIALS_EXPORT int N_VEnableLinearCombination_Raja(N_Vector v, booleantype tf);
-SUNDIALS_EXPORT int N_VEnableScaleAddMulti_Raja(N_Vector v, booleantype tf);
+SUNDIALS_EXPORT int N_VEnableLinearCombination_Raja(N_Vector v, sunbooleantype tf);
+SUNDIALS_EXPORT int N_VEnableScaleAddMulti_Raja(N_Vector v, sunbooleantype tf);
 
-SUNDIALS_EXPORT int N_VEnableLinearSumVectorArray_Raja(N_Vector v, booleantype tf);
-SUNDIALS_EXPORT int N_VEnableScaleVectorArray_Raja(N_Vector v, booleantype tf);
-SUNDIALS_EXPORT int N_VEnableConstVectorArray_Raja(N_Vector v, booleantype tf);
-SUNDIALS_EXPORT int N_VEnableScaleAddMultiVectorArray_Raja(N_Vector v, booleantype tf);
-SUNDIALS_EXPORT int N_VEnableLinearCombinationVectorArray_Raja(N_Vector v, booleantype tf);
+SUNDIALS_EXPORT int N_VEnableLinearSumVectorArray_Raja(N_Vector v, sunbooleantype tf);
+SUNDIALS_EXPORT int N_VEnableScaleVectorArray_Raja(N_Vector v, sunbooleantype tf);
+SUNDIALS_EXPORT int N_VEnableConstVectorArray_Raja(N_Vector v, sunbooleantype tf);
+SUNDIALS_EXPORT int N_VEnableScaleAddMultiVectorArray_Raja(N_Vector v, sunbooleantype tf);
+SUNDIALS_EXPORT int N_VEnableLinearCombinationVectorArray_Raja(N_Vector v, sunbooleantype tf);
 
 #ifdef __cplusplus
 }

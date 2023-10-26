@@ -169,7 +169,7 @@ typedef struct {
 static int f(sunrealtype t, N_Vector u, N_Vector udot, void *user_data);
 
 static int Precond(sunrealtype tn, N_Vector u, N_Vector fu,
-                   booleantype jok, booleantype *jcurPtr,
+                   sunbooleantype jok, sunbooleantype *jcurPtr,
                    sunrealtype gamma, void *user_data);
 
 static int PSolve(sunrealtype tn, N_Vector u, N_Vector fu,
@@ -179,7 +179,7 @@ static int PSolve(sunrealtype tn, N_Vector u, N_Vector fu,
 /* Private Helper Functions */
 
 static void ProcessArgs(int argc, char *argv[], int my_pe,
-                        booleantype *sensi, int *sensi_meth, booleantype *err_con);
+                        sunbooleantype *sensi, int *sensi_meth, sunbooleantype *err_con);
 static void WrongArgs(int my_pe, char *name);
 
 static void InitUserData(int my_pe, MPI_Comm comm, UserData data);
@@ -200,8 +200,8 @@ static void fcalc(sunrealtype t, sunrealtype udata[], sunrealtype dudata[], User
 static void PrintOutput(void *cvode_mem, int my_pe, MPI_Comm comm,
                         sunrealtype t, N_Vector u);
 static void PrintOutputS(int my_pe, MPI_Comm comm, N_Vector *uS);
-static void PrintFinalStats(void *cvode_mem, booleantype sensi,
-                            booleantype err_con, int sensi_meth);
+static void PrintFinalStats(void *cvode_mem, sunbooleantype sensi,
+                            sunbooleantype err_con, int sensi_meth);
 static int check_retval(void *returnvalue, const char *funcname, int opt, int id);
 
 /*
@@ -225,7 +225,7 @@ int main(int argc, char *argv[])
   sunrealtype *pbar;
   int is, *plist;
   N_Vector *uS;
-  booleantype sensi, err_con;
+  sunbooleantype sensi, err_con;
   int sensi_meth;
 
   u = NULL;
@@ -432,7 +432,7 @@ static int f(sunrealtype t, N_Vector u, N_Vector udot, void *user_data)
  */
 
 static int Precond(sunrealtype tn, N_Vector u, N_Vector fu,
-                   booleantype jok, booleantype *jcurPtr,
+                   sunbooleantype jok, sunbooleantype *jcurPtr,
                    sunrealtype gamma, void *user_data)
 {
   sunrealtype c1, c2, cydn, cyup, diag, ydn, yup, q4coef, dely, verdco, hordco;
@@ -565,7 +565,7 @@ static int PSolve(sunrealtype tn, N_Vector u, N_Vector fu,
  */
 
 static void ProcessArgs(int argc, char *argv[], int my_pe,
-                        booleantype *sensi, int *sensi_meth, booleantype *err_con)
+                        sunbooleantype *sensi, int *sensi_meth, sunbooleantype *err_con)
 {
   *sensi = SUNFALSE;
   *sensi_meth = -1;
@@ -1209,8 +1209,8 @@ static void PrintOutputS(int my_pe, MPI_Comm comm, N_Vector *uS)
  * Print final statistics from the CVODES memory.
  */
 
-static void PrintFinalStats(void *cvode_mem, booleantype sensi,
-                            booleantype err_con, int sensi_meth)
+static void PrintFinalStats(void *cvode_mem, sunbooleantype sensi,
+                            sunbooleantype err_con, int sensi_meth)
 {
   long int nst;
   long int nfe, nsetups, nni, ncfn, netf;

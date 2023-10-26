@@ -57,8 +57,8 @@ using namespace sundials::sunmatrix_gpudense::hip;
 #endif
 
 /* Private function prototypes */
-static booleantype SMCompatible_MagmaDense(SUNMatrix A, SUNMatrix B);
-static booleantype SMCompatible2_MagmaDense(SUNMatrix A, N_Vector x, N_Vector y);
+static sunbooleantype SMCompatible_MagmaDense(SUNMatrix A, SUNMatrix B);
+static sunbooleantype SMCompatible2_MagmaDense(SUNMatrix A, N_Vector x, N_Vector y);
 
 /*
  * ----------------------------------------------------------------------------
@@ -610,7 +610,7 @@ int SUNMatSpace_MagmaDense(SUNMatrix Amat, long int *lenrw, long int *leniw)
  * -----------------------------------------------------------------
  */
 
-static booleantype SMCompatible_MagmaDense(SUNMatrix Amat, SUNMatrix Bmat)
+static sunbooleantype SMCompatible_MagmaDense(SUNMatrix Amat, SUNMatrix Bmat)
 {
   SUNMatrixContent_MagmaDense A = SMLD_CONTENT(Amat);
   SUNMatrixContent_MagmaDense B = SMLD_CONTENT(Bmat);
@@ -632,7 +632,7 @@ static booleantype SMCompatible_MagmaDense(SUNMatrix Amat, SUNMatrix Bmat)
   return(SUNTRUE);
 }
 
-static booleantype SMCompatible2_MagmaDense(SUNMatrix Amat, N_Vector x, N_Vector y)
+static sunbooleantype SMCompatible2_MagmaDense(SUNMatrix Amat, N_Vector x, N_Vector y)
 {
   SUNMatrixContent_MagmaDense A = SMLD_CONTENT(Amat);
 

@@ -217,7 +217,7 @@ MRIStepCoupling MRIStepCoupling_MIStoMRI(ARKodeButcherTable B,
                                          int q, int p)
 {
   int i, j, stages;
-  booleantype padding;
+  sunbooleantype padding;
   sunrealtype Asum;
   sunrealtype ***C;
   MRISTEP_METHOD_TYPE type;

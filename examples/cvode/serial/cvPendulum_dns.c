@@ -109,14 +109,14 @@ static int proj(sunrealtype t, N_Vector yy, N_Vector corr,
 
 /* Functions to integrate the Cartesian and reference solutions */
 int GetSol(void *cvode_mem, N_Vector yy0, sunrealtype rtol, sunrealtype atol,
-           sunrealtype tf, int nout, booleantype proj, booleantype projerr,
+           sunrealtype tf, int nout, sunbooleantype proj, sunbooleantype projerr,
            N_Vector yref);
 
 int RefSol(sunrealtype tf, N_Vector yref, int nout);
 
 /* Utility functions */
 static int ReadInputs(int *argc, char ***argv, sunrealtype *rtol, sunrealtype *atol,
-                      sunrealtype *tf, int *nout, booleantype *projerr);
+                      sunrealtype *tf, int *nout, sunbooleantype *projerr);
 static void InputHelp();
 static int check_retval(void *returnvalue, const char *funcname, int opt);
 
@@ -135,7 +135,7 @@ int main(int argc, char* argv[])
   sunrealtype    rtol    = SUN_RCONST(1.0e-5); /* base relative tolerance */
   sunrealtype    atol    = SUN_RCONST(1.0e-5); /* base absolute tolerance */
   sunrealtype    tf      = SUN_RCONST(30.0);   /* final integration time  */
-  booleantype projerr = SUNTRUE;        /* enable error projection */
+  sunbooleantype projerr = SUNTRUE;        /* enable error projection */
 
   void            *cvode_mem = NULL; /* CVODE memory              */
   N_Vector         yy0       = NULL; /* initial condition vector  */
@@ -239,7 +239,7 @@ int main(int argc, char* argv[])
 
 /* Compute the Cartesian system solution */
 int GetSol(void *cvode_mem, N_Vector yy0, sunrealtype rtol, sunrealtype atol,
-           sunrealtype tf, int nout, booleantype proj, booleantype projerr,
+           sunrealtype tf, int nout, sunbooleantype proj, sunbooleantype projerr,
            N_Vector yref)
 {
   char      outname[100];  /* output file name */
@@ -698,7 +698,7 @@ static int proj(sunrealtype t, N_Vector yy, N_Vector corr,
 
 /* Read command line unputs */
 static int ReadInputs(int *argc, char ***argv, sunrealtype *rtol, sunrealtype *atol,
-                      sunrealtype *tf, int *nout, booleantype *projerr)
+                      sunrealtype *tf, int *nout, sunbooleantype *projerr)
 {
   int arg_idx = 1;
 

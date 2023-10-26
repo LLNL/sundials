@@ -295,7 +295,7 @@ int SUNLinSolSetScalingVectors_SPTFQMR(SUNLinearSolver S,
 }
 
 
-int SUNLinSolSetZeroGuess_SPTFQMR(SUNLinearSolver S, booleantype onoff)
+int SUNLinSolSetZeroGuess_SPTFQMR(SUNLinearSolver S, sunbooleantype onoff)
 {
   /* set flag indicating a zero initial guess */
   if (S == NULL) return(SUNLS_MEM_NULL);
@@ -340,8 +340,8 @@ int SUNLinSolSolve_SPTFQMR(SUNLinearSolver S, SUNMatrix A, N_Vector x,
   sunrealtype rho[2];
   sunrealtype r_init_norm, r_curr_norm;
   sunrealtype temp_val;
-  booleantype preOnLeft, preOnRight, scale_x, scale_b, converged, b_ok;
-  booleantype *zeroguess;
+  sunbooleantype preOnLeft, preOnRight, scale_x, scale_b, converged, b_ok;
+  sunbooleantype *zeroguess;
   int n, m, ier, l_max;
   void *A_data, *P_data;
   SUNATimesFn atimes;
@@ -383,7 +383,7 @@ int SUNLinSolSolve_SPTFQMR(SUNLinearSolver S, SUNMatrix A, N_Vector x,
   converged = SUNFALSE;
   b_ok = SUNFALSE;
 
-  /* set booleantype flags for internal solver options */
+  /* set sunbooleantype flags for internal solver options */
   preOnLeft  = ( (SPTFQMR_CONTENT(S)->pretype == SUN_PREC_LEFT) ||
                  (SPTFQMR_CONTENT(S)->pretype == SUN_PREC_BOTH) );
   preOnRight = ( (SPTFQMR_CONTENT(S)->pretype == SUN_PREC_RIGHT) ||

@@ -513,7 +513,7 @@ int IDASetMaxNonlinIters(void *ida_mem, int maxcor)
 
 /*-----------------------------------------------------------------*/
 
-int IDASetSuppressAlg(void *ida_mem, booleantype suppressalg)
+int IDASetSuppressAlg(void *ida_mem, sunbooleantype suppressalg)
 {
   IDAMem IDA_mem;
 
@@ -801,7 +801,7 @@ int IDASetMaxBacksIC(void *ida_mem, int maxbacks)
 
 /*-----------------------------------------------------------------*/
 
-int IDASetLineSearchOffIC(void *ida_mem, booleantype lsoff)
+int IDASetLineSearchOffIC(void *ida_mem, sunbooleantype lsoff)
 {
   IDAMem IDA_mem;
 

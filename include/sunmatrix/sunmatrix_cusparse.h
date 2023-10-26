@@ -50,9 +50,9 @@ struct _SUNMatrix_Content_cuSparse {
   int blockcols;
   int blocknnz;
   int sparse_type;
-  booleantype own_matd;
-  booleantype fixed_pattern;
-  booleantype matvec_issetup;
+  sunbooleantype own_matd;
+  sunbooleantype fixed_pattern;
+  sunbooleantype matvec_issetup;
   SUNMemory colind;
   SUNMemory rowptrs;
   SUNMemory data;
@@ -99,7 +99,7 @@ SUNDIALS_EXPORT int* SUNMatrix_cuSparse_IndexPointers(SUNMatrix A);
 SUNDIALS_EXPORT int* SUNMatrix_cuSparse_IndexValues(SUNMatrix A);
 SUNDIALS_EXPORT sunrealtype* SUNMatrix_cuSparse_Data(SUNMatrix A);
 
-SUNDIALS_EXPORT int SUNMatrix_cuSparse_SetFixedPattern(SUNMatrix A, booleantype yesno);
+SUNDIALS_EXPORT int SUNMatrix_cuSparse_SetFixedPattern(SUNMatrix A, sunbooleantype yesno);
 SUNDIALS_EXPORT int SUNMatrix_cuSparse_SetKernelExecPolicy(SUNMatrix A, SUNCudaExecPolicy* exec_policy);
 SUNDIALS_EXPORT int SUNMatrix_cuSparse_NumBlocks(SUNMatrix A);
 SUNDIALS_EXPORT int SUNMatrix_cuSparse_BlockRows(SUNMatrix A);

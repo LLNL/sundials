@@ -35,7 +35,7 @@
 
 /* Prototypes of CVBandPrecSetup and CVBandPrecSolve */
 static int CVBandPrecSetup(sunrealtype t, N_Vector y, N_Vector fy,
-                           booleantype jok, booleantype *jcurPtr,
+                           sunbooleantype jok, sunbooleantype *jcurPtr,
                            sunrealtype gamma, void *bp_data);
 static int CVBandPrecSolve(sunrealtype t, N_Vector y, N_Vector fy,
                            N_Vector r, N_Vector z,
@@ -335,7 +335,7 @@ int CVBandPrecGetNumRhsEvals(void *cvode_mem, long int *nfevalsBP)
     1  if the band factorization failed.
   -----------------------------------------------------------------*/
 static int CVBandPrecSetup(sunrealtype t, N_Vector y, N_Vector fy,
-                           booleantype jok, booleantype *jcurPtr,
+                           sunbooleantype jok, sunbooleantype *jcurPtr,
                            sunrealtype gamma, void *bp_data)
 {
   CVBandPrecData pdata;

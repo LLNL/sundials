@@ -95,8 +95,8 @@ static int rhsQ(sunrealtype tres, N_Vector yy, N_Vector yp,
 /* Prototypes of private functions */
 
 static void ProcessArgs(int argc, char *argv[],
-                        booleantype *sensi, int *sensi_meth,
-                        booleantype *err_con);
+                        sunbooleantype *sensi, int *sensi_meth,
+                        sunbooleantype *err_con);
 static void WrongArgs(char *name);
 
 static void PrintIC(N_Vector y, N_Vector yp);
@@ -128,7 +128,7 @@ int main(int argc, char *argv[])
   sunrealtype pbar[NS];
   int is;
   N_Vector *yS, *ypS;
-  booleantype sensi, err_con;
+  sunbooleantype sensi, err_con;
   int sensi_meth;
 
   N_Vector yQ, *yQS;
@@ -517,7 +517,7 @@ static int rhsQ(sunrealtype t, N_Vector y, N_Vector yp,
  */
 
 static void ProcessArgs(int argc, char *argv[],
-                        booleantype *sensi, int *sensi_meth, booleantype *err_con)
+                        sunbooleantype *sensi, int *sensi_meth, sunbooleantype *err_con)
 {
   *sensi = SUNFALSE;
   *sensi_meth = -1;

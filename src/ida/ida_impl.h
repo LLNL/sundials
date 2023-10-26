@@ -104,14 +104,14 @@ typedef struct IDAMemRec {
   sunrealtype    ida_rtol;       /* relative tolerance                    */
   sunrealtype    ida_Satol;      /* scalar absolute tolerance             */
   N_Vector    ida_Vatol;      /* vector absolute tolerance             */
-  booleantype ida_atolmin0;   /* flag indicating that min(atol) = 0    */
-  booleantype ida_user_efun;  /* SUNTRUE if user provides efun         */
+  sunbooleantype ida_atolmin0;   /* flag indicating that min(atol) = 0    */
+  sunbooleantype ida_user_efun;  /* SUNTRUE if user provides efun         */
   IDAEwtFn    ida_efun;       /* function to set ewt                   */
   void        *ida_edata;     /* user pointer passed to efun           */
 
-  booleantype    ida_constraintsSet; /* constraints vector present:
+  sunbooleantype    ida_constraintsSet; /* constraints vector present:
                                         do constraints calc                   */
-  booleantype    ida_suppressalg;    /* SUNTRUE means suppress algebraic vars
+  sunbooleantype    ida_suppressalg;    /* SUNTRUE means suppress algebraic vars
                                         in local error tests                  */
 
   /*-----------------------------------------------
@@ -159,7 +159,7 @@ typedef struct IDAMemRec {
   N_Vector ida_yp0;         /* initial y' vector (user-supplied).             */
 
   int ida_icopt;            /* IC calculation user option                     */
-  booleantype ida_lsoff;    /* IC calculation linesearch turnoff option       */
+  sunbooleantype ida_lsoff;    /* IC calculation linesearch turnoff option       */
   int ida_maxnh;            /* max. number of h tries in IC calculation       */
   int ida_maxnj;            /* max. number of J tries in IC calculation       */
   int ida_maxnit;           /* max. number of Netwon iterations in IC calc.   */
@@ -172,7 +172,7 @@ typedef struct IDAMemRec {
 
   /* Tstop information */
 
-  booleantype ida_tstopset;
+  sunbooleantype ida_tstopset;
   sunrealtype ida_tstop;
 
   /* Step Data */
@@ -254,14 +254,14 @@ typedef struct IDAMemRec {
 
   /* Flags to verify correct calling sequence */
 
-  booleantype ida_SetupDone;  /* set to SUNFALSE by IDAMalloc and IDAReInit
+  sunbooleantype ida_SetupDone;  /* set to SUNFALSE by IDAMalloc and IDAReInit
                                  set to SUNTRUE by IDACalcIC or IDASolve      */
 
-  booleantype ida_VatolMallocDone;
-  booleantype ida_constraintsMallocDone;
-  booleantype ida_idMallocDone;
+  sunbooleantype ida_VatolMallocDone;
+  sunbooleantype ida_constraintsMallocDone;
+  sunbooleantype ida_idMallocDone;
 
-  booleantype ida_MallocDone; /* set to SUNFALSE by IDACreate
+  sunbooleantype ida_MallocDone; /* set to SUNFALSE by IDACreate
                                  set to SUNTRUE by IDAMAlloc
                                  tested by IDAReInit and IDASolve             */
 
@@ -270,7 +270,7 @@ typedef struct IDAMemRec {
     ---------------------*/
 
   SUNNonlinearSolver NLS;    /* nonlinear solver object */
-  booleantype ownNLS;        /* flag indicating NLS ownership */
+  sunbooleantype ownNLS;        /* flag indicating NLS ownership */
   IDAResFn nls_res;          /* F(t,y(t),y'(t))=0; used in the nonlinear
                                 solver */
 
@@ -301,7 +301,7 @@ typedef struct IDAMemRec {
 
   /* Flag to indicate successful ida_linit call */
 
-  booleantype ida_linitOK;
+  sunbooleantype ida_linitOK;
 
   /*----------------
     Rootfinding Data
@@ -322,7 +322,7 @@ typedef struct IDAMemRec {
   int ida_taskc;            /* copy of parameter itask                         */
   int ida_irfnd;            /* flag showing whether last step had a root       */
   long int ida_nge;         /* counter for g evaluations                       */
-  booleantype *ida_gactive; /* array with active/inactive event functions      */
+  sunbooleantype *ida_gactive; /* array with active/inactive event functions      */
   int ida_mxgnull;          /* number of warning messages about possible g==0  */
 
   /* Arrays for Fused Vector Operations */
@@ -452,7 +452,7 @@ void IDAErrHandler(int error_code, const char *module, const char *function,
 /* Norm functions. Also used for IC, so they are global.*/
 
 sunrealtype IDAWrmsNorm(IDAMem IDA_mem, N_Vector x, N_Vector w,
-                     booleantype mask);
+                     sunbooleantype mask);
 
 /* Nonlinear solver initialization */
 

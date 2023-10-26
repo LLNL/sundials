@@ -214,7 +214,7 @@ The SUNLinSol_SPTFQMR module defines the *content* field of a
    struct _SUNLinearSolverContent_SPTFQMR {
      int maxl;
      int pretype;
-     booleantype zeroguess;
+     sunbooleantype zeroguess;
      int numiters;
      sunrealtype resnorm;
      int last_flag;

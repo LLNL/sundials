@@ -38,7 +38,7 @@ void* SPRKStepCreate(ARKRhsFn f1, ARKRhsFn f2, sunrealtype t0, N_Vector y0,
 {
   ARKodeMem ark_mem          = NULL;
   ARKodeSPRKStepMem step_mem = NULL;
-  booleantype nvectorOK      = 0;
+  sunbooleantype nvectorOK      = 0;
   int retval                 = 0;
 
   /* Check that f1 and f2 are supplied */
@@ -791,7 +791,7 @@ int sprkStep_AccessStepMem(void* arkode_mem, const char* fname,
   This routine checks if all required vector operations are
   present.  If any of them is missing it returns SUNFALSE.
   ---------------------------------------------------------------*/
-booleantype sprkStep_CheckNVector(N_Vector tmpl)
+sunbooleantype sprkStep_CheckNVector(N_Vector tmpl)
 {
   if ((tmpl->ops->nvclone == NULL) || (tmpl->ops->nvdestroy == NULL) ||
       (tmpl->ops->nvlinearsum == NULL) || (tmpl->ops->nvconst == NULL) ||

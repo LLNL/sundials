@@ -49,25 +49,25 @@
 static IDAckpntMem IDAAckpntInit(IDAMem IDA_mem);
 static IDAckpntMem IDAAckpntNew(IDAMem IDA_mem);
 static void IDAAckpntCopyVectors(IDAMem IDA_mem, IDAckpntMem ck_mem);
-static booleantype IDAAckpntAllocVectors(IDAMem IDA_mem, IDAckpntMem ck_mem);
+static sunbooleantype IDAAckpntAllocVectors(IDAMem IDA_mem, IDAckpntMem ck_mem);
 static void IDAAckpntDelete(IDAckpntMem *ck_memPtr);
 
 static void IDAAbckpbDelete(IDABMem *IDAB_memPtr);
 
-static booleantype IDAAdataMalloc(IDAMem IDA_mem);
+static sunbooleantype IDAAdataMalloc(IDAMem IDA_mem);
 static void IDAAdataFree(IDAMem IDA_mem);
 static int  IDAAdataStore(IDAMem IDA_mem, IDAckpntMem ck_mem);
 
 static int  IDAAckpntGet(IDAMem IDA_mem, IDAckpntMem ck_mem);
 
-static booleantype IDAAhermiteMalloc(IDAMem IDA_mem);
+static sunbooleantype IDAAhermiteMalloc(IDAMem IDA_mem);
 static void        IDAAhermiteFree(IDAMem IDA_mem);
 static int         IDAAhermiteStorePnt(IDAMem IDA_mem, IDAdtpntMem d);
 static int         IDAAhermiteGetY(IDAMem IDA_mem, sunrealtype t,
                                    N_Vector yy, N_Vector yp,
                                    N_Vector *yyS, N_Vector *ypS);
 
-static booleantype IDAApolynomialMalloc(IDAMem IDA_mem);
+static sunbooleantype IDAApolynomialMalloc(IDAMem IDA_mem);
 static void        IDAApolynomialFree(IDAMem IDA_mem);
 static int         IDAApolynomialStorePnt(IDAMem IDA_mem, IDAdtpntMem d);
 static int         IDAApolynomialGetY(IDAMem IDA_mem, sunrealtype t,
@@ -75,7 +75,7 @@ static int         IDAApolynomialGetY(IDAMem IDA_mem, sunrealtype t,
                                       N_Vector *yyS, N_Vector *ypS);
 
 static int IDAAfindIndex(IDAMem ida_mem, sunrealtype t,
-                         long int *indx, booleantype *newpoint);
+                         long int *indx, sunbooleantype *newpoint);
 
 static int IDAAres(sunrealtype tt,
                    N_Vector yyB, N_Vector ypB,
@@ -364,7 +364,7 @@ int IDASolveF(void *ida_mem, sunrealtype tout, sunrealtype *tret,
   IDAdtpntMem *dt_mem;
   long int nstloc;
   int flag, i;
-  booleantype allocOK, earlyret;
+  sunbooleantype allocOK, earlyret;
   sunrealtype ttest;
 
   /* Is the mem OK? */
@@ -1455,7 +1455,7 @@ int IDASolveB(void *ida_mem, sunrealtype tBout, int itaskB)
   IDABMem IDAB_mem, tmp_IDAB_mem;
   int flag=0, sign;
   sunrealtype tfuzz, tBret, tBn;
-  booleantype gotCkpnt, reachedTBout, isActive;
+  sunbooleantype gotCkpnt, reachedTBout, isActive;
 
   /* Is the mem OK? */
   if (ida_mem == NULL) {
@@ -1951,7 +1951,7 @@ static void IDAAckpntDelete(IDAckpntMem *ck_memPtr)
  * current state of IDAMem.
  *
  */
-static booleantype IDAAckpntAllocVectors(IDAMem IDA_mem, IDAckpntMem ck_mem)
+static sunbooleantype IDAAckpntAllocVectors(IDAMem IDA_mem, IDAckpntMem ck_mem)
 {
   int j, jj;
 
@@ -2093,7 +2093,7 @@ static void IDAAckpntCopyVectors(IDAMem IDA_mem, IDAckpntMem ck_mem)
  * at any other time.
 */
 
-static booleantype IDAAdataMalloc(IDAMem IDA_mem)
+static sunbooleantype IDAAdataMalloc(IDAMem IDA_mem)
 {
   IDAadjMem IDAADJ_mem;
   IDAdtpntMem *dt_mem;
@@ -2328,13 +2328,13 @@ static int IDAAckpntGet(IDAMem IDA_mem, IDAckpntMem ck_mem)
  * at any other time.
  */
 
-static booleantype IDAAhermiteMalloc(IDAMem IDA_mem)
+static sunbooleantype IDAAhermiteMalloc(IDAMem IDA_mem)
 {
   IDAadjMem IDAADJ_mem;
   IDAdtpntMem *dt_mem;
   IDAhermiteDataMem content;
   long int i, ii=0;
-  booleantype allocOK;
+  sunbooleantype allocOK;
 
   allocOK = SUNTRUE;
 
@@ -2570,7 +2570,7 @@ static int IDAAhermiteGetY(IDAMem IDA_mem, sunrealtype t,
 
   int flag, is, NS;
   long int indx;
-  booleantype newpoint;
+  sunbooleantype newpoint;
 
   /* local variables for fused vector oerations */
   int retval;
@@ -2767,13 +2767,13 @@ static int IDAAhermiteGetY(IDAMem IDA_mem, sunrealtype t,
  * data point.
  */
 
-static booleantype IDAApolynomialMalloc(IDAMem IDA_mem)
+static sunbooleantype IDAApolynomialMalloc(IDAMem IDA_mem)
 {
   IDAadjMem IDAADJ_mem;
   IDAdtpntMem *dt_mem;
   IDApolynomialDataMem content;
   long int i, ii=0;
-  booleantype allocOK;
+  sunbooleantype allocOK;
 
   allocOK = SUNTRUE;
 
@@ -3018,7 +3018,7 @@ static int IDAApolynomialGetY(IDAMem IDA_mem, sunrealtype t,
 
   int flag, dir, order, i, j, is, NS, retval;
   long int indx, base;
-  booleantype newpoint;
+  sunbooleantype newpoint;
   sunrealtype delt, factor, Psi, Psiprime;
 
   IDAADJ_mem = IDA_mem->ida_adj_mem;
@@ -3285,13 +3285,13 @@ static int IDAAGettnSolutionYpS(IDAMem IDA_mem, N_Vector *ypS)
  */
 
 static int IDAAfindIndex(IDAMem ida_mem, sunrealtype t,
-                        long int *indx, booleantype *newpoint)
+                        long int *indx, sunbooleantype *newpoint)
 {
   IDAadjMem IDAADJ_mem;
   IDAMem IDA_mem;
   IDAdtpntMem *dt_mem;
   int sign;
-  booleantype to_left, to_right;
+  sunbooleantype to_left, to_right;
 
   IDA_mem = (IDAMem) ida_mem;
   IDAADJ_mem = IDA_mem->ida_adj_mem;

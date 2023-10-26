@@ -111,10 +111,10 @@ SUNDIALS_EXPORT int KINSetMAA(void *kinmem, long int maa);
 SUNDIALS_EXPORT int KINSetOrthAA(void *kinmem, int orthaa);
 SUNDIALS_EXPORT int KINSetDelayAA(void *kinmem, long int delay);
 SUNDIALS_EXPORT int KINSetDampingAA(void *kinmem, sunrealtype beta);
-SUNDIALS_EXPORT int KINSetReturnNewest(void *kinmem, booleantype ret_newest);
+SUNDIALS_EXPORT int KINSetReturnNewest(void *kinmem, sunbooleantype ret_newest);
 SUNDIALS_EXPORT int KINSetNumMaxIters(void *kinmem, long int mxiter);
-SUNDIALS_EXPORT int KINSetNoInitSetup(void *kinmem, booleantype noInitSetup);
-SUNDIALS_EXPORT int KINSetNoResMon(void *kinmem, booleantype noNNIResMon);
+SUNDIALS_EXPORT int KINSetNoInitSetup(void *kinmem, sunbooleantype noInitSetup);
+SUNDIALS_EXPORT int KINSetNoResMon(void *kinmem, sunbooleantype noNNIResMon);
 SUNDIALS_EXPORT int KINSetMaxSetupCalls(void *kinmem, long int msbset);
 SUNDIALS_EXPORT int KINSetMaxSubSetupCalls(void *kinmem, long int msbsetsub);
 SUNDIALS_EXPORT int KINSetEtaForm(void *kinmem, int etachoice);
@@ -124,7 +124,7 @@ SUNDIALS_EXPORT int KINSetEtaParams(void *kinmem, sunrealtype egamma,
 SUNDIALS_EXPORT int KINSetResMonParams(void *kinmem, sunrealtype omegamin,
                                        sunrealtype omegamax);
 SUNDIALS_EXPORT int KINSetResMonConstValue(void *kinmem, sunrealtype omegaconst);
-SUNDIALS_EXPORT int KINSetNoMinEps(void *kinmem, booleantype noMinEps);
+SUNDIALS_EXPORT int KINSetNoMinEps(void *kinmem, sunbooleantype noMinEps);
 SUNDIALS_EXPORT int KINSetMaxNewtonStep(void *kinmem, sunrealtype mxnewtstep);
 SUNDIALS_EXPORT int KINSetMaxBetaFails(void *kinmem, long int mxnbcf);
 SUNDIALS_EXPORT int KINSetRelErrFunc(void *kinmem, sunrealtype relfunc);

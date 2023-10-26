@@ -209,7 +209,7 @@ SUNDIALS_EXPORT sunrealtype SUNRpowerR(sunrealtype base, sunrealtype exponent);
  * -----------------------------------------------------------------
  */
 
-SUNDIALS_EXPORT booleantype SUNRCompare(sunrealtype a, sunrealtype b);
+SUNDIALS_EXPORT sunbooleantype SUNRCompare(sunrealtype a, sunrealtype b);
 
 /*
  * -----------------------------------------------------------------
@@ -227,7 +227,7 @@ SUNDIALS_EXPORT booleantype SUNRCompare(sunrealtype a, sunrealtype b);
  * -----------------------------------------------------------------
  */
 
-SUNDIALS_EXPORT booleantype SUNRCompareTol(sunrealtype a, sunrealtype b, sunrealtype tol);
+SUNDIALS_EXPORT sunbooleantype SUNRCompareTol(sunrealtype a, sunrealtype b, sunrealtype tol);
 
 /*
  * -----------------------------------------------------------------

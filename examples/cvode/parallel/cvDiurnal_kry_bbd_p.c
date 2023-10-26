@@ -66,7 +66,7 @@
 #include <nvector/nvector_parallel.h>  /* access to MPI-parallel N_Vector      */
 #include <sunlinsol/sunlinsol_spgmr.h> /* access to SPGMR SUNLinearSolver      */
 #include <cvode/cvode_bbdpre.h>        /* access to CVBBDPRE module            */
-#include <sundials/sundials_types.h>   /* definitions of sunrealtype, booleantype */
+#include <sundials/sundials_types.h>   /* definitions of sunrealtype, sunbooleantype */
 
 #include <mpi.h> /* MPI constants and types */
 

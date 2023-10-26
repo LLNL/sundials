@@ -78,7 +78,7 @@ int erkStep_TakeStep(void* arkode_mem, sunrealtype *dsmPtr, int *nflagPtr);
 /* Internal utility routines */
 int erkStep_AccessStepMem(void* arkode_mem, const char *fname,
                           ARKodeMem *ark_mem, ARKodeERKStepMem *step_mem);
-booleantype erkStep_CheckNVector(N_Vector tmpl);
+sunbooleantype erkStep_CheckNVector(N_Vector tmpl);
 int erkStep_SetButcherTable(ARKodeMem ark_mem);
 int erkStep_CheckButcherTable(ARKodeMem ark_mem);
 int erkStep_ComputeSolutions(ARKodeMem ark_mem, sunrealtype *dsm);

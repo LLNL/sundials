@@ -27,7 +27,7 @@
  *     header file sundials_types.h, and it may be changed (at the
  *     configuration stage) according to the user's needs.
  *     The sundials_types.h file also contains the definition
- *     for the type booleantype.
+ *     for the type sunbooleantype.
  *
  *   - N_Vector arguments to arithmetic vector operations need not
  *     be distinct. For example, the following call:
@@ -62,7 +62,7 @@ extern "C" {
 struct _N_VectorContent_ParHyp {
   sunindextype local_length;  /* local vector length         */
   sunindextype global_length; /* global vector length        */
-  booleantype own_parvector;  /* ownership of HYPRE vector   */
+  sunbooleantype own_parvector;  /* ownership of HYPRE vector   */
   MPI_Comm comm;              /* pointer to MPI communicator */
 
   HYPRE_ParVector x;          /* the actual HYPRE_ParVector object */
@@ -120,8 +120,8 @@ SUNDIALS_EXPORT sunrealtype N_VMin_ParHyp(N_Vector x);
 SUNDIALS_EXPORT sunrealtype N_VWL2Norm_ParHyp(N_Vector x, N_Vector w);
 SUNDIALS_EXPORT sunrealtype N_VL1Norm_ParHyp(N_Vector x);
 SUNDIALS_EXPORT void N_VCompare_ParHyp(sunrealtype c, N_Vector x, N_Vector z);
-SUNDIALS_EXPORT booleantype N_VInvTest_ParHyp(N_Vector x, N_Vector z);
-SUNDIALS_EXPORT booleantype N_VConstrMask_ParHyp(N_Vector c, N_Vector x,
+SUNDIALS_EXPORT sunbooleantype N_VInvTest_ParHyp(N_Vector x, N_Vector z);
+SUNDIALS_EXPORT sunbooleantype N_VConstrMask_ParHyp(N_Vector c, N_Vector x,
                                                  N_Vector m);
 SUNDIALS_EXPORT sunrealtype N_VMinQuotient_ParHyp(N_Vector num, N_Vector denom);
 
@@ -165,8 +165,8 @@ SUNDIALS_EXPORT sunrealtype N_VL1NormLocal_ParHyp(N_Vector x);
 SUNDIALS_EXPORT sunrealtype N_VWSqrSumLocal_ParHyp(N_Vector x, N_Vector w);
 SUNDIALS_EXPORT sunrealtype N_VWSqrSumMaskLocal_ParHyp(N_Vector x, N_Vector w,
                                                     N_Vector id);
-SUNDIALS_EXPORT booleantype N_VInvTestLocal_ParHyp(N_Vector x, N_Vector z);
-SUNDIALS_EXPORT booleantype N_VConstrMaskLocal_ParHyp(N_Vector c, N_Vector x,
+SUNDIALS_EXPORT sunbooleantype N_VInvTestLocal_ParHyp(N_Vector x, N_Vector z);
+SUNDIALS_EXPORT sunbooleantype N_VConstrMaskLocal_ParHyp(N_Vector c, N_Vector x,
                                                       N_Vector m);
 SUNDIALS_EXPORT sunrealtype N_VMinQuotientLocal_ParHyp(N_Vector num,
                                                     N_Vector denom);
@@ -189,29 +189,29 @@ SUNDIALS_EXPORT int N_VBufUnpack_ParHyp(N_Vector x, void *buf);
  * -----------------------------------------------------------------
  */
 
-SUNDIALS_EXPORT int N_VEnableFusedOps_ParHyp(N_Vector v, booleantype tf);
+SUNDIALS_EXPORT int N_VEnableFusedOps_ParHyp(N_Vector v, sunbooleantype tf);
 
 SUNDIALS_EXPORT int N_VEnableLinearCombination_ParHyp(N_Vector v,
-                                                      booleantype tf);
-SUNDIALS_EXPORT int N_VEnableScaleAddMulti_ParHyp(N_Vector v, booleantype tf);
-SUNDIALS_EXPORT int N_VEnableDotProdMulti_ParHyp(N_Vector v, booleantype tf);
+                                                      sunbooleantype tf);
+SUNDIALS_EXPORT int N_VEnableScaleAddMulti_ParHyp(N_Vector v, sunbooleantype tf);
+SUNDIALS_EXPORT int N_VEnableDotProdMulti_ParHyp(N_Vector v, sunbooleantype tf);
 
 SUNDIALS_EXPORT int N_VEnableLinearSumVectorArray_ParHyp(N_Vector v,
-                                                         booleantype tf);
+                                                         sunbooleantype tf);
 SUNDIALS_EXPORT int N_VEnableScaleVectorArray_ParHyp(N_Vector v,
-                                                     booleantype tf);
+                                                     sunbooleantype tf);
 SUNDIALS_EXPORT int N_VEnableConstVectorArray_ParHyp(N_Vector v,
-                                                     booleantype tf);
+                                                     sunbooleantype tf);
 SUNDIALS_EXPORT int N_VEnableWrmsNormVectorArray_ParHyp(N_Vector v,
-                                                        booleantype tf);
+                                                        sunbooleantype tf);
 SUNDIALS_EXPORT int N_VEnableWrmsNormMaskVectorArray_ParHyp(N_Vector v,
-                                                            booleantype tf);
+                                                            sunbooleantype tf);
 SUNDIALS_EXPORT int N_VEnableScaleAddMultiVectorArray_ParHyp(N_Vector v,
-                                                             booleantype tf);
+                                                             sunbooleantype tf);
 SUNDIALS_EXPORT int N_VEnableLinearCombinationVectorArray_ParHyp(N_Vector v,
-                                                                 booleantype tf);
+                                                                 sunbooleantype tf);
 
-SUNDIALS_EXPORT int N_VEnableDotProdMultiLocal_ParHyp(N_Vector v, booleantype tf);
+SUNDIALS_EXPORT int N_VEnableDotProdMultiLocal_ParHyp(N_Vector v, sunbooleantype tf);
 
 #ifdef __cplusplus
 }

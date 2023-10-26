@@ -76,7 +76,7 @@ typedef struct IntegratorMemRec {
 } *IntegratorMem;
 
 /* Linear solver setup interface function */
-static int LSetup(booleantype jbad, booleantype* jcur, void* mem);
+static int LSetup(sunbooleantype jbad, sunbooleantype* jcur, void* mem);
 
 /* Linear solver solve interface function */
 static int LSolve(N_Vector b, void* mem);
@@ -219,7 +219,7 @@ int main(int argc, char *argv[])
 
 
 /* Proxy for integrator lsetup function */
-int LSetup(booleantype jbad, booleantype* jcur, void* mem)
+int LSetup(sunbooleantype jbad, sunbooleantype* jcur, void* mem)
 {
   int retval;
   IntegratorMem Imem;

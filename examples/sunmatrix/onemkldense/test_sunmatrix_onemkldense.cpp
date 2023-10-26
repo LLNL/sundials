@@ -401,7 +401,7 @@ int check_vector(N_Vector actual, N_Vector expected, sunrealtype tol)
 }
 
 
-booleantype has_data(SUNMatrix A)
+sunbooleantype has_data(SUNMatrix A)
 {
   sunrealtype *Adata = SUNMatrix_OneMklDense_Data(A);
   if (Adata == NULL)
@@ -411,7 +411,7 @@ booleantype has_data(SUNMatrix A)
 }
 
 
-booleantype is_square(SUNMatrix A)
+sunbooleantype is_square(SUNMatrix A)
 {
   if (SUNMatrix_OneMklDense_Rows(A) == SUNMatrix_OneMklDense_Columns(A))
     return SUNTRUE;

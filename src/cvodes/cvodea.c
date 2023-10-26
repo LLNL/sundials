@@ -64,14 +64,14 @@ static int  CVAdataStore(CVodeMem cv_mem, CVckpntMem ck_mem);
 static int  CVAckpntGet(CVodeMem cv_mem, CVckpntMem ck_mem);
 
 static int CVAfindIndex(CVodeMem cv_mem, sunrealtype t,
-                        long int *indx, booleantype *newpoint);
+                        long int *indx, sunbooleantype *newpoint);
 
-static booleantype CVAhermiteMalloc(CVodeMem cv_mem);
+static sunbooleantype CVAhermiteMalloc(CVodeMem cv_mem);
 static void CVAhermiteFree(CVodeMem cv_mem);
 static int CVAhermiteGetY(CVodeMem cv_mem, sunrealtype t, N_Vector y, N_Vector *yS);
 static int CVAhermiteStorePnt(CVodeMem cv_mem, CVdtpntMem d);
 
-static booleantype CVApolynomialMalloc(CVodeMem cv_mem);
+static sunbooleantype CVApolynomialMalloc(CVodeMem cv_mem);
 static void CVApolynomialFree(CVodeMem cv_mem);
 static int CVApolynomialGetY(CVodeMem cv_mem, sunrealtype t, N_Vector y, N_Vector *yS);
 static int CVApolynomialStorePnt(CVodeMem cv_mem, CVdtpntMem d);
@@ -384,7 +384,7 @@ int CVodeF(void *cvode_mem, sunrealtype tout, N_Vector yout,
   CVdtpntMem *dt_mem;
   long int nstloc;
   int flag, i;
-  booleantype allocOK, earlyret;
+  sunbooleantype allocOK, earlyret;
   sunrealtype ttest;
 
   /* Check if cvode_mem exists */
@@ -1284,7 +1284,7 @@ int CVodeB(void *cvode_mem, sunrealtype tBout, int itaskB)
   CVckpntMem ck_mem;
   int sign, flag=0;
   sunrealtype tfuzz, tBret, tBn;
-  booleantype gotCheckpoint, isActive, reachedTBout;
+  sunbooleantype gotCheckpoint, isActive, reachedTBout;
 
   /* Check if cvode_mem exists */
 
@@ -2307,12 +2307,12 @@ static int CVAckpntGet(CVodeMem cv_mem, CVckpntMem ck_mem)
  */
 
 static int CVAfindIndex(CVodeMem cv_mem, sunrealtype t,
-                        long int *indx, booleantype *newpoint)
+                        long int *indx, sunbooleantype *newpoint)
 {
   CVadjMem ca_mem;
   CVdtpntMem *dt_mem;
   int sign;
-  booleantype to_left, to_right;
+  sunbooleantype to_left, to_right;
 
   ca_mem = cv_mem->cv_adj_mem;
   dt_mem = ca_mem->dt_mem;
@@ -2424,13 +2424,13 @@ int CVodeGetAdjY(void *cvode_mem, sunrealtype t, N_Vector y)
  * at any other time.
  */
 
-static booleantype CVAhermiteMalloc(CVodeMem cv_mem)
+static sunbooleantype CVAhermiteMalloc(CVodeMem cv_mem)
 {
   CVadjMem ca_mem;
   CVdtpntMem *dt_mem;
   CVhermiteDataMem content;
   long int i, ii=0;
-  booleantype allocOK;
+  sunbooleantype allocOK;
 
   allocOK = SUNTRUE;
 
@@ -2658,7 +2658,7 @@ static int CVAhermiteGetY(CVodeMem cv_mem, sunrealtype t,
 
   int flag, is, NS;
   long int indx;
-  booleantype newpoint;
+  sunbooleantype newpoint;
 
   /* local variables for fused vector oerations */
   int retval;
@@ -2819,13 +2819,13 @@ static int CVAhermiteGetY(CVodeMem cv_mem, sunrealtype t,
  * at any other time.
  */
 
-static booleantype CVApolynomialMalloc(CVodeMem cv_mem)
+static sunbooleantype CVApolynomialMalloc(CVodeMem cv_mem)
 {
   CVadjMem ca_mem;
   CVdtpntMem *dt_mem;
   CVpolynomialDataMem content;
   long int i, ii=0;
-  booleantype allocOK;
+  sunbooleantype allocOK;
 
   allocOK = SUNTRUE;
 
@@ -2994,7 +2994,7 @@ static int CVApolynomialGetY(CVodeMem cv_mem, sunrealtype t,
 
   int flag, dir, order, i, j, is, NS, retval;
   long int indx, base;
-  booleantype newpoint;
+  sunbooleantype newpoint;
   sunrealtype dt, factor;
 
   ca_mem = cv_mem->cv_adj_mem;

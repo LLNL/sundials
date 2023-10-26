@@ -53,7 +53,7 @@
 /* -----------------------------------------------------------------
    Prototypes of utility routines
    -----------------------------------------------------------------*/
-static N_Vector ManyVectorClone(N_Vector w, booleantype cloneempty);
+static N_Vector ManyVectorClone(N_Vector w, sunbooleantype cloneempty);
 #ifdef MANYVECTOR_BUILD_WITH_MPI
 static int SubvectorMPIRank(N_Vector w);
 #endif
@@ -219,7 +219,7 @@ N_Vector N_VNew_MPIManyVector(sunindextype num_subvectors,
                               SUNContext sunctx)
 {
   sunindextype i;
-  booleantype nocommfound;
+  sunbooleantype nocommfound;
   void* tmpcomm;
   MPI_Comm comm, *vcomm;
   int retval, comparison;
@@ -1098,10 +1098,10 @@ void MVAPPEND(N_VCompare)(sunrealtype c, N_Vector x, N_Vector z)
 
    If any subvector does not implement the N_VInvTestLocal routine (NULL
    function pointer), then this routine will call N_VInvTest instead. */
-booleantype MVAPPEND(N_VInvTestLocal)(N_Vector x, N_Vector z)
+sunbooleantype MVAPPEND(N_VInvTestLocal)(N_Vector x, N_Vector z)
 {
   sunindextype i;
-  booleantype val, subval;
+  sunbooleantype val, subval;
 
   /* initialize output*/
   val = SUNTRUE;
@@ -1132,7 +1132,7 @@ booleantype MVAPPEND(N_VInvTestLocal)(N_Vector x, N_Vector z)
    combining the results. This routine does not check that x and z
    are ManyVectors, if they have the same number of subvectors, or if these
    subvectors are compatible. */
-booleantype N_VInvTest_MPIManyVector(N_Vector x, N_Vector z)
+sunbooleantype N_VInvTest_MPIManyVector(N_Vector x, N_Vector z)
 {
   sunrealtype val, gval;
   val = gval = (N_VInvTestLocal_MPIManyVector(x, z)) ? ONE : ZERO;
@@ -1150,10 +1150,10 @@ booleantype N_VInvTest_MPIManyVector(N_Vector x, N_Vector z)
 
    If any subvector does not implement the N_VConstrMaskLocal routine (NULL
    function pointer), then this routine will call N_VConstrMask instead. */
-booleantype MVAPPEND(N_VConstrMaskLocal)(N_Vector c, N_Vector x, N_Vector m)
+sunbooleantype MVAPPEND(N_VConstrMaskLocal)(N_Vector c, N_Vector x, N_Vector m)
 {
   sunindextype i;
-  booleantype val, subval;
+  sunbooleantype val, subval;
 
   /* initialize output*/
   val = SUNTRUE;
@@ -1186,7 +1186,7 @@ booleantype MVAPPEND(N_VConstrMaskLocal)(N_Vector c, N_Vector x, N_Vector m)
    combining the results.  This routine does not check that c, x and m
    are ManyVectors, if they have the same number of subvectors, or if these
    subvectors are compatible. */
-booleantype N_VConstrMask_MPIManyVector(N_Vector c, N_Vector x, N_Vector m)
+sunbooleantype N_VConstrMask_MPIManyVector(N_Vector c, N_Vector x, N_Vector m)
 {
   sunrealtype val, gval;
   val = gval = (N_VConstrMaskLocal_MPIManyVector(c, x, m)) ? ONE : ZERO;
@@ -1766,7 +1766,7 @@ int MVAPPEND(N_VBufUnpack)(N_Vector x, void *buf)
    Enable / Disable fused and vector array operations
    ----------------------------------------------------------------- */
 
-int MVAPPEND(N_VEnableFusedOps)(N_Vector v, booleantype tf)
+int MVAPPEND(N_VEnableFusedOps)(N_Vector v, sunbooleantype tf)
 {
   /* check that vector is non-NULL */
   if (v == NULL) return(-1);
@@ -1811,7 +1811,7 @@ int MVAPPEND(N_VEnableFusedOps)(N_Vector v, booleantype tf)
 }
 
 
-int MVAPPEND(N_VEnableLinearCombination)(N_Vector v, booleantype tf)
+int MVAPPEND(N_VEnableLinearCombination)(N_Vector v, sunbooleantype tf)
 {
   /* check that vector is non-NULL */
   if (v == NULL) return(-1);
@@ -1829,7 +1829,7 @@ int MVAPPEND(N_VEnableLinearCombination)(N_Vector v, booleantype tf)
   return(0);
 }
 
-int MVAPPEND(N_VEnableScaleAddMulti)(N_Vector v, booleantype tf)
+int MVAPPEND(N_VEnableScaleAddMulti)(N_Vector v, sunbooleantype tf)
 {
   /* check that vector is non-NULL */
   if (v == NULL) return(-1);
@@ -1847,7 +1847,7 @@ int MVAPPEND(N_VEnableScaleAddMulti)(N_Vector v, booleantype tf)
   return(0);
 }
 
-int MVAPPEND(N_VEnableDotProdMulti)(N_Vector v, booleantype tf)
+int MVAPPEND(N_VEnableDotProdMulti)(N_Vector v, sunbooleantype tf)
 {
   /* check that vector is non-NULL */
   if (v == NULL) return(-1);
@@ -1865,7 +1865,7 @@ int MVAPPEND(N_VEnableDotProdMulti)(N_Vector v, booleantype tf)
   return(0);
 }
 
-int MVAPPEND(N_VEnableLinearSumVectorArray)(N_Vector v, booleantype tf)
+int MVAPPEND(N_VEnableLinearSumVectorArray)(N_Vector v, sunbooleantype tf)
 {
   /* check that vector is non-NULL */
   if (v == NULL) return(-1);
@@ -1883,7 +1883,7 @@ int MVAPPEND(N_VEnableLinearSumVectorArray)(N_Vector v, booleantype tf)
   return(0);
 }
 
-int MVAPPEND(N_VEnableScaleVectorArray)(N_Vector v, booleantype tf)
+int MVAPPEND(N_VEnableScaleVectorArray)(N_Vector v, sunbooleantype tf)
 {
   /* check that vector is non-NULL */
   if (v == NULL) return(-1);
@@ -1901,7 +1901,7 @@ int MVAPPEND(N_VEnableScaleVectorArray)(N_Vector v, booleantype tf)
   return(0);
 }
 
-int MVAPPEND(N_VEnableConstVectorArray)(N_Vector v, booleantype tf)
+int MVAPPEND(N_VEnableConstVectorArray)(N_Vector v, sunbooleantype tf)
 {
   /* check that vector is non-NULL */
   if (v == NULL) return(-1);
@@ -1919,7 +1919,7 @@ int MVAPPEND(N_VEnableConstVectorArray)(N_Vector v, booleantype tf)
   return(0);
 }
 
-int MVAPPEND(N_VEnableWrmsNormVectorArray)(N_Vector v, booleantype tf)
+int MVAPPEND(N_VEnableWrmsNormVectorArray)(N_Vector v, sunbooleantype tf)
 {
   /* check that vector is non-NULL */
   if (v == NULL) return(-1);
@@ -1937,7 +1937,7 @@ int MVAPPEND(N_VEnableWrmsNormVectorArray)(N_Vector v, booleantype tf)
   return(0);
 }
 
-int MVAPPEND(N_VEnableWrmsNormMaskVectorArray)(N_Vector v, booleantype tf)
+int MVAPPEND(N_VEnableWrmsNormMaskVectorArray)(N_Vector v, sunbooleantype tf)
 {
   /* check that vector is non-NULL */
   if (v == NULL) return(-1);
@@ -1955,7 +1955,7 @@ int MVAPPEND(N_VEnableWrmsNormMaskVectorArray)(N_Vector v, booleantype tf)
   return(0);
 }
 
-int MVAPPEND(N_VEnableDotProdMultiLocal)(N_Vector v, booleantype tf)
+int MVAPPEND(N_VEnableDotProdMultiLocal)(N_Vector v, sunbooleantype tf)
 {
   /* check that vector is non-NULL */
   if (v == NULL) return(-1);
@@ -1980,7 +1980,7 @@ int MVAPPEND(N_VEnableDotProdMultiLocal)(N_Vector v, booleantype tf)
 /* This function performs a generic clone operation on an input N_Vector.
    Based on the 'cloneempty' flag it will either call "nvclone" or
    "nvcloneempty" when creating subvectors in the cloned vector. */
-static N_Vector ManyVectorClone(N_Vector w, booleantype cloneempty)
+static N_Vector ManyVectorClone(N_Vector w, sunbooleantype cloneempty)
 {
   N_Vector v;
   MVAPPEND(N_VectorContent) content;

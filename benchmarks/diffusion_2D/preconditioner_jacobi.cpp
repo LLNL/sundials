@@ -19,8 +19,8 @@
 #if defined(BENCHMARK_ODE)
 
 // Preconditioner setup routine
-int PSetup(sunrealtype t, N_Vector u, N_Vector f, booleantype jok,
-           booleantype *jcurPtr, sunrealtype gamma, void *user_data)
+int PSetup(sunrealtype t, N_Vector u, N_Vector f, sunbooleantype jok,
+           sunbooleantype *jcurPtr, sunrealtype gamma, void *user_data)
 {
   // Access problem data
   UserData *udata = (UserData *) user_data;

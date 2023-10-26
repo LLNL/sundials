@@ -46,17 +46,17 @@ extern "C" {
 typedef struct ARKLsMemRec {
 
   /* Linear solver type information */
-  booleantype iterative;    /* is the solver iterative?    */
-  booleantype matrixbased;  /* is a matrix structure used? */
+  sunbooleantype iterative;    /* is the solver iterative?    */
+  sunbooleantype matrixbased;  /* is a matrix structure used? */
 
   /* Jacobian construction & storage */
-  booleantype jacDQ;  /* SUNTRUE if using internal DQ Jacobian approx. */
+  sunbooleantype jacDQ;  /* SUNTRUE if using internal DQ Jacobian approx. */
   ARKLsJacFn jac;     /* Jacobian routine to be called                 */
   void *J_data;       /* user data is passed to jac                    */
-  booleantype jbad;   /* heuristic suggestion for pset                 */
+  sunbooleantype jbad;   /* heuristic suggestion for pset                 */
 
   /* Matrix-based solver, scale solution to account for change in gamma */
-  booleantype scalesol;
+  sunbooleantype scalesol;
 
   /* Iterative solver tolerance */
   sunrealtype eplifac;   /* nonlinear -> linear tol scaling factor        */
@@ -105,7 +105,7 @@ typedef struct ARKLsMemRec {
     (b) internal jtimes
         - Jt_data == arkode_mem
         - jtimesDQ == SUNTRUE   */
-  booleantype jtimesDQ;
+  sunbooleantype jtimesDQ;
   ARKLsJacTimesSetupFn jtsetup;
   ARKLsJacTimesVecFn jtimes;
   ARKRhsFn Jt_f;
@@ -119,7 +119,7 @@ typedef struct ARKLsMemRec {
    * (b) internal linsys function:
    *     - user_linsys = SUNFALSE
    *     - A_data      = cvode_mem */
-  booleantype user_linsys;
+  sunbooleantype user_linsys;
   ARKLsLinSysFn linsys;
   void* A_data;
 
@@ -136,8 +136,8 @@ typedef struct ARKLsMemRec {
 typedef struct ARKLsMassMemRec {
 
   /* Linear solver type information */
-  booleantype iterative;    /* is the solver iterative?    */
-  booleantype matrixbased;  /* is a matrix structure used? */
+  sunbooleantype iterative;    /* is the solver iterative?    */
+  sunbooleantype matrixbased;  /* is a matrix structure used? */
 
   /* Mass matrix construction & storage */
   ARKLsMassFn mass;   /* user-provided mass matrix routine to call   */
@@ -150,7 +150,7 @@ typedef struct ARKLsMassMemRec {
   sunrealtype nrmfac;    /* integrator -> LS norm conversion factor     */
 
   /* Statistics and associated parameters */
-  booleantype time_dependent;  /* flag whether M depends on t        */
+  sunbooleantype time_dependent;  /* flag whether M depends on t        */
   sunrealtype    msetuptime;      /* "t" value at last msetup call      */
   long int    nmsetups;        /* total # mass matrix-solver setups  */
   long int    nmsolves;        /* total # mass matrix-solver solves  */
@@ -226,7 +226,7 @@ int arkLsBandDQJac(sunrealtype t, N_Vector y, N_Vector fy,
 int arkLsInitialize(void* arkode_mem);
 
 int arkLsSetup(void* arkode_mem, int convfail, sunrealtype tpred,
-               N_Vector ypred, N_Vector fpred, booleantype* jcurPtr,
+               N_Vector ypred, N_Vector fpred, sunbooleantype* jcurPtr,
                N_Vector vtemp1, N_Vector vtemp2, N_Vector vtemp3);
 
 int arkLsSolve(void* arkode_mem, N_Vector b, sunrealtype tcur,
@@ -261,7 +261,7 @@ int arkLs_AccessMassMem(void* arkode_mem, const char* fname,
 int arkLSSetLinearSolver(void* arkode_mem, SUNLinearSolver LS, SUNMatrix A);
 
 int arkLSSetMassLinearSolver(void* arkode_mem, SUNLinearSolver LS,
-                             SUNMatrix M, booleantype time_dep);
+                             SUNMatrix M, sunbooleantype time_dep);
 
 int arkLSSetJacFn(void* arkode_mem, ARKLsJacFn jac);
 int arkLSSetMassFn(void* arkode_mem, ARKLsMassFn mass);
@@ -270,7 +270,7 @@ int arkLSSetMassEpsLin(void* arkode_mem, sunrealtype eplifac);
 int arkLSSetNormFactor(void* arkode_mem, sunrealtype nrmfac);
 int arkLSSetMassNormFactor(void* arkode_mem, sunrealtype nrmfac);
 int arkLSSetJacEvalFrequency(void* arkode_mem, long int msbj);
-int arkLSSetLinearSolutionScaling(void* arkode_mem, booleantype onoff);
+int arkLSSetLinearSolutionScaling(void* arkode_mem, sunbooleantype onoff);
 int arkLSSetPreconditioner(void* arkode_mem, ARKLsPrecSetupFn psetup,
                            ARKLsPrecSolveFn psolve);
 int arkLSSetMassPreconditioner(void* arkode_mem, ARKLsMassPrecSetupFn psetup,

@@ -1107,7 +1107,7 @@ Optional inputs for MRIStep
       :c:func:`MRIStepClearStopTime`.
 
 
-.. c:function:: int MRIStepSetInterpolateStopTime(void* arkode_mem, booleantype interp)
+.. c:function:: int MRIStepSetInterpolateStopTime(void* arkode_mem, sunbooleantype interp)
 
    Specifies that the output solution should be interpolated when the current
    :math:`t` equals the specified ``tstop`` (instead of merely copying the
@@ -1805,7 +1805,7 @@ program. The user data pointer may be specified through
    :numref:`ARKODE.Usage.UserSupplied`.
 
 
-.. c:function:: int MRIStepSetLinearSolutionScaling(void* arkode_mem, booleantype onoff)
+.. c:function:: int MRIStepSetLinearSolutionScaling(void* arkode_mem, sunbooleantype onoff)
 
    Enables or disables scaling the linear system solution to account for a
    change in :math:`\gamma` in the linear system. For more details see

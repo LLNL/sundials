@@ -88,7 +88,7 @@ int main()
   SUNLinearSolver LS;
   void *cvode_mem;
   int retval, iout;
-  booleantype check_negative;
+  sunbooleantype check_negative;
 
   y = NULL;
   abstol = NULL;
@@ -209,9 +209,9 @@ int main()
 static int f(sunrealtype t, N_Vector y, N_Vector ydot, void *user_data)
 {
   sunrealtype y1, y2, y3, yd1, yd3;
-  booleantype *check_negative;
+  sunbooleantype *check_negative;
 
-  check_negative = (booleantype *)user_data;
+  check_negative = (sunbooleantype *)user_data;
 
   y1 = NV_Ith_S(y,0); y2 = NV_Ith_S(y,1); y3 = NV_Ith_S(y,2);
 

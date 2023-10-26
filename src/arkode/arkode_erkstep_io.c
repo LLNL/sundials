@@ -58,7 +58,7 @@ int ERKStepSetMaxStep(void *arkode_mem, sunrealtype hmax) {
 int ERKStepSetStopTime(void *arkode_mem, sunrealtype tstop) {
   return(arkSetStopTime(arkode_mem, tstop)); }
 int ERKStepSetInterpolateStopTime(void *arkode_mem,
-                                  booleantype interp) {
+                                  sunbooleantype interp) {
   return(arkSetInterpolateStopTime(arkode_mem, interp)); }
 int ERKStepClearStopTime(void *arkode_mem) {
   return(arkClearStopTime(arkode_mem)); }

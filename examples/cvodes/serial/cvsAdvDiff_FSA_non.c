@@ -89,14 +89,14 @@ static int f(sunrealtype t, N_Vector u, N_Vector udot, void *user_data);
 /* Private Helper Functions */
 
 static void ProcessArgs(int argc, char *argv[],
-                        booleantype *sensi, int *sensi_meth,
-			booleantype *err_con);
+                        sunbooleantype *sensi, int *sensi_meth,
+			sunbooleantype *err_con);
 static void WrongArgs(char *name);
 static void SetIC(N_Vector u, sunrealtype dx);
 static void PrintOutput(void *cvode_mem, sunrealtype t, N_Vector u);
 static void PrintOutputS(N_Vector *uS);
-static void PrintFinalStats(void *cvode_mem, booleantype sensi,
-                            booleantype err_con, int sensi_meth);
+static void PrintFinalStats(void *cvode_mem, sunbooleantype sensi,
+                            sunbooleantype err_con, int sensi_meth);
 
 static int check_retval(void *returnvalue, const char *funcname, int opt);
 
@@ -117,7 +117,7 @@ int main(int argc, char *argv[])
   sunrealtype *pbar;
   int is, *plist;
   N_Vector *uS;
-  booleantype sensi, err_con;
+  sunbooleantype sensi, err_con;
   int sensi_meth;
 
   SUNNonlinearSolver NLS, NLSsens;
@@ -344,7 +344,7 @@ static int f(sunrealtype t, N_Vector u, N_Vector udot, void *user_data)
  */
 
 static void ProcessArgs(int argc, char *argv[],
-                        booleantype *sensi, int *sensi_meth, booleantype *err_con)
+                        sunbooleantype *sensi, int *sensi_meth, sunbooleantype *err_con)
 {
   *sensi = SUNFALSE;
   *sensi_meth = -1;
@@ -478,8 +478,8 @@ static void PrintOutputS(N_Vector *uS)
  * Print some final statistics located in the CVODES memory
  */
 
-static void PrintFinalStats(void *cvode_mem, booleantype sensi,
-                            booleantype err_con, int sensi_meth)
+static void PrintFinalStats(void *cvode_mem, sunbooleantype sensi,
+                            sunbooleantype err_con, int sensi_meth)
 {
   long int nst;
   long int nfe, nsetups, nni, ncfn, netf;

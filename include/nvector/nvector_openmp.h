@@ -28,7 +28,7 @@
  *     header file sundials_types.h, and it may be changed (at the
  *     configuration stage) according to the user's needs.
  *     The sundials_types.h file also contains the definition
- *     for the type 'booleantype'.
+ *     for the type 'sunbooleantype'.
  *
  *   - N_Vector arguments to arithmetic vector operations need not
  *     be distinct. For example, the following call:
@@ -57,7 +57,7 @@ extern "C" {
 
 struct _N_VectorContent_OpenMP {
   sunindextype length;   /* vector length            */
-  booleantype own_data;  /* data ownership flag      */
+  sunbooleantype own_data;  /* data ownership flag      */
   sunrealtype *data;        /* data array               */
   int num_threads;       /* number of OpenMP threads */
 };
@@ -128,8 +128,8 @@ SUNDIALS_EXPORT sunrealtype N_VMin_OpenMP(N_Vector x);
 SUNDIALS_EXPORT sunrealtype N_VWL2Norm_OpenMP(N_Vector x, N_Vector w);
 SUNDIALS_EXPORT sunrealtype N_VL1Norm_OpenMP(N_Vector x);
 SUNDIALS_EXPORT void N_VCompare_OpenMP(sunrealtype c, N_Vector x, N_Vector z);
-SUNDIALS_EXPORT booleantype N_VInvTest_OpenMP(N_Vector x, N_Vector z);
-SUNDIALS_EXPORT booleantype N_VConstrMask_OpenMP(N_Vector c, N_Vector x, N_Vector m);
+SUNDIALS_EXPORT sunbooleantype N_VInvTest_OpenMP(N_Vector x, N_Vector z);
+SUNDIALS_EXPORT sunbooleantype N_VConstrMask_OpenMP(N_Vector c, N_Vector x, N_Vector m);
 SUNDIALS_EXPORT sunrealtype N_VMinQuotient_OpenMP(N_Vector num, N_Vector denom);
 
 /* fused vector operations */
@@ -180,19 +180,19 @@ SUNDIALS_EXPORT int N_VBufUnpack_OpenMP(N_Vector x, void *buf);
  * -----------------------------------------------------------------
  */
 
-SUNDIALS_EXPORT int N_VEnableFusedOps_OpenMP(N_Vector v, booleantype tf);
+SUNDIALS_EXPORT int N_VEnableFusedOps_OpenMP(N_Vector v, sunbooleantype tf);
 
-SUNDIALS_EXPORT int N_VEnableLinearCombination_OpenMP(N_Vector v, booleantype tf);
-SUNDIALS_EXPORT int N_VEnableScaleAddMulti_OpenMP(N_Vector v, booleantype tf);
-SUNDIALS_EXPORT int N_VEnableDotProdMulti_OpenMP(N_Vector v, booleantype tf);
+SUNDIALS_EXPORT int N_VEnableLinearCombination_OpenMP(N_Vector v, sunbooleantype tf);
+SUNDIALS_EXPORT int N_VEnableScaleAddMulti_OpenMP(N_Vector v, sunbooleantype tf);
+SUNDIALS_EXPORT int N_VEnableDotProdMulti_OpenMP(N_Vector v, sunbooleantype tf);
 
-SUNDIALS_EXPORT int N_VEnableLinearSumVectorArray_OpenMP(N_Vector v, booleantype tf);
-SUNDIALS_EXPORT int N_VEnableScaleVectorArray_OpenMP(N_Vector v, booleantype tf);
-SUNDIALS_EXPORT int N_VEnableConstVectorArray_OpenMP(N_Vector v, booleantype tf);
-SUNDIALS_EXPORT int N_VEnableWrmsNormVectorArray_OpenMP(N_Vector v, booleantype tf);
-SUNDIALS_EXPORT int N_VEnableWrmsNormMaskVectorArray_OpenMP(N_Vector v, booleantype tf);
-SUNDIALS_EXPORT int N_VEnableScaleAddMultiVectorArray_OpenMP(N_Vector v, booleantype tf);
-SUNDIALS_EXPORT int N_VEnableLinearCombinationVectorArray_OpenMP(N_Vector v, booleantype tf);
+SUNDIALS_EXPORT int N_VEnableLinearSumVectorArray_OpenMP(N_Vector v, sunbooleantype tf);
+SUNDIALS_EXPORT int N_VEnableScaleVectorArray_OpenMP(N_Vector v, sunbooleantype tf);
+SUNDIALS_EXPORT int N_VEnableConstVectorArray_OpenMP(N_Vector v, sunbooleantype tf);
+SUNDIALS_EXPORT int N_VEnableWrmsNormVectorArray_OpenMP(N_Vector v, sunbooleantype tf);
+SUNDIALS_EXPORT int N_VEnableWrmsNormMaskVectorArray_OpenMP(N_Vector v, sunbooleantype tf);
+SUNDIALS_EXPORT int N_VEnableScaleAddMultiVectorArray_OpenMP(N_Vector v, sunbooleantype tf);
+SUNDIALS_EXPORT int N_VEnableLinearCombinationVectorArray_OpenMP(N_Vector v, sunbooleantype tf);
 
 #ifdef __cplusplus
 }

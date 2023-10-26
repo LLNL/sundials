@@ -68,7 +68,7 @@
 #define ZERO SUN_RCONST(0.0)
 
 /* Private function prototypes */
-static booleantype SMCompatible_SLUNRloc(SUNMatrix A, SUNMatrix B);
+static sunbooleantype SMCompatible_SLUNRloc(SUNMatrix A, SUNMatrix B);
 
 /*
  * ----------------------------------------------------------------------------
@@ -155,7 +155,7 @@ gridinfo_t* SUNMatrix_SLUNRloc_ProcessGrid(SUNMatrix A)
   return(SM_GRID_SLUNRLOC(A));
 }
 
-booleantype SUNMatrix_SLUNRloc_OwnData(SUNMatrix A)
+sunbooleantype SUNMatrix_SLUNRloc_OwnData(SUNMatrix A)
 {
   return(SM_OWNDATA_SLUNRLOC(A));
 }
@@ -389,7 +389,7 @@ int SUNMatSpace_SLUNRloc(SUNMatrix A, long int *lenrw, long int *leniw)
 /* Function to check compatibility of two sparse SUNMatrix objects.
    Checks to make sure that the the matrices are both SLUNRLOC,
    have the same number of rows, cols and nonzeros.*/
-static booleantype SMCompatible_SLUNRloc(SUNMatrix A, SUNMatrix B)
+static sunbooleantype SMCompatible_SLUNRloc(SUNMatrix A, SUNMatrix B)
 {
   /* both matrices must be SLUNRLOC */
   if ((SUNMatGetID(A) != SUNMATRIX_SLUNRLOC) ||

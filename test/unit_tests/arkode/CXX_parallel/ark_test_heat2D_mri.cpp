@@ -86,8 +86,8 @@ typedef struct {
 // User-supplied Functions Called by the Solver
 static int f(sunrealtype t, N_Vector y, N_Vector ydot, void *user_data);
 static int f0(sunrealtype t, N_Vector y, N_Vector ydot, void *user_data);
-static int PSet(sunrealtype t, N_Vector y, N_Vector fy, booleantype jok,
-                booleantype *jcurPtr, sunrealtype gamma, void *user_data);
+static int PSet(sunrealtype t, N_Vector y, N_Vector fy, sunbooleantype jok,
+                sunbooleantype *jcurPtr, sunrealtype gamma, void *user_data);
 static int PSol(sunrealtype t, N_Vector y, N_Vector fy, N_Vector r,
                 N_Vector z, sunrealtype gamma, sunrealtype delta, int lr,
                 void *user_data);
@@ -124,7 +124,7 @@ int main(int argc, char* argv[]) {
   sunrealtype *data;
   sunindextype N, Ntot, i, j;
   int numfails;
-  booleantype linear;
+  sunbooleantype linear;
   sunrealtype t;
   long int ark_nst, ark_nfe, ark_nfi, ark_nsetups, ark_nli, ark_nJv, ark_nlcf, ark_nni, ark_ncfn, ark_npe, ark_nps;
   long int mri_nst, mri_nfse, mri_nfsi, mri_nsetups, mri_nli, mri_nJv, mri_nlcf, mri_nni, mri_ncfn, mri_npe, mri_nps;
@@ -563,8 +563,8 @@ static int f0(sunrealtype t, N_Vector y, N_Vector ydot, void *user_data)
 }
 
 // Preconditioner setup routine (fills inverse of Jacobian diagonal)
-static int PSet(sunrealtype t, N_Vector y, N_Vector fy, booleantype jok,
-                booleantype *jcurPtr, sunrealtype gamma, void *user_data)
+static int PSet(sunrealtype t, N_Vector y, N_Vector fy, sunbooleantype jok,
+                sunbooleantype *jcurPtr, sunrealtype gamma, void *user_data)
 {
   UserData *udata = (UserData *) user_data;      // variable shortcuts
   sunrealtype kx = udata->kx;

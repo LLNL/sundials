@@ -162,17 +162,17 @@
  * =================================================================
  */
 
-static booleantype KINCheckNvector(N_Vector tmpl);
-static booleantype KINAllocVectors(KINMem kin_mem, N_Vector tmpl);
+static sunbooleantype KINCheckNvector(N_Vector tmpl);
+static sunbooleantype KINAllocVectors(KINMem kin_mem, N_Vector tmpl);
 static int KINSolInit(KINMem kin_mem);
 static int KINConstraint(KINMem kin_mem );
 static void KINForcingTerm(KINMem kin_mem, sunrealtype fnormp);
 static void KINFreeVectors(KINMem kin_mem);
 
 static int  KINFullNewton(KINMem kin_mem, sunrealtype *fnormp,
-                          sunrealtype *f1normp, booleantype *maxStepTaken);
+                          sunrealtype *f1normp, sunbooleantype *maxStepTaken);
 static int  KINLineSearch(KINMem kin_mem, sunrealtype *fnormp,
-                          sunrealtype *f1normp, booleantype *maxStepTaken);
+                          sunrealtype *f1normp, sunbooleantype *maxStepTaken);
 static int  KINPicardAA(KINMem kin_mem);
 static int  KINFP(KINMem kin_mem);
 
@@ -181,7 +181,7 @@ static int  KINPicardFcnEval(KINMem kin_mem, N_Vector gval, N_Vector uval,
                              N_Vector fval1);
 static sunrealtype KINScFNorm(KINMem kin_mem, N_Vector v, N_Vector scale);
 static sunrealtype KINScSNorm(KINMem kin_mem, N_Vector v, N_Vector u);
-static int KINStop(KINMem kin_mem, booleantype maxStepTaken,
+static int KINStop(KINMem kin_mem, sunbooleantype maxStepTaken,
                    int sflag);
 static int AndersonAcc(KINMem kin_mem, N_Vector gval, N_Vector fv, N_Vector x,
                        N_Vector x_old, long int iter, sunrealtype *R, sunrealtype *gamma);
@@ -340,7 +340,7 @@ int KINInit(void *kinmem, KINSysFn func, N_Vector tmpl)
 {
   sunindextype liw1, lrw1;
   KINMem kin_mem;
-  booleantype allocOK, nvectorOK, dotprodSB;
+  sunbooleantype allocOK, nvectorOK, dotprodSB;
 
   /* check kinmem */
 
@@ -482,7 +482,7 @@ int KINSol(void *kinmem, N_Vector u, int strategy_in,
   sunrealtype fnormp, f1normp, epsmin;
   KINMem kin_mem;
   int ret, sflag;
-  booleantype maxStepTaken;
+  sunbooleantype maxStepTaken;
 
   /* intialize to avoid compiler warning messages */
 
@@ -782,7 +782,7 @@ void KINFree(void **kinmem)
  * SUNTRUE. Otherwise, SUNFALSE is returned.
  */
 
-static booleantype KINCheckNvector(N_Vector tmpl)
+static sunbooleantype KINCheckNvector(N_Vector tmpl)
 {
   if ((tmpl->ops->nvclone     == NULL) ||
       (tmpl->ops->nvdestroy   == NULL) ||
@@ -813,7 +813,7 @@ static booleantype KINCheckNvector(N_Vector tmpl)
  * returns SUNFALSE.
  */
 
-static booleantype KINAllocVectors(KINMem kin_mem, N_Vector tmpl)
+static sunbooleantype KINAllocVectors(KINMem kin_mem, N_Vector tmpl)
 {
   /* allocate unew, fval, pp, vtemp1 and vtemp2. */
   /* allocate df, dg, q, for Anderson Acceleration, Broyden and EN */
@@ -1574,10 +1574,10 @@ static int KINLinSolDrv(KINMem kin_mem)
  */
 
 static int KINFullNewton(KINMem kin_mem, sunrealtype *fnormp, sunrealtype *f1normp,
-                         booleantype *maxStepTaken)
+                         sunbooleantype *maxStepTaken)
 {
   sunrealtype pnorm, ratio;
-  booleantype fOK;
+  sunbooleantype fOK;
   int ircvr, retval;
 
   *maxStepTaken = SUNFALSE;
@@ -1707,13 +1707,13 @@ static int KINFullNewton(KINMem kin_mem, sunrealtype *fnormp, sunrealtype *f1nor
  */
 
 static int KINLineSearch(KINMem kin_mem, sunrealtype *fnormp, sunrealtype *f1normp,
-                         booleantype *maxStepTaken)
+                         sunbooleantype *maxStepTaken)
 {
   sunrealtype pnorm, ratio, slpi, rlmin, rlength, rl, rlmax, rldiff;
   sunrealtype rltmp, rlprev, pt1trl, f1nprv, rllo, rlinc, alpha, beta;
   sunrealtype alpha_cond, beta_cond, rl_a, tmp1, rl_b, tmp2, disc;
   int ircvr, nbktrk_l, retval;
-  booleantype firstBacktrack, fOK;
+  sunbooleantype firstBacktrack, fOK;
 
   /* Initializations */
 
@@ -2040,7 +2040,7 @@ static int KINConstraint(KINMem kin_mem)
  * sflag    is one of KIN_SUCCESS, STEP_TOO_SMALL
  */
 
-static int KINStop(KINMem kin_mem, booleantype maxStepTaken, int sflag)
+static int KINStop(KINMem kin_mem, sunbooleantype maxStepTaken, int sflag)
 {
   sunrealtype fmax, rlength, omexp;
   N_Vector delta;
@@ -2837,7 +2837,7 @@ static int AndersonAcc(KINMem kin_mem, N_Vector gval, N_Vector fv,
   sunrealtype alfa;
   sunrealtype onembeta;
   sunrealtype a, b, temp, c, s;
-  booleantype dotprodSB = SUNFALSE;
+  sunbooleantype dotprodSB = SUNFALSE;
 
   /* local shortcuts for fused vector operation */
   int       nvec=0;

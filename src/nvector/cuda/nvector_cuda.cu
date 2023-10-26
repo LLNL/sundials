@@ -61,9 +61,9 @@ static int FusedBuffer_CopyToDevice(N_Vector v);
 static int FusedBuffer_Free(N_Vector v);
 
 // Kernel launch parameters
-static int GetKernelParameters(N_Vector v, booleantype reduction, size_t& grid, size_t& block,
+static int GetKernelParameters(N_Vector v, sunbooleantype reduction, size_t& grid, size_t& block,
                                size_t& shMemSize, cudaStream_t& stream, size_t n = 0);
-static int GetKernelParameters(N_Vector v, booleantype reduction, size_t& grid, size_t& block,
+static int GetKernelParameters(N_Vector v, sunbooleantype reduction, size_t& grid, size_t& block,
                                 size_t& shMemSize, cudaStream_t& stream, bool& atomic, size_t n = 0);
 static void PostKernelLaunch();
 
@@ -91,7 +91,7 @@ static void PostKernelLaunch();
 
 struct _N_PrivateVectorContent_Cuda
 {
-  booleantype use_managed_mem; /* do data pointers use managed memory */
+  sunbooleantype use_managed_mem; /* do data pointers use managed memory */
 
   // reduction workspace
   SUNMemory device_counter;      // device memory for a counter (used in LDS reductions)
@@ -253,7 +253,7 @@ N_Vector N_VNew_Cuda(sunindextype length, SUNContext sunctx)
   return(v);
 }
 
-N_Vector N_VNewWithMemHelp_Cuda(sunindextype length, booleantype use_managed_mem, SUNMemoryHelper helper, SUNContext sunctx)
+N_Vector N_VNewWithMemHelp_Cuda(sunindextype length, sunbooleantype use_managed_mem, SUNMemoryHelper helper, SUNContext sunctx)
 {
   N_Vector v;
 
@@ -464,7 +464,7 @@ void N_VSetDeviceArrayPointer_Cuda(sunrealtype* d_vdata, N_Vector v)
  * Return a flag indicating if the memory for the vector data is managed
  */
 
-booleantype N_VIsManagedMemory_Cuda(N_Vector x)
+sunbooleantype N_VIsManagedMemory_Cuda(N_Vector x)
 {
   return NVEC_CUDA_PRIVATE(x)->use_managed_mem;
 }
@@ -1201,7 +1201,7 @@ void N_VCompare_Cuda(sunrealtype c, N_Vector X, N_Vector Z)
   PostKernelLaunch();
 }
 
-booleantype N_VInvTest_Cuda(N_Vector X, N_Vector Z)
+sunbooleantype N_VInvTest_Cuda(N_Vector X, N_Vector Z)
 {
   bool atomic;
   size_t grid, block, shMemSize;
@@ -1252,7 +1252,7 @@ booleantype N_VInvTest_Cuda(N_Vector X, N_Vector Z)
   return (gpu_result < HALF);
 }
 
-booleantype N_VConstrMask_Cuda(N_Vector C, N_Vector X, N_Vector M)
+sunbooleantype N_VConstrMask_Cuda(N_Vector C, N_Vector X, N_Vector M)
 {
   bool atomic;
   size_t grid, block, shMemSize;
@@ -2079,7 +2079,7 @@ int N_VBufUnpack_Cuda(N_Vector x, void *buf)
  */
 
 
-int N_VEnableFusedOps_Cuda(N_Vector v, booleantype tf)
+int N_VEnableFusedOps_Cuda(N_Vector v, sunbooleantype tf)
 {
   /* check that vector is non-NULL */
   if (v == NULL) return(-1);
@@ -2126,7 +2126,7 @@ int N_VEnableFusedOps_Cuda(N_Vector v, booleantype tf)
   return(0);
 }
 
-int N_VEnableLinearCombination_Cuda(N_Vector v, booleantype tf)
+int N_VEnableLinearCombination_Cuda(N_Vector v, sunbooleantype tf)
 {
   if (v == NULL) return -1;
   if (v->ops == NULL) return -1;
@@ -2135,7 +2135,7 @@ int N_VEnableLinearCombination_Cuda(N_Vector v, booleantype tf)
 }
 
 
-int N_VEnableScaleAddMulti_Cuda(N_Vector v, booleantype tf)
+int N_VEnableScaleAddMulti_Cuda(N_Vector v, sunbooleantype tf)
 {
   if (v == NULL) return -1;
   if (v->ops == NULL) return -1;
@@ -2144,7 +2144,7 @@ int N_VEnableScaleAddMulti_Cuda(N_Vector v, booleantype tf)
 }
 
 
-int N_VEnableDotProdMulti_Cuda(N_Vector v, booleantype tf)
+int N_VEnableDotProdMulti_Cuda(N_Vector v, sunbooleantype tf)
 {
   if (v == NULL) return -1;
   if (v->ops == NULL) return -1;
@@ -2154,7 +2154,7 @@ int N_VEnableDotProdMulti_Cuda(N_Vector v, booleantype tf)
 }
 
 
-int N_VEnableLinearSumVectorArray_Cuda(N_Vector v, booleantype tf)
+int N_VEnableLinearSumVectorArray_Cuda(N_Vector v, sunbooleantype tf)
 {
   if (v == NULL) return -1;
   if (v->ops == NULL) return -1;
@@ -2163,7 +2163,7 @@ int N_VEnableLinearSumVectorArray_Cuda(N_Vector v, booleantype tf)
 }
 
 
-int N_VEnableScaleVectorArray_Cuda(N_Vector v, booleantype tf)
+int N_VEnableScaleVectorArray_Cuda(N_Vector v, sunbooleantype tf)
 {
   if (v == NULL) return -1;
   if (v->ops == NULL) return -1;
@@ -2172,7 +2172,7 @@ int N_VEnableScaleVectorArray_Cuda(N_Vector v, booleantype tf)
 }
 
 
-int N_VEnableConstVectorArray_Cuda(N_Vector v, booleantype tf)
+int N_VEnableConstVectorArray_Cuda(N_Vector v, sunbooleantype tf)
 {
   if (v == NULL) return -1;
   if (v->ops == NULL) return -1;
@@ -2181,7 +2181,7 @@ int N_VEnableConstVectorArray_Cuda(N_Vector v, booleantype tf)
 }
 
 
-int N_VEnableWrmsNormVectorArray_Cuda(N_Vector v, booleantype tf)
+int N_VEnableWrmsNormVectorArray_Cuda(N_Vector v, sunbooleantype tf)
 {
   if (v == NULL) return -1;
   if (v->ops == NULL) return -1;
@@ -2190,7 +2190,7 @@ int N_VEnableWrmsNormVectorArray_Cuda(N_Vector v, booleantype tf)
 }
 
 
-int N_VEnableWrmsNormMaskVectorArray_Cuda(N_Vector v, booleantype tf)
+int N_VEnableWrmsNormMaskVectorArray_Cuda(N_Vector v, sunbooleantype tf)
 {
   if (v == NULL) return -1;
   if (v->ops == NULL) return -1;
@@ -2200,7 +2200,7 @@ int N_VEnableWrmsNormMaskVectorArray_Cuda(N_Vector v, booleantype tf)
 }
 
 
-int N_VEnableScaleAddMultiVectorArray_Cuda(N_Vector v, booleantype tf)
+int N_VEnableScaleAddMultiVectorArray_Cuda(N_Vector v, sunbooleantype tf)
 {
   if (v == NULL) return -1;
   if (v->ops == NULL) return -1;
@@ -2210,7 +2210,7 @@ int N_VEnableScaleAddMultiVectorArray_Cuda(N_Vector v, booleantype tf)
 }
 
 
-int N_VEnableLinearCombinationVectorArray_Cuda(N_Vector v, booleantype tf)
+int N_VEnableLinearCombinationVectorArray_Cuda(N_Vector v, sunbooleantype tf)
 {
   if (v == NULL) return -1;
   if (v->ops == NULL) return -1;
@@ -2279,7 +2279,7 @@ static int InitializeReductionBuffer(N_Vector v, sunrealtype value, size_t n)
 {
   int         alloc_fail = 0;
   int         copy_fail  = 0;
-  booleantype alloc_mem  = SUNFALSE;
+  sunbooleantype alloc_mem  = SUNFALSE;
   size_t      bytes      = n * sizeof(sunrealtype);
 
   // Get the vector private memory structure
@@ -2396,7 +2396,7 @@ static int CopyReductionBufferFromDevice(N_Vector v, size_t n)
 static int FusedBuffer_Init(N_Vector v, int nreal, int nptr)
 {
   int         alloc_fail = 0;
-  booleantype alloc_mem  = SUNFALSE;
+  sunbooleantype alloc_mem  = SUNFALSE;
 
   // pad buffer with single precision data
 #if defined(SUNDIALS_SINGLE_PRECISION)
@@ -2638,7 +2638,7 @@ static int FreeDeviceCounter(N_Vector v)
 /* Get the kernel launch parameters based on the kernel type (reduction or not),
  * using the appropriate kernel execution policy.
  */
-static int GetKernelParameters(N_Vector v, booleantype reduction, size_t& grid,
+static int GetKernelParameters(N_Vector v, sunbooleantype reduction, size_t& grid,
                                size_t& block, size_t& shMemSize,
                                cudaStream_t& stream, bool& atomic, size_t n)
 {
@@ -2699,7 +2699,7 @@ static int GetKernelParameters(N_Vector v, booleantype reduction, size_t& grid,
   return(0);
 }
 
-static int GetKernelParameters(N_Vector v, booleantype reduction, size_t& grid,
+static int GetKernelParameters(N_Vector v, sunbooleantype reduction, size_t& grid,
                                size_t& block, size_t& shMemSize, cudaStream_t& stream,
                                size_t n)
 {

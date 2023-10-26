@@ -59,7 +59,7 @@
 
 extern int IDAInitialSetup(IDAMem IDA_mem);
 extern sunrealtype IDAWrmsNorm(IDAMem IDA_mem, N_Vector x, N_Vector w,
-                            booleantype mask);
+                            sunbooleantype mask);
 
 static int IDAnlsIC(IDAMem IDA_mem);
 static int IDANewtonIC(IDAMem IDA_mem);
@@ -461,7 +461,7 @@ static int IDANewtonIC(IDAMem IDA_mem)
 
 static int IDALineSrch(IDAMem IDA_mem, sunrealtype *delnorm, sunrealtype *fnorm)
 {
-  booleantype conOK;
+  sunbooleantype conOK;
   int retval, nbacks;
   sunrealtype f1norm, fnormp, f1normp, ratio, lambda, minlam, slpi;
   N_Vector mc;

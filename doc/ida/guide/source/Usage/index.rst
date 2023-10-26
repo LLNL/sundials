@@ -97,7 +97,7 @@ data types can be used. The header file that is always required is:
   header file for IDALS, ``ida/ida_ls.h``.
 
 Note that ``ida.h`` includes ``sundials_types.h``, which defines the types,
-``sunrealtype``, ``sunindextype``, and ``booleantype`` and the constants
+``sunrealtype``, ``sunindextype``, and ``sunbooleantype`` and the constants
 ``SUNFALSE`` and ``SUNTRUE``.
 
 The calling program must also include an ``N_Vector`` implementation
@@ -1191,7 +1191,7 @@ Main solver optional input functions
    **Notes:**
       The default value is 10.
 
-.. c:function:: int IDASetSuppressAlg(void * ida_mem, booleantype suppressalg)
+.. c:function:: int IDASetSuppressAlg(void * ida_mem, sunbooleantype suppressalg)
 
    The function ``IDASetSuppressAlg`` indicates whether or not to suppress
    algebraic variables in the local error test.
@@ -1377,7 +1377,7 @@ that updates the matrix using the current :math:`\alpha` as part of the solve.
 
    .. versionadded:: 6.2.0
 
-.. c:function:: int IDASetLinearSolutionScaling(void * ida_mem, booleantype onoff)
+.. c:function:: int IDASetLinearSolutionScaling(void * ida_mem, sunbooleantype onoff)
 
    The function ``IDASetLinearSolutionScaling`` enables or disables scaling the
    linear system solution to account for a change in :math:`\alpha` in the
@@ -1883,7 +1883,7 @@ to set optional inputs controlling the initial condition calculation.
    **Notes:**
       The default value is :math:`100`.
 
-.. c:function:: int IDASetLineSearchOffIC(void * ida_mem, booleantype lsoff)
+.. c:function:: int IDASetLineSearchOffIC(void * ida_mem, sunbooleantype lsoff)
 
    The function ``IDASetLineSearchOffIC`` specifies whether to turn on or off
    the linesearch algorithm.

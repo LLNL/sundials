@@ -183,7 +183,7 @@ int SUNNonlinSolInitialize_FixedPoint(SUNNonlinearSolver NLS)
   ---------------------------------------------------------------------------*/
 int SUNNonlinSolSolve_FixedPoint(SUNNonlinearSolver NLS, N_Vector y0,
                                  N_Vector ycor, N_Vector w, sunrealtype tol,
-                                 booleantype callSetup, void* mem)
+                                 sunbooleantype callSetup, void* mem)
 {
   /* local variables */
   int retval;
@@ -471,7 +471,7 @@ static int AndersonAccelerate(SUNNonlinearSolver NLS, N_Vector gval,
   int         nvec, retval, i_pt, i, j, lAA, maa, *ipt_map;
   sunrealtype    a, b, rtemp, c, s, beta, onembeta, *cvals, *R, *gamma;
   N_Vector    fv, vtemp, gold, fold, *df, *dg, *Q, *Xvecs;
-  booleantype damping;
+  sunbooleantype damping;
 
   /* local shortcut variables */
   vtemp   = x;    /* use result as temporary vector */

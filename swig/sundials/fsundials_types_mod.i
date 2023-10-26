@@ -24,7 +24,7 @@
 #define SUNDIALS_INT64_T
 #define SUNDIALS_INDEX_TYPE int64_t
 #define SUNDIALS_DOUBLE_PRECISION
-#define booleantype int
+#define sunbooleantype int
 
 // Insert code into the C wrapper to check that the sizes match
 %{

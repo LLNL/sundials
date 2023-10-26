@@ -109,7 +109,7 @@ required is:
 
 * ``cvodes/cvodes.h`` the main header file for CVODES, which defines the several types and various constants, and includes function prototypes. This includes the header file for CVLS, ``cvodes/cvodes_ls.h``.
 
-Note that ``cvodes.h`` includes ``sundials_types.h``, which defines the types, ``sunrealtype``, ``sunindextype``, and ``booleantype`` and the constants ``SUNFALSE`` and ``SUNTRUE``.
+Note that ``cvodes.h`` includes ``sundials_types.h``, which defines the types, ``sunrealtype``, ``sunindextype``, and ``sunbooleantype`` and the constants ``SUNFALSE`` and ``SUNTRUE``.
 
 The calling program must also include an ``N_Vector`` implementation header file, of the form ``nvector/nvector_*.h``. See :numref:`NVectors` for the appropriate name. This file in turn includes the header file ``sundials_nvector.h`` which defines the abstract data type.
 
@@ -1014,7 +1014,7 @@ Main solver optional input functions
    **Notes:**
       The default value is 10.  A negative value for ``mxhnil`` indicates that no warning messages should  be issued.
 
-.. c:function:: int CVodeSetStabLimDet(void* cvode_mem, booleantype stldet)
+.. c:function:: int CVodeSetStabLimDet(void* cvode_mem, sunbooleantype stldet)
 
    The function ``CVodeSetStabLimDet`` indicates if  the BDF stability limit detection algorithm should be used. See :numref:`CVODES.Mathematics.stablimit` for further details.
 
@@ -1098,7 +1098,7 @@ Main solver optional input functions
       A stop time not reached before a call to :c:func:`CVodeReInit` will
       remain active but can be disabled by calling :c:func:`CVodeClearStopTime`.
 
-.. c:function:: int CVodeSetInterpolateStopTime(void* cvode_mem, booleantype interp)
+.. c:function:: int CVodeSetInterpolateStopTime(void* cvode_mem, sunbooleantype interp)
 
    The function ``CVodeSetInterpolateStopTime`` specifies that the output solution should be
    interpolated when the current :math:`t` equals the specified ``tstop`` (instead of
@@ -1448,7 +1448,7 @@ system to account for the lagged value of :math:`\gamma`. See
 necessary, e.g., when providing a custom linear solver that updates the matrix
 using the current :math:`\gamma` as part of the solve.
 
-.. c:function:: int CVodeSetLinearSolutionScaling(void* cvode_mem, booleantype onoff)
+.. c:function:: int CVodeSetLinearSolutionScaling(void* cvode_mem, sunbooleantype onoff)
 
    The function :c:func:`CVodeSetLinearSolutionScaling` enables or disables scaling  the linear system solution to account for a change in :math:`\gamma` in the linear system. For more details see :numref:`SUNLinSol.CVODES.lagged`.
 
@@ -2123,7 +2123,7 @@ Projection optional input functions
 The following functions can be called to set optional inputs to control
 the projection when solving an IVP with constraints.
 
-.. c:function:: int CVodeSetProjErrEst(void* cvode_mem, booleantype onoff)
+.. c:function:: int CVodeSetProjErrEst(void* cvode_mem, sunbooleantype onoff)
 
    The function ``CVodeSetProjErrEst`` enables or disables projection of  the error estimate by the projection function.
 
@@ -3639,7 +3639,7 @@ side function, the user may optionally supply a function of type ``CVLsLinSysFn`
 for evaluating the linear system, :math:`M = I - \gamma J` (or an
 approximation of it).  ``CVLsLinSysFn`` is defined as follows:
 
-.. c:type:: int (*CVLsLinSysFn)(sunrealtype t, N_Vector y, N_Vector fy, SUNMatrix M, booleantype jok, booleantype *jcur, sunrealtype gamma, void *user_data, N_Vector tmp1, N_Vector tmp2, N_Vector tmp3);
+.. c:type:: int (*CVLsLinSysFn)(sunrealtype t, N_Vector y, N_Vector fy, SUNMatrix M, sunbooleantype jok, sunbooleantype *jcur, sunrealtype gamma, void *user_data, N_Vector tmp1, N_Vector tmp2, N_Vector tmp3);
 
    This function computes the linear system matrix :math:`M = I - \gamma J` (or an approximation to it).
 
@@ -3800,7 +3800,7 @@ If the user’s preconditioner requires that any Jacobian-related data be
 preprocessed or evaluated, then this needs to be done in a user-supplied
 function of type , defined as follows:
 
-.. c:type:: int (*CVLsPrecSetupFn)(sunrealtype t, N_Vector y, N_Vector fy, booleantype jok, booleantype *jcurPtr, sunrealtype gamma, void *user_data);
+.. c:type:: int (*CVLsPrecSetupFn)(sunrealtype t, N_Vector y, N_Vector fy, sunbooleantype jok, sunbooleantype *jcurPtr, sunrealtype gamma, void *user_data);
 
    This function preprocesses and/or evaluates Jacobian-related data needed by the preconditioner.
 
@@ -4097,7 +4097,7 @@ CVODES provides the following optional input functions to control the integratio
 of quadrature equations.
 
 
-.. c:function:: int CVodeSetQuadErrCon(void * cvode_mem, booleantype errconQ)
+.. c:function:: int CVodeSetQuadErrCon(void * cvode_mem, sunbooleantype errconQ)
 
    The function ``CVodeSetQuadErrCon`` specifies whether or not the  quadrature variables are to be used in the step size control mechanism within CVODES.  If they are, the user must call :c:func:`CVodeQuadSStolerances`  or :c:func:`CVodeQuadSVtolerances` to specify the  integration tolerances for the quadrature variables.
 

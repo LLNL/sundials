@@ -356,7 +356,7 @@ int SUNLinSolSetScalingVectors_SPGMR(SUNLinearSolver S, N_Vector s1,
 }
 
 
-int SUNLinSolSetZeroGuess_SPGMR(SUNLinearSolver S, booleantype onff)
+int SUNLinSolSetZeroGuess_SPGMR(SUNLinearSolver S, sunbooleantype onff)
 {
   /* set flag indicating a zero initial guess */
   if (S == NULL) return(SUNLS_MEM_NULL);
@@ -400,8 +400,8 @@ int SUNLinSolSolve_SPGMR(SUNLinearSolver S, SUNMatrix A, N_Vector x,
   N_Vector *V, xcor, vtemp, s1, s2;
   sunrealtype **Hes, *givens, *yg, *res_norm;
   sunrealtype beta, rotation_product, r_norm, s_product, rho;
-  booleantype preOnLeft, preOnRight, scale2, scale1, converged;
-  booleantype *zeroguess;
+  sunbooleantype preOnLeft, preOnRight, scale2, scale1, converged;
+  sunbooleantype *zeroguess;
   int i, j, k, l, l_plus_1, l_max, krydim, ier, ntries, max_restarts, gstype;
   int *nli;
   void *A_data, *P_data;
@@ -443,7 +443,7 @@ int SUNLinSolSolve_SPGMR(SUNLinearSolver S, SUNMatrix A, N_Vector x,
   *nli = 0;
   converged = SUNFALSE;
 
-  /* Set booleantype flags for internal solver options */
+  /* Set sunbooleantype flags for internal solver options */
   preOnLeft  = ( (SPGMR_CONTENT(S)->pretype == SUN_PREC_LEFT) ||
                  (SPGMR_CONTENT(S)->pretype == SUN_PREC_BOTH) );
   preOnRight = ( (SPGMR_CONTENT(S)->pretype == SUN_PREC_RIGHT) ||

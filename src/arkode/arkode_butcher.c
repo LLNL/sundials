@@ -30,50 +30,50 @@ static int __mv(sunrealtype **A, sunrealtype *x, int s, sunrealtype *b);
 static int __vv(sunrealtype *x, sunrealtype *y, int s, sunrealtype *z);
 static int __vp(sunrealtype *x, int l, int s, sunrealtype *z);
 static int __dot(sunrealtype *x, sunrealtype *y, int s, sunrealtype *d);
-static booleantype __rowsum(sunrealtype **A, sunrealtype *c, int s);
-static booleantype __order1(sunrealtype *b, int s);
-static booleantype __order2(sunrealtype *b, sunrealtype *c, int s);
-static booleantype __order3a(sunrealtype *b, sunrealtype *c1, sunrealtype *c2, int s);
-static booleantype __order3b(sunrealtype *b, sunrealtype **A, sunrealtype *c, int s);
-static booleantype __order4a(sunrealtype *b, sunrealtype *c1, sunrealtype *c2, sunrealtype *c3, int s);
-static booleantype __order4b(sunrealtype *b, sunrealtype *c1, sunrealtype **A, sunrealtype *c2, int s);
-static booleantype __order4c(sunrealtype *b, sunrealtype **A, sunrealtype *c1, sunrealtype *c2, int s);
-static booleantype __order4d(sunrealtype *b, sunrealtype **A1, sunrealtype **A2, sunrealtype *c, int s);
-static booleantype __order5a(sunrealtype *b, sunrealtype *c1, sunrealtype *c2, sunrealtype *c3, sunrealtype *c4, int s);
-static booleantype __order5b(sunrealtype *b, sunrealtype *c1, sunrealtype *c2, sunrealtype **A, sunrealtype *c3, int s);
-static booleantype __order5c(sunrealtype *b, sunrealtype **A1, sunrealtype *c1, sunrealtype **A2, sunrealtype *c2, int s);
-static booleantype __order5d(sunrealtype *b, sunrealtype *c1, sunrealtype **A, sunrealtype *c2, sunrealtype *c3, int s);
-static booleantype __order5e(sunrealtype *b, sunrealtype **A, sunrealtype *c1, sunrealtype *c2, sunrealtype *c3, int s);
-static booleantype __order5f(sunrealtype *b, sunrealtype *c1, sunrealtype **A1, sunrealtype **A2, sunrealtype *c2, int s);
-static booleantype __order5g(sunrealtype *b, sunrealtype **A1, sunrealtype *c1, sunrealtype **A2, sunrealtype *c2, int s);
-static booleantype __order5h(sunrealtype *b, sunrealtype **A1, sunrealtype **A2, sunrealtype *c1, sunrealtype *c2, int s);
-static booleantype __order5i(sunrealtype *b, sunrealtype **A1, sunrealtype **A2, sunrealtype **A3, sunrealtype *c, int s);
-static booleantype __order6a(sunrealtype *b, sunrealtype *c1, sunrealtype *c2, sunrealtype *c3, sunrealtype *c4, sunrealtype *c5, int s);
-static booleantype __order6b(sunrealtype *b, sunrealtype *c1, sunrealtype *c2, sunrealtype *c3, sunrealtype **A, sunrealtype *c4, int s);
-static booleantype __order6c(sunrealtype *b, sunrealtype *c1, sunrealtype **A1, sunrealtype *c2, sunrealtype **A2, sunrealtype *c3, int s);
-static booleantype __order6d(sunrealtype *b, sunrealtype *c1, sunrealtype *c2, sunrealtype **A, sunrealtype *c3, sunrealtype *c4, int s);
-static booleantype __order6e(sunrealtype *b, sunrealtype *c1, sunrealtype *c2, sunrealtype **A1, sunrealtype **A2, sunrealtype *c3, int s);
-static booleantype __order6f(sunrealtype *b, sunrealtype **A1, sunrealtype **A2, sunrealtype *c1, sunrealtype **A3, sunrealtype *c2, int s);
-static booleantype __order6g(sunrealtype *b, sunrealtype *c1, sunrealtype **A, sunrealtype *c2, sunrealtype *c3, sunrealtype *c4, int s);
-static booleantype __order6h(sunrealtype *b, sunrealtype *c1, sunrealtype **A1, sunrealtype *c2, sunrealtype **A2, sunrealtype *c3, int s);
-static booleantype __order6i(sunrealtype *b, sunrealtype *c1, sunrealtype **A1, sunrealtype **A2, sunrealtype *c2, sunrealtype *c3, int s);
-static booleantype __order6j(sunrealtype *b, sunrealtype *c1, sunrealtype **A1, sunrealtype **A2, sunrealtype **A3, sunrealtype *c2, int s);
-static booleantype __order6k(sunrealtype *b, sunrealtype **A, sunrealtype *c1, sunrealtype *c2, sunrealtype *c3, sunrealtype *c4, int s);
-static booleantype __order6l(sunrealtype *b, sunrealtype **A1, sunrealtype *c1, sunrealtype *c2, sunrealtype **A2, sunrealtype *c3, int s);
-static booleantype __order6m(sunrealtype *b, sunrealtype **A1, sunrealtype **A2, sunrealtype *c1, sunrealtype **A3, sunrealtype *c2, int s);
-static booleantype __order6n(sunrealtype *b, sunrealtype **A1, sunrealtype *c1, sunrealtype **A2, sunrealtype *c2, sunrealtype *c3, int s);
-static booleantype __order6o(sunrealtype *b, sunrealtype **A1, sunrealtype *c1, sunrealtype **A2, sunrealtype **A3, sunrealtype *c2, int s);
-static booleantype __order6p(sunrealtype *b, sunrealtype **A1, sunrealtype **A2, sunrealtype *c1, sunrealtype *c2, sunrealtype *c3, int s);
-static booleantype __order6q(sunrealtype *b, sunrealtype **A1, sunrealtype **A2, sunrealtype *c1, sunrealtype **A3, sunrealtype *c2, int s);
-static booleantype __order6r(sunrealtype *b, sunrealtype **A1, sunrealtype **A2, sunrealtype **A3, sunrealtype *c1, sunrealtype *c2, int s);
-static booleantype __order6s(sunrealtype *b, sunrealtype **A1, sunrealtype **A2, sunrealtype **A3, sunrealtype **A4, sunrealtype *c, int s);
+static sunbooleantype __rowsum(sunrealtype **A, sunrealtype *c, int s);
+static sunbooleantype __order1(sunrealtype *b, int s);
+static sunbooleantype __order2(sunrealtype *b, sunrealtype *c, int s);
+static sunbooleantype __order3a(sunrealtype *b, sunrealtype *c1, sunrealtype *c2, int s);
+static sunbooleantype __order3b(sunrealtype *b, sunrealtype **A, sunrealtype *c, int s);
+static sunbooleantype __order4a(sunrealtype *b, sunrealtype *c1, sunrealtype *c2, sunrealtype *c3, int s);
+static sunbooleantype __order4b(sunrealtype *b, sunrealtype *c1, sunrealtype **A, sunrealtype *c2, int s);
+static sunbooleantype __order4c(sunrealtype *b, sunrealtype **A, sunrealtype *c1, sunrealtype *c2, int s);
+static sunbooleantype __order4d(sunrealtype *b, sunrealtype **A1, sunrealtype **A2, sunrealtype *c, int s);
+static sunbooleantype __order5a(sunrealtype *b, sunrealtype *c1, sunrealtype *c2, sunrealtype *c3, sunrealtype *c4, int s);
+static sunbooleantype __order5b(sunrealtype *b, sunrealtype *c1, sunrealtype *c2, sunrealtype **A, sunrealtype *c3, int s);
+static sunbooleantype __order5c(sunrealtype *b, sunrealtype **A1, sunrealtype *c1, sunrealtype **A2, sunrealtype *c2, int s);
+static sunbooleantype __order5d(sunrealtype *b, sunrealtype *c1, sunrealtype **A, sunrealtype *c2, sunrealtype *c3, int s);
+static sunbooleantype __order5e(sunrealtype *b, sunrealtype **A, sunrealtype *c1, sunrealtype *c2, sunrealtype *c3, int s);
+static sunbooleantype __order5f(sunrealtype *b, sunrealtype *c1, sunrealtype **A1, sunrealtype **A2, sunrealtype *c2, int s);
+static sunbooleantype __order5g(sunrealtype *b, sunrealtype **A1, sunrealtype *c1, sunrealtype **A2, sunrealtype *c2, int s);
+static sunbooleantype __order5h(sunrealtype *b, sunrealtype **A1, sunrealtype **A2, sunrealtype *c1, sunrealtype *c2, int s);
+static sunbooleantype __order5i(sunrealtype *b, sunrealtype **A1, sunrealtype **A2, sunrealtype **A3, sunrealtype *c, int s);
+static sunbooleantype __order6a(sunrealtype *b, sunrealtype *c1, sunrealtype *c2, sunrealtype *c3, sunrealtype *c4, sunrealtype *c5, int s);
+static sunbooleantype __order6b(sunrealtype *b, sunrealtype *c1, sunrealtype *c2, sunrealtype *c3, sunrealtype **A, sunrealtype *c4, int s);
+static sunbooleantype __order6c(sunrealtype *b, sunrealtype *c1, sunrealtype **A1, sunrealtype *c2, sunrealtype **A2, sunrealtype *c3, int s);
+static sunbooleantype __order6d(sunrealtype *b, sunrealtype *c1, sunrealtype *c2, sunrealtype **A, sunrealtype *c3, sunrealtype *c4, int s);
+static sunbooleantype __order6e(sunrealtype *b, sunrealtype *c1, sunrealtype *c2, sunrealtype **A1, sunrealtype **A2, sunrealtype *c3, int s);
+static sunbooleantype __order6f(sunrealtype *b, sunrealtype **A1, sunrealtype **A2, sunrealtype *c1, sunrealtype **A3, sunrealtype *c2, int s);
+static sunbooleantype __order6g(sunrealtype *b, sunrealtype *c1, sunrealtype **A, sunrealtype *c2, sunrealtype *c3, sunrealtype *c4, int s);
+static sunbooleantype __order6h(sunrealtype *b, sunrealtype *c1, sunrealtype **A1, sunrealtype *c2, sunrealtype **A2, sunrealtype *c3, int s);
+static sunbooleantype __order6i(sunrealtype *b, sunrealtype *c1, sunrealtype **A1, sunrealtype **A2, sunrealtype *c2, sunrealtype *c3, int s);
+static sunbooleantype __order6j(sunrealtype *b, sunrealtype *c1, sunrealtype **A1, sunrealtype **A2, sunrealtype **A3, sunrealtype *c2, int s);
+static sunbooleantype __order6k(sunrealtype *b, sunrealtype **A, sunrealtype *c1, sunrealtype *c2, sunrealtype *c3, sunrealtype *c4, int s);
+static sunbooleantype __order6l(sunrealtype *b, sunrealtype **A1, sunrealtype *c1, sunrealtype *c2, sunrealtype **A2, sunrealtype *c3, int s);
+static sunbooleantype __order6m(sunrealtype *b, sunrealtype **A1, sunrealtype **A2, sunrealtype *c1, sunrealtype **A3, sunrealtype *c2, int s);
+static sunbooleantype __order6n(sunrealtype *b, sunrealtype **A1, sunrealtype *c1, sunrealtype **A2, sunrealtype *c2, sunrealtype *c3, int s);
+static sunbooleantype __order6o(sunrealtype *b, sunrealtype **A1, sunrealtype *c1, sunrealtype **A2, sunrealtype **A3, sunrealtype *c2, int s);
+static sunbooleantype __order6p(sunrealtype *b, sunrealtype **A1, sunrealtype **A2, sunrealtype *c1, sunrealtype *c2, sunrealtype *c3, int s);
+static sunbooleantype __order6q(sunrealtype *b, sunrealtype **A1, sunrealtype **A2, sunrealtype *c1, sunrealtype **A3, sunrealtype *c2, int s);
+static sunbooleantype __order6r(sunrealtype *b, sunrealtype **A1, sunrealtype **A2, sunrealtype **A3, sunrealtype *c1, sunrealtype *c2, int s);
+static sunbooleantype __order6s(sunrealtype *b, sunrealtype **A1, sunrealtype **A2, sunrealtype **A3, sunrealtype **A4, sunrealtype *c, int s);
 static int __ButcherSimplifyingAssumptions(sunrealtype **A, sunrealtype *b, sunrealtype *c, int s);
 
 
 /*---------------------------------------------------------------
   Routine to allocate an empty Butcher table structure
   ---------------------------------------------------------------*/
-ARKodeButcherTable ARKodeButcherTable_Alloc(int stages, booleantype embedded)
+ARKodeButcherTable ARKodeButcherTable_Alloc(int stages, sunbooleantype embedded)
 {
   int i;
   ARKodeButcherTable B;
@@ -141,7 +141,7 @@ ARKodeButcherTable ARKodeButcherTable_Create(int s, int q, int p, sunrealtype *c
 {
   int i, j;
   ARKodeButcherTable B;
-  booleantype embedded;
+  sunbooleantype embedded;
 
   /* Check for legal number of stages */
   if (s < 1) return(NULL);
@@ -181,7 +181,7 @@ ARKodeButcherTable ARKodeButcherTable_Copy(ARKodeButcherTable B)
 {
   int i, j, s;
   ARKodeButcherTable Bcopy;
-  booleantype embedded;
+  sunbooleantype embedded;
 
   /* Check for legal input */
   if (B == NULL) return(NULL);
@@ -337,7 +337,7 @@ int ARKodeButcherTable_CheckOrder(ARKodeButcherTable B, int *q, int *p, FILE *ou
   /* local variables */
   int q_SA, p_SA, i, s;
   sunrealtype **A, *b, *c, *d;
-  booleantype alltrue;
+  sunbooleantype alltrue;
   (*q) = (*p) = 0;
 
   /* verify non-NULL Butcher table structure and contents */
@@ -789,7 +789,7 @@ int ARKodeButcherTable_CheckARKOrder(ARKodeButcherTable B1,
 {
   /* local variables */
   int i, j, k, l, m, n, s;
-  booleantype alltrue;
+  sunbooleantype alltrue;
   sunrealtype **A[2], *b[2], *c[2], *d[2];
   (*q) = (*p) = 0;
 
@@ -1532,7 +1532,7 @@ static int __dot(sunrealtype *x, sunrealtype *y, int s, sunrealtype *d)
   ---------------------------------------------------------------*/
 
 /* c(i) = sum(A(i,:)) */
-static booleantype __rowsum(sunrealtype **A, sunrealtype *c, int s)
+static sunbooleantype __rowsum(sunrealtype **A, sunrealtype *c, int s)
 {
   int i, j;
   sunrealtype rsum;
@@ -1547,7 +1547,7 @@ static booleantype __rowsum(sunrealtype **A, sunrealtype *c, int s)
 }
 
 /* b'*e = 1 */
-static booleantype __order1(sunrealtype *b, int s)
+static sunbooleantype __order1(sunrealtype *b, int s)
 {
   int i;
   sunrealtype err = SUN_RCONST(1.0);
@@ -1557,7 +1557,7 @@ static booleantype __order1(sunrealtype *b, int s)
 }
 
 /* b'*c = 1/2 */
-static booleantype __order2(sunrealtype *b, sunrealtype *c, int s)
+static sunbooleantype __order2(sunrealtype *b, sunrealtype *c, int s)
 {
   sunrealtype bc;
   if (__dot(b,c,s,&bc))  return(SUNFALSE);
@@ -1565,7 +1565,7 @@ static booleantype __order2(sunrealtype *b, sunrealtype *c, int s)
 }
 
 /* b'*(c1.*c2) = 1/3 */
-static booleantype __order3a(sunrealtype *b, sunrealtype *c1, sunrealtype *c2, int s)
+static sunbooleantype __order3a(sunrealtype *b, sunrealtype *c1, sunrealtype *c2, int s)
 {
   sunrealtype bcc;
   sunrealtype *tmp = calloc( s, sizeof(sunrealtype) );
@@ -1576,7 +1576,7 @@ static booleantype __order3a(sunrealtype *b, sunrealtype *c1, sunrealtype *c2, i
 }
 
 /* b'*(A*c) = 1/6 */
-static booleantype __order3b(sunrealtype *b, sunrealtype **A, sunrealtype *c, int s)
+static sunbooleantype __order3b(sunrealtype *b, sunrealtype **A, sunrealtype *c, int s)
 {
   sunrealtype bAc;
   sunrealtype *tmp = calloc( s, sizeof(sunrealtype) );
@@ -1587,7 +1587,7 @@ static booleantype __order3b(sunrealtype *b, sunrealtype **A, sunrealtype *c, in
 }
 
 /* b'*(c1.*c2.*c3) = 1/4 */
-static booleantype __order4a(sunrealtype *b, sunrealtype *c1, sunrealtype *c2, sunrealtype *c3, int s)
+static sunbooleantype __order4a(sunrealtype *b, sunrealtype *c1, sunrealtype *c2, sunrealtype *c3, int s)
 {
   sunrealtype bccc;
   sunrealtype *tmp1 = calloc( s, sizeof(sunrealtype) );
@@ -1600,7 +1600,7 @@ static booleantype __order4a(sunrealtype *b, sunrealtype *c1, sunrealtype *c2, s
 }
 
 /* (b.*c1)'*(A*c2) = 1/8 */
-static booleantype __order4b(sunrealtype *b, sunrealtype *c1, sunrealtype **A, sunrealtype *c2, int s)
+static sunbooleantype __order4b(sunrealtype *b, sunrealtype *c1, sunrealtype **A, sunrealtype *c2, int s)
 {
   sunrealtype bcAc;
   sunrealtype *tmp1 = calloc( s, sizeof(sunrealtype) );
@@ -1613,7 +1613,7 @@ static booleantype __order4b(sunrealtype *b, sunrealtype *c1, sunrealtype **A, s
 }
 
 /* b'*A*(c1.*c2) = 1/12 */
-static booleantype __order4c(sunrealtype *b, sunrealtype **A, sunrealtype *c1, sunrealtype *c2, int s)
+static sunbooleantype __order4c(sunrealtype *b, sunrealtype **A, sunrealtype *c1, sunrealtype *c2, int s)
 {
   sunrealtype bAcc;
   sunrealtype *tmp1 = calloc( s, sizeof(sunrealtype) );
@@ -1626,7 +1626,7 @@ static booleantype __order4c(sunrealtype *b, sunrealtype **A, sunrealtype *c1, s
 }
 
 /* b'*A1*A2*c = 1/24 */
-static booleantype __order4d(sunrealtype *b, sunrealtype **A1, sunrealtype **A2, sunrealtype *c, int s)
+static sunbooleantype __order4d(sunrealtype *b, sunrealtype **A1, sunrealtype **A2, sunrealtype *c, int s)
 {
   sunrealtype bAAc;
   sunrealtype *tmp1 = calloc( s, sizeof(sunrealtype) );
@@ -1639,7 +1639,7 @@ static booleantype __order4d(sunrealtype *b, sunrealtype **A1, sunrealtype **A2,
 }
 
 /* b'*(c1.*c2.*c3.*c4) = 1/5 */
-static booleantype __order5a(sunrealtype *b, sunrealtype *c1, sunrealtype *c2, sunrealtype *c3, sunrealtype *c4, int s)
+static sunbooleantype __order5a(sunrealtype *b, sunrealtype *c1, sunrealtype *c2, sunrealtype *c3, sunrealtype *c4, int s)
 {
   sunrealtype bcccc;
   sunrealtype *tmp1 = calloc( s, sizeof(sunrealtype) );
@@ -1653,7 +1653,7 @@ static booleantype __order5a(sunrealtype *b, sunrealtype *c1, sunrealtype *c2, s
 }
 
 /* (b.*c1.*c2)'*(A*c3) = 1/10 */
-static booleantype __order5b(sunrealtype *b, sunrealtype *c1, sunrealtype *c2, sunrealtype **A, sunrealtype *c3, int s)
+static sunbooleantype __order5b(sunrealtype *b, sunrealtype *c1, sunrealtype *c2, sunrealtype **A, sunrealtype *c3, int s)
 {
   sunrealtype bccAc;
   sunrealtype *tmp1 = calloc( s, sizeof(sunrealtype) );
@@ -1667,7 +1667,7 @@ static booleantype __order5b(sunrealtype *b, sunrealtype *c1, sunrealtype *c2, s
 }
 
 /* b'*((A1*c1).*(A2*c2)) = 1/20 */
-static booleantype __order5c(sunrealtype *b, sunrealtype **A1, sunrealtype *c1, sunrealtype **A2, sunrealtype *c2, int s)
+static sunbooleantype __order5c(sunrealtype *b, sunrealtype **A1, sunrealtype *c1, sunrealtype **A2, sunrealtype *c2, int s)
 {
   sunrealtype bAcAc;
   sunrealtype *tmp1 = calloc( s, sizeof(sunrealtype) );
@@ -1682,7 +1682,7 @@ static booleantype __order5c(sunrealtype *b, sunrealtype **A1, sunrealtype *c1, 
 }
 
 /* (b.*c1)'*A*(c2.*c3) = 1/15 */
-static booleantype __order5d(sunrealtype *b, sunrealtype *c1, sunrealtype **A, sunrealtype *c2, sunrealtype *c3, int s)
+static sunbooleantype __order5d(sunrealtype *b, sunrealtype *c1, sunrealtype **A, sunrealtype *c2, sunrealtype *c3, int s)
 {
   sunrealtype bcAcc;
   sunrealtype *tmp1 = calloc( s, sizeof(sunrealtype) );
@@ -1696,7 +1696,7 @@ static booleantype __order5d(sunrealtype *b, sunrealtype *c1, sunrealtype **A, s
 }
 
 /* b'*A*(c1.*c2.*c3) = 1/20 */
-static booleantype __order5e(sunrealtype *b, sunrealtype **A, sunrealtype *c1, sunrealtype *c2, sunrealtype *c3, int s)
+static sunbooleantype __order5e(sunrealtype *b, sunrealtype **A, sunrealtype *c1, sunrealtype *c2, sunrealtype *c3, int s)
 {
   sunrealtype bAccc;
   sunrealtype *tmp1 = calloc( s, sizeof(sunrealtype) );
@@ -1710,7 +1710,7 @@ static booleantype __order5e(sunrealtype *b, sunrealtype **A, sunrealtype *c1, s
 }
 
 /* (b.*c1)'*A1*A2*c2 = 1/30 */
-static booleantype __order5f(sunrealtype *b, sunrealtype *c1, sunrealtype **A1, sunrealtype **A2, sunrealtype *c2, int s)
+static sunbooleantype __order5f(sunrealtype *b, sunrealtype *c1, sunrealtype **A1, sunrealtype **A2, sunrealtype *c2, int s)
 {
   sunrealtype bcAAc;
   sunrealtype *tmp1 = calloc( s, sizeof(sunrealtype) );
@@ -1724,7 +1724,7 @@ static booleantype __order5f(sunrealtype *b, sunrealtype *c1, sunrealtype **A1, 
 }
 
 /* b'*A1*(c1.*(A2*c2)) = 1/40 */
-static booleantype __order5g(sunrealtype *b, sunrealtype **A1, sunrealtype *c1, sunrealtype **A2, sunrealtype *c2, int s)
+static sunbooleantype __order5g(sunrealtype *b, sunrealtype **A1, sunrealtype *c1, sunrealtype **A2, sunrealtype *c2, int s)
 {
   sunrealtype bAcAc;
   sunrealtype *tmp1 = calloc( s, sizeof(sunrealtype) );
@@ -1738,7 +1738,7 @@ static booleantype __order5g(sunrealtype *b, sunrealtype **A1, sunrealtype *c1, 
 }
 
 /* b'*A1*A2*(c1.*c2) = 1/60 */
-static booleantype __order5h(sunrealtype *b, sunrealtype **A1, sunrealtype **A2, sunrealtype *c1, sunrealtype *c2, int s)
+static sunbooleantype __order5h(sunrealtype *b, sunrealtype **A1, sunrealtype **A2, sunrealtype *c1, sunrealtype *c2, int s)
 {
   sunrealtype bAAcc;
   sunrealtype *tmp1 = calloc( s, sizeof(sunrealtype) );
@@ -1752,7 +1752,7 @@ static booleantype __order5h(sunrealtype *b, sunrealtype **A1, sunrealtype **A2,
 }
 
 /* b'*A1*A2*A3*c = 1/120 */
-static booleantype __order5i(sunrealtype *b, sunrealtype **A1, sunrealtype **A2, sunrealtype **A3, sunrealtype *c, int s)
+static sunbooleantype __order5i(sunrealtype *b, sunrealtype **A1, sunrealtype **A2, sunrealtype **A3, sunrealtype *c, int s)
 {
   sunrealtype bAAAc;
   sunrealtype *tmp1 = calloc( s, sizeof(sunrealtype) );
@@ -1766,7 +1766,7 @@ static booleantype __order5i(sunrealtype *b, sunrealtype **A1, sunrealtype **A2,
 }
 
 /* b'*(c1.*c2.*c3.*c4.*c5) = 1/6 */
-static booleantype __order6a(sunrealtype *b, sunrealtype *c1, sunrealtype *c2, sunrealtype *c3, sunrealtype *c4, sunrealtype *c5, int s)
+static sunbooleantype __order6a(sunrealtype *b, sunrealtype *c1, sunrealtype *c2, sunrealtype *c3, sunrealtype *c4, sunrealtype *c5, int s)
 {
   sunrealtype bccccc;
   sunrealtype *tmp1 = calloc( s, sizeof(sunrealtype) );
@@ -1781,7 +1781,7 @@ static booleantype __order6a(sunrealtype *b, sunrealtype *c1, sunrealtype *c2, s
 }
 
 /* (b.*c1.*c2.*c3)'*(A*c4) = 1/12 */
-static booleantype __order6b(sunrealtype *b, sunrealtype *c1, sunrealtype *c2, sunrealtype *c3, sunrealtype **A, sunrealtype *c4, int s)
+static sunbooleantype __order6b(sunrealtype *b, sunrealtype *c1, sunrealtype *c2, sunrealtype *c3, sunrealtype **A, sunrealtype *c4, int s)
 {
   sunrealtype bcccAc;
   sunrealtype *tmp1 = calloc( s, sizeof(sunrealtype) );
@@ -1796,7 +1796,7 @@ static booleantype __order6b(sunrealtype *b, sunrealtype *c1, sunrealtype *c2, s
 }
 
 /* b'*(c1.*(A1*c2).*(A2*c3)) = 1/24 */
-static booleantype __order6c(sunrealtype *b, sunrealtype *c1, sunrealtype **A1, sunrealtype *c2, sunrealtype **A2, sunrealtype *c3, int s)
+static sunbooleantype __order6c(sunrealtype *b, sunrealtype *c1, sunrealtype **A1, sunrealtype *c2, sunrealtype **A2, sunrealtype *c3, int s)
 {
   sunrealtype bcAc2;
   sunrealtype *tmp1 = calloc( s, sizeof(sunrealtype) );
@@ -1812,7 +1812,7 @@ static booleantype __order6c(sunrealtype *b, sunrealtype *c1, sunrealtype **A1, 
 }
 
 /* (b.*c1.*c2)'*A*(c3.*c4) = 1/18 */
-static booleantype __order6d(sunrealtype *b, sunrealtype *c1, sunrealtype *c2, sunrealtype **A, sunrealtype *c3, sunrealtype *c4, int s)
+static sunbooleantype __order6d(sunrealtype *b, sunrealtype *c1, sunrealtype *c2, sunrealtype **A, sunrealtype *c3, sunrealtype *c4, int s)
 {
   sunrealtype bccAcc;
   sunrealtype *tmp1 = calloc( s, sizeof(sunrealtype) );
@@ -1828,7 +1828,7 @@ static booleantype __order6d(sunrealtype *b, sunrealtype *c1, sunrealtype *c2, s
 }
 
 /* (b.*(c1.*c2))'*A1*A2*c3 = 1/36 */
-static booleantype __order6e(sunrealtype *b, sunrealtype *c1, sunrealtype *c2, sunrealtype **A1, sunrealtype **A2, sunrealtype *c3, int s)
+static sunbooleantype __order6e(sunrealtype *b, sunrealtype *c1, sunrealtype *c2, sunrealtype **A1, sunrealtype **A2, sunrealtype *c3, int s)
 {
   sunrealtype bccAAc;
   sunrealtype *tmp1 = calloc( s, sizeof(sunrealtype) );
@@ -1844,7 +1844,7 @@ static booleantype __order6e(sunrealtype *b, sunrealtype *c1, sunrealtype *c2, s
 }
 
 /* b'*((A1*A2*c1).*(A3*c2)) = 1/72 */
-static booleantype __order6f(sunrealtype *b, sunrealtype **A1, sunrealtype **A2, sunrealtype *c1, sunrealtype **A3, sunrealtype *c2, int s)
+static sunbooleantype __order6f(sunrealtype *b, sunrealtype **A1, sunrealtype **A2, sunrealtype *c1, sunrealtype **A3, sunrealtype *c2, int s)
 {
   sunrealtype bAAcAc;
   sunrealtype *tmp1 = calloc( s, sizeof(sunrealtype) );
@@ -1860,7 +1860,7 @@ static booleantype __order6f(sunrealtype *b, sunrealtype **A1, sunrealtype **A2,
 }
 
 /* b'*(c1.*(A*(c2.*c3.*c4))) = 1/24 */
-static booleantype __order6g(sunrealtype *b, sunrealtype *c1, sunrealtype **A, sunrealtype *c2, sunrealtype *c3, sunrealtype *c4, int s)
+static sunbooleantype __order6g(sunrealtype *b, sunrealtype *c1, sunrealtype **A, sunrealtype *c2, sunrealtype *c3, sunrealtype *c4, int s)
 {
   sunrealtype bcAccc;
   sunrealtype *tmp1 = calloc( s, sizeof(sunrealtype) );
@@ -1875,7 +1875,7 @@ static booleantype __order6g(sunrealtype *b, sunrealtype *c1, sunrealtype **A, s
 }
 
 /* b'*(c1.*(A1*(c2.*(A2*c3)))) = 1/48 */
-static booleantype __order6h(sunrealtype *b, sunrealtype *c1, sunrealtype **A1, sunrealtype *c2, sunrealtype **A2, sunrealtype *c3, int s)
+static sunbooleantype __order6h(sunrealtype *b, sunrealtype *c1, sunrealtype **A1, sunrealtype *c2, sunrealtype **A2, sunrealtype *c3, int s)
 {
   sunrealtype bcAcAc;
   sunrealtype *tmp1 = calloc( s, sizeof(sunrealtype) );
@@ -1890,7 +1890,7 @@ static booleantype __order6h(sunrealtype *b, sunrealtype *c1, sunrealtype **A1, 
 }
 
 /* b'*(c1.*(A1*A2*(c2.*c3))) = 1/72 */
-static booleantype __order6i(sunrealtype *b, sunrealtype *c1, sunrealtype **A1, sunrealtype **A2, sunrealtype *c2, sunrealtype *c3, int s)
+static sunbooleantype __order6i(sunrealtype *b, sunrealtype *c1, sunrealtype **A1, sunrealtype **A2, sunrealtype *c2, sunrealtype *c3, int s)
 {
   sunrealtype bcAAcc;
   sunrealtype *tmp1 = calloc( s, sizeof(sunrealtype) );
@@ -1905,7 +1905,7 @@ static booleantype __order6i(sunrealtype *b, sunrealtype *c1, sunrealtype **A1, 
 }
 
 /* b'*(c1.*(A1*A2*A3*c2)) = 1/144 */
-static booleantype __order6j(sunrealtype *b, sunrealtype *c1, sunrealtype **A1, sunrealtype **A2, sunrealtype **A3, sunrealtype *c2, int s)
+static sunbooleantype __order6j(sunrealtype *b, sunrealtype *c1, sunrealtype **A1, sunrealtype **A2, sunrealtype **A3, sunrealtype *c2, int s)
 {
   sunrealtype bcAAAc;
   sunrealtype *tmp1 = calloc( s, sizeof(sunrealtype) );
@@ -1920,7 +1920,7 @@ static booleantype __order6j(sunrealtype *b, sunrealtype *c1, sunrealtype **A1, 
 }
 
 /* b'*A*(c1.*c2.*c3.*c4) = 1/30 */
-static booleantype __order6k(sunrealtype *b, sunrealtype **A, sunrealtype *c1, sunrealtype *c2, sunrealtype *c3, sunrealtype *c4, int s)
+static sunbooleantype __order6k(sunrealtype *b, sunrealtype **A, sunrealtype *c1, sunrealtype *c2, sunrealtype *c3, sunrealtype *c4, int s)
 {
   sunrealtype bAcccc;
   sunrealtype *tmp1 = calloc( s, sizeof(sunrealtype) );
@@ -1935,7 +1935,7 @@ static booleantype __order6k(sunrealtype *b, sunrealtype **A, sunrealtype *c1, s
 }
 
 /* b'*A1*(c1.*c2.*(A2*c3)) = 1/60 */
-static booleantype __order6l(sunrealtype *b, sunrealtype **A1, sunrealtype *c1, sunrealtype *c2, sunrealtype **A2, sunrealtype *c3, int s)
+static sunbooleantype __order6l(sunrealtype *b, sunrealtype **A1, sunrealtype *c1, sunrealtype *c2, sunrealtype **A2, sunrealtype *c3, int s)
 {
   sunrealtype bAccAc;
   sunrealtype *tmp1 = calloc( s, sizeof(sunrealtype) );
@@ -1950,7 +1950,7 @@ static booleantype __order6l(sunrealtype *b, sunrealtype **A1, sunrealtype *c1, 
 }
 
 /* b'*A1*((A2*c1).*(A3*c2)) = 1/120 */
-static booleantype __order6m(sunrealtype *b, sunrealtype **A1, sunrealtype **A2, sunrealtype *c1, sunrealtype **A3, sunrealtype *c2, int s)
+static sunbooleantype __order6m(sunrealtype *b, sunrealtype **A1, sunrealtype **A2, sunrealtype *c1, sunrealtype **A3, sunrealtype *c2, int s)
 {
   sunrealtype bAAcAc;
   sunrealtype *tmp1 = calloc( s, sizeof(sunrealtype) );
@@ -1966,7 +1966,7 @@ static booleantype __order6m(sunrealtype *b, sunrealtype **A1, sunrealtype **A2,
 }
 
 /* b'*A1*(c1.*(A2*(c2.*c3))) = 1/90 */
-static booleantype __order6n(sunrealtype *b, sunrealtype **A1, sunrealtype *c1, sunrealtype **A2, sunrealtype *c2, sunrealtype *c3, int s)
+static sunbooleantype __order6n(sunrealtype *b, sunrealtype **A1, sunrealtype *c1, sunrealtype **A2, sunrealtype *c2, sunrealtype *c3, int s)
 {
   sunrealtype bAcAcc;
   sunrealtype *tmp1 = calloc( s, sizeof(sunrealtype) );
@@ -1981,7 +1981,7 @@ static booleantype __order6n(sunrealtype *b, sunrealtype **A1, sunrealtype *c1, 
 }
 
 /* b'*A1*(c1.*(A2*A3*c2)) = 1/180 */
-static booleantype __order6o(sunrealtype *b, sunrealtype **A1, sunrealtype *c1, sunrealtype **A2, sunrealtype **A3, sunrealtype *c2, int s)
+static sunbooleantype __order6o(sunrealtype *b, sunrealtype **A1, sunrealtype *c1, sunrealtype **A2, sunrealtype **A3, sunrealtype *c2, int s)
 {
   sunrealtype bAcAAc;
   sunrealtype *tmp1 = calloc( s, sizeof(sunrealtype) );
@@ -1996,7 +1996,7 @@ static booleantype __order6o(sunrealtype *b, sunrealtype **A1, sunrealtype *c1, 
 }
 
 /* b'*A1*A2*(c1.*c2.*c3) = 1/120 */
-static booleantype __order6p(sunrealtype *b, sunrealtype **A1, sunrealtype **A2, sunrealtype *c1, sunrealtype *c2, sunrealtype *c3, int s)
+static sunbooleantype __order6p(sunrealtype *b, sunrealtype **A1, sunrealtype **A2, sunrealtype *c1, sunrealtype *c2, sunrealtype *c3, int s)
 {
   sunrealtype bAAccc;
   sunrealtype *tmp1 = calloc( s, sizeof(sunrealtype) );
@@ -2011,7 +2011,7 @@ static booleantype __order6p(sunrealtype *b, sunrealtype **A1, sunrealtype **A2,
 }
 
 /* b'*A1*A2*(c1.*(A3*c2)) = 1/240 */
-static booleantype __order6q(sunrealtype *b, sunrealtype **A1, sunrealtype **A2, sunrealtype *c1, sunrealtype **A3, sunrealtype *c2, int s)
+static sunbooleantype __order6q(sunrealtype *b, sunrealtype **A1, sunrealtype **A2, sunrealtype *c1, sunrealtype **A3, sunrealtype *c2, int s)
 {
   sunrealtype bAAcAc;
   sunrealtype *tmp1 = calloc( s, sizeof(sunrealtype) );
@@ -2026,7 +2026,7 @@ static booleantype __order6q(sunrealtype *b, sunrealtype **A1, sunrealtype **A2,
 }
 
 /* b'*A1*A2*A3*(c1.*c2) = 1/360 */
-static booleantype __order6r(sunrealtype *b, sunrealtype **A1, sunrealtype **A2, sunrealtype **A3, sunrealtype *c1, sunrealtype *c2, int s)
+static sunbooleantype __order6r(sunrealtype *b, sunrealtype **A1, sunrealtype **A2, sunrealtype **A3, sunrealtype *c1, sunrealtype *c2, int s)
 {
   sunrealtype bAAAcc;
   sunrealtype *tmp1 = calloc( s, sizeof(sunrealtype) );
@@ -2041,7 +2041,7 @@ static booleantype __order6r(sunrealtype *b, sunrealtype **A1, sunrealtype **A2,
 }
 
 /* b'*A1*A2*A3*A4*c = 1/720 */
-static booleantype __order6s(sunrealtype *b, sunrealtype **A1, sunrealtype **A2, sunrealtype **A3, sunrealtype **A4, sunrealtype *c, int s)
+static sunbooleantype __order6s(sunrealtype *b, sunrealtype **A1, sunrealtype **A2, sunrealtype **A3, sunrealtype **A4, sunrealtype *c, int s)
 {
   sunrealtype bAAAAc;
   sunrealtype *tmp1 = calloc( s, sizeof(sunrealtype) );
@@ -2064,7 +2064,7 @@ static int __ButcherSimplifyingAssumptions(sunrealtype **A, sunrealtype *b, sunr
 {
   int P, Q, R, i, j, k, q;
   sunrealtype RHS, LHS;
-  booleantype alltrue;
+  sunbooleantype alltrue;
   sunrealtype *tmp = calloc( s, sizeof(sunrealtype) );
 
   /* B(P) */

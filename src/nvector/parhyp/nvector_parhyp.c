@@ -482,7 +482,7 @@ void N_VLinearSum_ParHyp(sunrealtype a, N_Vector x, sunrealtype b, N_Vector y, N
   sunindextype i, N;
   sunrealtype c, *xd, *yd, *zd;
   N_Vector v1, v2;
-  booleantype test;
+  sunbooleantype test;
 
   xd = yd = zd = NULL;
 
@@ -856,7 +856,7 @@ void N_VCompare_ParHyp(sunrealtype c, N_Vector x, N_Vector z)
   return;
 }
 
-booleantype N_VInvTestLocal_ParHyp(N_Vector x, N_Vector z)
+sunbooleantype N_VInvTestLocal_ParHyp(N_Vector x, N_Vector z)
 {
   sunindextype i, N;
   sunrealtype *xd, *zd, val;
@@ -878,7 +878,7 @@ booleantype N_VInvTestLocal_ParHyp(N_Vector x, N_Vector z)
     return(SUNTRUE);
 }
 
-booleantype N_VInvTest_ParHyp(N_Vector x, N_Vector z)
+sunbooleantype N_VInvTest_ParHyp(N_Vector x, N_Vector z)
 {
   sunrealtype val, gval;
   val = (N_VInvTestLocal_ParHyp(x, z)) ? ONE : ZERO;
@@ -889,12 +889,12 @@ booleantype N_VInvTest_ParHyp(N_Vector x, N_Vector z)
     return(SUNTRUE);
 }
 
-booleantype N_VConstrMaskLocal_ParHyp(N_Vector c, N_Vector x, N_Vector m)
+sunbooleantype N_VConstrMaskLocal_ParHyp(N_Vector c, N_Vector x, N_Vector m)
 {
   sunindextype i, N;
   sunrealtype temp;
   sunrealtype *cd, *xd, *md;
-  booleantype test;
+  sunbooleantype test;
 
   N  = NV_LOCLENGTH_PH(x);
   xd = NV_DATA_PH(x);
@@ -922,7 +922,7 @@ booleantype N_VConstrMaskLocal_ParHyp(N_Vector c, N_Vector x, N_Vector m)
   return (temp == ONE) ? SUNFALSE : SUNTRUE;
 }
 
-booleantype N_VConstrMask_ParHyp(N_Vector c, N_Vector x, N_Vector m)
+sunbooleantype N_VConstrMask_ParHyp(N_Vector c, N_Vector x, N_Vector m)
 {
   sunrealtype temp, temp2;
   temp = (N_VConstrMaskLocal_ParHyp(c, x, m)) ? ZERO : ONE;
@@ -932,7 +932,7 @@ booleantype N_VConstrMask_ParHyp(N_Vector c, N_Vector x, N_Vector m)
 
 sunrealtype N_VMinQuotientLocal_ParHyp(N_Vector num, N_Vector denom)
 {
-  booleantype notEvenOnce;
+  sunbooleantype notEvenOnce;
   sunindextype i, N;
   sunrealtype *nd, *dd, min;
 
@@ -1788,7 +1788,7 @@ static void VLin2_ParHyp(sunrealtype a, N_Vector x, N_Vector y, N_Vector z)
  * -----------------------------------------------------------------
  */
 
-int N_VEnableFusedOps_ParHyp(N_Vector v, booleantype tf)
+int N_VEnableFusedOps_ParHyp(N_Vector v, sunbooleantype tf)
 {
   /* check that vector is non-NULL */
   if (v == NULL) return(-1);
@@ -1833,7 +1833,7 @@ int N_VEnableFusedOps_ParHyp(N_Vector v, booleantype tf)
 }
 
 
-int N_VEnableLinearCombination_ParHyp(N_Vector v, booleantype tf)
+int N_VEnableLinearCombination_ParHyp(N_Vector v, sunbooleantype tf)
 {
   /* check that vector is non-NULL */
   if (v == NULL) return(-1);
@@ -1851,7 +1851,7 @@ int N_VEnableLinearCombination_ParHyp(N_Vector v, booleantype tf)
   return(0);
 }
 
-int N_VEnableScaleAddMulti_ParHyp(N_Vector v, booleantype tf)
+int N_VEnableScaleAddMulti_ParHyp(N_Vector v, sunbooleantype tf)
 {
   /* check that vector is non-NULL */
   if (v == NULL) return(-1);
@@ -1869,7 +1869,7 @@ int N_VEnableScaleAddMulti_ParHyp(N_Vector v, booleantype tf)
   return(0);
 }
 
-int N_VEnableDotProdMulti_ParHyp(N_Vector v, booleantype tf)
+int N_VEnableDotProdMulti_ParHyp(N_Vector v, sunbooleantype tf)
 {
   /* check that vector is non-NULL */
   if (v == NULL) return(-1);
@@ -1887,7 +1887,7 @@ int N_VEnableDotProdMulti_ParHyp(N_Vector v, booleantype tf)
   return(0);
 }
 
-int N_VEnableLinearSumVectorArray_ParHyp(N_Vector v, booleantype tf)
+int N_VEnableLinearSumVectorArray_ParHyp(N_Vector v, sunbooleantype tf)
 {
   /* check that vector is non-NULL */
   if (v == NULL) return(-1);
@@ -1905,7 +1905,7 @@ int N_VEnableLinearSumVectorArray_ParHyp(N_Vector v, booleantype tf)
   return(0);
 }
 
-int N_VEnableScaleVectorArray_ParHyp(N_Vector v, booleantype tf)
+int N_VEnableScaleVectorArray_ParHyp(N_Vector v, sunbooleantype tf)
 {
   /* check that vector is non-NULL */
   if (v == NULL) return(-1);
@@ -1923,7 +1923,7 @@ int N_VEnableScaleVectorArray_ParHyp(N_Vector v, booleantype tf)
   return(0);
 }
 
-int N_VEnableConstVectorArray_ParHyp(N_Vector v, booleantype tf)
+int N_VEnableConstVectorArray_ParHyp(N_Vector v, sunbooleantype tf)
 {
   /* check that vector is non-NULL */
   if (v == NULL) return(-1);
@@ -1941,7 +1941,7 @@ int N_VEnableConstVectorArray_ParHyp(N_Vector v, booleantype tf)
   return(0);
 }
 
-int N_VEnableWrmsNormVectorArray_ParHyp(N_Vector v, booleantype tf)
+int N_VEnableWrmsNormVectorArray_ParHyp(N_Vector v, sunbooleantype tf)
 {
   /* check that vector is non-NULL */
   if (v == NULL) return(-1);
@@ -1959,7 +1959,7 @@ int N_VEnableWrmsNormVectorArray_ParHyp(N_Vector v, booleantype tf)
   return(0);
 }
 
-int N_VEnableWrmsNormMaskVectorArray_ParHyp(N_Vector v, booleantype tf)
+int N_VEnableWrmsNormMaskVectorArray_ParHyp(N_Vector v, sunbooleantype tf)
 {
   /* check that vector is non-NULL */
   if (v == NULL) return(-1);
@@ -1977,7 +1977,7 @@ int N_VEnableWrmsNormMaskVectorArray_ParHyp(N_Vector v, booleantype tf)
   return(0);
 }
 
-int N_VEnableScaleAddMultiVectorArray_ParHyp(N_Vector v, booleantype tf)
+int N_VEnableScaleAddMultiVectorArray_ParHyp(N_Vector v, sunbooleantype tf)
 {
   /* check that vector is non-NULL */
   if (v == NULL) return(-1);
@@ -1995,7 +1995,7 @@ int N_VEnableScaleAddMultiVectorArray_ParHyp(N_Vector v, booleantype tf)
   return(0);
 }
 
-int N_VEnableLinearCombinationVectorArray_ParHyp(N_Vector v, booleantype tf)
+int N_VEnableLinearCombinationVectorArray_ParHyp(N_Vector v, sunbooleantype tf)
 {
   /* check that vector is non-NULL */
   if (v == NULL) return(-1);
@@ -2013,7 +2013,7 @@ int N_VEnableLinearCombinationVectorArray_ParHyp(N_Vector v, booleantype tf)
   return(0);
 }
 
-int N_VEnableDotProdMultiLocal_ParHyp(N_Vector v, booleantype tf)
+int N_VEnableDotProdMultiLocal_ParHyp(N_Vector v, sunbooleantype tf)
 {
   /* check that vector is non-NULL */
   if (v == NULL) return(-1);

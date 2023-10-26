@@ -39,7 +39,7 @@ extern "C" {
 struct _N_VectorContent_Sycl
 {
   sunindextype       length;
-  booleantype        own_helper;
+  sunbooleantype        own_helper;
   SUNMemory          host_data;
   SUNMemory          device_data;
   SUNSyclExecPolicy* stream_exec_policy;
@@ -65,7 +65,7 @@ SUNDIALS_EXPORT N_Vector N_VNewManaged_Sycl(sunindextype length,
                                             ::sycl::queue *Q,
                                             SUNContext sunctx);
 SUNDIALS_EXPORT N_Vector N_VNewWithMemHelp_Sycl(sunindextype length,
-                                                booleantype use_managed_mem,
+                                                sunbooleantype use_managed_mem,
                                                 SUNMemoryHelper helper,
                                                 ::sycl::queue *Q,
                                                 SUNContext sunctx);
@@ -82,7 +82,7 @@ SUNDIALS_EXPORT N_Vector N_VMakeManaged_Sycl(sunindextype length,
 SUNDIALS_EXPORT void N_VSetHostArrayPointer_Sycl(sunrealtype* h_vdata, N_Vector v);
 SUNDIALS_EXPORT void N_VSetDeviceArrayPointer_Sycl(sunrealtype* d_vdata,
                                                    N_Vector v);
-SUNDIALS_EXPORT booleantype N_VIsManagedMemory_Sycl(N_Vector x);
+SUNDIALS_EXPORT sunbooleantype N_VIsManagedMemory_Sycl(N_Vector x);
 SUNDIALS_EXPORT int N_VSetKernelExecPolicy_Sycl(N_Vector x,
                                                 SUNSyclExecPolicy* stream_exec_policy,
                                                 SUNSyclExecPolicy* reduce_exec_policy);
@@ -147,8 +147,8 @@ SUNDIALS_EXPORT sunrealtype N_VMin_Sycl(N_Vector x);
 SUNDIALS_EXPORT sunrealtype N_VWL2Norm_Sycl(N_Vector x, N_Vector w);
 SUNDIALS_EXPORT sunrealtype N_VL1Norm_Sycl(N_Vector x);
 SUNDIALS_EXPORT void N_VCompare_Sycl(sunrealtype c, N_Vector x, N_Vector z);
-SUNDIALS_EXPORT booleantype N_VInvTest_Sycl(N_Vector x, N_Vector z);
-SUNDIALS_EXPORT booleantype N_VConstrMask_Sycl(N_Vector c, N_Vector x,
+SUNDIALS_EXPORT sunbooleantype N_VInvTest_Sycl(N_Vector x, N_Vector z);
+SUNDIALS_EXPORT sunbooleantype N_VConstrMask_Sycl(N_Vector c, N_Vector x,
                                                N_Vector m);
 SUNDIALS_EXPORT sunrealtype N_VMinQuotient_Sycl(N_Vector num, N_Vector denom);
 
@@ -199,24 +199,24 @@ SUNDIALS_EXPORT void N_VPrintFile_Sycl(N_Vector v, FILE *outfile);
  * ----------------------------------------------------------------- */
 
 
-SUNDIALS_EXPORT int N_VEnableFusedOps_Sycl(N_Vector v, booleantype tf);
+SUNDIALS_EXPORT int N_VEnableFusedOps_Sycl(N_Vector v, sunbooleantype tf);
 
-SUNDIALS_EXPORT int N_VEnableLinearCombination_Sycl(N_Vector v, booleantype tf);
-SUNDIALS_EXPORT int N_VEnableScaleAddMulti_Sycl(N_Vector v, booleantype tf);
-SUNDIALS_EXPORT int N_VEnableDotProdMulti_Sycl(N_Vector v, booleantype tf);
+SUNDIALS_EXPORT int N_VEnableLinearCombination_Sycl(N_Vector v, sunbooleantype tf);
+SUNDIALS_EXPORT int N_VEnableScaleAddMulti_Sycl(N_Vector v, sunbooleantype tf);
+SUNDIALS_EXPORT int N_VEnableDotProdMulti_Sycl(N_Vector v, sunbooleantype tf);
 
 SUNDIALS_EXPORT int N_VEnableLinearSumVectorArray_Sycl(N_Vector v,
-                                                       booleantype tf);
-SUNDIALS_EXPORT int N_VEnableScaleVectorArray_Sycl(N_Vector v, booleantype tf);
-SUNDIALS_EXPORT int N_VEnableConstVectorArray_Sycl(N_Vector v, booleantype tf);
+                                                       sunbooleantype tf);
+SUNDIALS_EXPORT int N_VEnableScaleVectorArray_Sycl(N_Vector v, sunbooleantype tf);
+SUNDIALS_EXPORT int N_VEnableConstVectorArray_Sycl(N_Vector v, sunbooleantype tf);
 SUNDIALS_EXPORT int N_VEnableWrmsNormVectorArray_Sycl(N_Vector v,
-                                                      booleantype tf);
+                                                      sunbooleantype tf);
 SUNDIALS_EXPORT int N_VEnableWrmsNormMaskVectorArray_Sycl(N_Vector v,
-                                                          booleantype tf);
+                                                          sunbooleantype tf);
 SUNDIALS_EXPORT int N_VEnableScaleAddMultiVectorArray_Sycl(N_Vector v,
-                                                           booleantype tf);
+                                                           sunbooleantype tf);
 SUNDIALS_EXPORT int N_VEnableLinearCombinationVectorArray_Sycl(N_Vector v,
-                                                               booleantype tf);
+                                                               sunbooleantype tf);
 
 #ifdef __cplusplus
 }

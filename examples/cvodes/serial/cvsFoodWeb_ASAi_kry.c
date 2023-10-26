@@ -188,7 +188,7 @@ typedef struct {
 static int f(sunrealtype t, N_Vector y, N_Vector ydot, void *user_data);
 
 static int Precond(sunrealtype t, N_Vector c, N_Vector fc,
-                   booleantype jok, booleantype *jcurPtr,
+                   sunbooleantype jok, sunbooleantype *jcurPtr,
                    sunrealtype gamma, void *user_data);
 
 static int PSolve(sunrealtype t, N_Vector c, N_Vector fc,
@@ -200,8 +200,8 @@ static int fB(sunrealtype t, N_Vector c, N_Vector cB,
                N_Vector cBdot, void *user_data);
 
 static int PrecondB(sunrealtype t, N_Vector c,
-                    N_Vector cB, N_Vector fcB, booleantype jok,
-                    booleantype *jcurPtr, sunrealtype gamma,
+                    N_Vector cB, N_Vector fcB, sunbooleantype jok,
+                    sunbooleantype *jcurPtr, sunrealtype gamma,
                     void *user_data);
 
 static int PSolveB(sunrealtype t, N_Vector c,
@@ -478,7 +478,7 @@ static int f(sunrealtype t, N_Vector c, N_Vector cdot, void *user_data)
  */
 
 static int Precond(sunrealtype t, N_Vector c, N_Vector fc,
-                   booleantype jok, booleantype *jcurPtr,
+                   sunbooleantype jok, sunbooleantype *jcurPtr,
                    sunrealtype gamma, void *user_data)
 {
   sunrealtype ***P;
@@ -688,8 +688,8 @@ static int fB(sunrealtype t, N_Vector c, N_Vector cB,
  */
 
 static int PrecondB(sunrealtype t, N_Vector c,
-                    N_Vector cB, N_Vector fcB, booleantype jok,
-                    booleantype *jcurPtr, sunrealtype gamma,
+                    N_Vector cB, N_Vector fcB, sunbooleantype jok,
+                    sunbooleantype *jcurPtr, sunrealtype gamma,
                     void *user_data)
 {
   sunrealtype ***P;

@@ -23,7 +23,7 @@
  *     be found in the header file sundials_types.h, and it may be
  *     changed (at the configuration stage) according to the user's needs.
  *     The sundials_types.h file also contains the definition
- *     for the type 'booleantype'.
+ *     for the type 'sunbooleantype'.
  *
  *   - N_Vector arguments to arithmetic vector operations need not
  *     be distinct. For example, the following call:
@@ -52,7 +52,7 @@ struct _N_VectorContent_ManyVector {
   sunindextype  num_subvectors;  /* number of vectors attached       */
   sunindextype  global_length;   /* overall global manyvector length */
   N_Vector*     subvec_array;    /* pointer to N_Vector array        */
-  booleantype   own_data;        /* flag indicating data ownership   */
+  sunbooleantype   own_data;        /* flag indicating data ownership   */
 };
 
 typedef struct _N_VectorContent_ManyVector *N_VectorContent_ManyVector;
@@ -139,8 +139,8 @@ SUNDIALS_EXPORT sunrealtype N_VL1NormLocal_ManyVector(N_Vector x);
 SUNDIALS_EXPORT sunrealtype N_VWSqrSumLocal_ManyVector(N_Vector x, N_Vector w);
 SUNDIALS_EXPORT sunrealtype N_VWSqrSumMaskLocal_ManyVector(N_Vector x, N_Vector w,
                                                         N_Vector id);
-SUNDIALS_EXPORT booleantype N_VInvTestLocal_ManyVector(N_Vector x, N_Vector z);
-SUNDIALS_EXPORT booleantype N_VConstrMaskLocal_ManyVector(N_Vector c, N_Vector x,
+SUNDIALS_EXPORT sunbooleantype N_VInvTestLocal_ManyVector(N_Vector x, N_Vector z);
+SUNDIALS_EXPORT sunbooleantype N_VConstrMaskLocal_ManyVector(N_Vector c, N_Vector x,
                                                           N_Vector m);
 SUNDIALS_EXPORT sunrealtype N_VMinQuotientLocal_ManyVector(N_Vector num,
                                                         N_Vector denom);
@@ -159,19 +159,19 @@ SUNDIALS_EXPORT int N_VBufUnpack_ManyVector(N_Vector x, void *buf);
    Enable / disable fused vector operations
    ----------------------------------------------------------------- */
 
-SUNDIALS_EXPORT int N_VEnableFusedOps_ManyVector(N_Vector v, booleantype tf);
+SUNDIALS_EXPORT int N_VEnableFusedOps_ManyVector(N_Vector v, sunbooleantype tf);
 
-SUNDIALS_EXPORT int N_VEnableLinearCombination_ManyVector(N_Vector v, booleantype tf);
-SUNDIALS_EXPORT int N_VEnableScaleAddMulti_ManyVector(N_Vector v, booleantype tf);
-SUNDIALS_EXPORT int N_VEnableDotProdMulti_ManyVector(N_Vector v, booleantype tf);
+SUNDIALS_EXPORT int N_VEnableLinearCombination_ManyVector(N_Vector v, sunbooleantype tf);
+SUNDIALS_EXPORT int N_VEnableScaleAddMulti_ManyVector(N_Vector v, sunbooleantype tf);
+SUNDIALS_EXPORT int N_VEnableDotProdMulti_ManyVector(N_Vector v, sunbooleantype tf);
 
-SUNDIALS_EXPORT int N_VEnableLinearSumVectorArray_ManyVector(N_Vector v, booleantype tf);
-SUNDIALS_EXPORT int N_VEnableScaleVectorArray_ManyVector(N_Vector v, booleantype tf);
-SUNDIALS_EXPORT int N_VEnableConstVectorArray_ManyVector(N_Vector v, booleantype tf);
-SUNDIALS_EXPORT int N_VEnableWrmsNormVectorArray_ManyVector(N_Vector v, booleantype tf);
-SUNDIALS_EXPORT int N_VEnableWrmsNormMaskVectorArray_ManyVector(N_Vector v, booleantype tf);
+SUNDIALS_EXPORT int N_VEnableLinearSumVectorArray_ManyVector(N_Vector v, sunbooleantype tf);
+SUNDIALS_EXPORT int N_VEnableScaleVectorArray_ManyVector(N_Vector v, sunbooleantype tf);
+SUNDIALS_EXPORT int N_VEnableConstVectorArray_ManyVector(N_Vector v, sunbooleantype tf);
+SUNDIALS_EXPORT int N_VEnableWrmsNormVectorArray_ManyVector(N_Vector v, sunbooleantype tf);
+SUNDIALS_EXPORT int N_VEnableWrmsNormMaskVectorArray_ManyVector(N_Vector v, sunbooleantype tf);
 
-SUNDIALS_EXPORT int N_VEnableDotProdMultiLocal_ManyVector(N_Vector v, booleantype tf);
+SUNDIALS_EXPORT int N_VEnableDotProdMultiLocal_ManyVector(N_Vector v, sunbooleantype tf);
 
 #ifdef __cplusplus
 }

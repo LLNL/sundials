@@ -149,8 +149,8 @@ static int jtv(N_Vector v, N_Vector Jv, sunrealtype t,
                N_Vector y, N_Vector fy,
                void *user_data, N_Vector tmp);
 
-static int Precond(sunrealtype tn, N_Vector u, N_Vector fu, booleantype jok,
-                   booleantype *jcurPtr, sunrealtype gamma, void *user_data);
+static int Precond(sunrealtype tn, N_Vector u, N_Vector fu, sunbooleantype jok,
+                   sunbooleantype *jcurPtr, sunrealtype gamma, void *user_data);
 
 static int PSolve(sunrealtype tn, N_Vector u, N_Vector fu, N_Vector r, N_Vector z,
                   sunrealtype gamma, sunrealtype delta, int lr, void *user_data);
@@ -695,8 +695,8 @@ static int jtv(N_Vector v, N_Vector Jv, sunrealtype t,
 
 /* Preconditioner setup routine. Generate and preprocess P. */
 
-static int Precond(sunrealtype tn, N_Vector u, N_Vector fu, booleantype jok,
-                   booleantype *jcurPtr, sunrealtype gamma, void *user_data)
+static int Precond(sunrealtype tn, N_Vector u, N_Vector fu, sunbooleantype jok,
+                   sunbooleantype *jcurPtr, sunrealtype gamma, void *user_data)
 {
   sunrealtype c1, c2, cydn, cyup, diag, ydn, yup, q4coef, dely, verdco, hordco;
   sunrealtype **(*P)[MY], **(*Jbd)[MY];

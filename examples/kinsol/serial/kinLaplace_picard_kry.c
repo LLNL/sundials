@@ -64,7 +64,7 @@
 /* Private functions */
 
 static int func(N_Vector u, N_Vector f, void *user_data);
-static int jactimes(N_Vector v, N_Vector Jv, N_Vector u, booleantype *new_u,
+static int jactimes(N_Vector v, N_Vector Jv, N_Vector u, sunbooleantype *new_u,
                     void *user_data);
 static void PrintOutput(N_Vector u);
 static void PrintFinalStats(void *kmem);
@@ -283,7 +283,7 @@ static int func(N_Vector u, N_Vector f, void *user_data)
  * Jacobian vector product function
  */
 
-static int jactimes(N_Vector v, N_Vector Jv, N_Vector u, booleantype *new_u,
+static int jactimes(N_Vector v, N_Vector Jv, N_Vector u, sunbooleantype *new_u,
                     void *user_data)
 {
   sunrealtype dx, dy, hdiff, vdiff;

@@ -258,7 +258,7 @@ int SUNLinSolSetScalingVectors_PCG(SUNLinearSolver S, N_Vector s,
 }
 
 
-int SUNLinSolSetZeroGuess_PCG(SUNLinearSolver S, booleantype onoff)
+int SUNLinSolSetZeroGuess_PCG(SUNLinearSolver S, sunbooleantype onoff)
 {
   /* set flag indicating a zero initial guess */
   if (S == NULL) return(SUNLS_MEM_NULL);
@@ -302,8 +302,8 @@ int SUNLinSolSolve_PCG(SUNLinearSolver S, SUNMatrix nul, N_Vector x,
   /* local data and shortcut variables */
   sunrealtype alpha, beta, r0_norm, rho, rz, rz_old;
   N_Vector r, p, z, Ap, w;
-  booleantype UsePrec, UseScaling, converged;
-  booleantype *zeroguess;
+  sunbooleantype UsePrec, UseScaling, converged;
+  sunbooleantype *zeroguess;
   int l, l_max, pretype, ier;
   void *A_data, *P_data;
   SUNATimesFn atimes;
@@ -332,7 +332,7 @@ int SUNLinSolSolve_PCG(SUNLinearSolver S, SUNMatrix nul, N_Vector x,
   *nli = 0;
   converged = SUNFALSE;
 
-  /* set booleantype flags for internal solver options */
+  /* set sunbooleantype flags for internal solver options */
   UsePrec = ( (pretype == SUN_PREC_BOTH) ||
               (pretype == SUN_PREC_LEFT) ||
               (pretype == SUN_PREC_RIGHT) );

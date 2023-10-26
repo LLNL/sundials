@@ -59,8 +59,8 @@ typedef int (*ARKLsMassFn)(sunrealtype t, SUNMatrix M, void *user_data,
                            N_Vector tmp1, N_Vector tmp2, N_Vector tmp3);
 
 typedef int (*ARKLsPrecSetupFn)(sunrealtype t, N_Vector y,
-                                N_Vector fy, booleantype jok,
-                                booleantype *jcurPtr,
+                                N_Vector fy, sunbooleantype jok,
+                                sunbooleantype *jcurPtr,
                                 sunrealtype gamma, void *user_data);
 
 typedef int (*ARKLsPrecSolveFn)(sunrealtype t, N_Vector y,
@@ -78,7 +78,7 @@ typedef int (*ARKLsJacTimesVecFn)(N_Vector v, N_Vector Jv,
                                   N_Vector tmp);
 
 typedef int (*ARKLsLinSysFn)(sunrealtype t, N_Vector y, N_Vector fy, SUNMatrix A,
-                             SUNMatrix M, booleantype jok, booleantype *jcur,
+                             SUNMatrix M, sunbooleantype jok, sunbooleantype *jcur,
                              sunrealtype gamma, void *user_data, N_Vector tmp1,
                              N_Vector tmp2, N_Vector tmp3);
 

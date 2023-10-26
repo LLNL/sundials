@@ -1809,7 +1809,7 @@ int Test_N_VInvTest(N_Vector X, N_Vector Z, sunindextype local_length, int myid)
   int          fails = 0, failure = 0;
   double       start_time, stop_time, maxt;
   sunindextype i;
-  booleantype  ans, exp;
+  sunbooleantype  ans, exp;
 
   if (local_length < 2) {
     printf("Error Test_N_VInvTest: Local vector length is %ld, length must be >= 2\n",
@@ -1905,7 +1905,7 @@ int Test_N_VConstrMask(N_Vector C, N_Vector X, N_Vector M,
   int          fails = 0, failure = 0;
   double       start_time, stop_time, maxt;
   sunindextype i;
-  booleantype  test;
+  sunbooleantype  test;
 
   if (local_length < 7) {
     printf("Error Test_N_VConstrMask: Local vector length is %ld, length must be >= 7\n",
@@ -5058,7 +5058,7 @@ int Test_N_VInvTestLocal(N_Vector X, N_Vector Z, sunindextype local_length, int 
   double       start_time, stop_time, maxt;
   sunrealtype     xval;
   sunindextype i;
-  booleantype  test;
+  sunbooleantype  test;
 
   if (local_length < 2) {
     printf("Error Test_N_VInvTestLocal: Local vector length is %ld, length must be >= 2\n",
@@ -5150,7 +5150,7 @@ int Test_N_VConstrMaskLocal(N_Vector C, N_Vector X, N_Vector M,
   int          fails = 0, failure = 0;
   double       start_time, stop_time, maxt;
   sunindextype i;
-  booleantype  test;
+  sunbooleantype  test;
 
   if (local_length < 7) {
     printf("Error Test_N_VConstrMaskLocal: Local vector length is %ld, length must be >= 7\n",

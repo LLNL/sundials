@@ -299,7 +299,7 @@ int check_vector(N_Vector actual, N_Vector expected, sunrealtype tol)
     return(0);
 }
 
-booleantype has_data(SUNMatrix A)
+sunbooleantype has_data(SUNMatrix A)
 {
   sunrealtype *Adata = SUNMatrix_MagmaDense_Data(A);
   if (Adata == NULL)
@@ -308,7 +308,7 @@ booleantype has_data(SUNMatrix A)
     return SUNTRUE;
 }
 
-booleantype is_square(SUNMatrix A)
+sunbooleantype is_square(SUNMatrix A)
 {
   if (SUNMatrix_MagmaDense_Rows(A) == SUNMatrix_MagmaDense_Columns(A))
     return SUNTRUE;

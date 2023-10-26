@@ -433,7 +433,7 @@ void N_VCompare_Trilinos(sunrealtype c, N_Vector x, N_Vector z)
 /*
  * Elementwise inverse with zero checking: z[i] = 1/x[i], x[i] != 0
  */
-booleantype N_VInvTest_Trilinos(N_Vector x, N_Vector z)
+sunbooleantype N_VInvTest_Trilinos(N_Vector x, N_Vector z)
 {
   Teuchos::RCP<const vector_type> xv = N_VGetVector_Trilinos(x);
   Teuchos::RCP<vector_type> zv       = N_VGetVector_Trilinos(z);
@@ -445,7 +445,7 @@ booleantype N_VInvTest_Trilinos(N_Vector x, N_Vector z)
  * Checks constraint violations for vector x. Constraints are defined in
  * vector c, and constraint violation flags are stored in vector m.
  */
-booleantype N_VConstrMask_Trilinos(N_Vector c, N_Vector x, N_Vector m)
+sunbooleantype N_VConstrMask_Trilinos(N_Vector c, N_Vector x, N_Vector m)
 {
   Teuchos::RCP<const vector_type> cv = N_VGetVector_Trilinos(c);
   Teuchos::RCP<const vector_type> xv = N_VGetVector_Trilinos(x);
@@ -532,7 +532,7 @@ sunrealtype N_VWSqrSumMaskLocal_Trilinos(N_Vector x, N_Vector w, N_Vector id)
 /*
  * MPI task-local elementwise inverse with zero checking: z[i] = 1/x[i], x[i] != 0
  */
-booleantype N_VInvTestLocal_Trilinos(N_Vector x, N_Vector z)
+sunbooleantype N_VInvTestLocal_Trilinos(N_Vector x, N_Vector z)
 {
   Teuchos::RCP<const vector_type> xv = N_VGetVector_Trilinos(x);
   Teuchos::RCP<vector_type> zv = N_VGetVector_Trilinos(z);
@@ -544,7 +544,7 @@ booleantype N_VInvTestLocal_Trilinos(N_Vector x, N_Vector z)
  * MPI task-local constraint checking for vector x. Constraints are defined in
  * vector c, and constraint violation flags are stored in vector m.
  */
-booleantype N_VConstrMaskLocal_Trilinos(N_Vector c, N_Vector x, N_Vector m)
+sunbooleantype N_VConstrMaskLocal_Trilinos(N_Vector c, N_Vector x, N_Vector m)
 {
   Teuchos::RCP<const vector_type> cv = N_VGetVector_Trilinos(c);
   Teuchos::RCP<const vector_type> xv = N_VGetVector_Trilinos(x);

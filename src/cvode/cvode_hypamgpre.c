@@ -51,7 +51,7 @@
 
 
 static int CVBoomerAMGSetup(sunrealtype t, N_Vector y, N_Vector fy, 
-                          booleantype jok, booleantype *jcurPtr, 
+                          sunbooleantype jok, sunbooleantype *jcurPtr, 
                           sunrealtype gamma, void *hypamg_data, 
                           N_Vector tmp1, N_Vector tmp2, N_Vector tmp3);
 
@@ -205,7 +205,7 @@ int CVBoomerAMGInit(void *cvode_mem, int ilower, int iupper, int jlower, int jup
  */
 
 int CVBoomerAMGSetup(sunrealtype t, N_Vector y, N_Vector fy, 
-                     booleantype jok, booleantype *jcurPtr, 
+                     sunbooleantype jok, sunbooleantype *jcurPtr, 
                      sunrealtype gamma, void *hypamg_data, 
                      N_Vector tmp1, N_Vector tmp2, N_Vector tmp3)
 {

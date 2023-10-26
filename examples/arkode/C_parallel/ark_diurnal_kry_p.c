@@ -164,7 +164,7 @@ static void fcalc(sunrealtype t, sunrealtype udata[], sunrealtype dudata[],
 /* Functions Called by the Solver */
 static int f(sunrealtype t, N_Vector u, N_Vector udot, void *user_data);
 static int Precond(sunrealtype tn, N_Vector u, N_Vector fu,
-                   booleantype jok, booleantype *jcurPtr,
+                   sunbooleantype jok, sunbooleantype *jcurPtr,
                    sunrealtype gamma, void *user_data);
 static int PSolve(sunrealtype tn, N_Vector u, N_Vector fu,
                   N_Vector r, N_Vector z, sunrealtype gamma,
@@ -808,7 +808,7 @@ static int f(sunrealtype t, N_Vector u, N_Vector udot, void *user_data)
 
 /* Preconditioner setup routine. Generate and preprocess P. */
 static int Precond(sunrealtype tn, N_Vector u, N_Vector fu,
-                   booleantype jok, booleantype *jcurPtr,
+                   sunbooleantype jok, sunbooleantype *jcurPtr,
                    sunrealtype gamma, void *user_data)
 {
   sunrealtype c1, c2, cydn, cyup, diag, ydn, yup, q4coef, dely, verdco, hordco;

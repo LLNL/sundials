@@ -111,14 +111,14 @@ static int SetInitialProfile(N_Vector uu, N_Vector up, N_Vector id,
 
 static void PrintHeader(sunindextype Neq, sunrealtype rtol, sunrealtype atol,
                         sunindextype mudq, sunindextype mukeep,
-                        booleantype sensi, int sensi_meth, int err_con);
+                        sunbooleantype sensi, int sensi_meth, int err_con);
 static void PrintOutput(int id, void *ida_mem, sunrealtype t, N_Vector uu,
-                        booleantype sensi, N_Vector *uuS);
+                        sunbooleantype sensi, N_Vector *uuS);
 static void PrintFinalStats(void *ida_mem);
 
 static void ProcessArgs(int argc, char *argv[], int my_pe,
-                        booleantype *sensi, int *sensi_meth,
-                        booleantype *err_con);
+                        sunbooleantype *sensi, int *sensi_meth,
+                        sunbooleantype *err_con);
 static void WrongArgs(int my_pe, char *name);
 static int check_retval(void *returnvalue, const char *funcname, int opt, int id);
 
@@ -143,7 +143,7 @@ int main(int argc, char *argv[])
   sunrealtype *pbar;
   int is;
   N_Vector *uuS, *upS;
-  booleantype sensi, err_con;
+  sunbooleantype sensi, err_con;
   int sensi_meth;
 
   ida_mem = NULL;
@@ -779,7 +779,7 @@ static int SetInitialProfile(N_Vector uu, N_Vector up,  N_Vector id,
 
 static void PrintHeader(sunindextype Neq, sunrealtype rtol, sunrealtype atol,
                         sunindextype mudq, sunindextype mukeep,
-                        booleantype sensi, int sensi_meth, int err_con)
+                        sunbooleantype sensi, int sensi_meth, int err_con)
 {
     printf("\nidasHeat2D_FSA_kry_bbd_p: Heat equation, parallel example problem for IDA\n");
     printf("                     Discretized heat equation on 2D unit square.\n");
@@ -832,7 +832,7 @@ static void PrintHeader(sunindextype Neq, sunrealtype rtol, sunrealtype atol,
  * Print integrator statistics and max-norm of solution
  */
 static void PrintOutput(int id, void *ida_mem, sunrealtype t, N_Vector uu,
-                        booleantype sensi, N_Vector *uuS)
+                        sunbooleantype sensi, N_Vector *uuS)
 {
   sunrealtype umax, hused;
   int kused, retval, is;
@@ -916,7 +916,7 @@ static void PrintFinalStats(void *ida_mem)
  */
 
 static void ProcessArgs(int argc, char *argv[], int my_pe,
-                        booleantype *sensi, int *sensi_meth, booleantype *err_con)
+                        sunbooleantype *sensi, int *sensi_meth, sunbooleantype *err_con)
 {
   *sensi = SUNFALSE;
   *sensi_meth = -1;

@@ -805,7 +805,7 @@ time and, if successful, takes effect immediately.
       ``DQrhomax=0.0``.
 
 
-.. c:function:: int CVodeSetSensErrCon(void * cvode_mem, booleantype errconS)
+.. c:function:: int CVodeSetSensErrCon(void * cvode_mem, sunbooleantype errconS)
 
    The function :c:func:`CVodeSetSensErrCon` specifies the error control  strategy for
    sensitivity variables.
@@ -1573,7 +1573,7 @@ CVODES provides the following optional input functions to control the
 integration of sensitivity-dependent quadrature equations.
 
 
-.. c:function:: int CVodeSetQuadSensErrCon(void * cvode_mem, booleantype errconQS)
+.. c:function:: int CVodeSetQuadSensErrCon(void * cvode_mem, sunbooleantype errconQS)
 
    The function :c:func:`CVodeSetQuadSensErrCon` specifies whether or not the
    quadrature variables are to be used in the step size control  mechanism. If

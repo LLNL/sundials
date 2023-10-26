@@ -277,7 +277,7 @@ int CVodeSetMaxHnilWarns(void *cvode_mem, int mxhnil)
  * Turns on/off the stability limit detection algorithm
  */
 
-int CVodeSetStabLimDet(void *cvode_mem, booleantype sldet)
+int CVodeSetStabLimDet(void *cvode_mem, sunbooleantype sldet)
 {
   CVodeMem cv_mem;
 
@@ -721,7 +721,7 @@ int CVodeSetStopTime(void *cvode_mem, sunrealtype tstop)
  * the stop time (instead of a copy).
  */
 
-int CVodeSetInterpolateStopTime(void *cvode_mem, booleantype interp)
+int CVodeSetInterpolateStopTime(void *cvode_mem, sunbooleantype interp)
 {
   CVodeMem cv_mem;
 
@@ -1005,7 +1005,7 @@ int CVodeSetConstraints(void *cvode_mem, N_Vector constraints)
  * Enable or disable integrator specific fused kernels
  */
 
-int CVodeSetUseIntegratorFusedKernels(void *cvode_mem, booleantype onoff)
+int CVodeSetUseIntegratorFusedKernels(void *cvode_mem, sunbooleantype onoff)
 {
   CVodeMem cv_mem;
 #ifdef SUNDIALS_BUILD_PACKAGE_FUSED_KERNELS

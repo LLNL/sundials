@@ -546,7 +546,7 @@ Newton and mass matrix systems, these must have the same type:
   Newton systems.
 
 
-.. c:function:: int ARKStepSetMassLinearSolver(void* arkode_mem, SUNLinearSolver LS, SUNMatrix M, booleantype time_dep)
+.. c:function:: int ARKStepSetMassLinearSolver(void* arkode_mem, SUNLinearSolver LS, SUNMatrix M, sunbooleantype time_dep)
 
    This function specifies the ``SUNLinearSolver`` object
    that ARKStep should use for mass matrix systems, as well as a
@@ -1268,7 +1268,7 @@ Set max number of constraint failures             :c:func:`ARKStepSetMaxNumConst
       :c:func:`ARKStepClearStopTime`.
 
 
-.. c:function:: int ARKStepSetInterpolateStopTime(void* arkode_mem, booleantype interp)
+.. c:function:: int ARKStepSetInterpolateStopTime(void* arkode_mem, sunbooleantype interp)
 
    Specifies that the output solution should be interpolated when the current
    :math:`t` equals the specified ``tstop`` (instead of merely copying the
@@ -2602,7 +2602,7 @@ data in the program. The user data pointer may be specified through
       :numref:`ARKODE.Usage.UserSupplied`.
 
 
-.. c:function:: int ARKStepSetLinearSolutionScaling(void* arkode_mem, booleantype onoff)
+.. c:function:: int ARKStepSetLinearSolutionScaling(void* arkode_mem, sunbooleantype onoff)
 
    Enables or disables scaling the linear system solution to account for a
    change in :math:`\gamma` in the linear system. For more details see

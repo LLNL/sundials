@@ -92,7 +92,7 @@ int main(int argc, char* argv[])
   void *mristep_mem = NULL;       // empty MRIStep memory structure
   void *inner_mem = NULL;         // empty inner ARKStep memory structure
   int numfails;
-  booleantype fixedpoint;
+  sunbooleantype fixedpoint;
   sunrealtype t, tcur;
   long int ark_nst, ark_nfe, ark_nfi, ark_nsetups, ark_nje, ark_nfeLS, ark_nni, ark_ncfn;
   long int mri_nst, mri_nfse, mri_nfsi, mri_nsetups, mri_nje, mri_nfeLS, mri_nni, mri_ncfn;

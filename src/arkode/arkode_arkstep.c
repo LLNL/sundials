@@ -37,7 +37,7 @@ void* ARKStepCreate(ARKRhsFn fe, ARKRhsFn fi, sunrealtype t0, N_Vector y0,
   ARKodeMem ark_mem;
   ARKodeARKStepMem step_mem;
   SUNNonlinearSolver NLS;
-  booleantype nvectorOK;
+  sunbooleantype nvectorOK;
   int retval;
 
   /* Check that at least one of fe, fi is supplied and is to be used */
@@ -131,7 +131,7 @@ void* ARKStepCreate(ARKRhsFn fe, ARKRhsFn fi, sunrealtype t0, N_Vector y0,
   step_mem->fi = fi;
 
   /* Update the ARKODE workspace requirements */
-  ark_mem->liw += 41;  /* fcn/data ptr, int, long int, sunindextype, booleantype */
+  ark_mem->liw += 41;  /* fcn/data ptr, int, long int, sunindextype, sunbooleantype */
   ark_mem->lrw += 10;
 
   /* If an implicit component is to be solved, create default Newton NLS object */
@@ -881,7 +881,7 @@ int arkStep_AttachMasssol(void* arkode_mem,
                           ARKMassMultFn mmult,
                           ARKMassSolveFn msolve,
                           ARKMassFreeFn mfree,
-                          booleantype time_dep,
+                          sunbooleantype time_dep,
                           SUNLinearSolver_Type msolve_type,
                           void *mass_mem)
 {
@@ -1024,8 +1024,8 @@ ARKRhsFn arkStep_GetImplicitRHS(void* arkode_mem)
   whether the gamma ratio fails the dgmax criteria.
   ---------------------------------------------------------------*/
 int arkStep_GetGammas(void* arkode_mem, sunrealtype *gamma,
-                      sunrealtype *gamrat, booleantype **jcur,
-                      booleantype *dgamma_fail)
+                      sunrealtype *gamrat, sunbooleantype **jcur,
+                      sunbooleantype *dgamma_fail)
 {
   ARKodeMem ark_mem;
   ARKodeARKStepMem step_mem;
@@ -1086,7 +1086,7 @@ int arkStep_Init(void* arkode_mem, int init_type)
   ARKodeMem ark_mem;
   ARKodeARKStepMem step_mem;
   int j, retval;
-  booleantype reset_efun;
+  sunbooleantype reset_efun;
 
   /* access ARKodeARKStepMem structure */
   retval = arkStep_AccessStepMem(arkode_mem, "arkStep_Init",
@@ -1332,7 +1332,7 @@ int arkStep_FullRHS(void* arkode_mem, sunrealtype t, N_Vector y, N_Vector f,
   ARKodeMem ark_mem;
   ARKodeARKStepMem step_mem;
   int nvec, retval;
-  booleantype recomputeRHS;
+  sunbooleantype recomputeRHS;
   sunrealtype* cvals;
   N_Vector* Xvecs;
 
@@ -1586,8 +1586,8 @@ int arkStep_FullRHS(void* arkode_mem, sunrealtype t, N_Vector y, N_Vector f,
 int arkStep_TakeStep_Z(void* arkode_mem, sunrealtype *dsmPtr, int *nflagPtr)
 {
   int retval, is, nvec;
-  booleantype implicit_stage;
-  booleantype deduce_stage;
+  sunbooleantype implicit_stage;
+  sunbooleantype deduce_stage;
   ARKodeMem ark_mem;
   ARKodeARKStepMem step_mem;
   N_Vector zcor0;
@@ -1906,7 +1906,7 @@ int arkStep_AccessStepMem(void* arkode_mem, const char *fname,
   This routine checks if all required vector operations are
   present.  If any of them is missing it returns SUNFALSE.
   ---------------------------------------------------------------*/
-booleantype arkStep_CheckNVector(N_Vector tmpl)
+sunbooleantype arkStep_CheckNVector(N_Vector tmpl)
 {
   if ( (tmpl->ops->nvclone     == NULL) ||
        (tmpl->ops->nvdestroy   == NULL) ||
@@ -2081,7 +2081,7 @@ int arkStep_SetButcherTables(ARKodeMem ark_mem)
 int arkStep_CheckButcherTables(ARKodeMem ark_mem)
 {
   int i, j;
-  booleantype okay;
+  sunbooleantype okay;
   ARKodeARKStepMem step_mem;
   const sunrealtype tol = SUN_RCONST(100.0) * SUN_UNIT_ROUNDOFF;
 
@@ -2467,7 +2467,7 @@ int arkStep_Predict(ARKodeMem ark_mem, int istage, N_Vector yguess)
     sdata = yn - zp + h*sum_{j=0}^{i-1} (Ae(i,j)*Fe(j) + Ai(i,j)*Fi(j))
 
   ---------------------------------------------------------------*/
-int arkStep_StageSetup(ARKodeMem ark_mem, booleantype implicit)
+int arkStep_StageSetup(ARKodeMem ark_mem, sunbooleantype implicit)
 {
   /* local data */
   ARKodeARKStepMem step_mem;

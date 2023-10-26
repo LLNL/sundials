@@ -390,7 +390,7 @@ void N_VLinearSum_Serial(sunrealtype a, N_Vector x, sunrealtype b, N_Vector y, N
   sunindextype i, N;
   sunrealtype c, *xd, *yd, *zd;
   N_Vector v1, v2;
-  booleantype test;
+  sunbooleantype test;
 
   xd = yd = zd = NULL;
 
@@ -764,11 +764,11 @@ void N_VCompare_Serial(sunrealtype c, N_Vector x, N_Vector z)
   return;
 }
 
-booleantype N_VInvTest_Serial(N_Vector x, N_Vector z)
+sunbooleantype N_VInvTest_Serial(N_Vector x, N_Vector z)
 {
   sunindextype i, N;
   sunrealtype *xd, *zd;
-  booleantype no_zero_found;
+  sunbooleantype no_zero_found;
 
   xd = zd = NULL;
 
@@ -787,12 +787,12 @@ booleantype N_VInvTest_Serial(N_Vector x, N_Vector z)
   return no_zero_found;
 }
 
-booleantype N_VConstrMask_Serial(N_Vector c, N_Vector x, N_Vector m)
+sunbooleantype N_VConstrMask_Serial(N_Vector c, N_Vector x, N_Vector m)
 {
   sunindextype i, N;
   sunrealtype temp;
   sunrealtype *cd, *xd, *md;
-  booleantype test;
+  sunbooleantype test;
 
   cd = xd = md = NULL;
 
@@ -824,7 +824,7 @@ booleantype N_VConstrMask_Serial(N_Vector c, N_Vector x, N_Vector m)
 
 sunrealtype N_VMinQuotient_Serial(N_Vector num, N_Vector denom)
 {
-  booleantype notEvenOnce;
+  sunbooleantype notEvenOnce;
   sunindextype i, N;
   sunrealtype *nd, *dd, min;
 
@@ -1030,7 +1030,7 @@ int N_VLinearSumVectorArray_Serial(int nvec,
   sunrealtype     c;
   N_Vector*   V1;
   N_Vector*   V2;
-  booleantype  test;
+  sunbooleantype  test;
 
   /* invalid number of vectors */
   if (nvec < 1) return(-1);
@@ -1921,7 +1921,7 @@ static int VaxpyVectorArray_Serial(int nvec, sunrealtype a, N_Vector* X, N_Vecto
  * -----------------------------------------------------------------
  */
 
-int N_VEnableFusedOps_Serial(N_Vector v, booleantype tf)
+int N_VEnableFusedOps_Serial(N_Vector v, sunbooleantype tf)
 {
   /* check that vector is non-NULL */
   if (v == NULL) return(-1);
@@ -1966,7 +1966,7 @@ int N_VEnableFusedOps_Serial(N_Vector v, booleantype tf)
 }
 
 
-int N_VEnableLinearCombination_Serial(N_Vector v, booleantype tf)
+int N_VEnableLinearCombination_Serial(N_Vector v, sunbooleantype tf)
 {
   /* check that vector is non-NULL */
   if (v == NULL) return(-1);
@@ -1984,7 +1984,7 @@ int N_VEnableLinearCombination_Serial(N_Vector v, booleantype tf)
   return(0);
 }
 
-int N_VEnableScaleAddMulti_Serial(N_Vector v, booleantype tf)
+int N_VEnableScaleAddMulti_Serial(N_Vector v, sunbooleantype tf)
 {
   /* check that vector is non-NULL */
   if (v == NULL) return(-1);
@@ -2002,7 +2002,7 @@ int N_VEnableScaleAddMulti_Serial(N_Vector v, booleantype tf)
   return(0);
 }
 
-int N_VEnableDotProdMulti_Serial(N_Vector v, booleantype tf)
+int N_VEnableDotProdMulti_Serial(N_Vector v, sunbooleantype tf)
 {
   /* check that vector is non-NULL */
   if (v == NULL) return(-1);
@@ -2023,7 +2023,7 @@ int N_VEnableDotProdMulti_Serial(N_Vector v, booleantype tf)
   return(0);
 }
 
-int N_VEnableLinearSumVectorArray_Serial(N_Vector v, booleantype tf)
+int N_VEnableLinearSumVectorArray_Serial(N_Vector v, sunbooleantype tf)
 {
   /* check that vector is non-NULL */
   if (v == NULL) return(-1);
@@ -2041,7 +2041,7 @@ int N_VEnableLinearSumVectorArray_Serial(N_Vector v, booleantype tf)
   return(0);
 }
 
-int N_VEnableScaleVectorArray_Serial(N_Vector v, booleantype tf)
+int N_VEnableScaleVectorArray_Serial(N_Vector v, sunbooleantype tf)
 {
   /* check that vector is non-NULL */
   if (v == NULL) return(-1);
@@ -2059,7 +2059,7 @@ int N_VEnableScaleVectorArray_Serial(N_Vector v, booleantype tf)
   return(0);
 }
 
-int N_VEnableConstVectorArray_Serial(N_Vector v, booleantype tf)
+int N_VEnableConstVectorArray_Serial(N_Vector v, sunbooleantype tf)
 {
   /* check that vector is non-NULL */
   if (v == NULL) return(-1);
@@ -2077,7 +2077,7 @@ int N_VEnableConstVectorArray_Serial(N_Vector v, booleantype tf)
   return(0);
 }
 
-int N_VEnableWrmsNormVectorArray_Serial(N_Vector v, booleantype tf)
+int N_VEnableWrmsNormVectorArray_Serial(N_Vector v, sunbooleantype tf)
 {
   /* check that vector is non-NULL */
   if (v == NULL) return(-1);
@@ -2095,7 +2095,7 @@ int N_VEnableWrmsNormVectorArray_Serial(N_Vector v, booleantype tf)
   return(0);
 }
 
-int N_VEnableWrmsNormMaskVectorArray_Serial(N_Vector v, booleantype tf)
+int N_VEnableWrmsNormMaskVectorArray_Serial(N_Vector v, sunbooleantype tf)
 {
   /* check that vector is non-NULL */
   if (v == NULL) return(-1);
@@ -2113,7 +2113,7 @@ int N_VEnableWrmsNormMaskVectorArray_Serial(N_Vector v, booleantype tf)
   return(0);
 }
 
-int N_VEnableScaleAddMultiVectorArray_Serial(N_Vector v, booleantype tf)
+int N_VEnableScaleAddMultiVectorArray_Serial(N_Vector v, sunbooleantype tf)
 {
   /* check that vector is non-NULL */
   if (v == NULL) return(-1);
@@ -2131,7 +2131,7 @@ int N_VEnableScaleAddMultiVectorArray_Serial(N_Vector v, booleantype tf)
   return(0);
 }
 
-int N_VEnableLinearCombinationVectorArray_Serial(N_Vector v, booleantype tf)
+int N_VEnableLinearCombinationVectorArray_Serial(N_Vector v, sunbooleantype tf)
 {
   /* check that vector is non-NULL */
   if (v == NULL) return(-1);

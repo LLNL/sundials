@@ -31,8 +31,8 @@
 
 
 /* Private function prototypes */
-static booleantype SMCompatible_Band(SUNMatrix A, SUNMatrix B);
-static booleantype SMCompatible2_Band(SUNMatrix A, N_Vector x, N_Vector y);
+static sunbooleantype SMCompatible_Band(SUNMatrix A, SUNMatrix B);
+static sunbooleantype SMCompatible2_Band(SUNMatrix A, N_Vector x, N_Vector y);
 static int SMScaleAddNew_Band(sunrealtype c, SUNMatrix A, SUNMatrix B);
 
 
@@ -420,7 +420,7 @@ int SUNMatSpace_Band(SUNMatrix A, long int *lenrw, long int *leniw)
  * -----------------------------------------------------------------
  */
 
-static booleantype SMCompatible_Band(SUNMatrix A, SUNMatrix B)
+static sunbooleantype SMCompatible_Band(SUNMatrix A, SUNMatrix B)
 {
   /* both matrices must be SUNMATRIX_BAND */
   if (SUNMatGetID(A) != SUNMATRIX_BAND)
@@ -439,7 +439,7 @@ static booleantype SMCompatible_Band(SUNMatrix A, SUNMatrix B)
 }
 
 
-static booleantype SMCompatible2_Band(SUNMatrix A, N_Vector x, N_Vector y)
+static sunbooleantype SMCompatible2_Band(SUNMatrix A, N_Vector x, N_Vector y)
 {
   /*   matrix must be SUNMATRIX_BAND */
   if (SUNMatGetID(A) != SUNMATRIX_BAND)

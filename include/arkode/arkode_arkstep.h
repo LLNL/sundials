@@ -104,7 +104,7 @@ SUNDIALS_EXPORT int ARKStepSetLinearSolver(void *arkode_mem,
 SUNDIALS_EXPORT int ARKStepSetMassLinearSolver(void *arkode_mem,
                                                SUNLinearSolver LS,
                                                SUNMatrix M,
-                                               booleantype time_dep);
+                                               sunbooleantype time_dep);
 
 /* Rootfinding initialization */
 SUNDIALS_EXPORT int ARKStepRootInit(void *arkode_mem, int nrtfn,
@@ -194,7 +194,7 @@ SUNDIALS_EXPORT int ARKStepSetMinStep(void *arkode_mem,
 SUNDIALS_EXPORT int ARKStepSetMaxStep(void *arkode_mem,
                                       sunrealtype hmax);
 SUNDIALS_EXPORT int ARKStepSetInterpolateStopTime(void *arkode_mem,
-                                                  booleantype interp);
+                                                  sunbooleantype interp);
 SUNDIALS_EXPORT int ARKStepSetStopTime(void *arkode_mem,
                                        sunrealtype tstop);
 SUNDIALS_EXPORT int ARKStepClearStopTime(void *arkode_mem);
@@ -229,7 +229,7 @@ SUNDIALS_EXPORT int ARKStepSetMassFn(void *arkode_mem, ARKLsMassFn mass);
 SUNDIALS_EXPORT int ARKStepSetJacEvalFrequency(void *arkode_mem,
                                                long int msbj);
 SUNDIALS_EXPORT int ARKStepSetLinearSolutionScaling(void *arkode_mem,
-                                                    booleantype onoff);
+                                                    sunbooleantype onoff);
 SUNDIALS_EXPORT int ARKStepSetEpsLin(void *arkode_mem, sunrealtype eplifac);
 SUNDIALS_EXPORT int ARKStepSetMassEpsLin(void *arkode_mem, sunrealtype eplifac);
 SUNDIALS_EXPORT int ARKStepSetLSNormFactor(void *arkode_mem,

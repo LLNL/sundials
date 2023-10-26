@@ -227,7 +227,7 @@ functions:
    or a nonzero error code otherwise.
 
 
-.. c:function:: int SUNMatrix_cuSparse_SetFixedPattern(SUNMatrix A, booleantype yesno)
+.. c:function:: int SUNMatrix_cuSparse_SetFixedPattern(SUNMatrix A, sunbooleantype yesno)
 
    This function changes the behavior of the the ``SUNMatZero`` operation on the object
    ``A``.  By default the matrix sparsity pattern is not considered to be fixed, thus,

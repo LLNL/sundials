@@ -106,7 +106,7 @@ ARKodeMem arkCreate(SUNContext sunctx)
 
   /* Initialize lrw and liw */
   ark_mem->lrw = 18;
-  ark_mem->liw = 41;  /* fcn/data ptr, int, long int, sunindextype, booleantype */
+  ark_mem->liw = 41;  /* fcn/data ptr, int, long int, sunindextype, sunbooleantype */
 
   /* No mallocs have been done yet */
   ark_mem->VabstolMallocDone     = SUNFALSE;
@@ -207,7 +207,7 @@ ARKodeMem arkCreate(SUNContext sunctx)
 int arkResize(ARKodeMem ark_mem, N_Vector y0, sunrealtype hscale,
               sunrealtype t0, ARKVecResizeFn resize, void *resize_data)
 {
-  booleantype resizeOK;
+  sunbooleantype resizeOK;
   sunindextype lrw1, liw1, lrw_diff, liw_diff;
   int retval;
 
@@ -645,7 +645,7 @@ int arkEvolve(ARKodeMem ark_mem, sunrealtype tout, N_Vector yout,
   int retval, kflag, istate, ir;
   int ewtsetOK;
   sunrealtype troundoff, nrm;
-  booleantype inactive_roots;
+  sunbooleantype inactive_roots;
   sunrealtype dsm;
   int nflag, attempts, ncf, nef, constrfails;
   int relax_fails;
@@ -1246,7 +1246,7 @@ void arkErrHandler(int error_code, const char *module,
 int arkInit(ARKodeMem ark_mem, sunrealtype t0, N_Vector y0,
             int init_type)
 {
-  booleantype stepperOK, nvectorOK, allocOK;
+  sunbooleantype stepperOK, nvectorOK, allocOK;
   sunindextype lrw1, liw1;
 
   /* Check ark_mem */
@@ -1486,7 +1486,7 @@ void arkPrintMem(ARKodeMem ark_mem, FILE *outfile)
   pointers have been supplied.  If any of them is missing it
   returns SUNFALSE.
   ---------------------------------------------------------------*/
-booleantype arkCheckTimestepper(ARKodeMem ark_mem)
+sunbooleantype arkCheckTimestepper(ARKodeMem ark_mem)
 {
   if ( (ark_mem->step_init    == NULL) ||
        (ark_mem->step         == NULL) ||
@@ -1503,7 +1503,7 @@ booleantype arkCheckTimestepper(ARKodeMem ark_mem)
   This routine checks if all required vector operations are
   present.  If any of them is missing it returns SUNFALSE.
   ---------------------------------------------------------------*/
-booleantype arkCheckNvector(N_Vector tmpl)  /* to be updated?? */
+sunbooleantype arkCheckNvector(N_Vector tmpl)  /* to be updated?? */
 {
   if ((tmpl->ops->nvclone     == NULL) ||
       (tmpl->ops->nvdestroy   == NULL) ||
@@ -1538,7 +1538,7 @@ booleantype arkCheckNvector(N_Vector tmpl)  /* to be updated?? */
   target vector or vector array already exists) otherwise SUNFALSE
   is retured.
   ---------------------------------------------------------------*/
-booleantype arkAllocVec(ARKodeMem ark_mem, N_Vector tmpl, N_Vector *v)
+sunbooleantype arkAllocVec(ARKodeMem ark_mem, N_Vector tmpl, N_Vector *v)
 {
   /* allocate the new vector if necessary */
   if (*v == NULL) {
@@ -1555,7 +1555,7 @@ booleantype arkAllocVec(ARKodeMem ark_mem, N_Vector tmpl, N_Vector *v)
 }
 
 
-booleantype arkAllocVecArray(int count, N_Vector tmpl, N_Vector **v,
+sunbooleantype arkAllocVecArray(int count, N_Vector tmpl, N_Vector **v,
                              sunindextype lrw1, long int *lrw,
                              sunindextype liw1, long int *liw)
 {
@@ -1617,7 +1617,7 @@ void arkFreeVecArray(int count, N_Vector **v,
   SUNTRUE is returned if the resize is successful otherwise
   SUNFALSE is retured.
   ---------------------------------------------------------------*/
-booleantype arkResizeVec(ARKodeMem ark_mem, ARKVecResizeFn resize,
+sunbooleantype arkResizeVec(ARKodeMem ark_mem, ARKVecResizeFn resize,
                          void *resize_data, sunindextype lrw_diff,
                          sunindextype liw_diff, N_Vector tmpl, N_Vector *v)
 {
@@ -1645,7 +1645,7 @@ booleantype arkResizeVec(ARKodeMem ark_mem, ARKVecResizeFn resize,
 }
 
 
-booleantype arkResizeVecArray(ARKVecResizeFn resize, void *resize_data,
+sunbooleantype arkResizeVecArray(ARKVecResizeFn resize, void *resize_data,
                               int count, N_Vector tmpl, N_Vector **v,
                               sunindextype lrw_diff, long int *lrw,
                               sunindextype liw_diff, long int *liw)
@@ -1683,7 +1683,7 @@ booleantype arkResizeVecArray(ARKVecResizeFn resize, void *resize_data,
   If all memory allocations are successful, arkAllocVectors
   returns SUNTRUE, otherwise it returns SUNFALSE.
   ---------------------------------------------------------------*/
-booleantype arkAllocVectors(ARKodeMem ark_mem, N_Vector tmpl)
+sunbooleantype arkAllocVectors(ARKodeMem ark_mem, N_Vector tmpl)
 {
   /* Allocate ewt if needed */
   if (!arkAllocVec(ark_mem, tmpl, &ark_mem->ewt))
@@ -1734,7 +1734,7 @@ booleantype arkAllocVectors(ARKodeMem ark_mem, N_Vector tmpl)
   If all memory allocations are successful, arkResizeVectors
   returns SUNTRUE, otherwise it returns SUNFALSE.
   ---------------------------------------------------------------*/
-booleantype arkResizeVectors(ARKodeMem ark_mem, ARKVecResizeFn resize,
+sunbooleantype arkResizeVectors(ARKodeMem ark_mem, ARKVecResizeFn resize,
                              void *resize_data, sunindextype lrw_diff,
                              sunindextype liw_diff, N_Vector tmpl)
 {
@@ -1838,7 +1838,7 @@ int arkInitialSetup(ARKodeMem ark_mem, sunrealtype tout)
 {
   int retval, hflag, istate;
   sunrealtype tout_hin, rh, htmp;
-  booleantype conOK;
+  sunbooleantype conOK;
 
   /* Set up the time stepper module */
   if (ark_mem->step_init == NULL) {
@@ -2222,7 +2222,7 @@ int arkHin(ARKodeMem ark_mem, sunrealtype tout)
   int retval, sign, count1, count2;
   sunrealtype tdiff, tdist, tround, hlb, hub;
   sunrealtype hg, hgs, hs, hnew, hrat, h0, yddnrm;
-  booleantype hgOK;
+  sunbooleantype hgOK;
 
   /* If tout is too close to tn, give up */
   if ((tdiff = tout-ark_mem->tcur) == ZERO) return(ARK_TOO_CLOSE);
@@ -2972,7 +2972,7 @@ int arkCheckConvergence(ARKodeMem ark_mem, int *nflagPtr, int *ncfPtr)
   --------------------------------------------------------------*/
 int arkCheckConstraints(ARKodeMem ark_mem, int *constrfails, int *nflag)
 {
-  booleantype constraintsPassed;
+  sunbooleantype constraintsPassed;
   N_Vector mm  = ark_mem->tempv4;
   N_Vector tmp = ark_mem->tempv3;
 

@@ -24,7 +24,7 @@
  *     header file sundials_types.h, and it may be changed (at the
  *     configuration stage) according to the user's needs.
  *     The sundials_types.h file also contains the definition
- *     for the type 'booleantype'.
+ *     for the type 'sunbooleantype'.
  *
  *   - N_Vector arguments to arithmetic vector operations need not
  *     be distinct. For example, the following call:
@@ -53,7 +53,7 @@ extern "C" {
 
 struct _N_VectorContent_Serial {
   sunindextype length;   /* vector length       */
-  booleantype own_data;  /* data ownership flag */
+  sunbooleantype own_data;  /* data ownership flag */
   sunrealtype *data;        /* data array          */
 };
 
@@ -119,8 +119,8 @@ SUNDIALS_EXPORT sunrealtype N_VMin_Serial(N_Vector x);
 SUNDIALS_EXPORT sunrealtype N_VWL2Norm_Serial(N_Vector x, N_Vector w);
 SUNDIALS_EXPORT sunrealtype N_VL1Norm_Serial(N_Vector x);
 SUNDIALS_EXPORT void N_VCompare_Serial(sunrealtype c, N_Vector x, N_Vector z);
-SUNDIALS_EXPORT booleantype N_VInvTest_Serial(N_Vector x, N_Vector z);
-SUNDIALS_EXPORT booleantype N_VConstrMask_Serial(N_Vector c, N_Vector x, N_Vector m);
+SUNDIALS_EXPORT sunbooleantype N_VInvTest_Serial(N_Vector x, N_Vector z);
+SUNDIALS_EXPORT sunbooleantype N_VConstrMask_Serial(N_Vector c, N_Vector x, N_Vector m);
 SUNDIALS_EXPORT sunrealtype N_VMinQuotient_Serial(N_Vector num, N_Vector denom);
 
 /* fused vector operations */
@@ -170,19 +170,19 @@ SUNDIALS_EXPORT int N_VBufUnpack_Serial(N_Vector x, void *buf);
  * -----------------------------------------------------------------
  */
 
-SUNDIALS_EXPORT int N_VEnableFusedOps_Serial(N_Vector v, booleantype tf);
+SUNDIALS_EXPORT int N_VEnableFusedOps_Serial(N_Vector v, sunbooleantype tf);
 
-SUNDIALS_EXPORT int N_VEnableLinearCombination_Serial(N_Vector v, booleantype tf);
-SUNDIALS_EXPORT int N_VEnableScaleAddMulti_Serial(N_Vector v, booleantype tf);
-SUNDIALS_EXPORT int N_VEnableDotProdMulti_Serial(N_Vector v, booleantype tf);
+SUNDIALS_EXPORT int N_VEnableLinearCombination_Serial(N_Vector v, sunbooleantype tf);
+SUNDIALS_EXPORT int N_VEnableScaleAddMulti_Serial(N_Vector v, sunbooleantype tf);
+SUNDIALS_EXPORT int N_VEnableDotProdMulti_Serial(N_Vector v, sunbooleantype tf);
 
-SUNDIALS_EXPORT int N_VEnableLinearSumVectorArray_Serial(N_Vector v, booleantype tf);
-SUNDIALS_EXPORT int N_VEnableScaleVectorArray_Serial(N_Vector v, booleantype tf);
-SUNDIALS_EXPORT int N_VEnableConstVectorArray_Serial(N_Vector v, booleantype tf);
-SUNDIALS_EXPORT int N_VEnableWrmsNormVectorArray_Serial(N_Vector v, booleantype tf);
-SUNDIALS_EXPORT int N_VEnableWrmsNormMaskVectorArray_Serial(N_Vector v, booleantype tf);
-SUNDIALS_EXPORT int N_VEnableScaleAddMultiVectorArray_Serial(N_Vector v, booleantype tf);
-SUNDIALS_EXPORT int N_VEnableLinearCombinationVectorArray_Serial(N_Vector v, booleantype tf);
+SUNDIALS_EXPORT int N_VEnableLinearSumVectorArray_Serial(N_Vector v, sunbooleantype tf);
+SUNDIALS_EXPORT int N_VEnableScaleVectorArray_Serial(N_Vector v, sunbooleantype tf);
+SUNDIALS_EXPORT int N_VEnableConstVectorArray_Serial(N_Vector v, sunbooleantype tf);
+SUNDIALS_EXPORT int N_VEnableWrmsNormVectorArray_Serial(N_Vector v, sunbooleantype tf);
+SUNDIALS_EXPORT int N_VEnableWrmsNormMaskVectorArray_Serial(N_Vector v, sunbooleantype tf);
+SUNDIALS_EXPORT int N_VEnableScaleAddMultiVectorArray_Serial(N_Vector v, sunbooleantype tf);
+SUNDIALS_EXPORT int N_VEnableLinearCombinationVectorArray_Serial(N_Vector v, sunbooleantype tf);
 
 
 #ifdef __cplusplus

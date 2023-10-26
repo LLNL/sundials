@@ -100,8 +100,8 @@ int IDASetLinearSolver(void *ida_mem, SUNLinearSolver LS, SUNMatrix A)
   IDAMem      IDA_mem;
   IDALsMem    idals_mem;
   int         retval, LSType;
-  booleantype iterative;    /* is the solver iterative?    */
-  booleantype matrixbased;  /* is a matrix structure used? */
+  sunbooleantype iterative;    /* is the solver iterative?    */
+  sunbooleantype matrixbased;  /* is a matrix structure used? */
 
   /* Return immediately if any input is NULL */
   if (ida_mem == NULL) {
@@ -410,7 +410,7 @@ int IDASetLSNormFactor(void *ida_mem, sunrealtype nrmfac)
 
 /* IDASetLinearSolutionScaling enables or disables scaling the linear solver
    solution to account for changes in cj. */
-int IDASetLinearSolutionScaling(void *ida_mem, booleantype onoff)
+int IDASetLinearSolutionScaling(void *ida_mem, sunbooleantype onoff)
 {
   IDAMem   IDA_mem;
   IDALsMem idals_mem;
@@ -1646,7 +1646,7 @@ int idaLsPerf(IDAMem IDA_mem, int perftask)
   IDALsMem    idals_mem;
   sunrealtype    rcfn, rcfl;
   long int    nstd, nnid;
-  booleantype lcfn, lcfl;
+  sunbooleantype lcfn, lcfl;
 
   /* access IDALsMem structure */
   if (IDA_mem->ida_lmem == NULL) {
@@ -1978,7 +1978,7 @@ int IDASetLSNormFactorB(void *ida_mem, int which, sunrealtype nrmfacB)
 }
 
 
-int IDASetLinearSolutionScalingB(void *ida_mem, int which, booleantype onoffB)
+int IDASetLinearSolutionScalingB(void *ida_mem, int which, sunbooleantype onoffB)
 {
   IDAadjMem IDAADJ_mem;
   IDAMem    IDA_mem;

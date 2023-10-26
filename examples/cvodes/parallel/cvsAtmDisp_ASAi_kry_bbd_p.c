@@ -239,7 +239,7 @@ int main(int argc, char *argv[])
 
   int ncheckpnt, retval;
 
-  booleantype output;
+  sunbooleantype output;
 
   /* Initialize MPI and set Ids */
   MPI_Init(&argc, &argv);

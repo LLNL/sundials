@@ -187,7 +187,7 @@ SUNLinearSolver SUNLinSol_MagmaDense(N_Vector y, SUNMatrix Amat, SUNContext sunc
  * Set functions
  */
 
-int SUNLinSol_MagmaDense_SetAsync(SUNLinearSolver S, booleantype onoff)
+int SUNLinSol_MagmaDense_SetAsync(SUNLinearSolver S, sunbooleantype onoff)
 {
   if (S == NULL) return SUNLS_MEM_NULL;
   ASYNCHRONOUS(S) = onoff;

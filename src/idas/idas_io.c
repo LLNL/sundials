@@ -492,7 +492,7 @@ int IDASetMaxConvFails(void *ida_mem, int maxncf)
 int IDASetMaxNonlinIters(void *ida_mem, int maxcor)
 {
   IDAMem IDA_mem;
-  booleantype sensi_sim;
+  sunbooleantype sensi_sim;
 
   if (ida_mem==NULL) {
     IDAProcessError(NULL, IDA_MEM_NULL, "IDAS",
@@ -531,7 +531,7 @@ int IDASetMaxNonlinIters(void *ida_mem, int maxcor)
 
 /*-----------------------------------------------------------------*/
 
-int IDASetSuppressAlg(void *ida_mem, booleantype suppressalg)
+int IDASetSuppressAlg(void *ida_mem, sunbooleantype suppressalg)
 {
   IDAMem IDA_mem;
 
@@ -819,7 +819,7 @@ int IDASetMaxBacksIC(void *ida_mem, int maxbacks)
 
 /*-----------------------------------------------------------------*/
 
-int IDASetLineSearchOffIC(void *ida_mem, booleantype lsoff)
+int IDASetLineSearchOffIC(void *ida_mem, sunbooleantype lsoff)
 {
   IDAMem IDA_mem;
 
@@ -866,7 +866,7 @@ int IDASetStepToleranceIC(void *ida_mem, sunrealtype steptol)
 
 /*-----------------------------------------------------------------*/
 
-int IDASetQuadErrCon(void *ida_mem, booleantype errconQ)
+int IDASetQuadErrCon(void *ida_mem, sunbooleantype errconQ)
 {
   IDAMem IDA_mem;
 
@@ -921,7 +921,7 @@ int IDASetSensDQMethod(void *ida_mem, int DQtype, sunrealtype DQrhomax)
 
 /*-----------------------------------------------------------------*/
 
-int IDASetSensErrCon(void *ida_mem, booleantype errconS)
+int IDASetSensErrCon(void *ida_mem, sunbooleantype errconS)
 {
   IDAMem IDA_mem;
 
@@ -1026,7 +1026,7 @@ int IDASetSensParams(void *ida_mem, sunrealtype *p, sunrealtype *pbar, int *plis
  * are considered or not in the error control.
  * -----------------------------------------------------------------
  */
-int IDASetQuadSensErrCon(void *ida_mem, booleantype errconQS)
+int IDASetQuadSensErrCon(void *ida_mem, sunbooleantype errconQS)
 {
   IDAMem IDA_mem;
 

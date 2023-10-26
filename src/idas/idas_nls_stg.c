@@ -29,7 +29,7 @@
 
 /* private functions passed to nonlinear solver */
 static int idaNlsResidualSensStg(N_Vector ycor, N_Vector res, void* ida_mem);
-static int idaNlsLSetupSensStg(booleantype jbad, booleantype* jcur,
+static int idaNlsLSetupSensStg(sunbooleantype jbad, sunbooleantype* jcur,
                                void* ida_mem);
 static int idaNlsLSolveSensStg(N_Vector delta, void* ida_mem);
 static int idaNlsConvTestSensStg(SUNNonlinearSolver NLS, N_Vector ycor, N_Vector del,
@@ -219,7 +219,7 @@ int idaNlsInitSensStg(IDAMem IDA_mem)
 }
 
 
-static int idaNlsLSetupSensStg(booleantype jbad, booleantype* jcur,
+static int idaNlsLSetupSensStg(sunbooleantype jbad, sunbooleantype* jcur,
                                void* ida_mem)
 {
   IDAMem IDA_mem;

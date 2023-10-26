@@ -205,7 +205,7 @@ SUNDIALS_EXPORT int MRIStepSetMaxHnilWarns(void *arkode_mem,
 SUNDIALS_EXPORT int MRIStepSetStopTime(void *arkode_mem,
                                        sunrealtype tstop);
 SUNDIALS_EXPORT int MRIStepSetInterpolateStopTime(void *arkode_mem,
-                                                  booleantype interp);
+                                                  sunbooleantype interp);
 SUNDIALS_EXPORT int MRIStepClearStopTime(void *arkode_mem);
 SUNDIALS_EXPORT int MRIStepSetFixedStep(void *arkode_mem,
                                         sunrealtype hsfixed);
@@ -238,7 +238,7 @@ SUNDIALS_EXPORT int MRIStepSetJacFn(void *arkode_mem, ARKLsJacFn jac);
 SUNDIALS_EXPORT int MRIStepSetJacEvalFrequency(void *arkode_mem,
                                                long int msbj);
 SUNDIALS_EXPORT int MRIStepSetLinearSolutionScaling(void *arkode_mem,
-                                                    booleantype onoff);
+                                                    sunbooleantype onoff);
 SUNDIALS_EXPORT int MRIStepSetEpsLin(void *arkode_mem, sunrealtype eplifac);
 SUNDIALS_EXPORT int MRIStepSetLSNormFactor(void *arkode_mem,
                                            sunrealtype nrmfac);

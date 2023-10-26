@@ -29,7 +29,7 @@
 
 /* private functions passed to nonlinear solver */
 static int idaNlsResidualSensSim(N_Vector ycor, N_Vector res, void* ida_mem);
-static int idaNlsLSetupSensSim(booleantype jbad, booleantype* jcur,
+static int idaNlsLSetupSensSim(sunbooleantype jbad, sunbooleantype* jcur,
                                void* ida_mem);
 static int idaNlsLSolveSensSim(N_Vector delta, void* ida_mem);
 static int idaNlsConvTestSensSim(SUNNonlinearSolver NLS, N_Vector ycor, N_Vector del,
@@ -265,7 +265,7 @@ int idaNlsInitSensSim(IDAMem IDA_mem)
 }
 
 
-static int idaNlsLSetupSensSim(booleantype jbad, booleantype* jcur,
+static int idaNlsLSetupSensSim(sunbooleantype jbad, sunbooleantype* jcur,
                                void* ida_mem)
 {
   IDAMem IDA_mem;

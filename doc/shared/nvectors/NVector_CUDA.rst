@@ -28,7 +28,7 @@ is as follows:
    struct _N_VectorContent_Cuda
    {
       sunindextype       length;
-      booleantype        own_helper;
+      sunbooleantype        own_helper;
       SUNMemory          host_data;
       SUNMemory          device_data;
       SUNCudaExecPolicy* stream_exec_policy;
@@ -82,7 +82,7 @@ accessor functions:
    This function returns pointer to the vector data on the device.
 
 
-.. c:function:: booleantype N_VIsManagedMemory_Cuda(N_Vector v)
+.. c:function:: sunbooleantype N_VIsManagedMemory_Cuda(N_Vector v)
 
    This function returns a boolean flag indiciating if the vector
    data array is in managed memory or not.
@@ -119,7 +119,7 @@ following additional user-callable routines:
    ``N_Vector``. The vector data array is allocated in managed memory.
 
 
-.. c:function:: N_Vector N_VNewWithMemHelp_Cuda(sunindextype length, booleantype use_managed_mem, SUNMemoryHelper helper, SUNContext sunctx)
+.. c:function:: N_Vector N_VNewWithMemHelp_Cuda(sunindextype length, sunbooleantype use_managed_mem, SUNMemoryHelper helper, SUNContext sunctx)
 
    This function creates a new CUDA ``N_Vector`` with a user-supplied
    SUNMemoryHelper for allocating/freeing memory.
@@ -211,71 +211,71 @@ operations enabled/disabled as cloned vectors inherit the same enable/disable
 options as the vector they are cloned from while vectors created with
 :c:func:`N_VNew_Cuda` will have the default settings for the NVECTOR_CUDA module.
 
-.. c:function:: int N_VEnableFusedOps_Cuda(N_Vector v, booleantype tf)
+.. c:function:: int N_VEnableFusedOps_Cuda(N_Vector v, sunbooleantype tf)
 
    This function enables (``SUNTRUE``) or disables (``SUNFALSE``) all fused and
    vector array operations in the CUDA vector. The return value is ``0`` for
    success and ``-1`` if the input vector or its ``ops`` structure are ``NULL``.
 
-.. c:function:: int N_VEnableLinearCombination_Cuda(N_Vector v, booleantype tf)
+.. c:function:: int N_VEnableLinearCombination_Cuda(N_Vector v, sunbooleantype tf)
 
    This function enables (``SUNTRUE``) or disables (``SUNFALSE``) the linear
    combination fused operation in the CUDA vector. The return value is ``0`` for
    success and ``-1`` if the input vector or its ``ops`` structure are ``NULL``.
 
-.. c:function:: int N_VEnableScaleAddMulti_Cuda(N_Vector v, booleantype tf)
+.. c:function:: int N_VEnableScaleAddMulti_Cuda(N_Vector v, sunbooleantype tf)
 
    This function enables (``SUNTRUE``) or disables (``SUNFALSE``) the scale and
    add a vector to multiple vectors fused operation in the CUDA vector. The
    return value is ``0`` for success and ``-1`` if the input vector or its
    ``ops`` structure are ``NULL``.
 
-.. c:function:: int N_VEnableDotProdMulti_Cuda(N_Vector v, booleantype tf)
+.. c:function:: int N_VEnableDotProdMulti_Cuda(N_Vector v, sunbooleantype tf)
 
    This function enables (``SUNTRUE``) or disables (``SUNFALSE``) the multiple
    dot products fused operation in the CUDA vector. The return value is ``0``
    for success and ``-1`` if the input vector or its ``ops`` structure are
    ``NULL``.
 
-.. c:function:: int N_VEnableLinearSumVectorArray_Cuda(N_Vector v, booleantype tf)
+.. c:function:: int N_VEnableLinearSumVectorArray_Cuda(N_Vector v, sunbooleantype tf)
 
    This function enables (``SUNTRUE``) or disables (``SUNFALSE``) the linear sum
    operation for vector arrays in the CUDA vector. The return value is ``0`` for
    success and ``-1`` if the input vector or its ``ops`` structure are ``NULL``.
 
-.. c:function:: int N_VEnableScaleVectorArray_Cuda(N_Vector v, booleantype tf)
+.. c:function:: int N_VEnableScaleVectorArray_Cuda(N_Vector v, sunbooleantype tf)
 
    This function enables (``SUNTRUE``) or disables (``SUNFALSE``) the scale
    operation for vector arrays in the CUDA vector. The return value is ``0`` for
    success and ``-1`` if the input vector or its ``ops`` structure are ``NULL``.
 
-.. c:function:: int N_VEnableConstVectorArray_Cuda(N_Vector v, booleantype tf)
+.. c:function:: int N_VEnableConstVectorArray_Cuda(N_Vector v, sunbooleantype tf)
 
    This function enables (``SUNTRUE``) or disables (``SUNFALSE``) the const
    operation for vector arrays in the CUDA vector. The return value is ``0`` for
    success and ``-1`` if the input vector or its ``ops`` structure are ``NULL``.
 
-.. c:function:: int N_VEnableWrmsNormVectorArray_Cuda(N_Vector v, booleantype tf)
+.. c:function:: int N_VEnableWrmsNormVectorArray_Cuda(N_Vector v, sunbooleantype tf)
 
    This function enables (``SUNTRUE``) or disables (``SUNFALSE``) the WRMS norm
    operation for vector arrays in the CUDA vector. The return value is ``0`` for
    success and ``-1`` if the input vector or its ``ops`` structure are ``NULL``.
 
-.. c:function:: int N_VEnableWrmsNormMaskVectorArray_Cuda(N_Vector v, booleantype tf)
+.. c:function:: int N_VEnableWrmsNormMaskVectorArray_Cuda(N_Vector v, sunbooleantype tf)
 
    This function enables (``SUNTRUE``) or disables (``SUNFALSE``) the masked WRMS
    norm operation for vector arrays in the CUDA vector. The return value is
    ``0`` for success and ``-1`` if the input vector or its ``ops`` structure are
    ``NULL``.
 
-.. c:function:: int N_VEnableScaleAddMultiVectorArray_Cuda(N_Vector v, booleantype tf)
+.. c:function:: int N_VEnableScaleAddMultiVectorArray_Cuda(N_Vector v, sunbooleantype tf)
 
    This function enables (``SUNTRUE``) or disables (``SUNFALSE``) the scale and
    add a vector array to multiple vector arrays operation in the CUDA vector. The
    return value is ``0`` for success and ``-1`` if the input vector or its
    ``ops`` structure are ``NULL``.
 
-.. c:function:: int N_VEnableLinearCombinationVectorArray_Cuda(N_Vector v, booleantype tf)
+.. c:function:: int N_VEnableLinearCombinationVectorArray_Cuda(N_Vector v, sunbooleantype tf)
 
    This function enables (``SUNTRUE``) or disables (``SUNFALSE``) the linear
    combination operation for vector arrays in the CUDA vector. The return value

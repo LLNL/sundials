@@ -146,8 +146,8 @@ typedef struct {
 
 static int f(sunrealtype t, N_Vector y, N_Vector ydot, void *user_data);
 
-static int Precond(sunrealtype tn, N_Vector y, N_Vector fy, booleantype jok,
-                   booleantype *jcurPtr, sunrealtype gamma, void *user_data);
+static int Precond(sunrealtype tn, N_Vector y, N_Vector fy, sunbooleantype jok,
+                   sunbooleantype *jcurPtr, sunrealtype gamma, void *user_data);
 
 static int PSolve(sunrealtype tn, N_Vector y, N_Vector fy,
                   N_Vector r, N_Vector z,
@@ -157,7 +157,7 @@ static int PSolve(sunrealtype tn, N_Vector y, N_Vector fy,
 /* Prototypes of private functions */
 
 static void ProcessArgs(int argc, char *argv[],
-                        booleantype *sensi, int *sensi_meth, booleantype *err_con);
+                        sunbooleantype *sensi, int *sensi_meth, sunbooleantype *err_con);
 static void WrongArgs(char *name);
 static UserData AllocUserData(void);
 static void InitUserData(UserData data);
@@ -165,8 +165,8 @@ static void FreeUserData(UserData data);
 static void SetInitialProfiles(N_Vector y, sunrealtype dx, sunrealtype dz);
 static void PrintOutput(void *cvode_mem, sunrealtype t, N_Vector y);
 static void PrintOutputS(N_Vector *uS);
-static void PrintFinalStats(void *cvode_mem, booleantype sensi,
-                            booleantype err_con, int sensi_meth);
+static void PrintFinalStats(void *cvode_mem, sunbooleantype sensi,
+                            sunbooleantype err_con, int sensi_meth);
 static int check_retval(void *returnvalue, const char *funcname, int opt);
 
 /*
@@ -188,7 +188,7 @@ int main(int argc, char *argv[])
   sunrealtype *pbar;
   int is, *plist;
   N_Vector *uS;
-  booleantype sensi, err_con;
+  sunbooleantype sensi, err_con;
   int sensi_meth;
 
   pbar = NULL;
@@ -450,8 +450,8 @@ static int f(sunrealtype t, N_Vector y, N_Vector ydot, void *user_data)
  * Preconditioner setup routine. Generate and preprocess P.
  */
 
-static int Precond(sunrealtype tn, N_Vector y, N_Vector fy, booleantype jok,
-                   booleantype *jcurPtr, sunrealtype gamma, void *user_data)
+static int Precond(sunrealtype tn, N_Vector y, N_Vector fy, sunbooleantype jok,
+                   sunbooleantype *jcurPtr, sunrealtype gamma, void *user_data)
 {
   sunrealtype c1, c2, czdn, czup, diag, zdn, zup, q4coef, delz, verdco, hordco;
   sunrealtype **(*P)[MZ], **(*Jbd)[MZ];
@@ -589,7 +589,7 @@ static int PSolve(sunrealtype tn, N_Vector y, N_Vector fy,
  */
 
 static void ProcessArgs(int argc, char *argv[],
-                        booleantype *sensi, int *sensi_meth, booleantype *err_con)
+                        sunbooleantype *sensi, int *sensi_meth, sunbooleantype *err_con)
 {
   *sensi = SUNFALSE;
   *sensi_meth = -1;
@@ -846,8 +846,8 @@ static void PrintOutputS(N_Vector *uS)
  * Print final statistics contained in iopt
  */
 
-static void PrintFinalStats(void *cvode_mem, booleantype sensi,
-                            booleantype err_con, int sensi_meth)
+static void PrintFinalStats(void *cvode_mem, sunbooleantype sensi,
+                            sunbooleantype err_con, int sensi_meth)
 {
   long int nst;
   long int nfe, nsetups, nni, ncfn, netf;

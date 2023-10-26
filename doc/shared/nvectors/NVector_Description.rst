@@ -76,8 +76,8 @@ defined as
       sunrealtype     (*nvwl2norm)(N_Vector, N_Vector);
       sunrealtype     (*nvl1norm)(N_Vector);
       void         (*nvcompare)(sunrealtype, N_Vector, N_Vector);
-      booleantype  (*nvinvtest)(N_Vector, N_Vector);
-      booleantype  (*nvconstrmask)(N_Vector, N_Vector, N_Vector);
+      sunbooleantype  (*nvinvtest)(N_Vector, N_Vector);
+      sunbooleantype  (*nvconstrmask)(N_Vector, N_Vector, N_Vector);
       sunrealtype     (*nvminquotient)(N_Vector, N_Vector);
       int          (*nvlinearcombination)(int, sunrealtype *, N_Vector *, N_Vector);
       int          (*nvscaleaddmulti)(int, sunrealtype *, N_Vector, N_Vector *, N_Vector *);
@@ -97,8 +97,8 @@ defined as
       sunrealtype     (*nvmaxnormlocal)(N_Vector);
       sunrealtype     (*nvminlocal)(N_Vector);
       sunrealtype     (*nvl1normlocal)(N_Vector);
-      booleantype  (*nvinvtestlocal)(N_Vector, N_Vector);
-      booleantype  (*nvconstrmasklocal)(N_Vector, N_Vector, N_Vector);
+      sunbooleantype  (*nvinvtestlocal)(N_Vector, N_Vector);
+      sunbooleantype  (*nvconstrmasklocal)(N_Vector, N_Vector, N_Vector);
       sunrealtype     (*nvminquotientlocal)(N_Vector, N_Vector);
       sunrealtype     (*nvwsqrsumlocal)(N_Vector, N_Vector);
       sunrealtype     (*nvwsqrsummasklocal(N_Vector, N_Vector, N_Vector);

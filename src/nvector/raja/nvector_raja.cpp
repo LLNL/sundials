@@ -83,7 +83,7 @@ static constexpr sunindextype zeroIdx = 0;
 
 struct _N_PrivateVectorContent_Raja
 {
-  booleantype use_managed_mem; /* do data pointers use managed memory */
+  sunbooleantype use_managed_mem; /* do data pointers use managed memory */
 
   /* fused op workspace */
   SUNMemory fused_buffer_dev;    /* device memory for fused ops    */
@@ -249,7 +249,7 @@ N_Vector N_VNew_Raja(sunindextype length, SUNContext sunctx)
 }
 
 N_Vector N_VNewWithMemHelp_Raja(sunindextype length,
-                                booleantype use_managed_mem,
+                                sunbooleantype use_managed_mem,
                                 SUNMemoryHelper helper,
                                 SUNContext sunctx)
 {
@@ -502,7 +502,7 @@ void N_VSetDeviceArrayPointer_Raja(sunrealtype* d_vdata, N_Vector v)
 /* ----------------------------------------------------------------------------
  * Return a flag indicating if the memory for the vector data is managed
  */
-booleantype N_VIsManagedMemory_Raja(N_Vector x)
+sunbooleantype N_VIsManagedMemory_Raja(N_Vector x)
 {
   return NVEC_RAJA_PRIVATE(x)->use_managed_mem;
 }
@@ -958,7 +958,7 @@ void N_VCompare_Raja(sunrealtype c, N_Vector X, N_Vector Z)
   );
 }
 
-booleantype N_VInvTest_Raja(N_Vector x, N_Vector z)
+sunbooleantype N_VInvTest_Raja(N_Vector x, N_Vector z)
 {
   const sunrealtype *xdata = NVEC_RAJA_DDATAp(x);
   const sunindextype N = NVEC_RAJA_CONTENT(x)->length;
@@ -978,7 +978,7 @@ booleantype N_VInvTest_Raja(N_Vector x, N_Vector z)
   return (minimum < HALF);
 }
 
-booleantype N_VConstrMask_Raja(N_Vector c, N_Vector x, N_Vector m)
+sunbooleantype N_VConstrMask_Raja(N_Vector c, N_Vector x, N_Vector m)
 {
   const sunrealtype *cdata = NVEC_RAJA_DDATAp(c);
   const sunrealtype *xdata = NVEC_RAJA_DDATAp(x);
@@ -1493,7 +1493,7 @@ int N_VBufUnpack_Raja(N_Vector x, void *buf)
  * -----------------------------------------------------------------
  */
 
-int N_VEnableFusedOps_Raja(N_Vector v, booleantype tf)
+int N_VEnableFusedOps_Raja(N_Vector v, sunbooleantype tf)
 {
   /* check that vector is non-NULL */
   if (v == NULL) return(-1);
@@ -1533,7 +1533,7 @@ int N_VEnableFusedOps_Raja(N_Vector v, booleantype tf)
   return(0);
 }
 
-int N_VEnableLinearCombination_Raja(N_Vector v, booleantype tf)
+int N_VEnableLinearCombination_Raja(N_Vector v, sunbooleantype tf)
 {
   /* check that vector is non-NULL */
   if (v == NULL) return(-1);
@@ -1551,7 +1551,7 @@ int N_VEnableLinearCombination_Raja(N_Vector v, booleantype tf)
   return(0);
 }
 
-int N_VEnableScaleAddMulti_Raja(N_Vector v, booleantype tf)
+int N_VEnableScaleAddMulti_Raja(N_Vector v, sunbooleantype tf)
 {
   /* check that vector is non-NULL */
   if (v == NULL) return(-1);
@@ -1569,7 +1569,7 @@ int N_VEnableScaleAddMulti_Raja(N_Vector v, booleantype tf)
   return(0);
 }
 
-int N_VEnableLinearSumVectorArray_Raja(N_Vector v, booleantype tf)
+int N_VEnableLinearSumVectorArray_Raja(N_Vector v, sunbooleantype tf)
 {
   /* check that vector is non-NULL */
   if (v == NULL) return(-1);
@@ -1587,7 +1587,7 @@ int N_VEnableLinearSumVectorArray_Raja(N_Vector v, booleantype tf)
   return(0);
 }
 
-int N_VEnableScaleVectorArray_Raja(N_Vector v, booleantype tf)
+int N_VEnableScaleVectorArray_Raja(N_Vector v, sunbooleantype tf)
 {
   /* check that vector is non-NULL */
   if (v == NULL) return(-1);
@@ -1605,7 +1605,7 @@ int N_VEnableScaleVectorArray_Raja(N_Vector v, booleantype tf)
   return(0);
 }
 
-int N_VEnableConstVectorArray_Raja(N_Vector v, booleantype tf)
+int N_VEnableConstVectorArray_Raja(N_Vector v, sunbooleantype tf)
 {
   /* check that vector is non-NULL */
   if (v == NULL) return(-1);
@@ -1623,7 +1623,7 @@ int N_VEnableConstVectorArray_Raja(N_Vector v, booleantype tf)
   return(0);
 }
 
-int N_VEnableScaleAddMultiVectorArray_Raja(N_Vector v, booleantype tf)
+int N_VEnableScaleAddMultiVectorArray_Raja(N_Vector v, sunbooleantype tf)
 {
   /* check that vector is non-NULL */
   if (v == NULL) return(-1);
@@ -1641,7 +1641,7 @@ int N_VEnableScaleAddMultiVectorArray_Raja(N_Vector v, booleantype tf)
   return(0);
 }
 
-int N_VEnableLinearCombinationVectorArray_Raja(N_Vector v, booleantype tf)
+int N_VEnableLinearCombinationVectorArray_Raja(N_Vector v, sunbooleantype tf)
 {
   /* check that vector is non-NULL */
   if (v == NULL) return(-1);
@@ -1717,7 +1717,7 @@ int AllocateData(N_Vector v)
 static int FusedBuffer_Init(N_Vector v, int nreal, int nptr)
 {
   int         alloc_fail = 0;
-  booleantype alloc_mem  = SUNFALSE;
+  sunbooleantype alloc_mem  = SUNFALSE;
   size_t      bytes      = nreal * sizeof(sunrealtype) + nptr * sizeof(sunrealtype*);
 
   // Get the vector private memory structure

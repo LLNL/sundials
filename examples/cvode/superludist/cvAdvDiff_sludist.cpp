@@ -462,8 +462,8 @@ static int Jac(sunrealtype t, N_Vector u, N_Vector fu,
 
   /* set non-zero Jacobian entries */
   for (i=0; i < Jstore->m_loc; i++) {
-    booleantype first_local_row;
-    booleantype first_row, last_row;
+    sunbooleantype first_local_row;
+    sunbooleantype first_row, last_row;
 
     /* global row index */
     j = Jstore->fst_row + i;

@@ -528,7 +528,7 @@ int arkSetStopTime(void *arkode_mem, sunrealtype tstop)
   Specifies to use interpolation to fill the solution output at
   the stop time (instead of a copy).
   ---------------------------------------------------------------*/
-int arkSetInterpolateStopTime(void *arkode_mem, booleantype interp)
+int arkSetInterpolateStopTime(void *arkode_mem, sunbooleantype interp)
 {
   ARKodeMem ark_mem;
   if (arkode_mem==NULL) {
@@ -2034,7 +2034,7 @@ int arkWriteParameters(ARKodeMem ark_mem, FILE *fp)
   Ignore the value of kflag after the temporal error test and
   force the step to pass.
   ---------------------------------------------------------------*/
-int arkSetForcePass(void *arkode_mem, booleantype force_pass)
+int arkSetForcePass(void *arkode_mem, sunbooleantype force_pass)
 {
   ARKodeMem ark_mem;
   if (arkode_mem==NULL) {

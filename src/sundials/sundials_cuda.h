@@ -58,7 +58,7 @@ extern "C" {
  * Utility functions
  * ---------------------------------------------------------------------------*/
 
-inline booleantype SUNDIALS_CUDA_Assert(cudaError_t cuerr, const char *file, int line)
+inline sunbooleantype SUNDIALS_CUDA_Assert(cudaError_t cuerr, const char *file, int line)
 {
   if (cuerr != cudaSuccess)
   {
@@ -75,7 +75,7 @@ inline booleantype SUNDIALS_CUDA_Assert(cudaError_t cuerr, const char *file, int
   return SUNTRUE; /* Assert OK */
 }
 
-inline booleantype SUNDIALS_CUSPARSE_Assert(cusparseStatus_t status, const char *file, int line)
+inline sunbooleantype SUNDIALS_CUSPARSE_Assert(cusparseStatus_t status, const char *file, int line)
 {
   if (status != CUSPARSE_STATUS_SUCCESS)
   {
@@ -92,7 +92,7 @@ inline booleantype SUNDIALS_CUSPARSE_Assert(cusparseStatus_t status, const char 
   return SUNTRUE; /* Assert OK */
 }
 
-inline booleantype SUNDIALS_CUSOLVER_Assert(cusolverStatus_t status, const char *file, int line)
+inline sunbooleantype SUNDIALS_CUSOLVER_Assert(cusolverStatus_t status, const char *file, int line)
 {
   if (status != CUSOLVER_STATUS_SUCCESS)
   {

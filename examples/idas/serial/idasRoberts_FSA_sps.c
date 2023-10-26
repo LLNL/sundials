@@ -103,8 +103,8 @@ static int rhsQ(sunrealtype tres, N_Vector yy, N_Vector yp,
 /* Prototypes of private functions */
 
 static void ProcessArgs(int argc, char *argv[],
-                        booleantype *sensi, int *sensi_meth,
-                        booleantype *err_con);
+                        sunbooleantype *sensi, int *sensi_meth,
+                        sunbooleantype *err_con);
 static void WrongArgs(char *name);
 
 static void PrintIC(N_Vector y, N_Vector yp);
@@ -113,7 +113,7 @@ static void PrintSensIC(N_Vector y, N_Vector yp, N_Vector* yS, N_Vector* ypS);
 static void PrintOutput(void *ida_mem, sunrealtype t, N_Vector u);
 static void PrintSensOutput(N_Vector *uS);
 
-static void PrintFinalStats(void *ida_mem, booleantype sensi);
+static void PrintFinalStats(void *ida_mem, sunbooleantype sensi);
 
 static int check_retval(void *returnvalue, char *funcname, int opt);
 /*
@@ -136,7 +136,7 @@ int main(int argc, char *argv[])
   sunrealtype pbar[NS];
   int is;
   N_Vector *yS, *ypS;
-  booleantype sensi, err_con;
+  sunbooleantype sensi, err_con;
   int sensi_meth;
 
   N_Vector yQ, *yQS;
@@ -562,7 +562,7 @@ static int rhsQ(sunrealtype t, N_Vector y, N_Vector yp,
  */
 
 static void ProcessArgs(int argc, char *argv[],
-                        booleantype *sensi, int *sensi_meth, booleantype *err_con)
+                        sunbooleantype *sensi, int *sensi_meth, sunbooleantype *err_con)
 {
   *sensi = SUNFALSE;
   *sensi_meth = -1;
@@ -790,7 +790,7 @@ static void PrintSensOutput(N_Vector *uS)
  * Print some final statistics from the IDAS memory.
  */
 
-static void PrintFinalStats(void *ida_mem, booleantype sensi)
+static void PrintFinalStats(void *ida_mem, sunbooleantype sensi)
 {
   long int nst;
   long int nfe, nsetups, nni, nnf, ncfn, netf;

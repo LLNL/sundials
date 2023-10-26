@@ -63,7 +63,7 @@ typedef int (*CVLsJacFn)(sunrealtype t, N_Vector y, N_Vector fy,
                          N_Vector tmp1, N_Vector tmp2, N_Vector tmp3);
 
 typedef int (*CVLsPrecSetupFn)(sunrealtype t, N_Vector y, N_Vector fy,
-                               booleantype jok, booleantype *jcurPtr,
+                               sunbooleantype jok, sunbooleantype *jcurPtr,
                                sunrealtype gamma, void *user_data);
 
 typedef int (*CVLsPrecSolveFn)(sunrealtype t, N_Vector y, N_Vector fy,
@@ -78,7 +78,7 @@ typedef int (*CVLsJacTimesVecFn)(N_Vector v, N_Vector Jv, sunrealtype t,
                                  void *user_data, N_Vector tmp);
 
 typedef int (*CVLsLinSysFn)(sunrealtype t, N_Vector y, N_Vector fy, SUNMatrix A,
-                            booleantype jok, booleantype *jcur, sunrealtype gamma,
+                            sunbooleantype jok, sunbooleantype *jcur, sunrealtype gamma,
                             void *user_data, N_Vector tmp1, N_Vector tmp2,
                             N_Vector tmp3);
 
@@ -99,7 +99,7 @@ SUNDIALS_EXPORT int CVodeSetJacFn(void *cvode_mem, CVLsJacFn jac);
 SUNDIALS_EXPORT int CVodeSetJacEvalFrequency(void *cvode_mem,
                                              long int msbj);
 SUNDIALS_EXPORT int CVodeSetLinearSolutionScaling(void *cvode_mem,
-                                                  booleantype onoff);
+                                                  sunbooleantype onoff);
 SUNDIALS_EXPORT int CVodeSetDeltaGammaMaxBadJac(void *cvode_mem,
                                                 sunrealtype dgmax_jbad);
 SUNDIALS_EXPORT int CVodeSetEpsLin(void *cvode_mem, sunrealtype eplifac);
@@ -167,14 +167,14 @@ typedef int (*CVLsJacFnBS)(sunrealtype t, N_Vector y, N_Vector *yS,
                            N_Vector tmp2B, N_Vector tmp3B);
 
 typedef int (*CVLsPrecSetupFnB)(sunrealtype t, N_Vector y, N_Vector yB,
-                                N_Vector fyB, booleantype jokB,
-                                booleantype *jcurPtrB,
+                                N_Vector fyB, sunbooleantype jokB,
+                                sunbooleantype *jcurPtrB,
                                 sunrealtype gammaB, void *user_dataB);
 
 typedef int (*CVLsPrecSetupFnBS)(sunrealtype t, N_Vector y,
                                  N_Vector *yS, N_Vector yB,
-                                 N_Vector fyB, booleantype jokB,
-                                 booleantype *jcurPtrB,
+                                 N_Vector fyB, sunbooleantype jokB,
+                                 sunbooleantype *jcurPtrB,
                                  sunrealtype gammaB, void *user_dataB);
 
 typedef int (*CVLsPrecSolveFnB)(sunrealtype t, N_Vector y, N_Vector yB,
@@ -206,13 +206,13 @@ typedef int (*CVLsJacTimesVecFnBS)(N_Vector vB, N_Vector JvB,
                                    void *jac_dataB, N_Vector tmpB);
 
 typedef int (*CVLsLinSysFnB)(sunrealtype t, N_Vector y, N_Vector yB, N_Vector fyB,
-                             SUNMatrix AB, booleantype jokB, booleantype *jcurB,
+                             SUNMatrix AB, sunbooleantype jokB, sunbooleantype *jcurB,
                              sunrealtype gammaB, void *user_dataB, N_Vector tmp1B,
                              N_Vector tmp2B, N_Vector tmp3B);
 
 typedef int (*CVLsLinSysFnBS)(sunrealtype t, N_Vector y, N_Vector* yS,
                               N_Vector yB, N_Vector fyB, SUNMatrix AB,
-                              booleantype jokB, booleantype *jcurB,
+                              sunbooleantype jokB, sunbooleantype *jcurB,
                               sunrealtype gammaB, void *user_dataB, N_Vector tmp1B,
                               N_Vector tmp2B, N_Vector tmp3B);
 
@@ -244,7 +244,7 @@ SUNDIALS_EXPORT int CVodeSetLSNormFactorB(void *arkode_mem, int which,
                                           sunrealtype nrmfacB);
 
 SUNDIALS_EXPORT int CVodeSetLinearSolutionScalingB(void *cvode_mem, int which,
-                                                   booleantype onoffB);
+                                                   sunbooleantype onoffB);
 
 SUNDIALS_EXPORT int CVodeSetPreconditionerB(void *cvode_mem, int which,
                                             CVLsPrecSetupFnB psetB,

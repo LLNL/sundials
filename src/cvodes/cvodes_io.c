@@ -279,7 +279,7 @@ int CVodeSetMaxHnilWarns(void *cvode_mem, int mxhnil)
  * Turns on/off the stability limit detection algorithm
  */
 
-int CVodeSetStabLimDet(void *cvode_mem, booleantype sldet)
+int CVodeSetStabLimDet(void *cvode_mem, sunbooleantype sldet)
 {
   CVodeMem cv_mem;
 
@@ -722,7 +722,7 @@ int CVodeSetStopTime(void *cvode_mem, sunrealtype tstop)
  * Specifies to use interpolation to fill the returned solution at the stop time (instead of a copy).
  */
 
-int CVodeSetInterpolateStopTime(void *cvode_mem, booleantype interp)
+int CVodeSetInterpolateStopTime(void *cvode_mem, sunbooleantype interp)
 {
   CVodeMem cv_mem;
 
@@ -812,7 +812,7 @@ int CVodeSetMaxConvFails(void *cvode_mem, int maxncf)
 int CVodeSetMaxNonlinIters(void *cvode_mem, int maxcor)
 {
   CVodeMem cv_mem;
-  booleantype sensi_sim;
+  sunbooleantype sensi_sim;
 
   if (cvode_mem==NULL) {
     cvProcessError(NULL, CV_MEM_NULL, "CVODES",
@@ -1028,7 +1028,7 @@ int CVodeSetConstraints(void *cvode_mem, N_Vector constraints)
  * =================================================================
  */
 
-int CVodeSetQuadErrCon(void *cvode_mem, booleantype errconQ)
+int CVodeSetQuadErrCon(void *cvode_mem, sunbooleantype errconQ)
 {
   CVodeMem cv_mem;
 
@@ -1078,7 +1078,7 @@ int CVodeSetSensDQMethod(void *cvode_mem, int DQtype, sunrealtype DQrhomax)
 
 /*-----------------------------------------------------------------*/
 
-int CVodeSetSensErrCon(void *cvode_mem, booleantype errconS)
+int CVodeSetSensErrCon(void *cvode_mem, sunbooleantype errconS)
 {
   CVodeMem cv_mem;
 
@@ -1098,7 +1098,7 @@ int CVodeSetSensErrCon(void *cvode_mem, booleantype errconS)
 int CVodeSetSensMaxNonlinIters(void *cvode_mem, int maxcorS)
 {
   CVodeMem cv_mem;
-  booleantype sensi_stg;
+  sunbooleantype sensi_stg;
 
   if (cvode_mem==NULL) {
     cvProcessError(NULL, CV_MEM_NULL, "CVODES",
@@ -1197,7 +1197,7 @@ int CVodeSetSensParams(void *cvode_mem, sunrealtype *p, sunrealtype *pbar, int *
 
 /*-----------------------------------------------------------------*/
 
-int CVodeSetQuadSensErrCon(void *cvode_mem, booleantype errconQS)
+int CVodeSetQuadSensErrCon(void *cvode_mem, sunbooleantype errconQS)
 {
   CVodeMem cv_mem;
 

@@ -244,8 +244,8 @@ int MyAccess(braid_App app, braid_Vector u, braid_AccessStatus astatus);
 static int f(sunrealtype t, N_Vector u, N_Vector f, void *user_data);
 
 // Preconditioner setup and solve functions
-static int PSetup(sunrealtype t, N_Vector u, N_Vector f, booleantype jok,
-                  booleantype *jcurPtr, sunrealtype gamma, void *user_data);
+static int PSetup(sunrealtype t, N_Vector u, N_Vector f, sunbooleantype jok,
+                  sunbooleantype *jcurPtr, sunrealtype gamma, void *user_data);
 
 static int PSolve(sunrealtype t, N_Vector u, N_Vector f, N_Vector r,
                   N_Vector z, sunrealtype gamma, sunrealtype delta, int lr,
@@ -1299,8 +1299,8 @@ static int f(sunrealtype t, N_Vector u, N_Vector f, void *user_data)
 }
 
 // Preconditioner setup routine
-static int PSetup(sunrealtype t, N_Vector u, N_Vector f, booleantype jok,
-                  booleantype *jcurPtr, sunrealtype gamma, void *user_data)
+static int PSetup(sunrealtype t, N_Vector u, N_Vector f, sunbooleantype jok,
+                  sunbooleantype *jcurPtr, sunrealtype gamma, void *user_data)
 {
   // Start timer
   double t1 = MPI_Wtime();

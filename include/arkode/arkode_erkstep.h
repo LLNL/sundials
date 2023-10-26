@@ -124,7 +124,7 @@ SUNDIALS_EXPORT int ERKStepSetMinStep(void *arkode_mem,
 SUNDIALS_EXPORT int ERKStepSetMaxStep(void *arkode_mem,
                                       sunrealtype hmax);
 SUNDIALS_EXPORT int ERKStepSetInterpolateStopTime(void *arkode_mem,
-                                                  booleantype interp);
+                                                  sunbooleantype interp);
 SUNDIALS_EXPORT int ERKStepSetStopTime(void *arkode_mem,
                                        sunrealtype tstop);
 SUNDIALS_EXPORT int ERKStepClearStopTime(void *arkode_mem);

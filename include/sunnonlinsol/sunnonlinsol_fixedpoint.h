@@ -43,7 +43,7 @@ struct _SUNNonlinearSolverContent_FixedPoint {
   /* nonlinear solver variables */
   int          m;          /* number of acceleration vectors to use          */
   int         *imap;       /* array of length m                              */
-  booleantype  damping;    /* flag to apply dampling in acceleration         */
+  sunbooleantype  damping;    /* flag to apply dampling in acceleration         */
   sunrealtype     beta;       /* damping paramter                               */
   sunrealtype    *R;          /* array of length m*m                            */
   sunrealtype    *gamma;      /* array of length m                              */
@@ -91,7 +91,7 @@ SUNDIALS_EXPORT int SUNNonlinSolInitialize_FixedPoint(SUNNonlinearSolver NLS);
 SUNDIALS_EXPORT int SUNNonlinSolSolve_FixedPoint(SUNNonlinearSolver NLS,
                                                  N_Vector y0, N_Vector y,
                                                  N_Vector w, sunrealtype tol,
-                                                 booleantype callSetup, void *mem);
+                                                 sunbooleantype callSetup, void *mem);
 
 SUNDIALS_EXPORT int SUNNonlinSolFree_FixedPoint(SUNNonlinearSolver NLS);
 

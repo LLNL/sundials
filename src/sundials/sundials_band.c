@@ -104,7 +104,7 @@ sunindextype SUNDlsMat_bandGBTRF(sunrealtype **a, sunindextype n, sunindextype m
   sunindextype i, j, k, l, storage_l, storage_k, last_col_k, last_row_k;
   sunrealtype *a_c, *col_k, *diag_k, *sub_diag_k, *col_j, *kptr, *jptr;
   sunrealtype max, temp, mult, a_kj;
-  booleantype swap;
+  sunbooleantype swap;
 
   /* zero out the first smu - mu rows of the rectangular array a */
 

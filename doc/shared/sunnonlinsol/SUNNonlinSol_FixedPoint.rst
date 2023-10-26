@@ -272,7 +272,7 @@ following structure.
      int          m;
      int         *imap;
      sunrealtype    *R;
-     booleantype  damping
+     sunbooleantype  damping
      sunrealtype     beta
      sunrealtype    *gamma;
      sunrealtype    *cvals;

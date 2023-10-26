@@ -1022,7 +1022,7 @@ backward problem depends on the forward sensitivities.
 The function :c:func:`IDASetLinearSolutionScalingB` can be used to enable or
 disable solution scaling when using a matrix-based linear solver.
 
-.. c:function:: int IDASetLinearSolutionScalingB(void * ida_mem, int which, booleantype onoffB)
+.. c:function:: int IDASetLinearSolutionScalingB(void * ida_mem, int which, sunbooleantype onoffB)
 
    The function :c:func:`IDASetLinearSolutionScalingB` enables or disables
    scaling  the linear system solution to account for a change in :math:`\alpha`

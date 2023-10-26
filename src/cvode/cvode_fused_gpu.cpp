@@ -73,7 +73,7 @@ void cvEwtSetSS_kernel(const sunindextype length,
 }
 
 extern "C"
-int cvEwtSetSS_fused(const booleantype atolMin0,
+int cvEwtSetSS_fused(const sunbooleantype atolMin0,
                      const sunrealtype reltol,
                      const sunrealtype Sabstol,
                      const N_Vector ycur,
@@ -133,7 +133,7 @@ void cvEwtSetSV_kernel(const sunindextype length,
 }
 
 extern "C"
-int cvEwtSetSV_fused(const booleantype atolMin0,
+int cvEwtSetSV_fused(const sunbooleantype atolMin0,
                      const sunrealtype reltol,
                      const N_Vector Vabstol,
                      const N_Vector ycur,

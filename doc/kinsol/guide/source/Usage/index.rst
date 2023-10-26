@@ -98,7 +98,7 @@ data types can be used. The header file that is always required is:
   header file for KINLS, ``kinsol/kinsol_ls.h``.
 
 Note that ``kinsol.h`` includes ``sundials_types.h``, which defines the types,
-``sunrealtype``, ``sunindextype``, and ``booleantype`` and the constants
+``sunrealtype``, ``sunindextype``, and ``sunbooleantype`` and the constants
 ``SUNFALSE`` and ``SUNTRUE``.
 
 The calling program must also include an ``N_Vector`` implementation
@@ -720,7 +720,7 @@ negative, so a test ``retval`` :math:`<0` will catch any error.
       The default value for ``mxiter`` is ``MXITER_DEFAULT`` :math:`=200`.
 
 
-.. c:function:: int KINSetNoInitSetup(void * kin_mem, booleantype noInitSetup)
+.. c:function:: int KINSetNoInitSetup(void * kin_mem, sunbooleantype noInitSetup)
 
    The function :c:func:`KINSetNoInitSetup` specifies whether an initial call
    to the preconditioner or Jacobian setup function should be made or not.
@@ -743,7 +743,7 @@ negative, so a test ``retval`` :math:`<0` will catch any error.
       problem is to be used initially  for the next problem.
 
 
-.. c:function:: int KINSetNoResMon(void * kin_mem, booleantype noNNIResMon)
+.. c:function:: int KINSetNoResMon(void * kin_mem, sunbooleantype noNNIResMon)
 
    The function :c:func:`KINSetNoResMon` specifies whether or not the nonlinear
    residual monitoring scheme is used to control Jacobian updating
@@ -945,7 +945,7 @@ negative, so a test ``retval`` :math:`<0` will catch any error.
       solver modules.
 
 
-.. c:function:: int KINSetNoMinEps(void * kin_mem, booleantype noMinEps)
+.. c:function:: int KINSetNoMinEps(void * kin_mem, sunbooleantype noMinEps)
 
    The function :c:func:`KINSetNoMinEps` specifies a flag that controls whether
    or not  the value of :math:`\epsilon`, the scaled linear residual tolerance,
@@ -1116,7 +1116,7 @@ negative, so a test ``retval`` :math:`<0` will catch any error.
       different functions.
 
 
-.. c:function:: int KINSetReturnNewest(void * kin_mem, booleantype ret_newest)
+.. c:function:: int KINSetReturnNewest(void * kin_mem, sunbooleantype ret_newest)
 
    The function :c:func:`KINSetReturnNewest` specifies if the fixed point
    iteration  should return the newest iteration or the iteration consistent
@@ -2164,7 +2164,7 @@ provide a function of type :c:type:`KINLsJacTimesVecFn` in the following form,
 to compute matrix-vector products :math:`Jv`. If such a function is not
 supplied, the default is a difference quotient approximation to these products.
 
-.. c:type:: int (*KINLsJacTimesVecFn)(N_Vector v, N_Vector Jv, N_Vector u, booleantype* new_u, void* user_data)
+.. c:type:: int (*KINLsJacTimesVecFn)(N_Vector v, N_Vector Jv, N_Vector u, sunbooleantype* new_u, void* user_data)
 
    This function computes the product :math:`J v` (or an approximation to it).
 

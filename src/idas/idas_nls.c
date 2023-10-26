@@ -28,7 +28,7 @@
 
 /* private functions passed to nonlinear solver */
 static int idaNlsResidual(N_Vector ycor, N_Vector res, void* ida_mem);
-static int idaNlsLSetup(booleantype jbad, booleantype* jcur, void* ida_mem);
+static int idaNlsLSetup(sunbooleantype jbad, sunbooleantype* jcur, void* ida_mem);
 static int idaNlsLSolve(N_Vector delta, void* ida_mem);
 static int idaNlsConvTest(SUNNonlinearSolver NLS, N_Vector ycor, N_Vector del,
                           sunrealtype tol, N_Vector ewt, void* ida_mem);
@@ -233,7 +233,7 @@ int idaNlsInit(IDAMem IDA_mem)
 }
 
 
-static int idaNlsLSetup(booleantype jbad, booleantype* jcur, void* ida_mem)
+static int idaNlsLSetup(sunbooleantype jbad, sunbooleantype* jcur, void* ida_mem)
 {
   IDAMem IDA_mem;
   int retval;

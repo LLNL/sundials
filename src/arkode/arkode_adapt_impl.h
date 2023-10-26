@@ -108,7 +108,7 @@ typedef struct ARKodeHAdaptMemRec {
   sunrealtype     k3;
   int q;                    /* method order                               */
   int p;                    /* embedding order                            */
-  booleantype pq;           /* choice of using p (0) vs q (1)             */
+  sunbooleantype pq;           /* choice of using p (0) vs q (1)             */
 
   ARKExpStabFn expstab;     /* step stability function                    */
   void        *estab_data;  /* user pointer passed to expstab             */

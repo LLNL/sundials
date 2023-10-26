@@ -40,7 +40,7 @@ void* MRIStepCreate(ARKRhsFn fse, ARKRhsFn fsi, sunrealtype t0, N_Vector y0,
   ARKodeMem          ark_mem;         /* outer ARKODE memory   */
   ARKodeMRIStepMem   step_mem;        /* outer stepper memory  */
   SUNNonlinearSolver NLS;             /* default nonlin solver */
-  booleantype        nvectorOK;
+  sunbooleantype        nvectorOK;
   int                retval;
 
   /* Check that at least one of fse, fsi is supplied and is to be used*/
@@ -131,7 +131,7 @@ void* MRIStepCreate(ARKRhsFn fse, ARKRhsFn fsi, sunrealtype t0, N_Vector y0,
   step_mem->implicit_rhs = (fsi == NULL) ? SUNFALSE : SUNTRUE;
 
   /* Update the ARKODE workspace requirements */
-  ark_mem->liw += 42;  /* fcn/data ptr, int, long int, sunindextype, booleantype */
+  ark_mem->liw += 42;  /* fcn/data ptr, int, long int, sunindextype, sunbooleantype */
   ark_mem->lrw += 10;
 
   /* Create a default Newton NLS object (just in case; will be deleted if
@@ -932,8 +932,8 @@ ARKRhsFn mriStep_GetImplicitRHS(void* arkode_mem)
   whether the gamma ratio fails the dgmax criteria.
   ---------------------------------------------------------------*/
 int mriStep_GetGammas(void* arkode_mem, sunrealtype *gamma,
-                      sunrealtype *gamrat, booleantype **jcur,
-                      booleantype *dgamma_fail)
+                      sunrealtype *gamrat, sunbooleantype **jcur,
+                      sunbooleantype *dgamma_fail)
 {
   ARKodeMem ark_mem;
   ARKodeMRIStepMem step_mem;
@@ -974,7 +974,7 @@ int mriStep_Init(void* arkode_mem, int init_type)
   ARKodeMem ark_mem;
   ARKodeMRIStepMem step_mem;
   int retval, j;
-  booleantype reset_efun;
+  sunbooleantype reset_efun;
 
   /* access ARKodeMRIStepMem structure */
   retval = mriStep_AccessStepMem(arkode_mem, "mriStep_Init",
@@ -1666,7 +1666,7 @@ int mriStep_AccessStepMem(void* arkode_mem, const char *fname,
   This routine checks if all required vector operations are
   present.  If any of them is missing it returns SUNFALSE.
   ---------------------------------------------------------------*/
-booleantype mriStep_CheckNVector(N_Vector tmpl)
+sunbooleantype mriStep_CheckNVector(N_Vector tmpl)
 {
   if ( (tmpl->ops->nvclone     == NULL) ||
        (tmpl->ops->nvdestroy   == NULL) ||
@@ -1800,7 +1800,7 @@ int mriStep_SetCoupling(ARKodeMem ark_mem)
 int mriStep_CheckCoupling(ARKodeMem ark_mem)
 {
   int i, j, k;
-  booleantype okay;
+  sunbooleantype okay;
   ARKodeMRIStepMem step_mem;
   sunrealtype Gabs, Wabs;
   const sunrealtype tol = SUN_RCONST(100.0)*SUN_UNIT_ROUNDOFF;

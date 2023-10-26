@@ -141,7 +141,7 @@ The SUNLinSol_SuperLUDIST module defines the *content* field of a
 .. code-block:: c
 
    struct _SUNLinearSolverContent_SuperLUDIST {
-     booleantype             first_factorize;
+     sunbooleantype             first_factorize;
      int                     last_flag;
      sunrealtype                berr;
      gridinfo_t              *grid;

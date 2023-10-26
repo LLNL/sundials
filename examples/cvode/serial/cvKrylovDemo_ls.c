@@ -171,8 +171,8 @@ static int check_retval(void *returnvalue, const char *funcname, int opt);
 
 static int f(sunrealtype t, N_Vector u, N_Vector udot, void *user_data);
 
-static int Precond(sunrealtype tn, N_Vector u, N_Vector fu, booleantype jok,
-                   booleantype *jcurPtr, sunrealtype gamma, void *user_data);
+static int Precond(sunrealtype tn, N_Vector u, N_Vector fu, sunbooleantype jok,
+                   sunbooleantype *jcurPtr, sunrealtype gamma, void *user_data);
 
 static int PSolve(sunrealtype tn, N_Vector u, N_Vector fu,
                   N_Vector r, N_Vector z,
@@ -732,8 +732,8 @@ static int f(sunrealtype t, N_Vector u, N_Vector udot, void *user_data)
 
 /* Preconditioner setup routine. Generate and preprocess P. */
 
-static int Precond(sunrealtype tn, N_Vector u, N_Vector fu, booleantype jok,
-                   booleantype *jcurPtr, sunrealtype gamma, void *user_data)
+static int Precond(sunrealtype tn, N_Vector u, N_Vector fu, sunbooleantype jok,
+                   sunbooleantype *jcurPtr, sunrealtype gamma, void *user_data)
 {
   sunrealtype c1, c2, cydn, cyup, diag, ydn, yup, q4coef, dely, verdco, hordco;
   sunrealtype **(*P)[MY], **(*Jbd)[MY];

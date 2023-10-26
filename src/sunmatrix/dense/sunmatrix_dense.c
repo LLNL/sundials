@@ -27,8 +27,8 @@
 #define ONE  SUN_RCONST(1.0)
 
 /* Private function prototypes */
-static booleantype compatibleMatrices(SUNMatrix A, SUNMatrix B);
-static booleantype compatibleMatrixAndVectors(SUNMatrix A, N_Vector x, N_Vector y);
+static sunbooleantype compatibleMatrices(SUNMatrix A, SUNMatrix B);
+static sunbooleantype compatibleMatrixAndVectors(SUNMatrix A, N_Vector x, N_Vector y);
 
 /*
  * -----------------------------------------------------------------
@@ -331,7 +331,7 @@ int SUNMatSpace_Dense(SUNMatrix A, long int* lenrw, long int* leniw)
  * -----------------------------------------------------------------
  */
 
-static booleantype compatibleMatrices(SUNMatrix A, SUNMatrix B)
+static sunbooleantype compatibleMatrices(SUNMatrix A, SUNMatrix B)
 {
   /* both matrices must be SUNMATRIX_DENSE */
   if ((SUNMatGetID(A) != SUNMATRIX_DENSE) || (SUNMatGetID(B) != SUNMATRIX_DENSE)) {
@@ -346,7 +346,7 @@ static booleantype compatibleMatrices(SUNMatrix A, SUNMatrix B)
   return SUNTRUE;
 }
 
-static booleantype compatibleMatrixAndVectors(SUNMatrix A, N_Vector x, N_Vector y)
+static sunbooleantype compatibleMatrixAndVectors(SUNMatrix A, N_Vector x, N_Vector y)
 {
   /* Vectors must provide nvgetarraypointer and cannot be a parallel vector */
   if (!x->ops->nvgetarraypointer || !y->ops->nvgetarraypointer) {

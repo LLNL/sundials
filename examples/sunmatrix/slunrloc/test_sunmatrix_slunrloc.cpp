@@ -517,7 +517,7 @@ int check_vector(N_Vector x, N_Vector y, sunrealtype tol)
     return(0);
 }
 
-booleantype has_data(SUNMatrix A)
+sunbooleantype has_data(SUNMatrix A)
 {
   SuperMatrix *Asuper;
   NRformat_loc *Astore;
@@ -534,7 +534,7 @@ booleantype has_data(SUNMatrix A)
     return SUNTRUE;
 }
 
-booleantype is_square(SUNMatrix A)
+sunbooleantype is_square(SUNMatrix A)
 {
   SuperMatrix *Asuper = SUNMatrix_SLUNRloc_SuperMatrix(A);
   if (Asuper->nrow == Asuper->ncol)

@@ -306,7 +306,7 @@
 /* Private Helper Functions Prototypes                             */
 /*=================================================================*/
 
-static booleantype cvCheckNvector(N_Vector tmpl);
+static sunbooleantype cvCheckNvector(N_Vector tmpl);
 
 /* Initial setup */
 
@@ -314,16 +314,16 @@ static int cvInitialSetup(CVodeMem cv_mem);
 
 /* Memory allocation/deallocation */
 
-static booleantype cvAllocVectors(CVodeMem cv_mem, N_Vector tmpl);
+static sunbooleantype cvAllocVectors(CVodeMem cv_mem, N_Vector tmpl);
 static void cvFreeVectors(CVodeMem cv_mem);
 
-static booleantype cvQuadAllocVectors(CVodeMem cv_mem, N_Vector tmpl);
+static sunbooleantype cvQuadAllocVectors(CVodeMem cv_mem, N_Vector tmpl);
 static void cvQuadFreeVectors(CVodeMem cv_mem);
 
-static booleantype cvSensAllocVectors(CVodeMem cv_mem, N_Vector tmpl);
+static sunbooleantype cvSensAllocVectors(CVodeMem cv_mem, N_Vector tmpl);
 static void cvSensFreeVectors(CVodeMem cv_mem);
 
-static booleantype cvQuadSensAllocVectors(CVodeMem cv_mem, N_Vector tmpl);
+static sunbooleantype cvQuadSensAllocVectors(CVodeMem cv_mem, N_Vector tmpl);
 static void cvQuadSensFreeVectors(CVodeMem cv_mem);
 
 
@@ -677,7 +677,7 @@ void *CVodeCreate(int lmm, SUNContext sunctx)
 int CVodeInit(void *cvode_mem, CVRhsFn f, sunrealtype t0, N_Vector y0)
 {
   CVodeMem cv_mem;
-  booleantype nvectorOK, allocOK;
+  sunbooleantype nvectorOK, allocOK;
   sunindextype lrw1, liw1;
   int i,k, retval;
   SUNNonlinearSolver NLS;
@@ -1131,7 +1131,7 @@ int CVodeWFtolerances(void *cvode_mem, CVEwtFn efun)
 int CVodeQuadInit(void *cvode_mem, CVQuadRhsFn fQ, N_Vector yQ0)
 {
   CVodeMem cv_mem;
-  booleantype allocOK;
+  sunbooleantype allocOK;
   sunindextype lrw1Q, liw1Q;
 
   /* Check cvode_mem */
@@ -1365,7 +1365,7 @@ int CVodeQuadSVtolerances(void *cvode_mem, sunrealtype reltolQ, N_Vector abstolQ
 int CVodeSensInit(void *cvode_mem, int Ns, int ism, CVSensRhsFn fS, N_Vector *yS0)
 {
   CVodeMem cv_mem;
-  booleantype allocOK;
+  sunbooleantype allocOK;
   int is, retval;
   SUNNonlinearSolver NLS;
 
@@ -1559,7 +1559,7 @@ int CVodeSensInit(void *cvode_mem, int Ns, int ism, CVSensRhsFn fS, N_Vector *yS
 int CVodeSensInit1(void *cvode_mem, int Ns, int ism, CVSensRhs1Fn fS1, N_Vector *yS0)
 {
   CVodeMem cv_mem;
-  booleantype allocOK;
+  sunbooleantype allocOK;
   int is, retval;
   SUNNonlinearSolver NLS;
 
@@ -2029,7 +2029,7 @@ int CVodeSensSStolerances(void *cvode_mem, sunrealtype reltolS, sunrealtype *abs
   if ( !(cv_mem->cv_SabstolSMallocDone) ) {
     cv_mem->cv_SabstolS = NULL;
     cv_mem->cv_SabstolS = (sunrealtype *)malloc(cv_mem->cv_Ns*sizeof(sunrealtype));
-    cv_mem->cv_atolSmin0 = (booleantype *)malloc(cv_mem->cv_Ns*sizeof(booleantype));
+    cv_mem->cv_atolSmin0 = (sunbooleantype *)malloc(cv_mem->cv_Ns*sizeof(sunbooleantype));
     cv_mem->cv_lrw += cv_mem->cv_Ns;
     cv_mem->cv_SabstolSMallocDone = SUNTRUE;
   }
@@ -2102,7 +2102,7 @@ int CVodeSensSVtolerances(void *cvode_mem,  sunrealtype reltolS, N_Vector *absto
 
   if ( !(cv_mem->cv_VabstolSMallocDone) ) {
     cv_mem->cv_VabstolS = N_VCloneVectorArray(cv_mem->cv_Ns, cv_mem->cv_tempv);
-    cv_mem->cv_atolSmin0 = (booleantype *)malloc(cv_mem->cv_Ns*sizeof(booleantype));
+    cv_mem->cv_atolSmin0 = (sunbooleantype *)malloc(cv_mem->cv_Ns*sizeof(sunbooleantype));
     cv_mem->cv_lrw += cv_mem->cv_Ns*cv_mem->cv_lrw1;
     cv_mem->cv_liw += cv_mem->cv_Ns*cv_mem->cv_liw1;
     cv_mem->cv_VabstolSMallocDone = SUNTRUE;
@@ -2157,7 +2157,7 @@ int CVodeSensEEtolerances(void *cvode_mem)
 int CVodeQuadSensInit(void *cvode_mem, CVQuadSensRhsFn fQS, N_Vector *yQS0)
 {
   CVodeMem    cv_mem;
-  booleantype allocOK;
+  sunbooleantype allocOK;
   int is, retval;
 
   /* Check cvode_mem */
@@ -2373,7 +2373,7 @@ int CVodeQuadSensSStolerances(void *cvode_mem, sunrealtype reltolQS, sunrealtype
   if ( !(cv_mem->cv_SabstolQSMallocDone) ) {
     cv_mem->cv_SabstolQS = NULL;
     cv_mem->cv_SabstolQS = (sunrealtype *)malloc(cv_mem->cv_Ns*sizeof(sunrealtype));
-    cv_mem->cv_atolQSmin0 = (booleantype *)malloc(cv_mem->cv_Ns*sizeof(booleantype));
+    cv_mem->cv_atolQSmin0 = (sunbooleantype *)malloc(cv_mem->cv_Ns*sizeof(sunbooleantype));
     cv_mem->cv_lrw += cv_mem->cv_Ns;
     cv_mem->cv_SabstolQSMallocDone = SUNTRUE;
   }
@@ -2454,7 +2454,7 @@ int CVodeQuadSensSVtolerances(void *cvode_mem,  sunrealtype reltolQS, N_Vector *
 
   if ( !(cv_mem->cv_VabstolQSMallocDone) ) {
     cv_mem->cv_VabstolQS = N_VCloneVectorArray(cv_mem->cv_Ns, cv_mem->cv_tempvQ);
-    cv_mem->cv_atolQSmin0 = (booleantype *)malloc(cv_mem->cv_Ns*sizeof(booleantype));
+    cv_mem->cv_atolQSmin0 = (sunbooleantype *)malloc(cv_mem->cv_Ns*sizeof(sunbooleantype));
     cv_mem->cv_lrw += cv_mem->cv_Ns*cv_mem->cv_lrw1Q;
     cv_mem->cv_liw += cv_mem->cv_Ns*cv_mem->cv_liw1Q;
     cv_mem->cv_VabstolQSMallocDone = SUNTRUE;
@@ -2674,7 +2674,7 @@ int CVodeRootInit(void *cvode_mem, int nrtfn, CVRootFn g)
   }
 
   cv_mem->cv_gactive = NULL;
-  cv_mem->cv_gactive = (booleantype *) malloc(nrt*sizeof(booleantype));
+  cv_mem->cv_gactive = (sunbooleantype *) malloc(nrt*sizeof(sunbooleantype));
   if (cv_mem->cv_gactive == NULL) {
     free(cv_mem->cv_glo); cv_mem->cv_glo = NULL;
     free(cv_mem->cv_ghi); cv_mem->cv_ghi = NULL;
@@ -2728,7 +2728,7 @@ int CVode(void *cvode_mem, sunrealtype tout, N_Vector yout,
   long int nstloc;
   int retval, hflag, kflag, istate, is, ir, ier, irfndp;
   sunrealtype troundoff, tout_hin, rh, nrm;
-  booleantype inactive_roots;
+  sunbooleantype inactive_roots;
 
   /*
    * -------------------------------------
@@ -4238,7 +4238,7 @@ void CVodeQuadSensFree(void *cvode_mem)
  * If any of them is missing it returns SUNFALSE.
  */
 
-static booleantype cvCheckNvector(N_Vector tmpl)
+static sunbooleantype cvCheckNvector(N_Vector tmpl)
 {
   if((tmpl->ops->nvclone     == NULL) ||
      (tmpl->ops->nvdestroy   == NULL) ||
@@ -4275,7 +4275,7 @@ static booleantype cvCheckNvector(N_Vector tmpl)
  * allocated here.
  */
 
-static booleantype cvAllocVectors(CVodeMem cv_mem, N_Vector tmpl)
+static sunbooleantype cvAllocVectors(CVodeMem cv_mem, N_Vector tmpl)
 {
   int i, j;
 
@@ -4410,7 +4410,7 @@ static void cvFreeVectors(CVodeMem cv_mem)
  * CVodeQuadReInit.
  */
 
-static booleantype cvQuadAllocVectors(CVodeMem cv_mem, N_Vector tmpl)
+static sunbooleantype cvQuadAllocVectors(CVodeMem cv_mem, N_Vector tmpl)
 {
   int i, j;
 
@@ -4506,7 +4506,7 @@ static void cvQuadFreeVectors(CVodeMem cv_mem)
  * using the N_Vector 'tmpl' as a template.
  */
 
-static booleantype cvSensAllocVectors(CVodeMem cv_mem, N_Vector tmpl)
+static sunbooleantype cvSensAllocVectors(CVodeMem cv_mem, N_Vector tmpl)
 {
   int i, j;
 
@@ -4650,7 +4650,7 @@ static void cvSensFreeVectors(CVodeMem cv_mem)
  * using the N_Vector 'tmpl' as a template.
  */
 
-static booleantype cvQuadSensAllocVectors(CVodeMem cv_mem, N_Vector tmpl)
+static sunbooleantype cvQuadSensAllocVectors(CVodeMem cv_mem, N_Vector tmpl)
 {
   int i, j;
 
@@ -4777,7 +4777,7 @@ static void cvQuadSensFreeVectors(CVodeMem cv_mem)
 static int cvInitialSetup(CVodeMem cv_mem)
 {
   int ier;
-  booleantype conOK;
+  sunbooleantype conOK;
 
   /* Did the user specify tolerances? */
   if (cv_mem->cv_itol == CV_NN) {
@@ -5050,7 +5050,7 @@ static int cvHin(CVodeMem cv_mem, sunrealtype tout)
   int retval, sign, count1, count2;
   sunrealtype tdiff, tdist, tround, hlb, hub;
   sunrealtype hg, hgs, hs, hnew, hrat, h0, yddnrm;
-  booleantype hgOK;
+  sunbooleantype hgOK;
 
   /* If tout is too close to tn, give up */
 
@@ -5422,9 +5422,9 @@ static int cvStep(CVodeMem cv_mem)
   int pflag;                 /* projection return flag                   */
   int eflag;                 /* error test return flag                   */
   int retval, is;
-  booleantype doProjection;  /* flag to apply projection in this step    */
-  booleantype do_sensi_stg;  /* staggered strategy                       */
-  booleantype do_sensi_stg1; /* staggered 1 strategy                     */
+  sunbooleantype doProjection;  /* flag to apply projection in this step    */
+  sunbooleantype do_sensi_stg;  /* staggered strategy                       */
+  sunbooleantype do_sensi_stg1; /* staggered 1 strategy                     */
 
   /* Are we computing sensitivities with a staggered approach? */
 
@@ -6402,8 +6402,8 @@ static void cvSetTqBDF(CVodeMem cv_mem, sunrealtype hsum, sunrealtype alpha0,
 static int cvNls(CVodeMem cv_mem, int nflag)
 {
   int flag = CV_SUCCESS;
-  booleantype callSetup;
-  booleantype do_sensi_sim;
+  sunbooleantype callSetup;
+  sunbooleantype do_sensi_sim;
   long int nni_inc = 0;
   long int nnf_inc = 0;
 
@@ -6525,7 +6525,7 @@ static int cvNls(CVodeMem cv_mem, int nflag)
 
 static int cvCheckConstraints(CVodeMem cv_mem)
 {
-  booleantype constraintsPassed;
+  sunbooleantype constraintsPassed;
   sunrealtype vnorm;
   N_Vector mm  = cv_mem->cv_ftemp;
   N_Vector tmp = cv_mem->cv_tempv;
@@ -6664,7 +6664,7 @@ static int cvQuadSensNls(CVodeMem cv_mem)
 
 static int cvStgrNls(CVodeMem cv_mem)
 {
-  booleantype callSetup;
+  sunbooleantype callSetup;
   int flag=CV_SUCCESS;
   long int nniS_inc = 0;
   long int nnfS_inc = 0;
@@ -6719,7 +6719,7 @@ static int cvStgrNls(CVodeMem cv_mem)
 
 static int cvStgr1Nls(CVodeMem cv_mem, int is)
 {
-  booleantype callSetup;
+  sunbooleantype callSetup;
   long int nniS1_inc = 0;
   long int nnfS1_inc = 0;
   int flag=CV_SUCCESS;
@@ -7980,7 +7980,7 @@ static int cvRcheck1(CVodeMem cv_mem)
 {
   int i, retval;
   sunrealtype smallh, hratio, tplus;
-  booleantype zroot;
+  sunbooleantype zroot;
 
   for (i = 0; i < cv_mem->cv_nrtfn; i++) cv_mem->cv_iroots[i] = 0;
   cv_mem->cv_tlo = cv_mem->cv_tn;
@@ -8048,7 +8048,7 @@ static int cvRcheck2(CVodeMem cv_mem)
 {
   int i, retval;
   sunrealtype smallh, hratio, tplus;
-  booleantype zroot;
+  sunbooleantype zroot;
 
   if (cv_mem->cv_irfnd == 0) return(CV_SUCCESS);
 
@@ -8244,7 +8244,7 @@ static int cvRootfind(CVodeMem cv_mem)
 {
   sunrealtype alph, tmid, gfrac, maxfrac, fracint, fracsub;
   int i, retval, imax, side, sideprev;
-  booleantype zroot, sgnchg;
+  sunbooleantype zroot, sgnchg;
 
   imax = 0;
 

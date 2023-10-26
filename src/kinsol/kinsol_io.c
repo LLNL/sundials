@@ -324,7 +324,7 @@ int KINSetDampingAA(void *kinmem, sunrealtype beta)
  * -----------------------------------------------------------------
  */
 
-int KINSetReturnNewest(void *kinmem, booleantype ret_newest)
+int KINSetReturnNewest(void *kinmem, sunbooleantype ret_newest)
 {
   KINMem kin_mem;
 
@@ -376,7 +376,7 @@ int KINSetNumMaxIters(void *kinmem, long int mxiter)
  * -----------------------------------------------------------------
  */
 
-int KINSetNoInitSetup(void *kinmem, booleantype noInitSetup)
+int KINSetNoInitSetup(void *kinmem, sunbooleantype noInitSetup)
 {
   KINMem kin_mem;
 
@@ -397,7 +397,7 @@ int KINSetNoInitSetup(void *kinmem, booleantype noInitSetup)
  * -----------------------------------------------------------------
  */
 
-int KINSetNoResMon(void *kinmem, booleantype noResMon)
+int KINSetNoResMon(void *kinmem, sunbooleantype noResMon)
 {
   KINMem kin_mem;
 
@@ -666,7 +666,7 @@ int KINSetResMonConstValue(void *kinmem, sunrealtype omegaconst)
  * -----------------------------------------------------------------
  */
 
-int KINSetNoMinEps(void *kinmem, booleantype noMinEps)
+int KINSetNoMinEps(void *kinmem, sunbooleantype noMinEps)
 {
   KINMem kin_mem;
 

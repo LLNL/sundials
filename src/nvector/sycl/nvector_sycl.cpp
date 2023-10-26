@@ -66,7 +66,7 @@ using namespace sundials::sycl;
 
 struct _N_PrivateVectorContent_Sycl
 {
-  booleantype use_managed_mem; /* do data pointers use managed memory */
+  sunbooleantype use_managed_mem; /* do data pointers use managed memory */
 
   /* reduction workspace */
   SUNMemory reduce_buffer_dev;   /* device memory for reductions      */
@@ -109,7 +109,7 @@ static int FusedBuffer_CopyToDevice(N_Vector v);
 static int FusedBuffer_Free(N_Vector v);
 
 /* Kernel launch parameters */
-static int GetKernelParameters(N_Vector v, booleantype reduction,
+static int GetKernelParameters(N_Vector v, sunbooleantype reduction,
                                size_t& nthreads_total,
                                size_t& nthreads_per_block);
 
@@ -279,7 +279,7 @@ N_Vector N_VNew_Sycl(sunindextype length, ::sycl::queue *Q, SUNContext sunctx)
 
 
 N_Vector N_VNewWithMemHelp_Sycl(sunindextype length,
-                                booleantype use_managed_mem,
+                                sunbooleantype use_managed_mem,
                                 SUNMemoryHelper helper,
                                 ::sycl::queue *Q,
                                 SUNContext sunctx)
@@ -589,7 +589,7 @@ void N_VSetDeviceArrayPointer_Sycl(sunrealtype* d_vdata, N_Vector v)
 
 
 /* Return a flag indicating if the memory for the vector data is managed */
-booleantype N_VIsManagedMemory_Sycl(N_Vector x)
+sunbooleantype N_VIsManagedMemory_Sycl(N_Vector x)
 {
   return NVEC_SYCL_PRIVATE(x)->use_managed_mem;
 }
@@ -1279,7 +1279,7 @@ void N_VCompare_Sycl(sunrealtype c, N_Vector x, N_Vector z)
 }
 
 
-booleantype N_VInvTest_Sycl(N_Vector x, N_Vector z)
+sunbooleantype N_VInvTest_Sycl(N_Vector x, N_Vector z)
 {
   const sunindextype N      = NVEC_SYCL_LENGTH(z);
   const sunrealtype     *xdata = NVEC_SYCL_DDATAp(x);
@@ -1323,7 +1323,7 @@ booleantype N_VInvTest_Sycl(N_Vector x, N_Vector z)
 }
 
 
-booleantype N_VConstrMask_Sycl(N_Vector c, N_Vector x, N_Vector m)
+sunbooleantype N_VConstrMask_Sycl(N_Vector c, N_Vector x, N_Vector m)
 {
   const sunindextype N      = NVEC_SYCL_LENGTH(x);
   const sunrealtype     *cdata = NVEC_SYCL_DDATAp(c);
@@ -1909,7 +1909,7 @@ int N_VBufUnpack_Sycl(N_Vector x, void *buf)
  * -------------------------------------------------------------------------- */
 
 
-int N_VEnableFusedOps_Sycl(N_Vector v, booleantype tf)
+int N_VEnableFusedOps_Sycl(N_Vector v, sunbooleantype tf)
 {
   /* check that vector is non-NULL */
   if (v == NULL) return -1;
@@ -1950,7 +1950,7 @@ int N_VEnableFusedOps_Sycl(N_Vector v, booleantype tf)
 }
 
 
-int N_VEnableLinearCombination_Sycl(N_Vector v, booleantype tf)
+int N_VEnableLinearCombination_Sycl(N_Vector v, sunbooleantype tf)
 {
   if (v == NULL) return -1;
   if (v->ops == NULL) return -1;
@@ -1959,7 +1959,7 @@ int N_VEnableLinearCombination_Sycl(N_Vector v, booleantype tf)
 }
 
 
-int N_VEnableScaleAddMulti_Sycl(N_Vector v, booleantype tf)
+int N_VEnableScaleAddMulti_Sycl(N_Vector v, sunbooleantype tf)
 {
   if (v == NULL) return -1;
   if (v->ops == NULL) return -1;
@@ -1968,7 +1968,7 @@ int N_VEnableScaleAddMulti_Sycl(N_Vector v, booleantype tf)
 }
 
 
-int N_VEnableLinearSumVectorArray_Sycl(N_Vector v, booleantype tf)
+int N_VEnableLinearSumVectorArray_Sycl(N_Vector v, sunbooleantype tf)
 {
   if (v == NULL) return -1;
   if (v->ops == NULL) return -1;
@@ -1977,7 +1977,7 @@ int N_VEnableLinearSumVectorArray_Sycl(N_Vector v, booleantype tf)
 }
 
 
-int N_VEnableScaleVectorArray_Sycl(N_Vector v, booleantype tf)
+int N_VEnableScaleVectorArray_Sycl(N_Vector v, sunbooleantype tf)
 {
   if (v == NULL) return -1;
   if (v->ops == NULL) return -1;
@@ -1986,7 +1986,7 @@ int N_VEnableScaleVectorArray_Sycl(N_Vector v, booleantype tf)
 }
 
 
-int N_VEnableConstVectorArray_Sycl(N_Vector v, booleantype tf)
+int N_VEnableConstVectorArray_Sycl(N_Vector v, sunbooleantype tf)
 {
   if (v == NULL) return -1;
   if (v->ops == NULL) return -1;
@@ -1995,7 +1995,7 @@ int N_VEnableConstVectorArray_Sycl(N_Vector v, booleantype tf)
 }
 
 
-int N_VEnableScaleAddMultiVectorArray_Sycl(N_Vector v, booleantype tf)
+int N_VEnableScaleAddMultiVectorArray_Sycl(N_Vector v, sunbooleantype tf)
 {
   if (v == NULL) return -1;
   if (v->ops == NULL) return -1;
@@ -2005,7 +2005,7 @@ int N_VEnableScaleAddMultiVectorArray_Sycl(N_Vector v, booleantype tf)
 }
 
 
-int N_VEnableLinearCombinationVectorArray_Sycl(N_Vector v, booleantype tf)
+int N_VEnableLinearCombinationVectorArray_Sycl(N_Vector v, sunbooleantype tf)
 {
   if (v == NULL) return -1;
   if (v->ops == NULL) return -1;
@@ -2067,7 +2067,7 @@ static int InitializeReductionBuffer(N_Vector v, const sunrealtype value, size_t
 {
   int         alloc_fail = 0;
   int         copy_fail  = 0;
-  booleantype alloc_mem  = SUNFALSE;
+  sunbooleantype alloc_mem  = SUNFALSE;
   size_t      bytes      = n * sizeof(sunrealtype);
 
   /* Get the vector private memory structure */
@@ -2189,7 +2189,7 @@ static int CopyReductionBufferFromDevice(N_Vector v, size_t n)
 static int FusedBuffer_Init(N_Vector v, int nreal, int nptr)
 {
   int         alloc_fail = 0;
-  booleantype alloc_mem  = SUNFALSE;
+  sunbooleantype alloc_mem  = SUNFALSE;
   size_t      bytes      = nreal * sizeof(sunrealtype) + nptr * sizeof(sunrealtype*);
 
   /* Get the vector private memory structure */
@@ -2391,7 +2391,7 @@ static int FusedBuffer_Free(N_Vector v)
 
 /* Get the kernel launch parameters based on the kernel type (reduction or not),
  * using the appropriate kernel execution policy. */
-static int GetKernelParameters(N_Vector v, booleantype reduction,
+static int GetKernelParameters(N_Vector v, sunbooleantype reduction,
                                size_t& nthreads_total,
                                size_t& nthreads_per_block)
 {

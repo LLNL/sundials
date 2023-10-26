@@ -440,7 +440,7 @@ operations below.
 
       N_VCompare(c, x, z);
 
-.. c:function:: booleantype N_VInvTest(N_Vector x, N_Vector z)
+.. c:function:: sunbooleantype N_VInvTest(N_Vector x, N_Vector z)
 
    Sets the components of the ``N_Vector`` *z* to be the inverses of
    the components of the ``N_Vector`` *x*, with prior testing for
@@ -459,7 +459,7 @@ operations below.
 
       t = N_VInvTest(x, z);
 
-.. c:function:: booleantype N_VConstrMask(N_Vector c, N_Vector x, N_Vector m)
+.. c:function:: sunbooleantype N_VConstrMask(N_Vector c, N_Vector x, N_Vector m)
 
    Performs the following constraint tests based on the values in
    :math:`c_i`:
@@ -872,7 +872,7 @@ operations below.
       s = N_VWSqrSumMaskLocal(x, w, id);
 
 
-.. c:function:: booleantype N_VInvTestLocal(N_Vector x)
+.. c:function:: sunbooleantype N_VInvTestLocal(N_Vector x)
 
    This routine sets the MPI task-local components of the
    NVECTOR *z* to be the inverses of the components of the NVECTOR
@@ -894,7 +894,7 @@ operations below.
       t = N_VInvTestLocal(x);
 
 
-.. c:function:: booleantype N_VConstrMaskLocal(N_Vector c, N_Vector x, N_Vector m)
+.. c:function:: sunbooleantype N_VConstrMaskLocal(N_Vector c, N_Vector x, N_Vector m)
 
    Performs the following constraint tests based on the values in
    :math:`c_i`:

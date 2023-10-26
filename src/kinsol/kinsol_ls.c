@@ -47,8 +47,8 @@ int KINSetLinearSolver(void *kinmem, SUNLinearSolver LS, SUNMatrix A)
   KINMem      kin_mem;
   KINLsMem    kinls_mem;
   int         retval, LSType;
-  booleantype iterative;    /* is the solver iterative?    */
-  booleantype matrixbased;  /* is a matrix structure used? */
+  sunbooleantype iterative;    /* is the solver iterative?    */
+  sunbooleantype matrixbased;  /* is a matrix structure used? */
 
   /* Return immediately if either kinmem or LS inputs are NULL */
   if (kinmem == NULL) {
@@ -951,7 +951,7 @@ int kinLsBandDQJac(N_Vector u, N_Vector fu, SUNMatrix Jac,
         fails (recoverably).
   ------------------------------------------------------------------*/
 int kinLsDQJtimes(N_Vector v, N_Vector Jv, N_Vector u,
-                  booleantype *new_u, void *kinmem)
+                  sunbooleantype *new_u, void *kinmem)
 {
   sunrealtype sigma, sigma_inv, sutsv, sq1norm, sign, vtv;
   KINMem   kin_mem;

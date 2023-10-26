@@ -21,7 +21,7 @@ The header file ``sundials_types.h`` contains the definition of the types:
 
 * :c:type:`sunindextype` -- the integer type used for vector and matrix indices
 
-* :c:type:`booleantype` -- the type used for logic operations within SUNDIALS
+* :c:type:`sunbooleantype` -- the type used for logic operations within SUNDIALS
 
 * :c:type:`SUNOutputFormat` -- an enumerated type for SUNDIALS output formats
 
@@ -110,14 +110,14 @@ SUNDIALS libraries use the appropriate index storage type (for details see
 Boolean type
 ~~~~~~~~~~~~
 
-.. c:type:: booleantype
+.. c:type:: sunbooleantype
 
    As ANSI C89 (ISO C90) does not have a built-in boolean data type, SUNDIALS
-   defines the type ``booleantype`` as an ``int``.
+   defines the type ``sunbooleantype`` as an ``int``.
 
-The advantage of using the name booleantype (instead of int) is an increase in
+The advantage of using the name sunbooleantype (instead of int) is an increase in
 code readability. It also allows the programmer to make a distinction between
-int and boolean data. Variables of type ``booleantype`` are intended to have
+int and boolean data. Variables of type ``sunbooleantype`` are intended to have
 only the two values ``SUNFALSE`` (``0``) and ``SUNTRUE`` (``1``).
 
 Output formatting type

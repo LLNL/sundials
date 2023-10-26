@@ -215,12 +215,12 @@ typedef struct CVodeMemRec {
   sunrealtype cv_reltol;        /* relative tolerance                            */
   sunrealtype cv_Sabstol;       /* scalar absolute tolerance                     */
   N_Vector cv_Vabstol;       /* vector absolute tolerance                     */
-  booleantype cv_atolmin0;   /* flag indicating that min(abstol) = 0          */
-  booleantype cv_user_efun;  /* SUNTRUE if user sets efun                     */
+  sunbooleantype cv_atolmin0;   /* flag indicating that min(abstol) = 0          */
+  sunbooleantype cv_user_efun;  /* SUNTRUE if user sets efun                     */
   CVEwtFn cv_efun;           /* function to set ewt                           */
   void *cv_e_data;           /* user pointer passed to efun                   */
 
-  booleantype cv_constraintsSet; /* constraints vector present:
+  sunbooleantype cv_constraintsSet; /* constraints vector present:
                                     do constraints calc                       */
 
   /*-----------------------
@@ -255,8 +255,8 @@ typedef struct CVodeMemRec {
     Tstop information
     -----------------*/
 
-  booleantype cv_tstopset;
-  booleantype cv_tstopinterp;
+  sunbooleantype cv_tstopset;
+  sunbooleantype cv_tstopinterp;
   sunrealtype cv_tstop;
 
   /*---------
@@ -294,7 +294,7 @@ typedef struct CVodeMemRec {
   sunrealtype cv_crate;           /* estimated corrector convergence rate        */
   sunrealtype cv_delp;            /* norm of previous nonlinear solver update    */
   sunrealtype cv_acnrm;           /* | acor |                                    */
-  booleantype cv_acnrmcur;     /* is | acor | current?                        */
+  sunbooleantype cv_acnrmcur;     /* is | acor | current?                        */
   sunrealtype cv_nlscoef;         /* coeficient in nonlinear convergence test    */
 
   /*------
@@ -360,7 +360,7 @@ typedef struct CVodeMemRec {
     ---------------------*/
 
   SUNNonlinearSolver NLS;      /* nonlinear solver object                   */
-  booleantype ownNLS;          /* flag indicating NLS ownership             */
+  sunbooleantype ownNLS;          /* flag indicating NLS ownership             */
   CVRhsFn nls_f;               /* f(t,y(t)) used in the nonlinear solver    */
   int convfail;                /* flag to indicate when a Jacobian update may
                                   be needed */
@@ -374,7 +374,7 @@ typedef struct CVodeMemRec {
   int (*cv_linit)(struct CVodeMemRec *cv_mem);
 
   int (*cv_lsetup)(struct CVodeMemRec *cv_mem, int convfail,
-                   N_Vector ypred, N_Vector fpred, booleantype *jcurPtr,
+                   N_Vector ypred, N_Vector fpred, sunbooleantype *jcurPtr,
                    N_Vector vtemp1, N_Vector vtemp2, N_Vector vtemp3);
 
   int (*cv_lsolve)(struct CVodeMemRec *cv_mem, N_Vector b, N_Vector weight,
@@ -398,7 +398,7 @@ typedef struct CVodeMemRec {
   sunrealtype cv_h0u;             /* actual initial stepsize                     */
   sunrealtype cv_hu;              /* last successful h value used                */
   sunrealtype cv_saved_tq5;       /* saved value of tq[5]                        */
-  booleantype cv_jcur;         /* is Jacobian info for linear solver current? */
+  sunbooleantype cv_jcur;         /* is Jacobian info for linear solver current? */
   sunrealtype cv_tolsf;           /* tolerance scale factor                      */
   int cv_qmax_alloc;           /* value of qmax used when allocating mem      */
   int cv_indx_acor;            /* index of the zn vector with saved acor      */
@@ -407,9 +407,9 @@ typedef struct CVodeMemRec {
     Flags turned ON by CVodeInit and read by CVodeReInit
     --------------------------------------------------------------------*/
 
-  booleantype cv_VabstolMallocDone;
-  booleantype cv_MallocDone;
-  booleantype cv_constraintsMallocDone;
+  sunbooleantype cv_VabstolMallocDone;
+  sunbooleantype cv_MallocDone;
+  sunbooleantype cv_constraintsMallocDone;
 
   /*-------------------------------------------
     Error handler function and error ouput file
@@ -429,7 +429,7 @@ typedef struct CVodeMemRec {
     Stability Limit Detection
     -------------------------*/
 
-  booleantype cv_sldeton;     /* is Stability Limit Detection on?             */
+  sunbooleantype cv_sldeton;     /* is Stability Limit Detection on?             */
   sunrealtype cv_ssdat[6][4];    /* scaled data array for STALD                  */
   int cv_nscon;               /* counter for STALD method                     */
   long int cv_nor;            /* counter for number of order reductions       */
@@ -453,7 +453,7 @@ typedef struct CVodeMemRec {
   int cv_taskc;            /* copy of parameter itask                         */
   int cv_irfnd;            /* flag showing whether last step had a root       */
   long int cv_nge;         /* counter for g evaluations                       */
-  booleantype *cv_gactive; /* array with active/inactive event functions      */
+  sunbooleantype *cv_gactive; /* array with active/inactive event functions      */
   int cv_mxgnull;          /* number of warning messages about possible g==0  */
 
   /*---------------
@@ -461,8 +461,8 @@ typedef struct CVodeMemRec {
     ---------------*/
 
   CVodeProjMem proj_mem;      /* projection memory structure               */
-  booleantype  proj_enabled;  /* flag indicating if projection is enabled  */
-  booleantype  proj_applied;  /* flag indicating if projection was applied */
+  sunbooleantype  proj_enabled;  /* flag indicating if projection is enabled  */
+  sunbooleantype  proj_applied;  /* flag indicating if projection was applied */
   sunrealtype     proj_p[L_MAX]; /* coefficients of p(x) (degree q poly)      */
 
   /*-----------------------
@@ -472,7 +472,7 @@ typedef struct CVodeMemRec {
   sunrealtype cv_cvals[L_MAX]; /* array of scalars */
   N_Vector cv_Xvecs[L_MAX]; /* array of vectors */
 
-  booleantype cv_usefused;  /* flag indicating if CVODE specific fused kernels should be used */
+  sunbooleantype cv_usefused;  /* flag indicating if CVODE specific fused kernels should be used */
 
 } *CVodeMem;
 
@@ -535,7 +535,7 @@ typedef struct CVodeMemRec {
 /*
  * -----------------------------------------------------------------
  * int (*cv_lsetup)(CVodeMem cv_mem, int convfail, N_Vector ypred,
- *                 N_Vector fpred, booleantype *jcurPtr,
+ *                 N_Vector fpred, sunbooleantype *jcurPtr,
  *                 N_Vector vtemp1, N_Vector vtemp2,
  *                 N_Vector vtemp3);
  * -----------------------------------------------------------------

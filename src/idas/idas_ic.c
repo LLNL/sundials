@@ -59,12 +59,12 @@
 
 extern int IDAInitialSetup(IDAMem IDA_mem);
 extern sunrealtype IDAWrmsNorm(IDAMem IDA_mem, N_Vector x,
-                            N_Vector w, booleantype mask);
+                            N_Vector w, sunbooleantype mask);
 extern sunrealtype IDASensWrmsNorm(IDAMem IDA_mem, N_Vector *xS,
-                                N_Vector *wS, booleantype mask);
+                                N_Vector *wS, sunbooleantype mask);
 extern sunrealtype IDASensWrmsNormUpdate(IDAMem IDA_mem, sunrealtype old_nrm,
                                       N_Vector *xS, N_Vector *wS,
-                                      booleantype mask);
+                                      sunbooleantype mask);
 
 extern int IDASensEwtSet(IDAMem IDA_mem, N_Vector *yScur, N_Vector *weightS);
 
@@ -126,7 +126,7 @@ int IDACalcIC(void *ida_mem, int icopt, sunrealtype tout1)
   int is;
   sunrealtype tdist, troundoff, minid, hic, ypnorm;
   IDAMem IDA_mem;
-  booleantype sensi_stg, sensi_sim;
+  sunbooleantype sensi_stg, sensi_sim;
 
   /* Check if IDA memory exists */
 
@@ -489,7 +489,7 @@ static int IDANlsIC(IDAMem IDA_mem)
 {
   int retval, nj, is;
   N_Vector tv1, tv2, tv3;
-  booleantype sensi_sim;
+  sunbooleantype sensi_sim;
 
   /* Are we computing sensitivities with the IDA_SIMULTANEOUS approach? */
   sensi_sim = (IDA_mem->ida_sensi && (IDA_mem->ida_ism==IDA_SIMULTANEOUS));
@@ -593,7 +593,7 @@ static int IDANewtonIC(IDAMem IDA_mem)
 {
   int retval, mnewt, is;
   sunrealtype delnorm, fnorm, fnorm0, oldfnrm, rate;
-  booleantype sensi_sim;
+  sunbooleantype sensi_sim;
 
   /* Are we computing sensitivities with the IDA_SIMULTANEOUS approach? */
   sensi_sim = (IDA_mem->ida_sensi && (IDA_mem->ida_ism==IDA_SIMULTANEOUS));
@@ -697,11 +697,11 @@ static int IDANewtonIC(IDAMem IDA_mem)
 
 static int IDALineSrch(IDAMem IDA_mem, sunrealtype *delnorm, sunrealtype *fnorm)
 {
-  booleantype conOK;
+  sunbooleantype conOK;
   int retval, is, nbacks;
   sunrealtype f1norm, fnormp, f1normp, ratio, lambda, minlam, slpi;
   N_Vector mc;
-  booleantype sensi_sim;
+  sunbooleantype sensi_sim;
 
   /* Initialize work space pointers, f1norm, ratio.
      (Use of mc in constraint check does not conflict with ypnew.) */

@@ -971,7 +971,7 @@ sensitivities.
 The function :c:func:`CVodeSetLinearSolutionScalingB` can be used to enable or
 disable solution scaling when using a matrix-based linear solver.
 
-.. c:function:: int CVodeSetLinearSolutionScalingB(void * cvode_mem, int which, booleantype onoffB)
+.. c:function:: int CVodeSetLinearSolutionScalingB(void * cvode_mem, int which, sunbooleantype onoffB)
 
    The function :c:func:`CVodeSetLinearSolutionScalingB` enables or disables
    scaling  the linear system solution to account for a change in :math:`\gamma`
@@ -1746,7 +1746,7 @@ function, the user may optionally supply a function of type :c:type:`CVLsLinSysF
 :c:type:`CVLsLinSysFnBS` for evaluating the linear system, :math:`M_B = I - \gamma_B
 J_B` (or an approximation of it) for the backward problem.
 
-.. c:type:: int (*CVLsLinSysFnB)(sunrealtype t, N_Vector y, N_Vector yB, N_Vector fyB, SUNMatrix AB, booleantype jokB, booleantype *jcurB, sunrealtype gammaB, void *user_dataB, N_Vector tmp1B, N_Vector tmp2B, N_Vector tmp3B);
+.. c:type:: int (*CVLsLinSysFnB)(sunrealtype t, N_Vector y, N_Vector yB, N_Vector fyB, SUNMatrix AB, sunbooleantype jokB, sunbooleantype *jcurB, sunrealtype gammaB, void *user_dataB, N_Vector tmp1B, N_Vector tmp2B, N_Vector tmp3B);
 
    This function computes the linear system of the backward problem (or an
    approximation to it).
@@ -1787,7 +1787,7 @@ J_B` (or an approximation of it) for the backward problem.
       ``CVLS_JACFUNC_UNRECVR``).
 
 
-.. c:type:: int (*CVLsLinSysFnBS)(sunrealtype t, N_Vector y, N_Vector* yS, N_Vector yB, N_Vector fyB, SUNMatrix AB, booleantype jokB, booleantype *jcurB, sunrealtype gammaB, void *user_dataB, N_Vector tmp1B, N_Vector tmp2B, N_Vector tmp3B);
+.. c:type:: int (*CVLsLinSysFnBS)(sunrealtype t, N_Vector y, N_Vector* yS, N_Vector yB, N_Vector fyB, SUNMatrix AB, sunbooleantype jokB, sunbooleantype *jcurB, sunrealtype gammaB, void *user_dataB, N_Vector tmp1B, N_Vector tmp2B, N_Vector tmp3B);
 
    This function computes the linear system of the backward problem (or an
    approximation to it), in the case where the backward problem depends on the
@@ -2074,7 +2074,7 @@ If the user’s preconditioner requires that any Jacobian-related data be
 preprocessed or evaluated, then this needs to be done in a user-supplied
 function of one of the following two types:
 
-.. c:type:: int (*CVLsPrecSetupFnB)(sunrealtype t, N_Vector y, N_Vector yB, N_Vector fyB, booleantype jokB, booleantype *jcurPtrB, sunrealtype gammaB, void *user_dataB)
+.. c:type:: int (*CVLsPrecSetupFnB)(sunrealtype t, N_Vector y, N_Vector yB, N_Vector fyB, sunbooleantype jokB, sunbooleantype *jcurPtrB, sunrealtype gammaB, void *user_dataB)
 
    This function preprocesses and/or evaluates Jacobian-related data needed  by
    the preconditioner for the backward problem.
@@ -2103,7 +2103,7 @@ function of one of the following two types:
       name soon.
 
 
-.. c:type:: int (*CVLsPrecSetupFnBS)(sunrealtype t, N_Vector y, N_Vector *yS, N_Vector yB, N_Vector fyB, booleantype jokB, booleantype *jcurPtrB, sunrealtype gammaB, void *user_dataB)
+.. c:type:: int (*CVLsPrecSetupFnBS)(sunrealtype t, N_Vector y, N_Vector *yS, N_Vector yB, N_Vector fyB, sunbooleantype jokB, sunbooleantype *jcurPtrB, sunrealtype gammaB, void *user_dataB)
 
    This function preprocesses and/or evaluates Jacobian-related data needed  by
    the preconditioner for the backward problem, in the case where the  backward

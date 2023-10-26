@@ -153,7 +153,7 @@ typedef int (*ARKLinsolInitFn)(void* arkode_mem);
 typedef int (*ARKLinsolSetupFn)(void* arkode_mem, int convfail,
                                 sunrealtype tpred, N_Vector ypred,
                                 N_Vector fpred,
-                                booleantype *jcurPtr,
+                                sunbooleantype *jcurPtr,
                                 N_Vector vtemp1,
                                 N_Vector vtemp2, N_Vector vtemp3);
 typedef int (*ARKLinsolSolveFn)(void* arkode_mem, N_Vector b,
@@ -188,7 +188,7 @@ typedef int (*ARKTimestepAttachMasssolFn)(void* arkode_mem,
                                           ARKMassMultFn mmult,
                                           ARKMassSolveFn msolve,
                                           ARKMassFreeFn mfree,
-                                          booleantype time_dep,
+                                          sunbooleantype time_dep,
                                           SUNLinearSolver_Type msolve_type,
                                           void *mass_mem);
 typedef void (*ARKTimestepDisableLSetup)(void* arkode_mem);
@@ -199,8 +199,8 @@ typedef ARKRhsFn (*ARKTimestepGetImplicitRHSFn)(void* arkode_mem);
 typedef int (*ARKTimestepGetGammasFn)(void* arkode_mem,
                                       sunrealtype *gamma,
                                       sunrealtype *gamrat,
-                                      booleantype **jcur,
-                                      booleantype *dgamma_fail);
+                                      sunbooleantype **jcur,
+                                      sunbooleantype *dgamma_fail);
 typedef int (*ARKTimestepFullRHSFn)(void* arkode_mem, sunrealtype t,
                                     N_Vector y, N_Vector f, int mode);
 typedef int (*ARKTimestepStepFn)(void* arkode_mem, sunrealtype *dsm,
@@ -302,17 +302,17 @@ struct ARKodeMemRec
   sunrealtype     reltol;         /* relative tolerance                    */
   sunrealtype     Sabstol;        /* scalar absolute solution tolerance    */
   N_Vector     Vabstol;        /* vector absolute solution tolerance    */
-  booleantype  atolmin0;       /* flag indicating that min(abstol) = 0  */
+  sunbooleantype  atolmin0;       /* flag indicating that min(abstol) = 0  */
   sunrealtype     SRabstol;       /* scalar absolute residual tolerance    */
   N_Vector     VRabstol;       /* vector absolute residual tolerance    */
-  booleantype  Ratolmin0;      /* flag indicating that min(Rabstol) = 0 */
-  booleantype  user_efun;      /* SUNTRUE if user sets efun             */
+  sunbooleantype  Ratolmin0;      /* flag indicating that min(Rabstol) = 0 */
+  sunbooleantype  user_efun;      /* SUNTRUE if user sets efun             */
   ARKEwtFn     efun;           /* function to set ewt                   */
   void        *e_data;         /* user pointer passed to efun           */
-  booleantype  user_rfun;      /* SUNTRUE if user sets rfun             */
+  sunbooleantype  user_rfun;      /* SUNTRUE if user sets rfun             */
   ARKRwtFn     rfun;           /* function to set rwt                   */
   void        *r_data;         /* user pointer passed to rfun           */
-  booleantype  constraintsSet; /* check inequality constraints          */
+  sunbooleantype  constraintsSet; /* check inequality constraints          */
 
   /* Time stepper module */
   ARKTimestepAttachLinsolFn   step_attachlinsol;
@@ -332,7 +332,7 @@ struct ARKodeMemRec
   /* N_Vector storage */
   N_Vector ewt;           /* error weight vector                             */
   N_Vector rwt;           /* residual weight vector                          */
-  booleantype rwt_is_ewt; /* SUNTRUE if rwt is a pointer to ewt              */
+  sunbooleantype rwt_is_ewt; /* SUNTRUE if rwt is a pointer to ewt              */
   N_Vector ycur;          /* pointer to user-provided solution memory; used
                              as evolving solution by the timestepper modules */
   N_Vector yn;            /* solution from the last successful step          */
@@ -348,8 +348,8 @@ struct ARKodeMemRec
   ARKInterp interp;
 
   /* Tstop information */
-  booleantype tstopset;
-  booleantype tstopinterp;
+  sunbooleantype tstopset;
+  sunbooleantype tstopinterp;
   sunrealtype    tstop;
 
   /* Time step data */
@@ -365,7 +365,7 @@ struct ARKodeMemRec
   sunrealtype tcur;               /* current internal value of t
                                   (changes with each stage)                */
   sunrealtype tretlast;           /* value of tret last returned by ARKODE    */
-  booleantype fixedstep;       /* flag to disable temporal adaptivity      */
+  sunbooleantype fixedstep;       /* flag to disable temporal adaptivity      */
   ARKodeHAdaptMem hadapt_mem;  /* time step adaptivity structure           */
 
 
@@ -387,7 +387,7 @@ struct ARKodeMemRec
   long int nconstrfails;  /* number of constraint failures              */
 
   /* Diagnostic output */
-  booleantype report;   /* flag to enable/disable diagnostic output    */
+  sunbooleantype report;   /* flag to enable/disable diagnostic output    */
   FILE       *diagfp;   /* diagnostic outputs are sent to diagfp   */
 
   /* Space requirements for ARKODE */
@@ -402,14 +402,14 @@ struct ARKodeMemRec
   sunrealtype    terr;         /* error in tn for compensated sums            */
   sunrealtype    hold;         /* last successful h value used                */
   sunrealtype    tolsf;        /* tolerance scale factor (suggestion to user) */
-  booleantype VabstolMallocDone;
-  booleantype VRabstolMallocDone;
-  booleantype MallocDone;
-  booleantype initsetup;    /* denotes a call to InitialSetup is needed   */
+  sunbooleantype VabstolMallocDone;
+  sunbooleantype VRabstolMallocDone;
+  sunbooleantype MallocDone;
+  sunbooleantype initsetup;    /* denotes a call to InitialSetup is needed   */
   int         init_type;    /* initialization type (see constants above)  */
-  booleantype firststage;   /* denotes first stage in simulation          */
-  booleantype initialized;  /* denotes arkInitialSetup has been done      */
-  booleantype call_fullrhs; /* denotes fn needs updating after each step  */
+  sunbooleantype firststage;   /* denotes first stage in simulation          */
+  sunbooleantype initialized;  /* denotes arkInitialSetup has been done      */
+  sunbooleantype call_fullrhs; /* denotes fn needs updating after each step  */
 
   /* Error handler function and error ouput file */
   ARKErrHandlerFn ehfun;    /* error messages are handled by ehfun        */
@@ -433,7 +433,7 @@ struct ARKodeMemRec
   sunbooleantype use_compensated_sums;
 
   /* XBraid interface variables */
-  booleantype force_pass;  /* when true the step attempt loop will ignore the
+  sunbooleantype force_pass;  /* when true the step attempt loop will ignore the
                               return value (kflag) from arkCheckTemporalError
                               and set kflag = ARK_SUCCESS to force the step
                               attempt to always pass (if a solver failure did
@@ -751,7 +751,7 @@ struct ARKodeMemRec
   This routine should fill the current value of gamma, the ratio
   of the current gamma value to the gamma value when the
   Jacobian/preconditioner was last updated, a pointer to the
-  time step module internal booleantype variable indicating
+  time step module internal sunbooleantype variable indicating
   whether the preconditioner is current, and a logic value
   indicating whether the gamma value is sufficiently stale
   to cause recomputation of Jacobian/preconditioner data.  Here,
@@ -759,7 +759,7 @@ struct ARKodeMemRec
   matrix, J, in the full nonlinear system Jacobian,
   A = M - gamma*J.
 
-  The time step module must contain a booleantype variable to
+  The time step module must contain a sunbooleantype variable to
   provide for the boolentype pointer (jcur).  This is only used
   by iterative linear solvers, so could be NULL for time step
   modules that only work with direct linear solvers.  Optionally,
@@ -896,31 +896,31 @@ void arkProcessError(ARKodeMem ark_mem, int error_code,
 #endif
 
 int arkInit(ARKodeMem ark_mem, sunrealtype t0, N_Vector y0, int init_type);
-booleantype arkAllocVec(ARKodeMem ark_mem, N_Vector tmpl, N_Vector *v);
-booleantype arkAllocVecArray(int count, N_Vector tmpl, N_Vector **v,
+sunbooleantype arkAllocVec(ARKodeMem ark_mem, N_Vector tmpl, N_Vector *v);
+sunbooleantype arkAllocVecArray(int count, N_Vector tmpl, N_Vector **v,
                              sunindextype lrw1, long int *lrw,
                              sunindextype liw1, long int *liw);
 void arkFreeVec(ARKodeMem ark_mem, N_Vector *v);
 void arkFreeVecArray(int count, N_Vector **v,
                      sunindextype lrw1, long int *lrw,
                      sunindextype liw1, long int *liw);
-booleantype arkResizeVec(ARKodeMem ark_mem,
+sunbooleantype arkResizeVec(ARKodeMem ark_mem,
                          ARKVecResizeFn resize,
                          void *resize_data,
                          sunindextype lrw_diff,
                          sunindextype liw_diff,
                          N_Vector tmpl,
                          N_Vector *v);
-booleantype arkResizeVecArray(ARKVecResizeFn resize, void *resize_data,
+sunbooleantype arkResizeVecArray(ARKVecResizeFn resize, void *resize_data,
                               int count, N_Vector tmpl, N_Vector **v,
                               sunindextype lrw_diff, long int *lrw,
                               sunindextype liw_diff, long int *liw);
 void arkPrintMem(ARKodeMem ark_mem, FILE *outfile);
-booleantype arkCheckTimestepper(ARKodeMem ark_mem);
-booleantype arkCheckNvector(N_Vector tmpl);
-booleantype arkAllocVectors(ARKodeMem ark_mem,
+sunbooleantype arkCheckTimestepper(ARKodeMem ark_mem);
+sunbooleantype arkCheckNvector(N_Vector tmpl);
+sunbooleantype arkAllocVectors(ARKodeMem ark_mem,
                             N_Vector tmpl);
-booleantype arkResizeVectors(ARKodeMem ark_mem,
+sunbooleantype arkResizeVectors(ARKodeMem ark_mem,
                              ARKVecResizeFn resize,
                              void *resize_data,
                              sunindextype lrw_diff,
@@ -996,7 +996,7 @@ int arkSetInitStep(void *arkode_mem, sunrealtype hin);
 int arkSetMinStep(void *arkode_mem, sunrealtype hmin);
 int arkSetMaxStep(void *arkode_mem, sunrealtype hmax);
 int arkSetStopTime(void *arkode_mem, sunrealtype tstop);
-int arkSetInterpolateStopTime(void *arkode_mem, booleantype interp);
+int arkSetInterpolateStopTime(void *arkode_mem, sunbooleantype interp);
 int arkClearStopTime(void *arkode_mem);
 int arkSetFixedStep(void *arkode_mem, sunrealtype hfixed);
 int arkSetRootDirection(void *arkode_mem, int *rootdir);
@@ -1054,7 +1054,7 @@ ARKODE_DIRKTableID arkButcherTableDIRKNameToID(const char *imethod);
 ARKODE_ERKTableID arkButcherTableERKNameToID(const char *emethod);
 
 /* XBraid interface functions */
-int arkSetForcePass(void *arkode_mem, booleantype force_pass);
+int arkSetForcePass(void *arkode_mem, sunbooleantype force_pass);
 int arkGetLastKFlag(void *arkode_mem, int *last_kflag);
 
 

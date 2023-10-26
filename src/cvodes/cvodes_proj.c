@@ -103,7 +103,7 @@ int CVodeSetProjFn(void *cvode_mem, CVProjFn pfun)
  * ===========================================================================*/
 
 
-int CVodeSetProjErrEst(void *cvode_mem, booleantype onoff)
+int CVodeSetProjErrEst(void *cvode_mem, sunbooleantype onoff)
 {
   int          retval;
   CVodeMem     cv_mem;

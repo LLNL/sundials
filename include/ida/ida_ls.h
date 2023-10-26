@@ -100,7 +100,7 @@ SUNDIALS_EXPORT int IDASetEpsLin(void *ida_mem, sunrealtype eplifac);
 SUNDIALS_EXPORT int IDASetLSNormFactor(void *ida_mem,
                                        sunrealtype nrmfac);
 SUNDIALS_EXPORT int IDASetLinearSolutionScaling(void *ida_mem,
-                                                booleantype onoff);
+                                                sunbooleantype onoff);
 SUNDIALS_EXPORT int IDASetIncrementFactor(void *ida_mem,
                                           sunrealtype dqincfac);
 

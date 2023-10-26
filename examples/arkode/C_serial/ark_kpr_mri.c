@@ -152,9 +152,9 @@ int main(int argc, char *argv[])
   SUNLinearSolver LSf = NULL;               /* fast linear solver object    */
   SUNMatrix As = NULL;                      /* matrix for slow solver       */
   SUNLinearSolver LSs = NULL;               /* slow linear solver object    */
-  booleantype implicit_slow;
-  booleantype imex_slow = SUNFALSE;
-  booleantype deduce = SUNFALSE;
+  sunbooleantype implicit_slow;
+  sunbooleantype imex_slow = SUNFALSE;
+  sunbooleantype deduce = SUNFALSE;
   FILE *UFID;
   sunrealtype hf, gamma, beta, t, tout, rpar[3];
   sunrealtype uerr, verr, uerrtot, verrtot, errtot;
@@ -171,7 +171,7 @@ int main(int argc, char *argv[])
   if (argc > 3)  G = SUNStrToReal(argv[3]);
   if (argc > 4)  w = SUNStrToReal(argv[4]);
   if (argc > 5)  e = SUNStrToReal(argv[5]);
-  if (argc > 6)  deduce = (booleantype) atoi(argv[6]);
+  if (argc > 6)  deduce = (sunbooleantype) atoi(argv[6]);
 
   /* Check arguments for validity */
   /*   0 <= solve_type <= 9      */

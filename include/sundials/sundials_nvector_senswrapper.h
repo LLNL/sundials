@@ -40,7 +40,7 @@ extern "C" {
 struct _N_VectorContent_SensWrapper {
   N_Vector* vecs;        /* array of wrapped vectors                */
   int nvecs;             /* number of wrapped vectors               */
-  booleantype own_vecs;  /* flag indicating if wrapper owns vectors */
+  sunbooleantype own_vecs;  /* flag indicating if wrapper owns vectors */
 };
 
 typedef struct _N_VectorContent_SensWrapper *N_VectorContent_SensWrapper;
@@ -91,8 +91,8 @@ SUNDIALS_EXPORT sunrealtype N_VMin_SensWrapper(N_Vector x);
 SUNDIALS_EXPORT sunrealtype N_VWL2Norm_SensWrapper(N_Vector x, N_Vector w);
 SUNDIALS_EXPORT sunrealtype N_VL1Norm_SensWrapper(N_Vector x);
 SUNDIALS_EXPORT void N_VCompare_SensWrapper(sunrealtype c, N_Vector x, N_Vector z);
-SUNDIALS_EXPORT booleantype N_VInvTest_SensWrapper(N_Vector x, N_Vector z);
-SUNDIALS_EXPORT booleantype N_VConstrMask_SensWrapper(N_Vector c, N_Vector x,
+SUNDIALS_EXPORT sunbooleantype N_VInvTest_SensWrapper(N_Vector x, N_Vector z);
+SUNDIALS_EXPORT sunbooleantype N_VConstrMask_SensWrapper(N_Vector c, N_Vector x,
                                                       N_Vector m);
 SUNDIALS_EXPORT sunrealtype N_VMinQuotient_SensWrapper(N_Vector num,
                                                     N_Vector denom);

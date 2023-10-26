@@ -55,7 +55,7 @@ typedef int (*CVLsJacFn)(sunrealtype t, N_Vector y, N_Vector fy,
                          N_Vector tmp1, N_Vector tmp2, N_Vector tmp3);
 
 typedef int (*CVLsPrecSetupFn)(sunrealtype t, N_Vector y, N_Vector fy,
-                               booleantype jok, booleantype *jcurPtr,
+                               sunbooleantype jok, sunbooleantype *jcurPtr,
                                sunrealtype gamma, void *user_data);
 
 typedef int (*CVLsPrecSolveFn)(sunrealtype t, N_Vector y, N_Vector fy,
@@ -70,7 +70,7 @@ typedef int (*CVLsJacTimesVecFn)(N_Vector v, N_Vector Jv, sunrealtype t,
                                  void *user_data, N_Vector tmp);
 
 typedef int (*CVLsLinSysFn)(sunrealtype t, N_Vector y, N_Vector fy, SUNMatrix A,
-                            booleantype jok, booleantype *jcur, sunrealtype gamma,
+                            sunbooleantype jok, sunbooleantype *jcur, sunrealtype gamma,
                             void *user_data, N_Vector tmp1, N_Vector tmp2,
                             N_Vector tmp3);
 
@@ -91,7 +91,7 @@ SUNDIALS_EXPORT int CVodeSetJacFn(void *cvode_mem, CVLsJacFn jac);
 SUNDIALS_EXPORT int CVodeSetJacEvalFrequency(void *cvode_mem,
                                              long int msbj);
 SUNDIALS_EXPORT int CVodeSetLinearSolutionScaling(void *cvode_mem,
-                                                  booleantype onoff);
+                                                  sunbooleantype onoff);
 SUNDIALS_EXPORT int CVodeSetDeltaGammaMaxBadJac(void *cvode_mem,
                                                 sunrealtype dgmax_jbad);
 SUNDIALS_EXPORT int CVodeSetEpsLin(void *cvode_mem, sunrealtype eplifac);

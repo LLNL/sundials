@@ -333,7 +333,7 @@ int check_ans(sunrealtype ans, N_Vector plusX, sunindextype local_length)
   return (failure > ZERO) ? (1) : (0);
 }
 
-booleantype has_data(N_Vector plusX)
+sunbooleantype has_data(N_Vector plusX)
 {
   N_Vector X = N_VGetLocalVector_MPIPlusX(plusX);
   /* check if vector data is non-null */

@@ -49,9 +49,9 @@ extern "C" {
  * ---------------------------------------------------------------------------*/
 typedef struct CVodeProjMemRec {
 
-  booleantype internal_proj;  /* use the internal projection algorithm?      */
-  booleantype err_proj;       /* is error projection enabled?                */
-  booleantype first_proj;     /* is this the first time we project?          */
+  sunbooleantype internal_proj;  /* use the internal projection algorithm?      */
+  sunbooleantype err_proj;       /* is error projection enabled?                */
+  sunbooleantype first_proj;     /* is this the first time we project?          */
 
   long int freq;              /* projection frequency                        */
   long int nstlprj;           /* step number of last projection              */

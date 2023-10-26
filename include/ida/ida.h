@@ -126,7 +126,7 @@ SUNDIALS_EXPORT int IDASetNonlinConvCoefIC(void *ida_mem, sunrealtype epiccon);
 SUNDIALS_EXPORT int IDASetMaxNumStepsIC(void *ida_mem, int maxnh);
 SUNDIALS_EXPORT int IDASetMaxNumJacsIC(void *ida_mem, int maxnj);
 SUNDIALS_EXPORT int IDASetMaxNumItersIC(void *ida_mem, int maxnit);
-SUNDIALS_EXPORT int IDASetLineSearchOffIC(void *ida_mem, booleantype lsoff);
+SUNDIALS_EXPORT int IDASetLineSearchOffIC(void *ida_mem, sunbooleantype lsoff);
 SUNDIALS_EXPORT int IDASetStepToleranceIC(void *ida_mem, sunrealtype steptol);
 SUNDIALS_EXPORT int IDASetMaxBacksIC(void *ida_mem, int maxbacks);
 
@@ -144,7 +144,7 @@ SUNDIALS_EXPORT int IDASetMinStep(void *ida_mem, sunrealtype hmin);
 SUNDIALS_EXPORT int IDASetStopTime(void *ida_mem, sunrealtype tstop);
 SUNDIALS_EXPORT int IDAClearStopTime(void *ida_mem);
 SUNDIALS_EXPORT int IDASetMaxErrTestFails(void *ida_mem, int maxnef);
-SUNDIALS_EXPORT int IDASetSuppressAlg(void *ida_mem, booleantype suppressalg);
+SUNDIALS_EXPORT int IDASetSuppressAlg(void *ida_mem, sunbooleantype suppressalg);
 SUNDIALS_EXPORT int IDASetId(void *ida_mem, N_Vector id);
 SUNDIALS_EXPORT int IDASetConstraints(void *ida_mem, N_Vector constraints);
 

@@ -618,7 +618,7 @@ int TaskLocalNewton_Initialize(SUNNonlinearSolver NLS)
 int TaskLocalNewton_Solve(SUNNonlinearSolver NLS,
                           N_Vector y0, N_Vector ycor,
                           N_Vector w, sunrealtype tol,
-                          booleantype callLSetup, void* mem)
+                          sunbooleantype callLSetup, void* mem)
 {
   /* local variables */
   MPI_Comm comm;

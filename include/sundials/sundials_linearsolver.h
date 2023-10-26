@@ -114,7 +114,7 @@ struct _generic_SUNLinearSolver_Ops
   int (*setatimes)(SUNLinearSolver, void*, SUNATimesFn);
   int (*setpreconditioner)(SUNLinearSolver, void*, SUNPSetupFn, SUNPSolveFn);
   int (*setscalingvectors)(SUNLinearSolver, N_Vector, N_Vector);
-  int (*setzeroguess)(SUNLinearSolver, booleantype);
+  int (*setzeroguess)(SUNLinearSolver, sunbooleantype);
   int (*initialize)(SUNLinearSolver);
   int (*setup)(SUNLinearSolver, SUNMatrix);
   int (*solve)(SUNLinearSolver, SUNMatrix, N_Vector, N_Vector, sunrealtype);
@@ -160,7 +160,7 @@ SUNDIALS_EXPORT int SUNLinSolSetPreconditioner(SUNLinearSolver S, void* P_data, 
 
 SUNDIALS_EXPORT int SUNLinSolSetScalingVectors(SUNLinearSolver S, N_Vector s1, N_Vector s2);
 
-SUNDIALS_EXPORT int SUNLinSolSetZeroGuess(SUNLinearSolver S, booleantype onoff);
+SUNDIALS_EXPORT int SUNLinSolSetZeroGuess(SUNLinearSolver S, sunbooleantype onoff);
 
 SUNDIALS_EXPORT int SUNLinSolInitialize(SUNLinearSolver S);
 

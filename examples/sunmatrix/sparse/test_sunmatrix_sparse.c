@@ -943,7 +943,7 @@ int check_vector(N_Vector x, N_Vector y, sunrealtype tol)
     return(0);
 }
 
-booleantype has_data(SUNMatrix A)
+sunbooleantype has_data(SUNMatrix A)
 {
   sunrealtype *Adata = SUNSparseMatrix_Data(A);
   if (Adata == NULL)
@@ -952,7 +952,7 @@ booleantype has_data(SUNMatrix A)
     return SUNTRUE;
 }
 
-booleantype is_square(SUNMatrix A)
+sunbooleantype is_square(SUNMatrix A)
 {
   if (SUNSparseMatrix_Rows(A) == SUNSparseMatrix_Columns(A))
     return SUNTRUE;

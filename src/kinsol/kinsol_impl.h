@@ -99,21 +99,21 @@ typedef struct KINMemRec {
   long int kin_mxnbcf;         /* maximum number of beta condition failures    */
   int kin_etaflag;             /* choices are KIN_ETACONSTANT, KIN_ETACHOICE1
                                   and KIN_ETACHOICE2                           */
-  booleantype kin_noMinEps;    /* flag controlling whether or not the value
+  sunbooleantype kin_noMinEps;    /* flag controlling whether or not the value
                                   of eps is bounded below                      */
-  booleantype kin_constraintsSet; /* flag indicating if constraints are being
+  sunbooleantype kin_constraintsSet; /* flag indicating if constraints are being
                                      used                                      */
-  booleantype kin_jacCurrent;     /* flag indicating if the Jacobian info.
+  sunbooleantype kin_jacCurrent;     /* flag indicating if the Jacobian info.
                                      used by the linear solver is current      */
-  booleantype kin_callForcingTerm; /* flag set if using either KIN_ETACHOICE1
+  sunbooleantype kin_callForcingTerm; /* flag set if using either KIN_ETACHOICE1
                                       or KIN_ETACHOICE2                        */
-  booleantype kin_noResMon;         /* flag indicating if the nonlinear
+  sunbooleantype kin_noResMon;         /* flag indicating if the nonlinear
                                        residual monitoring scheme should be
                                        used                                    */
-  booleantype kin_retry_nni;        /* flag indicating if nonlinear iteration
+  sunbooleantype kin_retry_nni;        /* flag indicating if nonlinear iteration
                                        should be retried (set by residual
                                        monitoring algorithm)                   */
-  booleantype kin_update_fnorm_sub; /* flag indicating if the fnorm associated
+  sunbooleantype kin_update_fnorm_sub; /* flag indicating if the fnorm associated
                                        with the subinterval needs to be
                                        updated (set by residual monitoring
                                        algorithm)                              */
@@ -129,7 +129,7 @@ typedef struct KINMemRec {
                                   (choice #2)                                  */
   sunrealtype kin_eta_alpha;      /* alpha value used in eta calculation
                                   (choice #2)                                  */
-  booleantype kin_noInitSetup; /* flag controlling whether or not the KINSol
+  sunbooleantype kin_noInitSetup; /* flag controlling whether or not the KINSol
                                   routine makes an initial call to the
                                   linear solver setup routine (lsetup)         */
   sunrealtype kin_sthrsh;         /* threshold value for calling the linear
@@ -172,8 +172,8 @@ typedef struct KINMemRec {
   N_Vector kin_vtemp3;      /* scratch vector #3                               */
 
   /* fixed point and Picard options */
-  booleantype kin_ret_newest; /* return the newest FP iteration     */
-  booleantype kin_damping;    /* flag to apply damping in FP/Picard */
+  sunbooleantype kin_ret_newest; /* return the newest FP iteration     */
+  sunbooleantype kin_damping;    /* flag to apply damping in FP/Picard */
   sunrealtype    kin_beta;       /* damping parameter for FP/Picard    */
 
   /* space requirements for AA, Broyden and NLEN */
@@ -198,7 +198,7 @@ typedef struct KINMemRec {
   SUNQRAddFn kin_qr_func;     /* QRAdd function for AA orthogonalization         */
   SUNQRData  kin_qr_data;     /* Additional parameters required for QRAdd routine
                                  set for AA                                      */
-  booleantype kin_damping_aa; /* flag to apply damping in AA                     */
+  sunbooleantype kin_damping_aa; /* flag to apply damping in AA                     */
   sunrealtype *kin_cv;           /* scalar array for fused vector operations        */
   N_Vector *kin_Xv;           /* vector array for fused vector operations        */
 
@@ -226,7 +226,7 @@ typedef struct KINMemRec {
 
   int (*kin_lfree)(struct KINMemRec *kin_mem);
 
-  booleantype kin_inexact_ls; /* flag set by the linear solver module
+  sunbooleantype kin_inexact_ls; /* flag set by the linear solver module
                                  (in linit) indicating whether this is an
                                  iterative linear solver (SUNTRUE), or a direct
                                  linear solver (SUNFALSE)                       */
@@ -241,7 +241,7 @@ typedef struct KINMemRec {
                              (set by lsolve)                                   */
 
   sunrealtype kin_fnorm_sub; /* value of L2-norm of fscale*fval (subinterval)     */
-  booleantype kin_eval_omega; /* flag indicating that omega must be evaluated. */
+  sunbooleantype kin_eval_omega; /* flag indicating that omega must be evaluated. */
   sunrealtype kin_omega;     /* constant value for real scalar used in test to
                              determine if reduction of norm of nonlinear
                              residual is sufficient. Unless a valid constant
@@ -267,7 +267,7 @@ typedef struct KINMemRec {
    * -----------------------------------------------------------------
    */
 
-  booleantype kin_MallocDone; /* flag indicating if KINMalloc has been
+  sunbooleantype kin_MallocDone; /* flag indicating if KINMalloc has been
                                  called yet                                    */
 
   /* message files */
@@ -306,7 +306,7 @@ typedef struct KINMemRec {
  * but system memory allocation should be done by the subroutine
  * that actually initializes the environment for liner solver
  * package. If the linear system is to be preconditioned, then the
- * variable setupNonNull (type booleantype) should be set to SUNTRUE
+ * variable setupNonNull (type sunbooleantype) should be set to SUNTRUE
  * (predefined constant) and the kin_lsetup routine should be
  * appropriately defined.
  *

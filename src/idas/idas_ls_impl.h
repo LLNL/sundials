@@ -35,11 +35,11 @@ extern "C" {
 typedef struct IDALsMemRec {
 
   /* Linear solver type information */
-  booleantype iterative;    /* is the solver iterative?    */
-  booleantype matrixbased;  /* is a matrix structure used? */
+  sunbooleantype iterative;    /* is the solver iterative?    */
+  sunbooleantype matrixbased;  /* is a matrix structure used? */
 
   /* Jacobian construction & storage */
-  booleantype jacDQ;    /* SUNTRUE if using internal DQ Jacobian approx. */
+  sunbooleantype jacDQ;    /* SUNTRUE if using internal DQ Jacobian approx. */
   IDALsJacFn jac;       /* Jacobian routine to be called                 */
   void *J_data;         /* J_data is passed to jac                       */
 
@@ -54,7 +54,7 @@ typedef struct IDALsMemRec {
   N_Vector rcur;        /* rcur = F(tn, ycur, ypcur)                     */
 
   /* Matrix-based solver, scale solution to account for change in cj */
-  booleantype scalesol;
+  sunbooleantype scalesol;
 
   /* Iterative solver tolerance */
   sunrealtype eplifac;   /* nonlinear -> linear tol scaling factor       */
@@ -99,7 +99,7 @@ typedef struct IDALsMemRec {
      (b) internal jtimes
          - jt_data == ida_mem
          - jtimesDQ == SUNTRUE */
-  booleantype jtimesDQ;
+  sunbooleantype jtimesDQ;
   IDALsJacTimesSetupFn jtsetup;
   IDALsJacTimesVecFn jtimes;
   IDAResFn jt_res;

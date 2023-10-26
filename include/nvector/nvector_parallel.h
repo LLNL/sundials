@@ -24,7 +24,7 @@
  *     header file sundials_types.h, and it may be changed (at the
  *     configuration stage) according to the user's needs.
  *     The sundials_types.h file also contains the definition
- *     for the type booleantype.
+ *     for the type sunbooleantype.
  *
  *   - N_Vector arguments to arithmetic vector operations need not
  *     be distinct. For example, the following call:
@@ -56,7 +56,7 @@ extern "C" {
 struct _N_VectorContent_Parallel {
   sunindextype local_length;   /* local vector length         */
   sunindextype global_length;  /* global vector length        */
-  booleantype own_data;        /* ownership of data           */
+  sunbooleantype own_data;        /* ownership of data           */
   sunrealtype *data;              /* local data array            */
   MPI_Comm comm;               /* pointer to MPI communicator */
 };
@@ -141,8 +141,8 @@ SUNDIALS_EXPORT sunrealtype N_VMin_Parallel(N_Vector x);
 SUNDIALS_EXPORT sunrealtype N_VWL2Norm_Parallel(N_Vector x, N_Vector w);
 SUNDIALS_EXPORT sunrealtype N_VL1Norm_Parallel(N_Vector x);
 SUNDIALS_EXPORT void N_VCompare_Parallel(sunrealtype c, N_Vector x, N_Vector z);
-SUNDIALS_EXPORT booleantype N_VInvTest_Parallel(N_Vector x, N_Vector z);
-SUNDIALS_EXPORT booleantype N_VConstrMask_Parallel(N_Vector c, N_Vector x, N_Vector m);
+SUNDIALS_EXPORT sunbooleantype N_VInvTest_Parallel(N_Vector x, N_Vector z);
+SUNDIALS_EXPORT sunbooleantype N_VConstrMask_Parallel(N_Vector c, N_Vector x, N_Vector m);
 SUNDIALS_EXPORT sunrealtype N_VMinQuotient_Parallel(N_Vector num, N_Vector denom);
 
 /* fused vector operations */
@@ -185,8 +185,8 @@ SUNDIALS_EXPORT sunrealtype N_VL1NormLocal_Parallel(N_Vector x);
 SUNDIALS_EXPORT sunrealtype N_VWSqrSumLocal_Parallel(N_Vector x, N_Vector w);
 SUNDIALS_EXPORT sunrealtype N_VWSqrSumMaskLocal_Parallel(N_Vector x, N_Vector w,
                                                       N_Vector id);
-SUNDIALS_EXPORT booleantype N_VInvTestLocal_Parallel(N_Vector x, N_Vector z);
-SUNDIALS_EXPORT booleantype N_VConstrMaskLocal_Parallel(N_Vector c, N_Vector x,
+SUNDIALS_EXPORT sunbooleantype N_VInvTestLocal_Parallel(N_Vector x, N_Vector z);
+SUNDIALS_EXPORT sunbooleantype N_VConstrMaskLocal_Parallel(N_Vector c, N_Vector x,
                                                         N_Vector m);
 SUNDIALS_EXPORT sunrealtype N_VMinQuotientLocal_Parallel(N_Vector num,
                                                       N_Vector denom);
@@ -209,21 +209,21 @@ SUNDIALS_EXPORT int N_VBufUnpack_Parallel(N_Vector x, void *buf);
  * -----------------------------------------------------------------
  */
 
-SUNDIALS_EXPORT int N_VEnableFusedOps_Parallel(N_Vector v, booleantype tf);
+SUNDIALS_EXPORT int N_VEnableFusedOps_Parallel(N_Vector v, sunbooleantype tf);
 
-SUNDIALS_EXPORT int N_VEnableLinearCombination_Parallel(N_Vector v, booleantype tf);
-SUNDIALS_EXPORT int N_VEnableScaleAddMulti_Parallel(N_Vector v, booleantype tf);
-SUNDIALS_EXPORT int N_VEnableDotProdMulti_Parallel(N_Vector v, booleantype tf);
+SUNDIALS_EXPORT int N_VEnableLinearCombination_Parallel(N_Vector v, sunbooleantype tf);
+SUNDIALS_EXPORT int N_VEnableScaleAddMulti_Parallel(N_Vector v, sunbooleantype tf);
+SUNDIALS_EXPORT int N_VEnableDotProdMulti_Parallel(N_Vector v, sunbooleantype tf);
 
-SUNDIALS_EXPORT int N_VEnableLinearSumVectorArray_Parallel(N_Vector v, booleantype tf);
-SUNDIALS_EXPORT int N_VEnableScaleVectorArray_Parallel(N_Vector v, booleantype tf);
-SUNDIALS_EXPORT int N_VEnableConstVectorArray_Parallel(N_Vector v, booleantype tf);
-SUNDIALS_EXPORT int N_VEnableWrmsNormVectorArray_Parallel(N_Vector v, booleantype tf);
-SUNDIALS_EXPORT int N_VEnableWrmsNormMaskVectorArray_Parallel(N_Vector v, booleantype tf);
-SUNDIALS_EXPORT int N_VEnableScaleAddMultiVectorArray_Parallel(N_Vector v, booleantype tf);
-SUNDIALS_EXPORT int N_VEnableLinearCombinationVectorArray_Parallel(N_Vector v, booleantype tf);
+SUNDIALS_EXPORT int N_VEnableLinearSumVectorArray_Parallel(N_Vector v, sunbooleantype tf);
+SUNDIALS_EXPORT int N_VEnableScaleVectorArray_Parallel(N_Vector v, sunbooleantype tf);
+SUNDIALS_EXPORT int N_VEnableConstVectorArray_Parallel(N_Vector v, sunbooleantype tf);
+SUNDIALS_EXPORT int N_VEnableWrmsNormVectorArray_Parallel(N_Vector v, sunbooleantype tf);
+SUNDIALS_EXPORT int N_VEnableWrmsNormMaskVectorArray_Parallel(N_Vector v, sunbooleantype tf);
+SUNDIALS_EXPORT int N_VEnableScaleAddMultiVectorArray_Parallel(N_Vector v, sunbooleantype tf);
+SUNDIALS_EXPORT int N_VEnableLinearCombinationVectorArray_Parallel(N_Vector v, sunbooleantype tf);
 
-SUNDIALS_EXPORT int N_VEnableDotProdMultiLocal_Parallel(N_Vector v, booleantype tf);
+SUNDIALS_EXPORT int N_VEnableDotProdMultiLocal_Parallel(N_Vector v, sunbooleantype tf);
 
 
 #ifdef __cplusplus

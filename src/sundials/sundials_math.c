@@ -25,7 +25,7 @@
 
 static long double sunNextafterl(long double from, long double to);
 
-static booleantype sunIsInf(sunrealtype a)
+static sunbooleantype sunIsInf(sunrealtype a)
 {
 #if defined(__cplusplus) || defined(SUNDIALS_C_COMPILER_HAS_ISINF_ISNAN)
   return(isinf(a));
@@ -34,7 +34,7 @@ static booleantype sunIsInf(sunrealtype a)
 #endif
 }
 
-static booleantype sunIsNaN(sunrealtype a)
+static sunbooleantype sunIsNaN(sunrealtype a)
 {
 #if defined(__cplusplus) || defined(SUNDIALS_C_COMPILER_HAS_ISINF_ISNAN)
   return(isnan(a));
@@ -76,12 +76,12 @@ sunrealtype SUNRpowerR(sunrealtype base, sunrealtype exponent)
 #endif
 }
 
-booleantype SUNRCompare(sunrealtype a, sunrealtype b)
+sunbooleantype SUNRCompare(sunrealtype a, sunrealtype b)
 {
   return(SUNRCompareTol(a, b, 10*SUN_UNIT_ROUNDOFF));
 }
 
-booleantype SUNRCompareTol(sunrealtype a, sunrealtype b, sunrealtype tol)
+sunbooleantype SUNRCompareTol(sunrealtype a, sunrealtype b, sunrealtype tol)
 {
   sunrealtype diff;
   sunrealtype norm;

@@ -66,7 +66,7 @@
 #include <nvector/nvector_parallel.h>       /* access to MPI-parallel N_Vector          */
 #include <sunlinsol/sunlinsol_spgmr.h>      /* access to SPGMR SUNLinearSolver          */
 #include <sundials/sundials_dense.h>        /* prototypes for small dense fcts.         */
-#include <sundials/sundials_types.h>        /* definitions of sunrealtype, booleantype     */
+#include <sundials/sundials_types.h>        /* definitions of sunrealtype, sunbooleantype     */
 
 /* helpful macros */
 
@@ -177,7 +177,7 @@ static void fcalc(sunrealtype t, N_Vector udot, UserData data);
 static int f(sunrealtype t, N_Vector u, N_Vector udot, void *user_data);
 
 static int Precond(sunrealtype tn, N_Vector u, N_Vector fu,
-                   booleantype jok, booleantype *jcurPtr,
+                   sunbooleantype jok, sunbooleantype *jcurPtr,
                    sunrealtype gamma, void *user_data);
 
 static int PSolve(sunrealtype tn, N_Vector u, N_Vector fu,
@@ -823,8 +823,8 @@ static int f(sunrealtype t, N_Vector u, N_Vector udot, void *user_data)
 }
 
 /* Preconditioner setup routine. Generate and preprocess P. */
-static int Precond(sunrealtype tn, N_Vector u, N_Vector fu, booleantype jok,
-                   booleantype *jcurPtr, sunrealtype gamma, void *user_data)
+static int Precond(sunrealtype tn, N_Vector u, N_Vector fu, sunbooleantype jok,
+                   sunbooleantype *jcurPtr, sunrealtype gamma, void *user_data)
 {
   sunrealtype c1, c2, cydn, cyup, diag, ydn, yup;
   sunrealtype **(*P)[MYSUB], **(*Jbd)[MYSUB];

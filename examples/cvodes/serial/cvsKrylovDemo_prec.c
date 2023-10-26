@@ -221,8 +221,8 @@ static void v_zero(sunrealtype u[], int n);
 
 static int f(sunrealtype t, N_Vector y, N_Vector ydot, void *user_data);
 
-static int Precond(sunrealtype tn, N_Vector c, N_Vector fc, booleantype jok,
-                   booleantype *jcurPtr, sunrealtype gamma, void *user_data);
+static int Precond(sunrealtype tn, N_Vector c, N_Vector fc, sunbooleantype jok,
+                   sunbooleantype *jcurPtr, sunrealtype gamma, void *user_data);
 
 static int PSolve(sunrealtype tn, N_Vector c, N_Vector fc, N_Vector r, N_Vector z,
                   sunrealtype gamma, sunrealtype delta, int lr, void *user_data);
@@ -243,7 +243,7 @@ int main()
   WebData wdata;
   SUNLinearSolver LS;
   void *cvode_mem;
-  booleantype firstrun;
+  sunbooleantype firstrun;
   int jpre, gstype, retval;
   int ns, mxns, iout;
 
@@ -775,8 +775,8 @@ static void WebRates(sunrealtype x, sunrealtype y, sunrealtype t, sunrealtype c[
  of a block-diagonal preconditioner. The blocks are of size mp, and
  there are ngrp=ngx*ngy blocks computed in the block-grouping scheme.
 */
-static int Precond(sunrealtype t, N_Vector c, N_Vector fc, booleantype jok,
-                   booleantype *jcurPtr, sunrealtype gamma, void *user_data)
+static int Precond(sunrealtype t, N_Vector c, N_Vector fc, sunbooleantype jok,
+                   sunbooleantype *jcurPtr, sunrealtype gamma, void *user_data)
 {
   sunrealtype ***P;
   sunindextype **pivot;

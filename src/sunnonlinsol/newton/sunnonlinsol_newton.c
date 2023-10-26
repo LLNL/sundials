@@ -187,11 +187,11 @@ int SUNNonlinSolInitialize_Newton(SUNNonlinearSolver NLS)
 int SUNNonlinSolSolve_Newton(SUNNonlinearSolver NLS,
                              N_Vector y0, N_Vector ycor,
                              N_Vector w, sunrealtype tol,
-                             booleantype callLSetup, void* mem)
+                             sunbooleantype callLSetup, void* mem)
 {
   /* local variables */
   int retval;
-  booleantype jbad;
+  sunbooleantype jbad;
   N_Vector delta;
 
   /* check that the inputs are non-null */

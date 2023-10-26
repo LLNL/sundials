@@ -67,11 +67,11 @@ typedef struct ARKodeARKStepMemRec {
   /* ARK problem specification */
   ARKRhsFn     fe;              /* My' = fe(t,y) + fi(t,y)        */
   ARKRhsFn     fi;
-  booleantype  linear;          /* SUNTRUE if fi is linear        */
-  booleantype  linear_timedep;  /* SUNTRUE if dfi/dy depends on t */
-  booleantype  explicit;        /* SUNTRUE if fe is enabled       */
-  booleantype  implicit;        /* SUNTRUE if fi is enabled       */
-  booleantype  deduce_rhs;      /* SUNTRUE if fi is deduced after
+  sunbooleantype  linear;          /* SUNTRUE if fi is linear        */
+  sunbooleantype  linear_timedep;  /* SUNTRUE if dfi/dy depends on t */
+  sunbooleantype  explicit;        /* SUNTRUE if fe is enabled       */
+  sunbooleantype  implicit;        /* SUNTRUE if fi is enabled       */
+  sunbooleantype  deduce_rhs;      /* SUNTRUE if fi is deduced after
                                    a nonlinear solve              */
 
   /* ARK method storage and parameters */
@@ -93,7 +93,7 @@ typedef struct ARKodeARKStepMemRec {
 
   /* (Non)Linear solver parameters & data */
   SUNNonlinearSolver NLS;   /* generic SUNNonlinearSolver object     */
-  booleantype     ownNLS;   /* flag indicating ownership of NLS      */
+  sunbooleantype     ownNLS;   /* flag indicating ownership of NLS      */
   ARKRhsFn nls_fi;          /* fi(t,y) used in the nonlinear solver  */
   sunrealtype gamma;        /* gamma = h * A(i,i)                       */
   sunrealtype gammap;       /* gamma at the last setup call             */
@@ -117,7 +117,7 @@ typedef struct ARKodeARKStepMemRec {
                             nonlinear equation                       */
 
   int      convfail;     /* NLS fail flag (for interface routines)   */
-  booleantype jcur;      /* is Jacobian info for lin solver current? */
+  sunbooleantype jcur;      /* is Jacobian info for lin solver current? */
 
   /* Linear Solver Data */
   ARKLinsolInitFn      linit;
@@ -150,8 +150,8 @@ typedef struct ARKodeARKStepMemRec {
   int       nfusedopvecs;  /* length of cvals and Xvecs arrays */
 
   /* Data for using ARKStep with external polynomial forcing */
-  booleantype expforcing;  /* add forcing to explicit RHS */
-  booleantype impforcing;  /* add forcing to implicit RHS */
+  sunbooleantype expforcing;  /* add forcing to explicit RHS */
+  sunbooleantype impforcing;  /* add forcing to implicit RHS */
   sunrealtype    tshift;      /* time normalization shift    */
   sunrealtype    tscale;      /* time normalization scaling  */
   N_Vector*   forcing;     /* array of forcing vectors    */
@@ -177,7 +177,7 @@ int arkStep_AttachMasssol(void* arkode_mem,
                           ARKMassMultFn mmult,
                           ARKMassSolveFn msolve,
                           ARKMassFreeFn lfree,
-                          booleantype time_dep,
+                          sunbooleantype time_dep,
                           SUNLinearSolver_Type msolve_type,
                           void *mass_mem);
 void arkStep_DisableLSetup(void* arkode_mem);
@@ -187,8 +187,8 @@ void* arkStep_GetLmem(void* arkode_mem);
 void* arkStep_GetMassMem(void* arkode_mem);
 ARKRhsFn arkStep_GetImplicitRHS(void* arkode_mem);
 int arkStep_GetGammas(void* arkode_mem, sunrealtype *gamma,
-                      sunrealtype *gamrat, booleantype **jcur,
-                      booleantype *dgamma_fail);
+                      sunrealtype *gamrat, sunbooleantype **jcur,
+                      sunbooleantype *dgamma_fail);
 int arkStep_FullRHS(void* arkode_mem, sunrealtype t,
                     N_Vector y, N_Vector f, int mode);
 int arkStep_TakeStep_Z(void* arkode_mem, sunrealtype *dsmPtr, int *nflagPtr);
@@ -196,11 +196,11 @@ int arkStep_TakeStep_Z(void* arkode_mem, sunrealtype *dsmPtr, int *nflagPtr);
 /* Internal utility routines */
 int arkStep_AccessStepMem(void* arkode_mem, const char *fname,
                           ARKodeMem *ark_mem, ARKodeARKStepMem *step_mem);
-booleantype arkStep_CheckNVector(N_Vector tmpl);
+sunbooleantype arkStep_CheckNVector(N_Vector tmpl);
 int arkStep_SetButcherTables(ARKodeMem ark_mem);
 int arkStep_CheckButcherTables(ARKodeMem ark_mem);
 int arkStep_Predict(ARKodeMem ark_mem, int istage, N_Vector yguess);
-int arkStep_StageSetup(ARKodeMem ark_mem, booleantype implicit);
+int arkStep_StageSetup(ARKodeMem ark_mem, sunbooleantype implicit);
 int arkStep_NlsInit(ARKodeMem ark_mem);
 int arkStep_Nls(ARKodeMem ark_mem, int nflag);
 int arkStep_ComputeSolutions(ARKodeMem ark_mem, sunrealtype *dsm);
@@ -215,7 +215,7 @@ int arkStep_NlsResidual_MassTDep(N_Vector zcor, N_Vector r, void* arkode_mem);
 int arkStep_NlsFPFunction_MassIdent(N_Vector zcor, N_Vector g, void* arkode_mem);
 int arkStep_NlsFPFunction_MassFixed(N_Vector zcor, N_Vector g, void* arkode_mem);
 int arkStep_NlsFPFunction_MassTDep(N_Vector zcor, N_Vector g, void* arkode_mem);
-int arkStep_NlsLSetup(booleantype jbad, booleantype* jcur, void* arkode_mem);
+int arkStep_NlsLSetup(sunbooleantype jbad, sunbooleantype* jcur, void* arkode_mem);
 int arkStep_NlsLSolve(N_Vector delta, void* arkode_mem);
 int arkStep_NlsConvTest(SUNNonlinearSolver NLS, N_Vector y, N_Vector del,
                         sunrealtype tol, N_Vector ewt, void* arkode_mem);

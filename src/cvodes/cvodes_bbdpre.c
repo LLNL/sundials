@@ -36,7 +36,7 @@
 
 /* Prototypes of functions cvBBDPrecSetup and cvBBDPrecSolve */
 static int cvBBDPrecSetup(sunrealtype t, N_Vector y, N_Vector fy,
-                          booleantype jok, booleantype *jcurPtr,
+                          sunbooleantype jok, sunbooleantype *jcurPtr,
                           sunrealtype gamma, void *bbd_data);
 static int cvBBDPrecSolve(sunrealtype t, N_Vector y, N_Vector fy,
                           N_Vector r, N_Vector z,
@@ -458,7 +458,7 @@ int CVBBDPrecGetNumGfnEvals(void *cvode_mem,
     1  for a recoverable error (step will be retried).
   -----------------------------------------------------------------*/
 static int cvBBDPrecSetup(sunrealtype t, N_Vector y, N_Vector fy,
-                          booleantype jok, booleantype *jcurPtr,
+                          sunbooleantype jok, sunbooleantype *jcurPtr,
                           sunrealtype gamma, void *bbd_data)
 {
   CVBBDPrecData pdata;

@@ -425,7 +425,7 @@ int check_ans(sunrealtype ans, N_Vector X, sunindextype length)
   return (failure > ZERO) ? (1) : (0);
 }
 
-booleantype has_data(N_Vector X)
+sunbooleantype has_data(N_Vector X)
 {
   /* check if vector data is non-null */
   if ((N_VGetHostArrayPointer_Sycl(X) == NULL) &&

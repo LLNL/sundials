@@ -310,7 +310,7 @@ function pointer ``NULL`` instead of supplying a dummy routine.
          retval = SUNLinSolSetScalingVectors(LS, s1, s2);
 
 
-.. c:function:: int SUNLinSolSetZeroGuess(SUNLinearSolver LS, booleantype onoff)
+.. c:function:: int SUNLinSolSetZeroGuess(SUNLinearSolver LS, sunbooleantype onoff)
 
    This *optional* routine indicates if the upcoming :c:func:`SUNlinSolSolve` call
    will be made with a zero initial guess (``SUNTRUE``) or a non-zero initial
@@ -620,7 +620,7 @@ structure is defined as
                                                SUNPSetupFn, SUNPSolveFn);
      int                  (*setscalingvectors)(SUNLinearSolver,
                                                N_Vector, N_Vector);
-     int                  (*setzeroguess)(SUNLinearSolver, booleantype);
+     int                  (*setzeroguess)(SUNLinearSolver, sunbooleantype);
      int                  (*initialize)(SUNLinearSolver);
      int                  (*setup)(SUNLinearSolver, SUNMatrix);
      int                  (*solve)(SUNLinearSolver, SUNMatrix, N_Vector,

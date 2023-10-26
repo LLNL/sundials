@@ -248,7 +248,7 @@ int CVodeSetMaxNumStepsB(void *cvode_mem, int which, long int mxstepsB)
   return(flag);
 }
 
-int CVodeSetStabLimDetB(void *cvode_mem, int which, booleantype stldetB)
+int CVodeSetStabLimDetB(void *cvode_mem, int which, sunbooleantype stldetB)
 {
   CVodeMem cv_mem;
   CVadjMem ca_mem;
@@ -463,7 +463,7 @@ int CVodeSetConstraintsB(void *cvode_mem, int which, N_Vector constraintsB)
  * CVODES quadrature optional input functions
  */
 
-int CVodeSetQuadErrConB(void *cvode_mem, int which, booleantype errconQB)
+int CVodeSetQuadErrConB(void *cvode_mem, int which, sunbooleantype errconQB)
 {
   CVodeMem cv_mem;
   CVadjMem ca_mem;

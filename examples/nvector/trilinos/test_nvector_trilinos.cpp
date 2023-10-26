@@ -240,7 +240,7 @@ int check_ans(sunrealtype ans, N_Vector X, sunindextype local_length)
 /*
  * Checks if there is a Tpetra vector
  */
-booleantype has_data(N_Vector X)
+sunbooleantype has_data(N_Vector X)
 {
   if (X->content == NULL)
     return SUNFALSE;

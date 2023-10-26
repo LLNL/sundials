@@ -766,7 +766,7 @@ void N_VCompare_Petsc(sunrealtype c, N_Vector x, N_Vector z)
   return;
 }
 
-booleantype N_VInvTestLocal_Petsc(N_Vector x, N_Vector z)
+sunbooleantype N_VInvTestLocal_Petsc(N_Vector x, N_Vector z)
 {
   sunindextype i;
   sunindextype N = NV_LOCLENGTH_PTC(x);
@@ -793,7 +793,7 @@ booleantype N_VInvTestLocal_Petsc(N_Vector x, N_Vector z)
     return(SUNTRUE);
 }
 
-booleantype N_VInvTest_Petsc(N_Vector x, N_Vector z)
+sunbooleantype N_VInvTest_Petsc(N_Vector x, N_Vector z)
 {
   sunrealtype val2;
   sunrealtype val = (N_VInvTestLocal_Petsc(x, z)) ? ONE : ZERO;
@@ -804,12 +804,12 @@ booleantype N_VInvTest_Petsc(N_Vector x, N_Vector z)
     return(SUNTRUE);
 }
 
-booleantype N_VConstrMaskLocal_Petsc(N_Vector c, N_Vector x, N_Vector m)
+sunbooleantype N_VConstrMaskLocal_Petsc(N_Vector c, N_Vector x, N_Vector m)
 {
   sunindextype i;
   sunindextype N = NV_LOCLENGTH_PTC(x);
   sunrealtype temp;
-  booleantype test;
+  sunbooleantype test;
   Vec xv = NV_PVEC_PTC(x);
   Vec cv = NV_PVEC_PTC(c);
   Vec mv = NV_PVEC_PTC(m);
@@ -846,7 +846,7 @@ booleantype N_VConstrMaskLocal_Petsc(N_Vector c, N_Vector x, N_Vector m)
   return (temp == ONE) ? SUNFALSE : SUNTRUE;
 }
 
-booleantype N_VConstrMask_Petsc(N_Vector c, N_Vector x, N_Vector m)
+sunbooleantype N_VConstrMask_Petsc(N_Vector c, N_Vector x, N_Vector m)
 {
   sunrealtype temp2;
   sunrealtype temp = (N_VConstrMaskLocal_Petsc(c, x, m)) ? ZERO : ONE;
@@ -856,7 +856,7 @@ booleantype N_VConstrMask_Petsc(N_Vector c, N_Vector x, N_Vector m)
 
 sunrealtype N_VMinQuotientLocal_Petsc(N_Vector num, N_Vector denom)
 {
-  booleantype notEvenOnce = SUNTRUE;
+  sunbooleantype notEvenOnce = SUNTRUE;
   sunindextype i;
   sunindextype N = NV_LOCLENGTH_PTC(num);
 
@@ -1596,7 +1596,7 @@ int N_VBufUnpack_Petsc(N_Vector x, void *buf)
  * -----------------------------------------------------------------
  */
 
-int N_VEnableFusedOps_Petsc(N_Vector v, booleantype tf)
+int N_VEnableFusedOps_Petsc(N_Vector v, sunbooleantype tf)
 {
   /* check that vector is non-NULL */
   if (v == NULL) return(-1);
@@ -1641,7 +1641,7 @@ int N_VEnableFusedOps_Petsc(N_Vector v, booleantype tf)
 }
 
 
-int N_VEnableLinearCombination_Petsc(N_Vector v, booleantype tf)
+int N_VEnableLinearCombination_Petsc(N_Vector v, sunbooleantype tf)
 {
   /* check that vector is non-NULL */
   if (v == NULL) return(-1);
@@ -1659,7 +1659,7 @@ int N_VEnableLinearCombination_Petsc(N_Vector v, booleantype tf)
   return(0);
 }
 
-int N_VEnableScaleAddMulti_Petsc(N_Vector v, booleantype tf)
+int N_VEnableScaleAddMulti_Petsc(N_Vector v, sunbooleantype tf)
 {
   /* check that vector is non-NULL */
   if (v == NULL) return(-1);
@@ -1677,7 +1677,7 @@ int N_VEnableScaleAddMulti_Petsc(N_Vector v, booleantype tf)
   return(0);
 }
 
-int N_VEnableDotProdMulti_Petsc(N_Vector v, booleantype tf)
+int N_VEnableDotProdMulti_Petsc(N_Vector v, sunbooleantype tf)
 {
   /* check that vector is non-NULL */
   if (v == NULL) return(-1);
@@ -1695,7 +1695,7 @@ int N_VEnableDotProdMulti_Petsc(N_Vector v, booleantype tf)
   return(0);
 }
 
-int N_VEnableLinearSumVectorArray_Petsc(N_Vector v, booleantype tf)
+int N_VEnableLinearSumVectorArray_Petsc(N_Vector v, sunbooleantype tf)
 {
   /* check that vector is non-NULL */
   if (v == NULL) return(-1);
@@ -1713,7 +1713,7 @@ int N_VEnableLinearSumVectorArray_Petsc(N_Vector v, booleantype tf)
   return(0);
 }
 
-int N_VEnableScaleVectorArray_Petsc(N_Vector v, booleantype tf)
+int N_VEnableScaleVectorArray_Petsc(N_Vector v, sunbooleantype tf)
 {
   /* check that vector is non-NULL */
   if (v == NULL) return(-1);
@@ -1731,7 +1731,7 @@ int N_VEnableScaleVectorArray_Petsc(N_Vector v, booleantype tf)
   return(0);
 }
 
-int N_VEnableConstVectorArray_Petsc(N_Vector v, booleantype tf)
+int N_VEnableConstVectorArray_Petsc(N_Vector v, sunbooleantype tf)
 {
   /* check that vector is non-NULL */
   if (v == NULL) return(-1);
@@ -1749,7 +1749,7 @@ int N_VEnableConstVectorArray_Petsc(N_Vector v, booleantype tf)
   return(0);
 }
 
-int N_VEnableWrmsNormVectorArray_Petsc(N_Vector v, booleantype tf)
+int N_VEnableWrmsNormVectorArray_Petsc(N_Vector v, sunbooleantype tf)
 {
   /* check that vector is non-NULL */
   if (v == NULL) return(-1);
@@ -1767,7 +1767,7 @@ int N_VEnableWrmsNormVectorArray_Petsc(N_Vector v, booleantype tf)
   return(0);
 }
 
-int N_VEnableWrmsNormMaskVectorArray_Petsc(N_Vector v, booleantype tf)
+int N_VEnableWrmsNormMaskVectorArray_Petsc(N_Vector v, sunbooleantype tf)
 {
   /* check that vector is non-NULL */
   if (v == NULL) return(-1);
@@ -1785,7 +1785,7 @@ int N_VEnableWrmsNormMaskVectorArray_Petsc(N_Vector v, booleantype tf)
   return(0);
 }
 
-int N_VEnableScaleAddMultiVectorArray_Petsc(N_Vector v, booleantype tf)
+int N_VEnableScaleAddMultiVectorArray_Petsc(N_Vector v, sunbooleantype tf)
 {
   /* check that vector is non-NULL */
   if (v == NULL) return(-1);
@@ -1803,7 +1803,7 @@ int N_VEnableScaleAddMultiVectorArray_Petsc(N_Vector v, booleantype tf)
   return(0);
 }
 
-int N_VEnableLinearCombinationVectorArray_Petsc(N_Vector v, booleantype tf)
+int N_VEnableLinearCombinationVectorArray_Petsc(N_Vector v, sunbooleantype tf)
 {
   /* check that vector is non-NULL */
   if (v == NULL) return(-1);
@@ -1821,7 +1821,7 @@ int N_VEnableLinearCombinationVectorArray_Petsc(N_Vector v, booleantype tf)
   return(0);
 }
 
-int N_VEnableDotProdMultiLocal_Petsc(N_Vector v, booleantype tf)
+int N_VEnableDotProdMultiLocal_Petsc(N_Vector v, sunbooleantype tf)
 {
   /* check that vector is non-NULL */
   if (v == NULL) return(-1);

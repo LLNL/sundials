@@ -60,11 +60,11 @@ typedef struct ARKodeMRIStepMemRec {
   /* MRI problem specification */
   ARKRhsFn     fse;              /* y' = fse(t,y) + fsi(t,y) + ff(t,y) */
   ARKRhsFn     fsi;
-  booleantype  linear;           /* SUNTRUE if fi is linear        */
-  booleantype  linear_timedep;   /* SUNTRUE if dfi/dy depends on t */
-  booleantype  explicit_rhs;     /* SUNTRUE if fse is provided     */
-  booleantype  implicit_rhs;     /* SUNTRUE if fsi is provided     */
-  booleantype  deduce_rhs;       /* SUNTRUE if fi is deduced after
+  sunbooleantype  linear;           /* SUNTRUE if fi is linear        */
+  sunbooleantype  linear_timedep;   /* SUNTRUE if dfi/dy depends on t */
+  sunbooleantype  explicit_rhs;     /* SUNTRUE if fse is provided     */
+  sunbooleantype  implicit_rhs;     /* SUNTRUE if fsi is provided     */
+  sunbooleantype  deduce_rhs;       /* SUNTRUE if fi is deduced after
                                     a nonlinear solve              */
 
   /* Outer RK method storage and parameters */
@@ -87,7 +87,7 @@ typedef struct ARKodeMRIStepMemRec {
   N_Vector           zcor;       /* stage correction                         */
   int                istage;     /* current stage index                      */
   SUNNonlinearSolver NLS;        /* generic SUNNonlinearSolver object        */
-  booleantype        ownNLS;     /* flag indicating ownership of NLS         */
+  sunbooleantype        ownNLS;     /* flag indicating ownership of NLS         */
   ARKRhsFn           nls_fsi;    /* fsi(t,y) used in the nonlinear solver    */
   sunrealtype           gamma;      /* gamma = h * A(i,i)                       */
   sunrealtype           gammap;     /* gamma at the last setup call             */
@@ -109,7 +109,7 @@ typedef struct ARKodeMRIStepMemRec {
   int                maxcor;     /* max num iterations for solving the
                                     nonlinear equation                       */
   int                convfail;   /* NLS fail flag (for interface routines)   */
-  booleantype        jcur;       /* is Jacobian info for lin solver current? */
+  sunbooleantype        jcur;       /* is Jacobian info for lin solver current? */
   ARKStagePredictFn  stage_predict;  /* User-supplied stage predictor        */
 
   /* Linear Solver Data */
@@ -199,8 +199,8 @@ int mriStep_Init(void* arkode_mem, int init_type);
 void* mriStep_GetLmem(void* arkode_mem);
 ARKRhsFn mriStep_GetImplicitRHS(void* arkode_mem);
 int mriStep_GetGammas(void* arkode_mem, sunrealtype *gamma,
-                      sunrealtype *gamrat, booleantype **jcur,
-                      booleantype *dgamma_fail);
+                      sunrealtype *gamrat, sunbooleantype **jcur,
+                      sunbooleantype *dgamma_fail);
 int mriStep_FullRHS(void* arkode_mem, sunrealtype t,
                     N_Vector y, N_Vector f, int mode);
 int mriStep_TakeStep(void* arkode_mem, sunrealtype *dsmPtr, int *nflagPtr);
@@ -208,7 +208,7 @@ int mriStep_TakeStep(void* arkode_mem, sunrealtype *dsmPtr, int *nflagPtr);
 /* Internal utility routines */
 int mriStep_AccessStepMem(void* arkode_mem, const char *fname,
                           ARKodeMem *ark_mem, ARKodeMRIStepMem *step_mem);
-booleantype mriStep_CheckNVector(N_Vector tmpl);
+sunbooleantype mriStep_CheckNVector(N_Vector tmpl);
 int mriStep_SetCoupling(ARKodeMem ark_mem);
 int mriStep_CheckCoupling(ARKodeMem ark_mem);
 int mriStep_StageERKFast(ARKodeMem ark_mem, ARKodeMRIStepMem step_mem,
@@ -227,7 +227,7 @@ int mriStep_Nls(ARKodeMem ark_mem, int nflag);
 /* private functions passed to nonlinear solver */
 int mriStep_NlsResidual(N_Vector yy, N_Vector res, void* arkode_mem);
 int mriStep_NlsFPFunction(N_Vector yy, N_Vector res, void* arkode_mem);
-int mriStep_NlsLSetup(booleantype jbad, booleantype* jcur, void* arkode_mem);
+int mriStep_NlsLSetup(sunbooleantype jbad, sunbooleantype* jcur, void* arkode_mem);
 int mriStep_NlsLSolve(N_Vector delta, void* arkode_mem);
 int mriStep_NlsConvTest(SUNNonlinearSolver NLS, N_Vector y, N_Vector del,
                         sunrealtype tol, N_Vector ewt, void* arkode_mem);

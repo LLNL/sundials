@@ -39,7 +39,7 @@
   =================================================================*/
 
 static int cvLsLinSys(sunrealtype t, N_Vector y, N_Vector fy, SUNMatrix A,
-                      booleantype jok, booleantype *jcur, sunrealtype gamma,
+                      sunbooleantype jok, sunbooleantype *jcur, sunrealtype gamma,
                       void *user_data, N_Vector tmp1, N_Vector tmp2,
                       N_Vector tmp3);
 
@@ -56,8 +56,8 @@ int CVodeSetLinearSolver(void *cvode_mem, SUNLinearSolver LS,
   CVodeMem    cv_mem;
   CVLsMem     cvls_mem;
   int         retval, LSType;
-  booleantype iterative;    /* is the solver iterative?    */
-  booleantype matrixbased;  /* is a matrix structure used? */
+  sunbooleantype iterative;    /* is the solver iterative?    */
+  sunbooleantype matrixbased;  /* is a matrix structure used? */
 
   /* Return immediately if either cvode_mem or LS inputs are NULL */
   if (cvode_mem == NULL) {
@@ -411,7 +411,7 @@ int CVodeSetJacEvalFrequency(void *cvode_mem, long int msbj)
 
 /* CVodeSetLinearSolutionScaling enables or disables scaling the
    linear solver solution to account for changes in gamma. */
-int CVodeSetLinearSolutionScaling(void *cvode_mem, booleantype onoff)
+int CVodeSetLinearSolutionScaling(void *cvode_mem, sunbooleantype onoff)
 {
   CVodeMem cv_mem;
   CVLsMem  cvls_mem;
@@ -1311,7 +1311,7 @@ int cvLsDQJtimes(N_Vector v, N_Vector Jv, sunrealtype t,
   Setup the linear system A = I - gamma J
   -----------------------------------------------------------------*/
 static int cvLsLinSys(sunrealtype t, N_Vector y, N_Vector fy, SUNMatrix A,
-                      booleantype jok, booleantype *jcur, sunrealtype gamma,
+                      sunbooleantype jok, sunbooleantype *jcur, sunrealtype gamma,
                       void *cvode_mem, N_Vector vtemp1, N_Vector vtemp2,
                       N_Vector vtemp3)
 {
@@ -1531,7 +1531,7 @@ int cvLsInitialize(CVodeMem cv_mem)
   This routine then calls the LS 'setup' routine with A.
   -----------------------------------------------------------------*/
 int cvLsSetup(CVodeMem cv_mem, int convfail, N_Vector ypred,
-              N_Vector fpred, booleantype *jcurPtr,
+              N_Vector fpred, sunbooleantype *jcurPtr,
               N_Vector vtemp1, N_Vector vtemp2, N_Vector vtemp3)
 {
   CVLsMem  cvls_mem;

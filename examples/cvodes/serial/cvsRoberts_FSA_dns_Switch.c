@@ -57,9 +57,9 @@
 
 /* Type : UserData */
 typedef struct {
-  booleantype sensi;     /* turn on (T) or off (F) sensitivity analysis    */
-  booleantype errconS;   /* full (T) or partial error control (F)          */
-  booleantype fsDQ;      /* user provided r.h.s sensitivity analysis (T/F) */
+  sunbooleantype sensi;     /* turn on (T) or off (F) sensitivity analysis    */
+  sunbooleantype errconS;   /* full (T) or partial error control (F)          */
+  sunbooleantype fsDQ;      /* user provided r.h.s sensitivity analysis (T/F) */
   int meth;              /* sensitivity method                             */
   sunrealtype p[3];         /* sensitivity variables                          */
 } *UserData;

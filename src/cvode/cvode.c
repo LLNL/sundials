@@ -121,7 +121,7 @@
 /* Private Helper Functions Prototypes                             */
 /*=================================================================*/
 
-static booleantype cvCheckNvector(N_Vector tmpl);
+static sunbooleantype cvCheckNvector(N_Vector tmpl);
 
 /* Initial setup */
 
@@ -129,7 +129,7 @@ static int cvInitialSetup(CVodeMem cv_mem);
 
 /* Memory allocation/deallocation */
 
-static booleantype cvAllocVectors(CVodeMem cv_mem, N_Vector tmpl);
+static sunbooleantype cvAllocVectors(CVodeMem cv_mem, N_Vector tmpl);
 static void cvFreeVectors(CVodeMem cv_mem);
 
 static int cvEwtSetSS(CVodeMem cv_mem, N_Vector ycur, N_Vector weight);
@@ -137,7 +137,7 @@ static int cvEwtSetSV(CVodeMem cv_mem, N_Vector ycur, N_Vector weight);
 
 #ifdef SUNDIALS_BUILD_PACKAGE_FUSED_KERNELS
 extern
-int cvEwtSetSS_fused(const booleantype atolmin0,
+int cvEwtSetSS_fused(const sunbooleantype atolmin0,
                      const sunrealtype reltol,
                      const sunrealtype Sabstol,
                      const N_Vector ycur,
@@ -145,7 +145,7 @@ int cvEwtSetSS_fused(const booleantype atolmin0,
                      N_Vector weight);
 
 extern
-int cvEwtSetSV_fused(const booleantype atolmin0,
+int cvEwtSetSV_fused(const sunbooleantype atolmin0,
                      const sunrealtype reltol,
                      const N_Vector Vabstol,
                      const N_Vector ycur,
@@ -391,7 +391,7 @@ void *CVodeCreate(int lmm, SUNContext sunctx)
 int CVodeInit(void *cvode_mem, CVRhsFn f, sunrealtype t0, N_Vector y0)
 {
   CVodeMem cv_mem;
-  booleantype nvectorOK, allocOK;
+  sunbooleantype nvectorOK, allocOK;
   sunindextype lrw1, liw1;
   int i,k, retval;
   SUNNonlinearSolver NLS;
@@ -941,7 +941,7 @@ int CVodeRootInit(void *cvode_mem, int nrtfn, CVRootFn g)
   }
 
   cv_mem->cv_gactive = NULL;
-  cv_mem->cv_gactive = (booleantype *) malloc(nrt*sizeof(booleantype));
+  cv_mem->cv_gactive = (sunbooleantype *) malloc(nrt*sizeof(sunbooleantype));
   if (cv_mem->cv_gactive == NULL) {
     free(cv_mem->cv_glo); cv_mem->cv_glo = NULL;
     free(cv_mem->cv_ghi); cv_mem->cv_ghi = NULL;
@@ -996,7 +996,7 @@ int CVode(void *cvode_mem, sunrealtype tout, N_Vector yout,
   int retval, hflag, kflag, istate, ir, ier, irfndp;
   int ewtsetOK;
   sunrealtype troundoff, tout_hin, rh, nrm;
-  booleantype inactive_roots;
+  sunbooleantype inactive_roots;
 
   /*
    * -------------------------------------
@@ -1665,7 +1665,7 @@ void CVodeFree(void **cvode_mem)
  * If any of them is missing it returns SUNFALSE.
  */
 
-static booleantype cvCheckNvector(N_Vector tmpl)
+static sunbooleantype cvCheckNvector(N_Vector tmpl)
 {
   if((tmpl->ops->nvclone     == NULL) ||
      (tmpl->ops->nvdestroy   == NULL) ||
@@ -1702,7 +1702,7 @@ static booleantype cvCheckNvector(N_Vector tmpl)
  * allocated here.
  */
 
-static booleantype cvAllocVectors(CVodeMem cv_mem, N_Vector tmpl)
+static sunbooleantype cvAllocVectors(CVodeMem cv_mem, N_Vector tmpl)
 {
   int i, j;
 
@@ -1845,7 +1845,7 @@ static void cvFreeVectors(CVodeMem cv_mem)
 static int cvInitialSetup(CVodeMem cv_mem)
 {
   int ier;
-  booleantype conOK;
+  sunbooleantype conOK;
 
   /* Did the user specify tolerances? */
   if (cv_mem->cv_itol == CV_NN) {
@@ -1974,7 +1974,7 @@ static int cvHin(CVodeMem cv_mem, sunrealtype tout)
   int retval, sign, count1, count2;
   sunrealtype tdiff, tdist, tround, hlb, hub;
   sunrealtype hg, hgs, hs, hnew, hrat, h0, yddnrm;
-  booleantype hgOK;
+  sunbooleantype hgOK;
 
   /* If tout is too close to tn, give up */
 
@@ -2177,7 +2177,7 @@ static int cvStep(CVodeMem cv_mem)
   int nflag, kflag;          /* nonlinear solver flags                   */
   int pflag;                 /* projection return flag                   */
   int eflag;                 /* error test return flag                   */
-  booleantype doProjection;  /* flag to apply projection in this step    */
+  sunbooleantype doProjection;  /* flag to apply projection in this step    */
 
   /* Initialize local counters for convergence and error test failures */
 
@@ -2808,7 +2808,7 @@ static void cvSetTqBDF(CVodeMem cv_mem, sunrealtype hsum, sunrealtype alpha0,
 static int cvNls(CVodeMem cv_mem, int nflag)
 {
   int flag = CV_SUCCESS;
-  booleantype callSetup;
+  sunbooleantype callSetup;
   long int nni_inc = 0;
   long int nnf_inc = 0;
 
@@ -2887,7 +2887,7 @@ static int cvNls(CVodeMem cv_mem, int nflag)
 
 static int cvCheckConstraints(CVodeMem cv_mem)
 {
-  booleantype constraintsPassed;
+  sunbooleantype constraintsPassed;
   sunrealtype vnorm;
   N_Vector mm  = cv_mem->cv_ftemp;
   N_Vector tmp = cv_mem->cv_tempv;
@@ -3920,7 +3920,7 @@ static int cvRcheck1(CVodeMem cv_mem)
 {
   int i, retval;
   sunrealtype smallh, hratio, tplus;
-  booleantype zroot;
+  sunbooleantype zroot;
 
   for (i = 0; i < cv_mem->cv_nrtfn; i++) cv_mem->cv_iroots[i] = 0;
   cv_mem->cv_tlo = cv_mem->cv_tn;
@@ -3988,7 +3988,7 @@ static int cvRcheck2(CVodeMem cv_mem)
 {
   int i, retval;
   sunrealtype smallh, hratio, tplus;
-  booleantype zroot;
+  sunbooleantype zroot;
 
   if (cv_mem->cv_irfnd == 0) return(CV_SUCCESS);
 
@@ -4184,7 +4184,7 @@ static int cvRootfind(CVodeMem cv_mem)
 {
   sunrealtype alph, tmid, gfrac, maxfrac, fracint, fracsub;
   int i, retval, imax, side, sideprev;
-  booleantype zroot, sgnchg;
+  sunbooleantype zroot, sgnchg;
 
   imax = 0;
 

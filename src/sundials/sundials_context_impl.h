@@ -28,9 +28,9 @@ extern "C" {
 
 struct _SUNContext {
   SUNProfiler profiler;
-  booleantype own_profiler;
+  sunbooleantype own_profiler;
   SUNLogger logger;
-  booleantype own_logger;
+  sunbooleantype own_logger;
 };
 
 #ifdef __cplusplus

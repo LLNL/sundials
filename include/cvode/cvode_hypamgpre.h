@@ -209,7 +209,7 @@ SUNDIALS_EXPORT int CVBoomerAMGInit(void *cvode_mem, int ilower, int iupper, int
 
 /*
 SUNDIALS_EXPORT int CVBoomerAMGSetup(sunrealtype t, N_Vector y, N_Vector fy, 
-                          booleantype jok, booleantype *jcurPtr, 
+                          sunbooleantype jok, sunbooleantype *jcurPtr, 
                           sunrealtype gamma, void *bbd_data, 
                           N_Vector tmp1, N_Vector tmp2, N_Vector tmp3);
 

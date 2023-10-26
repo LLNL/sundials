@@ -67,7 +67,7 @@
 #include <cvodes/cvodes_bbdpre.h>       /* prototypes for CVBBDPRE module */
 #include <sunlinsol/sunlinsol_spgmr.h>  /* prototypes and constants for SUNLinSol_SPGMR solver */
 #include <nvector/nvector_parallel.h>   /* definition N_Vector */
-#include <sundials/sundials_types.h>    /* definitions of sunrealtype, booleantype */
+#include <sundials/sundials_types.h>    /* definitions of sunrealtype, sunbooleantype */
 
 #include <mpi.h>                        /* MPI constants and types */
 

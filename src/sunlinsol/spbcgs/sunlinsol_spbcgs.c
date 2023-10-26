@@ -280,7 +280,7 @@ int SUNLinSolSetScalingVectors_SPBCGS(SUNLinearSolver S, N_Vector s1,
 }
 
 
-int SUNLinSolSetZeroGuess_SPBCGS(SUNLinearSolver S, booleantype onoff)
+int SUNLinSolSetZeroGuess_SPBCGS(SUNLinearSolver S, sunbooleantype onoff)
 {
   /* set flag indicating a zero initial guess */
   if (S == NULL) return(SUNLS_MEM_NULL);
@@ -324,8 +324,8 @@ int SUNLinSolSolve_SPBCGS(SUNLinearSolver S, SUNMatrix A, N_Vector x,
   /* local data and shortcut variables */
   sunrealtype alpha, beta, omega, omega_denom, beta_num, beta_denom, r_norm, rho;
   N_Vector r_star, r, p, q, u, Ap, vtemp;
-  booleantype preOnLeft, preOnRight, scale_x, scale_b, converged;
-  booleantype *zeroguess;
+  sunbooleantype preOnLeft, preOnRight, scale_x, scale_b, converged;
+  sunbooleantype *zeroguess;
   int l, l_max, ier;
   void *A_data, *P_data;
   N_Vector sx, sb;
@@ -362,7 +362,7 @@ int SUNLinSolSolve_SPBCGS(SUNLinearSolver S, SUNMatrix A, N_Vector x,
   *nli = 0;
   converged = SUNFALSE;
 
-  /* set booleantype flags for internal solver options */
+  /* set sunbooleantype flags for internal solver options */
   preOnLeft  = ( (PRETYPE(S) == SUN_PREC_LEFT) ||
                  (PRETYPE(S) == SUN_PREC_BOTH) );
   preOnRight = ( (PRETYPE(S) == SUN_PREC_RIGHT) ||

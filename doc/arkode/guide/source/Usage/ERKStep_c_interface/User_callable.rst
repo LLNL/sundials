@@ -888,7 +888,7 @@ Optional inputs for ERKStep
       :c:func:`ERKStepClearStopTime`.
 
 
-.. c:function:: int ERKStepSetInterpolateStopTime(void* arkode_mem, booleantype interp)
+.. c:function:: int ERKStepSetInterpolateStopTime(void* arkode_mem, sunbooleantype interp)
 
    Specifies that the output solution should be interpolated when the current
    :math:`t` equals the specified ``tstop`` (instead of merely copying the

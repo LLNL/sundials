@@ -674,7 +674,7 @@ int Test_SetKernelExecPolicy(SUNMatrix I, int myid)
      return(0);
  }
 
- booleantype has_data(SUNMatrix A)
+ sunbooleantype has_data(SUNMatrix A)
  {
    sunrealtype *Adata = SUNMatrix_cuSparse_Data(A);
    if (Adata == NULL)
@@ -683,7 +683,7 @@ int Test_SetKernelExecPolicy(SUNMatrix I, int myid)
      return SUNTRUE;
  }
 
- booleantype is_square(SUNMatrix A)
+ sunbooleantype is_square(SUNMatrix A)
  {
    if (SUNMatrix_cuSparse_Rows(A) == SUNMatrix_cuSparse_Columns(A))
      return SUNTRUE;

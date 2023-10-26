@@ -46,7 +46,7 @@ typedef _SUNDIALS_STRUCT_ ARKodeButcherTableMem *ARKodeButcherTable;
 
 /* Utility routines to allocate/free/output Butcher table structures */
 SUNDIALS_EXPORT ARKodeButcherTable ARKodeButcherTable_Alloc(int stages,
-                                                            booleantype embedded);
+                                                            sunbooleantype embedded);
 SUNDIALS_EXPORT ARKodeButcherTable ARKodeButcherTable_Create(int s, int q,
                                                              int p,
                                                              sunrealtype *c,

@@ -324,7 +324,7 @@ int IDASetMaxStepB(void *ida_mem, int which, sunrealtype hmaxB)
   return IDASetMaxStep(ida_memB, hmaxB);
 }
 
-int IDASetSuppressAlgB(void *ida_mem, int which,  booleantype suppressalgB)
+int IDASetSuppressAlgB(void *ida_mem, int which,  sunbooleantype suppressalgB)
 {
   IDAMem IDA_mem;
   IDAadjMem IDAADJ_mem;

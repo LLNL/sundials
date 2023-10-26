@@ -35,7 +35,7 @@ extern SUNContext sunctx;
 
 /* Forward declarations for implementation specific utility functions */
 int check_ans(sunrealtype ans, N_Vector X, sunindextype local_length);
-booleantype has_data(N_Vector X);
+sunbooleantype has_data(N_Vector X);
 void set_element(N_Vector X, sunindextype i, sunrealtype val);
 void set_element_range(N_Vector X, sunindextype is, sunindextype ie,
                        sunrealtype val);

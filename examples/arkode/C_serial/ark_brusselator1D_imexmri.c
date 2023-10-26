@@ -173,8 +173,8 @@ int main(int argc, char *argv[])
   SUNLinearSolver LSf = NULL;               /* fast linear solver object     */
   SUNMatrix As = NULL;                      /* matrix for slow solver        */
   SUNLinearSolver LSs = NULL;               /* slow linear solver object     */
-  booleantype implicit_slow;
-  booleantype imex_slow = SUNFALSE;
+  sunbooleantype implicit_slow;
+  sunbooleantype imex_slow = SUNFALSE;
   N_Vector umask = NULL;                    /* empty mask vectors            */
   N_Vector vmask = NULL;
   N_Vector wmask = NULL;

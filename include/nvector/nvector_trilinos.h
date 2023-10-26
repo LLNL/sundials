@@ -30,7 +30,7 @@
  *     header file sundials_types.h, and it may be changed (at the
  *     build configuration stage) according to the user's needs.
  *     The sundials_types.h file also contains the definition
- *     for the type booleantype.
+ *     for the type sunbooleantype.
  *
  *   - N_Vector arguments to arithmetic vector operations need not
  *     be distinct. For example, the following call:
@@ -116,8 +116,8 @@ SUNDIALS_EXPORT sunrealtype N_VMin_Trilinos(N_Vector x);
 SUNDIALS_EXPORT sunrealtype N_VWL2Norm_Trilinos(N_Vector x, N_Vector w);
 SUNDIALS_EXPORT sunrealtype N_VL1Norm_Trilinos(N_Vector x);
 SUNDIALS_EXPORT void N_VCompare_Trilinos(sunrealtype c, N_Vector x, N_Vector z);
-SUNDIALS_EXPORT booleantype N_VInvTest_Trilinos(N_Vector x, N_Vector z);
-SUNDIALS_EXPORT booleantype N_VConstrMask_Trilinos(N_Vector c, N_Vector x, N_Vector m);
+SUNDIALS_EXPORT sunbooleantype N_VInvTest_Trilinos(N_Vector x, N_Vector z);
+SUNDIALS_EXPORT sunbooleantype N_VConstrMask_Trilinos(N_Vector c, N_Vector x, N_Vector m);
 SUNDIALS_EXPORT sunrealtype N_VMinQuotient_Trilinos(N_Vector num, N_Vector denom);
 
 /* OPTIONAL local reduction kernels (no parallel communication) */
@@ -128,8 +128,8 @@ SUNDIALS_EXPORT sunrealtype N_VL1NormLocal_Trilinos(N_Vector x);
 SUNDIALS_EXPORT sunrealtype N_VWSqrSumLocal_Trilinos(N_Vector x, N_Vector w);
 SUNDIALS_EXPORT sunrealtype N_VWSqrSumMaskLocal_Trilinos(N_Vector x, N_Vector w,
                                                       N_Vector id);
-SUNDIALS_EXPORT booleantype N_VInvTestLocal_Trilinos(N_Vector x, N_Vector z);
-SUNDIALS_EXPORT booleantype N_VConstrMaskLocal_Trilinos(N_Vector c, N_Vector x,
+SUNDIALS_EXPORT sunbooleantype N_VInvTestLocal_Trilinos(N_Vector x, N_Vector z);
+SUNDIALS_EXPORT sunbooleantype N_VConstrMaskLocal_Trilinos(N_Vector c, N_Vector x,
                                                         N_Vector m);
 SUNDIALS_EXPORT sunrealtype N_VMinQuotientLocal_Trilinos(N_Vector num,
                                                       N_Vector denom);

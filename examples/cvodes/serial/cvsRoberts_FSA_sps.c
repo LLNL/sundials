@@ -121,13 +121,13 @@ static void PrintOutputS(N_Vector *uS);
 
 /* Private function to print final statistics */
 
-static void PrintFinalStats(void *cvode_mem, booleantype sensi);
+static void PrintFinalStats(void *cvode_mem, sunbooleantype sensi);
 
 /* Prototypes of private functions */
 
 static void ProcessArgs(int argc, char *argv[],
-                        booleantype *sensi, int *sensi_meth,
-                        booleantype *err_con);
+                        sunbooleantype *sensi, int *sensi_meth,
+                        sunbooleantype *err_con);
 
 static void WrongArgs(char *name);
 
@@ -154,7 +154,7 @@ int main(int argc, char *argv[])
   sunrealtype pbar[NS];
   int is;
   N_Vector *yS;
-  booleantype sensi, err_con;
+  sunbooleantype sensi, err_con;
   int sensi_meth;
 
   data = NULL;
@@ -490,7 +490,7 @@ static int ewt(N_Vector y, N_Vector w, void *user_data)
  */
 
 static void ProcessArgs(int argc, char *argv[],
-                        booleantype *sensi, int *sensi_meth, booleantype *err_con)
+                        sunbooleantype *sensi, int *sensi_meth, sunbooleantype *err_con)
 {
   *sensi = SUNFALSE;
   *sensi_meth = -1;
@@ -623,7 +623,7 @@ static void PrintOutputS(N_Vector *uS)
  * Get and print some final statistics
  */
 
-static void PrintFinalStats(void *cvode_mem, booleantype sensi)
+static void PrintFinalStats(void *cvode_mem, sunbooleantype sensi)
 {
   long int nst, nfe, nsetups, nje, nni, nnf, ncfn, netf;
   long int nfSe, nfeS, nsetupsS, nniS, nnfS, ncfnS, netfS;

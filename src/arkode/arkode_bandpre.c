@@ -33,7 +33,7 @@
 
 /* Prototypes of ARKBandPrecSetup and ARKBandPrecSolve */
 static int ARKBandPrecSetup(sunrealtype t, N_Vector y, N_Vector fy,
-                            booleantype jok, booleantype *jcurPtr,
+                            sunbooleantype jok, sunbooleantype *jcurPtr,
                             sunrealtype gamma, void *bp_data);
 static int ARKBandPrecSolve(sunrealtype t, N_Vector y, N_Vector fy,
                             N_Vector r, N_Vector z,
@@ -312,7 +312,7 @@ int ARKBandPrecGetNumRhsEvals(void *arkode_mem, long int *nfevalsBP)
    1  if the band factorization failed.
 ---------------------------------------------------------------*/
 static int ARKBandPrecSetup(sunrealtype t, N_Vector y, N_Vector fy,
-                           booleantype jok, booleantype *jcurPtr,
+                           sunbooleantype jok, sunbooleantype *jcurPtr,
                            sunrealtype gamma, void *bp_data)
 {
   ARKBandPrecData pdata;

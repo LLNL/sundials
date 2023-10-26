@@ -50,19 +50,19 @@ extern "C" {
 typedef struct CVLsMemRec {
 
   /* Linear solver type information */
-  booleantype iterative;    /* is the solver iterative?    */
-  booleantype matrixbased;  /* is a matrix structure used? */
+  sunbooleantype iterative;    /* is the solver iterative?    */
+  sunbooleantype matrixbased;  /* is a matrix structure used? */
 
   /* Jacobian construction & storage */
-  booleantype jacDQ;   /* SUNTRUE if using internal DQ Jac approx.     */
+  sunbooleantype jacDQ;   /* SUNTRUE if using internal DQ Jac approx.     */
   CVLsJacFn jac;       /* Jacobian routine to be called                */
   void *J_data;        /* user data is passed to jac                   */
-  booleantype jbad;    /* heuristic suggestion for pset                */
+  sunbooleantype jbad;    /* heuristic suggestion for pset                */
   sunrealtype dgmax_jbad; /* if convfail = FAIL_BAD_J and the gamma ratio *
                         * |gamma/gammap-1| < dgmax_jbad then J is bad  */
 
   /* Matrix-based solver, scale solution to account for change in gamma */
-  booleantype scalesol;
+  sunbooleantype scalesol;
 
   /* Iterative solver tolerance */
   sunrealtype eplifac;   /* nonlinear -> linear tol scaling factor       */
@@ -110,7 +110,7 @@ typedef struct CVLsMemRec {
    * (b) internal jtimes
    *     - jt_data == cvode_mem
    *     - jtimesDQ == SUNTRUE */
-  booleantype jtimesDQ;
+  sunbooleantype jtimesDQ;
   CVLsJacTimesSetupFn jtsetup;
   CVLsJacTimesVecFn jtimes;
   CVRhsFn jt_f;
@@ -123,7 +123,7 @@ typedef struct CVLsMemRec {
    * (b) internal linsys function:
    *     - user_linsys = SUNFALSE
    *     - A_data      = cvode_mem */
-  booleantype user_linsys;
+  sunbooleantype user_linsys;
   CVLsLinSysFn linsys;
   void* A_data;
 
@@ -158,7 +158,7 @@ int cvLsBandDQJac(sunrealtype t, N_Vector y, N_Vector fy,
 /* Generic linit/lsetup/lsolve/lfree interface routines for CVode to call */
 int cvLsInitialize(CVodeMem cv_mem);
 int cvLsSetup(CVodeMem cv_mem, int convfail, N_Vector ypred,
-              N_Vector fpred, booleantype *jcurPtr,
+              N_Vector fpred, sunbooleantype *jcurPtr,
               N_Vector vtemp1, N_Vector vtemp2, N_Vector vtemp3);
 int cvLsSolve(CVodeMem cv_mem, N_Vector b, N_Vector weight,
               N_Vector ycur, N_Vector fcur);

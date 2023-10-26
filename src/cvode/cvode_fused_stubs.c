@@ -32,7 +32,7 @@
  * -----------------------------------------------------------------
  */
 
-int cvEwtSetSS_fused(const booleantype atolmin0,
+int cvEwtSetSS_fused(const sunbooleantype atolmin0,
                      const sunrealtype reltol,
                      const sunrealtype Sabstol,
                      const N_Vector ycur,
@@ -56,7 +56,7 @@ int cvEwtSetSS_fused(const booleantype atolmin0,
  */
 
 
-int cvEwtSetSV_fused(const booleantype atolmin0,
+int cvEwtSetSV_fused(const sunbooleantype atolmin0,
                      const sunrealtype reltol,
                      const N_Vector Vabstol,
                      const N_Vector ycur,

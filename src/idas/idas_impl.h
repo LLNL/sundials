@@ -114,44 +114,44 @@ typedef struct IDAMemRec {
   sunrealtype    ida_rtol;       /* relative tolerance                    */
   sunrealtype    ida_Satol;      /* scalar absolute tolerance             */
   N_Vector    ida_Vatol;      /* vector absolute tolerance             */
-  booleantype ida_atolmin0;   /* flag indicating that min(atol) = 0    */
-  booleantype ida_user_efun;  /* SUNTRUE if user provides efun         */
+  sunbooleantype ida_atolmin0;   /* flag indicating that min(atol) = 0    */
+  sunbooleantype ida_user_efun;  /* SUNTRUE if user provides efun         */
   IDAEwtFn    ida_efun;       /* function to set ewt                   */
   void        *ida_edata;     /* user pointer passed to efun           */
 
-  booleantype    ida_constraintsSet; /* constraints vector present:
+  sunbooleantype    ida_constraintsSet; /* constraints vector present:
                                         do constraints calc                   */
-  booleantype    ida_suppressalg;    /* SUNTRUE means suppress algebraic vars
+  sunbooleantype    ida_suppressalg;    /* SUNTRUE means suppress algebraic vars
                                         in local error tests                  */
 
   /*-----------------------
     Quadrature Related Data
     -----------------------*/
 
-  booleantype    ida_quadr;
+  sunbooleantype    ida_quadr;
 
   IDAQuadRhsFn   ida_rhsQ;
   void           *ida_user_dataQ;
 
-  booleantype    ida_errconQ;
+  sunbooleantype    ida_errconQ;
 
   int            ida_itolQ;
   sunrealtype       ida_rtolQ;
   sunrealtype       ida_SatolQ;    /* scalar absolute tolerance for quadratures  */
   N_Vector       ida_VatolQ;    /* vector absolute tolerance for quadratures  */
-  booleantype    ida_atolQmin0; /* flag indicating that min(atolQ) = 0        */
+  sunbooleantype    ida_atolQmin0; /* flag indicating that min(atolQ) = 0        */
 
   /*------------------------
     Sensitivity Related Data
     ------------------------*/
 
-  booleantype    ida_sensi;
+  sunbooleantype    ida_sensi;
   int            ida_Ns;
   int            ida_ism;
 
   IDASensResFn   ida_resS;
   void           *ida_user_dataS;
-  booleantype    ida_resSDQ;
+  sunbooleantype    ida_resSDQ;
 
   sunrealtype       *ida_p;
   sunrealtype       *ida_pbar;
@@ -159,31 +159,31 @@ typedef struct IDAMemRec {
   int            ida_DQtype;
   sunrealtype       ida_DQrhomax;
 
-  booleantype    ida_errconS;       /* SUNTRUE if sensitivities in err. control  */
+  sunbooleantype    ida_errconS;       /* SUNTRUE if sensitivities in err. control  */
 
   int            ida_itolS;
   sunrealtype       ida_rtolS;         /* relative tolerance for sensitivities    */
   sunrealtype       *ida_SatolS;       /* scalar absolute tolerances for sensi.   */
   N_Vector       *ida_VatolS;       /* vector absolute tolerances for sensi.   */
-  booleantype    *ida_atolSmin0;    /* flag indicating that min(atolS[is]) = 0 */
+  sunbooleantype    *ida_atolSmin0;    /* flag indicating that min(atolS[is]) = 0 */
 
   /*-----------------------------------
     Quadrature Sensitivity Related Data
     -----------------------------------*/
 
-  booleantype ida_quadr_sensi;   /* SUNTRUE if computing sensitivities of quadrs. */
+  sunbooleantype ida_quadr_sensi;   /* SUNTRUE if computing sensitivities of quadrs. */
 
   IDAQuadSensRhsFn ida_rhsQS;    /* fQS = (dfQ/dy)*yS + (dfQ/dp)                  */
   void *ida_user_dataQS;         /* data pointer passed to fQS                    */
-  booleantype ida_rhsQSDQ;       /* SUNTRUE if using internal DQ functions        */
+  sunbooleantype ida_rhsQSDQ;       /* SUNTRUE if using internal DQ functions        */
 
-  booleantype ida_errconQS;      /* SUNTRUE if yQS are considered in err. con.    */
+  sunbooleantype ida_errconQS;      /* SUNTRUE if yQS are considered in err. con.    */
 
   int ida_itolQS;
   sunrealtype ida_rtolQS;           /* relative tolerance for yQS                */
   sunrealtype *ida_SatolQS;         /* scalar absolute tolerances for yQS        */
   N_Vector *ida_VatolQS;         /* vector absolute tolerances for yQS        */
-  booleantype *ida_atolQSmin0;   /* flag indicating that min(atolQS[is]) = 0  */
+  sunbooleantype *ida_atolQSmin0;   /* flag indicating that min(atolQS[is]) = 0  */
 
   /*-----------------------------------------------
     Divided differences array and associated arrays
@@ -282,7 +282,7 @@ typedef struct IDAMemRec {
   N_Vector ida_yp0;         /* initial y' vector (user-supplied).             */
 
   int ida_icopt;            /* IC calculation user option                     */
-  booleantype ida_lsoff;    /* IC calculation linesearch turnoff option       */
+  sunbooleantype ida_lsoff;    /* IC calculation linesearch turnoff option       */
   int ida_maxnh;            /* max. number of h tries in IC calculation       */
   int ida_maxnj;            /* max. number of J tries in IC calculation       */
   int ida_maxnit;           /* max. number of Netwon iterations in IC calc.   */
@@ -295,7 +295,7 @@ typedef struct IDAMemRec {
 
   /* Tstop information */
 
-  booleantype ida_tstopset;
+  sunbooleantype ida_tstopset;
   sunrealtype ida_tstop;
 
   /* Step Data */
@@ -401,42 +401,42 @@ typedef struct IDAMemRec {
 
   /* Flags to verify correct calling sequence */
 
-  booleantype ida_SetupDone;  /* set to SUNFALSE by IDAMalloc and IDAReInit
+  sunbooleantype ida_SetupDone;  /* set to SUNFALSE by IDAMalloc and IDAReInit
                                  set to SUNTRUE by IDACalcIC or IDASolve      */
 
-  booleantype ida_VatolMallocDone;
-  booleantype ida_constraintsMallocDone;
-  booleantype ida_idMallocDone;
+  sunbooleantype ida_VatolMallocDone;
+  sunbooleantype ida_constraintsMallocDone;
+  sunbooleantype ida_idMallocDone;
 
-  booleantype ida_MallocDone; /* set to SUNFALSE by IDACreate
+  sunbooleantype ida_MallocDone; /* set to SUNFALSE by IDACreate
                                  set to SUNTRUE by IDAMAlloc
                                  tested by IDAReInit and IDASolve             */
 
-  booleantype ida_VatolQMallocDone;
-  booleantype ida_quadMallocDone;
+  sunbooleantype ida_VatolQMallocDone;
+  sunbooleantype ida_quadMallocDone;
 
-  booleantype ida_VatolSMallocDone;
-  booleantype ida_SatolSMallocDone;
-  booleantype ida_sensMallocDone;
+  sunbooleantype ida_VatolSMallocDone;
+  sunbooleantype ida_SatolSMallocDone;
+  sunbooleantype ida_sensMallocDone;
 
-  booleantype ida_VatolQSMallocDone;
-  booleantype ida_SatolQSMallocDone;
-  booleantype ida_quadSensMallocDone;
+  sunbooleantype ida_VatolQSMallocDone;
+  sunbooleantype ida_SatolQSMallocDone;
+  sunbooleantype ida_quadSensMallocDone;
 
   /*---------------------
     Nonlinear Solver Data
     ---------------------*/
 
   SUNNonlinearSolver NLS;    /* nonlinear solver object */
-  booleantype ownNLS;        /* flag indicating NLS ownership */
+  sunbooleantype ownNLS;        /* flag indicating NLS ownership */
 
   SUNNonlinearSolver NLSsim; /* nonlinear solver object for DAE+Sens solves
                                 with the simultaneous corrector option */
-  booleantype ownNLSsim;     /* flag indicating NLS ownership */
+  sunbooleantype ownNLSsim;     /* flag indicating NLS ownership */
 
   SUNNonlinearSolver NLSstg; /* nonlinear solver object for DAE+Sens solves
                                 with the staggered corrector option */
-  booleantype ownNLSstg;     /* flag indicating NLS ownership */
+  sunbooleantype ownNLSstg;     /* flag indicating NLS ownership */
 
   /* The following vectors are NVector wrappers for use with the simultaneous
      and staggered corrector methods:
@@ -454,8 +454,8 @@ typedef struct IDAMemRec {
 
   /* flags indicating if vector wrappers for the simultaneous and staggered
      correctors have been allocated */
-  booleantype simMallocDone;
-  booleantype stgMallocDone;
+  sunbooleantype simMallocDone;
+  sunbooleantype stgMallocDone;
 
   IDAResFn nls_res;          /* F(t,y(t),y'(t))=0; used in the nonlinear
                                 solver */
@@ -487,11 +487,11 @@ typedef struct IDAMemRec {
 
   /* Flag to request a call to the setup routine */
 
-  booleantype ida_forceSetup;
+  sunbooleantype ida_forceSetup;
 
   /* Flag to indicate successful ida_linit call */
 
-  booleantype ida_linitOK;
+  sunbooleantype ida_linitOK;
 
   /*----------------
     Rootfinding Data
@@ -512,7 +512,7 @@ typedef struct IDAMemRec {
   int ida_taskc;            /* copy of parameter itask                         */
   int ida_irfnd;            /* flag showing whether last step had a root       */
   long int ida_nge;         /* counter for g evaluations                       */
-  booleantype *ida_gactive; /* array with active/inactive event functions      */
+  sunbooleantype *ida_gactive; /* array with active/inactive event functions      */
   int ida_mxgnull;          /* number of warning messages about possible g==0  */
 
   /* Arrays for Fused Vector Operations */
@@ -529,11 +529,11 @@ typedef struct IDAMemRec {
     Adjoint sensitivity data
     ------------------------*/
 
-  booleantype ida_adj;              /* SUNTRUE if performing ASA              */
+  sunbooleantype ida_adj;              /* SUNTRUE if performing ASA              */
 
   struct IDAadjMemRec *ida_adj_mem; /* Pointer to adjoint memory structure    */
 
-  booleantype ida_adjMallocDone;
+  sunbooleantype ida_adjMallocDone;
 
 } *IDAMem;
 
@@ -569,7 +569,7 @@ typedef struct IDABMemRec *IDABMem;
  * -----------------------------------------------------------------
  */
 
-typedef booleantype (*IDAAMMallocFn)(IDAMem IDA_mem);
+typedef sunbooleantype (*IDAAMMallocFn)(IDAMem IDA_mem);
 typedef void (*IDAAMFreeFn)(IDAMem IDA_mem);
 typedef int (*IDAAGetYFn)(IDAMem IDA_mem, sunrealtype t,
                           N_Vector yy, N_Vector yp,
@@ -596,13 +596,13 @@ struct IDAckpntMemRec {
   N_Vector ck_phi[MXORDP1];
 
   /* Do we need to carry quadratures? */
-  booleantype ck_quadr;
+  sunbooleantype ck_quadr;
 
   /* Modified divided difference array for quadratures */
   N_Vector ck_phiQ[MXORDP1];
 
   /* Do we need to carry sensitivities? */
-  booleantype ck_sensi;
+  sunbooleantype ck_sensi;
 
   /* number of sensitivities */
   int ck_Ns;
@@ -611,7 +611,7 @@ struct IDAckpntMemRec {
   N_Vector *ck_phiS[MXORDP1];
 
   /* Do we need to carry quadrature sensitivities? */
-  booleantype ck_quadr_sensi;
+  sunbooleantype ck_quadr_sensi;
 
   /* Modified divided difference array for quadrature sensitivities */
   N_Vector *ck_phiQS[MXORDP1];
@@ -706,8 +706,8 @@ struct IDABMemRec {
 
   /* Flags to indicate that this backward problem's RHS or quad RHS
    * require forward sensitivities */
-  booleantype ida_res_withSensi;
-  booleantype ida_rhsQ_withSensi;
+  sunbooleantype ida_res_withSensi;
+  sunbooleantype ida_rhsQ_withSensi;
 
   /* Residual function for backward run */
   IDAResFnB   ida_res;
@@ -766,15 +766,15 @@ struct IDAadjMemRec {
   sunrealtype ia_tinitial, ia_tfinal;
 
   /* Flag for first call to IDASolveF */
-  booleantype ia_firstIDAFcall;
+  sunbooleantype ia_firstIDAFcall;
 
   /* Flag if IDASolveF was called with TSTOP */
-  booleantype ia_tstopIDAFcall;
+  sunbooleantype ia_tstopIDAFcall;
   sunrealtype ia_tstopIDAF;
 
   /* Flag if IDASolveF was called in IDA_NORMAL_MODE and encountered
      a root after tout */
-  booleantype ia_rootret;
+  sunbooleantype ia_rootret;
   sunrealtype ia_troot;
 
   /* ----------------------
@@ -791,7 +791,7 @@ struct IDAadjMemRec {
   struct IDABMemRec *ia_bckpbCrt;
 
   /* Flag for first call to IDASolveB */
-  booleantype ia_firstIDABcall;
+  sunbooleantype ia_firstIDABcall;
 
   /* ----------------
    * Check point data
@@ -834,12 +834,12 @@ struct IDAadjMemRec {
   IDAAMFreeFn    ia_free;     /* destroys data point             */
 
   /* Flags controlling the interpolation module */
-  booleantype ia_mallocDone;   /* IM initialized?                */
-  booleantype ia_newData;      /* new data available in dt_mem?  */
-  booleantype ia_storeSensi;   /* store sensitivities?           */
-  booleantype ia_interpSensi;  /* interpolate sensitivities?     */
+  sunbooleantype ia_mallocDone;   /* IM initialized?                */
+  sunbooleantype ia_newData;      /* new data available in dt_mem?  */
+  sunbooleantype ia_storeSensi;   /* store sensitivities?           */
+  sunbooleantype ia_interpSensi;  /* interpolate sensitivities?     */
 
-  booleantype ia_noInterp;     /* interpolations are temporarly  */
+  sunbooleantype ia_noInterp;     /* interpolations are temporarly  */
                                /* disabled ( IDACalcICB )        */
 
   /* Workspace for polynomial interpolation */
@@ -969,14 +969,14 @@ void IDAErrHandler(int error_code, const char *module, const char *function,
 /* Norm functions. Also used for IC, so they are global.*/
 
 sunrealtype IDAWrmsNorm(IDAMem IDA_mem, N_Vector x, N_Vector w,
-                     booleantype mask);
+                     sunbooleantype mask);
 
 sunrealtype IDASensWrmsNorm(IDAMem IDA_mem, N_Vector *xS, N_Vector *wS,
-                         booleantype mask);
+                         sunbooleantype mask);
 
 sunrealtype IDASensWrmsNormUpdate(IDAMem IDA_mem, sunrealtype old_nrm,
                                       N_Vector *xS, N_Vector *wS,
-                                      booleantype mask);
+                                      sunbooleantype mask);
 
 /* Nonlinear solver initialization */
 

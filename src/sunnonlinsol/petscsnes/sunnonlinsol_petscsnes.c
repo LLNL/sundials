@@ -162,7 +162,7 @@ int SUNNonlinSolInitialize_PetscSNES(SUNNonlinearSolver NLS)
 int SUNNonlinSolSolve_PetscSNES(SUNNonlinearSolver NLS,
                                 N_Vector y0, N_Vector y,
                                 N_Vector w, sunrealtype tol,
-                                booleantype callLSetup, void* mem)
+                                sunbooleantype callLSetup, void* mem)
 {
   /* local variables */
   PetscErrorCode ierr;

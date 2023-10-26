@@ -37,7 +37,7 @@ using namespace sundials::sunmatrix_cusparse;
 #define ONE  SUN_RCONST(1.0)
 
 /* Private function prototypes */
-static booleantype SMCompatible_cuSparse(SUNMatrix, SUNMatrix);
+static sunbooleantype SMCompatible_cuSparse(SUNMatrix, SUNMatrix);
 static SUNMatrix SUNMatrix_cuSparse_NewEmpty(SUNContext sunctx);
 #if CUDART_VERSION >= 11000
 static cusparseStatus_t CreateSpMatDescr(SUNMatrix, cusparseSpMatDescr_t*);
@@ -613,7 +613,7 @@ cusparseMatDescr_t SUNMatrix_cuSparse_MatDescr(SUNMatrix A)
     return(NULL);
 }
 
-int SUNMatrix_cuSparse_SetFixedPattern(SUNMatrix A, booleantype yesno)
+int SUNMatrix_cuSparse_SetFixedPattern(SUNMatrix A, sunbooleantype yesno)
 {
   if (SUNMatGetID(A) != SUNMATRIX_CUSPARSE)
     return(SUNMAT_ILL_INPUT);
@@ -1188,7 +1188,7 @@ int SUNMatMatvec_cuSparse(SUNMatrix A, N_Vector x, N_Vector y)
 /* -----------------------------------------------------------------
  * Function to check compatibility of two sparse SUNMatrix objects
  */
-static booleantype SMCompatible_cuSparse(SUNMatrix A, SUNMatrix B)
+static sunbooleantype SMCompatible_cuSparse(SUNMatrix A, SUNMatrix B)
 {
   /* both matrices must be sparse */
   if ( (SUNMatGetID(A) != SUNMATRIX_CUSPARSE) ||

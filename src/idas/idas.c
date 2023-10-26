@@ -241,20 +241,20 @@
  * =================================================================
  */
 
-static booleantype IDACheckNvector(N_Vector tmpl);
+static sunbooleantype IDACheckNvector(N_Vector tmpl);
 
 /* Memory allocation/deallocation */
 
-static booleantype IDAAllocVectors(IDAMem IDA_mem, N_Vector tmpl);
+static sunbooleantype IDAAllocVectors(IDAMem IDA_mem, N_Vector tmpl);
 static void IDAFreeVectors(IDAMem IDA_mem);
 
-static booleantype IDAQuadAllocVectors(IDAMem IDA_mem, N_Vector tmpl);
+static sunbooleantype IDAQuadAllocVectors(IDAMem IDA_mem, N_Vector tmpl);
 static void IDAQuadFreeVectors(IDAMem IDA_mem);
 
-static booleantype IDASensAllocVectors(IDAMem IDA_mem, N_Vector tmpl);
+static sunbooleantype IDASensAllocVectors(IDAMem IDA_mem, N_Vector tmpl);
 static void IDASensFreeVectors(IDAMem IDA_mem);
 
-static booleantype IDAQuadSensAllocVectors(IDAMem ida_mem, N_Vector tmpl);
+static sunbooleantype IDAQuadSensAllocVectors(IDAMem ida_mem, N_Vector tmpl);
 static void IDAQuadSensFreeVectors(IDAMem ida_mem);
 
 /* Initial setup */
@@ -563,7 +563,7 @@ int IDAInit(void *ida_mem, IDAResFn res,
 {
   int retval;
   IDAMem IDA_mem;
-  booleantype nvectorOK, allocOK;
+  sunbooleantype nvectorOK, allocOK;
   sunindextype lrw1, liw1;
   SUNNonlinearSolver NLS;
 
@@ -989,7 +989,7 @@ int IDAWFtolerances(void *ida_mem, IDAEwtFn efun)
 int IDAQuadInit(void *ida_mem, IDAQuadRhsFn rhsQ, N_Vector yQ0)
 {
   IDAMem IDA_mem;
-  booleantype allocOK;
+  sunbooleantype allocOK;
   sunindextype lrw1Q, liw1Q;
   int retval;
 
@@ -1222,7 +1222,7 @@ int IDASensInit(void *ida_mem, int Ns, int ism,
 
 {
   IDAMem IDA_mem;
-  booleantype allocOK;
+  sunbooleantype allocOK;
   int is, retval;
   SUNNonlinearSolver NLS;
 
@@ -1616,7 +1616,7 @@ int IDASensSStolerances(void *ida_mem, sunrealtype reltolS, sunrealtype *abstolS
   if ( !(IDA_mem->ida_SatolSMallocDone) ) {
     IDA_mem->ida_SatolS = NULL;
     IDA_mem->ida_SatolS = (sunrealtype *)malloc(IDA_mem->ida_Ns*sizeof(sunrealtype));
-    IDA_mem->ida_atolSmin0 = (booleantype *)malloc(IDA_mem->ida_Ns*sizeof(booleantype));
+    IDA_mem->ida_atolSmin0 = (sunbooleantype *)malloc(IDA_mem->ida_Ns*sizeof(sunbooleantype));
     IDA_mem->ida_lrw += IDA_mem->ida_Ns;
     IDA_mem->ida_SatolSMallocDone = SUNTRUE;
   }
@@ -1677,7 +1677,7 @@ int IDASensSVtolerances(void *ida_mem,  sunrealtype reltolS, N_Vector *abstolS)
 
   if ( SUNFALSE == IDA_mem->ida_VatolSMallocDone ) {
     IDA_mem->ida_VatolS = N_VCloneVectorArray(IDA_mem->ida_Ns, IDA_mem->ida_tempv1);
-    IDA_mem->ida_atolSmin0 = (booleantype *)malloc(IDA_mem->ida_Ns*sizeof(booleantype));
+    IDA_mem->ida_atolSmin0 = (sunbooleantype *)malloc(IDA_mem->ida_Ns*sizeof(sunbooleantype));
     IDA_mem->ida_lrw += IDA_mem->ida_Ns*IDA_mem->ida_lrw1;
     IDA_mem->ida_liw += IDA_mem->ida_Ns*IDA_mem->ida_liw1;
     IDA_mem->ida_VatolSMallocDone = SUNTRUE;
@@ -1722,7 +1722,7 @@ int IDASensEEtolerances(void *ida_mem)
 int IDAQuadSensInit(void *ida_mem, IDAQuadSensRhsFn rhsQS, N_Vector *yQS0)
 {
   IDAMem IDA_mem;
-  booleantype allocOK;
+  sunbooleantype allocOK;
   int is, retval;
 
   if (ida_mem==NULL) {
@@ -1917,7 +1917,7 @@ int IDAQuadSensSStolerances(void *ida_mem, sunrealtype reltolQS, sunrealtype *ab
 
   if ( !(IDA_mem->ida_SatolQSMallocDone) ) {
     IDA_mem->ida_SatolQS = (sunrealtype *)malloc(IDA_mem->ida_Ns*sizeof(sunrealtype));
-    IDA_mem->ida_atolQSmin0 = (booleantype *)malloc(IDA_mem->ida_Ns*sizeof(booleantype));
+    IDA_mem->ida_atolQSmin0 = (sunbooleantype *)malloc(IDA_mem->ida_Ns*sizeof(sunbooleantype));
     IDA_mem->ida_lrw += IDA_mem->ida_Ns;
     IDA_mem->ida_SatolQSMallocDone = SUNTRUE;
   }
@@ -1982,7 +1982,7 @@ int IDAQuadSensSVtolerances(void *ida_mem, sunrealtype reltolQS, N_Vector *absto
 
   if ( !(IDA_mem->ida_VatolQSMallocDone) ) {
     IDA_mem->ida_VatolQS = N_VCloneVectorArray(IDA_mem->ida_Ns, abstolQS[0]);
-    IDA_mem->ida_atolQSmin0 = (booleantype *)malloc(IDA_mem->ida_Ns*sizeof(booleantype));
+    IDA_mem->ida_atolQSmin0 = (sunbooleantype *)malloc(IDA_mem->ida_Ns*sizeof(sunbooleantype));
     IDA_mem->ida_lrw += IDA_mem->ida_Ns*IDA_mem->ida_lrw1Q;
     IDA_mem->ida_liw += IDA_mem->ida_Ns*IDA_mem->ida_liw1Q;
     IDA_mem->ida_VatolQSMallocDone = SUNTRUE;
@@ -2202,7 +2202,7 @@ int IDARootInit(void *ida_mem, int nrtfn, IDARootFn g)
   }
 
   IDA_mem->ida_gactive = NULL;
-  IDA_mem->ida_gactive = (booleantype *) malloc(nrt*sizeof(booleantype));
+  IDA_mem->ida_gactive = (sunbooleantype *) malloc(nrt*sizeof(sunbooleantype));
   if (IDA_mem->ida_gactive == NULL) {
     free(IDA_mem->ida_glo); IDA_mem->ida_glo = NULL;
     free(IDA_mem->ida_ghi); IDA_mem->ida_ghi = NULL;
@@ -2279,7 +2279,7 @@ int IDASolve(void *ida_mem, sunrealtype tout, sunrealtype *tret,
   int sflag, istate, ier, irfndp, ir, is;
   sunrealtype tdist, troundoff, ypnorm, rh, nrm;
   IDAMem IDA_mem;
-  booleantype inactive_roots;
+  sunbooleantype inactive_roots;
 
   /* Check for legal inputs in all cases. */
 
@@ -3768,7 +3768,7 @@ void IDAQuadSensFree(void* ida_mem)
  * If any of them is missing it returns SUNFALSE.
  */
 
-static booleantype IDACheckNvector(N_Vector tmpl)
+static sunbooleantype IDACheckNvector(N_Vector tmpl)
 {
   if ((tmpl->ops->nvclone        == NULL) ||
      (tmpl->ops->nvdestroy      == NULL) ||
@@ -3805,7 +3805,7 @@ static booleantype IDACheckNvector(N_Vector tmpl)
  * allocated here.
  */
 
-static booleantype IDAAllocVectors(IDAMem IDA_mem, N_Vector tmpl)
+static sunbooleantype IDAAllocVectors(IDAMem IDA_mem, N_Vector tmpl)
 {
   int i, j, maxcol;
 
@@ -3981,7 +3981,7 @@ static void IDAFreeVectors(IDAMem IDA_mem)
  * IDAQuadReInit.
  */
 
-static booleantype IDAQuadAllocVectors(IDAMem IDA_mem, N_Vector tmpl)
+static sunbooleantype IDAQuadAllocVectors(IDAMem IDA_mem, N_Vector tmpl)
 {
   int i, j;
 
@@ -4072,7 +4072,7 @@ static void IDAQuadFreeVectors(IDAMem IDA_mem)
  * Allocates space for the N_Vectors, plist, and pbar required for FSA.
  */
 
-static booleantype IDASensAllocVectors(IDAMem IDA_mem, N_Vector tmpl)
+static sunbooleantype IDASensAllocVectors(IDAMem IDA_mem, N_Vector tmpl)
 {
   int j, maxcol;
 
@@ -4267,7 +4267,7 @@ static void IDASensFreeVectors(IDAMem IDA_mem)
  * using the N_Vector 'tmpl' as a template.
  */
 
-static booleantype IDAQuadSensAllocVectors(IDAMem IDA_mem, N_Vector tmpl)
+static sunbooleantype IDAQuadSensAllocVectors(IDAMem IDA_mem, N_Vector tmpl)
 {
   int i, j, maxcol;
 
@@ -4389,7 +4389,7 @@ static void IDAQuadSensFreeVectors(IDAMem IDA_mem)
 
 int IDAInitialSetup(IDAMem IDA_mem)
 {
-  booleantype conOK;
+  sunbooleantype conOK;
   int ier;
 
   /* Test for more vector operations, depending on options */
@@ -5307,7 +5307,7 @@ static int IDAStep(IDAMem IDA_mem)
   int ncf, nef;
   int nflag, kflag;
   int retval;
-  booleantype sensi_stg, sensi_sim;
+  sunbooleantype sensi_stg, sensi_sim;
 
   /* Are we computing sensitivities with the staggered or simultaneous approach? */
   sensi_stg = (IDA_mem->ida_sensi && (IDA_mem->ida_ism==IDA_STAGGERED));
@@ -5666,7 +5666,7 @@ static void IDASetCoeffs(IDAMem IDA_mem, sunrealtype *ck)
 static int IDANls(IDAMem IDA_mem)
 {
   int retval;
-  booleantype constraintsPassed, callLSetup, sensi_sim;
+  sunbooleantype constraintsPassed, callLSetup, sensi_sim;
   sunrealtype temp1, temp2, vnorm;
   N_Vector mm, tmp;
   long int nni_inc = 0;
@@ -5909,7 +5909,7 @@ static void IDAQuadPredict(IDAMem IDA_mem)
 
 static int IDASensNls(IDAMem IDA_mem)
 {
-  booleantype callLSetup;
+  sunbooleantype callLSetup;
   long int nniS_inc = 0;
   long int nnfS_inc = 0;
   int retval;
@@ -6166,7 +6166,7 @@ static int IDAQuadTestError(IDAMem IDA_mem, sunrealtype ck,
   sunrealtype errQ_k, errQ_km1, errQ_km2;
   sunrealtype terr_k, terr_km1, terr_km2;
   N_Vector tempv;
-  booleantype check_for_reduction = SUNFALSE;
+  sunbooleantype check_for_reduction = SUNFALSE;
 
   /* Rename ypQ */
   tempv = IDA_mem->ida_ypQ;
@@ -6249,7 +6249,7 @@ static int IDASensTestError(IDAMem IDA_mem, sunrealtype ck,
   sunrealtype errS_k, errS_km1, errS_km2;
   sunrealtype terr_k, terr_km1, terr_km2;
   N_Vector *tempv;
-  booleantype check_for_reduction = SUNFALSE;
+  sunbooleantype check_for_reduction = SUNFALSE;
   int retval;
 
   /* Rename deltaS */
@@ -6347,7 +6347,7 @@ static int IDAQuadSensTestError(IDAMem IDA_mem, sunrealtype ck,
   sunrealtype errQS_k, errQS_km1, errQS_km2;
   sunrealtype terr_k, terr_km1, terr_km2;
   N_Vector *tempv;
-  booleantype check_for_reduction = SUNFALSE;
+  sunbooleantype check_for_reduction = SUNFALSE;
   int retval;
 
   tempv = IDA_mem->ida_yyQS;
@@ -7097,7 +7097,7 @@ int IDAGetSolution(void *ida_mem, sunrealtype t, N_Vector yret, N_Vector ypret)
  */
 
 sunrealtype IDAWrmsNorm(IDAMem IDA_mem, N_Vector x, N_Vector w,
-                     booleantype mask)
+                     sunbooleantype mask)
 {
   sunrealtype nrm;
 
@@ -7122,7 +7122,7 @@ sunrealtype IDAWrmsNorm(IDAMem IDA_mem, N_Vector x, N_Vector w,
  */
 
 sunrealtype IDASensWrmsNorm(IDAMem IDA_mem, N_Vector *xS, N_Vector *wS,
-                                booleantype mask)
+                                sunbooleantype mask)
 {
   int is;
   sunrealtype nrm;
@@ -7192,7 +7192,7 @@ static sunrealtype IDAQuadWrmsNormUpdate(IDAMem IDA_mem, sunrealtype old_nrm,
 
 sunrealtype IDASensWrmsNormUpdate(IDAMem IDA_mem, sunrealtype old_nrm,
                                       N_Vector *xS, N_Vector *wS,
-                                      booleantype mask)
+                                      sunbooleantype mask)
 {
   sunrealtype snrm;
 
@@ -7233,7 +7233,7 @@ static int IDARcheck1(IDAMem IDA_mem)
 {
   int i, retval;
   sunrealtype smallh, hratio, tplus;
-  booleantype zroot;
+  sunbooleantype zroot;
 
   for (i = 0; i < IDA_mem->ida_nrtfn; i++)
     IDA_mem->ida_iroots[i] = 0;
@@ -7302,7 +7302,7 @@ static int IDARcheck2(IDAMem IDA_mem)
 {
   int i, retval;
   sunrealtype smallh, hratio, tplus;
-  booleantype zroot;
+  sunbooleantype zroot;
 
   if (IDA_mem->ida_irfnd == 0) return(IDA_SUCCESS);
 
@@ -7498,7 +7498,7 @@ static int IDARootfind(IDAMem IDA_mem)
 {
   sunrealtype alph, tmid, gfrac, maxfrac, fracint, fracsub;
   int i, retval, imax, side, sideprev;
-  booleantype zroot, sgnchg;
+  sunbooleantype zroot, sgnchg;
 
   imax = 0;
 

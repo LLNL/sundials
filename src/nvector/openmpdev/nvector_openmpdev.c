@@ -510,7 +510,7 @@ void N_VLinearSum_OpenMPDEV(sunrealtype a, N_Vector x, sunrealtype b, N_Vector y
   sunindextype i, N;
   sunrealtype c, *xd_dev, *yd_dev, *zd_dev;
   N_Vector v1, v2;
-  booleantype test;
+  sunbooleantype test;
   int dev;
 
   xd_dev = yd_dev = zd_dev = NULL;
@@ -1070,7 +1070,7 @@ void N_VCompare_OpenMPDEV(sunrealtype c, N_Vector x, N_Vector z)
  * Compute componentwise inverse z[i] = ONE/x[i] and checks if x[i] == ZERO
  */
 
-booleantype N_VInvTest_OpenMPDEV(N_Vector x, N_Vector z)
+sunbooleantype N_VInvTest_OpenMPDEV(N_Vector x, N_Vector z)
 {
   sunindextype i, N;
   sunrealtype *xd_dev, *zd_dev, val;
@@ -1107,7 +1107,7 @@ booleantype N_VInvTest_OpenMPDEV(N_Vector x, N_Vector z)
  * Compute constraint mask of a vector
  */
 
-booleantype N_VConstrMask_OpenMPDEV(N_Vector c, N_Vector x, N_Vector m)
+sunbooleantype N_VConstrMask_OpenMPDEV(N_Vector c, N_Vector x, N_Vector m)
 {
   sunindextype i, N;
   sunrealtype temp;
@@ -1443,7 +1443,7 @@ int N_VLinearSumVectorArray_OpenMPDEV(int nvec,
   sunindextype j, N;
   N_Vector*    V1;
   N_Vector*    V2;
-  booleantype  test;
+  sunbooleantype  test;
   sunrealtype     c;
   sunrealtype*    xd_dev=NULL;
   sunrealtype*    yd_dev=NULL;
@@ -2788,7 +2788,7 @@ static int VaxpyVectorArray_OpenMPDEV(int nvec, sunrealtype a, N_Vector* X, N_Ve
  * -----------------------------------------------------------------
  */
 
-int N_VEnableFusedOps_OpenMPDEV(N_Vector v, booleantype tf)
+int N_VEnableFusedOps_OpenMPDEV(N_Vector v, sunbooleantype tf)
 {
   /* check that vector is non-NULL */
   if (v == NULL) return(-1);
@@ -2833,7 +2833,7 @@ int N_VEnableFusedOps_OpenMPDEV(N_Vector v, booleantype tf)
 }
 
 
-int N_VEnableLinearCombination_OpenMPDEV(N_Vector v, booleantype tf)
+int N_VEnableLinearCombination_OpenMPDEV(N_Vector v, sunbooleantype tf)
 {
   /* check that vector is non-NULL */
   if (v == NULL) return(-1);
@@ -2851,7 +2851,7 @@ int N_VEnableLinearCombination_OpenMPDEV(N_Vector v, booleantype tf)
   return(0);
 }
 
-int N_VEnableScaleAddMulti_OpenMPDEV(N_Vector v, booleantype tf)
+int N_VEnableScaleAddMulti_OpenMPDEV(N_Vector v, sunbooleantype tf)
 {
   /* check that vector is non-NULL */
   if (v == NULL) return(-1);
@@ -2869,7 +2869,7 @@ int N_VEnableScaleAddMulti_OpenMPDEV(N_Vector v, booleantype tf)
   return(0);
 }
 
-int N_VEnableDotProdMulti_OpenMPDEV(N_Vector v, booleantype tf)
+int N_VEnableDotProdMulti_OpenMPDEV(N_Vector v, sunbooleantype tf)
 {
   /* check that vector is non-NULL */
   if (v == NULL) return(-1);
@@ -2890,7 +2890,7 @@ int N_VEnableDotProdMulti_OpenMPDEV(N_Vector v, booleantype tf)
   return(0);
 }
 
-int N_VEnableLinearSumVectorArray_OpenMPDEV(N_Vector v, booleantype tf)
+int N_VEnableLinearSumVectorArray_OpenMPDEV(N_Vector v, sunbooleantype tf)
 {
   /* check that vector is non-NULL */
   if (v == NULL) return(-1);
@@ -2908,7 +2908,7 @@ int N_VEnableLinearSumVectorArray_OpenMPDEV(N_Vector v, booleantype tf)
   return(0);
 }
 
-int N_VEnableScaleVectorArray_OpenMPDEV(N_Vector v, booleantype tf)
+int N_VEnableScaleVectorArray_OpenMPDEV(N_Vector v, sunbooleantype tf)
 {
   /* check that vector is non-NULL */
   if (v == NULL) return(-1);
@@ -2926,7 +2926,7 @@ int N_VEnableScaleVectorArray_OpenMPDEV(N_Vector v, booleantype tf)
   return(0);
 }
 
-int N_VEnableConstVectorArray_OpenMPDEV(N_Vector v, booleantype tf)
+int N_VEnableConstVectorArray_OpenMPDEV(N_Vector v, sunbooleantype tf)
 {
   /* check that vector is non-NULL */
   if (v == NULL) return(-1);
@@ -2944,7 +2944,7 @@ int N_VEnableConstVectorArray_OpenMPDEV(N_Vector v, booleantype tf)
   return(0);
 }
 
-int N_VEnableWrmsNormVectorArray_OpenMPDEV(N_Vector v, booleantype tf)
+int N_VEnableWrmsNormVectorArray_OpenMPDEV(N_Vector v, sunbooleantype tf)
 {
   /* check that vector is non-NULL */
   if (v == NULL) return(-1);
@@ -2962,7 +2962,7 @@ int N_VEnableWrmsNormVectorArray_OpenMPDEV(N_Vector v, booleantype tf)
   return(0);
 }
 
-int N_VEnableWrmsNormMaskVectorArray_OpenMPDEV(N_Vector v, booleantype tf)
+int N_VEnableWrmsNormMaskVectorArray_OpenMPDEV(N_Vector v, sunbooleantype tf)
 {
   /* check that vector is non-NULL */
   if (v == NULL) return(-1);
@@ -2980,7 +2980,7 @@ int N_VEnableWrmsNormMaskVectorArray_OpenMPDEV(N_Vector v, booleantype tf)
   return(0);
 }
 
-int N_VEnableScaleAddMultiVectorArray_OpenMPDEV(N_Vector v, booleantype tf)
+int N_VEnableScaleAddMultiVectorArray_OpenMPDEV(N_Vector v, sunbooleantype tf)
 {
   /* check that vector is non-NULL */
   if (v == NULL) return(-1);
@@ -2998,7 +2998,7 @@ int N_VEnableScaleAddMultiVectorArray_OpenMPDEV(N_Vector v, booleantype tf)
   return(0);
 }
 
-int N_VEnableLinearCombinationVectorArray_OpenMPDEV(N_Vector v, booleantype tf)
+int N_VEnableLinearCombinationVectorArray_OpenMPDEV(N_Vector v, sunbooleantype tf)
 {
   /* check that vector is non-NULL */
   if (v == NULL) return(-1);

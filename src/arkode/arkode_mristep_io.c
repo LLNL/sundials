@@ -47,7 +47,7 @@ int MRIStepSetMaxHnilWarns(void *arkode_mem, int mxhnil) {
 int MRIStepSetStopTime(void *arkode_mem, sunrealtype tstop) {
   return(arkSetStopTime(arkode_mem, tstop)); }
 int MRIStepSetInterpolateStopTime(void *arkode_mem,
-                                  booleantype interp) {
+                                  sunbooleantype interp) {
   return(arkSetInterpolateStopTime(arkode_mem, interp)); }
 int MRIStepClearStopTime(void *arkode_mem) {
   return(arkClearStopTime(arkode_mem)); }
@@ -74,7 +74,7 @@ int MRIStepSetJacFn(void *arkode_mem, ARKLsJacFn jac) {
   return(arkLSSetJacFn(arkode_mem, jac)); }
 int MRIStepSetJacEvalFrequency(void *arkode_mem, long int msbj) {
   return(arkLSSetJacEvalFrequency(arkode_mem, msbj)); }
-int MRIStepSetLinearSolutionScaling(void *arkode_mem, booleantype onoff) {
+int MRIStepSetLinearSolutionScaling(void *arkode_mem, sunbooleantype onoff) {
   return(arkLSSetLinearSolutionScaling(arkode_mem, onoff)); }
 int MRIStepSetEpsLin(void *arkode_mem, sunrealtype eplifac) {
   return(arkLSSetEpsLin(arkode_mem, eplifac)); }

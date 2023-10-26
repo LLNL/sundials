@@ -243,7 +243,7 @@ The SUNLinSol_SPFGMR module defines the *content* field of a
      int pretype;
      int gstype;
      int max_restarts;
-     booleantype zeroguess;
+     sunbooleantype zeroguess;
      int numiters;
      sunrealtype resnorm;
      int last_flag;

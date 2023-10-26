@@ -496,20 +496,20 @@ void N_VCompare(sunrealtype c, N_Vector x, N_Vector z)
   return;
 }
 
-booleantype N_VInvTest(N_Vector x, N_Vector z)
+sunbooleantype N_VInvTest(N_Vector x, N_Vector z)
 {
-  booleantype result;
+  sunbooleantype result;
   SUNDIALS_MARK_FUNCTION_BEGIN(getSUNProfiler(x));
-  result = ((booleantype) z->ops->nvinvtest(x, z));
+  result = ((sunbooleantype) z->ops->nvinvtest(x, z));
   SUNDIALS_MARK_FUNCTION_END(getSUNProfiler(x));
   return(result);
 }
 
-booleantype N_VConstrMask(N_Vector c, N_Vector x, N_Vector m)
+sunbooleantype N_VConstrMask(N_Vector c, N_Vector x, N_Vector m)
 {
-  booleantype result;
+  sunbooleantype result;
   SUNDIALS_MARK_FUNCTION_BEGIN(getSUNProfiler(c));
-  result = ((booleantype) x->ops->nvconstrmask(c, x, m));
+  result = ((sunbooleantype) x->ops->nvconstrmask(c, x, m));
   SUNDIALS_MARK_FUNCTION_END(getSUNProfiler(c));
   return(result);
 }
@@ -861,20 +861,20 @@ sunrealtype N_VWSqrSumMaskLocal(N_Vector x, N_Vector w, N_Vector id)
   return(result);
 }
 
-booleantype N_VInvTestLocal(N_Vector x, N_Vector z)
+sunbooleantype N_VInvTestLocal(N_Vector x, N_Vector z)
 {
-  booleantype result;
+  sunbooleantype result;
   SUNDIALS_MARK_FUNCTION_BEGIN(getSUNProfiler(x));
-  result = ((booleantype) z->ops->nvinvtestlocal(x,z));
+  result = ((sunbooleantype) z->ops->nvinvtestlocal(x,z));
   SUNDIALS_MARK_FUNCTION_END(getSUNProfiler(x));
   return(result);
 }
 
-booleantype N_VConstrMaskLocal(N_Vector c, N_Vector x, N_Vector m)
+sunbooleantype N_VConstrMaskLocal(N_Vector c, N_Vector x, N_Vector m)
 {
-  booleantype result;
+  sunbooleantype result;
   SUNDIALS_MARK_FUNCTION_BEGIN(getSUNProfiler(x));
-  result = ((booleantype) x->ops->nvconstrmasklocal(c,x,m));
+  result = ((sunbooleantype) x->ops->nvconstrmasklocal(c,x,m));
   SUNDIALS_MARK_FUNCTION_END(getSUNProfiler(x));
   return(result);
 }

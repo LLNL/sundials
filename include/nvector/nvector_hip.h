@@ -39,7 +39,7 @@ extern "C" {
 struct _N_VectorContent_Hip
 {
   sunindextype       length;
-  booleantype        own_helper;
+  sunbooleantype        own_helper;
   SUNMemory          host_data;
   SUNMemory          device_data;
   SUNHipExecPolicy*  stream_exec_policy;
@@ -60,7 +60,7 @@ SUNDIALS_EXPORT N_Vector N_VNewEmpty_Hip(SUNContext sunctx);
 SUNDIALS_EXPORT N_Vector N_VNew_Hip(sunindextype length, SUNContext sunctx);
 SUNDIALS_EXPORT N_Vector N_VNewManaged_Hip(sunindextype length, SUNContext sunctx);
 SUNDIALS_EXPORT N_Vector N_VNewWithMemHelp_Hip(sunindextype length,
-                                               booleantype use_managed_mem,
+                                               sunbooleantype use_managed_mem,
                                                SUNMemoryHelper helper,
                                                SUNContext sunctx);
 SUNDIALS_EXPORT N_Vector N_VMake_Hip(sunindextype length,
@@ -72,7 +72,7 @@ SUNDIALS_EXPORT N_Vector N_VMakeManaged_Hip(sunindextype length,
                                             SUNContext sunctx);
 SUNDIALS_EXPORT void N_VSetHostArrayPointer_Hip(sunrealtype* h_vdata, N_Vector v);
 SUNDIALS_EXPORT void N_VSetDeviceArrayPointer_Hip(sunrealtype* d_vdata, N_Vector v);
-SUNDIALS_EXPORT booleantype N_VIsManagedMemory_Hip(N_Vector x);
+SUNDIALS_EXPORT sunbooleantype N_VIsManagedMemory_Hip(N_Vector x);
 SUNDIALS_EXPORT int N_VSetKernelExecPolicy_Hip(N_Vector x,
                                                SUNHipExecPolicy* stream_exec_policy,
                                                SUNHipExecPolicy* reduce_exec_policy);
@@ -134,8 +134,8 @@ SUNDIALS_EXPORT sunrealtype N_VMin_Hip(N_Vector x);
 SUNDIALS_EXPORT sunrealtype N_VWL2Norm_Hip(N_Vector x, N_Vector w);
 SUNDIALS_EXPORT sunrealtype N_VL1Norm_Hip(N_Vector x);
 SUNDIALS_EXPORT void N_VCompare_Hip(sunrealtype c, N_Vector x, N_Vector z);
-SUNDIALS_EXPORT booleantype N_VInvTest_Hip(N_Vector x, N_Vector z);
-SUNDIALS_EXPORT booleantype N_VConstrMask_Hip(N_Vector c, N_Vector x, N_Vector m);
+SUNDIALS_EXPORT sunbooleantype N_VInvTest_Hip(N_Vector x, N_Vector z);
+SUNDIALS_EXPORT sunbooleantype N_VConstrMask_Hip(N_Vector c, N_Vector x, N_Vector m);
 SUNDIALS_EXPORT sunrealtype N_VMinQuotient_Hip(N_Vector num, N_Vector denom);
 
 /* fused vector operations */
@@ -186,19 +186,19 @@ SUNDIALS_EXPORT void N_VPrintFile_Hip(N_Vector v, FILE *outfile);
  * -----------------------------------------------------------------
  */
 
-SUNDIALS_EXPORT int N_VEnableFusedOps_Hip(N_Vector v, booleantype tf);
+SUNDIALS_EXPORT int N_VEnableFusedOps_Hip(N_Vector v, sunbooleantype tf);
 
-SUNDIALS_EXPORT int N_VEnableLinearCombination_Hip(N_Vector v, booleantype tf);
-SUNDIALS_EXPORT int N_VEnableScaleAddMulti_Hip(N_Vector v, booleantype tf);
-SUNDIALS_EXPORT int N_VEnableDotProdMulti_Hip(N_Vector v, booleantype tf);
+SUNDIALS_EXPORT int N_VEnableLinearCombination_Hip(N_Vector v, sunbooleantype tf);
+SUNDIALS_EXPORT int N_VEnableScaleAddMulti_Hip(N_Vector v, sunbooleantype tf);
+SUNDIALS_EXPORT int N_VEnableDotProdMulti_Hip(N_Vector v, sunbooleantype tf);
 
-SUNDIALS_EXPORT int N_VEnableLinearSumVectorArray_Hip(N_Vector v, booleantype tf);
-SUNDIALS_EXPORT int N_VEnableScaleVectorArray_Hip(N_Vector v, booleantype tf);
-SUNDIALS_EXPORT int N_VEnableConstVectorArray_Hip(N_Vector v, booleantype tf);
-SUNDIALS_EXPORT int N_VEnableWrmsNormVectorArray_Hip(N_Vector v, booleantype tf);
-SUNDIALS_EXPORT int N_VEnableWrmsNormMaskVectorArray_Hip(N_Vector v, booleantype tf);
-SUNDIALS_EXPORT int N_VEnableScaleAddMultiVectorArray_Hip(N_Vector v, booleantype tf);
-SUNDIALS_EXPORT int N_VEnableLinearCombinationVectorArray_Hip(N_Vector v, booleantype tf);
+SUNDIALS_EXPORT int N_VEnableLinearSumVectorArray_Hip(N_Vector v, sunbooleantype tf);
+SUNDIALS_EXPORT int N_VEnableScaleVectorArray_Hip(N_Vector v, sunbooleantype tf);
+SUNDIALS_EXPORT int N_VEnableConstVectorArray_Hip(N_Vector v, sunbooleantype tf);
+SUNDIALS_EXPORT int N_VEnableWrmsNormVectorArray_Hip(N_Vector v, sunbooleantype tf);
+SUNDIALS_EXPORT int N_VEnableWrmsNormMaskVectorArray_Hip(N_Vector v, sunbooleantype tf);
+SUNDIALS_EXPORT int N_VEnableScaleAddMultiVectorArray_Hip(N_Vector v, sunbooleantype tf);
+SUNDIALS_EXPORT int N_VEnableLinearCombinationVectorArray_Hip(N_Vector v, sunbooleantype tf);
 
 #ifdef __cplusplus
 }

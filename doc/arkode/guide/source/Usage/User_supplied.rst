@@ -513,7 +513,7 @@ object was supplied to :c:func:`ARKStepSetLinearSolver` or
 
 
 
-.. c:type:: int (*ARKLsLinSysFn)(sunrealtype t, N_Vector y, N_Vector fy, SUNMatrix A, SUNMatrix M, booleantype jok, booleantype *jcur, sunrealtype gamma, void *user_data, N_Vector tmp1, N_Vector tmp2, N_Vector tmp3)
+.. c:type:: int (*ARKLsLinSysFn)(sunrealtype t, N_Vector y, N_Vector fy, SUNMatrix A, SUNMatrix M, sunbooleantype jok, sunbooleantype *jcur, sunrealtype gamma, void *user_data, N_Vector tmp1, N_Vector tmp2, N_Vector tmp3)
 
    This function computes the linear system matrix :math:`\mathcal{A}(t,y) = M(t) - \gamma J(t,y)` (or
    an approximation to it).
@@ -721,7 +721,7 @@ preprocessed or evaluated, then these actions need to occur within a
 user-supplied function of type :c:type:`ARKLsPrecSetupFn`.
 
 
-.. c:type:: int (*ARKLsPrecSetupFn)(sunrealtype t, N_Vector y, N_Vector fy, booleantype jok, booleantype* jcurPtr, sunrealtype gamma, void* user_data)
+.. c:type:: int (*ARKLsPrecSetupFn)(sunrealtype t, N_Vector y, N_Vector fy, sunbooleantype jok, sunbooleantype* jcurPtr, sunrealtype gamma, void* user_data)
 
    This function preprocesses and/or evaluates Jacobian-related
    data needed by the preconditioner.

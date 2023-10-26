@@ -57,11 +57,11 @@
 #define MAT_QUEUE(A)       (MAT_CONTENT(A)->queue)
 
 // Private function prototypes
-static booleantype Compatible_AB(SUNMatrix A, SUNMatrix B);
-static booleantype Compatible_Axy(SUNMatrix A, N_Vector x, N_Vector y);
+static sunbooleantype Compatible_AB(SUNMatrix A, SUNMatrix B);
+static sunbooleantype Compatible_Axy(SUNMatrix A, N_Vector x, N_Vector y);
 
 // Kernel launch parameters
-static int GetKernelParameters(SUNMatrix A, booleantype reduction,
+static int GetKernelParameters(SUNMatrix A, sunbooleantype reduction,
                                size_t& nthreads_total,
                                size_t& nthreads_per_block);
 
@@ -675,7 +675,7 @@ int SUNMatSpace_OneMklDense(SUNMatrix A, long int *lenrw, long int *leniw)
 
 
 // Get the kernel launch parameters
-static int GetKernelParameters(SUNMatrix A, booleantype reduction,
+static int GetKernelParameters(SUNMatrix A, sunbooleantype reduction,
                                size_t& nthreads_total,
                                size_t& nthreads_per_block)
 {
@@ -706,7 +706,7 @@ static int GetKernelParameters(SUNMatrix A, booleantype reduction,
 }
 
 
-static booleantype Compatible_AB(SUNMatrix A, SUNMatrix B)
+static sunbooleantype Compatible_AB(SUNMatrix A, SUNMatrix B)
 {
   // Both matrices must have the SUNMATRIEX_MKLDENSE ID
   if (SUNMatGetID(A) != SUNMATRIX_ONEMKLDENSE)
@@ -744,7 +744,7 @@ static booleantype Compatible_AB(SUNMatrix A, SUNMatrix B)
 }
 
 
-static booleantype Compatible_Axy(SUNMatrix A, N_Vector x, N_Vector y)
+static sunbooleantype Compatible_Axy(SUNMatrix A, N_Vector x, N_Vector y)
 {
   //  Vectors must implement N_VGetDeviceArrayPointer
   if (!(x->ops->nvgetdevicearraypointer) || !(y->ops->nvgetdevicearraypointer))

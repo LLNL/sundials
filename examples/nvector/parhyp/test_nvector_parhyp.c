@@ -294,7 +294,7 @@ int check_ans(sunrealtype ans, N_Vector X, sunindextype local_length)
   return (failure > ZERO) ? (1) : (0);
 }
 
-booleantype has_data(N_Vector X)
+sunbooleantype has_data(N_Vector X)
 {
   /* check if wrapped hypre ParVector is non-null */
   return (N_VGetVector_ParHyp(X) == NULL) ? SUNFALSE : SUNTRUE;

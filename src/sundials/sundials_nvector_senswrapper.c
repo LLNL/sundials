@@ -476,10 +476,10 @@ void N_VCompare_SensWrapper(sunrealtype c, N_Vector x, N_Vector z)
 }
 
 
-booleantype N_VInvTest_SensWrapper(N_Vector x, N_Vector z)
+sunbooleantype N_VInvTest_SensWrapper(N_Vector x, N_Vector z)
 {
   int i;
-  booleantype no_zero_found, tmp;
+  sunbooleantype no_zero_found, tmp;
 
   no_zero_found = SUNTRUE;
 
@@ -492,10 +492,10 @@ booleantype N_VInvTest_SensWrapper(N_Vector x, N_Vector z)
 }
 
 
-booleantype N_VConstrMask_SensWrapper(N_Vector c, N_Vector x, N_Vector m)
+sunbooleantype N_VConstrMask_SensWrapper(N_Vector c, N_Vector x, N_Vector m)
 {
   int i;
-  booleantype test, tmp;
+  sunbooleantype test, tmp;
 
   test = SUNTRUE;
 

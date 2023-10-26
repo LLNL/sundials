@@ -50,7 +50,7 @@ struct _SUNLinearSolverContent_SPFGMR {
   int pretype;
   int gstype;
   int max_restarts;
-  booleantype zeroguess;
+  sunbooleantype zeroguess;
   int numiters;
   sunrealtype resnorm;
   int last_flag;
@@ -107,7 +107,7 @@ SUNDIALS_EXPORT int SUNLinSolSetScalingVectors_SPFGMR(SUNLinearSolver S,
                                                       N_Vector s1,
                                                       N_Vector s2);
 SUNDIALS_EXPORT int SUNLinSolSetZeroGuess_SPFGMR(SUNLinearSolver S,
-                                                 booleantype onoff);
+                                                 sunbooleantype onoff);
 SUNDIALS_EXPORT int SUNLinSolSetup_SPFGMR(SUNLinearSolver S, SUNMatrix A);
 SUNDIALS_EXPORT int SUNLinSolSolve_SPFGMR(SUNLinearSolver S, SUNMatrix A,
                                           N_Vector x, N_Vector b, sunrealtype tol);

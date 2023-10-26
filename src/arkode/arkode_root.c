@@ -179,7 +179,7 @@ int arkRootInit(ARKodeMem ark_mem, int nrtfn, ARKRootFn g)
     return(ARK_MEM_FAIL);
   }
   ark_mem->root_mem->gactive = NULL;
-  ark_mem->root_mem->gactive = (booleantype *) malloc(nrt*sizeof(booleantype));
+  ark_mem->root_mem->gactive = (sunbooleantype *) malloc(nrt*sizeof(sunbooleantype));
   if (ark_mem->root_mem->gactive == NULL) {
     free(ark_mem->root_mem->glo); ark_mem->root_mem->glo = NULL;
     free(ark_mem->root_mem->ghi); ark_mem->root_mem->ghi = NULL;
@@ -304,7 +304,7 @@ int arkRootCheck1(void* arkode_mem)
 {
   int i, retval;
   sunrealtype smallh, hratio, tplus;
-  booleantype zroot;
+  sunbooleantype zroot;
   ARKodeMem ark_mem;
   ARKodeRootMem rootmem;
   if (arkode_mem == NULL) {
@@ -382,7 +382,7 @@ int arkRootCheck2(void* arkode_mem)
 {
   int i, retval;
   sunrealtype smallh, tplus;
-  booleantype zroot;
+  sunbooleantype zroot;
   ARKodeMem ark_mem;
   ARKodeRootMem rootmem;
   if (arkode_mem == NULL) {
@@ -606,7 +606,7 @@ int arkRootfind(void* arkode_mem)
 {
   sunrealtype alpha, tmid, gfrac, maxfrac, fracint, fracsub;
   int i, retval, imax, side, sideprev;
-  booleantype zroot, sgnchg;
+  sunbooleantype zroot, sgnchg;
   ARKodeMem ark_mem;
   ARKodeRootMem rootmem;
   if (arkode_mem == NULL) {

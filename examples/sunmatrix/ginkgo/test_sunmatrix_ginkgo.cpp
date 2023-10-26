@@ -407,7 +407,7 @@ extern "C" int check_vector(N_Vector expected, N_Vector computed, sunrealtype to
   return failure > 0;
 }
 
-extern "C" booleantype has_data(SUNMatrix A)
+extern "C" sunbooleantype has_data(SUNMatrix A)
 {
   if (using_csr_matrix_type) {
     auto Amat{static_cast<sundials::ginkgo::Matrix<GkoCsrMat>*>(A->content)->GkoMtx()};
@@ -422,7 +422,7 @@ extern "C" booleantype has_data(SUNMatrix A)
   }
 }
 
-extern "C" booleantype is_square(SUNMatrix A)
+extern "C" sunbooleantype is_square(SUNMatrix A)
 {
   if (using_csr_matrix_type) {
     auto Amat{static_cast<sundials::ginkgo::Matrix<GkoCsrMat>*>(A->content)->GkoMtx()};

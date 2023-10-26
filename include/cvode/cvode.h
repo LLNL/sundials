@@ -145,11 +145,11 @@ SUNDIALS_EXPORT int CVodeSetMonitorFrequency(void *cvode_mem, long int nst);
 SUNDIALS_EXPORT int CVodeSetNlsRhsFn(void *cvode_mem, CVRhsFn f);
 SUNDIALS_EXPORT int CVodeSetNonlinConvCoef(void *cvode_mem, sunrealtype nlscoef);
 SUNDIALS_EXPORT int CVodeSetNonlinearSolver(void *cvode_mem, SUNNonlinearSolver NLS);
-SUNDIALS_EXPORT int CVodeSetStabLimDet(void *cvode_mem, booleantype stldet);
+SUNDIALS_EXPORT int CVodeSetStabLimDet(void *cvode_mem, sunbooleantype stldet);
 SUNDIALS_EXPORT int CVodeSetStopTime(void *cvode_mem, sunrealtype tstop);
-SUNDIALS_EXPORT int CVodeSetInterpolateStopTime(void *cvode_mem, booleantype interp);
+SUNDIALS_EXPORT int CVodeSetInterpolateStopTime(void *cvode_mem, sunbooleantype interp);
 SUNDIALS_EXPORT int CVodeClearStopTime(void *cvode_mem);
-SUNDIALS_EXPORT int CVodeSetUseIntegratorFusedKernels(void *cvode_mem, booleantype onoff);
+SUNDIALS_EXPORT int CVodeSetUseIntegratorFusedKernels(void *cvode_mem, sunbooleantype onoff);
 SUNDIALS_EXPORT int CVodeSetUserData(void *cvode_mem, void *user_data);
 
 /* Optional step adaptivity input functions */

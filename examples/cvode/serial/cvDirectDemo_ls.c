@@ -175,7 +175,7 @@ static int Problem1(void)
   SUNLinearSolver LS;
   SUNNonlinearSolver NLS;
   void *cvode_mem;
-  booleantype firstrun;
+  sunbooleantype firstrun;
   int qu;
   sunrealtype hu;
   SUNContext sunctx;
@@ -397,7 +397,7 @@ static int Problem2(void)
   SUNLinearSolver LS;
   SUNNonlinearSolver NLS;
   void *cvode_mem;
-  booleantype firstrun;
+  sunbooleantype firstrun;
   int qu, iout;
   sunrealtype hu;
   SUNContext sunctx;

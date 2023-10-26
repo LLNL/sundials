@@ -101,13 +101,13 @@ static int f(sunrealtype t, N_Vector u, N_Vector udot, void *user_data);
 /* Prototypes of private functions */
 
 static void ProcessArgs(int argc, char *argv[], int my_pe,
-                        booleantype *sensi, int *sensi_meth, booleantype *err_con);
+                        sunbooleantype *sensi, int *sensi_meth, sunbooleantype *err_con);
 static void WrongArgs(int my_pe, char *name);
 static void SetIC(N_Vector u, sunrealtype dx, sunindextype my_length, sunindextype my_base);
 static void PrintOutput(void *cvode_mem, int my_pe, sunrealtype t, N_Vector u);
 static void PrintOutputS(int my_pe, N_Vector *uS);
-static void PrintFinalStats(void *cvode_mem, booleantype sensi,
-                            booleantype err_con, int sensi_meth);
+static void PrintFinalStats(void *cvode_mem, sunbooleantype sensi,
+                            sunbooleantype err_con, int sensi_meth);
 static int check_retval(void *returnvalue, const char *funcname, int opt, int id);
 
 /*
@@ -128,7 +128,7 @@ int main(int argc, char *argv[])
   sunrealtype *pbar;
   int is, *plist;
   N_Vector *uS;
-  booleantype sensi, err_con;
+  sunbooleantype sensi, err_con;
   int sensi_meth;
 
   SUNNonlinearSolver NLS, NLSsens;
@@ -414,7 +414,7 @@ static int f(sunrealtype t, N_Vector u, N_Vector udot, void *user_data)
  */
 
 static void ProcessArgs(int argc, char *argv[], int my_pe,
-                        booleantype *sensi, int *sensi_meth, booleantype *err_con)
+                        sunbooleantype *sensi, int *sensi_meth, sunbooleantype *err_con)
 {
   *sensi = SUNFALSE;
   *sensi_meth = -1;
@@ -569,8 +569,8 @@ static void PrintOutputS(int my_pe, N_Vector *uS)
  * Print some final statistics located in the iopt array
  */
 
-static void PrintFinalStats(void *cvode_mem, booleantype sensi,
-                            booleantype err_con, int sensi_meth)
+static void PrintFinalStats(void *cvode_mem, sunbooleantype sensi,
+                            sunbooleantype err_con, int sensi_meth)
 {
   long int nst;
   long int nfe, nsetups, nni, ncfn, netf;

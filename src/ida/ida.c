@@ -183,11 +183,11 @@
  * =================================================================
  */
 
-static booleantype IDACheckNvector(N_Vector tmpl);
+static sunbooleantype IDACheckNvector(N_Vector tmpl);
 
 /* Memory allocation/deallocation */
 
-static booleantype IDAAllocVectors(IDAMem IDA_mem, N_Vector tmpl);
+static sunbooleantype IDAAllocVectors(IDAMem IDA_mem, N_Vector tmpl);
 static void IDAFreeVectors(IDAMem IDA_mem);
 
 /* Initial setup */
@@ -375,7 +375,7 @@ int IDAInit(void *ida_mem, IDAResFn res,
 {
   int retval;
   IDAMem IDA_mem;
-  booleantype nvectorOK, allocOK;
+  sunbooleantype nvectorOK, allocOK;
   sunindextype lrw1, liw1;
   SUNNonlinearSolver NLS;
 
@@ -909,7 +909,7 @@ int IDARootInit(void *ida_mem, int nrtfn, IDARootFn g)
   }
 
   IDA_mem->ida_gactive = NULL;
-  IDA_mem->ida_gactive = (booleantype *) malloc(nrt*sizeof(booleantype));
+  IDA_mem->ida_gactive = (sunbooleantype *) malloc(nrt*sizeof(sunbooleantype));
   if (IDA_mem->ida_gactive == NULL) {
     free(IDA_mem->ida_glo); IDA_mem->ida_glo = NULL;
     free(IDA_mem->ida_ghi); IDA_mem->ida_ghi = NULL;
@@ -986,7 +986,7 @@ int IDASolve(void *ida_mem, sunrealtype tout, sunrealtype *tret,
   int sflag, istate, ier, irfndp, ir;
   sunrealtype tdist, troundoff, ypnorm, rh, nrm;
   IDAMem IDA_mem;
-  booleantype inactive_roots;
+  sunbooleantype inactive_roots;
 
   /* Check for legal inputs in all cases. */
 
@@ -1572,7 +1572,7 @@ void IDAFree(void **ida_mem)
  * If any of them is missing it returns SUNFALSE.
  */
 
-static booleantype IDACheckNvector(N_Vector tmpl)
+static sunbooleantype IDACheckNvector(N_Vector tmpl)
 {
   if ((tmpl->ops->nvclone        == NULL) ||
      (tmpl->ops->nvdestroy      == NULL) ||
@@ -1609,7 +1609,7 @@ static booleantype IDACheckNvector(N_Vector tmpl)
  * allocated here.
  */
 
-static booleantype IDAAllocVectors(IDAMem IDA_mem, N_Vector tmpl)
+static sunbooleantype IDAAllocVectors(IDAMem IDA_mem, N_Vector tmpl)
 {
   int i, j, maxcol;
 
@@ -1794,7 +1794,7 @@ static void IDAFreeVectors(IDAMem IDA_mem)
 
 int IDAInitialSetup(IDAMem IDA_mem)
 {
-  booleantype conOK;
+  sunbooleantype conOK;
   int ier;
 
   /* Test for more vector operations, depending on options */
@@ -2469,7 +2469,7 @@ static void IDASetCoeffs(IDAMem IDA_mem, sunrealtype *ck)
 static int IDANls(IDAMem IDA_mem)
 {
   int retval;
-  booleantype constraintsPassed, callLSetup;
+  sunbooleantype constraintsPassed, callLSetup;
   sunrealtype temp1, temp2, vnorm;
   N_Vector mm, tmp;
   long int nni_inc = 0;
@@ -3207,7 +3207,7 @@ int IDAGetSolution(void *ida_mem, sunrealtype t, N_Vector yret, N_Vector ypret)
  */
 
 sunrealtype IDAWrmsNorm(IDAMem IDA_mem, N_Vector x, N_Vector w,
-                     booleantype mask)
+                     sunbooleantype mask)
 {
   sunrealtype nrm;
 
@@ -3239,7 +3239,7 @@ static int IDARcheck1(IDAMem IDA_mem)
 {
   int i, retval;
   sunrealtype smallh, hratio, tplus;
-  booleantype zroot;
+  sunbooleantype zroot;
 
   for (i = 0; i < IDA_mem->ida_nrtfn; i++)
     IDA_mem->ida_iroots[i] = 0;
@@ -3308,7 +3308,7 @@ static int IDARcheck2(IDAMem IDA_mem)
 {
   int i, retval;
   sunrealtype smallh, hratio, tplus;
-  booleantype zroot;
+  sunbooleantype zroot;
 
   if (IDA_mem->ida_irfnd == 0) return(IDA_SUCCESS);
 
@@ -3504,7 +3504,7 @@ static int IDARootfind(IDAMem IDA_mem)
 {
   sunrealtype alph, tmid, gfrac, maxfrac, fracint, fracsub;
   int i, retval, imax, side, sideprev;
-  booleantype zroot, sgnchg;
+  sunbooleantype zroot, sgnchg;
 
   imax = 0;
 

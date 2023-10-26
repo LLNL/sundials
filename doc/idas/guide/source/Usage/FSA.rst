@@ -760,7 +760,7 @@ time and, if successful, takes effect immediately.
    ``DQrhomax``:math:`=0.0`.
 
 
-.. c:function:: int IDASetSensErrCon(void * ida_mem, booleantype errconS)
+.. c:function:: int IDASetSensErrCon(void * ida_mem, sunbooleantype errconS)
 
    The function :c:func:`IDASetSensErrCon` specifies the error control  strategy for
    sensitivity variables.
@@ -1417,7 +1417,7 @@ Optional inputs for sensitivity-dependent quadrature integration
 IDAS provides the following optional input functions to control the integration
 of sensitivity-dependent quadrature equations.
 
-.. c:function:: int IDASetQuadSensErrCon(void * ida_mem, booleantype errconQS)
+.. c:function:: int IDASetQuadSensErrCon(void * ida_mem, sunbooleantype errconQS)
 
    The function :c:func:`IDASetQuadSensErrCon` specifies whether or not the  quadrature variables are to be used in the local error control mechanism.  If they are, the user must specify the error tolerances for the quadrature  variables by calling :c:func:`IDAQuadSensSStolerances`,  :c:func:`IDAQuadSensSVtolerances`, or :c:func:`IDAQuadSensEEtolerances`.
 

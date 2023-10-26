@@ -32,7 +32,7 @@ This API consists of three new SUNDIALS types: :c:type:`SUNMemoryType`,
       {
         void*         ptr;
         SUNMemoryType type;
-        booleantype   own;
+        sunbooleantype   own;
         size_t        bytes;
       };
 

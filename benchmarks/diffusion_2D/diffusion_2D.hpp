@@ -228,8 +228,8 @@ int diffusion_jac(sunrealtype t, N_Vector u, N_Vector f, SUNMatrix Jac,
                   void* user_data, N_Vector tmp1, N_Vector tmp2, N_Vector tmp3);
 
 // Preconditioner setup and solve functions
-int PSetup(sunrealtype t, N_Vector u, N_Vector f, booleantype jok,
-           booleantype *jcurPtr, sunrealtype gamma, void *user_data);
+int PSetup(sunrealtype t, N_Vector u, N_Vector f, sunbooleantype jok,
+           sunbooleantype *jcurPtr, sunrealtype gamma, void *user_data);
 
 int PSolve(sunrealtype t, N_Vector u, N_Vector f, N_Vector r,
            N_Vector z, sunrealtype gamma, sunrealtype delta, int lr,

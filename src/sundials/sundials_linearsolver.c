@@ -150,7 +150,7 @@ int SUNLinSolSetScalingVectors(SUNLinearSolver S,
   return(ier);
 }
 
-int SUNLinSolSetZeroGuess(SUNLinearSolver S, booleantype onoff)
+int SUNLinSolSetZeroGuess(SUNLinearSolver S, sunbooleantype onoff)
 {
   if (S->ops->setzeroguess)
     return ((int) S->ops->setzeroguess(S, onoff));

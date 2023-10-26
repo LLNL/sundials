@@ -35,7 +35,7 @@
 
 /* Prototypes of functions ARKBBDPrecSetup and ARKBBDPrecSolve */
 static int ARKBBDPrecSetup(sunrealtype t, N_Vector y, N_Vector fy,
-                           booleantype jok, booleantype *jcurPtr,
+                           sunbooleantype jok, sunbooleantype *jcurPtr,
                            sunrealtype gamma, void *bbd_data);
 static int ARKBBDPrecSolve(sunrealtype t, N_Vector y, N_Vector fy,
                            N_Vector r, N_Vector z,
@@ -420,7 +420,7 @@ int ARKBBDPrecGetNumGfnEvals(void *arkode_mem,
    1  for a recoverable error (step will be retried).
 ---------------------------------------------------------------*/
 static int ARKBBDPrecSetup(sunrealtype t, N_Vector y, N_Vector fy,
-                           booleantype jok, booleantype *jcurPtr,
+                           sunbooleantype jok, sunbooleantype *jcurPtr,
                            sunrealtype gamma, void *bbd_data)
 {
   ARKBBDPrecData pdata;

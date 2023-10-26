@@ -170,7 +170,7 @@ ARKodeButcherTable functions
       This function is case sensitive.
 
 
-.. c:function:: ARKodeButcherTable ARKodeButcherTable_Alloc(int stages, booleantype embedded)
+.. c:function:: ARKodeButcherTable ARKodeButcherTable_Alloc(int stages, sunbooleantype embedded)
 
    Allocates an empty Butcher table.
 

@@ -288,7 +288,7 @@ int check_ans(sunrealtype ans, N_Vector X, sunindextype local_length)
   return (failure > ZERO) ? (1) : (0);
 }
 
-booleantype has_data(N_Vector X)
+sunbooleantype has_data(N_Vector X)
 {
   /* should not be called in these tests */
   return SUNTRUE;

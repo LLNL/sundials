@@ -245,35 +245,35 @@ typedef struct CVodeMemRec {
   sunrealtype cv_reltol;        /* relative tolerance                            */
   sunrealtype cv_Sabstol;       /* scalar absolute tolerance                     */
   N_Vector cv_Vabstol;       /* vector absolute tolerance                     */
-  booleantype cv_atolmin0;   /* flag indicating that min(abstol) = 0          */
-  booleantype cv_user_efun;  /* SUNTRUE if user sets efun                     */
+  sunbooleantype cv_atolmin0;   /* flag indicating that min(abstol) = 0          */
+  sunbooleantype cv_user_efun;  /* SUNTRUE if user sets efun                     */
   CVEwtFn cv_efun;           /* function to set ewt                           */
   void *cv_e_data;           /* user pointer passed to efun                   */
 
-  booleantype cv_constraintsSet; /* constraints vector present:
+  sunbooleantype cv_constraintsSet; /* constraints vector present:
                                     do constraints calc                       */
 
   /*-----------------------
     Quadrature Related Data
     -----------------------*/
 
-  booleantype cv_quadr;       /* SUNTRUE if integrating quadratures            */
+  sunbooleantype cv_quadr;       /* SUNTRUE if integrating quadratures            */
 
   CVQuadRhsFn cv_fQ;          /* q' = fQ(t, y(t))                              */
 
-  booleantype cv_errconQ;     /* SUNTRUE if quadrs. are included in error test */
+  sunbooleantype cv_errconQ;     /* SUNTRUE if quadrs. are included in error test */
 
   int cv_itolQ;               /* itolQ = CV_SS or CV_SV                        */
   sunrealtype cv_reltolQ;        /* relative tolerance for quadratures            */
   sunrealtype cv_SabstolQ;       /* scalar absolute tolerance for quadratures     */
   N_Vector cv_VabstolQ;       /* vector absolute tolerance for quadratures     */
-  booleantype cv_atolQmin0;   /* flag indicating that min(abstolQ) = 0         */
+  sunbooleantype cv_atolQmin0;   /* flag indicating that min(abstolQ) = 0         */
 
   /*------------------------
     Sensitivity Related Data
     ------------------------*/
 
-  booleantype cv_sensi;       /* SUNTRUE if computing sensitivities           */
+  sunbooleantype cv_sensi;       /* SUNTRUE if computing sensitivities           */
 
   int cv_Ns;                  /* Number of sensitivities                      */
 
@@ -282,7 +282,7 @@ typedef struct CVodeMemRec {
   CVSensRhsFn cv_fS;          /* fS = (df/dy)*yS + (df/dp)                    */
   CVSensRhs1Fn cv_fS1;        /* fS1 = (df/dy)*yS_i + (df/dp)                 */
   void *cv_fS_data;           /* data pointer passed to fS                    */
-  booleantype cv_fSDQ;        /* SUNTRUE if using internal DQ functions       */
+  sunbooleantype cv_fSDQ;        /* SUNTRUE if using internal DQ functions       */
   int cv_ifS;                 /* ifS = ALLSENS or ONESENS                     */
 
   sunrealtype *cv_p;             /* parameters in f(t,y,p)                       */
@@ -291,31 +291,31 @@ typedef struct CVodeMemRec {
   int cv_DQtype;              /* central/forward finite differences           */
   sunrealtype cv_DQrhomax;       /* cut-off value for separate/simultaneous FD   */
 
-  booleantype cv_errconS;     /* SUNTRUE if yS are considered in err. control */
+  sunbooleantype cv_errconS;     /* SUNTRUE if yS are considered in err. control */
 
   int cv_itolS;
   sunrealtype cv_reltolS;        /* relative tolerance for sensitivities         */
   sunrealtype *cv_SabstolS;      /* scalar absolute tolerances for sensi.        */
   N_Vector *cv_VabstolS;      /* vector absolute tolerances for sensi.        */
-  booleantype *cv_atolSmin0;  /* flags indicating that min(abstolS[i]) = 0    */
+  sunbooleantype *cv_atolSmin0;  /* flags indicating that min(abstolS[i]) = 0    */
 
   /*-----------------------------------
     Quadrature Sensitivity Related Data
     -----------------------------------*/
 
-  booleantype cv_quadr_sensi; /* SUNTRUE if computing sensitivties of quadrs. */
+  sunbooleantype cv_quadr_sensi; /* SUNTRUE if computing sensitivties of quadrs. */
 
   CVQuadSensRhsFn cv_fQS;     /* fQS = (dfQ/dy)*yS + (dfQ/dp)                 */
   void *cv_fQS_data;          /* data pointer passed to fQS                   */
-  booleantype cv_fQSDQ;       /* SUNTRUE if using internal DQ functions       */
+  sunbooleantype cv_fQSDQ;       /* SUNTRUE if using internal DQ functions       */
 
-  booleantype cv_errconQS;    /* SUNTRUE if yQS are considered in err. con.   */
+  sunbooleantype cv_errconQS;    /* SUNTRUE if yQS are considered in err. con.   */
 
   int cv_itolQS;
   sunrealtype cv_reltolQS;       /* relative tolerance for yQS                   */
   sunrealtype *cv_SabstolQS;     /* scalar absolute tolerances for yQS           */
   N_Vector *cv_VabstolQS;     /* vector absolute tolerances for yQS           */
-  booleantype *cv_atolQSmin0; /* flags indicating that min(abstolQS[i]) = 0   */
+  sunbooleantype *cv_atolQSmin0; /* flags indicating that min(abstolQS[i]) = 0   */
 
   /*-----------------------
     Nordsieck History Array
@@ -366,7 +366,7 @@ typedef struct CVodeMemRec {
   N_Vector *cv_tempvS;        /* temporary storage vector (~ tempv)           */
   N_Vector *cv_ftempS;        /* temporary storage vector (~ ftemp)           */
 
-  booleantype cv_stgr1alloc;  /* Did we allocate ncfS1, ncfnS1, and nniS1?    */
+  sunbooleantype cv_stgr1alloc;  /* Did we allocate ncfS1, ncfnS1, and nniS1?    */
 
   /*--------------------------------------
     Quadrature Sensitivity Related Vectors
@@ -383,8 +383,8 @@ typedef struct CVodeMemRec {
     Tstop information
     -----------------*/
 
-  booleantype cv_tstopset;
-  booleantype cv_tstopinterp;
+  sunbooleantype cv_tstopset;
+  sunbooleantype cv_tstopinterp;
   sunrealtype cv_tstop;
 
   /*---------
@@ -423,10 +423,10 @@ typedef struct CVodeMemRec {
   sunrealtype cv_crateS;          /* estimated corrector convergence rate (Stgr) */
   sunrealtype cv_delp;            /* norm of previous nonlinear solver update    */
   sunrealtype cv_acnrm;           /* | acor |                                    */
-  booleantype cv_acnrmcur;     /* is | acor | current?                        */
+  sunbooleantype cv_acnrmcur;     /* is | acor | current?                        */
   sunrealtype cv_acnrmQ;          /* | acorQ |                                   */
   sunrealtype cv_acnrmS;          /* | acorS |                                   */
-  booleantype cv_acnrmScur;    /* is | acorS | current?                       */
+  sunbooleantype cv_acnrmScur;    /* is | acorS | current?                       */
   sunrealtype cv_acnrmQS;         /* | acorQS |                                  */
   sunrealtype cv_nlscoef;         /* coeficient in nonlinear convergence test    */
   int  *cv_ncfS1;              /* Array of Ns local counters for conv.
@@ -519,20 +519,20 @@ typedef struct CVodeMemRec {
     ---------------------*/
 
   SUNNonlinearSolver NLS;      /* nonlinear solver object                   */
-  booleantype ownNLS;          /* flag indicating NLS ownership             */
+  sunbooleantype ownNLS;          /* flag indicating NLS ownership             */
 
   SUNNonlinearSolver NLSsim;   /* NLS object for the simultaneous corrector */
-  booleantype ownNLSsim;       /* flag indicating NLS ownership             */
+  sunbooleantype ownNLSsim;       /* flag indicating NLS ownership             */
 
   SUNNonlinearSolver NLSstg;   /* NLS object for the staggered corrector */
-  booleantype ownNLSstg;       /* flag indicating NLS ownership          */
+  sunbooleantype ownNLSstg;       /* flag indicating NLS ownership          */
 
   SUNNonlinearSolver NLSstg1;  /* NLS object for the staggered1 corrector */
-  booleantype ownNLSstg1;      /* flag indicating NLS ownership           */
+  sunbooleantype ownNLSstg1;      /* flag indicating NLS ownership           */
   int sens_solve_idx;          /* index of the current staggered1 solve   */
   long int nnip;               /* previous total number of iterations     */
 
-  booleantype sens_solve;      /* flag indicating if the current solve is a
+  sunbooleantype sens_solve;      /* flag indicating if the current solve is a
                                   staggered or staggered1 sensitivity solve */
   CVRhsFn nls_f;               /* f(t,y(t)) used in the nonlinear solver    */
   int convfail;                /* flag to indicate when a Jacobian update may
@@ -554,8 +554,8 @@ typedef struct CVodeMemRec {
 
   /* flags indicating if vector wrappers for the simultaneous and staggered
      correctors have been allocated */
-  booleantype simMallocDone;
-  booleantype stgMallocDone;
+  sunbooleantype simMallocDone;
+  sunbooleantype stgMallocDone;
 
 
   /*------------------
@@ -567,7 +567,7 @@ typedef struct CVodeMemRec {
   int (*cv_linit)(struct CVodeMemRec *cv_mem);
 
   int (*cv_lsetup)(struct CVodeMemRec *cv_mem, int convfail,
-                   N_Vector ypred, N_Vector fpred, booleantype *jcurPtr,
+                   N_Vector ypred, N_Vector fpred, sunbooleantype *jcurPtr,
                    N_Vector vtemp1, N_Vector vtemp2, N_Vector vtemp3);
 
   int (*cv_lsolve)(struct CVodeMemRec *cv_mem, N_Vector b, N_Vector weight,
@@ -581,7 +581,7 @@ typedef struct CVodeMemRec {
   long int  cv_msbp;         /* max number of steps between lsetip calls */
   sunrealtype  cv_dgmax_lsetup; /* gamma ratio threshold to signal for a linear
                               * solver setup */
-  booleantype cv_forceSetup; /* flag to request a call to the setup routine */
+  sunbooleantype cv_forceSetup; /* flag to request a call to the setup routine */
 
   /*------------
     Saved Values
@@ -592,7 +592,7 @@ typedef struct CVodeMemRec {
   sunrealtype cv_h0u;             /* actual initial stepsize                     */
   sunrealtype cv_hu;              /* last successful h value used                */
   sunrealtype cv_saved_tq5;       /* saved value of tq[5]                        */
-  booleantype cv_jcur;         /* is Jacobian info for linear solver current? */
+  sunbooleantype cv_jcur;         /* is Jacobian info for linear solver current? */
   int cv_convfail;             /* flag storing previous solver failure mode   */
   sunrealtype cv_tolsf;           /* tolerance scale factor                      */
   int cv_qmax_alloc;           /* value of qmax used when allocating mem      */
@@ -606,20 +606,20 @@ typedef struct CVodeMemRec {
     and read by CVodeReInit, CVodeSensReInit, and CVodeQuadReInit
     --------------------------------------------------------------------*/
 
-  booleantype cv_VabstolMallocDone;
-  booleantype cv_MallocDone;
-  booleantype cv_constraintsMallocDone;
+  sunbooleantype cv_VabstolMallocDone;
+  sunbooleantype cv_MallocDone;
+  sunbooleantype cv_constraintsMallocDone;
 
-  booleantype cv_VabstolQMallocDone;
-  booleantype cv_QuadMallocDone;
+  sunbooleantype cv_VabstolQMallocDone;
+  sunbooleantype cv_QuadMallocDone;
 
-  booleantype cv_VabstolSMallocDone;
-  booleantype cv_SabstolSMallocDone;
-  booleantype cv_SensMallocDone;
+  sunbooleantype cv_VabstolSMallocDone;
+  sunbooleantype cv_SabstolSMallocDone;
+  sunbooleantype cv_SensMallocDone;
 
-  booleantype cv_VabstolQSMallocDone;
-  booleantype cv_SabstolQSMallocDone;
-  booleantype cv_QuadSensMallocDone;
+  sunbooleantype cv_VabstolQSMallocDone;
+  sunbooleantype cv_SabstolQSMallocDone;
+  sunbooleantype cv_QuadSensMallocDone;
 
   /*-------------------------------------------
     Error handler function and error ouput file
@@ -639,7 +639,7 @@ typedef struct CVodeMemRec {
     Stability Limit Detection
     -------------------------*/
 
-  booleantype cv_sldeton;     /* is Stability Limit Detection on?             */
+  sunbooleantype cv_sldeton;     /* is Stability Limit Detection on?             */
   sunrealtype cv_ssdat[6][4];    /* scaled data array for STALD                  */
   int cv_nscon;               /* counter for STALD method                     */
   long int cv_nor;            /* counter for number of order reductions       */
@@ -663,7 +663,7 @@ typedef struct CVodeMemRec {
   int cv_taskc;            /* copy of parameter itask                         */
   int cv_irfnd;            /* flag showing whether last step had a root       */
   long int cv_nge;         /* counter for g evaluations                       */
-  booleantype *cv_gactive; /* array with active/inactive event functions      */
+  sunbooleantype *cv_gactive; /* array with active/inactive event functions      */
   int cv_mxgnull;          /* number of warning messages about possible g==0  */
 
   /*---------------
@@ -671,8 +671,8 @@ typedef struct CVodeMemRec {
     ---------------*/
 
   CVodeProjMem proj_mem;      /* projection memory structure               */
-  booleantype  proj_enabled;  /* flag indicating if projection is enabled  */
-  booleantype  proj_applied;  /* flag indicating if projection was applied */
+  sunbooleantype  proj_enabled;  /* flag indicating if projection is enabled  */
+  sunbooleantype  proj_applied;  /* flag indicating if projection was applied */
   sunrealtype     proj_p[L_MAX]; /* coefficients of p(x) (degree q poly)      */
 
   /*-----------------------
@@ -687,11 +687,11 @@ typedef struct CVodeMemRec {
     Adjoint sensitivity data
     ------------------------*/
 
-  booleantype cv_adj;             /* SUNTRUE if performing ASA                */
+  sunbooleantype cv_adj;             /* SUNTRUE if performing ASA                */
 
   struct CVadjMemRec *cv_adj_mem; /* Pointer to adjoint memory structure      */
 
-  booleantype cv_adjMallocDone;
+  sunbooleantype cv_adjMallocDone;
 
 } *CVodeMem;
 
@@ -722,13 +722,13 @@ struct CVckpntMemRec {
   N_Vector ck_zn[L_MAX];
 
   /* Do we need to carry quadratures? */
-  booleantype ck_quadr;
+  sunbooleantype ck_quadr;
 
   /* Nordsieck History Array for quadratures */
   N_Vector ck_znQ[L_MAX];
 
   /* Do we need to carry sensitivities? */
-  booleantype ck_sensi;
+  sunbooleantype ck_sensi;
 
   /* number of sensitivities */
   int ck_Ns;
@@ -737,7 +737,7 @@ struct CVckpntMemRec {
   N_Vector *ck_znS[L_MAX];
 
   /* Do we need to carry quadrature sensitivities? */
-  booleantype ck_quadr_sensi;
+  sunbooleantype ck_quadr_sensi;
 
   /* Nordsieck History Array for quadrature sensitivities */
   N_Vector *ck_znQS[L_MAX];
@@ -787,7 +787,7 @@ struct CVckpntMemRec {
  * -----------------------------------------------------------------
  */
 
-typedef booleantype (*cvaIMMallocFn)(CVodeMem cv_mem);
+typedef sunbooleantype (*cvaIMMallocFn)(CVodeMem cv_mem);
 typedef void (*cvaIMFreeFn)(CVodeMem cv_mem);
 typedef int (*cvaIMGetYFn)(CVodeMem cv_mem, sunrealtype t, N_Vector y, N_Vector *yS);
 typedef int (*cvaIMStorePntFn)(CVodeMem cv_mem, CVdtpntMem d);
@@ -846,8 +846,8 @@ struct CVodeBMemRec {
 
   /* Flags to indicate that this backward problem's RHS or quad RHS
    * require forward sensitivities */
-  booleantype cv_f_withSensi;
-  booleantype cv_fQ_withSensi;
+  sunbooleantype cv_f_withSensi;
+  sunbooleantype cv_fQ_withSensi;
 
   /* Right hand side function for backward run */
   CVRhsFnB cv_f;
@@ -903,15 +903,15 @@ struct CVadjMemRec {
   sunrealtype ca_tinitial, ca_tfinal;
 
   /* Flag for first call to CVodeF */
-  booleantype ca_firstCVodeFcall;
+  sunbooleantype ca_firstCVodeFcall;
 
   /* Flag if CVodeF was called with TSTOP */
-  booleantype ca_tstopCVodeFcall;
+  sunbooleantype ca_tstopCVodeFcall;
   sunrealtype ca_tstopCVodeF;
 
   /* Flag if CVodeF was called in CV_NORMAL_MODE and encountered a
      root after tout */
-  booleantype ca_rootret;
+  sunbooleantype ca_rootret;
   sunrealtype ca_troot;
 
   /* ----------------------
@@ -928,7 +928,7 @@ struct CVadjMemRec {
   struct CVodeBMemRec *ca_bckpbCrt;
 
   /* Flag for first call to CVodeB */
-  booleantype ca_firstCVodeBcall;
+  sunbooleantype ca_firstCVodeBcall;
 
   /* ----------------
    * Check point data
@@ -969,10 +969,10 @@ struct CVadjMemRec {
   cvaIMGetYFn     ca_IMget;   /* interpolate forward solution    */
 
   /* Flags controlling the interpolation module */
-  booleantype ca_IMmallocDone;   /* IM initialized? */
-  booleantype ca_IMnewData;      /* new data available in dt_mem?*/
-  booleantype ca_IMstoreSensi;   /* store sensitivities? */
-  booleantype ca_IMinterpSensi;  /* interpolate sensitivities? */
+  sunbooleantype ca_IMmallocDone;   /* IM initialized? */
+  sunbooleantype ca_IMnewData;      /* new data available in dt_mem?*/
+  sunbooleantype ca_IMstoreSensi;   /* store sensitivities? */
+  sunbooleantype ca_IMinterpSensi;  /* interpolate sensitivities? */
 
   /* Workspace for the interpolation module */
   N_Vector ca_Y[L_MAX];     /* pointers to zn[i] */
@@ -1049,7 +1049,7 @@ struct CVadjMemRec {
 /*
  * -----------------------------------------------------------------
  * int (*cv_lsetup)(CVodeMem cv_mem, int convfail, N_Vector ypred,
- *                 N_Vector fpred, booleantype *jcurPtr,
+ *                 N_Vector fpred, sunbooleantype *jcurPtr,
  *                 N_Vector vtemp1, N_Vector vtemp2,
  *                 N_Vector vtemp3);
  * -----------------------------------------------------------------

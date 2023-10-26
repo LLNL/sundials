@@ -503,7 +503,7 @@ void N_VLinearSum_Pthreads(sunrealtype a, N_Vector x, sunrealtype b, N_Vector y,
 
   sunrealtype c;
   N_Vector v1, v2;
-  booleantype test;
+  sunbooleantype test;
 
   if ((b == ONE) && (z == y)) {    /* BLAS usage: axpy y <- ax+y */
     Vaxpy_Pthreads(a,x,y);
@@ -2017,7 +2017,7 @@ static void *N_VCompare_PT(void *thread_data)
  * Compute componentwise inverse z[i] = ONE/x[i] and check if x[i] == ZERO
  */
 
-booleantype N_VInvTest_Pthreads(N_Vector x, N_Vector z)
+sunbooleantype N_VInvTest_Pthreads(N_Vector x, N_Vector z)
 {
   sunindextype   N;
   int            i, nthreads;
@@ -2115,7 +2115,7 @@ static void *N_VInvTest_PT(void *thread_data)
  * Compute constraint mask of a vector
  */
 
-booleantype N_VConstrMask_Pthreads(N_Vector c, N_Vector x, N_Vector m)
+sunbooleantype N_VConstrMask_Pthreads(N_Vector c, N_Vector x, N_Vector m)
 {
   sunindextype   N;
   int            i, nthreads;
@@ -2718,7 +2718,7 @@ int N_VLinearSumVectorArray_Pthreads(int nvec, sunrealtype a, N_Vector* X,
   sunrealtype    c;
   N_Vector*  V1;
   N_Vector*  V2;
-  booleantype test;
+  sunbooleantype test;
 
   /* invalid number of vectors */
   if (nvec < 1) return(-1);
@@ -5305,7 +5305,7 @@ static void N_VInitThreadData(Pthreads_Data *thread_data)
  * -----------------------------------------------------------------
  */
 
-int N_VEnableFusedOps_Pthreads(N_Vector v, booleantype tf)
+int N_VEnableFusedOps_Pthreads(N_Vector v, sunbooleantype tf)
 {
   /* check that vector is non-NULL */
   if (v == NULL) return(-1);
@@ -5350,7 +5350,7 @@ int N_VEnableFusedOps_Pthreads(N_Vector v, booleantype tf)
 }
 
 
-int N_VEnableLinearCombination_Pthreads(N_Vector v, booleantype tf)
+int N_VEnableLinearCombination_Pthreads(N_Vector v, sunbooleantype tf)
 {
   /* check that vector is non-NULL */
   if (v == NULL) return(-1);
@@ -5368,7 +5368,7 @@ int N_VEnableLinearCombination_Pthreads(N_Vector v, booleantype tf)
   return(0);
 }
 
-int N_VEnableScaleAddMulti_Pthreads(N_Vector v, booleantype tf)
+int N_VEnableScaleAddMulti_Pthreads(N_Vector v, sunbooleantype tf)
 {
   /* check that vector is non-NULL */
   if (v == NULL) return(-1);
@@ -5386,7 +5386,7 @@ int N_VEnableScaleAddMulti_Pthreads(N_Vector v, booleantype tf)
   return(0);
 }
 
-int N_VEnableDotProdMulti_Pthreads(N_Vector v, booleantype tf)
+int N_VEnableDotProdMulti_Pthreads(N_Vector v, sunbooleantype tf)
 {
   /* check that vector is non-NULL */
   if (v == NULL) return(-1);
@@ -5407,7 +5407,7 @@ int N_VEnableDotProdMulti_Pthreads(N_Vector v, booleantype tf)
   return(0);
 }
 
-int N_VEnableLinearSumVectorArray_Pthreads(N_Vector v, booleantype tf)
+int N_VEnableLinearSumVectorArray_Pthreads(N_Vector v, sunbooleantype tf)
 {
   /* check that vector is non-NULL */
   if (v == NULL) return(-1);
@@ -5425,7 +5425,7 @@ int N_VEnableLinearSumVectorArray_Pthreads(N_Vector v, booleantype tf)
   return(0);
 }
 
-int N_VEnableScaleVectorArray_Pthreads(N_Vector v, booleantype tf)
+int N_VEnableScaleVectorArray_Pthreads(N_Vector v, sunbooleantype tf)
 {
   /* check that vector is non-NULL */
   if (v == NULL) return(-1);
@@ -5443,7 +5443,7 @@ int N_VEnableScaleVectorArray_Pthreads(N_Vector v, booleantype tf)
   return(0);
 }
 
-int N_VEnableConstVectorArray_Pthreads(N_Vector v, booleantype tf)
+int N_VEnableConstVectorArray_Pthreads(N_Vector v, sunbooleantype tf)
 {
   /* check that vector is non-NULL */
   if (v == NULL) return(-1);
@@ -5461,7 +5461,7 @@ int N_VEnableConstVectorArray_Pthreads(N_Vector v, booleantype tf)
   return(0);
 }
 
-int N_VEnableWrmsNormVectorArray_Pthreads(N_Vector v, booleantype tf)
+int N_VEnableWrmsNormVectorArray_Pthreads(N_Vector v, sunbooleantype tf)
 {
   /* check that vector is non-NULL */
   if (v == NULL) return(-1);
@@ -5479,7 +5479,7 @@ int N_VEnableWrmsNormVectorArray_Pthreads(N_Vector v, booleantype tf)
   return(0);
 }
 
-int N_VEnableWrmsNormMaskVectorArray_Pthreads(N_Vector v, booleantype tf)
+int N_VEnableWrmsNormMaskVectorArray_Pthreads(N_Vector v, sunbooleantype tf)
 {
   /* check that vector is non-NULL */
   if (v == NULL) return(-1);
@@ -5497,7 +5497,7 @@ int N_VEnableWrmsNormMaskVectorArray_Pthreads(N_Vector v, booleantype tf)
   return(0);
 }
 
-int N_VEnableScaleAddMultiVectorArray_Pthreads(N_Vector v, booleantype tf)
+int N_VEnableScaleAddMultiVectorArray_Pthreads(N_Vector v, sunbooleantype tf)
 {
   /* check that vector is non-NULL */
   if (v == NULL) return(-1);
@@ -5515,7 +5515,7 @@ int N_VEnableScaleAddMultiVectorArray_Pthreads(N_Vector v, booleantype tf)
   return(0);
 }
 
-int N_VEnableLinearCombinationVectorArray_Pthreads(N_Vector v, booleantype tf)
+int N_VEnableLinearCombinationVectorArray_Pthreads(N_Vector v, sunbooleantype tf)
 {
   /* check that vector is non-NULL */
   if (v == NULL) return(-1);

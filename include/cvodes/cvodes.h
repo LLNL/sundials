@@ -220,9 +220,9 @@ SUNDIALS_EXPORT int CVodeSetMonitorFrequency(void *cvode_mem, long int nst);
 SUNDIALS_EXPORT int CVodeSetNlsRhsFn(void *cvode_mem, CVRhsFn f);
 SUNDIALS_EXPORT int CVodeSetNonlinConvCoef(void *cvode_mem, sunrealtype nlscoef);
 SUNDIALS_EXPORT int CVodeSetNonlinearSolver(void *cvode_mem, SUNNonlinearSolver NLS);
-SUNDIALS_EXPORT int CVodeSetStabLimDet(void *cvode_mem, booleantype stldet);
+SUNDIALS_EXPORT int CVodeSetStabLimDet(void *cvode_mem, sunbooleantype stldet);
 SUNDIALS_EXPORT int CVodeSetStopTime(void *cvode_mem, sunrealtype tstop);
-SUNDIALS_EXPORT int CVodeSetInterpolateStopTime(void *cvode_mem, booleantype interp);
+SUNDIALS_EXPORT int CVodeSetInterpolateStopTime(void *cvode_mem, sunbooleantype interp);
 SUNDIALS_EXPORT int CVodeClearStopTime(void *cvode_mem);
 SUNDIALS_EXPORT int CVodeSetUserData(void *cvode_mem, void *user_data);
 
@@ -355,7 +355,7 @@ SUNDIALS_EXPORT int CVodeQuadSVtolerances(void *cvode_mem, sunrealtype reltolQ,
                                           N_Vector abstolQ);
 
 /* Optional input specification functions */
-SUNDIALS_EXPORT int CVodeSetQuadErrCon(void *cvode_mem, booleantype errconQ);
+SUNDIALS_EXPORT int CVodeSetQuadErrCon(void *cvode_mem, sunbooleantype errconQ);
 
 /* Extraction and Dense Output Functions for Forward Problems */
 SUNDIALS_EXPORT int CVodeGetQuad(void *cvode_mem, sunrealtype *tret,
@@ -397,7 +397,7 @@ SUNDIALS_EXPORT int CVodeSensEEtolerances(void *cvode_mem);
 /* Optional input specification functions */
 SUNDIALS_EXPORT int CVodeSetSensDQMethod(void *cvode_mem, int DQtype,
                                          sunrealtype DQrhomax);
-SUNDIALS_EXPORT int CVodeSetSensErrCon(void *cvode_mem, booleantype errconS);
+SUNDIALS_EXPORT int CVodeSetSensErrCon(void *cvode_mem, sunbooleantype errconS);
 SUNDIALS_EXPORT int CVodeSetSensMaxNonlinIters(void *cvode_mem, int maxcorS);
 SUNDIALS_EXPORT int CVodeSetSensParams(void *cvode_mem, sunrealtype *p,
                                        sunrealtype *pbar, int *plist);
@@ -480,7 +480,7 @@ SUNDIALS_EXPORT int CVodeQuadSensEEtolerances(void *cvode_mem);
 
 /* Optional input specification functions */
 SUNDIALS_EXPORT int CVodeSetQuadSensErrCon(void *cvode_mem,
-                                           booleantype errconQS);
+                                           sunbooleantype errconQS);
 
 /* Extraction and dense output functions */
 SUNDIALS_EXPORT int CVodeGetQuadSens(void *cvode_mem, sunrealtype *tret,
@@ -571,7 +571,7 @@ SUNDIALS_EXPORT int CVodeSetMaxOrdB(void *cvode_mem, int which, int maxordB);
 SUNDIALS_EXPORT int CVodeSetMaxNumStepsB(void *cvode_mem, int which,
                                          long int mxstepsB);
 SUNDIALS_EXPORT int CVodeSetStabLimDetB(void *cvode_mem, int which,
-                                        booleantype stldetB);
+                                        sunbooleantype stldetB);
 SUNDIALS_EXPORT int CVodeSetInitStepB(void *cvode_mem, int which,
                                       sunrealtype hinB);
 SUNDIALS_EXPORT int CVodeSetMinStepB(void *cvode_mem, int which,
@@ -581,7 +581,7 @@ SUNDIALS_EXPORT int CVodeSetMaxStepB(void *cvode_mem, int which,
 SUNDIALS_EXPORT int CVodeSetConstraintsB(void *cvode_mem, int which,
                                          N_Vector constraintsB);
 SUNDIALS_EXPORT int CVodeSetQuadErrConB(void *cvode_mem, int which,
-                                        booleantype errconQB);
+                                        sunbooleantype errconQB);
 
 SUNDIALS_EXPORT int CVodeSetNonlinearSolverB(void *cvode_mem, int which,
                                              SUNNonlinearSolver NLS);

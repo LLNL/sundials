@@ -267,7 +267,7 @@ int mriStep_NlsInit(ARKodeMem ark_mem)
 int mriStep_Nls(ARKodeMem ark_mem, int nflag)
 {
   ARKodeMRIStepMem step_mem;
-  booleantype callLSetup;
+  sunbooleantype callLSetup;
   long int nls_iters_inc = 0;
   long int nls_fails_inc = 0;
   int retval;
@@ -355,7 +355,7 @@ int mriStep_Nls(ARKodeMem ark_mem, int nflag)
   This routine wraps the ARKODE linear solver interface 'setup'
   routine for use by the nonlinear solver object.
   ---------------------------------------------------------------*/
-int mriStep_NlsLSetup(booleantype jbad, booleantype* jcur, void* arkode_mem)
+int mriStep_NlsLSetup(sunbooleantype jbad, sunbooleantype* jcur, void* arkode_mem)
 {
   ARKodeMem ark_mem;
   ARKodeMRIStepMem step_mem;

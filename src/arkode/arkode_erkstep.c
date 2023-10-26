@@ -34,7 +34,7 @@ void* ERKStepCreate(ARKRhsFn f, sunrealtype t0, N_Vector y0, SUNContext sunctx)
 {
   ARKodeMem ark_mem;
   ARKodeERKStepMem step_mem;
-  booleantype nvectorOK;
+  sunbooleantype nvectorOK;
   int retval;
 
   /* Check that f is supplied */
@@ -105,7 +105,7 @@ void* ERKStepCreate(ARKRhsFn f, sunrealtype t0, N_Vector y0, SUNContext sunctx)
   step_mem->f = f;
 
   /* Update the ARKODE workspace requirements -- UPDATE */
-  ark_mem->liw += 41;  /* fcn/data ptr, int, long int, sunindextype, booleantype */
+  ark_mem->liw += 41;  /* fcn/data ptr, int, long int, sunindextype, sunbooleantype */
   ark_mem->lrw += 10;
 
   /* Initialize all the counters */
@@ -630,7 +630,7 @@ int erkStep_FullRHS(void* arkode_mem, sunrealtype t, N_Vector y, N_Vector f,
   int retval;
   ARKodeMem ark_mem;
   ARKodeERKStepMem step_mem;
-  booleantype recomputeRHS;
+  sunbooleantype recomputeRHS;
 
   /* access ARKodeERKStepMem structure */
   retval = erkStep_AccessStepMem(arkode_mem, "erkStep_FullRHS",
@@ -899,7 +899,7 @@ int erkStep_AccessStepMem(void* arkode_mem, const char *fname,
   This routine checks if all required vector operations are
   present.  If any of them is missing it returns SUNFALSE.
   ---------------------------------------------------------------*/
-booleantype erkStep_CheckNVector(N_Vector tmpl)
+sunbooleantype erkStep_CheckNVector(N_Vector tmpl)
 {
   if ( (tmpl->ops->nvclone     == NULL) ||
        (tmpl->ops->nvdestroy   == NULL) ||
@@ -1002,7 +1002,7 @@ int erkStep_SetButcherTable(ARKodeMem ark_mem)
 int erkStep_CheckButcherTable(ARKodeMem ark_mem)
 {
   int i, j;
-  booleantype okay;
+  sunbooleantype okay;
   ARKodeERKStepMem step_mem;
   sunrealtype tol = SUN_RCONST(1.0e-12);
 

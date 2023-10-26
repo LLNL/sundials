@@ -486,7 +486,7 @@ static int f_diff(sunrealtype t, N_Vector y, N_Vector ydot, void *user_data)
   sunindextype i;
   sunrealtype ul, ur, vl, vr, wl, wr;
   sunrealtype xl, xr, f1;
-  booleantype left, right;
+  sunbooleantype left, right;
   sunrealtype *Ydata, *RHSdata;
 
   /* access data arrays */
@@ -567,7 +567,7 @@ static int f_rx(sunrealtype t, N_Vector y, N_Vector ydot, void *user_data) {
   sunindextype i;
   sunrealtype ul, ur, vl, vr, wl, wr;
   sunrealtype u, v, w, xl, xr, f1, f2, f3;
-  booleantype left, right;
+  sunbooleantype left, right;
   sunrealtype *Ydata, *RHSdata;
 
   /* access data arrays */
@@ -768,7 +768,7 @@ static int MassMatrix(sunrealtype t, SUNMatrix M, void *user_data,
   /* local data */
   sunindextype i, nz=0;
   sunrealtype xl, xc, xr, Ml, Mc, Mr, ChiL1, ChiL2, ChiL3, ChiR1, ChiR2, ChiR3;
-  booleantype left, right;
+  sunbooleantype left, right;
 
   /* check that vector/matrix dimensions match up */
   if ((SUNSparseMatrix_Rows(M) != NEQ) || (SUNSparseMatrix_Columns(M) != NEQ) ||

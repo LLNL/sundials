@@ -125,7 +125,7 @@ int SUNNonlinSolSetup(SUNNonlinearSolver NLS, N_Vector y, void* mem)
 int SUNNonlinSolSolve(SUNNonlinearSolver NLS,
                       N_Vector y0, N_Vector y,
                       N_Vector w, sunrealtype tol,
-                      booleantype callLSetup, void* mem)
+                      sunbooleantype callLSetup, void* mem)
 {
   int ier;
   SUNDIALS_MARK_FUNCTION_BEGIN(getSUNProfiler(NLS));

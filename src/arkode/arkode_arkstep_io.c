@@ -57,7 +57,7 @@ int ARKStepSetMaxStep(void *arkode_mem, sunrealtype hmax) {
 int ARKStepSetStopTime(void *arkode_mem, sunrealtype tstop) {
   return(arkSetStopTime(arkode_mem, tstop)); }
 int ARKStepSetInterpolateStopTime(void *arkode_mem,
-                                  booleantype interp) {
+                                  sunbooleantype interp) {
   return(arkSetInterpolateStopTime(arkode_mem, interp)); }
 int ARKStepClearStopTime(void *arkode_mem) {
   return(arkClearStopTime(arkode_mem)); }
@@ -118,7 +118,7 @@ int ARKStepSetLinearSolver(void *arkode_mem, SUNLinearSolver LS,
                            SUNMatrix A) {
   return(arkLSSetLinearSolver(arkode_mem, LS, A)); }
 int ARKStepSetMassLinearSolver(void *arkode_mem, SUNLinearSolver LS,
-                               SUNMatrix M, booleantype time_dep) {
+                               SUNMatrix M, sunbooleantype time_dep) {
   return(arkLSSetMassLinearSolver(arkode_mem, LS, M, time_dep)); }
 int ARKStepSetJacFn(void *arkode_mem, ARKLsJacFn jac) {
   return(arkLSSetJacFn(arkode_mem, jac)); }
@@ -126,7 +126,7 @@ int ARKStepSetMassFn(void *arkode_mem, ARKLsMassFn mass) {
   return(arkLSSetMassFn(arkode_mem, mass)); }
 int ARKStepSetJacEvalFrequency(void *arkode_mem, long int msbj) {
   return(arkLSSetJacEvalFrequency(arkode_mem, msbj)); }
-int ARKStepSetLinearSolutionScaling(void *arkode_mem, booleantype onoff) {
+int ARKStepSetLinearSolutionScaling(void *arkode_mem, sunbooleantype onoff) {
   return(arkLSSetLinearSolutionScaling(arkode_mem, onoff)); }
 int ARKStepSetEpsLin(void *arkode_mem, sunrealtype eplifac) {
   return(arkLSSetEpsLin(arkode_mem, eplifac)); }

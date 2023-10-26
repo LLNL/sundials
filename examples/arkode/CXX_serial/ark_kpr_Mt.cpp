@@ -108,7 +108,7 @@ struct UserData
   sunrealtype G;
   sunrealtype g;
   sunrealtype e;
-  booleantype M_timedep;
+  sunbooleantype M_timedep;
 };
 
 // User-supplied functions called by the solver
@@ -148,8 +148,8 @@ int main(int argc, char *argv[])
   int rk_type = 0;                  // type of RK method [ARK=0, DIRK=1, ERK=2]
   int nls_type = 0;                 // type of nonlinear solver [Newton=0, FP=1]
   int order = 4;                    // order of accuracy for RK method
-  booleantype deduce = SUNFALSE;    // deduce fi after a nonlinear solve
-  booleantype adaptive = SUNTRUE;   // adaptive run vs convergence order
+  sunbooleantype deduce = SUNFALSE;    // deduce fi after a nonlinear solve
+  sunbooleantype adaptive = SUNTRUE;   // adaptive run vs convergence order
   sunrealtype reltol = SUN_RCONST(1e-5);   // relative tolerance
   sunrealtype abstol = SUN_RCONST(1e-11);  // absolute tolerance
 
