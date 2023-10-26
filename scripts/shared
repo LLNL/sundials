@@ -127,6 +127,7 @@ $tar $tarfile $distrobase/include/sundials/sundials_convertibleto.hpp
 $tar $tarfile $distrobase/include/sundials/sundials_cuda_policies.hpp
 $tar $tarfile $distrobase/include/sundials/sundials_hip_policies.hpp
 $tar $tarfile $distrobase/include/sundials/sundials_types.h
+$tar $tarfile $distrobase/include/sundials/sundials_types_old.h
 $tar $tarfile $distrobase/include/sundials/sundials_mpi_types.h
 $tar $tarfile $distrobase/include/sundials/sundials_matrix.h
 $tar $tarfile $distrobase/include/sundials/sundials_matrix.hpp
