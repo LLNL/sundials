@@ -113,15 +113,6 @@ SUNDIALS_EXPORT int SUNNonlinSolGetNumConvFails_Newton(SUNNonlinearSolver NLS,
 SUNDIALS_EXPORT int SUNNonlinSolGetSysFn_Newton(SUNNonlinearSolver NLS,
                                                 SUNNonlinSolSysFn *SysFn);
 
-SUNDIALS_DEPRECATED_EXPORT_MSG("Use SUNLogger_SetInfoFilename instead")
-int SUNNonlinSolSetInfoFile_Newton(SUNNonlinearSolver NLS,
-                                   FILE* info_file);
-
-SUNDIALS_DEPRECATED_EXPORT_MSG("Use SUNLogger interface instead")
-SUNDIALS_EXPORT int SUNNonlinSolSetPrintLevel_Newton(SUNNonlinearSolver NLS,
-                                                     int print_level);
-
-
 #ifdef __cplusplus
 }
 #endif

@@ -211,24 +211,6 @@ SUNDIALS_EXPORT int N_VEnableScaleAddMultiVectorArray_ParHyp(N_Vector v,
 SUNDIALS_EXPORT int N_VEnableLinearCombinationVectorArray_ParHyp(N_Vector v,
                                                                  booleantype tf);
 
-/*
- * -----------------------------------------------------------------
- * Deprecated functions
- * -----------------------------------------------------------------
- */
-
-/* use N_VCloneVectorArray */
-SUNDIALS_DEPRECATED_EXPORT N_Vector *N_VCloneVectorArray_ParHyp(int count,
-                                                                N_Vector w);
-
-/* use N_VCloneVectorArrayEmpty */
-SUNDIALS_DEPRECATED_EXPORT N_Vector *N_VCloneVectorArrayEmpty_ParHyp(int count,
-                                                                     N_Vector w);
-
-/* use N_VDestroyVectorArray */
-SUNDIALS_DEPRECATED_EXPORT void N_VDestroyVectorArray_ParHyp(N_Vector *vs,
-                                                             int count);
-
 SUNDIALS_EXPORT int N_VEnableDotProdMultiLocal_ParHyp(N_Vector v, booleantype tf);
 
 #ifdef __cplusplus
