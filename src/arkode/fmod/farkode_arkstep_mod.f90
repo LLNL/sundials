@@ -3968,13 +3968,13 @@ result(swig_result)
 use, intrinsic :: ISO_C_BINDING
 integer(C_INT) :: swig_result
 type(C_PTR) :: arkode_mem
-real(C_DOUBLE), target, intent(inout) :: t_j
+real(C_DOUBLE), dimension(*), target, intent(inout) :: t_j
 integer(C_INT) :: fresult 
 type(C_PTR) :: farg1 
 type(C_PTR) :: farg2 
 
 farg1 = arkode_mem
-farg2 = c_loc(t_j)
+farg2 = c_loc(t_j(1))
 fresult = swigc_FARKStepGetJacTime(farg1, farg2)
 swig_result = fresult
 end function

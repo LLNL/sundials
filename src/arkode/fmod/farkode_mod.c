@@ -931,7 +931,7 @@ SWIGEXPORT void _wrap_ARKodeSPRKTableMem_op_assign__(SwigClassWrapper *farg1, Sw
 }
 
 
-SWIGEXPORT void * _wrap_FARKodeSPRKTable_Create(int const *farg1, int const *farg2, double const *farg3, double const *farg4) {
+SWIGEXPORT void * _wrap_FARKodeSPRKTable_Create(int const *farg1, int const *farg2, double *farg3, double *farg4) {
   void * fresult ;
   int arg1 ;
   int arg2 ;

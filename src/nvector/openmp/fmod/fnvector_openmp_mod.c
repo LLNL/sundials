@@ -946,44 +946,6 @@ SWIGEXPORT int _wrap_FN_VEnableWrmsNormMaskVectorArray_OpenMP(N_Vector farg1, in
 }
 
 
-SWIGEXPORT void * _wrap_FN_VCloneVectorArray_OpenMP(int const *farg1, N_Vector farg2) {
-  void * fresult ;
-  int arg1 ;
-  N_Vector arg2 = (N_Vector) 0 ;
-  N_Vector *result = 0 ;
-  
-  arg1 = (int)(*farg1);
-  arg2 = (N_Vector)(farg2);
-  result = (N_Vector *)N_VCloneVectorArray_OpenMP(arg1,arg2);
-  fresult = result;
-  return fresult;
-}
-
-
-SWIGEXPORT void * _wrap_FN_VCloneVectorArrayEmpty_OpenMP(int const *farg1, N_Vector farg2) {
-  void * fresult ;
-  int arg1 ;
-  N_Vector arg2 = (N_Vector) 0 ;
-  N_Vector *result = 0 ;
-  
-  arg1 = (int)(*farg1);
-  arg2 = (N_Vector)(farg2);
-  result = (N_Vector *)N_VCloneVectorArrayEmpty_OpenMP(arg1,arg2);
-  fresult = result;
-  return fresult;
-}
-
-
-SWIGEXPORT void _wrap_FN_VDestroyVectorArray_OpenMP(void *farg1, int const *farg2) {
-  N_Vector *arg1 = (N_Vector *) 0 ;
-  int arg2 ;
-  
-  arg1 = (N_Vector *)(farg1);
-  arg2 = (int)(*farg2);
-  N_VDestroyVectorArray_OpenMP(arg1,arg2);
-}
-
-
 
 SWIGEXPORT double * _wrap_FN_VGetArrayPointer_OpenMP(N_Vector farg1) {
   double * fresult ;
