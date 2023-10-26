@@ -297,6 +297,39 @@ method from :cite:p:`KenCarp:03`).
    region is outlined in blue; the embedding's region is in red.
 
 
+Shu-Osher-3-2-3
+^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+.. index:: Shu-Osher-3-2-3 ERK method
+
+Accessible via the constant ``ARKODE_SHU_OSHER_3_2_3`` to
+:c:func:`ARKStepSetTableNum`, :c:func:`ERKStepSetTableNum` or
+:c:func:`ARKodeButcherTable_LoadERK`.
+Accessible via the string ``"ARKODE_SHU_OSHER_3_2_3"`` to
+:c:func:`ARKStepSetTableName`, :c:func:`ERKStepSetTableName` or
+:c:func:`ARKodeButcherTable_LoadERKByName`.
+(from :cite:p:`ShOs:88` with embedding from :cite:p:`FCS:2021`).
+
+.. math::
+
+   \renewcommand{\arraystretch}{1.5}
+   \begin{array}{r|ccc}
+     0 & 0 & 0 & 0 \\
+     1 & 0 & 0 & 0 \\
+     \frac{1}{2} & \frac{1}{4} & \frac{1}{4} & 0 \\
+     \hline
+     3 & \frac{1}{6} & \frac{1}{6} & \frac{2}{3} \\
+     2 & \frac{291485418878409}{1000000000000000} & \frac{291485418878409}{1000000000000000} & \frac{208514581121591}{500000000000000}
+   \end{array}
+
+.. figure:: /figs/arkode/shu_osher_erk_stab_region.png
+   :scale: 50 %
+   :align: center
+
+   Linear stability region for the Shu-Osher method.  The method's
+   region is outlined in blue; the embedding's region is in red.
+
+
 
 .. _Butcher.Knoth_Wolke:
 
