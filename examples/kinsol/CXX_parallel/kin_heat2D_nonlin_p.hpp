@@ -40,7 +40,7 @@
 #define IDX(x,y,n) ((n)*(y)+(x))
 
 // Define c function type
-typedef realtype (*cFn)(realtype u_val);
+typedef sunrealtype (*cFn)(sunrealtype u_val);
 
 using namespace std;
 
@@ -51,12 +51,12 @@ using namespace std;
 struct UserData
 {
   // Diffusion coefficients in the x and y directions
-  realtype kx;
-  realtype ky;
+  sunrealtype kx;
+  sunrealtype ky;
 
   // Upper bounds in x and y directions
-  realtype xu;
-  realtype yu;
+  sunrealtype xu;
+  sunrealtype yu;
 
   // Global number of nodes in the x and y directions
   sunindextype nx;
@@ -66,8 +66,8 @@ struct UserData
   sunindextype nodes;
 
   // Mesh spacing in the x and y directions
-  realtype dx;
-  realtype dy;
+  sunrealtype dx;
+  sunrealtype dy;
 
   // Local number of nodes in the x and y directions
   sunindextype nx_loc;
@@ -104,10 +104,10 @@ struct UserData
   int ipN;
 
   // Receive buffers for neighbor exchange
-  realtype *Wrecv;
-  realtype *Erecv;
-  realtype *Srecv;
-  realtype *Nrecv;
+  sunrealtype *Wrecv;
+  sunrealtype *Erecv;
+  sunrealtype *Srecv;
+  sunrealtype *Nrecv;
 
   // Receive requests for neighbor exchange
   MPI_Request reqRW;
@@ -116,10 +116,10 @@ struct UserData
   MPI_Request reqRN;
 
   // Send buffers for neighbor exchange
-  realtype *Wsend;
-  realtype *Esend;
-  realtype *Ssend;
-  realtype *Nsend;
+  sunrealtype *Wsend;
+  sunrealtype *Esend;
+  sunrealtype *Ssend;
+  sunrealtype *Nsend;
 
   // Send requests for neighor exchange
   MPI_Request reqSW;
@@ -128,7 +128,7 @@ struct UserData
   MPI_Request reqSN;
 
   // Fixed Point Solver settings
-  realtype rtol;        // relative tolerance
+  sunrealtype rtol;        // relative tolerance
   int      maa;         // m for Anderson Acceleration
   double   damping;     // daming for Anderson Acceleration
   int      orthaa;      // orthogonalization routine for AA
@@ -235,125 +235,125 @@ static int check_retval(void *flagvalue, const string funcname, int opt);
 // -----------------------------------------------------------------------------
 
 // c(u) = u
-realtype c1(realtype u_val)
+sunrealtype c1(sunrealtype u_val)
 {
   return u_val;
 }
 
 // c(u) = u^3 - u
-realtype c2(realtype u_val)
+sunrealtype c2(sunrealtype u_val)
 {
   return u_val * u_val * u_val - u_val;
 }
 
 // c(u) = u - u^2
-realtype c3(realtype u_val)
+sunrealtype c3(sunrealtype u_val)
 {
   return u_val - u_val * u_val;
 }
 
 // c(u) = e^u
-realtype c4(realtype u_val)
+sunrealtype c4(sunrealtype u_val)
 {
   return exp(u_val);
 }
 
 // c(u) = u^4
-realtype c5(realtype u_val)
+sunrealtype c5(sunrealtype u_val)
 {
   return u_val * u_val * u_val * u_val;
 }
 
 // c(u) = cos^2(u) - sin^2(u)
-realtype c6(realtype u_val)
+sunrealtype c6(sunrealtype u_val)
 {
   return (cos(u_val) * cos(u_val)) - (sin(u_val) * sin(u_val));
 }
 
 // c(u) = cos^2(u) - sin^2(u) - e^u
-realtype c7(realtype u_val)
+sunrealtype c7(sunrealtype u_val)
 {
   return (cos(u_val) * cos(u_val)) - (sin(u_val) * sin(u_val)) - exp(u_val);
 }
 
 // c(u) = e^u * u^4 - u * e^{cos(u)}
-realtype c8(realtype u_val)
+sunrealtype c8(sunrealtype u_val)
 {
-  realtype u2 = u_val * u_val;
+  sunrealtype u2 = u_val * u_val;
   return exp(u_val) * u2 * u2 - u_val * exp(cos(u_val));
 }
 
 // c(u) = e^(cos^2(u))
-realtype c9(realtype u_val)
+sunrealtype c9(sunrealtype u_val)
 {
-  realtype cos2u = cos(u_val) * cos(u_val);
+  sunrealtype cos2u = cos(u_val) * cos(u_val);
   return exp(cos2u);
 }
 
 // c(u) = 10(u - u^2)
-realtype c10(realtype u_val)
+sunrealtype c10(sunrealtype u_val)
 {
-  realtype u2 = u_val * u_val;
+  sunrealtype u2 = u_val * u_val;
   return 10.0 * (u_val - u2);
 }
 
 // c(u) = -13 + u + ((5-u)u - 2)u
-realtype c11(realtype u_val)
+sunrealtype c11(sunrealtype u_val)
 {
-  realtype temp = ((5.0 - u_val) * u_val) - 2.0;
+  sunrealtype temp = ((5.0 - u_val) * u_val) - 2.0;
   return -13.0 + u_val + temp * u_val;
 }
 
 // c(u) = sqrt(5) * (u - u^2)
-realtype c12(realtype u_val)
+sunrealtype c12(sunrealtype u_val)
 {
-  realtype temp = sqrt(5);
-  realtype u2 = u_val * u_val;
+  sunrealtype temp = sqrt(5);
+  sunrealtype u2 = u_val * u_val;
   return temp * (u_val - u2);
 }
 
 // c(u) = (u - e^u)^2 + (u + u * sin(u) - cos(u))^2
-realtype c13(realtype u_val)
+sunrealtype c13(sunrealtype u_val)
 {
-  realtype eu   = u_val - exp(u_val);
-  realtype usin = u_val * sin(u_val);
-  realtype temp = (u_val + usin - cos(u_val));
+  sunrealtype eu   = u_val - exp(u_val);
+  sunrealtype usin = u_val * sin(u_val);
+  sunrealtype temp = (u_val + usin - cos(u_val));
   return eu * eu + temp * temp;
 }
 
 // c(u) = u + ue^u + ue^{-u}
-realtype c14(realtype u_val)
+sunrealtype c14(sunrealtype u_val)
 {
-  realtype ueu  = u_val * exp(u_val);
-  realtype ue_u = u_val * exp(-u_val);
+  sunrealtype ueu  = u_val * exp(u_val);
+  sunrealtype ue_u = u_val * exp(-u_val);
   return u_val + ueu + ue_u;
 }
 
 // c(u) = u + ue^u + ue^{-u} + (u - e^u)^2
-realtype c15(realtype u_val)
+sunrealtype c15(sunrealtype u_val)
 {
-  realtype ueu  = u_val * exp(u_val);
-  realtype ue_u = u_val * exp(-u_val);
-  realtype temp = u_val - exp(u_val);
+  sunrealtype ueu  = u_val * exp(u_val);
+  sunrealtype ue_u = u_val * exp(-u_val);
+  sunrealtype temp = u_val - exp(u_val);
   return u_val + ueu + ue_u + (temp * temp);
 }
 
 // c(u) = u + ue^u + ue^{-u} + (u - e^u)^2 + (u + usin(u) - cos(u))^2
-realtype c16(realtype u_val)
+sunrealtype c16(sunrealtype u_val)
 {
-  realtype ueu   = u_val * exp(u_val);
-  realtype ue_u  = u_val * exp(-u_val);
-  realtype temp  = u_val - exp(u_val);
-  realtype temp2 = u_val + (u_val * sin(u_val)) - cos(u_val);
+  sunrealtype ueu   = u_val * exp(u_val);
+  sunrealtype ue_u  = u_val * exp(-u_val);
+  sunrealtype temp  = u_val - exp(u_val);
+  sunrealtype temp2 = u_val + (u_val * sin(u_val)) - cos(u_val);
   return u_val + ueu + ue_u + (temp * temp) + (temp2 * temp2);
 }
 
 // c(u) = u + ue^{-u} + e^u*(u + sin(u) - cos(u))^3
-realtype c17(realtype u_val)
+sunrealtype c17(sunrealtype u_val)
 {
-  realtype ue_u = u_val * exp(-u_val);
-  realtype eu   = exp(u_val);
-  realtype temp = u_val + sin(u_val) - cos(u_val);
+  sunrealtype ue_u = u_val * exp(-u_val);
+  sunrealtype eu   = exp(u_val);
+  sunrealtype temp = u_val + sin(u_val) - cos(u_val);
   return u_val + ue_u + eu * (temp * temp * temp);
 }
 

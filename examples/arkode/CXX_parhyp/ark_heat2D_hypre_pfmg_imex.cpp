@@ -82,22 +82,22 @@ using namespace std;
 struct UserData
 {
   // Diffusion coefficients in the x and y directions
-  realtype kx;
-  realtype ky;
+  sunrealtype kx;
+  sunrealtype ky;
 
   // Advection coefficients in the x and y directions
-  realtype ax;
-  realtype ay;
+  sunrealtype ax;
+  sunrealtype ay;
 
   // Reactions coefficient
-  realtype r;
+  sunrealtype r;
 
   // Final time
-  realtype tf;
+  sunrealtype tf;
 
   // Upper bounds in x and y directions
-  realtype xu;
-  realtype yu;
+  sunrealtype xu;
+  sunrealtype yu;
 
   // Global number of nodes in the x and y directions
   sunindextype nx;
@@ -107,8 +107,8 @@ struct UserData
   sunindextype nodes;
 
   // Mesh spacing in the x and y directions
-  realtype dx;
-  realtype dy;
+  sunrealtype dx;
+  sunrealtype dy;
 
   // Local number of nodes in the x and y directions
   sunindextype nx_loc;
@@ -145,10 +145,10 @@ struct UserData
   int ipN;
 
   // Receive buffers for neighbor exchange
-  realtype *Wrecv;
-  realtype *Erecv;
-  realtype *Srecv;
-  realtype *Nrecv;
+  sunrealtype *Wrecv;
+  sunrealtype *Erecv;
+  sunrealtype *Srecv;
+  sunrealtype *Nrecv;
 
   // Receive requests for neighbor exchange
   MPI_Request reqRW;
@@ -157,10 +157,10 @@ struct UserData
   MPI_Request reqRN;
 
   // Send buffers for neighbor exchange
-  realtype *Wsend;
-  realtype *Esend;
-  realtype *Ssend;
-  realtype *Nsend;
+  sunrealtype *Wsend;
+  sunrealtype *Esend;
+  sunrealtype *Ssend;
+  sunrealtype *Nsend;
 
   // Send requests for neighor exchange
   MPI_Request reqSW;
@@ -169,18 +169,18 @@ struct UserData
   MPI_Request reqSN;
 
   // Integrator settings
-  realtype rtol;    // relative tolerance
-  realtype atol;    // absolute tolerance
+  sunrealtype rtol;    // relative tolerance
+  sunrealtype atol;    // absolute tolerance
   bool     linear;  // enable/disable linearly implicit option
   int      order;   // ARKode method order
 
-  realtype hf;         // fixed step size
+  sunrealtype hf;         // fixed step size
   int      controller; // step size adaptivity method
   int      maxsteps;   // max number of steps between outputs
 
   // Linear solver and preconditioner settings
   int      liniters; // number of linear iterations
-  realtype epslin;   // linear solver tolerance factor
+  sunrealtype epslin;   // linear solver tolerance factor
   int      prectype; // preconditioner type (NONE or LEFT)
   int      msbp;     // max number of steps between preconditioner setups
 
@@ -240,17 +240,17 @@ static int SetupDecomp(MPI_Comm comm_w, UserData *udata);
 // -----------------------------------------------------------------------------
 
 // ODE right hand side functions
-static int f(realtype t, N_Vector u, N_Vector f, void *user_data);
-static int fi(realtype t, N_Vector u, N_Vector f, void *user_data);
-static int fe(realtype t, N_Vector u, N_Vector f, void *user_data);
-static int ffeval(realtype *fval, realtype uval, realtype rval);
+static int f(sunrealtype t, N_Vector u, N_Vector f, void *user_data);
+static int fi(sunrealtype t, N_Vector u, N_Vector f, void *user_data);
+static int fe(sunrealtype t, N_Vector u, N_Vector f, void *user_data);
+static int ffeval(sunrealtype *fval, sunrealtype uval, sunrealtype rval);
 
 // Preconditioner setup and solve functions
-static int PSetup(realtype t, N_Vector u, N_Vector f, booleantype jok,
-                  booleantype *jcurPtr, realtype gamma, void *user_data);
+static int PSetup(sunrealtype t, N_Vector u, N_Vector f, booleantype jok,
+                  booleantype *jcurPtr, sunrealtype gamma, void *user_data);
 
-static int PSolve(realtype t, N_Vector u, N_Vector f, N_Vector r,
-                  N_Vector z, realtype gamma, realtype delta, int lr,
+static int PSolve(sunrealtype t, N_Vector u, N_Vector f, N_Vector r,
+                  N_Vector z, sunrealtype gamma, sunrealtype delta, int lr,
                   void *user_data);
 
 // -----------------------------------------------------------------------------
@@ -261,7 +261,7 @@ static int PSolve(realtype t, N_Vector u, N_Vector f, N_Vector r,
 static int HyprePFMG(UserData *udata);
 
 // Fill A = I - gamma * J matrix
-static int FillMatrix(UserData *udata, realtype gamma);
+static int FillMatrix(UserData *udata, sunrealtype gamma);
 
 // Perform neighbor exchange
 static int PostRecv(UserData *udata);
@@ -282,7 +282,7 @@ static int FreeUserData(UserData *udata);
 static int ReadInputs(int *argc, char ***argv, UserData *udata, bool outproc);
 
 // Compute the initial condition
-static int InitSolution(realtype t, N_Vector u, UserData *udata);
+static int InitSolution(sunrealtype t, N_Vector u, UserData *udata);
 
 // -----------------------------------------------------------------------------
 // Output and utility functions
@@ -296,7 +296,7 @@ static int PrintUserData(UserData *udata);
 
 // Output solution and error
 static int OpenOutput(UserData *udata);
-static int WriteOutput(realtype t, N_Vector u, UserData *udata);
+static int WriteOutput(sunrealtype t, N_Vector u, UserData *udata);
 static int CloseOutput(UserData *udata);
 
 // Print integration statistics
@@ -472,9 +472,9 @@ int main(int argc, char* argv[])
     // Loop over output times
     // -----------------------
 
-    realtype t     = ZERO;
-    realtype dTout = udata.tf / udata.nout;
-    realtype tout  = dTout;
+    sunrealtype t     = ZERO;
+    sunrealtype dTout = udata.tf / udata.nout;
+    sunrealtype tout  = dTout;
 
     // Inital output
     flag = OpenOutput(&udata);
@@ -656,23 +656,23 @@ static int SetupDecomp(MPI_Comm comm_w, UserData *udata)
   // Allocate exchange buffers if necessary
   if (udata->HaveNbrW)
   {
-    udata->Wrecv = new realtype[udata->ny_loc];
-    udata->Wsend = new realtype[udata->ny_loc];
+    udata->Wrecv = new sunrealtype[udata->ny_loc];
+    udata->Wsend = new sunrealtype[udata->ny_loc];
   }
   if (udata->HaveNbrE)
   {
-    udata->Erecv = new realtype[udata->ny_loc];
-    udata->Esend = new realtype[udata->ny_loc];
+    udata->Erecv = new sunrealtype[udata->ny_loc];
+    udata->Esend = new sunrealtype[udata->ny_loc];
   }
   if (udata->HaveNbrS)
   {
-    udata->Srecv = new realtype[udata->nx_loc];
-    udata->Ssend = new realtype[udata->nx_loc];
+    udata->Srecv = new sunrealtype[udata->nx_loc];
+    udata->Ssend = new sunrealtype[udata->nx_loc];
   }
   if (udata->HaveNbrN)
   {
-    udata->Nrecv = new realtype[udata->nx_loc];
-    udata->Nsend = new realtype[udata->nx_loc];
+    udata->Nrecv = new sunrealtype[udata->nx_loc];
+    udata->Nsend = new sunrealtype[udata->nx_loc];
   }
 
   // MPI neighborhood information
@@ -738,11 +738,11 @@ static int SetupDecomp(MPI_Comm comm_w, UserData *udata)
 // Functions called by the integrator
 // -----------------------------------------------------------------------------
 // f routine to compute the full ODE RHS function f(t,y).
-static int f(realtype t, N_Vector u, N_Vector f, void *user_data)
+static int f(sunrealtype t, N_Vector u, N_Vector f, void *user_data)
 {
   int          flag;
   sunindextype i, j;
-  realtype ftemp;
+  sunrealtype ftemp;
 
   // Start timer
   double t1 = MPI_Wtime();
@@ -755,10 +755,10 @@ static int f(realtype t, N_Vector u, N_Vector f, void *user_data)
   sunindextype ny_loc = udata->ny_loc;
 
   // Access data arrays
-  realtype *uarray = N_VGetArrayPointer(u);
+  sunrealtype *uarray = N_VGetArrayPointer(u);
   if (check_flag((void *) uarray, "N_VGetArrayPointer", 0)) return -1;
 
-  realtype *farray = N_VGetArrayPointer(f);
+  sunrealtype *farray = N_VGetArrayPointer(f);
   if (check_flag((void *) farray, "N_VGetArrayPointer", 0)) return -1;
 
   // Open exchange receives
@@ -770,18 +770,18 @@ static int f(realtype t, N_Vector u, N_Vector f, void *user_data)
   if (check_flag(&flag, "SendData", 1)) return -1;
 
   // Constants for computing diffusion
-  realtype cx = udata->kx / (udata->dx * udata->dx);
-  realtype cy = udata->ky / (udata->dy * udata->dy);
-  realtype cc = -TWO * (cx + cy);
+  sunrealtype cx = udata->kx / (udata->dx * udata->dx);
+  sunrealtype cy = udata->ky / (udata->dy * udata->dy);
+  sunrealtype cc = -TWO * (cx + cy);
 
   // Constants for computing advection
-  realtype cxp = -SUNMAX(udata->ax, ZERO) / (udata->dx);
-  realtype cxm = -SUNMIN(udata->ax, ZERO) / (udata->dx);
-  realtype cyp = -SUNMAX(udata->ay, ZERO) / (udata->dy);
-  realtype cym = -SUNMIN(udata->ay, ZERO) / (udata->dy);
+  sunrealtype cxp = -SUNMAX(udata->ax, ZERO) / (udata->dx);
+  sunrealtype cxm = -SUNMIN(udata->ax, ZERO) / (udata->dx);
+  sunrealtype cyp = -SUNMAX(udata->ay, ZERO) / (udata->dy);
+  sunrealtype cym = -SUNMIN(udata->ay, ZERO) / (udata->dy);
 
   // Shortcut to reaction coefficient
-  realtype rval = udata->r;
+  sunrealtype rval = udata->r;
 
   // Initialize rhs to zero (handles boundary conditions)
   N_VConst(ZERO, f);
@@ -808,10 +808,10 @@ static int f(realtype t, N_Vector u, N_Vector f, void *user_data)
   if (check_flag(&flag, "WaitRecv", 1)) return -1;
 
   // Iterate over subdomain boundaries (if not at overall domain boundary)
-  realtype *Warray = udata->Wrecv;
-  realtype *Earray = udata->Erecv;
-  realtype *Sarray = udata->Srecv;
-  realtype *Narray = udata->Nrecv;
+  sunrealtype *Warray = udata->Wrecv;
+  sunrealtype *Earray = udata->Erecv;
+  sunrealtype *Sarray = udata->Srecv;
+  sunrealtype *Narray = udata->Nrecv;
 
   // West face
   if (udata->HaveNbrW)
@@ -960,11 +960,11 @@ static int f(realtype t, N_Vector u, N_Vector f, void *user_data)
 }
 
 // fi routine to compute the implicit part of ODE RHS function fi(t,u).
-static int fi(realtype t, N_Vector u, N_Vector f, void *user_data)
+static int fi(sunrealtype t, N_Vector u, N_Vector f, void *user_data)
 {
   int          flag;
   sunindextype i, j;
-  realtype ftemp;
+  sunrealtype ftemp;
 
   // Start timer
   double t1 = MPI_Wtime();
@@ -977,10 +977,10 @@ static int fi(realtype t, N_Vector u, N_Vector f, void *user_data)
   sunindextype ny_loc = udata->ny_loc;
 
   // Access data arrays
-  realtype *uarray = N_VGetArrayPointer(u);
+  sunrealtype *uarray = N_VGetArrayPointer(u);
   if (check_flag((void *) uarray, "N_VGetArrayPointer", 0)) return -1;
 
-  realtype *farray = N_VGetArrayPointer(f);
+  sunrealtype *farray = N_VGetArrayPointer(f);
   if (check_flag((void *) farray, "N_VGetArrayPointer", 0)) return -1;
 
   // Open exchange receives
@@ -992,12 +992,12 @@ static int fi(realtype t, N_Vector u, N_Vector f, void *user_data)
   if (check_flag(&flag, "SendData", 1)) return -1;
 
   // Constants for computing diffusion
-  realtype cx = udata->kx / (udata->dx * udata->dx);
-  realtype cy = udata->ky / (udata->dy * udata->dy);
-  realtype cc = -TWO * (cx + cy);
+  sunrealtype cx = udata->kx / (udata->dx * udata->dx);
+  sunrealtype cy = udata->ky / (udata->dy * udata->dy);
+  sunrealtype cc = -TWO * (cx + cy);
 
   // Shortcut to reaction coefficient
-  realtype rval = udata->r;
+  sunrealtype rval = udata->r;
 
   // Initialize rhs to zero (handles boundary conditions)
   N_VConst(ZERO, f);
@@ -1020,10 +1020,10 @@ static int fi(realtype t, N_Vector u, N_Vector f, void *user_data)
   if (check_flag(&flag, "WaitRecv", 1)) return -1;
 
   // Iterate over subdomain boundaries (if not at overall domain boundary)
-  realtype *Warray = udata->Wrecv;
-  realtype *Earray = udata->Erecv;
-  realtype *Sarray = udata->Srecv;
-  realtype *Narray = udata->Nrecv;
+  sunrealtype *Warray = udata->Wrecv;
+  sunrealtype *Earray = udata->Erecv;
+  sunrealtype *Sarray = udata->Srecv;
+  sunrealtype *Narray = udata->Nrecv;
 
   // West face
   if (udata->HaveNbrW)
@@ -1140,7 +1140,7 @@ static int fi(realtype t, N_Vector u, N_Vector f, void *user_data)
 }
 
 // fe routine to compute the explicit part of ODE RHS function.
-static int fe(realtype t, N_Vector u, N_Vector f, void *user_data)
+static int fe(sunrealtype t, N_Vector u, N_Vector f, void *user_data)
 {
   int          flag;
   sunindextype i, j;
@@ -1156,10 +1156,10 @@ static int fe(realtype t, N_Vector u, N_Vector f, void *user_data)
   sunindextype ny_loc = udata->ny_loc;
 
   // Access data arrays
-  realtype *uarray = N_VGetArrayPointer(u);
+  sunrealtype *uarray = N_VGetArrayPointer(u);
   if (check_flag((void *) uarray, "N_VGetArrayPointer", 0)) return -1;
 
-  realtype *farray = N_VGetArrayPointer(f);
+  sunrealtype *farray = N_VGetArrayPointer(f);
   if (check_flag((void *) farray, "N_VGetArrayPointer", 0)) return -1;
 
   // Open exchange receives
@@ -1171,10 +1171,10 @@ static int fe(realtype t, N_Vector u, N_Vector f, void *user_data)
   if (check_flag(&flag, "SendData", 1)) return -1;
 
   // Constants for computing advection
-  realtype cxp = -SUNMAX(udata->ax, ZERO) / (udata->dx);
-  realtype cxm = -SUNMIN(udata->ax, ZERO) / (udata->dx);
-  realtype cyp = -SUNMAX(udata->ay, ZERO) / (udata->dy);
-  realtype cym = -SUNMIN(udata->ay, ZERO) / (udata->dy);
+  sunrealtype cxp = -SUNMAX(udata->ax, ZERO) / (udata->dx);
+  sunrealtype cxm = -SUNMIN(udata->ax, ZERO) / (udata->dx);
+  sunrealtype cyp = -SUNMAX(udata->ay, ZERO) / (udata->dy);
+  sunrealtype cym = -SUNMIN(udata->ay, ZERO) / (udata->dy);
 
   // Initialize rhs to zero (handles boundary conditions)
   N_VConst(ZERO, f);
@@ -1197,10 +1197,10 @@ static int fe(realtype t, N_Vector u, N_Vector f, void *user_data)
   if (check_flag(&flag, "WaitRecv", 1)) return -1;
 
   // Iterate over subdomain boundaries (if not at overall domain boundary)
-  realtype *Warray = udata->Wrecv;
-  realtype *Earray = udata->Erecv;
-  realtype *Sarray = udata->Srecv;
-  realtype *Narray = udata->Nrecv;
+  sunrealtype *Warray = udata->Wrecv;
+  sunrealtype *Earray = udata->Erecv;
+  sunrealtype *Sarray = udata->Srecv;
+  sunrealtype *Narray = udata->Nrecv;
 
   // West face
   if (udata->HaveNbrW)
@@ -1317,15 +1317,15 @@ static int fe(realtype t, N_Vector u, N_Vector f, void *user_data)
 }
 
 // ff helper function
-static int ffeval(realtype *fval, realtype uval, realtype rval) {
+static int ffeval(sunrealtype *fval, sunrealtype uval, sunrealtype rval) {
 
   *fval = rval * (uval - uval*uval*uval);
   return 0;
 }
 
 // Preconditioner setup routine
-static int PSetup(realtype t, N_Vector u, N_Vector f, booleantype jok,
-                  booleantype *jcurPtr, realtype gamma, void *user_data)
+static int PSetup(sunrealtype t, N_Vector u, N_Vector f, booleantype jok,
+                  booleantype *jcurPtr, sunrealtype gamma, void *user_data)
 {
   int flag;
 
@@ -1375,8 +1375,8 @@ static int PSetup(realtype t, N_Vector u, N_Vector f, booleantype jok,
 }
 
 // Preconditioner solve routine for Pz = r
-static int PSolve(realtype t, N_Vector u, N_Vector f, N_Vector r,
-                  N_Vector z, realtype gamma, realtype delta, int lr,
+static int PSolve(sunrealtype t, N_Vector u, N_Vector f, N_Vector r,
+                  N_Vector z, sunrealtype gamma, sunrealtype delta, int lr,
                   void *user_data)
 {
   int flag;
@@ -1586,7 +1586,7 @@ static int HyprePFMG(UserData *udata)
 }
 
 // Fill A = I - gamma * J matrix
-static int FillMatrix(UserData *udata, realtype gamma)
+static int FillMatrix(UserData *udata, sunrealtype gamma)
 {
   // Variable shortcuts
   HYPRE_Int ilower[2];
@@ -1630,14 +1630,14 @@ static int FillMatrix(UserData *udata, realtype gamma)
       (ilower[1] <= iupper[1]))
   {
     // Jacobian values
-    realtype c1 = udata->kx / (udata->dx * udata->dx);
-    realtype c2 = udata->ky / (udata->dy * udata->dy);
-    realtype c3 = -TWO * (c1 + c2);
+    sunrealtype c1 = udata->kx / (udata->dx * udata->dx);
+    sunrealtype c2 = udata->ky / (udata->dy * udata->dy);
+    sunrealtype c3 = -TWO * (c1 + c2);
 
     // Linear system values
-    realtype cx = -gamma * c1;
-    realtype cy = -gamma * c2;
-    realtype cc = ONE - gamma * c3;
+    sunrealtype cx = -gamma * c1;
+    sunrealtype cy = -gamma * c2;
+    sunrealtype cc = ONE - gamma * c3;
 
     // --------------------------------
     // Set matrix values for all nodes
@@ -1978,7 +1978,7 @@ static int SendData(N_Vector y, UserData *udata)
   double t1 = MPI_Wtime();
 
   // Access data array
-  realtype *Y = N_VGetArrayPointer(y);
+  sunrealtype *Y = N_VGetArrayPointer(y);
   if (check_flag((void *) Y, "N_VGetArrayPointer", 0)) return -1;
 
   // Send data
@@ -2454,11 +2454,11 @@ static int ReadInputs(int *argc, char ***argv, UserData *udata, bool outproc)
 // -----------------------------------------------------------------------------
 
 // Compute the exact solution
-static int InitSolution(realtype t, N_Vector u, UserData *udata)
+static int InitSolution(sunrealtype t, N_Vector u, UserData *udata)
 {
-  realtype x, y;
-  realtype cos_sqr_t;
-  realtype sin_sqr_x, sin_sqr_y;
+  sunrealtype x, y;
+  sunrealtype cos_sqr_t;
+  sunrealtype sin_sqr_x, sin_sqr_y;
 
   // Constants for computing solution
   cos_sqr_t = cos(PI * t) * cos(PI * t);
@@ -2473,7 +2473,7 @@ static int InitSolution(realtype t, N_Vector u, UserData *udata)
   sunindextype jstart = (udata->HaveNbrS) ? 0 : 1;
   sunindextype jend   = (udata->HaveNbrN) ? udata->ny_loc : udata->ny_loc - 1;
 
-  realtype *uarray = N_VGetArrayPointer(u);
+  sunrealtype *uarray = N_VGetArrayPointer(u);
   if (check_flag((void *) uarray, "N_VGetArrayPointer", 0)) return -1;
 
   for (sunindextype j = jstart; j < jend; j++)
@@ -2579,7 +2579,7 @@ static int OpenOutput(UserData *udata)
   if (udata->output > 0 && outproc)
   {
     cout << scientific;
-    cout << setprecision(numeric_limits<realtype>::digits10);
+    cout << setprecision(numeric_limits<sunrealtype>::digits10);
     cout << "          t           ";
     cout << "          ||u||_rms      " << endl;
     cout << " ---------------------";
@@ -2618,14 +2618,14 @@ static int OpenOutput(UserData *udata)
     udata->uout.open(fname.str());
 
     udata->uout << scientific;
-    udata->uout << setprecision(numeric_limits<realtype>::digits10);
+    udata->uout << setprecision(numeric_limits<sunrealtype>::digits10);
   }
 
   return 0;
 }
 
 // Write output
-static int WriteOutput(realtype t, N_Vector u, UserData *udata)
+static int WriteOutput(sunrealtype t, N_Vector u, UserData *udata)
 {
   bool outproc = (udata->myid_c == 0);
 
@@ -2633,7 +2633,7 @@ static int WriteOutput(realtype t, N_Vector u, UserData *udata)
   {
 
     // Compute rms norm
-    realtype urms = sqrt(N_VDotProd(u, u) / udata->nx / udata->ny);
+    sunrealtype urms = sqrt(N_VDotProd(u, u) / udata->nx / udata->ny);
 
     // Output current status
     if (outproc)
@@ -2644,7 +2644,7 @@ static int WriteOutput(realtype t, N_Vector u, UserData *udata)
     // Write solution to disk
     if (udata->output == 2)
     {
-      realtype *uarray = N_VGetArrayPointer(u);
+      sunrealtype *uarray = N_VGetArrayPointer(u);
       if (check_flag((void *) uarray, "N_VGetArrayPointer", 0)) return -1;
 
       udata->uout << t << " ";
@@ -2726,8 +2726,8 @@ static int OutputStats(void *arkode_mem, UserData* udata)
   cout << endl;
 
   // Compute average nls iters per step attempt and ls iters per nls iter
-  realtype avgnli = (realtype) nni / (realtype) nst_a;
-  realtype avgli  = (realtype) nli / (realtype) nni;
+  sunrealtype avgnli = (sunrealtype) nni / (sunrealtype) nst_a;
+  sunrealtype avgli  = (sunrealtype) nli / (sunrealtype) nni;
   cout << "  Avg NLS iters per step attempt = " << avgnli << endl;
   cout << "  Avg LS iters per NLS iter      = " << avgli  << endl;
   cout << endl;

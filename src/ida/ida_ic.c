@@ -58,14 +58,14 @@
  */
 
 extern int IDAInitialSetup(IDAMem IDA_mem);
-extern realtype IDAWrmsNorm(IDAMem IDA_mem, N_Vector x, N_Vector w,
+extern sunrealtype IDAWrmsNorm(IDAMem IDA_mem, N_Vector x, N_Vector w,
                             booleantype mask);
 
 static int IDAnlsIC(IDAMem IDA_mem);
 static int IDANewtonIC(IDAMem IDA_mem);
-static int IDALineSrch(IDAMem IDA_mem, realtype *delnorm, realtype *fnorm);
-static int IDAfnorm(IDAMem IDA_mem, realtype *fnorm);
-static int IDANewyyp(IDAMem IDA_mem, realtype lambda);
+static int IDALineSrch(IDAMem IDA_mem, sunrealtype *delnorm, sunrealtype *fnorm);
+static int IDAfnorm(IDAMem IDA_mem, sunrealtype *fnorm);
+static int IDANewyyp(IDAMem IDA_mem, sunrealtype lambda);
 static int IDANewy(IDAMem IDA_mem);
 static int IDAICFailFlag(IDAMem IDA_mem, int retval);
 
@@ -103,11 +103,11 @@ static int IDAICFailFlag(IDAMem IDA_mem, int retval);
  * -----------------------------------------------------------------
  */
 
-int IDACalcIC(void *ida_mem, int icopt, realtype tout1)
+int IDACalcIC(void *ida_mem, int icopt, sunrealtype tout1)
 {
   int ewtsetOK;
   int ier, nwt, nh, mxnh, icret, retval=0;
-  realtype tdist, troundoff, minid, hic, ypnorm;
+  sunrealtype tdist, troundoff, minid, hic, ypnorm;
   IDAMem IDA_mem;
 
   /* Check if IDA memory exists */
@@ -381,7 +381,7 @@ static int IDAnlsIC (IDAMem IDA_mem)
 static int IDANewtonIC(IDAMem IDA_mem)
 {
   int retval, mnewt;
-  realtype delnorm, fnorm, fnorm0, oldfnrm, rate;
+  sunrealtype delnorm, fnorm, fnorm0, oldfnrm, rate;
 
   /* Set pointer for vector delnew */
   IDA_mem->ida_delnew = IDA_mem->ida_phi[2];
@@ -459,11 +459,11 @@ static int IDANewtonIC(IDAMem IDA_mem)
  * -----------------------------------------------------------------
  */
 
-static int IDALineSrch(IDAMem IDA_mem, realtype *delnorm, realtype *fnorm)
+static int IDALineSrch(IDAMem IDA_mem, sunrealtype *delnorm, sunrealtype *fnorm)
 {
   booleantype conOK;
   int retval, nbacks;
-  realtype f1norm, fnormp, f1normp, ratio, lambda, minlam, slpi;
+  sunrealtype f1norm, fnormp, f1normp, ratio, lambda, minlam, slpi;
   N_Vector mc;
 
   /* Initialize work space pointers, f1norm, ratio.
@@ -551,7 +551,7 @@ static int IDALineSrch(IDAMem IDA_mem, realtype *delnorm, realtype *fnorm)
  * -----------------------------------------------------------------
  */
 
-static int IDAfnorm(IDAMem IDA_mem, realtype *fnorm)
+static int IDAfnorm(IDAMem IDA_mem, sunrealtype *fnorm)
 {
   int retval;
 
@@ -593,7 +593,7 @@ static int IDAfnorm(IDAMem IDA_mem, realtype *fnorm)
  * -----------------------------------------------------------------
  */
 
-static int IDANewyyp(IDAMem IDA_mem, realtype lambda)
+static int IDANewyyp(IDAMem IDA_mem, sunrealtype lambda)
 {
 
   /* IDA_YA_YDP_INIT case: ynew  = yy0 - lambda*delta    where id_i = 0

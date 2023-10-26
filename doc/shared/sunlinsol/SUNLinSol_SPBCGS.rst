@@ -214,7 +214,7 @@ The SUNLinSol_SPBCGS module defines the *content* field of a
      int pretype;
      booleantype zeroguess;
      int numiters;
-     realtype resnorm;
+     sunrealtype resnorm;
      int last_flag;
      SUNATimesFn ATimes;
      void* ATData;

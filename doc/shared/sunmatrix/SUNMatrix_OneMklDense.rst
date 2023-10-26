@@ -199,7 +199,7 @@ Access Matrix Data
       ``SUNMATRIX_ILL_INPUT``.
 
 
-.. c:function:: realtype* SUNMatrix_OneMklDense_Data(SUNMatrix A)
+.. c:function:: sunrealtype* SUNMatrix_OneMklDense_Data(SUNMatrix A)
 
    This function returns the ``SUNMatrix`` data array.
 
@@ -210,7 +210,7 @@ Access Matrix Data
       If successful, the ``SUNMatrix`` data array otherwise ``NULL``.
 
 
-.. c:function:: realtype* SUNMatrix_OneMklDense_Column(SUNMatrix A, sunindextype j)
+.. c:function:: sunrealtype* SUNMatrix_OneMklDense_Column(SUNMatrix A, sunindextype j)
 
    This function returns a pointer to the data array for column *j* in the
    ``SUNMatrix``.
@@ -246,7 +246,7 @@ Access Matrix Block Data
       otherwise ``SUNMATRIX_ILL_INPUT``.
 
 
-.. c:function:: realtype** SUNMatrix_OneMklDense_BlockData(SUNMatrix A)
+.. c:function:: sunrealtype** SUNMatrix_OneMklDense_BlockData(SUNMatrix A)
 
    This function returns an array of pointers that point to the start of the
    data array for each block in the ``SUNMatrix``.
@@ -259,7 +259,7 @@ Access Matrix Block Data
       blocks otherwise ``NULL``.
 
 
-.. c:function:: realtype* SUNMatrix_OneMklDense_Block(SUNMatrix A, sunindextype k)
+.. c:function:: sunrealtype* SUNMatrix_OneMklDense_Block(SUNMatrix A, sunindextype k)
 
    This function returns a pointer to the data array for block *k* in the
    ``SUNMatrix``.
@@ -278,7 +278,7 @@ Access Matrix Block Data
       less than *nblocks*.
 
 
-.. c:function:: realtype* SUNMatrix_OneMklDense_BlockColumn(SUNMatrix A, sunindextype k, sunindextype j)
+.. c:function:: sunrealtype* SUNMatrix_OneMklDense_BlockColumn(SUNMatrix A, sunindextype k, sunindextype j)
 
    This function returns a pointer to the data array for column *j* of block *k*
    in the ``SUNMatrix``.
@@ -303,7 +303,7 @@ Copy Data
 ^^^^^^^^^
 
 
-.. c:function:: int SUNMatrix_OneMklDense_CopyToDevice(SUNMatrix A, realtype* h_data)
+.. c:function:: int SUNMatrix_OneMklDense_CopyToDevice(SUNMatrix A, sunrealtype* h_data)
 
    This function copies the matrix data to the GPU device from the provided host
    array.
@@ -319,7 +319,7 @@ Copy Data
       * ``SUNMAT_MEM_FAIL`` -- if the copy fails.
 
 
-.. c:function:: int SUNMatrix_OneMklDense_CopyFromDevice(SUNMatrix A, realtype* h_data)
+.. c:function:: int SUNMatrix_OneMklDense_CopyFromDevice(SUNMatrix A, sunrealtype* h_data)
 
    This function copies the matrix data from the GPU device to the provided host
    array.

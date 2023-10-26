@@ -33,7 +33,7 @@
 #include <kinsol/kinsol.h>             /* access to KINSOL func., consts. */
 #include <nvector/nvector_serial.h>    /* access to serial N_Vector       */
 #include <sunlinsol/sunlinsol_spgmr.h> /* access to SPGMR SUNLinearSolver */
-#include <sundials/sundials_types.h>   /* defs. of realtype, sunindextype */
+#include <sundials/sundials_types.h>   /* defs. of sunrealtype, sunindextype */
 #include <sundials/sundials_math.h>    /* access to SUNRexp               */
 
 /* Problem Constants */
@@ -79,7 +79,7 @@ static int check_retval(void *retvalvalue, const char *funcname, int opt);
 int main()
 {
   SUNContext sunctx;
-  realtype fnormtol, fnorm;
+  sunrealtype fnormtol, fnorm;
   N_Vector y, scale;
   int retval;
   void *kmem;
@@ -238,10 +238,10 @@ int main()
 
 static int func(N_Vector u, N_Vector f, void *user_data)
 {
-  realtype dx, dy, hdiff, vdiff;
-  realtype hdc, vdc;
-  realtype uij, udn, uup, ult, urt;
-  realtype *udata, *fdata;
+  sunrealtype dx, dy, hdiff, vdiff;
+  sunrealtype hdc, vdc;
+  sunrealtype uij, udn, uup, ult, urt;
+  sunrealtype *udata, *fdata;
 
   int i, j;
 
@@ -286,10 +286,10 @@ static int func(N_Vector u, N_Vector f, void *user_data)
 static int jactimes(N_Vector v, N_Vector Jv, N_Vector u, booleantype *new_u,
                     void *user_data)
 {
-  realtype dx, dy, hdiff, vdiff;
-  realtype hdc, vdc;
-  realtype vij, vdn, vup, vlt, vrt;
-  realtype *vdata, *Jvdata;
+  sunrealtype dx, dy, hdiff, vdiff;
+  sunrealtype hdc, vdc;
+  sunrealtype vij, vdn, vup, vlt, vrt;
+  sunrealtype *vdata, *Jvdata;
 
   int i, j;
 
@@ -334,8 +334,8 @@ static int jactimes(N_Vector v, N_Vector Jv, N_Vector u, booleantype *new_u,
 static void PrintOutput(N_Vector u)
 {
   int i, j;
-  realtype dx, dy, x, y;
-  realtype *udata;
+  sunrealtype dx, dy, x, y;
+  sunrealtype *udata;
 
   dx = ONE/(NX+1);
   dy = ONE/(NY+1);

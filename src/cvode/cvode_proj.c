@@ -183,7 +183,7 @@ int CVodeSetMaxNumProjFails(void *cvode_mem, int max_fails)
 }
 
 
-int CVodeSetEpsProj(void *cvode_mem, realtype eps)
+int CVodeSetEpsProj(void *cvode_mem, sunrealtype eps)
 {
   int          retval;
   CVodeMem     cv_mem;
@@ -210,7 +210,7 @@ int CVodeSetEpsProj(void *cvode_mem, realtype eps)
 }
 
 
-int CVodeSetProjFailEta(void *cvode_mem, realtype eta)
+int CVodeSetProjFailEta(void *cvode_mem, sunrealtype eta)
 {
   int          retval;
   CVodeMem     cv_mem;
@@ -292,7 +292,7 @@ int CVodeGetNumProjFails(void *cvode_mem, long int *npfails)
  * until it is potentially used in cvCompleteStep).
  */
 
-int cvDoProjection(CVodeMem cv_mem, int *nflagPtr, realtype saved_t,
+int cvDoProjection(CVodeMem cv_mem, int *nflagPtr, sunrealtype saved_t,
                    int *npfailPtr)
 {
   int          retval;

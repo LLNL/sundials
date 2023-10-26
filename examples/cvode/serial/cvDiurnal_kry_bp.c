@@ -44,7 +44,7 @@
 #include <nvector/nvector_serial.h>    /* access to serial N_Vector            */
 #include <sunlinsol/sunlinsol_spgmr.h> /* access to SPGMR SUNLinearSolver      */
 #include <cvode/cvode_bandpre.h>       /* access to CVBANDPRE module           */
-#include <sundials/sundials_types.h>   /* defs. of realtype, sunindextype      */
+#include <sundials/sundials_types.h>   /* defs. of sunrealtype, sunindextype      */
 
 /* helpful macros */
 
@@ -111,7 +111,7 @@
    For each mesh point (j,k), the elements for species i and i+1 are
    contiguous within vdata.
 
-   IJth(a,i,j) references the (i,j)th entry of the small matrix realtype **a,
+   IJth(a,i,j) references the (i,j)th entry of the small matrix sunrealtype **a,
    where 1 <= i,j <= NUM_SPECIES. The small matrix routines in cvode_bandpre.h
    work with matrices stored by column in a 2-dimensional array. In C,
    arrays are indexed starting at 0, not 1. */
@@ -123,15 +123,15 @@
    contains preconditioner blocks, pivot arrays, and problem constants */
 
 typedef struct {
-  realtype q4, om, dx, dy, hdco, haco, vdco;
+  sunrealtype q4, om, dx, dy, hdco, haco, vdco;
 } *UserData;
 
 /* Private Helper Functions */
 
 static void InitUserData(UserData data);
-static void SetInitialProfiles(N_Vector u, realtype dx, realtype dy);
+static void SetInitialProfiles(N_Vector u, sunrealtype dx, sunrealtype dy);
 static void PrintIntro(sunindextype mu, sunindextype ml);
-static void PrintOutput(void *cvode_mem, N_Vector u, realtype t);
+static void PrintOutput(void *cvode_mem, N_Vector u, sunrealtype t);
 static void PrintFinalStats(void *cvode_mem);
 
 /* Private function to check function return values */
@@ -139,7 +139,7 @@ static int check_retval(void *returnvalue, const char *funcname, int opt);
 
 /* Function Called by the Solver */
 
-static int f(realtype t, N_Vector u, N_Vector udot, void *user_data);
+static int f(sunrealtype t, N_Vector u, N_Vector udot, void *user_data);
 
 /*
  *-------------------------------
@@ -150,7 +150,7 @@ static int f(realtype t, N_Vector u, N_Vector udot, void *user_data);
 int main()
 {
   SUNContext sunctx;
-  realtype abstol, reltol, t, tout;
+  sunrealtype abstol, reltol, t, tout;
   N_Vector u;
   UserData data;
   SUNLinearSolver LS;
@@ -286,11 +286,11 @@ static void InitUserData(UserData data)
 
 /* Set initial conditions in u */
 
-static void SetInitialProfiles(N_Vector u, realtype dx, realtype dy)
+static void SetInitialProfiles(N_Vector u, sunrealtype dx, sunrealtype dy)
 {
   int jx, jy;
-  realtype x, y, cx, cy;
-  realtype *udata;
+  sunrealtype x, y, cx, cy;
+  sunrealtype *udata;
 
   /* Set pointer to data array in vector u. */
 
@@ -324,11 +324,11 @@ static void PrintIntro(sunindextype mu, sunindextype ml)
 
 /* Print current t, step count, order, stepsize, and sampled c1,c2 values */
 
-static void PrintOutput(void *cvode_mem, N_Vector u, realtype t)
+static void PrintOutput(void *cvode_mem, N_Vector u, sunrealtype t)
 {
   long int nst;
   int qu, retval;
-  realtype hu, *udata;
+  sunrealtype hu, *udata;
   int mxh = MX/2 - 1, myh = MY/2 - 1, mx1 = MX - 1, my1 = MY - 1;
 
   udata = N_VGetArrayPointer(u);
@@ -465,13 +465,13 @@ static int check_retval(void *returnvalue, const char *funcname, int opt)
 
 /* f routine. Compute RHS function f(t,u). */
 
-static int f(realtype t, N_Vector u, N_Vector udot, void *user_data)
+static int f(sunrealtype t, N_Vector u, N_Vector udot, void *user_data)
 {
-  realtype q3, c1, c2, c1dn, c2dn, c1up, c2up, c1lt, c2lt;
-  realtype c1rt, c2rt, cydn, cyup, hord1, hord2, horad1, horad2;
-  realtype qq1, qq2, qq3, qq4, rkin1, rkin2, s, vertd1, vertd2, ydn, yup;
-  realtype q4coef, dely, verdco, hordco, horaco;
-  realtype *udata, *dudata;
+  sunrealtype q3, c1, c2, c1dn, c2dn, c1up, c2up, c1lt, c2lt;
+  sunrealtype c1rt, c2rt, cydn, cyup, hord1, hord2, horad1, horad2;
+  sunrealtype qq1, qq2, qq3, qq4, rkin1, rkin2, s, vertd1, vertd2, ydn, yup;
+  sunrealtype q4coef, dely, verdco, hordco, horaco;
+  sunrealtype *udata, *dudata;
   int jx, jy, idn, iup, ileft, iright;
   UserData data;
 

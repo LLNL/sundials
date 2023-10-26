@@ -127,7 +127,7 @@ int main(int argc, char *argv[])
   if (check_retval(&retval, "SUNNonlinSolSolve", 1)) return(1);
 
   /* get the solution */
-  realtype yvals[3];
+  sunrealtype yvals[3];
   sunindextype indc[3] = {0, 1, 2};
   VecGetValues(Y, 3, indc, yvals);
 
@@ -184,8 +184,8 @@ int main(int argc, char *argv[])
 int Res(N_Vector y, N_Vector f, void *mem)
 {
   Vec yvec, fvec;
-  realtype vals[3];
-  realtype y1, y2, y3;
+  sunrealtype vals[3];
+  sunrealtype y1, y2, y3;
 
   yvec = N_VGetVector_Petsc(y);
   fvec = N_VGetVector_Petsc(f);
@@ -221,8 +221,8 @@ int Res(N_Vector y, N_Vector f, void *mem)
  * ---------------------------------------------------------------------------*/
 int Jac(SNES snes, Vec y, Mat J, Mat Jpre, void *ctx)
 {
-  realtype y1, y2, y3;
-  realtype yvals[3];
+  sunrealtype y1, y2, y3;
+  sunrealtype yvals[3];
 
   /* set vector indices */
   sunindextype indc[3] = { 0, 1, 2 };
@@ -232,7 +232,7 @@ int Jac(SNES snes, Vec y, Mat J, Mat Jpre, void *ctx)
   y1 = yvals[0]; y2 = yvals[1]; y3 = yvals[2];
 
   /* set the Jacobian values */
-  realtype jvals[3][3] =  { { TWO*y1,  TWO*y2,  TWO*y3 },
+  sunrealtype jvals[3][3] =  { { TWO*y1,  TWO*y2,  TWO*y3 },
                             { FOUR*y1, TWO*y2, -FOUR   },
                             { SIX*y1, -FOUR,    TWO*y3 } };
   MatSetValues(J, 3, indc, 3, indc, &jvals[0][0], INSERT_VALUES);

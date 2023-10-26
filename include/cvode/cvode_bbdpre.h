@@ -30,10 +30,10 @@ extern "C" {
 
 /* User-supplied function Types */
 
-typedef int (*CVLocalFn)(sunindextype Nlocal, realtype t,
+typedef int (*CVLocalFn)(sunindextype Nlocal, sunrealtype t,
                          N_Vector y, N_Vector g, void *user_data);
 
-typedef int (*CVCommFn)(sunindextype Nlocal, realtype t,
+typedef int (*CVCommFn)(sunindextype Nlocal, sunrealtype t,
                         N_Vector y, void *user_data);
 
 /* Exported Functions */
@@ -41,11 +41,11 @@ typedef int (*CVCommFn)(sunindextype Nlocal, realtype t,
 SUNDIALS_EXPORT int CVBBDPrecInit(void *cvode_mem, sunindextype Nlocal,
                                   sunindextype mudq, sunindextype mldq,
                                   sunindextype mukeep, sunindextype mlkeep,
-                                  realtype dqrely, CVLocalFn gloc, CVCommFn cfn);
+                                  sunrealtype dqrely, CVLocalFn gloc, CVCommFn cfn);
 
 SUNDIALS_EXPORT int CVBBDPrecReInit(void *cvode_mem,
                                     sunindextype mudq, sunindextype mldq,
-                                    realtype dqrely);
+                                    sunrealtype dqrely);
 
 
 /* Optional output functions */

@@ -44,7 +44,7 @@
 #include <cvode/cvode.h>                  /* prototypes for CVODE fcts., consts. */
 #include <cvode/cvode_diag.h>             /* prototypes for CVODE diagonal solver */
 #include <nvector/nvector_parallel.h>     /* access to MPI-parallel N_Vector     */
-#include <sundials/sundials_types.h>      /* definition of type realtype         */
+#include <sundials/sundials_types.h>      /* definition of type sunrealtype         */
 #include <sundials/sundials_logger.h>
 
 #include <mpi.h> /* MPI constants and types */
@@ -66,26 +66,26 @@
    contains grid constants, parallel machine parameters, work array. */
 
 typedef struct {
-  realtype dx, hdcoef, hacoef;
+  sunrealtype dx, hdcoef, hacoef;
   int npes, my_pe;
   MPI_Comm comm;
-  realtype z[100];
+  sunrealtype z[100];
 } *UserData;
 
 /* Private Helper Functions */
 
-static void SetIC(N_Vector u, realtype dx, sunindextype my_length,
+static void SetIC(N_Vector u, sunrealtype dx, sunindextype my_length,
                   sunindextype my_base);
 
 static void PrintIntro(int npes);
 
-static void PrintData(realtype t, realtype umax, long int nst);
+static void PrintData(sunrealtype t, sunrealtype umax, long int nst);
 
 static void PrintFinalStats(void *cvode_mem);
 
 /* Functions Called by the Solver */
 
-static int f(realtype t, N_Vector u, N_Vector udot, void *user_data);
+static int f(sunrealtype t, N_Vector u, N_Vector udot, void *user_data);
 
 /* Private function to check function return values */
 
@@ -97,7 +97,7 @@ int main(int argc, char *argv[])
 {
   SUNContext sunctx;
   SUNLogger logger;
-  realtype dx, reltol, abstol, t, tout, umax;
+  sunrealtype dx, reltol, abstol, t, tout, umax;
   N_Vector u;
   UserData data;
   void *cvode_mem;
@@ -185,7 +185,7 @@ int main(int argc, char *argv[])
   reltol = ZERO;  /* Set the tolerances */
   abstol = ATOL;
 
-  dx = data->dx = XMAX/((realtype)(MX+1));  /* Set grid coefficients in data */
+  dx = data->dx = XMAX/((sunrealtype)(MX+1));  /* Set grid coefficients in data */
   data->hdcoef = RCONST(1.0)/(dx*dx);
   data->hacoef = RCONST(0.5)/(RCONST(2.0)*dx);
 
@@ -251,13 +251,13 @@ int main(int argc, char *argv[])
 
 /* Set initial conditions in u vector */
 
-static void SetIC(N_Vector u, realtype dx, sunindextype my_length,
+static void SetIC(N_Vector u, sunrealtype dx, sunindextype my_length,
                   sunindextype my_base)
 {
   int i;
   sunindextype iglobal;
-  realtype x;
-  realtype *udata;
+  sunrealtype x;
+  sunrealtype *udata;
 
   /* Set pointer to data array and get local length of u. */
   udata = N_VGetArrayPointer(u);
@@ -284,7 +284,7 @@ static void PrintIntro(int npes)
 
 /* Print data */
 
-static void PrintData(realtype t, realtype umax, long int nst)
+static void PrintData(sunrealtype t, sunrealtype umax, long int nst)
 {
 
 #if defined(SUNDIALS_EXTENDED_PRECISION)
@@ -325,10 +325,10 @@ static void PrintFinalStats(void *cvode_mem)
 
 /* f routine. Compute f(t,u). */
 
-static int f(realtype t, N_Vector u, N_Vector udot, void *user_data)
+static int f(sunrealtype t, N_Vector u, N_Vector udot, void *user_data)
 {
-  realtype ui, ult, urt, hordc, horac, hdiff, hadv;
-  realtype *udata, *dudata, *z;
+  sunrealtype ui, ult, urt, hordc, horac, hdiff, hadv;
+  sunrealtype *udata, *dudata, *z;
   int npes, my_pe, my_pe_m1, my_pe_p1, last_pe;
   sunindextype i, my_length;
   UserData data;

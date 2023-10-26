@@ -19,7 +19,7 @@
  *   - The definition of the generic N_Vector structure can be found
  *     in the header file sundials_nvector.h.
  *
- *   - The definitions of the types 'realtype' and 'sunindextype' can
+ *   - The definitions of the types 'sunrealtype' and 'sunindextype' can
  *     be found in the header file sundials_types.h, and it may be
  *     changed (at the configuration stage) according to the user's needs.
  *     The sundials_types.h file also contains the definition
@@ -76,10 +76,10 @@ SUNDIALS_EXPORT N_Vector N_VNew_MPIManyVector(sunindextype num_subvectors,
 SUNDIALS_EXPORT N_Vector N_VGetSubvector_MPIManyVector(N_Vector v,
                                                        sunindextype vec_num);
 
-SUNDIALS_EXPORT realtype *N_VGetSubvectorArrayPointer_MPIManyVector(N_Vector v,
+SUNDIALS_EXPORT sunrealtype *N_VGetSubvectorArrayPointer_MPIManyVector(N_Vector v,
                                                                     sunindextype vec_num);
 
-SUNDIALS_EXPORT int N_VSetSubvectorArrayPointer_MPIManyVector(realtype *v_data, N_Vector v,
+SUNDIALS_EXPORT int N_VSetSubvectorArrayPointer_MPIManyVector(sunrealtype *v_data, N_Vector v,
                                                               sunindextype vec_num);
 
 SUNDIALS_EXPORT sunindextype N_VGetNumSubvectors_MPIManyVector(N_Vector v);
@@ -96,79 +96,79 @@ SUNDIALS_EXPORT void N_VSpace_MPIManyVector(N_Vector v, sunindextype *lrw,
 SUNDIALS_EXPORT void *N_VGetCommunicator_MPIManyVector(N_Vector v);
 SUNDIALS_EXPORT sunindextype N_VGetLength_MPIManyVector(N_Vector v);
 SUNDIALS_EXPORT sunindextype N_VGetSubvectorLocalLength_MPIManyVector(N_Vector v, sunindextype vec_num);
-SUNDIALS_EXPORT void N_VLinearSum_MPIManyVector(realtype a, N_Vector x,
-                                                realtype b, N_Vector y,
+SUNDIALS_EXPORT void N_VLinearSum_MPIManyVector(sunrealtype a, N_Vector x,
+                                                sunrealtype b, N_Vector y,
                                                 N_Vector z);
-SUNDIALS_EXPORT void N_VConst_MPIManyVector(realtype c, N_Vector z);
+SUNDIALS_EXPORT void N_VConst_MPIManyVector(sunrealtype c, N_Vector z);
 SUNDIALS_EXPORT void N_VProd_MPIManyVector(N_Vector x, N_Vector y, N_Vector z);
 SUNDIALS_EXPORT void N_VDiv_MPIManyVector(N_Vector x, N_Vector y, N_Vector z);
-SUNDIALS_EXPORT void N_VScale_MPIManyVector(realtype c, N_Vector x, N_Vector z);
+SUNDIALS_EXPORT void N_VScale_MPIManyVector(sunrealtype c, N_Vector x, N_Vector z);
 SUNDIALS_EXPORT void N_VAbs_MPIManyVector(N_Vector x, N_Vector z);
 SUNDIALS_EXPORT void N_VInv_MPIManyVector(N_Vector x, N_Vector z);
-SUNDIALS_EXPORT void N_VAddConst_MPIManyVector(N_Vector x, realtype b,
+SUNDIALS_EXPORT void N_VAddConst_MPIManyVector(N_Vector x, sunrealtype b,
                                                N_Vector z);
-SUNDIALS_EXPORT realtype N_VDotProd_MPIManyVector(N_Vector x, N_Vector y);
-SUNDIALS_EXPORT realtype N_VMaxNorm_MPIManyVector(N_Vector x);
-SUNDIALS_EXPORT realtype N_VWrmsNorm_MPIManyVector(N_Vector x, N_Vector w);
-SUNDIALS_EXPORT realtype N_VWrmsNormMask_MPIManyVector(N_Vector x, N_Vector w,
+SUNDIALS_EXPORT sunrealtype N_VDotProd_MPIManyVector(N_Vector x, N_Vector y);
+SUNDIALS_EXPORT sunrealtype N_VMaxNorm_MPIManyVector(N_Vector x);
+SUNDIALS_EXPORT sunrealtype N_VWrmsNorm_MPIManyVector(N_Vector x, N_Vector w);
+SUNDIALS_EXPORT sunrealtype N_VWrmsNormMask_MPIManyVector(N_Vector x, N_Vector w,
                                                        N_Vector id);
-SUNDIALS_EXPORT realtype N_VMin_MPIManyVector(N_Vector x);
-SUNDIALS_EXPORT realtype N_VWL2Norm_MPIManyVector(N_Vector x, N_Vector w);
-SUNDIALS_EXPORT realtype N_VL1Norm_MPIManyVector(N_Vector x);
-SUNDIALS_EXPORT void N_VCompare_MPIManyVector(realtype c, N_Vector x, N_Vector z);
+SUNDIALS_EXPORT sunrealtype N_VMin_MPIManyVector(N_Vector x);
+SUNDIALS_EXPORT sunrealtype N_VWL2Norm_MPIManyVector(N_Vector x, N_Vector w);
+SUNDIALS_EXPORT sunrealtype N_VL1Norm_MPIManyVector(N_Vector x);
+SUNDIALS_EXPORT void N_VCompare_MPIManyVector(sunrealtype c, N_Vector x, N_Vector z);
 SUNDIALS_EXPORT booleantype N_VInvTest_MPIManyVector(N_Vector x, N_Vector z);
 SUNDIALS_EXPORT booleantype N_VConstrMask_MPIManyVector(N_Vector c, N_Vector x,
                                                         N_Vector m);
-SUNDIALS_EXPORT realtype N_VMinQuotient_MPIManyVector(N_Vector num,
+SUNDIALS_EXPORT sunrealtype N_VMinQuotient_MPIManyVector(N_Vector num,
                                                       N_Vector denom);
 
 /* fused vector operations */
-SUNDIALS_EXPORT int N_VLinearCombination_MPIManyVector(int nvec, realtype* c,
+SUNDIALS_EXPORT int N_VLinearCombination_MPIManyVector(int nvec, sunrealtype* c,
                                                        N_Vector* V, N_Vector z);
-SUNDIALS_EXPORT int N_VScaleAddMulti_MPIManyVector(int nvec, realtype* a,
+SUNDIALS_EXPORT int N_VScaleAddMulti_MPIManyVector(int nvec, sunrealtype* a,
                                                    N_Vector x, N_Vector* Y,
                                                    N_Vector* Z);
 SUNDIALS_EXPORT int N_VDotProdMulti_MPIManyVector(int nvec, N_Vector x,
                                                   N_Vector *Y,
-                                                  realtype* dotprods);
+                                                  sunrealtype* dotprods);
 
 /* single buffer reduction operations */
 SUNDIALS_EXPORT int N_VDotProdMultiLocal_MPIManyVector(int nvec, N_Vector x,
                                                        N_Vector *Y,
-                                                       realtype* dotprods);
+                                                       sunrealtype* dotprods);
 SUNDIALS_EXPORT int N_VDotProdMultiAllReduce_MPIManyVector(int nvec_total,
                                                            N_Vector x,
-                                                           realtype* sum);
+                                                           sunrealtype* sum);
 
 /* vector array operations */
 SUNDIALS_EXPORT int N_VLinearSumVectorArray_MPIManyVector(int nvec,
-                                                          realtype a, N_Vector* X,
-                                                          realtype b, N_Vector* Y,
+                                                          sunrealtype a, N_Vector* X,
+                                                          sunrealtype b, N_Vector* Y,
                                                           N_Vector* Z);
-SUNDIALS_EXPORT int N_VScaleVectorArray_MPIManyVector(int nvec, realtype* c,
+SUNDIALS_EXPORT int N_VScaleVectorArray_MPIManyVector(int nvec, sunrealtype* c,
                                                       N_Vector* X, N_Vector* Z);
-SUNDIALS_EXPORT int N_VConstVectorArray_MPIManyVector(int nvecs, realtype c,
+SUNDIALS_EXPORT int N_VConstVectorArray_MPIManyVector(int nvecs, sunrealtype c,
                                                       N_Vector* Z);
 SUNDIALS_EXPORT int N_VWrmsNormVectorArray_MPIManyVector(int nvecs, N_Vector* X,
-                                                         N_Vector* W, realtype* nrm);
+                                                         N_Vector* W, sunrealtype* nrm);
 SUNDIALS_EXPORT int N_VWrmsNormMaskVectorArray_MPIManyVector(int nvec,
                                                              N_Vector* X,
                                                              N_Vector* W,
                                                              N_Vector id,
-                                                             realtype* nrm);
+                                                             sunrealtype* nrm);
 
 /* OPTIONAL local reduction kernels (no parallel communication) */
-SUNDIALS_EXPORT realtype N_VDotProdLocal_MPIManyVector(N_Vector x, N_Vector y);
-SUNDIALS_EXPORT realtype N_VMaxNormLocal_MPIManyVector(N_Vector x);
-SUNDIALS_EXPORT realtype N_VMinLocal_MPIManyVector(N_Vector x);
-SUNDIALS_EXPORT realtype N_VL1NormLocal_MPIManyVector(N_Vector x);
-SUNDIALS_EXPORT realtype N_VWSqrSumLocal_MPIManyVector(N_Vector x, N_Vector w);
-SUNDIALS_EXPORT realtype N_VWSqrSumMaskLocal_MPIManyVector(N_Vector x, N_Vector w,
+SUNDIALS_EXPORT sunrealtype N_VDotProdLocal_MPIManyVector(N_Vector x, N_Vector y);
+SUNDIALS_EXPORT sunrealtype N_VMaxNormLocal_MPIManyVector(N_Vector x);
+SUNDIALS_EXPORT sunrealtype N_VMinLocal_MPIManyVector(N_Vector x);
+SUNDIALS_EXPORT sunrealtype N_VL1NormLocal_MPIManyVector(N_Vector x);
+SUNDIALS_EXPORT sunrealtype N_VWSqrSumLocal_MPIManyVector(N_Vector x, N_Vector w);
+SUNDIALS_EXPORT sunrealtype N_VWSqrSumMaskLocal_MPIManyVector(N_Vector x, N_Vector w,
                                                            N_Vector id);
 SUNDIALS_EXPORT booleantype N_VInvTestLocal_MPIManyVector(N_Vector x, N_Vector z);
 SUNDIALS_EXPORT booleantype N_VConstrMaskLocal_MPIManyVector(N_Vector c, N_Vector x,
                                                              N_Vector m);
-SUNDIALS_EXPORT realtype N_VMinQuotientLocal_MPIManyVector(N_Vector num,
+SUNDIALS_EXPORT sunrealtype N_VMinQuotientLocal_MPIManyVector(N_Vector num,
                                                            N_Vector denom);
 
 /* OPTIONAL XBraid interface operations */

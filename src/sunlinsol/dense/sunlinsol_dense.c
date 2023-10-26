@@ -122,7 +122,7 @@ int SUNLinSolInitialize_Dense(SUNLinearSolver S)
 
 int SUNLinSolSetup_Dense(SUNLinearSolver S, SUNMatrix A)
 {
-  realtype **A_cols;
+  sunrealtype **A_cols;
   sunindextype *pivots;
 
   /* check for valid inputs */
@@ -156,9 +156,9 @@ int SUNLinSolSetup_Dense(SUNLinearSolver S, SUNMatrix A)
 }
 
 int SUNLinSolSolve_Dense(SUNLinearSolver S, SUNMatrix A, N_Vector x,
-                         N_Vector b, realtype tol)
+                         N_Vector b, sunrealtype tol)
 {
-  realtype **A_cols, *xdata;
+  sunrealtype **A_cols, *xdata;
   sunindextype *pivots;
 
   if ( (A == NULL) || (S == NULL) || (x == NULL) || (b == NULL) )

@@ -107,11 +107,11 @@ void arkPrintAdaptMem(ARKodeHAdaptMem hadapt_mem, FILE *outfile)
   data structure.
   ---------------------------------------------------------------*/
 int arkAdapt(void* arkode_mem, ARKodeHAdaptMem hadapt_mem,
-             N_Vector ycur, realtype tcur, realtype hcur,
-             realtype dsm, long int nst)
+             N_Vector ycur, sunrealtype tcur, sunrealtype hcur,
+             sunrealtype dsm, long int nst)
 {
   int ier, k;
-  realtype ecur, h_acc, h_cfl, int_dir;
+  sunrealtype ecur, h_acc, h_cfl, int_dir;
   ARKodeMem ark_mem;
   if (arkode_mem == NULL) {
     arkProcessError(NULL, ARK_MEM_NULL, "ARKODE",
@@ -260,10 +260,10 @@ int arkAdapt(void* arkode_mem, ARKodeHAdaptMem hadapt_mem,
 /*---------------------------------------------------------------
   arkAdaptPID implements a PID time step control algorithm.
   ---------------------------------------------------------------*/
-int arkAdaptPID(ARKodeHAdaptMem hadapt_mem, int k, realtype hcur,
-                realtype ecur, realtype *hnew)
+int arkAdaptPID(ARKodeHAdaptMem hadapt_mem, int k, sunrealtype hcur,
+                sunrealtype ecur, sunrealtype *hnew)
 {
-  realtype k1, k2, k3, e1, e2, e3, h_acc;
+  sunrealtype k1, k2, k3, e1, e2, e3, h_acc;
 
   /* set usable time-step adaptivity parameters */
   k1 = -hadapt_mem->k1 / k;
@@ -284,10 +284,10 @@ int arkAdaptPID(ARKodeHAdaptMem hadapt_mem, int k, realtype hcur,
 /*---------------------------------------------------------------
   arkAdaptPI implements a PI time step control algorithm.
   ---------------------------------------------------------------*/
-int arkAdaptPI(ARKodeHAdaptMem hadapt_mem, int k, realtype hcur,
-               realtype ecur, realtype *hnew)
+int arkAdaptPI(ARKodeHAdaptMem hadapt_mem, int k, sunrealtype hcur,
+               sunrealtype ecur, sunrealtype *hnew)
 {
-  realtype k1, k2, e1, e2, h_acc;
+  sunrealtype k1, k2, e1, e2, h_acc;
 
   /* set usable time-step adaptivity parameters */
   k1 = -hadapt_mem->k1 / k;
@@ -306,10 +306,10 @@ int arkAdaptPI(ARKodeHAdaptMem hadapt_mem, int k, realtype hcur,
 /*---------------------------------------------------------------
   arkAdaptI implements an I time step control algorithm.
   ---------------------------------------------------------------*/
-int arkAdaptI(ARKodeHAdaptMem hadapt_mem, int k, realtype hcur,
-              realtype ecur, realtype *hnew)
+int arkAdaptI(ARKodeHAdaptMem hadapt_mem, int k, sunrealtype hcur,
+              sunrealtype ecur, sunrealtype *hnew)
 {
-  realtype k1, e1, h_acc;
+  sunrealtype k1, e1, h_acc;
 
   /* set usable time-step adaptivity parameters */
   k1 = -hadapt_mem->k1 / k;
@@ -328,9 +328,9 @@ int arkAdaptI(ARKodeHAdaptMem hadapt_mem, int k, realtype hcur,
   control algorithm.
   ---------------------------------------------------------------*/
 int arkAdaptExpGus(ARKodeHAdaptMem hadapt_mem, int k, long int nst,
-                   realtype hcur, realtype ecur, realtype *hnew)
+                   sunrealtype hcur, sunrealtype ecur, sunrealtype *hnew)
 {
-  realtype k1, k2, e1, e2, h_acc;
+  sunrealtype k1, k2, e1, e2, h_acc;
 
   /* modified method for first step */
   if (nst < 2) {
@@ -360,9 +360,9 @@ int arkAdaptExpGus(ARKodeHAdaptMem hadapt_mem, int k, long int nst,
   control algorithm.
   ---------------------------------------------------------------*/
 int arkAdaptImpGus(ARKodeHAdaptMem hadapt_mem, int k, long int nst,
-                   realtype hcur, realtype ecur, realtype *hnew)
+                   sunrealtype hcur, sunrealtype ecur, sunrealtype *hnew)
 {
-  realtype k1, k2, e1, e2, hrat, h_acc;
+  sunrealtype k1, k2, e1, e2, hrat, h_acc;
 
   /* modified method for first step */
   if (nst < 2) {
@@ -393,9 +393,9 @@ int arkAdaptImpGus(ARKodeHAdaptMem hadapt_mem, int k, long int nst,
   Gustafsson time step control algorithm.
   ---------------------------------------------------------------*/
 int arkAdaptImExGus(ARKodeHAdaptMem hadapt_mem, int k, long int nst,
-                    realtype hcur, realtype ecur, realtype *hnew)
+                    sunrealtype hcur, sunrealtype ecur, sunrealtype *hnew)
 {
-  realtype k1, k2, k3, e1, e2, hrat, h_acc;
+  sunrealtype k1, k2, k3, e1, e2, hrat, h_acc;
 
   /* modified method for first step */
   if (nst < 2) {

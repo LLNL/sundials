@@ -31,7 +31,7 @@ static int idaNlsResidual(N_Vector ycor, N_Vector res, void* ida_mem);
 static int idaNlsLSetup(booleantype jbad, booleantype* jcur, void* ida_mem);
 static int idaNlsLSolve(N_Vector delta, void* ida_mem);
 static int idaNlsConvTest(SUNNonlinearSolver NLS, N_Vector ycor, N_Vector del,
-                          realtype tol, N_Vector ewt, void* ida_mem);
+                          sunrealtype tol, N_Vector ewt, void* ida_mem);
 
 /* -----------------------------------------------------------------------------
  * Exported functions
@@ -160,9 +160,9 @@ int IDASetNlsResFn(void *ida_mem, IDAResFn res)
   This routine provides access to the relevant data needed to
   compute the nonlinear system function.
   ---------------------------------------------------------------*/
-int IDAGetNonlinearSystemData(void *ida_mem, realtype *tcur, N_Vector *yypred,
+int IDAGetNonlinearSystemData(void *ida_mem, sunrealtype *tcur, N_Vector *yypred,
                               N_Vector *yppred, N_Vector *yyn, N_Vector *ypn,
-                              N_Vector *res, realtype *cj, void **user_data)
+                              N_Vector *res, sunrealtype *cj, void **user_data)
 {
   IDAMem IDA_mem;
 
@@ -322,12 +322,12 @@ static int idaNlsResidual(N_Vector ycor, N_Vector res, void* ida_mem)
 
 
 static int idaNlsConvTest(SUNNonlinearSolver NLS, N_Vector ycor, N_Vector del,
-                          realtype tol, N_Vector ewt, void* ida_mem)
+                          sunrealtype tol, N_Vector ewt, void* ida_mem)
 {
   IDAMem IDA_mem;
   int m, retval;
-  realtype delnrm;
-  realtype rate;
+  sunrealtype delnrm;
+  sunrealtype rate;
 
   if (ida_mem == NULL) {
     IDAProcessError(NULL, IDA_MEM_NULL, "IDAS", "idaNlsConvTest", MSG_NO_MEM);

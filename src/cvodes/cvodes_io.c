@@ -40,7 +40,7 @@
  * Specifies the gamma ratio threshold to signal for a linear solver setup
  */
 
-int CVodeSetDeltaGammaMaxLSetup(void *cvode_mem, realtype dgmax_lsetup)
+int CVodeSetDeltaGammaMaxLSetup(void *cvode_mem, sunrealtype dgmax_lsetup)
 {
   CVodeMem cv_mem;
 
@@ -306,7 +306,7 @@ int CVodeSetStabLimDet(void *cvode_mem, booleantype sldet)
  * Specifies the initial step size
  */
 
-int CVodeSetInitStep(void *cvode_mem, realtype hin)
+int CVodeSetInitStep(void *cvode_mem, sunrealtype hin)
 {
   CVodeMem cv_mem;
 
@@ -328,7 +328,7 @@ int CVodeSetInitStep(void *cvode_mem, realtype hin)
  * Specifies the minimum step size
  */
 
-int CVodeSetMinStep(void *cvode_mem, realtype hmin)
+int CVodeSetMinStep(void *cvode_mem, sunrealtype hmin)
 {
   CVodeMem cv_mem;
 
@@ -366,9 +366,9 @@ int CVodeSetMinStep(void *cvode_mem, realtype hmin)
  * Specifies the maximum step size
  */
 
-int CVodeSetMaxStep(void *cvode_mem, realtype hmax)
+int CVodeSetMaxStep(void *cvode_mem, sunrealtype hmax)
 {
-  realtype hmax_inv;
+  sunrealtype hmax_inv;
   CVodeMem cv_mem;
 
   if (cvode_mem==NULL) {
@@ -407,8 +407,8 @@ int CVodeSetMaxStep(void *cvode_mem, realtype hmax)
  */
 
 
-int CVodeSetEtaFixedStepBounds(void* cvode_mem, realtype eta_min_fx,
-                               realtype eta_max_fx)
+int CVodeSetEtaFixedStepBounds(void* cvode_mem, sunrealtype eta_min_fx,
+                               sunrealtype eta_max_fx)
 {
   CVodeMem cv_mem;
 
@@ -440,7 +440,7 @@ int CVodeSetEtaFixedStepBounds(void* cvode_mem, realtype eta_min_fx,
  * Specifies the maximum step size change on the first step
  */
 
-int CVodeSetEtaMaxFirstStep(void* cvode_mem, realtype eta_max_fs)
+int CVodeSetEtaMaxFirstStep(void* cvode_mem, sunrealtype eta_max_fs)
 {
   CVodeMem cv_mem;
 
@@ -468,7 +468,7 @@ int CVodeSetEtaMaxFirstStep(void* cvode_mem, realtype eta_max_fs)
  * when nst <= small_nst
  */
 
-int CVodeSetEtaMaxEarlyStep(void* cvode_mem, realtype eta_max_es)
+int CVodeSetEtaMaxEarlyStep(void* cvode_mem, sunrealtype eta_max_es)
 {
   CVodeMem cv_mem;
 
@@ -523,7 +523,7 @@ int CVodeSetNumStepsEtaMaxEarlyStep(void* cvode_mem, long int small_nst)
  * Specifies the maximum step size change on a general steps (nst > small_nst)
  */
 
-int CVodeSetEtaMax(void* cvode_mem, realtype eta_max_gs)
+int CVodeSetEtaMax(void* cvode_mem, sunrealtype eta_max_gs)
 {
   CVodeMem cv_mem;
 
@@ -550,7 +550,7 @@ int CVodeSetEtaMax(void* cvode_mem, realtype eta_max_gs)
  * Specifies the minimum change on a general steps
  */
 
-int CVodeSetEtaMin(void* cvode_mem, realtype eta_min)
+int CVodeSetEtaMin(void* cvode_mem, sunrealtype eta_min)
 {
   CVodeMem cv_mem;
 
@@ -577,7 +577,7 @@ int CVodeSetEtaMin(void* cvode_mem, realtype eta_min)
  * Specifies the minimum step size change after an error test failure
  */
 
-int CVodeSetEtaMinErrFail(void* cvode_mem, realtype eta_min_ef)
+int CVodeSetEtaMinErrFail(void* cvode_mem, sunrealtype eta_min_ef)
 {
   CVodeMem cv_mem;
 
@@ -605,7 +605,7 @@ int CVodeSetEtaMinErrFail(void* cvode_mem, realtype eta_min_ef)
  * test failures
  */
 
-int CVodeSetEtaMaxErrFail(void* cvode_mem, realtype eta_max_ef)
+int CVodeSetEtaMaxErrFail(void* cvode_mem, sunrealtype eta_max_ef)
 {
   CVodeMem cv_mem;
 
@@ -660,7 +660,7 @@ int CVodeSetNumFailsEtaMaxErrFail(void* cvode_mem, int small_nef)
  * Specifies the step size change after a nonlinear solver failure
  */
 
-int CVodeSetEtaConvFail(void* cvode_mem, realtype eta_cf)
+int CVodeSetEtaConvFail(void* cvode_mem, sunrealtype eta_cf)
 {
   CVodeMem cv_mem;
 
@@ -687,7 +687,7 @@ int CVodeSetEtaConvFail(void* cvode_mem, realtype eta_cf)
  * Specifies the time beyond which the integration is not to proceed.
  */
 
-int CVodeSetStopTime(void *cvode_mem, realtype tstop)
+int CVodeSetStopTime(void *cvode_mem, sunrealtype tstop)
 {
   CVodeMem cv_mem;
 
@@ -858,7 +858,7 @@ int CVodeSetMaxNonlinIters(void *cvode_mem, int maxcor)
  * test
  */
 
-int CVodeSetNonlinConvCoef(void *cvode_mem, realtype nlscoef)
+int CVodeSetNonlinConvCoef(void *cvode_mem, sunrealtype nlscoef)
 {
   CVodeMem cv_mem;
 
@@ -968,7 +968,7 @@ int CVodeSetNoInactiveRootWarn(void *cvode_mem)
 int CVodeSetConstraints(void *cvode_mem, N_Vector constraints)
 {
   CVodeMem cv_mem;
-  realtype temptest;
+  sunrealtype temptest;
 
   if (cvode_mem==NULL) {
     cvProcessError(NULL, CV_MEM_NULL, "CVODES", "CVodeSetConstraints", MSGCV_NO_MEM);
@@ -1049,7 +1049,7 @@ int CVodeSetQuadErrCon(void *cvode_mem, booleantype errconQ)
  * =================================================================
  */
 
-int CVodeSetSensDQMethod(void *cvode_mem, int DQtype, realtype DQrhomax)
+int CVodeSetSensDQMethod(void *cvode_mem, int DQtype, sunrealtype DQrhomax)
 {
   CVodeMem cv_mem;
 
@@ -1139,7 +1139,7 @@ int CVodeSetSensMaxNonlinIters(void *cvode_mem, int maxcorS)
 
 /*-----------------------------------------------------------------*/
 
-int CVodeSetSensParams(void *cvode_mem, realtype *p, realtype *pbar, int *plist)
+int CVodeSetSensParams(void *cvode_mem, sunrealtype *p, sunrealtype *pbar, int *plist)
 {
   CVodeMem cv_mem;
   int is, Ns;
@@ -1370,7 +1370,7 @@ int CVodeGetCurrentOrder(void *cvode_mem, int *qcur)
  * Returns the value of gamma for the current step.
  */
 
-int CVodeGetCurrentGamma(void *cvode_mem, realtype *gamma)
+int CVodeGetCurrentGamma(void *cvode_mem, sunrealtype *gamma)
 {
   CVodeMem cv_mem;
 
@@ -1418,7 +1418,7 @@ int CVodeGetNumStabLimOrderReds(void *cvode_mem, long int *nslred)
  * Returns the step size used on the first step
  */
 
-int CVodeGetActualInitStep(void *cvode_mem, realtype *hinused)
+int CVodeGetActualInitStep(void *cvode_mem, sunrealtype *hinused)
 {
   CVodeMem cv_mem;
 
@@ -1440,7 +1440,7 @@ int CVodeGetActualInitStep(void *cvode_mem, realtype *hinused)
  * Returns the step size used on the last successful step
  */
 
-int CVodeGetLastStep(void *cvode_mem, realtype *hlast)
+int CVodeGetLastStep(void *cvode_mem, sunrealtype *hlast)
 {
   CVodeMem cv_mem;
 
@@ -1462,7 +1462,7 @@ int CVodeGetLastStep(void *cvode_mem, realtype *hlast)
  * Returns the step size to be attempted on the next step
  */
 
-int CVodeGetCurrentStep(void *cvode_mem, realtype *hcur)
+int CVodeGetCurrentStep(void *cvode_mem, sunrealtype *hcur)
 {
   CVodeMem cv_mem;
 
@@ -1551,7 +1551,7 @@ int CVodeGetCurrentSensSolveIndex(void *cvode_mem, int *index)
  * Returns the current value of the independent variable
  */
 
-int CVodeGetCurrentTime(void *cvode_mem, realtype *tcur)
+int CVodeGetCurrentTime(void *cvode_mem, sunrealtype *tcur)
 {
   CVodeMem cv_mem;
 
@@ -1573,7 +1573,7 @@ int CVodeGetCurrentTime(void *cvode_mem, realtype *tcur)
  * Returns a suggested factor for scaling tolerances
  */
 
-int CVodeGetTolScaleFactor(void *cvode_mem, realtype *tolsfact)
+int CVodeGetTolScaleFactor(void *cvode_mem, sunrealtype *tolsfact)
 {
   CVodeMem cv_mem;
 
@@ -1664,8 +1664,8 @@ int CVodeGetWorkSpace(void *cvode_mem, long int *lenrw, long int *leniw)
 
 int CVodeGetIntegratorStats(void *cvode_mem, long int *nsteps, long int *nfevals,
                             long int *nlinsetups, long int *netfails, int *qlast,
-                            int *qcur, realtype *hinused, realtype *hlast,
-                            realtype *hcur, realtype *tcur)
+                            int *qcur, sunrealtype *hinused, sunrealtype *hlast,
+                            sunrealtype *hcur, sunrealtype *tcur)
 {
   CVodeMem cv_mem;
 
@@ -2447,7 +2447,7 @@ int CVodePrintAllStats(void *cvode_mem, FILE *outfile, SUNOutputFormat fmt)
     if (cv_mem->cv_nst > 0)
     {
       fprintf(outfile, "NLS iters per step           = %"RSYM"\n",
-              (realtype) cv_mem->cv_nni / (realtype) cv_mem->cv_nst);
+              (sunrealtype) cv_mem->cv_nni / (sunrealtype) cv_mem->cv_nst);
     }
 
     /* linear solver stats */
@@ -2466,11 +2466,11 @@ int CVodePrintAllStats(void *cvode_mem, FILE *outfile, SUNOutputFormat fmt)
       if (cv_mem->cv_nni > 0)
       {
         fprintf(outfile, "LS iters per NLS iter        = %"RSYM"\n",
-                (realtype) cvls_mem->nli / (realtype) cv_mem->cv_nni);
+                (sunrealtype) cvls_mem->nli / (sunrealtype) cv_mem->cv_nni);
         fprintf(outfile, "Jac evals per NLS iter       = %"RSYM"\n",
-                (realtype) cvls_mem->nje / (realtype) cv_mem->cv_nni);
+                (sunrealtype) cvls_mem->nje / (sunrealtype) cv_mem->cv_nni);
         fprintf(outfile, "Prec evals per NLS iter      = %"RSYM"\n",
-                (realtype) cvls_mem->npe / (realtype) cv_mem->cv_nni);
+                (sunrealtype) cvls_mem->npe / (sunrealtype) cv_mem->cv_nni);
       }
     }
 
@@ -2552,7 +2552,7 @@ int CVodePrintAllStats(void *cvode_mem, FILE *outfile, SUNOutputFormat fmt)
     if (cv_mem->cv_nst > 0)
     {
       fprintf(outfile, ",NLS iters per step,%"RSYM,
-              (realtype) cv_mem->cv_nni / (realtype) cv_mem->cv_nst);
+              (sunrealtype) cv_mem->cv_nni / (sunrealtype) cv_mem->cv_nst);
     }
     else
     {
@@ -2575,11 +2575,11 @@ int CVodePrintAllStats(void *cvode_mem, FILE *outfile, SUNOutputFormat fmt)
       if (cv_mem->cv_nni > 0)
       {
         fprintf(outfile, ",LS iters per NLS iter,%"RSYM,
-                (realtype) cvls_mem->nli / (realtype) cv_mem->cv_nni);
+                (sunrealtype) cvls_mem->nli / (sunrealtype) cv_mem->cv_nni);
         fprintf(outfile, ",Jac evals per NLS iter,%"RSYM,
-                (realtype) cvls_mem->nje / (realtype) cv_mem->cv_nni);
+                (sunrealtype) cvls_mem->nje / (sunrealtype) cv_mem->cv_nni);
         fprintf(outfile, ",Prec evals per NLS iter,%"RSYM,
-                (realtype) cvls_mem->npe / (realtype) cv_mem->cv_nni);
+                (sunrealtype) cvls_mem->npe / (sunrealtype) cv_mem->cv_nni);
       }
       else
       {

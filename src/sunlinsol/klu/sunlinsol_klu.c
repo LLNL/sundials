@@ -244,7 +244,7 @@ int SUNLinSolInitialize_KLU(SUNLinearSolver S)
 int SUNLinSolSetup_KLU(SUNLinearSolver S, SUNMatrix A)
 {
   int retval;
-  realtype uround_twothirds;
+  sunrealtype uround_twothirds;
 
   uround_twothirds = SUNRpowerR(UNIT_ROUNDOFF,TWOTHIRDS);
 
@@ -350,10 +350,10 @@ int SUNLinSolSetup_KLU(SUNLinearSolver S, SUNMatrix A)
 
 
 int SUNLinSolSolve_KLU(SUNLinearSolver S, SUNMatrix A, N_Vector x,
-                       N_Vector b, realtype tol)
+                       N_Vector b, sunrealtype tol)
 {
   int flag;
-  realtype *xdata;
+  sunrealtype *xdata;
 
   /* check for valid inputs */
   if ( (A == NULL) || (S == NULL) || (x == NULL) || (b == NULL) )

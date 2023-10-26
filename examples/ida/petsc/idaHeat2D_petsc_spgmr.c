@@ -84,25 +84,25 @@ typedef struct {
 
 /* User-supplied residual function */
 
-int resHeat(realtype tt, N_Vector uu, N_Vector up, N_Vector rr, void *user_data);
+int resHeat(sunrealtype tt, N_Vector uu, N_Vector up, N_Vector rr, void *user_data);
 
 /* User-supplied preconditioner routines */
 
-int PsetupHeat(realtype tt, N_Vector yy, N_Vector yp,
-               N_Vector rr, realtype c_j, void *user_data);
+int PsetupHeat(sunrealtype tt, N_Vector yy, N_Vector yp,
+               N_Vector rr, sunrealtype c_j, void *user_data);
 
-int PsolveHeat(realtype tt, N_Vector uu, N_Vector up,
+int PsolveHeat(sunrealtype tt, N_Vector uu, N_Vector up,
                N_Vector rr, N_Vector rvec, N_Vector zvec,
-               realtype c_j, realtype delta, void *user_data);
+               sunrealtype c_j, sunrealtype delta, void *user_data);
 
 /* Private function to check function return values */
 
 static int SetInitialProfile(N_Vector uu, N_Vector up, N_Vector id,
                              N_Vector res, void *user_data);
 
-static void PrintHeader(sunindextype Neq, realtype rtol, realtype atol);
+static void PrintHeader(sunindextype Neq, sunrealtype rtol, sunrealtype atol);
 
-static void PrintOutput(int id, void *ida_mem, realtype t, N_Vector uu);
+static void PrintOutput(int id, void *ida_mem, sunrealtype t, N_Vector uu);
 
 static void PrintFinalStats(void *ida_mem);
 
@@ -123,7 +123,7 @@ int main(int argc, char *argv[])
   UserData data;
   int iout, thispe, retval, npes;
   sunindextype Neq;
-  realtype rtol, atol, t0, t1, tout, tret;
+  sunrealtype rtol, atol, t0, t1, tout, tret;
   N_Vector uu, up, constraints, id, res;
   PetscErrorCode ierr;                  /* PETSc error code  */
   Vec uvec;
@@ -330,7 +330,7 @@ int main(int argc, char *argv[])
  *
  */
 
-int resHeat(realtype tt, N_Vector uu, N_Vector up, N_Vector rr,
+int resHeat(sunrealtype tt, N_Vector uu, N_Vector up, N_Vector rr,
             void *user_data)
 {
   PetscErrorCode ierr;
@@ -436,8 +436,8 @@ int resHeat(realtype tt, N_Vector uu, N_Vector up, N_Vector rr,
  *
  */
 
-int PsetupHeat(realtype tt, N_Vector yy, N_Vector yp,
-               N_Vector rr, realtype c_j, void *user_data)
+int PsetupHeat(sunrealtype tt, N_Vector yy, N_Vector yp,
+               N_Vector rr, sunrealtype c_j, void *user_data)
 {
   PetscErrorCode ierr;
   PetscInt    i, j, Mx, My, xs, ys, xm, ym;
@@ -498,9 +498,9 @@ int PsetupHeat(realtype tt, N_Vector yy, N_Vector yp,
  * computed in PsetupHeat), returning the result in zvec.
  */
 
-int PsolveHeat(realtype tt, N_Vector uu, N_Vector up,
+int PsolveHeat(sunrealtype tt, N_Vector uu, N_Vector up,
                N_Vector rr, N_Vector rvec, N_Vector zvec,
-               realtype c_j, realtype delta, void *user_data)
+               sunrealtype c_j, sunrealtype delta, void *user_data)
 {
   UserData data;
 
@@ -607,7 +607,7 @@ static int SetInitialProfile(N_Vector uu, N_Vector up, N_Vector id,
  * Print first lines of output and table heading
  */
 
-static void PrintHeader(sunindextype Neq, realtype rtol, realtype atol)
+static void PrintHeader(sunindextype Neq, sunrealtype rtol, sunrealtype atol)
 {
   printf("\nidaHeat2D_kry_petsc: Heat equation, parallel example problem for IDA\n");
   printf("                     Discretized heat equation on 2D unit square.\n");
@@ -640,9 +640,9 @@ static void PrintHeader(sunindextype Neq, realtype rtol, realtype atol)
  * PrintOutput: print max norm of solution and current solver statistics
  */
 
-static void PrintOutput(int id, void *ida_mem, realtype t, N_Vector uu)
+static void PrintOutput(int id, void *ida_mem, sunrealtype t, N_Vector uu)
 {
-  realtype hused, umax;
+  sunrealtype hused, umax;
   long int nst, nni, njve, nre, nreLS, nli, npe, nps;
   int kused, retval;
 

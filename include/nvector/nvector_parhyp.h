@@ -23,7 +23,7 @@
  *   - The definition of the generic N_Vector structure can be
  *     found in the header file sundials_nvector.h.
  *
- *   - The definition of the type realtype can be found in the
+ *   - The definition of the type sunrealtype can be found in the
  *     header file sundials_types.h, and it may be changed (at the
  *     configuration stage) according to the user's needs.
  *     The sundials_types.h file also contains the definition
@@ -96,87 +96,87 @@ SUNDIALS_EXPORT N_Vector N_VClone_ParHyp(N_Vector w);
 SUNDIALS_EXPORT void N_VDestroy_ParHyp(N_Vector v);
 SUNDIALS_EXPORT void N_VSpace_ParHyp(N_Vector v, sunindextype *lrw,
                                      sunindextype *liw);
-SUNDIALS_EXPORT realtype *N_VGetArrayPointer_ParHyp(N_Vector v);
-SUNDIALS_EXPORT void N_VSetArrayPointer_ParHyp(realtype *v_data, N_Vector v);
+SUNDIALS_EXPORT sunrealtype *N_VGetArrayPointer_ParHyp(N_Vector v);
+SUNDIALS_EXPORT void N_VSetArrayPointer_ParHyp(sunrealtype *v_data, N_Vector v);
 SUNDIALS_EXPORT void *N_VGetCommunicator_ParHyp(N_Vector v);
 SUNDIALS_EXPORT sunindextype N_VGetLength_ParHyp(N_Vector v);
 
 /* standard vector operations */
-SUNDIALS_EXPORT void N_VLinearSum_ParHyp(realtype a, N_Vector x, realtype b,
+SUNDIALS_EXPORT void N_VLinearSum_ParHyp(sunrealtype a, N_Vector x, sunrealtype b,
                                          N_Vector y, N_Vector z);
-SUNDIALS_EXPORT void N_VConst_ParHyp(realtype c, N_Vector z);
+SUNDIALS_EXPORT void N_VConst_ParHyp(sunrealtype c, N_Vector z);
 SUNDIALS_EXPORT void N_VProd_ParHyp(N_Vector x, N_Vector y, N_Vector z);
 SUNDIALS_EXPORT void N_VDiv_ParHyp(N_Vector x, N_Vector y, N_Vector z);
-SUNDIALS_EXPORT void N_VScale_ParHyp(realtype c, N_Vector x, N_Vector z);
+SUNDIALS_EXPORT void N_VScale_ParHyp(sunrealtype c, N_Vector x, N_Vector z);
 SUNDIALS_EXPORT void N_VAbs_ParHyp(N_Vector x, N_Vector z);
 SUNDIALS_EXPORT void N_VInv_ParHyp(N_Vector x, N_Vector z);
-SUNDIALS_EXPORT void N_VAddConst_ParHyp(N_Vector x, realtype b, N_Vector z);
-SUNDIALS_EXPORT realtype N_VDotProd_ParHyp(N_Vector x, N_Vector y);
-SUNDIALS_EXPORT realtype N_VMaxNorm_ParHyp(N_Vector x);
-SUNDIALS_EXPORT realtype N_VWrmsNorm_ParHyp(N_Vector x, N_Vector w);
-SUNDIALS_EXPORT realtype N_VWrmsNormMask_ParHyp(N_Vector x, N_Vector w,
+SUNDIALS_EXPORT void N_VAddConst_ParHyp(N_Vector x, sunrealtype b, N_Vector z);
+SUNDIALS_EXPORT sunrealtype N_VDotProd_ParHyp(N_Vector x, N_Vector y);
+SUNDIALS_EXPORT sunrealtype N_VMaxNorm_ParHyp(N_Vector x);
+SUNDIALS_EXPORT sunrealtype N_VWrmsNorm_ParHyp(N_Vector x, N_Vector w);
+SUNDIALS_EXPORT sunrealtype N_VWrmsNormMask_ParHyp(N_Vector x, N_Vector w,
                                                 N_Vector id);
-SUNDIALS_EXPORT realtype N_VMin_ParHyp(N_Vector x);
-SUNDIALS_EXPORT realtype N_VWL2Norm_ParHyp(N_Vector x, N_Vector w);
-SUNDIALS_EXPORT realtype N_VL1Norm_ParHyp(N_Vector x);
-SUNDIALS_EXPORT void N_VCompare_ParHyp(realtype c, N_Vector x, N_Vector z);
+SUNDIALS_EXPORT sunrealtype N_VMin_ParHyp(N_Vector x);
+SUNDIALS_EXPORT sunrealtype N_VWL2Norm_ParHyp(N_Vector x, N_Vector w);
+SUNDIALS_EXPORT sunrealtype N_VL1Norm_ParHyp(N_Vector x);
+SUNDIALS_EXPORT void N_VCompare_ParHyp(sunrealtype c, N_Vector x, N_Vector z);
 SUNDIALS_EXPORT booleantype N_VInvTest_ParHyp(N_Vector x, N_Vector z);
 SUNDIALS_EXPORT booleantype N_VConstrMask_ParHyp(N_Vector c, N_Vector x,
                                                  N_Vector m);
-SUNDIALS_EXPORT realtype N_VMinQuotient_ParHyp(N_Vector num, N_Vector denom);
+SUNDIALS_EXPORT sunrealtype N_VMinQuotient_ParHyp(N_Vector num, N_Vector denom);
 
 /* fused vector operations */
-SUNDIALS_EXPORT int N_VLinearCombination_ParHyp(int nvec, realtype* c,
+SUNDIALS_EXPORT int N_VLinearCombination_ParHyp(int nvec, sunrealtype* c,
                                                 N_Vector* X, N_Vector z);
-SUNDIALS_EXPORT int N_VScaleAddMulti_ParHyp(int nvec, realtype* a, N_Vector x,
+SUNDIALS_EXPORT int N_VScaleAddMulti_ParHyp(int nvec, sunrealtype* a, N_Vector x,
                                             N_Vector* Y, N_Vector* Z);
 SUNDIALS_EXPORT int N_VDotProdMulti_ParHyp(int nvec, N_Vector x, N_Vector* Y,
-                                           realtype* dotprods);
+                                           sunrealtype* dotprods);
 
 /* vector array operations */
 SUNDIALS_EXPORT int N_VLinearSumVectorArray_ParHyp(int nvec,
-                                                   realtype a, N_Vector* X,
-                                                   realtype b, N_Vector* Y,
+                                                   sunrealtype a, N_Vector* X,
+                                                   sunrealtype b, N_Vector* Y,
                                                    N_Vector* Z);
-SUNDIALS_EXPORT int N_VScaleVectorArray_ParHyp(int nvec, realtype* c,
+SUNDIALS_EXPORT int N_VScaleVectorArray_ParHyp(int nvec, sunrealtype* c,
                                                N_Vector* X, N_Vector* Z);
-SUNDIALS_EXPORT int N_VConstVectorArray_ParHyp(int nvecs, realtype c,
+SUNDIALS_EXPORT int N_VConstVectorArray_ParHyp(int nvecs, sunrealtype c,
                                                N_Vector* Z);
 SUNDIALS_EXPORT int N_VWrmsNormVectorArray_ParHyp(int nvecs, N_Vector* X,
-                                                  N_Vector* W, realtype* nrm);
+                                                  N_Vector* W, sunrealtype* nrm);
 SUNDIALS_EXPORT int N_VWrmsNormMaskVectorArray_ParHyp(int nvec, N_Vector* X,
                                                       N_Vector* W, N_Vector id,
-                                                      realtype* nrm);
+                                                      sunrealtype* nrm);
 SUNDIALS_EXPORT int N_VScaleAddMultiVectorArray_ParHyp(int nvec, int nsum,
-                                                       realtype* a,
+                                                       sunrealtype* a,
                                                        N_Vector* X,
                                                        N_Vector** Y,
                                                        N_Vector** Z);
 SUNDIALS_EXPORT int N_VLinearCombinationVectorArray_ParHyp(int nvec, int nsum,
-                                                           realtype* c,
+                                                           sunrealtype* c,
                                                            N_Vector** X,
                                                            N_Vector* Z);
 
 /* OPTIONAL local reduction kernels (no parallel communication) */
-SUNDIALS_EXPORT realtype N_VDotProdLocal_ParHyp(N_Vector x, N_Vector y);
-SUNDIALS_EXPORT realtype N_VMaxNormLocal_ParHyp(N_Vector x);
-SUNDIALS_EXPORT realtype N_VMinLocal_ParHyp(N_Vector x);
-SUNDIALS_EXPORT realtype N_VL1NormLocal_ParHyp(N_Vector x);
-SUNDIALS_EXPORT realtype N_VWSqrSumLocal_ParHyp(N_Vector x, N_Vector w);
-SUNDIALS_EXPORT realtype N_VWSqrSumMaskLocal_ParHyp(N_Vector x, N_Vector w,
+SUNDIALS_EXPORT sunrealtype N_VDotProdLocal_ParHyp(N_Vector x, N_Vector y);
+SUNDIALS_EXPORT sunrealtype N_VMaxNormLocal_ParHyp(N_Vector x);
+SUNDIALS_EXPORT sunrealtype N_VMinLocal_ParHyp(N_Vector x);
+SUNDIALS_EXPORT sunrealtype N_VL1NormLocal_ParHyp(N_Vector x);
+SUNDIALS_EXPORT sunrealtype N_VWSqrSumLocal_ParHyp(N_Vector x, N_Vector w);
+SUNDIALS_EXPORT sunrealtype N_VWSqrSumMaskLocal_ParHyp(N_Vector x, N_Vector w,
                                                     N_Vector id);
 SUNDIALS_EXPORT booleantype N_VInvTestLocal_ParHyp(N_Vector x, N_Vector z);
 SUNDIALS_EXPORT booleantype N_VConstrMaskLocal_ParHyp(N_Vector c, N_Vector x,
                                                       N_Vector m);
-SUNDIALS_EXPORT realtype N_VMinQuotientLocal_ParHyp(N_Vector num,
+SUNDIALS_EXPORT sunrealtype N_VMinQuotientLocal_ParHyp(N_Vector num,
                                                     N_Vector denom);
 
 /* OPTIONAL single buffer reduction operations */
 SUNDIALS_EXPORT int N_VDotProdMultiLocal_ParHyp(int nvec, N_Vector x,
                                                 N_Vector* Y,
-                                                realtype* dotprods);
+                                                sunrealtype* dotprods);
 SUNDIALS_EXPORT int N_VDotProdMultiAllReduce_ParHyp(int nvec, N_Vector x,
-                                                    realtype* sum);
+                                                    sunrealtype* sum);
 
 /* OPTIONAL XBraid interface operations */
 SUNDIALS_EXPORT int N_VBufSize_ParHyp(N_Vector x, sunindextype *size);

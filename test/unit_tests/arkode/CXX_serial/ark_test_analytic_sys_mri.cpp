@@ -50,9 +50,9 @@ using namespace std;
 #define ONE  RCONST(1.0)
 
 // User-supplied Functions Called by the Solver
-static int f(realtype t, N_Vector y, N_Vector ydot, void *user_data);
-static int f0(realtype t, N_Vector y, N_Vector ydot, void *user_data);
-static int Jac(realtype t, N_Vector y, N_Vector fy, SUNMatrix J,
+static int f(sunrealtype t, N_Vector y, N_Vector ydot, void *user_data);
+static int f0(sunrealtype t, N_Vector y, N_Vector ydot, void *user_data);
+static int Jac(sunrealtype t, N_Vector y, N_Vector fy, SUNMatrix J,
                void *user_data, N_Vector tmp1, N_Vector tmp2, N_Vector tmp3);
 
 // Private function to perform matrix-matrix product
@@ -71,13 +71,13 @@ int main(int argc, char* argv[])
   SUNContext_Create(NULL, &sunctx);
 
   // general problem parameters
-  realtype T0 = RCONST(0.0);         // initial time
-  realtype Tf = RCONST(0.05);        // final time
+  sunrealtype T0 = RCONST(0.0);         // initial time
+  sunrealtype Tf = RCONST(0.05);        // final time
   int Nt = 1000;                     // total number of internal steps
   sunindextype NEQ = 3;              // number of dependent vars.
-  realtype reltol = RCONST(1.0e-6);  // tolerances
-  realtype abstol = RCONST(1.0e-10);
-  realtype lamda  = RCONST(-100.0);  // stiffness parameter
+  sunrealtype reltol = RCONST(1.0e-6);  // tolerances
+  sunrealtype abstol = RCONST(1.0e-10);
+  sunrealtype lamda  = RCONST(-100.0);  // stiffness parameter
 
   // general problem variables
   int flag;                       // reusable error-checking flag
@@ -93,7 +93,7 @@ int main(int argc, char* argv[])
   void *inner_mem = NULL;         // empty inner ARKStep memory structure
   int numfails;
   booleantype fixedpoint;
-  realtype t, tcur;
+  sunrealtype t, tcur;
   long int ark_nst, ark_nfe, ark_nfi, ark_nsetups, ark_nje, ark_nfeLS, ark_nni, ark_ncfn;
   long int mri_nst, mri_nfse, mri_nfsi, mri_nsetups, mri_nje, mri_nfeLS, mri_nni, mri_ncfn;
 
@@ -372,14 +372,14 @@ int main(int argc, char* argv[])
  *-------------------------------*/
 
 // f routine to compute the ODE RHS function f(t,y).
-static int f(realtype t, N_Vector y, N_Vector ydot, void *user_data)
+static int f(sunrealtype t, N_Vector y, N_Vector ydot, void *user_data)
 {
-  realtype *rdata = (realtype *) user_data;   // cast user_data to realtype
-  realtype lam = rdata[0];                    // set shortcut for stiffness parameter
-  realtype y0 = NV_Ith_S(y,0);                // access current solution values
-  realtype y1 = NV_Ith_S(y,1);
-  realtype y2 = NV_Ith_S(y,2);
-  realtype yd0, yd1, yd2;
+  sunrealtype *rdata = (sunrealtype *) user_data;   // cast user_data to sunrealtype
+  sunrealtype lam = rdata[0];                    // set shortcut for stiffness parameter
+  sunrealtype y0 = NV_Ith_S(y,0);                // access current solution values
+  sunrealtype y1 = NV_Ith_S(y,1);
+  sunrealtype y2 = NV_Ith_S(y,2);
+  sunrealtype yd0, yd1, yd2;
 
   // fill in the RHS function: f(t,y) = V*D*Vi*y
   yd0 = RCONST(0.25)*(RCONST(5.0)*y0 + RCONST(1.0)*y1 - RCONST(3.0)*y2);  // yd = Vi*y
@@ -399,7 +399,7 @@ static int f(realtype t, N_Vector y, N_Vector ydot, void *user_data)
 }
 
 // f0 routine to compute a zero-valued ODE RHS function f(t,y).
-static int f0(realtype t, N_Vector y, N_Vector ydot, void *user_data)
+static int f0(sunrealtype t, N_Vector y, N_Vector ydot, void *user_data)
 {
   // Initialize ydot to zero and return
   N_VConst(ZERO, ydot);
@@ -407,12 +407,12 @@ static int f0(realtype t, N_Vector y, N_Vector ydot, void *user_data)
 }
 
 // Jacobian routine to compute J(t,y) = df/dy.
-static int Jac(realtype t, N_Vector y, N_Vector fy,
+static int Jac(sunrealtype t, N_Vector y, N_Vector fy,
                SUNMatrix J, void *user_data,
                N_Vector tmp1, N_Vector tmp2, N_Vector tmp3)
 {
-  realtype *rdata = (realtype *) user_data;   // cast user_data to realtype
-  realtype lam = rdata[0];                    // set shortcut for stiffness parameter
+  sunrealtype *rdata = (sunrealtype *) user_data;   // cast user_data to sunrealtype
+  sunrealtype lam = rdata[0];                    // set shortcut for stiffness parameter
   SUNMatrix V  = SUNDenseMatrix(3,3,sunctx);  // create temporary SUNMatrix objects
   SUNMatrix D  = SUNDenseMatrix(3,3,sunctx);  // create temporary SUNMatrix objects
   SUNMatrix Vi = SUNDenseMatrix(3,3,sunctx);  // create temporary SUNMatrix objects
@@ -482,9 +482,9 @@ static int dense_MM(SUNMatrix A, SUNMatrix B, SUNMatrix C)
     return 1;
   }
 
-  realtype **adata = SUNDenseMatrix_Cols(A);     // access data and extents
-  realtype **bdata = SUNDenseMatrix_Cols(B);
-  realtype **cdata = SUNDenseMatrix_Cols(C);
+  sunrealtype **adata = SUNDenseMatrix_Cols(A);     // access data and extents
+  sunrealtype **bdata = SUNDenseMatrix_Cols(B);
+  sunrealtype **cdata = SUNDenseMatrix_Cols(C);
   sunindextype m = SUNDenseMatrix_Rows(C);
   sunindextype n = SUNDenseMatrix_Columns(C);
   sunindextype l = SUNDenseMatrix_Columns(A);

@@ -74,20 +74,20 @@ module UserData
   real*8    :: dy          ! y-directional mesh spacing 
   real*8    :: kx          ! x-directional diffusion coefficient 
   real*8    :: ky          ! y-directional diffusion coefficient 
-  real(kind=REALTYPE), dimension(:,:), allocatable :: h    ! heat source vector
-  real(kind=REALTYPE), dimension(:,:), allocatable :: d    ! inverse of Jacobian diagonal
+  real(kind=sunrealtype), dimension(:,:), allocatable :: h    ! heat source vector
+  real(kind=sunrealtype), dimension(:,:), allocatable :: d    ! inverse of Jacobian diagonal
   integer :: comm                             ! communicator object
   integer :: myid                             ! MPI process ID
   integer :: nprocs                           ! total number of MPI processes
   logical :: HaveNbor(2,2)                    ! flags denoting neighbor on boundary
-  real(kind=REALTYPE), dimension(:), allocatable :: Erecv  ! receive buffers for neighbor exchange
-  real(kind=REALTYPE), dimension(:), allocatable :: Wrecv
-  real(kind=REALTYPE), dimension(:), allocatable :: Nrecv
-  real(kind=REALTYPE), dimension(:), allocatable :: Srecv
-  real(kind=REALTYPE), dimension(:), allocatable :: Esend  ! send buffers for neighbor exchange
-  real(kind=REALTYPE), dimension(:), allocatable :: Wsend
-  real(kind=REALTYPE), dimension(:), allocatable :: Nsend
-  real(kind=REALTYPE), dimension(:), allocatable :: Ssend
+  real(kind=sunrealtype), dimension(:), allocatable :: Erecv  ! receive buffers for neighbor exchange
+  real(kind=sunrealtype), dimension(:), allocatable :: Wrecv
+  real(kind=sunrealtype), dimension(:), allocatable :: Nrecv
+  real(kind=sunrealtype), dimension(:), allocatable :: Srecv
+  real(kind=sunrealtype), dimension(:), allocatable :: Esend  ! send buffers for neighbor exchange
+  real(kind=sunrealtype), dimension(:), allocatable :: Wsend
+  real(kind=sunrealtype), dimension(:), allocatable :: Nsend
+  real(kind=sunrealtype), dimension(:), allocatable :: Ssend
 
 contains
 
@@ -224,7 +224,7 @@ contains
     ! declarations
     implicit none
     include "mpif.h"
-    real(kind=REALTYPE),  intent(in)  :: y(nxl,nyl)
+    real(kind=sunrealtype),  intent(in)  :: y(nxl,nyl)
     integer, intent(out) :: ierr
     integer :: reqSW, reqSE, reqSS, reqSN, reqRW, reqRE, reqRS, reqRN;
     integer :: stat(MPI_STATUS_SIZE)
@@ -439,9 +439,9 @@ contains
     implicit none
     include "mpif.h"
     integer, intent(out) :: ierr
-    real(kind=REALTYPE),  intent(in)  :: y(nxl,nyl)
-    real(kind=REALTYPE),  intent(out) :: yrms
-    real(kind=REALTYPE) :: lsum, gsum
+    real(kind=sunrealtype),  intent(in)  :: y(nxl,nyl)
+    real(kind=sunrealtype),  intent(out) :: yrms
+    real(kind=sunrealtype) :: lsum, gsum
 
     ! internals
     lsum = sum(y**2)
@@ -480,17 +480,17 @@ program driver
   integer*8, parameter :: ny_ = 120
   integer,   parameter :: PCGpretype = 1    ! enable preconditioner
   integer,   parameter :: PCGmaxl = 20      ! max num. PCG iterations
-  real(kind=REALTYPE), parameter :: T0 = 0.d0        ! initial time 
-  real(kind=REALTYPE), parameter :: Tf = 0.3d0       ! final time 
-  real(kind=REALTYPE), parameter :: rtol = 1.d-5     ! relative and absolute tolerances
-  real(kind=REALTYPE), parameter :: atol = 1.d-10
-  real(kind=REALTYPE), parameter :: kx_ = 0.5d0      ! heat conductivity coefficients
-  real(kind=REALTYPE), parameter :: ky_ = 0.75d0
-  real(kind=REALTYPE), parameter :: nlscoef = 1.d-7  ! nonlinear solver tolerance factor
+  real(kind=sunrealtype), parameter :: T0 = 0.d0        ! initial time 
+  real(kind=sunrealtype), parameter :: Tf = 0.3d0       ! final time 
+  real(kind=sunrealtype), parameter :: rtol = 1.d-5     ! relative and absolute tolerances
+  real(kind=sunrealtype), parameter :: atol = 1.d-10
+  real(kind=sunrealtype), parameter :: kx_ = 0.5d0      ! heat conductivity coefficients
+  real(kind=sunrealtype), parameter :: ky_ = 0.75d0
+  real(kind=sunrealtype), parameter :: nlscoef = 1.d-7  ! nonlinear solver tolerance factor
 
   ! solution vector and other local variables
-  real(kind=REALTYPE), allocatable :: y(:,:)
-  real(kind=REALTYPE) :: rout(6), rpar, t, dTout, tout, urms
+  real(kind=sunrealtype), allocatable :: y(:,:)
+  real(kind=sunrealtype) :: rout(6), rpar, t, dTout, tout, urms
   integer*8 :: iout(35), ipar, N, Ntot, i, j
   integer   :: flag, ioutput
   logical   :: outproc
@@ -712,11 +712,11 @@ subroutine farkifun(t, y, ydot, ipar, rpar, ierr)
   use UserData
   implicit none
   include "mpif.h"
-  real(kind=REALTYPE), intent(in)  :: t, rpar
-  real(kind=REALTYPE), intent(in)  :: y(nxl,nyl)
-  real(kind=REALTYPE), intent(out) :: ydot(nxl,nyl)
+  real(kind=sunrealtype), intent(in)  :: t, rpar
+  real(kind=sunrealtype), intent(in)  :: y(nxl,nyl)
+  real(kind=sunrealtype), intent(out) :: ydot(nxl,nyl)
   integer*8, intent(in) :: ipar
-  real(kind=REALTYPE) :: c1, c2, c3
+  real(kind=sunrealtype) :: c1, c2, c3
   integer, intent(out) :: ierr
   integer*8 :: i, j
   
@@ -803,10 +803,10 @@ subroutine farkefun(t, y, ydot, ipar, rpar, ierr)
   ! declarations
   use UserData
   implicit none
-  real(kind=REALTYPE), intent(in)  :: t, rpar
+  real(kind=sunrealtype), intent(in)  :: t, rpar
   integer*8, intent(in) :: ipar
-  real(kind=REALTYPE), intent(in)  :: y(nxl,nyl)
-  real(kind=REALTYPE), intent(out) :: ydot(nxl,nyl)
+  real(kind=sunrealtype), intent(in)  :: y(nxl,nyl)
+  real(kind=sunrealtype), intent(out) :: ydot(nxl,nyl)
   integer, intent(out) :: ierr
   
   ! internals
@@ -827,12 +827,12 @@ subroutine farkpset(t, y, fy, jok, jcur, gamma, hcur, ipar, &
   ! declarations
   use UserData
   implicit none
-  real(kind=REALTYPE), intent(in) :: t, gamma, hcur, rpar
-  real(kind=REALTYPE), intent(in) :: y(nxl,nyl), fy(nxl,nyl)
+  real(kind=sunrealtype), intent(in) :: t, gamma, hcur, rpar
+  real(kind=sunrealtype), intent(in) :: y(nxl,nyl), fy(nxl,nyl)
   integer*8, intent(in) :: ipar
   integer, intent(in) :: jok
   integer, intent(out) :: jcur, ierr
-  real(kind=REALTYPE) :: c
+  real(kind=sunrealtype) :: c
 
   ! internals
   c = 1.d0 + gamma*2.d0*(kx/dx/dx + ky/dy/dy)
@@ -855,10 +855,10 @@ subroutine farkpsol(t, y, fy, r, z, gamma, delta, lr, &
   ! declarations
   use UserData
   implicit none
-  real(kind=REALTYPE), intent(in)  :: t, gamma, delta, rpar
+  real(kind=sunrealtype), intent(in)  :: t, gamma, delta, rpar
   integer*8, intent(in) :: ipar
-  real(kind=REALTYPE), intent(in)  :: y(nxl,nyl), fy(nxl,nyl), r(nxl,nyl)
-  real(kind=REALTYPE), intent(out) :: z(nxl,nyl)
+  real(kind=sunrealtype), intent(in)  :: y(nxl,nyl), fy(nxl,nyl), r(nxl,nyl)
+  real(kind=sunrealtype), intent(out) :: z(nxl,nyl)
   integer, intent(in)  :: lr
   integer, intent(out) :: ierr
 

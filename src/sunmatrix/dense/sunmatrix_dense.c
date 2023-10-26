@@ -86,13 +86,13 @@ SUNMatrix SUNDenseMatrix(sunindextype M, sunindextype N, SUNContext sunctx)
   content->cols  = NULL;
 
   /* Allocate content */
-  content->data = (realtype*)calloc(M * N, sizeof(realtype));
+  content->data = (sunrealtype*)calloc(M * N, sizeof(sunrealtype));
   if (content->data == NULL) {
     SUNMatDestroy(A);
     return (NULL);
   }
 
-  content->cols = (realtype**)malloc(N * sizeof(realtype*));
+  content->cols = (sunrealtype**)malloc(N * sizeof(sunrealtype*));
   if (content->cols == NULL) {
     SUNMatDestroy(A);
     return (NULL);
@@ -162,7 +162,7 @@ sunindextype SUNDenseMatrix_LData(SUNMatrix A)
     return SUNMAT_ILL_INPUT;
 }
 
-realtype* SUNDenseMatrix_Data(SUNMatrix A)
+sunrealtype* SUNDenseMatrix_Data(SUNMatrix A)
 {
   if (SUNMatGetID(A) == SUNMATRIX_DENSE)
     return SM_DATA_D(A);
@@ -170,7 +170,7 @@ realtype* SUNDenseMatrix_Data(SUNMatrix A)
     return NULL;
 }
 
-realtype** SUNDenseMatrix_Cols(SUNMatrix A)
+sunrealtype** SUNDenseMatrix_Cols(SUNMatrix A)
 {
   if (SUNMatGetID(A) == SUNMATRIX_DENSE)
     return SM_COLS_D(A);
@@ -178,7 +178,7 @@ realtype** SUNDenseMatrix_Cols(SUNMatrix A)
     return NULL;
 }
 
-realtype* SUNDenseMatrix_Column(SUNMatrix A, sunindextype j)
+sunrealtype* SUNDenseMatrix_Column(SUNMatrix A, sunindextype j)
 {
   if (SUNMatGetID(A) == SUNMATRIX_DENSE)
     return SM_COLUMN_D(A, j);
@@ -236,7 +236,7 @@ void SUNMatDestroy_Dense(SUNMatrix A)
 int SUNMatZero_Dense(SUNMatrix A)
 {
   sunindextype i;
-  realtype* Adata;
+  sunrealtype* Adata;
 
   /* Perform operation A_ij = 0 */
   Adata = SM_DATA_D(A);
@@ -261,7 +261,7 @@ int SUNMatCopy_Dense(SUNMatrix A, SUNMatrix B)
   return SUNMAT_SUCCESS;
 }
 
-int SUNMatScaleAddI_Dense(realtype c, SUNMatrix A)
+int SUNMatScaleAddI_Dense(sunrealtype c, SUNMatrix A)
 {
   sunindextype i, j;
 
@@ -277,7 +277,7 @@ int SUNMatScaleAddI_Dense(realtype c, SUNMatrix A)
   return SUNMAT_SUCCESS;
 }
 
-int SUNMatScaleAdd_Dense(realtype c, SUNMatrix A, SUNMatrix B)
+int SUNMatScaleAdd_Dense(sunrealtype c, SUNMatrix A, SUNMatrix B)
 {
   sunindextype i, j;
 
@@ -295,7 +295,7 @@ int SUNMatScaleAdd_Dense(realtype c, SUNMatrix A, SUNMatrix B)
 int SUNMatMatvec_Dense(SUNMatrix A, N_Vector x, N_Vector y)
 {
   sunindextype i, j;
-  realtype *col_j, *xd, *yd;
+  sunrealtype *col_j, *xd, *yd;
 
   if (!compatibleMatrixAndVectors(A, x, y))
     return SUNMAT_ILL_INPUT;

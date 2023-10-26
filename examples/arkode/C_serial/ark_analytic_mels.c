@@ -34,7 +34,7 @@
 #include <math.h>
 #include <arkode/arkode_arkstep.h>         /* prototypes for ARKStep fcts., consts */
 #include <nvector/nvector_serial.h>        /* serial N_Vector types, fcts., macros */
-#include <sundials/sundials_types.h>       /* definition of type realtype          */
+#include <sundials/sundials_types.h>       /* definition of type sunrealtype          */
 
 #if defined(SUNDIALS_EXTENDED_PRECISION)
 #define GSYM "Lg"
@@ -47,39 +47,39 @@
 #endif
 
 /* User-supplied functions called by ARKStep */
-static int f(realtype t, N_Vector y, N_Vector ydot, void *user_data);
+static int f(sunrealtype t, N_Vector y, N_Vector ydot, void *user_data);
 
 /* Custom linear solver data structure, accessor macros, and routines */
 static SUNLinearSolver MatrixEmbeddedLS(void *arkode_mem, SUNContext ctx);
 static SUNLinearSolver_Type MatrixEmbeddedLSType(SUNLinearSolver S);
 static int MatrixEmbeddedLSSolve(SUNLinearSolver S, SUNMatrix A, N_Vector x,
-                                 N_Vector b, realtype tol);
+                                 N_Vector b, sunrealtype tol);
 static int MatrixEmbeddedLSFree(SUNLinearSolver S);
 
 /* Private function to check function return values */
 static int check_retval(void *returnvalue, const char *funcname, int opt);
 
 /* Private function to check computed solution */
-static int check_ans(N_Vector y, realtype t, realtype rtol, realtype atol);
+static int check_ans(N_Vector y, sunrealtype t, sunrealtype rtol, sunrealtype atol);
 
 /* Main Program */
 int main()
 {
   /* general problem parameters */
-  realtype T0 = RCONST(0.0);         /* initial time */
-  realtype Tf = RCONST(10.0);        /* final time */
-  realtype dTout = RCONST(1.0);      /* time between outputs */
+  sunrealtype T0 = RCONST(0.0);         /* initial time */
+  sunrealtype Tf = RCONST(10.0);        /* final time */
+  sunrealtype dTout = RCONST(1.0);      /* time between outputs */
   sunindextype NEQ = 1;              /* number of dependent vars. */
-  realtype reltol = RCONST(1.0e-6);  /* tolerances */
-  realtype abstol = RCONST(1.0e-10);
-  realtype lamda  = RCONST(-100.0);  /* stiffness parameter */
+  sunrealtype reltol = RCONST(1.0e-6);  /* tolerances */
+  sunrealtype abstol = RCONST(1.0e-10);
+  sunrealtype lamda  = RCONST(-100.0);  /* stiffness parameter */
 
   /* general problem variables */
   int retval;                     /* reusable error-checking flag */
   N_Vector y = NULL;              /* empty vector for storing solution */
   SUNLinearSolver LS = NULL;      /* empty linear solver object */
   void *arkode_mem = NULL;        /* empty ARKODE memory structure */
-  realtype t, tout;
+  sunrealtype t, tout;
   long int nst, nst_a, nfe, nfi, nsetups, nje, nfeLS, nni, ncfn, netf;
 
   /* Create the SUNDIALS context object for this simulation */
@@ -189,11 +189,11 @@ int main()
  *-------------------------------*/
 
 /* f routine to compute the ODE RHS function f(t,y). */
-static int f(realtype t, N_Vector y, N_Vector ydot, void *user_data)
+static int f(sunrealtype t, N_Vector y, N_Vector ydot, void *user_data)
 {
-  realtype *rdata = (realtype *) user_data;   /* cast user_data to realtype */
-  realtype lamda = rdata[0];                  /* set shortcut for stiffness parameter */
-  realtype u = NV_Ith_S(y,0);                 /* access current solution value */
+  sunrealtype *rdata = (sunrealtype *) user_data;   /* cast user_data to sunrealtype */
+  sunrealtype lamda = rdata[0];                  /* set shortcut for stiffness parameter */
+  sunrealtype u = NV_Ith_S(y,0);                 /* access current solution value */
 
   /* fill in the RHS function: "NV_Ith_S" accesses the 0th entry of ydot */
   NV_Ith_S(ydot,0) = lamda*u + RCONST(1.0)/(RCONST(1.0)+t*t) - lamda*atan(t);
@@ -232,15 +232,15 @@ static SUNLinearSolver_Type MatrixEmbeddedLSType(SUNLinearSolver S)
 
 /* linear solve routine */
 static int MatrixEmbeddedLSSolve(SUNLinearSolver LS, SUNMatrix A, N_Vector x,
-                                 N_Vector b, realtype tol)
+                                 N_Vector b, sunrealtype tol)
 {
   /* temporary variables */
   int       retval;
   N_Vector  z, zpred, Fi, sdata;
-  realtype  tcur, gamma;
+  sunrealtype  tcur, gamma;
   void      *user_data;
-  realtype  *rdata;
-  realtype  lamda;
+  sunrealtype  *rdata;
+  sunrealtype  lamda;
 
   /* retrieve implicit system data from ARKStep */
   retval = ARKStepGetNonlinearSystemData(LS->content, &tcur, &zpred, &z, &Fi,
@@ -249,7 +249,7 @@ static int MatrixEmbeddedLSSolve(SUNLinearSolver LS, SUNMatrix A, N_Vector x,
     return(-1);
 
   /* extract stiffness parameter from user_data */
-  rdata = (realtype *) user_data;
+  rdata = (sunrealtype *) user_data;
   lamda = rdata[0];
 
   /* perform linear solve: (1-gamma*lamda)*x = b */
@@ -308,10 +308,10 @@ static int check_retval(void *returnvalue, const char *funcname, int opt)
 }
 
 /* check the computed solution */
-static int check_ans(N_Vector y, realtype t, realtype rtol, realtype atol)
+static int check_ans(N_Vector y, sunrealtype t, sunrealtype rtol, sunrealtype atol)
 {
   int      passfail=0;     /* answer pass (0) or fail (1) flag     */
-  realtype ans, err, ewt;  /* answer data, error, and error weight */
+  sunrealtype ans, err, ewt;  /* answer data, error, and error weight */
 
   /* compute solution error */
   ans = atan(t);

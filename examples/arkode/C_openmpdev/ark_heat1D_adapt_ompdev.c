@@ -45,7 +45,7 @@
 #include <arkode/arkode_arkstep.h>     /* prototypes for ARKStep fcts., consts */
 #include <nvector/nvector_openmpdev.h> /* OpenMPDEV N_Vector types, fcts., macros */
 #include <sunlinsol/sunlinsol_pcg.h>   /* access to PCG SUNLinearSolver        */
-#include <sundials/sundials_types.h>   /* defs. of realtype, sunindextype, etc */
+#include <sundials/sundials_types.h>   /* defs. of sunrealtype, sunindextype, etc */
 #include <sundials/sundials_math.h>    /* def. of SUNRsqrt, etc.               */
 
 #ifdef _OPENMP
@@ -79,37 +79,37 @@
 /* user data structure */
 typedef struct {
   sunindextype N;       /* current number of intervals */
-  realtype *x_host;     /* current mesh on host */
-  realtype *x_dev;      /* current mesh on device */
-  realtype k;           /* diffusion coefficient */
-  realtype refine_tol;  /* adaptivity tolerance */
+  sunrealtype *x_host;     /* current mesh on host */
+  sunrealtype *x_dev;      /* current mesh on device */
+  sunrealtype k;           /* diffusion coefficient */
+  sunrealtype refine_tol;  /* adaptivity tolerance */
 } *UserData;
 
 /* User-supplied Functions Called by the Solver */
-static int f(realtype t, N_Vector y, N_Vector ydot, void *user_data);
-static int Jac(N_Vector v, N_Vector Jv, realtype t, N_Vector y,
+static int f(sunrealtype t, N_Vector y, N_Vector ydot, void *user_data);
+static int Jac(N_Vector v, N_Vector Jv, sunrealtype t, N_Vector y,
                N_Vector fy, void *user_data, N_Vector tmp);
 
 /* Private function to check function return values */
-realtype * adapt_mesh(N_Vector y, sunindextype *Nnew, UserData udata);
-static int project(sunindextype Nold, realtype *xold, N_Vector yold,
-                   sunindextype Nnew, realtype *xnew, N_Vector ynew);
+sunrealtype * adapt_mesh(N_Vector y, sunindextype *Nnew, UserData udata);
+static int project(sunindextype Nold, sunrealtype *xold, N_Vector yold,
+                   sunindextype Nnew, sunrealtype *xnew, N_Vector ynew);
 static int check_flag(void *flagvalue, const char *funcname, int opt);
 
 /* Main Program */
 int main() {
 
   /* general problem parameters */
-  realtype T0 = RCONST(0.0);         /* initial time */
-  realtype Tf = RCONST(1.0);         /* final time */
-  realtype rtol = RCONST(1.e-3);     /* relative tolerance */
-  realtype atol = RCONST(1.e-10);    /* absolute tolerance */
-  realtype hscale = RCONST(1.0);     /* time step change factor on resizes */
+  sunrealtype T0 = RCONST(0.0);         /* initial time */
+  sunrealtype Tf = RCONST(1.0);         /* final time */
+  sunrealtype rtol = RCONST(1.e-3);     /* relative tolerance */
+  sunrealtype atol = RCONST(1.e-10);    /* absolute tolerance */
+  sunrealtype hscale = RCONST(1.0);     /* time step change factor on resizes */
   UserData udata = NULL;
-  realtype *data;
+  sunrealtype *data;
   sunindextype N = 21;               /* initial spatial mesh size */
-  realtype refine = RCONST(3.0e-3);  /* adaptivity refinement tolerance */
-  realtype k = RCONST(0.5);          /* heat conductivity */
+  sunrealtype refine = RCONST(3.0e-3);  /* adaptivity refinement tolerance */
+  sunrealtype k = RCONST(0.5);          /* heat conductivity */
   sunindextype i;
   long int nni, nni_tot=0, nli, nli_tot=0;
   int iout=0;
@@ -122,9 +122,9 @@ int main() {
   SUNLinearSolver LS = NULL;   /* empty linear solver object */
   void *arkode_mem = NULL;     /* empty ARKode memory structure */
   FILE *XFID, *UFID;
-  realtype t, olddt, newdt;
-  realtype *xnew_host = NULL;
-  realtype *xnew_dev = NULL;
+  sunrealtype t, olddt, newdt;
+  sunrealtype *xnew_host = NULL;
+  sunrealtype *xnew_dev = NULL;
   sunindextype Nnew;
   int dev, host;
 
@@ -142,10 +142,10 @@ int main() {
   udata->N = N;
   udata->k = k;
   udata->refine_tol = refine;
-  udata->x_host = malloc(N * sizeof(realtype));
+  udata->x_host = malloc(N * sizeof(sunrealtype));
   for (i=0; i<N; i++)  udata->x_host[i] = ONE*i/(N-1);
-  udata->x_dev = omp_target_alloc(N * sizeof(realtype), dev);
-  omp_target_memcpy(udata->x_dev, udata->x_host, N * sizeof(realtype), 0, 0, dev, host);
+  udata->x_dev = omp_target_alloc(N * sizeof(sunrealtype), dev);
+  omp_target_memcpy(udata->x_dev, udata->x_host, N * sizeof(sunrealtype), 0, 0, dev, host);
 
   /* Initial problem output */
   printf("\n1D adaptive Heat PDE test problem:\n");
@@ -260,8 +260,8 @@ int main() {
     if (check_flag((void *) y2, "N_VNew_OpenMPDEV", 0)) return 1;
 
     /* copy new mesh from host array to device array */
-    xnew_dev = omp_target_alloc(Nnew * sizeof(realtype), dev);
-    omp_target_memcpy(xnew_dev, xnew_host, Nnew*sizeof(realtype), 0, 0, dev, host);
+    xnew_dev = omp_target_alloc(Nnew * sizeof(sunrealtype), dev);
+    omp_target_memcpy(xnew_dev, xnew_host, Nnew*sizeof(sunrealtype), 0, 0, dev, host);
 
     /* project solution onto new mesh */
     flag = project(udata->N, udata->x_dev, y, Nnew, xnew_dev, y2);
@@ -325,14 +325,14 @@ int main() {
  *--------------------------------*/
 
 /* f routine to compute the ODE RHS function f(t,y). */
-static int f(realtype t, N_Vector y, N_Vector ydot, void *user_data)
+static int f(sunrealtype t, N_Vector y, N_Vector ydot, void *user_data)
 {
   UserData udata = (UserData) user_data;    /* access problem data */
   sunindextype N = udata->N;                /* set variable shortcuts */
-  realtype k  = udata->k;
-  realtype *x = udata->x_dev;
-  realtype *Y=NULL, *Ydot=NULL;
-  realtype dxL, dxR;
+  sunrealtype k  = udata->k;
+  sunrealtype *x = udata->x_dev;
+  sunrealtype *Y=NULL, *Ydot=NULL;
+  sunrealtype dxL, dxR;
   sunindextype i;
   int dev;
 
@@ -366,15 +366,15 @@ static int f(realtype t, N_Vector y, N_Vector ydot, void *user_data)
 }
 
 /* Jacobian routine to compute J(t,y) = df/dy. */
-static int Jac(N_Vector v, N_Vector Jv, realtype t, N_Vector y,
+static int Jac(N_Vector v, N_Vector Jv, sunrealtype t, N_Vector y,
                N_Vector fy, void *user_data, N_Vector tmp)
 {
   UserData udata = (UserData) user_data;     /* variable shortcuts */
   sunindextype N = udata->N;
-  realtype k  = udata->k;
-  realtype *x = udata->x_dev;
-  realtype *V=NULL, *JV=NULL;
-  realtype dxL, dxR;
+  sunrealtype k  = udata->k;
+  sunrealtype *x = udata->x_dev;
+  sunrealtype *V=NULL, *JV=NULL;
+  sunrealtype dxL, dxR;
   sunindextype i;
   int dev;
 
@@ -415,11 +415,11 @@ static int Jac(N_Vector v, N_Vector Jv, realtype t, N_Vector y,
       Nnew [output] -- the size of the new mesh
       udata [input] -- the current system information
    The return for this function is a pointer to the new mesh. */
-realtype* adapt_mesh(N_Vector y, sunindextype *Nnew, UserData udata)
+sunrealtype* adapt_mesh(N_Vector y, sunindextype *Nnew, UserData udata)
 {
   sunindextype i, j;
   int *marks=NULL;
-  realtype ydd, *xold=NULL, *Y=NULL, *xnew=NULL;
+  sunrealtype ydd, *xold=NULL, *Y=NULL, *xnew=NULL;
   sunindextype num_refine, N_new;
 
   /* Access current solution and mesh arrays */
@@ -452,7 +452,7 @@ realtype* adapt_mesh(N_Vector y, sunindextype *Nnew, UserData udata)
     if (marks[i] == 1)   num_refine++;
   N_new = udata->N + num_refine;
   *Nnew = N_new;            /* Store new array length */
-  xnew = malloc((N_new) * sizeof(realtype));
+  xnew = malloc((N_new) * sizeof(sunrealtype));
 
 
   /* fill new mesh */
@@ -497,11 +497,11 @@ realtype* adapt_mesh(N_Vector y, sunindextype *Nnew, UserData udata)
       xnew [input] -- the new mesh
       ynew [output] -- the vector defined over the new mesh
                        (allocated prior to calling project) */
-static int project(sunindextype Nold, realtype *xold, N_Vector yold,
-                   sunindextype Nnew, realtype *xnew, N_Vector ynew)
+static int project(sunindextype Nold, sunrealtype *xold, N_Vector yold,
+                   sunindextype Nnew, sunrealtype *xnew, N_Vector ynew)
 {
   sunindextype iv, i, j;
-  realtype *Yold=NULL, *Ynew=NULL;
+  sunrealtype *Yold=NULL, *Ynew=NULL;
 
   int dev = omp_get_default_device();
 

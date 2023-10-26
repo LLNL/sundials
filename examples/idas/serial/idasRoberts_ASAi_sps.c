@@ -56,7 +56,7 @@
 #include <nvector/nvector_serial.h>        /* access to serial N_Vector            */
 #include <sunmatrix/sunmatrix_sparse.h>    /* access to sparse SUNMatrix           */
 #include <sunlinsol/sunlinsol_superlumt.h> /* access to SuperLUMT linear solver    */
-#include <sundials/sundials_types.h>       /* defs. of realtype, sunindextype      */
+#include <sundials/sundials_types.h>       /* defs. of sunrealtype, sunindextype      */
 #include <sundials/sundials_math.h>        /* defs. of SUNRabs, SUNRexp, etc.      */
 
 /* Accessor macros */
@@ -95,40 +95,40 @@
 /* Type : UserData */
 
 typedef struct {
-  realtype p[3];
+  sunrealtype p[3];
 } *UserData;
 
 /* Prototypes of user-supplied functions */
 
-static int res(realtype t, N_Vector yy, N_Vector yp,
+static int res(sunrealtype t, N_Vector yy, N_Vector yp,
                N_Vector resval, void *user_data);
-static int Jac(realtype t, realtype cj,
+static int Jac(sunrealtype t, sunrealtype cj,
                N_Vector yy, N_Vector yp, N_Vector resvec,
                SUNMatrix JJ, void *user_data,
                N_Vector tmp1, N_Vector tmp2, N_Vector tmp3);
 
-static int rhsQ(realtype t, N_Vector yy, N_Vector yp, N_Vector qdot, void *user_data);
+static int rhsQ(sunrealtype t, N_Vector yy, N_Vector yp, N_Vector qdot, void *user_data);
 static int ewt(N_Vector y, N_Vector w, void *user_data);
 
-static int resB(realtype tt,
+static int resB(sunrealtype tt,
                 N_Vector yy, N_Vector yp,
                 N_Vector yyB, N_Vector ypB, N_Vector rrB,
                 void *user_dataB);
 
-static int JacB(realtype tt, realtype cjB,
+static int JacB(sunrealtype tt, sunrealtype cjB,
                 N_Vector yy, N_Vector yp,
                 N_Vector yyB, N_Vector ypB, N_Vector rrB,
                 SUNMatrix JB, void *user_data,
                 N_Vector tmp1B, N_Vector tmp2B, N_Vector tmp3B);
 
 
-static int rhsQB(realtype tt,
+static int rhsQB(sunrealtype tt,
                  N_Vector yy, N_Vector yp,
                  N_Vector yyB, N_Vector ypB,
                  N_Vector rrQB, void *user_dataB);
 
 /* Prototypes of private functions */
-static void PrintOutput(realtype tfinal, N_Vector yB, N_Vector ypB, N_Vector qB);
+static void PrintOutput(sunrealtype tfinal, N_Vector yB, N_Vector ypB, N_Vector qB);
 static int check_retval(void *returnvalue, char *funcname, int opt);
 
 /*
@@ -147,7 +147,7 @@ int main(int argc, char *argv[])
   SUNMatrix A, AB;
   SUNLinearSolver LS, LSB;
 
-  realtype reltolQ, abstolQ;
+  sunrealtype reltolQ, abstolQ;
   N_Vector yy, yp, q;
   N_Vector yyTB1, ypTB1;
   N_Vector id;
@@ -156,9 +156,9 @@ int main(int argc, char *argv[])
 
   int indexB;
 
-  realtype reltolB, abstolB, abstolQB;
+  sunrealtype reltolB, abstolB, abstolQB;
   N_Vector yB, ypB, qB;
-  realtype time;
+  sunrealtype time;
   int retval, nthreads, nnz, ncheck;
 
   IDAadjCheckPointRec *ckpnt;
@@ -531,11 +531,11 @@ int main(int argc, char *argv[])
  * f routine. Compute f(t,y).
 */
 
-static int res(realtype t, N_Vector yy, N_Vector yp, N_Vector resval, void *user_data)
+static int res(sunrealtype t, N_Vector yy, N_Vector yp, N_Vector resval, void *user_data)
 {
-  realtype y1, y2, y3,yp1, yp2, *rval;
+  sunrealtype y1, y2, y3,yp1, yp2, *rval;
   UserData data;
-  realtype p1, p2, p3;
+  sunrealtype p1, p2, p3;
 
   y1  = Ith(yy,1); y2  = Ith(yy,2); y3  = Ith(yy,3);
   yp1 = Ith(yp,1); yp2 = Ith(yp,2);
@@ -556,18 +556,18 @@ static int res(realtype t, N_Vector yy, N_Vector yp, N_Vector resval, void *user
  * Jacobian routine. Compute J(t,y).
 */
 
-static int Jac(realtype t, realtype cj,
+static int Jac(sunrealtype t, sunrealtype cj,
                N_Vector yy, N_Vector yp, N_Vector resvec,
                SUNMatrix JJ, void *user_data,
                N_Vector tmp1, N_Vector tmp2, N_Vector tmp3)
 {
-  realtype *yval;
+  sunrealtype *yval;
   sunindextype *colptrs = SUNSparseMatrix_IndexPointers(JJ);
   sunindextype *rowvals = SUNSparseMatrix_IndexValues(JJ);
-  realtype *data = SUNSparseMatrix_Data(JJ);
+  sunrealtype *data = SUNSparseMatrix_Data(JJ);
 
   UserData userdata;
-  realtype p1, p2, p3;
+  sunrealtype p1, p2, p3;
 
   yval = N_VGetArrayPointer(yy);
 
@@ -612,7 +612,7 @@ static int Jac(realtype t, realtype cj,
  * rhsQ routine. Compute fQ(t,y).
 */
 
-static int rhsQ(realtype t, N_Vector yy, N_Vector yp, N_Vector qdot, void *user_data)
+static int rhsQ(sunrealtype t, N_Vector yy, N_Vector yp, N_Vector qdot, void *user_data)
 {
   Ith(qdot,1) = Ith(yy,3);
   return(0);
@@ -625,7 +625,7 @@ static int rhsQ(realtype t, N_Vector yy, N_Vector yp, N_Vector qdot, void *user_
 static int ewt(N_Vector y, N_Vector w, void *user_data)
 {
   int i;
-  realtype yy, ww, rtol, atol[3];
+  sunrealtype yy, ww, rtol, atol[3];
 
   rtol    = RTOL;
   atol[0] = ATOL1;
@@ -647,17 +647,17 @@ static int ewt(N_Vector y, N_Vector w, void *user_data)
  * resB routine.
 */
 
-static int resB(realtype tt,
+static int resB(sunrealtype tt,
                  N_Vector yy, N_Vector yp,
                  N_Vector yyB, N_Vector ypB, N_Vector rrB,
                  void *user_dataB)
 {
   UserData data;
-  realtype y2, y3;
-  realtype p1, p2, p3;
-  realtype l1, l2, l3;
-  realtype lp1, lp2;
-  realtype l21;
+  sunrealtype y2, y3;
+  sunrealtype p1, p2, p3;
+  sunrealtype l1, l2, l3;
+  sunrealtype lp1, lp2;
+  sunrealtype l21;
 
   data = (UserData) user_dataB;
 
@@ -685,19 +685,19 @@ static int resB(realtype tt,
 }
 
 /*Jacobian for backward problem. */
-static int JacB(realtype tt, realtype cjB,
+static int JacB(sunrealtype tt, sunrealtype cjB,
                 N_Vector yy, N_Vector yp,
                 N_Vector yyB, N_Vector ypB, N_Vector rrB,
                 SUNMatrix JB, void *user_data,
                 N_Vector tmp1B, N_Vector tmp2B, N_Vector tmp3B)
 {
-  realtype *yvalB;
+  sunrealtype *yvalB;
   sunindextype *colptrsB = SUNSparseMatrix_IndexPointers(JB);
   sunindextype *rowvalsB = SUNSparseMatrix_IndexValues(JB);
-  realtype *dataB = SUNSparseMatrix_Data(JB);
+  sunrealtype *dataB = SUNSparseMatrix_Data(JB);
 
   UserData userdata;
-  realtype p1, p2, p3;
+  sunrealtype p1, p2, p3;
 
   yvalB = N_VGetArrayPointer(yy);
 
@@ -738,14 +738,14 @@ static int JacB(realtype tt, realtype cjB,
   return(0);
 }
 
-static int rhsQB(realtype tt,
+static int rhsQB(sunrealtype tt,
                  N_Vector yy, N_Vector yp,
                  N_Vector yyB, N_Vector ypB,
                  N_Vector rrQB, void *user_dataB)
 {
-  realtype y1, y2, y3;
-  realtype l1, l2;
-  realtype l21;
+  sunrealtype y1, y2, y3;
+  sunrealtype l1, l2;
+  sunrealtype l21;
 
   /* The y vector */
   y1 = Ith(yy,1); y2 = Ith(yy,2); y3 = Ith(yy,3);
@@ -774,7 +774,7 @@ static int rhsQB(realtype tt,
  * Print results after backward integration
  */
 
-static void PrintOutput(realtype tfinal, N_Vector yB, N_Vector ypB, N_Vector qB)
+static void PrintOutput(sunrealtype tfinal, N_Vector yB, N_Vector ypB, N_Vector qB)
 {
   printf("--------------------------------------------------------\n");
 #if defined(SUNDIALS_EXTENDED_PRECISION)

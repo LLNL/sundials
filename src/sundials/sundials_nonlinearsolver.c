@@ -124,7 +124,7 @@ int SUNNonlinSolSetup(SUNNonlinearSolver NLS, N_Vector y, void* mem)
 
 int SUNNonlinSolSolve(SUNNonlinearSolver NLS,
                       N_Vector y0, N_Vector y,
-                      N_Vector w, realtype tol,
+                      N_Vector w, sunrealtype tol,
                       booleantype callLSetup, void* mem)
 {
   int ier;

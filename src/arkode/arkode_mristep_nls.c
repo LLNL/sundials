@@ -158,9 +158,9 @@ int MRIStepSetNlsRhsFn(void *arkode_mem, ARKRhsFn nls_fsi)
   This routine provides access to the relevant data needed to
   compute the nonlinear system function.
   ---------------------------------------------------------------*/
-int MRIStepGetNonlinearSystemData(void *arkode_mem, realtype *tcur,
+int MRIStepGetNonlinearSystemData(void *arkode_mem, sunrealtype *tcur,
                                   N_Vector *zpred, N_Vector *z,
-                                  N_Vector *F, realtype *gamma,
+                                  N_Vector *F, sunrealtype *gamma,
                                   N_Vector *sdata, void **user_data)
 {
   ARKodeMem ark_mem;
@@ -454,7 +454,7 @@ int mriStep_NlsResidual(N_Vector zcor, N_Vector r, void* arkode_mem)
   ARKodeMem ark_mem;
   ARKodeMRIStepMem step_mem;
   int retval;
-  realtype c[3];
+  sunrealtype c[3];
   N_Vector X[3];
 
   /* access ARKodeMRIStepMem structure */
@@ -559,12 +559,12 @@ int mriStep_NlsFPFunction(N_Vector zcor, N_Vector g, void* arkode_mem)
       is provided.
   ---------------------------------------------------------------*/
 int mriStep_NlsConvTest(SUNNonlinearSolver NLS, N_Vector y, N_Vector del,
-                        realtype tol, N_Vector ewt, void* arkode_mem)
+                        sunrealtype tol, N_Vector ewt, void* arkode_mem)
 {
   /* temporary variables */
   ARKodeMem ark_mem;
   ARKodeMRIStepMem step_mem;
-  realtype delnrm, dcon;
+  sunrealtype delnrm, dcon;
   int m, retval;
 
   /* access ARKodeMRIStepMem structure */

@@ -63,7 +63,7 @@ static int KBBDDQJac(KBBDPrecData pdata,
 int KINBBDPrecInit(void *kinmem, sunindextype Nlocal,
                    sunindextype mudq, sunindextype mldq,
                    sunindextype mukeep, sunindextype mlkeep,
-                   realtype dq_rel_uu,
+                   sunrealtype dq_rel_uu,
                    KINBBDLocalFn gloc, KINBBDCommFn gcomm)
 {
   KINMem kin_mem;
@@ -448,8 +448,8 @@ static int KINBBDPrecSolve(N_Vector uu, N_Vector uscale,
                            N_Vector vv, void *bbd_data)
 {
   KBBDPrecData pdata;
-  realtype *vd;
-  realtype *zd;
+  sunrealtype *vd;
+  sunrealtype *zd;
   int i, retval;
 
   pdata = (KBBDPrecData) bbd_data;
@@ -520,10 +520,10 @@ static int KBBDDQJac(KBBDPrecData pdata,
                      N_Vector gu, N_Vector gtemp, N_Vector utemp)
 {
   KINMem kin_mem;
-  realtype inc, inc_inv;
+  sunrealtype inc, inc_inv;
   int retval;
   sunindextype group, i, j, width, ngroups, i1, i2;
-  realtype *udata, *uscdata, *gudata, *gtempdata, *utempdata, *col_j;
+  sunrealtype *udata, *uscdata, *gudata, *gtempdata, *utempdata, *col_j;
 
   kin_mem = (KINMem) pdata->kin_mem;
 

@@ -49,13 +49,13 @@ int ERKStepSetMaxNumSteps(void *arkode_mem, long int mxsteps) {
   return(arkSetMaxNumSteps(arkode_mem, mxsteps)); }
 int ERKStepSetMaxHnilWarns(void *arkode_mem, int mxhnil) {
   return(arkSetMaxHnilWarns(arkode_mem, mxhnil)); }
-int ERKStepSetInitStep(void *arkode_mem, realtype hin) {
+int ERKStepSetInitStep(void *arkode_mem, sunrealtype hin) {
   return(arkSetInitStep(arkode_mem, hin)); }
-int ERKStepSetMinStep(void *arkode_mem, realtype hmin) {
+int ERKStepSetMinStep(void *arkode_mem, sunrealtype hmin) {
   return(arkSetMinStep(arkode_mem, hmin)); }
-int ERKStepSetMaxStep(void *arkode_mem, realtype hmax) {
+int ERKStepSetMaxStep(void *arkode_mem, sunrealtype hmax) {
   return(arkSetMaxStep(arkode_mem, hmax)); }
-int ERKStepSetStopTime(void *arkode_mem, realtype tstop) {
+int ERKStepSetStopTime(void *arkode_mem, sunrealtype tstop) {
   return(arkSetStopTime(arkode_mem, tstop)); }
 int ERKStepSetInterpolateStopTime(void *arkode_mem,
                                   booleantype interp) {
@@ -76,26 +76,26 @@ int ERKStepSetPostprocessStepFn(void *arkode_mem,
 int ERKStepSetPostprocessStageFn(void *arkode_mem,
                                 ARKPostProcessFn ProcessStage) {
   return(arkSetPostprocessStageFn(arkode_mem, ProcessStage)); }
-int ERKStepSetCFLFraction(void *arkode_mem, realtype cfl_frac) {
+int ERKStepSetCFLFraction(void *arkode_mem, sunrealtype cfl_frac) {
   return(arkSetCFLFraction(arkode_mem, cfl_frac)); }
-int ERKStepSetSafetyFactor(void *arkode_mem, realtype safety) {
+int ERKStepSetSafetyFactor(void *arkode_mem, sunrealtype safety) {
   return(arkSetSafetyFactor(arkode_mem, safety)); }
-int ERKStepSetErrorBias(void *arkode_mem, realtype bias) {
+int ERKStepSetErrorBias(void *arkode_mem, sunrealtype bias) {
   return(arkSetErrorBias(arkode_mem, bias)); }
-int ERKStepSetMaxGrowth(void *arkode_mem, realtype mx_growth) {
+int ERKStepSetMaxGrowth(void *arkode_mem, sunrealtype mx_growth) {
   return(arkSetMaxGrowth(arkode_mem, mx_growth)); }
-int ERKStepSetMinReduction(void *arkode_mem, realtype eta_min) {
+int ERKStepSetMinReduction(void *arkode_mem, sunrealtype eta_min) {
   return(arkSetMinReduction(arkode_mem, eta_min)); }
-int ERKStepSetFixedStepBounds(void *arkode_mem, realtype lb, realtype ub) {
+int ERKStepSetFixedStepBounds(void *arkode_mem, sunrealtype lb, sunrealtype ub) {
   return(arkSetFixedStepBounds(arkode_mem, lb, ub)); }
 int ERKStepSetAdaptivityMethod(void *arkode_mem, int imethod, int idefault,
-                               int pq, realtype adapt_params[3]) {
+                               int pq, sunrealtype adapt_params[3]) {
   return(arkSetAdaptivityMethod(arkode_mem, imethod, idefault, pq, adapt_params)); }
 int ERKStepSetAdaptivityFn(void *arkode_mem, ARKAdaptFn hfun, void *h_data) {
   return(arkSetAdaptivityFn(arkode_mem, hfun, h_data)); }
-int ERKStepSetMaxFirstGrowth(void *arkode_mem, realtype etamx1) {
+int ERKStepSetMaxFirstGrowth(void *arkode_mem, sunrealtype etamx1) {
   return(arkSetMaxFirstGrowth(arkode_mem, etamx1)); }
-int ERKStepSetMaxEFailGrowth(void *arkode_mem, realtype etamxf) {
+int ERKStepSetMaxEFailGrowth(void *arkode_mem, sunrealtype etamxf) {
   return(arkSetMaxEFailGrowth(arkode_mem, etamxf)); }
 int ERKStepSetSmallNumEFails(void *arkode_mem, int small_nef) {
   return(arkSetSmallNumEFails(arkode_mem, small_nef)); }
@@ -103,7 +103,7 @@ int ERKStepSetStabilityFn(void *arkode_mem, ARKExpStabFn EStab, void *estab_data
   return(arkSetStabilityFn(arkode_mem, EStab, estab_data)); }
 int ERKStepSetMaxErrTestFails(void *arkode_mem, int maxnef) {
   return(arkSetMaxErrTestFails(arkode_mem, maxnef)); }
-int ERKStepSetFixedStep(void *arkode_mem, realtype hfixed) {
+int ERKStepSetFixedStep(void *arkode_mem, sunrealtype hfixed) {
   return(arkSetFixedStep(arkode_mem, hfixed)); }
 
 
@@ -116,15 +116,15 @@ int ERKStepGetNumStepAttempts(void *arkode_mem, long int *nstep_attempts) {
   return(arkGetNumStepAttempts(arkode_mem, nstep_attempts)); }
 int ERKStepGetNumSteps(void *arkode_mem, long int *nsteps) {
   return(arkGetNumSteps(arkode_mem, nsteps)); }
-int ERKStepGetActualInitStep(void *arkode_mem, realtype *hinused) {
+int ERKStepGetActualInitStep(void *arkode_mem, sunrealtype *hinused) {
   return(arkGetActualInitStep(arkode_mem, hinused)); }
-int ERKStepGetLastStep(void *arkode_mem, realtype *hlast) {
+int ERKStepGetLastStep(void *arkode_mem, sunrealtype *hlast) {
   return(arkGetLastStep(arkode_mem, hlast)); }
-int ERKStepGetCurrentStep(void *arkode_mem, realtype *hcur) {
+int ERKStepGetCurrentStep(void *arkode_mem, sunrealtype *hcur) {
   return(arkGetCurrentStep(arkode_mem, hcur)); }
-int ERKStepGetCurrentTime(void *arkode_mem, realtype *tcur) {
+int ERKStepGetCurrentTime(void *arkode_mem, sunrealtype *tcur) {
   return(arkGetCurrentTime(arkode_mem, tcur)); }
-int ERKStepGetTolScaleFactor(void *arkode_mem, realtype *tolsfact) {
+int ERKStepGetTolScaleFactor(void *arkode_mem, sunrealtype *tolsfact) {
   return(arkGetTolScaleFactor(arkode_mem, tolsfact)); }
 int ERKStepGetErrWeights(void *arkode_mem, N_Vector eweight) {
   return(arkGetErrWeights(arkode_mem, eweight)); }
@@ -135,8 +135,8 @@ int ERKStepGetNumGEvals(void *arkode_mem, long int *ngevals) {
 int ERKStepGetRootInfo(void *arkode_mem, int *rootsfound) {
   return(arkGetRootInfo(arkode_mem, rootsfound)); }
 int ERKStepGetStepStats(void *arkode_mem, long int *nsteps,
-                        realtype *hinused, realtype *hlast,
-                        realtype *hcur, realtype *tcur) {
+                        sunrealtype *hinused, sunrealtype *hlast,
+                        sunrealtype *hcur, sunrealtype *tcur) {
   return(arkGetStepStats(arkode_mem, nsteps, hinused, hlast, hcur, tcur)); }
 int ERKStepGetNumConstrFails(void *arkode_mem, long int *nconstrfails) {
   return(arkGetNumConstrFails(arkode_mem, nconstrfails)); }

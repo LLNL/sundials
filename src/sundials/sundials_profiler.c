@@ -465,7 +465,7 @@ int sunCollectTimers(SUNProfiler p)
 
   /* Update the values that are in this rank's hash map. */
   for (i = 0; i < p->map->size; ++i) {
-    values[i]->average = reduced[i].average / (realtype) nranks;
+    values[i]->average = reduced[i].average / (sunrealtype) nranks;
     values[i]->maximum = reduced[i].maximum;
   }
 

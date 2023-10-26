@@ -58,11 +58,11 @@
  */
 
 extern int IDAInitialSetup(IDAMem IDA_mem);
-extern realtype IDAWrmsNorm(IDAMem IDA_mem, N_Vector x,
+extern sunrealtype IDAWrmsNorm(IDAMem IDA_mem, N_Vector x,
                             N_Vector w, booleantype mask);
-extern realtype IDASensWrmsNorm(IDAMem IDA_mem, N_Vector *xS,
+extern sunrealtype IDASensWrmsNorm(IDAMem IDA_mem, N_Vector *xS,
                                 N_Vector *wS, booleantype mask);
-extern realtype IDASensWrmsNormUpdate(IDAMem IDA_mem, realtype old_nrm,
+extern sunrealtype IDASensWrmsNormUpdate(IDAMem IDA_mem, sunrealtype old_nrm,
                                       N_Vector *xS, N_Vector *wS,
                                       booleantype mask);
 
@@ -71,15 +71,15 @@ extern int IDASensEwtSet(IDAMem IDA_mem, N_Vector *yScur, N_Vector *weightS);
 static int IDANlsIC(IDAMem IDA_mem);
 
 static int IDANewtonIC(IDAMem IDA_mem);
-static int IDALineSrch(IDAMem IDA_mem, realtype *delnorm, realtype *fnorm);
-static int IDAfnorm(IDAMem IDA_mem, realtype *fnorm);
-static int IDANewyyp(IDAMem IDA_mem, realtype lambda);
+static int IDALineSrch(IDAMem IDA_mem, sunrealtype *delnorm, sunrealtype *fnorm);
+static int IDAfnorm(IDAMem IDA_mem, sunrealtype *fnorm);
+static int IDANewyyp(IDAMem IDA_mem, sunrealtype lambda);
 static int IDANewy(IDAMem IDA_mem);
 
 static int IDASensNewtonIC(IDAMem IDA_mem);
-static int IDASensLineSrch(IDAMem IDA_mem, realtype *delnorm, realtype *fnorm);
-static int IDASensNewyyp(IDAMem IDA_mem, realtype lambda);
-static int IDASensfnorm(IDAMem IDA_mem, realtype *fnorm);
+static int IDASensLineSrch(IDAMem IDA_mem, sunrealtype *delnorm, sunrealtype *fnorm);
+static int IDASensNewyyp(IDAMem IDA_mem, sunrealtype lambda);
+static int IDASensfnorm(IDAMem IDA_mem, sunrealtype *fnorm);
 static int IDASensNlsIC(IDAMem IDA_mem);
 
 static int IDAICFailFlag(IDAMem IDA_mem, int retval);
@@ -119,12 +119,12 @@ static int IDAICFailFlag(IDAMem IDA_mem, int retval);
  * -----------------------------------------------------------------
  */
 
-int IDACalcIC(void *ida_mem, int icopt, realtype tout1)
+int IDACalcIC(void *ida_mem, int icopt, sunrealtype tout1)
 {
   int ewtsetOK;
   int ier, nwt, nh, mxnh, icret, retval=0;
   int is;
-  realtype tdist, troundoff, minid, hic, ypnorm;
+  sunrealtype tdist, troundoff, minid, hic, ypnorm;
   IDAMem IDA_mem;
   booleantype sensi_stg, sensi_sim;
 
@@ -592,7 +592,7 @@ static int IDANlsIC(IDAMem IDA_mem)
 static int IDANewtonIC(IDAMem IDA_mem)
 {
   int retval, mnewt, is;
-  realtype delnorm, fnorm, fnorm0, oldfnrm, rate;
+  sunrealtype delnorm, fnorm, fnorm0, oldfnrm, rate;
   booleantype sensi_sim;
 
   /* Are we computing sensitivities with the IDA_SIMULTANEOUS approach? */
@@ -695,11 +695,11 @@ static int IDANewtonIC(IDAMem IDA_mem)
  * -----------------------------------------------------------------
  */
 
-static int IDALineSrch(IDAMem IDA_mem, realtype *delnorm, realtype *fnorm)
+static int IDALineSrch(IDAMem IDA_mem, sunrealtype *delnorm, sunrealtype *fnorm)
 {
   booleantype conOK;
   int retval, is, nbacks;
-  realtype f1norm, fnormp, f1normp, ratio, lambda, minlam, slpi;
+  sunrealtype f1norm, fnormp, f1normp, ratio, lambda, minlam, slpi;
   N_Vector mc;
   booleantype sensi_sim;
 
@@ -812,7 +812,7 @@ static int IDALineSrch(IDAMem IDA_mem, realtype *delnorm, realtype *fnorm)
  * -----------------------------------------------------------------
  */
 
-static int IDAfnorm(IDAMem IDA_mem, realtype *fnorm)
+static int IDAfnorm(IDAMem IDA_mem, sunrealtype *fnorm)
 {
   int retval, is;
 
@@ -896,7 +896,7 @@ static int IDAfnorm(IDAMem IDA_mem, realtype *fnorm)
  * -----------------------------------------------------------------
  */
 
-static int IDANewyyp(IDAMem IDA_mem, realtype lambda)
+static int IDANewyyp(IDAMem IDA_mem, sunrealtype lambda)
 {
   int retval;
 
@@ -1070,7 +1070,7 @@ static int IDASensNlsIC(IDAMem IDA_mem)
 static int IDASensNewtonIC(IDAMem IDA_mem)
 {
   int retval, is, mnewt;
-  realtype delnorm, fnorm, fnorm0, oldfnrm, rate;
+  sunrealtype delnorm, fnorm, fnorm0, oldfnrm, rate;
 
   for(is=0;is<IDA_mem->ida_Ns;is++) {
 
@@ -1147,11 +1147,11 @@ static int IDASensNewtonIC(IDAMem IDA_mem)
  * -----------------------------------------------------------------
  */
 
-static int IDASensLineSrch(IDAMem IDA_mem, realtype *delnorm, realtype *fnorm)
+static int IDASensLineSrch(IDAMem IDA_mem, sunrealtype *delnorm, sunrealtype *fnorm)
 {
   int is, retval, nbacks;
-  realtype f1norm, fnormp, f1normp, slpi, minlam;
-  realtype lambda, ratio;
+  sunrealtype f1norm, fnormp, f1normp, slpi, minlam;
+  sunrealtype lambda, ratio;
 
   /* Set work space pointer. */
   IDA_mem->ida_dtemp = IDA_mem->ida_phi[3];
@@ -1218,7 +1218,7 @@ static int IDASensLineSrch(IDAMem IDA_mem, realtype *delnorm, realtype *fnorm)
  * -----------------------------------------------------------------
  */
 
-static int IDASensfnorm(IDAMem IDA_mem, realtype *fnorm)
+static int IDASensfnorm(IDAMem IDA_mem, sunrealtype *fnorm)
 {
   int is, retval;
 
@@ -1271,7 +1271,7 @@ static int IDASensfnorm(IDAMem IDA_mem, realtype *fnorm)
  * -----------------------------------------------------------------
  */
 
-static int IDASensNewyyp(IDAMem IDA_mem, realtype lambda)
+static int IDASensNewyyp(IDAMem IDA_mem, sunrealtype lambda)
 {
   int is;
 

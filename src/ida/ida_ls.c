@@ -304,7 +304,7 @@ int IDASetJacFn(void *ida_mem, IDALsJacFn jac)
 
 
 /* IDASetEpsLin specifies the nonlinear -> linear tolerance scale factor */
-int IDASetEpsLin(void *ida_mem, realtype eplifac)
+int IDASetEpsLin(void *ida_mem, sunrealtype eplifac)
 {
   IDAMem   IDA_mem;
   IDALsMem idals_mem;
@@ -330,7 +330,7 @@ int IDASetEpsLin(void *ida_mem, realtype eplifac)
 
 /* IDASetWRMSNormFactor sets or computes the factor to use when converting from
    the integrator tolerance to the linear solver tolerance (WRMS to L2 norm). */
-int IDASetLSNormFactor(void *ida_mem, realtype nrmfac)
+int IDASetLSNormFactor(void *ida_mem, sunrealtype nrmfac)
 {
   IDAMem   IDA_mem;
   IDALsMem idals_mem;
@@ -381,7 +381,7 @@ int IDASetLinearSolutionScaling(void *ida_mem, booleantype onoff)
 
 
 /* IDASetIncrementFactor specifies increment factor for DQ approximations to Jv */
-int IDASetIncrementFactor(void *ida_mem, realtype dqincfac)
+int IDASetIncrementFactor(void *ida_mem, sunrealtype dqincfac)
 {
   IDAMem   IDA_mem;
   IDALsMem idals_mem;
@@ -890,7 +890,7 @@ int idaLsPSetup(void *ida_mem)
   is the only case in which the user's psolve routine is allowed
   to be NULL.
   ---------------------------------------------------------------*/
-int idaLsPSolve(void *ida_mem, N_Vector r, N_Vector z, realtype tol, int lr)
+int idaLsPSolve(void *ida_mem, N_Vector r, N_Vector z, sunrealtype tol, int lr)
 {
   IDAMem   IDA_mem;
   IDALsMem idals_mem;
@@ -918,7 +918,7 @@ int idaLsPSolve(void *ida_mem, N_Vector r, N_Vector z, realtype tol, int lr)
   implementations of the difference quotient Jacobian
   approximation routines.
 ---------------------------------------------------------------*/
-int idaLsDQJac(realtype t, realtype c_j, N_Vector y, N_Vector yp,
+int idaLsDQJac(sunrealtype t, sunrealtype c_j, N_Vector y, N_Vector yp,
                N_Vector r, SUNMatrix Jac, void *ida_mem,
                N_Vector tmp1, N_Vector tmp2, N_Vector tmp3)
 {
@@ -980,12 +980,12 @@ int idaLsDQJac(realtype t, realtype c_j, N_Vector y, N_Vector yp,
   actual computation of the jth column of the Jacobian is
   done with a call to N_VLinearSum.
 ---------------------------------------------------------------*/
-int idaLsDenseDQJac(realtype tt, realtype c_j, N_Vector yy,
+int idaLsDenseDQJac(sunrealtype tt, sunrealtype c_j, N_Vector yy,
                     N_Vector yp, N_Vector rr, SUNMatrix Jac,
                     IDAMem IDA_mem, N_Vector tmp1)
 {
-  realtype inc, inc_inv, yj, ypj, srur, conj;
-  realtype *y_data, *yp_data, *ewt_data, *cns_data = NULL;
+  sunrealtype inc, inc_inv, yj, ypj, srur, conj;
+  sunrealtype *y_data, *yp_data, *ewt_data, *cns_data = NULL;
   N_Vector rtemp, jthCol;
   sunindextype j, N;
   IDALsMem idals_mem;
@@ -1076,14 +1076,14 @@ int idaLsDenseDQJac(realtype tt, realtype c_j, N_Vector yy,
   The return value is either IDABAND_SUCCESS = 0, or the nonzero
   value returned by the res routine, if any.
   ---------------------------------------------------------------*/
-int idaLsBandDQJac(realtype tt, realtype c_j, N_Vector yy,
+int idaLsBandDQJac(sunrealtype tt, sunrealtype c_j, N_Vector yy,
                    N_Vector yp, N_Vector rr, SUNMatrix Jac,
                    IDAMem IDA_mem, N_Vector tmp1, N_Vector tmp2,
                    N_Vector tmp3)
 {
-  realtype inc, inc_inv, yj, ypj, srur, conj, ewtj;
-  realtype *y_data, *yp_data, *ewt_data, *cns_data = NULL;
-  realtype *ytemp_data, *yptemp_data, *rtemp_data, *r_data, *col_j;
+  sunrealtype inc, inc_inv, yj, ypj, srur, conj, ewtj;
+  sunrealtype *y_data, *yp_data, *ewt_data, *cns_data = NULL;
+  sunrealtype *ytemp_data, *yptemp_data, *rtemp_data, *r_data, *col_j;
   N_Vector rtemp, ytemp, yptemp;
   sunindextype i, j, i1, i2, width, ngroups, group;
   sunindextype N, mupper, mlower;
@@ -1203,14 +1203,14 @@ int idaLsBandDQJac(realtype tt, realtype c_j, N_Vector yy,
   The return value from the call to res is saved in order to set
   the return flag from idaLsSolve.
   ---------------------------------------------------------------*/
-int idaLsDQJtimes(realtype tt, N_Vector yy, N_Vector yp, N_Vector rr,
-                  N_Vector v, N_Vector Jv, realtype c_j,
+int idaLsDQJtimes(sunrealtype tt, N_Vector yy, N_Vector yp, N_Vector rr,
+                  N_Vector v, N_Vector Jv, sunrealtype c_j,
                   void *ida_mem, N_Vector work1, N_Vector work2)
 {
   IDAMem   IDA_mem;
   IDALsMem idals_mem;
   N_Vector y_tmp, yp_tmp;
-  realtype sig, siginv;
+  sunrealtype sig, siginv;
   int      iter, retval;
   SUNLinearSolver_ID LSID;
 
@@ -1435,7 +1435,7 @@ int idaLsSolve(IDAMem IDA_mem, N_Vector b, N_Vector weight,
 {
   IDALsMem idals_mem;
   int      nli_inc, retval;
-  realtype tol, w_mean;
+  sunrealtype tol, w_mean;
 
   /* access IDALsMem structure */
   if (IDA_mem->ida_lmem == NULL) {
@@ -1593,7 +1593,7 @@ int idaLsSolve(IDAMem IDA_mem, N_Vector b, N_Vector weight,
 int idaLsPerf(IDAMem IDA_mem, int perftask)
 {
   IDALsMem    idals_mem;
-  realtype    rcfn, rcfl;
+  sunrealtype    rcfn, rcfl;
   long int    nstd, nnid;
   booleantype lcfn, lcfl;
 
@@ -1626,8 +1626,8 @@ int idaLsPerf(IDAMem IDA_mem, int perftask)
   nnid = IDA_mem->ida_nni - idals_mem->nni0;
   if (nstd == 0 || nnid == 0) return(0);
 
-  rcfn = ((realtype) (IDA_mem->ida_ncfn - idals_mem->ncfn0)) / ((realtype) nstd);
-  rcfl = ((realtype) (idals_mem->ncfl - idals_mem->ncfl0)) / ((realtype) nnid);
+  rcfn = ((sunrealtype) (IDA_mem->ida_ncfn - idals_mem->ncfn0)) / ((sunrealtype) nstd);
+  rcfl = ((sunrealtype) (idals_mem->ncfl - idals_mem->ncfl0)) / ((sunrealtype) nnid);
   lcfn = (rcfn > PT9);
   lcfl = (rcfl > PT9);
   if (!(lcfn || lcfl)) return(0);

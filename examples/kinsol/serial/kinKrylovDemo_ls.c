@@ -98,7 +98,7 @@
 #include <sunlinsol/sunlinsol_sptfqmr.h> /* access to SPTFQMR SUNLinearSolver    */
 #include <sunlinsol/sunlinsol_spfgmr.h>  /* access to SPFGMR SUNLinearSolver     */
 #include <sundials/sundials_dense.h>     /* use generic dense solver in precond. */
-#include <sundials/sundials_types.h>     /* defs. of realtype, sunindextype      */
+#include <sundials/sundials_types.h>     /* defs. of sunrealtype, sunindextype      */
 
 /* helpful macros */
 
@@ -155,13 +155,13 @@
    contains preconditioner blocks, pivot arrays, and problem constants */
 
 typedef struct {
-  realtype **P[MX][MY];
+  sunrealtype **P[MX][MY];
   sunindextype *pivot[MX][MY];
-  realtype **acoef, *bcoef;
+  sunrealtype **acoef, *bcoef;
   N_Vector rates;
-  realtype *cox, *coy;
-  realtype ax, ay, dx, dy;
-  realtype uround, sqruround;
+  sunrealtype *cox, *coy;
+  sunrealtype ax, ay, dx, dy;
+  sunrealtype uround, sqruround;
   int mx, my, ns, np;
 } *UserData;
 
@@ -184,13 +184,13 @@ static void InitUserData(UserData data);
 static void FreeUserData(UserData data);
 static void SetInitialProfiles(N_Vector cc, N_Vector sc);
 static void PrintHeader(int globalstrategy, int maxl, int maxlrst,
-                        realtype fnormtol, realtype scsteptol,
+                        sunrealtype fnormtol, sunrealtype scsteptol,
 			int linsolver);
 static void PrintOutput(N_Vector cc);
 static void PrintFinalStats(void *kmem, int linsolver);
-static void WebRate(realtype xx, realtype yy, realtype *cxy, realtype *ratesxy,
+static void WebRate(sunrealtype xx, sunrealtype yy, sunrealtype *cxy, sunrealtype *ratesxy,
                     void *user_data);
-static realtype DotProd(int size, realtype *x1, realtype *x2);
+static sunrealtype DotProd(int size, sunrealtype *x1, sunrealtype *x2);
 static int check_flag(void *flagvalue, const char *funcname, int opt);
 
 /*
@@ -202,7 +202,7 @@ static int check_flag(void *flagvalue, const char *funcname, int opt);
 int main(void)
 {
   int globalstrategy, linsolver;
-  realtype fnormtol, scsteptol;
+  sunrealtype fnormtol, scsteptol;
   N_Vector cc, sc, constraints;
   UserData data;
   int flag, maxl, maxlrst;
@@ -412,7 +412,7 @@ int main(void)
 
 static int func(N_Vector cc, N_Vector fval, void *user_data)
 {
-  realtype xx, yy, delx, dely, *cxy, *rxy, *fxy, dcyli, dcyui, dcxli, dcxri;
+  sunrealtype xx, yy, delx, dely, *cxy, *rxy, *fxy, dcyli, dcyui, dcxli, dcxri;
   int jx, jy, is, idyu, idyl, idxr, idxl;
   UserData data;
 
@@ -475,8 +475,8 @@ static int PrecSetupBD(N_Vector cc, N_Vector cscale,
                        N_Vector fval, N_Vector fscale,
                        void *user_data)
 {
-  realtype r, r0, uround, sqruround, xx, yy, delx, dely, csave, fac;
-  realtype *cxy, *scxy, **Pxy, *ratesxy, *Pxycol, perturb_rates[NUM_SPECIES];
+  sunrealtype r, r0, uround, sqruround, xx, yy, delx, dely, csave, fac;
+  sunrealtype *cxy, *scxy, **Pxy, *ratesxy, *Pxycol, perturb_rates[NUM_SPECIES];
   sunindextype ret;
   int i, j, jx, jy;
   UserData data;
@@ -542,7 +542,7 @@ static int PrecSolveBD(N_Vector cc, N_Vector cscale,
                        N_Vector fval, N_Vector fscale,
                        N_Vector vv, void *user_data)
 {
-  realtype **Pxy, *vxy;
+  sunrealtype **Pxy, *vxy;
   sunindextype *piv, jx, jy;
   UserData data;
 
@@ -572,11 +572,11 @@ static int PrecSolveBD(N_Vector cc, N_Vector cscale,
  * Interaction rate function routine
  */
 
-static void WebRate(realtype xx, realtype yy, realtype *cxy, realtype *ratesxy,
+static void WebRate(sunrealtype xx, sunrealtype yy, sunrealtype *cxy, sunrealtype *ratesxy,
                     void *user_data)
 {
   int i;
-  realtype fac;
+  sunrealtype fac;
   UserData data;
 
   data = (UserData)user_data;
@@ -591,13 +591,13 @@ static void WebRate(realtype xx, realtype yy, realtype *cxy, realtype *ratesxy,
 }
 
 /*
- * Dot product routine for realtype arrays
+ * Dot product routine for sunrealtype arrays
  */
 
-static realtype DotProd(int size, realtype *x1, realtype *x2)
+static sunrealtype DotProd(int size, sunrealtype *x1, sunrealtype *x2)
 {
   int i;
-  realtype *xx1, *xx2, temp = ZERO;
+  sunrealtype *xx1, *xx2, temp = ZERO;
 
   xx1 = x1; xx2 = x2;
   for (i = 0; i < size; i++) temp += (*xx1++) * (*xx2++);
@@ -629,9 +629,9 @@ static UserData AllocUserData(void)
     }
   }
   acoef = SUNDlsMat_newDenseMat(NUM_SPECIES, NUM_SPECIES);
-  bcoef = (realtype *)malloc(NUM_SPECIES * sizeof(realtype));
-  cox   = (realtype *)malloc(NUM_SPECIES * sizeof(realtype));
-  coy   = (realtype *)malloc(NUM_SPECIES * sizeof(realtype));
+  bcoef = (sunrealtype *)malloc(NUM_SPECIES * sizeof(sunrealtype));
+  cox   = (sunrealtype *)malloc(NUM_SPECIES * sizeof(sunrealtype));
+  coy   = (sunrealtype *)malloc(NUM_SPECIES * sizeof(sunrealtype));
 
   return(data);
 }
@@ -643,7 +643,7 @@ static UserData AllocUserData(void)
 static void InitUserData(UserData data)
 {
   int i, j, np;
-  realtype *a1,*a2, *a3, *a4, dx2, dy2;
+  sunrealtype *a1,*a2, *a3, *a4, dx2, dy2;
 
   data->mx = MX;
   data->my = MY;
@@ -720,8 +720,8 @@ static void FreeUserData(UserData data)
 static void SetInitialProfiles(N_Vector cc, N_Vector sc)
 {
   int i, jx, jy;
-  realtype *cloc, *sloc;
-  realtype  ctemp[NUM_SPECIES], stemp[NUM_SPECIES];
+  sunrealtype *cloc, *sloc;
+  sunrealtype  ctemp[NUM_SPECIES], stemp[NUM_SPECIES];
 
   /* Initialize arrays ctemp and stemp used in the loading process */
   for (i = 0; i < NUM_SPECIES/2; i++) {
@@ -751,7 +751,7 @@ static void SetInitialProfiles(N_Vector cc, N_Vector sc)
  */
 
 static void PrintHeader(int globalstrategy, int maxl, int maxlrst,
-                        realtype fnormtol, realtype scsteptol,
+                        sunrealtype fnormtol, sunrealtype scsteptol,
 			int linsolver)
 {
   printf("\nPredator-prey test problem --  KINSol (serial version)\n\n");
@@ -819,7 +819,7 @@ static void PrintHeader(int globalstrategy, int maxl, int maxlrst,
 static void PrintOutput(N_Vector cc)
 {
   int is, jx, jy;
-  realtype *ct;
+  sunrealtype *ct;
 
   jy = 0; jx = 0;
   ct = IJ_Vptr(cc,jx,jy);

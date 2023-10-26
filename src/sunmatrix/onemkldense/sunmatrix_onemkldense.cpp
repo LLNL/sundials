@@ -48,9 +48,9 @@
 #define MAT_NBLOCKS(A)     (MAT_CONTENT(A)->num_blocks)
 #define MAT_LDATA(A)       (MAT_CONTENT(A)->ldata)
 #define MAT_DATA(A)        (MAT_CONTENT(A)->data)
-#define MAT_DATAp(A)       ((realtype*) MAT_CONTENT(A)->data->ptr)
+#define MAT_DATAp(A)       ((sunrealtype*) MAT_CONTENT(A)->data->ptr)
 #define MAT_BLOCKS(A)      (MAT_CONTENT(A)->blocks)
-#define MAT_BLOCKSp(A)     ((realtype**) MAT_CONTENT(A)->blocks->ptr)
+#define MAT_BLOCKSp(A)     ((sunrealtype**) MAT_CONTENT(A)->blocks->ptr)
 #define MAT_EXECPOLICY(A)  (MAT_CONTENT(A)->exec_policy)
 #define MAT_MEMTYPE(A)     (MAT_CONTENT(A)->mem_type)
 #define MAT_MEMHELPER(A)   (MAT_CONTENT(A)->mem_helper)
@@ -140,7 +140,7 @@ SUNMatrix SUNMatrix_OneMklDenseBlock(sunindextype num_blocks, sunindextype M,
 
   // Allocate data
   retval = SUNMemoryHelper_Alloc(MAT_MEMHELPER(A), &(MAT_DATA(A)),
-                                 sizeof(realtype) * MAT_LDATA(A), mem_type,
+                                 sizeof(sunrealtype) * MAT_LDATA(A), mem_type,
                                  queue);
   if (retval)
   {
@@ -153,7 +153,7 @@ SUNMatrix SUNMatrix_OneMklDenseBlock(sunindextype num_blocks, sunindextype M,
   {
     // Allocate array of pointers to block data
     retval = SUNMemoryHelper_Alloc(MAT_MEMHELPER(A), &(MAT_BLOCKS(A)),
-                                   sizeof(realtype*) * MAT_NBLOCKS(A), mem_type,
+                                   sizeof(sunrealtype*) * MAT_NBLOCKS(A), mem_type,
                                    queue);
     if (retval)
     {
@@ -171,8 +171,8 @@ SUNMatrix SUNMatrix_OneMklDenseBlock(sunindextype num_blocks, sunindextype M,
       return NULL;
     }
 
-    realtype*  Adata   = MAT_DATAp(A);
-    realtype** Ablocks = MAT_BLOCKSp(A);
+    sunrealtype*  Adata   = MAT_DATAp(A);
+    sunrealtype** Ablocks = MAT_BLOCKSp(A);
 
     // Initialize array of pointers to block data
     SYCL_FOR(queue, nthreads_total, nthreads_per_block, item,
@@ -245,7 +245,7 @@ sunindextype SUNMatrix_OneMklDense_LData(SUNMatrix A)
 }
 
 
-realtype* SUNMatrix_OneMklDense_Data(SUNMatrix A)
+sunrealtype* SUNMatrix_OneMklDense_Data(SUNMatrix A)
 {
   if (SUNMatGetID(A) == SUNMATRIX_ONEMKLDENSE)
     return MAT_DATAp(A);
@@ -263,7 +263,7 @@ sunindextype SUNMatrix_OneMklDense_BlockLData(SUNMatrix A)
 }
 
 
-realtype** SUNMatrix_OneMklDense_BlockData(SUNMatrix A)
+sunrealtype** SUNMatrix_OneMklDense_BlockData(SUNMatrix A)
 {
   if (SUNMatGetID(A) == SUNMATRIX_ONEMKLDENSE)
     return MAT_BLOCKSp(A);
@@ -276,11 +276,11 @@ realtype** SUNMatrix_OneMklDense_BlockData(SUNMatrix A)
    column. These are defined as inline functions in sunmatrix_onemkldense.h, so
    we just mark them as extern here. */
 
-extern realtype* SUNMatrix_OneMklDense_Block(SUNMatrix A, sunindextype k);
+extern sunrealtype* SUNMatrix_OneMklDense_Block(SUNMatrix A, sunindextype k);
 
-extern realtype* SUNMatrix_OneMklDense_Column(SUNMatrix A, sunindextype j);
+extern sunrealtype* SUNMatrix_OneMklDense_Column(SUNMatrix A, sunindextype j);
 
-extern realtype* SUNMatrix_OneMklDense_BlockColumn(SUNMatrix A, sunindextype k,
+extern sunrealtype* SUNMatrix_OneMklDense_BlockColumn(SUNMatrix A, sunindextype k,
                                                    sunindextype j);
 
 
@@ -289,7 +289,7 @@ extern realtype* SUNMatrix_OneMklDense_BlockColumn(SUNMatrix A, sunindextype k,
  * -------------------------------------------------------------------------- */
 
 
-int SUNMatrix_OneMklDense_CopyToDevice(SUNMatrix A, realtype* h_data)
+int SUNMatrix_OneMklDense_CopyToDevice(SUNMatrix A, sunrealtype* h_data)
 {
   if (SUNMatGetID(A) != SUNMATRIX_ONEMKLDENSE)
   {
@@ -309,7 +309,7 @@ int SUNMatrix_OneMklDense_CopyToDevice(SUNMatrix A, realtype* h_data)
   int copy_fail = SUNMemoryHelper_CopyAsync(MAT_MEMHELPER(A),
                                             MAT_DATA(A),
                                             _h_data,
-                                            sizeof(realtype) * MAT_LDATA(A),
+                                            sizeof(sunrealtype) * MAT_LDATA(A),
                                             MAT_QUEUE(A));
 
   // Sync with respect to host, but only this queue
@@ -326,7 +326,7 @@ int SUNMatrix_OneMklDense_CopyToDevice(SUNMatrix A, realtype* h_data)
 }
 
 
-int SUNMatrix_OneMklDense_CopyFromDevice(SUNMatrix A, realtype* h_data)
+int SUNMatrix_OneMklDense_CopyFromDevice(SUNMatrix A, sunrealtype* h_data)
 {
   if (SUNMatGetID(A) != SUNMATRIX_ONEMKLDENSE)
   {
@@ -344,7 +344,7 @@ int SUNMatrix_OneMklDense_CopyFromDevice(SUNMatrix A, realtype* h_data)
   int copy_fail = SUNMemoryHelper_CopyAsync(MAT_MEMHELPER(A),
                                             _h_data,
                                             MAT_DATA(A),
-                                            sizeof(realtype) * MAT_LDATA(A),
+                                            sizeof(sunrealtype) * MAT_LDATA(A),
                                             MAT_QUEUE(A));
 
   // Sync with respect to host, but only this queue
@@ -449,7 +449,7 @@ int SUNMatZero_OneMklDense(SUNMatrix A)
   }
 
   const sunindextype ldata  = MAT_LDATA(A);
-  realtype           *Adata = MAT_DATAp(A);
+  sunrealtype           *Adata = MAT_DATAp(A);
   sycl::queue        *Q     = MAT_QUEUE(A);
   size_t             nthreads_total, nthreads_per_block;
 
@@ -492,8 +492,8 @@ int SUNMatCopy_OneMklDense(SUNMatrix A, SUNMatrix B)
   }
 
   const sunindextype ldata  = MAT_LDATA(A);
-  realtype           *Adata = MAT_DATAp(A);
-  realtype           *Bdata = MAT_DATAp(B);
+  sunrealtype           *Adata = MAT_DATAp(A);
+  sunrealtype           *Bdata = MAT_DATAp(B);
   sycl::queue        *Q     = MAT_QUEUE(A);
   size_t             nthreads_total, nthreads_per_block;
 
@@ -514,7 +514,7 @@ int SUNMatCopy_OneMklDense(SUNMatrix A, SUNMatrix B)
 }
 
 
-int SUNMatScaleAddI_OneMklDense(realtype c, SUNMatrix A)
+int SUNMatScaleAddI_OneMklDense(sunrealtype c, SUNMatrix A)
 {
   if (!A)
   {
@@ -531,7 +531,7 @@ int SUNMatScaleAddI_OneMklDense(realtype c, SUNMatrix A)
   const size_t M     = static_cast<size_t>(MAT_BLOCK_ROWS(A));
   const size_t N     = static_cast<size_t>(MAT_BLOCK_COLS(A));
   const size_t B     = static_cast<size_t>(MAT_NBLOCKS(A));
-  realtype*    Adata = MAT_DATAp(A);
+  sunrealtype*    Adata = MAT_DATAp(A);
   sycl::queue* Q     = MAT_QUEUE(A);
 
   // Compute A = c * A + I
@@ -561,7 +561,7 @@ int SUNMatScaleAddI_OneMklDense(realtype c, SUNMatrix A)
 }
 
 
-int SUNMatScaleAdd_OneMklDense(realtype c, SUNMatrix A, SUNMatrix B)
+int SUNMatScaleAdd_OneMklDense(sunrealtype c, SUNMatrix A, SUNMatrix B)
 {
   if (!A || !B)
   {
@@ -576,8 +576,8 @@ int SUNMatScaleAdd_OneMklDense(realtype c, SUNMatrix A, SUNMatrix B)
   }
 
   const sunindextype ldata  = MAT_LDATA(A);
-  realtype           *Adata = MAT_DATAp(A);
-  realtype           *Bdata = MAT_DATAp(B);
+  sunrealtype           *Adata = MAT_DATAp(A);
+  sunrealtype           *Bdata = MAT_DATAp(B);
   sycl::queue        *Q     = MAT_QUEUE(A);
   size_t             nthreads_total, nthreads_per_block;
 
@@ -621,9 +621,9 @@ int SUNMatMatvec_OneMklDense(SUNMatrix A, N_Vector x, N_Vector y)
     // TODO(DJG): Replace with batched function
     for (sunindextype i = 0; i < MAT_NBLOCKS(A); i++)
     {
-      const realtype* Adata = MAT_DATAp(A) + i * M * N;
-      const realtype* xdata = N_VGetDeviceArrayPointer(x) + i * N;
-      realtype*       ydata = N_VGetDeviceArrayPointer(y) + i * M;
+      const sunrealtype* Adata = MAT_DATAp(A) + i * M * N;
+      const sunrealtype* xdata = N_VGetDeviceArrayPointer(x) + i * N;
+      sunrealtype*       ydata = N_VGetDeviceArrayPointer(y) + i * M;
 
       // Copmute y = a * A * x + b * y
       oneapi::mkl::blas::gemv(*Q, oneapi::mkl::transpose::N, M, N, ONE, Adata,
@@ -635,9 +635,9 @@ int SUNMatMatvec_OneMklDense(SUNMatrix A, N_Vector x, N_Vector y)
     sycl::queue*    Q     = MAT_QUEUE(A);
     sunindextype    M     = MAT_ROWS(A);
     sunindextype    N     = MAT_COLS(A);
-    const realtype* Adata = MAT_DATAp(A);
-    const realtype* xdata = N_VGetDeviceArrayPointer(x);
-    realtype*       ydata = N_VGetDeviceArrayPointer(y);
+    const sunrealtype* Adata = MAT_DATAp(A);
+    const sunrealtype* xdata = N_VGetDeviceArrayPointer(x);
+    sunrealtype*       ydata = N_VGetDeviceArrayPointer(y);
 
     // Copmute y = a * A * x + b * y
     oneapi::mkl::blas::gemv(*Q, oneapi::mkl::transpose::N, M, N, ONE, Adata, M,

@@ -52,7 +52,7 @@ int main(int argc, char *argv[])
   N_Vector        x, b;               /* test vectors               */
   int             print_timing;
   sunindextype    i, j, k;
-  realtype        *Adata, *Idata, *xdata;
+  sunrealtype        *Adata, *Idata, *xdata;
   SUNContext      sunctx;
 
   if (SUNContext_Create(NULL, &sunctx)) {
@@ -99,15 +99,15 @@ int main(int argc, char *argv[])
   b = N_VClone(x);
 
   /* Allocate host data */
-  Adata = (realtype*) malloc(sizeof(realtype)*SUNMatrix_MagmaDense_LData(A));
-  Idata = (realtype*) malloc(sizeof(realtype)*SUNMatrix_MagmaDense_LData(I));
+  Adata = (sunrealtype*) malloc(sizeof(sunrealtype)*SUNMatrix_MagmaDense_LData(A));
+  Idata = (sunrealtype*) malloc(sizeof(sunrealtype)*SUNMatrix_MagmaDense_LData(I));
 
   /* Fill A matrix with uniform random data in [0,1/cols] */
   for (k=0; k<nblocks; k++)
     for (j=0; j<cols; j++)
       for (i=0; i<rows; i++)
         Adata[k*cols*rows + j*rows + i] =
-            (realtype) rand() / (realtype) RAND_MAX / cols;
+            (sunrealtype) rand() / (sunrealtype) RAND_MAX / cols;
 
   /* Create anti-identity matrix */
   for (k=0; k<nblocks; k++)
@@ -129,7 +129,7 @@ int main(int argc, char *argv[])
   /* Fill x vector with uniform random data in [0,1] */
   xdata = N_VGetArrayPointer(x);
   for (j=0; j<cols*nblocks; j++)
-    xdata[j] = (realtype) rand() / (realtype) RAND_MAX;
+    xdata[j] = (sunrealtype) rand() / (sunrealtype) RAND_MAX;
   HIP_OR_CUDA( N_VCopyToDevice_Hip(x);,
                N_VCopyToDevice_Cuda(x); )
 
@@ -202,10 +202,10 @@ int main(int argc, char *argv[])
 /* ----------------------------------------------------------------------
  * Implementation-specific 'check' routines
  * --------------------------------------------------------------------*/
-int check_vector(N_Vector actual, N_Vector expected, realtype tol)
+int check_vector(N_Vector actual, N_Vector expected, sunrealtype tol)
 {
   int failure = 0;
-  realtype *xdata, *ydata;
+  sunrealtype *xdata, *ydata;
   sunindextype xldata, yldata;
   sunindextype i;
 

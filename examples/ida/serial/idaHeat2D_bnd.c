@@ -44,7 +44,7 @@
 #include <nvector/nvector_serial.h>    /* access to serial N_Vector            */
 #include <sunmatrix/sunmatrix_band.h>  /* access to band SUNMatrix             */
 #include <sunlinsol/sunlinsol_band.h>  /* access to band SUNLinearSolver       */
-#include <sundials/sundials_types.h>   /* definition of type realtype          */
+#include <sundials/sundials_types.h>   /* definition of type sunrealtype          */
 
 /* Problem Constants */
 
@@ -60,18 +60,18 @@
 
 typedef struct {
   sunindextype mm;
-  realtype dx;
-  realtype coeff;
+  sunrealtype dx;
+  sunrealtype coeff;
 } *UserData;
 
 /* Prototypes of functions called by IDA */
 
-int heatres(realtype tres, N_Vector uu, N_Vector up, N_Vector resval, void *user_data);
+int heatres(sunrealtype tres, N_Vector uu, N_Vector up, N_Vector resval, void *user_data);
 
 /* Prototypes of private functions */
 
-static void PrintHeader(realtype rtol, realtype atol);
-static void PrintOutput(void *mem, realtype t, N_Vector u);
+static void PrintHeader(sunrealtype rtol, sunrealtype atol);
+static void PrintOutput(void *mem, sunrealtype t, N_Vector u);
 static int SetInitialProfile(UserData data, N_Vector uu, N_Vector up,
                              N_Vector id, N_Vector res);
 
@@ -91,7 +91,7 @@ int main(void)
   int retval, iout;
   long int netf, ncfn;
   sunindextype mu, ml;
-  realtype rtol, atol, t0, t1, tout, tret;
+  sunrealtype rtol, atol, t0, t1, tout, tret;
   SUNMatrix A;
   SUNLinearSolver LS;
   SUNContext ctx;
@@ -228,11 +228,11 @@ int main(void)
  * while for each boundary point, it is res_i = u_i.
  */
 
-int heatres(realtype tres, N_Vector uu, N_Vector up, N_Vector resval,
+int heatres(sunrealtype tres, N_Vector uu, N_Vector up, N_Vector resval,
             void *user_data)
 {
   sunindextype mm, i, j, offset, loc;
-  realtype *uv, *upv, *resv, coeff;
+  sunrealtype *uv, *upv, *resv, coeff;
   UserData data;
 
   uv = N_VGetArrayPointer(uu); upv = N_VGetArrayPointer(up); resv = N_VGetArrayPointer(resval);
@@ -271,7 +271,7 @@ int heatres(realtype tres, N_Vector uu, N_Vector up, N_Vector resval,
 static int SetInitialProfile(UserData data, N_Vector uu, N_Vector up,
                              N_Vector id, N_Vector res)
 {
-  realtype xfact, yfact, *udata, *updata, *iddata;
+  sunrealtype xfact, yfact, *udata, *updata, *iddata;
   sunindextype mm, mm1, i, j, offset, loc;
 
   mm = data->mm;
@@ -322,7 +322,7 @@ static int SetInitialProfile(UserData data, N_Vector uu, N_Vector up,
  * Print first lines of output (problem description)
  */
 
-static void PrintHeader(realtype rtol, realtype atol)
+static void PrintHeader(sunrealtype rtol, sunrealtype atol)
 {
   printf("\nidaHeat2D_bnd: Heat equation, serial example problem for IDA\n");
   printf("          Discretized heat equation on 2D unit square.\n");
@@ -357,10 +357,10 @@ static void PrintHeader(realtype rtol, realtype atol)
  * Print Output
  */
 
-static void PrintOutput(void *mem, realtype t, N_Vector uu)
+static void PrintOutput(void *mem, sunrealtype t, N_Vector uu)
 {
   int retval;
-  realtype umax, hused;
+  sunrealtype umax, hused;
   long int nst, nni, nje, nre, nreLS;
   int kused;
 

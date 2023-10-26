@@ -101,7 +101,7 @@ typedef struct IDAMemRec {
 
   SUNContext ida_sunctx;
 
-  realtype ida_uround;    /* machine unit roundoff */
+  sunrealtype ida_uround;    /* machine unit roundoff */
 
   /*--------------------------
     Problem Specification Data
@@ -111,8 +111,8 @@ typedef struct IDAMemRec {
   void        *ida_user_data; /* user pointer passed to res            */
 
   int         ida_itol;       /* itol = IDA_SS, IDA_SV, IDA_WF, IDA_NN */
-  realtype    ida_rtol;       /* relative tolerance                    */
-  realtype    ida_Satol;      /* scalar absolute tolerance             */
+  sunrealtype    ida_rtol;       /* relative tolerance                    */
+  sunrealtype    ida_Satol;      /* scalar absolute tolerance             */
   N_Vector    ida_Vatol;      /* vector absolute tolerance             */
   booleantype ida_atolmin0;   /* flag indicating that min(atol) = 0    */
   booleantype ida_user_efun;  /* SUNTRUE if user provides efun         */
@@ -136,8 +136,8 @@ typedef struct IDAMemRec {
   booleantype    ida_errconQ;
 
   int            ida_itolQ;
-  realtype       ida_rtolQ;
-  realtype       ida_SatolQ;    /* scalar absolute tolerance for quadratures  */
+  sunrealtype       ida_rtolQ;
+  sunrealtype       ida_SatolQ;    /* scalar absolute tolerance for quadratures  */
   N_Vector       ida_VatolQ;    /* vector absolute tolerance for quadratures  */
   booleantype    ida_atolQmin0; /* flag indicating that min(atolQ) = 0        */
 
@@ -153,17 +153,17 @@ typedef struct IDAMemRec {
   void           *ida_user_dataS;
   booleantype    ida_resSDQ;
 
-  realtype       *ida_p;
-  realtype       *ida_pbar;
+  sunrealtype       *ida_p;
+  sunrealtype       *ida_pbar;
   int            *ida_plist;
   int            ida_DQtype;
-  realtype       ida_DQrhomax;
+  sunrealtype       ida_DQrhomax;
 
   booleantype    ida_errconS;       /* SUNTRUE if sensitivities in err. control  */
 
   int            ida_itolS;
-  realtype       ida_rtolS;         /* relative tolerance for sensitivities    */
-  realtype       *ida_SatolS;       /* scalar absolute tolerances for sensi.   */
+  sunrealtype       ida_rtolS;         /* relative tolerance for sensitivities    */
+  sunrealtype       *ida_SatolS;       /* scalar absolute tolerances for sensi.   */
   N_Vector       *ida_VatolS;       /* vector absolute tolerances for sensi.   */
   booleantype    *ida_atolSmin0;    /* flag indicating that min(atolS[is]) = 0 */
 
@@ -180,8 +180,8 @@ typedef struct IDAMemRec {
   booleantype ida_errconQS;      /* SUNTRUE if yQS are considered in err. con.    */
 
   int ida_itolQS;
-  realtype ida_rtolQS;           /* relative tolerance for yQS                */
-  realtype *ida_SatolQS;         /* scalar absolute tolerances for yQS        */
+  sunrealtype ida_rtolQS;           /* relative tolerance for yQS                */
+  sunrealtype *ida_SatolQS;         /* scalar absolute tolerances for yQS        */
   N_Vector *ida_VatolQS;         /* vector absolute tolerances for yQS        */
   booleantype *ida_atolQSmin0;   /* flag indicating that min(atolQS[is]) = 0  */
 
@@ -191,11 +191,11 @@ typedef struct IDAMemRec {
 
   N_Vector ida_phi[MXORDP1];   /* phi = (maxord+1) arrays of divided differences */
 
-  realtype ida_psi[MXORDP1];   /* differences in t (sums of recent step sizes)   */
-  realtype ida_alpha[MXORDP1]; /* ratios of current stepsize to psi values       */
-  realtype ida_beta[MXORDP1];  /* ratios of current to previous product of psi's */
-  realtype ida_sigma[MXORDP1]; /* product successive alpha values and factorial  */
-  realtype ida_gamma[MXORDP1]; /* sum of reciprocals of psi values               */
+  sunrealtype ida_psi[MXORDP1];   /* differences in t (sums of recent step sizes)   */
+  sunrealtype ida_alpha[MXORDP1]; /* ratios of current stepsize to psi values       */
+  sunrealtype ida_beta[MXORDP1];  /* ratios of current to previous product of psi's */
+  sunrealtype ida_sigma[MXORDP1]; /* product successive alpha values and factorial  */
+  sunrealtype ida_gamma[MXORDP1]; /* sum of reciprocals of psi values               */
 
   /*-------------------------
     N_Vectors for integration
@@ -277,7 +277,7 @@ typedef struct IDAMemRec {
     Variables for use by IDACalcIC
     ------------------------------*/
 
-  realtype ida_t0;          /* initial t                                      */
+  sunrealtype ida_t0;          /* initial t                                      */
   N_Vector ida_yy0;         /* initial y vector (user-supplied).              */
   N_Vector ida_yp0;         /* initial y' vector (user-supplied).             */
 
@@ -289,14 +289,14 @@ typedef struct IDAMemRec {
   int ida_nbacktr;          /* number of IC linesearch backtrack operations   */
   int ida_sysindex;         /* computed system index (0 or 1)                 */
   int ida_maxbacks;         /* max backtracks per Newton step                 */
-  realtype ida_epiccon;     /* IC nonlinear convergence test constant         */
-  realtype ida_steptol;     /* minimum Newton step size in IC calculation     */
-  realtype ida_tscale;      /* time scale factor = abs(tout1 - t0)            */
+  sunrealtype ida_epiccon;     /* IC nonlinear convergence test constant         */
+  sunrealtype ida_steptol;     /* minimum Newton step size in IC calculation     */
+  sunrealtype ida_tscale;      /* time scale factor = abs(tout1 - t0)            */
 
   /* Tstop information */
 
   booleantype ida_tstopset;
-  realtype ida_tstop;
+  sunrealtype ida_tstop;
 
   /* Step Data */
 
@@ -306,24 +306,24 @@ typedef struct IDAMemRec {
   int ida_phase;     /* flag to trigger step doubling in first few steps      */
   int ida_ns;        /* counts steps at fixed stepsize and order              */
 
-  realtype ida_hin;      /* initial step                                      */
-  realtype ida_h0u;      /* actual initial stepsize                           */
-  realtype ida_hh;       /* current step size h                               */
-  realtype ida_hused;    /* step size used on last successful step            */
-  realtype ida_eta;      /* eta = hnext / hused                               */
-  realtype ida_tn;       /* current internal value of t                       */
-  realtype ida_tretlast; /* value of tret previously returned by IDASolve     */
-  realtype ida_cj;       /* current value of scalar (-alphas/hh) in Jacobian  */
-  realtype ida_cjlast;   /* cj value saved from last successful step          */
-  realtype ida_cjold;    /* cj value saved from last call to lsetup           */
-  realtype ida_cjratio;  /* ratio of cj values: cj/cjold                      */
-  realtype ida_ss;       /* scalar used in Newton iteration convergence test  */
-  realtype ida_oldnrm;   /* norm of previous nonlinear solver update          */
-  realtype ida_epsNewt;  /* test constant in Newton convergence test          */
-  realtype ida_epcon;    /* coeficient of the Newton covergence test          */
-  realtype ida_toldel;   /* tolerance in direct test on Newton corrections    */
+  sunrealtype ida_hin;      /* initial step                                      */
+  sunrealtype ida_h0u;      /* actual initial stepsize                           */
+  sunrealtype ida_hh;       /* current step size h                               */
+  sunrealtype ida_hused;    /* step size used on last successful step            */
+  sunrealtype ida_eta;      /* eta = hnext / hused                               */
+  sunrealtype ida_tn;       /* current internal value of t                       */
+  sunrealtype ida_tretlast; /* value of tret previously returned by IDASolve     */
+  sunrealtype ida_cj;       /* current value of scalar (-alphas/hh) in Jacobian  */
+  sunrealtype ida_cjlast;   /* cj value saved from last successful step          */
+  sunrealtype ida_cjold;    /* cj value saved from last call to lsetup           */
+  sunrealtype ida_cjratio;  /* ratio of cj values: cj/cjold                      */
+  sunrealtype ida_ss;       /* scalar used in Newton iteration convergence test  */
+  sunrealtype ida_oldnrm;   /* norm of previous nonlinear solver update          */
+  sunrealtype ida_epsNewt;  /* test constant in Newton convergence test          */
+  sunrealtype ida_epcon;    /* coeficient of the Newton covergence test          */
+  sunrealtype ida_toldel;   /* tolerance in direct test on Newton corrections    */
 
-  realtype ida_ssS;      /* scalar ss for staggered sensitivities             */
+  sunrealtype ida_ssS;      /* scalar ss for staggered sensitivities             */
 
   /*------
     Limits
@@ -335,16 +335,16 @@ typedef struct IDAMemRec {
   int ida_maxord;        /* max value of method order k:                      */
   int ida_maxord_alloc;  /* value of maxord used when allocating memory       */
   long int ida_mxstep;   /* max number of internal steps for one user call    */
-  realtype ida_hmax_inv; /* inverse of max. step size hmax (default = 0.0)    */
-  realtype ida_hmin;     /* min step size hmin (default = 0.0)                */
+  sunrealtype ida_hmax_inv; /* inverse of max. step size hmax (default = 0.0)    */
+  sunrealtype ida_hmin;     /* min step size hmin (default = 0.0)                */
 
-  realtype ida_eta_max_fx; /* threshold to increase step size */
-  realtype ida_eta_min_fx; /* threshold to decrease step size */
-  realtype ida_eta_max;    /* max step size increase factor   */
-  realtype ida_eta_min;    /* min step size decrease factor   */
-  realtype ida_eta_low;    /* upper bound on decrease factor  */
-  realtype ida_eta_min_ef; /* eta >= eta_min_ef after an error test failure */
-  realtype ida_eta_cf;     /* eta on a nonlinear solver convergence failure */
+  sunrealtype ida_eta_max_fx; /* threshold to increase step size */
+  sunrealtype ida_eta_min_fx; /* threshold to decrease step size */
+  sunrealtype ida_eta_max;    /* max step size increase factor   */
+  sunrealtype ida_eta_min;    /* min step size decrease factor   */
+  sunrealtype ida_eta_low;    /* upper bound on decrease factor  */
+  sunrealtype ida_eta_min_ef; /* eta >= eta_min_ef after an error test failure */
+  sunrealtype ida_eta_cf;     /* eta on a nonlinear solver convergence failure */
 
   /*--------
     Counters
@@ -382,14 +382,14 @@ typedef struct IDAMemRec {
     Space requirements
     ------------------*/
 
-  sunindextype ida_lrw1; /* no. of realtype words in 1 N_Vector               */
+  sunindextype ida_lrw1; /* no. of sunrealtype words in 1 N_Vector               */
   sunindextype ida_liw1; /* no. of integer words in 1 N_Vector                */
   sunindextype ida_lrw1Q;
   sunindextype ida_liw1Q;
-  long int     ida_lrw;  /* number of realtype words in IDA work vectors      */
+  long int     ida_lrw;  /* number of sunrealtype words in IDA work vectors      */
   long int     ida_liw;  /* no. of integer words in IDA work vectors          */
 
-  realtype ida_tolsf;    /* tolerance scale factor (saved value)              */
+  sunrealtype ida_tolsf;    /* tolerance scale factor (saved value)              */
 
   /*-------------------------------------------
     Error handler function and error ouput file
@@ -482,7 +482,7 @@ typedef struct IDAMemRec {
   /* Linear Solver specific memory */
 
   void *ida_lmem;   /* linear solver interface structure */
-  realtype ida_dcj; /* parameter that determines cj ratio thresholds for calling
+  sunrealtype ida_dcj; /* parameter that determines cj ratio thresholds for calling
                      * the linear solver setup function */
 
   /* Flag to request a call to the setup routine */
@@ -501,14 +501,14 @@ typedef struct IDAMemRec {
   int ida_nrtfn;            /* number of components of g                       */
   int *ida_iroots;          /* array for root information                      */
   int *ida_rootdir;         /* array specifying direction of zero-crossing     */
-  realtype ida_tlo;         /* nearest endpoint of interval in root search     */
-  realtype ida_thi;         /* farthest endpoint of interval in root search    */
-  realtype ida_trout;       /* t return value from rootfinder routine          */
-  realtype *ida_glo;        /* saved array of g values at t = tlo              */
-  realtype *ida_ghi;        /* saved array of g values at t = thi              */
-  realtype *ida_grout;      /* array of g values at t = trout                  */
-  realtype ida_toutc;       /* copy of tout (if NORMAL mode)                   */
-  realtype ida_ttol;        /* tolerance on root location                      */
+  sunrealtype ida_tlo;         /* nearest endpoint of interval in root search     */
+  sunrealtype ida_thi;         /* farthest endpoint of interval in root search    */
+  sunrealtype ida_trout;       /* t return value from rootfinder routine          */
+  sunrealtype *ida_glo;        /* saved array of g values at t = tlo              */
+  sunrealtype *ida_ghi;        /* saved array of g values at t = thi              */
+  sunrealtype *ida_grout;      /* array of g values at t = trout                  */
+  sunrealtype ida_toutc;       /* copy of tout (if NORMAL mode)                   */
+  sunrealtype ida_ttol;        /* tolerance on root location                      */
   int ida_taskc;            /* copy of parameter itask                         */
   int ida_irfnd;            /* flag showing whether last step had a root       */
   long int ida_nge;         /* counter for g evaluations                       */
@@ -518,8 +518,8 @@ typedef struct IDAMemRec {
   /* Arrays for Fused Vector Operations */
 
   /* scalar arrays */
-  realtype* ida_cvals;
-  realtype  ida_dvals[MAXORD_DEFAULT];
+  sunrealtype* ida_cvals;
+  sunrealtype  ida_dvals[MAXORD_DEFAULT];
 
   /* vector  arrays */
   N_Vector* ida_Xvecs;
@@ -571,7 +571,7 @@ typedef struct IDABMemRec *IDABMem;
 
 typedef booleantype (*IDAAMMallocFn)(IDAMem IDA_mem);
 typedef void (*IDAAMFreeFn)(IDAMem IDA_mem);
-typedef int (*IDAAGetYFn)(IDAMem IDA_mem, realtype t,
+typedef int (*IDAAGetYFn)(IDAMem IDA_mem, sunrealtype t,
                           N_Vector yy, N_Vector yp,
                           N_Vector *yyS, N_Vector *ypS);
 typedef int (*IDAAStorePntFn)(IDAMem IDA_mem, IDAdtpntMem d);
@@ -589,8 +589,8 @@ typedef int (*IDAAStorePntFn)(IDAMem IDA_mem, IDAdtpntMem d);
 struct IDAckpntMemRec {
 
   /* Integration limits */
-  realtype ck_t0;
-  realtype ck_t1;
+  sunrealtype ck_t0;
+  sunrealtype ck_t1;
 
   /* Modified divided difference array */
   N_Vector ck_phi[MXORDP1];
@@ -619,28 +619,28 @@ struct IDAckpntMemRec {
 
   /* Step data */
   long int     ck_nst;
-  realtype     ck_tretlast;
+  sunrealtype     ck_tretlast;
   int          ck_ns;
   int          ck_kk;
   int          ck_kused;
   int          ck_knew;
   int          ck_phase;
 
-  realtype     ck_hh;
-  realtype     ck_hused;
-  realtype     ck_eta;
-  realtype     ck_cj;
-  realtype     ck_cjlast;
-  realtype     ck_cjold;
-  realtype     ck_cjratio;
-  realtype     ck_ss;
-  realtype     ck_ssS;
+  sunrealtype     ck_hh;
+  sunrealtype     ck_hused;
+  sunrealtype     ck_eta;
+  sunrealtype     ck_cj;
+  sunrealtype     ck_cjlast;
+  sunrealtype     ck_cjold;
+  sunrealtype     ck_cjratio;
+  sunrealtype     ck_ss;
+  sunrealtype     ck_ssS;
 
-  realtype     ck_psi[MXORDP1];
-  realtype     ck_alpha[MXORDP1];
-  realtype     ck_beta[MXORDP1];
-  realtype     ck_sigma[MXORDP1];
-  realtype     ck_gamma[MXORDP1];
+  sunrealtype     ck_psi[MXORDP1];
+  sunrealtype     ck_alpha[MXORDP1];
+  sunrealtype     ck_beta[MXORDP1];
+  sunrealtype     ck_sigma[MXORDP1];
+  sunrealtype     ck_gamma[MXORDP1];
 
   /* How many phi, phiS, phiQ and phiQS were allocated? */
   int          ck_phi_alloc;
@@ -660,7 +660,7 @@ struct IDAckpntMemRec {
  */
 
 struct IDAdtpntMemRec {
-  realtype t;    /* time */
+  sunrealtype t;    /* time */
   void *content; /* interpType-dependent content */
 };
 
@@ -699,7 +699,7 @@ struct IDABMemRec {
   int ida_index;
 
   /* Time at which the backward problem is initialized. */
-  realtype ida_t0;
+  sunrealtype ida_t0;
 
   /* Memory for this backward problem */
   IDAMem IDA_mem;
@@ -735,7 +735,7 @@ struct IDABMemRec {
   int (*ida_pfree)(IDABMem IDAB_mem);
 
   /* Time at which to extract solution / quadratures */
-  realtype ida_tout;
+  sunrealtype ida_tout;
 
   /* Workspace Nvectors */
   N_Vector ida_yy;
@@ -763,19 +763,19 @@ struct IDAadjMemRec {
    * -------------------- */
 
   /* Integration interval */
-  realtype ia_tinitial, ia_tfinal;
+  sunrealtype ia_tinitial, ia_tfinal;
 
   /* Flag for first call to IDASolveF */
   booleantype ia_firstIDAFcall;
 
   /* Flag if IDASolveF was called with TSTOP */
   booleantype ia_tstopIDAFcall;
-  realtype ia_tstopIDAF;
+  sunrealtype ia_tstopIDAF;
 
   /* Flag if IDASolveF was called in IDA_NORMAL_MODE and encountered
      a root after tout */
   booleantype ia_rootret;
-  realtype ia_troot;
+  sunrealtype ia_troot;
 
   /* ----------------------
    * Backward problems data
@@ -845,7 +845,7 @@ struct IDAadjMemRec {
   /* Workspace for polynomial interpolation */
   N_Vector ia_Y[MXORDP1];      /* pointers  phi[i]               */
   N_Vector *ia_YS[MXORDP1];    /* pointers phiS[i]               */
-  realtype ia_T[MXORDP1];
+  sunrealtype ia_T[MXORDP1];
 
   /* Workspace for wrapper functions */
   N_Vector ia_yyTmp, ia_ypTmp;
@@ -968,13 +968,13 @@ void IDAErrHandler(int error_code, const char *module, const char *function,
 
 /* Norm functions. Also used for IC, so they are global.*/
 
-realtype IDAWrmsNorm(IDAMem IDA_mem, N_Vector x, N_Vector w,
+sunrealtype IDAWrmsNorm(IDAMem IDA_mem, N_Vector x, N_Vector w,
                      booleantype mask);
 
-realtype IDASensWrmsNorm(IDAMem IDA_mem, N_Vector *xS, N_Vector *wS,
+sunrealtype IDASensWrmsNorm(IDAMem IDA_mem, N_Vector *xS, N_Vector *wS,
                          booleantype mask);
 
-realtype IDASensWrmsNormUpdate(IDAMem IDA_mem, realtype old_nrm,
+sunrealtype IDASensWrmsNormUpdate(IDAMem IDA_mem, sunrealtype old_nrm,
                                       N_Vector *xS, N_Vector *wS,
                                       booleantype mask);
 
@@ -986,7 +986,7 @@ int idaNlsInitSensStg(IDAMem IDA_mem);
 
 /* Prototype for internal sensitivity residual DQ function */
 
-int IDASensResDQ(int Ns, realtype t,
+int IDASensResDQ(int Ns, sunrealtype t,
                  N_Vector yy, N_Vector yp, N_Vector resval,
                  N_Vector *yyS, N_Vector *ypS, N_Vector *resvalS,
                  void *user_dataS,

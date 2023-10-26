@@ -20,8 +20,8 @@
 struct UserOptions
 {
   // Integrator settings
-  realtype rtol        = RCONST(1.0e-5);   // relative tolerance
-  realtype atol        = RCONST(1.0e-10);  // absolute tolerance
+  sunrealtype rtol        = RCONST(1.0e-5);   // relative tolerance
+  sunrealtype atol        = RCONST(1.0e-10);  // absolute tolerance
   int      maxsteps    = 0;                // max steps between outputs
   int      onestep     = 0;                // one step mode, number of steps
 
@@ -30,7 +30,7 @@ struct UserOptions
   bool        preconditioning = true;   // preconditioner on/off
   bool        lsinfo          = false;  // output residual history
   int         liniters        = 20;     // number of linear iterations
-  realtype    epslin          = ZERO;   // linear solver tolerance factor
+  sunrealtype    epslin          = ZERO;   // linear solver tolerance factor
 
   // Helper functions
   int parse_args(vector<string> &args, bool outproc);
@@ -226,7 +226,7 @@ int main(int argc, char* argv[])
       // Create arrays for CSR matrix: data, column indices, and row pointers
       sunindextype nnz_loc = 5 * udata.nodes_loc;
 
-      A_data = (realtype*)malloc(nnz_loc * sizeof(sunrealtype));
+      A_data = (sunrealtype*)malloc(nnz_loc * sizeof(sunrealtype));
       if (check_flag((void*)A_data, "malloc Adata", 0)) return 1;
 
       A_col_idxs = (sunindextype*)malloc(nnz_loc * sizeof(sunindextype));
@@ -333,9 +333,9 @@ int main(int argc, char* argv[])
       stepmode  = IDA_ONE_STEP;
     }
 
-    realtype t     = ZERO;
-    realtype dTout = udata.tf / uout.nout;
-    realtype tout  = dTout;
+    sunrealtype t     = ZERO;
+    sunrealtype dTout = udata.tf / uout.nout;
+    sunrealtype tout  = dTout;
 
     // Inital output
     flag = uout.open(&udata);

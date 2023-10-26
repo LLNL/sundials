@@ -47,7 +47,7 @@
 #include <nvector/nvector_serial.h>    /* access to serial N_Vector            */
 #include <sunmatrix/sunmatrix_dense.h> /* access to dense SUNMatrix            */
 #include <sunlinsol/sunlinsol_dense.h> /* access to dense SUNLinearSolver      */
-#include <sundials/sundials_types.h>   /* defs. of realtype, sunindextype      */
+#include <sundials/sundials_types.h>   /* defs. of sunrealtype, sunindextype      */
 #include <sundials/sundials_math.h>    /* defs. of SUNRabs, SUNRexp, etc.      */
 
 /* Accessor macros */
@@ -80,37 +80,37 @@
 
 /* User defined struct */
 typedef struct {
-  realtype p[3];
+  sunrealtype p[3];
 } *UserData;
 
 /* residual for forward problem */
-static int res(realtype t, N_Vector yy, N_Vector yp,
+static int res(sunrealtype t, N_Vector yy, N_Vector yp,
                N_Vector resval, void *user_data);
 
-static int resS(int Ns, realtype t,
+static int resS(int Ns, sunrealtype t,
                 N_Vector yy, N_Vector yp, N_Vector resval,
                 N_Vector *yyS, N_Vector *ypS, N_Vector *resvalS,
                 void *user_data, N_Vector tmp1, N_Vector tmp2, N_Vector tmp3);
 
-static int rhsQ(realtype t, N_Vector yy, N_Vector yp, N_Vector qdot, void *user_data);
+static int rhsQ(sunrealtype t, N_Vector yy, N_Vector yp, N_Vector qdot, void *user_data);
 
-static int rhsQS(int Ns, realtype t, N_Vector yy, N_Vector yp,
+static int rhsQS(int Ns, sunrealtype t, N_Vector yy, N_Vector yp,
                  N_Vector *yyS, N_Vector *ypS, N_Vector rrQ, N_Vector *rhsvalQS,
                  void *user_data,  N_Vector yytmp, N_Vector yptmp, N_Vector tmpQS);
 
-static int resBS1(realtype tt, N_Vector yy, N_Vector yp, N_Vector *yyS, N_Vector *ypS,
+static int resBS1(sunrealtype tt, N_Vector yy, N_Vector yp, N_Vector *yyS, N_Vector *ypS,
                   N_Vector yyB, N_Vector ypB, N_Vector resvalBQ, void *user_dataB);
 
 
-static int rhsQBS1(realtype tt, N_Vector yy, N_Vector yp,
+static int rhsQBS1(sunrealtype tt, N_Vector yy, N_Vector yp,
                    N_Vector *yyS, N_Vector *ypS, N_Vector yyB, N_Vector ypB,
                    N_Vector rhsBQS, void *user_dataB);
 
-static int resBS2(realtype tt, N_Vector yy, N_Vector yp, N_Vector *yyS, N_Vector *ypS,
+static int resBS2(sunrealtype tt, N_Vector yy, N_Vector yp, N_Vector *yyS, N_Vector *ypS,
                   N_Vector yyB, N_Vector ypB, N_Vector resvalBQ, void *user_dataB);
 
 
-static int rhsQBS2(realtype tt, N_Vector yy, N_Vector yp,
+static int rhsQBS2(sunrealtype tt, N_Vector yy, N_Vector yp,
                    N_Vector *yyS, N_Vector *ypS, N_Vector yyB, N_Vector ypB,
                    N_Vector rhsBQS, void *user_dataB);
 
@@ -123,10 +123,10 @@ int main(int argc, char *argv[])
   N_Vector yyB1, ypB1, qB1, yyB2, ypB2, qB2;
   void *ida_mem;
   UserData data;
-  realtype time, ti, tf;
+  sunrealtype time, ti, tf;
   int retval, nckp, indexB1, indexB2, is;
-  realtype G, Gm, Gp, dp1, dp2, grdG_fwd[2], grdG_bck[2], grdG_cntr[2], H11, H22;
-  realtype rtolFD, atolFD;
+  sunrealtype G, Gm, Gp, dp1, dp2, grdG_fwd[2], grdG_bck[2], grdG_cntr[2], H11, H22;
+  sunrealtype rtolFD, atolFD;
   SUNMatrix A, AB1, AB2;
   SUNLinearSolver LS, LSB1, LSB2;
 
@@ -526,11 +526,11 @@ int main(int argc, char *argv[])
 
 
 
-static int res(realtype tres, N_Vector yy, N_Vector yp, N_Vector rr, void *user_data)
+static int res(sunrealtype tres, N_Vector yy, N_Vector yp, N_Vector rr, void *user_data)
 {
-  realtype y1, y2, y3, yp1, yp2, *rval;
+  sunrealtype y1, y2, y3, yp1, yp2, *rval;
   UserData data;
-  realtype p1, p2, p3;
+  sunrealtype p1, p2, p3;
 
   y1  = Ith(yy,1); y2  = Ith(yy,2); y3  = Ith(yy,3);
   yp1 = Ith(yp,1); yp2 = Ith(yp,2);
@@ -547,18 +547,18 @@ static int res(realtype tres, N_Vector yy, N_Vector yp, N_Vector rr, void *user_
   return(0);
 }
 
-static int resS(int Ns, realtype t,
+static int resS(int Ns, sunrealtype t,
                 N_Vector yy, N_Vector yp, N_Vector resval,
                 N_Vector *yyS, N_Vector *ypS, N_Vector *resvalS,
                 void *user_data,
                 N_Vector tmp1, N_Vector tmp2, N_Vector tmp3)
 {
   UserData data;
-  realtype p1, p2, p3;
-  realtype y1, y2, y3;
-  realtype s1, s2, s3;
-  realtype sd1, sd2;
-  realtype rs1, rs2, rs3;
+  sunrealtype p1, p2, p3;
+  sunrealtype y1, y2, y3;
+  sunrealtype s1, s2, s3;
+  sunrealtype sd1, sd2;
+  sunrealtype rs1, rs2, rs3;
   int is;
 
   data = (UserData) user_data;
@@ -603,10 +603,10 @@ static int resS(int Ns, realtype t,
   return(0);
 }
 
-static int rhsQ(realtype t, N_Vector yy, N_Vector yp, N_Vector qdot, void *user_data)
+static int rhsQ(sunrealtype t, N_Vector yy, N_Vector yp, N_Vector qdot, void *user_data)
 {
 
-  realtype y1, y2, y3;
+  sunrealtype y1, y2, y3;
 
   y1 = Ith(yy,1); y2 = Ith(yy,2); y3 = Ith(yy,3);
   Ith(qdot,1) = HALF*(y1*y1+y2*y2+y3*y3);
@@ -614,7 +614,7 @@ static int rhsQ(realtype t, N_Vector yy, N_Vector yp, N_Vector qdot, void *user_
   return(0);
 }
 
-static int rhsQS(int Ns, realtype t,
+static int rhsQS(int Ns, sunrealtype t,
                  N_Vector yy, N_Vector yp,
                  N_Vector *yyS, N_Vector *ypS,
                  N_Vector rrQ, N_Vector *rhsvalQS,
@@ -622,8 +622,8 @@ static int rhsQS(int Ns, realtype t,
                  N_Vector yytmp, N_Vector yptmp, N_Vector tmpQS)
 {
 
-  realtype y1, y2, y3;
-  realtype s1, s2, s3;
+  sunrealtype y1, y2, y3;
+  sunrealtype s1, s2, s3;
 
   y1 = Ith(yy,1);
   y2 = Ith(yy,2);
@@ -645,7 +645,7 @@ static int rhsQS(int Ns, realtype t,
 }
 
 /* Residuals for adjoint model. */
-static int resBS1(realtype tt,
+static int resBS1(sunrealtype tt,
                   N_Vector yy, N_Vector yp,
                   N_Vector *yyS, N_Vector *ypS,
                   N_Vector yyB, N_Vector ypB,
@@ -653,12 +653,12 @@ static int resBS1(realtype tt,
 
 {
   UserData data;
-  realtype y1, y2, y3;
-  realtype p1, p2, p3;
-  realtype l1, l2, l3, m1, m2, m3;
-  realtype lp1, lp2, mp1, mp2;
-  realtype s1, s2, s3;
-  realtype l21;
+  sunrealtype y1, y2, y3;
+  sunrealtype p1, p2, p3;
+  sunrealtype l1, l2, l3, m1, m2, m3;
+  sunrealtype lp1, lp2, mp1, mp2;
+  sunrealtype s1, s2, s3;
+  sunrealtype l21;
 
   data = (UserData) user_dataB;
 
@@ -695,16 +695,16 @@ static int resBS1(realtype tt,
   return(0);
 }
 
-static int rhsQBS1(realtype tt,
+static int rhsQBS1(sunrealtype tt,
                  N_Vector yy, N_Vector yp,
                  N_Vector *yyS, N_Vector *ypS,
                  N_Vector yyB, N_Vector ypB,
                  N_Vector rhsBQS, void *user_dataB)
 {
-  realtype y1, y2, y3;
-  realtype l1, l2, m1, m2;
-  realtype s1, s2, s3;
-  realtype l21;
+  sunrealtype y1, y2, y3;
+  sunrealtype l1, l2, m1, m2;
+  sunrealtype s1, s2, s3;
+  sunrealtype l21;
 
   /* The y vector */
   y1 = Ith(yy,1); y2 = Ith(yy,2); y3 = Ith(yy,3);
@@ -730,7 +730,7 @@ static int rhsQBS1(realtype tt,
   return(0);
 }
 
-static int resBS2(realtype tt,
+static int resBS2(sunrealtype tt,
                   N_Vector yy, N_Vector yp,
                   N_Vector *yyS, N_Vector *ypS,
                   N_Vector yyB, N_Vector ypB,
@@ -738,12 +738,12 @@ static int resBS2(realtype tt,
 
 {
   UserData data;
-  realtype y1, y2, y3;
-  realtype p1, p2, p3;
-  realtype l1, l2, l3, m1, m2, m3;
-  realtype lp1, lp2, mp1, mp2;
-  realtype s1, s2, s3;
-  realtype l21;
+  sunrealtype y1, y2, y3;
+  sunrealtype p1, p2, p3;
+  sunrealtype l1, l2, l3, m1, m2, m3;
+  sunrealtype lp1, lp2, mp1, mp2;
+  sunrealtype s1, s2, s3;
+  sunrealtype l21;
 
   data = (UserData) user_dataB;
 
@@ -781,16 +781,16 @@ static int resBS2(realtype tt,
   return(0);
 }
 
-static int rhsQBS2(realtype tt,
+static int rhsQBS2(sunrealtype tt,
                  N_Vector yy, N_Vector yp,
                  N_Vector *yyS, N_Vector *ypS,
                  N_Vector yyB, N_Vector ypB,
                  N_Vector rhsBQS, void *user_dataB)
 {
-  realtype y1, y2, y3;
-  realtype l1, l2, m1, m2;
-  realtype s1, s2, s3;
-  realtype l21;
+  sunrealtype y1, y2, y3;
+  sunrealtype l1, l2, m1, m2;
+  sunrealtype s1, s2, s3;
+  sunrealtype l21;
 
   /* The y vector */
   y1 = Ith(yy,1); y2 = Ith(yy,2); y3 = Ith(yy,3);

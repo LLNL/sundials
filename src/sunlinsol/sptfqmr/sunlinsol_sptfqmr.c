@@ -333,25 +333,25 @@ int SUNLinSolSetup_SPTFQMR(SUNLinearSolver S, SUNMatrix A)
 
 
 int SUNLinSolSolve_SPTFQMR(SUNLinearSolver S, SUNMatrix A, N_Vector x,
-                           N_Vector b, realtype delta)
+                           N_Vector b, sunrealtype delta)
 {
   /* local data and shortcut variables */
-  realtype alpha, tau, eta, beta, c, sigma, v_bar, omega;
-  realtype rho[2];
-  realtype r_init_norm, r_curr_norm;
-  realtype temp_val;
+  sunrealtype alpha, tau, eta, beta, c, sigma, v_bar, omega;
+  sunrealtype rho[2];
+  sunrealtype r_init_norm, r_curr_norm;
+  sunrealtype temp_val;
   booleantype preOnLeft, preOnRight, scale_x, scale_b, converged, b_ok;
   booleantype *zeroguess;
   int n, m, ier, l_max;
   void *A_data, *P_data;
   SUNATimesFn atimes;
   SUNPSolveFn psolve;
-  realtype *res_norm;
+  sunrealtype *res_norm;
   int *nli;
   N_Vector sx, sb, r_star, q, d, v, p, *r, u, vtemp1, vtemp2, vtemp3;
 
   /* local variables for fused vector operations */
-  realtype cv[3];
+  sunrealtype cv[3];
   N_Vector Xv[3];
 
   /* Make local shorcuts to solver variables. */
@@ -817,7 +817,7 @@ int SUNLinSolNumIters_SPTFQMR(SUNLinearSolver S)
 }
 
 
-realtype SUNLinSolResNorm_SPTFQMR(SUNLinearSolver S)
+sunrealtype SUNLinSolResNorm_SPTFQMR(SUNLinearSolver S)
 {
   /* return the stored 'resnorm' value */
   if (S == NULL) return(-ONE);

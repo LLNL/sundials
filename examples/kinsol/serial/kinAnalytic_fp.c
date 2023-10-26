@@ -95,20 +95,20 @@
 /* problem options */
 typedef struct
 {
-  realtype tol;         /* solve tolerance                  */
+  sunrealtype tol;         /* solve tolerance                  */
   long int maxiter;     /* max number of iterations         */
   long int m_aa;        /* number of acceleration vectors   */
   long int delay_aa;    /* number of iterations to delay AA */
   int      orth_aa;     /* orthogonalization method         */
-  realtype damping_fp;  /* damping parameter for FP         */
-  realtype damping_aa;  /* damping parameter for AA         */
+  sunrealtype damping_fp;  /* damping parameter for FP         */
+  sunrealtype damping_aa;  /* damping parameter for AA         */
 } *UserOpt;
 
 /* Nonlinear fixed point function */
 static int FPFunction(N_Vector u, N_Vector f, void *user_data);
 
 /* Check the system solution */
-static int check_ans(N_Vector u, realtype tol);
+static int check_ans(N_Vector u, sunrealtype tol);
 
 /* Set default options */
 static int SetDefaults(UserOpt *uopt);
@@ -135,7 +135,7 @@ int main(int argc, char *argv[])
   N_Vector  scale  = NULL;  /* scaling vector      */
   FILE*     infofp = NULL;  /* KINSOL log file     */
   long int  nni, nfe;       /* solver outputs      */
-  realtype* data;           /* vector data array   */
+  sunrealtype* data;           /* vector data array   */
   void*     kmem;           /* KINSOL memory       */
 
   /* Set default options */
@@ -316,9 +316,9 @@ int main(int argc, char *argv[])
  * ---------------------------------------------------------------------------*/
 int FPFunction(N_Vector u, N_Vector g, void* user_data)
 {
-  realtype* udata = NULL;
-  realtype* gdata = NULL;
-  realtype  x, y, z;
+  sunrealtype* udata = NULL;
+  sunrealtype* gdata = NULL;
+  sunrealtype  x, y, z;
 
   /* Get vector data arrays */
   udata = N_VGetArrayPointer(u);
@@ -341,10 +341,10 @@ int FPFunction(N_Vector u, N_Vector g, void* user_data)
 /* -----------------------------------------------------------------------------
  * Check the solution of the nonlinear system and return PASS or FAIL
  * ---------------------------------------------------------------------------*/
-static int check_ans(N_Vector u, realtype tol)
+static int check_ans(N_Vector u, sunrealtype tol)
 {
-  realtype* data = NULL;
-  realtype  ex, ey, ez;
+  sunrealtype* data = NULL;
+  sunrealtype  ex, ey, ez;
 
   /* Get vector data array */
   data = N_VGetArrayPointer(u);

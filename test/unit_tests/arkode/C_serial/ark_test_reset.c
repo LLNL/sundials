@@ -54,29 +54,29 @@
 #endif
 
 /* User-supplied Functions Called by the Solver */
-static int f(realtype t, N_Vector y, N_Vector ydot, void *user_data);
-static int f0(realtype t, N_Vector y, N_Vector ydot, void *user_data);
-static int Jac(realtype t, N_Vector y, N_Vector fy, SUNMatrix J,
+static int f(sunrealtype t, N_Vector y, N_Vector ydot, void *user_data);
+static int f0(sunrealtype t, N_Vector y, N_Vector ydot, void *user_data);
+static int Jac(sunrealtype t, N_Vector y, N_Vector fy, SUNMatrix J,
                void *user_data, N_Vector tmp1, N_Vector tmp2, N_Vector tmp3);
 
 /* Analytical solution */
-static realtype ytrue(realtype t);
+static sunrealtype ytrue(sunrealtype t);
 
 /* Private function to check function return values */
 static int check_retval(void *flagvalue, const char *funcname, int opt);
 
 /* Private function to check computed solution */
-static int check_ans(N_Vector y, realtype t, realtype rtol, realtype atol);
+static int check_ans(N_Vector y, sunrealtype t, sunrealtype rtol, sunrealtype atol);
 
 /* Main Program */
 int main()
 {
   /* general problem parameters */
-  realtype T0     = RCONST(0.0);
-  realtype dTout  = RCONST(0.1);
-  realtype lambda = RCONST(-25.0);
-  realtype rtol   = RCONST(1e-3);
-  realtype atol   = RCONST(1e-6);
+  sunrealtype T0     = RCONST(0.0);
+  sunrealtype dTout  = RCONST(0.1);
+  sunrealtype lambda = RCONST(-25.0);
+  sunrealtype rtol   = RCONST(1e-3);
+  sunrealtype atol   = RCONST(1e-6);
 
   /* general problem variables */
   N_Vector y = NULL;
@@ -86,7 +86,7 @@ int main()
   void *mristep_mem = NULL;
   MRIStepInnerStepper inner_stepper = NULL;
   int retval;
-  realtype t;
+  sunrealtype t;
 
   SUNContext ctx;
 
@@ -406,11 +406,11 @@ int main()
  *-------------------------------*/
 
 /* f routine to compute the ODE RHS function f(t,y). */
-static int f(realtype t, N_Vector y, N_Vector ydot, void *user_data)
+static int f(sunrealtype t, N_Vector y, N_Vector ydot, void *user_data)
 {
-  realtype *rdata = (realtype *) user_data;   /* cast user_data to realtype */
-  realtype lambda = rdata[0];                 /* set shortcut for stiffness parameter */
-  realtype u = NV_Ith_S(y,0);                 /* access current solution value */
+  sunrealtype *rdata = (sunrealtype *) user_data;   /* cast user_data to sunrealtype */
+  sunrealtype lambda = rdata[0];                 /* set shortcut for stiffness parameter */
+  sunrealtype u = NV_Ith_S(y,0);                 /* access current solution value */
 
   /* fill in the RHS function: "NV_Ith_S" accesses the 0th entry of ydot */
   NV_Ith_S(ydot,0) = lambda*u + RCONST(1.0)/(RCONST(1.0)+t*t) - lambda*atan(t);
@@ -419,19 +419,19 @@ static int f(realtype t, N_Vector y, N_Vector ydot, void *user_data)
 }
 
 /* f0 routine to compute a zero-valued ODE RHS function f(t,y). */
-static int f0(realtype t, N_Vector y, N_Vector ydot, void *user_data)
+static int f0(sunrealtype t, N_Vector y, N_Vector ydot, void *user_data)
 {
   N_VConst(RCONST(0.0), ydot);
   return 0;
 }
 
 /* Jacobian routine to compute J(t,y) = df/dy. */
-static int Jac(realtype t, N_Vector y, N_Vector fy, SUNMatrix J,
+static int Jac(sunrealtype t, N_Vector y, N_Vector fy, SUNMatrix J,
                void *user_data, N_Vector tmp1, N_Vector tmp2, N_Vector tmp3)
 {
-  realtype *rdata = (realtype *) user_data;   /* cast user_data to realtype */
-  realtype lambda = rdata[0];                  /* set shortcut for stiffness parameter */
-  realtype *Jdata = SUNDenseMatrix_Data(J);
+  sunrealtype *rdata = (sunrealtype *) user_data;   /* cast user_data to sunrealtype */
+  sunrealtype lambda = rdata[0];                  /* set shortcut for stiffness parameter */
+  sunrealtype *Jdata = SUNDenseMatrix_Data(J);
 
   /* Fill in Jacobian of f: set the first entry of the data array to set the (0,0) entry */
   Jdata[0] = lambda;
@@ -479,16 +479,16 @@ static int check_retval(void *flagvalue, const char *funcname, int opt)
 }
 
 /* analytical solution */
-static realtype ytrue(realtype t)
+static sunrealtype ytrue(sunrealtype t)
 {
   return (atan(t));
 }
 
 /* check the computed solution */
-static int check_ans(N_Vector y, realtype t, realtype rtol, realtype atol)
+static int check_ans(N_Vector y, sunrealtype t, sunrealtype rtol, sunrealtype atol)
 {
   int      passfail=0;     /* answer pass (0) or fail (1) value    */
-  realtype ans, err, ewt;  /* answer data, error, and error weight */
+  sunrealtype ans, err, ewt;  /* answer data, error, and error weight */
 
   /* compute solution error */
   ans = ytrue(t);

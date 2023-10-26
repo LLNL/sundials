@@ -106,7 +106,7 @@
 #include <nvector/nvector_openmp.h>    /* access to OpenMP N_Vector            */
 #include <sunlinsol/sunlinsol_spgmr.h> /* access to SPGMR SUNLinearSolver      */
 #include <sundials/sundials_dense.h>   /* use generic dense solver in precond. */
-#include <sundials/sundials_types.h>   /* defs. of realtype, sunindextype      */
+#include <sundials/sundials_types.h>   /* defs. of sunrealtype, sunindextype      */
 
 #ifdef _OPENMP
 #include <omp.h>
@@ -160,13 +160,13 @@
    contains preconditioner blocks, pivot arrays, and problem constants */
 
 typedef struct {
-  realtype **P[MX][MY];
+  sunrealtype **P[MX][MY];
   sunindextype *pivot[MX][MY];
-  realtype **acoef, *bcoef;
+  sunrealtype **acoef, *bcoef;
   N_Vector rates;
-  realtype *cox, *coy;
-  realtype ax, ay, dx, dy;
-  realtype uround, sqruround;
+  sunrealtype *cox, *coy;
+  sunrealtype ax, ay, dx, dy;
+  sunrealtype uround, sqruround;
   sunindextype mx, my, ns, np;
   int nthreads;
 } *UserData;
@@ -190,12 +190,12 @@ static void InitUserData(UserData data);
 static void FreeUserData(UserData data);
 static void SetInitialProfiles(N_Vector cc, N_Vector sc);
 static void PrintHeader(int globalstrategy, int maxl, int maxlrst,
-                        realtype fnormtol, realtype scsteptol);
+                        sunrealtype fnormtol, sunrealtype scsteptol);
 static void PrintOutput(N_Vector cc);
 static void PrintFinalStats(void *kmem);
-static void WebRate(realtype xx, realtype yy, realtype *cxy, realtype *ratesxy,
+static void WebRate(sunrealtype xx, sunrealtype yy, sunrealtype *cxy, sunrealtype *ratesxy,
                     void *user_data);
-static realtype DotProd(sunindextype size, realtype *x1, realtype *x2);
+static sunrealtype DotProd(sunindextype size, sunrealtype *x1, sunrealtype *x2);
 static int check_retval(void *retvalvalue, const char *funcname, int opt);
 
 /*
@@ -208,7 +208,7 @@ int main(int argc, char *argv[])
 {
   SUNContext sunctx;
   int globalstrategy;
-  realtype fnormtol, scsteptol;
+  sunrealtype fnormtol, scsteptol;
   N_Vector cc, sc, constraints;
   UserData data;
   int retval, maxl, maxlrst;
@@ -346,7 +346,7 @@ int main(int argc, char *argv[])
 
 static int func(N_Vector cc, N_Vector fval, void *user_data)
 {
-  realtype xx, yy, delx, dely, *cxy, *rxy, *fxy, dcyli, dcyui, dcxli, dcxri;
+  sunrealtype xx, yy, delx, dely, *cxy, *rxy, *fxy, dcyli, dcyui, dcxli, dcxri;
   sunindextype jx, jy, is, idyu, idyl, idxr, idxl;
   UserData data;
 
@@ -409,8 +409,8 @@ static int PrecSetupBD(N_Vector cc, N_Vector cscale,
                        N_Vector fval, N_Vector fscale,
                        void *user_data)
 {
-  realtype r, r0, uround, sqruround, xx, yy, delx, dely, csave, fac;
-  realtype *cxy, *scxy, **Pxy, *ratesxy, *Pxycol, perturb_rates[NUM_SPECIES];
+  sunrealtype r, r0, uround, sqruround, xx, yy, delx, dely, csave, fac;
+  sunrealtype *cxy, *scxy, **Pxy, *ratesxy, *Pxycol, perturb_rates[NUM_SPECIES];
   sunindextype i, j, jx, jy, ret;
   UserData data;
 
@@ -478,7 +478,7 @@ static int PrecSolveBD(N_Vector cc, N_Vector cscale,
                        N_Vector fval, N_Vector fscale,
                        N_Vector vv, void *user_data)
 {
-  realtype **Pxy, *vxy;
+  sunrealtype **Pxy, *vxy;
   sunindextype *piv, jx, jy;
   UserData data;
 
@@ -511,11 +511,11 @@ static int PrecSolveBD(N_Vector cc, N_Vector cscale,
  * Interaction rate function routine
  */
 
-static void WebRate(realtype xx, realtype yy, realtype *cxy, realtype *ratesxy,
+static void WebRate(sunrealtype xx, sunrealtype yy, sunrealtype *cxy, sunrealtype *ratesxy,
                     void *user_data)
 {
   sunindextype i;
-  realtype fac;
+  sunrealtype fac;
   UserData data;
 
   data = (UserData)user_data;
@@ -531,13 +531,13 @@ static void WebRate(realtype xx, realtype yy, realtype *cxy, realtype *ratesxy,
 }
 
 /*
- * Dot product routine for realtype arrays
+ * Dot product routine for sunrealtype arrays
  */
 
-static realtype DotProd(sunindextype size, realtype *x1, realtype *x2)
+static sunrealtype DotProd(sunindextype size, sunrealtype *x1, sunrealtype *x2)
 {
   sunindextype i;
-  realtype *xx1, *xx2, temp = ZERO;
+  sunrealtype *xx1, *xx2, temp = ZERO;
 
   xx1 = x1; xx2 = x2;
   for (i = 0; i < size; i++) temp += (*xx1++) * (*xx2++);
@@ -570,9 +570,9 @@ static UserData AllocUserData(void)
   }
 
   acoef = SUNDlsMat_newDenseMat(NUM_SPECIES, NUM_SPECIES);
-  bcoef = (realtype *)malloc(NUM_SPECIES * sizeof(realtype));
-  cox   = (realtype *)malloc(NUM_SPECIES * sizeof(realtype));
-  coy   = (realtype *)malloc(NUM_SPECIES * sizeof(realtype));
+  bcoef = (sunrealtype *)malloc(NUM_SPECIES * sizeof(sunrealtype));
+  cox   = (sunrealtype *)malloc(NUM_SPECIES * sizeof(sunrealtype));
+  coy   = (sunrealtype *)malloc(NUM_SPECIES * sizeof(sunrealtype));
 
   return(data);
 }
@@ -584,7 +584,7 @@ static UserData AllocUserData(void)
 static void InitUserData(UserData data)
 {
   sunindextype i, j, np;
-  realtype *a1,*a2, *a3, *a4, dx2, dy2;
+  sunrealtype *a1,*a2, *a3, *a4, dx2, dy2;
 
   data->mx = MX;
   data->my = MY;
@@ -661,8 +661,8 @@ static void FreeUserData(UserData data)
 static void SetInitialProfiles(N_Vector cc, N_Vector sc)
 {
   int i, jx, jy;
-  realtype *cloc, *sloc;
-  realtype  ctemp[NUM_SPECIES], stemp[NUM_SPECIES];
+  sunrealtype *cloc, *sloc;
+  sunrealtype  ctemp[NUM_SPECIES], stemp[NUM_SPECIES];
 
   /* Initialize arrays ctemp and stemp used in the loading process */
   for (i = 0; i < NUM_SPECIES/2; i++) {
@@ -692,7 +692,7 @@ static void SetInitialProfiles(N_Vector cc, N_Vector sc)
  */
 
 static void PrintHeader(int globalstrategy, int maxl, int maxlrst,
-                        realtype fnormtol, realtype scsteptol)
+                        sunrealtype fnormtol, sunrealtype scsteptol)
 {
   printf("\nPredator-prey test problem --  KINSol (OpenMP version)\n\n");
   printf("Mesh dimensions = %d X %d\n", MX, MY);
@@ -738,7 +738,7 @@ static void PrintHeader(int globalstrategy, int maxl, int maxlrst,
 static void PrintOutput(N_Vector cc)
 {
   int is, jx, jy;
-  realtype *ct;
+  sunrealtype *ct;
 
   jy = 0; jx = 0;
   ct = IJ_Vptr(cc,jx,jy);

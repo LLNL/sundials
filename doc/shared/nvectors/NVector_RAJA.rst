@@ -40,8 +40,8 @@ The vector content layout is as follows:
    {
       sunindextype length;
       booleantype  own_data;
-      realtype*    host_data;
-      realtype*    device_data;
+      sunrealtype*    host_data;
+      sunrealtype*    device_data;
       void*        priv; /* 'private' data */
    };
 
@@ -74,12 +74,12 @@ accessor functions:
 
 
 
-.. c:function:: realtype* N_VGetHostArrayPointer_Raja(N_Vector v)
+.. c:function:: sunrealtype* N_VGetHostArrayPointer_Raja(N_Vector v)
 
    This function returns pointer to the vector data on the host.
 
 
-.. c:function:: realtype* N_VGetDeviceArrayPointer_Raja(N_Vector v)
+.. c:function:: sunrealtype* N_VGetDeviceArrayPointer_Raja(N_Vector v)
 
    This function returns pointer to the vector data on the device.
 
@@ -125,13 +125,13 @@ NVECTOR_RAJA provides the following additional user-callable routines:
    The vector data array is allocated in managed memory.
 
 
-.. c:function:: N_Vector N_VMake_Raja(sunindextype length, realtype *h_data, realtype *v_data, SUNContext sunctx)
+.. c:function:: N_Vector N_VMake_Raja(sunindextype length, sunrealtype *h_data, sunrealtype *v_data, SUNContext sunctx)
 
    This function creates an NVECTOR_RAJA with user-supplied host and device
    data arrays. This function does not allocate memory for data itself.
 
 
-.. c:function:: N_Vector N_VMakeManaged_Raja(sunindextype length, realtype *vdata, SUNContext sunctx)
+.. c:function:: N_Vector N_VMakeManaged_Raja(sunindextype length, sunrealtype *vdata, SUNContext sunctx)
 
    This function creates an NVECTOR_RAJA with a user-supplied managed
    memory data array. This function does not allocate memory for data itself.

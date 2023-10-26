@@ -422,7 +422,7 @@ void N_VSpace_Petsc(N_Vector v, sunindextype *lrw, sunindextype *liw)
 /*
  * Not implemented for PETSc wrapper.
  */
-realtype *N_VGetArrayPointer_Petsc(N_Vector v)
+sunrealtype *N_VGetArrayPointer_Petsc(N_Vector v)
 {
   return NULL;
 }
@@ -430,7 +430,7 @@ realtype *N_VGetArrayPointer_Petsc(N_Vector v)
 /*
  * Not implemented for PETSc wrapper.
  */
-void N_VSetArrayPointer_Petsc(realtype *v_data, N_Vector v)
+void N_VSetArrayPointer_Petsc(sunrealtype *v_data, N_Vector v)
 {
   return;
 }
@@ -445,7 +445,7 @@ sunindextype N_VGetLength_Petsc(N_Vector v)
   return(NV_GLOBLENGTH_PTC(v));
 }
 
-void N_VLinearSum_Petsc(realtype a, N_Vector x, realtype b, N_Vector y, N_Vector z)
+void N_VLinearSum_Petsc(sunrealtype a, N_Vector x, sunrealtype b, N_Vector y, N_Vector z)
 {
   Vec xv = NV_PVEC_PTC(x);
   Vec yv = NV_PVEC_PTC(y);
@@ -485,7 +485,7 @@ void N_VLinearSum_Petsc(realtype a, N_Vector x, realtype b, N_Vector y, N_Vector
   return;
 }
 
-void N_VConst_Petsc(realtype c, N_Vector z)
+void N_VConst_Petsc(sunrealtype c, N_Vector z)
 {
   Vec zv = NV_PVEC_PTC(z);
 
@@ -516,7 +516,7 @@ void N_VDiv_Petsc(N_Vector x, N_Vector y, N_Vector z)
   return;
 }
 
-void N_VScale_Petsc(realtype c, N_Vector x, N_Vector z)
+void N_VScale_Petsc(sunrealtype c, N_Vector x, N_Vector z)
 {
   Vec xv = NV_PVEC_PTC(x);
   Vec zv = NV_PVEC_PTC(z);
@@ -555,7 +555,7 @@ void N_VInv_Petsc(N_Vector x, N_Vector z)
   return;
 }
 
-void N_VAddConst_Petsc(N_Vector x, realtype b, N_Vector z)
+void N_VAddConst_Petsc(N_Vector x, sunrealtype b, N_Vector z)
 {
   Vec xv = NV_PVEC_PTC(x);
   Vec zv = NV_PVEC_PTC(z);
@@ -567,7 +567,7 @@ void N_VAddConst_Petsc(N_Vector x, realtype b, N_Vector z)
   return;
 }
 
-realtype N_VDotProdLocal_Petsc(N_Vector x, N_Vector y)
+sunrealtype N_VDotProdLocal_Petsc(N_Vector x, N_Vector y)
 {
   sunindextype i;
   sunindextype N = NV_LOCLENGTH_PTC(x);
@@ -583,10 +583,10 @@ realtype N_VDotProdLocal_Petsc(N_Vector x, N_Vector y)
     sum += xd[i] * yd[i];
   VecRestoreArray(xv, &xd);
   VecRestoreArray(yv, &yd);
-  return ((realtype) sum);
+  return ((sunrealtype) sum);
 }
 
-realtype N_VDotProd_Petsc(N_Vector x, N_Vector y)
+sunrealtype N_VDotProd_Petsc(N_Vector x, N_Vector y)
 {
   Vec xv = NV_PVEC_PTC(x);
   Vec yv = NV_PVEC_PTC(y);
@@ -596,7 +596,7 @@ realtype N_VDotProd_Petsc(N_Vector x, N_Vector y)
   return dotprod;
 }
 
-realtype N_VMaxNormLocal_Petsc(N_Vector x)
+sunrealtype N_VMaxNormLocal_Petsc(N_Vector x)
 {
   sunindextype i;
   sunindextype N = NV_LOCLENGTH_PTC(x);
@@ -609,10 +609,10 @@ realtype N_VMaxNormLocal_Petsc(N_Vector x)
     if (PetscAbsScalar(xd[i]) > max) max = PetscAbsScalar(xd[i]);
   }
   VecRestoreArray(xv, &xd);
-  return ((realtype) max);
+  return ((sunrealtype) max);
 }
 
-realtype N_VMaxNorm_Petsc(N_Vector x)
+sunrealtype N_VMaxNorm_Petsc(N_Vector x)
 {
   Vec xv = NV_PVEC_PTC(x);
   PetscReal norm;
@@ -621,7 +621,7 @@ realtype N_VMaxNorm_Petsc(N_Vector x)
   return norm;
 }
 
-realtype N_VWSqrSumLocal_Petsc(N_Vector x, N_Vector w)
+sunrealtype N_VWSqrSumLocal_Petsc(N_Vector x, N_Vector w)
 {
   sunindextype i;
   sunindextype N = NV_LOCLENGTH_PTC(x);
@@ -638,19 +638,19 @@ realtype N_VWSqrSumLocal_Petsc(N_Vector x, N_Vector w)
   }
   VecRestoreArray(xv, &xd);
   VecRestoreArray(wv, &wd);
-  return ((realtype) sum);
+  return ((sunrealtype) sum);
 }
 
-realtype N_VWrmsNorm_Petsc(N_Vector x, N_Vector w)
+sunrealtype N_VWrmsNorm_Petsc(N_Vector x, N_Vector w)
 {
-  realtype global_sum;
+  sunrealtype global_sum;
   sunindextype N_global = NV_GLOBLENGTH_PTC(x);
-  realtype sum = N_VWSqrSumLocal_Petsc(x, w);
+  sunrealtype sum = N_VWSqrSumLocal_Petsc(x, w);
   (void) MPI_Allreduce(&sum, &global_sum, 1, MPI_SUNREALTYPE, MPI_SUM, NV_COMM_PTC(x));
   return (SUNRsqrt(global_sum/N_global));
 }
 
-realtype N_VWSqrSumMaskLocal_Petsc(N_Vector x, N_Vector w, N_Vector id)
+sunrealtype N_VWSqrSumMaskLocal_Petsc(N_Vector x, N_Vector w, N_Vector id)
 {
   sunindextype i;
   sunindextype N = NV_LOCLENGTH_PTC(x);
@@ -677,16 +677,16 @@ realtype N_VWSqrSumMaskLocal_Petsc(N_Vector x, N_Vector w, N_Vector id)
   return sum;
 }
 
-realtype N_VWrmsNormMask_Petsc(N_Vector x, N_Vector w, N_Vector id)
+sunrealtype N_VWrmsNormMask_Petsc(N_Vector x, N_Vector w, N_Vector id)
 {
-  realtype global_sum;
+  sunrealtype global_sum;
   sunindextype N_global = NV_GLOBLENGTH_PTC(x);
-  realtype sum = N_VWSqrSumMaskLocal_Petsc(x, w, id);
+  sunrealtype sum = N_VWSqrSumMaskLocal_Petsc(x, w, id);
   (void) MPI_Allreduce(&sum, &global_sum, 1, MPI_SUNREALTYPE, MPI_SUM, NV_COMM_PTC(x));
   return (SUNRsqrt(global_sum/N_global));
 }
 
-realtype N_VMinLocal_Petsc(N_Vector x)
+sunrealtype N_VMinLocal_Petsc(N_Vector x)
 {
   sunindextype i;
   sunindextype N = NV_LOCLENGTH_PTC(x);
@@ -699,10 +699,10 @@ realtype N_VMinLocal_Petsc(N_Vector x)
     if (xd[i] < min) min = xd[i];
   }
   VecRestoreArray(xv, &xd);
-  return ((realtype) min);
+  return ((sunrealtype) min);
 }
 
-realtype N_VMin_Petsc(N_Vector x)
+sunrealtype N_VMin_Petsc(N_Vector x)
 {
   Vec xv = NV_PVEC_PTC(x);
   PetscReal minval;
@@ -712,15 +712,15 @@ realtype N_VMin_Petsc(N_Vector x)
   return minval;
 }
 
-realtype N_VWL2Norm_Petsc(N_Vector x, N_Vector w)
+sunrealtype N_VWL2Norm_Petsc(N_Vector x, N_Vector w)
 {
-  realtype global_sum;
-  realtype sum = N_VWSqrSumLocal_Petsc(x, w);
+  sunrealtype global_sum;
+  sunrealtype sum = N_VWSqrSumLocal_Petsc(x, w);
   (void) MPI_Allreduce(&sum, &global_sum, 1, MPI_SUNREALTYPE, MPI_SUM, NV_COMM_PTC(x));
   return (SUNRsqrt(global_sum));
 }
 
-realtype N_VL1NormLocal_Petsc(N_Vector x)
+sunrealtype N_VL1NormLocal_Petsc(N_Vector x)
 {
   sunindextype i;
   sunindextype N = NV_LOCLENGTH_PTC(x);
@@ -733,10 +733,10 @@ realtype N_VL1NormLocal_Petsc(N_Vector x)
     sum += PetscAbsScalar(xd[i]);
   }
   VecRestoreArray(xv, &xd);
-  return ((realtype) sum);
+  return ((sunrealtype) sum);
 }
 
-realtype N_VL1Norm_Petsc(N_Vector x)
+sunrealtype N_VL1Norm_Petsc(N_Vector x)
 {
   Vec xv = NV_PVEC_PTC(x);
   PetscReal norm;
@@ -745,13 +745,13 @@ realtype N_VL1Norm_Petsc(N_Vector x)
   return norm;
 }
 
-void N_VCompare_Petsc(realtype c, N_Vector x, N_Vector z)
+void N_VCompare_Petsc(sunrealtype c, N_Vector x, N_Vector z)
 {
   sunindextype i;
   sunindextype N = NV_LOCLENGTH_PTC(x);
   Vec xv = NV_PVEC_PTC(x);
   Vec zv = NV_PVEC_PTC(z);
-  PetscReal cpet = c; /* <~ realtype should typedef to PETScReal */
+  PetscReal cpet = c; /* <~ sunrealtype should typedef to PETScReal */
   PetscScalar *xdata;
   PetscScalar *zdata;
 
@@ -795,8 +795,8 @@ booleantype N_VInvTestLocal_Petsc(N_Vector x, N_Vector z)
 
 booleantype N_VInvTest_Petsc(N_Vector x, N_Vector z)
 {
-  realtype val2;
-  realtype val = (N_VInvTestLocal_Petsc(x, z)) ? ONE : ZERO;
+  sunrealtype val2;
+  sunrealtype val = (N_VInvTestLocal_Petsc(x, z)) ? ONE : ZERO;
   (void) MPI_Allreduce(&val, &val2, 1, MPI_SUNREALTYPE, MPI_MIN, NV_COMM_PTC(x));
   if (val2 == ZERO)
     return(SUNFALSE);
@@ -808,7 +808,7 @@ booleantype N_VConstrMaskLocal_Petsc(N_Vector c, N_Vector x, N_Vector m)
 {
   sunindextype i;
   sunindextype N = NV_LOCLENGTH_PTC(x);
-  realtype temp;
+  sunrealtype temp;
   booleantype test;
   Vec xv = NV_PVEC_PTC(x);
   Vec cv = NV_PVEC_PTC(c);
@@ -848,13 +848,13 @@ booleantype N_VConstrMaskLocal_Petsc(N_Vector c, N_Vector x, N_Vector m)
 
 booleantype N_VConstrMask_Petsc(N_Vector c, N_Vector x, N_Vector m)
 {
-  realtype temp2;
-  realtype temp = (N_VConstrMaskLocal_Petsc(c, x, m)) ? ZERO : ONE;
+  sunrealtype temp2;
+  sunrealtype temp = (N_VConstrMaskLocal_Petsc(c, x, m)) ? ZERO : ONE;
   (void) MPI_Allreduce(&temp, &temp2, 1, MPI_SUNREALTYPE, MPI_MAX, NV_COMM_PTC(x));
   return (temp2 == ONE) ? SUNFALSE : SUNTRUE;
 }
 
-realtype N_VMinQuotientLocal_Petsc(N_Vector num, N_Vector denom)
+sunrealtype N_VMinQuotientLocal_Petsc(N_Vector num, N_Vector denom)
 {
   booleantype notEvenOnce = SUNTRUE;
   sunindextype i;
@@ -884,13 +884,13 @@ realtype N_VMinQuotientLocal_Petsc(N_Vector num, N_Vector denom)
   }
   VecRestoreArray(nv, &nd);
   VecRestoreArray(dv, &dd);
-  return((realtype) minval);
+  return((sunrealtype) minval);
 }
 
-realtype N_VMinQuotient_Petsc(N_Vector num, N_Vector denom)
+sunrealtype N_VMinQuotient_Petsc(N_Vector num, N_Vector denom)
 {
   PetscReal gmin;
-  realtype minval = N_VMinQuotientLocal_Petsc(num, denom);
+  sunrealtype minval = N_VMinQuotientLocal_Petsc(num, denom);
   (void) MPI_Allreduce(&minval, &gmin, 1, MPI_SUNREALTYPE, MPI_MIN, NV_COMM_PTC(num));
   return(gmin);
 }
@@ -903,7 +903,7 @@ realtype N_VMinQuotient_Petsc(N_Vector num, N_Vector denom)
  */
 
 
-int N_VLinearCombination_Petsc(int nvec, realtype* c, N_Vector* X, N_Vector z)
+int N_VLinearCombination_Petsc(int nvec, sunrealtype* c, N_Vector* X, N_Vector z)
 {
   int  i;
   Vec* xv;
@@ -961,7 +961,7 @@ int N_VLinearCombination_Petsc(int nvec, realtype* c, N_Vector* X, N_Vector z)
 }
 
 
-int N_VScaleAddMulti_Petsc(int nvec, realtype* a, N_Vector x, N_Vector* Y, N_Vector* Z)
+int N_VScaleAddMulti_Petsc(int nvec, sunrealtype* a, N_Vector x, N_Vector* Y, N_Vector* Z)
 {
   int          i;
   sunindextype j, N;
@@ -1010,7 +1010,7 @@ int N_VScaleAddMulti_Petsc(int nvec, realtype* a, N_Vector x, N_Vector* Y, N_Vec
 }
 
 
-int N_VDotProdMulti_Petsc(int nvec, N_Vector x, N_Vector* Y, realtype* dotprods)
+int N_VDotProdMulti_Petsc(int nvec, N_Vector x, N_Vector* Y, sunrealtype* dotprods)
 {
   int  i;
   Vec* yv;
@@ -1045,7 +1045,7 @@ int N_VDotProdMulti_Petsc(int nvec, N_Vector x, N_Vector* Y, realtype* dotprods)
  */
 
 int N_VDotProdMultiLocal_Petsc(int nvec, N_Vector x, N_Vector* Y,
-                               realtype* dotprods)
+                               sunrealtype* dotprods)
 {
   int j;
   sunindextype i;
@@ -1070,7 +1070,7 @@ int N_VDotProdMultiLocal_Petsc(int nvec, N_Vector x, N_Vector* Y,
   return (0);
 }
 
-int N_VDotProdMultiAllReduce_Petsc(int nvec, N_Vector x, realtype* dotprods)
+int N_VDotProdMultiAllReduce_Petsc(int nvec, N_Vector x, sunrealtype* dotprods)
 {
   int retval;
   retval = MPI_Allreduce(MPI_IN_PLACE, dotprods, nvec, MPI_SUNREALTYPE,
@@ -1085,8 +1085,8 @@ int N_VDotProdMultiAllReduce_Petsc(int nvec, N_Vector x, realtype* dotprods)
  */
 
 int N_VLinearSumVectorArray_Petsc(int nvec,
-                                  realtype a, N_Vector* X,
-                                  realtype b, N_Vector* Y,
+                                  sunrealtype a, N_Vector* X,
+                                  sunrealtype b, N_Vector* Y,
                                   N_Vector* Z)
 {
   int          i;
@@ -1122,7 +1122,7 @@ int N_VLinearSumVectorArray_Petsc(int nvec,
 }
 
 
-int N_VScaleVectorArray_Petsc(int nvec, realtype* c, N_Vector* X, N_Vector* Z)
+int N_VScaleVectorArray_Petsc(int nvec, sunrealtype* c, N_Vector* X, N_Vector* Z)
 {
   int          i;
   sunindextype j, N;
@@ -1170,7 +1170,7 @@ int N_VScaleVectorArray_Petsc(int nvec, realtype* c, N_Vector* X, N_Vector* Z)
 }
 
 
-int N_VConstVectorArray_Petsc(int nvec, realtype c, N_Vector* Z)
+int N_VConstVectorArray_Petsc(int nvec, sunrealtype c, N_Vector* Z)
 {
   int          i;
   sunindextype j, N;
@@ -1201,12 +1201,12 @@ int N_VConstVectorArray_Petsc(int nvec, realtype c, N_Vector* Z)
 }
 
 
-int N_VWrmsNormVectorArray_Petsc(int nvec, N_Vector* X, N_Vector* W, realtype* nrm)
+int N_VWrmsNormVectorArray_Petsc(int nvec, N_Vector* X, N_Vector* W, sunrealtype* nrm)
 {
   int          i, retval;
   sunindextype j, Nl, Ng;
-  realtype*    wd=NULL;
-  realtype*    xd=NULL;
+  sunrealtype*    wd=NULL;
+  sunrealtype*    xd=NULL;
   MPI_Comm     comm;
 
   /* invalid number of vectors */
@@ -1244,7 +1244,7 @@ int N_VWrmsNormVectorArray_Petsc(int nvec, N_Vector* X, N_Vector* W, realtype* n
 
 
 int N_VWrmsNormMaskVectorArray_Petsc(int nvec, N_Vector* X, N_Vector* W,
-                                        N_Vector id, realtype* nrm)
+                                        N_Vector id, sunrealtype* nrm)
 {
   int          i, retval;
   sunindextype j, Nl, Ng;
@@ -1289,7 +1289,7 @@ int N_VWrmsNormMaskVectorArray_Petsc(int nvec, N_Vector* X, N_Vector* W,
 }
 
 
-int N_VScaleAddMultiVectorArray_Petsc(int nvec, int nsum, realtype* a,
+int N_VScaleAddMultiVectorArray_Petsc(int nvec, int nsum, sunrealtype* a,
                                           N_Vector* X, N_Vector** Y, N_Vector** Z)
 {
   int          i, j;
@@ -1389,7 +1389,7 @@ int N_VScaleAddMultiVectorArray_Petsc(int nvec, int nsum, realtype* a,
 
 
 int N_VLinearCombinationVectorArray_Petsc(int nvec, int nsum,
-                                             realtype* c,
+                                             sunrealtype* c,
                                              N_Vector** X,
                                              N_Vector* Z)
 {
@@ -1399,7 +1399,7 @@ int N_VLinearCombinationVectorArray_Petsc(int nvec, int nsum,
   sunindextype N;
   PetscScalar  *zd, *xd;
 
-  realtype*    ctmp;
+  sunrealtype*    ctmp;
   N_Vector*    Y;
 
   /* invalid number of vectors */
@@ -1444,7 +1444,7 @@ int N_VLinearCombinationVectorArray_Petsc(int nvec, int nsum,
   /* should have called N_VScaleVectorArray */
   if (nsum == 1) {
 
-    ctmp = (realtype*) malloc(nvec * sizeof(realtype));
+    ctmp = (sunrealtype*) malloc(nvec * sizeof(sunrealtype));
 
     for (j=0; j<nvec; j++) {
       ctmp[j] = c[0];

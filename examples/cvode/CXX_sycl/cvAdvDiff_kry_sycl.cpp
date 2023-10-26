@@ -82,25 +82,25 @@ struct UserData
   sunindextype MX      = 10;                // interior nodes in the x-direction
   sunindextype MY      = 5;                 // interior nodes in the y-direction
   sunindextype NEQ     = MX * MY;           // number of equations
-  realtype     xmax    = RCONST(2.0);       // x-domain boundary
-  realtype     ymax    = RCONST(1.0);       // y-domain boundary
-  realtype     dx      = xmax / (MX + 1);   // x-direction mesh spacing
-  realtype     dy      = ymax / (MY + 1);   // y-directino mesh spacing
-  realtype     hdcoef  = ONE / (dx * dx);   // x-diffusion
-  realtype     vdcoef  = ONE / (dy * dy);   // y-diffusion
-  realtype     hacoef  = HALF / (TWO * dx); // x-advection
+  sunrealtype     xmax    = RCONST(2.0);       // x-domain boundary
+  sunrealtype     ymax    = RCONST(1.0);       // y-domain boundary
+  sunrealtype     dx      = xmax / (MX + 1);   // x-direction mesh spacing
+  sunrealtype     dy      = ymax / (MY + 1);   // y-directino mesh spacing
+  sunrealtype     hdcoef  = ONE / (dx * dx);   // x-diffusion
+  sunrealtype     vdcoef  = ONE / (dy * dy);   // y-diffusion
+  sunrealtype     hacoef  = HALF / (TWO * dx); // x-advection
 };
 
 // Functions Called by the Solver
-static int f(realtype t, N_Vector u, N_Vector udot, void* user_data);
-static int jtv(N_Vector v, N_Vector Jv, realtype t,
+static int f(sunrealtype t, N_Vector u, N_Vector udot, void* user_data);
+static int jtv(N_Vector v, N_Vector Jv, sunrealtype t,
                N_Vector u, N_Vector fu,
                void* user_data, N_Vector tmp);
 
 // Private Helper Functions
-static void PrintHeader(realtype reltol, realtype abstol, realtype umax,
+static void PrintHeader(sunrealtype reltol, sunrealtype abstol, sunrealtype umax,
                         UserData* data);
-static void PrintOutput(realtype t, realtype umax, long int nst);
+static void PrintOutput(sunrealtype t, sunrealtype umax, long int nst);
 static void PrintFinalStats(void* cvode_mem);
 
 // Private function to check function return values
@@ -142,7 +142,7 @@ int main(int argc, char** argv)
   if (check_retval((void*)u, "N_VNew_Sycl", 0)) return 1;
 
   // Extract host pointer to solution vector data on the host
-  realtype* udata = N_VGetArrayPointer(u);
+  sunrealtype* udata = N_VGetArrayPointer(u);
 
   // Load initial profile into u vector
   for (sunindextype tid = 0; tid < data.NEQ; tid++)
@@ -150,8 +150,8 @@ int main(int argc, char** argv)
     sunindextype i = tid / data.MY; // x-node index
     sunindextype j = tid % data.MY; // y-node index
 
-    realtype x = (i + 1) * data.dx; // x location
-    realtype y = (j + 1) * data.dy; // y location
+    sunrealtype x = (i + 1) * data.dx; // x location
+    sunrealtype y = (j + 1) * data.dy; // y location
 
     udata[tid] =
       x * (data.xmax - x) * y * (data.ymax - y) * std::exp(FIVE * x * y);
@@ -169,8 +169,8 @@ int main(int argc, char** argv)
   if (check_retval(&retval, "CVodeInit", 1)) return 1;
 
   // Specify the scalar relative tolerance and scalar absolute tolerance
-  realtype reltol = ZERO;
-  realtype abstol = ATOL;
+  sunrealtype reltol = ZERO;
+  sunrealtype abstol = ATOL;
   retval = CVodeSStolerances(cvode_mem, reltol, abstol);
   if (check_retval(&retval, "CVodeSStolerances", 1)) return 1;
 
@@ -191,11 +191,11 @@ int main(int argc, char** argv)
   if (check_retval(&retval, "CVodeSetJacTimesVecFn", 1)) return 1;
 
   // In loop over output points: call CVODE, print results, test for errors
-  realtype umax = N_VMaxNorm(u);
+  sunrealtype umax = N_VMaxNorm(u);
   PrintHeader(reltol, abstol, umax, &data);
 
-  realtype tout = T1; // output time
-  realtype t;         // CVODE return time
+  sunrealtype tout = T1; // output time
+  sunrealtype t;         // CVODE return time
   long int nst;       // number of time steps
 
   for (int iout = 0; iout < NOUT; iout++)
@@ -230,20 +230,20 @@ int main(int argc, char** argv)
  * ---------------------------------------------------------------------------*/
 
 // Compute the ODE right-hand side function f(t,u).
-static int f(realtype t, N_Vector u, N_Vector udot, void* user_data)
+static int f(sunrealtype t, N_Vector u, N_Vector udot, void* user_data)
 {
   UserData* data = static_cast<UserData*>(user_data);
 
   // Extract needed constants from data
   const size_t   MX    = static_cast<size_t>(data->MX);
   const size_t   MY    = static_cast<size_t>(data->MY);
-  const realtype hordc = data->hdcoef;
-  const realtype horac = data->hacoef;
-  const realtype verdc = data->vdcoef;
+  const sunrealtype hordc = data->hdcoef;
+  const sunrealtype horac = data->hacoef;
+  const sunrealtype verdc = data->vdcoef;
 
   // Extract pointers to vector data
-  const realtype* udata  = N_VGetDeviceArrayPointer(u);
-  realtype*       dudata = N_VGetDeviceArrayPointer(udot);
+  const sunrealtype* udata  = N_VGetDeviceArrayPointer(u);
+  sunrealtype*       dudata = N_VGetDeviceArrayPointer(udot);
 
   data->myQueue->submit([&](sycl::handler& h)
   {
@@ -253,16 +253,16 @@ static int f(realtype t, N_Vector u, N_Vector udot, void* user_data)
       sunindextype j   = idx[1];
       sunindextype tid = i * MY + j;
 
-      realtype uij = udata[tid];
-      realtype udn = (j ==      0) ? ZERO : udata[tid - 1];
-      realtype uup = (j == MY - 1) ? ZERO : udata[tid + 1];
-      realtype ult = (i ==      0) ? ZERO : udata[tid - MY];
-      realtype urt = (i == MX - 1) ? ZERO : udata[tid + MY];
+      sunrealtype uij = udata[tid];
+      sunrealtype udn = (j ==      0) ? ZERO : udata[tid - 1];
+      sunrealtype uup = (j == MY - 1) ? ZERO : udata[tid + 1];
+      sunrealtype ult = (i ==      0) ? ZERO : udata[tid - MY];
+      sunrealtype urt = (i == MX - 1) ? ZERO : udata[tid + MY];
 
       // Set diffusion and advection terms and load into udot
-      realtype hdiff = hordc * (ult - TWO * uij + urt);
-      realtype vdiff = verdc * (uup - TWO * uij + udn);
-      realtype hadv  = horac * (urt - ult);
+      sunrealtype hdiff = hordc * (ult - TWO * uij + urt);
+      sunrealtype vdiff = verdc * (uup - TWO * uij + udn);
+      sunrealtype hadv  = horac * (urt - ult);
 
       dudata[tid] = hdiff + vdiff + hadv;
     });
@@ -273,7 +273,7 @@ static int f(realtype t, N_Vector u, N_Vector udot, void* user_data)
 
 
 // Jacobian-times-vector routine.
-static int jtv(N_Vector v, N_Vector Jv, realtype t, N_Vector u, N_Vector fu,
+static int jtv(N_Vector v, N_Vector Jv, sunrealtype t, N_Vector u, N_Vector fu,
                void* user_data, N_Vector tmp)
 {
   UserData* data = static_cast<UserData*>(user_data);
@@ -281,13 +281,13 @@ static int jtv(N_Vector v, N_Vector Jv, realtype t, N_Vector u, N_Vector fu,
   // Extract needed constants from data
   const size_t   MX    = static_cast<size_t>(data->MX);
   const size_t   MY    = static_cast<size_t>(data->MY);
-  const realtype hordc = data->hdcoef;
-  const realtype horac = data->hacoef;
-  const realtype verdc = data->vdcoef;
+  const sunrealtype hordc = data->hdcoef;
+  const sunrealtype horac = data->hacoef;
+  const sunrealtype verdc = data->vdcoef;
 
   // Extract pointers to vector data
-  const realtype *vdata  = N_VGetDeviceArrayPointer(v);
-  realtype       *Jvdata = N_VGetDeviceArrayPointer(Jv);
+  const sunrealtype *vdata  = N_VGetDeviceArrayPointer(v);
+  sunrealtype       *Jvdata = N_VGetDeviceArrayPointer(Jv);
 
   data->myQueue->submit([&](sycl::handler& h)
   {
@@ -315,7 +315,7 @@ static int jtv(N_Vector v, N_Vector Jv, realtype t, N_Vector u, N_Vector fu,
  * ---------------------------------------------------------------------------*/
 
 // Print first lines of output (problem description)
-static void PrintHeader(realtype reltol, realtype abstol, realtype umax,
+static void PrintHeader(sunrealtype reltol, sunrealtype abstol, sunrealtype umax,
                         UserData* data)
 {
   std::cout << "\n2-D Advection-Diffusion Equation" << std::endl;
@@ -328,7 +328,7 @@ static void PrintHeader(realtype reltol, realtype abstol, realtype umax,
 }
 
 // Print current value
-static void PrintOutput(realtype t, realtype umax, long int nst)
+static void PrintOutput(sunrealtype t, sunrealtype umax, long int nst)
 {
   std::cout << "At t = " << t << "   max.norm(u) = "<< umax
             << "   nst = " << nst << std::endl;

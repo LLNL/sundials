@@ -181,7 +181,7 @@ int SUNLinSolSetup_cuSolverSp_batchQR(SUNLinearSolver S, SUNMatrix A)
 {
   int blockrows, blockcols, blocknnz, nblock;
   int *d_rowptr, *d_colind;
-  realtype *d_data;
+  sunrealtype *d_data;
   cusparseMatDescr_t mat_descr;
   cudaError_t cuerr;
   cusolverStatus_t status;
@@ -269,12 +269,12 @@ int SUNLinSolSetup_cuSolverSp_batchQR(SUNLinearSolver S, SUNMatrix A)
 }
 
 int SUNLinSolSolve_cuSolverSp_batchQR(SUNLinearSolver S, SUNMatrix A,
-                                      N_Vector x, N_Vector b, realtype tol)
+                                      N_Vector x, N_Vector b, sunrealtype tol)
 {
   cusolverStatus_t status;
   int blockrows, blockcols, blocknnz, nblock;
   int *d_rowptr, *d_colind;
-  realtype *d_data;
+  sunrealtype *d_data;
   cusparseMatDescr_t mat_descr;
 
   if ((S == NULL) || (A == NULL) || (x == NULL) || (b == NULL))
@@ -282,8 +282,8 @@ int SUNLinSolSolve_cuSolverSp_batchQR(SUNLinearSolver S, SUNMatrix A,
 
   SUN_CUSP_LASTFLAG(S) = SUNLS_SUCCESS;
 
-  realtype* device_b = N_VGetDeviceArrayPointer(b);
-  realtype* device_x = N_VGetDeviceArrayPointer(x);
+  sunrealtype* device_b = N_VGetDeviceArrayPointer(b);
+  sunrealtype* device_x = N_VGetDeviceArrayPointer(x);
 
   if (SUN_CUSP_LASTFLAG(S) != SUNLS_SUCCESS)
     return SUN_CUSP_LASTFLAG(S);

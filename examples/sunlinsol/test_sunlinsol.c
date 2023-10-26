@@ -421,7 +421,7 @@ int Test_SUNLinSolSetup(SUNLinearSolver S, SUNMatrix A, int myid)
  * 'setup' by the Test_SUNLinSolSetup() function prior to this call.
  * --------------------------------------------------------------------*/
 int Test_SUNLinSolSolve(SUNLinearSolver S, SUNMatrix A, N_Vector x,
-                        N_Vector b, realtype tol, booleantype zeroguess,
+                        N_Vector b, sunrealtype tol, booleantype zeroguess,
                         int myid)
 {
   int       failure;

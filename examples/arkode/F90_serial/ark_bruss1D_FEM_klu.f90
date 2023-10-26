@@ -177,17 +177,17 @@ program driver
 
   ! Declarations
   ! general problem variables
-  real(kind=REALTYPE), parameter :: T0=0.d0, Tf=10.d0
-  real(kind=REALTYPE) :: rtol, atol, rout(6), Tout, Tcur
+  real(kind=sunrealtype), parameter :: T0=0.d0, Tf=10.d0
+  real(kind=sunrealtype) :: rtol, atol, rout(6), Tout, Tcur
   real*8    :: dTout, pi, h, z
   integer   :: i, it, Nt, ier, ordering, sparsetype, time_dep
   integer*8 :: iout(35), NEQ, nnz, Iinput
-  real(kind=REALTYPE), allocatable :: y(:,:), umask(:,:)
-  real(kind=REALTYPE), allocatable :: vmask(:,:), wmask(:,:)
+  real(kind=sunrealtype), allocatable :: y(:,:), umask(:,:)
+  real(kind=sunrealtype), allocatable :: vmask(:,:), wmask(:,:)
 
   ! dummy real/integer parameters to pass through to supplied functions
   integer*8 :: ipar
-  real(kind=REALTYPE) :: rpar
+  real(kind=sunrealtype) :: rpar
 
   !-----------------------
 
@@ -375,11 +375,11 @@ subroutine FARKIFun(t, y, ydot, ipar, rpar, ier)
   implicit none
 
   ! Arguments
-  real(kind=REALTYPE), intent(in)  :: t, rpar(1)
+  real(kind=sunrealtype), intent(in)  :: t, rpar(1)
   integer*8, intent(in) :: ipar(1)
   integer, intent(out)  :: ier
-  real(kind=REALTYPE), intent(in)  :: y(3,N)
-  real(kind=REALTYPE), intent(out) :: ydot(3,N)
+  real(kind=sunrealtype), intent(in)  :: y(3,N)
+  real(kind=sunrealtype), intent(out) :: ydot(3,N)
 
   ! Local data
   integer :: ix
@@ -554,10 +554,10 @@ subroutine farkefun(t, y, ydot, ipar, rpar, ier)
   implicit none
 
   ! Arguments
-  real(kind=REALTYPE), intent(in)  :: t, rpar(1)
+  real(kind=sunrealtype), intent(in)  :: t, rpar(1)
   integer*8, intent(in) :: ipar(1)
-  real(kind=REALTYPE), intent(in)  :: y(3,N)
-  real(kind=REALTYPE), intent(out) :: ydot(3,N)
+  real(kind=sunrealtype), intent(in)  :: y(3,N)
+  real(kind=sunrealtype), intent(out) :: ydot(3,N)
   integer, intent(out)  :: ier
 
   ! return with success (since fully implicit)
@@ -582,9 +582,9 @@ subroutine farkspjac(t, y, fy, neq, nnz, Jdata, Jcolvals, &
   implicit none
 
   ! Arguments
-  real(kind=REALTYPE), intent(in)  :: t, h, rpar(1)
-  real(kind=REALTYPE), intent(in), dimension(3,N) :: y, fy, wk1, wk2, wk3
-  real(kind=REALTYPE), intent(out) :: Jdata(nnz)
+  real(kind=sunrealtype), intent(in)  :: t, h, rpar(1)
+  real(kind=sunrealtype), intent(in), dimension(3,N) :: y, fy, wk1, wk2, wk3
+  real(kind=sunrealtype), intent(out) :: Jdata(nnz)
   integer*8, intent(in)  :: ipar(1), neq, nnz
   integer(kind=SUNINDEXTYPE), intent(out) :: Jcolvals(nnz)
   integer(kind=SUNINDEXTYPE), intent(out) :: Jrowptrs(neq+1)
@@ -1019,9 +1019,9 @@ subroutine farkspmass(t, neq, nnz, Mdata, Mcolvals, Mrowptrs, &
   implicit none
 
   ! Arguments
-  real(kind=REALTYPE), intent(in)  :: t, rpar(1)
-  real(kind=REALTYPE), intent(in), dimension(3,N) :: wk1, wk2, wk3
-  real(kind=REALTYPE), intent(out) :: Mdata(nnz)
+  real(kind=sunrealtype), intent(in)  :: t, rpar(1)
+  real(kind=sunrealtype), intent(in), dimension(3,N) :: wk1, wk2, wk3
+  real(kind=sunrealtype), intent(out) :: Mdata(nnz)
   integer*8, intent(in) :: ipar(1), neq, nnz
   integer(kind=SUNINDEXTYPE), intent(out) :: Mcolvals(nnz)
   integer(kind=SUNINDEXTYPE), intent(out) :: Mrowptrs(neq+1)

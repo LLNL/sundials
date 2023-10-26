@@ -30,7 +30,7 @@ ownership of the data array *data*.
       sunindextype local_length;
       sunindextype global_length;
       booleantype own_data;
-      realtype *data;
+      sunrealtype *data;
       MPI_Comm comm;
    };
 
@@ -173,7 +173,7 @@ the following additional user-callable routines:
    (``NULL``) data array.
 
 
-.. c:function:: N_Vector N_VMake_Parallel(MPI_Comm comm, sunindextype local_length, sunindextype global_length, realtype* v_data, SUNContext sunctx)
+.. c:function:: N_Vector N_VMake_Parallel(MPI_Comm comm, sunindextype local_length, sunindextype global_length, sunrealtype* v_data, SUNContext sunctx)
 
    This function creates and allocates memory for a parallel vector
    with user-provided data array.

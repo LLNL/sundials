@@ -80,7 +80,7 @@
 #include <nvector/nvector_serial.h>     /* serial N_Vector type, fcts., macros  */
 #include <sunmatrix/sunmatrix_dense.h>  /* dense matrix type, fcts., macros     */
 #include <sunlinsol/sunlinsol_dense.h>  /* dense linear solver                  */
-#include <sundials/sundials_math.h>     /* def. math fcns, 'realtype'           */
+#include <sundials/sundials_math.h>     /* def. math fcns, 'sunrealtype'           */
 
 #if defined(SUNDIALS_EXTENDED_PRECISION)
 #define GSYM ".20Lg"
@@ -97,27 +97,27 @@
 #define TWO  RCONST(2.0)
 
 /* User-supplied functions called by the solver */
-static int fse(realtype t, N_Vector y, N_Vector ydot, void *user_data);
-static int fsi(realtype t, N_Vector y, N_Vector ydot, void *user_data);
-static int fs(realtype t, N_Vector y, N_Vector ydot, void *user_data);
-static int ff(realtype t, N_Vector y, N_Vector ydot, void *user_data);
-static int fn(realtype t, N_Vector y, N_Vector ydot, void *user_data);
-static int f0(realtype t, N_Vector y, N_Vector ydot, void *user_data);
-static int Js(realtype t, N_Vector y, N_Vector fy, SUNMatrix J, void *user_data,
+static int fse(sunrealtype t, N_Vector y, N_Vector ydot, void *user_data);
+static int fsi(sunrealtype t, N_Vector y, N_Vector ydot, void *user_data);
+static int fs(sunrealtype t, N_Vector y, N_Vector ydot, void *user_data);
+static int ff(sunrealtype t, N_Vector y, N_Vector ydot, void *user_data);
+static int fn(sunrealtype t, N_Vector y, N_Vector ydot, void *user_data);
+static int f0(sunrealtype t, N_Vector y, N_Vector ydot, void *user_data);
+static int Js(sunrealtype t, N_Vector y, N_Vector fy, SUNMatrix J, void *user_data,
               N_Vector tmp1, N_Vector tmp2, N_Vector tmp3);
-static int Jsi(realtype t, N_Vector y, N_Vector fy, SUNMatrix J, void *user_data,
+static int Jsi(sunrealtype t, N_Vector y, N_Vector fy, SUNMatrix J, void *user_data,
               N_Vector tmp1, N_Vector tmp2, N_Vector tmp3);
-static int Jn(realtype t, N_Vector y, N_Vector fy, SUNMatrix J, void *user_data,
+static int Jn(sunrealtype t, N_Vector y, N_Vector fy, SUNMatrix J, void *user_data,
               N_Vector tmp1, N_Vector tmp2, N_Vector tmp3);
 
 /* Private function to check function return values */
-static realtype r(realtype t, void *user_data);
-static realtype s(realtype t, void *user_data);
-static realtype rdot(realtype t, void *user_data);
-static realtype sdot(realtype t, void *user_data);
-static realtype utrue(realtype t, void *user_data);
-static realtype vtrue(realtype t, void *user_data);
-static int Ytrue(realtype t, N_Vector y, void *user_data);
+static sunrealtype r(sunrealtype t, void *user_data);
+static sunrealtype s(sunrealtype t, void *user_data);
+static sunrealtype rdot(sunrealtype t, void *user_data);
+static sunrealtype sdot(sunrealtype t, void *user_data);
+static sunrealtype utrue(sunrealtype t, void *user_data);
+static sunrealtype vtrue(sunrealtype t, void *user_data);
+static int Ytrue(sunrealtype t, N_Vector y, void *user_data);
 static int check_retval(void *returnvalue, const char *funcname, int opt);
 
 
@@ -127,18 +127,18 @@ int main(int argc, char *argv[])
   SUNContext ctx;
 
   /* general problem parameters */
-  realtype T0 = RCONST(0.0);     /* initial time */
-  realtype Tf = RCONST(5.0);     /* final time */
-  realtype dTout = RCONST(0.1);  /* time between outputs */
+  sunrealtype T0 = RCONST(0.0);     /* initial time */
+  sunrealtype Tf = RCONST(5.0);     /* final time */
+  sunrealtype dTout = RCONST(0.1);  /* time between outputs */
   sunindextype NEQ = 2;          /* number of dependent vars. */
   int Nt = (int) ceil(Tf/dTout); /* number of output times */
   int solve_type = 0;            /* problem configuration type */
-  realtype hs = RCONST(0.01);    /* slow step size */
-  realtype e = RCONST(0.5);      /* fast/slow coupling strength */
-  realtype G = RCONST(-100.0);   /* stiffness at slow time scale */
-  realtype w = RCONST(100.0);    /* time-scale separation factor */
-  realtype reltol = RCONST(0.01);
-  realtype abstol = 1e-11;
+  sunrealtype hs = RCONST(0.01);    /* slow step size */
+  sunrealtype e = RCONST(0.5);      /* fast/slow coupling strength */
+  sunrealtype G = RCONST(-100.0);   /* stiffness at slow time scale */
+  sunrealtype w = RCONST(100.0);    /* time-scale separation factor */
+  sunrealtype reltol = RCONST(0.01);
+  sunrealtype abstol = 1e-11;
 
   /* general problem variables */
   int retval;                               /* reusable error-checking flag */
@@ -156,8 +156,8 @@ int main(int argc, char *argv[])
   booleantype imex_slow = SUNFALSE;
   booleantype deduce = SUNFALSE;
   FILE *UFID;
-  realtype hf, gamma, beta, t, tout, rpar[3];
-  realtype uerr, verr, uerrtot, verrtot, errtot;
+  sunrealtype hf, gamma, beta, t, tout, rpar[3];
+  sunrealtype uerr, verr, uerrtot, verrtot, errtot;
   int iout;
   long int nsts, nstf, nfse, nfsi, nff, nnif, nncf, njef, nnis, nncs, njes, tmp;
 
@@ -680,13 +680,13 @@ int main(int argc, char *argv[])
  * ------------------------------*/
 
 /* ff routine to compute the fast portion of the ODE RHS. */
-static int ff(realtype t, N_Vector y, N_Vector ydot, void *user_data)
+static int ff(sunrealtype t, N_Vector y, N_Vector ydot, void *user_data)
 {
-  realtype *rpar = (realtype *) user_data;
-  const realtype e = rpar[2];
-  const realtype u = NV_Ith_S(y,0);
-  const realtype v = NV_Ith_S(y,1);
-  realtype tmp1, tmp2;
+  sunrealtype *rpar = (sunrealtype *) user_data;
+  const sunrealtype e = rpar[2];
+  const sunrealtype u = NV_Ith_S(y,0);
+  const sunrealtype v = NV_Ith_S(y,1);
+  sunrealtype tmp1, tmp2;
 
   /* fill in the RHS function:
      [0  0]*[(-1+u^2-r(t))/(2*u)] + [         0          ]
@@ -701,14 +701,14 @@ static int ff(realtype t, N_Vector y, N_Vector ydot, void *user_data)
 }
 
 /* fs routine to compute the slow portion of the ODE RHS. */
-static int fs(realtype t, N_Vector y, N_Vector ydot, void *user_data)
+static int fs(sunrealtype t, N_Vector y, N_Vector ydot, void *user_data)
 {
-  realtype *rpar = (realtype *) user_data;
-  const realtype G = rpar[0];
-  const realtype e = rpar[2];
-  const realtype u = NV_Ith_S(y,0);
-  const realtype v = NV_Ith_S(y,1);
-  realtype tmp1, tmp2;
+  sunrealtype *rpar = (sunrealtype *) user_data;
+  const sunrealtype G = rpar[0];
+  const sunrealtype e = rpar[2];
+  const sunrealtype u = NV_Ith_S(y,0);
+  const sunrealtype v = NV_Ith_S(y,1);
+  sunrealtype tmp1, tmp2;
 
   /* fill in the RHS function:
      [G e]*[(-1+u^2-r(t))/(2*u))] + [rdot(t)/(2*u)]
@@ -723,10 +723,10 @@ static int fs(realtype t, N_Vector y, N_Vector ydot, void *user_data)
 }
 
 /* fse routine to compute the slow portion of the ODE RHS. */
-static int fse(realtype t, N_Vector y, N_Vector ydot, void *user_data)
+static int fse(sunrealtype t, N_Vector y, N_Vector ydot, void *user_data)
 {
-  realtype *rpar = (realtype *) user_data;
-  const realtype u = NV_Ith_S(y,0);
+  sunrealtype *rpar = (sunrealtype *) user_data;
+  const sunrealtype u = NV_Ith_S(y,0);
 
   /* fill in the slow explicit RHS function:
      [rdot(t)/(2*u)]
@@ -739,14 +739,14 @@ static int fse(realtype t, N_Vector y, N_Vector ydot, void *user_data)
 }
 
 /* fsi routine to compute the slow portion of the ODE RHS.(currently same as fse) */
-static int fsi(realtype t, N_Vector y, N_Vector ydot, void *user_data)
+static int fsi(sunrealtype t, N_Vector y, N_Vector ydot, void *user_data)
 {
-  realtype *rpar = (realtype *) user_data;
-  const realtype G = rpar[0];
-  const realtype e = rpar[2];
-  const realtype u = NV_Ith_S(y,0);
-  const realtype v = NV_Ith_S(y,1);
-  realtype tmp1, tmp2;
+  sunrealtype *rpar = (sunrealtype *) user_data;
+  const sunrealtype G = rpar[0];
+  const sunrealtype e = rpar[2];
+  const sunrealtype u = NV_Ith_S(y,0);
+  const sunrealtype v = NV_Ith_S(y,1);
+  sunrealtype tmp1, tmp2;
 
   /* fill in the slow implicit RHS function:
      [G e]*[(-1+u^2-r(t))/(2*u))]
@@ -760,14 +760,14 @@ static int fsi(realtype t, N_Vector y, N_Vector ydot, void *user_data)
   return 0;
 }
 
-static int fn(realtype t, N_Vector y, N_Vector ydot, void *user_data)
+static int fn(sunrealtype t, N_Vector y, N_Vector ydot, void *user_data)
 {
-  realtype *rpar = (realtype *) user_data;
-  const realtype G = rpar[0];
-  const realtype e = rpar[2];
-  const realtype u = NV_Ith_S(y,0);
-  const realtype v = NV_Ith_S(y,1);
-  realtype tmp1, tmp2;
+  sunrealtype *rpar = (sunrealtype *) user_data;
+  const sunrealtype G = rpar[0];
+  const sunrealtype e = rpar[2];
+  const sunrealtype u = NV_Ith_S(y,0);
+  const sunrealtype v = NV_Ith_S(y,1);
+  sunrealtype tmp1, tmp2;
 
   /* fill in the RHS function:
      [G e]*[(-1+u^2-r(t))/(2*u))] + [rdot(t)/(2*u)]
@@ -781,20 +781,20 @@ static int fn(realtype t, N_Vector y, N_Vector ydot, void *user_data)
   return 0;
 }
 
-static int f0(realtype t, N_Vector y, N_Vector ydot, void *user_data)
+static int f0(sunrealtype t, N_Vector y, N_Vector ydot, void *user_data)
 {
   N_VConst(ZERO, ydot);
   return(0);
 }
 
-static int Js(realtype t, N_Vector y, N_Vector fy, SUNMatrix J, void *user_data,
+static int Js(sunrealtype t, N_Vector y, N_Vector fy, SUNMatrix J, void *user_data,
               N_Vector tmp1, N_Vector tmp2, N_Vector tmp3)
 {
-  realtype *rpar = (realtype *) user_data;
-  const realtype G = rpar[0];
-  const realtype e = rpar[2];
-  const realtype u = NV_Ith_S(y,0);
-  const realtype v = NV_Ith_S(y,1);
+  sunrealtype *rpar = (sunrealtype *) user_data;
+  const sunrealtype G = rpar[0];
+  const sunrealtype e = rpar[2];
+  const sunrealtype u = NV_Ith_S(y,0);
+  const sunrealtype v = NV_Ith_S(y,1);
 
   /* fill in the Jacobian:
      [G/2 + (G*(1+r(t))-rdot(t))/(2*u^2)   e/2+e*(2+s(t))/(2*v^2)]
@@ -808,14 +808,14 @@ static int Js(realtype t, N_Vector y, N_Vector fy, SUNMatrix J, void *user_data,
   return 0;
 }
 
-static int Jsi(realtype t, N_Vector y, N_Vector fy, SUNMatrix J, void *user_data,
+static int Jsi(sunrealtype t, N_Vector y, N_Vector fy, SUNMatrix J, void *user_data,
               N_Vector tmp1, N_Vector tmp2, N_Vector tmp3)
 {
-  realtype *rpar = (realtype *) user_data;
-  const realtype G = rpar[0];
-  const realtype e = rpar[2];
-  const realtype u = NV_Ith_S(y,0);
-  const realtype v = NV_Ith_S(y,1);
+  sunrealtype *rpar = (sunrealtype *) user_data;
+  const sunrealtype G = rpar[0];
+  const sunrealtype e = rpar[2];
+  const sunrealtype u = NV_Ith_S(y,0);
+  const sunrealtype v = NV_Ith_S(y,1);
 
   /* fill in the Jacobian:
      [G/2 + (G*(1+r(t)))/(2*u^2)   e/2 + e*(2+s(t))/(2*v^2)]
@@ -829,14 +829,14 @@ static int Jsi(realtype t, N_Vector y, N_Vector fy, SUNMatrix J, void *user_data
   return 0;
 }
 
-static int Jn(realtype t, N_Vector y, N_Vector fy, SUNMatrix J, void *user_data,
+static int Jn(sunrealtype t, N_Vector y, N_Vector fy, SUNMatrix J, void *user_data,
               N_Vector tmp1, N_Vector tmp2, N_Vector tmp3)
 {
-  realtype *rpar = (realtype *) user_data;
-  const realtype G = rpar[0];
-  const realtype e = rpar[2];
-  const realtype u = NV_Ith_S(y,0);
-  const realtype v = NV_Ith_S(y,1);
+  sunrealtype *rpar = (sunrealtype *) user_data;
+  const sunrealtype G = rpar[0];
+  const sunrealtype e = rpar[2];
+  const sunrealtype u = NV_Ith_S(y,0);
+  const sunrealtype v = NV_Ith_S(y,1);
 
   /* fill in the Jacobian:
      [G/2 + (G*(1+r(t))-rdot(t))/(2*u^2)     e/2 + e*(2+s(t))/(2*v^2)]
@@ -855,33 +855,33 @@ static int Jn(realtype t, N_Vector y, N_Vector fy, SUNMatrix J, void *user_data,
  * Private helper functions
  * ------------------------------*/
 
-static realtype r(realtype t, void *user_data)
+static sunrealtype r(sunrealtype t, void *user_data)
 {
   return( RCONST(0.5)*cos(t) );
 }
-static realtype s(realtype t, void *user_data)
+static sunrealtype s(sunrealtype t, void *user_data)
 {
-  realtype *rpar = (realtype *) user_data;
+  sunrealtype *rpar = (sunrealtype *) user_data;
   return( cos(rpar[1]*t) );
 }
-static realtype rdot(realtype t, void *user_data)
+static sunrealtype rdot(sunrealtype t, void *user_data)
 {
   return( -RCONST(0.5)*sin(t) );
 }
-static realtype sdot(realtype t, void *user_data)
+static sunrealtype sdot(sunrealtype t, void *user_data)
 {
-  realtype *rpar = (realtype *) user_data;
+  sunrealtype *rpar = (sunrealtype *) user_data;
   return( -rpar[1]*sin(rpar[1]*t) );
 }
-static realtype utrue(realtype t, void *user_data)
+static sunrealtype utrue(sunrealtype t, void *user_data)
 {
   return( SUNRsqrt(ONE+r(t,user_data)) );
 }
-static realtype vtrue(realtype t, void *user_data)
+static sunrealtype vtrue(sunrealtype t, void *user_data)
 {
   return( SUNRsqrt(TWO+s(t,user_data)) );
 }
-static int Ytrue(realtype t, N_Vector y, void *user_data)
+static int Ytrue(sunrealtype t, N_Vector y, void *user_data)
 {
   NV_Ith_S(y,0) = utrue(t,user_data);
   NV_Ith_S(y,1) = vtrue(t,user_data);

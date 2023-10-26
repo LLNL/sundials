@@ -32,7 +32,7 @@ extern "C" {
   void collect_times(N_Vector X, double *times, int ntimes);
   void sync_device(N_Vector x);
   void ClearCache();
-  void N_VRand(N_Vector Xvec, sunindextype Xlen, realtype lower, realtype upper);
+  void N_VRand(N_Vector Xvec, sunindextype Xlen, sunrealtype lower, sunrealtype upper);
   void N_VRandZeroOne(N_Vector Xvec, sunindextype Xlen);
   void N_VRandConstraints(N_Vector Xvec, sunindextype Xlen);
 
@@ -89,10 +89,10 @@ extern "C" {
   /* Print output table header */
   void PrintTableHeader(int type);
 
-  /* Fill realtype arrays with random data */
-  void rand_realtype(realtype *data, sunindextype len, realtype lower, realtype upper);
-  void rand_realtype_zero_one(realtype *data, sunindextype len);
-  void rand_realtype_constraints(realtype *data, sunindextype len);
+  /* Fill sunrealtype arrays with random data */
+  void rand_realtype(sunrealtype *data, sunindextype len, sunrealtype lower, sunrealtype upper);
+  void rand_realtype_zero_one(sunrealtype *data, sunindextype len);
+  void rand_realtype_constraints(sunrealtype *data, sunindextype len);
 
 #ifdef __cplusplus
 }

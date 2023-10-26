@@ -40,7 +40,7 @@ int main(int argc, char *argv[])
   N_Vector        x, y, b;            /* test vectors               */
   int             print_timing, print_matrix_on_fail;
   sunindextype    j, k, kstart, kend;
-  realtype        *colj, *xdata;
+  sunrealtype        *colj, *xdata;
   SUNContext      sunctx;
 
   if (SUNContext_Create(NULL, &sunctx)) {
@@ -96,10 +96,10 @@ int main(int argc, char *argv[])
     kstart = (j<uband) ? -j : -uband;
     kend = (j>cols-1-lband) ? cols-1-j: lband;
     for (k=kstart; k<=kend; k++)
-      colj[k] = (realtype) rand() / (realtype) RAND_MAX;
+      colj[k] = (sunrealtype) rand() / (sunrealtype) RAND_MAX;
 
     /* x entry */
-    xdata[j] = (realtype) rand() / (realtype) RAND_MAX;
+    xdata[j] = (sunrealtype) rand() / (sunrealtype) RAND_MAX;
 
   }
 
@@ -170,11 +170,11 @@ int main(int argc, char *argv[])
 /* ----------------------------------------------------------------------
  * Implementation-specific 'check' routines
  * --------------------------------------------------------------------*/
-int check_vector(N_Vector X, N_Vector Y, realtype tol)
+int check_vector(N_Vector X, N_Vector Y, sunrealtype tol)
 {
   int failure = 0;
   sunindextype i, local_length;
-  realtype *Xdata, *Ydata, maxerr;
+  sunrealtype *Xdata, *Ydata, maxerr;
 
   Xdata = N_VGetArrayPointer(X);
   Ydata = N_VGetArrayPointer(Y);

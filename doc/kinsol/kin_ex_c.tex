@@ -58,8 +58,8 @@ The \id{sunmatrix\_dense.h} file provides the prototype for the \id{SUNDenseMatr
 The \id{sunlinsol\_dense.h} file provides the prototype for the \id{SUNLinSol\_Dense} function.
 %%
 The \id{sundials\_types.h} file provides the definition of the
-type \id{realtype} (see \ugref{s:types} for details).  
-For now, it suffices to read \id{realtype} as \id{double}.
+type \id{sunrealtype} (see \ugref{s:types} for details).  
+For now, it suffices to read \id{sunrealtype} as \id{double}.
 %%
 Finally, \id{sundials\_math.h} is included for the definition of the
 exponential function \id{RExp}.
@@ -211,7 +211,7 @@ include \id{sunlinsol\_spgmr.h} and \id{sundials\_math.h}.  The first contains
 constants and function prototypes associated with the {\spgmr} solver module.
 The inclusion of \id{sundials\_math.h} is done to access the \id{SUNMAX} and
 \id{SUNRabs} macros, and the \id{SUNRsqrt} function to compute the square root
-of a \id{realtype} number.
+of a \id{sunrealtype} number.
 
 The \id{main} program calls \id{KINCreate} and then calls \id{KINInit} with the
 name of the user-supplied system function \id{func} and solution vector as

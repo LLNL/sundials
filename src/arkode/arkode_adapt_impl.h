@@ -79,16 +79,16 @@ extern "C" {
   ---------------------------------------------------------------*/
 typedef struct ARKodeHAdaptMemRec {
 
-  realtype     etamax;      /* eta <= etamax                              */
-  realtype     etamx1;      /* max step size change on first step         */
-  realtype     etamxf;      /* h reduction factor on multiple error fails */
-  realtype     etamin;      /* eta >= etamin on error test fail           */
+  sunrealtype     etamax;      /* eta <= etamax                              */
+  sunrealtype     etamx1;      /* max step size change on first step         */
+  sunrealtype     etamxf;      /* h reduction factor on multiple error fails */
+  sunrealtype     etamin;      /* eta >= etamin on error test fail           */
   int          small_nef;   /* bound to determine 'multiple' above        */
-  realtype     etacf;       /* h reduction factor on nonlinear conv fail  */
+  sunrealtype     etacf;       /* h reduction factor on nonlinear conv fail  */
   ARKAdaptFn   HAdapt;      /* function to set the new time step size     */
   void        *HAdapt_data; /* user pointer passed to hadapt              */
-  realtype     ehist[2];    /* error history for time adaptivity          */
-  realtype     hhist[2];    /* step history for time adaptivity           */
+  sunrealtype     ehist[2];    /* error history for time adaptivity          */
+  sunrealtype     hhist[2];    /* step history for time adaptivity           */
   int          imethod;     /* step adaptivity method to use:
                                -1 -> User-specified function above
                                 0 -> PID controller
@@ -97,15 +97,15 @@ typedef struct ARKodeHAdaptMemRec {
                                 3 -> explicit Gustafsson controller
                                 4 -> implicit Gustafsson controller
                                 5 -> imex Gustafsson controller           */
-  realtype     cfl;         /* cfl safety factor                          */
-  realtype     safety;      /* accuracy safety factor on h                */
-  realtype     bias;        /* accuracy safety factor on LTE              */
-  realtype     growth;      /* maximum step growth safety factor          */
-  realtype     lbound;      /* eta lower bound to leave h unchanged       */
-  realtype     ubound;      /* eta upper bound to leave h unchanged       */
-  realtype     k1;          /* method-specific adaptivity parameters      */
-  realtype     k2;
-  realtype     k3;
+  sunrealtype     cfl;         /* cfl safety factor                          */
+  sunrealtype     safety;      /* accuracy safety factor on h                */
+  sunrealtype     bias;        /* accuracy safety factor on LTE              */
+  sunrealtype     growth;      /* maximum step growth safety factor          */
+  sunrealtype     lbound;      /* eta lower bound to leave h unchanged       */
+  sunrealtype     ubound;      /* eta upper bound to leave h unchanged       */
+  sunrealtype     k1;          /* method-specific adaptivity parameters      */
+  sunrealtype     k2;
+  sunrealtype     k3;
   int q;                    /* method order                               */
   int p;                    /* embedding order                            */
   booleantype pq;           /* choice of using p (0) vs q (1)             */
@@ -126,20 +126,20 @@ typedef struct ARKodeHAdaptMemRec {
 ARKodeHAdaptMem arkAdaptInit();
 void arkPrintAdaptMem(ARKodeHAdaptMem hadapt_mem, FILE *outfile);
 int arkAdapt(void* arkode_mem, ARKodeHAdaptMem hadapt_mem,
-             N_Vector ycur, realtype tcur, realtype hcur,
-             realtype dsm, long int nst);
+             N_Vector ycur, sunrealtype tcur, sunrealtype hcur,
+             sunrealtype dsm, long int nst);
 int arkAdaptPID(ARKodeHAdaptMem hadapt_mem, int k,
-                realtype hcur, realtype ecur, realtype *hnew);
+                sunrealtype hcur, sunrealtype ecur, sunrealtype *hnew);
 int arkAdaptPI(ARKodeHAdaptMem hadapt_mem, int k,
-               realtype hcur, realtype ecur, realtype *hnew);
+               sunrealtype hcur, sunrealtype ecur, sunrealtype *hnew);
 int arkAdaptI(ARKodeHAdaptMem hadapt_mem, int k,
-              realtype hcur, realtype ecur, realtype *hnew);
+              sunrealtype hcur, sunrealtype ecur, sunrealtype *hnew);
 int arkAdaptExpGus(ARKodeHAdaptMem hadapt_mem, int k, long int nst,
-                   realtype hcur, realtype ecur, realtype *hnew);
+                   sunrealtype hcur, sunrealtype ecur, sunrealtype *hnew);
 int arkAdaptImpGus(ARKodeHAdaptMem hadapt_mem, int k, long int nst,
-                   realtype hcur, realtype ecur, realtype *hnew);
+                   sunrealtype hcur, sunrealtype ecur, sunrealtype *hnew);
 int arkAdaptImExGus(ARKodeHAdaptMem hadapt_mem, int k, long int nst,
-                    realtype hcur, realtype ecur, realtype *hnew);
+                    sunrealtype hcur, sunrealtype ecur, sunrealtype *hnew);
 
 
 #ifdef __cplusplus

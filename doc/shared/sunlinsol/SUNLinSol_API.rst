@@ -157,7 +157,7 @@ set up the linear solver object to utilize an updated matrix :math:`A`
          retval = SUNLinSolSetup(LS, A);
 
 
-.. c:function:: int SUNLinSolSolve(SUNLinearSolver LS, SUNMatrix A, N_Vector x, N_Vector b, realtype tol)
+.. c:function:: int SUNLinSolSolve(SUNLinearSolver LS, SUNMatrix A, N_Vector x, N_Vector b, sunrealtype tol)
 
    This *required* function solves a linear system :math:`Ax = b`.
 
@@ -357,7 +357,7 @@ linear solve.  *All routines are optional.*
          its = SUNLinSolNumIters(LS);
 
 
-.. c:function:: realtype SUNLinSolResNorm(SUNLinearSolver LS)
+.. c:function:: sunrealtype SUNLinSolResNorm(SUNLinearSolver LS)
 
    This *optional* routine should return the final residual norm from
    the most-recent "solve" call.
@@ -412,7 +412,7 @@ linear solve.  *All routines are optional.*
    This *optional* routine should return the storage requirements for
    the linear solver *LS*:
 
-   * *lrw* is a ``long int`` containing the number of realtype words
+   * *lrw* is a ``long int`` containing the number of sunrealtype words
    * *liw* is a ``long int`` containing the number of integer words.
 
    The return value is an integer flag denoting success/failure of the operation.
@@ -469,7 +469,7 @@ these routines are defined in the header file
       Zero for a successful call, and non-zero upon failure.
 
 
-.. c:type:: int (*SUNPSolveFn)(void *P_data, N_Vector r, N_Vector z, realtype tol, int lr)
+.. c:type:: int (*SUNPSolveFn)(void *P_data, N_Vector r, N_Vector z, sunrealtype tol, int lr)
 
    Solves the preconditioner equation :math:`Pz = r` for the vector :math:`z`.
    Memory for *z* will already be allocated prior to calling this function.
@@ -624,9 +624,9 @@ structure is defined as
      int                  (*initialize)(SUNLinearSolver);
      int                  (*setup)(SUNLinearSolver, SUNMatrix);
      int                  (*solve)(SUNLinearSolver, SUNMatrix, N_Vector,
-                                   N_Vector, realtype);
+                                   N_Vector, sunrealtype);
      int                  (*numiters)(SUNLinearSolver);
-     realtype             (*resnorm)(SUNLinearSolver);
+     sunrealtype             (*resnorm)(SUNLinearSolver);
      sunindextype         (*lastflag)(SUNLinearSolver);
      int                  (*space)(SUNLinearSolver, long int*, long int*);
      N_Vector             (*resid)(SUNLinearSolver);

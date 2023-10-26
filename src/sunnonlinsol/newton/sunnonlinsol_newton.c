@@ -186,7 +186,7 @@ int SUNNonlinSolInitialize_Newton(SUNNonlinearSolver NLS)
   ----------------------------------------------------------------------------*/
 int SUNNonlinSolSolve_Newton(SUNNonlinearSolver NLS,
                              N_Vector y0, N_Vector ycor,
-                             N_Vector w, realtype tol,
+                             N_Vector w, sunrealtype tol,
                              booleantype callLSetup, void* mem)
 {
   /* local variables */

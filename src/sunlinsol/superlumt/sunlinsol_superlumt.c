@@ -281,10 +281,10 @@ int SUNLinSolSetup_SuperLUMT(SUNLinearSolver S, SUNMatrix A)
 
 
 int SUNLinSolSolve_SuperLUMT(SUNLinearSolver S, SUNMatrix A, N_Vector x,
-                             N_Vector b, realtype tol)
+                             N_Vector b, sunrealtype tol)
 {
   int_t retval;
-  realtype *xdata;
+  sunrealtype *xdata;
   DNformat *Bstore;
   trans_t trans;
 

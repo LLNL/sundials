@@ -72,12 +72,12 @@
 // -----------------------------------------------------------------------------
 
 __global__
-void PxKernel(realtype *mu, realtype *Px, realtype *x,
-              realtype a1, realtype a2, realtype a3, realtype scale,
+void PxKernel(sunrealtype *mu, sunrealtype *Px, sunrealtype *x,
+              sunrealtype a1, sunrealtype a2, sunrealtype a3, sunrealtype scale,
               sunindextype N)
 {
   // Calculate all P(x_k) for each x value
-  realtype val1, val2, val3;
+  sunrealtype val1, val2, val3;
 
   int tid = blockDim.x * blockIdx.x + threadIdx.x;
 
@@ -93,13 +93,13 @@ void PxKernel(realtype *mu, realtype *Px, realtype *x,
 }
 
 __global__
-void EMKernel(realtype *mu, realtype *mu_top, realtype *mu_bottom,
-              realtype *x, realtype *Px,
-              realtype a1, realtype a2, realtype a3, realtype scale,
+void EMKernel(sunrealtype *mu, sunrealtype *mu_top, sunrealtype *mu_bottom,
+              sunrealtype *x, sunrealtype *Px,
+              sunrealtype a1, sunrealtype a2, sunrealtype a3, sunrealtype scale,
               sunindextype N)
 {
-  realtype val1, val2, val3;
-  realtype frac1, frac2, frac3;
+  sunrealtype val1, val2, val3;
+  sunrealtype frac1, frac2, frac3;
 
   int tid = blockDim.x * blockIdx.x + threadIdx.x;
 
@@ -123,7 +123,7 @@ void EMKernel(realtype *mu, realtype *mu_top, realtype *mu_bottom,
 }
 
 __global__
-void EMKernelFin(realtype *mu, realtype *mu_top, realtype *mu_bottom,
+void EMKernelFin(sunrealtype *mu, sunrealtype *mu_top, sunrealtype *mu_bottom,
                  sunindextype localn)
 {
   int tid = blockDim.x * blockIdx.x + threadIdx.x;
@@ -422,16 +422,16 @@ static int FPFunction(N_Vector u, N_Vector f, void *user_data)
 static int SetupSamples(UserData *udata)
 {
   sunindextype i, j, start, end;
-  realtype mean, val;
+  sunrealtype mean, val;
 
   // Access problem data
-  realtype *samples_local = N_VGetHostArrayPointer_Cuda(udata->samples_local);
+  sunrealtype *samples_local = N_VGetHostArrayPointer_Cuda(udata->samples_local);
   if (check_retval((void *) samples_local, "N_VGetHostArrayPointer_Cuda", 0)) return 1;
 
-  realtype *mu_host = N_VGetHostArrayPointer_Cuda(N_VGetLocalVector_MPIPlusX(udata->mu_true));
+  sunrealtype *mu_host = N_VGetHostArrayPointer_Cuda(N_VGetLocalVector_MPIPlusX(udata->mu_true));
   if (check_retval((void *) mu_host, "N_VGetHostArrayPointer_Cuda", 0)) return 1;
 
-  realtype std_dev = ONE;
+  sunrealtype std_dev = ONE;
 
   for (i = 0; i < 3; i++) {
     // Set number of samples with this mean
@@ -449,7 +449,7 @@ static int SetupSamples(UserData *udata)
     // Setup distribution parameters
     mean = mu_host[i];
     std::default_random_engine generator;
-    std::normal_distribution<realtype> distribution(mean, std_dev);
+    std::normal_distribution<sunrealtype> distribution(mean, std_dev);
 
     // Get samples
     for (j = start; j < end; j++) {
@@ -469,7 +469,7 @@ static int SetMus(UserData *udata)
 {
   sunindextype i;
 
-  realtype *mu_host = N_VGetHostArrayPointer_Cuda(N_VGetLocalVector_MPIPlusX(udata->mu_true));
+  sunrealtype *mu_host = N_VGetHostArrayPointer_Cuda(N_VGetLocalVector_MPIPlusX(udata->mu_true));
   if (check_retval((void *) mu_host, "N_VGetHostArrayPointer_Cuda", 0)) return 1;
 
   // Fill vectors with uniform random data in [-1,1]
@@ -488,7 +488,7 @@ static int SetMus(UserData *udata)
 
 static int SetStartGuess(N_Vector u, UserData* udata)
 {
-  realtype *u_host = N_VGetHostArrayPointer_Cuda(N_VGetLocalVector_MPIPlusX(u));
+  sunrealtype *u_host = N_VGetHostArrayPointer_Cuda(N_VGetLocalVector_MPIPlusX(u));
   if (check_retval((void *) u_host, "N_VGetHostArrayPointer_Cuda", 0)) return 1;
 
   for (sunindextype i = 0; i < udata->nodes_loc; i++)
@@ -520,14 +520,14 @@ static int EM(N_Vector u, N_Vector f, void *user_data)
   // ---------
 
   // Scale value for functions
-  realtype scale = ONE / sqrt(TWO * PI);
+  sunrealtype scale = ONE / sqrt(TWO * PI);
 
   // Get input device pointers
-  realtype *u_dev  = N_VGetDeviceArrayPointer_Cuda(N_VGetLocalVector_MPIPlusX(u));
-  realtype *x_dev  = N_VGetDeviceArrayPointer_Cuda(udata->samples_local);
+  sunrealtype *u_dev  = N_VGetDeviceArrayPointer_Cuda(N_VGetLocalVector_MPIPlusX(u));
+  sunrealtype *x_dev  = N_VGetDeviceArrayPointer_Cuda(udata->samples_local);
 
   // Get output device pointer
-  realtype *Px_dev = N_VGetDeviceArrayPointer_Cuda(udata->px);
+  sunrealtype *Px_dev = N_VGetDeviceArrayPointer_Cuda(udata->px);
 
   // Compute Px
   PxKernel<<<grid1, block>>>(u_dev, Px_dev, x_dev,
@@ -539,8 +539,8 @@ static int EM(N_Vector u, N_Vector f, void *user_data)
   // ---------
 
   // Get output device pointers
-  realtype *mu_bottom_dev = N_VGetDeviceArrayPointer_Cuda(udata->mu_bottom);
-  realtype *mu_top_dev    = N_VGetDeviceArrayPointer_Cuda(udata->mu_top);
+  sunrealtype *mu_bottom_dev = N_VGetDeviceArrayPointer_Cuda(udata->mu_bottom);
+  sunrealtype *mu_top_dev    = N_VGetDeviceArrayPointer_Cuda(udata->mu_top);
 
   // Initilaize output vectors to zero (for sum reduction)
   N_VConst(ZERO, udata->mu_bottom);
@@ -554,7 +554,7 @@ static int EM(N_Vector u, N_Vector f, void *user_data)
   // EM FINALIZE KERNEL
   // ------------------
 
-  realtype *f_dev = N_VGetDeviceArrayPointer_Cuda(N_VGetLocalVector_MPIPlusX(f));
+  sunrealtype *f_dev = N_VGetDeviceArrayPointer_Cuda(N_VGetLocalVector_MPIPlusX(f));
 
   EMKernelFin<<<grid2, block>>>(f_dev, mu_top_dev, mu_bottom_dev,
                                 udata->nodes_loc);
@@ -894,7 +894,7 @@ static int OpenOutput(UserData *udata)
     udata->rout.open(fname.str());
 
     udata->rout << scientific;
-    udata->rout << setprecision(numeric_limits<realtype>::digits10);
+    udata->rout << setprecision(numeric_limits<sunrealtype>::digits10);
 
     // Open output stream for error
     fname.str("");
@@ -904,7 +904,7 @@ static int OpenOutput(UserData *udata)
     udata->eout.open(fname.str());
 
     udata->eout << scientific;
-    udata->eout << setprecision(numeric_limits<realtype>::digits10);
+    udata->eout << setprecision(numeric_limits<sunrealtype>::digits10);
   }
 
   return 0;
@@ -918,12 +918,12 @@ static int WriteOutput(N_Vector u, N_Vector f, UserData *udata)
 
   // r = \|G(u) - u\|_inf
   N_VLinearSum(ONE, f, -ONE, u, udata->vtemp);
-  realtype res = N_VMaxNorm(udata->vtemp);
+  sunrealtype res = N_VMaxNorm(udata->vtemp);
 
   // e = \|u_exact - u\|_inf
   retval = SolutionError(udata->mu_true, u, udata->vtemp, udata);
   if (check_retval(&retval, "SolutionError", 1)) return 1;
-  realtype err = N_VMaxNorm(udata->vtemp);
+  sunrealtype err = N_VMaxNorm(udata->vtemp);
 
   if (outproc)
   {

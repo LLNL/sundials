@@ -49,7 +49,7 @@ struct _SUNLinearSolverContent_SPBCGS {
   int pretype;
   booleantype zeroguess;
   int numiters;
-  realtype resnorm;
+  sunrealtype resnorm;
   int last_flag;
 
   SUNATimesFn ATimes;
@@ -103,9 +103,9 @@ SUNDIALS_EXPORT int SUNLinSolSetZeroGuess_SPBCGS(SUNLinearSolver S,
                                                  booleantype onoff);
 SUNDIALS_EXPORT int SUNLinSolSetup_SPBCGS(SUNLinearSolver S, SUNMatrix A);
 SUNDIALS_EXPORT int SUNLinSolSolve_SPBCGS(SUNLinearSolver S, SUNMatrix A,
-                                          N_Vector x, N_Vector b, realtype tol);
+                                          N_Vector x, N_Vector b, sunrealtype tol);
 SUNDIALS_EXPORT int SUNLinSolNumIters_SPBCGS(SUNLinearSolver S);
-SUNDIALS_EXPORT realtype SUNLinSolResNorm_SPBCGS(SUNLinearSolver S);
+SUNDIALS_EXPORT sunrealtype SUNLinSolResNorm_SPBCGS(SUNLinearSolver S);
 SUNDIALS_EXPORT N_Vector SUNLinSolResid_SPBCGS(SUNLinearSolver S);
 SUNDIALS_EXPORT sunindextype SUNLinSolLastFlag_SPBCGS(SUNLinearSolver S);
 SUNDIALS_EXPORT int SUNLinSolSpace_SPBCGS(SUNLinearSolver S,

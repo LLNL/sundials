@@ -49,22 +49,22 @@
 #endif
 
 /* User-supplied Functions Called by the Solver */
-static int f(realtype t, N_Vector y, N_Vector ydot, void *user_data);
+static int f(sunrealtype t, N_Vector y, N_Vector ydot, void *user_data);
 
 /* Private function to check function return values */
 static int check_flag(void *flagvalue, const char *funcname, int opt);
 
 /* Private function to verify test results */
-static int verify_results(realtype lambda, int rtype,
-                          realtype *yrate, realtype *dyrate,
-                          realtype *d2yrate, realtype *yrate2,
-                          realtype *dyrate2, realtype *d2yrate2);
+static int verify_results(sunrealtype lambda, int rtype,
+                          sunrealtype *yrate, sunrealtype *dyrate,
+                          sunrealtype *d2yrate, sunrealtype *yrate2,
+                          sunrealtype *dyrate2, sunrealtype *d2yrate2);
 
 /* Main Program */
 int main(int argc, char *argv[])
 {
   /* initial declaration of all variables */
-  realtype T0, Tf, lambda, t, t_test, hbase, rtol, atol;
+  sunrealtype T0, Tf, lambda, t, t_test, hbase, rtol, atol;
   sunindextype NEQ;
   int flag, nttest, ideg, ih, itest, rtype;
   N_Vector y, ytest, dytest, d2ytest, d3ytest, d4ytest, d5ytest;
@@ -72,17 +72,17 @@ int main(int argc, char *argv[])
   SUNMatrix A;
   SUNLinearSolver LS;
   void *arkode_mem;
-  realtype hvals[NHVALS], yerrs[NHVALS], dyerrs[NHVALS], d2yerrs[NHVALS];
-  realtype d3yerrs[NHVALS], d4yerrs[NHVALS], d5yerrs[NHVALS];
-  realtype yrate[ARK_INTERP_MAX_DEGREE+1], dyrate[ARK_INTERP_MAX_DEGREE+1];
-  realtype d2yrate[ARK_INTERP_MAX_DEGREE+1], d3yrate[ARK_INTERP_MAX_DEGREE+1];
-  realtype d4yrate[ARK_INTERP_MAX_DEGREE+1], d5yrate[ARK_INTERP_MAX_DEGREE+1];
-  realtype yferr[ARK_INTERP_MAX_DEGREE+1], dyferr[ARK_INTERP_MAX_DEGREE+1];
-  realtype d2yferr[ARK_INTERP_MAX_DEGREE+1], d3yferr[ARK_INTERP_MAX_DEGREE+1];
-  realtype d4yferr[ARK_INTERP_MAX_DEGREE+1], d5yferr[ARK_INTERP_MAX_DEGREE+1];
-  realtype yrate2[ARK_INTERP_MAX_DEGREE+1], dyrate2[ARK_INTERP_MAX_DEGREE+1];
-  realtype d2yrate2[ARK_INTERP_MAX_DEGREE+1], yferr2[ARK_INTERP_MAX_DEGREE+1];
-  realtype dyferr2[ARK_INTERP_MAX_DEGREE+1], d2yferr2[ARK_INTERP_MAX_DEGREE+1];
+  sunrealtype hvals[NHVALS], yerrs[NHVALS], dyerrs[NHVALS], d2yerrs[NHVALS];
+  sunrealtype d3yerrs[NHVALS], d4yerrs[NHVALS], d5yerrs[NHVALS];
+  sunrealtype yrate[ARK_INTERP_MAX_DEGREE+1], dyrate[ARK_INTERP_MAX_DEGREE+1];
+  sunrealtype d2yrate[ARK_INTERP_MAX_DEGREE+1], d3yrate[ARK_INTERP_MAX_DEGREE+1];
+  sunrealtype d4yrate[ARK_INTERP_MAX_DEGREE+1], d5yrate[ARK_INTERP_MAX_DEGREE+1];
+  sunrealtype yferr[ARK_INTERP_MAX_DEGREE+1], dyferr[ARK_INTERP_MAX_DEGREE+1];
+  sunrealtype d2yferr[ARK_INTERP_MAX_DEGREE+1], d3yferr[ARK_INTERP_MAX_DEGREE+1];
+  sunrealtype d4yferr[ARK_INTERP_MAX_DEGREE+1], d5yferr[ARK_INTERP_MAX_DEGREE+1];
+  sunrealtype yrate2[ARK_INTERP_MAX_DEGREE+1], dyrate2[ARK_INTERP_MAX_DEGREE+1];
+  sunrealtype d2yrate2[ARK_INTERP_MAX_DEGREE+1], yferr2[ARK_INTERP_MAX_DEGREE+1];
+  sunrealtype dyferr2[ARK_INTERP_MAX_DEGREE+1], d2yferr2[ARK_INTERP_MAX_DEGREE+1];
 
   /* Create the SUNDIALS context object for this simulation. */
   SUNContext sunctx = NULL;
@@ -98,9 +98,9 @@ int main(int argc, char *argv[])
   if (argc > 1)  lambda = strtod(argv[1], NULL);
 
   /* determine test configuration */
-  if (sizeof(realtype) == 4) {
+  if (sizeof(sunrealtype) == 4) {
     rtype = 32;
-  } else if (sizeof(realtype) == 8) {
+  } else if (sizeof(sunrealtype) == 8) {
     rtype = 64;
   } else {
     rtype = 128;
@@ -548,9 +548,9 @@ int main(int argc, char *argv[])
  *-------------------------------*/
 
 /* f routine to compute the ODE RHS function f(t,y). */
-static int f(realtype t, N_Vector y, N_Vector ydot, void *user_data)
+static int f(sunrealtype t, N_Vector y, N_Vector ydot, void *user_data)
 {
-  realtype *lambda = (realtype *) user_data;
+  sunrealtype *lambda = (sunrealtype *) user_data;
   NV_Ith_S(ydot,0) = (*lambda)*(NV_Ith_S(y,0) - SIN(RCONST(2.0)*t))
     + NV_Ith_S(y,1) - COS(RCONST(3.0)*t) + RCONST(2.0)*COS(RCONST(2.0)*t);
   NV_Ith_S(ydot,1) = NV_Ith_S(y,0) - NV_Ith_S(y,1) - SIN(RCONST(2.0)*t)
@@ -608,13 +608,13 @@ static int check_flag(void *flagvalue, const char *funcname, int opt)
    error values >1 are omitted from these checks, as non-convergence
    may occur differently on various architectures.
 
-   We consider realtype precisions {32,64,128} and stiffness values
+   We consider sunrealtype precisions {32,64,128} and stiffness values
    lambda = {-1e2, -1e4, -1e6}.
 */
-static int verify_results(realtype lambda, int rtype,
-                          realtype *yrate, realtype *dyrate,
-                          realtype *d2yrate, realtype *yrate2,
-                          realtype *dyrate2, realtype *d2yrate2)
+static int verify_results(sunrealtype lambda, int rtype,
+                          sunrealtype *yrate, sunrealtype *dyrate,
+                          sunrealtype *d2yrate, sunrealtype *yrate2,
+                          sunrealtype *dyrate2, sunrealtype *d2yrate2)
 {
   int tests=0;
   int failure=0;

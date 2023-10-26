@@ -46,44 +46,44 @@ using namespace std;
 struct TestOptions
 {
   // Relative and absolute tolerances
-  realtype rtol = RCONST(1.0e-6);
-  realtype atol = RCONST(1.0e-10);
+  sunrealtype rtol = RCONST(1.0e-6);
+  sunrealtype atol = RCONST(1.0e-10);
 
   // Fixed step size eta bounds (use defaults = 0.0 and 1.5)
-  realtype eta_min_fx = -ONE;
-  realtype eta_max_fx = -ONE;
+  sunrealtype eta_min_fx = -ONE;
+  sunrealtype eta_max_fx = -ONE;
 
   // Max first step eta bound (use default = 10,000)
-  realtype eta_max_fs = -ONE;
+  sunrealtype eta_max_fs = -ONE;
 
   // Max early step eta bound and number of steps (use defaults = 10 and 10)
-  realtype eta_max_es = -ONE;
+  sunrealtype eta_max_es = -ONE;
   long int small_nst  = -1;
 
   // Max eta bound on a general step (use default = 10)
-  realtype eta_max_gs = -ONE;
+  sunrealtype eta_max_gs = -ONE;
 
   // Min eta bound on a general step (use default = 0.1)
-  realtype eta_min = -ONE;
+  sunrealtype eta_min = -ONE;
 
   // Min eta bound after an error test fail (use default = 0.1)
-  realtype eta_min_ef = -ONE;
+  sunrealtype eta_min_ef = -ONE;
 
   // Max eta bound after multiple error test fails and number of fails necessary
   // (use defaults = 0.2 and 2)
-  realtype eta_max_ef = -ONE;
+  sunrealtype eta_max_ef = -ONE;
   int      small_nef  = -1;
 
   // Eta value on a nonlinear solver convergence failure (use default = 0.25)
-  realtype eta_cf = -ONE;
+  sunrealtype eta_cf = -ONE;
 
   // Change in gamma to call lsetup or mark a Jacobian as bad (use defaults 0.3
   // and 0.2
-  realtype dgmax_lsetup = -ONE;
-  realtype dgmax_jbad   = -ONE;
+  sunrealtype dgmax_lsetup = -ONE;
+  sunrealtype dgmax_jbad   = -ONE;
 
   // Output options
-  realtype dtout = ONE; // output interval
+  sunrealtype dtout = ONE; // output interval
   int      nout  = 10;  // number of outputs
 };
 
@@ -92,10 +92,10 @@ struct TestOptions
 // -----------------------------------------------------------------------------
 
 // ODE right-hand side function
-int f(realtype t, N_Vector y, N_Vector ydot, void *user_data);
+int f(sunrealtype t, N_Vector y, N_Vector ydot, void *user_data);
 
 // Jacobian of RHS function
-int J(realtype t, N_Vector y, N_Vector fy, SUNMatrix J, void *user_data,
+int J(sunrealtype t, N_Vector y, N_Vector fy, SUNMatrix J, void *user_data,
       N_Vector tmp1, N_Vector tmp2, N_Vector tmp3);
 
 // -----------------------------------------------------------------------------
@@ -103,31 +103,31 @@ int J(realtype t, N_Vector y, N_Vector fy, SUNMatrix J, void *user_data,
 // -----------------------------------------------------------------------------
 
 // Compute r(t)
-static realtype r(realtype t)
+static sunrealtype r(sunrealtype t)
 {
   return HALF * cos(t);
 }
 
 // Compute the derivative of r(t)
-static realtype rdot(realtype t)
+static sunrealtype rdot(sunrealtype t)
 {
   return -HALF * sin(t);
 }
 
 // Compute s(t)
-static realtype s(realtype t)
+static sunrealtype s(sunrealtype t)
 {
   return cos(TWENTY * t);
 }
 
 // Compute the derivative of s(t)
-static realtype sdot(realtype t)
+static sunrealtype sdot(sunrealtype t)
 {
   return -TWENTY * sin(TWENTY * t);
 }
 
 // Compute the true solution
-static int true_sol(realtype t, realtype* u, realtype* v)
+static int true_sol(sunrealtype t, sunrealtype* u, sunrealtype* v)
 {
   *u = sqrt(ONE + r(t));
   *v = sqrt(TWO + s(t));
@@ -156,7 +156,7 @@ int check_ptr(void *ptr, const string funcname)
   return 1;
 }
 
-inline void find_arg(vector<string> &args, const string key, realtype &dest)
+inline void find_arg(vector<string> &args, const string key, sunrealtype &dest)
 {
   auto it = find(args.begin(), args.end(), key);
   if (it != args.end())

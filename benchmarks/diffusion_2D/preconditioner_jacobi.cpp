@@ -19,8 +19,8 @@
 #if defined(BENCHMARK_ODE)
 
 // Preconditioner setup routine
-int PSetup(realtype t, N_Vector u, N_Vector f, booleantype jok,
-           booleantype *jcurPtr, realtype gamma, void *user_data)
+int PSetup(sunrealtype t, N_Vector u, N_Vector f, booleantype jok,
+           booleantype *jcurPtr, sunrealtype gamma, void *user_data)
 {
   // Access problem data
   UserData *udata = (UserData *) user_data;
@@ -28,13 +28,13 @@ int PSetup(realtype t, N_Vector u, N_Vector f, booleantype jok,
   SUNDIALS_CXX_MARK_FUNCTION(udata->prof);
 
   // Constants for computing diffusion
-  realtype cx = udata->kx / (udata->dx * udata->dx);
-  realtype cy = udata->ky / (udata->dy * udata->dy);
-  realtype cc = -TWO * (cx + cy);
+  sunrealtype cx = udata->kx / (udata->dx * udata->dx);
+  sunrealtype cy = udata->ky / (udata->dy * udata->dy);
+  sunrealtype cc = -TWO * (cx + cy);
 
   // Set all entries of d to the inverse diagonal values of interior
   // (since boundary RHS is 0, set boundary diagonals to the same)
-  realtype c = ONE / (ONE - gamma * cc);
+  sunrealtype c = ONE / (ONE - gamma * cc);
   N_VConst(c, udata->diag);
 
 
@@ -44,8 +44,8 @@ int PSetup(realtype t, N_Vector u, N_Vector f, booleantype jok,
 
 
 // Preconditioner solve routine for Pz = r
-int PSolve(realtype t, N_Vector u, N_Vector f, N_Vector r,
-           N_Vector z, realtype gamma, realtype delta, int lr,
+int PSolve(sunrealtype t, N_Vector u, N_Vector f, N_Vector r,
+           N_Vector z, sunrealtype gamma, sunrealtype delta, int lr,
            void *user_data)
 {
   // Access user_data structure
@@ -64,7 +64,7 @@ int PSolve(realtype t, N_Vector u, N_Vector f, N_Vector r,
 #elif defined(BENCHMARK_DAE)
 
 // Preconditioner setup and solve functions
-int PSetup(realtype t, N_Vector u, N_Vector up, N_Vector res, realtype cj,
+int PSetup(sunrealtype t, N_Vector u, N_Vector up, N_Vector res, sunrealtype cj,
            void *user_data)
 {
   // Access problem data
@@ -73,13 +73,13 @@ int PSetup(realtype t, N_Vector u, N_Vector up, N_Vector res, realtype cj,
   SUNDIALS_CXX_MARK_FUNCTION(udata->prof);
 
   // Constants for computing diffusion
-  realtype cx = udata->kx / (udata->dx * udata->dx);
-  realtype cy = udata->ky / (udata->dy * udata->dy);
-  realtype cc = -TWO * (cx + cy);
+  sunrealtype cx = udata->kx / (udata->dx * udata->dx);
+  sunrealtype cy = udata->ky / (udata->dy * udata->dy);
+  sunrealtype cc = -TWO * (cx + cy);
 
   // Set all entries of d to the inverse diagonal values of interior
   // (since boundary RHS is 0, set boundary diagonals to the same)
-  realtype c = ONE / (cj - cc);
+  sunrealtype c = ONE / (cj - cc);
   N_VConst(c, udata->diag);
 
 
@@ -88,8 +88,8 @@ int PSetup(realtype t, N_Vector u, N_Vector up, N_Vector res, realtype cj,
 }
 
 
-int PSolve(realtype t, N_Vector u, N_Vector up, N_Vector res, N_Vector r,
-           N_Vector z, realtype cj, realtype delta, void *user_data)
+int PSolve(sunrealtype t, N_Vector u, N_Vector up, N_Vector res, N_Vector r,
+           N_Vector z, sunrealtype cj, sunrealtype delta, void *user_data)
 {
   // Access user_data structure
   UserData *udata = (UserData *) user_data;

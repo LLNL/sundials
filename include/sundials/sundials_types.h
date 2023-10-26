@@ -84,7 +84,7 @@ extern "C" {
 #if defined(SUNDIALS_SINGLE_PRECISION)
 
 /* deprecated */
-typedef float realtype;
+typedef float sunrealtype;
 # define RCONST(x) x##F
 # define BIG_REAL FLT_MAX
 # define SMALL_REAL FLT_MIN
@@ -99,7 +99,6 @@ typedef float sunrealtype;
 #elif defined(SUNDIALS_DOUBLE_PRECISION)
 
 /* deprecated */
-typedef double realtype;
 # define RCONST(x) x
 # define BIG_REAL DBL_MAX
 # define SMALL_REAL DBL_MIN
@@ -114,7 +113,7 @@ typedef double sunrealtype;
 #elif defined(SUNDIALS_EXTENDED_PRECISION)
 
 /* deprecated */
-typedef long double realtype;
+typedef long double sunrealtype;
 # define RCONST(x) x##L
 # define BIG_REAL LDBL_MAX
 # define SMALL_REAL LDBL_MIN

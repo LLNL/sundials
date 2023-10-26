@@ -58,7 +58,7 @@
 #include <nvector/nvector_manyvector.h>/* manyvector N_Vector types, fcts. etc */
 #include <nvector/nvector_serial.h>    /* serial N_Vector types, fcts., macros */
 #include <sunlinsol/sunlinsol_spgmr.h> /* access to SPGMR SUNLinearSolver      */
-#include <sundials/sundials_types.h>   /* defs. of realtype, sunindextype, etc */
+#include <sundials/sundials_types.h>   /* defs. of sunrealtype, sunindextype, etc */
 
 #if defined(SUNDIALS_EXTENDED_PRECISION)
 #define GSYM "Lg"
@@ -70,7 +70,7 @@
 #define FSYM "f"
 #endif
 
-/* realtype constant macros */
+/* sunrealtype constant macros */
 #define ZERO RCONST(0.0)
 #define ONE  RCONST(1.0)
 #define TWO  RCONST(2.0)
@@ -78,19 +78,19 @@
 /* user data structure */
 typedef struct {
   sunindextype N;  /* number of intervals     */
-  realtype dx;     /* mesh spacing            */
-  realtype a;      /* constant forcing on u   */
-  realtype b;      /* steady-state value of w */
-  realtype du;     /* diffusion coeff for u   */
-  realtype dv;     /* diffusion coeff for v   */
-  realtype dw;     /* diffusion coeff for w   */
-  realtype ep;     /* stiffness parameter     */
+  sunrealtype dx;     /* mesh spacing            */
+  sunrealtype a;      /* constant forcing on u   */
+  sunrealtype b;      /* steady-state value of w */
+  sunrealtype du;     /* diffusion coeff for u   */
+  sunrealtype dv;     /* diffusion coeff for v   */
+  sunrealtype dw;     /* diffusion coeff for w   */
+  sunrealtype ep;     /* stiffness parameter     */
 } *UserData;
 
 /* User-supplied Functions Called by the Solver */
-static int fe(realtype t, N_Vector y, N_Vector ydot, void *user_data);
-static int fi(realtype t, N_Vector y, N_Vector ydot, void *user_data);
-static int JacVI(N_Vector v, N_Vector Jv, realtype t, N_Vector y,
+static int fe(sunrealtype t, N_Vector y, N_Vector ydot, void *user_data);
+static int fi(sunrealtype t, N_Vector y, N_Vector ydot, void *user_data);
+static int JacVI(N_Vector v, N_Vector Jv, sunrealtype t, N_Vector y,
                  N_Vector fy, void *user_data, N_Vector tmp1);
 
 /* Private function to check function return values */
@@ -100,21 +100,21 @@ static int check_flag(void *flagvalue, const char *funcname, int opt);
 int main()
 {
   /* general problem parameters */
-  realtype T0 = ZERO;                /* initial time */
-  realtype Tf = RCONST(10.0);        /* final time */
+  sunrealtype T0 = ZERO;                /* initial time */
+  sunrealtype Tf = RCONST(10.0);        /* final time */
   int Nt = 100;                      /* total number of output times */
   int Nvar = 3;                      /* number of solution fields */
   UserData userdata = NULL;
-  realtype *udata, *vdata, *wdata;
+  sunrealtype *udata, *vdata, *wdata;
   sunindextype N = 201;              /* spatial mesh size */
-  realtype a = RCONST(0.6);          /* problem parameters */
-  realtype b = RCONST(2.0);
-  realtype du = RCONST(0.001);
-  realtype dv = RCONST(0.001);
-  realtype dw = RCONST(0.001);
-  realtype ep = RCONST(1.0e-5);      /* stiffness parameter */
-  realtype reltol = RCONST(1.0e-6);  /* tolerances */
-  realtype abstol = RCONST(1.0e-10);
+  sunrealtype a = RCONST(0.6);          /* problem parameters */
+  sunrealtype b = RCONST(2.0);
+  sunrealtype du = RCONST(0.001);
+  sunrealtype dv = RCONST(0.001);
+  sunrealtype dw = RCONST(0.001);
+  sunrealtype ep = RCONST(1.0e-5);      /* stiffness parameter */
+  sunrealtype reltol = RCONST(1.0e-6);  /* tolerances */
+  sunrealtype abstol = RCONST(1.0e-10);
   sunindextype i;
 
   /* general problem variables */
@@ -126,7 +126,7 @@ int main()
   N_Vector uvw[3];              /* vector array composed of u,v,w component vectors */
   SUNLinearSolver LS = NULL;    /* empty linear solver object */
   void *arkode_mem = NULL;      /* empty ARKode memory structure */
-  realtype pi, t, dTout, tout, unorm, vnorm, wnorm;
+  sunrealtype pi, t, dTout, tout, unorm, vnorm, wnorm;
   FILE *FID, *UFID, *VFID, *WFID;
   int iout;
   long int nst, nst_a, nfe, nfi, nsetups, nli, nlcf, nJv, nfeLS, nni, ncfn, netf;
@@ -326,17 +326,17 @@ int main()
  *-------------------------------*/
 
 /* fe routine to compute the diffusion portion of the ODE RHS. */
-static int fe(realtype t, N_Vector y, N_Vector ydot, void *user_data)
+static int fe(sunrealtype t, N_Vector y, N_Vector ydot, void *user_data)
 {
   UserData userdata = (UserData) user_data;      /* access problem data */
   sunindextype N = userdata->N;                  /* set variable shortcuts */
-  realtype du = userdata->du;
-  realtype dv = userdata->dv;
-  realtype dw = userdata->dw;
-  realtype dx = userdata->dx;
-  realtype *y_u=NULL, *y_v=NULL, *y_w=NULL;
-  realtype *f_u=NULL, *f_v=NULL, *f_w=NULL;
-  realtype uconst, vconst, wconst;
+  sunrealtype du = userdata->du;
+  sunrealtype dv = userdata->dv;
+  sunrealtype dw = userdata->dw;
+  sunrealtype dx = userdata->dx;
+  sunrealtype *y_u=NULL, *y_v=NULL, *y_w=NULL;
+  sunrealtype *f_u=NULL, *f_v=NULL, *f_w=NULL;
+  sunrealtype uconst, vconst, wconst;
   sunindextype i;
 
   y_u = N_VGetArrayPointer(N_VGetSubvector_ManyVector(y, 0));
@@ -379,15 +379,15 @@ static int fe(realtype t, N_Vector y, N_Vector ydot, void *user_data)
 }
 
 /* fi routine to compute the reaction portion of the ODE RHS. */
-static int fi(realtype t, N_Vector y, N_Vector ydot, void *user_data)
+static int fi(sunrealtype t, N_Vector y, N_Vector ydot, void *user_data)
 {
   UserData userdata = (UserData) user_data;      /* access problem data */
   sunindextype N = userdata->N;                  /* set variable shortcuts */
-  realtype a  = userdata->a;
-  realtype b  = userdata->b;
-  realtype ep = userdata->ep;
-  realtype *y_u=NULL, *y_v=NULL, *y_w=NULL;
-  realtype *f_u=NULL, *f_v=NULL, *f_w=NULL;
+  sunrealtype a  = userdata->a;
+  sunrealtype b  = userdata->b;
+  sunrealtype ep = userdata->ep;
+  sunrealtype *y_u=NULL, *y_v=NULL, *y_w=NULL;
+  sunrealtype *f_u=NULL, *f_v=NULL, *f_w=NULL;
   sunindextype i;
 
   y_u = N_VGetArrayPointer(N_VGetSubvector_ManyVector(y, 0));
@@ -427,15 +427,15 @@ static int fi(realtype t, N_Vector y, N_Vector ydot, void *user_data)
 }
 
 /* Jacobian-vector product routine (implicit portion only) */
-static int JacVI(N_Vector v, N_Vector Jv, realtype t, N_Vector y,
+static int JacVI(N_Vector v, N_Vector Jv, sunrealtype t, N_Vector y,
                  N_Vector fy, void *user_data, N_Vector tmp1)
 {
   UserData userdata = (UserData) user_data;      /* access problem data */
   sunindextype N = userdata->N;                  /* set variable shortcuts */
-  realtype ep = userdata->ep;
-  realtype *y_u=NULL, *y_v=NULL, *y_w=NULL;
-  realtype *v_u=NULL, *v_v=NULL, *v_w=NULL;
-  realtype *Ju_v=NULL, *Jv_v=NULL, *Jw_v=NULL;
+  sunrealtype ep = userdata->ep;
+  sunrealtype *y_u=NULL, *y_v=NULL, *y_w=NULL;
+  sunrealtype *v_u=NULL, *v_v=NULL, *v_w=NULL;
+  sunrealtype *Ju_v=NULL, *Jv_v=NULL, *Jw_v=NULL;
   sunindextype i;
 
   y_u = N_VGetArrayPointer(N_VGetSubvector_ManyVector(y, 0));

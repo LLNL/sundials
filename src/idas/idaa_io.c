@@ -246,7 +246,7 @@ int IDASetMaxNumStepsB(void *ida_mem, int which, long int mxstepsB)
   return IDASetMaxNumSteps(ida_memB, mxstepsB);
 }
 
-int IDASetInitStepB(void *ida_mem, int which, realtype hinB)
+int IDASetInitStepB(void *ida_mem, int which, sunrealtype hinB)
 {
   IDAMem IDA_mem;
   IDAadjMem IDAADJ_mem;
@@ -285,7 +285,7 @@ int IDASetInitStepB(void *ida_mem, int which, realtype hinB)
   return IDASetInitStep(ida_memB, hinB);
 }
 
-int IDASetMaxStepB(void *ida_mem, int which, realtype hmaxB)
+int IDASetMaxStepB(void *ida_mem, int which, sunrealtype hmaxB)
 {
   IDAMem IDA_mem;
   IDAadjMem IDAADJ_mem;
@@ -661,7 +661,7 @@ int IDAGetConsistentICB(void *ida_mem, int which, N_Vector yyB0_mod, N_Vector yp
  *
  */
 int IDAGetAdjDataPointHermite(void *ida_mem, int which,
-                              realtype *t, N_Vector yy, N_Vector yd)
+                              sunrealtype *t, N_Vector yy, N_Vector yd)
 
 {
   IDAMem IDA_mem;
@@ -712,7 +712,7 @@ int IDAGetAdjDataPointHermite(void *ida_mem, int which,
 
 
 int IDAGetAdjDataPointPolynomial(void *ida_mem, int which,
-                                 realtype *t, int *order, N_Vector y)
+                                 sunrealtype *t, int *order, N_Vector y)
 {
   IDAMem IDA_mem;
   IDAadjMem IDAADJ_mem;

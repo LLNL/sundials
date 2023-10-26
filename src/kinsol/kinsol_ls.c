@@ -694,7 +694,7 @@ int kinLsPSetup(void *kinmem)
   in the case in which preconditioning is not done. This is the only
   case in which the user's psolve routine is allowed to be NULL.
   ------------------------------------------------------------------*/
-int kinLsPSolve(void *kinmem, N_Vector r, N_Vector z, realtype tol, int lr)
+int kinLsPSolve(void *kinmem, N_Vector r, N_Vector z, sunrealtype tol, int lr)
 {
   KINMem   kin_mem;
   KINLsMem kinls_mem;
@@ -786,8 +786,8 @@ int kinLsDQJac(N_Vector u, N_Vector fu, SUNMatrix Jac,
 int kinLsDenseDQJac(N_Vector u, N_Vector fu, SUNMatrix Jac,
                     KINMem kin_mem, N_Vector tmp1, N_Vector tmp2)
 {
-  realtype inc, inc_inv, ujsaved, ujscale, sign;
-  realtype *tmp2_data, *u_data, *uscale_data;
+  sunrealtype inc, inc_inv, ujsaved, ujscale, sign;
+  sunrealtype *tmp2_data, *u_data, *uscale_data;
   N_Vector ftemp, jthCol;
   sunindextype j, N;
   KINLsMem kinls_mem;
@@ -864,11 +864,11 @@ int kinLsDenseDQJac(N_Vector u, N_Vector fu, SUNMatrix Jac,
 int kinLsBandDQJac(N_Vector u, N_Vector fu, SUNMatrix Jac,
                    KINMem kin_mem, N_Vector tmp1, N_Vector tmp2)
 {
-  realtype inc, inc_inv;
+  sunrealtype inc, inc_inv;
   N_Vector futemp, utemp;
   sunindextype group, i, j, width, ngroups, i1, i2;
   sunindextype N, mupper, mlower;
-  realtype *col_j, *fu_data, *futemp_data, *u_data, *utemp_data, *uscale_data;
+  sunrealtype *col_j, *fu_data, *futemp_data, *u_data, *utemp_data, *uscale_data;
   KINLsMem kinls_mem;
   int retval = 0;
 
@@ -953,7 +953,7 @@ int kinLsBandDQJac(N_Vector u, N_Vector fu, SUNMatrix Jac,
 int kinLsDQJtimes(N_Vector v, N_Vector Jv, N_Vector u,
                   booleantype *new_u, void *kinmem)
 {
-  realtype sigma, sigma_inv, sutsv, sq1norm, sign, vtv;
+  sunrealtype sigma, sigma_inv, sutsv, sq1norm, sign, vtv;
   KINMem   kin_mem;
   KINLsMem kinls_mem;
   int      retval;
@@ -1204,11 +1204,11 @@ int kinLsSetup(KINMem kin_mem)
   SUNLinearSolver object
   ------------------------------------------------------------------*/
 int kinLsSolve(KINMem kin_mem, N_Vector xx, N_Vector bb,
-               realtype *sJpnorm, realtype *sFdotJp)
+               sunrealtype *sJpnorm, sunrealtype *sFdotJp)
 {
   KINLsMem kinls_mem;
   int      nli_inc, retval;
-  realtype res_norm, tol;
+  sunrealtype res_norm, tol;
 
   /* Access KINLsMem structure */
   if (kin_mem->kin_lmem == NULL) {

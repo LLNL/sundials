@@ -56,7 +56,7 @@ typedef struct KINLsMemRec {
   SUNMatrix J;         /* problem Jacobian                              */
 
   /* Solver tolerance adjustment factor (if needed, see kinLsSolve)     */
-  realtype tol_fac;
+  sunrealtype tol_fac;
 
   /* Statistics and associated parameters */
   long int nje;        /* no. of calls to jac                           */
@@ -110,7 +110,7 @@ typedef struct KINLsMemRec {
 int kinLsATimes(void *kinmem, N_Vector v, N_Vector z);
 int kinLsPSetup(void *kinmem);
 int kinLsPSolve(void *kinmem, N_Vector r, N_Vector z,
-                realtype tol, int lr);
+                sunrealtype tol, int lr);
 
 /* Difference quotient approximation for Jacobian times vector */
 int kinLsDQJtimes(N_Vector v, N_Vector Jv, N_Vector u,
@@ -130,7 +130,7 @@ int kinLsBandDQJac(N_Vector u, N_Vector fu, SUNMatrix Jac,
 int kinLsInitialize(KINMem kin_mem);
 int kinLsSetup(KINMem kin_mem);
 int kinLsSolve(KINMem kin_mem, N_Vector x, N_Vector b,
-               realtype *sJpnorm, realtype *sFdotJp);
+               sunrealtype *sJpnorm, sunrealtype *sFdotJp);
 int kinLsFree(KINMem kin_mem);
 
 /* Auxilliary functions */

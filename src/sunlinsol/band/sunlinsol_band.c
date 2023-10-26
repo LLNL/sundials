@@ -131,7 +131,7 @@ int SUNLinSolInitialize_Band(SUNLinearSolver S)
 
 int SUNLinSolSetup_Band(SUNLinearSolver S, SUNMatrix A)
 {
-  realtype **A_cols;
+  sunrealtype **A_cols;
   sunindextype *pivots;
 
   /* check for valid inputs */
@@ -171,9 +171,9 @@ int SUNLinSolSetup_Band(SUNLinearSolver S, SUNMatrix A)
 }
 
 int SUNLinSolSolve_Band(SUNLinearSolver S, SUNMatrix A, N_Vector x,
-                        N_Vector b, realtype tol)
+                        N_Vector b, sunrealtype tol)
 {
-  realtype **A_cols, *xdata;
+  sunrealtype **A_cols, *xdata;
   sunindextype *pivots;
 
   /* check for valid inputs */

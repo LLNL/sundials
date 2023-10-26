@@ -43,7 +43,7 @@
 #include <nvector/nvector_serial.h>     /* access to serial N_Vector            */
 #include <sunmatrix/sunmatrix_sparse.h> /* access to sparse SUNMatrix           */
 #include <sunlinsol/sunlinsol_klu.h>    /* access to KLU sparse direct solver   */
-#include <sundials/sundials_types.h>    /* defs. of realtype, sunindextype      */
+#include <sundials/sundials_types.h>    /* defs. of sunrealtype, sunindextype      */
 
 /* User-defined vector and matrix accessor macro: Ith */
 
@@ -77,14 +77,14 @@
 
 /* Functions Called by the Solver */
 
-static int f(realtype t, N_Vector y, N_Vector ydot, void *user_data);
+static int f(sunrealtype t, N_Vector y, N_Vector ydot, void *user_data);
 
-static int Jac(realtype t, N_Vector y, N_Vector fy, SUNMatrix J,
+static int Jac(sunrealtype t, N_Vector y, N_Vector fy, SUNMatrix J,
                void *user_data, N_Vector tmp1, N_Vector tmp2, N_Vector tmp3);
 
 /* Private functions to output results */
 
-static void PrintOutput(realtype t, realtype y1, realtype y2, realtype y3);
+static void PrintOutput(sunrealtype t, sunrealtype y1, sunrealtype y2, sunrealtype y3);
 
 /* Private function to print final statistics */
 
@@ -109,7 +109,7 @@ typedef struct {
 int main(int argc, char *argv[])
 {
   SUNContext sunctx;
-  realtype reltol, t, tout;
+  sunrealtype reltol, t, tout;
   N_Vector y, abstol;
   SUNMatrix A;
   SUNLinearSolver LS;
@@ -250,11 +250,11 @@ int main(int argc, char *argv[])
  * Functions called by the solver
  *-------------------------------
  */
-static int f(realtype t, N_Vector y, N_Vector ydot, void *user_data)
+static int f(sunrealtype t, N_Vector y, N_Vector ydot, void *user_data)
 {
   UserData *udata;
   sunindextype groupj;
-  realtype y1, y2, y3, yd1, yd3;
+  sunrealtype y1, y2, y3, yd1, yd3;
 
   udata = (UserData*) user_data;
 
@@ -273,15 +273,15 @@ static int f(realtype t, N_Vector y, N_Vector ydot, void *user_data)
  * Jacobian routine. Compute J(t,y) = df/dy. *
  */
 
-static int Jac(realtype t, N_Vector y, N_Vector fy, SUNMatrix J,
+static int Jac(sunrealtype t, N_Vector y, N_Vector fy, SUNMatrix J,
                void *user_data, N_Vector tmp1, N_Vector tmp2, N_Vector tmp3)
 {
   UserData *udata = (UserData*) user_data;
   sunindextype *rowptrs = SUNSparseMatrix_IndexPointers(J);
   sunindextype *colvals = SUNSparseMatrix_IndexValues(J);
-  realtype *data = SUNSparseMatrix_Data(J);
-  realtype *ydata;
-  realtype y2, y3;
+  sunrealtype *data = SUNSparseMatrix_Data(J);
+  sunrealtype *ydata;
+  sunrealtype y2, y3;
   sunindextype groupj, nnzper;
 
   ydata = N_VGetArrayPointer(y);
@@ -335,7 +335,7 @@ static int Jac(realtype t, N_Vector y, N_Vector fy, SUNMatrix J,
  *-------------------------------
  */
 
-static void PrintOutput(realtype t, realtype y1, realtype y2, realtype y3)
+static void PrintOutput(sunrealtype t, sunrealtype y1, sunrealtype y2, sunrealtype y3)
 {
 #if defined(SUNDIALS_EXTENDED_PRECISION)
   printf("At t = %0.4Le      y =%14.6Le  %14.6Le  %14.6Le\n", t, y1, y2, y3);

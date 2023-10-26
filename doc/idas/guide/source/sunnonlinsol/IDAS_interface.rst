@@ -50,7 +50,7 @@ the ``SUNNonlinearSolver`` API. For example, such a user might need access to
 the current :math:`y` and :math:`\dot{y}` vectors to compute Jacobian data.
 
 
-.. c:function:: int IDAGetCurrentCj(void *ida_mem, realtype *cj)
+.. c:function:: int IDAGetCurrentCj(void *ida_mem, sunrealtype *cj)
 
    The function :c:func:`IDAGetCurrentCj` returns the scalar :math:`c_j` which is
    proportional to the inverse of the step size (:math:`\alpha` in
@@ -120,7 +120,7 @@ the current :math:`y` and :math:`\dot{y}` vectors to compute Jacobian data.
      * ``IDA_MEM_NULL`` -- The ``ida_mem`` pointer is ``NULL``.
 
 
-.. c:function:: int IDAGetNonlinearSystemData(void *ida_mem, realtype *tcur, N_Vector *yypred, N_Vector *yppred, N_Vector *yyn, N_Vector *ypn, N_Vector *res, realtype *cj, void **user_data)
+.. c:function:: int IDAGetNonlinearSystemData(void *ida_mem, sunrealtype *tcur, N_Vector *yypred, N_Vector *yppred, N_Vector *yyn, N_Vector *ypn, N_Vector *res, sunrealtype *cj, void **user_data)
 
    The function :c:func:`IDAGetNonlinearSystemData` returns all internal data
    required to construct the current nonlinear system :eq:`IDAS_res_corrector`.
@@ -179,7 +179,7 @@ the current :math:`y` and :math:`\dot{y}` vectors to compute Jacobian data.
       evaluation of the nonlinear system function.
 
 
-.. c:function:: int IDAGetNonlinearSystemDataSens(void * ida_mem, realtype* tcur, N_Vector** yySpred, N_Vector** ypSpred, N_Vector** yySn, N_Vector** ypSn, realtype* cj, void** user_data)
+.. c:function:: int IDAGetNonlinearSystemDataSens(void * ida_mem, sunrealtype* tcur, N_Vector** yySpred, N_Vector** ypSpred, N_Vector** yySn, N_Vector** ypSn, sunrealtype* cj, void** user_data)
 
    The function :c:func:`IDAGetNonlinearSystemDataSens` returns all internal
    sensitivity data required to construct the current nonlinear system

@@ -78,13 +78,13 @@
    contains problem parameters, grid constants, work array. */
 
 typedef struct {
-  realtype *p;
-  realtype dx;
+  sunrealtype *p;
+  sunrealtype dx;
 } *UserData;
 
 /* Functions Called by the CVODES Solver */
 
-static int f(realtype t, N_Vector u, N_Vector udot, void *user_data);
+static int f(sunrealtype t, N_Vector u, N_Vector udot, void *user_data);
 
 /* Private Helper Functions */
 
@@ -92,8 +92,8 @@ static void ProcessArgs(int argc, char *argv[],
                         booleantype *sensi, int *sensi_meth,
 			booleantype *err_con);
 static void WrongArgs(char *name);
-static void SetIC(N_Vector u, realtype dx);
-static void PrintOutput(void *cvode_mem, realtype t, N_Vector u);
+static void SetIC(N_Vector u, sunrealtype dx);
+static void PrintOutput(void *cvode_mem, sunrealtype t, N_Vector u);
 static void PrintOutputS(N_Vector *uS);
 static void PrintFinalStats(void *cvode_mem, booleantype sensi,
                             booleantype err_con, int sensi_meth);
@@ -110,11 +110,11 @@ int main(int argc, char *argv[])
 {
   void *cvode_mem;
   UserData data;
-  realtype dx, reltol, abstol, t, tout;
+  sunrealtype dx, reltol, abstol, t, tout;
   N_Vector u;
   int iout, retval;
 
-  realtype *pbar;
+  sunrealtype *pbar;
   int is, *plist;
   N_Vector *uS;
   booleantype sensi, err_con;
@@ -142,8 +142,8 @@ int main(int argc, char *argv[])
   /* Set user data */
   data = (UserData) malloc(sizeof *data); /* Allocate data memory */
   if(check_retval((void *)data, "malloc", 2)) return(1);
-  data->p = (realtype *) malloc(NP * sizeof(realtype));
-  dx = data->dx = XMAX/((realtype)(MX+1));
+  data->p = (sunrealtype *) malloc(NP * sizeof(sunrealtype));
+  dx = data->dx = XMAX/((sunrealtype)(MX+1));
   data->p[0] = RCONST(1.0);
   data->p[1] = RCONST(0.5);
 
@@ -187,7 +187,7 @@ int main(int argc, char *argv[])
     if(check_retval((void *)plist, "malloc", 2)) return(1);
     for(is=0; is<NS; is++) plist[is] = is;
 
-    pbar  = (realtype *) malloc(NS * sizeof(realtype));
+    pbar  = (sunrealtype *) malloc(NS * sizeof(sunrealtype));
     if(check_retval((void *)pbar, "malloc", 2)) return(1);
     for(is=0; is<NS; is++) pbar[is] = data->p[plist[is]];
 
@@ -293,11 +293,11 @@ int main(int argc, char *argv[])
  * f routine. Compute f(t,u).
  */
 
-static int f(realtype t, N_Vector u, N_Vector udot, void *user_data)
+static int f(sunrealtype t, N_Vector u, N_Vector udot, void *user_data)
 {
-  realtype ui, ult, urt, hordc, horac, hdiff, hadv;
-  realtype dx;
-  realtype *udata, *dudata;
+  sunrealtype ui, ult, urt, hordc, horac, hdiff, hadv;
+  sunrealtype dx;
+  sunrealtype *udata, *dudata;
   int i;
   UserData data;
 
@@ -396,11 +396,11 @@ static void WrongArgs(char *name)
  * Set initial conditions in u vector.
  */
 
-static void SetIC(N_Vector u, realtype dx)
+static void SetIC(N_Vector u, sunrealtype dx)
 {
   int i;
-  realtype x;
-  realtype *udata;
+  sunrealtype x;
+  sunrealtype *udata;
 
   /* Set pointer to data array and get local length of u. */
   udata = N_VGetArrayPointer(u);
@@ -416,11 +416,11 @@ static void SetIC(N_Vector u, realtype dx)
  * Print current t, step count, order, stepsize, and max norm of solution
  */
 
-static void PrintOutput(void *cvode_mem, realtype t, N_Vector u)
+static void PrintOutput(void *cvode_mem, sunrealtype t, N_Vector u)
 {
   long int nst;
   int qu, retval;
-  realtype hu;
+  sunrealtype hu;
 
   retval = CVodeGetNumSteps(cvode_mem, &nst);
   check_retval(&retval, "CVodeGetNumSteps", 1);

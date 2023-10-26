@@ -54,7 +54,7 @@ struct _SUNLinearSolverContent_SPGMR {
   int max_restarts;
   booleantype zeroguess;
   int numiters;
-  realtype resnorm;
+  sunrealtype resnorm;
   int last_flag;
 
   SUNATimesFn ATimes;
@@ -66,13 +66,13 @@ struct _SUNLinearSolverContent_SPGMR {
   N_Vector s1;
   N_Vector s2;
   N_Vector *V;
-  realtype **Hes;
-  realtype *givens;
+  sunrealtype **Hes;
+  sunrealtype *givens;
   N_Vector xcor;
-  realtype *yg;
+  sunrealtype *yg;
   N_Vector vtemp;
 
-  realtype *cv;
+  sunrealtype *cv;
   N_Vector *Xv;
 
   int print_level;
@@ -112,9 +112,9 @@ SUNDIALS_EXPORT int SUNLinSolSetZeroGuess_SPGMR(SUNLinearSolver S,
                                                 booleantype onff);
 SUNDIALS_EXPORT int SUNLinSolSetup_SPGMR(SUNLinearSolver S, SUNMatrix A);
 SUNDIALS_EXPORT int SUNLinSolSolve_SPGMR(SUNLinearSolver S, SUNMatrix A,
-                                         N_Vector x, N_Vector b, realtype tol);
+                                         N_Vector x, N_Vector b, sunrealtype tol);
 SUNDIALS_EXPORT int SUNLinSolNumIters_SPGMR(SUNLinearSolver S);
-SUNDIALS_EXPORT realtype SUNLinSolResNorm_SPGMR(SUNLinearSolver S);
+SUNDIALS_EXPORT sunrealtype SUNLinSolResNorm_SPGMR(SUNLinearSolver S);
 SUNDIALS_EXPORT N_Vector SUNLinSolResid_SPGMR(SUNLinearSolver S);
 SUNDIALS_EXPORT sunindextype SUNLinSolLastFlag_SPGMR(SUNLinearSolver S);
 SUNDIALS_EXPORT int SUNLinSolSpace_SPGMR(SUNLinearSolver S,

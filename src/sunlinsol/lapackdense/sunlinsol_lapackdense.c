@@ -24,7 +24,7 @@
 
 #include "sundials_lapack_defs.h"
 
-/* Interfaces to match 'realtype' with the correct LAPACK functions */
+/* Interfaces to match 'sunrealtype' with the correct LAPACK functions */
 #if defined(SUNDIALS_DOUBLE_PRECISION)
 #define xgetrf_f77    dgetrf_f77
 #define xgetrs_f77    dgetrs_f77
@@ -32,7 +32,7 @@
 #define xgetrf_f77    sgetrf_f77
 #define xgetrs_f77    sgetrs_f77
 #else
-#error  Incompatible realtype for LAPACK; disable LAPACK and rebuild
+#error  Incompatible sunrealtype for LAPACK; disable LAPACK and rebuild
 #endif
 
 #define ZERO  RCONST(0.0)
@@ -167,10 +167,10 @@ int SUNLinSolSetup_LapackDense(SUNLinearSolver S, SUNMatrix A)
 
 
 int SUNLinSolSolve_LapackDense(SUNLinearSolver S, SUNMatrix A, N_Vector x,
-                               N_Vector b, realtype tol)
+                               N_Vector b, sunrealtype tol)
 {
   sunindextype n, one, ier;
-  realtype *xdata;
+  sunrealtype *xdata;
 
   if ( (A == NULL) || (S == NULL) || (x == NULL) || (b == NULL) )
     return(SUNLS_MEM_NULL);

@@ -327,7 +327,7 @@ static int CVDiagSetup(CVodeMem cv_mem, int convfail, N_Vector ypred,
                        N_Vector fpred, booleantype *jcurPtr, N_Vector vtemp1,
                        N_Vector vtemp2, N_Vector vtemp3)
 {
-  realtype r;
+  sunrealtype r;
   N_Vector ftemp, y;
   booleantype invOK;
   CVDiagMem cvdiag_mem;
@@ -397,7 +397,7 @@ static int CVDiagSolve(CVodeMem cv_mem, N_Vector b, N_Vector weight,
                        N_Vector ycur, N_Vector fcur)
 {
   booleantype invOK;
-  realtype r;
+  sunrealtype r;
   CVDiagMem cvdiag_mem;
 
   cvdiag_mem = (CVDiagMem) lmem;

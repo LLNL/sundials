@@ -98,7 +98,7 @@ data types can be used. The header file that is always required is:
   header file for KINLS, ``kinsol/kinsol_ls.h``.
 
 Note that ``kinsol.h`` includes ``sundials_types.h``, which defines the types,
-``realtype``, ``sunindextype``, and ``booleantype`` and the constants
+``sunrealtype``, ``sunindextype``, and ``booleantype`` and the constants
 ``SUNFALSE`` and ``SUNTRUE``.
 
 The calling program must also include an ``N_Vector`` implementation
@@ -859,7 +859,7 @@ negative, so a test ``retval`` :math:`<0` will catch any error.
       where :math:`\eta_{\text{min}} = 10^{-4}` and :math:`\eta_{\text{max}} = 0.9`.
 
 
-.. c:function:: int KINSetEtaConstValue(void * kin_mem, realtype eta)
+.. c:function:: int KINSetEtaConstValue(void * kin_mem, sunrealtype eta)
 
    The function :c:func:`KINSetEtaConstValue` specifies the constant value  for
    :math:`\eta` in the case  ``etachoice = KIN_ETACONSTANT``.
@@ -878,7 +878,7 @@ negative, so a test ``retval`` :math:`<0` will catch any error.
       :math:`0.0 <` ``eta`` :math:`\le 1.0`.
 
 
-.. c:function:: int KINSetEtaParams(void * kin_mem, realtype egamma, realtype ealpha)
+.. c:function:: int KINSetEtaParams(void * kin_mem, sunrealtype egamma, sunrealtype ealpha)
 
    The function :c:func:`KINSetEtaParams` specifies the parameters
    :math:`\gamma` and  :math:`\alpha` in the formula for :math:`\eta`, in the
@@ -900,7 +900,7 @@ negative, so a test ``retval`` :math:`<0` will catch any error.
       :math:`\le 1.0` and  :math:`1.0<` ``ealpha`` :math:`\le 2.0`.
 
 
-.. c:function:: int KINSetResMonConstValue(void * kin_mem, realtype omegaconst)
+.. c:function:: int KINSetResMonConstValue(void * kin_mem, sunrealtype omegaconst)
 
    The function :c:func:`KINSetResMonConstValue` specifies the constant value
    for :math:`\omega` when using residual monitoring.
@@ -919,7 +919,7 @@ negative, so a test ``retval`` :math:`<0` will catch any error.
       :math:`0.0 <` ``omegaconst`` :math:`< 1.0`.
 
 
-.. c:function:: int KINSetResMonParams(void * kin_mem, realtype omegamin, realtype omegamax)
+.. c:function:: int KINSetResMonParams(void * kin_mem, sunrealtype omegamin, sunrealtype omegamax)
 
    The function :c:func:`KINSetResMonParams` specifies the parameters
    :math:`\omega_{min}` and  :math:`\omega_{max}` in the formula :eq:`KIN_resmon_omega` for
@@ -965,7 +965,7 @@ negative, so a test ``retval`` :math:`<0` will catch any error.
       :math:`\epsilon` (see :c:func:`KINSetFuncNormTol` below).
 
 
-.. c:function:: int KINSetMaxNewtonStep(void * kin_mem, realtype mxnewtstep)
+.. c:function:: int KINSetMaxNewtonStep(void * kin_mem, sunrealtype mxnewtstep)
 
    The function :c:func:`KINSetMaxNewtonStep` specifies the maximum allowable
    scaled  length of the Newton step.
@@ -985,7 +985,7 @@ negative, so a test ``retval`` :math:`<0` will catch any error.
       where :math:`u_0` is the initial guess.
 
 
-.. c:function:: int KINSetMaxBetaFails(void * kin_mem, realtype mxnbcf)
+.. c:function:: int KINSetMaxBetaFails(void * kin_mem, sunrealtype mxnbcf)
 
    The function :c:func:`KINSetMaxBetaFails` specifies the maximum number of
    :math:`\beta`-condition failures in the linesearch algorithm.
@@ -1004,7 +1004,7 @@ negative, so a test ``retval`` :math:`<0` will catch any error.
       The default value of ``mxnbcf`` is ``MXNBCF_DEFAULT`` :math:`=10`.
 
 
-.. c:function:: int KINSetRelErrFunc(void * kin_mem, realtype relfunc)
+.. c:function:: int KINSetRelErrFunc(void * kin_mem, sunrealtype relfunc)
 
    The function :c:func:`KINSetRelErrFunc` specifies the relative error in
    computing :math:`F(u)`, which is used in the difference quotient
@@ -1026,7 +1026,7 @@ negative, so a test ``retval`` :math:`<0` will catch any error.
       The default value for ``relfunc`` is :math:`U` = unit roundoff.
 
 
-.. c:function:: int KINSetFuncNormTol(void * kin_mem, realtype fnormtol)
+.. c:function:: int KINSetFuncNormTol(void * kin_mem, sunrealtype fnormtol)
 
    The function :c:func:`KINSetFuncNormTol` specifies the scalar used as a
    stopping  tolerance on the scaled maximum norm of the system function
@@ -1046,7 +1046,7 @@ negative, so a test ``retval`` :math:`<0` will catch any error.
       The default value for ``fnormtol`` is (unit roundoff) :math:`^{1/3}`.
 
 
-.. c:function:: int KINSetScaledStepTol(void * kin_mem, realtype scsteptol)
+.. c:function:: int KINSetScaledStepTol(void * kin_mem, sunrealtype scsteptol)
 
    The function :c:func:`KINSetScaledStepTol` specifies the scalar used  as a
    stopping tolerance on the minimum scaled step length.
@@ -1134,7 +1134,7 @@ negative, so a test ``retval`` :math:`<0` will catch any error.
       The default value of ``ret_newest`` is ``SUNFALSE``.
 
 
-.. c:function:: int KINSetDamping(void * kin_mem, realtype beta)
+.. c:function:: int KINSetDamping(void * kin_mem, sunrealtype beta)
 
    The function :c:func:`KINSetDamping` specifies the value of the damping
    parameter  in the fixed point or Picard iteration.
@@ -1186,7 +1186,7 @@ negative, so a test ``retval`` :math:`<0` will catch any error.
       value of ``mxiter``.
 
 
-.. c:function:: int KINSetDampingAA(void * kin_mem, realtype beta)
+.. c:function:: int KINSetDampingAA(void * kin_mem, sunrealtype beta)
 
    The function :c:func:`KINSetDampingAA` specifies the value of the Anderson
    acceleration damping paramter.
@@ -1499,7 +1499,7 @@ functions are described next.
 
    **Arguments:**
      * ``kin_mem`` -- pointer to the KINSOL memory block.
-     * ``lenrw`` -- the number of ``realtype`` values in the KINSOL workspace.
+     * ``lenrw`` -- the number of ``sunrealtype`` values in the KINSOL workspace.
      * ``leniw`` -- the number of integer values in the KINSOL workspace.
 
    **Return value:**
@@ -1508,7 +1508,7 @@ functions are described next.
 
    **Notes:**
       KINSOL solver  In terms of the problem size :math:`N`, the actual size of
-      the real workspace  is :math:`17 + 5 N` ``realtype`` words. The real workspace
+      the real workspace  is :math:`17 + 5 N` ``sunrealtype`` words. The real workspace
       is increased by  an additional :math:`N` words if constraint checking is
       enabled (see :c:func:`KINSetConstraints`).
 
@@ -1573,7 +1573,7 @@ functions are described next.
      * ``KIN_MEM_NULL`` -- The ``kin_mem`` pointer is ``NULL``.
 
 
-.. c:function:: int KINGetFuncNorm(void * kin_mem, realtype fnorm)
+.. c:function:: int KINGetFuncNorm(void * kin_mem, sunrealtype fnorm)
 
    The function :c:func:`KINGetFuncNorm` returns the scaled Euclidean
    :math:`\ell_2` norm of the  nonlinear system function :math:`F(u)` evaluated
@@ -1588,7 +1588,7 @@ functions are described next.
      * ``KIN_MEM_NULL`` -- The ``kin_mem`` pointer is ``NULL``.
 
 
-.. c:function:: int KINGetStepLength(void * kin_mem, realtype steplength)
+.. c:function:: int KINGetStepLength(void * kin_mem, sunrealtype steplength)
 
    The function :c:func:`KINGetStepLength` returns the scaled Euclidean
    :math:`\ell_2` norm of  the step used during the previous iteration.
@@ -2116,7 +2116,7 @@ provide a function of type :c:type:`KINLsJacFn` defined as follows:
       :math:`J_{m,n}`. The elements within the band are those with ``-mupper``
       :math:`\le` ``m-n`` :math:`\le` ``mlower``. Alternatively,
       ``SM_COLUMN_B(J, j)`` returns a pointer to the diagonal element of the
-      ``j``-th column of ``J``, and if we assign this address to ``realtype
+      ``j``-th column of ``J``, and if we assign this address to ``sunrealtype
       *col_j``, then the ``i``-th element of the ``j``-th column is given by
       ``SM_COLUMN_ELEMENT_B(col_j, i, j)``, counting from :math:`0`. Thus, for
       :math:`(m,n)` within the band, :math:`J_{m,n}` can be loaded by setting
@@ -2457,7 +2457,7 @@ user main program presented in :numref:`KINSOL.Usage.CC.skeleton_sim` are not bo
 The user-callable functions that initialize or re-initialize the KINBBDPRE
 preconditioner module are described next.
 
-.. c:function:: int KINBBDPrecInit(void* kin_mem, sunindextype Nlocal, sunindextype mudq, sunindexype mldq, sunindextype mukeep, sunindextype mlkeep, realtype dq_rel_u, KINBBDLocalFn Gloc, KINBBDCommFn Gcomm)
+.. c:function:: int KINBBDPrecInit(void* kin_mem, sunindextype Nlocal, sunindextype mudq, sunindexype mldq, sunindextype mukeep, sunindextype mlkeep, sunrealtype dq_rel_u, KINBBDLocalFn Gloc, KINBBDCommFn Gcomm)
 
    The function :c:func:`KINBBDPrecInit` initializes and allocates  memory for
    the KINBBDPRE preconditioner.

@@ -112,17 +112,17 @@
 /* Type : UserData */
 
 typedef struct {
-  realtype p[3];           /* problem parameters */
+  sunrealtype p[3];           /* problem parameters */
 } *UserData;
 
 /* Functions Called by the Solver */
 
-static int f(realtype t, N_Vector y, N_Vector ydot, void *user_data);
+static int f(sunrealtype t, N_Vector y, N_Vector ydot, void *user_data);
 
-static int Jac(realtype t, N_Vector y, N_Vector fy, SUNMatrix J,
+static int Jac(sunrealtype t, N_Vector y, N_Vector fy, SUNMatrix J,
                void *user_data, N_Vector tmp1, N_Vector tmp2, N_Vector tmp3);
 
-static int fS(int Ns, realtype t, N_Vector y, N_Vector ydot,
+static int fS(int Ns, sunrealtype t, N_Vector y, N_Vector ydot,
               int iS, N_Vector yS, N_Vector ySdot,
               void *user_data, N_Vector tmp1, N_Vector tmp2);
 
@@ -130,7 +130,7 @@ static int ewt(N_Vector y, N_Vector w, void *user_data);
 
 /* Private functions to output results */
 
-static void PrintOutput(void *cvode_mem, realtype t, N_Vector u);
+static void PrintOutput(void *cvode_mem, sunrealtype t, N_Vector u);
 static void PrintOutputS(N_Vector *uS);
 
 /* Prototypes of private functions */
@@ -155,7 +155,7 @@ static int check_retval(void *returnvalue, const char *funcname, int opt);
 int main(int argc, char *argv[])
 {
   SUNContext sunctx;
-  realtype t, tout;
+  sunrealtype t, tout;
   N_Vector y;
   SUNMatrix A;
   SUNLinearSolver LS;
@@ -165,7 +165,7 @@ int main(int argc, char *argv[])
   FILE* FID;
   char fname[256];
 
-  realtype pbar[NS];
+  sunrealtype pbar[NS];
   int is;
   N_Vector *yS;
   booleantype sensi, err_con;
@@ -371,11 +371,11 @@ int main(int argc, char *argv[])
  * f routine. Compute function f(t,y).
  */
 
-static int f(realtype t, N_Vector y, N_Vector ydot, void *user_data)
+static int f(sunrealtype t, N_Vector y, N_Vector ydot, void *user_data)
 {
-  realtype y1, y2, y3, yd1, yd3;
+  sunrealtype y1, y2, y3, yd1, yd3;
   UserData data;
-  realtype p1, p2, p3;
+  sunrealtype p1, p2, p3;
 
   y1 = Ith(y,1); y2 = Ith(y,2); y3 = Ith(y,3);
   data = (UserData) user_data;
@@ -392,12 +392,12 @@ static int f(realtype t, N_Vector y, N_Vector ydot, void *user_data)
  * Jacobian routine. Compute J(t,y) = df/dy. *
  */
 
-static int Jac(realtype t, N_Vector y, N_Vector fy, SUNMatrix J,
+static int Jac(sunrealtype t, N_Vector y, N_Vector fy, SUNMatrix J,
                void *user_data, N_Vector tmp1, N_Vector tmp2, N_Vector tmp3)
 {
-  realtype y2, y3;
+  sunrealtype y2, y3;
   UserData data;
-  realtype p1, p2, p3;
+  sunrealtype p1, p2, p3;
 
   y2 = Ith(y,2); y3 = Ith(y,3);
   data = (UserData) user_data;
@@ -414,15 +414,15 @@ static int Jac(realtype t, N_Vector y, N_Vector fy, SUNMatrix J,
  * fS routine. Compute sensitivity r.h.s.
  */
 
-static int fS(int Ns, realtype t, N_Vector y, N_Vector ydot,
+static int fS(int Ns, sunrealtype t, N_Vector y, N_Vector ydot,
               int iS, N_Vector yS, N_Vector ySdot,
               void *user_data, N_Vector tmp1, N_Vector tmp2)
 {
   UserData data;
-  realtype p1, p2, p3;
-  realtype y1, y2, y3;
-  realtype s1, s2, s3;
-  realtype sd1, sd2, sd3;
+  sunrealtype p1, p2, p3;
+  sunrealtype y1, y2, y3;
+  sunrealtype s1, s2, s3;
+  sunrealtype sd1, sd2, sd3;
 
   data = (UserData) user_data;
   p1 = data->p[0]; p2 = data->p[1]; p3 = data->p[2];
@@ -463,7 +463,7 @@ static int fS(int Ns, realtype t, N_Vector y, N_Vector ydot,
 static int ewt(N_Vector y, N_Vector w, void *user_data)
 {
   int i;
-  realtype yy, ww, rtol, atol[3];
+  sunrealtype yy, ww, rtol, atol[3];
 
   rtol    = RTOL;
   atol[0] = ATOL1;
@@ -543,11 +543,11 @@ static void WrongArgs(char *name)
  * Print current t, step count, order, stepsize, and solution.
  */
 
-static void PrintOutput(void *cvode_mem, realtype t, N_Vector u)
+static void PrintOutput(void *cvode_mem, sunrealtype t, N_Vector u)
 {
   long int nst;
   int qu, retval;
-  realtype hu, *udata;
+  sunrealtype hu, *udata;
 
   udata = N_VGetArrayPointer(u);
 
@@ -584,7 +584,7 @@ static void PrintOutput(void *cvode_mem, realtype t, N_Vector u)
 
 static void PrintOutputS(N_Vector *uS)
 {
-  realtype *sdata;
+  sunrealtype *sdata;
 
   sdata = N_VGetArrayPointer(uS[0]);
   printf("                  Sensitivity 1  ");

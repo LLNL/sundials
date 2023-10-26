@@ -23,7 +23,7 @@
 #include <nvector/nvector_serial.h>    /* access to serial NVector                 */
 #include <sunmatrix/sunmatrix_dense.h> /* access to dense SUNMatrix                */
 #include <sunlinsol/sunlinsol_dense.h> /* access to dense SUNLinearSolver          */
-#include <sundials/sundials_types.h>   /* defs. of realtype, sunindextype          */
+#include <sundials/sundials_types.h>   /* defs. of sunrealtype, sunindextype          */
 
 #if defined(SUNDIALS_EXTENDED_PRECISION)
 #define GSYM "Lg"
@@ -43,7 +43,7 @@
 
 /* User provided routine called by the solver to compute
  * the function f(t,y). */
-static int f(realtype t, N_Vector y, N_Vector ydot, void *f_data);
+static int f(sunrealtype t, N_Vector y, N_Vector ydot, void *f_data);
 
 /* Function for checking return values */
 static int check_retval(void *flagvalue, const char *funcname, int opt);
@@ -57,7 +57,7 @@ int main()
 
   N_Vector y;
   int flag, retval;
-  realtype reltol, abstol, t0, t1, t2, t;
+  sunrealtype reltol, abstol, t0, t1, t2, t;
   long int nst1, nst2, nst;
 
   reltol = RCONST(1.0e-3);
@@ -335,7 +335,7 @@ int main()
  *   flag = RHS2 -> y' = -5*y
  */
 
-static int f(realtype t, N_Vector y, N_Vector ydot, void *f_data)
+static int f(sunrealtype t, N_Vector y, N_Vector ydot, void *f_data)
 {
   int *flag;
 

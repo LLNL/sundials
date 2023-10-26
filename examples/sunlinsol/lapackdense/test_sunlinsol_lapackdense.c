@@ -39,7 +39,7 @@ int main(int argc, char *argv[])
   N_Vector        x, y, b;            /* test vectors               */
   int             print_timing, print_matrix_on_fail;
   sunindextype    j, k;
-  realtype        *colj, *xdata, *colIj;
+  sunrealtype        *colj, *xdata, *colIj;
   SUNContext      sunctx;
 
   if (SUNContext_Create(NULL, &sunctx)) {
@@ -81,7 +81,7 @@ int main(int argc, char *argv[])
   for (j=0; j<cols; j++) {
     colj = SUNDenseMatrix_Column(A, j);
     for (k=0; k<rows; k++)
-      colj[k] = (realtype) rand() / (realtype) RAND_MAX / cols;
+      colj[k] = (sunrealtype) rand() / (sunrealtype) RAND_MAX / cols;
   }
 
   /* Create anti-identity matrix */
@@ -104,7 +104,7 @@ int main(int argc, char *argv[])
   /* Fill x vector with uniform random data in [0,1] */
   xdata = N_VGetArrayPointer(x);
   for (j=0; j<cols; j++) {
-    xdata[j] = (realtype) rand() / (realtype) RAND_MAX;
+    xdata[j] = (sunrealtype) rand() / (sunrealtype) RAND_MAX;
   }
 
   /* copy A and x into B and y to print in case of solver failure */
@@ -168,11 +168,11 @@ int main(int argc, char *argv[])
 /* ----------------------------------------------------------------------
  * Implementation-specific 'check' routines
  * --------------------------------------------------------------------*/
-int check_vector(N_Vector X, N_Vector Y, realtype tol)
+int check_vector(N_Vector X, N_Vector Y, sunrealtype tol)
 {
   int failure = 0;
   sunindextype i, local_length;
-  realtype *Xdata, *Ydata, maxerr;
+  sunrealtype *Xdata, *Ydata, maxerr;
 
   Xdata = N_VGetArrayPointer(X);
   Ydata = N_VGetArrayPointer(Y);

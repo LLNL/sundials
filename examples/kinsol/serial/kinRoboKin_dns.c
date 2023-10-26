@@ -34,7 +34,7 @@
 #include <nvector/nvector_serial.h>    /* access to serial N_Vector       */
 #include <sunmatrix/sunmatrix_dense.h> /* access to dense SUNMatrix       */
 #include <sunlinsol/sunlinsol_dense.h> /* access to dense SUNLinearSolver */
-#include <sundials/sundials_types.h>   /* defs. of realtype, sunindextype */
+#include <sundials/sundials_types.h>   /* defs. of sunrealtype, sunindextype */
 #include <sundials/sundials_math.h>    /* access to SUNRsqrt              */
 
 /* Problem Constants */
@@ -67,7 +67,7 @@ static int check_retval(void *retvalvalue, const char *funcname, int opt);
 int main()
 {
   SUNContext sunctx;
-  realtype fnormtol, scsteptol;
+  sunrealtype fnormtol, scsteptol;
   N_Vector y, scale, constraints;
   int mset, retval, i;
   void *kmem;
@@ -193,15 +193,15 @@ int main()
 
 static int func(N_Vector y, N_Vector f, void *user_data)
 {
-  realtype *yd, *fd;
+  sunrealtype *yd, *fd;
 
-  realtype x1, x2, x3, x4, x5, x6, x7, x8;
-  realtype l1, l2, l3, l4, l5, l6, l7, l8;
-  realtype u1, u2, u3, u4, u5, u6, u7, u8;
+  sunrealtype x1, x2, x3, x4, x5, x6, x7, x8;
+  sunrealtype l1, l2, l3, l4, l5, l6, l7, l8;
+  sunrealtype u1, u2, u3, u4, u5, u6, u7, u8;
 
-  realtype eq1, eq2, eq3, eq4, eq5, eq6, eq7, eq8;
-  realtype lb1, lb2, lb3, lb4, lb5, lb6, lb7, lb8;
-  realtype ub1, ub2, ub3, ub4, ub5, ub6, ub7, ub8;
+  sunrealtype eq1, eq2, eq3, eq4, eq5, eq6, eq7, eq8;
+  sunrealtype lb1, lb2, lb3, lb4, lb5, lb6, lb7, lb8;
+  sunrealtype ub1, ub2, ub3, ub4, ub5, ub6, ub7, ub8;
 
   yd = N_VGetArrayPointer(y);
   fd = N_VGetArrayPointer(f);
@@ -270,8 +270,8 @@ static int jac(N_Vector y, N_Vector f,SUNMatrix J,
                void *user_data, N_Vector tmp1, N_Vector tmp2)
 {
   int i;
-  realtype *yd;
-  realtype x1, x2, x3, x4, x5, x6, x7, x8;
+  sunrealtype *yd;
+  sunrealtype x1, x2, x3, x4, x5, x6, x7, x8;
 
   yd = N_VGetArrayPointer(y);
 

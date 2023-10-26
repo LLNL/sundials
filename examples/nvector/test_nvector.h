@@ -34,12 +34,12 @@ extern "C" {
 extern SUNContext sunctx;
 
 /* Forward declarations for implementation specific utility functions */
-int check_ans(realtype ans, N_Vector X, sunindextype local_length);
+int check_ans(sunrealtype ans, N_Vector X, sunindextype local_length);
 booleantype has_data(N_Vector X);
-void set_element(N_Vector X, sunindextype i, realtype val);
+void set_element(N_Vector X, sunindextype i, sunrealtype val);
 void set_element_range(N_Vector X, sunindextype is, sunindextype ie,
-                       realtype val);
-realtype get_element(N_Vector X, sunindextype i);
+                       sunrealtype val);
+sunrealtype get_element(N_Vector X, sunindextype i);
 double max_time(N_Vector X, double time);
 void sync_device(N_Vector X);
 

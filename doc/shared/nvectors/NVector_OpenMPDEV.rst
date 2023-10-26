@@ -33,8 +33,8 @@ the ownership of host and device data arrays.
   {
     sunindextype length;
     booleantype  own_data;
-    realtype     *host_data;
-    realtype     *dev_data;
+    sunrealtype     *host_data;
+    sunrealtype     *dev_data;
   };
 
 The header file to include when using this module is ``nvector_openmpdev.h``.
@@ -144,19 +144,19 @@ user-callable routines:
    (``NULL``) data array.
 
 
-.. c:function:: N_Vector N_VMake_OpenMPDEV(sunindextype vec_length, realtype *h_vdata, realtype *d_vdata, SUNContext sunctx)
+.. c:function:: N_Vector N_VMake_OpenMPDEV(sunindextype vec_length, sunrealtype *h_vdata, sunrealtype *d_vdata, SUNContext sunctx)
 
    This function creates an NVECTOR_OPENMPDEV vector with user-supplied vector data
    arrays ``h_vdata`` and ``d_vdata``. This function does not allocate memory for
    data itself.
 
 
-.. c:function:: realtype *N_VGetHostArrayPointer_OpenMPDEV(N_Vector v)
+.. c:function:: sunrealtype *N_VGetHostArrayPointer_OpenMPDEV(N_Vector v)
 
    This function returns a pointer to the host data array.
 
 
-.. c:function:: realtype *N_VGetDeviceArrayPointer_OpenMPDEV(N_Vector v)
+.. c:function:: sunrealtype *N_VGetDeviceArrayPointer_OpenMPDEV(N_Vector v)
 
    This function returns a pointer to the device data array.
 

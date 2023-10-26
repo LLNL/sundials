@@ -290,7 +290,7 @@ int CVodeSetStabLimDetB(void *cvode_mem, int which, booleantype stldetB)
   return(flag);
 }
 
-int CVodeSetInitStepB(void *cvode_mem, int which, realtype hinB)
+int CVodeSetInitStepB(void *cvode_mem, int which, sunrealtype hinB)
 {
   CVodeMem cv_mem;
   CVadjMem ca_mem;
@@ -332,7 +332,7 @@ int CVodeSetInitStepB(void *cvode_mem, int which, realtype hinB)
   return(flag);
 }
 
-int CVodeSetMinStepB(void *cvode_mem, int which, realtype hminB)
+int CVodeSetMinStepB(void *cvode_mem, int which, sunrealtype hminB)
 {
   CVodeMem cv_mem;
   CVadjMem ca_mem;
@@ -374,7 +374,7 @@ int CVodeSetMinStepB(void *cvode_mem, int which, realtype hminB)
   return(flag);
 }
 
-int CVodeSetMaxStepB(void *cvode_mem, int which, realtype hmaxB)
+int CVodeSetMaxStepB(void *cvode_mem, int which, sunrealtype hmaxB)
 {
   CVodeMem cv_mem;
   CVadjMem ca_mem;
@@ -626,7 +626,7 @@ int CVodeGetAdjCheckPointsInfo(void *cvode_mem, CVadjCheckPointRec *ckpnt)
  */
 
 int CVodeGetAdjDataPointHermite(void *cvode_mem, int which, 
-                                realtype *t, N_Vector y, N_Vector yd)
+                                sunrealtype *t, N_Vector y, N_Vector yd)
 {
   CVodeMem cv_mem;
   CVadjMem ca_mem;
@@ -675,7 +675,7 @@ int CVodeGetAdjDataPointHermite(void *cvode_mem, int which,
  */
 
 int CVodeGetAdjDataPointPolynomial(void *cvode_mem, int which, 
-                                   realtype *t, int *order, N_Vector y)
+                                   sunrealtype *t, int *order, N_Vector y)
 {
   CVodeMem cv_mem;
   CVadjMem ca_mem;

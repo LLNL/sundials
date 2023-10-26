@@ -69,12 +69,12 @@ provide macros to access its member variables. Instead, user should use the
 accessor functions:
 
 
-.. c:function:: realtype* N_VGetHostArrayPointer_Hip(N_Vector v)
+.. c:function:: sunrealtype* N_VGetHostArrayPointer_Hip(N_Vector v)
 
    This function returns pointer to the vector data on the host.
 
 
-.. c:function:: realtype* N_VGetDeviceArrayPointer_Hip(N_Vector v)
+.. c:function:: sunrealtype* N_VGetDeviceArrayPointer_Hip(N_Vector v)
 
    This function returns pointer to the vector data on the device.
 
@@ -122,14 +122,14 @@ following additional user-callable routines:
    other constructors to create a new vector.
 
 
-.. c:function:: N_Vector N_VMake_Hip(sunindextype vec_length, realtype *h_vdata, realtype *d_vdata, SUNContext sunctx)
+.. c:function:: N_Vector N_VMake_Hip(sunindextype vec_length, sunrealtype *h_vdata, sunrealtype *d_vdata, SUNContext sunctx)
 
 
    This function creates a HIP ``N_Vector`` with user-supplied vector data arrays
    for the host and the device.
 
 
-.. c:function:: N_Vector N_VMakeManaged_Hip(sunindextype vec_length, realtype *vdata, SUNContext sunctx)
+.. c:function:: N_Vector N_VMakeManaged_Hip(sunindextype vec_length, sunrealtype *vdata, SUNContext sunctx)
 
    This function creates a HIP ``N_Vector`` with a user-supplied
    managed memory data array.
@@ -163,12 +163,12 @@ The module NVECTOR_HIP also provides the following user-callable routines:
       policies across vectors*
 
 
-.. c:function:: realtype* N_VCopyToDevice_Hip(N_Vector v)
+.. c:function:: sunrealtype* N_VCopyToDevice_Hip(N_Vector v)
 
    This function copies host vector data to the device.
 
 
-.. c:function:: realtype* N_VCopyFromDevice_Hip(N_Vector v)
+.. c:function:: sunrealtype* N_VCopyFromDevice_Hip(N_Vector v)
 
    This function copies vector data from the device to the host.
 

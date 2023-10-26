@@ -60,8 +60,8 @@ typedef struct CVodeProjMemRec {
 
   CVProjFn pfun;              /* function to perform projection              */
 
-  realtype eps_proj;          /* projection solve tolerance                  */
-  realtype eta_pfail;         /* projection failure step reduction factor    */
+  sunrealtype eps_proj;          /* projection solve tolerance                  */
+  sunrealtype eta_pfail;         /* projection failure step reduction factor    */
 
   long int nproj;             /* number of projections performed             */
   long int npfails;           /* number of projection failures               */

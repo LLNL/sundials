@@ -143,11 +143,11 @@
 
 typedef struct {
   /* Domain */
-  realtype xmin[DIM];  /* "left" boundaries */
-  realtype xmax[DIM];  /* "right" boundaries */
+  sunrealtype xmin[DIM];  /* "left" boundaries */
+  sunrealtype xmax[DIM];  /* "right" boundaries */
   int m[DIM];          /* number of grid points */
-  realtype dx[DIM];    /* grid spacing */
-  realtype dOmega;     /* differential volume */
+  sunrealtype dx[DIM];    /* grid spacing */
+  sunrealtype dOmega;     /* differential volume */
 
   /* Parallel stuff */
   MPI_Comm comm;       /* MPI communicator */
@@ -158,9 +158,9 @@ typedef struct {
   int nbr_right[DIM];  /* MPI ID of "right" neighbor */
   int m_start[DIM];    /* "left" index in the global domain */
   int l_m[DIM];        /* number of local grid points */
-  realtype *y_ext;     /* extended data array */
-  realtype *buf_send;  /* Send buffer */
-  realtype *buf_recv;  /* Receive buffer */
+  sunrealtype *y_ext;     /* extended data array */
+  sunrealtype *buf_send;  /* Send buffer */
+  sunrealtype *buf_recv;  /* Receive buffer */
   int buf_size;        /* Buffer size */
 
   /* Source */
@@ -174,20 +174,20 @@ typedef struct {
  *------------------------------------------------------------------
  */
 
-static int f(realtype t, N_Vector y, N_Vector ydot, void *user_data);
-static int f_local(sunindextype Nlocal, realtype t, N_Vector y,
+static int f(sunrealtype t, N_Vector y, N_Vector ydot, void *user_data);
+static int f_local(sunindextype Nlocal, sunrealtype t, N_Vector y,
                    N_Vector ydot, void *user_data);
 
-static int fQ(realtype t, N_Vector y, N_Vector qdot, void *user_data);
+static int fQ(sunrealtype t, N_Vector y, N_Vector qdot, void *user_data);
 
 
-static int fB(realtype t, N_Vector y, N_Vector yB, N_Vector yBdot,
+static int fB(sunrealtype t, N_Vector y, N_Vector yB, N_Vector yBdot,
               void *user_dataB);
-static int fB_local(sunindextype NlocalB, realtype t,
+static int fB_local(sunindextype NlocalB, sunrealtype t,
                     N_Vector y, N_Vector yB, N_Vector yBdot,
                     void *user_dataB);
 
-static int fQB(realtype t, N_Vector y, N_Vector yB,
+static int fQB(sunrealtype t, N_Vector y, N_Vector yB,
                N_Vector qBdot, void *user_dataB);
 
 /*
@@ -199,8 +199,8 @@ static int fQB(realtype t, N_Vector y, N_Vector yB,
 static void SetData(ProblemData d, MPI_Comm comm, int npes, int myId,
                     sunindextype *neq, sunindextype *l_neq);
 static void SetSource(ProblemData d);
-static void f_comm(sunindextype Nlocal, realtype t, N_Vector y, void *user_data);
-static void Load_yext(realtype *src, ProblemData d);
+static void f_comm(sunindextype Nlocal, sunrealtype t, N_Vector y, void *user_data);
+static void Load_yext(sunrealtype *src, ProblemData d);
 static void PrintHeader();
 static int PrintFinalStats(void *cvode_mem);
 static void OutputGradient(int myId, N_Vector qB, ProblemData d);
@@ -227,15 +227,15 @@ int main(int argc, char *argv[])
   void *cvode_mem;
   SUNLinearSolver LS;
   N_Vector y, q;
-  realtype abstol, reltol, abstolQ, reltolQ;
+  sunrealtype abstol, reltol, abstolQ, reltolQ;
   sunindextype mudq, mldq, mukeep, mlkeep;
 
   int indexB;
   N_Vector yB, qB;
-  realtype abstolB, reltolB, abstolQB, reltolQB;
+  sunrealtype abstolB, reltolB, abstolQB, reltolQB;
   sunindextype mudqB, mldqB, mukeepB, mlkeepB;
 
-  realtype tret, *qdata, G;
+  sunrealtype tret, *qdata, G;
 
   int ncheckpnt, retval;
 
@@ -561,7 +561,7 @@ static void SetData(ProblemData d, MPI_Comm comm, int npes, int myId,
 
   size = 1;
   FOR_DIM size *= d->l_m[dim]+2;
-  d->y_ext = (realtype *) malloc( size*sizeof(realtype));
+  d->y_ext = (sunrealtype *) malloc( size*sizeof(sunrealtype));
 
   /* Initialize Buffer field.
      Size of buffer is checked when needed */
@@ -585,8 +585,8 @@ static void SetData(ProblemData d, MPI_Comm comm, int npes, int myId,
 static void SetSource(ProblemData d)
 {
   int *l_m, *m_start;
-  realtype *xmin, *dx;
-  realtype x[DIM], g, *pdata;
+  sunrealtype *xmin, *dx;
+  sunrealtype x[DIM], g, *pdata;
   int i[DIM];
 
   l_m  = d->l_m;
@@ -644,14 +644,14 @@ static void SetSource(ProblemData d)
  *------------------------------------------------------------------
  */
 
-static void f_comm(sunindextype N_local, realtype t, N_Vector y, void *user_data)
+static void f_comm(sunindextype N_local, sunrealtype t, N_Vector y, void *user_data)
 {
   int id, n[DIM], proc_cond[DIM], nbr[DIM][2];
   ProblemData d;
-  realtype *yextdata, *ydata;
+  sunrealtype *yextdata, *ydata;
   int l_m[DIM], dim;
   int c, i[DIM], l[DIM-1];
-  realtype *buf_send, *buf_recv;
+  sunrealtype *buf_send, *buf_recv;
   MPI_Status stat;
   MPI_Comm comm;
   int dir, size = 1, small = INT_MAX;
@@ -677,8 +677,8 @@ static void f_comm(sunindextype N_local, realtype t, N_Vector y, void *user_data
 
   /* Adjust buffer size if necessary */
   if( d->buf_size < size ) {
-    d->buf_send = (realtype*) realloc( d->buf_send, size * sizeof(realtype));
-    d->buf_recv = (realtype*) realloc( d->buf_recv, size * sizeof(realtype));
+    d->buf_send = (sunrealtype*) realloc( d->buf_send, size * sizeof(sunrealtype));
+    d->buf_recv = (sunrealtype*) realloc( d->buf_recv, size * sizeof(sunrealtype));
     d->buf_size = size;
   }
 
@@ -754,7 +754,7 @@ static void f_comm(sunindextype N_local, realtype t, N_Vector y, void *user_data
  *------------------------------------------------------------------
  */
 
-static int f(realtype t, N_Vector y, N_Vector ydot, void *user_data)
+static int f(sunrealtype t, N_Vector y, N_Vector ydot, void *user_data)
 {
   ProblemData d;
   sunindextype l_neq=1;
@@ -772,13 +772,13 @@ static int f(realtype t, N_Vector y, N_Vector ydot, void *user_data)
   return(0);
 }
 
-static int f_local(sunindextype Nlocal, realtype t, N_Vector y,
+static int f_local(sunindextype Nlocal, sunrealtype t, N_Vector y,
                    N_Vector ydot, void *user_data)
 {
-  realtype *Ydata, *dydata, *pdata;
-  realtype dx[DIM], c, v[DIM], cl[DIM], cr[DIM];
-  realtype adv[DIM], diff[DIM];
-  realtype xmin[DIM], x[DIM], x1;
+  sunrealtype *Ydata, *dydata, *pdata;
+  sunrealtype dx[DIM], c, v[DIM], cl[DIM], cr[DIM];
+  sunrealtype adv[DIM], diff[DIM];
+  sunrealtype xmin[DIM], x[DIM], x1;
   int i[DIM], l_m[DIM], m_start[DIM], nbr_left[DIM], nbr_right[DIM], id;
   ProblemData d;
   int dim;
@@ -869,10 +869,10 @@ static int f_local(sunindextype Nlocal, realtype t, N_Vector y,
  *------------------------------------------------------------------
  */
 
-static int fQ(realtype t, N_Vector y, N_Vector qdot, void *user_data)
+static int fQ(sunrealtype t, N_Vector y, N_Vector qdot, void *user_data)
 {
   ProblemData d;
-  realtype *dqdata;
+  sunrealtype *dqdata;
 
   d = (ProblemData) user_data;
 
@@ -891,7 +891,7 @@ static int fQ(realtype t, N_Vector y, N_Vector qdot, void *user_data)
  *------------------------------------------------------------------
  */
 
-static int fB(realtype t, N_Vector y, N_Vector yB, N_Vector yBdot,
+static int fB(sunrealtype t, N_Vector y, N_Vector yB, N_Vector yBdot,
               void *user_dataB)
 {
   ProblemData d;
@@ -910,14 +910,14 @@ static int fB(realtype t, N_Vector y, N_Vector yB, N_Vector yBdot,
   return(0);
 }
 
-static int fB_local(sunindextype NlocalB, realtype t,
+static int fB_local(sunindextype NlocalB, sunrealtype t,
                     N_Vector y, N_Vector yB, N_Vector dyB,
                     void *user_dataB)
 {
-  realtype *YBdata, *dyBdata, *ydata;
-  realtype dx[DIM], c, v[DIM], cl[DIM], cr[DIM];
-  realtype adv[DIM], diff[DIM];
-  realtype xmin[DIM], x[DIM], x1;
+  sunrealtype *YBdata, *dyBdata, *ydata;
+  sunrealtype dx[DIM], c, v[DIM], cl[DIM], cr[DIM];
+  sunrealtype adv[DIM], diff[DIM];
+  sunrealtype xmin[DIM], x[DIM], x1;
   int i[DIM], l_m[DIM], m_start[DIM], nbr_left[DIM], nbr_right[DIM], id;
   ProblemData d;
   int dim;
@@ -1008,7 +1008,7 @@ static int fB_local(sunindextype NlocalB, realtype t,
  *------------------------------------------------------------------
  */
 
-static int fQB(realtype t, N_Vector y, N_Vector yB, N_Vector qBdot,
+static int fQB(sunrealtype t, N_Vector y, N_Vector yB, N_Vector qBdot,
                void *user_dataB)
 {
   ProblemData d;
@@ -1028,7 +1028,7 @@ static int fQB(realtype t, N_Vector y, N_Vector yB, N_Vector qBdot,
  *------------------------------------------------------------------
  */
 
-static void Load_yext(realtype *src, ProblemData d)
+static void Load_yext(sunrealtype *src, ProblemData d)
 {
   int i[DIM], l_m[DIM], dim;
 
@@ -1158,8 +1158,8 @@ static void OutputGradient(int myId, N_Vector qB, ProblemData d)
   FILE *fid;
   char filename[20];
   int *l_m, *m_start, i[DIM],ip;
-  realtype *xmin, *dx;
-  realtype x[DIM], *pdata, p, *qBdata, g;
+  sunrealtype *xmin, *dx;
+  sunrealtype x[DIM], *pdata, p, *qBdata, g;
 
   sprintf(filename,"grad%03d.m",myId);
   fid = fopen(filename,"w");

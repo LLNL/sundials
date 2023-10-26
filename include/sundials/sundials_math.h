@@ -233,9 +233,9 @@ SUNDIALS_EXPORT booleantype SUNRCompareTol(sunrealtype a, sunrealtype b, sunreal
  * -----------------------------------------------------------------
  * Function : SUNStrToReal
  * -----------------------------------------------------------------
- * Usage : realtype a = SUNStrToReal(const char* str)
+ * Usage : sunrealtype a = SUNStrToReal(const char* str)
  * -----------------------------------------------------------------
- * SUNStrToReal parses str into the realtype variable. Uses standard
+ * SUNStrToReal parses str into the sunrealtype variable. Uses standard
  * strtod variants when they are available.
  * -----------------------------------------------------------------
  */

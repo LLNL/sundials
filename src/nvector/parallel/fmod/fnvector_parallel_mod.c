@@ -257,7 +257,7 @@ SWIGEXPORT N_Vector _wrap_FN_VMake_Parallel(int const *farg1, int64_t const *far
   MPI_Comm arg1 ;
   sunindextype arg2 ;
   sunindextype arg3 ;
-  realtype *arg4 = (realtype *) 0 ;
+  sunrealtype *arg4 = (sunrealtype *) 0 ;
   SUNContext arg5 = (SUNContext) 0 ;
   N_Vector result;
   
@@ -268,7 +268,7 @@ SWIGEXPORT N_Vector _wrap_FN_VMake_Parallel(int const *farg1, int64_t const *far
 #endif
   arg2 = (sunindextype)(*farg2);
   arg3 = (sunindextype)(*farg3);
-  arg4 = (realtype *)(farg4);
+  arg4 = (sunrealtype *)(farg4);
   arg5 = (SUNContext)(farg5);
   result = (N_Vector)N_VMake_Parallel(arg1,arg2,arg3,arg4,arg5);
   fresult = result;
@@ -375,10 +375,10 @@ SWIGEXPORT void _wrap_FN_VSpace_Parallel(N_Vector farg1, int64_t *farg2, int64_t
 
 
 SWIGEXPORT void _wrap_FN_VSetArrayPointer_Parallel(double *farg1, N_Vector farg2) {
-  realtype *arg1 = (realtype *) 0 ;
+  sunrealtype *arg1 = (sunrealtype *) 0 ;
   N_Vector arg2 = (N_Vector) 0 ;
   
-  arg1 = (realtype *)(farg1);
+  arg1 = (sunrealtype *)(farg1);
   arg2 = (N_Vector)(farg2);
   N_VSetArrayPointer_Parallel(arg1,arg2);
 }
@@ -397,15 +397,15 @@ SWIGEXPORT void * _wrap_FN_VGetCommunicator_Parallel(N_Vector farg1) {
 
 
 SWIGEXPORT void _wrap_FN_VLinearSum_Parallel(double const *farg1, N_Vector farg2, double const *farg3, N_Vector farg4, N_Vector farg5) {
-  realtype arg1 ;
+  sunrealtype arg1 ;
   N_Vector arg2 = (N_Vector) 0 ;
-  realtype arg3 ;
+  sunrealtype arg3 ;
   N_Vector arg4 = (N_Vector) 0 ;
   N_Vector arg5 = (N_Vector) 0 ;
   
-  arg1 = (realtype)(*farg1);
+  arg1 = (sunrealtype)(*farg1);
   arg2 = (N_Vector)(farg2);
-  arg3 = (realtype)(*farg3);
+  arg3 = (sunrealtype)(*farg3);
   arg4 = (N_Vector)(farg4);
   arg5 = (N_Vector)(farg5);
   N_VLinearSum_Parallel(arg1,arg2,arg3,arg4,arg5);
@@ -413,10 +413,10 @@ SWIGEXPORT void _wrap_FN_VLinearSum_Parallel(double const *farg1, N_Vector farg2
 
 
 SWIGEXPORT void _wrap_FN_VConst_Parallel(double const *farg1, N_Vector farg2) {
-  realtype arg1 ;
+  sunrealtype arg1 ;
   N_Vector arg2 = (N_Vector) 0 ;
   
-  arg1 = (realtype)(*farg1);
+  arg1 = (sunrealtype)(*farg1);
   arg2 = (N_Vector)(farg2);
   N_VConst_Parallel(arg1,arg2);
 }
@@ -447,11 +447,11 @@ SWIGEXPORT void _wrap_FN_VDiv_Parallel(N_Vector farg1, N_Vector farg2, N_Vector 
 
 
 SWIGEXPORT void _wrap_FN_VScale_Parallel(double const *farg1, N_Vector farg2, N_Vector farg3) {
-  realtype arg1 ;
+  sunrealtype arg1 ;
   N_Vector arg2 = (N_Vector) 0 ;
   N_Vector arg3 = (N_Vector) 0 ;
   
-  arg1 = (realtype)(*farg1);
+  arg1 = (sunrealtype)(*farg1);
   arg2 = (N_Vector)(farg2);
   arg3 = (N_Vector)(farg3);
   N_VScale_Parallel(arg1,arg2,arg3);
@@ -480,11 +480,11 @@ SWIGEXPORT void _wrap_FN_VInv_Parallel(N_Vector farg1, N_Vector farg2) {
 
 SWIGEXPORT void _wrap_FN_VAddConst_Parallel(N_Vector farg1, double const *farg2, N_Vector farg3) {
   N_Vector arg1 = (N_Vector) 0 ;
-  realtype arg2 ;
+  sunrealtype arg2 ;
   N_Vector arg3 = (N_Vector) 0 ;
   
   arg1 = (N_Vector)(farg1);
-  arg2 = (realtype)(*farg2);
+  arg2 = (sunrealtype)(*farg2);
   arg3 = (N_Vector)(farg3);
   N_VAddConst_Parallel(arg1,arg2,arg3);
 }
@@ -494,12 +494,12 @@ SWIGEXPORT double _wrap_FN_VDotProd_Parallel(N_Vector farg1, N_Vector farg2) {
   double fresult ;
   N_Vector arg1 = (N_Vector) 0 ;
   N_Vector arg2 = (N_Vector) 0 ;
-  realtype result;
+  sunrealtype result;
   
   arg1 = (N_Vector)(farg1);
   arg2 = (N_Vector)(farg2);
-  result = (realtype)N_VDotProd_Parallel(arg1,arg2);
-  fresult = (realtype)(result);
+  result = (sunrealtype)N_VDotProd_Parallel(arg1,arg2);
+  fresult = (sunrealtype)(result);
   return fresult;
 }
 
@@ -507,11 +507,11 @@ SWIGEXPORT double _wrap_FN_VDotProd_Parallel(N_Vector farg1, N_Vector farg2) {
 SWIGEXPORT double _wrap_FN_VMaxNorm_Parallel(N_Vector farg1) {
   double fresult ;
   N_Vector arg1 = (N_Vector) 0 ;
-  realtype result;
+  sunrealtype result;
   
   arg1 = (N_Vector)(farg1);
-  result = (realtype)N_VMaxNorm_Parallel(arg1);
-  fresult = (realtype)(result);
+  result = (sunrealtype)N_VMaxNorm_Parallel(arg1);
+  fresult = (sunrealtype)(result);
   return fresult;
 }
 
@@ -520,12 +520,12 @@ SWIGEXPORT double _wrap_FN_VWrmsNorm_Parallel(N_Vector farg1, N_Vector farg2) {
   double fresult ;
   N_Vector arg1 = (N_Vector) 0 ;
   N_Vector arg2 = (N_Vector) 0 ;
-  realtype result;
+  sunrealtype result;
   
   arg1 = (N_Vector)(farg1);
   arg2 = (N_Vector)(farg2);
-  result = (realtype)N_VWrmsNorm_Parallel(arg1,arg2);
-  fresult = (realtype)(result);
+  result = (sunrealtype)N_VWrmsNorm_Parallel(arg1,arg2);
+  fresult = (sunrealtype)(result);
   return fresult;
 }
 
@@ -535,13 +535,13 @@ SWIGEXPORT double _wrap_FN_VWrmsNormMask_Parallel(N_Vector farg1, N_Vector farg2
   N_Vector arg1 = (N_Vector) 0 ;
   N_Vector arg2 = (N_Vector) 0 ;
   N_Vector arg3 = (N_Vector) 0 ;
-  realtype result;
+  sunrealtype result;
   
   arg1 = (N_Vector)(farg1);
   arg2 = (N_Vector)(farg2);
   arg3 = (N_Vector)(farg3);
-  result = (realtype)N_VWrmsNormMask_Parallel(arg1,arg2,arg3);
-  fresult = (realtype)(result);
+  result = (sunrealtype)N_VWrmsNormMask_Parallel(arg1,arg2,arg3);
+  fresult = (sunrealtype)(result);
   return fresult;
 }
 
@@ -549,11 +549,11 @@ SWIGEXPORT double _wrap_FN_VWrmsNormMask_Parallel(N_Vector farg1, N_Vector farg2
 SWIGEXPORT double _wrap_FN_VMin_Parallel(N_Vector farg1) {
   double fresult ;
   N_Vector arg1 = (N_Vector) 0 ;
-  realtype result;
+  sunrealtype result;
   
   arg1 = (N_Vector)(farg1);
-  result = (realtype)N_VMin_Parallel(arg1);
-  fresult = (realtype)(result);
+  result = (sunrealtype)N_VMin_Parallel(arg1);
+  fresult = (sunrealtype)(result);
   return fresult;
 }
 
@@ -562,12 +562,12 @@ SWIGEXPORT double _wrap_FN_VWL2Norm_Parallel(N_Vector farg1, N_Vector farg2) {
   double fresult ;
   N_Vector arg1 = (N_Vector) 0 ;
   N_Vector arg2 = (N_Vector) 0 ;
-  realtype result;
+  sunrealtype result;
   
   arg1 = (N_Vector)(farg1);
   arg2 = (N_Vector)(farg2);
-  result = (realtype)N_VWL2Norm_Parallel(arg1,arg2);
-  fresult = (realtype)(result);
+  result = (sunrealtype)N_VWL2Norm_Parallel(arg1,arg2);
+  fresult = (sunrealtype)(result);
   return fresult;
 }
 
@@ -575,21 +575,21 @@ SWIGEXPORT double _wrap_FN_VWL2Norm_Parallel(N_Vector farg1, N_Vector farg2) {
 SWIGEXPORT double _wrap_FN_VL1Norm_Parallel(N_Vector farg1) {
   double fresult ;
   N_Vector arg1 = (N_Vector) 0 ;
-  realtype result;
+  sunrealtype result;
   
   arg1 = (N_Vector)(farg1);
-  result = (realtype)N_VL1Norm_Parallel(arg1);
-  fresult = (realtype)(result);
+  result = (sunrealtype)N_VL1Norm_Parallel(arg1);
+  fresult = (sunrealtype)(result);
   return fresult;
 }
 
 
 SWIGEXPORT void _wrap_FN_VCompare_Parallel(double const *farg1, N_Vector farg2, N_Vector farg3) {
-  realtype arg1 ;
+  sunrealtype arg1 ;
   N_Vector arg2 = (N_Vector) 0 ;
   N_Vector arg3 = (N_Vector) 0 ;
   
-  arg1 = (realtype)(*farg1);
+  arg1 = (sunrealtype)(*farg1);
   arg2 = (N_Vector)(farg2);
   arg3 = (N_Vector)(farg3);
   N_VCompare_Parallel(arg1,arg2,arg3);
@@ -630,12 +630,12 @@ SWIGEXPORT double _wrap_FN_VMinQuotient_Parallel(N_Vector farg1, N_Vector farg2)
   double fresult ;
   N_Vector arg1 = (N_Vector) 0 ;
   N_Vector arg2 = (N_Vector) 0 ;
-  realtype result;
+  sunrealtype result;
   
   arg1 = (N_Vector)(farg1);
   arg2 = (N_Vector)(farg2);
-  result = (realtype)N_VMinQuotient_Parallel(arg1,arg2);
-  fresult = (realtype)(result);
+  result = (sunrealtype)N_VMinQuotient_Parallel(arg1,arg2);
+  fresult = (sunrealtype)(result);
   return fresult;
 }
 
@@ -643,13 +643,13 @@ SWIGEXPORT double _wrap_FN_VMinQuotient_Parallel(N_Vector farg1, N_Vector farg2)
 SWIGEXPORT int _wrap_FN_VLinearCombination_Parallel(int const *farg1, double *farg2, void *farg3, N_Vector farg4) {
   int fresult ;
   int arg1 ;
-  realtype *arg2 = (realtype *) 0 ;
+  sunrealtype *arg2 = (sunrealtype *) 0 ;
   N_Vector *arg3 = (N_Vector *) 0 ;
   N_Vector arg4 = (N_Vector) 0 ;
   int result;
   
   arg1 = (int)(*farg1);
-  arg2 = (realtype *)(farg2);
+  arg2 = (sunrealtype *)(farg2);
   arg3 = (N_Vector *)(farg3);
   arg4 = (N_Vector)(farg4);
   result = (int)N_VLinearCombination_Parallel(arg1,arg2,arg3,arg4);
@@ -661,14 +661,14 @@ SWIGEXPORT int _wrap_FN_VLinearCombination_Parallel(int const *farg1, double *fa
 SWIGEXPORT int _wrap_FN_VScaleAddMulti_Parallel(int const *farg1, double *farg2, N_Vector farg3, void *farg4, void *farg5) {
   int fresult ;
   int arg1 ;
-  realtype *arg2 = (realtype *) 0 ;
+  sunrealtype *arg2 = (sunrealtype *) 0 ;
   N_Vector arg3 = (N_Vector) 0 ;
   N_Vector *arg4 = (N_Vector *) 0 ;
   N_Vector *arg5 = (N_Vector *) 0 ;
   int result;
   
   arg1 = (int)(*farg1);
-  arg2 = (realtype *)(farg2);
+  arg2 = (sunrealtype *)(farg2);
   arg3 = (N_Vector)(farg3);
   arg4 = (N_Vector *)(farg4);
   arg5 = (N_Vector *)(farg5);
@@ -683,13 +683,13 @@ SWIGEXPORT int _wrap_FN_VDotProdMulti_Parallel(int const *farg1, N_Vector farg2,
   int arg1 ;
   N_Vector arg2 = (N_Vector) 0 ;
   N_Vector *arg3 = (N_Vector *) 0 ;
-  realtype *arg4 = (realtype *) 0 ;
+  sunrealtype *arg4 = (sunrealtype *) 0 ;
   int result;
   
   arg1 = (int)(*farg1);
   arg2 = (N_Vector)(farg2);
   arg3 = (N_Vector *)(farg3);
-  arg4 = (realtype *)(farg4);
+  arg4 = (sunrealtype *)(farg4);
   result = (int)N_VDotProdMulti_Parallel(arg1,arg2,arg3,arg4);
   fresult = (int)(result);
   return fresult;
@@ -699,17 +699,17 @@ SWIGEXPORT int _wrap_FN_VDotProdMulti_Parallel(int const *farg1, N_Vector farg2,
 SWIGEXPORT int _wrap_FN_VLinearSumVectorArray_Parallel(int const *farg1, double const *farg2, void *farg3, double const *farg4, void *farg5, void *farg6) {
   int fresult ;
   int arg1 ;
-  realtype arg2 ;
+  sunrealtype arg2 ;
   N_Vector *arg3 = (N_Vector *) 0 ;
-  realtype arg4 ;
+  sunrealtype arg4 ;
   N_Vector *arg5 = (N_Vector *) 0 ;
   N_Vector *arg6 = (N_Vector *) 0 ;
   int result;
   
   arg1 = (int)(*farg1);
-  arg2 = (realtype)(*farg2);
+  arg2 = (sunrealtype)(*farg2);
   arg3 = (N_Vector *)(farg3);
-  arg4 = (realtype)(*farg4);
+  arg4 = (sunrealtype)(*farg4);
   arg5 = (N_Vector *)(farg5);
   arg6 = (N_Vector *)(farg6);
   result = (int)N_VLinearSumVectorArray_Parallel(arg1,arg2,arg3,arg4,arg5,arg6);
@@ -721,13 +721,13 @@ SWIGEXPORT int _wrap_FN_VLinearSumVectorArray_Parallel(int const *farg1, double 
 SWIGEXPORT int _wrap_FN_VScaleVectorArray_Parallel(int const *farg1, double *farg2, void *farg3, void *farg4) {
   int fresult ;
   int arg1 ;
-  realtype *arg2 = (realtype *) 0 ;
+  sunrealtype *arg2 = (sunrealtype *) 0 ;
   N_Vector *arg3 = (N_Vector *) 0 ;
   N_Vector *arg4 = (N_Vector *) 0 ;
   int result;
   
   arg1 = (int)(*farg1);
-  arg2 = (realtype *)(farg2);
+  arg2 = (sunrealtype *)(farg2);
   arg3 = (N_Vector *)(farg3);
   arg4 = (N_Vector *)(farg4);
   result = (int)N_VScaleVectorArray_Parallel(arg1,arg2,arg3,arg4);
@@ -739,12 +739,12 @@ SWIGEXPORT int _wrap_FN_VScaleVectorArray_Parallel(int const *farg1, double *far
 SWIGEXPORT int _wrap_FN_VConstVectorArray_Parallel(int const *farg1, double const *farg2, void *farg3) {
   int fresult ;
   int arg1 ;
-  realtype arg2 ;
+  sunrealtype arg2 ;
   N_Vector *arg3 = (N_Vector *) 0 ;
   int result;
   
   arg1 = (int)(*farg1);
-  arg2 = (realtype)(*farg2);
+  arg2 = (sunrealtype)(*farg2);
   arg3 = (N_Vector *)(farg3);
   result = (int)N_VConstVectorArray_Parallel(arg1,arg2,arg3);
   fresult = (int)(result);
@@ -757,13 +757,13 @@ SWIGEXPORT int _wrap_FN_VWrmsNormVectorArray_Parallel(int const *farg1, void *fa
   int arg1 ;
   N_Vector *arg2 = (N_Vector *) 0 ;
   N_Vector *arg3 = (N_Vector *) 0 ;
-  realtype *arg4 = (realtype *) 0 ;
+  sunrealtype *arg4 = (sunrealtype *) 0 ;
   int result;
   
   arg1 = (int)(*farg1);
   arg2 = (N_Vector *)(farg2);
   arg3 = (N_Vector *)(farg3);
-  arg4 = (realtype *)(farg4);
+  arg4 = (sunrealtype *)(farg4);
   result = (int)N_VWrmsNormVectorArray_Parallel(arg1,arg2,arg3,arg4);
   fresult = (int)(result);
   return fresult;
@@ -776,14 +776,14 @@ SWIGEXPORT int _wrap_FN_VWrmsNormMaskVectorArray_Parallel(int const *farg1, void
   N_Vector *arg2 = (N_Vector *) 0 ;
   N_Vector *arg3 = (N_Vector *) 0 ;
   N_Vector arg4 = (N_Vector) 0 ;
-  realtype *arg5 = (realtype *) 0 ;
+  sunrealtype *arg5 = (sunrealtype *) 0 ;
   int result;
   
   arg1 = (int)(*farg1);
   arg2 = (N_Vector *)(farg2);
   arg3 = (N_Vector *)(farg3);
   arg4 = (N_Vector)(farg4);
-  arg5 = (realtype *)(farg5);
+  arg5 = (sunrealtype *)(farg5);
   result = (int)N_VWrmsNormMaskVectorArray_Parallel(arg1,arg2,arg3,arg4,arg5);
   fresult = (int)(result);
   return fresult;
@@ -794,12 +794,12 @@ SWIGEXPORT double _wrap_FN_VDotProdLocal_Parallel(N_Vector farg1, N_Vector farg2
   double fresult ;
   N_Vector arg1 = (N_Vector) 0 ;
   N_Vector arg2 = (N_Vector) 0 ;
-  realtype result;
+  sunrealtype result;
   
   arg1 = (N_Vector)(farg1);
   arg2 = (N_Vector)(farg2);
-  result = (realtype)N_VDotProdLocal_Parallel(arg1,arg2);
-  fresult = (realtype)(result);
+  result = (sunrealtype)N_VDotProdLocal_Parallel(arg1,arg2);
+  fresult = (sunrealtype)(result);
   return fresult;
 }
 
@@ -807,11 +807,11 @@ SWIGEXPORT double _wrap_FN_VDotProdLocal_Parallel(N_Vector farg1, N_Vector farg2
 SWIGEXPORT double _wrap_FN_VMaxNormLocal_Parallel(N_Vector farg1) {
   double fresult ;
   N_Vector arg1 = (N_Vector) 0 ;
-  realtype result;
+  sunrealtype result;
   
   arg1 = (N_Vector)(farg1);
-  result = (realtype)N_VMaxNormLocal_Parallel(arg1);
-  fresult = (realtype)(result);
+  result = (sunrealtype)N_VMaxNormLocal_Parallel(arg1);
+  fresult = (sunrealtype)(result);
   return fresult;
 }
 
@@ -819,11 +819,11 @@ SWIGEXPORT double _wrap_FN_VMaxNormLocal_Parallel(N_Vector farg1) {
 SWIGEXPORT double _wrap_FN_VMinLocal_Parallel(N_Vector farg1) {
   double fresult ;
   N_Vector arg1 = (N_Vector) 0 ;
-  realtype result;
+  sunrealtype result;
   
   arg1 = (N_Vector)(farg1);
-  result = (realtype)N_VMinLocal_Parallel(arg1);
-  fresult = (realtype)(result);
+  result = (sunrealtype)N_VMinLocal_Parallel(arg1);
+  fresult = (sunrealtype)(result);
   return fresult;
 }
 
@@ -831,11 +831,11 @@ SWIGEXPORT double _wrap_FN_VMinLocal_Parallel(N_Vector farg1) {
 SWIGEXPORT double _wrap_FN_VL1NormLocal_Parallel(N_Vector farg1) {
   double fresult ;
   N_Vector arg1 = (N_Vector) 0 ;
-  realtype result;
+  sunrealtype result;
   
   arg1 = (N_Vector)(farg1);
-  result = (realtype)N_VL1NormLocal_Parallel(arg1);
-  fresult = (realtype)(result);
+  result = (sunrealtype)N_VL1NormLocal_Parallel(arg1);
+  fresult = (sunrealtype)(result);
   return fresult;
 }
 
@@ -844,12 +844,12 @@ SWIGEXPORT double _wrap_FN_VWSqrSumLocal_Parallel(N_Vector farg1, N_Vector farg2
   double fresult ;
   N_Vector arg1 = (N_Vector) 0 ;
   N_Vector arg2 = (N_Vector) 0 ;
-  realtype result;
+  sunrealtype result;
   
   arg1 = (N_Vector)(farg1);
   arg2 = (N_Vector)(farg2);
-  result = (realtype)N_VWSqrSumLocal_Parallel(arg1,arg2);
-  fresult = (realtype)(result);
+  result = (sunrealtype)N_VWSqrSumLocal_Parallel(arg1,arg2);
+  fresult = (sunrealtype)(result);
   return fresult;
 }
 
@@ -859,13 +859,13 @@ SWIGEXPORT double _wrap_FN_VWSqrSumMaskLocal_Parallel(N_Vector farg1, N_Vector f
   N_Vector arg1 = (N_Vector) 0 ;
   N_Vector arg2 = (N_Vector) 0 ;
   N_Vector arg3 = (N_Vector) 0 ;
-  realtype result;
+  sunrealtype result;
   
   arg1 = (N_Vector)(farg1);
   arg2 = (N_Vector)(farg2);
   arg3 = (N_Vector)(farg3);
-  result = (realtype)N_VWSqrSumMaskLocal_Parallel(arg1,arg2,arg3);
-  fresult = (realtype)(result);
+  result = (sunrealtype)N_VWSqrSumMaskLocal_Parallel(arg1,arg2,arg3);
+  fresult = (sunrealtype)(result);
   return fresult;
 }
 
@@ -904,12 +904,12 @@ SWIGEXPORT double _wrap_FN_VMinQuotientLocal_Parallel(N_Vector farg1, N_Vector f
   double fresult ;
   N_Vector arg1 = (N_Vector) 0 ;
   N_Vector arg2 = (N_Vector) 0 ;
-  realtype result;
+  sunrealtype result;
   
   arg1 = (N_Vector)(farg1);
   arg2 = (N_Vector)(farg2);
-  result = (realtype)N_VMinQuotientLocal_Parallel(arg1,arg2);
-  fresult = (realtype)(result);
+  result = (sunrealtype)N_VMinQuotientLocal_Parallel(arg1,arg2);
+  fresult = (sunrealtype)(result);
   return fresult;
 }
 
@@ -919,13 +919,13 @@ SWIGEXPORT int _wrap_FN_VDotProdMultiLocal_Parallel(int const *farg1, N_Vector f
   int arg1 ;
   N_Vector arg2 = (N_Vector) 0 ;
   N_Vector *arg3 = (N_Vector *) 0 ;
-  realtype *arg4 = (realtype *) 0 ;
+  sunrealtype *arg4 = (sunrealtype *) 0 ;
   int result;
   
   arg1 = (int)(*farg1);
   arg2 = (N_Vector)(farg2);
   arg3 = (N_Vector *)(farg3);
-  arg4 = (realtype *)(farg4);
+  arg4 = (sunrealtype *)(farg4);
   result = (int)N_VDotProdMultiLocal_Parallel(arg1,arg2,arg3,arg4);
   fresult = (int)(result);
   return fresult;
@@ -936,12 +936,12 @@ SWIGEXPORT int _wrap_FN_VDotProdMultiAllReduce_Parallel(int const *farg1, N_Vect
   int fresult ;
   int arg1 ;
   N_Vector arg2 = (N_Vector) 0 ;
-  realtype *arg3 = (realtype *) 0 ;
+  sunrealtype *arg3 = (sunrealtype *) 0 ;
   int result;
   
   arg1 = (int)(*farg1);
   arg2 = (N_Vector)(farg2);
-  arg3 = (realtype *)(farg3);
+  arg3 = (sunrealtype *)(farg3);
   result = (int)N_VDotProdMultiAllReduce_Parallel(arg1,arg2,arg3);
   fresult = (int)(result);
   return fresult;
@@ -1172,10 +1172,10 @@ SWIGEXPORT void _wrap_FN_VDestroyVectorArray_Parallel(void *farg1, int const *fa
 SWIGEXPORT double * _wrap_FN_VGetArrayPointer_Parallel(N_Vector farg1) {
   double * fresult ;
   N_Vector arg1 = (N_Vector) 0 ;
-  realtype *result = 0 ;
+  sunrealtype *result = 0 ;
   
   arg1 = (N_Vector)(farg1);
-  result = (realtype *)N_VGetArrayPointer_Parallel(arg1);
+  result = (sunrealtype *)N_VGetArrayPointer_Parallel(arg1);
   fresult = result;
   return fresult;
 }

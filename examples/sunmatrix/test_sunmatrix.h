@@ -57,9 +57,9 @@
 extern "C" {
 #endif
   /* Forward declarations for implementation specific utility functions */
-  int check_matrix(SUNMatrix A, SUNMatrix B, realtype tol);
-  int check_matrix_entry(SUNMatrix A, realtype val, realtype tol);
-  int check_vector(N_Vector expected, N_Vector computed, realtype tol);
+  int check_matrix(SUNMatrix A, SUNMatrix B, sunrealtype tol);
+  int check_matrix_entry(SUNMatrix A, sunrealtype val, sunrealtype tol);
+  int check_vector(N_Vector expected, N_Vector computed, sunrealtype tol);
   booleantype has_data(SUNMatrix A);
   booleantype is_square(SUNMatrix A);
   void sync_device(SUNMatrix A);

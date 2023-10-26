@@ -256,7 +256,7 @@ int main(int argc, char* argv[])
 /* ----------------------------------------------------------------------
  * Check matrix
  * --------------------------------------------------------------------*/
-int check_matrix_csr(SUNMatrix A, SUNMatrix B, realtype tol)
+int check_matrix_csr(SUNMatrix A, SUNMatrix B, sunrealtype tol)
 {
   int failure{0};
   auto Amat{static_cast<sundials::ginkgo::Matrix<GkoCsrMat>*>(A->content)->GkoMtx()};
@@ -284,7 +284,7 @@ int check_matrix_csr(SUNMatrix A, SUNMatrix B, realtype tol)
   return failure > 0;
 }
 
-int check_matrix_dense(SUNMatrix A, SUNMatrix B, realtype tol)
+int check_matrix_dense(SUNMatrix A, SUNMatrix B, sunrealtype tol)
 {
   int failure{0};
   auto Amat{static_cast<sundials::ginkgo::Matrix<GkoDenseMat>*>(A->content)->GkoMtx()};
@@ -308,14 +308,14 @@ int check_matrix_dense(SUNMatrix A, SUNMatrix B, realtype tol)
   return failure > 0;
 }
 
-extern "C" int check_matrix(SUNMatrix A, SUNMatrix B, realtype tol)
+extern "C" int check_matrix(SUNMatrix A, SUNMatrix B, sunrealtype tol)
 {
   if (using_csr_matrix_type) return check_matrix_csr(A, B, tol);
   else if (using_dense_matrix_type) return check_matrix_dense(A, B, tol);
   else return 1;
 }
 
-int check_matrix_entry_csr(SUNMatrix A, realtype val, realtype tol)
+int check_matrix_entry_csr(SUNMatrix A, sunrealtype val, sunrealtype tol)
 {
   int failure{0};
   auto Amat{static_cast<sundials::ginkgo::Matrix<GkoCsrMat>*>(A->content)->GkoMtx()};
@@ -337,7 +337,7 @@ int check_matrix_entry_csr(SUNMatrix A, realtype val, realtype tol)
   return failure > 0;
 }
 
-int check_matrix_entry_dense(SUNMatrix A, realtype val, realtype tol)
+int check_matrix_entry_dense(SUNMatrix A, sunrealtype val, sunrealtype tol)
 {
   int failure{0};
   auto Amat{static_cast<sundials::ginkgo::Matrix<GkoDenseMat>*>(A->content)->GkoMtx()};
@@ -359,7 +359,7 @@ int check_matrix_entry_dense(SUNMatrix A, realtype val, realtype tol)
   return failure > 0;
 }
 
-extern "C" int check_matrix_entry(SUNMatrix A, realtype val, realtype tol)
+extern "C" int check_matrix_entry(SUNMatrix A, sunrealtype val, sunrealtype tol)
 {
   if (using_csr_matrix_type) {
     return check_matrix_entry_csr(A, val, tol);
@@ -372,7 +372,7 @@ extern "C" int check_matrix_entry(SUNMatrix A, realtype val, realtype tol)
   }
 }
 
-extern "C" int check_vector(N_Vector expected, N_Vector computed, realtype tol)
+extern "C" int check_vector(N_Vector expected, N_Vector computed, sunrealtype tol)
 {
   int failure{0};
 

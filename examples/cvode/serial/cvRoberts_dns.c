@@ -87,16 +87,16 @@
 
 /* Functions Called by the Solver */
 
-static int f(realtype t, N_Vector y, N_Vector ydot, void *user_data);
+static int f(sunrealtype t, N_Vector y, N_Vector ydot, void *user_data);
 
-static int g(realtype t, N_Vector y, realtype *gout, void *user_data);
+static int g(sunrealtype t, N_Vector y, sunrealtype *gout, void *user_data);
 
-static int Jac(realtype t, N_Vector y, N_Vector fy, SUNMatrix J,
+static int Jac(sunrealtype t, N_Vector y, N_Vector fy, SUNMatrix J,
                void *user_data, N_Vector tmp1, N_Vector tmp2, N_Vector tmp3);
 
 /* Private functions to output results */
 
-static void PrintOutput(realtype t, realtype y1, realtype y2, realtype y3);
+static void PrintOutput(sunrealtype t, sunrealtype y1, sunrealtype y2, sunrealtype y3);
 static void PrintRootInfo(int root_f1, int root_f2);
 
 /* Private function to check function return values */
@@ -105,7 +105,7 @@ static int check_retval(void *returnvalue, const char *funcname, int opt);
 
 /* Private function to check computed solution */
 
-static int check_ans(N_Vector y, realtype t, realtype rtol, N_Vector atol);
+static int check_ans(N_Vector y, sunrealtype t, sunrealtype rtol, N_Vector atol);
 
 
 /*
@@ -117,7 +117,7 @@ static int check_ans(N_Vector y, realtype t, realtype rtol, N_Vector atol);
 int main()
 {
   SUNContext sunctx;
-  realtype t, tout;
+  sunrealtype t, tout;
   N_Vector y;
   N_Vector abstol;
   SUNMatrix A;
@@ -250,9 +250,9 @@ int main()
  * f routine. Compute function f(t,y).
  */
 
-static int f(realtype t, N_Vector y, N_Vector ydot, void *user_data)
+static int f(sunrealtype t, N_Vector y, N_Vector ydot, void *user_data)
 {
-  realtype y1, y2, y3, yd1, yd3;
+  sunrealtype y1, y2, y3, yd1, yd3;
 
   y1 = Ith(y,1); y2 = Ith(y,2); y3 = Ith(y,3);
 
@@ -267,9 +267,9 @@ static int f(realtype t, N_Vector y, N_Vector ydot, void *user_data)
  * g routine. Compute functions g_i(t,y) for i = 0,1.
  */
 
-static int g(realtype t, N_Vector y, realtype *gout, void *user_data)
+static int g(sunrealtype t, N_Vector y, sunrealtype *gout, void *user_data)
 {
-  realtype y1, y3;
+  sunrealtype y1, y3;
 
   y1 = Ith(y,1); y3 = Ith(y,3);
   gout[0] = y1 - RCONST(0.0001);
@@ -282,10 +282,10 @@ static int g(realtype t, N_Vector y, realtype *gout, void *user_data)
  * Jacobian routine. Compute J(t,y) = df/dy. *
  */
 
-static int Jac(realtype t, N_Vector y, N_Vector fy, SUNMatrix J,
+static int Jac(sunrealtype t, N_Vector y, N_Vector fy, SUNMatrix J,
                void *user_data, N_Vector tmp1, N_Vector tmp2, N_Vector tmp3)
 {
-  realtype y2, y3;
+  sunrealtype y2, y3;
 
   y2 = Ith(y,2); y3 = Ith(y,3);
 
@@ -310,7 +310,7 @@ static int Jac(realtype t, N_Vector y, N_Vector fy, SUNMatrix J,
  *-------------------------------
  */
 
-static void PrintOutput(realtype t, realtype y1, realtype y2, realtype y3)
+static void PrintOutput(sunrealtype t, sunrealtype y1, sunrealtype y2, sunrealtype y3)
 {
 #if defined(SUNDIALS_EXTENDED_PRECISION)
   printf("At t = %0.4Le      y =%14.6Le  %14.6Le  %14.6Le\n", t, y1, y2, y3);
@@ -369,13 +369,13 @@ static int check_retval(void *returnvalue, const char *funcname, int opt)
 
 /* compare the solution at the final time 4e10s to a reference solution computed
    using a relative tolerance of 1e-8 and absoltue tolerance of 1e-14 */
-static int check_ans(N_Vector y, realtype t, realtype rtol, N_Vector atol)
+static int check_ans(N_Vector y, sunrealtype t, sunrealtype rtol, N_Vector atol)
 {
   int      passfail=0;        /* answer pass (0) or fail (1) flag */
   N_Vector ref;               /* reference solution vector        */
   N_Vector ewt;               /* error weight vector              */
-  realtype err;               /* wrms error                       */
-  realtype ONE=RCONST(1.0);
+  sunrealtype err;               /* wrms error                       */
+  sunrealtype ONE=RCONST(1.0);
 
   /* create reference solution and error weight vectors */
   ref = N_VClone(y);

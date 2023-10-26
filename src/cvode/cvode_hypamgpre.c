@@ -50,20 +50,20 @@
 /* Prototypes of functions CVBoomerAMGSetup and CVBoomerAMGSolve */
 
 
-static int CVBoomerAMGSetup(realtype t, N_Vector y, N_Vector fy, 
+static int CVBoomerAMGSetup(sunrealtype t, N_Vector y, N_Vector fy, 
                           booleantype jok, booleantype *jcurPtr, 
-                          realtype gamma, void *hypamg_data, 
+                          sunrealtype gamma, void *hypamg_data, 
                           N_Vector tmp1, N_Vector tmp2, N_Vector tmp3);
 
-static int CVBoomerAMGSolve(realtype t, N_Vector y, N_Vector fy, 
+static int CVBoomerAMGSolve(sunrealtype t, N_Vector y, N_Vector fy, 
                           N_Vector r, N_Vector z, 
-                          realtype gamma, realtype delta,
+                          sunrealtype gamma, sunrealtype delta,
                           int lr, void *hypamg_data, N_Vector tmp);
 
 /* Prototype for CVBoomerAMGFree */
 static void CVBoomerAMGFree(CVodeMem cv_mem);
                       
-static int CVParCsrCreateGammaIdentity(HYPRE_IJMatrix* id_mat, realtype gamma, sunindextype ilower, sunindextype iupper);
+static int CVParCsrCreateGammaIdentity(HYPRE_IJMatrix* id_mat, sunrealtype gamma, sunindextype ilower, sunindextype iupper);
 
 /*
  * -----------------------------------------------------------------
@@ -204,9 +204,9 @@ int CVBoomerAMGInit(void *cvode_mem, int ilower, int iupper, int jlower, int jup
  * -----------------------------------------------------------------
  */
 
-int CVBoomerAMGSetup(realtype t, N_Vector y, N_Vector fy, 
+int CVBoomerAMGSetup(sunrealtype t, N_Vector y, N_Vector fy, 
                      booleantype jok, booleantype *jcurPtr, 
-                     realtype gamma, void *hypamg_data, 
+                     sunrealtype gamma, void *hypamg_data, 
                      N_Vector tmp1, N_Vector tmp2, N_Vector tmp3)
 {
   int counter=0;
@@ -261,9 +261,9 @@ int CVBoomerAMGSetup(realtype t, N_Vector y, N_Vector fy,
  * -----------------------------------------------------------------
  */
 
-int CVBoomerAMGSolve(realtype t, N_Vector y, N_Vector fy, 
+int CVBoomerAMGSolve(sunrealtype t, N_Vector y, N_Vector fy, 
                           N_Vector r, N_Vector z, 
-                          realtype gamma, realtype delta,
+                          sunrealtype gamma, sunrealtype delta,
                           int lr, void *hypamg_data, N_Vector tmp)
 {
   CVBoomerAMGData pdata;
@@ -318,7 +318,7 @@ static void CVBoomerAMGFree(CVodeMem cv_mem)
 }
 
 /*
-int JacTimes(N_Vector v, N_Vector Jv, realtype t, N_Vector y, N_Vector fy, void *user_data, N_Vector tmp)
+int JacTimes(N_Vector v, N_Vector Jv, sunrealtype t, N_Vector y, N_Vector fy, void *user_data, N_Vector tmp)
 {
   CVodeMem cv_mem;
   CVSpilsMem cvspils_mem;
@@ -405,7 +405,7 @@ int CVParCsrSetSpilsJacTimesVecFn(void *cvode_mem, CVSpilsJacTimesVecFn jparcsr)
   return(CVSPILS_SUCCESS);
 }
 
-int CVParCsrCreateGammaIdentity(HYPRE_IJMatrix* id_mat, realtype gamma, sunindextype ilow, sunindextype iup)
+int CVParCsrCreateGammaIdentity(HYPRE_IJMatrix* id_mat, sunrealtype gamma, sunindextype ilow, sunindextype iup)
 {
   int nnz, i;
   double values[5];

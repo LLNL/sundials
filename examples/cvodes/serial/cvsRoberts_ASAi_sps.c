@@ -60,7 +60,7 @@
 #include <nvector/nvector_serial.h>        /* access to serial N_Vector            */
 #include <sunmatrix/sunmatrix_sparse.h>    /* access to sparse SUNMatrix           */
 #include <sunlinsol/sunlinsol_superlumt.h> /* access to SuperLUMT SUNLinearSolver  */
-#include <sundials/sundials_types.h>       /* defs. of realtype, sunindextype      */
+#include <sundials/sundials_types.h>       /* defs. of sunrealtype, sunindextype      */
 #include <sundials/sundials_math.h>        /* defs. of SUNRabs, SUNRexp, etc.      */
 
 /* Accessor macros */
@@ -99,30 +99,30 @@
 /* Type : UserData */
 
 typedef struct {
-  realtype p[3];
+  sunrealtype p[3];
 } *UserData;
 
 /* Prototypes of user-supplied functions */
 
-static int f(realtype t, N_Vector y, N_Vector ydot, void *user_data);
-static int Jac(realtype t, N_Vector y, N_Vector fy, SUNMatrix J,
+static int f(sunrealtype t, N_Vector y, N_Vector ydot, void *user_data);
+static int Jac(sunrealtype t, N_Vector y, N_Vector fy, SUNMatrix J,
                void *user_data, N_Vector tmp1, N_Vector tmp2, N_Vector tmp3);
-static int fQ(realtype t, N_Vector y, N_Vector qdot, void *user_data);
+static int fQ(sunrealtype t, N_Vector y, N_Vector qdot, void *user_data);
 static int ewt(N_Vector y, N_Vector w, void *user_data);
 
-static int fB(realtype t, N_Vector y,
+static int fB(sunrealtype t, N_Vector y,
               N_Vector yB, N_Vector yBdot, void *user_dataB);
-static int JacB(realtype t, N_Vector y, N_Vector yB, N_Vector fyB, SUNMatrix JB,
+static int JacB(sunrealtype t, N_Vector y, N_Vector yB, N_Vector fyB, SUNMatrix JB,
                 void *user_dataB, N_Vector tmp1B, N_Vector tmp2B, N_Vector tmp3B);
-static int fQB(realtype t, N_Vector y, N_Vector yB,
+static int fQB(sunrealtype t, N_Vector y, N_Vector yB,
                N_Vector qBdot, void *user_dataB);
 
 
 /* Prototypes of private functions */
 
-static void PrintHead(realtype tB0);
-static void PrintOutput(realtype tfinal, N_Vector y, N_Vector yB, N_Vector qB);
-static void PrintOutput1(realtype time, realtype t, N_Vector y, N_Vector yB);
+static void PrintHead(sunrealtype tB0);
+static void PrintOutput(sunrealtype tfinal, N_Vector y, N_Vector yB, N_Vector qB);
+static void PrintOutput1(sunrealtype time, sunrealtype t, N_Vector y, N_Vector yB);
 static int check_retval(void *returnvalue, const char *funcname, int opt);
 
 /*
@@ -140,17 +140,17 @@ int main(int argc, char *argv[])
   SUNLinearSolver LS, LSB;
   void *cvode_mem;
 
-  realtype reltolQ, abstolQ;
+  sunrealtype reltolQ, abstolQ;
   N_Vector y, q;
 
   int steps;
 
   int indexB;
 
-  realtype reltolB, abstolB, abstolQB;
+  sunrealtype reltolB, abstolB, abstolQB;
   N_Vector yB, qB;
 
-  realtype time;
+  sunrealtype time;
   int retval, nthreads, nnz, ncheck;
 
   long int nst, nstB;
@@ -525,11 +525,11 @@ int main(int argc, char *argv[])
  * f routine. Compute f(t,y).
  */
 
-static int f(realtype t, N_Vector y, N_Vector ydot, void *user_data)
+static int f(sunrealtype t, N_Vector y, N_Vector ydot, void *user_data)
 {
-  realtype y1, y2, y3, yd1, yd3;
+  sunrealtype y1, y2, y3, yd1, yd3;
   UserData data;
-  realtype p1, p2, p3;
+  sunrealtype p1, p2, p3;
 
   y1 = Ith(y,1); y2 = Ith(y,2); y3 = Ith(y,3);
   data = (UserData) user_data;
@@ -546,15 +546,15 @@ static int f(realtype t, N_Vector y, N_Vector ydot, void *user_data)
  * Jacobian routine. Compute J(t,y).
  */
 
-static int Jac(realtype t, N_Vector y, N_Vector fy, SUNMatrix J,
+static int Jac(sunrealtype t, N_Vector y, N_Vector fy, SUNMatrix J,
                void *user_data, N_Vector tmp1, N_Vector tmp2, N_Vector tmp3)
 {
-  realtype *yval;
+  sunrealtype *yval;
   sunindextype *colptrs = SUNSparseMatrix_IndexPointers(J);
   sunindextype *rowvals = SUNSparseMatrix_IndexValues(J);
-  realtype *data = SUNSparseMatrix_Data(J);
+  sunrealtype *data = SUNSparseMatrix_Data(J);
   UserData userdata;
-  realtype p1, p2, p3;
+  sunrealtype p1, p2, p3;
 
   yval = N_VGetArrayPointer(y);
 
@@ -596,7 +596,7 @@ static int Jac(realtype t, N_Vector y, N_Vector fy, SUNMatrix J,
  * fQ routine. Compute fQ(t,y).
  */
 
-static int fQ(realtype t, N_Vector y, N_Vector qdot, void *user_data)
+static int fQ(sunrealtype t, N_Vector y, N_Vector qdot, void *user_data)
 {
   Ith(qdot,1) = Ith(y,3);
 
@@ -610,7 +610,7 @@ static int fQ(realtype t, N_Vector y, N_Vector qdot, void *user_data)
 static int ewt(N_Vector y, N_Vector w, void *user_data)
 {
   int i;
-  realtype yy, ww, rtol, atol[3];
+  sunrealtype yy, ww, rtol, atol[3];
 
   rtol    = RTOL;
   atol[0] = ATOL1;
@@ -631,13 +631,13 @@ static int ewt(N_Vector y, N_Vector w, void *user_data)
  * fB routine. Compute fB(t,y,yB).
  */
 
-static int fB(realtype t, N_Vector y, N_Vector yB, N_Vector yBdot, void *user_dataB)
+static int fB(sunrealtype t, N_Vector y, N_Vector yB, N_Vector yBdot, void *user_dataB)
 {
   UserData data;
-  realtype y2, y3;
-  realtype p1, p2, p3;
-  realtype l1, l2, l3;
-  realtype l21, l32;
+  sunrealtype y2, y3;
+  sunrealtype p1, p2, p3;
+  sunrealtype l1, l2, l3;
+  sunrealtype l21, l32;
 
   data = (UserData) user_dataB;
 
@@ -666,17 +666,17 @@ static int fB(realtype t, N_Vector y, N_Vector yB, N_Vector yBdot, void *user_da
  * JacB routine. Compute JB(t,y,yB).
  */
 
-static int JacB(realtype t,
+static int JacB(sunrealtype t,
                 N_Vector y, N_Vector yB, N_Vector fyB,
                 SUNMatrix JB, void *user_dataB,
                 N_Vector tmp1B, N_Vector tmp2B, N_Vector tmp3B)
 {
-  realtype *yvalB;
+  sunrealtype *yvalB;
   sunindextype *colptrsB = SUNSparseMatrix_IndexPointers(JB);
   sunindextype *rowvalsB = SUNSparseMatrix_IndexValues(JB);
-  realtype *dataB = SUNSparseMatrix_Data(JB);
+  sunrealtype *dataB = SUNSparseMatrix_Data(JB);
   UserData userdata;
-  realtype p1, p2, p3;
+  sunrealtype p1, p2, p3;
 
   yvalB = N_VGetArrayPointer(y);
 
@@ -718,12 +718,12 @@ static int JacB(realtype t,
  * fQB routine. Compute integrand for quadratures
  */
 
-static int fQB(realtype t, N_Vector y, N_Vector yB,
+static int fQB(sunrealtype t, N_Vector y, N_Vector yB,
                N_Vector qBdot, void *user_dataB)
 {
-  realtype y1, y2, y3;
-  realtype l1, l2, l3;
-  realtype l21, l32, y23;
+  sunrealtype y1, y2, y3;
+  sunrealtype l1, l2, l3;
+  sunrealtype l21, l32, y23;
 
   /* The y vector */
   y1 = Ith(y,1); y2 = Ith(y,2); y3 = Ith(y,3);
@@ -753,7 +753,7 @@ static int fQB(realtype t, N_Vector y, N_Vector yB,
  * Print heading for backward integration
  */
 
-static void PrintHead(realtype tB0)
+static void PrintHead(sunrealtype tB0)
 {
 #if defined(SUNDIALS_EXTENDED_PRECISION)
   printf("Backward integration from tB0 = %12.4Le\n\n",tB0);
@@ -768,7 +768,7 @@ static void PrintHead(realtype tB0)
  * Print intermediate results during backward integration
  */
 
-static void PrintOutput1(realtype time, realtype t, N_Vector y, N_Vector yB)
+static void PrintOutput1(sunrealtype time, sunrealtype t, N_Vector y, N_Vector yB)
 {
   printf("--------------------------------------------------------\n");
 #if defined(SUNDIALS_EXTENDED_PRECISION)
@@ -800,7 +800,7 @@ static void PrintOutput1(realtype time, realtype t, N_Vector y, N_Vector yB)
  * Print final results of backward integration
  */
 
-static void PrintOutput(realtype tfinal, N_Vector y, N_Vector yB, N_Vector qB)
+static void PrintOutput(sunrealtype tfinal, N_Vector y, N_Vector yB, N_Vector qB)
 {
   printf("--------------------------------------------------------\n");
 #if defined(SUNDIALS_EXTENDED_PRECISION)

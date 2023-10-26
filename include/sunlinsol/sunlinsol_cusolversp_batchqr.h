@@ -81,7 +81,7 @@ SUNDIALS_EXPORT int SUNLinSolSolve_cuSolverSp_batchQR(SUNLinearSolver S,
                                                       SUNMatrix A,
                                                       N_Vector x,
                                                       N_Vector b,
-                                                      realtype tol);
+                                                      sunrealtype tol);
 
 SUNDIALS_EXPORT sunindextype SUNLinSolLastFlag_cuSolverSp_batchQR(SUNLinearSolver S);
 

@@ -203,7 +203,7 @@ static int IDAStep(IDAMem IDA_mem);
 
 /* Function called at beginning of step */
 
-static void IDASetCoeffs(IDAMem IDA_mem, realtype *ck);
+static void IDASetCoeffs(IDAMem IDA_mem, sunrealtype *ck);
 
 /* Nonlinear solver functions */
 
@@ -212,29 +212,29 @@ static int IDANls(IDAMem IDA_mem);
 
 /* Error test */
 
-static int IDATestError(IDAMem IDA_mem, realtype ck,
-                        realtype *err_k, realtype *err_km1);
+static int IDATestError(IDAMem IDA_mem, sunrealtype ck,
+                        sunrealtype *err_k, sunrealtype *err_km1);
 
 /* Handling of convergence and/or error test failures */
 
-static void IDARestore(IDAMem IDA_mem, realtype saved_t);
-static int IDAHandleNFlag(IDAMem IDA_mem, int nflag, realtype err_k, realtype err_km1,
+static void IDARestore(IDAMem IDA_mem, sunrealtype saved_t);
+static int IDAHandleNFlag(IDAMem IDA_mem, int nflag, sunrealtype err_k, sunrealtype err_km1,
                           long int *ncfnPtr, int *ncfPtr, long int *netfPtr, int *nefPtr);
 static void IDAReset(IDAMem IDA_mem);
 
 /* Function called after a successful step */
 
-static void IDACompleteStep(IDAMem IDA_mem, realtype err_k, realtype err_km1);
+static void IDACompleteStep(IDAMem IDA_mem, sunrealtype err_k, sunrealtype err_km1);
 
 /* Function called to evaluate the solutions y(t) and y'(t) at t */
 
-int IDAGetSolution(void *ida_mem, realtype t, N_Vector yret, N_Vector ypret);
+int IDAGetSolution(void *ida_mem, sunrealtype t, N_Vector yret, N_Vector ypret);
 
 /* Stopping tests and failure handling */
 
-static int IDAStopTest1(IDAMem IDA_mem, realtype tout,realtype *tret,
+static int IDAStopTest1(IDAMem IDA_mem, sunrealtype tout,sunrealtype *tret,
                         N_Vector yret, N_Vector ypret, int itask);
-static int IDAStopTest2(IDAMem IDA_mem, realtype tout, realtype *tret,
+static int IDAStopTest2(IDAMem IDA_mem, sunrealtype tout, sunrealtype *tret,
                         N_Vector yret, N_Vector ypret, int itask);
 static int IDAHandleFailure(IDAMem IDA_mem, int sflag);
 
@@ -371,7 +371,7 @@ void *IDACreate(SUNContext sunctx)
  */
 
 int IDAInit(void *ida_mem, IDAResFn res,
-            realtype t0, N_Vector yy0, N_Vector yp0)
+            sunrealtype t0, N_Vector yy0, N_Vector yp0)
 {
   int retval;
   IDAMem IDA_mem;
@@ -548,7 +548,7 @@ int IDAInit(void *ida_mem, IDAResFn res,
  */
 
 int IDAReInit(void *ida_mem,
-              realtype t0, N_Vector yy0, N_Vector yp0)
+              sunrealtype t0, N_Vector yy0, N_Vector yp0)
 {
   IDAMem IDA_mem;
 
@@ -639,7 +639,7 @@ int IDAReInit(void *ida_mem,
  *   which will be called to set the error weight vector.
  */
 
-int IDASStolerances(void *ida_mem, realtype reltol, realtype abstol)
+int IDASStolerances(void *ida_mem, sunrealtype reltol, sunrealtype abstol)
 {
   IDAMem IDA_mem;
 
@@ -682,10 +682,10 @@ int IDASStolerances(void *ida_mem, realtype reltol, realtype abstol)
 }
 
 
-int IDASVtolerances(void *ida_mem, realtype reltol, N_Vector abstol)
+int IDASVtolerances(void *ida_mem, sunrealtype reltol, N_Vector abstol)
 {
   IDAMem IDA_mem;
-  realtype atolmin;
+  sunrealtype atolmin;
 
   if (ida_mem==NULL) {
     IDAProcessError(NULL, IDA_MEM_NULL, "IDA", "IDASVtolerances", MSG_NO_MEM);
@@ -859,7 +859,7 @@ int IDARootInit(void *ida_mem, int nrtfn, IDARootFn g)
 
   /* Allocate necessary memory and return */
   IDA_mem->ida_glo = NULL;
-  IDA_mem->ida_glo = (realtype *) malloc(nrt*sizeof(realtype));
+  IDA_mem->ida_glo = (sunrealtype *) malloc(nrt*sizeof(sunrealtype));
   if (IDA_mem->ida_glo == NULL) {
     IDAProcessError(IDA_mem, IDA_MEM_FAIL, "IDA", "IDARootInit", MSG_MEM_FAIL);
     SUNDIALS_MARK_FUNCTION_END(IDA_PROFILER);
@@ -867,7 +867,7 @@ int IDARootInit(void *ida_mem, int nrtfn, IDARootFn g)
   }
 
   IDA_mem->ida_ghi = NULL;
-  IDA_mem->ida_ghi = (realtype *) malloc(nrt*sizeof(realtype));
+  IDA_mem->ida_ghi = (sunrealtype *) malloc(nrt*sizeof(sunrealtype));
   if (IDA_mem->ida_ghi == NULL) {
     free(IDA_mem->ida_glo); IDA_mem->ida_glo = NULL;
     IDAProcessError(IDA_mem, IDA_MEM_FAIL, "IDA", "IDARootInit", MSG_MEM_FAIL);
@@ -876,7 +876,7 @@ int IDARootInit(void *ida_mem, int nrtfn, IDARootFn g)
   }
 
   IDA_mem->ida_grout = NULL;
-  IDA_mem->ida_grout = (realtype *) malloc(nrt*sizeof(realtype));
+  IDA_mem->ida_grout = (sunrealtype *) malloc(nrt*sizeof(sunrealtype));
   if (IDA_mem->ida_grout == NULL) {
     free(IDA_mem->ida_glo); IDA_mem->ida_glo = NULL;
     free(IDA_mem->ida_ghi); IDA_mem->ida_ghi = NULL;
@@ -979,12 +979,12 @@ int IDARootInit(void *ida_mem, int nrtfn, IDARootFn g)
  * IDA_RES_FAIL
  */
 
-int IDASolve(void *ida_mem, realtype tout, realtype *tret,
+int IDASolve(void *ida_mem, sunrealtype tout, sunrealtype *tret,
              N_Vector yret, N_Vector ypret, int itask)
 {
   long int nstloc;
   int sflag, istate, ier, irfndp, ir;
-  realtype tdist, troundoff, ypnorm, rh, nrm;
+  sunrealtype tdist, troundoff, ypnorm, rh, nrm;
   IDAMem IDA_mem;
   booleantype inactive_roots;
 
@@ -1358,13 +1358,13 @@ int IDASolve(void *ida_mem, realtype tout, realtype *tret,
  *
  */
 
-int IDAGetDky(void *ida_mem, realtype t, int k, N_Vector dky)
+int IDAGetDky(void *ida_mem, sunrealtype t, int k, N_Vector dky)
 {
   IDAMem IDA_mem;
-  realtype tfuzz, tp, delt, psij_1;
+  sunrealtype tfuzz, tp, delt, psij_1;
   int i, j, retval;
-  realtype cjk  [MXORDP1];
-  realtype cjk_1[MXORDP1];
+  sunrealtype cjk  [MXORDP1];
+  sunrealtype cjk_1[MXORDP1];
 
   /* Check ida_mem */
   if (ida_mem == NULL) {
@@ -1971,11 +1971,11 @@ static int IDAEwtSetSV(IDAMem IDA_mem, N_Vector ycur, N_Vector weight)
  * the next step to reach tstop exactly.
  */
 
-static int IDAStopTest1(IDAMem IDA_mem, realtype tout, realtype *tret,
+static int IDAStopTest1(IDAMem IDA_mem, sunrealtype tout, sunrealtype *tret,
                         N_Vector yret, N_Vector ypret, int itask)
 {
   int ier;
-  realtype troundoff;
+  sunrealtype troundoff;
 
   if (IDA_mem->ida_tstopset)
   {
@@ -2073,11 +2073,11 @@ static int IDAStopTest1(IDAMem IDA_mem, realtype tout, realtype *tret,
  * because the same test was made prior to the step.
  */
 
-static int IDAStopTest2(IDAMem IDA_mem, realtype tout, realtype *tret,
+static int IDAStopTest2(IDAMem IDA_mem, sunrealtype tout, sunrealtype *tret,
                         N_Vector yret, N_Vector ypret, int itask)
 {
   /* int ier; */
-  realtype troundoff;
+  sunrealtype troundoff;
 
   if (IDA_mem->ida_tstopset)
   {
@@ -2264,8 +2264,8 @@ static int IDAHandleFailure(IDAMem IDA_mem, int sflag)
 
 static int IDAStep(IDAMem IDA_mem)
 {
-  realtype saved_t, ck;
-  realtype err_k, err_km1;
+  sunrealtype saved_t, ck;
+  sunrealtype err_k, err_km1;
   int ncf, nef;
   int nflag, kflag;
 
@@ -2383,10 +2383,10 @@ static int IDAStep(IDAMem IDA_mem)
  *  Also, IDACompleteStep prohibits an order increase until ns = k + 2.
  */
 
-static void IDASetCoeffs(IDAMem IDA_mem, realtype *ck)
+static void IDASetCoeffs(IDAMem IDA_mem, sunrealtype *ck)
 {
   int i;
-  realtype temp1, temp2, alpha0, alphas;
+  sunrealtype temp1, temp2, alpha0, alphas;
 
   /* Set coefficients for the current stepsize h */
 
@@ -2470,7 +2470,7 @@ static int IDANls(IDAMem IDA_mem)
 {
   int retval;
   booleantype constraintsPassed, callLSetup;
-  realtype temp1, temp2, vnorm;
+  sunrealtype temp1, temp2, vnorm;
   N_Vector mm, tmp;
   long int nni_inc = 0;
   long int nnf_inc = 0;
@@ -2619,12 +2619,12 @@ static void IDAPredict(IDAMem IDA_mem)
  * IDATestError returns either IDA_SUCCESS or ERROR_TEST_FAIL.
  */
 
-static int IDATestError(IDAMem IDA_mem, realtype ck,
-                        realtype *err_k, realtype *err_km1)
+static int IDATestError(IDAMem IDA_mem, sunrealtype ck,
+                        sunrealtype *err_k, sunrealtype *err_km1)
 {
-  realtype err_km2;                         /* estimated error at k-2 */
-  realtype enorm_k, enorm_km1, enorm_km2;   /* error norms */
-  realtype terr_k, terr_km1, terr_km2;      /* local truncation error norms */
+  sunrealtype err_km2;                         /* estimated error at k-2 */
+  sunrealtype enorm_k, enorm_km1, enorm_km2;   /* error norms */
+  sunrealtype terr_k, terr_km1, terr_km2;      /* local truncation error norms */
 
   /* Compute error for order k. */
   enorm_k = IDAWrmsNorm(IDA_mem, IDA_mem->ida_ee, IDA_mem->ida_ewt, IDA_mem->ida_suppressalg);
@@ -2709,7 +2709,7 @@ static int IDATestError(IDAMem IDA_mem, realtype ck,
  * It changes back phi-star to phi (changed in IDASetCoeffs)
  */
 
-static void IDARestore(IDAMem IDA_mem, realtype saved_t)
+static void IDARestore(IDAMem IDA_mem, sunrealtype saved_t)
 {
   int j;
 
@@ -2774,10 +2774,10 @@ static void IDARestore(IDAMem IDA_mem, realtype saved_t)
  *   IDA_LSOLVE_FAIL
  */
 
-static int IDAHandleNFlag(IDAMem IDA_mem, int nflag, realtype err_k, realtype err_km1,
+static int IDAHandleNFlag(IDAMem IDA_mem, int nflag, sunrealtype err_k, sunrealtype err_km1,
                           long int *ncfnPtr, int *ncfPtr, long int *netfPtr, int *nefPtr)
 {
-  realtype err_knew;
+  sunrealtype err_knew;
 
   IDA_mem->ida_phase = 1;
 
@@ -2927,12 +2927,12 @@ static void IDAReset(IDAMem IDA_mem)
  * stepsize and order for the next step, and updates the phi array.
  */
 
-static void IDACompleteStep(IDAMem IDA_mem, realtype err_k, realtype err_km1)
+static void IDACompleteStep(IDAMem IDA_mem, sunrealtype err_k, sunrealtype err_km1)
 {
   int j, kdiff, action;
-  realtype terr_k, terr_km1, terr_kp1;
-  realtype err_knew, err_kp1;
-  realtype enorm, tmp, hnew;
+  sunrealtype terr_k, terr_km1, terr_kp1;
+  sunrealtype err_knew, err_kp1;
+  sunrealtype enorm, tmp, hnew;
 
   IDA_mem->ida_nst++;
   kdiff = IDA_mem->ida_kk - IDA_mem->ida_kused;
@@ -3132,10 +3132,10 @@ static void IDACompleteStep(IDAMem IDA_mem, realtype err_k, realtype err_km1)
  *   IDA_BAD_T    if t is not within the interval of the last step taken.
  */
 
-int IDAGetSolution(void *ida_mem, realtype t, N_Vector yret, N_Vector ypret)
+int IDAGetSolution(void *ida_mem, sunrealtype t, N_Vector yret, N_Vector ypret)
 {
   IDAMem IDA_mem;
-  realtype tfuzz, tp, delt, c, d, gam;
+  sunrealtype tfuzz, tp, delt, c, d, gam;
   int j, kord, retval;
 
   if (ida_mem == NULL) {
@@ -3206,10 +3206,10 @@ int IDAGetSolution(void *ida_mem, realtype t, N_Vector yret, N_Vector ypret)
  * mask = suppressalg otherwise.
  */
 
-realtype IDAWrmsNorm(IDAMem IDA_mem, N_Vector x, N_Vector w,
+sunrealtype IDAWrmsNorm(IDAMem IDA_mem, N_Vector x, N_Vector w,
                      booleantype mask)
 {
-  realtype nrm;
+  sunrealtype nrm;
 
   if (mask) nrm = N_VWrmsNormMask(x, w, IDA_mem->ida_id);
   else      nrm = N_VWrmsNorm(x, w);
@@ -3238,7 +3238,7 @@ realtype IDAWrmsNorm(IDAMem IDA_mem, N_Vector x, N_Vector w,
 static int IDARcheck1(IDAMem IDA_mem)
 {
   int i, retval;
-  realtype smallh, hratio, tplus;
+  sunrealtype smallh, hratio, tplus;
   booleantype zroot;
 
   for (i = 0; i < IDA_mem->ida_nrtfn; i++)
@@ -3307,7 +3307,7 @@ static int IDARcheck1(IDAMem IDA_mem)
 static int IDARcheck2(IDAMem IDA_mem)
 {
   int i, retval;
-  realtype smallh, hratio, tplus;
+  sunrealtype smallh, hratio, tplus;
   booleantype zroot;
 
   if (IDA_mem->ida_irfnd == 0) return(IDA_SUCCESS);
@@ -3502,7 +3502,7 @@ static int IDARcheck3(IDAMem IDA_mem)
 
 static int IDARootfind(IDAMem IDA_mem)
 {
-  realtype alph, tmid, gfrac, maxfrac, fracint, fracsub;
+  sunrealtype alph, tmid, gfrac, maxfrac, fracint, fracsub;
   int i, retval, imax, side, sideprev;
   booleantype zroot, sgnchg;
 

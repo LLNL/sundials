@@ -39,25 +39,25 @@
 #define TWO  RCONST(2.0)
 
 /* Prototypes of IDABBDPrecSetup and IDABBDPrecSolve */
-static int IDABBDPrecSetup(realtype tt, N_Vector yy, N_Vector yp,
-                           N_Vector rr, realtype c_j, void *prec_data);
-static int IDABBDPrecSolve(realtype tt, N_Vector yy, N_Vector yp,
+static int IDABBDPrecSetup(sunrealtype tt, N_Vector yy, N_Vector yp,
+                           N_Vector rr, sunrealtype c_j, void *prec_data);
+static int IDABBDPrecSolve(sunrealtype tt, N_Vector yy, N_Vector yp,
                            N_Vector rr, N_Vector rvec, N_Vector zvec,
-                           realtype c_j, realtype delta, void *prec_data);
+                           sunrealtype c_j, sunrealtype delta, void *prec_data);
 
 /* Prototype for IDABBDPrecFree */
 static int IDABBDPrecFree(IDAMem ida_mem);
 
 /* Prototype for difference quotient Jacobian calculation routine */
-static int IBBDDQJac(IBBDPrecData pdata, realtype tt, realtype cj,
+static int IBBDDQJac(IBBDPrecData pdata, sunrealtype tt, sunrealtype cj,
                      N_Vector yy, N_Vector yp, N_Vector gref,
                      N_Vector ytemp, N_Vector yptemp, N_Vector gtemp);
 
 /* Wrapper functions for adjoint code */
-static int IDAAglocal(sunindextype NlocalB, realtype tt, N_Vector yyB,
+static int IDAAglocal(sunindextype NlocalB, sunrealtype tt, N_Vector yyB,
                       N_Vector ypB, N_Vector gvalB, void *user_dataB);
 
-static int IDAAgcomm(sunindextype NlocalB, realtype tt, N_Vector yyB,
+static int IDAAgcomm(sunindextype NlocalB, sunrealtype tt, N_Vector yyB,
                      N_Vector ypB, void *user_dataB);
 
 /* Prototype for the pfree routine for backward problems. */
@@ -74,7 +74,7 @@ static int IDABBDPrecFreeB(IDABMem IDAB_mem);
 int IDABBDPrecInit(void *ida_mem, sunindextype Nlocal,
                    sunindextype mudq, sunindextype mldq,
                    sunindextype mukeep, sunindextype mlkeep,
-                   realtype dq_rel_yy,
+                   sunrealtype dq_rel_yy,
                    IDABBDLocalFn Gres, IDABBDCommFn Gcomm)
 {
   IDAMem IDA_mem;
@@ -296,7 +296,7 @@ int IDABBDPrecInit(void *ida_mem, sunindextype Nlocal,
 
 /*-------------------------------------------------------------*/
 int IDABBDPrecReInit(void *ida_mem, sunindextype mudq,
-                     sunindextype mldq, realtype dq_rel_yy)
+                     sunindextype mldq, sunrealtype dq_rel_yy)
 {
   IDAMem IDA_mem;
   IDALsMem idals_mem;
@@ -449,8 +449,8 @@ int IDABBDPrecGetNumGfnEvals(void *ida_mem,
    > 0    for a recoverable error (step will be retried), or
    < 0    for a nonrecoverable error (step fails).
  ----------------------------------------------------------------*/
-static int IDABBDPrecSetup(realtype tt, N_Vector yy, N_Vector yp,
-                           N_Vector rr, realtype c_j, void *bbd_data)
+static int IDABBDPrecSetup(sunrealtype tt, N_Vector yy, N_Vector yp,
+                           N_Vector rr, sunrealtype c_j, void *bbd_data)
 {
   IBBDPrecData pdata;
   IDAMem IDA_mem;
@@ -499,9 +499,9 @@ static int IDABBDPrecSetup(realtype tt, N_Vector yy, N_Vector yp,
   IDABBDPrecSolve returns the value returned from the linear
   solver object.
   ---------------------------------------------------------------*/
-static int IDABBDPrecSolve(realtype tt, N_Vector yy, N_Vector yp,
+static int IDABBDPrecSolve(sunrealtype tt, N_Vector yy, N_Vector yp,
                            N_Vector rr, N_Vector rvec, N_Vector zvec,
-                           realtype c_j, realtype delta, void *bbd_data)
+                           sunrealtype c_j, sunrealtype delta, void *bbd_data)
 {
   IBBDPrecData pdata;
   int retval;
@@ -570,17 +570,17 @@ static int IDABBDPrecFree(IDAMem IDA_mem)
   Return values are: 0 (success), > 0 (recoverable error),
   or < 0 (nonrecoverable error).
   ----------------------------------------------------------------*/
-static int IBBDDQJac(IBBDPrecData pdata, realtype tt, realtype cj,
+static int IBBDDQJac(IBBDPrecData pdata, sunrealtype tt, sunrealtype cj,
                      N_Vector yy, N_Vector yp, N_Vector gref,
                      N_Vector ytemp, N_Vector yptemp, N_Vector gtemp)
 {
   IDAMem IDA_mem;
-  realtype inc, inc_inv;
+  sunrealtype inc, inc_inv;
   int retval;
   sunindextype group, i, j, width, ngroups, i1, i2;
-  realtype *ydata, *ypdata, *ytempdata, *yptempdata, *grefdata, *gtempdata;
-  realtype *cnsdata = NULL, *ewtdata;
-  realtype *col_j, conj, yj, ypj, ewtj;
+  sunrealtype *ydata, *ypdata, *ytempdata, *yptempdata, *grefdata, *gtempdata;
+  sunrealtype *cnsdata = NULL, *ewtdata;
+  sunrealtype *col_j, conj, yj, ypj, ewtj;
 
   IDA_mem = (IDAMem) pdata->ida_mem;
 
@@ -691,7 +691,7 @@ static int IBBDDQJac(IBBDPrecData pdata, realtype tt, realtype cj,
 int IDABBDPrecInitB(void *ida_mem, int which, sunindextype NlocalB,
                     sunindextype mudqB, sunindextype mldqB,
                     sunindextype mukeepB, sunindextype mlkeepB,
-                    realtype dq_rel_yyB, IDABBDLocalFnB glocalB,
+                    sunrealtype dq_rel_yyB, IDABBDLocalFnB glocalB,
                     IDABBDCommFnB gcommB)
 {
   IDAMem IDA_mem;
@@ -763,7 +763,7 @@ int IDABBDPrecInitB(void *ida_mem, int which, sunindextype NlocalB,
 
 /*-------------------------------------------------------------*/
 int IDABBDPrecReInitB(void *ida_mem, int which, sunindextype mudqB,
-                      sunindextype mldqB, realtype dq_rel_yyB)
+                      sunindextype mldqB, sunrealtype dq_rel_yyB)
 {
   IDAMem IDA_mem;
   IDAadjMem IDAADJ_mem;
@@ -829,7 +829,7 @@ static int IDABBDPrecFreeB(IDABMem IDAB_mem)
   This routine interfaces to the IDALocalFnB routine
   provided by the user.
   ----------------------------------------------------------------*/
-static int IDAAglocal(sunindextype NlocalB, realtype tt, N_Vector yyB,
+static int IDAAglocal(sunindextype NlocalB, sunrealtype tt, N_Vector yyB,
                       N_Vector ypB, N_Vector gvalB, void *ida_mem)
 {
   IDAMem IDA_mem;
@@ -870,7 +870,7 @@ static int IDAAglocal(sunindextype NlocalB, realtype tt, N_Vector yyB,
   This routine interfaces to the IDACommFnB routine
   provided by the user.
   ----------------------------------------------------------------*/
-static int IDAAgcomm(sunindextype NlocalB, realtype tt,
+static int IDAAgcomm(sunindextype NlocalB, sunrealtype tt,
                      N_Vector yyB, N_Vector ypB, void *ida_mem)
 {
   IDAMem IDA_mem;

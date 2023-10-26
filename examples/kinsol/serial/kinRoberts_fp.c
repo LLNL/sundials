@@ -34,7 +34,7 @@
 
 #include <kinsol/kinsol.h>           /* access to KINSOL func., consts. */
 #include <nvector/nvector_serial.h>  /* access to serial N_Vector       */
-#include <sundials/sundials_types.h> /* defs. of realtype, sunindextype */
+#include <sundials/sundials_types.h> /* defs. of sunrealtype, sunindextype */
 
 #if defined(SUNDIALS_EXTENDED_PRECISION)
 #define GSYM "Lg"
@@ -80,7 +80,7 @@ static int funcRoberts(N_Vector u, N_Vector f, void *user_data);
 static void PrintOutput(N_Vector u);
 static void PrintFinalStats(void *kmem);
 static int check_retval(void *retvalvalue, const char *funcname, int opt);
-static int check_ans(N_Vector u, realtype rtol, realtype atol);
+static int check_ans(N_Vector u, sunrealtype rtol, sunrealtype atol);
 
 /*
  *--------------------------------------------------------------------
@@ -91,7 +91,7 @@ static int check_ans(N_Vector u, realtype rtol, realtype atol);
 int main()
 {
   SUNContext sunctx;
-  realtype fnormtol, fnorm;
+  sunrealtype fnormtol, fnorm;
   N_Vector y, scale;
   int retval;
   void *kmem;
@@ -221,8 +221,8 @@ int main()
 
 static int funcRoberts(N_Vector y, N_Vector g, void *user_data)
 {
-  realtype y1, y2, y3;
-  realtype yd1, yd3;
+  sunrealtype y1, y2, y3;
+  sunrealtype yd1, yd3;
 
   y1 = Ith(y,1);
   y2 = Ith(y,2);
@@ -244,7 +244,7 @@ static int funcRoberts(N_Vector y, N_Vector g, void *user_data)
 
 static void PrintOutput(N_Vector y)
 {
-  realtype y1, y2, y3;
+  sunrealtype y1, y2, y3;
 
   y1 = Ith(y,1);
   y2 = Ith(y,2);
@@ -327,12 +327,12 @@ static int check_retval(void *retvalvalue, const char *funcname, int opt)
 
 /* compare the solution to a reference solution computed with a
    tolerance of 1e-14 */
-static int check_ans(N_Vector u, realtype rtol, realtype atol)
+static int check_ans(N_Vector u, sunrealtype rtol, sunrealtype atol)
 {
   int      passfail=0;        /* answer pass (0) or fail (1) retval */
   N_Vector ref;               /* reference solution vector        */
   N_Vector ewt;               /* error weight vector              */
-  realtype err;               /* wrms error                       */
+  sunrealtype err;               /* wrms error                       */
 
   /* create reference solution and error weight vectors */
   ref = N_VClone(u);

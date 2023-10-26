@@ -86,25 +86,25 @@
    contains problem parameters, grid constants, work array. */
 
 typedef struct {
-  realtype *p;
-  realtype dx;
+  sunrealtype *p;
+  sunrealtype dx;
   int npes, my_pe;
   MPI_Comm comm;
-  realtype z[100];
+  sunrealtype z[100];
 } *UserData;
 
 
 /* Prototypes of user-supplied functins */
 
-static int f(realtype t, N_Vector u, N_Vector udot, void *user_data);
+static int f(sunrealtype t, N_Vector u, N_Vector udot, void *user_data);
 
 /* Prototypes of private functions */
 
 static void ProcessArgs(int argc, char *argv[], int my_pe,
                         booleantype *sensi, int *sensi_meth, booleantype *err_con);
 static void WrongArgs(int my_pe, char *name);
-static void SetIC(N_Vector u, realtype dx, sunindextype my_length, sunindextype my_base);
-static void PrintOutput(void *cvode_mem, int my_pe, realtype t, N_Vector u);
+static void SetIC(N_Vector u, sunrealtype dx, sunindextype my_length, sunindextype my_base);
+static void PrintOutput(void *cvode_mem, int my_pe, sunrealtype t, N_Vector u);
 static void PrintOutputS(int my_pe, N_Vector *uS);
 static void PrintFinalStats(void *cvode_mem, booleantype sensi,
                             booleantype err_con, int sensi_meth);
@@ -118,14 +118,14 @@ static int check_retval(void *returnvalue, const char *funcname, int opt, int id
 
 int main(int argc, char *argv[])
 {
-  realtype dx, reltol, abstol, t, tout;
+  sunrealtype dx, reltol, abstol, t, tout;
   N_Vector u;
   UserData data;
   void *cvode_mem;
   int iout, retval, my_pe, npes;
   sunindextype local_N, nperpe, nrem, my_base;
 
-  realtype *pbar;
+  sunrealtype *pbar;
   int is, *plist;
   N_Vector *uS;
   booleantype sensi, err_con;
@@ -171,9 +171,9 @@ int main(int argc, char *argv[])
   data->comm = comm;
   data->npes = npes;
   data->my_pe = my_pe;
-  data->p = (realtype *) malloc(NP * sizeof(realtype));
+  data->p = (sunrealtype *) malloc(NP * sizeof(sunrealtype));
   if(check_retval((void *)data->p, "malloc", 2, my_pe)) MPI_Abort(comm, 1);
-  dx = data->dx = XMAX/((realtype)(MX+1));
+  dx = data->dx = XMAX/((sunrealtype)(MX+1));
   data->p[0] = RCONST(1.0);
   data->p[1] = RCONST(0.5);
 
@@ -219,7 +219,7 @@ int main(int argc, char *argv[])
     for(is=0; is<NS; is++)
       plist[is] = is; /* sensitivity w.r.t. i-th parameter */
 
-    pbar  = (realtype *) malloc(NS * sizeof(realtype));
+    pbar  = (sunrealtype *) malloc(NS * sizeof(sunrealtype));
     if(check_retval((void *)pbar, "malloc", 2, my_pe)) MPI_Abort(comm, 1);
     for(is=0; is<NS; is++) pbar[is] = data->p[plist[is]];
 
@@ -335,11 +335,11 @@ int main(int argc, char *argv[])
  * f routine. Compute f(t,u).
  */
 
-static int f(realtype t, N_Vector u, N_Vector udot, void *user_data)
+static int f(sunrealtype t, N_Vector u, N_Vector udot, void *user_data)
 {
-  realtype ui, ult, urt, hordc, horac, hdiff, hadv;
-  realtype *udata, *dudata, *z;
-  realtype dx;
+  sunrealtype ui, ult, urt, hordc, horac, hdiff, hadv;
+  sunrealtype *udata, *dudata, *z;
+  sunrealtype dx;
   int npes, my_pe, my_pe_m1, my_pe_p1, last_pe;
   sunindextype i, my_length;
   UserData data;
@@ -468,13 +468,13 @@ static void WrongArgs(int my_pe, char *name)
  * Set initial conditions in u vector
  */
 
-static void SetIC(N_Vector u, realtype dx, sunindextype my_length,
+static void SetIC(N_Vector u, sunrealtype dx, sunindextype my_length,
                   sunindextype my_base)
 {
   int i;
   sunindextype iglobal;
-  realtype x;
-  realtype *udata;
+  sunrealtype x;
+  sunrealtype *udata;
 
   /* Set pointer to data array and get local length of u. */
   udata = N_VGetArrayPointer_Parallel(u);
@@ -492,11 +492,11 @@ static void SetIC(N_Vector u, realtype dx, sunindextype my_length,
  * Print current t, step count, order, stepsize, and max norm of solution
  */
 
-static void PrintOutput(void *cvode_mem, int my_pe, realtype t, N_Vector u)
+static void PrintOutput(void *cvode_mem, int my_pe, sunrealtype t, N_Vector u)
 {
   long int nst;
   int qu, retval;
-  realtype hu, umax;
+  sunrealtype hu, umax;
 
   retval = CVodeGetNumSteps(cvode_mem, &nst);
   check_retval(&retval, "CVodeGetNumSteps", 1, my_pe);
@@ -537,7 +537,7 @@ static void PrintOutput(void *cvode_mem, int my_pe, realtype t, N_Vector u)
 
 static void PrintOutputS(int my_pe, N_Vector *uS)
 {
-  realtype smax;
+  sunrealtype smax;
 
   smax = N_VMaxNorm(uS[0]);
   if (my_pe == 0) {

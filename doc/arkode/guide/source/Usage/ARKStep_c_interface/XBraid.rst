@@ -532,7 +532,7 @@ if an error occurred. The possible return codes are given in
 
 
 
-.. c:function:: int ARKBraid_BraidInit(MPI_Comm comm_w, MPI_Comm comm_t, realtype tstart, realtype tstop, sunindextype ntime, braid_App app, braid_Core *core)
+.. c:function:: int ARKBraid_BraidInit(MPI_Comm comm_w, MPI_Comm comm_t, sunrealtype tstart, sunrealtype tstop, sunindextype ntime, braid_App app, braid_Core *core)
 
    This function wraps the XBraid ``braid_Init()`` function to create the
    XBraid core memory structure and initializes XBraid with the ARKBraid and
@@ -771,7 +771,7 @@ error occurred. The possible return codes are given in
       * *SUNBRAID_MEMFAIL* if the *app* content is ``NULL``.
 
 
-.. c:function:: int ARKBraid_GetSolution(braid_App app, realtype *tout, N_Vector yout)
+.. c:function:: int ARKBraid_GetSolution(braid_App app, sunrealtype *tout, N_Vector yout)
 
    This function returns final time and state stored with the default access
    function :c:func:`ARKBraid_Access()`.
@@ -845,7 +845,7 @@ in :numref:`ARKODE.Usage.ARKStep.SUNBraidReturnCodes.Table`.
 
 
 
-.. c:function:: int ARKBraid_Init(braid_App app, realtype t, braid_Vector *u_ptr)
+.. c:function:: int ARKBraid_Init(braid_App app, sunrealtype t, braid_Vector *u_ptr)
 
    This is the default vector initialization function provided to XBraid. The
    initialization function is called by XBraid to create a new vector and set
@@ -998,7 +998,7 @@ ARKODE and XBraid that requries defining a custom SUNBraidApp implementation.
 
 
 
-.. c:function:: int ARKBraid_TakeStep(void *arkode_mem, realtype tstart, realtype tstop, N_Vector y, int *ark_flag)
+.. c:function:: int ARKBraid_TakeStep(void *arkode_mem, sunrealtype tstart, sunrealtype tstop, N_Vector y, int *ark_flag)
 
    This function advances the vector *y* from *tstart* to *tstop* using a
    single ARKStep time step with step size *h = tstop - start*.

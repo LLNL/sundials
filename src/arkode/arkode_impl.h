@@ -151,26 +151,26 @@ extern "C" {
 /* linear solver interface functions */
 typedef int (*ARKLinsolInitFn)(void* arkode_mem);
 typedef int (*ARKLinsolSetupFn)(void* arkode_mem, int convfail,
-                                realtype tpred, N_Vector ypred,
+                                sunrealtype tpred, N_Vector ypred,
                                 N_Vector fpred,
                                 booleantype *jcurPtr,
                                 N_Vector vtemp1,
                                 N_Vector vtemp2, N_Vector vtemp3);
 typedef int (*ARKLinsolSolveFn)(void* arkode_mem, N_Vector b,
-                                realtype tcur, N_Vector ycur,
-                                N_Vector fcur, realtype client_tol,
+                                sunrealtype tcur, N_Vector ycur,
+                                N_Vector fcur, sunrealtype client_tol,
                                 int mnewt);
 typedef int (*ARKLinsolFreeFn)(void* arkode_mem);
 
 /* mass-matrix solver interface functions */
 typedef int (*ARKMassInitFn)(void *arkode_mem);
-typedef int (*ARKMassSetupFn)(void *arkode_mem, realtype t,
+typedef int (*ARKMassSetupFn)(void *arkode_mem, sunrealtype t,
                               N_Vector vtemp1, N_Vector vtemp2,
                               N_Vector vtemp3);
 typedef int (*ARKMassMultFn)(void *arkode_mem, N_Vector v,
                              N_Vector Mv);
 typedef int (*ARKMassSolveFn)(void *arkode_mem, N_Vector b,
-                              realtype client_tol);
+                              sunrealtype client_tol);
 typedef int (*ARKMassFreeFn)(void *arkode_mem);
 
 /* time stepper interface functions */
@@ -197,13 +197,13 @@ typedef void* (*ARKTimestepGetLinMemFn)(void* arkode_mem);
 typedef void* (*ARKTimestepGetMassMemFn)(void* arkode_mem);
 typedef ARKRhsFn (*ARKTimestepGetImplicitRHSFn)(void* arkode_mem);
 typedef int (*ARKTimestepGetGammasFn)(void* arkode_mem,
-                                      realtype *gamma,
-                                      realtype *gamrat,
+                                      sunrealtype *gamma,
+                                      sunrealtype *gamrat,
                                       booleantype **jcur,
                                       booleantype *dgamma_fail);
-typedef int (*ARKTimestepFullRHSFn)(void* arkode_mem, realtype t,
+typedef int (*ARKTimestepFullRHSFn)(void* arkode_mem, sunrealtype t,
                                     N_Vector y, N_Vector f, int mode);
-typedef int (*ARKTimestepStepFn)(void* arkode_mem, realtype *dsm,
+typedef int (*ARKTimestepStepFn)(void* arkode_mem, sunrealtype *dsm,
                                  int *nflag);
 
 
@@ -226,10 +226,10 @@ struct _generic_ARKInterpOps {
   void (*free)(void* arkode_mem, ARKInterp interp);
   void (*print)(ARKInterp interp, FILE *outfile);
   int (*setdegree)(void *arkode_mem, ARKInterp interp, int degree);
-  int (*init)(void* arkode_mem, ARKInterp interp, realtype tnew);
-  int (*update)(void* arkode_mem, ARKInterp interp, realtype tnew);
+  int (*init)(void* arkode_mem, ARKInterp interp, sunrealtype tnew);
+  int (*update)(void* arkode_mem, ARKInterp interp, sunrealtype tnew);
   int (*evaluate)(void* arkode_mem, ARKInterp interp,
-                  realtype tau, int d, int order, N_Vector yout);
+                  sunrealtype tau, int d, int order, N_Vector yout);
 };
 
 /* An interpolation module consists of an implementation-dependent 'content'
@@ -247,10 +247,10 @@ int arkInterpResize(void* arkode_mem, ARKInterp interp,
 void arkInterpFree(void* arkode_mem, ARKInterp interp);
 void arkInterpPrintMem(ARKInterp interp, FILE *outfile);
 int arkInterpSetDegree(void *arkode_mem, ARKInterp interp, int degree);
-int arkInterpInit(void* arkode_mem, ARKInterp interp, realtype tnew);
-int arkInterpUpdate(void* arkode_mem, ARKInterp interp, realtype tnew);
+int arkInterpInit(void* arkode_mem, ARKInterp interp, sunrealtype tnew);
+int arkInterpUpdate(void* arkode_mem, ARKInterp interp, sunrealtype tnew);
 int arkInterpEvaluate(void* arkode_mem, ARKInterp interp,
-                      realtype tau, int d, int order, N_Vector yout);
+                      sunrealtype tau, int d, int order, N_Vector yout);
 
 
 /*===============================================================
@@ -289,7 +289,7 @@ struct ARKodeMemRec
 {
   SUNContext sunctx;
 
-  realtype uround;             /* machine unit roundoff */
+  sunrealtype uround;             /* machine unit roundoff */
 
   /* Problem specification data */
   void        *user_data;      /* user ptr passed to supplied functions */
@@ -299,11 +299,11 @@ struct ARKodeMemRec
   int          ritol;          /* itol = ARK_SS (scalar, default),
                                          ARK_SV (vector),
                                          ARK_WF (user weight function)  */
-  realtype     reltol;         /* relative tolerance                    */
-  realtype     Sabstol;        /* scalar absolute solution tolerance    */
+  sunrealtype     reltol;         /* relative tolerance                    */
+  sunrealtype     Sabstol;        /* scalar absolute solution tolerance    */
   N_Vector     Vabstol;        /* vector absolute solution tolerance    */
   booleantype  atolmin0;       /* flag indicating that min(abstol) = 0  */
-  realtype     SRabstol;       /* scalar absolute residual tolerance    */
+  sunrealtype     SRabstol;       /* scalar absolute residual tolerance    */
   N_Vector     VRabstol;       /* vector absolute residual tolerance    */
   booleantype  Ratolmin0;      /* flag indicating that min(Rabstol) = 0 */
   booleantype  user_efun;      /* SUNTRUE if user sets efun             */
@@ -350,21 +350,21 @@ struct ARKodeMemRec
   /* Tstop information */
   booleantype tstopset;
   booleantype tstopinterp;
-  realtype    tstop;
+  sunrealtype    tstop;
 
   /* Time step data */
-  realtype hin;                /* initial step size                        */
-  realtype h;                  /* current step size                        */
-  realtype hmin;               /* |h| >= hmin                              */
-  realtype hmax_inv;           /* |h| <= 1/hmax_inv                        */
-  realtype hprime;             /* next actual step size to be used         */
-  realtype next_h;             /* next dynamical step size (only used in
+  sunrealtype hin;                /* initial step size                        */
+  sunrealtype h;                  /* current step size                        */
+  sunrealtype hmin;               /* |h| >= hmin                              */
+  sunrealtype hmax_inv;           /* |h| <= 1/hmax_inv                        */
+  sunrealtype hprime;             /* next actual step size to be used         */
+  sunrealtype next_h;             /* next dynamical step size (only used in
                                   getCurrentStep); note that this could
                                   overtake tstop */
-  realtype eta;                /* eta = hprime / h                         */
-  realtype tcur;               /* current internal value of t
+  sunrealtype eta;                /* eta = hprime / h                         */
+  sunrealtype tcur;               /* current internal value of t
                                   (changes with each stage)                */
-  realtype tretlast;           /* value of tret last returned by ARKODE    */
+  sunrealtype tretlast;           /* value of tret last returned by ARKODE    */
   booleantype fixedstep;       /* flag to disable temporal adaptivity      */
   ARKodeHAdaptMem hadapt_mem;  /* time step adaptivity structure           */
 
@@ -391,17 +391,17 @@ struct ARKodeMemRec
   FILE       *diagfp;   /* diagnostic outputs are sent to diagfp   */
 
   /* Space requirements for ARKODE */
-  sunindextype lrw1;        /* no. of realtype words in 1 N_Vector          */
+  sunindextype lrw1;        /* no. of sunrealtype words in 1 N_Vector          */
   sunindextype liw1;        /* no. of integer words in 1 N_Vector           */
-  long int lrw;             /* no. of realtype words in ARKODE work vectors */
+  long int lrw;             /* no. of sunrealtype words in ARKODE work vectors */
   long int liw;             /* no. of integer words in ARKODE work vectors  */
 
   /* Saved Values */
-  realtype    h0u;          /* actual initial stepsize                     */
-  realtype    tn;           /* time of last successful step                */
-  realtype    terr;         /* error in tn for compensated sums            */
-  realtype    hold;         /* last successful h value used                */
-  realtype    tolsf;        /* tolerance scale factor (suggestion to user) */
+  sunrealtype    h0u;          /* actual initial stepsize                     */
+  sunrealtype    tn;           /* time of last successful step                */
+  sunrealtype    terr;         /* error in tn for compensated sums            */
+  sunrealtype    hold;         /* last successful h value used                */
+  sunrealtype    tolsf;        /* tolerance scale factor (suggestion to user) */
   booleantype VabstolMallocDone;
   booleantype VRabstolMallocDone;
   booleantype MallocDone;
@@ -625,7 +625,7 @@ struct ARKodeMemRec
   ---------------------------------------------------------------
   This must solve the linear equation M x = b, where M is the
   system mass matrix, and the RHS vector b is input. The
-  realtype client_tol contains the desired accuracy (in the wrms
+  sunrealtype client_tol contains the desired accuracy (in the wrms
   norm) of the routine calling the solver; the ARKDLS solver
   ignore this value and the ARKSPILS solver tightens it by the
   factor eplifac.  The solution is to be returned in the vector b.
@@ -876,7 +876,7 @@ void arkErrHandler(int error_code, const char *module,
                    const char *function, char *msg, void *data);
 
 /* Prototype of internal explicit stability estimation function */
-int arkExpStab(N_Vector y, realtype t, realtype *hstab, void *user_data);
+int arkExpStab(N_Vector y, sunrealtype t, sunrealtype *hstab, void *user_data);
 
 /*===============================================================
   HIGH LEVEL ERROR HANDLER, USED THROUGHOUT ARKODE
@@ -895,7 +895,7 @@ void arkProcessError(ARKodeMem ark_mem, int error_code,
 #define SUNDIALS_UNUSED
 #endif
 
-int arkInit(ARKodeMem ark_mem, realtype t0, N_Vector y0, int init_type);
+int arkInit(ARKodeMem ark_mem, sunrealtype t0, N_Vector y0, int init_type);
 booleantype arkAllocVec(ARKodeMem ark_mem, N_Vector tmpl, N_Vector *v);
 booleantype arkAllocVecArray(int count, N_Vector tmpl, N_Vector **v,
                              sunindextype lrw1, long int *lrw,
@@ -928,16 +928,16 @@ booleantype arkResizeVectors(ARKodeMem ark_mem,
                              N_Vector tmpl);
 void arkFreeVectors(ARKodeMem ark_mem);
 
-int arkInitialSetup(ARKodeMem ark_mem, realtype tout);
-int arkStopTests(ARKodeMem ark_mem, realtype tout, N_Vector yout,
-                 realtype *tret, int itask, int *ier);
-int arkHin(ARKodeMem ark_mem, realtype tout);
-realtype arkUpperBoundH0(ARKodeMem ark_mem,
-                         realtype tdist);
-int arkYddNorm(ARKodeMem ark_mem, realtype hg,
-               realtype *yddnrm);
+int arkInitialSetup(ARKodeMem ark_mem, sunrealtype tout);
+int arkStopTests(ARKodeMem ark_mem, sunrealtype tout, N_Vector yout,
+                 sunrealtype *tret, int itask, int *ier);
+int arkHin(ARKodeMem ark_mem, sunrealtype tout);
+sunrealtype arkUpperBoundH0(ARKodeMem ark_mem,
+                         sunrealtype tdist);
+int arkYddNorm(ARKodeMem ark_mem, sunrealtype hg,
+               sunrealtype *yddnrm);
 
-int arkCompleteStep(ARKodeMem ark_mem, realtype dsm);
+int arkCompleteStep(ARKodeMem ark_mem, sunrealtype dsm);
 int arkHandleFailure(ARKodeMem ark_mem,int flag);
 
 int arkEwtSetSS(N_Vector ycur, N_Vector weight, void* arkode_mem);
@@ -949,34 +949,34 @@ int arkRwtSetSV(ARKodeMem ark_mem, N_Vector My,
                 N_Vector weight);
 
 ARKodeMem arkCreate(SUNContext sunctx);
-int arkResize(ARKodeMem ark_mem, N_Vector ynew, realtype hscale,
-              realtype t0, ARKVecResizeFn resize, void *resize_data);
-int arkSStolerances(ARKodeMem ark_mem, realtype reltol, realtype abstol);
-int arkSVtolerances(ARKodeMem ark_mem, realtype reltol, N_Vector abstol);
+int arkResize(ARKodeMem ark_mem, N_Vector ynew, sunrealtype hscale,
+              sunrealtype t0, ARKVecResizeFn resize, void *resize_data);
+int arkSStolerances(ARKodeMem ark_mem, sunrealtype reltol, sunrealtype abstol);
+int arkSVtolerances(ARKodeMem ark_mem, sunrealtype reltol, N_Vector abstol);
 int arkWFtolerances(ARKodeMem ark_mem, ARKEwtFn efun);
-int arkResStolerance(ARKodeMem ark_mem, realtype rabstol);
+int arkResStolerance(ARKodeMem ark_mem, sunrealtype rabstol);
 int arkResVtolerance(ARKodeMem ark_mem, N_Vector rabstol);
 int arkResFtolerance(ARKodeMem ark_mem, ARKRwtFn rfun);
 int arkRootInit(ARKodeMem ark_mem, int nrtfn, ARKRootFn g);
-int arkEvolve(ARKodeMem ark_mem, realtype tout, N_Vector yout,
-              realtype *tret, int itask);
-int arkGetDky(ARKodeMem ark_mem, realtype t, int k, N_Vector dky);
+int arkEvolve(ARKodeMem ark_mem, sunrealtype tout, N_Vector yout,
+              sunrealtype *tret, int itask);
+int arkGetDky(ARKodeMem ark_mem, sunrealtype t, int k, N_Vector dky);
 void arkFree(void **arkode_mem);
 
 int arkWriteParameters(ARKodeMem ark_mem, FILE *fp);
-int arkPredict_MaximumOrder(ARKodeMem ark_mem, realtype tau,
+int arkPredict_MaximumOrder(ARKodeMem ark_mem, sunrealtype tau,
                             N_Vector yguess);
-int arkPredict_VariableOrder(ARKodeMem ark_mem, realtype tau,
+int arkPredict_VariableOrder(ARKodeMem ark_mem, sunrealtype tau,
                              N_Vector yguess);
-int arkPredict_CutoffOrder(ARKodeMem ark_mem, realtype tau,
+int arkPredict_CutoffOrder(ARKodeMem ark_mem, sunrealtype tau,
                            N_Vector yguess);
-int arkPredict_Bootstrap(ARKodeMem ark_mem, realtype hj,
-                         realtype tau, int nvec, realtype *cvals,
+int arkPredict_Bootstrap(ARKodeMem ark_mem, sunrealtype hj,
+                         sunrealtype tau, int nvec, sunrealtype *cvals,
                          N_Vector *Xvecs, N_Vector yguess);
 int arkCheckConvergence(ARKodeMem ark_mem, int *nflagPtr, int *ncfPtr);
 int arkCheckConstraints(ARKodeMem ark_mem, int *nflag, int *constrfails);
 int arkCheckTemporalError(ARKodeMem ark_mem, int *nflagPtr, int *nefPtr,
-                          realtype dsm);
+                          sunrealtype dsm);
 int arkAccessHAdaptMem(void* arkode_mem, const char *fname,
                        ARKodeMem *ark_mem, ARKodeHAdaptMem *hadapt_mem);
 
@@ -992,13 +992,13 @@ int arkSetUserData(void *arkode_mem, void *user_data);
 int arkSetDiagnostics(void *arkode_mem, FILE *diagfp);
 int arkSetMaxNumSteps(void *arkode_mem, long int mxsteps);
 int arkSetMaxHnilWarns(void *arkode_mem, int mxhnil);
-int arkSetInitStep(void *arkode_mem, realtype hin);
-int arkSetMinStep(void *arkode_mem, realtype hmin);
-int arkSetMaxStep(void *arkode_mem, realtype hmax);
-int arkSetStopTime(void *arkode_mem, realtype tstop);
+int arkSetInitStep(void *arkode_mem, sunrealtype hin);
+int arkSetMinStep(void *arkode_mem, sunrealtype hmin);
+int arkSetMaxStep(void *arkode_mem, sunrealtype hmax);
+int arkSetStopTime(void *arkode_mem, sunrealtype tstop);
 int arkSetInterpolateStopTime(void *arkode_mem, booleantype interp);
 int arkClearStopTime(void *arkode_mem);
-int arkSetFixedStep(void *arkode_mem, realtype hfixed);
+int arkSetFixedStep(void *arkode_mem, sunrealtype hfixed);
 int arkSetRootDirection(void *arkode_mem, int *rootdir);
 int arkSetNoInactiveRootWarn(void *arkode_mem);
 int arkSetPostprocessStepFn(void *arkode_mem,
@@ -1007,19 +1007,19 @@ int arkSetPostprocessStageFn(void *arkode_mem,
                              ARKPostProcessFn ProcessStage);
 int arkSetConstraints(void *arkode_mem, N_Vector constraints);
 int arkSetMaxNumConstrFails(void *arkode_mem, int maxfails);
-int arkSetCFLFraction(void *arkode_mem, realtype cfl_frac);
-int arkSetSafetyFactor(void *arkode_mem, realtype safety);
-int arkSetErrorBias(void *arkode_mem, realtype bias);
-int arkSetMaxGrowth(void *arkode_mem, realtype mx_growth);
-int arkSetMinReduction(void *arkode_mem, realtype eta_min);
-int arkSetFixedStepBounds(void *arkode_mem, realtype lb, realtype ub);
+int arkSetCFLFraction(void *arkode_mem, sunrealtype cfl_frac);
+int arkSetSafetyFactor(void *arkode_mem, sunrealtype safety);
+int arkSetErrorBias(void *arkode_mem, sunrealtype bias);
+int arkSetMaxGrowth(void *arkode_mem, sunrealtype mx_growth);
+int arkSetMinReduction(void *arkode_mem, sunrealtype eta_min);
+int arkSetFixedStepBounds(void *arkode_mem, sunrealtype lb, sunrealtype ub);
 int arkSetAdaptivityMethod(void *arkode_mem, int imethod, int idefault,
-                           int pq, realtype adapt_params[3]);
+                           int pq, sunrealtype adapt_params[3]);
 int arkSetAdaptivityFn(void *arkode_mem, ARKAdaptFn hfun, void *h_data);
-int arkSetMaxFirstGrowth(void *arkode_mem, realtype etamx1);
-int arkSetMaxEFailGrowth(void *arkode_mem, realtype etamxf);
+int arkSetMaxFirstGrowth(void *arkode_mem, sunrealtype etamx1);
+int arkSetMaxEFailGrowth(void *arkode_mem, sunrealtype etamxf);
 int arkSetSmallNumEFails(void *arkode_mem, int small_nef);
-int arkSetMaxCFailGrowth(void *arkode_mem, realtype etacf);
+int arkSetMaxCFailGrowth(void *arkode_mem, sunrealtype etacf);
 int arkSetStabilityFn(void *arkode_mem, ARKExpStabFn EStab, void *estab_data);
 int arkSetMaxErrTestFails(void *arkode_mem, int maxnef);
 int arkSetMaxConvFails(void *arkode_mem, int maxncf);
@@ -1027,12 +1027,12 @@ int arkSetUseCompensatedSums(void *arkode_mem, sunbooleantype onoff);
 int arkGetWorkSpace(void *arkode_mem, long int *lenrw, long int *leniw);
 int arkGetNumStepAttempts(void *arkode_mem, long int *nstep_attempts);
 int arkGetNumSteps(void *arkode_mem, long int *nsteps);
-int arkGetActualInitStep(void *arkode_mem, realtype *hinused);
-int arkGetLastStep(void *arkode_mem, realtype *hlast);
-int arkGetCurrentStep(void *arkode_mem, realtype *hcur);
+int arkGetActualInitStep(void *arkode_mem, sunrealtype *hinused);
+int arkGetLastStep(void *arkode_mem, sunrealtype *hlast);
+int arkGetCurrentStep(void *arkode_mem, sunrealtype *hcur);
 int arkGetCurrentState(void *arkode_mem, N_Vector *ycur);
-int arkGetCurrentTime(void *arkode_mem, realtype *tcur);
-int arkGetTolScaleFactor(void *arkode_mem, realtype *tolsfac);
+int arkGetCurrentTime(void *arkode_mem, sunrealtype *tcur);
+int arkGetTolScaleFactor(void *arkode_mem, sunrealtype *tolsfac);
 int arkGetErrWeights(void *arkode_mem, N_Vector eweight);
 int arkGetResWeights(void *arkode_mem, N_Vector rweight);
 int arkGetNumGEvals(void *arkode_mem, long int *ngevals);
@@ -1043,8 +1043,8 @@ int arkGetNumAccSteps(void *arkode_mem, long int *nsteps);
 int arkGetNumErrTestFails(void *arkode_mem, long int *netfails);
 int arkGetNumStepSolveFails(void *arkode_mem, long int *nncfails);
 int arkGetStepStats(void *arkode_mem, long int *nsteps,
-                    realtype *hinused, realtype *hlast,
-                    realtype *hcur, realtype *tcur);
+                    sunrealtype *hinused, sunrealtype *hlast,
+                    sunrealtype *hcur, sunrealtype *tcur);
 int arkGetUserData(void *arkode_mem, void** user_data);
 int arkPrintAllStats(void *arkode_mem, FILE *outfile,
                      SUNOutputFormat fmt);

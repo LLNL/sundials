@@ -60,7 +60,7 @@
 #include <nvector/nvector_serial.h>   /* access to Serial N_Vector */
 #include <sunmatrix/sunmatrix_band.h> /* access to band SUNMatrix */
 #include <sunlinsol/sunlinsol_band.h> /* access to band SUNLinearSolver */
-#include <sundials/sundials_types.h>  /* def. of type 'realtype' */
+#include <sundials/sundials_types.h>  /* def. of type 'sunrealtype' */
 #include <sundials/sundials_math.h>   /* def. of SUNRsqrt, etc. */
 
 #if defined(SUNDIALS_EXTENDED_PRECISION)
@@ -84,17 +84,17 @@
 /* user data structure */
 typedef struct {
   sunindextype N;  /* number of intervals      */
-  realtype dx;     /* mesh spacing             */
-  realtype a;      /* constant forcing on u    */
-  realtype b;      /* steady-state value of w  */
-  realtype c;      /* advection coefficient    */
-  realtype ep;     /* stiffness parameter      */
+  sunrealtype dx;     /* mesh spacing             */
+  sunrealtype a;      /* constant forcing on u    */
+  sunrealtype b;      /* steady-state value of w  */
+  sunrealtype c;      /* advection coefficient    */
+  sunrealtype ep;     /* stiffness parameter      */
 } *UserData;
 
 /* user-provided functions called by the integrator */
-static int ff(realtype t, N_Vector y, N_Vector ydot, void *user_data);
-static int fs(realtype t, N_Vector y, N_Vector ydot, void *user_data);
-static int Jf(realtype t, N_Vector y, N_Vector fy, SUNMatrix Jac,
+static int ff(sunrealtype t, N_Vector y, N_Vector ydot, void *user_data);
+static int fs(sunrealtype t, N_Vector y, N_Vector ydot, void *user_data);
+static int Jf(sunrealtype t, N_Vector y, N_Vector fy, SUNMatrix Jac,
               void *user_data, N_Vector tmp1, N_Vector tmp2, N_Vector tmp3);
 
 /* function for setting initial condition */
@@ -108,20 +108,20 @@ static int check_retval(void *flagvalue, const char *funcname, int opt);
 int main(int argc, char *argv[])
 {
   /* general problem parameters */
-  realtype     T0     = RCONST(0.0);      /* initial time                    */
-  realtype     Tf     = RCONST(10.0);     /* final time                      */
+  sunrealtype     T0     = RCONST(0.0);      /* initial time                    */
+  sunrealtype     Tf     = RCONST(10.0);     /* final time                      */
   int          Nt     = 100;              /* total number of output times    */
   int          Nvar   = 3;                /* number of solution fields       */
   sunindextype N      = 200;              /* spatial mesh size (N intervals) */
-  realtype     a      = RCONST(1.0);      /* problem parameters              */
-  realtype     b      = RCONST(3.5);
-  realtype     c      = RCONST(0.25);
-  realtype     ep     = RCONST(1.0e-6);   /* stiffness parameter */
-  realtype     reltol = RCONST(1.0e-6);   /* tolerances          */
-  realtype     abstol = RCONST(1.0e-10);
+  sunrealtype     a      = RCONST(1.0);      /* problem parameters              */
+  sunrealtype     b      = RCONST(3.5);
+  sunrealtype     c      = RCONST(0.25);
+  sunrealtype     ep     = RCONST(1.0e-6);   /* stiffness parameter */
+  sunrealtype     reltol = RCONST(1.0e-6);   /* tolerances          */
+  sunrealtype     abstol = RCONST(1.0e-10);
 
   /* general problem variables */
-  realtype hs;                              /* slow step size                 */
+  sunrealtype hs;                              /* slow step size                 */
   int retval;                               /* reusable return flag           */
   N_Vector y = NULL;                        /* empty solution vector          */
   N_Vector umask = NULL;                    /* empty mask vectors             */
@@ -132,8 +132,8 @@ int main(int argc, char *argv[])
   void *arkode_mem = NULL;                  /* empty ARKode memory structure  */
   void *inner_arkode_mem = NULL;            /* empty ARKode memory structure  */
   MRIStepInnerStepper inner_stepper = NULL; /* inner stepper                  */
-  realtype t, dTout, tout;                  /* current/output time data       */
-  realtype u, v, w;                         /* temp data values               */
+  sunrealtype t, dTout, tout;                  /* current/output time data       */
+  sunrealtype u, v, w;                         /* temp data values               */
   FILE *FID, *UFID, *VFID, *WFID;           /* output file pointers           */
   int iout;                                 /* output counter                 */
   long int nsts, nstf, nstf_a, netf;        /* step stats                     */
@@ -143,7 +143,7 @@ int main(int argc, char *argv[])
   sunindextype NEQ;                         /* number of equations            */
   sunindextype i;                           /* counter                        */
   UserData udata = NULL;                    /* user data pointer              */
-  realtype* data  = NULL;                   /* array for vector data          */
+  sunrealtype* data  = NULL;                   /* array for vector data          */
 
   /* Create the SUNDIALS context object for this simulation */
   SUNContext ctx;
@@ -401,16 +401,16 @@ int main(int argc, char *argv[])
 
 
 /* ff routine to compute the fast portion of the ODE RHS. */
-static int ff(realtype t, N_Vector y, N_Vector ydot, void *user_data)
+static int ff(sunrealtype t, N_Vector y, N_Vector ydot, void *user_data)
 {
   UserData     udata  = (UserData) user_data;  /* access problem data    */
   sunindextype N      = udata->N;              /* set variable shortcuts */
-  realtype     a      = udata->a;
-  realtype     b      = udata->b;
-  realtype     ep     = udata->ep;
-  realtype*    Ydata  = NULL;
-  realtype*    dYdata = NULL;
-  realtype     u, v, w;
+  sunrealtype     a      = udata->a;
+  sunrealtype     b      = udata->b;
+  sunrealtype     ep     = udata->ep;
+  sunrealtype*    Ydata  = NULL;
+  sunrealtype*    dYdata = NULL;
+  sunrealtype     u, v, w;
   sunindextype i;
 
   /* access data arrays */
@@ -445,15 +445,15 @@ static int ff(realtype t, N_Vector y, N_Vector ydot, void *user_data)
 
 
 /* fs routine to compute the slow portion of the ODE RHS. */
-static int fs(realtype t, N_Vector y, N_Vector ydot, void *user_data)
+static int fs(sunrealtype t, N_Vector y, N_Vector ydot, void *user_data)
 {
   UserData     udata  = (UserData) user_data;  /* access problem data    */
   sunindextype N      = udata->N;              /* set variable shortcuts */
-  realtype     c      = udata->c;
-  realtype     dx     = udata->dx;
-  realtype*    Ydata  = NULL;
-  realtype*    dYdata = NULL;
-  realtype     tmp;
+  sunrealtype     c      = udata->c;
+  sunrealtype     dx     = udata->dx;
+  sunrealtype*    Ydata  = NULL;
+  sunrealtype*    dYdata = NULL;
+  sunrealtype     tmp;
   sunindextype i;
 
   /* access data arrays */
@@ -510,15 +510,15 @@ static int fs(realtype t, N_Vector y, N_Vector ydot, void *user_data)
 
 
 /* Js routine to compute the Jacobian of the fast portion of the ODE RHS. */
-static int Jf(realtype t, N_Vector y, N_Vector fy, SUNMatrix Jac,
+static int Jf(sunrealtype t, N_Vector y, N_Vector fy, SUNMatrix Jac,
               void *user_data, N_Vector tmp1, N_Vector tmp2, N_Vector tmp3)
 {
   UserData     udata = (UserData) user_data;  /* access problem data */
   sunindextype N     = udata->N;              /* set shortcuts */
-  realtype     ep    = udata->ep;
+  sunrealtype     ep    = udata->ep;
   sunindextype i;
-  realtype     u, v, w;
-  realtype*    Ydata = NULL;
+  sunrealtype     u, v, w;
+  sunrealtype*    Ydata = NULL;
 
   /* access solution array */
   Ydata = N_VGetArrayPointer(y);
@@ -563,12 +563,12 @@ static int SetIC(N_Vector y, void *user_data)
 {
   UserData     udata = (UserData) user_data;  /* access problem data    */
   sunindextype N     = udata->N;              /* set variable shortcuts */
-  realtype     a     = udata->a;
-  realtype     b     = udata->b;
-  realtype     dx    = udata->dx;
-  realtype*    data  = NULL;
+  sunrealtype     a     = udata->a;
+  sunrealtype     b     = udata->b;
+  sunrealtype     dx    = udata->dx;
+  sunrealtype*    data  = NULL;
 
-  realtype     x, p;
+  sunrealtype     x, p;
   sunindextype i;
 
   /* Access data array from NVector y */

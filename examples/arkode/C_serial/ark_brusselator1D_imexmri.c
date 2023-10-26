@@ -72,7 +72,7 @@
 #include <nvector/nvector_serial.h>   /* access to Serial N_Vector */
 #include <sunmatrix/sunmatrix_band.h> /* access to band SUNMatrix */
 #include <sunlinsol/sunlinsol_band.h> /* access to band SUNLinearSolver */
-#include <sundials/sundials_types.h>  /* def. of type 'realtype' */
+#include <sundials/sundials_types.h>  /* def. of type 'sunrealtype' */
 #include <sundials/sundials_math.h>   /* def. of SUNRsqrt, etc. */
 
 #if defined(SUNDIALS_EXTENDED_PRECISION)
@@ -96,40 +96,40 @@
 /* user data structure */
 typedef struct {
   sunindextype N;  /* number of intervals     */
-  realtype dx;     /* mesh spacing            */
-  realtype a;      /* constant forcing on u   */
-  realtype b;      /* steady-state value of w */
-  realtype pi;     /* value of pi             */
-  realtype du;     /* diffusion coeff for u   */
-  realtype dv;     /* diffusion coeff for v   */
-  realtype dw;     /* diffusion coeff for w   */
-  realtype au;     /* advection coeff for u   */
-  realtype av;     /* advection coeff for v   */
-  realtype aw;     /* advection coeff for w   */
-  realtype ep;     /* stiffness parameter     */
+  sunrealtype dx;     /* mesh spacing            */
+  sunrealtype a;      /* constant forcing on u   */
+  sunrealtype b;      /* steady-state value of w */
+  sunrealtype pi;     /* value of pi             */
+  sunrealtype du;     /* diffusion coeff for u   */
+  sunrealtype dv;     /* diffusion coeff for v   */
+  sunrealtype dw;     /* diffusion coeff for w   */
+  sunrealtype au;     /* advection coeff for u   */
+  sunrealtype av;     /* advection coeff for v   */
+  sunrealtype aw;     /* advection coeff for w   */
+  sunrealtype ep;     /* stiffness parameter     */
 } *UserData;
 
 /* User-supplied Functions Called by the Solver */
-static int ff(realtype t, N_Vector y, N_Vector ydot, void *user_data);
-static int fse(realtype t, N_Vector y, N_Vector ydot, void *user_data);
-static int fsi(realtype t, N_Vector y, N_Vector ydot, void *user_data);
-static int fs(realtype t, N_Vector y, N_Vector ydot, void *user_data);
-static int f(realtype t, N_Vector y, N_Vector ydot, void *user_data);
-static int f0(realtype t, N_Vector y, N_Vector ydot, void *user_data);
-static int Jf(realtype t, N_Vector y, N_Vector fy, SUNMatrix J, void *user_data,
+static int ff(sunrealtype t, N_Vector y, N_Vector ydot, void *user_data);
+static int fse(sunrealtype t, N_Vector y, N_Vector ydot, void *user_data);
+static int fsi(sunrealtype t, N_Vector y, N_Vector ydot, void *user_data);
+static int fs(sunrealtype t, N_Vector y, N_Vector ydot, void *user_data);
+static int f(sunrealtype t, N_Vector y, N_Vector ydot, void *user_data);
+static int f0(sunrealtype t, N_Vector y, N_Vector ydot, void *user_data);
+static int Jf(sunrealtype t, N_Vector y, N_Vector fy, SUNMatrix J, void *user_data,
                N_Vector tmp1, N_Vector tmp2, N_Vector tmp3);
-static int Jsi(realtype t, N_Vector y, N_Vector fy, SUNMatrix J, void *user_data,
+static int Jsi(sunrealtype t, N_Vector y, N_Vector fy, SUNMatrix J, void *user_data,
                N_Vector tmp1, N_Vector tmp2, N_Vector tmp3);
-static int Js(realtype t, N_Vector y, N_Vector fy, SUNMatrix J, void *user_data,
+static int Js(sunrealtype t, N_Vector y, N_Vector fy, SUNMatrix J, void *user_data,
                N_Vector tmp1, N_Vector tmp2, N_Vector tmp3);
-static int Jac(realtype t, N_Vector y, N_Vector fy, SUNMatrix J, void *user_data,
+static int Jac(sunrealtype t, N_Vector y, N_Vector fy, SUNMatrix J, void *user_data,
                N_Vector tmp1, N_Vector tmp2, N_Vector tmp3);
 
 /* Private helper functions  */
 static int SetIC(N_Vector y, void *user_data);
-static int AdvectionJac(realtype c, SUNMatrix Jac, UserData udata);
-static int LaplaceMatrix(realtype c, SUNMatrix Jac, UserData udata);
-static int ReactionJac(realtype c, N_Vector y, SUNMatrix Jac, UserData udata);
+static int AdvectionJac(sunrealtype c, SUNMatrix Jac, UserData udata);
+static int LaplaceMatrix(sunrealtype c, SUNMatrix Jac, UserData udata);
+static int ReactionJac(sunrealtype c, N_Vector y, SUNMatrix Jac, UserData udata);
 
 /* Private function to check function return values */
 static int check_retval(void *returnvalue, const char *funcname, int opt);
@@ -138,28 +138,28 @@ static int check_retval(void *returnvalue, const char *funcname, int opt);
 int main(int argc, char *argv[])
 {
   /* general problem parameters */
-  realtype T0 = ZERO;    /* initial time                 */
-  realtype Tf = RCONST(10.0);   /* final time                   */
+  sunrealtype T0 = ZERO;    /* initial time                 */
+  sunrealtype Tf = RCONST(10.0);   /* final time                   */
   int Nt = 10;                  /* total number of output times */
-  realtype dTout = (Tf-T0)/Nt;  /* time between outputs         */
+  sunrealtype dTout = (Tf-T0)/Nt;  /* time between outputs         */
   int Nvar = 3;                 /* number of solution fields    */
   sunindextype N = 101;         /* spatial mesh size            */
-  realtype hs;                  /* slow step size       */
-  realtype m = RCONST(10.0);    /* time-scale separation factor */
+  sunrealtype hs;                  /* slow step size       */
+  sunrealtype m = RCONST(10.0);    /* time-scale separation factor */
   int solve_type;               /* solver configuration */
-  realtype dx = ONE/(N-1);      /* set spatial mesh spacing     */
-  realtype a = 0.6;             /* problem parameters           */
-  realtype b = 2.0;
-  realtype pi = RCONST(4.0)*atan(ONE);
-  realtype du = 0.01;
-  realtype dv = 0.01;
-  realtype dw = 0.01;
-  realtype au = -0.001;
-  realtype av = -0.001;
-  realtype aw = -0.001;
-  realtype ep = 1.0e-2;         /* stiffness parameter          */
-  realtype reltol = 1.0e-12;    /* tolerances                   */
-  realtype abstol = 1.0e-14;
+  sunrealtype dx = ONE/(N-1);      /* set spatial mesh spacing     */
+  sunrealtype a = 0.6;             /* problem parameters           */
+  sunrealtype b = 2.0;
+  sunrealtype pi = RCONST(4.0)*atan(ONE);
+  sunrealtype du = 0.01;
+  sunrealtype dv = 0.01;
+  sunrealtype dw = 0.01;
+  sunrealtype au = -0.001;
+  sunrealtype av = -0.001;
+  sunrealtype aw = -0.001;
+  sunrealtype ep = 1.0e-2;         /* stiffness parameter          */
+  sunrealtype reltol = 1.0e-12;    /* tolerances                   */
+  sunrealtype abstol = 1.0e-14;
 
   /* general problem variables */
   int retval;                               /* reusable return flag          */
@@ -178,9 +178,9 @@ int main(int argc, char *argv[])
   N_Vector umask = NULL;                    /* empty mask vectors            */
   N_Vector vmask = NULL;
   N_Vector wmask = NULL;
-  realtype t, tout;                         /* current/output time data      */
-  realtype hf;                              /* fast time step                */
-  realtype u, v, w;                         /* temp data values              */
+  sunrealtype t, tout;                         /* current/output time data      */
+  sunrealtype hf;                              /* fast time step                */
+  sunrealtype u, v, w;                         /* temp data values              */
   FILE *FID, *UFID, *VFID, *WFID;           /* output file pointers          */
   int iout;                                 /* output counter                */
   long int nsts, nstf;                      /* step stats                    */
@@ -189,8 +189,8 @@ int main(int argc, char *argv[])
   sunindextype NEQ;                         /* number of equations           */
   sunindextype i;                           /* counter                       */
   UserData udata = NULL;                    /* user data pointer             */
-  realtype* data = NULL;                    /* array for vector data         */
-  realtype  gamma, beta;
+  sunrealtype* data = NULL;                    /* array for vector data         */
+  sunrealtype  gamma, beta;
   char ofname[50]="";
 
   /* Create the SUNDIALS context object for this simulation. */
@@ -208,7 +208,7 @@ int main(int argc, char *argv[])
     return(-1);
   }
   solve_type = (sunindextype) atol(argv[1]);
-  hs = (realtype) atof(argv[2]);
+  hs = (sunrealtype) atof(argv[2]);
 
 
   /* Check arguments for validity */
@@ -819,15 +819,15 @@ int main(int argc, char *argv[])
  *------------------------------------*/
 
 /* ff routine to compute the fast portion of the ODE RHS. */
-static int ff(realtype t, N_Vector y, N_Vector ydot, void *user_data)
+static int ff(sunrealtype t, N_Vector y, N_Vector ydot, void *user_data)
 {
   UserData udata = (UserData) user_data;      /* access problem data */
   sunindextype N = udata->N;                  /* set variable shortcuts */
-  realtype a  = udata->a;
-  realtype b  = udata->b;
-  realtype ep = udata->ep;
-  realtype *Ydata=NULL, *dYdata=NULL;
-  realtype u, v, w;
+  sunrealtype a  = udata->a;
+  sunrealtype b  = udata->b;
+  sunrealtype ep = udata->ep;
+  sunrealtype *Ydata=NULL, *dYdata=NULL;
+  sunrealtype u, v, w;
   sunindextype i;
 
   Ydata = N_VGetArrayPointer(y);     /* access data arrays */
@@ -862,16 +862,16 @@ static int ff(realtype t, N_Vector y, N_Vector ydot, void *user_data)
 }
 
 /* fse routine to compute the slow-explicit portion of the ODE RHS function. */
-static int fse(realtype t, N_Vector y, N_Vector ydot, void *user_data)
+static int fse(sunrealtype t, N_Vector y, N_Vector ydot, void *user_data)
 {
   UserData udata = (UserData) user_data;      /* access problem data */
   sunindextype N = udata->N;                  /* set variable shortcuts */
-  realtype au = udata->au;
-  realtype av = udata->av;
-  realtype aw = udata->aw;
-  realtype dx = udata->dx;
-  realtype *Ydata=NULL, *dYdata=NULL;
-  realtype auconst, avconst, awconst, ul, ur, vl, vr, wl, wr;
+  sunrealtype au = udata->au;
+  sunrealtype av = udata->av;
+  sunrealtype aw = udata->aw;
+  sunrealtype dx = udata->dx;
+  sunrealtype *Ydata=NULL, *dYdata=NULL;
+  sunrealtype auconst, avconst, awconst, ul, ur, vl, vr, wl, wr;
   sunindextype i;
 
   Ydata = N_VGetArrayPointer(y);     /* access data arrays */
@@ -909,16 +909,16 @@ static int fse(realtype t, N_Vector y, N_Vector ydot, void *user_data)
 }
 
 /* fsi routine to compute the slow-implicit portion of the  ODE RHS. */
-static int fsi(realtype t, N_Vector y, N_Vector ydot, void *user_data)
+static int fsi(sunrealtype t, N_Vector y, N_Vector ydot, void *user_data)
 {
   UserData udata = (UserData) user_data;      /* access problem data */
   sunindextype N = udata->N;                  /* set variable shortcuts */
-  realtype du = udata->du;
-  realtype dv = udata->dv;
-  realtype dw = udata->dw;
-  realtype dx = udata->dx;
-  realtype *Ydata=NULL, *dYdata=NULL;
-  realtype duconst, dvconst, dwconst, u, ul, ur, v, vl, vr, w, wl, wr;
+  sunrealtype du = udata->du;
+  sunrealtype dv = udata->dv;
+  sunrealtype dw = udata->dw;
+  sunrealtype dx = udata->dx;
+  sunrealtype *Ydata=NULL, *dYdata=NULL;
+  sunrealtype duconst, dvconst, dwconst, u, ul, ur, v, vl, vr, w, wl, wr;
   sunindextype i;
 
   Ydata = N_VGetArrayPointer(y);     /* access data arrays */
@@ -956,19 +956,19 @@ static int fsi(realtype t, N_Vector y, N_Vector ydot, void *user_data)
 }
 
 /* fs routine to compute the slow portion of the ODE RHS. */
-static int fs(realtype t, N_Vector y, N_Vector ydot, void *user_data)
+static int fs(sunrealtype t, N_Vector y, N_Vector ydot, void *user_data)
 {
   UserData udata = (UserData) user_data;      /* access problem data */
   sunindextype N = udata->N;                  /* set variable shortcuts */
-  realtype du = udata->du;
-  realtype dv = udata->dv;
-  realtype dw = udata->dw;
-  realtype au = udata->au;
-  realtype av = udata->av;
-  realtype aw = udata->aw;
-  realtype dx = udata->dx;
-  realtype *Ydata=NULL, *dYdata=NULL;
-  realtype duconst, dvconst, dwconst, auconst, avconst, awconst, u, ul, ur, v, vl, vr, w, wl, wr;
+  sunrealtype du = udata->du;
+  sunrealtype dv = udata->dv;
+  sunrealtype dw = udata->dw;
+  sunrealtype au = udata->au;
+  sunrealtype av = udata->av;
+  sunrealtype aw = udata->aw;
+  sunrealtype dx = udata->dx;
+  sunrealtype *Ydata=NULL, *dYdata=NULL;
+  sunrealtype duconst, dvconst, dwconst, auconst, avconst, awconst, u, ul, ur, v, vl, vr, w, wl, wr;
   sunindextype i;
 
   Ydata = N_VGetArrayPointer(y);     /* access data arrays */
@@ -1009,22 +1009,22 @@ static int fs(realtype t, N_Vector y, N_Vector ydot, void *user_data)
 }
 
 /* f routine to compute the full ODE RHS function. */
-static int f(realtype t, N_Vector y, N_Vector ydot, void *user_data)
+static int f(sunrealtype t, N_Vector y, N_Vector ydot, void *user_data)
 {
   UserData udata = (UserData) user_data;      /* access problem data */
   sunindextype N = udata->N;                  /* set variable shortcuts */
-  realtype a  = udata->a;
-  realtype b  = udata->b;
-  realtype ep = udata->ep;
-  realtype du = udata->du;
-  realtype dv = udata->dv;
-  realtype dw = udata->dw;
-  realtype au = udata->au;
-  realtype av = udata->av;
-  realtype aw = udata->aw;
-  realtype dx = udata->dx;
-  realtype *Ydata=NULL, *dYdata=NULL;
-  realtype duconst, dvconst, dwconst, auconst, avconst, awconst, u, ul, ur, v, vl, vr, w, wl, wr;
+  sunrealtype a  = udata->a;
+  sunrealtype b  = udata->b;
+  sunrealtype ep = udata->ep;
+  sunrealtype du = udata->du;
+  sunrealtype dv = udata->dv;
+  sunrealtype dw = udata->dw;
+  sunrealtype au = udata->au;
+  sunrealtype av = udata->av;
+  sunrealtype aw = udata->aw;
+  sunrealtype dx = udata->dx;
+  sunrealtype *Ydata=NULL, *dYdata=NULL;
+  sunrealtype duconst, dvconst, dwconst, auconst, avconst, awconst, u, ul, ur, v, vl, vr, w, wl, wr;
   sunindextype i;
 
   Ydata = N_VGetArrayPointer(y);     /* access data arrays */
@@ -1065,14 +1065,14 @@ static int f(realtype t, N_Vector y, N_Vector ydot, void *user_data)
 }
 
 /* Placeholder function of zeroes */
-static int f0(realtype t, N_Vector y, N_Vector ydot, void *user_data)
+static int f0(sunrealtype t, N_Vector y, N_Vector ydot, void *user_data)
 {
   N_VConst(ZERO,ydot);
   return(0);
 }
 
 /* Jf routine to compute Jacobian of the fast portion of the ODE RHS */
-static int Jf(realtype t, N_Vector y, N_Vector fy, SUNMatrix J,
+static int Jf(sunrealtype t, N_Vector y, N_Vector fy, SUNMatrix J,
                void *user_data, N_Vector tmp1, N_Vector tmp2, N_Vector tmp3)
 {
   UserData udata = (UserData) user_data;     /* access problem data         */
@@ -1086,7 +1086,7 @@ static int Jf(realtype t, N_Vector y, N_Vector fy, SUNMatrix J,
 }
 
 /* Jsi routine to compute the Jacobian of the slow-implicit portion of the ODE RHS. */
-static int Jsi(realtype t, N_Vector y, N_Vector fy, SUNMatrix J,
+static int Jsi(sunrealtype t, N_Vector y, N_Vector fy, SUNMatrix J,
                void *user_data, N_Vector tmp1, N_Vector tmp2, N_Vector tmp3)
 {
   UserData udata = (UserData) user_data;     /* access problem data */
@@ -1100,7 +1100,7 @@ static int Jsi(realtype t, N_Vector y, N_Vector fy, SUNMatrix J,
 }
 
 /* Js routine to compute the Jacobian of the slow portion of ODE RHS. */
-static int Js(realtype t, N_Vector y, N_Vector fy, SUNMatrix J,
+static int Js(sunrealtype t, N_Vector y, N_Vector fy, SUNMatrix J,
                void *user_data, N_Vector tmp1, N_Vector tmp2, N_Vector tmp3)
 {
   UserData udata = (UserData) user_data;     /* access problem data         */
@@ -1117,7 +1117,7 @@ static int Js(realtype t, N_Vector y, N_Vector fy, SUNMatrix J,
 }
 
 /* Jac routine to compute the Jacobian of the full ODE RHS. */
-static int Jac(realtype t, N_Vector y, N_Vector fy, SUNMatrix J,
+static int Jac(sunrealtype t, N_Vector y, N_Vector fy, SUNMatrix J,
                void *user_data, N_Vector tmp1, N_Vector tmp2, N_Vector tmp3)
 {
   UserData udata = (UserData) user_data;     /* access problem data         */
@@ -1147,11 +1147,11 @@ static int SetIC(N_Vector y, void *user_data)
 {
   UserData     udata = (UserData) user_data;  /* access problem data    */
   sunindextype N     = udata->N;              /* set variable shortcuts */
-  realtype     a     = udata->a;
-  realtype     b     = udata->b;
-  realtype     dx    = udata->dx;
-  realtype     pi    = udata->pi;
-  realtype*    data  = NULL;
+  sunrealtype     a     = udata->a;
+  sunrealtype     b     = udata->b;
+  sunrealtype     dx    = udata->dx;
+  sunrealtype     pi    = udata->pi;
+  sunrealtype*    data  = NULL;
   sunindextype i;
 
   /* Access data array from NVector y */
@@ -1170,16 +1170,16 @@ static int SetIC(N_Vector y, void *user_data)
 
 /* Routine to compute the Jacobian matrix from fse(t,y), scaled by the factor c.
    We add the result into Jac and do not erase what was already there */
-static int AdvectionJac(realtype c, SUNMatrix Jac, UserData udata)
+static int AdvectionJac(sunrealtype c, SUNMatrix Jac, UserData udata)
 {
   /* Set shortcuts */
   sunindextype N = udata->N;
-  realtype dx    = udata->dx;
-  realtype au = udata->au;
-  realtype av = udata->av;
-  realtype aw = udata->aw;
+  sunrealtype dx    = udata->dx;
+  sunrealtype au = udata->au;
+  sunrealtype av = udata->av;
+  sunrealtype aw = udata->aw;
   sunindextype i;
-  realtype auconst, avconst, awconst;
+  sunrealtype auconst, avconst, awconst;
   auconst = -au/TWO/dx;
   avconst = -av/TWO/dx;
   awconst = -aw/TWO/dx;
@@ -1201,10 +1201,10 @@ static int AdvectionJac(realtype c, SUNMatrix Jac, UserData udata)
 
 /* Routine to compute the stiffness matrix from (L*y), scaled by the factor c.
    We add the result into Jac and do not erase what was already there */
-static int LaplaceMatrix(realtype c, SUNMatrix Jac, UserData udata)
+static int LaplaceMatrix(sunrealtype c, SUNMatrix Jac, UserData udata)
 {
   sunindextype N = udata->N;           /* set shortcuts */
-  realtype dx    = udata->dx;
+  sunrealtype dx    = udata->dx;
   sunindextype i;
 
   /* iterate over intervals, filling in Jacobian of (L*y) using SM_ELEMENT_B
@@ -1227,13 +1227,13 @@ static int LaplaceMatrix(realtype c, SUNMatrix Jac, UserData udata)
 
 /* Routine to compute the Jacobian matrix from R(y), scaled by the factor c.
    We add the result into Jac and do not erase what was already there */
-static int ReactionJac(realtype c, N_Vector y, SUNMatrix Jac, UserData udata)
+static int ReactionJac(sunrealtype c, N_Vector y, SUNMatrix Jac, UserData udata)
 {
   sunindextype N = udata->N;                      /* set shortcuts */
-  realtype ep = udata->ep;
+  sunrealtype ep = udata->ep;
   sunindextype i;
-  realtype u, v, w;
-  realtype *Ydata = N_VGetArrayPointer(y);     /* access solution array */
+  sunrealtype u, v, w;
+  sunrealtype *Ydata = N_VGetArrayPointer(y);     /* access solution array */
   if (check_retval((void *)Ydata, "N_VGetArrayPointer", 0)) return 1;
 
   /* iterate over nodes, filling in Jacobian of reaction terms */

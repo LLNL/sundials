@@ -432,10 +432,10 @@ static int FPFunction(N_Vector u, N_Vector f, void *user_data)
   UserData *udata = (UserData *) user_data;
 
   // Get array pointers
-  realtype *uarray = N_VGetArrayPointer(u);
+  sunrealtype *uarray = N_VGetArrayPointer(u);
   if (check_retval((void *) uarray, "N_VGetArrayPointer", 0)) return 1;
 
-  realtype *farray = N_VGetArrayPointer(f);
+  sunrealtype *farray = N_VGetArrayPointer(f);
   if (check_retval((void *) farray, "N_VGetArrayPointer", 0)) return 1;
 
   // Start timer
@@ -655,7 +655,7 @@ static int PSetup(void *user_data)
 
 // Preconditioner solve routine for Pz = r
 static int PSolve(void *user_data, N_Vector r, N_Vector z,
-                  realtype tol, int lr)
+                  sunrealtype tol, int lr)
 {
   int retval;
 
@@ -915,9 +915,9 @@ static int Jac(UserData *udata)
       (ilower[1] <= iupper[1]))
   {
     // Jacobian values
-    realtype cx = ONE / (udata->dx * udata->dx);
-    realtype cy = ONE / (udata->dy * udata->dy);
-    realtype cc = -TWO * (cx + cy);
+    sunrealtype cx = ONE / (udata->dx * udata->dx);
+    sunrealtype cy = ONE / (udata->dy * udata->dy);
+    sunrealtype cc = -TWO * (cx + cy);
 
     // --------------------------------
     // Set matrix values for all nodes
@@ -1185,8 +1185,8 @@ static int Jac(UserData *udata)
 // Compute the starting guess
 static int InitialGuess(N_Vector u, UserData *udata)
 {
-  realtype x, y;
-  realtype sin_sqr_x, sin_sqr_y;
+  sunrealtype x, y;
+  sunrealtype sin_sqr_x, sin_sqr_y;
 
   // Initialize u to zero (handles boundary conditions)
   N_VConst(ZERO, u);
@@ -1198,7 +1198,7 @@ static int InitialGuess(N_Vector u, UserData *udata)
   sunindextype jstart = (udata->HaveNbrS) ? 0 : 1;
   sunindextype jend   = (udata->HaveNbrN) ? udata->ny_loc : udata->ny_loc - 1;
 
-  realtype *uarray = N_VGetArrayPointer(u);
+  sunrealtype *uarray = N_VGetArrayPointer(u);
   if (check_retval((void *) uarray, "N_VGetArrayPointer", 0)) return 1;
 
   for (sunindextype j = jstart; j < jend; j++)
@@ -1652,10 +1652,10 @@ static int WriteSolution(N_Vector u, UserData *udata)
   udata->uout.open(fname.str());
 
   udata->uout << scientific;
-  udata->uout << setprecision(numeric_limits<realtype>::digits10);
+  udata->uout << setprecision(numeric_limits<sunrealtype>::digits10);
 
   // Write solution and error to disk
-  realtype *uarray = N_VGetArrayPointer(u);
+  sunrealtype *uarray = N_VGetArrayPointer(u);
   if (check_retval((void *) uarray, "N_VGetArrayPointer", 0)) return -1;
 
   for (sunindextype i = 0; i < udata->nodes_loc; i++)
@@ -1685,7 +1685,7 @@ static int OpenResOutput(UserData *udata)
     udata->rout.open(fname.str());
 
     udata->rout << scientific;
-    udata->rout << setprecision(numeric_limits<realtype>::digits10);
+    udata->rout << setprecision(numeric_limits<sunrealtype>::digits10);
   }
 
   return 0;
@@ -1695,7 +1695,7 @@ static int WriteResOutput(UserData *udata)
 {
   bool outproc = (udata->myid_c == 0);
 
-  realtype res = N_VDotProd(udata->e, udata->e);
+  sunrealtype res = N_VDotProd(udata->e, udata->e);
 
   if (outproc)
   {

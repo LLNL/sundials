@@ -40,7 +40,7 @@
 #include <sunmatrix/sunmatrix_dense.h>        /* access to dense SUNMatrix            */
 #include <sunlinsol/sunlinsol_dense.h>        /* access to dense SUNLinearSolver      */
 #include <sunnonlinsol/sunnonlinsol_newton.h> /* access to Newton SUNNonlinearSolver  */
-#include <sundials/sundials_types.h>          /* defs. of realtype, sunindextype      */
+#include <sundials/sundials_types.h>          /* defs. of sunrealtype, sunindextype      */
 #include <sundials/sundials_math.h>           /* defs. of SUNRabs, SUNRexp, etc.      */
 
 #if defined(SUNDIALS_EXTENDED_PRECISION)
@@ -67,23 +67,23 @@
 
 /* Prototypes of functions called by IDA */
 
-int resrob(realtype tres, N_Vector yy, N_Vector yp,
+int resrob(sunrealtype tres, N_Vector yy, N_Vector yp,
            N_Vector resval, void *user_data);
 
-static int grob(realtype t, N_Vector yy, N_Vector yp,
-                realtype *gout, void *user_data);
+static int grob(sunrealtype t, N_Vector yy, N_Vector yp,
+                sunrealtype *gout, void *user_data);
 
-int jacrob(realtype tt,  realtype cj,
+int jacrob(sunrealtype tt,  sunrealtype cj,
            N_Vector yy, N_Vector yp, N_Vector resvec,
            SUNMatrix JJ, void *user_data,
            N_Vector tempv1, N_Vector tempv2, N_Vector tempv3);
 
 /* Prototypes of private functions */
-static void PrintHeader(realtype rtol, N_Vector avtol, N_Vector y);
-static void PrintOutput(void *mem, realtype t, N_Vector y);
+static void PrintHeader(sunrealtype rtol, N_Vector avtol, N_Vector y);
+static void PrintOutput(void *mem, sunrealtype t, N_Vector y);
 static void PrintRootInfo(int root_f1, int root_f2);
 static int check_retval(void *returnvalue, const char *funcname, int opt);
-static int check_ans(N_Vector y, realtype t, realtype rtol, N_Vector atol);
+static int check_ans(N_Vector y, sunrealtype t, sunrealtype rtol, N_Vector atol);
 
 /*
  *--------------------------------------------------------------------
@@ -95,8 +95,8 @@ int main(void)
 {
   void *mem;
   N_Vector yy, yp, avtol;
-  realtype rtol, *yval, *ypval, *atval;
-  realtype t0, tout1, tout, tret;
+  sunrealtype rtol, *yval, *ypval, *atval;
+  sunrealtype t0, tout1, tout, tret;
   int iout, retval, retvalr;
   int rootsfound[2];
   SUNMatrix A;
@@ -250,9 +250,9 @@ int main(void)
  * Define the system residual function.
  */
 
-int resrob(realtype tres, N_Vector yy, N_Vector yp, N_Vector rr, void *user_data)
+int resrob(sunrealtype tres, N_Vector yy, N_Vector yp, N_Vector rr, void *user_data)
 {
-  realtype *yval, *ypval, *rval;
+  sunrealtype *yval, *ypval, *rval;
 
   yval = N_VGetArrayPointer(yy);
   ypval = N_VGetArrayPointer(yp);
@@ -270,10 +270,10 @@ int resrob(realtype tres, N_Vector yy, N_Vector yp, N_Vector rr, void *user_data
  * Root function routine. Compute functions g_i(t,y) for i = 0,1.
  */
 
-static int grob(realtype t, N_Vector yy, N_Vector yp, realtype *gout,
+static int grob(sunrealtype t, N_Vector yy, N_Vector yp, sunrealtype *gout,
                 void *user_data)
 {
-  realtype *yval, y1, y3;
+  sunrealtype *yval, y1, y3;
 
   yval = N_VGetArrayPointer(yy);
   y1 = yval[0]; y3 = yval[2];
@@ -287,12 +287,12 @@ static int grob(realtype t, N_Vector yy, N_Vector yp, realtype *gout,
  * Define the Jacobian function.
  */
 
-int jacrob(realtype tt,  realtype cj,
+int jacrob(sunrealtype tt,  sunrealtype cj,
            N_Vector yy, N_Vector yp, N_Vector resvec,
            SUNMatrix JJ, void *user_data,
            N_Vector tempv1, N_Vector tempv2, N_Vector tempv3)
 {
-  realtype *yval;
+  sunrealtype *yval;
 
   yval = N_VGetArrayPointer(yy);
 
@@ -319,9 +319,9 @@ int jacrob(realtype tt,  realtype cj,
  * Print first lines of output (problem description)
  */
 
-static void PrintHeader(realtype rtol, N_Vector avtol, N_Vector y)
+static void PrintHeader(sunrealtype rtol, N_Vector avtol, N_Vector y)
 {
-  realtype *atval, *yval;
+  sunrealtype *atval, *yval;
 
   atval  = N_VGetArrayPointer(avtol);
   yval  = N_VGetArrayPointer(y);
@@ -356,12 +356,12 @@ static void PrintHeader(realtype rtol, N_Vector avtol, N_Vector y)
  * Print Output
  */
 
-static void PrintOutput(void *mem, realtype t, N_Vector y)
+static void PrintOutput(void *mem, sunrealtype t, N_Vector y)
 {
-  realtype *yval;
+  sunrealtype *yval;
   int retval, kused;
   long int nst;
-  realtype hused;
+  sunrealtype hused;
 
   yval  = N_VGetArrayPointer(y);
 
@@ -430,12 +430,12 @@ static int check_retval(void *returnvalue, const char *funcname, int opt)
 
 /* compare the solution at the final time 4e10s to a reference solution computed
    using a relative tolerance of 1e-8 and absoltue tolerance of 1e-14 */
-static int check_ans(N_Vector y, realtype t, realtype rtol, N_Vector atol)
+static int check_ans(N_Vector y, sunrealtype t, sunrealtype rtol, N_Vector atol)
 {
   int      passfail=0;        /* answer pass (0) or fail (1) retval */
   N_Vector ref;               /* reference solution vector        */
   N_Vector ewt;               /* error weight vector              */
-  realtype err;               /* wrms error                       */
+  sunrealtype err;               /* wrms error                       */
 
   /* create reference solution and error weight vectors */
   ref = N_VClone(y);

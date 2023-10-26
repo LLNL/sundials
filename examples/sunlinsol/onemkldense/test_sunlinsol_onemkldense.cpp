@@ -194,7 +194,7 @@ int main(int argc, char *argv[])
   }
 
   // Allocate host data
-  realtype* Adata = (realtype*) malloc(sizeof(realtype) *
+  sunrealtype* Adata = (sunrealtype*) malloc(sizeof(sunrealtype) *
                                        SUNMatrix_OneMklDense_LData(A));
   if (!Adata)
   {
@@ -207,7 +207,7 @@ int main(int argc, char *argv[])
     SUNMatDestroy(I);
   }
 
-  realtype* Idata = (realtype*) malloc(sizeof(realtype) *
+  sunrealtype* Idata = (sunrealtype*) malloc(sizeof(sunrealtype) *
                                        SUNMatrix_OneMklDense_LData(I));
   if (!Idata)
   {
@@ -226,7 +226,7 @@ int main(int argc, char *argv[])
     for (j = 0; j < cols; j++)
       for (i = 0; i < rows; i++)
         Adata[k * cols * rows + j * rows + i] =
-          (realtype) rand() / (realtype) RAND_MAX / cols;
+          (sunrealtype) rand() / (sunrealtype) RAND_MAX / cols;
 
   // Create anti-identity matrix
   for (k = 0; k < nblocks; k++)
@@ -246,9 +246,9 @@ int main(int argc, char *argv[])
   SUNMatrix_OneMklDense_CopyToDevice(I, Idata);
 
   // Fill x vector with uniform random data in [0,1]
-  realtype* xdata = N_VGetArrayPointer(x);
+  sunrealtype* xdata = N_VGetArrayPointer(x);
   for (j = 0; j < cols * nblocks; j++)
-    xdata[j] = (realtype) rand() / (realtype) RAND_MAX;
+    xdata[j] = (sunrealtype) rand() / (sunrealtype) RAND_MAX;
 
   N_VCopyToDevice_Sycl(x);
 
@@ -344,13 +344,13 @@ int main(int argc, char *argv[])
  * ---------------------------------------------------------------------------*/
 
 
-int check_vector(N_Vector X, N_Vector Y, realtype tol)
+int check_vector(N_Vector X, N_Vector Y, sunrealtype tol)
 {
   int failure = 0;
   sunindextype i = 0;
   sunindextype local_length = N_VGetLength(X);
-  realtype* Xdata = N_VGetArrayPointer(X);
-  realtype* Ydata = N_VGetArrayPointer(Y);
+  sunrealtype* Xdata = N_VGetArrayPointer(X);
+  sunrealtype* Ydata = N_VGetArrayPointer(Y);
 
   // Copy data to host
   N_VCopyFromDevice_Sycl(X);
@@ -362,7 +362,7 @@ int check_vector(N_Vector X, N_Vector Y, realtype tol)
 
   if (failure > ZERO)
   {
-    realtype maxerr = ZERO;
+    sunrealtype maxerr = ZERO;
     for(i = 0; i < local_length; i++)
       maxerr = SUNMAX(SUNRabs(Xdata[i] - Ydata[i]), maxerr);
     printf("check err failure: maxerr = %g (tol = %g)\n", maxerr, tol);

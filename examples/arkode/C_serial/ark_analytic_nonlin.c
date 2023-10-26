@@ -30,7 +30,7 @@
 #include <math.h>
 #include <arkode/arkode_erkstep.h>    /* prototypes for ERKStep fcts., consts */
 #include <nvector/nvector_serial.h>   /* serial N_Vector types, fcts., macros */
-#include <sundials/sundials_types.h>  /* def. of type 'realtype' */
+#include <sundials/sundials_types.h>  /* def. of type 'sunrealtype' */
 #include <sundials/sundials_math.h>   /* def. of SUNRsqrt, etc. */
 
 #if defined(SUNDIALS_EXTENDED_PRECISION)
@@ -44,7 +44,7 @@
 #endif
 
 /* User-supplied Functions Called by the Solver */
-static int f(realtype t, N_Vector y, N_Vector ydot, void *user_data);
+static int f(sunrealtype t, N_Vector y, N_Vector ydot, void *user_data);
 
 /* Private function to check function return values */
 static int check_flag(void *flagvalue, const char *funcname, int opt);
@@ -53,19 +53,19 @@ static int check_flag(void *flagvalue, const char *funcname, int opt);
 int main()
 {
   /* general problem parameters */
-  realtype T0 = RCONST(0.0);     /* initial time */
-  realtype Tf = RCONST(10.0);    /* final time */
-  realtype dTout = RCONST(1.0);  /* time between outputs */
+  sunrealtype T0 = RCONST(0.0);     /* initial time */
+  sunrealtype Tf = RCONST(10.0);    /* final time */
+  sunrealtype dTout = RCONST(1.0);  /* time between outputs */
   sunindextype NEQ = 1;          /* number of dependent vars. */
-  realtype reltol = 1.0e-6;      /* tolerances */
-  realtype abstol = 1.0e-10;
+  sunrealtype reltol = 1.0e-6;      /* tolerances */
+  sunrealtype abstol = 1.0e-10;
 
   /* general problem variables */
   int flag;                      /* reusable error-checking flag */
   N_Vector y = NULL;             /* empty vector for storing solution */
   void *arkode_mem = NULL;       /* empty ARKode memory structure */
   FILE *UFID, *FID;
-  realtype t, tout;
+  sunrealtype t, tout;
 
   /* Create the SUNDIALS context object for this simulation */
   SUNContext ctx;
@@ -144,7 +144,7 @@ int main()
  *-------------------------------*/
 
 /* f routine to compute the ODE RHS function f(t,y). */
-static int f(realtype t, N_Vector y, N_Vector ydot, void *user_data)
+static int f(sunrealtype t, N_Vector y, N_Vector ydot, void *user_data)
 {
   NV_Ith_S(ydot,0) = (t+1.0)*SUNRexp(-NV_Ith_S(y,0));
   return 0;

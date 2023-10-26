@@ -43,7 +43,7 @@ int main(int argc, char *argv[])
   SUNLinearSolver LS;                 /* linear solver object          */
   SUNMatrix       A, B, dA;           /* test matrices                 */
   N_Vector        x, b, d_x, d_xref, d_b;/* test vectors                  */
-  realtype        *matdata, *xdata, *xrefdata;
+  sunrealtype        *matdata, *xdata, *xrefdata;
   int             print_timing;
   sunindextype    i, j;
   SUNContext      sunctx;
@@ -127,7 +127,7 @@ int main(int argc, char *argv[])
       sunindextype col = cols[j] + block_size*i;
       sunindextype row = rows[j] + block_size*i;
       matdata = SUNDenseMatrix_Column(B,col);
-      matdata[row] = (realtype) rand() / (realtype) RAND_MAX / N;
+      matdata[row] = (sunrealtype) rand() / (sunrealtype) RAND_MAX / N;
     }
   }
 
@@ -167,7 +167,7 @@ int main(int argc, char *argv[])
   xdata = N_VGetHostArrayPointer_Cuda(d_x);
   xrefdata = N_VGetHostArrayPointer_Cuda(d_xref);
   for (i=0; i<N; i++) {
-    realtype tmp = (realtype) rand() / (realtype) RAND_MAX;
+    sunrealtype tmp = (sunrealtype) rand() / (sunrealtype) RAND_MAX;
     xdata[i]    = tmp;
     xrefdata[i] = tmp;
   }
@@ -246,11 +246,11 @@ int main(int argc, char *argv[])
 /* ----------------------------------------------------------------------
  * Implementation-specific 'check' routines
  * --------------------------------------------------------------------*/
-int check_vector(N_Vector X, N_Vector Y, realtype tol)
+int check_vector(N_Vector X, N_Vector Y, sunrealtype tol)
 {
   int failure = 0;
   sunindextype i, local_length, maxloc;
-  realtype *Xdata, *Ydata, maxerr;
+  sunrealtype *Xdata, *Ydata, maxerr;
 
   cudaDeviceSynchronize();
 

@@ -45,7 +45,7 @@
 #include <nvector/nvector_serial.h>     /* access to serial N_Vector            */
 #include <sunmatrix/sunmatrix_sparse.h> /* access to sparse SUNMatrix           */
 #include <sunlinsol/sunlinsol_klu.h>    /* access to KLU sparse direct solver   */
-#include <sundials/sundials_types.h>    /* defs. of realtype, sunindextype      */
+#include <sundials/sundials_types.h>    /* defs. of sunrealtype, sunindextype      */
 
 /* User-defined vector and matrix accessor macro: Ith */
 
@@ -86,25 +86,25 @@
 
 typedef struct {
   sunindextype mm;
-  realtype dx;
-  realtype coeff;
+  sunrealtype dx;
+  sunrealtype coeff;
 } *UserData;
 
 /* Prototypes of functions called by CVODE */
 
-static int f(realtype t, N_Vector u, N_Vector udot, void *user_data);
+static int f(sunrealtype t, N_Vector u, N_Vector udot, void *user_data);
 
-static int jacHeat(realtype tt, N_Vector yy, N_Vector fy, SUNMatrix JacMat,
+static int jacHeat(sunrealtype tt, N_Vector yy, N_Vector fy, SUNMatrix JacMat,
                    void *user_data, N_Vector tempv1, N_Vector tempv2, N_Vector tempv3);
 
 /* Exact same setup as jacHeat. Function needed for special case MGRID=3  */
-static int jacHeat3(realtype tt, N_Vector yy, N_Vector fy, SUNMatrix JacMat,
+static int jacHeat3(sunrealtype tt, N_Vector yy, N_Vector fy, SUNMatrix JacMat,
                     void *user_data, N_Vector tempv1, N_Vector tempv2, N_Vector tempv3);
 
 /* Prototypes of private functions */
 
-static void PrintHeader(realtype rtol, realtype atol);
-static void PrintOutput(void *mem, realtype t, N_Vector uu);
+static void PrintHeader(sunrealtype rtol, sunrealtype atol);
+static void PrintOutput(void *mem, sunrealtype t, N_Vector uu);
 static void PrintFinalStats(void *cvode_mem);
 static int SetInitialProfile(UserData data, N_Vector uu, N_Vector res);
 
@@ -126,7 +126,7 @@ int main(void)
   SUNLinearSolver LS;
   int retval, iout;
   sunindextype mu, ml, netf, ncfn;
-  realtype rtol, atol, t0, t1, tout, tret;
+  sunrealtype rtol, atol, t0, t1, tout, tret;
 
   int nnz; /* number of non-zeroes  */
 
@@ -265,9 +265,9 @@ int main(void)
 // How to define f for heat equation like
 // in Roberts problem?
 ////////////////////////////////////////
-static int f(realtype t, N_Vector u, N_Vector udot, void *user_data)
+static int f(sunrealtype t, N_Vector u, N_Vector udot, void *user_data)
 {
-  realtype u1, ud1;
+  sunrealtype u1, ud1;
 
   u1 = Ith(u,1);
 
@@ -277,11 +277,11 @@ static int f(realtype t, N_Vector u, N_Vector udot, void *user_data)
 }
 
 /*
-int heatres(realtype tres, N_Vector uu, N_Vector resval,
+int heatres(sunrealtype tres, N_Vector uu, N_Vector resval,
             void *user_data)
 {
   sunindextype mm, i, j, offset, loc;
-  realtype *uv, *resv, coeff;
+  sunrealtype *uv, *resv, coeff;
   UserData data;
 
   uv = N_VGetArrayPointer(uu); resv = N_VGetArrayPointer(resval);
@@ -309,15 +309,15 @@ int heatres(realtype tres, N_Vector uu, N_Vector resval,
 */
 
 /* Jacobian matrix setup for MGRID=3  */
-static int jacHeat3(realtype tt, N_Vector yy, N_Vector fy, SUNMatrix JacMat,
+static int jacHeat3(sunrealtype tt, N_Vector yy, N_Vector fy, SUNMatrix JacMat,
                     void *user_data, N_Vector tempv1, N_Vector tempv2, N_Vector tempv3)
 {
-  realtype *yval;
+  sunrealtype *yval;
   sunindextype *colptrs = SUNSparseMatrix_IndexPointers(JacMat);
   sunindextype *rowvals = SUNSparseMatrix_IndexValues(JacMat);
-  realtype *data = SUNSparseMatrix_Data(JacMat);
-  realtype dx =  ONE/(MGRID - ONE);
-  realtype beta = RCONST(4.0)/(dx*dx);
+  sunrealtype *data = SUNSparseMatrix_Data(JacMat);
+  sunrealtype dx =  ONE/(MGRID - ONE);
+  sunrealtype beta = RCONST(4.0)/(dx*dx);
 
   yval = N_VGetArrayPointer(yy);
 
@@ -382,15 +382,15 @@ static int jacHeat3(realtype tt, N_Vector yy, N_Vector fy, SUNMatrix JacMat,
 //////////////////////////////////////////////////////////////////
 
 /* Jacobian matrix setup for MGRID>=4  */
-static int jacHeat(realtype tt, N_Vector yy, N_Vector fy, SUNMatrix JacMat,
+static int jacHeat(sunrealtype tt, N_Vector yy, N_Vector fy, SUNMatrix JacMat,
                    void *user_data, N_Vector tempv1, N_Vector tempv2, N_Vector tempv3)
 {
-  realtype *yval;
+  sunrealtype *yval;
   sunindextype *colptrs = SUNSparseMatrix_IndexPointers(J);
   sunindextype *rowvals = SUNSparseMatrix_IndexValues(J);
-  realtype *data = SUNSparseMatrix_Data(J);
-  realtype dx =  ONE/(MGRID - ONE);
-  realtype beta = RCONST(4.0)/(dx*dx);
+  sunrealtype *data = SUNSparseMatrix_Data(J);
+  sunrealtype dx =  ONE/(MGRID - ONE);
+  sunrealtype beta = RCONST(4.0)/(dx*dx);
   int i,j, repeat=0;
 
   yval = N_VGetArrayPointer(yy);
@@ -637,7 +637,7 @@ static int jacHeat(realtype tt, N_Vector yy, N_Vector fy, SUNMatrix JacMat,
 
 static int SetInitialProfile(UserData data, N_Vector uu, N_Vector res)
 {
-  realtype xfact, yfact, *udata;
+  sunrealtype xfact, yfact, *udata;
   sunindextype mm, mm1, i, j, offset, loc;
 
   mm = data->mm;
@@ -678,7 +678,7 @@ static int SetInitialProfile(UserData data, N_Vector uu, N_Vector res)
  * Print first lines of output (problem description)
  */
 
-static void PrintHeader(realtype rtol, realtype atol)
+static void PrintHeader(sunrealtype rtol, sunrealtype atol)
 {
   printf("\ncvHeat2D_klu: Heat equation, serial example problem for CVODE\n");
   printf("          Discretized heat equation on 2D unit square.\n");
@@ -705,10 +705,10 @@ static void PrintHeader(realtype rtol, realtype atol)
  * Print Output
  */
 
-static void PrintOutput(void *mem, realtype t, N_Vector uu)
+static void PrintOutput(void *mem, sunrealtype t, N_Vector uu)
 {
   int retval;
-  realtype umax, hused;
+  sunrealtype umax, hused;
   long int nst, nni, nje, nre, nreLS;
   int kused;
 

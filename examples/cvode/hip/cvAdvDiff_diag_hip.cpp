@@ -45,7 +45,7 @@
 #include <cvode/cvode.h>              /* prototypes for CVODE fcts., consts.  */
 #include <cvode/cvode_diag.h>         /* prototypes for CVODE diagonal solver */
 #include <nvector/nvector_hip.h>      /* access to hip N_Vector               */
-#include <sundials/sundials_types.h>  /* definition of type realtype          */
+#include <sundials/sundials_types.h>  /* definition of type sunrealtype          */
 
 /* Problem Constants */
 
@@ -64,24 +64,24 @@
    contains mesh spacing and problem parameters. */
 
 typedef struct {
-  realtype dx;
-  realtype hdcoef;
-  realtype hacoef;
+  sunrealtype dx;
+  sunrealtype hdcoef;
+  sunrealtype hacoef;
 } *UserData;
 
 /* Private Helper Functions */
 
-static void SetIC(N_Vector u, realtype dx);
+static void SetIC(N_Vector u, sunrealtype dx);
 
 static void PrintIntro(int toltype, int usefused);
 
-static void PrintData(realtype t, realtype umax, long int nst);
+static void PrintData(sunrealtype t, sunrealtype umax, long int nst);
 
 static void PrintFinalStats(void *cvode_mem);
 
 /* Functions Called by the Solver */
 
-static int f(realtype t, N_Vector u, N_Vector udot, void *user_data);
+static int f(sunrealtype t, N_Vector u, N_Vector udot, void *user_data);
 
 /* Private function to check function return values */
 
@@ -92,7 +92,7 @@ static int check_retval(void *returnvalue, const char *funcname, int opt);
 int main(int argc, char *argv[])
 {
   sundials::Context sunctx;
-  realtype dx, reltol, abstol, t, tout, umax;
+  sunrealtype dx, reltol, abstol, t, tout, umax;
   N_Vector u;
   UserData data;
   void *cvode_mem;
@@ -122,7 +122,7 @@ int main(int argc, char *argv[])
   reltol = ZERO;  /* Set the tolerances */
   abstol = ATOL;
 
-  dx = data->dx = XMAX/((realtype)(MX+1));  /* Set grid coefficients in data */
+  dx = data->dx = XMAX/((sunrealtype)(MX+1));  /* Set grid coefficients in data */
   data->hdcoef = RCONST(1.0)/(dx*dx);
   data->hacoef = RCONST(0.5)/(RCONST(2.0)*dx);
 
@@ -196,12 +196,12 @@ int main(int argc, char *argv[])
 
 /* Set initial conditions in u vector */
 
-static void SetIC(N_Vector u, realtype dx)
+static void SetIC(N_Vector u, sunrealtype dx)
 {
   int i;
   sunindextype N;
-  realtype x;
-  realtype *udata;
+  sunrealtype x;
+  sunrealtype *udata;
 
   /* Set pointer to data array and get local length of u. */
   udata = N_VGetHostArrayPointer_Hip(u);
@@ -234,7 +234,7 @@ static void PrintIntro(int toltype, int usefused)
 
 /* Print data */
 
-static void PrintData(realtype t, realtype umax, long int nst)
+static void PrintData(sunrealtype t, sunrealtype umax, long int nst)
 {
 
 #if defined(SUNDIALS_EXTENDED_PRECISION)
@@ -277,11 +277,11 @@ static void PrintFinalStats(void *cvode_mem)
 
 __global__
 static void f_kernel(sunindextype N,
-                     realtype hordc, realtype horac,
-                     const realtype* u, realtype* udot)
+                     sunrealtype hordc, sunrealtype horac,
+                     const sunrealtype* u, sunrealtype* udot)
 {
   sunindextype i = blockDim.x*blockIdx.x + threadIdx.x;
-  realtype ui, ult, urt, hdiff, hadv;
+  sunrealtype ui, ult, urt, hdiff, hadv;
 
   if (i < N) {
     /* Extract u at x_i and two neighboring points */
@@ -296,10 +296,10 @@ static void f_kernel(sunindextype N,
   }
 }
 
-static int f(realtype t, N_Vector u, N_Vector udot, void *user_data)
+static int f(sunrealtype t, N_Vector u, N_Vector udot, void *user_data)
 {
-  realtype hordc, horac;
-  realtype *udata, *dudata;
+  sunrealtype hordc, horac;
+  sunrealtype *udata, *dudata;
   sunindextype N;
   size_t grid, block;
   UserData data;

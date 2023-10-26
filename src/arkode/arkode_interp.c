@@ -65,20 +65,20 @@ int arkInterpSetDegree(void* arkode_mem, ARKInterp interp,
 }
 
 int arkInterpInit(void* arkode_mem, ARKInterp interp,
-                  realtype tnew)
+                  sunrealtype tnew)
 {
   if (interp == NULL)  return(ARK_SUCCESS);
   return((int) interp->ops->init(arkode_mem, interp, tnew));
 }
 
-int arkInterpUpdate(void* arkode_mem, ARKInterp interp, realtype tnew)
+int arkInterpUpdate(void* arkode_mem, ARKInterp interp, sunrealtype tnew)
 {
   if (interp == NULL)  return(ARK_SUCCESS);
   return((int) interp->ops->update(arkode_mem, interp, tnew));
 }
 
 int arkInterpEvaluate(void* arkode_mem, ARKInterp interp,
-                      realtype tau, int d, int order, N_Vector yout)
+                      sunrealtype tau, int d, int order, N_Vector yout)
 {
   if (interp == NULL)  return(ARK_SUCCESS);
   return((int) interp->ops->evaluate(arkode_mem, interp,
@@ -369,7 +369,7 @@ int arkInterpSetDegree_Hermite(void* arkode_mem, ARKInterp interp,
   5. Copies fnew into fold
   ---------------------------------------------------------------*/
 int arkInterpInit_Hermite(void* arkode_mem, ARKInterp interp,
-                          realtype tnew)
+                          sunrealtype tnew)
 {
   ARKodeMem ark_mem;
 
@@ -422,7 +422,7 @@ int arkInterpInit_Hermite(void* arkode_mem, ARKInterp interp,
   This routine copies ynew into yold, and fnew into fold, so that
   yold and fold contain the previous values.
   ---------------------------------------------------------------*/
-int arkInterpUpdate_Hermite(void* arkode_mem, ARKInterp interp, realtype tnew)
+int arkInterpUpdate_Hermite(void* arkode_mem, ARKInterp interp, sunrealtype tnew)
 {
   ARKodeMem ark_mem;
 
@@ -474,13 +474,13 @@ int arkInterpUpdate_Hermite(void* arkode_mem, ARKInterp interp, realtype tnew)
   other values result in extrapolation.
   ---------------------------------------------------------------*/
 int arkInterpEvaluate_Hermite(void* arkode_mem, ARKInterp interp,
-                              realtype tau, int d, int order, N_Vector yout)
+                              sunrealtype tau, int d, int order, N_Vector yout)
 {
   /* local variables */
   int q, retval;
-  realtype tval, a0, a1, tau2, tau3, tau4, tau5;
-  realtype h, h2, h3, h4, h5;
-  realtype a[6];
+  sunrealtype tval, a0, a1, tau2, tau3, tau4, tau5;
+  sunrealtype h, h2, h3, h4, h5;
+  sunrealtype a[6];
   N_Vector X[6];
   ARKodeMem ark_mem;
 
@@ -1003,7 +1003,7 @@ int arkInterpSetDegree_Lagrange(void* arkode_mem, ARKInterp I,
   4. updates the 'active' history counter to 1
   ---------------------------------------------------------------*/
 int arkInterpInit_Lagrange(void* arkode_mem, ARKInterp I,
-                           realtype tnew)
+                           sunrealtype tnew)
 {
   int i;
   ARKodeMem ark_mem;
@@ -1032,7 +1032,7 @@ int arkInterpInit_Lagrange(void* arkode_mem, ARKInterp I,
 
   /* allocate storage for time and solution histories */
   if (LINT_THIST(I) == NULL) {
-    LINT_THIST(I) = (realtype*) malloc(LINT_NMAX(I) * sizeof(realtype));
+    LINT_THIST(I) = (sunrealtype*) malloc(LINT_NMAX(I) * sizeof(sunrealtype));
     if (LINT_THIST(I) == NULL) {
       arkInterpFree(ark_mem, I); return(ARK_MEM_FAIL);
     }
@@ -1083,14 +1083,14 @@ int arkInterpInit_Lagrange(void* arkode_mem, ARKInterp I,
      into the first history vector
   Otherwise it just returns with success.
   ---------------------------------------------------------------*/
-int arkInterpUpdate_Lagrange(void* arkode_mem, ARKInterp I, realtype tnew)
+int arkInterpUpdate_Lagrange(void* arkode_mem, ARKInterp I, sunrealtype tnew)
 {
   int i;
   ARKodeMem ark_mem;
-  realtype tdiff;
+  sunrealtype tdiff;
   N_Vector ytmp;
   int nhist, nmax;
-  realtype *thist;
+  sunrealtype *thist;
   N_Vector *yhist;
 
   /* access ARKodeMem structure */
@@ -1156,17 +1156,17 @@ int arkInterpUpdate_Lagrange(void* arkode_mem, ARKInterp I, realtype tnew)
   approximate).
   ---------------------------------------------------------------*/
 int arkInterpEvaluate_Lagrange(void* arkode_mem, ARKInterp I,
-                               realtype tau, int deriv, int degree,
+                               sunrealtype tau, int deriv, int degree,
                                N_Vector yout)
 {
   /* local variables */
   int q, retval, i, j;
-  realtype tval;
-  realtype a[6];
+  sunrealtype tval;
+  sunrealtype a[6];
   N_Vector X[6];
   ARKodeMem ark_mem;
   int nhist;
-  realtype *thist;
+  sunrealtype *thist;
   N_Vector *yhist;
 
   /* access ARKodeMem structure */
@@ -1260,10 +1260,10 @@ int arkInterpEvaluate_Lagrange(void* arkode_mem, ARKInterp I,
 
 
 /* Lagrange utility routines (basis functions and their derivatives) */
-realtype LBasis(ARKInterp I, int j, realtype t)
+sunrealtype LBasis(ARKInterp I, int j, sunrealtype t)
 {
   int k;
-  realtype p = ONE;
+  sunrealtype p = ONE;
   for (k=0; k<LINT_NHIST(I); k++) {
     if (k == j) continue;
     p *= (t-LINT_TJ(I,k))/(LINT_TJ(I,j)-LINT_TJ(I,k));
@@ -1272,10 +1272,10 @@ realtype LBasis(ARKInterp I, int j, realtype t)
 }
 
 
-realtype LBasisD(ARKInterp I, int j, realtype t)
+sunrealtype LBasisD(ARKInterp I, int j, sunrealtype t)
 {
   int i, k;
-  realtype p, q;
+  sunrealtype p, q;
   p = ZERO;
   for (i=0; i<LINT_NHIST(I); i++) {
     if (i == j) continue;
@@ -1292,10 +1292,10 @@ realtype LBasisD(ARKInterp I, int j, realtype t)
 }
 
 
-realtype LBasisD2(ARKInterp I, int j, realtype t)
+sunrealtype LBasisD2(ARKInterp I, int j, sunrealtype t)
 {
   int i, k, l;
-  realtype p, q, r;
+  sunrealtype p, q, r;
   p = ZERO;
   for (l=0; l<LINT_NHIST(I); l++) {
     if (l == j) continue;
@@ -1319,10 +1319,10 @@ realtype LBasisD2(ARKInterp I, int j, realtype t)
 }
 
 
-realtype LBasisD3(ARKInterp I, int j, realtype t)
+sunrealtype LBasisD3(ARKInterp I, int j, sunrealtype t)
 {
   int i, k, l, m;
-  realtype p, q, r, s;
+  sunrealtype p, q, r, s;
   p = ZERO;
   for (m=0; m<LINT_NHIST(I); m++) {
     if (m == j) continue;

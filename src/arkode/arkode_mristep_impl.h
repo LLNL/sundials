@@ -78,8 +78,8 @@ typedef struct ARKodeMRIStepMemRec {
   int nstages_allocated;         /* number of stage RHS vectors allocated    */
   int *stage_map;                /* index map for storing stage RHS vectors  */
   int *stagetypes;               /* type flags for stages                    */
-  realtype *Ae_row;              /* equivalent explicit RK coeffs            */
-  realtype *Ai_row;              /* equivalent implicit RK coeffs            */
+  sunrealtype *Ae_row;              /* equivalent explicit RK coeffs            */
+  sunrealtype *Ai_row;              /* equivalent implicit RK coeffs            */
 
   /* Algebraic solver data and parameters */
   N_Vector           sdata;      /* old stage data in residual               */
@@ -89,18 +89,18 @@ typedef struct ARKodeMRIStepMemRec {
   SUNNonlinearSolver NLS;        /* generic SUNNonlinearSolver object        */
   booleantype        ownNLS;     /* flag indicating ownership of NLS         */
   ARKRhsFn           nls_fsi;    /* fsi(t,y) used in the nonlinear solver    */
-  realtype           gamma;      /* gamma = h * A(i,i)                       */
-  realtype           gammap;     /* gamma at the last setup call             */
-  realtype           gamrat;     /* gamma / gammap                           */
-  realtype           dgmax;      /* call lsetup if |gamma/gammap-1| >= dgmax */
+  sunrealtype           gamma;      /* gamma = h * A(i,i)                       */
+  sunrealtype           gammap;     /* gamma at the last setup call             */
+  sunrealtype           gamrat;     /* gamma / gammap                           */
+  sunrealtype           dgmax;      /* call lsetup if |gamma/gammap-1| >= dgmax */
   int                predictor;  /* implicit prediction method to use        */
-  realtype           crdown;     /* nonlinear conv rate estimation constant  */
-  realtype           rdiv;       /* nonlin divergence if del/delp > rdiv     */
-  realtype           crate;      /* estimated nonlin convergence rate        */
-  realtype           delp;       /* norm of previous nonlinear solver update */
-  realtype           eRNrm;      /* estimated residual norm, used in nonlin
+  sunrealtype           crdown;     /* nonlinear conv rate estimation constant  */
+  sunrealtype           rdiv;       /* nonlin divergence if del/delp > rdiv     */
+  sunrealtype           crate;      /* estimated nonlin convergence rate        */
+  sunrealtype           delp;       /* norm of previous nonlinear solver update */
+  sunrealtype           eRNrm;      /* estimated residual norm, used in nonlin
                                     and linear solver convergence tests      */
-  realtype           nlscoef;    /* coefficient in nonlin. convergence test  */
+  sunrealtype           nlscoef;    /* coefficient in nonlin. convergence test  */
 
   int                msbp;       /* positive => max # steps between lsetup
                                     negative => call at each Newton iter     */
@@ -135,7 +135,7 @@ typedef struct ARKodeMRIStepMemRec {
   int      nfusedopvecs;  /* length of cvals and Xvecs arrays */
 
   /* Reusable arrays for fused vector operations */
-  realtype* cvals;
+  sunrealtype* cvals;
   N_Vector* Xvecs;
 
 } *ARKodeMRIStepMem;
@@ -168,17 +168,17 @@ struct _MRIStepInnerStepper
   int        nforcing;            /* number of forcing vectors active    */
   int        nforcing_allocated;  /* number of forcing vectors allocated */
   int        last_flag;           /* last stepper return flag            */
-  realtype   tshift;              /* time normalization shift            */
-  realtype   tscale;              /* time normalization scaling          */
+  sunrealtype   tshift;              /* time normalization shift            */
+  sunrealtype   tscale;              /* time normalization scaling          */
 
   /* fused op workspace */
-  realtype* vals;
+  sunrealtype* vals;
   N_Vector* vecs;
 
   /* Space requirements */
-  sunindextype lrw1;        /* no. of realtype words in 1 N_Vector          */
+  sunindextype lrw1;        /* no. of sunrealtype words in 1 N_Vector          */
   sunindextype liw1;        /* no. of integer words in 1 N_Vector           */
-  long int lrw;             /* no. of realtype words in ARKODE work vectors */
+  long int lrw;             /* no. of sunrealtype words in ARKODE work vectors */
   long int liw;             /* no. of integer words in ARKODE work vectors  */
 };
 
@@ -198,12 +198,12 @@ void mriStep_DisableLSetup(void* arkode_mem);
 int mriStep_Init(void* arkode_mem, int init_type);
 void* mriStep_GetLmem(void* arkode_mem);
 ARKRhsFn mriStep_GetImplicitRHS(void* arkode_mem);
-int mriStep_GetGammas(void* arkode_mem, realtype *gamma,
-                      realtype *gamrat, booleantype **jcur,
+int mriStep_GetGammas(void* arkode_mem, sunrealtype *gamma,
+                      sunrealtype *gamrat, booleantype **jcur,
                       booleantype *dgamma_fail);
-int mriStep_FullRHS(void* arkode_mem, realtype t,
+int mriStep_FullRHS(void* arkode_mem, sunrealtype t,
                     N_Vector y, N_Vector f, int mode);
-int mriStep_TakeStep(void* arkode_mem, realtype *dsmPtr, int *nflagPtr);
+int mriStep_TakeStep(void* arkode_mem, sunrealtype *dsmPtr, int *nflagPtr);
 
 /* Internal utility routines */
 int mriStep_AccessStepMem(void* arkode_mem, const char *fname,
@@ -230,18 +230,18 @@ int mriStep_NlsFPFunction(N_Vector yy, N_Vector res, void* arkode_mem);
 int mriStep_NlsLSetup(booleantype jbad, booleantype* jcur, void* arkode_mem);
 int mriStep_NlsLSolve(N_Vector delta, void* arkode_mem);
 int mriStep_NlsConvTest(SUNNonlinearSolver NLS, N_Vector y, N_Vector del,
-                        realtype tol, N_Vector ewt, void* arkode_mem);
+                        sunrealtype tol, N_Vector ewt, void* arkode_mem);
 
 
 /* Inner stepper functions */
 int mriStepInnerStepper_HasRequiredOps(MRIStepInnerStepper stepper);
 int mriStepInnerStepper_Evolve(MRIStepInnerStepper stepper,
-                               realtype t0, realtype tout, N_Vector y);
+                               sunrealtype t0, sunrealtype tout, N_Vector y);
 int mriStepInnerStepper_FullRhs(MRIStepInnerStepper stepper,
-                                realtype t, N_Vector y, N_Vector f,
+                                sunrealtype t, N_Vector y, N_Vector f,
                                 int mode);
 int mriStepInnerStepper_Reset(MRIStepInnerStepper stepper,
-                              realtype tR, N_Vector yR);
+                              sunrealtype tR, N_Vector yR);
 int mriStepInnerStepper_AllocVecs(MRIStepInnerStepper stepper, int count,
                                   N_Vector tmpl);
 int mriStepInnerStepper_Resize(MRIStepInnerStepper stepper,
@@ -254,11 +254,11 @@ void mriStepInnerStepper_PrintMem(MRIStepInnerStepper stepper,
 
 /* Compute forcing for inner stepper */
 int mriStep_ComputeInnerForcing(ARKodeMem ark_mem, ARKodeMRIStepMem step_mem,
-                                int stage, realtype cdiff);
+                                int stage, sunrealtype cdiff);
 
 /* Return effective RK coefficients (nofast stage) */
 int mriStep_RKCoeffs(MRIStepCoupling MRIC, int is, int *stage_map,
-                     realtype *Ae_row, realtype *Ai_row);
+                     sunrealtype *Ae_row, sunrealtype *Ai_row);
 
 /*===============================================================
   Reusable MRIStep Error Messages

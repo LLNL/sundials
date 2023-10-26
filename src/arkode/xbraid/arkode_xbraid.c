@@ -81,8 +81,8 @@ int ARKBraid_Create(void *arkode_mem, braid_App *app)
 
 
 /* Initialize XBraid, attach interface functions */
-int ARKBraid_BraidInit(MPI_Comm comm_w, MPI_Comm comm_t, realtype tstart,
-                       realtype tstop, sunindextype ntime, braid_App app,
+int ARKBraid_BraidInit(MPI_Comm comm_w, MPI_Comm comm_t, sunrealtype tstart,
+                       sunrealtype tstop, sunindextype ntime, braid_App app,
                        braid_Core *core)
 {
   braid_Int       braid_flag;
@@ -284,7 +284,7 @@ int ARKBraid_GetLastARKStepFlag(braid_App app, int *last_flag)
 }
 
 
-int ARKBraid_GetSolution(braid_App app, realtype *tout, N_Vector yout)
+int ARKBraid_GetSolution(braid_App app, sunrealtype *tout, N_Vector yout)
 {
   ARKBraidContent content;
   if (app == NULL) return SUNBRAID_ILLINPUT;
@@ -311,9 +311,9 @@ int ARKBraid_Step(braid_App app, braid_Vector ustop, braid_Vector fstop,
   int             flag;       /* arkode function return flag */
   int             level;      /* current level               */
   int             rfac;       /* refinement factor           */
-  realtype        tstart;     /* current time                */
-  realtype        tstop;      /* evolve to this time         */
-  realtype        hacc;       /* accuracy based step size    */
+  sunrealtype        tstart;     /* current time                */
+  sunrealtype        tstop;      /* evolve to this time         */
+  sunrealtype        hacc;       /* accuracy based step size    */
   ARKBraidContent content;    /* ARKBraid app content        */
 
   /* Check input */
@@ -371,7 +371,7 @@ int ARKBraid_Step(braid_App app, braid_Vector ustop, braid_Vector fstop,
 
 
 /* Create and initialize vectors */
-int ARKBraid_Init(braid_App app, realtype t, braid_Vector *u_ptr)
+int ARKBraid_Init(braid_App app, sunrealtype t, braid_Vector *u_ptr)
 {
   int             flag;     /* return flag          */
   N_Vector        y;        /* output N_Vector      */
@@ -467,12 +467,12 @@ int ARKBraid_Access(braid_App app, braid_Vector u,
 
 
 /* Force a single step with ARKEvolve */
-int ARKBraid_TakeStep(void *arkode_mem, realtype tstart, realtype tstop,
+int ARKBraid_TakeStep(void *arkode_mem, sunrealtype tstart, sunrealtype tstop,
                       N_Vector y, int *ark_flag)
 {
   int      flag;      /* generic return flag      */
   int      tmp_flag;  /* evolve return flag       */
-  realtype tret;      /* return time              */
+  sunrealtype tret;      /* return time              */
 
   /* Check inputs */
   if (arkode_mem == NULL) return ARK_MEM_NULL;

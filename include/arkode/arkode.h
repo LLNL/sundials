@@ -144,11 +144,11 @@ extern "C" {
  * User-Supplied Function Types
  * ------------------------------ */
 
-typedef int (*ARKRhsFn)(realtype t, N_Vector y,
+typedef int (*ARKRhsFn)(sunrealtype t, N_Vector y,
                         N_Vector ydot, void *user_data);
 
-typedef int (*ARKRootFn)(realtype t, N_Vector y,
-                         realtype *gout, void *user_data);
+typedef int (*ARKRootFn)(sunrealtype t, N_Vector y,
+                         sunrealtype *gout, void *user_data);
 
 typedef int (*ARKEwtFn)(N_Vector y, N_Vector ewt, void *user_data);
 
@@ -158,25 +158,25 @@ typedef void (*ARKErrHandlerFn)(int error_code, const char *module,
                                 const char *function, char *msg,
                                 void *user_data);
 
-typedef int (*ARKAdaptFn)(N_Vector y, realtype t, realtype h1,
-                          realtype h2, realtype h3,
-                          realtype e1, realtype e2,
-                          realtype e3, int q, int p,
-                          realtype *hnew, void *user_data);
+typedef int (*ARKAdaptFn)(N_Vector y, sunrealtype t, sunrealtype h1,
+                          sunrealtype h2, sunrealtype h3,
+                          sunrealtype e1, sunrealtype e2,
+                          sunrealtype e3, int q, int p,
+                          sunrealtype *hnew, void *user_data);
 
-typedef int (*ARKExpStabFn)(N_Vector y, realtype t,
-                            realtype *hstab, void *user_data);
+typedef int (*ARKExpStabFn)(N_Vector y, sunrealtype t,
+                            sunrealtype *hstab, void *user_data);
 
 typedef int (*ARKVecResizeFn)(N_Vector y, N_Vector ytemplate,
                               void *user_data);
 
-typedef int (*ARKPostProcessFn)(realtype t, N_Vector y,
+typedef int (*ARKPostProcessFn)(sunrealtype t, N_Vector y,
                                 void *user_data);
 
-typedef int (*ARKStagePredictFn)(realtype t, N_Vector zpred,
+typedef int (*ARKStagePredictFn)(sunrealtype t, N_Vector zpred,
                                  void *user_data);
 
-typedef int (*ARKRelaxFn)(N_Vector y, realtype* r, void* user_data);
+typedef int (*ARKRelaxFn)(N_Vector y, sunrealtype* r, void* user_data);
 
 typedef int (*ARKRelaxJacFn)(N_Vector y, N_Vector J, void* user_data);
 

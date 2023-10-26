@@ -251,14 +251,14 @@ SWIGEXPORT int _wrap_FIDAInit(void *farg1, IDAResFn farg2, double const *farg3, 
   int fresult ;
   void *arg1 = (void *) 0 ;
   IDAResFn arg2 = (IDAResFn) 0 ;
-  realtype arg3 ;
+  sunrealtype arg3 ;
   N_Vector arg4 = (N_Vector) 0 ;
   N_Vector arg5 = (N_Vector) 0 ;
   int result;
   
   arg1 = (void *)(farg1);
   arg2 = (IDAResFn)(farg2);
-  arg3 = (realtype)(*farg3);
+  arg3 = (sunrealtype)(*farg3);
   arg4 = (N_Vector)(farg4);
   arg5 = (N_Vector)(farg5);
   result = (int)IDAInit(arg1,arg2,arg3,arg4,arg5);
@@ -270,13 +270,13 @@ SWIGEXPORT int _wrap_FIDAInit(void *farg1, IDAResFn farg2, double const *farg3, 
 SWIGEXPORT int _wrap_FIDAReInit(void *farg1, double const *farg2, N_Vector farg3, N_Vector farg4) {
   int fresult ;
   void *arg1 = (void *) 0 ;
-  realtype arg2 ;
+  sunrealtype arg2 ;
   N_Vector arg3 = (N_Vector) 0 ;
   N_Vector arg4 = (N_Vector) 0 ;
   int result;
   
   arg1 = (void *)(farg1);
-  arg2 = (realtype)(*farg2);
+  arg2 = (sunrealtype)(*farg2);
   arg3 = (N_Vector)(farg3);
   arg4 = (N_Vector)(farg4);
   result = (int)IDAReInit(arg1,arg2,arg3,arg4);
@@ -288,13 +288,13 @@ SWIGEXPORT int _wrap_FIDAReInit(void *farg1, double const *farg2, N_Vector farg3
 SWIGEXPORT int _wrap_FIDASStolerances(void *farg1, double const *farg2, double const *farg3) {
   int fresult ;
   void *arg1 = (void *) 0 ;
-  realtype arg2 ;
-  realtype arg3 ;
+  sunrealtype arg2 ;
+  sunrealtype arg3 ;
   int result;
   
   arg1 = (void *)(farg1);
-  arg2 = (realtype)(*farg2);
-  arg3 = (realtype)(*farg3);
+  arg2 = (sunrealtype)(*farg2);
+  arg3 = (sunrealtype)(*farg3);
   result = (int)IDASStolerances(arg1,arg2,arg3);
   fresult = (int)(result);
   return fresult;
@@ -304,12 +304,12 @@ SWIGEXPORT int _wrap_FIDASStolerances(void *farg1, double const *farg2, double c
 SWIGEXPORT int _wrap_FIDASVtolerances(void *farg1, double const *farg2, N_Vector farg3) {
   int fresult ;
   void *arg1 = (void *) 0 ;
-  realtype arg2 ;
+  sunrealtype arg2 ;
   N_Vector arg3 = (N_Vector) 0 ;
   int result;
   
   arg1 = (void *)(farg1);
-  arg2 = (realtype)(*farg2);
+  arg2 = (sunrealtype)(*farg2);
   arg3 = (N_Vector)(farg3);
   result = (int)IDASVtolerances(arg1,arg2,arg3);
   fresult = (int)(result);
@@ -335,12 +335,12 @@ SWIGEXPORT int _wrap_FIDACalcIC(void *farg1, int const *farg2, double const *far
   int fresult ;
   void *arg1 = (void *) 0 ;
   int arg2 ;
-  realtype arg3 ;
+  sunrealtype arg3 ;
   int result;
   
   arg1 = (void *)(farg1);
   arg2 = (int)(*farg2);
-  arg3 = (realtype)(*farg3);
+  arg3 = (sunrealtype)(*farg3);
   result = (int)IDACalcIC(arg1,arg2,arg3);
   fresult = (int)(result);
   return fresult;
@@ -350,11 +350,11 @@ SWIGEXPORT int _wrap_FIDACalcIC(void *farg1, int const *farg2, double const *far
 SWIGEXPORT int _wrap_FIDASetNonlinConvCoefIC(void *farg1, double const *farg2) {
   int fresult ;
   void *arg1 = (void *) 0 ;
-  realtype arg2 ;
+  sunrealtype arg2 ;
   int result;
   
   arg1 = (void *)(farg1);
-  arg2 = (realtype)(*farg2);
+  arg2 = (sunrealtype)(*farg2);
   result = (int)IDASetNonlinConvCoefIC(arg1,arg2);
   fresult = (int)(result);
   return fresult;
@@ -420,11 +420,11 @@ SWIGEXPORT int _wrap_FIDASetLineSearchOffIC(void *farg1, int const *farg2) {
 SWIGEXPORT int _wrap_FIDASetStepToleranceIC(void *farg1, double const *farg2) {
   int fresult ;
   void *arg1 = (void *) 0 ;
-  realtype arg2 ;
+  sunrealtype arg2 ;
   int result;
   
   arg1 = (void *)(farg1);
-  arg2 = (realtype)(*farg2);
+  arg2 = (sunrealtype)(*farg2);
   result = (int)IDASetStepToleranceIC(arg1,arg2);
   fresult = (int)(result);
   return fresult;
@@ -448,11 +448,11 @@ SWIGEXPORT int _wrap_FIDASetMaxBacksIC(void *farg1, int const *farg2) {
 SWIGEXPORT int _wrap_FIDASetDeltaCjLSetup(void *farg1, double const *farg2) {
   int fresult ;
   void *arg1 = (void *) 0 ;
-  realtype arg2 ;
+  sunrealtype arg2 ;
   int result;
   
   arg1 = (void *)(farg1);
-  arg2 = (realtype)(*farg2);
+  arg2 = (sunrealtype)(*farg2);
   result = (int)IDASetDeltaCjLSetup(arg1,arg2);
   fresult = (int)(result);
   return fresult;
@@ -534,11 +534,11 @@ SWIGEXPORT int _wrap_FIDASetMaxNumSteps(void *farg1, long const *farg2) {
 SWIGEXPORT int _wrap_FIDASetInitStep(void *farg1, double const *farg2) {
   int fresult ;
   void *arg1 = (void *) 0 ;
-  realtype arg2 ;
+  sunrealtype arg2 ;
   int result;
   
   arg1 = (void *)(farg1);
-  arg2 = (realtype)(*farg2);
+  arg2 = (sunrealtype)(*farg2);
   result = (int)IDASetInitStep(arg1,arg2);
   fresult = (int)(result);
   return fresult;
@@ -548,11 +548,11 @@ SWIGEXPORT int _wrap_FIDASetInitStep(void *farg1, double const *farg2) {
 SWIGEXPORT int _wrap_FIDASetMaxStep(void *farg1, double const *farg2) {
   int fresult ;
   void *arg1 = (void *) 0 ;
-  realtype arg2 ;
+  sunrealtype arg2 ;
   int result;
   
   arg1 = (void *)(farg1);
-  arg2 = (realtype)(*farg2);
+  arg2 = (sunrealtype)(*farg2);
   result = (int)IDASetMaxStep(arg1,arg2);
   fresult = (int)(result);
   return fresult;
@@ -562,11 +562,11 @@ SWIGEXPORT int _wrap_FIDASetMaxStep(void *farg1, double const *farg2) {
 SWIGEXPORT int _wrap_FIDASetMinStep(void *farg1, double const *farg2) {
   int fresult ;
   void *arg1 = (void *) 0 ;
-  realtype arg2 ;
+  sunrealtype arg2 ;
   int result;
   
   arg1 = (void *)(farg1);
-  arg2 = (realtype)(*farg2);
+  arg2 = (sunrealtype)(*farg2);
   result = (int)IDASetMinStep(arg1,arg2);
   fresult = (int)(result);
   return fresult;
@@ -576,11 +576,11 @@ SWIGEXPORT int _wrap_FIDASetMinStep(void *farg1, double const *farg2) {
 SWIGEXPORT int _wrap_FIDASetStopTime(void *farg1, double const *farg2) {
   int fresult ;
   void *arg1 = (void *) 0 ;
-  realtype arg2 ;
+  sunrealtype arg2 ;
   int result;
   
   arg1 = (void *)(farg1);
-  arg2 = (realtype)(*farg2);
+  arg2 = (sunrealtype)(*farg2);
   result = (int)IDASetStopTime(arg1,arg2);
   fresult = (int)(result);
   return fresult;
@@ -658,13 +658,13 @@ SWIGEXPORT int _wrap_FIDASetConstraints(void *farg1, N_Vector farg2) {
 SWIGEXPORT int _wrap_FIDASetEtaFixedStepBounds(void *farg1, double const *farg2, double const *farg3) {
   int fresult ;
   void *arg1 = (void *) 0 ;
-  realtype arg2 ;
-  realtype arg3 ;
+  sunrealtype arg2 ;
+  sunrealtype arg3 ;
   int result;
   
   arg1 = (void *)(farg1);
-  arg2 = (realtype)(*farg2);
-  arg3 = (realtype)(*farg3);
+  arg2 = (sunrealtype)(*farg2);
+  arg3 = (sunrealtype)(*farg3);
   result = (int)IDASetEtaFixedStepBounds(arg1,arg2,arg3);
   fresult = (int)(result);
   return fresult;
@@ -674,11 +674,11 @@ SWIGEXPORT int _wrap_FIDASetEtaFixedStepBounds(void *farg1, double const *farg2,
 SWIGEXPORT int _wrap_FIDASetEtaMin(void *farg1, double const *farg2) {
   int fresult ;
   void *arg1 = (void *) 0 ;
-  realtype arg2 ;
+  sunrealtype arg2 ;
   int result;
   
   arg1 = (void *)(farg1);
-  arg2 = (realtype)(*farg2);
+  arg2 = (sunrealtype)(*farg2);
   result = (int)IDASetEtaMin(arg1,arg2);
   fresult = (int)(result);
   return fresult;
@@ -688,11 +688,11 @@ SWIGEXPORT int _wrap_FIDASetEtaMin(void *farg1, double const *farg2) {
 SWIGEXPORT int _wrap_FIDASetEtaMax(void *farg1, double const *farg2) {
   int fresult ;
   void *arg1 = (void *) 0 ;
-  realtype arg2 ;
+  sunrealtype arg2 ;
   int result;
   
   arg1 = (void *)(farg1);
-  arg2 = (realtype)(*farg2);
+  arg2 = (sunrealtype)(*farg2);
   result = (int)IDASetEtaMax(arg1,arg2);
   fresult = (int)(result);
   return fresult;
@@ -702,11 +702,11 @@ SWIGEXPORT int _wrap_FIDASetEtaMax(void *farg1, double const *farg2) {
 SWIGEXPORT int _wrap_FIDASetEtaLow(void *farg1, double const *farg2) {
   int fresult ;
   void *arg1 = (void *) 0 ;
-  realtype arg2 ;
+  sunrealtype arg2 ;
   int result;
   
   arg1 = (void *)(farg1);
-  arg2 = (realtype)(*farg2);
+  arg2 = (sunrealtype)(*farg2);
   result = (int)IDASetEtaLow(arg1,arg2);
   fresult = (int)(result);
   return fresult;
@@ -716,11 +716,11 @@ SWIGEXPORT int _wrap_FIDASetEtaLow(void *farg1, double const *farg2) {
 SWIGEXPORT int _wrap_FIDASetEtaMinErrFail(void *farg1, double const *farg2) {
   int fresult ;
   void *arg1 = (void *) 0 ;
-  realtype arg2 ;
+  sunrealtype arg2 ;
   int result;
   
   arg1 = (void *)(farg1);
-  arg2 = (realtype)(*farg2);
+  arg2 = (sunrealtype)(*farg2);
   result = (int)IDASetEtaMinErrFail(arg1,arg2);
   fresult = (int)(result);
   return fresult;
@@ -730,11 +730,11 @@ SWIGEXPORT int _wrap_FIDASetEtaMinErrFail(void *farg1, double const *farg2) {
 SWIGEXPORT int _wrap_FIDASetEtaConvFail(void *farg1, double const *farg2) {
   int fresult ;
   void *arg1 = (void *) 0 ;
-  realtype arg2 ;
+  sunrealtype arg2 ;
   int result;
   
   arg1 = (void *)(farg1);
-  arg2 = (realtype)(*farg2);
+  arg2 = (sunrealtype)(*farg2);
   result = (int)IDASetEtaConvFail(arg1,arg2);
   fresult = (int)(result);
   return fresult;
@@ -786,11 +786,11 @@ SWIGEXPORT int _wrap_FIDASetNlsResFn(void *farg1, IDAResFn farg2) {
 SWIGEXPORT int _wrap_FIDASetNonlinConvCoef(void *farg1, double const *farg2) {
   int fresult ;
   void *arg1 = (void *) 0 ;
-  realtype arg2 ;
+  sunrealtype arg2 ;
   int result;
   
   arg1 = (void *)(farg1);
-  arg2 = (realtype)(*farg2);
+  arg2 = (sunrealtype)(*farg2);
   result = (int)IDASetNonlinConvCoef(arg1,arg2);
   fresult = (int)(result);
   return fresult;
@@ -856,16 +856,16 @@ SWIGEXPORT int _wrap_FIDASetNoInactiveRootWarn(void *farg1) {
 SWIGEXPORT int _wrap_FIDASolve(void *farg1, double const *farg2, double *farg3, N_Vector farg4, N_Vector farg5, int const *farg6) {
   int fresult ;
   void *arg1 = (void *) 0 ;
-  realtype arg2 ;
-  realtype *arg3 = (realtype *) 0 ;
+  sunrealtype arg2 ;
+  sunrealtype *arg3 = (sunrealtype *) 0 ;
   N_Vector arg4 = (N_Vector) 0 ;
   N_Vector arg5 = (N_Vector) 0 ;
   int arg6 ;
   int result;
   
   arg1 = (void *)(farg1);
-  arg2 = (realtype)(*farg2);
-  arg3 = (realtype *)(farg3);
+  arg2 = (sunrealtype)(*farg2);
+  arg3 = (sunrealtype *)(farg3);
   arg4 = (N_Vector)(farg4);
   arg5 = (N_Vector)(farg5);
   arg6 = (int)(*farg6);
@@ -910,13 +910,13 @@ SWIGEXPORT int _wrap_FIDAComputeYp(void *farg1, N_Vector farg2, N_Vector farg3) 
 SWIGEXPORT int _wrap_FIDAGetDky(void *farg1, double const *farg2, int const *farg3, N_Vector farg4) {
   int fresult ;
   void *arg1 = (void *) 0 ;
-  realtype arg2 ;
+  sunrealtype arg2 ;
   int arg3 ;
   N_Vector arg4 = (N_Vector) 0 ;
   int result;
   
   arg1 = (void *)(farg1);
-  arg2 = (realtype)(*farg2);
+  arg2 = (sunrealtype)(*farg2);
   arg3 = (int)(*farg3);
   arg4 = (N_Vector)(farg4);
   result = (int)IDAGetDky(arg1,arg2,arg3,arg4);
@@ -1058,11 +1058,11 @@ SWIGEXPORT int _wrap_FIDAGetCurrentOrder(void *farg1, int *farg2) {
 SWIGEXPORT int _wrap_FIDAGetCurrentCj(void *farg1, double *farg2) {
   int fresult ;
   void *arg1 = (void *) 0 ;
-  realtype *arg2 = (realtype *) 0 ;
+  sunrealtype *arg2 = (sunrealtype *) 0 ;
   int result;
   
   arg1 = (void *)(farg1);
-  arg2 = (realtype *)(farg2);
+  arg2 = (sunrealtype *)(farg2);
   result = (int)IDAGetCurrentCj(arg1,arg2);
   fresult = (int)(result);
   return fresult;
@@ -1100,11 +1100,11 @@ SWIGEXPORT int _wrap_FIDAGetCurrentYp(void *farg1, void *farg2) {
 SWIGEXPORT int _wrap_FIDAGetActualInitStep(void *farg1, double *farg2) {
   int fresult ;
   void *arg1 = (void *) 0 ;
-  realtype *arg2 = (realtype *) 0 ;
+  sunrealtype *arg2 = (sunrealtype *) 0 ;
   int result;
   
   arg1 = (void *)(farg1);
-  arg2 = (realtype *)(farg2);
+  arg2 = (sunrealtype *)(farg2);
   result = (int)IDAGetActualInitStep(arg1,arg2);
   fresult = (int)(result);
   return fresult;
@@ -1114,11 +1114,11 @@ SWIGEXPORT int _wrap_FIDAGetActualInitStep(void *farg1, double *farg2) {
 SWIGEXPORT int _wrap_FIDAGetLastStep(void *farg1, double *farg2) {
   int fresult ;
   void *arg1 = (void *) 0 ;
-  realtype *arg2 = (realtype *) 0 ;
+  sunrealtype *arg2 = (sunrealtype *) 0 ;
   int result;
   
   arg1 = (void *)(farg1);
-  arg2 = (realtype *)(farg2);
+  arg2 = (sunrealtype *)(farg2);
   result = (int)IDAGetLastStep(arg1,arg2);
   fresult = (int)(result);
   return fresult;
@@ -1128,11 +1128,11 @@ SWIGEXPORT int _wrap_FIDAGetLastStep(void *farg1, double *farg2) {
 SWIGEXPORT int _wrap_FIDAGetCurrentStep(void *farg1, double *farg2) {
   int fresult ;
   void *arg1 = (void *) 0 ;
-  realtype *arg2 = (realtype *) 0 ;
+  sunrealtype *arg2 = (sunrealtype *) 0 ;
   int result;
   
   arg1 = (void *)(farg1);
-  arg2 = (realtype *)(farg2);
+  arg2 = (sunrealtype *)(farg2);
   result = (int)IDAGetCurrentStep(arg1,arg2);
   fresult = (int)(result);
   return fresult;
@@ -1142,11 +1142,11 @@ SWIGEXPORT int _wrap_FIDAGetCurrentStep(void *farg1, double *farg2) {
 SWIGEXPORT int _wrap_FIDAGetCurrentTime(void *farg1, double *farg2) {
   int fresult ;
   void *arg1 = (void *) 0 ;
-  realtype *arg2 = (realtype *) 0 ;
+  sunrealtype *arg2 = (sunrealtype *) 0 ;
   int result;
   
   arg1 = (void *)(farg1);
-  arg2 = (realtype *)(farg2);
+  arg2 = (sunrealtype *)(farg2);
   result = (int)IDAGetCurrentTime(arg1,arg2);
   fresult = (int)(result);
   return fresult;
@@ -1156,11 +1156,11 @@ SWIGEXPORT int _wrap_FIDAGetCurrentTime(void *farg1, double *farg2) {
 SWIGEXPORT int _wrap_FIDAGetTolScaleFactor(void *farg1, double *farg2) {
   int fresult ;
   void *arg1 = (void *) 0 ;
-  realtype *arg2 = (realtype *) 0 ;
+  sunrealtype *arg2 = (sunrealtype *) 0 ;
   int result;
   
   arg1 = (void *)(farg1);
-  arg2 = (realtype *)(farg2);
+  arg2 = (sunrealtype *)(farg2);
   result = (int)IDAGetTolScaleFactor(arg1,arg2);
   fresult = (int)(result);
   return fresult;
@@ -1232,10 +1232,10 @@ SWIGEXPORT int _wrap_FIDAGetIntegratorStats(void *farg1, long *farg2, long *farg
   long *arg5 = (long *) 0 ;
   int *arg6 = (int *) 0 ;
   int *arg7 = (int *) 0 ;
-  realtype *arg8 = (realtype *) 0 ;
-  realtype *arg9 = (realtype *) 0 ;
-  realtype *arg10 = (realtype *) 0 ;
-  realtype *arg11 = (realtype *) 0 ;
+  sunrealtype *arg8 = (sunrealtype *) 0 ;
+  sunrealtype *arg9 = (sunrealtype *) 0 ;
+  sunrealtype *arg10 = (sunrealtype *) 0 ;
+  sunrealtype *arg11 = (sunrealtype *) 0 ;
   int result;
   
   arg1 = (void *)(farg1);
@@ -1245,10 +1245,10 @@ SWIGEXPORT int _wrap_FIDAGetIntegratorStats(void *farg1, long *farg2, long *farg
   arg5 = (long *)(farg5);
   arg6 = (int *)(farg6);
   arg7 = (int *)(farg7);
-  arg8 = (realtype *)(farg8);
-  arg9 = (realtype *)(farg9);
-  arg10 = (realtype *)(farg10);
-  arg11 = (realtype *)(farg11);
+  arg8 = (sunrealtype *)(farg8);
+  arg9 = (sunrealtype *)(farg9);
+  arg10 = (sunrealtype *)(farg10);
+  arg11 = (sunrealtype *)(farg11);
   result = (int)IDAGetIntegratorStats(arg1,arg2,arg3,arg4,arg5,arg6,arg7,arg8,arg9,arg10,arg11);
   fresult = (int)(result);
   return fresult;
@@ -1258,24 +1258,24 @@ SWIGEXPORT int _wrap_FIDAGetIntegratorStats(void *farg1, long *farg2, long *farg
 SWIGEXPORT int _wrap_FIDAGetNonlinearSystemData(void *farg1, double *farg2, void *farg3, void *farg4, void *farg5, void *farg6, void *farg7, double *farg8, void *farg9) {
   int fresult ;
   void *arg1 = (void *) 0 ;
-  realtype *arg2 = (realtype *) 0 ;
+  sunrealtype *arg2 = (sunrealtype *) 0 ;
   N_Vector *arg3 = (N_Vector *) 0 ;
   N_Vector *arg4 = (N_Vector *) 0 ;
   N_Vector *arg5 = (N_Vector *) 0 ;
   N_Vector *arg6 = (N_Vector *) 0 ;
   N_Vector *arg7 = (N_Vector *) 0 ;
-  realtype *arg8 = (realtype *) 0 ;
+  sunrealtype *arg8 = (sunrealtype *) 0 ;
   void **arg9 = (void **) 0 ;
   int result;
   
   arg1 = (void *)(farg1);
-  arg2 = (realtype *)(farg2);
+  arg2 = (sunrealtype *)(farg2);
   arg3 = (N_Vector *)(farg3);
   arg4 = (N_Vector *)(farg4);
   arg5 = (N_Vector *)(farg5);
   arg6 = (N_Vector *)(farg6);
   arg7 = (N_Vector *)(farg7);
-  arg8 = (realtype *)(farg8);
+  arg8 = (sunrealtype *)(farg8);
   arg9 = (void **)(farg9);
   result = (int)IDAGetNonlinearSystemData(arg1,arg2,arg3,arg4,arg5,arg6,arg7,arg8,arg9);
   fresult = (int)(result);
@@ -1414,7 +1414,7 @@ SWIGEXPORT int _wrap_FIDABBDPrecInit(void *farg1, int64_t const *farg2, int64_t 
   sunindextype arg4 ;
   sunindextype arg5 ;
   sunindextype arg6 ;
-  realtype arg7 ;
+  sunrealtype arg7 ;
   IDABBDLocalFn arg8 = (IDABBDLocalFn) 0 ;
   IDABBDCommFn arg9 = (IDABBDCommFn) 0 ;
   int result;
@@ -1425,7 +1425,7 @@ SWIGEXPORT int _wrap_FIDABBDPrecInit(void *farg1, int64_t const *farg2, int64_t 
   arg4 = (sunindextype)(*farg4);
   arg5 = (sunindextype)(*farg5);
   arg6 = (sunindextype)(*farg6);
-  arg7 = (realtype)(*farg7);
+  arg7 = (sunrealtype)(*farg7);
   arg8 = (IDABBDLocalFn)(farg8);
   arg9 = (IDABBDCommFn)(farg9);
   result = (int)IDABBDPrecInit(arg1,arg2,arg3,arg4,arg5,arg6,arg7,arg8,arg9);
@@ -1439,13 +1439,13 @@ SWIGEXPORT int _wrap_FIDABBDPrecReInit(void *farg1, int64_t const *farg2, int64_
   void *arg1 = (void *) 0 ;
   sunindextype arg2 ;
   sunindextype arg3 ;
-  realtype arg4 ;
+  sunrealtype arg4 ;
   int result;
   
   arg1 = (void *)(farg1);
   arg2 = (sunindextype)(*farg2);
   arg3 = (sunindextype)(*farg3);
-  arg4 = (realtype)(*farg4);
+  arg4 = (sunrealtype)(*farg4);
   result = (int)IDABBDPrecReInit(arg1,arg2,arg3,arg4);
   fresult = (int)(result);
   return fresult;
@@ -1547,11 +1547,11 @@ SWIGEXPORT int _wrap_FIDASetJacTimes(void *farg1, IDALsJacTimesSetupFn farg2, ID
 SWIGEXPORT int _wrap_FIDASetEpsLin(void *farg1, double const *farg2) {
   int fresult ;
   void *arg1 = (void *) 0 ;
-  realtype arg2 ;
+  sunrealtype arg2 ;
   int result;
   
   arg1 = (void *)(farg1);
-  arg2 = (realtype)(*farg2);
+  arg2 = (sunrealtype)(*farg2);
   result = (int)IDASetEpsLin(arg1,arg2);
   fresult = (int)(result);
   return fresult;
@@ -1561,11 +1561,11 @@ SWIGEXPORT int _wrap_FIDASetEpsLin(void *farg1, double const *farg2) {
 SWIGEXPORT int _wrap_FIDASetLSNormFactor(void *farg1, double const *farg2) {
   int fresult ;
   void *arg1 = (void *) 0 ;
-  realtype arg2 ;
+  sunrealtype arg2 ;
   int result;
   
   arg1 = (void *)(farg1);
-  arg2 = (realtype)(*farg2);
+  arg2 = (sunrealtype)(*farg2);
   result = (int)IDASetLSNormFactor(arg1,arg2);
   fresult = (int)(result);
   return fresult;
@@ -1589,11 +1589,11 @@ SWIGEXPORT int _wrap_FIDASetLinearSolutionScaling(void *farg1, int const *farg2)
 SWIGEXPORT int _wrap_FIDASetIncrementFactor(void *farg1, double const *farg2) {
   int fresult ;
   void *arg1 = (void *) 0 ;
-  realtype arg2 ;
+  sunrealtype arg2 ;
   int result;
   
   arg1 = (void *)(farg1);
-  arg2 = (realtype)(*farg2);
+  arg2 = (sunrealtype)(*farg2);
   result = (int)IDASetIncrementFactor(arg1,arg2);
   fresult = (int)(result);
   return fresult;

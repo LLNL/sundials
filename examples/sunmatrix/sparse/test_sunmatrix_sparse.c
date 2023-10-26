@@ -44,9 +44,9 @@ int main(int argc, char *argv[])
   sunindextype matrows, matcols;           /* matrix dims                */
   int          mattype;                    /* matrix storage type        */
   N_Vector     x, y, z;                    /* test vectors               */
-  realtype*    vecdata;                    /* pointers to vector data    */
+  sunrealtype*    vecdata;                    /* pointers to vector data    */
   SUNMatrix    A, B, C, D, I;              /* test matrices              */
-  realtype*    matdata;                    /* pointer to matrix data     */
+  sunrealtype*    matdata;                    /* pointer to matrix data     */
   sunindextype i, j, k, kstart, kend, N, uband, lband;
   sunindextype *colptrs, *rowindices;
   sunindextype *rowptrs, *colindices;
@@ -322,13 +322,13 @@ int main(int argc, char *argv[])
     i = rand() % matrows;
     j = rand() % matcols;
     matdata = SUNDenseMatrix_Column(D,j);
-    matdata[i] = (realtype) rand() / (realtype) RAND_MAX;
+    matdata[i] = (sunrealtype) rand() / (sunrealtype) RAND_MAX;
   }
   for (k=0; k<matrows; k++) {
     i = rand() % matrows;
     j = rand() % matcols;
     matdata = SUNDenseMatrix_Column(C,j);
-    matdata[i] = (realtype) rand() / (realtype) RAND_MAX;
+    matdata[i] = (sunrealtype) rand() / (sunrealtype) RAND_MAX;
   }
   A = SUNSparseFromDenseMatrix(C, ZERO, mattype);
   B = SUNSparseFromDenseMatrix(D, ZERO, mattype);
@@ -339,7 +339,7 @@ int main(int argc, char *argv[])
   z = N_VNew_Serial(matrows, sunctx);
   vecdata = N_VGetArrayPointer(x);
   for(i=0; i<matcols; i++)
-    vecdata[i] = (realtype) rand() / (realtype) RAND_MAX;
+    vecdata[i] = (sunrealtype) rand() / (sunrealtype) RAND_MAX;
   if (SUNMatMatvec(C, x, y) != 0) {
     printf("FAIL: SUNMatrix module Dense matvec failure \n \n");
     SUNMatDestroy(A);  SUNMatDestroy(B);
@@ -428,7 +428,7 @@ int Test_SUNMatScaleAdd2(SUNMatrix A, SUNMatrix B, N_Vector x,
   int       failure;
   SUNMatrix C, D, E;
   N_Vector  u, v;
-  realtype  tol=100*UNIT_ROUNDOFF;
+  sunrealtype  tol=100*UNIT_ROUNDOFF;
 
   /* create clones for test */
   C = SUNMatClone(A);
@@ -601,7 +601,7 @@ int Test_SUNMatScaleAddI2(SUNMatrix A, N_Vector x, N_Vector y)
   int       failure;
   SUNMatrix B, C, D;
   N_Vector  w, z;
-  realtype  tol=200*UNIT_ROUNDOFF;
+  sunrealtype  tol=200*UNIT_ROUNDOFF;
 
   /* create clones for test */
   B = SUNMatClone(A);
@@ -743,7 +743,7 @@ int Test_SUNSparseMatrixToCSR(SUNMatrix A)
 {
   int       failure;
   SUNMatrix csc, csr;
-  realtype  tol=200*UNIT_ROUNDOFF;
+  sunrealtype  tol=200*UNIT_ROUNDOFF;
 
   failure = SUNSparseMatrix_ToCSR(A, &csr);
 
@@ -779,7 +779,7 @@ int Test_SUNSparseMatrixToCSC(SUNMatrix A)
 {
   int       failure;
   SUNMatrix csc=NULL, csr=NULL;
-  realtype  tol=200*UNIT_ROUNDOFF;
+  sunrealtype  tol=200*UNIT_ROUNDOFF;
 
   failure = SUNSparseMatrix_ToCSC(A, &csc);
 
@@ -815,10 +815,10 @@ int Test_SUNSparseMatrixToCSC(SUNMatrix A)
 /* ----------------------------------------------------------------------
  * Check matrix
  * --------------------------------------------------------------------*/
-int check_matrix(SUNMatrix A, SUNMatrix B, realtype tol)
+int check_matrix(SUNMatrix A, SUNMatrix B, sunrealtype tol)
 {
   int failure = 0;
-  realtype *Adata, *Bdata;
+  sunrealtype *Adata, *Bdata;
   sunindextype *Aindexptrs, *Bindexptrs;
   sunindextype *Aindexvals, *Bindexvals;
   sunindextype i, ANP, BNP, Annz, Bnnz;
@@ -889,10 +889,10 @@ int check_matrix(SUNMatrix A, SUNMatrix B, realtype tol)
   return(0);
 }
 
-int check_matrix_entry(SUNMatrix A, realtype val, realtype tol)
+int check_matrix_entry(SUNMatrix A, sunrealtype val, sunrealtype tol)
 {
   int failure = 0;
-  realtype *Adata;
+  sunrealtype *Adata;
   sunindextype *indexptrs;
   sunindextype i, NP;
 
@@ -912,10 +912,10 @@ int check_matrix_entry(SUNMatrix A, realtype val, realtype tol)
     return(0);
 }
 
-int check_vector(N_Vector x, N_Vector y, realtype tol)
+int check_vector(N_Vector x, N_Vector y, sunrealtype tol)
 {
   int failure = 0;
-  realtype *xdata, *ydata;
+  sunrealtype *xdata, *ydata;
   sunindextype xldata, yldata;
   sunindextype i;
 
@@ -945,7 +945,7 @@ int check_vector(N_Vector x, N_Vector y, realtype tol)
 
 booleantype has_data(SUNMatrix A)
 {
-  realtype *Adata = SUNSparseMatrix_Data(A);
+  sunrealtype *Adata = SUNSparseMatrix_Data(A);
   if (Adata == NULL)
     return SUNFALSE;
   else

@@ -294,11 +294,11 @@ int main(int argc, char *argv[])
 /* ----------------------------------------------------------------------
  * Implementation specific utility functions for vector tests
  * --------------------------------------------------------------------*/
-int check_ans(realtype ans, N_Vector X, sunindextype local_length)
+int check_ans(sunrealtype ans, N_Vector X, sunindextype local_length)
 {
   int          failure = 0;
   sunindextype i;
-  realtype     *x0;
+  sunrealtype     *x0;
   sunindextype x0len;
 
   x0len = N_VGetLocalLength_MPIPlusX(X);
@@ -320,9 +320,9 @@ booleantype has_data(N_Vector X)
   return SUNTRUE;
 }
 
-void set_element(N_Vector X, sunindextype i, realtype val)
+void set_element(N_Vector X, sunindextype i, sunrealtype val)
 {
-  realtype *data;
+  sunrealtype *data;
 
   data = N_VGetArrayPointer(X);
 
@@ -330,10 +330,10 @@ void set_element(N_Vector X, sunindextype i, realtype val)
   data[i] = val;
 }
 
-void set_element_range(N_Vector X, sunindextype is, sunindextype ie, realtype val)
+void set_element_range(N_Vector X, sunindextype is, sunindextype ie, sunrealtype val)
 {
   sunindextype x0len, i;
-  realtype *data;
+  sunrealtype *data;
 
   data = N_VGetArrayPointer(X);
   x0len = N_VGetLocalLength_MPIPlusX(X);
@@ -342,9 +342,9 @@ void set_element_range(N_Vector X, sunindextype is, sunindextype ie, realtype va
   for (i=is; i<x0len; i++)  data[i] = val;
 }
 
-realtype get_element(N_Vector X, sunindextype i)
+sunrealtype get_element(N_Vector X, sunindextype i)
 {
-  realtype *data;
+  sunrealtype *data;
 
   data = N_VGetArrayPointer(X);
 

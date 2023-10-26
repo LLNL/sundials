@@ -31,7 +31,7 @@ static int FinalizeClearCache();
 
 /* private data for clearing cache */
 static sunindextype N;  /* data length */
-static realtype* data;  /* host data   */
+static sunrealtype* data;  /* host data   */
 
 
 /* ----------------------------------------------------------------------
@@ -212,10 +212,10 @@ int main(int argc, char *argv[])
  * --------------------------------------------------------------------*/
 
 /* random data between lower and upper */
-void N_VRand(N_Vector Xvec, sunindextype Xlen, realtype lower, realtype upper)
+void N_VRand(N_Vector Xvec, sunindextype Xlen, sunrealtype lower, sunrealtype upper)
 {
   HYPRE_ParVector Xhyp;
-  realtype *Xdata;
+  sunrealtype *Xdata;
 
   Xhyp  = N_VGetVector_ParHyp(Xvec);
   Xdata = hypre_VectorData(hypre_ParVectorLocalVector(Xhyp));
@@ -226,7 +226,7 @@ void N_VRand(N_Vector Xvec, sunindextype Xlen, realtype lower, realtype upper)
 void N_VRandZeroOne(N_Vector Xvec, sunindextype Xlen)
 {
   HYPRE_ParVector Xhyp;
-  realtype *Xdata;
+  sunrealtype *Xdata;
 
   Xhyp  = N_VGetVector_ParHyp(Xvec);
   Xdata = hypre_VectorData(hypre_ParVectorLocalVector(Xhyp));
@@ -237,7 +237,7 @@ void N_VRandZeroOne(N_Vector Xvec, sunindextype Xlen)
 void N_VRandConstraints(N_Vector Xvec, sunindextype Xlen)
 {
   HYPRE_ParVector Xhyp;
-  realtype *Xdata;
+  sunrealtype *Xdata;
 
   Xhyp  = N_VGetVector_ParHyp(Xvec);
   Xdata = hypre_VectorData(hypre_ParVectorLocalVector(Xhyp));
@@ -280,12 +280,12 @@ static int InitializeClearCache(int cachesize)
 {
   size_t nbytes;  /* cache size in bytes */
 
-  /* determine size of vector to clear cache, N = ceil(2 * nbytes/realtype) */
+  /* determine size of vector to clear cache, N = ceil(2 * nbytes/sunrealtype) */
   nbytes = (size_t) (2 * cachesize * 1024 * 1024);
-  N = (sunindextype) ((nbytes + sizeof(realtype) - 1)/sizeof(realtype));
+  N = (sunindextype) ((nbytes + sizeof(sunrealtype) - 1)/sizeof(sunrealtype));
 
   /* allocate data and fill random values */
-  data = (realtype*) malloc(N*sizeof(realtype));
+  data = (sunrealtype*) malloc(N*sizeof(sunrealtype));
   rand_realtype(data, N, RCONST(-1.0), RCONST(1.0));
 
   return(0);
@@ -299,7 +299,7 @@ static int FinalizeClearCache()
 
 void ClearCache()
 {
-  realtype     sum;
+  sunrealtype     sum;
   sunindextype i;
 
   sum = RCONST(0.0);

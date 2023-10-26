@@ -56,12 +56,12 @@ using namespace std;
 struct UserData
 {
   // Sigmas
-  realtype sigma;
+  sunrealtype sigma;
 
   // Alphas - mixture proportions
-  realtype alpha1;
-  realtype alpha2;
-  realtype alpha3;
+  sunrealtype alpha1;
+  sunrealtype alpha2;
+  sunrealtype alpha3;
 
   // Global total number of nodes
   sunindextype nodes;
@@ -75,7 +75,7 @@ struct UserData
   int myid;      // process ID in communicator
 
   // Fixed Point Solver settings
-  realtype rtol;        // relative tolerance
+  sunrealtype rtol;        // relative tolerance
   int      maa;         // m for Anderson Acceleration
   double   damping;     // daming for Anderson Acceleration
   int      orthaa;      // orthogonalization routine for AA

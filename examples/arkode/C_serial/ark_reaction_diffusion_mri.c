@@ -47,7 +47,7 @@
 #include <arkode/arkode_mristep.h>    /* prototypes for MRIStep fcts., consts */
 #include <arkode/arkode_arkstep.h>    /* prototypes for ARKStep fcts., consts */
 #include <nvector/nvector_serial.h>   /* serial N_Vector types, fcts., macros */
-#include <sundials/sundials_types.h>  /* defs. of realtype, sunindextype, etc */
+#include <sundials/sundials_types.h>  /* defs. of sunrealtype, sunindextype, etc */
 
 #if defined(SUNDIALS_EXTENDED_PRECISION)
 #define GSYM "Lg"
@@ -62,14 +62,14 @@
 /* user data structure */
 typedef struct {
   sunindextype N;  /* number of intervals   */
-  realtype dx;     /* mesh spacing          */
-  realtype k;      /* diffusion coefficient */
-  realtype lam;
+  sunrealtype dx;     /* mesh spacing          */
+  sunrealtype k;      /* diffusion coefficient */
+  sunrealtype lam;
 } *UserData;
 
 /* User-supplied Functions Called by the Solver */
-static int fs(realtype t, N_Vector y, N_Vector ydot, void *user_data);
-static int ff(realtype t, N_Vector y, N_Vector ydot, void *user_data);
+static int fs(sunrealtype t, N_Vector y, N_Vector ydot, void *user_data);
+static int ff(sunrealtype t, N_Vector y, N_Vector ydot, void *user_data);
 
 /* Private function to set initial condition */
 static int SetInitialCondition(N_Vector y, UserData udata);
@@ -81,18 +81,18 @@ static int check_retval(void *returnvalue, const char *funcname, int opt);
 int main() {
 
   /* general problem parameters */
-  realtype T0 = RCONST(0.0);     /* initial time */
-  realtype Tf = RCONST(3.0);     /* final time */
-  realtype dTout = RCONST(0.1);  /* time between outputs */
+  sunrealtype T0 = RCONST(0.0);     /* initial time */
+  sunrealtype Tf = RCONST(3.0);     /* final time */
+  sunrealtype dTout = RCONST(0.1);  /* time between outputs */
   int Nt = (int) ceil(Tf/dTout); /* number of output times */
-  realtype hs = RCONST(0.001);   /* slow step size */
-  realtype hf = RCONST(0.00002); /* fast step size */
+  sunrealtype hs = RCONST(0.001);   /* slow step size */
+  sunrealtype hf = RCONST(0.00002); /* fast step size */
   UserData udata = NULL;         /* user data */
 
-  realtype *data;                /* array for solution output */
-  realtype L = RCONST(5.0);      /* domain length */
+  sunrealtype *data;                /* array for solution output */
+  sunrealtype L = RCONST(5.0);      /* domain length */
   sunindextype N = 1001;         /* number of mesh points */
-  realtype ep = RCONST(1e-2);
+  sunrealtype ep = RCONST(1e-2);
   sunindextype i;
 
   /* general problem variables */
@@ -102,7 +102,7 @@ int main() {
   void *inner_arkode_mem = NULL;            /* empty ARKode memory structure */
   MRIStepInnerStepper inner_stepper = NULL; /* inner stepper */
   FILE *FID, *UFID;
-  realtype t, tout;
+  sunrealtype t, tout;
   int iout;
 
   /* Create the SUNDIALS context object for this simulation */
@@ -255,11 +255,11 @@ int main() {
  * ------------------------------*/
 
 /* ff routine to compute the fast portion of the ODE RHS. */
-static int ff(realtype t, N_Vector y, N_Vector ydot, void *user_data)
+static int ff(sunrealtype t, N_Vector y, N_Vector ydot, void *user_data)
 {
   UserData udata = (UserData) user_data;    /* access problem data */
   sunindextype N = udata->N;                /* set variable shortcuts */
-  realtype *Y=NULL, *Ydot=NULL;
+  sunrealtype *Y=NULL, *Ydot=NULL;
   sunindextype i;
 
   /* access state array data */
@@ -280,14 +280,14 @@ static int ff(realtype t, N_Vector y, N_Vector ydot, void *user_data)
 
 
 /* fs routine to compute the slow portion of the ODE RHS. */
-static int fs(realtype t, N_Vector y, N_Vector ydot, void *user_data)
+static int fs(sunrealtype t, N_Vector y, N_Vector ydot, void *user_data)
 {
   UserData udata = (UserData) user_data;    /* access problem data */
   sunindextype N = udata->N;                /* set variable shortcuts */
-  realtype k  = udata->k;
-  realtype dx = udata->dx;
-  realtype *Y=NULL, *Ydot=NULL;
-  realtype c1, c2;
+  sunrealtype k  = udata->k;
+  sunrealtype dx = udata->dx;
+  sunrealtype *Y=NULL, *Ydot=NULL;
+  sunrealtype c1, c2;
   sunindextype i;
 
   /* access state array data */
@@ -324,9 +324,9 @@ static int SetInitialCondition(N_Vector y, UserData user_data)
 {
   UserData udata = (UserData) user_data;    /* access problem data */
   sunindextype N = udata->N;                /* set variable shortcuts */
-  realtype lam = udata->lam;
-  realtype dx = udata->dx;
-  realtype *Y=NULL;
+  sunrealtype lam = udata->lam;
+  sunrealtype dx = udata->dx;
+  sunrealtype *Y=NULL;
   sunindextype i;
 
   /* access state array data */

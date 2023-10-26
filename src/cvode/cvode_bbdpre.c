@@ -36,19 +36,19 @@
 #define TWO          RCONST(2.0)
 
 /* Prototypes of functions CVBBDPrecSetup and CVBBDPrecSolve */
-static int CVBBDPrecSetup(realtype t, N_Vector y, N_Vector fy,
+static int CVBBDPrecSetup(sunrealtype t, N_Vector y, N_Vector fy,
                           booleantype jok, booleantype *jcurPtr,
-                          realtype gamma, void *bbd_data);
-static int CVBBDPrecSolve(realtype t, N_Vector y, N_Vector fy,
+                          sunrealtype gamma, void *bbd_data);
+static int CVBBDPrecSolve(sunrealtype t, N_Vector y, N_Vector fy,
                           N_Vector r, N_Vector z,
-                          realtype gamma, realtype delta,
+                          sunrealtype gamma, sunrealtype delta,
                           int lr, void *bbd_data);
 
 /* Prototype for CVBBDPrecFree */
 static int CVBBDPrecFree(CVodeMem cv_mem);
 
 /* Prototype for difference quotient Jacobian calculation routine */
-static int CVBBDDQJac(CVBBDPrecData pdata, realtype t,
+static int CVBBDDQJac(CVBBDPrecData pdata, sunrealtype t,
                       N_Vector y, N_Vector gy,
                       N_Vector ytemp, N_Vector gtemp);
 
@@ -58,7 +58,7 @@ static int CVBBDDQJac(CVBBDPrecData pdata, realtype t,
 int CVBBDPrecInit(void *cvode_mem, sunindextype Nlocal,
                   sunindextype mudq, sunindextype mldq,
                   sunindextype mukeep, sunindextype mlkeep,
-                  realtype dqrely, CVLocalFn gloc, CVCommFn cfn)
+                  sunrealtype dqrely, CVLocalFn gloc, CVCommFn cfn)
 {
   CVodeMem cv_mem;
   CVLsMem cvls_mem;
@@ -282,7 +282,7 @@ int CVBBDPrecInit(void *cvode_mem, sunindextype Nlocal,
 
 
 int CVBBDPrecReInit(void *cvode_mem, sunindextype mudq,
-                    sunindextype mldq, realtype dqrely)
+                    sunindextype mldq, sunrealtype dqrely)
 {
   CVodeMem cv_mem;
   CVLsMem cvls_mem;
@@ -444,9 +444,9 @@ int CVBBDPrecGetNumGfnEvals(void *cvode_mem,
     0  if successful,
     1  for a recoverable error (step will be retried).
   -----------------------------------------------------------------*/
-static int CVBBDPrecSetup(realtype t, N_Vector y, N_Vector fy,
+static int CVBBDPrecSetup(sunrealtype t, N_Vector y, N_Vector fy,
                           booleantype jok, booleantype *jcurPtr,
-                          realtype gamma, void *bbd_data)
+                          sunrealtype gamma, void *bbd_data)
 {
   CVBBDPrecData pdata;
   CVodeMem cv_mem;
@@ -538,9 +538,9 @@ static int CVBBDPrecSetup(realtype t, N_Vector y, N_Vector fy,
   The value returned by the CVBBDPrecSolve function is always 0,
   indicating success.
   -----------------------------------------------------------------*/
-static int CVBBDPrecSolve(realtype t, N_Vector y, N_Vector fy,
+static int CVBBDPrecSolve(sunrealtype t, N_Vector y, N_Vector fy,
                           N_Vector r, N_Vector z,
-                          realtype gamma, realtype delta,
+                          sunrealtype gamma, sunrealtype delta,
                           int lr, void *bbd_data)
 {
   int retval;
@@ -605,14 +605,14 @@ static int CVBBDPrecFree(CVodeMem cv_mem)
   This routine also assumes that the local elements of a vector are
   stored contiguously.
   -----------------------------------------------------------------*/
-static int CVBBDDQJac(CVBBDPrecData pdata, realtype t, N_Vector y,
+static int CVBBDDQJac(CVBBDPrecData pdata, sunrealtype t, N_Vector y,
                       N_Vector gy, N_Vector ytemp, N_Vector gtemp)
 {
   CVodeMem cv_mem;
-  realtype gnorm, minInc, inc, inc_inv, yj, conj;
+  sunrealtype gnorm, minInc, inc, inc_inv, yj, conj;
   sunindextype group, i, j, width, ngroups, i1, i2;
-  realtype *y_data, *ewt_data, *gy_data, *gtemp_data;
-  realtype *ytemp_data, *col_j, *cns_data;
+  sunrealtype *y_data, *ewt_data, *gy_data, *gtemp_data;
+  sunrealtype *ytemp_data, *col_j, *cns_data;
   int retval;
 
   /* initialize cns_data to avoid compiler warning */

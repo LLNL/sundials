@@ -32,7 +32,7 @@ static int cvNlsLSetupSensStg(booleantype jbad, booleantype* jcur,
 static int cvNlsLSolveSensStg(N_Vector deltaStg, void* cvode_mem);
 static int cvNlsConvTestSensStg(SUNNonlinearSolver NLS,
                                 N_Vector ycorStg, N_Vector delStg,
-                                realtype tol, N_Vector ewtStg, void* cvode_mem);
+                                sunrealtype tol, N_Vector ewtStg, void* cvode_mem);
 
 /* -----------------------------------------------------------------------------
  * Exported functions
@@ -296,12 +296,12 @@ static int cvNlsLSolveSensStg(N_Vector deltaStg, void* cvode_mem)
 
 static int cvNlsConvTestSensStg(SUNNonlinearSolver NLS,
                                 N_Vector ycorStg, N_Vector deltaStg,
-                                realtype tol, N_Vector ewtStg, void* cvode_mem)
+                                sunrealtype tol, N_Vector ewtStg, void* cvode_mem)
 {
   CVodeMem cv_mem;
   int m, retval;
-  realtype Del;
-  realtype dcon;
+  sunrealtype Del;
+  sunrealtype dcon;
   N_Vector *ycorS, *deltaS, *ewtS;
 
   if (cvode_mem == NULL) {
@@ -365,7 +365,7 @@ static int cvNlsResidualSensStg(N_Vector ycorStg, N_Vector resStg, void* cvode_m
   CVodeMem cv_mem;
   int retval;
   N_Vector *ycorS, *resS;
-  realtype cvals[3];
+  sunrealtype cvals[3];
   N_Vector* XXvecs[3];
 
   if (cvode_mem == NULL) {

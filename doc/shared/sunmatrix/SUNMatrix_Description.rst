@@ -59,8 +59,8 @@ defined as
      void         (*destroy)(SUNMatrix);
      int          (*zero)(SUNMatrix);
      int          (*copy)(SUNMatrix, SUNMatrix);
-     int          (*scaleadd)(realtype, SUNMatrix, SUNMatrix);
-     int          (*scaleaddi)(realtype, SUNMatrix);
+     int          (*scaleadd)(sunrealtype, SUNMatrix, SUNMatrix);
+     int          (*scaleaddi)(sunrealtype, SUNMatrix);
      int          (*matvecsetup)(SUNMatrix);
      int          (*matvec)(SUNMatrix, N_Vector, N_Vector);
      int          (*space)(SUNMatrix, long int*, long int*);

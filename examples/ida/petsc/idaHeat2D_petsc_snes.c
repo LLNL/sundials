@@ -93,7 +93,7 @@ typedef struct {
 
 /* User-supplied residual function */
 
-int resHeat(realtype tt, N_Vector uu, N_Vector up, N_Vector rr, void *user_data);
+int resHeat(sunrealtype tt, N_Vector uu, N_Vector up, N_Vector rr, void *user_data);
 int jacHeat(SNES snes, Vec x, Mat Jpre, Mat J, void *user_data);
 
 /* User-supplied preconditioner routines */
@@ -107,9 +107,9 @@ int PsolveHeat(PC pc, Vec x, Vec y);
 static int SetInitialProfile(N_Vector uu, N_Vector up, N_Vector id,
                              N_Vector res, void *user_data);
 
-static void PrintHeader(sunindextype Neq, realtype rtol, realtype atol);
+static void PrintHeader(sunindextype Neq, sunrealtype rtol, sunrealtype atol);
 
-static void PrintOutput(int id, void *ida_mem, realtype t, N_Vector uu, SNES snes);
+static void PrintOutput(int id, void *ida_mem, sunrealtype t, N_Vector uu, SNES snes);
 
 static void PrintFinalStats(void *ida_mem, SNES snes);
 
@@ -125,7 +125,7 @@ int main(int argc, char *argv[])
 {
   MPI_Comm comm;
   int iout, thispe, retval, npes;
-  realtype rtol, atol, t0, t1, tout, tret;
+  sunrealtype rtol, atol, t0, t1, tout, tret;
   sunindextype Neq;
   PetscBool pre, jac;
   /* declare SUNDIALS data structures */
@@ -384,7 +384,7 @@ int main(int argc, char *argv[])
  *
  */
 
-int resHeat(realtype tt, N_Vector uu, N_Vector up, N_Vector rr,
+int resHeat(sunrealtype tt, N_Vector uu, N_Vector up, N_Vector rr,
             void *user_data)
 {
   PetscErrorCode ierr;
@@ -730,7 +730,7 @@ static int SetInitialProfile(N_Vector uu, N_Vector up, N_Vector id,
  * Print first lines of output and table heading
  */
 
-static void PrintHeader(sunindextype Neq, realtype rtol, realtype atol)
+static void PrintHeader(sunindextype Neq, sunrealtype rtol, sunrealtype atol)
 {
   printf("\nidaHeat2D_kry_petscsnes: Heat equation, parallel example problem for IDA\n");
   printf("                         Discretized heat equation on 2D unit square.\n");
@@ -763,9 +763,9 @@ static void PrintHeader(sunindextype Neq, realtype rtol, realtype atol)
  * PrintOutput: print max norm of solution and current solver statistics
  */
 
-static void PrintOutput(int id, void *ida_mem, realtype t, N_Vector uu, SNES snes)
+static void PrintOutput(int id, void *ida_mem, sunrealtype t, N_Vector uu, SNES snes)
 {
-  realtype hused, umax;
+  sunrealtype hused, umax;
   long int nst, nni, njve, nre, nreLS, npe, nps;
   int kused;
   PetscInt nli;

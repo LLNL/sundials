@@ -88,7 +88,7 @@
 #include <nvector/nvector_serial.h>    /* access to serial N_Vector            */
 #include <sunlinsol/sunlinsol_spgmr.h> /* access to SPGMR SUNLinearSolver      */
 #include <sundials/sundials_dense.h>   /* use generic dense solver in precond. */
-#include <sundials/sundials_types.h>   /* defs. of realtype, sunindextype      */
+#include <sundials/sundials_types.h>   /* defs. of sunrealtype, sunindextype      */
 
 /* helpful macros */
 
@@ -125,8 +125,8 @@
 #define MXNS  (MX*NS)
 #define AX    ONE
 #define AY    ONE
-#define DX    (AX/(realtype)(MX-1))
-#define DY    (AY/(realtype)(MY-1))
+#define DX    (AX/(sunrealtype)(MX-1))
+#define DY    (AY/(sunrealtype)(MY-1))
 #define MP    NS
 #define MQ    (MX*MY)
 #define MXMP  (MX*MP)
@@ -153,15 +153,15 @@
 /* Structure for user data */
 
 typedef struct {
-  realtype **P[NGRP];
+  sunrealtype **P[NGRP];
   sunindextype *pivot[NGRP];
   int ns, mxns, mp, mq, mx, my, ngrp, ngx, ngy, mxmp;
   int jgx[NGX+1], jgy[NGY+1], jigx[MX], jigy[MY];
   int jxr[NGX], jyr[NGY];
-  realtype acoef[NS][NS], bcoef[NS], diff[NS];
-  realtype cox[NS], coy[NS], dx, dy, srur;
-  realtype fsave[NEQ];
-  realtype fBsave[NEQ];
+  sunrealtype acoef[NS][NS], bcoef[NS], diff[NS];
+  sunrealtype cox[NS], coy[NS], dx, dy, srur;
+  sunrealtype fsave[NEQ];
+  sunrealtype fBsave[NEQ];
   N_Vector rewt;
   N_Vector vtemp;
   void *cvode_mem;
@@ -176,29 +176,29 @@ typedef struct {
 
 /* Prototypes for user-supplied functions */
 
-static int f(realtype t, N_Vector y, N_Vector ydot, void *user_data);
+static int f(sunrealtype t, N_Vector y, N_Vector ydot, void *user_data);
 
-static int Precond(realtype t, N_Vector c, N_Vector fc,
+static int Precond(sunrealtype t, N_Vector c, N_Vector fc,
                    booleantype jok, booleantype *jcurPtr,
-                   realtype gamma, void *user_data);
+                   sunrealtype gamma, void *user_data);
 
-static int PSolve(realtype t, N_Vector c, N_Vector fc,
+static int PSolve(sunrealtype t, N_Vector c, N_Vector fc,
                   N_Vector r, N_Vector z,
-                  realtype gamma, realtype delta,
+                  sunrealtype gamma, sunrealtype delta,
                   int lr, void *user_data);
 
-static int fB(realtype t, N_Vector c, N_Vector cB,
+static int fB(sunrealtype t, N_Vector c, N_Vector cB,
                N_Vector cBdot, void *user_data);
 
-static int PrecondB(realtype t, N_Vector c,
+static int PrecondB(sunrealtype t, N_Vector c,
                     N_Vector cB, N_Vector fcB, booleantype jok,
-                    booleantype *jcurPtr, realtype gamma,
+                    booleantype *jcurPtr, sunrealtype gamma,
                     void *user_data);
 
-static int PSolveB(realtype t, N_Vector c,
+static int PSolveB(sunrealtype t, N_Vector c,
                    N_Vector cB, N_Vector fcB,
                    N_Vector r, N_Vector z,
-                   realtype gamma, realtype delta,
+                   sunrealtype gamma, sunrealtype delta,
                    int lr, void *user_data);
 
 /* Prototypes for private functions */
@@ -210,23 +210,23 @@ static void CInit(N_Vector c, WebData wdata);
 static void CbInit(N_Vector c, int is, WebData wdata);
 static void PrintOutput(N_Vector c, int ns, int mxns, WebData wdata);
 static void FreeUserData(WebData wdata);
-static void WebRates(realtype x, realtype y, realtype t, realtype c[], realtype rate[],
+static void WebRates(sunrealtype x, sunrealtype y, sunrealtype t, sunrealtype c[], sunrealtype rate[],
                      WebData wdata);
-static void WebRatesB(realtype x, realtype y, realtype t, realtype c[], realtype cB[],
-                      realtype rate[], realtype rateB[], WebData wdata);
-static void fblock (realtype t, realtype cdata[], int jx, int jy, realtype cdotdata[],
+static void WebRatesB(sunrealtype x, sunrealtype y, sunrealtype t, sunrealtype c[], sunrealtype cB[],
+                      sunrealtype rate[], sunrealtype rateB[], WebData wdata);
+static void fblock (sunrealtype t, sunrealtype cdata[], int jx, int jy, sunrealtype cdotdata[],
                     WebData wdata);
-static void GSIter(realtype gamma, N_Vector z, N_Vector x, WebData wdata);
-static realtype doubleIntgr(N_Vector c, int i, WebData wdata);
+static void GSIter(sunrealtype gamma, N_Vector z, N_Vector x, WebData wdata);
+static sunrealtype doubleIntgr(N_Vector c, int i, WebData wdata);
 static int check_retval(void *returnvalue, const char *funcname, int opt);
 
 /* Small Vector Kernels */
 
-static void v_inc_by_prod(realtype u[], realtype v[], realtype w[], int n);
-static void v_sum_prods(realtype u[], realtype p[], realtype q[], realtype v[],
-                        realtype w[], int n);
-static void v_prod(realtype u[], realtype v[], realtype w[], int n);
-static void v_zero(realtype u[], int n);
+static void v_inc_by_prod(sunrealtype u[], sunrealtype v[], sunrealtype w[], int n);
+static void v_sum_prods(sunrealtype u[], sunrealtype p[], sunrealtype q[], sunrealtype v[],
+                        sunrealtype w[], int n);
+static void v_prod(sunrealtype u[], sunrealtype v[], sunrealtype w[], int n);
+static void v_zero(sunrealtype u[], int n);
 
 /* SUNDIALS context */
 static SUNContext sunctx;
@@ -239,7 +239,7 @@ static SUNContext sunctx;
 
 int main(int argc, char *argv[])
 {
-  realtype abstol=ATOL, reltol=RTOL, t;
+  sunrealtype abstol=ATOL, reltol=RTOL, t;
   N_Vector c;
   WebData wdata;
   void *cvode_mem;
@@ -249,7 +249,7 @@ int main(int argc, char *argv[])
 
   int indexB;
 
-  realtype reltolB=RTOL, abstolB=ATOL;
+  sunrealtype reltolB=RTOL, abstolB=ATOL;
   N_Vector cB;
 
   c = NULL;
@@ -397,11 +397,11 @@ int main(int argc, char *argv[])
  * and these are saved in fsave for use in preconditioning.
  */
 
-static int f(realtype t, N_Vector c, N_Vector cdot, void *user_data)
+static int f(sunrealtype t, N_Vector c, N_Vector cdot, void *user_data)
 {
   int i, ic, ici, idxl, idxu, idyl, idyu, iyoff, jx, jy, ns, mxns;
-  realtype dcxli, dcxui, dcyli, dcyui, x, y, *cox, *coy, *fsave, dx, dy;
-  realtype *cdata, *cdotdata;
+  sunrealtype dcxli, dcxui, dcyli, dcyui, x, y, *cox, *coy, *fsave, dx, dy;
+  sunrealtype *cdata, *cdotdata;
   WebData wdata;
 
   wdata = (WebData) user_data;
@@ -464,17 +464,17 @@ static int f(realtype t, N_Vector c, N_Vector cdot, void *user_data)
  * scheme.
  */
 
-static int Precond(realtype t, N_Vector c, N_Vector fc,
+static int Precond(sunrealtype t, N_Vector c, N_Vector fc,
                    booleantype jok, booleantype *jcurPtr,
-                   realtype gamma, void *user_data)
+                   sunrealtype gamma, void *user_data)
 {
-  realtype ***P;
+  sunrealtype ***P;
   sunindextype **pivot;
   int i, if0, if00, ig, igx, igy, j, jj, jx, jy;
   int *jxr, *jyr, ngrp, ngx, ngy, mxmp, mp, retval;
   sunindextype denseretval;
-  realtype uround, fac, r, r0, save, srur;
-  realtype *f1, *fsave, *cdata, *rewtdata;
+  sunrealtype uround, fac, r, r0, save, srur;
+  sunrealtype *f1, *fsave, *cdata, *rewtdata;
   WebData wdata;
   N_Vector rewt;
 
@@ -557,12 +557,12 @@ static int Precond(realtype t, N_Vector c, N_Vector fc,
  * blocks in P, and pivot information in pivot, and returns the result in z.
  */
 
-static int PSolve(realtype t, N_Vector c, N_Vector fc,
+static int PSolve(sunrealtype t, N_Vector c, N_Vector fc,
                   N_Vector r, N_Vector z,
-                  realtype gamma, realtype delta,
+                  sunrealtype gamma, sunrealtype delta,
                   int lr, void *user_data)
 {
-  realtype ***P;
+  sunrealtype ***P;
   sunindextype **pivot;
   int jx, jy, igx, igy, iv, ig, *jigx, *jigy, mx, my, ngx, mp;
   WebData wdata;
@@ -607,12 +607,12 @@ static int PSolve(realtype t, N_Vector c, N_Vector fc,
  * interaction rates are computed by calls to WebRatesB.
  */
 
-static int fB(realtype t, N_Vector c, N_Vector cB,
+static int fB(sunrealtype t, N_Vector c, N_Vector cB,
               N_Vector cBdot, void *user_data)
 {
   int i, ic, ici, idxl, idxu, idyl, idyu, iyoff, jx, jy, ns, mxns;
-  realtype dcxli, dcxui, dcyli, dcyui, x, y, *cox, *coy, *fsave, *fBsave, dx, dy;
-  realtype *cdata, *cBdata, *cBdotdata;
+  sunrealtype dcxli, dcxui, dcyli, dcyui, x, y, *cox, *coy, *fsave, *fBsave, dx, dy;
+  sunrealtype *cdata, *cBdata, *cBdotdata;
   WebData wdata;
 
   wdata = (WebData) user_data;
@@ -665,18 +665,18 @@ static int fB(realtype t, N_Vector c, N_Vector cB,
  * Preconditioner setup function for the backward problem
  */
 
-static int PrecondB(realtype t, N_Vector c,
+static int PrecondB(sunrealtype t, N_Vector c,
                     N_Vector cB, N_Vector fcB, booleantype jok,
-                    booleantype *jcurPtr, realtype gamma,
+                    booleantype *jcurPtr, sunrealtype gamma,
                     void *user_data)
 {
-  realtype ***P;
+  sunrealtype ***P;
   sunindextype **pivot;
   sunindextype denseretval;
   int i, if0, if00, ig, igx, igy, j, jj, jx, jy;
   int *jxr, *jyr, ngrp, ngx, ngy, mxmp, mp, retval;
-  realtype uround, fac, r, r0, save, srur;
-  realtype *f1, *fsave, *cdata, *rewtdata;
+  sunrealtype uround, fac, r, r0, save, srur;
+  sunrealtype *f1, *fsave, *cdata, *rewtdata;
   void *cvode_mem;
   WebData wdata;
   N_Vector rewt;
@@ -754,13 +754,13 @@ static int PrecondB(realtype t, N_Vector c,
  * Preconditioner solve function for the backward problem
  */
 
-static int PSolveB(realtype t, N_Vector c,
+static int PSolveB(sunrealtype t, N_Vector c,
                    N_Vector cB, N_Vector fcB,
                    N_Vector r, N_Vector z,
-                   realtype gamma, realtype delta,
+                   sunrealtype gamma, sunrealtype delta,
                    int lr, void *user_data)
 {
-  realtype ***P;
+  sunrealtype ***P;
   sunindextype **pivot;
   int jx, jy, igx, igy, iv, ig, *jigx, *jigy, mx, my, ngx, mp;
   WebData wdata;
@@ -832,8 +832,8 @@ static WebData AllocUserData(void)
 static void InitUserData(WebData wdata)
 {
   int i, j, ns;
-  realtype *bcoef, *diff, *cox, *coy, dx, dy;
-  realtype (*acoef)[NS];
+  sunrealtype *bcoef, *diff, *cox, *coy, dx, dy;
+  sunrealtype (*acoef)[NS];
 
   acoef = wdata->acoef;
   bcoef = wdata->bcoef;
@@ -917,7 +917,7 @@ static void SetGroups(int m, int ng, int jg[], int jig[], int jr[])
 static void CInit(N_Vector c, WebData wdata)
 {
   int i, ici, ioff, iyoff, jx, jy, ns, mxns;
-  realtype argx, argy, x, y, dx, dy, x_factor, y_factor, *cdata;
+  sunrealtype argx, argy, x, y, dx, dy, x_factor, y_factor, *cdata;
 
   cdata = N_VGetArrayPointer(c);
   ns = wdata->ns;
@@ -950,9 +950,9 @@ static void CInit(N_Vector c, WebData wdata)
 static void CbInit(N_Vector c, int is, WebData wdata)
 {
   int i, ici, ioff, iyoff, jx, jy, ns, mxns;
-  realtype *cdata;
+  sunrealtype *cdata;
 
-  realtype gu[NS];
+  sunrealtype gu[NS];
 
   cdata = N_VGetArrayPointer(c);
   ns = wdata->ns;
@@ -979,12 +979,12 @@ static void CbInit(N_Vector c, int is, WebData wdata)
  * and at time t.
  */
 
-static void WebRates(realtype x, realtype y, realtype t, realtype c[],
-                     realtype rate[], WebData wdata)
+static void WebRates(sunrealtype x, sunrealtype y, sunrealtype t, sunrealtype c[],
+                     sunrealtype rate[], WebData wdata)
 {
   int i, j, ns;
-  realtype fac, *bcoef;
-  realtype (*acoef)[NS];
+  sunrealtype fac, *bcoef;
+  sunrealtype (*acoef)[NS];
 
   ns = wdata->ns;
   acoef = wdata->acoef;
@@ -1006,12 +1006,12 @@ static void WebRates(realtype x, realtype y, realtype t, realtype c[],
  * This routine computes the interaction rates for the backward problem
  */
 
-static void WebRatesB(realtype x, realtype y, realtype t, realtype c[], realtype cB[],
-                      realtype rate[], realtype rateB[], WebData wdata)
+static void WebRatesB(sunrealtype x, sunrealtype y, sunrealtype t, sunrealtype c[], sunrealtype cB[],
+                      sunrealtype rate[], sunrealtype rateB[], WebData wdata)
 {
   int i, j, ns;
-  realtype fac, *bcoef;
-  realtype (*acoef)[NS];
+  sunrealtype fac, *bcoef;
+  sunrealtype (*acoef)[NS];
 
   ns = wdata->ns;
   acoef = wdata->acoef;
@@ -1042,11 +1042,11 @@ static void WebRatesB(realtype x, realtype y, realtype t, realtype c[], realtype
  * Here jx and jy count from 0.
  */
 
-static void fblock(realtype t, realtype cdata[], int jx, int jy,
-                   realtype cdotdata[], WebData wdata)
+static void fblock(sunrealtype t, sunrealtype cdata[], int jx, int jy,
+                   sunrealtype cdotdata[], WebData wdata)
 {
   int iblok, ic;
-  realtype x, y;
+  sunrealtype x, y;
 
   iblok = jx + jy*(wdata->mx);
   y = jy*(wdata->dy);
@@ -1065,11 +1065,11 @@ static void fblock(realtype t, realtype cdata[], int jx, int jy,
  * vector kernels v_sum_prods, v_prod, v_inc_by_prod.
  */
 
-static void GSIter(realtype gamma, N_Vector z, N_Vector x, WebData wdata)
+static void GSIter(sunrealtype gamma, N_Vector z, N_Vector x, WebData wdata)
 {
   int i, ic, iter, iyoff, jx, jy, ns, mxns, mx, my, x_loc, y_loc;
-  realtype beta[NS], beta2[NS], cof1[NS], gam[NS], gam2[NS];
-  realtype temp, *cox, *coy, *xd, *zd;
+  sunrealtype beta[NS], beta2[NS], cof1[NS], gam[NS], gam2[NS];
+  sunrealtype temp, *cox, *coy, *xd, *zd;
 
   xd = N_VGetArrayPointer(x);
   zd = N_VGetArrayPointer(z);
@@ -1217,26 +1217,26 @@ static void GSIter(realtype gamma, N_Vector z, N_Vector x, WebData wdata)
   }
 }
 
-static void v_inc_by_prod(realtype u[], realtype v[], realtype w[], int n)
+static void v_inc_by_prod(sunrealtype u[], sunrealtype v[], sunrealtype w[], int n)
 {
   int i;
   for (i=0; i < n; i++) u[i] += v[i]*w[i];
 }
 
-static void v_sum_prods(realtype u[], realtype p[], realtype q[],
-                        realtype v[], realtype w[], int n)
+static void v_sum_prods(sunrealtype u[], sunrealtype p[], sunrealtype q[],
+                        sunrealtype v[], sunrealtype w[], int n)
 {
   int i;
   for (i=0; i < n; i++) u[i] = p[i]*q[i] + v[i]*w[i];
 }
 
-static void v_prod(realtype u[], realtype v[], realtype w[], int n)
+static void v_prod(sunrealtype u[], sunrealtype v[], sunrealtype w[], int n)
 {
   int i;
   for (i=0; i < n; i++) u[i] = v[i]*w[i];
 }
 
-static void v_zero(realtype u[], int n)
+static void v_zero(sunrealtype u[], int n)
 {
   int i;
   for (i=0; i < n; i++) u[i] = ZERO;
@@ -1249,7 +1249,7 @@ static void v_zero(realtype u[], int n)
 static void PrintOutput(N_Vector cB, int ns, int mxns, WebData wdata)
 {
   int i, jx, jy;
-  realtype *cdata, cij, cmax, x, y;
+  sunrealtype *cdata, cij, cmax, x, y;
 
   x = y = ZERO;
 
@@ -1295,12 +1295,12 @@ static void PrintOutput(N_Vector cB, int ns, int mxns, WebData wdata)
  * Compute double space integral
  */
 
-static realtype doubleIntgr(N_Vector c, int i, WebData wdata)
+static sunrealtype doubleIntgr(N_Vector c, int i, WebData wdata)
 {
-  realtype *cdata;
+  sunrealtype *cdata;
   int ns, mx, my, mxns;
-  realtype dx, dy;
-  realtype intgr_xy, intgr_x;
+  sunrealtype dx, dy;
+  sunrealtype intgr_xy, intgr_x;
   int jx, jy;
 
   cdata = N_VGetArrayPointer(c);

@@ -262,12 +262,12 @@ int main(int argc, char *argv[])
 /* ----------------------------------------------------------------------
  * Implementation specific utility functions for vector tests
  * --------------------------------------------------------------------*/
-int check_ans(realtype ans, N_Vector X, sunindextype local_length)
+int check_ans(sunrealtype ans, N_Vector X, sunindextype local_length)
 {
   int          failure = 0;
   sunindextype i;
   N_Vector     Xsub[2];
-  realtype     *x0, *x1;
+  sunrealtype     *x0, *x1;
   sunindextype x0len, x1len;
 
   Xsub[0] = N_VGetSubvector_ManyVector(X, 0);
@@ -294,7 +294,7 @@ booleantype has_data(N_Vector X)
   return SUNTRUE;
 }
 
-void set_element(N_Vector X, sunindextype i, realtype val)
+void set_element(N_Vector X, sunindextype i, sunrealtype val)
 {
   N_Vector     Xsub[2];
   sunindextype x0len;
@@ -311,7 +311,7 @@ void set_element(N_Vector X, sunindextype i, realtype val)
   }
 }
 
-void set_element_range(N_Vector X, sunindextype is, sunindextype ie, realtype val)
+void set_element_range(N_Vector X, sunindextype is, sunindextype ie, sunrealtype val)
 {
   N_Vector     Xsub[2];
   sunindextype x0len, i;
@@ -325,7 +325,7 @@ void set_element_range(N_Vector X, sunindextype is, sunindextype ie, realtype va
   for (i=x0len; i<=ie; i++)  NV_Ith_S(Xsub[1], i-x0len) = val;
 }
 
-realtype get_element(N_Vector X, sunindextype i)
+sunrealtype get_element(N_Vector X, sunindextype i)
 {
   N_Vector     Xsub[2];
   sunindextype x0len;

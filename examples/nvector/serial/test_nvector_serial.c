@@ -241,11 +241,11 @@ int main(int argc, char *argv[])
 /* ----------------------------------------------------------------------
  * Implementation specific utility functions for vector tests
  * --------------------------------------------------------------------*/
-int check_ans(realtype ans, N_Vector X, sunindextype local_length)
+int check_ans(sunrealtype ans, N_Vector X, sunindextype local_length)
 {
   int          failure = 0;
   sunindextype i;
-  realtype     *Xdata;
+  sunrealtype     *Xdata;
 
   Xdata = N_VGetArrayPointer(X);
 
@@ -263,23 +263,23 @@ booleantype has_data(N_Vector X)
   return (N_VGetArrayPointer(X) == NULL) ? SUNFALSE : SUNTRUE;
 }
 
-void set_element(N_Vector X, sunindextype i, realtype val)
+void set_element(N_Vector X, sunindextype i, sunrealtype val)
 {
   /* set i-th element of data array */
   set_element_range(X, i, i, val);
 }
 
 void set_element_range(N_Vector X, sunindextype is, sunindextype ie,
-                       realtype val)
+                       sunrealtype val)
 {
   sunindextype i;
 
   /* set elements [is,ie] of the data array */
-  realtype* xd = N_VGetArrayPointer(X);
+  sunrealtype* xd = N_VGetArrayPointer(X);
   for(i = is; i <= ie; i++) xd[i] = val;
 }
 
-realtype get_element(N_Vector X, sunindextype i)
+sunrealtype get_element(N_Vector X, sunindextype i)
 {
   /* get i-th element of data array */
   return NV_Ith_S(X,i);

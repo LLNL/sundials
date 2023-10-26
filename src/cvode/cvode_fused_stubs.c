@@ -33,8 +33,8 @@
  */
 
 int cvEwtSetSS_fused(const booleantype atolmin0,
-                     const realtype reltol,
-                     const realtype Sabstol,
+                     const sunrealtype reltol,
+                     const sunrealtype Sabstol,
                      const N_Vector ycur,
                      N_Vector tempv,
                      N_Vector weight)
@@ -57,7 +57,7 @@ int cvEwtSetSS_fused(const booleantype atolmin0,
 
 
 int cvEwtSetSV_fused(const booleantype atolmin0,
-                     const realtype reltol,
+                     const sunrealtype reltol,
                      const N_Vector Vabstol,
                      const N_Vector ycur,
                      N_Vector tempv,
@@ -104,8 +104,8 @@ int cvCheckConstraints_fused(const N_Vector c,
  */
 
 
-int cvNlsResid_fused(const realtype rl1,
-                     const realtype ngamma,
+int cvNlsResid_fused(const sunrealtype rl1,
+                     const sunrealtype ngamma,
                      const N_Vector zn1,
                      const N_Vector ycor,
                      const N_Vector ftemp,
@@ -122,8 +122,8 @@ int cvNlsResid_fused(const realtype rl1,
  * -----------------------------------------------------------------
  */
 
-int cvDiagSetup_formY(const realtype h,
-                      const realtype r,
+int cvDiagSetup_formY(const sunrealtype h,
+                      const sunrealtype r,
                       const N_Vector fpred,
                       const N_Vector zn1,
                       const N_Vector ypred,
@@ -142,9 +142,9 @@ int cvDiagSetup_formY(const realtype h,
  * -----------------------------------------------------------------
  */
 
-int cvDiagSetup_buildM(const realtype fract,
-                       const realtype uround,
-                       const realtype h,
+int cvDiagSetup_buildM(const sunrealtype fract,
+                       const sunrealtype uround,
+                       const sunrealtype h,
                        const N_Vector ftemp,
                        const N_Vector fpred,
                        const N_Vector ewt,
@@ -174,7 +174,7 @@ int cvDiagSetup_buildM(const realtype fract,
  * -----------------------------------------------------------------
  */
 
-int cvDiagSolve_updateM(const realtype r, N_Vector M)
+int cvDiagSolve_updateM(const sunrealtype r, N_Vector M)
 {
   N_VInv(M, M);
   N_VAddConst(M, -ONE, M);

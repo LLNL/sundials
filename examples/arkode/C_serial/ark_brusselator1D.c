@@ -50,7 +50,7 @@
 #include <nvector/nvector_serial.h>    /* serial N_Vector types, fcts., macros */
 #include <sunmatrix/sunmatrix_band.h>  /* access to band SUNMatrix             */
 #include <sunlinsol/sunlinsol_band.h>  /* access to band SUNLinearSolver       */
-#include <sundials/sundials_types.h>   /* defs. of realtype, sunindextype, etc */
+#include <sundials/sundials_types.h>   /* defs. of sunrealtype, sunindextype, etc */
 
 #if defined(SUNDIALS_EXTENDED_PRECISION)
 #define GSYM "Lg"
@@ -68,23 +68,23 @@
 /* user data structure */
 typedef struct {
   sunindextype N;  /* number of intervals     */
-  realtype dx;     /* mesh spacing            */
-  realtype a;      /* constant forcing on u   */
-  realtype b;      /* steady-state value of w */
-  realtype du;     /* diffusion coeff for u   */
-  realtype dv;     /* diffusion coeff for v   */
-  realtype dw;     /* diffusion coeff for w   */
-  realtype ep;     /* stiffness parameter     */
+  sunrealtype dx;     /* mesh spacing            */
+  sunrealtype a;      /* constant forcing on u   */
+  sunrealtype b;      /* steady-state value of w */
+  sunrealtype du;     /* diffusion coeff for u   */
+  sunrealtype dv;     /* diffusion coeff for v   */
+  sunrealtype dw;     /* diffusion coeff for w   */
+  sunrealtype ep;     /* stiffness parameter     */
 } *UserData;
 
 /* User-supplied Functions Called by the Solver */
-static int f(realtype t, N_Vector y, N_Vector ydot, void *user_data);
-static int Jac(realtype t, N_Vector y, N_Vector fy, SUNMatrix J, void *user_data,
+static int f(sunrealtype t, N_Vector y, N_Vector ydot, void *user_data);
+static int Jac(sunrealtype t, N_Vector y, N_Vector fy, SUNMatrix J, void *user_data,
                N_Vector tmp1, N_Vector tmp2, N_Vector tmp3);
 
 /* Private helper functions  */
-static int LaplaceMatrix(realtype c, SUNMatrix Jac, UserData udata);
-static int ReactionJac(realtype c, N_Vector y, SUNMatrix Jac, UserData udata);
+static int LaplaceMatrix(sunrealtype c, SUNMatrix Jac, UserData udata);
+static int ReactionJac(sunrealtype c, N_Vector y, SUNMatrix Jac, UserData udata);
 
 /* Private function to check function return values */
 static int check_flag(void *flagvalue, const char *funcname, int opt);
@@ -93,21 +93,21 @@ static int check_flag(void *flagvalue, const char *funcname, int opt);
 int main()
 {
   /* general problem parameters */
-  realtype T0 = RCONST(0.0);    /* initial time */
-  realtype Tf = RCONST(10.0);   /* final time */
+  sunrealtype T0 = RCONST(0.0);    /* initial time */
+  sunrealtype Tf = RCONST(10.0);   /* final time */
   int Nt = 100;                 /* total number of output times */
   int Nvar = 3;                 /* number of solution fields */
   UserData udata = NULL;
-  realtype *data;
+  sunrealtype *data;
   sunindextype N = 201;         /* spatial mesh size */
-  realtype a = 0.6;             /* problem parameters */
-  realtype b = 2.0;
-  realtype du = 0.025;
-  realtype dv = 0.025;
-  realtype dw = 0.025;
-  realtype ep = 1.0e-5;         /* stiffness parameter */
-  realtype reltol = 1.0e-6;     /* tolerances */
-  realtype abstol = 1.0e-10;
+  sunrealtype a = 0.6;             /* problem parameters */
+  sunrealtype b = 2.0;
+  sunrealtype du = 0.025;
+  sunrealtype dv = 0.025;
+  sunrealtype dw = 0.025;
+  sunrealtype ep = 1.0e-5;         /* stiffness parameter */
+  sunrealtype reltol = 1.0e-6;     /* tolerances */
+  sunrealtype abstol = 1.0e-10;
   sunindextype NEQ, i;
 
   /* general problem variables */
@@ -119,7 +119,7 @@ int main()
   SUNMatrix A = NULL;           /* empty matrix object for solver */
   SUNLinearSolver LS = NULL;    /* empty linear solver object */
   void *arkode_mem = NULL;      /* empty ARKode memory structure */
-  realtype pi, t, dTout, tout, u, v, w;
+  sunrealtype pi, t, dTout, tout, u, v, w;
   FILE *FID, *UFID, *VFID, *WFID;
   int iout;
   long int nst, nst_a, nfe, nfi, nsetups, nje, nfeLS, nni, ncfn, netf;
@@ -328,19 +328,19 @@ int main()
  *-------------------------------*/
 
 /* f routine to compute the ODE RHS function f(t,y). */
-static int f(realtype t, N_Vector y, N_Vector ydot, void *user_data)
+static int f(sunrealtype t, N_Vector y, N_Vector ydot, void *user_data)
 {
   UserData udata = (UserData) user_data;      /* access problem data */
   sunindextype N = udata->N;                  /* set variable shortcuts */
-  realtype a  = udata->a;
-  realtype b  = udata->b;
-  realtype ep = udata->ep;
-  realtype du = udata->du;
-  realtype dv = udata->dv;
-  realtype dw = udata->dw;
-  realtype dx = udata->dx;
-  realtype *Ydata=NULL, *dYdata=NULL;
-  realtype uconst, vconst, wconst, u, ul, ur, v, vl, vr, w, wl, wr;
+  sunrealtype a  = udata->a;
+  sunrealtype b  = udata->b;
+  sunrealtype ep = udata->ep;
+  sunrealtype du = udata->du;
+  sunrealtype dv = udata->dv;
+  sunrealtype dw = udata->dw;
+  sunrealtype dx = udata->dx;
+  sunrealtype *Ydata=NULL, *dYdata=NULL;
+  sunrealtype uconst, vconst, wconst, u, ul, ur, v, vl, vr, w, wl, wr;
   sunindextype i;
 
   Ydata = N_VGetArrayPointer(y);     /* access data arrays */
@@ -377,7 +377,7 @@ static int f(realtype t, N_Vector y, N_Vector ydot, void *user_data)
 }
 
 /* Jacobian routine to compute J(t,y) = df/dy. */
-static int Jac(realtype t, N_Vector y, N_Vector fy, SUNMatrix J,
+static int Jac(sunrealtype t, N_Vector y, N_Vector fy, SUNMatrix J,
                void *user_data, N_Vector tmp1, N_Vector tmp2, N_Vector tmp3)
 {
   UserData udata = (UserData) user_data;     /* access problem data */
@@ -398,10 +398,10 @@ static int Jac(realtype t, N_Vector y, N_Vector fy, SUNMatrix J,
 
 /* Routine to compute the stiffness matrix from (L*y), scaled by the factor c.
    We add the result into Jac and do not erase what was already there */
-static int LaplaceMatrix(realtype c, SUNMatrix Jac, UserData udata)
+static int LaplaceMatrix(sunrealtype c, SUNMatrix Jac, UserData udata)
 {
   sunindextype N = udata->N;           /* set shortcuts */
-  realtype dx = udata->dx;
+  sunrealtype dx = udata->dx;
   sunindextype i;
 
   /* iterate over intervals, filling in Jacobian of (L*y) using SM_ELEMENT_B
@@ -423,13 +423,13 @@ static int LaplaceMatrix(realtype c, SUNMatrix Jac, UserData udata)
 
 /* Routine to compute the Jacobian matrix from R(y), scaled by the factor c.
    We add the result into Jac and do not erase what was already there */
-static int ReactionJac(realtype c, N_Vector y, SUNMatrix Jac, UserData udata)
+static int ReactionJac(sunrealtype c, N_Vector y, SUNMatrix Jac, UserData udata)
 {
   sunindextype N = udata->N;                      /* set shortcuts */
-  realtype ep = udata->ep;
+  sunrealtype ep = udata->ep;
   sunindextype i;
-  realtype u, v, w;
-  realtype *Ydata = N_VGetArrayPointer(y);     /* access solution array */
+  sunrealtype u, v, w;
+  sunrealtype *Ydata = N_VGetArrayPointer(y);     /* access solution array */
   if (check_flag((void *)Ydata, "N_VGetArrayPointer", 0)) return 1;
 
   /* iterate over nodes, filling in Jacobian of reaction terms */

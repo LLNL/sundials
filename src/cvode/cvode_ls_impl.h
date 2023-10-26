@@ -58,15 +58,15 @@ typedef struct CVLsMemRec {
   CVLsJacFn jac;       /* Jacobian routine to be called                */
   void *J_data;        /* user data is passed to jac                   */
   booleantype jbad;    /* heuristic suggestion for pset                */
-  realtype dgmax_jbad; /* if convfail = FAIL_BAD_J and the gamma ratio *
+  sunrealtype dgmax_jbad; /* if convfail = FAIL_BAD_J and the gamma ratio *
                         * |gamma/gammap-1| < dgmax_jbad then J is bad  */
 
   /* Matrix-based solver, scale solution to account for change in gamma */
   booleantype scalesol;
 
   /* Iterative solver tolerance */
-  realtype eplifac;   /* nonlinear -> linear tol scaling factor       */
-  realtype nrmfac;    /* integrator -> LS norm conversion factor      */
+  sunrealtype eplifac;   /* nonlinear -> linear tol scaling factor       */
+  sunrealtype nrmfac;    /* integrator -> LS norm conversion factor      */
 
   /* Linear solver, matrix and vector objects/pointers */
   SUNLinearSolver LS; /* generic linear solver object                 */
@@ -139,19 +139,19 @@ typedef struct CVLsMemRec {
 int cvLsATimes(void* cvode_mem, N_Vector v, N_Vector z);
 int cvLsPSetup(void* cvode_mem);
 int cvLsPSolve(void* cvode_mem, N_Vector r, N_Vector z,
-               realtype tol, int lr);
+               sunrealtype tol, int lr);
 
 /* Difference quotient approximation for Jac times vector */
-int cvLsDQJtimes(N_Vector v, N_Vector Jv, realtype t,
+int cvLsDQJtimes(N_Vector v, N_Vector Jv, sunrealtype t,
                  N_Vector y, N_Vector fy, void *data,
                  N_Vector work);
 
 /* Difference-quotient Jacobian approximation routines */
-int cvLsDQJac(realtype t, N_Vector y, N_Vector fy, SUNMatrix Jac,
+int cvLsDQJac(sunrealtype t, N_Vector y, N_Vector fy, SUNMatrix Jac,
               void *data, N_Vector tmp1, N_Vector tmp2, N_Vector tmp3);
-int cvLsDenseDQJac(realtype t, N_Vector y, N_Vector fy,
+int cvLsDenseDQJac(sunrealtype t, N_Vector y, N_Vector fy,
                    SUNMatrix Jac, CVodeMem cv_mem, N_Vector tmp1);
-int cvLsBandDQJac(realtype t, N_Vector y, N_Vector fy,
+int cvLsBandDQJac(sunrealtype t, N_Vector y, N_Vector fy,
                   SUNMatrix Jac, CVodeMem cv_mem, N_Vector tmp1,
                   N_Vector tmp2);
 

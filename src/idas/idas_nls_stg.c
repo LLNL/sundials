@@ -33,7 +33,7 @@ static int idaNlsLSetupSensStg(booleantype jbad, booleantype* jcur,
                                void* ida_mem);
 static int idaNlsLSolveSensStg(N_Vector delta, void* ida_mem);
 static int idaNlsConvTestSensStg(SUNNonlinearSolver NLS, N_Vector ycor, N_Vector del,
-                                 realtype tol, N_Vector ewt, void* ida_mem);
+                                 sunrealtype tol, N_Vector ewt, void* ida_mem);
 
 /* -----------------------------------------------------------------------------
  * Exported functions
@@ -313,12 +313,12 @@ static int idaNlsResidualSensStg(N_Vector ycorStg, N_Vector resStg, void* ida_me
 
 
 static int idaNlsConvTestSensStg(SUNNonlinearSolver NLS, N_Vector ycor, N_Vector del,
-                                 realtype tol, N_Vector ewt, void* ida_mem)
+                                 sunrealtype tol, N_Vector ewt, void* ida_mem)
 {
   IDAMem IDA_mem;
   int m, retval;
-  realtype delnrm;
-  realtype rate;
+  sunrealtype delnrm;
+  sunrealtype rate;
 
   if (ida_mem == NULL) {
     IDAProcessError(NULL, IDA_MEM_NULL, "IDAS", "idaNlsConvTestSensStg", MSG_NO_MEM);

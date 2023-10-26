@@ -85,7 +85,7 @@
 
 #define NSPECIES 2
 
-#define WIDTH (10 + numeric_limits<realtype>::digits10)
+#define WIDTH (10 + numeric_limits<sunrealtype>::digits10)
 
 // Macro to access each species at an (x,y) location in a 1D array
 #define UIDX(x,y,nx) (NSPECIES * ((nx) * (y) + (x)))
@@ -112,20 +112,20 @@ public:
     end_ = MPI_Wtime();
     total_ += (end_-start_);
   }
-  realtype total() const
+  sunrealtype total() const
   {
     return total_;
   }
-  realtype max(MPI_Comm comm)
+  sunrealtype max(MPI_Comm comm)
   {
     double maxtime = 0.0;
     MPI_Reduce(&total_, &maxtime, 1, MPI_DOUBLE, MPI_MAX, 0, comm);
     return maxtime;
   }
 private:
-  realtype total_;
-  realtype start_;
-  realtype end_;
+  sunrealtype total_;
+  sunrealtype start_;
+  sunrealtype end_;
 };
 
 
@@ -141,23 +141,23 @@ struct UserData
   // ------------------
 
   // Diffusion coefficients for u and v
-  realtype Dux = RCONST(1.0e-3);
-  realtype Duy = RCONST(1.0e-3);
-  realtype Dvx = RCONST(1.0e-3);
-  realtype Dvy = RCONST(1.0e-3);
+  sunrealtype Dux = RCONST(1.0e-3);
+  sunrealtype Duy = RCONST(1.0e-3);
+  sunrealtype Dvx = RCONST(1.0e-3);
+  sunrealtype Dvy = RCONST(1.0e-3);
 
   // Feed and reaction rates
-  realtype A = RCONST(1.0);
-  realtype B = RCONST(3.0);
+  sunrealtype A = RCONST(1.0);
+  sunrealtype B = RCONST(3.0);
 
   // Final simulation time
-  realtype tf = RCONST(10.0);
+  sunrealtype tf = RCONST(10.0);
 
   // Domain boundaries in x and y directions
-  realtype xl = RCONST(-0.5);
-  realtype xu = RCONST(0.5);
-  realtype yl = RCONST(-0.5);
-  realtype yu = RCONST(0.5);
+  sunrealtype xl = RCONST(-0.5);
+  sunrealtype xu = RCONST(0.5);
+  sunrealtype yl = RCONST(-0.5);
+  sunrealtype yu = RCONST(0.5);
 
   // Enable/disable RHS terms
   bool diffusion = true;
@@ -174,8 +174,8 @@ struct UserData
   sunindextype ny_loc = 0;
 
   // Mesh spacing in the x and y directions
-  realtype dx = (xu - xl) / nx;
-  realtype dy = (yu - yl) / ny;
+  sunrealtype dx = (xu - xl) / nx;
+  sunrealtype dy = (yu - yl) / ny;
 
   // Global and local number of equations
   sunindextype neq     = NSPECIES * nx * ny;
@@ -220,18 +220,18 @@ struct UserData
   int ybufcount = 0;
 
   // Receive and send buffers
-  realtype *Wrecv = NULL;
-  realtype *Erecv = NULL;
-  realtype *Srecv = NULL;
-  realtype *Nrecv = NULL;
+  sunrealtype *Wrecv = NULL;
+  sunrealtype *Erecv = NULL;
+  sunrealtype *Srecv = NULL;
+  sunrealtype *Nrecv = NULL;
 
-  realtype *Wsend = NULL;
-  realtype *Esend = NULL;
-  realtype *Ssend = NULL;
-  realtype *Nsend = NULL;
+  sunrealtype *Wsend = NULL;
+  sunrealtype *Esend = NULL;
+  sunrealtype *Ssend = NULL;
+  sunrealtype *Nsend = NULL;
 
-  realtype *SWsend = NULL;
-  realtype *NErecv = NULL;
+  sunrealtype *SWsend = NULL;
+  sunrealtype *NErecv = NULL;
 
   // Recieve and send requests
   MPI_Request reqRW, reqRE, reqRS, reqRN;
@@ -254,11 +254,11 @@ struct UserData
   // -------------
 
   // Relative and absolute tolerances
-  realtype rtol_imex = RCONST(1.e-4);
-  realtype atol_imex = RCONST(1.e-8);
+  sunrealtype rtol_imex = RCONST(1.e-4);
+  sunrealtype atol_imex = RCONST(1.e-8);
 
   // Step size selection (ZERO = adaptive steps)
-  realtype h_imex = ZERO;
+  sunrealtype h_imex = ZERO;
 
   // Method order
   int order_imex = 3;
@@ -268,14 +268,14 @@ struct UserData
   // ------------
 
   // Relative and absolute tolerances (slow and fast)
-  realtype rtol_slow = RCONST(1.e-4);
-  realtype atol_slow = RCONST(1.e-8);
-  realtype rtol_fast = RCONST(1.e-5);
-  realtype atol_fast = RCONST(1.e-9);
+  sunrealtype rtol_slow = RCONST(1.e-4);
+  sunrealtype atol_slow = RCONST(1.e-8);
+  sunrealtype rtol_fast = RCONST(1.e-5);
+  sunrealtype atol_fast = RCONST(1.e-9);
 
   // Fixed step size (slow and fast)
-  realtype h_slow = RCONST(-1.0);  // use multiple of CFL
-  realtype h_fast = ZERO;          // use adaptive stepping
+  sunrealtype h_slow = RCONST(-1.0);  // use multiple of CFL
+  sunrealtype h_fast = ZERO;          // use adaptive stepping
 
   // Inner ARKODE method order
   int order_fast = 3;
@@ -309,7 +309,7 @@ struct UserData
   bool     lsinfo   = false;  // output residual history
   int      liniters = 5;      // number of linear iterations
   int      msbp     = 0;      // preconditioner setup frequency (0 = default)
-  realtype epslin   = ZERO;   // linear solver tolerance factor (ZERO = default)
+  sunrealtype epslin   = ZERO;   // linear solver tolerance factor (ZERO = default)
   N_Vector diag     = NULL;   // inverse of Jacobian diagonal
 
   // ---------------
@@ -360,12 +360,12 @@ struct InnerStepperContent
 };
 
 static int CVodeInnerStepper_Evolve(MRIStepInnerStepper stepper,
-                                    realtype t0, realtype tout, N_Vector y);
+                                    sunrealtype t0, sunrealtype tout, N_Vector y);
 static int CVodeInnerStepper_FullRhs(MRIStepInnerStepper stepper,
-                                     realtype t, N_Vector y, N_Vector f,
+                                     sunrealtype t, N_Vector y, N_Vector f,
                                      int mode);
 static int CVodeInnerStepper_Reset(MRIStepInnerStepper stepper,
-                                   realtype tR, N_Vector yR);
+                                   sunrealtype tR, N_Vector yR);
 
 
 // -----------------------------------------------------------------------------
@@ -374,12 +374,12 @@ static int CVodeInnerStepper_Reset(MRIStepInnerStepper stepper,
 
 
 // ODE right hand side functions
-static int diffusion(realtype t, N_Vector u, N_Vector f, void *user_data);
-static int reaction(realtype t, N_Vector u, N_Vector f, void *user_data);
+static int diffusion(sunrealtype t, N_Vector u, N_Vector f, void *user_data);
+static int reaction(sunrealtype t, N_Vector u, N_Vector f, void *user_data);
 
 // Preconditioner solve function
-static int PSolve(realtype t, N_Vector u, N_Vector f, N_Vector r,
-                  N_Vector z, realtype gamma, realtype delta, int lr,
+static int PSolve(sunrealtype t, N_Vector u, N_Vector f, N_Vector r,
+                  N_Vector z, sunrealtype gamma, sunrealtype delta, int lr,
                   void *user_data);
 
 
@@ -437,7 +437,7 @@ static int PrintUserData(UserData *udata);
 
 // Output solution
 static int OpenOutput(UserData *udata);
-static int WriteOutput(realtype t, N_Vector u, UserData *udata);
+static int WriteOutput(sunrealtype t, N_Vector u, UserData *udata);
 static int CloseOutput(UserData *udata);
 
 // Print integration statistics
@@ -623,9 +623,9 @@ int main(int argc, char* argv[])
   }
 
   // Initial time, time between outputs, output time
-  realtype t     = ZERO;
-  realtype dTout = udata.tf / udata.nout;
-  realtype tout  = dTout;
+  sunrealtype t     = ZERO;
+  sunrealtype dTout = udata.tf / udata.nout;
+  sunrealtype tout  = dTout;
 
   // Inital output
   flag = OpenOutput(&udata);
@@ -862,19 +862,19 @@ static int SetupDecomp(UserData *udata)
 
   // Allocate exchange buffers if necessary
   udata->ybufcount = NSPECIES * udata->ny_loc;
-  udata->Wrecv     = new realtype[udata->ybufcount];
-  udata->Wsend     = new realtype[udata->ybufcount];
-  udata->Erecv     = new realtype[udata->ybufcount];
-  udata->Esend     = new realtype[udata->ybufcount];
+  udata->Wrecv     = new sunrealtype[udata->ybufcount];
+  udata->Wsend     = new sunrealtype[udata->ybufcount];
+  udata->Erecv     = new sunrealtype[udata->ybufcount];
+  udata->Esend     = new sunrealtype[udata->ybufcount];
 
   udata->xbufcount = NSPECIES * udata->nx_loc;
-  udata->Srecv     = new realtype[udata->xbufcount];
-  udata->Ssend     = new realtype[udata->xbufcount];
-  udata->Nrecv     = new realtype[udata->xbufcount];
-  udata->Nsend     = new realtype[udata->xbufcount];
+  udata->Srecv     = new sunrealtype[udata->xbufcount];
+  udata->Ssend     = new sunrealtype[udata->xbufcount];
+  udata->Nrecv     = new sunrealtype[udata->xbufcount];
+  udata->Nsend     = new sunrealtype[udata->xbufcount];
 
-  udata->SWsend = new realtype[NSPECIES];
-  udata->NErecv = new realtype[NSPECIES];
+  udata->SWsend = new sunrealtype[NSPECIES];
+  udata->NErecv = new sunrealtype[NSPECIES];
 
   // MPI neighborhood information
   int nbcoords[2];
@@ -1336,10 +1336,10 @@ static int SetupMRICVODE(SUNContext ctx, UserData *udata, N_Vector y,
 
 
 static int CVodeInnerStepper_Evolve(MRIStepInnerStepper stepper,
-                                    realtype t0, realtype tout, N_Vector y)
+                                    sunrealtype t0, sunrealtype tout, N_Vector y)
 {
   int      flag;
-  realtype tret;
+  sunrealtype tret;
   void*    inner_content = NULL;
 
   flag = MRIStepInnerStepper_GetContent(stepper, &inner_content);
@@ -1370,7 +1370,7 @@ static int CVodeInnerStepper_Evolve(MRIStepInnerStepper stepper,
 
 
 static int CVodeInnerStepper_FullRhs(MRIStepInnerStepper stepper,
-                                     realtype t, N_Vector y, N_Vector f,
+                                     sunrealtype t, N_Vector y, N_Vector f,
                                      int mode)
 {
   int   flag;
@@ -1397,7 +1397,7 @@ static int CVodeInnerStepper_FullRhs(MRIStepInnerStepper stepper,
 
 
 static int CVodeInnerStepper_Reset(MRIStepInnerStepper stepper,
-                                   realtype tR, N_Vector yR)
+                                   sunrealtype tR, N_Vector yR)
 {
   int   flag;
   void* inner_content = NULL;
@@ -1454,7 +1454,7 @@ static int CVodeInnerStepper_Reset(MRIStepInnerStepper stepper,
 
 
 // Routine to compute the ODE diffusion RHS function
-static int diffusion(realtype t, N_Vector y, N_Vector f, void *user_data)
+static int diffusion(sunrealtype t, N_Vector y, N_Vector f, void *user_data)
 {
   int flag;
 
@@ -1469,19 +1469,19 @@ static int diffusion(realtype t, N_Vector y, N_Vector f, void *user_data)
   if (check_flag(&flag, "StartExchange", 1)) return -1;
 
   // Constants for computing diffusion term
-  realtype cxu = udata->Dux / (udata->dx * udata->dx);
-  realtype cyu = udata->Duy / (udata->dy * udata->dy);
-  realtype ccu = -TWO * (cxu + cyu);
+  sunrealtype cxu = udata->Dux / (udata->dx * udata->dx);
+  sunrealtype cyu = udata->Duy / (udata->dy * udata->dy);
+  sunrealtype ccu = -TWO * (cxu + cyu);
 
-  realtype cxv = udata->Dvx / (udata->dx * udata->dx);
-  realtype cyv = udata->Dvy / (udata->dy * udata->dy);
-  realtype ccv = -TWO * (cxv + cyv);
+  sunrealtype cxv = udata->Dvx / (udata->dx * udata->dx);
+  sunrealtype cyv = udata->Dvy / (udata->dy * udata->dy);
+  sunrealtype ccv = -TWO * (cxv + cyv);
 
   // Access data arrays
-  realtype *ydata = N_VGetArrayPointer(y);
+  sunrealtype *ydata = N_VGetArrayPointer(y);
   if (check_flag((void *) ydata, "N_VGetArrayPointer", 0)) return -1;
 
-  realtype *fdata = N_VGetArrayPointer(f);
+  sunrealtype *fdata = N_VGetArrayPointer(f);
   if (check_flag((void *) fdata, "N_VGetArrayPointer", 0)) return -1;
 
   // Shortcuts to array indices (center, west, east, south, north)
@@ -1523,10 +1523,10 @@ static int diffusion(realtype t, N_Vector y, N_Vector f, void *user_data)
   flag = EndExchange(udata);
   if (check_flag(&flag, "EndExchange", 1)) return -1;
 
-  realtype *Wdata = udata->Wrecv;
-  realtype *Edata = udata->Erecv;
-  realtype *Sdata = udata->Srecv;
-  realtype *Ndata = udata->Nrecv;
+  sunrealtype *Wdata = udata->Wrecv;
+  sunrealtype *Edata = udata->Erecv;
+  sunrealtype *Sdata = udata->Srecv;
+  sunrealtype *Ndata = udata->Nrecv;
 
   sunindextype i, j;
 
@@ -1721,7 +1721,7 @@ static int diffusion(realtype t, N_Vector y, N_Vector f, void *user_data)
 
 
 // Routine to compute the ODE reaction RHS function
-static int reaction(realtype t, N_Vector y, N_Vector f, void *user_data)
+static int reaction(sunrealtype t, N_Vector y, N_Vector f, void *user_data)
 {
   // Access problem data
   UserData *udata = (UserData *) user_data;
@@ -1730,10 +1730,10 @@ static int reaction(realtype t, N_Vector y, N_Vector f, void *user_data)
   udata->rhsR.start();
 
   // Access data arrays
-  realtype *ydata = N_VGetArrayPointer(y);
+  sunrealtype *ydata = N_VGetArrayPointer(y);
   if (check_flag((void *) ydata, "N_VGetArrayPointer", 0)) return -1;
 
-  realtype *fdata = N_VGetArrayPointer(f);
+  sunrealtype *fdata = N_VGetArrayPointer(f);
   if (check_flag((void *) fdata, "N_VGetArrayPointer", 0)) return -1;
 
   // Shortcuts to local number of nodes
@@ -1741,7 +1741,7 @@ static int reaction(realtype t, N_Vector y, N_Vector f, void *user_data)
   sunindextype nx_loc = udata->nx_loc;
 
   // Compute reaction term on the subdomain
-  realtype u, v;
+  sunrealtype u, v;
 
   for (sunindextype j = 0; j < ny_loc; j++)
   {
@@ -1770,7 +1770,7 @@ static int reaction(realtype t, N_Vector y, N_Vector f, void *user_data)
     else if (udata->integrator == 3)
     {
       int      nforcing;
-      realtype tshift, tscale;
+      sunrealtype tshift, tscale;
       N_Vector *forcing;
 
       // With a local inner stepper the RHS vector f is a serial vector and the
@@ -1782,8 +1782,8 @@ static int reaction(realtype t, N_Vector y, N_Vector f, void *user_data)
       if (flag != 0) return flag;
 
       N_Vector forcing_loc;
-      realtype tau  = (t - tshift) / tscale;
-      realtype taui = ONE;
+      sunrealtype tau  = (t - tshift) / tscale;
+      sunrealtype taui = ONE;
 
       for (int i = 0; i < nforcing; i++)
       {
@@ -1808,8 +1808,8 @@ static int reaction(realtype t, N_Vector y, N_Vector f, void *user_data)
 
 
 // Preconditioner solve routine for Pz = r
-static int PSolve(realtype t, N_Vector u, N_Vector f, N_Vector r,
-                  N_Vector z, realtype gamma, realtype delta, int lr,
+static int PSolve(sunrealtype t, N_Vector u, N_Vector f, N_Vector r,
+                  N_Vector z, sunrealtype gamma, sunrealtype delta, int lr,
                   void *user_data)
 {
   // Access user_data structure
@@ -1819,19 +1819,19 @@ static int PSolve(realtype t, N_Vector u, N_Vector f, N_Vector r,
   udata->psolve.start();
 
   // Constants for computing diffusion
-  realtype cxu = udata->Dux / (udata->dx * udata->dx);
-  realtype cyu = udata->Duy / (udata->dy * udata->dy);
-  realtype ccu = -TWO * (cxu + cyu);
+  sunrealtype cxu = udata->Dux / (udata->dx * udata->dx);
+  sunrealtype cyu = udata->Duy / (udata->dy * udata->dy);
+  sunrealtype ccu = -TWO * (cxu + cyu);
 
-  realtype cxv = udata->Dvx / (udata->dx * udata->dx);
-  realtype cyv = udata->Dvy / (udata->dy * udata->dy);
-  realtype ccv = -TWO * (cxv + cyv);
+  sunrealtype cxv = udata->Dvx / (udata->dx * udata->dx);
+  sunrealtype cyv = udata->Dvy / (udata->dy * udata->dy);
+  sunrealtype ccv = -TWO * (cxv + cyv);
 
   // Access data arrays
-  realtype *rdata = N_VGetArrayPointer(r);
+  sunrealtype *rdata = N_VGetArrayPointer(r);
   if (check_flag((void *) rdata, "N_VGetArrayPointer", 0)) return -1;
 
-  realtype *zdata = N_VGetArrayPointer(z);
+  sunrealtype *zdata = N_VGetArrayPointer(z);
   if (check_flag((void *) zdata, "N_VGetArrayPointer", 0)) return -1;
 
   // Shortcuts to local number of nodes
@@ -1839,8 +1839,8 @@ static int PSolve(realtype t, N_Vector u, N_Vector f, N_Vector r,
   sunindextype nx_loc = udata->nx_loc;
 
   // Set all entries of diag to the inverse diagonal values
-  realtype du = ONE / (ONE - gamma * ccu);
-  realtype dv = ONE / (ONE - gamma * ccv);
+  sunrealtype du = ONE / (ONE - gamma * ccu);
+  sunrealtype dv = ONE / (ONE - gamma * ccv);
 
   for (sunindextype j = 0; j < ny_loc; j++)
   {
@@ -1913,7 +1913,7 @@ static int StartExchange(N_Vector y, UserData *udata)
   sunindextype nx_loc = udata->nx_loc;
 
   // Access data array
-  realtype *ydata = N_VGetArrayPointer(y);
+  sunrealtype *ydata = N_VGetArrayPointer(y);
   if (check_flag((void *) ydata, "N_VGetArrayPointer", 0)) return -1;
 
   // Send West face data to neighbor's East face
@@ -2097,7 +2097,7 @@ static int ExchangeBC(N_Vector y, UserData *udata)
     }
   }
 
-  realtype *ydata = N_VGetArrayPointer(y);
+  sunrealtype *ydata = N_VGetArrayPointer(y);
   if (check_flag((void *) ydata, "N_VGetArrayPointer", 0)) return -1;
 
   // Send West face data
@@ -2460,9 +2460,9 @@ static int ReadInputs(int *argc, char ***argv, UserData *udata)
   // Compute slow step size based on CFL if not set by input
   if (udata->h_slow < ZERO)
   {
-    realtype cfl_u = RCONST(0.5) / ((udata->Dux / (udata->dx * udata->dx)) +
+    sunrealtype cfl_u = RCONST(0.5) / ((udata->Dux / (udata->dx * udata->dx)) +
                                     (udata->Duy / (udata->dy * udata->dy)));
-    realtype cfl_v = RCONST(0.5) / ((udata->Dvx / (udata->dx * udata->dx)) +
+    sunrealtype cfl_v = RCONST(0.5) / ((udata->Dvx / (udata->dx * udata->dx)) +
                                     (udata->Dvy / (udata->dy * udata->dy)));
     udata->h_slow = RCONST(5.0) * min(cfl_u, cfl_v);
   }
@@ -2480,7 +2480,7 @@ static int ReadInputs(int *argc, char ***argv, UserData *udata)
 // Compute the initial condition
 static int SetIC(N_Vector u, UserData *udata)
 {
-  realtype x, y, a, b;
+  sunrealtype x, y, a, b;
 
   // Shortcuts to local number of nodes
   sunindextype ny_loc = udata->ny_loc;
@@ -2490,7 +2490,7 @@ static int SetIC(N_Vector u, UserData *udata)
   default_random_engine generator;
   normal_distribution<double> dist(RCONST(0.0), RCONST(0.001));
 
-  realtype *data = N_VGetArrayPointer(u);
+  sunrealtype *data = N_VGetArrayPointer(u);
   if (check_flag((void *) data, "N_VGetArrayPointer", 0)) return -1;
 
   for (sunindextype j = 0; j < ny_loc; j++)
@@ -2640,7 +2640,7 @@ static int OpenOutput(UserData *udata)
   if (udata->output > 0 && udata->outproc)
   {
     cout << scientific;
-    cout << setprecision(numeric_limits<realtype>::digits10);
+    cout << setprecision(numeric_limits<sunrealtype>::digits10);
     cout << "          t           ";
     cout << "          ||u||_rms      " << endl;
     cout << " ---------------------";
@@ -2657,7 +2657,7 @@ static int OpenOutput(UserData *udata)
     udata->uout.open(fname.str());
 
     udata->uout << scientific;
-    udata->uout << setprecision(numeric_limits<realtype>::digits10);
+    udata->uout << setprecision(numeric_limits<sunrealtype>::digits10);
 
     // Add 1 to the total number of nodes in the x and y directions and to the
     // end indices in the x and y direction at the North and East boundary to
@@ -2692,14 +2692,14 @@ static int OpenOutput(UserData *udata)
 
 
 // Write output
-static int WriteOutput(realtype t, N_Vector y, UserData *udata)
+static int WriteOutput(sunrealtype t, N_Vector y, UserData *udata)
 {
   int flag;
 
   if (udata->output > 0)
   {
     // Compute rms norm of the state
-    realtype urms = sqrt(N_VDotProd(y, y) / udata->nx / udata->ny);
+    sunrealtype urms = sqrt(N_VDotProd(y, y) / udata->nx / udata->ny);
 
     // Output current status
     if (udata->outproc) cout << setw(22) << t << setw(25) << urms << endl;
@@ -2714,7 +2714,7 @@ static int WriteOutput(realtype t, N_Vector y, UserData *udata)
       flag = ExchangeBC(y, udata);
       if (check_flag(&flag, "ExchangeBC", 1)) return -1;
 
-      realtype *ydata = N_VGetArrayPointer(y);
+      sunrealtype *ydata = N_VGetArrayPointer(y);
       if (check_flag((void *) ydata, "N_VGetArrayPointer", 0)) return -1;
 
       udata->uout << t;
@@ -2835,8 +2835,8 @@ static int OutputStatsIMEX(void *arkode_mem, UserData* udata)
   if (udata->diffusion)
   {
     // Compute average nls iters per step attempt and ls iters per nls iter
-    realtype avgnli = (realtype) nni / (realtype) nst_a;
-    realtype avgli  = (realtype) nli / (realtype) nni;
+    sunrealtype avgnli = (sunrealtype) nni / (sunrealtype) nst_a;
+    sunrealtype avgli  = (sunrealtype) nli / (sunrealtype) nni;
     cout << "  Avg NLS iters per step attempt = " << avgnli << endl;
     cout << "  Avg LS iters per NLS iter      = " << avgli  << endl;
     cout << endl;
@@ -2904,8 +2904,8 @@ static int OutputStatsMRI(void *arkode_mem, MRIStepInnerStepper stepper,
   cout << endl;
 
   // Compute average nls iters per step and ls iters per nls iter
-  realtype avgnli = (realtype) nni / (realtype) nsts;
-  realtype avgli  = (realtype) nli / (realtype) nni;
+  sunrealtype avgnli = (sunrealtype) nni / (sunrealtype) nsts;
+  sunrealtype avgli  = (sunrealtype) nli / (sunrealtype) nni;
   cout << "  Avg NLS iters per step attempt = " << avgnli << endl;
   cout << "  Avg LS iters per NLS iter      = " << avgli  << endl;
   cout << endl;
@@ -2994,8 +2994,8 @@ static int OutputStatsMRICVODE(void *arkode_mem,
   cout << endl;
 
   // Compute average nls iters per step and ls iters per nls iter
-  realtype avgnli = (realtype) nni / (realtype) nsts;
-  realtype avgli  = (realtype) nli / (realtype) nni;
+  sunrealtype avgnli = (sunrealtype) nni / (sunrealtype) nsts;
+  sunrealtype avgli  = (sunrealtype) nli / (sunrealtype) nni;
   cout << "  Avg NLS iters per step attempt = " << avgnli << endl;
   cout << "  Avg LS iters per NLS iter      = " << avgli  << endl;
   cout << endl;

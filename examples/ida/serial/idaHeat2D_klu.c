@@ -44,7 +44,7 @@
 #include <nvector/nvector_serial.h>        /* access to serial N_Vector            */
 #include <sunmatrix/sunmatrix_sparse.h>    /* access to sparse SUNMatrix           */
 #include <sunlinsol/sunlinsol_klu.h>       /* access to KLU linear solver          */
-#include <sundials/sundials_types.h>       /* defs. of realtype, sunindextype      */
+#include <sundials/sundials_types.h>       /* defs. of sunrealtype, sunindextype      */
 #include <sundials/sundials_math.h>        /* defs. of SUNRabs, SUNRexp, etc.      */
 
 /* Problem Constants */
@@ -62,29 +62,29 @@
 
 typedef struct {
   sunindextype mm;
-  realtype dx;
-  realtype coeff;
+  sunrealtype dx;
+  sunrealtype coeff;
 } *UserData;
 
 /* Prototypes of functions called by IDA */
 
-int heatres(realtype tres, N_Vector uu, N_Vector up, N_Vector resval, void *user_data);
+int heatres(sunrealtype tres, N_Vector uu, N_Vector up, N_Vector resval, void *user_data);
 
-int jacHeat(realtype tt,  realtype cj,
+int jacHeat(sunrealtype tt,  sunrealtype cj,
             N_Vector yy, N_Vector yp, N_Vector resvec,
             SUNMatrix JJ, void *user_data,
             N_Vector tempv1, N_Vector tempv2, N_Vector tempv3);
 
 /* Exact same setup as jacHeat. Function needed for special case MGRID=3  */
-int jacHeat3(realtype tt,  realtype cj,
+int jacHeat3(sunrealtype tt,  sunrealtype cj,
              N_Vector yy, N_Vector yp, N_Vector resvec,
              SUNMatrix JJ, void *user_data,
              N_Vector tempv1, N_Vector tempv2, N_Vector tempv3);
 
 /* Prototypes of private functions */
 
-static void PrintHeader(realtype rtol, realtype atol);
-static void PrintOutput(void *mem, realtype t, N_Vector u);
+static void PrintHeader(sunrealtype rtol, sunrealtype atol);
+static void PrintOutput(void *mem, sunrealtype t, N_Vector u);
 static int SetInitialProfile(UserData data, N_Vector uu, N_Vector up,
                              N_Vector id, N_Vector res);
 
@@ -103,7 +103,7 @@ int main(void)
   N_Vector uu, up, constraints, id, res;
   int retval, iout;
   long int netf, ncfn;
-  realtype rtol, atol, t0, t1, tout, tret;
+  sunrealtype rtol, atol, t0, t1, tout, tret;
   SUNMatrix A;
   SUNLinearSolver LS;
   sunindextype nnz;
@@ -253,11 +253,11 @@ int main(void)
  * while for each boundary point, it is res_i = u_i.
  */
 
-int heatres(realtype tres, N_Vector uu, N_Vector up, N_Vector resval,
+int heatres(sunrealtype tres, N_Vector uu, N_Vector up, N_Vector resval,
             void *user_data)
 {
   sunindextype mm, i, j, offset, loc;
-  realtype *uv, *upv, *resv, coeff;
+  sunrealtype *uv, *upv, *resv, coeff;
   UserData data;
 
   uv = N_VGetArrayPointer(uu); upv = N_VGetArrayPointer(up); resv = N_VGetArrayPointer(resval);
@@ -284,17 +284,17 @@ int heatres(realtype tres, N_Vector uu, N_Vector up, N_Vector resval,
 }
 
 /* Jacobian matrix setup for MGRID=3  */
-int jacHeat3(realtype tt,  realtype cj,
+int jacHeat3(sunrealtype tt,  sunrealtype cj,
              N_Vector yy, N_Vector yp, N_Vector resvec,
              SUNMatrix JJ, void *user_data,
              N_Vector tempv1, N_Vector tempv2, N_Vector tempv3)
 {
-  realtype dx =  ONE/(MGRID - ONE);
-  realtype beta = RCONST(4.0)/(dx*dx) + cj;
+  sunrealtype dx =  ONE/(MGRID - ONE);
+  sunrealtype beta = RCONST(4.0)/(dx*dx) + cj;
 
   sunindextype *colptrs = SUNSparseMatrix_IndexPointers(JJ);
   sunindextype *rowvals = SUNSparseMatrix_IndexValues(JJ);
-  realtype *data = SUNSparseMatrix_Data(JJ);
+  sunrealtype *data = SUNSparseMatrix_Data(JJ);
 
   SUNMatZero(JJ);
 
@@ -347,18 +347,18 @@ int jacHeat3(realtype tt,  realtype cj,
 }
 
 /* Jacobian matrix setup for MGRID>=4  */
-int jacHeat(realtype tt,  realtype cj,
+int jacHeat(sunrealtype tt,  sunrealtype cj,
             N_Vector yy, N_Vector yp, N_Vector resvec,
             SUNMatrix JJ, void *user_data,
             N_Vector tempv1, N_Vector tempv2, N_Vector tempv3)
 {
-  realtype dx =  ONE/(MGRID - ONE);
-  realtype beta = RCONST(4.0)/(dx*dx) + cj;
+  sunrealtype dx =  ONE/(MGRID - ONE);
+  sunrealtype beta = RCONST(4.0)/(dx*dx) + cj;
   int i,j, repeat=0;
 
   sunindextype *colptrs = SUNSparseMatrix_IndexPointers(JJ);
   sunindextype *rowvals = SUNSparseMatrix_IndexValues(JJ);
-  realtype *data = SUNSparseMatrix_Data(JJ);
+  sunrealtype *data = SUNSparseMatrix_Data(JJ);
 
   SUNMatZero(JJ);
 
@@ -604,7 +604,7 @@ int jacHeat(realtype tt,  realtype cj,
 static int SetInitialProfile(UserData data, N_Vector uu, N_Vector up,
                              N_Vector id, N_Vector res)
 {
-  realtype xfact, yfact, *udata, *updata, *iddata;
+  sunrealtype xfact, yfact, *udata, *updata, *iddata;
   sunindextype mm, mm1, i, j, offset, loc;
 
   mm = data->mm;
@@ -655,7 +655,7 @@ static int SetInitialProfile(UserData data, N_Vector uu, N_Vector up,
  * Print first lines of output (problem description)
  */
 
-static void PrintHeader(realtype rtol, realtype atol)
+static void PrintHeader(sunrealtype rtol, sunrealtype atol)
 {
   printf("\nidaHeat2D_klu: Heat equation, serial example problem for IDA\n");
   printf("          Discretized heat equation on 2D unit square.\n");
@@ -690,10 +690,10 @@ static void PrintHeader(realtype rtol, realtype atol)
  * Print Output
  */
 
-static void PrintOutput(void *mem, realtype t, N_Vector uu)
+static void PrintOutput(void *mem, sunrealtype t, N_Vector uu)
 {
   int retval;
-  realtype umax, hused;
+  sunrealtype umax, hused;
   long int nst, nni, nje, nre;
   int kused;
 

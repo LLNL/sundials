@@ -285,7 +285,7 @@ static int IDAStep(IDAMem IDA_mem);
 
 /* Function called at beginning of step */
 
-static void IDASetCoeffs(IDAMem IDA_mem, realtype *ck);
+static void IDASetCoeffs(IDAMem IDA_mem, sunrealtype *ck);
 
 /* Nonlinear solver functions */
 
@@ -302,45 +302,45 @@ static int IDAQuadSensNls(IDAMem IDA_mem);
 
 /* Error test */
 
-static int IDATestError(IDAMem IDA_mem, realtype ck,
-                        realtype *err_k, realtype *err_km1, realtype *err_km2);
-static int IDAQuadTestError(IDAMem IDA_mem, realtype ck,
-                            realtype *err_k, realtype *err_km1, realtype *err_km2);
-static int IDASensTestError(IDAMem IDA_mem, realtype ck,
-                            realtype *err_k, realtype *err_km1, realtype *err_km2);
-static int IDAQuadSensTestError(IDAMem IDA_mem, realtype ck,
-                                realtype *err_k, realtype *err_km1, realtype *err_km2);
+static int IDATestError(IDAMem IDA_mem, sunrealtype ck,
+                        sunrealtype *err_k, sunrealtype *err_km1, sunrealtype *err_km2);
+static int IDAQuadTestError(IDAMem IDA_mem, sunrealtype ck,
+                            sunrealtype *err_k, sunrealtype *err_km1, sunrealtype *err_km2);
+static int IDASensTestError(IDAMem IDA_mem, sunrealtype ck,
+                            sunrealtype *err_k, sunrealtype *err_km1, sunrealtype *err_km2);
+static int IDAQuadSensTestError(IDAMem IDA_mem, sunrealtype ck,
+                                sunrealtype *err_k, sunrealtype *err_km1, sunrealtype *err_km2);
 
 /* Handling of convergence and/or error test failures */
 
-static void IDARestore(IDAMem IDA_mem, realtype saved_t);
-static int IDAHandleNFlag(IDAMem IDA_mem, int nflag, realtype err_k, realtype err_km1,
+static void IDARestore(IDAMem IDA_mem, sunrealtype saved_t);
+static int IDAHandleNFlag(IDAMem IDA_mem, int nflag, sunrealtype err_k, sunrealtype err_km1,
                           long int *ncfnPtr, int *ncfPtr, long int *netfPtr, int *nefPtr);
 static void IDAReset(IDAMem IDA_mem);
 
 /* Function called after a successful step */
 
-static void IDACompleteStep(IDAMem IDA_mem, realtype err_k, realtype err_km1);
+static void IDACompleteStep(IDAMem IDA_mem, sunrealtype err_k, sunrealtype err_km1);
 
 /* Function called to evaluate the solutions y(t) and y'(t) at t. Also used in IDAA */
 
-int IDAGetSolution(void *ida_mem, realtype t, N_Vector yret, N_Vector ypret);
+int IDAGetSolution(void *ida_mem, sunrealtype t, N_Vector yret, N_Vector ypret);
 
 /* Stopping tests and failure handling */
 
-static int IDAStopTest1(IDAMem IDA_mem, realtype tout,realtype *tret,
+static int IDAStopTest1(IDAMem IDA_mem, sunrealtype tout,sunrealtype *tret,
                         N_Vector yret, N_Vector ypret, int itask);
-static int IDAStopTest2(IDAMem IDA_mem, realtype tout, realtype *tret,
+static int IDAStopTest2(IDAMem IDA_mem, sunrealtype tout, sunrealtype *tret,
                         N_Vector yret, N_Vector ypret, int itask);
 static int IDAHandleFailure(IDAMem IDA_mem, int sflag);
 
 /* Norm functions */
 
-static realtype IDAQuadWrmsNormUpdate(IDAMem IDA_mem, realtype old_nrm,
+static sunrealtype IDAQuadWrmsNormUpdate(IDAMem IDA_mem, sunrealtype old_nrm,
                                       N_Vector xQ, N_Vector wQ);
 
-static realtype IDAQuadSensWrmsNorm(IDAMem IDA_mem, N_Vector *xQS, N_Vector *wQS);
-static realtype IDAQuadSensWrmsNormUpdate(IDAMem IDA_mem, realtype old_nrm,
+static sunrealtype IDAQuadSensWrmsNorm(IDAMem IDA_mem, N_Vector *xQS, N_Vector *wQS);
+static sunrealtype IDAQuadSensWrmsNormUpdate(IDAMem IDA_mem, sunrealtype old_nrm,
                                           N_Vector *xQS, N_Vector *wQS);
 
 /* Functions for rootfinding */
@@ -352,21 +352,21 @@ static int IDARootfind(IDAMem IDA_mem);
 
 /* Sensitivity residual DQ function */
 
-static int IDASensRes1DQ(int Ns, realtype t,
+static int IDASensRes1DQ(int Ns, sunrealtype t,
                          N_Vector yy, N_Vector yp, N_Vector resval,
                          int iS,
                          N_Vector yyS, N_Vector ypS, N_Vector resvalS,
                          void *user_dataS,
                          N_Vector ytemp, N_Vector yptemp, N_Vector restemp);
 
-static int IDAQuadSensRhsInternalDQ(int Ns, realtype t,
+static int IDAQuadSensRhsInternalDQ(int Ns, sunrealtype t,
                                     N_Vector yy,   N_Vector yp,
                                     N_Vector *yyS, N_Vector *ypS,
                                     N_Vector rrQ,  N_Vector *resvalQS,
                                     void *ida_mem,
                                     N_Vector yytmp, N_Vector yptmp, N_Vector tmpQS);
 
-static int IDAQuadSensRhs1InternalDQ(IDAMem IDA_mem, int is, realtype t,
+static int IDAQuadSensRhs1InternalDQ(IDAMem IDA_mem, int is, sunrealtype t,
                                      N_Vector yy, N_Vector y,
                                      N_Vector yyS, N_Vector ypS,
                                      N_Vector resvalQ, N_Vector resvalQS,
@@ -559,7 +559,7 @@ void *IDACreate(SUNContext sunctx)
  */
 
 int IDAInit(void *ida_mem, IDAResFn res,
-            realtype t0, N_Vector yy0, N_Vector yp0)
+            sunrealtype t0, N_Vector yy0, N_Vector yp0)
 {
   int retval;
   IDAMem IDA_mem;
@@ -628,7 +628,7 @@ int IDAInit(void *ida_mem, IDAResFn res,
 
   /* Allocate temporary work arrays for fused vector ops */
   IDA_mem->ida_cvals = NULL;
-  IDA_mem->ida_cvals = (realtype *) malloc(MXORDP1*sizeof(realtype));
+  IDA_mem->ida_cvals = (sunrealtype *) malloc(MXORDP1*sizeof(sunrealtype));
 
   IDA_mem->ida_Xvecs = NULL;
   IDA_mem->ida_Xvecs = (N_Vector *) malloc(MXORDP1*sizeof(N_Vector));
@@ -759,7 +759,7 @@ int IDAInit(void *ida_mem, IDAResFn res,
  */
 
 int IDAReInit(void *ida_mem,
-              realtype t0, N_Vector yy0, N_Vector yp0)
+              sunrealtype t0, N_Vector yy0, N_Vector yp0)
 {
   IDAMem IDA_mem;
 
@@ -854,7 +854,7 @@ int IDAReInit(void *ida_mem,
  *   which will be called to set the error weight vector.
  */
 
-int IDASStolerances(void *ida_mem, realtype reltol, realtype abstol)
+int IDASStolerances(void *ida_mem, sunrealtype reltol, sunrealtype abstol)
 {
   IDAMem IDA_mem;
 
@@ -897,10 +897,10 @@ int IDASStolerances(void *ida_mem, realtype reltol, realtype abstol)
 }
 
 
-int IDASVtolerances(void *ida_mem, realtype reltol, N_Vector abstol)
+int IDASVtolerances(void *ida_mem, sunrealtype reltol, N_Vector abstol)
 {
   IDAMem IDA_mem;
-  realtype atolmin;
+  sunrealtype atolmin;
 
   if (ida_mem==NULL) {
     IDAProcessError(NULL, IDA_MEM_NULL, "IDAS", "IDASVtolerances", MSG_NO_MEM);
@@ -1113,7 +1113,7 @@ int IDAQuadReInit(void *ida_mem, N_Vector yQ0)
  *   absolute tolerance (a potentially different absolute tolerance
  *   for each vector component).
  */
-int IDAQuadSStolerances(void *ida_mem, realtype reltolQ, realtype abstolQ)
+int IDAQuadSStolerances(void *ida_mem, sunrealtype reltolQ, sunrealtype abstolQ)
 {
   IDAMem IDA_mem;
 
@@ -1152,10 +1152,10 @@ int IDAQuadSStolerances(void *ida_mem, realtype reltolQ, realtype abstolQ)
   return (IDA_SUCCESS);
 }
 
-int IDAQuadSVtolerances(void *ida_mem, realtype reltolQ, N_Vector abstolQ)
+int IDAQuadSVtolerances(void *ida_mem, sunrealtype reltolQ, N_Vector abstolQ)
 {
   IDAMem IDA_mem;
-  realtype atolmin;
+  sunrealtype atolmin;
 
   /*Check ida mem*/
   if (ida_mem==NULL) {
@@ -1290,7 +1290,7 @@ int IDASensInit(void *ida_mem, int Ns, int ism,
     free(IDA_mem->ida_Xvecs); IDA_mem->ida_Xvecs = NULL;
     free(IDA_mem->ida_Zvecs); IDA_mem->ida_Zvecs = NULL;
 
-    IDA_mem->ida_cvals = (realtype *) malloc((Ns*MXORDP1)*sizeof(realtype));
+    IDA_mem->ida_cvals = (sunrealtype *) malloc((Ns*MXORDP1)*sizeof(sunrealtype));
     IDA_mem->ida_Xvecs = (N_Vector *) malloc((Ns*MXORDP1)*sizeof(N_Vector));
     IDA_mem->ida_Zvecs = (N_Vector *) malloc((Ns*MXORDP1)*sizeof(N_Vector));
 
@@ -1570,7 +1570,7 @@ int IDASensReInit(void *ida_mem, int ism, N_Vector *yS0, N_Vector *ypS0)
  */
 
 
-int IDASensSStolerances(void *ida_mem, realtype reltolS, realtype *abstolS)
+int IDASensSStolerances(void *ida_mem, sunrealtype reltolS, sunrealtype *abstolS)
 {
   IDAMem IDA_mem;
   int is;
@@ -1615,7 +1615,7 @@ int IDASensSStolerances(void *ida_mem, realtype reltolS, realtype *abstolS)
 
   if ( !(IDA_mem->ida_SatolSMallocDone) ) {
     IDA_mem->ida_SatolS = NULL;
-    IDA_mem->ida_SatolS = (realtype *)malloc(IDA_mem->ida_Ns*sizeof(realtype));
+    IDA_mem->ida_SatolS = (sunrealtype *)malloc(IDA_mem->ida_Ns*sizeof(sunrealtype));
     IDA_mem->ida_atolSmin0 = (booleantype *)malloc(IDA_mem->ida_Ns*sizeof(booleantype));
     IDA_mem->ida_lrw += IDA_mem->ida_Ns;
     IDA_mem->ida_SatolSMallocDone = SUNTRUE;
@@ -1630,11 +1630,11 @@ int IDASensSStolerances(void *ida_mem, realtype reltolS, realtype *abstolS)
 }
 
 
-int IDASensSVtolerances(void *ida_mem,  realtype reltolS, N_Vector *abstolS)
+int IDASensSVtolerances(void *ida_mem,  sunrealtype reltolS, N_Vector *abstolS)
 {
   IDAMem IDA_mem;
   int is, retval;
-  realtype *atolmin;
+  sunrealtype *atolmin;
 
   /* Check ida_mem pointer */
   if (ida_mem == NULL) {
@@ -1662,7 +1662,7 @@ int IDASensSVtolerances(void *ida_mem,  realtype reltolS, N_Vector *abstolS)
     return(IDA_ILL_INPUT);
   }
 
-  atolmin = (realtype *)malloc(IDA_mem->ida_Ns*sizeof(realtype));
+  atolmin = (sunrealtype *)malloc(IDA_mem->ida_Ns*sizeof(sunrealtype));
   for (is=0; is<IDA_mem->ida_Ns; is++) {
     atolmin[is] = N_VMin(abstolS[is]);
     if (atolmin[is] < ZERO) {
@@ -1870,7 +1870,7 @@ int IDAQuadSensReInit(void *ida_mem, N_Vector *yQS0)
  *   specified through a call to one of IDAQuad**tolerances.
  */
 
-int IDAQuadSensSStolerances(void *ida_mem, realtype reltolQS, realtype *abstolQS)
+int IDAQuadSensSStolerances(void *ida_mem, sunrealtype reltolQS, sunrealtype *abstolQS)
 {
   IDAMem IDA_mem;
   int is;
@@ -1916,7 +1916,7 @@ int IDAQuadSensSStolerances(void *ida_mem, realtype reltolQS, realtype *abstolQS
   IDA_mem->ida_rtolQS = reltolQS;
 
   if ( !(IDA_mem->ida_SatolQSMallocDone) ) {
-    IDA_mem->ida_SatolQS = (realtype *)malloc(IDA_mem->ida_Ns*sizeof(realtype));
+    IDA_mem->ida_SatolQS = (sunrealtype *)malloc(IDA_mem->ida_Ns*sizeof(sunrealtype));
     IDA_mem->ida_atolQSmin0 = (booleantype *)malloc(IDA_mem->ida_Ns*sizeof(booleantype));
     IDA_mem->ida_lrw += IDA_mem->ida_Ns;
     IDA_mem->ida_SatolQSMallocDone = SUNTRUE;
@@ -1930,11 +1930,11 @@ int IDAQuadSensSStolerances(void *ida_mem, realtype reltolQS, realtype *abstolQS
   return(IDA_SUCCESS);
 }
 
-int IDAQuadSensSVtolerances(void *ida_mem, realtype reltolQS, N_Vector *abstolQS)
+int IDAQuadSensSVtolerances(void *ida_mem, sunrealtype reltolQS, N_Vector *abstolQS)
 {
   IDAMem IDA_mem;
   int is, retval;
-  realtype *atolmin;
+  sunrealtype *atolmin;
 
   if (ida_mem==NULL) {
     IDAProcessError(NULL, IDA_MEM_NULL, "IDAS", "IDAQuadSensSVtolerances", MSG_NO_MEM);
@@ -1966,7 +1966,7 @@ int IDAQuadSensSVtolerances(void *ida_mem, realtype reltolQS, N_Vector *abstolQS
     return(IDA_ILL_INPUT);
   }
 
-  atolmin = (realtype *)malloc(IDA_mem->ida_Ns*sizeof(realtype));
+  atolmin = (sunrealtype *)malloc(IDA_mem->ida_Ns*sizeof(sunrealtype));
   for (is=0; is<IDA_mem->ida_Ns; is++) {
     atolmin[is] = N_VMin(abstolQS[is]);
     if (atolmin[is] < ZERO) {
@@ -2152,7 +2152,7 @@ int IDARootInit(void *ida_mem, int nrtfn, IDARootFn g)
 
   /* Allocate necessary memory and return */
   IDA_mem->ida_glo = NULL;
-  IDA_mem->ida_glo = (realtype *) malloc(nrt*sizeof(realtype));
+  IDA_mem->ida_glo = (sunrealtype *) malloc(nrt*sizeof(sunrealtype));
   if (IDA_mem->ida_glo == NULL) {
     IDAProcessError(IDA_mem, IDA_MEM_FAIL, "IDAS", "IDARootInit", MSG_MEM_FAIL);
     SUNDIALS_MARK_FUNCTION_END(IDA_PROFILER);
@@ -2160,7 +2160,7 @@ int IDARootInit(void *ida_mem, int nrtfn, IDARootFn g)
   }
 
   IDA_mem->ida_ghi = NULL;
-  IDA_mem->ida_ghi = (realtype *) malloc(nrt*sizeof(realtype));
+  IDA_mem->ida_ghi = (sunrealtype *) malloc(nrt*sizeof(sunrealtype));
   if (IDA_mem->ida_ghi == NULL) {
     free(IDA_mem->ida_glo); IDA_mem->ida_glo = NULL;
     IDAProcessError(IDA_mem, IDA_MEM_FAIL, "IDAS", "IDARootInit", MSG_MEM_FAIL);
@@ -2169,7 +2169,7 @@ int IDARootInit(void *ida_mem, int nrtfn, IDARootFn g)
   }
 
   IDA_mem->ida_grout = NULL;
-  IDA_mem->ida_grout = (realtype *) malloc(nrt*sizeof(realtype));
+  IDA_mem->ida_grout = (sunrealtype *) malloc(nrt*sizeof(sunrealtype));
   if (IDA_mem->ida_grout == NULL) {
     free(IDA_mem->ida_glo); IDA_mem->ida_glo = NULL;
     free(IDA_mem->ida_ghi); IDA_mem->ida_ghi = NULL;
@@ -2272,12 +2272,12 @@ int IDARootInit(void *ida_mem, int nrtfn, IDARootFn g)
  * IDA_RES_FAIL
  */
 
-int IDASolve(void *ida_mem, realtype tout, realtype *tret,
+int IDASolve(void *ida_mem, sunrealtype tout, sunrealtype *tret,
              N_Vector yret, N_Vector ypret, int itask)
 {
   long int nstloc;
   int sflag, istate, ier, irfndp, ir, is;
-  realtype tdist, troundoff, ypnorm, rh, nrm;
+  sunrealtype tdist, troundoff, ypnorm, rh, nrm;
   IDAMem IDA_mem;
   booleantype inactive_roots;
 
@@ -2756,13 +2756,13 @@ int IDASolve(void *ida_mem, realtype tout, realtype *tret,
  *
  */
 
-int IDAGetDky(void *ida_mem, realtype t, int k, N_Vector dky)
+int IDAGetDky(void *ida_mem, sunrealtype t, int k, N_Vector dky)
 {
   IDAMem IDA_mem;
-  realtype tfuzz, tp, delt, psij_1;
+  sunrealtype tfuzz, tp, delt, psij_1;
   int i, j, retval;
-  realtype cjk  [MXORDP1];
-  realtype cjk_1[MXORDP1];
+  sunrealtype cjk  [MXORDP1];
+  sunrealtype cjk_1[MXORDP1];
 
   /* Check ida_mem */
   if (ida_mem == NULL) {
@@ -2870,7 +2870,7 @@ int IDAGetDky(void *ida_mem, realtype t, int k, N_Vector dky)
  * This is just a wrapper that calls IDAGetQuadDky with k=0.
  */
 
-int IDAGetQuad(void *ida_mem, realtype *ptret, N_Vector yQout)
+int IDAGetQuad(void *ida_mem, sunrealtype *ptret, N_Vector yQout)
 {
   IDAMem IDA_mem;
   int retval;
@@ -2898,13 +2898,13 @@ int IDAGetQuad(void *ida_mem, realtype *ptret, N_Vector yQout)
  * derivatives up to the current method order) at any time within
  * the last integration step (dense output).
  */
-int IDAGetQuadDky(void *ida_mem, realtype t, int k, N_Vector dkyQ)
+int IDAGetQuadDky(void *ida_mem, sunrealtype t, int k, N_Vector dkyQ)
 {
   IDAMem IDA_mem;
-  realtype tfuzz, tp, delt, psij_1;
+  sunrealtype tfuzz, tp, delt, psij_1;
   int i, j, retval;
-  realtype cjk  [MXORDP1];
-  realtype cjk_1[MXORDP1];
+  sunrealtype cjk  [MXORDP1];
+  sunrealtype cjk_1[MXORDP1];
 
   /* Check ida_mem */
   if (ida_mem == NULL) {
@@ -2995,7 +2995,7 @@ int IDAGetQuadDky(void *ida_mem, realtype t, int k, N_Vector dkyQ)
  * is=0, 1, ... ,NS-1.
  */
 
-int IDAGetSens(void *ida_mem, realtype *ptret, N_Vector *yySout)
+int IDAGetSens(void *ida_mem, sunrealtype *ptret, N_Vector *yySout)
 {
   IDAMem IDA_mem;
   int is, ierr=0;
@@ -3040,7 +3040,7 @@ int IDAGetSens(void *ida_mem, realtype *ptret, N_Vector *yySout)
  * a pointer to N_Vector and must be allocated by the user to hold at
  * least Ns vectors.
  */
-int IDAGetSensDky(void *ida_mem, realtype t, int k, N_Vector *dkySout)
+int IDAGetSensDky(void *ida_mem, sunrealtype t, int k, N_Vector *dkySout)
 {
   int is, ier=0;
   IDAMem IDA_mem;
@@ -3091,7 +3091,7 @@ int IDAGetSensDky(void *ida_mem, realtype t, int k, N_Vector *dkySout)
  * This is just a wrapper that calls IDASensDky1 with k=0.
  */
 
-int IDAGetSens1(void *ida_mem, realtype *ptret, int is, N_Vector yySret)
+int IDAGetSens1(void *ida_mem, sunrealtype *ptret, int is, N_Vector yySret)
 {
   IDAMem IDA_mem;
   int retval;
@@ -3125,13 +3125,13 @@ int IDAGetSens1(void *ida_mem, realtype *ptret, int is, N_Vector yySret)
  * function after a successful return from IDASolve with sensitivity
  * computation enabled.
  */
-int IDAGetSensDky1(void *ida_mem, realtype t, int k, int is, N_Vector dkyS)
+int IDAGetSensDky1(void *ida_mem, sunrealtype t, int k, int is, N_Vector dkyS)
 {
   IDAMem IDA_mem;
-  realtype tfuzz, tp, delt, psij_1;
+  sunrealtype tfuzz, tp, delt, psij_1;
   int i, j, retval;
-  realtype cjk  [MXORDP1];
-  realtype cjk_1[MXORDP1];
+  sunrealtype cjk  [MXORDP1];
+  sunrealtype cjk_1[MXORDP1];
 
   /* Check all inputs for legality */
   if (ida_mem == NULL) {
@@ -3232,7 +3232,7 @@ int IDAGetSensDky1(void *ida_mem, realtype t, int k, int is, N_Vector dkyS)
  * is=0, 1, ... ,NS-1.
  */
 
-int IDAGetQuadSens(void *ida_mem, realtype *ptret, N_Vector *yyQSout)
+int IDAGetQuadSens(void *ida_mem, sunrealtype *ptret, N_Vector *yyQSout)
 {
   IDAMem IDA_mem;
   int is, ierr=0;
@@ -3277,7 +3277,7 @@ int IDAGetQuadSens(void *ida_mem, realtype *ptret, N_Vector *yyQSout)
  * a pointer to N_Vector and must be allocated by the user to hold at
  * least Ns vectors.
  */
-int IDAGetQuadSensDky(void *ida_mem, realtype t, int k, N_Vector *dkyQSout)
+int IDAGetQuadSensDky(void *ida_mem, sunrealtype t, int k, N_Vector *dkyQSout)
 {
   int is, ier=0;
   IDAMem IDA_mem;
@@ -3334,7 +3334,7 @@ int IDAGetQuadSensDky(void *ida_mem, realtype t, int k, N_Vector *dkyQSout)
  * This is just a wrapper that calls IDASensDky1 with k=0.
  */
 
-int IDAGetQuadSens1(void *ida_mem, realtype *ptret, int is, N_Vector yyQSret)
+int IDAGetQuadSens1(void *ida_mem, sunrealtype *ptret, int is, N_Vector yyQSret)
 {
   IDAMem IDA_mem;
   int retval;
@@ -3386,13 +3386,13 @@ int IDAGetQuadSens1(void *ida_mem, realtype *ptret, int is, N_Vector yyQSret)
  * function after a successful return from IDASolve with sensitivity
  * computation enabled.
  */
-int IDAGetQuadSensDky1(void *ida_mem, realtype t, int k, int is, N_Vector dkyQS)
+int IDAGetQuadSensDky1(void *ida_mem, sunrealtype t, int k, int is, N_Vector dkyQS)
 {
   IDAMem IDA_mem;
-  realtype tfuzz, tp, delt, psij_1;
+  sunrealtype tfuzz, tp, delt, psij_1;
   int i, j, retval;
-  realtype cjk  [MXORDP1];
-  realtype cjk_1[MXORDP1];
+  sunrealtype cjk  [MXORDP1];
+  sunrealtype cjk_1[MXORDP1];
 
   /* Check all inputs for legality */
   if (ida_mem == NULL) {
@@ -4180,7 +4180,7 @@ static booleantype IDASensAllocVectors(IDAMem IDA_mem, N_Vector tmpl)
   /* Allocate space for pbar and plist */
 
   IDA_mem->ida_pbar = NULL;
-  IDA_mem->ida_pbar = (realtype *)malloc(IDA_mem->ida_Ns*sizeof(realtype));
+  IDA_mem->ida_pbar = (sunrealtype *)malloc(IDA_mem->ida_Ns*sizeof(sunrealtype));
   if (IDA_mem->ida_pbar == NULL) {
     N_VDestroy(IDA_mem->ida_tmpS3);
     N_VDestroyVectorArray(IDA_mem->ida_ewtS, IDA_mem->ida_Ns);
@@ -4979,11 +4979,11 @@ static int IDAQuadSensEwtSetSV(IDAMem IDA_mem, N_Vector *yQScur, N_Vector *weigh
  * the next step to reach tstop exactly.
  */
 
-static int IDAStopTest1(IDAMem IDA_mem, realtype tout, realtype *tret,
+static int IDAStopTest1(IDAMem IDA_mem, sunrealtype tout, sunrealtype *tret,
                         N_Vector yret, N_Vector ypret, int itask)
 {
   int ier;
-  realtype troundoff;
+  sunrealtype troundoff;
 
   if (IDA_mem->ida_tstopset)
   {
@@ -5081,11 +5081,11 @@ static int IDAStopTest1(IDAMem IDA_mem, realtype tout, realtype *tret,
  * because the same test was made prior to the step.
  */
 
-static int IDAStopTest2(IDAMem IDA_mem, realtype tout, realtype *tret,
+static int IDAStopTest2(IDAMem IDA_mem, sunrealtype tout, sunrealtype *tret,
                         N_Vector yret, N_Vector ypret, int itask)
 {
   /* int ier; */
-  realtype troundoff;
+  sunrealtype troundoff;
 
   if (IDA_mem->ida_tstopset)
   {
@@ -5302,8 +5302,8 @@ static int IDAHandleFailure(IDAMem IDA_mem, int sflag)
 
 static int IDAStep(IDAMem IDA_mem)
 {
-  realtype saved_t, ck;
-  realtype err_k, err_km1, err_km2;
+  sunrealtype saved_t, ck;
+  sunrealtype err_k, err_km1, err_km2;
   int ncf, nef;
   int nflag, kflag;
   int retval;
@@ -5534,10 +5534,10 @@ static int IDAStep(IDAMem IDA_mem)
  *  Also, IDACompleteStep prohibits an order increase until ns = k + 2.
  */
 
-static void IDASetCoeffs(IDAMem IDA_mem, realtype *ck)
+static void IDASetCoeffs(IDAMem IDA_mem, sunrealtype *ck)
 {
   int i, j, is;
-  realtype temp1, temp2, alpha0, alphas;
+  sunrealtype temp1, temp2, alpha0, alphas;
 
   /* Set coefficients for the current stepsize h */
 
@@ -5667,7 +5667,7 @@ static int IDANls(IDAMem IDA_mem)
 {
   int retval;
   booleantype constraintsPassed, callLSetup, sensi_sim;
-  realtype temp1, temp2, vnorm;
+  sunrealtype temp1, temp2, vnorm;
   N_Vector mm, tmp;
   long int nni_inc = 0;
   long int nnf_inc = 0;
@@ -6064,11 +6064,11 @@ static void IDAQuadSensPredict(IDAMem IDA_mem, N_Vector *yQS, N_Vector *ypQS)
  * IDATestError returns either IDA_SUCCESS or ERROR_TEST_FAIL.
  */
 
-static int IDATestError(IDAMem IDA_mem, realtype ck,
-                        realtype *err_k, realtype *err_km1, realtype *err_km2)
+static int IDATestError(IDAMem IDA_mem, sunrealtype ck,
+                        sunrealtype *err_k, sunrealtype *err_km1, sunrealtype *err_km2)
 {
-  realtype enorm_k, enorm_km1, enorm_km2;   /* error norms */
-  realtype terr_k, terr_km1, terr_km2;      /* local truncation error norms */
+  sunrealtype enorm_k, enorm_km1, enorm_km2;   /* error norms */
+  sunrealtype terr_k, terr_km1, terr_km2;      /* local truncation error norms */
 
   /* Compute error for order k. */
   enorm_k = IDAWrmsNorm(IDA_mem, IDA_mem->ida_ee, IDA_mem->ida_ewt, IDA_mem->ida_suppressalg);
@@ -6159,12 +6159,12 @@ static int IDATestError(IDAMem IDA_mem, realtype ck,
  * The return flag can be either IDA_SUCCESS or ERROR_TEST_FAIL.
  */
 
-static int IDAQuadTestError(IDAMem IDA_mem, realtype ck,
-                            realtype *err_k, realtype *err_km1, realtype *err_km2)
+static int IDAQuadTestError(IDAMem IDA_mem, sunrealtype ck,
+                            sunrealtype *err_k, sunrealtype *err_km1, sunrealtype *err_km2)
 {
-  realtype enormQ;
-  realtype errQ_k, errQ_km1, errQ_km2;
-  realtype terr_k, terr_km1, terr_km2;
+  sunrealtype enormQ;
+  sunrealtype errQ_k, errQ_km1, errQ_km2;
+  sunrealtype terr_k, terr_km1, terr_km2;
   N_Vector tempv;
   booleantype check_for_reduction = SUNFALSE;
 
@@ -6242,12 +6242,12 @@ static int IDAQuadTestError(IDAMem IDA_mem, realtype ck,
  * The return flag can be either IDA_SUCCESS or ERROR_TEST_FAIL.
  */
 
-static int IDASensTestError(IDAMem IDA_mem, realtype ck,
-                            realtype *err_k, realtype *err_km1, realtype *err_km2)
+static int IDASensTestError(IDAMem IDA_mem, sunrealtype ck,
+                            sunrealtype *err_k, sunrealtype *err_km1, sunrealtype *err_km2)
 {
-  realtype enormS;
-  realtype errS_k, errS_km1, errS_km2;
-  realtype terr_k, terr_km1, terr_km2;
+  sunrealtype enormS;
+  sunrealtype errS_k, errS_km1, errS_km2;
+  sunrealtype terr_k, terr_km1, terr_km2;
   N_Vector *tempv;
   booleantype check_for_reduction = SUNFALSE;
   int retval;
@@ -6340,12 +6340,12 @@ static int IDASensTestError(IDAMem IDA_mem, realtype ck,
  * The return flag can be either IDA_SUCCESS or ERROR_TEST_FAIL.
  */
 
-static int IDAQuadSensTestError(IDAMem IDA_mem, realtype ck,
-                                realtype *err_k, realtype *err_km1, realtype *err_km2)
+static int IDAQuadSensTestError(IDAMem IDA_mem, sunrealtype ck,
+                                sunrealtype *err_k, sunrealtype *err_km1, sunrealtype *err_km2)
 {
-  realtype enormQS;
-  realtype errQS_k, errQS_km1, errQS_km2;
-  realtype terr_k, terr_km1, terr_km2;
+  sunrealtype enormQS;
+  sunrealtype errQS_k, errQS_km1, errQS_km2;
+  sunrealtype terr_k, terr_km1, terr_km2;
   N_Vector *tempv;
   booleantype check_for_reduction = SUNFALSE;
   int retval;
@@ -6422,7 +6422,7 @@ static int IDAQuadSensTestError(IDAMem IDA_mem, realtype ck,
  * It changes back phi-star to phi (changed in IDASetCoeffs)
  */
 
-static void IDARestore(IDAMem IDA_mem, realtype saved_t)
+static void IDARestore(IDAMem IDA_mem, sunrealtype saved_t)
 {
   int i, j, is;
 
@@ -6534,10 +6534,10 @@ static void IDARestore(IDAMem IDA_mem, realtype saved_t)
  *   IDA_REP_QRHS_ERR
  */
 
-static int IDAHandleNFlag(IDAMem IDA_mem, int nflag, realtype err_k, realtype err_km1,
+static int IDAHandleNFlag(IDAMem IDA_mem, int nflag, sunrealtype err_k, sunrealtype err_km1,
                           long int *ncfnPtr, int *ncfPtr, long int *netfPtr, int *nefPtr)
 {
-  realtype err_knew;
+  sunrealtype err_knew;
 
   IDA_mem->ida_phase = 1;
 
@@ -6710,12 +6710,12 @@ static void IDAReset(IDAMem IDA_mem)
  * stepsize and order for the next step, and updates the phi array.
  */
 
-static void IDACompleteStep(IDAMem IDA_mem, realtype err_k, realtype err_km1)
+static void IDACompleteStep(IDAMem IDA_mem, sunrealtype err_k, sunrealtype err_km1)
 {
   int i, j, is, kdiff, action;
-  realtype terr_k, terr_km1, terr_kp1;
-  realtype err_knew, err_kp1;
-  realtype enorm, tmp, hnew;
+  sunrealtype terr_k, terr_km1, terr_kp1;
+  sunrealtype err_knew, err_kp1;
+  sunrealtype enorm, tmp, hnew;
   N_Vector tempvQ, *tempvS;
 
   IDA_mem->ida_nst++;
@@ -7022,10 +7022,10 @@ static void IDACompleteStep(IDAMem IDA_mem, realtype err_k, realtype err_km1)
  *   IDA_BAD_T    if t is not within the interval of the last step taken.
  */
 
-int IDAGetSolution(void *ida_mem, realtype t, N_Vector yret, N_Vector ypret)
+int IDAGetSolution(void *ida_mem, sunrealtype t, N_Vector yret, N_Vector ypret)
 {
   IDAMem IDA_mem;
-  realtype tfuzz, tp, delt, c, d, gam;
+  sunrealtype tfuzz, tp, delt, c, d, gam;
   int j, kord, retval;
 
   if (ida_mem == NULL) {
@@ -7096,10 +7096,10 @@ int IDAGetSolution(void *ida_mem, realtype t, N_Vector yret, N_Vector ypret)
  * mask = suppressalg otherwise.
  */
 
-realtype IDAWrmsNorm(IDAMem IDA_mem, N_Vector x, N_Vector w,
+sunrealtype IDAWrmsNorm(IDAMem IDA_mem, N_Vector x, N_Vector w,
                      booleantype mask)
 {
-  realtype nrm;
+  sunrealtype nrm;
 
   if (mask) nrm = N_VWrmsNormMask(x, w, IDA_mem->ida_id);
   else      nrm = N_VWrmsNorm(x, w);
@@ -7121,11 +7121,11 @@ realtype IDAWrmsNorm(IDAMem IDA_mem, N_Vector x, N_Vector w,
  * Declared global for use in the computation of IC for sensitivities.
  */
 
-realtype IDASensWrmsNorm(IDAMem IDA_mem, N_Vector *xS, N_Vector *wS,
+sunrealtype IDASensWrmsNorm(IDAMem IDA_mem, N_Vector *xS, N_Vector *wS,
                                 booleantype mask)
 {
   int is;
-  realtype nrm;
+  sunrealtype nrm;
 
   if (mask)
     (void) N_VWrmsNormMaskVectorArray(IDA_mem->ida_Ns, xS, wS,
@@ -7150,10 +7150,10 @@ realtype IDASensWrmsNorm(IDAMem IDA_mem, N_Vector *xS, N_Vector *wS,
  *   max { wrms(xQS[0],wQS[0]) ... wrms(xQS[Ns-1],wQS[Ns-1]) }
  */
 
-static realtype IDAQuadSensWrmsNorm(IDAMem IDA_mem, N_Vector *xQS, N_Vector *wQS)
+static sunrealtype IDAQuadSensWrmsNorm(IDAMem IDA_mem, N_Vector *xQS, N_Vector *wQS)
 {
   int is;
-  realtype nrm;
+  sunrealtype nrm;
 
   (void) N_VWrmsNormVectorArray(IDA_mem->ida_Ns, xQS, wQS,
                                 IDA_mem->ida_cvals);
@@ -7171,10 +7171,10 @@ static realtype IDAQuadSensWrmsNorm(IDAMem IDA_mem, N_Vector *xQS, N_Vector *wQS
  * Updates the norm old_nrm to account for all quadratures.
  */
 
-static realtype IDAQuadWrmsNormUpdate(IDAMem IDA_mem, realtype old_nrm,
+static sunrealtype IDAQuadWrmsNormUpdate(IDAMem IDA_mem, sunrealtype old_nrm,
                                       N_Vector xQ, N_Vector wQ)
 {
-  realtype qnrm;
+  sunrealtype qnrm;
 
   qnrm = N_VWrmsNorm(xQ, wQ);
   if (old_nrm > qnrm) return(old_nrm);
@@ -7190,21 +7190,21 @@ static realtype IDAQuadWrmsNormUpdate(IDAMem IDA_mem, realtype old_nrm,
  * IC for sensitivities,
  */
 
-realtype IDASensWrmsNormUpdate(IDAMem IDA_mem, realtype old_nrm,
+sunrealtype IDASensWrmsNormUpdate(IDAMem IDA_mem, sunrealtype old_nrm,
                                       N_Vector *xS, N_Vector *wS,
                                       booleantype mask)
 {
-  realtype snrm;
+  sunrealtype snrm;
 
   snrm = IDASensWrmsNorm(IDA_mem, xS, wS, mask);
   if (old_nrm > snrm) return(old_nrm);
   else                return(snrm);
 }
 
-static realtype IDAQuadSensWrmsNormUpdate(IDAMem IDA_mem, realtype old_nrm,
+static sunrealtype IDAQuadSensWrmsNormUpdate(IDAMem IDA_mem, sunrealtype old_nrm,
                                           N_Vector *xQS, N_Vector *wQS)
 {
-  realtype qsnrm;
+  sunrealtype qsnrm;
 
   qsnrm = IDAQuadSensWrmsNorm(IDA_mem, xQS, wQS);
   if (old_nrm > qsnrm) return(old_nrm);
@@ -7232,7 +7232,7 @@ static realtype IDAQuadSensWrmsNormUpdate(IDAMem IDA_mem, realtype old_nrm,
 static int IDARcheck1(IDAMem IDA_mem)
 {
   int i, retval;
-  realtype smallh, hratio, tplus;
+  sunrealtype smallh, hratio, tplus;
   booleantype zroot;
 
   for (i = 0; i < IDA_mem->ida_nrtfn; i++)
@@ -7301,7 +7301,7 @@ static int IDARcheck1(IDAMem IDA_mem)
 static int IDARcheck2(IDAMem IDA_mem)
 {
   int i, retval;
-  realtype smallh, hratio, tplus;
+  sunrealtype smallh, hratio, tplus;
   booleantype zroot;
 
   if (IDA_mem->ida_irfnd == 0) return(IDA_SUCCESS);
@@ -7496,7 +7496,7 @@ static int IDARcheck3(IDAMem IDA_mem)
 
 static int IDARootfind(IDAMem IDA_mem)
 {
-  realtype alph, tmid, gfrac, maxfrac, fracint, fracsub;
+  sunrealtype alph, tmid, gfrac, maxfrac, fracint, fracsub;
   int i, retval, imax, side, sideprev;
   booleantype zroot, sgnchg;
 
@@ -7681,7 +7681,7 @@ static int IDARootfind(IDAMem IDA_mem)
  * >0 for a recoverable error.
  */
 
-int IDASensResDQ(int Ns, realtype t,
+int IDASensResDQ(int Ns, sunrealtype t,
                  N_Vector yy, N_Vector yp, N_Vector resval,
                  N_Vector *yyS, N_Vector *ypS, N_Vector *resvalS,
                  void *user_dataS,
@@ -7710,7 +7710,7 @@ int IDASensResDQ(int Ns, realtype t,
  * (<0 if res fails unrecoverably, >0 if res has a recoverable error).
  */
 
-static int IDASensRes1DQ(int Ns, realtype t,
+static int IDASensRes1DQ(int Ns, sunrealtype t,
                          N_Vector yy, N_Vector yp, N_Vector resval,
                          int is,
                          N_Vector yyS, N_Vector ypS, N_Vector resvalS,
@@ -7721,12 +7721,12 @@ static int IDASensRes1DQ(int Ns, realtype t,
   int method;
   int which;
   int retval;
-  realtype psave, pbari;
-  realtype del , rdel;
-  realtype Delp, rDelp, r2Delp;
-  realtype Dely, rDely, r2Dely;
-  realtype Del , rDel , r2Del ;
-  realtype norms, ratio;
+  sunrealtype psave, pbari;
+  sunrealtype del , rdel;
+  sunrealtype Delp, rDelp, r2Delp;
+  sunrealtype Dely, rDely, r2Dely;
+  sunrealtype Del , rDel , r2Del ;
+  sunrealtype norms, ratio;
 
   /* user_dataS points to IDA_mem */
   IDA_mem = (IDAMem) user_dataS;
@@ -7908,7 +7908,7 @@ static int IDASensRes1DQ(int Ns, realtype t,
  * done in IDAQuadSensRhs1InternalDQ.
  */
 
-static int IDAQuadSensRhsInternalDQ(int Ns, realtype t,
+static int IDAQuadSensRhsInternalDQ(int Ns, sunrealtype t,
                                     N_Vector yy,   N_Vector yp,
                                     N_Vector *yyS, N_Vector *ypS,
                                     N_Vector rrQ,  N_Vector *resvalQS,
@@ -7932,7 +7932,7 @@ static int IDAQuadSensRhsInternalDQ(int Ns, realtype t,
   return(0);
 }
 
-static int IDAQuadSensRhs1InternalDQ(IDAMem IDA_mem, int is, realtype t,
+static int IDAQuadSensRhs1InternalDQ(IDAMem IDA_mem, int is, sunrealtype t,
                                     N_Vector yy, N_Vector yp,
                                     N_Vector yyS, N_Vector ypS,
                                     N_Vector resvalQ, N_Vector resvalQS,
@@ -7940,12 +7940,12 @@ static int IDAQuadSensRhs1InternalDQ(IDAMem IDA_mem, int is, realtype t,
 {
   int retval, method;
   int nfel = 0, which;
-  realtype psave, pbari;
-  realtype del , rdel;
-  realtype Delp;
-  realtype Dely, rDely;
-  realtype Del , r2Del ;
-  realtype norms;
+  sunrealtype psave, pbari;
+  sunrealtype del , rdel;
+  sunrealtype Delp;
+  sunrealtype Dely, rDely;
+  sunrealtype Del , r2Del ;
+  sunrealtype norms;
 
   del = SUNRsqrt(SUNMAX(IDA_mem->ida_rtol, IDA_mem->ida_uround));
   rdel = ONE/del;

@@ -44,8 +44,8 @@
 // Treat array of N_Vectors as an opaque pointer
 %apply void* { N_Vector* };
 
-// Assume realtype* is an array of doubles
-%apply double[] { realtype* };
+// Assume sunrealtype* is an array of doubles
+%apply double[] { sunrealtype* };
 
 // Assume sunindextype* is an array of long int
 %apply long int[] { sunindextype* };

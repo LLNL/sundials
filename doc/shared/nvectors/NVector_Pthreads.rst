@@ -37,7 +37,7 @@ threaded using POSIX threads (Pthreads).
    struct _N_VectorContent_Pthreads {
      sunindextype length;
      booleantype own_data;
-     realtype *data;
+     sunrealtype *data;
      int num_threads;
    };
 
@@ -176,7 +176,7 @@ user-callable routines:
    (``NULL``) data array.
 
 
-.. c:function:: N_Vector N_VMake_Pthreads(sunindextype vec_length, realtype* v_data, int num_threads, SUNContext sunctx)
+.. c:function:: N_Vector N_VMake_Pthreads(sunindextype vec_length, sunrealtype* v_data, int num_threads, SUNContext sunctx)
 
    This function creates and allocates memory for a Pthreads vector with
    user-provided data array, *v_data*.

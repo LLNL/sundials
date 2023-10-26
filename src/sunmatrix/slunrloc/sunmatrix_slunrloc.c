@@ -58,7 +58,7 @@
 
 #define SM_FSTROW_SLUNRLOC(A)        ( SM_SUPERSTORE_SLUNRLOC(A)->fst_row )
 
-#define SM_DATA_SLUNRLOC(A)          ( (realtype*)SM_SUPERSTORE_SLUNRLOC(A)->nzval )
+#define SM_DATA_SLUNRLOC(A)          ( (sunrealtype*)SM_SUPERSTORE_SLUNRLOC(A)->nzval )
 
 #define SM_COLIND_SLUNRLOC(A)        ( SM_SUPERSTORE_SLUNRLOC(A)->colind )
 
@@ -260,7 +260,7 @@ int SUNMatCopy_SLUNRloc(SUNMatrix A, SUNMatrix B)
   return(SUNMAT_SUCCESS);
 }
 
-int SUNMatScaleAdd_SLUNRloc(realtype c, SUNMatrix A, SUNMatrix B)
+int SUNMatScaleAdd_SLUNRloc(sunrealtype c, SUNMatrix A, SUNMatrix B)
 {
   /* check that B can be added into A */
   if (!SMCompatible_SLUNRloc(A, B)) return(SUNMAT_ILL_INPUT);
@@ -271,7 +271,7 @@ int SUNMatScaleAdd_SLUNRloc(realtype c, SUNMatrix A, SUNMatrix B)
   return(SUNMAT_SUCCESS);
 }
 
-int SUNMatScaleAddI_SLUNRloc(realtype c, SUNMatrix A)
+int SUNMatScaleAddI_SLUNRloc(sunrealtype c, SUNMatrix A)
 {
   /* call SuperLU-DIST ScaleAddI function */
   dScaleAddId_CompRowLoc_Matrix_dist(SM_SUPERMATRIX_SLUNRLOC(A), c);
@@ -281,7 +281,7 @@ int SUNMatScaleAddI_SLUNRloc(realtype c, SUNMatrix A)
 int SUNMatMatvec_SLUNRloc(SUNMatrix A, N_Vector x, N_Vector y)
 {
   SuperMatrix *ACS;
-  realtype *xdata, *ydata;
+  sunrealtype *xdata, *ydata;
 
   /* Extract the column-sorted A */
   ACS = SM_COLSORTED_SLUNRLOC(A);

@@ -319,10 +319,10 @@ int SUNLinSolSetup_SPBCGS(SUNLinearSolver S, SUNMatrix A)
 
 
 int SUNLinSolSolve_SPBCGS(SUNLinearSolver S, SUNMatrix A, N_Vector x,
-                          N_Vector b, realtype delta)
+                          N_Vector b, sunrealtype delta)
 {
   /* local data and shortcut variables */
-  realtype alpha, beta, omega, omega_denom, beta_num, beta_denom, r_norm, rho;
+  sunrealtype alpha, beta, omega, omega_denom, beta_num, beta_denom, r_norm, rho;
   N_Vector r_star, r, p, q, u, Ap, vtemp;
   booleantype preOnLeft, preOnRight, scale_x, scale_b, converged;
   booleantype *zeroguess;
@@ -331,11 +331,11 @@ int SUNLinSolSolve_SPBCGS(SUNLinearSolver S, SUNMatrix A, N_Vector x,
   N_Vector sx, sb;
   SUNATimesFn atimes;
   SUNPSolveFn psolve;
-  realtype *res_norm;
+  sunrealtype *res_norm;
   int *nli;
 
   /* local variables for fused vector operations */
-  realtype cv[3];
+  sunrealtype cv[3];
   N_Vector Xv[3];
 
   /* Make local shorcuts to solver variables. */
@@ -701,7 +701,7 @@ int SUNLinSolNumIters_SPBCGS(SUNLinearSolver S)
 }
 
 
-realtype SUNLinSolResNorm_SPBCGS(SUNLinearSolver S)
+sunrealtype SUNLinSolResNorm_SPBCGS(SUNLinearSolver S)
 {
   /* return the stored 'resnorm' value */
   if (S == NULL) return(-ONE);

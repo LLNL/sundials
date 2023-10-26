@@ -37,7 +37,7 @@ static int print_all_ranks;
 static int print_timing;
 
 /* helper functions */
-int csr_from_dense(SUNMatrix Ad, realtype droptol, realtype **matdata,
+int csr_from_dense(SUNMatrix Ad, sunrealtype droptol, sunrealtype **matdata,
                    sunindextype **colind, sunindextype **rowptrs);
 
 /* ----------------------------------------------------------------------------
@@ -53,13 +53,13 @@ int main(int argc, char *argv[])
   gridinfo_t grid;                          /* SuperLU-DIST process grid        */
 
   sunindextype M, N;                        /* matrix size                      */
-  realtype *matdata;                        /* pointer to matrix data           */
+  sunrealtype *matdata;                        /* pointer to matrix data           */
   sunindextype *rowptrs, *colind;           /* indexptrs and indexvals          */
   SUNMatrix D, A, I;                        /* global and local matrices        */
   SuperMatrix *Asuper, *Isuper;             /* SLU_NR_loc SuperMatrices         */
   NRformat_loc *Istore;                     /* SuperMatrix->Store               */
   N_Vector gx, gy, x, y;                    /* test vectors                     */
-  realtype *xdata, *ydata;                  /* vector data                      */
+  sunrealtype *xdata, *ydata;                  /* vector data                      */
   sunindextype M_local;                     /* num rows in local matrix         */
   sunindextype Mnprocs;                     /* M/nprocs                         */
   sunindextype Mrem;                        /* M%nprocs                         */
@@ -153,7 +153,7 @@ int main(int argc, char *argv[])
       i = rand() % N;
       j = rand() % N;
       matdata = SUNDenseMatrix_Column(D,j);
-      matdata[i] = (realtype) rand() / (realtype) RAND_MAX / N;
+      matdata[i] = (sunrealtype) rand() / (sunrealtype) RAND_MAX / N;
     }
 
     /* Add identity to matrix */
@@ -171,7 +171,7 @@ int main(int argc, char *argv[])
 
     /* fill x with random data, then find y = Dx using Matvec */
     for (i=0; i<N; i++)
-      xdata[i] = (realtype) rand() / (realtype) RAND_MAX;
+      xdata[i] = (sunrealtype) rand() / (sunrealtype) RAND_MAX;
     if (SUNMatMatvec(D, gx, gy)) {
       TEST_STATUS(">>> FAIL: SUNMatMatvec failed for dense matrix\n", grid.iam);
       SUNMatDestroy(D); N_VDestroy(gx); N_VDestroy(gy);
@@ -187,7 +187,7 @@ int main(int argc, char *argv[])
     /* distribute matrix and vectors */
     for (i=1; i<nprocs; i++) {
       sunindextype *coltemp, *rowtemp;
-      realtype *datatemp;
+      sunrealtype *datatemp;
       sunindextype fstrow_temp, M_localtemp;
 
       M_localtemp = (i == (nprocs-1)) ? M_local + Mrem : Mnprocs;
@@ -250,7 +250,7 @@ int main(int argc, char *argv[])
     MPI_Recv(&NNZ_local, 1, MPI_SUNINDEXTYPE, 0, grid.iam, grid.comm, &mpistatus);
 
     /* Allocate memory for matrix members */
-    matdata = (realtype*) malloc(NNZ_local*sizeof(realtype));
+    matdata = (sunrealtype*) malloc(NNZ_local*sizeof(sunrealtype));
     colind  = (sunindextype*) malloc(NNZ_local*sizeof(sunindextype));
     rowptrs = (sunindextype*) malloc((M_local+1)*sizeof(sunindextype));
 
@@ -306,7 +306,7 @@ int main(int argc, char *argv[])
 
     Isuper = SUNMatrix_SLUNRloc_SuperMatrix(I);
     Istore = (NRformat_loc*) Isuper->Store;
-    matdata = (realtype *) Istore->nzval;
+    matdata = (sunrealtype *) Istore->nzval;
     rowptrs = (sunindextype *) Istore->rowptr;
     colind  = (sunindextype *) Istore->colind;
 
@@ -364,13 +364,13 @@ int main(int argc, char *argv[])
 /* ----------------------------------------------------------------------
  * Check matrix
  * --------------------------------------------------------------------*/
-int check_matrix(SUNMatrix A, SUNMatrix B, realtype tol)
+int check_matrix(SUNMatrix A, SUNMatrix B, sunrealtype tol)
 {
   int failure = 0;
   gridinfo_t *grid;
   SuperMatrix *Asuper, *Bsuper;
   NRformat_loc *Astore, *Bstore;
-  realtype *Adata, *Bdata;
+  sunrealtype *Adata, *Bdata;
   sunindextype *Aindexptrs, *Bindexptrs;
   sunindextype *Aindexvals, *Bindexvals;
   sunindextype i, Arows, Brows, Annz, Bnnz;
@@ -380,7 +380,7 @@ int check_matrix(SUNMatrix A, SUNMatrix B, realtype tol)
   /* get matrix pointers */
   Asuper     = SUNMatrix_SLUNRloc_SuperMatrix(A);
   Astore     = (NRformat_loc*) Asuper->Store;
-  Adata      = (realtype*) Astore->nzval;
+  Adata      = (sunrealtype*) Astore->nzval;
   Aindexptrs = Astore->rowptr;
   Aindexvals = Astore->colind;
   Arows      = Astore->m_loc;
@@ -388,7 +388,7 @@ int check_matrix(SUNMatrix A, SUNMatrix B, realtype tol)
 
   Bsuper     = SUNMatrix_SLUNRloc_SuperMatrix(B);
   Bstore     = (NRformat_loc*) Bsuper->Store;
-  Bdata      = (realtype*) Bstore->nzval;
+  Bdata      = (sunrealtype*) Bstore->nzval;
   Bindexptrs = Bstore->rowptr;
   Bindexvals = Bstore->colind;
   Brows      = Bstore->m_loc;
@@ -457,18 +457,18 @@ int check_matrix(SUNMatrix A, SUNMatrix B, realtype tol)
   return(0);
 }
 
-int check_matrix_entry(SUNMatrix A, realtype val, realtype tol)
+int check_matrix_entry(SUNMatrix A, sunrealtype val, sunrealtype tol)
 {
   int failure = 0;
   SuperMatrix *Asuper;
   NRformat_loc *Astore;
-  realtype *Adata;
+  sunrealtype *Adata;
   sunindextype i, nnz_loc;
 
   /* get matrix pointers */
   Asuper = SUNMatrix_SLUNRloc_SuperMatrix(A);
   Astore = (NRformat_loc*) Asuper->Store;
-  Adata  = (realtype*) Astore->nzval;
+  Adata  = (sunrealtype*) Astore->nzval;
 
   /* compare data */
   nnz_loc = Astore->nnz_loc;
@@ -487,10 +487,10 @@ int check_matrix_entry(SUNMatrix A, realtype val, realtype tol)
     return(0);
 }
 
-int check_vector(N_Vector x, N_Vector y, realtype tol)
+int check_vector(N_Vector x, N_Vector y, sunrealtype tol)
 {
   int failure = 0;
-  realtype *xdata, *ydata;
+  sunrealtype *xdata, *ydata;
   sunindextype xldata, yldata;
   sunindextype i;
 
@@ -521,12 +521,12 @@ booleantype has_data(SUNMatrix A)
 {
   SuperMatrix *Asuper;
   NRformat_loc *Astore;
-  realtype *Adata;
+  sunrealtype *Adata;
 
   /* get matrix pointers */
   Asuper = SUNMatrix_SLUNRloc_SuperMatrix(A);
   Astore = (NRformat_loc*) Asuper->Store;
-  Adata  = (realtype*) Astore->nzval;
+  Adata  = (sunrealtype*) Astore->nzval;
 
   if (Adata == NULL)
     return SUNFALSE;
@@ -543,7 +543,7 @@ booleantype is_square(SUNMatrix A)
     return SUNFALSE;
 }
 
-int csr_from_dense(SUNMatrix Ad, realtype droptol, realtype **matdata,
+int csr_from_dense(SUNMatrix Ad, sunrealtype droptol, sunrealtype **matdata,
                    sunindextype **colind, sunindextype **rowptrs)
 {
   sunindextype i, j, nnz;
@@ -565,7 +565,7 @@ int csr_from_dense(SUNMatrix Ad, realtype droptol, realtype **matdata,
       nnz += (std::abs(SM_ELEMENT_D(Ad,i,j)) > droptol);
 
   /* allocate */
-  (*matdata) = (realtype*) malloc(nnz*sizeof(realtype));
+  (*matdata) = (sunrealtype*) malloc(nnz*sizeof(sunrealtype));
   (*colind)  = (sunindextype*) malloc(nnz*sizeof(sunindextype));
   (*rowptrs) = (sunindextype*) malloc((M+1)*sizeof(sunindextype));
 

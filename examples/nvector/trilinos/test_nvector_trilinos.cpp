@@ -211,7 +211,7 @@ int main (int argc, char *argv[])
 /*
  * Checks if all elements of vector X are _ans_
  */
-int check_ans(realtype ans, N_Vector X, sunindextype local_length)
+int check_ans(sunrealtype ans, N_Vector X, sunindextype local_length)
 {
   Teuchos::RCP<TpetraVectorInterface::vector_type> xv =
     N_VGetVector_Trilinos(X);
@@ -253,7 +253,7 @@ booleantype has_data(N_Vector X)
 /*
  * Sets ith element of vector X to val
  */
-void set_element(N_Vector X, sunindextype i, realtype val)
+void set_element(N_Vector X, sunindextype i, sunrealtype val)
 {
   set_element_range(X, i, i, val);
 }
@@ -262,7 +262,7 @@ void set_element(N_Vector X, sunindextype i, realtype val)
  * Sets elements [is, ie] of vector X to val
  */
 void set_element_range(N_Vector X, sunindextype is, sunindextype ie,
-                       realtype val)
+                       sunrealtype val)
 {
   typedef TpetraVectorInterface::vector_type vector_type;
 #if TRILINOS_MAJOR_VERSION < 14
@@ -294,7 +294,7 @@ void set_element_range(N_Vector X, sunindextype is, sunindextype ie,
 /*
  * Returns ith element of vector X
  */
-realtype get_element(N_Vector X, sunindextype i)
+sunrealtype get_element(N_Vector X, sunindextype i)
 {
   Teuchos::RCP<TpetraVectorInterface::vector_type> xv =
     N_VGetVector_Trilinos(X);

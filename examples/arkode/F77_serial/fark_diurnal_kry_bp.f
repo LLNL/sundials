@@ -36,7 +36,7 @@ C     The problem is solved with ARKODE, with the DIRK/GMRES method and
 C     using the FARKBP banded preconditioner.
 C
 C     Note that this problem should only work with SUNDIALS configured
-C     to use 'realtype' as 'double' and 'sunindextype' as '64bit'
+C     to use 'sunrealtype' as 'double' and 'sunindextype' as '64bit'
 C     
 C     The second and third dimensions of U here must match the values of
 C     MX and MY, for consistency with the output statements below.

@@ -33,7 +33,7 @@
 /* Private function prototypes */
 static booleantype SMCompatible_Band(SUNMatrix A, SUNMatrix B);
 static booleantype SMCompatible2_Band(SUNMatrix A, N_Vector x, N_Vector y);
-static int SMScaleAddNew_Band(realtype c, SUNMatrix A, SUNMatrix B);
+static int SMScaleAddNew_Band(sunrealtype c, SUNMatrix A, SUNMatrix B);
 
 
 /*
@@ -104,10 +104,10 @@ SUNMatrix SUNBandMatrixStorage(sunindextype N, sunindextype mu,
   content->cols  = NULL;
 
   /* Allocate content */
-  content->data = (realtype *) calloc(N * colSize, sizeof(realtype));
+  content->data = (sunrealtype *) calloc(N * colSize, sizeof(sunrealtype));
   if (content->data == NULL) { SUNMatDestroy(A); return(NULL); }
 
-  content->cols = (realtype **) malloc(N * sizeof(realtype *));
+  content->cols = (sunrealtype **) malloc(N * sizeof(sunrealtype *));
   if (content->cols == NULL) { SUNMatDestroy(A); return(NULL); }
   for (j=0; j<N; j++) content->cols[j] = content->data + j * colSize;
 
@@ -209,7 +209,7 @@ sunindextype SUNBandMatrix_LData(SUNMatrix A)
     return SUNMAT_ILL_INPUT;
 }
 
-realtype* SUNBandMatrix_Data(SUNMatrix A)
+sunrealtype* SUNBandMatrix_Data(SUNMatrix A)
 {
   if (SUNMatGetID(A) == SUNMATRIX_BAND)
     return SM_DATA_B(A);
@@ -217,7 +217,7 @@ realtype* SUNBandMatrix_Data(SUNMatrix A)
     return NULL;
 }
 
-realtype** SUNBandMatrix_Cols(SUNMatrix A)
+sunrealtype** SUNBandMatrix_Cols(SUNMatrix A)
 {
   if (SUNMatGetID(A) == SUNMATRIX_BAND)
     return SM_COLS_B(A);
@@ -225,7 +225,7 @@ realtype** SUNBandMatrix_Cols(SUNMatrix A)
     return NULL;
 }
 
-realtype* SUNBandMatrix_Column(SUNMatrix A, sunindextype j)
+sunrealtype* SUNBandMatrix_Column(SUNMatrix A, sunindextype j)
 {
   if (SUNMatGetID(A) == SUNMATRIX_BAND)
     return SM_COLUMN_B(A,j);
@@ -282,7 +282,7 @@ void SUNMatDestroy_Band(SUNMatrix A)
 int SUNMatZero_Band(SUNMatrix A)
 {
   sunindextype i;
-  realtype *Adata;
+  sunrealtype *Adata;
 
   /* Verify that A is a band matrix */
   if (SUNMatGetID(A) != SUNMATRIX_BAND)
@@ -298,7 +298,7 @@ int SUNMatZero_Band(SUNMatrix A)
 int SUNMatCopy_Band(SUNMatrix A, SUNMatrix B)
 {
   sunindextype i, j, colSize, ml, mu, smu;
-  realtype *A_colj, *B_colj;
+  sunrealtype *A_colj, *B_colj;
 
   /* Verify that A and B have compatible dimensions */
   if (!SMCompatible_Band(A, B))
@@ -316,8 +316,8 @@ int SUNMatCopy_Band(SUNMatrix A, SUNMatrix B)
     SM_CONTENT_B(B)->s_mu = smu;
     SM_CONTENT_B(B)->ldim = colSize;
     SM_CONTENT_B(B)->ldata = SM_COLUMNS_B(B) * colSize;
-    SM_CONTENT_B(B)->data = (realtype *)
-      realloc(SM_CONTENT_B(B)->data, SM_COLUMNS_B(B) * colSize*sizeof(realtype));
+    SM_CONTENT_B(B)->data = (sunrealtype *)
+      realloc(SM_CONTENT_B(B)->data, SM_COLUMNS_B(B) * colSize*sizeof(sunrealtype));
     for (j=0; j<SM_COLUMNS_B(B); j++)
       SM_CONTENT_B(B)->cols[j] = SM_CONTENT_B(B)->data + j * colSize;
   }
@@ -334,10 +334,10 @@ int SUNMatCopy_Band(SUNMatrix A, SUNMatrix B)
   return SUNMAT_SUCCESS;
 }
 
-int SUNMatScaleAddI_Band(realtype c, SUNMatrix A)
+int SUNMatScaleAddI_Band(sunrealtype c, SUNMatrix A)
 {
   sunindextype i, j;
-  realtype *A_colj;
+  sunrealtype *A_colj;
 
   /* Verify that A is a band matrix */
   if (SUNMatGetID(A) != SUNMATRIX_BAND)
@@ -353,10 +353,10 @@ int SUNMatScaleAddI_Band(realtype c, SUNMatrix A)
   return SUNMAT_SUCCESS;
 }
 
-int SUNMatScaleAdd_Band(realtype c, SUNMatrix A, SUNMatrix B)
+int SUNMatScaleAdd_Band(sunrealtype c, SUNMatrix A, SUNMatrix B)
 {
   sunindextype i, j;
-  realtype *A_colj, *B_colj;
+  sunrealtype *A_colj, *B_colj;
 
   /* Verify that A and B are compatible */
   if (!SMCompatible_Band(A, B))
@@ -381,7 +381,7 @@ int SUNMatScaleAdd_Band(realtype c, SUNMatrix A, SUNMatrix B)
 int SUNMatMatvec_Band(SUNMatrix A, N_Vector x, N_Vector y)
 {
   sunindextype i, j, is, ie;
-  realtype *col_j, *xd, *yd;
+  sunrealtype *col_j, *xd, *yd;
 
   /* Verify that A, x and y are compatible */
   if (!SMCompatible2_Band(A, x, y))
@@ -458,10 +458,10 @@ static booleantype SMCompatible2_Band(SUNMatrix A, N_Vector x, N_Vector y)
 }
 
 
-int SMScaleAddNew_Band(realtype c, SUNMatrix A, SUNMatrix B)
+int SMScaleAddNew_Band(sunrealtype c, SUNMatrix A, SUNMatrix B)
 {
   sunindextype i, j, ml, mu, smu;
-  realtype *A_colj, *B_colj, *C_colj;
+  sunrealtype *A_colj, *B_colj, *C_colj;
   SUNMatrix C;
 
   /* create new matrix large enough to hold both A and B */
