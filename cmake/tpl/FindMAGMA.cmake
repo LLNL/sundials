@@ -66,30 +66,33 @@ if(MAGMA_LIBRARY AND MAGMA_INCLUDE_DIR)
     list(SUBLIST _libraries_list 1 -1 _libraries_list) # remove 'Libs:' part
 
     set(_interface_libraires )
+
+    if(SUNDIALS_MAGMA_BACKENDS MATCHES "HIP")
+      if(NOT TARGET roc::hipblas)
+        find_package(hipblas REQUIRED)
+      endif()
+      if(NOT TARGET roc::hipsparse)
+        find_package(hipsparse REQUIRED)
+      endif()
+      # MAGMA does not reliably include these in the pkgconfig file
+      list(APPEND _interface_libraires "roc::hipblas;roc::hipsparse")
+    endif()
+
+    if(SUNDIALS_MAGMA_BACKENDS MATCHES "CUDA")
+      if (NOT TARGET CUDA::cudart)
+        find_package(CUDAToolkit REQUIRED)
+      endif() 
+    endif()
+
     foreach(lib ${_libraries_list})
       if(NOT (lib STREQUAL "-lmagma" OR lib STREQUAL "-lmagma_sparse"
             OR lib STREQUAL "-L\${libdir}" OR lib STREQUAL "") )
-
-        # Check if we need to find roc::hipblas or roc::hipsparse
-        if(SUNDIALS_MAGMA_BACKENDS MATCHES "HIP")
-          if(NOT TARGET roc::hipblas)
-            find_package(hipblas REQUIRED)
-          endif()
-          if(NOT TARGET roc::hipsparse)
-            find_package(hipsparse REQUIRED)
-          endif()
-          # MAGMA does not reliably include these in the pkgconfig file
-          set(lib "roc::hipblas;roc::hipsparse")
-        endif()
         
         # Check if we need to find cusparse or cublas
         if(SUNDIALS_MAGMA_BACKENDS MATCHES "CUDA")
-          if (NOT TARGET CUDA::cudart)
-            find_package(CUDAToolkit REQUIRED)
-          endif() 
-          # Ignore cublas, cusparse because the library path in the magma pkgconfig is not reliable.
-          # Sepcifically, the path is wrong on systems like Perlmutter where the NVIDIA HPC SDK is used.
-          # We just link to these in the relevant sundials targets  using the CMake CUDA targets instead.
+          # Replace cublas, cusparse with the CMake targets because the library path in
+          # the magma pkgconfig is not reliable. Sepcifically, the path is wrong on systems
+          # like Perlmutter where the NVIDIA HPC SDK is used.
           if(lib STREQUAL "-lcublas")
             set(lib CUDA::cublas)
           endif()
@@ -99,7 +102,6 @@ if(MAGMA_LIBRARY AND MAGMA_INCLUDE_DIR)
         endif()
         
         list(APPEND _interface_libraires ${lib})
-
       endif()
     endforeach()
 
