@@ -23,7 +23,7 @@
 #include <sundials/sundials_nvector.h>
 #include <sundials/sundials_nvector_senswrapper.h>
 
-#define ZERO RCONST(0.0)
+#define ZERO SUN_RCONST(0.0)
 
 /*==============================================================================
   Constructors

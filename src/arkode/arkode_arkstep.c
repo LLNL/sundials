@@ -2083,7 +2083,7 @@ int arkStep_CheckButcherTables(ARKodeMem ark_mem)
   int i, j;
   booleantype okay;
   ARKodeARKStepMem step_mem;
-  const sunrealtype tol = RCONST(100.0) * UNIT_ROUNDOFF;
+  const sunrealtype tol = SUN_RCONST(100.0) * SUN_UNIT_ROUNDOFF;
 
   /* access ARKodeARKStepMem structure */
   if (ark_mem->step_mem==NULL) {
@@ -2711,7 +2711,7 @@ int arkStep_ComputeSolutions_MassFixed(ARKodeMem ark_mem, sunrealtype *dsmPtr)
   /* solve for y update (stored in y) */
   retval = step_mem->msolve((void *) ark_mem, y, step_mem->nlscoef);
   if (retval < 0) {
-    *dsmPtr = RCONST(2.0);   /* indicate too much error, step with smaller step */
+    *dsmPtr = SUN_RCONST(2.0);   /* indicate too much error, step with smaller step */
     N_VScale(ONE, ark_mem->yn, y);      /* place old solution into y */
     return(CONV_FAIL);
   }
@@ -2746,7 +2746,7 @@ int arkStep_ComputeSolutions_MassFixed(ARKodeMem ark_mem, sunrealtype *dsmPtr)
     /* solve for yerr */
     retval = step_mem->msolve((void *) ark_mem, yerr, step_mem->nlscoef);
     if (retval < 0) {
-      *dsmPtr = RCONST(2.0);  /* next attempt will reduce step by 'etacf';
+      *dsmPtr = SUN_RCONST(2.0);  /* next attempt will reduce step by 'etacf';
                                  insert dsmPtr placeholder here */
       return(CONV_FAIL);
     }

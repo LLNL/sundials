@@ -50,8 +50,8 @@ int cvDiagSolve_updateM(const sunrealtype r, N_Vector M);
 
 /* Other Constants */
 
-#define FRACT RCONST(0.1)
-#define ONE   RCONST(1.0)
+#define FRACT SUN_RCONST(0.1)
+#define ONE   SUN_RCONST(1.0)
 
 /* CVDIAG linit, lsetup, lsolve, and lfree routines */
 

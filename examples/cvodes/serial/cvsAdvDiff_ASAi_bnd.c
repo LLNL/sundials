@@ -60,23 +60,23 @@
 
 /* Problem Constants */
 
-#define XMAX  RCONST(2.0)   /* domain boundaries             */
-#define YMAX  RCONST(1.0)
+#define XMAX  SUN_RCONST(2.0)   /* domain boundaries             */
+#define YMAX  SUN_RCONST(1.0)
 #define MX    40            /* mesh dimensions               */
 #define MY    20
 #define NEQ   MX*MY         /* number of equations           */
-#define ATOL  RCONST(1.e-5)
-#define RTOLB RCONST(1.e-6)
-#define T0    RCONST(0.0)   /* initial time                  */
-#define T1    RCONST(0.1)   /* first output time             */
-#define DTOUT RCONST(0.1)   /* output time increment         */
+#define ATOL  SUN_RCONST(1.e-5)
+#define RTOLB SUN_RCONST(1.e-6)
+#define T0    SUN_RCONST(0.0)   /* initial time                  */
+#define T1    SUN_RCONST(0.1)   /* first output time             */
+#define DTOUT SUN_RCONST(0.1)   /* output time increment         */
 #define NOUT  10            /* number of output times        */
-#define TOUT  RCONST(1.0)   /* final time                    */
+#define TOUT  SUN_RCONST(1.0)   /* final time                    */
 #define NSTEP 50            /* check point saved every NSTEP */
 
-#define ZERO  RCONST(0.0)
-#define ONE   RCONST(1.0)
-#define TWO   RCONST(2.0)
+#define ZERO  SUN_RCONST(0.0)
+#define ONE   SUN_RCONST(1.0)
+#define TWO   SUN_RCONST(2.0)
 
 /* User-defined vector access macro IJth */
 
@@ -155,7 +155,7 @@ int main(int argc, char *argv[])
   dx = data->dx = XMAX/(MX+1);
   dy = data->dy = YMAX/(MY+1);
   data->hdcoef = ONE/(dx*dx);
-  data->hacoef = RCONST(1.5)/(TWO*dx);
+  data->hacoef = SUN_RCONST(1.5)/(TWO*dx);
   data->vdcoef = ONE/(dy*dy);
 
   /* Set the tolerances for the forward integration */
@@ -498,7 +498,7 @@ static void SetIC(N_Vector u, UserData data)
     y = j*dy;
     for (i=1; i <= MX; i++) {
       x = i*dx;
-      IJth(udata,i,j) = x*(XMAX - x)*y*(YMAX - y)*SUNRexp(RCONST(5.0)*x*y);
+      IJth(udata,i,j) = x*(XMAX - x)*y*(YMAX - y)*SUNRexp(SUN_RCONST(5.0)*x*y);
     }
   }
 

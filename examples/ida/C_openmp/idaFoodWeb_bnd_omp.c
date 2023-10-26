@@ -125,30 +125,30 @@
 #define NPREY       1              /* No. of prey (= no. of predators). */
 #define NUM_SPECIES 2*NPREY
 
-#define PI          RCONST(3.1415926535898)
-#define FOURPI      (RCONST(4.0)*PI)
+#define PI          SUN_RCONST(3.1415926535898)
+#define FOURPI      (SUN_RCONST(4.0)*PI)
 
 #define MX          20             /* MX = number of x mesh points      */
 #define MY          20             /* MY = number of y mesh points      */
 #define NSMX        (NUM_SPECIES * MX)
 #define NEQ         (NUM_SPECIES*MX*MY)
-#define AA          RCONST(1.0)    /* Coefficient in above eqns. for a  */
-#define EE          RCONST(10000.) /* Coefficient in above eqns. for a  */
-#define GG          RCONST(0.5e-6) /* Coefficient in above eqns. for a  */
-#define BB          RCONST(1.0)    /* Coefficient in above eqns. for b  */
-#define DPREY       RCONST(1.0)    /* Coefficient in above eqns. for d  */
-#define DPRED       RCONST(0.05)   /* Coefficient in above eqns. for d  */
-#define ALPHA       RCONST(50.)    /* Coefficient alpha in above eqns.  */
-#define BETA        RCONST(1000.)  /* Coefficient beta in above eqns.   */
-#define AX          RCONST(1.0)    /* Total range of x variable         */
-#define AY          RCONST(1.0)    /* Total range of y variable         */
-#define RTOL        RCONST(1.e-5)  /* Relative tolerance                */
-#define ATOL        RCONST(1.e-5)  /* Absolute tolerance                */
+#define AA          SUN_RCONST(1.0)    /* Coefficient in above eqns. for a  */
+#define EE          SUN_RCONST(10000.) /* Coefficient in above eqns. for a  */
+#define GG          SUN_RCONST(0.5e-6) /* Coefficient in above eqns. for a  */
+#define BB          SUN_RCONST(1.0)    /* Coefficient in above eqns. for b  */
+#define DPREY       SUN_RCONST(1.0)    /* Coefficient in above eqns. for d  */
+#define DPRED       SUN_RCONST(0.05)   /* Coefficient in above eqns. for d  */
+#define ALPHA       SUN_RCONST(50.)    /* Coefficient alpha in above eqns.  */
+#define BETA        SUN_RCONST(1000.)  /* Coefficient beta in above eqns.   */
+#define AX          SUN_RCONST(1.0)    /* Total range of x variable         */
+#define AY          SUN_RCONST(1.0)    /* Total range of y variable         */
+#define RTOL        SUN_RCONST(1.e-5)  /* Relative tolerance                */
+#define ATOL        SUN_RCONST(1.e-5)  /* Absolute tolerance                */
 #define NOUT        6              /* Number of output times            */
-#define TMULT       RCONST(10.0)   /* Multiplier for tout values        */
-#define TADD        RCONST(0.3)    /* Increment for tout values         */
-#define ZERO        RCONST(0.)
-#define ONE         RCONST(1.0)
+#define TMULT       SUN_RCONST(10.0)   /* Multiplier for tout values        */
+#define TADD        SUN_RCONST(0.3)    /* Increment for tout values         */
+#define ZERO        SUN_RCONST(0.)
+#define ONE         SUN_RCONST(1.0)
 
 /*
  * User-defined vector and accessor macro: IJ_Vptr.
@@ -283,7 +283,7 @@ int main(int argc, char *argv[])
 
   /* Call IDACalcIC (with default options) to correct the initial values. */
 
-  tout = RCONST(0.001);
+  tout = SUN_RCONST(0.001);
   retval = IDACalcIC(ida_mem, IDA_YA_YDP_INIT, tout);
   if(check_retval(&retval, "IDACalcIC", 1)) return(1);
 
@@ -466,17 +466,17 @@ static void SetInitialProfiles(N_Vector cc, N_Vector cp, N_Vector id,
     yloc = NSMX * jy;
     for (jx = 0; jx < MX; jx++) {
       xx = jx * webdata->dx;
-      xyfactor = RCONST(16.0)*xx*(ONE-xx)*yy*(ONE-yy);
+      xyfactor = SUN_RCONST(16.0)*xx*(ONE-xx)*yy*(ONE-yy);
       xyfactor *= xyfactor;
       loc = yloc + NUM_SPECIES*jx;
 
       for (is = 0; is < NUM_SPECIES; is++) {
         if (is < np) {
-          ccv[loc+is] = RCONST(10.0) + (sunrealtype)(is+1) * xyfactor;
+          ccv[loc+is] = SUN_RCONST(10.0) + (sunrealtype)(is+1) * xyfactor;
           idv[loc+is] = ONE;
         }
         else {
-	  ccv[loc+is] = RCONST(1.0e5);
+	  ccv[loc+is] = SUN_RCONST(1.0e5);
           idv[loc+is] = ZERO;
         }
       }

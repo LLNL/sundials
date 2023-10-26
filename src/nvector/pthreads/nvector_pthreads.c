@@ -28,10 +28,10 @@
 #include <sundials/sundials_math.h>
 #include <math.h> /* define NAN */
 
-#define ZERO   RCONST(0.0)
-#define HALF   RCONST(0.5)
-#define ONE    RCONST(1.0)
-#define ONEPT5 RCONST(1.5)
+#define ZERO   SUN_RCONST(0.0)
+#define HALF   SUN_RCONST(0.5)
+#define ONE    SUN_RCONST(1.0)
+#define ONEPT5 SUN_RCONST(1.5)
 
 /* Private functions for special cases of vector operations */
 static void VCopy_Pthreads(N_Vector x, N_Vector z);                              /* z=x       */
@@ -2230,7 +2230,7 @@ sunrealtype N_VMinQuotient_Pthreads(N_Vector num, N_Vector denom)
   Pthreads_Data   *thread_data;
   pthread_attr_t  attr;
   pthread_mutex_t global_mutex;
-  sunrealtype        min = BIG_REAL;
+  sunrealtype        min = SUN_BIG_REAL;
 
   /* allocate threads and thread data structs */
   N           = NV_LENGTH_PT(num);
@@ -2302,7 +2302,7 @@ static void *N_VMinQuotient_PT(void *thread_data)
   end   = my_data->end;
 
   /* compute minimum quotient */
-  local_min = BIG_REAL;
+  local_min = SUN_BIG_REAL;
   for (i = start; i < end; i++) {
     if (dd[i] == ZERO)
       continue;

@@ -223,7 +223,7 @@ MRIStepCoupling MRIStepCoupling_MIStoMRI(ARKodeButcherTable B,
   MRISTEP_METHOD_TYPE type;
   MRIStepCoupling MRIC;
 
-  const sunrealtype tol = RCONST(100.0) * UNIT_ROUNDOFF;
+  const sunrealtype tol = SUN_RCONST(100.0) * SUN_UNIT_ROUNDOFF;
 
   /* Check that input table is non-NULL */
   if (!B) return(NULL);
@@ -544,7 +544,7 @@ int mriStepCoupling_GetStageType(MRIStepCoupling MRIC, int is)
 {
   int i;
   sunrealtype Gabs, cdiff;
-  const sunrealtype tol = RCONST(100.0) * UNIT_ROUNDOFF;
+  const sunrealtype tol = SUN_RCONST(100.0) * SUN_UNIT_ROUNDOFF;
 
   if ((is < 1) || (is >= MRIC->stages)) return ARK_INVALID_TABLE;
 
@@ -586,7 +586,7 @@ int mriStepCoupling_GetStageMap(MRIStepCoupling MRIC,
 {
   int i, j, k, idx;
   sunrealtype Wsum, Gsum;
-  const sunrealtype tol = RCONST(100.0) * UNIT_ROUNDOFF;
+  const sunrealtype tol = SUN_RCONST(100.0) * SUN_UNIT_ROUNDOFF;
 
   /* ----------------------
    * Check for valid inputs

@@ -38,8 +38,8 @@ extern "C" {
               tolerance on the linear iteration
   -----------------------------------------------------------------*/
 #define CVLS_MSBJ   51
-#define CVLS_DGMAX  RCONST(0.2)
-#define CVLS_EPLIN  RCONST(0.05)
+#define CVLS_DGMAX  SUN_RCONST(0.2)
+#define CVLS_EPLIN  SUN_RCONST(0.05)
 
 
 /*=================================================================

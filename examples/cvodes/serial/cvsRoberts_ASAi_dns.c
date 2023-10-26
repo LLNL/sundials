@@ -71,27 +71,27 @@
 
 #define NEQ      3             /* number of equations                  */
 
-#define RTOL     RCONST(1e-6)  /* scalar relative tolerance            */
+#define RTOL     SUN_RCONST(1e-6)  /* scalar relative tolerance            */
 
-#define ATOL1    RCONST(1e-8)  /* vector absolute tolerance components */
-#define ATOL2    RCONST(1e-14)
-#define ATOL3    RCONST(1e-6)
+#define ATOL1    SUN_RCONST(1e-8)  /* vector absolute tolerance components */
+#define ATOL2    SUN_RCONST(1e-14)
+#define ATOL3    SUN_RCONST(1e-6)
 
-#define ATOLl    RCONST(1e-8)  /* absolute tolerance for adjoint vars. */
-#define ATOLq    RCONST(1e-6)  /* absolute tolerance for quadratures   */
+#define ATOLl    SUN_RCONST(1e-8)  /* absolute tolerance for adjoint vars. */
+#define ATOLq    SUN_RCONST(1e-6)  /* absolute tolerance for quadratures   */
 
-#define T0       RCONST(0.0)   /* initial time                         */
-#define TOUT     RCONST(4e7)   /* final time                           */
+#define T0       SUN_RCONST(0.0)   /* initial time                         */
+#define TOUT     SUN_RCONST(4e7)   /* final time                           */
 
-#define TB1      RCONST(4e7)   /* starting point for adjoint problem   */
-#define TB2      RCONST(50.0)  /* starting point for adjoint problem   */
-#define TBout1   RCONST(40.0)  /* intermediate t for adjoint problem   */
+#define TB1      SUN_RCONST(4e7)   /* starting point for adjoint problem   */
+#define TB2      SUN_RCONST(50.0)  /* starting point for adjoint problem   */
+#define TBout1   SUN_RCONST(40.0)  /* intermediate t for adjoint problem   */
 
 #define STEPS    150           /* number of steps between check points */
 
 #define NP       3             /* number of problem parameters         */
 
-#define ZERO     RCONST(0.0)
+#define ZERO     SUN_RCONST(0.0)
 
 
 /* Type : UserData */
@@ -174,9 +174,9 @@ int main(int argc, char *argv[])
   /* User data structure */
   data = (UserData) malloc(sizeof *data);
   if (check_retval((void *)data, "malloc", 2)) return(1);
-  data->p[0] = RCONST(0.04);
-  data->p[1] = RCONST(1.0e4);
-  data->p[2] = RCONST(3.0e7);
+  data->p[0] = SUN_RCONST(0.04);
+  data->p[1] = SUN_RCONST(1.0e4);
+  data->p[2] = SUN_RCONST(3.0e7);
 
   /* Create the SUNDIALS simulation context that all SUNDIALS objects require */
   retval = SUNContext_Create(NULL, &sunctx);
@@ -185,7 +185,7 @@ int main(int argc, char *argv[])
   /* Initialize y */
   y = N_VNew_Serial(NEQ, sunctx);
   if (check_retval((void *)y, "N_VNew_Serial", 0)) return(1);
-  Ith(y,1) = RCONST(1.0);
+  Ith(y,1) = SUN_RCONST(1.0);
   Ith(y,2) = ZERO;
   Ith(y,3) = ZERO;
 
@@ -645,8 +645,8 @@ static int fB(sunrealtype t, N_Vector y, N_Vector yB, N_Vector yBdot, void *user
 
   /* Load yBdot */
   Ith(yBdot,1) = - p1*l21;
-  Ith(yBdot,2) = p2*y3*l21 - RCONST(2.0)*p3*y2*l32;
-  Ith(yBdot,3) = p2*y2*l21 - RCONST(1.0);
+  Ith(yBdot,2) = p2*y3*l21 - SUN_RCONST(2.0)*p3*y2*l32;
+  Ith(yBdot,3) = p2*y2*l21 - SUN_RCONST(1.0);
 
   return(0);
 }
@@ -672,7 +672,7 @@ static int JacB(sunrealtype t, N_Vector y, N_Vector yB, N_Vector fyB, SUNMatrix 
 
   /* Load JB */
   IJth(JB,1,1) = p1;     IJth(JB,1,2) = -p1;             IJth(JB,1,3) = ZERO;
-  IJth(JB,2,1) = -p2*y3; IJth(JB,2,2) = p2*y3+2.0*p3*y2; IJth(JB,2,3) = RCONST(-2.0)*p3*y2;
+  IJth(JB,2,1) = -p2*y3; IJth(JB,2,2) = p2*y3+2.0*p3*y2; IJth(JB,2,3) = SUN_RCONST(-2.0)*p3*y2;
   IJth(JB,3,1) = -p2*y2; IJth(JB,3,2) = p2*y2;           IJth(JB,3,3) = ZERO;
 
   return(0);

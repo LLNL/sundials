@@ -27,8 +27,8 @@
 #include <sundials/sundials_nvector.h>
 #include <sundials/sundials_math.h>
 
-#define ZERO RCONST(0.0)
-#define ONE  RCONST(1.0)
+#define ZERO SUN_RCONST(0.0)
+#define ONE  SUN_RCONST(1.0)
 
 /* Private function prototypes */
 static booleantype SMCompatible_Sparse(SUNMatrix A, SUNMatrix B);
@@ -900,7 +900,7 @@ int SUNMatScaleAdd_Sparse(sunrealtype c, SUNMatrix A, SUNMatrix B)
       /* clear out temporary arrays for this column (row) */
       for (i=0; i<M; i++) {
         w[i] = 0;
-        x[i] = RCONST(0.0);
+        x[i] = SUN_RCONST(0.0);
       }
 
       /* iterate down column (row) of A, collecting nonzeros */
@@ -960,7 +960,7 @@ int SUNMatScaleAdd_Sparse(sunrealtype c, SUNMatrix A, SUNMatrix B)
       /* clear out temporary arrays for this column (row) */
       for (i=0; i<M; i++) {
         w[i] = 0;
-        x[i] = RCONST(0.0);
+        x[i] = SUN_RCONST(0.0);
       }
 
       /* iterate down column of A, collecting nonzeros */

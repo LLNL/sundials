@@ -53,8 +53,8 @@ extern "C" {
 #define MSBSET_DEFAULT     10
 #define MSBSET_SUB_DEFAULT 5
 
-#define OMEGA_MIN RCONST(0.00001)
-#define OMEGA_MAX RCONST(0.9)
+#define OMEGA_MIN SUN_RCONST(0.00001)
+#define OMEGA_MAX SUN_RCONST(0.9)
 
 /*=================================================================*/
 /* Shortcuts                                                       */

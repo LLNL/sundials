@@ -67,9 +67,9 @@ static int check_flag(void *flagvalue, const char *funcname, int opt);
 int main()
 {
   /* general problem parameters */
-  sunrealtype T0 = RCONST(0.0);     /* initial time */
-  sunrealtype T1 = RCONST(0.4);     /* first output time */
-  sunrealtype TMult = RCONST(10.0); /* output time multiplication factor */
+  sunrealtype T0 = SUN_RCONST(0.0);     /* initial time */
+  sunrealtype T1 = SUN_RCONST(0.4);     /* first output time */
+  sunrealtype TMult = SUN_RCONST(10.0); /* output time multiplication factor */
   int Nt = 12;                   /* total number of output times */
   sunindextype NEQ = 3;              /* number of dependent vars. */
  
@@ -90,10 +90,10 @@ int main()
   long int nst, nst_a, nfe, nfi, nsetups, nje, nfeLS, nni, nnf, ncfn, netf, nge;
 
   /* set up the initial conditions */
-  sunrealtype u0 = RCONST(1.0);
-  sunrealtype v0 = RCONST(0.0);
-  sunrealtype w0 = RCONST(0.0);
-  sunrealtype reltol = RCONST(1.0e-4);
+  sunrealtype u0 = SUN_RCONST(1.0);
+  sunrealtype v0 = SUN_RCONST(0.0);
+  sunrealtype w0 = SUN_RCONST(0.0);
+  sunrealtype reltol = SUN_RCONST(1.0e-4);
 
   /* Create the SUNDIALS context object for this simulation */
   SUNContext ctx;
@@ -115,9 +115,9 @@ int main()
   if (check_flag((void *) atols, "N_VNew_Serial", 0)) return 1;
 
   /* Set absolute tolerances */
-  NV_Ith_S(atols,0) = RCONST(1.0e-8);
-  NV_Ith_S(atols,1) = RCONST(1.0e-11);
-  NV_Ith_S(atols,2) = RCONST(1.0e-8);
+  NV_Ith_S(atols,0) = SUN_RCONST(1.0e-8);
+  NV_Ith_S(atols,1) = SUN_RCONST(1.0e-11);
+  NV_Ith_S(atols,2) = SUN_RCONST(1.0e-8);
 
   /* Call ARKStepCreate to initialize the ARK timestepper module and
      specify the right-hand side function in y'=f(t,y), the inital time
@@ -131,7 +131,7 @@ int main()
   if (check_flag(&flag, "ARKStepSetMaxErrTestFails", 1)) return 1;
   flag = ARKStepSetMaxNonlinIters(arkode_mem, 8);             /* Increase max nonlin iters  */
   if (check_flag(&flag, "ARKStepSetMaxNonlinIters", 1)) return 1;
-  flag = ARKStepSetNonlinConvCoef(arkode_mem, RCONST(1.e-7)); /* Set nonlinear convergence coeff. */
+  flag = ARKStepSetNonlinConvCoef(arkode_mem, SUN_RCONST(1.e-7)); /* Set nonlinear convergence coeff. */
   if (check_flag(&flag, "ARKStepSetNonlinConvCoef", 1)) return 1;
   flag = ARKStepSetMaxNumSteps(arkode_mem, 100000);           /* Increase max num steps */
   if (check_flag(&flag, "ARKStepSetMaxNumSteps", 1)) return 1;
@@ -294,8 +294,8 @@ static int g(sunrealtype t, N_Vector y, sunrealtype *gout, void *user_data)
   sunrealtype u = NV_Ith_S(y,0);    /* access current solution */
   sunrealtype w = NV_Ith_S(y,2);
 
-  gout[0] = u - RCONST(0.0001);  /* check for u == 1e-4 */
-  gout[1] = w - RCONST(0.01);    /* check for w == 1e-2 */
+  gout[0] = u - SUN_RCONST(0.0001);  /* check for u == 1e-4 */
+  gout[1] = w - SUN_RCONST(0.01);    /* check for w == 1e-2 */
 
   return 0;                      /* Return with success */
 }

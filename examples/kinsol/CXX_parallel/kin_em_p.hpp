@@ -31,15 +31,15 @@
 #include "mpi.h"                       // MPI header file
 
 // Macros for problem constants
-#define PI      RCONST(3.141592653589793238462643383279502884197169)
-#define ZERO    RCONST(0.0)
-#define ONE     RCONST(1.0)
-#define HALF    RCONST(0.5)
-#define PTTHREE RCONST(0.3)
-#define PTFOUR  RCONST(0.4)
-#define TWO     RCONST(2.0)
-#define FIVE    RCONST(5.0)
-#define TEN     RCONST(10.0)
+#define PI      SUN_RCONST(3.141592653589793238462643383279502884197169)
+#define ZERO    SUN_RCONST(0.0)
+#define ONE     SUN_RCONST(1.0)
+#define HALF    SUN_RCONST(0.5)
+#define PTTHREE SUN_RCONST(0.3)
+#define PTFOUR  SUN_RCONST(0.4)
+#define TWO     SUN_RCONST(2.0)
+#define FIVE    SUN_RCONST(5.0)
+#define TEN     SUN_RCONST(10.0)
 
 // Maximum size of output directory string
 #define MXSTR 2048

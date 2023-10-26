@@ -44,12 +44,12 @@
 #define NVAR  8              /* variables */
 #define NEQ   3*NVAR         /* equations + bounds */
 
-#define FTOL   RCONST(1.e-5) /* function tolerance */
-#define STOL   RCONST(1.e-5) /* step tolerance */
+#define FTOL   SUN_RCONST(1.e-5) /* function tolerance */
+#define STOL   SUN_RCONST(1.e-5) /* step tolerance */
 
-#define ZERO  RCONST(0.0)
-#define ONE   RCONST(1.0)
-#define TWO   RCONST(2.0)
+#define ZERO  SUN_RCONST(0.0)
+#define ONE   SUN_RCONST(1.0)
+#define TWO   SUN_RCONST(2.0)
 
 #define Ith(v,i)    NV_Ith_S(v,i-1)
 

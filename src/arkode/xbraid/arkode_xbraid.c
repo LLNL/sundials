@@ -21,7 +21,7 @@
 #include "arkode_xbraid_impl.h"
 #include "arkode_arkstep_impl.h"
 
-#define ONE RCONST(1.0)
+#define ONE SUN_RCONST(1.0)
 
 
 /* -------------------------------

@@ -20,8 +20,8 @@
 #include <math.h>
 
 /* define constatnts */
-#define ZERO RCONST(0.0)
-#define ONE  RCONST(1.0)
+#define ZERO SUN_RCONST(0.0)
+#define ONE  SUN_RCONST(1.0)
 
 #ifdef __cplusplus /* wrapper to enable C++ usage */
 extern "C" {

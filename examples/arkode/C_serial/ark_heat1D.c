@@ -73,8 +73,8 @@ static int check_flag(void *flagvalue, const char *funcname, int opt);
 int main() {
 
   /* general problem parameters */
-  sunrealtype T0 = RCONST(0.0);   /* initial time */
-  sunrealtype Tf = RCONST(1.0);   /* final time */
+  sunrealtype T0 = SUN_RCONST(0.0);   /* initial time */
+  sunrealtype Tf = SUN_RCONST(1.0);   /* final time */
   int Nt = 10;                 /* total number of output times */
   sunrealtype rtol = 1.e-6;       /* relative tolerance */
   sunrealtype atol = 1.e-10;      /* absolute tolerance */
@@ -103,7 +103,7 @@ int main() {
   udata = (UserData) malloc(sizeof(*udata));
   udata->N = N;
   udata->k = k;
-  udata->dx = RCONST(1.0)/(N-1);     /* mesh spacing */
+  udata->dx = SUN_RCONST(1.0)/(N-1);     /* mesh spacing */
 
   /* Initial problem output */
   printf("\n1D Heat PDE test problem:\n");
@@ -253,7 +253,7 @@ static int f(sunrealtype t, N_Vector y, N_Vector ydot, void *user_data)
 
   /* iterate over domain, computing all equations */
   c1 = k/dx/dx;
-  c2 = -RCONST(2.0)*k/dx/dx;
+  c2 = -SUN_RCONST(2.0)*k/dx/dx;
   isource = N/2;
   Ydot[0] = 0.0;                 /* left boundary condition */
   for (i=1; i<N-1; i++)
@@ -284,7 +284,7 @@ static int Jac(N_Vector v, N_Vector Jv, sunrealtype t, N_Vector y,
 
   /* iterate over domain, computing all Jacobian-vector products */
   c1 = k/dx/dx;
-  c2 = -RCONST(2.0)*k/dx/dx;
+  c2 = -SUN_RCONST(2.0)*k/dx/dx;
   JV[0] = 0.0;
   for (i=1; i<N-1; i++)
     JV[i] = c1*V[i-1] + c2*V[i] + c1*V[i+1];

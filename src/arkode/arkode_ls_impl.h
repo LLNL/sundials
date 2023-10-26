@@ -35,7 +35,7 @@ extern "C" {
                a tolerance on the linear iteration
   ---------------------------------------------------------------*/
 #define ARKLS_MSBJ   51
-#define ARKLS_EPLIN  RCONST(0.05)
+#define ARKLS_EPLIN  SUN_RCONST(0.05)
 
 
 /*---------------------------------------------------------------

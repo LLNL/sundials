@@ -71,9 +71,9 @@
 #endif
 
 /* sunrealtype constant macros */
-#define ZERO RCONST(0.0)
-#define ONE  RCONST(1.0)
-#define TWO  RCONST(2.0)
+#define ZERO SUN_RCONST(0.0)
+#define ONE  SUN_RCONST(1.0)
+#define TWO  SUN_RCONST(2.0)
 
 /* user data structure */
 typedef struct {
@@ -101,20 +101,20 @@ int main()
 {
   /* general problem parameters */
   sunrealtype T0 = ZERO;                /* initial time */
-  sunrealtype Tf = RCONST(10.0);        /* final time */
+  sunrealtype Tf = SUN_RCONST(10.0);        /* final time */
   int Nt = 100;                      /* total number of output times */
   int Nvar = 3;                      /* number of solution fields */
   UserData userdata = NULL;
   sunrealtype *udata, *vdata, *wdata;
   sunindextype N = 201;              /* spatial mesh size */
-  sunrealtype a = RCONST(0.6);          /* problem parameters */
-  sunrealtype b = RCONST(2.0);
-  sunrealtype du = RCONST(0.001);
-  sunrealtype dv = RCONST(0.001);
-  sunrealtype dw = RCONST(0.001);
-  sunrealtype ep = RCONST(1.0e-5);      /* stiffness parameter */
-  sunrealtype reltol = RCONST(1.0e-6);  /* tolerances */
-  sunrealtype abstol = RCONST(1.0e-10);
+  sunrealtype a = SUN_RCONST(0.6);          /* problem parameters */
+  sunrealtype b = SUN_RCONST(2.0);
+  sunrealtype du = SUN_RCONST(0.001);
+  sunrealtype dv = SUN_RCONST(0.001);
+  sunrealtype dw = SUN_RCONST(0.001);
+  sunrealtype ep = SUN_RCONST(1.0e-5);      /* stiffness parameter */
+  sunrealtype reltol = SUN_RCONST(1.0e-6);  /* tolerances */
+  sunrealtype abstol = SUN_RCONST(1.0e-10);
   sunindextype i;
 
   /* general problem variables */
@@ -180,11 +180,11 @@ int main()
   if (check_flag((void *)wdata, "N_VGetArrayPointer", 0)) return 1;
 
   /* Set initial conditions into y */
-  pi = RCONST(4.0)*atan(ONE);
+  pi = SUN_RCONST(4.0)*atan(ONE);
   for (i=0; i<N; i++) {
-    udata[i] =  a  + RCONST(0.1)*sin(pi*i*userdata->dx);  /* u */
-    vdata[i] = b/a + RCONST(0.1)*sin(pi*i*userdata->dx);  /* v */
-    wdata[i] =  b  + RCONST(0.1)*sin(pi*i*userdata->dx);  /* w */
+    udata[i] =  a  + SUN_RCONST(0.1)*sin(pi*i*userdata->dx);  /* u */
+    vdata[i] = b/a + SUN_RCONST(0.1)*sin(pi*i*userdata->dx);  /* v */
+    wdata[i] =  b  + SUN_RCONST(0.1)*sin(pi*i*userdata->dx);  /* w */
   }
 
   /* Call ARKStepCreate to initialize the ARK timestepper module and
@@ -353,7 +353,7 @@ static int fe(sunrealtype t, N_Vector y, N_Vector ydot, void *user_data)
   f_w = N_VGetArrayPointer(N_VGetSubvector_ManyVector(ydot, 2));
   if (check_flag((void *) f_w, "N_VGetArrayPointer", 0)) return 1;
 
-  N_VConst(RCONST(0.0), ydot);              /* initialize ydot to zero */
+  N_VConst(SUN_RCONST(0.0), ydot);              /* initialize ydot to zero */
 
   /* iterate over domain, computing all equations */
   uconst = du/dx/dx;

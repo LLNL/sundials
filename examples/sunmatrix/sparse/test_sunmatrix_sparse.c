@@ -104,15 +104,15 @@ int main(int argc, char *argv[])
   B = SUNDenseMatrix(5,6, sunctx);
 
   matdata = SUNDenseMatrix_Data(B);
-  matdata[2]  = RCONST(1.0);    /* [ 0 2 0 0 7 0 ] */
-  matdata[5]  = RCONST(2.0);    /* [ 0 0 4 0 8 0 ] */
-  matdata[9]  = RCONST(3.0);    /* [ 1 0 0 0 0 0 ] */
-  matdata[11] = RCONST(4.0);    /* [ 0 0 5 6 0 0 ] */
-  matdata[13] = RCONST(5.0);    /* [ 0 3 0 0 0 9 ] */
-  matdata[18] = RCONST(6.0);
-  matdata[20] = RCONST(7.0);
-  matdata[21] = RCONST(8.0);
-  matdata[29] = RCONST(9.0);
+  matdata[2]  = SUN_RCONST(1.0);    /* [ 0 2 0 0 7 0 ] */
+  matdata[5]  = SUN_RCONST(2.0);    /* [ 0 0 4 0 8 0 ] */
+  matdata[9]  = SUN_RCONST(3.0);    /* [ 1 0 0 0 0 0 ] */
+  matdata[11] = SUN_RCONST(4.0);    /* [ 0 0 5 6 0 0 ] */
+  matdata[13] = SUN_RCONST(5.0);    /* [ 0 3 0 0 0 9 ] */
+  matdata[18] = SUN_RCONST(6.0);
+  matdata[20] = SUN_RCONST(7.0);
+  matdata[21] = SUN_RCONST(8.0);
+  matdata[29] = SUN_RCONST(9.0);
 
   if (mattype == CSR_MAT) {
 
@@ -122,19 +122,19 @@ int main(int argc, char *argv[])
     colindices = SUNSparseMatrix_IndexValues(C);
     matdata = SUNSparseMatrix_Data(C);
     rowptrs[0] = 0;
-    matdata[0] = RCONST(2.0);   colindices[0] = 1;
-    matdata[1] = RCONST(7.0);   colindices[1] = 4;
+    matdata[0] = SUN_RCONST(2.0);   colindices[0] = 1;
+    matdata[1] = SUN_RCONST(7.0);   colindices[1] = 4;
     rowptrs[1] = 2;
-    matdata[2] = RCONST(4.0);   colindices[2] = 2;
-    matdata[3] = RCONST(8.0);   colindices[3] = 4;
+    matdata[2] = SUN_RCONST(4.0);   colindices[2] = 2;
+    matdata[3] = SUN_RCONST(8.0);   colindices[3] = 4;
     rowptrs[2] = 4;
-    matdata[4] = RCONST(1.0);   colindices[4] = 0;
+    matdata[4] = SUN_RCONST(1.0);   colindices[4] = 0;
     rowptrs[3] = 5;
-    matdata[5] = RCONST(5.0);   colindices[5] = 2;
-    matdata[6] = RCONST(6.0);   colindices[6] = 3;
+    matdata[5] = SUN_RCONST(5.0);   colindices[5] = 2;
+    matdata[6] = SUN_RCONST(6.0);   colindices[6] = 3;
     rowptrs[4] = 7;
-    matdata[7] = RCONST(3.0);   colindices[7] = 1;
-    matdata[8] = RCONST(9.0);   colindices[8] = 5;
+    matdata[7] = SUN_RCONST(3.0);   colindices[7] = 1;
+    matdata[8] = SUN_RCONST(9.0);   colindices[8] = 5;
     rowptrs[5] = 9;
 
     A = SUNSparseFromDenseMatrix(B, ZERO, CSR_MAT);
@@ -156,20 +156,20 @@ int main(int argc, char *argv[])
     rowindices = SUNSparseMatrix_IndexValues(D);
     matdata = SUNSparseMatrix_Data(D);
     colptrs[0] = 0;
-    matdata[0] = RCONST(1.0);   rowindices[0] = 2;
+    matdata[0] = SUN_RCONST(1.0);   rowindices[0] = 2;
     colptrs[1] = 1;
-    matdata[1] = RCONST(2.0);   rowindices[1] = 0;
-    matdata[2] = RCONST(3.0);   rowindices[2] = 4;
+    matdata[1] = SUN_RCONST(2.0);   rowindices[1] = 0;
+    matdata[2] = SUN_RCONST(3.0);   rowindices[2] = 4;
     colptrs[2] = 3;
-    matdata[3] = RCONST(4.0);   rowindices[3] = 1;
-    matdata[4] = RCONST(5.0);   rowindices[4] = 3;
+    matdata[3] = SUN_RCONST(4.0);   rowindices[3] = 1;
+    matdata[4] = SUN_RCONST(5.0);   rowindices[4] = 3;
     colptrs[3] = 5;
-    matdata[5] = RCONST(6.0);   rowindices[5] = 3;
+    matdata[5] = SUN_RCONST(6.0);   rowindices[5] = 3;
     colptrs[4] = 6;
-    matdata[6] = RCONST(7.0);   rowindices[6] = 0;
-    matdata[7] = RCONST(8.0);   rowindices[7] = 1;
+    matdata[6] = SUN_RCONST(7.0);   rowindices[6] = 0;
+    matdata[7] = SUN_RCONST(8.0);   rowindices[7] = 1;
     colptrs[5] = 8;
-    matdata[8] = RCONST(9.0);   rowindices[8] = 4;
+    matdata[8] = SUN_RCONST(9.0);   rowindices[8] = 4;
     colptrs[6] = 9;
 
     A = SUNSparseFromDenseMatrix(B, 1e-15, CSC_MAT);
@@ -208,33 +208,33 @@ int main(int argc, char *argv[])
     colindices = SUNSparseMatrix_IndexValues(C);
     matdata = SUNSparseMatrix_Data(C);
     rowptrs[ 0] = 0;
-    matdata[ 0] = RCONST(2.0);   colindices[ 0] = 1;
+    matdata[ 0] = SUN_RCONST(2.0);   colindices[ 0] = 1;
     rowptrs[ 1] = 1;
-    matdata[ 1] = RCONST(-1.0);  colindices[ 1] = 0;
-    matdata[ 2] = RCONST(1.0);   colindices[ 2] = 1;
-    matdata[ 3] = RCONST(3.0);   colindices[ 3] = 2;
+    matdata[ 1] = SUN_RCONST(-1.0);  colindices[ 1] = 0;
+    matdata[ 2] = SUN_RCONST(1.0);   colindices[ 2] = 1;
+    matdata[ 3] = SUN_RCONST(3.0);   colindices[ 3] = 2;
     rowptrs[ 2] = 4;
-    matdata[ 4] = RCONST(-2.0);  colindices[ 4] = 0;
-    matdata[ 5] = RCONST(2.0);   colindices[ 5] = 2;
-    matdata[ 6] = RCONST(4.0);   colindices[ 6] = 3;
+    matdata[ 4] = SUN_RCONST(-2.0);  colindices[ 4] = 0;
+    matdata[ 5] = SUN_RCONST(2.0);   colindices[ 5] = 2;
+    matdata[ 6] = SUN_RCONST(4.0);   colindices[ 6] = 3;
     rowptrs[ 3] = 7;
-    matdata[ 7] = RCONST(-1.0);  colindices[ 7] = 1;
-    matdata[ 8] = RCONST(1.0);   colindices[ 8] = 2;
-    matdata[ 9] = RCONST(3.0);   colindices[ 9] = 3;
-    matdata[10] = RCONST(5.0);   colindices[10] = 4;
+    matdata[ 7] = SUN_RCONST(-1.0);  colindices[ 7] = 1;
+    matdata[ 8] = SUN_RCONST(1.0);   colindices[ 8] = 2;
+    matdata[ 9] = SUN_RCONST(3.0);   colindices[ 9] = 3;
+    matdata[10] = SUN_RCONST(5.0);   colindices[10] = 4;
     rowptrs[ 4] = 11;
-    matdata[11] = RCONST(2.0);   colindices[11] = 3;
-    matdata[12] = RCONST(4.0);   colindices[12] = 4;
-    matdata[13] = RCONST(6.0);   colindices[13] = 5;
+    matdata[11] = SUN_RCONST(2.0);   colindices[11] = 3;
+    matdata[12] = SUN_RCONST(4.0);   colindices[12] = 4;
+    matdata[13] = SUN_RCONST(6.0);   colindices[13] = 5;
     rowptrs[ 5] = 14;
-    matdata[14] = RCONST(1.0);   colindices[14] = 3;
-    matdata[15] = RCONST(3.0);   colindices[15] = 4;
-    matdata[16] = RCONST(5.0);   colindices[16] = 5;
-    matdata[17] = RCONST(7.0);   colindices[17] = 6;
+    matdata[14] = SUN_RCONST(1.0);   colindices[14] = 3;
+    matdata[15] = SUN_RCONST(3.0);   colindices[15] = 4;
+    matdata[16] = SUN_RCONST(5.0);   colindices[16] = 5;
+    matdata[17] = SUN_RCONST(7.0);   colindices[17] = 6;
     rowptrs[ 6] = 18;
-    matdata[18] = RCONST(2.0);   colindices[18] = 4;
-    matdata[19] = RCONST(4.0);   colindices[19] = 5;
-    matdata[20] = RCONST(6.0);   colindices[20] = 6;
+    matdata[18] = SUN_RCONST(2.0);   colindices[18] = 4;
+    matdata[19] = SUN_RCONST(4.0);   colindices[19] = 5;
+    matdata[20] = SUN_RCONST(6.0);   colindices[20] = 6;
     rowptrs[ 7] = 21;
 
     A = SUNSparseFromBandMatrix(B, ZERO, CSR_MAT);
@@ -256,33 +256,33 @@ int main(int argc, char *argv[])
     rowindices = SUNSparseMatrix_IndexValues(D);
     matdata = SUNSparseMatrix_Data(D);
     colptrs[ 0] = 0;
-    matdata[ 0] = RCONST(-1.0);  rowindices[ 0] = 1;
-    matdata[ 1] = RCONST(-2.0);  rowindices[ 1] = 2;
+    matdata[ 0] = SUN_RCONST(-1.0);  rowindices[ 0] = 1;
+    matdata[ 1] = SUN_RCONST(-2.0);  rowindices[ 1] = 2;
     colptrs[ 1] = 2;
-    matdata[ 2] = RCONST(2.0);   rowindices[ 2] = 0;
-    matdata[ 3] = RCONST(1.0);   rowindices[ 3] = 1;
-    matdata[ 4] = RCONST(-1.0);  rowindices[ 4] = 3;
+    matdata[ 2] = SUN_RCONST(2.0);   rowindices[ 2] = 0;
+    matdata[ 3] = SUN_RCONST(1.0);   rowindices[ 3] = 1;
+    matdata[ 4] = SUN_RCONST(-1.0);  rowindices[ 4] = 3;
     colptrs[ 2] = 5;
-    matdata[ 5] = RCONST(3.0);   rowindices[ 5] = 1;
-    matdata[ 6] = RCONST(2.0);   rowindices[ 6] = 2;
-    matdata[ 7] = RCONST(1.0);   rowindices[ 7] = 3;
+    matdata[ 5] = SUN_RCONST(3.0);   rowindices[ 5] = 1;
+    matdata[ 6] = SUN_RCONST(2.0);   rowindices[ 6] = 2;
+    matdata[ 7] = SUN_RCONST(1.0);   rowindices[ 7] = 3;
     colptrs[ 3] = 8;
-    matdata[ 8] = RCONST(4.0);   rowindices[ 8] = 2;
-    matdata[ 9] = RCONST(3.0);   rowindices[ 9] = 3;
-    matdata[10] = RCONST(2.0);   rowindices[10] = 4;
-    matdata[11] = RCONST(1.0);   rowindices[11] = 5;
+    matdata[ 8] = SUN_RCONST(4.0);   rowindices[ 8] = 2;
+    matdata[ 9] = SUN_RCONST(3.0);   rowindices[ 9] = 3;
+    matdata[10] = SUN_RCONST(2.0);   rowindices[10] = 4;
+    matdata[11] = SUN_RCONST(1.0);   rowindices[11] = 5;
     colptrs[ 4] = 12;
-    matdata[12] = RCONST(5.0);   rowindices[12] = 3;
-    matdata[13] = RCONST(4.0);   rowindices[13] = 4;
-    matdata[14] = RCONST(3.0);   rowindices[14] = 5;
-    matdata[15] = RCONST(2.0);   rowindices[15] = 6;
+    matdata[12] = SUN_RCONST(5.0);   rowindices[12] = 3;
+    matdata[13] = SUN_RCONST(4.0);   rowindices[13] = 4;
+    matdata[14] = SUN_RCONST(3.0);   rowindices[14] = 5;
+    matdata[15] = SUN_RCONST(2.0);   rowindices[15] = 6;
     colptrs[ 5] = 16;
-    matdata[16] = RCONST(6.0);   rowindices[16] = 4;
-    matdata[17] = RCONST(5.0);   rowindices[17] = 5;
-    matdata[18] = RCONST(4.0);   rowindices[18] = 6;
+    matdata[16] = SUN_RCONST(6.0);   rowindices[16] = 4;
+    matdata[17] = SUN_RCONST(5.0);   rowindices[17] = 5;
+    matdata[18] = SUN_RCONST(4.0);   rowindices[18] = 6;
     colptrs[ 6] = 19;
-    matdata[19] = RCONST(7.0);   rowindices[19] = 5;
-    matdata[20] = RCONST(6.0);   rowindices[20] = 6;
+    matdata[19] = SUN_RCONST(7.0);   rowindices[19] = 5;
+    matdata[20] = SUN_RCONST(6.0);   rowindices[20] = 6;
     colptrs[ 7] = 21;
 
     A = SUNSparseFromBandMatrix(B, 1e-15, CSC_MAT);
@@ -428,7 +428,7 @@ int Test_SUNMatScaleAdd2(SUNMatrix A, SUNMatrix B, N_Vector x,
   int       failure;
   SUNMatrix C, D, E;
   N_Vector  u, v;
-  sunrealtype  tol=100*UNIT_ROUNDOFF;
+  sunrealtype  tol=100*SUN_UNIT_ROUNDOFF;
 
   /* create clones for test */
   C = SUNMatClone(A);
@@ -601,7 +601,7 @@ int Test_SUNMatScaleAddI2(SUNMatrix A, N_Vector x, N_Vector y)
   int       failure;
   SUNMatrix B, C, D;
   N_Vector  w, z;
-  sunrealtype  tol=200*UNIT_ROUNDOFF;
+  sunrealtype  tol=200*SUN_UNIT_ROUNDOFF;
 
   /* create clones for test */
   B = SUNMatClone(A);
@@ -743,7 +743,7 @@ int Test_SUNSparseMatrixToCSR(SUNMatrix A)
 {
   int       failure;
   SUNMatrix csc, csr;
-  sunrealtype  tol=200*UNIT_ROUNDOFF;
+  sunrealtype  tol=200*SUN_UNIT_ROUNDOFF;
 
   failure = SUNSparseMatrix_ToCSR(A, &csr);
 
@@ -779,7 +779,7 @@ int Test_SUNSparseMatrixToCSC(SUNMatrix A)
 {
   int       failure;
   SUNMatrix csc=NULL, csr=NULL;
-  sunrealtype  tol=200*UNIT_ROUNDOFF;
+  sunrealtype  tol=200*SUN_UNIT_ROUNDOFF;
 
   failure = SUNSparseMatrix_ToCSC(A, &csc);
 

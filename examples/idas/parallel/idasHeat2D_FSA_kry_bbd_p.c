@@ -57,9 +57,9 @@
 
 #include <mpi.h>
 
-#define ZERO  RCONST(0.0)
-#define ONE   RCONST(1.0)
-#define TWO   RCONST(2.0)
+#define ZERO  SUN_RCONST(0.0)
+#define ONE   SUN_RCONST(1.0)
+#define TWO   SUN_RCONST(2.0)
 
 #define NOUT         11             /* Number of output times */
 
@@ -211,12 +211,12 @@ int main(int argc, char *argv[])
   SetInitialProfile(uu, up, id, res, data);
   N_VConst(ONE, constraints);
 
-  t0 = ZERO; t1 = RCONST(0.01);
+  t0 = ZERO; t1 = SUN_RCONST(0.01);
 
   /* Scalar relative and absolute tolerance. */
 
   rtol = ZERO;
-  atol = RCONST(1.0e-3);
+  atol = SUN_RCONST(1.0e-3);
 
   /* Call IDACreate and IDAInit to initialize solution and various
      IDASet*** functions to specify optional inputs:
@@ -753,7 +753,7 @@ static int SetInitialProfile(N_Vector uu, N_Vector up,  N_Vector id,
     for (i = ixbegin, iloc = 0; i <= ixend; i++, iloc++) {
       xfact = data->dx * i;
       loc = offset + iloc;
-      udata[loc] = RCONST(16.0) * xfact * (ONE - xfact) * yfact * (ONE - yfact);
+      udata[loc] = SUN_RCONST(16.0) * xfact * (ONE - xfact) * yfact * (ONE - yfact);
       if (i == 0 || i == MX-1 || j == 0 || j == MY-1) iddata[loc] = ZERO;
     }
   }

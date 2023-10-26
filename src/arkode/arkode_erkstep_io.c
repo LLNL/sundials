@@ -267,13 +267,13 @@ int ERKStepSetDefaults(void* arkode_mem)
      (overwrite some adaptivity params for ERKStep use) */
   step_mem->q = Q_DEFAULT;                     /* method order */
   step_mem->p = 0;                             /* embedding order */
-  ark_mem->hadapt_mem->etamxf  = RCONST(0.3);  /* max change on error-failed step */
+  ark_mem->hadapt_mem->etamxf  = SUN_RCONST(0.3);  /* max change on error-failed step */
   ark_mem->hadapt_mem->imethod = ARK_ADAPT_PI; /* PI controller */
-  ark_mem->hadapt_mem->safety  = RCONST(0.99); /* step adaptivity safety factor  */
-  ark_mem->hadapt_mem->bias    = RCONST(1.2);  /* step adaptivity error bias */
-  ark_mem->hadapt_mem->growth  = RCONST(25.0); /* step adaptivity growth factor */
-  ark_mem->hadapt_mem->k1      = RCONST(0.8);  /* step adaptivity parameter */
-  ark_mem->hadapt_mem->k2      = RCONST(0.31); /* step adaptivity parameter */
+  ark_mem->hadapt_mem->safety  = SUN_RCONST(0.99); /* step adaptivity safety factor  */
+  ark_mem->hadapt_mem->bias    = SUN_RCONST(1.2);  /* step adaptivity error bias */
+  ark_mem->hadapt_mem->growth  = SUN_RCONST(25.0); /* step adaptivity growth factor */
+  ark_mem->hadapt_mem->k1      = SUN_RCONST(0.8);  /* step adaptivity parameter */
+  ark_mem->hadapt_mem->k2      = SUN_RCONST(0.31); /* step adaptivity parameter */
   step_mem->stages = 0;                        /* no stages */
   step_mem->B = NULL;                          /* no Butcher table */
   return(ARK_SUCCESS);

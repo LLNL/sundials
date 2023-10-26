@@ -484,7 +484,7 @@ int Test_N_VGetLength(N_Vector W, int myid)
   Wlength = N_VGetLength(W);
 
   /* use N_VConst and N_VDotProd to compute length */
-  N_VConst(RCONST(1.0), W);
+  N_VConst(SUN_RCONST(1.0), W);
   Wlength2 = (sunindextype) N_VDotProd(W, W);
   sync_device(W);
 
@@ -2118,12 +2118,12 @@ int Test_N_VMinQuotient(N_Vector NUM, N_Vector DENOM,
   sync_device(NUM);
   stop_time = get_time();
 
-  /* ans should equal BIG_REAL */
-  failure = SUNRCompare(ans, BIG_REAL);
+  /* ans should equal SUN_BIG_REAL */
+  failure = SUNRCompare(ans, SUN_BIG_REAL);
 
   if (failure) {
     printf(">>> FAILED test -- N_VMinQuotient Case 2, Proc %d \n", myid);
-    printf("    min = %" FSYM ", expected %" FSYM "\n", ans, BIG_REAL);
+    printf("    min = %" FSYM ", expected %" FSYM "\n", ans, SUN_BIG_REAL);
     fails++;
   } else if (myid == 0) {
     printf("PASSED test -- N_VMinQuotient Case 2 \n");
@@ -4837,7 +4837,7 @@ int Test_N_VDotProdLocal(N_Vector X, N_Vector Y, sunindextype local_length, int 
   stop_time = get_time();
 
   /* ans should equal rmyid */
-  failure = SUNRCompareTol(ans, rmyid, SUNRsqrt(UNIT_ROUNDOFF));
+  failure = SUNRCompareTol(ans, rmyid, SUNRsqrt(SUN_UNIT_ROUNDOFF));
 
   if (failure) {
     printf(">>> FAILED test -- N_VDotProdLocal, Proc %d\n", myid);
@@ -4875,7 +4875,7 @@ int Test_N_VMaxNormLocal(N_Vector X, sunindextype local_length, int myid)
   stop_time = get_time();
 
   /* ans should equal myidp1 */
-  failure = (ans < ZERO) ? 1 : SUNRCompareTol(ans, myidp1, SUNRsqrt(UNIT_ROUNDOFF));
+  failure = (ans < ZERO) ? 1 : SUNRCompareTol(ans, myidp1, SUNRsqrt(SUN_UNIT_ROUNDOFF));
 
   if (failure) {
     printf(">>> FAILED test -- N_VMaxNormLocal, Proc %d\n", myid);
@@ -4912,7 +4912,7 @@ int Test_N_VMinLocal(N_Vector X, sunindextype local_length, int myid)
   stop_time = get_time();
 
   /* ans should equal negmyid */
-  failure = SUNRCompareTol(ans, negmyid, SUNRsqrt(UNIT_ROUNDOFF));
+  failure = SUNRCompareTol(ans, negmyid, SUNRsqrt(SUN_UNIT_ROUNDOFF));
 
   if (failure) {
     printf(">>> FAILED test -- N_VMinLocal, Proc %d\n", myid);
@@ -4949,7 +4949,7 @@ int Test_N_VL1NormLocal(N_Vector X, sunindextype local_length, int myid)
 
   /* ans should equal myid */
   failure = (ans < ZERO) ? 1 : SUNRCompareTol(ans, (sunrealtype) myid,
-                                       SUNRsqrt(UNIT_ROUNDOFF));
+                                       SUNRsqrt(SUN_UNIT_ROUNDOFF));
 
   if (failure) {
     printf(">>> FAILED test -- N_VL1NormLocal, Proc %d\n", myid);
@@ -4988,7 +4988,7 @@ int Test_N_VWSqrSumLocal(N_Vector X, N_Vector W, sunindextype local_length, int 
 
   /* ans should equal myid */
   failure = (ans < ZERO) ? 1 : SUNRCompareTol(ans, (sunrealtype) myid,
-                                       SUNRsqrt(UNIT_ROUNDOFF));
+                                       SUNRsqrt(SUN_UNIT_ROUNDOFF));
 
   if (failure) {
     printf(">>> FAILED test -- N_VWSqrSumLocal, Proc %d\n", myid);
@@ -5032,7 +5032,7 @@ int Test_N_VWSqrSumMaskLocal(N_Vector X, N_Vector W, N_Vector ID,
 
   /* ans should equal myid */
   failure = (ans < ZERO) ? 1 : SUNRCompareTol(ans, (sunrealtype) myid,
-                                       SUNRsqrt(UNIT_ROUNDOFF));
+                                       SUNRsqrt(SUN_UNIT_ROUNDOFF));
 
   if (failure) {
     printf(">>> FAILED test -- N_VWSqrSumMaskLocal, Proc %d\n", myid);
@@ -5331,7 +5331,7 @@ int Test_N_VMinQuotientLocal(N_Vector NUM, N_Vector DENOM,
   stop_time = get_time();
 
   /* ans should equal myid */
-  failure = SUNRCompareTol(ans, (sunrealtype) myid, SUNRsqrt(UNIT_ROUNDOFF));
+  failure = SUNRCompareTol(ans, (sunrealtype) myid, SUNRsqrt(SUN_UNIT_ROUNDOFF));
 
   if (failure) {
     printf(">>> FAILED test -- N_VMinQuotientLocal Case 1, Proc %d \n", myid);
@@ -5360,8 +5360,8 @@ int Test_N_VMinQuotientLocal(N_Vector NUM, N_Vector DENOM,
   sync_device(NUM);
   stop_time = get_time();
 
-  /* ans should equal BIG_REAL */
-  failure = SUNRCompareTol(ans, BIG_REAL, SUNRsqrt(UNIT_ROUNDOFF));
+  /* ans should equal SUN_BIG_REAL */
+  failure = SUNRCompareTol(ans, SUN_BIG_REAL, SUNRsqrt(SUN_UNIT_ROUNDOFF));
 
   if (failure) {
     printf(">>> FAILED test -- N_VMinQuotientLocal Case 2, Proc %d \n", myid);

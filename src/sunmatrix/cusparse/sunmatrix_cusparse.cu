@@ -33,8 +33,8 @@ using namespace sundials::cuda;
 using namespace sundials::sunmatrix_cusparse;
 
 /* Constants */
-#define ZERO RCONST(0.0)
-#define ONE  RCONST(1.0)
+#define ZERO SUN_RCONST(0.0)
+#define ONE  SUN_RCONST(1.0)
 
 /* Private function prototypes */
 static booleantype SMCompatible_cuSparse(SUNMatrix, SUNMatrix);

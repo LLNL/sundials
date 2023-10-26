@@ -79,13 +79,13 @@ static int check_flag(void *flagvalue, const string funcname, int opt);
 int main()
 {
   // general problem parameters
-  sunrealtype T0 = RCONST(0.0);         // initial time
-  sunrealtype Tf = RCONST(0.05);        // final time
-  sunrealtype dTout = RCONST(0.005);    // time between outputs
+  sunrealtype T0 = SUN_RCONST(0.0);         // initial time
+  sunrealtype Tf = SUN_RCONST(0.05);        // final time
+  sunrealtype dTout = SUN_RCONST(0.005);    // time between outputs
   sunindextype NEQ = 3;              // number of dependent vars.
-  sunrealtype reltol = RCONST(1.0e-6);  // tolerances
-  sunrealtype abstol = RCONST(1.0e-10);
-  sunrealtype lamda  = RCONST(-100.0);  // stiffness parameter
+  sunrealtype reltol = SUN_RCONST(1.0e-6);  // tolerances
+  sunrealtype abstol = SUN_RCONST(1.0e-10);
+  sunrealtype lamda  = SUN_RCONST(-100.0);  // stiffness parameter
 
   // general problem variables
   int flag;                      // reusable error-checking flag

@@ -152,27 +152,27 @@
  * =================================================================
  */
 
-#define ZERO      RCONST(0.0)    /* real 0.0    */
-#define HALF      RCONST(0.5)    /* real 0.5    */
-#define TWOTHIRDS RCONST(0.667)  /* real 2/3    */
-#define ONE       RCONST(1.0)    /* real 1.0    */
-#define ONEPT5    RCONST(1.5)    /* real 1.5    */
-#define TWO       RCONST(2.0)    /* real 2.0    */
-#define FOUR      RCONST(4.0)    /* real 4.0    */
-#define FIVE      RCONST(5.0)    /* real 5.0    */
-#define TEN       RCONST(10.0)   /* real 10.0   */
-#define TWELVE    RCONST(12.0)   /* real 12.0   */
-#define TWENTY    RCONST(20.0)   /* real 20.0   */
-#define HUNDRED   RCONST(100.0)  /* real 100.0  */
-#define PT9       RCONST(0.9)    /* real 0.9    */
-#define PT99      RCONST(0.99)   /* real 0.99   */
-#define PT1       RCONST(0.1)    /* real 0.1    */
-#define PT01      RCONST(0.01)   /* real 0.01   */
-#define PT001     RCONST(0.001)  /* real 0.001  */
-#define PT0001    RCONST(0.0001) /* real 0.0001 */
+#define ZERO      SUN_RCONST(0.0)    /* real 0.0    */
+#define HALF      SUN_RCONST(0.5)    /* real 0.5    */
+#define TWOTHIRDS SUN_RCONST(0.667)  /* real 2/3    */
+#define ONE       SUN_RCONST(1.0)    /* real 1.0    */
+#define ONEPT5    SUN_RCONST(1.5)    /* real 1.5    */
+#define TWO       SUN_RCONST(2.0)    /* real 2.0    */
+#define FOUR      SUN_RCONST(4.0)    /* real 4.0    */
+#define FIVE      SUN_RCONST(5.0)    /* real 5.0    */
+#define TEN       SUN_RCONST(10.0)   /* real 10.0   */
+#define TWELVE    SUN_RCONST(12.0)   /* real 12.0   */
+#define TWENTY    SUN_RCONST(20.0)   /* real 20.0   */
+#define HUNDRED   SUN_RCONST(100.0)  /* real 100.0  */
+#define PT9       SUN_RCONST(0.9)    /* real 0.9    */
+#define PT99      SUN_RCONST(0.99)   /* real 0.99   */
+#define PT1       SUN_RCONST(0.1)    /* real 0.1    */
+#define PT01      SUN_RCONST(0.01)   /* real 0.01   */
+#define PT001     SUN_RCONST(0.001)  /* real 0.001  */
+#define PT0001    SUN_RCONST(0.0001) /* real 0.0001 */
 
 /* real 1 + epsilon used in testing if the step size is below its bound */
-#define ONEPSM    RCONST(1.000001)
+#define ONEPSM    SUN_RCONST(1.000001)
 
 /*
  * =================================================================
@@ -232,7 +232,7 @@
 #define MAXNH            5  /* max. number of h tries in IC calc. */
 #define MAXNJ            4  /* max. number of J tries in IC calc. */
 #define MAXNI           10  /* max. Newton iterations in IC calc. */
-#define EPCON RCONST(0.33)  /* Newton convergence test constant */
+#define EPCON SUN_RCONST(0.33)  /* Newton convergence test constant */
 #define MAXBACKS       100  /* max backtracks per Newton step in IDACalcIC */
 
 /*
@@ -417,7 +417,7 @@ void *IDACreate(SUNContext sunctx)
   IDA_mem->ida_sunctx = sunctx;
 
   /* Set unit roundoff in IDA_mem */
-  IDA_mem->ida_uround = UNIT_ROUNDOFF;
+  IDA_mem->ida_uround = SUN_UNIT_ROUNDOFF;
 
   /* Set default values for integrator optional inputs */
   IDA_mem->ida_res            = NULL;

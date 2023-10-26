@@ -23,10 +23,10 @@
 #include "cvode_impl.h"
 
 /* Private constants */
-#define ZERO  RCONST(0.0)  /* real 0.0 */
-#define ONE   RCONST(1.0)  /* real 1.0 */
+#define ZERO  SUN_RCONST(0.0)  /* real 0.0 */
+#define ONE   SUN_RCONST(1.0)  /* real 1.0 */
 
-#define ONEPSM RCONST(1.000001)
+#define ONEPSM SUN_RCONST(1.000001)
 
 /* Private utility function prototypes */
 static int cvProjCreate(CVodeProjMem *proj_mem);

@@ -28,10 +28,10 @@
 #include <nvector/nvector_openmp.h>
 #include <sundials/sundials_math.h>
 
-#define ZERO   RCONST(0.0)
-#define HALF   RCONST(0.5)
-#define ONE    RCONST(1.0)
-#define ONEPT5 RCONST(1.5)
+#define ZERO   SUN_RCONST(0.0)
+#define HALF   SUN_RCONST(0.5)
+#define ONE    SUN_RCONST(1.0)
+#define ONEPT5 SUN_RCONST(1.5)
 
 /* Private functions for special cases of vector operations */
 static void VCopy_OpenMP(N_Vector x, N_Vector z);                              /* z=x       */
@@ -991,12 +991,12 @@ sunrealtype N_VMinQuotient_OpenMP(N_Vector num, N_Vector denom)
   nd = NV_DATA_OMP(num);
   dd = NV_DATA_OMP(denom);
 
-  min = BIG_REAL;
+  min = SUN_BIG_REAL;
 
 #pragma omp parallel default(none) private(i,tmin,val) shared(N,min,nd,dd) \
    num_threads(NV_NUM_THREADS_OMP(num))
   {
-    tmin = BIG_REAL;
+    tmin = SUN_BIG_REAL;
 #pragma omp for schedule(static)
     for (i = 0; i < N; i++) {
       if (dd[i] != ZERO) {

@@ -25,11 +25,11 @@
 #include <sunmatrix/sunmatrix_sparse.h>
 
 /* constants */
-#define MIN_INC_MULT RCONST(1000.0)
+#define MIN_INC_MULT SUN_RCONST(1000.0)
 #define MAX_DQITERS  3  /* max. # of attempts to recover in DQ J*v */
-#define ZERO         RCONST(0.0)
-#define PT25         RCONST(0.25)
-#define ONE          RCONST(1.0)
+#define ZERO         SUN_RCONST(0.0)
+#define PT25         SUN_RCONST(0.25)
+#define ONE          SUN_RCONST(1.0)
 
 /* Prototypes for internal functions */
 static int arkLsLinSys(sunrealtype t, N_Vector y, N_Vector fy, SUNMatrix A,
@@ -3295,7 +3295,7 @@ int arkLsInitializeMassCounters(ARKLsMassMem arkls_mem)
   arkls_mem->nli        = 0;
   arkls_mem->nps        = 0;
   arkls_mem->ncfl       = 0;
-  arkls_mem->msetuptime = -BIG_REAL;
+  arkls_mem->msetuptime = -SUN_BIG_REAL;
   return(0);
 }
 

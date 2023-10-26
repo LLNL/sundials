@@ -42,21 +42,21 @@
 
 /* Problem Constants */
 #define NEQ 6
-#define T0  RCONST(0.0)
+#define T0  SUN_RCONST(0.0)
 
-#define TF  RCONST(180.0) /* Final time. */
+#define TF  SUN_RCONST(180.0) /* Final time. */
 
-#define RTOL  RCONST(1.0e-08)
-#define ATOL  RCONST(1.0e-10)
-#define RTOLB RCONST(1.0e-06)
-#define ATOLB RCONST(1.0e-08)
-#define RTOLQ RCONST(1.0e-10)
-#define ATOLQ RCONST(1.0e-12)
+#define RTOL  SUN_RCONST(1.0e-08)
+#define ATOL  SUN_RCONST(1.0e-10)
+#define RTOLB SUN_RCONST(1.0e-06)
+#define ATOLB SUN_RCONST(1.0e-08)
+#define RTOLQ SUN_RCONST(1.0e-10)
+#define ATOLQ SUN_RCONST(1.0e-12)
 
-#define ZERO  RCONST(0.0)
-#define HALF  RCONST(0.5)
-#define ONE   RCONST(1.0)
-#define TWO   RCONST(2.0)
+#define ZERO  SUN_RCONST(0.0)
+#define HALF  SUN_RCONST(0.5)
+#define ONE   SUN_RCONST(1.0)
+#define TWO   SUN_RCONST(2.0)
 
 #define STEPS 150
 
@@ -94,11 +94,11 @@ int main()
   SUNContext ctx;
 
   /* Consistent IC for  y, y'. */
-  const sunrealtype y01 = RCONST(0.444);
-  const sunrealtype y02 = RCONST(0.00123);
-  const sunrealtype y03 = RCONST(0.0);
-  const sunrealtype y04 = RCONST(0.007);
-  const sunrealtype y05 = RCONST(0.0);
+  const sunrealtype y01 = SUN_RCONST(0.444);
+  const sunrealtype y02 = SUN_RCONST(0.00123);
+  const sunrealtype y03 = SUN_RCONST(0.0);
+  const sunrealtype y04 = SUN_RCONST(0.007);
+  const sunrealtype y05 = SUN_RCONST(0.0);
 
   mem = NULL;
   yy = yp = NULL;
@@ -118,15 +118,15 @@ int main()
   data = (UserData) malloc(sizeof(*data));
 
   /* Fill user's data with the appropriate values for coefficients. */
-  data->k1 = RCONST(18.7);
-  data->k2 = RCONST(0.58);
-  data->k3 = RCONST(0.09);
-  data->k4 = RCONST(0.42);
-  data->K = RCONST(34.4);
-  data->klA = RCONST(3.3);
-  data->Ks = RCONST(115.83);
-  data->pCO2 = RCONST(0.9);
-  data->H = RCONST(737.0);
+  data->k1 = SUN_RCONST(18.7);
+  data->k2 = SUN_RCONST(0.58);
+  data->k3 = SUN_RCONST(0.09);
+  data->k4 = SUN_RCONST(0.42);
+  data->K = SUN_RCONST(34.4);
+  data->klA = SUN_RCONST(3.3);
+  data->Ks = SUN_RCONST(115.83);
+  data->pCO2 = SUN_RCONST(0.9);
+  data->H = SUN_RCONST(737.0);
 
   /* Allocate N-vectors. */
   yy = N_VNew_Serial(NEQ, ctx);
@@ -350,9 +350,9 @@ static int rhsQ(sunrealtype t, N_Vector yy, N_Vector yp, N_Vector qdot, void *us
   return(0);
 }
 
-#define QUARTER   RCONST(0.25)
-#define FOUR      RCONST(4.0)
-#define EIGHT     RCONST(8.0)
+#define QUARTER   SUN_RCONST(0.25)
+#define FOUR      SUN_RCONST(4.0)
+#define EIGHT     SUN_RCONST(8.0)
 
 /*
  * resB routine. Residual for adjoint system.

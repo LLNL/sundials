@@ -474,12 +474,12 @@ int ARKStepSetOptimalParams(void *arkode_mem)
   /*    explicit */
   if (step_mem->explicit && !step_mem->implicit) {
     hadapt_mem->imethod = ARK_ADAPT_PI;
-    hadapt_mem->safety  = RCONST(0.99);
-    hadapt_mem->bias    = RCONST(1.2);
-    hadapt_mem->growth  = RCONST(25.0);
-    hadapt_mem->k1      = RCONST(0.8);
-    hadapt_mem->k2      = RCONST(0.31);
-    hadapt_mem->etamxf  = RCONST(0.3);
+    hadapt_mem->safety  = SUN_RCONST(0.99);
+    hadapt_mem->bias    = SUN_RCONST(1.2);
+    hadapt_mem->growth  = SUN_RCONST(25.0);
+    hadapt_mem->k1      = SUN_RCONST(0.8);
+    hadapt_mem->k2      = SUN_RCONST(0.31);
+    hadapt_mem->etamxf  = SUN_RCONST(0.3);
 
   /*    implicit */
   } else if (step_mem->implicit && !step_mem->explicit) {
@@ -492,7 +492,7 @@ int ARKStepSetOptimalParams(void *arkode_mem)
       hadapt_mem->etamxf    = ETAMXF;
       hadapt_mem->small_nef = SMALL_NEF;
       hadapt_mem->etacf     = ETACF;
-      step_mem->nlscoef     = RCONST(0.001);
+      step_mem->nlscoef     = SUN_RCONST(0.001);
       step_mem->maxcor      = 5;
       step_mem->crdown      = CRDOWN;
       step_mem->rdiv        = RDIV;
@@ -501,50 +501,50 @@ int ARKStepSetOptimalParams(void *arkode_mem)
       break;
     case 3:
       hadapt_mem->imethod   = ARK_ADAPT_I;
-      hadapt_mem->safety    = RCONST(0.957);
-      hadapt_mem->bias      = RCONST(1.9);
-      hadapt_mem->growth    = RCONST(17.6);
-      hadapt_mem->etamxf    = RCONST(0.45);
+      hadapt_mem->safety    = SUN_RCONST(0.957);
+      hadapt_mem->bias      = SUN_RCONST(1.9);
+      hadapt_mem->growth    = SUN_RCONST(17.6);
+      hadapt_mem->etamxf    = SUN_RCONST(0.45);
       hadapt_mem->small_nef = SMALL_NEF;
       hadapt_mem->etacf     = ETACF;
-      step_mem->nlscoef     = RCONST(0.22);
-      step_mem->crdown      = RCONST(0.17);
-      step_mem->rdiv        = RCONST(2.3);
-      step_mem->dgmax       = RCONST(0.19);
+      step_mem->nlscoef     = SUN_RCONST(0.22);
+      step_mem->crdown      = SUN_RCONST(0.17);
+      step_mem->rdiv        = SUN_RCONST(2.3);
+      step_mem->dgmax       = SUN_RCONST(0.19);
       step_mem->msbp        = 60;
       break;
     case 4:
       hadapt_mem->imethod   = ARK_ADAPT_PID;
-      hadapt_mem->safety    = RCONST(0.988);
-      hadapt_mem->bias      = RCONST(1.2);
-      hadapt_mem->growth    = RCONST(31.5);
-      hadapt_mem->k1        = RCONST(0.535);
-      hadapt_mem->k2        = RCONST(0.209);
-      hadapt_mem->k3        = RCONST(0.148);
-      hadapt_mem->etamxf    = RCONST(0.33);
+      hadapt_mem->safety    = SUN_RCONST(0.988);
+      hadapt_mem->bias      = SUN_RCONST(1.2);
+      hadapt_mem->growth    = SUN_RCONST(31.5);
+      hadapt_mem->k1        = SUN_RCONST(0.535);
+      hadapt_mem->k2        = SUN_RCONST(0.209);
+      hadapt_mem->k3        = SUN_RCONST(0.148);
+      hadapt_mem->etamxf    = SUN_RCONST(0.33);
       hadapt_mem->small_nef = SMALL_NEF;
       hadapt_mem->etacf     = ETACF;
-      step_mem->nlscoef     = RCONST(0.24);
-      step_mem->crdown      = RCONST(0.26);
-      step_mem->rdiv        = RCONST(2.3);
-      step_mem->dgmax       = RCONST(0.16);
+      step_mem->nlscoef     = SUN_RCONST(0.24);
+      step_mem->crdown      = SUN_RCONST(0.26);
+      step_mem->rdiv        = SUN_RCONST(2.3);
+      step_mem->dgmax       = SUN_RCONST(0.16);
       step_mem->msbp        = 31;
       break;
     case 5:
       hadapt_mem->imethod   = ARK_ADAPT_PID;
-      hadapt_mem->safety    = RCONST(0.937);
-      hadapt_mem->bias      = RCONST(3.3);
-      hadapt_mem->growth    = RCONST(22.0);
-      hadapt_mem->k1        = RCONST(0.56);
-      hadapt_mem->k2        = RCONST(0.338);
-      hadapt_mem->k3        = RCONST(0.14);
-      hadapt_mem->etamxf    = RCONST(0.44);
+      hadapt_mem->safety    = SUN_RCONST(0.937);
+      hadapt_mem->bias      = SUN_RCONST(3.3);
+      hadapt_mem->growth    = SUN_RCONST(22.0);
+      hadapt_mem->k1        = SUN_RCONST(0.56);
+      hadapt_mem->k2        = SUN_RCONST(0.338);
+      hadapt_mem->k3        = SUN_RCONST(0.14);
+      hadapt_mem->etamxf    = SUN_RCONST(0.44);
       hadapt_mem->small_nef = SMALL_NEF;
       hadapt_mem->etacf     = ETACF;
-      step_mem->nlscoef     = RCONST(0.25);
-      step_mem->crdown      = RCONST(0.4);
-      step_mem->rdiv        = RCONST(2.3);
-      step_mem->dgmax       = RCONST(0.32);
+      step_mem->nlscoef     = SUN_RCONST(0.25);
+      step_mem->crdown      = SUN_RCONST(0.4);
+      step_mem->rdiv        = SUN_RCONST(2.3);
+      step_mem->dgmax       = SUN_RCONST(0.32);
       step_mem->msbp        = 31;
       break;
     }
@@ -554,52 +554,52 @@ int ARKStepSetOptimalParams(void *arkode_mem)
     switch (step_mem->q) {
     case 3:
       hadapt_mem->imethod   = ARK_ADAPT_PID;
-      hadapt_mem->safety    = RCONST(0.965);
-      hadapt_mem->bias      = RCONST(1.42);
-      hadapt_mem->growth    = RCONST(28.7);
-      hadapt_mem->k1        = RCONST(0.54);
-      hadapt_mem->k2        = RCONST(0.36);
-      hadapt_mem->k3        = RCONST(0.14);
-      hadapt_mem->etamxf    = RCONST(0.46);
+      hadapt_mem->safety    = SUN_RCONST(0.965);
+      hadapt_mem->bias      = SUN_RCONST(1.42);
+      hadapt_mem->growth    = SUN_RCONST(28.7);
+      hadapt_mem->k1        = SUN_RCONST(0.54);
+      hadapt_mem->k2        = SUN_RCONST(0.36);
+      hadapt_mem->k3        = SUN_RCONST(0.14);
+      hadapt_mem->etamxf    = SUN_RCONST(0.46);
       hadapt_mem->small_nef = SMALL_NEF;
       hadapt_mem->etacf     = ETACF;
-      step_mem->nlscoef     = RCONST(0.22);
-      step_mem->crdown      = RCONST(0.17);
-      step_mem->rdiv        = RCONST(2.3);
-      step_mem->dgmax       = RCONST(0.19);
+      step_mem->nlscoef     = SUN_RCONST(0.22);
+      step_mem->crdown      = SUN_RCONST(0.17);
+      step_mem->rdiv        = SUN_RCONST(2.3);
+      step_mem->dgmax       = SUN_RCONST(0.19);
       step_mem->msbp        = 60;
       break;
     case 4:
       hadapt_mem->imethod   = ARK_ADAPT_PID;
-      hadapt_mem->safety    = RCONST(0.97);
-      hadapt_mem->bias      = RCONST(1.35);
-      hadapt_mem->growth    = RCONST(25.0);
-      hadapt_mem->k1        = RCONST(0.543);
-      hadapt_mem->k2        = RCONST(0.297);
-      hadapt_mem->k3        = RCONST(0.14);
-      hadapt_mem->etamxf    = RCONST(0.47);
+      hadapt_mem->safety    = SUN_RCONST(0.97);
+      hadapt_mem->bias      = SUN_RCONST(1.35);
+      hadapt_mem->growth    = SUN_RCONST(25.0);
+      hadapt_mem->k1        = SUN_RCONST(0.543);
+      hadapt_mem->k2        = SUN_RCONST(0.297);
+      hadapt_mem->k3        = SUN_RCONST(0.14);
+      hadapt_mem->etamxf    = SUN_RCONST(0.47);
       hadapt_mem->small_nef = SMALL_NEF;
       hadapt_mem->etacf     = ETACF;
-      step_mem->nlscoef     = RCONST(0.24);
-      step_mem->crdown      = RCONST(0.26);
-      step_mem->rdiv        = RCONST(2.3);
-      step_mem->dgmax       = RCONST(0.16);
+      step_mem->nlscoef     = SUN_RCONST(0.24);
+      step_mem->crdown      = SUN_RCONST(0.26);
+      step_mem->rdiv        = SUN_RCONST(2.3);
+      step_mem->dgmax       = SUN_RCONST(0.16);
       step_mem->msbp        = 31;
       break;
     case 5:
       hadapt_mem->imethod   = ARK_ADAPT_PI;
-      hadapt_mem->safety    = RCONST(0.993);
-      hadapt_mem->bias      = RCONST(1.15);
-      hadapt_mem->growth    = RCONST(28.5);
-      hadapt_mem->k1        = RCONST(0.8);
-      hadapt_mem->k2        = RCONST(0.35);
-      hadapt_mem->etamxf    = RCONST(0.3);
+      hadapt_mem->safety    = SUN_RCONST(0.993);
+      hadapt_mem->bias      = SUN_RCONST(1.15);
+      hadapt_mem->growth    = SUN_RCONST(28.5);
+      hadapt_mem->k1        = SUN_RCONST(0.8);
+      hadapt_mem->k2        = SUN_RCONST(0.35);
+      hadapt_mem->etamxf    = SUN_RCONST(0.3);
       hadapt_mem->small_nef = SMALL_NEF;
       hadapt_mem->etacf     = ETACF;
-      step_mem->nlscoef     = RCONST(0.25);
-      step_mem->crdown      = RCONST(0.4);
-      step_mem->rdiv        = RCONST(2.3);
-      step_mem->dgmax       = RCONST(0.32);
+      step_mem->nlscoef     = SUN_RCONST(0.25);
+      step_mem->crdown      = SUN_RCONST(0.4);
+      step_mem->rdiv        = SUN_RCONST(2.3);
+      step_mem->dgmax       = SUN_RCONST(0.32);
       step_mem->msbp        = 31;
       break;
     }
@@ -690,7 +690,7 @@ int ARKStepSetLinear(void *arkode_mem, int timedepend)
   /* set parameters */
   step_mem->linear = SUNTRUE;
   step_mem->linear_timedep = (timedepend == 1);
-  step_mem->dgmax = RCONST(100.0)*UNIT_ROUNDOFF;
+  step_mem->dgmax = SUN_RCONST(100.0)*SUN_UNIT_ROUNDOFF;
 
   return(ARK_SUCCESS);
 }

@@ -60,13 +60,13 @@ static int check_retval(void *returnvalue, const char *funcname, int opt);
 int main()
 {
   /* general problem parameters */
-  sunrealtype T0 = RCONST(0.0);     /* initial time */
-  sunrealtype Tf = RCONST(2.0);     /* final time */
-  sunrealtype dTout = RCONST(0.1);  /* time between outputs */
+  sunrealtype T0 = SUN_RCONST(0.0);     /* initial time */
+  sunrealtype Tf = SUN_RCONST(2.0);     /* final time */
+  sunrealtype dTout = SUN_RCONST(0.1);  /* time between outputs */
   sunindextype NEQ = 3;          /* number of dependent vars. */
   int Nt = (int) ceil(Tf/dTout); /* number of output times */
-  sunrealtype hs = RCONST(0.001);   /* slow step size */
-  sunrealtype hf = RCONST(0.00002); /* fast step size */
+  sunrealtype hs = SUN_RCONST(0.001);   /* slow step size */
+  sunrealtype hf = SUN_RCONST(0.00002); /* fast step size */
   sunrealtype u0, v0, w0;           /* initial conditions */
 
   /* general problem variables */
@@ -90,9 +90,9 @@ int main()
    */
 
   /* Set the initial contions */
-  u0 = RCONST(9001.0)/RCONST(10001.0);
-  v0 = RCONST(-1.0e5)/RCONST(10001.0);
-  w0 = RCONST(1000.0);
+  u0 = SUN_RCONST(9001.0)/SUN_RCONST(10001.0);
+  v0 = SUN_RCONST(-1.0e5)/SUN_RCONST(10001.0);
+  w0 = SUN_RCONST(1000.0);
 
   /* Initial problem output */
   printf("\nTwo way coupling ODE test problem:\n");
@@ -222,7 +222,7 @@ int main()
 /* ff routine to compute the fast portion of the ODE RHS. */
 static int ff(sunrealtype t, N_Vector y, N_Vector ydot, void *user_data)
 {
-  sunrealtype c1 = RCONST(100.0);                /* problem constant */
+  sunrealtype c1 = SUN_RCONST(100.0);                /* problem constant */
   sunrealtype u  = NV_Ith_S(y,0);                /* access solution values */
   sunrealtype v  = NV_Ith_S(y,1);
 
@@ -242,7 +242,7 @@ static int fs(sunrealtype t, N_Vector y, N_Vector ydot, void *user_data)
 
   /* fill in the RHS function */
   NV_Ith_S(ydot,0) = w;
-  NV_Ith_S(ydot,1) = RCONST(0.0);
+  NV_Ith_S(ydot,1) = SUN_RCONST(0.0);
   NV_Ith_S(ydot,2) = -w;
 
   /* Return with success */

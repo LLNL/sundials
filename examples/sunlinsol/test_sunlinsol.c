@@ -435,7 +435,7 @@ int Test_SUNLinSolSolve(SUNLinearSolver S, SUNMatrix A, N_Vector x,
   if (zeroguess)
     N_VConst(ZERO, y);
   else
-    N_VAddConst(x, SUNRsqrt(UNIT_ROUNDOFF), y);
+    N_VAddConst(x, SUNRsqrt(SUN_UNIT_ROUNDOFF), y);
 
   sync_device();
 

@@ -56,20 +56,20 @@
 
 /* Problem Constants */
 
-#define XMAX  RCONST(2.0)    /* domain boundary           */
+#define XMAX  SUN_RCONST(2.0)    /* domain boundary           */
 #define MX    10             /* mesh dimension            */
 #define NEQ   MX             /* number of equations       */
-#define ATOL  RCONST(1.0e-5) /* scalar absolute tolerance */
+#define ATOL  SUN_RCONST(1.0e-5) /* scalar absolute tolerance */
 #define T0    ZERO           /* initial time              */
-#define T1    RCONST(0.5)    /* first output time         */
-#define DTOUT RCONST(0.5)    /* output time increment     */
+#define T1    SUN_RCONST(0.5)    /* first output time         */
+#define DTOUT SUN_RCONST(0.5)    /* output time increment     */
 #define NOUT  10             /* number of output times    */
 
-#define ZERO  RCONST(0.0)
-#define HALF  RCONST(0.5)
-#define ONE   RCONST(1.0)
-#define TWO   RCONST(2.0)
-#define FIVE  RCONST(5.0)
+#define ZERO  SUN_RCONST(0.0)
+#define HALF  SUN_RCONST(0.5)
+#define ONE   SUN_RCONST(1.0)
+#define TWO   SUN_RCONST(2.0)
+#define FIVE  SUN_RCONST(5.0)
 
 /* Type : UserData
    contains grid constants, parallel machine parameters, work array. */

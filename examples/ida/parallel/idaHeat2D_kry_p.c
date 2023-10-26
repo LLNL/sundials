@@ -52,9 +52,9 @@
 
 #include <mpi.h>
 
-#define ZERO  RCONST(0.0)
-#define ONE   RCONST(1.0)
-#define TWO   RCONST(2.0)
+#define ZERO  SUN_RCONST(0.0)
+#define ONE   SUN_RCONST(1.0)
+#define TWO   SUN_RCONST(2.0)
 
 #define NOUT         11    /* Number of output times */
 
@@ -219,11 +219,11 @@ int main(int argc, char *argv[])
   /* Set constraints to all 1's for nonnegative solution values. */
   N_VConst(ONE, constraints);
 
-  t0 = ZERO; t1 = RCONST(0.01);
+  t0 = ZERO; t1 = SUN_RCONST(0.01);
 
   /* Scalar relative and absolute tolerance. */
   rtol = ZERO;
-  atol = RCONST(1.0e-3);
+  atol = SUN_RCONST(1.0e-3);
 
   /* Call IDACreate and IDAMalloc to initialize solution. */
 
@@ -845,7 +845,7 @@ static int SetInitialProfile(N_Vector uu, N_Vector up,  N_Vector id,
     for (i = ixbegin, iloc = 0; i <= ixend; i++, iloc++) {
       xfact = dx*i;
       loc = iloc + jloc*mxsub;
-      uudata[loc] = RCONST(16.0) * xfact * (ONE - xfact) * yfact * (ONE - yfact);
+      uudata[loc] = SUN_RCONST(16.0) * xfact * (ONE - xfact) * yfact * (ONE - yfact);
 
       if (i == 0 || i == data->mx - 1 || j == 0 || j == data->my - 1)
         iddata[loc] = ZERO;

@@ -482,7 +482,7 @@ object was supplied to :c:func:`ARKStepSetLinearSolver` or
       then use the ``ARKStepGet*`` or ``MRIStepGet*`` functions listed in
       :numref:`ARKODE.Usage.ARKStep.OptionalOutputs` or
       :numref:`ARKODE.Usage.MRIStep.OptionalOutputs`. The unit roundoff can be
-      accessed as ``UNIT_ROUNDOFF``, which is defined in the header
+      accessed as ``SUN_UNIT_ROUNDOFF``, which is defined in the header
       file ``sundials_types.h``.
 
       **dense** :math:`J(t,y)`:
@@ -600,7 +600,7 @@ the default is a difference quotient approximation to these products.
       their ``user_data``, and then use the ``ARKStepGet*`` or ``MRIStepGet*``
       functions listed in :numref:`ARKODE.Usage.ARKStep.OptionalOutputs` or
       :numref:`ARKODE.Usage.MRIStep.OptionalOutputs`. The unit roundoff can be
-      accessed as ``UNIT_ROUNDOFF``, which is defined in the header
+      accessed as ``SUN_UNIT_ROUNDOFF``, which is defined in the header
       file ``sundials_types.h``.
 
 
@@ -652,7 +652,7 @@ defined as follows:
       ``MRIStepGet*`` functions listed in
       :numref:`ARKODE.Usage.ARKStep.OptionalOutputs` or
       :numref:`ARKODE.Usage.MRIStep.OptionalOutputs`. The unit roundoff can be
-      accessed as ``UNIT_ROUNDOFF``, which is defined in the header
+      accessed as ``SUN_UNIT_ROUNDOFF``, which is defined in the header
       file ``sundials_types.h``.
 
 
@@ -782,7 +782,7 @@ user-supplied function of type :c:type:`ARKLsPrecSetupFn`.
       ``user_data``, and then use the ``ARKStepGet*`` or ``MRIStepGet*``
       functions listed in :numref:`ARKODE.Usage.ARKStep.OptionalOutputs` or
       :numref:`ARKODE.Usage.MRIStep.OptionalOutputs`. The unit roundoff can be
-      accessed as ``UNIT_ROUNDOFF``, which is defined in the header
+      accessed as ``SUN_UNIT_ROUNDOFF``, which is defined in the header
       file ``sundials_types.h``.
 
 

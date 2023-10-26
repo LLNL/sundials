@@ -82,18 +82,18 @@
 #define IDX(x,v) (3*(x)+v)
 
 /* constants */
-#define ZERO (RCONST(0.0))
-#define ONE  (RCONST(1.0))
-#define TWO  (RCONST(2.0))
-#define HALF (RCONST(0.5))
+#define ZERO (SUN_RCONST(0.0))
+#define ONE  (SUN_RCONST(1.0))
+#define TWO  (SUN_RCONST(2.0))
+#define HALF (SUN_RCONST(0.5))
 
 /* Gaussian quadrature nodes, weights and formula (3 node, 7th-order accurate) */
-#define X1(xl,xr)   (HALF*(xl+xr) - HALF*(xr-xl)*RCONST(0.774596669241483377035853079956))
+#define X1(xl,xr)   (HALF*(xl+xr) - HALF*(xr-xl)*SUN_RCONST(0.774596669241483377035853079956))
 #define X2(xl,xr)   (HALF*(xl+xr))
-#define X3(xl,xr)   (HALF*(xl+xr) + HALF*(xr-xl)*RCONST(0.774596669241483377035853079956))
-#define W1          (RCONST(0.55555555555555555555555555555556))
-#define W2          (RCONST(0.88888888888888888888888888888889))
-#define W3          (RCONST(0.55555555555555555555555555555556))
+#define X3(xl,xr)   (HALF*(xl+xr) + HALF*(xr-xl)*SUN_RCONST(0.774596669241483377035853079956))
+#define W1          (SUN_RCONST(0.55555555555555555555555555555556))
+#define W2          (SUN_RCONST(0.88888888888888888888888888888889))
+#define W3          (SUN_RCONST(0.55555555555555555555555555555556))
 #define Quad(f1,f2,f3,xl,xr) (HALF*(xr-xl)*(W1*f1 + W2*f2 + W3*f3))
 
 /* evaluation macros for variables, basis functions and basis derivatives */
@@ -140,21 +140,21 @@ static int check_retval(void *returnvalue, const char *funcname, int opt);
 int main(int argc, char *argv[]) {
 
   /* general problem parameters */
-  sunrealtype T0 = RCONST(0.0);            /* initial time */
-  sunrealtype Tf = RCONST(10.0);           /* final time */
+  sunrealtype T0 = SUN_RCONST(0.0);            /* initial time */
+  sunrealtype Tf = SUN_RCONST(10.0);           /* final time */
   int Nt = 100;                         /* total number of output times */
   int Nvar = 3;                         /* number of solution fields */
   UserData udata = NULL;
   sunrealtype *data;
   sunindextype N = 201;                 /* spatial mesh size */
-  sunrealtype a = RCONST(0.6);             /* problem parameters */
-  sunrealtype b = RCONST(2.0);
-  sunrealtype du = RCONST(0.025);
-  sunrealtype dv = RCONST(0.025);
-  sunrealtype dw = RCONST(0.025);
-  sunrealtype ep = RCONST(1.0e-5);         /* stiffness parameter */
-  sunrealtype reltol = RCONST(1.0e-6);     /* tolerances */
-  sunrealtype abstol = RCONST(1.0e-10);
+  sunrealtype a = SUN_RCONST(0.6);             /* problem parameters */
+  sunrealtype b = SUN_RCONST(2.0);
+  sunrealtype du = SUN_RCONST(0.025);
+  sunrealtype dv = SUN_RCONST(0.025);
+  sunrealtype dw = SUN_RCONST(0.025);
+  sunrealtype ep = SUN_RCONST(1.0e-5);         /* stiffness parameter */
+  sunrealtype reltol = SUN_RCONST(1.0e-6);     /* tolerances */
+  sunrealtype abstol = SUN_RCONST(1.0e-10);
   sunindextype i, NEQ, NNZ;
   int num_threads;
 
@@ -238,18 +238,18 @@ int main(int argc, char *argv[]) {
 
   udata->x = (sunrealtype *) malloc(N*sizeof(sunrealtype));
   if (check_retval((void *)udata->x, "malloc", 2)) return(1);
-  h = RCONST(10.0)/(N-1);
+  h = SUN_RCONST(10.0)/(N-1);
   for (i=0; i<N; i++) {
-    z = -RCONST(5.0) + h*i;
-    udata->x[i] = HALF/atan(RCONST(5.0))*atan(z) + HALF;
+    z = -SUN_RCONST(5.0) + h*i;
+    udata->x[i] = HALF/atan(SUN_RCONST(5.0))*atan(z) + HALF;
   }
 
   /* Set initial conditions into y */
-  pi = RCONST(4.0)*atan(RCONST(1.0));
+  pi = SUN_RCONST(4.0)*atan(SUN_RCONST(1.0));
   for (i=0; i<N; i++) {
-    data[IDX(i,0)] =  a  + RCONST(0.1)*sin(pi*udata->x[i]);  /* u */
-    data[IDX(i,1)] = b/a + RCONST(0.1)*sin(pi*udata->x[i]);  /* v */
-    data[IDX(i,2)] =  b  + RCONST(0.1)*sin(pi*udata->x[i]);  /* w */
+    data[IDX(i,0)] =  a  + SUN_RCONST(0.1)*sin(pi*udata->x[i]);  /* u */
+    data[IDX(i,1)] = b/a + SUN_RCONST(0.1)*sin(pi*udata->x[i]);  /* v */
+    data[IDX(i,2)] =  b  + SUN_RCONST(0.1)*sin(pi*udata->x[i]);  /* w */
   }
 
   /* Set mask array values for each solution component */

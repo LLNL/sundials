@@ -109,18 +109,18 @@
 
 /* Constants */
 
-#define ZERO RCONST(0.0)
-#define ONE  RCONST(1.0)
-#define TWO  RCONST(2.0)
+#define ZERO SUN_RCONST(0.0)
+#define ONE  SUN_RCONST(1.0)
+#define TWO  SUN_RCONST(2.0)
 
 /* Problem Specification Constants */
 
 #define AA    ONE               /* AA = a */
-#define EE    RCONST(1.0e4)     /* EE = e */
-#define GG    RCONST(0.5e-6)    /* GG = g */
+#define EE    SUN_RCONST(1.0e4)     /* EE = e */
+#define GG    SUN_RCONST(0.5e-6)    /* GG = g */
 #define BB    ONE               /* BB = b */
 #define DPREY ONE
-#define DPRED RCONST(0.5)
+#define DPRED SUN_RCONST(0.5)
 #define ALPH  ONE
 #define NP    3
 #define NS    (2*NP)
@@ -146,12 +146,12 @@
 
 #define NEQ   (NS*MX*MY)
 #define T0    ZERO
-#define RTOL  RCONST(1.0e-5)
-#define ATOL  RCONST(1.0e-5)
+#define RTOL  SUN_RCONST(1.0e-5)
+#define ATOL  SUN_RCONST(1.0e-5)
 
 /* Output Constants */
 
-#define TOUT RCONST(10.0)
+#define TOUT SUN_RCONST(10.0)
 
 /* Note: The value for species i at mesh point (j,k) is stored in */
 /* component number (i-1) + j*NS + k*NS*MX of an N_Vector,        */
@@ -499,7 +499,7 @@ static int Precond(sunrealtype t, N_Vector c, N_Vector fc,
   cdata = N_VGetArrayPointer(c);
   rewtdata = N_VGetArrayPointer(rewt);
 
-  uround = UNIT_ROUNDOFF;
+  uround = SUN_UNIT_ROUNDOFF;
 
   P = wdata->P;
   pivot = wdata->pivot;
@@ -520,7 +520,7 @@ static int Precond(sunrealtype t, N_Vector c, N_Vector fc,
   f1 = N_VGetArrayPointer(wdata->vtemp);
 
   fac = N_VWrmsNorm (fc, rewt);
-  r0 = RCONST(1000.0)*fabs(gamma)*uround*(NEQ+1)*fac;
+  r0 = SUN_RCONST(1000.0)*fabs(gamma)*uround*(NEQ+1)*fac;
   if (r0 == ZERO) r0 = ONE;
 
   for (igy = 0; igy < ngy; igy++) {
@@ -713,7 +713,7 @@ static int PrecondB(sunrealtype t, N_Vector c,
   cdata = N_VGetArrayPointer(c);
   rewtdata = N_VGetArrayPointer(rewt);
 
-  uround = UNIT_ROUNDOFF;
+  uround = SUN_UNIT_ROUNDOFF;
 
   P = wdata->P;
   pivot = wdata->pivot;
@@ -733,7 +733,7 @@ static int PrecondB(sunrealtype t, N_Vector c,
 
   f1 = N_VGetArrayPointer(wdata->vtempB);
   fac = N_VWrmsNorm (fcB, rewt);
-  r0 = RCONST(1000.0)*fabs(gamma)*uround*NEQ*fac;
+  r0 = SUN_RCONST(1000.0)*fabs(gamma)*uround*NEQ*fac;
   if (r0 == ZERO) r0 = ONE;
 
   for (igy = 0; igy < ngy; igy++) {
@@ -896,7 +896,7 @@ static void InitUserData(WebData wdata)
   wdata->mq = MQ;
   wdata->mx = MX;
   wdata->my = MY;
-  wdata->srur = sqrt(UNIT_ROUNDOFF);
+  wdata->srur = sqrt(SUN_UNIT_ROUNDOFF);
   wdata->mxmp = MXMP;
   wdata->ngrp = NGRP;
   wdata->ngx = NGX;
@@ -949,8 +949,8 @@ static void CInit(N_Vector c, WebData wdata)
   dx = wdata->dx;
   dy = wdata->dy;
 
-  x_factor = RCONST(4.0)/SQR(AX);
-  y_factor = RCONST(4.0)/SQR(AY);
+  x_factor = SUN_RCONST(4.0)/SQR(AX);
+  y_factor = SUN_RCONST(4.0)/SQR(AY);
   for (jy = 0; jy < MY; jy++) {
     y = jy*dy;
     argy = SQR(y_factor*y*(AY-y));
@@ -961,7 +961,7 @@ static void CInit(N_Vector c, WebData wdata)
       ioff = iyoff + ns*jx;
       for (i = 1; i <= ns; i++) {
         ici = ioff + i-1;
-        cdata[ici] = RCONST(10.0) + i*argx*argy;
+        cdata[ici] = SUN_RCONST(10.0) + i*argx*argy;
 
         /*if(i==1) cdata[ici] += ONE;*/
 
@@ -1318,7 +1318,7 @@ static sunrealtype doubleIntgr(N_Vector c, int i, WebData wdata)
     intgr_x += TWO*cdata[(i-1) + jx*ns + jy*mxns];
   }
   intgr_x += cdata[(i-1)+(mx-1)*ns+jy*mxns];
-  intgr_x *= RCONST(0.5)*dx;
+  intgr_x *= SUN_RCONST(0.5)*dx;
 
   intgr_xy = intgr_x;
 
@@ -1329,7 +1329,7 @@ static sunrealtype doubleIntgr(N_Vector c, int i, WebData wdata)
       intgr_x += TWO*cdata[(i-1) + jx*ns + jy*mxns];
     }
     intgr_x += cdata[(i-1)+(mx-1)*ns+jy*mxns];
-    intgr_x *= RCONST(0.5)*dx;
+    intgr_x *= SUN_RCONST(0.5)*dx;
 
     intgr_xy += TWO*intgr_x;
 
@@ -1341,11 +1341,11 @@ static sunrealtype doubleIntgr(N_Vector c, int i, WebData wdata)
     intgr_x += TWO*cdata[(i-1) + jx*ns + jy*mxns];
   }
   intgr_x += cdata[(i-1)+(mx-1)*ns+jy*mxns];
-  intgr_x *= RCONST(0.5)*dx;
+  intgr_x *= SUN_RCONST(0.5)*dx;
 
   intgr_xy += intgr_x;
 
-  intgr_xy *= RCONST(0.5)*dy;
+  intgr_xy *= SUN_RCONST(0.5)*dy;
 
   return(intgr_xy);
 }

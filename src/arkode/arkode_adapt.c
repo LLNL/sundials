@@ -175,7 +175,7 @@ int arkAdapt(void* arkode_mem, ARKodeHAdaptMem hadapt_mem,
                     "Error in explicit stability function.");
     return (ARK_ILL_INPUT);
   }
-  if (h_cfl <= ZERO)  h_cfl = RCONST(1.0e30) * SUNRabs(hcur);
+  if (h_cfl <= ZERO)  h_cfl = SUN_RCONST(1.0e30) * SUNRabs(hcur);
 
   /* Solver diagnostics reporting */
   if (ark_mem->report)

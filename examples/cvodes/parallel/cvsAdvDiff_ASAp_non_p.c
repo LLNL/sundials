@@ -62,21 +62,21 @@
 
 /* Problem Constants */
 
-#define XMAX  RCONST(2.0)   /* domain boundary            */
+#define XMAX  SUN_RCONST(2.0)   /* domain boundary            */
 #define MX    20            /* mesh dimension             */
 #define NEQ   MX            /* number of equations        */
-#define ATOL  RCONST(1.e-5) /* scalar absolute tolerance  */
-#define T0    RCONST(0.0)   /* initial time               */
-#define TOUT  RCONST(2.5)   /* output time increment      */
+#define ATOL  SUN_RCONST(1.e-5) /* scalar absolute tolerance  */
+#define T0    SUN_RCONST(0.0)   /* initial time               */
+#define TOUT  SUN_RCONST(2.5)   /* output time increment      */
 
 /* Adjoint Problem Constants */
 
 #define NP    2            /* number of parameters       */
 #define STEPS 200          /* steps between check points */
 
-#define ZERO RCONST(0.0)
-#define ONE  RCONST(1.0)
-#define TWO  RCONST(2.0)
+#define ZERO SUN_RCONST(0.0)
+#define ONE  SUN_RCONST(1.0)
+#define TWO  SUN_RCONST(2.0)
 
 /* Type : UserData */
 
@@ -182,7 +182,7 @@ int main(int argc, char *argv[])
   data = (UserData) malloc(sizeof *data);
   if (check_retval((void *)data , "malloc", 2, my_pe)) MPI_Abort(comm, 1);
   data->p[0] = ONE;
-  data->p[1] = RCONST(0.5);
+  data->p[1] = SUN_RCONST(0.5);
   dx = data->dx = XMAX/((sunrealtype)(MX+1));
   data->hdcoef = data->p[0]/(dx*dx);
   data->hacoef = data->p[1]/(TWO*dx);
@@ -587,7 +587,7 @@ static sunrealtype Xintgr(sunrealtype *z, sunindextype l, sunrealtype dx)
   sunrealtype my_intgr;
   sunindextype i;
 
-  my_intgr = RCONST(0.5)*(z[0] + z[l-1]);
+  my_intgr = SUN_RCONST(0.5)*(z[0] + z[l-1]);
   for (i = 1; i < l-1; i++)
     my_intgr += z[i];
   my_intgr *= dx;

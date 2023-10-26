@@ -55,18 +55,18 @@
 #endif
 
 /* constants */
-#define ZERO        RCONST(0.0)
-#define PT25        RCONST(0.25)
-#define PT4         RCONST(0.4)
-#define PT5         RCONST(0.5)
-#define PT55        RCONST(0.55)
-#define PT7         RCONST(0.7)
-#define ONE         RCONST(1.0)
-#define TWO         RCONST(2.0)
-#define TWOHUNDRED  RCONST(200.0)
-#define FOURHUNDRED RCONST(400.0)
-#define FIVEHUNDRED RCONST(500.0)
-#define SIXHUNDRED  RCONST(600.0)
+#define ZERO        SUN_RCONST(0.0)
+#define PT25        SUN_RCONST(0.25)
+#define PT4         SUN_RCONST(0.4)
+#define PT5         SUN_RCONST(0.5)
+#define PT55        SUN_RCONST(0.55)
+#define PT7         SUN_RCONST(0.7)
+#define ONE         SUN_RCONST(1.0)
+#define TWO         SUN_RCONST(2.0)
+#define TWOHUNDRED  SUN_RCONST(200.0)
+#define FOURHUNDRED SUN_RCONST(400.0)
+#define FIVEHUNDRED SUN_RCONST(500.0)
+#define SIXHUNDRED  SUN_RCONST(600.0)
 
 /* user data structure */
 typedef struct {
@@ -91,16 +91,16 @@ static int check_flag(void *flagvalue, const char *funcname, int opt);
 int main() {
 
   /* general problem parameters */
-  sunrealtype T0 = RCONST(0.0);         /* initial time */
-  sunrealtype Tf = RCONST(1.0);         /* final time */
-  sunrealtype rtol = RCONST(1.e-3);     /* relative tolerance */
-  sunrealtype atol = RCONST(1.e-10);    /* absolute tolerance */
-  sunrealtype hscale = RCONST(1.0);     /* time step change factor on resizes */
+  sunrealtype T0 = SUN_RCONST(0.0);         /* initial time */
+  sunrealtype Tf = SUN_RCONST(1.0);         /* final time */
+  sunrealtype rtol = SUN_RCONST(1.e-3);     /* relative tolerance */
+  sunrealtype atol = SUN_RCONST(1.e-10);    /* absolute tolerance */
+  sunrealtype hscale = SUN_RCONST(1.0);     /* time step change factor on resizes */
   UserData udata = NULL;
   sunrealtype *data;
   sunindextype N = 21;               /* initial spatial mesh size */
-  sunrealtype refine = RCONST(3.0e-3);  /* adaptivity refinement tolerance */
-  sunrealtype k = RCONST(0.5);          /* heat conductivity */
+  sunrealtype refine = SUN_RCONST(3.0e-3);  /* adaptivity refinement tolerance */
+  sunrealtype k = SUN_RCONST(0.5);          /* heat conductivity */
   sunindextype i;
   long int nni, nni_tot=0, nli, nli_tot=0;
   int iout=0;

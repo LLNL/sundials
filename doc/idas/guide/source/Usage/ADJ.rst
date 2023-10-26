@@ -2057,7 +2057,7 @@ function of type :c:type:`IDALsJacTimesSetupFnB` or
       these, the user will need to add a pointer to ``ida_mem``  to
       ``user_dataB`` and then use the ``IDAGet*`` functions described in
       :numref:`IDAS.Usage.SIM.user_callable.optional_output.main`.
-      The unit roundoff can be accessed as  ``UNIT_ROUNDOFF`` defined in
+      The unit roundoff can be accessed as  ``SUN_UNIT_ROUNDOFF`` defined in
       ``sundials_types.h``.
 
    .. warning::
@@ -2102,7 +2102,7 @@ function of type :c:type:`IDALsJacTimesSetupFnB` or
       etc.  To obtain these, the user will need to add a pointer to ``ida_mem``
       to ``user_dataB`` and then use the ``IDAGet*`` functions described in
       :numref:`IDAS.Usage.ADJ.user_callable.optional_output_b`. The unit roundoff
-      can be accessed as  ``UNIT_ROUNDOFF`` defined in ``sundials_types.h``.
+      can be accessed as  ``SUN_UNIT_ROUNDOFF`` defined in ``sundials_types.h``.
       The previous function type ``IDASpilsJacTimesSetupFnBS`` is deprecated.
 
    .. warning::

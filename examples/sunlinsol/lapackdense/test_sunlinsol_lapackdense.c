@@ -124,7 +124,7 @@ int main(int argc, char *argv[])
   /* Run Tests */
   fails += Test_SUNLinSolInitialize(LS, 0);
   fails += Test_SUNLinSolSetup(LS, A, 0);
-  fails += Test_SUNLinSolSolve(LS, A, x, b, 100*UNIT_ROUNDOFF, SUNTRUE, 0);
+  fails += Test_SUNLinSolSolve(LS, A, x, b, 100*SUN_UNIT_ROUNDOFF, SUNTRUE, 0);
 
   fails += Test_SUNLinSolGetType(LS, SUNLINEARSOLVER_DIRECT, 0);
   fails += Test_SUNLinSolGetID(LS, SUNLINEARSOLVER_LAPACKDENSE, 0);

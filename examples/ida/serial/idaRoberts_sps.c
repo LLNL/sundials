@@ -46,8 +46,8 @@
 #define NEQ   3
 #define NOUT  12
 
-#define ZERO RCONST(0.0)
-#define ONE  RCONST(1.0)
+#define ZERO SUN_RCONST(0.0)
+#define ONE  SUN_RCONST(1.0)
 
 /* Prototypes of functions called by IDA */
 
@@ -113,20 +113,20 @@ int main(void)
   yval[2] = ZERO;
 
   ypval = N_VGetArrayPointer(yp);
-  ypval[0]  = RCONST(-0.04);
-  ypval[1]  = RCONST(0.04);
+  ypval[0]  = SUN_RCONST(-0.04);
+  ypval[1]  = SUN_RCONST(0.04);
   ypval[2]  = ZERO;
 
-  rtol = RCONST(1.0e-4);
+  rtol = SUN_RCONST(1.0e-4);
 
   atval = N_VGetArrayPointer(avtol);
-  atval[0] = RCONST(1.0e-8);
-  atval[1] = RCONST(1.0e-6);
-  atval[2] = RCONST(1.0e-6);
+  atval[0] = SUN_RCONST(1.0e-8);
+  atval[1] = SUN_RCONST(1.0e-6);
+  atval[2] = SUN_RCONST(1.0e-6);
 
   /* Integration limits */
   t0 = ZERO;
-  tout1 = RCONST(0.4);
+  tout1 = SUN_RCONST(0.4);
 
   PrintHeader(rtol, avtol, yy);
 
@@ -183,7 +183,7 @@ int main(void)
 
     if (retval == IDA_SUCCESS) {
       iout++;
-      tout *= RCONST(10.0);
+      tout *= SUN_RCONST(10.0);
     }
 
     if (iout == NOUT) break;
@@ -222,8 +222,8 @@ int resrob(sunrealtype tres, N_Vector yy, N_Vector yp, N_Vector rr, void *user_d
   ypval = N_VGetArrayPointer(yp);
   rval = N_VGetArrayPointer(rr);
 
-  rval[0]  = RCONST(-0.04)*yval[0] + RCONST(1.0e4)*yval[1]*yval[2];
-  rval[1]  = -rval[0] - RCONST(3.0e7)*yval[1]*yval[1] - ypval[1];
+  rval[0]  = SUN_RCONST(-0.04)*yval[0] + SUN_RCONST(1.0e4)*yval[1]*yval[2];
+  rval[1]  = -rval[0] - SUN_RCONST(3.0e7)*yval[1]*yval[1] - ypval[1];
   rval[0] -=  ypval[0];
   rval[2]  =  yval[0] + yval[1] + yval[2] - ONE;
 
@@ -241,8 +241,8 @@ static int grob(sunrealtype t, N_Vector yy, N_Vector yp, sunrealtype *gout,
 
   yval = N_VGetArrayPointer(yy);
   y1 = yval[0]; y3 = yval[2];
-  gout[0] = y1 - RCONST(0.0001);
-  gout[1] = y3 - RCONST(0.01);
+  gout[0] = y1 - SUN_RCONST(0.0001);
+  gout[1] = y3 - SUN_RCONST(0.01);
 
   return(0);
 }
@@ -271,25 +271,25 @@ int jacrob(sunrealtype tt,  sunrealtype cj,
   colptrs[3] = 9;
 
   /* column 0 */
-  data[0] = RCONST(-0.04) - cj;
+  data[0] = SUN_RCONST(-0.04) - cj;
   rowvals[0] = 0;
-  data[1] = RCONST(0.04);
+  data[1] = SUN_RCONST(0.04);
   rowvals[1] = 1;
   data[2] = ONE;
   rowvals[2] = 2;
 
   /* column 1 */
-  data[3] = RCONST(1.0e4)*yval[2];
+  data[3] = SUN_RCONST(1.0e4)*yval[2];
   rowvals[3] = 0;
-  data[4] = (RCONST(-1.0e4)*yval[2]) - (RCONST(6.0e7)*yval[1]) - cj;
+  data[4] = (SUN_RCONST(-1.0e4)*yval[2]) - (SUN_RCONST(6.0e7)*yval[1]) - cj;
   rowvals[4] = 1;
   data[5] = ONE;
   rowvals[5] = 2;
 
   /* column 2 */
-  data[6] = RCONST(1.0e4)*yval[1];
+  data[6] = SUN_RCONST(1.0e4)*yval[1];
   rowvals[6] = 0;
-  data[7] = RCONST(-1.0e4)*yval[1];
+  data[7] = SUN_RCONST(-1.0e4)*yval[1];
   rowvals[7] = 1;
   data[8] = ONE;
   rowvals[8] = 2;

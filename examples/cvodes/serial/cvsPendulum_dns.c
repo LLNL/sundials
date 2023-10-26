@@ -96,9 +96,9 @@
 #endif
 
 /* Problem Constants */
-#define ZERO  RCONST(0.0)
-#define ONE   RCONST(1.0)
-#define GRAV  RCONST(13.750371636040745654980191559621114395801712)
+#define ZERO  SUN_RCONST(0.0)
+#define ONE   SUN_RCONST(1.0)
+#define GRAV  SUN_RCONST(13.750371636040745654980191559621114395801712)
 
 /* Functions provided to CVODES */
 static int fref(sunrealtype t, N_Vector yy, N_Vector fy, void *f_data);
@@ -132,9 +132,9 @@ int main(int argc, char* argv[])
   int         i;
   int         retval;                   /* reusable return flag    */
   int         nout    = 1;              /* number of outputs       */
-  sunrealtype    rtol    = RCONST(1.0e-5); /* base relative tolerance */
-  sunrealtype    atol    = RCONST(1.0e-5); /* base absolute tolerance */
-  sunrealtype    tf      = RCONST(30.0);   /* final integration time  */
+  sunrealtype    rtol    = SUN_RCONST(1.0e-5); /* base relative tolerance */
+  sunrealtype    atol    = SUN_RCONST(1.0e-5); /* base absolute tolerance */
+  sunrealtype    tf      = SUN_RCONST(30.0);   /* final integration time  */
   booleantype projerr = SUNTRUE;        /* enable error projection */
 
   void            *cvode_mem = NULL; /* CVODES memory             */
@@ -216,8 +216,8 @@ int main(int argc, char* argv[])
     if (check_retval(&retval, "GetSol", 1)) return(1);
 
     /* Reduce tolerance for next run */
-    rtol /= RCONST(10.0);
-    atol /= RCONST(10.0);
+    rtol /= SUN_RCONST(10.0);
+    atol /= SUN_RCONST(10.0);
   }
 
   /* Free memory */
@@ -432,7 +432,7 @@ int RefSol(sunrealtype tf, N_Vector yref, int nout)
   sunrealtype tout;                  /* output time           */
   sunrealtype t;                     /* return time           */
   sunrealtype th, thd;               /* theta and theta dot   */
-  sunrealtype tol = RCONST(1.0e-14); /* integration tolerance */
+  sunrealtype tol = SUN_RCONST(1.0e-14); /* integration tolerance */
 
   /* Create the solution vector */
   yy = N_VNew_Serial(2, sunctx);

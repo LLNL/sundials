@@ -493,9 +493,9 @@ static int SetStartGuess(N_Vector u, UserData* udata)
 
   for (sunindextype i = 0; i < udata->nodes_loc; i++)
   {
-    u_host[3 * i]     = RCONST(0.25);
-    u_host[3 * i + 1] = RCONST(3.0);
-    u_host[3 * i + 2] = RCONST(0.75);
+    u_host[3 * i]     = SUN_RCONST(0.25);
+    u_host[3 * i + 1] = SUN_RCONST(3.0);
+    u_host[3 * i + 2] = SUN_RCONST(0.75);
   }
 
   N_VCopyToDevice_Cuda(N_VGetLocalVector_MPIPlusX(u));
@@ -606,7 +606,7 @@ static int InitUserData(UserData *udata)
   udata->nodes = udata->nodes_loc * udata->nprocs_w;
 
   // Integrator settings
-  udata->rtol        = RCONST(1.e-8);   // relative tolerance
+  udata->rtol        = SUN_RCONST(1.e-8);   // relative tolerance
   udata->maa         = 3;               // 3 vectors in Anderson Acceleration space
   udata->damping     = ONE;             // no damping for Anderson Acceleration
   udata->orthaa      = 0;               // use MGS for Anderson Acceleration

@@ -29,12 +29,12 @@
 
 /* constants */
 #define MAX_ITERS  3  /* max. number of attempts to recover in DQ J*v */
-#define ZERO       RCONST(0.0)
-#define PT25       RCONST(0.25)
-#define PT05       RCONST(0.05)
-#define PT9        RCONST(0.9)
-#define ONE        RCONST(1.0)
-#define TWO        RCONST(2.0)
+#define ZERO       SUN_RCONST(0.0)
+#define PT25       SUN_RCONST(0.25)
+#define PT05       SUN_RCONST(0.05)
+#define PT9        SUN_RCONST(0.9)
+#define ONE        SUN_RCONST(1.0)
+#define TWO        SUN_RCONST(2.0)
 
 
 /*=================================================================

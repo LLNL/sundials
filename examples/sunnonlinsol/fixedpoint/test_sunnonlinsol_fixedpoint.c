@@ -62,19 +62,19 @@
 /* problem constants */
 #define NEQ   3 /* number of equations */
 
-#define ZERO         RCONST(0.0)             /* real 0.0  */
-#define PTONE        RCONST(0.1)             /* real 0.1  */
-#define HALF         RCONST(0.5)             /* real 0.5  */
-#define PTNINE       RCONST(0.9)             /* real 0.9  */
-#define ONE          RCONST(1.0)             /* real 1.0  */
-#define ONEPTZEROSIX RCONST(1.06)            /* real 1.06 */
-#define THREE        RCONST(3.0)             /* real 3.0  */
-#define SIX          RCONST(6.0)             /* real 6.0  */
-#define NINE         RCONST(9.0)             /* real 9.0  */
-#define TEN          RCONST(10.0)            /* real 10.0 */
-#define TWENTY       RCONST(20.0)            /* real 20.0 */
-#define SIXTY        RCONST(60.0)            /* real 60.0 */
-#define PI           RCONST(3.1415926535898) /* real pi   */
+#define ZERO         SUN_RCONST(0.0)             /* real 0.0  */
+#define PTONE        SUN_RCONST(0.1)             /* real 0.1  */
+#define HALF         SUN_RCONST(0.5)             /* real 0.5  */
+#define PTNINE       SUN_RCONST(0.9)             /* real 0.9  */
+#define ONE          SUN_RCONST(1.0)             /* real 1.0  */
+#define ONEPTZEROSIX SUN_RCONST(1.06)            /* real 1.06 */
+#define THREE        SUN_RCONST(3.0)             /* real 3.0  */
+#define SIX          SUN_RCONST(6.0)             /* real 6.0  */
+#define NINE         SUN_RCONST(9.0)             /* real 9.0  */
+#define TEN          SUN_RCONST(10.0)            /* real 10.0 */
+#define TWENTY       SUN_RCONST(20.0)            /* real 20.0 */
+#define SIXTY        SUN_RCONST(60.0)            /* real 60.0 */
+#define PI           SUN_RCONST(3.1415926535898) /* real pi   */
 
 /* analytic solution */
 #define XTRUE HALF
@@ -114,10 +114,10 @@ int main(int argc, char *argv[])
   IntegratorMem      Imem    = NULL;
   int                retval  = 0;
   SUNNonlinearSolver NLS     = NULL;
-  sunrealtype           tol     = 100 * SUNRsqrt(UNIT_ROUNDOFF);
+  sunrealtype           tol     = 100 * SUNRsqrt(SUN_UNIT_ROUNDOFF);
   int                mxiter  = 20;
   int                maa     = 0;           /* no acceleration */
-  sunrealtype           damping = RCONST(1.0); /* no damping      */
+  sunrealtype           damping = SUN_RCONST(1.0); /* no damping      */
   long int           niters  = 0;
   sunrealtype*          data    = NULL;
   SUNContext         sunctx     = NULL;

@@ -20,8 +20,8 @@
 struct UserOptions
 {
   // Integrator settings
-  sunrealtype rtol        = RCONST(1.0e-5);   // relative tolerance
-  sunrealtype atol        = RCONST(1.0e-10);  // absolute tolerance
+  sunrealtype rtol        = SUN_RCONST(1.0e-5);   // relative tolerance
+  sunrealtype atol        = SUN_RCONST(1.0e-10);  // absolute tolerance
   int      maxsteps    = 0;                // max steps between outputs
   int      onestep     = 0;                // one step mode, number of steps
 

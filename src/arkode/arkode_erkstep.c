@@ -1004,7 +1004,7 @@ int erkStep_CheckButcherTable(ARKodeMem ark_mem)
   int i, j;
   booleantype okay;
   ARKodeERKStepMem step_mem;
-  sunrealtype tol = RCONST(1.0e-12);
+  sunrealtype tol = SUN_RCONST(1.0e-12);
 
   /* access ARKodeERKStepMem structure */
   if (ark_mem->step_mem==NULL) {

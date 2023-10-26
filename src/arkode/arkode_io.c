@@ -53,12 +53,12 @@ int arkSetDefaults(void *arkode_mem)
   /* Set default values for integrator optional inputs */
   ark_mem->use_compensated_sums    = SUNFALSE; 
   ark_mem->fixedstep               = SUNFALSE;       /* default to use adaptive steps */
-  ark_mem->reltol                  = RCONST(1.e-4);  /* relative tolerance */
+  ark_mem->reltol                  = SUN_RCONST(1.e-4);  /* relative tolerance */
   ark_mem->itol                    = ARK_SS;         /* scalar-scalar solution tolerances */
   ark_mem->ritol                   = ARK_SS;         /* scalar-scalar residual tolerances */
-  ark_mem->Sabstol                 = RCONST(1.e-9);  /* solution absolute tolerance */
+  ark_mem->Sabstol                 = SUN_RCONST(1.e-9);  /* solution absolute tolerance */
   ark_mem->atolmin0                = SUNFALSE;       /* min(abstol) > 0 */
-  ark_mem->SRabstol                = RCONST(1.e-9);  /* residual absolute tolerance */
+  ark_mem->SRabstol                = SUN_RCONST(1.e-9);  /* residual absolute tolerance */
   ark_mem->Ratolmin0               = SUNFALSE;       /* min(Rabstol) > 0 */
   ark_mem->user_efun               = SUNFALSE;       /* no user-supplied ewt function */
   ark_mem->efun                    = arkEwtSetSS;    /* built-in scalar-scalar ewt function */
@@ -774,7 +774,7 @@ int arkSetConstraints(void *arkode_mem, N_Vector constraints)
 
   /* Check the constraints vector */
   temptest = N_VMaxNorm(constraints);
-  if ((temptest > RCONST(2.5)) || (temptest < HALF)) {
+  if ((temptest > SUN_RCONST(2.5)) || (temptest < HALF)) {
     arkProcessError(ark_mem, ARK_ILL_INPUT, "ARKODE::ARKStep",
                     "ARKStepSetConstraints", MSG_ARK_BAD_CONSTR);
     return(ARK_ILL_INPUT);

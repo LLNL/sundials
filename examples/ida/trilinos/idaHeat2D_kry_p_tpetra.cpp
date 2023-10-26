@@ -60,9 +60,9 @@
 #include <sundials/sundials_types.h>
 #include <sundials/sundials_mpi_types.h>
 
-#define ZERO  RCONST(0.0)
-#define ONE   RCONST(1.0)
-#define TWO   RCONST(2.0)
+#define ZERO  SUN_RCONST(0.0)
+#define ONE   SUN_RCONST(1.0)
+#define TWO   SUN_RCONST(2.0)
 
 #define NOUT         11    /* Number of output times */
 
@@ -256,11 +256,11 @@ int main(int argc, char *argv[])
     N_VConst(ONE, constraints);
 
     sunrealtype t0 = ZERO;
-    sunrealtype t1 = RCONST(0.01);
+    sunrealtype t1 = SUN_RCONST(0.01);
 
     /* Scalar relative and absolute tolerance. */
     sunrealtype rtol = ZERO;
-    sunrealtype atol = RCONST(1.0e-3);
+    sunrealtype atol = SUN_RCONST(1.0e-3);
 
     /* Call IDACreate and IDAMalloc to initialize solution. */
 
@@ -992,7 +992,7 @@ static int SetInitialProfile(N_Vector uu, N_Vector up,  N_Vector id,
     for (i = ixbegin, iloc = 0; i <= ixend; i++, iloc++) {
       xfact = dx*i;
       loc = iloc + jloc*mxsub;
-      u_1d(loc) = RCONST(16.0) * xfact * (ONE - xfact) * yfact * (ONE - yfact);
+      u_1d(loc) = SUN_RCONST(16.0) * xfact * (ONE - xfact) * yfact * (ONE - yfact);
 
       if (i == 0 || i == data->mx - 1 || j == 0 || j == data->my - 1)
         id_1d(loc) = ZERO;

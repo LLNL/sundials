@@ -64,16 +64,16 @@
 /* Problem Constants */
 
 #define NEQ   3             /* number of equations  */
-#define T0    RCONST(0.0)   /* initial time */
-#define T1    RCONST(0.4)   /* first output time */
-#define TMULT RCONST(10.0)  /* output time factor */
+#define T0    SUN_RCONST(0.0)   /* initial time */
+#define T1    SUN_RCONST(0.4)   /* first output time */
+#define TMULT SUN_RCONST(10.0)  /* output time factor */
 #define NOUT  12            /* number of output times */
 
 #define NP    3             /* number of problem parameters */
 #define NS    3             /* number of sensitivities computed */
 
-#define ZERO  RCONST(0.0)
-#define ONE   RCONST(1.0)
+#define ZERO  SUN_RCONST(0.0)
+#define ONE   SUN_RCONST(1.0)
 
 /* Type : UserData */
 
@@ -159,10 +159,10 @@ int main(int argc, char *argv[])
   /* User data structure */
   data = (UserData) malloc(sizeof *data);
   if (check_retval((void *)data, "malloc", 2)) return(1);
-  data->p[0] = RCONST(0.040);
-  data->p[1] = RCONST(1.0e4);
-  data->p[2] = RCONST(3.0e7);
-  data->coef = RCONST(0.5);
+  data->p[0] = SUN_RCONST(0.040);
+  data->p[1] = SUN_RCONST(1.0e4);
+  data->p[2] = SUN_RCONST(3.0e7);
+  data->coef = SUN_RCONST(0.5);
 
   /* Initial conditions */
   y = N_VNew_Serial(NEQ, ctx);
@@ -176,7 +176,7 @@ int main(int argc, char *argv[])
   if(check_retval((void *)yp, "N_VNew_Serial", 0)) return(1);
 
   /* These initial conditions are NOT consistent. See IDACalcIC below. */
-  Ith(yp,1) = RCONST(0.1);
+  Ith(yp,1) = SUN_RCONST(0.1);
   Ith(yp,2) = ZERO;
   Ith(yp,3) = ZERO;
 
@@ -189,11 +189,11 @@ int main(int argc, char *argv[])
   if (check_retval(&retval, "IDAInit", 1)) return(1);
 
   /* Specify scalar relative tol. and vector absolute tol. */
-  reltol = RCONST(1.0e-6);
+  reltol = SUN_RCONST(1.0e-6);
   abstol = N_VClone(y);
-  Ith(abstol,1) = RCONST(1.0e-8);
-  Ith(abstol,2) = RCONST(1.0e-14);
-  Ith(abstol,3) = RCONST(1.0e-6);
+  Ith(abstol,1) = SUN_RCONST(1.0e-8);
+  Ith(abstol,2) = SUN_RCONST(1.0e-14);
+  Ith(abstol,3) = SUN_RCONST(1.0e-6);
   retval = IDASVtolerances(ida_mem, reltol, abstol);
   if (check_retval(&retval, "IDASVtolerances", 1)) return(1);
 

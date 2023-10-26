@@ -60,20 +60,20 @@ using namespace std;
 // Problem Constants
 
 #define GROUPSIZE 3            // number of equations per group
-#define Y1    RCONST(1.0)      // initial y components
-#define Y2    RCONST(0.0)
-#define Y3    RCONST(0.0)
-#define RTOL  RCONST(1.0e-4)   // scalar relative tolerance
-#define ATOL1 RCONST(1.0e-8)   // vector absolute tolerance components
-#define ATOL2 RCONST(1.0e-14)
-#define ATOL3 RCONST(1.0e-6)
-#define T0    RCONST(0.0)      // initial time
-#define T1    RCONST(0.1)      // first output time
-#define TMULT RCONST(10.0)     // output time factor
+#define Y1    SUN_RCONST(1.0)      // initial y components
+#define Y2    SUN_RCONST(0.0)
+#define Y3    SUN_RCONST(0.0)
+#define RTOL  SUN_RCONST(1.0e-4)   // scalar relative tolerance
+#define ATOL1 SUN_RCONST(1.0e-8)   // vector absolute tolerance components
+#define ATOL2 SUN_RCONST(1.0e-14)
+#define ATOL3 SUN_RCONST(1.0e-6)
+#define T0    SUN_RCONST(0.0)      // initial time
+#define T1    SUN_RCONST(0.1)      // first output time
+#define TMULT SUN_RCONST(10.0)     // output time factor
 #define NOUT  10               // number of output times
 
-#define ZERO  RCONST(0.0)
-#define ONE   RCONST(1.0)
+#define ZERO  SUN_RCONST(0.0)
+#define ONE   SUN_RCONST(1.0)
 
 // Functions Called by the Solver
 static int f(sunrealtype t, N_Vector y, N_Vector ydot, void *user_data);
@@ -335,8 +335,8 @@ static int f(sunrealtype t, N_Vector y, N_Vector ydot, void* user_data)
       sunrealtype y2 = ydata[N * groupj + 1];
       sunrealtype y3 = ydata[N * groupj + 2];
 
-      sunrealtype yd1 = RCONST(-0.04) * y1 + RCONST(1.0e4) * y2 * y3;
-      sunrealtype yd3 = RCONST(3.0e7) * y2 * y2;
+      sunrealtype yd1 = SUN_RCONST(-0.04) * y1 + SUN_RCONST(1.0e4) * y2 * y3;
+      sunrealtype yd3 = SUN_RCONST(3.0e7) * y2 * y2;
 
       ydotdata[N * groupj]     = yd1;
       ydotdata[N * groupj + 1] = -yd1 - yd3;
@@ -373,18 +373,18 @@ static int Jac(sunrealtype t, N_Vector y, N_Vector fy, SUNMatrix J,
       sunrealtype y3 = ydata[N * groupj + 2];
 
       // first col of block
-      Jdata[NN * groupj]     = RCONST(-0.04);
-      Jdata[NN * groupj + 1] = RCONST(0.04);
+      Jdata[NN * groupj]     = SUN_RCONST(-0.04);
+      Jdata[NN * groupj + 1] = SUN_RCONST(0.04);
       Jdata[NN * groupj + 2] = ZERO;
 
       // second col of block
-      Jdata[NN * groupj + 3] = RCONST(1.0e4) * y3;
-      Jdata[NN * groupj + 4] = RCONST(-1.0e4) * y3 - RCONST(6.0e7) * y2;
-      Jdata[NN * groupj + 5] = RCONST(6.0e7) * y2;
+      Jdata[NN * groupj + 3] = SUN_RCONST(1.0e4) * y3;
+      Jdata[NN * groupj + 4] = SUN_RCONST(-1.0e4) * y3 - SUN_RCONST(6.0e7) * y2;
+      Jdata[NN * groupj + 5] = SUN_RCONST(6.0e7) * y2;
 
       // third col of block
-      Jdata[NN * groupj + 6] = RCONST(1.0e4) * y2;
-      Jdata[NN * groupj + 7] = RCONST(-1.0e4) * y2;
+      Jdata[NN * groupj + 6] = SUN_RCONST(1.0e4) * y2;
+      Jdata[NN * groupj + 7] = SUN_RCONST(-1.0e4) * y2;
       Jdata[NN * groupj + 8] = ZERO;
     });
   });
@@ -427,10 +427,10 @@ static int PSolve(sunrealtype t, N_Vector y, N_Vector f, N_Vector r,
       sunrealtype y3 = ydata[i2];
 
       // set matrix values
-      sunrealtype a = gamma * RCONST(0.04);
-      sunrealtype b = gamma * RCONST(1.0e4) * y3;
-      sunrealtype c = gamma * RCONST(1.0e4) * y2;
-      sunrealtype d = gamma * RCONST(6.0e7) * y2;
+      sunrealtype a = gamma * SUN_RCONST(0.04);
+      sunrealtype b = gamma * SUN_RCONST(1.0e4) * y3;
+      sunrealtype c = gamma * SUN_RCONST(1.0e4) * y2;
+      sunrealtype d = gamma * SUN_RCONST(6.0e7) * y2;
 
       // Initial Jacobi iteration with zero guess
 

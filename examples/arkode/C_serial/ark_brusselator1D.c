@@ -93,8 +93,8 @@ static int check_flag(void *flagvalue, const char *funcname, int opt);
 int main()
 {
   /* general problem parameters */
-  sunrealtype T0 = RCONST(0.0);    /* initial time */
-  sunrealtype Tf = RCONST(10.0);   /* final time */
+  sunrealtype T0 = SUN_RCONST(0.0);    /* initial time */
+  sunrealtype Tf = SUN_RCONST(10.0);   /* final time */
   int Nt = 100;                 /* total number of output times */
   int Nvar = 3;                 /* number of solution fields */
   UserData udata = NULL;
@@ -168,32 +168,32 @@ int main()
   if (check_flag((void *)wmask, "N_VClone", 0)) return 1;
 
   /* Set initial conditions into y */
-  udata->dx = RCONST(1.0)/(N-1);    /* set spatial mesh spacing */
+  udata->dx = SUN_RCONST(1.0)/(N-1);    /* set spatial mesh spacing */
   data = N_VGetArrayPointer(y);     /* Access data array for new NVector y */
   if (check_flag((void *)data, "N_VGetArrayPointer", 0)) return 1;
 
-  pi = RCONST(4.0)*atan(RCONST(1.0));
+  pi = SUN_RCONST(4.0)*atan(SUN_RCONST(1.0));
   for (i=0; i<N; i++) {
-    data[IDX(i,0)] =  a  + RCONST(0.1)*sin(pi*i*udata->dx);  /* u */
-    data[IDX(i,1)] = b/a + RCONST(0.1)*sin(pi*i*udata->dx);  /* v */
-    data[IDX(i,2)] =  b  + RCONST(0.1)*sin(pi*i*udata->dx);  /* w */
+    data[IDX(i,0)] =  a  + SUN_RCONST(0.1)*sin(pi*i*udata->dx);  /* u */
+    data[IDX(i,1)] = b/a + SUN_RCONST(0.1)*sin(pi*i*udata->dx);  /* v */
+    data[IDX(i,2)] =  b  + SUN_RCONST(0.1)*sin(pi*i*udata->dx);  /* w */
   }
 
   /* Set mask array values for each solution component */
   N_VConst(0.0, umask);
   data = N_VGetArrayPointer(umask);
   if (check_flag((void *)data, "N_VGetArrayPointer", 0)) return 1;
-  for (i=0; i<N; i++)  data[IDX(i,0)] = RCONST(1.0);
+  for (i=0; i<N; i++)  data[IDX(i,0)] = SUN_RCONST(1.0);
 
   N_VConst(0.0, vmask);
   data = N_VGetArrayPointer(vmask);
   if (check_flag((void *)data, "N_VGetArrayPointer", 0)) return 1;
-  for (i=0; i<N; i++)  data[IDX(i,1)] = RCONST(1.0);
+  for (i=0; i<N; i++)  data[IDX(i,1)] = SUN_RCONST(1.0);
 
   N_VConst(0.0, wmask);
   data = N_VGetArrayPointer(wmask);
   if (check_flag((void *)data, "N_VGetArrayPointer", 0)) return 1;
-  for (i=0; i<N; i++)  data[IDX(i,2)] = RCONST(1.0);
+  for (i=0; i<N; i++)  data[IDX(i,2)] = SUN_RCONST(1.0);
 
   /* Call ARKStepCreate to initialize the ARK timestepper module and
      specify the right-hand side function in y'=f(t,y), the inital time
@@ -360,13 +360,13 @@ static int f(sunrealtype t, N_Vector y, N_Vector ydot, void *user_data)
     w = Ydata[IDX(i,2)];  wl = Ydata[IDX(i-1,2)];  wr = Ydata[IDX(i+1,2)];
 
     /* Fill in ODE RHS for u */
-    dYdata[IDX(i,0)] = (ul - RCONST(2.0)*u + ur)*uconst + a - (w+RCONST(1.0))*u + v*u*u;
+    dYdata[IDX(i,0)] = (ul - SUN_RCONST(2.0)*u + ur)*uconst + a - (w+SUN_RCONST(1.0))*u + v*u*u;
 
     /* Fill in ODE RHS for v */
-    dYdata[IDX(i,1)] = (vl - RCONST(2.0)*v + vr)*vconst + w*u - v*u*u;
+    dYdata[IDX(i,1)] = (vl - SUN_RCONST(2.0)*v + vr)*vconst + w*u - v*u*u;
 
     /* Fill in ODE RHS for w */
-    dYdata[IDX(i,2)] = (wl - RCONST(2.0)*w + wr)*wconst + (b-w)/ep - w*u;
+    dYdata[IDX(i,2)] = (wl - SUN_RCONST(2.0)*w + wr)*wconst + (b-w)/ep - w*u;
   }
 
   /* enforce stationary boundaries */
@@ -384,10 +384,10 @@ static int Jac(sunrealtype t, N_Vector y, N_Vector fy, SUNMatrix J,
   SUNMatZero(J);                             /* Initialize Jacobian to zero */
 
   /* Fill in the Laplace matrix */
-  LaplaceMatrix(RCONST(1.0), J, udata);
+  LaplaceMatrix(SUN_RCONST(1.0), J, udata);
 
   /* Add in the Jacobian of the reaction terms matrix */
-  ReactionJac(RCONST(1.0), y, J, udata);
+  ReactionJac(SUN_RCONST(1.0), y, J, udata);
 
   return 0;                                  /* Return with success */
 }
@@ -410,9 +410,9 @@ static int LaplaceMatrix(sunrealtype c, SUNMatrix Jac, UserData udata)
     SM_ELEMENT_B(Jac,IDX(i,0),IDX(i-1,0)) += c*udata->du/dx/dx;
     SM_ELEMENT_B(Jac,IDX(i,1),IDX(i-1,1)) += c*udata->dv/dx/dx;
     SM_ELEMENT_B(Jac,IDX(i,2),IDX(i-1,2)) += c*udata->dw/dx/dx;
-    SM_ELEMENT_B(Jac,IDX(i,0),IDX(i,0)) += -c*RCONST(2.0)*udata->du/dx/dx;
-    SM_ELEMENT_B(Jac,IDX(i,1),IDX(i,1)) += -c*RCONST(2.0)*udata->dv/dx/dx;
-    SM_ELEMENT_B(Jac,IDX(i,2),IDX(i,2)) += -c*RCONST(2.0)*udata->dw/dx/dx;
+    SM_ELEMENT_B(Jac,IDX(i,0),IDX(i,0)) += -c*SUN_RCONST(2.0)*udata->du/dx/dx;
+    SM_ELEMENT_B(Jac,IDX(i,1),IDX(i,1)) += -c*SUN_RCONST(2.0)*udata->dv/dx/dx;
+    SM_ELEMENT_B(Jac,IDX(i,2),IDX(i,2)) += -c*SUN_RCONST(2.0)*udata->dw/dx/dx;
     SM_ELEMENT_B(Jac,IDX(i,0),IDX(i+1,0)) += c*udata->du/dx/dx;
     SM_ELEMENT_B(Jac,IDX(i,1),IDX(i+1,1)) += c*udata->dv/dx/dx;
     SM_ELEMENT_B(Jac,IDX(i,2),IDX(i+1,2)) += c*udata->dw/dx/dx;
@@ -440,8 +440,8 @@ static int ReactionJac(sunrealtype c, N_Vector y, SUNMatrix Jac, UserData udata)
     w = Ydata[IDX(i,2)];
 
     /* all vars wrt u */
-    SM_ELEMENT_B(Jac,IDX(i,0),IDX(i,0)) += c*(RCONST(2.0)*u*v-(w+RCONST(1.0)));
-    SM_ELEMENT_B(Jac,IDX(i,1),IDX(i,0)) += c*(w - RCONST(2.0)*u*v);
+    SM_ELEMENT_B(Jac,IDX(i,0),IDX(i,0)) += c*(SUN_RCONST(2.0)*u*v-(w+SUN_RCONST(1.0)));
+    SM_ELEMENT_B(Jac,IDX(i,1),IDX(i,0)) += c*(w - SUN_RCONST(2.0)*u*v);
     SM_ELEMENT_B(Jac,IDX(i,2),IDX(i,0)) += c*(-w);
 
     /* all vars wrt v */
@@ -451,7 +451,7 @@ static int ReactionJac(sunrealtype c, N_Vector y, SUNMatrix Jac, UserData udata)
     /* all vars wrt w */
     SM_ELEMENT_B(Jac,IDX(i,0),IDX(i,2)) += c*(-u);
     SM_ELEMENT_B(Jac,IDX(i,1),IDX(i,2)) += c*(u);
-    SM_ELEMENT_B(Jac,IDX(i,2),IDX(i,2)) += c*(-RCONST(1.0)/ep - u);
+    SM_ELEMENT_B(Jac,IDX(i,2),IDX(i,2)) += c*(-SUN_RCONST(1.0)/ep - u);
 
   }
 

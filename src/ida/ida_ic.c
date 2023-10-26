@@ -30,18 +30,18 @@
 
 /* Private Constants */
 
-#define ZERO       RCONST(0.0)    /* real 0.0    */
-#define HALF       RCONST(0.5)    /* real 0.5    */
-#define ONE        RCONST(1.0)    /* real 1.0    */
-#define TWO        RCONST(2.0)    /* real 2.0    */
-#define PT99       RCONST(0.99)   /* real 0.99   */
-#define PT1        RCONST(0.1)    /* real 0.1    */
-#define PT001      RCONST(0.001)  /* real 0.001  */
+#define ZERO       SUN_RCONST(0.0)    /* real 0.0    */
+#define HALF       SUN_RCONST(0.5)    /* real 0.5    */
+#define ONE        SUN_RCONST(1.0)    /* real 1.0    */
+#define TWO        SUN_RCONST(2.0)    /* real 2.0    */
+#define PT99       SUN_RCONST(0.99)   /* real 0.99   */
+#define PT1        SUN_RCONST(0.1)    /* real 0.1    */
+#define PT001      SUN_RCONST(0.001)  /* real 0.001  */
 
 /* IDACalcIC control constants */
 
-#define ICRATEMAX  RCONST(0.9)    /* max. Newton conv. rate */
-#define ALPHALS    RCONST(0.0001) /* alpha in linesearch conv. test */
+#define ICRATEMAX  SUN_RCONST(0.9)    /* max. Newton conv. rate */
+#define ALPHALS    SUN_RCONST(0.0001) /* alpha in linesearch conv. test */
 
 /* Return values for lower level routines used by IDACalcIC */
 

@@ -311,7 +311,7 @@ int mriStep_Nls(ARKodeMem ark_mem, int nflag)
   N_VConst(ZERO, step_mem->zcor);
 
   /* Reset the stored residual norm (for iterative linear solvers) */
-  step_mem->eRNrm = RCONST(0.1) * step_mem->nlscoef;
+  step_mem->eRNrm = SUN_RCONST(0.1) * step_mem->nlscoef;
 
   /* solve the nonlinear system for the actual correction */
   retval = SUNNonlinSolSolve(step_mem->NLS, step_mem->zpred, step_mem->zcor,

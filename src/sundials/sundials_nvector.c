@@ -542,7 +542,7 @@ int N_VLinearCombination(int nvec, sunrealtype* c, N_Vector* X, N_Vector z)
 
     z->ops->nvscale(c[0], X[0], z);
     for (i=1; i<nvec; i++) {
-      z->ops->nvlinearsum(c[i], X[i], RCONST(1.0), z, z);
+      z->ops->nvlinearsum(c[i], X[i], SUN_RCONST(1.0), z, z);
     }
     ier = 0;
 
@@ -564,7 +564,7 @@ int N_VScaleAddMulti(int nvec, sunrealtype* a, N_Vector x, N_Vector* Y, N_Vector
   } else {
 
     for (i=0; i<nvec; i++) {
-      x->ops->nvlinearsum(a[i], x, RCONST(1.0), Y[i], Z[i]);
+      x->ops->nvlinearsum(a[i], x, SUN_RCONST(1.0), Y[i], Z[i]);
     }
     ier = 0;
 
@@ -749,7 +749,7 @@ int N_VScaleAddMultiVectorArray(int nvec, int nsum, sunrealtype* a, N_Vector* X,
 
     for (i=0; i<nvec; i++) {
       for (j=0; j<nsum; j++) {
-        X[0]->ops->nvlinearsum(a[j], X[i], RCONST(1.0), Y[j][i], Z[j][i]);
+        X[0]->ops->nvlinearsum(a[j], X[i], SUN_RCONST(1.0), Y[j][i], Z[j][i]);
       }
     }
     ier = 0;
@@ -793,7 +793,7 @@ int N_VLinearCombinationVectorArray(int nvec, int nsum, sunrealtype* c,
     for (i=0; i<nvec; i++) {
       Z[0]->ops->nvscale(c[0], X[0][i], Z[i]);
       for (j=1; j<nsum; j++) {
-        Z[0]->ops->nvlinearsum(c[j], X[j][i], RCONST(1.0), Z[i], Z[i]);
+        Z[0]->ops->nvlinearsum(c[j], X[j][i], SUN_RCONST(1.0), Z[i], Z[i]);
       }
     }
     ier = 0;

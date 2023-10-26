@@ -273,7 +273,7 @@ static int InitializeClearCache(int cachesize)
   }
 
   /* fill host vector with random data and copy to device */
-  rand_realtype(h_data, N, RCONST(-1.0), RCONST(1.0));
+  rand_realtype(h_data, N, SUN_RCONST(-1.0), SUN_RCONST(1.0));
 
   err = cudaMemcpy(d_data, h_data, N*sizeof(sunrealtype), cudaMemcpyHostToDevice);
   if (err != cudaSuccess) {

@@ -123,29 +123,29 @@
 #define NUM_SPECIES     6  /* must equal 2*(number of prey or predators)
                               number of prey = number of predators       */
 
-#define PI       RCONST(3.1415926535898)   /* pi */
+#define PI       SUN_RCONST(3.1415926535898)   /* pi */
 
 #define MX          8              /* MX = number of x mesh points */
 #define MY          8              /* MY = number of y mesh points */
 #define NSMX        (NUM_SPECIES * MX)
 #define NEQ         (NSMX * MY)    /* number of equations in the system */
-#define AA          RCONST(1.0)    /* value of coefficient AA in above eqns */
-#define EE          RCONST(10000.) /* value of coefficient EE in above eqns */
-#define GG          RCONST(0.5e-6) /* value of coefficient GG in above eqns */
-#define BB          RCONST(1.0)    /* value of coefficient BB in above eqns */
-#define DPREY       RCONST(1.0)    /* value of coefficient dprey above */
-#define DPRED       RCONST(0.5)    /* value of coefficient dpred above */
-#define ALPHA       RCONST(1.0)    /* value of coefficient alpha above */
-#define AX          RCONST(1.0)    /* total range of x variable */
-#define AY          RCONST(1.0)    /* total range of y variable */
-#define FTOL        RCONST(1.e-7)  /* ftol tolerance */
-#define STOL        RCONST(1.e-13) /* stol tolerance */
-#define THOUSAND    RCONST(1000.0) /* one thousand */
-#define ZERO        RCONST(0.0)    /* 0. */
-#define ONE         RCONST(1.0)    /* 1. */
-#define TWO         RCONST(2.0)    /* 2. */
-#define PREYIN      RCONST(1.0)    /* initial guess for prey concentrations. */
-#define PREDIN      RCONST(30000.0)/* initial guess for predator concs.      */
+#define AA          SUN_RCONST(1.0)    /* value of coefficient AA in above eqns */
+#define EE          SUN_RCONST(10000.) /* value of coefficient EE in above eqns */
+#define GG          SUN_RCONST(0.5e-6) /* value of coefficient GG in above eqns */
+#define BB          SUN_RCONST(1.0)    /* value of coefficient BB in above eqns */
+#define DPREY       SUN_RCONST(1.0)    /* value of coefficient dprey above */
+#define DPRED       SUN_RCONST(0.5)    /* value of coefficient dpred above */
+#define ALPHA       SUN_RCONST(1.0)    /* value of coefficient alpha above */
+#define AX          SUN_RCONST(1.0)    /* total range of x variable */
+#define AY          SUN_RCONST(1.0)    /* total range of y variable */
+#define FTOL        SUN_RCONST(1.e-7)  /* ftol tolerance */
+#define STOL        SUN_RCONST(1.e-13) /* stol tolerance */
+#define THOUSAND    SUN_RCONST(1000.0) /* one thousand */
+#define ZERO        SUN_RCONST(0.0)    /* 0. */
+#define ONE         SUN_RCONST(1.0)    /* 1. */
+#define TWO         SUN_RCONST(2.0)    /* 2. */
+#define PREYIN      SUN_RCONST(1.0)    /* initial guess for prey concentrations. */
+#define PREDIN      SUN_RCONST(30000.0)/* initial guess for predator concs.      */
 
 /* User-defined vector access macro: IJ_Vptr */
 
@@ -594,7 +594,7 @@ static void InitUserData(UserData data)
   data->ay = AY;
   data->dx = (data->ax)/(MX-1);
   data->dy = (data->ay)/(MY-1);
-  data->uround = UNIT_ROUNDOFF;
+  data->uround = SUN_UNIT_ROUNDOFF;
   data->sqruround = sqrt(data->uround);
 
   /* Set up the coefficients a and b plus others found in the equations */
@@ -671,7 +671,7 @@ static void SetInitialProfiles(N_Vector cc, N_Vector sc)
   }
   for (i = NUM_SPECIES/2; i < NUM_SPECIES; i++) {
     ctemp[i] = PREDIN;
-    stemp[i] = RCONST(0.00001);
+    stemp[i] = SUN_RCONST(0.00001);
   }
 
   /* Load initial profiles into cc and sc vector from ctemp and stemp. */

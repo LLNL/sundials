@@ -44,8 +44,8 @@
 
 #define Ith(v,i)    NV_Ith_S(v,i-1)
 
-#define ZERO RCONST(0.0)
-#define ONE  RCONST(1.0)
+#define ZERO SUN_RCONST(0.0)
+#define ONE  SUN_RCONST(1.0)
 
 typedef struct {
   sunrealtype p1, p2;
@@ -132,8 +132,8 @@ int main(int argc, char *argv[])
   /* User data structure */
 
   data = (UserData) malloc(sizeof *data);
-  data->p1 = RCONST(1.0);
-  data->p2 = RCONST(2.0);
+  data->p1 = SUN_RCONST(1.0);
+  data->p2 = SUN_RCONST(2.0);
 
   /* Problem size, integration interval, and tolerances */
 
@@ -437,7 +437,7 @@ int main(int argc, char *argv[])
 
   /* Finite difference tests */
 
-  dp = RCONST(1.0e-2);
+  dp = SUN_RCONST(1.0e-2);
 
   printf("-----------------------\n");
   printf("Finite Difference tests\n");

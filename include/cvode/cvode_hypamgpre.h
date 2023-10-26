@@ -150,7 +150,7 @@ extern "C" {
  *     and ewt (the error weight vector) are accessible through   
  *     CVodeGetCurrentStep and CVodeGetErrWeights, respectively 
  *     (see cvode.h). The unit roundoff is available as 
- *     UNIT_ROUNDOFF defined in sundials_types.h.
+ *     SUN_UNIT_ROUNDOFF defined in sundials_types.h.
  *
  * -----------------------------------------------------------------
  */

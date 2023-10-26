@@ -35,32 +35,32 @@ extern "C" {
 #define ARK_ADAPT_LIW  8    /* includes function/data pointers */
 
 /* Time step controller default values */
-#define CFLFAC    RCONST(0.5)
-#define SAFETY    RCONST(0.96)  /* CVODE uses 1.0  */
-#define BIAS      RCONST(1.5)   /* CVODE uses 6.0  */
-#define GROWTH    RCONST(20.0)  /* CVODE uses 10.0 */
-#define HFIXED_LB RCONST(1.0)   /* CVODE uses 1.0  */
-#define HFIXED_UB RCONST(1.5)   /* CVODE uses 1.5  */
-#define AD0_K1    RCONST(0.58)  /* PID controller constants */
-#define AD0_K2    RCONST(0.21)
-#define AD0_K3    RCONST(0.1)
-#define AD1_K1    RCONST(0.8)   /* PI controller constants */
-#define AD1_K2    RCONST(0.31)
-#define AD2_K1    RCONST(1.0)   /* I controller constants */
-#define AD3_K1    RCONST(0.367) /* explicit Gustafsson controller */
-#define AD3_K2    RCONST(0.268)
-#define AD4_K1    RCONST(0.98)  /* implicit Gustafsson controller */
-#define AD4_K2    RCONST(0.95)
-#define AD5_K1    RCONST(0.367) /* imex Gustafsson controller */
-#define AD5_K2    RCONST(0.268)
-#define AD5_K3    RCONST(0.95)
+#define CFLFAC    SUN_RCONST(0.5)
+#define SAFETY    SUN_RCONST(0.96)  /* CVODE uses 1.0  */
+#define BIAS      SUN_RCONST(1.5)   /* CVODE uses 6.0  */
+#define GROWTH    SUN_RCONST(20.0)  /* CVODE uses 10.0 */
+#define HFIXED_LB SUN_RCONST(1.0)   /* CVODE uses 1.0  */
+#define HFIXED_UB SUN_RCONST(1.5)   /* CVODE uses 1.5  */
+#define AD0_K1    SUN_RCONST(0.58)  /* PID controller constants */
+#define AD0_K2    SUN_RCONST(0.21)
+#define AD0_K3    SUN_RCONST(0.1)
+#define AD1_K1    SUN_RCONST(0.8)   /* PI controller constants */
+#define AD1_K2    SUN_RCONST(0.31)
+#define AD2_K1    SUN_RCONST(1.0)   /* I controller constants */
+#define AD3_K1    SUN_RCONST(0.367) /* explicit Gustafsson controller */
+#define AD3_K2    SUN_RCONST(0.268)
+#define AD4_K1    SUN_RCONST(0.98)  /* implicit Gustafsson controller */
+#define AD4_K2    SUN_RCONST(0.95)
+#define AD5_K1    SUN_RCONST(0.367) /* imex Gustafsson controller */
+#define AD5_K2    SUN_RCONST(0.268)
+#define AD5_K3    SUN_RCONST(0.95)
 
-#define ETAMX1    RCONST(10000.0)  /* maximum step size change on first step */
-#define ETAMXF    RCONST(0.3)      /* step size reduction factor on multiple error
+#define ETAMX1    SUN_RCONST(10000.0)  /* maximum step size change on first step */
+#define ETAMXF    SUN_RCONST(0.3)      /* step size reduction factor on multiple error
                                       test failures (multiple implies >= SMALL_NEF) */
-#define ETAMIN    RCONST(0.1)      /* smallest allowable step size reduction factor
+#define ETAMIN    SUN_RCONST(0.1)      /* smallest allowable step size reduction factor
                                       on an error test failure */
-#define ETACF     RCONST(0.25)     /* step size reduction factor on nonlinear
+#define ETACF     SUN_RCONST(0.25)     /* step size reduction factor on nonlinear
                                       convergence failure */
 #define SMALL_NEF 2                /* if an error failure occurs and SMALL_NEF <= nef,
                                       then reset  eta = MIN(eta, ETAMXF) */

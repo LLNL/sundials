@@ -28,9 +28,9 @@
 #include <nvector/nvector_serial.h>
 
 
-#define MIN_INC_MULT RCONST(1000.0)
-#define ZERO         RCONST(0.0)
-#define ONE          RCONST(1.0)
+#define MIN_INC_MULT SUN_RCONST(1000.0)
+#define ZERO         SUN_RCONST(0.0)
+#define ONE          SUN_RCONST(1.0)
 
 
 /* Prototypes of functions ARKBBDPrecSetup and ARKBBDPrecSolve */

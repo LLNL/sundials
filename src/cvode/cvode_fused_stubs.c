@@ -20,11 +20,11 @@
 #include "cvode_diag_impl.h"
 #include "cvode_impl.h"
 
-#define ZERO   RCONST(0.0)
-#define PT1    RCONST(0.1)
-#define FRACT  RCONST(0.1)
-#define ONEPT5 RCONST(1.50)
-#define ONE    RCONST(1.0)
+#define ZERO   SUN_RCONST(0.0)
+#define PT1    SUN_RCONST(0.1)
+#define FRACT  SUN_RCONST(0.1)
+#define ONEPT5 SUN_RCONST(1.50)
+#define ONE    SUN_RCONST(1.0)
 
 /*
  * -----------------------------------------------------------------

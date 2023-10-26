@@ -2072,7 +2072,7 @@ provide a function of type :c:type:`KINLsJacFn` defined as follows:
       These quantities may include the scale vectors and the unit roundoff. To
       obtain the scale vectors, the user will need to add to ``user_data``
       pointers to ``u_scale`` and/or ``f_scale`` as needed. The unit roundoff
-      can be accessed as ``UNIT_ROUNDOFF`` defined in ``sundials_types.h``.
+      can be accessed as ``SUN_UNIT_ROUNDOFF`` defined in ``sundials_types.h``.
 
       **dense:**
 
@@ -2195,7 +2195,7 @@ supplied, the default is a difference quotient approximation to these products.
       might include the scale vectors and the unit roundoff. To obtain the scale
       vectors, the user will need to add to ``user_data`` pointers to ``u_scale``
       and/or ``f_scale`` as needed. The unit roundoff can be accessed as
-      ``UNIT_ROUNDOFF`` defined in ``sundials_types.h``.
+      ``SUN_UNIT_ROUNDOFF`` defined in ``sundials_types.h``.
 
    .. warning::
 
@@ -2290,7 +2290,7 @@ function of type :c:type:`KINLsPrecSetupFn`, defined as follows:
       might include the scale vectors and the unit roundoff. To obtain the scale
       vectors, the user will need to add to ``user_data`` pointers to ``u_scale``
       and/or ``f_scale`` as needed. The unit roundoff can be accessed as
-      ``UNIT_ROUNDOFF`` defined in ``sundials_types.h``.
+      ``SUN_UNIT_ROUNDOFF`` defined in ``sundials_types.h``.
 
       If the preconditioner solve routine requires no preparation, then a
       preconditioner setup function need not be given.

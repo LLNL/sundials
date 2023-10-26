@@ -72,7 +72,7 @@ ARKodeMem arkCreate(SUNContext sunctx)
   ark_mem->sunctx = sunctx;
 
   /* Set uround */
-  ark_mem->uround = UNIT_ROUNDOFF;
+  ark_mem->uround = SUN_UNIT_ROUNDOFF;
 
   /* Initialize time step module to NULL */
   ark_mem->step_attachlinsol   = NULL;
@@ -2262,7 +2262,7 @@ int arkHin(ARKodeMem ark_mem, sunrealtype tout)
       /* If successful, we can use ydd */
       if (retval == ARK_SUCCESS) {hgOK = SUNTRUE; break;}
       /* f() failed recoverably; cut step size and test it again */
-      hg *= RCONST(0.2);
+      hg *= SUN_RCONST(0.2);
     }
 
     /* If f() failed recoverably H0_ITERS times */
@@ -2660,7 +2660,7 @@ int arkEwtSetSV(N_Vector ycur, N_Vector weight, void* arkode_mem)
   This routine is responsible for setting the error weight vector
   ewt as follows:
 
-  ewt[i] = SMALL_REAL
+  ewt[i] = SUN_SMALL_REAL
 
   This is routine is only used with explicit time stepping with
   a fixed step size to avoid a potential too much error return
@@ -2668,7 +2668,7 @@ int arkEwtSetSV(N_Vector ycur, N_Vector weight, void* arkode_mem)
   ---------------------------------------------------------------*/
 int arkEwtSetSmallReal(N_Vector ycur, N_Vector weight, void* arkode_mem)
 {
-  N_VConst(SMALL_REAL, weight);
+  N_VConst(SUN_SMALL_REAL, weight);
   return(ARK_SUCCESS);
 }
 
@@ -2724,7 +2724,7 @@ int arkExpStab(N_Vector y, sunrealtype t, sunrealtype *hstab, void *data)
 {
   /* explicit stability not used by default,
      set to zero to disable */
-  *hstab = RCONST(0.0);
+  *hstab = SUN_RCONST(0.0);
 
   return(ARK_SUCCESS);
 }
@@ -2998,7 +2998,7 @@ int arkCheckConstraints(ARKodeMem ark_mem, int *constrfails, int *nflag)
   /* Reduce h by computing eta = h'/h */
   N_VLinearSum(ONE, ark_mem->yn, -ONE, ark_mem->ycur, tmp);
   N_VProd(mm, tmp, tmp);
-  ark_mem->eta = RCONST(0.9)*N_VMinQuotient(ark_mem->yn, tmp);
+  ark_mem->eta = SUN_RCONST(0.9)*N_VMinQuotient(ark_mem->yn, tmp);
   ark_mem->eta = SUNMAX(ark_mem->eta, TENTH);
 
   /* Signal for Jacobian/preconditioner setup */

@@ -68,19 +68,19 @@
 #include <mpi.h>
 
 /* Problem Constants */
-#define XMAX  RCONST(2.0)   /* domain boundary           */
+#define XMAX  SUN_RCONST(2.0)   /* domain boundary           */
 #define MX    10            /* mesh dimension            */
 #define NEQ   MX            /* number of equations       */
-#define ATOL  RCONST(1.e-5) /* scalar absolute tolerance */
-#define T0    RCONST(0.0)   /* initial time              */
-#define T1    RCONST(0.5)   /* first output time         */
-#define DTOUT RCONST(0.5)   /* output time increment     */
+#define ATOL  SUN_RCONST(1.e-5) /* scalar absolute tolerance */
+#define T0    SUN_RCONST(0.0)   /* initial time              */
+#define T1    SUN_RCONST(0.5)   /* first output time         */
+#define DTOUT SUN_RCONST(0.5)   /* output time increment     */
 #define NOUT  10            /* number of output times    */
 
 #define NP    2
 #define NS    2
 
-#define ZERO  RCONST(0.0)
+#define ZERO  SUN_RCONST(0.0)
 
 /* Type : UserData
    contains problem parameters, grid constants, work array. */
@@ -174,8 +174,8 @@ int main(int argc, char *argv[])
   data->p = (sunrealtype *) malloc(NP * sizeof(sunrealtype));
   if(check_retval((void *)data->p, "malloc", 2, my_pe)) MPI_Abort(comm, 1);
   dx = data->dx = XMAX/((sunrealtype)(MX+1));
-  data->p[0] = RCONST(1.0);
-  data->p[1] = RCONST(0.5);
+  data->p[0] = SUN_RCONST(1.0);
+  data->p[1] = SUN_RCONST(0.5);
 
   /* INITIAL STATES */
   u = N_VNew_Parallel(comm, local_N, NEQ, sunctx);    /* Allocate u vector */
@@ -353,7 +353,7 @@ static int f(sunrealtype t, N_Vector u, N_Vector udot, void *user_data)
   data  = (UserData) user_data;
   dx    = data->dx;
   hordc = data->p[0]/(dx*dx);
-  horac = data->p[1]/(RCONST(2.0)*dx);
+  horac = data->p[1]/(SUN_RCONST(2.0)*dx);
 
   /* Extract parameters for parallel computation. */
   comm = data->comm;
@@ -395,7 +395,7 @@ static int f(sunrealtype t, N_Vector u, N_Vector udot, void *user_data)
     urt = z[i+1];
 
     /* Set diffusion and advection terms and load into udot */
-    hdiff = hordc*(ult - RCONST(2.0)*ui + urt);
+    hdiff = hordc*(ult - SUN_RCONST(2.0)*ui + urt);
     hadv = horac*(urt - ult);
     dudata[i-1] = hdiff + hadv;
   }

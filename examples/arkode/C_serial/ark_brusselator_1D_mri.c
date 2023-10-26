@@ -74,9 +74,9 @@
 #endif
 
 /* Define some constants */
-#define ZERO  RCONST(0.0)
-#define ONE   RCONST(1.0)
-#define TWO   RCONST(2.0)
+#define ZERO  SUN_RCONST(0.0)
+#define ONE   SUN_RCONST(1.0)
+#define TWO   SUN_RCONST(2.0)
 
 /* accessor macros between (x,v) location and 1D NVector array */
 #define IDX(x,v) (3*(x)+v)
@@ -108,17 +108,17 @@ static int check_retval(void *flagvalue, const char *funcname, int opt);
 int main(int argc, char *argv[])
 {
   /* general problem parameters */
-  sunrealtype     T0     = RCONST(0.0);      /* initial time                    */
-  sunrealtype     Tf     = RCONST(10.0);     /* final time                      */
+  sunrealtype     T0     = SUN_RCONST(0.0);      /* initial time                    */
+  sunrealtype     Tf     = SUN_RCONST(10.0);     /* final time                      */
   int          Nt     = 100;              /* total number of output times    */
   int          Nvar   = 3;                /* number of solution fields       */
   sunindextype N      = 200;              /* spatial mesh size (N intervals) */
-  sunrealtype     a      = RCONST(1.0);      /* problem parameters              */
-  sunrealtype     b      = RCONST(3.5);
-  sunrealtype     c      = RCONST(0.25);
-  sunrealtype     ep     = RCONST(1.0e-6);   /* stiffness parameter */
-  sunrealtype     reltol = RCONST(1.0e-6);   /* tolerances          */
-  sunrealtype     abstol = RCONST(1.0e-10);
+  sunrealtype     a      = SUN_RCONST(1.0);      /* problem parameters              */
+  sunrealtype     b      = SUN_RCONST(3.5);
+  sunrealtype     c      = SUN_RCONST(0.25);
+  sunrealtype     ep     = SUN_RCONST(1.0e-6);   /* stiffness parameter */
+  sunrealtype     reltol = SUN_RCONST(1.0e-6);   /* tolerances          */
+  sunrealtype     abstol = SUN_RCONST(1.0e-10);
 
   /* general problem variables */
   sunrealtype hs;                              /* slow step size                 */
@@ -160,13 +160,13 @@ int main(int argc, char *argv[])
   udata->b  = b;
   udata->c  = c;
   udata->ep = ep;
-  udata->dx = RCONST(1.0)/N; /* periodic BC, divide by N not N-1 */
+  udata->dx = SUN_RCONST(1.0)/N; /* periodic BC, divide by N not N-1 */
 
   /* set total allocated vector length */
   NEQ = Nvar*udata->N;
 
   /* set the slow step size */
-  hs = RCONST(0.5)*(udata->dx / SUNRabs(c));
+  hs = SUN_RCONST(0.5)*(udata->dx / SUNRabs(c));
 
   /* Initial problem output */
   printf("\n1D Advection-Reaction example problem:\n");
@@ -198,17 +198,17 @@ int main(int argc, char *argv[])
   N_VConst(0.0, umask);
   data = N_VGetArrayPointer(umask);
   if (check_retval((void *) data, "N_VGetArrayPointer", 0)) return 1;
-  for (i=0; i<N; i++)  data[IDX(i,0)] = RCONST(1.0);
+  for (i=0; i<N; i++)  data[IDX(i,0)] = SUN_RCONST(1.0);
 
   N_VConst(0.0, vmask);
   data = N_VGetArrayPointer(vmask);
   if (check_retval((void *) data, "N_VGetArrayPointer", 0)) return 1;
-  for (i=0; i<N; i++)  data[IDX(i,1)] = RCONST(1.0);
+  for (i=0; i<N; i++)  data[IDX(i,1)] = SUN_RCONST(1.0);
 
   N_VConst(0.0, wmask);
   data = N_VGetArrayPointer(wmask);
   if (check_retval((void *) data, "N_VGetArrayPointer", 0)) return 1;
-  for (i=0; i<N; i++)  data[IDX(i,2)] = RCONST(1.0);
+  for (i=0; i<N; i++)  data[IDX(i,2)] = SUN_RCONST(1.0);
 
   /*
    * Create the fast integrator and set options
@@ -577,7 +577,7 @@ static int SetIC(N_Vector y, void *user_data)
   /* Set initial conditions into y */
   for (i=0; i<N; i++) {
     x = i*dx;
-    p = RCONST(0.1) * SUNRexp( -(SUNSQR(x-RCONST(0.5))) / RCONST(0.1) );
+    p = SUN_RCONST(0.1) * SUNRexp( -(SUNSQR(x-SUN_RCONST(0.5))) / SUN_RCONST(0.1) );
     data[IDX(i,0)] =  a  + p;
     data[IDX(i,1)] = b/a + p;
     data[IDX(i,2)] =  b  + p;

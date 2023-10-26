@@ -47,17 +47,17 @@
 
 // Real Constants
 
-#define ATOL  RCONST(1.0e-5) // scalar absolute tolerance
-#define T0    RCONST(0.0)    // initial time
-#define T1    RCONST(0.1)    // first output time
-#define DTOUT RCONST(0.1)    // output time increment
+#define ATOL  SUN_RCONST(1.0e-5) // scalar absolute tolerance
+#define T0    SUN_RCONST(0.0)    // initial time
+#define T1    SUN_RCONST(0.1)    // first output time
+#define DTOUT SUN_RCONST(0.1)    // output time increment
 #define NOUT  10             // number of output times
 
-#define ZERO RCONST(0.0)
-#define HALF RCONST(0.5)
-#define ONE  RCONST(1.0)
-#define TWO  RCONST(2.0)
-#define FIVE RCONST(5.0)
+#define ZERO SUN_RCONST(0.0)
+#define HALF SUN_RCONST(0.5)
+#define ONE  SUN_RCONST(1.0)
+#define TWO  SUN_RCONST(2.0)
+#define FIVE SUN_RCONST(5.0)
 
 #if defined(SUNDIALS_EXTENDED_PRECISION)
 #define GSYM "Lg"
@@ -82,8 +82,8 @@ struct UserData
   sunindextype MX      = 10;                // interior nodes in the x-direction
   sunindextype MY      = 5;                 // interior nodes in the y-direction
   sunindextype NEQ     = MX * MY;           // number of equations
-  sunrealtype     xmax    = RCONST(2.0);       // x-domain boundary
-  sunrealtype     ymax    = RCONST(1.0);       // y-domain boundary
+  sunrealtype     xmax    = SUN_RCONST(2.0);       // x-domain boundary
+  sunrealtype     ymax    = SUN_RCONST(1.0);       // y-domain boundary
   sunrealtype     dx      = xmax / (MX + 1);   // x-direction mesh spacing
   sunrealtype     dy      = ymax / (MY + 1);   // y-directino mesh spacing
   sunrealtype     hdcoef  = ONE / (dx * dx);   // x-diffusion

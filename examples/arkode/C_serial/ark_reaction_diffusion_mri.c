@@ -81,18 +81,18 @@ static int check_retval(void *returnvalue, const char *funcname, int opt);
 int main() {
 
   /* general problem parameters */
-  sunrealtype T0 = RCONST(0.0);     /* initial time */
-  sunrealtype Tf = RCONST(3.0);     /* final time */
-  sunrealtype dTout = RCONST(0.1);  /* time between outputs */
+  sunrealtype T0 = SUN_RCONST(0.0);     /* initial time */
+  sunrealtype Tf = SUN_RCONST(3.0);     /* final time */
+  sunrealtype dTout = SUN_RCONST(0.1);  /* time between outputs */
   int Nt = (int) ceil(Tf/dTout); /* number of output times */
-  sunrealtype hs = RCONST(0.001);   /* slow step size */
-  sunrealtype hf = RCONST(0.00002); /* fast step size */
+  sunrealtype hs = SUN_RCONST(0.001);   /* slow step size */
+  sunrealtype hf = SUN_RCONST(0.00002); /* fast step size */
   UserData udata = NULL;         /* user data */
 
   sunrealtype *data;                /* array for solution output */
-  sunrealtype L = RCONST(5.0);      /* domain length */
+  sunrealtype L = SUN_RCONST(5.0);      /* domain length */
   sunindextype N = 1001;         /* number of mesh points */
-  sunrealtype ep = RCONST(1e-2);
+  sunrealtype ep = SUN_RCONST(1e-2);
   sunindextype i;
 
   /* general problem variables */
@@ -117,9 +117,9 @@ int main() {
   /* allocate and fill user data structure */
   udata = (UserData) malloc(sizeof(*udata));
   udata->N   = N;
-  udata->dx  = L / (RCONST(1.0)*N - RCONST(1.0));
-  udata->k   = RCONST(1e-4)/ep;
-  udata->lam = RCONST(0.5)*sqrt(RCONST(2.0) * ep * RCONST(1e4));
+  udata->dx  = L / (SUN_RCONST(1.0)*N - SUN_RCONST(1.0));
+  udata->k   = SUN_RCONST(1e-4)/ep;
+  udata->lam = SUN_RCONST(0.5)*sqrt(SUN_RCONST(2.0) * ep * SUN_RCONST(1e4));
 
   /* Initial problem output */
   printf("\n1D reaction-diffusion PDE test problem:\n");
@@ -272,7 +272,7 @@ static int ff(sunrealtype t, N_Vector y, N_Vector ydot, void *user_data)
 
   /* iterate over domain, computing reaction term */
   for (i = 0; i < N; i++)
-    Ydot[i] = Y[i] * Y[i] * (RCONST(1.0) - Y[i]);
+    Ydot[i] = Y[i] * Y[i] * (SUN_RCONST(1.0) - Y[i]);
 
   /* Return with success */
   return 0;
@@ -300,7 +300,7 @@ static int fs(sunrealtype t, N_Vector y, N_Vector ydot, void *user_data)
 
   /* iterate over domain, computing diffusion term */
   c1 = k/dx/dx;
-  c2 = RCONST(2.0)*k/dx/dx;
+  c2 = SUN_RCONST(2.0)*k/dx/dx;
 
   /* left boundary condition */
   Ydot[0] = c2*(Y[1] - Y[0]);
@@ -335,7 +335,7 @@ static int SetInitialCondition(N_Vector y, UserData user_data)
 
   /* set initial condition */
   for (i = 0; i < N; i++)
-    Y[i] = RCONST(1.0)/(1 + exp(lam*(i*dx-RCONST(1.0))));
+    Y[i] = SUN_RCONST(1.0)/(1 + exp(lam*(i*dx-SUN_RCONST(1.0))));
 
   /* Return with success */
   return 0;

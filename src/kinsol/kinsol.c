@@ -77,22 +77,22 @@
  * =================================================================
  */
 
-#define HALF      RCONST(0.5)
-#define ZERO      RCONST(0.0)
-#define ONE       RCONST(1.0)
-#define ONEPT5    RCONST(1.5)
-#define TWO       RCONST(2.0)
-#define THREE     RCONST(3.0)
-#define FIVE      RCONST(5.0)
-#define TWELVE    RCONST(12.0)
-#define POINT1    RCONST(0.1)
-#define POINT01   RCONST(0.01)
-#define POINT99   RCONST(0.99)
-#define THOUSAND  RCONST(1000.0)
-#define ONETHIRD  RCONST(0.3333333333333333)
-#define TWOTHIRDS RCONST(0.6666666666666667)
-#define POINT9    RCONST(0.9)
-#define POINT0001 RCONST(0.0001)
+#define HALF      SUN_RCONST(0.5)
+#define ZERO      SUN_RCONST(0.0)
+#define ONE       SUN_RCONST(1.0)
+#define ONEPT5    SUN_RCONST(1.5)
+#define TWO       SUN_RCONST(2.0)
+#define THREE     SUN_RCONST(3.0)
+#define FIVE      SUN_RCONST(5.0)
+#define TWELVE    SUN_RCONST(12.0)
+#define POINT1    SUN_RCONST(0.1)
+#define POINT01   SUN_RCONST(0.01)
+#define POINT99   SUN_RCONST(0.99)
+#define THOUSAND  SUN_RCONST(1000.0)
+#define ONETHIRD  SUN_RCONST(0.3333333333333333)
+#define TWOTHIRDS SUN_RCONST(0.6666666666666667)
+#define POINT9    SUN_RCONST(0.9)
+#define POINT0001 SUN_RCONST(0.0001)
 
 /*
  * =================================================================
@@ -233,7 +233,7 @@ void *KINCreate(SUNContext sunctx)
 
   /* set uround (unit roundoff) */
 
-  kin_mem->kin_uround = uround = UNIT_ROUNDOFF;
+  kin_mem->kin_uround = uround = SUN_UNIT_ROUNDOFF;
 
   /* set default values for solver optional inputs */
 

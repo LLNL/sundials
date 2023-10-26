@@ -204,7 +204,7 @@ int main(int argc, char *argv[])
           matdata[row] = (sunrealtype) rand() / (sunrealtype) RAND_MAX / N;
         }
     }
-    if (SUNMatScaleAddI(RCONST(1.0), D)) {
+    if (SUNMatScaleAddI(SUN_RCONST(1.0), D)) {
       printf("ERROR: SUNMatScaleAddI failed for dense matrix D\n");
       return(-1);
     }
@@ -219,7 +219,7 @@ int main(int argc, char *argv[])
           matdata[row] = (sunrealtype) rand() / (sunrealtype) RAND_MAX / N;
         }
     }
-    if (SUNMatScaleAddI(RCONST(1.0), C)) {
+    if (SUNMatScaleAddI(SUN_RCONST(1.0), C)) {
       printf("ERROR: SUNMatScaleAddI failed for dense matrix C\n");
       return(-1);
     }
@@ -243,14 +243,14 @@ int main(int argc, char *argv[])
     N = blkcols * nblocks;
 
     D = SUNDenseMatrix(M, N, sunctx);
-    SUNMatScaleAddI(RCONST(0.0), D);
-    if (SUNMatScaleAddI(RCONST(0.0), D)) {
+    SUNMatScaleAddI(SUN_RCONST(0.0), D);
+    if (SUNMatScaleAddI(SUN_RCONST(0.0), D)) {
       printf("ERROR: SUNMatScaleAddI failed for dense matrix D\n");
       return(-1);
     }
 
     C = SUNDenseMatrix(M, N, sunctx);
-    if (SUNMatScaleAddI(RCONST(0.0), C)) {
+    if (SUNMatScaleAddI(SUN_RCONST(0.0), C)) {
       printf("ERROR: SUNMatScaleAddI failed for dense matrix C\n");
       return(-1);
     }
@@ -279,7 +279,7 @@ int main(int argc, char *argv[])
     }
     SUNMatDestroy(cscA);
 
-    if (SUNMatScaleAddI(RCONST(1.0), A)) {
+    if (SUNMatScaleAddI(SUN_RCONST(1.0), A)) {
       printf("ERROR: SUNMatScaleAddI failed on matrix that read\n");
       return(-1);
     }
@@ -468,7 +468,7 @@ int main(int argc, char *argv[])
 int Test_SetKernelExecPolicy(SUNMatrix I, int myid)
 {
   int print_all_ranks = 0;
-  sunrealtype  tol = 100*UNIT_ROUNDOFF;
+  sunrealtype  tol = 100*SUN_UNIT_ROUNDOFF;
   SUNMatrix B = SUNMatClone(I);
 
   /* check cloned matrix */
@@ -491,7 +491,7 @@ int Test_SetKernelExecPolicy(SUNMatrix I, int myid)
   SUNMatrix_cuSparse_SetKernelExecPolicy(B, &exec_policy);
 
   /* try out an operation */
-  if (SUNMatScaleAddI(RCONST(-1.0), B)) {
+  if (SUNMatScaleAddI(SUN_RCONST(-1.0), B)) {
     TEST_STATUS(">>> FAILED test -- SetKernelExecPolicy \n", myid);
     TEST_STATUS("    SUNMatScaleAddI returned nonzero \n \n", myid);
     SUNMatDestroy(B);

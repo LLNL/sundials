@@ -1088,7 +1088,7 @@ static int InitUserData(UserData *udata)
   udata->ipN = -1;
 
   // Integrator settings
-  udata->rtol        = RCONST(1.e-8);   // relative tolerance
+  udata->rtol        = SUN_RCONST(1.e-8);   // relative tolerance
   udata->maa         = 60;              // 60 vectors in Anderson Acceleration space
   udata->damping     = ONE;             // no damping for Anderson Acceleration
   udata->orthaa      = 0;               // use MGS for Anderson Acceleration

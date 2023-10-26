@@ -32,8 +32,8 @@
 #define MVAPPEND(fun) fun##_ManyVector
 #endif
 
-#define ZERO RCONST(0.0)
-#define ONE  RCONST(1.0)
+#define ZERO SUN_RCONST(0.0)
+#define ONE  SUN_RCONST(1.0)
 
 /* -----------------------------------------------------------------
    ManyVector content accessor macros
@@ -957,7 +957,7 @@ sunrealtype MVAPPEND(N_VMinLocal)(N_Vector x)
   sunrealtype min, lmin;
 
   /* initialize output*/
-  min = BIG_REAL;
+  min = SUN_BIG_REAL;
 
   for (i=0; i<MANYVECTOR_NUM_SUBVECS(x); i++) {
 
@@ -1210,7 +1210,7 @@ sunrealtype MVAPPEND(N_VMinQuotientLocal)(N_Vector num, N_Vector denom)
   sunrealtype min, lmin;
 
   /* initialize output*/
-  min = BIG_REAL;
+  min = SUN_BIG_REAL;
 
   for (i=0; i<MANYVECTOR_NUM_SUBVECS(num); i++) {
 

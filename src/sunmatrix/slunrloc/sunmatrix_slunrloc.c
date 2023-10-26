@@ -65,7 +65,7 @@
 #define SM_ROWPTRS_SLUNRLOC(A)       ( SM_SUPERSTORE_SLUNRLOC(A)->rowptr )
 
 /* constants */
-#define ZERO RCONST(0.0)
+#define ZERO SUN_RCONST(0.0)
 
 /* Private function prototypes */
 static booleantype SMCompatible_SLUNRloc(SUNMatrix A, SUNMatrix B);

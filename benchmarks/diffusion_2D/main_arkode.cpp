@@ -20,8 +20,8 @@
 struct UserOptions
 {
   // Integrator settings
-  sunrealtype rtol        = RCONST(1.0e-5);   // relative tolerance
-  sunrealtype atol        = RCONST(1.0e-10);  // absolute tolerance
+  sunrealtype rtol        = SUN_RCONST(1.0e-5);   // relative tolerance
+  sunrealtype atol        = SUN_RCONST(1.0e-10);  // absolute tolerance
   sunrealtype hfixed      = ZERO;             // fixed step size
   int      order       = 3;                // ARKode method order
   int      controller  = 0;                // step size adaptivity method

@@ -67,29 +67,29 @@
 
 #define NEQ      3             /* number of equations                  */
 
-#define RTOL     RCONST(1e-06) /* scalar relative tolerance            */
+#define RTOL     SUN_RCONST(1e-06) /* scalar relative tolerance            */
 
-#define ATOL1    RCONST(1e-08) /* vector absolute tolerance components */
-#define ATOL2    RCONST(1e-12)
-#define ATOL3    RCONST(1e-08)
+#define ATOL1    SUN_RCONST(1e-08) /* vector absolute tolerance components */
+#define ATOL2    SUN_RCONST(1e-12)
+#define ATOL3    SUN_RCONST(1e-08)
 
-#define ATOLA    RCONST(1e-08) /* absolute tolerance for adjoint vars. */
-#define ATOLQ    RCONST(1e-06) /* absolute tolerance for quadratures   */
+#define ATOLA    SUN_RCONST(1e-08) /* absolute tolerance for adjoint vars. */
+#define ATOLQ    SUN_RCONST(1e-06) /* absolute tolerance for quadratures   */
 
-#define T0       RCONST(0.0)   /* initial time                         */
-#define TOUT     RCONST(4e10)  /* final time                           */
+#define T0       SUN_RCONST(0.0)   /* initial time                         */
+#define TOUT     SUN_RCONST(4e10)  /* final time                           */
 
-#define TB1      RCONST(50.0)  /* starting point for adjoint problem   */
+#define TB1      SUN_RCONST(50.0)  /* starting point for adjoint problem   */
 #define TB2      TOUT          /* starting point for adjoint problem   */
 
-#define T1B      RCONST(49.0)  /* for IDACalcICB                       */
+#define T1B      SUN_RCONST(49.0)  /* for IDACalcICB                       */
 
 #define STEPS    100           /* number of steps between check points */
 
 #define NP       3             /* number of problem parameters         */
 
-#define ONE     RCONST(1.0)
-#define ZERO    RCONST(0.0)
+#define ONE     SUN_RCONST(1.0)
+#define ZERO    SUN_RCONST(0.0)
 
 
 /* Type : UserData */
@@ -189,9 +189,9 @@ int main(int argc, char *argv[])
   /* User data structure */
   data = (UserData) malloc(sizeof *data);
   if (check_retval((void *)data, "malloc", 2)) return(1);
-  data->p[0] = RCONST(0.04);
-  data->p[1] = RCONST(1.0e4);
-  data->p[2] = RCONST(3.0e7);
+  data->p[0] = SUN_RCONST(0.04);
+  data->p[1] = SUN_RCONST(1.0e4);
+  data->p[2] = SUN_RCONST(3.0e7);
 
   /* Initialize y */
   yy = N_VNew_Serial(NEQ, ctx);
@@ -203,8 +203,8 @@ int main(int argc, char *argv[])
   /* Initialize yprime */
   yp = N_VClone(yy);
   if (check_retval((void *)yp, "N_VNew_Serial", 0)) return(1);
-  Ith(yp,1) = RCONST(-0.04);
-  Ith(yp,2) = RCONST( 0.04);
+  Ith(yp,1) = SUN_RCONST(-0.04);
+  Ith(yp,2) = SUN_RCONST( 0.04);
   Ith(yp,3) = ZERO;
 
   /* Initialize q */
@@ -440,11 +440,11 @@ int main(int argc, char *argv[])
   /* Both algebraic part from y and the entire y' are computed by IDACalcIC. */
   Ith(yB,1) = ZERO;
   Ith(yB,2) = ZERO;
-  Ith(yB,3) = RCONST(0.50); /* not consistent */
+  Ith(yB,3) = SUN_RCONST(0.50); /* not consistent */
 
   /* Rough guess for ypB. */
-  Ith(ypB,1) = RCONST(0.80);
-  Ith(ypB,2) = RCONST(0.75);
+  Ith(ypB,1) = SUN_RCONST(0.80);
+  Ith(ypB,2) = SUN_RCONST(0.75);
   Ith(ypB,3) = ZERO;
 
   /* Initialize qB */
@@ -678,8 +678,8 @@ static int resB(sunrealtype tt,
 
   /* Load residual. */
   Ith(rrB,1) = lp1 + p1*l21 - l3;
-  Ith(rrB,2) = lp2 - p2*y3*l21 - RCONST(2.0)*p3*y2*l2-l3;
-  Ith(rrB,3) = - p2*y2*l21 -l3 + RCONST(1.0);
+  Ith(rrB,2) = lp2 - p2*y3*l21 - SUN_RCONST(2.0)*p3*y2*l2-l3;
+  Ith(rrB,3) = - p2*y2*l21 -l3 + SUN_RCONST(1.0);
 
   return(0);
 }
@@ -722,7 +722,7 @@ static int JacB(sunrealtype tt, sunrealtype cjB,
   /* column 1 */
   dataB[3] = p1;
   rowvalsB[3] = 0;
-  dataB[4] = -(p2*yvalB[2]+RCONST(2.0)*p3*yvalB[1])+cjB;
+  dataB[4] = -(p2*yvalB[2]+SUN_RCONST(2.0)*p3*yvalB[1])+cjB;
   rowvalsB[4] = 1;
   dataB[5] = -p2*yvalB[1];
   rowvalsB[5] = 2;

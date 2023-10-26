@@ -72,34 +72,34 @@
 
 /* Problem Constants */
 
-#define ZERO RCONST(0.0)
-#define ONE  RCONST(1.0)
-#define TWO  RCONST(2.0)
+#define ZERO SUN_RCONST(0.0)
+#define ONE  SUN_RCONST(1.0)
+#define TWO  SUN_RCONST(2.0)
 
 #define NUM_SPECIES  2                 /* number of species         */
-#define KH           RCONST(4.0e-6)    /* horizontal diffusivity Kh */
-#define VEL          RCONST(0.001)     /* advection velocity V      */
-#define KV0          RCONST(1.0e-8)    /* coefficient in Kv(y)      */
-#define Q1           RCONST(1.63e-16)  /* coefficients q1, q2, c3   */
-#define Q2           RCONST(4.66e-16)
-#define C3           RCONST(3.7e16)
-#define A3           RCONST(22.62)     /* coefficient in expression for q3(t) */
-#define A4           RCONST(7.601)     /* coefficient in expression for q4(t) */
-#define C1_SCALE     RCONST(1.0e6)     /* coefficients in initial profiles    */
-#define C2_SCALE     RCONST(1.0e12)
+#define KH           SUN_RCONST(4.0e-6)    /* horizontal diffusivity Kh */
+#define VEL          SUN_RCONST(0.001)     /* advection velocity V      */
+#define KV0          SUN_RCONST(1.0e-8)    /* coefficient in Kv(y)      */
+#define Q1           SUN_RCONST(1.63e-16)  /* coefficients q1, q2, c3   */
+#define Q2           SUN_RCONST(4.66e-16)
+#define C3           SUN_RCONST(3.7e16)
+#define A3           SUN_RCONST(22.62)     /* coefficient in expression for q3(t) */
+#define A4           SUN_RCONST(7.601)     /* coefficient in expression for q4(t) */
+#define C1_SCALE     SUN_RCONST(1.0e6)     /* coefficients in initial profiles    */
+#define C2_SCALE     SUN_RCONST(1.0e12)
 
 #define T0           ZERO                 /* initial time */
 #define NOUT         12                   /* number of output times */
-#define TWOHR        RCONST(7200.0)       /* number of seconds in two hours  */
-#define HALFDAY      RCONST(4.32e4)       /* number of seconds in a half day */
-#define PI       RCONST(3.1415926535898)  /* pi */
+#define TWOHR        SUN_RCONST(7200.0)       /* number of seconds in two hours  */
+#define HALFDAY      SUN_RCONST(4.32e4)       /* number of seconds in a half day */
+#define PI       SUN_RCONST(3.1415926535898)  /* pi */
 
 #define XMIN         ZERO                 /* grid boundaries in x  */
-#define XMAX         RCONST(20.0)
-#define YMIN         RCONST(30.0)         /* grid boundaries in y  */
-#define YMAX         RCONST(50.0)
-#define XMID         RCONST(10.0)         /* grid midpoints in x,y */
-#define YMID         RCONST(40.0)
+#define XMAX         SUN_RCONST(20.0)
+#define YMIN         SUN_RCONST(30.0)         /* grid boundaries in y  */
+#define YMAX         SUN_RCONST(50.0)
+#define XMID         SUN_RCONST(10.0)         /* grid midpoints in x,y */
+#define YMID         SUN_RCONST(40.0)
 
 #define MX           10             /* MX = number of x mesh points */
 #define MY           10             /* MY = number of y mesh points */
@@ -108,8 +108,8 @@
 
 /* CVodeInit Constants */
 
-#define RTOL    RCONST(1.0e-5)    /* scalar relative tolerance */
-#define FLOOR   RCONST(100.0)     /* value of C1 or C2 at which tolerances */
+#define RTOL    SUN_RCONST(1.0e-5)    /* scalar relative tolerance */
+#define FLOOR   SUN_RCONST(100.0)     /* value of C1 or C2 at which tolerances */
                                   /* change from relative to absolute      */
 #define ATOL    (RTOL*FLOOR)      /* scalar absolute tolerance */
 #define NEQ     (NUM_SPECIES*MM)  /* NEQ = number of equations */
@@ -480,12 +480,12 @@ static void SetInitialProfiles(N_Vector u, sunrealtype dx, sunrealtype dy)
 
   for (jy=0; jy < MY; jy++) {
     y = YMIN + jy*dy;
-    cy = SQR(RCONST(0.1)*(y - YMID));
-    cy = ONE - cy + RCONST(0.5)*SQR(cy);
+    cy = SQR(SUN_RCONST(0.1)*(y - YMID));
+    cy = ONE - cy + SUN_RCONST(0.5)*SQR(cy);
     for (jx=0; jx < MX; jx++) {
       x = XMIN + jx*dx;
-      cx = SQR(RCONST(0.1)*(x - XMID));
-      cx = ONE - cx + RCONST(0.5)*SQR(cx);
+      cx = SQR(SUN_RCONST(0.1)*(x - XMID));
+      cx = ONE - cx + SUN_RCONST(0.5)*SQR(cx);
       IJKth(udata,1,jx,jy) = C1_SCALE*cx*cy;
       IJKth(udata,2,jx,jy) = C2_SCALE*cx*cy;
     }
@@ -668,10 +668,10 @@ static int f(sunrealtype t, N_Vector u, N_Vector udot, void *user_data)
 
     /* Set vertical diffusion coefficients at jy +- 1/2 */
 
-    ydn = YMIN + (jy - RCONST(0.5))*dely;
+    ydn = YMIN + (jy - SUN_RCONST(0.5))*dely;
     yup = ydn + dely;
-    cydn = verdco*exp(RCONST(0.2)*ydn);
-    cyup = verdco*exp(RCONST(0.2)*yup);
+    cydn = verdco*exp(SUN_RCONST(0.2)*ydn);
+    cyup = verdco*exp(SUN_RCONST(0.2)*yup);
     idn = (jy == 0) ? 1 : -1;
     iup = (jy == MY-1) ? -1 : 1;
     for (jx=0; jx < MX; jx++) {
@@ -765,10 +765,10 @@ static int Precond(sunrealtype tn, N_Vector u, N_Vector fu, booleantype jok,
        computed on the last f call).  Load into P. */
 
     for (jy=0; jy < MY; jy++) {
-      ydn = YMIN + (jy - RCONST(0.5))*dely;
+      ydn = YMIN + (jy - SUN_RCONST(0.5))*dely;
       yup = ydn + dely;
-      cydn = verdco*exp(RCONST(0.2)*ydn);
-      cyup = verdco*exp(RCONST(0.2)*yup);
+      cydn = verdco*exp(SUN_RCONST(0.2)*ydn);
+      cyup = verdco*exp(SUN_RCONST(0.2)*yup);
       diag = -(cydn + cyup + TWO*hordco);
       for (jx=0; jx < MX; jx++) {
         c1 = IJKth(udata,1,jx,jy);

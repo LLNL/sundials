@@ -19,13 +19,13 @@
 #include "sundials/sundials_nvector_senswrapper.h"
 
 /* constant macros */
-#define PT0001  RCONST(0.0001) /* real 0.0001 */
-#define ONE     RCONST(1.0)    /* real 1.0    */
-#define TWENTY  RCONST(20.0)   /* real 20.0   */
+#define PT0001  SUN_RCONST(0.0001) /* real 0.0001 */
+#define ONE     SUN_RCONST(1.0)    /* real 1.0    */
+#define TWENTY  SUN_RCONST(20.0)   /* real 20.0   */
 
 /* nonlinear solver parameters */
 #define MAXIT   4           /* default max number of nonlinear iterations    */
-#define RATEMAX RCONST(0.9) /* max convergence rate used in divergence check */
+#define RATEMAX SUN_RCONST(0.9) /* max convergence rate used in divergence check */
 
 /* private functions passed to nonlinear solver */
 static int idaNlsResidualSensStg(N_Vector ycor, N_Vector res, void* ida_mem);

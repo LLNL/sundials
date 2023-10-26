@@ -34,7 +34,7 @@ extern "C" {
 #define ARK_ROOT_LIW  12   /* int, ptr, etc */
 
 /* Numeric constants */
-#define HUND   RCONST(100.0)    /* real 100.0   */
+#define HUND   SUN_RCONST(100.0)    /* real 100.0   */
 
 
 /*===============================================================

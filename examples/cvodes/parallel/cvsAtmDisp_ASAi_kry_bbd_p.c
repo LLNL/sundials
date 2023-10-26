@@ -45,76 +45,76 @@
 
 /* Domain definition */
 
-#define XMIN RCONST(0.0)
-#define XMAX RCONST(20.0)
+#define XMIN SUN_RCONST(0.0)
+#define XMAX SUN_RCONST(20.0)
 #define MX   80    /* no. of divisions in x dir. */
 #define NPX  2     /* no. of procs. in x dir.    */
 
-#define YMIN RCONST(0.0)
-#define YMAX RCONST(20.0)
+#define YMIN SUN_RCONST(0.0)
+#define YMAX SUN_RCONST(20.0)
 #define MY   80    /* no. of divisions in y dir. */
 #define NPY  2     /* no. of procs. in y dir.    */
 
 #ifdef USE3D
-#define ZMIN RCONST(0.0)
-#define ZMAX RCONST(20.0)
+#define ZMIN SUN_RCONST(0.0)
+#define ZMAX SUN_RCONST(20.0)
 #define MZ   40    /* no. of divisions in z dir. */
 #define NPZ  2     /* no. of procs. in z dir.    */
 #endif
 
 /* Parameters for source Gaussians */
 
-#define G1_AMPL   RCONST(1.0)
-#define G1_SIGMA  RCONST(1.7)
-#define G1_X      RCONST(4.0)
-#define G1_Y      RCONST(8.0)
+#define G1_AMPL   SUN_RCONST(1.0)
+#define G1_SIGMA  SUN_RCONST(1.7)
+#define G1_X      SUN_RCONST(4.0)
+#define G1_Y      SUN_RCONST(8.0)
 #ifdef USE3D
-#define G1_Z      RCONST(8.0)
+#define G1_Z      SUN_RCONST(8.0)
 #endif
 
-#define G2_AMPL   RCONST(0.8)
-#define G2_SIGMA  RCONST(3.0)
-#define G2_X      RCONST(16.0)
-#define G2_Y      RCONST(12.0)
+#define G2_AMPL   SUN_RCONST(0.8)
+#define G2_SIGMA  SUN_RCONST(3.0)
+#define G2_X      SUN_RCONST(16.0)
+#define G2_Y      SUN_RCONST(12.0)
 #ifdef USE3D
-#define G2_Z      RCONST(12.0)
+#define G2_Z      SUN_RCONST(12.0)
 #endif
 
-#define G_MIN     RCONST(1.0e-5)
+#define G_MIN     SUN_RCONST(1.0e-5)
 
 /* Diffusion coeff., max. velocity, domain width in y dir. */
 
-#define DIFF_COEF RCONST(1.0)
-#define V_MAX     RCONST(1.0)
-#define L         ((YMAX-YMIN)/RCONST(2.0))
+#define DIFF_COEF SUN_RCONST(1.0)
+#define V_MAX     SUN_RCONST(1.0)
+#define L         ((YMAX-YMIN)/SUN_RCONST(2.0))
 #define V_COEFF   V_MAX/L/L
 
 /* Initial and final times */
 
-#define ti    RCONST(0.0)
-#define tf    RCONST(10.0)
+#define ti    SUN_RCONST(0.0)
+#define tf    SUN_RCONST(10.0)
 
 /* Integration tolerances */
 
-#define RTOL    RCONST(1.0e-8) /* states */
-#define ATOL    RCONST(1.0e-6)
+#define RTOL    SUN_RCONST(1.0e-8) /* states */
+#define ATOL    SUN_RCONST(1.0e-6)
 
-#define RTOL_Q  RCONST(1.0e-8) /* forward quadrature */
-#define ATOL_Q  RCONST(1.0e-6)
+#define RTOL_Q  SUN_RCONST(1.0e-8) /* forward quadrature */
+#define ATOL_Q  SUN_RCONST(1.0e-6)
 
-#define RTOL_B  RCONST(1.0e-8) /* adjoint variables */
-#define ATOL_B  RCONST(1.0e-6)
+#define RTOL_B  SUN_RCONST(1.0e-8) /* adjoint variables */
+#define ATOL_B  SUN_RCONST(1.0e-6)
 
-#define RTOL_QB RCONST(1.0e-8) /* backward quadratures */
-#define ATOL_QB RCONST(1.0e-6)
+#define RTOL_QB SUN_RCONST(1.0e-8) /* backward quadratures */
+#define ATOL_QB SUN_RCONST(1.0e-6)
 
 /* Steps between check points */
 
 #define STEPS 200
 
-#define ZERO RCONST(0.0)
-#define ONE  RCONST(1.0)
-#define TWO  RCONST(2.0)
+#define ZERO SUN_RCONST(0.0)
+#define ONE  SUN_RCONST(1.0)
+#define TWO  SUN_RCONST(2.0)
 
 /*
  *------------------------------------------------------------------
@@ -879,7 +879,7 @@ static int fQ(sunrealtype t, N_Vector y, N_Vector qdot, void *user_data)
   dqdata = N_VGetArrayPointer(qdot);
 
   dqdata[0] = N_VDotProd(y,y);
-  dqdata[0] *= RCONST(0.5) * (d->dOmega);
+  dqdata[0] *= SUN_RCONST(0.5) * (d->dOmega);
 
   return(0);
 }

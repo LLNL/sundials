@@ -105,7 +105,7 @@ int main(int argc, char *argv[])
 
     /* identity matrix */
     colj = SUNBandMatrix_Column(I, j);
-    colj[0] = RCONST(1.0);
+    colj[0] = SUN_RCONST(1.0);
 
     /* A matrix */
     colj = SUNBandMatrix_Column(A, j);
@@ -122,7 +122,7 @@ int main(int argc, char *argv[])
     xdata[i] = i;
 
     /* y vector */
-    ydata[i] = RCONST(0.0);
+    ydata[i] = SUN_RCONST(0.0);
     jstart = SUNMAX(0, i-lband);
     jend = SUNMIN(cols-1, i+uband);
     for (j=jstart; j<=jend; j++)

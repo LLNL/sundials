@@ -60,12 +60,12 @@ int main()
   sunrealtype reltol, abstol, t0, t1, t2, t;
   long int nst1, nst2, nst;
 
-  reltol = RCONST(1.0e-3);
-  abstol = RCONST(1.0e-4);
+  reltol = SUN_RCONST(1.0e-3);
+  abstol = SUN_RCONST(1.0e-4);
 
-  t0 = RCONST(0.0);
-  t1 = RCONST(1.0);
-  t2 = RCONST(2.0);
+  t0 = SUN_RCONST(0.0);
+  t1 = SUN_RCONST(1.0);
+  t2 = SUN_RCONST(2.0);
 
   /* Create the SUNDIALS context */
   retval = SUNContext_Create(NULL, &sunctx);
@@ -75,7 +75,7 @@ int main()
   y = N_VNew_Serial(NEQ, sunctx);
 
   /* Set initial condition */
-  NV_Ith_S(y,0) = RCONST(1.0);
+  NV_Ith_S(y,0) = SUN_RCONST(1.0);
 
   /*
    * ------------------------------------------------------------
@@ -149,7 +149,7 @@ int main()
   /* ---- Integrate from the discontinuity */
 
   /* Include discontinuity */
-  NV_Ith_S(y,0) = RCONST(1.0);
+  NV_Ith_S(y,0) = SUN_RCONST(1.0);
 
   /* Reinitialize the solver */
   retval = CVodeReInit(cvode_mem, t1, y);
@@ -190,7 +190,7 @@ int main()
   printf("\nDiscontinuity in RHS: Case 1 - explicit treatment\n\n");
 
   /* Set initial condition */
-  NV_Ith_S(y,0) = RCONST(1.0);
+  NV_Ith_S(y,0) = SUN_RCONST(1.0);
 
   /* Reinitialize the solver. CVodeReInit does not reallocate memory
    * so it can only be used when the new problem size is the same as
@@ -263,7 +263,7 @@ int main()
   printf("\nDiscontinuity in RHS: Case 2 - let CVODE deal with it\n\n");
 
   /* Set initial condition */
-  NV_Ith_S(y,0) = RCONST(1.0);
+  NV_Ith_S(y,0) = SUN_RCONST(1.0);
 
   /* Reinitialize the solver. CVodeReInit does not reallocate memory
    * so it can only be used when the new problem size is the same as

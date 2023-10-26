@@ -72,21 +72,21 @@
 /* Problem Constants */
 
 #define NUM_SPECIES  2                /* number of species */
-#define C1_SCALE     RCONST(1.0e6)    /* coefficients in initial profiles */
-#define C2_SCALE     RCONST(1.0e12)
+#define C1_SCALE     SUN_RCONST(1.0e6)    /* coefficients in initial profiles */
+#define C2_SCALE     SUN_RCONST(1.0e12)
 
-#define T0           RCONST(0.0)      /* initial time */
+#define T0           SUN_RCONST(0.0)      /* initial time */
 #define NOUT         12               /* number of output times */
-#define TWOHR        RCONST(7200.0)   /* number of seconds in two hours  */
-#define HALFDAY      RCONST(4.32e4)   /* number of seconds in a half day */
-#define PI           RCONST(3.1415926535898)   /* pi */
+#define TWOHR        SUN_RCONST(7200.0)   /* number of seconds in two hours  */
+#define HALFDAY      SUN_RCONST(4.32e4)   /* number of seconds in a half day */
+#define PI           SUN_RCONST(3.1415926535898)   /* pi */
 
-#define XMIN         RCONST(0.0)      /* grid boundaries in x  */
-#define XMAX         RCONST(20.0)
-#define ZMIN         RCONST(30.0)     /* grid boundaries in z  */
-#define ZMAX         RCONST(50.0)
-#define XMID         RCONST(10.0)     /* grid midpoints in x,z */
-#define ZMID         RCONST(40.0)
+#define XMIN         SUN_RCONST(0.0)      /* grid boundaries in x  */
+#define XMAX         SUN_RCONST(20.0)
+#define ZMIN         SUN_RCONST(30.0)     /* grid boundaries in z  */
+#define ZMAX         SUN_RCONST(50.0)
+#define XMID         SUN_RCONST(10.0)     /* grid midpoints in x,z */
+#define ZMID         SUN_RCONST(40.0)
 
 #define MX           15               /* MX = number of x mesh points */
 #define MZ           15               /* MZ = number of z mesh points */
@@ -94,8 +94,8 @@
 #define MM           (MX*MZ)          /* MM = MX*MZ */
 
 /* CVodeInit Constants */
-#define RTOL         RCONST(1.0e-5)   /* scalar relative tolerance */
-#define FLOOR        RCONST(100.0)    /* value of C1 or C2 at which tolerances */
+#define RTOL         SUN_RCONST(1.0e-5)   /* scalar relative tolerance */
+#define FLOOR        SUN_RCONST(100.0)    /* value of C1 or C2 at which tolerances */
                                       /* change from relative to absolute      */
 #define ATOL         (RTOL*FLOOR)     /* scalar absolute tolerance */
 #define NEQ          (NUM_SPECIES*MM) /* NEQ = number of equations */
@@ -104,8 +104,8 @@
 #define NP           8
 #define NS           2
 
-#define ZERO         RCONST(0.0)
-#define ONE          RCONST(1.0)
+#define ZERO         SUN_RCONST(0.0)
+#define ONE          SUN_RCONST(1.0)
 
 /* User-defined vector and matrix accessor macros: IJKth, IJth */
 
@@ -395,10 +395,10 @@ static int f(sunrealtype t, N_Vector y, N_Vector ydot, void *user_data)
 
     /* Set vertical diffusion coefficients at jz +- 1/2 */
 
-    zdn = ZMIN + (jz - RCONST(0.5))*delz;
+    zdn = ZMIN + (jz - SUN_RCONST(0.5))*delz;
     zup = zdn + delz;
-    czdn = verdco*exp(RCONST(0.2)*zdn);
-    czup = verdco*exp(RCONST(0.2)*zup);
+    czdn = verdco*exp(SUN_RCONST(0.2)*zdn);
+    czup = verdco*exp(SUN_RCONST(0.2)*zup);
     idn = (jz == 0) ? 1 : -1;
     iup = (jz == MZ-1) ? -1 : 1;
     for (jx=0; jx < MX; jx++) {
@@ -411,7 +411,7 @@ static int f(sunrealtype t, N_Vector y, N_Vector ydot, void *user_data)
       qq2 = Q2*c1*c2;
       qq3 = q3*C3;
       qq4 = q4coef*c2;
-      rkin1 = -qq1 - qq2 + RCONST(2.0)*qq3 + qq4;
+      rkin1 = -qq1 - qq2 + SUN_RCONST(2.0)*qq3 + qq4;
       rkin2 = qq1 - qq2 - qq4;
 
       /* Set vertical diffusion terms. */
@@ -431,8 +431,8 @@ static int f(sunrealtype t, N_Vector y, N_Vector ydot, void *user_data)
       c2lt = IJKth(ydata,2,jx+ileft,jz);
       c1rt = IJKth(ydata,1,jx+iright,jz);
       c2rt = IJKth(ydata,2,jx+iright,jz);
-      hord1 = hordco*(c1rt - RCONST(2.0)*c1 + c1lt);
-      hord2 = hordco*(c2rt - RCONST(2.0)*c2 + c2lt);
+      hord1 = hordco*(c1rt - SUN_RCONST(2.0)*c1 + c1lt);
+      hord2 = hordco*(c2rt - SUN_RCONST(2.0)*c2 + c2lt);
       horad1 = horaco*(c1rt - c1lt);
       horad2 = horaco*(c2rt - c2lt);
 
@@ -500,11 +500,11 @@ static int Precond(sunrealtype tn, N_Vector y, N_Vector fy, booleantype jok,
      computed on the last f call).  Load into P. */
 
     for (jz=0; jz < MZ; jz++) {
-      zdn = ZMIN + (jz - RCONST(0.5))*delz;
+      zdn = ZMIN + (jz - SUN_RCONST(0.5))*delz;
       zup = zdn + delz;
-      czdn = verdco*exp(RCONST(0.2)*zdn);
-      czup = verdco*exp(RCONST(0.2)*zup);
-      diag = -(czdn + czup + RCONST(2.0)*hordco);
+      czdn = verdco*exp(SUN_RCONST(0.2)*zdn);
+      czup = verdco*exp(SUN_RCONST(0.2)*zup);
+      diag = -(czdn + czup + SUN_RCONST(2.0)*hordco);
       for (jx=0; jx < MX; jx++) {
         c1 = IJKth(ydata,1,jx,jz);
         c2 = IJKth(ydata,2,jx,jz);
@@ -670,20 +670,20 @@ static void InitUserData(UserData data)
   sunrealtype Q1, Q2, C3, A3, A4, KH, VEL, KV0;
 
   /* Set problem parameters */
-  Q1 = RCONST(1.63e-16); /* Q1  coefficients q1, q2, c3             */
-  Q2 = RCONST(4.66e-16); /* Q2                                      */
-  C3 = RCONST(3.7e16);   /* C3                                      */
-  A3 = RCONST(22.62);    /* A3  coefficient in expression for q3(t) */
-  A4 = RCONST(7.601);    /* A4  coefficient in expression for q4(t) */
-  KH = RCONST(4.0e-6);   /* KH  horizontal diffusivity Kh           */
-  VEL = RCONST(0.001);   /* VEL advection velocity V                */
-  KV0 = RCONST(1.0e-8);  /* KV0 coefficient in Kv(z)                */
+  Q1 = SUN_RCONST(1.63e-16); /* Q1  coefficients q1, q2, c3             */
+  Q2 = SUN_RCONST(4.66e-16); /* Q2                                      */
+  C3 = SUN_RCONST(3.7e16);   /* C3                                      */
+  A3 = SUN_RCONST(22.62);    /* A3  coefficient in expression for q3(t) */
+  A4 = SUN_RCONST(7.601);    /* A4  coefficient in expression for q4(t) */
+  KH = SUN_RCONST(4.0e-6);   /* KH  horizontal diffusivity Kh           */
+  VEL = SUN_RCONST(0.001);   /* VEL advection velocity V                */
+  KV0 = SUN_RCONST(1.0e-8);  /* KV0 coefficient in Kv(z)                */
 
   data->om = PI/HALFDAY;
   data->dx = (XMAX-XMIN)/(MX-1);
   data->dz = (ZMAX-ZMIN)/(MZ-1);
   data->hdco = KH/SQR(data->dx);
-  data->haco = VEL/(RCONST(2.0)*data->dx);
+  data->haco = VEL/(SUN_RCONST(2.0)*data->dx);
   data->vdco = (ONE/SQR(data->dz))*KV0;
 
   data->p[0] = Q1;
@@ -735,12 +735,12 @@ static void SetInitialProfiles(N_Vector y, sunrealtype dx, sunrealtype dz)
 
   for (jz=0; jz < MZ; jz++) {
     z = ZMIN + jz*dz;
-    cz = SQR(RCONST(0.1)*(z - ZMID));
-    cz = ONE - cz + RCONST(0.5)*SQR(cz);
+    cz = SQR(SUN_RCONST(0.1)*(z - ZMID));
+    cz = ONE - cz + SUN_RCONST(0.5)*SQR(cz);
     for (jx=0; jx < MX; jx++) {
       x = XMIN + jx*dx;
-      cx = SQR(RCONST(0.1)*(x - XMID));
-      cx = ONE - cx + RCONST(0.5)*SQR(cx);
+      cx = SQR(SUN_RCONST(0.1)*(x - XMID));
+      cx = ONE - cx + SUN_RCONST(0.5)*SQR(cx);
       IJKth(ydata,1,jx,jz) = C1_SCALE*cx*cz;
       IJKth(ydata,2,jx,jz) = C2_SCALE*cx*cz;
     }

@@ -35,10 +35,10 @@
 #include "sunlinsol/sunlinsol_band.h"
 
 // Macros for problem constants
-#define PI    RCONST(3.141592653589793238462643383279502884197169)
-#define ZERO  RCONST(0.0)
-#define ONE   RCONST(1.0)
-#define TWO   RCONST(2.0)
+#define PI    SUN_RCONST(3.141592653589793238462643383279502884197169)
+#define ZERO  SUN_RCONST(0.0)
+#define ONE   SUN_RCONST(1.0)
+#define TWO   SUN_RCONST(2.0)
 
 #define NSPECIES 3
 
@@ -65,18 +65,18 @@ struct UserData
   int splitting = 3;
 
   // Advection and diffusion coefficients
-  sunrealtype c = RCONST(1.0e-3);
-  sunrealtype d = RCONST(1.0e-2);
+  sunrealtype c = SUN_RCONST(1.0e-3);
+  sunrealtype d = SUN_RCONST(1.0e-2);
 
   // Feed and reaction rates
-  sunrealtype A = RCONST(0.6);
-  sunrealtype B = RCONST(2.0);
+  sunrealtype A = SUN_RCONST(0.6);
+  sunrealtype B = SUN_RCONST(2.0);
 
   // Stiffness parameter
-  sunrealtype eps = RCONST(1.0e-2);
+  sunrealtype eps = SUN_RCONST(1.0e-2);
 
   // Final simulation time
-  sunrealtype tf = RCONST(3.0);
+  sunrealtype tf = SUN_RCONST(3.0);
 
   // Domain boundaries
   sunrealtype xl = ZERO;
@@ -132,10 +132,10 @@ struct UserOptions
   bool ark_dirk  = false;
 
   // Relative and absolute tolerances
-  sunrealtype rtol      = RCONST(1.e-4);
-  sunrealtype atol      = RCONST(1.e-9);
-  sunrealtype rtol_fast = RCONST(1.e-4);
-  sunrealtype atol_fast = RCONST(1.e-9);
+  sunrealtype rtol      = SUN_RCONST(1.e-4);
+  sunrealtype atol      = SUN_RCONST(1.e-9);
+  sunrealtype rtol_fast = SUN_RCONST(1.e-4);
+  sunrealtype atol_fast = SUN_RCONST(1.e-9);
 
   // Step size selection (ZERO = adaptive steps)
   sunrealtype fixed_h      = ZERO;
@@ -159,7 +159,7 @@ struct UserOptions
   bool save_hinit = false;
   bool save_hcur  = false;
 
-  sunrealtype hcur_factor = RCONST(0.7);
+  sunrealtype hcur_factor = SUN_RCONST(0.7);
 
   int output = 1;   // 0 = none, 1 = stats, 2 = disk, 3 = disk with tstop
   int nout   = 10;  // number of output times

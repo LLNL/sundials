@@ -53,9 +53,9 @@ static int check_flag(void *flagvalue, const char *funcname, int opt);
 int main()
 {
   /* general problem parameters */
-  sunrealtype T0 = RCONST(0.0);     /* initial time */
-  sunrealtype Tf = RCONST(10.0);    /* final time */
-  sunrealtype dTout = RCONST(1.0);  /* time between outputs */
+  sunrealtype T0 = SUN_RCONST(0.0);     /* initial time */
+  sunrealtype Tf = SUN_RCONST(10.0);    /* final time */
+  sunrealtype dTout = SUN_RCONST(1.0);  /* time between outputs */
   sunindextype NEQ = 1;          /* number of dependent vars. */
   sunrealtype reltol = 1.0e-6;      /* tolerances */
   sunrealtype abstol = 1.0e-10;

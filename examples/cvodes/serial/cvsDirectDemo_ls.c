@@ -83,38 +83,38 @@
 
 /* Shared Problem Constants */
 
-#define ATOL RCONST(1.0e-6)
-#define RTOL RCONST(0.0)
+#define ATOL SUN_RCONST(1.0e-6)
+#define RTOL SUN_RCONST(0.0)
 
-#define ZERO   RCONST(0.0)
-#define ONE    RCONST(1.0)
-#define TWO    RCONST(2.0)
-#define THIRTY RCONST(30.0)
+#define ZERO   SUN_RCONST(0.0)
+#define ONE    SUN_RCONST(1.0)
+#define TWO    SUN_RCONST(2.0)
+#define THIRTY SUN_RCONST(30.0)
 
 /* Problem #1 Constants */
 
 #define P1_NEQ        2
-#define P1_ETA        RCONST(3.0)
+#define P1_ETA        SUN_RCONST(3.0)
 #define P1_NOUT       4
-#define P1_T0         RCONST(0.0)
-#define P1_T1         RCONST(1.39283880203)
-#define P1_DTOUT      RCONST(2.214773875)
-#define P1_TOL_FACTOR RCONST(1.0e4)
+#define P1_T0         SUN_RCONST(0.0)
+#define P1_T1         SUN_RCONST(1.39283880203)
+#define P1_DTOUT      SUN_RCONST(2.214773875)
+#define P1_TOL_FACTOR SUN_RCONST(1.0e4)
 
 /* Problem #2 Constants */
 
 #define P2_MESHX      5
 #define P2_MESHY      5
 #define P2_NEQ        P2_MESHX*P2_MESHY
-#define P2_ALPH1      RCONST(1.0)
-#define P2_ALPH2      RCONST(1.0)
+#define P2_ALPH1      SUN_RCONST(1.0)
+#define P2_ALPH2      SUN_RCONST(1.0)
 #define P2_NOUT       5
 #define P2_ML         5
 #define P2_MU         0
-#define P2_T0         RCONST(0.0)
-#define P2_T1         RCONST(0.01)
-#define P2_TOUT_MULT  RCONST(10.0)
-#define P2_TOL_FACTOR RCONST(1.0e3)
+#define P2_T0         SUN_RCONST(0.0)
+#define P2_T1         SUN_RCONST(0.01)
+#define P2_TOUT_MULT  SUN_RCONST(10.0)
+#define P2_TOL_FACTOR SUN_RCONST(1.0e3)
 
 /* Linear Solver Options */
 

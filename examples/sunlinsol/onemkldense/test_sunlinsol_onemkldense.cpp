@@ -233,7 +233,7 @@ int main(int argc, char *argv[])
     for(j = 0; j < cols; j++)
       for (i = 0; i < rows; i++)
         Idata[k * cols * rows + j * rows + i] =
-          ((rows-1-i) == j) ? RCONST(1.0) : RCONST(0.0);
+          ((rows-1-i) == j) ? SUN_RCONST(1.0) : SUN_RCONST(0.0);
 
   // Add anti-identity to ensure the solver needs to do row-swapping
   for (k = 0; k < nblocks; k++)
@@ -297,7 +297,7 @@ int main(int argc, char *argv[])
   // Run Tests
   fails += Test_SUNLinSolInitialize(LS, 0);
   fails += Test_SUNLinSolSetup(LS, A, 0);
-  fails += Test_SUNLinSolSolve(LS, A, x, b, RCONST(1e-10), SUNTRUE, 0);
+  fails += Test_SUNLinSolSolve(LS, A, x, b, SUN_RCONST(1e-10), SUNTRUE, 0);
   fails += Test_SUNLinSolGetType(LS, SUNLINEARSOLVER_DIRECT, 0);
   fails += Test_SUNLinSolGetID(LS, SUNLINEARSOLVER_ONEMKLDENSE, 0);
   fails += Test_SUNLinSolLastFlag(LS, 0);

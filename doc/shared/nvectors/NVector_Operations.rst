@@ -494,7 +494,7 @@ operations below.
       \min_{0\le i< n} \frac{\text{num}_i}{\text{denom}_i}.
 
    A zero element in *denom* will be skipped.  If no such quotients
-   are found, then the large value ``BIG_REAL`` (defined in the header
+   are found, then the large value ``SUN_BIG_REAL`` (defined in the header
    file ``sundials_types.h``) is returned.
 
    Usage:
@@ -928,7 +928,7 @@ operations below.
    term-wise dividing :math:`num_i` by :math:`denom_i`, for all MPI
    task-local components of the vectors.  A zero element in *denom*
    will be skipped. If no such quotients are found, then the large value
-   ``BIG_REAL`` (defined in the header file ``sundials_types.h``)
+   ``SUN_BIG_REAL`` (defined in the header file ``sundials_types.h``)
    is returned.
 
    Usage:

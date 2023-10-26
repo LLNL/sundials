@@ -31,11 +31,11 @@
 #include "sunlinsol/sunlinsol_dense.h"
 
 // Macros for problem constants
-#define ZERO    RCONST(0.0)
-#define HALF    RCONST(0.5)
-#define ONE     RCONST(1.0)
-#define TWO     RCONST(2.0)
-#define TWENTY  RCONST(20.0)
+#define ZERO    SUN_RCONST(0.0)
+#define HALF    SUN_RCONST(0.5)
+#define ONE     SUN_RCONST(1.0)
+#define TWO     SUN_RCONST(2.0)
+#define TWENTY  SUN_RCONST(20.0)
 
 using namespace std;
 
@@ -46,8 +46,8 @@ using namespace std;
 struct TestOptions
 {
   // Relative and absolute tolerances
-  sunrealtype rtol = RCONST(1.0e-6);
-  sunrealtype atol = RCONST(1.0e-10);
+  sunrealtype rtol = SUN_RCONST(1.0e-6);
+  sunrealtype atol = SUN_RCONST(1.0e-10);
 
   // Fixed step size eta bounds (use defaults = 0.0 and 1.5)
   sunrealtype eta_min_fx = -ONE;

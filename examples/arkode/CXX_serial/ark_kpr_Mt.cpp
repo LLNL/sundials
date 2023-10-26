@@ -95,10 +95,10 @@
 #define FSYM "f"
 #endif
 
-#define ZERO RCONST(0.0)
-#define ONE  RCONST(1.0)
-#define TWO  RCONST(2.0)
-#define PI4  RCONST(0.78539816339744830961566084581987572)
+#define ZERO SUN_RCONST(0.0)
+#define ONE  SUN_RCONST(1.0)
+#define TWO  SUN_RCONST(2.0)
+#define PI4  SUN_RCONST(0.78539816339744830961566084581987572)
 
 using namespace std;
 
@@ -141,17 +141,17 @@ static int check_retval(void *returnvalue, const char *funcname, int opt);
 int main(int argc, char *argv[])
 {
   // general problem parameters
-  sunrealtype T0 = RCONST(-3.0);       // initial time
-  sunrealtype Tf = RCONST(7.0);        // final time
-  sunrealtype dTout = RCONST(0.1);     // time between outputs
+  sunrealtype T0 = SUN_RCONST(-3.0);       // initial time
+  sunrealtype Tf = SUN_RCONST(7.0);        // final time
+  sunrealtype dTout = SUN_RCONST(0.1);     // time between outputs
   sunindextype NEQ = 2;             // number of dependent vars.
   int rk_type = 0;                  // type of RK method [ARK=0, DIRK=1, ERK=2]
   int nls_type = 0;                 // type of nonlinear solver [Newton=0, FP=1]
   int order = 4;                    // order of accuracy for RK method
   booleantype deduce = SUNFALSE;    // deduce fi after a nonlinear solve
   booleantype adaptive = SUNTRUE;   // adaptive run vs convergence order
-  sunrealtype reltol = RCONST(1e-5);   // relative tolerance
-  sunrealtype abstol = RCONST(1e-11);  // absolute tolerance
+  sunrealtype reltol = SUN_RCONST(1e-5);   // relative tolerance
+  sunrealtype abstol = SUN_RCONST(1e-11);  // absolute tolerance
 
   // general problem variables
   int retval;                    // reusable error-checking flag
@@ -163,9 +163,9 @@ int main(int argc, char *argv[])
   SUNLinearSolver MLS = NULL;    // empty mass linear solver object
   SUNNonlinearSolver NLS = NULL; // empty nonlinear solver object
   UserData udata;                // user-data structure
-  udata.G = RCONST(-100.0);      // stiffness parameter
-  udata.g = RCONST(10.0);        // mass matrix parameter
-  udata.e = RCONST(0.5);         // coupling strength
+  udata.G = SUN_RCONST(-100.0);      // stiffness parameter
+  udata.g = SUN_RCONST(10.0);        // mass matrix parameter
+  udata.e = SUN_RCONST(0.5);         // coupling strength
   udata.M_timedep = SUNTRUE;     // time-dependence of mass matrix
 
   //
@@ -612,8 +612,8 @@ static int check_order(void *arkode_mem, N_Vector y, sunrealtype T0,
   // local variables
   int retval;
   size_t Nout = 20;
-  sunrealtype reltol = RCONST(1.e-9);
-  sunrealtype abstol = RCONST(1.e-12);
+  sunrealtype reltol = SUN_RCONST(1.e-9);
+  sunrealtype abstol = SUN_RCONST(1.e-12);
   sunrealtype a11, a12, a21, a22, b1, b2;
   a11 = a12 = a21 = a22 = b1 = b2 = ZERO;
 
@@ -706,7 +706,7 @@ static int check_order(void *arkode_mem, N_Vector y, sunrealtype T0,
          ord_max, ord_avg, ord_est);
 
   // clean up and return
-  if (ord_max < (order-RCONST(0.5))) {
+  if (ord_max < (order-SUN_RCONST(0.5))) {
     cout << " [FAILURE]\n";
     return(1);
   } else {
@@ -717,7 +717,7 @@ static int check_order(void *arkode_mem, N_Vector y, sunrealtype T0,
 
 static sunrealtype r(sunrealtype t)
 {
-  return( RCONST(0.5)*cos(t) );
+  return( SUN_RCONST(0.5)*cos(t) );
 }
 static sunrealtype s(sunrealtype t)
 {
@@ -725,7 +725,7 @@ static sunrealtype s(sunrealtype t)
 }
 static sunrealtype rdot(sunrealtype t)
 {
-  return( -RCONST(0.5)*sin(t) );
+  return( -SUN_RCONST(0.5)*sin(t) );
 }
 static sunrealtype sdot(sunrealtype t)
 {

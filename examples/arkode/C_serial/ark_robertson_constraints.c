@@ -66,11 +66,11 @@ static int check_ans(N_Vector y, sunrealtype t, sunrealtype rtol, sunrealtype at
 /* Main Program */
 int main()
 {
-  sunrealtype ONE = RCONST(1.0);
+  sunrealtype ONE = SUN_RCONST(1.0);
 
   /* general problem parameters */
-  sunrealtype T0 = RCONST(0.0);     /* initial time */
-  sunrealtype Tf = RCONST(1.e11);   /* final time */
+  sunrealtype T0 = SUN_RCONST(0.0);     /* initial time */
+  sunrealtype Tf = SUN_RCONST(1.e11);   /* final time */
   sunrealtype dTout = (Tf-T0)/100;  /* time between outputs */
   int Nt = (int) ceil(Tf/dTout); /* number of output times */
   sunindextype NEQ = 3;          /* number of dependent vars. */
@@ -88,12 +88,12 @@ int main()
   long int nst, nst_a, nfe, nfi, nsetups, nje, nfeLS, nni, nnf, ncfn, netf, nctf;
 
   /* set up the initial conditions, tolerances, initial time step size */
-  sunrealtype u0 = RCONST(1.0);
-  sunrealtype v0 = RCONST(0.0);
-  sunrealtype w0 = RCONST(0.0);
-  sunrealtype reltol = RCONST(1.0e-3);
-  sunrealtype abstol = RCONST(1.0e-7);
-  sunrealtype h0 = RCONST(1.0e-4) * reltol;
+  sunrealtype u0 = SUN_RCONST(1.0);
+  sunrealtype v0 = SUN_RCONST(0.0);
+  sunrealtype w0 = SUN_RCONST(0.0);
+  sunrealtype reltol = SUN_RCONST(1.0e-3);
+  sunrealtype abstol = SUN_RCONST(1.0e-7);
+  sunrealtype h0 = SUN_RCONST(1.0e-4) * reltol;
 
   /* Create the SUNDIALS context object for this simulation */
   SUNContext ctx;
@@ -130,7 +130,7 @@ int main()
   if (check_flag(&flag, "ARKStepSetMaxErrTestFails", 1)) return 1;
   flag = ARKStepSetMaxNonlinIters(arkode_mem, 8);             /* Increase max nonlin iters  */
   if (check_flag(&flag, "ARKStepSetMaxNonlinIters", 1)) return 1;
-  flag = ARKStepSetNonlinConvCoef(arkode_mem, RCONST(1.e-7)); /* Set nonlinear convergence coeff. */
+  flag = ARKStepSetNonlinConvCoef(arkode_mem, SUN_RCONST(1.e-7)); /* Set nonlinear convergence coeff. */
   if (check_flag(&flag, "ARKStepSetNonlinConvCoef", 1)) return 1;
   flag = ARKStepSetMaxNumSteps(arkode_mem, 100000);           /* Increase max num steps */
   if (check_flag(&flag, "ARKStepSetMaxNumSteps", 1)) return 1;
@@ -327,17 +327,17 @@ static int check_ans(N_Vector y, sunrealtype t, sunrealtype rtol, sunrealtype at
   N_Vector ref;               /* reference solution vector        */
   N_Vector ewt;               /* error weight vector              */
   sunrealtype err;               /* wrms error                       */
-  sunrealtype ZERO=RCONST(0.0);
-  sunrealtype ONE=RCONST(1.0);
+  sunrealtype ZERO=SUN_RCONST(0.0);
+  sunrealtype ONE=SUN_RCONST(1.0);
 
   /* create reference solution and error weight vectors */
   ref = N_VClone(y);
   ewt = N_VClone(y);
 
   /* set the reference solution data */
-  NV_Ith_S(ref,0) = RCONST(2.0833403356917897e-08);
-  NV_Ith_S(ref,1) = RCONST(8.1470714598028223e-14);
-  NV_Ith_S(ref,2) = RCONST(9.9999997916651040e-01);
+  NV_Ith_S(ref,0) = SUN_RCONST(2.0833403356917897e-08);
+  NV_Ith_S(ref,1) = SUN_RCONST(8.1470714598028223e-14);
+  NV_Ith_S(ref,2) = SUN_RCONST(9.9999997916651040e-01);
 
   /* compute the error weight vector */
   N_VAbs(ref, ewt);

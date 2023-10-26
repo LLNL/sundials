@@ -26,8 +26,8 @@
 #include <sunmatrix/sunmatrix_band.h>
 #include <sundials/sundials_math.h>
 
-#define ZERO RCONST(0.0)
-#define ONE  RCONST(1.0)
+#define ZERO SUN_RCONST(0.0)
+#define ONE  SUN_RCONST(1.0)
 
 
 /* Private function prototypes */

@@ -555,8 +555,8 @@ void Gaussian3D(sunrealtype& x, sunrealtype& y, sunrealtype& z, sunrealtype xmax
 {
   /* Gaussian distribution defaults */
   const sunrealtype alpha = 0.1;
-  const sunrealtype mu[] = { xmax/RCONST(2.0), xmax/RCONST(2.0), xmax/RCONST(2.0) };
-  const sunrealtype sigma[] = { xmax/RCONST(4.0), xmax/RCONST(4.0), xmax/RCONST(4.0) }; // Sigma = diag(sigma)
+  const sunrealtype mu[] = { xmax/SUN_RCONST(2.0), xmax/SUN_RCONST(2.0), xmax/SUN_RCONST(2.0) };
+  const sunrealtype sigma[] = { xmax/SUN_RCONST(4.0), xmax/SUN_RCONST(4.0), xmax/SUN_RCONST(4.0) }; // Sigma = diag(sigma)
 
   /* denominator = 2*sqrt(|Sigma|*(2pi)^3) */
   const sunrealtype denom = 2.0 * sqrt((sigma[0]*sigma[1]*sigma[2])*pow(2*M_PI,3));

@@ -54,15 +54,15 @@
 
 /* Problem Constants */
 
-#define ZERO  RCONST(0.0)
+#define ZERO  SUN_RCONST(0.0)
 
-#define XMAX  RCONST(2.0)    /* domain boundary           */
+#define XMAX  SUN_RCONST(2.0)    /* domain boundary           */
 #define MX    10             /* mesh dimension            */
 #define NEQ   MX             /* number of equations       */
-#define ATOL  RCONST(1.0e-5) /* scalar absolute tolerance */
+#define ATOL  SUN_RCONST(1.0e-5) /* scalar absolute tolerance */
 #define T0    ZERO           /* initial time              */
-#define T1    RCONST(0.5)    /* first output time         */
-#define DTOUT RCONST(0.5)    /* output time increment     */
+#define T1    SUN_RCONST(0.5)    /* first output time         */
+#define DTOUT SUN_RCONST(0.5)    /* output time increment     */
 #define NOUT  10             /* number of output times    */
 
 /* Type : UserData
@@ -152,8 +152,8 @@ int main(int argc, char *argv[])
 
   /* Set grid coefficients */
   dx = data->dx = XMAX/((sunrealtype)(MX+1));
-  data->hdcoef = RCONST(1.0)/(dx*dx);
-  data->hacoef = RCONST(0.5)/(RCONST(2.0)*dx);
+  data->hdcoef = SUN_RCONST(1.0)/(dx*dx);
+  data->hacoef = SUN_RCONST(0.5)/(SUN_RCONST(2.0)*dx);
 
   /* Set the tolerances */
   reltol = ZERO;
@@ -245,7 +245,7 @@ static void SetIC(N_Vector u, sunrealtype dx, sunindextype my_length,
   /* Load initial profile into u vector */
   for (i=1; i<=my_length; i++) {
     iglobal = my_base + i; x = iglobal*dx;
-    VecSetValue(uvec, iglobal-1, x*(XMAX - x)*SUNRexp(RCONST(2.0)*x), INSERT_VALUES);
+    VecSetValue(uvec, iglobal-1, x*(XMAX - x)*SUNRexp(SUN_RCONST(2.0)*x), INSERT_VALUES);
   }
 
   VecAssemblyBegin(uvec);
@@ -357,7 +357,7 @@ static int f(sunrealtype t, N_Vector u, N_Vector udot, void *user_data)
     urt = z[i+1];
 
     /* Set diffusion and advection terms and load into udot */
-    hdiff = hordc*(ult - RCONST(2.0)*ui + urt);
+    hdiff = hordc*(ult - SUN_RCONST(2.0)*ui + urt);
     hadv = horac*(urt - ult);
     dudata[i-1] = hdiff + hadv;
 

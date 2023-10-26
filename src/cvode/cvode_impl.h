@@ -60,13 +60,13 @@ extern "C" {
 #define L_MAX  (Q_MAX+1)   /* max value of L for either lmm       */
 #define NUM_TESTS    5     /* number of error test quantities     */
 
-#define HMIN_DEFAULT     RCONST(0.0)    /* hmin default value     */
-#define HMAX_INV_DEFAULT RCONST(0.0)    /* hmax_inv default value */
+#define HMIN_DEFAULT     SUN_RCONST(0.0)    /* hmin default value     */
+#define HMAX_INV_DEFAULT SUN_RCONST(0.0)    /* hmax_inv default value */
 #define MXHNIL_DEFAULT   10             /* mxhnil default value   */
 #define MXSTEP_DEFAULT   500            /* mxstep default value   */
 
 #define MSBP_DEFAULT         20          /* max steps between lsetup calls */
-#define DGMAX_LSETUP_DEFAULT RCONST(0.3) /* gamma threshold to call lsetup */
+#define DGMAX_LSETUP_DEFAULT SUN_RCONST(0.3) /* gamma threshold to call lsetup */
 
 /* Step size change constants
  * --------------------------
@@ -84,18 +84,18 @@ extern "C" {
  * ONEPSM (1+epsilon)  used in testing if the step size is below its bound
  */
 
-#define ETA_MIN_FX_DEFAULT RCONST(0.0)
-#define ETA_MAX_FX_DEFAULT RCONST(1.5)
-#define ETA_MAX_FS_DEFAULT RCONST(10000.0)
-#define ETA_MAX_ES_DEFAULT RCONST(10.0)
-#define ETA_MAX_GS_DEFAULT RCONST(10.0)
-#define ETA_MIN_DEFAULT    RCONST(0.1)
-#define ETA_MAX_EF_DEFAULT RCONST(0.2)
-#define ETA_MIN_EF_DEFAULT RCONST(0.1)
-#define ETA_CF_DEFAULT     RCONST(0.25)
+#define ETA_MIN_FX_DEFAULT SUN_RCONST(0.0)
+#define ETA_MAX_FX_DEFAULT SUN_RCONST(1.5)
+#define ETA_MAX_FS_DEFAULT SUN_RCONST(10000.0)
+#define ETA_MAX_ES_DEFAULT SUN_RCONST(10.0)
+#define ETA_MAX_GS_DEFAULT SUN_RCONST(10.0)
+#define ETA_MIN_DEFAULT    SUN_RCONST(0.1)
+#define ETA_MAX_EF_DEFAULT SUN_RCONST(0.2)
+#define ETA_MIN_EF_DEFAULT SUN_RCONST(0.1)
+#define ETA_CF_DEFAULT     SUN_RCONST(0.25)
 #define SMALL_NST_DEFAULT  10
 #define SMALL_NEF_DEFAULT  2
-#define ONEPSM             RCONST(1.000001)
+#define ONEPSM             SUN_RCONST(1.000001)
 
 /* Step size controller constants
  * ------------------------------
@@ -105,10 +105,10 @@ extern "C" {
  * BIAS3  -+
  */
 
-#define ADDON     RCONST(0.000001)
-#define BIAS1     RCONST(6.0)
-#define BIAS2     RCONST(6.0)
-#define BIAS3     RCONST(10.0)
+#define ADDON     SUN_RCONST(0.000001)
+#define BIAS1     SUN_RCONST(6.0)
+#define BIAS2     SUN_RCONST(6.0)
+#define BIAS3     SUN_RCONST(10.0)
 
 /* Order selection constants
  * -------------------------

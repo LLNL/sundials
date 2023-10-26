@@ -38,8 +38,8 @@
 #endif
 
 /* constants */
-#define FIVE      RCONST(5.0)
-#define THOUSAND  RCONST(1000.0)
+#define FIVE      SUN_RCONST(5.0)
+#define THOUSAND  SUN_RCONST(1000.0)
 
 /* user data structure */
 typedef struct {

@@ -77,14 +77,14 @@ extern "C" {
 #ifndef SUNRsqrt
 #if defined(__cplusplus) || defined(SUNDIALS_C_COMPILER_HAS_MATH_PRECISIONS)
 #  if defined(SUNDIALS_DOUBLE_PRECISION)
-#    define SUNRsqrt(x) ((x) <= RCONST(0.0) ? (RCONST(0.0)) : (sqrt((x))))
+#    define SUNRsqrt(x) ((x) <= SUN_RCONST(0.0) ? (SUN_RCONST(0.0)) : (sqrt((x))))
 #  elif defined(SUNDIALS_SINGLE_PRECISION)
-#    define SUNRsqrt(x) ((x) <= RCONST(0.0) ? (RCONST(0.0)) : (sqrtf((x))))
+#    define SUNRsqrt(x) ((x) <= SUN_RCONST(0.0) ? (SUN_RCONST(0.0)) : (sqrtf((x))))
 #  elif defined(SUNDIALS_EXTENDED_PRECISION)
-#    define SUNRsqrt(x) ((x) <= RCONST(0.0) ? (RCONST(0.0)) : (sqrtl((x))))
+#    define SUNRsqrt(x) ((x) <= SUN_RCONST(0.0) ? (SUN_RCONST(0.0)) : (sqrtl((x))))
 #  endif
 #else
-#  define SUNRsqrt(x) ((x) <= RCONST(0.0) ? (RCONST(0.0)) : ((sunrealtype) sqrt((double) (x))))
+#  define SUNRsqrt(x) ((x) <= SUN_RCONST(0.0) ? (SUN_RCONST(0.0)) : ((sunrealtype) sqrt((double) (x))))
 #endif
 #endif
 

@@ -25,10 +25,10 @@
 #include <sundials/sundials_math.h>
 #include "sundials/sundials_nvector.h"
 
-#define ZERO   RCONST(0.0)
-#define HALF   RCONST(0.5)
-#define ONE    RCONST(1.0)
-#define ONEPT5 RCONST(1.5)
+#define ZERO   SUN_RCONST(0.0)
+#define HALF   SUN_RCONST(0.5)
+#define ONE    SUN_RCONST(1.0)
+#define ONEPT5 SUN_RCONST(1.5)
 
 /*
  * -----------------------------------------------------------------
@@ -790,7 +790,7 @@ sunrealtype N_VMinLocal_ParHyp(N_Vector x)
 
   xd  = NULL;
   N   = NV_LOCLENGTH_PH(x);
-  min = BIG_REAL;
+  min = SUN_BIG_REAL;
 
   if (N > 0) {
     xd = NV_DATA_PH(x);
@@ -943,7 +943,7 @@ sunrealtype N_VMinQuotientLocal_ParHyp(N_Vector num, N_Vector denom)
   dd = NV_DATA_PH(denom);
 
   notEvenOnce = SUNTRUE;
-  min = BIG_REAL;
+  min = SUN_BIG_REAL;
 
   for (i = 0; i < N; i++) {
     if (dd[i] == ZERO) continue;

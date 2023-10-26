@@ -39,12 +39,12 @@ extern "C" {
 
 /* Implicit solver constants (duplicate from arkode_arkstep_impl.h) */
 #define MAXCOR    3              /* max number of nonlinear iterations */
-#define CRDOWN    RCONST(0.3)    /* constant to estimate the convergence
+#define CRDOWN    SUN_RCONST(0.3)    /* constant to estimate the convergence
                                     rate for the nonlinear equation */
-#define DGMAX     RCONST(0.2)    /* if |gamma/gammap-1| > DGMAX then call lsetup */
-#define RDIV      RCONST(2.3)    /* declare divergence if ratio del/delp > RDIV */
+#define DGMAX     SUN_RCONST(0.2)    /* if |gamma/gammap-1| > DGMAX then call lsetup */
+#define RDIV      SUN_RCONST(2.3)    /* declare divergence if ratio del/delp > RDIV */
 #define MSBP      20             /* max no. of steps between lsetup calls */
-#define NLSCOEF   RCONST(0.1)
+#define NLSCOEF   SUN_RCONST(0.1)
 
 /*===============================================================
   MRI time step module data structure

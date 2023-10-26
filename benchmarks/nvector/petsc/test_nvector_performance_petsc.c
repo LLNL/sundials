@@ -281,7 +281,7 @@ static int InitializeClearCache(int cachesize)
 
   /* allocate data and fill random values */
   data = (sunrealtype*) malloc(N*sizeof(sunrealtype));
-  rand_realtype(data, N, RCONST(-1.0), RCONST(1.0));
+  rand_realtype(data, N, SUN_RCONST(-1.0), SUN_RCONST(1.0));
 
   return(0);
 }
@@ -297,7 +297,7 @@ void ClearCache()
   sunrealtype     sum;
   sunindextype i;
 
-  sum = RCONST(0.0);
+  sum = SUN_RCONST(0.0);
   for (i=0; i<N; i++)
     sum += data[i];
 

@@ -69,14 +69,14 @@
 
 /* Problem Constants */
 #define NUM_SPECIES 2
-#define ctL         RCONST(1.0)    /* Domain =[0,L]^2 */
-#define ctA         RCONST(1.0)
-#define ctB         RCONST(3.4)
-#define ctEps       RCONST(2.0e-3)
+#define ctL         SUN_RCONST(1.0)    /* Domain =[0,L]^2 */
+#define ctA         SUN_RCONST(1.0)
+#define ctB         SUN_RCONST(3.4)
+#define ctEps       SUN_RCONST(2.0e-3)
 
 #define NS          2
 
-#define PI          RCONST(3.1415926535898) /* pi */
+#define PI          SUN_RCONST(3.1415926535898) /* pi */
 
 #define MXSUB       41    /* Number of x mesh points per processor subgrid */
 #define MYSUB       41    /* Number of y mesh points per processor subgrid */
@@ -88,15 +88,15 @@
 #define NEQ         (NUM_SPECIES*MX*MY) /* Number of equations in system */
 
 
-#define RTOL        RCONST(1.e-5)  /*  rtol tolerance */
-#define ATOL        RCONST(1.e-5)  /*  atol tolerance */
+#define RTOL        SUN_RCONST(1.e-5)  /*  rtol tolerance */
+#define ATOL        SUN_RCONST(1.e-5)  /*  atol tolerance */
 #define NOUT        6
-#define TMULT       RCONST(10.0)   /* Multiplier for tout values */
-#define TADD        RCONST(0.3)    /* Increment for tout values */
+#define TMULT       SUN_RCONST(10.0)   /* Multiplier for tout values */
+#define TADD        SUN_RCONST(0.3)    /* Increment for tout values */
 
-#define ZERO        RCONST(0.0)
-#define HALF        RCONST(0.5)
-#define ONE         RCONST(1.0)
+#define ZERO        SUN_RCONST(0.0)
+#define HALF        SUN_RCONST(0.5)
+#define ONE         SUN_RCONST(1.0)
 
 
 /* User-defined vector accessor macro IJ_Vptr. */
@@ -311,7 +311,7 @@ int main(int argc, char *argv[])
   if(check_retval(&retval, "IDABBDPrecInit", 1, thispe)) MPI_Abort(comm, 1);
 
   /* Call IDACalcIC (with default options) to correct the initial values. */
-  tout = RCONST(0.001);
+  tout = SUN_RCONST(0.001);
   retval = IDACalcIC(ida_mem, IDA_YA_YDP_INIT, tout);
   if(check_retval(&retval, "IDACalcIC", 1, thispe)) MPI_Abort(comm, 1);
 
@@ -451,8 +451,8 @@ static void SetInitialProfiles(N_Vector uv, N_Vector uvp, N_Vector id,
       x = (ix + ixsub*mxsub) * dx;
       uvxy = IJ_Vptr(uv,ix,jy);
 
-      uvxy[0] = RCONST(1.0) - HALF*cos(PI*y/L);
-      uvxy[1] = RCONST(3.5) - RCONST(2.5)*cos(PI*x/L);
+      uvxy[0] = SUN_RCONST(1.0) - HALF*cos(PI*y/L);
+      uvxy[1] = SUN_RCONST(3.5) - SUN_RCONST(2.5)*cos(PI*x/L);
     }
   }
 

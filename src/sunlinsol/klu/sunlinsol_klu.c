@@ -22,10 +22,10 @@
 #include <sunlinsol/sunlinsol_klu.h>
 #include <sundials/sundials_math.h>
 
-#define ZERO      RCONST(0.0)
-#define ONE       RCONST(1.0)
-#define TWO       RCONST(2.0)
-#define TWOTHIRDS RCONST(0.666666666666666666666666666666667)
+#define ZERO      SUN_RCONST(0.0)
+#define ONE       SUN_RCONST(1.0)
+#define TWO       SUN_RCONST(2.0)
+#define TWOTHIRDS SUN_RCONST(0.666666666666666666666666666666667)
 
 /*
  * -----------------------------------------------------------------
@@ -246,7 +246,7 @@ int SUNLinSolSetup_KLU(SUNLinearSolver S, SUNMatrix A)
   int retval;
   sunrealtype uround_twothirds;
 
-  uround_twothirds = SUNRpowerR(UNIT_ROUNDOFF,TWOTHIRDS);
+  uround_twothirds = SUNRpowerR(SUN_UNIT_ROUNDOFF,TWOTHIRDS);
 
   /* Ensure that A is a sparse matrix */
   if (SUNMatGetID(A) != SUNMATRIX_SPARSE) {

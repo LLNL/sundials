@@ -78,22 +78,22 @@
 
 #define NEQ   3                /* number of equations  */
 #define NNZ   7                /* number of non-zero entries in the Jacobian */
-#define Y1    RCONST(1.0)      /* initial y components */
-#define Y2    RCONST(0.0)
-#define Y3    RCONST(0.0)
-#define RTOL  RCONST(1.0e-4)   /* scalar relative tolerance            */
-#define ATOL1 RCONST(1.0e-8)   /* vector absolute tolerance components */
-#define ATOL2 RCONST(1.0e-14)
-#define ATOL3 RCONST(1.0e-6)
-#define T0    RCONST(0.0)      /* initial time           */
-#define T1    RCONST(0.4)      /* first output time      */
-#define TMULT RCONST(10.0)     /* output time factor     */
+#define Y1    SUN_RCONST(1.0)      /* initial y components */
+#define Y2    SUN_RCONST(0.0)
+#define Y3    SUN_RCONST(0.0)
+#define RTOL  SUN_RCONST(1.0e-4)   /* scalar relative tolerance            */
+#define ATOL1 SUN_RCONST(1.0e-8)   /* vector absolute tolerance components */
+#define ATOL2 SUN_RCONST(1.0e-14)
+#define ATOL3 SUN_RCONST(1.0e-6)
+#define T0    SUN_RCONST(0.0)      /* initial time           */
+#define T1    SUN_RCONST(0.4)      /* first output time      */
+#define TMULT SUN_RCONST(10.0)     /* output time factor     */
 #define NOUT  12               /* number of output times */
 
 #define NP    3             /* number of problem parameters */
 #define NS    3             /* number of sensitivities computed */
 
-#define ZERO  RCONST(0.0)
+#define ZERO  SUN_RCONST(0.0)
 
 /* Type : UserData */
 
@@ -170,9 +170,9 @@ int main(int argc, char *argv[])
   /* User data structure */
   data = (UserData) malloc(sizeof *data);
   if (check_retval((void *)data, "malloc", 2)) return(1);
-  data->p[0] = RCONST(0.04);
-  data->p[1] = RCONST(1.0e4);
-  data->p[2] = RCONST(3.0e7);
+  data->p[0] = SUN_RCONST(0.04);
+  data->p[1] = SUN_RCONST(1.0e4);
+  data->p[2] = SUN_RCONST(3.0e7);
 
   /* Create the SUNDIALS context that all SUNDIALS objects require */
   retval = SUNContext_Create(NULL, &sunctx);

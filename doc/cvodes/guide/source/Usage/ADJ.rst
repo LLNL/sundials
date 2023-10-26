@@ -1949,7 +1949,7 @@ function of type :c:type:`CVLsJacTimesSetupFnB` or
       obtain these, the user will need to add a pointer to ``cvode_mem``  to
       ``user_dataB`` and then use the ``CVGet*`` functions described in
       :numref:`CVODES.Usage.SIM.optional_output`. The unit
-      roundoff can be accessed as  ``UNIT_ROUNDOFF`` defined in
+      roundoff can be accessed as  ``SUN_UNIT_ROUNDOFF`` defined in
       ``sundials_types.h``.  The previous function type
       :c:type:`CVSpilsJacTimesSetupFnB` is identical  to
       :c:type:`CVLsJacTimesSetupFnB`, and may still be used for
@@ -1989,7 +1989,7 @@ function of type :c:type:`CVLsJacTimesSetupFnB` or
       etc.  To obtain these, the user will need to add a pointer to
       ``cvode_mem``  to ``user_dataB`` and then use the ``CVGet*`` functions
       described in  :numref:`CVODES.Usage.SIM.optional_output`.
-      The unit roundoff can be accessed as  ``UNIT_ROUNDOFF`` defined in
+      The unit roundoff can be accessed as  ``SUN_UNIT_ROUNDOFF`` defined in
       ``sundials_types.h``.  The previous function type
       :c:type:`CVSpilsJacTimesSetupFnBS` is identical  to
       :c:type:`CVLsJacTimesSetupFnBS`, and may still be used for

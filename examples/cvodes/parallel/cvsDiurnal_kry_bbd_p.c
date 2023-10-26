@@ -79,30 +79,30 @@
 
 /* Problem Constants */
 
-#define ZERO         RCONST(0.0)
+#define ZERO         SUN_RCONST(0.0)
 
 #define NVARS        2                 /* number of species         */
-#define KH           RCONST(4.0e-6)    /* horizontal diffusivity Kh */
-#define VEL          RCONST(0.001)     /* advection velocity V      */
-#define KV0          RCONST(1.0e-8)    /* coefficient in Kv(y)      */
-#define Q1           RCONST(1.63e-16)  /* coefficients q1, q2, c3   */
-#define Q2           RCONST(4.66e-16)
-#define C3           RCONST(3.7e16)
-#define A3           RCONST(22.62)     /* coefficient in expression for q3(t) */
-#define A4           RCONST(7.601)     /* coefficient in expression for q4(t) */
-#define C1_SCALE     RCONST(1.0e6)     /* coefficients in initial profiles    */
-#define C2_SCALE     RCONST(1.0e12)
+#define KH           SUN_RCONST(4.0e-6)    /* horizontal diffusivity Kh */
+#define VEL          SUN_RCONST(0.001)     /* advection velocity V      */
+#define KV0          SUN_RCONST(1.0e-8)    /* coefficient in Kv(y)      */
+#define Q1           SUN_RCONST(1.63e-16)  /* coefficients q1, q2, c3   */
+#define Q2           SUN_RCONST(4.66e-16)
+#define C3           SUN_RCONST(3.7e16)
+#define A3           SUN_RCONST(22.62)     /* coefficient in expression for q3(t) */
+#define A4           SUN_RCONST(7.601)     /* coefficient in expression for q4(t) */
+#define C1_SCALE     SUN_RCONST(1.0e6)     /* coefficients in initial profiles    */
+#define C2_SCALE     SUN_RCONST(1.0e12)
 
 #define T0           ZERO                /* initial time */
 #define NOUT         12                  /* number of output times */
-#define TWOHR        RCONST(7200.0)      /* number of seconds in two hours  */
-#define HALFDAY      RCONST(4.32e4)      /* number of seconds in a half day */
-#define PI       RCONST(3.1415926535898) /* pi */
+#define TWOHR        SUN_RCONST(7200.0)      /* number of seconds in two hours  */
+#define HALFDAY      SUN_RCONST(4.32e4)      /* number of seconds in a half day */
+#define PI       SUN_RCONST(3.1415926535898) /* pi */
 
 #define XMIN         ZERO                /* grid boundaries in x  */
-#define XMAX         RCONST(20.0)
-#define YMIN         RCONST(30.0)        /* grid boundaries in y  */
-#define YMAX         RCONST(50.0)
+#define XMAX         SUN_RCONST(20.0)
+#define YMIN         SUN_RCONST(30.0)        /* grid boundaries in y  */
+#define YMAX         SUN_RCONST(50.0)
 
 #define NPEX         2              /* no. PEs in x direction of PE array */
 #define NPEY         2              /* no. PEs in y direction of PE array */
@@ -115,8 +115,8 @@
                                     /* Spatial mesh is MX by MY */
 /* CVodeInit Constants */
 
-#define RTOL    RCONST(1.0e-5)    /* scalar relative tolerance */
-#define FLOOR   RCONST(100.0)     /* value of C1 or C2 at which tolerances */
+#define RTOL    SUN_RCONST(1.0e-5)    /* scalar relative tolerance */
+#define FLOOR   SUN_RCONST(100.0)     /* value of C1 or C2 at which tolerances */
                                   /* change from relative to absolute      */
 #define ATOL    (RTOL*FLOOR)      /* scalar absolute tolerance */
 
@@ -336,8 +336,8 @@ static void InitUserData(int my_pe, sunindextype local_N, MPI_Comm comm,
   data->dx = (XMAX-XMIN)/((sunrealtype)(MX-1));
   data->dy = (YMAX-YMIN)/((sunrealtype)(MY-1));
   data->hdco = KH/SQR(data->dx);
-  data->haco = VEL/(RCONST(2.0)*data->dx);
-  data->vdco = (RCONST(1.0)/SQR(data->dy))*KV0;
+  data->haco = VEL/(SUN_RCONST(2.0)*data->dx);
+  data->vdco = (SUN_RCONST(1.0)/SQR(data->dy))*KV0;
 
   /* Set machine-related constants */
   data->comm = comm;
@@ -377,18 +377,18 @@ static void SetInitialProfiles(N_Vector u, UserData data)
   and jx and jy are the global mesh point indices. */
 
   offset = 0;
-  xmid = RCONST(0.5)*(XMIN + XMAX);
-  ymid = RCONST(0.5)*(YMIN + YMAX);
+  xmid = SUN_RCONST(0.5)*(XMIN + XMAX);
+  ymid = SUN_RCONST(0.5)*(YMIN + YMAX);
   for (ly = 0; ly < MYSUB; ly++) {
     jy = ly + isuby*MYSUB;
     y = YMIN + jy*dy;
-    cy = SQR(RCONST(0.1)*(y - ymid));
-    cy = RCONST(1.0) - cy + RCONST(0.5)*SQR(cy);
+    cy = SQR(SUN_RCONST(0.1)*(y - ymid));
+    cy = SUN_RCONST(1.0) - cy + SUN_RCONST(0.5)*SQR(cy);
     for (lx = 0; lx < MXSUB; lx++) {
       jx = lx + isubx*MXSUB;
       x = XMIN + jx*dx;
-      cx = SQR(RCONST(0.1)*(x - xmid));
-      cx = RCONST(1.0) - cx + RCONST(0.5)*SQR(cx);
+      cx = SQR(SUN_RCONST(0.1)*(x - xmid));
+      cx = SUN_RCONST(1.0) - cx + SUN_RCONST(0.5)*SQR(cx);
       uarray[offset  ] = C1_SCALE*cx*cy;
       uarray[offset+1] = C2_SCALE*cx*cy;
       offset = offset + 2;
@@ -831,10 +831,10 @@ static int flocal(sunindextype Nlocal, sunrealtype t, N_Vector u,
 
     /* Set vertical diffusion coefficients at jy +- 1/2 */
 
-    ydn = YMIN + (jy - RCONST(0.5))*dely;
+    ydn = YMIN + (jy - SUN_RCONST(0.5))*dely;
     yup = ydn + dely;
-    cydn = verdco*exp(RCONST(0.2)*ydn);
-    cyup = verdco*exp(RCONST(0.2)*yup);
+    cydn = verdco*exp(SUN_RCONST(0.2)*ydn);
+    cyup = verdco*exp(SUN_RCONST(0.2)*yup);
     for (lx = 0; lx < MXSUB; lx++) {
 
       /* Extract c1 and c2, and set kinetic rate terms */
@@ -864,8 +864,8 @@ static int flocal(sunindextype Nlocal, sunrealtype t, N_Vector u,
       c2lt = uext[offsetue-1];
       c1rt = uext[offsetue+2];
       c2rt = uext[offsetue+3];
-      hord1 = hordco*(c1rt - RCONST(2.0)*c1 + c1lt);
-      hord2 = hordco*(c2rt - RCONST(2.0)*c2 + c2lt);
+      hord1 = hordco*(c1rt - SUN_RCONST(2.0)*c1 + c1lt);
+      hord2 = hordco*(c2rt - SUN_RCONST(2.0)*c2 + c2lt);
       horad1 = horaco*(c1rt - c1lt);
       horad2 = horaco*(c2rt - c2lt);
 

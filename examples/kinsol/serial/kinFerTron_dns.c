@@ -64,18 +64,18 @@
 #define NVAR   2
 #define NEQ    3*NVAR
 
-#define FTOL   RCONST(1.e-5) /* function tolerance */
-#define STOL   RCONST(1.e-5) /* step tolerance     */
+#define FTOL   SUN_RCONST(1.e-5) /* function tolerance */
+#define STOL   SUN_RCONST(1.e-5) /* step tolerance     */
 
-#define ZERO   RCONST(0.0)
-#define PT25   RCONST(0.25)
-#define PT5    RCONST(0.5)
-#define ONE    RCONST(1.0)
-#define ONEPT5 RCONST(1.5)
-#define TWO    RCONST(2.0)
+#define ZERO   SUN_RCONST(0.0)
+#define PT25   SUN_RCONST(0.25)
+#define PT5    SUN_RCONST(0.5)
+#define ONE    SUN_RCONST(1.0)
+#define ONEPT5 SUN_RCONST(1.5)
+#define TWO    SUN_RCONST(2.0)
 
-#define PI     RCONST(3.1415926)
-#define E      RCONST(2.7182818)
+#define PI     SUN_RCONST(3.1415926)
+#define E      SUN_RCONST(2.7182818)
 
 typedef struct {
   sunrealtype lb[NVAR];

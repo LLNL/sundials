@@ -78,10 +78,10 @@
 #include "sunnonlinsol/sunnonlinsol_fixedpoint.h"
 
 // Macros for problem constants
-#define PI    RCONST(3.141592653589793238462643383279502884197169)
-#define ZERO  RCONST(0.0)
-#define ONE   RCONST(1.0)
-#define TWO   RCONST(2.0)
+#define PI    SUN_RCONST(3.141592653589793238462643383279502884197169)
+#define ZERO  SUN_RCONST(0.0)
+#define ONE   SUN_RCONST(1.0)
+#define TWO   SUN_RCONST(2.0)
 
 #define NSPECIES 2
 
@@ -141,23 +141,23 @@ struct UserData
   // ------------------
 
   // Diffusion coefficients for u and v
-  sunrealtype Dux = RCONST(1.0e-3);
-  sunrealtype Duy = RCONST(1.0e-3);
-  sunrealtype Dvx = RCONST(1.0e-3);
-  sunrealtype Dvy = RCONST(1.0e-3);
+  sunrealtype Dux = SUN_RCONST(1.0e-3);
+  sunrealtype Duy = SUN_RCONST(1.0e-3);
+  sunrealtype Dvx = SUN_RCONST(1.0e-3);
+  sunrealtype Dvy = SUN_RCONST(1.0e-3);
 
   // Feed and reaction rates
-  sunrealtype A = RCONST(1.0);
-  sunrealtype B = RCONST(3.0);
+  sunrealtype A = SUN_RCONST(1.0);
+  sunrealtype B = SUN_RCONST(3.0);
 
   // Final simulation time
-  sunrealtype tf = RCONST(10.0);
+  sunrealtype tf = SUN_RCONST(10.0);
 
   // Domain boundaries in x and y directions
-  sunrealtype xl = RCONST(-0.5);
-  sunrealtype xu = RCONST(0.5);
-  sunrealtype yl = RCONST(-0.5);
-  sunrealtype yu = RCONST(0.5);
+  sunrealtype xl = SUN_RCONST(-0.5);
+  sunrealtype xu = SUN_RCONST(0.5);
+  sunrealtype yl = SUN_RCONST(-0.5);
+  sunrealtype yu = SUN_RCONST(0.5);
 
   // Enable/disable RHS terms
   bool diffusion = true;
@@ -254,8 +254,8 @@ struct UserData
   // -------------
 
   // Relative and absolute tolerances
-  sunrealtype rtol_imex = RCONST(1.e-4);
-  sunrealtype atol_imex = RCONST(1.e-8);
+  sunrealtype rtol_imex = SUN_RCONST(1.e-4);
+  sunrealtype atol_imex = SUN_RCONST(1.e-8);
 
   // Step size selection (ZERO = adaptive steps)
   sunrealtype h_imex = ZERO;
@@ -268,13 +268,13 @@ struct UserData
   // ------------
 
   // Relative and absolute tolerances (slow and fast)
-  sunrealtype rtol_slow = RCONST(1.e-4);
-  sunrealtype atol_slow = RCONST(1.e-8);
-  sunrealtype rtol_fast = RCONST(1.e-5);
-  sunrealtype atol_fast = RCONST(1.e-9);
+  sunrealtype rtol_slow = SUN_RCONST(1.e-4);
+  sunrealtype atol_slow = SUN_RCONST(1.e-8);
+  sunrealtype rtol_fast = SUN_RCONST(1.e-5);
+  sunrealtype atol_fast = SUN_RCONST(1.e-9);
 
   // Fixed step size (slow and fast)
-  sunrealtype h_slow = RCONST(-1.0);  // use multiple of CFL
+  sunrealtype h_slow = SUN_RCONST(-1.0);  // use multiple of CFL
   sunrealtype h_fast = ZERO;          // use adaptive stepping
 
   // Inner ARKODE method order
@@ -2460,11 +2460,11 @@ static int ReadInputs(int *argc, char ***argv, UserData *udata)
   // Compute slow step size based on CFL if not set by input
   if (udata->h_slow < ZERO)
   {
-    sunrealtype cfl_u = RCONST(0.5) / ((udata->Dux / (udata->dx * udata->dx)) +
+    sunrealtype cfl_u = SUN_RCONST(0.5) / ((udata->Dux / (udata->dx * udata->dx)) +
                                     (udata->Duy / (udata->dy * udata->dy)));
-    sunrealtype cfl_v = RCONST(0.5) / ((udata->Dvx / (udata->dx * udata->dx)) +
+    sunrealtype cfl_v = SUN_RCONST(0.5) / ((udata->Dvx / (udata->dx * udata->dx)) +
                                     (udata->Dvy / (udata->dy * udata->dy)));
-    udata->h_slow = RCONST(5.0) * min(cfl_u, cfl_v);
+    udata->h_slow = SUN_RCONST(5.0) * min(cfl_u, cfl_v);
   }
 
   // Return success
@@ -2488,7 +2488,7 @@ static int SetIC(N_Vector u, UserData *udata)
 
   // Gaussian random number generator
   default_random_engine generator;
-  normal_distribution<double> dist(RCONST(0.0), RCONST(0.001));
+  normal_distribution<double> dist(SUN_RCONST(0.0), SUN_RCONST(0.001));
 
   sunrealtype *data = N_VGetArrayPointer(u);
   if (check_flag((void *) data, "N_VGetArrayPointer", 0)) return -1;
@@ -2503,7 +2503,7 @@ static int SetIC(N_Vector u, UserData *udata)
       a = TWO * PI * (x - udata->xl) / (udata->xu - udata->xl);
       b = TWO * PI * (y - udata->yl) / (udata->yu - udata->yl);
 
-      data[UIDX(i,j,nx_loc)] = udata->A + RCONST(0.5) * sin(a) * sin(b);
+      data[UIDX(i,j,nx_loc)] = udata->A + SUN_RCONST(0.5) * sin(a) * sin(b);
       data[VIDX(i,j,nx_loc)] = udata->B / udata->A;
     }
   }

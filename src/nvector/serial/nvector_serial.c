@@ -23,10 +23,10 @@
 #include <sundials/sundials_math.h>
 #include "sundials/sundials_nvector.h"
 
-#define ZERO   RCONST(0.0)
-#define HALF   RCONST(0.5)
-#define ONE    RCONST(1.0)
-#define ONEPT5 RCONST(1.5)
+#define ZERO   SUN_RCONST(0.0)
+#define HALF   SUN_RCONST(0.5)
+#define ONE    SUN_RCONST(1.0)
+#define ONEPT5 SUN_RCONST(1.5)
 
 /* Private functions for special cases of vector operations */
 static void VCopy_Serial(N_Vector x, N_Vector z);                              /* z=x       */
@@ -835,7 +835,7 @@ sunrealtype N_VMinQuotient_Serial(N_Vector num, N_Vector denom)
   dd = NV_DATA_S(denom);
 
   notEvenOnce = SUNTRUE;
-  min = BIG_REAL;
+  min = SUN_BIG_REAL;
 
   for (i = 0; i < N; i++) {
     if (dd[i] == ZERO) continue;

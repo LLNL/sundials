@@ -46,25 +46,25 @@
 #define NEQ   10
 #define NP     2
 
-#define TBEGIN  RCONST(0.0)
-#define TEND    RCONST(10.000)
+#define TBEGIN  SUN_RCONST(0.0)
+#define TEND    SUN_RCONST(10.000)
 
-#define RTOLF   RCONST(1.0e-06)
-#define ATOLF   RCONST(1.0e-07)
+#define RTOLF   SUN_RCONST(1.0e-06)
+#define ATOLF   SUN_RCONST(1.0e-07)
 
-#define RTOLQ   RCONST(1.0e-06)
-#define ATOLQ   RCONST(1.0e-08)
+#define RTOLQ   SUN_RCONST(1.0e-06)
+#define ATOLQ   SUN_RCONST(1.0e-08)
 
-#define RTOLFD  RCONST(1.0e-06)
-#define ATOLFD  RCONST(1.0e-08)
+#define RTOLFD  SUN_RCONST(1.0e-06)
+#define ATOLFD  SUN_RCONST(1.0e-08)
 
 
-#define ZERO     RCONST(0.00)
-#define QUARTER  RCONST(0.25)
-#define HALF     RCONST(0.50)
-#define ONE      RCONST(1.00)
-#define TWO      RCONST(2.00)
-#define FOUR     RCONST(4.00)
+#define ZERO     SUN_RCONST(0.00)
+#define QUARTER  SUN_RCONST(0.25)
+#define HALF     SUN_RCONST(0.50)
+#define ONE      SUN_RCONST(1.00)
+#define TWO      SUN_RCONST(2.00)
+#define FOUR     SUN_RCONST(4.00)
 
 typedef struct {
   sunrealtype a;

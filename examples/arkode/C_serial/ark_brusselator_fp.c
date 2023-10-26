@@ -82,9 +82,9 @@ static int check_flag(void *flagvalue, const char *funcname, int opt);
 int main(int argc, char *argv[])
 {
   /* general problem parameters */
-  sunrealtype T0 = RCONST(0.0);     /* initial time */
-  sunrealtype Tf = RCONST(10.0);    /* final time */
-  sunrealtype dTout = RCONST(1.0);  /* time between outputs */
+  sunrealtype T0 = SUN_RCONST(0.0);     /* initial time */
+  sunrealtype Tf = SUN_RCONST(10.0);    /* final time */
+  sunrealtype dTout = SUN_RCONST(1.0);  /* time between outputs */
   sunindextype NEQ = 3;          /* number of dependent vars. */
   int Nt = (int) ceil(Tf/dTout); /* number of output times */
   int test = 3;                  /* test problem to run */
@@ -133,26 +133,26 @@ int main(int argc, char *argv[])
 
   /* set up the test problem according to the desired test */
   if (test == 1) {
-    u0 = RCONST(3.9);
-    v0 = RCONST(1.1);
-    w0 = RCONST(2.8);
-    a  = RCONST(1.2);
-    b  = RCONST(2.5);
-    ep = RCONST(1.0e-5);
+    u0 = SUN_RCONST(3.9);
+    v0 = SUN_RCONST(1.1);
+    w0 = SUN_RCONST(2.8);
+    a  = SUN_RCONST(1.2);
+    b  = SUN_RCONST(2.5);
+    ep = SUN_RCONST(1.0e-5);
   } else if (test == 3) {
-    u0 = RCONST(3.0);
-    v0 = RCONST(3.0);
-    w0 = RCONST(3.5);
-    a  = RCONST(0.5);
-    b  = RCONST(3.0);
-    ep = RCONST(5.0e-4);
+    u0 = SUN_RCONST(3.0);
+    v0 = SUN_RCONST(3.0);
+    w0 = SUN_RCONST(3.5);
+    a  = SUN_RCONST(0.5);
+    b  = SUN_RCONST(3.0);
+    ep = SUN_RCONST(5.0e-4);
   } else {
-    u0 = RCONST(1.2);
-    v0 = RCONST(3.1);
-    w0 = RCONST(3.0);
-    a  = RCONST(1.0);
-    b  = RCONST(3.5);
-    ep = RCONST(5.0e-6);
+    u0 = SUN_RCONST(1.2);
+    v0 = SUN_RCONST(3.1);
+    w0 = SUN_RCONST(3.0);
+    a  = SUN_RCONST(1.0);
+    b  = SUN_RCONST(3.5);
+    ep = SUN_RCONST(5.0e-6);
   }
 
   /* Initial problem output */

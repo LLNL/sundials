@@ -24,10 +24,10 @@
 #include <nvector/nvector_petsc.h>
 #include <sundials/sundials_math.h>
 
-#define ZERO   RCONST(0.0)
-#define HALF   RCONST(0.5)
-#define ONE    RCONST(1.0)
-#define ONEPT5 RCONST(1.5)
+#define ZERO   SUN_RCONST(0.0)
+#define HALF   SUN_RCONST(0.5)
+#define ONE    SUN_RCONST(1.0)
+#define ONEPT5 SUN_RCONST(1.5)
 
 /* Error Message */
 #define BAD_N1 "N_VNewEmpty_Petsc -- Sum of local vector lengths differs from "
@@ -692,7 +692,7 @@ sunrealtype N_VMinLocal_Petsc(N_Vector x)
   sunindextype N = NV_LOCLENGTH_PTC(x);
   Vec xv = NV_PVEC_PTC(x);
   PetscScalar *xd;
-  PetscReal min = BIG_REAL;
+  PetscReal min = SUN_BIG_REAL;
 
   VecGetArray(xv, &xd);
   for (i = 0; i < N; i++) {
@@ -864,7 +864,7 @@ sunrealtype N_VMinQuotientLocal_Petsc(N_Vector num, N_Vector denom)
   Vec dv = NV_PVEC_PTC(denom);
   PetscScalar *nd;
   PetscScalar *dd;
-  PetscReal minval = BIG_REAL;
+  PetscReal minval = SUN_BIG_REAL;
 
   VecGetArray(nv, &nd);
   VecGetArray(dv, &dd);

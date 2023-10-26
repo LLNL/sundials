@@ -73,15 +73,15 @@ extern "C" {
 #define MXHNIL           10     /* max number of t+h==h warnings      */
 
 /* Numeric constants */
-#define ZERO   RCONST(0.0)      /* real 0.0     */
-#define TINY   RCONST(1.0e-10)  /* small number */
-#define TENTH  RCONST(0.1)      /* real 0.1     */
-#define HALF   RCONST(0.5)      /* real 0.5     */
-#define ONE    RCONST(1.0)      /* real 1.0     */
-#define TWO    RCONST(2.0)      /* real 2.0     */
-#define THREE  RCONST(3.0)      /* real 3.0     */
-#define FOUR   RCONST(4.0)      /* real 4.0     */
-#define FIVE   RCONST(5.0)      /* real 5.0     */
+#define ZERO   SUN_RCONST(0.0)      /* real 0.0     */
+#define TINY   SUN_RCONST(1.0e-10)  /* small number */
+#define TENTH  SUN_RCONST(0.1)      /* real 0.1     */
+#define HALF   SUN_RCONST(0.5)      /* real 0.5     */
+#define ONE    SUN_RCONST(1.0)      /* real 1.0     */
+#define TWO    SUN_RCONST(2.0)      /* real 2.0     */
+#define THREE  SUN_RCONST(3.0)      /* real 3.0     */
+#define FOUR   SUN_RCONST(4.0)      /* real 4.0     */
+#define FIVE   SUN_RCONST(5.0)      /* real 5.0     */
 
 /* Control constants for tolerances */
 #define ARK_SS  0
@@ -130,15 +130,15 @@ extern "C" {
      ONEPSM      safety factor for floating point comparisons
      ONEMSM      safety factor for floating point comparisons
   ---------------------------------------------------------------*/
-#define FUZZ_FACTOR RCONST(100.0)
+#define FUZZ_FACTOR SUN_RCONST(100.0)
 
-#define H0_LBFACTOR RCONST(100.0)
-#define H0_UBFACTOR RCONST(0.1)
+#define H0_LBFACTOR SUN_RCONST(100.0)
+#define H0_UBFACTOR SUN_RCONST(0.1)
 #define H0_BIAS     HALF
 #define H0_ITERS    4
 
-#define ONEPSM      RCONST(1.000001)
-#define ONEMSM      RCONST(0.999999)
+#define ONEPSM      SUN_RCONST(1.000001)
+#define ONEMSM      SUN_RCONST(0.999999)
 
 
 /*===============================================================

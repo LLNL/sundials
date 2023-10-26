@@ -49,15 +49,15 @@
 
 /* Problem Constants */
 
-#define ZERO  RCONST(0.0)
+#define ZERO  SUN_RCONST(0.0)
 
-#define XMAX  RCONST(2.0)    /* domain boundary           */
+#define XMAX  SUN_RCONST(2.0)    /* domain boundary           */
 #define MX    10             /* mesh dimension            */
 #define NEQ   MX             /* number of equations       */
-#define ATOL  RCONST(1e-10)  /* scalar absolute tolerance */
+#define ATOL  SUN_RCONST(1e-10)  /* scalar absolute tolerance */
 #define T0    ZERO           /* initial time              */
-#define T1    RCONST(0.5)    /* first output time         */
-#define DTOUT RCONST(0.5)    /* output time increment     */
+#define T1    SUN_RCONST(0.5)    /* first output time         */
+#define DTOUT SUN_RCONST(0.5)    /* output time increment     */
 #define NOUT  10             /* number of output times    */
 
 /* Type : UserData
@@ -123,8 +123,8 @@ int main(int argc, char *argv[])
   abstol = ATOL;
 
   dx = data->dx = XMAX/((sunrealtype)(MX+1));  /* Set grid coefficients in data */
-  data->hdcoef = RCONST(1.0)/(dx*dx);
-  data->hacoef = RCONST(0.5)/(RCONST(2.0)*dx);
+  data->hdcoef = SUN_RCONST(1.0)/(dx*dx);
+  data->hacoef = SUN_RCONST(0.5)/(SUN_RCONST(2.0)*dx);
 
   SetIC(u, dx);  /* Initialize u vector */
 
@@ -210,7 +210,7 @@ static void SetIC(N_Vector u, sunrealtype dx)
   /* Load initial profile into u vector */
   for (i=1; i<=N; i++) {
     x = i*dx;
-    udata[i-1] = x*(XMAX - x)*exp(RCONST(2.0)*x);
+    udata[i-1] = x*(XMAX - x)*exp(SUN_RCONST(2.0)*x);
   }
   N_VCopyToDevice_Hip(u);
 }
@@ -290,7 +290,7 @@ static void f_kernel(sunindextype N,
     urt = (i == N-1) ? ZERO : u[i+1];
 
     /* Set diffusion and advection terms and load into udot */
-    hdiff = hordc*(ult - RCONST(2.0)*ui + urt);
+    hdiff = hordc*(ult - SUN_RCONST(2.0)*ui + urt);
     hadv = horac*(urt - ult);
     udot[i] = hdiff + hadv;
   }

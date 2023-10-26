@@ -44,11 +44,11 @@
 
 #define SKIP 3              /* no. of points skipped for printing */
 
-#define FTOL RCONST(1.e-12) /* function tolerance */
+#define FTOL SUN_RCONST(1.e-12) /* function tolerance */
 
-#define ZERO RCONST(0.0)
-#define ONE  RCONST(1.0)
-#define TWO  RCONST(2.0)
+#define ZERO SUN_RCONST(0.0)
+#define ONE  SUN_RCONST(1.0)
+#define TWO  SUN_RCONST(2.0)
 
 /* IJth is defined in order to isolate the translation from the
    mathematical 2-dimensional structure of the dependent variable vector

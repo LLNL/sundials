@@ -18,7 +18,7 @@
 #include "sundials/sundials_math.h"
 
 /* constant macros */
-#define ONE RCONST(1.0) /* real 1.0 */
+#define ONE SUN_RCONST(1.0) /* real 1.0 */
 
 /* nonlinear solver constants
      NLS_MAXCOR  maximum no. of corrector iterations for the nonlinear solver
@@ -27,8 +27,8 @@
      RDIV        declare divergence if ratio del/delp > RDIV
  */
 #define NLS_MAXCOR 3
-#define CRDOWN     RCONST(0.3)
-#define RDIV       RCONST(2.0)
+#define CRDOWN     SUN_RCONST(0.3)
+#define RDIV       SUN_RCONST(2.0)
 
 /* private functions */
 static int cvNlsResidual(N_Vector ycor, N_Vector res, void* cvode_mem);

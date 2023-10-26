@@ -19,7 +19,7 @@
 #include "sundials/sundials_nvector_senswrapper.h"
 
 /* constant macros */
-#define ONE RCONST(1.0)
+#define ONE SUN_RCONST(1.0)
 
 /* private functions */
 static int cvNlsResidual(N_Vector ycor, N_Vector res, void* cvode_mem);

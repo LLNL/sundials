@@ -38,8 +38,8 @@ using namespace sundials::sunmatrix_gpudense::hip;
 #define SMLD_CONTENT(A)  ( (SUNMatrixContent_MagmaDense) (A->content) )
 
 /* Constants */
-#define ZERO RCONST(0.0)
-#define ONE  RCONST(1.0)
+#define ZERO SUN_RCONST(0.0)
+#define ONE  SUN_RCONST(1.0)
 
 /* Macros for magma operations based on precision */
 #if defined(SUNDIALS_DOUBLE_PRECISION)

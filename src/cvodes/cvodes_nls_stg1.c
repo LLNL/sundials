@@ -18,7 +18,7 @@
 #include "sundials/sundials_math.h"
 
 /* constant macros */
-#define ONE RCONST(1.0)
+#define ONE SUN_RCONST(1.0)
 
 /* private functions */
 static int cvNlsResidualSensStg1(N_Vector ycor, N_Vector res,

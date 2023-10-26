@@ -198,21 +198,21 @@
 /* CVODE Private Constants                                         */
 /*=================================================================*/
 
-#define ZERO    RCONST(0.0)     /* real 0.0     */
-#define TINY    RCONST(1.0e-10) /* small number */
-#define PT1     RCONST(0.1)     /* real 0.1     */
-#define POINT2  RCONST(0.2)     /* real 0.2     */
-#define FOURTH  RCONST(0.25)    /* real 0.25    */
-#define HALF    RCONST(0.5)     /* real 0.5     */
-#define PT9     RCONST(0.9)     /* real 0.9     */
-#define ONE     RCONST(1.0)     /* real 1.0     */
-#define ONEPT5  RCONST(1.50)    /* real 1.5     */
-#define TWO     RCONST(2.0)     /* real 2.0     */
-#define THREE   RCONST(3.0)     /* real 3.0     */
-#define FOUR    RCONST(4.0)     /* real 4.0     */
-#define FIVE    RCONST(5.0)     /* real 5.0     */
-#define TWELVE  RCONST(12.0)    /* real 12.0    */
-#define HUNDRED RCONST(100.0)   /* real 100.0   */
+#define ZERO    SUN_RCONST(0.0)     /* real 0.0     */
+#define TINY    SUN_RCONST(1.0e-10) /* small number */
+#define PT1     SUN_RCONST(0.1)     /* real 0.1     */
+#define POINT2  SUN_RCONST(0.2)     /* real 0.2     */
+#define FOURTH  SUN_RCONST(0.25)    /* real 0.25    */
+#define HALF    SUN_RCONST(0.5)     /* real 0.5     */
+#define PT9     SUN_RCONST(0.9)     /* real 0.9     */
+#define ONE     SUN_RCONST(1.0)     /* real 1.0     */
+#define ONEPT5  SUN_RCONST(1.50)    /* real 1.5     */
+#define TWO     SUN_RCONST(2.0)     /* real 2.0     */
+#define THREE   SUN_RCONST(3.0)     /* real 3.0     */
+#define FOUR    SUN_RCONST(4.0)     /* real 4.0     */
+#define FIVE    SUN_RCONST(5.0)     /* real 5.0     */
+#define TWELVE  SUN_RCONST(12.0)    /* real 12.0    */
+#define HUNDRED SUN_RCONST(100.0)   /* real 100.0   */
 
 /*=================================================================*/
 /* CVODE Routine-Specific Constants                                */
@@ -293,14 +293,14 @@
  *
  */
 
-#define FUZZ_FACTOR RCONST(100.0)
+#define FUZZ_FACTOR SUN_RCONST(100.0)
 
-#define HLB_FACTOR RCONST(100.0)
-#define HUB_FACTOR RCONST(0.1)
+#define HLB_FACTOR SUN_RCONST(100.0)
+#define HUB_FACTOR SUN_RCONST(0.1)
 #define H_BIAS     HALF
 #define MAX_ITERS  4
 
-#define CORTES RCONST(0.1)
+#define CORTES SUN_RCONST(0.1)
 
 /*=================================================================*/
 /* Private Helper Functions Prototypes                             */
@@ -496,7 +496,7 @@ void *CVodeCreate(int lmm, SUNContext sunctx)
   cv_mem->cv_lmm  = lmm;
 
   /* Set uround */
-  cv_mem->cv_uround = UNIT_ROUNDOFF;
+  cv_mem->cv_uround = SUN_UNIT_ROUNDOFF;
 
   /* Set default values for integrator optional inputs */
   cv_mem->cv_f                = NULL;
@@ -7698,11 +7698,11 @@ static int cvSLdet(CVodeMem cv_mem)
 
   /* The following are cutoffs and tolerances used by this routine */
 
-  rrcut  = RCONST(0.98);
-  vrrtol = RCONST(1.0e-4);
-  vrrt2  = RCONST(5.0e-4);
-  sqtol  = RCONST(1.0e-3);
-  rrtol  = RCONST(1.0e-2);
+  rrcut  = SUN_RCONST(0.98);
+  vrrtol = SUN_RCONST(1.0e-4);
+  vrrt2  = SUN_RCONST(5.0e-4);
+  sqtol  = SUN_RCONST(1.0e-3);
+  rrtol  = SUN_RCONST(1.0e-2);
 
   rr = ZERO;
 

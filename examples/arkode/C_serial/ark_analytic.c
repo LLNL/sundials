@@ -64,13 +64,13 @@ static int check_ans(N_Vector y, sunrealtype t, sunrealtype rtol, sunrealtype at
 int main()
 {
   /* general problem parameters */
-  sunrealtype T0 = RCONST(0.0);         /* initial time */
-  sunrealtype Tf = RCONST(10.0);        /* final time */
-  sunrealtype dTout = RCONST(1.0);      /* time between outputs */
+  sunrealtype T0 = SUN_RCONST(0.0);         /* initial time */
+  sunrealtype Tf = SUN_RCONST(10.0);        /* final time */
+  sunrealtype dTout = SUN_RCONST(1.0);      /* time between outputs */
   sunindextype NEQ = 1;              /* number of dependent vars. */
-  sunrealtype reltol = RCONST(1.0e-6);  /* tolerances */
-  sunrealtype abstol = RCONST(1.0e-10);
-  sunrealtype lamda  = RCONST(-100.0);  /* stiffness parameter */
+  sunrealtype reltol = SUN_RCONST(1.0e-6);  /* tolerances */
+  sunrealtype abstol = SUN_RCONST(1.0e-10);
+  sunrealtype lamda  = SUN_RCONST(-100.0);  /* stiffness parameter */
 
   /* general problem variables */
   int flag;                       /* reusable error-checking flag */
@@ -96,7 +96,7 @@ int main()
   /* Initialize data structures */
   y = N_VNew_Serial(NEQ, ctx);          /* Create serial vector for solution */
   if (check_flag((void *)y, "N_VNew_Serial", 0)) return 1;
-  N_VConst(RCONST(0.0), y);        /* Specify initial condition */
+  N_VConst(SUN_RCONST(0.0), y);        /* Specify initial condition */
 
   /* Call ARKStepCreate to initialize the ARK timestepper module and
      specify the right-hand side function in y'=f(t,y), the inital time
@@ -212,7 +212,7 @@ static int f(sunrealtype t, N_Vector y, N_Vector ydot, void *user_data)
   sunrealtype u = NV_Ith_S(y,0);                 /* access current solution value */
 
   /* fill in the RHS function: "NV_Ith_S" accesses the 0th entry of ydot */
-  NV_Ith_S(ydot,0) = lamda*u + RCONST(1.0)/(RCONST(1.0)+t*t) - lamda*atan(t);
+  NV_Ith_S(ydot,0) = lamda*u + SUN_RCONST(1.0)/(SUN_RCONST(1.0)+t*t) - lamda*atan(t);
 
   return 0;                                   /* return with success */
 }
@@ -278,11 +278,11 @@ static int check_ans(N_Vector y, sunrealtype t, sunrealtype rtol, sunrealtype at
 
   /* compute solution error */
   ans = atan(t);
-  ewt = RCONST(1.0) / (rtol * fabs(ans) + atol);
+  ewt = SUN_RCONST(1.0) / (rtol * fabs(ans) + atol);
   err = ewt * fabs(NV_Ith_S(y,0) - ans);
 
   /* is the solution within the tolerances? */
-  passfail = (err < RCONST(1.0)) ? 0 : 1;
+  passfail = (err < SUN_RCONST(1.0)) ? 0 : 1;
 
   if (passfail) {
     fprintf(stdout, "\nSUNDIALS_WARNING: check_ans error=%"GSYM"\n\n", err);

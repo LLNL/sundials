@@ -52,21 +52,21 @@ extern "C" {
 
 /* Basic IDA constants */
 
-#define HMAX_INV_DEFAULT RCONST(0.0) /* hmax_inv default value          */
-#define HMIN_DEFAULT     RCONST(0.0) /* hmin default value              */
+#define HMAX_INV_DEFAULT SUN_RCONST(0.0) /* hmax_inv default value          */
+#define HMIN_DEFAULT     SUN_RCONST(0.0) /* hmin default value              */
 #define MAXORD_DEFAULT   5           /* maxord default value            */
 #define MXORDP1          6           /* max. number of N_Vectors in phi */
 #define MXSTEP_DEFAULT   500         /* mxstep default value            */
 
-#define ETA_MAX_FX_DEFAULT RCONST(2.0)  /* threshold to increase step size   */
-#define ETA_MIN_FX_DEFAULT RCONST(1.0)  /* threshold to decrease step size   */
-#define ETA_MAX_DEFAULT    RCONST(2.0)  /* max step size increase factor     */
-#define ETA_MIN_DEFAULT    RCONST(0.5)  /* min step size decrease factor     */
-#define ETA_LOW_DEFAULT    RCONST(0.9)  /* upper bound on decrease factor    */
-#define ETA_MIN_EF_DEFAULT RCONST(0.25) /* err test fail min decrease factor */
-#define ETA_CF_DEFAULT     RCONST(0.25) /* NLS failure decrease factor       */
+#define ETA_MAX_FX_DEFAULT SUN_RCONST(2.0)  /* threshold to increase step size   */
+#define ETA_MIN_FX_DEFAULT SUN_RCONST(1.0)  /* threshold to decrease step size   */
+#define ETA_MAX_DEFAULT    SUN_RCONST(2.0)  /* max step size increase factor     */
+#define ETA_MIN_DEFAULT    SUN_RCONST(0.5)  /* min step size decrease factor     */
+#define ETA_LOW_DEFAULT    SUN_RCONST(0.9)  /* upper bound on decrease factor    */
+#define ETA_MIN_EF_DEFAULT SUN_RCONST(0.25) /* err test fail min decrease factor */
+#define ETA_CF_DEFAULT     SUN_RCONST(0.25) /* NLS failure decrease factor       */
 
-#define DCJ_DEFAULT RCONST(0.25)  /* constant for updating Jacobian/preconditioner */
+#define DCJ_DEFAULT SUN_RCONST(0.25)  /* constant for updating Jacobian/preconditioner */
 
 /* Return values for lower level routines used by IDASolve and functions
    provided to the nonlinear solver */

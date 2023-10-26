@@ -3493,7 +3493,7 @@ user-defined projection operation the projection function must have type
 
       If needed by the user's projection routine, the error weight vector can be
       accessed by calling :c:func:`CVodeGetErrWeights`, and the unit roundoff is
-      available as ``UNIT_ROUNDOFF`` defined in ``sundials_types.h``.
+      available as ``SUN_UNIT_ROUNDOFF`` defined in ``sundials_types.h``.
 
    .. versionadded:: 6.2.0
 
@@ -3549,7 +3549,7 @@ side function (or an approximation of it). ``CVLsJacFn`` is defined as follows:
       the current step size, the error weights, etc. To obtain these, the user
       will need to add a pointer to ``cv_mem`` in ``user_data`` and then use the
       ``CVodeGet*`` functions described in :numref:`CVODES.Usage.SIM.optional_output`.
-      The unit roundoff can be accessed as ``UNIT_ROUNDOFF`` defined in ``sundials_types.h``.
+      The unit roundoff can be accessed as ``SUN_UNIT_ROUNDOFF`` defined in ``sundials_types.h``.
 
       **Dense**:
       A user-supplied dense Jacobian function must load the :math:`N` by :math:`N`
@@ -3695,7 +3695,7 @@ the default is a difference quotient approximation to these products.
       To obtain these, the user will need to add a pointer to ``cvode_mem``
       to ``user_data`` and then use the ``CVodeGet*`` functions described in
       :numref:`CVODES.Usage.SIM.optional_output.optout_main`. The unit roundoff can be accessed as
-      ``UNIT_ROUNDOFF`` defined in ``sundials_types.h``.
+      ``SUN_UNIT_ROUNDOFF`` defined in ``sundials_types.h``.
 
       The previous function type ``CVSpilsJacTimesVecFn`` is identical to
       :c:func:`CVLsJacTimesVecFn`, and may still be used for backward-compatibility.
@@ -3740,7 +3740,7 @@ be done in a user-supplied function of type :c:type:`CVLsJacTimesSetupFn`, defin
       To obtain these, the user will need to add a pointer to ``cvode_mem``
       to ``user_data`` and then use the ``CVodeGet*`` functions described in
       :numref:`CVODES.Usage.SIM.optional_output.optout_main`. The unit roundoff can be accessed as
-      ``UNIT_ROUNDOFF`` defined in ``sundials_types.h``.
+      ``SUN_UNIT_ROUNDOFF`` defined in ``sundials_types.h``.
 
       The previous function type ``CVSpilsJacTimesSetupFn`` is identical
       to :c:type:`CVLsJacTimesSetupFn`, and may still be used for
@@ -3843,7 +3843,7 @@ function of type , defined as follows:
       To obtain these, the user will need to add a pointer to ``cvode_mem``
       to ``user_data`` and then use the ``CVodeGet*`` functions described in
       :numref:`CVODES.Usage.SIM.optional_output`. The unit roundoff can be accessed as
-      ``UNIT_ROUNDOFF`` defined in ``sundials_types.h``.
+      ``SUN_UNIT_ROUNDOFF`` defined in ``sundials_types.h``.
 
       The previous function type ``CVSpilsPrecSetupFn`` is identical to
       :c:type:`CVLsPrecSetupFn`, and may still be used for backward-compatibility.

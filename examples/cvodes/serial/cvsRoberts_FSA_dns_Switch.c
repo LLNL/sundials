@@ -50,10 +50,10 @@
 /* Problem Constants */
 #define MXSTEPS 2000            /* max number of steps */
 #define NEQ     3               /* number of equations */
-#define T0      RCONST(0.0)     /* initial time        */
-#define T1      RCONST(4.0e10)  /* first output time   */
+#define T0      SUN_RCONST(0.0)     /* initial time        */
+#define T1      SUN_RCONST(4.0e10)  /* first output time   */
 
-#define ZERO    RCONST(0.0)
+#define ZERO    SUN_RCONST(0.0)
 
 /* Type : UserData */
 typedef struct {
@@ -118,9 +118,9 @@ int main(int argc, char *argv[])
   data = (UserData) malloc(sizeof *data);
 
   /* Initialize sensitivity variables (reaction rates for this problem) */
-  data->p[0] = RCONST(0.04);
-  data->p[1] = RCONST(1.0e4);
-  data->p[2] = RCONST(3.0e7);
+  data->p[0] = SUN_RCONST(0.04);
+  data->p[1] = SUN_RCONST(1.0e4);
+  data->p[2] = SUN_RCONST(3.0e7);
 
   /* Allocate initial condition vector and set context */
   y0 = N_VNew_Serial(NEQ, sunctx);
@@ -134,15 +134,15 @@ int main(int argc, char *argv[])
   if (check_retval((void *)abstol, "N_VClone", 0)) return(1);
 
   /* Set initial conditions */
-  NV_Ith_S(y0,0) = RCONST(1.0);
-  NV_Ith_S(y0,1) = RCONST(0.0);
-  NV_Ith_S(y0,2) = RCONST(0.0);
+  NV_Ith_S(y0,0) = SUN_RCONST(1.0);
+  NV_Ith_S(y0,1) = SUN_RCONST(0.0);
+  NV_Ith_S(y0,2) = SUN_RCONST(0.0);
 
   /* Set integration tolerances */
-  reltol = RCONST(1e-6);
-  NV_Ith_S(abstol,0) = RCONST(1e-8);
-  NV_Ith_S(abstol,1) = RCONST(1e-14);
-  NV_Ith_S(abstol,2) = RCONST(1e-6);
+  reltol = SUN_RCONST(1e-6);
+  NV_Ith_S(abstol,0) = SUN_RCONST(1e-8);
+  NV_Ith_S(abstol,1) = SUN_RCONST(1e-14);
+  NV_Ith_S(abstol,2) = SUN_RCONST(1e-6);
 
   /* Call CVodeCreate to create the solver memory and specify the
    * Backward Differentiation Formula */
@@ -235,9 +235,9 @@ int main(int argc, char *argv[])
     Reinitialize and run CVODES
   */
 
-  data->p[0] = RCONST(0.05);
-  data->p[1] = RCONST(2.0e4);
-  data->p[2] = RCONST(2.9e7);
+  data->p[0] = SUN_RCONST(0.05);
+  data->p[1] = SUN_RCONST(2.0e4);
+  data->p[2] = SUN_RCONST(2.9e7);
 
   data->sensi = SUNFALSE;
 
@@ -257,9 +257,9 @@ int main(int argc, char *argv[])
     Reinitialize and run CVODES
   */
 
-  data->p[0] = RCONST(0.06);
-  data->p[1] = RCONST(3.0e4);
-  data->p[2] = RCONST(2.8e7);
+  data->p[0] = SUN_RCONST(0.06);
+  data->p[1] = SUN_RCONST(3.0e4);
+  data->p[2] = SUN_RCONST(2.8e7);
 
   data->sensi = SUNTRUE;
   data->fsDQ  = SUNTRUE;

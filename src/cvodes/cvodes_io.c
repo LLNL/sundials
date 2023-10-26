@@ -22,10 +22,10 @@
 #include "cvodes_ls_impl.h"
 #include "sundials/sundials_types.h"
 
-#define ZERO   RCONST(0.0)
-#define HALF   RCONST(0.5)
-#define ONE    RCONST(1.0)
-#define TWOPT5 RCONST(2.5)
+#define ZERO   SUN_RCONST(0.0)
+#define HALF   SUN_RCONST(0.5)
+#define ONE    SUN_RCONST(1.0)
+#define TWOPT5 SUN_RCONST(2.5)
 
 /*
  * =================================================================

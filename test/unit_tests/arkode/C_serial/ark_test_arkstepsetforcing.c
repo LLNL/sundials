@@ -67,14 +67,14 @@ int main(int argc, char *argv[])
   /* default input values */
   sunindextype NEQ    = 1;           /* number of dependent vars.    */
   int          order  = 3;           /* order of polynomial forcing  */
-  sunrealtype     T0     = RCONST(0.0); /* initial time                 */
-  sunrealtype     Tf     = RCONST(1.0); /* final time                   */
+  sunrealtype     T0     = SUN_RCONST(0.0); /* initial time                 */
+  sunrealtype     Tf     = SUN_RCONST(1.0); /* final time                   */
   sunrealtype     tshift = T0;          /* time shift for normalization */
   sunrealtype     tscale = Tf;          /* time scale for normalization */
 
   /* tolerances */
-  sunrealtype reltol = SUNRsqrt(UNIT_ROUNDOFF);
-  sunrealtype abstol = SUNRsqrt(UNIT_ROUNDOFF)/100;
+  sunrealtype reltol = SUNRsqrt(SUN_UNIT_ROUNDOFF);
+  sunrealtype abstol = SUNRsqrt(SUN_UNIT_ROUNDOFF)/100;
 
   /* general problem variables */
   int flag;                  /* reusable error-checking flag             */

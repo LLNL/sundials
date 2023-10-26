@@ -23,7 +23,7 @@
 
 
 /* tolerance for checking order conditions */
-#define TOL  (SUNRsqrt(UNIT_ROUNDOFF))
+#define TOL  (SUNRsqrt(SUN_UNIT_ROUNDOFF))
 
 /* Private utility functions for checking method order */
 static int __mv(sunrealtype **A, sunrealtype *x, int s, sunrealtype *b);
@@ -1459,7 +1459,7 @@ static int __mv(sunrealtype **A, sunrealtype *x, int s, sunrealtype *b)
   int i, j;
   if ((A == NULL) || (x == NULL) || (b == NULL) || (s < 1))
     return(1);
-  for (i=0; i<s; i++)  b[i] = RCONST(0.0);
+  for (i=0; i<s; i++)  b[i] = SUN_RCONST(0.0);
   for (i=0; i<s; i++)
     for (j=0; j<s; j++)
       b[i] += A[i][j]*x[j];
@@ -1512,7 +1512,7 @@ static int __dot(sunrealtype *x, sunrealtype *y, int s, sunrealtype *d)
   int i;
   if ((x == NULL) || (y == NULL) || (d == NULL) || (s < 1))
     return(1);
-  (*d) = RCONST(0.0);
+  (*d) = SUN_RCONST(0.0);
   for (i=0; i<s; i++)
     (*d) += x[i]*y[i];
   return(0);
@@ -1537,7 +1537,7 @@ static booleantype __rowsum(sunrealtype **A, sunrealtype *c, int s)
   int i, j;
   sunrealtype rsum;
   for (i=0; i<s; i++) {
-    rsum = RCONST(0.0);
+    rsum = SUN_RCONST(0.0);
     for (j=0; j<s; j++)
       rsum += A[i][j];
     if (SUNRabs(rsum - c[i]) > TOL)
@@ -1550,7 +1550,7 @@ static booleantype __rowsum(sunrealtype **A, sunrealtype *c, int s)
 static booleantype __order1(sunrealtype *b, int s)
 {
   int i;
-  sunrealtype err = RCONST(1.0);
+  sunrealtype err = SUN_RCONST(1.0);
   for (i=0; i<s; i++)
     err -= b[i];
   return (SUNRabs(err) > TOL) ? SUNFALSE : SUNTRUE;
@@ -1561,7 +1561,7 @@ static booleantype __order2(sunrealtype *b, sunrealtype *c, int s)
 {
   sunrealtype bc;
   if (__dot(b,c,s,&bc))  return(SUNFALSE);
-  return (SUNRabs(bc - RCONST(0.5)) > TOL) ? SUNFALSE : SUNTRUE;
+  return (SUNRabs(bc - SUN_RCONST(0.5)) > TOL) ? SUNFALSE : SUNTRUE;
 }
 
 /* b'*(c1.*c2) = 1/3 */
@@ -1572,7 +1572,7 @@ static booleantype __order3a(sunrealtype *b, sunrealtype *c1, sunrealtype *c2, i
   if (__vv(c1,c2,s,tmp)) { free(tmp); return(SUNFALSE); }
   if (__dot(b,tmp,s,&bcc))  return(SUNFALSE);
   free(tmp);
-  return (SUNRabs(bcc - RCONST(1.0)/RCONST(3.0)) > TOL) ? SUNFALSE : SUNTRUE;
+  return (SUNRabs(bcc - SUN_RCONST(1.0)/SUN_RCONST(3.0)) > TOL) ? SUNFALSE : SUNTRUE;
 }
 
 /* b'*(A*c) = 1/6 */
@@ -1583,7 +1583,7 @@ static booleantype __order3b(sunrealtype *b, sunrealtype **A, sunrealtype *c, in
   if (__mv(A,c,s,tmp)) { free(tmp); return(SUNFALSE); }
   if (__dot(b,tmp,s,&bAc))  return(SUNFALSE);
   free(tmp);
-  return (SUNRabs(bAc - RCONST(1.0)/RCONST(6.0)) > TOL) ? SUNFALSE : SUNTRUE;
+  return (SUNRabs(bAc - SUN_RCONST(1.0)/SUN_RCONST(6.0)) > TOL) ? SUNFALSE : SUNTRUE;
 }
 
 /* b'*(c1.*c2.*c3) = 1/4 */
@@ -1596,7 +1596,7 @@ static booleantype __order4a(sunrealtype *b, sunrealtype *c1, sunrealtype *c2, s
   if (__vv(c3,tmp1,s,tmp2)) { free(tmp1); free(tmp2); return(SUNFALSE); }
   if (__dot(b,tmp2,s,&bccc))  return(SUNFALSE);
   free(tmp1);  free(tmp2);
-  return (SUNRabs(bccc - RCONST(0.25)) > TOL) ? SUNFALSE : SUNTRUE;
+  return (SUNRabs(bccc - SUN_RCONST(0.25)) > TOL) ? SUNFALSE : SUNTRUE;
 }
 
 /* (b.*c1)'*(A*c2) = 1/8 */
@@ -1609,7 +1609,7 @@ static booleantype __order4b(sunrealtype *b, sunrealtype *c1, sunrealtype **A, s
   if (__mv(A,c2,s,tmp2)) { free(tmp1); free(tmp2); return(SUNFALSE); }
   if (__dot(tmp1,tmp2,s,&bcAc))  return(SUNFALSE);
   free(tmp1); free(tmp2);
-  return (SUNRabs(bcAc - RCONST(0.125)) > TOL) ? SUNFALSE : SUNTRUE;
+  return (SUNRabs(bcAc - SUN_RCONST(0.125)) > TOL) ? SUNFALSE : SUNTRUE;
 }
 
 /* b'*A*(c1.*c2) = 1/12 */
@@ -1622,7 +1622,7 @@ static booleantype __order4c(sunrealtype *b, sunrealtype **A, sunrealtype *c1, s
   if (__mv(A,tmp1,s,tmp2)) { free(tmp1); free(tmp2); return(SUNFALSE); }
   if (__dot(b,tmp2,s,&bAcc))  return(SUNFALSE);
   free(tmp1); free(tmp2);
-  return (SUNRabs(bAcc - RCONST(1.0)/RCONST(12.0)) > TOL) ? SUNFALSE : SUNTRUE;
+  return (SUNRabs(bAcc - SUN_RCONST(1.0)/SUN_RCONST(12.0)) > TOL) ? SUNFALSE : SUNTRUE;
 }
 
 /* b'*A1*A2*c = 1/24 */
@@ -1635,7 +1635,7 @@ static booleantype __order4d(sunrealtype *b, sunrealtype **A1, sunrealtype **A2,
   if (__mv(A1,tmp1,s,tmp2)) { free(tmp1); free(tmp2); return(SUNFALSE); }
   if (__dot(b,tmp2,s,&bAAc))  return(SUNFALSE);
   free(tmp1); free(tmp2);
-  return (SUNRabs(bAAc - RCONST(1.0)/RCONST(24.0)) > TOL) ? SUNFALSE : SUNTRUE;
+  return (SUNRabs(bAAc - SUN_RCONST(1.0)/SUN_RCONST(24.0)) > TOL) ? SUNFALSE : SUNTRUE;
 }
 
 /* b'*(c1.*c2.*c3.*c4) = 1/5 */
@@ -1649,7 +1649,7 @@ static booleantype __order5a(sunrealtype *b, sunrealtype *c1, sunrealtype *c2, s
   if (__vv(c4,tmp2,s,tmp1)) { free(tmp1); free(tmp2); return(SUNFALSE); }
   if (__dot(b,tmp1,s,&bcccc))  return(SUNFALSE);
   free(tmp1); free(tmp2);
-  return (SUNRabs(bcccc - RCONST(0.2)) > TOL) ? SUNFALSE : SUNTRUE;
+  return (SUNRabs(bcccc - SUN_RCONST(0.2)) > TOL) ? SUNFALSE : SUNTRUE;
 }
 
 /* (b.*c1.*c2)'*(A*c3) = 1/10 */
@@ -1663,7 +1663,7 @@ static booleantype __order5b(sunrealtype *b, sunrealtype *c1, sunrealtype *c2, s
   if (__mv(A,c3,s,tmp1)) { free(tmp1); free(tmp2); return(SUNFALSE); }
   if (__dot(tmp1,tmp2,s,&bccAc))  return(SUNFALSE);
   free(tmp1); free(tmp2);
-  return (SUNRabs(bccAc - RCONST(0.1)) > TOL) ? SUNFALSE : SUNTRUE;
+  return (SUNRabs(bccAc - SUN_RCONST(0.1)) > TOL) ? SUNFALSE : SUNTRUE;
 }
 
 /* b'*((A1*c1).*(A2*c2)) = 1/20 */
@@ -1678,7 +1678,7 @@ static booleantype __order5c(sunrealtype *b, sunrealtype **A1, sunrealtype *c1, 
   if (__vv(tmp1,tmp2,s,tmp3)) { free(tmp1); free(tmp2); free(tmp3); return(SUNFALSE); }
   if (__dot(b,tmp3,s,&bAcAc))  return(SUNFALSE);
   free(tmp1); free(tmp2); free(tmp3);
-  return (SUNRabs(bAcAc - RCONST(0.05)) > TOL) ? SUNFALSE : SUNTRUE;
+  return (SUNRabs(bAcAc - SUN_RCONST(0.05)) > TOL) ? SUNFALSE : SUNTRUE;
 }
 
 /* (b.*c1)'*A*(c2.*c3) = 1/15 */
@@ -1692,7 +1692,7 @@ static booleantype __order5d(sunrealtype *b, sunrealtype *c1, sunrealtype **A, s
   if (__vv(b,c1,s,tmp1)) { free(tmp1); free(tmp2); return(SUNFALSE); }
   if (__dot(tmp1,tmp2,s,&bcAcc))  return(SUNFALSE);
   free(tmp1); free(tmp2);
-  return (SUNRabs(bcAcc - RCONST(1.0)/RCONST(15.0)) > TOL) ? SUNFALSE : SUNTRUE;
+  return (SUNRabs(bcAcc - SUN_RCONST(1.0)/SUN_RCONST(15.0)) > TOL) ? SUNFALSE : SUNTRUE;
 }
 
 /* b'*A*(c1.*c2.*c3) = 1/20 */
@@ -1706,7 +1706,7 @@ static booleantype __order5e(sunrealtype *b, sunrealtype **A, sunrealtype *c1, s
   if (__mv(A,tmp2,s,tmp1)) { free(tmp1); free(tmp2); return(SUNFALSE); }
   if (__dot(b,tmp1,s,&bAccc))  return(SUNFALSE);
   free(tmp1); free(tmp2);
-  return (SUNRabs(bAccc - RCONST(0.05)) > TOL) ? SUNFALSE : SUNTRUE;
+  return (SUNRabs(bAccc - SUN_RCONST(0.05)) > TOL) ? SUNFALSE : SUNTRUE;
 }
 
 /* (b.*c1)'*A1*A2*c2 = 1/30 */
@@ -1720,7 +1720,7 @@ static booleantype __order5f(sunrealtype *b, sunrealtype *c1, sunrealtype **A1, 
   if (__vv(b,c1,s,tmp1)) { free(tmp1); free(tmp2); return(SUNFALSE); }
   if (__dot(tmp1,tmp2,s,&bcAAc))  return(SUNFALSE);
   free(tmp1); free(tmp2);
-  return (SUNRabs(bcAAc - RCONST(1.0)/RCONST(30.0)) > TOL) ? SUNFALSE : SUNTRUE;
+  return (SUNRabs(bcAAc - SUN_RCONST(1.0)/SUN_RCONST(30.0)) > TOL) ? SUNFALSE : SUNTRUE;
 }
 
 /* b'*A1*(c1.*(A2*c2)) = 1/40 */
@@ -1734,7 +1734,7 @@ static booleantype __order5g(sunrealtype *b, sunrealtype **A1, sunrealtype *c1, 
   if (__mv(A1,tmp2,s,tmp1)) { free(tmp1); free(tmp2); return(SUNFALSE); }
   if (__dot(b,tmp1,s,&bAcAc))  return(SUNFALSE);
   free(tmp1); free(tmp2);
-  return (SUNRabs(bAcAc - RCONST(1.0)/RCONST(40.0)) > TOL) ? SUNFALSE : SUNTRUE;
+  return (SUNRabs(bAcAc - SUN_RCONST(1.0)/SUN_RCONST(40.0)) > TOL) ? SUNFALSE : SUNTRUE;
 }
 
 /* b'*A1*A2*(c1.*c2) = 1/60 */
@@ -1748,7 +1748,7 @@ static booleantype __order5h(sunrealtype *b, sunrealtype **A1, sunrealtype **A2,
   if (__mv(A1,tmp2,s,tmp1)) { free(tmp1); free(tmp2); return(SUNFALSE); }
   if (__dot(b,tmp1,s,&bAAcc))  return(SUNFALSE);
   free(tmp1); free(tmp2);
-  return (SUNRabs(bAAcc - RCONST(1.0)/RCONST(60.0)) > TOL) ? SUNFALSE : SUNTRUE;
+  return (SUNRabs(bAAcc - SUN_RCONST(1.0)/SUN_RCONST(60.0)) > TOL) ? SUNFALSE : SUNTRUE;
 }
 
 /* b'*A1*A2*A3*c = 1/120 */
@@ -1762,7 +1762,7 @@ static booleantype __order5i(sunrealtype *b, sunrealtype **A1, sunrealtype **A2,
   if (__mv(A1,tmp2,s,tmp1)) { free(tmp1); free(tmp2); return(SUNFALSE); }
   if (__dot(b,tmp1,s,&bAAAc))  return(SUNFALSE);
   free(tmp1); free(tmp2);
-  return (SUNRabs(bAAAc - RCONST(1.0)/RCONST(120.0)) > TOL) ? SUNFALSE : SUNTRUE;
+  return (SUNRabs(bAAAc - SUN_RCONST(1.0)/SUN_RCONST(120.0)) > TOL) ? SUNFALSE : SUNTRUE;
 }
 
 /* b'*(c1.*c2.*c3.*c4.*c5) = 1/6 */
@@ -1777,7 +1777,7 @@ static booleantype __order6a(sunrealtype *b, sunrealtype *c1, sunrealtype *c2, s
   if (__vv(c5,tmp1,s,tmp2)) { free(tmp1); free(tmp2); return(SUNFALSE); }
   if (__dot(b,tmp2,s,&bccccc))  return(SUNFALSE);
   free(tmp1); free(tmp2);
-  return (SUNRabs(bccccc - RCONST(1.0)/RCONST(6.0)) > TOL) ? SUNFALSE : SUNTRUE;
+  return (SUNRabs(bccccc - SUN_RCONST(1.0)/SUN_RCONST(6.0)) > TOL) ? SUNFALSE : SUNTRUE;
 }
 
 /* (b.*c1.*c2.*c3)'*(A*c4) = 1/12 */
@@ -1792,7 +1792,7 @@ static booleantype __order6b(sunrealtype *b, sunrealtype *c1, sunrealtype *c2, s
   if (__mv(A,c4,s,tmp2)) { free(tmp1); free(tmp2); return(SUNFALSE); }
   if (__dot(tmp1,tmp2,s,&bcccAc))  return(SUNFALSE);
   free(tmp1); free(tmp2);
-  return (SUNRabs(bcccAc - RCONST(1.0)/RCONST(12.0)) > TOL) ? SUNFALSE : SUNTRUE;
+  return (SUNRabs(bcccAc - SUN_RCONST(1.0)/SUN_RCONST(12.0)) > TOL) ? SUNFALSE : SUNTRUE;
 }
 
 /* b'*(c1.*(A1*c2).*(A2*c3)) = 1/24 */
@@ -1808,7 +1808,7 @@ static booleantype __order6c(sunrealtype *b, sunrealtype *c1, sunrealtype **A1, 
   if (__vv(c1,tmp3,s,tmp1)) { free(tmp1); free(tmp2); free(tmp3); return(SUNFALSE); }
   if (__dot(b,tmp1,s,&bcAc2))  return(SUNFALSE);
   free(tmp1); free(tmp2); free(tmp3);
-  return (SUNRabs(bcAc2 - RCONST(1.0)/RCONST(24.0)) > TOL) ? SUNFALSE : SUNTRUE;
+  return (SUNRabs(bcAc2 - SUN_RCONST(1.0)/SUN_RCONST(24.0)) > TOL) ? SUNFALSE : SUNTRUE;
 }
 
 /* (b.*c1.*c2)'*A*(c3.*c4) = 1/18 */
@@ -1824,7 +1824,7 @@ static booleantype __order6d(sunrealtype *b, sunrealtype *c1, sunrealtype *c2, s
   if (__vv(b,tmp1,s,tmp3)) { free(tmp1); free(tmp2); free(tmp3); return(SUNFALSE); }
   if (__dot(tmp2,tmp3,s,&bccAcc))  return(SUNFALSE);
   free(tmp1); free(tmp2);  free(tmp3);
-  return (SUNRabs(bccAcc - RCONST(1.0)/RCONST(18.0)) > TOL) ? SUNFALSE : SUNTRUE;
+  return (SUNRabs(bccAcc - SUN_RCONST(1.0)/SUN_RCONST(18.0)) > TOL) ? SUNFALSE : SUNTRUE;
 }
 
 /* (b.*(c1.*c2))'*A1*A2*c3 = 1/36 */
@@ -1840,7 +1840,7 @@ static booleantype __order6e(sunrealtype *b, sunrealtype *c1, sunrealtype *c2, s
   if (__mv(A1,tmp1,s,tmp3)) { free(tmp1); free(tmp2); free(tmp3); return(SUNFALSE); }
   if (__dot(tmp2,tmp3,s,&bccAAc))  return(SUNFALSE);
   free(tmp1); free(tmp2);  free(tmp3);
-  return (SUNRabs(bccAAc - RCONST(1.0)/RCONST(36.0)) > TOL) ? SUNFALSE : SUNTRUE;
+  return (SUNRabs(bccAAc - SUN_RCONST(1.0)/SUN_RCONST(36.0)) > TOL) ? SUNFALSE : SUNTRUE;
 }
 
 /* b'*((A1*A2*c1).*(A3*c2)) = 1/72 */
@@ -1856,7 +1856,7 @@ static booleantype __order6f(sunrealtype *b, sunrealtype **A1, sunrealtype **A2,
   if (__vv(tmp1,tmp2,s,tmp3)) { free(tmp1); free(tmp2); free(tmp3); return(SUNFALSE); }
   if (__dot(b,tmp3,s,&bAAcAc))  return(SUNFALSE);
   free(tmp1); free(tmp2);  free(tmp3);
-  return (SUNRabs(bAAcAc - RCONST(1.0)/RCONST(72.0)) > TOL) ? SUNFALSE : SUNTRUE;
+  return (SUNRabs(bAAcAc - SUN_RCONST(1.0)/SUN_RCONST(72.0)) > TOL) ? SUNFALSE : SUNTRUE;
 }
 
 /* b'*(c1.*(A*(c2.*c3.*c4))) = 1/24 */
@@ -1871,7 +1871,7 @@ static booleantype __order6g(sunrealtype *b, sunrealtype *c1, sunrealtype **A, s
   if (__vv(c1,tmp1,s,tmp2)) { free(tmp1); free(tmp2); return(SUNFALSE); }
   if (__dot(b,tmp2,s,&bcAccc))  return(SUNFALSE);
   free(tmp1); free(tmp2);
-  return (SUNRabs(bcAccc - RCONST(1.0)/RCONST(24.0)) > TOL) ? SUNFALSE : SUNTRUE;
+  return (SUNRabs(bcAccc - SUN_RCONST(1.0)/SUN_RCONST(24.0)) > TOL) ? SUNFALSE : SUNTRUE;
 }
 
 /* b'*(c1.*(A1*(c2.*(A2*c3)))) = 1/48 */
@@ -1886,7 +1886,7 @@ static booleantype __order6h(sunrealtype *b, sunrealtype *c1, sunrealtype **A1, 
   if (__vv(c1,tmp1,s,tmp2)) { free(tmp1); free(tmp2); return(SUNFALSE); }
   if (__dot(b,tmp2,s,&bcAcAc))  return(SUNFALSE);
   free(tmp1); free(tmp2);
-  return (SUNRabs(bcAcAc - RCONST(1.0)/RCONST(48.0)) > TOL) ? SUNFALSE : SUNTRUE;
+  return (SUNRabs(bcAcAc - SUN_RCONST(1.0)/SUN_RCONST(48.0)) > TOL) ? SUNFALSE : SUNTRUE;
 }
 
 /* b'*(c1.*(A1*A2*(c2.*c3))) = 1/72 */
@@ -1901,7 +1901,7 @@ static booleantype __order6i(sunrealtype *b, sunrealtype *c1, sunrealtype **A1, 
   if (__vv(c1,tmp1,s,tmp2)) { free(tmp1); free(tmp2); return(SUNFALSE); }
   if (__dot(b,tmp2,s,&bcAAcc))  return(SUNFALSE);
   free(tmp1); free(tmp2);
-  return (SUNRabs(bcAAcc - RCONST(1.0)/RCONST(72.0)) > TOL) ? SUNFALSE : SUNTRUE;
+  return (SUNRabs(bcAAcc - SUN_RCONST(1.0)/SUN_RCONST(72.0)) > TOL) ? SUNFALSE : SUNTRUE;
 }
 
 /* b'*(c1.*(A1*A2*A3*c2)) = 1/144 */
@@ -1916,7 +1916,7 @@ static booleantype __order6j(sunrealtype *b, sunrealtype *c1, sunrealtype **A1, 
   if (__vv(c1,tmp1,s,tmp2)) { free(tmp1); free(tmp2); return(SUNFALSE); }
   if (__dot(b,tmp2,s,&bcAAAc))  return(SUNFALSE);
   free(tmp1); free(tmp2);
-  return (SUNRabs(bcAAAc - RCONST(1.0)/RCONST(144.0)) > TOL) ? SUNFALSE : SUNTRUE;
+  return (SUNRabs(bcAAAc - SUN_RCONST(1.0)/SUN_RCONST(144.0)) > TOL) ? SUNFALSE : SUNTRUE;
 }
 
 /* b'*A*(c1.*c2.*c3.*c4) = 1/30 */
@@ -1931,7 +1931,7 @@ static booleantype __order6k(sunrealtype *b, sunrealtype **A, sunrealtype *c1, s
   if (__mv(A,tmp1,s,tmp2)) { free(tmp1); free(tmp2); return(SUNFALSE); }
   if (__dot(b,tmp2,s,&bAcccc))  return(SUNFALSE);
   free(tmp1); free(tmp2);
-  return (SUNRabs(bAcccc - RCONST(1.0)/RCONST(30.0)) > TOL) ? SUNFALSE : SUNTRUE;
+  return (SUNRabs(bAcccc - SUN_RCONST(1.0)/SUN_RCONST(30.0)) > TOL) ? SUNFALSE : SUNTRUE;
 }
 
 /* b'*A1*(c1.*c2.*(A2*c3)) = 1/60 */
@@ -1946,7 +1946,7 @@ static booleantype __order6l(sunrealtype *b, sunrealtype **A1, sunrealtype *c1, 
   if (__mv(A1,tmp1,s,tmp2)) { free(tmp1); free(tmp2); return(SUNFALSE); }
   if (__dot(b,tmp2,s,&bAccAc))  return(SUNFALSE);
   free(tmp1); free(tmp2);
-  return (SUNRabs(bAccAc - RCONST(1.0)/RCONST(60.0)) > TOL) ? SUNFALSE : SUNTRUE;
+  return (SUNRabs(bAccAc - SUN_RCONST(1.0)/SUN_RCONST(60.0)) > TOL) ? SUNFALSE : SUNTRUE;
 }
 
 /* b'*A1*((A2*c1).*(A3*c2)) = 1/120 */
@@ -1962,7 +1962,7 @@ static booleantype __order6m(sunrealtype *b, sunrealtype **A1, sunrealtype **A2,
   if (__mv(A1,tmp3,s,tmp1)) { free(tmp1); free(tmp2); free(tmp3); return(SUNFALSE); }
   if (__dot(b,tmp1,s,&bAAcAc))  return(SUNFALSE);
   free(tmp1); free(tmp2); free(tmp3);
-  return (SUNRabs(bAAcAc - RCONST(1.0)/RCONST(120.0)) > TOL) ? SUNFALSE : SUNTRUE;
+  return (SUNRabs(bAAcAc - SUN_RCONST(1.0)/SUN_RCONST(120.0)) > TOL) ? SUNFALSE : SUNTRUE;
 }
 
 /* b'*A1*(c1.*(A2*(c2.*c3))) = 1/90 */
@@ -1977,7 +1977,7 @@ static booleantype __order6n(sunrealtype *b, sunrealtype **A1, sunrealtype *c1, 
   if (__mv(A1,tmp1,s,tmp2)) { free(tmp1); free(tmp2); return(SUNFALSE); }
   if (__dot(b,tmp2,s,&bAcAcc))  return(SUNFALSE);
   free(tmp1); free(tmp2);
-  return (SUNRabs(bAcAcc - RCONST(1.0)/RCONST(90.0)) > TOL) ? SUNFALSE : SUNTRUE;
+  return (SUNRabs(bAcAcc - SUN_RCONST(1.0)/SUN_RCONST(90.0)) > TOL) ? SUNFALSE : SUNTRUE;
 }
 
 /* b'*A1*(c1.*(A2*A3*c2)) = 1/180 */
@@ -1992,7 +1992,7 @@ static booleantype __order6o(sunrealtype *b, sunrealtype **A1, sunrealtype *c1, 
   if (__mv(A1,tmp1,s,tmp2)) { free(tmp1); free(tmp2); return(SUNFALSE); }
   if (__dot(b,tmp2,s,&bAcAAc))  return(SUNFALSE);
   free(tmp1); free(tmp2);
-  return (SUNRabs(bAcAAc - RCONST(1.0)/RCONST(180.0)) > TOL) ? SUNFALSE : SUNTRUE;
+  return (SUNRabs(bAcAAc - SUN_RCONST(1.0)/SUN_RCONST(180.0)) > TOL) ? SUNFALSE : SUNTRUE;
 }
 
 /* b'*A1*A2*(c1.*c2.*c3) = 1/120 */
@@ -2007,7 +2007,7 @@ static booleantype __order6p(sunrealtype *b, sunrealtype **A1, sunrealtype **A2,
   if (__mv(A1,tmp1,s,tmp2)) { free(tmp1); free(tmp2); return(SUNFALSE); }
   if (__dot(b,tmp2,s,&bAAccc))  return(SUNFALSE);
   free(tmp1); free(tmp2);
-  return (SUNRabs(bAAccc - RCONST(1.0)/RCONST(120.0)) > TOL) ? SUNFALSE : SUNTRUE;
+  return (SUNRabs(bAAccc - SUN_RCONST(1.0)/SUN_RCONST(120.0)) > TOL) ? SUNFALSE : SUNTRUE;
 }
 
 /* b'*A1*A2*(c1.*(A3*c2)) = 1/240 */
@@ -2022,7 +2022,7 @@ static booleantype __order6q(sunrealtype *b, sunrealtype **A1, sunrealtype **A2,
   if (__mv(A1,tmp1,s,tmp2)) { free(tmp1); free(tmp2); return(SUNFALSE); }
   if (__dot(b,tmp2,s,&bAAcAc))  return(SUNFALSE);
   free(tmp1); free(tmp2);
-  return (SUNRabs(bAAcAc - RCONST(1.0)/RCONST(240.0)) > TOL) ? SUNFALSE : SUNTRUE;
+  return (SUNRabs(bAAcAc - SUN_RCONST(1.0)/SUN_RCONST(240.0)) > TOL) ? SUNFALSE : SUNTRUE;
 }
 
 /* b'*A1*A2*A3*(c1.*c2) = 1/360 */
@@ -2037,7 +2037,7 @@ static booleantype __order6r(sunrealtype *b, sunrealtype **A1, sunrealtype **A2,
   if (__mv(A1,tmp1,s,tmp2)) { free(tmp1); free(tmp2); return(SUNFALSE); }
   if (__dot(b,tmp2,s,&bAAAcc))  return(SUNFALSE);
   free(tmp1); free(tmp2);
-  return (SUNRabs(bAAAcc - RCONST(1.0)/RCONST(360.0)) > TOL) ? SUNFALSE : SUNTRUE;
+  return (SUNRabs(bAAAcc - SUN_RCONST(1.0)/SUN_RCONST(360.0)) > TOL) ? SUNFALSE : SUNTRUE;
 }
 
 /* b'*A1*A2*A3*A4*c = 1/720 */
@@ -2052,7 +2052,7 @@ static booleantype __order6s(sunrealtype *b, sunrealtype **A1, sunrealtype **A2,
   if (__mv(A1,tmp1,s,tmp2)) { free(tmp1); free(tmp2); return(SUNFALSE); }
   if (__dot(b,tmp2,s,&bAAAAc))  return(SUNFALSE);
   free(tmp1); free(tmp2);
-  return (SUNRabs(bAAAAc - RCONST(1.0)/RCONST(720.0)) > TOL) ? SUNFALSE : SUNTRUE;
+  return (SUNRabs(bAAAAc - SUN_RCONST(1.0)/SUN_RCONST(720.0)) > TOL) ? SUNFALSE : SUNTRUE;
 }
 
 
@@ -2072,7 +2072,7 @@ static int __ButcherSimplifyingAssumptions(sunrealtype **A, sunrealtype *b, sunr
   for (i=1; i<1000; i++) {
     if (__vp(c,i-1,s,tmp)) { free(tmp); return(0); }
     if (__dot(b,tmp,s,&LHS)) { free(tmp); return(0); }
-    RHS = RCONST(1.0)/i;
+    RHS = SUN_RCONST(1.0)/i;
     if (SUNRabs(RHS-LHS) > TOL)
       break;
     P++;
@@ -2103,10 +2103,10 @@ static int __ButcherSimplifyingAssumptions(sunrealtype **A, sunrealtype *b, sunr
   for (k=1; k<1000; k++) {
     alltrue = SUNTRUE;
     for (j=0; j<s; j++) {
-      LHS = RCONST(0.0);
+      LHS = SUN_RCONST(0.0);
       for (i=0; i<s; i++)
         LHS += A[i][j]*b[i]*SUNRpowerI(c[i],k-1);
-      RHS = b[j]/k*(RCONST(1.0)-SUNRpowerI(c[j],k));
+      RHS = b[j]/k*(SUN_RCONST(1.0)-SUNRpowerI(c[j],k));
       if (SUNRabs(RHS-LHS) > TOL) {
         alltrue = SUNFALSE;
         break;

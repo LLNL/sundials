@@ -60,19 +60,19 @@
 /* Problem Constants */
 
 #define NEQ   3                /* number of equations  */
-#define Y1    RCONST(1.0)      /* initial y components */
-#define Y2    RCONST(0.0)
-#define Y3    RCONST(0.0)
-#define RTOL  RCONST(1.0e-4)   /* scalar relative tolerance            */
-#define ATOL1 RCONST(1.0e-8)   /* vector absolute tolerance components */
-#define ATOL2 RCONST(1.0e-14)
-#define ATOL3 RCONST(1.0e-6)
-#define T0    RCONST(0.0)      /* initial time           */
-#define T1    RCONST(0.4)      /* first output time      */
-#define TMULT RCONST(10.0)     /* output time factor     */
+#define Y1    SUN_RCONST(1.0)      /* initial y components */
+#define Y2    SUN_RCONST(0.0)
+#define Y3    SUN_RCONST(0.0)
+#define RTOL  SUN_RCONST(1.0e-4)   /* scalar relative tolerance            */
+#define ATOL1 SUN_RCONST(1.0e-8)   /* vector absolute tolerance components */
+#define ATOL2 SUN_RCONST(1.0e-14)
+#define ATOL3 SUN_RCONST(1.0e-6)
+#define T0    SUN_RCONST(0.0)      /* initial time           */
+#define T1    SUN_RCONST(0.4)      /* first output time      */
+#define TMULT SUN_RCONST(10.0)     /* output time factor     */
 #define NOUT  12               /* number of output times */
 
-#define ZERO  RCONST(0.0)
+#define ZERO  SUN_RCONST(0.0)
 
 /* Functions Called by the Solver */
 
@@ -234,8 +234,8 @@ static int f(sunrealtype t, N_Vector y, N_Vector ydot, void *user_data)
 
   y1 = Ith(y,1); y2 = Ith(y,2); y3 = Ith(y,3);
 
-  yd1 = Ith(ydot,1) = RCONST(-0.04)*y1 + RCONST(1.0e4)*y2*y3;
-  yd3 = Ith(ydot,3) = RCONST(3.0e7)*y2*y2;
+  yd1 = Ith(ydot,1) = SUN_RCONST(-0.04)*y1 + SUN_RCONST(1.0e4)*y2*y3;
+  yd3 = Ith(ydot,3) = SUN_RCONST(3.0e7)*y2*y2;
         Ith(ydot,2) = -yd1 - yd3;
 
   return(0);
@@ -250,8 +250,8 @@ static int g(sunrealtype t, N_Vector y, sunrealtype *gout, void *user_data)
   sunrealtype y1, y3;
 
   y1 = Ith(y,1); y3 = Ith(y,3);
-  gout[0] = y1 - RCONST(0.0001);
-  gout[1] = y3 - RCONST(0.01);
+  gout[0] = y1 - SUN_RCONST(0.0001);
+  gout[1] = y3 - SUN_RCONST(0.01);
 
   return(0);
 }
@@ -267,16 +267,16 @@ static int Jac(sunrealtype t, N_Vector y, N_Vector fy, SUNMatrix J,
 
   y2 = Ith(y,2); y3 = Ith(y,3);
 
-  IJth(J,1,1) = RCONST(-0.04);
-  IJth(J,1,2) = RCONST(1.0e4)*y3;
-  IJth(J,1,3) = RCONST(1.0e4)*y2;
+  IJth(J,1,1) = SUN_RCONST(-0.04);
+  IJth(J,1,2) = SUN_RCONST(1.0e4)*y3;
+  IJth(J,1,3) = SUN_RCONST(1.0e4)*y2;
 
-  IJth(J,2,1) = RCONST(0.04);
-  IJth(J,2,2) = RCONST(-1.0e4)*y3-RCONST(6.0e7)*y2;
-  IJth(J,2,3) = RCONST(-1.0e4)*y2;
+  IJth(J,2,1) = SUN_RCONST(0.04);
+  IJth(J,2,2) = SUN_RCONST(-1.0e4)*y3-SUN_RCONST(6.0e7)*y2;
+  IJth(J,2,3) = SUN_RCONST(-1.0e4)*y2;
 
   IJth(J,3,1) = ZERO;
-  IJth(J,3,2) = RCONST(6.0e7)*y2;
+  IJth(J,3,2) = SUN_RCONST(6.0e7)*y2;
   IJth(J,3,3) = ZERO;
 
   return(0);

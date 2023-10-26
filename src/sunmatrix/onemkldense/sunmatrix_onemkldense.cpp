@@ -35,8 +35,8 @@
 #endif
 
 // Constants
-#define ZERO RCONST(0.0)
-#define ONE  RCONST(1.0)
+#define ZERO SUN_RCONST(0.0)
+#define ONE  SUN_RCONST(1.0)
 
 // Content accessor macros
 #define MAT_CONTENT(A)     ((SUNMatrixContent_OneMklDense) (A->content))

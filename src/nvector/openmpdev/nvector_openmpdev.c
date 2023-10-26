@@ -28,10 +28,10 @@
 #include <nvector/nvector_openmpdev.h>
 #include <sundials/sundials_math.h>
 
-#define ZERO   RCONST(0.0)
-#define HALF   RCONST(0.5)
-#define ONE    RCONST(1.0)
-#define ONEPT5 RCONST(1.5)
+#define ZERO   SUN_RCONST(0.0)
+#define HALF   SUN_RCONST(0.5)
+#define ONE    SUN_RCONST(1.0)
+#define ONEPT5 SUN_RCONST(1.5)
 
 /* Private functions for special cases of vector operations */
 static void VCopy_OpenMPDEV(N_Vector x, N_Vector z);                              /* z=x       */
@@ -1164,7 +1164,7 @@ sunrealtype N_VMinQuotient_OpenMPDEV(N_Vector num, N_Vector denom)
   /* get default device identifier */
   dev = omp_get_default_device();
 
-  min = BIG_REAL;
+  min = SUN_BIG_REAL;
 
 #pragma omp target map(tofrom:min) is_device_ptr(nd_dev, dd_dev) device(dev)
 #pragma omp teams distribute parallel for reduction(min:min) schedule(static, 1)

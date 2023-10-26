@@ -58,10 +58,10 @@
 #define NOUT  11
 #define MGRID 10
 #define NEQ   MGRID*MGRID
-#define ZERO  RCONST(0.0)
-#define ONE   RCONST(1.0)
-#define TWO   RCONST(2.0)
-#define FOUR  RCONST(4.0)
+#define ZERO  SUN_RCONST(0.0)
+#define ONE   SUN_RCONST(1.0)
+#define TWO   SUN_RCONST(2.0)
+#define FOUR  SUN_RCONST(4.0)
 
 /* User data type */
 
@@ -198,9 +198,9 @@ int main(int argc, char *argv[])
   /* Assign various parameters. */
 
   t0   = ZERO;
-  t1   = RCONST(0.01);
+  t1   = SUN_RCONST(0.01);
   rtol = ZERO;
-  atol = RCONST(1.0e-3);
+  atol = SUN_RCONST(1.0e-3);
 
   /* Call IDACreate and IDAMalloc to initialize solution */
 
@@ -517,7 +517,7 @@ static int SetInitialProfile(UserData *data, N_Vector uu, N_Vector up,
     yfact = data->dx * j;
     for (i = 0; i < mm; i++) {
       xfact = data->dx * i;
-      u_1d(mm*j + i) = RCONST(16.0) * xfact * (ONE - xfact) * yfact * (ONE - yfact);
+      u_1d(mm*j + i) = SUN_RCONST(16.0) * xfact * (ONE - xfact) * yfact * (ONE - yfact);
     }
   }
 

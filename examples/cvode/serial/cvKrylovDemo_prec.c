@@ -120,17 +120,17 @@
 
 /* Constants */
 
-#define ZERO RCONST(0.0)
-#define ONE  RCONST(1.0)
+#define ZERO SUN_RCONST(0.0)
+#define ONE  SUN_RCONST(1.0)
 
 /* Problem Specification Constants */
 
 #define AA    ONE               /* AA = a */
-#define EE    RCONST(1.0e4)     /* EE = e */
-#define GG    RCONST(0.5e-6)    /* GG = g */
+#define EE    SUN_RCONST(1.0e4)     /* EE = e */
+#define GG    SUN_RCONST(0.5e-6)    /* GG = g */
 #define BB    ONE               /* BB = b */
 #define DPREY ONE
-#define DPRED RCONST(0.5)
+#define DPRED SUN_RCONST(0.5)
 #define ALPH  ONE
 #define NP    3
 #define NS    (2*NP)
@@ -156,8 +156,8 @@
 
 #define NEQ  (NS*MX*MY)
 #define T0   ZERO
-#define RTOL RCONST(1.0e-5)
-#define ATOL RCONST(1.0e-5)
+#define RTOL SUN_RCONST(1.0e-5)
+#define ATOL SUN_RCONST(1.0e-5)
 
 /* Spgmr/CVLS Constants */
 
@@ -166,8 +166,8 @@
 
 /* Output Constants */
 
-#define T1        RCONST(1.0e-8)
-#define TOUT_MULT RCONST(10.0)
+#define T1        SUN_RCONST(1.0e-8)
+#define TOUT_MULT SUN_RCONST(10.0)
 #define DTOUT     ONE
 #define NOUT      18
 
@@ -332,7 +332,7 @@ int main()
         PrintOutput(cvode_mem, t);
         if (firstrun && (iout % 3 == 0)) PrintAllSpecies(c, ns, mxns, t);
         if(check_retval(&retval, "CVode", 1)) break;
-        if (tout > RCONST(0.9)) tout += DTOUT; else tout *= TOUT_MULT;
+        if (tout > SUN_RCONST(0.9)) tout += DTOUT; else tout *= TOUT_MULT;
       }
 
       /* Print final statistics, and loop for next case */
@@ -411,7 +411,7 @@ static void InitUserData(WebData wdata)
   wdata->mq = MQ;
   wdata->mx = MX;
   wdata->my = MY;
-  wdata->srur = sqrt(UNIT_ROUNDOFF);
+  wdata->srur = sqrt(SUN_UNIT_ROUNDOFF);
   wdata->mxmp = MXMP;
   wdata->ngrp = NGRP;
   wdata->ngx = NGX;
@@ -460,8 +460,8 @@ static void CInit(N_Vector c, WebData wdata)
   dx = wdata->dx;
   dy = wdata->dy;
 
-  x_factor = RCONST(4.0)/SQR(AX);
-  y_factor = RCONST(4.0)/SQR(AY);
+  x_factor = SUN_RCONST(4.0)/SQR(AX);
+  y_factor = SUN_RCONST(4.0)/SQR(AY);
   for (jy = 0; jy < MY; jy++) {
     y = jy*dy;
     argy = SQR(y_factor*y*(AY-y));
@@ -472,7 +472,7 @@ static void CInit(N_Vector c, WebData wdata)
       ioff = iyoff + ns*jx;
       for (i = 1; i <= ns; i++) {
         ici = ioff + i-1;
-        cdata[ici] = RCONST(10.0) + i*argx*argy;
+        cdata[ici] = SUN_RCONST(10.0) + i*argx*argy;
       }
     }
   }
@@ -799,7 +799,7 @@ static int Precond(sunrealtype t, N_Vector c, N_Vector fc, booleantype jok,
   if(check_retval(&retval, "CVodeGetErrWeights", 1)) return(1);
   rewtdata = N_VGetArrayPointer(rewt);
 
-  uround = UNIT_ROUNDOFF;
+  uround = SUN_UNIT_ROUNDOFF;
 
   P = wdata->P;
   pivot = wdata->pivot;
@@ -820,7 +820,7 @@ static int Precond(sunrealtype t, N_Vector c, N_Vector fc, booleantype jok,
   f1 = N_VGetArrayPointer(wdata->tmp);
 
   fac = N_VWrmsNorm (fc, rewt);
-  r0 = RCONST(1000.0)*fabs(gamma)*uround*NEQ*fac;
+  r0 = SUN_RCONST(1000.0)*fabs(gamma)*uround*NEQ*fac;
   if (r0 == ZERO) r0 = ONE;
 
   for (igy = 0; igy < ngy; igy++) {
@@ -957,11 +957,11 @@ static void GSIter(sunrealtype gamma, N_Vector z, N_Vector x, WebData wdata)
      Load local arrays beta, beta2, gam, gam2, and cof1. */
 
   for (i = 0; i < ns; i++) {
-    temp = ONE/(ONE + RCONST(2.0)*gamma*(cox[i] + coy[i]));
+    temp = ONE/(ONE + SUN_RCONST(2.0)*gamma*(cox[i] + coy[i]));
     beta[i] = gamma*cox[i]*temp;
-    beta2[i] = RCONST(2.0)*beta[i];
+    beta2[i] = SUN_RCONST(2.0)*beta[i];
     gam[i] = gamma*coy[i]*temp;
-    gam2[i] = RCONST(2.0)*gam[i];
+    gam2[i] = SUN_RCONST(2.0)*gam[i];
     cof1[i] = temp;
   }
 

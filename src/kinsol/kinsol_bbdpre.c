@@ -33,8 +33,8 @@
 #include <sundials/sundials_math.h>
 #include <nvector/nvector_serial.h>
 
-#define ZERO RCONST(0.0)
-#define ONE  RCONST(1.0)
+#define ZERO SUN_RCONST(0.0)
+#define ONE  SUN_RCONST(1.0)
 
 /* Prototypes of functions KINBBDPrecSetup and KINBBDPrecSolve */
 static int KINBBDPrecSetup(N_Vector uu, N_Vector uscale,

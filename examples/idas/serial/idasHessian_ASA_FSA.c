@@ -58,25 +58,25 @@
 #define NEQ      3             /* number of equations                  */
 #define NP       2             /* number of sensitivities              */
 
-#define T0       RCONST(0.0)   /* Initial time. */
-#define TF       RCONST(80.0)  /* Final time. */
+#define T0       SUN_RCONST(0.0)   /* Initial time. */
+#define TF       SUN_RCONST(80.0)  /* Final time. */
 
 /* Tolerances */
-#define RTOL     RCONST(1e-08) /* scalar relative tolerance            */
-#define ATOL     RCONST(1e-10) /* vector absolute tolerance components */
-#define RTOLA    RCONST(1e-08) /* for adjoint integration              */
-#define ATOLA    RCONST(1e-08) /* for adjoint integration              */
+#define RTOL     SUN_RCONST(1e-08) /* scalar relative tolerance            */
+#define ATOL     SUN_RCONST(1e-10) /* vector absolute tolerance components */
+#define RTOLA    SUN_RCONST(1e-08) /* for adjoint integration              */
+#define ATOLA    SUN_RCONST(1e-08) /* for adjoint integration              */
 
 /* Parameters */
-#define P1 RCONST(0.04)
-#define P2 RCONST(1.0e4)
-#define P3 RCONST(3.0e7)
+#define P1 SUN_RCONST(0.04)
+#define P2 SUN_RCONST(1.0e4)
+#define P3 SUN_RCONST(3.0e7)
 
 /* Predefined consts */
-#define HALF RCONST(0.5)
-#define ZERO RCONST(0.0)
-#define ONE  RCONST(1.0)
-#define TWO  RCONST(2.0)
+#define HALF SUN_RCONST(0.5)
+#define ZERO SUN_RCONST(0.0)
+#define ONE  SUN_RCONST(1.0)
+#define TWO  SUN_RCONST(2.0)
 
 /* User defined struct */
 typedef struct {
@@ -364,8 +364,8 @@ int main(int argc, char *argv[])
   **********************************/
 
   /* Perturbations are of different magnitudes as p1 and p2 are. */
-  dp1 = RCONST(1.0e-3);
-  dp2 = RCONST(2.5e+2);
+  dp1 = SUN_RCONST(1.0e-3);
+  dp2 = SUN_RCONST(2.5e+2);
 
   printf("\n");
   printf("---------------------------------------------------------\n");
@@ -391,8 +391,8 @@ int main(int argc, char *argv[])
 
   retval = IDAInit(ida_mem, res, ti, yy, yp);
 
-  rtolFD = RCONST(1.0e-12);
-  atolFD = RCONST(1.0e-14);
+  rtolFD = SUN_RCONST(1.0e-12);
+  atolFD = SUN_RCONST(1.0e-14);
 
   retval = IDASStolerances(ida_mem, rtolFD, atolFD);
 

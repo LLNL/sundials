@@ -61,13 +61,13 @@ static int check_retval(void *returnvalue, const char *funcname, int opt);
 int main()
 {
   /* general problem parameters */
-  sunrealtype T0 = RCONST(0.0);     /* initial time */
-  sunrealtype Tf = RCONST(2.0);     /* final time */
-  sunrealtype dTout = RCONST(0.1);  /* time between outputs */
+  sunrealtype T0 = SUN_RCONST(0.0);     /* initial time */
+  sunrealtype Tf = SUN_RCONST(2.0);     /* final time */
+  sunrealtype dTout = SUN_RCONST(0.1);  /* time between outputs */
   sunindextype NEQ = 3;          /* number of dependent vars. */
   int Nt = (int) ceil(Tf/dTout); /* number of output times */
-  sunrealtype hs = RCONST(0.025);   /* slow step size */
-  sunrealtype hf = RCONST(0.001);   /* fast step size */
+  sunrealtype hs = SUN_RCONST(0.025);   /* slow step size */
+  sunrealtype hf = SUN_RCONST(0.001);   /* fast step size */
   sunrealtype a, b, ep;             /* ODE parameters */
   sunrealtype u0, v0, w0;           /* initial conditions */
   sunrealtype rdata[3];             /* user data */
@@ -93,14 +93,14 @@ int main()
   if (check_retval(&retval, "SUNContext_Create", 1)) return 1;
 
   /* Set up the test problem parameters */
-  a  = RCONST(1.0);
-  b  = RCONST(3.5);
-  ep = RCONST(1.0e-2);
+  a  = SUN_RCONST(1.0);
+  b  = SUN_RCONST(3.5);
+  ep = SUN_RCONST(1.0e-2);
 
   /* Set the initial contions */
-  u0 = RCONST(1.2);
-  v0 = RCONST(3.1);
-  w0 = RCONST(3.0);
+  u0 = SUN_RCONST(1.2);
+  v0 = SUN_RCONST(3.1);
+  w0 = SUN_RCONST(3.0);
 
   /* Initial problem output */
   printf("\nBrusselator ODE test problem:\n");

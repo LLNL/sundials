@@ -70,22 +70,22 @@
 /* problem constants */
 #define NEQ 3 /* number of equations */
 
-#define ZERO         RCONST(0.0)             /* real 0.0  */
-#define PTONE        RCONST(0.1)             /* real 0.1  */
-#define HALF         RCONST(0.5)             /* real 0.5  */
-#define PTNINE       RCONST(0.9)             /* real 0.9  */
-#define ONE          RCONST(1.0)             /* real 1.0  */
-#define ONEPTZEROSIX RCONST(1.06)            /* real 1.06 */
-#define ONEPTONE     RCONST(1.1)             /* real 1.1  */
-#define THREE        RCONST(3.0)             /* real 3.0  */
-#define FOUR         RCONST(4.0)             /* real 4.0  */
-#define SIX          RCONST(6.0)             /* real 6.0  */
-#define NINE         RCONST(9.0)             /* real 9.0  */
-#define TEN          RCONST(10.0)            /* real 10.0 */
-#define TWENTY       RCONST(20.0)            /* real 20.0 */
-#define SIXTY        RCONST(60.0)            /* real 60.0 */
-#define EIGHTYONE    RCONST(81.0)            /* real 81.0 */
-#define PI           RCONST(3.1415926535898) /* real pi   */
+#define ZERO         SUN_RCONST(0.0)             /* real 0.0  */
+#define PTONE        SUN_RCONST(0.1)             /* real 0.1  */
+#define HALF         SUN_RCONST(0.5)             /* real 0.5  */
+#define PTNINE       SUN_RCONST(0.9)             /* real 0.9  */
+#define ONE          SUN_RCONST(1.0)             /* real 1.0  */
+#define ONEPTZEROSIX SUN_RCONST(1.06)            /* real 1.06 */
+#define ONEPTONE     SUN_RCONST(1.1)             /* real 1.1  */
+#define THREE        SUN_RCONST(3.0)             /* real 3.0  */
+#define FOUR         SUN_RCONST(4.0)             /* real 4.0  */
+#define SIX          SUN_RCONST(6.0)             /* real 6.0  */
+#define NINE         SUN_RCONST(9.0)             /* real 9.0  */
+#define TEN          SUN_RCONST(10.0)            /* real 10.0 */
+#define TWENTY       SUN_RCONST(20.0)            /* real 20.0 */
+#define SIXTY        SUN_RCONST(60.0)            /* real 60.0 */
+#define EIGHTYONE    SUN_RCONST(81.0)            /* real 81.0 */
+#define PI           SUN_RCONST(3.1415926535898) /* real pi   */
 
 /* analytic solution */
 #define XTRUE HALF
@@ -388,13 +388,13 @@ static int SetDefaults(UserOpt *uopt)
   if (*uopt == NULL) return(-1);
 
   /* Set default options values */
-  (*uopt)->tol        = 100 * SQRT(UNIT_ROUNDOFF);
+  (*uopt)->tol        = 100 * SQRT(SUN_UNIT_ROUNDOFF);
   (*uopt)->maxiter    = 30;
   (*uopt)->m_aa       = 0;            /* no acceleration */
   (*uopt)->delay_aa   = 0;            /* no delay        */
   (*uopt)->orth_aa    = 0;            /* MGS             */
-  (*uopt)->damping_fp = RCONST(1.0);  /* no FP dampig    */
-  (*uopt)->damping_aa = RCONST(1.0);  /* no AA damping   */
+  (*uopt)->damping_fp = SUN_RCONST(1.0);  /* no FP dampig    */
+  (*uopt)->damping_aa = SUN_RCONST(1.0);  /* no AA damping   */
 
   return(0);
 }

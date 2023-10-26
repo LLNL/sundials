@@ -53,10 +53,10 @@
 #define NOUT  11
 #define MGRID 10
 #define NEQ   MGRID*MGRID
-#define ZERO  RCONST(0.0)
-#define ONE   RCONST(1.0)
-#define TWO   RCONST(2.0)
-#define BVAL  RCONST(0.0)
+#define ZERO  SUN_RCONST(0.0)
+#define ONE   SUN_RCONST(1.0)
+#define TWO   SUN_RCONST(2.0)
+#define BVAL  SUN_RCONST(0.0)
 #define TOTAL 4*MGRID+8*(MGRID-2)+(MGRID-4)*(MGRID+4*(MGRID-2)) /* total num of nonzero elements */
 
 /* Type: UserData */
@@ -147,9 +147,9 @@ int main(void)
 
   /* Set remaining input parameters. */
   t0   = ZERO;
-  t1   = RCONST(0.01);
+  t1   = SUN_RCONST(0.01);
   rtol = ZERO;
-  atol = RCONST(1.0e-8);
+  atol = SUN_RCONST(1.0e-8);
 
   /* Call IDACreate and IDAMalloc to initialize solution */
   mem = IDACreate(ctx);
@@ -276,7 +276,7 @@ int heatres(sunrealtype tres, N_Vector uu, N_Vector up, N_Vector resval,
     for (i = 1; i < mm-1; i++) {
       loc = offset + i;
       resv[loc] = upv[loc] - coeff *
-          (uv[loc-1] + uv[loc+1] + uv[loc-mm] + uv[loc+mm] - RCONST(4.0)*uv[loc]);
+          (uv[loc-1] + uv[loc+1] + uv[loc-mm] + uv[loc+mm] - SUN_RCONST(4.0)*uv[loc]);
     }
   }
 
@@ -291,7 +291,7 @@ int jacHeat3(sunrealtype tt,  sunrealtype cj,
              N_Vector tempv1, N_Vector tempv2, N_Vector tempv3)
 {
   sunrealtype dx =  ONE/(MGRID - ONE);
-  sunrealtype beta = RCONST(4.0)/(dx*dx) + cj;
+  sunrealtype beta = SUN_RCONST(4.0)/(dx*dx) + cj;
 
   sunindextype *colptrs = SUNSparseMatrix_IndexPointers(JJ);
   sunindextype *rowvals = SUNSparseMatrix_IndexValues(JJ);
@@ -354,7 +354,7 @@ int jacHeat(sunrealtype tt,  sunrealtype cj,
             N_Vector tempv1, N_Vector tempv2, N_Vector tempv3)
 {
   sunrealtype dx =  ONE/(MGRID - ONE);
-  sunrealtype beta = RCONST(4.0)/(dx*dx) + cj;
+  sunrealtype beta = SUN_RCONST(4.0)/(dx*dx) + cj;
   int i,j, repeat=0;
 
   sunindextype *colptrs = SUNSparseMatrix_IndexPointers(JJ);
@@ -625,7 +625,7 @@ static int SetInitialProfile(UserData data, N_Vector uu, N_Vector up,
     for (i = 0;i < mm; i++) {
       xfact = data->dx * i;
       loc = offset + i;
-      udata[loc] = RCONST(16.0) * xfact * (ONE - xfact) * yfact * (ONE - yfact);
+      udata[loc] = SUN_RCONST(16.0) * xfact * (ONE - xfact) * yfact * (ONE - yfact);
     }
   }
 

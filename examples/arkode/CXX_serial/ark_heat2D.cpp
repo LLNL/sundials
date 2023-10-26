@@ -60,11 +60,11 @@
 
 
 // Macros for problem constants
-#define PI    RCONST(3.141592653589793238462643383279502884197169)
-#define ZERO  RCONST(0.0)
-#define ONE   RCONST(1.0)
-#define TWO   RCONST(2.0)
-#define EIGHT RCONST(8.0)
+#define PI    SUN_RCONST(3.141592653589793238462643383279502884197169)
+#define ZERO  SUN_RCONST(0.0)
+#define ONE   SUN_RCONST(1.0)
+#define TWO   SUN_RCONST(2.0)
+#define EIGHT SUN_RCONST(8.0)
 
 // Macro to access (x,y) location in 1D NVector array
 #define IDX(x,y,n) ((n)*(y)+(x))
@@ -678,8 +678,8 @@ static int InitUserData(UserData *udata)
   udata->dy = udata->yu / (udata->ny - 1);
 
   // Integrator settings
-  udata->rtol        = RCONST(1.e-5);   // relative tolerance
-  udata->atol        = RCONST(1.e-10);  // absolute tolerance
+  udata->rtol        = SUN_RCONST(1.e-5);   // relative tolerance
+  udata->atol        = SUN_RCONST(1.e-10);  // absolute tolerance
   udata->hfixed      = ZERO;            // using adaptive step sizes
   udata->order       = 3;               // method order
   udata->controller  = 0;               // PID controller

@@ -57,19 +57,19 @@
 
 #define NEQ   3                /* number of equations  */
 #define NNZ   7                /* number of non-zero entries in the Jacobian */
-#define Y1    RCONST(1.0)      /* initial y components */
-#define Y2    RCONST(0.0)
-#define Y3    RCONST(0.0)
-#define RTOL  RCONST(1.0e-4)   /* scalar relative tolerance            */
-#define ATOL1 RCONST(1.0e-8)   /* vector absolute tolerance components */
-#define ATOL2 RCONST(1.0e-14)
-#define ATOL3 RCONST(1.0e-6)
-#define T0    RCONST(0.0)      /* initial time           */
-#define T1    RCONST(0.4)      /* first output time      */
-#define TMULT RCONST(10.0)     /* output time factor     */
+#define Y1    SUN_RCONST(1.0)      /* initial y components */
+#define Y2    SUN_RCONST(0.0)
+#define Y3    SUN_RCONST(0.0)
+#define RTOL  SUN_RCONST(1.0e-4)   /* scalar relative tolerance            */
+#define ATOL1 SUN_RCONST(1.0e-8)   /* vector absolute tolerance components */
+#define ATOL2 SUN_RCONST(1.0e-14)
+#define ATOL3 SUN_RCONST(1.0e-6)
+#define T0    SUN_RCONST(0.0)      /* initial time           */
+#define T1    SUN_RCONST(0.4)      /* first output time      */
+#define TMULT SUN_RCONST(10.0)     /* output time factor     */
 #define NOUT  12               /* number of output times */
 
-#define ZERO  RCONST(0.0)
+#define ZERO  SUN_RCONST(0.0)
 
 /* Functions Called by the Solver */
 
@@ -231,8 +231,8 @@ static int f(sunrealtype t, N_Vector y, N_Vector ydot, void *user_data)
 
   y1 = Ith(y,1); y2 = Ith(y,2); y3 = Ith(y,3);
 
-  yd1 = Ith(ydot,1) = RCONST(-0.04)*y1 + RCONST(1.0e4)*y2*y3;
-  yd3 = Ith(ydot,3) = RCONST(3.0e7)*y2*y2;
+  yd1 = Ith(ydot,1) = SUN_RCONST(-0.04)*y1 + SUN_RCONST(1.0e4)*y2*y3;
+  yd3 = Ith(ydot,3) = SUN_RCONST(3.0e7)*y2*y2;
         Ith(ydot,2) = -yd1 - yd3;
 
   return(0);
@@ -247,8 +247,8 @@ static int g(sunrealtype t, N_Vector y, sunrealtype *gout, void *user_data)
   sunrealtype y1, y3;
 
   y1 = Ith(y,1); y3 = Ith(y,3);
-  gout[0] = y1 - RCONST(0.0001);
-  gout[1] = y3 - RCONST(0.01);
+  gout[0] = y1 - SUN_RCONST(0.0001);
+  gout[1] = y3 - SUN_RCONST(0.01);
 
   return(0);
 }
@@ -276,31 +276,31 @@ static int Jac(sunrealtype t, N_Vector y, N_Vector fy, SUNMatrix J,
   colptrs[0] = 0;
 
   rowvals[0] = 0;
-  data[0]    = RCONST(-0.04);
+  data[0]    = SUN_RCONST(-0.04);
 
   rowvals[1] = 1;
-  data[1]    = RCONST(0.04);
+  data[1]    = SUN_RCONST(0.04);
 
   /* second column entries start at data[2], three entries (rows 0, 1, and 2) */
   colptrs[1] = 2;
 
   rowvals[2] = 0;
-  data[2]    = RCONST(1.0e4) * yval[2];
+  data[2]    = SUN_RCONST(1.0e4) * yval[2];
 
   rowvals[3] = 1;
-  data[3]    = (RCONST(-1.0e4) * yval[2]) - (RCONST(6.0e7) * yval[1]);
+  data[3]    = (SUN_RCONST(-1.0e4) * yval[2]) - (SUN_RCONST(6.0e7) * yval[1]);
 
   rowvals[4] = 2;
-  data[4]    = RCONST(6.0e7) * yval[1];
+  data[4]    = SUN_RCONST(6.0e7) * yval[1];
 
   /* third column entries start at data[5], two entries (rows 0 and 1) */
   colptrs[2] = 5;
 
   rowvals[5] = 0;
-  data[5]    = RCONST(1.0e4) * yval[1];
+  data[5]    = SUN_RCONST(1.0e4) * yval[1];
 
   rowvals[6] = 1;
-  data[6]    = RCONST(-1.0e4) * yval[1];
+  data[6]    = SUN_RCONST(-1.0e4) * yval[1];
 
   /* number of non-zeros */
   colptrs[3] = 7;

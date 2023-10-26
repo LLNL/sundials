@@ -21,8 +21,8 @@
 #include <sundials/sundials_direct.h>
 #include <sundials/sundials_math.h>
 
-#define ZERO RCONST(0.0)
-#define ONE  RCONST(1.0)
+#define ZERO SUN_RCONST(0.0)
+#define ONE  SUN_RCONST(1.0)
 
 SUNDlsMat NewDenseMat(sunindextype M, sunindextype N)
 {

@@ -374,7 +374,7 @@ int main(int argc, char *argv[])
   /* Run Tests */
   fails += Test_SUNLinSolInitialize(LS, grid.iam);
   fails += Test_SUNLinSolSetup(LS, A, grid.iam);
-  fails += Test_SUNLinSolSolve(LS, A, x, b, 100*UNIT_ROUNDOFF, SUNTRUE, grid.iam);
+  fails += Test_SUNLinSolSolve(LS, A, x, b, 100*SUN_UNIT_ROUNDOFF, SUNTRUE, grid.iam);
 
   fails += Test_SUNLinSolGetType(LS, SUNLINEARSOLVER_DIRECT, grid.iam);
   fails += Test_SUNLinSolGetID(LS, SUNLINEARSOLVER_SUPERLUDIST, grid.iam);

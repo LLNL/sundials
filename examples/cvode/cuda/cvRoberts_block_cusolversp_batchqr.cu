@@ -48,19 +48,19 @@
 /* Problem Constants */
 
 #define GROUPSIZE 3            /* number of equations per group */
-#define Y1    RCONST(1.0)      /* initial y components */
-#define Y2    RCONST(0.0)
-#define Y3    RCONST(0.0)
-#define RTOL  RCONST(1.0e-4)   /* scalar relative tolerance            */
-#define ATOL1 RCONST(1.0e-8)   /* vector absolute tolerance components */
-#define ATOL2 RCONST(1.0e-14)
-#define ATOL3 RCONST(1.0e-6)
-#define T0    RCONST(0.0)      /* initial time           */
-#define T1    RCONST(0.4)      /* first output time      */
-#define TMULT RCONST(10.0)     /* output time factor     */
+#define Y1    SUN_RCONST(1.0)      /* initial y components */
+#define Y2    SUN_RCONST(0.0)
+#define Y3    SUN_RCONST(0.0)
+#define RTOL  SUN_RCONST(1.0e-4)   /* scalar relative tolerance            */
+#define ATOL1 SUN_RCONST(1.0e-8)   /* vector absolute tolerance components */
+#define ATOL2 SUN_RCONST(1.0e-14)
+#define ATOL3 SUN_RCONST(1.0e-6)
+#define T0    SUN_RCONST(0.0)      /* initial time           */
+#define T1    SUN_RCONST(0.4)      /* first output time      */
+#define TMULT SUN_RCONST(10.0)     /* output time factor     */
 #define NOUT  12               /* number of output times */
 
-#define ZERO  RCONST(0.0)
+#define ZERO  SUN_RCONST(0.0)
 
 /* Functions Called by the Solver */
 
@@ -312,8 +312,8 @@ static void f_kernel(sunrealtype t, sunrealtype* ydata, sunrealtype* ydotdata,
   if (i < neq) {
     y1 = ydata[groupj]; y2 = ydata[groupj+1]; y3 = ydata[groupj+2];
 
-    yd1 = ydotdata[groupj]   = RCONST(-0.04)*y1 + RCONST(1.0e4)*y2*y3;
-    yd3 = ydotdata[groupj+2] = RCONST(3.0e7)*y2*y2;
+    yd1 = ydotdata[groupj]   = SUN_RCONST(-0.04)*y1 + SUN_RCONST(1.0e4)*y2*y3;
+    yd3 = ydotdata[groupj+2] = SUN_RCONST(3.0e7)*y2*y2;
     ydotdata[groupj+1] = -yd1 - yd3;
   }
 }
@@ -409,18 +409,18 @@ static void j_kernel(int ngroups, int nnzper, sunrealtype* ydata, sunrealtype *J
     y3 = ydata[GROUPSIZE*groupj + 2];
 
     /* first row of block */
-    Jdata[nnzper*groupj]       = RCONST(-0.04);
-    Jdata[nnzper*groupj + 1]   = RCONST(1.0e4)*y3;
-    Jdata[nnzper*groupj + 2]   = RCONST(1.0e4)*y2;
+    Jdata[nnzper*groupj]       = SUN_RCONST(-0.04);
+    Jdata[nnzper*groupj + 1]   = SUN_RCONST(1.0e4)*y3;
+    Jdata[nnzper*groupj + 2]   = SUN_RCONST(1.0e4)*y2;
 
     /* second row of block */
-    Jdata[nnzper*groupj + 3]   = RCONST(0.04);
-    Jdata[nnzper*groupj + 4]   = (RCONST(-1.0e4)*y3) - (RCONST(6.0e7)*y2);
-    Jdata[nnzper*groupj + 5]   = RCONST(-1.0e4)*y2;
+    Jdata[nnzper*groupj + 3]   = SUN_RCONST(0.04);
+    Jdata[nnzper*groupj + 4]   = (SUN_RCONST(-1.0e4)*y3) - (SUN_RCONST(6.0e7)*y2);
+    Jdata[nnzper*groupj + 5]   = SUN_RCONST(-1.0e4)*y2;
 
     /* third row of block */
     Jdata[nnzper*groupj + 6]   = ZERO;
-    Jdata[nnzper*groupj + 7]   = RCONST(6.0e7)*y2;
+    Jdata[nnzper*groupj + 7]   = SUN_RCONST(6.0e7)*y2;
     Jdata[nnzper*groupj + 8]   = ZERO;
   }
 }

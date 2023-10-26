@@ -65,20 +65,20 @@
 #define NOUT  11
 #define MGRID 10
 #define NEQ   MGRID*MGRID
-#define ZERO  RCONST(0.0)
-#define ONE   RCONST(1.0)
-#define TWO   RCONST(2.0)
-#define BVAL  RCONST(0.0)
+#define ZERO  SUN_RCONST(0.0)
+#define ONE   SUN_RCONST(1.0)
+#define TWO   SUN_RCONST(2.0)
+#define BVAL  SUN_RCONST(0.0)
 */
 #define MGRID 3
-#define ZERO  RCONST(0.0)
-#define ONE   RCONST(1.0)
-#define TWO   RCONST(2.0)
-#define BVAL  RCONST(0.0)
+#define ZERO  SUN_RCONST(0.0)
+#define ONE   SUN_RCONST(1.0)
+#define TWO   SUN_RCONST(2.0)
+#define BVAL  SUN_RCONST(0.0)
 #define NEQ   MGRID*MGRID      /* number of equations    */
-#define T0    RCONST(0.0)      /* initial time           */
-#define T1    RCONST(0.1)      /* first output time      */
-#define TMULT RCONST(2.0)      /* output time factor     */
+#define T0    SUN_RCONST(0.0)      /* initial time           */
+#define T1    SUN_RCONST(0.1)      /* first output time      */
+#define TMULT SUN_RCONST(2.0)      /* output time factor     */
 #define NOUT  12               /* number of output times */
 #define TOTAL 4*MGRID+8*(MGRID-2)+(MGRID-4)*(MGRID+4*(MGRID-2)) /* total num of nonzero elements */
 
@@ -162,9 +162,9 @@ int main(void)
 
   /* Set remaining input parameters. */
   t0   = ZERO;
-  t1   = RCONST(0.01);
+  t1   = SUN_RCONST(0.01);
   rtol = ZERO;
-  atol = RCONST(1.0e-8);
+  atol = SUN_RCONST(1.0e-8);
 
   /* Call CVodeCreate to create the solver memory and specify the
    * Backward Differentiation Formula */
@@ -271,7 +271,7 @@ static int f(sunrealtype t, N_Vector u, N_Vector udot, void *user_data)
 
   u1 = Ith(u,1);
 
-  ud1 = Ith(udot,1) = RCONST(4)*u1;
+  ud1 = Ith(udot,1) = SUN_RCONST(4)*u1;
 
   return(0);
 }
@@ -299,7 +299,7 @@ int heatres(sunrealtype tres, N_Vector uu, N_Vector resval,
     for (i = 1; i < mm-1; i++) {
       loc = offset + i;
       resv[loc] = upv[loc] - coeff *
-	  (uv[loc-1] + uv[loc+1] + uv[loc-mm] + uv[loc+mm] - RCONST(4.0)*uv[loc]);
+	  (uv[loc-1] + uv[loc+1] + uv[loc-mm] + uv[loc+mm] - SUN_RCONST(4.0)*uv[loc]);
     }
   }
 
@@ -317,7 +317,7 @@ static int jacHeat3(sunrealtype tt, N_Vector yy, N_Vector fy, SUNMatrix JacMat,
   sunindextype *rowvals = SUNSparseMatrix_IndexValues(JacMat);
   sunrealtype *data = SUNSparseMatrix_Data(JacMat);
   sunrealtype dx =  ONE/(MGRID - ONE);
-  sunrealtype beta = RCONST(4.0)/(dx*dx);
+  sunrealtype beta = SUN_RCONST(4.0)/(dx*dx);
 
   yval = N_VGetArrayPointer(yy);
 
@@ -390,7 +390,7 @@ static int jacHeat(sunrealtype tt, N_Vector yy, N_Vector fy, SUNMatrix JacMat,
   sunindextype *rowvals = SUNSparseMatrix_IndexValues(J);
   sunrealtype *data = SUNSparseMatrix_Data(J);
   sunrealtype dx =  ONE/(MGRID - ONE);
-  sunrealtype beta = RCONST(4.0)/(dx*dx);
+  sunrealtype beta = SUN_RCONST(4.0)/(dx*dx);
   int i,j, repeat=0;
 
   yval = N_VGetArrayPointer(yy);
@@ -652,7 +652,7 @@ static int SetInitialProfile(UserData data, N_Vector uu, N_Vector res)
     for (i = 0;i < mm; i++) {
       xfact = data->dx * i;
       loc = offset + i;
-      udata[loc] = RCONST(16.0) * xfact * (ONE - xfact) * yfact * (ONE - yfact);
+      udata[loc] = SUN_RCONST(16.0) * xfact * (ONE - xfact) * yfact * (ONE - yfact);
     }
   }
 

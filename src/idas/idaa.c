@@ -30,11 +30,11 @@
 /*                 IDAA Private Constants                          */
 /*=================================================================*/
 
-#define ZERO        RCONST(0.0)    /* real   0.0 */
-#define ONE         RCONST(1.0)    /* real   1.0 */
-#define TWO         RCONST(2.0)    /* real   2.0 */
-#define HUNDRED     RCONST(100.0)  /* real 100.0 */
-#define FUZZ_FACTOR RCONST(1000000.0)  /* fuzz factor for IDAAgetY */
+#define ZERO        SUN_RCONST(0.0)    /* real   0.0 */
+#define ONE         SUN_RCONST(1.0)    /* real   1.0 */
+#define TWO         SUN_RCONST(2.0)    /* real   2.0 */
+#define HUNDRED     SUN_RCONST(100.0)  /* real 100.0 */
+#define FUZZ_FACTOR SUN_RCONST(1000000.0)  /* fuzz factor for IDAAgetY */
 
 /*=================================================================*/
 /* Shortcuts                                                       */

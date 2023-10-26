@@ -35,15 +35,15 @@
 
 #define NEQ   10
 
-#define TEND  RCONST(10.0)
+#define TEND  SUN_RCONST(10.0)
 #define NOUT  41
 
 
-#define ZERO RCONST(0.0)
-#define HALF RCONST(0.5)
-#define ONE  RCONST(1.0)
-#define TWO  RCONST(2.0)
-#define FOUR RCONST(4.0)
+#define ZERO SUN_RCONST(0.0)
+#define HALF SUN_RCONST(0.5)
+#define ONE  SUN_RCONST(1.0)
+#define TWO  SUN_RCONST(2.0)
+#define FOUR SUN_RCONST(4.0)
 
 typedef struct {
   sunrealtype a;
@@ -119,8 +119,8 @@ int main(void)
   NV_Ith_S(id,9) = ZERO;
 
   /* Tolerances */
-  rtol = RCONST(1.0e-6);
-  atol = RCONST(1.0e-6);
+  rtol = SUN_RCONST(1.0e-6);
+  atol = SUN_RCONST(1.0e-6);
 
   /* Integration limits */
   t0 = ZERO;

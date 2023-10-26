@@ -68,13 +68,13 @@ int main(void)
   SUNContext ctx;
 
   /* general problem parameters */
-  sunrealtype T0 = RCONST(0.0);         /* initial time */
-  sunrealtype Tf = RCONST(1.0);         /* final time */
-  sunrealtype dTout = RCONST(0.1);      /* time between outputs */
+  sunrealtype T0 = SUN_RCONST(0.0);         /* initial time */
+  sunrealtype Tf = SUN_RCONST(1.0);         /* final time */
+  sunrealtype dTout = SUN_RCONST(0.1);      /* time between outputs */
   sunindextype NEQ = 2;              /* number of dependent vars. */
-  sunrealtype reltol = RCONST(1.0e-4);  /* tolerances */
-  sunrealtype abstol = RCONST(1.0e-9);
-  sunrealtype alpha  = RCONST(10.0);    /* stiffness parameter */
+  sunrealtype reltol = SUN_RCONST(1.0e-4);  /* tolerances */
+  sunrealtype abstol = SUN_RCONST(1.0e-9);
+  sunrealtype alpha  = SUN_RCONST(10.0);    /* stiffness parameter */
 
   /* general problem variables */
   int retval;                     /* reusable error-checking flag */
@@ -193,8 +193,8 @@ int fres(sunrealtype t, N_Vector yy, N_Vector yp, N_Vector rr, void *user_data)
   sunrealtype x1 = NV_Ith_S(yy,0);               /* access current solution values */
   sunrealtype x2 = NV_Ith_S(yy,1);
   sunrealtype x1p = NV_Ith_S(yp,0);              /* access current derivative values */
-  sunrealtype ONE = RCONST(1.0);
-  sunrealtype TWO = RCONST(2.0);
+  sunrealtype ONE = SUN_RCONST(1.0);
+  sunrealtype TWO = SUN_RCONST(2.0);
 
   NV_Ith_S(rr,0) = (ONE-alpha)/(t-TWO)*x1 - x1 + (alpha-ONE)*x2 + TWO*exp(t) - x1p;
   NV_Ith_S(rr,1) = (t+TWO)*x1 - (t+TWO)*SUNRexp(t);
@@ -243,8 +243,8 @@ static int MatrixEmbeddedLSSolve(SUNLinearSolver LS, SUNMatrix A, N_Vector x,
   sunrealtype  *rdata;
   sunrealtype  alpha;
   sunrealtype  a11, a12, a21, b1, b2;
-  sunrealtype  ONE   = RCONST(1.0);
-  sunrealtype  TWO   = RCONST(2.0);
+  sunrealtype  ONE   = SUN_RCONST(1.0);
+  sunrealtype  TWO   = SUN_RCONST(2.0);
 
   /* retrieve implicit system data from IDA */
   retval = IDAGetNonlinearSystemData(LS->content, &tcur, &yypred, &yppred,
@@ -328,9 +328,9 @@ static int check_retval(void *returnvalue, const char *funcname, int opt)
 static void analytical_solution(sunrealtype t, N_Vector y, N_Vector yp)
 {
   NV_Ith_S(y,0) = SUNRexp(t);
-  NV_Ith_S(y,1) = SUNRexp(t)/(t-RCONST(2.0));
+  NV_Ith_S(y,1) = SUNRexp(t)/(t-SUN_RCONST(2.0));
   NV_Ith_S(yp,0) = SUNRexp(t);
-  NV_Ith_S(yp,1) = SUNRexp(t)/(t-RCONST(2.0)) - SUNRexp(t)/(t-RCONST(2.0))/(t-RCONST(2.0));
+  NV_Ith_S(yp,1) = SUNRexp(t)/(t-SUN_RCONST(2.0)) - SUNRexp(t)/(t-SUN_RCONST(2.0))/(t-SUN_RCONST(2.0));
 }
 
 /* check the computed solution */
@@ -341,7 +341,7 @@ static int check_ans(N_Vector y, sunrealtype t, sunrealtype rtol, sunrealtype at
   N_Vector ewt;               /* error weight vector                */
   N_Vector abstol;            /* absolute tolerance vector          */
   sunrealtype err;               /* wrms error                         */
-  sunrealtype ONE = RCONST(1.0);
+  sunrealtype ONE = SUN_RCONST(1.0);
 
   /* create solution and error weight vectors */
   ytrue = N_VClone(y);
@@ -354,8 +354,8 @@ static int check_ans(N_Vector y, sunrealtype t, sunrealtype rtol, sunrealtype at
   /* compute the error weight vector, loosen atol */
   N_VConst(atol, abstol);
   N_VAbs(ytrue, ewt);
-  N_VLinearSum(rtol, ewt, RCONST(10.0), abstol, ewt);
-  if (N_VMin(ewt) <= RCONST(0.0)) {
+  N_VLinearSum(rtol, ewt, SUN_RCONST(10.0), abstol, ewt);
+  if (N_VMin(ewt) <= SUN_RCONST(0.0)) {
     fprintf(stderr, "\nSUNDIALS_ERROR: check_ans failed - ewt <= 0\n\n");
     return(-1);
   }

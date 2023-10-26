@@ -34,16 +34,16 @@
 #endif
 
 #define NEQ   3                /* number of equations        */
-#define TOL   RCONST(1.0e-2)   /* nonlinear solver tolerance */
+#define TOL   SUN_RCONST(1.0e-2)   /* nonlinear solver tolerance */
 #define MAXIT 10               /* max nonlinear iterations   */
 
-#define ZERO  RCONST(0.0)  /* real 0.0 */
-#define HALF  RCONST(0.5)  /* real 0.5 */
-#define ONE   RCONST(1.0)  /* real 1.0 */
-#define TWO   RCONST(2.0)  /* real 2.0 */
-#define THREE RCONST(3.0)  /* real 3.0 */
-#define FOUR  RCONST(4.0)  /* real 4.0 */
-#define SIX   RCONST(6.0)  /* real 6.0 */
+#define ZERO  SUN_RCONST(0.0)  /* real 0.0 */
+#define HALF  SUN_RCONST(0.5)  /* real 0.5 */
+#define ONE   SUN_RCONST(1.0)  /* real 1.0 */
+#define TWO   SUN_RCONST(2.0)  /* real 2.0 */
+#define THREE SUN_RCONST(3.0)  /* real 3.0 */
+#define FOUR  SUN_RCONST(4.0)  /* real 4.0 */
+#define SIX   SUN_RCONST(6.0)  /* real 6.0 */
 
 /* approximate solution */
 #define Y1 0.785196933062355226

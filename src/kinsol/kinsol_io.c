@@ -25,15 +25,15 @@
 #include <sundials/sundials_types.h>
 #include <sundials/sundials_math.h>
 
-#define ZERO      RCONST(0.0)
-#define POINT1    RCONST(0.1)
-#define ONETHIRD  RCONST(0.3333333333333333)
-#define HALF      RCONST(0.5)
-#define TWOTHIRDS RCONST(0.6666666666666667)
-#define POINT9    RCONST(0.9)
-#define ONE       RCONST(1.0)
-#define TWO       RCONST(2.0)
-#define TWOPT5    RCONST(2.5)
+#define ZERO      SUN_RCONST(0.0)
+#define POINT1    SUN_RCONST(0.1)
+#define ONETHIRD  SUN_RCONST(0.3333333333333333)
+#define HALF      SUN_RCONST(0.5)
+#define TWOTHIRDS SUN_RCONST(0.6666666666666667)
+#define POINT9    SUN_RCONST(0.9)
+#define ONE       SUN_RCONST(1.0)
+#define TWO       SUN_RCONST(2.0)
+#define TWOPT5    SUN_RCONST(2.5)
 
 /*
  * =================================================================

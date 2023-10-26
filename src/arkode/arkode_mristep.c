@@ -235,7 +235,7 @@ int MRIStepResize(void *arkode_mem, N_Vector y0, sunrealtype t0,
   ark_mem->liw1 = liw1;
 
   /* resize ARKODE infrastructure memory (use hscale = 1.0) */
-  retval = arkResize(ark_mem, y0, RCONST(1.0), t0, resize, resize_data);
+  retval = arkResize(ark_mem, y0, SUN_RCONST(1.0), t0, resize, resize_data);
   if (retval != ARK_SUCCESS) {
     arkProcessError(ark_mem, retval, "ARKODE::MRIStep", "MRIStepResize",
                     "Unable to resize main ARKODE infrastructure");
@@ -1803,7 +1803,7 @@ int mriStep_CheckCoupling(ARKodeMem ark_mem)
   booleantype okay;
   ARKodeMRIStepMem step_mem;
   sunrealtype Gabs, Wabs;
-  const sunrealtype tol = RCONST(100.0)*UNIT_ROUNDOFF;
+  const sunrealtype tol = SUN_RCONST(100.0)*SUN_UNIT_ROUNDOFF;
 
   /* access ARKodeMRIStepMem structure */
   if (ark_mem->step_mem==NULL) {
@@ -1863,7 +1863,7 @@ int mriStep_CheckCoupling(ARKodeMem ark_mem)
 
   /* Check that W tables are strictly lower triangular */
   if (step_mem->MRIC->W) {
-    Wabs = RCONST(0.0);
+    Wabs = SUN_RCONST(0.0);
     for (k=0; k<step_mem->MRIC->nmat; k++)
       for (i=0; i<step_mem->MRIC->stages; i++)
         for (j=i; j<step_mem->MRIC->stages; j++)
@@ -1878,7 +1878,7 @@ int mriStep_CheckCoupling(ARKodeMem ark_mem)
 
   /* Check that G tables are lower triangular */
   if (step_mem->MRIC->G) {
-    Gabs = RCONST(0.0);
+    Gabs = SUN_RCONST(0.0);
     for (k=0; k<step_mem->MRIC->nmat; k++)
       for (i=0; i<step_mem->MRIC->stages; i++)
         for (j=i+1; j<step_mem->MRIC->stages; j++)

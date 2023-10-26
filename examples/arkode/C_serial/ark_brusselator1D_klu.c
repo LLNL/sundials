@@ -72,8 +72,8 @@
 #define IDX(x,v) (3*(x)+v)
 
 /* constants */
-#define ONE (RCONST(1.0))
-#define TWO (RCONST(2.0))
+#define ONE (SUN_RCONST(1.0))
+#define TWO (SUN_RCONST(2.0))
 
 /* user data structure */
 typedef struct {
@@ -106,8 +106,8 @@ static int check_flag(void *flagvalue, const char *funcname, int opt);
 int main()
 {
   /* general problem parameters */
-  sunrealtype T0 = RCONST(0.0);    /* initial time */
-  sunrealtype Tf = RCONST(10.0);   /* final time */
+  sunrealtype T0 = SUN_RCONST(0.0);    /* initial time */
+  sunrealtype Tf = SUN_RCONST(10.0);   /* final time */
   int Nt = 10;                  /* total number of output times */
   int Nvar = 3;
   UserData udata = NULL;
@@ -186,15 +186,15 @@ int main()
   if (check_flag((void *)wmask, "N_VClone", 0)) return 1;
 
   /* Set initial conditions into y */
-  udata->dx = RCONST(1.0)/(N-1);    /* set spatial mesh spacing */
+  udata->dx = SUN_RCONST(1.0)/(N-1);    /* set spatial mesh spacing */
   data = N_VGetArrayPointer(y);     /* Access data array for new NVector y */
   if (check_flag((void *)data, "N_VGetArrayPointer", 0)) return 1;
 
-  pi = RCONST(4.0)*atan(ONE);
+  pi = SUN_RCONST(4.0)*atan(ONE);
   for (i=0; i<N; i++) {
-    data[IDX(i,0)] =  a  + RCONST(0.1)*sin(pi*i*udata->dx);  /* u */
-    data[IDX(i,1)] = b/a + RCONST(0.1)*sin(pi*i*udata->dx);  /* v */
-    data[IDX(i,2)] =  b  + RCONST(0.1)*sin(pi*i*udata->dx);  /* w */
+    data[IDX(i,0)] =  a  + SUN_RCONST(0.1)*sin(pi*i*udata->dx);  /* u */
+    data[IDX(i,1)] = b/a + SUN_RCONST(0.1)*sin(pi*i*udata->dx);  /* v */
+    data[IDX(i,2)] =  b  + SUN_RCONST(0.1)*sin(pi*i*udata->dx);  /* w */
   }
 
   /* Set mask array values for each solution component */

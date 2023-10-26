@@ -70,10 +70,10 @@
 #endif
 
 /* Problem Constants */
-#define PI    RCONST(3.141592653589793238462643383279502884197169)
-#define ZERO  RCONST(0.0)
-#define ONE   RCONST(1.0)
-#define TWO   RCONST(2.0)
+#define PI    SUN_RCONST(3.141592653589793238462643383279502884197169)
+#define ZERO  SUN_RCONST(0.0)
+#define ONE   SUN_RCONST(1.0)
+#define TWO   SUN_RCONST(2.0)
 
 /* User-defined data structure */
 typedef struct UserData_
@@ -392,8 +392,8 @@ static int InitUserData(int *argc, char ***argv, UserData udata)
   udata->orbits = 100;
   udata->torbit = (TWO * PI) / udata->alpha;
 
-  udata->rtol = RCONST(1.0e-4);
-  udata->atol = RCONST(1.0e-9);
+  udata->rtol = SUN_RCONST(1.0e-4);
+  udata->atol = SUN_RCONST(1.0e-9);
 
   udata->proj    = 1;
   udata->projerr = 0;

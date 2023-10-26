@@ -3481,7 +3481,7 @@ user may provide a function of type :c:type:`IDALsJacFn` defined as follows:
       obtain these, the user will need to add a pointer to ``ida_mem`` to
       ``user_data`` and then use the ``IDAGet*`` functions described in
       :numref:`IDAS.Usage.SIM.user_callable.optional_output.main`. The unit roundoff can be
-      accessed as ``UNIT_ROUNDOFF`` defined in ``sundials_types.h``.
+      accessed as ``SUN_UNIT_ROUNDOFF`` defined in ``sundials_types.h``.
 
       **dense:**
 
@@ -3611,7 +3611,7 @@ the default is a difference quotient approximation to these products.
       user will need to add a pointer to ``ida_mem`` to ``user_data`` and then use
       the ``IDAGet*`` functions described in
       :numref:`IDAS.Usage.SIM.user_callable.optional_output.main`. The unit roundoff can be
-      accessed as ``UNIT_ROUNDOFF`` defined in ``sundials_types.h``.
+      accessed as ``SUN_UNIT_ROUNDOFF`` defined in ``sundials_types.h``.
 
    .. warning::
 
@@ -3667,7 +3667,7 @@ follows:
       user will need to add a pointer to ``ida_mem`` to ``user_data`` and then use
       the ``IDAGet*`` functions described in
       :numref:`IDAS.Usage.SIM.user_callable.optional_output.main`. The unit roundoff can be
-      accessed as ``UNIT_ROUNDOFF`` defined in ``sundials_types.h``.
+      accessed as ``SUN_UNIT_ROUNDOFF`` defined in ``sundials_types.h``.
 
    .. warning::
 
@@ -3775,7 +3775,7 @@ function of type :c:type:`IDALsPrecSetupFn`, defined as follows:
       user will need to add a pointer to ``ida_mem`` to ``user_data`` and then use
       the ``IDAGet*`` functions described in
       :numref:`IDAS.Usage.SIM.user_callable.optional_output.main`. The unit roundoff can be
-      accessed as ``UNIT_ROUNDOFF`` defined in ``sundials_types.h``.
+      accessed as ``SUN_UNIT_ROUNDOFF`` defined in ``sundials_types.h``.
 
 
 .. _IDAS.Usage.Purequad:

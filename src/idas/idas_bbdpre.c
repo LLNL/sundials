@@ -34,9 +34,9 @@
 #include <nvector/nvector_serial.h>
 
 
-#define ZERO RCONST(0.0)
-#define ONE  RCONST(1.0)
-#define TWO  RCONST(2.0)
+#define ZERO SUN_RCONST(0.0)
+#define ONE  SUN_RCONST(1.0)
+#define TWO  SUN_RCONST(2.0)
 
 /* Prototypes of IDABBDPrecSetup and IDABBDPrecSolve */
 static int IDABBDPrecSetup(sunrealtype tt, N_Vector yy, N_Vector yp,

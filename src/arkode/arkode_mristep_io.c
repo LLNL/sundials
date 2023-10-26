@@ -261,7 +261,7 @@ int MRIStepSetLinear(void *arkode_mem, int timedepend)
   /* set parameters */
   step_mem->linear = SUNTRUE;
   step_mem->linear_timedep = (timedepend == 1);
-  step_mem->dgmax = RCONST(100.0)*UNIT_ROUNDOFF;
+  step_mem->dgmax = SUN_RCONST(100.0)*SUN_UNIT_ROUNDOFF;
 
   return(ARK_SUCCESS);
 }

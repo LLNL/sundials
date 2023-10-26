@@ -45,9 +45,9 @@ using namespace std;
 // User data structure
 struct UserData
 {
-  sunrealtype lambda_e = RCONST(-1.0);
-  sunrealtype lambda_i = RCONST(-1.0);
-  sunrealtype lambda_f = RCONST(-1.0);
+  sunrealtype lambda_e = SUN_RCONST(-1.0);
+  sunrealtype lambda_i = SUN_RCONST(-1.0);
+  sunrealtype lambda_f = SUN_RCONST(-1.0);
 };
 
 // User-supplied Functions called by the solver
@@ -74,18 +74,18 @@ static int run_tests(MRISTEP_METHOD_TYPE type, sunrealtype t0, int nsteps,
 int main(int argc, char* argv[])
 {
   // Initial time
-  sunrealtype t0 = RCONST(0.0);
+  sunrealtype t0 = SUN_RCONST(0.0);
 
   // Number of time steps
   int nsteps = 1;
 
   // Relative and absolute tolerances
-  sunrealtype reltol = RCONST(1.0e-4);
-  sunrealtype abstol = RCONST(1.0e-6);
+  sunrealtype reltol = SUN_RCONST(1.0e-4);
+  sunrealtype abstol = SUN_RCONST(1.0e-6);
 
   // Slow and fast step sizes
-  sunrealtype hs = RCONST(0.01);
-  sunrealtype hf = RCONST(0.01);
+  sunrealtype hs = SUN_RCONST(0.01);
+  sunrealtype hf = SUN_RCONST(0.01);
 
   // User data structure
   UserData udata;
@@ -156,7 +156,7 @@ int run_tests(MRISTEP_METHOD_TYPE type, sunrealtype t0, int nsteps,
   N_Vector y = N_VNew_Serial(1, sunctx);
   if (check_flag((void *)y, "N_VNew_Serial", 0)) return 1;
 
-  N_VConst(RCONST(1.0), y);
+  N_VConst(SUN_RCONST(1.0), y);
 
   // Create matrix and linear solver (if necessary)
   SUNMatrix       A  = nullptr;
@@ -471,7 +471,7 @@ int run_tests(MRISTEP_METHOD_TYPE type, sunrealtype t0, int nsteps,
     MRIStepCoupling_Free(C);
 
     // Reset state vector to the initial condition
-    N_VConst(RCONST(1.0), y);
+    N_VConst(SUN_RCONST(1.0), y);
 
     // Re-initialize fast integrator
     flag = ARKStepReInit(arkstep_mem, ff, nullptr, t0, y);

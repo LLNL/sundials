@@ -24,9 +24,9 @@
 #include <sunlinsol/sunlinsol_superlumt.h>
 #include <sundials/sundials_math.h>
 
-#define ZERO      RCONST(0.0)
-#define ONE       RCONST(1.0)
-#define TWO       RCONST(2.0)
+#define ZERO      SUN_RCONST(0.0)
+#define ONE       SUN_RCONST(1.0)
+#define TWO       SUN_RCONST(2.0)
 
 /*
  * -----------------------------------------------------------------

@@ -34,8 +34,8 @@ extern "C" {
  * ===========================================================================*/
 
 #define PROJ_MAX_FAILS 10
-#define PROJ_EPS       RCONST(0.1)
-#define PROJ_FAIL_ETA  RCONST(0.25)
+#define PROJ_EPS       SUN_RCONST(0.1)
+#define PROJ_FAIL_ETA  SUN_RCONST(0.25)
 
 /* =============================================================================
  * Projection Data Structure

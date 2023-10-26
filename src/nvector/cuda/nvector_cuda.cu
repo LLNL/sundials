@@ -28,8 +28,8 @@
 #include "sundials_cuda.h"
 #include "sundials_debug.h"
 
-#define ZERO RCONST(0.0)
-#define HALF RCONST(0.5)
+#define ZERO SUN_RCONST(0.0)
+#define HALF SUN_RCONST(0.5)
 
 using namespace sundials;
 using namespace sundials::cuda;

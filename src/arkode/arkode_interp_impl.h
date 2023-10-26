@@ -31,10 +31,10 @@ extern "C" {
   ===============================================================*/
 
 /* Numeric constants */
-#define FOURTH RCONST(0.25)
-#define THREE  RCONST(3.0)
-#define SIX    RCONST(6.0)
-#define TWELVE RCONST(12.0)
+#define FOURTH SUN_RCONST(0.25)
+#define THREE  SUN_RCONST(3.0)
+#define SIX    SUN_RCONST(6.0)
+#define TWELVE SUN_RCONST(12.0)
 
 
 

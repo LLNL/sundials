@@ -54,17 +54,17 @@
 
 /* Real Constants */
 
-#define ATOL  RCONST(1.0e-5) /* scalar absolute tolerance */
-#define T0    RCONST(0.0)    /* initial time              */
-#define T1    RCONST(0.1)    /* first output time         */
-#define DTOUT RCONST(0.1)    /* output time increment     */
+#define ATOL  SUN_RCONST(1.0e-5) /* scalar absolute tolerance */
+#define T0    SUN_RCONST(0.0)    /* initial time              */
+#define T1    SUN_RCONST(0.1)    /* first output time         */
+#define DTOUT SUN_RCONST(0.1)    /* output time increment     */
 #define NOUT  10             /* number of output times    */
 
-#define ZERO RCONST(0.0)
-#define HALF RCONST(0.5)
-#define ONE  RCONST(1.0)
-#define TWO  RCONST(2.0)
-#define FIVE RCONST(5.0)
+#define ZERO SUN_RCONST(0.0)
+#define HALF SUN_RCONST(0.5)
+#define ONE  SUN_RCONST(1.0)
+#define TWO  SUN_RCONST(2.0)
+#define FIVE SUN_RCONST(5.0)
 
 /* Type : _UserData (contains model and discretization parameters) */
 typedef struct {
@@ -201,8 +201,8 @@ UserData SetUserData(int argc, char *argv[])
 {
   const sunindextype MX = 10;
   const sunindextype MY = 5;
-  const sunrealtype XMAX = RCONST(2.0);    /* domain boundaries         */
-  const sunrealtype YMAX = RCONST(1.0);
+  const sunrealtype XMAX = SUN_RCONST(2.0);    /* domain boundaries         */
+  const sunrealtype YMAX = SUN_RCONST(1.0);
 
   /* Allocate user data structure */
   UserData ud = (UserData) malloc(sizeof *ud);

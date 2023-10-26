@@ -18,11 +18,11 @@
 #include <math.h>
 
 /* define constatnts */
-#define NEG_ONE  RCONST(-1.0)
-#define ZERO     RCONST(0.0)
-#define ONE      RCONST(1.0)
-#define TWO      RCONST(2.0)
-#define TEN      RCONST(10.0)
+#define NEG_ONE  SUN_RCONST(-1.0)
+#define ZERO     SUN_RCONST(0.0)
+#define ONE      SUN_RCONST(1.0)
+#define TWO      SUN_RCONST(2.0)
+#define TEN      SUN_RCONST(10.0)
 
 #ifdef __cplusplus  /* wrapper to enable C++ usage */
 extern "C" {

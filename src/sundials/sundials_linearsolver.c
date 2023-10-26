@@ -209,7 +209,7 @@ sunrealtype SUNLinSolResNorm(SUNLinearSolver S)
   if (S->ops->resnorm)
     result = S->ops->resnorm(S);
   else
-    result = RCONST(0.0);
+    result = SUN_RCONST(0.0);
   SUNDIALS_MARK_FUNCTION_END(getSUNProfiler(S));
   return(result);
 }
