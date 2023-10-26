@@ -139,11 +139,7 @@ SUNDIALS_EXPORT int KINSetErrHandlerFn(void *kinmem, KINErrHandlerFn ehfun,
 SUNDIALS_EXPORT int KINSetErrFile(void *kinmem, FILE *errfp);
 SUNDIALS_EXPORT int KINSetInfoHandlerFn(void *kinmem, KINInfoHandlerFn ihfun,
                                         void *ih_data);
-SUNDIALS_DEPRECATED_EXPORT_MSG("Use SUNLogger_SetInfoFilename instead")
-SUNDIALS_EXPORT int KINSetInfoFile(void *kinmem, FILE *infofp);
 SUNDIALS_EXPORT int KINSetPrintLevel(void *kinmem, int printfl);
-SUNDIALS_DEPRECATED_EXPORT_MSG("Use SUNLogger_SetDebugFilename instead")
-int KINSetDebugFile(void *kinmem, FILE *debugfp);
 
 
 /* Optional output functions */
