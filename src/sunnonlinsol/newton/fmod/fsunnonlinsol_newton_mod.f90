@@ -46,8 +46,6 @@ module fsunnonlinsol_newton_mod
  public :: FSUNNonlinSolGetCurIter_Newton
  public :: FSUNNonlinSolGetNumConvFails_Newton
  public :: FSUNNonlinSolGetSysFn_Newton
- public :: FSUNNonlinSolSetInfoFile_Newton
- public :: FSUNNonlinSolSetPrintLevel_Newton
 
 ! WRAPPER DECLARATIONS
 interface
@@ -187,24 +185,6 @@ result(fresult)
 use, intrinsic :: ISO_C_BINDING
 type(C_PTR), value :: farg1
 type(C_PTR), value :: farg2
-integer(C_INT) :: fresult
-end function
-
-function swigc_FSUNNonlinSolSetInfoFile_Newton(farg1, farg2) &
-bind(C, name="_wrap_FSUNNonlinSolSetInfoFile_Newton") &
-result(fresult)
-use, intrinsic :: ISO_C_BINDING
-type(C_PTR), value :: farg1
-type(C_PTR), value :: farg2
-integer(C_INT) :: fresult
-end function
-
-function swigc_FSUNNonlinSolSetPrintLevel_Newton(farg1, farg2) &
-bind(C, name="_wrap_FSUNNonlinSolSetPrintLevel_Newton") &
-result(fresult)
-use, intrinsic :: ISO_C_BINDING
-type(C_PTR), value :: farg1
-integer(C_INT), intent(in) :: farg2
 integer(C_INT) :: fresult
 end function
 
@@ -462,38 +442,6 @@ type(C_PTR) :: farg2
 farg1 = c_loc(nls)
 farg2 = c_loc(sysfn)
 fresult = swigc_FSUNNonlinSolGetSysFn_Newton(farg1, farg2)
-swig_result = fresult
-end function
-
-function FSUNNonlinSolSetInfoFile_Newton(nls, info_file) &
-result(swig_result)
-use, intrinsic :: ISO_C_BINDING
-integer(C_INT) :: swig_result
-type(SUNNonlinearSolver), target, intent(inout) :: nls
-type(C_PTR) :: info_file
-integer(C_INT) :: fresult 
-type(C_PTR) :: farg1 
-type(C_PTR) :: farg2 
-
-farg1 = c_loc(nls)
-farg2 = info_file
-fresult = swigc_FSUNNonlinSolSetInfoFile_Newton(farg1, farg2)
-swig_result = fresult
-end function
-
-function FSUNNonlinSolSetPrintLevel_Newton(nls, print_level) &
-result(swig_result)
-use, intrinsic :: ISO_C_BINDING
-integer(C_INT) :: swig_result
-type(SUNNonlinearSolver), target, intent(inout) :: nls
-integer(C_INT), intent(in) :: print_level
-integer(C_INT) :: fresult 
-type(C_PTR) :: farg1 
-integer(C_INT) :: farg2 
-
-farg1 = c_loc(nls)
-farg2 = print_level
-fresult = swigc_FSUNNonlinSolSetPrintLevel_Newton(farg1, farg2)
 swig_result = fresult
 end function
 
