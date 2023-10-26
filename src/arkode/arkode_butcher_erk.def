@@ -41,6 +41,7 @@
      ARKODE_HEUN_EULER_2_1_2             Y
      ARKODE_BOGACKI_SHAMPINE_4_2_3       Y
      ARKODE_ARK324L2SA_ERK_4_2_3*        N
+     ARKODE_SOFRONIOU_SPALETTA_5_3_4     Y
      ARKODE_ZONNEVELD_5_3_4              Y
      ARKODE_ARK436L2SA_ERK_6_3_4*        N
      ARKODE_ARK437L2SA_ERK_7_3_4*        N
@@ -162,6 +163,39 @@ ARK_BUTCHER_TABLE(ARKODE_ARK324L2SA_ERK_4_2_3, { /* ARK3(2)4L[2]SA-ERK */
     B->c[1] = RCONST(1767732205903.0)/RCONST(2027836641118.0);
     B->c[2] = RCONST(3.0)/RCONST(5.0);
     B->c[3] = RCONST(1.0);
+    return B;
+  })
+
+ARK_BUTCHER_TABLE(ARKODE_SOFRONIOU_SPALETTA_5_3_4, { /* Sofroniou-Spaletta-ERK */
+    ARKodeButcherTable B = ARKodeButcherTable_Alloc(5, SUNTRUE);
+    B->q = 4;
+    B->p = 3;
+    B->A[1][0] = RCONST(2.0) / RCONST(5.0);
+    B->A[2][0] = RCONST(-3.0) / RCONST(20.0);
+    B->A[2][1] = RCONST(3.0) / RCONST(4.0);
+    B->A[3][0] = RCONST(19.0)/RCONST(44.0);
+    B->A[3][1] = RCONST(-15.0)/RCONST(44.0);
+    B->A[3][2] = RCONST(10.0)/RCONST(11.0);
+    B->A[4][0] = RCONST(11.0)/RCONST(72.0);
+    B->A[4][1] = RCONST(25.0)/RCONST(72.0);
+    B->A[4][2] = RCONST(25.0)/RCONST(72.0);
+    B->A[4][3] = RCONST(11.0)/RCONST(72.0);
+
+    B->b[0] = RCONST(11.0)/RCONST(72.0);
+    B->b[1] = RCONST(25.0)/RCONST(72.0);
+    B->b[2] = RCONST(25.0)/RCONST(72.0);
+    B->b[3] = RCONST(11.0)/RCONST(72.0);
+
+    B->d[0] = RCONST(1251515.0)/RCONST(8970912.0);
+    B->d[1] = RCONST(3710105.0)/RCONST(8970912.0);
+    B->d[2] = RCONST(2519695.0)/RCONST(8970912.0);
+    B->d[3] = RCONST(61105.0)/RCONST(8970912.0);
+    B->d[4] = RCONST(119041.0)/RCONST(747576.0);
+
+    B->c[1] = RCONST(2.0) / RCONST(5.0);
+    B->c[2] = RCONST(3.0) / RCONST(5.0);
+    B->c[3] = RCONST(1.0);
+    B->c[4] = RCONST(1.0);
     return B;
   })
 
