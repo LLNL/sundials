@@ -23,12 +23,10 @@ set(cvode_SOURCES
   cvode_bandpre.c
   cvode_bbdpre.c
   cvode_diag.c
-  cvode_direct.c
   cvode_io.c
   cvode_ls.c
   cvode_nls.c
   cvode_proj.c
-  cvode_spils.c
   )
 
 # Add variable cvode_HEADERS with the exported CVODE header files
@@ -37,10 +35,8 @@ set(cvode_HEADERS
   cvode_bandpre.h
   cvode_bbdpre.h
   cvode_diag.h
-  cvode_direct.h
   cvode_ls.h
   cvode_proj.h
-  cvode_spils.h
   )
 
 # Add prefix with complete path to the CVODE header files

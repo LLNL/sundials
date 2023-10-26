@@ -21,10 +21,8 @@ install(CODE "MESSAGE(\"\nInstall KINSOL\n\")")
 set(kinsol_SOURCES
   kinsol.c
   kinsol_bbdpre.c
-  kinsol_direct.c
   kinsol_io.c
   kinsol_ls.c
-  kinsol_spils.c
   )
 
 # Add variable kinsol_HEADERS with the exported KINSOL header files
@@ -33,7 +31,6 @@ set(kinsol_HEADERS
   kinsol_bbdpre.h
   kinsol_direct.h
   kinsol_ls.h
-  kinsol_spils.h
   )
 
 # Add prefix with complete path to the KINSOL header files
