@@ -1231,16 +1231,6 @@ int arkStep_Init(void* arkode_mem, int init_type)
         return (ARK_ILL_INPUT);
       }
     }
-
-    /* If configured with either predictor 4 or 5 and a non-identity mass
-       matrix, reset to trivial predictor */
-    if (step_mem->mass_type != MASS_IDENTITY)
-      if ((step_mem->predictor == 4) || (step_mem->predictor == 5))
-        step_mem->predictor = 0;
-
-    /* If the bootstrap predictor is enabled, signal to shared arkode module that
-       fullrhs is required after each step */
-    if (step_mem->predictor == 4)  ark_mem->call_fullrhs = SUNTRUE;
   }
 
   /* set appropriate TakeStep routine based on problem configuration */
@@ -2513,23 +2503,6 @@ int arkStep_StageSetup(ARKodeMem ark_mem, booleantype implicit)
       step_mem->gammap = step_mem->gamma;
     step_mem->gamrat = (ark_mem->firststage) ?
       ONE : step_mem->gamma / step_mem->gammap;  /* protect x/x != 1.0 */
-  }
-
-  /* If predictor==5, then sdata=0 (plus any implicit forcing).
-     Set sdata appropriately and return */
-  if (implicit && (step_mem->predictor == 5)) {
-
-    /* apply external polynomial forcing (updates nvec, cvals, Xvecs) */
-    if (step_mem->impforcing) {
-      nvec = 0;
-      arkStep_ApplyForcing(step_mem, ark_mem->tcur, step_mem->gamma, &nvec);
-      retval = N_VLinearCombination(nvec, cvals, Xvecs, step_mem->sdata);
-      if (retval != 0) return(ARK_VECTOROP_ERR);
-    } else {
-      N_VConst(ZERO, step_mem->sdata);
-    }
-    return (ARK_SUCCESS);
-
   }
 
   /* If implicit, initialize sdata to yn - zpred (here: zpred = zp), and set

@@ -160,22 +160,6 @@ module farkode_mod
  public :: FARKodeButcherTable_Write
  public :: FARKodeButcherTable_CheckOrder
  public :: FARKodeButcherTable_CheckARKOrder
- integer(C_INT), parameter, public :: SDIRK_2_1_2 = 100_C_INT
- integer(C_INT), parameter, public :: BILLINGTON_3_3_2 = 101_C_INT
- integer(C_INT), parameter, public :: TRBDF2_3_3_2 = 102_C_INT
- integer(C_INT), parameter, public :: KVAERNO_4_2_3 = 103_C_INT
- integer(C_INT), parameter, public :: ARK324L2SA_DIRK_4_2_3 = 104_C_INT
- integer(C_INT), parameter, public :: CASH_5_2_4 = 105_C_INT
- integer(C_INT), parameter, public :: CASH_5_3_4 = 106_C_INT
- integer(C_INT), parameter, public :: SDIRK_5_3_4 = 107_C_INT
- integer(C_INT), parameter, public :: KVAERNO_5_3_4 = 108_C_INT
- integer(C_INT), parameter, public :: ARK436L2SA_DIRK_6_3_4 = 109_C_INT
- integer(C_INT), parameter, public :: KVAERNO_7_4_5 = 110_C_INT
- integer(C_INT), parameter, public :: ARK548L2SA_DIRK_8_4_5 = 111_C_INT
- integer(C_INT), parameter, public :: ARK437L2SA_DIRK_7_3_4 = 112_C_INT
- integer(C_INT), parameter, public :: ARK548L2SAb_DIRK_8_4_5 = 113_C_INT
- integer(C_INT), parameter, public :: MIN_DIRK_NUM = 100_C_INT
- integer(C_INT), parameter, public :: MAX_DIRK_NUM = 113_C_INT
  ! typedef enum ARKODE_DIRKTableID
  enum, bind(c)
   enumerator :: ARKODE_DIRK_NONE = -1
@@ -220,23 +204,6 @@ module farkode_mod
   integer(C_SIZE_T), public :: size = 0
  end type
  public :: FARKodeButcherTable_LoadDIRKByName
- integer(C_INT), parameter, public :: HEUN_EULER_2_1_2 = 0_C_INT
- integer(C_INT), parameter, public :: BOGACKI_SHAMPINE_4_2_3 = 1_C_INT
- integer(C_INT), parameter, public :: ARK324L2SA_ERK_4_2_3 = 2_C_INT
- integer(C_INT), parameter, public :: ZONNEVELD_5_3_4 = 3_C_INT
- integer(C_INT), parameter, public :: ARK436L2SA_ERK_6_3_4 = 4_C_INT
- integer(C_INT), parameter, public :: SAYFY_ABURUB_6_3_4 = 5_C_INT
- integer(C_INT), parameter, public :: CASH_KARP_6_4_5 = 6_C_INT
- integer(C_INT), parameter, public :: FEHLBERG_6_4_5 = 7_C_INT
- integer(C_INT), parameter, public :: DORMAND_PRINCE_7_4_5 = 8_C_INT
- integer(C_INT), parameter, public :: ARK548L2SA_ERK_8_4_5 = 9_C_INT
- integer(C_INT), parameter, public :: VERNER_8_5_6 = 10_C_INT
- integer(C_INT), parameter, public :: FEHLBERG_13_7_8 = 11_C_INT
- integer(C_INT), parameter, public :: KNOTH_WOLKE_3_3 = 12_C_INT
- integer(C_INT), parameter, public :: ARK437L2SA_ERK_7_3_4 = 13_C_INT
- integer(C_INT), parameter, public :: ARK548L2SAb_ERK_8_4_5 = 14_C_INT
- integer(C_INT), parameter, public :: MIN_ERK_NUM = 0_C_INT
- integer(C_INT), parameter, public :: MAX_ERK_NUM = 14_C_INT
  ! typedef enum ARKODE_ERKTableID
  enum, bind(c)
   enumerator :: ARKODE_ERK_NONE = -1
@@ -257,14 +224,15 @@ module farkode_mod
   enumerator :: ARKODE_ARK437L2SA_ERK_7_3_4
   enumerator :: ARKODE_ARK548L2SAb_ERK_8_4_5
   enumerator :: ARKODE_ARK2_ERK_3_1_2
-  enumerator :: ARKODE_MAX_ERK_NUM = ARKODE_ARK2_ERK_3_1_2
+  enumerator :: ARKODE_SOFRONIOU_SPALETTA_5_3_4
+  enumerator :: ARKODE_MAX_ERK_NUM = ARKODE_SOFRONIOU_SPALETTA_5_3_4
  end enum
  integer, parameter, public :: ARKODE_ERKTableID = kind(ARKODE_ERK_NONE)
  public :: ARKODE_ERK_NONE, ARKODE_MIN_ERK_NUM, ARKODE_HEUN_EULER_2_1_2, ARKODE_BOGACKI_SHAMPINE_4_2_3, &
     ARKODE_ARK324L2SA_ERK_4_2_3, ARKODE_ZONNEVELD_5_3_4, ARKODE_ARK436L2SA_ERK_6_3_4, ARKODE_SAYFY_ABURUB_6_3_4, &
     ARKODE_CASH_KARP_6_4_5, ARKODE_FEHLBERG_6_4_5, ARKODE_DORMAND_PRINCE_7_4_5, ARKODE_ARK548L2SA_ERK_8_4_5, &
     ARKODE_VERNER_8_5_6, ARKODE_FEHLBERG_13_7_8, ARKODE_KNOTH_WOLKE_3_3, ARKODE_ARK437L2SA_ERK_7_3_4, &
-    ARKODE_ARK548L2SAb_ERK_8_4_5, ARKODE_ARK2_ERK_3_1_2, ARKODE_MAX_ERK_NUM
+    ARKODE_ARK548L2SAb_ERK_8_4_5, ARKODE_ARK2_ERK_3_1_2, ARKODE_SOFRONIOU_SPALETTA_5_3_4, ARKODE_MAX_ERK_NUM
  public :: FARKodeButcherTable_LoadERK
  public :: FARKodeButcherTable_LoadERKByName
  ! typedef enum ARKODE_SPRKMethodID
