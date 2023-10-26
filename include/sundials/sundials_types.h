@@ -138,11 +138,6 @@ typedef SUNDIALS_INDEX_TYPE sunindextype;
  *------------------------------------------------------------------
  */
 
-/* deprecated */
-#ifndef sunbooleantype
-#define sunbooleantype int
-#endif
-
 #ifndef sunbooleantype
 #define sunbooleantype int
 #endif
