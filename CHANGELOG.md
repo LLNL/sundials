@@ -29,6 +29,9 @@ CMake targets.
 
 Added Fortran support for the LAPACK `SUNLinearSolver` implementations.
 
+Added the fourth order ERK method `ARKODE_SOFRONIOU_SPALETTA_5_3_4`.
+
+
 ## Changes to SUNDIALS in release 6.6.1
 
 Updated the Tpetra NVector interface to support Trilinos 14.
