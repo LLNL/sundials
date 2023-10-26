@@ -168,6 +168,8 @@ Fixed scaling bug in ``SUNMatScaleAddI_Sparse`` for non-square matrices.
 Fixed missing soversions in some ``SUNLinearSolver`` and ``SUNNonlinearSolver``
 CMake targets.
 
+Added the fourth order ERK method ``ARKODE_SOFRONIOU_SPALETTA_5_3_4``.
+
 Changes in v5.6.1
 -----------------
 
