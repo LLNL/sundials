@@ -251,6 +251,7 @@ cp -r $sundialsdir/include/sunmatrix $tmpdir/include/
 cp -r $sundialsdir/include/sunmemory $tmpdir/include/
 cp -r $sundialsdir/include/sunlinsol $tmpdir/include/
 cp -r $sundialsdir/include/sunnonlinsol $tmpdir/include/
+cp -r $sundialsdir/include/sunadaptcontroller $tmpdir/include/
 
 cp -r $sundialsdir/scripts $tmpdir/
 
