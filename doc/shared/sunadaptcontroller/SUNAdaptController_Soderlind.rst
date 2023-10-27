@@ -19,7 +19,7 @@ The SUNAdaptController_Soderlind Module
 
 The Soderlind implementation of the SUNAdaptController class,
 SUNAdaptController_Soderlind, implements a general structure for temporal
-control proposed by G. Söderlind in :cite:p:`Sod:98`, :cite:p:`Sod:03`
+control proposed by G. Soderlind in :cite:p:`Sod:98`, :cite:p:`Sod:03`
 and :cite:p:`Sod:06`.  This controller has the form
 
 .. math::
