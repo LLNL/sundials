@@ -155,6 +155,8 @@ CMake targets.
 
 Added the fourth order ERK method ``ARKODE_SOFRONIOU_SPALETTA_5_3_4``.
 
+Added Fortran support for the LAPACK  dense ``SUNLinearSolver`` implementation.
+
 Changes in v5.6.2
 -----------------
 
