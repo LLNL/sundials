@@ -74,4 +74,4 @@ int SUNAdaptController_Space_ImExGus(SUNAdaptController C, long int *lenrw,
 }
 #endif
 
-#endif  /* _SUNADAPTCONTROLLER_IMPGUS_H */
+#endif  /* _SUNADAPTCONTROLLER_IMEXGUS_H */
