@@ -890,7 +890,7 @@ This is the 6th order explicit method IIIXb-6(5) from :cite:p:`Ver:10`.
    :align: center
 
    Linear stability region for the Verner-9-5-6 method.  The method's
-   region is outlined in red; the embedding's region is in blue dashed.
+   region is outlined in blue; the embedding's region is in red.
 
 
 
@@ -940,7 +940,7 @@ This is the default 7th order explicit method (from :cite:p:`Ver:10`).
    :align: center
 
    Linear stability region for the Verner-10-6-7 method.  The method's
-   region is outlined in red; the embedding's region is in blue dashed.
+   region is outlined in blue; the embedding's region is in red.
 
 
 
@@ -1041,7 +1041,7 @@ This is the 8th order explicit method IIIX-8(7) from :cite:p:`Ver:10`.
    :align: center
 
    Linear stability region for the Verner-13-7-8 method.  The method's
-   region is outlined in red; the embedding's region is in blue dashed.
+   region is outlined in blue; the embedding's region is in red.
 
 
 
@@ -1098,7 +1098,7 @@ This is the default 9th order explicit method (from :cite:p:`Ver:10`).
    :align: center
 
    Linear stability region for the Verner-16-8-9 method.  The method's
-   region is outlined in red; the embedding's region is in blue dashed.
+   region is outlined in blue; the embedding's region is in red.
 
 
 
