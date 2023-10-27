@@ -15,7 +15,7 @@
 .. _SUNAdaptController.Soderlind:
 
 The SUNAdaptController_Soderlind Module
-======================================
+=======================================
 
 The Soderlind implementation of the SUNAdaptController class,
 SUNAdaptController_Soderlind, implements a general structure for temporal
