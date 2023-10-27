@@ -27,6 +27,8 @@ Fixed scaling bug in `SUNMatScaleAddI_Sparse` for non-square matrices.
 Fixed missing soversions in some `SUNLinearSolver` and `SUNNonlinearSolver`
 CMake targets.
 
+Added Fortran support for the LAPACK dense `SUNLinearSolver` implementations.
+
 Fixed the build system support for MAGMA when using a NVIDIA HPC SDK installation of CUDA
 and fixed the targets used for rocBLAS and rocSPARSE.
 
