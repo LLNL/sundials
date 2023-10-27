@@ -29,6 +29,9 @@ CMake targets.
 
 Added Fortran support for the LAPACK `SUNLinearSolver` implementations.
 
+Fixed the build system support for MAGMA when using a NVIDIA HPC SDK installation of CUDA
+and fixed the targets used for rocBLAS and rocSPARSE.
+
 Added the fourth order ERK method `ARKODE_SOFRONIOU_SPALETTA_5_3_4`.
 
 
