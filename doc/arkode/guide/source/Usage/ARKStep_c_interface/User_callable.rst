@@ -1720,7 +1720,7 @@ Explicit stability function                                 :c:func:`ARKStepSetS
 
    **Arguments:**
       * *arkode_mem* -- pointer to the ARKStep memory block.
-      * *C* -- user-supplied time adaptivity controller.  If ``NULL`` then the PID controller will be created (see :numref:`SUNAdaptController.PID`).
+      * *C* -- user-supplied time adaptivity controller.  If ``NULL`` then the PID controller will be created (see :numref:`SUNAdaptController.Soderlind`).
 
    **Return value:**
       * *ARK_SUCCESS* if successful
