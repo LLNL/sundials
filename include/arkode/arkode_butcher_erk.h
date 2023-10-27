@@ -64,7 +64,7 @@ extern "C" {
 /* DEPRECATED MIN_ERK_NUM: use ARKODE_MIN_ERK_NUM */
 #define MIN_ERK_NUM              0
 /* DEPRECATED MAX_ERK_NUM: use ARKODE_MAX_ERK_NUM */
-#define MAX_ERK_NUM             14
+#define MAX_ERK_NUM             21
 
 typedef enum {
   ARKODE_ERK_NONE = -1, /* ensure enum is signed int */
@@ -87,7 +87,11 @@ typedef enum {
   ARKODE_ARK2_ERK_3_1_2,
   ARKODE_SOFRONIOU_SPALETTA_5_3_4,
   ARKODE_SHU_OSHER_3_2_3,
-  ARKODE_MAX_ERK_NUM = ARKODE_SHU_OSHER_3_2_3
+  ARKODE_VERNER_9_5_6,
+  ARKODE_VERNER_10_6_7,
+  ARKODE_VERNER_13_7_8,
+  ARKODE_VERNER_16_8_9,
+  ARKODE_MAX_ERK_NUM = ARKODE_VERNER_16_8_9
 } ARKODE_ERKTableID;
 
 /* Accessor routine to load built-in ERK table */
