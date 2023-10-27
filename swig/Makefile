@@ -23,7 +23,7 @@ KINSOL=fkinsol_mod
 GENERIC=fsundials_types_mod fsundials_nvector_mod fsundials_matrix_mod fsundials_linearsolver_mod fsundials_nonlinearsolver_mod fsundials_futils_mod fsundials_context_mod fsundials_profiler_mod fsundials_logger_mod fsundials_adaptcontroller_mod
 NVECTOR=openmp pthreads serial parallel manyvector mpiplusx
 SUNMATRIX=band dense sparse
-SUNLINSOL=band dense klu spbcgs spfgmr spgmr sptfqmr pcg
+SUNLINSOL=band dense lapackdense klu spbcgs spfgmr spgmr sptfqmr pcg
 SUNNONLINSOL=newton fixedpoint
 SUNADAPTCONTROLLER=imexgus noop soderlind
 

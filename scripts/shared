@@ -523,6 +523,9 @@ echo "   --- Add sunlinsol/lapackdense module to $tarfile"
 
 $tar $tarfile $distrobase/src/sunlinsol/lapackdense/CMakeLists.txt
 $tar $tarfile $distrobase/src/sunlinsol/lapackdense/sunlinsol_lapackdense.c
+$tar $tarfile $distrobase/src/sunlinsol/lapackdense/fmod/CMakeLists.txt
+$tar $tarfile $distrobase/src/sunlinsol/lapackdense/fmod/fsunlinsol_lapackdense_mod.c
+$tar $tarfile $distrobase/src/sunlinsol/lapackdense/fmod/fsunlinsol_lapackdense_mod.f90
 
 echo "   --- Add sunlinsol/magmadense module to $tarfile"
 
@@ -746,6 +749,7 @@ $tar $tarfile $distrobase/examples/sunlinsol/kokkos/CMakeLists.txt
 $tar $tarfile $distrobase/examples/sunlinsol/lapackband/test_sunlinsol_lapackband.c
 $tar $tarfile $distrobase/examples/sunlinsol/lapackband/CMakeLists.txt
 $tar $tarfile $distrobase/examples/sunlinsol/lapackdense/test_sunlinsol_lapackdense.c
+$tar $tarfile $distrobase/examples/sunlinsol/lapackdense/test_fsunlinsol_lapackdense_mod.f90
 $tar $tarfile $distrobase/examples/sunlinsol/lapackdense/CMakeLists.txt
 
 $tar $tarfile $distrobase/examples/sunlinsol/magmadense/test_sunlinsol_magmadense.cpp
