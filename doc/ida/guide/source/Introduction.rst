@@ -72,6 +72,12 @@ systems.
 Changes from previous versions
 ==============================
 
+Changes in v6.6.2
+-----------------
+
+Fixed the build system support for MAGMA when using a NVIDIA HPC SDK installation of CUDA
+and fixed the targets used for rocBLAS and rocSPARSE.
+
 Changes in v6.6.1
 -----------------
 
