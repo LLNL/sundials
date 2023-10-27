@@ -91,6 +91,9 @@ Changes from previous versions
 Changes in vX.X.X
 -----------------
 
+Fixed the build system support for MAGMA when using a NVIDIA HPC SDK installation of CUDA
+and fixed the targets used for rocBLAS and rocSPARSE.
+
 Improved computational complexity of ``SUNMatScaleAddI_Sparse`` from ``O(M*N)`` to
 ``O(NNZ)``.
 
