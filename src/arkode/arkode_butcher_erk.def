@@ -1009,8 +1009,8 @@ ARK_BUTCHER_TABLE(ARKODE_VERNER_16_8_9, { /* Verner-9-8 (DOI: 10.1007/s11075-009
     B->c[11] = RCONST(0.6590650618730998549405331618649220295334);
     B->c[12] = RCONST(0.8206);
     B->c[13] = RCONST(0.9012);
-    B->c[14] = RCONST(1);
-    B->c[15] = RCONST(1);
+    B->c[14] = RCONST(1.0);
+    B->c[15] = RCONST(1.0);
     return B;
   })
 
