@@ -30,9 +30,7 @@
 #elif !(defined(WIN32) || defined(_WIN32))
 #error POSIX is needed for clock_getttime
 #else
-#include <profileapi.h>
 #include <windows.h>
-#include <winnt.h>
 #endif
 
 #include <stdio.h>
@@ -42,7 +40,6 @@
 
 #include "sundials_debug.h"
 #include "sundials_hashmap.h"
-// #include "sundials_utils.h"
 
 #define SUNDIALS_ROOT_TIMER ((const char*)"From profiler epoch")
 
@@ -314,7 +311,6 @@ int SUNProfiler_GetTimerResolution(SUNProfiler p, double* resolution)
 #elif (defined(WIN32) || defined(_WIN32)) && \
   !defined(SUNDIALS_HAVE_POSIX_TIMERS)
   static LARGE_INTEGER ticks_per_sec;
-  LARGE_INTEGER ticks;
 
   if (!ticks_per_sec.QuadPart)
   {
@@ -322,7 +318,7 @@ int SUNProfiler_GetTimerResolution(SUNProfiler p, double* resolution)
     if (!ticks_per_sec.QuadPart) { return -1; }
   }
 
-  *resolution = SUN_RCONST(1.0) / ticks_per_sec.QuadPart;
+  *resolution = (double) ticks_per_sec.QuadPart;
 
   return (0);
 #else
