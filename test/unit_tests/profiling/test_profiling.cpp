@@ -12,23 +12,29 @@
  * SUNDIALS Copyright End
  * ---------------------------------------------------------------------------*/
 
+#include <chrono>
+#include <cstdio>
 #include <iostream>
 #include <ostream>
 #include <string>
-#include <chrono>
 #include <thread>
-#include <cstdio>
 
+#include "sundials/sundials_math.h"
 #include "sundials/sundials_profiler.h"
 #include "sundials/sundials_types.h"
 
-int sleep(SUNProfiler prof, int sec)
+int sleep(SUNProfiler prof, int sec, double* chrono)
 {
+  std::chrono::steady_clock::time_point begin = std::chrono::steady_clock::now();
   int flag = SUNProfiler_Begin(prof, "sleep");
   if (flag) return flag;
   std::this_thread::sleep_for(std::chrono::seconds(sec));
   flag = SUNProfiler_End(prof, "sleep");
   if (flag) return flag;
+  std::chrono::steady_clock::time_point end = std::chrono::steady_clock::now();
+  *chrono =
+    std::chrono::duration_cast<std::chrono::nanoseconds>(end - begin).count() *
+    1e-9;
   return 0;
 }
 
@@ -38,14 +44,16 @@ int print_timings(SUNProfiler prof)
   int flag = SUNProfiler_Print(prof, stdout);
   if (flag)
   {
-    std::cerr << "SUNProfiler_Print returned " << flag << "\n";
+    std::cerr << ">>> FAILURE: "
+              << "SUNProfiler_Print returned " << flag << "\n";
     return 1;
   }
 
   flag = SUNProfiler_Print(prof, stdout);
   if (flag)
   {
-    std::cerr << "SUNProfiler_Print returned " << flag << "\n";
+    std::cerr << ">>> FAILURE: "
+              << "SUNProfiler_Print returned " << flag << "\n";
     return 1;
   }
 
@@ -58,13 +66,16 @@ int main()
   // Setup
   // -----
 
+  double chrono;
+
   std::cout << "Testing SUNProfiler\n";
 
   SUNProfiler prof = nullptr;
-  int flag = SUNProfiler_Create(nullptr, "SUNProfiler Test", &prof);
+  int flag         = SUNProfiler_Create(nullptr, "SUNProfiler Test", &prof);
   if (flag)
   {
-    std::cerr << "SUNProfiler_Create returned " << flag << "\n";
+    std::cerr << ">>> FAILURE: "
+              << "SUNProfiler_Create returned " << flag << "\n";
     return 1;
   }
 
@@ -72,19 +83,46 @@ int main()
   // Test 1
   // ------
 
-  std::cout << "\nTest 1: sleep 1s, print timings \n";
+  std::cout << "\nTest 1: sleep 1s, check timings \n";
 
-  flag = sleep(prof, 1);
+  flag = sleep(prof, 1, &chrono);
   if (flag)
   {
-    std::cerr << "sleep returned " << flag << "\n";
+    std::cerr << ">>> FAILURE: "
+              << "sleep returned " << flag << "\n";
     return 1;
   }
 
   flag = print_timings(prof);
   if (flag)
   {
-    std::cerr << "print_timings returned " << flag << "\n";
+    std::cerr << ">>> FAILURE: "
+              << "print_timings returned " << flag << "\n";
+    return 1;
+  }
+
+  double time, resolution;
+  flag = SUNProfiler_GetElapsedTime(prof, "sleep", &time);
+  if (flag)
+  {
+    std::cerr << ">>> FAILURE: "
+              << "SUNProfiler_GetElapsedTime returned " << flag << "\n";
+    return 1;
+  }
+
+  flag = SUNProfiler_GetTimerResolution(prof, &resolution);
+  if (flag)
+  {
+    std::cerr << ">>> FAILURE: "
+              << "SUNProfiler_GetTimerResolution returned " << flag << "\n";
+    return 1;
+  }
+
+  if (SUNRCompareTol(time, chrono, 10*resolution))
+  {
+    std::cerr << ">>> FAILURE: "
+              << "time recorded was " << time << "s, but expected " << chrono
+              << " +/- " << resolution << "\n";
     return 1;
   }
 
@@ -98,21 +136,48 @@ int main()
   flag = SUNProfiler_Reset(prof);
   if (flag)
   {
-    std::cerr << "SUNProfiler_Reset returned " << flag << "\n";
+    std::cerr << ">>> FAILURE: "
+              << "SUNProfiler_Reset returned " << flag << "\n";
     return 1;
   }
 
-  flag = sleep(prof, 2);
+  flag = sleep(prof, 2, &chrono);
   if (flag)
   {
-    std::cerr << "sleep returned " << flag << "\n";
+    std::cerr << ">>> FAILURE: "
+              << "sleep returned " << flag << "\n";
     return 1;
   }
 
   flag = print_timings(prof);
   if (flag)
   {
-    std::cerr << "print_timings returned " << flag << "\n";
+    std::cerr << ">>> FAILURE: "
+              << "print_timings returned " << flag << "\n";
+    return 1;
+  }
+
+  flag = SUNProfiler_GetElapsedTime(prof, "sleep", &time);
+  if (flag)
+  {
+    std::cerr << ">>> FAILURE: "
+              << "SUNProfiler_GetElapsedTime returned " << flag << "\n";
+    return 1;
+  }
+
+  flag = SUNProfiler_GetTimerResolution(prof, &resolution);
+  if (flag)
+  {
+    std::cerr << ">>> FAILURE: "
+              << "SUNProfiler_GetTimerResolution returned " << flag << "\n";
+    return 1;
+  }
+
+  if (SUNRCompareTol(time, chrono, 10*resolution))
+  {
+    std::cerr << ">>> FAILURE: "
+              << "time recorded was " << time << "s, but expected " << chrono
+              << " +/- " << resolution << "\n";
     return 1;
   }
 
@@ -125,7 +190,8 @@ int main()
   std::FILE* fout = std::fopen("profiling_test_output.txt", "w");
   if (!fout)
   {
-    std::cerr << "fopen returned a null pointer\n";
+    std::cerr << ">>> FAILURE: "
+              << "fopen returned a null pointer\n";
     return 1;
   }
 
@@ -135,21 +201,24 @@ int main()
     flag = SUNProfiler_Reset(prof);
     if (flag)
     {
-      std::cerr << "SUNProfiler_Reset returned " << flag << "\n";
+      std::cerr << ">>> FAILURE: "
+                << "SUNProfiler_Reset returned " << flag << "\n";
       return 1;
     }
 
-    flag = sleep(prof, i);
+    flag = sleep(prof, i, &chrono);
     if (flag)
     {
-      std::cerr << "sleep returned " << flag << "\n";
+      std::cerr << ">>> FAILURE: "
+                << "sleep returned " << flag << "\n";
       return 1;
     }
 
     flag = SUNProfiler_Print(prof, fout);
     if (flag)
     {
-      std::cerr << "SUNProfiler_Print returned " << flag << "\n";
+      std::cerr << ">>> FAILURE: "
+                << "SUNProfiler_Print returned " << flag << "\n";
       return 1;
     }
   }
@@ -163,11 +232,12 @@ int main()
   flag = SUNProfiler_Free(&prof);
   if (flag)
   {
-    std::cerr << "SUNProfiler_Free returned " << flag << "\n";
+    std::cerr << ">>> FAILURE: "
+              << "SUNProfiler_Free returned " << flag << "\n";
     return 1;
   }
 
-  std::cout << "\nTest complete\n";
+  std::cout << "\nSUCCESS - test complete\n";
 
   return 0;
 }

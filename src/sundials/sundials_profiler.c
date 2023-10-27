@@ -30,9 +30,9 @@
 #elif !(defined(WIN32) || defined(_WIN32))
 #error POSIX is needed for clock_getttime
 #else
+#include <profileapi.h>
 #include <windows.h>
 #include <winnt.h>
-#include <profileapi.h>
 #endif
 
 #include <stdio.h>
@@ -42,7 +42,7 @@
 
 #include "sundials_debug.h"
 #include "sundials_hashmap.h"
-#include "sundials_utils.h"
+// #include "sundials_utils.h"
 
 #define SUNDIALS_ROOT_TIMER ((const char*)"From profiler epoch")
 
@@ -303,6 +303,44 @@ int SUNProfiler_End(SUNProfiler p, const char* name)
   return (0);
 }
 
+int SUNProfiler_GetTimerResolution(SUNProfiler p, double* resolution)
+{
+#if defined(SUNDIALS_HAVE_POSIX_TIMERS)
+  sunTimespec spec;
+  clock_getres(CLOCK_MONOTONIC, &spec);
+  *resolution = 1e-9 * ((double)spec.tv_nsec);
+
+  return (0);
+#elif (defined(WIN32) || defined(_WIN32)) && \
+  !defined(SUNDIALS_HAVE_POSIX_TIMERS)
+  static LARGE_INTEGER ticks_per_sec;
+  LARGE_INTEGER ticks;
+
+  if (!ticks_per_sec.QuadPart)
+  {
+    QueryPerformanceFrequency(&ticks_per_sec);
+    if (!ticks_per_sec.QuadPart) { return -1; }
+  }
+
+  *resolution = SUN_RCONST(1.0) / ticks_per_sec.QuadPart;
+
+  return (0);
+#else
+  return (-1);
+#endif
+}
+
+int SUNProfiler_GetElapsedTime(SUNProfiler p, const char* name, double* time)
+{
+  sunTimerStruct* timer;
+
+  if (SUNHashMap_GetValue(p->map, name, (void**)&timer)) { return (-1); }
+
+  *time = timer->elapsed;
+
+  return (0);
+}
+
 int SUNProfiler_Reset(SUNProfiler p)
 {
   int i                 = 0;
@@ -481,7 +519,7 @@ int sunCollectTimers(SUNProfiler p)
   /* Update the values that are in this rank's hash map. */
   for (i = 0; i < p->map->size; ++i)
   {
-    values[i]->average = reduced[i].average / (realtype)nranks;
+    values[i]->average = reduced[i].average / (double)nranks;
     values[i]->maximum = reduced[i].maximum;
   }
 
@@ -538,10 +576,7 @@ int sunclock_gettime_monotonic(sunTimespec* ts)
   if (!ticks_per_sec.QuadPart)
   {
     QueryPerformanceFrequency(&ticks_per_sec);
-    if (!ticks_per_sec.QuadPart)
-    {
-      return -1;
-    }
+    if (!ticks_per_sec.QuadPart) { return -1; }
   }
 
   QueryPerformanceCounter(&ticks);
@@ -550,7 +585,7 @@ int sunclock_gettime_monotonic(sunTimespec* ts)
 
   ts->tv_sec  = (long)(ticks.QuadPart / ticks_per_sec.QuadPart);
   ts->tv_nsec = (long)(((ticks.QuadPart % ticks_per_sec.QuadPart) * 1000000) /
-                         ticks_per_sec.QuadPart);
+                       ticks_per_sec.QuadPart);
 
   return 0;
 #else
