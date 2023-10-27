@@ -133,6 +133,9 @@ Changes from previous versions
 Changes in vX.X.X
 -----------------
 
+Fixed the build system support for MAGMA when using a NVIDIA HPC SDK installation of CUDA
+and fixed the targets used for rocBLAS and rocSPARSE.
+
 Fixed a regression introduced by the stop time bug fix in v6.6.1 where ARKODE
 steppers would return at the stop time rather than the requested output time if
 the stop time was reached in the same step in which the output time was passed.
@@ -152,6 +155,9 @@ Fixed scaling bug in ``SUNMatScaleAddI_Sparse`` for non-square matrices.
 
 Fixed missing soversions in some ``SUNLinearSolver`` and ``SUNNonlinearSolver``
 CMake targets.
+
+Fixed the build system support for MAGMA when using a NVIDIA HPC SDK installation of CUDA
+and fixed the targets used for rocBLAS and rocSPARSE.
 
 Added the third order ERK method ``ARKODE_SHU_OSHER_3_2_3``, the fourth order
 ERK method ``ARKODE_SOFRONIOU_SPALETTA_5_3_4``, the sixth order ERK method
