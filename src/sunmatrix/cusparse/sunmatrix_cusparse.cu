@@ -24,6 +24,7 @@
 #include <sunmatrix/sunmatrix_cusparse.h>
 
 #include "sundials_cuda.h"
+#include "sundials_cusparse.h"
 #include "sundials_debug.h"
 #include "cusparse_kernels.cuh"
 
