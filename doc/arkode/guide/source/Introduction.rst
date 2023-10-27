@@ -165,6 +165,8 @@ ERK method ``ARKODE_SOFRONIOU_SPALETTA_5_3_4``, the sixth order ERK method
 the eighth order ERK method ``ARKODE_VERNER_13_7_8``, and the ninth order ERK
 method ``ARKODE_VERNER_16_8_9``.
 
+Added Fortran support for the LAPACK  dense ``SUNLinearSolver`` implementation.
+
 Changes in v5.6.1
 -----------------
 
