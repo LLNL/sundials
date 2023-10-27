@@ -177,12 +177,9 @@ $tar $tarfile $distrobase/include/nvector/nvector_trilinos.h
 $tar $tarfile $distrobase/include/nvector/trilinos/SundialsTpetraVectorInterface.hpp
 $tar $tarfile $distrobase/include/nvector/trilinos/SundialsTpetraVectorKernels.hpp
 
-$tar $tarfile $distrobase/include/sunadaptcontroller/sunadaptcontroller_expgus.h
-$tar $tarfile $distrobase/include/sunadaptcontroller/sunadaptcontroller_i.h
 $tar $tarfile $distrobase/include/sunadaptcontroller/sunadaptcontroller_imexgus.h
-$tar $tarfile $distrobase/include/sunadaptcontroller/sunadaptcontroller_impgus.h
-$tar $tarfile $distrobase/include/sunadaptcontroller/sunadaptcontroller_pi.h
-$tar $tarfile $distrobase/include/sunadaptcontroller/sunadaptcontroller_pid.h
+$tar $tarfile $distrobase/include/sunadaptcontroller/sunadaptcontroller_noop.h
+$tar $tarfile $distrobase/include/sunadaptcontroller/sunadaptcontroller_soderlind.h
 
 $tar $tarfile $distrobase/include/sunmatrix/sunmatrix_band.h
 $tar $tarfile $distrobase/include/sunmatrix/sunmatrix_cusparse.h
@@ -388,20 +385,6 @@ echo "   --- Add sunadaptcontroller modules to $tarfile"
 
 $tar $tarfile $distrobase/src/sunadaptcontroller/CMakeLists.txt
 
-echo "   --- Add sunadaptcontroller/exp_gus module to $tarfile"
-
-$tar $tarfile $distrobase/src/sunadaptcontroller/expgus/CMakeLists.txt
-$tar $tarfile $distrobase/src/sunadaptcontroller/expgus/sunadaptcontroller_expgus.c
-$tar $tarfile $distrobase/src/sunadaptcontroller/expgus/fmod/fsunadaptcontroller_expgus_mod.c
-$tar $tarfile $distrobase/src/sunadaptcontroller/expgus/fmod/fsunadaptcontroller_expgus_mod.f90
-
-echo "   --- Add sunadaptcontroller/i_control module to $tarfile"
-
-$tar $tarfile $distrobase/src/sunadaptcontroller/i/CMakeLists.txt
-$tar $tarfile $distrobase/src/sunadaptcontroller/i/sunadaptcontroller_i.c
-$tar $tarfile $distrobase/src/sunadaptcontroller/i/fmod/fsunadaptcontroller_i_mod.c
-$tar $tarfile $distrobase/src/sunadaptcontroller/i/fmod/fsunadaptcontroller_i_mod.f90
-
 echo "   --- Add sunadaptcontroller/imex_gus module to $tarfile"
 
 $tar $tarfile $distrobase/src/sunadaptcontroller/imexgus/CMakeLists.txt
@@ -409,26 +392,19 @@ $tar $tarfile $distrobase/src/sunadaptcontroller/imexgus/sunadaptcontroller_imex
 $tar $tarfile $distrobase/src/sunadaptcontroller/imexgus/fmod/fsunadaptcontroller_imexgus_mod.c
 $tar $tarfile $distrobase/src/sunadaptcontroller/imexgus/fmod/fsunadaptcontroller_imexgus_mod.f90
 
-echo "   --- Add sunadaptcontroller/imp_gus module to $tarfile"
+echo "   --- Add sunadaptcontroller/noop module to $tarfile"
 
-$tar $tarfile $distrobase/src/sunadaptcontroller/impgus/CMakeLists.txt
-$tar $tarfile $distrobase/src/sunadaptcontroller/impgus/sunadaptcontroller_impgus.c
-$tar $tarfile $distrobase/src/sunadaptcontroller/impgus/fmod/fsunadaptcontroller_impgus_mod.c
-$tar $tarfile $distrobase/src/sunadaptcontroller/impgus/fmod/fsunadaptcontroller_impgus_mod.f90
+$tar $tarfile $distrobase/src/sunadaptcontroller/noop/CMakeLists.txt
+$tar $tarfile $distrobase/src/sunadaptcontroller/noop/sunadaptcontroller_noop.c
+$tar $tarfile $distrobase/src/sunadaptcontroller/noop/fmod/fsunadaptcontroller_noop_mod.c
+$tar $tarfile $distrobase/src/sunadaptcontroller/noop/fmod/fsunadaptcontroller_noop_mod.f90
 
-echo "   --- Add sunadaptcontroller/pi_control module to $tarfile"
+echo "   --- Add sunadaptcontroller/soderlind module to $tarfile"
 
-$tar $tarfile $distrobase/src/sunadaptcontroller/pi/CMakeLists.txt
-$tar $tarfile $distrobase/src/sunadaptcontroller/pi/sunadaptcontroller_pi.c
-$tar $tarfile $distrobase/src/sunadaptcontroller/pi/fmod/fsunadaptcontroller_pi_mod.c
-$tar $tarfile $distrobase/src/sunadaptcontroller/pi/fmod/fsunadaptcontroller_pi_mod.f90
-
-echo "   --- Add sunadaptcontroller/pid_control module to $tarfile"
-
-$tar $tarfile $distrobase/src/sunadaptcontroller/pid/CMakeLists.txt
-$tar $tarfile $distrobase/src/sunadaptcontroller/pid/sunadaptcontroller_pid.c
-$tar $tarfile $distrobase/src/sunadaptcontroller/pid/fmod/fsunadaptcontroller_pid_mod.c
-$tar $tarfile $distrobase/src/sunadaptcontroller/pid/fmod/fsunadaptcontroller_pid_mod.f90
+$tar $tarfile $distrobase/src/sunadaptcontroller/soderlind/CMakeLists.txt
+$tar $tarfile $distrobase/src/sunadaptcontroller/soderlind/sunadaptcontroller_soderlind.c
+$tar $tarfile $distrobase/src/sunadaptcontroller/soderlind/fmod/fsunadaptcontroller_soderlind_mod.c
+$tar $tarfile $distrobase/src/sunadaptcontroller/soderlind/fmod/fsunadaptcontroller_soderlind_mod.f90
 
 echo "   --- Add sunmatrix modules to $tarfile"
 
