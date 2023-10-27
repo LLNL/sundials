@@ -64,8 +64,8 @@ for splittings tuned for use with optimal implicit solver algorithms.
 This framework allows for significant freedom over the constitutive
 methods used for each component, and ARKODE is packaged with a wide
 array of built-in methods for use.  These built-in Butcher tables
-include adaptive explicit methods of orders 2-8, adaptive implicit
-methods of orders 2-5, and adaptive ImEx methods of orders 3-5.
+include adaptive explicit methods of orders 2-9, adaptive implicit
+methods of orders 2-5, and adaptive ImEx methods of orders 2-5.
 
 
 *ERKStep* focuses specifically on problems posed in explicit form,
@@ -77,7 +77,7 @@ methods of orders 2-5, and adaptive ImEx methods of orders 3-5.
 allowing for increased computational efficiency and memory savings.
 The algorithms used in ERKStep are adaptive- and fixed-step explicit
 Runge--Kutta methods.   As with ARKStep, the ERKStep module is packaged
-with adaptive explicit methods of orders 2-8.
+with adaptive explicit methods of orders 2-9.
 
 *SPRKStep* focuses on Hamiltonian systems posed in the form,
 
