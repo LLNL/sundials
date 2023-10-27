@@ -149,6 +149,31 @@ are available.
       * Returns zero if successful, or non-zero if an error occurred
 
 
+.. c:function:: int SUNProfiler_GetElapsedTime(SUNProfiler p, const char* name, double* time)
+
+   Get the elapsed time for the timer "name".
+
+   **Arguments:**
+      * ``p`` -- a ``SUNProfiler`` object
+      * ``name`` -- the name for the profiling region of interest
+      * ``time`` -- upon return, this will point to the elapsed time for the timer
+
+   **Returns:**
+      * Returns zero if successful, or non-zero if an error occurred
+
+
+.. c:function:: int SUNProfiler_GetTimerResolution(SUNProfiler p, double* resolution)
+
+   Ends the timing of a region indicated by the ``name``.
+
+   **Arguments:**
+      * ``p`` -- a ``SUNProfiler`` object
+      * ``resolution`` -- upon return, this will point to the resolution for the timer
+
+   **Returns:**
+      * Returns zero if successful, or non-zero if an error occurred
+
+
 .. c:function:: int SUNProfiler_Print(SUNProfiler p, FILE* fp)
 
    Prints out a profiling summary. When constructed with an MPI comm the summary
