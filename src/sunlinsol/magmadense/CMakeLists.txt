@@ -19,7 +19,7 @@ if(SUNDIALS_MAGMA_BACKENDS MATCHES "CUDA")
   set(_libs_needed sundials_sunmatrixmagmadense sundials_nveccuda)
 elseif(SUNDIALS_MAGMA_BACKENDS MATCHES "HIP")
   set_source_files_properties(sunlinsol_magmadense.cpp PROPERTIES LANGUAGE CXX)
-  set(_libs_needed sundials_sunmatrixmagmadense sundials_nvechip)
+  set(_libs_needed sundials_sunmatrixmagmadense sundials_nvechip hip::device)
 endif()
 
 # Add the sunlinsol_magmadense library

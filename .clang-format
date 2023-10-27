@@ -140,7 +140,6 @@ SpacesInConditionalStatement        : false
 SpacesInContainerLiterals           : true
 SpacesInParentheses                 : false
 SpacesInSquareBrackets              : false
-SpaceBeforeSquareBrackets           : false
 Standard                            : c++14
 TabWidth: 2
 UseCRLF : false

@@ -20,7 +20,7 @@ set(cpu_gpu_examples
 
 sundials_add_examples_ginkgo(cpu_gpu_examples
   TARGETS sundials_cvode
-  BACKENDS REF OMP CUDA HIP)
+  BACKENDS REF OMP CUDA HIP DPCPP)
 
 # Examples that only support CPU Ginkgo backends
 set(cpu_examples
@@ -38,6 +38,9 @@ if(EXAMPLES_INSTALL)
   endif()
   if(SUNDIALS_GINKGO_BACKENDS MATCHES "HIP")
     list(APPEND vectors nvechip)
+  endif()
+  if(SUNDIALS_GINKGO_BACKENDS MATCHES "DPCPP")
+    list(APPEND vectors nvecsycl)
   endif()
   if((SUNDIALS_GINKGO_BACKENDS MATCHES "OMP") OR
       (SUNDIALS_GINKGO_BACKENDS MATCHES "REF"))
