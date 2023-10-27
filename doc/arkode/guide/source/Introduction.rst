@@ -167,6 +167,7 @@ This fixes `GitHub Issue #312 <https://github.com/LLNL/sundials/issues/312>`_.
 
 Added Fortran support for the LAPACK  dense ``SUNLinearSolver`` implementation.
 
+
 Changes in v5.6.1
 -----------------
 
