@@ -605,5 +605,40 @@ Fe RHS evals:
   expected: 12
 --------------------
 
+========================
+ERK Table ID 16
+  stages:             5
+  order:              4
+  explicit 1st stage: 1
+  stiffly accurate:   1
+  first same as last: 1
+========================
+--------------------
+Steps: 1
+Fe RHS evals:
+  actual:   5
+  expected: 5
+--------------------
+Steps: 2
+Fe RHS evals:
+  actual:   9
+  expected: 9
+--------------------
+Steps: 3
+Fe RHS evals:
+  actual:   13
+  expected: 13
+--------------------
+Dense Output
+Fe RHS evals:
+  actual:   13
+  expected: 13
+--------------------
+Steps: 4
+Fe RHS evals:
+  actual:   17
+  expected: 17
+--------------------
+
 
 All tests passed!
