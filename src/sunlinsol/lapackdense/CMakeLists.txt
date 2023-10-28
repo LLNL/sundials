@@ -37,3 +37,8 @@ sundials_add_library(sundials_sunlinsollapackdense
 )
 
 message(STATUS "Added SUNLINSOL_LAPACKDENSE module")
+
+# Add module if F2003 interface is enabled
+if(BUILD_FORTRAN_MODULE_INTERFACE)
+  add_subdirectory(fmod)
+endif()
