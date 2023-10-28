@@ -262,6 +262,7 @@ cp -r $sundialsdir/src/sunmatrix $tmpdir/src/
 cp -r $sundialsdir/src/sunmemory $tmpdir/src/
 cp -r $sundialsdir/src/sunlinsol $tmpdir/src/
 cp -r $sundialsdir/src/sunnonlinsol $tmpdir/src/
+cp -r $sundialsdir/src/sunadaptcontroller $tmpdir/src/
 
 cp    $sundialsdir/test/testRunner $tmpdir/test/
 cp -r $sundialsdir/test/unit_tests $tmpdir/test/
