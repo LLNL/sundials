@@ -389,6 +389,7 @@ echo "   --- Add sunadaptcontroller/imex_gus module to $tarfile"
 
 $tar $tarfile $distrobase/src/sunadaptcontroller/imexgus/CMakeLists.txt
 $tar $tarfile $distrobase/src/sunadaptcontroller/imexgus/sunadaptcontroller_imexgus.c
+$tar $tarfile $distrobase/src/sunadaptcontroller/imexgus/fmod/CMakeLists.txt
 $tar $tarfile $distrobase/src/sunadaptcontroller/imexgus/fmod/fsunadaptcontroller_imexgus_mod.c
 $tar $tarfile $distrobase/src/sunadaptcontroller/imexgus/fmod/fsunadaptcontroller_imexgus_mod.f90
 
@@ -396,6 +397,7 @@ echo "   --- Add sunadaptcontroller/noop module to $tarfile"
 
 $tar $tarfile $distrobase/src/sunadaptcontroller/noop/CMakeLists.txt
 $tar $tarfile $distrobase/src/sunadaptcontroller/noop/sunadaptcontroller_noop.c
+$tar $tarfile $distrobase/src/sunadaptcontroller/noop/fmod/CMakeLists.txt
 $tar $tarfile $distrobase/src/sunadaptcontroller/noop/fmod/fsunadaptcontroller_noop_mod.c
 $tar $tarfile $distrobase/src/sunadaptcontroller/noop/fmod/fsunadaptcontroller_noop_mod.f90
 
@@ -403,6 +405,7 @@ echo "   --- Add sunadaptcontroller/soderlind module to $tarfile"
 
 $tar $tarfile $distrobase/src/sunadaptcontroller/soderlind/CMakeLists.txt
 $tar $tarfile $distrobase/src/sunadaptcontroller/soderlind/sunadaptcontroller_soderlind.c
+$tar $tarfile $distrobase/src/sunadaptcontroller/soderlind/fmod/CMakeLists.txt
 $tar $tarfile $distrobase/src/sunadaptcontroller/soderlind/fmod/fsunadaptcontroller_soderlind_mod.c
 $tar $tarfile $distrobase/src/sunadaptcontroller/soderlind/fmod/fsunadaptcontroller_soderlind_mod.f90
 
