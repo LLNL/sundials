@@ -16,10 +16,10 @@ ARKStep Solver Statistics:
    Internal solver steps = 1000
    Total RHS evals:  Fe = 0,  Fi = 2769
    Total linear solver setups = 50
-   Total linear iterations = 6625
-   Total number of Jacobian-vector products = 6625
+   Total linear iterations = 6231
+   Total number of Jacobian-vector products = 6231
    Total number of Preconditioner setups = 17
-   Total number of Preconditioner solves = 6625
+   Total number of Preconditioner solves = 6231
    Total number of linear solver convergence failures = 0
    Total number of Newton iterations = 1768
    Total number of nonlinear solver convergence failures = 0

@@ -13,51 +13,51 @@ t = 2.16e+04   no. steps = 3533   stepsize = 1.04e+01
 At bottom left:  c1, c2 =    2.665e+07    2.993e+11 
 At top right:    c1, c2 =    2.931e+07    3.313e+11 
 
-t = 2.88e+04   no. steps = 4685   stepsize = 5.21e+00
+t = 2.88e+04   no. steps = 4695   stepsize = 3.50e+00
 At bottom left:  c1, c2 =    8.702e+06    3.380e+11 
 At top right:    c1, c2 =    9.650e+06    3.751e+11 
 
-t = 3.60e+04   no. steps = 6169   stepsize = 2.56e+00
+t = 3.60e+04   no. steps = 6172   stepsize = 2.55e+00
 At bottom left:  c1, c2 =    1.404e+04    3.387e+11 
 At top right:    c1, c2 =    1.561e+04    3.765e+11 
 
-t = 4.32e+04   no. steps = 7356   stepsize = 4.29e+02
-At bottom left:  c1, c2 =    5.207e-10    3.382e+11 
-At top right:    c1, c2 =   -1.692e-09    3.804e+11 
+t = 4.32e+04   no. steps = 7361   stepsize = 5.00e+02
+At bottom left:  c1, c2 =    3.855e-13    3.382e+11 
+At top right:    c1, c2 =   -1.439e-12    3.804e+11 
 
-t = 5.04e+04   no. steps = 7374   stepsize = 4.03e+02
-At bottom left:  c1, c2 =   -5.150e-07    3.358e+11 
-At top right:    c1, c2 =    7.350e-07    3.864e+11 
+t = 5.04e+04   no. steps = 7379   stepsize = 3.71e+02
+At bottom left:  c1, c2 =   -4.407e-14    3.358e+11 
+At top right:    c1, c2 =    1.551e-13    3.864e+11 
 
-t = 5.76e+04   no. steps = 7388   stepsize = 1.86e+02
-At bottom left:  c1, c2 =    1.854e-09    3.320e+11 
-At top right:    c1, c2 =   -4.478e-09    3.909e+11 
+t = 5.76e+04   no. steps = 7394   stepsize = 1.90e+02
+At bottom left:  c1, c2 =    2.370e-12    3.320e+11 
+At top right:    c1, c2 =   -4.013e-12    3.909e+11 
 
-t = 6.48e+04   no. steps = 7403   stepsize = 5.44e+02
-At bottom left:  c1, c2 =   -5.633e-20    3.313e+11 
-At top right:    c1, c2 =   -7.054e-19    3.963e+11 
+t = 6.48e+04   no. steps = 7409   stepsize = 5.59e+02
+At bottom left:  c1, c2 =    1.301e-12    3.313e+11 
+At top right:    c1, c2 =   -4.849e-12    3.963e+11 
 
-t = 7.20e+04   no. steps = 7416   stepsize = 5.44e+02
-At bottom left:  c1, c2 =    8.179e-20    3.330e+11 
-At top right:    c1, c2 =   -1.697e-18    4.039e+11 
+t = 7.20e+04   no. steps = 7421   stepsize = 5.59e+02
+At bottom left:  c1, c2 =   -1.797e-23    3.330e+11 
+At top right:    c1, c2 =   -3.890e-22    4.039e+11 
 
-t = 7.92e+04   no. steps = 7429   stepsize = 5.44e+02
-At bottom left:  c1, c2 =    9.578e-20    3.334e+11 
-At top right:    c1, c2 =   -6.361e-19    4.120e+11 
+t = 7.92e+04   no. steps = 7434   stepsize = 5.59e+02
+At bottom left:  c1, c2 =   -2.819e-27    3.334e+11 
+At top right:    c1, c2 =   -1.209e-25    4.120e+11 
 
-t = 8.64e+04   no. steps = 7443   stepsize = 5.44e+02
-At bottom left:  c1, c2 =    2.418e-20    3.352e+11 
-At top right:    c1, c2 =   -6.470e-20    4.163e+11 
+t = 8.64e+04   no. steps = 7447   stepsize = 5.59e+02
+At bottom left:  c1, c2 =   -2.334e-27    3.352e+11 
+At top right:    c1, c2 =   -8.983e-26    4.163e+11 
 
 
 Final Statistics: 
 
 lenrw   =  3301     leniw   =   243
 lenrwls =  2455     leniwls =   126
-nst     =  7443     nfe     =     0
-nfi     = 78979     nfels   = 108407
-nni     = 41601     nli     = 108407
-nsetups =   453     netf    =    32
-npe     =   125     nps     = 146880
-ncfn    =     0     ncfl    =    71
+nst     =  7447     nfe     =     0
+nfi     = 79041     nfels   = 108536
+nni     = 41643     nli     = 108536
+nsetups =   456     netf    =    32
+npe     =   125     nps     = 147035
+ncfn    =     0     ncfl    =    83
 

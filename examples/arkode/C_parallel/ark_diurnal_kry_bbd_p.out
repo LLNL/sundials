@@ -7,68 +7,68 @@
 
 Preconditioner type is:  jpre = SUN_PREC_LEFT
 
-t = 7.20e+03   no. steps = 981   stepsize = 3.07e+00
+t = 7.20e+03   no. steps = 980   stepsize = 3.07e+00
 At bottom left:  c1, c2 =    1.047e+04    2.527e+11 
 At top right:    c1, c2 =    1.119e+04    2.700e+11 
 
-t = 1.44e+04   no. steps = 2731   stepsize = 6.90e+00
+t = 1.44e+04   no. steps = 2730   stepsize = 6.90e+00
 At bottom left:  c1, c2 =    6.659e+06    2.582e+11 
 At top right:    c1, c2 =    7.301e+06    2.833e+11 
 
-t = 2.16e+04   no. steps = 3534   stepsize = 1.04e+01
+t = 2.16e+04   no. steps = 3533   stepsize = 1.04e+01
 At bottom left:  c1, c2 =    2.665e+07    2.993e+11 
 At top right:    c1, c2 =    2.931e+07    3.313e+11 
 
-t = 2.88e+04   no. steps = 4683   stepsize = 5.21e+00
+t = 2.88e+04   no. steps = 4681   stepsize = 4.32e+00
 At bottom left:  c1, c2 =    8.702e+06    3.380e+11 
 At top right:    c1, c2 =    9.650e+06    3.751e+11 
 
-t = 3.60e+04   no. steps = 6169   stepsize = 2.56e+00
+t = 3.60e+04   no. steps = 5975   stepsize = 2.55e+00
 At bottom left:  c1, c2 =    1.404e+04    3.387e+11 
 At top right:    c1, c2 =    1.561e+04    3.765e+11 
 
-t = 4.32e+04   no. steps = 7356   stepsize = 4.24e+02
-At bottom left:  c1, c2 =   -1.476e-08    3.382e+11 
-At top right:    c1, c2 =    2.475e-07    3.804e+11 
+t = 4.32e+04   no. steps = 7163   stepsize = 4.64e+02
+At bottom left:  c1, c2 =    2.125e-08    3.382e+11 
+At top right:    c1, c2 =    4.245e-08    3.804e+11 
 
-t = 5.04e+04   no. steps = 7373   stepsize = 3.97e+02
-At bottom left:  c1, c2 =    2.483e-07    3.358e+11 
-At top right:    c1, c2 =   -1.768e-06    3.864e+11 
+t = 5.04e+04   no. steps = 7179   stepsize = 4.64e+02
+At bottom left:  c1, c2 =   -4.072e-07    3.358e+11 
+At top right:    c1, c2 =    4.005e-11    3.864e+11 
 
-t = 5.76e+04   no. steps = 7391   stepsize = 3.62e+02
-At bottom left:  c1, c2 =   -2.799e-07    3.320e+11 
-At top right:    c1, c2 =   -4.820e-08    3.909e+11 
+t = 5.76e+04   no. steps = 7195   stepsize = 3.44e+02
+At bottom left:  c1, c2 =    3.487e-08    3.320e+11 
+At top right:    c1, c2 =    3.658e-18    3.909e+11 
 
-t = 6.48e+04   no. steps = 7406   stepsize = 5.57e+02
-At bottom left:  c1, c2 =    7.180e-08    3.313e+11 
-At top right:    c1, c2 =   -6.171e-07    3.963e+11 
+t = 6.48e+04   no. steps = 7210   stepsize = 5.15e+02
+At bottom left:  c1, c2 =    2.253e-07    3.313e+11 
+At top right:    c1, c2 =   -2.680e-19    3.963e+11 
 
-t = 7.20e+04   no. steps = 7419   stepsize = 5.57e+02
-At bottom left:  c1, c2 =    5.344e-09    3.330e+11 
-At top right:    c1, c2 =    1.101e-07    4.039e+11 
+t = 7.20e+04   no. steps = 7224   stepsize = 5.15e+02
+At bottom left:  c1, c2 =    8.966e-08    3.330e+11 
+At top right:    c1, c2 =   -1.036e-18    4.039e+11 
 
-t = 7.92e+04   no. steps = 7431   stepsize = 5.57e+02
-At bottom left:  c1, c2 =   -3.201e-08    3.334e+11 
-At top right:    c1, c2 =   -5.416e-07    4.120e+11 
+t = 7.92e+04   no. steps = 7238   stepsize = 5.15e+02
+At bottom left:  c1, c2 =    2.038e-08    3.334e+11 
+At top right:    c1, c2 =   -2.330e-18    4.120e+11 
 
-t = 8.64e+04   no. steps = 7444   stepsize = 5.57e+02
-At bottom left:  c1, c2 =   -4.221e-07    3.352e+11 
-At top right:    c1, c2 =    8.480e-15    4.163e+11 
+t = 8.64e+04   no. steps = 7252   stepsize = 5.15e+02
+At bottom left:  c1, c2 =   -3.746e-21    3.352e+11 
+At top right:    c1, c2 =   -2.537e-27    4.163e+11 
 
 
 Final Statistics: 
 
 lenrw   =  3901     leniw   =   267
 lenrwls =  2455     leniwls =   126
-nst     =  7444     nfe     =     0
-nfe     = 78871     nfels   = 105365
-nni     = 41518     nli     = 105365
-nsetups =   447     netf    =    26
-npe     =   125     nps     = 143828
+nst     =  7252     nfe     =     0
+nfe     = 76929     nfels   = 102816
+nni     = 40521     nli     = 102816
+nsetups =   439     netf    =    29
+npe     =   122     nps     = 140398
 ncfn    =     0     ncfl    =     0
 
 In ARKBBDPRE: real/integer local work space sizes = 1300, 192
-             no. flocal evals. = 2750
+             no. flocal evals. = 2684
 
 
 -------------------------------------------------------------------
@@ -76,65 +76,65 @@ In ARKBBDPRE: real/integer local work space sizes = 1300, 192
 
 Preconditioner type is:  jpre = SUN_PREC_RIGHT
 
-t = 7.20e+03   no. steps = 981   stepsize = 3.07e+00
+t = 7.20e+03   no. steps = 980   stepsize = 3.07e+00
 At bottom left:  c1, c2 =    1.047e+04    2.527e+11 
 At top right:    c1, c2 =    1.119e+04    2.700e+11 
 
-t = 1.44e+04   no. steps = 2731   stepsize = 6.90e+00
+t = 1.44e+04   no. steps = 2730   stepsize = 6.90e+00
 At bottom left:  c1, c2 =    6.659e+06    2.582e+11 
 At top right:    c1, c2 =    7.301e+06    2.833e+11 
 
-t = 2.16e+04   no. steps = 3534   stepsize = 1.04e+01
+t = 2.16e+04   no. steps = 3533   stepsize = 1.04e+01
 At bottom left:  c1, c2 =    2.665e+07    2.993e+11 
 At top right:    c1, c2 =    2.931e+07    3.313e+11 
 
-t = 2.88e+04   no. steps = 4691   stepsize = 5.22e+00
+t = 2.88e+04   no. steps = 4705   stepsize = 3.57e+00
 At bottom left:  c1, c2 =    8.702e+06    3.380e+11 
 At top right:    c1, c2 =    9.650e+06    3.751e+11 
 
-t = 3.60e+04   no. steps = 6174   stepsize = 2.56e+00
+t = 3.60e+04   no. steps = 6160   stepsize = 2.56e+00
 At bottom left:  c1, c2 =    1.404e+04    3.387e+11 
 At top right:    c1, c2 =    1.561e+04    3.765e+11 
 
-t = 4.32e+04   no. steps = 7361   stepsize = 4.34e+02
-At bottom left:  c1, c2 =    4.699e-11    3.382e+11 
-At top right:    c1, c2 =    4.238e-10    3.804e+11 
+t = 4.32e+04   no. steps = 7347   stepsize = 4.30e+02
+At bottom left:  c1, c2 =    4.255e-12    3.382e+11 
+At top right:    c1, c2 =   -2.358e-07    3.804e+11 
 
-t = 5.04e+04   no. steps = 7377   stepsize = 4.34e+02
-At bottom left:  c1, c2 =   -1.972e-12    3.358e+11 
-At top right:    c1, c2 =   -1.128e-11    3.864e+11 
+t = 5.04e+04   no. steps = 7364   stepsize = 4.81e+02
+At bottom left:  c1, c2 =   -1.312e-17    3.358e+11 
+At top right:    c1, c2 =    2.130e-11    3.864e+11 
 
-t = 5.76e+04   no. steps = 7395   stepsize = 3.07e+02
-At bottom left:  c1, c2 =   -5.328e-16    3.320e+11 
-At top right:    c1, c2 =   -5.281e-12    3.909e+11 
+t = 5.76e+04   no. steps = 7380   stepsize = 2.39e+02
+At bottom left:  c1, c2 =   -6.762e-21    3.320e+11 
+At top right:    c1, c2 =   -4.330e-12    3.909e+11 
 
-t = 6.48e+04   no. steps = 7409   stepsize = 6.89e+02
-At bottom left:  c1, c2 =    1.218e-13    3.313e+11 
-At top right:    c1, c2 =   -8.200e-07    3.963e+11 
+t = 6.48e+04   no. steps = 7393   stepsize = 6.42e+02
+At bottom left:  c1, c2 =   -3.898e-25    3.313e+11 
+At top right:    c1, c2 =   -4.918e-07    3.963e+11 
 
-t = 7.20e+04   no. steps = 7419   stepsize = 6.89e+02
-At bottom left:  c1, c2 =   -5.406e-15    3.330e+11 
-At top right:    c1, c2 =    6.679e-07    4.039e+11 
+t = 7.20e+04   no. steps = 7405   stepsize = 6.42e+02
+At bottom left:  c1, c2 =    5.173e-25    3.330e+11 
+At top right:    c1, c2 =   -1.031e-06    4.039e+11 
 
-t = 7.92e+04   no. steps = 7430   stepsize = 6.89e+02
-At bottom left:  c1, c2 =   -1.418e-14    3.334e+11 
-At top right:    c1, c2 =   -1.336e-06    4.120e+11 
+t = 7.92e+04   no. steps = 7416   stepsize = 6.42e+02
+At bottom left:  c1, c2 =    5.441e-26    3.334e+11 
+At top right:    c1, c2 =   -1.290e-06    4.120e+11 
 
-t = 8.64e+04   no. steps = 7440   stepsize = 6.89e+02
-At bottom left:  c1, c2 =   -1.510e-14    3.352e+11 
-At top right:    c1, c2 =   -3.390e-07    4.163e+11 
+t = 8.64e+04   no. steps = 7427   stepsize = 6.42e+02
+At bottom left:  c1, c2 =    1.538e-27    3.352e+11 
+At top right:    c1, c2 =   -5.134e-07    4.163e+11 
 
 
 Final Statistics: 
 
 lenrw   =  3901     leniw   =   272
 lenrwls =  2455     leniwls =   126
-nst     =  7440     nfe     =     0
-nfe     = 78947     nfels   = 111620
-nni     = 41594     nli     = 111620
-nsetups =   454     netf    =    30
-npe     =   125     nps     = 149487
-ncfn    =     0     ncfl    =    43
+nst     =  7427     nfe     =     0
+nfe     = 78794     nfels   = 111450
+nni     = 41511     nli     = 111450
+nsetups =   453     netf    =    29
+npe     =   125     nps     = 149218
+ncfn    =     0     ncfl    =    38
 
 In ARKBBDPRE: real/integer local work space sizes = 1300, 192
              no. flocal evals. = 2750
