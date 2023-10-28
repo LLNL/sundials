@@ -156,9 +156,6 @@ Fixed scaling bug in ``SUNMatScaleAddI_Sparse`` for non-square matrices.
 Fixed missing soversions in some ``SUNLinearSolver`` and ``SUNNonlinearSolver``
 CMake targets.
 
-Fixed the build system support for MAGMA when using a NVIDIA HPC SDK installation of CUDA
-and fixed the targets used for rocBLAS and rocSPARSE.
-
 Added the third order ERK method ``ARKODE_SHU_OSHER_3_2_3``, the fourth order
 ERK method ``ARKODE_SOFRONIOU_SPALETTA_5_3_4``, the sixth order ERK method
 ``ARKODE_VERNER_9_5_6``, the seventh order ERK method ``ARKODE_VERNER_10_6_7``,
