@@ -643,6 +643,181 @@ Fe RHS evals:
 --------------------
 
 ========================
+ERK Table ID 17
+  stages:             3
+  order:              3
+  explicit 1st stage: 1
+  stiffly accurate:   0
+  first same as last: 0
+========================
+--------------------
+Steps: 1
+Fe RHS evals:
+  actual:   3
+  expected: 3
+--------------------
+Steps: 2
+Fe RHS evals:
+  actual:   6
+  expected: 6
+--------------------
+Steps: 3
+Fe RHS evals:
+  actual:   9
+  expected: 9
+--------------------
+Dense Output
+Fe RHS evals:
+  actual:   9
+  expected: 9
+--------------------
+Steps: 4
+Fe RHS evals:
+  actual:   12
+  expected: 12
+--------------------
+
+========================
+ERK Table ID 18
+  stages:             9
+  order:              6
+  explicit 1st stage: 1
+  stiffly accurate:   1
+  first same as last: 1
+========================
+--------------------
+Steps: 1
+Fe RHS evals:
+  actual:   9
+  expected: 9
+--------------------
+Steps: 2
+Fe RHS evals:
+  actual:   17
+  expected: 17
+--------------------
+Steps: 3
+Fe RHS evals:
+  actual:   25
+  expected: 25
+--------------------
+Dense Output
+Fe RHS evals:
+  actual:   25
+  expected: 25
+--------------------
+Steps: 4
+Fe RHS evals:
+  actual:   33
+  expected: 33
+--------------------
+
+========================
+ERK Table ID 19
+  stages:             10
+  order:              7
+  explicit 1st stage: 1
+  stiffly accurate:   0
+  first same as last: 0
+========================
+--------------------
+Steps: 1
+Fe RHS evals:
+  actual:   10
+  expected: 10
+--------------------
+Steps: 2
+Fe RHS evals:
+  actual:   20
+  expected: 20
+--------------------
+Steps: 3
+Fe RHS evals:
+  actual:   30
+  expected: 30
+--------------------
+Dense Output
+Fe RHS evals:
+  actual:   30
+  expected: 30
+--------------------
+Steps: 4
+Fe RHS evals:
+  actual:   40
+  expected: 40
+--------------------
+
+========================
+ERK Table ID 20
+  stages:             13
+  order:              8
+  explicit 1st stage: 1
+  stiffly accurate:   0
+  first same as last: 0
+========================
+--------------------
+Steps: 1
+Fe RHS evals:
+  actual:   13
+  expected: 13
+--------------------
+Steps: 2
+Fe RHS evals:
+  actual:   26
+  expected: 26
+--------------------
+Steps: 3
+Fe RHS evals:
+  actual:   39
+  expected: 39
+--------------------
+Dense Output
+Fe RHS evals:
+  actual:   39
+  expected: 39
+--------------------
+Steps: 4
+Fe RHS evals:
+  actual:   52
+  expected: 52
+--------------------
+
+========================
+ERK Table ID 21
+  stages:             16
+  order:              9
+  explicit 1st stage: 1
+  stiffly accurate:   0
+  first same as last: 0
+========================
+--------------------
+Steps: 1
+Fe RHS evals:
+  actual:   16
+  expected: 16
+--------------------
+Steps: 2
+Fe RHS evals:
+  actual:   32
+  expected: 32
+--------------------
+Steps: 3
+Fe RHS evals:
+  actual:   48
+  expected: 48
+--------------------
+Dense Output
+Fe RHS evals:
+  actual:   48
+  expected: 48
+--------------------
+Steps: 4
+Fe RHS evals:
+  actual:   64
+  expected: 64
+--------------------
+
+========================
 Test implicit RK methods
 ========================
 
