@@ -2257,14 +2257,19 @@ int arkStep_SetButcherTables(ARKodeMem ark_mem)
       etable = ARKSTEP_DEFAULT_ERK_6;
       break;
     case(7):
+      etable = ARKSTEP_DEFAULT_ERK_7;
+      break;
     case(8):
       etable = ARKSTEP_DEFAULT_ERK_8;
+      break;
+    case(9):
+      etable = ARKSTEP_DEFAULT_ERK_9;
       break;
     default:    /* no available method, set default */
       arkProcessError(ark_mem, ARK_ILL_INPUT, "ARKODE::ARKStep",
                       "arkStep_SetButcherTables",
-                      "No explicit method at requested order, using q=6.");
-      etable = ARKSTEP_DEFAULT_ERK_6;
+                      "No explicit method at requested order, using q=9.");
+      etable = ARKSTEP_DEFAULT_ERK_9;
       break;
     }
 
