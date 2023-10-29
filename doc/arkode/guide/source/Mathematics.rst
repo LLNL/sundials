@@ -375,10 +375,11 @@ described in the section :numref:`Butcher`.
 For mixed stiff/nonstiff problems, a user should provide both of the
 functions :math:`f^E` and :math:`f^I` that define the IVP system.  For
 such problems, ARKStep currently implements the ARK methods proposed in
-:cite:p:`KenCarp:03`, allowing for methods having order of accuracy :math:`q =
-\{3,4,5\}` and embeddings with orders :math:`p = \{2, 3, 4\}`;
-the tables for these methods are given in section :numref:`Butcher.additive`.
-Additionally, user-defined ARK tables are supported.
+:cite:p:`KenCarp:03,KenCarp:19,giraldo2013implicit`, allowing for methods having
+order of accuracy :math:`q = \{2,3,4,5\}` and embeddings with orders :math:`p =
+\{1,2,3,4\}`; the tables for these methods are given in section
+:numref:`Butcher.additive`.  Additionally, user-defined ARK tables are
+supported.
 
 For nonstiff problems, a user may specify that :math:`f^I = 0`,
 i.e. the equation :eq:`ARKODE_IMEX_IVP` reduces to the non-split IVP
@@ -391,8 +392,8 @@ In this scenario, the coefficients :math:`A^I=0`, :math:`c^I=0`,
 :math:`b^I=0` and :math:`\tilde{b}^I=0` in :eq:`ARKODE_ARK`, and the ARK
 methods reduce to classical :index:`explicit Runge--Kutta methods`
 (ERK).  For these classes of methods, ARKODE provides coefficients
-with orders of accuracy :math:`q = \{2,3,4,5,6,8\}`, with embeddings
-of orders :math:`p = \{1,2,3,4,5,7\}`.  These default to the methods in
+with orders of accuracy :math:`q = \{2,3,4,5,6,7,8,9\}`, with embeddings
+of orders :math:`p = \{1,2,3,4,5,6,7,8\}`.  These default to the methods in
 sections
 :numref:`Butcher.Heun_Euler`,
 :numref:`Butcher.Bogacki_Shampine`, :numref:`Butcher.Zonneveld`,
