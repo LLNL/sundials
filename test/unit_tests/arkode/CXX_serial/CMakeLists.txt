@@ -65,7 +65,7 @@ foreach(test_tuple ${unit_tests})
 
     # Tell CMake that we depend on the ARKODE library since it does not pick
     # that up from $<TARGET_OBJECTS:sundials_arkode_obj>.
-    add_dependencies(${test} sundials_arkode_obj)
+    add_dependencies(${test_target} sundials_arkode_obj)
 
   endif()
 
