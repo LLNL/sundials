@@ -30,7 +30,7 @@
 #elif defined(WIN32) || defined(_WIN32)
 #include <windows.h>
 #else
-#error POSIX is needed for clock_getttime
+#error SUNProfiler needs POSIX or Windows timers
 #endif
 
 #include <stdio.h>
@@ -321,7 +321,7 @@ int SUNProfiler_GetTimerResolution(SUNProfiler p, double* resolution)
 
   return (0);
 #else
-  return (-1);
+#error SUNProfiler needs POSIX or Windows timers
 #endif
 }
 
@@ -400,12 +400,12 @@ int SUNProfiler_Print(SUNProfiler p, FILE* fp)
     double resolution;
     /* Sort the timers in descending order */
     if (SUNHashMap_Sort(p->map, &sorted, sunCompareTimes)) return (-1);
-    SUNProfiler_GetTimerResolution(p, &resolution)
+    SUNProfiler_GetTimerResolution(p, &resolution);
     fprintf(fp, "\n============================================================"
                 "====================================================\n");
     fprintf(fp, "SUNDIALS GIT VERSION: %s\n", SUNDIALS_GIT_VERSION);
     fprintf(fp, "SUNDIALS PROFILER: %s\n", p->title);
-    fprintf(fp, "TIMER RESOLUTION: %gs\n", resolution));
+    fprintf(fp, "TIMER RESOLUTION: %gs\n", resolution);
     fprintf(fp, "%-40s\t %% time (inclusive) \t max/rank \t average/rank \t count \n",
             "RESULTS:");
     fprintf(fp, "=============================================================="
@@ -558,7 +558,9 @@ int sunCompareTimes(const void* l, const void* r)
 
 int sunclock_gettime_monotonic(sunTimespec* ts)
 {
-#if (defined(WIN32) || defined(_WIN32)) && !defined(SUNDIALS_HAVE_POSIX_TIMERS)
+#if defined(SUNDIALS_HAVE_POSIX_TIMERS)
+  return clock_gettime(CLOCK_MONOTONIC, ts);
+#elif (defined(WIN32) || defined(_WIN32))
   static LARGE_INTEGER ticks_per_sec;
   LARGE_INTEGER ticks;
 
@@ -577,7 +579,7 @@ int sunclock_gettime_monotonic(sunTimespec* ts)
                        ticks_per_sec.QuadPart);
 
   return 0;
-#else
-  return clock_gettime(CLOCK_MONOTONIC, ts);
+#else 
+#error SUNProfiler needs POSIX or Windows timers
 #endif
 }
