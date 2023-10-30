@@ -24,16 +24,15 @@
 
 int sleep(SUNProfiler prof, int sec, double* chrono)
 {
-  std::chrono::steady_clock::time_point begin = std::chrono::steady_clock::now();
+  auto begin = std::chrono::steady_clock::now();
   int flag = SUNProfiler_Begin(prof, "sleep");
   if (flag) return flag;
   std::this_thread::sleep_for(std::chrono::seconds(sec));
   flag = SUNProfiler_End(prof, "sleep");
   if (flag) return flag;
-  std::chrono::steady_clock::time_point end = std::chrono::steady_clock::now();
-  *chrono =
-    std::chrono::duration_cast<std::chrono::nanoseconds>(end - begin).count() *
-    1000000000;
+  auto end = std::chrono::steady_clock::now();
+  auto elapsed = std::chrono::duration_cast<std::chrono::nanoseconds>(end - begin).count();
+  *chrono = std::chrono::duration<double>(elapsed).count() * 1e-9;
   return 0;
 }
 
@@ -109,7 +108,9 @@ int main()
     return 1;
   }
 
-  if (SUNRCompareTol(time, chrono, 10*resolution))
+  // We use 100*resolution to allow for (a) some inaccuracy in the reported
+  // resolution and (b) the resolution of chrono itself.
+  if (SUNRCompareTol(time, chrono, 100*resolution))
   {
     std::cerr << ">>> FAILURE: "
               << "time recorded was " << time << "s, but expected " << chrono
