@@ -82,10 +82,6 @@ SUNDIALS_EXPORT int SUNProfiler_Reset(SUNProfiler p);
 
 #define SUNDIALS_MARK_END(profobj, name)
 
-#ifdef __cplusplus
-#define SUNDIALS_CXX_MARK_FUNCTION(profobj)
-#endif
-
 #endif
 
 #ifdef __cplusplus

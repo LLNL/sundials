@@ -51,7 +51,7 @@ setting the ``CALI_CONFIG`` environment variable.
 
 .. note:: 
 
-   The SUNDIALS profilers requires POSIX timers or the Windows ``profileapi.h`` timers.
+   The SUNDIALS profiler requires POSIX timers or the Windows ``profileapi.h`` timers.
 
 .. warning::
 
