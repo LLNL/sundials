@@ -48,6 +48,11 @@ If Caliper is enabled, then users should refer to the `Caliper documentation <ht
 for information on getting profiler output. In most cases, this involves
 setting the ``CALI_CONFIG`` environment variable.
 
+
+.. note:: 
+
+   The SUNDIALS profilers requires POSIX timers or the Windows ``profileapi.h`` timers.
+
 .. warning::
 
    While the SUNDIALS profiling scheme is relatively lightweight, enabling
