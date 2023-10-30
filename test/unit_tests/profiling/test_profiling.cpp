@@ -33,7 +33,7 @@ int sleep(SUNProfiler prof, int sec, double* chrono)
   std::chrono::steady_clock::time_point end = std::chrono::steady_clock::now();
   *chrono =
     std::chrono::duration_cast<std::chrono::nanoseconds>(end - begin).count() *
-    1e-9;
+    1000000000;
   return 0;
 }
 
