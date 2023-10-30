@@ -55,10 +55,16 @@ foreach(test_tuple ${ARKODE_unit_tests})
       ${CMAKE_SOURCE_DIR}/include
       ${CMAKE_SOURCE_DIR}/src)
 
-    # libraries to link against
+    # We explicitly choose which object libraries to link to
+    # and link in the arkode objects so that we have access to
+    # private functions w/o changing their visibility in the installed libraries.
     target_link_libraries(${test}
-      sundials_arkode
-      sundials_nvecserial
+      $<TARGET_OBJECTS:sundials_arkode_obj>
+      sundials_sunmemsys_obj
+      sundials_nvecserial_obj
+      sundials_sunlinsolband_obj
+      sundials_sunlinsoldense_obj
+      sundials_sunnonlinsolnewton_obj
       ${EXE_EXTRA_LINK_LIBS})
 
   endif()
