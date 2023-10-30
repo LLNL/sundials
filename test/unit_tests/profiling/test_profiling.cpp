@@ -2,7 +2,7 @@
  * Programmer(s): David J. Gardner @ LLNL
  * -----------------------------------------------------------------------------
  * SUNDIALS Copyright Start
- * Copyright (c) 2002-2022, Lawrence Livermore National Security
+ * Copyright (c) 2002-2023, Lawrence Livermore National Security
  * and Southern Methodist University.
  * All rights reserved.
  *
@@ -21,7 +21,6 @@
 
 #include "sundials/sundials_math.h"
 #include "sundials/sundials_profiler.h"
-#include "sundials/sundials_types.h"
 
 int sleep(SUNProfiler prof, int sec, double* chrono)
 {
@@ -42,14 +41,6 @@ int print_timings(SUNProfiler prof)
 {
   // Output timing in default (table) format
   int flag = SUNProfiler_Print(prof, stdout);
-  if (flag)
-  {
-    std::cerr << ">>> FAILURE: "
-              << "SUNProfiler_Print returned " << flag << "\n";
-    return 1;
-  }
-
-  flag = SUNProfiler_Print(prof, stdout);
   if (flag)
   {
     std::cerr << ">>> FAILURE: "

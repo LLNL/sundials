@@ -151,12 +151,12 @@ are available.
 
 .. c:function:: int SUNProfiler_GetElapsedTime(SUNProfiler p, const char* name, double* time)
 
-   Get the elapsed time for the timer "name".
+   Get the elapsed time for the timer "name" in seconds.
 
    **Arguments:**
       * ``p`` -- a ``SUNProfiler`` object
       * ``name`` -- the name for the profiling region of interest
-      * ``time`` -- upon return, this will point to the elapsed time for the timer
+      * ``time`` -- upon return, the elapsed time for the timer
 
    **Returns:**
       * Returns zero if successful, or non-zero if an error occurred
@@ -164,11 +164,11 @@ are available.
 
 .. c:function:: int SUNProfiler_GetTimerResolution(SUNProfiler p, double* resolution)
 
-   Ends the timing of a region indicated by the ``name``.
+   Get the timer resolution in seconds.
 
    **Arguments:**
       * ``p`` -- a ``SUNProfiler`` object
-      * ``resolution`` -- upon return, this will point to the resolution for the timer
+      * ``resolution`` -- upon return, the resolution for the timer
 
    **Returns:**
       * Returns zero if successful, or non-zero if an error occurred

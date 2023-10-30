@@ -27,10 +27,10 @@
 #include <stddef.h>
 #include <time.h>
 #include <unistd.h>
-#elif !(defined(WIN32) || defined(_WIN32))
-#error POSIX is needed for clock_getttime
-#else
+#elif defined(WIN32) || defined(_WIN32)
 #include <windows.h>
+#else
+#error POSIX is needed for clock_getttime
 #endif
 
 #include <stdio.h>
@@ -43,14 +43,14 @@
 
 #define SUNDIALS_ROOT_TIMER ((const char*)"From profiler epoch")
 
-#if (defined(WIN32) || defined(_WIN32)) && !defined(SUNDIALS_HAVE_POSIX_TIMERS)
+#if defined(SUNDIALS_HAVE_POSIX_TIMERS)
+typedef struct timespec sunTimespec;
+#else
 typedef struct _sunTimespec
 {
   long int tv_sec;
   long int tv_nsec;
 } sunTimespec;
-#else
-typedef struct timespec sunTimespec;
 #endif
 
 /* Private functions */
@@ -117,7 +117,7 @@ static void sunStopTiming(sunTimerStruct* entry)
 
   s_difference  = entry->toc->tv_sec - entry->tic->tv_sec;
   ns_difference = entry->toc->tv_nsec - entry->tic->tv_nsec;
-  if (ns_difference < 0.0)
+  if (ns_difference < 0)
   {
     s_difference--;
     ns_difference = 1000000000 + entry->toc->tv_nsec - entry->tic->tv_nsec;
@@ -308,8 +308,7 @@ int SUNProfiler_GetTimerResolution(SUNProfiler p, double* resolution)
   *resolution = 1e-9 * ((double)spec.tv_nsec);
 
   return (0);
-#elif (defined(WIN32) || defined(_WIN32)) && \
-  !defined(SUNDIALS_HAVE_POSIX_TIMERS)
+#elif (defined(WIN32) || defined(_WIN32))
   static LARGE_INTEGER ticks_per_sec;
 
   if (!ticks_per_sec.QuadPart)
@@ -398,21 +397,15 @@ int SUNProfiler_Print(SUNProfiler p, FILE* fp)
 
   if (rank == 0)
   {
-#if defined(SUNDIALS_HAVE_POSIX_TIMERS)
-    sunTimespec spec;
-#endif
+    double resolution;
     /* Sort the timers in descending order */
     if (SUNHashMap_Sort(p->map, &sorted, sunCompareTimes)) return (-1);
-#if defined(SUNDIALS_HAVE_POSIX_TIMERS)
-    clock_getres(CLOCK_MONOTONIC, &spec);
-#endif
+    SUNProfiler_GetTimerResolution(p, &resolution)
     fprintf(fp, "\n============================================================"
                 "====================================================\n");
     fprintf(fp, "SUNDIALS GIT VERSION: %s\n", SUNDIALS_GIT_VERSION);
     fprintf(fp, "SUNDIALS PROFILER: %s\n", p->title);
-#if defined(SUNDIALS_HAVE_POSIX_TIMERS)
-    fprintf(fp, "TIMER RESOLUTION: %gs\n", 1e-9 * ((double)spec.tv_nsec));
-#endif
+    fprintf(fp, "TIMER RESOLUTION: %gs\n", resolution));
     fprintf(fp, "%-40s\t %% time (inclusive) \t max/rank \t average/rank \t count \n",
             "RESULTS:");
     fprintf(fp, "=============================================================="
