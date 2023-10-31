@@ -61,7 +61,7 @@ SUNAdaptController ARKUserControl(SUNContext sunctx, void* arkode_mem,
   C->ops->estimatestep = SUNAdaptController_EstimateStep_ARKUserControl;
   C->ops->reset        = SUNAdaptController_Reset_ARKUserControl;
   C->ops->write        = SUNAdaptController_Write_ARKUserControl;
-  C->ops->update       = SUNAdaptController_Update_ARKUserControl;
+  C->ops->updateh      = SUNAdaptController_UpdateH_ARKUserControl;
   C->ops->space        = SUNAdaptController_Space_ARKUserControl;
 
   /* Create content */
@@ -137,7 +137,7 @@ int SUNAdaptController_Write_ARKUserControl(SUNAdaptController C, FILE *fptr)
   return SUNADAPTCONTROLLER_SUCCESS;
 }
 
-int SUNAdaptController_Update_ARKUserControl(SUNAdaptController C, realtype h, realtype dsm)
+int SUNAdaptController_UpdateH_ARKUserControl(SUNAdaptController C, realtype h, realtype dsm)
 {
   SC_HPP(C) = SC_HP(C);
   SC_HP(C) = h;

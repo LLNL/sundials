@@ -326,7 +326,7 @@ SWIGEXPORT int _wrap_FSUNAdaptController_SetErrorBias_Soderlind(SUNAdaptControll
 }
 
 
-SWIGEXPORT int _wrap_FSUNAdaptController_Update_Soderlind(SUNAdaptController farg1, double const *farg2, double const *farg3) {
+SWIGEXPORT int _wrap_FSUNAdaptController_UpdateH_Soderlind(SUNAdaptController farg1, double const *farg2, double const *farg3) {
   int fresult ;
   SUNAdaptController arg1 = (SUNAdaptController) 0 ;
   sunrealtype arg2 ;
@@ -336,7 +336,7 @@ SWIGEXPORT int _wrap_FSUNAdaptController_Update_Soderlind(SUNAdaptController far
   arg1 = (SUNAdaptController)(farg1);
   arg2 = (sunrealtype)(*farg2);
   arg3 = (sunrealtype)(*farg3);
-  result = (int)SUNAdaptController_Update_Soderlind(arg1,arg2,arg3);
+  result = (int)SUNAdaptController_UpdateH_Soderlind(arg1,arg2,arg3);
   fresult = (int)(result);
   return fresult;
 }

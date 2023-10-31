@@ -86,7 +86,7 @@ SUNAdaptController SUNAdaptController_Soderlind(SUNContext sunctx)
   C->ops->setdefaults  = SUNAdaptController_SetDefaults_Soderlind;
   C->ops->write        = SUNAdaptController_Write_Soderlind;
   C->ops->seterrorbias = SUNAdaptController_SetErrorBias_Soderlind;
-  C->ops->update       = SUNAdaptController_Update_Soderlind;
+  C->ops->updateh      = SUNAdaptController_UpdateH_Soderlind;
   C->ops->space        = SUNAdaptController_Space_Soderlind;
 
   /* Create content */
@@ -373,7 +373,7 @@ int SUNAdaptController_SetErrorBias_Soderlind(SUNAdaptController C, sunrealtype 
   return SUNADAPTCONTROLLER_SUCCESS;
 }
 
-int SUNAdaptController_Update_Soderlind(SUNAdaptController C, sunrealtype h, sunrealtype dsm)
+int SUNAdaptController_UpdateH_Soderlind(SUNAdaptController C, sunrealtype h, sunrealtype dsm)
 {
   SODERLIND_EPP(C) = SODERLIND_EP(C);
   SODERLIND_EP(C)  = SODERLIND_BIAS(C) * dsm;

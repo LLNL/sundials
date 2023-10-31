@@ -70,7 +70,7 @@ int SUNAdaptController_Write_Soderlind(SUNAdaptController C, FILE* fptr);
 SUNDIALS_EXPORT
 int SUNAdaptController_SetErrorBias_Soderlind(SUNAdaptController C, sunrealtype bias);
 SUNDIALS_EXPORT
-int SUNAdaptController_Update_Soderlind(SUNAdaptController C, sunrealtype h, sunrealtype dsm);
+int SUNAdaptController_UpdateH_Soderlind(SUNAdaptController C, sunrealtype h, sunrealtype dsm);
 SUNDIALS_EXPORT
 int SUNAdaptController_Space_Soderlind(SUNAdaptController C, long int *lenrw,
                                        long int *leniw);

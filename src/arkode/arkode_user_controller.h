@@ -60,7 +60,7 @@ int SUNAdaptController_Reset_ARKUserControl(SUNAdaptController C);
 SUNDIALS_EXPORT
 int SUNAdaptController_Write_ARKUserControl(SUNAdaptController C, FILE* fptr);
 SUNDIALS_EXPORT
-int SUNAdaptController_Update_ARKUserControl(SUNAdaptController C, realtype h, realtype dsm);
+int SUNAdaptController_UpdateH_ARKUserControl(SUNAdaptController C, realtype h, realtype dsm);
 SUNDIALS_EXPORT
 int SUNAdaptController_Space_ARKUserControl(SUNAdaptController C, long int *lenrw,
                                             long int *leniw);

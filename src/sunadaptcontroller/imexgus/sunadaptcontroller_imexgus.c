@@ -72,7 +72,7 @@ SUNAdaptController SUNAdaptController_ImExGus(SUNContext sunctx)
   C->ops->setdefaults    = SUNAdaptController_SetDefaults_ImExGus;
   C->ops->write          = SUNAdaptController_Write_ImExGus;
   C->ops->seterrorbias   = SUNAdaptController_SetErrorBias_ImExGus;
-  C->ops->update         = SUNAdaptController_Update_ImExGus;
+  C->ops->updateh        = SUNAdaptController_UpdateH_ImExGus;
   C->ops->space          = SUNAdaptController_Space_ImExGus;
 
   /* Create content */
@@ -206,7 +206,7 @@ int SUNAdaptController_SetErrorBias_ImExGus(SUNAdaptController C, sunrealtype bi
   return SUNADAPTCONTROLLER_SUCCESS;
 }
 
-int SUNAdaptController_Update_ImExGus(SUNAdaptController C, sunrealtype h, sunrealtype dsm)
+int SUNAdaptController_UpdateH_ImExGus(SUNAdaptController C, sunrealtype h, sunrealtype dsm)
 {
   SACIMEXGUS_EP(C) = SACIMEXGUS_BIAS(C) * dsm;
   SACIMEXGUS_HP(C) = h;

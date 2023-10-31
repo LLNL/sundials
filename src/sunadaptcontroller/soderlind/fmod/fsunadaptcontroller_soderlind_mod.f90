@@ -35,7 +35,7 @@ module fsunadaptcontroller_soderlind_mod
  public :: FSUNAdaptController_SetDefaults_Soderlind
  public :: FSUNAdaptController_Write_Soderlind
  public :: FSUNAdaptController_SetErrorBias_Soderlind
- public :: FSUNAdaptController_Update_Soderlind
+ public :: FSUNAdaptController_UpdateH_Soderlind
  public :: FSUNAdaptController_Space_Soderlind
  public :: FSUNAdaptController_PID
  public :: FSUNAdaptController_SetParams_PID
@@ -125,8 +125,8 @@ real(C_DOUBLE), intent(in) :: farg2
 integer(C_INT) :: fresult
 end function
 
-function swigc_FSUNAdaptController_Update_Soderlind(farg1, farg2, farg3) &
-bind(C, name="_wrap_FSUNAdaptController_Update_Soderlind") &
+function swigc_FSUNAdaptController_UpdateH_Soderlind(farg1, farg2, farg3) &
+bind(C, name="_wrap_FSUNAdaptController_UpdateH_Soderlind") &
 result(fresult)
 use, intrinsic :: ISO_C_BINDING
 type(C_PTR), value :: farg1
@@ -377,7 +377,7 @@ fresult = swigc_FSUNAdaptController_SetErrorBias_Soderlind(farg1, farg2)
 swig_result = fresult
 end function
 
-function FSUNAdaptController_Update_Soderlind(c, h, dsm) &
+function FSUNAdaptController_UpdateH_Soderlind(c, h, dsm) &
 result(swig_result)
 use, intrinsic :: ISO_C_BINDING
 integer(C_INT) :: swig_result
@@ -392,7 +392,7 @@ real(C_DOUBLE) :: farg3
 farg1 = c_loc(c)
 farg2 = h
 farg3 = dsm
-fresult = swigc_FSUNAdaptController_Update_Soderlind(farg1, farg2, farg3)
+fresult = swigc_FSUNAdaptController_UpdateH_Soderlind(farg1, farg2, farg3)
 swig_result = fresult
 end function
 

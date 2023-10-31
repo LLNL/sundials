@@ -2470,7 +2470,7 @@ int arkCompleteStep(ARKodeMem ark_mem, realtype dsm)
   N_VScale(ONE, ark_mem->ycur, ark_mem->yn);
 
   /* Notify time step controller object of successful step */
-  retval = SUNAdaptController_Update(ark_mem->hadapt_mem->hcontroller, ark_mem->h, dsm);
+  retval = SUNAdaptController_UpdateH(ark_mem->hadapt_mem->hcontroller, ark_mem->h, dsm);
   if (retval != SUNADAPTCONTROLLER_SUCCESS) {
     arkProcessError(ark_mem, ARK_CONTROLLER_ERR, "ARKODE", "arkCompleteStep",
                     "Failure updating controller object");

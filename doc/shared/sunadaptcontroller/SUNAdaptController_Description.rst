@@ -65,7 +65,7 @@ function pointers to the various controller operations, and is defined as
         int (*setdefaults)(SUNAdaptController C);
         int (*write)(SUNAdaptController C, FILE* fptr);
         int (*seterrorbias)(SUNAdaptController C, sunrealtype bias);
-        int (*update)(SUNAdaptController C, sunrealtype h, sunrealtype dsm);
+        int (*updateh)(SUNAdaptController C, sunrealtype h, sunrealtype dsm);
         int (*space)(SUNAdaptController C, long int *lenrw, long int *leniw);
     };
 
@@ -238,12 +238,13 @@ note these requirements below. Additionally, we note the behavior of the base SU
 
       retval = SUNAdaptController_SetErrorBias(C, 1.2);
 
-.. c:function:: int SUNAdaptController_Update(SUNAdaptController C, sunrealtype h, sunrealtype dsm)
+.. c:function:: int SUNAdaptController_UpdateH(SUNAdaptController C, sunrealtype h, sunrealtype dsm)
 
-   Notifies the controller of a successful time step of size *h* and with
-   temporal error estimate *dsm*. This is typically used for controllers that
-   store a history of either step sizes or error estimates for performing the
-   estimation process.
+   Notifies a controller of type SUN_ADAPTCONTROLLER_H that a successful time step
+   was taken with stepsize *h* and local error factor *dsm*, indicating that these
+   can be saved for subsequent controller functions. This is typically relevant for
+   controllers that store a history of either step sizes or error estimates for
+   performing the estimation process.
 
    :param C:  the :c:type:`SUNAdaptController` object.
    :param h:  the successful step size.
@@ -255,7 +256,7 @@ note these requirements below. Additionally, we note the behavior of the base SU
 
    .. code-block:: c
 
-      retval = SUNAdaptController_Update(C, h, dsm);
+      retval = SUNAdaptController_UpdateH(C, h, dsm);
 
 .. c:function:: int SUNAdaptController_Space(SUNAdaptController C, long int *lenrw, long int *leniw)
 

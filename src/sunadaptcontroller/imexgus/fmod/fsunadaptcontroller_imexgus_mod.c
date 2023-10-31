@@ -324,7 +324,7 @@ SWIGEXPORT int _wrap_FSUNAdaptController_SetErrorBias_ImExGus(SUNAdaptController
 }
 
 
-SWIGEXPORT int _wrap_FSUNAdaptController_Update_ImExGus(SUNAdaptController farg1, double const *farg2, double const *farg3) {
+SWIGEXPORT int _wrap_FSUNAdaptController_UpdateH_ImExGus(SUNAdaptController farg1, double const *farg2, double const *farg3) {
   int fresult ;
   SUNAdaptController arg1 = (SUNAdaptController) 0 ;
   sunrealtype arg2 ;
@@ -334,7 +334,7 @@ SWIGEXPORT int _wrap_FSUNAdaptController_Update_ImExGus(SUNAdaptController farg1
   arg1 = (SUNAdaptController)(farg1);
   arg2 = (sunrealtype)(*farg2);
   arg3 = (sunrealtype)(*farg3);
-  result = (int)SUNAdaptController_Update_ImExGus(arg1,arg2,arg3);
+  result = (int)SUNAdaptController_UpdateH_ImExGus(arg1,arg2,arg3);
   fresult = (int)(result);
   return fresult;
 }

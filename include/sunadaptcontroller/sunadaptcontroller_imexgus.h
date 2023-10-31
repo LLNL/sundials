@@ -65,7 +65,7 @@ int SUNAdaptController_Write_ImExGus(SUNAdaptController C, FILE* fptr);
 SUNDIALS_EXPORT
 int SUNAdaptController_SetErrorBias_ImExGus(SUNAdaptController C, sunrealtype bias);
 SUNDIALS_EXPORT
-int SUNAdaptController_Update_ImExGus(SUNAdaptController C, sunrealtype h, sunrealtype dsm);
+int SUNAdaptController_UpdateH_ImExGus(SUNAdaptController C, sunrealtype h, sunrealtype dsm);
 SUNDIALS_EXPORT
 int SUNAdaptController_Space_ImExGus(SUNAdaptController C, long int *lenrw,
                                      long int *leniw);

@@ -45,15 +45,10 @@ SUNAdaptController SUNAdaptController_NewEmpty(SUNContext sunctx)
   ops->destroy              = NULL;
   ops->reset                = NULL;
   ops->estimatestep         = NULL;
-  ops->estimatestepandorder = NULL;
-  ops->estimatemristeps     = NULL;
-  ops->estimatesteptol      = NULL;
   ops->setdefaults          = NULL;
   ops->write                = NULL;
   ops->seterrorbias         = NULL;
-  ops->update               = NULL;
-  ops->updatemrih           = NULL;
-  ops->updatemritol         = NULL;
+  ops->updateh              = NULL;
   ops->space                = NULL;
 
   /* attach ops and initialize content to NULL */
@@ -128,54 +123,6 @@ int SUNAdaptController_EstimateStep(SUNAdaptController C, sunrealtype h, int p,
 }
 
 
-int SUNAdaptController_EstimateStepAndOrder(SUNAdaptController C, sunrealtype h,
-                                            int p, sunrealtype dsm,
-                                            sunrealtype* hnew, int *pnew)
-{
-  int ier = 0;
-  *hnew = h;   /* initialize outputs with identity */
-  *pnew = p;
-  if (C == NULL) { return ier; }
-  if (C->ops->estimatestepandorder)
-  {
-    ier = C->ops->estimatestepandorder(C, h, p, dsm, hnew, pnew);
-  }
-  return(ier);
-}
-
-int SUNAdaptController_EstimateMRISteps(SUNAdaptController C, sunrealtype H,
-                                        sunrealtype h, int P, int p,
-                                        sunrealtype DSM, sunrealtype dsm,
-                                        sunrealtype* Hnew, sunrealtype *hnew)
-{
-  int ier = 0;
-  *Hnew = H;   /* initialize outputs with identity */
-  *hnew = h;
-  if (C == NULL) { return ier; }
-  if (C->ops->estimatemristeps)
-  {
-    ier = C->ops->estimatemristeps(C, H, h, P, p, DSM, dsm, Hnew, hnew);
-  }
-  return(ier);
-}
-
-int SUNAdaptController_EstimateStepTol(SUNAdaptController C, sunrealtype H,
-                                       int P, sunrealtype tolfac,
-                                       sunrealtype DSM, sunrealtype dsm,
-                                       sunrealtype *Hnew, sunrealtype* tolfacnew)
-{
-  int ier = 0;
-  *Hnew = H;   /* initialize outputs with identity */
-  *tolfacnew = tolfac;
-  if (C == NULL) { return ier; }
-  if (C->ops->estimatesteptol)
-  {
-    ier = C->ops->estimatesteptol(C, H, P, tolfac, DSM, dsm,
-                                  Hnew, tolfacnew);
-  }
-  return(ier);
-}
-
 int SUNAdaptController_Reset(SUNAdaptController C)
 {
   int ier = 0;
@@ -207,29 +154,11 @@ int SUNAdaptController_SetErrorBias(SUNAdaptController C, sunrealtype bias)
   return(ier);
 }
 
-int SUNAdaptController_Update(SUNAdaptController C, sunrealtype h, sunrealtype dsm)
+int SUNAdaptController_UpdateH(SUNAdaptController C, sunrealtype h, sunrealtype dsm)
 {
   int ier = 0;
   if (C == NULL) { return ier; }
-  if (C->ops->update) { ier = C->ops->update(C, h, dsm); }
-  return(ier);
-}
-
-int SUNAdaptController_UpdateMRIH(SUNAdaptController C, sunrealtype H, sunrealtype h,
-                                  sunrealtype DSM, sunrealtype dsm)
-{
-  int ier = 0;
-  if (C == NULL) { return ier; }
-  if (C->ops->updatemrih) { ier = C->ops->updatemrih(C, H, h, DSM, dsm); }
-  return(ier);
-}
-
-int SUNAdaptController_UpdateMRITol(SUNAdaptController C, sunrealtype H, sunrealtype tolfac,
-                                    sunrealtype DSM, sunrealtype dsm)
-{
-  int ier = 0;
-  if (C == NULL) { return ier; }
-  if (C->ops->updatemritol) { ier = C->ops->updatemritol(C, H, tolfac, DSM, dsm); }
+  if (C->ops->updateh) { ier = C->ops->updateh(C, h, dsm); }
   return(ier);
 }
 
