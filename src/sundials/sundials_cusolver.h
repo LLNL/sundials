@@ -21,11 +21,13 @@
 #include <stdio.h>
 
 #include <cuda_runtime.h>
+#include <cusolverDn.h>
+#include <cusolverSp.h>
 
 #include <sundials/sundials_types.h>
 
-#ifndef _SUNDIALS_CUDA_H
-#define _SUNDIALS_CUDA_H
+#ifndef _SUNDIALS_CUSOLVER_H
+#define _SUNDIALS_CUSOLVER_H
 
 #ifdef __cplusplus  /* wrapper to enable C++ usage */
 extern "C" {
@@ -35,45 +37,32 @@ extern "C" {
  * Utility macros
  * ---------------------------------------------------------------------------*/
 
-#define SUNDIALS_CUDA_VERIFY(cuerr) SUNDIALS_CUDA_Assert(cuerr, __FILE__, __LINE__)
+#define SUNDIALS_CUSOLVER_VERIFY(cuerr) SUNDIALS_CUSOLVER_Assert(cuerr, __FILE__, __LINE__)
 
-#define SUNDIALS_KERNEL_NAME(...) __VA_ARGS__
-#ifndef SUNDIALS_DEBUG_CUDA_LASTERROR
-#define SUNDIALS_LAUNCH_KERNEL(kernel, gridDim, blockDim, shMem, stream, ...) \
-{ kernel<<<gridDim, blockDim, shMem, stream>>>(__VA_ARGS__); }
-#else
-#define SUNDIALS_LAUNCH_KERNEL(kernel, gridDim, blockDim, shMem, stream, ...) \
-{ \
-  kernel<<<gridDim, blockDim, shMem, stream>>>(__VA_ARGS__); \
-  cudaDeviceSynchronize(); \
-  SUNDIALS_CUDA_VERIFY(cudaGetLastError()); \
-}
-#endif
 
 /* ---------------------------------------------------------------------------
  * Utility functions
  * ---------------------------------------------------------------------------*/
 
-inline booleantype SUNDIALS_CUDA_Assert(cudaError_t cuerr, const char *file, int line)
+inline booleantype SUNDIALS_CUSOLVER_Assert(cusolverStatus_t status, const char *file, int line)
 {
-  if (cuerr != cudaSuccess)
+  if (status != CUSOLVER_STATUS_SUCCESS)
   {
 #ifdef SUNDIALS_DEBUG
     fprintf(stderr,
-            "ERROR in CUDA runtime operation: %s %s:%d\n",
-            cudaGetErrorString(cuerr), file, line);
+            "ERROR in cuSOLVER runtime operation: cusolverStatus_t = %d %s:%d\n",
+            status, file, line);
 #ifdef SUNDIALS_DEBUG_ASSERT
     assert(false);
 #endif
 #endif
-    return SUNFALSE; /* Assert failed */
+    return SUNFALSE; /*  Assert failed */
   }
   return SUNTRUE; /* Assert OK */
 }
-
 
 #ifdef __cplusplus  /* wrapper to enable C++ usage */
 }
 #endif
 
-#endif /* _SUNDIALS_CUDA_H */
+#endif /* _SUNDIALS_CUSOLVER_H */

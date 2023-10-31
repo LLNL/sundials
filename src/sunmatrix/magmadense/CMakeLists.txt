@@ -16,7 +16,7 @@ install(CODE "MESSAGE(\"\nInstall SUNMATRIX_MAGMADENSE with ${SUNDIALS_MAGMA_BAC
 
 if(SUNDIALS_MAGMA_BACKENDS MATCHES "CUDA")
   set_source_files_properties(sunmatrix_magmadense.cpp PROPERTIES LANGUAGE CUDA)
-  set(_libs_needed sundials_nveccuda ${CUDA_CUBLAS_LIBRARIES})
+  set(_libs_needed sundials_nveccuda)
 elseif(SUNDIALS_MAGMA_BACKENDS MATCHES "HIP")
   set_source_files_properties(sunmatrix_magmadense.cpp PROPERTIES LANGUAGE CXX)
   set(_libs_needed sundials_nvechip hip::device)

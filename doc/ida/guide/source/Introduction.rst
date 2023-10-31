@@ -75,6 +75,9 @@ Changes from previous versions
 Changes in vX.X.X
 -----------------
 
+Fixed the build system support for MAGMA when using a NVIDIA HPC SDK installation of CUDA
+and fixed the targets used for rocBLAS and rocSPARSE.
+
 Fixed a regression introduced by the stop time bug fix in v6.6.1 where IDA would
 return at the stop time rather than the requested output time if the stop time
 was reached in the same step in which the output time was passed.
@@ -86,6 +89,8 @@ Fixed scaling bug in ``SUNMatScaleAddI_Sparse`` for non-square matrices.
 
 Fixed missing soversions in some ``SUNLinearSolver`` and ``SUNNonlinearSolver``
 CMake targets.
+
+Added Fortran support for the LAPACK  dense ``SUNLinearSolver`` implementation.
 
 Changes in v6.6.1
 -----------------
