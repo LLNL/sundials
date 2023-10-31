@@ -911,14 +911,16 @@ First, any valid implementation of the SUNAdaptController class
 time-stepping modules to provide a candidate error-based prospective step
 size :math:`h'`.
 
-Second, ARKODE's adaptive time-stepping modules allow the user to define their
-own time step adaptivity function,
+Second, ARKODE's adaptive time-stepping modules currently still allow the
+user to define their own time step adaptivity function,
 
 .. math::
    h' = H(y, t, h_n, h_{n-1}, h_{n-2}, \varepsilon_n, \varepsilon_{n-1}, \varepsilon_{n-2}, q, p),
 
 allowing for problem-specific choices, or for continued
-experimentation with temporal error controllers.
+experimentation with temporal error controllers.  We note that this
+support has been deprecated in favor of the SUNAdaptController class,
+and will be removed in a future release.
 
 
 
