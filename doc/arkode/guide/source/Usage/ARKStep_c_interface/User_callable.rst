@@ -1858,6 +1858,9 @@ Explicit stability function                                 :c:func:`ARKStepSetS
       :c:func:`ARKStepSetAdaptController` will be called, then this routine must be called
       *second*.
 
+   .. deprecated:: x.x.x
+
+      Use the SUNAdaptController infrastructure instead (see :numref:`SUNAdaptController.Description`).
 
 
 .. c:function:: int ARKStepSetFixedStepBounds(void* arkode_mem, realtype lb, realtype ub)

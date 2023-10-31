@@ -240,24 +240,26 @@ also provides the following additional user-callable routines:
 
       SUNAdaptController C = SUNAdaptController_ExpGus(sunctx);
 
-.. c:function:: int SUNAdaptController_SetParams_ExpGus(SUNAdaptController C, sunrealtype k1, sunrealtype k2)
+.. c:function:: int SUNAdaptController_SetParams_ExpGus(SUNAdaptController C, sunrealtype k1_hat, sunrealtype k2_hat)
 
    This user-callable function provides control over the relevant parameters
    above, setting :math:`k_3 = k_4 = k_5 = 0`.  This should be called *before* the
    time integrator is called to evolve the problem.
 
-   Note that the Gustafsson's explicit controller has the form
+   .. note::
 
-   .. math::
-      h' = h_n \varepsilon_n^{-\hat{k}_1/(p+1)} \left(\frac{\varepsilon_n}{\varepsilon_{n-1}}\right)^{-\hat{k}_2/(p+1)}.
+      Gustafsson's explicit controller has the form
 
-   The inputs to this function correspond to the values of :math:`\hat{k}_1` and :math:`\hat{k}_2`,
-   which are internally transformed into the Soderlind coeficients :math:`k_1 = \hat{k}_1+\hat{k}_2`
-   and :math:`k_2 = -\hat{k}_2`.
+      .. math::
+         h' = h_n \varepsilon_n^{-\hat{k}_1/(p+1)} \left(\frac{\varepsilon_n}{\varepsilon_{n-1}}\right)^{-\hat{k}_2/(p+1)}.
+
+      The inputs to this function correspond to the values of :math:`\hat{k}_1` and :math:`\hat{k}_2`,
+      which are internally transformed into the Soderlind coeficients :math:`k_1 = \hat{k}_1+\hat{k}_2`
+      and :math:`k_2 = -\hat{k}_2`.
 
    :param C: the SUNAdaptController_Soderlind object.
-   :param k1: parameter used within the explicit Gustafsson controller time step estimate.
-   :param k2: parameter used within the explicit Gustafsson controller time step estimate.
+   :param k1_hat: parameter used within the explicit Gustafsson controller time step estimate.
+   :param k2_hat: parameter used within the explicit Gustafsson controller time step estimate.
    :return: error code indication success or failure (see :numref:`SUNAdaptController.Description.errorCodes`).
 
    Usage:
@@ -284,24 +286,26 @@ also provides the following additional user-callable routines:
 
       SUNAdaptController C = SUNAdaptController_ImpGus(sunctx);
 
-.. c:function:: int SUNAdaptController_SetParams_ImpGus(SUNAdaptController C, sunrealtype k1, sunrealtype k2)
+.. c:function:: int SUNAdaptController_SetParams_ImpGus(SUNAdaptController C, sunrealtype k1_hat, sunrealtype k2_hat)
 
    This user-callable function provides control over the relevant parameters
    above, setting :math:`k_3 = k_4 = k_5 = 0`.  This should be called *before* the
    time integrator is called to evolve the problem.
 
-   Note that the Gustafsson's implicit controller has the form
+   .. note::
 
-   .. math::
-      h' = h_n \varepsilon_n^{-\hat{k}_1/(p+1)} \left(\frac{\varepsilon_n}{\varepsilon_{n-1}}\right)^{-\hat{k}_2/(p+1)} \left(\frac{h_n}{h_{n-1}}\right).
+      Gustafsson's implicit controller has the form
 
-   The inputs to this function correspond to the values of :math:`\hat{k}_1` and :math:`\hat{k}_2`,
-   which are internally transformed into the Soderlind coeficients :math:`k_1 = \hat{k}_1+\hat{k}_2`,
-   :math:`k_2 = -\hat{k}_2`, and :math:`k_4=1`.
+      .. math::
+         h' = h_n \varepsilon_n^{-\hat{k}_1/(p+1)} \left(\frac{\varepsilon_n}{\varepsilon_{n-1}}\right)^{-\hat{k}_2/(p+1)} \left(\frac{h_n}{h_{n-1}}\right).
+
+         The inputs to this function correspond to the values of :math:`\hat{k}_1` and :math:`\hat{k}_2`,
+         which are internally transformed into the Soderlind coeficients :math:`k_1 = \hat{k}_1+\hat{k}_2`,
+         :math:`k_2 = -\hat{k}_2`, and :math:`k_4=1`.
 
    :param C: the SUNAdaptController_Soderlind object.
-   :param k1: parameter used within the implicit Gustafsson controller time step estimate.
-   :param k2: parameter used within the implicit Gustafsson controller time step estimate.
+   :param k1_hat: parameter used within the implicit Gustafsson controller time step estimate.
+   :param k2_hat: parameter used within the implicit Gustafsson controller time step estimate.
    :return: error code indication success or failure (see :numref:`SUNAdaptController.Description.errorCodes`).
 
    Usage:

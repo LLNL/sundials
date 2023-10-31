@@ -25,30 +25,29 @@ is primarily useful with explicit Runge--Kutta methods, and has the form
 .. math::
    h' \;=\; \begin{cases}
       h_1\; \varepsilon_1^{-1/(p+1)}, &\quad\text{on the first step}, \\
-      h_n\; \varepsilon_n^{-k_1/(p+1)}\;
-        \left(\dfrac{\varepsilon_n}{\varepsilon_{n-1}}\right)^{k_2/(p+1)}, &
+      h_n\; \varepsilon_n^{-k_1^E/(p+1)}\;
+        \left(\dfrac{\varepsilon_n}{\varepsilon_{n-1}}\right)^{k_2^E/(p+1)}, &
       \quad\text{on subsequent steps}.
    \end{cases}
    :label: expGusController
 
-The default values of :math:`k_1` and :math:`k_2` are 0.367 and 0.268,
-respectively, and :math:`p` is the global order of the time
-integration method.  In this estimate, a floor of :math:`\varepsilon > 10^{-10}`
-is enforced to avoid division-by-zero errors.
-
-Gustafsson also proposed a controller for implicit Runge--Kutta methods in :cite:p:`Gust:94`,
+Similarly, Gustafsson's "implicit" controller was proposed in :cite:p:`Gust:94`
 with the form
 
 .. math::
    h' = \begin{cases}
       h_1 \varepsilon_1^{-1/(p+1)}, &\quad\text{on the first step}, \\
-      h_n \left(\dfrac{h_n}{h_{n-1}}\right) \varepsilon_n^{-k_1/(p+1)}
-        \left(\dfrac{\varepsilon_n}{\varepsilon_{n-1}}\right)^{-k_2/(p+1)}, &
-      \quad\text{on subsequent steps},
+      h_n \left(\dfrac{h_n}{h_{n-1}}\right) \varepsilon_n^{-k_1^I/(p+1)}
+        \left(\dfrac{\varepsilon_n}{\varepsilon_{n-1}}\right)^{-k_2^I/(p+1)}, &
+      \quad\text{on subsequent steps}.
    \end{cases}
    :label: impGusController
 
-where the default parameter values are :math:`k_1 = 0.98` and :math:`k_2 = 0.95`.
+In the above formulas, the default values of :math:`k_1^E`, :math:`k_2^E`,
+:math:`k_1^I`, and :math:`k_2^I` are 0.367, 0.268, 0.98, and 0.95, respectively,
+and :math:`p` is the global order of the time integration method.  In these
+estimates, a floor of :math:`\varepsilon_* > 10^{-10}` is enforced to avoid
+division-by-zero errors.
 
 The SUNAdaptController_ImExGus controller implements both formulas
 :eq:`expGusController` and :eq:`impGusController`, and sets its recommended step
