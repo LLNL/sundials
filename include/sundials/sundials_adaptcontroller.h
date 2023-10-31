@@ -39,7 +39,7 @@ extern "C" {
 typedef enum
 {
   SUN_ADAPTCONTROLLER_NONE,
-  SUN_ADAPTCONTROLLER_H,
+  SUN_ADAPTCONTROLLER_H
 } SUNAdaptController_Type;
 
 /* -----------------------------------------------------------------
