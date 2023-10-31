@@ -19,18 +19,18 @@ The SUNAdaptController_Soderlind Module
 
 The Soderlind implementation of the SUNAdaptController class,
 SUNAdaptController_Soderlind, implements a general structure for temporal
-control proposed by G. Soderlind in :cite:p:`Sod:98`, :cite:p:`Sod:03`
+control proposed by G. Soderlind in :cite:p:`Sod:98`, :cite:p:`Sod:03`,
 and :cite:p:`Sod:06`.  This controller has the form
 
 .. math::
    h' = h_n \varepsilon_n^{-k_1/(p+1)} \varepsilon_{n-1}^{-k_2/(p+1)} \varepsilon_{n-2}^{-k_3/(p+1)} \left(\dfrac{h_n}{h_{n-1}}\right)^{k_4} \left(\dfrac{h_{n-1}}{h_{n-2}}\right)^{k_5}
 
 with default parameter values :math:`k_1 = 1.25`, :math:`k_2 = 0.5`,
-:math:`k_3 = -0.75`, :math:`k_4 = 0.25` and :math:`k_5 = 0.75`, where
+:math:`k_3 = -0.75`, :math:`k_4 = 0.25`, and :math:`k_5 = 0.75`, where
 :math:`p` is the global order of the time integration method.  In this estimate,
-a floor of :math:`\varepsilon > 10^{-10}` is enforced to avoid division-by-zero
+a floor of :math:`\varepsilon_* > 10^{-10}` is enforced to avoid division-by-zero
 errors.  During the first two steps (when :math:`\varepsilon_{n-2}`,
-:math:`\varepsilon_{n-1}`, :math:`h_{n-2}` and :math:`h_{n-2}` may be unavailable),
+:math:`\varepsilon_{n-1}`, :math:`h_{n-2}`, and :math:`h_{n-2}` may be unavailable),
 the corresponding terms are merely omitted during estimation of :math:`h'`.
 
 The SUNAdaptController_Soderlind controller is implemented as a derived
@@ -60,7 +60,7 @@ These entries of the *content* field contain the following information:
   estimate via :math:`\varepsilon = \text{bias}*\text{dsm}`.
 
 * ``ep, epp`` - storage for the two previous error estimates,
-  :math:`\varepsilon_{n-1}` and :math:`varepsilon_{n-2}`.
+  :math:`\varepsilon_{n-1}` and :math:`\varepsilon_{n-2}`.
 
 * ``hp, hpp`` - storage for the previous two step sizes, :math:`h_{n-1}`
   and :math:`h_{n-2}`.
@@ -71,7 +71,7 @@ These entries of the *content* field contain the following information:
 The header file to be included when using this module is
 ``sunadaptcontroller/sunadaptcontroller_soderlind.h``.
 
-We note that through appropriate selection of the parameters :math:`k_1 - k_5`,
+We note that through appropriate selection of the parameters :math:`k_*`,
 this controller may create a wide range of proposed temporal adaptivity controllers,
 including the PID, PI, I, as well as Gustafsson's explicit and implicit controllers,
 :cite:p:`Gust:91` and :cite:p:`Gust:94`.  As a convenience, utility routines to
@@ -79,14 +79,14 @@ create these controllers and set their parameters (as special cases of the
 SUNAdaptController_Soderlind) are provided.
 
 The SUNAdaptController_Soderlind class provides implementations of all operations
-relevant to a `SUN_ADAPTCONTROLLER_H` controller listed in
+relevant to a ``SUN_ADAPTCONTROLLER_H`` controller listed in
 :numref:`SUNAdaptController.Description.operations`. This class
 also provides the following additional user-callable routines:
 
 
 .. c:function:: SUNAdaptController SUNAdaptController_Soderlind(SUNContext sunctx)
 
-   This constructor function creates and allocates memory for a SUNAdaptController_Soderlind
+   This constructor creates and allocates memory for a SUNAdaptController_Soderlind
    object, and inserts its default parameters.
 
    :param sunctx: the current :c:type:`SUNContext` object.
@@ -123,9 +123,9 @@ also provides the following additional user-callable routines:
 
 .. c:function:: SUNAdaptController SUNAdaptController_PID(SUNContext sunctx)
 
-   This constructor function creates and allocates memory for a SUNAdaptController_Soderlind
+   This constructor creates and allocates memory for a SUNAdaptController_Soderlind
    object, set up to replicate a PID controller, and inserts its default parameters
-   (:math:`k_1=0.58`, :math:`k_2=-0.21`, :math:`k_3=0.1`, and :math:`k_4=k_5=0`).
+   :math:`k_1=0.58`, :math:`k_2=-0.21`, :math:`k_3=0.1`, and :math:`k_4=k_5=0`.
 
    :param sunctx: the current :c:type:`SUNContext` object.
    :return: if successful, a usable :c:type:`SUNAdaptController` object;
@@ -140,8 +140,8 @@ also provides the following additional user-callable routines:
 .. c:function:: int SUNAdaptController_SetParams_PID(SUNAdaptController C, sunrealtype k1, sunrealtype k2, sunrealtype k3)
 
    This user-callable function provides control over the relevant parameters
-   above, setting :math:`k_4 = k_5 = 0`.  This should be called *before* the
-   time integrator is called to evolve the problem.
+   above for a PID controller, setting :math:`k_4 = k_5 = 0`.  This should be
+   called *before* the time integrator is called to evolve the problem.
 
    :param C: the SUNAdaptController_Soderlind object.
    :param k1: parameter used within the controller time step estimate.
@@ -158,9 +158,9 @@ also provides the following additional user-callable routines:
 
 .. c:function:: SUNAdaptController SUNAdaptController_PI(SUNContext sunctx)
 
-   This constructor function creates and allocates memory for a SUNAdaptController_Soderlind
+   This constructor creates and allocates memory for a SUNAdaptController_Soderlind
    object, set up to replicate a PI controller, and inserts its default parameters
-   (:math:`k_1=0.8`, :math:`k_2=-0.31`, and :math:`k_3=k_4=k_5=0`).
+   :math:`k_1=0.8`, :math:`k_2=-0.31`, and :math:`k_3=k_4=k_5=0`.
 
    :param sunctx: the current :c:type:`SUNContext` object.
    :return: if successful, a usable :c:type:`SUNAdaptController` object;
@@ -175,8 +175,8 @@ also provides the following additional user-callable routines:
 .. c:function:: int SUNAdaptController_SetParams_PI(SUNAdaptController C, sunrealtype k1, sunrealtype k2)
 
    This user-callable function provides control over the relevant parameters
-   above, setting :math:`k_3 = k_4 = k_5 = 0`.  This should be called *before* the
-   time integrator is called to evolve the problem.
+   above for a PI controller, setting :math:`k_3 = k_4 = k_5 = 0`.  This should
+   be called *before* the time integrator is called to evolve the problem.
 
    :param C: the SUNAdaptController_Soderlind object.
    :param k1: parameter used within the controller time step estimate.
@@ -192,9 +192,9 @@ also provides the following additional user-callable routines:
 
 .. c:function:: SUNAdaptController SUNAdaptController_I(SUNContext sunctx)
 
-   This constructor function creates and allocates memory for a SUNAdaptController_Soderlind
+   This constructor creates and allocates memory for a SUNAdaptController_Soderlind
    object, set up to replicate an I controller, and inserts its default parameters
-   (:math:`k_1=1.0` and :math:`k_2=k_3=k_4=k_5=0`).
+   :math:`k_1=1.0` and :math:`k_2=k_3=k_4=k_5=0`.
 
    :param sunctx: the current :c:type:`SUNContext` object.
    :return: if successful, a usable :c:type:`SUNAdaptController` object;
@@ -209,8 +209,8 @@ also provides the following additional user-callable routines:
 .. c:function:: int SUNAdaptController_SetParams_I(SUNAdaptController C, sunrealtype k1)
 
    This user-callable function provides control over the relevant parameters
-   above, setting :math:`k_2 = k_3 = k_4 = k_5 = 0`.  This should be called *before* the
-   time integrator is called to evolve the problem.
+   above for an I controller, setting :math:`k_2 = k_3 = k_4 = k_5 = 0`.  This
+   should be called *before* the time integrator is called to evolve the problem.
 
    :param C: the SUNAdaptController_Soderlind object.
    :param k1: parameter used within the controller time step estimate.
@@ -225,10 +225,10 @@ also provides the following additional user-callable routines:
 
 .. c:function:: SUNAdaptController SUNAdaptController_ExpGus(SUNContext sunctx)
 
-   This constructor function creates and allocates memory for a SUNAdaptController_Soderlind
+   This constructor creates and allocates memory for a SUNAdaptController_Soderlind
    object, set up to replicate Gustafsson's explicit controller :cite:p:`Gust:91`, and
-   inserts its default parameters (:math:`k_1=0.635`, :math:`k_2=-0.268`, and
-   :math:`k_3=k_4=k_5=0`).
+   inserts its default parameters :math:`k_1=0.635`, :math:`k_2=-0.268`, and
+   :math:`k_3=k_4=k_5=0`.
 
    :param sunctx: the current :c:type:`SUNContext` object.
    :return: if successful, a usable :c:type:`SUNAdaptController` object;
@@ -243,8 +243,8 @@ also provides the following additional user-callable routines:
 .. c:function:: int SUNAdaptController_SetParams_ExpGus(SUNAdaptController C, sunrealtype k1_hat, sunrealtype k2_hat)
 
    This user-callable function provides control over the relevant parameters
-   above, setting :math:`k_3 = k_4 = k_5 = 0`.  This should be called *before* the
-   time integrator is called to evolve the problem.
+   above for the explicit Gustafsson controller, setting :math:`k_3 = k_4 = k_5 = 0`. 
+   This should be called *before* the time integrator is called to evolve the problem.
 
    .. note::
 
@@ -271,10 +271,10 @@ also provides the following additional user-callable routines:
 
 .. c:function:: SUNAdaptController SUNAdaptController_ImpGus(SUNContext sunctx)
 
-   This constructor function creates and allocates memory for a SUNAdaptController_Soderlind
+   This constructor creates and allocates memory for a SUNAdaptController_Soderlind
    object, set up to replicate Gustafsson's implicit controller :cite:p:`Gust:94`, and
-   inserts its default parameters (:math:`k_1=1.93`, :math:`k_2=-0.95`, :math:`k_4=1`, and
-   :math:`k_3=k_5=0`).
+   inserts its default parameters :math:`k_1=1.93`, :math:`k_2=-0.95`, :math:`k_4=1`, and
+   :math:`k_3=k_5=0`.
 
    :param sunctx: the current :c:type:`SUNContext` object.
    :return: if successful, a usable :c:type:`SUNAdaptController` object;
@@ -289,8 +289,8 @@ also provides the following additional user-callable routines:
 .. c:function:: int SUNAdaptController_SetParams_ImpGus(SUNAdaptController C, sunrealtype k1_hat, sunrealtype k2_hat)
 
    This user-callable function provides control over the relevant parameters
-   above, setting :math:`k_3 = k_4 = k_5 = 0`.  This should be called *before* the
-   time integrator is called to evolve the problem.
+   above for the implicit Gustafsson controller, setting :math:`k_3 = k_4 = k_5 = 0`.
+   This should be called *before* the time integrator is called to evolve the problem.
 
    .. note::
 

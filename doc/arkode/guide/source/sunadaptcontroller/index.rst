@@ -19,9 +19,9 @@ Time Step Adaptivity Controllers
 The SUNDIALS library comes packaged with a variety of :c:type:`SUNAdaptController`
 implementations, designed to support various forms of error-based time step
 adaptivity within SUNDIALS time integrators.  To support applications that may
-want to adjust or disable these heuristic controls, SUNDIALS provides a
-:c:type:`SUNAdaptController` base class, along with a variety of default
-implementations.
+want to adjust the controller parameters or provide their own implementations,
+SUNDIALS defines the :c:type:`SUNAdaptController` base class, along with a
+variety of default implementations.
 
 .. toctree::
    :maxdepth: 1

@@ -1298,7 +1298,7 @@ the code, is provided in :numref:`ARKODE.Mathematics.Adaptivity`.
       This should be called prior to calling :c:func:`ERKStepEvolve()`, and can only be
       reset following a call to :c:func:`ERKStepReInit()`.
 
-
+   .. versionadded:: x.x.x
 
 .. c:function:: int ERKStepSetCFLFraction(void* arkode_mem, realtype cfl_frac)
 

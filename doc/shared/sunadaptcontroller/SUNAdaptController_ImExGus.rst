@@ -88,7 +88,7 @@ The header file to be included when using this module is
 
 
 The SUNAdaptController_ImExGus class provides implementations of all operations
-relevant to a `SUN_ADAPTCONTROLLER_H` controller listed in
+relevant to a ``SUN_ADAPTCONTROLLER_H`` controller listed in
 :numref:`SUNAdaptController.Description.operations`. The
 SUNAdaptController_ImExGus class also provides the following additional user-callable
 routines:
@@ -96,7 +96,7 @@ routines:
 
 .. c:function:: SUNAdaptController SUNAdaptController_ImExGus(SUNContext sunctx)
 
-   This constructor function creates and allocates memory for a SUNAdaptController_ImExGus
+   This constructor creates and allocates memory for a SUNAdaptController_ImExGus
    object, and inserts its default parameters.
 
    :param sunctx: the current :c:type:`SUNContext` object.

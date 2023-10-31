@@ -1815,7 +1815,7 @@ Explicit stability function                                 :c:func:`ARKStepSetS
       This should be called prior to calling :c:func:`ARKStepEvolve()`, and can only be
       reset following a call to :c:func:`ARKStepReInit()`.
 
-
+   .. versionadded:: x.x.x
 
 .. c:function:: int ARKStepSetCFLFraction(void* arkode_mem, realtype cfl_frac)
 

@@ -25,7 +25,7 @@ temporal accuracy, while striving to maximize computational efficiency. We note
 that in the descriptions below, we frequently use *dsm* to represent
 temporal error. This is **not** the raw temporal error estimate; instead, it is
 a norm of the temporal error estimate after scaling by the user-supplied
-accuracy tolerances (the SUNDIALS WRMS-norm),
+accuracy tolerances (see :eq:`ARKODE_WRMS_NORM`),
 
 .. math::
    \text{dsm} = \left( \frac{1}{N} \sum_{i=1}^N
@@ -48,7 +48,7 @@ and the base class structure is defined as
 
    struct _generic_SUNAdaptController {
         void* content;
-        generic_SUNAdaptController_Ops_* ops;
+        generic_SUNAdaptController_Ops* ops;
         SUNContext sunctx;
     };
 
@@ -104,8 +104,8 @@ SUNAdaptController Operations
 The base SUNAdaptController class defines and implements all SUNAdaptController functions. Most
 of these routines are merely wrappers for the operations defined by a particular
 SUNAdaptController implementation, which are accessed through the *ops* field of the
-``SUNAdaptController`` structure. However, the base SUNAdaptController class also provides the
-convenience routine
+``SUNAdaptController`` structure. The base SUNAdaptController class provides the
+constructor
 
 .. c:function:: SUNAdaptController SUNAdaptController_NewEmpty(SUNContext sunctx)
 
@@ -118,11 +118,10 @@ convenience routine
   :returns: If successful, a generic :c:type:`SUNAdaptController` object. If
             unsuccessful, a ``NULL`` pointer will be returned.
 
-Each of the following routines are *optional* for any specific SUNAdaptController
+Each of the following methods are *optional* for any specific SUNAdaptController
 implementation, however some may be required based on the implementation's
 :c:type:`SUNAdaptController_Type` (see Section :numref:`SUNAdaptController.Description.controllerTypes`). We
-note these requirements, as well as the behavior of the base SUNAdaptController wrapper
-routine, below.
+note these requirements below. Additionally, we note the behavior of the base SUNAdaptController methods when they perform an action other than only a successful return.
 
 .. c:function:: SUNAdaptController_Type SUNAdaptController_GetType(SUNAdaptController C)
 
@@ -140,8 +139,8 @@ routine, below.
 
 .. c:function:: int SUNAdaptController_Destroy(SUNAdaptController C)
 
-   Deallocates the controller *C*. If this is not provided by the
-   implementation, the base wrapper routine will free both the *content* and
+   Deallocates the controller *C*. If this method is not provided by the
+   implementation, the base class method will free both the *content* and
    *ops* objects -- this should be sufficient unless a controller implementation
    performs dynamic memory allocation of its own (note that the
    SUNDIALS-provided SUNAdaptController implementations do not need to supply this
@@ -167,7 +166,7 @@ routine, below.
    :param h: the step size from the previous step attempt.
    :param p: the current order of accuracy for the time integration method.
    :param dsm: the local temporal estimate from the previous step attempt.
-   :param hnew: (output) pointer to the estimated step size.
+   :param hnew: (output) the estimated step size.
    :return: error code indicating success failure
             (see :numref:`SUNAdaptController.Description.errorCodes`).
 
@@ -175,14 +174,12 @@ routine, below.
 
    .. code-block:: c
 
-      retval = SUNAdaptController_EstimateStep(C, hcur, dsm, &hnew);
+      retval = SUNAdaptController_EstimateStep(C, hcur, p, dsm, &hnew);
 
 .. c:function:: int SUNAdaptController_Reset(SUNAdaptController C)
 
    Resets the controller to its initial state, e.g., if it stores a small number
-   of previous *dsm* or *h* values. The return value is an integer flag denoting
-   success/failure of the routine (see
-   :numref:`SUNAdaptController.Description.errorCodes`).
+   of previous *dsm* or *h* values.
 
    :param C:  the :c:type:`SUNAdaptController` object.
    :return: error code indicating success failure
@@ -198,7 +195,7 @@ routine, below.
 
    Sets the controller parameters to their default values.
 
-   :param C:  the :c:type:`SUNAdaptController` object..
+   :param C:  the :c:type:`SUNAdaptController` object.
    :return: error code indicating success failure
             (see :numref:`SUNAdaptController.Description.errorCodes`).
 
@@ -213,7 +210,7 @@ routine, below.
    Writes all controller parameters to the indicated file pointer.
 
    :param C:  the :c:type:`SUNAdaptController` object.
-   :param fptr:  the output stream to write the parameters.
+   :param fptr:  the output stream to write the parameters to.
    :return: error code indicating success failure
             (see :numref:`SUNAdaptController.Description.errorCodes`).
 
@@ -301,18 +298,18 @@ SUNAdaptController functions return one of the following set of error codes:
 
 .. note::
    The SUNDIALS time integrators do not rely on these specific return values (only
-   on whether the returned values are 0 (successful) or negative (failure).  Thus,
+   on whether the returned values are 0 (successful) or non-zero (failure).  Thus,
    user-defined implementations are not required to use these specific error codes,
-   so long as the zero/negative structure is followed.
+   so long as the zero/non-zero convention is followed.
 
 
 C/C++ API Usage
 ---------------
 
 Specific SUNDIALS adaptivity controller modules can be used in C and C++ programs by including
-the corresponding header file for that module, e.g. ``sunadaptcontroller/sunadaptcontrollerXYZ.h``.
+the corresponding header file for that module, e.g. ``sunadaptcontroller/sunadaptcontroller_XYZ.h``.
 
-Example usage (here ``SUNAdaptControllerXYZ`` is a placeholder for an actual SUNAdaptController
+Example usage (here ``SUNAdaptController_XYZ`` is a placeholder for an actual SUNAdaptController
 constructor):
 
 .. code-block:: c
@@ -321,7 +318,7 @@ constructor):
     #include <stdlib.h>
     #include <sundials/sundials_context.h>
     #include <sundials/sundials_types.h>
-    #include <sunadaptcontroller/sunadaptcontrollerXYZ.h>
+    #include <sunadaptcontroller/sunadaptcontroller_XYZ.h>
 
     int main()
     {
@@ -329,7 +326,7 @@ constructor):
         SUNContext sunctx = ...;
 
         /* Create a SUNAdaptController object */
-        SUNAdaptController C = SUNAdaptControllerXYZ(sunctx);
+        SUNAdaptController C = SUNAdaptController_XYZ(sunctx);
 
         /* Use the control object */
 
