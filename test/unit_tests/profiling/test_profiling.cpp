@@ -115,13 +115,11 @@ int main()
     return 1;
   }
 
-  // We use 100*resolution to allow for (a) some inaccuracy in the reported
-  // resolution and (b) the resolution of chrono itself.
-  if (SUNRCompareTol(time, chrono, 100 * resolution))
+  if (SUNRCompareTol(time, chrono, 1e-2))
   {
     std::cerr << ">>> FAILURE: "
               << "time recorded was " << time << "s, but expected " << chrono
-              << "s +/- " << 100 * resolution << "\n";
+              << "s +/- " << 1e-2 << "\n";
     return 1;
   }
 
@@ -172,13 +170,11 @@ int main()
     return 1;
   }
 
-  // We use 100*resolution to allow for (a) some inaccuracy in the reported
-  // resolution and (b) the resolution of chrono itself.
-  if (SUNRCompareTol(time, chrono, 100 * resolution))
+  if (SUNRCompareTol(time, chrono, 1e-2))
   {
     std::cerr << ">>> FAILURE: "
               << "time recorded was " << time << "s, but expected " << chrono
-              << "s +/- " << 100 * resolution << "\n";
+              << "s +/- " << 1e-2 << "\n";
     return 1;
   }
 
