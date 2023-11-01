@@ -294,6 +294,7 @@ int ERKStepSetDefaults(void* arkode_mem)
   }
   if (ark_mem->hadapt_mem->owncontroller) {
     retval = SUNAdaptController_Destroy(ark_mem->hadapt_mem->hcontroller);
+    ark_mem->hadapt_mem->owncontroller = SUNFALSE;
     if (retval != SUNADAPTCONTROLLER_SUCCESS) {
       arkProcessError(ark_mem, ARK_MEM_FAIL, "ARKODE", "ERKStepSetDefaults",
                       "SUNAdaptController_Destroy failure");

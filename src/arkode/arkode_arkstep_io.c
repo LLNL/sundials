@@ -502,6 +502,7 @@ int ARKStepSetOptimalParams(void *arkode_mem)
   }
   if (hadapt_mem->owncontroller) {
     retval = SUNAdaptController_Destroy(hadapt_mem->hcontroller);
+    ark_mem->hadapt_mem->owncontroller = SUNFALSE;
     if (retval != SUNADAPTCONTROLLER_SUCCESS) {
       arkProcessError(ark_mem, ARK_MEM_FAIL, "ARKODE", "ARKStepSetOptimalParams",
                       "SUNAdaptController_Destroy failure");

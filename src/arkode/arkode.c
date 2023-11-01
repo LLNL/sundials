@@ -1119,6 +1119,7 @@ void arkFree(void **arkode_mem)
   if (ark_mem->hadapt_mem != NULL) {
     if (ark_mem->hadapt_mem->owncontroller) {
       (void) SUNAdaptController_Destroy(ark_mem->hadapt_mem->hcontroller);
+      ark_mem->hadapt_mem->owncontroller = SUNFALSE;
     }
     free(ark_mem->hadapt_mem);
     ark_mem->hadapt_mem = NULL;
