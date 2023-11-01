@@ -1255,7 +1255,8 @@ the code, is provided in :numref:`ARKODE.Mathematics.Adaptivity`.
         parameters (1), or that they will be supplied in the
         *adapt_params* argument (0).
       * *pq* -- flag denoting whether to use the embedding order of
-        accuracy *p* (0) or the method order of accuracy *q* (1)
+        accuracy *p* (0), the method order of accuracy *q* (1), or the
+        minimum of the two (any input not equal to 0 or 1)
         within the adaptivity algorithm.  *p* is the default.
       * *adapt_params[0]* -- :math:`k_1` parameter within accuracy-based adaptivity algorithms.
       * *adapt_params[1]* -- :math:`k_2` parameter within accuracy-based adaptivity algorithms.
@@ -1272,6 +1273,8 @@ the code, is provided in :numref:`ARKODE.Mathematics.Adaptivity`.
       parameter values are desired, it is recommended to instead provide
       a custom function through a call to :c:func:`ERKStepSetAdaptivityFn()`.
 
+      Prior to version x.x.x, any nonzero value for *pq* would result in use of the
+      embedding order of accuracy.
 
    .. deprecated:: x.x.x
 
