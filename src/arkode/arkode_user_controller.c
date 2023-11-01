@@ -48,8 +48,8 @@ SUNAdaptController ARKUserControl(SUNContext sunctx, void* arkode_mem,
   SUNAdaptController C;
   ARKUserControlContent content;
 
-  /* Return with failure if hadapt or arkode_mem are NULL */
-  if ((hadapt == NULL) || (arkode_mem == NULL)) { return (NULL); }
+  /* Return with failure if hadapt, arkode_mem, or context are NULL */
+  if ((hadapt == NULL) || (arkode_mem == NULL) || (sunctx == NULL)) { return (NULL); }
 
   /* Create an empty controller object */
   C = NULL;

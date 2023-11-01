@@ -357,6 +357,7 @@ int arkSetAdaptController(void *arkode_mem, SUNAdaptController C)
   }
   if (ark_mem->hadapt_mem->owncontroller) {
     retval = SUNAdaptController_Destroy(ark_mem->hadapt_mem->hcontroller);
+    ark_mem->hadapt_mem->owncontroller = SUNFALSE;
     if (retval != SUNADAPTCONTROLLER_SUCCESS) {
       arkProcessError(ark_mem, ARK_MEM_FAIL, "ARKODE", "arkSetAdaptController",
                       "SUNAdaptController_Destroy failure");
@@ -658,6 +659,7 @@ int arkSetFixedStep(void *arkode_mem, realtype hfixed)
   }
   if (ark_mem->hadapt_mem->owncontroller) {
     retval = SUNAdaptController_Destroy(ark_mem->hadapt_mem->hcontroller);
+    ark_mem->hadapt_mem->owncontroller = SUNFALSE;
     if (retval != SUNADAPTCONTROLLER_SUCCESS) {
       arkProcessError(ark_mem, ARK_MEM_FAIL, "ARKODE", "arkSetFixedStep",
                       "SUNAdaptController_Destroy failure");
@@ -703,7 +705,7 @@ int arkSetFixedStep(void *arkode_mem, realtype hfixed)
     if (retval != ARK_SUCCESS) return(retval);
   }
 
-  /* set ark_mem "fixedstep" entry entry */
+  /* set ark_mem "fixedstep" entry */
   if (hfixed != ZERO) {
     ark_mem->fixedstep = SUNTRUE;
     ark_mem->hin = hfixed;
@@ -713,6 +715,7 @@ int arkSetFixedStep(void *arkode_mem, realtype hfixed)
 
   /* Notify ARKODE to use hfixed as the initial step size, and return */
   retval = arkSetInitStep(arkode_mem, hfixed);
+  
   return(ARK_SUCCESS);
 }
 
@@ -969,6 +972,7 @@ int arkSetAdaptivityMethod(void *arkode_mem, int imethod, int idefault,
   }
   if (ark_mem->hadapt_mem->owncontroller) {
     retval = SUNAdaptController_Destroy(ark_mem->hadapt_mem->hcontroller);
+    ark_mem->hadapt_mem->owncontroller = SUNFALSE;
     if (retval != SUNADAPTCONTROLLER_SUCCESS) {
       arkProcessError(ark_mem, ARK_MEM_FAIL, "ARKODE", "arkSetAdaptivityMethod",
                       "SUNAdaptController_Destroy failure");
@@ -1000,6 +1004,7 @@ int arkSetAdaptivityMethod(void *arkode_mem, int imethod, int idefault,
     if (idefault != 1) {
       retval = SUNAdaptController_SetParams_PID(C, k1, -k2, k3);
       if (retval != SUNADAPTCONTROLLER_SUCCESS) {
+      (void) SUNAdaptController_Destroy(C);
         arkProcessError(ark_mem, ARK_CONTROLLER_ERR, "ARKODE",
                         "arkSetAdaptivityMethod", "SUNAdaptController_SetParams_PID failure");
         return(ARK_CONTROLLER_ERR);
@@ -1016,6 +1021,7 @@ int arkSetAdaptivityMethod(void *arkode_mem, int imethod, int idefault,
     if (idefault != 1) {
       retval = SUNAdaptController_SetParams_PI(C, k1, -k2);
       if (retval != SUNADAPTCONTROLLER_SUCCESS) {
+      (void) SUNAdaptController_Destroy(C);
         arkProcessError(ark_mem, ARK_CONTROLLER_ERR, "ARKODE",
                         "arkSetAdaptivityMethod", "SUNAdaptController_SetParams_PI failure");
         return(ARK_CONTROLLER_ERR);
@@ -1032,6 +1038,7 @@ int arkSetAdaptivityMethod(void *arkode_mem, int imethod, int idefault,
     if (idefault != 1) {
       retval = SUNAdaptController_SetParams_I(C, k1);
       if (retval != SUNADAPTCONTROLLER_SUCCESS) {
+      (void) SUNAdaptController_Destroy(C);
         arkProcessError(ark_mem, ARK_CONTROLLER_ERR, "ARKODE",
                         "arkSetAdaptivityMethod", "SUNAdaptController_SetParams_I failure");
         return(ARK_CONTROLLER_ERR);
@@ -1048,6 +1055,7 @@ int arkSetAdaptivityMethod(void *arkode_mem, int imethod, int idefault,
     if (idefault != 1) {
       retval = SUNAdaptController_SetParams_ExpGus(C, k1, k2);
       if (retval != SUNADAPTCONTROLLER_SUCCESS) {
+      (void) SUNAdaptController_Destroy(C);
         arkProcessError(ark_mem, ARK_CONTROLLER_ERR, "ARKODE",
                         "arkSetAdaptivityMethod", "SUNAdaptController_SetParams_ExpGus failure");
         return(ARK_CONTROLLER_ERR);
@@ -1064,6 +1072,7 @@ int arkSetAdaptivityMethod(void *arkode_mem, int imethod, int idefault,
     if (idefault != 1) {
       retval = SUNAdaptController_SetParams_ImpGus(C, k1, k2);
       if (retval != SUNADAPTCONTROLLER_SUCCESS) {
+      (void) SUNAdaptController_Destroy(C);
         arkProcessError(ark_mem, ARK_CONTROLLER_ERR, "ARKODE",
                         "arkSetAdaptivityMethod", "SUNAdaptController_SetParams_ImpGus failure");
         return(ARK_CONTROLLER_ERR);
@@ -1080,6 +1089,7 @@ int arkSetAdaptivityMethod(void *arkode_mem, int imethod, int idefault,
     if (idefault != 1) {
       retval = SUNAdaptController_SetParams_ImExGus(C, k1, k2, k3, k3);
       if (retval != SUNADAPTCONTROLLER_SUCCESS) {
+      (void) SUNAdaptController_Destroy(C);
         arkProcessError(ark_mem, ARK_CONTROLLER_ERR, "ARKODE",
                         "arkSetAdaptivityMethod", "SUNAdaptController_SetParams_ImExGus failure");
         return(ARK_CONTROLLER_ERR);
@@ -1138,6 +1148,7 @@ int arkSetAdaptivityFn(void *arkode_mem, ARKAdaptFn hfun, void *h_data)
   }
   if (ark_mem->hadapt_mem->owncontroller) {
     retval = SUNAdaptController_Destroy(ark_mem->hadapt_mem->hcontroller);
+    ark_mem->hadapt_mem->owncontroller = SUNFALSE;
     if (retval != SUNADAPTCONTROLLER_SUCCESS) {
       arkProcessError(ark_mem, ARK_MEM_FAIL, "ARKODE", "arkSetAdaptivityFn",
                       "SUNAdaptController_Destroy failure");
@@ -1296,7 +1307,7 @@ int arkSetErrorBias(void *arkode_mem, realtype bias)
       arkProcessError(ark_mem, ARK_CONTROLLER_ERR, "ARKODE",
                       "arkSetErrorBias", "SUNAdaptController_SetErrorBias failure");
       return(ARK_CONTROLLER_ERR);
-    }
+  }
   return(ARK_SUCCESS);
 }
 

@@ -299,9 +299,9 @@ also provides the following additional user-callable routines:
       .. math::
          h' = h_n \varepsilon_n^{-\hat{k}_1/(p+1)} \left(\frac{\varepsilon_n}{\varepsilon_{n-1}}\right)^{-\hat{k}_2/(p+1)} \left(\frac{h_n}{h_{n-1}}\right).
 
-         The inputs to this function correspond to the values of :math:`\hat{k}_1` and :math:`\hat{k}_2`,
-         which are internally transformed into the Soderlind coeficients :math:`k_1 = \hat{k}_1+\hat{k}_2`,
-         :math:`k_2 = -\hat{k}_2`, and :math:`k_4=1`.
+      The inputs to this function correspond to the values of :math:`\hat{k}_1` and :math:`\hat{k}_2`,
+      which are internally transformed into the Soderlind coeficients :math:`k_1 = \hat{k}_1+\hat{k}_2`,
+      :math:`k_2 = -\hat{k}_2`, and :math:`k_4=1`.
 
    :param C: the SUNAdaptController_Soderlind object.
    :param k1_hat: parameter used within the implicit Gustafsson controller time step estimate.
