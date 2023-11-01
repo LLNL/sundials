@@ -25,14 +25,20 @@
 int sleep(SUNProfiler prof, int sec, double* chrono)
 {
   auto begin = std::chrono::steady_clock::now();
-  int flag = SUNProfiler_Begin(prof, "sleep");
-  if (flag) return flag;
+
+  // We dont check the flag returned to avoid introducing extra
+  // overhead which makes it harder to compare the SUNProfiler
+  // time with the chrono time.
+  SUNProfiler_Begin(prof, "sleep");
   std::this_thread::sleep_for(std::chrono::seconds(sec));
-  flag = SUNProfiler_End(prof, "sleep");
-  if (flag) return flag;
+  SUNProfiler_End(prof, "sleep");
+
   auto end = std::chrono::steady_clock::now();
-  auto elapsed = std::chrono::duration_cast<std::chrono::nanoseconds>(end - begin).count();
+
+  auto elapsed =
+    std::chrono::duration_cast<std::chrono::nanoseconds>(end - begin).count();
   *chrono = std::chrono::duration<double>(elapsed).count() * 1e-9;
+
   return 0;
 }
 
@@ -91,8 +97,9 @@ int main()
     return 1;
   }
 
-  double time, resolution;
-  flag = SUNProfiler_GetElapsedTime(prof, "sleep", &time);
+  double time       = 0;
+  double resolution = 0;
+  flag              = SUNProfiler_GetElapsedTime(prof, "sleep", &time);
   if (flag)
   {
     std::cerr << ">>> FAILURE: "
@@ -110,11 +117,11 @@ int main()
 
   // We use 100*resolution to allow for (a) some inaccuracy in the reported
   // resolution and (b) the resolution of chrono itself.
-  if (SUNRCompareTol(time, chrono, 100*resolution))
+  if (SUNRCompareTol(time, chrono, 100 * resolution))
   {
     std::cerr << ">>> FAILURE: "
               << "time recorded was " << time << "s, but expected " << chrono
-              << " +/- " << resolution << "\n";
+              << "s +/- " << 100 * resolution << "\n";
     return 1;
   }
 
@@ -165,11 +172,13 @@ int main()
     return 1;
   }
 
-  if (SUNRCompareTol(time, chrono, 10*resolution))
+  // We use 100*resolution to allow for (a) some inaccuracy in the reported
+  // resolution and (b) the resolution of chrono itself.
+  if (SUNRCompareTol(time, chrono, 100 * resolution))
   {
     std::cerr << ">>> FAILURE: "
               << "time recorded was " << time << "s, but expected " << chrono
-              << " +/- " << resolution << "\n";
+              << "s +/- " << 100 * resolution << "\n";
     return 1;
   }
 
@@ -180,7 +189,7 @@ int main()
   std::cout << "\nTest 3: multiple outputs to a file for plot test\n";
 
   std::FILE* fout = std::fopen("profiling_test_output.txt", "w");
-  if (!fout)
+  if (fout == nullptr)
   {
     std::cerr << ">>> FAILURE: "
               << "fopen returned a null pointer\n";
