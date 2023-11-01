@@ -52,7 +52,7 @@ extern "C" {
 #define SMALL_NEF 2                /* if an error failure occurs and SMALL_NEF <= nef,
                                       then reset  eta = MIN(eta, ETAMXF) */
 #define PQ        0                /* order to use for controller: 0=embedding,
-                                      1=method, -1=min(method,embedding)
+                                      1=method, otherwise min(method,embedding)
                                       REMOVE AT SAME TIME AS ARKStepSetAdaptivityMethod */
 #define ADJUST    -1               /* adjustment to apply within controller to method
                                       order of accuracy */

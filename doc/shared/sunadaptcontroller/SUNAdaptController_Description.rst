@@ -160,7 +160,7 @@ note these requirements below. Additionally, we note the behavior of the base SU
 
    Estimates a single-rate step size. This routine is required for controllers
    of type ``SUN_ADAPTCONTROLLER_H``.  If this is not provided by the
-   implementation, the base wrapper routine will set ``*hnew = h`` and return.
+   implementation, the class method will set ``*hnew = h`` and return.
 
    :param C: the :c:type:`SUNAdaptController` object.
    :param h: the step size from the previous step attempt.
@@ -298,7 +298,7 @@ SUNAdaptController functions return one of the following set of error codes:
 * ``SUNADAPTCONTROLLER_OPERATION_FAIL`` (-1004) -- catch-all for errors not in the above list.
 
 .. note::
-   The SUNDIALS time integrators do not rely on these specific return values (only
+   The SUNDIALS time integrators do not rely on these specific return values and only
    on whether the returned values are 0 (successful) or non-zero (failure).  Thus,
    user-defined implementations are not required to use these specific error codes,
    so long as the zero/non-zero convention is followed.

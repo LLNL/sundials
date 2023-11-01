@@ -13,8 +13,8 @@ implementations.
 Added the routines `ARKStepSetAdaptivityAdjustment` and
 `ERKStepSetAdaptivityAdjustment`, that allow users to adjust the
 value for the method order supplied to the temporal adaptivity controllers.
-The ARKODE default for this adjustment has been :math:`-1` since its initial
-release, but for some applications a value of :math:`0` is more appropriate.
+The ARKODE default for this adjustment has been -1 since its initial
+release, but for some applications a value of 0 is more appropriate.
 Users who notice that their simulations encounter a large number of
 temporal error test failures may want to experiment with adjusting this value.
 
