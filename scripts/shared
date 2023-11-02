@@ -179,7 +179,6 @@ $tar $tarfile $distrobase/include/nvector/trilinos/SundialsTpetraVectorInterface
 $tar $tarfile $distrobase/include/nvector/trilinos/SundialsTpetraVectorKernels.hpp
 
 $tar $tarfile $distrobase/include/sunadaptcontroller/sunadaptcontroller_imexgus.h
-$tar $tarfile $distrobase/include/sunadaptcontroller/sunadaptcontroller_noop.h
 $tar $tarfile $distrobase/include/sunadaptcontroller/sunadaptcontroller_soderlind.h
 
 $tar $tarfile $distrobase/include/sunmatrix/sunmatrix_band.h
@@ -393,14 +392,6 @@ $tar $tarfile $distrobase/src/sunadaptcontroller/imexgus/sunadaptcontroller_imex
 $tar $tarfile $distrobase/src/sunadaptcontroller/imexgus/fmod/CMakeLists.txt
 $tar $tarfile $distrobase/src/sunadaptcontroller/imexgus/fmod/fsunadaptcontroller_imexgus_mod.c
 $tar $tarfile $distrobase/src/sunadaptcontroller/imexgus/fmod/fsunadaptcontroller_imexgus_mod.f90
-
-echo "   --- Add sunadaptcontroller/noop module to $tarfile"
-
-$tar $tarfile $distrobase/src/sunadaptcontroller/noop/CMakeLists.txt
-$tar $tarfile $distrobase/src/sunadaptcontroller/noop/sunadaptcontroller_noop.c
-$tar $tarfile $distrobase/src/sunadaptcontroller/noop/fmod/CMakeLists.txt
-$tar $tarfile $distrobase/src/sunadaptcontroller/noop/fmod/fsunadaptcontroller_noop_mod.c
-$tar $tarfile $distrobase/src/sunadaptcontroller/noop/fmod/fsunadaptcontroller_noop_mod.f90
 
 echo "   --- Add sunadaptcontroller/soderlind module to $tarfile"
 

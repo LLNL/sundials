@@ -28,7 +28,6 @@
 #include <sundials/sundials_types.h>
 #include <sunadaptcontroller/sunadaptcontroller_soderlind.h>
 #include <sunadaptcontroller/sunadaptcontroller_imexgus.h>
-#include <sunadaptcontroller/sunadaptcontroller_noop.h>
 
 
 /*===============================================================
@@ -649,52 +648,6 @@ int arkSetFixedStep(void *arkode_mem, realtype hfixed)
     return (ARK_MEM_NULL);
   }
   ark_mem = (ARKodeMem) arkode_mem;
-
-  /* Remove current SUNAdaptController object
-     (delete if owned, and then nullify pointer) */
-  retval = SUNAdaptController_Space(ark_mem->hadapt_mem->hcontroller, &lenrw, &leniw);
-  if (retval == SUNADAPTCONTROLLER_SUCCESS) {
-    ark_mem->liw -= leniw;
-    ark_mem->lrw -= lenrw;
-  }
-  if (ark_mem->hadapt_mem->owncontroller) {
-    retval = SUNAdaptController_Destroy(ark_mem->hadapt_mem->hcontroller);
-    ark_mem->hadapt_mem->owncontroller = SUNFALSE;
-    if (retval != SUNADAPTCONTROLLER_SUCCESS) {
-      arkProcessError(ark_mem, ARK_MEM_FAIL, "ARKODE", "arkSetFixedStep",
-                      "SUNAdaptController_Destroy failure");
-      return(ARK_MEM_FAIL);
-    }
-  }
-  ark_mem->hadapt_mem->hcontroller = NULL;
-
-  /* If re-enabling time adaptivity, create default PID controller
-     and attach object to ARKODE.
-     Otherwise, create No-op controller and attach to ARKODE. */
-  C = NULL;
-  if (hfixed == ZERO)
-  {
-    C = SUNAdaptController_PID(ark_mem->sunctx);
-    if (C == NULL) {
-      arkProcessError(ark_mem, ARK_MEM_FAIL, "ARKODE", "arkSetFixedStep",
-                      "SUNAdaptController_PID allocation failure");
-      return(ARK_MEM_FAIL);
-    }
-  } else {
-    C = SUNAdaptController_NoOp(ark_mem->sunctx);
-    if (C == NULL) {
-      arkProcessError(ark_mem, ARK_MEM_FAIL, "ARKODE", "arkSetFixedStep",
-                      "SUNAdaptController_NoOp allocation failure");
-      return(ARK_MEM_FAIL);
-    }
-  }
-  retval = SUNAdaptController_Space(C, &lenrw, &leniw);
-  if (retval == SUNADAPTCONTROLLER_SUCCESS) {
-    ark_mem->liw += leniw;
-    ark_mem->lrw += lenrw;
-  }
-  ark_mem->hadapt_mem->hcontroller = C;
-  ark_mem->hadapt_mem->owncontroller = SUNTRUE;
 
   /* re-attach internal error weight functions if necessary */
   if ((hfixed == ZERO) && (!ark_mem->user_efun)) {

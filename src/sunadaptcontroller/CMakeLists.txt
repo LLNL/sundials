@@ -16,5 +16,4 @@
 
 # required native matrices
 add_subdirectory(imexgus)
-add_subdirectory(noop)
 add_subdirectory(soderlind)
