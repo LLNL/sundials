@@ -31,8 +31,12 @@
 
 SUNAdaptController SUNAdaptController_NoOp(SUNContext sunctx)
 {
+  SUNAdaptController C;
+  
+  if (sunctx == NULL) { return NULL; }
+  
   /* Create an empty controller object */
-  SUNAdaptController C = NULL;
+  C = NULL;
   C = SUNAdaptController_NewEmpty(sunctx);
   if (C == NULL) { return (NULL); }
 

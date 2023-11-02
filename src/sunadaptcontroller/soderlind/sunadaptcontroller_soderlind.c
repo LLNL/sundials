@@ -74,6 +74,8 @@ SUNAdaptController SUNAdaptController_Soderlind(SUNContext sunctx)
   SUNAdaptController C;
   SUNAdaptControllerContent_Soderlind content;
 
+  if (sunctx == NULL) { return NULL; }
+
   /* Create an empty controller object */
   C = NULL;
   C = SUNAdaptController_NewEmpty(sunctx);
@@ -133,6 +135,7 @@ int SUNAdaptController_SetParams_Soderlind(SUNAdaptController C,
 SUNAdaptController SUNAdaptController_PID(SUNContext sunctx)
 {
   SUNAdaptController C;
+  if (sunctx == NULL) { return NULL; }
   C = SUNAdaptController_Soderlind(sunctx);
   if (C == NULL) { return NULL; }
   (void) SUNAdaptController_SetParams_PID(C,
@@ -166,6 +169,7 @@ int SUNAdaptController_SetParams_PID(SUNAdaptController C,
 SUNAdaptController SUNAdaptController_PI(SUNContext sunctx)
 {
   SUNAdaptController C;
+  if (sunctx == NULL) { return NULL; }
   C = SUNAdaptController_Soderlind(sunctx);
   if (C == NULL) { return NULL; }
   (void) SUNAdaptController_SetParams_PI(C,
@@ -197,6 +201,7 @@ int SUNAdaptController_SetParams_PI(SUNAdaptController C,
 SUNAdaptController SUNAdaptController_I(SUNContext sunctx)
 {
   SUNAdaptController C;
+  if (sunctx == NULL) { return NULL; }
   C = SUNAdaptController_Soderlind(sunctx);
   if (C == NULL) { return NULL; }
   (void) SUNAdaptController_SetParams_I(C, DEFAULT_I_K1);
@@ -225,6 +230,7 @@ int SUNAdaptController_SetParams_I(SUNAdaptController C, sunrealtype k1)
 SUNAdaptController SUNAdaptController_ExpGus(SUNContext sunctx)
 {
   SUNAdaptController C;
+  if (sunctx == NULL) { return NULL; }
   C = SUNAdaptController_Soderlind(sunctx);
   if (C == NULL) { return NULL; }
   (void) SUNAdaptController_SetParams_ExpGus(C,
@@ -256,6 +262,7 @@ int SUNAdaptController_SetParams_ExpGus(SUNAdaptController C,
 SUNAdaptController SUNAdaptController_ImpGus(SUNContext sunctx)
 {
   SUNAdaptController C;
+  if (sunctx == NULL) { return NULL; }
   C = SUNAdaptController_Soderlind(sunctx);
   if (C == NULL) { return NULL; }
   (void) SUNAdaptController_SetParams_ImpGus(C,
@@ -292,6 +299,7 @@ SUNAdaptController_Type SUNAdaptController_GetType_Soderlind(SUNAdaptController 
 int SUNAdaptController_EstimateStep_Soderlind(SUNAdaptController C, sunrealtype h,
                                               int p, sunrealtype dsm, sunrealtype* hnew)
 {
+  if (C == NULL || hnew == NULL) { return SUNADAPTCONTROLLER_ILL_INPUT; }
   /* order parameter to use */
   const int ord = p + 1;
 
@@ -323,6 +331,7 @@ int SUNAdaptController_EstimateStep_Soderlind(SUNAdaptController C, sunrealtype 
 
 int SUNAdaptController_Reset_Soderlind(SUNAdaptController C)
 {
+  if (C == NULL) { return SUNADAPTCONTROLLER_ILL_INPUT; }
   SODERLIND_EP(C)  = RCONST(1.0);
   SODERLIND_EPP(C) = RCONST(1.0);
   SODERLIND_HP(C)  = RCONST(1.0);
@@ -345,6 +354,7 @@ int SUNAdaptController_SetDefaults_Soderlind(SUNAdaptController C)
 
 int SUNAdaptController_Write_Soderlind(SUNAdaptController C, FILE *fptr)
 {
+  if (C == NULL || fptr == NULL) { return SUNADAPTCONTROLLER_ILL_INPUT; }
   fprintf(fptr, "Soderlind SUNAdaptController module:\n");
 #if defined(SUNDIALS_EXTENDED_PRECISION)
   fprintf(fptr, "  k1 = %32Lg\n", SODERLIND_K1(C));
@@ -375,6 +385,7 @@ int SUNAdaptController_Write_Soderlind(SUNAdaptController C, FILE *fptr)
 
 int SUNAdaptController_SetErrorBias_Soderlind(SUNAdaptController C, sunrealtype bias)
 {
+  if (C == NULL) { return SUNADAPTCONTROLLER_ILL_INPUT; }
   /* set allowed value, otherwise set default */
   if (bias <= RCONST(0.0)) {
     SODERLIND_BIAS(C) = DEFAULT_BIAS;
@@ -387,6 +398,7 @@ int SUNAdaptController_SetErrorBias_Soderlind(SUNAdaptController C, sunrealtype 
 
 int SUNAdaptController_UpdateH_Soderlind(SUNAdaptController C, sunrealtype h, sunrealtype dsm)
 {
+  if (C == NULL) { return SUNADAPTCONTROLLER_ILL_INPUT; }
   SODERLIND_EPP(C) = SODERLIND_EP(C);
   SODERLIND_EP(C)  = SODERLIND_BIAS(C) * dsm;
   SODERLIND_HPP(C) = SODERLIND_HP(C);
@@ -399,6 +411,7 @@ int SUNAdaptController_UpdateH_Soderlind(SUNAdaptController C, sunrealtype h, su
 
 int SUNAdaptController_Space_Soderlind(SUNAdaptController C, long int* lenrw, long int* leniw)
 {
+  if (C == NULL || lenrw == NULL || leniw == NULL) { return SUNADAPTCONTROLLER_ILL_INPUT; }
   *lenrw = 10;
   *leniw = 1;
   return SUNADAPTCONTROLLER_SUCCESS;
