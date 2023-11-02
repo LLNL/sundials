@@ -77,7 +77,6 @@ sundials_add_library(sundials_arkode
     sundials_sunmemsys_obj
     sundials_nvecserial_obj
     sundials_sunadaptcontrollerimexgus_obj
-    sundials_sunadaptcontrollernoop_obj
     sundials_sunadaptcontrollersoderlind_obj
     sundials_sunmatrixband_obj
     sundials_sunmatrixdense_obj

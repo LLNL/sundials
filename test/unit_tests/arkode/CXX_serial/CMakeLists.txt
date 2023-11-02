@@ -62,7 +62,6 @@ foreach(test_tuple ${unit_tests})
       sundials_sunnonlinsolnewton_obj
       sundials_sunnonlinsolfixedpoint_obj
       sundials_sunadaptcontrollerimexgus_obj
-      sundials_sunadaptcontrollernoop_obj
       sundials_sunadaptcontrollersoderlind_obj
       ${EXE_EXTRA_LINK_LIBS})
 

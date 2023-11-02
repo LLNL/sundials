@@ -66,7 +66,6 @@ foreach(test_tuple ${ARKODE_unit_tests})
       sundials_sunlinsoldense_obj
       sundials_sunnonlinsolnewton_obj
       sundials_sunadaptcontrollerimexgus_obj
-      sundials_sunadaptcontrollernoop_obj
       sundials_sunadaptcontrollersoderlind_obj
       ${EXE_EXTRA_LINK_LIBS})
 
