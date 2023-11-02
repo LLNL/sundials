@@ -102,6 +102,7 @@ int SUNAdaptController_SetParams_ImExGus(SUNAdaptController C,
                                          sunrealtype k1e, sunrealtype k2e,
                                          sunrealtype k1i, sunrealtype k2i)
 {
+  if (C == NULL) { return SUNADAPTCONTROLLER_ILL_INPUT; }
   SACIMEXGUS_K1E(C) = k1e;
   SACIMEXGUS_K2E(C) = k2e;
   SACIMEXGUS_K1I(C) = k1i;
