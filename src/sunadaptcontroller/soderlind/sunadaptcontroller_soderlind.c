@@ -117,6 +117,7 @@ int SUNAdaptController_SetParams_Soderlind(SUNAdaptController C,
                                            sunrealtype k3, sunrealtype k4,
                                            sunrealtype k5)
 {
+  if (C == NULL) { return SUNADAPTCONTROLLER_ILL_INPUT; }
   SODERLIND_K1(C) = k1;
   SODERLIND_K2(C) = k2;
   SODERLIND_K3(C) = k3;
@@ -133,6 +134,7 @@ SUNAdaptController SUNAdaptController_PID(SUNContext sunctx)
 {
   SUNAdaptController C;
   C = SUNAdaptController_Soderlind(sunctx);
+  if (C == NULL) { return NULL; }
   (void) SUNAdaptController_SetParams_PID(C,
                                           DEFAULT_PID_K1,
                                           DEFAULT_PID_K2,
@@ -148,6 +150,7 @@ int SUNAdaptController_SetParams_PID(SUNAdaptController C,
                                      sunrealtype k1, sunrealtype k2,
                                      sunrealtype k3)
 {
+  if (C == NULL) { return SUNADAPTCONTROLLER_ILL_INPUT; }
   SODERLIND_K1(C) = k1;
   SODERLIND_K2(C) = k2;
   SODERLIND_K3(C) = k3;
@@ -164,6 +167,7 @@ SUNAdaptController SUNAdaptController_PI(SUNContext sunctx)
 {
   SUNAdaptController C;
   C = SUNAdaptController_Soderlind(sunctx);
+  if (C == NULL) { return NULL; }
   (void) SUNAdaptController_SetParams_PI(C,
                                          DEFAULT_PI_K1,
                                          DEFAULT_PI_K2);
@@ -177,6 +181,7 @@ SUNAdaptController SUNAdaptController_PI(SUNContext sunctx)
 int SUNAdaptController_SetParams_PI(SUNAdaptController C,
                                     sunrealtype k1, sunrealtype k2)
 {
+  if (C == NULL) { return SUNADAPTCONTROLLER_ILL_INPUT; }
   SODERLIND_K1(C) = k1;
   SODERLIND_K2(C) = k2;
   SODERLIND_K3(C) = RCONST(0.0);
@@ -193,6 +198,7 @@ SUNAdaptController SUNAdaptController_I(SUNContext sunctx)
 {
   SUNAdaptController C;
   C = SUNAdaptController_Soderlind(sunctx);
+  if (C == NULL) { return NULL; }
   (void) SUNAdaptController_SetParams_I(C, DEFAULT_I_K1);
   return (C);
 }
@@ -203,6 +209,7 @@ SUNAdaptController SUNAdaptController_I(SUNContext sunctx)
 
 int SUNAdaptController_SetParams_I(SUNAdaptController C, sunrealtype k1)
 {
+  if (C == NULL) { return SUNADAPTCONTROLLER_ILL_INPUT; }
   SODERLIND_K1(C) = k1;
   SODERLIND_K2(C) = RCONST(0.0);
   SODERLIND_K3(C) = RCONST(0.0);
@@ -219,6 +226,7 @@ SUNAdaptController SUNAdaptController_ExpGus(SUNContext sunctx)
 {
   SUNAdaptController C;
   C = SUNAdaptController_Soderlind(sunctx);
+  if (C == NULL) { return NULL; }
   (void) SUNAdaptController_SetParams_ExpGus(C,
                                              DEFAULT_EXPGUS_K1,
                                              DEFAULT_EXPGUS_K2);
@@ -232,6 +240,7 @@ SUNAdaptController SUNAdaptController_ExpGus(SUNContext sunctx)
 int SUNAdaptController_SetParams_ExpGus(SUNAdaptController C,
                                         sunrealtype k1, sunrealtype k2)
 {
+  if (C == NULL) { return SUNADAPTCONTROLLER_ILL_INPUT; }
   SODERLIND_K1(C) = k1+k2;
   SODERLIND_K2(C) = -k2;
   SODERLIND_K3(C) = RCONST(0.0);
@@ -248,6 +257,7 @@ SUNAdaptController SUNAdaptController_ImpGus(SUNContext sunctx)
 {
   SUNAdaptController C;
   C = SUNAdaptController_Soderlind(sunctx);
+  if (C == NULL) { return NULL; }
   (void) SUNAdaptController_SetParams_ImpGus(C,
                                              DEFAULT_IMPGUS_K1,
                                              DEFAULT_IMPGUS_K2);
@@ -261,6 +271,7 @@ SUNAdaptController SUNAdaptController_ImpGus(SUNContext sunctx)
 int SUNAdaptController_SetParams_ImpGus(SUNAdaptController C,
                                         sunrealtype k1, sunrealtype k2)
 {
+  if (C == NULL) { return SUNADAPTCONTROLLER_ILL_INPUT; }
   SODERLIND_K1(C) = k1+k2;
   SODERLIND_K2(C) = -k2;
   SODERLIND_K3(C) = RCONST(0.0);
@@ -322,6 +333,7 @@ int SUNAdaptController_Reset_Soderlind(SUNAdaptController C)
 
 int SUNAdaptController_SetDefaults_Soderlind(SUNAdaptController C)
 {
+  if (C == NULL) { return SUNADAPTCONTROLLER_ILL_INPUT; }
   SODERLIND_K1(C)   = DEFAULT_K1;
   SODERLIND_K2(C)   = DEFAULT_K2;
   SODERLIND_K3(C)   = DEFAULT_K3;

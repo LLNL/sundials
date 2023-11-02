@@ -64,7 +64,7 @@ SUNAdaptController SUNAdaptController_NewEmpty(SUNContext sunctx)
  * Free a generic SUNAdaptController (assumes content is already empty)
  * ----------------------------------------------------------------- */
 
-void SUNAdaptController_FreeEmpty(SUNAdaptController C)
+void SUNAdaptController_DestroyEmpty(SUNAdaptController C)
 {
   if (C == NULL)  return;
 
@@ -85,7 +85,8 @@ void SUNAdaptController_FreeEmpty(SUNAdaptController C)
 SUNAdaptController_Type SUNAdaptController_GetType(SUNAdaptController C)
 {
   if (C == NULL) { return SUN_ADAPTCONTROLLER_NONE; }
-  return(C->ops->gettype(C));
+  if (C->ops->gettype) { return C->ops->gettype(C); }
+  return SUN_ADAPTCONTROLLER_NONE;
 }
 
 /* -----------------------------------------------------------------
@@ -112,9 +113,9 @@ int SUNAdaptController_Destroy(SUNAdaptController C)
 int SUNAdaptController_EstimateStep(SUNAdaptController C, sunrealtype h, int p,
                                     sunrealtype dsm, sunrealtype* hnew)
 {
-  int ier = 0;
+  int ier = SUNADAPTCONTROLLER_SUCCESS;
   *hnew = h;   /* initialize output with identity */
-  if (C == NULL) { return ier; }
+  if (C == NULL || hnew == NULL) { return SUNADAPTCONTROLLER_ILL_INPUT; }
   if (C->ops->estimatestep)
   {
     ier = C->ops->estimatestep(C, h, p, dsm, hnew);
@@ -125,49 +126,50 @@ int SUNAdaptController_EstimateStep(SUNAdaptController C, sunrealtype h, int p,
 
 int SUNAdaptController_Reset(SUNAdaptController C)
 {
-  int ier = 0;
-  if (C == NULL) { return ier; }
+  int ier = SUNADAPTCONTROLLER_SUCCESS;
+  if (C == NULL) { return SUNADAPTCONTROLLER_ILL_INPUT; }
   if (C->ops->reset) { ier = C->ops->reset(C); }
   return(ier);
 }
 
 int SUNAdaptController_SetDefaults(SUNAdaptController C)
 {
-  int ier = 0;
+  int ier = SUNADAPTCONTROLLER_SUCCESS;
+  if (C == NULL) { return SUNADAPTCONTROLLER_ILL_INPUT; }
   if (C->ops->setdefaults) { ier = C->ops->setdefaults(C); }
   return(ier);
 }
 
 int SUNAdaptController_Write(SUNAdaptController C, FILE* fptr)
 {
-  int ier = 0;
-  if (C == NULL) { return ier; }
+  int ier = SUNADAPTCONTROLLER_SUCCESS;
+  if (C == NULL || fptr == NULL) { return SUNADAPTCONTROLLER_ILL_INPUT; }
   if (C->ops->write) { ier = C->ops->write(C, fptr); }
   return(ier);
 }
 
 int SUNAdaptController_SetErrorBias(SUNAdaptController C, sunrealtype bias)
 {
-  int ier = 0;
-  if (C == NULL) { return ier; }
+  int ier = SUNADAPTCONTROLLER_SUCCESS;
+  if (C == NULL) { return SUNADAPTCONTROLLER_ILL_INPUT; }
   if (C->ops->seterrorbias) { ier = C->ops->seterrorbias(C, bias); }
   return(ier);
 }
 
 int SUNAdaptController_UpdateH(SUNAdaptController C, sunrealtype h, sunrealtype dsm)
 {
-  int ier = 0;
-  if (C == NULL) { return ier; }
+  int ier = SUNADAPTCONTROLLER_SUCCESS;
+  if (C == NULL) { return SUNADAPTCONTROLLER_ILL_INPUT; }
   if (C->ops->updateh) { ier = C->ops->updateh(C, h, dsm); }
   return(ier);
 }
 
 int SUNAdaptController_Space(SUNAdaptController C, long int *lenrw, long int *leniw)
 {
-  int ier = 0;
+  int ier = SUNADAPTCONTROLLER_SUCCESS;
+  if (C == NULL || lenrw == NULL || leniw == NULL) { return SUNADAPTCONTROLLER_ILL_INPUT; }
   *lenrw = 0;   /* initialize outputs with identity */
   *leniw = 0;
-  if (C == NULL) { return ier; }
   if (C->ops->space) { ier = C->ops->space(C, lenrw, leniw); }
   return(ier);
 }

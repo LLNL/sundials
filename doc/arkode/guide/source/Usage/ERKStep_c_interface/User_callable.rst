@@ -1273,8 +1273,10 @@ the code, is provided in :numref:`ARKODE.Mathematics.Adaptivity`.
       parameter values are desired, it is recommended to instead provide
       a custom function through a call to :c:func:`ERKStepSetAdaptivityFn()`.
 
-      Prior to version x.x.x, any nonzero value for *pq* would result in use of the
-      embedding order of accuracy.
+      .. versionchanged:: x.x.x
+         
+         Prior to version x.x.x, any nonzero value for *pq* would result in use of the
+         embedding order of accuracy.
 
    .. deprecated:: x.x.x
 

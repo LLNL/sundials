@@ -160,7 +160,7 @@ note these requirements below. Additionally, we note the behavior of the base SU
 
    Estimates a single-rate step size. This routine is required for controllers
    of type ``SUN_ADAPTCONTROLLER_H``.  If this is not provided by the
-   implementation, the class method will set ``*hnew = h`` and return.
+   implementation, the base class method will set ``*hnew = h`` and return.
 
    :param C: the :c:type:`SUNAdaptController` object.
    :param h: the step size from the previous step attempt.
