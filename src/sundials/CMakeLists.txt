@@ -43,6 +43,7 @@ set(sundials_HEADERS
   sundials_nvector.h
   sundials_nvector.hpp
   sundials_profiler.h
+  sundials_profiler.hpp
   sundials_logger.h
   sundials_types.h
   sundials_version.h

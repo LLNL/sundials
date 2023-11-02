@@ -42,7 +42,7 @@ Fixed scaling bug in `SUNMatScaleAddI_Sparse` for non-square matrices.
 Fixed missing soversions in some `SUNLinearSolver` and `SUNNonlinearSolver`
 CMake targets.
 
-Added Fortran support for the LAPACK dense `SUNLinearSolver` implementations.
+Added Fortran support for the LAPACK dense `SUNLinearSolver` implementation.
 
 Fixed the build system support for MAGMA when using a NVIDIA HPC SDK installation of CUDA
 and fixed the targets used for rocBLAS and rocSPARSE.
@@ -53,6 +53,8 @@ ERK method `ARKODE_SOFRONIOU_SPALETTA_5_3_4`, the sixth order ERK method
 the eighth order ERK method `ARKODE_VERNER_13_7_8`, and the ninth order ERK
 method `ARKODE_VERNER_16_8_9`.
 
+Changed the `SUNProfiler` so that it does not rely on `MPI_WTime` in any case.
+This fixes https://github.com/LLNL/sundials/issues/312. 
 
 ## Changes to SUNDIALS in release 6.6.1
 
