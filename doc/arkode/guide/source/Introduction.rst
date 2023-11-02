@@ -159,6 +159,9 @@ ERK method ``ARKODE_SOFRONIOU_SPALETTA_5_3_4``, the sixth order ERK method
 the eighth order ERK method ``ARKODE_VERNER_13_7_8``, and the ninth order ERK
 method ``ARKODE_VERNER_16_8_9``.
 
+Changed the ``SUNProfiler`` so that it does not rely on ``MPI_WTime`` in any case.
+This fixes `GitHub Issue #312 <https://github.com/LLNL/sundials/issues/312>`_. 
+
 Added Fortran support for the LAPACK  dense ``SUNLinearSolver`` implementation.
 
 Changes in v5.6.2
@@ -995,7 +998,6 @@ utilize a zero initial guess.
 
 A bug was fixed in the ARKODE stepper modules where the stop time may be passed
 after resetting the integrator.
-
 
 Changes in v4.7.0
 -----------------
