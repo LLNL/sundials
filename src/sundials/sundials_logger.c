@@ -143,7 +143,7 @@ static sunbooleantype sunLoggerIsOutputRank(SUNLogger logger, int* rank_ref)
 #else
   if (rank_ref)
   {
-    *rank_ref = -1;
+    *rank_ref = 0;
   }
   retval = SUNTRUE;
 #endif
@@ -260,7 +260,7 @@ int SUNLogger_SetErrorFilename(SUNLogger logger, const char* error_filename)
             "SUNDIALS_LOGGING_LEVEL=%d (build time option) "
             "is set too low for ERROR, but a ERROR file was provided. "
             "Set the logging level to >= %d and recompile if ERROR output level "
-            "is desired.\n", SUN_LOGLEVEL_ERROR, SUNDIALS_LOGGING_LEVEL);
+            "is desired.\n", SUNDIALS_LOGGING_LEVEL, SUN_LOGLEVEL_ERROR);
 #endif
   }
 
@@ -306,7 +306,7 @@ int SUNLogger_SetWarningFilename(SUNLogger logger, const char* warning_filename)
             "SUNDIALS_LOGGING_LEVEL=%d (build time option) "
             "is set too low for WARNING, but a WARNING file was provided. "
             "Set the logging level to >= %d and recompile if WARNING output "
-            "level is desired.\n", SUN_LOGLEVEL_WARNING, SUNDIALS_LOGGING_LEVEL);
+            "level is desired.\n", SUNDIALS_LOGGING_LEVEL, SUN_LOGLEVEL_WARNING);
 #endif
   }
 
@@ -352,7 +352,7 @@ int SUNLogger_SetInfoFilename(SUNLogger logger, const char* info_filename)
             "SUNDIALS_LOGGING_LEVEL=%d (build time option) "
             "is set too low for INFO, but a INFO file was provided. Set the "
             "logging level to >= %d and recompile if INFO output level is "
-            "desired.\n", SUN_LOGLEVEL_INFO, SUNDIALS_LOGGING_LEVEL);
+            "desired.\n", SUNDIALS_LOGGING_LEVEL, SUN_LOGLEVEL_INFO);
 #endif
   }
 
@@ -398,7 +398,7 @@ int SUNLogger_SetDebugFilename(SUNLogger logger, const char* debug_filename)
             "SUNDIALS_LOGGING_LEVEL=%d (build time option) "
             "is set too low for DEBUG output, but a DEBUG file was provided. "
             "Set the logging level to >= %d and recompile if DEBUG output level "
-            "is desired.\n", SUN_LOGLEVEL_DEBUG, SUNDIALS_LOGGING_LEVEL);
+            "is desired.\n", SUNDIALS_LOGGING_LEVEL, SUN_LOGLEVEL_DEBUG);
 #endif
   }
 

@@ -840,8 +840,8 @@ int arkEvolve(ARKodeMem ark_mem, realtype tout, N_Vector yout,
       attempts++;
       ark_mem->nst_attempts++;
 
-#if SUNDIALS_LOGGING_LEVEL >= SUNDIALS_LOGGING_INFO
-      SUNLogger_QueueMsg(ARK_LOGGER, SUN_LOGLEVEL_INFO,
+#if SUNDIALS_LOGGING_LEVEL >= SUNDIALS_LOGGING_DEBUG
+      SUNLogger_QueueMsg(ARK_LOGGER, SUN_LOGLEVEL_DEBUG,
                          "ARKODE::arkEvolve", "start-step",
                          "step = %li, attempt = %i, h = %"RSYM", tcur = %"RSYM,
                          ark_mem->nst, attempts, ark_mem->h, ark_mem->tcur);
@@ -2423,8 +2423,8 @@ int arkCompleteStep(ARKodeMem ark_mem, realtype dsm)
       ark_mem->tcur = ark_mem->tstop;
   }
 
-#if SUNDIALS_LOGGING_LEVEL >= SUNDIALS_LOGGING_INFO
-  SUNLogger_QueueMsg(ARK_LOGGER, SUN_LOGLEVEL_INFO,
+#if SUNDIALS_LOGGING_LEVEL >= SUNDIALS_LOGGING_DEBUG
+  SUNLogger_QueueMsg(ARK_LOGGER, SUN_LOGLEVEL_DEBUG,
                      "ARKODE::arkCompleteStep", "end-step",
                      "step = %li, h = %"RSYM", tcur = %"RSYM,
                      ark_mem->nst, ark_mem->h, ark_mem->tcur);
