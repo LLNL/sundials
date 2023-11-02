@@ -52,7 +52,7 @@ foreach(test_tuple ${unit_tests})
 
     # We explicitly choose which object libraries to link to and link in the
     # arkode objects so that we have access to private functions w/o changing
-    # their visibility in the installed libraries. 
+    # their visibility in the installed libraries.
     target_link_libraries(${test_target}
       $<TARGET_OBJECTS:sundials_arkode_obj>
       sundials_sunmemsys_obj
@@ -61,6 +61,9 @@ foreach(test_tuple ${unit_tests})
       sundials_sunlinsoldense_obj
       sundials_sunnonlinsolnewton_obj
       sundials_sunnonlinsolfixedpoint_obj
+      sundials_sunadaptcontrollerimexgus_obj
+      sundials_sunadaptcontrollernoop_obj
+      sundials_sunadaptcontrollersoderlind_obj
       ${EXE_EXTRA_LINK_LIBS})
 
     # Tell CMake that we depend on the ARKODE library since it does not pick

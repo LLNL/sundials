@@ -65,6 +65,9 @@ foreach(test_tuple ${ARKODE_unit_tests})
       sundials_sunlinsolband_obj
       sundials_sunlinsoldense_obj
       sundials_sunnonlinsolnewton_obj
+      sundials_sunadaptcontrollerimexgus_obj
+      sundials_sunadaptcontrollernoop_obj
+      sundials_sunadaptcontrollersoderlind_obj
       ${EXE_EXTRA_LINK_LIBS})
 
     # Tell CMake that we depend on the ARKODE library since it does not pick
