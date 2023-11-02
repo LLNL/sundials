@@ -293,6 +293,9 @@ int main(int argc, char *argv[])
 
     retval = SUNLogger_SetInfoFilename(logger, fname);
     if (check_retval(&retval, "SUNLogger_SetInfoFilename", 1)) return 1;
+
+    retval = SUNLogger_SetDebugFilename(logger, fname);
+    if (check_retval(&retval, "SUNLogger_SetInfoFilename", 1)) return 1;
   }
 
   /* Create solution vector */
