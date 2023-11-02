@@ -75,7 +75,8 @@ def main():
     # if failed tests were found update the output files
     if tests:
         paths = [os.path.join(args.destination, "examples"),
-                 os.path.join(args.destination, "test", "unit_tests")]
+                 os.path.join(args.destination, "test", "unit_tests"),
+                 args.destination]
         for t in tests:
             if (args.verbose > 0):
                 print(f"Searching for {t}")
