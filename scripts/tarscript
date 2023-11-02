@@ -17,6 +17,7 @@
 
 # Exit immediately if a command fails
 set -e
+set -o pipefail
 
 #==============================================================================
 #
