@@ -135,13 +135,18 @@ int SUNAdaptController_SetParams_Soderlind(SUNAdaptController C,
 SUNAdaptController SUNAdaptController_PID(SUNContext sunctx)
 {
   SUNAdaptController C;
+  int retval;
   if (sunctx == NULL) { return NULL; }
   C = SUNAdaptController_Soderlind(sunctx);
   if (C == NULL) { return NULL; }
-  (void) SUNAdaptController_SetParams_PID(C,
-                                          DEFAULT_PID_K1,
-                                          DEFAULT_PID_K2,
-                                          DEFAULT_PID_K3);
+  retval = SUNAdaptController_SetParams_PID(C,
+                                            DEFAULT_PID_K1,
+                                            DEFAULT_PID_K2,
+                                            DEFAULT_PID_K3);
+  if (retval != SUNADAPTCONTROLLER_SUCCESS) {
+    (void) SUNAdaptController_Destroy(C);
+    C = NULL;
+  }
   return (C);
 }
 
@@ -169,12 +174,17 @@ int SUNAdaptController_SetParams_PID(SUNAdaptController C,
 SUNAdaptController SUNAdaptController_PI(SUNContext sunctx)
 {
   SUNAdaptController C;
+  int retval;
   if (sunctx == NULL) { return NULL; }
   C = SUNAdaptController_Soderlind(sunctx);
   if (C == NULL) { return NULL; }
-  (void) SUNAdaptController_SetParams_PI(C,
-                                         DEFAULT_PI_K1,
-                                         DEFAULT_PI_K2);
+  retval = SUNAdaptController_SetParams_PI(C,
+                                           DEFAULT_PI_K1,
+                                           DEFAULT_PI_K2);
+  if (retval != SUNADAPTCONTROLLER_SUCCESS) {
+    (void) SUNAdaptController_Destroy(C);
+    C = NULL;
+  }
   return (C);
 }
 
@@ -201,10 +211,15 @@ int SUNAdaptController_SetParams_PI(SUNAdaptController C,
 SUNAdaptController SUNAdaptController_I(SUNContext sunctx)
 {
   SUNAdaptController C;
+  int retval;
   if (sunctx == NULL) { return NULL; }
   C = SUNAdaptController_Soderlind(sunctx);
   if (C == NULL) { return NULL; }
-  (void) SUNAdaptController_SetParams_I(C, DEFAULT_I_K1);
+  retval = SUNAdaptController_SetParams_I(C, DEFAULT_I_K1);
+  if (retval != SUNADAPTCONTROLLER_SUCCESS) {
+    (void) SUNAdaptController_Destroy(C);
+    C = NULL;
+  }
   return (C);
 }
 
@@ -230,12 +245,17 @@ int SUNAdaptController_SetParams_I(SUNAdaptController C, sunrealtype k1)
 SUNAdaptController SUNAdaptController_ExpGus(SUNContext sunctx)
 {
   SUNAdaptController C;
+  int retval;
   if (sunctx == NULL) { return NULL; }
   C = SUNAdaptController_Soderlind(sunctx);
   if (C == NULL) { return NULL; }
-  (void) SUNAdaptController_SetParams_ExpGus(C,
-                                             DEFAULT_EXPGUS_K1,
-                                             DEFAULT_EXPGUS_K2);
+  retval = SUNAdaptController_SetParams_ExpGus(C,
+                                               DEFAULT_EXPGUS_K1,
+                                               DEFAULT_EXPGUS_K2);
+  if (retval != SUNADAPTCONTROLLER_SUCCESS) {
+    (void) SUNAdaptController_Destroy(C);
+    C = NULL;
+  }
   return (C);
 }
 
@@ -262,12 +282,17 @@ int SUNAdaptController_SetParams_ExpGus(SUNAdaptController C,
 SUNAdaptController SUNAdaptController_ImpGus(SUNContext sunctx)
 {
   SUNAdaptController C;
+  int retval;
   if (sunctx == NULL) { return NULL; }
   C = SUNAdaptController_Soderlind(sunctx);
   if (C == NULL) { return NULL; }
-  (void) SUNAdaptController_SetParams_ImpGus(C,
-                                             DEFAULT_IMPGUS_K1,
-                                             DEFAULT_IMPGUS_K2);
+  retval = SUNAdaptController_SetParams_ImpGus(C,
+                                               DEFAULT_IMPGUS_K1,
+                                               DEFAULT_IMPGUS_K2);
+  if (retval != SUNADAPTCONTROLLER_SUCCESS) {
+    (void) SUNAdaptController_Destroy(C);
+    C = NULL;
+  }
   return (C);
 }
 
