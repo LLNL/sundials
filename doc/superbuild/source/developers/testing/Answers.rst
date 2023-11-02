@@ -64,7 +64,7 @@ is expected/desired. Changing output files requires careful verification that th
      output generated on your machine, but it may be different enough from what is produced on the
      GitHub actions to trigger a failure. You can download the output files generated on the GitHub
      machines by going to `<https://github.com/LLNL/sundials/actions>`_ finding your failing
-     test, clicking it, then at the bottom downloading the "artifacts" (you can also find your
+     test, clicking it, then at the bottom downloading the "output_files" artifact (you can also find your
      failing test at the bottom of a PR). The downloaded zip file will be the SUNDIALS build
      directory. The ``.out`` files you want are in
      ``build_that_you_downloaded_and_extracted/Testing/output``.
