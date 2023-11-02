@@ -545,11 +545,8 @@ the user has set a stop time (with a call to the optional input function
         in :numref:`ARKODE.Mathematics.Interpolation`).
 
         The *ARK_ONE_STEP* option tells the solver to only take a
-        single internal step :math:`y_{n-1} \to y_{n}` and then return
-        control back to the calling program.  If this step will
-        overtake *tout* then the solver will again return an
-        interpolated result; otherwise it will return a copy of the
-        internal solution :math:`y_{n}` in the vector *yout*.
+        single internal step, :math:`y_{n-1} \to y_{n}`, and return the solution
+        at that point, :math:`y_{n}`, in the vector *yout*.
 
    **Return value:**
       * *ARK_SUCCESS* if successful.
@@ -604,8 +601,8 @@ the user has set a stop time (with a call to the optional input function
       only to get the direction and a rough scale of the independent
       variable.
 
-      All failure return values are negative and so testing the return argument for
-      negative values will trap all :c:func:`MRIStepEvolve()` failures.
+      All failure return values are negative and so testing the return argument
+      for negative values will trap all :c:func:`MRIStepEvolve()` failures.
 
       Since interpolation may reduce the accuracy in the reported
       solution, if full method accuracy is desired the user should issue
