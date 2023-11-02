@@ -20,8 +20,9 @@
 #include <cstdio>
 #include <iomanip>
 #include <iostream>
-#include <string>
+#include <cstring>
 #include <cmath>
+#include <string>
 
 #include <arkode/arkode_arkstep.h>
 #include <arkode/arkode_mristep.h>
@@ -92,12 +93,12 @@ int main(int argc, char* argv[])
   UserData udata;
 
   // Check for inputs
-  if (argc > 1) udata.lambda_e = stod(argv[1]);
-  if (argc > 2) udata.lambda_i = stod(argv[2]);
-  if (argc > 3) udata.lambda_f = stod(argv[3]);
-  if (argc > 4) hs = stod(argv[4]);
-  if (argc > 5) hf = stod(argv[5]);
-  if (argc > 5) nsteps = stoi(argv[6]);
+  if (argc > 1) udata.lambda_e = std::stod(argv[1]);
+  if (argc > 2) udata.lambda_i = std::stod(argv[2]);
+  if (argc > 3) udata.lambda_f = std::stod(argv[3]);
+  if (argc > 4) hs = std::stod(argv[4]);
+  if (argc > 5) hf = std::stod(argv[5]);
+  if (argc > 5) nsteps = std::stoi(argv[6]);
 
   // Output problem setup
   cout << "\nDahlquist ODE test problem:\n";
