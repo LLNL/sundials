@@ -152,6 +152,8 @@ macro(sundials_add_library target)
     # create the target for the object library
     add_library(${obj_target} OBJECT ${sources})
 
+    set_target_properties(${obj_target} PROPERTIES FOLDER "obj")
+
     # add all object libraries to object library
     if(sundials_add_library_OBJECT_LIBRARIES)
       target_link_libraries(${obj_target}
@@ -228,6 +230,8 @@ macro(sundials_add_library target)
       set(_actual_target_name ${target}${_lib_suffix})
 
       add_library(${_actual_target_name} ${_libtype} $<TARGET_OBJECTS:${obj_target}>)
+
+      set_target_properties(${_actual_target_name} PROPERTIES FOLDER "src")
 
       # add any object library dependencies
       if(sundials_add_library_OBJECT_LIBRARIES)
