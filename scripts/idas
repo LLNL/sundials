@@ -36,9 +36,7 @@ $tar $tarfile $distrobase/doc/idas/guide/source
 
 $tar $tarfile $distrobase/include/idas/idas.h
 $tar $tarfile $distrobase/include/idas/idas_bbdpre.h
-$tar $tarfile $distrobase/include/idas/idas_direct.h
 $tar $tarfile $distrobase/include/idas/idas_ls.h
-$tar $tarfile $distrobase/include/idas/idas_spils.h
 
 $tar $tarfile $distrobase/src/idas/LICENSE
 $tar $tarfile $distrobase/src/idas/NOTICE
@@ -50,7 +48,6 @@ $tar $tarfile $distrobase/src/idas/idaa_io.c
 $tar $tarfile $distrobase/src/idas/idas.c
 $tar $tarfile $distrobase/src/idas/idas_bbdpre.c
 $tar $tarfile $distrobase/src/idas/idas_bbdpre_impl.h
-$tar $tarfile $distrobase/src/idas/idas_direct.c
 $tar $tarfile $distrobase/src/idas/idas_ic.c
 $tar $tarfile $distrobase/src/idas/idas_impl.h
 $tar $tarfile $distrobase/src/idas/idas_io.c
@@ -59,7 +56,6 @@ $tar $tarfile $distrobase/src/idas/idas_ls_impl.h
 $tar $tarfile $distrobase/src/idas/idas_nls.c
 $tar $tarfile $distrobase/src/idas/idas_nls_sim.c
 $tar $tarfile $distrobase/src/idas/idas_nls_stg.c
-$tar $tarfile $distrobase/src/idas/idas_spils.c
 
 $tar $tarfile $distrobase/src/idas/fmod/CMakeLists.txt
 $tar $tarfile $distrobase/src/idas/fmod/fidas_mod.c

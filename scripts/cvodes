@@ -38,10 +38,8 @@ $tar $tarfile $distrobase/include/cvodes/cvodes.h
 $tar $tarfile $distrobase/include/cvodes/cvodes_bandpre.h
 $tar $tarfile $distrobase/include/cvodes/cvodes_bbdpre.h
 $tar $tarfile $distrobase/include/cvodes/cvodes_diag.h
-$tar $tarfile $distrobase/include/cvodes/cvodes_direct.h
 $tar $tarfile $distrobase/include/cvodes/cvodes_ls.h
 $tar $tarfile $distrobase/include/cvodes/cvodes_proj.h
-$tar $tarfile $distrobase/include/cvodes/cvodes_spils.h
 
 $tar $tarfile $distrobase/src/cvodes/LICENSE
 $tar $tarfile $distrobase/src/cvodes/NOTICE
@@ -57,7 +55,6 @@ $tar $tarfile $distrobase/src/cvodes/cvodes_bbdpre_impl.h
 $tar $tarfile $distrobase/src/cvodes/cvodes.c
 $tar $tarfile $distrobase/src/cvodes/cvodes_diag.c
 $tar $tarfile $distrobase/src/cvodes/cvodes_diag_impl.h
-$tar $tarfile $distrobase/src/cvodes/cvodes_direct.c
 $tar $tarfile $distrobase/src/cvodes/cvodes_impl.h
 $tar $tarfile $distrobase/src/cvodes/cvodes_io.c
 $tar $tarfile $distrobase/src/cvodes/cvodes_ls.c
@@ -68,7 +65,6 @@ $tar $tarfile $distrobase/src/cvodes/cvodes_nls_stg.c
 $tar $tarfile $distrobase/src/cvodes/cvodes_nls_stg1.c
 $tar $tarfile $distrobase/src/cvodes/cvodes_proj.c
 $tar $tarfile $distrobase/src/cvodes/cvodes_proj_impl.h
-$tar $tarfile $distrobase/src/cvodes/cvodes_spils.c
 
 $tar $tarfile $distrobase/src/cvodes/fmod/CMakeLists.txt
 $tar $tarfile $distrobase/src/cvodes/fmod/fcvodes_mod.c
