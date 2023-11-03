@@ -321,7 +321,7 @@ do
 done
 
 # Clean up tmpdir
-rm -r $tmpdir/doc/shared/__pycache__
+rm -rf $tmpdir/doc/shared/__pycache__
 find $tmpdir -name "*~" -delete
 find $tmpdir -name "*.orig" -delete
 
