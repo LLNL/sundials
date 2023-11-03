@@ -42,3 +42,4 @@ jobs:
           name: output_files
           path: |
             ${{ github.workspace }}/test/build_*/Testing/output
+            ${{ github.workspace }}/test/build_*/Testing/Temporary/LastTestsFailed.log
