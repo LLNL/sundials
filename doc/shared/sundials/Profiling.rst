@@ -48,6 +48,11 @@ If Caliper is enabled, then users should refer to the `Caliper documentation <ht
 for information on getting profiler output. In most cases, this involves
 setting the ``CALI_CONFIG`` environment variable.
 
+
+.. note:: 
+
+   The SUNDIALS profiler requires POSIX timers or the Windows ``profileapi.h`` timers.
+
 .. warning::
 
    While the SUNDIALS profiling scheme is relatively lightweight, enabling
@@ -144,6 +149,31 @@ are available.
    **Arguments:**
       * ``p`` -- a ``SUNProfiler`` object
       * ``name`` -- a name for the profiling region
+
+   **Returns:**
+      * Returns zero if successful, or non-zero if an error occurred
+
+
+.. c:function:: int SUNProfiler_GetElapsedTime(SUNProfiler p, const char* name, double* time)
+
+   Get the elapsed time for the timer "name" in seconds.
+
+   **Arguments:**
+      * ``p`` -- a ``SUNProfiler`` object
+      * ``name`` -- the name for the profiling region of interest
+      * ``time`` -- upon return, the elapsed time for the timer
+
+   **Returns:**
+      * Returns zero if successful, or non-zero if an error occurred
+
+
+.. c:function:: int SUNProfiler_GetTimerResolution(SUNProfiler p, double* resolution)
+
+   Get the timer resolution in seconds.
+
+   **Arguments:**
+      * ``p`` -- a ``SUNProfiler`` object
+      * ``resolution`` -- upon return, the resolution for the timer
 
    **Returns:**
       * Returns zero if successful, or non-zero if an error occurred
