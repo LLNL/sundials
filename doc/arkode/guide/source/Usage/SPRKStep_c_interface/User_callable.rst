@@ -152,11 +152,8 @@ has requested rootfinding.
                  :numref:`ARKODE.Mathematics.Interpolation`).
 
                  The *ARK_ONE_STEP* option tells the solver to only take a
-                 single internal step :math:`y_{n-1} \to y_{n}` and then return
-                 control back to the calling program.  If this step will
-                 overtake *tout* then the solver will again return an
-                 interpolated result; otherwise it will return a copy of the
-                 internal solution :math:`y_{n}` in the vector *yout*.
+                 single internal step, :math:`y_{n-1} \to y_{n}`, and return the
+                 solution at that point, :math:`y_{n}`, in the vector *yout*.
 
    :retval ARK_SUCCESS: if successful.
    :retval ARK_ROOT_RETURN: if :c:func:`SPRKStepEvolve()` succeeded, and
@@ -191,7 +188,9 @@ has requested rootfinding.
 
       In *ARK_ONE_STEP* mode, *tout* is used only on the first call, and
       only to get the direction and a rough scale of the independent
-      variable. All failure return values are negative and so testing the
+      variable.
+
+      All failure return values are negative and so testing the
       return argument for negative values will trap all
       :c:func:`SPRKStepEvolve()` failures.
 

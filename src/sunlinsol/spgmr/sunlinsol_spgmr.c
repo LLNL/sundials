@@ -867,33 +867,3 @@ int SUNLinSolFree_SPGMR(SUNLinearSolver S)
   free(S); S = NULL;
   return(SUNLS_SUCCESS);
 }
-
-
-int SUNLinSolSetInfoFile_SPGMR(SUNLinearSolver S,
-                               FILE* info_file)
-{
-  /* check that the linear solver is non-null */
-  if (S == NULL)
-    return(SUNLS_MEM_NULL);
-
-  SPGMR_CONTENT(S)->info_file = info_file;
-
-  return(SUNLS_SUCCESS);
-}
-
-
-int SUNLinSolSetPrintLevel_SPGMR(SUNLinearSolver S,
-                                 int print_level)
-{
-  /* check that the linear solver is non-null */
-  if (S == NULL)
-    return(SUNLS_MEM_NULL);
-
-  /* check for valid print level */
-  if (print_level < 0 || print_level > 1)
-    return(SUNLS_ILL_INPUT);
-
-  SPGMR_CONTENT(S)->print_level = print_level;
-
-  return(SUNLS_SUCCESS);
-}

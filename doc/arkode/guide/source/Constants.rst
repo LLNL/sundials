@@ -106,6 +106,16 @@ contains the ARKODE output constants.
    +-----------------------------------------------+------------------------------------------------------------+
    | :index:`ARKODE_ARK548L2SAb_ERK_8_4_5`         | Use the ARK-8-4-5b ERK method.                             |
    +-----------------------------------------------+------------------------------------------------------------+
+   | :index:`ARKODE_SHU_OSHER_3_2_3`               | Use the Shu-Osher-3-2-3 ERK method.                        |
+   +-----------------------------------------------+------------------------------------------------------------+
+   | :index:`ARKODE_VERNER_9_5_6`                  | Use the Verner-9-5-6 ERK method.                           |
+   +-----------------------------------------------+------------------------------------------------------------+
+   | :index:`ARKODE_VERNER_10_6_7`                 | Use the Verner-10-6-7 ERK method.                          |
+   +-----------------------------------------------+------------------------------------------------------------+
+   | :index:`ARKODE_VERNER_13_7_8`                 | Use the Verner-13-7-8 ERK method.                          |
+   +-----------------------------------------------+------------------------------------------------------------+
+   | :index:`ARKODE_VERNER_16_8_9`                 | Use the Verner-16-8-9 ERK method.                          |
+   +-----------------------------------------------+------------------------------------------------------------+
    | :index:`ARKSTEP_DEFAULT_ERK_2`                | Use ARKStep's default second-order ERK method              |
    |                                               | (ARKODE_HEUN_EULER_2_1_2).                                 |
    +-----------------------------------------------+------------------------------------------------------------+
@@ -121,8 +131,14 @@ contains the ARKODE output constants.
    | :index:`ARKSTEP_DEFAULT_ERK_6`                | Use ARKStep's default sixth-order ERK method               |
    |                                               | (ARKODE_VERNER_8_5_6).                                     |
    +-----------------------------------------------+------------------------------------------------------------+
+   | :index:`ARKSTEP_DEFAULT_ERK_7`                | Use ARKStep's default seventh-order ERK method             |
+   |                                               | (ARKODE_VERNER_10_6_7).                                    |
+   +-----------------------------------------------+------------------------------------------------------------+
    | :index:`ARKSTEP_DEFAULT_ERK_8`                | Use ARKStep's default eighth-order ERK method              |
    |                                               | (ARKODE_FEHLBERG_13_7_8).                                  |
+   +-----------------------------------------------+------------------------------------------------------------+
+   | :index:`ARKSTEP_DEFAULT_ERK_9`                | Use ARKStep's default ninth-order ERK method               |
+   |                                               | (ARKODE_VERNER_16_8_9).                                    |
    +-----------------------------------------------+------------------------------------------------------------+
    | :index:`ERKSTEP_DEFAULT_2`                    | Use ERKStep's default second-order ERK method              |
    |                                               | (ARKODE_HEUN_EULER_2_1_2).                                 |
@@ -139,8 +155,14 @@ contains the ARKODE output constants.
    | :index:`ERKSTEP_DEFAULT_6`                    | Use ERKStep's default sixth-order ERK method               |
    |                                               | (ARKODE_VERNER_8_5_6).                                     |
    +-----------------------------------------------+------------------------------------------------------------+
+   | :index:`ERKSTEP_DEFAULT_7`                    | Use ERKStep's default seventh-order ERK method             |
+   |                                               | (ARKODE_VERNER_10_6_7).                                    |
+   +-----------------------------------------------+------------------------------------------------------------+
    | :index:`ERKSTEP_DEFAULT_8`                    | Use ERKStep's default eighth-order ERK method              |
    |                                               | (ARKODE_FEHLBERG_13_7_8).                                  |
+   +-----------------------------------------------+------------------------------------------------------------+
+   | :index:`ERKSTEP_DEFAULT_9`                    | Use ERKStep's default ninth-order ERK method               |
+   |                                               | (ARKODE_VERNER_16_8_9).                                    |
    +-----------------------------------------------+------------------------------------------------------------+
    |                                               |                                                            |
    +-----------------------------------------------+------------------------------------------------------------+

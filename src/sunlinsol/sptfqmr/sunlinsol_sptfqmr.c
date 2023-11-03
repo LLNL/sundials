@@ -906,33 +906,3 @@ int SUNLinSolFree_SPTFQMR(SUNLinearSolver S)
   free(S); S = NULL;
   return(SUNLS_SUCCESS);
 }
-
-
-int SUNLinSolSetInfoFile_SPTFQMR(SUNLinearSolver S,
-                                 FILE* info_file)
-{
-  /* check that the linear solver is non-null */
-  if (S == NULL)
-    return(SUNLS_MEM_NULL);
-
-  SPTFQMR_CONTENT(S)->info_file = info_file;
-
-  return(SUNLS_SUCCESS);
-}
-
-
-int SUNLinSolSetPrintLevel_SPTFQMR(SUNLinearSolver S,
-                                   int print_level)
-{
-  /* check that the linear solver is non-null */
-  if (S == NULL)
-    return(SUNLS_MEM_NULL);
-
-  /* check for valid print level */
-  if (print_level < 0 || print_level > 1)
-    return(SUNLS_ILL_INPUT);
-
-  SPTFQMR_CONTENT(S)->print_level = print_level;
-
-  return(SUNLS_SUCCESS);
-}

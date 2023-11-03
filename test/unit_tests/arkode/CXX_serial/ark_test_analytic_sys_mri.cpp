@@ -22,9 +22,10 @@
  *-----------------------------------------------------------------*/
 
 // Header files
-#include <stdio.h>
+#include <cstdio>
 #include <iostream>
-#include <string.h>
+#include <cstring>
+#include <string>
 #include <cmath>
 #include <arkode/arkode_arkstep.h>
 #include <arkode/arkode_mristep.h>
@@ -99,8 +100,8 @@ int main(int argc, char* argv[])
 
   // if an argument supplied, set fixedpoint (otherwise use SUNFALSE)
   fixedpoint = SUNFALSE;
-  if (argc > 1)  fixedpoint = stoi(argv[1], NULL);
-  if (argc > 2)  Nt = stoi(argv[2], NULL);
+  if (argc > 1)  fixedpoint = std::stoi(argv[1], NULL);
+  if (argc > 2)  Nt = std::stoi(argv[2], NULL);
 
   // Initial problem output
   cout << "\nAnalytical ODE test problem:\n";

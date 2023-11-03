@@ -23,6 +23,7 @@
 #include <sunlinsol/sunlinsol_cusolversp_batchqr.h>
 
 #include "sundials_cuda.h"
+#include "sundials_cusolver.h"
 #include "sundials_debug.h"
 
 #define ZERO SUN_RCONST(0.0)

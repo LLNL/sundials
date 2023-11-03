@@ -153,6 +153,7 @@ $tar $tarfile $distrobase/include/sundials/sundials_nonlinearsolver.hpp
 $tar $tarfile $distrobase/include/sundials/sundials_nvector_senswrapper.h
 $tar $tarfile $distrobase/include/sundials/sundials_nvector.h
 $tar $tarfile $distrobase/include/sundials/sundials_profiler.h
+$tar $tarfile $distrobase/include/sundials/sundials_profiler.hpp
 $tar $tarfile $distrobase/include/sundials/sundials_sycl_policies.hpp
 $tar $tarfile $distrobase/include/sundials/sundials_types.h
 $tar $tarfile $distrobase/include/sundials/sundials_version.h
@@ -247,6 +248,8 @@ $tar $tarfile $distrobase/src/sundials/sundials_band.c
 $tar $tarfile $distrobase/src/sundials/sundials_context_impl.h
 $tar $tarfile $distrobase/src/sundials/sundials_context.c
 $tar $tarfile $distrobase/src/sundials/sundials_cuda.h
+$tar $tarfile $distrobase/src/sundials/sundials_cusolver.h
+$tar $tarfile $distrobase/src/sundials/sundials_cusparse.h
 $tar $tarfile $distrobase/src/sundials/sundials_cuda_kernels.cuh
 $tar $tarfile $distrobase/src/sundials/sundials_debug.h
 $tar $tarfile $distrobase/src/sundials/sundials_dense.c
@@ -489,6 +492,9 @@ echo "   --- Add sunlinsol/lapackdense module to $tarfile"
 
 $tar $tarfile $distrobase/src/sunlinsol/lapackdense/CMakeLists.txt
 $tar $tarfile $distrobase/src/sunlinsol/lapackdense/sunlinsol_lapackdense.c
+$tar $tarfile $distrobase/src/sunlinsol/lapackdense/fmod/CMakeLists.txt
+$tar $tarfile $distrobase/src/sunlinsol/lapackdense/fmod/fsunlinsol_lapackdense_mod.c
+$tar $tarfile $distrobase/src/sunlinsol/lapackdense/fmod/fsunlinsol_lapackdense_mod.f90
 
 echo "   --- Add sunlinsol/magmadense module to $tarfile"
 
@@ -712,6 +718,7 @@ $tar $tarfile $distrobase/examples/sunlinsol/kokkos/CMakeLists.txt
 $tar $tarfile $distrobase/examples/sunlinsol/lapackband/test_sunlinsol_lapackband.c
 $tar $tarfile $distrobase/examples/sunlinsol/lapackband/CMakeLists.txt
 $tar $tarfile $distrobase/examples/sunlinsol/lapackdense/test_sunlinsol_lapackdense.c
+$tar $tarfile $distrobase/examples/sunlinsol/lapackdense/test_fsunlinsol_lapackdense_mod.f90
 $tar $tarfile $distrobase/examples/sunlinsol/lapackdense/CMakeLists.txt
 
 $tar $tarfile $distrobase/examples/sunlinsol/magmadense/test_sunlinsol_magmadense.cpp
@@ -837,3 +844,4 @@ echo "   --- Add unit tests files to $tarfile"
 $tar $tarfile $distrobase/test/unit_tests/CMakeLists.txt
 $tar $tarfile $distrobase/test/unit_tests/reductions
 $tar $tarfile $distrobase/test/unit_tests/sunmemory
+$tar $tarfile $distrobase/test/unit_tests/profiling

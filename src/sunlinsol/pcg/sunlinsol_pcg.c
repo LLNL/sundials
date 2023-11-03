@@ -577,33 +577,3 @@ int SUNLinSolFree_PCG(SUNLinearSolver S)
   free(S); S = NULL;
   return(SUNLS_SUCCESS);
 }
-
-
-int SUNLinSolSetInfoFile_PCG(SUNLinearSolver S,
-                             FILE* info_file)
-{
-  /* check that the linear solver is non-null */
-  if (S == NULL)
-    return(SUNLS_MEM_NULL);
-
-  PCG_CONTENT(S)->info_file = info_file;
-
-  return(SUNLS_SUCCESS);
-}
-
-
-int SUNLinSolSetPrintLevel_PCG(SUNLinearSolver S,
-                               int print_level)
-{
-  /* check that the linear solver is non-null */
-  if (S == NULL)
-    return(SUNLS_MEM_NULL);
-
-  /* check for valid print level */
-  if (print_level < 0 || print_level > 1)
-    return(SUNLS_ILL_INPUT);
-
-  PCG_CONTENT(S)->print_level = print_level;
-
-  return(SUNLS_SUCCESS);
-}

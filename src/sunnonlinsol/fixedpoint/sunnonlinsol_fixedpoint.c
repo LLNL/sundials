@@ -739,31 +739,3 @@ static void FreeContent(SUNNonlinearSolver NLS)
 
   return;
 }
-
-int SUNNonlinSolSetInfoFile_FixedPoint(SUNNonlinearSolver NLS,
-                                       FILE* info_file)
-{
-  /* check that the nonlinear solver is non-null */
-  if (NLS == NULL)
-    return(SUN_NLS_MEM_NULL);
-
-  FP_CONTENT(NLS)->info_file = info_file;
-
-  return(SUN_NLS_SUCCESS);
-}
-
-int SUNNonlinSolSetPrintLevel_FixedPoint(SUNNonlinearSolver NLS,
-                                         int print_level)
-{
-  /* check that the nonlinear solver is non-null */
-  if (NLS == NULL)
-    return(SUN_NLS_MEM_NULL);
-
-  /* check for valid print level */
-  if (print_level < 0 || print_level > 1)
-    return(SUN_NLS_ILL_INPUT);
-
-  FP_CONTENT(NLS)->print_level = print_level;
-
-  return(SUN_NLS_SUCCESS);
-}

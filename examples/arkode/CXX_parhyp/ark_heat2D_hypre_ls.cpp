@@ -362,7 +362,6 @@ int main(int argc, char* argv[])
   SUNMatrix A        = NULL;  // matrix for Jacobian
   SUNLinearSolver LS = NULL;  // linear solver memory structure
   void *arkode_mem   = NULL;  // ARKODE memory structure
-  FILE *diagfp       = NULL;  // diagnostics output file
 
   // Timing variables
   double t1 = 0.0;
@@ -410,13 +409,6 @@ int main(int argc, char* argv[])
   {
     flag = PrintUserData(udata);
     if (check_flag(&flag, "PrintUserData", 1)) return 1;
-
-    // Open diagnostics output file
-    if (udata->diagnostics)
-    {
-      diagfp = fopen("diagnostics.txt", "w");
-      if (check_flag((void *) diagfp, "fopen", 0)) return 1;
-    }
   }
 
   // ------------------------
@@ -533,13 +525,6 @@ int main(int argc, char* argv[])
   flag = ARKStepSetStopTime(arkode_mem, udata->tf);
   if (check_flag(&flag, "ARKStepSetStopTime", 1)) return 1;
 
-  // Set diagnostics output file
-  if (udata->diagnostics && outproc)
-  {
-    flag = ARKStepSetDiagnostics(arkode_mem, diagfp);
-    if (check_flag(&flag, "ARKStepSetDiagnostics", 1)) return 1;
-  }
-
   // -----------------------
   // Loop over output times
   // -----------------------
@@ -621,8 +606,6 @@ int main(int argc, char* argv[])
   // --------------------
   // Clean up and return
   // --------------------
-
-  if (udata->diagnostics && outproc) fclose(diagfp);
 
   ARKStepFree(&arkode_mem);  // Free integrator memory
   SUNLinSolFree(LS);         // Free linear solver

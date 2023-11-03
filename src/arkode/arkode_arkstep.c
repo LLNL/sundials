@@ -1638,8 +1638,8 @@ int arkStep_TakeStep_Z(void* arkode_mem, sunrealtype *dsmPtr, int *nflagPtr)
     else
       ark_mem->tcur = ark_mem->tn + step_mem->Be->c[is]*ark_mem->h;
 
-#if SUNDIALS_LOGGING_LEVEL >= SUNDIALS_LOGGING_INFO
-    SUNLogger_QueueMsg(ARK_LOGGER, SUN_LOGLEVEL_INFO,
+#if SUNDIALS_LOGGING_LEVEL >= SUNDIALS_LOGGING_DEBUG
+    SUNLogger_QueueMsg(ARK_LOGGER, SUN_LOGLEVEL_DEBUG,
                        "ARKODE::arkStep_TakeStep_Z", "start-stage",
                        "step = %li, stage = %i, implicit = %i, h = %"RSYM", tcur = %"RSYM,
                        ark_mem->nst, is, implicit_stage, ark_mem->h, ark_mem->tcur);
@@ -1857,8 +1857,8 @@ int arkStep_TakeStep_Z(void* arkode_mem, sunrealtype *dsmPtr, int *nflagPtr)
     fprintf(ark_mem->diagfp, "ARKStep  etest  %li  %"RSYM"  %"RSYM"\n",
             ark_mem->nst, ark_mem->h, *dsmPtr);
 
-#if SUNDIALS_LOGGING_LEVEL >= SUNDIALS_LOGGING_INFO
-  SUNLogger_QueueMsg(ARK_LOGGER, SUN_LOGLEVEL_INFO,
+#if SUNDIALS_LOGGING_LEVEL >= SUNDIALS_LOGGING_DEBUG
+  SUNLogger_QueueMsg(ARK_LOGGER, SUN_LOGLEVEL_DEBUG,
                      "ARKODE::arkStep_TakeStep_Z", "error-test",
                      "step = %li, h = %"RSYM", dsm = %"RSYM,
                      ark_mem->nst, ark_mem->h, *dsmPtr);
@@ -2021,14 +2021,19 @@ int arkStep_SetButcherTables(ARKodeMem ark_mem)
       etable = ARKSTEP_DEFAULT_ERK_6;
       break;
     case(7):
+      etable = ARKSTEP_DEFAULT_ERK_7;
+      break;
     case(8):
       etable = ARKSTEP_DEFAULT_ERK_8;
+      break;
+    case(9):
+      etable = ARKSTEP_DEFAULT_ERK_9;
       break;
     default:    /* no available method, set default */
       arkProcessError(ark_mem, ARK_ILL_INPUT, "ARKODE::ARKStep",
                       "arkStep_SetButcherTables",
-                      "No explicit method at requested order, using q=6.");
-      etable = ARKSTEP_DEFAULT_ERK_6;
+                      "No explicit method at requested order, using q=9.");
+      etable = ARKSTEP_DEFAULT_ERK_9;
       break;
     }
 

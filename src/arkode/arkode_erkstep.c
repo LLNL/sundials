@@ -759,8 +759,8 @@ int erkStep_TakeStep(void* arkode_mem, sunrealtype *dsmPtr, int *nflagPtr)
   cvals = step_mem->cvals;
   Xvecs = step_mem->Xvecs;
 
-#if SUNDIALS_LOGGING_LEVEL >= SUNDIALS_LOGGING_INFO
-  SUNLogger_QueueMsg(ARK_LOGGER, SUN_LOGLEVEL_INFO,
+#if SUNDIALS_LOGGING_LEVEL >= SUNDIALS_LOGGING_DEBUG
+  SUNLogger_QueueMsg(ARK_LOGGER, SUN_LOGLEVEL_DEBUG,
                      "ARKODE::erkStep_TakeStep", "start-stage",
                      "step = %li, stage = 0, h = %"RSYM", tcur = %"RSYM,
                      ark_mem->nst, ark_mem->h, ark_mem->tcur);
@@ -789,8 +789,8 @@ int erkStep_TakeStep(void* arkode_mem, sunrealtype *dsmPtr, int *nflagPtr)
       fprintf(ark_mem->diagfp, "ERKStep  step  %li  %"RSYM"  %i  %"RSYM"\n",
               ark_mem->nst, ark_mem->h, is, ark_mem->tcur);
 
-#if SUNDIALS_LOGGING_LEVEL >= SUNDIALS_LOGGING_INFO
-    SUNLogger_QueueMsg(ARK_LOGGER, SUN_LOGLEVEL_INFO,
+#if SUNDIALS_LOGGING_LEVEL >= SUNDIALS_LOGGING_DEBUG
+    SUNLogger_QueueMsg(ARK_LOGGER, SUN_LOGLEVEL_DEBUG,
                        "ARKODE::erkStep_TakeStep", "start-stage",
                        "step = %li, stage = %i, h = %"RSYM", tcur = %"RSYM,
                        ark_mem->nst, is, ark_mem->h, ark_mem->tcur);
@@ -851,8 +851,8 @@ int erkStep_TakeStep(void* arkode_mem, sunrealtype *dsmPtr, int *nflagPtr)
     fprintf(ark_mem->diagfp, "ERKStep  etest  %li  %"RSYM"  %"RSYM"\n",
             ark_mem->nst, ark_mem->h, *dsmPtr);
 
-#if SUNDIALS_LOGGING_LEVEL >= SUNDIALS_LOGGING_INFO
-  SUNLogger_QueueMsg(ARK_LOGGER, SUN_LOGLEVEL_INFO,
+#if SUNDIALS_LOGGING_LEVEL >= SUNDIALS_LOGGING_DEBUG
+  SUNLogger_QueueMsg(ARK_LOGGER, SUN_LOGLEVEL_DEBUG,
                      "ARKODE::erkStep_TakeStep", "error-test",
                      "step = %li, h = %"RSYM", dsm = %"RSYM,
                      ark_mem->nst, ark_mem->h, *dsmPtr);
@@ -957,14 +957,19 @@ int erkStep_SetButcherTable(ARKodeMem ark_mem)
     etable = ERKSTEP_DEFAULT_6;
     break;
   case(7):
+    etable = ERKSTEP_DEFAULT_7;
+    break;
   case(8):
     etable = ERKSTEP_DEFAULT_8;
+    break;
+  case(9):
+    etable = ERKSTEP_DEFAULT_9;
     break;
   default:    /* no available method, set default */
     arkProcessError(ark_mem, ARK_ILL_INPUT, "ARKODE::ERKStep",
                     "erkStep_SetButcherTable",
-                    "No explicit method at requested order, using q=6.");
-    etable = ERKSTEP_DEFAULT_6;
+                    "No explicit method at requested order, using q=9.");
+    etable = ERKSTEP_DEFAULT_9;
     break;
   }
 
