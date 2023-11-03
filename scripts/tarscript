@@ -324,6 +324,15 @@ done
 rm -rf $tmpdir/doc/shared/__pycache__
 find $tmpdir -name "*~" -delete
 find $tmpdir -name "*.orig" -delete
+find $tmpdir -name "#*#" -delete
+find $tmpdir -name ".DS_Store" -delete
+
+# Remove ignored or untracked files that may have been added
+cd $sundialsdir
+for f in $(git ls-files --others --directory benchmarks cmake doc examples include scripts src test); do
+    rm -rf $tmpdir/$f
+done
+cd -
 
 #---------------------------
 # Create tar files
