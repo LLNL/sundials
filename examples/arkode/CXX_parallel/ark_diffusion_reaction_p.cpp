@@ -515,6 +515,9 @@ int main(int argc, char* argv[])
 
     flag = SUNLogger_SetInfoFilename(logger, "diagnostics.txt");
     if (check_flag(&flag, "SUNLogger_SetInfoFilename", 1)) return 1;
+
+    flag = SUNLogger_SetDebugFilename(logger, "diagnostics.txt");
+    if (check_flag(&flag, "SUNLogger_SetDebugFilename", 1)) return 1;
   }
 
   // --------------
