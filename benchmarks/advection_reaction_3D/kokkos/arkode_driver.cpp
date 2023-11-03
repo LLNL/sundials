@@ -107,7 +107,7 @@ int EvolveProblemDIRK(N_Vector y, UserData* udata, UserOptions* uopt)
     if (check_retval(&retval, "ARKStepSetNonlinearSolver", 1, udata->myid)) return 1;
 
     /* Create linear solver */
-    LS = uopt->precond ? SUNLinSol_SPGMR(y, PREC_LEFT, 0, udata->ctx) : SUNLinSol_SPGMR(y, PREC_NONE, 0, udata->ctx);
+    LS = uopt->precond ? SUNLinSol_SPGMR(y, SUN_PREC_LEFT, 0, udata->ctx) : SUNLinSol_SPGMR(y, SUN_PREC_NONE, 0, udata->ctx);
     if (check_retval((void *)LS, "SUNLinSol_SPGMR", 0, udata->myid)) return 1;
 
     /* Attach linear solver */
@@ -282,7 +282,7 @@ int EvolveProblemIMEX(N_Vector y, UserData* udata, UserOptions* uopt)
     if (check_retval(&retval, "ARKStepSetNonlinearSolver", 1, udata->myid)) return 1;
 
     /* Create linear solver */
-    LS = SUNLinSol_SPGMR(y, PREC_LEFT, 0, udata->ctx);
+    LS = SUNLinSol_SPGMR(y, SUN_PREC_LEFT, 0, udata->ctx);
     if (check_retval((void *)LS, "SUNLinSol_SPGMR", 0, udata->myid)) return 1;
 
     /* Attach linear solver */

@@ -177,7 +177,7 @@ int main(int argc, char* argv[])
     sunindextype* A_row_ptrs = nullptr;
 #endif
 
-    int prectype = (uopts.preconditioning) ? PREC_RIGHT : PREC_NONE;
+    int prectype = (uopts.preconditioning) ? SUN_PREC_RIGHT : SUN_PREC_NONE;
 
     if (uopts.ls == "cg")
     {
