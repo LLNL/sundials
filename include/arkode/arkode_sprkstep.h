@@ -17,9 +17,9 @@
 #ifndef _ARKODE_SPRKSTEP_H
 #define _ARKODE_SPRKSTEP_H
 
+#include <sundials/sundials_core.h>
 #include <arkode/arkode.h>
 #include <arkode/arkode_sprk.h>
-#include <sundials/sundials_nvector.h>
 
 #ifdef __cplusplus /* wrapper to enable C++ usage */
 extern "C" {
