@@ -26,7 +26,6 @@
 #include <sundials/impl/sundials_context_impl.h>
 #include "sundials_debug.h"
 
-#if SUNDIALS_LOGGING_LEVEL > 0
 #ifdef SUNDIALS_ADIAK_ENABLED
 #include <adiak.h>
 void sunAdiakCollectMetadata();

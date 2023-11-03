@@ -21,7 +21,7 @@
 
 #include "cvodes/cvodes.h"
 #include "cvodes_proj_impl.h"
-#include "sundials_context_impl.h"
+#include <sundials/impl/sundials_context_impl.h>
 #include "sundials_logger_impl.h"
 #include "sundials/sundials_math.h"
 
