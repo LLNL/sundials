@@ -1022,6 +1022,7 @@ illustration only.
 .. cmakeoption:: SUNDIALS_BUILD_WITH_PROFILING
 
    Build SUNDIALS with capabilties for fine-grained profiling.
+   This requires POSIX timers or the Windows ``profileapi.h`` timers.
 
    Default: OFF
 
