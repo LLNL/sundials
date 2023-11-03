@@ -200,6 +200,8 @@ echo -e "\n--- Create temporary directory ---"
 echo "copy $sundialsdir to $rootdir/$tmpdir"
 rm -rf $tmpdir
 mkdir $tmpdir
+mkdir $tmpdir/benchmarks
+mkdir $tmpdir/cmake
 mkdir $tmpdir/doc
 mkdir $tmpdir/examples
 mkdir $tmpdir/include
