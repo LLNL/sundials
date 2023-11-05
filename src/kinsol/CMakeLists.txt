@@ -29,7 +29,6 @@ set(kinsol_SOURCES
 set(kinsol_HEADERS
   kinsol.h
   kinsol_bbdpre.h
-  kinsol_direct.h
   kinsol_ls.h
   )
 

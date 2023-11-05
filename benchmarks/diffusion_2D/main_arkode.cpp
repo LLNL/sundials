@@ -119,21 +119,11 @@ int main(int argc, char* argv[])
     flag = udata.setup();
     if (check_flag(&flag, "UserData::setup", 1)) return 1;
 
-    // Output problem setup/options
-    FILE *diagfp = NULL;
-
     if (outproc)
     {
       udata.print();
       uopts.print();
       uout.print();
-
-      // Open diagnostics output file
-      if (uopts.diagnostics || uopts.lsinfo)
-      {
-        diagfp = fopen("diagnostics.txt", "w");
-        if (check_flag((void *) diagfp, "fopen", 0)) return 1;
-      }
     }
 
     // ---------------
@@ -187,35 +177,18 @@ int main(int argc, char* argv[])
     sunindextype* A_row_ptrs = nullptr;
 #endif
 
-    int prectype = (uopts.preconditioning) ? PREC_RIGHT : PREC_NONE;
+    int prectype = (uopts.preconditioning) ? SUN_PREC_RIGHT : SUN_PREC_NONE;
 
     if (uopts.ls == "cg")
     {
       LS = SUNLinSol_PCG(u, prectype, uopts.liniters, ctx);
       if (check_flag((void *) LS, "SUNLinSol_PCG", 0)) return 1;
 
-      if (uopts.lsinfo && outproc)
-      {
-        flag = SUNLinSolSetPrintLevel_PCG(LS, 1);
-        if (check_flag(&flag, "SUNLinSolSetPrintLevel_PCG", 1)) return(1);
-
-        flag = SUNLinSolSetInfoFile_PCG(LS, diagfp);
-        if (check_flag(&flag, "SUNLinSolSetInfoFile_PCG", 1)) return(1);
-      }
     }
     else if (uopts.ls == "gmres")
     {
       LS = SUNLinSol_SPGMR(u, prectype, uopts.liniters, ctx);
       if (check_flag((void *) LS, "SUNLinSol_SPGMR", 0)) return 1;
-
-      if (uopts.lsinfo && outproc)
-      {
-        flag = SUNLinSolSetPrintLevel_SPGMR(LS, 1);
-        if (check_flag(&flag, "SUNLinSolSetPrintLevel_SPGMR", 1)) return(1);
-
-        flag = SUNLinSolSetInfoFile_SPGMR(LS, diagfp);
-        if (check_flag(&flag, "SUNLinSolSetInfoFile_SPGMR", 1)) return(1);
-      }
     }
     else
     {
@@ -343,13 +316,6 @@ int main(int argc, char* argv[])
     flag = ARKStepSetStopTime(arkode_mem, udata.tf);
     if (check_flag(&flag, "ARKStepSetStopTime", 1)) return 1;
 
-    // Set diagnostics output file
-    if (diagfp)
-    {
-      flag = ARKStepSetDiagnostics(arkode_mem, diagfp);
-      if (check_flag(&flag, "ARKStepSetDiagnostics", 1)) return 1;
-    }
-
     // -----------------------
     // Loop over output times
     // -----------------------
@@ -417,10 +383,6 @@ int main(int argc, char* argv[])
     // Free MPI Cartesian communicator
     MPI_Comm_free(&(udata.comm_c));
 
-    // Close diagnostics output file
-    if (diagfp) fclose(diagfp);
-
-    // Free integrator and linear solver
     ARKStepFree(&arkode_mem);
     SUNLinSolFree(LS);
 

@@ -46,7 +46,6 @@
 #include "superlu_ddefs.h"
 
 #include <cvode/cvode.h>                          /* prototypes for CVODE fcts., consts.          */
-#include <cvode/cvode_direct.h>                   /* CVODE direct linear solver interface         */
 #include <nvector/nvector_parallel.h>             /* access to MPI-parallel N_Vector              */
 #include <sunlinsol/sunlinsol_superludist.h>      /* access to the SuperLU-DIST SUNLinearSolver   */
 #include <sunmatrix/sunmatrix_slunrloc.h>         /* access to the SuperLU SLU_NR_loc SUNMatrix   */

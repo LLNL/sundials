@@ -688,7 +688,7 @@ static int SetupLS(N_Vector u, void *user_data, SUNContext sunctx)
   // Access problem data
   UserData *udata = (UserData *) user_data;
 
-  int prectype = PREC_RIGHT;
+  int prectype = SUN_PREC_RIGHT;
 
   // Create linear solver
   udata->LS = SUNLinSol_PCG(u, prectype, udata->liniters, sunctx);
