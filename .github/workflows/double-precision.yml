@@ -4,6 +4,7 @@ name: double precision build and test with GCC+TPLs (no GPUs)
 on:
   push:
   pull_request:
+  workflow_dispatch:
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
