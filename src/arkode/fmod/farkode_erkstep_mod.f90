@@ -44,7 +44,9 @@ module farkode_erkstep_mod
  integer(C_INT), parameter, public :: ERKSTEP_DEFAULT_4 = ARKODE_ZONNEVELD_5_3_4
  integer(C_INT), parameter, public :: ERKSTEP_DEFAULT_5 = ARKODE_CASH_KARP_6_4_5
  integer(C_INT), parameter, public :: ERKSTEP_DEFAULT_6 = ARKODE_VERNER_8_5_6
+ integer(C_INT), parameter, public :: ERKSTEP_DEFAULT_7 = ARKODE_VERNER_10_6_7
  integer(C_INT), parameter, public :: ERKSTEP_DEFAULT_8 = ARKODE_FEHLBERG_13_7_8
+ integer(C_INT), parameter, public :: ERKSTEP_DEFAULT_9 = ARKODE_VERNER_16_8_9
  public :: FERKStepCreate
  public :: FERKStepResize
  public :: FERKStepReInit

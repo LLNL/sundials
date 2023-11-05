@@ -44,7 +44,9 @@ module farkode_arkstep_mod
  integer(C_INT), parameter, public :: ARKSTEP_DEFAULT_ERK_4 = ARKODE_ZONNEVELD_5_3_4
  integer(C_INT), parameter, public :: ARKSTEP_DEFAULT_ERK_5 = ARKODE_CASH_KARP_6_4_5
  integer(C_INT), parameter, public :: ARKSTEP_DEFAULT_ERK_6 = ARKODE_VERNER_8_5_6
+ integer(C_INT), parameter, public :: ARKSTEP_DEFAULT_ERK_7 = ARKODE_VERNER_10_6_7
  integer(C_INT), parameter, public :: ARKSTEP_DEFAULT_ERK_8 = ARKODE_FEHLBERG_13_7_8
+ integer(C_INT), parameter, public :: ARKSTEP_DEFAULT_ERK_9 = ARKODE_VERNER_16_8_9
  integer(C_INT), parameter, public :: ARKSTEP_DEFAULT_DIRK_2 = ARKODE_SDIRK_2_1_2
  integer(C_INT), parameter, public :: ARKSTEP_DEFAULT_DIRK_3 = ARKODE_ARK324L2SA_DIRK_4_2_3
  integer(C_INT), parameter, public :: ARKSTEP_DEFAULT_DIRK_4 = ARKODE_SDIRK_5_3_4
