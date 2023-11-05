@@ -4,6 +4,10 @@ name: extended precision build and test with GCC+TPLs (no GPUs)
 on:
   pull_request:
 
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
 jobs:
   build_and_test:
     runs-on: ubuntu-latest
