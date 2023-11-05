@@ -34,6 +34,8 @@ def main():
                         help='Full path of sundials location to write files to')
     parser.add_argument('--all','-a', action='store_true',
                         help='Update all output files')
+    parser.add_argument('--copy','-c', action='store_true',
+                        help='Copy file to destination if not found')
     parser.add_argument('--verbose','-v', action='count', default=0,
                         help='Enable verbose output')
 
@@ -98,7 +100,11 @@ def main():
                 if found:
                     break
             if not found:
-                print("Warning: did not find {}".format(t))
+                if args.copy:
+                    print(f"Warning: did not find {t}, copying to {args.destination}")
+                    shutil.copy(os.path.join(output, t), os.path.join(args.destination, t))
+                else:
+                    print(f"Warning: did not find {t}")
 
 # -----------------------------------------------------------------------------
 # run the main routine
