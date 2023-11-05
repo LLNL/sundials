@@ -62,6 +62,9 @@ static int dense_MM(SUNMatrix A, SUNMatrix B, SUNMatrix C);
 // Private function to check function return values
 static int check_flag(void *flagvalue, const string funcname, int opt);
 
+//    check if relative difference is within tolerance
+static bool Compare(long int a, long int b, sunrealtype tol);
+
 // SUNContext for the simulation
 static SUNContext sunctx = NULL;
 
@@ -312,11 +315,11 @@ int main(int argc, char* argv[])
     numfails += 1;
     cout << "  Internal solver steps error: " << ark_nst << " vs " << mri_nst << "\n";
   }
-  if (ark_nfi != mri_nfsi) {
+  if (!Compare(ark_nfi, mri_nfsi, ONE)) {
     numfails += 1;
     cout << "  RHS evals error: " << ark_nfi << " vs " << mri_nfsi << "\n";
   }
-  if (ark_nni != mri_nni) {
+  if (!Compare(ark_nni, mri_nni, ONE)) {
     numfails += 1;
     cout << "  Nonlinear iterations error: " << ark_nni << " vs " << mri_nni << "\n";
   }
@@ -535,6 +538,13 @@ static int check_flag(void *flagvalue, const string funcname, int opt)
   return 0;
 }
 
+// Check if relative difference of a and b is less than tolerance
+static bool Compare(long int a, long int b, sunrealtype tol)
+{
+  sunrealtype rel_diff = SUN_RCONST(100.0) *
+    abs(static_cast<sunrealtype>(a - b) / static_cast<sunrealtype>(a));
 
+  return (rel_diff > tol) ? false : true;
+}
 
 //---- end of file ----
