@@ -170,7 +170,6 @@ struct UserData
   int      controller;  // step size adaptivity method
   int      maxsteps;    // max number of steps between outputs
   bool     linear;      // enable/disable linearly implicit option
-  bool     diagnostics; // output diagnostics
 
   // Linear solver and preconditioner settings
   bool     pcg;       // use PCG (true) or GMRES (false)
@@ -1634,7 +1633,6 @@ static int InitUserData(UserData *udata)
   udata->controller  = 0;               // PID controller
   udata->maxsteps    = 0;               // use default
   udata->linear      = true;            // linearly implicit problem
-  udata->diagnostics = false;           // output diagnostics
 
   // Linear solver and preconditioner options
   udata->pcg       = true;       // use PCG (true) or GMRES (false)
@@ -1761,10 +1759,6 @@ static int ReadInputs(int *argc, char ***argv, UserData *udata, bool outproc)
     else if (arg == "--nonlinear")
     {
       udata->linear = false;
-    }
-    else if (arg == "--diagnostics")
-    {
-      udata->diagnostics = true;
     }
     // Linear solver settings
     else if (arg == "--gmres")
@@ -1925,7 +1919,6 @@ static void InputHelp()
   cout << "  --order <ord>           : method order" << endl;
   cout << "  --fixedstep <step>      : used fixed step size" << endl;
   cout << "  --controller <ctr>      : time step adaptivity controller" << endl;
-  cout << "  --diagnostics           : output diagnostics" << endl;
   cout << "  --gmres                 : use GMRES linear solver" << endl;
   cout << "  --liniters <iters>      : max number of iterations" << endl;
   cout << "  --epslin <factor>       : linear tolerance factor" << endl;
