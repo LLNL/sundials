@@ -28,7 +28,6 @@ struct UserOptions
   int      maxsteps    = 0;                // max steps between outputs
   int      onestep     = 0;                // one step mode, number of steps
   bool     linear      = true;             // linearly implicit RHS
-  bool     diagnostics = false;            // output diagnostics
 
   // Linear solver and preconditioner settings
   std::string ls              = "cg";   // linear solver to use
@@ -487,13 +486,6 @@ int UserOptions::parse_args(vector<string> &args, bool outproc)
     args.erase(it);
   }
 
-  it = find(args.begin(), args.end(), "--diagnostics");
-  if (it != args.end())
-  {
-    diagnostics = true;
-    args.erase(it);
-  }
-
   it = find(args.begin(), args.end(), "--ls");
   if (it != args.end())
   {
@@ -544,7 +536,6 @@ void UserOptions::help()
   cout << "  --order <ord>           : method order" << endl;
   cout << "  --fixedstep <step>      : used fixed step size" << endl;
   cout << "  --controller <ctr>      : time step adaptivity controller" << endl;
-  cout << "  --diagnostics           : output diagnostics" << endl;
   cout << "  --ls <cg|gmres|sludist> : linear solver" << endl;
   cout << "  --lsinfo                : output residual history" << endl;
   cout << "  --liniters <iters>      : max number of iterations" << endl;
@@ -567,7 +558,6 @@ void UserOptions::print()
   cout << " controller  = " << controller  << endl;
   cout << " max steps   = " << maxsteps    << endl;
   cout << " linear RHS  = " << linear      << endl;
-  cout << " diagnostics = " << diagnostics << endl;
   cout << " --------------------------------- " << endl;
 
   cout << endl;
