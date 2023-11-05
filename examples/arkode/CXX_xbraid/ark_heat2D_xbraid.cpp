@@ -1098,10 +1098,6 @@ static int ReadInputs(int *argc, char ***argv, UserData *udata, bool outproc)
     {
       udata->linear = false;
     }
-    else if (arg == "--diagnostics")
-    {
-      udata->diagnostics = true;
-    }
     // Linear solver settings
     else if (arg == "--gmres")
     {
