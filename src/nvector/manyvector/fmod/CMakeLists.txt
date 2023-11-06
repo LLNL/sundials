@@ -19,7 +19,7 @@ if(BUILD_NVECTOR_MANYVECTOR)
     SOURCES
       fnvector_manyvector_mod.f90 fnvector_manyvector_mod.c
     OBJECT_LIBRARIES
-      sundials_fgeneric_mod_obj
+      sundials_fcore_mod_obj
     OUTPUT_NAME
       sundials_fnvecmanyvector_mod
     VERSION
@@ -48,7 +48,7 @@ if(BUILD_NVECTOR_MPIMANYVECTOR)
     SOURCES
       fnvector_mpimanyvector_mod.f90 fnvector_mpimanyvector_mod.c
     OBJECT_LIBRARIES
-      sundials_fgeneric_mod_obj
+      sundials_fcore_mod_obj
     OUTPUT_NAME
       sundials_fnvecmpimanyvector_mod
     VERSION

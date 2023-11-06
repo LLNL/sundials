@@ -18,7 +18,7 @@ sundials_add_f2003_library(sundials_fsunlinsolspbcgs_mod
   SOURCES
     fsunlinsol_spbcgs_mod.f90 fsunlinsol_spbcgs_mod.c
   OBJECT_LIBRARIES
-    sundials_fgeneric_mod_obj
+    sundials_fcore_mod_obj
   OUTPUT_NAME
     sundials_fsunlinsolspbcgs_mod
   VERSION

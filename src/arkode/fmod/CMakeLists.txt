@@ -31,7 +31,7 @@ sundials_add_f2003_library(sundials_farkode_mod
   SOURCES
     ${arkode_SOURCES}
   OBJECT_LIBRARIES
-    sundials_fgeneric_mod_obj
+    sundials_fcore_mod_obj
     sundials_fnvecserial_mod_obj
     sundials_fsunmatrixband_mod_obj
     sundials_fsunmatrixdense_mod_obj
