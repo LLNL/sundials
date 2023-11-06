@@ -7,9 +7,9 @@ Documentation of {\ida} \cite{ida_ug}.  It provides details, with
 listings, on the example programs supplied with the {\ida} distribution
 package.
 
-The {\ida} distribution contains examples of four types: serial
-{\CC} examples, parallel {\CC} examples, {\F} examples,
-{\petsc} examples, and {\trilinos} examples. 
+The {\ida} distribution contains examples of the following types: serial
+{\CC} examples, parallel {\CC} examples, {\petsc} examples, and {\trilinos}
+examples.
 %%
 With the exception of ``demo''-type example files, the names of all the examples 
 distributed with {\sundials} are of the form \verb![slv][PbName]_[ls]_[prec]_[p]!, 
@@ -131,27 +131,27 @@ distribution contains the following four parallel examples
 
 \end{itemize}
 
+%% As part of the {\fida} module, in the subdirectories \id{fcmix\_serial},
+%% \id{fcmix\_parallel}, \id{fcmix\_openmp}, and \id{fcmix\_pthreads},
+%% within the directory {\em srcdir}\id{/examples/ida},
+%% are the following four examples for the {\F}-{\CC} interface:
+%% %
+%% \begin{itemize}
+%% \item \id{fidaRoberts\_dns} is a serial chemical kinetics example ({\dense})
+%%        with rootfinding, equivalent to \id{idaRoberts\_dns}.
+
+%% \item \id{fidaHeat2D\_kry\_bbd\_p} is a parallel example ({\spgmr}/{\idabbdpre})
+%%        equivalent to the example \id{idaHeat2D\_kry\_bbd\_p}.
+
+%% \item \id{fidaRoberts\_dns\_openmp} is the same as \id{fidaRoberts\_dns} but
+%%        uses the NVECTOR module NVECTOR\_OPENMP.
+
+%% \item \id{fidaRoberts\_dns\_pthreads} is the same as \id{fidaRoberts\_dns} but
+%%        uses the NVECTOR module NVECTOR\_PTHREADS.
+
+%% \end{itemize}
+%% \
 \vspace{0.2in}\noindent
-As part of the {\fida} module, in the four subdirectories \id{fcmix\_serial},
-\id{fcmix\_parallel}, \id{fcmix\_openmp}, and \id{fcmix\_pthreads},
-within the directory {\em srcdir}\id{/examples/ida},
-are the following four examples for the {\F}-{\CC} interface:
-%
-\begin{itemize}
-\item \id{fidaRoberts\_dns} is a serial chemical kinetics example ({\dense})
-       with rootfinding, equivalent to \id{idaRoberts\_dns}.
-
-\item \id{fidaHeat2D\_kry\_bbd\_p} is a parallel example ({\spgmr}/{\idabbdpre})
-       equivalent to the example \id{idaHeat2D\_kry\_bbd\_p}.
-
-\item \id{fidaRoberts\_dns\_openmp} is the same as \id{fidaRoberts\_dns} but
-       uses the NVECTOR module NVECTOR\_OPENMP.
-
-\item \id{fidaRoberts\_dns\_pthreads} is the same as \id{fidaRoberts\_dns} but
-       uses the NVECTOR module NVECTOR\_PTHREADS.
-
-\end{itemize}
-\
 Finally, in the subdirectory \id{petsc} of \id{examples/ida} are the
 following examples:
 \begin{itemize}
