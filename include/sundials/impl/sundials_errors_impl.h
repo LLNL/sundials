@@ -129,29 +129,25 @@
    value, and calls the error handler. */
 
 #if !defined(SUNDIALS_DISABLE_ERROR_CHECKS)
-#define SUNCheckCallLastErrNoRet(call) \
-  call;                                \
+#define SUNCheckLastErrNoRet() \
   SUNCheckCallNoRet(SUNGetLastErr(sunctx_))
 
-/* Same as SUNCheckCallLastErrNoRet, but returns with the error code. */
-#define SUNCheckCallLastErr(call) \
-  call;                           \
+/* Same as SUNCheckLastErrNoRet, but returns with the error code. */
+#define SUNCheckLastErr() \
   SUNCheckCall(SUNGetLastErr(sunctx_))
 
-/* Same as SUNCheckCallLastErrNoRet, but returns void. */
-#define SUNCheckCallLastErrVoid(call) \
-  call;                               \
+/* Same as SUNCheckLastErrNoRet, but returns void. */
+#define SUNCheckLastErrVoid() \
   SUNCheckCallVoid(SUNGetLastErr(sunctx_))
 
-/* Same as SUNCheckCallLastErrNoRet, but returns NULL. */
-#define SUNCheckCallLastErrNull(call) \
-  call;                               \
+/* Same as SUNCheckLastErrNoRet, but returns NULL. */
+#define SUNCheckLastErrNull() \
   SUNCheckCallNull(SUNGetLastErr(sunctx_))
 #else
-#define SUNCheckCallLastErrNoRet(call) call
-#define SUNCheckCallLastErr(call)      call
-#define SUNCheckCallLastErrVoid(call)  call
-#define SUNCheckCallLastErrNull(call)  call
+#define SUNCheckLastErrNoRet() 
+#define SUNCheckLastErr()      
+#define SUNCheckLastErrVoid()  
+#define SUNCheckLastErrNull()  
 #endif
 
 /* SUNAssert checks if an expression is true.

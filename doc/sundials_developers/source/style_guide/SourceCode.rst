@@ -207,8 +207,6 @@ Coding Conventions and Rules
 
 #. Spaces not tabs.
 
-#. All comments should use ``/* */``.
-
 #. Comments should use proper spelling and grammar.
 
 #. Following the Google Style Guide [GoogleStyle]_, TODO comments are used to note
@@ -254,12 +252,6 @@ Coding Conventions and Rules
          /* invalid number of vectors */
          SUNAssert(nvec >= 1, SUN_ERR_ARG_OUTOFRANGE);
 
-         /* should have called N_VScale */
-         if (nvec == 1) {
-            SUNCheckCallLastErr(N_VScale_Serial(c[0], X[0], z));
-            return SUN_SUCCESS;
-         }
-
          // ...
       }
 
@@ -274,12 +266,6 @@ Coding Conventions and Rules
 
          /* invalid number of vectors */
          SUNAssert(nvec >= 1, SUN_ERR_ARG_OUTOFRANGE);
-
-         /* should have called N_VScale */
-         if (nvec == 1) {
-            SUNCheckCallLastErr(N_VScale_Serial(c[0], X[0], z));
-            return SUN_SUCCESS;
-         }
 
          // ...
       }
@@ -324,18 +310,18 @@ Coding Conventions and Rules
    be followed by checking the last error stored in the ``SUNContext``. 
    The exception to this rule is for internal helper functions. 
    These should not be checked unless they return a ``SUNErrCode``. 
-   These checks are done with the ``SUNCheckCallLastErr`` macros. 
+   These checks are done with the ``SUNCheckLastErr`` macros. 
 
    .. code-block:: c
 
     // Correct
-    SUNCheckCallLastErr(N_VLinearSum(...)); 
+    N_VLinearSum(...); SUNCheckLastErr(); 
 
     // Incorrect
-    SUNCheckCallLastErr(SUNRsqrt(N_VDotProd(...))); 
+    SUNRsqrt(N_VDotProd(...)); SUNCheckLastErr(); 
 
     // Correct
-    sunrealtype tmp = SUNCheckCallLastErr(N_VDotProd(...)); 
+    sunrealtype tmp = N_VDotProd(...); SUNCheckLastErr(); 
     tmp = SUNRsqrt(tmp);
 
 #. Programmer errors should be checked with the ``SUNAssert`` or ``SUNMPIAssert`` macro.

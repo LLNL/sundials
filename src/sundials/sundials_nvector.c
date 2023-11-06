@@ -1002,7 +1002,7 @@ N_Vector* N_VCloneEmptyVectorArray(int count, N_Vector w)
   SUNAssert(vs, SUN_ERR_MALLOC_FAIL);
 
   for (j = 0; j < count; j++) {
-    vs[j] = SUNCheckCallLastErrNoRet(N_VCloneEmpty(w));
+    vs[j] = N_VCloneEmpty(w); SUNCheckLastErrNoRet();
     if (SUNGetLastErr(w->sunctx) < 0) {
       N_VDestroyVectorArray(vs, j-1);
       return(NULL);
@@ -1024,7 +1024,7 @@ N_Vector* N_VCloneVectorArray(int count, N_Vector w)
   SUNAssert(vs, SUN_ERR_MALLOC_FAIL);
 
   for (j = 0; j < count; j++) {
-    vs[j] = SUNCheckCallLastErrNoRet(N_VClone(w));
+    vs[j] = N_VClone(w); SUNCheckLastErrNoRet();
     if (SUNGetLastErr(w->sunctx) < 0) {
       N_VDestroyVectorArray(vs, j-1);
       return(NULL);
