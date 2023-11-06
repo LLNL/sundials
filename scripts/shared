@@ -246,6 +246,8 @@ $tar $tarfile $distrobase/src/sundials/sundials_band.c
 $tar $tarfile $distrobase/src/sundials/sundials_context_impl.h
 $tar $tarfile $distrobase/src/sundials/sundials_context.c
 $tar $tarfile $distrobase/src/sundials/sundials_cuda.h
+$tar $tarfile $distrobase/src/sundials/sundials_cusolver.h
+$tar $tarfile $distrobase/src/sundials/sundials_cusparse.h
 $tar $tarfile $distrobase/src/sundials/sundials_cuda_kernels.cuh
 $tar $tarfile $distrobase/src/sundials/sundials_debug.h
 $tar $tarfile $distrobase/src/sundials/sundials_dense.c

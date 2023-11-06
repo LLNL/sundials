@@ -1,5 +1,10 @@
 # SUNDIALS Changelog
 
+## Changes to SUNDIALS in release 6.6.2
+
+Fixed the build system support for MAGMA when using a NVIDIA HPC SDK installation of CUDA
+and fixed the targets used for rocBLAS and rocSPARSE.
+
 ## Changes to SUNDIALS in release 6.6.1
 
 Updated the Tpetra NVector interface to support Trilinos 14.
