@@ -16,7 +16,7 @@ C     Uses FARKODE interfaces and FARKBBD interfaces.
 C     Solves problem twice -- with left and right preconditioning.
 C
 C     Note that this problem should only work with SUNDIALS configured
-C     to use 'realtype' as 'double' and 'sunindextype' as '64bit'
+C     to use 'sunrealtype' as 'double' and 'sunindextype' as '64bit'
 C     ----------------------------------------------------------------
 C     
 C     Include MPI-Fortran header file for MPI_COMM_WORLD, MPI types.

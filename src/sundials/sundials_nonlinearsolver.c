@@ -123,7 +123,7 @@ SUNErrCode SUNNonlinSolSetup(SUNNonlinearSolver NLS, N_Vector y, void* mem)
 }
 
 int SUNNonlinSolSolve(SUNNonlinearSolver NLS, N_Vector y0, N_Vector y,
-                      N_Vector w, realtype tol, booleantype callLSetup,
+                      N_Vector w, sunrealtype tol, sunbooleantype callLSetup,
                       void* mem)
 {
   int status;

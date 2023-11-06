@@ -20,7 +20,7 @@ module test_utilities
     use fsundials_context_mod
     implicit none
 
-    real(C_DOUBLE), parameter :: UNIT_ROUNDOFF = epsilon(1.0d0)
+    real(C_DOUBLE), parameter :: SUN_UNIT_ROUNDOFF = epsilon(1.0d0)
 
     real(C_DOUBLE) :: NEG_TWO  = -2.0d0
     real(C_DOUBLE) :: NEG_ONE  = -1.0d0
@@ -79,7 +79,7 @@ contains
 
     if (a /= a) then
       nequal = 1
-    else if ((abs(a-b)/abs(b)) > (10*UNIT_ROUNDOFF)) then
+    else if ((abs(a-b)/abs(b)) > (10*SUN_UNIT_ROUNDOFF)) then
       nequal = 1
     else
       nequal = 0

@@ -89,8 +89,8 @@ struct _generic_SUNMatrix_Ops
   void (*destroy)(SUNMatrix);
   SUNErrCode (*zero)(SUNMatrix);
   SUNErrCode (*copy)(SUNMatrix, SUNMatrix);
-  SUNErrCode (*scaleadd)(realtype, SUNMatrix, SUNMatrix);
-  SUNErrCode (*scaleaddi)(realtype, SUNMatrix);
+  SUNErrCode (*scaleadd)(sunrealtype, SUNMatrix, SUNMatrix);
+  SUNErrCode (*scaleaddi)(sunrealtype, SUNMatrix);
   SUNErrCode (*matvecsetup)(SUNMatrix);
   SUNErrCode (*matvec)(SUNMatrix, N_Vector, N_Vector);
   SUNErrCode (*space)(SUNMatrix, long int*, long int*);
@@ -141,10 +141,10 @@ SUNDIALS_EXPORT
 SUNErrCode SUNMatCopy(SUNMatrix A, SUNMatrix B);
 
 SUNDIALS_EXPORT
-SUNErrCode SUNMatScaleAdd(realtype c, SUNMatrix A, SUNMatrix B);
+SUNErrCode SUNMatScaleAdd(sunrealtype c, SUNMatrix A, SUNMatrix B);
 
 SUNDIALS_EXPORT
-SUNErrCode SUNMatScaleAddI(realtype c, SUNMatrix A);
+SUNErrCode SUNMatScaleAddI(sunrealtype c, SUNMatrix A);
 
 SUNDIALS_EXPORT
 SUNErrCode SUNMatMatvecSetup(SUNMatrix A);

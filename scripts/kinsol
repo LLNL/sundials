@@ -36,9 +36,7 @@ $tar $tarfile $distrobase/doc/kinsol/guide/source
 
 $tar $tarfile $distrobase/include/kinsol/kinsol.h
 $tar $tarfile $distrobase/include/kinsol/kinsol_bbdpre.h
-$tar $tarfile $distrobase/include/kinsol/kinsol_direct.h
 $tar $tarfile $distrobase/include/kinsol/kinsol_ls.h
-$tar $tarfile $distrobase/include/kinsol/kinsol_spils.h
 
 $tar $tarfile $distrobase/src/kinsol/LICENSE
 $tar $tarfile $distrobase/src/kinsol/NOTICE
@@ -48,12 +46,10 @@ $tar $tarfile $distrobase/src/kinsol/CMakeLists.txt
 $tar $tarfile $distrobase/src/kinsol/kinsol.c
 $tar $tarfile $distrobase/src/kinsol/kinsol_bbdpre.c
 $tar $tarfile $distrobase/src/kinsol/kinsol_bbdpre_impl.h
-$tar $tarfile $distrobase/src/kinsol/kinsol_direct.c
 $tar $tarfile $distrobase/src/kinsol/kinsol_impl.h
 $tar $tarfile $distrobase/src/kinsol/kinsol_io.c
 $tar $tarfile $distrobase/src/kinsol/kinsol_ls.c
 $tar $tarfile $distrobase/src/kinsol/kinsol_ls_impl.h
-$tar $tarfile $distrobase/src/kinsol/kinsol_spils.c
 
 echo "   --- Add kinsol F2003 interface to $tarfile"
 

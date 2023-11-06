@@ -32,9 +32,9 @@ the ownership of host and device data arrays.
   struct _N_VectorContent_OpenMPDEV
   {
     sunindextype length;
-    booleantype  own_data;
-    realtype     *host_data;
-    realtype     *dev_data;
+    sunbooleantype  own_data;
+    sunrealtype     *host_data;
+    sunrealtype     *dev_data;
   };
 
 The header file to include when using this module is ``nvector_openmpdev.h``.
@@ -144,19 +144,19 @@ user-callable routines:
    (``NULL``) data array.
 
 
-.. c:function:: N_Vector N_VMake_OpenMPDEV(sunindextype vec_length, realtype *h_vdata, realtype *d_vdata, SUNContext sunctx)
+.. c:function:: N_Vector N_VMake_OpenMPDEV(sunindextype vec_length, sunrealtype *h_vdata, sunrealtype *d_vdata, SUNContext sunctx)
 
    This function creates an NVECTOR_OPENMPDEV vector with user-supplied vector data
    arrays ``h_vdata`` and ``d_vdata``. This function does not allocate memory for
    data itself.
 
 
-.. c:function:: realtype *N_VGetHostArrayPointer_OpenMPDEV(N_Vector v)
+.. c:function:: sunrealtype *N_VGetHostArrayPointer_OpenMPDEV(N_Vector v)
 
    This function returns a pointer to the host data array.
 
 
-.. c:function:: realtype *N_VGetDeviceArrayPointer_OpenMPDEV(N_Vector v)
+.. c:function:: sunrealtype *N_VGetDeviceArrayPointer_OpenMPDEV(N_Vector v)
 
    This function returns a pointer to the device data array.
 
@@ -193,21 +193,21 @@ operations enabled/disabled as cloned vectors inherit the same enable/disable
 options as the vector they are cloned from while vectors created with
 ``N_VNew_OpenMPDEV`` will have the default settings for the NVECTOR_OPENMPDEV module.
 
-.. c:function::  int N_VEnableFusedOps_OpenMPDEV(N_Vector v, booleantype tf)
+.. c:function::  int N_VEnableFusedOps_OpenMPDEV(N_Vector v, sunbooleantype tf)
 
   This function enables (``SUNTRUE``) or disables (``SUNFALSE``) all fused and
   vector array operations in the NVECTOR_OPENMPDEV vector. The return value is ``0`` for
   success and ``-1`` if the input vector or its ``ops`` structure are ``NULL``.
 
 
-.. c:function:: int N_VEnableLinearCombination_OpenMPDEV(N_Vector v, booleantype tf)
+.. c:function:: int N_VEnableLinearCombination_OpenMPDEV(N_Vector v, sunbooleantype tf)
 
   This function enables (``SUNTRUE``) or disables (``SUNFALSE``) the linear
   combination fused operation in the NVECTOR_OPENMPDEV vector. The return value is ``0`` for
   success and ``-1`` if the input vector or its ``ops`` structure are ``NULL``.
 
 
-.. c:function:: int N_VEnableScaleAddMulti_OpenMPDEV(N_Vector v, booleantype tf)
+.. c:function:: int N_VEnableScaleAddMulti_OpenMPDEV(N_Vector v, sunbooleantype tf)
 
   This function enables (``SUNTRUE``) or disables (``SUNFALSE``) the scale and
   add a vector to multiple vectors fused operation in the NVECTOR_OPENMPDEV vector. The
@@ -215,7 +215,7 @@ options as the vector they are cloned from while vectors created with
   ``ops`` structure are ``NULL``.
 
 
-.. c:function:: int N_VEnableDotProdMulti_OpenMPDEV(N_Vector v, booleantype tf)
+.. c:function:: int N_VEnableDotProdMulti_OpenMPDEV(N_Vector v, sunbooleantype tf)
 
   This function enables (``SUNTRUE``) or disables (``SUNFALSE``) the multiple
   dot products fused operation in the NVECTOR_OPENMPDEV vector. The return value is ``0``
@@ -223,35 +223,35 @@ options as the vector they are cloned from while vectors created with
   ``NULL``.
 
 
-.. c:function:: int N_VEnableLinearSumVectorArray_OpenMPDEV(N_Vector v, booleantype tf)
+.. c:function:: int N_VEnableLinearSumVectorArray_OpenMPDEV(N_Vector v, sunbooleantype tf)
 
   This function enables (``SUNTRUE``) or disables (``SUNFALSE``) the linear sum
   operation for vector arrays in the NVECTOR_OPENMPDEV vector. The return value is ``0`` for
   success and ``-1`` if the input vector or its ``ops`` structure are ``NULL``.
 
 
-.. c:function:: int N_VEnableScaleVectorArray_OpenMPDEV(N_Vector v, booleantype tf)
+.. c:function:: int N_VEnableScaleVectorArray_OpenMPDEV(N_Vector v, sunbooleantype tf)
 
   This function enables (``SUNTRUE``) or disables (``SUNFALSE``) the scale
   operation for vector arrays in the NVECTOR_OPENMPDEV vector. The return value is ``0`` for
   success and ``-1`` if the input vector or its ``ops`` structure are ``NULL``.
 
 
-.. c:function:: int N_VEnableConstVectorArray_OpenMPDEV(N_Vector v, booleantype tf)
+.. c:function:: int N_VEnableConstVectorArray_OpenMPDEV(N_Vector v, sunbooleantype tf)
 
   This function enables (``SUNTRUE``) or disables (``SUNFALSE``) the const
   operation for vector arrays in the NVECTOR_OPENMPDEV vector. The return value is ``0`` for
   success and ``-1`` if the input vector or its ``ops`` structure are ``NULL``.
 
 
-.. c:function:: int N_VEnableWrmsNormVectorArray_OpenMPDEV(N_Vector v, booleantype tf)
+.. c:function:: int N_VEnableWrmsNormVectorArray_OpenMPDEV(N_Vector v, sunbooleantype tf)
 
   This function enables (``SUNTRUE``) or disables (``SUNFALSE``) the WRMS norm
   operation for vector arrays in the NVECTOR_OPENMPDEV vector. The return value is ``0`` for
   success and ``-1`` if the input vector or its ``ops`` structure are ``NULL``.
 
 
-.. c:function:: int N_VEnableWrmsNormMaskVectorArray_OpenMPDEV(N_Vector v, booleantype tf)
+.. c:function:: int N_VEnableWrmsNormMaskVectorArray_OpenMPDEV(N_Vector v, sunbooleantype tf)
 
   This function enables (``SUNTRUE``) or disables (``SUNFALSE``) the masked WRMS
   norm operation for vector arrays in the NVECTOR_OPENMPDEV vector. The return value is
@@ -259,7 +259,7 @@ options as the vector they are cloned from while vectors created with
   ``NULL``.
 
 
-.. c:function:: int N_VEnableScaleAddMultiVectorArray_OpenMPDEV(N_Vector v, booleantype tf)
+.. c:function:: int N_VEnableScaleAddMultiVectorArray_OpenMPDEV(N_Vector v, sunbooleantype tf)
 
   This function enables (``SUNTRUE``) or disables (``SUNFALSE``) the scale and
   add a vector array to multiple vector arrays operation in the NVECTOR_OPENMPDEV vector. The
@@ -267,7 +267,7 @@ options as the vector they are cloned from while vectors created with
   ``ops`` structure are ``NULL``.
 
 
-.. c:function:: int N_VEnableLinearCombinationVectorArray_OpenMPDEV(N_Vector v, booleantype tf)
+.. c:function:: int N_VEnableLinearCombinationVectorArray_OpenMPDEV(N_Vector v, sunbooleantype tf)
 
   This function enables (``SUNTRUE``) or disables (``SUNFALSE``) the linear
   combination operation for vector arrays in the NVECTOR_OPENMPDEV vector. The return value

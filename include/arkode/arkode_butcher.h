@@ -33,10 +33,10 @@ struct ARKodeButcherTableMem {
   int q;           /* method order of accuracy       */
   int p;           /* embedding order of accuracy    */
   int stages;      /* number of stages               */
-  realtype **A;    /* Butcher table coefficients     */
-  realtype *c;     /* canopy node coefficients       */
-  realtype *b;     /* root node coefficients         */
-  realtype *d;     /* embedding coefficients         */
+  sunrealtype **A;    /* Butcher table coefficients     */
+  sunrealtype *c;     /* canopy node coefficients       */
+  sunrealtype *b;     /* root node coefficients         */
+  sunrealtype *d;     /* embedding coefficients         */
 
 };
 
@@ -46,13 +46,13 @@ typedef _SUNDIALS_STRUCT_ ARKodeButcherTableMem *ARKodeButcherTable;
 
 /* Utility routines to allocate/free/output Butcher table structures */
 SUNDIALS_EXPORT ARKodeButcherTable ARKodeButcherTable_Alloc(int stages,
-                                                            booleantype embedded);
+                                                            sunbooleantype embedded);
 SUNDIALS_EXPORT ARKodeButcherTable ARKodeButcherTable_Create(int s, int q,
                                                              int p,
-                                                             realtype *c,
-                                                             realtype *A,
-                                                             realtype *b,
-                                                             realtype *d);
+                                                             sunrealtype *c,
+                                                             sunrealtype *A,
+                                                             sunrealtype *b,
+                                                             sunrealtype *d);
 SUNDIALS_EXPORT ARKodeButcherTable ARKodeButcherTable_Copy(ARKodeButcherTable B);
 SUNDIALS_EXPORT void ARKodeButcherTable_Space(ARKodeButcherTable B,
                                               sunindextype *liw,

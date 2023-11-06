@@ -104,7 +104,7 @@ information:
 The SUNLinSol_LapackDense module is a ``SUNLinearSolver`` wrapper for
 the LAPACK dense matrix factorization and solve routines, ``*GETRF``
 and ``*GETRS``, where ``*`` is either ``D`` or ``S``, depending on
-whether SUNDIALS was configured to have :c:type:`realtype` set to
+whether SUNDIALS was configured to have :c:type:`sunrealtype` set to
 ``double`` or ``single``, respectively (see
 :numref:`Usage.CC.DataTypes` for details).  In order to use the
 SUNLinSol_LapackDense module it is assumed that LAPACK has been
@@ -114,7 +114,7 @@ link with LAPACK (see
 :numref:`Installation.CMake.ExternalLibraries` for details).
 We note that since there do not exist 128-bit floating-point
 factorization and solve routines in LAPACK, this interface cannot be
-compiled when using ``extended`` precision for :c:type:`realtype`.
+compiled when using ``extended`` precision for :c:type:`sunrealtype`.
 Similarly, since there do not exist 64-bit integer LAPACK routines,
 the SUNLinSol_LapackDense module also cannot be compiled when using
 ``int64_t`` for the :c:type:`sunindextype`.

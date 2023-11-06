@@ -93,10 +93,10 @@ extern "C" {
  * User-Supplied Function Types
  * ------------------------------ */
 
-typedef int (*CVRhsFn)(realtype t, N_Vector y,
+typedef int (*CVRhsFn)(sunrealtype t, N_Vector y,
                        N_Vector ydot, void *user_data);
 
-typedef int (*CVRootFn)(realtype t, N_Vector y, realtype *gout,
+typedef int (*CVRootFn)(sunrealtype t, N_Vector y, sunrealtype *gout,
                         void *user_data);
 
 typedef int (*CVEwtFn)(N_Vector y, N_Vector ewt, void *user_data);
@@ -114,14 +114,14 @@ typedef int (*CVMonitorFn)(void *cvode_mem, void *user_data);
 /* Initialization functions */
 SUNDIALS_EXPORT void *CVodeCreate(int lmm, SUNContext sunctx);
 
-SUNDIALS_EXPORT int CVodeInit(void *cvode_mem, CVRhsFn f, realtype t0,
+SUNDIALS_EXPORT int CVodeInit(void *cvode_mem, CVRhsFn f, sunrealtype t0,
                               N_Vector y0);
-SUNDIALS_EXPORT int CVodeReInit(void *cvode_mem, realtype t0, N_Vector y0);
+SUNDIALS_EXPORT int CVodeReInit(void *cvode_mem, sunrealtype t0, N_Vector y0);
 
 /* Tolerance input functions */
-SUNDIALS_EXPORT int CVodeSStolerances(void *cvode_mem, realtype reltol,
-                                      realtype abstol);
-SUNDIALS_EXPORT int CVodeSVtolerances(void *cvode_mem, realtype reltol,
+SUNDIALS_EXPORT int CVodeSStolerances(void *cvode_mem, sunrealtype reltol,
+                                      sunrealtype abstol);
+SUNDIALS_EXPORT int CVodeSVtolerances(void *cvode_mem, sunrealtype reltol,
                                       N_Vector abstol);
 SUNDIALS_EXPORT int CVodeWFtolerances(void *cvode_mem, CVEwtFn efun);
 
@@ -129,10 +129,10 @@ SUNDIALS_EXPORT int CVodeWFtolerances(void *cvode_mem, CVEwtFn efun);
 
 SUNDIALS_EXPORT int CVodeSetConstraints(void *cvode_mem, N_Vector constraints);
 SUNDIALS_EXPORT int CVodeSetDeltaGammaMaxLSetup(void *cvode_mem,
-                                                realtype dgmax_lsetup);
+                                                sunrealtype dgmax_lsetup);
 SUNDIALS_EXPORT int CVodeSetErrFile(void *cvode_mem, FILE *errfp);
 SUNDIALS_EXPORT int CVodeSetErrHandlerFn(void *cvode_mem, CVErrHandlerFn ehfun, void *eh_data);
-SUNDIALS_EXPORT int CVodeSetInitStep(void *cvode_mem, realtype hin);
+SUNDIALS_EXPORT int CVodeSetInitStep(void *cvode_mem, sunrealtype hin);
 SUNDIALS_EXPORT int CVodeSetLSetupFrequency(void *cvode_mem, long int msbp);
 SUNDIALS_EXPORT int CVodeSetMaxConvFails(void *cvode_mem, int maxncf);
 SUNDIALS_EXPORT int CVodeSetMaxErrTestFails(void *cvode_mem, int maxnef);
@@ -140,42 +140,42 @@ SUNDIALS_EXPORT int CVodeSetMaxHnilWarns(void *cvode_mem, int mxhnil);
 SUNDIALS_EXPORT int CVodeSetMaxNonlinIters(void *cvode_mem, int maxcor);
 SUNDIALS_EXPORT int CVodeSetMaxNumSteps(void *cvode_mem, long int mxsteps);
 SUNDIALS_EXPORT int CVodeSetMaxOrd(void *cvode_mem, int maxord);
-SUNDIALS_EXPORT int CVodeSetMaxStep(void *cvode_mem, realtype hmax);
-SUNDIALS_EXPORT int CVodeSetMinStep(void *cvode_mem, realtype hmin);
+SUNDIALS_EXPORT int CVodeSetMaxStep(void *cvode_mem, sunrealtype hmax);
+SUNDIALS_EXPORT int CVodeSetMinStep(void *cvode_mem, sunrealtype hmin);
 SUNDIALS_EXPORT int CVodeSetMonitorFn(void *cvode_mem, CVMonitorFn fn);
 SUNDIALS_EXPORT int CVodeSetMonitorFrequency(void *cvode_mem, long int nst);
 SUNDIALS_EXPORT int CVodeSetNlsRhsFn(void *cvode_mem, CVRhsFn f);
-SUNDIALS_EXPORT int CVodeSetNonlinConvCoef(void *cvode_mem, realtype nlscoef);
+SUNDIALS_EXPORT int CVodeSetNonlinConvCoef(void *cvode_mem, sunrealtype nlscoef);
 SUNDIALS_EXPORT int CVodeSetNonlinearSolver(void *cvode_mem, SUNNonlinearSolver NLS);
-SUNDIALS_EXPORT int CVodeSetStabLimDet(void *cvode_mem, booleantype stldet);
-SUNDIALS_EXPORT int CVodeSetStopTime(void *cvode_mem, realtype tstop);
-SUNDIALS_EXPORT int CVodeSetInterpolateStopTime(void *cvode_mem, booleantype interp);
+SUNDIALS_EXPORT int CVodeSetStabLimDet(void *cvode_mem, sunbooleantype stldet);
+SUNDIALS_EXPORT int CVodeSetStopTime(void *cvode_mem, sunrealtype tstop);
+SUNDIALS_EXPORT int CVodeSetInterpolateStopTime(void *cvode_mem, sunbooleantype interp);
 SUNDIALS_EXPORT int CVodeClearStopTime(void *cvode_mem);
-SUNDIALS_EXPORT int CVodeSetUseIntegratorFusedKernels(void *cvode_mem, booleantype onoff);
+SUNDIALS_EXPORT int CVodeSetUseIntegratorFusedKernels(void *cvode_mem, sunbooleantype onoff);
 SUNDIALS_EXPORT int CVodeSetUserData(void *cvode_mem, void *user_data);
 
 /* Optional step adaptivity input functions */
 SUNDIALS_EXPORT
-int CVodeSetEtaFixedStepBounds(void* cvode_mem, realtype eta_min_fx,
-                               realtype eta_max_fx);
+int CVodeSetEtaFixedStepBounds(void* cvode_mem, sunrealtype eta_min_fx,
+                               sunrealtype eta_max_fx);
 SUNDIALS_EXPORT
-int CVodeSetEtaMaxFirstStep(void* cvode_mem, realtype eta_max_fs);
+int CVodeSetEtaMaxFirstStep(void* cvode_mem, sunrealtype eta_max_fs);
 SUNDIALS_EXPORT
-int CVodeSetEtaMaxEarlyStep(void* cvode_mem, realtype eta_max_es);
+int CVodeSetEtaMaxEarlyStep(void* cvode_mem, sunrealtype eta_max_es);
 SUNDIALS_EXPORT
 int CVodeSetNumStepsEtaMaxEarlyStep(void* cvode_mem, long int small_nst);
 SUNDIALS_EXPORT
-int CVodeSetEtaMax(void* cvode_mem, realtype eta_max_gs);
+int CVodeSetEtaMax(void* cvode_mem, sunrealtype eta_max_gs);
 SUNDIALS_EXPORT
-int CVodeSetEtaMin(void* cvode_mem, realtype eta_min);
+int CVodeSetEtaMin(void* cvode_mem, sunrealtype eta_min);
 SUNDIALS_EXPORT
-int CVodeSetEtaMinErrFail(void *cvode_mem, realtype eta_min_ef);
+int CVodeSetEtaMinErrFail(void *cvode_mem, sunrealtype eta_min_ef);
 SUNDIALS_EXPORT
-int CVodeSetEtaMaxErrFail(void* cvode_mem, realtype eta_max_ef);
+int CVodeSetEtaMaxErrFail(void* cvode_mem, sunrealtype eta_max_ef);
 SUNDIALS_EXPORT
 int CVodeSetNumFailsEtaMaxErrFail(void *cvode_mem, int small_nef);
 SUNDIALS_EXPORT
-int CVodeSetEtaConvFail(void* cvode_mem, realtype eta_cf);
+int CVodeSetEtaConvFail(void* cvode_mem, sunrealtype eta_cf);
 
 /* Rootfinding initialization function */
 SUNDIALS_EXPORT int CVodeRootInit(void *cvode_mem, int nrtfn, CVRootFn g);
@@ -185,14 +185,14 @@ SUNDIALS_EXPORT int CVodeSetRootDirection(void *cvode_mem, int *rootdir);
 SUNDIALS_EXPORT int CVodeSetNoInactiveRootWarn(void *cvode_mem);
 
 /* Solver function */
-SUNDIALS_EXPORT int CVode(void *cvode_mem, realtype tout, N_Vector yout,
-                          realtype *tret, int itask);
+SUNDIALS_EXPORT int CVode(void *cvode_mem, sunrealtype tout, N_Vector yout,
+                          sunrealtype *tret, int itask);
 
 /* Utility functions to update/compute y based on ycor */
 SUNDIALS_EXPORT int CVodeComputeState(void *cvode_mem, N_Vector ycor, N_Vector y);
 
 /* Dense output function */
-SUNDIALS_EXPORT int CVodeGetDky(void *cvode_mem, realtype t, int k,
+SUNDIALS_EXPORT int CVodeGetDky(void *cvode_mem, sunrealtype t, int k,
                                 N_Vector dky);
 
 /* Optional output functions */
@@ -206,15 +206,15 @@ SUNDIALS_EXPORT int CVodeGetNumErrTestFails(void *cvode_mem,
                                             long int *netfails);
 SUNDIALS_EXPORT int CVodeGetLastOrder(void *cvode_mem, int *qlast);
 SUNDIALS_EXPORT int CVodeGetCurrentOrder(void *cvode_mem, int *qcur);
-SUNDIALS_EXPORT int CVodeGetCurrentGamma(void *cvode_mem, realtype *gamma);
+SUNDIALS_EXPORT int CVodeGetCurrentGamma(void *cvode_mem, sunrealtype *gamma);
 SUNDIALS_EXPORT int CVodeGetNumStabLimOrderReds(void *cvode_mem,
                                                 long int *nslred);
-SUNDIALS_EXPORT int CVodeGetActualInitStep(void *cvode_mem, realtype *hinused);
-SUNDIALS_EXPORT int CVodeGetLastStep(void *cvode_mem, realtype *hlast);
-SUNDIALS_EXPORT int CVodeGetCurrentStep(void *cvode_mem, realtype *hcur);
+SUNDIALS_EXPORT int CVodeGetActualInitStep(void *cvode_mem, sunrealtype *hinused);
+SUNDIALS_EXPORT int CVodeGetLastStep(void *cvode_mem, sunrealtype *hlast);
+SUNDIALS_EXPORT int CVodeGetCurrentStep(void *cvode_mem, sunrealtype *hcur);
 SUNDIALS_EXPORT int CVodeGetCurrentState(void *cvode_mem, N_Vector *y);
-SUNDIALS_EXPORT int CVodeGetCurrentTime(void *cvode_mem, realtype *tcur);
-SUNDIALS_EXPORT int CVodeGetTolScaleFactor(void *cvode_mem, realtype *tolsfac);
+SUNDIALS_EXPORT int CVodeGetCurrentTime(void *cvode_mem, sunrealtype *tcur);
+SUNDIALS_EXPORT int CVodeGetTolScaleFactor(void *cvode_mem, sunrealtype *tolsfac);
 SUNDIALS_EXPORT int CVodeGetErrWeights(void *cvode_mem, N_Vector eweight);
 SUNDIALS_EXPORT int CVodeGetEstLocalErrors(void *cvode_mem, N_Vector ele);
 SUNDIALS_EXPORT int CVodeGetNumGEvals(void *cvode_mem, long int *ngevals);
@@ -224,12 +224,12 @@ SUNDIALS_EXPORT int CVodeGetIntegratorStats(void *cvode_mem, long int *nsteps,
                                             long int *nlinsetups,
                                             long int *netfails,
                                             int *qlast, int *qcur,
-                                            realtype *hinused, realtype *hlast,
-                                            realtype *hcur, realtype *tcur);
-SUNDIALS_EXPORT int CVodeGetNonlinearSystemData(void *cvode_mem, realtype *tcur,
+                                            sunrealtype *hinused, sunrealtype *hlast,
+                                            sunrealtype *hcur, sunrealtype *tcur);
+SUNDIALS_EXPORT int CVodeGetNonlinearSystemData(void *cvode_mem, sunrealtype *tcur,
                                                 N_Vector *ypred, N_Vector *yn,
-                                                N_Vector *fn, realtype *gamma,
-                                                realtype *rl1, N_Vector *zn1,
+                                                N_Vector *fn, sunrealtype *gamma,
+                                                sunrealtype *rl1, N_Vector *zn1,
                                                 void **user_data);
 SUNDIALS_EXPORT int CVodeGetNumNonlinSolvIters(void *cvode_mem,
                                                long int *nniters);

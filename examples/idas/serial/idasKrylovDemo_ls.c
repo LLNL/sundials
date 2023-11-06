@@ -48,7 +48,7 @@
 #include <sunlinsol/sunlinsol_spbcgs.h>  /* access to SPBCGS SUNLinearSolver  */
 #include <sunlinsol/sunlinsol_sptfqmr.h> /* access to SPTFQMR SUNLinearSolver */
 #include <nvector/nvector_serial.h>      /* serial N_Vector types, fct. and macros */
-#include <sundials/sundials_types.h>     /* definition of realtype */
+#include <sundials/sundials_types.h>     /* definition of sunrealtype */
 
 /* helpful macros */
 
@@ -67,10 +67,10 @@
 #define NOUT  11
 #define MGRID 10
 #define NEQ   MGRID*MGRID
-#define ZERO  RCONST(0.0)
-#define ONE   RCONST(1.0)
-#define TWO   RCONST(2.0)
-#define FOUR  RCONST(4.0)
+#define ZERO  SUN_RCONST(0.0)
+#define ONE   SUN_RCONST(1.0)
+#define TWO   SUN_RCONST(2.0)
+#define FOUR  SUN_RCONST(4.0)
 
 /* Linear Solver Loop Constants */
 
@@ -82,31 +82,31 @@
 
 typedef struct {
   sunindextype mm;  /* number of grid points */
-  realtype dx;
-  realtype coeff;
+  sunrealtype dx;
+  sunrealtype coeff;
   N_Vector pp;  /* vector of prec. diag. elements */
 } *UserData;
 
 /* Prototypes for functions called by IDA */
 
-int resHeat(realtype tres, N_Vector uu, N_Vector up,
+int resHeat(sunrealtype tres, N_Vector uu, N_Vector up,
             N_Vector resval, void *user_data);
 
-int PsetupHeat(realtype tt,
+int PsetupHeat(sunrealtype tt,
                N_Vector uu, N_Vector up, N_Vector rr,
-               realtype c_j, void *user_data);
+               sunrealtype c_j, void *user_data);
 
-int PsolveHeat(realtype tt,
+int PsolveHeat(sunrealtype tt,
                N_Vector uu, N_Vector up, N_Vector rr,
                N_Vector rvec, N_Vector zvec,
-               realtype c_j, realtype delta, void *user_data);
+               sunrealtype c_j, sunrealtype delta, void *user_data);
 
 /* Prototypes for private functions */
 
 static int SetInitialProfile(UserData data, N_Vector uu, N_Vector up,
                              N_Vector res);
-static void PrintHeader(realtype rtol, realtype atol, int linsolver);
-static void PrintOutput(void *mem, realtype t, N_Vector uu, int linsolver);
+static void PrintHeader(sunrealtype rtol, sunrealtype atol, int linsolver);
+static void PrintOutput(void *mem, sunrealtype t, N_Vector uu, int linsolver);
 static int check_retval(void *returnvalue, const char *funcname, int opt);
 
 /*
@@ -121,11 +121,11 @@ int main(int argc, char* argv[])
   UserData data;
   N_Vector uu, up, constraints, res;
   int retval, iout, linsolver;
-  realtype rtol, atol, t0, t1, tout, tret;
+  sunrealtype rtol, atol, t0, t1, tout, tret;
   long int netf, ncfn, ncfl;
   SUNLinearSolver LS;
   int nrmfactor;   /* LS norm conversion factor flag */
-  realtype nrmfac; /* LS norm conversion factor      */
+  sunrealtype nrmfac; /* LS norm conversion factor      */
   SUNContext ctx;
 
   mem         = NULL;
@@ -181,9 +181,9 @@ int main(int argc, char* argv[])
   /* Assign various parameters. */
 
   t0   = ZERO;
-  t1   = RCONST(0.01);
+  t1   = SUN_RCONST(0.01);
   rtol = ZERO;
-  atol = RCONST(1.0e-3);
+  atol = SUN_RCONST(1.0e-3);
 
   /* Call IDACreate and IDAMalloc to initialize solution */
 
@@ -290,7 +290,7 @@ int main(int argc, char* argv[])
 
     case(1):
       /* use the square root of the vector length */
-      nrmfac = SQRT((realtype)NEQ);
+      nrmfac = SQRT((sunrealtype)NEQ);
       break;
     case(2):
       /* compute with dot product */
@@ -373,12 +373,12 @@ int main(int argc, char* argv[])
  * while for each boundary point, it is res_i = u_i.
  */
 
-int resHeat(realtype tt,
+int resHeat(sunrealtype tt,
             N_Vector uu, N_Vector up, N_Vector rr,
             void *user_data)
 {
   sunindextype i, j, offset, loc, mm;
-  realtype *uu_data, *up_data, *rr_data, coeff, dif1, dif2;
+  sunrealtype *uu_data, *up_data, *rr_data, coeff, dif1, dif2;
   UserData data;
 
   uu_data = N_VGetArrayPointer(uu);
@@ -424,13 +424,13 @@ int resHeat(realtype tt,
  * pp etc.) are used from the PsetupdHeat argument list.
  */
 
-int PsetupHeat(realtype tt,
+int PsetupHeat(sunrealtype tt,
                N_Vector uu, N_Vector up, N_Vector rr,
-               realtype c_j, void *user_data)
+               sunrealtype c_j, void *user_data)
 {
 
   sunindextype i, j, offset, loc, mm;
-  realtype *ppv, pelinv;
+  sunrealtype *ppv, pelinv;
   UserData data;
 
   data = (UserData) user_data;
@@ -462,10 +462,10 @@ int PsetupHeat(realtype tt,
  * computed in PrecondHeateq), returning the result in zvec.
  */
 
-int PsolveHeat(realtype tt,
+int PsolveHeat(sunrealtype tt,
                N_Vector uu, N_Vector up, N_Vector rr,
                N_Vector rvec, N_Vector zvec,
-               realtype c_j, realtype delta, void *user_data)
+               sunrealtype c_j, sunrealtype delta, void *user_data)
 {
   UserData data;
   data = (UserData) user_data;
@@ -487,7 +487,7 @@ static int SetInitialProfile(UserData data, N_Vector uu, N_Vector up,
                              N_Vector res)
 {
   sunindextype mm, mm1, i, j, offset, loc;
-  realtype xfact, yfact, *udata, *updata;
+  sunrealtype xfact, yfact, *udata, *updata;
 
   mm = data->mm;
 
@@ -502,7 +502,7 @@ static int SetInitialProfile(UserData data, N_Vector uu, N_Vector up,
     for (i = 0;i < mm; i++) {
       xfact = data->dx * i;
       loc = offset + i;
-      udata[loc] = RCONST(16.0) * xfact * (ONE - xfact) * yfact * (ONE - yfact);
+      udata[loc] = SUN_RCONST(16.0) * xfact * (ONE - xfact) * yfact * (ONE - yfact);
     }
   }
 
@@ -531,7 +531,7 @@ static int SetInitialProfile(UserData data, N_Vector uu, N_Vector up,
  * Print first lines of output (problem description)
  */
 
-static void PrintHeader(realtype rtol, realtype atol, int linsolver)
+static void PrintHeader(sunrealtype rtol, sunrealtype atol, int linsolver)
 {
   printf("\nidasKrylovDemo_ls: Heat equation, serial example problem for IDA\n");
   printf("                   Discretized heat equation on 2D unit square.\n");
@@ -568,9 +568,9 @@ static void PrintHeader(realtype rtol, realtype atol, int linsolver)
  * PrintOutput: print max norm of solution and current solver statistics
  */
 
-static void PrintOutput(void *mem, realtype t, N_Vector uu, int linsolver)
+static void PrintOutput(void *mem, sunrealtype t, N_Vector uu, int linsolver)
 {
-  realtype hused, umax;
+  sunrealtype hused, umax;
   long int nst, nni, nje, nre, nreLS, nli, npe, nps;
   int kused, retval;
 

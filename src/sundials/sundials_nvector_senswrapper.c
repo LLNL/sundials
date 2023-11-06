@@ -23,7 +23,7 @@
 #include <sundials/sundials_nvector.h>
 #include <sundials/sundials_nvector_senswrapper.h>
 
-#define ZERO RCONST(0.0)
+#define ZERO SUN_RCONST(0.0)
 
 /*==============================================================================
   Constructors
@@ -267,7 +267,7 @@ void N_VDestroy_SensWrapper(N_Vector v)
   Standard vector operations
   ============================================================================*/
 
-void N_VLinearSum_SensWrapper(realtype a, N_Vector x, realtype b, N_Vector y, N_Vector z)
+void N_VLinearSum_SensWrapper(sunrealtype a, N_Vector x, sunrealtype b, N_Vector y, N_Vector z)
 {
   int i;
 
@@ -278,7 +278,7 @@ void N_VLinearSum_SensWrapper(realtype a, N_Vector x, realtype b, N_Vector y, N_
 }
 
 
-void N_VConst_SensWrapper(realtype c, N_Vector z)
+void N_VConst_SensWrapper(sunrealtype c, N_Vector z)
 {
   int i;
 
@@ -311,7 +311,7 @@ void N_VDiv_SensWrapper(N_Vector x, N_Vector y, N_Vector z)
 }
 
 
-void N_VScale_SensWrapper(realtype c, N_Vector x, N_Vector z)
+void N_VScale_SensWrapper(sunrealtype c, N_Vector x, N_Vector z)
 {
   int i;
 
@@ -344,7 +344,7 @@ void N_VInv_SensWrapper(N_Vector x, N_Vector z)
 }
 
 
-void N_VAddConst_SensWrapper(N_Vector x, realtype b, N_Vector z)
+void N_VAddConst_SensWrapper(N_Vector x, sunrealtype b, N_Vector z)
 {
   int i;
 
@@ -355,10 +355,10 @@ void N_VAddConst_SensWrapper(N_Vector x, realtype b, N_Vector z)
 }
 
 
-realtype N_VDotProd_SensWrapper(N_Vector x, N_Vector y)
+sunrealtype N_VDotProd_SensWrapper(N_Vector x, N_Vector y)
 {
   int i;
-  realtype sum;
+  sunrealtype sum;
 
   sum = ZERO;
 
@@ -369,10 +369,10 @@ realtype N_VDotProd_SensWrapper(N_Vector x, N_Vector y)
 }
 
 
-realtype N_VMaxNorm_SensWrapper(N_Vector x)
+sunrealtype N_VMaxNorm_SensWrapper(N_Vector x)
 {
   int i;
-  realtype max, tmp;
+  sunrealtype max, tmp;
 
   max = ZERO;
 
@@ -385,10 +385,10 @@ realtype N_VMaxNorm_SensWrapper(N_Vector x)
 }
 
 
-realtype N_VWrmsNorm_SensWrapper(N_Vector x, N_Vector w)
+sunrealtype N_VWrmsNorm_SensWrapper(N_Vector x, N_Vector w)
 {
   int i;
-  realtype nrm, tmp;
+  sunrealtype nrm, tmp;
 
   nrm = ZERO;
 
@@ -401,10 +401,10 @@ realtype N_VWrmsNorm_SensWrapper(N_Vector x, N_Vector w)
 }
 
 
-realtype N_VWrmsNormMask_SensWrapper(N_Vector x, N_Vector w, N_Vector id)
+sunrealtype N_VWrmsNormMask_SensWrapper(N_Vector x, N_Vector w, N_Vector id)
 {
   int i;
-  realtype nrm, tmp;
+  sunrealtype nrm, tmp;
 
   nrm = ZERO;
 
@@ -417,10 +417,10 @@ realtype N_VWrmsNormMask_SensWrapper(N_Vector x, N_Vector w, N_Vector id)
 }
 
 
-realtype N_VMin_SensWrapper(N_Vector x)
+sunrealtype N_VMin_SensWrapper(N_Vector x)
 {
   int i;
-  realtype min, tmp;
+  sunrealtype min, tmp;
 
   min = N_VMin(NV_VEC_SW(x,0));
 
@@ -433,10 +433,10 @@ realtype N_VMin_SensWrapper(N_Vector x)
 }
 
 
-realtype N_VWL2Norm_SensWrapper(N_Vector x, N_Vector w)
+sunrealtype N_VWL2Norm_SensWrapper(N_Vector x, N_Vector w)
 {
   int i;
-  realtype nrm, tmp;
+  sunrealtype nrm, tmp;
 
   nrm = ZERO;
 
@@ -449,10 +449,10 @@ realtype N_VWL2Norm_SensWrapper(N_Vector x, N_Vector w)
 }
 
 
-realtype N_VL1Norm_SensWrapper(N_Vector x)
+sunrealtype N_VL1Norm_SensWrapper(N_Vector x)
 {
   int i;
-  realtype nrm, tmp;
+  sunrealtype nrm, tmp;
 
   nrm = ZERO;
 
@@ -465,7 +465,7 @@ realtype N_VL1Norm_SensWrapper(N_Vector x)
 }
 
 
-void N_VCompare_SensWrapper(realtype c, N_Vector x, N_Vector z)
+void N_VCompare_SensWrapper(sunrealtype c, N_Vector x, N_Vector z)
 {
   int i;
 
@@ -476,10 +476,10 @@ void N_VCompare_SensWrapper(realtype c, N_Vector x, N_Vector z)
 }
 
 
-booleantype N_VInvTest_SensWrapper(N_Vector x, N_Vector z)
+sunbooleantype N_VInvTest_SensWrapper(N_Vector x, N_Vector z)
 {
   int i;
-  booleantype no_zero_found, tmp;
+  sunbooleantype no_zero_found, tmp;
 
   no_zero_found = SUNTRUE;
 
@@ -492,10 +492,10 @@ booleantype N_VInvTest_SensWrapper(N_Vector x, N_Vector z)
 }
 
 
-booleantype N_VConstrMask_SensWrapper(N_Vector c, N_Vector x, N_Vector m)
+sunbooleantype N_VConstrMask_SensWrapper(N_Vector c, N_Vector x, N_Vector m)
 {
   int i;
-  booleantype test, tmp;
+  sunbooleantype test, tmp;
 
   test = SUNTRUE;
 
@@ -508,10 +508,10 @@ booleantype N_VConstrMask_SensWrapper(N_Vector c, N_Vector x, N_Vector m)
 }
 
 
-realtype N_VMinQuotient_SensWrapper(N_Vector num, N_Vector denom)
+sunrealtype N_VMinQuotient_SensWrapper(N_Vector num, N_Vector denom)
 {
   int i;
-  realtype min, tmp;
+  sunrealtype min, tmp;
 
   min = N_VMinQuotient(NV_VEC_SW(num,0), NV_VEC_SW(denom,0));
 

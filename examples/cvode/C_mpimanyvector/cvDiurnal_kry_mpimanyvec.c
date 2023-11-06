@@ -66,7 +66,7 @@
 #include <nvector/nvector_parallel.h>       /* access to MPI-parallel N_Vector          */
 #include <sunlinsol/sunlinsol_spgmr.h>      /* access to SPGMR SUNLinearSolver          */
 #include <sundials/sundials_dense.h>        /* prototypes for small dense fcts.         */
-#include <sundials/sundials_types.h>        /* definitions of realtype, booleantype     */
+#include <sundials/sundials_types.h>        /* definitions of sunrealtype, sunbooleantype     */
 
 /* helpful macros */
 
@@ -77,27 +77,27 @@
 /* Problem Constants */
 
 #define NVARS        2                    /* number of species         */
-#define KH           RCONST(4.0e-6)       /* horizontal diffusivity Kh */
-#define VEL          RCONST(0.001)        /* advection velocity V      */
-#define KV0          RCONST(1.0e-8)       /* coefficient in Kv(y)      */
-#define Q1           RCONST(1.63e-16)     /* coefficients q1, q2, c3   */
-#define Q2           RCONST(4.66e-16)
-#define C3           RCONST(3.7e16)
-#define A3           RCONST(22.62)     /* coefficient in expression for q3(t) */
-#define A4           RCONST(7.601)     /* coefficient in expression for q4(t) */
-#define C1_SCALE     RCONST(1.0e6)     /* coefficients in initial profiles    */
-#define C2_SCALE     RCONST(1.0e12)
+#define KH           SUN_RCONST(4.0e-6)       /* horizontal diffusivity Kh */
+#define VEL          SUN_RCONST(0.001)        /* advection velocity V      */
+#define KV0          SUN_RCONST(1.0e-8)       /* coefficient in Kv(y)      */
+#define Q1           SUN_RCONST(1.63e-16)     /* coefficients q1, q2, c3   */
+#define Q2           SUN_RCONST(4.66e-16)
+#define C3           SUN_RCONST(3.7e16)
+#define A3           SUN_RCONST(22.62)     /* coefficient in expression for q3(t) */
+#define A4           SUN_RCONST(7.601)     /* coefficient in expression for q4(t) */
+#define C1_SCALE     SUN_RCONST(1.0e6)     /* coefficients in initial profiles    */
+#define C2_SCALE     SUN_RCONST(1.0e12)
 
-#define T0           RCONST(0.0)          /* initial time */
+#define T0           SUN_RCONST(0.0)          /* initial time */
 #define NOUT         12                   /* number of output times */
-#define TWOHR        RCONST(7200.0)       /* number of seconds in two hours  */
-#define HALFDAY      RCONST(4.32e4)       /* number of seconds in a half day */
-#define PI       RCONST(3.1415926535898)  /* pi */
+#define TWOHR        SUN_RCONST(7200.0)       /* number of seconds in two hours  */
+#define HALFDAY      SUN_RCONST(4.32e4)       /* number of seconds in a half day */
+#define PI       SUN_RCONST(3.1415926535898)  /* pi */
 
-#define XMIN         RCONST(0.0)          /* grid boundaries in x  */
-#define XMAX         RCONST(20.0)
-#define YMIN         RCONST(30.0)         /* grid boundaries in y  */
-#define YMAX         RCONST(50.0)
+#define XMIN         SUN_RCONST(0.0)          /* grid boundaries in x  */
+#define XMAX         SUN_RCONST(20.0)
+#define YMIN         SUN_RCONST(30.0)         /* grid boundaries in y  */
+#define YMAX         SUN_RCONST(50.0)
 
 #define NPEX         2              /* no. PEs in x direction of PE array */
 #define NPEY         2              /* no. PEs in y direction of PE array */
@@ -110,8 +110,8 @@
                                     /* Spatial mesh is MX by MY */
 /* CVodeInit Constants */
 
-#define RTOL    RCONST(1.0e-5)    /* scalar relative tolerance */
-#define FLOOR   RCONST(100.0)     /* value of C1 or C2 at which tolerances */
+#define RTOL    SUN_RCONST(1.0e-5)    /* scalar relative tolerance */
+#define FLOOR   SUN_RCONST(100.0)     /* value of C1 or C2 at which tolerances */
                                   /* change from relative to absolute      */
 #define ATOL    (RTOL*FLOOR)      /* scalar absolute tolerance */
 
@@ -121,7 +121,7 @@
 /* IJth is defined in order to write code which indexes into dense
    matrices with a (row,column) pair, where 1 <= row,column <= NVARS.
 
-   IJth(a,i,j) references the (i,j)th entry of the small matrix realtype **a,
+   IJth(a,i,j) references the (i,j)th entry of the small matrix sunrealtype **a,
    where 1 <= i,j <= NVARS. The small matrix routines in sundials_dense.h
    work with matrices stored by column in a 2-dimensional array. In C,
    arrays are indexed starting at 0, not 1. */
@@ -135,24 +135,24 @@
 
 typedef struct {
 
-  realtype q4, om, dx, dy, hdco, haco, vdco;
-  realtype c1ext[(MXSUB+2)*(MYSUB+2)];
-  realtype c2ext[(MXSUB+2)*(MYSUB+2)];
-  realtype SendBufferE[NVARS*MYSUB];
-  realtype SendBufferW[NVARS*MYSUB];
-  realtype SendBufferN[NVARS*MXSUB];
-  realtype SendBufferS[NVARS*MXSUB];
-  realtype RecvBufferE[NVARS*MYSUB];
-  realtype RecvBufferW[NVARS*MYSUB];
-  realtype RecvBufferN[NVARS*MXSUB];
-  realtype RecvBufferS[NVARS*MXSUB];
+  sunrealtype q4, om, dx, dy, hdco, haco, vdco;
+  sunrealtype c1ext[(MXSUB+2)*(MYSUB+2)];
+  sunrealtype c2ext[(MXSUB+2)*(MYSUB+2)];
+  sunrealtype SendBufferE[NVARS*MYSUB];
+  sunrealtype SendBufferW[NVARS*MYSUB];
+  sunrealtype SendBufferN[NVARS*MXSUB];
+  sunrealtype SendBufferS[NVARS*MXSUB];
+  sunrealtype RecvBufferE[NVARS*MYSUB];
+  sunrealtype RecvBufferW[NVARS*MYSUB];
+  sunrealtype RecvBufferN[NVARS*MXSUB];
+  sunrealtype RecvBufferS[NVARS*MXSUB];
   int my_pe, isubx, isuby;
   int nvmxsub2;
   MPI_Comm comm;
   MPI_Request request[8];
 
   /* For preconditioner */
-  realtype **P[MXSUB][MYSUB], **Jbd[MXSUB][MYSUB];
+  sunrealtype **P[MXSUB][MYSUB], **Jbd[MXSUB][MYSUB];
   sunindextype *pivot[MXSUB][MYSUB];
 
 } *UserData;
@@ -163,26 +163,26 @@ static void InitUserData(int my_pe, MPI_Comm comm, UserData data);
 static void FreeUserData(UserData data);
 static void SetInitialProfiles(N_Vector u, UserData data);
 static void PrintOutput(void *cvode_mem, int my_pe, MPI_Comm comm,
-                        N_Vector u, realtype t);
+                        N_Vector u, sunrealtype t);
 static void PrintFinalStats(void *cvode_mem);
-static void BSend(realtype c1data[], realtype c2data[], UserData data);
+static void BSend(sunrealtype c1data[], sunrealtype c2data[], UserData data);
 static void BRecvPost(UserData data);
 static void BRecvWait(UserData data);
 static void PrepareExt(N_Vector u, UserData data);
-static void fcalc(realtype t, N_Vector udot, UserData data);
+static void fcalc(sunrealtype t, N_Vector udot, UserData data);
 
 
 /* Functions Called by the Solver */
 
-static int f(realtype t, N_Vector u, N_Vector udot, void *user_data);
+static int f(sunrealtype t, N_Vector u, N_Vector udot, void *user_data);
 
-static int Precond(realtype tn, N_Vector u, N_Vector fu,
-                   booleantype jok, booleantype *jcurPtr,
-                   realtype gamma, void *user_data);
+static int Precond(sunrealtype tn, N_Vector u, N_Vector fu,
+                   sunbooleantype jok, sunbooleantype *jcurPtr,
+                   sunrealtype gamma, void *user_data);
 
-static int PSolve(realtype tn, N_Vector u, N_Vector fu,
+static int PSolve(sunrealtype tn, N_Vector u, N_Vector fu,
                   N_Vector r, N_Vector z,
-                  realtype gamma, realtype delta,
+                  sunrealtype gamma, sunrealtype delta,
                   int lr, void *user_data);
 
 
@@ -196,7 +196,7 @@ static int check_retval(void *returnvalue, const char *funcname, int opt, int id
 int main(int argc, char *argv[])
 {
   SUNContext sunctx;
-  realtype abstol, reltol, t, tout;
+  sunrealtype abstol, reltol, t, tout;
   N_Vector u, c[2];
   UserData data;
   SUNLinearSolver LS;
@@ -328,11 +328,11 @@ static void InitUserData(int my_pe, MPI_Comm comm, UserData data)
 
   /* Set problem constants */
   data->om = PI/HALFDAY;
-  data->dx = (XMAX-XMIN)/((realtype)(MX-1));
-  data->dy = (YMAX-YMIN)/((realtype)(MY-1));
+  data->dx = (XMAX-XMIN)/((sunrealtype)(MX-1));
+  data->dy = (YMAX-YMIN)/((sunrealtype)(MY-1));
   data->hdco = KH/SQR(data->dx);
-  data->haco = VEL/(RCONST(2.0)*data->dx);
-  data->vdco = (RCONST(1.0)/SQR(data->dy))*KV0;
+  data->haco = VEL/(SUN_RCONST(2.0)*data->dx);
+  data->vdco = (SUN_RCONST(1.0)/SQR(data->dy))*KV0;
 
   /* Set machine-related constants */
   data->comm = comm;
@@ -378,8 +378,8 @@ static void SetInitialProfiles(N_Vector u, UserData data)
 {
   int lx, ly, jx, jy;
   sunindextype offset;
-  realtype x, y, cx, cy, xmid, ymid;
-  realtype *c1data, *c2data;
+  sunrealtype x, y, cx, cy, xmid, ymid;
+  sunrealtype *c1data, *c2data;
 
   /* Set pointer to data array in vector u */
   c1data = N_VGetSubvectorArrayPointer_MPIManyVector(u,0);
@@ -389,18 +389,18 @@ static void SetInitialProfiles(N_Vector u, UserData data)
   Here lx and ly are local mesh point indices on the local subgrid,
   and jx and jy are the global mesh point indices. */
   offset = 0;
-  xmid = RCONST(0.5)*(XMIN + XMAX);
-  ymid = RCONST(0.5)*(YMIN + YMAX);
+  xmid = SUN_RCONST(0.5)*(XMIN + XMAX);
+  ymid = SUN_RCONST(0.5)*(YMIN + YMAX);
   for (ly = 0; ly < MYSUB; ly++) {
     jy = ly + (data->isuby)*MYSUB;
     y = YMIN + jy*(data->dy);
-    cy = SQR(RCONST(0.1)*(y - ymid));
-    cy = RCONST(1.0) - cy + RCONST(0.5)*SQR(cy);
+    cy = SQR(SUN_RCONST(0.1)*(y - ymid));
+    cy = SUN_RCONST(1.0) - cy + SUN_RCONST(0.5)*SQR(cy);
     for (lx = 0; lx < MXSUB; lx++) {
       jx = lx + (data->isubx)*MXSUB;
       x = XMIN + jx*(data->dx);
-      cx = SQR(RCONST(0.1)*(x - xmid));
-      cx = RCONST(1.0) - cx + RCONST(0.5)*SQR(cx);
+      cx = SQR(SUN_RCONST(0.1)*(x - xmid));
+      cx = SUN_RCONST(1.0) - cx + SUN_RCONST(0.5)*SQR(cx);
       c1data[offset] = C1_SCALE*cx*cy;
       c2data[offset] = C2_SCALE*cx*cy;
       offset++;
@@ -411,10 +411,10 @@ static void SetInitialProfiles(N_Vector u, UserData data)
 /* Print current t, step count, order, stepsize, and sampled c1,c2 values */
 
 static void PrintOutput(void *cvode_mem, int my_pe, MPI_Comm comm,
-                        N_Vector u, realtype t)
+                        N_Vector u, sunrealtype t)
 {
   int qu, retval;
-  realtype hu, *c1data, *c2data, tempu[2];
+  sunrealtype hu, *c1data, *c2data, tempu[2];
   int npelast;
   long int nst;
   MPI_Status status;
@@ -552,7 +552,7 @@ static void BRecvPost(UserData data)
 
 /* Routine to send boundary data to neighboring PEs */
 
-static void BSend(realtype c1data[], realtype c2data[], UserData data)
+static void BSend(sunrealtype c1data[], sunrealtype c2data[], UserData data)
 {
   int ly, lx, retval;
   sunindextype offsetu;
@@ -663,7 +663,7 @@ static void BRecvWait(UserData data)
 
 static void PrepareExt(N_Vector u, UserData data)
 {
-  realtype *c1data, *c2data;
+  sunrealtype *c1data, *c2data;
   int lx, ly;
 
   /* Access data arrays from u, and extended work arrays c1ext and c2ext */
@@ -724,13 +724,13 @@ static void PrepareExt(N_Vector u, UserData data)
 }
 
 
-static void fcalc(realtype t, N_Vector udot, UserData data)
+static void fcalc(sunrealtype t, N_Vector udot, UserData data)
 {
-  realtype *c1dot, *c2dot;
-  realtype q3, c1, c2, c1dn, c2dn, c1up, c2up, c1lt, c2lt;
-  realtype c1rt, c2rt, cydn, cyup, hord1, hord2, horad1, horad2;
-  realtype qq1, qq2, qq3, qq4, rkin1, rkin2, s, vertd1, vertd2, ydn, yup;
-  realtype q4coef;
+  sunrealtype *c1dot, *c2dot;
+  sunrealtype q3, c1, c2, c1dn, c2dn, c1up, c2up, c1lt, c2lt;
+  sunrealtype c1rt, c2rt, cydn, cyup, hord1, hord2, horad1, horad2;
+  sunrealtype qq1, qq2, qq3, qq4, rkin1, rkin2, s, vertd1, vertd2, ydn, yup;
+  sunrealtype q4coef;
   int lx, ly, jy;
   sunindextype offset;
 
@@ -741,12 +741,12 @@ static void fcalc(realtype t, N_Vector udot, UserData data)
   /* Set diurnal rate coefficients as functions of t, and save q4 in
   data block for use by preconditioner evaluation routine */
   s = sin((data->om)*t);
-  if (s > RCONST(0.0)) {
+  if (s > SUN_RCONST(0.0)) {
     q3 = exp(-A3/s);
     q4coef = exp(-A4/s);
   } else {
-    q3 = RCONST(0.0);
-    q4coef = RCONST(0.0);
+    q3 = SUN_RCONST(0.0);
+    q4coef = SUN_RCONST(0.0);
   }
   data->q4 = q4coef;
 
@@ -757,10 +757,10 @@ static void fcalc(realtype t, N_Vector udot, UserData data)
     jy = ly + (data->isuby)*MYSUB;
 
     /* Set vertical diffusion coefficients at jy +- 1/2 */
-    ydn = YMIN + (jy - RCONST(0.5))*(data->dy);
+    ydn = YMIN + (jy - SUN_RCONST(0.5))*(data->dy);
     yup = ydn + data->dy;
-    cydn = (data->vdco)*exp(RCONST(0.2)*ydn);
-    cyup = (data->vdco)*exp(RCONST(0.2)*yup);
+    cydn = (data->vdco)*exp(SUN_RCONST(0.2)*ydn);
+    cyup = (data->vdco)*exp(SUN_RCONST(0.2)*yup);
 
     /* Loop over x-direction */
     for (lx=0; lx<MXSUB; lx++) {
@@ -783,7 +783,7 @@ static void fcalc(realtype t, N_Vector udot, UserData data)
       qq2 = Q2*c1*c2;
       qq3 = q3*C3;
       qq4 = q4coef*c2;
-      rkin1 = -qq1 - qq2 + RCONST(2.0)*qq3 + qq4;
+      rkin1 = -qq1 - qq2 + SUN_RCONST(2.0)*qq3 + qq4;
       rkin2 = qq1 - qq2 - qq4;
 
       /* Set vertical diffusion terms */
@@ -791,8 +791,8 @@ static void fcalc(realtype t, N_Vector udot, UserData data)
       vertd2 = cyup*(c2up - c2) - cydn*(c2 - c2dn);
 
       /* Set horizontal diffusion and advection terms */
-      hord1 = (data->hdco)*(c1rt - RCONST(2.0)*c1 + c1lt);
-      hord2 = (data->hdco)*(c2rt - RCONST(2.0)*c2 + c2lt);
+      hord1 = (data->hdco)*(c1rt - SUN_RCONST(2.0)*c1 + c1lt);
+      hord2 = (data->hdco)*(c2rt - SUN_RCONST(2.0)*c2 + c2lt);
       horad1 = (data->haco)*(c1rt - c1lt);
       horad2 = (data->haco)*(c2rt - c2lt);
 
@@ -810,7 +810,7 @@ static void fcalc(realtype t, N_Vector udot, UserData data)
    subgrid boundary data and to copy data from u into uext.
    Then calculate f by a call to fcalc. */
 
-static int f(realtype t, N_Vector u, N_Vector udot, void *user_data)
+static int f(sunrealtype t, N_Vector u, N_Vector udot, void *user_data)
 {
   /* Call PrepareExt to set up work arrays for calculation of RHS
      (includes inter-processor communication) */
@@ -823,15 +823,15 @@ static int f(realtype t, N_Vector u, N_Vector udot, void *user_data)
 }
 
 /* Preconditioner setup routine. Generate and preprocess P. */
-static int Precond(realtype tn, N_Vector u, N_Vector fu, booleantype jok,
-                   booleantype *jcurPtr, realtype gamma, void *user_data)
+static int Precond(sunrealtype tn, N_Vector u, N_Vector fu, sunbooleantype jok,
+                   sunbooleantype *jcurPtr, sunrealtype gamma, void *user_data)
 {
-  realtype c1, c2, cydn, cyup, diag, ydn, yup;
-  realtype **(*P)[MYSUB], **(*Jbd)[MYSUB];
+  sunrealtype c1, c2, cydn, cyup, diag, ydn, yup;
+  sunrealtype **(*P)[MYSUB], **(*Jbd)[MYSUB];
   sunindextype retval;
   sunindextype *(*pivot)[MYSUB];
   sunindextype lx, ly, jy;
-  realtype *c1data, *c2data, **a, **j;
+  sunrealtype *c1data, *c2data, **a, **j;
   UserData data;
 
   /* Make local copies of pointers in user_data, pointer to u's data,
@@ -858,11 +858,11 @@ static int Precond(realtype tn, N_Vector u, N_Vector fu, booleantype jok,
        computed on the last f call).  Load into P. */
     for (ly=0; ly<MYSUB; ly++) {
       jy = ly + (data->isuby)*MYSUB;
-      ydn = YMIN + (jy - RCONST(0.5))*(data->dy);
+      ydn = YMIN + (jy - SUN_RCONST(0.5))*(data->dy);
       yup = ydn + (data->dy);
-      cydn = (data->vdco)*exp(RCONST(0.2)*ydn);
-      cyup = (data->vdco)*exp(RCONST(0.2)*yup);
-      diag = -(cydn + cyup + RCONST(2.0)*(data->hdco));
+      cydn = (data->vdco)*exp(SUN_RCONST(0.2)*ydn);
+      cyup = (data->vdco)*exp(SUN_RCONST(0.2)*yup);
+      diag = -(cydn + cyup + SUN_RCONST(2.0)*(data->hdco));
       for (lx = 0; lx < MXSUB; lx++) {
         c1 = c1data[lx+ly*MXSUB];
         c2 = c2data[lx+ly*MXSUB];
@@ -898,13 +898,13 @@ static int Precond(realtype tn, N_Vector u, N_Vector fu, booleantype jok,
 }
 
 /* Preconditioner solve routine */
-static int PSolve(realtype tn, N_Vector u, N_Vector fu, N_Vector r, N_Vector z,
-                  realtype gamma, realtype delta, int lr, void *user_data)
+static int PSolve(sunrealtype tn, N_Vector u, N_Vector fu, N_Vector r, N_Vector z,
+                  sunrealtype gamma, sunrealtype delta, int lr, void *user_data)
 {
-  realtype **(*P)[MYSUB];
+  sunrealtype **(*P)[MYSUB];
   sunindextype *(*pivot)[MYSUB];
   int lx, ly;
-  realtype *z1data, *z2data, v[2];
+  sunrealtype *z1data, *z2data, v[2];
   UserData data;
 
   /* Extract the P and pivot arrays from user_data */
@@ -915,7 +915,7 @@ static int PSolve(realtype tn, N_Vector u, N_Vector fu, N_Vector r, N_Vector z,
   /* Solve the block-diagonal system Px = r using LU factors stored
      in P and pivot data in pivot, and return the solution in z.
      First copy vector r to z. */
-  N_VScale(RCONST(1.0), r, z);
+  N_VScale(SUN_RCONST(1.0), r, z);
   z1data = N_VGetSubvectorArrayPointer_MPIManyVector(z,0);
   z2data = N_VGetSubvectorArrayPointer_MPIManyVector(z,1);
   for (lx=0; lx<MXSUB; lx++) {

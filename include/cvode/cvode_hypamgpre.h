@@ -150,13 +150,13 @@ extern "C" {
  *     and ewt (the error weight vector) are accessible through   
  *     CVodeGetCurrentStep and CVodeGetErrWeights, respectively 
  *     (see cvode.h). The unit roundoff is available as 
- *     UNIT_ROUNDOFF defined in sundials_types.h.
+ *     SUN_UNIT_ROUNDOFF defined in sundials_types.h.
  *
  * -----------------------------------------------------------------
  */
   
   
-typedef int (*CVParCsrJacFn)(sunindextype N, sunindextype ilower, sunindextype iupper, sunindextype jlower, sunindextype jupper, realtype gamma, realtype t,
+typedef int (*CVParCsrJacFn)(sunindextype N, sunindextype ilower, sunindextype iupper, sunindextype jlower, sunindextype jupper, sunrealtype gamma, sunrealtype t,
 			       N_Vector y, N_Vector fy, 
 			       HYPRE_IJMatrix* Jac, void *user_data,
 			       N_Vector tmp1, N_Vector tmp2, N_Vector tmp3);
@@ -208,14 +208,14 @@ typedef int (*CVJacobianIJUpdateFn)(HYPRE_IJMatrix* pointer_A, int ilower, int i
 SUNDIALS_EXPORT int CVBoomerAMGInit(void *cvode_mem, int ilower, int iupper, int jlower, int jupper, int N);
 
 /*
-SUNDIALS_EXPORT int CVBoomerAMGSetup(realtype t, N_Vector y, N_Vector fy, 
-                          booleantype jok, booleantype *jcurPtr, 
-                          realtype gamma, void *bbd_data, 
+SUNDIALS_EXPORT int CVBoomerAMGSetup(sunrealtype t, N_Vector y, N_Vector fy, 
+                          sunbooleantype jok, sunbooleantype *jcurPtr, 
+                          sunrealtype gamma, void *bbd_data, 
                           N_Vector tmp1, N_Vector tmp2, N_Vector tmp3);
 
-SUNDIALS_EXPORT int CVBoomerAMGSolve(realtype t, N_Vector y, N_Vector fy, 
+SUNDIALS_EXPORT int CVBoomerAMGSolve(sunrealtype t, N_Vector y, N_Vector fy, 
                           N_Vector r, N_Vector z, 
-                          realtype gamma, realtype delta,
+                          sunrealtype gamma, sunrealtype delta,
                           int lr, void *bbd_data, N_Vector tmp);*/
 
 /*
@@ -241,7 +241,7 @@ SUNDIALS_EXPORT int CVBoomerAMGSolve(realtype t, N_Vector y, N_Vector fy,
  */
 
 SUNDIALS_EXPORT int CVBoomerAMGReInit(void *cvode_mem, sunindextype mudq, sunindextype mldq,
-				    realtype dqrely);
+				    sunrealtype dqrely);
 
 /*
  * -----------------------------------------------------------------

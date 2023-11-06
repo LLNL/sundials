@@ -38,7 +38,7 @@
 #include <arkode/arkode_mristep.h>    /* prototypes for MRIStep fcts., consts */
 #include <arkode/arkode_arkstep.h>    /* prototypes for ARKStep fcts., consts */
 #include <nvector/nvector_serial.h>   /* serial N_Vector types, fcts., macros */
-#include <sundials/sundials_types.h>  /* def. of type 'realtype'              */
+#include <sundials/sundials_types.h>  /* def. of type 'sunrealtype'              */
 
 #if defined(SUNDIALS_EXTENDED_PRECISION)
 #define GSYM "Lg"
@@ -51,8 +51,8 @@
 #endif
 
 /* User-supplied functions called by the solver */
-static int fs(realtype t, N_Vector y, N_Vector ydot, void *user_data);
-static int ff(realtype t, N_Vector y, N_Vector ydot, void *user_data);
+static int fs(sunrealtype t, N_Vector y, N_Vector ydot, void *user_data);
+static int ff(sunrealtype t, N_Vector y, N_Vector ydot, void *user_data);
 
 /* Private function to check function return values */
 static int check_retval(void *returnvalue, const char *funcname, int opt);
@@ -61,16 +61,16 @@ static int check_retval(void *returnvalue, const char *funcname, int opt);
 int main()
 {
   /* general problem parameters */
-  realtype T0 = RCONST(0.0);     /* initial time */
-  realtype Tf = RCONST(2.0);     /* final time */
-  realtype dTout = RCONST(0.1);  /* time between outputs */
+  sunrealtype T0 = SUN_RCONST(0.0);     /* initial time */
+  sunrealtype Tf = SUN_RCONST(2.0);     /* final time */
+  sunrealtype dTout = SUN_RCONST(0.1);  /* time between outputs */
   sunindextype NEQ = 3;          /* number of dependent vars. */
   int Nt = (int) ceil(Tf/dTout); /* number of output times */
-  realtype hs = RCONST(0.025);   /* slow step size */
-  realtype hf = RCONST(0.001);   /* fast step size */
-  realtype a, b, ep;             /* ODE parameters */
-  realtype u0, v0, w0;           /* initial conditions */
-  realtype rdata[3];             /* user data */
+  sunrealtype hs = SUN_RCONST(0.025);   /* slow step size */
+  sunrealtype hf = SUN_RCONST(0.001);   /* fast step size */
+  sunrealtype a, b, ep;             /* ODE parameters */
+  sunrealtype u0, v0, w0;           /* initial conditions */
+  sunrealtype rdata[3];             /* user data */
 
   /* general problem variables */
   int retval;                               /* reusable error-checking flag */
@@ -79,7 +79,7 @@ int main()
   void *inner_arkode_mem = NULL;            /* empty ARKode memory structure */
   MRIStepInnerStepper inner_stepper = NULL; /* inner stepper */
   FILE *UFID;
-  realtype t, tout;
+  sunrealtype t, tout;
   int iout;
   long int nsts, nstf, nfse, nfsi, nff, tmp;
 
@@ -93,14 +93,14 @@ int main()
   if (check_retval(&retval, "SUNContext_Create", 1)) return 1;
 
   /* Set up the test problem parameters */
-  a  = RCONST(1.0);
-  b  = RCONST(3.5);
-  ep = RCONST(1.0e-2);
+  a  = SUN_RCONST(1.0);
+  b  = SUN_RCONST(3.5);
+  ep = SUN_RCONST(1.0e-2);
 
   /* Set the initial contions */
-  u0 = RCONST(1.2);
-  v0 = RCONST(3.1);
-  w0 = RCONST(3.0);
+  u0 = SUN_RCONST(1.2);
+  v0 = SUN_RCONST(3.1);
+  w0 = SUN_RCONST(3.0);
 
   /* Initial problem output */
   printf("\nBrusselator ODE test problem:\n");
@@ -242,12 +242,12 @@ int main()
  * ------------------------------*/
 
 /* ff routine to compute the fast portion of the ODE RHS. */
-static int ff(realtype t, N_Vector y, N_Vector ydot, void *user_data)
+static int ff(sunrealtype t, N_Vector y, N_Vector ydot, void *user_data)
 {
-  realtype *rdata = (realtype *) user_data;   /* cast user_data to realtype */
-  realtype b  = rdata[1];                     /* access data entries */
-  realtype ep = rdata[2];
-  realtype w  = NV_Ith_S(y,2);                /* access solution values */
+  sunrealtype *rdata = (sunrealtype *) user_data;   /* cast user_data to sunrealtype */
+  sunrealtype b  = rdata[1];                     /* access data entries */
+  sunrealtype ep = rdata[2];
+  sunrealtype w  = NV_Ith_S(y,2);                /* access solution values */
 
   /* fill in the RHS function */
   NV_Ith_S(ydot,0) = 0.0;
@@ -259,13 +259,13 @@ static int ff(realtype t, N_Vector y, N_Vector ydot, void *user_data)
 }
 
 /* fs routine to compute the slow portion of the ODE RHS. */
-static int fs(realtype t, N_Vector y, N_Vector ydot, void *user_data)
+static int fs(sunrealtype t, N_Vector y, N_Vector ydot, void *user_data)
 {
-  realtype *rdata = (realtype *) user_data;   /* cast user_data to realtype */
-  realtype a = rdata[0];                      /* access data entries */
-  realtype u = NV_Ith_S(y,0);                 /* access solution values */
-  realtype v = NV_Ith_S(y,1);
-  realtype w = NV_Ith_S(y,2);
+  sunrealtype *rdata = (sunrealtype *) user_data;   /* cast user_data to sunrealtype */
+  sunrealtype a = rdata[0];                      /* access data entries */
+  sunrealtype u = NV_Ith_S(y,0);                 /* access solution values */
+  sunrealtype v = NV_Ith_S(y,1);
+  sunrealtype w = NV_Ith_S(y,2);
 
   /* fill in the RHS function */
   NV_Ith_S(ydot,0) = a - (w+1.0)*u + v*u*u;

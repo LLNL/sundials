@@ -19,13 +19,13 @@
 #include <sundials/sundials_types.h>
 
 /* define constants */
-#define NEG_TWO  RCONST(-2.0)
-#define NEG_ONE  RCONST(-1.0)
-#define NEG_HALF RCONST(-0.5)
-#define ZERO     RCONST(0.0)
-#define HALF     RCONST(0.5)
-#define ONE      RCONST(1.0)
-#define TWO      RCONST(2.0)
+#define NEG_TWO  SUN_RCONST(-2.0)
+#define NEG_ONE  SUN_RCONST(-1.0)
+#define NEG_HALF SUN_RCONST(-0.5)
+#define ZERO     SUN_RCONST(0.0)
+#define HALF     SUN_RCONST(0.5)
+#define ONE      SUN_RCONST(1.0)
+#define TWO      SUN_RCONST(2.0)
 
 #ifdef __cplusplus  /* wrapper to enable C++ usage */
 extern "C" {
@@ -34,12 +34,12 @@ extern "C" {
 extern SUNContext sunctx;
 
 /* Forward declarations for implementation specific utility functions */
-int check_ans(realtype ans, N_Vector X, sunindextype local_length);
-booleantype has_data(N_Vector X);
-void set_element(N_Vector X, sunindextype i, realtype val);
+int check_ans(sunrealtype ans, N_Vector X, sunindextype local_length);
+sunbooleantype has_data(N_Vector X);
+void set_element(N_Vector X, sunindextype i, sunrealtype val);
 void set_element_range(N_Vector X, sunindextype is, sunindextype ie,
-                       realtype val);
-realtype get_element(N_Vector X, sunindextype i);
+                       sunrealtype val);
+sunrealtype get_element(N_Vector X, sunindextype i);
 double max_time(N_Vector X, double time);
 void sync_device(N_Vector X);
 

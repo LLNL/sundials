@@ -30,8 +30,8 @@
 #define NEWTON_CONTENT(S) ( (SUNNonlinearSolverContent_Newton)(S->content) )
 
 /* Constant macros */
-#define ZERO RCONST(0.0) /* real 0.0 */
-#define ONE  RCONST(1.0) /* real 1.0 */
+#define ZERO SUN_RCONST(0.0) /* real 0.0 */
+#define ONE  SUN_RCONST(1.0) /* real 1.0 */
 
 /*==============================================================================
   Constructor to create a new Newton solver
@@ -186,12 +186,12 @@ int SUNNonlinSolInitialize_Newton(SUNNonlinearSolver NLS)
   ----------------------------------------------------------------------------*/
 int SUNNonlinSolSolve_Newton(SUNNonlinearSolver NLS,
                              N_Vector y0, N_Vector ycor,
-                             N_Vector w, realtype tol,
-                             booleantype callLSetup, void* mem)
+                             N_Vector w, sunrealtype tol,
+                             sunbooleantype callLSetup, void* mem)
 {
   /* local variables */
   int retval;
-  booleantype jbad;
+  sunbooleantype jbad;
   N_Vector delta;
 
   /* check that the inputs are non-null */
@@ -497,33 +497,5 @@ int SUNNonlinSolGetSysFn_Newton(SUNNonlinearSolver NLS, SUNNonlinSolSysFn *SysFn
 
   /* return the nonlinear system defining function */
   *SysFn = NEWTON_CONTENT(NLS)->Sys;
-  return(SUN_NLS_SUCCESS);
-}
-
-int SUNNonlinSolSetInfoFile_Newton(SUNNonlinearSolver NLS,
-                                   FILE* info_file)
-{
-  /* check that the nonlinear solver is non-null */
-  if (NLS == NULL)
-    return(SUN_NLS_MEM_NULL);
-
-  NEWTON_CONTENT(NLS)->info_file = info_file;
-
-  return(SUN_NLS_SUCCESS);
-}
-
-int SUNNonlinSolSetPrintLevel_Newton(SUNNonlinearSolver NLS,
-                                     int print_level)
-{
-  /* check that the nonlinear solver is non-null */
-  if (NLS == NULL)
-    return(SUN_NLS_MEM_NULL);
-
-  /* check for valid print level */
-  if (print_level < 0 || print_level > 1)
-    return(SUN_NLS_ILL_INPUT);
-
-  NEWTON_CONTENT(NLS)->print_level = print_level;
-
   return(SUN_NLS_SUCCESS);
 }

@@ -38,10 +38,8 @@ $tar $tarfile $distrobase/include/cvode/cvode.h
 $tar $tarfile $distrobase/include/cvode/cvode_bandpre.h
 $tar $tarfile $distrobase/include/cvode/cvode_bbdpre.h
 $tar $tarfile $distrobase/include/cvode/cvode_diag.h
-$tar $tarfile $distrobase/include/cvode/cvode_direct.h
 $tar $tarfile $distrobase/include/cvode/cvode_ls.h
 $tar $tarfile $distrobase/include/cvode/cvode_proj.h
-$tar $tarfile $distrobase/include/cvode/cvode_spils.h
 
 $tar $tarfile $distrobase/src/cvode/LICENSE
 $tar $tarfile $distrobase/src/cvode/NOTICE
@@ -57,7 +55,6 @@ $tar $tarfile $distrobase/src/cvode/cvode_bbdpre.c
 $tar $tarfile $distrobase/src/cvode/cvode_bbdpre_impl.h
 $tar $tarfile $distrobase/src/cvode/cvode_diag.c
 $tar $tarfile $distrobase/src/cvode/cvode_diag_impl.h
-$tar $tarfile $distrobase/src/cvode/cvode_direct.c
 $tar $tarfile $distrobase/src/cvode/cvode_impl.h
 $tar $tarfile $distrobase/src/cvode/cvode_io.c
 $tar $tarfile $distrobase/src/cvode/cvode_ls.c
@@ -65,7 +62,6 @@ $tar $tarfile $distrobase/src/cvode/cvode_ls_impl.h
 $tar $tarfile $distrobase/src/cvode/cvode_nls.c
 $tar $tarfile $distrobase/src/cvode/cvode_proj.c
 $tar $tarfile $distrobase/src/cvode/cvode_proj_impl.h
-$tar $tarfile $distrobase/src/cvode/cvode_spils.c
 
 echo "   --- Add cvode F2003 interface to $tarfile"
 

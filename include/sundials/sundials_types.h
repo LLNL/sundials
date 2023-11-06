@@ -84,13 +84,6 @@ typedef void* SUNMPIComm;
 
 #if defined(SUNDIALS_SINGLE_PRECISION)
 
-/* deprecated */
-typedef float realtype;
-#define RCONST(x)     x##F
-#define BIG_REAL      FLT_MAX
-#define SMALL_REAL    FLT_MIN
-#define UNIT_ROUNDOFF FLT_EPSILON
-
 typedef float sunrealtype;
 #define SUN_RCONST(x)     x##F
 #define SUN_BIG_REAL      FLT_MAX
@@ -99,13 +92,6 @@ typedef float sunrealtype;
 
 #elif defined(SUNDIALS_DOUBLE_PRECISION)
 
-/* deprecated */
-typedef double realtype;
-#define RCONST(x)         x
-#define BIG_REAL          DBL_MAX
-#define SMALL_REAL        DBL_MIN
-#define UNIT_ROUNDOFF     DBL_EPSILON
-
 typedef double sunrealtype;
 #define SUN_RCONST(x)     x
 #define SUN_BIG_REAL      DBL_MAX
@@ -113,13 +99,6 @@ typedef double sunrealtype;
 #define SUN_UNIT_ROUNDOFF DBL_EPSILON
 
 #elif defined(SUNDIALS_EXTENDED_PRECISION)
-
-/* deprecated */
-typedef long double realtype;
-#define RCONST(x)         x##L
-#define BIG_REAL          LDBL_MAX
-#define SMALL_REAL        LDBL_MIN
-#define UNIT_ROUNDOFF     LDBL_EPSILON
 
 typedef long double sunrealtype;
 #define SUN_RCONST(x)     x##L
@@ -158,11 +137,6 @@ typedef SUNDIALS_INDEX_TYPE sunindextype;
  * respectively.
  *------------------------------------------------------------------
  */
-
-/* deprecated */
-#ifndef booleantype
-#define booleantype int
-#endif
 
 #ifndef sunbooleantype
 #define sunbooleantype int

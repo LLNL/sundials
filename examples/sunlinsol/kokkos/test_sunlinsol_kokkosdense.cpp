@@ -175,7 +175,7 @@ int CompareTol(sunrealtype a, sunrealtype b, sunrealtype tol)
          std::max(10 * std::numeric_limits<sunrealtype>::epsilon(), tol * norm);
 }
 
-int check_vector(N_Vector expected, N_Vector computed, realtype tol)
+int check_vector(N_Vector expected, N_Vector computed, sunrealtype tol)
 {
   int failure = 0;
 

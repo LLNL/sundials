@@ -45,8 +45,8 @@ struct _SUNMemory
 {
   void* ptr;
   SUNMemoryType type;
-  booleantype own;
-  size_t bytes;
+  sunbooleantype   own;
+  size_t        bytes;
 };
 
 /* Creates a new SUNMemory object with a NULL ptr */
@@ -155,7 +155,7 @@ SUNErrCode SUNMemoryHelper_CopyOps(SUNMemoryHelper src, SUNMemoryHelper dst);
 
 /* Checks that all required SUNMemoryHelper ops are provided */
 SUNDIALS_EXPORT
-booleantype SUNMemoryHelper_ImplementsRequiredOps(SUNMemoryHelper);
+sunbooleantype SUNMemoryHelper_ImplementsRequiredOps(SUNMemoryHelper);
 
 #ifdef __cplusplus
 }

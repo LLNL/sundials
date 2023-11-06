@@ -23,8 +23,8 @@
 #include <sundials/sundials_band.h>
 #include <sundials/sundials_math.h>
 
-#define ZERO RCONST(0.0)
-#define ONE  RCONST(1.0)
+#define ZERO SUN_RCONST(0.0)
+#define ONE  SUN_RCONST(1.0)
 
 #define ROW(i,j,smu) (i-j+smu)
 
@@ -44,12 +44,12 @@ sunindextype BandGBTRF(SUNDlsMat A, sunindextype *p)
   return(SUNDlsMat_bandGBTRF(A->cols, A->M, A->mu, A->ml, A->s_mu, p));
 }
 
-void SUNDlsMat_BandGBTRS(SUNDlsMat A, sunindextype *p, realtype *b)
+void SUNDlsMat_BandGBTRS(SUNDlsMat A, sunindextype *p, sunrealtype *b)
 {
   SUNDlsMat_bandGBTRS(A->cols, A->M, A->s_mu, A->ml, p, b);
 }
 
-void BandGBTRS(SUNDlsMat A, sunindextype *p, realtype *b)
+void BandGBTRS(SUNDlsMat A, sunindextype *p, sunrealtype *b)
 {
   SUNDlsMat_bandGBTRS(A->cols, A->M, A->s_mu, A->ml, p, b);
 }
@@ -64,44 +64,44 @@ void BandCopy(SUNDlsMat A, SUNDlsMat B, sunindextype copymu, sunindextype copyml
   SUNDlsMat_bandCopy(A->cols, B->cols, A->M, A->s_mu, B->s_mu, copymu, copyml);
 }
 
-void SUNDlsMat_BandScale(realtype c, SUNDlsMat A)
+void SUNDlsMat_BandScale(sunrealtype c, SUNDlsMat A)
 {
   SUNDlsMat_bandScale(c, A->cols, A->M, A->mu, A->ml, A->s_mu);
 }
 
-void BandScale(realtype c, SUNDlsMat A)
+void BandScale(sunrealtype c, SUNDlsMat A)
 {
   SUNDlsMat_bandScale(c, A->cols, A->M, A->mu, A->ml, A->s_mu);
 }
 
-void SUNDlsMat_BandMatvec(SUNDlsMat A, realtype *x, realtype *y)
+void SUNDlsMat_BandMatvec(SUNDlsMat A, sunrealtype *x, sunrealtype *y)
 {
   SUNDlsMat_bandMatvec(A->cols, x, y, A->M, A->mu, A->ml, A->s_mu);
 }
 
-void BandMatvec(SUNDlsMat A, realtype *x, realtype *y)
+void BandMatvec(SUNDlsMat A, sunrealtype *x, sunrealtype *y)
 {
   SUNDlsMat_bandMatvec(A->cols, x, y, A->M, A->mu, A->ml, A->s_mu);
 }
 
 /*
  * -----------------------------------------------------
- * Functions working on realtype**
+ * Functions working on sunrealtype**
  * -----------------------------------------------------
  */
 
-sunindextype bandGBTRF(realtype **a, sunindextype n, sunindextype mu, sunindextype ml, sunindextype smu, sunindextype *p)
+sunindextype bandGBTRF(sunrealtype **a, sunindextype n, sunindextype mu, sunindextype ml, sunindextype smu, sunindextype *p)
 {
   return(SUNDlsMat_bandGBTRF(a, n, mu, ml, smu, p));
 }
 
-sunindextype SUNDlsMat_bandGBTRF(realtype **a, sunindextype n, sunindextype mu, sunindextype ml, sunindextype smu, sunindextype *p)
+sunindextype SUNDlsMat_bandGBTRF(sunrealtype **a, sunindextype n, sunindextype mu, sunindextype ml, sunindextype smu, sunindextype *p)
 {
   sunindextype c, r, num_rows;
   sunindextype i, j, k, l, storage_l, storage_k, last_col_k, last_row_k;
-  realtype *a_c, *col_k, *diag_k, *sub_diag_k, *col_j, *kptr, *jptr;
-  realtype max, temp, mult, a_kj;
-  booleantype swap;
+  sunrealtype *a_c, *col_k, *diag_k, *sub_diag_k, *col_j, *kptr, *jptr;
+  sunrealtype max, temp, mult, a_kj;
+  sunbooleantype swap;
 
   /* zero out the first smu - mu rows of the rectangular array a */
 
@@ -201,16 +201,16 @@ sunindextype SUNDlsMat_bandGBTRF(realtype **a, sunindextype n, sunindextype mu, 
   return(0);
 }
 
-void bandGBTRS(realtype **a, sunindextype n, sunindextype smu,
-               sunindextype ml, sunindextype *p, realtype *b)
+void bandGBTRS(sunrealtype **a, sunindextype n, sunindextype smu,
+               sunindextype ml, sunindextype *p, sunrealtype *b)
 {
   SUNDlsMat_bandGBTRS(a, n, smu, ml, p, b);
 }
 
-void SUNDlsMat_bandGBTRS(realtype **a, sunindextype n, sunindextype smu, sunindextype ml, sunindextype *p, realtype *b)
+void SUNDlsMat_bandGBTRS(sunrealtype **a, sunindextype n, sunindextype smu, sunindextype ml, sunindextype *p, sunrealtype *b)
 {
   sunindextype k, l, i, first_row_k, last_row_k;
-  realtype mult, *diag_k;
+  sunrealtype mult, *diag_k;
 
   /* Solve Ly = Pb, store solution y in b */
 
@@ -239,17 +239,17 @@ void SUNDlsMat_bandGBTRS(realtype **a, sunindextype n, sunindextype smu, suninde
   }
 }
 
-void bandCopy(realtype **a, realtype **b, sunindextype n, sunindextype a_smu, sunindextype b_smu,
+void bandCopy(sunrealtype **a, sunrealtype **b, sunindextype n, sunindextype a_smu, sunindextype b_smu,
               sunindextype copymu, sunindextype copyml)
 {
   SUNDlsMat_bandCopy(a, b, n, a_smu, b_smu, copymu, copyml);
 }
 
-void SUNDlsMat_bandCopy(realtype **a, realtype **b, sunindextype n, sunindextype a_smu, sunindextype b_smu,
+void SUNDlsMat_bandCopy(sunrealtype **a, sunrealtype **b, sunindextype n, sunindextype a_smu, sunindextype b_smu,
                         sunindextype copymu, sunindextype copyml)
 {
   sunindextype i, j, copySize;
-  realtype *a_col_j, *b_col_j;
+  sunrealtype *a_col_j, *b_col_j;
 
   copySize = copymu + copyml + 1;
 
@@ -261,15 +261,15 @@ void SUNDlsMat_bandCopy(realtype **a, realtype **b, sunindextype n, sunindextype
   }
 }
 
-void bandScale(realtype c, realtype **a, sunindextype n, sunindextype mu, sunindextype ml, sunindextype smu)
+void bandScale(sunrealtype c, sunrealtype **a, sunindextype n, sunindextype mu, sunindextype ml, sunindextype smu)
 {
   SUNDlsMat_bandScale(c, a, n, mu, ml, smu);
 }
 
-void SUNDlsMat_bandScale(realtype c, realtype **a, sunindextype n, sunindextype mu, sunindextype ml, sunindextype smu)
+void SUNDlsMat_bandScale(sunrealtype c, sunrealtype **a, sunindextype n, sunindextype mu, sunindextype ml, sunindextype smu)
 {
   sunindextype i, j, colSize;
-  realtype *col_j;
+  sunrealtype *col_j;
 
   colSize = mu + ml + 1;
 
@@ -280,12 +280,12 @@ void SUNDlsMat_bandScale(realtype c, realtype **a, sunindextype n, sunindextype 
   }
 }
 
-void bandAddIdentity(realtype **a, sunindextype n, sunindextype smu)
+void bandAddIdentity(sunrealtype **a, sunindextype n, sunindextype smu)
 {
   SUNDlsMat_bandAddIdentity(a, n, smu);
 }
 
-void SUNDlsMat_bandAddIdentity(realtype **a, sunindextype n, sunindextype smu)
+void SUNDlsMat_bandAddIdentity(sunrealtype **a, sunindextype n, sunindextype smu)
 {
   sunindextype j;
 
@@ -293,17 +293,17 @@ void SUNDlsMat_bandAddIdentity(realtype **a, sunindextype n, sunindextype smu)
     a[j][smu] += ONE;
 }
 
-void bandMatvec(realtype **a, realtype *x, realtype *y, sunindextype n,
+void bandMatvec(sunrealtype **a, sunrealtype *x, sunrealtype *y, sunindextype n,
                 sunindextype mu, sunindextype ml, sunindextype smu)
 {
   SUNDlsMat_bandMatvec(a, x, y, n, mu, ml,  smu);
 }
 
-void SUNDlsMat_bandMatvec(realtype **a, realtype *x, realtype *y, sunindextype n,
+void SUNDlsMat_bandMatvec(sunrealtype **a, sunrealtype *x, sunrealtype *y, sunindextype n,
                           sunindextype mu, sunindextype ml, sunindextype smu)
 {
   sunindextype i, j, is, ie;
-  realtype *col_j;
+  sunrealtype *col_j;
 
   for (i=0; i<n; i++)
     y[i] = 0.0;

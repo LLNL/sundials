@@ -35,11 +35,9 @@ $tar $tarfile $distrobase/doc/ida/guide/Makefile
 $tar $tarfile $distrobase/doc/ida/guide/source
 
 $tar $tarfile $distrobase/include/ida/ida_bbdpre.h
-$tar $tarfile $distrobase/include/ida/ida_direct.h
 $tar $tarfile $distrobase/include/ida/ida.h
 # $tar $tarfile $distrobase/include/ida/ida_petsc.h
 $tar $tarfile $distrobase/include/ida/ida_ls.h
-$tar $tarfile $distrobase/include/ida/ida_spils.h
 
 $tar $tarfile $distrobase/src/ida/LICENSE
 $tar $tarfile $distrobase/src/ida/NOTICE
@@ -49,7 +47,6 @@ $tar $tarfile $distrobase/src/ida/CMakeLists.txt
 $tar $tarfile $distrobase/src/ida/ida_bbdpre.c
 $tar $tarfile $distrobase/src/ida/ida_bbdpre_impl.h
 $tar $tarfile $distrobase/src/ida/ida.c
-$tar $tarfile $distrobase/src/ida/ida_direct.c
 $tar $tarfile $distrobase/src/ida/ida_ic.c
 $tar $tarfile $distrobase/src/ida/ida_impl.h
 $tar $tarfile $distrobase/src/ida/ida_io.c
@@ -58,7 +55,6 @@ $tar $tarfile $distrobase/src/ida/ida_io.c
 $tar $tarfile $distrobase/src/ida/ida_ls.c
 $tar $tarfile $distrobase/src/ida/ida_ls_impl.h
 $tar $tarfile $distrobase/src/ida/ida_nls.c
-$tar $tarfile $distrobase/src/ida/ida_spils.c
 
 echo "   --- Add ida F2003 interface to $tarfile"
 

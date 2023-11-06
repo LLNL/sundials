@@ -256,7 +256,7 @@ SWIGEXPORT int _wrap_FSUNNonlinSolSolve(SUNNonlinearSolver farg1, N_Vector farg2
   N_Vector arg2 = (N_Vector) 0 ;
   N_Vector arg3 = (N_Vector) 0 ;
   N_Vector arg4 = (N_Vector) 0 ;
-  realtype arg5 ;
+  sunrealtype arg5 ;
   int arg6 ;
   void *arg7 = (void *) 0 ;
   int result;
@@ -265,7 +265,7 @@ SWIGEXPORT int _wrap_FSUNNonlinSolSolve(SUNNonlinearSolver farg1, N_Vector farg2
   arg2 = (N_Vector)(farg2);
   arg3 = (N_Vector)(farg3);
   arg4 = (N_Vector)(farg4);
-  arg5 = (realtype)(*farg5);
+  arg5 = (sunrealtype)(*farg5);
   arg6 = (int)(*farg6);
   arg7 = (void *)(farg7);
   result = (int)SUNNonlinSolSolve(arg1,arg2,arg3,arg4,arg5,arg6,arg7);

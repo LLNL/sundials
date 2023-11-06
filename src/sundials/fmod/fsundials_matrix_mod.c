@@ -284,12 +284,12 @@ SWIGEXPORT int _wrap_FSUNMatCopy(SUNMatrix farg1, SUNMatrix farg2) {
 
 SWIGEXPORT int _wrap_FSUNMatScaleAdd(double const *farg1, SUNMatrix farg2, SUNMatrix farg3) {
   int fresult ;
-  realtype arg1 ;
+  sunrealtype arg1 ;
   SUNMatrix arg2 = (SUNMatrix) 0 ;
   SUNMatrix arg3 = (SUNMatrix) 0 ;
   SUNErrCode result;
   
-  arg1 = (realtype)(*farg1);
+  arg1 = (sunrealtype)(*farg1);
   arg2 = (SUNMatrix)(farg2);
   arg3 = (SUNMatrix)(farg3);
   result = (SUNErrCode)SUNMatScaleAdd(arg1,arg2,arg3);
@@ -300,11 +300,11 @@ SWIGEXPORT int _wrap_FSUNMatScaleAdd(double const *farg1, SUNMatrix farg2, SUNMa
 
 SWIGEXPORT int _wrap_FSUNMatScaleAddI(double const *farg1, SUNMatrix farg2) {
   int fresult ;
-  realtype arg1 ;
+  sunrealtype arg1 ;
   SUNMatrix arg2 = (SUNMatrix) 0 ;
   SUNErrCode result;
   
-  arg1 = (realtype)(*farg1);
+  arg1 = (sunrealtype)(*farg1);
   arg2 = (SUNMatrix)(farg2);
   result = (SUNErrCode)SUNMatScaleAddI(arg1,arg2);
   fresult = (SUNErrCode)(result);

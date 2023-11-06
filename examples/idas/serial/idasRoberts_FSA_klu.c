@@ -54,7 +54,7 @@
 #include <nvector/nvector_serial.h>        /* access to serial N_Vector            */
 #include <sunmatrix/sunmatrix_sparse.h>    /* access to sparse SUNMatrix           */
 #include <sunlinsol/sunlinsol_klu.h>       /* access to KLU linear solver          */
-#include <sundials/sundials_types.h>       /* defs. of realtype, sunindextype      */
+#include <sundials/sundials_types.h>       /* defs. of sunrealtype, sunindextype      */
 #include <sundials/sundials_math.h>        /* defs. of SUNRabs, SUNRexp, etc.      */
 
 /* Accessor macros */
@@ -64,56 +64,56 @@
 /* Problem Constants */
 
 #define NEQ   3             /* number of equations  */
-#define T0    RCONST(0.0)   /* initial time */
-#define T1    RCONST(0.4)   /* first output time */
-#define TMULT RCONST(10.0)  /* output time factor */
+#define T0    SUN_RCONST(0.0)   /* initial time */
+#define T1    SUN_RCONST(0.4)   /* first output time */
+#define TMULT SUN_RCONST(10.0)  /* output time factor */
 #define NOUT  12            /* number of output times */
 
 #define NP    3             /* number of problem parameters */
 #define NS    3             /* number of sensitivities computed */
 
-#define ZERO  RCONST(0.0)
-#define ONE   RCONST(1.0)
+#define ZERO  SUN_RCONST(0.0)
+#define ONE   SUN_RCONST(1.0)
 
 /* Type : UserData */
 
 typedef struct {
-  realtype p[3];           /* problem parameters */
-  realtype coef;
+  sunrealtype p[3];           /* problem parameters */
+  sunrealtype coef;
 } *UserData;
 
 /* Prototypes of functions by IDAS */
 
-static int res(realtype t, N_Vector y, N_Vector yp, N_Vector resval, void *user_data);
+static int res(sunrealtype t, N_Vector y, N_Vector yp, N_Vector resval, void *user_data);
 
-static int Jac(realtype t, realtype cj,
+static int Jac(sunrealtype t, sunrealtype cj,
                N_Vector yy, N_Vector yp, N_Vector resvec,
                SUNMatrix JJ, void *user_data,
                N_Vector tmp1, N_Vector tmp2, N_Vector tmp3);
 
-static int resS(int Ns, realtype t,
+static int resS(int Ns, sunrealtype t,
                 N_Vector y, N_Vector yp, N_Vector resval,
                 N_Vector *yyS, N_Vector *ypS, N_Vector *resvalS,
                 void *user_data,
                 N_Vector tmp1, N_Vector tmp2, N_Vector tmp3);
 
-static int rhsQ(realtype tres, N_Vector yy, N_Vector yp,
+static int rhsQ(sunrealtype tres, N_Vector yy, N_Vector yp,
                  N_Vector rrQ, void *user_data);
 
 /* Prototypes of private functions */
 
 static void ProcessArgs(int argc, char *argv[],
-                        booleantype *sensi, int *sensi_meth,
-                        booleantype *err_con);
+                        sunbooleantype *sensi, int *sensi_meth,
+                        sunbooleantype *err_con);
 static void WrongArgs(char *name);
 
 static void PrintIC(N_Vector y, N_Vector yp);
 static void PrintSensIC(N_Vector y, N_Vector yp, N_Vector* yS, N_Vector* ypS);
 
-static void PrintOutput(void *ida_mem, realtype t, N_Vector u);
+static void PrintOutput(void *ida_mem, sunrealtype t, N_Vector u);
 static void PrintSensOutput(N_Vector *uS);
 
-static void PrintFinalStats(void *ida_mem, booleantype sensi);
+static void PrintFinalStats(void *ida_mem, sunbooleantype sensi);
 
 static int check_retval(void *returnvalue, char *funcname, int opt);
 /*
@@ -129,14 +129,14 @@ int main(int argc, char *argv[])
   SUNMatrix A;
   SUNLinearSolver LS;
   UserData data;
-  realtype reltol, t, tout;
+  sunrealtype reltol, t, tout;
   N_Vector y, yp, abstol, id;
   int iout, retval, nnz;
 
-  realtype pbar[NS];
+  sunrealtype pbar[NS];
   int is;
   N_Vector *yS, *ypS;
-  booleantype sensi, err_con;
+  sunbooleantype sensi, err_con;
   int sensi_meth;
 
   N_Vector yQ, *yQS;
@@ -159,10 +159,10 @@ int main(int argc, char *argv[])
   /* User data structure */
   data = (UserData) malloc(sizeof *data);
   if (check_retval((void *)data, "malloc", 2)) return(1);
-  data->p[0] = RCONST(0.040);
-  data->p[1] = RCONST(1.0e4);
-  data->p[2] = RCONST(3.0e7);
-  data->coef = RCONST(0.5);
+  data->p[0] = SUN_RCONST(0.040);
+  data->p[1] = SUN_RCONST(1.0e4);
+  data->p[2] = SUN_RCONST(3.0e7);
+  data->coef = SUN_RCONST(0.5);
 
   /* Initial conditions */
   y = N_VNew_Serial(NEQ, ctx);
@@ -176,7 +176,7 @@ int main(int argc, char *argv[])
   if(check_retval((void *)yp, "N_VNew_Serial", 0)) return(1);
 
   /* These initial conditions are NOT consistent. See IDACalcIC below. */
-  Ith(yp,1) = RCONST(0.1);
+  Ith(yp,1) = SUN_RCONST(0.1);
   Ith(yp,2) = ZERO;
   Ith(yp,3) = ZERO;
 
@@ -189,11 +189,11 @@ int main(int argc, char *argv[])
   if (check_retval(&retval, "IDAInit", 1)) return(1);
 
   /* Specify scalar relative tol. and vector absolute tol. */
-  reltol = RCONST(1.0e-6);
+  reltol = SUN_RCONST(1.0e-6);
   abstol = N_VClone(y);
-  Ith(abstol,1) = RCONST(1.0e-8);
-  Ith(abstol,2) = RCONST(1.0e-14);
-  Ith(abstol,3) = RCONST(1.0e-6);
+  Ith(abstol,1) = SUN_RCONST(1.0e-8);
+  Ith(abstol,2) = SUN_RCONST(1.0e-14);
+  Ith(abstol,3) = SUN_RCONST(1.0e-6);
   retval = IDASVtolerances(ida_mem, reltol, abstol);
   if (check_retval(&retval, "IDASVtolerances", 1)) return(1);
 
@@ -390,12 +390,12 @@ int main(int argc, char *argv[])
 /*
  * Residual routine. Compute F(t,y,y',p).
  */
-static int res(realtype t, N_Vector yy, N_Vector yp, N_Vector resval, void *user_data)
+static int res(sunrealtype t, N_Vector yy, N_Vector yp, N_Vector resval, void *user_data)
 {
   UserData data;
-  realtype p1, p2, p3;
-  realtype y1, y2, y3;
-  realtype yp1, yp2;
+  sunrealtype p1, p2, p3;
+  sunrealtype y1, y2, y3;
+  sunrealtype yp1, yp2;
 
   data = (UserData) user_data;
   p1 = data->p[0];
@@ -421,18 +421,18 @@ static int res(realtype t, N_Vector yy, N_Vector yp, N_Vector resval, void *user
  * Jacobian routine. Compute J(t,y).
 */
 
-static int Jac(realtype t, realtype cj,
+static int Jac(sunrealtype t, sunrealtype cj,
                N_Vector yy, N_Vector yp, N_Vector resvec,
                SUNMatrix JJ, void *user_data,
                N_Vector tmp1, N_Vector tmp2, N_Vector tmp3)
 {
-  realtype *yval;
+  sunrealtype *yval;
   sunindextype *colptrs = SUNSparseMatrix_IndexPointers(JJ);
   sunindextype *rowvals = SUNSparseMatrix_IndexValues(JJ);
-  realtype *data = SUNSparseMatrix_Data(JJ);
+  sunrealtype *data = SUNSparseMatrix_Data(JJ);
 
   UserData userdata;
-  realtype p1, p2, p3;
+  sunrealtype p1, p2, p3;
 
   yval = N_VGetArrayPointer(yy);
 
@@ -474,18 +474,18 @@ static int Jac(realtype t, realtype cj,
  * resS routine. Compute sensitivity r.h.s.
  */
 
-static int resS(int Ns, realtype t,
+static int resS(int Ns, sunrealtype t,
                 N_Vector yy, N_Vector yp, N_Vector resval,
                 N_Vector *yyS, N_Vector *ypS, N_Vector *resvalS,
                 void *user_data,
                 N_Vector tmp1, N_Vector tmp2, N_Vector tmp3)
 {
   UserData data;
-  realtype p1, p2, p3;
-  realtype y1, y2, y3;
-  realtype s1, s2, s3;
-  realtype sd1, sd2;
-  realtype rs1, rs2, rs3;
+  sunrealtype p1, p2, p3;
+  sunrealtype y1, y2, y3;
+  sunrealtype s1, s2, s3;
+  sunrealtype sd1, sd2;
+  sunrealtype rs1, rs2, rs3;
   int is;
 
   data = (UserData) user_data;
@@ -533,7 +533,7 @@ static int resS(int Ns, realtype t,
   return(0);
 }
 
-static int rhsQ(realtype t, N_Vector y, N_Vector yp,
+static int rhsQ(sunrealtype t, N_Vector y, N_Vector yp,
               N_Vector ypQ, void* user_data)
 {
   UserData data;
@@ -561,7 +561,7 @@ static int rhsQ(realtype t, N_Vector y, N_Vector yp,
  */
 
 static void ProcessArgs(int argc, char *argv[],
-                        booleantype *sensi, int *sensi_meth, booleantype *err_con)
+                        sunbooleantype *sensi, int *sensi_meth, sunbooleantype *err_con)
 {
   *sensi = SUNFALSE;
   *sensi_meth = -1;
@@ -610,7 +610,7 @@ static void WrongArgs(char *name)
 
 static void PrintIC(N_Vector y, N_Vector yp)
 {
-  realtype* data;
+  sunrealtype* data;
 
   data = N_VGetArrayPointer(y);
   printf("\n\nConsistent IC:\n");
@@ -636,7 +636,7 @@ static void PrintIC(N_Vector y, N_Vector yp)
 }
 static void PrintSensIC(N_Vector y, N_Vector yp, N_Vector* yS, N_Vector* ypS)
 {
-  realtype *sdata;
+  sunrealtype *sdata;
 
   sdata = N_VGetArrayPointer(yS[0]);
   printf("                  Sensitivity 1  ");
@@ -708,11 +708,11 @@ static void PrintSensIC(N_Vector y, N_Vector yp, N_Vector* yS, N_Vector* ypS)
  * Print current t, step count, order, stepsize, and solution.
  */
 
-static void PrintOutput(void *ida_mem, realtype t, N_Vector u)
+static void PrintOutput(void *ida_mem, sunrealtype t, N_Vector u)
 {
   long int nst;
   int qu, retval;
-  realtype hu, *udata;
+  sunrealtype hu, *udata;
 
   udata = N_VGetArrayPointer(u);
 
@@ -749,7 +749,7 @@ static void PrintOutput(void *ida_mem, realtype t, N_Vector u)
 
 static void PrintSensOutput(N_Vector *uS)
 {
-  realtype *sdata;
+  sunrealtype *sdata;
 
   sdata = N_VGetArrayPointer(uS[0]);
   printf("                  Sensitivity 1  ");
@@ -789,7 +789,7 @@ static void PrintSensOutput(N_Vector *uS)
  * Print some final statistics from the IDAS memory.
  */
 
-static void PrintFinalStats(void *ida_mem, booleantype sensi)
+static void PrintFinalStats(void *ida_mem, sunbooleantype sensi)
 {
   long int nst;
   long int nfe, nsetups, nni, nnf, ncfn, netf;

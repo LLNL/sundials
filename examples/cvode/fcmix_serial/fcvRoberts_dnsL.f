@@ -36,7 +36,7 @@ C     because y2 has much smaller values. At the end of the run,
 C     various counters of interest are printed.
 C
 C     Note that this problem should only work with SUNDIALS configured
-C     to use 'realtype' as 'double' and 'sunindextype' as '32bit'
+C     to use 'sunrealtype' as 'double' and 'sunindextype' as '32bit'
 C     --------------------------------------------------------------------
 C
       IMPLICIT NONE

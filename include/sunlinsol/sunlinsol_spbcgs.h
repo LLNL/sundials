@@ -47,9 +47,9 @@ extern "C" {
 struct _SUNLinearSolverContent_SPBCGS {
   int maxl;
   int pretype;
-  booleantype zeroguess;
+  sunbooleantype zeroguess;
   int numiters;
-  realtype resnorm;
+  sunrealtype resnorm;
   int last_flag;
 
   SUNATimesFn ATimes;
@@ -100,24 +100,18 @@ SUNDIALS_EXPORT int SUNLinSolSetScalingVectors_SPBCGS(SUNLinearSolver S,
                                                       N_Vector s1,
                                                       N_Vector s2);
 SUNDIALS_EXPORT int SUNLinSolSetZeroGuess_SPBCGS(SUNLinearSolver S,
-                                                 booleantype onoff);
+                                                 sunbooleantype onoff);
 SUNDIALS_EXPORT int SUNLinSolSetup_SPBCGS(SUNLinearSolver S, SUNMatrix A);
 SUNDIALS_EXPORT int SUNLinSolSolve_SPBCGS(SUNLinearSolver S, SUNMatrix A,
-                                          N_Vector x, N_Vector b, realtype tol);
+                                          N_Vector x, N_Vector b, sunrealtype tol);
 SUNDIALS_EXPORT int SUNLinSolNumIters_SPBCGS(SUNLinearSolver S);
-SUNDIALS_EXPORT realtype SUNLinSolResNorm_SPBCGS(SUNLinearSolver S);
+SUNDIALS_EXPORT sunrealtype SUNLinSolResNorm_SPBCGS(SUNLinearSolver S);
 SUNDIALS_EXPORT N_Vector SUNLinSolResid_SPBCGS(SUNLinearSolver S);
 SUNDIALS_EXPORT sunindextype SUNLinSolLastFlag_SPBCGS(SUNLinearSolver S);
 SUNDIALS_EXPORT int SUNLinSolSpace_SPBCGS(SUNLinearSolver S,
                                           long int *lenrwLS,
                                           long int *leniwLS);
 SUNDIALS_EXPORT int SUNLinSolFree_SPBCGS(SUNLinearSolver S);
-SUNDIALS_DEPRECATED_EXPORT_MSG("Use SUNLogger_SetInfoFilename instead")
-int SUNLinSolSetInfoFile_SPBCGS(SUNLinearSolver LS,
-                                FILE* info_file);
-SUNDIALS_DEPRECATED_EXPORT_MSG("Use SUNLogger interface instead")
-int SUNLinSolSetPrintLevel_SPBCGS(SUNLinearSolver LS, int print_level);
-
 
 
 

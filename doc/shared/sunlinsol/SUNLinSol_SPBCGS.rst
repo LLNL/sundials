@@ -212,9 +212,9 @@ The SUNLinSol_SPBCGS module defines the *content* field of a
    struct _SUNLinearSolverContent_SPBCGS {
      int maxl;
      int pretype;
-     booleantype zeroguess;
+     sunbooleantype zeroguess;
      int numiters;
-     realtype resnorm;
+     sunrealtype resnorm;
      int last_flag;
      SUNATimesFn ATimes;
      void* ATData;

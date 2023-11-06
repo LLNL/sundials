@@ -23,57 +23,57 @@
 
 
 /* tolerance for checking order conditions */
-#define TOL  (SUNRsqrt(UNIT_ROUNDOFF))
+#define TOL  (SUNRsqrt(SUN_UNIT_ROUNDOFF))
 
 /* Private utility functions for checking method order */
-static int __mv(realtype **A, realtype *x, int s, realtype *b);
-static int __vv(realtype *x, realtype *y, int s, realtype *z);
-static int __vp(realtype *x, int l, int s, realtype *z);
-static int __dot(realtype *x, realtype *y, int s, realtype *d);
-static booleantype __rowsum(realtype **A, realtype *c, int s);
-static booleantype __order1(realtype *b, int s);
-static booleantype __order2(realtype *b, realtype *c, int s);
-static booleantype __order3a(realtype *b, realtype *c1, realtype *c2, int s);
-static booleantype __order3b(realtype *b, realtype **A, realtype *c, int s);
-static booleantype __order4a(realtype *b, realtype *c1, realtype *c2, realtype *c3, int s);
-static booleantype __order4b(realtype *b, realtype *c1, realtype **A, realtype *c2, int s);
-static booleantype __order4c(realtype *b, realtype **A, realtype *c1, realtype *c2, int s);
-static booleantype __order4d(realtype *b, realtype **A1, realtype **A2, realtype *c, int s);
-static booleantype __order5a(realtype *b, realtype *c1, realtype *c2, realtype *c3, realtype *c4, int s);
-static booleantype __order5b(realtype *b, realtype *c1, realtype *c2, realtype **A, realtype *c3, int s);
-static booleantype __order5c(realtype *b, realtype **A1, realtype *c1, realtype **A2, realtype *c2, int s);
-static booleantype __order5d(realtype *b, realtype *c1, realtype **A, realtype *c2, realtype *c3, int s);
-static booleantype __order5e(realtype *b, realtype **A, realtype *c1, realtype *c2, realtype *c3, int s);
-static booleantype __order5f(realtype *b, realtype *c1, realtype **A1, realtype **A2, realtype *c2, int s);
-static booleantype __order5g(realtype *b, realtype **A1, realtype *c1, realtype **A2, realtype *c2, int s);
-static booleantype __order5h(realtype *b, realtype **A1, realtype **A2, realtype *c1, realtype *c2, int s);
-static booleantype __order5i(realtype *b, realtype **A1, realtype **A2, realtype **A3, realtype *c, int s);
-static booleantype __order6a(realtype *b, realtype *c1, realtype *c2, realtype *c3, realtype *c4, realtype *c5, int s);
-static booleantype __order6b(realtype *b, realtype *c1, realtype *c2, realtype *c3, realtype **A, realtype *c4, int s);
-static booleantype __order6c(realtype *b, realtype *c1, realtype **A1, realtype *c2, realtype **A2, realtype *c3, int s);
-static booleantype __order6d(realtype *b, realtype *c1, realtype *c2, realtype **A, realtype *c3, realtype *c4, int s);
-static booleantype __order6e(realtype *b, realtype *c1, realtype *c2, realtype **A1, realtype **A2, realtype *c3, int s);
-static booleantype __order6f(realtype *b, realtype **A1, realtype **A2, realtype *c1, realtype **A3, realtype *c2, int s);
-static booleantype __order6g(realtype *b, realtype *c1, realtype **A, realtype *c2, realtype *c3, realtype *c4, int s);
-static booleantype __order6h(realtype *b, realtype *c1, realtype **A1, realtype *c2, realtype **A2, realtype *c3, int s);
-static booleantype __order6i(realtype *b, realtype *c1, realtype **A1, realtype **A2, realtype *c2, realtype *c3, int s);
-static booleantype __order6j(realtype *b, realtype *c1, realtype **A1, realtype **A2, realtype **A3, realtype *c2, int s);
-static booleantype __order6k(realtype *b, realtype **A, realtype *c1, realtype *c2, realtype *c3, realtype *c4, int s);
-static booleantype __order6l(realtype *b, realtype **A1, realtype *c1, realtype *c2, realtype **A2, realtype *c3, int s);
-static booleantype __order6m(realtype *b, realtype **A1, realtype **A2, realtype *c1, realtype **A3, realtype *c2, int s);
-static booleantype __order6n(realtype *b, realtype **A1, realtype *c1, realtype **A2, realtype *c2, realtype *c3, int s);
-static booleantype __order6o(realtype *b, realtype **A1, realtype *c1, realtype **A2, realtype **A3, realtype *c2, int s);
-static booleantype __order6p(realtype *b, realtype **A1, realtype **A2, realtype *c1, realtype *c2, realtype *c3, int s);
-static booleantype __order6q(realtype *b, realtype **A1, realtype **A2, realtype *c1, realtype **A3, realtype *c2, int s);
-static booleantype __order6r(realtype *b, realtype **A1, realtype **A2, realtype **A3, realtype *c1, realtype *c2, int s);
-static booleantype __order6s(realtype *b, realtype **A1, realtype **A2, realtype **A3, realtype **A4, realtype *c, int s);
-static int __ButcherSimplifyingAssumptions(realtype **A, realtype *b, realtype *c, int s);
+static int __mv(sunrealtype **A, sunrealtype *x, int s, sunrealtype *b);
+static int __vv(sunrealtype *x, sunrealtype *y, int s, sunrealtype *z);
+static int __vp(sunrealtype *x, int l, int s, sunrealtype *z);
+static int __dot(sunrealtype *x, sunrealtype *y, int s, sunrealtype *d);
+static sunbooleantype __rowsum(sunrealtype **A, sunrealtype *c, int s);
+static sunbooleantype __order1(sunrealtype *b, int s);
+static sunbooleantype __order2(sunrealtype *b, sunrealtype *c, int s);
+static sunbooleantype __order3a(sunrealtype *b, sunrealtype *c1, sunrealtype *c2, int s);
+static sunbooleantype __order3b(sunrealtype *b, sunrealtype **A, sunrealtype *c, int s);
+static sunbooleantype __order4a(sunrealtype *b, sunrealtype *c1, sunrealtype *c2, sunrealtype *c3, int s);
+static sunbooleantype __order4b(sunrealtype *b, sunrealtype *c1, sunrealtype **A, sunrealtype *c2, int s);
+static sunbooleantype __order4c(sunrealtype *b, sunrealtype **A, sunrealtype *c1, sunrealtype *c2, int s);
+static sunbooleantype __order4d(sunrealtype *b, sunrealtype **A1, sunrealtype **A2, sunrealtype *c, int s);
+static sunbooleantype __order5a(sunrealtype *b, sunrealtype *c1, sunrealtype *c2, sunrealtype *c3, sunrealtype *c4, int s);
+static sunbooleantype __order5b(sunrealtype *b, sunrealtype *c1, sunrealtype *c2, sunrealtype **A, sunrealtype *c3, int s);
+static sunbooleantype __order5c(sunrealtype *b, sunrealtype **A1, sunrealtype *c1, sunrealtype **A2, sunrealtype *c2, int s);
+static sunbooleantype __order5d(sunrealtype *b, sunrealtype *c1, sunrealtype **A, sunrealtype *c2, sunrealtype *c3, int s);
+static sunbooleantype __order5e(sunrealtype *b, sunrealtype **A, sunrealtype *c1, sunrealtype *c2, sunrealtype *c3, int s);
+static sunbooleantype __order5f(sunrealtype *b, sunrealtype *c1, sunrealtype **A1, sunrealtype **A2, sunrealtype *c2, int s);
+static sunbooleantype __order5g(sunrealtype *b, sunrealtype **A1, sunrealtype *c1, sunrealtype **A2, sunrealtype *c2, int s);
+static sunbooleantype __order5h(sunrealtype *b, sunrealtype **A1, sunrealtype **A2, sunrealtype *c1, sunrealtype *c2, int s);
+static sunbooleantype __order5i(sunrealtype *b, sunrealtype **A1, sunrealtype **A2, sunrealtype **A3, sunrealtype *c, int s);
+static sunbooleantype __order6a(sunrealtype *b, sunrealtype *c1, sunrealtype *c2, sunrealtype *c3, sunrealtype *c4, sunrealtype *c5, int s);
+static sunbooleantype __order6b(sunrealtype *b, sunrealtype *c1, sunrealtype *c2, sunrealtype *c3, sunrealtype **A, sunrealtype *c4, int s);
+static sunbooleantype __order6c(sunrealtype *b, sunrealtype *c1, sunrealtype **A1, sunrealtype *c2, sunrealtype **A2, sunrealtype *c3, int s);
+static sunbooleantype __order6d(sunrealtype *b, sunrealtype *c1, sunrealtype *c2, sunrealtype **A, sunrealtype *c3, sunrealtype *c4, int s);
+static sunbooleantype __order6e(sunrealtype *b, sunrealtype *c1, sunrealtype *c2, sunrealtype **A1, sunrealtype **A2, sunrealtype *c3, int s);
+static sunbooleantype __order6f(sunrealtype *b, sunrealtype **A1, sunrealtype **A2, sunrealtype *c1, sunrealtype **A3, sunrealtype *c2, int s);
+static sunbooleantype __order6g(sunrealtype *b, sunrealtype *c1, sunrealtype **A, sunrealtype *c2, sunrealtype *c3, sunrealtype *c4, int s);
+static sunbooleantype __order6h(sunrealtype *b, sunrealtype *c1, sunrealtype **A1, sunrealtype *c2, sunrealtype **A2, sunrealtype *c3, int s);
+static sunbooleantype __order6i(sunrealtype *b, sunrealtype *c1, sunrealtype **A1, sunrealtype **A2, sunrealtype *c2, sunrealtype *c3, int s);
+static sunbooleantype __order6j(sunrealtype *b, sunrealtype *c1, sunrealtype **A1, sunrealtype **A2, sunrealtype **A3, sunrealtype *c2, int s);
+static sunbooleantype __order6k(sunrealtype *b, sunrealtype **A, sunrealtype *c1, sunrealtype *c2, sunrealtype *c3, sunrealtype *c4, int s);
+static sunbooleantype __order6l(sunrealtype *b, sunrealtype **A1, sunrealtype *c1, sunrealtype *c2, sunrealtype **A2, sunrealtype *c3, int s);
+static sunbooleantype __order6m(sunrealtype *b, sunrealtype **A1, sunrealtype **A2, sunrealtype *c1, sunrealtype **A3, sunrealtype *c2, int s);
+static sunbooleantype __order6n(sunrealtype *b, sunrealtype **A1, sunrealtype *c1, sunrealtype **A2, sunrealtype *c2, sunrealtype *c3, int s);
+static sunbooleantype __order6o(sunrealtype *b, sunrealtype **A1, sunrealtype *c1, sunrealtype **A2, sunrealtype **A3, sunrealtype *c2, int s);
+static sunbooleantype __order6p(sunrealtype *b, sunrealtype **A1, sunrealtype **A2, sunrealtype *c1, sunrealtype *c2, sunrealtype *c3, int s);
+static sunbooleantype __order6q(sunrealtype *b, sunrealtype **A1, sunrealtype **A2, sunrealtype *c1, sunrealtype **A3, sunrealtype *c2, int s);
+static sunbooleantype __order6r(sunrealtype *b, sunrealtype **A1, sunrealtype **A2, sunrealtype **A3, sunrealtype *c1, sunrealtype *c2, int s);
+static sunbooleantype __order6s(sunrealtype *b, sunrealtype **A1, sunrealtype **A2, sunrealtype **A3, sunrealtype **A4, sunrealtype *c, int s);
+static int __ButcherSimplifyingAssumptions(sunrealtype **A, sunrealtype *b, sunrealtype *c, int s);
 
 
 /*---------------------------------------------------------------
   Routine to allocate an empty Butcher table structure
   ---------------------------------------------------------------*/
-ARKodeButcherTable ARKodeButcherTable_Alloc(int stages, booleantype embedded)
+ARKodeButcherTable ARKodeButcherTable_Alloc(int stages, sunbooleantype embedded)
 {
   int i;
   ARKodeButcherTable B;
@@ -100,7 +100,7 @@ ARKodeButcherTable ARKodeButcherTable_Alloc(int stages, booleantype embedded)
    */
 
   /* allocate rows of A */
-  B->A = (realtype **) calloc( stages, sizeof(realtype*) );
+  B->A = (sunrealtype **) calloc( stages, sizeof(sunrealtype*) );
   if (B->A == NULL) { ARKodeButcherTable_Free(B); return(NULL); }
 
   /* initialize each row of A to NULL */
@@ -109,18 +109,18 @@ ARKodeButcherTable ARKodeButcherTable_Alloc(int stages, booleantype embedded)
 
   /* allocate columns of A */
   for (i=0; i<stages; i++) {
-    B->A[i] = (realtype *) calloc( stages, sizeof(realtype) );
+    B->A[i] = (sunrealtype *) calloc( stages, sizeof(sunrealtype) );
     if (B->A[i] == NULL) { ARKodeButcherTable_Free(B); return(NULL); }
   }
 
-  B->b = (realtype *) calloc( stages, sizeof(realtype) );
+  B->b = (sunrealtype *) calloc( stages, sizeof(sunrealtype) );
   if (B->b == NULL) { ARKodeButcherTable_Free(B); return(NULL); }
 
-  B->c = (realtype *) calloc( stages, sizeof(realtype) );
+  B->c = (sunrealtype *) calloc( stages, sizeof(sunrealtype) );
   if (B->c == NULL) { ARKodeButcherTable_Free(B); return(NULL); }
 
   if (embedded) {
-    B->d = (realtype *) calloc( stages, sizeof(realtype) );
+    B->d = (sunrealtype *) calloc( stages, sizeof(sunrealtype) );
     if (B->d == NULL) { ARKodeButcherTable_Free(B); return(NULL); }
   }
 
@@ -135,13 +135,13 @@ ARKodeButcherTable ARKodeButcherTable_Alloc(int stages, booleantype embedded)
 /*---------------------------------------------------------------
   Routine to allocate and fill a Butcher table structure
   ---------------------------------------------------------------*/
-ARKodeButcherTable ARKodeButcherTable_Create(int s, int q, int p, realtype *c,
-                                             realtype *A, realtype *b,
-                                             realtype *d)
+ARKodeButcherTable ARKodeButcherTable_Create(int s, int q, int p, sunrealtype *c,
+                                             sunrealtype *A, sunrealtype *b,
+                                             sunrealtype *d)
 {
   int i, j;
   ARKodeButcherTable B;
-  booleantype embedded;
+  sunbooleantype embedded;
 
   /* Check for legal number of stages */
   if (s < 1) return(NULL);
@@ -181,7 +181,7 @@ ARKodeButcherTable ARKodeButcherTable_Copy(ARKodeButcherTable B)
 {
   int i, j, s;
   ARKodeButcherTable Bcopy;
-  booleantype embedded;
+  sunbooleantype embedded;
 
   /* Check for legal input */
   if (B == NULL) return(NULL);
@@ -336,8 +336,8 @@ int ARKodeButcherTable_CheckOrder(ARKodeButcherTable B, int *q, int *p, FILE *ou
 {
   /* local variables */
   int q_SA, p_SA, i, s;
-  realtype **A, *b, *c, *d;
-  booleantype alltrue;
+  sunrealtype **A, *b, *c, *d;
+  sunbooleantype alltrue;
   (*q) = (*p) = 0;
 
   /* verify non-NULL Butcher table structure and contents */
@@ -789,8 +789,8 @@ int ARKodeButcherTable_CheckARKOrder(ARKodeButcherTable B1,
 {
   /* local variables */
   int i, j, k, l, m, n, s;
-  booleantype alltrue;
-  realtype **A[2], *b[2], *c[2], *d[2];
+  sunbooleantype alltrue;
+  sunrealtype **A[2], *b[2], *c[2], *d[2];
   (*q) = (*p) = 0;
 
   /* verify non-NULL Butcher table structure and contents */
@@ -1454,12 +1454,12 @@ int ARKodeButcherTable_CheckARKOrder(ARKodeButcherTable B1,
   Here A is (s x s), x and b are (s x 1).  Returns 0 on success,
   nonzero on failure.
   ---------------------------------------------------------------*/
-static int __mv(realtype **A, realtype *x, int s, realtype *b)
+static int __mv(sunrealtype **A, sunrealtype *x, int s, sunrealtype *b)
 {
   int i, j;
   if ((A == NULL) || (x == NULL) || (b == NULL) || (s < 1))
     return(1);
-  for (i=0; i<s; i++)  b[i] = RCONST(0.0);
+  for (i=0; i<s; i++)  b[i] = SUN_RCONST(0.0);
   for (i=0; i<s; i++)
     for (j=0; j<s; j++)
       b[i] += A[i][j]*x[j];
@@ -1473,7 +1473,7 @@ static int __mv(realtype **A, realtype *x, int s, realtype *b)
   Here all vectors are (s x 1).   Returns 0 on success,
   nonzero on failure.
   ---------------------------------------------------------------*/
-static int __vv(realtype *x, realtype *y, int s, realtype *z)
+static int __vv(sunrealtype *x, sunrealtype *y, int s, sunrealtype *z)
 {
   int i;
   if ((x == NULL) || (y == NULL) || (z == NULL) || (s < 1))
@@ -1490,7 +1490,7 @@ static int __vv(realtype *x, realtype *y, int s, realtype *z)
   Here all vectors are (s x 1).   Returns 0 on success,
   nonzero on failure.
   ---------------------------------------------------------------*/
-static int __vp(realtype *x, int l, int s, realtype *z)
+static int __vp(sunrealtype *x, int l, int s, sunrealtype *z)
 {
   int i;
   if ((x == NULL) || (z == NULL) || (s < 1) || (s < 0))
@@ -1507,12 +1507,12 @@ static int __vp(realtype *x, int l, int s, realtype *z)
   Here x and y are (s x 1), and d is scalar.   Returns 0 on success,
   nonzero on failure.
   ---------------------------------------------------------------*/
-static int __dot(realtype *x, realtype *y, int s, realtype *d)
+static int __dot(sunrealtype *x, sunrealtype *y, int s, sunrealtype *d)
 {
   int i;
   if ((x == NULL) || (y == NULL) || (d == NULL) || (s < 1))
     return(1);
-  (*d) = RCONST(0.0);
+  (*d) = SUN_RCONST(0.0);
   for (i=0; i<s; i++)
     (*d) += x[i]*y[i];
   return(0);
@@ -1532,12 +1532,12 @@ static int __dot(realtype *x, realtype *y, int s, realtype *d)
   ---------------------------------------------------------------*/
 
 /* c(i) = sum(A(i,:)) */
-static booleantype __rowsum(realtype **A, realtype *c, int s)
+static sunbooleantype __rowsum(sunrealtype **A, sunrealtype *c, int s)
 {
   int i, j;
-  realtype rsum;
+  sunrealtype rsum;
   for (i=0; i<s; i++) {
-    rsum = RCONST(0.0);
+    rsum = SUN_RCONST(0.0);
     for (j=0; j<s; j++)
       rsum += A[i][j];
     if (SUNRabs(rsum - c[i]) > TOL)
@@ -1547,512 +1547,512 @@ static booleantype __rowsum(realtype **A, realtype *c, int s)
 }
 
 /* b'*e = 1 */
-static booleantype __order1(realtype *b, int s)
+static sunbooleantype __order1(sunrealtype *b, int s)
 {
   int i;
-  realtype err = RCONST(1.0);
+  sunrealtype err = SUN_RCONST(1.0);
   for (i=0; i<s; i++)
     err -= b[i];
   return (SUNRabs(err) > TOL) ? SUNFALSE : SUNTRUE;
 }
 
 /* b'*c = 1/2 */
-static booleantype __order2(realtype *b, realtype *c, int s)
+static sunbooleantype __order2(sunrealtype *b, sunrealtype *c, int s)
 {
-  realtype bc;
+  sunrealtype bc;
   if (__dot(b,c,s,&bc))  return(SUNFALSE);
-  return (SUNRabs(bc - RCONST(0.5)) > TOL) ? SUNFALSE : SUNTRUE;
+  return (SUNRabs(bc - SUN_RCONST(0.5)) > TOL) ? SUNFALSE : SUNTRUE;
 }
 
 /* b'*(c1.*c2) = 1/3 */
-static booleantype __order3a(realtype *b, realtype *c1, realtype *c2, int s)
+static sunbooleantype __order3a(sunrealtype *b, sunrealtype *c1, sunrealtype *c2, int s)
 {
-  realtype bcc;
-  realtype *tmp = calloc( s, sizeof(realtype) );
+  sunrealtype bcc;
+  sunrealtype *tmp = calloc( s, sizeof(sunrealtype) );
   if (__vv(c1,c2,s,tmp)) { free(tmp); return(SUNFALSE); }
   if (__dot(b,tmp,s,&bcc))  return(SUNFALSE);
   free(tmp);
-  return (SUNRabs(bcc - RCONST(1.0)/RCONST(3.0)) > TOL) ? SUNFALSE : SUNTRUE;
+  return (SUNRabs(bcc - SUN_RCONST(1.0)/SUN_RCONST(3.0)) > TOL) ? SUNFALSE : SUNTRUE;
 }
 
 /* b'*(A*c) = 1/6 */
-static booleantype __order3b(realtype *b, realtype **A, realtype *c, int s)
+static sunbooleantype __order3b(sunrealtype *b, sunrealtype **A, sunrealtype *c, int s)
 {
-  realtype bAc;
-  realtype *tmp = calloc( s, sizeof(realtype) );
+  sunrealtype bAc;
+  sunrealtype *tmp = calloc( s, sizeof(sunrealtype) );
   if (__mv(A,c,s,tmp)) { free(tmp); return(SUNFALSE); }
   if (__dot(b,tmp,s,&bAc))  return(SUNFALSE);
   free(tmp);
-  return (SUNRabs(bAc - RCONST(1.0)/RCONST(6.0)) > TOL) ? SUNFALSE : SUNTRUE;
+  return (SUNRabs(bAc - SUN_RCONST(1.0)/SUN_RCONST(6.0)) > TOL) ? SUNFALSE : SUNTRUE;
 }
 
 /* b'*(c1.*c2.*c3) = 1/4 */
-static booleantype __order4a(realtype *b, realtype *c1, realtype *c2, realtype *c3, int s)
+static sunbooleantype __order4a(sunrealtype *b, sunrealtype *c1, sunrealtype *c2, sunrealtype *c3, int s)
 {
-  realtype bccc;
-  realtype *tmp1 = calloc( s, sizeof(realtype) );
-  realtype *tmp2 = calloc( s, sizeof(realtype) );
+  sunrealtype bccc;
+  sunrealtype *tmp1 = calloc( s, sizeof(sunrealtype) );
+  sunrealtype *tmp2 = calloc( s, sizeof(sunrealtype) );
   if (__vv(c1,c2,s,tmp1)) { free(tmp1); free(tmp2); return(SUNFALSE); }
   if (__vv(c3,tmp1,s,tmp2)) { free(tmp1); free(tmp2); return(SUNFALSE); }
   if (__dot(b,tmp2,s,&bccc))  return(SUNFALSE);
   free(tmp1);  free(tmp2);
-  return (SUNRabs(bccc - RCONST(0.25)) > TOL) ? SUNFALSE : SUNTRUE;
+  return (SUNRabs(bccc - SUN_RCONST(0.25)) > TOL) ? SUNFALSE : SUNTRUE;
 }
 
 /* (b.*c1)'*(A*c2) = 1/8 */
-static booleantype __order4b(realtype *b, realtype *c1, realtype **A, realtype *c2, int s)
+static sunbooleantype __order4b(sunrealtype *b, sunrealtype *c1, sunrealtype **A, sunrealtype *c2, int s)
 {
-  realtype bcAc;
-  realtype *tmp1 = calloc( s, sizeof(realtype) );
-  realtype *tmp2 = calloc( s, sizeof(realtype) );
+  sunrealtype bcAc;
+  sunrealtype *tmp1 = calloc( s, sizeof(sunrealtype) );
+  sunrealtype *tmp2 = calloc( s, sizeof(sunrealtype) );
   if (__vv(b,c1,s,tmp1)) { free(tmp1); free(tmp2); return(SUNFALSE); }
   if (__mv(A,c2,s,tmp2)) { free(tmp1); free(tmp2); return(SUNFALSE); }
   if (__dot(tmp1,tmp2,s,&bcAc))  return(SUNFALSE);
   free(tmp1); free(tmp2);
-  return (SUNRabs(bcAc - RCONST(0.125)) > TOL) ? SUNFALSE : SUNTRUE;
+  return (SUNRabs(bcAc - SUN_RCONST(0.125)) > TOL) ? SUNFALSE : SUNTRUE;
 }
 
 /* b'*A*(c1.*c2) = 1/12 */
-static booleantype __order4c(realtype *b, realtype **A, realtype *c1, realtype *c2, int s)
+static sunbooleantype __order4c(sunrealtype *b, sunrealtype **A, sunrealtype *c1, sunrealtype *c2, int s)
 {
-  realtype bAcc;
-  realtype *tmp1 = calloc( s, sizeof(realtype) );
-  realtype *tmp2 = calloc( s, sizeof(realtype) );
+  sunrealtype bAcc;
+  sunrealtype *tmp1 = calloc( s, sizeof(sunrealtype) );
+  sunrealtype *tmp2 = calloc( s, sizeof(sunrealtype) );
   if (__vv(c1,c2,s,tmp1)) { free(tmp1); free(tmp2); return(SUNFALSE); }
   if (__mv(A,tmp1,s,tmp2)) { free(tmp1); free(tmp2); return(SUNFALSE); }
   if (__dot(b,tmp2,s,&bAcc))  return(SUNFALSE);
   free(tmp1); free(tmp2);
-  return (SUNRabs(bAcc - RCONST(1.0)/RCONST(12.0)) > TOL) ? SUNFALSE : SUNTRUE;
+  return (SUNRabs(bAcc - SUN_RCONST(1.0)/SUN_RCONST(12.0)) > TOL) ? SUNFALSE : SUNTRUE;
 }
 
 /* b'*A1*A2*c = 1/24 */
-static booleantype __order4d(realtype *b, realtype **A1, realtype **A2, realtype *c, int s)
+static sunbooleantype __order4d(sunrealtype *b, sunrealtype **A1, sunrealtype **A2, sunrealtype *c, int s)
 {
-  realtype bAAc;
-  realtype *tmp1 = calloc( s, sizeof(realtype) );
-  realtype *tmp2 = calloc( s, sizeof(realtype) );
+  sunrealtype bAAc;
+  sunrealtype *tmp1 = calloc( s, sizeof(sunrealtype) );
+  sunrealtype *tmp2 = calloc( s, sizeof(sunrealtype) );
   if (__mv(A2,c,s,tmp1)) { free(tmp1); free(tmp2); return(SUNFALSE); }
   if (__mv(A1,tmp1,s,tmp2)) { free(tmp1); free(tmp2); return(SUNFALSE); }
   if (__dot(b,tmp2,s,&bAAc))  return(SUNFALSE);
   free(tmp1); free(tmp2);
-  return (SUNRabs(bAAc - RCONST(1.0)/RCONST(24.0)) > TOL) ? SUNFALSE : SUNTRUE;
+  return (SUNRabs(bAAc - SUN_RCONST(1.0)/SUN_RCONST(24.0)) > TOL) ? SUNFALSE : SUNTRUE;
 }
 
 /* b'*(c1.*c2.*c3.*c4) = 1/5 */
-static booleantype __order5a(realtype *b, realtype *c1, realtype *c2, realtype *c3, realtype *c4, int s)
+static sunbooleantype __order5a(sunrealtype *b, sunrealtype *c1, sunrealtype *c2, sunrealtype *c3, sunrealtype *c4, int s)
 {
-  realtype bcccc;
-  realtype *tmp1 = calloc( s, sizeof(realtype) );
-  realtype *tmp2 = calloc( s, sizeof(realtype) );
+  sunrealtype bcccc;
+  sunrealtype *tmp1 = calloc( s, sizeof(sunrealtype) );
+  sunrealtype *tmp2 = calloc( s, sizeof(sunrealtype) );
   if (__vv(c1,c2,s,tmp1)) { free(tmp1); free(tmp2); return(SUNFALSE); }
   if (__vv(c3,tmp1,s,tmp2)) { free(tmp1); free(tmp2); return(SUNFALSE); }
   if (__vv(c4,tmp2,s,tmp1)) { free(tmp1); free(tmp2); return(SUNFALSE); }
   if (__dot(b,tmp1,s,&bcccc))  return(SUNFALSE);
   free(tmp1); free(tmp2);
-  return (SUNRabs(bcccc - RCONST(0.2)) > TOL) ? SUNFALSE : SUNTRUE;
+  return (SUNRabs(bcccc - SUN_RCONST(0.2)) > TOL) ? SUNFALSE : SUNTRUE;
 }
 
 /* (b.*c1.*c2)'*(A*c3) = 1/10 */
-static booleantype __order5b(realtype *b, realtype *c1, realtype *c2, realtype **A, realtype *c3, int s)
+static sunbooleantype __order5b(sunrealtype *b, sunrealtype *c1, sunrealtype *c2, sunrealtype **A, sunrealtype *c3, int s)
 {
-  realtype bccAc;
-  realtype *tmp1 = calloc( s, sizeof(realtype) );
-  realtype *tmp2 = calloc( s, sizeof(realtype) );
+  sunrealtype bccAc;
+  sunrealtype *tmp1 = calloc( s, sizeof(sunrealtype) );
+  sunrealtype *tmp2 = calloc( s, sizeof(sunrealtype) );
   if (__vv(c1,c2,s,tmp1)) { free(tmp1); free(tmp2); return(SUNFALSE); }
   if (__vv(b,tmp1,s,tmp2)) { free(tmp1); free(tmp2); return(SUNFALSE); }
   if (__mv(A,c3,s,tmp1)) { free(tmp1); free(tmp2); return(SUNFALSE); }
   if (__dot(tmp1,tmp2,s,&bccAc))  return(SUNFALSE);
   free(tmp1); free(tmp2);
-  return (SUNRabs(bccAc - RCONST(0.1)) > TOL) ? SUNFALSE : SUNTRUE;
+  return (SUNRabs(bccAc - SUN_RCONST(0.1)) > TOL) ? SUNFALSE : SUNTRUE;
 }
 
 /* b'*((A1*c1).*(A2*c2)) = 1/20 */
-static booleantype __order5c(realtype *b, realtype **A1, realtype *c1, realtype **A2, realtype *c2, int s)
+static sunbooleantype __order5c(sunrealtype *b, sunrealtype **A1, sunrealtype *c1, sunrealtype **A2, sunrealtype *c2, int s)
 {
-  realtype bAcAc;
-  realtype *tmp1 = calloc( s, sizeof(realtype) );
-  realtype *tmp2 = calloc( s, sizeof(realtype) );
-  realtype *tmp3 = calloc( s, sizeof(realtype) );
+  sunrealtype bAcAc;
+  sunrealtype *tmp1 = calloc( s, sizeof(sunrealtype) );
+  sunrealtype *tmp2 = calloc( s, sizeof(sunrealtype) );
+  sunrealtype *tmp3 = calloc( s, sizeof(sunrealtype) );
   if (__mv(A1,c1,s,tmp1)) { free(tmp1); free(tmp2); free(tmp3); return(SUNFALSE); }
   if (__mv(A2,c2,s,tmp2)) { free(tmp1); free(tmp2); free(tmp3); return(SUNFALSE); }
   if (__vv(tmp1,tmp2,s,tmp3)) { free(tmp1); free(tmp2); free(tmp3); return(SUNFALSE); }
   if (__dot(b,tmp3,s,&bAcAc))  return(SUNFALSE);
   free(tmp1); free(tmp2); free(tmp3);
-  return (SUNRabs(bAcAc - RCONST(0.05)) > TOL) ? SUNFALSE : SUNTRUE;
+  return (SUNRabs(bAcAc - SUN_RCONST(0.05)) > TOL) ? SUNFALSE : SUNTRUE;
 }
 
 /* (b.*c1)'*A*(c2.*c3) = 1/15 */
-static booleantype __order5d(realtype *b, realtype *c1, realtype **A, realtype *c2, realtype *c3, int s)
+static sunbooleantype __order5d(sunrealtype *b, sunrealtype *c1, sunrealtype **A, sunrealtype *c2, sunrealtype *c3, int s)
 {
-  realtype bcAcc;
-  realtype *tmp1 = calloc( s, sizeof(realtype) );
-  realtype *tmp2 = calloc( s, sizeof(realtype) );
+  sunrealtype bcAcc;
+  sunrealtype *tmp1 = calloc( s, sizeof(sunrealtype) );
+  sunrealtype *tmp2 = calloc( s, sizeof(sunrealtype) );
   if (__vv(c2,c3,s,tmp1)) { free(tmp1); free(tmp2); return(SUNFALSE); }
   if (__mv(A,tmp1,s,tmp2)) { free(tmp1); free(tmp2); return(SUNFALSE); }
   if (__vv(b,c1,s,tmp1)) { free(tmp1); free(tmp2); return(SUNFALSE); }
   if (__dot(tmp1,tmp2,s,&bcAcc))  return(SUNFALSE);
   free(tmp1); free(tmp2);
-  return (SUNRabs(bcAcc - RCONST(1.0)/RCONST(15.0)) > TOL) ? SUNFALSE : SUNTRUE;
+  return (SUNRabs(bcAcc - SUN_RCONST(1.0)/SUN_RCONST(15.0)) > TOL) ? SUNFALSE : SUNTRUE;
 }
 
 /* b'*A*(c1.*c2.*c3) = 1/20 */
-static booleantype __order5e(realtype *b, realtype **A, realtype *c1, realtype *c2, realtype *c3, int s)
+static sunbooleantype __order5e(sunrealtype *b, sunrealtype **A, sunrealtype *c1, sunrealtype *c2, sunrealtype *c3, int s)
 {
-  realtype bAccc;
-  realtype *tmp1 = calloc( s, sizeof(realtype) );
-  realtype *tmp2 = calloc( s, sizeof(realtype) );
+  sunrealtype bAccc;
+  sunrealtype *tmp1 = calloc( s, sizeof(sunrealtype) );
+  sunrealtype *tmp2 = calloc( s, sizeof(sunrealtype) );
   if (__vv(c1,c2,s,tmp1)) { free(tmp1); free(tmp2); return(SUNFALSE); }
   if (__vv(c3,tmp1,s,tmp2)) { free(tmp1); free(tmp2); return(SUNFALSE); }
   if (__mv(A,tmp2,s,tmp1)) { free(tmp1); free(tmp2); return(SUNFALSE); }
   if (__dot(b,tmp1,s,&bAccc))  return(SUNFALSE);
   free(tmp1); free(tmp2);
-  return (SUNRabs(bAccc - RCONST(0.05)) > TOL) ? SUNFALSE : SUNTRUE;
+  return (SUNRabs(bAccc - SUN_RCONST(0.05)) > TOL) ? SUNFALSE : SUNTRUE;
 }
 
 /* (b.*c1)'*A1*A2*c2 = 1/30 */
-static booleantype __order5f(realtype *b, realtype *c1, realtype **A1, realtype **A2, realtype *c2, int s)
+static sunbooleantype __order5f(sunrealtype *b, sunrealtype *c1, sunrealtype **A1, sunrealtype **A2, sunrealtype *c2, int s)
 {
-  realtype bcAAc;
-  realtype *tmp1 = calloc( s, sizeof(realtype) );
-  realtype *tmp2 = calloc( s, sizeof(realtype) );
+  sunrealtype bcAAc;
+  sunrealtype *tmp1 = calloc( s, sizeof(sunrealtype) );
+  sunrealtype *tmp2 = calloc( s, sizeof(sunrealtype) );
   if (__mv(A2,c2,s,tmp1)) { free(tmp1); free(tmp2); return(SUNFALSE); }
   if (__mv(A1,tmp1,s,tmp2)) { free(tmp1); free(tmp2); return(SUNFALSE); }
   if (__vv(b,c1,s,tmp1)) { free(tmp1); free(tmp2); return(SUNFALSE); }
   if (__dot(tmp1,tmp2,s,&bcAAc))  return(SUNFALSE);
   free(tmp1); free(tmp2);
-  return (SUNRabs(bcAAc - RCONST(1.0)/RCONST(30.0)) > TOL) ? SUNFALSE : SUNTRUE;
+  return (SUNRabs(bcAAc - SUN_RCONST(1.0)/SUN_RCONST(30.0)) > TOL) ? SUNFALSE : SUNTRUE;
 }
 
 /* b'*A1*(c1.*(A2*c2)) = 1/40 */
-static booleantype __order5g(realtype *b, realtype **A1, realtype *c1, realtype **A2, realtype *c2, int s)
+static sunbooleantype __order5g(sunrealtype *b, sunrealtype **A1, sunrealtype *c1, sunrealtype **A2, sunrealtype *c2, int s)
 {
-  realtype bAcAc;
-  realtype *tmp1 = calloc( s, sizeof(realtype) );
-  realtype *tmp2 = calloc( s, sizeof(realtype) );
+  sunrealtype bAcAc;
+  sunrealtype *tmp1 = calloc( s, sizeof(sunrealtype) );
+  sunrealtype *tmp2 = calloc( s, sizeof(sunrealtype) );
   if (__mv(A2,c2,s,tmp1)) { free(tmp1); free(tmp2); return(SUNFALSE); }
   if (__vv(c1,tmp1,s,tmp2)) { free(tmp1); free(tmp2); return(SUNFALSE); }
   if (__mv(A1,tmp2,s,tmp1)) { free(tmp1); free(tmp2); return(SUNFALSE); }
   if (__dot(b,tmp1,s,&bAcAc))  return(SUNFALSE);
   free(tmp1); free(tmp2);
-  return (SUNRabs(bAcAc - RCONST(1.0)/RCONST(40.0)) > TOL) ? SUNFALSE : SUNTRUE;
+  return (SUNRabs(bAcAc - SUN_RCONST(1.0)/SUN_RCONST(40.0)) > TOL) ? SUNFALSE : SUNTRUE;
 }
 
 /* b'*A1*A2*(c1.*c2) = 1/60 */
-static booleantype __order5h(realtype *b, realtype **A1, realtype **A2, realtype *c1, realtype *c2, int s)
+static sunbooleantype __order5h(sunrealtype *b, sunrealtype **A1, sunrealtype **A2, sunrealtype *c1, sunrealtype *c2, int s)
 {
-  realtype bAAcc;
-  realtype *tmp1 = calloc( s, sizeof(realtype) );
-  realtype *tmp2 = calloc( s, sizeof(realtype) );
+  sunrealtype bAAcc;
+  sunrealtype *tmp1 = calloc( s, sizeof(sunrealtype) );
+  sunrealtype *tmp2 = calloc( s, sizeof(sunrealtype) );
   if (__vv(c1,c2,s,tmp1)) { free(tmp1); free(tmp2); return(SUNFALSE); }
   if (__mv(A2,tmp1,s,tmp2)) { free(tmp1); free(tmp2); return(SUNFALSE); }
   if (__mv(A1,tmp2,s,tmp1)) { free(tmp1); free(tmp2); return(SUNFALSE); }
   if (__dot(b,tmp1,s,&bAAcc))  return(SUNFALSE);
   free(tmp1); free(tmp2);
-  return (SUNRabs(bAAcc - RCONST(1.0)/RCONST(60.0)) > TOL) ? SUNFALSE : SUNTRUE;
+  return (SUNRabs(bAAcc - SUN_RCONST(1.0)/SUN_RCONST(60.0)) > TOL) ? SUNFALSE : SUNTRUE;
 }
 
 /* b'*A1*A2*A3*c = 1/120 */
-static booleantype __order5i(realtype *b, realtype **A1, realtype **A2, realtype **A3, realtype *c, int s)
+static sunbooleantype __order5i(sunrealtype *b, sunrealtype **A1, sunrealtype **A2, sunrealtype **A3, sunrealtype *c, int s)
 {
-  realtype bAAAc;
-  realtype *tmp1 = calloc( s, sizeof(realtype) );
-  realtype *tmp2 = calloc( s, sizeof(realtype) );
+  sunrealtype bAAAc;
+  sunrealtype *tmp1 = calloc( s, sizeof(sunrealtype) );
+  sunrealtype *tmp2 = calloc( s, sizeof(sunrealtype) );
   if (__mv(A3,c,s,tmp1)) { free(tmp1); free(tmp2); return(SUNFALSE); }
   if (__mv(A2,tmp1,s,tmp2)) { free(tmp1); free(tmp2); return(SUNFALSE); }
   if (__mv(A1,tmp2,s,tmp1)) { free(tmp1); free(tmp2); return(SUNFALSE); }
   if (__dot(b,tmp1,s,&bAAAc))  return(SUNFALSE);
   free(tmp1); free(tmp2);
-  return (SUNRabs(bAAAc - RCONST(1.0)/RCONST(120.0)) > TOL) ? SUNFALSE : SUNTRUE;
+  return (SUNRabs(bAAAc - SUN_RCONST(1.0)/SUN_RCONST(120.0)) > TOL) ? SUNFALSE : SUNTRUE;
 }
 
 /* b'*(c1.*c2.*c3.*c4.*c5) = 1/6 */
-static booleantype __order6a(realtype *b, realtype *c1, realtype *c2, realtype *c3, realtype *c4, realtype *c5, int s)
+static sunbooleantype __order6a(sunrealtype *b, sunrealtype *c1, sunrealtype *c2, sunrealtype *c3, sunrealtype *c4, sunrealtype *c5, int s)
 {
-  realtype bccccc;
-  realtype *tmp1 = calloc( s, sizeof(realtype) );
-  realtype *tmp2 = calloc( s, sizeof(realtype) );
+  sunrealtype bccccc;
+  sunrealtype *tmp1 = calloc( s, sizeof(sunrealtype) );
+  sunrealtype *tmp2 = calloc( s, sizeof(sunrealtype) );
   if (__vv(c1,c2,s,tmp1)) { free(tmp1); free(tmp2); return(SUNFALSE); }
   if (__vv(c3,tmp1,s,tmp2)) { free(tmp1); free(tmp2); return(SUNFALSE); }
   if (__vv(c4,tmp2,s,tmp1)) { free(tmp1); free(tmp2); return(SUNFALSE); }
   if (__vv(c5,tmp1,s,tmp2)) { free(tmp1); free(tmp2); return(SUNFALSE); }
   if (__dot(b,tmp2,s,&bccccc))  return(SUNFALSE);
   free(tmp1); free(tmp2);
-  return (SUNRabs(bccccc - RCONST(1.0)/RCONST(6.0)) > TOL) ? SUNFALSE : SUNTRUE;
+  return (SUNRabs(bccccc - SUN_RCONST(1.0)/SUN_RCONST(6.0)) > TOL) ? SUNFALSE : SUNTRUE;
 }
 
 /* (b.*c1.*c2.*c3)'*(A*c4) = 1/12 */
-static booleantype __order6b(realtype *b, realtype *c1, realtype *c2, realtype *c3, realtype **A, realtype *c4, int s)
+static sunbooleantype __order6b(sunrealtype *b, sunrealtype *c1, sunrealtype *c2, sunrealtype *c3, sunrealtype **A, sunrealtype *c4, int s)
 {
-  realtype bcccAc;
-  realtype *tmp1 = calloc( s, sizeof(realtype) );
-  realtype *tmp2 = calloc( s, sizeof(realtype) );
+  sunrealtype bcccAc;
+  sunrealtype *tmp1 = calloc( s, sizeof(sunrealtype) );
+  sunrealtype *tmp2 = calloc( s, sizeof(sunrealtype) );
   if (__vv(b,c1,s,tmp1)) { free(tmp1); free(tmp2); return(SUNFALSE); }
   if (__vv(c2,tmp1,s,tmp2)) { free(tmp1); free(tmp2); return(SUNFALSE); }
   if (__vv(c3,tmp2,s,tmp1)) { free(tmp1); free(tmp2); return(SUNFALSE); }
   if (__mv(A,c4,s,tmp2)) { free(tmp1); free(tmp2); return(SUNFALSE); }
   if (__dot(tmp1,tmp2,s,&bcccAc))  return(SUNFALSE);
   free(tmp1); free(tmp2);
-  return (SUNRabs(bcccAc - RCONST(1.0)/RCONST(12.0)) > TOL) ? SUNFALSE : SUNTRUE;
+  return (SUNRabs(bcccAc - SUN_RCONST(1.0)/SUN_RCONST(12.0)) > TOL) ? SUNFALSE : SUNTRUE;
 }
 
 /* b'*(c1.*(A1*c2).*(A2*c3)) = 1/24 */
-static booleantype __order6c(realtype *b, realtype *c1, realtype **A1, realtype *c2, realtype **A2, realtype *c3, int s)
+static sunbooleantype __order6c(sunrealtype *b, sunrealtype *c1, sunrealtype **A1, sunrealtype *c2, sunrealtype **A2, sunrealtype *c3, int s)
 {
-  realtype bcAc2;
-  realtype *tmp1 = calloc( s, sizeof(realtype) );
-  realtype *tmp2 = calloc( s, sizeof(realtype) );
-  realtype *tmp3 = calloc( s, sizeof(realtype) );
+  sunrealtype bcAc2;
+  sunrealtype *tmp1 = calloc( s, sizeof(sunrealtype) );
+  sunrealtype *tmp2 = calloc( s, sizeof(sunrealtype) );
+  sunrealtype *tmp3 = calloc( s, sizeof(sunrealtype) );
   if (__mv(A2,c3,s,tmp1)) { free(tmp1); free(tmp2); free(tmp3); return(SUNFALSE); }
   if (__mv(A1,c2,s,tmp2)) { free(tmp1); free(tmp2); free(tmp3); return(SUNFALSE); }
   if (__vv(tmp1,tmp2,s,tmp3)) { free(tmp1); free(tmp2); free(tmp3); return(SUNFALSE); }
   if (__vv(c1,tmp3,s,tmp1)) { free(tmp1); free(tmp2); free(tmp3); return(SUNFALSE); }
   if (__dot(b,tmp1,s,&bcAc2))  return(SUNFALSE);
   free(tmp1); free(tmp2); free(tmp3);
-  return (SUNRabs(bcAc2 - RCONST(1.0)/RCONST(24.0)) > TOL) ? SUNFALSE : SUNTRUE;
+  return (SUNRabs(bcAc2 - SUN_RCONST(1.0)/SUN_RCONST(24.0)) > TOL) ? SUNFALSE : SUNTRUE;
 }
 
 /* (b.*c1.*c2)'*A*(c3.*c4) = 1/18 */
-static booleantype __order6d(realtype *b, realtype *c1, realtype *c2, realtype **A, realtype *c3, realtype *c4, int s)
+static sunbooleantype __order6d(sunrealtype *b, sunrealtype *c1, sunrealtype *c2, sunrealtype **A, sunrealtype *c3, sunrealtype *c4, int s)
 {
-  realtype bccAcc;
-  realtype *tmp1 = calloc( s, sizeof(realtype) );
-  realtype *tmp2 = calloc( s, sizeof(realtype) );
-  realtype *tmp3 = calloc( s, sizeof(realtype) );
+  sunrealtype bccAcc;
+  sunrealtype *tmp1 = calloc( s, sizeof(sunrealtype) );
+  sunrealtype *tmp2 = calloc( s, sizeof(sunrealtype) );
+  sunrealtype *tmp3 = calloc( s, sizeof(sunrealtype) );
   if (__vv(c3,c4,s,tmp1)) { free(tmp1); free(tmp2); free(tmp3); return(SUNFALSE); }
   if (__mv(A,tmp1,s,tmp2)) { free(tmp1); free(tmp2); free(tmp3); return(SUNFALSE); }
   if (__vv(c1,c2,s,tmp1)) { free(tmp1); free(tmp2); free(tmp3); return(SUNFALSE); }
   if (__vv(b,tmp1,s,tmp3)) { free(tmp1); free(tmp2); free(tmp3); return(SUNFALSE); }
   if (__dot(tmp2,tmp3,s,&bccAcc))  return(SUNFALSE);
   free(tmp1); free(tmp2);  free(tmp3);
-  return (SUNRabs(bccAcc - RCONST(1.0)/RCONST(18.0)) > TOL) ? SUNFALSE : SUNTRUE;
+  return (SUNRabs(bccAcc - SUN_RCONST(1.0)/SUN_RCONST(18.0)) > TOL) ? SUNFALSE : SUNTRUE;
 }
 
 /* (b.*(c1.*c2))'*A1*A2*c3 = 1/36 */
-static booleantype __order6e(realtype *b, realtype *c1, realtype *c2, realtype **A1, realtype **A2, realtype *c3, int s)
+static sunbooleantype __order6e(sunrealtype *b, sunrealtype *c1, sunrealtype *c2, sunrealtype **A1, sunrealtype **A2, sunrealtype *c3, int s)
 {
-  realtype bccAAc;
-  realtype *tmp1 = calloc( s, sizeof(realtype) );
-  realtype *tmp2 = calloc( s, sizeof(realtype) );
-  realtype *tmp3 = calloc( s, sizeof(realtype) );
+  sunrealtype bccAAc;
+  sunrealtype *tmp1 = calloc( s, sizeof(sunrealtype) );
+  sunrealtype *tmp2 = calloc( s, sizeof(sunrealtype) );
+  sunrealtype *tmp3 = calloc( s, sizeof(sunrealtype) );
   if (__vv(c1,c2,s,tmp1)) { free(tmp1); free(tmp2); free(tmp3); return(SUNFALSE); }
   if (__vv(b,tmp1,s,tmp2)) { free(tmp1); free(tmp2); free(tmp3); return(SUNFALSE); }
   if (__mv(A2,c3,s,tmp1)) { free(tmp1); free(tmp2); free(tmp3); return(SUNFALSE); }
   if (__mv(A1,tmp1,s,tmp3)) { free(tmp1); free(tmp2); free(tmp3); return(SUNFALSE); }
   if (__dot(tmp2,tmp3,s,&bccAAc))  return(SUNFALSE);
   free(tmp1); free(tmp2);  free(tmp3);
-  return (SUNRabs(bccAAc - RCONST(1.0)/RCONST(36.0)) > TOL) ? SUNFALSE : SUNTRUE;
+  return (SUNRabs(bccAAc - SUN_RCONST(1.0)/SUN_RCONST(36.0)) > TOL) ? SUNFALSE : SUNTRUE;
 }
 
 /* b'*((A1*A2*c1).*(A3*c2)) = 1/72 */
-static booleantype __order6f(realtype *b, realtype **A1, realtype **A2, realtype *c1, realtype **A3, realtype *c2, int s)
+static sunbooleantype __order6f(sunrealtype *b, sunrealtype **A1, sunrealtype **A2, sunrealtype *c1, sunrealtype **A3, sunrealtype *c2, int s)
 {
-  realtype bAAcAc;
-  realtype *tmp1 = calloc( s, sizeof(realtype) );
-  realtype *tmp2 = calloc( s, sizeof(realtype) );
-  realtype *tmp3 = calloc( s, sizeof(realtype) );
+  sunrealtype bAAcAc;
+  sunrealtype *tmp1 = calloc( s, sizeof(sunrealtype) );
+  sunrealtype *tmp2 = calloc( s, sizeof(sunrealtype) );
+  sunrealtype *tmp3 = calloc( s, sizeof(sunrealtype) );
   if (__mv(A2,c1,s,tmp1)) { free(tmp1); free(tmp2); free(tmp3); return(SUNFALSE); }
   if (__mv(A1,tmp1,s,tmp2)) { free(tmp1); free(tmp2); free(tmp3); return(SUNFALSE); }
   if (__mv(A3,c2,s,tmp1)) { free(tmp1); free(tmp2); free(tmp3); return(SUNFALSE); }
   if (__vv(tmp1,tmp2,s,tmp3)) { free(tmp1); free(tmp2); free(tmp3); return(SUNFALSE); }
   if (__dot(b,tmp3,s,&bAAcAc))  return(SUNFALSE);
   free(tmp1); free(tmp2);  free(tmp3);
-  return (SUNRabs(bAAcAc - RCONST(1.0)/RCONST(72.0)) > TOL) ? SUNFALSE : SUNTRUE;
+  return (SUNRabs(bAAcAc - SUN_RCONST(1.0)/SUN_RCONST(72.0)) > TOL) ? SUNFALSE : SUNTRUE;
 }
 
 /* b'*(c1.*(A*(c2.*c3.*c4))) = 1/24 */
-static booleantype __order6g(realtype *b, realtype *c1, realtype **A, realtype *c2, realtype *c3, realtype *c4, int s)
+static sunbooleantype __order6g(sunrealtype *b, sunrealtype *c1, sunrealtype **A, sunrealtype *c2, sunrealtype *c3, sunrealtype *c4, int s)
 {
-  realtype bcAccc;
-  realtype *tmp1 = calloc( s, sizeof(realtype) );
-  realtype *tmp2 = calloc( s, sizeof(realtype) );
+  sunrealtype bcAccc;
+  sunrealtype *tmp1 = calloc( s, sizeof(sunrealtype) );
+  sunrealtype *tmp2 = calloc( s, sizeof(sunrealtype) );
   if (__vv(c2,c3,s,tmp1)) { free(tmp1); free(tmp2); return(SUNFALSE); }
   if (__vv(c4,tmp1,s,tmp2)) { free(tmp1); free(tmp2); return(SUNFALSE); }
   if (__mv(A,tmp2,s,tmp1)) { free(tmp1); free(tmp2); return(SUNFALSE); }
   if (__vv(c1,tmp1,s,tmp2)) { free(tmp1); free(tmp2); return(SUNFALSE); }
   if (__dot(b,tmp2,s,&bcAccc))  return(SUNFALSE);
   free(tmp1); free(tmp2);
-  return (SUNRabs(bcAccc - RCONST(1.0)/RCONST(24.0)) > TOL) ? SUNFALSE : SUNTRUE;
+  return (SUNRabs(bcAccc - SUN_RCONST(1.0)/SUN_RCONST(24.0)) > TOL) ? SUNFALSE : SUNTRUE;
 }
 
 /* b'*(c1.*(A1*(c2.*(A2*c3)))) = 1/48 */
-static booleantype __order6h(realtype *b, realtype *c1, realtype **A1, realtype *c2, realtype **A2, realtype *c3, int s)
+static sunbooleantype __order6h(sunrealtype *b, sunrealtype *c1, sunrealtype **A1, sunrealtype *c2, sunrealtype **A2, sunrealtype *c3, int s)
 {
-  realtype bcAcAc;
-  realtype *tmp1 = calloc( s, sizeof(realtype) );
-  realtype *tmp2 = calloc( s, sizeof(realtype) );
+  sunrealtype bcAcAc;
+  sunrealtype *tmp1 = calloc( s, sizeof(sunrealtype) );
+  sunrealtype *tmp2 = calloc( s, sizeof(sunrealtype) );
   if (__mv(A2,c3,s,tmp1)) { free(tmp1); free(tmp2); return(SUNFALSE); }
   if (__vv(c2,tmp1,s,tmp2)) { free(tmp1); free(tmp2); return(SUNFALSE); }
   if (__mv(A1,tmp2,s,tmp1)) { free(tmp1); free(tmp2); return(SUNFALSE); }
   if (__vv(c1,tmp1,s,tmp2)) { free(tmp1); free(tmp2); return(SUNFALSE); }
   if (__dot(b,tmp2,s,&bcAcAc))  return(SUNFALSE);
   free(tmp1); free(tmp2);
-  return (SUNRabs(bcAcAc - RCONST(1.0)/RCONST(48.0)) > TOL) ? SUNFALSE : SUNTRUE;
+  return (SUNRabs(bcAcAc - SUN_RCONST(1.0)/SUN_RCONST(48.0)) > TOL) ? SUNFALSE : SUNTRUE;
 }
 
 /* b'*(c1.*(A1*A2*(c2.*c3))) = 1/72 */
-static booleantype __order6i(realtype *b, realtype *c1, realtype **A1, realtype **A2, realtype *c2, realtype *c3, int s)
+static sunbooleantype __order6i(sunrealtype *b, sunrealtype *c1, sunrealtype **A1, sunrealtype **A2, sunrealtype *c2, sunrealtype *c3, int s)
 {
-  realtype bcAAcc;
-  realtype *tmp1 = calloc( s, sizeof(realtype) );
-  realtype *tmp2 = calloc( s, sizeof(realtype) );
+  sunrealtype bcAAcc;
+  sunrealtype *tmp1 = calloc( s, sizeof(sunrealtype) );
+  sunrealtype *tmp2 = calloc( s, sizeof(sunrealtype) );
   if (__vv(c2,c3,s,tmp1)) { free(tmp1); free(tmp2); return(SUNFALSE); }
   if (__mv(A2,tmp1,s,tmp2)) { free(tmp1); free(tmp2); return(SUNFALSE); }
   if (__mv(A1,tmp2,s,tmp1)) { free(tmp1); free(tmp2); return(SUNFALSE); }
   if (__vv(c1,tmp1,s,tmp2)) { free(tmp1); free(tmp2); return(SUNFALSE); }
   if (__dot(b,tmp2,s,&bcAAcc))  return(SUNFALSE);
   free(tmp1); free(tmp2);
-  return (SUNRabs(bcAAcc - RCONST(1.0)/RCONST(72.0)) > TOL) ? SUNFALSE : SUNTRUE;
+  return (SUNRabs(bcAAcc - SUN_RCONST(1.0)/SUN_RCONST(72.0)) > TOL) ? SUNFALSE : SUNTRUE;
 }
 
 /* b'*(c1.*(A1*A2*A3*c2)) = 1/144 */
-static booleantype __order6j(realtype *b, realtype *c1, realtype **A1, realtype **A2, realtype **A3, realtype *c2, int s)
+static sunbooleantype __order6j(sunrealtype *b, sunrealtype *c1, sunrealtype **A1, sunrealtype **A2, sunrealtype **A3, sunrealtype *c2, int s)
 {
-  realtype bcAAAc;
-  realtype *tmp1 = calloc( s, sizeof(realtype) );
-  realtype *tmp2 = calloc( s, sizeof(realtype) );
+  sunrealtype bcAAAc;
+  sunrealtype *tmp1 = calloc( s, sizeof(sunrealtype) );
+  sunrealtype *tmp2 = calloc( s, sizeof(sunrealtype) );
   if (__mv(A3,c2,s,tmp1)) { free(tmp1); free(tmp2); return(SUNFALSE); }
   if (__mv(A2,tmp1,s,tmp2)) { free(tmp1); free(tmp2); return(SUNFALSE); }
   if (__mv(A1,tmp2,s,tmp1)) { free(tmp1); free(tmp2); return(SUNFALSE); }
   if (__vv(c1,tmp1,s,tmp2)) { free(tmp1); free(tmp2); return(SUNFALSE); }
   if (__dot(b,tmp2,s,&bcAAAc))  return(SUNFALSE);
   free(tmp1); free(tmp2);
-  return (SUNRabs(bcAAAc - RCONST(1.0)/RCONST(144.0)) > TOL) ? SUNFALSE : SUNTRUE;
+  return (SUNRabs(bcAAAc - SUN_RCONST(1.0)/SUN_RCONST(144.0)) > TOL) ? SUNFALSE : SUNTRUE;
 }
 
 /* b'*A*(c1.*c2.*c3.*c4) = 1/30 */
-static booleantype __order6k(realtype *b, realtype **A, realtype *c1, realtype *c2, realtype *c3, realtype *c4, int s)
+static sunbooleantype __order6k(sunrealtype *b, sunrealtype **A, sunrealtype *c1, sunrealtype *c2, sunrealtype *c3, sunrealtype *c4, int s)
 {
-  realtype bAcccc;
-  realtype *tmp1 = calloc( s, sizeof(realtype) );
-  realtype *tmp2 = calloc( s, sizeof(realtype) );
+  sunrealtype bAcccc;
+  sunrealtype *tmp1 = calloc( s, sizeof(sunrealtype) );
+  sunrealtype *tmp2 = calloc( s, sizeof(sunrealtype) );
   if (__vv(c1,c2,s,tmp1)) { free(tmp1); free(tmp2); return(SUNFALSE); }
   if (__vv(c3,tmp1,s,tmp2)) { free(tmp1); free(tmp2); return(SUNFALSE); }
   if (__vv(c4,tmp2,s,tmp1)) { free(tmp1); free(tmp2); return(SUNFALSE); }
   if (__mv(A,tmp1,s,tmp2)) { free(tmp1); free(tmp2); return(SUNFALSE); }
   if (__dot(b,tmp2,s,&bAcccc))  return(SUNFALSE);
   free(tmp1); free(tmp2);
-  return (SUNRabs(bAcccc - RCONST(1.0)/RCONST(30.0)) > TOL) ? SUNFALSE : SUNTRUE;
+  return (SUNRabs(bAcccc - SUN_RCONST(1.0)/SUN_RCONST(30.0)) > TOL) ? SUNFALSE : SUNTRUE;
 }
 
 /* b'*A1*(c1.*c2.*(A2*c3)) = 1/60 */
-static booleantype __order6l(realtype *b, realtype **A1, realtype *c1, realtype *c2, realtype **A2, realtype *c3, int s)
+static sunbooleantype __order6l(sunrealtype *b, sunrealtype **A1, sunrealtype *c1, sunrealtype *c2, sunrealtype **A2, sunrealtype *c3, int s)
 {
-  realtype bAccAc;
-  realtype *tmp1 = calloc( s, sizeof(realtype) );
-  realtype *tmp2 = calloc( s, sizeof(realtype) );
+  sunrealtype bAccAc;
+  sunrealtype *tmp1 = calloc( s, sizeof(sunrealtype) );
+  sunrealtype *tmp2 = calloc( s, sizeof(sunrealtype) );
   if (__mv(A2,c3,s,tmp1)) { free(tmp1); free(tmp2); return(SUNFALSE); }
   if (__vv(c2,tmp1,s,tmp2)) { free(tmp1); free(tmp2); return(SUNFALSE); }
   if (__vv(c1,tmp2,s,tmp1)) { free(tmp1); free(tmp2); return(SUNFALSE); }
   if (__mv(A1,tmp1,s,tmp2)) { free(tmp1); free(tmp2); return(SUNFALSE); }
   if (__dot(b,tmp2,s,&bAccAc))  return(SUNFALSE);
   free(tmp1); free(tmp2);
-  return (SUNRabs(bAccAc - RCONST(1.0)/RCONST(60.0)) > TOL) ? SUNFALSE : SUNTRUE;
+  return (SUNRabs(bAccAc - SUN_RCONST(1.0)/SUN_RCONST(60.0)) > TOL) ? SUNFALSE : SUNTRUE;
 }
 
 /* b'*A1*((A2*c1).*(A3*c2)) = 1/120 */
-static booleantype __order6m(realtype *b, realtype **A1, realtype **A2, realtype *c1, realtype **A3, realtype *c2, int s)
+static sunbooleantype __order6m(sunrealtype *b, sunrealtype **A1, sunrealtype **A2, sunrealtype *c1, sunrealtype **A3, sunrealtype *c2, int s)
 {
-  realtype bAAcAc;
-  realtype *tmp1 = calloc( s, sizeof(realtype) );
-  realtype *tmp2 = calloc( s, sizeof(realtype) );
-  realtype *tmp3 = calloc( s, sizeof(realtype) );
+  sunrealtype bAAcAc;
+  sunrealtype *tmp1 = calloc( s, sizeof(sunrealtype) );
+  sunrealtype *tmp2 = calloc( s, sizeof(sunrealtype) );
+  sunrealtype *tmp3 = calloc( s, sizeof(sunrealtype) );
   if (__mv(A3,c2,s,tmp1)) { free(tmp1); free(tmp2); free(tmp3); return(SUNFALSE); }
   if (__mv(A2,c1,s,tmp2)) { free(tmp1); free(tmp2); free(tmp3); return(SUNFALSE); }
   if (__vv(tmp1,tmp2,s,tmp3)) { free(tmp1); free(tmp2); return(SUNFALSE); }
   if (__mv(A1,tmp3,s,tmp1)) { free(tmp1); free(tmp2); free(tmp3); return(SUNFALSE); }
   if (__dot(b,tmp1,s,&bAAcAc))  return(SUNFALSE);
   free(tmp1); free(tmp2); free(tmp3);
-  return (SUNRabs(bAAcAc - RCONST(1.0)/RCONST(120.0)) > TOL) ? SUNFALSE : SUNTRUE;
+  return (SUNRabs(bAAcAc - SUN_RCONST(1.0)/SUN_RCONST(120.0)) > TOL) ? SUNFALSE : SUNTRUE;
 }
 
 /* b'*A1*(c1.*(A2*(c2.*c3))) = 1/90 */
-static booleantype __order6n(realtype *b, realtype **A1, realtype *c1, realtype **A2, realtype *c2, realtype *c3, int s)
+static sunbooleantype __order6n(sunrealtype *b, sunrealtype **A1, sunrealtype *c1, sunrealtype **A2, sunrealtype *c2, sunrealtype *c3, int s)
 {
-  realtype bAcAcc;
-  realtype *tmp1 = calloc( s, sizeof(realtype) );
-  realtype *tmp2 = calloc( s, sizeof(realtype) );
+  sunrealtype bAcAcc;
+  sunrealtype *tmp1 = calloc( s, sizeof(sunrealtype) );
+  sunrealtype *tmp2 = calloc( s, sizeof(sunrealtype) );
   if (__vv(c2,c3,s,tmp1)) { free(tmp1); free(tmp2); return(SUNFALSE); }
   if (__mv(A2,tmp1,s,tmp2)) { free(tmp1); free(tmp2); return(SUNFALSE); }
   if (__vv(c1,tmp2,s,tmp1)) { free(tmp1); free(tmp2); return(SUNFALSE); }
   if (__mv(A1,tmp1,s,tmp2)) { free(tmp1); free(tmp2); return(SUNFALSE); }
   if (__dot(b,tmp2,s,&bAcAcc))  return(SUNFALSE);
   free(tmp1); free(tmp2);
-  return (SUNRabs(bAcAcc - RCONST(1.0)/RCONST(90.0)) > TOL) ? SUNFALSE : SUNTRUE;
+  return (SUNRabs(bAcAcc - SUN_RCONST(1.0)/SUN_RCONST(90.0)) > TOL) ? SUNFALSE : SUNTRUE;
 }
 
 /* b'*A1*(c1.*(A2*A3*c2)) = 1/180 */
-static booleantype __order6o(realtype *b, realtype **A1, realtype *c1, realtype **A2, realtype **A3, realtype *c2, int s)
+static sunbooleantype __order6o(sunrealtype *b, sunrealtype **A1, sunrealtype *c1, sunrealtype **A2, sunrealtype **A3, sunrealtype *c2, int s)
 {
-  realtype bAcAAc;
-  realtype *tmp1 = calloc( s, sizeof(realtype) );
-  realtype *tmp2 = calloc( s, sizeof(realtype) );
+  sunrealtype bAcAAc;
+  sunrealtype *tmp1 = calloc( s, sizeof(sunrealtype) );
+  sunrealtype *tmp2 = calloc( s, sizeof(sunrealtype) );
   if (__mv(A3,c2,s,tmp1)) { free(tmp1); free(tmp2); return(SUNFALSE); }
   if (__mv(A2,tmp1,s,tmp2)) { free(tmp1); free(tmp2); return(SUNFALSE); }
   if (__vv(c1,tmp2,s,tmp1)) { free(tmp1); free(tmp2); return(SUNFALSE); }
   if (__mv(A1,tmp1,s,tmp2)) { free(tmp1); free(tmp2); return(SUNFALSE); }
   if (__dot(b,tmp2,s,&bAcAAc))  return(SUNFALSE);
   free(tmp1); free(tmp2);
-  return (SUNRabs(bAcAAc - RCONST(1.0)/RCONST(180.0)) > TOL) ? SUNFALSE : SUNTRUE;
+  return (SUNRabs(bAcAAc - SUN_RCONST(1.0)/SUN_RCONST(180.0)) > TOL) ? SUNFALSE : SUNTRUE;
 }
 
 /* b'*A1*A2*(c1.*c2.*c3) = 1/120 */
-static booleantype __order6p(realtype *b, realtype **A1, realtype **A2, realtype *c1, realtype *c2, realtype *c3, int s)
+static sunbooleantype __order6p(sunrealtype *b, sunrealtype **A1, sunrealtype **A2, sunrealtype *c1, sunrealtype *c2, sunrealtype *c3, int s)
 {
-  realtype bAAccc;
-  realtype *tmp1 = calloc( s, sizeof(realtype) );
-  realtype *tmp2 = calloc( s, sizeof(realtype) );
+  sunrealtype bAAccc;
+  sunrealtype *tmp1 = calloc( s, sizeof(sunrealtype) );
+  sunrealtype *tmp2 = calloc( s, sizeof(sunrealtype) );
   if (__vv(c1,c2,s,tmp1)) { free(tmp1); free(tmp2); return(SUNFALSE); }
   if (__vv(c3,tmp1,s,tmp2)) { free(tmp1); free(tmp2); return(SUNFALSE); }
   if (__mv(A2,tmp2,s,tmp1)) { free(tmp1); free(tmp2); return(SUNFALSE); }
   if (__mv(A1,tmp1,s,tmp2)) { free(tmp1); free(tmp2); return(SUNFALSE); }
   if (__dot(b,tmp2,s,&bAAccc))  return(SUNFALSE);
   free(tmp1); free(tmp2);
-  return (SUNRabs(bAAccc - RCONST(1.0)/RCONST(120.0)) > TOL) ? SUNFALSE : SUNTRUE;
+  return (SUNRabs(bAAccc - SUN_RCONST(1.0)/SUN_RCONST(120.0)) > TOL) ? SUNFALSE : SUNTRUE;
 }
 
 /* b'*A1*A2*(c1.*(A3*c2)) = 1/240 */
-static booleantype __order6q(realtype *b, realtype **A1, realtype **A2, realtype *c1, realtype **A3, realtype *c2, int s)
+static sunbooleantype __order6q(sunrealtype *b, sunrealtype **A1, sunrealtype **A2, sunrealtype *c1, sunrealtype **A3, sunrealtype *c2, int s)
 {
-  realtype bAAcAc;
-  realtype *tmp1 = calloc( s, sizeof(realtype) );
-  realtype *tmp2 = calloc( s, sizeof(realtype) );
+  sunrealtype bAAcAc;
+  sunrealtype *tmp1 = calloc( s, sizeof(sunrealtype) );
+  sunrealtype *tmp2 = calloc( s, sizeof(sunrealtype) );
   if (__mv(A3,c2,s,tmp1)) { free(tmp1); free(tmp2); return(SUNFALSE); }
   if (__vv(c1,tmp1,s,tmp2)) { free(tmp1); free(tmp2); return(SUNFALSE); }
   if (__mv(A2,tmp2,s,tmp1)) { free(tmp1); free(tmp2); return(SUNFALSE); }
   if (__mv(A1,tmp1,s,tmp2)) { free(tmp1); free(tmp2); return(SUNFALSE); }
   if (__dot(b,tmp2,s,&bAAcAc))  return(SUNFALSE);
   free(tmp1); free(tmp2);
-  return (SUNRabs(bAAcAc - RCONST(1.0)/RCONST(240.0)) > TOL) ? SUNFALSE : SUNTRUE;
+  return (SUNRabs(bAAcAc - SUN_RCONST(1.0)/SUN_RCONST(240.0)) > TOL) ? SUNFALSE : SUNTRUE;
 }
 
 /* b'*A1*A2*A3*(c1.*c2) = 1/360 */
-static booleantype __order6r(realtype *b, realtype **A1, realtype **A2, realtype **A3, realtype *c1, realtype *c2, int s)
+static sunbooleantype __order6r(sunrealtype *b, sunrealtype **A1, sunrealtype **A2, sunrealtype **A3, sunrealtype *c1, sunrealtype *c2, int s)
 {
-  realtype bAAAcc;
-  realtype *tmp1 = calloc( s, sizeof(realtype) );
-  realtype *tmp2 = calloc( s, sizeof(realtype) );
+  sunrealtype bAAAcc;
+  sunrealtype *tmp1 = calloc( s, sizeof(sunrealtype) );
+  sunrealtype *tmp2 = calloc( s, sizeof(sunrealtype) );
   if (__vv(c1,c2,s,tmp1)) { free(tmp1); free(tmp2); return(SUNFALSE); }
   if (__mv(A3,tmp1,s,tmp2)) { free(tmp1); free(tmp2); return(SUNFALSE); }
   if (__mv(A2,tmp2,s,tmp1)) { free(tmp1); free(tmp2); return(SUNFALSE); }
   if (__mv(A1,tmp1,s,tmp2)) { free(tmp1); free(tmp2); return(SUNFALSE); }
   if (__dot(b,tmp2,s,&bAAAcc))  return(SUNFALSE);
   free(tmp1); free(tmp2);
-  return (SUNRabs(bAAAcc - RCONST(1.0)/RCONST(360.0)) > TOL) ? SUNFALSE : SUNTRUE;
+  return (SUNRabs(bAAAcc - SUN_RCONST(1.0)/SUN_RCONST(360.0)) > TOL) ? SUNFALSE : SUNTRUE;
 }
 
 /* b'*A1*A2*A3*A4*c = 1/720 */
-static booleantype __order6s(realtype *b, realtype **A1, realtype **A2, realtype **A3, realtype **A4, realtype *c, int s)
+static sunbooleantype __order6s(sunrealtype *b, sunrealtype **A1, sunrealtype **A2, sunrealtype **A3, sunrealtype **A4, sunrealtype *c, int s)
 {
-  realtype bAAAAc;
-  realtype *tmp1 = calloc( s, sizeof(realtype) );
-  realtype *tmp2 = calloc( s, sizeof(realtype) );
+  sunrealtype bAAAAc;
+  sunrealtype *tmp1 = calloc( s, sizeof(sunrealtype) );
+  sunrealtype *tmp2 = calloc( s, sizeof(sunrealtype) );
   if (__mv(A4,c,s,tmp1)) { free(tmp1); free(tmp2); return(SUNFALSE); }
   if (__mv(A2,tmp1,s,tmp2)) { free(tmp1); free(tmp2); return(SUNFALSE); }
   if (__mv(A2,tmp2,s,tmp1)) { free(tmp1); free(tmp2); return(SUNFALSE); }
   if (__mv(A1,tmp1,s,tmp2)) { free(tmp1); free(tmp2); return(SUNFALSE); }
   if (__dot(b,tmp2,s,&bAAAAc))  return(SUNFALSE);
   free(tmp1); free(tmp2);
-  return (SUNRabs(bAAAAc - RCONST(1.0)/RCONST(720.0)) > TOL) ? SUNFALSE : SUNTRUE;
+  return (SUNRabs(bAAAAc - SUN_RCONST(1.0)/SUN_RCONST(720.0)) > TOL) ? SUNFALSE : SUNTRUE;
 }
 
 
@@ -2060,19 +2060,19 @@ static booleantype __order6s(realtype *b, realtype **A1, realtype **A2, realtype
   Utility routine to check Butcher's simplifying assumptions.
   Returns the maximum predicted order.
   ---------------------------------------------------------------*/
-static int __ButcherSimplifyingAssumptions(realtype **A, realtype *b, realtype *c, int s)
+static int __ButcherSimplifyingAssumptions(sunrealtype **A, sunrealtype *b, sunrealtype *c, int s)
 {
   int P, Q, R, i, j, k, q;
-  realtype RHS, LHS;
-  booleantype alltrue;
-  realtype *tmp = calloc( s, sizeof(realtype) );
+  sunrealtype RHS, LHS;
+  sunbooleantype alltrue;
+  sunrealtype *tmp = calloc( s, sizeof(sunrealtype) );
 
   /* B(P) */
   P = 0;
   for (i=1; i<1000; i++) {
     if (__vp(c,i-1,s,tmp)) { free(tmp); return(0); }
     if (__dot(b,tmp,s,&LHS)) { free(tmp); return(0); }
-    RHS = RCONST(1.0)/i;
+    RHS = SUN_RCONST(1.0)/i;
     if (SUNRabs(RHS-LHS) > TOL)
       break;
     P++;
@@ -2103,10 +2103,10 @@ static int __ButcherSimplifyingAssumptions(realtype **A, realtype *b, realtype *
   for (k=1; k<1000; k++) {
     alltrue = SUNTRUE;
     for (j=0; j<s; j++) {
-      LHS = RCONST(0.0);
+      LHS = SUN_RCONST(0.0);
       for (i=0; i<s; i++)
         LHS += A[i][j]*b[i]*SUNRpowerI(c[i],k-1);
-      RHS = b[j]/k*(RCONST(1.0)-SUNRpowerI(c[j],k));
+      RHS = b[j]/k*(SUN_RCONST(1.0)-SUNRpowerI(c[j],k));
       if (SUNRabs(RHS-LHS) > TOL) {
         alltrue = SUNFALSE;
         break;

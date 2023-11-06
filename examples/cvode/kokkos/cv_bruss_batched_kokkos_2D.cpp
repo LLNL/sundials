@@ -102,8 +102,8 @@ using ExecSpace = Kokkos::Serial;
 using MemSpace  = Kokkos::HostSpace;
 #endif
 
-using Vec1D     = Kokkos::View<realtype*, MemSpace>;
-using Vec2D     = Kokkos::View<realtype**, Kokkos::LayoutRight, MemSpace>;
+using Vec1D     = Kokkos::View<sunrealtype*, MemSpace>;
+using Vec2D     = Kokkos::View<sunrealtype**, Kokkos::LayoutRight, MemSpace>;
 using Vec2DHost = Vec2D::HostMirror;
 using VecType   = sundials::kokkos::Vector<ExecSpace>;
 using MatType   = sundials::kokkos::DenseMatrix<ExecSpace>;

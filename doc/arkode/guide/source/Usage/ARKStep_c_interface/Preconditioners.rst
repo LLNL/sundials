@@ -172,7 +172,7 @@ the ARKBANDPRE module:
 
    **Arguments:**
       * *arkode_mem* -- pointer to the ARKStep memory block.
-      * *lenrwLS* -- the number of ``realtype`` values in the
+      * *lenrwLS* -- the number of ``sunrealtype`` values in the
         ARKBANDPRE workspace.
       * *leniwLS* -- the number of integer values in the  ARKBANDPRE workspace.
 
@@ -347,7 +347,7 @@ communicated between processes by *cfn*, and that are then used by
 
 
 
-.. c:type:: int (*ARKLocalFn)(sunindextype Nlocal, realtype t, N_Vector y, N_Vector glocal, void* user_data)
+.. c:type:: int (*ARKLocalFn)(sunindextype Nlocal, sunrealtype t, N_Vector y, N_Vector glocal, void* user_data)
 
    This *gloc* function computes :math:`g(t,y)`.  It
    fills the vector *glocal* as a function of *t* and *y*.
@@ -377,7 +377,7 @@ communicated between processes by *cfn*, and that are then used by
 
 
 
-.. c:type:: int (*ARKCommFn)(sunindextype Nlocal, realtype t, N_Vector y, void* user_data)
+.. c:type:: int (*ARKCommFn)(sunindextype Nlocal, sunrealtype t, N_Vector y, void* user_data)
 
    This *cfn* function performs all inter-process
    communication necessary for the execution of the *gloc* function
@@ -497,7 +497,7 @@ ARKBBDPRE user-callable functions
 The ARKBBDPRE preconditioner module is initialized (or re-initialized)
 and attached to the integrator by calling the following functions:
 
-.. c:function:: int ARKBBDPrecInit(void* arkode_mem, sunindextype Nlocal, sunindextype mudq, sunindextype mldq, sunindextype mukeep, sunindextype mlkeep, realtype dqrely, ARKLocalFn gloc, ARKCommFn cfn)
+.. c:function:: int ARKBBDPrecInit(void* arkode_mem, sunindextype Nlocal, sunindextype mudq, sunindextype mldq, sunindextype mukeep, sunindextype mlkeep, sunrealtype dqrely, ARKLocalFn gloc, ARKCommFn cfn)
 
    Initializes and allocates (internal) memory for the
    ARKBBDPRE preconditioner.
@@ -565,7 +565,7 @@ SUNLINSOL module, and/or one or more of the corresponding
 ``ARKStepSet***`` functions, must also be made (in the proper order).
 
 
-.. c:function:: int ARKBBDPrecReInit(void* arkode_mem, sunindextype mudq, sunindextype mldq, realtype dqrely)
+.. c:function:: int ARKBBDPrecReInit(void* arkode_mem, sunindextype mudq, sunindextype mldq, sunrealtype dqrely)
 
    Re-initializes the ARKBBDPRE preconditioner module.
 
@@ -603,7 +603,7 @@ the ARKBBDPRE module:
 
    **Arguments:**
       * *arkode_mem* -- pointer to the ARKStep memory block.
-      * *lenrwBBDP* -- the number of ``realtype`` values in the
+      * *lenrwBBDP* -- the number of ``sunrealtype`` values in the
         ARKBBDPRE workspace.
       * *leniwBBDP* -- the number of integer values in the  ARKBBDPRE workspace.
 

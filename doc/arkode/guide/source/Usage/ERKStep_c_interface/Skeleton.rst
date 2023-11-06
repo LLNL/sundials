@@ -58,7 +58,7 @@ referenced.
 
       y0 = N_VMake_***(..., ydata);
 
-   if the ``realtype`` array ``ydata`` containing the initial values of
+   if the ``sunrealtype`` array ``ydata`` containing the initial values of
    :math:`y` already exists.  Otherwise, create a new vector by making
    a call of the form
 

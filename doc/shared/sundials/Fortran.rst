@@ -169,7 +169,7 @@ equivalencies with the parameter direction in mind.
 .. warning::
 
    Currently, the Fortran 2003 interfaces are only compatible with SUNDIALS
-   builds where the ``realtype`` is double-precision the ``sunindextype`` size
+   builds where the ``sunrealtype`` is double-precision the ``sunindextype`` size
    is 64-bits.
 
 .. _SUNDIALS.Fortran.DataTypes.Table:
@@ -184,9 +184,9 @@ equivalencies with the parameter direction in mind.
    +-------------------------+-------------------------------+-------------------------------------------+
    |``long``                 | in, inout, out, return        | ``integer(c_long)``                       |
    +-------------------------+-------------------------------+-------------------------------------------+
-   |``booleantype``          | in, inout, out, return        | ``integer(c_int)``                        |
+   |``sunbooleantype``          | in, inout, out, return        | ``integer(c_int)``                        |
    +-------------------------+-------------------------------+-------------------------------------------+
-   |``realtype``             | in, inout, out, return        | ``real(c_double)``                        |
+   |``sunrealtype``             | in, inout, out, return        | ``real(c_double)``                        |
    +-------------------------+-------------------------------+-------------------------------------------+
    |``sunindextype``         | in, inout, out, return        | ``integer(c_long)``                       |
    +-------------------------+-------------------------------+-------------------------------------------+
@@ -202,15 +202,15 @@ equivalencies with the parameter direction in mind.
    +-------------------------+-------------------------------+-------------------------------------------+
    |``long*``                | return                        | ``real(c_long), pointer, dimension(:)``   |
    +-------------------------+-------------------------------+-------------------------------------------+
-   |``realtype*``            | in, inout, out                | ``real(c_double), dimension(*)``          |
+   |``sunrealtype*``            | in, inout, out                | ``real(c_double), dimension(*)``          |
    +-------------------------+-------------------------------+-------------------------------------------+
-   |``realtype*``            | return                        | ``real(c_double), pointer, dimension(:)`` |
+   |``sunrealtype*``            | return                        | ``real(c_double), pointer, dimension(:)`` |
    +-------------------------+-------------------------------+-------------------------------------------+
    |``sunindextype*``        | in, inout, out                | ``real(c_long), dimension(*)``            |
    +-------------------------+-------------------------------+-------------------------------------------+
    |``sunindextype*``        | return                        | ``real(c_long), pointer, dimension(:)``   |
    +-------------------------+-------------------------------+-------------------------------------------+
-   |``realtype[]``           | in, inout, out                | ``real(c_double), dimension(*)``          |
+   |``sunrealtype[]``           | in, inout, out                | ``real(c_double), dimension(*)``          |
    +-------------------------+-------------------------------+-------------------------------------------+
    |``sunindextype[]``       | in, inout, out                | ``integer(c_long), dimension(*)``         |
    +-------------------------+-------------------------------+-------------------------------------------+
@@ -302,7 +302,7 @@ C code:
 .. sourcecode:: c
 
    N_Vector x;
-   realtype* xdata;
+   sunrealtype* xdata;
    long int leniw, lenrw;
 
    /* create a new serial vector */

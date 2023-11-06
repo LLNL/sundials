@@ -63,7 +63,7 @@ extern "C" {
  *    M     - number of rows
  *    N     - number of columns
  *    ldim  - leading dimension (ldim >= M)
- *    data  - pointer to a contiguous block of realtype variables
+ *    data  - pointer to a contiguous block of sunrealtype variables
  *    ldata - length of the data array =ldim*N
  *    cols  - array of pointers. cols[j] points to the first element
  *            of the j-th column of the matrix in the array data.
@@ -94,7 +94,7 @@ extern "C" {
  *            partial pivoting. The s_mu field holds the upper
  *            bandwidth allocated for A.
  *    ldim  - leading dimension (ldim >= s_mu)
- *    data  - pointer to a contiguous block of realtype variables
+ *    data  - pointer to a contiguous block of sunrealtype variables
  *    ldata - length of the data array =ldim*(s_mu+ml+1)
  *    cols  - array of pointers. cols[j] points to the first element
  *            of the j-th column of the matrix in the array data.
@@ -122,12 +122,11 @@ typedef struct _DlsMat {
   sunindextype mu;
   sunindextype ml;
   sunindextype s_mu;
-  realtype *data;
+  sunrealtype *data;
   sunindextype ldata;
-  realtype **cols;
-} *SUNDlsMat; /* DEPRECATED DlsMat: use SUNDlsMat instead */
+  sunrealtype **cols;
+} *SUNDlsMat; 
 
-typedef SUNDlsMat DlsMat;
 
 /*
  * ==================================================================
@@ -142,7 +141,7 @@ typedef SUNDlsMat DlsMat;
  *
  * SUNDLS_DENSE_COL(A,j) references the jth column of the M-by-N dense
  * matrix A, 0 <= j < N. The type of the expression SUNDLS_DENSE_COL(A,j)
- * is (realtype *). After the assignment col_j = SUNDLS_DENSE_COL(A,j),
+ * is (sunrealtype *). After the assignment col_j = SUNDLS_DENSE_COL(A,j),
  * col_j may be treated as an array indexed from 0 to M-1. The (i,j)-th
  * element of A is thus referenced by * col_j[i].
  *
@@ -155,11 +154,6 @@ typedef SUNDlsMat DlsMat;
 #define SUNDLS_DENSE_COL(A,j) ((A->cols)[j])
 #define SUNDLS_DENSE_ELEM(A,i,j) ((A->cols)[j][i])
 
-/* DEPRECATED DENSE_COL: use SUNDLS_DENSE_COL instead */
-#define DENSE_COL(A,j) SUNDLS_DENSE_COL(A,j)
-/* DEPRECATED DENSE_ELEM: use SUNDLS_DENSE_ELEM instead */
-#define DENSE_ELEM(A,i,j) SUNDLS_DENSE_ELEM(A,i,j)
-
 /*
  * -----------------------------------------------------------------
  * SUNDLS_BAND_COL, SUNDLS_BAND_COL_ELEM, and SUNDLS_BAND_ELEM
@@ -167,7 +161,7 @@ typedef SUNDlsMat DlsMat;
  *
  * SUNDLS_BAND_COL(A,j) references the diagonal element of the jth
  * column of the N by N band matrix A, 0 <= j <= N-1. The type of the
- * expression SUNDLS_BAND_COL(A,j) is realtype *. The pointer returned
+ * expression SUNDLS_BAND_COL(A,j) is sunrealtype *. The pointer returned
  * by the call SUNDLS_BAND_COL(A,j) can be treated as an array which
  * is indexed from -(A->mu) to (A->ml).
  *
@@ -185,14 +179,6 @@ typedef SUNDlsMat DlsMat;
 #define SUNDLS_BAND_COL(A,j) (((A->cols)[j])+(A->s_mu))
 #define SUNDLS_BAND_COL_ELEM(col_j,i,j) (col_j[(i)-(j)])
 #define SUNDLS_BAND_ELEM(A,i,j) ((A->cols)[j][(i)-(j)+(A->s_mu)])
-
-/* DEPRECATED BAND_COL: use SUNDLS_BAND_COL */
-#define BAND_COL(A,j) SUNDLS_BAND_COL(A,j)
-/* DEPRECATED BAND_COL_ELEM: use SUNDLS_BAND_COL_ELEM */
-#define BAND_COL_ELEM(col_j,i,j) SUNDLS_BAND_COL_ELEM(col_j,i,j)
-/* DEPRECATED BAND_ELEM: use SUNDLS_BAND_ELEM */
-#define BAND_ELEM(A,i,j) SUNDLS_BAND_ELEM(A,i,j)
-
 /*
  * ==================================================================
  * Exported function prototypes (functions working on SUNDlsMat)
@@ -213,9 +199,6 @@ typedef SUNDlsMat DlsMat;
 
 SUNDIALS_EXPORT
 SUNDlsMat SUNDlsMat_NewDenseMat(sunindextype M, sunindextype N);
-
-SUNDIALS_DEPRECATED_EXPORT_MSG("use SUNDlsMat_NewDenseMat instead")
-DlsMat NewDenseMat(sunindextype M, sunindextype N);
 
 /*
  * -----------------------------------------------------------------
@@ -241,10 +224,6 @@ SUNDIALS_EXPORT
 SUNDlsMat SUNDlsMat_NewBandMat(sunindextype N, sunindextype mu,
                                sunindextype ml, sunindextype smu);
 
-SUNDIALS_DEPRECATED_EXPORT_MSG("use SUNDlsMat_NewBandMat instead")
-DlsMat NewBandMat(sunindextype N, sunindextype mu,
-                  sunindextype ml, sunindextype smu);
-
 /*
  * -----------------------------------------------------------------
  * Functions: SUNDlsMat_DestroyMat
@@ -255,10 +234,7 @@ DlsMat NewBandMat(sunindextype N, sunindextype mu,
  */
 
 SUNDIALS_EXPORT
-void SUNDlsMat_DestroyMat(DlsMat A);
-
-SUNDIALS_DEPRECATED_EXPORT_MSG("use SUNDlsMat_DestroyMat instead")
-void DestroyMat(DlsMat A);
+void SUNDlsMat_DestroyMat(SUNDlsMat A);
 
 /*
  * -----------------------------------------------------------------
@@ -272,9 +248,6 @@ void DestroyMat(DlsMat A);
 
 SUNDIALS_EXPORT
 int* SUNDlsMat_NewIntArray(int N);
-
-SUNDIALS_DEPRECATED_EXPORT_MSG("use SUNDlsMat_NewIntArray instead")
-int* NewIntArray(int N);
 
 /*
  * -----------------------------------------------------------------
@@ -290,24 +263,18 @@ int* NewIntArray(int N);
 SUNDIALS_EXPORT
 sunindextype* SUNDlsMat_NewIndexArray(sunindextype N);
 
-SUNDIALS_DEPRECATED_EXPORT_MSG("use SUNDlsMat_NewIndexArray instead")
-sunindextype* NewIndexArray(sunindextype N);
-
 /*
  * -----------------------------------------------------------------
  * Function: SUNDlsMat_NewRealArray
  * -----------------------------------------------------------------
- * SUNDlsMat_NewRealArray allocates memory an array of N realtype and
+ * SUNDlsMat_NewRealArray allocates memory an array of N sunrealtype and
  * returns the pointer to the memory it allocates. If the request for
  * memory storage cannot be satisfied, it returns NULL.
  * -----------------------------------------------------------------
  */
 
 SUNDIALS_EXPORT
-realtype* SUNDlsMat_NewRealArray(sunindextype N);
-
-SUNDIALS_DEPRECATED_EXPORT_MSG("use SUNDlsMat_NewRealArray instead")
-realtype* NewRealArray(sunindextype N);
+sunrealtype* SUNDlsMat_NewRealArray(sunindextype N);
 
 /*
  * -----------------------------------------------------------------
@@ -321,9 +288,6 @@ realtype* NewRealArray(sunindextype N);
 
 SUNDIALS_EXPORT
 void SUNDlsMat_DestroyArray(void *p);
-
-SUNDIALS_DEPRECATED_EXPORT_MSG("use SUNDlsMat_DestroyArray instead")
-void DestroyArray(void *p);
 
 /*
  * -----------------------------------------------------------------
@@ -340,9 +304,6 @@ void DestroyArray(void *p);
 SUNDIALS_EXPORT
 void SUNDlsMat_AddIdentity(SUNDlsMat A);
 
-SUNDIALS_DEPRECATED_EXPORT_MSG("use SUNDlsMat_AddIdentity instead")
-void AddIdentity(DlsMat A);
-
 /*
  * -----------------------------------------------------------------
  * Function : SUNDlsMat_SetToZero
@@ -354,9 +315,6 @@ void AddIdentity(DlsMat A);
 
 SUNDIALS_EXPORT
 void SUNDlsMat_SetToZero(SUNDlsMat A);
-
-SUNDIALS_DEPRECATED_EXPORT_MSG("use SUNDlsMat_SetToZero instead")
-void SetToZero(DlsMat A);
 
 /*
  * -----------------------------------------------------------------
@@ -373,58 +331,34 @@ void SetToZero(DlsMat A);
 SUNDIALS_EXPORT
 void SUNDlsMat_PrintMat(SUNDlsMat A, FILE *outfile);
 
-SUNDIALS_DEPRECATED_EXPORT_MSG("use SUNDlsMat_PrintMat")
-void PrintMat(DlsMat A, FILE *outfile);
-
 /*
  * ==================================================================
- * Exported function prototypes (functions working on realtype**)
+ * Exported function prototypes (functions working on sunrealtype**)
  * ==================================================================
  */
 
 SUNDIALS_EXPORT
-realtype** SUNDlsMat_newDenseMat(sunindextype m, sunindextype n);
-
-SUNDIALS_DEPRECATED_EXPORT_MSG("use SUNDlsMat_newDenseMat instead")
-realtype** newDenseMat(sunindextype m, sunindextype n);
+sunrealtype** SUNDlsMat_newDenseMat(sunindextype m, sunindextype n);
 
 SUNDIALS_EXPORT
-realtype** SUNDlsMat_newBandMat(sunindextype n, sunindextype smu,
+sunrealtype** SUNDlsMat_newBandMat(sunindextype n, sunindextype smu,
                                 sunindextype ml);
 
-SUNDIALS_DEPRECATED_EXPORT_MSG("use SUNDlsMat_newBandMat instead")
-realtype** newBandMat(sunindextype n, sunindextype smu,
-                      sunindextype ml);
 
 SUNDIALS_EXPORT
-void SUNDlsMat_destroyMat(realtype** a);
-
-SUNDIALS_DEPRECATED_EXPORT_MSG("use SUNDlsMat_destroyMat instead")
-void destroyMat(realtype** a);
+void SUNDlsMat_destroyMat(sunrealtype** a);
 
 SUNDIALS_EXPORT
 int* SUNDlsMat_newIntArray(int n);
 
-SUNDIALS_DEPRECATED_EXPORT_MSG("use SUNDlsMat_newIntArray instead")
-int* newIntArray(int n);
-
 SUNDIALS_EXPORT
 sunindextype* SUNDlsMat_newIndexArray(sunindextype n);
 
-SUNDIALS_DEPRECATED_EXPORT_MSG("use SUNDlsMat_newIndexArray instead")
-sunindextype* newIndexArray(sunindextype n);
-
 SUNDIALS_EXPORT
-realtype* SUNDlsMat_newRealArray(sunindextype m);
-
-SUNDIALS_DEPRECATED_EXPORT_MSG("use SUNDlsMat_newRealArray instead")
-  realtype* newRealArray(sunindextype m);
+sunrealtype* SUNDlsMat_newRealArray(sunindextype m);
 
 SUNDIALS_EXPORT
 void SUNDlsMat_destroyArray(void* v);
-
-SUNDIALS_DEPRECATED_EXPORT_MSG("use SUNDlsMat_destroyArray instead")
-void destroyArray(void* v);
 
 
 #ifdef __cplusplus

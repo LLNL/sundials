@@ -68,46 +68,46 @@
 #include <mpi.h>
 
 /* Problem Constants */
-#define XMAX  RCONST(2.0)   /* domain boundary           */
+#define XMAX  SUN_RCONST(2.0)   /* domain boundary           */
 #define MX    10            /* mesh dimension            */
 #define NEQ   MX            /* number of equations       */
-#define ATOL  RCONST(1.e-5) /* scalar absolute tolerance */
-#define T0    RCONST(0.0)   /* initial time              */
-#define T1    RCONST(0.5)   /* first output time         */
-#define DTOUT RCONST(0.5)   /* output time increment     */
+#define ATOL  SUN_RCONST(1.e-5) /* scalar absolute tolerance */
+#define T0    SUN_RCONST(0.0)   /* initial time              */
+#define T1    SUN_RCONST(0.5)   /* first output time         */
+#define DTOUT SUN_RCONST(0.5)   /* output time increment     */
 #define NOUT  10            /* number of output times    */
 
 #define NP    2
 #define NS    2
 
-#define ZERO  RCONST(0.0)
+#define ZERO  SUN_RCONST(0.0)
 
 /* Type : UserData
    contains problem parameters, grid constants, work array. */
 
 typedef struct {
-  realtype *p;
-  realtype dx;
+  sunrealtype *p;
+  sunrealtype dx;
   int npes, my_pe;
   MPI_Comm comm;
-  realtype z[100];
+  sunrealtype z[100];
 } *UserData;
 
 
 /* Prototypes of user-supplied functins */
 
-static int f(realtype t, N_Vector u, N_Vector udot, void *user_data);
+static int f(sunrealtype t, N_Vector u, N_Vector udot, void *user_data);
 
 /* Prototypes of private functions */
 
 static void ProcessArgs(int argc, char *argv[], int my_pe,
-                        booleantype *sensi, int *sensi_meth, booleantype *err_con);
+                        sunbooleantype *sensi, int *sensi_meth, sunbooleantype *err_con);
 static void WrongArgs(int my_pe, char *name);
-static void SetIC(N_Vector u, realtype dx, sunindextype my_length, sunindextype my_base);
-static void PrintOutput(void *cvode_mem, int my_pe, realtype t, N_Vector u);
+static void SetIC(N_Vector u, sunrealtype dx, sunindextype my_length, sunindextype my_base);
+static void PrintOutput(void *cvode_mem, int my_pe, sunrealtype t, N_Vector u);
 static void PrintOutputS(int my_pe, N_Vector *uS);
-static void PrintFinalStats(void *cvode_mem, booleantype sensi,
-                            booleantype err_con, int sensi_meth);
+static void PrintFinalStats(void *cvode_mem, sunbooleantype sensi,
+                            sunbooleantype err_con, int sensi_meth);
 static int check_retval(void *returnvalue, const char *funcname, int opt, int id);
 
 /*
@@ -118,17 +118,17 @@ static int check_retval(void *returnvalue, const char *funcname, int opt, int id
 
 int main(int argc, char *argv[])
 {
-  realtype dx, reltol, abstol, t, tout;
+  sunrealtype dx, reltol, abstol, t, tout;
   N_Vector u;
   UserData data;
   void *cvode_mem;
   int iout, retval, my_pe, npes;
   sunindextype local_N, nperpe, nrem, my_base;
 
-  realtype *pbar;
+  sunrealtype *pbar;
   int is, *plist;
   N_Vector *uS;
-  booleantype sensi, err_con;
+  sunbooleantype sensi, err_con;
   int sensi_meth;
 
   SUNNonlinearSolver NLS, NLSsens;
@@ -171,11 +171,11 @@ int main(int argc, char *argv[])
   data->comm = comm;
   data->npes = npes;
   data->my_pe = my_pe;
-  data->p = (realtype *) malloc(NP * sizeof(realtype));
+  data->p = (sunrealtype *) malloc(NP * sizeof(sunrealtype));
   if(check_retval((void *)data->p, "malloc", 2, my_pe)) MPI_Abort(comm, 1);
-  dx = data->dx = XMAX/((realtype)(MX+1));
-  data->p[0] = RCONST(1.0);
-  data->p[1] = RCONST(0.5);
+  dx = data->dx = XMAX/((sunrealtype)(MX+1));
+  data->p[0] = SUN_RCONST(1.0);
+  data->p[1] = SUN_RCONST(0.5);
 
   /* INITIAL STATES */
   u = N_VNew_Parallel(comm, local_N, NEQ, sunctx);    /* Allocate u vector */
@@ -219,7 +219,7 @@ int main(int argc, char *argv[])
     for(is=0; is<NS; is++)
       plist[is] = is; /* sensitivity w.r.t. i-th parameter */
 
-    pbar  = (realtype *) malloc(NS * sizeof(realtype));
+    pbar  = (sunrealtype *) malloc(NS * sizeof(sunrealtype));
     if(check_retval((void *)pbar, "malloc", 2, my_pe)) MPI_Abort(comm, 1);
     for(is=0; is<NS; is++) pbar[is] = data->p[plist[is]];
 
@@ -335,11 +335,11 @@ int main(int argc, char *argv[])
  * f routine. Compute f(t,u).
  */
 
-static int f(realtype t, N_Vector u, N_Vector udot, void *user_data)
+static int f(sunrealtype t, N_Vector u, N_Vector udot, void *user_data)
 {
-  realtype ui, ult, urt, hordc, horac, hdiff, hadv;
-  realtype *udata, *dudata, *z;
-  realtype dx;
+  sunrealtype ui, ult, urt, hordc, horac, hdiff, hadv;
+  sunrealtype *udata, *dudata, *z;
+  sunrealtype dx;
   int npes, my_pe, my_pe_m1, my_pe_p1, last_pe;
   sunindextype i, my_length;
   UserData data;
@@ -353,7 +353,7 @@ static int f(realtype t, N_Vector u, N_Vector udot, void *user_data)
   data  = (UserData) user_data;
   dx    = data->dx;
   hordc = data->p[0]/(dx*dx);
-  horac = data->p[1]/(RCONST(2.0)*dx);
+  horac = data->p[1]/(SUN_RCONST(2.0)*dx);
 
   /* Extract parameters for parallel computation. */
   comm = data->comm;
@@ -395,7 +395,7 @@ static int f(realtype t, N_Vector u, N_Vector udot, void *user_data)
     urt = z[i+1];
 
     /* Set diffusion and advection terms and load into udot */
-    hdiff = hordc*(ult - RCONST(2.0)*ui + urt);
+    hdiff = hordc*(ult - SUN_RCONST(2.0)*ui + urt);
     hadv = horac*(urt - ult);
     dudata[i-1] = hdiff + hadv;
   }
@@ -414,7 +414,7 @@ static int f(realtype t, N_Vector u, N_Vector udot, void *user_data)
  */
 
 static void ProcessArgs(int argc, char *argv[], int my_pe,
-                        booleantype *sensi, int *sensi_meth, booleantype *err_con)
+                        sunbooleantype *sensi, int *sensi_meth, sunbooleantype *err_con)
 {
   *sensi = SUNFALSE;
   *sensi_meth = -1;
@@ -468,13 +468,13 @@ static void WrongArgs(int my_pe, char *name)
  * Set initial conditions in u vector
  */
 
-static void SetIC(N_Vector u, realtype dx, sunindextype my_length,
+static void SetIC(N_Vector u, sunrealtype dx, sunindextype my_length,
                   sunindextype my_base)
 {
   int i;
   sunindextype iglobal;
-  realtype x;
-  realtype *udata;
+  sunrealtype x;
+  sunrealtype *udata;
 
   /* Set pointer to data array and get local length of u. */
   udata = N_VGetArrayPointer_Parallel(u);
@@ -492,11 +492,11 @@ static void SetIC(N_Vector u, realtype dx, sunindextype my_length,
  * Print current t, step count, order, stepsize, and max norm of solution
  */
 
-static void PrintOutput(void *cvode_mem, int my_pe, realtype t, N_Vector u)
+static void PrintOutput(void *cvode_mem, int my_pe, sunrealtype t, N_Vector u)
 {
   long int nst;
   int qu, retval;
-  realtype hu, umax;
+  sunrealtype hu, umax;
 
   retval = CVodeGetNumSteps(cvode_mem, &nst);
   check_retval(&retval, "CVodeGetNumSteps", 1, my_pe);
@@ -537,7 +537,7 @@ static void PrintOutput(void *cvode_mem, int my_pe, realtype t, N_Vector u)
 
 static void PrintOutputS(int my_pe, N_Vector *uS)
 {
-  realtype smax;
+  sunrealtype smax;
 
   smax = N_VMaxNorm(uS[0]);
   if (my_pe == 0) {
@@ -569,8 +569,8 @@ static void PrintOutputS(int my_pe, N_Vector *uS)
  * Print some final statistics located in the iopt array
  */
 
-static void PrintFinalStats(void *cvode_mem, booleantype sensi,
-                            booleantype err_con, int sensi_meth)
+static void PrintFinalStats(void *cvode_mem, sunbooleantype sensi,
+                            sunbooleantype err_con, int sensi_meth)
 {
   long int nst;
   long int nfe, nsetups, nni, ncfn, netf;

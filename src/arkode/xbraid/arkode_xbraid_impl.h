@@ -75,7 +75,7 @@ struct _ARKBraidContent
   int       last_flag_arkode;
 
   /* Output time and state */
-  realtype tout;
+  sunrealtype tout;
   N_Vector yout;
 };
 

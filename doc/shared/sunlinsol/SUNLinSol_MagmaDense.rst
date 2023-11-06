@@ -83,7 +83,7 @@ In addition, the module provides the following user-callable routines:
       the input matrix and vector to determine the linear system size and to
       assess compatibility with the solver.
 
-.. c:function:: int SUNLinSol_MagmaDense_SetAsync(SUNLinearSolver LS, booleantype onoff)
+.. c:function:: int SUNLinSol_MagmaDense_SetAsync(SUNLinearSolver LS, sunbooleantype onoff)
 
    This function can be used to toggle the linear solver between asynchronous
    and synchronous modes. In asynchronous mode (default), SUNLinearSolver
@@ -109,7 +109,7 @@ The SUNLinearSolver_MagmaDense module defines the object *content* field of a
 
    struct _SUNLinearSolverContent_MagmaDense {
      int             last_flag;
-     booleantype     async;
+     sunbooleantype     async;
      sunindextype    N;
      SUNMemory       pivots;
      SUNMemory       pivotsarr;

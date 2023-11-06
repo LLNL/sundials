@@ -32,6 +32,8 @@ module fsundials_profiler_mod
  end type
  public :: FSUNProfiler_Begin
  public :: FSUNProfiler_End
+ public :: FSUNProfiler_GetTimerResolution
+ public :: FSUNProfiler_GetElapsedTime
  public :: FSUNProfiler_Print
  public :: FSUNProfiler_Reset
 
@@ -65,6 +67,26 @@ use, intrinsic :: ISO_C_BINDING
 import :: swigarraywrapper
 type(C_PTR), value :: farg1
 type(SwigArrayWrapper) :: farg2
+integer(C_INT) :: fresult
+end function
+
+function swigc_FSUNProfiler_GetTimerResolution(farg1, farg2) &
+bind(C, name="_wrap_FSUNProfiler_GetTimerResolution") &
+result(fresult)
+use, intrinsic :: ISO_C_BINDING
+type(C_PTR), value :: farg1
+type(C_PTR), value :: farg2
+integer(C_INT) :: fresult
+end function
+
+function swigc_FSUNProfiler_GetElapsedTime(farg1, farg2, farg3) &
+bind(C, name="_wrap_FSUNProfiler_GetElapsedTime") &
+result(fresult)
+use, intrinsic :: ISO_C_BINDING
+import :: swigarraywrapper
+type(C_PTR), value :: farg1
+type(SwigArrayWrapper) :: farg2
+type(C_PTR), value :: farg3
 integer(C_INT) :: fresult
 end function
 
@@ -164,6 +186,42 @@ type(SwigArrayWrapper) :: farg2
 farg1 = p
 call SWIG_string_to_chararray(name, farg2_chars, farg2)
 fresult = swigc_FSUNProfiler_End(farg1, farg2)
+swig_result = fresult
+end function
+
+function FSUNProfiler_GetTimerResolution(p, resolution) &
+result(swig_result)
+use, intrinsic :: ISO_C_BINDING
+integer(C_INT) :: swig_result
+type(C_PTR) :: p
+real(C_DOUBLE), target, intent(inout) :: resolution
+integer(C_INT) :: fresult 
+type(C_PTR) :: farg1 
+type(C_PTR) :: farg2 
+
+farg1 = p
+farg2 = c_loc(resolution)
+fresult = swigc_FSUNProfiler_GetTimerResolution(farg1, farg2)
+swig_result = fresult
+end function
+
+function FSUNProfiler_GetElapsedTime(p, name, time) &
+result(swig_result)
+use, intrinsic :: ISO_C_BINDING
+integer(C_INT) :: swig_result
+type(C_PTR) :: p
+character(kind=C_CHAR, len=*), target :: name
+character(kind=C_CHAR), dimension(:), allocatable, target :: farg2_chars
+real(C_DOUBLE), target, intent(inout) :: time
+integer(C_INT) :: fresult 
+type(C_PTR) :: farg1 
+type(SwigArrayWrapper) :: farg2 
+type(C_PTR) :: farg3 
+
+farg1 = p
+call SWIG_string_to_chararray(name, farg2_chars, farg2)
+farg3 = c_loc(time)
+fresult = swigc_FSUNProfiler_GetElapsedTime(farg1, farg2, farg3)
 swig_result = fresult
 end function
 

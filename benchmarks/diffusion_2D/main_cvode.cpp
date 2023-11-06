@@ -20,8 +20,8 @@
 struct UserOptions
 {
   // Integrator settings
-  realtype rtol        = RCONST(1.0e-5);   // relative tolerance
-  realtype atol        = RCONST(1.0e-10);  // absolute tolerance
+  sunrealtype rtol        = SUN_RCONST(1.0e-5);   // relative tolerance
+  sunrealtype atol        = SUN_RCONST(1.0e-10);  // absolute tolerance
   int      maxsteps    = 0;                // max steps between outputs
   int      onestep     = 0;                // one step mode, number of steps
 
@@ -31,7 +31,7 @@ struct UserOptions
   bool        lsinfo          = false;  // output residual history
   int         liniters        = 20;     // number of linear iterations
   int         msbp            = 0;      // preconditioner setup frequency
-  realtype    epslin          = ZERO;   // linear solver tolerance factor
+  sunrealtype    epslin          = ZERO;   // linear solver tolerance factor
 
   // Helper functions
   int parse_args(vector<string> &args, bool outproc);
@@ -114,21 +114,11 @@ int main(int argc, char* argv[])
     flag = udata.setup();
     if (check_flag(&flag, "UserData::setup", 1)) return 1;
 
-    // Output problem setup/options
-    FILE *diagfp = NULL;
-
     if (outproc)
     {
       udata.print();
       uopts.print();
       uout.print();
-
-      // Open diagnostics output file
-      if (uopts.lsinfo)
-      {
-        diagfp = fopen("diagnostics.txt", "w");
-        if (check_flag((void *) diagfp, "fopen", 0)) return 1;
-      }
     }
 
     // ---------------
@@ -182,35 +172,17 @@ int main(int argc, char* argv[])
     sunindextype* A_row_ptrs = nullptr;
 #endif
 
-    int prectype = (uopts.preconditioning) ? PREC_RIGHT : PREC_NONE;
+    int prectype = (uopts.preconditioning) ? SUN_PREC_RIGHT : SUN_PREC_NONE;
 
     if (uopts.ls == "cg")
     {
       LS = SUNLinSol_PCG(u, prectype, uopts.liniters, ctx);
       if (check_flag((void *) LS, "SUNLinSol_PCG", 0)) return 1;
-
-      if (uopts.lsinfo && outproc)
-      {
-        flag = SUNLinSolSetPrintLevel_PCG(LS, 1);
-        if (check_flag(&flag, "SUNLinSolSetPrintLevel_PCG", 1)) return(1);
-
-        flag = SUNLinSolSetInfoFile_PCG(LS, diagfp);
-        if (check_flag(&flag, "SUNLinSolSetInfoFile_PCG", 1)) return(1);
-      }
     }
     else if (uopts.ls == "gmres")
     {
       LS = SUNLinSol_SPGMR(u, prectype, uopts.liniters, ctx);
       if (check_flag((void *) LS, "SUNLinSol_SPGMR", 0)) return 1;
-
-      if (uopts.lsinfo && outproc)
-      {
-        flag = SUNLinSolSetPrintLevel_SPGMR(LS, 1);
-        if (check_flag(&flag, "SUNLinSolSetPrintLevel_SPGMR", 1)) return(1);
-
-        flag = SUNLinSolSetInfoFile_SPGMR(LS, diagfp);
-        if (check_flag(&flag, "SUNLinSolSetInfoFile_SPGMR", 1)) return(1);
-      }
     }
     else if (uopts.ls == "sludist")
     {
@@ -221,7 +193,7 @@ int main(int argc, char* argv[])
       // Create arrays for CSR matrix: data, column indices, and row pointers
       sunindextype nnz_loc = 5 * udata.nodes_loc;
 
-      A_data = (realtype*)malloc(nnz_loc * sizeof(sunrealtype));
+      A_data = (sunrealtype*)malloc(nnz_loc * sizeof(sunrealtype));
       if (check_flag((void*)A_data, "malloc Adata", 0)) return 1;
 
       A_col_idxs = (sunindextype*)malloc(nnz_loc * sizeof(sunindextype));
@@ -337,9 +309,9 @@ int main(int argc, char* argv[])
       stepmode  = CV_ONE_STEP;
     }
 
-    realtype t     = ZERO;
-    realtype dTout = udata.tf / uout.nout;
-    realtype tout  = dTout;
+    sunrealtype t     = ZERO;
+    sunrealtype dTout = udata.tf / uout.nout;
+    sunrealtype tout  = dTout;
 
     // Inital output
     flag = uout.open(&udata);
@@ -389,9 +361,6 @@ int main(int argc, char* argv[])
 
     // Free MPI Cartesian communicator
     MPI_Comm_free(&(udata.comm_c));
-
-    // Close diagnostics output file
-    if (diagfp) fclose(diagfp);
 
     // Free integrator and linear solver
     CVodeFree(&cvode_mem);     // Free integrator memory

@@ -54,7 +54,7 @@ extern "C" {
  * Utility functions
  * ---------------------------------------------------------------------------*/
 
-inline booleantype SUNDIALS_CUDA_Assert(cudaError_t cuerr, const char *file, int line)
+inline sunbooleantype SUNDIALS_CUDA_Assert(cudaError_t cuerr, const char *file, int line)
 {
   if (cuerr != cudaSuccess)
   {

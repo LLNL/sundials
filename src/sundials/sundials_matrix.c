@@ -21,6 +21,7 @@
 #include <stdlib.h>
 #include <sundials/sundials_core.h>
 #include <sundials/impl/sundials_errors_impl.h>
+#include "sundials/sundials_types.h"
 
 #if defined(SUNDIALS_BUILD_WITH_PROFILING)
 static SUNProfiler getSUNProfiler(SUNMatrix A)
@@ -171,7 +172,7 @@ SUNErrCode SUNMatCopy(SUNMatrix A, SUNMatrix B)
   return(ier);
 }
 
-SUNErrCode SUNMatScaleAdd(realtype c, SUNMatrix A, SUNMatrix B)
+SUNErrCode SUNMatScaleAdd(sunrealtype c, SUNMatrix A, SUNMatrix B)
 {
   SUNErrCode ier;
   SUNDIALS_MARK_FUNCTION_BEGIN(getSUNProfiler(A));
@@ -180,7 +181,7 @@ SUNErrCode SUNMatScaleAdd(realtype c, SUNMatrix A, SUNMatrix B)
   return(ier);
 }
 
-SUNErrCode SUNMatScaleAddI(realtype c, SUNMatrix A)
+SUNErrCode SUNMatScaleAddI(sunrealtype c, SUNMatrix A)
 {
   SUNErrCode ier;
   SUNDIALS_MARK_FUNCTION_BEGIN(getSUNProfiler(A));

@@ -40,7 +40,7 @@ typedef struct IBBDPrecDataRec {
   /* passed by user to IDABBDPrecAlloc and used by
      IDABBDPrecSetup/IDABBDPrecSolve functions */
   sunindextype mudq, mldq, mukeep, mlkeep;
-  realtype rel_yy;
+  sunrealtype rel_yy;
   IDABBDLocalFn glocal;
   IDABBDCommFn gcomm;
 

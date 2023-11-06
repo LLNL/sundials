@@ -48,11 +48,11 @@ program driver
 
   ! general problem variables
   integer*8, parameter :: NEQ=3
-  real(kind=REALTYPE), parameter :: T0=0.d0, Tf=10.d0
-  real(kind=REALTYPE) :: dTout, Tout, Tcur, rtol, atol, rout(6)
+  real(kind=sunrealtype), parameter :: T0=0.d0, Tf=10.d0
+  real(kind=sunrealtype) :: dTout, Tout, Tcur, rtol, atol, rout(6)
   integer   :: it, Nt, ier
   integer*8 :: iout(35)
-  real(kind=REALTYPE), dimension(NEQ) :: y
+  real(kind=sunrealtype), dimension(NEQ) :: y
 
   ! real/integer parameters to pass through to supplied functions
   !    ipar(1) -> unused
@@ -60,12 +60,12 @@ program driver
   !    rpar(2) -> "b" parameter 
   !    rpar(3) -> "ep" parameter
   integer*8 :: ipar
-  real(kind=REALTYPE) :: rpar(3)
+  real(kind=sunrealtype) :: rpar(3)
 
   ! solver parameters
   integer :: adapt_method
   integer*8 :: order
-  real(kind=REALTYPE) :: nlscoef, adapt_params
+  real(kind=sunrealtype) :: nlscoef, adapt_params
 
   !-----------------------
   ! set some solver parameters
@@ -205,10 +205,10 @@ subroutine farkifun(t, y, ydot, ipar, rpar, ier)
   include "sundials/sundials_fconfig.h"
 
   ! Arguments
-  real(kind=REALTYPE), intent(in) :: t, rpar(3)
+  real(kind=sunrealtype), intent(in) :: t, rpar(3)
   integer*8, intent(in) :: ipar(1)
-  real(kind=REALTYPE), intent(in)  :: y(3)
-  real(kind=REALTYPE), intent(out) :: ydot(3)
+  real(kind=sunrealtype), intent(in)  :: y(3)
+  real(kind=sunrealtype), intent(out) :: ydot(3)
   integer,   intent(out) :: ier
 
   ! temporary variables
@@ -241,10 +241,10 @@ subroutine farkefun(t, y, ydot, ipar, rpar, ier)
   include "sundials/sundials_fconfig.h"
 
   ! Arguments
-  real(kind=REALTYPE), intent(in)  :: t, rpar(3)
+  real(kind=sunrealtype), intent(in)  :: t, rpar(3)
   integer*8, intent(in) :: ipar(1)
-  real(kind=REALTYPE), intent(in)  :: y(3)
-  real(kind=REALTYPE), intent(out) :: ydot(3)
+  real(kind=sunrealtype), intent(in)  :: y(3)
+  real(kind=sunrealtype), intent(out) :: ydot(3)
   integer,   intent(out) :: ier
 
   ! temporary variables
@@ -277,12 +277,12 @@ subroutine farkdjac(neq,t,y,fy,DJac,h,ipar,rpar,wk1,wk2,wk3,ier)
   include "sundials/sundials_fconfig.h"
 
   ! Arguments
-  real(kind=REALTYPE), intent(in) :: t, h, rpar(3)
+  real(kind=sunrealtype), intent(in) :: t, h, rpar(3)
   integer*8, intent(in) :: ipar(1)
   integer*8, intent(in) :: neq
   integer,   intent(out) :: ier
-  real(kind=REALTYPE), intent(in), dimension(neq) :: y, fy, wk1, wk2, wk3
-  real(kind=REALTYPE), intent(out) :: DJac(neq,neq)
+  real(kind=sunrealtype), intent(in), dimension(neq) :: y, fy, wk1, wk2, wk3
+  real(kind=sunrealtype), intent(out) :: DJac(neq,neq)
 
   ! temporary variables
   real*8 :: u, v, w, a, b, ep

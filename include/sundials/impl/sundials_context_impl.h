@@ -36,7 +36,6 @@ struct SUNContext_
   sunbooleantype own_logger;
   SUNErrCode last_err;
   SUNErrHandler err_handler;
-  void* comm;
 };
 
 #ifdef __cplusplus

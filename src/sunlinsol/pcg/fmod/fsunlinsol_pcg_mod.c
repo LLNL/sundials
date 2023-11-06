@@ -374,14 +374,14 @@ SWIGEXPORT int _wrap_FSUNLinSolSolve_PCG(SUNLinearSolver farg1, SUNMatrix farg2,
   SUNMatrix arg2 = (SUNMatrix) 0 ;
   N_Vector arg3 = (N_Vector) 0 ;
   N_Vector arg4 = (N_Vector) 0 ;
-  realtype arg5 ;
+  sunrealtype arg5 ;
   int result;
   
   arg1 = (SUNLinearSolver)(farg1);
   arg2 = (SUNMatrix)(farg2);
   arg3 = (N_Vector)(farg3);
   arg4 = (N_Vector)(farg4);
-  arg5 = (realtype)(*farg5);
+  arg5 = (sunrealtype)(*farg5);
   result = (int)SUNLinSolSolve_PCG(arg1,arg2,arg3,arg4,arg5);
   fresult = (int)(result);
   return fresult;
@@ -403,11 +403,11 @@ SWIGEXPORT int _wrap_FSUNLinSolNumIters_PCG(SUNLinearSolver farg1) {
 SWIGEXPORT double _wrap_FSUNLinSolResNorm_PCG(SUNLinearSolver farg1) {
   double fresult ;
   SUNLinearSolver arg1 = (SUNLinearSolver) 0 ;
-  realtype result;
+  sunrealtype result;
   
   arg1 = (SUNLinearSolver)(farg1);
-  result = (realtype)SUNLinSolResNorm_PCG(arg1);
-  fresult = (realtype)(result);
+  result = (sunrealtype)SUNLinSolResNorm_PCG(arg1);
+  fresult = (sunrealtype)(result);
   return fresult;
 }
 
@@ -459,34 +459,6 @@ SWIGEXPORT int _wrap_FSUNLinSolFree_PCG(SUNLinearSolver farg1) {
   
   arg1 = (SUNLinearSolver)(farg1);
   result = (int)SUNLinSolFree_PCG(arg1);
-  fresult = (int)(result);
-  return fresult;
-}
-
-
-SWIGEXPORT int _wrap_FSUNLinSolSetInfoFile_PCG(SUNLinearSolver farg1, void *farg2) {
-  int fresult ;
-  SUNLinearSolver arg1 = (SUNLinearSolver) 0 ;
-  FILE *arg2 = (FILE *) 0 ;
-  int result;
-  
-  arg1 = (SUNLinearSolver)(farg1);
-  arg2 = (FILE *)(farg2);
-  result = (int)SUNLinSolSetInfoFile_PCG(arg1,arg2);
-  fresult = (int)(result);
-  return fresult;
-}
-
-
-SWIGEXPORT int _wrap_FSUNLinSolSetPrintLevel_PCG(SUNLinearSolver farg1, int const *farg2) {
-  int fresult ;
-  SUNLinearSolver arg1 = (SUNLinearSolver) 0 ;
-  int arg2 ;
-  int result;
-  
-  arg1 = (SUNLinearSolver)(farg1);
-  arg2 = (int)(*farg2);
-  result = (int)SUNLinSolSetPrintLevel_PCG(arg1,arg2);
   fresult = (int)(result);
   return fresult;
 }

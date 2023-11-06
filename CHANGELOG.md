@@ -1,5 +1,11 @@
 # SUNDIALS Changelog
 
+## Changes to SUNDIALS in release 7.0.0
+
+The previously deprecated types `realtype` and `booleantype` were removed from `sundials_types.h`.
+Users should use `sunrealtype` and `sunbooleantype` instead, but the old names for the types
+can be used by including the header file `sundials_types_old.h`.
+
 
 ## Changes to SUNDIALS in release X.X.X
 
@@ -40,6 +46,7 @@ method `ARKODE_VERNER_16_8_9`.
 
 Changed the `SUNProfiler` so that it does not rely on `MPI_WTime` in any case.
 This fixes https://github.com/LLNL/sundials/issues/312. 
+
 
 ## Changes to SUNDIALS in release 6.6.1
 

@@ -20,13 +20,6 @@ module fsundials_linearsolver_mod
 
  ! DECLARATION CONSTRUCTS
  enum, bind(c)
-  enumerator :: PREC_NONE
-  enumerator :: PREC_LEFT
-  enumerator :: PREC_RIGHT
-  enumerator :: PREC_BOTH
- end enum
- public :: PREC_NONE, PREC_LEFT, PREC_RIGHT, PREC_BOTH
- enum, bind(c)
   enumerator :: SUN_PREC_NONE
   enumerator :: SUN_PREC_LEFT
   enumerator :: SUN_PREC_RIGHT
@@ -34,23 +27,14 @@ module fsundials_linearsolver_mod
  end enum
  public :: SUN_PREC_NONE, SUN_PREC_LEFT, SUN_PREC_RIGHT, SUN_PREC_BOTH
  enum, bind(c)
-  enumerator :: MODIFIED_GS = 1
-  enumerator :: CLASSICAL_GS = 2
- end enum
- public :: MODIFIED_GS, CLASSICAL_GS
- enum, bind(c)
   enumerator :: SUN_MODIFIED_GS = 1
   enumerator :: SUN_CLASSICAL_GS = 2
  end enum
  public :: SUN_MODIFIED_GS, SUN_CLASSICAL_GS
  public :: FSUNModifiedGS
- public :: FModifiedGS
  public :: FSUNClassicalGS
- public :: FClassicalGS
  public :: FSUNQRfact
- public :: FQRfact
  public :: FSUNQRsol
- public :: FQRsol
  public :: FSUNQRAdd_MGS
  public :: FSUNQRAdd_ICWY
  public :: FSUNQRAdd_ICWY_SB
@@ -173,34 +157,8 @@ type(C_PTR), value :: farg5
 integer(C_INT) :: fresult
 end function
 
-function swigc_FModifiedGS(farg1, farg2, farg3, farg4, farg5) &
-bind(C, name="_wrap_FModifiedGS") &
-result(fresult)
-use, intrinsic :: ISO_C_BINDING
-type(C_PTR), value :: farg1
-type(C_PTR), value :: farg2
-integer(C_INT), intent(in) :: farg3
-integer(C_INT), intent(in) :: farg4
-type(C_PTR), value :: farg5
-integer(C_INT) :: fresult
-end function
-
 function swigc_FSUNClassicalGS(farg1, farg2, farg3, farg4, farg5, farg6, farg7) &
 bind(C, name="_wrap_FSUNClassicalGS") &
-result(fresult)
-use, intrinsic :: ISO_C_BINDING
-type(C_PTR), value :: farg1
-type(C_PTR), value :: farg2
-integer(C_INT), intent(in) :: farg3
-integer(C_INT), intent(in) :: farg4
-type(C_PTR), value :: farg5
-type(C_PTR), value :: farg6
-type(C_PTR), value :: farg7
-integer(C_INT) :: fresult
-end function
-
-function swigc_FClassicalGS(farg1, farg2, farg3, farg4, farg5, farg6, farg7) &
-bind(C, name="_wrap_FClassicalGS") &
 result(fresult)
 use, intrinsic :: ISO_C_BINDING
 type(C_PTR), value :: farg1
@@ -224,30 +182,8 @@ integer(C_INT), intent(in) :: farg4
 integer(C_INT) :: fresult
 end function
 
-function swigc_FQRfact(farg1, farg2, farg3, farg4) &
-bind(C, name="_wrap_FQRfact") &
-result(fresult)
-use, intrinsic :: ISO_C_BINDING
-integer(C_INT), intent(in) :: farg1
-type(C_PTR), value :: farg2
-type(C_PTR), value :: farg3
-integer(C_INT), intent(in) :: farg4
-integer(C_INT) :: fresult
-end function
-
 function swigc_FSUNQRsol(farg1, farg2, farg3, farg4) &
 bind(C, name="_wrap_FSUNQRsol") &
-result(fresult)
-use, intrinsic :: ISO_C_BINDING
-integer(C_INT), intent(in) :: farg1
-type(C_PTR), value :: farg2
-type(C_PTR), value :: farg3
-type(C_PTR), value :: farg4
-integer(C_INT) :: fresult
-end function
-
-function swigc_FQRsol(farg1, farg2, farg3, farg4) &
-bind(C, name="_wrap_FQRsol") &
 result(fresult)
 use, intrinsic :: ISO_C_BINDING
 integer(C_INT), intent(in) :: farg1
@@ -514,31 +450,6 @@ fresult = swigc_FSUNModifiedGS(farg1, farg2, farg3, farg4, farg5)
 swig_result = fresult
 end function
 
-function FModifiedGS(v, h, k, p, new_vk_norm) &
-result(swig_result)
-use, intrinsic :: ISO_C_BINDING
-integer(C_INT) :: swig_result
-type(C_PTR) :: v
-type(C_PTR), target, intent(inout) :: h
-integer(C_INT), intent(in) :: k
-integer(C_INT), intent(in) :: p
-real(C_DOUBLE), dimension(*), target, intent(inout) :: new_vk_norm
-integer(C_INT) :: fresult 
-type(C_PTR) :: farg1 
-type(C_PTR) :: farg2 
-integer(C_INT) :: farg3 
-integer(C_INT) :: farg4 
-type(C_PTR) :: farg5 
-
-farg1 = v
-farg2 = c_loc(h)
-farg3 = k
-farg4 = p
-farg5 = c_loc(new_vk_norm(1))
-fresult = swigc_FModifiedGS(farg1, farg2, farg3, farg4, farg5)
-swig_result = fresult
-end function
-
 function FSUNClassicalGS(v, h, k, p, new_vk_norm, stemp, vtemp) &
 result(swig_result)
 use, intrinsic :: ISO_C_BINDING
@@ -570,37 +481,6 @@ fresult = swigc_FSUNClassicalGS(farg1, farg2, farg3, farg4, farg5, farg6, farg7)
 swig_result = fresult
 end function
 
-function FClassicalGS(v, h, k, p, new_vk_norm, stemp, vtemp) &
-result(swig_result)
-use, intrinsic :: ISO_C_BINDING
-integer(C_INT) :: swig_result
-type(C_PTR) :: v
-type(C_PTR), target, intent(inout) :: h
-integer(C_INT), intent(in) :: k
-integer(C_INT), intent(in) :: p
-real(C_DOUBLE), dimension(*), target, intent(inout) :: new_vk_norm
-real(C_DOUBLE), dimension(*), target, intent(inout) :: stemp
-type(C_PTR) :: vtemp
-integer(C_INT) :: fresult 
-type(C_PTR) :: farg1 
-type(C_PTR) :: farg2 
-integer(C_INT) :: farg3 
-integer(C_INT) :: farg4 
-type(C_PTR) :: farg5 
-type(C_PTR) :: farg6 
-type(C_PTR) :: farg7 
-
-farg1 = v
-farg2 = c_loc(h)
-farg3 = k
-farg4 = p
-farg5 = c_loc(new_vk_norm(1))
-farg6 = c_loc(stemp(1))
-farg7 = vtemp
-fresult = swigc_FClassicalGS(farg1, farg2, farg3, farg4, farg5, farg6, farg7)
-swig_result = fresult
-end function
-
 function FSUNQRfact(n, h, q, job) &
 result(swig_result)
 use, intrinsic :: ISO_C_BINDING
@@ -623,28 +503,6 @@ fresult = swigc_FSUNQRfact(farg1, farg2, farg3, farg4)
 swig_result = fresult
 end function
 
-function FQRfact(n, h, q, job) &
-result(swig_result)
-use, intrinsic :: ISO_C_BINDING
-integer(C_INT) :: swig_result
-integer(C_INT), intent(in) :: n
-type(C_PTR), target, intent(inout) :: h
-real(C_DOUBLE), dimension(*), target, intent(inout) :: q
-integer(C_INT), intent(in) :: job
-integer(C_INT) :: fresult 
-integer(C_INT) :: farg1 
-type(C_PTR) :: farg2 
-type(C_PTR) :: farg3 
-integer(C_INT) :: farg4 
-
-farg1 = n
-farg2 = c_loc(h)
-farg3 = c_loc(q(1))
-farg4 = job
-fresult = swigc_FQRfact(farg1, farg2, farg3, farg4)
-swig_result = fresult
-end function
-
 function FSUNQRsol(n, h, q, b) &
 result(swig_result)
 use, intrinsic :: ISO_C_BINDING
@@ -664,28 +522,6 @@ farg2 = c_loc(h)
 farg3 = c_loc(q(1))
 farg4 = c_loc(b(1))
 fresult = swigc_FSUNQRsol(farg1, farg2, farg3, farg4)
-swig_result = fresult
-end function
-
-function FQRsol(n, h, q, b) &
-result(swig_result)
-use, intrinsic :: ISO_C_BINDING
-integer(C_INT) :: swig_result
-integer(C_INT), intent(in) :: n
-type(C_PTR), target, intent(inout) :: h
-real(C_DOUBLE), dimension(*), target, intent(inout) :: q
-real(C_DOUBLE), dimension(*), target, intent(inout) :: b
-integer(C_INT) :: fresult 
-integer(C_INT) :: farg1 
-type(C_PTR) :: farg2 
-type(C_PTR) :: farg3 
-type(C_PTR) :: farg4 
-
-farg1 = n
-farg2 = c_loc(h)
-farg3 = c_loc(q(1))
-farg4 = c_loc(b(1))
-fresult = swigc_FQRsol(farg1, farg2, farg3, farg4)
 swig_result = fresult
 end function
 

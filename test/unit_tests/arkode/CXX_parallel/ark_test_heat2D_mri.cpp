@@ -31,7 +31,7 @@
 #include "arkode/arkode_mristep.h"    // prototypes for MRIStep fcts., consts
 #include "nvector/nvector_parallel.h" // parallel N_Vector types, fcts., macros
 #include "sunlinsol/sunlinsol_pcg.h"  // access to PCG SUNLinearSolver
-#include "sundials/sundials_types.h"  // def. of type 'realtype'
+#include "sundials/sundials_types.h"  // def. of type 'sunrealtype'
 #include "mpi.h"                      // MPI header file
 
 #if defined(SUNDIALS_EXTENDED_PRECISION)
@@ -48,10 +48,10 @@ using namespace std;
 
 // accessor macros between (x,y) location and 1D NVector array
 #define IDX(x,y,n) ((n)*(y)+(x))
-#define PI   RCONST(3.141592653589793238462643383279502884197169)
-#define ZERO RCONST(0.0)
-#define ONE  RCONST(1.0)
-#define TWO  RCONST(2.0)
+#define PI   SUN_RCONST(3.141592653589793238462643383279502884197169)
+#define ZERO SUN_RCONST(0.0)
+#define ONE  SUN_RCONST(1.0)
+#define TWO  SUN_RCONST(2.0)
 
 // user data structure
 typedef struct {
@@ -63,33 +63,33 @@ typedef struct {
   sunindextype je;
   sunindextype nxl;         // local number of x grid points
   sunindextype nyl;         // local number of y grid points
-  realtype dx;          // x-directional mesh spacing
-  realtype dy;          // y-directional mesh spacing
-  realtype kx;          // x-directional diffusion coefficient
-  realtype ky;          // y-directional diffusion coefficient
+  sunrealtype dx;          // x-directional mesh spacing
+  sunrealtype dy;          // y-directional mesh spacing
+  sunrealtype kx;          // x-directional diffusion coefficient
+  sunrealtype ky;          // y-directional diffusion coefficient
   N_Vector h;           // heat source vector
   N_Vector d;           // inverse of Jacobian diagonal
   MPI_Comm comm;        // communicator object
   int myid;             // MPI process ID
   int nprocs;           // total number of MPI processes
   bool HaveBdry[2][2];  // flags denoting if on physical boundary
-  realtype *Erecv;      // receive buffers for neighbor exchange
-  realtype *Wrecv;
-  realtype *Nrecv;
-  realtype *Srecv;
-  realtype *Esend;      // send buffers for neighbor exchange
-  realtype *Wsend;
-  realtype *Nsend;
-  realtype *Ssend;
+  sunrealtype *Erecv;      // receive buffers for neighbor exchange
+  sunrealtype *Wrecv;
+  sunrealtype *Nrecv;
+  sunrealtype *Srecv;
+  sunrealtype *Esend;      // send buffers for neighbor exchange
+  sunrealtype *Wsend;
+  sunrealtype *Nsend;
+  sunrealtype *Ssend;
 } UserData;
 
 // User-supplied Functions Called by the Solver
-static int f(realtype t, N_Vector y, N_Vector ydot, void *user_data);
-static int f0(realtype t, N_Vector y, N_Vector ydot, void *user_data);
-static int PSet(realtype t, N_Vector y, N_Vector fy, booleantype jok,
-                booleantype *jcurPtr, realtype gamma, void *user_data);
-static int PSol(realtype t, N_Vector y, N_Vector fy, N_Vector r,
-                N_Vector z, realtype gamma, realtype delta, int lr,
+static int f(sunrealtype t, N_Vector y, N_Vector ydot, void *user_data);
+static int f0(sunrealtype t, N_Vector y, N_Vector ydot, void *user_data);
+static int PSet(sunrealtype t, N_Vector y, N_Vector fy, sunbooleantype jok,
+                sunbooleantype *jcurPtr, sunrealtype gamma, void *user_data);
+static int PSol(sunrealtype t, N_Vector y, N_Vector fy, N_Vector r,
+                N_Vector z, sunrealtype gamma, sunrealtype delta, int lr,
                 void *user_data);
 
 // Private functions
@@ -111,21 +111,21 @@ int main(int argc, char* argv[]) {
   SUNContext_Create(NULL, &ctx);
 
   // general problem parameters
-  realtype T0 = RCONST(0.0);     // initial time
-  realtype Tf = RCONST(0.3);     // final time
+  sunrealtype T0 = SUN_RCONST(0.0);     // initial time
+  sunrealtype Tf = SUN_RCONST(0.3);     // final time
   int Nt = 1000;                 // total number of internal steps
   sunindextype nx = 60;          // spatial mesh size
   sunindextype ny = 120;
-  realtype kx = RCONST(0.5);     // heat conductivity coefficients
-  realtype ky = RCONST(0.75);
-  realtype rtol = RCONST(1.e-5); // relative and absolute tolerances
-  realtype atol = RCONST(1.e-10);
+  sunrealtype kx = SUN_RCONST(0.5);     // heat conductivity coefficients
+  sunrealtype ky = SUN_RCONST(0.75);
+  sunrealtype rtol = SUN_RCONST(1.e-5); // relative and absolute tolerances
+  sunrealtype atol = SUN_RCONST(1.e-10);
   UserData *udata = NULL;
-  realtype *data;
+  sunrealtype *data;
   sunindextype N, Ntot, i, j;
   int numfails;
-  booleantype linear;
-  realtype t;
+  sunbooleantype linear;
+  sunrealtype t;
   long int ark_nst, ark_nfe, ark_nfi, ark_nsetups, ark_nli, ark_nJv, ark_nlcf, ark_nni, ark_ncfn, ark_npe, ark_nps;
   long int mri_nst, mri_nfse, mri_nfsi, mri_nsetups, mri_nli, mri_nJv, mri_nlcf, mri_nni, mri_ncfn, mri_npe, mri_nps;
 
@@ -225,10 +225,10 @@ int main(int argc, char* argv[]) {
   // Create solve-decoupled DIRK2 (trapezoidal) Butcher table
   ARKodeButcherTable B = ARKodeButcherTable_Alloc(2, SUNFALSE);
   if (check_flag((void *)B, "ARKodeButcherTable_Alloc", 0)) return 1;
-  B->A[1][0] = RCONST(0.5);
-  B->A[1][1] = RCONST(0.5);
-  B->b[0] = RCONST(0.5);
-  B->b[1] = RCONST(0.5);
+  B->A[1][0] = SUN_RCONST(0.5);
+  B->A[1][1] = SUN_RCONST(0.5);
+  B->b[0] = SUN_RCONST(0.5);
+  B->b[1] = SUN_RCONST(0.5);
   B->c[1] = ONE;
   B->q=2;
 
@@ -236,10 +236,10 @@ int main(int argc, char* argv[]) {
   ARKodeButcherTable Bc = ARKodeButcherTable_Alloc(3, SUNFALSE);
   if (check_flag((void *)Bc, "ARKodeButcherTable_Alloc", 0)) return 1;
   Bc->A[1][0] = ONE;
-  Bc->A[2][0] = RCONST(0.5);
-  Bc->A[2][2] = RCONST(0.5);
-  Bc->b[0] = RCONST(0.5);
-  Bc->b[2] = RCONST(0.5);
+  Bc->A[2][0] = SUN_RCONST(0.5);
+  Bc->A[2][2] = SUN_RCONST(0.5);
+  Bc->b[0] = SUN_RCONST(0.5);
+  Bc->b[2] = SUN_RCONST(0.5);
   Bc->c[1] = ONE;
   Bc->c[2] = ONE;
   Bc->q=2;
@@ -251,7 +251,7 @@ int main(int argc, char* argv[]) {
   // Set routines
   flag = ARKStepSetUserData(arkstep_mem, (void *) udata);      // Pass udata to user functions
   if (check_flag(&flag, "ARKStepSetUserData", 1)) return 1;
-  flag = ARKStepSetNonlinConvCoef(arkstep_mem, RCONST(1.e-7)); // Update solver convergence coeff.
+  flag = ARKStepSetNonlinConvCoef(arkstep_mem, SUN_RCONST(1.e-7)); // Update solver convergence coeff.
   if (check_flag(&flag, "ARKStepSetNonlinConvCoef", 1)) return 1;
   flag = ARKStepSStolerances(arkstep_mem, rtol, atol);         // Specify tolerances
   if (check_flag(&flag, "ARKStepSStolerances", 1)) return 1;
@@ -264,7 +264,7 @@ int main(int argc, char* argv[]) {
 
   flag = MRIStepSetUserData(mristep_mem, (void *) udata);      // Pass udata to user functions
   if (check_flag(&flag, "MRIStepSetUserData", 1)) return 1;
-  flag = MRIStepSetNonlinConvCoef(mristep_mem, RCONST(1.e-7)); // Update solver convergence coeff.
+  flag = MRIStepSetNonlinConvCoef(mristep_mem, SUN_RCONST(1.e-7)); // Update solver convergence coeff.
   if (check_flag(&flag, "MRIStepSetNonlinConvCoef", 1)) return 1;
   flag = MRIStepSStolerances(mristep_mem, rtol, atol);         // Specify tolerances
   if (check_flag(&flag, "MRIStepSStolerances", 1)) return 1;
@@ -461,19 +461,19 @@ int main(int argc, char* argv[]) {
  *--------------------------------*/
 
 // f routine to compute the ODE RHS function f(t,y).
-static int f(realtype t, N_Vector y, N_Vector ydot, void *user_data)
+static int f(sunrealtype t, N_Vector y, N_Vector ydot, void *user_data)
 {
   N_VConst(ZERO, ydot);                          // Initialize ydot to zero
   UserData *udata = (UserData *) user_data;      // access problem data
   sunindextype nxl = udata->nxl;                     // set variable shortcuts
   sunindextype nyl = udata->nyl;
-  realtype kx = udata->kx;
-  realtype ky = udata->ky;
-  realtype dx = udata->dx;
-  realtype dy = udata->dy;
-  realtype *Y = N_VGetArrayPointer(y);           // access data arrays
+  sunrealtype kx = udata->kx;
+  sunrealtype ky = udata->ky;
+  sunrealtype dx = udata->dx;
+  sunrealtype dy = udata->dy;
+  sunrealtype *Y = N_VGetArrayPointer(y);           // access data arrays
   if (check_flag((void *) Y, "N_VGetArrayPointer", 0)) return -1;
-  realtype *Ydot = N_VGetArrayPointer(ydot);
+  sunrealtype *Ydot = N_VGetArrayPointer(ydot);
   if (check_flag((void *) Ydot, "N_VGetArrayPointer", 0)) return -1;
 
   // Exchange boundary data with neighbors
@@ -481,9 +481,9 @@ static int f(realtype t, N_Vector y, N_Vector ydot, void *user_data)
   if (check_flag(&ierr, "Exchange", 1)) return -1;
 
   // iterate over subdomain interior, computing approximation to RHS
-  realtype c1 = kx/dx/dx;
-  realtype c2 = ky/dy/dy;
-  realtype c3 = -TWO*(c1 + c2);
+  sunrealtype c1 = kx/dx/dx;
+  sunrealtype c2 = ky/dy/dy;
+  sunrealtype c3 = -TWO*(c1 + c2);
   sunindextype i, j;
   for (j=1; j<nyl-1; j++)                        // diffusive terms
     for (i=1; i<nxl-1; i++)
@@ -555,7 +555,7 @@ static int f(realtype t, N_Vector y, N_Vector ydot, void *user_data)
 }
 
 // f0 routine to compute a zero-valued ODE RHS function f(t,y).
-static int f0(realtype t, N_Vector y, N_Vector ydot, void *user_data)
+static int f0(sunrealtype t, N_Vector y, N_Vector ydot, void *user_data)
 {
   // Initialize ydot to zero and return
   N_VConst(ZERO, ydot);
@@ -563,28 +563,28 @@ static int f0(realtype t, N_Vector y, N_Vector ydot, void *user_data)
 }
 
 // Preconditioner setup routine (fills inverse of Jacobian diagonal)
-static int PSet(realtype t, N_Vector y, N_Vector fy, booleantype jok,
-                booleantype *jcurPtr, realtype gamma, void *user_data)
+static int PSet(sunrealtype t, N_Vector y, N_Vector fy, sunbooleantype jok,
+                sunbooleantype *jcurPtr, sunrealtype gamma, void *user_data)
 {
   UserData *udata = (UserData *) user_data;      // variable shortcuts
-  realtype kx = udata->kx;
-  realtype ky = udata->ky;
-  realtype dx = udata->dx;
-  realtype dy = udata->dy;
-  realtype *diag = N_VGetArrayPointer(udata->d);  // access data arrays
+  sunrealtype kx = udata->kx;
+  sunrealtype ky = udata->ky;
+  sunrealtype dx = udata->dx;
+  sunrealtype dy = udata->dy;
+  sunrealtype *diag = N_VGetArrayPointer(udata->d);  // access data arrays
   if (check_flag((void *) diag, "N_VGetArrayPointer", 0)) return -1;
 
   // set all entries of d to the diagonal values of interior
   // (since boundary RHS is 0, set boundary diagonals to the same)
-  realtype c = ONE + gamma*TWO*(kx/dx/dx + ky/dy/dy);
+  sunrealtype c = ONE + gamma*TWO*(kx/dx/dx + ky/dy/dy);
   N_VConst(c, udata->d);
   N_VInv(udata->d, udata->d);  // invert diagonal
   return 0;                    // Return with success
 }
 
 // Preconditioner solve routine
-static int PSol(realtype t, N_Vector y, N_Vector fy, N_Vector r,
-                N_Vector z, realtype gamma, realtype delta, int lr,
+static int PSol(sunrealtype t, N_Vector y, N_Vector fy, N_Vector r,
+                N_Vector z, sunrealtype gamma, sunrealtype delta, int lr,
                 void *user_data)
 {
   UserData *udata = (UserData *) user_data;  // access user_data structure
@@ -686,20 +686,20 @@ static int SetupDecomp(UserData *udata)
   udata->HaveBdry[1][0] = (udata->js == 0);
   udata->HaveBdry[1][1] = (udata->je == udata->ny-1);
   if (!udata->HaveBdry[0][0]) {
-    udata->Wrecv = new realtype[udata->nyl];
-    udata->Wsend = new realtype[udata->nyl];
+    udata->Wrecv = new sunrealtype[udata->nyl];
+    udata->Wsend = new sunrealtype[udata->nyl];
   }
   if (!udata->HaveBdry[0][1]) {
-    udata->Erecv = new realtype[udata->nyl];
-    udata->Esend = new realtype[udata->nyl];
+    udata->Erecv = new sunrealtype[udata->nyl];
+    udata->Esend = new sunrealtype[udata->nyl];
   }
   if (!udata->HaveBdry[1][0]) {
-    udata->Srecv = new realtype[udata->nxl];
-    udata->Ssend = new realtype[udata->nxl];
+    udata->Srecv = new sunrealtype[udata->nxl];
+    udata->Ssend = new sunrealtype[udata->nxl];
   }
   if (!udata->HaveBdry[1][1]) {
-    udata->Nrecv = new realtype[udata->nxl];
-    udata->Nsend = new realtype[udata->nxl];
+    udata->Nrecv = new sunrealtype[udata->nxl];
+    udata->Nsend = new sunrealtype[udata->nxl];
   }
 
   return 0;     // return with success flag
@@ -717,7 +717,7 @@ static int Exchange(N_Vector y, UserData *udata)
   sunindextype nxl = udata->nxl;
 
   // access data array
-  realtype *Y = N_VGetArrayPointer(y);
+  sunrealtype *Y = N_VGetArrayPointer(y);
   if (check_flag((void *) Y, "N_VGetArrayPointer", 0)) return -1;
 
   // MPI neighborhood information

@@ -28,7 +28,7 @@ the HIP-clang compiler. The vector content layout is as follows:
    struct _N_VectorContent_Hip
    {
       sunindextype       length;
-      booleantype        own_helper;
+      sunbooleantype        own_helper;
       SUNMemory          host_data;
       SUNMemory          device_data;
       SUNHipExecPolicy*  stream_exec_policy;
@@ -69,17 +69,17 @@ provide macros to access its member variables. Instead, user should use the
 accessor functions:
 
 
-.. c:function:: realtype* N_VGetHostArrayPointer_Hip(N_Vector v)
+.. c:function:: sunrealtype* N_VGetHostArrayPointer_Hip(N_Vector v)
 
    This function returns pointer to the vector data on the host.
 
 
-.. c:function:: realtype* N_VGetDeviceArrayPointer_Hip(N_Vector v)
+.. c:function:: sunrealtype* N_VGetDeviceArrayPointer_Hip(N_Vector v)
 
    This function returns pointer to the vector data on the device.
 
 
-.. c:function:: booleantype N_VIsManagedMemory_Hip(N_Vector v)
+.. c:function:: sunbooleantype N_VIsManagedMemory_Hip(N_Vector v)
 
    This function returns a boolean flag indiciating if the vector
    data array is in managed memory or not.
@@ -109,7 +109,7 @@ following additional user-callable routines:
    ``N_Vector``. The vector data array is allocated in managed memory.
 
 
-.. c:function:: N_Vector N_VNewWithMemHelp_Hip(sunindextype length, booleantype use_managed_mem, SUNMemoryHelper helper, SUNContext sunctx)
+.. c:function:: N_Vector N_VNewWithMemHelp_Hip(sunindextype length, sunbooleantype use_managed_mem, SUNMemoryHelper helper, SUNContext sunctx)
 
    This function creates a new HIP ``N_Vector`` with a user-supplied
    SUNMemoryHelper for allocating/freeing memory.
@@ -122,14 +122,14 @@ following additional user-callable routines:
    other constructors to create a new vector.
 
 
-.. c:function:: N_Vector N_VMake_Hip(sunindextype vec_length, realtype *h_vdata, realtype *d_vdata, SUNContext sunctx)
+.. c:function:: N_Vector N_VMake_Hip(sunindextype vec_length, sunrealtype *h_vdata, sunrealtype *d_vdata, SUNContext sunctx)
 
 
    This function creates a HIP ``N_Vector`` with user-supplied vector data arrays
    for the host and the device.
 
 
-.. c:function:: N_Vector N_VMakeManaged_Hip(sunindextype vec_length, realtype *vdata, SUNContext sunctx)
+.. c:function:: N_Vector N_VMakeManaged_Hip(sunindextype vec_length, sunrealtype *vdata, SUNContext sunctx)
 
    This function creates a HIP ``N_Vector`` with a user-supplied
    managed memory data array.
@@ -163,12 +163,12 @@ The module NVECTOR_HIP also provides the following user-callable routines:
       policies across vectors*
 
 
-.. c:function:: realtype* N_VCopyToDevice_Hip(N_Vector v)
+.. c:function:: sunrealtype* N_VCopyToDevice_Hip(N_Vector v)
 
    This function copies host vector data to the device.
 
 
-.. c:function:: realtype* N_VCopyFromDevice_Hip(N_Vector v)
+.. c:function:: sunrealtype* N_VCopyFromDevice_Hip(N_Vector v)
 
    This function copies vector data from the device to the host.
 
@@ -194,71 +194,71 @@ operations enabled/disabled as cloned vectors inherit the same enable/disable
 options as the vector they are cloned from while vectors created with
 :c:func:`N_VNew_Hip` will have the default settings for the NVECTOR_HIP module.
 
-.. c:function:: int N_VEnableFusedOps_Hip(N_Vector v, booleantype tf)
+.. c:function:: int N_VEnableFusedOps_Hip(N_Vector v, sunbooleantype tf)
 
    This function enables (``SUNTRUE``) or disables (``SUNFALSE``) all fused and
    vector array operations in the HIP vector. The return value is ``0`` for
    success and ``-1`` if the input vector or its ``ops`` structure are ``NULL``.
 
-.. c:function:: int N_VEnableLinearCombination_Hip(N_Vector v, booleantype tf)
+.. c:function:: int N_VEnableLinearCombination_Hip(N_Vector v, sunbooleantype tf)
 
    This function enables (``SUNTRUE``) or disables (``SUNFALSE``) the linear
    combination fused operation in the HIP vector. The return value is ``0`` for
    success and ``-1`` if the input vector or its ``ops`` structure are ``NULL``.
 
-.. c:function:: int N_VEnableScaleAddMulti_Hip(N_Vector v, booleantype tf)
+.. c:function:: int N_VEnableScaleAddMulti_Hip(N_Vector v, sunbooleantype tf)
 
    This function enables (``SUNTRUE``) or disables (``SUNFALSE``) the scale and
    add a vector to multiple vectors fused operation in the HIP vector. The
    return value is ``0`` for success and ``-1`` if the input vector or its
    ``ops`` structure are ``NULL``.
 
-.. c:function:: int N_VEnableDotProdMulti_Hip(N_Vector v, booleantype tf)
+.. c:function:: int N_VEnableDotProdMulti_Hip(N_Vector v, sunbooleantype tf)
 
    This function enables (``SUNTRUE``) or disables (``SUNFALSE``) the multiple
    dot products fused operation in the HIP vector. The return value is ``0``
    for success and ``-1`` if the input vector or its ``ops`` structure are
    ``NULL``.
 
-.. c:function:: int N_VEnableLinearSumVectorArray_Hip(N_Vector v, booleantype tf)
+.. c:function:: int N_VEnableLinearSumVectorArray_Hip(N_Vector v, sunbooleantype tf)
 
    This function enables (``SUNTRUE``) or disables (``SUNFALSE``) the linear sum
    operation for vector arrays in the HIP vector. The return value is ``0`` for
    success and ``-1`` if the input vector or its ``ops`` structure are ``NULL``.
 
-.. c:function:: int N_VEnableScaleVectorArray_Hip(N_Vector v, booleantype tf)
+.. c:function:: int N_VEnableScaleVectorArray_Hip(N_Vector v, sunbooleantype tf)
 
    This function enables (``SUNTRUE``) or disables (``SUNFALSE``) the scale
    operation for vector arrays in the HIP vector. The return value is ``0`` for
    success and ``-1`` if the input vector or its ``ops`` structure are ``NULL``.
 
-.. c:function:: int N_VEnableConstVectorArray_Hip(N_Vector v, booleantype tf)
+.. c:function:: int N_VEnableConstVectorArray_Hip(N_Vector v, sunbooleantype tf)
 
    This function enables (``SUNTRUE``) or disables (``SUNFALSE``) the const
    operation for vector arrays in the HIP vector. The return value is ``0`` for
    success and ``-1`` if the input vector or its ``ops`` structure are ``NULL``.
 
-.. c:function:: int N_VEnableWrmsNormVectorArray_Hip(N_Vector v, booleantype tf)
+.. c:function:: int N_VEnableWrmsNormVectorArray_Hip(N_Vector v, sunbooleantype tf)
 
    This function enables (``SUNTRUE``) or disables (``SUNFALSE``) the WRMS norm
    operation for vector arrays in the HIP vector. The return value is ``0`` for
    success and ``-1`` if the input vector or its ``ops`` structure are ``NULL``.
 
-.. c:function:: int N_VEnableWrmsNormMaskVectorArray_Hip(N_Vector v, booleantype tf)
+.. c:function:: int N_VEnableWrmsNormMaskVectorArray_Hip(N_Vector v, sunbooleantype tf)
 
    This function enables (``SUNTRUE``) or disables (``SUNFALSE``) the masked WRMS
    norm operation for vector arrays in the HIP vector. The return value is
    ``0`` for success and ``-1`` if the input vector or its ``ops`` structure are
    ``NULL``.
 
-.. c:function:: int N_VEnableScaleAddMultiVectorArray_Hip(N_Vector v, booleantype tf)
+.. c:function:: int N_VEnableScaleAddMultiVectorArray_Hip(N_Vector v, sunbooleantype tf)
 
    This function enables (``SUNTRUE``) or disables (``SUNFALSE``) the scale and
    add a vector array to multiple vector arrays operation in the HIP vector. The
    return value is ``0`` for success and ``-1`` if the input vector or its
    ``ops`` structure are ``NULL``.
 
-.. c:function:: int N_VEnableLinearCombinationVectorArray_Hip(N_Vector v, booleantype tf)
+.. c:function:: int N_VEnableLinearCombinationVectorArray_Hip(N_Vector v, sunbooleantype tf)
 
    This function enables (``SUNTRUE``) or disables (``SUNFALSE``) the linear
    combination operation for vector arrays in the HIP vector. The return value

@@ -49,7 +49,7 @@ The ``exec`` command can then be used to execute the test script:
 
 .. code-block:: shell
 
-   docker exec -w /sundials/test sundialsci-int32-double-latest ./test_driver.sh --testtype CUSTOM --env env/docker.sh --tpls --realtype double --indexsize 32
+   docker exec -w /sundials/test sundialsci-int32-double-latest ./test_driver.sh --testtype CUSTOM --env env/docker.sh --tpls --sunrealtype double --indexsize 32
 
 Alternatively, you can drop into a bash shell inside the container to run specific examples:
 

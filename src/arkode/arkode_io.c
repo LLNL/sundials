@@ -53,12 +53,12 @@ int arkSetDefaults(void *arkode_mem)
   /* Set default values for integrator optional inputs */
   ark_mem->use_compensated_sums    = SUNFALSE; 
   ark_mem->fixedstep               = SUNFALSE;       /* default to use adaptive steps */
-  ark_mem->reltol                  = RCONST(1.e-4);  /* relative tolerance */
+  ark_mem->reltol                  = SUN_RCONST(1.e-4);  /* relative tolerance */
   ark_mem->itol                    = ARK_SS;         /* scalar-scalar solution tolerances */
   ark_mem->ritol                   = ARK_SS;         /* scalar-scalar residual tolerances */
-  ark_mem->Sabstol                 = RCONST(1.e-9);  /* solution absolute tolerance */
+  ark_mem->Sabstol                 = SUN_RCONST(1.e-9);  /* solution absolute tolerance */
   ark_mem->atolmin0                = SUNFALSE;       /* min(abstol) > 0 */
-  ark_mem->SRabstol                = RCONST(1.e-9);  /* residual absolute tolerance */
+  ark_mem->SRabstol                = SUN_RCONST(1.e-9);  /* residual absolute tolerance */
   ark_mem->Ratolmin0               = SUNFALSE;       /* min(Rabstol) > 0 */
   ark_mem->user_efun               = SUNFALSE;       /* no user-supplied ewt function */
   ark_mem->efun                    = arkEwtSetSS;    /* built-in scalar-scalar ewt function */
@@ -385,7 +385,7 @@ int arkSetMaxHnilWarns(void *arkode_mem, int mxhnil)
 
   Specifies the initial step size
   ---------------------------------------------------------------*/
-int arkSetInitStep(void *arkode_mem, realtype hin)
+int arkSetInitStep(void *arkode_mem, sunrealtype hin)
 {
   ARKodeMem ark_mem;
   if (arkode_mem==NULL) {
@@ -420,7 +420,7 @@ int arkSetInitStep(void *arkode_mem, realtype hin)
 
   Specifies the minimum step size
   ---------------------------------------------------------------*/
-int arkSetMinStep(void *arkode_mem, realtype hmin)
+int arkSetMinStep(void *arkode_mem, sunrealtype hmin)
 {
   ARKodeMem ark_mem;
   if (arkode_mem==NULL) {
@@ -455,9 +455,9 @@ int arkSetMinStep(void *arkode_mem, realtype hmin)
 
   Specifies the maximum step size
   ---------------------------------------------------------------*/
-int arkSetMaxStep(void *arkode_mem, realtype hmax)
+int arkSetMaxStep(void *arkode_mem, sunrealtype hmax)
 {
-  realtype hmax_inv;
+  sunrealtype hmax_inv;
   ARKodeMem ark_mem;
   if (arkode_mem==NULL) {
     arkProcessError(NULL, ARK_MEM_NULL, "ARKODE",
@@ -492,7 +492,7 @@ int arkSetMaxStep(void *arkode_mem, realtype hmax)
 
   Specifies the time beyond which the integration is not to proceed.
   ---------------------------------------------------------------*/
-int arkSetStopTime(void *arkode_mem, realtype tstop)
+int arkSetStopTime(void *arkode_mem, sunrealtype tstop)
 {
   ARKodeMem ark_mem;
   if (arkode_mem==NULL) {
@@ -528,7 +528,7 @@ int arkSetStopTime(void *arkode_mem, realtype tstop)
   Specifies to use interpolation to fill the solution output at
   the stop time (instead of a copy).
   ---------------------------------------------------------------*/
-int arkSetInterpolateStopTime(void *arkode_mem, booleantype interp)
+int arkSetInterpolateStopTime(void *arkode_mem, sunbooleantype interp)
 {
   ARKodeMem ark_mem;
   if (arkode_mem==NULL) {
@@ -577,7 +577,7 @@ int arkClearStopTime(void *arkode_mem)
   Any nonzero argument will result in the use of that fixed step
   size; an argument of 0 will re-enable temporal adaptivity.
   ---------------------------------------------------------------*/
-int arkSetFixedStep(void *arkode_mem, realtype hfixed)
+int arkSetFixedStep(void *arkode_mem, sunrealtype hfixed)
 {
   int retval;
   ARKodeMem ark_mem;
@@ -745,7 +745,7 @@ int arkSetPostprocessStageFn(void *arkode_mem,
   ---------------------------------------------------------------*/
 int arkSetConstraints(void *arkode_mem, N_Vector constraints)
 {
-  realtype temptest;
+  sunrealtype temptest;
   ARKodeMem ark_mem;
   if (arkode_mem==NULL) {
     arkProcessError(NULL, ARK_MEM_NULL, "ARKODE",
@@ -774,7 +774,7 @@ int arkSetConstraints(void *arkode_mem, N_Vector constraints)
 
   /* Check the constraints vector */
   temptest = N_VMaxNorm(constraints);
-  if ((temptest > RCONST(2.5)) || (temptest < HALF)) {
+  if ((temptest > SUN_RCONST(2.5)) || (temptest < HALF)) {
     arkProcessError(ark_mem, ARK_ILL_INPUT, "ARKODE::ARKStep",
                     "ARKStepSetConstraints", MSG_ARK_BAD_CONSTR);
     return(ARK_ILL_INPUT);
@@ -826,7 +826,7 @@ int arkSetMaxNumConstrFails(void *arkode_mem, int maxfails)
   interval (0,1).  A non-positive input implies a reset to
   the default value.
   ---------------------------------------------------------------*/
-int arkSetCFLFraction(void *arkode_mem, realtype cfl_frac)
+int arkSetCFLFraction(void *arkode_mem, sunrealtype cfl_frac)
 {
   int retval;
   ARKodeHAdaptMem hadapt_mem;
@@ -861,7 +861,7 @@ int arkSetCFLFraction(void *arkode_mem, realtype cfl_frac)
   interval (0,1).  A non-positive input implies a reset to the
   default value.
   ---------------------------------------------------------------*/
-int arkSetSafetyFactor(void *arkode_mem, realtype safety)
+int arkSetSafetyFactor(void *arkode_mem, sunrealtype safety)
 {
   int retval;
   ARKodeHAdaptMem hadapt_mem;
@@ -895,7 +895,7 @@ int arkSetSafetyFactor(void *arkode_mem, realtype safety)
   error control.  Allowable values must be >= 1.0.  Any illegal
   value implies a reset to the default value.
   ---------------------------------------------------------------*/
-int arkSetErrorBias(void *arkode_mem, realtype bias)
+int arkSetErrorBias(void *arkode_mem, sunrealtype bias)
 {
   int retval;
   ARKodeHAdaptMem hadapt_mem;
@@ -923,7 +923,7 @@ int arkSetErrorBias(void *arkode_mem, realtype bias)
   a separate maximum growth factor.  Allowable values must be
   > 1.0.  Any illegal value implies a reset to the default.
   ---------------------------------------------------------------*/
-int arkSetMaxGrowth(void *arkode_mem, realtype mx_growth)
+int arkSetMaxGrowth(void *arkode_mem, sunrealtype mx_growth)
 {
   int retval;
   ARKodeHAdaptMem hadapt_mem;
@@ -951,7 +951,7 @@ int arkSetMaxGrowth(void *arkode_mem, realtype mx_growth)
   must be > 0.0 and < 1.0. Any illegal value implies a reset to
   the default.
   ---------------------------------------------------------------*/
-int arkSetMinReduction(void *arkode_mem, realtype eta_min)
+int arkSetMinReduction(void *arkode_mem, sunrealtype eta_min)
 {
   int retval;
   ARKodeHAdaptMem hadapt_mem;
@@ -978,7 +978,7 @@ int arkSetMinReduction(void *arkode_mem, realtype eta_min)
   size will remain unchanged.  Allowable values must enclose the
   value 1.0.  Any illegal interval implies a reset to the default.
   ---------------------------------------------------------------*/
-int arkSetFixedStepBounds(void *arkode_mem, realtype lb, realtype ub)
+int arkSetFixedStepBounds(void *arkode_mem, sunrealtype lb, sunrealtype ub)
 {
   int retval;
   ARKodeHAdaptMem hadapt_mem;
@@ -1008,7 +1008,7 @@ int arkSetFixedStepBounds(void *arkode_mem, realtype lb, realtype ub)
   will be checked for validity when used by the solver.
   ---------------------------------------------------------------*/
 int arkSetAdaptivityMethod(void *arkode_mem, int imethod, int idefault,
-                           int pq, realtype adapt_params[3])
+                           int pq, sunrealtype adapt_params[3])
 {
   int retval;
   ARKodeHAdaptMem hadapt_mem;
@@ -1099,7 +1099,7 @@ int arkSetAdaptivityFn(void *arkode_mem, ARKAdaptFn hfun, void *h_data)
   etamx1.  Legal values are greater than 1.0.  Illegal values
   imply a reset to the default value.
   ---------------------------------------------------------------*/
-int arkSetMaxFirstGrowth(void *arkode_mem, realtype etamx1)
+int arkSetMaxFirstGrowth(void *arkode_mem, sunrealtype etamx1)
 {
   int retval;
   ARKodeHAdaptMem hadapt_mem;
@@ -1126,7 +1126,7 @@ int arkSetMaxFirstGrowth(void *arkode_mem, realtype etamx1)
   etamxf. Legal values are in the interval (0,1].  Illegal values
   imply a reset to the default value.
   ---------------------------------------------------------------*/
-int arkSetMaxEFailGrowth(void *arkode_mem, realtype etamxf)
+int arkSetMaxEFailGrowth(void *arkode_mem, sunrealtype etamxf)
 {
   int retval;
   ARKodeHAdaptMem hadapt_mem;
@@ -1180,7 +1180,7 @@ int arkSetSmallNumEFails(void *arkode_mem, int small_nef)
   etacf. Legal values are in the interval (0,1].  Illegal values
   imply a reset to the default value.
   ---------------------------------------------------------------*/
-int arkSetMaxCFailGrowth(void *arkode_mem, realtype etacf)
+int arkSetMaxCFailGrowth(void *arkode_mem, sunrealtype etacf)
 {
   int retval;
   ARKodeHAdaptMem hadapt_mem;
@@ -1357,7 +1357,7 @@ int arkGetNumSteps(void *arkode_mem, long int *nsteps)
 
   Returns the step size used on the first step
   ---------------------------------------------------------------*/
-int arkGetActualInitStep(void *arkode_mem, realtype *hinused)
+int arkGetActualInitStep(void *arkode_mem, sunrealtype *hinused)
 {
   ARKodeMem ark_mem;
   if (arkode_mem==NULL) {
@@ -1377,7 +1377,7 @@ int arkGetActualInitStep(void *arkode_mem, realtype *hinused)
 
   Returns the step size used on the last successful step
   ---------------------------------------------------------------*/
-int arkGetLastStep(void *arkode_mem, realtype *hlast)
+int arkGetLastStep(void *arkode_mem, sunrealtype *hlast)
 {
   ARKodeMem ark_mem;
   if (arkode_mem==NULL) {
@@ -1397,7 +1397,7 @@ int arkGetLastStep(void *arkode_mem, realtype *hlast)
 
   Returns the step size to be attempted on the next step
   ---------------------------------------------------------------*/
-int arkGetCurrentStep(void *arkode_mem, realtype *hcur)
+int arkGetCurrentStep(void *arkode_mem, sunrealtype *hcur)
 {
   ARKodeMem ark_mem;
   if (arkode_mem==NULL) {
@@ -1438,7 +1438,7 @@ int arkGetCurrentState(void *arkode_mem, N_Vector *state)
 
   Returns the current value of the independent variable
   ---------------------------------------------------------------*/
-int arkGetCurrentTime(void *arkode_mem, realtype *tcur)
+int arkGetCurrentTime(void *arkode_mem, sunrealtype *tcur)
 {
   ARKodeMem ark_mem;
   if (arkode_mem==NULL) {
@@ -1458,7 +1458,7 @@ int arkGetCurrentTime(void *arkode_mem, realtype *tcur)
 
   Returns a suggested factor for scaling tolerances
   ---------------------------------------------------------------*/
-int arkGetTolScaleFactor(void *arkode_mem, realtype *tolsfact)
+int arkGetTolScaleFactor(void *arkode_mem, sunrealtype *tolsfact)
 {
   ARKodeMem ark_mem;
   if (arkode_mem==NULL) {
@@ -1594,8 +1594,8 @@ int arkGetRootInfo(void *arkode_mem, int *rootsfound)
   Returns step statistics
   ---------------------------------------------------------------*/
 int arkGetStepStats(void *arkode_mem, long int *nsteps,
-                    realtype *hinused, realtype *hlast,
-                    realtype *hcur, realtype *tcur)
+                    sunrealtype *hinused, sunrealtype *hlast,
+                    sunrealtype *hcur, sunrealtype *tcur)
 {
   ARKodeMem ark_mem;
   if (arkode_mem==NULL) {
@@ -2034,7 +2034,7 @@ int arkWriteParameters(ARKodeMem ark_mem, FILE *fp)
   Ignore the value of kflag after the temporal error test and
   force the step to pass.
   ---------------------------------------------------------------*/
-int arkSetForcePass(void *arkode_mem, booleantype force_pass)
+int arkSetForcePass(void *arkode_mem, sunbooleantype force_pass)
 {
   ARKodeMem ark_mem;
   if (arkode_mem==NULL) {

@@ -496,20 +496,20 @@ void N_VCompare(sunrealtype c, N_Vector x, N_Vector z)
   return;
 }
 
-booleantype N_VInvTest(N_Vector x, N_Vector z)
+sunbooleantype N_VInvTest(N_Vector x, N_Vector z)
 {
-  booleantype result;
+  sunbooleantype result;
   SUNDIALS_MARK_FUNCTION_BEGIN(getSUNProfiler(x));
-  result = ((booleantype) z->ops->nvinvtest(x, z));
+  result = ((sunbooleantype) z->ops->nvinvtest(x, z));
   SUNDIALS_MARK_FUNCTION_END(getSUNProfiler(x));
   return(result);
 }
 
-booleantype N_VConstrMask(N_Vector c, N_Vector x, N_Vector m)
+sunbooleantype N_VConstrMask(N_Vector c, N_Vector x, N_Vector m)
 {
-  booleantype result;
+  sunbooleantype result;
   SUNDIALS_MARK_FUNCTION_BEGIN(getSUNProfiler(c));
-  result = ((booleantype) x->ops->nvconstrmask(c, x, m));
+  result = ((sunbooleantype) x->ops->nvconstrmask(c, x, m));
   SUNDIALS_MARK_FUNCTION_END(getSUNProfiler(c));
   return(result);
 }
@@ -544,7 +544,7 @@ SUNErrCode N_VLinearCombination(int nvec, sunrealtype* c, N_Vector* X, N_Vector 
 
     z->ops->nvscale(c[0], X[0], z);
     for (i=1; i<nvec; i++) {
-      z->ops->nvlinearsum(c[i], X[i], RCONST(1.0), z, z);
+      z->ops->nvlinearsum(c[i], X[i], SUN_RCONST(1.0), z, z);
     }
     ier = SUN_SUCCESS;
 
@@ -568,7 +568,7 @@ SUNErrCode N_VScaleAddMulti(int nvec, sunrealtype* a, N_Vector x, N_Vector* Y, N
   } else {
 
     for (i=0; i<nvec; i++) {
-      x->ops->nvlinearsum(a[i], x, RCONST(1.0), Y[i], Z[i]);
+      x->ops->nvlinearsum(a[i], x, SUN_RCONST(1.0), Y[i], Z[i]);
     }
     ier = SUN_SUCCESS;
 
@@ -765,7 +765,7 @@ SUNErrCode N_VScaleAddMultiVectorArray(int nvec, int nsum, sunrealtype* a, N_Vec
 
     for (i=0; i<nvec; i++) {
       for (j=0; j<nsum; j++) {
-        X[0]->ops->nvlinearsum(a[j], X[i], RCONST(1.0), Y[j][i], Z[j][i]);
+        X[0]->ops->nvlinearsum(a[j], X[i], SUN_RCONST(1.0), Y[j][i], Z[j][i]);
       }
     }
     ier = SUN_SUCCESS;
@@ -809,7 +809,7 @@ SUNErrCode N_VLinearCombinationVectorArray(int nvec, int nsum, sunrealtype* c,
     for (i=0; i<nvec; i++) {
       Z[0]->ops->nvscale(c[0], X[0][i], Z[i]);
       for (j=1; j<nsum; j++) {
-        Z[0]->ops->nvlinearsum(c[j], X[j][i], RCONST(1.0), Z[i], Z[i]);
+        Z[0]->ops->nvlinearsum(c[j], X[j][i], SUN_RCONST(1.0), Z[i], Z[i]);
       }
     }
     ier = SUN_SUCCESS;
@@ -877,20 +877,20 @@ sunrealtype N_VWSqrSumMaskLocal(N_Vector x, N_Vector w, N_Vector id)
   return(result);
 }
 
-booleantype N_VInvTestLocal(N_Vector x, N_Vector z)
+sunbooleantype N_VInvTestLocal(N_Vector x, N_Vector z)
 {
-  booleantype result;
+  sunbooleantype result;
   SUNDIALS_MARK_FUNCTION_BEGIN(getSUNProfiler(x));
-  result = ((booleantype) z->ops->nvinvtestlocal(x,z));
+  result = ((sunbooleantype) z->ops->nvinvtestlocal(x,z));
   SUNDIALS_MARK_FUNCTION_END(getSUNProfiler(x));
   return(result);
 }
 
-booleantype N_VConstrMaskLocal(N_Vector c, N_Vector x, N_Vector m)
+sunbooleantype N_VConstrMaskLocal(N_Vector c, N_Vector x, N_Vector m)
 {
-  booleantype result;
+  sunbooleantype result;
   SUNDIALS_MARK_FUNCTION_BEGIN(getSUNProfiler(x));
-  result = ((booleantype) x->ops->nvconstrmasklocal(c,x,m));
+  result = ((sunbooleantype) x->ops->nvconstrmasklocal(c,x,m));
   SUNDIALS_MARK_FUNCTION_END(getSUNProfiler(x));
   return(result);
 }

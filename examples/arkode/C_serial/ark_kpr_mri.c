@@ -80,7 +80,7 @@
 #include <nvector/nvector_serial.h>     /* serial N_Vector type, fcts., macros  */
 #include <sunmatrix/sunmatrix_dense.h>  /* dense matrix type, fcts., macros     */
 #include <sunlinsol/sunlinsol_dense.h>  /* dense linear solver                  */
-#include <sundials/sundials_math.h>     /* def. math fcns, 'realtype'           */
+#include <sundials/sundials_math.h>     /* def. math fcns, 'sunrealtype'           */
 
 #if defined(SUNDIALS_EXTENDED_PRECISION)
 #define GSYM ".20Lg"
@@ -92,32 +92,32 @@
 #define FSYM "f"
 #endif
 
-#define ZERO RCONST(0.0)
-#define ONE  RCONST(1.0)
-#define TWO  RCONST(2.0)
+#define ZERO SUN_RCONST(0.0)
+#define ONE  SUN_RCONST(1.0)
+#define TWO  SUN_RCONST(2.0)
 
 /* User-supplied functions called by the solver */
-static int fse(realtype t, N_Vector y, N_Vector ydot, void *user_data);
-static int fsi(realtype t, N_Vector y, N_Vector ydot, void *user_data);
-static int fs(realtype t, N_Vector y, N_Vector ydot, void *user_data);
-static int ff(realtype t, N_Vector y, N_Vector ydot, void *user_data);
-static int fn(realtype t, N_Vector y, N_Vector ydot, void *user_data);
-static int f0(realtype t, N_Vector y, N_Vector ydot, void *user_data);
-static int Js(realtype t, N_Vector y, N_Vector fy, SUNMatrix J, void *user_data,
+static int fse(sunrealtype t, N_Vector y, N_Vector ydot, void *user_data);
+static int fsi(sunrealtype t, N_Vector y, N_Vector ydot, void *user_data);
+static int fs(sunrealtype t, N_Vector y, N_Vector ydot, void *user_data);
+static int ff(sunrealtype t, N_Vector y, N_Vector ydot, void *user_data);
+static int fn(sunrealtype t, N_Vector y, N_Vector ydot, void *user_data);
+static int f0(sunrealtype t, N_Vector y, N_Vector ydot, void *user_data);
+static int Js(sunrealtype t, N_Vector y, N_Vector fy, SUNMatrix J, void *user_data,
               N_Vector tmp1, N_Vector tmp2, N_Vector tmp3);
-static int Jsi(realtype t, N_Vector y, N_Vector fy, SUNMatrix J, void *user_data,
+static int Jsi(sunrealtype t, N_Vector y, N_Vector fy, SUNMatrix J, void *user_data,
               N_Vector tmp1, N_Vector tmp2, N_Vector tmp3);
-static int Jn(realtype t, N_Vector y, N_Vector fy, SUNMatrix J, void *user_data,
+static int Jn(sunrealtype t, N_Vector y, N_Vector fy, SUNMatrix J, void *user_data,
               N_Vector tmp1, N_Vector tmp2, N_Vector tmp3);
 
 /* Private function to check function return values */
-static realtype r(realtype t, void *user_data);
-static realtype s(realtype t, void *user_data);
-static realtype rdot(realtype t, void *user_data);
-static realtype sdot(realtype t, void *user_data);
-static realtype utrue(realtype t, void *user_data);
-static realtype vtrue(realtype t, void *user_data);
-static int Ytrue(realtype t, N_Vector y, void *user_data);
+static sunrealtype r(sunrealtype t, void *user_data);
+static sunrealtype s(sunrealtype t, void *user_data);
+static sunrealtype rdot(sunrealtype t, void *user_data);
+static sunrealtype sdot(sunrealtype t, void *user_data);
+static sunrealtype utrue(sunrealtype t, void *user_data);
+static sunrealtype vtrue(sunrealtype t, void *user_data);
+static int Ytrue(sunrealtype t, N_Vector y, void *user_data);
 static int check_retval(void *returnvalue, const char *funcname, int opt);
 
 
@@ -127,18 +127,18 @@ int main(int argc, char *argv[])
   SUNContext ctx;
 
   /* general problem parameters */
-  realtype T0 = RCONST(0.0);     /* initial time */
-  realtype Tf = RCONST(5.0);     /* final time */
-  realtype dTout = RCONST(0.1);  /* time between outputs */
+  sunrealtype T0 = SUN_RCONST(0.0);     /* initial time */
+  sunrealtype Tf = SUN_RCONST(5.0);     /* final time */
+  sunrealtype dTout = SUN_RCONST(0.1);  /* time between outputs */
   sunindextype NEQ = 2;          /* number of dependent vars. */
   int Nt = (int) ceil(Tf/dTout); /* number of output times */
   int solve_type = 0;            /* problem configuration type */
-  realtype hs = RCONST(0.01);    /* slow step size */
-  realtype e = RCONST(0.5);      /* fast/slow coupling strength */
-  realtype G = RCONST(-100.0);   /* stiffness at slow time scale */
-  realtype w = RCONST(100.0);    /* time-scale separation factor */
-  realtype reltol = RCONST(0.01);
-  realtype abstol = 1e-11;
+  sunrealtype hs = SUN_RCONST(0.01);    /* slow step size */
+  sunrealtype e = SUN_RCONST(0.5);      /* fast/slow coupling strength */
+  sunrealtype G = SUN_RCONST(-100.0);   /* stiffness at slow time scale */
+  sunrealtype w = SUN_RCONST(100.0);    /* time-scale separation factor */
+  sunrealtype reltol = SUN_RCONST(0.01);
+  sunrealtype abstol = 1e-11;
 
   /* general problem variables */
   int retval;                               /* reusable error-checking flag */
@@ -152,12 +152,12 @@ int main(int argc, char *argv[])
   SUNLinearSolver LSf = NULL;               /* fast linear solver object    */
   SUNMatrix As = NULL;                      /* matrix for slow solver       */
   SUNLinearSolver LSs = NULL;               /* slow linear solver object    */
-  booleantype implicit_slow;
-  booleantype imex_slow = SUNFALSE;
-  booleantype deduce = SUNFALSE;
+  sunbooleantype implicit_slow;
+  sunbooleantype imex_slow = SUNFALSE;
+  sunbooleantype deduce = SUNFALSE;
   FILE *UFID;
-  realtype hf, gamma, beta, t, tout, rpar[3];
-  realtype uerr, verr, uerrtot, verrtot, errtot;
+  sunrealtype hf, gamma, beta, t, tout, rpar[3];
+  sunrealtype uerr, verr, uerrtot, verrtot, errtot;
   int iout;
   long int nsts, nstf, nfse, nfsi, nff, nnif, nncf, njef, nnis, nncs, njes, tmp;
 
@@ -171,7 +171,7 @@ int main(int argc, char *argv[])
   if (argc > 3)  G = SUNStrToReal(argv[3]);
   if (argc > 4)  w = SUNStrToReal(argv[4]);
   if (argc > 5)  e = SUNStrToReal(argv[5]);
-  if (argc > 6)  deduce = (booleantype) atoi(argv[6]);
+  if (argc > 6)  deduce = (sunbooleantype) atoi(argv[6]);
 
   /* Check arguments for validity */
   /*   0 <= solve_type <= 9      */
@@ -293,14 +293,14 @@ int main(int argc, char *argv[])
     if (check_retval((void *) inner_arkode_mem, "ARKStepCreate", 0)) return 1;
     B = ARKodeButcherTable_Alloc(3, SUNTRUE);
     if (check_retval((void *)B, "ARKodeButcherTable_Alloc", 0)) return 1;
-    B->A[1][0] = RCONST(0.5);
+    B->A[1][0] = SUN_RCONST(0.5);
     B->A[2][0] = -ONE;
     B->A[2][1] = TWO;
-    B->b[0] = ONE/RCONST(6.0);
-    B->b[1] = TWO/RCONST(3.0);
-    B->b[2] = ONE/RCONST(6.0);
+    B->b[0] = ONE/SUN_RCONST(6.0);
+    B->b[1] = TWO/SUN_RCONST(3.0);
+    B->b[2] = ONE/SUN_RCONST(6.0);
     B->d[1] = ONE;
-    B->c[1] = RCONST(0.5);
+    B->c[1] = SUN_RCONST(0.5);
     B->c[2] = ONE;
     B->q=3;
     B->p=2;
@@ -313,14 +313,14 @@ int main(int argc, char *argv[])
     if (check_retval((void *) inner_arkode_mem, "ARKStepCreate", 0)) return 1;
     B = ARKodeButcherTable_Alloc(3, SUNTRUE);
     if (check_retval((void *)B, "ARKodeButcherTable_Alloc", 0)) return 1;
-    B->A[1][0] = RCONST(0.5);
+    B->A[1][0] = SUN_RCONST(0.5);
     B->A[2][0] = -ONE;
     B->A[2][1] = TWO;
-    B->b[0] = ONE/RCONST(6.0);
-    B->b[1] = TWO/RCONST(3.0);
-    B->b[2] = ONE/RCONST(6.0);
+    B->b[0] = ONE/SUN_RCONST(6.0);
+    B->b[1] = TWO/SUN_RCONST(3.0);
+    B->b[2] = ONE/SUN_RCONST(6.0);
     B->d[1] = ONE;
-    B->c[1] = RCONST(0.5);
+    B->c[1] = SUN_RCONST(0.5);
     B->c[2] = ONE;
     B->q=3;
     B->p=2;
@@ -334,15 +334,15 @@ int main(int argc, char *argv[])
     if (check_retval((void *) inner_arkode_mem, "ARKStepCreate", 0)) return 1;
     B = ARKodeButcherTable_Alloc(4, SUNFALSE);
     if (check_retval((void *)B, "ARKodeButcherTable_Alloc", 0)) return 1;
-    B->A[1][0] = RCONST(0.5);
-    B->A[2][1] = RCONST(0.5);
+    B->A[1][0] = SUN_RCONST(0.5);
+    B->A[2][1] = SUN_RCONST(0.5);
     B->A[3][2] = ONE;
-    B->b[0] = ONE/RCONST(6.0);
-    B->b[1] = ONE/RCONST(3.0);
-    B->b[2] = ONE/RCONST(3.0);
-    B->b[3] = ONE/RCONST(6.0);
-    B->c[1] = RCONST(0.5);
-    B->c[2] = RCONST(0.5);
+    B->b[0] = ONE/SUN_RCONST(6.0);
+    B->b[1] = ONE/SUN_RCONST(3.0);
+    B->b[2] = ONE/SUN_RCONST(3.0);
+    B->b[3] = ONE/SUN_RCONST(6.0);
+    B->c[1] = SUN_RCONST(0.5);
+    B->c[2] = SUN_RCONST(0.5);
     B->c[3] = ONE;
     B->q=4;
     retval = ARKStepSetTables(inner_arkode_mem, 4, 0, NULL, B);
@@ -354,18 +354,18 @@ int main(int argc, char *argv[])
     if (check_retval((void *) inner_arkode_mem, "ARKStepCreate", 0)) return 1;
     B = ARKodeButcherTable_Alloc(3, SUNFALSE);
     if (check_retval((void *)B, "ARKodeButcherTable_Alloc", 0)) return 1;
-    beta  = SUNRsqrt(RCONST(3.0))/RCONST(6.0) + RCONST(0.5);
-    gamma = (-ONE/RCONST(8.0))*(SUNRsqrt(RCONST(3.0))+ONE);
-    B->A[1][0] = RCONST(4.0)*gamma+TWO*beta;
-    B->A[1][1] = ONE-RCONST(4.0)*gamma-TWO*beta;
-    B->A[2][0] = RCONST(0.5)-beta-gamma;
+    beta  = SUNRsqrt(SUN_RCONST(3.0))/SUN_RCONST(6.0) + SUN_RCONST(0.5);
+    gamma = (-ONE/SUN_RCONST(8.0))*(SUNRsqrt(SUN_RCONST(3.0))+ONE);
+    B->A[1][0] = SUN_RCONST(4.0)*gamma+TWO*beta;
+    B->A[1][1] = ONE-SUN_RCONST(4.0)*gamma-TWO*beta;
+    B->A[2][0] = SUN_RCONST(0.5)-beta-gamma;
     B->A[2][1] = gamma;
     B->A[2][2] = beta;
-    B->b[0] = ONE/RCONST(6.0);
-    B->b[1] = ONE/RCONST(6.0);
-    B->b[2] = TWO/RCONST(3.0);
+    B->b[0] = ONE/SUN_RCONST(6.0);
+    B->b[1] = ONE/SUN_RCONST(6.0);
+    B->b[2] = TWO/SUN_RCONST(3.0);
     B->c[1] = ONE;
-    B->c[2] = RCONST(0.5);
+    B->c[2] = SUN_RCONST(0.5);
     B->q=3;
     retval = ARKStepSetTables(inner_arkode_mem, 3, 0, B, NULL);
     if (check_retval(&retval, "ARKStepSetTables", 1)) return 1;
@@ -387,14 +387,14 @@ int main(int argc, char *argv[])
     if (check_retval((void *) inner_arkode_mem, "ARKStepCreate", 0)) return 1;
     B = ARKodeButcherTable_Alloc(3, SUNTRUE);
     if (check_retval((void *)B, "ARKodeButcherTable_Alloc", 0)) return 1;
-    B->A[1][0] = RCONST(0.5);
+    B->A[1][0] = SUN_RCONST(0.5);
     B->A[2][0] = -ONE;
     B->A[2][1] = TWO;
-    B->b[0] = ONE/RCONST(6.0);
-    B->b[1] = TWO/RCONST(3.0);
-    B->b[2] = ONE/RCONST(6.0);
+    B->b[0] = ONE/SUN_RCONST(6.0);
+    B->b[1] = TWO/SUN_RCONST(3.0);
+    B->b[2] = ONE/SUN_RCONST(6.0);
     B->d[1] = ONE;
-    B->c[1] = RCONST(0.5);
+    B->c[1] = SUN_RCONST(0.5);
     B->c[2] = ONE;
     B->q=3;
     B->p=2;
@@ -455,10 +455,10 @@ int main(int argc, char *argv[])
     if (check_retval((void *)arkode_mem, "MRIStepCreate", 0)) return 1;
     B = ARKodeButcherTable_Alloc(2, SUNFALSE);
     if (check_retval((void *)B, "ARKodeButcherTable_Alloc", 0)) return 1;
-    B->A[1][0] = TWO/RCONST(3.0);
-    B->b[0] = RCONST(0.25);
-    B->b[1] = RCONST(0.75);
-    B->c[1] = TWO/RCONST(3.0);
+    B->A[1][0] = TWO/SUN_RCONST(3.0);
+    B->b[0] = SUN_RCONST(0.25);
+    B->b[1] = SUN_RCONST(0.75);
+    B->c[1] = TWO/SUN_RCONST(3.0);
     B->q=2;
     C = MRIStepCoupling_MIStoMRI(B, 2, 0);
     if (check_retval((void *)C, "MRIStepCoupling_MIStoMRI", 0)) return 1;
@@ -680,13 +680,13 @@ int main(int argc, char *argv[])
  * ------------------------------*/
 
 /* ff routine to compute the fast portion of the ODE RHS. */
-static int ff(realtype t, N_Vector y, N_Vector ydot, void *user_data)
+static int ff(sunrealtype t, N_Vector y, N_Vector ydot, void *user_data)
 {
-  realtype *rpar = (realtype *) user_data;
-  const realtype e = rpar[2];
-  const realtype u = NV_Ith_S(y,0);
-  const realtype v = NV_Ith_S(y,1);
-  realtype tmp1, tmp2;
+  sunrealtype *rpar = (sunrealtype *) user_data;
+  const sunrealtype e = rpar[2];
+  const sunrealtype u = NV_Ith_S(y,0);
+  const sunrealtype v = NV_Ith_S(y,1);
+  sunrealtype tmp1, tmp2;
 
   /* fill in the RHS function:
      [0  0]*[(-1+u^2-r(t))/(2*u)] + [         0          ]
@@ -701,14 +701,14 @@ static int ff(realtype t, N_Vector y, N_Vector ydot, void *user_data)
 }
 
 /* fs routine to compute the slow portion of the ODE RHS. */
-static int fs(realtype t, N_Vector y, N_Vector ydot, void *user_data)
+static int fs(sunrealtype t, N_Vector y, N_Vector ydot, void *user_data)
 {
-  realtype *rpar = (realtype *) user_data;
-  const realtype G = rpar[0];
-  const realtype e = rpar[2];
-  const realtype u = NV_Ith_S(y,0);
-  const realtype v = NV_Ith_S(y,1);
-  realtype tmp1, tmp2;
+  sunrealtype *rpar = (sunrealtype *) user_data;
+  const sunrealtype G = rpar[0];
+  const sunrealtype e = rpar[2];
+  const sunrealtype u = NV_Ith_S(y,0);
+  const sunrealtype v = NV_Ith_S(y,1);
+  sunrealtype tmp1, tmp2;
 
   /* fill in the RHS function:
      [G e]*[(-1+u^2-r(t))/(2*u))] + [rdot(t)/(2*u)]
@@ -723,10 +723,10 @@ static int fs(realtype t, N_Vector y, N_Vector ydot, void *user_data)
 }
 
 /* fse routine to compute the slow portion of the ODE RHS. */
-static int fse(realtype t, N_Vector y, N_Vector ydot, void *user_data)
+static int fse(sunrealtype t, N_Vector y, N_Vector ydot, void *user_data)
 {
-  realtype *rpar = (realtype *) user_data;
-  const realtype u = NV_Ith_S(y,0);
+  sunrealtype *rpar = (sunrealtype *) user_data;
+  const sunrealtype u = NV_Ith_S(y,0);
 
   /* fill in the slow explicit RHS function:
      [rdot(t)/(2*u)]
@@ -739,14 +739,14 @@ static int fse(realtype t, N_Vector y, N_Vector ydot, void *user_data)
 }
 
 /* fsi routine to compute the slow portion of the ODE RHS.(currently same as fse) */
-static int fsi(realtype t, N_Vector y, N_Vector ydot, void *user_data)
+static int fsi(sunrealtype t, N_Vector y, N_Vector ydot, void *user_data)
 {
-  realtype *rpar = (realtype *) user_data;
-  const realtype G = rpar[0];
-  const realtype e = rpar[2];
-  const realtype u = NV_Ith_S(y,0);
-  const realtype v = NV_Ith_S(y,1);
-  realtype tmp1, tmp2;
+  sunrealtype *rpar = (sunrealtype *) user_data;
+  const sunrealtype G = rpar[0];
+  const sunrealtype e = rpar[2];
+  const sunrealtype u = NV_Ith_S(y,0);
+  const sunrealtype v = NV_Ith_S(y,1);
+  sunrealtype tmp1, tmp2;
 
   /* fill in the slow implicit RHS function:
      [G e]*[(-1+u^2-r(t))/(2*u))]
@@ -760,14 +760,14 @@ static int fsi(realtype t, N_Vector y, N_Vector ydot, void *user_data)
   return 0;
 }
 
-static int fn(realtype t, N_Vector y, N_Vector ydot, void *user_data)
+static int fn(sunrealtype t, N_Vector y, N_Vector ydot, void *user_data)
 {
-  realtype *rpar = (realtype *) user_data;
-  const realtype G = rpar[0];
-  const realtype e = rpar[2];
-  const realtype u = NV_Ith_S(y,0);
-  const realtype v = NV_Ith_S(y,1);
-  realtype tmp1, tmp2;
+  sunrealtype *rpar = (sunrealtype *) user_data;
+  const sunrealtype G = rpar[0];
+  const sunrealtype e = rpar[2];
+  const sunrealtype u = NV_Ith_S(y,0);
+  const sunrealtype v = NV_Ith_S(y,1);
+  sunrealtype tmp1, tmp2;
 
   /* fill in the RHS function:
      [G e]*[(-1+u^2-r(t))/(2*u))] + [rdot(t)/(2*u)]
@@ -781,20 +781,20 @@ static int fn(realtype t, N_Vector y, N_Vector ydot, void *user_data)
   return 0;
 }
 
-static int f0(realtype t, N_Vector y, N_Vector ydot, void *user_data)
+static int f0(sunrealtype t, N_Vector y, N_Vector ydot, void *user_data)
 {
   N_VConst(ZERO, ydot);
   return(0);
 }
 
-static int Js(realtype t, N_Vector y, N_Vector fy, SUNMatrix J, void *user_data,
+static int Js(sunrealtype t, N_Vector y, N_Vector fy, SUNMatrix J, void *user_data,
               N_Vector tmp1, N_Vector tmp2, N_Vector tmp3)
 {
-  realtype *rpar = (realtype *) user_data;
-  const realtype G = rpar[0];
-  const realtype e = rpar[2];
-  const realtype u = NV_Ith_S(y,0);
-  const realtype v = NV_Ith_S(y,1);
+  sunrealtype *rpar = (sunrealtype *) user_data;
+  const sunrealtype G = rpar[0];
+  const sunrealtype e = rpar[2];
+  const sunrealtype u = NV_Ith_S(y,0);
+  const sunrealtype v = NV_Ith_S(y,1);
 
   /* fill in the Jacobian:
      [G/2 + (G*(1+r(t))-rdot(t))/(2*u^2)   e/2+e*(2+s(t))/(2*v^2)]
@@ -808,14 +808,14 @@ static int Js(realtype t, N_Vector y, N_Vector fy, SUNMatrix J, void *user_data,
   return 0;
 }
 
-static int Jsi(realtype t, N_Vector y, N_Vector fy, SUNMatrix J, void *user_data,
+static int Jsi(sunrealtype t, N_Vector y, N_Vector fy, SUNMatrix J, void *user_data,
               N_Vector tmp1, N_Vector tmp2, N_Vector tmp3)
 {
-  realtype *rpar = (realtype *) user_data;
-  const realtype G = rpar[0];
-  const realtype e = rpar[2];
-  const realtype u = NV_Ith_S(y,0);
-  const realtype v = NV_Ith_S(y,1);
+  sunrealtype *rpar = (sunrealtype *) user_data;
+  const sunrealtype G = rpar[0];
+  const sunrealtype e = rpar[2];
+  const sunrealtype u = NV_Ith_S(y,0);
+  const sunrealtype v = NV_Ith_S(y,1);
 
   /* fill in the Jacobian:
      [G/2 + (G*(1+r(t)))/(2*u^2)   e/2 + e*(2+s(t))/(2*v^2)]
@@ -829,14 +829,14 @@ static int Jsi(realtype t, N_Vector y, N_Vector fy, SUNMatrix J, void *user_data
   return 0;
 }
 
-static int Jn(realtype t, N_Vector y, N_Vector fy, SUNMatrix J, void *user_data,
+static int Jn(sunrealtype t, N_Vector y, N_Vector fy, SUNMatrix J, void *user_data,
               N_Vector tmp1, N_Vector tmp2, N_Vector tmp3)
 {
-  realtype *rpar = (realtype *) user_data;
-  const realtype G = rpar[0];
-  const realtype e = rpar[2];
-  const realtype u = NV_Ith_S(y,0);
-  const realtype v = NV_Ith_S(y,1);
+  sunrealtype *rpar = (sunrealtype *) user_data;
+  const sunrealtype G = rpar[0];
+  const sunrealtype e = rpar[2];
+  const sunrealtype u = NV_Ith_S(y,0);
+  const sunrealtype v = NV_Ith_S(y,1);
 
   /* fill in the Jacobian:
      [G/2 + (G*(1+r(t))-rdot(t))/(2*u^2)     e/2 + e*(2+s(t))/(2*v^2)]
@@ -855,33 +855,33 @@ static int Jn(realtype t, N_Vector y, N_Vector fy, SUNMatrix J, void *user_data,
  * Private helper functions
  * ------------------------------*/
 
-static realtype r(realtype t, void *user_data)
+static sunrealtype r(sunrealtype t, void *user_data)
 {
-  return( RCONST(0.5)*cos(t) );
+  return( SUN_RCONST(0.5)*cos(t) );
 }
-static realtype s(realtype t, void *user_data)
+static sunrealtype s(sunrealtype t, void *user_data)
 {
-  realtype *rpar = (realtype *) user_data;
+  sunrealtype *rpar = (sunrealtype *) user_data;
   return( cos(rpar[1]*t) );
 }
-static realtype rdot(realtype t, void *user_data)
+static sunrealtype rdot(sunrealtype t, void *user_data)
 {
-  return( -RCONST(0.5)*sin(t) );
+  return( -SUN_RCONST(0.5)*sin(t) );
 }
-static realtype sdot(realtype t, void *user_data)
+static sunrealtype sdot(sunrealtype t, void *user_data)
 {
-  realtype *rpar = (realtype *) user_data;
+  sunrealtype *rpar = (sunrealtype *) user_data;
   return( -rpar[1]*sin(rpar[1]*t) );
 }
-static realtype utrue(realtype t, void *user_data)
+static sunrealtype utrue(sunrealtype t, void *user_data)
 {
   return( SUNRsqrt(ONE+r(t,user_data)) );
 }
-static realtype vtrue(realtype t, void *user_data)
+static sunrealtype vtrue(sunrealtype t, void *user_data)
 {
   return( SUNRsqrt(TWO+s(t,user_data)) );
 }
-static int Ytrue(realtype t, N_Vector y, void *user_data)
+static int Ytrue(sunrealtype t, N_Vector y, void *user_data)
 {
   NV_Ith_S(y,0) = utrue(t,user_data);
   NV_Ith_S(y,1) = vtrue(t,user_data);

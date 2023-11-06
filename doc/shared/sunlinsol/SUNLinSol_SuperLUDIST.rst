@@ -81,11 +81,11 @@ The module SUNLinSol_SuperLUDIST provides the following user-callable routines:
       is modified in the setup and solve routines.
 
 
-.. c:function:: realtype SUNLinSol_SuperLUDIST_GetBerr(SUNLinearSolver LS)
+.. c:function:: sunrealtype SUNLinSol_SuperLUDIST_GetBerr(SUNLinearSolver LS)
 
    This function returns the componentwise relative backward error of the
    computed solution.   It takes one argument, the ``SUNLinearSolver`` object.
-   The return type is ``realtype``.
+   The return type is ``sunrealtype``.
 
 
 .. c:function:: gridinfo_t* SUNLinSol_SuperLUDIST_GetGridinfo(SUNLinearSolver LS)
@@ -141,9 +141,9 @@ The SUNLinSol_SuperLUDIST module defines the *content* field of a
 .. code-block:: c
 
    struct _SUNLinearSolverContent_SuperLUDIST {
-     booleantype             first_factorize;
+     sunbooleantype             first_factorize;
      int                     last_flag;
-     realtype                berr;
+     sunrealtype                berr;
      gridinfo_t              *grid;
      xLUstruct_t             *lu;
      superlu_dist_options_t  *options;

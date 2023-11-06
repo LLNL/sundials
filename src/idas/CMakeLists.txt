@@ -21,7 +21,6 @@ install(CODE "MESSAGE(\"\nInstall IDAS\n\")")
 set(idas_SOURCES
   idas.c
   idaa.c
-  idas_direct.c
   idas_io.c
   idas_ic.c
   idaa_io.c
@@ -30,16 +29,13 @@ set(idas_SOURCES
   idas_nls.c
   idas_nls_sim.c
   idas_nls_stg.c
-  idas_spils.c
   )
 
 # Add variable idas_HEADERS with the exported IDAS header files
 set(idas_HEADERS
   idas.h
   idas_bbdpre.h
-  idas_direct.h
   idas_ls.h
-  idas_spils.h
   )
 
 # Add prefix with complete path to the IDAS header files

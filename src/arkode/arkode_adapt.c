@@ -107,11 +107,11 @@ void arkPrintAdaptMem(ARKodeHAdaptMem hadapt_mem, FILE *outfile)
   data structure.
   ---------------------------------------------------------------*/
 int arkAdapt(void* arkode_mem, ARKodeHAdaptMem hadapt_mem,
-             N_Vector ycur, realtype tcur, realtype hcur,
-             realtype dsm, long int nst)
+             N_Vector ycur, sunrealtype tcur, sunrealtype hcur,
+             sunrealtype dsm, long int nst)
 {
   int ier, k;
-  realtype ecur, h_acc, h_cfl, int_dir;
+  sunrealtype ecur, h_acc, h_cfl, int_dir;
   ARKodeMem ark_mem;
   if (arkode_mem == NULL) {
     arkProcessError(NULL, ARK_MEM_NULL, "ARKODE",
@@ -175,7 +175,7 @@ int arkAdapt(void* arkode_mem, ARKodeHAdaptMem hadapt_mem,
                     "Error in explicit stability function.");
     return (ARK_ILL_INPUT);
   }
-  if (h_cfl <= ZERO)  h_cfl = RCONST(1.0e30) * SUNRabs(hcur);
+  if (h_cfl <= ZERO)  h_cfl = SUN_RCONST(1.0e30) * SUNRabs(hcur);
 
   /* Solver diagnostics reporting */
   if (ark_mem->report)
@@ -183,18 +183,18 @@ int arkAdapt(void* arkode_mem, ARKodeHAdaptMem hadapt_mem,
             ecur, hadapt_mem->ehist[0], hadapt_mem->ehist[1],
             hcur, hadapt_mem->hhist[0], hadapt_mem->hhist[1], h_acc, h_cfl);
 
-#if SUNDIALS_LOGGING_LEVEL >= SUNDIALS_LOGGING_INFO
-  SUNLogger_QueueMsg(ARK_LOGGER, SUN_LOGLEVEL_INFO,
+#if SUNDIALS_LOGGING_LEVEL >= SUNDIALS_LOGGING_DEBUG
+  SUNLogger_QueueMsg(ARK_LOGGER, SUN_LOGLEVEL_DEBUG,
                      "ARKODE::arkAdapt", "error-history",
                      "ecur = %"RSYM", ehist[0] = %"RSYM", ehist[0] = %"RSYM,
                      ecur, hadapt_mem->ehist[0], hadapt_mem->ehist[1]);
 
-  SUNLogger_QueueMsg(ARK_LOGGER, SUN_LOGLEVEL_INFO,
+  SUNLogger_QueueMsg(ARK_LOGGER, SUN_LOGLEVEL_DEBUG,
                      "ARKODE::arkAdapt", "step-history",
                      "hcur = %"RSYM", hhist[0] = %"RSYM", hhist[0] = %"RSYM,
                      hcur, hadapt_mem->hhist[0], hadapt_mem->hhist[1]);
 
-  SUNLogger_QueueMsg(ARK_LOGGER, SUN_LOGLEVEL_INFO,
+  SUNLogger_QueueMsg(ARK_LOGGER, SUN_LOGLEVEL_DEBUG,
                      "ARKODE::arkAdapt", "new-step-before-bounds",
                      "h_acc = %"RSYM", h_cfl = %"RSYM, h_acc, h_cfl);
 #endif
@@ -213,8 +213,8 @@ int arkAdapt(void* arkode_mem, ARKodeHAdaptMem hadapt_mem,
   if (ark_mem->report)
     fprintf(ark_mem->diagfp, "%"RSYM"  %"RSYM"  ", h_acc, h_cfl);
 
-#if SUNDIALS_LOGGING_LEVEL >= SUNDIALS_LOGGING_INFO
-  SUNLogger_QueueMsg(ARK_LOGGER, SUN_LOGLEVEL_INFO,
+#if SUNDIALS_LOGGING_LEVEL >= SUNDIALS_LOGGING_DEBUG
+  SUNLogger_QueueMsg(ARK_LOGGER, SUN_LOGLEVEL_DEBUG,
                      "ARKODE::arkAdapt", "new-step-after-max-min-bounds",
                      "h_acc = %"RSYM", h_cfl = %"RSYM, h_acc, h_cfl);
 #endif
@@ -248,8 +248,8 @@ int arkAdapt(void* arkode_mem, ARKodeHAdaptMem hadapt_mem,
   if (ark_mem->report)
     fprintf(ark_mem->diagfp, "%"RSYM"\n", ark_mem->eta);
 
-#if SUNDIALS_LOGGING_LEVEL >= SUNDIALS_LOGGING_INFO
-  SUNLogger_QueueMsg(ARK_LOGGER, SUN_LOGLEVEL_INFO, "ARKODE::arkAdapt",
+#if SUNDIALS_LOGGING_LEVEL >= SUNDIALS_LOGGING_DEBUG
+  SUNLogger_QueueMsg(ARK_LOGGER, SUN_LOGLEVEL_DEBUG, "ARKODE::arkAdapt",
                      "new-step-eta", "eta = %"RSYM, ark_mem->eta);
 #endif
 
@@ -260,10 +260,10 @@ int arkAdapt(void* arkode_mem, ARKodeHAdaptMem hadapt_mem,
 /*---------------------------------------------------------------
   arkAdaptPID implements a PID time step control algorithm.
   ---------------------------------------------------------------*/
-int arkAdaptPID(ARKodeHAdaptMem hadapt_mem, int k, realtype hcur,
-                realtype ecur, realtype *hnew)
+int arkAdaptPID(ARKodeHAdaptMem hadapt_mem, int k, sunrealtype hcur,
+                sunrealtype ecur, sunrealtype *hnew)
 {
-  realtype k1, k2, k3, e1, e2, e3, h_acc;
+  sunrealtype k1, k2, k3, e1, e2, e3, h_acc;
 
   /* set usable time-step adaptivity parameters */
   k1 = -hadapt_mem->k1 / k;
@@ -284,10 +284,10 @@ int arkAdaptPID(ARKodeHAdaptMem hadapt_mem, int k, realtype hcur,
 /*---------------------------------------------------------------
   arkAdaptPI implements a PI time step control algorithm.
   ---------------------------------------------------------------*/
-int arkAdaptPI(ARKodeHAdaptMem hadapt_mem, int k, realtype hcur,
-               realtype ecur, realtype *hnew)
+int arkAdaptPI(ARKodeHAdaptMem hadapt_mem, int k, sunrealtype hcur,
+               sunrealtype ecur, sunrealtype *hnew)
 {
-  realtype k1, k2, e1, e2, h_acc;
+  sunrealtype k1, k2, e1, e2, h_acc;
 
   /* set usable time-step adaptivity parameters */
   k1 = -hadapt_mem->k1 / k;
@@ -306,10 +306,10 @@ int arkAdaptPI(ARKodeHAdaptMem hadapt_mem, int k, realtype hcur,
 /*---------------------------------------------------------------
   arkAdaptI implements an I time step control algorithm.
   ---------------------------------------------------------------*/
-int arkAdaptI(ARKodeHAdaptMem hadapt_mem, int k, realtype hcur,
-              realtype ecur, realtype *hnew)
+int arkAdaptI(ARKodeHAdaptMem hadapt_mem, int k, sunrealtype hcur,
+              sunrealtype ecur, sunrealtype *hnew)
 {
-  realtype k1, e1, h_acc;
+  sunrealtype k1, e1, h_acc;
 
   /* set usable time-step adaptivity parameters */
   k1 = -hadapt_mem->k1 / k;
@@ -328,9 +328,9 @@ int arkAdaptI(ARKodeHAdaptMem hadapt_mem, int k, realtype hcur,
   control algorithm.
   ---------------------------------------------------------------*/
 int arkAdaptExpGus(ARKodeHAdaptMem hadapt_mem, int k, long int nst,
-                   realtype hcur, realtype ecur, realtype *hnew)
+                   sunrealtype hcur, sunrealtype ecur, sunrealtype *hnew)
 {
-  realtype k1, k2, e1, e2, h_acc;
+  sunrealtype k1, k2, e1, e2, h_acc;
 
   /* modified method for first step */
   if (nst < 2) {
@@ -360,9 +360,9 @@ int arkAdaptExpGus(ARKodeHAdaptMem hadapt_mem, int k, long int nst,
   control algorithm.
   ---------------------------------------------------------------*/
 int arkAdaptImpGus(ARKodeHAdaptMem hadapt_mem, int k, long int nst,
-                   realtype hcur, realtype ecur, realtype *hnew)
+                   sunrealtype hcur, sunrealtype ecur, sunrealtype *hnew)
 {
-  realtype k1, k2, e1, e2, hrat, h_acc;
+  sunrealtype k1, k2, e1, e2, hrat, h_acc;
 
   /* modified method for first step */
   if (nst < 2) {
@@ -393,9 +393,9 @@ int arkAdaptImpGus(ARKodeHAdaptMem hadapt_mem, int k, long int nst,
   Gustafsson time step control algorithm.
   ---------------------------------------------------------------*/
 int arkAdaptImExGus(ARKodeHAdaptMem hadapt_mem, int k, long int nst,
-                    realtype hcur, realtype ecur, realtype *hnew)
+                    sunrealtype hcur, sunrealtype ecur, sunrealtype *hnew)
 {
-  realtype k1, k2, k3, e1, e2, hrat, h_acc;
+  sunrealtype k1, k2, k3, e1, e2, hrat, h_acc;
 
   /* modified method for first step */
   if (nst < 2) {

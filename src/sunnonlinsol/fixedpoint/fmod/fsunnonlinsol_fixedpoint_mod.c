@@ -272,7 +272,7 @@ SWIGEXPORT int _wrap_FSUNNonlinSolSolve_FixedPoint(SUNNonlinearSolver farg1, N_V
   N_Vector arg2 = (N_Vector) 0 ;
   N_Vector arg3 = (N_Vector) 0 ;
   N_Vector arg4 = (N_Vector) 0 ;
-  realtype arg5 ;
+  sunrealtype arg5 ;
   int arg6 ;
   void *arg7 = (void *) 0 ;
   int result;
@@ -281,7 +281,7 @@ SWIGEXPORT int _wrap_FSUNNonlinSolSolve_FixedPoint(SUNNonlinearSolver farg1, N_V
   arg2 = (N_Vector)(farg2);
   arg3 = (N_Vector)(farg3);
   arg4 = (N_Vector)(farg4);
-  arg5 = (realtype)(*farg5);
+  arg5 = (sunrealtype)(*farg5);
   arg6 = (int)(*farg6);
   arg7 = (void *)(farg7);
   result = (int)SUNNonlinSolSolve_FixedPoint(arg1,arg2,arg3,arg4,arg5,arg6,arg7);
@@ -349,11 +349,11 @@ SWIGEXPORT int _wrap_FSUNNonlinSolSetMaxIters_FixedPoint(SUNNonlinearSolver farg
 SWIGEXPORT int _wrap_FSUNNonlinSolSetDamping_FixedPoint(SUNNonlinearSolver farg1, double const *farg2) {
   int fresult ;
   SUNNonlinearSolver arg1 = (SUNNonlinearSolver) 0 ;
-  realtype arg2 ;
+  sunrealtype arg2 ;
   int result;
   
   arg1 = (SUNNonlinearSolver)(farg1);
-  arg2 = (realtype)(*farg2);
+  arg2 = (sunrealtype)(*farg2);
   result = (int)SUNNonlinSolSetDamping_FixedPoint(arg1,arg2);
   fresult = (int)(result);
   return fresult;
@@ -411,34 +411,6 @@ SWIGEXPORT int _wrap_FSUNNonlinSolGetSysFn_FixedPoint(SUNNonlinearSolver farg1, 
   arg1 = (SUNNonlinearSolver)(farg1);
   arg2 = (SUNNonlinSolSysFn *)(farg2);
   result = (int)SUNNonlinSolGetSysFn_FixedPoint(arg1,arg2);
-  fresult = (int)(result);
-  return fresult;
-}
-
-
-SWIGEXPORT int _wrap_FSUNNonlinSolSetInfoFile_FixedPoint(SUNNonlinearSolver farg1, void *farg2) {
-  int fresult ;
-  SUNNonlinearSolver arg1 = (SUNNonlinearSolver) 0 ;
-  FILE *arg2 = (FILE *) 0 ;
-  int result;
-  
-  arg1 = (SUNNonlinearSolver)(farg1);
-  arg2 = (FILE *)(farg2);
-  result = (int)SUNNonlinSolSetInfoFile_FixedPoint(arg1,arg2);
-  fresult = (int)(result);
-  return fresult;
-}
-
-
-SWIGEXPORT int _wrap_FSUNNonlinSolSetPrintLevel_FixedPoint(SUNNonlinearSolver farg1, int const *farg2) {
-  int fresult ;
-  SUNNonlinearSolver arg1 = (SUNNonlinearSolver) 0 ;
-  int arg2 ;
-  int result;
-  
-  arg1 = (SUNNonlinearSolver)(farg1);
-  arg2 = (int)(*farg2);
-  result = (int)SUNNonlinSolSetPrintLevel_FixedPoint(arg1,arg2);
   fresult = (int)(result);
   return fresult;
 }

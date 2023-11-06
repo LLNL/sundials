@@ -39,7 +39,7 @@ SPRKStep initialization and deallocation functions
 ------------------------------------------------------
 
 
-.. c:function:: void* SPRKStepCreate(ARKRhsFn f1, ARKRhsFn f2, realtype t0,\
+.. c:function:: void* SPRKStepCreate(ARKRhsFn f1, ARKRhsFn f2, sunrealtype t0,\
                                      N_Vector y0, SUNContext sunctx)
 
    This function allocates and initializes memory for a problem to
@@ -131,7 +131,7 @@ has requested rootfinding.
 
 
 
-.. c:function:: int SPRKStepEvolve(void* arkode_mem, realtype tout, N_Vector yout, realtype *tret, int itask)
+.. c:function:: int SPRKStepEvolve(void* arkode_mem, sunrealtype tout, N_Vector yout, sunrealtype *tret, int itask)
 
    Integrates the ODE over an interval in :math:`t`.
 
@@ -424,7 +424,7 @@ Optional inputs for SPRKStep
       ``NULL`` will always be directed to ``stderr``.
 
 
-.. c:function:: int SPRKStepSetFixedStep(void* arkode_mem, realtype hfixed)
+.. c:function:: int SPRKStepSetFixedStep(void* arkode_mem, sunrealtype hfixed)
 
    Sets the time step size used within SPRKStep.
 
@@ -455,7 +455,7 @@ Optional inputs for SPRKStep
    :retval ARK_ILL_INPUT: if an argument has an illegal value
 
 
-.. c:function:: int SPRKStepSetStopTime(void* arkode_mem, realtype tstop)
+.. c:function:: int SPRKStepSetStopTime(void* arkode_mem, sunrealtype tstop)
 
    Specifies the value of the independent variable
    :math:`t` past which the solution is not to proceed.
@@ -677,7 +677,7 @@ by :c:func:`SPRKStepEvolve()`.
 
 
 
-.. c:function:: int SPRKStepGetDky(void* arkode_mem, realtype t, int k, N_Vector dky)
+.. c:function:: int SPRKStepGetDky(void* arkode_mem, sunrealtype t, int k, N_Vector dky)
 
    Computes the *k*-th derivative of the function :math:`y` at the time *t*,
    i.e., :math:`y^{(k)}(t)`, for values of the independent variable satisfying
@@ -808,7 +808,7 @@ Main solver optional output functions
    :retval ARK_MEM_NULL: if the SPRKStep memory was ``NULL``
 
 
-.. c:function:: int SPRKStepGetLastStep(void* arkode_mem, realtype* hlast)
+.. c:function:: int SPRKStepGetLastStep(void* arkode_mem, sunrealtype* hlast)
 
    Returns the integration step size taken on the last successful
    internal step.
@@ -820,7 +820,7 @@ Main solver optional output functions
    :retval ARK_MEM_NULL: if the SPRKStep memory was ``NULL``
 
 
-.. c:function:: int SPRKStepGetCurrentStep(void* arkode_mem, realtype* hcur)
+.. c:function:: int SPRKStepGetCurrentStep(void* arkode_mem, sunrealtype* hcur)
 
    Returns the integration step size to be attempted on the next internal step.
 
@@ -831,7 +831,7 @@ Main solver optional output functions
    :retval ARK_MEM_NULL: if the SPRKStep memory was ``NULL``
 
 
-.. c:function:: int SPRKStepGetCurrentTime(void* arkode_mem, realtype* tcur)
+.. c:function:: int SPRKStepGetCurrentTime(void* arkode_mem, sunrealtype* tcur)
 
    Returns the current internal time reached by the solver.
 
@@ -859,7 +859,7 @@ Main solver optional output functions
       on the particular use case and on when this routine is called.
 
 
-.. c:function:: int SPRKStepGetStepStats(void* arkode_mem, long int* nsteps, realtype* hinused, realtype* hlast, realtype* hcur, realtype* tcur)
+.. c:function:: int SPRKStepGetStepStats(void* arkode_mem, long int* nsteps, sunrealtype* hinused, sunrealtype* hlast, sunrealtype* hcur, sunrealtype* tcur)
 
    Returns many of the most useful optional outputs in a single call.
 
@@ -1084,7 +1084,7 @@ this routine. We note that for the solution to retain temporal accuracy,
 the RHS function should not incorporate the discontinuity.
 
 
-.. c:function:: int SPRKStepReInit(void* arkode_mem, ARKRhsFn f1, ARKRhsFn f2, realtype t0, N_Vector y0)
+.. c:function:: int SPRKStepReInit(void* arkode_mem, ARKRhsFn f1, ARKRhsFn f2, sunrealtype t0, N_Vector y0)
 
    Provides required problem specifications and re-initializes the SPRKStep
    time-stepper module.
@@ -1128,7 +1128,7 @@ solving the problem. By default the next call to :c:func:`SPRKStepEvolve()` will
 use the step size computed by SPRKStep prior to calling :c:func:`SPRKStepReset()`.
 
 
-.. c:function:: int SPRKStepReset(void* arkode_mem, realtype tR, N_Vector yR)
+.. c:function:: int SPRKStepReset(void* arkode_mem, sunrealtype tR, N_Vector yR)
 
    Resets the current SPRKStep time-stepper module state to the provided
    independent variable value and dependent variable vector.

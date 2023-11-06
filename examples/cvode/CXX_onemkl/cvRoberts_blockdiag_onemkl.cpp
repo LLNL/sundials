@@ -60,33 +60,33 @@ using namespace std;
 // Problem Constants
 
 #define GROUPSIZE 3            // number of equations per group
-#define Y1    RCONST(1.0)      // initial y components
-#define Y2    RCONST(0.0)
-#define Y3    RCONST(0.0)
-#define RTOL  RCONST(1.0e-4)   // scalar relative tolerance
-#define ATOL1 RCONST(1.0e-8)   // vector absolute tolerance components
-#define ATOL2 RCONST(1.0e-14)
-#define ATOL3 RCONST(1.0e-6)
-#define T0    RCONST(0.0)      // initial time
-#define T1    RCONST(0.1)      // first output time
-#define TMULT RCONST(10.0)     // output time factor
+#define Y1    SUN_RCONST(1.0)      // initial y components
+#define Y2    SUN_RCONST(0.0)
+#define Y3    SUN_RCONST(0.0)
+#define RTOL  SUN_RCONST(1.0e-4)   // scalar relative tolerance
+#define ATOL1 SUN_RCONST(1.0e-8)   // vector absolute tolerance components
+#define ATOL2 SUN_RCONST(1.0e-14)
+#define ATOL3 SUN_RCONST(1.0e-6)
+#define T0    SUN_RCONST(0.0)      // initial time
+#define T1    SUN_RCONST(0.1)      // first output time
+#define TMULT SUN_RCONST(10.0)     // output time factor
 #define NOUT  10               // number of output times
 
-#define ZERO  RCONST(0.0)
-#define ONE   RCONST(1.0)
+#define ZERO  SUN_RCONST(0.0)
+#define ONE   SUN_RCONST(1.0)
 
 // Functions Called by the Solver
-static int f(realtype t, N_Vector y, N_Vector ydot, void *user_data);
+static int f(sunrealtype t, N_Vector y, N_Vector ydot, void *user_data);
 
-static int Jac(realtype t, N_Vector y, N_Vector fy, SUNMatrix J,
+static int Jac(sunrealtype t, N_Vector y, N_Vector fy, SUNMatrix J,
                void *user_data, N_Vector tmp1, N_Vector tmp2, N_Vector tmp3);
 
-static int PSolve(realtype t, N_Vector u, N_Vector f, N_Vector r,
-                  N_Vector z, realtype gamma, realtype delta, int lr,
+static int PSolve(sunrealtype t, N_Vector u, N_Vector f, N_Vector r,
+                  N_Vector z, sunrealtype gamma, sunrealtype delta, int lr,
                   void *user_data);
 
 // Private function to output results
-static void PrintOutput(realtype t, realtype y1, realtype y2, realtype y3);
+static void PrintOutput(sunrealtype t, sunrealtype y1, sunrealtype y2, sunrealtype y3);
 
 // Private function to print final statistics
 static void PrintFinalStats(void *cvode_mem, bool direct);
@@ -164,7 +164,7 @@ int main(int argc, char *argv[])
   if (check_retval((void *)abstol, "N_VClone", 0)) return 1;
 
   // Initialize y
-  realtype* ydata = N_VGetArrayPointer(y);
+  sunrealtype* ydata = N_VGetArrayPointer(y);
   for (sunindextype groupj = 0; groupj < neq; groupj += GROUPSIZE)
   {
     ydata[groupj]     = Y1;
@@ -174,10 +174,10 @@ int main(int argc, char *argv[])
   N_VCopyToDevice_Sycl(y);
 
   // Set the scalar relative tolerance
-  realtype reltol = RTOL;
+  sunrealtype reltol = RTOL;
 
   // Set the vector absolute tolerance
-  realtype* abstol_data = N_VGetArrayPointer(abstol);
+  sunrealtype* abstol_data = N_VGetArrayPointer(abstol);
   for (sunindextype groupj = 0; groupj < neq; groupj += GROUPSIZE)
   {
     abstol_data[groupj]     = ATOL1;
@@ -254,8 +254,8 @@ int main(int argc, char *argv[])
     printf("  output disabled\n");
 
   int      iout = 0;
-  realtype tout = T1;
-  realtype t;
+  sunrealtype tout = T1;
+  sunrealtype t;
 
   // Start timer
   chrono::time_point<chrono::steady_clock> tstart = chrono::steady_clock::now();
@@ -316,11 +316,11 @@ int main(int argc, char *argv[])
 
 
 // Compute the right-hand side function, ydot = f(t, y).
-static int f(realtype t, N_Vector y, N_Vector ydot, void* user_data)
+static int f(sunrealtype t, N_Vector y, N_Vector ydot, void* user_data)
 {
   UserData* udata    = (UserData*) user_data;
-  realtype* ydata    = N_VGetDeviceArrayPointer(y);
-  realtype* ydotdata = N_VGetDeviceArrayPointer(ydot);
+  sunrealtype* ydata    = N_VGetDeviceArrayPointer(y);
+  sunrealtype* ydotdata = N_VGetDeviceArrayPointer(ydot);
 
   const size_t       ngroups = static_cast<size_t>(udata->ngroups);
   const sunindextype N       = GROUPSIZE;
@@ -331,12 +331,12 @@ static int f(realtype t, N_Vector y, N_Vector ydot, void* user_data)
     {
       sunindextype groupj = idx[0];
 
-      realtype y1 = ydata[N * groupj];
-      realtype y2 = ydata[N * groupj + 1];
-      realtype y3 = ydata[N * groupj + 2];
+      sunrealtype y1 = ydata[N * groupj];
+      sunrealtype y2 = ydata[N * groupj + 1];
+      sunrealtype y3 = ydata[N * groupj + 2];
 
-      realtype yd1 = RCONST(-0.04) * y1 + RCONST(1.0e4) * y2 * y3;
-      realtype yd3 = RCONST(3.0e7) * y2 * y2;
+      sunrealtype yd1 = SUN_RCONST(-0.04) * y1 + SUN_RCONST(1.0e4) * y2 * y3;
+      sunrealtype yd3 = SUN_RCONST(3.0e7) * y2 * y2;
 
       ydotdata[N * groupj]     = yd1;
       ydotdata[N * groupj + 1] = -yd1 - yd3;
@@ -351,12 +351,12 @@ static int f(realtype t, N_Vector y, N_Vector ydot, void* user_data)
 
 
 // Compute the right-hand side Jacobian, J(t,y) = df/dy.
-static int Jac(realtype t, N_Vector y, N_Vector fy, SUNMatrix J,
+static int Jac(sunrealtype t, N_Vector y, N_Vector fy, SUNMatrix J,
                void *user_data, N_Vector tmp1, N_Vector tmp2, N_Vector tmp3)
 {
   UserData* udata = (UserData*) user_data;
-  realtype* Jdata = SUNMatrix_OneMklDense_Data(J);
-  realtype* ydata = N_VGetDeviceArrayPointer(y);
+  sunrealtype* Jdata = SUNMatrix_OneMklDense_Data(J);
+  sunrealtype* ydata = N_VGetDeviceArrayPointer(y);
 
   const size_t       ngroups = static_cast<size_t>(udata->ngroups);
   const sunindextype N       = GROUPSIZE;
@@ -369,22 +369,22 @@ static int Jac(realtype t, N_Vector y, N_Vector fy, SUNMatrix J,
       sunindextype groupj = idx[0];
 
       // get y values
-      realtype y2 = ydata[N * groupj + 1];
-      realtype y3 = ydata[N * groupj + 2];
+      sunrealtype y2 = ydata[N * groupj + 1];
+      sunrealtype y3 = ydata[N * groupj + 2];
 
       // first col of block
-      Jdata[NN * groupj]     = RCONST(-0.04);
-      Jdata[NN * groupj + 1] = RCONST(0.04);
+      Jdata[NN * groupj]     = SUN_RCONST(-0.04);
+      Jdata[NN * groupj + 1] = SUN_RCONST(0.04);
       Jdata[NN * groupj + 2] = ZERO;
 
       // second col of block
-      Jdata[NN * groupj + 3] = RCONST(1.0e4) * y3;
-      Jdata[NN * groupj + 4] = RCONST(-1.0e4) * y3 - RCONST(6.0e7) * y2;
-      Jdata[NN * groupj + 5] = RCONST(6.0e7) * y2;
+      Jdata[NN * groupj + 3] = SUN_RCONST(1.0e4) * y3;
+      Jdata[NN * groupj + 4] = SUN_RCONST(-1.0e4) * y3 - SUN_RCONST(6.0e7) * y2;
+      Jdata[NN * groupj + 5] = SUN_RCONST(6.0e7) * y2;
 
       // third col of block
-      Jdata[NN * groupj + 6] = RCONST(1.0e4) * y2;
-      Jdata[NN * groupj + 7] = RCONST(-1.0e4) * y2;
+      Jdata[NN * groupj + 6] = SUN_RCONST(1.0e4) * y2;
+      Jdata[NN * groupj + 7] = SUN_RCONST(-1.0e4) * y2;
       Jdata[NN * groupj + 8] = ZERO;
     });
   });
@@ -395,14 +395,14 @@ static int Jac(realtype t, N_Vector y, N_Vector fy, SUNMatrix J,
 }
 
 
-static int PSolve(realtype t, N_Vector y, N_Vector f, N_Vector r,
-                  N_Vector z, realtype gamma, realtype delta, int lr,
+static int PSolve(sunrealtype t, N_Vector y, N_Vector f, N_Vector r,
+                  N_Vector z, sunrealtype gamma, sunrealtype delta, int lr,
                   void *user_data)
 {
   UserData* udata = (UserData*) user_data;
-  realtype* ydata = N_VGetDeviceArrayPointer(y);
-  realtype* rdata = N_VGetDeviceArrayPointer(r);
-  realtype* zdata = N_VGetDeviceArrayPointer(z);
+  sunrealtype* ydata = N_VGetDeviceArrayPointer(y);
+  sunrealtype* rdata = N_VGetDeviceArrayPointer(r);
+  sunrealtype* zdata = N_VGetDeviceArrayPointer(z);
 
   const size_t       ngroups = static_cast<size_t>(udata->ngroups);
   const sunindextype N       = GROUPSIZE;
@@ -423,14 +423,14 @@ static int PSolve(realtype t, N_Vector y, N_Vector f, N_Vector r,
       // [   0       -d       1 ] [ z2 ]   [ r2 ]
 
       // get y values
-      realtype y2 = ydata[i1];
-      realtype y3 = ydata[i2];
+      sunrealtype y2 = ydata[i1];
+      sunrealtype y3 = ydata[i2];
 
       // set matrix values
-      realtype a = gamma * RCONST(0.04);
-      realtype b = gamma * RCONST(1.0e4) * y3;
-      realtype c = gamma * RCONST(1.0e4) * y2;
-      realtype d = gamma * RCONST(6.0e7) * y2;
+      sunrealtype a = gamma * SUN_RCONST(0.04);
+      sunrealtype b = gamma * SUN_RCONST(1.0e4) * y3;
+      sunrealtype c = gamma * SUN_RCONST(1.0e4) * y2;
+      sunrealtype d = gamma * SUN_RCONST(6.0e7) * y2;
 
       // Initial Jacobi iteration with zero guess
 
@@ -447,9 +447,9 @@ static int PSolve(realtype t, N_Vector y, N_Vector f, N_Vector r,
 
       for (int i = 1; i < 10; ++i)
       {
-        realtype z0 = zdata[i0];
-        realtype z1 = zdata[i1];
-        realtype z2 = zdata[i2];
+        sunrealtype z0 = zdata[i0];
+        sunrealtype z1 = zdata[i1];
+        sunrealtype z2 = zdata[i2];
 
         // z0 = (r0 + b * z1 + x * z2 / (1 + a)
         zdata[i0] = (rdata[i0] + b * z1 + c * z2) / (ONE + a);
@@ -472,7 +472,7 @@ static int PSolve(realtype t, N_Vector y, N_Vector f, N_Vector r,
 
 
 // Output solution
-static void PrintOutput(realtype t, realtype y1, realtype y2, realtype y3)
+static void PrintOutput(sunrealtype t, sunrealtype y1, sunrealtype y2, sunrealtype y3)
 {
 #if defined(SUNDIALS_EXTENDED_PRECISION)
   printf("At t = %0.4Le      y =%14.6Le  %14.6Le  %14.6Le\n", t, y1, y2, y3);

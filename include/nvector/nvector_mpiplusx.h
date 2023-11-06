@@ -34,9 +34,9 @@ SUNDIALS_EXPORT N_Vector N_VMake_MPIPlusX(MPI_Comm comm, N_Vector X, SUNContext 
 
 SUNDIALS_EXPORT N_Vector_ID N_VGetVectorID_MPIPlusX(N_Vector v);
 
-SUNDIALS_EXPORT realtype* N_VGetArrayPointer_MPIPlusX(N_Vector v);
+SUNDIALS_EXPORT sunrealtype* N_VGetArrayPointer_MPIPlusX(N_Vector v);
 
-SUNDIALS_EXPORT void N_VSetArrayPointer_MPIPlusX(realtype *vdata, N_Vector v);
+SUNDIALS_EXPORT void N_VSetArrayPointer_MPIPlusX(sunrealtype *vdata, N_Vector v);
 
 SUNDIALS_EXPORT void N_VPrint_MPIPlusX(N_Vector x);
 
@@ -47,7 +47,7 @@ SUNDIALS_EXPORT N_Vector N_VGetLocalVector_MPIPlusX(N_Vector v);
 SUNDIALS_EXPORT sunindextype N_VGetLocalLength_MPIPlusX(N_Vector v);
 
 SUNDIALS_STATIC_INLINE
-int N_VEnableFusedOps_MPIPlusX(N_Vector v, booleantype tf)
+int N_VEnableFusedOps_MPIPlusX(N_Vector v, sunbooleantype tf)
 { return N_VEnableFusedOps_MPIManyVector(v, tf); }
 
 #ifdef __cplusplus
