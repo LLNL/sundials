@@ -16,6 +16,7 @@
 # ------------------------------------------------------------------------------
 
 set -e
+set -o pipefail
 
 tarfile=$1
 distrobase=$2
@@ -34,121 +35,14 @@ fi
 $tar $tarfile $distrobase/doc/idas/guide/Makefile
 $tar $tarfile $distrobase/doc/idas/guide/source
 
-$tar $tarfile $distrobase/include/idas/idas.h
-$tar $tarfile $distrobase/include/idas/idas_bbdpre.h
-$tar $tarfile $distrobase/include/idas/idas_direct.h
-$tar $tarfile $distrobase/include/idas/idas_ls.h
-$tar $tarfile $distrobase/include/idas/idas_spils.h
+echo "   --- Add idas include files to $tarfile"
+$tar $tarfile $distrobase/include/idas
 
-$tar $tarfile $distrobase/src/idas/LICENSE
-$tar $tarfile $distrobase/src/idas/NOTICE
-$tar $tarfile $distrobase/src/idas/README.md
-$tar $tarfile $distrobase/src/idas/CMakeLists.txt
-
-$tar $tarfile $distrobase/src/idas/idaa.c
-$tar $tarfile $distrobase/src/idas/idaa_io.c
-$tar $tarfile $distrobase/src/idas/idas.c
-$tar $tarfile $distrobase/src/idas/idas_bbdpre.c
-$tar $tarfile $distrobase/src/idas/idas_bbdpre_impl.h
-$tar $tarfile $distrobase/src/idas/idas_direct.c
-$tar $tarfile $distrobase/src/idas/idas_ic.c
-$tar $tarfile $distrobase/src/idas/idas_impl.h
-$tar $tarfile $distrobase/src/idas/idas_io.c
-$tar $tarfile $distrobase/src/idas/idas_ls.c
-$tar $tarfile $distrobase/src/idas/idas_ls_impl.h
-$tar $tarfile $distrobase/src/idas/idas_nls.c
-$tar $tarfile $distrobase/src/idas/idas_nls_sim.c
-$tar $tarfile $distrobase/src/idas/idas_nls_stg.c
-$tar $tarfile $distrobase/src/idas/idas_spils.c
-
-$tar $tarfile $distrobase/src/idas/fmod/CMakeLists.txt
-$tar $tarfile $distrobase/src/idas/fmod/fidas_mod.c
-$tar $tarfile $distrobase/src/idas/fmod/fidas_mod.f90
+echo "   --- Add idas source files to $tarfile"
+$tar $tarfile $distrobase/src/idas
 
 echo "   --- Add idas examples to $tarfile"
-
-$tar $tarfile $distrobase/examples/idas/CMakeLists.txt
-
-$tar $tarfile $distrobase/examples/idas/serial/README
-$tar $tarfile $distrobase/examples/idas/serial/CMakeLists.txt
-$tar $tarfile $distrobase/examples/idas/serial/idasAkzoNob_ASAi_dns.c
-$tar $tarfile $distrobase/examples/idas/serial/idasAkzoNob_ASAi_dns.out
-$tar $tarfile $distrobase/examples/idas/serial/idasAkzoNob_dns.c
-$tar $tarfile $distrobase/examples/idas/serial/idasAkzoNob_dns.out
-$tar $tarfile $distrobase/examples/idas/serial/idasAnalytic_mels.c
-$tar $tarfile $distrobase/examples/idas/serial/idasAnalytic_mels.out
-$tar $tarfile $distrobase/examples/idas/serial/idasFoodWeb_bnd.c
-$tar $tarfile $distrobase/examples/idas/serial/idasFoodWeb_bnd.out
-$tar $tarfile $distrobase/examples/idas/serial/idasHeat2D_bnd.c
-$tar $tarfile $distrobase/examples/idas/serial/idasHeat2D_bnd.out
-$tar $tarfile $distrobase/examples/idas/serial/idasHeat2D_kry.c
-$tar $tarfile $distrobase/examples/idas/serial/idasHeat2D_kry.out
-$tar $tarfile $distrobase/examples/idas/serial/idasHessian_ASA_FSA.c
-$tar $tarfile $distrobase/examples/idas/serial/idasHessian_ASA_FSA.out
-$tar $tarfile $distrobase/examples/idas/serial/idasKrylovDemo_ls.c
-$tar $tarfile $distrobase/examples/idas/serial/idasKrylovDemo_ls.out
-$tar $tarfile $distrobase/examples/idas/serial/idasKrylovDemo_ls_1.out
-$tar $tarfile $distrobase/examples/idas/serial/idasKrylovDemo_ls_2.out
-$tar $tarfile $distrobase/examples/idas/serial/idasRoberts_ASAi_dns.c
-$tar $tarfile $distrobase/examples/idas/serial/idasRoberts_ASAi_dns.out
-$tar $tarfile $distrobase/examples/idas/serial/idasRoberts_ASAi_dns_bkw1_stats.csv
-$tar $tarfile $distrobase/examples/idas/serial/idasRoberts_ASAi_dns_fwd_stats.csv
-$tar $tarfile $distrobase/examples/idas/serial/idasRoberts_ASAi_klu.c
-$tar $tarfile $distrobase/examples/idas/serial/idasRoberts_ASAi_klu.out
-$tar $tarfile $distrobase/examples/idas/serial/idasRoberts_ASAi_sps.c
-$tar $tarfile $distrobase/examples/idas/serial/idasRoberts_ASAi_sps.out
-$tar $tarfile $distrobase/examples/idas/serial/idasRoberts_dns.c
-$tar $tarfile $distrobase/examples/idas/serial/idasRoberts_dns.out
-$tar $tarfile $distrobase/examples/idas/serial/idasRoberts_dns_stats.csv
-$tar $tarfile $distrobase/examples/idas/serial/idasRoberts_FSA_dns.c
-$tar $tarfile $distrobase/examples/idas/serial/idasRoberts_FSA_dns_stats_-sensi_stg_t.csv
-$tar $tarfile $distrobase/examples/idas/serial/idasRoberts_FSA_dns_-sensi_stg_t.out
-$tar $tarfile $distrobase/examples/idas/serial/idasRoberts_FSA_klu.c
-$tar $tarfile $distrobase/examples/idas/serial/idasRoberts_FSA_klu_-sensi_stg_t.out
-$tar $tarfile $distrobase/examples/idas/serial/idasRoberts_FSA_sps.c
-$tar $tarfile $distrobase/examples/idas/serial/idasRoberts_FSA_sps_-sensi_stg_t.out
-$tar $tarfile $distrobase/examples/idas/serial/idasRoberts_klu.c
-$tar $tarfile $distrobase/examples/idas/serial/idasRoberts_klu.out
-$tar $tarfile $distrobase/examples/idas/serial/idasRoberts_sps.c
-$tar $tarfile $distrobase/examples/idas/serial/idasRoberts_sps.out
-$tar $tarfile $distrobase/examples/idas/serial/idasSlCrank_dns.c
-$tar $tarfile $distrobase/examples/idas/serial/idasSlCrank_dns.out
-$tar $tarfile $distrobase/examples/idas/serial/idasSlCrank_FSA_dns.c
-$tar $tarfile $distrobase/examples/idas/serial/idasSlCrank_FSA_dns.out
-
-$tar $tarfile $distrobase/examples/idas/C_openmp/README
-$tar $tarfile $distrobase/examples/idas/C_openmp/CMakeLists.txt
-$tar $tarfile $distrobase/examples/idas/C_openmp/idasFoodWeb_bnd_omp.c
-$tar $tarfile $distrobase/examples/idas/C_openmp/idasFoodWeb_bnd_omp.out
-$tar $tarfile $distrobase/examples/idas/C_openmp/idasFoodWeb_kry_omp.c
-$tar $tarfile $distrobase/examples/idas/C_openmp/idasFoodWeb_kry_omp.out
-
-$tar $tarfile $distrobase/examples/idas/parallel/README
-$tar $tarfile $distrobase/examples/idas/parallel/CMakeLists.txt
-$tar $tarfile $distrobase/examples/idas/parallel/idasBruss_ASAp_kry_bbd_p.c
-$tar $tarfile $distrobase/examples/idas/parallel/idasBruss_ASAp_kry_bbd_p.out
-$tar $tarfile $distrobase/examples/idas/parallel/idasBruss_FSA_kry_bbd_p.c
-$tar $tarfile $distrobase/examples/idas/parallel/idasBruss_FSA_kry_bbd_p.out
-$tar $tarfile $distrobase/examples/idas/parallel/idasBruss_kry_bbd_p.c
-$tar $tarfile $distrobase/examples/idas/parallel/idasBruss_kry_bbd_p.out
-$tar $tarfile $distrobase/examples/idas/parallel/idasFoodWeb_kry_bbd_p.c
-$tar $tarfile $distrobase/examples/idas/parallel/idasFoodWeb_kry_bbd_p.out
-$tar $tarfile $distrobase/examples/idas/parallel/idasFoodWeb_kry_p.c
-$tar $tarfile $distrobase/examples/idas/parallel/idasFoodWeb_kry_p.out
-$tar $tarfile $distrobase/examples/idas/parallel/idasHeat2D_FSA_kry_bbd_p.c
-$tar $tarfile $distrobase/examples/idas/parallel/idasHeat2D_FSA_kry_bbd_p_-sensi_stg_t.out
-$tar $tarfile $distrobase/examples/idas/parallel/idasHeat2D_kry_bbd_p.c
-$tar $tarfile $distrobase/examples/idas/parallel/idasHeat2D_kry_bbd_p.out
-$tar $tarfile $distrobase/examples/idas/parallel/idasHeat2D_kry_p.c
-$tar $tarfile $distrobase/examples/idas/parallel/idasHeat2D_kry_p.out
-
-$tar $tarfile $distrobase/examples/idas/F2003_serial/README
-$tar $tarfile $distrobase/examples/idas/F2003_serial/CMakeLists.txt
-$tar $tarfile $distrobase/examples/idas/F2003_serial/idasAkzoNob_ASAi_dns_f2003.f90
-$tar $tarfile $distrobase/examples/idas/F2003_serial/idasAkzoNob_ASAi_dns_f2003.out
-$tar $tarfile $distrobase/examples/idas/F2003_serial/idasHeat2D_kry_f2003.f90
-$tar $tarfile $distrobase/examples/idas/F2003_serial/idasHeat2D_kry_f2003.out
+$tar $tarfile $distrobase/examples/idas
 
 echo "   --- Add idas unit tests to $tarfile"
-
 $tar $tarfile $distrobase/test/unit_tests/idas
