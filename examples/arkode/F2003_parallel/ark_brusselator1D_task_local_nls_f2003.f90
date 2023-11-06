@@ -1103,7 +1103,6 @@ program main
 
   ! Create SUNDIALS simulation context
   comm = MPI_COMM_WORLD
-  commptr => comm
   retval = FSUNContext_Create(c_loc(commptr), sunctx)
   if (retval /= 0) then
     print *, "Error: FSUNContext_Create returned ",retval
@@ -1122,7 +1121,7 @@ program main
   ! SUNDIALS will only log up to the max level n, but a lesser level can
   ! be configured at runtime by only providing output files for the
   ! desired levels. We will enable informational logging here:
-  retval = FSUNLogger_Create(c_loc(commptr), 0, logger)
+  retval = FSUNLogger_Create(comm, 0, logger)
   if (retval /= 0) then
     print *, "Error: FSUNLogger_Create returned ",retval
     call MPI_Abort(comm, 1, ierr)

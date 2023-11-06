@@ -32,7 +32,7 @@
 
 // We have to manually insert the wrapper code for SUNLogger_Create
 // to handle the Fortran to MPI MPI_Comm translation.
-%ignore SUNLogger_Create;
+//%ignore SUNLogger_Create;
 // %ignore SUNLogger_Destroy;
 
 // Process and wrap functions in the following files
