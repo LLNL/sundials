@@ -39,7 +39,7 @@ foreach(test_tuple ${unit_tests})
 
     # libraries to link against
     target_link_libraries(${test}
-      sundials_generic
+      sundials_core
       ${EXE_EXTRA_LINK_LIBS})
 
   endif()

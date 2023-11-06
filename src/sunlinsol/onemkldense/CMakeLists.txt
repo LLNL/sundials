@@ -23,7 +23,7 @@ sundials_add_library(sundials_sunlinsolonemkldense
   INCLUDE_SUBDIR
     sunlinsol
   OBJECT_LIBRARIES
-    sundials_generic_obj
+    sundials_core_obj
   COMPILE_FEATURES
     PUBLIC cxx_std_17
   INCLUDE_DIRECTORIES

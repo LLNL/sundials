@@ -25,7 +25,7 @@ sundials_add_library(sundials_sunlinsolsuperludist
   INCLUDE_SUBDIR
     sunlinsol
   OBJECT_LIBRARIES
-    sundials_generic_obj
+    sundials_core_obj
   LINK_LIBRARIES
     PUBLIC
     sundials_sunmatrixslunrloc

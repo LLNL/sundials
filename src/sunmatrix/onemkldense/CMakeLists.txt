@@ -23,7 +23,7 @@ sundials_add_library(sundials_sunmatrixonemkldense
   INCLUDE_SUBDIR
     sunmatrix
   OBJECT_LIBRARIES
-    sundials_generic_obj
+    sundials_core_obj
     sundials_sunmemsycl_obj
   COMPILE_FEATURES
     PUBLIC cxx_std_17

@@ -50,7 +50,7 @@ sundials_add_library(sundials_idas
   INCLUDE_SUBDIR
     idas
   OBJECT_LIBRARIES
-    sundials_generic_obj
+    sundials_core_obj
     sundials_sunmemsys_obj
     sundials_nvecserial_obj
     sundials_sunmatrixband_obj

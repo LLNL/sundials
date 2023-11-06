@@ -25,7 +25,7 @@ sundials_add_library(sundials_nvecserial
   INCLUDE_SUBDIR
     nvector
   OBJECT_LIBRARIES
-    sundials_generic_obj
+    sundials_core_obj
   OUTPUT_NAME
     sundials_nvecserial
   VERSION

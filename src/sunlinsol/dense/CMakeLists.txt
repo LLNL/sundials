@@ -26,7 +26,7 @@ sundials_add_library(sundials_sunlinsoldense
   INCLUDE_SUBDIR
     sunlinsol
   OBJECT_LIBRARIES
-    sundials_generic_obj
+    sundials_core_obj
   LINK_LIBRARIES
     PUBLIC sundials_sunmatrixdense
   OUTPUT_NAME

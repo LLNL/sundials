@@ -24,7 +24,7 @@ sundials_add_library(sundials_sunlinsolcusolversp
   INCLUDE_SUBDIR
     sunlinsol
   OBJECT_LIBRARIES
-    sundials_generic_obj
+    sundials_core_obj
   LINK_LIBRARIES
     PUBLIC sundials_sunmatrixcusparse CUDA::cusolver
     PRIVATE CUDA::cusparse

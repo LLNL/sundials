@@ -25,7 +25,7 @@ sundials_add_library(sundials_nvecsycl
   INCLUDE_SUBDIR
     nvector
   OBJECT_LIBRARIES
-    sundials_generic_obj
+    sundials_core_obj
     sundials_sunmemsycl_obj
   COMPILE_FEATURES
     PUBLIC cxx_std_17

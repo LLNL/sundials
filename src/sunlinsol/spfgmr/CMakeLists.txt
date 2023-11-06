@@ -25,7 +25,7 @@ sundials_add_library(sundials_sunlinsolspfgmr
   INCLUDE_SUBDIR
     sunlinsol
   OBJECT_LIBRARIES
-    sundials_generic_obj
+    sundials_core_obj
   OUTPUT_NAME
     sundials_sunlinsolspfgmr
   VERSION

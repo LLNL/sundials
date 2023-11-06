@@ -33,7 +33,7 @@ sundials_add_library(sundials_nvecmpiplusx
   INCLUDE_SUBDIR
     nvector
   OBJECT_LIBRARIES
-    sundials_generic_obj
+    sundials_core_obj
     sundials_nvecmpimanyvector_obj
   OUTPUT_NAME
     sundials_nvecmpiplusx

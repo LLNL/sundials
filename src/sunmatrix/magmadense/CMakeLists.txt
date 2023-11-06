@@ -31,7 +31,7 @@ sundials_add_library(sundials_sunmatrixmagmadense
   INCLUDE_SUBDIR
     sunmatrix
   OBJECT_LIBRARIES
-    sundials_generic_obj
+    sundials_core_obj
   INCLUDE_DIRECTORIES
     PUBLIC ${MAGMA_INCLUDE_DIR}
   LINK_LIBRARIES

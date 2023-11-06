@@ -41,7 +41,7 @@ sundials_add_library(sundials_nvecraja
   INCLUDE_SUBDIR
     nvector
   OBJECT_LIBRARIES
-    sundials_generic_obj
+    sundials_core_obj
     ${_sunmemlib}
   LINK_LIBRARIES
     PUBLIC ${_hip_lib_or_not} RAJA

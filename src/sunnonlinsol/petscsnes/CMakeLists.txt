@@ -32,7 +32,7 @@ sundials_add_library(sundials_sunnonlinsolpetscsnes
   INCLUDE_SUBDIR
     sunnonlinsol
   OBJECT_LIBRARIES
-    sundials_generic_obj
+    sundials_core_obj
   LINK_LIBRARIES
     PUBLIC sundials_nvecpetsc SUNDIALS::PETSC
   OUTPUT_NAME

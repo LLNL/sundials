@@ -25,7 +25,7 @@ sundials_add_library(sundials_nvecopenmp
   INCLUDE_SUBDIR
     nvector
   OBJECT_LIBRARIES
-    sundials_generic_obj
+    sundials_core_obj
   LINK_LIBRARIES
     PUBLIC OpenMP::OpenMP_C
   OUTPUT_NAME

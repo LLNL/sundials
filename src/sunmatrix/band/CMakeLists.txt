@@ -25,7 +25,7 @@ sundials_add_library(sundials_sunmatrixband
   INCLUDE_SUBDIR
     sunmatrix
   OBJECT_LIBRARIES
-    sundials_generic_obj
+    sundials_core_obj
   OUTPUT_NAME
     sundials_sunmatrixband
   VERSION

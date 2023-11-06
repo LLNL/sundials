@@ -192,7 +192,7 @@ macro(sundials_add_library target)
     if(${_libtype} MATCHES "STATIC")
       target_compile_definitions(${obj_target} PRIVATE SUNDIALS_STATIC_DEFINE)
     else()
-      target_compile_definitions(${obj_target} PRIVATE sundials_generic_EXPORTS)
+      target_compile_definitions(${obj_target} PRIVATE sundials_core_EXPORTS)
     endif()
 
     # add all other compile definitions to object library
@@ -261,7 +261,7 @@ macro(sundials_add_library target)
 
       if(SUNDIALS_BUILD_WITH_PROFILING OR SUNDIALS_LOGGING_ENABLE_MPI)
         if(ENABLE_MPI AND MPI_C_FOUND)
-          # Workaround issues with sundials_generic object library dependency on
+          # Workaround issues with sundials_core object library dependency on
           # MPI not getting propagated when building examples.
           # Workaround bug in CMake < 3.17.3 when using MPI::MPI_C and CUDA
           target_include_directories(${_actual_target_name} PUBLIC ${MPI_C_INCLUDE_DIRS})
@@ -297,7 +297,7 @@ macro(sundials_add_library target)
       if(${_libtype} MATCHES "STATIC")
         target_compile_definitions(${_actual_target_name} PRIVATE SUNDIALS_STATIC_DEFINE)
       else()
-        target_compile_definitions(${obj_target} PRIVATE sundials_generic_EXPORTS)
+        target_compile_definitions(${obj_target} PRIVATE sundials_core_EXPORTS)
       endif()
 
       # add all other compile definitions

@@ -25,7 +25,7 @@ sundials_add_library(sundials_nveccuda
   INCLUDE_SUBDIR
     nvector
   OBJECT_LIBRARIES
-    sundials_generic_obj
+    sundials_core_obj
     sundials_sunmemcuda_obj
   OUTPUT_NAME
     sundials_nveccuda

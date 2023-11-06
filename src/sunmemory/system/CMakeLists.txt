@@ -20,5 +20,7 @@ sundials_add_library(sundials_sunmemsys
     ${SUNDIALS_SOURCE_DIR}/include/sunmemory/sunmemory_system.h
   INCLUDE_SUBDIR
     sunmemory
+  OBJECT_LIBRARIES
+    sundials_core_obj
   OBJECT_LIB_ONLY
 )
