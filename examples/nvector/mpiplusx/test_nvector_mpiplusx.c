@@ -110,7 +110,7 @@ int main(int argc, char *argv[])
   }
 
   /* Check vector communicator */
-  if (Test_N_VGetCommunicatorMPI(X, &comm, myid)) {
+  if (Test_N_VGetCommunicatorMPI(X, comm, myid)) {
     printf(">>> FAILED test -- N_VGetCommunicator, Proc %d\n\n", myid);
     fails += 1;
   }
@@ -355,11 +355,11 @@ sunrealtype get_element(N_Vector X, sunindextype i)
 double max_time(N_Vector X, double time)
 {
   double maxt;
-  MPI_Comm *comm;
+  MPI_Comm comm;
 
   /* get max time across all MPI ranks */
-  comm = (MPI_Comm *) N_VGetCommunicator(X);
-  (void) MPI_Reduce(&time, &maxt, 1, MPI_DOUBLE, MPI_MAX, 0, *comm);
+  comm = N_VGetCommunicator(X);
+  (void) MPI_Reduce(&time, &maxt, 1, MPI_DOUBLE, MPI_MAX, 0, comm);
   return(maxt);
 }
 

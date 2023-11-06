@@ -117,7 +117,7 @@ int main(int argc, char *argv[])
     fails += Test_N_VGetLength(plusX, myid);
 
     /* Check vector communicator */
-    fails += Test_N_VGetCommunicatorMPI(plusX, &comm, myid);
+    fails += Test_N_VGetCommunicatorMPI(plusX, comm, myid);
 
     /* Test clone functions */
     fails += Test_N_VCloneEmpty(plusX, myid);
@@ -376,13 +376,13 @@ sunrealtype get_element(N_Vector plusX, sunindextype i)
 
 double max_time(N_Vector plusX, double time)
 {
-  MPI_Comm *comm;
+  MPI_Comm comm;
   double maxt;
 
-  comm = (MPI_Comm*) N_VGetCommunicator(plusX);
+  comm = N_VGetCommunicator(plusX);
 
   /* get max time across all MPI ranks */
-  (void) MPI_Reduce(&time, &maxt, 1, MPI_DOUBLE, MPI_MAX, 0, *comm);
+  (void) MPI_Reduce(&time, &maxt, 1, MPI_DOUBLE, MPI_MAX, 0, comm);
   return(maxt);
 }
 

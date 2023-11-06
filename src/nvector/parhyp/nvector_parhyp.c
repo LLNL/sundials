@@ -463,9 +463,9 @@ void N_VSetArrayPointer_ParHyp(sunrealtype *v_data, N_Vector v)
 }
 
 
-void *N_VGetCommunicator_ParHyp(N_Vector v)
+SUN_Comm N_VGetCommunicator_ParHyp(N_Vector v)
 {
-  return((void *) &(NV_COMM_PH(v)));
+  return(NV_COMM_PH(v));
 }
 
 sunindextype N_VGetLength_ParHyp(N_Vector v)

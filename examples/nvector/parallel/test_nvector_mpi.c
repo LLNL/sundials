@@ -95,7 +95,7 @@ int main(int argc, char *argv[])
   fails += Test_N_VGetLength(X, myid);
 
   /* Check vector communicator */
-  fails += Test_N_VGetCommunicatorMPI(X, &comm, myid);
+  fails += Test_N_VGetCommunicatorMPI(X, comm, myid);
 
   /* Test clone functions */
   fails += Test_N_VCloneEmpty(X, myid);

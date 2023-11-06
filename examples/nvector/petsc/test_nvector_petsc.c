@@ -108,7 +108,7 @@ int main(int argc, char *argv[])
      PETSc vector is not necessarily identical to the one supplied to VecCreate,
      so we compare against the one that is actually *used* in the PETSc vector. */
   PetscObjectGetComm((PetscObject) xvec, &comm2);
-  fails += Test_N_VGetCommunicatorMPI(X, &comm2, myid);
+  fails += Test_N_VGetCommunicatorMPI(X, comm2, myid);
 
   /* Test clone functions */
   fails += Test_N_VCloneEmpty(X, myid);
