@@ -16,6 +16,7 @@
 # ------------------------------------------------------------------------------
 
 set -e
+set -o pipefail
 
 tarfile=$1
 distrobase=$2
@@ -34,132 +35,14 @@ fi
 $tar $tarfile $distrobase/doc/ida/guide/Makefile
 $tar $tarfile $distrobase/doc/ida/guide/source
 
-$tar $tarfile $distrobase/include/ida/ida_bbdpre.h
-$tar $tarfile $distrobase/include/ida/ida_direct.h
-$tar $tarfile $distrobase/include/ida/ida.h
-# $tar $tarfile $distrobase/include/ida/ida_petsc.h
-$tar $tarfile $distrobase/include/ida/ida_ls.h
-$tar $tarfile $distrobase/include/ida/ida_spils.h
+echo "   --- Add ida include files to $tarfile"
+$tar $tarfile $distrobase/include/ida
 
-$tar $tarfile $distrobase/src/ida/LICENSE
-$tar $tarfile $distrobase/src/ida/NOTICE
-$tar $tarfile $distrobase/src/ida/README.md
-$tar $tarfile $distrobase/src/ida/CMakeLists.txt
-
-$tar $tarfile $distrobase/src/ida/ida_bbdpre.c
-$tar $tarfile $distrobase/src/ida/ida_bbdpre_impl.h
-$tar $tarfile $distrobase/src/ida/ida.c
-$tar $tarfile $distrobase/src/ida/ida_direct.c
-$tar $tarfile $distrobase/src/ida/ida_ic.c
-$tar $tarfile $distrobase/src/ida/ida_impl.h
-$tar $tarfile $distrobase/src/ida/ida_io.c
-# $tar $tarfile $distrobase/src/ida/ida_petsc.c
-# $tar $tarfile $distrobase/src/ida/ida_petsc_impl.h
-$tar $tarfile $distrobase/src/ida/ida_ls.c
-$tar $tarfile $distrobase/src/ida/ida_ls_impl.h
-$tar $tarfile $distrobase/src/ida/ida_nls.c
-$tar $tarfile $distrobase/src/ida/ida_spils.c
-
-echo "   --- Add ida F2003 interface to $tarfile"
-
-$tar $tarfile $distrobase/src/ida/fmod/CMakeLists.txt
-$tar $tarfile $distrobase/src/ida/fmod/fida_mod.c
-$tar $tarfile $distrobase/src/ida/fmod/fida_mod.f90
+echo "   --- Add ida source files to $tarfile"
+$tar $tarfile $distrobase/src/ida
 
 echo "   --- Add ida examples to $tarfile"
-
-$tar $tarfile $distrobase/examples/ida/CMakeLists.txt
-
-$tar $tarfile $distrobase/examples/ida/serial/README
-$tar $tarfile $distrobase/examples/ida/serial/CMakeLists.txt
-$tar $tarfile $distrobase/examples/ida/serial/idaAnalytic_mels.c
-$tar $tarfile $distrobase/examples/ida/serial/idaAnalytic_mels.out
-$tar $tarfile $distrobase/examples/ida/serial/idaFoodWeb_bnd.c
-$tar $tarfile $distrobase/examples/ida/serial/idaFoodWeb_bnd.out
-$tar $tarfile $distrobase/examples/ida/serial/idaFoodWeb_kry.c
-$tar $tarfile $distrobase/examples/ida/serial/idaFoodWeb_kry.out
-$tar $tarfile $distrobase/examples/ida/serial/idaHeat2D_bnd.c
-$tar $tarfile $distrobase/examples/ida/serial/idaHeat2D_bnd.out
-$tar $tarfile $distrobase/examples/ida/serial/idaHeat2D_kry.c
-$tar $tarfile $distrobase/examples/ida/serial/idaHeat2D_kry.out
-$tar $tarfile $distrobase/examples/ida/serial/idaHeat2D_klu.c
-$tar $tarfile $distrobase/examples/ida/serial/idaHeat2D_klu.out
-$tar $tarfile $distrobase/examples/ida/serial/idaKrylovDemo_ls.c
-$tar $tarfile $distrobase/examples/ida/serial/idaKrylovDemo_ls.out
-$tar $tarfile $distrobase/examples/ida/serial/idaKrylovDemo_ls_1.out
-$tar $tarfile $distrobase/examples/ida/serial/idaKrylovDemo_ls_2.out
-$tar $tarfile $distrobase/examples/ida/serial/idaRoberts_dns.c
-$tar $tarfile $distrobase/examples/ida/serial/idaRoberts_dns.out
-$tar $tarfile $distrobase/examples/ida/serial/idaRoberts_dns_stats.csv
-$tar $tarfile $distrobase/examples/ida/serial/idaRoberts_klu.c
-$tar $tarfile $distrobase/examples/ida/serial/idaRoberts_klu.out
-$tar $tarfile $distrobase/examples/ida/serial/idaRoberts_sps.c
-$tar $tarfile $distrobase/examples/ida/serial/idaRoberts_sps.out
-$tar $tarfile $distrobase/examples/ida/serial/idaSlCrank_dns.c
-$tar $tarfile $distrobase/examples/ida/serial/idaSlCrank_dns.out
-
-$tar $tarfile $distrobase/examples/ida/C_openmp/README
-$tar $tarfile $distrobase/examples/ida/C_openmp/CMakeLists.txt
-$tar $tarfile $distrobase/examples/ida/C_openmp/idaFoodWeb_bnd_omp.c
-$tar $tarfile $distrobase/examples/ida/C_openmp/idaFoodWeb_bnd_omp.out
-$tar $tarfile $distrobase/examples/ida/C_openmp/idaFoodWeb_kry_omp.c
-$tar $tarfile $distrobase/examples/ida/C_openmp/idaFoodWeb_kry_omp.out
-
-$tar $tarfile $distrobase/examples/ida/petsc/README
-$tar $tarfile $distrobase/examples/ida/petsc/CMakeLists.txt
-$tar $tarfile $distrobase/examples/ida/petsc/idaHeat2D_petsc_spgmr.c
-$tar $tarfile $distrobase/examples/ida/petsc/idaHeat2D_petsc_spgmr.out
-$tar $tarfile $distrobase/examples/ida/petsc/idaHeat2D_petsc_snes.c
-$tar $tarfile $distrobase/examples/ida/petsc/idaHeat2D_petsc_snes.out
-$tar $tarfile $distrobase/examples/ida/petsc/idaHeat2D_petsc_snes_-pre.out
-$tar $tarfile $distrobase/examples/ida/petsc/idaHeat2D_petsc_snes_-jac.out
-$tar $tarfile $distrobase/examples/ida/petsc/idaHeat2D_petsc_snes_-jac_-pre.out
-
-$tar $tarfile $distrobase/examples/ida/parallel/README
-$tar $tarfile $distrobase/examples/ida/parallel/CMakeLists.txt
-$tar $tarfile $distrobase/examples/ida/parallel/idaFoodWeb_kry_bbd_p.c
-$tar $tarfile $distrobase/examples/ida/parallel/idaFoodWeb_kry_bbd_p.out
-$tar $tarfile $distrobase/examples/ida/parallel/idaFoodWeb_kry_p.c
-$tar $tarfile $distrobase/examples/ida/parallel/idaFoodWeb_kry_p.out
-$tar $tarfile $distrobase/examples/ida/parallel/idaHeat2D_kry_bbd_p.c
-$tar $tarfile $distrobase/examples/ida/parallel/idaHeat2D_kry_bbd_p.out
-$tar $tarfile $distrobase/examples/ida/parallel/idaHeat2D_kry_p.c
-$tar $tarfile $distrobase/examples/ida/parallel/idaHeat2D_kry_p.out
-
-$tar $tarfile $distrobase/examples/ida/cuda/README
-$tar $tarfile $distrobase/examples/ida/cuda/CMakeLists.txt
-$tar $tarfile $distrobase/examples/ida/cuda/idaHeat2D_kry_cuda.cu
-$tar $tarfile $distrobase/examples/ida/cuda/idaHeat2D_kry_cuda.out
-
-$tar $tarfile $distrobase/examples/ida/mpicuda/README
-$tar $tarfile $distrobase/examples/ida/mpicuda/CMakeLists.txt
-$tar $tarfile $distrobase/examples/ida/mpicuda/idaHeat2D_kry_p_mpicuda.cu
-$tar $tarfile $distrobase/examples/ida/mpicuda/idaHeat2D_kry_p_mpicuda.out
-
-$tar $tarfile $distrobase/examples/ida/raja/README
-$tar $tarfile $distrobase/examples/ida/raja/CMakeLists.txt
-$tar $tarfile $distrobase/examples/ida/raja/idaHeat2D_kry_raja.cpp
-$tar $tarfile $distrobase/examples/ida/raja/idaHeat2D_kry_raja.out
-
-$tar $tarfile $distrobase/examples/ida/mpiraja/README
-$tar $tarfile $distrobase/examples/ida/mpiraja/CMakeLists.txt
-$tar $tarfile $distrobase/examples/ida/mpiraja/idaHeat2D_kry_p_mpiraja.cpp
-$tar $tarfile $distrobase/examples/ida/mpiraja/idaHeat2D_kry_p_mpiraja.out
-
-$tar $tarfile $distrobase/examples/ida/trilinos/README
-$tar $tarfile $distrobase/examples/ida/trilinos/CMakeLists.txt
-$tar $tarfile $distrobase/examples/ida/trilinos/idaHeat2D_kry_p_tpetra.cpp
-$tar $tarfile $distrobase/examples/ida/trilinos/idaHeat2D_kry_p_tpetra.out
-$tar $tarfile $distrobase/examples/ida/trilinos/idaHeat2D_kry_tpetra.cpp
-$tar $tarfile $distrobase/examples/ida/trilinos/idaHeat2D_kry_tpetra.out
-
-$tar $tarfile $distrobase/examples/ida/F2003_serial/README
-$tar $tarfile $distrobase/examples/ida/F2003_serial/CMakeLists.txt
-$tar $tarfile $distrobase/examples/ida/F2003_serial/idaHeat2D_kry_f2003.f90
-$tar $tarfile $distrobase/examples/ida/F2003_serial/idaHeat2D_kry_f2003.out
-$tar $tarfile $distrobase/examples/ida/F2003_serial/idaRoberts_dns_f2003.f90
-$tar $tarfile $distrobase/examples/ida/F2003_serial/idaRoberts_dns_f2003.out
+$tar $tarfile $distrobase/examples/ida
 
 echo "   --- Add ida unit tests to $tarfile"
-
 $tar $tarfile $distrobase/test/unit_tests/ida
