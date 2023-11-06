@@ -28,6 +28,7 @@ if(BUILD_NVECTOR_MANYVECTOR)
       nvector
     OBJECT_LIBRARIES
       sundials_generic_obj
+      sundials_core_mpi_addons_obj
     OUTPUT_NAME
       sundials_nvecmanyvector
     VERSION

@@ -34,6 +34,7 @@ sundials_add_library(sundials_nvecmpiplusx
     nvector
   OBJECT_LIBRARIES
     sundials_generic_obj
+    sundials_core_mpi_addons_obj
     sundials_nvecmpimanyvector_obj
   OUTPUT_NAME
     sundials_nvecmpiplusx

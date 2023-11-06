@@ -107,17 +107,36 @@ endif()
 # Add prefix with complete path to the source files
 add_prefix(${SUNDIALS_SOURCE_DIR}/src/sundials/ sundials_SOURCES)
 
+if(ENABLE_MPI AND MPI_C_FOUND)
+  # Create a library out of the generic sundials modules
+  sundials_add_library(sundials_core_mpi_addons
+    SOURCES
+      sundials_mpi_errors.c
+    HEADERS
+      ${SUNDIALS_SOURCE_DIR}/include/sundials/sundials_mpi_errors.h
+    INCLUDE_SUBDIR
+      sundials
+    INCLUDE_DIRECTORIES
+      PUBLIC ${MPI_C_INCLUDE_DIRS}
+    LINK_LIBRARIES
+      PUBLIC ${MPI_C_LIBRARIES}
+    OBJECT_LIB_ONLY
+  )
+endif()
+
 if(SUNDIALS_BUILD_WITH_PROFILING OR SUNDIALS_LOGGING_ENABLE_MPI)
-  if(ENABLE_MPI AND MPI_C_FOUND)
-    # Workaround bug in CMake < 3.17.3 when using MPI::MPI_CXX and CUDA
-    set(_include_mpi_if_needed PUBLIC ${MPI_C_INCLUDE_DIRS})
-    set(_link_mpi_if_needed PUBLIC ${MPI_C_LIBRARIES})
-  endif()
   if(ENABLE_CALIPER)
     set(_link_caliper_if_needed PUBLIC caliper)
   endif()
   if(ENABLE_ADIAK)
     set(_link_adiak_if_needed PUBLIC adiak::adiak ${CMAKE_DL_LIBS})
+  endif()
+endif()
+
+if(SUNDIALS_LOGGING_ENABLE_MPI)
+  if(ENABLE_MPI AND MPI_C_FOUND)
+    set(_include_mpi_if_needed PUBLIC ${MPI_C_INCLUDE_DIRS})
+    set(_link_mpi_if_needed PUBLIC ${MPI_C_LIBRARIES})
   endif()
 endif()
 

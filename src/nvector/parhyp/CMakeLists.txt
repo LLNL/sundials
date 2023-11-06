@@ -26,6 +26,7 @@ sundials_add_library(sundials_nvecparhyp
     nvector
   OBJECT_LIBRARIES
     sundials_generic_obj
+    sundials_core_mpi_addons_obj
   LINK_LIBRARIES
     PUBLIC
     SUNDIALS::HYPRE

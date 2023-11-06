@@ -32,6 +32,7 @@ sundials_add_library(sundials_nvectrilinos
     nvector
   OBJECT_LIBRARIES
     sundials_generic_obj
+    sundials_core_mpi_addons_obj
   LINK_LIBRARIES
     PUBLIC SUNDIALS::TRILINOS
   OUTPUT_NAME
