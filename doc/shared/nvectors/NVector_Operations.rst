@@ -152,11 +152,12 @@ operations below.
       N_VSetArrayPointer(vdata,v);
 
 
-.. c:function:: void* N_VGetCommunicator(N_Vector v)
+.. c:function:: SUN_Comm N_VGetCommunicator(N_Vector v)
 
-   Returns a pointer to the ``MPI_Comm`` object associated with the
-   vector (if applicable).  For MPI-unaware vector implementations, this
-   should return ``NULL``.
+   Returns the ``SUN_Comm`` (which is just an ``MPI_Comm`` when SUNDIALS is built
+   with MPI, otherwise it is an ``int``) associated with the vector (if
+   applicable).  For MPI-unaware vector implementations, this should return
+   ``NULL``.
 
    Usage:
 
