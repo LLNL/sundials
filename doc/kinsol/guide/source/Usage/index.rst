@@ -483,8 +483,6 @@ negative, so a test ``retval`` :math:`<0` will catch any error.
   +--------------------------------------------------------+----------------------------------+------------------------------+
   | Info handler function                                  | :c:func:`KINSetInfoHandlerFn`    | internal fn.                 |
   +--------------------------------------------------------+----------------------------------+------------------------------+
-  | Pointer to an info file                                | :c:func:`KINSetInfoFile`         | ``stdout``                   |
-  +--------------------------------------------------------+----------------------------------+------------------------------+
   | Data for problem-defining function                     | :c:func:`KINSetUserData`         | ``NULL``                     |
   +--------------------------------------------------------+----------------------------------+------------------------------+
   | Verbosity level of output                              | :c:func:`KINSetPrintLevel`       | 0                            |
@@ -601,27 +599,6 @@ negative, so a test ``retval`` :math:`<0` will catch any error.
       ``NULL`` will  always be directed to ``stderr``.
 
 
-.. c:function:: int KINSetInfoFile(void * kin_mem, FILE * infofp)
-
-   The function :c:func:`KINSetInfoFile` specifies the pointer to the file
-   where all informative (non-error) messages should be directed.
-
-   **Arguments:**
-     * ``kin_mem`` -- pointer to the KINSOL memory block.
-     * ``infofp`` -- pointer to output file.
-
-   **Return value:**
-     * ``KIN_SUCCESS`` -- The optional value has been successfully set.
-     * ``KIN_MEM_NULL`` -- The ``kin_mem`` pointer is ``NULL``.
-
-   **Notes:**
-      The default value for ``infofp`` is ``stdout``.
-
-   .. deprecated:: 6.2.0
-
-      Use :c:func:`SUNLogger_SetInfoFilename` instead.
-
-
 .. c:function:: int KINSetInfoHandlerFn(void * kin_mem, KINInfoHandlerFn ihfun, void * ih_data)
 
    The function :c:func:`KINSetInfoHandlerFn` specifies the optional
@@ -636,11 +613,6 @@ negative, so a test ``retval`` :math:`<0` will catch any error.
    **Return value:**
      * ``KIN_SUCCESS`` -- The function ``ihfun`` and data pointer ``ih_data`` have been successfully set.
      * ``KIN_MEM_NULL`` -- The ``kin_mem`` pointer is ``NULL``.
-
-   **Notes:**
-      The default internal information handler function directs informative
-      (non-error)  messages to the file specified by the file pointer ``infofp``
-      (see  :c:func:`KINSetInfoFile` above).
 
 
 .. c:function:: int KINSetPrintLevel(void * kin_mem, int printfl)
@@ -2005,9 +1977,7 @@ follows:
 Informational message handler function
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-As an alternative to the default behavior of directing informational (meaning non-error) messages
-to the file pointed to by ``infofp`` (see :c:func:`KINSetInfoFile`), the user may
-provide a function of type :c:type:`KINInfoHandlerFn` to process any such messages.
+The user may provide a function of type :c:type:`KINInfoHandlerFn` to process any such messages.
 The function type :c:type:`KINInfoHandlerFn` is defined as follows:
 
 .. c:type:: void (*KINInfoHandlerFn)(const char *module, const char *function, char *msg, void *ih_data)
