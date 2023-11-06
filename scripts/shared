@@ -140,7 +140,6 @@ $tar $tarfile $distrobase/include/sundials/sundials_dense.h
 $tar $tarfile $distrobase/include/sundials/sundials_direct.h
 $tar $tarfile $distrobase/include/sundials/sundials_futils.h
 $tar $tarfile $distrobase/include/sundials/sundials_iterative.h
-$tar $tarfile $distrobase/include/sundials/sundials_lapack.h
 $tar $tarfile $distrobase/include/sundials/sundials_linearsolver.h
 $tar $tarfile $distrobase/include/sundials/sundials_logger.h
 $tar $tarfile $distrobase/include/sundials/sundials_math.h
