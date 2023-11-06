@@ -362,14 +362,14 @@ SWIGEXPORT void _wrap_FN_VSpace_MPIManyVector(N_Vector farg1, int64_t *farg2, in
 }
 
 
-SWIGEXPORT void * _wrap_FN_VGetCommunicator_MPIManyVector(N_Vector farg1) {
-  void * fresult ;
+SWIGEXPORT int _wrap_FN_VGetCommunicator_MPIManyVector(N_Vector farg1) {
+  int fresult ;
   N_Vector arg1 = (N_Vector) 0 ;
-  void *result = 0 ;
+  SUN_Comm result;
   
   arg1 = (N_Vector)(farg1);
-  result = (void *)N_VGetCommunicator_MPIManyVector(arg1);
-  fresult = result;
+  result = (SUN_Comm)N_VGetCommunicator_MPIManyVector(arg1);
+  fresult = (SUN_Comm)(result);
   return fresult;
 }
 

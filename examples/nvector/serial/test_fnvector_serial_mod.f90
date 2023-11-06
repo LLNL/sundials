@@ -69,7 +69,7 @@ contains
     call FN_VSpace_Serial(x, lenrw, leniw)
     xptr => FN_VGetArrayPointer_Serial(x)
     call FN_VSetArrayPointer_Serial(xdata, x)
-    cptr = FN_VGetCommunicator(x)
+    ival = FN_VGetCommunicator(x)
     ival = FN_VGetLength_Serial(x)
 
     ! test standard vector operations

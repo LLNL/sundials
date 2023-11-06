@@ -70,7 +70,7 @@ module test_nvector_pthreads
     call FN_VSpace_Pthreads(x, lenrw, leniw)
     xptr => FN_VGetArrayPointer_Pthreads(x)
     call FN_VSetArrayPointer_Pthreads(xdata, x)
-    cptr = FN_VGetCommunicator(x)
+    ival = FN_VGetCommunicator(x)
     ival = FN_VGetLength_Pthreads(x)
 
     ! test standard vector operations

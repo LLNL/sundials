@@ -72,7 +72,7 @@ contains
     ! test generic vector functions
     ival = FN_VGetVectorID_MPIManyVector(x)
     call FN_VSpace_MPIManyVector(x, lenrw, leniw)
-    cptr = FN_VGetCommunicator(x)
+    ival = FN_VGetCommunicator(x)
     ival = FN_VGetLength_MPIManyVector(x)
 
     ! test standard vector operations

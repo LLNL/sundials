@@ -75,7 +75,7 @@ module test_nvector_parallel
     call FN_VSpace_Parallel(x, lenrw, leniw)
     xptr => FN_VGetArrayPointer_Parallel(x)
     call FN_VSetArrayPointer_Parallel(xdata, x)
-    cptr = FN_VGetCommunicator_Parallel(x)
+    ival = FN_VGetCommunicator_Parallel(x)
     ival = FN_VGetLength_Parallel(x)
 
     ! test standard vector operations

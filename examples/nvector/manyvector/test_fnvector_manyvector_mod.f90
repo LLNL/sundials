@@ -68,7 +68,7 @@ contains
     ! test generic vector functions
     ival = FN_VGetVectorID_ManyVector(x)
     call FN_VSpace_ManyVector(x, lenrw, leniw)
-    cptr = FN_VGetCommunicator(x)
+    ival = FN_VGetCommunicator(x)
     ival = FN_VGetLength_ManyVector(x)
 
     ! test standard vector operations
