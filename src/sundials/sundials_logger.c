@@ -19,7 +19,7 @@
 #include <sundials/sundials_config.h>
 #include <sundials/sundials_logger.h>
 
-#ifdef SUNDIALS_LOGGING_ENABLE_MPI
+#if SUNDIALS_MPI_ENABLED
 #include <mpi.h>
 #endif
 
@@ -30,8 +30,6 @@
 #define SUN_MAX_LOGFILE_HANDLES_ 8
 
 /* shortcut */
-#define SUNLOGGER_MPICOMM(logger) (*((MPI_Comm*)logger->commptr))
-
 static void sunCreateLogMessage(SUNLogLevel lvl, int rank, const char* scope,
                                 const char* label, const char* txt,
                                 va_list args, char** log_msg)
@@ -112,12 +110,12 @@ static sunbooleantype sunLoggerIsOutputRank(SUNLogger logger, int* rank_ref)
 {
   sunbooleantype retval;
 
-#ifdef SUNDIALS_LOGGING_ENABLE_MPI
+#if SUNDIALS_MPI_ENABLED
   int rank = 0;
 
-  if (logger->commptr)
+  if (logger->comm)
   {
-    MPI_Comm_rank(SUNLOGGER_MPICOMM(logger), &rank);
+    MPI_Comm_rank(logger->comm, &rank);
 
     if (logger->output_rank < 0)
     {
@@ -151,7 +149,7 @@ static sunbooleantype sunLoggerIsOutputRank(SUNLogger logger, int* rank_ref)
   return retval;
 }
 
-int SUNLogger_Create(void* comm, int output_rank, SUNLogger* logger_ptr)
+int SUNLogger_Create(SUN_Comm comm, int output_rank, SUNLogger* logger_ptr)
 {
   SUNLogger logger = NULL;
 
@@ -162,19 +160,18 @@ int SUNLogger_Create(void* comm, int output_rank, SUNLogger* logger_ptr)
   }
 
   /* Attach the comm, duplicating it if MPI is used. */
-#ifdef SUNDIALS_LOGGING_ENABLE_MPI
-  logger->commptr = NULL;
-  if (comm != NULL)
+#if SUNDIALS_MPI_ENABLED
+  logger->comm = NULL;
+  if (comm != SUN_COMM_NULL)
   {
-    logger->commptr = malloc(sizeof(MPI_Comm));
-    MPI_Comm_dup(*((MPI_Comm*) comm), (MPI_Comm*) logger->commptr);
+    MPI_Comm_dup(comm, &logger->comm);
   }
 #else
-  if (comm != NULL)
+  if (comm != SUN_COMM_NULL)
   {
     return -1;
   }
-  logger->commptr = NULL;
+  logger->comm = SUN_COMM_NULL;
 #endif
   logger->output_rank = output_rank;
   logger->content     = NULL;
@@ -201,7 +198,7 @@ int SUNLogger_Create(void* comm, int output_rank, SUNLogger* logger_ptr)
   return 0;
 }
 
-int SUNLogger_CreateFromEnv(void* comm, SUNLogger* logger)
+int SUNLogger_CreateFromEnv(SUN_Comm comm, SUNLogger* logger)
 {
   int retval = 0;
 

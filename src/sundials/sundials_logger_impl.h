@@ -33,7 +33,7 @@
 
 struct SUNLogger_ {
   /* MPI information */
-  void* commptr;
+  SUN_Comm comm;
   int output_rank;
 
   /* Ouput files */

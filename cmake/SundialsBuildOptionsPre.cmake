@@ -84,10 +84,6 @@ if(SUNDIALS_LOGGING_LEVEL GREATER_EQUAL 4)
   message(WARNING "SUNDIALS built with debug logging turned on, performance may be affected.")
 endif()
 
-set(DOCSTR "Build SUNDIALS logging with MPI support")
-sundials_option(SUNDIALS_LOGGING_ENABLE_MPI BOOL "${DOCSTR}" "OFF"
-                DEPENDS_ON ENABLE_MPI)
-
 # ---------------------------------------------------------------
 # Option to use the generic math libraries
 # ---------------------------------------------------------------

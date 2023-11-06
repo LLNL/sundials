@@ -259,7 +259,7 @@ macro(sundials_add_library target)
         target_link_libraries(${_actual_target_name} ${sundials_add_library_LINK_LIBRARIES})
       endif()
 
-      if(SUNDIALS_BUILD_WITH_PROFILING OR SUNDIALS_LOGGING_ENABLE_MPI)
+      if(SUNDIALS_BUILD_WITH_PROFILING)
         if(ENABLE_MPI AND MPI_C_FOUND)
           # Workaround issues with sundials_core object library dependency on
           # MPI not getting propagated when building examples.
