@@ -324,7 +324,6 @@ SUNAdaptController_Type SUNAdaptController_GetType_Soderlind(SUNAdaptController 
 int SUNAdaptController_EstimateStep_Soderlind(SUNAdaptController C, sunrealtype h,
                                               int p, sunrealtype dsm, sunrealtype* hnew)
 {
-  if (C == NULL || hnew == NULL) { return SUNADAPTCONTROLLER_ILL_INPUT; }
   /* order parameter to use */
   const int ord = p + 1;
 
@@ -339,6 +338,8 @@ int SUNAdaptController_EstimateStep_Soderlind(SUNAdaptController C, sunrealtype 
   const sunrealtype e3 = SUNMAX(SODERLIND_EPP(C), TINY);
   const sunrealtype hrat = h / SODERLIND_HP(C);
   const sunrealtype hrat2 = SODERLIND_HP(C) / SODERLIND_HPP(C);
+
+  if (C == NULL || hnew == NULL) { return SUNADAPTCONTROLLER_ILL_INPUT; }
 
   /* compute estimated optimal time step size */
   if (SODERLIND_FIRSTSTEPS(C) < 1) {

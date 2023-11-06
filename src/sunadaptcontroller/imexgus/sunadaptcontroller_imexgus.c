@@ -124,32 +124,31 @@ SUNAdaptController_Type SUNAdaptController_GetType_ImExGus(SUNAdaptController C)
 int SUNAdaptController_EstimateStep_ImExGus(SUNAdaptController C, sunrealtype h,
                                             int p, sunrealtype dsm, sunrealtype* hnew)
 {
-  if (C == NULL || hnew == NULL) { return SUNADAPTCONTROLLER_ILL_INPUT; }
   /* order parameter to use */
   const int ord = p + 1;
 
-  /* modified method for first step */
+  /* set usable time-step adaptivity parameters -- first step */
+  const sunrealtype k = -RCONST(1.0) / ord;
+  const sunrealtype e = SUNMAX(SACIMEXGUS_BIAS(C) * dsm, TINY);
+
+  /* set usable time-step adaptivity parameters -- subsequent steps */
+  const sunrealtype k1e = -SACIMEXGUS_K1E(C) / ord;
+  const sunrealtype k2e = -SACIMEXGUS_K2E(C) / ord;
+  const sunrealtype k1i = -SACIMEXGUS_K1I(C) / ord;
+  const sunrealtype k2i = -SACIMEXGUS_K2I(C) / ord;
+  const sunrealtype e1 = SUNMAX(SACIMEXGUS_BIAS(C) * dsm, TINY);
+  const sunrealtype e2 = e1 / SUNMAX(SACIMEXGUS_EP(C), TINY);
+  const sunrealtype hrat = h / SACIMEXGUS_HP(C);
+
+  if (C == NULL || hnew == NULL) { return SUNADAPTCONTROLLER_ILL_INPUT; }
+
+  /* compute estimated time step size, modifying the first step formula */
   if (SACIMEXGUS_FIRSTSTEP(C))
   {
-    /* set usable time-step adaptivity parameters */
-    const sunrealtype k = -RCONST(1.0) / ord;
-    const sunrealtype e = SUNMAX(SACIMEXGUS_BIAS(C) * dsm, TINY);
-
-    /* compute estimated optimal time step size */
     *hnew = h * SUNRpowerR(e,k);
   }
   else
   {
-    /* set usable time-step adaptivity parameters */
-    const sunrealtype k1e = -SACIMEXGUS_K1E(C) / ord;
-    const sunrealtype k2e = -SACIMEXGUS_K2E(C) / ord;
-    const sunrealtype k1i = -SACIMEXGUS_K1I(C) / ord;
-    const sunrealtype k2i = -SACIMEXGUS_K2I(C) / ord;
-    const sunrealtype e1 = SUNMAX(SACIMEXGUS_BIAS(C) * dsm, TINY);
-    const sunrealtype e2 = e1 / SUNMAX(SACIMEXGUS_EP(C), TINY);
-    const sunrealtype hrat = h / SACIMEXGUS_HP(C);
-
-    /* compute estimated optimal time step size */
     *hnew = h * SUNMIN(hrat * SUNRpowerR(e1,k1i) * SUNRpowerR(e2,k2i),
                        SUNRpowerR(e1,k1e) * SUNRpowerR(e2,k2e));
   }
