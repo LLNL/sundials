@@ -7,9 +7,8 @@ Documentation of {\kinsol} \cite{kinsol_ug}.  It provides details, with
 listings, on the example programs supplied with the {\kinsol} distribution
 package.
 
-The {\kinsol} distribution contains examples of types: serial
-{\CC} examples, parallel {\CC} examples, serial and parallel {\F}
-examples, and an OpenMP example.
+The {\kinsol} distribution contains examples of the following types: serial
+{\CC} examples, parallel {\CC} examples, and an OpenMP example.
 %%
 With the exception of ''demo''-type example files, the names of all the examples
 distributed with {\sundials} are of the form
@@ -92,18 +91,18 @@ the following parallel examples (using the {\nvecp} module):
   using the {\kinbbdpre} module.
 \end{itemize}
 
-\vspace{0.2in}\noindent
-As part of the {\fkinsol} module, in the directories
-{\em srcdir}\id{/examples/kinsol/fcmix\_serial} and
-{\em srcdir}\id{/examples/kinsol/fcmix\_parallel}, respectively, are the
-following examples for the {\F}-{\CC} interface:
-\begin{itemize}
-\item \id{fkinDiagon\_kry}
-  is a serial example, which solves a nonlinear system of the form
-  $u_i^2 = i^2$ using an approximate diagonal preconditioner.
-\item \id{fkinDiagon\_kry\_p}
-  is a parallel implementation of \id{fkinDiagon\_kry}.
-\end{itemize}
+%% \vspace{0.2in}\noindent
+%% As part of the {\fkinsol} module, in the directories
+%% {\em srcdir}\id{/examples/kinsol/fcmix\_serial} and
+%% {\em srcdir}\id{/examples/kinsol/fcmix\_parallel}, respectively, are the
+%% following examples for the {\F}-{\CC} interface:
+%% \begin{itemize}
+%% \item \id{fkinDiagon\_kry}
+%%   is a serial example, which solves a nonlinear system of the form
+%%   $u_i^2 = i^2$ using an approximate diagonal preconditioner.
+%% \item \id{fkinDiagon\_kry\_p}
+%%   is a parallel implementation of \id{fkinDiagon\_kry}.
+%% \end{itemize}
 
 \vspace{0.2in}\noindent
 Supplied in directory {\em srcdir}\id{/examples/kinsol/C\_openmp}

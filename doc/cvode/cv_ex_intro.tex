@@ -7,9 +7,9 @@ Documentation of {\cvode} \cite{cvode_ug}.  It provides details, with
 listings, on the example programs supplied with the {\cvode} distribution
 package.
 
-The {\cvode} distribution contains examples of six types: serial
-{\CC} examples, parallel {\CC} examples, serial and parallel {\F}
-examples, an OpenMP example, and a {\hypre} example.
+The {\cvode} distribution contains examples of the following types: serial
+{\CC} examples, parallel {\CC} examples, an OpenMP example, and a {\hypre}
+example.
 %%
 With the exception of ''demo''-type example files, the names of all the examples
 distributed with {\sundials} are of the form \verb![slv][PbName]_[ls]_[prec]_[p]!,
@@ -159,28 +159,28 @@ four parallel examples (using the {\nvecp} module):
 \id{cvAdvDiff\_non\_p} but with {\hypre} vectors instead of
 {\sundials} parallel vectors.
 
-\vspace{0.2in}\noindent
-As part of the {\fcvode} module, in the directories
-{\em srcdir}\id{/examples/cvode/fcmix\_serial} and
-{\em srcdir}\id{/examples/cvode/fcmix\_parallel}, are the following examples for
-the {\F}-{\CC} interface.  The first five of these are serial, while
-the last three are parallel.
-\begin{itemize}
-\item \id{fcvRoberts\_dns} is a serial chemical kinetics example (\id{BDF}/{\sunlinsoldense})
-  with rootfinding.
-\item \id{fcvRoberts\_dns\_constraints} is the same as \id{fcvRoberts\_dns} but
-  but imposes the constraint $u \geq 0.0$ for all components.
-\item \id{fcvRoberts\_dnsL} is the same as \id{fcvRoberts\_dns} but uses the Lapack
-  implementation of {\sunlinsollapdense}.
-\item \id{fcvAdvDiff\_bnd} is a serial advection-diffusion example (\id{BDF}/{\sunlinsolband}).
-\item \id{fcvDiurnal\_kry} is a serial kinetics-transport example (\id{BDF}/{\sunlinsolspgmr}).
-\item \id{fcvDiurnal\_kry\_bp} is the \id{fcvDiurnal\_kry} example with {\fcvbp}.
-\item \id{fcvDiag\_non\_p} is a nonstiff parallel diagonal ODE example
-  (\id{ADAMS}/\id{FIXEDPOINT}).
-\item \id{fcvDiag\_kry\_p} is a stiff parallel diagonal ODE example (\id{BDF}/{\sunlinsolspgmr}).
-\item \id{fcvDiag\_kry\_bbd\_p} is the same as the \id{fcvDiag\_kry\_p} example
-       but using the {\fcvbbd} module.
-\end{itemize}
+%% \vspace{0.2in}\noindent
+%% As part of the {\fcvode} module, in the directories
+%% {\em srcdir}\id{/examples/cvode/fcmix\_serial} and
+%% {\em srcdir}\id{/examples/cvode/fcmix\_parallel}, are the following examples for
+%% the {\F}-{\CC} interface.  The first five of these are serial, while
+%% the last three are parallel.
+%% \begin{itemize}
+%% \item \id{fcvRoberts\_dns} is a serial chemical kinetics example (\id{BDF}/{\sunlinsoldense})
+%%   with rootfinding.
+%% \item \id{fcvRoberts\_dns\_constraints} is the same as \id{fcvRoberts\_dns} but
+%%   but imposes the constraint $u \geq 0.0$ for all components.
+%% \item \id{fcvRoberts\_dnsL} is the same as \id{fcvRoberts\_dns} but uses the Lapack
+%%   implementation of {\sunlinsollapdense}.
+%% \item \id{fcvAdvDiff\_bnd} is a serial advection-diffusion example (\id{BDF}/{\sunlinsolband}).
+%% \item \id{fcvDiurnal\_kry} is a serial kinetics-transport example (\id{BDF}/{\sunlinsolspgmr}).
+%% \item \id{fcvDiurnal\_kry\_bp} is the \id{fcvDiurnal\_kry} example with {\fcvbp}.
+%% \item \id{fcvDiag\_non\_p} is a nonstiff parallel diagonal ODE example
+%%   (\id{ADAMS}/\id{FIXEDPOINT}).
+%% \item \id{fcvDiag\_kry\_p} is a stiff parallel diagonal ODE example (\id{BDF}/{\sunlinsolspgmr}).
+%% \item \id{fcvDiag\_kry\_bbd\_p} is the same as the \id{fcvDiag\_kry\_p} example
+%%        but using the {\fcvbbd} module.
+%% \end{itemize}
 
 \vspace{0.2in}\noindent
 In the following sections, we give detailed descriptions of some (but
