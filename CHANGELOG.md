@@ -50,7 +50,7 @@ This fixes https://github.com/LLNL/sundials/issues/312.
 Updated the `N_VGetCommunicator`, `SUNLogger_Create`, and `SUNProfiler_Create`
 functions to use a `SUN_Comm` rather than `void*`. `SUN_Comm` simply is a
 typedef to an `int` for builds without MPI and a `MPI_Comm` for builds with MPI.
-This allows for `MPI_Comm`s to be passed and returned by value which solves
+This allows for `MPI_Comm` to be passed and returned by value which solves
 issues like the one described in https://github.com/LLNL/sundials/issues/275.   
 
 

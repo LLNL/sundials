@@ -138,10 +138,10 @@ This fixes `GitHub Issue #312 <https://github.com/LLNL/sundials/issues/312>`_.
 Added Fortran support for the LAPACK  dense ``SUNLinearSolver`` implementation.
 
 Updated the ``N_VGetCommunicator``, :c:func:`SUNLogger_Create`, and
-c:func:`SUNProfiler_Create` functions to use a :c:type:`SUN_Comm` rather than
+:c:func:`SUNProfiler_Create` functions to use a :c:type:`SUN_Comm` rather than
 ``void*``. :c:type:`SUN_Comm` simply is a typedef to an ``int`` for builds
 without MPI and a ``MPI_Comm`` for builds with MPI. This allows for
-``MPI_Comm``s to be passed and returned by value which solves issues like the
+``MPI_Comm`` to be passed and returned by value which solves issues like the
 one described in `GitHub Issue #275
 <https://github.com/LLNL/sundials/issues/275>`.   
 
