@@ -26,5 +26,5 @@ runs:
       run: |
         git config --global --add safe.directory $GITHUB_WORKSPACE
         cd test
-        ./test_driver.sh --testtype CUSTOM --env env/docker.sh --tpls --realtype ${{ inputs.precision }} --indexsize ${{ inputs.indexsize }}
+        ./test_driver.sh --testtype CUSTOM --env env/docker.sh --tpls --sunrealtype ${{ inputs.precision }} --indexsize ${{ inputs.indexsize }}
       shell: bash
