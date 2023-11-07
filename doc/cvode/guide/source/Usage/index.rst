@@ -88,7 +88,6 @@ include directories, respectively. For a default installation, these are
 the directory where SUNDIALS was installed (:numref:`Installation`).
 
 
-.. include:: ../../../../shared/Types.rst
 
 .. _CVODE.Usage.CC.header_sim:
 

@@ -10,10 +10,10 @@
    SUNDIALS Copyright End
    ----------------------------------------------------------------
 
-.. _Usage.CC.DataTypes:
+.. _SUNDIALS.DataTypes:
 
 Data Types
-----------
+==========
 
 The header file ``sundials_types.h`` contains the definition of the types:
 
@@ -28,7 +28,7 @@ The header file ``sundials_types.h`` contains the definition of the types:
 * :c:type:`SUN_Comm` -- a simple typedef to an `int` when SUNDIALS is built without MPI, or a ``MPI_Comm`` when built with MPI. 
 
 Floating point types
-~~~~~~~~~~~~~~~~~~~~
+--------------------
 
 .. c:type:: sunrealtype
 
@@ -82,7 +82,7 @@ code can use SUNDIALS without modifying the code to use ``sunrealtype``,
 to use the corresponding precision (see :numref:`Installation.CMake.Options`).
 
 Integer types used for indexing
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+-------------------------------
 
 .. c:type:: sunindextype
 
@@ -110,7 +110,7 @@ SUNDIALS libraries use the appropriate index storage type (for details see
 :numref:`Installation.CMake.Options`).
 
 Boolean type
-~~~~~~~~~~~~
+------------
 
 .. c:type:: sunbooleantype
 
@@ -123,7 +123,7 @@ int and boolean data. Variables of type ``sunbooleantype`` are intended to have
 only the two values ``SUNFALSE`` (``0``) and ``SUNTRUE`` (``1``).
 
 Output formatting type
-~~~~~~~~~~~~~~~~~~~~~~
+----------------------
 
 .. c:enum:: SUNOutputFormat
 
@@ -145,8 +145,8 @@ Output formatting type
       read and output the data from a SUNDIALS CSV output file using the key
       and value pair format.
 
-MPI_Comm type
-~~~~~~~~~~~~~
+MPI types
+---------
 
 .. c:type:: SUN_Comm 
 

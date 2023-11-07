@@ -207,4 +207,3 @@ linear solver were performed using the ARKBBDPRE module, the header
 initialization routines.
 
 
-.. include:: ../../../../shared/Types.rst
