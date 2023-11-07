@@ -639,9 +639,7 @@ int arkClearStopTime(void *arkode_mem)
 int arkSetFixedStep(void *arkode_mem, realtype hfixed)
 {
   int retval;
-  long int lenrw, leniw;
   ARKodeMem ark_mem;
-  SUNAdaptController C;
   if (arkode_mem==NULL) {
     arkProcessError(NULL, ARK_MEM_NULL, "ARKODE",
                     "arkSetFixedStep", MSG_ARK_NO_MEM);
@@ -668,7 +666,7 @@ int arkSetFixedStep(void *arkode_mem, realtype hfixed)
 
   /* Notify ARKODE to use hfixed as the initial step size, and return */
   retval = arkSetInitStep(arkode_mem, hfixed);
-  
+
   return(ARK_SUCCESS);
 }
 
