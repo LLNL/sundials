@@ -295,14 +295,6 @@ program main
      stop 1
   end if
 
-  ! Set information file
-
-  ierr = FKINSetPrintLevel(kmem, 3);
-  if (ierr /= 0) then
-     print *, 'Error in FKINSetPrintLevel, ierr = ', ierr, '; halting'
-     stop 1
-  end if
-
   ! -------------------------
   ! Create a linear solver
 
