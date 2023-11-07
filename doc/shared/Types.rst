@@ -25,6 +25,8 @@ The header file ``sundials_types.h`` contains the definition of the types:
 
 * :c:type:`SUNOutputFormat` -- an enumerated type for SUNDIALS output formats
 
+* :c:type:`SUN_Comm` -- a simple typedef to an `int` when SUNDIALS is built without MPI, or a ``MPI_Comm`` when built with MPI. 
+
 Floating point types
 ~~~~~~~~~~~~~~~~~~~~
 
@@ -142,3 +144,13 @@ Output formatting type
       The file ``scripts/sundials_csv.py`` provides python utility functions to
       read and output the data from a SUNDIALS CSV output file using the key
       and value pair format.
+
+MPI_Comm type
+~~~~~~~~~~~~~
+
+.. c:type:: SUN_Comm 
+
+   A simple typedef to an `int` when SUNDIALS is built without MPI, or a
+   ``MPI_Comm`` when built with MPI. This type exists solely to ensure SUNDIALS
+   can support MPI and non-MPI builds. 
+   

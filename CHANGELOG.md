@@ -47,6 +47,12 @@ method `ARKODE_VERNER_16_8_9`.
 Changed the `SUNProfiler` so that it does not rely on `MPI_WTime` in any case.
 This fixes https://github.com/LLNL/sundials/issues/312. 
 
+Updated the `N_VGetCommunicator`, `SUNLogger_Create`, and `SUNProfiler_Create`
+functions to use a `SUN_Comm` rather than `void*`. `SUN_Comm` simply is a
+typedef to an `int` for builds without MPI and a `MPI_Comm` for builds with MPI.
+This allows for `MPI_Comm`s to be passed and returned by value which solves
+issues like the one described in https://github.com/LLNL/sundials/issues/275.   
+
 
 ## Changes to SUNDIALS in release 6.6.1
 
