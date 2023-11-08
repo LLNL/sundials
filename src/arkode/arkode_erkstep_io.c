@@ -84,8 +84,6 @@ int ERKStepSetCFLFraction(void *arkode_mem, realtype cfl_frac) {
   return(arkSetCFLFraction(arkode_mem, cfl_frac)); }
 int ERKStepSetSafetyFactor(void *arkode_mem, realtype safety) {
   return(arkSetSafetyFactor(arkode_mem, safety)); }
-int ERKStepSetErrorBias(void *arkode_mem, realtype bias) {
-  return(arkSetErrorBias(arkode_mem, bias)); }
 int ERKStepSetMaxGrowth(void *arkode_mem, realtype mx_growth) {
   return(arkSetMaxGrowth(arkode_mem, mx_growth)); }
 int ERKStepSetMinReduction(void *arkode_mem, realtype eta_min) {
@@ -252,6 +250,13 @@ int ERKStepSetAdaptivityMethod(void *arkode_mem, int imethod, int idefault,
   ---------------------------------------------------------------*/
 int ERKStepSetAdaptivityFn(void *arkode_mem, ARKAdaptFn hfun, void *h_data) {
   return(arkSetAdaptivityFn(arkode_mem, hfun, h_data)); }
+
+/*---------------------------------------------------------------
+  ERKStepSetErrorBias: user should set this value directly in the
+  SUNAdaptController object.
+  ---------------------------------------------------------------*/
+int ERKStepSetErrorBias(void *arkode_mem, realtype bias) {
+  return(arkSetErrorBias(arkode_mem, bias)); }
 
 
 /*===============================================================

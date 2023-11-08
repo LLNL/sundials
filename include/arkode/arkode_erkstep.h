@@ -121,8 +121,8 @@ SUNDIALS_EXPORT int ERKStepSetCFLFraction(void *arkode_mem,
                                           realtype cfl_frac);
 SUNDIALS_EXPORT int ERKStepSetSafetyFactor(void *arkode_mem,
                                            realtype safety);
-SUNDIALS_EXPORT int ERKStepSetErrorBias(void *arkode_mem,
-                                        realtype bias);
+SUNDIALS_DEPRECATED_EXPORT_MSG("use SUNAdaptController instead")
+int ERKStepSetErrorBias(void *arkode_mem, realtype bias);
 SUNDIALS_EXPORT int ERKStepSetMaxGrowth(void *arkode_mem,
                                         realtype mx_growth);
 SUNDIALS_EXPORT int ERKStepSetMinReduction(void *arkode_mem,
