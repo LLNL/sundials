@@ -369,7 +369,6 @@ int EvolveProblemIMEX(N_Vector y, UserData udata, UserOptions uopt,
   long int nfe, nfi;          /* RHS stats                    */
   long int nni, ncnf;         /* nonlinear solver stats       */
   long int nli, npre, npsol;  /* linear solver stats          */
-  char     fname[MXSTR];
 
   /* Create the ARK timestepper module */
   arkode_mem = ARKStepCreate(Advection, Reaction, uopt->t0, y, ctx);
@@ -520,7 +519,6 @@ int EvolveProblemExplicit(N_Vector y, UserData udata, UserOptions uopt,
   int      iout;              /* output counter                */
   long int nst, nst_a, netf;  /* step stats                    */
   long int nfe;               /* RHS stats                     */
-  char     fname[MXSTR];
 
   /* Create the ERK timestepper module */
   arkode_mem = ERKStepCreate(AdvectionReaction, uopt->t0, y, ctx);
