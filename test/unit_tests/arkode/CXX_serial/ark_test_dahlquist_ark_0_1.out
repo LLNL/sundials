@@ -1,0 +1,2182 @@
+
+Dahlquist ODE test problem:
+  problem type = Identity
+  lambda expl  = -1
+  lambda impl  = -1
+  step size    = 0.01
+  relative tol = 0.0001
+  absolute tol = 1e-06
+  interp type  = Lagrange
+
+========================
+Test explicit RK methods
+========================
+
+========================
+Explicit Euler
+  stages:             1
+  order:              1
+  explicit 1st stage: 1
+  stiffly accurate:   0
+  first same as last: 0
+========================
+--------------------
+Steps: 1
+Fe RHS evals:
+  actual:   1
+  expected: 1
+--------------------
+Steps: 2
+Fe RHS evals:
+  actual:   2
+  expected: 2
+--------------------
+Steps: 3
+Fe RHS evals:
+  actual:   3
+  expected: 3
+--------------------
+Dense Output
+Fe RHS evals:
+  actual:   3
+  expected: 3
+--------------------
+Steps: 4
+Fe RHS evals:
+  actual:   4
+  expected: 4
+--------------------
+
+========================
+ERK Table ID 0
+  stages:             2
+  order:              2
+  explicit 1st stage: 1
+  stiffly accurate:   0
+  first same as last: 0
+========================
+--------------------
+Steps: 1
+Fe RHS evals:
+  actual:   2
+  expected: 2
+--------------------
+Steps: 2
+Fe RHS evals:
+  actual:   4
+  expected: 4
+--------------------
+Steps: 3
+Fe RHS evals:
+  actual:   6
+  expected: 6
+--------------------
+Dense Output
+Fe RHS evals:
+  actual:   6
+  expected: 6
+--------------------
+Steps: 4
+Fe RHS evals:
+  actual:   8
+  expected: 8
+--------------------
+
+========================
+ERK Table ID 1
+  stages:             4
+  order:              3
+  explicit 1st stage: 1
+  stiffly accurate:   1
+  first same as last: 1
+========================
+--------------------
+Steps: 1
+Fe RHS evals:
+  actual:   4
+  expected: 4
+--------------------
+Steps: 2
+Fe RHS evals:
+  actual:   7
+  expected: 7
+--------------------
+Steps: 3
+Fe RHS evals:
+  actual:   10
+  expected: 10
+--------------------
+Dense Output
+Fe RHS evals:
+  actual:   10
+  expected: 10
+--------------------
+Steps: 4
+Fe RHS evals:
+  actual:   13
+  expected: 13
+--------------------
+
+========================
+ERK Table ID 2
+  stages:             4
+  order:              3
+  explicit 1st stage: 1
+  stiffly accurate:   0
+  first same as last: 0
+========================
+--------------------
+Steps: 1
+Fe RHS evals:
+  actual:   4
+  expected: 4
+--------------------
+Steps: 2
+Fe RHS evals:
+  actual:   8
+  expected: 8
+--------------------
+Steps: 3
+Fe RHS evals:
+  actual:   12
+  expected: 12
+--------------------
+Dense Output
+Fe RHS evals:
+  actual:   12
+  expected: 12
+--------------------
+Steps: 4
+Fe RHS evals:
+  actual:   16
+  expected: 16
+--------------------
+
+========================
+ERK Table ID 3
+  stages:             5
+  order:              4
+  explicit 1st stage: 1
+  stiffly accurate:   0
+  first same as last: 0
+========================
+--------------------
+Steps: 1
+Fe RHS evals:
+  actual:   5
+  expected: 5
+--------------------
+Steps: 2
+Fe RHS evals:
+  actual:   10
+  expected: 10
+--------------------
+Steps: 3
+Fe RHS evals:
+  actual:   15
+  expected: 15
+--------------------
+Dense Output
+Fe RHS evals:
+  actual:   15
+  expected: 15
+--------------------
+Steps: 4
+Fe RHS evals:
+  actual:   20
+  expected: 20
+--------------------
+
+========================
+ERK Table ID 4
+  stages:             6
+  order:              4
+  explicit 1st stage: 1
+  stiffly accurate:   0
+  first same as last: 0
+========================
+--------------------
+Steps: 1
+Fe RHS evals:
+  actual:   6
+  expected: 6
+--------------------
+Steps: 2
+Fe RHS evals:
+  actual:   12
+  expected: 12
+--------------------
+Steps: 3
+Fe RHS evals:
+  actual:   18
+  expected: 18
+--------------------
+Dense Output
+Fe RHS evals:
+  actual:   18
+  expected: 18
+--------------------
+Steps: 4
+Fe RHS evals:
+  actual:   24
+  expected: 24
+--------------------
+
+========================
+ERK Table ID 5
+  stages:             6
+  order:              4
+  explicit 1st stage: 1
+  stiffly accurate:   0
+  first same as last: 0
+========================
+--------------------
+Steps: 1
+Fe RHS evals:
+  actual:   6
+  expected: 6
+--------------------
+Steps: 2
+Fe RHS evals:
+  actual:   12
+  expected: 12
+--------------------
+Steps: 3
+Fe RHS evals:
+  actual:   18
+  expected: 18
+--------------------
+Dense Output
+Fe RHS evals:
+  actual:   18
+  expected: 18
+--------------------
+Steps: 4
+Fe RHS evals:
+  actual:   24
+  expected: 24
+--------------------
+
+========================
+ERK Table ID 6
+  stages:             6
+  order:              5
+  explicit 1st stage: 1
+  stiffly accurate:   0
+  first same as last: 0
+========================
+--------------------
+Steps: 1
+Fe RHS evals:
+  actual:   6
+  expected: 6
+--------------------
+Steps: 2
+Fe RHS evals:
+  actual:   12
+  expected: 12
+--------------------
+Steps: 3
+Fe RHS evals:
+  actual:   18
+  expected: 18
+--------------------
+Dense Output
+Fe RHS evals:
+  actual:   18
+  expected: 18
+--------------------
+Steps: 4
+Fe RHS evals:
+  actual:   24
+  expected: 24
+--------------------
+
+========================
+ERK Table ID 7
+  stages:             6
+  order:              5
+  explicit 1st stage: 1
+  stiffly accurate:   0
+  first same as last: 0
+========================
+--------------------
+Steps: 1
+Fe RHS evals:
+  actual:   6
+  expected: 6
+--------------------
+Steps: 2
+Fe RHS evals:
+  actual:   12
+  expected: 12
+--------------------
+Steps: 3
+Fe RHS evals:
+  actual:   18
+  expected: 18
+--------------------
+Dense Output
+Fe RHS evals:
+  actual:   18
+  expected: 18
+--------------------
+Steps: 4
+Fe RHS evals:
+  actual:   24
+  expected: 24
+--------------------
+
+========================
+ERK Table ID 8
+  stages:             7
+  order:              5
+  explicit 1st stage: 1
+  stiffly accurate:   1
+  first same as last: 1
+========================
+--------------------
+Steps: 1
+Fe RHS evals:
+  actual:   7
+  expected: 7
+--------------------
+Steps: 2
+Fe RHS evals:
+  actual:   13
+  expected: 13
+--------------------
+Steps: 3
+Fe RHS evals:
+  actual:   19
+  expected: 19
+--------------------
+Dense Output
+Fe RHS evals:
+  actual:   19
+  expected: 19
+--------------------
+Steps: 4
+Fe RHS evals:
+  actual:   25
+  expected: 25
+--------------------
+
+========================
+ERK Table ID 9
+  stages:             8
+  order:              5
+  explicit 1st stage: 1
+  stiffly accurate:   0
+  first same as last: 0
+========================
+--------------------
+Steps: 1
+Fe RHS evals:
+  actual:   8
+  expected: 8
+--------------------
+Steps: 2
+Fe RHS evals:
+  actual:   16
+  expected: 16
+--------------------
+Steps: 3
+Fe RHS evals:
+  actual:   24
+  expected: 24
+--------------------
+Dense Output
+Fe RHS evals:
+  actual:   24
+  expected: 24
+--------------------
+Steps: 4
+Fe RHS evals:
+  actual:   32
+  expected: 32
+--------------------
+
+========================
+ERK Table ID 10
+  stages:             8
+  order:              6
+  explicit 1st stage: 1
+  stiffly accurate:   0
+  first same as last: 0
+========================
+--------------------
+Steps: 1
+Fe RHS evals:
+  actual:   8
+  expected: 8
+--------------------
+Steps: 2
+Fe RHS evals:
+  actual:   16
+  expected: 16
+--------------------
+Steps: 3
+Fe RHS evals:
+  actual:   24
+  expected: 24
+--------------------
+Dense Output
+Fe RHS evals:
+  actual:   24
+  expected: 24
+--------------------
+Steps: 4
+Fe RHS evals:
+  actual:   32
+  expected: 32
+--------------------
+
+========================
+ERK Table ID 11
+  stages:             13
+  order:              8
+  explicit 1st stage: 1
+  stiffly accurate:   0
+  first same as last: 0
+========================
+--------------------
+Steps: 1
+Fe RHS evals:
+  actual:   13
+  expected: 13
+--------------------
+Steps: 2
+Fe RHS evals:
+  actual:   26
+  expected: 26
+--------------------
+Steps: 3
+Fe RHS evals:
+  actual:   39
+  expected: 39
+--------------------
+Dense Output
+Fe RHS evals:
+  actual:   39
+  expected: 39
+--------------------
+Steps: 4
+Fe RHS evals:
+  actual:   52
+  expected: 52
+--------------------
+
+========================
+ERK Table ID 12
+  stages:             3
+  order:              3
+  explicit 1st stage: 1
+  stiffly accurate:   0
+  first same as last: 0
+========================
+--------------------
+Steps: 1
+Fe RHS evals:
+  actual:   3
+  expected: 3
+--------------------
+Steps: 2
+Fe RHS evals:
+  actual:   6
+  expected: 6
+--------------------
+Steps: 3
+Fe RHS evals:
+  actual:   9
+  expected: 9
+--------------------
+Dense Output
+Fe RHS evals:
+  actual:   9
+  expected: 9
+--------------------
+Steps: 4
+Fe RHS evals:
+  actual:   12
+  expected: 12
+--------------------
+
+========================
+ERK Table ID 13
+  stages:             7
+  order:              4
+  explicit 1st stage: 1
+  stiffly accurate:   0
+  first same as last: 0
+========================
+--------------------
+Steps: 1
+Fe RHS evals:
+  actual:   7
+  expected: 7
+--------------------
+Steps: 2
+Fe RHS evals:
+  actual:   14
+  expected: 14
+--------------------
+Steps: 3
+Fe RHS evals:
+  actual:   21
+  expected: 21
+--------------------
+Dense Output
+Fe RHS evals:
+  actual:   21
+  expected: 21
+--------------------
+Steps: 4
+Fe RHS evals:
+  actual:   28
+  expected: 28
+--------------------
+
+========================
+ERK Table ID 14
+  stages:             8
+  order:              5
+  explicit 1st stage: 1
+  stiffly accurate:   0
+  first same as last: 0
+========================
+--------------------
+Steps: 1
+Fe RHS evals:
+  actual:   8
+  expected: 8
+--------------------
+Steps: 2
+Fe RHS evals:
+  actual:   16
+  expected: 16
+--------------------
+Steps: 3
+Fe RHS evals:
+  actual:   24
+  expected: 24
+--------------------
+Dense Output
+Fe RHS evals:
+  actual:   24
+  expected: 24
+--------------------
+Steps: 4
+Fe RHS evals:
+  actual:   32
+  expected: 32
+--------------------
+
+========================
+ERK Table ID 15
+  stages:             3
+  order:              2
+  explicit 1st stage: 1
+  stiffly accurate:   0
+  first same as last: 0
+========================
+--------------------
+Steps: 1
+Fe RHS evals:
+  actual:   3
+  expected: 3
+--------------------
+Steps: 2
+Fe RHS evals:
+  actual:   6
+  expected: 6
+--------------------
+Steps: 3
+Fe RHS evals:
+  actual:   9
+  expected: 9
+--------------------
+Dense Output
+Fe RHS evals:
+  actual:   9
+  expected: 9
+--------------------
+Steps: 4
+Fe RHS evals:
+  actual:   12
+  expected: 12
+--------------------
+
+========================
+ERK Table ID 16
+  stages:             5
+  order:              4
+  explicit 1st stage: 1
+  stiffly accurate:   1
+  first same as last: 1
+========================
+--------------------
+Steps: 1
+Fe RHS evals:
+  actual:   5
+  expected: 5
+--------------------
+Steps: 2
+Fe RHS evals:
+  actual:   9
+  expected: 9
+--------------------
+Steps: 3
+Fe RHS evals:
+  actual:   13
+  expected: 13
+--------------------
+Dense Output
+Fe RHS evals:
+  actual:   13
+  expected: 13
+--------------------
+Steps: 4
+Fe RHS evals:
+  actual:   17
+  expected: 17
+--------------------
+
+========================
+ERK Table ID 17
+  stages:             3
+  order:              3
+  explicit 1st stage: 1
+  stiffly accurate:   0
+  first same as last: 0
+========================
+--------------------
+Steps: 1
+Fe RHS evals:
+  actual:   3
+  expected: 3
+--------------------
+Steps: 2
+Fe RHS evals:
+  actual:   6
+  expected: 6
+--------------------
+Steps: 3
+Fe RHS evals:
+  actual:   9
+  expected: 9
+--------------------
+Dense Output
+Fe RHS evals:
+  actual:   9
+  expected: 9
+--------------------
+Steps: 4
+Fe RHS evals:
+  actual:   12
+  expected: 12
+--------------------
+
+========================
+ERK Table ID 18
+  stages:             9
+  order:              6
+  explicit 1st stage: 1
+  stiffly accurate:   1
+  first same as last: 1
+========================
+--------------------
+Steps: 1
+Fe RHS evals:
+  actual:   9
+  expected: 9
+--------------------
+Steps: 2
+Fe RHS evals:
+  actual:   17
+  expected: 17
+--------------------
+Steps: 3
+Fe RHS evals:
+  actual:   25
+  expected: 25
+--------------------
+Dense Output
+Fe RHS evals:
+  actual:   25
+  expected: 25
+--------------------
+Steps: 4
+Fe RHS evals:
+  actual:   33
+  expected: 33
+--------------------
+
+========================
+ERK Table ID 19
+  stages:             10
+  order:              7
+  explicit 1st stage: 1
+  stiffly accurate:   0
+  first same as last: 0
+========================
+--------------------
+Steps: 1
+Fe RHS evals:
+  actual:   10
+  expected: 10
+--------------------
+Steps: 2
+Fe RHS evals:
+  actual:   20
+  expected: 20
+--------------------
+Steps: 3
+Fe RHS evals:
+  actual:   30
+  expected: 30
+--------------------
+Dense Output
+Fe RHS evals:
+  actual:   30
+  expected: 30
+--------------------
+Steps: 4
+Fe RHS evals:
+  actual:   40
+  expected: 40
+--------------------
+
+========================
+ERK Table ID 20
+  stages:             13
+  order:              8
+  explicit 1st stage: 1
+  stiffly accurate:   0
+  first same as last: 0
+========================
+--------------------
+Steps: 1
+Fe RHS evals:
+  actual:   13
+  expected: 13
+--------------------
+Steps: 2
+Fe RHS evals:
+  actual:   26
+  expected: 26
+--------------------
+Steps: 3
+Fe RHS evals:
+  actual:   39
+  expected: 39
+--------------------
+Dense Output
+Fe RHS evals:
+  actual:   39
+  expected: 39
+--------------------
+Steps: 4
+Fe RHS evals:
+  actual:   52
+  expected: 52
+--------------------
+
+========================
+ERK Table ID 21
+  stages:             16
+  order:              9
+  explicit 1st stage: 1
+  stiffly accurate:   0
+  first same as last: 0
+========================
+--------------------
+Steps: 1
+Fe RHS evals:
+  actual:   16
+  expected: 16
+--------------------
+Steps: 2
+Fe RHS evals:
+  actual:   32
+  expected: 32
+--------------------
+Steps: 3
+Fe RHS evals:
+  actual:   48
+  expected: 48
+--------------------
+Dense Output
+Fe RHS evals:
+  actual:   48
+  expected: 48
+--------------------
+Steps: 4
+Fe RHS evals:
+  actual:   64
+  expected: 64
+--------------------
+
+========================
+Test implicit RK methods
+========================
+
+========================
+Implicit Euler
+  stages:             1
+  order:              1
+  explicit 1st stage: 0
+  stiffly accurate:   1
+  first same as last: 0
+========================
+--------------------
+Steps: 1
+NLS iters: 1
+Fi RHS evals:
+  actual:   2
+  expected: 2
+--------------------
+Steps: 2
+NLS iters: 2
+Fi RHS evals:
+  actual:   4
+  expected: 4
+--------------------
+Steps: 3
+NLS iters: 3
+Fi RHS evals:
+  actual:   6
+  expected: 6
+--------------------
+Dense Output
+Fi RHS evals:
+  actual:   6
+  expected: 6
+--------------------
+Steps: 4
+NLS iters: 4
+Fi RHS evals:
+  actual:   8
+  expected: 8
+--------------------
+
+========================
+DIRK Table ID 100
+  stages:             2
+  order:              2
+  explicit 1st stage: 0
+  stiffly accurate:   0
+  first same as last: 0
+========================
+--------------------
+Steps: 1
+NLS iters: 2
+Fi RHS evals:
+  actual:   4
+  expected: 4
+--------------------
+Steps: 2
+NLS iters: 4
+Fi RHS evals:
+  actual:   8
+  expected: 8
+--------------------
+Steps: 3
+NLS iters: 6
+Fi RHS evals:
+  actual:   12
+  expected: 12
+--------------------
+Dense Output
+Fi RHS evals:
+  actual:   12
+  expected: 12
+--------------------
+Steps: 4
+NLS iters: 8
+Fi RHS evals:
+  actual:   16
+  expected: 16
+--------------------
+
+========================
+DIRK Table ID 101
+  stages:             3
+  order:              2
+  explicit 1st stage: 0
+  stiffly accurate:   0
+  first same as last: 0
+========================
+--------------------
+Steps: 1
+NLS iters: 3
+Fi RHS evals:
+  actual:   6
+  expected: 6
+--------------------
+Steps: 2
+NLS iters: 6
+Fi RHS evals:
+  actual:   12
+  expected: 12
+--------------------
+Steps: 3
+NLS iters: 9
+Fi RHS evals:
+  actual:   18
+  expected: 18
+--------------------
+Dense Output
+Fi RHS evals:
+  actual:   18
+  expected: 18
+--------------------
+Steps: 4
+NLS iters: 12
+Fi RHS evals:
+  actual:   24
+  expected: 24
+--------------------
+
+========================
+DIRK Table ID 102
+  stages:             3
+  order:              2
+  explicit 1st stage: 1
+  stiffly accurate:   1
+  first same as last: 1
+========================
+--------------------
+Steps: 1
+NLS iters: 2
+Fi RHS evals:
+  actual:   5
+  expected: 5
+--------------------
+Steps: 2
+NLS iters: 4
+Fi RHS evals:
+  actual:   9
+  expected: 9
+--------------------
+Steps: 3
+NLS iters: 6
+Fi RHS evals:
+  actual:   13
+  expected: 13
+--------------------
+Dense Output
+Fi RHS evals:
+  actual:   13
+  expected: 13
+--------------------
+Steps: 4
+NLS iters: 8
+Fi RHS evals:
+  actual:   17
+  expected: 17
+--------------------
+
+========================
+DIRK Table ID 103
+  stages:             4
+  order:              3
+  explicit 1st stage: 1
+  stiffly accurate:   1
+  first same as last: 1
+========================
+--------------------
+Steps: 1
+NLS iters: 3
+Fi RHS evals:
+  actual:   7
+  expected: 7
+--------------------
+Steps: 2
+NLS iters: 6
+Fi RHS evals:
+  actual:   13
+  expected: 13
+--------------------
+Steps: 3
+NLS iters: 9
+Fi RHS evals:
+  actual:   19
+  expected: 19
+--------------------
+Dense Output
+Fi RHS evals:
+  actual:   19
+  expected: 19
+--------------------
+Steps: 4
+NLS iters: 12
+Fi RHS evals:
+  actual:   25
+  expected: 25
+--------------------
+
+========================
+DIRK Table ID 104
+  stages:             4
+  order:              3
+  explicit 1st stage: 1
+  stiffly accurate:   1
+  first same as last: 1
+========================
+--------------------
+Steps: 1
+NLS iters: 3
+Fi RHS evals:
+  actual:   7
+  expected: 7
+--------------------
+Steps: 2
+NLS iters: 6
+Fi RHS evals:
+  actual:   13
+  expected: 13
+--------------------
+Steps: 3
+NLS iters: 9
+Fi RHS evals:
+  actual:   19
+  expected: 19
+--------------------
+Dense Output
+Fi RHS evals:
+  actual:   19
+  expected: 19
+--------------------
+Steps: 4
+NLS iters: 12
+Fi RHS evals:
+  actual:   25
+  expected: 25
+--------------------
+
+========================
+DIRK Table ID 105
+  stages:             5
+  order:              4
+  explicit 1st stage: 0
+  stiffly accurate:   1
+  first same as last: 0
+========================
+--------------------
+Steps: 1
+NLS iters: 5
+Fi RHS evals:
+  actual:   10
+  expected: 10
+--------------------
+Steps: 2
+NLS iters: 10
+Fi RHS evals:
+  actual:   20
+  expected: 20
+--------------------
+Steps: 3
+NLS iters: 15
+Fi RHS evals:
+  actual:   30
+  expected: 30
+--------------------
+Dense Output
+Fi RHS evals:
+  actual:   30
+  expected: 30
+--------------------
+Steps: 4
+NLS iters: 20
+Fi RHS evals:
+  actual:   40
+  expected: 40
+--------------------
+
+========================
+DIRK Table ID 106
+  stages:             5
+  order:              4
+  explicit 1st stage: 0
+  stiffly accurate:   1
+  first same as last: 0
+========================
+--------------------
+Steps: 1
+NLS iters: 5
+Fi RHS evals:
+  actual:   10
+  expected: 10
+--------------------
+Steps: 2
+NLS iters: 10
+Fi RHS evals:
+  actual:   20
+  expected: 20
+--------------------
+Steps: 3
+NLS iters: 15
+Fi RHS evals:
+  actual:   30
+  expected: 30
+--------------------
+Dense Output
+Fi RHS evals:
+  actual:   30
+  expected: 30
+--------------------
+Steps: 4
+NLS iters: 20
+Fi RHS evals:
+  actual:   40
+  expected: 40
+--------------------
+
+========================
+DIRK Table ID 107
+  stages:             5
+  order:              4
+  explicit 1st stage: 0
+  stiffly accurate:   1
+  first same as last: 0
+========================
+--------------------
+Steps: 1
+NLS iters: 5
+Fi RHS evals:
+  actual:   10
+  expected: 10
+--------------------
+Steps: 2
+NLS iters: 10
+Fi RHS evals:
+  actual:   20
+  expected: 20
+--------------------
+Steps: 3
+NLS iters: 15
+Fi RHS evals:
+  actual:   30
+  expected: 30
+--------------------
+Dense Output
+Fi RHS evals:
+  actual:   30
+  expected: 30
+--------------------
+Steps: 4
+NLS iters: 20
+Fi RHS evals:
+  actual:   40
+  expected: 40
+--------------------
+
+========================
+DIRK Table ID 108
+  stages:             5
+  order:              4
+  explicit 1st stage: 1
+  stiffly accurate:   1
+  first same as last: 1
+========================
+--------------------
+Steps: 1
+NLS iters: 4
+Fi RHS evals:
+  actual:   9
+  expected: 9
+--------------------
+Steps: 2
+NLS iters: 8
+Fi RHS evals:
+  actual:   17
+  expected: 17
+--------------------
+Steps: 3
+NLS iters: 12
+Fi RHS evals:
+  actual:   25
+  expected: 25
+--------------------
+Dense Output
+Fi RHS evals:
+  actual:   25
+  expected: 25
+--------------------
+Steps: 4
+NLS iters: 16
+Fi RHS evals:
+  actual:   33
+  expected: 33
+--------------------
+
+========================
+DIRK Table ID 109
+  stages:             6
+  order:              4
+  explicit 1st stage: 1
+  stiffly accurate:   1
+  first same as last: 1
+========================
+--------------------
+Steps: 1
+NLS iters: 5
+Fi RHS evals:
+  actual:   11
+  expected: 11
+--------------------
+Steps: 2
+NLS iters: 10
+Fi RHS evals:
+  actual:   21
+  expected: 21
+--------------------
+Steps: 3
+NLS iters: 15
+Fi RHS evals:
+  actual:   31
+  expected: 31
+--------------------
+Dense Output
+Fi RHS evals:
+  actual:   31
+  expected: 31
+--------------------
+Steps: 4
+NLS iters: 20
+Fi RHS evals:
+  actual:   41
+  expected: 41
+--------------------
+
+========================
+DIRK Table ID 110
+  stages:             7
+  order:              5
+  explicit 1st stage: 1
+  stiffly accurate:   1
+  first same as last: 1
+========================
+--------------------
+Steps: 1
+NLS iters: 6
+Fi RHS evals:
+  actual:   13
+  expected: 13
+--------------------
+Steps: 2
+NLS iters: 12
+Fi RHS evals:
+  actual:   25
+  expected: 25
+--------------------
+Steps: 3
+NLS iters: 18
+Fi RHS evals:
+  actual:   37
+  expected: 37
+--------------------
+Dense Output
+Fi RHS evals:
+  actual:   37
+  expected: 37
+--------------------
+Steps: 4
+NLS iters: 24
+Fi RHS evals:
+  actual:   49
+  expected: 49
+--------------------
+
+========================
+DIRK Table ID 111
+  stages:             8
+  order:              5
+  explicit 1st stage: 1
+  stiffly accurate:   1
+  first same as last: 1
+========================
+--------------------
+Steps: 1
+NLS iters: 7
+Fi RHS evals:
+  actual:   15
+  expected: 15
+--------------------
+Steps: 2
+NLS iters: 14
+Fi RHS evals:
+  actual:   29
+  expected: 29
+--------------------
+Steps: 3
+NLS iters: 21
+Fi RHS evals:
+  actual:   43
+  expected: 43
+--------------------
+Dense Output
+Fi RHS evals:
+  actual:   43
+  expected: 43
+--------------------
+Steps: 4
+NLS iters: 28
+Fi RHS evals:
+  actual:   57
+  expected: 57
+--------------------
+
+========================
+DIRK Table ID 112
+  stages:             7
+  order:              4
+  explicit 1st stage: 1
+  stiffly accurate:   1
+  first same as last: 1
+========================
+--------------------
+Steps: 1
+NLS iters: 6
+Fi RHS evals:
+  actual:   13
+  expected: 13
+--------------------
+Steps: 2
+NLS iters: 12
+Fi RHS evals:
+  actual:   25
+  expected: 25
+--------------------
+Steps: 3
+NLS iters: 18
+Fi RHS evals:
+  actual:   37
+  expected: 37
+--------------------
+Dense Output
+Fi RHS evals:
+  actual:   37
+  expected: 37
+--------------------
+Steps: 4
+NLS iters: 24
+Fi RHS evals:
+  actual:   49
+  expected: 49
+--------------------
+
+========================
+DIRK Table ID 113
+  stages:             8
+  order:              5
+  explicit 1st stage: 1
+  stiffly accurate:   1
+  first same as last: 1
+========================
+--------------------
+Steps: 1
+NLS iters: 7
+Fi RHS evals:
+  actual:   15
+  expected: 15
+--------------------
+Steps: 2
+NLS iters: 14
+Fi RHS evals:
+  actual:   29
+  expected: 29
+--------------------
+Steps: 3
+NLS iters: 21
+Fi RHS evals:
+  actual:   43
+  expected: 43
+--------------------
+Dense Output
+Fi RHS evals:
+  actual:   43
+  expected: 43
+--------------------
+Steps: 4
+NLS iters: 28
+Fi RHS evals:
+  actual:   57
+  expected: 57
+--------------------
+
+========================
+DIRK Table ID 114
+  stages:             4
+  order:              3
+  explicit 1st stage: 1
+  stiffly accurate:   1
+  first same as last: 1
+========================
+--------------------
+Steps: 1
+NLS iters: 3
+Fi RHS evals:
+  actual:   7
+  expected: 7
+--------------------
+Steps: 2
+NLS iters: 6
+Fi RHS evals:
+  actual:   13
+  expected: 13
+--------------------
+Steps: 3
+NLS iters: 9
+Fi RHS evals:
+  actual:   19
+  expected: 19
+--------------------
+Dense Output
+Fi RHS evals:
+  actual:   19
+  expected: 19
+--------------------
+Steps: 4
+NLS iters: 12
+Fi RHS evals:
+  actual:   25
+  expected: 25
+--------------------
+
+========================
+DIRK Table ID 115
+  stages:             5
+  order:              3
+  explicit 1st stage: 1
+  stiffly accurate:   1
+  first same as last: 1
+========================
+--------------------
+Steps: 1
+NLS iters: 4
+Fi RHS evals:
+  actual:   9
+  expected: 9
+--------------------
+Steps: 2
+NLS iters: 8
+Fi RHS evals:
+  actual:   17
+  expected: 17
+--------------------
+Steps: 3
+NLS iters: 12
+Fi RHS evals:
+  actual:   25
+  expected: 25
+--------------------
+Dense Output
+Fi RHS evals:
+  actual:   25
+  expected: 25
+--------------------
+Steps: 4
+NLS iters: 16
+Fi RHS evals:
+  actual:   33
+  expected: 33
+--------------------
+
+========================
+DIRK Table ID 116
+  stages:             5
+  order:              3
+  explicit 1st stage: 1
+  stiffly accurate:   1
+  first same as last: 1
+========================
+--------------------
+Steps: 1
+NLS iters: 4
+Fi RHS evals:
+  actual:   9
+  expected: 9
+--------------------
+Steps: 2
+NLS iters: 8
+Fi RHS evals:
+  actual:   17
+  expected: 17
+--------------------
+Steps: 3
+NLS iters: 12
+Fi RHS evals:
+  actual:   25
+  expected: 25
+--------------------
+Dense Output
+Fi RHS evals:
+  actual:   25
+  expected: 25
+--------------------
+Steps: 4
+NLS iters: 16
+Fi RHS evals:
+  actual:   33
+  expected: 33
+--------------------
+
+========================
+DIRK Table ID 117
+  stages:             6
+  order:              4
+  explicit 1st stage: 1
+  stiffly accurate:   1
+  first same as last: 1
+========================
+--------------------
+Steps: 1
+NLS iters: 5
+Fi RHS evals:
+  actual:   11
+  expected: 11
+--------------------
+Steps: 2
+NLS iters: 10
+Fi RHS evals:
+  actual:   21
+  expected: 21
+--------------------
+Steps: 3
+NLS iters: 15
+Fi RHS evals:
+  actual:   31
+  expected: 31
+--------------------
+Dense Output
+Fi RHS evals:
+  actual:   31
+  expected: 31
+--------------------
+Steps: 4
+NLS iters: 20
+Fi RHS evals:
+  actual:   41
+  expected: 41
+--------------------
+
+========================
+DIRK Table ID 118
+  stages:             6
+  order:              4
+  explicit 1st stage: 1
+  stiffly accurate:   1
+  first same as last: 1
+========================
+--------------------
+Steps: 1
+NLS iters: 5
+Fi RHS evals:
+  actual:   11
+  expected: 11
+--------------------
+Steps: 2
+NLS iters: 10
+Fi RHS evals:
+  actual:   21
+  expected: 21
+--------------------
+Steps: 3
+NLS iters: 15
+Fi RHS evals:
+  actual:   31
+  expected: 31
+--------------------
+Dense Output
+Fi RHS evals:
+  actual:   31
+  expected: 31
+--------------------
+Steps: 4
+NLS iters: 20
+Fi RHS evals:
+  actual:   41
+  expected: 41
+--------------------
+
+========================
+DIRK Table ID 119
+  stages:             6
+  order:              4
+  explicit 1st stage: 1
+  stiffly accurate:   1
+  first same as last: 1
+========================
+--------------------
+Steps: 1
+NLS iters: 5
+Fi RHS evals:
+  actual:   11
+  expected: 11
+--------------------
+Steps: 2
+NLS iters: 10
+Fi RHS evals:
+  actual:   21
+  expected: 21
+--------------------
+Steps: 3
+NLS iters: 15
+Fi RHS evals:
+  actual:   31
+  expected: 31
+--------------------
+Dense Output
+Fi RHS evals:
+  actual:   31
+  expected: 31
+--------------------
+Steps: 4
+NLS iters: 20
+Fi RHS evals:
+  actual:   41
+  expected: 41
+--------------------
+
+========================
+DIRK Table ID 120
+  stages:             7
+  order:              4
+  explicit 1st stage: 1
+  stiffly accurate:   1
+  first same as last: 1
+========================
+--------------------
+Steps: 1
+NLS iters: 6
+Fi RHS evals:
+  actual:   13
+  expected: 13
+--------------------
+Steps: 2
+NLS iters: 12
+Fi RHS evals:
+  actual:   25
+  expected: 25
+--------------------
+Steps: 3
+NLS iters: 18
+Fi RHS evals:
+  actual:   37
+  expected: 37
+--------------------
+Dense Output
+Fi RHS evals:
+  actual:   37
+  expected: 37
+--------------------
+Steps: 4
+NLS iters: 24
+Fi RHS evals:
+  actual:   49
+  expected: 49
+--------------------
+
+========================
+DIRK Table ID 121
+  stages:             7
+  order:              5
+  explicit 1st stage: 1
+  stiffly accurate:   1
+  first same as last: 1
+========================
+--------------------
+Steps: 1
+NLS iters: 6
+Fi RHS evals:
+  actual:   13
+  expected: 13
+--------------------
+Steps: 2
+NLS iters: 12
+Fi RHS evals:
+  actual:   25
+  expected: 25
+--------------------
+Steps: 3
+NLS iters: 18
+Fi RHS evals:
+  actual:   37
+  expected: 37
+--------------------
+Dense Output
+Fi RHS evals:
+  actual:   37
+  expected: 37
+--------------------
+Steps: 4
+NLS iters: 24
+Fi RHS evals:
+  actual:   49
+  expected: 49
+--------------------
+
+========================
+DIRK Table ID 122
+  stages:             7
+  order:              5
+  explicit 1st stage: 1
+  stiffly accurate:   1
+  first same as last: 1
+========================
+--------------------
+Steps: 1
+NLS iters: 6
+Fi RHS evals:
+  actual:   13
+  expected: 13
+--------------------
+Steps: 2
+NLS iters: 12
+Fi RHS evals:
+  actual:   25
+  expected: 25
+--------------------
+Steps: 3
+NLS iters: 18
+Fi RHS evals:
+  actual:   37
+  expected: 37
+--------------------
+Dense Output
+Fi RHS evals:
+  actual:   37
+  expected: 37
+--------------------
+Steps: 4
+NLS iters: 24
+Fi RHS evals:
+  actual:   49
+  expected: 49
+--------------------
+
+========================
+DIRK Table ID 123
+  stages:             3
+  order:              2
+  explicit 1st stage: 1
+  stiffly accurate:   1
+  first same as last: 1
+========================
+--------------------
+Steps: 1
+NLS iters: 2
+Fi RHS evals:
+  actual:   5
+  expected: 5
+--------------------
+Steps: 2
+NLS iters: 4
+Fi RHS evals:
+  actual:   9
+  expected: 9
+--------------------
+Steps: 3
+NLS iters: 6
+Fi RHS evals:
+  actual:   13
+  expected: 13
+--------------------
+Dense Output
+Fi RHS evals:
+  actual:   13
+  expected: 13
+--------------------
+Steps: 4
+NLS iters: 8
+Fi RHS evals:
+  actual:   17
+  expected: 17
+--------------------
+
+=====================
+Test IMEX ARK methods
+=====================
+
+========================
+IMEX Euler
+  stages:             2
+  order:              1
+  explicit 1st stage: 1
+  stiffly accurate:   1
+  first same as last: 1
+========================
+--------------------
+Steps: 1
+NLS iters: 1
+Fe RHS evals:
+  actual:   2
+  expected: 2
+Fi RHS evals:
+  actual:   3
+  expected: 3
+--------------------
+Steps: 2
+NLS iters: 2
+Fe RHS evals:
+  actual:   3
+  expected: 3
+Fi RHS evals:
+  actual:   5
+  expected: 5
+--------------------
+Steps: 3
+NLS iters: 3
+Fe RHS evals:
+  actual:   4
+  expected: 4
+Fi RHS evals:
+  actual:   7
+  expected: 7
+--------------------
+Dense Output
+Fe RHS evals:
+  actual:   4
+  expected: 4
+Fi RHS evals:
+  actual:   7
+  expected: 7
+--------------------
+Steps: 4
+NLS iters: 4
+Fe RHS evals:
+  actual:   5
+  expected: 5
+Fi RHS evals:
+  actual:   9
+  expected: 9
+--------------------
+
+========================
+IMEX Table ID 0
+  stages:             3
+  order:              2
+  explicit 1st stage: 1
+  stiffly accurate:   0
+  first same as last: 0
+========================
+--------------------
+Steps: 1
+NLS iters: 2
+Fe RHS evals:
+  actual:   3
+  expected: 3
+Fi RHS evals:
+  actual:   5
+  expected: 5
+--------------------
+Steps: 2
+NLS iters: 4
+Fe RHS evals:
+  actual:   6
+  expected: 6
+Fi RHS evals:
+  actual:   10
+  expected: 10
+--------------------
+Steps: 3
+NLS iters: 6
+Fe RHS evals:
+  actual:   9
+  expected: 9
+Fi RHS evals:
+  actual:   15
+  expected: 15
+--------------------
+Dense Output
+Fe RHS evals:
+  actual:   9
+  expected: 9
+Fi RHS evals:
+  actual:   15
+  expected: 15
+--------------------
+Steps: 4
+NLS iters: 8
+Fe RHS evals:
+  actual:   12
+  expected: 12
+Fi RHS evals:
+  actual:   20
+  expected: 20
+--------------------
+
+========================
+IMEX Table ID 1
+  stages:             3
+  order:              2
+  explicit 1st stage: 1
+  stiffly accurate:   0
+  first same as last: 0
+========================
+--------------------
+Steps: 1
+NLS iters: 2
+Fe RHS evals:
+  actual:   3
+  expected: 3
+Fi RHS evals:
+  actual:   5
+  expected: 5
+--------------------
+Steps: 2
+NLS iters: 4
+Fe RHS evals:
+  actual:   6
+  expected: 6
+Fi RHS evals:
+  actual:   10
+  expected: 10
+--------------------
+Steps: 3
+NLS iters: 6
+Fe RHS evals:
+  actual:   9
+  expected: 9
+Fi RHS evals:
+  actual:   15
+  expected: 15
+--------------------
+Dense Output
+Fe RHS evals:
+  actual:   9
+  expected: 9
+Fi RHS evals:
+  actual:   15
+  expected: 15
+--------------------
+Steps: 4
+NLS iters: 8
+Fe RHS evals:
+  actual:   12
+  expected: 12
+Fi RHS evals:
+  actual:   20
+  expected: 20
+--------------------
+
+========================
+IMEX Table ID 2
+  stages:             3
+  order:              2
+  explicit 1st stage: 1
+  stiffly accurate:   0
+  first same as last: 0
+========================
+--------------------
+Steps: 1
+NLS iters: 2
+Fe RHS evals:
+  actual:   3
+  expected: 3
+Fi RHS evals:
+  actual:   5
+  expected: 5
+--------------------
+Steps: 2
+NLS iters: 4
+Fe RHS evals:
+  actual:   6
+  expected: 6
+Fi RHS evals:
+  actual:   10
+  expected: 10
+--------------------
+Steps: 3
+NLS iters: 6
+Fe RHS evals:
+  actual:   9
+  expected: 9
+Fi RHS evals:
+  actual:   15
+  expected: 15
+--------------------
+Dense Output
+Fe RHS evals:
+  actual:   9
+  expected: 9
+Fi RHS evals:
+  actual:   15
+  expected: 15
+--------------------
+Steps: 4
+NLS iters: 8
+Fe RHS evals:
+  actual:   12
+  expected: 12
+Fi RHS evals:
+  actual:   20
+  expected: 20
+--------------------
+
+========================
+IMEX Table ID 3
+  stages:             3
+  order:              2
+  explicit 1st stage: 1
+  stiffly accurate:   0
+  first same as last: 0
+========================
+--------------------
+Steps: 1
+NLS iters: 2
+Fe RHS evals:
+  actual:   3
+  expected: 3
+Fi RHS evals:
+  actual:   5
+  expected: 5
+--------------------
+Steps: 2
+NLS iters: 4
+Fe RHS evals:
+  actual:   6
+  expected: 6
+Fi RHS evals:
+  actual:   10
+  expected: 10
+--------------------
+Steps: 3
+NLS iters: 6
+Fe RHS evals:
+  actual:   9
+  expected: 9
+Fi RHS evals:
+  actual:   15
+  expected: 15
+--------------------
+Dense Output
+Fe RHS evals:
+  actual:   9
+  expected: 9
+Fi RHS evals:
+  actual:   15
+  expected: 15
+--------------------
+Steps: 4
+NLS iters: 8
+Fe RHS evals:
+  actual:   12
+  expected: 12
+Fi RHS evals:
+  actual:   20
+  expected: 20
+--------------------
+
+========================
+IMEX Table ID 4
+  stages:             3
+  order:              2
+  explicit 1st stage: 1
+  stiffly accurate:   0
+  first same as last: 0
+========================
+--------------------
+Steps: 1
+NLS iters: 2
+Fe RHS evals:
+  actual:   3
+  expected: 3
+Fi RHS evals:
+  actual:   5
+  expected: 5
+--------------------
+Steps: 2
+NLS iters: 4
+Fe RHS evals:
+  actual:   6
+  expected: 6
+Fi RHS evals:
+  actual:   10
+  expected: 10
+--------------------
+Steps: 3
+NLS iters: 6
+Fe RHS evals:
+  actual:   9
+  expected: 9
+Fi RHS evals:
+  actual:   15
+  expected: 15
+--------------------
+Dense Output
+Fe RHS evals:
+  actual:   9
+  expected: 9
+Fi RHS evals:
+  actual:   15
+  expected: 15
+--------------------
+Steps: 4
+NLS iters: 8
+Fe RHS evals:
+  actual:   12
+  expected: 12
+Fi RHS evals:
+  actual:   20
+  expected: 20
+--------------------
+
+========================
+IMEX Table ID 5
+  stages:             3
+  order:              2
+  explicit 1st stage: 1
+  stiffly accurate:   0
+  first same as last: 0
+========================
+--------------------
+Steps: 1
+NLS iters: 2
+Fe RHS evals:
+  actual:   3
+  expected: 3
+Fi RHS evals:
+  actual:   5
+  expected: 5
+--------------------
+Steps: 2
+NLS iters: 4
+Fe RHS evals:
+  actual:   6
+  expected: 6
+Fi RHS evals:
+  actual:   10
+  expected: 10
+--------------------
+Steps: 3
+NLS iters: 6
+Fe RHS evals:
+  actual:   9
+  expected: 9
+Fi RHS evals:
+  actual:   15
+  expected: 15
+--------------------
+Dense Output
+Fe RHS evals:
+  actual:   9
+  expected: 9
+Fi RHS evals:
+  actual:   15
+  expected: 15
+--------------------
+Steps: 4
+NLS iters: 8
+Fe RHS evals:
+  actual:   12
+  expected: 12
+Fi RHS evals:
+  actual:   20
+  expected: 20
+--------------------
+
+
+All tests passed!

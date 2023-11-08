@@ -6,7 +6,7 @@
     reltol =  1.0E-06,  abstol =  1.0E-10
          t      ||u||_rms   ||v||_rms   ||w||_rms
     ----------------------------------------------
-    0.100000    0.675713    3.378369    1.999987
+    0.100000    0.675713    3.378369    1.999986
     0.200000    0.688538    3.357681    1.999986
     0.300000    0.702687    3.334519    1.999986
     0.400000    0.718330    3.308631    1.999986
@@ -110,7 +110,7 @@
   
  Final Solver Statistics:
     Internal solver steps =       407, (attempted =       504)
-    Total RHS evals: Fe =      3027,  Fi =      8587
+    Total RHS evals: Fe =      2930,  Fi =      8490
     Total linear solver setups    =      269
     Total RHS evals for setting up the linear system =        0
     Total number of Jacobian evaluations =       30

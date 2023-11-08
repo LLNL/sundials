@@ -18,7 +18,7 @@
 Documentation Style
 *******************
 
-Style guide for RestructuredText with Sphinx. For the most part, we attempt
+Style guide for reStructuredText with Sphinx. For the most part, we attempt
 to follow the Python developer's guide commentary on documentation (where relevant):
 https://devguide.python.org/documenting/#style-guide.
 

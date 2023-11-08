@@ -30,7 +30,7 @@
  * ---------------------------------------------------------------------------*/
 
 #define ARK_RELAX_DEFAULT_MAX_FAILS   10
-#define ARK_RELAX_DEFAULT_RES_TOL     (4 * SUN_UNIT_ROUNDOFF)
+#define ARK_RELAX_DEFAULT_RES_TOL     (10 * SUN_UNIT_ROUNDOFF)
 #define ARK_RELAX_DEFAULT_REL_TOL     (4 * SUN_UNIT_ROUNDOFF)
 #define ARK_RELAX_DEFAULT_ABS_TOL     SUN_RCONST(1.0e-14)
 #define ARK_RELAX_DEFAULT_MAX_ITERS   10
@@ -42,16 +42,13 @@
  * Relaxation Private Return Values (see arkode/arkode.h for public values)
  * ---------------------------------------------------------------------------*/
 
-#define ARK_RELAX_FUNC_RECV  1;
-#define ARK_RELAX_JAC_RECV   2;
-#define ARK_RELAX_SOLVE_RECV 3;
+#define ARK_RELAX_FUNC_RECV  1
+#define ARK_RELAX_JAC_RECV   2
+#define ARK_RELAX_SOLVE_RECV 3
 
 /* -----------------------------------------------------------------------------
  * Stepper Supplied Relaxation Functions
  * ---------------------------------------------------------------------------*/
-
-/* Compute the change in state for the current step y_new = y_old + delta_y */
-typedef int (*ARKRelaxDeltaYFn)(ARKodeMem ark_mem, N_Vector delta_y);
 
 /* Compute the estimated change in entropy for this step delta_e */
 typedef int (*ARKRelaxDeltaEFn)(ARKodeMem ark_mem, ARKRelaxJacFn relax_jac_fn,
@@ -69,7 +66,6 @@ struct ARKodeRelaxMemRec
   /* user-supplied and stepper supplied functions */
   ARKRelaxFn relax_fn;             /* user relaxation function ("entropy") */
   ARKRelaxJacFn relax_jac_fn;      /* user relaxation Jacobian             */
-  ARKRelaxDeltaYFn delta_y_fn;     /* get delta y from stepper             */
   ARKRelaxDeltaEFn delta_e_fn;     /* get delta entropy from stepper       */
   ARKRelaxGetOrderFn get_order_fn; /* get the method order                 */
 
@@ -105,8 +101,7 @@ struct ARKodeRelaxMemRec
 
 /* Driver and Stepper Functions */
 int arkRelaxCreate(void* arkode_mem, ARKRelaxFn relax_fn,
-                   ARKRelaxJacFn relax_jac_fn, ARKRelaxDeltaYFn delta_y_fn,
-                   ARKRelaxDeltaEFn delta_e_fn,
+                   ARKRelaxJacFn relax_jac_fn, ARKRelaxDeltaEFn delta_e_fn,
                    ARKRelaxGetOrderFn get_order_fn);
 int arkRelaxDestroy(ARKodeRelaxMem relax_mem);
 int arkRelax(ARKodeMem ark_mem, int* relax_fails, sunrealtype* dsm_inout,

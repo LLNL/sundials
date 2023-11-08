@@ -183,6 +183,21 @@ requested output time is the same as the stop time. Additionally, this fix
 removes an unnecessary interpolation of the solution at the stop time that could
 occur in this case.
 
+Fixed a bug in ERKStep where methods with :math:`c_s = 1` but
+:math:`a_{s,j} \neq b_j` were incorrectly treated as having the first same as
+last (FSAL) property.
+
+Fixed a bug in :c:func:`MRIStepCoupling_Write` where explicit coupling tables
+were not written to the output file pointer.
+
+ARKStep, ERKStep, MRIStep, and SPRKStep were updated to remove a potentially
+unnecessary right-hand side evaluation at the end of an integration. ARKStep was
+additionally updated to remove extra right-hand side evaluations when using an
+explicit method or an implicit method with an explicit first stage.
+
+The :c:type:`MRIStepInnerStepper` class in MRIStep was updated to make supplying
+an :c:func:`MRIStepInnerFullRhsFn` optional.
+
 Changes in v5.6.0
 -----------------
 
