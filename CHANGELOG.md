@@ -69,6 +69,20 @@ the stop time. Additionally, with ARKODE, CVODE, and CVODES this fix removes an
 unnecessary interpolation of the solution at the stop time that could occur in
 this case.
 
+Fixed a bug in ERKStep where methods with `c[s-1] = 1` but `a[s-1,j] != b[j]`
+were incorrectly treated as having the first same as last (FSAL) property.
+
+Fixed a bug in `MRIStepCoupling_Write` where explicit coupling tables were not
+written to the output file pointer.
+
+ARKStep, ERKStep, MRIStep, and SPRKStep were updated to remove a potentially
+unnecessary right-hand side evaluation at the end of an integration. ARKStep was
+additionally updated to remove extra right-hand side evaluations when using an
+explicit method or an implicit method with an explicit first stage.
+
+The `MRIStepInnerStepper` class in MRIStep was updated to make supplying an
+`MRIStepInnerFullRhsFn` optional.
+
 ## Changes to SUNDIALS in release 6.6.0
 
 A new time-stepping module, `SPRKStep`, was added to ARKODE. This time-stepper

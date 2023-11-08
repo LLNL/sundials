@@ -466,39 +466,41 @@ than the more general form :eq:`ARKODE_IVP_simple_explicit`.
 SPRKStep -- Symplectic Partitioned Runge--Kutta methods
 =======================================================
 
-The SPRKStep time-stepping module in ARKODE is designed for IVPs of the form
+The SPRKStep time-stepping module in ARKODE is designed for problems where the
+state vector is partitioned as
 
 .. math::
-   \dot{p} = f_1(t, q) = \frac{\partial V(t, q)}{\partial q}, \quad
-   \dot{q} = f_2(t, p) = \frac{\partial T(t, p)}{\partial p},
-   \qquad p(t_0) = p_0,\quad q(t_0) = q_0,
-   :label: ARKODE_IVP_Hamiltonian
+   y(t) =
+   \begin{bmatrix}
+     p(t) \\
+     q(t)
+   \end{bmatrix}
 
-where the system Hamiltonian
+and the component partitioned IVP is given by
+
+.. math::
+   \dot{p} &= f_1(t, q), \qquad p(t_0) = p_0 \\
+   \dot{q} &= f_2(t, p), \qquad q(t_0) = q_0.
+   :label: ARKODE_IVP_SPRK
+
+The right-hand side functions :math:`f_1(t,p)` and :math:`f_2(t,q)` typically
+arise from the **separable** Hamiltonian system
 
 .. math::
    H(t, p, q) = T(t, p) + V(t, q)
 
-**is separable**. When *H* is autonomous, then *H* is a conserved quantity.
-Often this correponds to the conservation of energy (for example, in *n*-body
-problems). For non-autonomous *H*, the invariants are no longer directly
-obtainable from the Hamiltonian :cite:p:`Struckmeier:02`.
-
-In solving the IVP :eq:`ARKODE_IVP_Hamiltonian`, we consider the problem in the form
+where
 
 .. math::
-   \dot{y} =
-      \begin{bmatrix}
-         f_1(t, q) \\
-         f_2(t, p)
-      \end{bmatrix}, \qquad
-      y(t_0) =
-      \begin{bmatrix}
-         p_0\\
-         q_0
-      \end{bmatrix}.
+   f_1(t, q) \equiv \frac{\partial V(t, q)}{\partial q}, \qquad
+   f_2(t, p) \equiv \frac{\partial T(t, p)}{\partial p}.
 
-In practice, the ordering  of the variables does not matter and is determined by the user.
+When *H* is autonomous, then *H* is a conserved quantity. Often this corresponds
+to the conservation of energy (for example, in *n*-body problems). For
+non-autonomous *H*, the invariants are no longer directly obtainable from the
+Hamiltonian :cite:p:`Struckmeier:02`.
+
+In practice, the ordering of the variables does not matter and is determined by the user.
 SPRKStep utilizes Symplectic Partitioned Runge-Kutta (SPRK) methods represented by the pair
 of explicit and diagonally implicit Butcher tableaux,
 
@@ -529,17 +531,18 @@ schemes with order of accuracy and conservation equal to
 the default methods used are given in the section :numref:`Butcher.sprk`.
 
 In the default case, the algorithm for a single time-step is as follows
-(for autonomous Hamiltonian systems the times provided to :math:`f1` and :math:`f2`
+(for autonomous Hamiltonian systems the times provided to :math:`f_1` and
+:math:`f_2`
 can be ignored).
 
-#. Set :math:`P_0 = p_n, Q_1 = q_n`
+#. Set :math:`P_0 = p_{n-1}, Q_1 = q_{n-1}`
 
 #. For :math:`i = 1,\ldots,s` do:
 
-   #. :math:`P_i = P_{i-1} + h_{n+1} \hat{a}_i f_1(t_n + \hat{c}_i h, Q_i)`
-   #. :math:`Q_{i+1} = Q_i + h_{n+1} a_i f_2(t_n + c_i h, P_i)`
+   #. :math:`P_i = P_{i-1} + h_n \hat{a}_i f_1(t_{n-1} + \hat{c}_i h_n, Q_i)`
+   #. :math:`Q_{i+1} = Q_i + h_n a_i f_2(t_{n-1} + c_i h_n, P_i)`
 
-#. Set :math:`p_{n+1} = P_s, q_{n+1} = Q_{s+1}`
+#. Set :math:`p_n = P_s, q_n = Q_{s+1}`
 
 .. _ARKODE.Mathematics.SPRKStep.Compensated:
 
@@ -554,12 +557,12 @@ form is used to compute a time step:
 
 #. For :math:`i = 1,\ldots,s` do:
 
-   #. :math:`\Delta P_i = \Delta P_{i-1} + h_{n+1} \hat{a}_i f_1(t_n + \hat{c}_i h, q_n + \Delta Q_i)`
-   #. :math:`\Delta Q_{i+1} = \Delta Q_i + h_{n+1} a_i f_2(t_n + c_i h, p_n + \Delta P_i)`
+   #. :math:`\Delta P_i = \Delta P_{i-1} + h_n \hat{a}_i f_1(t_{n-1} + \hat{c}_i h_n, q_{n-1} + \Delta Q_i)`
+   #. :math:`\Delta Q_{i+1} = \Delta Q_i + h_n a_i f_2(t_{n-1} + c_i h_n, p_{n-1} + \Delta P_i)`
 
-#. Set :math:`\Delta p_{n+1} = \Delta P_s, \Delta q_{n+1} = \Delta Q_{s+1}`
+#. Set :math:`\Delta p_n = \Delta P_s, \Delta q_n = \Delta Q_{s+1}`
 
-#. Using compensated summation, set :math:`p_{n+1} = p_n + \Delta p_{n+1}, q_{n+1} = q_n + \Delta Q_{s+1}`
+#. Using compensated summation, set :math:`p_n = p_{n-1} + \Delta p_n, q_n = q_{n-1} + \Delta q_n`
 
 Since temporal error based adaptive time-stepping is known to ruin the
 conservation property :cite:p:`HaWa:06`,  SPRKStep employs a fixed time-step size.
@@ -706,7 +709,7 @@ characterized by nonzero values on or above the diagonal of the matrices
 :math:`\Gamma^{\{k\}}`. Typically, MRI-GARK and IMEX-MRI-GARK methods are at
 most diagonally-implicit (i.e., :math:`\gamma_{i,j}^{\{k\}}=0` for all
 :math:`j>i`). Furthermore, diagonally-implicit stages are characterized as being
-"solve-decoupled" if :math:`\Delta c_i^S = 0` when `\gamma_{i,i}^{\{k\}} \ne 0`,
+"solve-decoupled" if :math:`\Delta c_i^S = 0` when :math:`\gamma_{i,i}^{\{k\}} \ne 0`,
 in which case the stage is computed as standard ARK or DIRK update. Alternately,
 a diagonally-implicit stage :math:`i` is considered "solve-coupled" if
 :math:`\Delta c^S_i \gamma_{i,j}^{\{k\}} \ne 0`, in which

@@ -149,13 +149,14 @@ ARKodeMem arkCreate(SUNContext sunctx)
 
   /* Initialize the interpolation structure to NULL */
   ark_mem->interp = NULL;
+  ark_mem->interp_type = -1;
 
   /* Initially, rwt should point to ewt */
   ark_mem->rwt_is_ewt = SUNTRUE;
 
-  /* Indicate that evaluation of the full RHS is not required after each step,
-     this flag is updated to SUNTRUE by the interpolation module initialization
-     function and/or the stepper initialization function in arkInitialSetup */
+  /* Indicate that calling the full RHS function is not required, this flag is
+     updated to SUNTRUE by the interpolation module initialization function
+     and/or the stepper initialization function in arkInitialSetup */
   ark_mem->call_fullrhs = SUNFALSE;
 
   /* Indicate that the problem needs to be initialized */
@@ -300,6 +301,7 @@ int arkResize(ARKodeMem ark_mem, N_Vector y0, realtype hscale,
 
   /* Copy y0 into ark_yn to set the current solution */
   N_VScale(ONE, y0, ark_mem->yn);
+  ark_mem->fn_is_current = SUNFALSE;
 
   /* Disable constraints */
   ark_mem->constraintsSet = SUNFALSE;
@@ -866,11 +868,11 @@ int arkEvolve(ARKodeMem ark_mem, realtype tout, N_Vector yout,
            >0 => step encountered recoverable failure; reduce step if possible
            <0 => step encountered unrecoverable failure */
       kflag = ark_mem->step((void*) ark_mem, &dsm, &nflag);
-      if (kflag < 0)  break;
+      if (kflag < 0) break;
 
       /* handle solver convergence failures */
       kflag = arkCheckConvergence(ark_mem, &nflag, &ncf);
-      if (kflag < 0)  break;
+      if (kflag < 0) break;
 
       /* Perform relaxation:
            - computes relaxation parameter
@@ -986,7 +988,14 @@ int arkEvolve(ARKodeMem ark_mem, realtype tout, N_Vector yout,
             SUNRabs(tout - ark_mem->tstop) <= troundoff)
         {
           if (ark_mem->tstopinterp) {
-            (void) arkGetDky(ark_mem, ark_mem->tstop, 0, yout);
+            retval = arkGetDky(ark_mem, ark_mem->tstop, 0, yout);
+            if (retval != ARK_SUCCESS)
+            {
+              arkProcessError(ark_mem, retval, "ARKODE", "arkEvolve",
+                              MSG_ARK_INTERPOLATION_FAIL, ark_mem->tstop);
+              istate = retval;
+              break;
+            }
           } else {
             N_VScale(ONE, ark_mem->yn, yout);
           }
@@ -1007,11 +1016,19 @@ int arkEvolve(ARKodeMem ark_mem, realtype tout, N_Vector yout,
 
     /* In NORMAL mode, check if tout reached */
     if ( (itask == ARK_NORMAL) &&
-         (ark_mem->tcur-tout)*ark_mem->h >= ZERO ) {
-      istate = ARK_SUCCESS;
+         (ark_mem->tcur-tout)*ark_mem->h >= ZERO )
+    {
+      retval = arkGetDky(ark_mem, tout, 0, yout);
+      if (retval != ARK_SUCCESS)
+      {
+        arkProcessError(ark_mem, retval, "ARKODE", "arkEvolve",
+                        MSG_ARK_INTERPOLATION_FAIL, tout);
+        istate = retval;
+        break;
+      }
       ark_mem->tretlast = *tret = tout;
-      (void) arkGetDky(ark_mem, tout, 0, yout);
       ark_mem->next_h = ark_mem->hprime;
+      istate = ARK_SUCCESS;
       break;
     }
 
@@ -1129,6 +1146,7 @@ void arkFree(void **arkode_mem)
   if (ark_mem->interp != NULL) {
     arkInterpFree(ark_mem, ark_mem->interp);
     ark_mem->interp = NULL;
+    ark_mem->interp_type = -1;
   }
 
   /* free the root-finding module */
@@ -1317,11 +1335,15 @@ int arkInit(ARKodeMem ark_mem, realtype t0, N_Vector y0,
     }
 
     /* Create default Hermite interpolation module */
-    ark_mem->interp = arkInterpCreate_Hermite(ark_mem, ARK_INTERP_MAX_DEGREE);
-    if (ark_mem->interp == NULL) {
-      arkProcessError(ark_mem, ARK_MEM_FAIL, "ARKODE", "arkInit",
-                      "Unable to allocate interpolation module");
-      return(ARK_MEM_FAIL);
+    if (!(ark_mem->interp))
+    {
+      ark_mem->interp = arkInterpCreate_Hermite(ark_mem, ARK_INTERP_MAX_DEGREE);
+      if (ark_mem->interp == NULL) {
+        arkProcessError(ark_mem, ARK_MEM_FAIL, "ARKODE", "arkInit",
+                        "Unable to allocate interpolation module");
+        return(ARK_MEM_FAIL);
+      }
+      ark_mem->interp_type = ARK_INTERP_HERMITE;
     }
 
     /* All allocations are complete */
@@ -1337,6 +1359,7 @@ int arkInit(ARKodeMem ark_mem, realtype t0, N_Vector y0,
 
   /* Initialize yn */
   N_VScale(ONE, y0, ark_mem->yn);
+  ark_mem->fn_is_current = SUNFALSE;
 
   /* Clear any previous 'tstop' */
   ark_mem->tstopset = SUNFALSE;
@@ -1373,9 +1396,9 @@ int arkInit(ARKodeMem ark_mem, realtype t0, N_Vector y0,
     ark_mem->hadapt_mem->nst_exp = 0;
 
 
-    /* Indicate that evaluation of the full RHS is not required after each step,
-       this flag is updated to SUNTRUE by the interpolation module initialization
-       function and/or the stepper initialization function in arkInitialSetup */
+    /* Indicate that calling the full RHS function is not required, this flag is
+       updated to SUNTRUE by the interpolation module initialization function
+       and/or the stepper initialization function in arkInitialSetup */
     ark_mem->call_fullrhs = SUNFALSE;
 
     /* Indicate that initialization has not been done before */
@@ -1505,8 +1528,7 @@ booleantype arkCheckTimestepper(ARKodeMem ark_mem)
 {
   if ( (ark_mem->step_init    == NULL) ||
        (ark_mem->step         == NULL) ||
-       (ark_mem->step_mem     == NULL) ||
-       (ark_mem->step_fullrhs == NULL) )
+       (ark_mem->step_mem     == NULL) )
     return(SUNFALSE);
   return(SUNTRUE);
 }
@@ -1710,10 +1732,6 @@ booleantype arkAllocVectors(ARKodeMem ark_mem, N_Vector tmpl)
 
   /* Allocate yn if needed */
   if (!arkAllocVec(ark_mem, tmpl, &ark_mem->yn))
-    return(SUNFALSE);
-
-  /* Allocate fn if needed */
-  if (!arkAllocVec(ark_mem, tmpl, &ark_mem->fn))
     return(SUNFALSE);
 
   /* Allocate tempv1 if needed */
@@ -1936,20 +1954,31 @@ int arkInitialSetup(ARKodeMem ark_mem, realtype tout)
     }
   }
 
-  /* If necessary, temporarily set h as it is used to compute the tolerance in a
-     potential mass matrix solve when computing the full rhs */
-  if (ark_mem->h == ZERO) ark_mem->h = ONE;
-
-  /* Call fullrhs (used in estimating initial step, explicit steppers, Hermite
-     interpolation module, and possibly (but not always) arkRootCheck1) */
-  retval = ark_mem->step_fullrhs(ark_mem, ark_mem->tcur, ark_mem->yn,
-                                 ark_mem->fn, ARK_FULLRHS_START);
-  if (retval != 0) return(ARK_RHSFUNC_FAIL);
-
   /* Fill initial interpolation data (if needed) */
   if (ark_mem->interp != NULL) {
     retval = arkInterpInit(ark_mem, ark_mem->interp, ark_mem->tcur);
     if (retval != 0)  return(retval);
+  }
+
+  /* If fullrhs will be called (to estimate initial step, explicit steppers, Hermite
+     interpolation module, and possibly (but not always) arkRootCheck1), then
+     ensure that it is provided, and space is allocated for fn. */
+  if (ark_mem->call_fullrhs || (ark_mem->h0u == ZERO && ark_mem->hin == ZERO)
+      || ark_mem->root_mem)
+  {
+    if (!ark_mem->step_fullrhs)
+    {
+      arkProcessError(ark_mem, ARK_ILL_INPUT, "ARKODE",
+                      "arkInitialSetup", MSG_ARK_MISSING_FULLRHS);
+      return ARK_ILL_INPUT;
+    }
+
+    if (!arkAllocVec(ark_mem, ark_mem->yn, &ark_mem->fn))
+    {
+      arkProcessError(ark_mem, ARK_MEM_FAIL, "ARKODE",
+                      "arkInitialSetup", MSG_ARK_MEM_FAIL);
+      return(ARK_MEM_FAIL);
+    }
   }
 
   /* initialization complete */
@@ -2067,11 +2096,11 @@ int arkStopTests(ARKodeMem ark_mem, realtype tout, N_Vector yout,
       /* Shortcut to roots found in previous step */
       irfndp = ark_mem->root_mem->irfnd;
 
-      /* If the full rhs was not computed in the last call to arkCompleteStep
+      /* If the full RHS was not computed in the last call to arkCompleteStep
          and roots were found in the previous step, then compute the full rhs
          for possible use in arkRootCheck2 (not always necessary) */
-      if (!(ark_mem->call_fullrhs) && irfndp != 0) {
-        retval = ark_mem->step_fullrhs(ark_mem, ark_mem->tcur, ark_mem->yn,
+      if (!(ark_mem->fn_is_current) && irfndp != 0) {
+        retval = ark_mem->step_fullrhs(ark_mem, ark_mem->tn, ark_mem->yn,
                                        ark_mem->fn, ARK_FULLRHS_END);
         if (retval != 0) {
           arkProcessError(ark_mem, ARK_RHSFUNC_FAIL, "ARKODE", "arkStopTests",
@@ -2079,6 +2108,7 @@ int arkStopTests(ARKodeMem ark_mem, realtype tout, N_Vector yout,
           *ier = ARK_RHSFUNC_FAIL;
           return(1);
         }
+        ark_mem->fn_is_current = SUNTRUE;
       }
 
       retval = arkRootCheck2((void*) ark_mem);
@@ -2248,6 +2278,19 @@ int arkHin(ARKodeMem ark_mem, realtype tout)
 
   if (tdist < TWO*tround) return(ARK_TOO_CLOSE);
 
+  /* call full RHS if needed */
+  if (!(ark_mem->fn_is_current))
+  {
+    /* NOTE: The step size (h) is used in setting the tolerance in a potential
+       mass matrix solve when computing the full RHS. Before calling arkHin, h
+       is set to |tout - tcur| or 1 and so we do not need to guard against
+       h == 0 here before calling the full RHS. */
+    retval = ark_mem->step_fullrhs(ark_mem, ark_mem->tn, ark_mem->yn,
+                                   ark_mem->fn, ARK_FULLRHS_START);
+    if (retval) { return ARK_RHSFUNC_FAIL; }
+    ark_mem->fn_is_current = SUNTRUE;
+  }
+
   /* Set lower and upper bounds on h0, and take geometric mean
      as first trial value.
      Exit with this value if the bounds cross each other. */
@@ -2414,7 +2457,7 @@ int arkYddNorm(ARKodeMem ark_mem, realtype hg, realtype *yddnrm)
   ---------------------------------------------------------------*/
 int arkCompleteStep(ARKodeMem ark_mem, realtype dsm)
 {
-  int retval, mode;
+  int retval;
   realtype troundoff;
 
   /* Set current time to the end of the step (in case the last
@@ -2453,22 +2496,18 @@ int arkCompleteStep(ARKodeMem ark_mem, realtype dsm)
     if (retval != 0) return(ARK_POSTPROCESS_STEP_FAIL);
   }
 
-  /* update interpolation structure */
+  /* update interpolation structure
+
+     NOTE: This must be called before updating yn with ycur as the interpolation
+     module may need to save tn, yn from the start of this step */
   if (ark_mem->interp != NULL) {
     retval = arkInterpUpdate(ark_mem, ark_mem->interp, ark_mem->tcur);
     if (retval != ARK_SUCCESS)  return(retval);
   }
 
-  /* call fullrhs if needed */
-  if (ark_mem->call_fullrhs) {
-    mode = (ark_mem->ProcessStep != NULL) ? ARK_FULLRHS_START : ARK_FULLRHS_END;
-    retval = ark_mem->step_fullrhs(ark_mem, ark_mem->tcur, ark_mem->ycur,
-                                   ark_mem->fn, mode);
-    if (retval != 0) return(ARK_RHSFUNC_FAIL);
-  }
-
   /* update yn to current solution */
   N_VScale(ONE, ark_mem->ycur, ark_mem->yn);
+  ark_mem->fn_is_current = SUNFALSE;
 
   /* Notify time step controller object of successful step */
   retval = SUNAdaptController_UpdateH(ark_mem->hadapt_mem->hcontroller, ark_mem->h, dsm);

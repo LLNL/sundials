@@ -20,4 +20,4 @@ One way coupling ODE test problem:
 
 Final Solver Statistics:
    Steps: nsts = 1000, nstf = 12000
-   Total RHS evals:  Fs = 3001,  Ff = 49002
+   Total RHS evals:  Fs = 3001,  Ff = 36010

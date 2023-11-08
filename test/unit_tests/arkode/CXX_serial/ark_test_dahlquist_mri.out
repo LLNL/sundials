@@ -13,36 +13,17 @@ Test explicit MRI methods
 =========================
 
 Testing method 0
-  Stored stages = 5
+  nmat = 1
+  stages = 4
+  method order (q) = 3
+  embedding order (p) = 0
+  c = 0  0.3333333333333333  0.75  1  
+  W[0] = 
+                            0                        0                        0                        0  
+           0.3333333333333333                        0                        0                        0  
+          -0.5208333333333333                   0.9375                        0                        0  
+           0.3541666666666666                  -0.6375       0.5333333333333333                        0  
 
-MRIStep Statistics:
-   Time        = 0.01
-   y(t)        = 0.980199
-   y_n         = 0.980199
-   Error       = -5.31519e-12
-   Steps       = 1
-   Fe evals    = 6
-   Fi evals    = 0
-
-Comparing Solver Statistics:
-All checks passed
-
-Testing method 1
-  Stored stages = 3
-
-MRIStep Statistics:
-   Time        = 0.01
-   y(t)        = 0.980199
-   y_n         = 0.980199
-   Error       = 1.7757e-09
-   Steps       = 1
-   Fe evals    = 4
-   Fi evals    = 0
-
-Comparing Solver Statistics:
-All checks passed
-
-Testing method 2
   Stored stages = 3
 
 MRIStep Statistics:
@@ -51,7 +32,75 @@ MRIStep Statistics:
    y_n         = 0.980199
    Error       = 1.86014e-09
    Steps       = 1
-   Fe evals    = 4
+   Fe evals    = 3
+   Fi evals    = 0
+
+Comparing Solver Statistics:
+All checks passed
+
+Testing method 1
+  nmat = 2
+  stages = 4
+  method order (q) = 3
+  embedding order (p) = 0
+  c = 0  0.3333333333333333  0.6666666666666666  1  
+  W[0] = 
+                            0                        0                        0                        0  
+           0.3333333333333333                        0                        0                        0  
+          -0.3333333333333333       0.6666666666666666                        0                        0  
+                            0      -0.6666666666666666                        1                        0  
+
+  W[1] = 
+                            0                        0                        0                        0  
+                            0                        0                        0                        0  
+                            0                        0                        0                        0  
+                          0.5                        0                     -0.5                        0  
+
+  Stored stages = 3
+
+MRIStep Statistics:
+   Time        = 0.01
+   y(t)        = 0.980199
+   y_n         = 0.980199
+   Error       = 1.7757e-09
+   Steps       = 1
+   Fe evals    = 3
+   Fi evals    = 0
+
+Comparing Solver Statistics:
+All checks passed
+
+Testing method 2
+  nmat = 2
+  stages = 6
+  method order (q) = 4
+  embedding order (p) = 0
+  c = 0  0.2  0.4  0.6  0.8  1  
+  W[0] = 
+                            0                        0                        0                        0                        0                        0  
+                          0.2                        0                        0                        0                        0                        0  
+                      -3.3125                   3.5125                        0                        0                        0                        0  
+          -0.5121234603937985        1.955496920787597       -1.243373460393798                        0                        0                        0  
+          -0.1068927211587161       -4.656693056981116        3.994968532757531       0.9686172453823019                        0                        0  
+            0.911960843690752      -0.1837327083772207       -1.193926866090864       -2.611983006811319        3.277681737588653                        0  
+
+  W[1] = 
+                            0                        0                        0                        0                        0                        0  
+                            0                        0                        0                        0                        0                        0  
+                       6.2875                  -6.2875                        0                        0                        0                        0  
+          -0.0382530792124029       0.6952561584248058      -0.6570030792124029                        0                        0                        0  
+             1.87616694642529        3.003768197383342                       -3       -1.879935143808632                        0                        0  
+           -2.423803191489362                        2                        1                        5       -5.576196808510638                        0  
+
+  Stored stages = 5
+
+MRIStep Statistics:
+   Time        = 0.01
+   y(t)        = 0.980199
+   y_n         = 0.980199
+   Error       = -5.3153e-12
+   Steps       = 1
+   Fe evals    = 5
    Fi evals    = 0
 
 Comparing Solver Statistics:
@@ -62,6 +111,70 @@ Test implicit MRI methods
 =========================
 
 Testing method 0
+  nmat = 1
+  stages = 3
+  method order (q) = 2
+  embedding order (p) = 0
+  c = 0  1  1  
+  G[0] = 
+                            0                        0                        0  
+                            1                        0                        0  
+                         -0.5                        0                      0.5  
+
+  Stored stages = 2
+
+MRIStep Statistics:
+   Time        = 0.01
+   y(t)        = 0.980199
+   y_n         = 0.980199
+   Error       = -8.22598e-10
+   Steps       = 1
+   Fe evals    = 0
+   Fi evals    = 2
+   NLS iters   = 1
+   NLS fails   = 0
+   LS setups   = 1
+   LS Fi evals = 0
+   Ji evals    = 1
+
+Comparing Solver Statistics:
+All checks passed
+
+Testing method 1
+  nmat = 1
+  stages = 7
+  method order (q) = 3
+  embedding order (p) = 0
+  c = 0  0.3333333333333333  0.3333333333333333  0.6666666666666666  0.6666666666666666  1  1  
+  G[0] = 
+                            0                        0                        0                        0                        0                        0                        0  
+           0.3333333333333333                        0                        0                        0                        0                        0                        0  
+           -0.435866521508459                        0        0.435866521508459                        0                        0                        0                        0  
+          -0.3045790611944505                        0       0.6379123945277838                        0                        0                        0                        0  
+           0.2116913105640267                        0      -0.6475578320724856                        0        0.435866521508459                        0                        0  
+           0.4454209388055495                        0       0.8813784805616198                        0       -0.993466086033836                        0                        0  
+           -0.435866521508459                        0                        0                        0                        0                        0        0.435866521508459  
+
+  Stored stages = 4
+
+MRIStep Statistics:
+   Time        = 0.01
+   y(t)        = 0.980199
+   y_n         = 0.980199
+   Error       = 1.40689e-10
+   Steps       = 1
+   Fe evals    = 0
+   Fi evals    = 6
+   NLS iters   = 3
+   NLS fails   = 0
+   LS setups   = 1
+   LS Fi evals = 0
+   Ji evals    = 1
+
+Comparing Solver Statistics:
+All checks passed
+
+Testing method 2
   nmat = 2
   stages = 11
   method order (q) = 4
@@ -99,75 +212,11 @@ MRIStep Statistics:
    Time        = 0.01
    y(t)        = 0.980199
    y_n         = 0.980199
-   Error       = 1.36091e-12
+   Error       = 1.36036e-12
    Steps       = 1
    Fe evals    = 0
-   Fi evals    = 11
+   Fi evals    = 10
    NLS iters   = 5
-   NLS fails   = 0
-   LS setups   = 1
-   LS Fi evals = 0
-   Ji evals    = 1
-
-Comparing Solver Statistics:
-All checks passed
-
-Testing method 1
-  nmat = 1
-  stages = 7
-  method order (q) = 3
-  embedding order (p) = 0
-  c = 0  0.3333333333333333  0.3333333333333333  0.6666666666666666  0.6666666666666666  1  1  
-  G[0] = 
-                            0                        0                        0                        0                        0                        0                        0  
-           0.3333333333333333                        0                        0                        0                        0                        0                        0  
-           -0.435866521508459                        0        0.435866521508459                        0                        0                        0                        0  
-          -0.3045790611944505                        0       0.6379123945277838                        0                        0                        0                        0  
-           0.2116913105640267                        0      -0.6475578320724856                        0        0.435866521508459                        0                        0  
-           0.4454209388055495                        0       0.8813784805616198                        0       -0.993466086033836                        0                        0  
-           -0.435866521508459                        0                        0                        0                        0                        0        0.435866521508459  
-
-  Stored stages = 4
-
-MRIStep Statistics:
-   Time        = 0.01
-   y(t)        = 0.980199
-   y_n         = 0.980199
-   Error       = 1.40689e-10
-   Steps       = 1
-   Fe evals    = 0
-   Fi evals    = 7
-   NLS iters   = 3
-   NLS fails   = 0
-   LS setups   = 1
-   LS Fi evals = 0
-   Ji evals    = 1
-
-Comparing Solver Statistics:
-All checks passed
-
-Testing method 2
-  nmat = 1
-  stages = 3
-  method order (q) = 2
-  embedding order (p) = 0
-  c = 0  1  1  
-  G[0] = 
-                            0                        0                        0  
-                            1                        0                        0  
-                         -0.5                        0                      0.5  
-
-  Stored stages = 2
-
-MRIStep Statistics:
-   Time        = 0.01
-   y(t)        = 0.980199
-   y_n         = 0.980199
-   Error       = -8.22598e-10
-   Steps       = 1
-   Fe evals    = 0
-   Fi evals    = 3
-   NLS iters   = 1
    NLS fails   = 0
    LS setups   = 1
    LS Fi evals = 0
@@ -181,6 +230,96 @@ Test IMEX MRI methods
 =====================
 
 Testing method 0
+  nmat = 1
+  stages = 8
+  method order (q) = 3
+  embedding order (p) = 0
+  c = 0  0.435866521508459  0.435866521508459  0.7179332607542295  0.7179332607542295  1  1  1  
+  W[0] = 
+                            0                        0                        0                        0                        0                        0                        0                        0  
+            0.435866521508459                        0                        0                        0                        0                        0                        0                        0  
+                            0                        0                        0                        0                        0                        0                        0                        0  
+          -0.5688715801234401                        0       0.8509383193692106                        0                        0                        0                        0                        0  
+           0.4542839446436089                        0      -0.4542839446436089                        0                        0                        0                        0                        0  
+          -0.4271371821005074                        0       0.1562747733103381                        0       0.5529291480359398                        0                        0                        0  
+                            0                        0                        0                        0                        0                        0                        0                        0  
+           0.1058582960718796                        0       0.6555675011400702                        0       -1.197292318720409                        0        0.435866521508459                        0  
+
+  G[0] = 
+                            0                        0                        0                        0                        0                        0                        0                        0  
+            0.435866521508459                        0                        0                        0                        0                        0                        0                        0  
+           -0.435866521508459                        0        0.435866521508459                        0                        0                        0                        0                        0  
+          -0.4103336962288525                        0        0.692400435474623                        0                        0                        0                        0                        0  
+           0.4103336962288525                        0      -0.8462002177373115                        0        0.435866521508459                        0                        0                        0  
+            0.435866521508459                        0       0.9264299099302395                        0       -1.080229692192928                        0                        0                        0  
+           -0.435866521508459                        0                        0                        0                        0                        0        0.435866521508459                        0  
+                            0                        0                        0                        0                        0                        0                        0                        0  
+
+  Stored stages = 4
+
+MRIStep Statistics:
+   Time        = 0.01
+   y(t)        = 0.970446
+   y_n         = 0.970446
+   Error       = 2.79396e-10
+   Steps       = 1
+   Fe evals    = 4
+   Fi evals    = 7
+   NLS iters   = 3
+   NLS fails   = 0
+   LS setups   = 1
+   LS Fi evals = 0
+   Ji evals    = 1
+
+Comparing Solver Statistics:
+All checks passed
+
+Testing method 1
+  nmat = 1
+  stages = 8
+  method order (q) = 3
+  embedding order (p) = 0
+  c = 0  0.435866521508459  0.435866521508459  0.7179332607542295  0.7179332607542295  1  1  1  
+  W[0] = 
+                            0                        0                        0                        0                        0                        0                        0                        0  
+            0.435866521508459                        0                        0                        0                        0                        0                        0                        0  
+                            0                        0                        0                        0                        0                        0                        0                        0  
+          -0.1750145285570468                        0       0.4570812678028173                        0                        0                        0                        0                        0  
+          0.06042689307721552                        0     -0.06042689307721552                        0                        0                        0                        0                        0  
+           0.1195213959425454                        0       -1.843725226689662                        0        2.006270569992887                        0                        0                        0  
+          -0.5466585780430528                        0                        2                        0       -1.453341421956947                        0                        0                        0  
+           0.1058582960718796                        0       0.6555675011400702                        0       -1.197292318720409                        0        0.435866521508459                        0  
+
+  G[0] = 
+                            0                        0                        0                        0                        0                        0                        0                        0  
+            0.435866521508459                        0                        0                        0                        0                        0                        0                        0  
+           -0.435866521508459                        0        0.435866521508459                        0                        0                        0                        0                        0  
+          0.04142737535644148                        0        0.240639363889329                        0                        0                        0                        0                        0  
+         -0.04142737535644148                        0      -0.3944391461520175                        0        0.435866521508459                        0                        0                        0  
+           0.1123373143006048                        0        1.051807513648115                        0      -0.8820780887029493                        0                        0                        0  
+          -0.1123373143006048                        0      -0.1253776037178755                        0      -0.1981516034899788                        0        0.435866521508459                        0  
+                            0                        0                        0                        0                        0                        0                        0                        0  
+
+  Stored stages = 4
+
+MRIStep Statistics:
+   Time        = 0.01
+   y(t)        = 0.970446
+   y_n         = 0.970446
+   Error       = -3.9875e-09
+   Steps       = 1
+   Fe evals    = 4
+   Fi evals    = 7
+   NLS iters   = 3
+   NLS fails   = 0
+   LS setups   = 1
+   LS Fi evals = 0
+   Ji evals    = 1
+
+Comparing Solver Statistics:
+All checks passed
+
+Testing method 2
   nmat = 2
   stages = 12
   method order (q) = 4
@@ -248,101 +387,11 @@ MRIStep Statistics:
    Time        = 0.01
    y(t)        = 0.970446
    y_n         = 0.970446
-   Error       = -2.09771e-11
+   Error       = -2.09769e-11
    Steps       = 1
-   Fe evals    = 7
-   Fi evals    = 12
+   Fe evals    = 6
+   Fi evals    = 11
    NLS iters   = 5
-   NLS fails   = 0
-   LS setups   = 1
-   LS Fi evals = 0
-   Ji evals    = 1
-
-Comparing Solver Statistics:
-All checks passed
-
-Testing method 1
-  nmat = 1
-  stages = 8
-  method order (q) = 3
-  embedding order (p) = 0
-  c = 0  0.435866521508459  0.435866521508459  0.7179332607542295  0.7179332607542295  1  1  1  
-  W[0] = 
-                            0                        0                        0                        0                        0                        0                        0                        0  
-            0.435866521508459                        0                        0                        0                        0                        0                        0                        0  
-                            0                        0                        0                        0                        0                        0                        0                        0  
-          -0.1750145285570468                        0       0.4570812678028173                        0                        0                        0                        0                        0  
-          0.06042689307721552                        0     -0.06042689307721552                        0                        0                        0                        0                        0  
-           0.1195213959425454                        0       -1.843725226689662                        0        2.006270569992887                        0                        0                        0  
-          -0.5466585780430528                        0                        2                        0       -1.453341421956947                        0                        0                        0  
-           0.1058582960718796                        0       0.6555675011400702                        0       -1.197292318720409                        0        0.435866521508459                        0  
-
-  G[0] = 
-                            0                        0                        0                        0                        0                        0                        0                        0  
-            0.435866521508459                        0                        0                        0                        0                        0                        0                        0  
-           -0.435866521508459                        0        0.435866521508459                        0                        0                        0                        0                        0  
-          0.04142737535644148                        0        0.240639363889329                        0                        0                        0                        0                        0  
-         -0.04142737535644148                        0      -0.3944391461520175                        0        0.435866521508459                        0                        0                        0  
-           0.1123373143006048                        0        1.051807513648115                        0      -0.8820780887029493                        0                        0                        0  
-          -0.1123373143006048                        0      -0.1253776037178755                        0      -0.1981516034899788                        0        0.435866521508459                        0  
-                            0                        0                        0                        0                        0                        0                        0                        0  
-
-  Stored stages = 4
-
-MRIStep Statistics:
-   Time        = 0.01
-   y(t)        = 0.970446
-   y_n         = 0.970446
-   Error       = -3.9875e-09
-   Steps       = 1
-   Fe evals    = 5
-   Fi evals    = 8
-   NLS iters   = 3
-   NLS fails   = 0
-   LS setups   = 1
-   LS Fi evals = 0
-   Ji evals    = 1
-
-Comparing Solver Statistics:
-All checks passed
-
-Testing method 2
-  nmat = 1
-  stages = 8
-  method order (q) = 3
-  embedding order (p) = 0
-  c = 0  0.435866521508459  0.435866521508459  0.7179332607542295  0.7179332607542295  1  1  1  
-  W[0] = 
-                            0                        0                        0                        0                        0                        0                        0                        0  
-            0.435866521508459                        0                        0                        0                        0                        0                        0                        0  
-                            0                        0                        0                        0                        0                        0                        0                        0  
-          -0.5688715801234401                        0       0.8509383193692106                        0                        0                        0                        0                        0  
-           0.4542839446436089                        0      -0.4542839446436089                        0                        0                        0                        0                        0  
-          -0.4271371821005074                        0       0.1562747733103381                        0       0.5529291480359398                        0                        0                        0  
-                            0                        0                        0                        0                        0                        0                        0                        0  
-           0.1058582960718796                        0       0.6555675011400702                        0       -1.197292318720409                        0        0.435866521508459                        0  
-
-  G[0] = 
-                            0                        0                        0                        0                        0                        0                        0                        0  
-            0.435866521508459                        0                        0                        0                        0                        0                        0                        0  
-           -0.435866521508459                        0        0.435866521508459                        0                        0                        0                        0                        0  
-          -0.4103336962288525                        0        0.692400435474623                        0                        0                        0                        0                        0  
-           0.4103336962288525                        0      -0.8462002177373115                        0        0.435866521508459                        0                        0                        0  
-            0.435866521508459                        0       0.9264299099302395                        0       -1.080229692192928                        0                        0                        0  
-           -0.435866521508459                        0                        0                        0                        0                        0        0.435866521508459                        0  
-                            0                        0                        0                        0                        0                        0                        0                        0  
-
-  Stored stages = 4
-
-MRIStep Statistics:
-   Time        = 0.01
-   y(t)        = 0.970446
-   y_n         = 0.970446
-   Error       = 2.79396e-10
-   Steps       = 1
-   Fe evals    = 5
-   Fi evals    = 8
-   NLS iters   = 3
    NLS fails   = 0
    LS setups   = 1
    LS Fi evals = 0

@@ -700,7 +700,7 @@ static int InitUserData(UserData *udata)
   udata->pcg       = true;       // use PCG (true) or GMRES (false)
   udata->prec      = true;       // enable preconditioning
   udata->lsinfo    = false;      // output residual history
-  udata->liniters  = 20;         // max linear iterations
+  udata->liniters  = 40;         // max linear iterations
   udata->msbp      = 0;          // use default (20 steps)
   udata->epslin    = ZERO;       // use default (0.05)
 

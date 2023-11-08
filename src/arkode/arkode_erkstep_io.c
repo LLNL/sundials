@@ -158,8 +158,8 @@ char *ERKStepGetReturnFlagName(long int flag) {
 
 int ERKStepSetRelaxFn(void* arkode_mem, ARKRelaxFn rfn, ARKRelaxJacFn rjac)
 {
-  return arkRelaxCreate(arkode_mem, rfn, rjac, erkStep_RelaxDeltaY,
-                        erkStep_RelaxDeltaE, erkStep_GetOrder);
+  return arkRelaxCreate(arkode_mem, rfn, rjac, erkStep_RelaxDeltaE,
+                        erkStep_GetOrder);
 }
 
 int ERKStepSetRelaxEtaFail(void* arkode_mem, sunrealtype eta_rf)

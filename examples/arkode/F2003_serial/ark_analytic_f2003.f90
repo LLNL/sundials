@@ -195,6 +195,12 @@ program main
      stop 1
   end if
 
+  ierr = FARKStepSetNonlinConvCoef(arkode_mem, 0.01d0)
+  if (ierr /= 0) then
+     write(*,*) 'Error in FARKStepSetNonlinConvCoef, ierr = ', ierr, '; halting'
+     stop 1
+  end if
+
   ! Start time stepping
   print *, '   '
   print *, 'Finished initialization, starting time steps'
