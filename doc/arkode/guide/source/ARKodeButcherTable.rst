@@ -76,33 +76,35 @@ ARKodeButcherTable functions
 .. _ARKodeButcherTable.FunctionsTable:
 .. table:: ARKodeButcherTable functions
 
-   +----------------------------------------------+------------------------------------------------------------+
-   | **Function name**                            | **Description**                                            |
-   +----------------------------------------------+------------------------------------------------------------+
-   | :c:func:`ARKodeButcherTable_LoadERK()`       | Retrieve a given explicit Butcher table by its unique ID   |
-   +----------------------------------------------+------------------------------------------------------------+
-   | :c:func:`ARKodeButcherTable_LoadERKByName()` | Retrieve a given explicit Butcher table by its unique name |
-   +----------------------------------------------+------------------------------------------------------------+
-   | :c:func:`ARKodeButcherTable_LoadDIRK()`      | Retrieve a given implicit Butcher table by its unique ID   |
-   +----------------------------------------------+------------------------------------------------------------+
-   | :c:func:`ARKodeButcherTable_LoadDIRKByName()`| Retrieve a given implicit Butcher table by its unique name |
-   +----------------------------------------------+------------------------------------------------------------+
-   | :c:func:`ARKodeButcherTable_Alloc()`         | Allocate an empty Butcher table                            |
-   +----------------------------------------------+------------------------------------------------------------+
-   | :c:func:`ARKodeButcherTable_Create()`        | Create a new Butcher table                                 |
-   +----------------------------------------------+------------------------------------------------------------+
-   | :c:func:`ARKodeButcherTable_Copy()`          | Create a copy of a Butcher table                           |
-   +----------------------------------------------+------------------------------------------------------------+
-   | :c:func:`ARKodeButcherTable_Space()`         | Get the Butcher table real and integer workspace size      |
-   +----------------------------------------------+------------------------------------------------------------+
-   | :c:func:`ARKodeButcherTable_Free()`          | Deallocate a Butcher table                                 |
-   +----------------------------------------------+------------------------------------------------------------+
-   | :c:func:`ARKodeButcherTable_Write()`         | Write the Butcher table to an output file                  |
-   +----------------------------------------------+------------------------------------------------------------+
-   | :c:func:`ARKodeButcherTable_CheckOrder()`    | Check the order of a Butcher table                         |
-   +----------------------------------------------+------------------------------------------------------------+
-   | :c:func:`ARKodeButcherTable_CheckARKOrder()` | Check the order of an ARK pair of Butcher tables           |
-   +----------------------------------------------+------------------------------------------------------------+
+   +--------------------------------------------------+------------------------------------------------------------+
+   | **Function name**                                | **Description**                                            |
+   +--------------------------------------------------+------------------------------------------------------------+
+   | :c:func:`ARKodeButcherTable_LoadERK()`           | Retrieve a given explicit Butcher table by its unique ID   |
+   +--------------------------------------------------+------------------------------------------------------------+
+   | :c:func:`ARKodeButcherTable_LoadERKByName()`     | Retrieve a given explicit Butcher table by its unique name |
+   +--------------------------------------------------+------------------------------------------------------------+
+   | :c:func:`ARKodeButcherTable_LoadDIRK()`          | Retrieve a given implicit Butcher table by its unique ID   |
+   +--------------------------------------------------+------------------------------------------------------------+
+   | :c:func:`ARKodeButcherTable_LoadDIRKByName()`    | Retrieve a given implicit Butcher table by its unique name |
+   +--------------------------------------------------+------------------------------------------------------------+
+   | :c:func:`ARKodeButcherTable_Alloc()`             | Allocate an empty Butcher table                            |
+   +--------------------------------------------------+------------------------------------------------------------+
+   | :c:func:`ARKodeButcherTable_Create()`            | Create a new Butcher table                                 |
+   +--------------------------------------------------+------------------------------------------------------------+
+   | :c:func:`ARKodeButcherTable_Copy()`              | Create a copy of a Butcher table                           |
+   +--------------------------------------------------+------------------------------------------------------------+
+   | :c:func:`ARKodeButcherTable_Space()`             | Get the Butcher table real and integer workspace size      |
+   +--------------------------------------------------+------------------------------------------------------------+
+   | :c:func:`ARKodeButcherTable_Free()`              | Deallocate a Butcher table                                 |
+   +--------------------------------------------------+------------------------------------------------------------+
+   | :c:func:`ARKodeButcherTable_Write()`             | Write the Butcher table to an output file                  |
+   +--------------------------------------------------+------------------------------------------------------------+
+   | :c:func:`ARKodeButcherTable_IsStifflyAccurate()` | Determine if ``A[stages - 1][i] == b[i]``                  |
+   +--------------------------------------------------+------------------------------------------------------------+
+   | :c:func:`ARKodeButcherTable_CheckOrder()`        | Check the order of a Butcher table                         |
+   +--------------------------------------------------+------------------------------------------------------------+
+   | :c:func:`ARKodeButcherTable_CheckARKOrder()`     | Check the order of an ARK pair of Butcher tables           |
+   +--------------------------------------------------+------------------------------------------------------------+
 
 .. c:function:: ARKodeButcherTable ARKodeButcherTable_LoadERK(ARKODE_ERKTableID emethod)
 
@@ -251,6 +253,19 @@ ARKodeButcherTable functions
    **Notes:**
       The *outfile* argument can be ``stdout`` or ``stderr``, or it
       may point to a specific file created using ``fopen``.
+
+.. c:function:: void ARKodeButcherTable_IsStifflyAccurate(ARKodeButcherTable B)
+
+   Determine if the table satisfies ``A[stages - 1][i] == b[i]``
+
+   **Arguments:**
+      * *B* -- the Butcher table.
+
+   **Returns**
+      * ``SUNTRUE`` if the method is "stiffly accurate", otherwise returns
+        ``SUNFALSE``
+
+   .. versionadded:: vX.X.X
 
 .. c:function:: int ARKodeButcherTable_CheckOrder(ARKodeButcherTable B, int* q, int* p, FILE* outfile)
 

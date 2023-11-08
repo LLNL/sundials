@@ -209,6 +209,9 @@ int main(int argc, char* argv[])
     if (check_flag(flag, "ARKStepSetFixedStep")) return 1;
   }
 
+  flag = ARKStepSetNonlinConvCoef(arkode_mem, SUN_RCONST(0.01));
+  if (check_flag(flag, "ARKStepSetNonlinConvCoef")) return 1;
+
   /* --------------- *
    * Advance in Time *
    * --------------- */

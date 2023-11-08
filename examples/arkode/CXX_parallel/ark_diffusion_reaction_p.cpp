@@ -306,7 +306,7 @@ struct UserData
   bool     pcg      = true;   // use PCG (true) or GMRES (false)
   bool     prec     = true;   // preconditioner on/off
   bool     lsinfo   = false;  // output residual history
-  int      liniters = 5;      // number of linear iterations
+  int      liniters = 10;     // number of linear iterations
   int      msbp     = 0;      // preconditioner setup frequency (0 = default)
   realtype epslin   = ZERO;   // linear solver tolerance factor (ZERO = default)
   N_Vector diag     = NULL;   // inverse of Jacobian diagonal
