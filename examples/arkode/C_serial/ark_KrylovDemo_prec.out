@@ -625,7 +625,7 @@ t =   1.00e+01  nst = 349  nfe = 0  nfi = 5589  nni = 3826  hu =    2.80e-01
 
  Final statistics for this run:
 
- ARKStep real workspace length         = 3557 
+ ARKStep real workspace length         = 3558 
  ARKStep integer workspace length      =  146 
  ARKLS real workspace length           = 2647 
  ARKLS integer workspace length        =   42 
