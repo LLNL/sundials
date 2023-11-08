@@ -27,7 +27,7 @@ Multirate nonlinear Kvaerno-Prothero-Robinson test problem:
     1.400000    1.041625    1.342455  1.95e-10  3.59e-10
     1.500000    1.017531    1.642940  1.58e-10  3.46e-10
     1.600000    0.992673    1.012112  1.21e-10  3.37e-10
-    1.700000    0.967253    1.714058  7.80e-11  3.14e-10
+    1.700000    0.967253    1.714058  7.81e-11  3.14e-10
     1.800000    0.941488    1.183867  3.34e-11  2.95e-10
     1.900000    0.915617    1.437465  1.78e-11  2.65e-10
     2.000000    0.889903    1.577082  7.23e-11  2.30e-10
@@ -51,7 +51,7 @@ Multirate nonlinear Kvaerno-Prothero-Robinson test problem:
     3.800000    0.777506    1.004387  4.21e-10  6.69e-10
     3.900000    0.798144    1.704019  3.62e-10  6.66e-10
     4.000000    0.820474    1.214374  2.84e-10  6.45e-10
-    4.100000    0.844149    1.406358  3.44e-10  6.14e-10
+    4.100000    0.844149    1.406358  3.43e-10  6.14e-10
     4.200000    0.868832    1.600774  1.51e-10  5.74e-10
     4.300000    0.894204    1.038382  9.08e-11  5.56e-10
     4.400000    0.919964    1.727533  4.15e-11  5.08e-10
@@ -66,7 +66,7 @@ Multirate nonlinear Kvaerno-Prothero-Robinson test problem:
 Final Solver Statistics:
    Steps: nsts = 5000, nstf = 510000
    u error = 3.764e-10, v error = 3.952e-10, total error = 3.859e-10
-   Total RHS evals:  Fs = 35313,  Ff = 1550001
+   Total RHS evals:  Fs = 35313,  Ff = 1530050
    Slow Newton iters = 30312
    Slow Newton conv fails = 0
    Slow Jacobian evals = 250

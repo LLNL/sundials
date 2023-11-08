@@ -1,0 +1,40 @@
+
+2D Heat PDE test problem:
+   nprocs = 2
+   nx = 60
+   ny = 120
+   kx = 0.5
+   ky = 0.75
+   rtol = 1e-05
+   atol = 1e-10
+   nxl (proc 0) = 30
+   nyl (proc 0) = 120
+   Nonlinear implicit solver
+
+
+ARKStep Solver Statistics:
+   Internal solver steps = 1000
+   Total RHS evals:  Fe = 0,  Fi = 2769
+   Total linear solver setups = 50
+   Total linear iterations = 6231
+   Total number of Jacobian-vector products = 6231
+   Total number of Preconditioner setups = 17
+   Total number of Preconditioner solves = 6231
+   Total number of linear solver convergence failures = 0
+   Total number of Newton iterations = 1768
+   Total number of nonlinear solver convergence failures = 0
+
+MRIStep Solver Statistics:
+   Internal solver steps = 1000
+   Total RHS evals:  Fe = 2769
+   Total linear solver setups = 50
+   Total linear iterations = 6250
+   Total number of Jacobian-vector products = 6250
+   Total number of Preconditioner setups = 50
+   Total number of Preconditioner solves = 6250
+   Total number of linear solver convergence failures = 0
+   Total number of Newton iterations = 1768
+   Total number of nonlinear solver convergence failures = 0
+
+Comparing Solver Statistics:
+All tests pass!

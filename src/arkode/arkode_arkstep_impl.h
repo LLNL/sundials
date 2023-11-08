@@ -156,6 +156,8 @@ typedef struct ARKodeARKStepMemRec {
   realtype    tscale;      /* time normalization scaling  */
   N_Vector*   forcing;     /* array of forcing vectors    */
   int         nforcing;    /* number of forcing vectors   */
+  realtype*   stage_times;  /* workspace for applying forcing */
+  realtype*   stage_coefs;  /* workspace for applying forcing */
 
 } *ARKodeARKStepMem;
 
@@ -205,8 +207,8 @@ int arkStep_NlsInit(ARKodeMem ark_mem);
 int arkStep_Nls(ARKodeMem ark_mem, int nflag);
 int arkStep_ComputeSolutions(ARKodeMem ark_mem, realtype *dsm);
 int arkStep_ComputeSolutions_MassFixed(ARKodeMem ark_mem, realtype *dsm);
-void arkStep_ApplyForcing(ARKodeARKStepMem step_mem, realtype t,
-                          realtype s, int *nvec);
+void arkStep_ApplyForcing(ARKodeARKStepMem step_mem, realtype* stage_times,
+                          realtype* stage_coefs, int jmax, int *nvec);
 
 /* private functions passed to nonlinear solver */
 int arkStep_NlsResidual_MassIdent(N_Vector zcor, N_Vector r, void* arkode_mem);
@@ -231,7 +233,6 @@ int arkStep_MRIStepInnerReset(MRIStepInnerStepper stepper, realtype tR,
                               N_Vector yR);
 
 /* private functions for relaxation */
-int arkStep_RelaxDeltaY(ARKodeMem ark_mem, N_Vector delta_y);
 int arkStep_RelaxDeltaE(ARKodeMem ark_mem, ARKRelaxJacFn relax_jac_fn,
                         long int* relax_jac_fn_evals, sunrealtype* delta_e_out);
 int arkStep_GetOrder(ARKodeMem ark_mem);

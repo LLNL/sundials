@@ -365,6 +365,11 @@ member functions:
    **Example codes:**
       * ``examples/arkode/CXX_parallel/ark_diffusion_reaction_p.cpp``
 
+Optional Member Functions
+"""""""""""""""""""""""""
+
+An :c:type:`MRIStepInnerStepper` *may* provide implementations of any of the
+following member functions:
 
 .. c:type:: int (*MRIStepInnerFullRhsFn)(MRIStepInnerStepper stepper, realtype t, N_Vector v, N_Vector f, int mode)
 
@@ -393,11 +398,9 @@ member functions:
    **Example codes:**
       * ``examples/arkode/CXX_parallel/ark_diffusion_reaction_p.cpp``
 
-Optional Member Functions
-"""""""""""""""""""""""""
+   .. versionchanged:: vX.X.X
 
-An :c:type:`MRIStepInnerStepper` *may* provide implementations of any of the
-following member functions:
+      Supplying a full right-hand side function was made optional.
 
 .. c:type:: int (*MRIStepInnerResetFn)(MRIStepInnerStepper stepper, realtype tR, N_Vector vR)
 

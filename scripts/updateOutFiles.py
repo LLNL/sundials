@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 # -----------------------------------------------------------------------------
 # Programmer(s): David J. Gardner @ LLNL
 # -----------------------------------------------------------------------------
@@ -15,7 +15,7 @@
 # Script to update example output files for failed tests
 #
 # Example usage:
-#   $ ./updateOutFiles.py sundials/build sundials/examples
+#   $ ./updateOutFiles.py ../build ../.
 # -----------------------------------------------------------------------------
 
 # -----------------------------------------------------------------------------
@@ -28,13 +28,15 @@ def main():
 
     parser = argparse.ArgumentParser(description='Update output files')
 
-    parser.add_argument('build', type=str,
-                        help='Full path to build directory to read from')
-    parser.add_argument('examples', type=str,
-                        help='Full path to examples directory to write to')
+    parser.add_argument('source', type=str,
+                        help='Full path of build directory to read files from')
+    parser.add_argument('destination', type=str,
+                        help='Full path of sundials location to write files to')
     parser.add_argument('--all','-a', action='store_true',
                         help='Update all output files')
-    parser.add_argument('--verbose','-v', action='store_true',
+    parser.add_argument('--copy','-c', action='store_true',
+                        help='Copy file to destination if not found')
+    parser.add_argument('--verbose','-v', action='count', default=0,
                         help='Enable verbose output')
 
 
@@ -42,18 +44,18 @@ def main():
     args = parser.parse_args()
 
     # check inputs
-    if (not os.path.isdir(args.examples)):
-        print("Error: could not find {}".format(args.examples))
+    if (not os.path.isdir(args.source)):
+        print(f"Error: could not find {args.source}")
         return -1
 
-    if (not os.path.isdir(args.build)):
-        print("Error: could not find {}".format(args.build))
+    if (not os.path.isdir(args.destination)):
+        print(f"Error: could not find {args.destination}")
         return -1
 
     # check that the output directory exists
-    output = os.path.join(args.build, "Testing", "output")
+    output = os.path.join(args.source, "Testing", "output")
     if (not os.path.isdir(output)):
-        print("Error: could not find {}".format(output))
+        print(f"Error: could not find {output}")
         return -1
 
     # create a list of all test run or just the failed tests
@@ -65,7 +67,7 @@ def main():
             if f.endswith(".out"):
                 tests.append(f)
     else:
-        failed = os.path.join(args.build, "Testing", "Temporary", "LastTestsFailed.log")
+        failed = os.path.join(args.source, "Testing", "Temporary", "LastTestsFailed.log")
 
         # extract test names from list and append .out
         with open(failed, 'r') as f:
@@ -74,17 +76,35 @@ def main():
 
     # if failed tests were found update the output files
     if tests:
+        paths = [os.path.join(args.destination, "examples"),
+                 os.path.join(args.destination, "test", "unit_tests"),
+                 args.destination]
         for t in tests:
+            if (args.verbose > 0):
+                print(f"Searching for {t}")
             found = False
-            for root, dirs, files in os.walk(args.examples):
-                if t in files:
-                    if (args.verbose):
-                        print("Updating: {}".format(t))
-                    shutil.copy(os.path.join(output, t), os.path.join(root, t))
-                    found = True
+            for p in paths:
+                if (args.verbose == 2):
+                    print(f"  Looking in {p}")
+                for root, dirs, files in os.walk(p):
+                    if (args.verbose == 3):
+                        print(f"  Looking in {root}")
+                    if t in files:
+                        if (args.verbose == 1):
+                            print(f"  Found file in {root}")
+                        if (args.verbose > 1):
+                            print("  Found file")
+                        shutil.copy(os.path.join(output, t), os.path.join(root, t))
+                        found = True
+                        break
+                if found:
                     break
             if not found:
-                print("Warning: did not find {}".format(t))
+                if args.copy:
+                    print(f"Warning: did not find {t}, copying to {args.destination}")
+                    shutil.copy(os.path.join(output, t), os.path.join(args.destination, t))
+                else:
+                    print(f"Warning: did not find {t}")
 
 # -----------------------------------------------------------------------------
 # run the main routine

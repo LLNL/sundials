@@ -268,8 +268,8 @@ char *ARKStepGetLinReturnFlagName(long int flag) {
 
 int ARKStepSetRelaxFn(void* arkode_mem, ARKRelaxFn rfn, ARKRelaxJacFn rjac)
 {
-  return arkRelaxCreate(arkode_mem, rfn, rjac, arkStep_RelaxDeltaY,
-                        arkStep_RelaxDeltaE, arkStep_GetOrder);
+  return arkRelaxCreate(arkode_mem, rfn, rjac, arkStep_RelaxDeltaE,
+                        arkStep_GetOrder);
 }
 
 int ARKStepSetRelaxEtaFail(void* arkode_mem, sunrealtype eta_rf)

@@ -20,7 +20,7 @@
   
  Final Solver Statistics:
     Internal solver steps =  664, (attempted =  664)
-    Total RHS evals =  3987
+    Total RHS evals =  3323
     Total number of error test failures =    0
     Error: max =  7.87E-04, rms =  4.99E-04
   

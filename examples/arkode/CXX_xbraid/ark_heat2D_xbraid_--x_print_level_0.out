@@ -37,24 +37,24 @@
   output         = 1
  --------------------------------- 
 
-  Max error = 3.297223770518998e-03
+  Max error = 3.297223425028251e-03
 
 Final max integrator statistics:
   Steps            = 895
   Step attempts    = 895
   Error test fails = 324
-  RHS evals        = 7160
+  RHS evals        = 6265
   NLS iters        = 2685
   NLS fails        = 0
-  LS iters         = 98385
+  LS iters         = 97779
   LS fails         = 0
   LS setups        = 895
-  LS RHS evals     = 98385
-  Jv products      = 98385
+  LS RHS evals     = 97779
+  Jv products      = 97779
 
   Avg NLS iters per step attempt = 3.000000
-  Avg LS iters per NLS iter      = 36.642458
+  Avg LS iters per NLS iter      = 36.416760
 
   Preconditioner setups = 895
-  Preconditioner solves = 98385
+  Preconditioner solves = 97779
 

@@ -143,6 +143,10 @@ void* SPRKStepCreate(ARKRhsFn f1, ARKRhsFn f2, realtype t0, N_Vector y0,
   /* Zero yerr for compensated summation */
   if (ark_mem->use_compensated_sums) { N_VConst(ZERO, step_mem->yerr); }
 
+  /* SPRKStep uses Lagrange interpolation by default, since Hermite is
+     less compatible with these methods. */
+  arkSetInterpolantType(ark_mem, ARK_INTERP_LAGRANGE);
+
   /* Initialize main ARKODE infrastructure */
   retval = arkInit(ark_mem, t0, y0, FIRST_INIT);
   if (retval != ARK_SUCCESS)
@@ -152,10 +156,6 @@ void* SPRKStepCreate(ARKRhsFn f1, ARKRhsFn f2, realtype t0, N_Vector y0,
     SPRKStepFree((void**)&ark_mem);
     return (NULL);
   }
-
-  /* SPRKStep uses Lagrange interpolation by default, since Hermite is
-     less compatible with these methods. */
-  arkSetInterpolantType(ark_mem, ARK_INTERP_LAGRANGE);
 
   return ((void*)ark_mem);
 }
@@ -459,10 +459,6 @@ int sprkStep_Init(void* arkode_mem, int init_type)
     }
   }
 
-  /* Signal to shared arkode module that fullrhs is not required after each step
-   */
-  ark_mem->call_fullrhs = SUNFALSE;
-
   return (ARK_SUCCESS);
 }
 
@@ -500,30 +496,27 @@ int sprkStep_f2(ARKodeSPRKStepMem step_mem, sunrealtype tcur, N_Vector ycur,
   return retval;
 }
 
-/*---------------------------------------------------------------
+/*------------------------------------------------------------------------------
   sprkStep_FullRHS:
 
   This is just a wrapper to call the user-supplied RHS,
   f1(t,y) + f2(t,y).
 
   This will be called in one of three 'modes':
-    ARK_FULLRHS_START -> called at the beginning of a simulation
-                         or after post processing at step
-    ARK_FULLRHS_END   -> called at the end of a successful step
-    ARK_FULLRHS_OTHER -> called elsewhere (e.g. for dense output)
 
-  If it is called in ARK_FULLRHS_START mode, we store the vectors
-  f1(t,y) and f2(t,y) in sdata for possible reuse in the first stage
-  of the subsequent time step.
+     ARK_FULLRHS_START -> called at the beginning of a simulation i.e., at
+                          (tn, yn) = (t0, y0) or (tR, yR)
 
-  If it is called in ARK_FULLRHS_END mode and the method coefficients
-  support it, we may just copy the stage vectors to fill f instead
-  of calling f().
+     ARK_FULLRHS_END   -> called at the end of a successful step i.e, at
+                          (tcur, ycur) or the start of the subsequent step i.e.,
+                          at (tn, yn) = (tcur, ycur) from the end of the last
+                          step
 
-  ARK_FULLRHS_OTHER mode is only called for dense output in-between
-  steps, so we strive to store the intermediate parts so that they
-  do not interfere with the other two modes.
-  ---------------------------------------------------------------*/
+     ARK_FULLRHS_OTHER -> called elsewhere (e.g. for dense output)
+
+  Since RHS values are not stored in SPRKStep we evaluate the RHS functions for
+  all modes.
+  ----------------------------------------------------------------------------*/
 int sprkStep_FullRHS(void* arkode_mem, realtype t, N_Vector y, N_Vector f,
                      int mode)
 {
@@ -542,6 +535,9 @@ int sprkStep_FullRHS(void* arkode_mem, realtype t, N_Vector y, N_Vector f,
   case ARK_FULLRHS_START:
   case ARK_FULLRHS_END:
   case ARK_FULLRHS_OTHER:
+
+    /* Since f1 and f2 do not have overlapping outputs and so the f vector is
+       passed to both RHS functions. */
 
     retval = sprkStep_f1(step_mem, t, y, f, ark_mem->user_data);
     if (retval != 0)

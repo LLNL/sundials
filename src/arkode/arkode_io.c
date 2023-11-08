@@ -158,12 +158,20 @@ int arkSetInterpolantType(void *arkode_mem, int itype)
 
   /* create requested interpolation module, initially specifying
      the maximum possible interpolant degree. */
-  if (itype == ARK_INTERP_HERMITE) {
+  if (itype == ARK_INTERP_HERMITE)
+  {
     ark_mem->interp = arkInterpCreate_Hermite(arkode_mem, ARK_INTERP_MAX_DEGREE);
-  } else if (itype == ARK_INTERP_LAGRANGE) {
+    ark_mem->interp_type = ARK_INTERP_HERMITE;
+  }
+  else if (itype == ARK_INTERP_LAGRANGE)
+  {
     ark_mem->interp = arkInterpCreate_Lagrange(arkode_mem, ARK_INTERP_MAX_DEGREE);
-  } else {
+    ark_mem->interp_type = ARK_INTERP_LAGRANGE;
+  }
+  else
+  {
     ark_mem->interp = NULL;
+    ark_mem->interp_type = -1;
   }
   if (ark_mem->interp == NULL) {
     arkProcessError(ark_mem, ARK_MEM_FAIL, "ARKODE", "arkSetInterpolantType",
