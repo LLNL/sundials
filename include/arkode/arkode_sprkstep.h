@@ -111,8 +111,13 @@ SUNDIALS_EXPORT int SPRKStepGetStepStats(void* arkode_mem, long int* nsteps,
                                          realtype* hinused, realtype* hlast,
                                          realtype* hcur, realtype* tcur);
 
-/* Free function */
-SUNDIALS_EXPORT void SPRKStepFree(void** arkode_mem);
+SUNDIALS_EXPORT int SPRKStepDestroy(void **arkode_mem);
+
+SUNDIALS_DEPRECATED_MSG("Use SPRKStepDestroy instead")
+SUNDIALS_STATIC_INLINE
+void SPRKStepFree(void **arkode_mem) {
+  SPRKStepDestroy(arkode_mem);
+}
 
 #ifdef __cplusplus
 }

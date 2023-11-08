@@ -4052,7 +4052,7 @@ int CVodeGetQuadSensDky1(void *cvode_mem, realtype t, int k, int is, N_Vector dk
  */
 
 /*
- * CVodeFree
+ * CVodeDestroy
  *
  * This routine frees the problem memory allocated by CVodeInit.
  * Such memory includes all the vectors allocated by cvAllocVectors,
@@ -4061,7 +4061,7 @@ int CVodeGetQuadSensDky1(void *cvode_mem, realtype t, int k, int is, N_Vector dk
  * sensitivity computations by CVodeSensInit.
  */
 
-void CVodeFree(void **cvode_mem)
+void CVodeDestroy(void **cvode_mem)
 {
   CVodeMem cv_mem;
 

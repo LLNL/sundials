@@ -19,6 +19,8 @@
 
 #include <stdio.h>
 #include <sundials/sundials_types.h>
+#include "sundials/sundials_config.h"
+#include "sundials/sundials_export.h"
 
 #ifdef __cplusplus  /* wrapper to enable C++ usage */
 extern "C" {
@@ -57,7 +59,16 @@ SUNDIALS_EXPORT ARKodeButcherTable ARKodeButcherTable_Copy(ARKodeButcherTable B)
 SUNDIALS_EXPORT void ARKodeButcherTable_Space(ARKodeButcherTable B,
                                               sunindextype *liw,
                                               sunindextype *lrw);
-SUNDIALS_EXPORT void ARKodeButcherTable_Free(ARKodeButcherTable B);
+
+SUNDIALS_EXPORT
+int ARKodeButcherTable_Destroy(ARKodeButcherTable B);
+
+SUNDIALS_DEPRECATED_MSG("Use ARKodeButcherTable_Destroy instead") 
+SUNDIALS_STATIC_INLINE 
+void ARKodeButcherTable_Free(ARKodeButcherTable B) {
+  ARKodeButcherTable_Destroy(B);
+}
+
 SUNDIALS_EXPORT void ARKodeButcherTable_Write(ARKodeButcherTable B,
                                               FILE *outfile);
 SUNDIALS_EXPORT sunbooleantype ARKodeButcherTable_IsStifflyAccurate(ARKodeButcherTable B);

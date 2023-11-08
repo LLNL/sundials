@@ -1518,7 +1518,7 @@ int IDAComputeYp(void *ida_mem, N_Vector ycor, N_Vector yp)
  */
 
 /*
- * IDAFree
+ * IDADestroy
  *
  * This routine frees the problem memory allocated by IDAInit
  * Such memory includes all the vectors allocated by IDAAllocVectors,
@@ -1526,11 +1526,11 @@ int IDAComputeYp(void *ida_mem, N_Vector ycor, N_Vector yp)
  * to lfree).
  */
 
-void IDAFree(void **ida_mem)
+int IDADestroy(void **ida_mem)
 {
   IDAMem IDA_mem;
 
-  if (*ida_mem == NULL) return;
+  if (*ida_mem == NULL) return 0;
 
   IDA_mem = (IDAMem) (*ida_mem);
 

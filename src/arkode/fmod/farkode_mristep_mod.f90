@@ -118,6 +118,7 @@ module farkode_mristep_mod
  public :: FMRIStepCoupling_MIStoMRI
  public :: FMRIStepCoupling_Copy
  public :: FMRIStepCoupling_Space
+ public :: FMRIStepCoupling_Destroy
  public :: FMRIStepCoupling_Free
  public :: FMRIStepCoupling_Write
  public :: FMRIStepCreate
@@ -213,9 +214,11 @@ module farkode_mristep_mod
  public :: FMRIStepGetNumLinRhsEvals
  public :: FMRIStepGetLastLinFlag
  public :: FMRIStepGetLinReturnFlagName
+ public :: FMRIStepDestroy
  public :: FMRIStepFree
  public :: FMRIStepPrintMem
  public :: FMRIStepInnerStepper_Create
+ public :: FMRIStepInnerStepper_Destroy
  public :: FMRIStepInnerStepper_Free
  public :: FMRIStepInnerStepper_SetContent
  public :: FMRIStepInnerStepper_GetContent
@@ -435,6 +438,14 @@ type(C_PTR), value :: farg1
 type(C_PTR), value :: farg2
 type(C_PTR), value :: farg3
 end subroutine
+
+function swigc_FMRIStepCoupling_Destroy(farg1) &
+bind(C, name="_wrap_FMRIStepCoupling_Destroy") &
+result(fresult)
+use, intrinsic :: ISO_C_BINDING
+type(C_PTR), value :: farg1
+integer(C_INT) :: fresult
+end function
 
 subroutine swigc_FMRIStepCoupling_Free(farg1) &
 bind(C, name="_wrap_FMRIStepCoupling_Free")
@@ -1322,6 +1333,14 @@ integer(C_LONG), intent(in) :: farg1
 type(SwigArrayWrapper) :: fresult
 end function
 
+function swigc_FMRIStepDestroy(farg1) &
+bind(C, name="_wrap_FMRIStepDestroy") &
+result(fresult)
+use, intrinsic :: ISO_C_BINDING
+type(C_PTR), value :: farg1
+integer(C_INT) :: fresult
+end function
+
 subroutine swigc_FMRIStepFree(farg1) &
 bind(C, name="_wrap_FMRIStepFree")
 use, intrinsic :: ISO_C_BINDING
@@ -1341,6 +1360,14 @@ result(fresult)
 use, intrinsic :: ISO_C_BINDING
 type(C_PTR), value :: farg1
 type(C_PTR), value :: farg2
+integer(C_INT) :: fresult
+end function
+
+function swigc_FMRIStepInnerStepper_Destroy(farg1) &
+bind(C, name="_wrap_FMRIStepInnerStepper_Destroy") &
+result(fresult)
+use, intrinsic :: ISO_C_BINDING
+type(C_PTR), value :: farg1
 integer(C_INT) :: fresult
 end function
 
@@ -1777,6 +1804,19 @@ farg2 = c_loc(liw(1))
 farg3 = c_loc(lrw(1))
 call swigc_FMRIStepCoupling_Space(farg1, farg2, farg3)
 end subroutine
+
+function FMRIStepCoupling_Destroy(mric) &
+result(swig_result)
+use, intrinsic :: ISO_C_BINDING
+integer(C_INT) :: swig_result
+type(C_PTR) :: mric
+integer(C_INT) :: fresult 
+type(C_PTR) :: farg1 
+
+farg1 = mric
+fresult = swigc_FMRIStepCoupling_Destroy(farg1)
+swig_result = fresult
+end function
 
 subroutine FMRIStepCoupling_Free(mric)
 use, intrinsic :: ISO_C_BINDING
@@ -3390,6 +3430,19 @@ call SWIG_chararray_to_string(fresult, swig_result)
 if (.false.) call SWIG_free(fresult%data)
 end function
 
+function FMRIStepDestroy(arkode_mem) &
+result(swig_result)
+use, intrinsic :: ISO_C_BINDING
+integer(C_INT) :: swig_result
+type(C_PTR), target, intent(inout) :: arkode_mem
+integer(C_INT) :: fresult 
+type(C_PTR) :: farg1 
+
+farg1 = c_loc(arkode_mem)
+fresult = swigc_FMRIStepDestroy(farg1)
+swig_result = fresult
+end function
+
 subroutine FMRIStepFree(arkode_mem)
 use, intrinsic :: ISO_C_BINDING
 type(C_PTR), target, intent(inout) :: arkode_mem
@@ -3424,6 +3477,19 @@ type(C_PTR) :: farg2
 farg1 = sunctx
 farg2 = c_loc(stepper)
 fresult = swigc_FMRIStepInnerStepper_Create(farg1, farg2)
+swig_result = fresult
+end function
+
+function FMRIStepInnerStepper_Destroy(stepper) &
+result(swig_result)
+use, intrinsic :: ISO_C_BINDING
+integer(C_INT) :: swig_result
+type(C_PTR), target, intent(inout) :: stepper
+integer(C_INT) :: fresult 
+type(C_PTR) :: farg1 
+
+farg1 = c_loc(stepper)
+fresult = swigc_FMRIStepInnerStepper_Destroy(farg1)
 swig_result = fresult
 end function
 

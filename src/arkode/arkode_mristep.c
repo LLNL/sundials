@@ -596,10 +596,10 @@ int MRIStepComputeState(void *arkode_mem, N_Vector zcor, N_Vector z)
 
 
 /*---------------------------------------------------------------
-  MRIStepFree frees all MRIStep memory, and then calls an ARKODE
+  MRIStepDestroy frees all MRIStep memory, and then calls an ARKODE
   utility routine to free the ARKODE infrastructure memory.
   ---------------------------------------------------------------*/
-void MRIStepFree(void **arkode_mem)
+void MRIStepDestroy(void **arkode_mem)
 {
   sunindextype Cliw, Clrw;
   ARKodeMem ark_mem;

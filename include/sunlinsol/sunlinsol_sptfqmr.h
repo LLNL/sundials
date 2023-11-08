@@ -111,7 +111,13 @@ SUNDIALS_EXPORT sunindextype SUNLinSolLastFlag_SPTFQMR(SUNLinearSolver S);
 SUNDIALS_EXPORT int SUNLinSolSpace_SPTFQMR(SUNLinearSolver S,
                                            long int *lenrwLS,
                                            long int *leniwLS);
-SUNDIALS_EXPORT int SUNLinSolFree_SPTFQMR(SUNLinearSolver S);
+SUNDIALS_EXPORT int SUNLinSolDestroy_SPTFQMR(SUNLinearSolver S);
+
+SUNDIALS_DEPRECATED_MSG("Use SUNLinSolDestroy_SPTFQMR")
+SUNDIALS_STATIC_INLINE
+int SUNLinSolFree_SPTFQMR(SUNLinearSolver S) {
+  return SUNLinSolDestroy_SPTFQMR(S);
+}
 
 #ifdef __cplusplus
 }

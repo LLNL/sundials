@@ -202,6 +202,18 @@ SWIGEXPORT N_Vector _wrap_FN_VNewEmpty(void *farg1) {
 }
 
 
+SWIGEXPORT int _wrap_FN_VDestroyEmpty(N_Vector farg1) {
+  int fresult ;
+  N_Vector arg1 = (N_Vector) 0 ;
+  int result;
+  
+  arg1 = (N_Vector)(farg1);
+  result = (int)N_VDestroyEmpty(arg1);
+  fresult = (int)(result);
+  return fresult;
+}
+
+
 SWIGEXPORT void _wrap_FN_VFreeEmpty(N_Vector farg1) {
   N_Vector arg1 = (N_Vector) 0 ;
   

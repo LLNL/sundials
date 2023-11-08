@@ -452,6 +452,18 @@ SWIGEXPORT int _wrap_FSUNLinSolSpace_SPTFQMR(SUNLinearSolver farg1, long *farg2,
 }
 
 
+SWIGEXPORT int _wrap_FSUNLinSolDestroy_SPTFQMR(SUNLinearSolver farg1) {
+  int fresult ;
+  SUNLinearSolver arg1 = (SUNLinearSolver) 0 ;
+  int result;
+  
+  arg1 = (SUNLinearSolver)(farg1);
+  result = (int)SUNLinSolDestroy_SPTFQMR(arg1);
+  fresult = (int)(result);
+  return fresult;
+}
+
+
 SWIGEXPORT int _wrap_FSUNLinSolFree_SPTFQMR(SUNLinearSolver farg1) {
   int fresult ;
   SUNLinearSolver arg1 = (SUNLinearSolver) 0 ;

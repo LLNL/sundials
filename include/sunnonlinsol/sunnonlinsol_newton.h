@@ -81,7 +81,13 @@ SUNDIALS_EXPORT int SUNNonlinSolSolve_Newton(SUNNonlinearSolver NLS,
                                              N_Vector w, realtype tol,
                                              booleantype callLSetup, void *mem);
 
-SUNDIALS_EXPORT int SUNNonlinSolFree_Newton(SUNNonlinearSolver NLS);
+SUNDIALS_EXPORT int SUNNonlinSolDestroy_Newton(SUNNonlinearSolver NLS);
+
+SUNDIALS_DEPRECATED_MSG("Use SUNNonlinSolDestroy_Newton")
+SUNDIALS_STATIC_INLINE
+int SUNNonlinSolFree_Newton(SUNNonlinearSolver NLS) {
+  return SUNNonlinSolDestroy_Newton(NLS);
+}
 
 /* set functions */
 SUNDIALS_EXPORT int SUNNonlinSolSetSysFn_Newton(SUNNonlinearSolver NLS,

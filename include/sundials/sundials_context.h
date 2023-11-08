@@ -19,6 +19,7 @@
 #ifndef _SUNDIALS_CONTEXT_H
 #define _SUNDIALS_CONTEXT_H
 
+#include "sundials/sundials_config.h"
 #include "sundials/sundials_logger.h"
 #include "sundials/sundials_profiler.h"
 #include "sundials/sundials_types.h"
@@ -34,7 +35,13 @@ SUNDIALS_EXPORT int SUNContext_GetProfiler(SUNContext sunctx, SUNProfiler* profi
 SUNDIALS_EXPORT int SUNContext_SetProfiler(SUNContext sunctx, SUNProfiler profiler);
 SUNDIALS_EXPORT int SUNContext_GetLogger(SUNContext sunctx, SUNLogger* logger);
 SUNDIALS_EXPORT int SUNContext_SetLogger(SUNContext sunctx, SUNLogger logger);
-SUNDIALS_EXPORT int SUNContext_Free(SUNContext* ctx);
+SUNDIALS_EXPORT int SUNContext_Destroy(SUNContext* ctx);
+
+SUNDIALS_DEPRECATED_MSG("Use SUNContext_Destroy")
+SUNDIALS_STATIC_INLINE 
+int SUNContext_Free(SUNContext* ctx) {
+   return SUNContext_Destroy(ctx);
+};
 
 
 #ifdef __cplusplus

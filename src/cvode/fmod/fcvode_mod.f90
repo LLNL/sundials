@@ -155,6 +155,7 @@ module fcvode_mod
   integer(C_SIZE_T), public :: size = 0
  end type
  public :: FCVodeGetReturnFlagName
+ public :: FCVodeDestroy
  public :: FCVodeFree
  public :: FCVodeSetJacTimesRhsFn
  public :: FCVBandPrecInit
@@ -932,6 +933,14 @@ use, intrinsic :: ISO_C_BINDING
 import :: swigarraywrapper
 integer(C_LONG), intent(in) :: farg1
 type(SwigArrayWrapper) :: fresult
+end function
+
+function swigc_FCVodeDestroy(farg1) &
+bind(C, name="_wrap_FCVodeDestroy") &
+result(fresult)
+use, intrinsic :: ISO_C_BINDING
+type(C_PTR), value :: farg1
+integer(C_INT) :: fresult
 end function
 
 subroutine swigc_FCVodeFree(farg1) &
@@ -2686,6 +2695,19 @@ farg1 = flag
 fresult = swigc_FCVodeGetReturnFlagName(farg1)
 call SWIG_chararray_to_string(fresult, swig_result)
 if (.false.) call SWIG_free(fresult%data)
+end function
+
+function FCVodeDestroy(cvode_mem) &
+result(swig_result)
+use, intrinsic :: ISO_C_BINDING
+integer(C_INT) :: swig_result
+type(C_PTR), target, intent(inout) :: cvode_mem
+integer(C_INT) :: fresult 
+type(C_PTR) :: farg1 
+
+farg1 = c_loc(cvode_mem)
+fresult = swigc_FCVodeDestroy(farg1)
+swig_result = fresult
 end function
 
 subroutine FCVodeFree(cvode_mem)

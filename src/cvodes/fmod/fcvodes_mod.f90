@@ -189,6 +189,7 @@ module fcvodes_mod
   integer(C_SIZE_T), public :: size = 0
  end type
  public :: FCVodeGetReturnFlagName
+ public :: FCVodeDestroy
  public :: FCVodeFree
  public :: FCVodeSetJacTimesRhsFn
  public :: FCVodeQuadInit
@@ -202,6 +203,7 @@ module fcvodes_mod
  public :: FCVodeGetQuadNumErrTestFails
  public :: FCVodeGetQuadErrWeights
  public :: FCVodeGetQuadStats
+ public :: FCVodeQuadDestroy
  public :: FCVodeQuadFree
  public :: FCVodeSensInit
  public :: FCVodeSensInit1
@@ -235,6 +237,7 @@ module fcvodes_mod
  public :: FCVodeGetStgrSensNumNonlinSolvConvFails
  public :: FCVodeGetStgrSensNonlinSolvStats
  public :: FCVodeGetNumStepStgrSensSolveFails
+ public :: FCVodeSensDestroy
  public :: FCVodeSensFree
  public :: FCVodeQuadSensInit
  public :: FCVodeQuadSensReInit
@@ -250,9 +253,11 @@ module fcvodes_mod
  public :: FCVodeGetQuadSensNumErrTestFails
  public :: FCVodeGetQuadSensErrWeights
  public :: FCVodeGetQuadSensStats
+ public :: FCVodeQuadSensDestroy
  public :: FCVodeQuadSensFree
  public :: FCVodeAdjInit
  public :: FCVodeAdjReInit
+ public :: FCVodeAdjDestroy
  public :: FCVodeAdjFree
  public :: FCVodeCreateB
  public :: FCVodeInitB
@@ -1153,6 +1158,14 @@ integer(C_LONG), intent(in) :: farg1
 type(SwigArrayWrapper) :: fresult
 end function
 
+function swigc_FCVodeDestroy(farg1) &
+bind(C, name="_wrap_FCVodeDestroy") &
+result(fresult)
+use, intrinsic :: ISO_C_BINDING
+type(C_PTR), value :: farg1
+integer(C_INT) :: fresult
+end function
+
 subroutine swigc_FCVodeFree(farg1) &
 bind(C, name="_wrap_FCVodeFree")
 use, intrinsic :: ISO_C_BINDING
@@ -1271,6 +1284,14 @@ use, intrinsic :: ISO_C_BINDING
 type(C_PTR), value :: farg1
 type(C_PTR), value :: farg2
 type(C_PTR), value :: farg3
+integer(C_INT) :: fresult
+end function
+
+function swigc_FCVodeQuadDestroy(farg1) &
+bind(C, name="_wrap_FCVodeQuadDestroy") &
+result(fresult)
+use, intrinsic :: ISO_C_BINDING
+type(C_PTR), value :: farg1
 integer(C_INT) :: fresult
 end function
 
@@ -1591,6 +1612,14 @@ type(C_PTR), value :: farg2
 integer(C_INT) :: fresult
 end function
 
+function swigc_FCVodeSensDestroy(farg1) &
+bind(C, name="_wrap_FCVodeSensDestroy") &
+result(fresult)
+use, intrinsic :: ISO_C_BINDING
+type(C_PTR), value :: farg1
+integer(C_INT) :: fresult
+end function
+
 subroutine swigc_FCVodeSensFree(farg1) &
 bind(C, name="_wrap_FCVodeSensFree")
 use, intrinsic :: ISO_C_BINDING
@@ -1734,6 +1763,14 @@ type(C_PTR), value :: farg3
 integer(C_INT) :: fresult
 end function
 
+function swigc_FCVodeQuadSensDestroy(farg1) &
+bind(C, name="_wrap_FCVodeQuadSensDestroy") &
+result(fresult)
+use, intrinsic :: ISO_C_BINDING
+type(C_PTR), value :: farg1
+integer(C_INT) :: fresult
+end function
+
 subroutine swigc_FCVodeQuadSensFree(farg1) &
 bind(C, name="_wrap_FCVodeQuadSensFree")
 use, intrinsic :: ISO_C_BINDING
@@ -1752,6 +1789,14 @@ end function
 
 function swigc_FCVodeAdjReInit(farg1) &
 bind(C, name="_wrap_FCVodeAdjReInit") &
+result(fresult)
+use, intrinsic :: ISO_C_BINDING
+type(C_PTR), value :: farg1
+integer(C_INT) :: fresult
+end function
+
+function swigc_FCVodeAdjDestroy(farg1) &
+bind(C, name="_wrap_FCVodeAdjDestroy") &
 result(fresult)
 use, intrinsic :: ISO_C_BINDING
 type(C_PTR), value :: farg1
@@ -4185,6 +4230,19 @@ call SWIG_chararray_to_string(fresult, swig_result)
 if (.false.) call SWIG_free(fresult%data)
 end function
 
+function FCVodeDestroy(cvode_mem) &
+result(swig_result)
+use, intrinsic :: ISO_C_BINDING
+integer(C_INT) :: swig_result
+type(C_PTR), target, intent(inout) :: cvode_mem
+integer(C_INT) :: fresult 
+type(C_PTR) :: farg1 
+
+farg1 = c_loc(cvode_mem)
+fresult = swigc_FCVodeDestroy(farg1)
+swig_result = fresult
+end function
+
 subroutine FCVodeFree(cvode_mem)
 use, intrinsic :: ISO_C_BINDING
 type(C_PTR), target, intent(inout) :: cvode_mem
@@ -4407,12 +4465,25 @@ fresult = swigc_FCVodeGetQuadStats(farg1, farg2, farg3)
 swig_result = fresult
 end function
 
-subroutine FCVodeQuadFree(cvode_mem)
+function FCVodeQuadDestroy(cvode_mem) &
+result(swig_result)
 use, intrinsic :: ISO_C_BINDING
-type(C_PTR) :: cvode_mem
+integer(C_INT) :: swig_result
+type(C_PTR), target, intent(inout) :: cvode_mem
+integer(C_INT) :: fresult 
 type(C_PTR) :: farg1 
 
-farg1 = cvode_mem
+farg1 = c_loc(cvode_mem)
+fresult = swigc_FCVodeQuadDestroy(farg1)
+swig_result = fresult
+end function
+
+subroutine FCVodeQuadFree(cvode_mem)
+use, intrinsic :: ISO_C_BINDING
+type(C_PTR), target, intent(inout) :: cvode_mem
+type(C_PTR) :: farg1 
+
+farg1 = c_loc(cvode_mem)
 call swigc_FCVodeQuadFree(farg1)
 end subroutine
 
@@ -4997,12 +5068,25 @@ fresult = swigc_FCVodeGetNumStepStgrSensSolveFails(farg1, farg2)
 swig_result = fresult
 end function
 
-subroutine FCVodeSensFree(cvode_mem)
+function FCVodeSensDestroy(cvode_mem) &
+result(swig_result)
 use, intrinsic :: ISO_C_BINDING
-type(C_PTR) :: cvode_mem
+integer(C_INT) :: swig_result
+type(C_PTR), target, intent(inout) :: cvode_mem
+integer(C_INT) :: fresult 
 type(C_PTR) :: farg1 
 
-farg1 = cvode_mem
+farg1 = c_loc(cvode_mem)
+fresult = swigc_FCVodeSensDestroy(farg1)
+swig_result = fresult
+end function
+
+subroutine FCVodeSensFree(cvode_mem)
+use, intrinsic :: ISO_C_BINDING
+type(C_PTR), target, intent(inout) :: cvode_mem
+type(C_PTR) :: farg1 
+
+farg1 = c_loc(cvode_mem)
 call swigc_FCVodeSensFree(farg1)
 end subroutine
 
@@ -5263,12 +5347,25 @@ fresult = swigc_FCVodeGetQuadSensStats(farg1, farg2, farg3)
 swig_result = fresult
 end function
 
-subroutine FCVodeQuadSensFree(cvode_mem)
+function FCVodeQuadSensDestroy(cvode_mem) &
+result(swig_result)
 use, intrinsic :: ISO_C_BINDING
-type(C_PTR) :: cvode_mem
+integer(C_INT) :: swig_result
+type(C_PTR), target, intent(inout) :: cvode_mem
+integer(C_INT) :: fresult 
 type(C_PTR) :: farg1 
 
-farg1 = cvode_mem
+farg1 = c_loc(cvode_mem)
+fresult = swigc_FCVodeQuadSensDestroy(farg1)
+swig_result = fresult
+end function
+
+subroutine FCVodeQuadSensFree(cvode_mem)
+use, intrinsic :: ISO_C_BINDING
+type(C_PTR), target, intent(inout) :: cvode_mem
+type(C_PTR) :: farg1 
+
+farg1 = c_loc(cvode_mem)
 call swigc_FCVodeQuadSensFree(farg1)
 end subroutine
 
@@ -5304,12 +5401,25 @@ fresult = swigc_FCVodeAdjReInit(farg1)
 swig_result = fresult
 end function
 
-subroutine FCVodeAdjFree(cvode_mem)
+function FCVodeAdjDestroy(cvode_mem) &
+result(swig_result)
 use, intrinsic :: ISO_C_BINDING
-type(C_PTR) :: cvode_mem
+integer(C_INT) :: swig_result
+type(C_PTR), target, intent(inout) :: cvode_mem
+integer(C_INT) :: fresult 
 type(C_PTR) :: farg1 
 
-farg1 = cvode_mem
+farg1 = c_loc(cvode_mem)
+fresult = swigc_FCVodeAdjDestroy(farg1)
+swig_result = fresult
+end function
+
+subroutine FCVodeAdjFree(cvode_mem)
+use, intrinsic :: ISO_C_BINDING
+type(C_PTR), target, intent(inout) :: cvode_mem
+type(C_PTR) :: farg1 
+
+farg1 = c_loc(cvode_mem)
 call swigc_FCVodeAdjFree(farg1)
 end subroutine
 

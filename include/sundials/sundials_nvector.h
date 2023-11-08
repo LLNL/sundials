@@ -206,7 +206,13 @@ struct _generic_N_Vector
  * ----------------------------------------------------------------- */
 
 SUNDIALS_EXPORT N_Vector N_VNewEmpty(SUNContext sunctx);
-SUNDIALS_EXPORT void N_VFreeEmpty(N_Vector v);
+SUNDIALS_EXPORT int N_VDestroyEmpty(N_Vector v);
+
+SUNDIALS_DEPRECATED_MSG("Use N_VDestroyEmpty instead")
+SUNDIALS_STATIC_INLINE
+void N_VFreeEmpty(N_Vector v) {
+  N_VDestroyEmpty(v);
+}
 SUNDIALS_EXPORT int N_VCopyOps(N_Vector w, N_Vector v);
 
 /*

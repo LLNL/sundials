@@ -28,6 +28,7 @@ module fsundials_nonlinearsolver_mod
   type(C_FUNPTR), public :: setup
   type(C_FUNPTR), public :: solve
   type(C_FUNPTR), public :: free
+  type(C_FUNPTR), public :: destroy
   type(C_FUNPTR), public :: setsysfn
   type(C_FUNPTR), public :: setlsetupfn
   type(C_FUNPTR), public :: setlsolvefn
@@ -44,11 +45,13 @@ module fsundials_nonlinearsolver_mod
   type(C_PTR), public :: sunctx
  end type SUNNonlinearSolver
  public :: FSUNNonlinSolNewEmpty
- public :: FSUNNonlinSolFreeEmpty
+ public :: FSUNNonlinsolDestroyEmpty
+ public :: FSUNNonlinsolFreeEmpty
  public :: FSUNNonlinSolGetType
  public :: FSUNNonlinSolInitialize
  public :: FSUNNonlinSolSetup
  public :: FSUNNonlinSolSolve
+ public :: FSUNNonlinSolDestroy
  public :: FSUNNonlinSolFree
  public :: FSUNNonlinSolSetSysFn
  public :: FSUNNonlinSolSetLSetupFn
@@ -77,8 +80,16 @@ type(C_PTR), value :: farg1
 type(C_PTR) :: fresult
 end function
 
-subroutine swigc_FSUNNonlinSolFreeEmpty(farg1) &
-bind(C, name="_wrap_FSUNNonlinSolFreeEmpty")
+function swigc_FSUNNonlinsolDestroyEmpty(farg1) &
+bind(C, name="_wrap_FSUNNonlinsolDestroyEmpty") &
+result(fresult)
+use, intrinsic :: ISO_C_BINDING
+type(C_PTR), value :: farg1
+integer(C_INT) :: fresult
+end function
+
+subroutine swigc_FSUNNonlinsolFreeEmpty(farg1) &
+bind(C, name="_wrap_FSUNNonlinsolFreeEmpty")
 use, intrinsic :: ISO_C_BINDING
 type(C_PTR), value :: farg1
 end subroutine
@@ -123,13 +134,19 @@ type(C_PTR), value :: farg7
 integer(C_INT) :: fresult
 end function
 
-function swigc_FSUNNonlinSolFree(farg1) &
-bind(C, name="_wrap_FSUNNonlinSolFree") &
+function swigc_FSUNNonlinSolDestroy(farg1) &
+bind(C, name="_wrap_FSUNNonlinSolDestroy") &
 result(fresult)
 use, intrinsic :: ISO_C_BINDING
 type(C_PTR), value :: farg1
 integer(C_INT) :: fresult
 end function
+
+subroutine swigc_FSUNNonlinSolFree(farg1) &
+bind(C, name="_wrap_FSUNNonlinSolFree")
+use, intrinsic :: ISO_C_BINDING
+type(C_PTR), value :: farg1
+end subroutine
 
 function swigc_FSUNNonlinSolSetSysFn(farg1, farg2) &
 bind(C, name="_wrap_FSUNNonlinSolSetSysFn") &
@@ -222,13 +239,26 @@ fresult = swigc_FSUNNonlinSolNewEmpty(farg1)
 call c_f_pointer(fresult, swig_result)
 end function
 
-subroutine FSUNNonlinSolFreeEmpty(nls)
+function FSUNNonlinsolDestroyEmpty(nls) &
+result(swig_result)
+use, intrinsic :: ISO_C_BINDING
+integer(C_INT) :: swig_result
+type(SUNNonlinearSolver), target, intent(inout) :: nls
+integer(C_INT) :: fresult 
+type(C_PTR) :: farg1 
+
+farg1 = c_loc(nls)
+fresult = swigc_FSUNNonlinsolDestroyEmpty(farg1)
+swig_result = fresult
+end function
+
+subroutine FSUNNonlinsolFreeEmpty(nls)
 use, intrinsic :: ISO_C_BINDING
 type(SUNNonlinearSolver), target, intent(inout) :: nls
 type(C_PTR) :: farg1 
 
 farg1 = c_loc(nls)
-call swigc_FSUNNonlinSolFreeEmpty(farg1)
+call swigc_FSUNNonlinsolFreeEmpty(farg1)
 end subroutine
 
 function FSUNNonlinSolGetType(nls) &
@@ -307,7 +337,7 @@ fresult = swigc_FSUNNonlinSolSolve(farg1, farg2, farg3, farg4, farg5, farg6, far
 swig_result = fresult
 end function
 
-function FSUNNonlinSolFree(nls) &
+function FSUNNonlinSolDestroy(nls) &
 result(swig_result)
 use, intrinsic :: ISO_C_BINDING
 integer(C_INT) :: swig_result
@@ -316,9 +346,18 @@ integer(C_INT) :: fresult
 type(C_PTR) :: farg1 
 
 farg1 = c_loc(nls)
-fresult = swigc_FSUNNonlinSolFree(farg1)
+fresult = swigc_FSUNNonlinSolDestroy(farg1)
 swig_result = fresult
 end function
+
+subroutine FSUNNonlinSolFree(nls)
+use, intrinsic :: ISO_C_BINDING
+type(SUNNonlinearSolver), target, intent(inout) :: nls
+type(C_PTR) :: farg1 
+
+farg1 = c_loc(nls)
+call swigc_FSUNNonlinSolFree(farg1)
+end subroutine
 
 function FSUNNonlinSolSetSysFn(nls, sysfn) &
 result(swig_result)

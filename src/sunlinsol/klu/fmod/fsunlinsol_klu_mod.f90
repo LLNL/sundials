@@ -67,6 +67,7 @@ module fsunlinsol_klu_mod
  public :: FSUNLinSolSolve_KLU
  public :: FSUNLinSolLastFlag_KLU
  public :: FSUNLinSolSpace_KLU
+ public :: FSUNLinSolDestroy_KLU
  public :: FSUNLinSolFree_KLU
 
 ! WRAPPER DECLARATIONS
@@ -188,6 +189,14 @@ use, intrinsic :: ISO_C_BINDING
 type(C_PTR), value :: farg1
 type(C_PTR), value :: farg2
 type(C_PTR), value :: farg3
+integer(C_INT) :: fresult
+end function
+
+function swigc_FSUNLinSolDestroy_KLU(farg1) &
+bind(C, name="_wrap_FSUNLinSolDestroy_KLU") &
+result(fresult)
+use, intrinsic :: ISO_C_BINDING
+type(C_PTR), value :: farg1
 integer(C_INT) :: fresult
 end function
 
@@ -409,6 +418,19 @@ farg1 = c_loc(s)
 farg2 = c_loc(lenrwls(1))
 farg3 = c_loc(leniwls(1))
 fresult = swigc_FSUNLinSolSpace_KLU(farg1, farg2, farg3)
+swig_result = fresult
+end function
+
+function FSUNLinSolDestroy_KLU(s) &
+result(swig_result)
+use, intrinsic :: ISO_C_BINDING
+integer(C_INT) :: swig_result
+type(SUNLinearSolver), target, intent(inout) :: s
+integer(C_INT) :: fresult 
+type(C_PTR) :: farg1 
+
+farg1 = c_loc(s)
+fresult = swigc_FSUNLinSolDestroy_KLU(farg1)
 swig_result = fresult
 end function
 

@@ -66,7 +66,13 @@ SUNDIALS_EXPORT sunindextype SUNLinSolLastFlag_Dense(SUNLinearSolver S);
 SUNDIALS_EXPORT int SUNLinSolSpace_Dense(SUNLinearSolver S,
                                          long int *lenrwLS,
                                          long int *leniwLS);
-SUNDIALS_EXPORT int SUNLinSolFree_Dense(SUNLinearSolver S);
+SUNDIALS_EXPORT int SUNLinSolDestroy_Dense(SUNLinearSolver S);
+
+SUNDIALS_DEPRECATED_MSG("Use SUNLinSolDestroy_Dense")
+SUNDIALS_STATIC_INLINE
+int SUNLinSolFree_Dense(SUNLinearSolver S) {
+  return SUNLinSolDestroy_Dense(S);
+}
 
 #ifdef __cplusplus
 }

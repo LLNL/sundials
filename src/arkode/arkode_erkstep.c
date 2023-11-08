@@ -367,10 +367,10 @@ int ERKStepGetDky(void *arkode_mem, realtype t, int k, N_Vector dky)
 
 
 /*---------------------------------------------------------------
-  ERKStepFree frees all ERKStep memory, and then calls an ARKODE
+  ERKStepDestroy frees all ERKStep memory, and then calls an ARKODE
   utility routine to free the ARKODE infrastructure memory.
   ---------------------------------------------------------------*/
-void ERKStepFree(void **arkode_mem)
+int ERKStepDestroy(void **arkode_mem)
 {
   int j;
   sunindextype Bliw, Blrw;

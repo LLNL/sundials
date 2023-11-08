@@ -1609,7 +1609,7 @@ int CVodeComputeState(void *cvode_mem, N_Vector ycor, N_Vector y)
 }
 
 /*
- * CVodeFree
+ * CVodeDestroy
  *
  * This routine frees the problem memory allocated by CVodeInit.
  * Such memory includes all the vectors allocated by cvAllocVectors,
@@ -1617,7 +1617,7 @@ int CVodeComputeState(void *cvode_mem, N_Vector ycor, N_Vector y)
  * to lfree).
  */
 
-void CVodeFree(void **cvode_mem)
+int CVodeDestroy(void **cvode_mem)
 {
   CVodeMem cv_mem;
 

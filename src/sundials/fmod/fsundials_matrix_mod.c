@@ -202,6 +202,18 @@ SWIGEXPORT SUNMatrix _wrap_FSUNMatNewEmpty(void *farg1) {
 }
 
 
+SWIGEXPORT int _wrap_FSUNMatDestroyEmpty(SUNMatrix farg1) {
+  int fresult ;
+  SUNMatrix arg1 = (SUNMatrix) 0 ;
+  int result;
+  
+  arg1 = (SUNMatrix)(farg1);
+  result = (int)SUNMatDestroyEmpty(arg1);
+  fresult = (int)(result);
+  return fresult;
+}
+
+
 SWIGEXPORT void _wrap_FSUNMatFreeEmpty(SUNMatrix farg1) {
   SUNMatrix arg1 = (SUNMatrix) 0 ;
   
@@ -248,11 +260,15 @@ SWIGEXPORT SUNMatrix _wrap_FSUNMatClone(SUNMatrix farg1) {
 }
 
 
-SWIGEXPORT void _wrap_FSUNMatDestroy(SUNMatrix farg1) {
+SWIGEXPORT int _wrap_FSUNMatDestroy(SUNMatrix farg1) {
+  int fresult ;
   SUNMatrix arg1 = (SUNMatrix) 0 ;
+  int result;
   
   arg1 = (SUNMatrix)(farg1);
-  SUNMatDestroy(arg1);
+  result = (int)SUNMatDestroy(arg1);
+  fresult = (int)(result);
+  return fresult;
 }
 
 

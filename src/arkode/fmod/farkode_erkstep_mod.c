@@ -1330,6 +1330,18 @@ SWIGEXPORT int _wrap_FERKStepGetStepStats(void *farg1, long *farg2, double *farg
 }
 
 
+SWIGEXPORT int _wrap_FERKStepDestroy(void *farg1) {
+  int fresult ;
+  void **arg1 = (void **) 0 ;
+  int result;
+  
+  arg1 = (void **)(farg1);
+  result = (int)ERKStepDestroy(arg1);
+  fresult = (int)(result);
+  return fresult;
+}
+
+
 SWIGEXPORT void _wrap_FERKStepFree(void *farg1) {
   void **arg1 = (void **) 0 ;
   

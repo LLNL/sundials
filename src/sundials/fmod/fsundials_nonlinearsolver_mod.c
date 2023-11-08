@@ -202,11 +202,23 @@ SWIGEXPORT SUNNonlinearSolver _wrap_FSUNNonlinSolNewEmpty(void *farg1) {
 }
 
 
-SWIGEXPORT void _wrap_FSUNNonlinSolFreeEmpty(SUNNonlinearSolver farg1) {
+SWIGEXPORT int _wrap_FSUNNonlinsolDestroyEmpty(SUNNonlinearSolver farg1) {
+  int fresult ;
+  SUNNonlinearSolver arg1 = (SUNNonlinearSolver) 0 ;
+  int result;
+  
+  arg1 = (SUNNonlinearSolver)(farg1);
+  result = (int)SUNNonlinsolDestroyEmpty(arg1);
+  fresult = (int)(result);
+  return fresult;
+}
+
+
+SWIGEXPORT void _wrap_FSUNNonlinsolFreeEmpty(SUNNonlinearSolver farg1) {
   SUNNonlinearSolver arg1 = (SUNNonlinearSolver) 0 ;
   
   arg1 = (SUNNonlinearSolver)(farg1);
-  SUNNonlinSolFreeEmpty(arg1);
+  SUNNonlinsolFreeEmpty(arg1);
 }
 
 
@@ -274,15 +286,23 @@ SWIGEXPORT int _wrap_FSUNNonlinSolSolve(SUNNonlinearSolver farg1, N_Vector farg2
 }
 
 
-SWIGEXPORT int _wrap_FSUNNonlinSolFree(SUNNonlinearSolver farg1) {
+SWIGEXPORT int _wrap_FSUNNonlinSolDestroy(SUNNonlinearSolver farg1) {
   int fresult ;
   SUNNonlinearSolver arg1 = (SUNNonlinearSolver) 0 ;
   int result;
   
   arg1 = (SUNNonlinearSolver)(farg1);
-  result = (int)SUNNonlinSolFree(arg1);
+  result = (int)SUNNonlinSolDestroy(arg1);
   fresult = (int)(result);
   return fresult;
+}
+
+
+SWIGEXPORT void _wrap_FSUNNonlinSolFree(SUNNonlinearSolver farg1) {
+  SUNNonlinearSolver arg1 = (SUNNonlinearSolver) 0 ;
+  
+  arg1 = (SUNNonlinearSolver)(farg1);
+  SUNNonlinSolFree(arg1);
 }
 
 

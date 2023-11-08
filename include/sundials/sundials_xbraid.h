@@ -18,6 +18,7 @@
 #ifndef _SUNDIALS_XBRAID_H
 #define _SUNDIALS_XBRAID_H
 
+#include "sundials/sundials_config.h"
 #include "sundials/sundials_types.h"
 #include "sundials/sundials_nvector.h"
 #include "braid.h"
@@ -91,7 +92,11 @@ SUNDIALS_EXPORT int SUNBraidVector_GetNVector(SUNBraidVector u, N_Vector *y);
 SUNDIALS_EXPORT int SUNBraidVector_Clone(braid_App app, braid_Vector u,
                                          braid_Vector *v_ptr);
 
-SUNDIALS_EXPORT int SUNBraidVector_Free(braid_App app, braid_Vector u);
+SUNDIALS_EXPORT int SUNBraidVector_Destroy(braid_App app, braid_Vector u);
+
+SUNDIALS_DEPRECATED_MSG("SUNBraidVector_Destroy")
+SUNDIALS_STATIC_INLINE 
+int SUNBraidVector_Free(braid_App app, braid_Vector u);
 
 SUNDIALS_EXPORT int SUNBraidVector_Sum(braid_App app,
                                        braid_Real alpha, braid_Vector x,

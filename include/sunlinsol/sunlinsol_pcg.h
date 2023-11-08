@@ -104,7 +104,13 @@ SUNDIALS_EXPORT sunindextype SUNLinSolLastFlag_PCG(SUNLinearSolver S);
 SUNDIALS_EXPORT int SUNLinSolSpace_PCG(SUNLinearSolver S,
                                        long int *lenrwLS,
                                        long int *leniwLS);
-SUNDIALS_EXPORT int SUNLinSolFree_PCG(SUNLinearSolver S);
+SUNDIALS_EXPORT int SUNLinSolDestroy_PCG(SUNLinearSolver S);
+
+SUNDIALS_DEPRECATED_MSG("Use SUNLinSolDestroy_PCG")
+SUNDIALS_STATIC_INLINE
+int SUNLinSolFree_PCG(SUNLinearSolver S) {
+  return SUNLinSolDestroy_PCG(S);
+}
 
 #ifdef __cplusplus
 }

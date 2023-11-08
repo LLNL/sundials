@@ -63,7 +63,13 @@ SUNDIALS_EXPORT sunindextype SUNLinSolLastFlag_LapackDense(SUNLinearSolver S);
 SUNDIALS_EXPORT int SUNLinSolSpace_LapackDense(SUNLinearSolver S,
                                                long int *lenrwLS,
                                                long int *leniwLS);
-SUNDIALS_EXPORT int SUNLinSolFree_LapackDense(SUNLinearSolver S);
+SUNDIALS_EXPORT int SUNLinSolDestroy_LapackDense(SUNLinearSolver S);
+
+SUNDIALS_DEPRECATED_MSG("Use SUNLinSolDestroy_LapackDense")
+SUNDIALS_STATIC_INLINE
+int SUNLinSolFree_LapackDense(SUNLinearSolver S) {
+  return SUNLinSolDestroy_LapackDense(S);
+}
 
 #ifdef __cplusplus
 }

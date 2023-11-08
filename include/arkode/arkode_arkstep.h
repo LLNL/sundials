@@ -417,9 +417,13 @@ SUNDIALS_EXPORT int ARKStepGetLastMassFlag(void *arkode_mem,
 
 SUNDIALS_EXPORT char *ARKStepGetLinReturnFlagName(long int flag);
 
+SUNDIALS_EXPORT int ARKStepDestroy(void **arkode_mem);
 
-/* Free function */
-SUNDIALS_EXPORT void ARKStepFree(void **arkode_mem);
+SUNDIALS_DEPRECATED_MSG("Use ARKStepDestroy instead")
+SUNDIALS_STATIC_INLINE 
+void ARKStepFree(void **arkode_mem) {
+   ARKStepDestroy(arkode_mem);
+}
 
 /* Output the ARKStep memory structure (useful when debugging) */
 SUNDIALS_EXPORT void ARKStepPrintMem(void* arkode_mem, FILE* outfile);

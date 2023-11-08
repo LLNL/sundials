@@ -24,6 +24,7 @@ module fsundials_profiler_mod
  private
 
  ! DECLARATION CONSTRUCTS
+ public :: FSUNProfiler_Destroy
  public :: FSUNProfiler_Free
  type, bind(C) :: SwigArrayWrapper
   type(C_PTR), public :: data = C_NULL_PTR
@@ -41,6 +42,14 @@ module fsundials_profiler_mod
 
 ! WRAPPER DECLARATIONS
 interface
+function swigc_FSUNProfiler_Destroy(farg1) &
+bind(C, name="_wrap_FSUNProfiler_Destroy") &
+result(fresult)
+use, intrinsic :: ISO_C_BINDING
+type(C_PTR), value :: farg1
+integer(C_INT) :: fresult
+end function
+
 function swigc_FSUNProfiler_Free(farg1) &
 bind(C, name="_wrap_FSUNProfiler_Free") &
 result(fresult)
@@ -123,6 +132,19 @@ end interface
 
 contains
  ! MODULE SUBPROGRAMS
+function FSUNProfiler_Destroy(p) &
+result(swig_result)
+use, intrinsic :: ISO_C_BINDING
+integer(C_INT) :: swig_result
+type(C_PTR), target, intent(inout) :: p
+integer(C_INT) :: fresult 
+type(C_PTR) :: farg1 
+
+farg1 = c_loc(p)
+fresult = swigc_FSUNProfiler_Destroy(farg1)
+swig_result = fresult
+end function
+
 function FSUNProfiler_Free(p) &
 result(swig_result)
 use, intrinsic :: ISO_C_BINDING

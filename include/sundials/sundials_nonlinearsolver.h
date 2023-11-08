@@ -99,7 +99,9 @@ struct _generic_SUNNonlinearSolver_Ops
   int (*initialize)(SUNNonlinearSolver);
   int (*setup)(SUNNonlinearSolver, N_Vector, void*);
   int (*solve)(SUNNonlinearSolver, N_Vector, N_Vector, N_Vector, realtype, booleantype, void*);
+  /* DEPRECATED: use destroy instead */
   int (*free)(SUNNonlinearSolver);
+  int (*destroy)(SUNNonlinearSolver);
   int (*setsysfn)(SUNNonlinearSolver, SUNNonlinSolSysFn);
   int (*setlsetupfn)(SUNNonlinearSolver, SUNNonlinSolLSetupFn);
   int (*setlsolvefn)(SUNNonlinearSolver, SUNNonlinSolLSolveFn);
@@ -132,7 +134,13 @@ struct _generic_SUNNonlinearSolver
 
 /* empty constructor/destructor */
 SUNDIALS_EXPORT SUNNonlinearSolver SUNNonlinSolNewEmpty(SUNContext sunctx);
-SUNDIALS_EXPORT void SUNNonlinSolFreeEmpty(SUNNonlinearSolver NLS);
+SUNDIALS_EXPORT int SUNNonlinsolDestroyEmpty(SUNNonlinearSolver NLS);
+
+SUNDIALS_DEPRECATED_EXPORT_MSG("Use SUNNonlinsolDestroyEmpty")
+SUNDIALS_STATIC_INLINE 
+void SUNNonlinsolFreeEmpty(SUNNonlinearSolver NLS) {
+  SUNNonlinsolDestroyEmpty(NLS);
+}
 
 /* core functions */
 SUNDIALS_EXPORT SUNNonlinearSolver_Type SUNNonlinSolGetType(SUNNonlinearSolver NLS);
@@ -144,7 +152,14 @@ SUNDIALS_EXPORT int SUNNonlinSolSetup(SUNNonlinearSolver NLS, N_Vector y, void* 
 SUNDIALS_EXPORT int SUNNonlinSolSolve(SUNNonlinearSolver NLS, N_Vector y0, N_Vector y, N_Vector w, realtype tol,
                                       booleantype callLSetup, void* mem);
 
-SUNDIALS_EXPORT int SUNNonlinSolFree(SUNNonlinearSolver NLS);
+SUNDIALS_EXPORT int SUNNonlinSolDestroy(SUNNonlinearSolver NLS);
+
+SUNDIALS_DEPRECATED_EXPORT_MSG("Use SUNNonlinSolDestroy")
+SUNDIALS_STATIC_INLINE 
+void SUNNonlinSolFree(SUNNonlinearSolver NLS) {
+  SUNNonlinSolDestroy(NLS);
+}
+
 
 /* set functions */
 SUNDIALS_EXPORT int SUNNonlinSolSetSysFn(SUNNonlinearSolver NLS, SUNNonlinSolSysFn SysFn);

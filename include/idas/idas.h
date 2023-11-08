@@ -323,8 +323,13 @@ SUNDIALS_EXPORT int IDAPrintAllStats(void *ida_mem, FILE *outfile,
                                      SUNOutputFormat fmt);
 SUNDIALS_EXPORT char *IDAGetReturnFlagName(long int flag);
 
-/* Free function */
-SUNDIALS_EXPORT void IDAFree(void **ida_mem);
+SUNDIALS_EXPORT int IDADestroy(void **ida_mem);
+
+SUNDIALS_DEPRECATED_MSG("Use IDADestroy instead")
+SUNDIALS_STATIC_INLINE 
+void IDAFree(void **ida_mem) {
+  IDADestroy(ida_mem);
+}
 
 /* IDALS interface function that depends on IDAResFn */
 SUNDIALS_EXPORT int IDASetJacTimesResFn(void *ida_mem,
@@ -361,9 +366,13 @@ SUNDIALS_EXPORT int IDAGetQuadErrWeights(void *ida_mem, N_Vector eQweight);
 SUNDIALS_EXPORT int IDAGetQuadStats(void *ida_mem, long int *nrhsQevals,
                                     long int *nQetfails);
 
-/* Free function */
-SUNDIALS_EXPORT void IDAQuadFree(void *ida_mem);
+SUNDIALS_EXPORT int IDAQuadDestroy(void **ida_mem);
 
+SUNDIALS_DEPRECATED_MSG("Use IDAQuadDestroy instead")
+SUNDIALS_STATIC_INLINE
+void IDAQuadFree(void **ida_mem) {
+  IDAQuadDestroy(ida_mem);
+}
 
 /* ------------------------------------
  * Exported Functions -- Sensitivities
@@ -435,8 +444,13 @@ SUNDIALS_EXPORT int IDAGetSensNonlinSolvStats(void *ida_mem,
 SUNDIALS_EXPORT int IDAGetNumStepSensSolveFails(void *ida_mem,
                                                 long int *nSncfails);
 
-/* Free function */
-SUNDIALS_EXPORT void IDASensFree(void *ida_mem);
+SUNDIALS_EXPORT int IDASensDestroy(void **ida_mem);
+
+SUNDIALS_DEPRECATED_MSG("Use IDASensDestroy instead")
+SUNDIALS_STATIC_INLINE
+void IDASensFree(void **ida_mem) {
+  IDASensDestroy(ida_mem);
+}
 
 
 /* -------------------------------------------------------
@@ -479,8 +493,13 @@ SUNDIALS_EXPORT int IDAGetQuadSensStats(void *ida_mem,
                                           long int *nrhsQSevals,
                                           long int *nQSetfails);
 
-/* Free function */
-SUNDIALS_EXPORT void IDAQuadSensFree(void* ida_mem);
+SUNDIALS_EXPORT int IDAQuadSensDestroy(void **ida_mem);
+
+SUNDIALS_DEPRECATED_MSG("Use IDAQuadSensDestroy instead")
+SUNDIALS_STATIC_INLINE
+void IDAQuadSensFree(void **ida_mem) {
+  IDAQuadSensDestroy(ida_mem);
+}
 
 
 /* ----------------------------------------
@@ -493,7 +512,13 @@ SUNDIALS_EXPORT int IDAAdjInit(void *ida_mem, long int steps, int interp);
 
 SUNDIALS_EXPORT int IDAAdjReInit(void *ida_mem);
 
-SUNDIALS_EXPORT void IDAAdjFree(void *ida_mem);
+SUNDIALS_EXPORT int IDAAdjDestroy(void **ida_mem);
+
+SUNDIALS_DEPRECATED_MSG("Use IDAAdjDestroy instead")
+SUNDIALS_STATIC_INLINE
+void IDAAdjFree(void **ida_mem) {
+  IDAAdjDestroy(ida_mem);
+}
 
 /* Backward Problem Setup Functions */
 

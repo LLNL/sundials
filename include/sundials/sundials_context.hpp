@@ -59,7 +59,7 @@ public:
 
   ~Context()
   {
-    if (sunctx_) SUNContext_Free(sunctx_.get());
+    if (sunctx_) { SUNContext_Destroy(sunctx_.get()); }
   }
 
 private:

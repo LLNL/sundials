@@ -408,7 +408,7 @@ void MRIStepCoupling_Space(MRIStepCoupling MRIC, sunindextype *liw,
 /*---------------------------------------------------------------
   Routine to free a MRIStepCoupling structure
   ---------------------------------------------------------------*/
-void MRIStepCoupling_Free(MRIStepCoupling MRIC)
+void MRIStepCoupling_Destroy(MRIStepCoupling MRIC)
 {
   int k, i;
 

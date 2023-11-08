@@ -70,7 +70,13 @@ SUNDIALS_EXPORT sunindextype SUNLinSolLastFlag_MagmaDense(SUNLinearSolver S);
 SUNDIALS_EXPORT int SUNLinSolSpace_MagmaDense(SUNLinearSolver S,
                                               long int *lenrwLS,
                                               long int *leniwLS);
-SUNDIALS_EXPORT int SUNLinSolFree_MagmaDense(SUNLinearSolver S);
+SUNDIALS_EXPORT int SUNLinSolDestroy_MagmaDense(SUNLinearSolver S);
+
+SUNDIALS_DEPRECATED_MSG("Use SUNLinSolDestroy_MagmaDense")
+SUNDIALS_STATIC_INLINE
+int SUNLinSolFree_MagmaDense(SUNLinearSolver S) {
+  return SUNLinSolDestroy_MagmaDense(S);
+}
 
 #ifdef __cplusplus
 }

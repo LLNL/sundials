@@ -261,6 +261,18 @@ SWIGEXPORT int _wrap_FSUNContext_SetLogger(void *farg1, void *farg2) {
 }
 
 
+SWIGEXPORT int _wrap_FSUNContext_Destroy(void *farg1) {
+  int fresult ;
+  SUNContext *arg1 = (SUNContext *) 0 ;
+  int result;
+  
+  arg1 = (SUNContext *)(farg1);
+  result = (int)SUNContext_Destroy(arg1);
+  fresult = (int)(result);
+  return fresult;
+}
+
+
 
 SWIGEXPORT int _wrap_FSUNContext_Free(void *farg1) {
   int fresult ;

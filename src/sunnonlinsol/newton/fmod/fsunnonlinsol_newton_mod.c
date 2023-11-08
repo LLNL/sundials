@@ -286,6 +286,18 @@ SWIGEXPORT int _wrap_FSUNNonlinSolSolve_Newton(SUNNonlinearSolver farg1, N_Vecto
 }
 
 
+SWIGEXPORT int _wrap_FSUNNonlinSolDestroy_Newton(SUNNonlinearSolver farg1) {
+  int fresult ;
+  SUNNonlinearSolver arg1 = (SUNNonlinearSolver) 0 ;
+  int result;
+  
+  arg1 = (SUNNonlinearSolver)(farg1);
+  result = (int)SUNNonlinSolDestroy_Newton(arg1);
+  fresult = (int)(result);
+  return fresult;
+}
+
+
 SWIGEXPORT int _wrap_FSUNNonlinSolFree_Newton(SUNNonlinearSolver farg1) {
   int fresult ;
   SUNNonlinearSolver arg1 = (SUNNonlinearSolver) 0 ;

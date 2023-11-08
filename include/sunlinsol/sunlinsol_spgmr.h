@@ -120,7 +120,13 @@ SUNDIALS_EXPORT sunindextype SUNLinSolLastFlag_SPGMR(SUNLinearSolver S);
 SUNDIALS_EXPORT int SUNLinSolSpace_SPGMR(SUNLinearSolver S,
                                          long int *lenrwLS,
                                          long int *leniwLS);
-SUNDIALS_EXPORT int SUNLinSolFree_SPGMR(SUNLinearSolver S);
+SUNDIALS_EXPORT int SUNLinSolDestroy_SPGMR(SUNLinearSolver S);
+
+SUNDIALS_DEPRECATED_MSG("Use SUNLinSolDestroy_SPGMR")
+SUNDIALS_STATIC_INLINE
+int SUNLinSolFree_SPGMR(SUNLinearSolver S) {
+  return SUNLinSolDestroy_SPGMR(S);
+}
 
 #ifdef __cplusplus
 }

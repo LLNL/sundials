@@ -810,6 +810,18 @@ SWIGEXPORT SwigArrayWrapper _wrap_FKINGetReturnFlagName(long const *farg1) {
 }
 
 
+SWIGEXPORT int _wrap_FKINDestroy(void *farg1) {
+  int fresult ;
+  void **arg1 = (void **) 0 ;
+  int result;
+  
+  arg1 = (void **)(farg1);
+  result = (int)KINDestroy(arg1);
+  fresult = (int)(result);
+  return fresult;
+}
+
+
 SWIGEXPORT void _wrap_FKINFree(void *farg1) {
   void **arg1 = (void **) 0 ;
   

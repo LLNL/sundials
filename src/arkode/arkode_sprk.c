@@ -548,7 +548,7 @@ void ARKodeSPRKTable_Space(ARKodeSPRKTable sprk_table, sunindextype* liw,
   *lrw = sprk_table->stages * 2;
 }
 
-void ARKodeSPRKTable_Free(ARKodeSPRKTable sprk_table)
+void ARKodeSPRKTable_Destroy(ARKodeSPRKTable sprk_table)
 {
   if (sprk_table)
   {

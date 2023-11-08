@@ -31,7 +31,7 @@ struct SUNLinearSolverDeleter
 {
   void operator()(SUNLinearSolver LS)
   {
-    if (LS) SUNLinSolFree(LS);
+    if (LS) SUNLinSolDestroy(LS);
   }
 };
 using SUNLinearSolverView = ClassView<SUNLinearSolver, SUNLinearSolverDeleter>;

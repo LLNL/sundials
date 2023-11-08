@@ -19,6 +19,7 @@
 
 #include <arkode/arkode_butcher.h>
 #include <sundials/sundials_types.h>
+#include "sundials/sundials_config.h"
 
 #ifdef __cplusplus /* wrapper to enable C++ usage */
 extern "C" {
@@ -80,8 +81,15 @@ void ARKodeSPRKTable_Write(ARKodeSPRKTable sprk_table, FILE* outfile);
 SUNDIALS_EXPORT
 void ARKodeSPRKTable_Space(ARKodeSPRKTable sprk_storage, sunindextype* liw,
                             sunindextype* lrw);
+
 SUNDIALS_EXPORT
-void ARKodeSPRKTable_Free(ARKodeSPRKTable sprk_storage);
+int ARKodeSPRKTable_Destroy(ARKodeSPRKTable sprk_storage);
+
+SUNDIALS_DEPRECATED_MSG("Use ARKodeSPRKTable_Destroy instead")
+SUNDIALS_STATIC_INLINE
+void ARKodeSPRKTable_Free(ARKodeSPRKTable sprk_storage) {
+  ARKodeSPRKTable_Destroy(sprk_storage);
+}
 
 SUNDIALS_EXPORT
 int ARKodeSPRKTable_ToButcher(ARKodeSPRKTable sprk_storage,

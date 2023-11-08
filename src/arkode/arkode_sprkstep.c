@@ -315,16 +315,16 @@ int SPRKStepGetDky(void* arkode_mem, realtype t, int k, N_Vector dky)
 }
 
 /*---------------------------------------------------------------
-  SPRKStepFree frees all SPRKStep memory, and then calls an ARKODE
+  SPRKStepDestroy frees all SPRKStep memory, and then calls an ARKODE
   utility routine to free the ARKODE infrastructure memory.
   ---------------------------------------------------------------*/
-void SPRKStepFree(void** arkode_mem)
+int SPRKStepDestroy(void** arkode_mem)
 {
   ARKodeMem ark_mem          = NULL;
   ARKodeSPRKStepMem step_mem = NULL;
 
   /* nothing to do if arkode_mem is already NULL */
-  if (*arkode_mem == NULL) { return; }
+  if (*arkode_mem == NULL) { return 0; }
 
   /* conditional frees on non-NULL SPRKStep module */
   ark_mem = (ARKodeMem)(*arkode_mem);

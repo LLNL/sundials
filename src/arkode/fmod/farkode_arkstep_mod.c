@@ -2413,6 +2413,18 @@ SWIGEXPORT SwigArrayWrapper _wrap_FARKStepGetLinReturnFlagName(long const *farg1
 }
 
 
+SWIGEXPORT int _wrap_FARKStepDestroy(void *farg1) {
+  int fresult ;
+  void **arg1 = (void **) 0 ;
+  int result;
+  
+  arg1 = (void **)(farg1);
+  result = (int)ARKStepDestroy(arg1);
+  fresult = (int)(result);
+  return fresult;
+}
+
+
 SWIGEXPORT void _wrap_FARKStepFree(void *farg1) {
   void **arg1 = (void **) 0 ;
   

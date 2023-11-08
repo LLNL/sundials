@@ -109,7 +109,13 @@ SUNDIALS_EXPORT sunindextype SUNLinSolLastFlag_SuperLUMT(SUNLinearSolver S);
 SUNDIALS_EXPORT int SUNLinSolSpace_SuperLUMT(SUNLinearSolver S,
                                              long int *lenrwLS,
                                              long int *leniwLS);
-SUNDIALS_EXPORT int SUNLinSolFree_SuperLUMT(SUNLinearSolver S);
+SUNDIALS_EXPORT int SUNLinSolDestroy_SuperLUMT(SUNLinearSolver S);
+
+SUNDIALS_DEPRECATED_MSG("Use SUNLinSolDestroy_SuperLUMT")
+SUNDIALS_STATIC_INLINE
+int SUNLinSolFree_SuperLUMT(SUNLinearSolver S) {
+  return SUNLinSolDestroy_SuperLUMT(S);
+}
 
 
 #ifdef __cplusplus

@@ -76,9 +76,9 @@ SUNNonlinearSolver SUNNonlinSolNewEmpty(SUNContext sunctx)
  * Free a generic SUNNonlinearSolver (assumes content is already empty)
  * ---------------------------------------------------------------------------*/
 
-void SUNNonlinSolFreeEmpty(SUNNonlinearSolver NLS)
+int SUNNonlinsolDestroyEmpty(SUNNonlinearSolver NLS)
 {
-  if (NLS == NULL)  return;
+  if (NLS == NULL)  return SUN_NLS_SUCCESS;
 
   /* free non-NULL ops structure */
   if (NLS->ops)  free(NLS->ops);
@@ -86,7 +86,7 @@ void SUNNonlinSolFreeEmpty(SUNNonlinearSolver NLS)
 
   /* free overall N_Vector object and return */
   free(NLS);
-  return;
+  return SUN_NLS_SUCCESS;
 }
 
 /* -----------------------------------------------------------------------------
@@ -134,7 +134,7 @@ int SUNNonlinSolSolve(SUNNonlinearSolver NLS,
   return(ier);
 }
 
-int SUNNonlinSolFree(SUNNonlinearSolver NLS)
+int SUNNonlinSolDestroy(SUNNonlinearSolver NLS)
 {
   if (NLS == NULL) return(SUN_NLS_SUCCESS);
 

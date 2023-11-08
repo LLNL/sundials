@@ -125,6 +125,7 @@ module farkode_erkstep_mod
  public :: FERKStepWriteButcher
  public :: FERKStepGetTimestepperStats
  public :: FERKStepGetStepStats
+ public :: FERKStepDestroy
  public :: FERKStepFree
  public :: FERKStepPrintMem
  public :: FERKStepSetRelaxFn
@@ -845,6 +846,14 @@ type(C_PTR), value :: farg3
 type(C_PTR), value :: farg4
 type(C_PTR), value :: farg5
 type(C_PTR), value :: farg6
+integer(C_INT) :: fresult
+end function
+
+function swigc_FERKStepDestroy(farg1) &
+bind(C, name="_wrap_FERKStepDestroy") &
+result(fresult)
+use, intrinsic :: ISO_C_BINDING
+type(C_PTR), value :: farg1
 integer(C_INT) :: fresult
 end function
 
@@ -2308,6 +2317,19 @@ farg4 = c_loc(hlast(1))
 farg5 = c_loc(hcur(1))
 farg6 = c_loc(tcur(1))
 fresult = swigc_FERKStepGetStepStats(farg1, farg2, farg3, farg4, farg5, farg6)
+swig_result = fresult
+end function
+
+function FERKStepDestroy(arkode_mem) &
+result(swig_result)
+use, intrinsic :: ISO_C_BINDING
+integer(C_INT) :: swig_result
+type(C_PTR), target, intent(inout) :: arkode_mem
+integer(C_INT) :: fresult 
+type(C_PTR) :: farg1 
+
+farg1 = c_loc(arkode_mem)
+fresult = swigc_FERKStepDestroy(farg1)
 swig_result = fresult
 end function
 

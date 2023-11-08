@@ -608,10 +608,10 @@ int ARKStepComputeState(void *arkode_mem, N_Vector zcor, N_Vector z)
 
 
 /*---------------------------------------------------------------
-  ARKStepFree frees all ARKStep memory, and then calls an ARKODE
+  ARKStepDestroy frees all ARKStep memory, and then calls an ARKODE
   utility routine to free the ARKODE infrastructure memory.
   ---------------------------------------------------------------*/
-void ARKStepFree(void **arkode_mem)
+int ARKStepDestroy(void **arkode_mem)
 {
   int j;
   sunindextype Bliw, Blrw;

@@ -155,9 +155,9 @@ N_Vector N_VNewEmpty(SUNContext sunctx)
 }
 
 /* Free a generic N_Vector (assumes content is already empty) */
-void N_VFreeEmpty(N_Vector v)
+int N_VDestroyEmpty(N_Vector v)
 {
-  if (v == NULL)  return;
+  if (v == NULL)  return 0;
 
   /* free non-NULL ops structure */
   if (v->ops)  free(v->ops);
@@ -165,7 +165,7 @@ void N_VFreeEmpty(N_Vector v)
 
   /* free overall N_Vector object and return */
   free(v);
-  return;
+  return 0;
 }
 
 /* Copy a vector 'ops' structure */

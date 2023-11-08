@@ -452,6 +452,18 @@ SWIGEXPORT int _wrap_FSUNLinSolSpace_PCG(SUNLinearSolver farg1, long *farg2, lon
 }
 
 
+SWIGEXPORT int _wrap_FSUNLinSolDestroy_PCG(SUNLinearSolver farg1) {
+  int fresult ;
+  SUNLinearSolver arg1 = (SUNLinearSolver) 0 ;
+  int result;
+  
+  arg1 = (SUNLinearSolver)(farg1);
+  result = (int)SUNLinSolDestroy_PCG(arg1);
+  fresult = (int)(result);
+  return fresult;
+}
+
+
 SWIGEXPORT int _wrap_FSUNLinSolFree_PCG(SUNLinearSolver farg1) {
   int fresult ;
   SUNLinearSolver arg1 = (SUNLinearSolver) 0 ;

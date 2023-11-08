@@ -116,11 +116,19 @@ struct _generic_SUNMatrix
  * ----------------------------------------------------------------- */
 
 SUNDIALS_EXPORT SUNMatrix SUNMatNewEmpty(SUNContext sunctx);
-SUNDIALS_EXPORT void SUNMatFreeEmpty(SUNMatrix A);
+
+SUNDIALS_EXPORT int SUNMatDestroyEmpty(SUNMatrix S);
+
+SUNDIALS_DEPRECATED_EXPORT_MSG("Use SUNMatDestroyEmpty")
+SUNDIALS_STATIC_INLINE 
+void SUNMatFreeEmpty(SUNMatrix S) {
+  SUNMatDestroyEmpty(S);
+}
+
 SUNDIALS_EXPORT int SUNMatCopyOps(SUNMatrix A, SUNMatrix B);
 SUNDIALS_EXPORT SUNMatrix_ID SUNMatGetID(SUNMatrix A);
 SUNDIALS_EXPORT SUNMatrix SUNMatClone(SUNMatrix A);
-SUNDIALS_EXPORT void SUNMatDestroy(SUNMatrix A);
+SUNDIALS_EXPORT int SUNMatDestroy(SUNMatrix A);
 SUNDIALS_EXPORT int SUNMatZero(SUNMatrix A);
 SUNDIALS_EXPORT int SUNMatCopy(SUNMatrix A, SUNMatrix B);
 SUNDIALS_EXPORT int SUNMatScaleAdd(realtype c, SUNMatrix A, SUNMatrix B);

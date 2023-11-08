@@ -216,7 +216,7 @@ int SUNProfiler_Create(void* comm, const char* title, SUNProfiler* p)
   return (0);
 }
 
-int SUNProfiler_Free(SUNProfiler* p)
+int SUNProfiler_Destroy(SUNProfiler* p)
 {
   if (p == NULL) return (-1);
 

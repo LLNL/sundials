@@ -611,6 +611,18 @@ SWIGEXPORT void _wrap_FMRIStepCoupling_Space(void *farg1, int64_t *farg2, int64_
 }
 
 
+SWIGEXPORT int _wrap_FMRIStepCoupling_Destroy(void *farg1) {
+  int fresult ;
+  MRIStepCoupling arg1 = (MRIStepCoupling) 0 ;
+  int result;
+  
+  arg1 = (MRIStepCoupling)(farg1);
+  result = (int)MRIStepCoupling_Destroy(arg1);
+  fresult = (int)(result);
+  return fresult;
+}
+
+
 SWIGEXPORT void _wrap_FMRIStepCoupling_Free(void *farg1) {
   MRIStepCoupling arg1 = (MRIStepCoupling) 0 ;
   
@@ -1991,6 +2003,18 @@ SWIGEXPORT SwigArrayWrapper _wrap_FMRIStepGetLinReturnFlagName(long const *farg1
 }
 
 
+SWIGEXPORT int _wrap_FMRIStepDestroy(void *farg1) {
+  int fresult ;
+  void **arg1 = (void **) 0 ;
+  int result;
+  
+  arg1 = (void **)(farg1);
+  result = (int)MRIStepDestroy(arg1);
+  fresult = (int)(result);
+  return fresult;
+}
+
+
 SWIGEXPORT void _wrap_FMRIStepFree(void *farg1) {
   void **arg1 = (void **) 0 ;
   
@@ -2018,6 +2042,18 @@ SWIGEXPORT int _wrap_FMRIStepInnerStepper_Create(void *farg1, void *farg2) {
   arg1 = (SUNContext)(farg1);
   arg2 = (MRIStepInnerStepper *)(farg2);
   result = (int)MRIStepInnerStepper_Create(arg1,arg2);
+  fresult = (int)(result);
+  return fresult;
+}
+
+
+SWIGEXPORT int _wrap_FMRIStepInnerStepper_Destroy(void *farg1) {
+  int fresult ;
+  MRIStepInnerStepper *arg1 = (MRIStepInnerStepper *) 0 ;
+  int result;
+  
+  arg1 = (MRIStepInnerStepper *)(farg1);
+  result = (int)MRIStepInnerStepper_Destroy(arg1);
   fresult = (int)(result);
   return fresult;
 }

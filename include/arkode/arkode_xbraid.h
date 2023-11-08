@@ -17,6 +17,7 @@
 #ifndef _ARKODE_XBRAID_H
 #define _ARKODE_XBRAID_H
 
+#include "sundials/sundials_config.h"
 #include "sundials/sundials_xbraid.h"
 #include "braid.h"
 #include "mpi.h"
@@ -38,7 +39,13 @@ SUNDIALS_EXPORT int ARKBraid_BraidInit(MPI_Comm comm_w, MPI_Comm comm_t,
                                        sunindextype nt, braid_App app,
                                        braid_Core *core);
 
-SUNDIALS_EXPORT int ARKBraid_Free(braid_App *app);
+SUNDIALS_EXPORT int ARKBraid_Destroy(braid_App *app);
+
+SUNDIALS_DEPRECATED_MSG("Use ARKBraid_Destroy instead")
+SUNDIALS_STATIC_INLINE
+int ARKBraid_Free(braid_App *app) {
+  return ARKBraide_Destroy(app);
+}
 
 
 /* ----------------------

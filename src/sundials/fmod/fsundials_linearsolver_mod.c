@@ -415,6 +415,18 @@ SWIGEXPORT SUNLinearSolver _wrap_FSUNLinSolNewEmpty(void *farg1) {
 }
 
 
+SWIGEXPORT int _wrap_FSUNLinSolDestroyEmpty(SUNLinearSolver farg1) {
+  int fresult ;
+  SUNLinearSolver arg1 = (SUNLinearSolver) 0 ;
+  int result;
+  
+  arg1 = (SUNLinearSolver)(farg1);
+  result = (int)SUNLinSolDestroyEmpty(arg1);
+  fresult = (int)(result);
+  return fresult;
+}
+
+
 SWIGEXPORT void _wrap_FSUNLinSolFreeEmpty(SUNLinearSolver farg1) {
   SUNLinearSolver arg1 = (SUNLinearSolver) 0 ;
   
@@ -621,15 +633,23 @@ SWIGEXPORT int _wrap_FSUNLinSolSpace(SUNLinearSolver farg1, long *farg2, long *f
 }
 
 
-SWIGEXPORT int _wrap_FSUNLinSolFree(SUNLinearSolver farg1) {
+SWIGEXPORT int _wrap_FSUNLinSolDestroy(SUNLinearSolver farg1) {
   int fresult ;
   SUNLinearSolver arg1 = (SUNLinearSolver) 0 ;
   int result;
   
   arg1 = (SUNLinearSolver)(farg1);
-  result = (int)SUNLinSolFree(arg1);
+  result = (int)SUNLinSolDestroy(arg1);
   fresult = (int)(result);
   return fresult;
+}
+
+
+SWIGEXPORT void _wrap_FSUNLinSolFree(SUNLinearSolver farg1) {
+  SUNLinearSolver arg1 = (SUNLinearSolver) 0 ;
+  
+  arg1 = (SUNLinearSolver)(farg1);
+  SUNLinSolFree(arg1);
 }
 
 

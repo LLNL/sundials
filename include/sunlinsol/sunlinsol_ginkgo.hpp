@@ -187,7 +187,8 @@ public:
     sunlinsol_->ops->solve    = impl::SUNLinSolSolve_Ginkgo<GkoSolverType, GkoMatrixType>;
     sunlinsol_->ops->numiters = impl::SUNLinSolNumIters_Ginkgo<GkoSolverType, GkoMatrixType>;
     sunlinsol_->ops->resnorm  = impl::SUNLinSolResNorm_Ginkgo<GkoSolverType, GkoMatrixType>;
-    sunlinsol_->ops->free     = impl::SUNLinSolFree_Ginkgo<GkoSolverType, GkoMatrixType>;
+    sunlinsol_->ops->destroy  = impl::SUNLinSolFree_Ginkgo<GkoSolverType, GkoMatrixType>;
+    sunlinsol_->ops->free     = sunlinsol_->ops->destroy;
   }
 
   // Copy constructor is deleted

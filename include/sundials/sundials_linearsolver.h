@@ -57,6 +57,7 @@
 #include <sundials/sundials_matrix.h>
 #include <sundials/sundials_nvector.h>
 #include <sundials/sundials_types.h>
+#include "sundials/sundials_config.h"
 
 #ifdef __cplusplus /* wrapper to enable C++ usage */
 extern "C" {
@@ -123,7 +124,9 @@ struct _generic_SUNLinearSolver_Ops
   sunindextype (*lastflag)(SUNLinearSolver);
   int (*space)(SUNLinearSolver, long int*, long int*);
   N_Vector (*resid)(SUNLinearSolver);
+  /* DEPRECATED: use destroy instead */
   int (*free)(SUNLinearSolver);
+  int (*destroy)(SUNLinearSolver);
 #ifdef __cplusplus
   _generic_SUNLinearSolver_Ops() = default;
 #endif
@@ -148,7 +151,13 @@ struct _generic_SUNLinearSolver
 
 SUNDIALS_EXPORT SUNLinearSolver SUNLinSolNewEmpty(SUNContext sunctx);
 
-SUNDIALS_EXPORT void SUNLinSolFreeEmpty(SUNLinearSolver S);
+SUNDIALS_EXPORT int SUNLinSolDestroyEmpty(SUNLinearSolver S);
+
+SUNDIALS_DEPRECATED_EXPORT_MSG("Use SUNLinSolDestroyEmpty")
+SUNDIALS_STATIC_INLINE 
+void SUNLinSolFreeEmpty(SUNLinearSolver S) {
+  SUNLinSolDestroyEmpty(S);
+}
 
 SUNDIALS_EXPORT SUNLinearSolver_Type SUNLinSolGetType(SUNLinearSolver S);
 
@@ -178,7 +187,13 @@ SUNDIALS_EXPORT sunindextype SUNLinSolLastFlag(SUNLinearSolver S);
 
 SUNDIALS_EXPORT int SUNLinSolSpace(SUNLinearSolver S, long int* lenrwLS, long int* leniwLS);
 
-SUNDIALS_EXPORT int SUNLinSolFree(SUNLinearSolver S);
+SUNDIALS_EXPORT int SUNLinSolDestroy(SUNLinearSolver S);
+
+SUNDIALS_DEPRECATED_EXPORT_MSG("Use SUNLinSolDestroy")
+SUNDIALS_STATIC_INLINE 
+void SUNLinSolFree(SUNLinearSolver S) {
+  SUNLinSolDestroy(S);
+}
 
 /* -----------------------------------------------------------------
  * SUNLinearSolver return values

@@ -1384,6 +1384,18 @@ SWIGEXPORT SwigArrayWrapper _wrap_FIDAGetReturnFlagName(long const *farg1) {
 }
 
 
+SWIGEXPORT int _wrap_FIDADestroy(void *farg1) {
+  int fresult ;
+  void **arg1 = (void **) 0 ;
+  int result;
+  
+  arg1 = (void **)(farg1);
+  result = (int)IDADestroy(arg1);
+  fresult = (int)(result);
+  return fresult;
+}
+
+
 SWIGEXPORT void _wrap_FIDAFree(void *farg1) {
   void **arg1 = (void **) 0 ;
   

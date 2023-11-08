@@ -114,6 +114,7 @@ module fkinsol_mod
   integer(C_SIZE_T), public :: size = 0
  end type
  public :: FKINGetReturnFlagName
+ public :: FKINDestroy
  public :: FKINFree
  public :: FKINSetJacTimesVecSysFn
  integer(C_INT), parameter, public :: KINBBDPRE_SUCCESS = 0_C_INT
@@ -521,6 +522,14 @@ use, intrinsic :: ISO_C_BINDING
 import :: swigarraywrapper
 integer(C_LONG), intent(in) :: farg1
 type(SwigArrayWrapper) :: fresult
+end function
+
+function swigc_FKINDestroy(farg1) &
+bind(C, name="_wrap_FKINDestroy") &
+result(fresult)
+use, intrinsic :: ISO_C_BINDING
+type(C_PTR), value :: farg1
+integer(C_INT) :: fresult
 end function
 
 subroutine swigc_FKINFree(farg1) &
@@ -1401,12 +1410,25 @@ call SWIG_chararray_to_string(fresult, swig_result)
 if (.false.) call SWIG_free(fresult%data)
 end function
 
-subroutine FKINFree(kinmem)
+function FKINDestroy(kin_mem) &
+result(swig_result)
 use, intrinsic :: ISO_C_BINDING
-type(C_PTR), target, intent(inout) :: kinmem
+integer(C_INT) :: swig_result
+type(C_PTR), target, intent(inout) :: kin_mem
+integer(C_INT) :: fresult 
 type(C_PTR) :: farg1 
 
-farg1 = c_loc(kinmem)
+farg1 = c_loc(kin_mem)
+fresult = swigc_FKINDestroy(farg1)
+swig_result = fresult
+end function
+
+subroutine FKINFree(kin_mem)
+use, intrinsic :: ISO_C_BINDING
+type(C_PTR), target, intent(inout) :: kin_mem
+type(C_PTR) :: farg1 
+
+farg1 = c_loc(kin_mem)
 call swigc_FKINFree(farg1)
 end subroutine
 

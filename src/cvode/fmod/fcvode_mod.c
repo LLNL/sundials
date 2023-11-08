@@ -1349,6 +1349,18 @@ SWIGEXPORT SwigArrayWrapper _wrap_FCVodeGetReturnFlagName(long const *farg1) {
 }
 
 
+SWIGEXPORT int _wrap_FCVodeDestroy(void *farg1) {
+  int fresult ;
+  void **arg1 = (void **) 0 ;
+  int result;
+  
+  arg1 = (void **)(farg1);
+  result = (int)CVodeDestroy(arg1);
+  fresult = (int)(result);
+  return fresult;
+}
+
+
 SWIGEXPORT void _wrap_FCVodeFree(void *farg1) {
   void **arg1 = (void **) 0 ;
   

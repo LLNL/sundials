@@ -133,7 +133,13 @@ SUNDIALS_EXPORT sunindextype SUNLinSolLastFlag_KLU(SUNLinearSolver S);
 SUNDIALS_EXPORT int SUNLinSolSpace_KLU(SUNLinearSolver S,
                                        long int *lenrwLS,
                                        long int *leniwLS);
-SUNDIALS_EXPORT int SUNLinSolFree_KLU(SUNLinearSolver S);
+SUNDIALS_EXPORT int SUNLinSolDestroy_KLU(SUNLinearSolver S);
+
+SUNDIALS_DEPRECATED_MSG("Use SUNLinSolDestroy_KLU")
+SUNDIALS_STATIC_INLINE
+int SUNLinSolFree_KLU(SUNLinearSolver S) {
+  return SUNLinSolDestroy_KLU(S);
+}
 
 
 #ifdef __cplusplus

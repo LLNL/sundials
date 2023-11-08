@@ -155,6 +155,7 @@ module fida_mod
   integer(C_SIZE_T), public :: size = 0
  end type
  public :: FIDAGetReturnFlagName
+ public :: FIDADestroy
  public :: FIDAFree
  public :: FIDASetJacTimesResFn
  public :: FIDABBDPrecInit
@@ -929,6 +930,14 @@ use, intrinsic :: ISO_C_BINDING
 import :: swigarraywrapper
 integer(C_LONG), intent(in) :: farg1
 type(SwigArrayWrapper) :: fresult
+end function
+
+function swigc_FIDADestroy(farg1) &
+bind(C, name="_wrap_FIDADestroy") &
+result(fresult)
+use, intrinsic :: ISO_C_BINDING
+type(C_PTR), value :: farg1
+integer(C_INT) :: fresult
 end function
 
 subroutine swigc_FIDAFree(farg1) &
@@ -2558,6 +2567,19 @@ farg1 = flag
 fresult = swigc_FIDAGetReturnFlagName(farg1)
 call SWIG_chararray_to_string(fresult, swig_result)
 if (.false.) call SWIG_free(fresult%data)
+end function
+
+function FIDADestroy(ida_mem) &
+result(swig_result)
+use, intrinsic :: ISO_C_BINDING
+integer(C_INT) :: swig_result
+type(C_PTR), target, intent(inout) :: ida_mem
+integer(C_INT) :: fresult 
+type(C_PTR) :: farg1 
+
+farg1 = c_loc(ida_mem)
+fresult = swigc_FIDADestroy(farg1)
+swig_result = fresult
 end function
 
 subroutine FIDAFree(ida_mem)

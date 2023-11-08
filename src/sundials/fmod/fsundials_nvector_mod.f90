@@ -102,6 +102,7 @@ module fsundials_nvector_mod
   type(C_PTR), public :: sunctx
  end type N_Vector
  public :: FN_VNewEmpty
+ public :: FN_VDestroyEmpty
  public :: FN_VFreeEmpty
  public :: FN_VCopyOps
  public :: FN_VGetVectorID
@@ -175,6 +176,14 @@ result(fresult)
 use, intrinsic :: ISO_C_BINDING
 type(C_PTR), value :: farg1
 type(C_PTR) :: fresult
+end function
+
+function swigc_FN_VDestroyEmpty(farg1) &
+bind(C, name="_wrap_FN_VDestroyEmpty") &
+result(fresult)
+use, intrinsic :: ISO_C_BINDING
+type(C_PTR), value :: farg1
+integer(C_INT) :: fresult
 end function
 
 subroutine swigc_FN_VFreeEmpty(farg1) &
@@ -736,6 +745,19 @@ type(C_PTR) :: farg1
 farg1 = sunctx
 fresult = swigc_FN_VNewEmpty(farg1)
 call c_f_pointer(fresult, swig_result)
+end function
+
+function FN_VDestroyEmpty(v) &
+result(swig_result)
+use, intrinsic :: ISO_C_BINDING
+integer(C_INT) :: swig_result
+type(N_Vector), target, intent(inout) :: v
+integer(C_INT) :: fresult 
+type(C_PTR) :: farg1 
+
+farg1 = c_loc(v)
+fresult = swigc_FN_VDestroyEmpty(farg1)
+swig_result = fresult
 end function
 
 subroutine FN_VFreeEmpty(v)

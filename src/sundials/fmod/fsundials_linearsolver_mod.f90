@@ -94,6 +94,7 @@ module fsundials_linearsolver_mod
   type(C_FUNPTR), public :: space
   type(C_FUNPTR), public :: resid
   type(C_FUNPTR), public :: free
+  type(C_FUNPTR), public :: destroy
  end type SUNLinearSolver_Ops
  ! struct struct _generic_SUNLinearSolver
  type, bind(C), public :: SUNLinearSolver
@@ -102,6 +103,7 @@ module fsundials_linearsolver_mod
   type(C_PTR), public :: sunctx
  end type SUNLinearSolver
  public :: FSUNLinSolNewEmpty
+ public :: FSUNLinSolDestroyEmpty
  public :: FSUNLinSolFreeEmpty
  public :: FSUNLinSolGetType
  public :: FSUNLinSolGetID
@@ -117,6 +119,7 @@ module fsundials_linearsolver_mod
  public :: FSUNLinSolResid
  public :: FSUNLinSolLastFlag
  public :: FSUNLinSolSpace
+ public :: FSUNLinSolDestroy
  public :: FSUNLinSolFree
  integer(C_INT), parameter, public :: SUNLS_SUCCESS = 0_C_INT
  integer(C_INT), parameter, public :: SUNLS_MEM_NULL = -801_C_INT
@@ -276,6 +279,14 @@ type(C_PTR), value :: farg1
 type(C_PTR) :: fresult
 end function
 
+function swigc_FSUNLinSolDestroyEmpty(farg1) &
+bind(C, name="_wrap_FSUNLinSolDestroyEmpty") &
+result(fresult)
+use, intrinsic :: ISO_C_BINDING
+type(C_PTR), value :: farg1
+integer(C_INT) :: fresult
+end function
+
 subroutine swigc_FSUNLinSolFreeEmpty(farg1) &
 bind(C, name="_wrap_FSUNLinSolFreeEmpty")
 use, intrinsic :: ISO_C_BINDING
@@ -409,13 +420,19 @@ type(C_PTR), value :: farg3
 integer(C_INT) :: fresult
 end function
 
-function swigc_FSUNLinSolFree(farg1) &
-bind(C, name="_wrap_FSUNLinSolFree") &
+function swigc_FSUNLinSolDestroy(farg1) &
+bind(C, name="_wrap_FSUNLinSolDestroy") &
 result(fresult)
 use, intrinsic :: ISO_C_BINDING
 type(C_PTR), value :: farg1
 integer(C_INT) :: fresult
 end function
+
+subroutine swigc_FSUNLinSolFree(farg1) &
+bind(C, name="_wrap_FSUNLinSolFree")
+use, intrinsic :: ISO_C_BINDING
+type(C_PTR), value :: farg1
+end subroutine
 
 end interface
 
@@ -703,6 +720,19 @@ fresult = swigc_FSUNLinSolNewEmpty(farg1)
 call c_f_pointer(fresult, swig_result)
 end function
 
+function FSUNLinSolDestroyEmpty(s) &
+result(swig_result)
+use, intrinsic :: ISO_C_BINDING
+integer(C_INT) :: swig_result
+type(SUNLinearSolver), target, intent(inout) :: s
+integer(C_INT) :: fresult 
+type(C_PTR) :: farg1 
+
+farg1 = c_loc(s)
+fresult = swigc_FSUNLinSolDestroyEmpty(farg1)
+swig_result = fresult
+end function
+
 subroutine FSUNLinSolFreeEmpty(s)
 use, intrinsic :: ISO_C_BINDING
 type(SUNLinearSolver), target, intent(inout) :: s
@@ -939,7 +969,7 @@ fresult = swigc_FSUNLinSolSpace(farg1, farg2, farg3)
 swig_result = fresult
 end function
 
-function FSUNLinSolFree(s) &
+function FSUNLinSolDestroy(s) &
 result(swig_result)
 use, intrinsic :: ISO_C_BINDING
 integer(C_INT) :: swig_result
@@ -948,9 +978,18 @@ integer(C_INT) :: fresult
 type(C_PTR) :: farg1 
 
 farg1 = c_loc(s)
-fresult = swigc_FSUNLinSolFree(farg1)
+fresult = swigc_FSUNLinSolDestroy(farg1)
 swig_result = fresult
 end function
+
+subroutine FSUNLinSolFree(s)
+use, intrinsic :: ISO_C_BINDING
+type(SUNLinearSolver), target, intent(inout) :: s
+type(C_PTR) :: farg1 
+
+farg1 = c_loc(s)
+call swigc_FSUNLinSolFree(farg1)
+end subroutine
 
 
 end module

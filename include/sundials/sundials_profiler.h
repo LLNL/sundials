@@ -31,7 +31,15 @@ typedef struct _SUNProfiler* SUNProfiler;
 
 SUNDIALS_EXPORT int SUNProfiler_Create(void* comm, const char* title,
                                        SUNProfiler* p);
-SUNDIALS_EXPORT int SUNProfiler_Free(SUNProfiler* p);
+
+SUNDIALS_EXPORT int SUNProfiler_Destroy(SUNProfiler* p);
+
+SUNDIALS_DEPRECATED_EXPORT_MSG("Use SUNProfiler_Destroy")
+SUNDIALS_STATIC_INLINE 
+int SUNProfiler_Free(SUNProfiler* p) {
+  return SUNProfiler_Destroy(p);
+}
+
 SUNDIALS_EXPORT int SUNProfiler_Begin(SUNProfiler p, const char* name);
 SUNDIALS_EXPORT int SUNProfiler_End(SUNProfiler p, const char* name);
 SUNDIALS_EXPORT int SUNProfiler_GetTimerResolution(SUNProfiler p,

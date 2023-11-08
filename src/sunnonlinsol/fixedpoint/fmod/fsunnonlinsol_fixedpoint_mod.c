@@ -290,6 +290,18 @@ SWIGEXPORT int _wrap_FSUNNonlinSolSolve_FixedPoint(SUNNonlinearSolver farg1, N_V
 }
 
 
+SWIGEXPORT int _wrap_FSUNNonlinSolDestroy_FixedPoint(SUNNonlinearSolver farg1) {
+  int fresult ;
+  SUNNonlinearSolver arg1 = (SUNNonlinearSolver) 0 ;
+  int result;
+  
+  arg1 = (SUNNonlinearSolver)(farg1);
+  result = (int)SUNNonlinSolDestroy_FixedPoint(arg1);
+  fresult = (int)(result);
+  return fresult;
+}
+
+
 SWIGEXPORT int _wrap_FSUNNonlinSolFree_FixedPoint(SUNNonlinearSolver farg1) {
   int fresult ;
   SUNNonlinearSolver arg1 = (SUNNonlinearSolver) 0 ;

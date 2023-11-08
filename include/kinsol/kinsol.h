@@ -152,8 +152,13 @@ SUNDIALS_EXPORT int KINPrintAllStats(void *kinmem, FILE *outfile,
                                      SUNOutputFormat fmt);
 SUNDIALS_EXPORT char *KINGetReturnFlagName(long int flag);
 
-/* Free function */
-SUNDIALS_EXPORT void KINFree(void **kinmem);
+SUNDIALS_EXPORT int KINDestroy(void **KIN_mem);
+
+SUNDIALS_DEPRECATED_MSG("Use KINDestroy instead")
+SUNDIALS_STATIC_INLINE 
+void KINFree(void **kin_mem) {
+  KINDestroy(kin_mem);
+}
 
 /* KINLS interface function that depends on KINSysFn */
 SUNDIALS_EXPORT int KINSetJacTimesVecSysFn(void *kinmem, KINSysFn jtimesSysFn);

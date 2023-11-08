@@ -79,7 +79,13 @@ SUNDIALS_EXPORT int SUNNonlinSolGetNumIters_PetscSNES(SUNNonlinearSolver NLS, lo
 SUNDIALS_EXPORT int SUNNonlinSolGetNumConvFails_PetscSNES(SUNNonlinearSolver NLS,
                                                           long int* nconvfails);
 
-SUNDIALS_EXPORT int SUNNonlinSolFree_PetscSNES(SUNNonlinearSolver NLS);
+SUNDIALS_EXPORT int SUNNonlinSolDestroy_PetscSNES(SUNNonlinearSolver NLS);
+
+SUNDIALS_DEPRECATED_MSG("Use SUNNonlinSolDestroy_PetscSNES")
+SUNDIALS_STATIC_INLINE
+int SUNNonlinSolFree_PetscSNES(SUNNonlinearSolver NLS) {
+  return SUNNonlinSolDestroy_PetscSNES(NLS);
+}
 
 /* Implementation specific functions */
 

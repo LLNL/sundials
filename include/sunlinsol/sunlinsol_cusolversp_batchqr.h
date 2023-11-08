@@ -85,7 +85,13 @@ SUNDIALS_EXPORT int SUNLinSolSolve_cuSolverSp_batchQR(SUNLinearSolver S,
 
 SUNDIALS_EXPORT sunindextype SUNLinSolLastFlag_cuSolverSp_batchQR(SUNLinearSolver S);
 
-SUNDIALS_EXPORT int SUNLinSolFree_cuSolverSp_batchQR(SUNLinearSolver S);
+SUNDIALS_EXPORT int SUNLinSolDestroy_cuSolverSp_batchQR(SUNLinearSolver S);
+
+SUNDIALS_DEPRECATED_MSG("Use SUNLinSolDestroy_cuSolverSp_batchQR")
+SUNDIALS_STATIC_INLINE
+int SUNLinSolFree_cuSolverSp_batchQR(SUNLinearSolver S) {
+  return SUNLinSolDestroy_cuSolverSp_batchQR(S);
+}
 
 
 /*

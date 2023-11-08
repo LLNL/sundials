@@ -242,8 +242,13 @@ SUNDIALS_EXPORT int CVodePrintAllStats(void *cvode_mem, FILE *outfile,
                                        SUNOutputFormat fmt);
 SUNDIALS_EXPORT char *CVodeGetReturnFlagName(long int flag);
 
-/* Free function */
-SUNDIALS_EXPORT void CVodeFree(void **cvode_mem);
+SUNDIALS_EXPORT int CVodeDestroy(void **cvode_mem);
+
+SUNDIALS_DEPRECATED_MSG("Use CVodeDestroy instead")
+SUNDIALS_STATIC_INLINE
+void CVodeFree(void **cvode_mem) {
+  CVodeDestroy(cvode_mem);
+}
 
 /* CVLS interface function that depends on CVRhsFn */
 SUNDIALS_EXPORT int CVodeSetJacTimesRhsFn(void *cvode_mem,

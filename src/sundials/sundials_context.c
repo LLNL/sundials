@@ -160,7 +160,7 @@ int SUNContext_SetLogger(SUNContext sunctx, SUNLogger logger)
   return (0);
 }
 
-int SUNContext_Free(SUNContext* sunctx)
+int SUNContext_Destroy(SUNContext* sunctx)
 {
 #if defined(SUNDIALS_BUILD_WITH_PROFILING) && !defined(SUNDIALS_CALIPER_ENABLED)
   FILE* fp;

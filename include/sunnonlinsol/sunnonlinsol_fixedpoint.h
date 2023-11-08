@@ -93,7 +93,13 @@ SUNDIALS_EXPORT int SUNNonlinSolSolve_FixedPoint(SUNNonlinearSolver NLS,
                                                  N_Vector w, realtype tol,
                                                  booleantype callSetup, void *mem);
 
-SUNDIALS_EXPORT int SUNNonlinSolFree_FixedPoint(SUNNonlinearSolver NLS);
+SUNDIALS_EXPORT int SUNNonlinSolDestroy_FixedPoint(SUNNonlinearSolver NLS);
+
+SUNDIALS_DEPRECATED_MSG("Use SUNNonlinSolDestroy_FixedPoint")
+SUNDIALS_STATIC_INLINE
+int SUNNonlinSolFree_FixedPoint(SUNNonlinearSolver NLS) {
+  return SUNNonlinSolDestroy_FixedPoint(NLS);
+}
 
 /* set functions */
 SUNDIALS_EXPORT int SUNNonlinSolSetSysFn_FixedPoint(SUNNonlinearSolver NLS,

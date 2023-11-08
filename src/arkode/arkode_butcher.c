@@ -241,7 +241,7 @@ void ARKodeButcherTable_Space(ARKodeButcherTable B, sunindextype *liw,
 /*---------------------------------------------------------------
   Routine to free a Butcher table structure
   ---------------------------------------------------------------*/
-void ARKodeButcherTable_Free(ARKodeButcherTable B)
+int ARKodeButcherTable_Destroy(ARKodeButcherTable B)
 {
   int i;
 

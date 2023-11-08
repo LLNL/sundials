@@ -80,9 +80,9 @@ SUNLinearSolver SUNLinSolNewEmpty(SUNContext sunctx)
  * Free a generic SUNLinearSolver (assumes content is already empty)
  * ----------------------------------------------------------------- */
 
-void SUNLinSolFreeEmpty(SUNLinearSolver S)
+int SUNLinSolDestroyEmpty(SUNLinearSolver S)
 {
-  if (S == NULL)  return;
+  if (S == NULL)  return 0;
 
   /* free non-NULL ops structure */
   if (S->ops)  free(S->ops);
@@ -90,7 +90,7 @@ void SUNLinSolFreeEmpty(SUNLinearSolver S)
 
   /* free overall N_Vector object and return */
   free(S);
-  return;
+  return 0;
 }
 
 /* -----------------------------------------------------------------
@@ -246,7 +246,7 @@ int SUNLinSolSpace(SUNLinearSolver S, long int *lenrwLS,
   }
 }
 
-int SUNLinSolFree(SUNLinearSolver S)
+int SUNLinSolDestroy(SUNLinearSolver S)
 {
   if (S == NULL) return SUNLS_SUCCESS;
 

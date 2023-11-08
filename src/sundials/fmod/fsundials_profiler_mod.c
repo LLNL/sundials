@@ -233,6 +233,18 @@ SWIGINTERN SwigArrayWrapper SwigArrayWrapper_uninitialized() {
   return result;
 }
 
+SWIGEXPORT int _wrap_FSUNProfiler_Destroy(void *farg1) {
+  int fresult ;
+  SUNProfiler *arg1 = (SUNProfiler *) 0 ;
+  int result;
+  
+  arg1 = (SUNProfiler *)(farg1);
+  result = (int)SUNProfiler_Destroy(arg1);
+  fresult = (int)(result);
+  return fresult;
+}
+
+
 SWIGEXPORT int _wrap_FSUNProfiler_Free(void *farg1) {
   int fresult ;
   SUNProfiler *arg1 = (SUNProfiler *) 0 ;

@@ -238,8 +238,13 @@ SUNDIALS_EXPORT int IDAPrintAllStats(void *ida_mem, FILE *outfile,
                                      SUNOutputFormat fmt);
 SUNDIALS_EXPORT char *IDAGetReturnFlagName(long int flag);
 
-/* Free function */
-SUNDIALS_EXPORT void IDAFree(void **ida_mem);
+SUNDIALS_EXPORT int IDADestroy(void **ida_mem);
+
+SUNDIALS_DEPRECATED_MSG("Use IDADestroy instead")
+SUNDIALS_STATIC_INLINE 
+void IDAFree(void **ida_mem) {
+  IDADestroy(ida_mem);
+}
 
 /* IDALS interface function that depends on IDAResFn */
 SUNDIALS_EXPORT int IDASetJacTimesResFn(void *ida_mem,

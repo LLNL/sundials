@@ -77,9 +77,9 @@ SUNMatrix SUNMatNewEmpty(SUNContext sunctx)
  * Free a generic SUNMatrix (assumes content is already empty)
  * ----------------------------------------------------------------- */
 
-void SUNMatFreeEmpty(SUNMatrix A)
+int SUNMatDestroyEmpty(SUNMatrix A)
 {
-  if (A == NULL)  return;
+  if (A == NULL)  return 0;
 
   /* free non-NULL ops structure */
   if (A->ops)  free(A->ops);
@@ -87,7 +87,7 @@ void SUNMatFreeEmpty(SUNMatrix A)
 
   /* free overall SUNMatrix object and return */
   free(A);
-  return;
+  return 0;
 }
 
 
@@ -138,13 +138,13 @@ SUNMatrix SUNMatClone(SUNMatrix A)
   return(B);
 }
 
-void SUNMatDestroy(SUNMatrix A)
+int SUNMatDestroy(SUNMatrix A)
 {
-  if (A == NULL) return;
+  if (A == NULL) return SUNMAT_SUCCESS;
 
   /* if the destroy operation exists use it */
   if (A->ops)
-    if (A->ops->destroy) { A->ops->destroy(A); return; }
+    if (A->ops->destroy) { A->ops->destroy(A); return 0; }
 
   /* if we reach this point, either ops == NULL or destroy == NULL,
      try to cleanup by freeing the content, ops, and matrix */
@@ -152,7 +152,7 @@ void SUNMatDestroy(SUNMatrix A)
   if (A->ops) { free(A->ops); A->ops = NULL; }
   free(A); A = NULL;
 
-  return;
+  return SUNMAT_SUCCESS;
 }
 
 int SUNMatZero(SUNMatrix A)

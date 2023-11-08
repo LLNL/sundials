@@ -156,8 +156,10 @@ module farkode_mod
  public :: FARKodeButcherTable_Create
  public :: FARKodeButcherTable_Copy
  public :: FARKodeButcherTable_Space
+ public :: FARKodeButcherTable_Destroy
  public :: FARKodeButcherTable_Free
  public :: FARKodeButcherTable_Write
+ public :: FARKodeButcherTable_IsStifflyAccurate
  public :: FARKodeButcherTable_CheckOrder
  public :: FARKodeButcherTable_CheckARKOrder
  ! typedef enum ARKODE_DIRKTableID
@@ -290,6 +292,7 @@ module farkode_mod
  public :: FARKodeSPRKTable_Copy
  public :: FARKodeSPRKTable_Write
  public :: FARKodeSPRKTable_Space
+ public :: FARKodeSPRKTable_Destroy
  public :: FARKodeSPRKTable_Free
  public :: FARKodeSPRKTable_ToButcher
  integer(C_INT), parameter, public :: ARKLS_SUCCESS = 0_C_INT
@@ -565,6 +568,14 @@ type(C_PTR), value :: farg2
 type(C_PTR), value :: farg3
 end subroutine
 
+function swigc_FARKodeButcherTable_Destroy(farg1) &
+bind(C, name="_wrap_FARKodeButcherTable_Destroy") &
+result(fresult)
+use, intrinsic :: ISO_C_BINDING
+type(C_PTR), value :: farg1
+integer(C_INT) :: fresult
+end function
+
 subroutine swigc_FARKodeButcherTable_Free(farg1) &
 bind(C, name="_wrap_FARKodeButcherTable_Free")
 use, intrinsic :: ISO_C_BINDING
@@ -577,6 +588,14 @@ use, intrinsic :: ISO_C_BINDING
 type(C_PTR), value :: farg1
 type(C_PTR), value :: farg2
 end subroutine
+
+function swigc_FARKodeButcherTable_IsStifflyAccurate(farg1) &
+bind(C, name="_wrap_FARKodeButcherTable_IsStifflyAccurate") &
+result(fresult)
+use, intrinsic :: ISO_C_BINDING
+type(C_PTR), value :: farg1
+integer(C_INT) :: fresult
+end function
 
 function swigc_FARKodeButcherTable_CheckOrder(farg1, farg2, farg3, farg4) &
 bind(C, name="_wrap_FARKodeButcherTable_CheckOrder") &
@@ -784,6 +803,14 @@ type(C_PTR), value :: farg1
 type(C_PTR), value :: farg2
 type(C_PTR), value :: farg3
 end subroutine
+
+function swigc_FARKodeSPRKTable_Destroy(farg1) &
+bind(C, name="_wrap_FARKodeSPRKTable_Destroy") &
+result(fresult)
+use, intrinsic :: ISO_C_BINDING
+type(C_PTR), value :: farg1
+integer(C_INT) :: fresult
+end function
 
 subroutine swigc_FARKodeSPRKTable_Free(farg1) &
 bind(C, name="_wrap_FARKodeSPRKTable_Free")
@@ -1244,6 +1271,19 @@ farg3 = c_loc(lrw(1))
 call swigc_FARKodeButcherTable_Space(farg1, farg2, farg3)
 end subroutine
 
+function FARKodeButcherTable_Destroy(b) &
+result(swig_result)
+use, intrinsic :: ISO_C_BINDING
+integer(C_INT) :: swig_result
+type(C_PTR) :: b
+integer(C_INT) :: fresult 
+type(C_PTR) :: farg1 
+
+farg1 = b
+fresult = swigc_FARKodeButcherTable_Destroy(farg1)
+swig_result = fresult
+end function
+
 subroutine FARKodeButcherTable_Free(b)
 use, intrinsic :: ISO_C_BINDING
 type(C_PTR) :: b
@@ -1264,6 +1304,19 @@ farg1 = b
 farg2 = outfile
 call swigc_FARKodeButcherTable_Write(farg1, farg2)
 end subroutine
+
+function FARKodeButcherTable_IsStifflyAccurate(b) &
+result(swig_result)
+use, intrinsic :: ISO_C_BINDING
+integer(C_INT) :: swig_result
+type(C_PTR) :: b
+integer(C_INT) :: fresult 
+type(C_PTR) :: farg1 
+
+farg1 = b
+fresult = swigc_FARKodeButcherTable_IsStifflyAccurate(farg1)
+swig_result = fresult
+end function
 
 function FARKodeButcherTable_CheckOrder(b, q, p, outfile) &
 result(swig_result)
@@ -1622,6 +1675,19 @@ farg2 = c_loc(liw(1))
 farg3 = c_loc(lrw(1))
 call swigc_FARKodeSPRKTable_Space(farg1, farg2, farg3)
 end subroutine
+
+function FARKodeSPRKTable_Destroy(sprk_storage) &
+result(swig_result)
+use, intrinsic :: ISO_C_BINDING
+integer(C_INT) :: swig_result
+type(C_PTR) :: sprk_storage
+integer(C_INT) :: fresult 
+type(C_PTR) :: farg1 
+
+farg1 = sprk_storage
+fresult = swigc_FARKodeSPRKTable_Destroy(farg1)
+swig_result = fresult
+end function
 
 subroutine FARKodeSPRKTable_Free(sprk_storage)
 use, intrinsic :: ISO_C_BINDING

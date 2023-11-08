@@ -331,8 +331,13 @@ SUNDIALS_EXPORT int CVodePrintAllStats(void *cvode_mem, FILE *outfile,
                                        SUNOutputFormat fmt);
 SUNDIALS_EXPORT char *CVodeGetReturnFlagName(long int flag);
 
-/* Free function */
-SUNDIALS_EXPORT void CVodeFree(void **cvode_mem);
+SUNDIALS_EXPORT int CVodeDestroy(void **cvode_mem);
+
+SUNDIALS_DEPRECATED_MSG("Use CVodeDestroy instead")
+SUNDIALS_STATIC_INLINE
+void CVodeFree(void **cvode_mem) {
+  CVodeDestroy(cvode_mem);
+}
 
 /* CVLS interface function that depends on CVRhsFn */
 SUNDIALS_EXPORT int CVodeSetJacTimesRhsFn(void *cvode_mem,
@@ -372,8 +377,13 @@ SUNDIALS_EXPORT int CVodeGetQuadErrWeights(void *cvode_mem, N_Vector eQweight);
 SUNDIALS_EXPORT int CVodeGetQuadStats(void *cvode_mem, long int *nfQevals,
                                       long int *nQetfails);
 
-/* Free function */
-SUNDIALS_EXPORT void CVodeQuadFree(void *cvode_mem);
+SUNDIALS_EXPORT int CVodeQuadDestroy(void **cvode_mem);
+
+SUNDIALS_DEPRECATED_MSG("Use CVodeQuadDestroy instead")
+SUNDIALS_STATIC_INLINE
+void CVodeQuadFree(void **cvode_mem) {
+  CVodeQuadDestroy(cvode_mem);
+}
 
 
 /* ------------------------------------
@@ -456,8 +466,13 @@ SUNDIALS_EXPORT int CVodeGetStgrSensNonlinSolvStats(void *cvode_mem,
 SUNDIALS_EXPORT int CVodeGetNumStepStgrSensSolveFails(void *cvode_mem,
                                                       long int *nSTGR1ncfails);
 
-/* Free function */
-SUNDIALS_EXPORT void CVodeSensFree(void *cvode_mem);
+SUNDIALS_EXPORT int CVodeSensDestroy(void **cvode_mem);
+
+SUNDIALS_DEPRECATED_MSG("Use CVodeSensDestroy instead")
+SUNDIALS_STATIC_INLINE
+void CVodeSensFree(void **cvode_mem) {
+  CVodeSensDestroy(cvode_mem);
+}
 
 
 /* -------------------------------------------------------
@@ -504,8 +519,13 @@ SUNDIALS_EXPORT int CVodeGetQuadSensStats(void *cvode_mem,
                                           long int *nfQSevals,
                                           long int *nQSetfails);
 
-/* Free function */
-SUNDIALS_EXPORT void CVodeQuadSensFree(void *cvode_mem);
+SUNDIALS_EXPORT int CVodeQuadSensDestroy(void **cvode_mem);
+
+SUNDIALS_DEPRECATED_MSG("Use CVodeQuadSensDestroy instead")
+SUNDIALS_STATIC_INLINE
+void CVodeQuadSensFree(void **cvode_mem) {
+  CVodeQuadSensDestroy(cvode_mem);
+}
 
 
 /* ----------------------------------------
@@ -518,7 +538,13 @@ SUNDIALS_EXPORT int CVodeAdjInit(void *cvode_mem, long int steps, int interp);
 
 SUNDIALS_EXPORT int CVodeAdjReInit(void *cvode_mem);
 
-SUNDIALS_EXPORT void CVodeAdjFree(void *cvode_mem);
+SUNDIALS_EXPORT int CVodeAdjDestroy(void **cvode_mem);
+
+SUNDIALS_DEPRECATED_MSG("Use CVodeAdjDestroy instead")
+SUNDIALS_STATIC_INLINE
+void CVodeAdjFree(void **cvode_mem) {
+  CVodeAdjDestroy(cvode_mem);
+}
 
 /* Backward Problem Setup Functions */
 

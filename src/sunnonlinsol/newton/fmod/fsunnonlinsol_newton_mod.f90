@@ -36,6 +36,7 @@ module fsunnonlinsol_newton_mod
  public :: FSUNNonlinSolGetType_Newton
  public :: FSUNNonlinSolInitialize_Newton
  public :: FSUNNonlinSolSolve_Newton
+ public :: FSUNNonlinSolDestroy_Newton
  public :: FSUNNonlinSolFree_Newton
  public :: FSUNNonlinSolSetSysFn_Newton
  public :: FSUNNonlinSolSetLSetupFn_Newton
@@ -95,6 +96,14 @@ type(C_PTR), value :: farg4
 real(C_DOUBLE), intent(in) :: farg5
 integer(C_INT), intent(in) :: farg6
 type(C_PTR), value :: farg7
+integer(C_INT) :: fresult
+end function
+
+function swigc_FSUNNonlinSolDestroy_Newton(farg1) &
+bind(C, name="_wrap_FSUNNonlinSolDestroy_Newton") &
+result(fresult)
+use, intrinsic :: ISO_C_BINDING
+type(C_PTR), value :: farg1
 integer(C_INT) :: fresult
 end function
 
@@ -282,6 +291,19 @@ farg5 = tol
 farg6 = calllsetup
 farg7 = mem
 fresult = swigc_FSUNNonlinSolSolve_Newton(farg1, farg2, farg3, farg4, farg5, farg6, farg7)
+swig_result = fresult
+end function
+
+function FSUNNonlinSolDestroy_Newton(nls) &
+result(swig_result)
+use, intrinsic :: ISO_C_BINDING
+integer(C_INT) :: swig_result
+type(SUNNonlinearSolver), target, intent(inout) :: nls
+integer(C_INT) :: fresult 
+type(C_PTR) :: farg1 
+
+farg1 = c_loc(nls)
+fresult = swigc_FSUNNonlinSolDestroy_Newton(farg1)
 swig_result = fresult
 end function
 

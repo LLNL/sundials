@@ -225,9 +225,13 @@ SUNDIALS_EXPORT int ERKStepGetStepStats(void *arkode_mem,
                                         realtype *hcur,
                                         realtype *tcur);
 
+SUNDIALS_EXPORT int ERKStepDestroy(void **arkode_mem);
 
-/* Free function */
-SUNDIALS_EXPORT void ERKStepFree(void **arkode_mem);
+SUNDIALS_DEPRECATED_MSG("Use ERKStepDestroy instead")
+SUNDIALS_STATIC_INLINE
+void ERKStepFree(void **arkode_mem) {
+   ERKStepDestroy(arkode_mem);
+}
 
 /* Output the ERKStep memory structure (useful when debugging) */
 SUNDIALS_EXPORT void ERKStepPrintMem(void* arkode_mem, FILE* outfile);

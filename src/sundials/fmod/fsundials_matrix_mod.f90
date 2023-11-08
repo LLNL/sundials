@@ -50,6 +50,7 @@ module fsundials_matrix_mod
   type(C_PTR), public :: sunctx
  end type SUNMatrix
  public :: FSUNMatNewEmpty
+ public :: FSUNMatDestroyEmpty
  public :: FSUNMatFreeEmpty
  public :: FSUNMatCopyOps
  public :: FSUNMatGetID
@@ -76,6 +77,14 @@ result(fresult)
 use, intrinsic :: ISO_C_BINDING
 type(C_PTR), value :: farg1
 type(C_PTR) :: fresult
+end function
+
+function swigc_FSUNMatDestroyEmpty(farg1) &
+bind(C, name="_wrap_FSUNMatDestroyEmpty") &
+result(fresult)
+use, intrinsic :: ISO_C_BINDING
+type(C_PTR), value :: farg1
+integer(C_INT) :: fresult
 end function
 
 subroutine swigc_FSUNMatFreeEmpty(farg1) &
@@ -109,11 +118,13 @@ type(C_PTR), value :: farg1
 type(C_PTR) :: fresult
 end function
 
-subroutine swigc_FSUNMatDestroy(farg1) &
-bind(C, name="_wrap_FSUNMatDestroy")
+function swigc_FSUNMatDestroy(farg1) &
+bind(C, name="_wrap_FSUNMatDestroy") &
+result(fresult)
 use, intrinsic :: ISO_C_BINDING
 type(C_PTR), value :: farg1
-end subroutine
+integer(C_INT) :: fresult
+end function
 
 function swigc_FSUNMatZero(farg1) &
 bind(C, name="_wrap_FSUNMatZero") &
@@ -197,12 +208,25 @@ fresult = swigc_FSUNMatNewEmpty(farg1)
 call c_f_pointer(fresult, swig_result)
 end function
 
-subroutine FSUNMatFreeEmpty(a)
+function FSUNMatDestroyEmpty(s) &
+result(swig_result)
 use, intrinsic :: ISO_C_BINDING
-type(SUNMatrix), target, intent(inout) :: a
+integer(C_INT) :: swig_result
+type(SUNMatrix), target, intent(inout) :: s
+integer(C_INT) :: fresult 
 type(C_PTR) :: farg1 
 
-farg1 = c_loc(a)
+farg1 = c_loc(s)
+fresult = swigc_FSUNMatDestroyEmpty(farg1)
+swig_result = fresult
+end function
+
+subroutine FSUNMatFreeEmpty(s)
+use, intrinsic :: ISO_C_BINDING
+type(SUNMatrix), target, intent(inout) :: s
+type(C_PTR) :: farg1 
+
+farg1 = c_loc(s)
 call swigc_FSUNMatFreeEmpty(farg1)
 end subroutine
 
@@ -248,14 +272,18 @@ fresult = swigc_FSUNMatClone(farg1)
 call c_f_pointer(fresult, swig_result)
 end function
 
-subroutine FSUNMatDestroy(a)
+function FSUNMatDestroy(a) &
+result(swig_result)
 use, intrinsic :: ISO_C_BINDING
+integer(C_INT) :: swig_result
 type(SUNMatrix), target, intent(inout) :: a
+integer(C_INT) :: fresult 
 type(C_PTR) :: farg1 
 
 farg1 = c_loc(a)
-call swigc_FSUNMatDestroy(farg1)
-end subroutine
+fresult = swigc_FSUNMatDestroy(farg1)
+swig_result = fresult
+end function
 
 function FSUNMatZero(a) &
 result(swig_result)
