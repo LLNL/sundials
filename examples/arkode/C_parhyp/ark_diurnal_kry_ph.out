@@ -2,8 +2,8 @@
 2-species diurnal advection-diffusion problem
 
 t = 7.20e+03   no. steps = 979   stepsize = 3.07e+00
-At bottom left:  c1, c2 =    1.047e+04    2.527e+11 
-At top right:    c1, c2 =    1.119e+04    2.700e+11 
+At bottom left:  c1, c2 =    1.047e+04    2.527e+11
+At top right:    c1, c2 =    1.119e+04    2.700e+11
 
 t = 1.44e+04   no. steps = 2733   stepsize = 6.93e+00
 At bottom left:  c1, c2 =    6.659e+06    2.582e+11 
@@ -50,9 +50,9 @@ At bottom left:  c1, c2 =   -5.225e-26    3.352e+11
 At top right:    c1, c2 =   -5.452e-25    4.163e+11 
 
 
-Final Statistics: 
+Final Statistics:
 
-lenrw   =  3301     leniw   =   243
+lenrw   =  3302     leniw   =   243
 lenrwls =  2455     leniwls =   126
 nst     =  7102     nfe     =     0
 nfi     = 74579     nfels   = 87090
@@ -60,4 +60,3 @@ nni     = 38921     nli     = 87090
 nsetups =   429     netf    =    29
 npe     =   119     nps     = 123765
 ncfn    =     0     ncfl    =     0
-

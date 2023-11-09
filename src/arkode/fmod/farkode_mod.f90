@@ -33,6 +33,7 @@ module farkode_mod
  use fsundials_context_mod
  use fsundials_types_mod
  use fsundials_nonlinearsolver_mod
+ use fsundials_adaptcontroller_mod
  use fsundials_types_mod
  implicit none
  private
@@ -104,6 +105,7 @@ module farkode_mod
  integer(C_INT), parameter, public :: ARK_RELAX_MEM_NULL = -44_C_INT
  integer(C_INT), parameter, public :: ARK_RELAX_FUNC_FAIL = -45_C_INT
  integer(C_INT), parameter, public :: ARK_RELAX_JAC_FAIL = -46_C_INT
+ integer(C_INT), parameter, public :: ARK_CONTROLLER_ERR = -47_C_INT
  integer(C_INT), parameter, public :: ARK_UNRECOGNIZED_ERROR = -99_C_INT
  ! typedef enum ARKRelaxSolver
  enum, bind(c)
@@ -236,7 +238,7 @@ module farkode_mod
  integer(C_INT), parameter, public :: ARK437L2SA_ERK_7_3_4 = 13_C_INT
  integer(C_INT), parameter, public :: ARK548L2SAb_ERK_8_4_5 = 14_C_INT
  integer(C_INT), parameter, public :: MIN_ERK_NUM = 0_C_INT
- integer(C_INT), parameter, public :: MAX_ERK_NUM = 14_C_INT
+ integer(C_INT), parameter, public :: MAX_ERK_NUM = 21_C_INT
  ! typedef enum ARKODE_ERKTableID
  enum, bind(c)
   enumerator :: ARKODE_ERK_NONE = -1
@@ -257,14 +259,21 @@ module farkode_mod
   enumerator :: ARKODE_ARK437L2SA_ERK_7_3_4
   enumerator :: ARKODE_ARK548L2SAb_ERK_8_4_5
   enumerator :: ARKODE_ARK2_ERK_3_1_2
-  enumerator :: ARKODE_MAX_ERK_NUM = ARKODE_ARK2_ERK_3_1_2
+  enumerator :: ARKODE_SOFRONIOU_SPALETTA_5_3_4
+  enumerator :: ARKODE_SHU_OSHER_3_2_3
+  enumerator :: ARKODE_VERNER_9_5_6
+  enumerator :: ARKODE_VERNER_10_6_7
+  enumerator :: ARKODE_VERNER_13_7_8
+  enumerator :: ARKODE_VERNER_16_8_9
+  enumerator :: ARKODE_MAX_ERK_NUM = ARKODE_VERNER_16_8_9
  end enum
  integer, parameter, public :: ARKODE_ERKTableID = kind(ARKODE_ERK_NONE)
  public :: ARKODE_ERK_NONE, ARKODE_MIN_ERK_NUM, ARKODE_HEUN_EULER_2_1_2, ARKODE_BOGACKI_SHAMPINE_4_2_3, &
     ARKODE_ARK324L2SA_ERK_4_2_3, ARKODE_ZONNEVELD_5_3_4, ARKODE_ARK436L2SA_ERK_6_3_4, ARKODE_SAYFY_ABURUB_6_3_4, &
     ARKODE_CASH_KARP_6_4_5, ARKODE_FEHLBERG_6_4_5, ARKODE_DORMAND_PRINCE_7_4_5, ARKODE_ARK548L2SA_ERK_8_4_5, &
     ARKODE_VERNER_8_5_6, ARKODE_FEHLBERG_13_7_8, ARKODE_KNOTH_WOLKE_3_3, ARKODE_ARK437L2SA_ERK_7_3_4, &
-    ARKODE_ARK548L2SAb_ERK_8_4_5, ARKODE_ARK2_ERK_3_1_2, ARKODE_MAX_ERK_NUM
+    ARKODE_ARK548L2SAb_ERK_8_4_5, ARKODE_ARK2_ERK_3_1_2, ARKODE_SOFRONIOU_SPALETTA_5_3_4, ARKODE_SHU_OSHER_3_2_3, &
+    ARKODE_VERNER_9_5_6, ARKODE_VERNER_10_6_7, ARKODE_VERNER_13_7_8, ARKODE_VERNER_16_8_9, ARKODE_MAX_ERK_NUM
  public :: FARKodeButcherTable_LoadERK
  public :: FARKodeButcherTable_LoadERKByName
  ! typedef enum ARKODE_SPRKMethodID
