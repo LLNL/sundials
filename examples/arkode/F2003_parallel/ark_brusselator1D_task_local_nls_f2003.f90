@@ -998,7 +998,7 @@ contains
     use fsunlinsol_dense_mod
     use fsunmatrix_dense_mod
 
-    use ode_mod, only : sunctx, Nvar, comm, monitor
+    use ode_mod, only : sunctx, Nvar, comm
 
     !======= Declarations =========
     implicit none
@@ -1011,7 +1011,6 @@ contains
     type(SUNNonlinearSolver_Ops), pointer :: nlsops ! solver operations
 
     integer        :: ierr   ! MPI error status
-    integer(c_int) :: retval ! SUNDIALS error status
 
     !======= Internals ============
 
@@ -1252,7 +1251,6 @@ subroutine EvolveProblemIMEX(sunvec_y)
   integer            :: ierr        ! MPI error status
   integer            :: iout        ! output counter
   double precision   :: tout, dtout ! output time and update
-  character(len=100) :: outname     ! diagnostics ouptput file
 
   !======= Internals ============
 
@@ -1544,7 +1542,6 @@ subroutine EvolveProblemExplicit(sunvec_y)
   integer            :: ierr        ! output counter
   integer            :: iout        ! output counter
   double precision   :: tout, dtout ! output time and update
-  character(len=100) :: outname     ! diagnostics ouptput file
 
   !======= Internals ============
 
