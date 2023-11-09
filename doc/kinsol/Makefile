@@ -20,7 +20,9 @@ EX_FILES = \
 ${EXAMPLES}.tex \
 kin_ex_intro.tex \
 kin_ex_c.tex \
-kin_ex_cxx.tex \
-kin_ex_fortran.tex
+kin_ex_cxx.tex
+
+# Remove F77 examples
+# kin_ex_fortran.tex
 
 include ../Makefile.in

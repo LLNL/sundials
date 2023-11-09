@@ -72,5 +72,5 @@ Inequality constraint fails  = 0
 Initial step size            = 0.01
 Last step size               = 0.009999999998981926
 Current step size            = 0.01
-f1 RHS fn evals              = 40001
-f2 RHS fn evals              = 40001
+f1 RHS fn evals              = 40000
+f2 RHS fn evals              = 40000

@@ -26,6 +26,7 @@ set(ARKODE_unit_tests
   "ark_test_arkstepsetforcing\;1 3 2.0 10.0 2.0 8.0"
   "ark_test_arkstepsetforcing\;1 3 2.0 10.0 1.0 5.0"
   "ark_test_getuserdata\;"
+  "ark_test_innerstepper\;"
   "ark_test_interp\;-100"
   "ark_test_interp\;-10000"
   "ark_test_interp\;-1000000"
