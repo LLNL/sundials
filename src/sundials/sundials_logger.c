@@ -115,7 +115,10 @@ static sunbooleantype sunLoggerIsOutputRank(SUNLogger logger, int* rank_ref)
 
   if (logger->comm)
   {
-    MPI_Comm_rank(logger->comm, &rank);
+    if (logger->comm != SUN_COMM_NULL) 
+    {
+      MPI_Comm_rank(logger->comm, &rank);
+    } 
 
     if (logger->output_rank < 0)
     {

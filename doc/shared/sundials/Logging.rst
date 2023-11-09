@@ -135,7 +135,7 @@ The :c:type:`SUNLogger` class provides the following methods.
       * Returns zero if successful, or non-zero if an error occurred.
 
 
-.. c:function:: int SUNLogger_CreateFromEnv(void* comm, SUNLogger* logger)
+.. c:function:: int SUNLogger_CreateFromEnv(SUN_Comm comm, SUNLogger* logger)
 
    Creates a new :c:type:`SUNLogger` object and opens the output streams/files
    from the environment variables:

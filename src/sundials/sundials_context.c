@@ -30,18 +30,26 @@
 void sunAdiakCollectMetadata();
 #endif
 
-int SUNContext_Create(void* commptr, SUNContext* sunctx)
+int SUNContext_Create(SUN_Comm comm, SUNContext* sunctx)
 {
   SUNProfiler profiler = NULL;
   SUNLogger logger     = NULL;
-  SUNComm comm        = commptr == NULL ? SUN_COMM_NULL : *((SUNComm*) commptr);
+
+  /* Since this function used to take a void* comm that was NULL 
+     when the comm was to be ignored, we check if its NULL here
+     and translate it to SUN_COMM_NULL to make the transition 
+     easier for users. */
+  if (comm == NULL) 
+  {
+    comm = SUN_COMM_NULL;
+  }
 
 #if defined(SUNDIALS_BUILD_WITH_PROFILING) && !defined(SUNDIALS_CALIPER_ENABLED)
   if (SUNProfiler_Create(comm, "SUNContext Default", &profiler)) return (-1);
 #endif
 
 #ifdef SUNDIALS_ADIAK_ENABLED 
-  adiak_init(commptr);
+  adiak_init(&comm);
   sunAdiakCollectMetadata();
 #endif
 
@@ -55,7 +63,11 @@ int SUNContext_Create(void* commptr, SUNContext* sunctx)
     return (-1);
   }
 #else
-  if (SUNLogger_Create(SUN_COMM_NULL, 0, &logger)) 
+#if SUNDIALS_MPI_ENABLED
+  if (SUNLogger_Create(comm, 0, &logger))
+#else
+  if (SUNLogger_Create(SUN_COMM_NULL, 0, &logger))
+#endif
   {
     return (-1);
   }
@@ -64,6 +76,8 @@ int SUNContext_Create(void* commptr, SUNContext* sunctx)
   SUNLogger_SetInfoFilename(logger, "");
   SUNLogger_SetDebugFilename(logger, "");
 #endif
+
+
 
   *sunctx = NULL;
   *sunctx = (SUNContext)malloc(sizeof(struct _SUNContext));
