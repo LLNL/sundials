@@ -248,14 +248,14 @@ int J_adv_diff_react(realtype t, N_Vector y, N_Vector fy, SUNMatrix J,
 
 // Integrator setup functions
 int SetupERK(SUNContext ctx, UserData &udata, UserOptions &uopts, N_Vector y,
-             void** arkode_mem);
+             SUNAdaptController* C, void** arkode_mem);
 
 int SetupARK(SUNContext ctx, UserData &udata, UserOptions &uopts, N_Vector y,
-             SUNMatrix* A, SUNLinearSolver* LS, void** arkode_mem);
+             SUNMatrix* A, SUNLinearSolver* LS, SUNAdaptController* C, void** arkode_mem);
 
 int SetupMRIARK(SUNContext ctx, UserData &udata, UserOptions &uopts,
                 N_Vector y, SUNMatrix* A, SUNLinearSolver* LS,
-                SUNMatrix* A_fast, SUNLinearSolver* LS_fast,
+                SUNMatrix* A_fast, SUNLinearSolver* LS_fast, SUNAdaptController* C_fast,
                 MRIStepInnerStepper* fast_mem, void** arkode_mem);
 
 int SetupMRICVODE(SUNContext ctx, UserData &udata, UserOptions &uopts,

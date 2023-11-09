@@ -69,6 +69,7 @@ $tar $tarfile $distrobase/include/sunlinsol
 $tar $tarfile $distrobase/include/sunmatrix
 $tar $tarfile $distrobase/include/sunmemory
 $tar $tarfile $distrobase/include/sunnonlinsol
+$tar $tarfile $distrobase/include/sunadaptcontroller
 
 echo "   --- Add scripts to $tarfile"
 $tar $tarfile $distrobase/scripts/sundials_csv.py
@@ -81,6 +82,7 @@ $tar $tarfile $distrobase/src/sunlinsol
 $tar $tarfile $distrobase/src/sunmatrix
 $tar $tarfile $distrobase/src/sunmemory
 $tar $tarfile $distrobase/src/sunnonlinsol
+$tar $tarfile $distrobase/src/sunadaptcontroller
 
 echo "   --- Add examples to $tarfile"
 $tar $tarfile $distrobase/examples/CMakeLists.txt

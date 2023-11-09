@@ -77,23 +77,18 @@ int ARKStepSetPostprocessStepFn(void *arkode_mem,
 int ARKStepSetPostprocessStageFn(void *arkode_mem,
                                  ARKPostProcessFn ProcessStage) {
   return(arkSetPostprocessStageFn(arkode_mem, ProcessStage)); }
+int ARKStepSetAdaptivityAdjustment(void *arkode_mem, int adjust) {
+  return(arkSetAdaptivityAdjustment(arkode_mem, adjust)); }
 int ARKStepSetCFLFraction(void *arkode_mem, realtype cfl_frac) {
   return(arkSetCFLFraction(arkode_mem, cfl_frac)); }
 int ARKStepSetSafetyFactor(void *arkode_mem, realtype safety) {
   return(arkSetSafetyFactor(arkode_mem, safety)); }
-int ARKStepSetErrorBias(void *arkode_mem, realtype bias) {
-  return(arkSetErrorBias(arkode_mem, bias)); }
 int ARKStepSetMaxGrowth(void *arkode_mem, realtype mx_growth) {
   return(arkSetMaxGrowth(arkode_mem, mx_growth)); }
 int ARKStepSetMinReduction(void *arkode_mem, realtype eta_min) {
   return(arkSetMinReduction(arkode_mem, eta_min)); }
 int ARKStepSetFixedStepBounds(void *arkode_mem, realtype lb, realtype ub) {
   return(arkSetFixedStepBounds(arkode_mem, lb, ub)); }
-int ARKStepSetAdaptivityMethod(void *arkode_mem, int imethod, int idefault,
-                               int pq, realtype adapt_params[3]) {
-  return(arkSetAdaptivityMethod(arkode_mem, imethod, idefault, pq, adapt_params)); }
-int ARKStepSetAdaptivityFn(void *arkode_mem, ARKAdaptFn hfun, void *h_data) {
-  return(arkSetAdaptivityFn(arkode_mem, hfun, h_data)); }
 int ARKStepSetMaxFirstGrowth(void *arkode_mem, realtype etamx1) {
   return(arkSetMaxFirstGrowth(arkode_mem, etamx1)); }
 int ARKStepSetMaxEFailGrowth(void *arkode_mem, realtype etamxf) {
@@ -108,6 +103,8 @@ int ARKStepSetMaxErrTestFails(void *arkode_mem, int maxnef) {
   return(arkSetMaxErrTestFails(arkode_mem, maxnef)); }
 int ARKStepSetMaxConvFails(void *arkode_mem, int maxncf) {
   return(arkSetMaxConvFails(arkode_mem, maxncf)); }
+int ARKStepSetAdaptController(void *arkode_mem, SUNAdaptController C) {
+  return(arkSetAdaptController(arkode_mem, C)); }
 int ARKStepSetFixedStep(void *arkode_mem, realtype hfixed) {
   return(arkSetFixedStep(arkode_mem, hfixed)); }
 
@@ -343,6 +340,35 @@ int ARKStepGetNumRelaxSolveIters(void* arkode_mem, long int* iters)
   return arkRelaxGetNumRelaxSolveIters(arkode_mem, iters);
 }
 
+
+
+/*===============================================================
+  DEPRECATED ARKStep optional input/output functions
+  ===============================================================*/
+
+/*---------------------------------------------------------------
+  ARKStepSetAdaptivityMethod: user should create/attach a
+  specific SUNAdaptController object.
+  ---------------------------------------------------------------*/
+int ARKStepSetAdaptivityMethod(void *arkode_mem, int imethod, int idefault,
+                               int pq, realtype adapt_params[3]) {
+  return(arkSetAdaptivityMethod(arkode_mem, imethod, idefault, pq, adapt_params)); }
+
+/*---------------------------------------------------------------
+  ARKStepSetAdaptivityFn: user should create/attach a custom
+  SUNAdaptController object.
+  ---------------------------------------------------------------*/
+int ARKStepSetAdaptivityFn(void *arkode_mem, ARKAdaptFn hfun, void *h_data) {
+  return(arkSetAdaptivityFn(arkode_mem, hfun, h_data)); }
+
+/*---------------------------------------------------------------
+  ARKStepSetErrorBias: user should set this value directly in the
+  SUNAdaptController object.
+  ---------------------------------------------------------------*/
+int ARKStepSetErrorBias(void *arkode_mem, realtype bias) {
+  return(arkSetErrorBias(arkode_mem, bias)); }
+
+
 /*===============================================================
   ARKStep optional input functions -- stepper-specific
   ===============================================================*/
@@ -456,6 +482,7 @@ int ARKStepSetOptimalParams(void *arkode_mem)
   ARKodeARKStepMem step_mem;
   ARKodeHAdaptMem hadapt_mem;
   int retval;
+  long int lenrw, leniw;
 
   /* access ARKodeARKStepMem structure */
   retval = arkStep_AccessStepMem(arkode_mem, "ARKStepSetOptimalParams",
@@ -471,29 +498,59 @@ int ARKStepSetOptimalParams(void *arkode_mem)
   }
   hadapt_mem = ark_mem->hadapt_mem;
 
+  /* Remove current SUNAdaptController object */
+  retval = SUNAdaptController_Space(hadapt_mem->hcontroller, &lenrw, &leniw);
+  if (retval == SUNADAPTCONTROLLER_SUCCESS) {
+    ark_mem->liw -= leniw;
+    ark_mem->lrw -= lenrw;
+  }
+  if (hadapt_mem->owncontroller) {
+    retval = SUNAdaptController_Destroy(hadapt_mem->hcontroller);
+    ark_mem->hadapt_mem->owncontroller = SUNFALSE;
+    if (retval != SUNADAPTCONTROLLER_SUCCESS) {
+      arkProcessError(ark_mem, ARK_MEM_FAIL, "ARKODE", "ARKStepSetOptimalParams",
+                      "SUNAdaptController_Destroy failure");
+      return(ARK_MEM_FAIL);
+    }
+  }
+  hadapt_mem->hcontroller = NULL;
+
   /* Choose values based on method, order */
 
   /*    explicit */
   if (step_mem->explicit && !step_mem->implicit) {
-    hadapt_mem->imethod = ARK_ADAPT_PI;
-    hadapt_mem->safety  = RCONST(0.99);
-    hadapt_mem->bias    = RCONST(1.2);
-    hadapt_mem->growth  = RCONST(25.0);
-    hadapt_mem->k1      = RCONST(0.8);
-    hadapt_mem->k2      = RCONST(0.31);
-    hadapt_mem->etamxf  = RCONST(0.3);
+    hadapt_mem->hcontroller = SUNAdaptController_PI(ark_mem->sunctx);
+    if (hadapt_mem->hcontroller == NULL) {
+      arkProcessError(ark_mem, ARK_MEM_FAIL, "ARKODE::ARKStep",
+                      "ARKStepSetOptimalParams",
+                      "SUNAdaptController_PI allocation failure");
+      return(ARK_MEM_FAIL);
+    }
+    (void) SUNAdaptController_SetErrorBias(hadapt_mem->hcontroller, RCONST(1.2));
+    (void) SUNAdaptController_SetParams_PI(hadapt_mem->hcontroller, RCONST(0.8),
+                                           -RCONST(0.31));
+    hadapt_mem->safety = RCONST(0.99);
+    hadapt_mem->growth = RCONST(25.0);
+    hadapt_mem->etamxf = RCONST(0.3);
+    hadapt_mem->pq     = PQ;
 
   /*    implicit */
   } else if (step_mem->implicit && !step_mem->explicit) {
     switch (step_mem->q) {
     case 2:   /* just use standard defaults since better ones unknown */
-      hadapt_mem->imethod   = ARK_ADAPT_PID;
+      hadapt_mem->hcontroller = SUNAdaptController_PID(ark_mem->sunctx);
+      if (hadapt_mem->hcontroller == NULL) {
+        arkProcessError(ark_mem, ARK_MEM_FAIL, "ARKODE::ARKStep",
+                        "ARKStepSetOptimalParams",
+                        "SUNAdaptController_PID allocation failure");
+        return(ARK_MEM_FAIL);
+      }
       hadapt_mem->safety    = SAFETY;
-      hadapt_mem->bias      = BIAS;
       hadapt_mem->growth    = GROWTH;
       hadapt_mem->etamxf    = ETAMXF;
       hadapt_mem->small_nef = SMALL_NEF;
       hadapt_mem->etacf     = ETACF;
+      hadapt_mem->pq        = PQ;
       step_mem->nlscoef     = RCONST(0.001);
       step_mem->maxcor      = 5;
       step_mem->crdown      = CRDOWN;
@@ -502,13 +559,20 @@ int ARKStepSetOptimalParams(void *arkode_mem)
       step_mem->msbp        = MSBP;
       break;
     case 3:
-      hadapt_mem->imethod   = ARK_ADAPT_I;
+      hadapt_mem->hcontroller = SUNAdaptController_I(ark_mem->sunctx);
+      if (hadapt_mem->hcontroller == NULL) {
+        arkProcessError(ark_mem, ARK_MEM_FAIL, "ARKODE::ARKStep",
+                        "ARKStepSetOptimalParams",
+                        "SUNAdaptController_I allocation failure");
+        return(ARK_MEM_FAIL);
+      }
+      (void) SUNAdaptController_SetErrorBias(hadapt_mem->hcontroller, RCONST(1.9));
       hadapt_mem->safety    = RCONST(0.957);
-      hadapt_mem->bias      = RCONST(1.9);
       hadapt_mem->growth    = RCONST(17.6);
       hadapt_mem->etamxf    = RCONST(0.45);
       hadapt_mem->small_nef = SMALL_NEF;
       hadapt_mem->etacf     = ETACF;
+      hadapt_mem->pq        = PQ;
       step_mem->nlscoef     = RCONST(0.22);
       step_mem->crdown      = RCONST(0.17);
       step_mem->rdiv        = RCONST(2.3);
@@ -516,16 +580,22 @@ int ARKStepSetOptimalParams(void *arkode_mem)
       step_mem->msbp        = 60;
       break;
     case 4:
-      hadapt_mem->imethod   = ARK_ADAPT_PID;
+      hadapt_mem->hcontroller = SUNAdaptController_PID(ark_mem->sunctx);
+      if (hadapt_mem->hcontroller == NULL) {
+        arkProcessError(ark_mem, ARK_MEM_FAIL, "ARKODE::ARKStep",
+                        "ARKStepSetOptimalParams",
+                        "SUNAdaptController_PID allocation failure");
+        return(ARK_MEM_FAIL);
+      }
+      (void) SUNAdaptController_SetErrorBias(hadapt_mem->hcontroller, RCONST(1.2));
+      (void) SUNAdaptController_SetParams_PID(hadapt_mem->hcontroller, RCONST(0.535),
+                                              -RCONST(0.209), RCONST(0.148));
       hadapt_mem->safety    = RCONST(0.988);
-      hadapt_mem->bias      = RCONST(1.2);
       hadapt_mem->growth    = RCONST(31.5);
-      hadapt_mem->k1        = RCONST(0.535);
-      hadapt_mem->k2        = RCONST(0.209);
-      hadapt_mem->k3        = RCONST(0.148);
       hadapt_mem->etamxf    = RCONST(0.33);
       hadapt_mem->small_nef = SMALL_NEF;
       hadapt_mem->etacf     = ETACF;
+      hadapt_mem->pq        = PQ;
       step_mem->nlscoef     = RCONST(0.24);
       step_mem->crdown      = RCONST(0.26);
       step_mem->rdiv        = RCONST(2.3);
@@ -533,16 +603,22 @@ int ARKStepSetOptimalParams(void *arkode_mem)
       step_mem->msbp        = 31;
       break;
     case 5:
-      hadapt_mem->imethod   = ARK_ADAPT_PID;
+      hadapt_mem->hcontroller = SUNAdaptController_PID(ark_mem->sunctx);
+      if (hadapt_mem->hcontroller == NULL) {
+        arkProcessError(ark_mem, ARK_MEM_FAIL, "ARKODE::ARKStep",
+                        "ARKStepSetOptimalParams",
+                        "SUNAdaptController_PID allocation failure");
+        return(ARK_MEM_FAIL);
+      }
+      (void) SUNAdaptController_SetErrorBias(hadapt_mem->hcontroller, RCONST(3.3));
+      (void) SUNAdaptController_SetParams_PID(hadapt_mem->hcontroller, RCONST(0.56),
+                                              -RCONST(0.338), RCONST(0.14));
       hadapt_mem->safety    = RCONST(0.937);
-      hadapt_mem->bias      = RCONST(3.3);
       hadapt_mem->growth    = RCONST(22.0);
-      hadapt_mem->k1        = RCONST(0.56);
-      hadapt_mem->k2        = RCONST(0.338);
-      hadapt_mem->k3        = RCONST(0.14);
       hadapt_mem->etamxf    = RCONST(0.44);
       hadapt_mem->small_nef = SMALL_NEF;
       hadapt_mem->etacf     = ETACF;
+      hadapt_mem->pq        = PQ;
       step_mem->nlscoef     = RCONST(0.25);
       step_mem->crdown      = RCONST(0.4);
       step_mem->rdiv        = RCONST(2.3);
@@ -554,17 +630,44 @@ int ARKStepSetOptimalParams(void *arkode_mem)
   /*    imex */
   } else {
     switch (step_mem->q) {
+    case 2:   /* just use standard defaults since better ones unknown */
+      hadapt_mem->hcontroller = SUNAdaptController_PID(ark_mem->sunctx);
+      if (hadapt_mem->hcontroller == NULL) {
+        arkProcessError(ark_mem, ARK_MEM_FAIL, "ARKODE::ARKStep",
+                        "ARKStepSetOptimalParams",
+                        "SUNAdaptController_PID allocation failure");
+        return(ARK_MEM_FAIL);
+      }
+      hadapt_mem->safety    = SAFETY;
+      hadapt_mem->growth    = GROWTH;
+      hadapt_mem->etamxf    = ETAMXF;
+      hadapt_mem->small_nef = SMALL_NEF;
+      hadapt_mem->etacf     = ETACF;
+      hadapt_mem->pq        = PQ;
+      step_mem->nlscoef     = RCONST(0.001);
+      step_mem->maxcor      = 5;
+      step_mem->crdown      = CRDOWN;
+      step_mem->rdiv        = RDIV;
+      step_mem->dgmax       = DGMAX;
+      step_mem->msbp        = MSBP;
+      break;
     case 3:
-      hadapt_mem->imethod   = ARK_ADAPT_PID;
+      hadapt_mem->hcontroller = SUNAdaptController_PID(ark_mem->sunctx);
+      if (hadapt_mem->hcontroller == NULL) {
+        arkProcessError(ark_mem, ARK_MEM_FAIL, "ARKODE::ARKStep",
+                        "ARKStepSetOptimalParams",
+                        "SUNAdaptController_PID allocation failure");
+        return(ARK_MEM_FAIL);
+      }
+      (void) SUNAdaptController_SetErrorBias(hadapt_mem->hcontroller, RCONST(1.42));
+      (void) SUNAdaptController_SetParams_PID(hadapt_mem->hcontroller, RCONST(0.54),
+                                              -RCONST(0.36), RCONST(0.14));
       hadapt_mem->safety    = RCONST(0.965);
-      hadapt_mem->bias      = RCONST(1.42);
       hadapt_mem->growth    = RCONST(28.7);
-      hadapt_mem->k1        = RCONST(0.54);
-      hadapt_mem->k2        = RCONST(0.36);
-      hadapt_mem->k3        = RCONST(0.14);
       hadapt_mem->etamxf    = RCONST(0.46);
       hadapt_mem->small_nef = SMALL_NEF;
       hadapt_mem->etacf     = ETACF;
+      hadapt_mem->pq        = PQ;
       step_mem->nlscoef     = RCONST(0.22);
       step_mem->crdown      = RCONST(0.17);
       step_mem->rdiv        = RCONST(2.3);
@@ -572,16 +675,22 @@ int ARKStepSetOptimalParams(void *arkode_mem)
       step_mem->msbp        = 60;
       break;
     case 4:
-      hadapt_mem->imethod   = ARK_ADAPT_PID;
+      hadapt_mem->hcontroller = SUNAdaptController_PID(ark_mem->sunctx);
+      if (hadapt_mem->hcontroller == NULL) {
+        arkProcessError(ark_mem, ARK_MEM_FAIL, "ARKODE::ARKStep",
+                        "ARKStepSetOptimalParams",
+                        "SUNAdaptController_PID allocation failure");
+        return(ARK_MEM_FAIL);
+      }
+      (void) SUNAdaptController_SetErrorBias(hadapt_mem->hcontroller, RCONST(1.35));
+      (void) SUNAdaptController_SetParams_PID(hadapt_mem->hcontroller, RCONST(0.543),
+                                              -RCONST(0.297), RCONST(0.14));
       hadapt_mem->safety    = RCONST(0.97);
-      hadapt_mem->bias      = RCONST(1.35);
       hadapt_mem->growth    = RCONST(25.0);
-      hadapt_mem->k1        = RCONST(0.543);
-      hadapt_mem->k2        = RCONST(0.297);
-      hadapt_mem->k3        = RCONST(0.14);
       hadapt_mem->etamxf    = RCONST(0.47);
       hadapt_mem->small_nef = SMALL_NEF;
       hadapt_mem->etacf     = ETACF;
+      hadapt_mem->pq        = PQ;
       step_mem->nlscoef     = RCONST(0.24);
       step_mem->crdown      = RCONST(0.26);
       step_mem->rdiv        = RCONST(2.3);
@@ -589,21 +698,35 @@ int ARKStepSetOptimalParams(void *arkode_mem)
       step_mem->msbp        = 31;
       break;
     case 5:
-      hadapt_mem->imethod   = ARK_ADAPT_PI;
+      hadapt_mem->hcontroller = SUNAdaptController_PI(ark_mem->sunctx);
+      if (hadapt_mem->hcontroller == NULL) {
+        arkProcessError(ark_mem, ARK_MEM_FAIL, "ARKODE::ARKStep",
+                        "ARKStepSetOptimalParams",
+                        "SUNAdaptController_PI allocation failure");
+        return(ARK_MEM_FAIL);
+      }
+      (void) SUNAdaptController_SetErrorBias(hadapt_mem->hcontroller, RCONST(1.15));
+      (void) SUNAdaptController_SetParams_PI(hadapt_mem->hcontroller, RCONST(0.8),
+                                             -RCONST(0.35));
       hadapt_mem->safety    = RCONST(0.993);
-      hadapt_mem->bias      = RCONST(1.15);
       hadapt_mem->growth    = RCONST(28.5);
-      hadapt_mem->k1        = RCONST(0.8);
-      hadapt_mem->k2        = RCONST(0.35);
       hadapt_mem->etamxf    = RCONST(0.3);
       hadapt_mem->small_nef = SMALL_NEF;
       hadapt_mem->etacf     = ETACF;
+      hadapt_mem->pq        = PQ;
       step_mem->nlscoef     = RCONST(0.25);
       step_mem->crdown      = RCONST(0.4);
       step_mem->rdiv        = RCONST(2.3);
       step_mem->dgmax       = RCONST(0.32);
       step_mem->msbp        = 31;
       break;
+    }
+    hadapt_mem->owncontroller = SUNTRUE;
+
+    retval = SUNAdaptController_Space(hadapt_mem->hcontroller, &lenrw, &leniw);
+    if (retval == SUNADAPTCONTROLLER_SUCCESS) {
+      ark_mem->liw += leniw;
+      ark_mem->lrw += lenrw;
     }
 
   }

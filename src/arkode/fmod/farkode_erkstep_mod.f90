@@ -34,6 +34,7 @@ module farkode_erkstep_mod
  use fsundials_context_mod
  use fsundials_types_mod
  use fsundials_nonlinearsolver_mod
+ use fsundials_adaptcontroller_mod
  use fsundials_types_mod
  implicit none
  private
@@ -44,7 +45,9 @@ module farkode_erkstep_mod
  integer(C_INT), parameter, public :: ERKSTEP_DEFAULT_4 = ARKODE_ZONNEVELD_5_3_4
  integer(C_INT), parameter, public :: ERKSTEP_DEFAULT_5 = ARKODE_CASH_KARP_6_4_5
  integer(C_INT), parameter, public :: ERKSTEP_DEFAULT_6 = ARKODE_VERNER_8_5_6
+ integer(C_INT), parameter, public :: ERKSTEP_DEFAULT_7 = ARKODE_VERNER_10_6_7
  integer(C_INT), parameter, public :: ERKSTEP_DEFAULT_8 = ARKODE_FEHLBERG_13_7_8
+ integer(C_INT), parameter, public :: ERKSTEP_DEFAULT_9 = ARKODE_VERNER_16_8_9
  public :: FERKStepCreate
  public :: FERKStepResize
  public :: FERKStepReInit
@@ -65,6 +68,8 @@ module farkode_erkstep_mod
   integer(C_SIZE_T), public :: size = 0
  end type
  public :: FERKStepSetTableName
+ public :: FERKStepSetAdaptController
+ public :: FERKStepSetAdaptivityAdjustment
  public :: FERKStepSetCFLFraction
  public :: FERKStepSetSafetyFactor
  public :: FERKStepSetErrorBias
@@ -297,6 +302,24 @@ use, intrinsic :: ISO_C_BINDING
 import :: swigarraywrapper
 type(C_PTR), value :: farg1
 type(SwigArrayWrapper) :: farg2
+integer(C_INT) :: fresult
+end function
+
+function swigc_FERKStepSetAdaptController(farg1, farg2) &
+bind(C, name="_wrap_FERKStepSetAdaptController") &
+result(fresult)
+use, intrinsic :: ISO_C_BINDING
+type(C_PTR), value :: farg1
+type(C_PTR), value :: farg2
+integer(C_INT) :: fresult
+end function
+
+function swigc_FERKStepSetAdaptivityAdjustment(farg1, farg2) &
+bind(C, name="_wrap_FERKStepSetAdaptivityAdjustment") &
+result(fresult)
+use, intrinsic :: ISO_C_BINDING
+type(C_PTR), value :: farg1
+integer(C_INT), intent(in) :: farg2
 integer(C_INT) :: fresult
 end function
 
@@ -1316,6 +1339,38 @@ type(SwigArrayWrapper) :: farg2
 farg1 = arkode_mem
 call SWIG_string_to_chararray(etable, farg2_chars, farg2)
 fresult = swigc_FERKStepSetTableName(farg1, farg2)
+swig_result = fresult
+end function
+
+function FERKStepSetAdaptController(arkode_mem, c) &
+result(swig_result)
+use, intrinsic :: ISO_C_BINDING
+integer(C_INT) :: swig_result
+type(C_PTR) :: arkode_mem
+type(SUNAdaptController), target, intent(inout) :: c
+integer(C_INT) :: fresult 
+type(C_PTR) :: farg1 
+type(C_PTR) :: farg2 
+
+farg1 = arkode_mem
+farg2 = c_loc(c)
+fresult = swigc_FERKStepSetAdaptController(farg1, farg2)
+swig_result = fresult
+end function
+
+function FERKStepSetAdaptivityAdjustment(arkode_mem, adjust) &
+result(swig_result)
+use, intrinsic :: ISO_C_BINDING
+integer(C_INT) :: swig_result
+type(C_PTR) :: arkode_mem
+integer(C_INT), intent(in) :: adjust
+integer(C_INT) :: fresult 
+type(C_PTR) :: farg1 
+integer(C_INT) :: farg2 
+
+farg1 = arkode_mem
+farg2 = adjust
+fresult = swigc_FERKStepSetAdaptivityAdjustment(farg1, farg2)
 swig_result = fresult
 end function
 

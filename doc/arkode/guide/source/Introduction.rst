@@ -133,6 +133,21 @@ Changes from previous versions
 Changes in vX.X.X
 -----------------
 
+Added the :c:type:`SUNAdaptController` base class, ported ARKODE's internal
+implementations of time step controllers into implementations of this class,
+and updated ARKODE to use these objects instead of its own implementations.  Added
+:c:func:`ARKStepSetAdaptController` and :c:func:`ERKStepSetAdaptController`
+routines so that users can modify controller parameters, or even provide custom
+implementations.
+
+Added the routines :c:func:`ARKStepSetAdaptivityAdjustment` and
+:c:func:`ERKStepSetAdaptivityAdjustment`, that allow users to adjust the
+value for the method order supplied to the temporal adaptivity controllers.
+The ARKODE default for this adjustment has been :math:`-1` since its initial
+release, but for some applications a value of :math:`0` is more appropriate.
+Users who notice that their simulations encounter a large number of
+temporal error test failures may want to experiment with adjusting this value.
+
 Fixed a regression introduced by the stop time bug fix in v6.6.1 where ARKODE
 steppers would return at the stop time rather than the requested output time if
 the stop time was reached in the same step in which the output time was passed.
@@ -160,7 +175,7 @@ the eighth order ERK method ``ARKODE_VERNER_13_7_8``, and the ninth order ERK
 method ``ARKODE_VERNER_16_8_9``.
 
 Changed the ``SUNProfiler`` so that it does not rely on ``MPI_WTime`` in any case.
-This fixes `GitHub Issue #312 <https://github.com/LLNL/sundials/issues/312>`_. 
+This fixes `GitHub Issue #312 <https://github.com/LLNL/sundials/issues/312>`_.
 
 Added Fortran support for the LAPACK  dense ``SUNLinearSolver`` implementation.
 
