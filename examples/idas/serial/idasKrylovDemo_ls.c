@@ -141,7 +141,7 @@ int main(int argc, char* argv[])
   if (argc > 1) nrmfactor = atoi(argv[1]);
 
   /* Create the SUNDIALS context object for this simulation */
-  retval = SUNContext_Create(NULL, &ctx);
+  retval = SUNContext_Create(SUN_COMM_NULL, &ctx);
   if (check_retval(&retval, "SUNContext_Create", 1)) return 1;
 
   /* Allocate N-vectors and the user data structure. */

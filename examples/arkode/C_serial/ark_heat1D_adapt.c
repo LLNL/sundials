@@ -119,7 +119,7 @@ int main() {
 
   /* Create the SUNDIALS context object for this simulation */
   SUNContext ctx;
-  flag = SUNContext_Create(NULL, &ctx);
+  flag = SUNContext_Create(SUN_COMM_NULL, &ctx);
   if (check_flag(&flag, "SUNContext_Create", 1)) return 1;
 
   /* allocate and fill initial udata structure */

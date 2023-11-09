@@ -113,7 +113,7 @@ int main(void)
   LS = NULL;
 
   /* Create the SUNDIALS context object for this simulation */
-  retval = SUNContext_Create(NULL, &ctx);
+  retval = SUNContext_Create(SUN_COMM_NULL, &ctx);
   if (check_retval(&retval, "SUNContext_Create", 1)) return 1;
 
   id = N_VNew_Serial(NEQ, ctx);

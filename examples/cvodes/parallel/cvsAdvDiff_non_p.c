@@ -117,7 +117,7 @@ int main(int argc, char *argv[])
   MPI_Comm_rank(comm, &my_pe);
 
   /* Create SUNDIALS context */
-  retval = SUNContext_Create(NULL, &sunctx);
+  retval = SUNContext_Create(SUN_COMM_NULL, &sunctx);
   if (check_retval(&retval, "SUNContext_Create", 1, my_pe)) MPI_Abort(comm, 1);
 
   /* Set local vector length. */

@@ -182,7 +182,7 @@ int main(int argc, char* argv[])
    * ------------ */
 
   /* Create the SUNDIALS context object for this simulation */
-  flag = SUNContext_Create(NULL, &ctx);
+  flag = SUNContext_Create(SUN_COMM_NULL, &ctx);
   if (check_flag(flag, "SUNContext_Create")) return 1;
 
   /* Create serial vector and set the initial condition values */

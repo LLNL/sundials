@@ -111,7 +111,7 @@ int main(int argc, char *argv[])
 
   /* Create the SUNDIALS context object for this simulation */
   SUNContext sunctx = NULL;
-  retval = SUNContext_Create(NULL, &sunctx);
+  retval = SUNContext_Create(SUN_COMM_NULL, &sunctx);
   if (check_retval(&retval, "SUNContextCreate", 1)) return(1);
 
   /* Allocate user data structure */
