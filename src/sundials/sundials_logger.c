@@ -161,7 +161,7 @@ int SUNLogger_Create(SUN_Comm comm, int output_rank, SUNLogger* logger_ptr)
 
   /* Attach the comm, duplicating it if MPI is used. */
 #if SUNDIALS_MPI_ENABLED
-  logger->comm = NULL;
+  logger->comm = SUN_COMM_NULL;
   if (comm != SUN_COMM_NULL)
   {
     MPI_Comm_dup(comm, &logger->comm);
