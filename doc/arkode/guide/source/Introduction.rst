@@ -133,6 +133,21 @@ Changes from previous versions
 Changes in vX.X.X
 -----------------
 
+Added the :c:type:`SUNAdaptController` base class, ported ARKODE's internal
+implementations of time step controllers into implementations of this class,
+and updated ARKODE to use these objects instead of its own implementations.  Added
+:c:func:`ARKStepSetAdaptController` and :c:func:`ERKStepSetAdaptController`
+routines so that users can modify controller parameters, or even provide custom
+implementations.
+
+Added the routines :c:func:`ARKStepSetAdaptivityAdjustment` and
+:c:func:`ERKStepSetAdaptivityAdjustment`, that allow users to adjust the
+value for the method order supplied to the temporal adaptivity controllers.
+The ARKODE default for this adjustment has been :math:`-1` since its initial
+release, but for some applications a value of :math:`0` is more appropriate.
+Users who notice that their simulations encounter a large number of
+temporal error test failures may want to experiment with adjusting this value.
+
 Fixed the build system support for MAGMA when using a NVIDIA HPC SDK installation of CUDA
 and fixed the targets used for rocBLAS and rocSPARSE.
 
