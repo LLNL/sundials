@@ -266,7 +266,7 @@ int main(int argc, char *argv[])
   /* Start timing */
   starttime = MPI_Wtime();
 
-  retval = SUNContext_Create((void*) &comm, &ctx);
+  retval = SUNContext_Create(comm, &ctx);
   if (check_retval(&retval, "SUNContext_Create", 1)) MPI_Abort(comm, 1);
 
   /* Allocate user data structure */
