@@ -33,6 +33,7 @@ module farkode_mod
  use fsundials_context_mod
  use fsundials_types_mod
  use fsundials_nonlinearsolver_mod
+ use fsundials_adaptcontroller_mod
  use fsundials_types_mod
  implicit none
  private
@@ -104,6 +105,7 @@ module farkode_mod
  integer(C_INT), parameter, public :: ARK_RELAX_MEM_NULL = -44_C_INT
  integer(C_INT), parameter, public :: ARK_RELAX_FUNC_FAIL = -45_C_INT
  integer(C_INT), parameter, public :: ARK_RELAX_JAC_FAIL = -46_C_INT
+ integer(C_INT), parameter, public :: ARK_CONTROLLER_ERR = -47_C_INT
  integer(C_INT), parameter, public :: ARK_UNRECOGNIZED_ERROR = -99_C_INT
  ! typedef enum ARKRelaxSolver
  enum, bind(c)

@@ -685,6 +685,34 @@ SWIGEXPORT int _wrap_FARKStepSetTableName(void *farg1, SwigArrayWrapper *farg2, 
 }
 
 
+SWIGEXPORT int _wrap_FARKStepSetAdaptController(void *farg1, SUNAdaptController farg2) {
+  int fresult ;
+  void *arg1 = (void *) 0 ;
+  SUNAdaptController arg2 = (SUNAdaptController) 0 ;
+  int result;
+  
+  arg1 = (void *)(farg1);
+  arg2 = (SUNAdaptController)(farg2);
+  result = (int)ARKStepSetAdaptController(arg1,arg2);
+  fresult = (int)(result);
+  return fresult;
+}
+
+
+SWIGEXPORT int _wrap_FARKStepSetAdaptivityAdjustment(void *farg1, int const *farg2) {
+  int fresult ;
+  void *arg1 = (void *) 0 ;
+  int arg2 ;
+  int result;
+  
+  arg1 = (void *)(farg1);
+  arg2 = (int)(*farg2);
+  result = (int)ARKStepSetAdaptivityAdjustment(arg1,arg2);
+  fresult = (int)(result);
+  return fresult;
+}
+
+
 SWIGEXPORT int _wrap_FARKStepSetCFLFraction(void *farg1, double const *farg2) {
   int fresult ;
   void *arg1 = (void *) 0 ;

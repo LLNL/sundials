@@ -176,6 +176,15 @@ macro(sundials_add_library target)
       target_link_libraries(${obj_target} ${_all_libs})
     endif()
 
+    if(SUNDIALS_BUILD_WITH_PROFILING)
+      if(ENABLE_CALIPER)
+        target_link_libraries(${obj_target} PUBLIC caliper)
+      endif()
+      if(ENABLE_ADIAK)
+        target_link_libraries(${obj_target} PUBLIC adiak::adiak ${CMAKE_DL_LIBS})
+      endif()
+    endif()
+
     # add includes to object library
     target_include_directories(${obj_target}
       PUBLIC
