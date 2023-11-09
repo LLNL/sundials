@@ -60,7 +60,7 @@ SUNNonlinearSolver SUNNonlinSol_Newton(N_Vector y, SUNContext sunctx)
   NLS->ops->gettype         = SUNNonlinSolGetType_Newton;
   NLS->ops->initialize      = SUNNonlinSolInitialize_Newton;
   NLS->ops->solve           = SUNNonlinSolSolve_Newton;
-  NLS->ops->free            = SUNNonlinSolFree_Newton;
+  NLS->ops->free            = SUNNonlinSolDestroy_Newton;
   NLS->ops->setsysfn        = SUNNonlinSolSetSysFn_Newton;
   NLS->ops->setlsetupfn     = SUNNonlinSolSetLSetupFn_Newton;
   NLS->ops->setlsolvefn     = SUNNonlinSolSetLSolveFn_Newton;
@@ -73,7 +73,7 @@ SUNNonlinearSolver SUNNonlinSol_Newton(N_Vector y, SUNContext sunctx)
   /* Create content */
   content = NULL;
   content = (SUNNonlinearSolverContent_Newton) malloc(sizeof *content);
-  if (content == NULL) { SUNNonlinSolFree(NLS); return(NULL); }
+  if (content == NULL) { SUNNonlinSolDestroy(NLS); return(NULL); }
 
   /* Initialize all components of content to 0/NULL */
   memset(content, 0, sizeof(struct _SUNNonlinearSolverContent_Newton));
@@ -100,7 +100,7 @@ SUNNonlinearSolver SUNNonlinSol_Newton(N_Vector y, SUNContext sunctx)
 
   /* Fill allocatable content */
   content->delta = N_VClone(y);
-  if (content->delta == NULL) { SUNNonlinSolFree(NLS); return(NULL); }
+  if (content->delta == NULL) { SUNNonlinSolDestroy(NLS); return(NULL); }
 
   return(NLS);
 }
@@ -338,7 +338,7 @@ int SUNNonlinSolSolve_Newton(SUNNonlinearSolver NLS,
 }
 
 
-int SUNNonlinSolFree_Newton(SUNNonlinearSolver NLS)
+int SUNNonlinSolDestroy_Newton(SUNNonlinearSolver NLS)
 {
   /* return if NLS is already free */
   if (NLS == NULL)

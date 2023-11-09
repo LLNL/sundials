@@ -306,11 +306,15 @@ SWIGEXPORT SUNMatrix _wrap_FSUNMatClone_Dense(SUNMatrix farg1) {
 }
 
 
-SWIGEXPORT void _wrap_FSUNMatDestroy_Dense(SUNMatrix farg1) {
+SWIGEXPORT int _wrap_FSUNMatDestroy_Dense(SUNMatrix farg1) {
+  int fresult ;
   SUNMatrix arg1 = (SUNMatrix) 0 ;
+  int result;
   
   arg1 = (SUNMatrix)(farg1);
-  SUNMatDestroy_Dense(arg1);
+  result = (int)SUNMatDestroy_Dense(arg1);
+  fresult = (int)(result);
+  return fresult;
 }
 
 

@@ -79,7 +79,7 @@ int arkInterpResize_Hermite(void* arkode_mem, ARKInterp interp,
                             ARKVecResizeFn resize, void *resize_data,
                             sunindextype lrw_diff, sunindextype liw_diff,
                             N_Vector tmpl);
-void arkInterpFree_Hermite(void* arkode_mem, ARKInterp interp);
+void arkInterpDestroy_Hermite(void* arkode_mem, ARKInterp interp);
 void arkInterpPrintMem_Hermite(ARKInterp interp, FILE *outfile);
 int arkInterpSetDegree_Hermite(void *arkode_mem, ARKInterp interp, int degree);
 int arkInterpInit_Hermite(void* arkode_mem, ARKInterp interp,
@@ -131,7 +131,7 @@ int arkInterpResize_Lagrange(void* arkode_mem, ARKInterp interp,
                              ARKVecResizeFn resize, void *resize_data,
                              sunindextype lrw_diff, sunindextype liw_diff,
                              N_Vector tmpl);
-void arkInterpFree_Lagrange(void* arkode_mem, ARKInterp interp);
+void arkInterpDestroy_Lagrange(void* arkode_mem, ARKInterp interp);
 void arkInterpPrintMem_Lagrange(ARKInterp interp, FILE *outfile);
 int arkInterpSetDegree_Lagrange(void *arkode_mem, ARKInterp interp, int degree);
 int arkInterpInit_Lagrange(void* arkode_mem, ARKInterp interp,

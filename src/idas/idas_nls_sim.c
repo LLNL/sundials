@@ -96,7 +96,7 @@ int IDASetNonlinearSolverSensSim(void *ida_mem, SUNNonlinearSolver NLS)
 
   /* free any existing nonlinear solver */
   if ((IDA_mem->NLSsim != NULL) && (IDA_mem->ownNLSsim))
-    retval = SUNNonlinSolFree(IDA_mem->NLSsim);
+    retval = SUNNonlinSolDestroy(IDA_mem->NLSsim);
 
   /* set SUNNonlinearSolver pointer */
   IDA_mem->NLSsim = NLS;

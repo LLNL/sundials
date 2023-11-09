@@ -393,7 +393,7 @@ program main
   ! clean up
   call FARKStepFree(arkode_mem)
   call FN_VDestroy(sunvec_y)
-  call FSUNMatDestroy(sunmat_A)
+  ierr = FSUNMatDestroy(sunmat_A)
   ierr = FSUNLinSolFree(sunls)
   ierr = FSUNContext_Free(sunctx)
 

@@ -43,7 +43,7 @@ int arkInterpResize(void* arkode_mem, ARKInterp interp,
                                    lrw_diff, liw_diff, tmpl));
 }
 
-void arkInterpFree(void* arkode_mem, ARKInterp interp)
+void arkInterpDestroy(void* arkode_mem, ARKInterp interp)
 {
   if (interp == NULL)  return;
   interp->ops->free(arkode_mem, interp);
@@ -122,7 +122,7 @@ ARKInterp arkInterpCreate_Hermite(void* arkode_mem, int degree)
   ops = (ARKInterpOps) malloc(sizeof *ops);
   if (ops == NULL) { free(interp); return(NULL); }
   ops->resize    = arkInterpResize_Hermite;
-  ops->free      = arkInterpFree_Hermite;
+  ops->free      = arkInterpDestroy_Hermite;
   ops->print     = arkInterpPrintMem_Hermite;
   ops->setdegree = arkInterpSetDegree_Hermite;
   ops->init      = arkInterpInit_Hermite;
@@ -208,11 +208,11 @@ int arkInterpResize_Hermite(void* arkode_mem, ARKInterp interp,
 
 
 /*---------------------------------------------------------------
-  arkInterpFree_Hermite:
+  arkInterpDestroy_Hermite:
 
   This routine frees the Hermite ARKInterp structure.
   ---------------------------------------------------------------*/
-void arkInterpFree_Hermite(void* arkode_mem, ARKInterp interp)
+void arkInterpDestroy_Hermite(void* arkode_mem, ARKInterp interp)
 {
   ARKodeMem ark_mem;
 
@@ -373,20 +373,20 @@ int arkInterpInit_Hermite(void* arkode_mem, ARKInterp interp,
   /* allocate vectors based on interpolant degree */
   if (HINT_FOLD(interp) == NULL)
     if (!arkAllocVec(ark_mem, ark_mem->yn, &(HINT_FOLD(interp)))) {
-      arkInterpFree(ark_mem, interp); return(ARK_MEM_FAIL);
+      arkInterpDestroy(ark_mem, interp); return(ARK_MEM_FAIL);
     }
   if (HINT_YOLD(interp) == NULL)
     if (!arkAllocVec(ark_mem, ark_mem->yn, &(HINT_YOLD(interp)))) {
-      arkInterpFree(ark_mem, interp); return(ARK_MEM_FAIL);
+      arkInterpDestroy(ark_mem, interp); return(ARK_MEM_FAIL);
     }
   if ((HINT_DEGREE(interp) > 3) && (HINT_FA(interp) == NULL)) {
     if (!arkAllocVec(ark_mem, ark_mem->yn, &(HINT_FA(interp)))) {
-      arkInterpFree(ark_mem, interp); return(ARK_MEM_FAIL);
+      arkInterpDestroy(ark_mem, interp); return(ARK_MEM_FAIL);
     }
   }
   if ((HINT_DEGREE(interp) > 4) && (HINT_FB(interp) == NULL)) {
     if (!arkAllocVec(ark_mem, ark_mem->yn, &(HINT_FB(interp)))) {
-      arkInterpFree(ark_mem, interp); return(ARK_MEM_FAIL);
+      arkInterpDestroy(ark_mem, interp); return(ARK_MEM_FAIL);
     }
   }
 
@@ -776,7 +776,7 @@ ARKInterp arkInterpCreate_Lagrange(void* arkode_mem, int degree)
   ops = (ARKInterpOps) malloc(sizeof *ops);
   if (ops == NULL) { free(interp); return(NULL); }
   ops->resize    = arkInterpResize_Lagrange;
-  ops->free      = arkInterpFree_Lagrange;
+  ops->free      = arkInterpDestroy_Lagrange;
   ops->print     = arkInterpPrintMem_Lagrange;
   ops->setdegree = arkInterpSetDegree_Lagrange;
   ops->init      = arkInterpInit_Lagrange;
@@ -850,11 +850,11 @@ int arkInterpResize_Lagrange(void* arkode_mem, ARKInterp I,
 
 
 /*---------------------------------------------------------------
-  arkInterpFree_Lagrange:
+  arkInterpDestroy_Lagrange:
 
   This routine frees the Lagrange ARKInterp structure.
   ---------------------------------------------------------------*/
-void arkInterpFree_Lagrange(void* arkode_mem, ARKInterp I)
+void arkInterpDestroy_Lagrange(void* arkode_mem, ARKInterp I)
 {
   int i;
   ARKodeMem ark_mem;
@@ -1037,7 +1037,7 @@ int arkInterpInit_Lagrange(void* arkode_mem, ARKInterp I,
   if (LINT_THIST(I) == NULL) {
     LINT_THIST(I) = (realtype*) malloc(LINT_NMAX(I) * sizeof(realtype));
     if (LINT_THIST(I) == NULL) {
-      arkInterpFree(ark_mem, I); return(ARK_MEM_FAIL);
+      arkInterpDestroy(ark_mem, I); return(ARK_MEM_FAIL);
     }
   }
 
@@ -1045,12 +1045,12 @@ int arkInterpInit_Lagrange(void* arkode_mem, ARKInterp I,
   if (LINT_YHIST(I) == NULL) {
     LINT_YHIST(I) = (N_Vector*) malloc(LINT_NMAX(I) * sizeof(N_Vector));
     if (LINT_YHIST(I) == NULL) {
-      arkInterpFree(ark_mem, I); return(ARK_MEM_FAIL);
+      arkInterpDestroy(ark_mem, I); return(ARK_MEM_FAIL);
     }
     for (i=0; i<LINT_NMAX(I); i++) {
       LINT_YJ(I,i) = NULL;
       if (!arkAllocVec(ark_mem, ark_mem->yn, &(LINT_YJ(I,i)))) {
-        arkInterpFree(ark_mem, I); return(ARK_MEM_FAIL);
+        arkInterpDestroy(ark_mem, I); return(ARK_MEM_FAIL);
       }
     }
   }

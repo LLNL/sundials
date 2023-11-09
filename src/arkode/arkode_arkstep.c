@@ -108,7 +108,7 @@ void* ARKStepCreate(ARKRhsFn fe, ARKRhsFn fi, realtype t0, N_Vector y0,
     arkProcessError(ark_mem, retval, "ARKODE::ARKStep",
                     "ARKStepCreate",
                     "Error setting default solver options");
-    ARKStepFree((void**) &ark_mem);  return(NULL);
+    ARKStepDestroy((void**) &ark_mem);  return(NULL);
   }
 
   /* Set implicit/explicit problem based on function pointers */
@@ -121,11 +121,11 @@ void* ARKStepCreate(ARKRhsFn fe, ARKRhsFn fi, realtype t0, N_Vector y0,
 
   /* Clone the input vector to create sdata, zpred and zcor */
   if (!arkAllocVec(ark_mem, y0, &(step_mem->sdata))) {
-    ARKStepFree((void**) &ark_mem);  return(NULL); }
+    ARKStepDestroy((void**) &ark_mem);  return(NULL); }
   if (!arkAllocVec(ark_mem, y0, &(step_mem->zpred))) {
-    ARKStepFree((void**) &ark_mem);  return(NULL); }
+    ARKStepDestroy((void**) &ark_mem);  return(NULL); }
   if (!arkAllocVec(ark_mem, y0, &(step_mem->zcor))) {
-    ARKStepFree((void**) &ark_mem);  return(NULL); }
+    ARKStepDestroy((void**) &ark_mem);  return(NULL); }
 
   /* Copy the input parameters into ARKODE state */
   step_mem->fe = fe;
@@ -142,13 +142,13 @@ void* ARKStepCreate(ARKRhsFn fe, ARKRhsFn fi, realtype t0, N_Vector y0,
     if (NLS == NULL) {
       arkProcessError(ark_mem, ARK_MEM_FAIL, "ARKODE::ARKStep",
                       "ARKStepCreate", "Error creating default Newton solver");
-      ARKStepFree((void**) &ark_mem);  return(NULL);
+      ARKStepDestroy((void**) &ark_mem);  return(NULL);
     }
     retval = ARKStepSetNonlinearSolver(ark_mem, NLS);
     if (retval != ARK_SUCCESS) {
       arkProcessError(ark_mem, ARK_MEM_FAIL, "ARKODE::ARKStep",
                       "ARKStepCreate", "Error attaching default Newton solver");
-      ARKStepFree((void**) &ark_mem);  return(NULL);
+      ARKStepDestroy((void**) &ark_mem);  return(NULL);
     }
     step_mem->ownNLS = SUNTRUE;
   }
@@ -198,7 +198,7 @@ void* ARKStepCreate(ARKRhsFn fe, ARKRhsFn fi, realtype t0, N_Vector y0,
   if (retval != ARK_SUCCESS) {
     arkProcessError(ark_mem, retval, "ARKODE::ARKStep", "ARKStepCreate",
                     "Unable to initialize main ARKODE infrastructure");
-    ARKStepFree((void**) &ark_mem);  return(NULL);
+    ARKStepDestroy((void**) &ark_mem);  return(NULL);
   }
 
   return((void *)ark_mem);
@@ -294,7 +294,7 @@ int ARKStepResize(void *arkode_mem, N_Vector y0, realtype hscale,
   if ((step_mem->NLS != NULL) && (step_mem->ownNLS)) {
 
     /* destroy existing NLS object */
-    retval = SUNNonlinSolFree(step_mem->NLS);
+    retval = SUNNonlinSolDestroy(step_mem->NLS);
     if (retval != ARK_SUCCESS)  return(retval);
     step_mem->NLS = NULL;
     step_mem->ownNLS = SUNFALSE;
@@ -619,7 +619,7 @@ int ARKStepDestroy(void **arkode_mem)
   ARKodeARKStepMem step_mem;
 
   /* nothing to do if arkode_mem is already NULL */
-  if (*arkode_mem == NULL)  return;
+  if (*arkode_mem == NULL)  return ARK_SUCCESS;
 
   /* conditional frees on non-NULL ARKStep module */
   ark_mem = (ARKodeMem) (*arkode_mem);
@@ -630,14 +630,14 @@ int ARKStepDestroy(void **arkode_mem)
     /* free the Butcher tables */
     if (step_mem->Be != NULL) {
       ARKodeButcherTable_Space(step_mem->Be, &Bliw, &Blrw);
-      ARKodeButcherTable_Free(step_mem->Be);
+      ARKodeButcherTable_Destroy(step_mem->Be);
       step_mem->Be = NULL;
       ark_mem->liw -= Bliw;
       ark_mem->lrw -= Blrw;
     }
     if (step_mem->Bi != NULL) {
       ARKodeButcherTable_Space(step_mem->Bi, &Bliw, &Blrw);
-      ARKodeButcherTable_Free(step_mem->Bi);
+      ARKodeButcherTable_Destroy(step_mem->Bi);
       step_mem->Bi = NULL;
       ark_mem->liw -= Bliw;
       ark_mem->lrw -= Blrw;
@@ -645,7 +645,7 @@ int ARKStepDestroy(void **arkode_mem)
 
     /* free the nonlinear solver memory (if applicable) */
     if ((step_mem->NLS != NULL) && (step_mem->ownNLS)) {
-      SUNNonlinSolFree(step_mem->NLS);
+      SUNNonlinSolDestroy(step_mem->NLS);
       step_mem->ownNLS = SUNFALSE;
     }
     step_mem->NLS = NULL;
@@ -736,7 +736,7 @@ int ARKStepDestroy(void **arkode_mem)
   }
 
   /* free memory for overall ARKODE infrastructure */
-  arkFree(arkode_mem);
+  arkDestroy(arkode_mem);
 }
 
 

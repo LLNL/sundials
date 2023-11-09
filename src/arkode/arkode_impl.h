@@ -244,7 +244,7 @@ int arkInterpResize(void* arkode_mem, ARKInterp interp,
                     ARKVecResizeFn resize, void *resize_data,
                     sunindextype lrw_diff, sunindextype liw_diff,
                     N_Vector tmpl);
-void arkInterpFree(void* arkode_mem, ARKInterp interp);
+void arkInterpDestroy(void* arkode_mem, ARKInterp interp);
 void arkInterpPrintMem(ARKInterp interp, FILE *outfile);
 int arkInterpSetDegree(void *arkode_mem, ARKInterp interp, int degree);
 int arkInterpInit(void* arkode_mem, ARKInterp interp, realtype tnew);
@@ -980,7 +980,7 @@ int arkRootInit(ARKodeMem ark_mem, int nrtfn, ARKRootFn g);
 int arkEvolve(ARKodeMem ark_mem, realtype tout, N_Vector yout,
               realtype *tret, int itask);
 int arkGetDky(ARKodeMem ark_mem, realtype t, int k, N_Vector dky);
-void arkFree(void **arkode_mem);
+void arkDestroy(void **arkode_mem);
 
 int arkWriteParameters(ARKodeMem ark_mem, FILE *fp);
 int arkPredict_MaximumOrder(ARKodeMem ark_mem, realtype tau,

@@ -84,12 +84,13 @@ SUNLinearSolver SUNLinSol_Band(N_Vector y, SUNMatrix A, SUNContext sunctx)
   S->ops->solve      = SUNLinSolSolve_Band;
   S->ops->lastflag   = SUNLinSolLastFlag_Band;
   S->ops->space      = SUNLinSolSpace_Band;
-  S->ops->free       = SUNLinSolFree_Band;
+  S->ops->destroy    = SUNLinSolDestroy_Band;
+  S->ops->free       = SUNLinSolDestroy_Band;
 
   /* Create content */
   content = NULL;
   content = (SUNLinearSolverContent_Band) malloc(sizeof *content);
-  if (content == NULL) { SUNLinSolFree(S); return(NULL); }
+  if (content == NULL) { SUNLinSolDestroy(S); return(NULL); }
 
   /* Attach content */
   S->content = content;
@@ -101,7 +102,7 @@ SUNLinearSolver SUNLinSol_Band(N_Vector y, SUNMatrix A, SUNContext sunctx)
 
   /* Allocate content */
   content->pivots = (sunindextype *) malloc(MatrixRows * sizeof(sunindextype));
-  if (content->pivots == NULL) { SUNLinSolFree(S); return(NULL); }
+  if (content->pivots == NULL) { SUNLinSolDestroy(S); return(NULL); }
 
   return(S);
 }
@@ -218,7 +219,7 @@ int SUNLinSolSpace_Band(SUNLinearSolver S,
   return(SUNLS_SUCCESS);
 }
 
-int SUNLinSolFree_Band(SUNLinearSolver S)
+int SUNLinSolDestroy_Band(SUNLinearSolver S)
 {
   /* return if S is already free */
   if (S == NULL) return(SUNLS_SUCCESS);

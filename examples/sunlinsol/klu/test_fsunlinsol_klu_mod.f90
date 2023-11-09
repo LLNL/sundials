@@ -66,7 +66,7 @@ contains
     ! add identity to matrix
     fails = FSUNMatScaleAddI(ONE, D)
     if (fails /= 0) then
-      call FSUNMatDestroy(D)
+      retval = FSUNMatDestroy(D)
       call FN_VDestroy(x)
       call FN_VDestroy(b)
       return
@@ -81,12 +81,12 @@ contains
 
     ! Create sprae matrix from dense, and and destroy D
     A => FSUNSparseFromDenseMatrix(D, ZERO, CSC_MAT)
-    call FSUNMatDestroy(D)
+    retval = FSUNMatDestroy(D)
 
     ! create RHS vector for linear solve
     fails = FSUNMatMatvec(A, x, b)
     if (fails /= 0) then
-      call FSUNMatDestroy(A)
+      retval = FSUNMatDestroy(A)
       call FN_VDestroy(x)
       call FN_VDestroy(b)
       return
@@ -106,7 +106,7 @@ contains
 
     ! cleanup
     tmp = FSUNLinSolFree(LS)
-    call FSUNMatDestroy(A)
+    retval = FSUNMatDestroy(A)
     call FN_VDestroy(x)
     call FN_VDestroy(b)
 

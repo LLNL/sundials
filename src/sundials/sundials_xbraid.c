@@ -147,7 +147,7 @@ int SUNBraidVector_Clone(braid_App app, braid_Vector u, braid_Vector *v_ptr)
 
 
 /* Free vector */
-int SUNBraidVector_Free(braid_App app, braid_Vector u)
+int SUNBraidVector_Destroy(braid_App app, braid_Vector u)
 {
   /* Check for valid input */
   if (u == NULL) return SUNBRAID_SUCCESS;

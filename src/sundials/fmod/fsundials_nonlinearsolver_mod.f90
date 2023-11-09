@@ -142,11 +142,13 @@ type(C_PTR), value :: farg1
 integer(C_INT) :: fresult
 end function
 
-subroutine swigc_FSUNNonlinSolFree(farg1) &
-bind(C, name="_wrap_FSUNNonlinSolFree")
+function swigc_FSUNNonlinSolFree(farg1) &
+bind(C, name="_wrap_FSUNNonlinSolFree") &
+result(fresult)
 use, intrinsic :: ISO_C_BINDING
 type(C_PTR), value :: farg1
-end subroutine
+integer(C_INT) :: fresult
+end function
 
 function swigc_FSUNNonlinSolSetSysFn(farg1, farg2) &
 bind(C, name="_wrap_FSUNNonlinSolSetSysFn") &
@@ -350,14 +352,18 @@ fresult = swigc_FSUNNonlinSolDestroy(farg1)
 swig_result = fresult
 end function
 
-subroutine FSUNNonlinSolFree(nls)
+function FSUNNonlinSolFree(nls) &
+result(swig_result)
 use, intrinsic :: ISO_C_BINDING
+integer(C_INT) :: swig_result
 type(SUNNonlinearSolver), target, intent(inout) :: nls
+integer(C_INT) :: fresult 
 type(C_PTR) :: farg1 
 
 farg1 = c_loc(nls)
-call swigc_FSUNNonlinSolFree(farg1)
-end subroutine
+fresult = swigc_FSUNNonlinSolFree(farg1)
+swig_result = fresult
+end function
 
 function FSUNNonlinSolSetSysFn(nls, sysfn) &
 result(swig_result)

@@ -92,7 +92,7 @@ static sunTimerStruct* sunTimerStructNew()
   return ts;
 }
 
-static void sunTimerStructFree(void* TS)
+static void sunTimerStructDestroy(void* TS)
 {
   sunTimerStruct* ts = (sunTimerStruct*)TS;
   if (ts)
@@ -184,7 +184,7 @@ int SUNProfiler_Create(void* comm, const char* title, SUNProfiler* p)
   /* Create the hashmap used to store the timers */
   if (SUNHashMap_New(max_entries, &profiler->map))
   {
-    sunTimerStructFree((void*)profiler->overhead);
+    sunTimerStructDestroy((void*)profiler->overhead);
     free(profiler);
     *p = profiler = NULL;
     return (-1);
@@ -224,8 +224,8 @@ int SUNProfiler_Destroy(SUNProfiler* p)
 
   if (*p)
   {
-    SUNHashMap_Destroy(&(*p)->map, sunTimerStructFree);
-    sunTimerStructFree((void*)(*p)->overhead);
+    SUNHashMap_Destroy(&(*p)->map, sunTimerStructDestroy);
+    sunTimerStructDestroy((void*)(*p)->overhead);
 #if SUNDIALS_MPI_ENABLED
     if ((*p)->comm)
     {
@@ -268,7 +268,7 @@ int SUNProfiler_Begin(SUNProfiler p, const char* name)
       SUNDIALS_DEBUG_PRINT(errmsg);
       free(errmsg);
 #endif
-      sunTimerStructFree(timer);
+      sunTimerStructDestroy(timer);
       sunStopTiming(p->overhead);
       return (-1);
     }

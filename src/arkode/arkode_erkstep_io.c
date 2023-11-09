@@ -310,7 +310,7 @@ int ERKStepSetOrder(void *arkode_mem, int ord)
   step_mem->p = 0;
 
   ARKodeButcherTable_Space(step_mem->B, &Bliw, &Blrw);
-  ARKodeButcherTable_Free(step_mem->B);
+  ARKodeButcherTable_Destroy(step_mem->B);
   step_mem->B = NULL;
   ark_mem->liw -= Bliw;
   ark_mem->lrw -= Blrw;
@@ -355,7 +355,7 @@ int ERKStepSetTable(void *arkode_mem, ARKodeButcherTable B)
   step_mem->p = 0;
 
   ARKodeButcherTable_Space(step_mem->B, &Bliw, &Blrw);
-  ARKodeButcherTable_Free(step_mem->B);
+  ARKodeButcherTable_Destroy(step_mem->B);
   step_mem->B = NULL;
   ark_mem->liw -= Bliw;
   ark_mem->lrw -= Blrw;
@@ -414,7 +414,7 @@ int ERKStepSetTableNum(void *arkode_mem, ARKODE_ERKTableID etable)
   step_mem->p = 0;
 
   ARKodeButcherTable_Space(step_mem->B, &Bliw, &Blrw);
-  ARKodeButcherTable_Free(step_mem->B);
+  ARKodeButcherTable_Destroy(step_mem->B);
   step_mem->B = NULL;
   ark_mem->liw -= Bliw;
   ark_mem->lrw -= Blrw;

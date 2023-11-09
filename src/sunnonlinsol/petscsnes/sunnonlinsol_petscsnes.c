@@ -59,7 +59,7 @@ SUNNonlinearSolver SUNNonlinSol_PetscSNES(N_Vector y, SNES snes, SUNContext sunc
   NLS->ops->gettype         = SUNNonlinSolGetType_PetscSNES;
   NLS->ops->initialize      = SUNNonlinSolInitialize_PetscSNES;
   NLS->ops->solve           = SUNNonlinSolSolve_PetscSNES;
-  NLS->ops->free            = SUNNonlinSolFree_PetscSNES;
+  NLS->ops->free            = SUNNonlinSolDestroy_PetscSNES;
   NLS->ops->setsysfn        = SUNNonlinSolSetSysFn_PetscSNES;
   NLS->ops->getnumiters     = SUNNonlinSolGetNumIters_PetscSNES;
   NLS->ops->getnumconvfails = SUNNonlinSolGetNumConvFails_PetscSNES;
@@ -71,7 +71,7 @@ SUNNonlinearSolver SUNNonlinSol_PetscSNES(N_Vector y, SNES snes, SUNContext sunc
   content = NULL;
   content = (SUNNonlinearSolverContent_PetscSNES) malloc(sizeof *content);
   if (content == NULL) {
-    SUNNonlinSolFree(NLS);
+    SUNNonlinSolDestroy(NLS);
     return NULL;
   }
 
@@ -90,26 +90,26 @@ SUNNonlinearSolver SUNNonlinSol_PetscSNES(N_Vector y, SNES snes, SUNContext sunc
   /* Create all internal vectors */
   content->y = N_VCloneEmpty(y);
   if (content->y == NULL) {
-    SUNNonlinSolFree(NLS);
+    SUNNonlinSolDestroy(NLS);
     return NULL;
   }
 
   content->f = N_VCloneEmpty(y);
   if (content->f == NULL) {
-    SUNNonlinSolFree(NLS);
+    SUNNonlinSolDestroy(NLS);
     return NULL;
   }
 
   ierr = VecDuplicate(N_VGetVector_Petsc(y), &content->r);
   if (ierr != 0) {
-    SUNNonlinSolFree(NLS);
+    SUNNonlinSolDestroy(NLS);
     return NULL;
   }
 
   /* tell SNES about the sys function */
   ierr = SNESSetFunction(SUNNLS_SNESOBJ(NLS), SUNNLS_SNES_CONTENT(NLS)->r, PetscSysFn, NLS);
   if (ierr != 0) {
-    SUNNonlinSolFree(NLS);
+    SUNNonlinSolDestroy(NLS);
     return NULL;
   }
 
@@ -224,7 +224,7 @@ int SUNNonlinSolSolve_PetscSNES(SUNNonlinearSolver NLS,
 }
 
 /* free the SUNNonlinearSolver */
-int SUNNonlinSolFree_PetscSNES(SUNNonlinearSolver NLS)
+int SUNNonlinSolDestroy_PetscSNES(SUNNonlinearSolver NLS)
 {
   /* return if NLS is already free */
   if (NLS == NULL)

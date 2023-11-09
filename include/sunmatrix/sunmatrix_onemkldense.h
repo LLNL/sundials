@@ -145,7 +145,7 @@ SUNDIALS_EXPORT
 SUNMatrix SUNMatClone_OneMklDense(SUNMatrix A);
 
 SUNDIALS_EXPORT
-void SUNMatDestroy_OneMklDense(SUNMatrix A);
+int SUNMatDestroy_OneMklDense(SUNMatrix A);
 
 SUNDIALS_EXPORT
 int SUNMatZero_OneMklDense(SUNMatrix A);

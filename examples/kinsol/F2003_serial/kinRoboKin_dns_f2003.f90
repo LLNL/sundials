@@ -484,7 +484,7 @@ program main
   call PrintFinalStats(kmem)
   call FKINFree(kmem)
   ierr = FSUNLinSolFree(sunlinsol_LS)
-  call FSUNMatDestroy(sunmat_J)
+  ierr = FSUNMatDestroy(sunmat_J)
   call FN_VDestroy(sunvec_y)
   call FN_VDestroy(sunvec_s)
   call FN_VDestroy(sunvec_c)

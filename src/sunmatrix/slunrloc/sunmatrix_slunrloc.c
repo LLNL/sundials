@@ -200,9 +200,9 @@ SUNMatrix SUNMatClone_SLUNRloc(SUNMatrix A)
   return(B);
 }
 
-void SUNMatDestroy_SLUNRloc(SUNMatrix A)
+int SUNMatDestroy_SLUNRloc(SUNMatrix A)
 {
-  if (!A) return;
+  if (!A) return SUNMAT_SUCCESS;
 
   if (A->content)
   {
@@ -242,7 +242,7 @@ void SUNMatDestroy_SLUNRloc(SUNMatrix A)
   free(A);
   A = NULL;
 
-  return;
+  return SUNMAT_SUCCESS;
 }
 
 int SUNMatZero_SLUNRloc(SUNMatrix A)

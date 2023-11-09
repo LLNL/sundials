@@ -376,11 +376,15 @@ SWIGEXPORT SUNMatrix _wrap_FSUNMatClone_Band(SUNMatrix farg1) {
 }
 
 
-SWIGEXPORT void _wrap_FSUNMatDestroy_Band(SUNMatrix farg1) {
+SWIGEXPORT int _wrap_FSUNMatDestroy_Band(SUNMatrix farg1) {
+  int fresult ;
   SUNMatrix arg1 = (SUNMatrix) 0 ;
+  int result;
   
   arg1 = (SUNMatrix)(farg1);
-  SUNMatDestroy_Band(arg1);
+  result = (int)SUNMatDestroy_Band(arg1);
+  fresult = (int)(result);
+  return fresult;
 }
 
 

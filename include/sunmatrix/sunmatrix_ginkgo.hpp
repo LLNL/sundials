@@ -92,7 +92,7 @@ SUNMatrix SUNMatClone_Ginkgo(SUNMatrix A)
 }
 
 template<typename GkoMatType>
-void SUNMatDestroy_Ginkgo(SUNMatrix A)
+int SUNMatDestroy_Ginkgo(SUNMatrix A)
 {
   auto A_mat{static_cast<Matrix<GkoMatType>*>(A->content)};
   delete A_mat; // NOLINT

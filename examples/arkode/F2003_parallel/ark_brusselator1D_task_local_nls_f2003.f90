@@ -909,7 +909,7 @@ contains
 
     ! free task-local solve structures
     call FN_VDestroy(sunvec_bnode)
-    call FSUNMatDestroy(sunmat_Jnode)
+    retval = FSUNMatDestroy(sunmat_Jnode)
     ierr = FSUNLinSolFree(sunls_Jnode)
 
     ! free items from contents, then the generic structure
@@ -1492,7 +1492,7 @@ subroutine EvolveProblemIMEX(sunvec_y)
 
   if (global) then
      ! free task-local preconditioner solve structures
-     call FSUNMatDestroy(sunmat_P)
+     retval = FSUNMatDestroy(sunmat_P)
      retval = FSUNLinSolFree(sunls_P)
      if (retval /= 0) then
         print *, "Error: FSUNLinSolFree returned ",retval

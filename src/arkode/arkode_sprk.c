@@ -433,14 +433,14 @@ ARKodeSPRKTable ARKodeSPRKTable_Alloc(int stages)
   sprk_table->ahat = (sunrealtype*)malloc(stages * sizeof(sunrealtype));
   if (!(sprk_table->ahat))
   {
-    ARKodeSPRKTable_Free(sprk_table);
+    ARKodeSPRKTable_Destroy(sprk_table);
     return NULL;
   }
 
   sprk_table->a = (sunrealtype*)malloc(stages * sizeof(sunrealtype));
   if (!(sprk_table->a))
   {
-    ARKodeSPRKTable_Free(sprk_table);
+    ARKodeSPRKTable_Destroy(sprk_table);
     return NULL;
   }
 
@@ -548,7 +548,7 @@ void ARKodeSPRKTable_Space(ARKodeSPRKTable sprk_table, sunindextype* liw,
   *lrw = sprk_table->stages * 2;
 }
 
-void ARKodeSPRKTable_Destroy(ARKodeSPRKTable sprk_table)
+int ARKodeSPRKTable_Destroy(ARKodeSPRKTable sprk_table)
 {
   if (sprk_table)
   {
@@ -556,6 +556,8 @@ void ARKodeSPRKTable_Destroy(ARKodeSPRKTable sprk_table)
     if (sprk_table->a) { free(sprk_table->a); }
     free(sprk_table);
   }
+
+  return ARK_SUCCESS;
 }
 
 void ARKodeSPRKTable_Write(ARKodeSPRKTable sprk_table, FILE* outfile)
@@ -568,8 +570,8 @@ void ARKodeSPRKTable_Write(ARKodeSPRKTable sprk_table, FILE* outfile)
   ARKodeButcherTable_Write(a, outfile);
   ARKodeButcherTable_Write(b, outfile);
 
-  ARKodeButcherTable_Free(a);
-  ARKodeButcherTable_Free(b);
+  ARKodeButcherTable_Destroy(a);
+  ARKodeButcherTable_Destroy(b);
 }
 
 int ARKodeSPRKTable_ToButcher(ARKodeSPRKTable sprk_table,
@@ -586,7 +588,7 @@ int ARKodeSPRKTable_ToButcher(ARKodeSPRKTable sprk_table,
   b = ARKodeButcherTable_Alloc(sprk_table->stages, SUNFALSE);
   if (!b)
   {
-    if (a) { ARKodeButcherTable_Free(a); }
+    if (a) { ARKodeButcherTable_Destroy(a); }
     return ARK_MEM_FAIL;
   }
 

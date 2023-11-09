@@ -143,7 +143,7 @@ int idaLsSetup(IDAMem IDA_mem, N_Vector y, N_Vector yp, N_Vector r,
 int idaLsSolve(IDAMem IDA_mem, N_Vector b, N_Vector weight,
                N_Vector ycur, N_Vector ypcur, N_Vector rescur);
 int idaLsPerf(IDAMem IDA_mem, int perftask);
-int idaLsFree(IDAMem IDA_mem);
+int idaLsDestroy(IDAMem IDA_mem);
 
 
 /* Auxilliary functions */

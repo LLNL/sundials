@@ -232,7 +232,7 @@ int arkLsSetup(void* arkode_mem, int convfail, realtype tpred,
 int arkLsSolve(void* arkode_mem, N_Vector b, realtype tcur,
                N_Vector ycur, N_Vector fcur, realtype eRnrm, int mnewt);
 
-int arkLsFree(void* arkode_mem);
+int arkLsDestroy(void* arkode_mem);
 
 /* Generic minit/msetup/mmult/msolve/mfree routines for ARKODE to call */
 int arkLsMassInitialize(void* arkode_mem);
@@ -244,7 +244,7 @@ int arkLsMassMult(void* arkode_mem, N_Vector v, N_Vector Mv);
 
 int arkLsMassSolve(void* arkode_mem, N_Vector b, realtype nlscoef);
 
-int arkLsMassFree(void* arkode_mem);
+int arkLsMassDestroy(void* arkode_mem);
 
 /* Auxilliary functions */
 int arkLsInitializeCounters(ARKLsMem arkls_mem);

@@ -101,7 +101,8 @@ SUNLinearSolver SUNLinSol_cuSolverSp_batchQR(N_Vector y, SUNMatrix A, cusolverSp
   S->ops->setup      = SUNLinSolSetup_cuSolverSp_batchQR;
   S->ops->solve      = SUNLinSolSolve_cuSolverSp_batchQR;
   S->ops->lastflag   = SUNLinSolLastFlag_cuSolverSp_batchQR;
-  S->ops->free       = SUNLinSolFree_cuSolverSp_batchQR;
+  S->ops->destroy    = SUNLinSolDestroy_cuSolverSp_batchQR;
+  S->ops->free       = SUNLinSolDestroy_cuSolverSp_batchQR;;
 
   /* Create content */
   SUNLinearSolverContent_cuSolverSp_batchQR content;
@@ -110,7 +111,7 @@ SUNLinearSolver SUNLinSol_cuSolverSp_batchQR(N_Vector y, SUNMatrix A, cusolverSp
   content = (SUNLinearSolverContent_cuSolverSp_batchQR) malloc(sizeof(*content));
   if (content == NULL)
   {
-    SUNLinSolFree(S);
+    SUNLinSolDestroy(S);
     return NULL;
   }
 
@@ -196,7 +197,7 @@ int SUNLinSolSetup_cuSolverSp_batchQR(SUNLinearSolver S, SUNMatrix A)
     /* Free old workspace and symbloic analysis */
     if (SUN_CUSP_QRWORKSPACE(S))
     {
-      cudaFree(SUN_CUSP_QRWORKSPACE(S));
+      cudaDestroy(SUN_CUSP_QRWORKSPACE(S));
       cusolverSpDestroyCsrqrInfo(SUN_CUSP_QRINFO(S));
     }
 
@@ -328,14 +329,14 @@ sunindextype SUNLinSolLastFlag_cuSolverSp_batchQR(SUNLinearSolver S)
   return SUN_CUSP_LASTFLAG(S);
 }
 
-int SUNLinSolFree_cuSolverSp_batchQR(SUNLinearSolver S)
+int SUNLinSolDestroy_cuSolverSp_batchQR(SUNLinearSolver S)
 {
   /* return with success if already freed */
   if (S == NULL) return SUNLS_SUCCESS;
 
   /* free stuff in the content structure */
   cusolverSpDestroyCsrqrInfo(SUN_CUSP_QRINFO(S));
-  cudaFree(SUN_CUSP_QRWORKSPACE(S));
+  cudaDestroy(SUN_CUSP_QRWORKSPACE(S));
 
   /* free content structure */
   if (S->content) {

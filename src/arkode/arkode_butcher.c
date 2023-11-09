@@ -101,7 +101,7 @@ ARKodeButcherTable ARKodeButcherTable_Alloc(int stages, booleantype embedded)
 
   /* allocate rows of A */
   B->A = (realtype **) calloc( stages, sizeof(realtype*) );
-  if (B->A == NULL) { ARKodeButcherTable_Free(B); return(NULL); }
+  if (B->A == NULL) { ARKodeButcherTable_Destroy(B); return(NULL); }
 
   /* initialize each row of A to NULL */
   for (i=0; i<stages; i++)
@@ -110,18 +110,18 @@ ARKodeButcherTable ARKodeButcherTable_Alloc(int stages, booleantype embedded)
   /* allocate columns of A */
   for (i=0; i<stages; i++) {
     B->A[i] = (realtype *) calloc( stages, sizeof(realtype) );
-    if (B->A[i] == NULL) { ARKodeButcherTable_Free(B); return(NULL); }
+    if (B->A[i] == NULL) { ARKodeButcherTable_Destroy(B); return(NULL); }
   }
 
   B->b = (realtype *) calloc( stages, sizeof(realtype) );
-  if (B->b == NULL) { ARKodeButcherTable_Free(B); return(NULL); }
+  if (B->b == NULL) { ARKodeButcherTable_Destroy(B); return(NULL); }
 
   B->c = (realtype *) calloc( stages, sizeof(realtype) );
-  if (B->c == NULL) { ARKodeButcherTable_Free(B); return(NULL); }
+  if (B->c == NULL) { ARKodeButcherTable_Destroy(B); return(NULL); }
 
   if (embedded) {
     B->d = (realtype *) calloc( stages, sizeof(realtype) );
-    if (B->d == NULL) { ARKodeButcherTable_Free(B); return(NULL); }
+    if (B->d == NULL) { ARKodeButcherTable_Destroy(B); return(NULL); }
   }
 
   /* initialize order parameters */

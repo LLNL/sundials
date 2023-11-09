@@ -65,7 +65,7 @@ int MRIStepSetNonlinearSolver(void *arkode_mem, SUNNonlinearSolver NLS)
 
   /* free any existing nonlinear solver */
   if ((step_mem->NLS != NULL) && (step_mem->ownNLS))
-    retval = SUNNonlinSolFree(step_mem->NLS);
+    retval = SUNNonlinSolDestroy(step_mem->NLS);
 
   /* set SUNNonlinearSolver pointer */
   step_mem->NLS = NLS;

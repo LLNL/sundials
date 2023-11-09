@@ -200,10 +200,9 @@ SUNMatrix SUNMatClone_Dense(SUNMatrix A)
   return (B);
 }
 
-void SUNMatDestroy_Dense(SUNMatrix A)
+int SUNMatDestroy_Dense(SUNMatrix A)
 {
-  if (A == NULL)
-    return;
+  if (A == NULL) return SUNMAT_SUCCESS;
 
   /* free content */
   if (A->content != NULL) {
@@ -230,7 +229,7 @@ void SUNMatDestroy_Dense(SUNMatrix A)
   free(A);
   A = NULL;
 
-  return;
+  return SUNMAT_SUCCESS;
 }
 
 int SUNMatZero_Dense(SUNMatrix A)

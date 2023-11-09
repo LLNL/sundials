@@ -398,18 +398,13 @@ SUNMatrix SUNMatClone_OneMklDense(SUNMatrix A)
 }
 
 
-void SUNMatDestroy_OneMklDense(SUNMatrix A)
+int SUNMatDestroy_OneMklDense(SUNMatrix A)
 {
-  if (!A)
-  {
-    SUNDIALS_DEBUG_ERROR("Input matrix is NULL\n");
-    return;
-  }
+  if (!A) return SUNMAT_SUCCESS;
 
   if (SUNMatGetID(A) != SUNMATRIX_ONEMKLDENSE)
-  {
     SUNDIALS_DEBUG_ERROR("Invalid matrix ID\n");
-    return;
+    return SUNMAT_ILL_INPUT;
   }
 
   // Free content
@@ -430,7 +425,7 @@ void SUNMatDestroy_OneMklDense(SUNMatrix A)
   SUNMatFreeEmpty(A);
   A = NULL;
 
-  return;
+  return SUNMAT_SUCCESS;
 }
 
 

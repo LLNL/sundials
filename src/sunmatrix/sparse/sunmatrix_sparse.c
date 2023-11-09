@@ -480,9 +480,9 @@ SUNMatrix SUNMatClone_Sparse(SUNMatrix A)
   return(B);
 }
 
-void SUNMatDestroy_Sparse(SUNMatrix A)
+int SUNMatDestroy_Sparse(SUNMatrix A)
 {
-  if (A == NULL) return;
+  if (A == NULL) return SUNMAT_SUCCESS;
 
   /* free content */
   if (A->content != NULL) {
@@ -514,7 +514,7 @@ void SUNMatDestroy_Sparse(SUNMatrix A)
   if (A->ops) { free(A->ops); A->ops = NULL; }
   free(A); A = NULL;
 
-  return;
+  return SUNMAT_SUCCESS;
 }
 
 int SUNMatZero_Sparse(SUNMatrix A)

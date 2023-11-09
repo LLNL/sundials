@@ -53,19 +53,19 @@ contains
 
   end subroutine TEST_STATUS
 
-  subroutine TEST_STATUS2(frmt, retval, myrank)
+  subroutine TEST_STATUS2(frmt, failure, myrank)
     use, intrinsic :: iso_c_binding
 
     implicit none
 
     character(LEN=*) :: frmt
     integer(C_INT)   :: myrank
-    integer(C_INT)   :: retval
+    integer(C_INT)   :: failure
 
     if (print_all_ranks) then
-      write(*,'(A,I0,A,A,I0)') 'process ', myrank, ': ', frmt, retval
+      write(*,'(A,I0,A,A,I0)') 'process ', myrank, ': ', frmt, failure
     else
-      write(*,'(A,I0)') frmt, retval
+      write(*,'(A,I0)') frmt, failure
     end if
 
   end subroutine TEST_STATUS2
@@ -155,20 +155,20 @@ contains
     failure = FSUNMatCopy(A, B)
     if (failure /= 0) then
       call TEST_STATUS(">>> FAILED test -- FSUNMatClone (error using SUNMatCopy) ", myid)
-      call FSUNMatDestroy(B)
+      failure = FSUNMatDestroy(B)
       return
     end if
 
     failure = check_matrix(B, A, tol)
     if (failure /= 0) then
       call TEST_STATUS(">>> FAILED test -- SUNMatClone (failure at check_matrix)", myid)
-      call FSUNMatDestroy(B)
+      failure = FSUNMatDestroy(B)
       return
     else
       call TEST_STATUS("    PASSED test -- SUNMatClone ", myid)
     end if
 
-    call FSUNMatDestroy(B)
+    failure = FSUNMatDestroy(B)
 
   end function Test_FSUNMatClone
 
@@ -192,7 +192,7 @@ contains
     failure = FSUNMatZero(B)
     if (failure /= 0) then
       call TEST_STATUS2(">>> FAILED test -- SUNMatZero returned  ", failure, myid)
-      call FSUNMatDestroy(B)
+      failure = FSUNMatDestroy(B)
       return
     end if
 
@@ -200,13 +200,13 @@ contains
     failure = check_matrix_entry(B, ZERO, tol);
     if (failure /= 0) then
       call TEST_STATUS(">>> FAILED test -- SUNMatZero check ", myid)
-      call FSUNMatDestroy(B)
+      failure = FSUNMatDestroy(B)
       return
     else
       call TEST_STATUS("    PASSED test -- SUNMatZero ", myid)
     end if
 
-    call FSUNMatDestroy(B)
+    failure = FSUNMatDestroy(B)
 
   end function Test_FSUNMatZero
 
@@ -230,7 +230,7 @@ contains
     failure = FSUNMatCopy(A, B)
     if (failure /= 0) then
       call TEST_STATUS2(">>> FAILED test -- SUNMatCopy returned  ", failure, myid)
-      call FSUNMatDestroy(B)
+      failure = FSUNMatDestroy(B)
       failure = 1
       return
     end if
@@ -239,13 +239,13 @@ contains
     failure = check_matrix(B, A, tol)
     if (failure /= 0) then
       call TEST_STATUS(">>> FAILED test -- SUNMatCopy ", myid)
-      call FSUNMatDestroy(B)
+      failure = FSUNMatDestroy(B)
       return
     else
       call TEST_STATUS("    PASSED test -- SUNMatCopy ", myid)
     end if
 
-    call FSUNMatDestroy(B)
+    failure = FSUNMatDestroy(B)
 
   end function Test_FSUNMatCopy
 
@@ -272,7 +272,7 @@ contains
     failure = FSUNMatCopy(A, B)
     if (failure /= 0) then
       call TEST_STATUS2(">>> FAILED test -- SUNMatCopy returned  ", failure, myid)
-      call FSUNMatDestroy(B)
+      failure = FSUNMatDestroy(B)
       return
     end if
 
@@ -280,7 +280,7 @@ contains
     failure = FSUNMatScaleAdd(NEG_ONE, B, B)
     if (failure /= 0) then
       call TEST_STATUS2(">>> FAILED test -- SUNMatScaleAdd returned  ", failure, myid)
-      call FSUNMatDestroy(B)
+      failure = FSUNMatDestroy(B)
       return
     end if
 
@@ -288,13 +288,13 @@ contains
     failure = check_matrix_entry(B, ZERO, tol)
     if (failure /= 0) then
       call TEST_STATUS(">>> FAILED test -- SUNMatScaleAdd ", myid)
-      call FSUNMatDestroy(B)
+      failure = FSUNMatDestroy(B)
       return
     else
       call TEST_STATUS("    PASSED test -- SUNMatScaleAdd ", myid)
     end if
 
-    call FSUNMatDestroy(B)
+    failure = FSUNMatDestroy(B)
 
   end function Test_FSUNMatScaleAdd
 
@@ -317,7 +317,7 @@ contains
     failure = FSUNMatCopy(I, B)
     if (failure /= 0) then
       call TEST_STATUS2(">>> FAILED test -- SUNMatCopy returned  ", failure, myid)
-      call FSUNMatDestroy(B)
+      failure = FSUNMatDestroy(B)
       return
     end if
 
@@ -325,7 +325,7 @@ contains
     failure = FSUNMatScaleAddI(NEG_ONE, B)
     if (failure /= 0) then
       call TEST_STATUS2(">>> FAILED test -- SUNMatScaleAddI returned  ", failure, myid)
-      call FSUNMatDestroy(B)
+      failure = FSUNMatDestroy(B)
       return
     end if
 
@@ -333,13 +333,13 @@ contains
     failure = check_matrix_entry(B, ZERO, tol)
     if (failure /= 0) then
       call TEST_STATUS(">>> FAILED test -- SUNMatScaleAddI check ", myid)
-      call FSUNMatDestroy(B)
+      failure = FSUNMatDestroy(B)
       return
     else
       call TEST_STATUS("    PASSED test -- SUNMatScaleAddI ", myid)
     end if
 
-    call FSUNMatDestroy(B)
+    failure = FSUNMatDestroy(B)
 
   end function Test_FSUNMatScaleAddI
 
@@ -399,7 +399,7 @@ contains
       failure = FSUNMatCopy(A, B)
       if (failure /= 0) then
         call TEST_STATUS2(">>> FAILED test -- SUNMatCopy returned  ", failure, myid)
-        call FSUNMatDestroy(B)
+        failure = FSUNMatDestroy(B)
         return
       end if
 
@@ -407,7 +407,7 @@ contains
       failure = FSUNMatScaleAddI(THREE, B)
       if (failure /= 0) then
         call TEST_STATUS2(">>> FAILED test -- SUNMatScaleAddI returned  ", failure, myid)
-        call FSUNMatDestroy(B)
+        failure = FSUNMatDestroy(B)
         return
       end if
 
@@ -420,7 +420,7 @@ contains
         failure = FSUNMatMatvecSetup(B)
         if (failure /= 0) then
           call TEST_STATUS2(">>> FAILED test -- SUNMatMatvecSetup returned  ", failure, myid)
-          call FSUNMatDestroy(B)
+          failure = FSUNMatDestroy(B)
           return
         end if
       end if
@@ -428,7 +428,7 @@ contains
       failure = FSUNMatMatvec(B,x,z)
       if (failure /= 0) then
         call TEST_STATUS2(">>> FAILED test -- SUNMatMatvec returned  ", failure, myid)
-        call FSUNMatDestroy(B)
+        failure = FSUNMatDestroy(B)
         return
       end if
 
@@ -436,7 +436,7 @@ contains
 
       failure = check_vector(w,z,tol)
 
-      call FSUNMatDestroy(B)
+      failure = FSUNMatDestroy(B)
       call FN_VDestroy(z)
       call FN_VDestroy(w)
 

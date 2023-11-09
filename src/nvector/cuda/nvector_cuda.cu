@@ -58,7 +58,7 @@ static int FusedBuffer_CopyPtrArray1D(N_Vector v, N_Vector *X, int nvec,
 static int FusedBuffer_CopyPtrArray2D(N_Vector v, N_Vector **X, int nvec,
                                       int nsum, realtype ***shortcut);
 static int FusedBuffer_CopyToDevice(N_Vector v);
-static int FusedBuffer_Free(N_Vector v);
+static int FusedBuffer_Destroy(N_Vector v);
 
 // Kernel launch parameters
 static int GetKernelParameters(N_Vector v, booleantype reduction, size_t& grid, size_t& block,
@@ -663,7 +663,7 @@ void N_VDestroy_Cuda(N_Vector v)
     /* free items in private content */
     FreeDeviceCounter(v);
     FreeReductionBuffer(v);
-    FusedBuffer_Free(v);
+    FusedBuffer_Destroy(v);
     free(vcp);
     vc->priv = NULL;
   }
@@ -2413,7 +2413,7 @@ static int FusedBuffer_Init(N_Vector v, int nreal, int nptr)
   // Check if the existing memory is not large enough
   if (vcp->fused_buffer_bytes < bytes)
   {
-    FusedBuffer_Free(v);
+    FusedBuffer_Destroy(v);
     alloc_mem = SUNTRUE;
   }
 
@@ -2587,7 +2587,7 @@ static int FusedBuffer_CopyToDevice(N_Vector v)
 }
 
 
-static int FusedBuffer_Free(N_Vector v)
+static int FusedBuffer_Destroy(N_Vector v)
 {
   N_PrivateVectorContent_Cuda vcp = NVEC_CUDA_PRIVATE(v);
 

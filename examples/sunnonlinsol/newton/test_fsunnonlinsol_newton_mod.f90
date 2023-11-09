@@ -166,7 +166,7 @@ contains
     call FN_VDestroy(Imem%ycor)
     call FN_VDestroy(Imem%w)
     call FN_VDestroy(Imem%x)
-    call FSUNMatDestroy(Imem%A)
+    retval = FSUNMatDestroy(Imem%A)
     tmp = FSUNLinSolFree(Imem%LS)
     tmp = FSUNNonlinSolFree(NLS)
     deallocate(Imem)

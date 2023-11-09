@@ -136,7 +136,7 @@ struct _generic_SUNNonlinearSolver
 SUNDIALS_EXPORT SUNNonlinearSolver SUNNonlinSolNewEmpty(SUNContext sunctx);
 SUNDIALS_EXPORT int SUNNonlinsolDestroyEmpty(SUNNonlinearSolver NLS);
 
-SUNDIALS_DEPRECATED_EXPORT_MSG("Use SUNNonlinsolDestroyEmpty")
+SUNDIALS_DEPRECATED_MSG("Use SUNNonlinsolDestroyEmpty")
 SUNDIALS_STATIC_INLINE 
 void SUNNonlinsolFreeEmpty(SUNNonlinearSolver NLS) {
   SUNNonlinsolDestroyEmpty(NLS);
@@ -156,8 +156,8 @@ SUNDIALS_EXPORT int SUNNonlinSolDestroy(SUNNonlinearSolver NLS);
 
 SUNDIALS_DEPRECATED_EXPORT_MSG("Use SUNNonlinSolDestroy")
 SUNDIALS_STATIC_INLINE 
-void SUNNonlinSolFree(SUNNonlinearSolver NLS) {
-  SUNNonlinSolDestroy(NLS);
+int SUNNonlinSolFree(SUNNonlinearSolver NLS) {
+  return SUNNonlinSolDestroy(NLS);
 }
 
 

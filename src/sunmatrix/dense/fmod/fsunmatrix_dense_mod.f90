@@ -117,11 +117,13 @@ type(C_PTR), value :: farg1
 type(C_PTR) :: fresult
 end function
 
-subroutine swigc_FSUNMatDestroy_Dense(farg1) &
-bind(C, name="_wrap_FSUNMatDestroy_Dense")
+function swigc_FSUNMatDestroy_Dense(farg1) &
+bind(C, name="_wrap_FSUNMatDestroy_Dense") &
+result(fresult)
 use, intrinsic :: ISO_C_BINDING
 type(C_PTR), value :: farg1
-end subroutine
+integer(C_INT) :: fresult
+end function
 
 function swigc_FSUNMatZero_Dense(farg1) &
 bind(C, name="_wrap_FSUNMatZero_Dense") &
@@ -311,14 +313,18 @@ fresult = swigc_FSUNMatClone_Dense(farg1)
 call c_f_pointer(fresult, swig_result)
 end function
 
-subroutine FSUNMatDestroy_Dense(a)
+function FSUNMatDestroy_Dense(a) &
+result(swig_result)
 use, intrinsic :: ISO_C_BINDING
+integer(C_INT) :: swig_result
 type(SUNMatrix), target, intent(inout) :: a
+integer(C_INT) :: fresult 
 type(C_PTR) :: farg1 
 
 farg1 = c_loc(a)
-call swigc_FSUNMatDestroy_Dense(farg1)
-end subroutine
+fresult = swigc_FSUNMatDestroy_Dense(farg1)
+swig_result = fresult
+end function
 
 function FSUNMatZero_Dense(a) &
 result(swig_result)

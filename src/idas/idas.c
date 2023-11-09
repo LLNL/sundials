@@ -674,7 +674,7 @@ int IDAInit(void *ida_mem, IDAResFn res,
     IDAProcessError(IDA_mem, retval, "IDAS", "IDAInit",
                     "Setting the nonlinear solver failed");
     IDAFreeVectors(IDA_mem);
-    SUNNonlinSolFree(NLS);
+    SUNNonlinSolDestroy(NLS);
     SUNDIALS_MARK_FUNCTION_END(IDA_PROFILER);
     return(IDA_MEM_FAIL);
   }
@@ -1370,7 +1370,7 @@ int IDASensInit(void *ida_mem, int Ns, int ism,
     IDAProcessError(IDA_mem, retval, "IDAS", "IDASensInit",
                     "Setting the nonlinear solver failed");
     IDASensFreeVectors(IDA_mem);
-    SUNNonlinSolFree(NLS);
+    SUNNonlinSolDestroy(NLS);
     SUNDIALS_MARK_FUNCTION_END(IDA_PROFILER);
     return(IDA_MEM_FAIL);
   }
@@ -1520,7 +1520,7 @@ int IDASensReInit(void *ida_mem, int ism, N_Vector *yS0, N_Vector *ypS0)
     if (retval != IDA_SUCCESS) {
       IDAProcessError(IDA_mem, retval, "IDAS", "IDASensReInit",
                       "Setting the nonlinear solver failed");
-      SUNNonlinSolFree(NLS);
+      SUNNonlinSolDestroy(NLS);
       SUNDIALS_MARK_FUNCTION_END(IDA_PROFILER);
       return(IDA_MEM_FAIL);
     }
@@ -3606,27 +3606,27 @@ int IDAComputeYpSens(void *ida_mem, N_Vector *ycorS, N_Vector *ypS)
  * to lfree).
  */
 
-void IDAFree(void **ida_mem)
+int IDADestroy(void **ida_mem)
 {
   IDAMem IDA_mem;
 
-  if (*ida_mem == NULL) return;
+  if (*ida_mem == NULL) return IDA_SUCCESS;
 
   IDA_mem = (IDAMem) (*ida_mem);
 
   IDAFreeVectors(IDA_mem);
 
-  IDAQuadFree(IDA_mem);
+  IDAQuadDestroy(IDA_mem);
 
-  IDASensFree(IDA_mem);
+  IDASensDestroy(IDA_mem);
 
-  IDAQuadSensFree(IDA_mem);
+  IDAQuadSensDestroy(IDA_mem);
 
-  IDAAdjFree(IDA_mem);
+  IDAAdjDestroy(IDA_mem);
 
   /* if IDA created the NLS object then free it */
   if (IDA_mem->ownNLS) {
-    SUNNonlinSolFree(IDA_mem->NLS);
+    SUNNonlinSolDestroy(IDA_mem->NLS);
     IDA_mem->ownNLS = SUNFALSE;
     IDA_mem->NLS = NULL;
   }
@@ -3649,6 +3649,8 @@ void IDAFree(void **ida_mem)
 
   free(*ida_mem);
   *ida_mem = NULL;
+
+  return IDA_SUCCESS;
 }
 
 /*
@@ -3659,11 +3661,11 @@ void IDAFree(void **ida_mem)
  * ida_mem returned by IDACreate.
  */
 
-void IDAQuadFree(void *ida_mem)
+int IDAQuadDestroy(void *ida_mem)
 {
   IDAMem IDA_mem;
 
-  if (ida_mem == NULL) return;
+  if (ida_mem == NULL) return IDA_SUCCESS;
   IDA_mem = (IDAMem) ida_mem;
 
   if(IDA_mem->ida_quadMallocDone) {
@@ -3681,12 +3683,12 @@ void IDAQuadFree(void *ida_mem)
  * ida_mem returned by IDACreate.
  */
 
-void IDASensFree(void *ida_mem)
+int IDASensDestroy(void *ida_mem)
 {
   IDAMem IDA_mem;
 
   /* return immediately if IDA memory is NULL */
-  if (ida_mem == NULL) return;
+  if (ida_mem == NULL) return IDA_SUCCESS;
   IDA_mem = (IDAMem) ida_mem;
 
   if(IDA_mem->ida_sensMallocDone) {
@@ -3711,12 +3713,12 @@ void IDASensFree(void *ida_mem)
 
   /* if IDA created the NLS object then free it */
   if (IDA_mem->ownNLSsim) {
-    SUNNonlinSolFree(IDA_mem->NLSsim);
+    SUNNonlinSolDestroy(IDA_mem->NLSsim);
     IDA_mem->ownNLSsim = SUNFALSE;
     IDA_mem->NLSsim = NULL;
   }
   if (IDA_mem->ownNLSstg) {
-    SUNNonlinSolFree(IDA_mem->NLSstg);
+    SUNNonlinSolDestroy(IDA_mem->NLSstg);
     IDA_mem->ownNLSstg = SUNFALSE;
     IDA_mem->NLSstg = NULL;
   }
@@ -3726,6 +3728,8 @@ void IDASensFree(void *ida_mem)
     free(IDA_mem->ida_atolSmin0);
     IDA_mem->ida_atolSmin0 = NULL;
   }
+
+  return IDA_SUCCESS;
 }
 
 /*
@@ -3735,11 +3739,11 @@ void IDASensFree(void *ida_mem)
  * for quadrature sensitivity analysis. Its only argument is the
  * pointer ida_mem returned by IDACreate.
  */
-void IDAQuadSensFree(void* ida_mem)
+int IDAQuadSensDestroy(void* ida_mem)
 {
   IDAMem IDA_mem;
 
-  if (ida_mem==NULL) return;
+  if (ida_mem==NULL) return IDA_SUCCESS;
   IDA_mem = (IDAMem) ida_mem;
 
   if (IDA_mem->ida_quadSensMallocDone) {
@@ -3753,6 +3757,8 @@ void IDAQuadSensFree(void* ida_mem)
     free(IDA_mem->ida_atolQSmin0);
     IDA_mem->ida_atolQSmin0 = NULL;
   }
+
+  return IDA_SUCCESS;
 }
 
 /*

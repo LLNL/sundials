@@ -46,7 +46,7 @@ static int KINBBDPrecSolve(N_Vector uu, N_Vector uscale,
                            N_Vector vv, void *pdata);
 
 /* Prototype for KINBBDPrecFree */
-static int KINBBDPrecFree(KINMem kin_mem);
+static int KINBBDPrecDestroy(KINMem kin_mem);
 
 /* Prototype for difference quotient jacobian calculation routine */
 static int KBBDDQJac(KBBDPrecData pdata,
@@ -215,7 +215,7 @@ int KINBBDPrecInit(void *kinmem, sunindextype Nlocal,
     N_VDestroy(pdata->tempv2);
     N_VDestroy(pdata->tempv3);
     SUNMatDestroy(pdata->PP);
-    SUNLinSolFree(pdata->LS);
+    SUNLinSolDestroy(pdata->LS);
     free(pdata); pdata = NULL;
     KINProcessError(kin_mem, KINLS_SUNLS_FAIL, "KINBBDPRE",
                     "KINBBDPrecInit", MSGBBD_SUNLS_FAIL);
@@ -266,7 +266,7 @@ int KINBBDPrecInit(void *kinmem, sunindextype Nlocal,
   kinls_mem->pdata = pdata;
 
   /* Attach the pfree function */
-  kinls_mem->pfree = KINBBDPrecFree;
+  kinls_mem->pfree = KINBBDPrecDestroy;
 
   /* Attach preconditioner solve and setup functions */
   flag = KINSetPreconditioner(kinmem, KINBBDPrecSetup,
@@ -476,7 +476,7 @@ static int KINBBDPrecSolve(N_Vector uu, N_Vector uscale,
 /*------------------------------------------------------------------
   KINBBDPrecFree
   ------------------------------------------------------------------*/
-static int KINBBDPrecFree(KINMem kin_mem)
+static int KINBBDPrecDestroy(KINMem kin_mem)
 {
   KINLsMem kinls_mem;
   KBBDPrecData pdata;
@@ -487,7 +487,7 @@ static int KINBBDPrecFree(KINMem kin_mem)
   if (kinls_mem->pdata == NULL) return(0);
   pdata = (KBBDPrecData) kinls_mem->pdata;
 
-  SUNLinSolFree(pdata->LS);
+  SUNLinSolDestroy(pdata->LS);
   N_VDestroy(pdata->zlocal);
   N_VDestroy(pdata->rlocal);
   N_VDestroy(pdata->tempv1);

@@ -94,12 +94,13 @@ SUNLinearSolver SUNLinSol_KLU(N_Vector y, SUNMatrix A, SUNContext sunctx)
   S->ops->solve      = SUNLinSolSolve_KLU;
   S->ops->lastflag   = SUNLinSolLastFlag_KLU;
   S->ops->space      = SUNLinSolSpace_KLU;
-  S->ops->free       = SUNLinSolFree_KLU;
+  S->ops->destroy    = SUNLinSolDestroy_KLU;
+  S->ops->free       = SUNLinSolDestroy_KLU;;
 
   /* Create content */
   content = NULL;
   content = (SUNLinearSolverContent_KLU) malloc(sizeof *content);
-  if (content == NULL) { SUNLinSolFree(S); return(NULL); }
+  if (content == NULL) { SUNLinSolDestroy(S); return(NULL); }
 
   /* Attach content */
   S->content = content;
@@ -127,7 +128,7 @@ SUNLinearSolver SUNLinSol_KLU(N_Vector y, SUNMatrix A, SUNContext sunctx)
 #endif
 
   flag = sun_klu_defaults(&(content->common));
-  if (flag == 0) { SUNLinSolFree(S); return(NULL); }
+  if (flag == 0) { SUNLinSolDestroy(S); return(NULL); }
   (content->common).ordering = SUNKLU_ORDERING_DEFAULT;
 
   return(S);
@@ -161,9 +162,9 @@ int SUNLinSol_KLUReInit(SUNLinearSolver S, SUNMatrix A,
 
   /* Free the prior factorazation and reset for first factorization */
   if( SYMBOLIC(S) != NULL)
-    sun_klu_free_symbolic(&SYMBOLIC(S), &COMMON(S));
+    sun_klu_Destroy_symbolic(&SYMBOLIC(S), &COMMON(S));
   if( NUMERIC(S) != NULL)
-    sun_klu_free_numeric(&NUMERIC(S), &COMMON(S));
+    sun_klu_Destroy_numeric(&NUMERIC(S), &COMMON(S));
   FIRSTFACTORIZE(S) = 1;
 
   LASTFLAG(S) = SUNLS_SUCCESS;
@@ -259,7 +260,7 @@ int SUNLinSolSetup_KLU(SUNLinearSolver S, SUNMatrix A)
 
     /* Perform symbolic analysis of sparsity structure */
     if (SYMBOLIC(S))
-      sun_klu_free_symbolic(&SYMBOLIC(S), &COMMON(S));
+      sun_klu_Destroy_symbolic(&SYMBOLIC(S), &COMMON(S));
     SYMBOLIC(S) = sun_klu_analyze(SUNSparseMatrix_NP(A),
                                   (KLU_INDEXTYPE*) SUNSparseMatrix_IndexPointers(A),
                                   (KLU_INDEXTYPE*) SUNSparseMatrix_IndexValues(A),
@@ -273,7 +274,7 @@ int SUNLinSolSetup_KLU(SUNLinearSolver S, SUNMatrix A)
        Compute the LU factorization of the matrix
        ------------------------------------------------------------*/
     if(NUMERIC(S))
-      sun_klu_free_numeric(&NUMERIC(S), &COMMON(S));
+      sun_klu_Destroy_numeric(&NUMERIC(S), &COMMON(S));
     NUMERIC(S) = sun_klu_factor((KLU_INDEXTYPE*) SUNSparseMatrix_IndexPointers(A),
                                 (KLU_INDEXTYPE*) SUNSparseMatrix_IndexValues(A),
                                 SUNSparseMatrix_Data(A),
@@ -329,7 +330,7 @@ int SUNLinSolSetup_KLU(SUNLinearSolver S, SUNMatrix A)
 
 	/* More accurate estimate also says condition number is
 	   large, so recompute the numeric factorization */
-	sun_klu_free_numeric(&NUMERIC(S), &COMMON(S));
+	sun_klu_Destroy_numeric(&NUMERIC(S), &COMMON(S));
 	NUMERIC(S) = sun_klu_factor((KLU_INDEXTYPE*) SUNSparseMatrix_IndexPointers(A),
                                     (KLU_INDEXTYPE*) SUNSparseMatrix_IndexValues(A),
                                     SUNSparseMatrix_Data(A),
@@ -402,7 +403,7 @@ int SUNLinSolSpace_KLU(SUNLinearSolver S,
   return(SUNLS_SUCCESS);
 }
 
-int SUNLinSolFree_KLU(SUNLinearSolver S)
+int SUNLinSolDestroy_KLU(SUNLinearSolver S)
 {
   /* return with success if already freed */
   if (S == NULL) return(SUNLS_SUCCESS);
@@ -410,9 +411,9 @@ int SUNLinSolFree_KLU(SUNLinearSolver S)
   /* delete items from the contents structure (if it exists) */
   if (S->content) {
     if (NUMERIC(S))
-      sun_klu_free_numeric(&NUMERIC(S), &COMMON(S));
+      sun_klu_Destroy_numeric(&NUMERIC(S), &COMMON(S));
     if (SYMBOLIC(S))
-      sun_klu_free_symbolic(&SYMBOLIC(S), &COMMON(S));
+      sun_klu_Destroy_symbolic(&SYMBOLIC(S), &COMMON(S));
     free(S->content);
     S->content = NULL;
   }

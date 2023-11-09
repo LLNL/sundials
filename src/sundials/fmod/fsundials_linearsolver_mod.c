@@ -645,11 +645,15 @@ SWIGEXPORT int _wrap_FSUNLinSolDestroy(SUNLinearSolver farg1) {
 }
 
 
-SWIGEXPORT void _wrap_FSUNLinSolFree(SUNLinearSolver farg1) {
+SWIGEXPORT int _wrap_FSUNLinSolFree(SUNLinearSolver farg1) {
+  int fresult ;
   SUNLinearSolver arg1 = (SUNLinearSolver) 0 ;
+  int result;
   
   arg1 = (SUNLinearSolver)(farg1);
-  SUNLinSolFree(arg1);
+  result = (int)SUNLinSolFree(arg1);
+  fresult = (int)(result);
+  return fresult;
 }
 
 

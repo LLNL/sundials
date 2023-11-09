@@ -646,13 +646,13 @@ int ARKStepSetOrder(void *arkode_mem, int ord)
   step_mem->p = 0;
 
   ARKodeButcherTable_Space(step_mem->Be, &Bliw, &Blrw);
-  ARKodeButcherTable_Free(step_mem->Be);
+  ARKodeButcherTable_Destroy(step_mem->Be);
   step_mem->Be = NULL;
   ark_mem->liw -= Bliw;
   ark_mem->lrw -= Blrw;
 
   ARKodeButcherTable_Space(step_mem->Bi, &Bliw, &Blrw);
-  ARKodeButcherTable_Free(step_mem->Bi);
+  ARKodeButcherTable_Destroy(step_mem->Bi);
   step_mem->Bi = NULL;
   ark_mem->liw -= Bliw;
   ark_mem->lrw -= Blrw;
@@ -890,13 +890,13 @@ int ARKStepSetTables(void *arkode_mem, int q, int p,
   step_mem->p = 0;
 
   ARKodeButcherTable_Space(step_mem->Be, &Bliw, &Blrw);
-  ARKodeButcherTable_Free(step_mem->Be);
+  ARKodeButcherTable_Destroy(step_mem->Be);
   step_mem->Be = NULL;
   ark_mem->liw -= Bliw;
   ark_mem->lrw -= Blrw;
 
   ARKodeButcherTable_Space(step_mem->Bi, &Bliw, &Blrw);
-  ARKodeButcherTable_Free(step_mem->Bi);
+  ARKodeButcherTable_Destroy(step_mem->Bi);
   step_mem->Bi = NULL;
   ark_mem->liw -= Bliw;
   ark_mem->lrw -= Blrw;
@@ -1032,13 +1032,13 @@ int ARKStepSetTableNum(void *arkode_mem, ARKODE_DIRKTableID itable, ARKODE_ERKTa
   step_mem->p = 0;
 
   ARKodeButcherTable_Space(step_mem->Be, &Bliw, &Blrw);
-  ARKodeButcherTable_Free(step_mem->Be);
+  ARKodeButcherTable_Destroy(step_mem->Be);
   step_mem->Be = NULL;
   ark_mem->liw -= Bliw;
   ark_mem->lrw -= Blrw;
 
   ARKodeButcherTable_Space(step_mem->Bi, &Bliw, &Blrw);
-  ARKodeButcherTable_Free(step_mem->Bi);
+  ARKodeButcherTable_Destroy(step_mem->Bi);
   step_mem->Bi = NULL;
   ark_mem->liw -= Bliw;
   ark_mem->lrw -= Blrw;

@@ -141,7 +141,7 @@ int CVodeSetLinearSolver(void *cvode_mem, SUNLinearSolver LS,
   cv_mem->cv_linit  = cvLsInitialize;
   cv_mem->cv_lsetup = cvLsSetup;
   cv_mem->cv_lsolve = cvLsSolve;
-  cv_mem->cv_lfree  = cvLsFree;
+  cv_mem->cv_lfree  = cvLsDestroy;
 
   /* Allocate memory for CVLsMemRec */
   cvls_mem = NULL;
@@ -1827,7 +1827,7 @@ int cvLsSolve(CVodeMem cv_mem, N_Vector b, N_Vector weight,
   This routine frees memory associates with the CVLs system
   solver interface.
   -----------------------------------------------------------------*/
-int cvLsFree(CVodeMem cv_mem)
+int cvLsDestroy(CVodeMem cv_mem)
 {
   CVLsMem cvls_mem;
 

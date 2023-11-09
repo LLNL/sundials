@@ -90,12 +90,13 @@ SUNLinearSolver SUNLinSol_LapackBand(N_Vector y, SUNMatrix A, SUNContext sunctx)
   S->ops->solve      = SUNLinSolSolve_LapackBand;
   S->ops->lastflag   = SUNLinSolLastFlag_LapackBand;
   S->ops->space      = SUNLinSolSpace_LapackBand;
-  S->ops->free       = SUNLinSolFree_LapackBand;
+  S->ops->destroy    = SUNLinSolDestroy_LapackBand;
+  S->ops->free       = SUNLinSolDestroy_LapackBand;;
 
   /* Create content */
   content = NULL;
   content = (SUNLinearSolverContent_LapackBand) malloc(sizeof *content);
-  if (content == NULL) { SUNLinSolFree(S); return(NULL); }
+  if (content == NULL) { SUNLinSolDestroy(S); return(NULL); }
 
   /* Attach content */
   S->content = content;
@@ -107,7 +108,7 @@ SUNLinearSolver SUNLinSol_LapackBand(N_Vector y, SUNMatrix A, SUNContext sunctx)
 
   /* Allocate content */
   content->pivots = (sunindextype *) malloc(MatrixRows * sizeof(sunindextype));
-  if (content->pivots == NULL) { SUNLinSolFree(S); return(NULL); }
+  if (content->pivots == NULL) { SUNLinSolDestroy(S); return(NULL); }
 
   return(S);
 }
@@ -226,7 +227,7 @@ int SUNLinSolSpace_LapackBand(SUNLinearSolver S,
   return(SUNLS_SUCCESS);
 }
 
-int SUNLinSolFree_LapackBand(SUNLinearSolver S)
+int SUNLinSolDestroy_LapackBand(SUNLinearSolver S)
 {
   /* return with success if already freed */
   if (S == NULL) return(SUNLS_SUCCESS);

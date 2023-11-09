@@ -46,7 +46,7 @@ static int IDABBDPrecSolve(realtype tt, N_Vector yy, N_Vector yp,
                            realtype c_j, realtype delta, void *prec_data);
 
 /* Prototype for IDABBDPrecFree */
-static int IDABBDPrecFree(IDAMem ida_mem);
+static int IDABBDPrecDestroy(IDAMem ida_mem);
 
 /* Prototype for difference quotient Jacobian calculation routine */
 static int IBBDDQJac(IBBDPrecData pdata, realtype tt, realtype cj,
@@ -222,7 +222,7 @@ int IDABBDPrecInit(void *ida_mem, sunindextype Nlocal,
     N_VDestroy(pdata->tempv3);
     N_VDestroy(pdata->tempv4);
     SUNMatDestroy(pdata->PP);
-    SUNLinSolFree(pdata->LS);
+    SUNLinSolDestroy(pdata->LS);
     free(pdata); pdata = NULL;
     IDAProcessError(IDA_mem, IDALS_SUNLS_FAIL, "IDABBDPRE",
                     "IDABBDPrecInit", MSGBBD_SUNLS_FAIL);
@@ -269,7 +269,7 @@ int IDABBDPrecInit(void *ida_mem, sunindextype Nlocal,
   idals_mem->pdata = pdata;
 
   /* Attach the pfree function */
-  idals_mem->pfree = IDABBDPrecFree;
+  idals_mem->pfree = IDABBDPrecDestroy;
 
   /* Attach preconditioner solve and setup functions */
   flag = IDASetPreconditioner(ida_mem,
@@ -509,7 +509,7 @@ static int IDABBDPrecSolve(realtype tt, N_Vector yy, N_Vector yp,
 
 
 /*-------------------------------------------------------------*/
-static int IDABBDPrecFree(IDAMem IDA_mem)
+static int IDABBDPrecDestroy(IDAMem IDA_mem)
 {
   IDALsMem idals_mem;
   IBBDPrecData pdata;
@@ -520,7 +520,7 @@ static int IDABBDPrecFree(IDAMem IDA_mem)
   if (idals_mem->pdata == NULL) return(0);
   pdata = (IBBDPrecData) idals_mem->pdata;
 
-  SUNLinSolFree(pdata->LS);
+  SUNLinSolDestroy(pdata->LS);
   N_VDestroy(pdata->rlocal);
   N_VDestroy(pdata->zlocal);
   N_VDestroy(pdata->tempv1);

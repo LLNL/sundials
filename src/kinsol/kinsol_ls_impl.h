@@ -131,7 +131,7 @@ int kinLsInitialize(KINMem kin_mem);
 int kinLsSetup(KINMem kin_mem);
 int kinLsSolve(KINMem kin_mem, N_Vector x, N_Vector b,
                realtype *sJpnorm, realtype *sFdotJp);
-int kinLsFree(KINMem kin_mem);
+int kinLsDestroy(KINMem kin_mem);
 
 /* Auxilliary functions */
 int kinLsInitializeCounters(KINLsMem kinls_mem);

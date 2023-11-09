@@ -138,14 +138,15 @@ SUNLinearSolver SUNLinSol_OneMklDense(N_Vector y, SUNMatrix Amat, SUNContext sun
   S->ops->solve      = SUNLinSolSolve_OneMklDense;
   S->ops->lastflag   = SUNLinSolLastFlag_OneMklDense;
   S->ops->space      = SUNLinSolSpace_OneMklDense;
-  S->ops->free       = SUNLinSolFree_OneMklDense;
+  S->ops->destroy    = SUNLinSolDestroy_OneMklDense;
+  S->ops->free       = SUNLinSolDestroy_OneMklDense;;
 
   // Create content
   S->content = (SUNLinearSolverContent_OneMklDense) malloc(sizeof(_SUNLinearSolverContent_OneMklDense));
   if (!(S->content))
   {
     SUNDIALS_DEBUG_ERROR("Content allocation failed\n");
-    SUNLinSolFree(S);
+    SUNLinSolDestroy(S);
     return NULL;
   }
 
@@ -168,7 +169,7 @@ SUNLinearSolver SUNLinSol_OneMklDense(N_Vector y, SUNMatrix Amat, SUNContext sun
   if (retval)
   {
     SUNDIALS_DEBUG_ERROR("Pivots allocation failed\n");
-    SUNLinSolFree(S);
+    SUNLinSolDestroy(S);
     return NULL;
   }
 
@@ -243,7 +244,7 @@ SUNLinearSolver SUNLinSol_OneMklDense(N_Vector y, SUNMatrix Amat, SUNContext sun
   if (retval)
   {
     SUNDIALS_DEBUG_ERROR("Scratchpad allocation failed\n");
-    SUNLinSolFree(S);
+    SUNLinSolDestroy(S);
     return NULL;
   }
 
@@ -254,7 +255,7 @@ SUNLinearSolver SUNLinSol_OneMklDense(N_Vector y, SUNMatrix Amat, SUNContext sun
   if (retval)
   {
     SUNDIALS_DEBUG_ERROR("Scratchpad allocation failed\n");
-    SUNLinSolFree(S);
+    SUNLinSolDestroy(S);
     return NULL;
   }
 
@@ -620,7 +621,7 @@ int SUNLinSolSpace_OneMklDense(SUNLinearSolver S,
 }
 
 
-int SUNLinSolFree_OneMklDense(SUNLinearSolver S)
+int SUNLinSolDestroy_OneMklDense(SUNLinearSolver S)
 {
   // return if S is already free
   if (!S) return SUNLS_SUCCESS;

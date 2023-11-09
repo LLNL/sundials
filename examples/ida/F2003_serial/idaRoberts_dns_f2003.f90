@@ -438,7 +438,7 @@ program main
   call FIDAFree(ida_mem)
   retval = FSUNNonlinSolFree(sunnonlin_NLS)
   retval = FSUNLinSolFree(sunlinsol_LS)
-  call FSUNMatDestroy(sunmat_A)
+  retval = FSUNMatDestroy(sunmat_A)
   call FN_VDestroy(sunvec_y)
   call FN_VDestroy(sunvec_av)
   call FN_VDestroy(sunvec_yp)

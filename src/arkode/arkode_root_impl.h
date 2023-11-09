@@ -76,7 +76,7 @@ typedef struct ARKodeRootMemRec {
   ARKODE Root-finding Routines
 ===============================================================*/
 
-int arkRootFree(void* arkode_mem);
+int arkRootDestroy(void* arkode_mem);
 int arkPrintRootMem(void* arkode_mem, FILE *outfile);
 int arkRootCheck1(void* arkode_mem);
 int arkRootCheck2(void* arkode_mem);

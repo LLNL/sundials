@@ -34,7 +34,7 @@ SUNDIALS_EXPORT int SUNProfiler_Create(void* comm, const char* title,
 
 SUNDIALS_EXPORT int SUNProfiler_Destroy(SUNProfiler* p);
 
-SUNDIALS_DEPRECATED_EXPORT_MSG("Use SUNProfiler_Destroy")
+SUNDIALS_DEPRECATED_MSG("Use SUNProfiler_Destroy")
 SUNDIALS_STATIC_INLINE 
 int SUNProfiler_Free(SUNProfiler* p) {
   return SUNProfiler_Destroy(p);

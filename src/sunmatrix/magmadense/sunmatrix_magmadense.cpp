@@ -347,11 +347,11 @@ SUNMatrix SUNMatClone_MagmaDense(SUNMatrix Amat)
   return(B);
 }
 
-void SUNMatDestroy_MagmaDense(SUNMatrix Amat)
+int SUNMatDestroy_MagmaDense(SUNMatrix Amat)
 {
-  if (Amat == NULL) return;
+  if (Amat == NULL) return SUNMAT_SUCCESS;
 
-  if (SUNMatGetID(Amat) != SUNMATRIX_MAGMADENSE) return;
+  if (SUNMatGetID(Amat) != SUNMATRIX_MAGMADENSE) return SUNMAT_ILL_INPUT;
 
   SUNMatrixContent_MagmaDense A = SMLD_CONTENT(Amat);
 
@@ -388,7 +388,7 @@ void SUNMatDestroy_MagmaDense(SUNMatrix Amat)
      as magma_init */
   magma_finalize();
 
-  return;
+  return SUNMAT_SUCCESS;
 }
 
 int SUNMatZero_MagmaDense(SUNMatrix Amat)

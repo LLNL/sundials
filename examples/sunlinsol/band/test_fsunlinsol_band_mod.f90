@@ -78,7 +78,7 @@ contains
     fails = FSUNMatScaleAddI(ONE/(mu+ml+1), A)
     if (fails /= 0) then
       print *, 'FAIL:  FSUNMatScaleAddI failure'
-      call FSUNMatDestroy(A)
+      fails = FSUNMatDestroy(A)
       call FN_VDestroy(x)
       call FN_VDestroy(y)
       call FN_VDestroy(b)
@@ -89,7 +89,7 @@ contains
     fails = FSUNMatMatvec(A, x, b)
     if (fails /= 0) then
       print *, 'FAIL:  FSUNMatMatvec failure'
-      call FSUNMatDestroy(A)
+      fails = FSUNMatDestroy(A)
       call FN_VDestroy(x)
       call FN_VDestroy(y)
       call FN_VDestroy(b)
@@ -109,8 +109,8 @@ contains
     fails = fails + Test_FSUNLinSolSpace(LS, 0)
 
     ! cleanup
-    tmp = FSUNLinSolFree(LS)
-    call FSUNMatDestroy(A)
+    fails = fails + FSUNLinSolFree(LS)
+    fails = fails + FSUNMatDestroy(A)
     call FN_VDestroy(x)
     call FN_VDestroy(y)
     call FN_VDestroy(b)

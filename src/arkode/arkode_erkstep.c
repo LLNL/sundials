@@ -378,7 +378,7 @@ int ERKStepDestroy(void **arkode_mem)
   ARKodeERKStepMem step_mem;
 
   /* nothing to do if arkode_mem is already NULL */
-  if (*arkode_mem == NULL)  return;
+  if (*arkode_mem == NULL)  return ARK_SUCCESS;
 
   /* conditional frees on non-NULL ERKStep module */
   ark_mem = (ARKodeMem) (*arkode_mem);
@@ -389,7 +389,7 @@ int ERKStepDestroy(void **arkode_mem)
     /* free the Butcher table */
     if (step_mem->B != NULL) {
       ARKodeButcherTable_Space(step_mem->B, &Bliw, &Blrw);
-      ARKodeButcherTable_Free(step_mem->B);
+      ARKodeButcherTable_Destroy(step_mem->B);
       step_mem->B = NULL;
       ark_mem->liw -= Bliw;
       ark_mem->lrw -= Blrw;
@@ -423,7 +423,9 @@ int ERKStepDestroy(void **arkode_mem)
   }
 
   /* free memory for overall ARKODE infrastructure */
-  arkFree(arkode_mem);
+  arkDestroy(arkode_mem);
+
+  return ARK_SUCCESS;
 }
 
 

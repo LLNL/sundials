@@ -87,7 +87,7 @@ int CVodeSetNonlinearSolverSensStg(void *cvode_mem, SUNNonlinearSolver NLS)
 
   /* free any existing nonlinear solver */
   if ((cv_mem->NLSstg != NULL) && (cv_mem->ownNLSstg))
-    retval = SUNNonlinSolFree(cv_mem->NLSstg);
+    retval = SUNNonlinSolDestroy(cv_mem->NLSstg);
 
   /* set SUNNonlinearSolver pointer */
   cv_mem->NLSstg = NLS;

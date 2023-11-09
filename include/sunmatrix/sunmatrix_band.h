@@ -116,7 +116,7 @@ SUNDIALS_EXPORT realtype* SUNBandMatrix_Column(SUNMatrix A, sunindextype j);
 
 SUNDIALS_EXPORT SUNMatrix_ID SUNMatGetID_Band(SUNMatrix A);
 SUNDIALS_EXPORT SUNMatrix SUNMatClone_Band(SUNMatrix A);
-SUNDIALS_EXPORT void SUNMatDestroy_Band(SUNMatrix A);
+SUNDIALS_EXPORT int SUNMatDestroy_Band(SUNMatrix A);
 SUNDIALS_EXPORT int SUNMatZero_Band(SUNMatrix A);
 SUNDIALS_EXPORT int SUNMatCopy_Band(SUNMatrix A, SUNMatrix B);
 SUNDIALS_EXPORT int SUNMatScaleAdd_Band(realtype c, SUNMatrix A, SUNMatrix B);

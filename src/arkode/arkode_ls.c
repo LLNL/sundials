@@ -261,7 +261,7 @@ int arkLSSetLinearSolver(void *arkode_mem, SUNLinearSolver LS,
   /* Attach ARKLs interface to time stepper module */
   retval = ark_mem->step_attachlinsol(arkode_mem, arkLsInitialize,
                                       arkLsSetup, arkLsSolve,
-                                      arkLsFree, LSType, arkls_mem);
+                                      arkLsDestroy, LSType, arkls_mem);
   if (retval != ARK_SUCCESS) {
     arkProcessError(ark_mem, retval, "ARKLS", "arkLSSetLinearSolver",
                     "Failed to attach to time stepper module");
@@ -473,7 +473,7 @@ int arkLSSetMassLinearSolver(void *arkode_mem, SUNLinearSolver LS,
   /* Attach ARKLs interface to time stepper module */
   retval = ark_mem->step_attachmasssol(arkode_mem, arkLsMassInitialize,
                                        arkLsMassSetup, arkLsMTimes,
-                                       arkLsMassSolve, arkLsMassFree,
+                                       arkLsMassSolve, arkLsMassDestroy,
                                        time_dep, LSType, arkls_mem);
   if (retval != ARK_SUCCESS) {
     arkProcessError(ark_mem, retval, "ARKLS", "arkLSSetMassLinearSolver",
@@ -2797,7 +2797,7 @@ int arkLsSolve(void* arkode_mem, N_Vector b, realtype tnow,
   arkLsFree frees memory associates with the ARKLs system
   solver interface.
   ---------------------------------------------------------------*/
-int arkLsFree(void* arkode_mem)
+int arkLsDestroy(void* arkode_mem)
 {
   ARKodeMem ark_mem;
   ARKLsMem  arkls_mem;
@@ -3208,10 +3208,10 @@ int arkLsMassSolve(void *arkode_mem, N_Vector b, realtype nlscoef)
 
 
 /*---------------------------------------------------------------
-  arkLsMassFree frees memory associates with the ARKLs mass
+  arkLsMassDestroy frees memory associates with the ARKLs mass
   matrix solver interface.
   ---------------------------------------------------------------*/
-int arkLsMassFree(void *arkode_mem)
+int arkLsMassDestroy(void *arkode_mem)
 {
   ARKodeMem    ark_mem;
   ARKLsMassMem arkls_mem;

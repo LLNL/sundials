@@ -295,7 +295,7 @@ program main
   ! clean up
   call FKINFree(kmem)
   ierr = FSUNLinSolFree(sunlinsol_LS)
-  call FSUNMatDestroy(sunmat_J)
+  ierr = FSUNMatDestroy(sunmat_J)
   call FN_VDestroy(sunvec_u)
   call FN_VDestroy(sunvec_s)
   ierr = FSUNContext_Free(sunctx)

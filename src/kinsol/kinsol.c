@@ -745,11 +745,11 @@ int KINSol(void *kinmem, N_Vector u, int strategy_in,
  * (deallocated by a call to lfree).
  */
 
-void KINFree(void **kinmem)
+int KINDestroy(void **kinmem)
 {
   KINMem kin_mem;
 
-  if (*kinmem == NULL) return;
+  if (*kinmem == NULL) return KIN_SUCCESS;
 
   kin_mem = (KINMem) (*kinmem);
   KINFreeVectors(kin_mem);
@@ -760,6 +760,8 @@ void KINFree(void **kinmem)
 
   free(*kinmem);
   *kinmem = NULL;
+
+  return KIN_SUCCESS;
 }
 
 /*

@@ -131,7 +131,7 @@ SUNDIALS_EXPORT sunindextype* SUNSparseMatrix_IndexPointers(SUNMatrix A);
 
 SUNDIALS_EXPORT SUNMatrix_ID SUNMatGetID_Sparse(SUNMatrix A);
 SUNDIALS_EXPORT SUNMatrix SUNMatClone_Sparse(SUNMatrix A);
-SUNDIALS_EXPORT void SUNMatDestroy_Sparse(SUNMatrix A);
+SUNDIALS_EXPORT int SUNMatDestroy_Sparse(SUNMatrix A);
 SUNDIALS_EXPORT int SUNMatZero_Sparse(SUNMatrix A);
 SUNDIALS_EXPORT int SUNMatCopy_Sparse(SUNMatrix A, SUNMatrix B);
 SUNDIALS_EXPORT int SUNMatScaleAdd_Sparse(realtype c, SUNMatrix A, SUNMatrix B);

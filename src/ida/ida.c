@@ -467,7 +467,7 @@ int IDAInit(void *ida_mem, IDAResFn res,
     IDAProcessError(IDA_mem, retval, "IDA", "IDAInit",
                     "Setting the nonlinear solver failed");
     IDAFreeVectors(IDA_mem);
-    SUNNonlinSolFree(NLS);
+    SUNNonlinSolDestroy(NLS);
     SUNDIALS_MARK_FUNCTION_END(IDA_PROFILER);
     return(IDA_MEM_FAIL);
   }
@@ -1538,7 +1538,7 @@ int IDADestroy(void **ida_mem)
 
   /* if IDA created the NLS object then free it */
   if (IDA_mem->ownNLS) {
-    SUNNonlinSolFree(IDA_mem->NLS);
+    SUNNonlinSolDestroy(IDA_mem->NLS);
     IDA_mem->ownNLS = SUNFALSE;
     IDA_mem->NLS = NULL;
   }

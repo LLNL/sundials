@@ -134,7 +134,7 @@ int KINSetLinearSolver(void *kinmem, SUNLinearSolver LS, SUNMatrix A)
   kin_mem->kin_linit  = kinLsInitialize;
   kin_mem->kin_lsetup = kinLsSetup;
   kin_mem->kin_lsolve = kinLsSolve;
-  kin_mem->kin_lfree  = kinLsFree;
+  kin_mem->kin_lfree  = kinLsDestroy;
 
   /* Get memory for KINLsMemRec */
   kinls_mem = NULL;
@@ -1337,7 +1337,7 @@ int kinLsSolve(KINMem kin_mem, N_Vector xx, N_Vector bb,
   kinLsFree frees memory associated with the KINLs system
   solver interface
   ------------------------------------------------------------------*/
-int kinLsFree(KINMem kin_mem)
+int kinLsDestroy(KINMem kin_mem)
 {
   KINLsMem kinls_mem;
 

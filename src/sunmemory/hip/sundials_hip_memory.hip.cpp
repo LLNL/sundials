@@ -215,7 +215,7 @@ int SUNMemoryHelper_Dealloc_Hip(SUNMemoryHelper helper, SUNMemory mem, void* que
     {
       SUNHELPER_CONTENT(helper)->num_deallocations_device++;
       SUNHELPER_CONTENT(helper)->bytes_allocated_device -= mem->bytes;
-      if (!SUNDIALS_HIP_VERIFY(hipFree(mem->ptr)))
+      if (!SUNDIALS_HIP_VERIFY(hipDestroy(mem->ptr)))
       {
         SUNDIALS_DEBUG_PRINT(
           "ERROR in SUNMemoryHelper_Dealloc_Hip: hipFree failed\n");
@@ -227,7 +227,7 @@ int SUNMemoryHelper_Dealloc_Hip(SUNMemoryHelper helper, SUNMemory mem, void* que
     {
       SUNHELPER_CONTENT(helper)->num_deallocations_uvm++;
       SUNHELPER_CONTENT(helper)->bytes_allocated_uvm -= mem->bytes;
-      if (!SUNDIALS_HIP_VERIFY(hipFree(mem->ptr)))
+      if (!SUNDIALS_HIP_VERIFY(hipDestroy(mem->ptr)))
       {
         SUNDIALS_DEBUG_PRINT(
           "ERROR in SUNMemoryHelper_Dealloc_Hip: hipFree failed\n");

@@ -70,7 +70,7 @@ SUNDIALS_EXPORT booleantype   SUNMatrix_SLUNRloc_OwnData(SUNMatrix A);
 
 SUNDIALS_EXPORT SUNMatrix_ID SUNMatGetID_SLUNRloc(SUNMatrix A);
 SUNDIALS_EXPORT SUNMatrix SUNMatClone_SLUNRloc(SUNMatrix A);
-SUNDIALS_EXPORT void SUNMatDestroy_SLUNRloc(SUNMatrix A);
+SUNDIALS_EXPORT int SUNMatDestroy_SLUNRloc(SUNMatrix A);
 SUNDIALS_EXPORT int SUNMatZero_SLUNRloc(SUNMatrix A);
 SUNDIALS_EXPORT int SUNMatCopy_SLUNRloc(SUNMatrix A, SUNMatrix B);
 SUNDIALS_EXPORT int SUNMatScaleAdd_SLUNRloc(realtype c, SUNMatrix A, SUNMatrix B);

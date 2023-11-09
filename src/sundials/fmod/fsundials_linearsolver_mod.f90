@@ -428,11 +428,13 @@ type(C_PTR), value :: farg1
 integer(C_INT) :: fresult
 end function
 
-subroutine swigc_FSUNLinSolFree(farg1) &
-bind(C, name="_wrap_FSUNLinSolFree")
+function swigc_FSUNLinSolFree(farg1) &
+bind(C, name="_wrap_FSUNLinSolFree") &
+result(fresult)
 use, intrinsic :: ISO_C_BINDING
 type(C_PTR), value :: farg1
-end subroutine
+integer(C_INT) :: fresult
+end function
 
 end interface
 
@@ -982,14 +984,18 @@ fresult = swigc_FSUNLinSolDestroy(farg1)
 swig_result = fresult
 end function
 
-subroutine FSUNLinSolFree(s)
+function FSUNLinSolFree(s) &
+result(swig_result)
 use, intrinsic :: ISO_C_BINDING
+integer(C_INT) :: swig_result
 type(SUNLinearSolver), target, intent(inout) :: s
+integer(C_INT) :: fresult 
 type(C_PTR) :: farg1 
 
 farg1 = c_loc(s)
-call swigc_FSUNLinSolFree(farg1)
-end subroutine
+fresult = swigc_FSUNLinSolFree(farg1)
+swig_result = fresult
+end function
 
 
 end module

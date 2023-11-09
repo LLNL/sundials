@@ -390,7 +390,7 @@ int cvProjInit(CVodeProjMem proj_mem)
 }
 
 
-int cvProjFree(CVodeProjMem *proj_mem)
+int cvProjDestroy(CVodeProjMem *proj_mem)
 {
   if (*proj_mem == NULL) return(CV_SUCCESS);
 

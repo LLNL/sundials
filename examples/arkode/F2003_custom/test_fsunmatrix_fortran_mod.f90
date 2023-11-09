@@ -295,11 +295,11 @@ program main
   end if
 
   ! free matrices and vectors
-  call FSUNMatDestroy(sA)
-  call FSUNMatDestroy(sB)
-  call FSUNMatDestroy(sC)
-  call FSUNMatDestroy(sD)
-  call FSUNMatDestroy(sI)
+  retval = FSUNMatDestroy(sA)
+  retval = FSUNMatDestroy(sB)
+  retval = FSUNMatDestroy(sC)
+  retval = FSUNMatDestroy(sD)
+  retval = FSUNMatDestroy(sI)
   call FN_VDestroy(sW)
   call FN_VDestroy(sX)
   call FN_VDestroy(sY)

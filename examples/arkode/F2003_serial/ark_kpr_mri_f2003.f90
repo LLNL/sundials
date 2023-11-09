@@ -1094,9 +1094,9 @@ program main
   if (allocated(ds)) deallocate(ds)
   call FN_VDestroy(y)                                ! Free y vector
   call FMRIStepCoupling_Free(SC)                     ! Free coupling coefficients
-  if (associated(MATf)) call FSUNMatDestroy(MATf)    ! Free fast matrix
+  if (associated(MATf)) retval = FSUNMatDestroy(MATf)    ! Free fast matrix
   if (associated(LSf)) retval = FSUNLinSolFree(LSf)  ! Free fast linear solver
-  if (associated(MATs)) call FSUNMatDestroy(MATs)    ! Free slow matrix
+  if (associated(MATs)) retval = FSUNMatDestroy(MATs)    ! Free slow matrix
   if (associated(LSs)) retval = FSUNLinSolFree(LSs)  ! Free slow linear solver
   call FARKStepFree(inner_arkode_mem)                ! Free fast integrator memory
   retval = FMRIStepInnerStepper_Free(inner_stepper)  ! Free inner stepper

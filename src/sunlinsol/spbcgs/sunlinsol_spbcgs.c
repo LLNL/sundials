@@ -88,12 +88,12 @@ SUNLinearSolver SUNLinSol_SPBCGS(N_Vector y, int pretype, int maxl, SUNContext s
   S->ops->resid             = SUNLinSolResid_SPBCGS;
   S->ops->lastflag          = SUNLinSolLastFlag_SPBCGS;
   S->ops->space             = SUNLinSolSpace_SPBCGS;
-  S->ops->free              = SUNLinSolFree_SPBCGS;
+  S->ops->free              = SUNLinSolDestroy_SPBCGS;
 
   /* Create content */
   content = NULL;
   content = (SUNLinearSolverContent_SPBCGS) malloc(sizeof *content);
-  if (content == NULL) { SUNLinSolFree(S); return(NULL); }
+  if (content == NULL) { SUNLinSolDestroy(S); return(NULL); }
 
   /* Attach content */
   S->content = content;
@@ -127,25 +127,25 @@ SUNLinearSolver SUNLinSol_SPBCGS(N_Vector y, int pretype, int maxl, SUNContext s
 
   /* Allocate content */
   content->r_star = N_VClone(y);
-  if (content->r_star == NULL) { SUNLinSolFree(S); return(NULL); }
+  if (content->r_star == NULL) { SUNLinSolDestroy(S); return(NULL); }
 
   content->r = N_VClone(y);
-  if (content->r == NULL) { SUNLinSolFree(S); return(NULL); }
+  if (content->r == NULL) { SUNLinSolDestroy(S); return(NULL); }
 
   content->p = N_VClone(y);
-  if (content->p == NULL) { SUNLinSolFree(S); return(NULL); }
+  if (content->p == NULL) { SUNLinSolDestroy(S); return(NULL); }
 
   content->q = N_VClone(y);
-  if (content->q == NULL) { SUNLinSolFree(S); return(NULL); }
+  if (content->q == NULL) { SUNLinSolDestroy(S); return(NULL); }
 
   content->u = N_VClone(y);
-  if (content->u == NULL) { SUNLinSolFree(S); return(NULL); }
+  if (content->u == NULL) { SUNLinSolDestroy(S); return(NULL); }
 
   content->Ap = N_VClone(y);
-  if (content->Ap == NULL) { SUNLinSolFree(S); return(NULL); }
+  if (content->Ap == NULL) { SUNLinSolDestroy(S); return(NULL); }
 
   content->vtemp = N_VClone(y);
-  if (content->vtemp == NULL) { SUNLinSolFree(S); return(NULL); }
+  if (content->vtemp == NULL) { SUNLinSolDestroy(S); return(NULL); }
 
   return(S);
 }
@@ -739,7 +739,7 @@ int SUNLinSolSpace_SPBCGS(SUNLinearSolver S,
 }
 
 
-int SUNLinSolFree_SPBCGS(SUNLinearSolver S)
+int SUNLinSolDestroy_SPBCGS(SUNLinearSolver S)
 {
   if (S == NULL) return(SUNLS_SUCCESS);
 

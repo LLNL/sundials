@@ -4397,21 +4397,21 @@ function FIDAQuadDestroy(ida_mem) &
 result(swig_result)
 use, intrinsic :: ISO_C_BINDING
 integer(C_INT) :: swig_result
-type(C_PTR), target, intent(inout) :: ida_mem
+type(C_PTR) :: ida_mem
 integer(C_INT) :: fresult 
 type(C_PTR) :: farg1 
 
-farg1 = c_loc(ida_mem)
+farg1 = ida_mem
 fresult = swigc_FIDAQuadDestroy(farg1)
 swig_result = fresult
 end function
 
 subroutine FIDAQuadFree(ida_mem)
 use, intrinsic :: ISO_C_BINDING
-type(C_PTR), target, intent(inout) :: ida_mem
+type(C_PTR) :: ida_mem
 type(C_PTR) :: farg1 
 
-farg1 = c_loc(ida_mem)
+farg1 = ida_mem
 call swigc_FIDAQuadFree(farg1)
 end subroutine
 
@@ -4917,21 +4917,21 @@ function FIDASensDestroy(ida_mem) &
 result(swig_result)
 use, intrinsic :: ISO_C_BINDING
 integer(C_INT) :: swig_result
-type(C_PTR), target, intent(inout) :: ida_mem
+type(C_PTR) :: ida_mem
 integer(C_INT) :: fresult 
 type(C_PTR) :: farg1 
 
-farg1 = c_loc(ida_mem)
+farg1 = ida_mem
 fresult = swigc_FIDASensDestroy(farg1)
 swig_result = fresult
 end function
 
 subroutine FIDASensFree(ida_mem)
 use, intrinsic :: ISO_C_BINDING
-type(C_PTR), target, intent(inout) :: ida_mem
+type(C_PTR) :: ida_mem
 type(C_PTR) :: farg1 
 
-farg1 = c_loc(ida_mem)
+farg1 = ida_mem
 call swigc_FIDASensFree(farg1)
 end subroutine
 
@@ -5196,21 +5196,21 @@ function FIDAQuadSensDestroy(ida_mem) &
 result(swig_result)
 use, intrinsic :: ISO_C_BINDING
 integer(C_INT) :: swig_result
-type(C_PTR), target, intent(inout) :: ida_mem
+type(C_PTR) :: ida_mem
 integer(C_INT) :: fresult 
 type(C_PTR) :: farg1 
 
-farg1 = c_loc(ida_mem)
+farg1 = ida_mem
 fresult = swigc_FIDAQuadSensDestroy(farg1)
 swig_result = fresult
 end function
 
 subroutine FIDAQuadSensFree(ida_mem)
 use, intrinsic :: ISO_C_BINDING
-type(C_PTR), target, intent(inout) :: ida_mem
+type(C_PTR) :: ida_mem
 type(C_PTR) :: farg1 
 
-farg1 = c_loc(ida_mem)
+farg1 = ida_mem
 call swigc_FIDAQuadSensFree(farg1)
 end subroutine
 
@@ -5250,21 +5250,21 @@ function FIDAAdjDestroy(ida_mem) &
 result(swig_result)
 use, intrinsic :: ISO_C_BINDING
 integer(C_INT) :: swig_result
-type(C_PTR), target, intent(inout) :: ida_mem
+type(C_PTR) :: ida_mem
 integer(C_INT) :: fresult 
 type(C_PTR) :: farg1 
 
-farg1 = c_loc(ida_mem)
+farg1 = ida_mem
 fresult = swigc_FIDAAdjDestroy(farg1)
 swig_result = fresult
 end function
 
 subroutine FIDAAdjFree(ida_mem)
 use, intrinsic :: ISO_C_BINDING
-type(C_PTR), target, intent(inout) :: ida_mem
+type(C_PTR) :: ida_mem
 type(C_PTR) :: farg1 
 
-farg1 = c_loc(ida_mem)
+farg1 = ida_mem
 call swigc_FIDAAdjFree(farg1)
 end subroutine
 

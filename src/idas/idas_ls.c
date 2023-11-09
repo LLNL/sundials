@@ -193,7 +193,7 @@ int IDASetLinearSolver(void *ida_mem, SUNLinearSolver LS, SUNMatrix A)
   IDA_mem->ida_linit  = idaLsInitialize;
   IDA_mem->ida_lsetup = idaLsSetup;
   IDA_mem->ida_lsolve = idaLsSolve;
-  IDA_mem->ida_lfree  = idaLsFree;
+  IDA_mem->ida_lfree  = idaLsDestroy;
 
   /* Set ida_lperf if using an iterative SUNLinearSolver object */
   IDA_mem->ida_lperf = (iterative) ? idaLsPerf : NULL;
@@ -1698,7 +1698,7 @@ int idaLsPerf(IDAMem IDA_mem, int perftask)
  idaLsFree frees memory associates with the IDALs system
  solver interface.
 ---------------------------------------------------------------*/
-int idaLsFree(IDAMem IDA_mem)
+int idaLsDestroy(IDAMem IDA_mem)
 {
   IDALsMem idals_mem;
 

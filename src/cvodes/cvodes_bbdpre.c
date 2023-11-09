@@ -44,7 +44,7 @@ static int cvBBDPrecSolve(realtype t, N_Vector y, N_Vector fy,
                           int lr, void *bbd_data);
 
 /* Prototype for cvBBDPrecFree */
-static int cvBBDPrecFree(CVodeMem cv_mem);
+static int cvBBDPrecDestroy(CVodeMem cv_mem);
 
 /* Wrapper functions for adjoint code */
 static int cvGlocWrapper(sunindextype NlocalB, realtype t,
@@ -233,7 +233,7 @@ int CVBBDPrecInit(void *cvode_mem, sunindextype Nlocal,
     N_VDestroy(pdata->rlocal);
     SUNMatDestroy(pdata->savedP);
     SUNMatDestroy(pdata->savedJ);
-    SUNLinSolFree(pdata->LS);
+    SUNLinSolDestroy(pdata->LS);
     free(pdata); pdata = NULL;
     cvProcessError(cv_mem, CVLS_SUNLS_FAIL, "CVSBBDPRE",
                    "CVBBDPrecInit", MSGBBD_SUNLS_FAIL);
@@ -285,7 +285,7 @@ int CVBBDPrecInit(void *cvode_mem, sunindextype Nlocal,
   cvls_mem->P_data = pdata;
 
   /* Attach the pfree function */
-  cvls_mem->pfree = cvBBDPrecFree;
+  cvls_mem->pfree = cvBBDPrecDestroy;
 
   /* Attach preconditioner solve and setup functions */
   flag = CVodeSetPreconditioner(cvode_mem, cvBBDPrecSetup,
@@ -577,7 +577,7 @@ static int cvBBDPrecSolve(realtype t, N_Vector y, N_Vector fy,
 }
 
 
-static int cvBBDPrecFree(CVodeMem cv_mem)
+static int cvBBDPrecDestroy(CVodeMem cv_mem)
 {
   CVLsMem cvls_mem;
   CVBBDPrecData pdata;
@@ -588,7 +588,7 @@ static int cvBBDPrecFree(CVodeMem cv_mem)
   if (cvls_mem->P_data == NULL) return(0);
   pdata = (CVBBDPrecData) cvls_mem->P_data;
 
-  SUNLinSolFree(pdata->LS);
+  SUNLinSolDestroy(pdata->LS);
   N_VDestroy(pdata->tmp1);
   N_VDestroy(pdata->tmp2);
   N_VDestroy(pdata->tmp3);

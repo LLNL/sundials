@@ -55,7 +55,7 @@ static void IDAAckpntDelete(IDAckpntMem *ck_memPtr);
 static void IDAAbckpbDelete(IDABMem *IDAB_memPtr);
 
 static booleantype IDAAdataMalloc(IDAMem IDA_mem);
-static void IDAAdataFree(IDAMem IDA_mem);
+static void IDAAdataDestroy(IDAMem IDA_mem);
 static int  IDAAdataStore(IDAMem IDA_mem, IDAckpntMem ck_mem);
 
 static int  IDAAckpntGet(IDAMem IDA_mem, IDAckpntMem ck_mem);
@@ -271,12 +271,12 @@ int IDAAdjReInit(void *ida_mem)
 */
 
 
-void IDAAdjFree(void *ida_mem)
+int IDAAdjDestroy(void *ida_mem)
 {
   IDAMem IDA_mem;
   IDAadjMem IDAADJ_mem;
 
-  if (ida_mem == NULL) return;
+  if (ida_mem == NULL) return IDA_SUCCESS;
   IDA_mem = (IDAMem) ida_mem;
 
   if(IDA_mem->ida_adjMallocDone) {
@@ -289,7 +289,7 @@ void IDAAdjFree(void *ida_mem)
       IDAAckpntDelete(&(IDAADJ_mem->ck_mem));
     }
 
-    IDAAdataFree(IDA_mem);
+    IDAAdataDestroy(IDA_mem);
 
     /* Free all backward problems. */
     while (IDAADJ_mem->IDAB_mem != NULL)
@@ -322,7 +322,7 @@ static void IDAAbckpbDelete(IDABMem *IDAB_memPtr)
 
   /* Free IDAS memory for this backward problem. */
   ida_mem = (void *)IDAB_mem->IDA_mem;
-  IDAFree(&ida_mem);
+  IDADestroy(&ida_mem);
 
   /* Free linear solver memory. */
   if (IDAB_mem->ida_lfree != NULL) IDAB_mem->ida_lfree(IDAB_mem);
@@ -2131,7 +2131,7 @@ static booleantype IDAAdataMalloc(IDAMem IDA_mem)
  * This routine frees the memory allocated for data storage.
  */
 
-static void IDAAdataFree(IDAMem IDA_mem)
+static void IDAAdataDestroy(IDAMem IDA_mem)
 {
   IDAadjMem IDAADJ_mem;
   long int i;

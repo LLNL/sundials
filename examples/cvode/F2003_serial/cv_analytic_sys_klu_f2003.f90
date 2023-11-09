@@ -326,7 +326,7 @@ program main
   ! clean up
   call FCVodeFree(cvode_mem)
   ierr = FSUNLinSolFree(sunlinsol_LS)
-  call FSUNMatDestroy(sunmat_A)
+  retval = FSUNMatDestroy(sunmat_A)
   call FN_VDestroy(sunvec_y)
   ierr = FSUNContext_Free(sunctx)
 

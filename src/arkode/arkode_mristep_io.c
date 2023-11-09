@@ -327,7 +327,7 @@ int MRIStepSetOrder(void *arkode_mem, int ord)
   step_mem->stages = 0;
   step_mem->p = 0;
   MRIStepCoupling_Space(step_mem->MRIC, &Tliw, &Tlrw);
-  MRIStepCoupling_Free(step_mem->MRIC);
+  MRIStepCoupling_Destroy(step_mem->MRIC);
   step_mem->MRIC = NULL;
   ark_mem->liw -= Tliw;
   ark_mem->lrw -= Tlrw;
@@ -366,7 +366,7 @@ int MRIStepSetCoupling(void *arkode_mem, MRIStepCoupling MRIC)
   step_mem->q = 0;
   step_mem->p = 0;
   MRIStepCoupling_Space(step_mem->MRIC, &Tliw, &Tlrw);
-  MRIStepCoupling_Free(step_mem->MRIC);
+  MRIStepCoupling_Destroy(step_mem->MRIC);
   step_mem->MRIC = NULL;
   ark_mem->liw -= Tliw;
   ark_mem->lrw -= Tlrw;

@@ -112,7 +112,7 @@ static int FusedBuffer_CopyPtrArray1D(N_Vector v, N_Vector *X, int nvec,
 static int FusedBuffer_CopyPtrArray2D(N_Vector v, N_Vector **X, int nvec,
                                       int nsum, realtype ***shortcut);
 static int FusedBuffer_CopyToDevice(N_Vector v);
-static int FusedBuffer_Free(N_Vector v);
+static int FusedBuffer_Destroy(N_Vector v);
 
 
 N_Vector N_VNewEmpty_Raja(SUNContext sunctx)
@@ -686,7 +686,7 @@ void N_VDestroy_Raja(N_Vector v)
   if (vcp != NULL)
   {
     /* free items in private content */
-    FusedBuffer_Free(v);
+    FusedBuffer_Destroy(v);
     free(vcp);
     vc->priv = NULL;
   }
@@ -1726,7 +1726,7 @@ static int FusedBuffer_Init(N_Vector v, int nreal, int nptr)
   // Check if the existing memory is not large enough
   if (vcp->fused_buffer_bytes < bytes)
   {
-    FusedBuffer_Free(v);
+    FusedBuffer_Destroy(v);
     alloc_mem = SUNTRUE;
   }
 
@@ -1902,7 +1902,7 @@ static int FusedBuffer_CopyToDevice(N_Vector v)
 }
 
 
-static int FusedBuffer_Free(N_Vector v)
+static int FusedBuffer_Destroy(N_Vector v)
 {
   N_PrivateVectorContent_Raja vcp = NVEC_RAJA_PRIVATE(v);
 

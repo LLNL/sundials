@@ -43,7 +43,7 @@ static int ARKBBDPrecSolve(realtype t, N_Vector y, N_Vector fy,
                            int lr, void *bbd_data);
 
 /* Prototype for ARKBBDPrecFree */
-static int ARKBBDPrecFree(ARKodeMem ark_mem);
+static int ARKBBDPrecDestroy(ARKodeMem ark_mem);
 
 /* Prototype for difference quotient Jacobian calculation routine */
 static int ARKBBDDQJac(ARKBBDPrecData pdata, realtype t,
@@ -211,7 +211,7 @@ int ARKBBDPrecInit(void *arkode_mem, sunindextype Nlocal,
     N_VDestroy(pdata->rlocal);
     SUNMatDestroy(pdata->savedP);
     SUNMatDestroy(pdata->savedJ);
-    SUNLinSolFree(pdata->LS);
+    SUNLinSolDestroy(pdata->LS);
     free(pdata); pdata = NULL;
     arkProcessError(ark_mem, ARKLS_SUNLS_FAIL, "ARKBBDPRE",
                     "ARKBBDPrecInit", MSG_BBD_SUNLS_FAIL);
@@ -263,7 +263,7 @@ int ARKBBDPrecInit(void *arkode_mem, sunindextype Nlocal,
   arkls_mem->P_data = pdata;
 
   /* Attach the pfree function */
-  arkls_mem->pfree = ARKBBDPrecFree;
+  arkls_mem->pfree = ARKBBDPrecDestroy;
 
   /* Attach preconditioner solve and setup functions */
   retval = arkLSSetPreconditioner(arkode_mem,
@@ -541,7 +541,7 @@ static int ARKBBDPrecSolve(realtype t, N_Vector y, N_Vector fy,
 
 
 /*-------------------------------------------------------------*/
-static int ARKBBDPrecFree(ARKodeMem ark_mem)
+static int ARKBBDPrecDestroy(ARKodeMem ark_mem)
 {
   ARKLsMem       arkls_mem;
   void*          ark_step_lmem;
@@ -555,7 +555,7 @@ static int ARKBBDPrecFree(ARKodeMem ark_mem)
   if (arkls_mem->P_data == NULL) return(0);
   pdata = (ARKBBDPrecData) arkls_mem->P_data;
 
-  SUNLinSolFree(pdata->LS);
+  SUNLinSolDestroy(pdata->LS);
   arkFreeVec(ark_mem, &(pdata->tmp1));
   arkFreeVec(ark_mem, &(pdata->tmp2));
   arkFreeVec(ark_mem, &(pdata->tmp3));

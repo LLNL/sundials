@@ -103,7 +103,7 @@ void* SPRKStepCreate(ARKRhsFn f1, ARKRhsFn f2, realtype t0, N_Vector y0,
   /* Allocate vectors in stepper mem */
   if (!arkAllocVec(ark_mem, y0, &(step_mem->sdata)))
   {
-    SPRKStepFree((void**)&ark_mem);
+    SPRKStepDestroy((void**)&ark_mem);
     return (NULL);
   }
 
@@ -111,7 +111,7 @@ void* SPRKStepCreate(ARKRhsFn f1, ARKRhsFn f2, realtype t0, N_Vector y0,
   {
     if (!arkAllocVec(ark_mem, y0, &(step_mem->yerr)))
     {
-      SPRKStepFree((void**)&ark_mem);
+      SPRKStepDestroy((void**)&ark_mem);
       return (NULL);
     }
   }
@@ -127,7 +127,7 @@ void* SPRKStepCreate(ARKRhsFn f1, ARKRhsFn f2, realtype t0, N_Vector y0,
   {
     arkProcessError(ark_mem, retval, "ARKODE::SPRKStep", "SPRKStepCreate",
                     "Error setting default solver options");
-    SPRKStepFree((void**)&ark_mem);
+    SPRKStepDestroy((void**)&ark_mem);
     return (NULL);
   }
 
@@ -153,7 +153,7 @@ void* SPRKStepCreate(ARKRhsFn f1, ARKRhsFn f2, realtype t0, N_Vector y0,
   {
     arkProcessError(ark_mem, retval, "ARKODE::SPRKStep", "SPRKStepCreate",
                     "Unable to initialize main ARKODE infrastructure");
-    SPRKStepFree((void**)&ark_mem);
+    SPRKStepDestroy((void**)&ark_mem);
     return (NULL);
   }
 
@@ -344,14 +344,14 @@ int SPRKStepDestroy(void** arkode_mem)
       step_mem->yerr = NULL;
     }
 
-    ARKodeSPRKTable_Free(step_mem->method);
+    ARKodeSPRKTable_Destroy(step_mem->method);
 
     free(ark_mem->step_mem);
     ark_mem->step_mem = NULL;
   }
 
   /* free memory for overall ARKODE infrastructure */
-  arkFree(arkode_mem);
+  arkDestroy(arkode_mem);
 }
 
 /*===============================================================

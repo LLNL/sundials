@@ -784,7 +784,7 @@ int CVodeInit(void *cvode_mem, CVRhsFn f, realtype t0, N_Vector y0)
     cvProcessError(cv_mem, retval, "CVODES", "CVodeInit",
                    "Setting the nonlinear solver failed");
     cvFreeVectors(cv_mem);
-    SUNNonlinSolFree(NLS);
+    SUNNonlinSolDestroy(NLS);
     SUNDIALS_MARK_FUNCTION_END(CV_PROFILER);
     return(CV_MEM_FAIL);
   }
@@ -1531,7 +1531,7 @@ int CVodeSensInit(void *cvode_mem, int Ns, int ism, CVSensRhsFn fS, N_Vector *yS
     cvProcessError(cv_mem, retval, "CVODES", "CVodeSensInit",
                    "Setting the nonlinear solver failed");
     cvSensFreeVectors(cv_mem);
-    SUNNonlinSolFree(NLS);
+    SUNNonlinSolDestroy(NLS);
     return(CV_MEM_FAIL);
   }
 
@@ -1759,7 +1759,7 @@ int CVodeSensInit1(void *cvode_mem, int Ns, int ism, CVSensRhs1Fn fS1, N_Vector 
     cvProcessError(cv_mem, retval, "CVODES", "CVodeSensInit1",
                    "Setting the nonlinear solver failed");
     cvSensFreeVectors(cv_mem);
-    SUNNonlinSolFree(NLS);
+    SUNNonlinSolDestroy(NLS);
     return(CV_MEM_FAIL);
   }
 
@@ -1929,7 +1929,7 @@ int CVodeSensReInit(void *cvode_mem, int ism, N_Vector *yS0)
     if (retval != CV_SUCCESS) {
       cvProcessError(cv_mem, retval, "CVODES", "CVodeSensReInit",
                      "Setting the nonlinear solver failed");
-      SUNNonlinSolFree(NLS);
+      SUNNonlinSolDestroy(NLS);
       return(CV_MEM_FAIL);
     }
 
@@ -4061,11 +4061,11 @@ int CVodeGetQuadSensDky1(void *cvode_mem, realtype t, int k, int is, N_Vector dk
  * sensitivity computations by CVodeSensInit.
  */
 
-void CVodeDestroy(void **cvode_mem)
+int CVodeDestroy(void **cvode_mem)
 {
   CVodeMem cv_mem;
 
-  if (*cvode_mem == NULL) return;
+  if (*cvode_mem == NULL) return CV_SUCCESS;
 
   cv_mem = (CVodeMem) (*cvode_mem);
 
@@ -4073,18 +4073,18 @@ void CVodeDestroy(void **cvode_mem)
 
   /* if CVODE created the nonlinear solver object then free it */
   if (cv_mem->ownNLS) {
-    SUNNonlinSolFree(cv_mem->NLS);
+    SUNNonlinSolDestroy(cv_mem->NLS);
     cv_mem->ownNLS = SUNFALSE;
     cv_mem->NLS = NULL;
   }
 
-  CVodeQuadFree(cv_mem);
+  CVodeQuadDestroy(cv_mem);
 
-  CVodeSensFree(cv_mem);
+  CVodeSensDestroy(cv_mem);
 
-  CVodeQuadSensFree(cv_mem);
+  CVodeQuadSensDestroy(cv_mem);
 
-  CVodeAdjFree(cv_mem);
+  CVodeAdjDestroy(cv_mem);
 
   if (cv_mem->cv_lfree != NULL) cv_mem->cv_lfree(cv_mem);
 
@@ -4102,26 +4102,28 @@ void CVodeDestroy(void **cvode_mem)
   free(cv_mem->cv_Zvecs); cv_mem->cv_Zvecs = NULL;
 
   if (cv_mem->proj_mem) {
-    cvProjFree(&(cv_mem->proj_mem));
+    cvProjDestroy(&(cv_mem->proj_mem));
   }
 
   free(*cvode_mem);
   *cvode_mem = NULL;
+
+  return CV_SUCCESS;
 }
 
 /*
- * CVodeQuadFree
+ * CVodeQuadDestroy
  *
- * CVodeQuadFree frees the problem memory in cvode_mem allocated
+ * CVodeQuadDestroy frees the problem memory in cvode_mem allocated
  * for quadrature integration. Its only argument is the pointer
  * cvode_mem returned by CVodeCreate.
  */
 
-void CVodeQuadFree(void *cvode_mem)
+int CVodeQuadDestroy(void *cvode_mem)
 {
   CVodeMem cv_mem;
 
-  if (cvode_mem == NULL) return;
+  if (cvode_mem == NULL) return CV_SUCCESS;
   cv_mem = (CVodeMem) cvode_mem;
 
   if(cv_mem->cv_QuadMallocDone) {
@@ -4129,6 +4131,8 @@ void CVodeQuadFree(void *cvode_mem)
     cv_mem->cv_QuadMallocDone = SUNFALSE;
     cv_mem->cv_quadr = SUNFALSE;
   }
+
+  return CV_SUCCESS;
 }
 
 /*
@@ -4139,11 +4143,11 @@ void CVodeQuadFree(void *cvode_mem)
  * cvode_mem returned by CVodeCreate.
  */
 
-void CVodeSensFree(void *cvode_mem)
+int CVodeSensDestroy(void *cvode_mem)
 {
   CVodeMem cv_mem;
 
-  if (cvode_mem == NULL) return;
+  if (cvode_mem == NULL) return CV_SUCCESS;
   cv_mem = (CVodeMem) cvode_mem;
 
   if(cv_mem->cv_SensMallocDone) {
@@ -4175,17 +4179,17 @@ void CVodeSensFree(void *cvode_mem)
 
   /* if CVODES created a NLS object then free it */
   if (cv_mem->ownNLSsim) {
-    SUNNonlinSolFree(cv_mem->NLSsim);
+    SUNNonlinSolDestroy(cv_mem->NLSsim);
     cv_mem->ownNLSsim = SUNFALSE;
     cv_mem->NLSsim = NULL;
   }
   if (cv_mem->ownNLSstg) {
-    SUNNonlinSolFree(cv_mem->NLSstg);
+    SUNNonlinSolDestroy(cv_mem->NLSstg);
     cv_mem->ownNLSstg = SUNFALSE;
     cv_mem->NLSstg = NULL;
   }
   if (cv_mem->ownNLSstg1) {
-    SUNNonlinSolFree(cv_mem->NLSstg1);
+    SUNNonlinSolDestroy(cv_mem->NLSstg1);
     cv_mem->ownNLSstg1 = SUNFALSE;
     cv_mem->NLSstg1 = NULL;
   }
@@ -4195,6 +4199,8 @@ void CVodeSensFree(void *cvode_mem)
     free(cv_mem->cv_atolSmin0);
     cv_mem->cv_atolSmin0 = NULL;
   }
+
+  return CV_SUCCESS;
 }
 
 /*
@@ -4205,11 +4211,11 @@ void CVodeSensFree(void *cvode_mem)
  * cvode_mem returned by CVodeCreate.
  */
 
-void CVodeQuadSensFree(void *cvode_mem)
+int CVodeQuadSensDestroy(void *cvode_mem)
 {
   CVodeMem cv_mem;
 
-  if (cvode_mem == NULL) return;
+  if (cvode_mem == NULL) return CV_SUCCESS;
   cv_mem = (CVodeMem) cvode_mem;
 
   if(cv_mem->cv_QuadSensMallocDone) {
@@ -4223,6 +4229,8 @@ void CVodeQuadSensFree(void *cvode_mem)
     free(cv_mem->cv_atolQSmin0);
     cv_mem->cv_atolQSmin0 = NULL;
   }
+
+  return CV_SUCCESS;
 }
 
 

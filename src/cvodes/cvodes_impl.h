@@ -1161,7 +1161,7 @@ int cvNlsInitSensStg1(CVodeMem cv_mem);
 int cvDoProjection(CVodeMem cv_mem, int *nflagPtr, realtype saved_t,
                    int *npfPtr);
 int cvProjInit(CVodeProjMem proj_mem);
-int cvProjFree(CVodeProjMem *proj_mem);
+int cvProjDestroy(CVodeProjMem *proj_mem);
 
 /* Restore tn and undo prediction to reattempt a step */
 

@@ -90,12 +90,13 @@ SUNLinearSolver SUNLinSol_LapackDense(N_Vector y, SUNMatrix A, SUNContext sunctx
   S->ops->solve      = SUNLinSolSolve_LapackDense;
   S->ops->lastflag   = SUNLinSolLastFlag_LapackDense;
   S->ops->space      = SUNLinSolSpace_LapackDense;
-  S->ops->free       = SUNLinSolFree_LapackDense;
+  S->ops->destroy    = SUNLinSolDestroy_LapackDense;
+  S->ops->free       = SUNLinSolDestroy_LapackDense;;
 
   /* Create content */
   content = NULL;
   content = (SUNLinearSolverContent_LapackDense) malloc(sizeof *content);
-  if (content == NULL) { SUNLinSolFree(S); return(NULL); }
+  if (content == NULL) { SUNLinSolDestroy(S); return(NULL); }
 
   /* Attach content */
   S->content = content;
@@ -107,7 +108,7 @@ SUNLinearSolver SUNLinSol_LapackDense(N_Vector y, SUNMatrix A, SUNContext sunctx
 
   /* Allocate content */
   content->pivots = (sunindextype *) malloc(MatrixRows * sizeof(sunindextype));
-  if (content->pivots == NULL) { SUNLinSolFree(S); return(NULL); }
+  if (content->pivots == NULL) { SUNLinSolDestroy(S); return(NULL); }
 
   return(S);
 }
@@ -217,7 +218,7 @@ int SUNLinSolSpace_LapackDense(SUNLinearSolver S,
   return(SUNLS_SUCCESS);
 }
 
-int SUNLinSolFree_LapackDense(SUNLinearSolver S)
+int SUNLinSolDestroy_LapackDense(SUNLinearSolver S)
 {
   /* return if S is already free */
   if (S == NULL) return(SUNLS_SUCCESS);

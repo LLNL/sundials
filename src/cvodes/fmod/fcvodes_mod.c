@@ -1701,10 +1701,10 @@ SWIGEXPORT int _wrap_FCVodeGetQuadStats(void *farg1, long *farg2, long *farg3) {
 
 SWIGEXPORT int _wrap_FCVodeQuadDestroy(void *farg1) {
   int fresult ;
-  void **arg1 = (void **) 0 ;
+  void *arg1 = (void *) 0 ;
   int result;
   
-  arg1 = (void **)(farg1);
+  arg1 = (void *)(farg1);
   result = (int)CVodeQuadDestroy(arg1);
   fresult = (int)(result);
   return fresult;
@@ -1712,9 +1712,9 @@ SWIGEXPORT int _wrap_FCVodeQuadDestroy(void *farg1) {
 
 
 SWIGEXPORT void _wrap_FCVodeQuadFree(void *farg1) {
-  void **arg1 = (void **) 0 ;
+  void *arg1 = (void *) 0 ;
   
-  arg1 = (void **)(farg1);
+  arg1 = (void *)(farg1);
   CVodeQuadFree(arg1);
 }
 
@@ -2215,10 +2215,10 @@ SWIGEXPORT int _wrap_FCVodeGetNumStepStgrSensSolveFails(void *farg1, long *farg2
 
 SWIGEXPORT int _wrap_FCVodeSensDestroy(void *farg1) {
   int fresult ;
-  void **arg1 = (void **) 0 ;
+  void *arg1 = (void *) 0 ;
   int result;
   
-  arg1 = (void **)(farg1);
+  arg1 = (void *)(farg1);
   result = (int)CVodeSensDestroy(arg1);
   fresult = (int)(result);
   return fresult;
@@ -2226,9 +2226,9 @@ SWIGEXPORT int _wrap_FCVodeSensDestroy(void *farg1) {
 
 
 SWIGEXPORT void _wrap_FCVodeSensFree(void *farg1) {
-  void **arg1 = (void **) 0 ;
+  void *arg1 = (void *) 0 ;
   
-  arg1 = (void **)(farg1);
+  arg1 = (void *)(farg1);
   CVodeSensFree(arg1);
 }
 
@@ -2453,10 +2453,10 @@ SWIGEXPORT int _wrap_FCVodeGetQuadSensStats(void *farg1, long *farg2, long *farg
 
 SWIGEXPORT int _wrap_FCVodeQuadSensDestroy(void *farg1) {
   int fresult ;
-  void **arg1 = (void **) 0 ;
+  void *arg1 = (void *) 0 ;
   int result;
   
-  arg1 = (void **)(farg1);
+  arg1 = (void *)(farg1);
   result = (int)CVodeQuadSensDestroy(arg1);
   fresult = (int)(result);
   return fresult;
@@ -2464,9 +2464,9 @@ SWIGEXPORT int _wrap_FCVodeQuadSensDestroy(void *farg1) {
 
 
 SWIGEXPORT void _wrap_FCVodeQuadSensFree(void *farg1) {
-  void **arg1 = (void **) 0 ;
+  void *arg1 = (void *) 0 ;
   
-  arg1 = (void **)(farg1);
+  arg1 = (void *)(farg1);
   CVodeQuadSensFree(arg1);
 }
 
@@ -2501,10 +2501,10 @@ SWIGEXPORT int _wrap_FCVodeAdjReInit(void *farg1) {
 
 SWIGEXPORT int _wrap_FCVodeAdjDestroy(void *farg1) {
   int fresult ;
-  void **arg1 = (void **) 0 ;
+  void *arg1 = (void *) 0 ;
   int result;
   
-  arg1 = (void **)(farg1);
+  arg1 = (void *)(farg1);
   result = (int)CVodeAdjDestroy(arg1);
   fresult = (int)(result);
   return fresult;
@@ -2512,9 +2512,9 @@ SWIGEXPORT int _wrap_FCVodeAdjDestroy(void *farg1) {
 
 
 SWIGEXPORT void _wrap_FCVodeAdjFree(void *farg1) {
-  void **arg1 = (void **) 0 ;
+  void *arg1 = (void *) 0 ;
   
-  arg1 = (void **)(farg1);
+  arg1 = (void *)(farg1);
   CVodeAdjFree(arg1);
 }
 

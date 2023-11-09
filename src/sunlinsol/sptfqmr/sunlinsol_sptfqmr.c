@@ -86,12 +86,12 @@ SUNLinearSolver SUNLinSol_SPTFQMR(N_Vector y, int pretype, int maxl, SUNContext 
   S->ops->resid             = SUNLinSolResid_SPTFQMR;
   S->ops->lastflag          = SUNLinSolLastFlag_SPTFQMR;
   S->ops->space             = SUNLinSolSpace_SPTFQMR;
-  S->ops->free              = SUNLinSolFree_SPTFQMR;
+  S->ops->free              = SUNLinSolDestroy_SPTFQMR;
 
   /* Create content */
   content = NULL;
   content = (SUNLinearSolverContent_SPTFQMR) malloc(sizeof *content);
-  if (content == NULL) { SUNLinSolFree(S); return(NULL); }
+  if (content == NULL) { SUNLinSolDestroy(S); return(NULL); }
 
   /* Attach content */
   S->content = content;
@@ -128,34 +128,34 @@ SUNLinearSolver SUNLinSol_SPTFQMR(N_Vector y, int pretype, int maxl, SUNContext 
 
   /* Allocate content */
   content->r_star = N_VClone(y);
-  if (content->r_star == NULL) { SUNLinSolFree(S); return(NULL); }
+  if (content->r_star == NULL) { SUNLinSolDestroy(S); return(NULL); }
 
   content->q = N_VClone(y);
-  if (content->q == NULL) { SUNLinSolFree(S); return(NULL); }
+  if (content->q == NULL) { SUNLinSolDestroy(S); return(NULL); }
 
   content->d = N_VClone(y);
-  if (content->d == NULL) { SUNLinSolFree(S); return(NULL); }
+  if (content->d == NULL) { SUNLinSolDestroy(S); return(NULL); }
 
   content->v = N_VClone(y);
-  if (content->v == NULL) { SUNLinSolFree(S); return(NULL); }
+  if (content->v == NULL) { SUNLinSolDestroy(S); return(NULL); }
 
   content->p = N_VClone(y);
-  if (content->p == NULL) { SUNLinSolFree(S); return(NULL); }
+  if (content->p == NULL) { SUNLinSolDestroy(S); return(NULL); }
 
   content->r = N_VCloneVectorArray(2, y);
-  if (content->r == NULL) { SUNLinSolFree(S); return(NULL); }
+  if (content->r == NULL) { SUNLinSolDestroy(S); return(NULL); }
 
   content->u = N_VClone(y);
-  if (content->u == NULL) { SUNLinSolFree(S); return(NULL); }
+  if (content->u == NULL) { SUNLinSolDestroy(S); return(NULL); }
 
   content->vtemp1 = N_VClone(y);
-  if (content->vtemp1 == NULL) { SUNLinSolFree(S); return(NULL); }
+  if (content->vtemp1 == NULL) { SUNLinSolDestroy(S); return(NULL); }
 
   content->vtemp2 = N_VClone(y);
-  if (content->vtemp2 == NULL) { SUNLinSolFree(S); return(NULL); }
+  if (content->vtemp2 == NULL) { SUNLinSolDestroy(S); return(NULL); }
 
   content->vtemp3 = N_VClone(y);
-  if (content->vtemp3 == NULL) { SUNLinSolFree(S); return(NULL); }
+  if (content->vtemp3 == NULL) { SUNLinSolDestroy(S); return(NULL); }
 
   return(S);
 }
@@ -854,7 +854,7 @@ int SUNLinSolSpace_SPTFQMR(SUNLinearSolver S,
   return(SUNLS_SUCCESS);
 }
 
-int SUNLinSolFree_SPTFQMR(SUNLinearSolver S)
+int SUNLinSolDestroy_SPTFQMR(SUNLinearSolver S)
 {
   if (S == NULL) return(SUNLS_SUCCESS);
 

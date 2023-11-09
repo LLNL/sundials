@@ -119,7 +119,7 @@ SUNDIALS_EXPORT int SUNMatrix_cuSparse_CopyFromDevice(SUNMatrix device, realtype
 
 SUNDIALS_EXPORT SUNMatrix_ID SUNMatGetID_cuSparse(SUNMatrix A);
 SUNDIALS_EXPORT SUNMatrix SUNMatClone_cuSparse(SUNMatrix A);
-SUNDIALS_EXPORT void SUNMatDestroy_cuSparse(SUNMatrix A);
+SUNDIALS_EXPORT int SUNMatDestroy_cuSparse(SUNMatrix A);
 SUNDIALS_EXPORT int SUNMatZero_cuSparse(SUNMatrix A);
 SUNDIALS_EXPORT int SUNMatCopy_cuSparse(SUNMatrix A, SUNMatrix B);
 SUNDIALS_EXPORT int SUNMatScaleAdd_cuSparse(realtype c, SUNMatrix A, SUNMatrix B);

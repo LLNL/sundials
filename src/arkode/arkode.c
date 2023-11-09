@@ -1114,7 +1114,7 @@ int arkGetDky(ARKodeMem ark_mem, realtype t, int k, N_Vector dky)
 
   This routine frees the ARKODE infrastructure memory.
   ---------------------------------------------------------------*/
-void arkFree(void **arkode_mem)
+void arkDestroy(void **arkode_mem)
 {
   ARKodeMem ark_mem;
 
@@ -1133,14 +1133,14 @@ void arkFree(void **arkode_mem)
 
   /* free the interpolation module */
   if (ark_mem->interp != NULL) {
-    arkInterpFree(ark_mem, ark_mem->interp);
+    arkInterpDestroy(ark_mem, ark_mem->interp);
     ark_mem->interp = NULL;
     ark_mem->interp_type = -1;
   }
 
   /* free the root-finding module */
   if (ark_mem->root_mem != NULL) {
-    (void) arkRootFree(*arkode_mem);
+    (void) arkRootDestroy(*arkode_mem);
     ark_mem->root_mem = NULL;
   }
 

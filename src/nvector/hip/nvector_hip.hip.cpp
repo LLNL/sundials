@@ -1382,9 +1382,9 @@ int N_VLinearCombination_Hip(int nvec, realtype* c, N_Vector* X, N_Vector Z)
   delete[] h_Xd;
 
   // Free device arrays
-  err = hipFree(d_c);
+  err = hipDestroy(d_c);
   if (!SUNDIALS_HIP_VERIFY(err)) return(-1);
-  err = hipFree(d_Xd);
+  err = hipDestroy(d_Xd);
   if (!SUNDIALS_HIP_VERIFY(err)) return(-1);
 
   return(0);
@@ -1444,11 +1444,11 @@ int N_VScaleAddMulti_Hip(int nvec, realtype* c, N_Vector X, N_Vector* Y,
   delete[] h_Zd;
 
   // Free device arrays
-  err = hipFree(d_c);
+  err = hipDestroy(d_c);
   if (!SUNDIALS_HIP_VERIFY(err)) return(-1);
-  err = hipFree(d_Yd);
+  err = hipDestroy(d_Yd);
   if (!SUNDIALS_HIP_VERIFY(err)) return(-1);
-  err = hipFree(d_Zd);
+  err = hipDestroy(d_Zd);
   if (!SUNDIALS_HIP_VERIFY(err)) return(-1);
 
   return(0);
@@ -1501,9 +1501,9 @@ int N_VDotProdMulti_Hip(int nvec, N_Vector X, N_Vector* Y, realtype* dots)
   delete[] h_Yd;
 
   // Free device arrays
-  err = hipFree(d_Yd);
+  err = hipDestroy(d_Yd);
   if (!SUNDIALS_HIP_VERIFY(err)) return(-1);
-  err = hipFree(d_buff);
+  err = hipDestroy(d_buff);
   if (!SUNDIALS_HIP_VERIFY(err)) return(-1);
 
   return(0);
@@ -1575,11 +1575,11 @@ int N_VLinearSumVectorArray_Hip(int nvec, realtype a, N_Vector* X, realtype b,
   delete[] h_Zd;
 
   // Free device arrays
-  err = hipFree(d_Xd);
+  err = hipDestroy(d_Xd);
   if (!SUNDIALS_HIP_VERIFY(err)) return(-1);
-  err = hipFree(d_Yd);
+  err = hipDestroy(d_Yd);
   if (!SUNDIALS_HIP_VERIFY(err)) return(-1);
-  err = hipFree(d_Zd);
+  err = hipDestroy(d_Zd);
   if (!SUNDIALS_HIP_VERIFY(err)) return(-1);
 
   return(0);
@@ -1637,11 +1637,11 @@ int N_VScaleVectorArray_Hip(int nvec, realtype* c, N_Vector* X, N_Vector* Z)
   delete[] h_Zd;
 
   // Free device arrays
-  err = hipFree(d_c);
+  err = hipDestroy(d_c);
   if (!SUNDIALS_HIP_VERIFY(err)) return(-1);
-  err = hipFree(d_Xd);
+  err = hipDestroy(d_Xd);
   if (!SUNDIALS_HIP_VERIFY(err)) return(-1);
-  err = hipFree(d_Zd);
+  err = hipDestroy(d_Zd);
   if (!SUNDIALS_HIP_VERIFY(err)) return(-1);
 
   return(0);
@@ -1680,7 +1680,7 @@ int N_VConstVectorArray_Hip(int nvec, realtype c, N_Vector* Z)
   delete[] h_Zd;
 
   // Free device arrays
-  err = hipFree(d_Zd);
+  err = hipDestroy(d_Zd);
   if (!SUNDIALS_HIP_VERIFY(err)) return(-1);
 
   return(0);
@@ -1748,11 +1748,11 @@ int N_VWrmsNormVectorArray_Hip(int nvec, N_Vector* X, N_Vector* W,
   delete[] h_Wd;
 
   // Free device arrays
-  err = hipFree(d_Xd);
+  err = hipDestroy(d_Xd);
   if (!SUNDIALS_HIP_VERIFY(err)) return(-1);
-  err = hipFree(d_Wd);
+  err = hipDestroy(d_Wd);
   if (!SUNDIALS_HIP_VERIFY(err)) return(-1);
-  err = hipFree(d_buff);
+  err = hipDestroy(d_buff);
   if (!SUNDIALS_HIP_VERIFY(err)) return(-1);
 
   return(0);
@@ -1822,11 +1822,11 @@ int N_VWrmsNormMaskVectorArray_Hip(int nvec, N_Vector* X, N_Vector* W,
   delete[] h_Wd;
 
   // Free device arrays
-  err = hipFree(d_Xd);
+  err = hipDestroy(d_Xd);
   if (!SUNDIALS_HIP_VERIFY(err)) return(-1);
-  err = hipFree(d_Wd);
+  err = hipDestroy(d_Wd);
   if (!SUNDIALS_HIP_VERIFY(err)) return(-1);
-  err = hipFree(d_buff);
+  err = hipDestroy(d_buff);
   if (!SUNDIALS_HIP_VERIFY(err)) return(-1);
 
   return(0);
@@ -1900,13 +1900,13 @@ int N_VScaleAddMultiVectorArray_Hip(int nvec, int nsum, realtype* c,
   delete[] h_Zd;
 
   // Free device arrays
-  err = hipFree(d_c);
+  err = hipDestroy(d_c);
   if (!SUNDIALS_HIP_VERIFY(err)) return(-1);
-  err = hipFree(d_Xd);
+  err = hipDestroy(d_Xd);
   if (!SUNDIALS_HIP_VERIFY(err)) return(-1);
-  err = hipFree(d_Yd);
+  err = hipDestroy(d_Yd);
   if (!SUNDIALS_HIP_VERIFY(err)) return(-1);
-  err = hipFree(d_Zd);
+  err = hipDestroy(d_Zd);
   if (!SUNDIALS_HIP_VERIFY(err)) return(-1);
 
   return(0);
@@ -1967,11 +1967,11 @@ int N_VLinearCombinationVectorArray_Hip(int nvec, int nsum, realtype* c,
   delete[] h_Zd;
 
   // Free device arrays
-  err = hipFree(d_c);
+  err = hipDestroy(d_c);
   if (!SUNDIALS_HIP_VERIFY(err)) return(-1);
-  err = hipFree(d_Xd);
+  err = hipDestroy(d_Xd);
   if (!SUNDIALS_HIP_VERIFY(err)) return(-1);
-  err = hipFree(d_Zd);
+  err = hipDestroy(d_Zd);
   if (!SUNDIALS_HIP_VERIFY(err)) return(-1);
 
   return hipGetLastError();

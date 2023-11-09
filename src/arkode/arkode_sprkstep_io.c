@@ -261,7 +261,7 @@ int SPRKStepSetMethod(void* arkode_mem, ARKodeSPRKTable sprk_storage)
 
   if (step_mem->method)
   {
-    ARKodeSPRKTable_Free(step_mem->method);
+    ARKodeSPRKTable_Destroy(step_mem->method);
     step_mem->method = NULL;
   }
 
@@ -288,7 +288,7 @@ int SPRKStepSetMethodName(void* arkode_mem, const char* method)
 
   if (step_mem->method)
   {
-    ARKodeSPRKTable_Free(step_mem->method);
+    ARKodeSPRKTable_Destroy(step_mem->method);
     step_mem->method = NULL;
   }
 
@@ -325,7 +325,7 @@ int SPRKStepSetOrder(void* arkode_mem, int ord)
 
   if (step_mem->method)
   {
-    ARKodeSPRKTable_Free(step_mem->method);
+    ARKodeSPRKTable_Destroy(step_mem->method);
     step_mem->method = NULL;
   }
 

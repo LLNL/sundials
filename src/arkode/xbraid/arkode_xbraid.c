@@ -118,7 +118,7 @@ int ARKBraid_BraidInit(MPI_Comm comm_w, MPI_Comm comm_t, realtype tstart,
 
 
 /* Deallocate XBraid app structure */
-int ARKBraid_Free(braid_App *app)
+int ARKBraid_Destroy(braid_App *app)
 {
   ARKBraidContent content;  /* ARKBraid app content  */
 

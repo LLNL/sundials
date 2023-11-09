@@ -185,7 +185,7 @@ program main
   end if
 
   ! free solver, matrix and vectors
-  call FSUNMatDestroy(sA)
+  retval = FSUNMatDestroy(sA)
   call FN_VDestroy(sX)
   call FN_VDestroy(sY)
   call FN_VDestroy(sB)

@@ -153,7 +153,7 @@ SUNDIALS_EXPORT SUNLinearSolver SUNLinSolNewEmpty(SUNContext sunctx);
 
 SUNDIALS_EXPORT int SUNLinSolDestroyEmpty(SUNLinearSolver S);
 
-SUNDIALS_DEPRECATED_EXPORT_MSG("Use SUNLinSolDestroyEmpty")
+SUNDIALS_DEPRECATED_MSG("Use SUNLinSolDestroyEmpty")
 SUNDIALS_STATIC_INLINE 
 void SUNLinSolFreeEmpty(SUNLinearSolver S) {
   SUNLinSolDestroyEmpty(S);
@@ -189,10 +189,10 @@ SUNDIALS_EXPORT int SUNLinSolSpace(SUNLinearSolver S, long int* lenrwLS, long in
 
 SUNDIALS_EXPORT int SUNLinSolDestroy(SUNLinearSolver S);
 
-SUNDIALS_DEPRECATED_EXPORT_MSG("Use SUNLinSolDestroy")
+SUNDIALS_DEPRECATED_MSG("Use SUNLinSolDestroy")
 SUNDIALS_STATIC_INLINE 
-void SUNLinSolFree(SUNLinearSolver S) {
-  SUNLinSolDestroy(S);
+int SUNLinSolFree(SUNLinearSolver S) {
+  return SUNLinSolDestroy(S);
 }
 
 /* -----------------------------------------------------------------

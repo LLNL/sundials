@@ -41,7 +41,7 @@ static int ARKBandPrecSolve(realtype t, N_Vector y, N_Vector fy,
                             int lr, void *bp_data);
 
 /* Prototype for ARKBandPrecFree */
-static int ARKBandPrecFree(ARKodeMem ark_mem);
+static int ARKBandPrecDestroy(ARKodeMem ark_mem);
 
 /* Prototype for difference quotient Jacobian calculation routine */
 static int ARKBandPDQJac(ARKBandPrecData pdata,
@@ -133,7 +133,7 @@ int ARKBandPrecInit(void *arkode_mem, sunindextype N,
   /* allocate memory for temporary N_Vectors */
   pdata->tmp1 = NULL;
   if (!arkAllocVec(ark_mem, ark_mem->tempv1, &(pdata->tmp1))) {
-    SUNLinSolFree(pdata->LS);
+    SUNLinSolDestroy(pdata->LS);
     SUNMatDestroy(pdata->savedP);
     SUNMatDestroy(pdata->savedJ);
     free(pdata); pdata = NULL;
@@ -144,7 +144,7 @@ int ARKBandPrecInit(void *arkode_mem, sunindextype N,
 
   pdata->tmp2 = NULL;
   if (!arkAllocVec(ark_mem, ark_mem->tempv1, &(pdata->tmp2))) {
-    SUNLinSolFree(pdata->LS);
+    SUNLinSolDestroy(pdata->LS);
     SUNMatDestroy(pdata->savedP);
     SUNMatDestroy(pdata->savedJ);
     arkFreeVec(ark_mem, &(pdata->tmp1));
@@ -157,7 +157,7 @@ int ARKBandPrecInit(void *arkode_mem, sunindextype N,
   /* initialize band linear solver object */
   retval = SUNLinSolInitialize(pdata->LS);
   if (retval != SUNLS_SUCCESS) {
-    SUNLinSolFree(pdata->LS);
+    SUNLinSolDestroy(pdata->LS);
     SUNMatDestroy(pdata->savedP);
     SUNMatDestroy(pdata->savedJ);
     arkFreeVec(ark_mem, &(pdata->tmp1));
@@ -176,7 +176,7 @@ int ARKBandPrecInit(void *arkode_mem, sunindextype N,
   arkls_mem->P_data = pdata;
 
   /* Attach the pfree function */
-  arkls_mem->pfree = ARKBandPrecFree;
+  arkls_mem->pfree = ARKBandPrecDestroy;
 
   /* Attach preconditioner solve and setup functions */
   retval = arkLSSetPreconditioner(arkode_mem,
@@ -428,7 +428,7 @@ static int ARKBandPrecSolve(realtype t, N_Vector y, N_Vector fy,
 
  Frees data associated with the ARKBand preconditioner.
 ---------------------------------------------------------------*/
-static int ARKBandPrecFree(ARKodeMem ark_mem)
+static int ARKBandPrecDestroy(ARKodeMem ark_mem)
 {
   ARKLsMem        arkls_mem;
   void*           ark_step_lmem;
@@ -442,7 +442,7 @@ static int ARKBandPrecFree(ARKodeMem ark_mem)
   if (arkls_mem->P_data == NULL) return(0);
   pdata = (ARKBandPrecData) arkls_mem->P_data;
 
-  SUNLinSolFree(pdata->LS);
+  SUNLinSolDestroy(pdata->LS);
   SUNMatDestroy(pdata->savedP);
   SUNMatDestroy(pdata->savedJ);
   arkFreeVec(ark_mem, &(pdata->tmp1));

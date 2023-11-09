@@ -88,12 +88,13 @@ SUNLinearSolver SUNLinSol_SuperLUDIST(N_Vector y, SUNMatrix A, gridinfo_t *grid,
   S->ops->solve      = SUNLinSolSolve_SuperLUDIST;
   S->ops->lastflag   = SUNLinSolLastFlag_SuperLUDIST;
   S->ops->space      = SUNLinSolSpace_SuperLUDIST;
-  S->ops->free       = SUNLinSolFree_SuperLUDIST;
+  S->ops->destroy    = SUNLinSolDestroy_SuperLUDIST;
+  S->ops->free       = SUNLinSolDestroy_SuperLUDIST;;
 
   /* Create content */
   content = NULL;
   content = (SUNLinearSolverContent_SuperLUDIST) malloc(sizeof *content);
-  if (content == NULL) { SUNLinSolFree(S); return(NULL); }
+  if (content == NULL) { SUNLinSolDestroy(S); return(NULL); }
 
   /* Attach content */
   S->content = content;
@@ -250,7 +251,7 @@ sunindextype SUNLinSolLastFlag_SuperLUDIST(SUNLinearSolver S)
   return(SLU_LASTFLAG(S));
 }
 
-int SUNLinSolFree_SuperLUDIST(SUNLinearSolver S)
+int SUNLinSolDestroy_SuperLUDIST(SUNLinearSolver S)
 {
   /* return with success if already freed */
   if (S == NULL) return(SUNLS_SUCCESS);

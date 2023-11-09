@@ -80,12 +80,12 @@ SUNLinearSolver SUNLinSol_PCG(N_Vector y, int pretype, int maxl, SUNContext sunc
   S->ops->resid             = SUNLinSolResid_PCG;
   S->ops->lastflag          = SUNLinSolLastFlag_PCG;
   S->ops->space             = SUNLinSolSpace_PCG;
-  S->ops->free              = SUNLinSolFree_PCG;
+  S->ops->free              = SUNLinSolDestroy_PCG;
 
   /* Create content */
   content = NULL;
   content = (SUNLinearSolverContent_PCG) malloc(sizeof *content);
-  if (content == NULL) { SUNLinSolFree(S); return(NULL); }
+  if (content == NULL) { SUNLinSolDestroy(S); return(NULL); }
 
   /* Attach content  */
   S->content = content;
@@ -115,16 +115,16 @@ SUNLinearSolver SUNLinSol_PCG(N_Vector y, int pretype, int maxl, SUNContext sunc
 
   /* Allocate content */
   content->r = N_VClone(y);
-  if (content->r == NULL) { SUNLinSolFree(S); return NULL; }
+  if (content->r == NULL) { SUNLinSolDestroy(S); return NULL; }
 
   content->p = N_VClone(y);
-  if (content->p == NULL) { SUNLinSolFree(S); return NULL; }
+  if (content->p == NULL) { SUNLinSolDestroy(S); return NULL; }
 
   content->z = N_VClone(y);
-  if (content->z == NULL) { SUNLinSolFree(S); return NULL; }
+  if (content->z == NULL) { SUNLinSolDestroy(S); return NULL; }
 
   content->Ap = N_VClone(y);
-  if (content->Ap == NULL) { SUNLinSolFree(S); return NULL; }
+  if (content->Ap == NULL) { SUNLinSolDestroy(S); return NULL; }
 
   return(S);
 }
@@ -549,7 +549,7 @@ int SUNLinSolSpace_PCG(SUNLinearSolver S,
   return(SUNLS_SUCCESS);
 }
 
-int SUNLinSolFree_PCG(SUNLinearSolver S)
+int SUNLinSolDestroy_PCG(SUNLinearSolver S)
 {
   if (S == NULL) return(SUNLS_SUCCESS);
 

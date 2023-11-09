@@ -152,7 +152,7 @@ int arkSetInterpolantType(void *arkode_mem, int itype)
 
   /* delete any existing interpolation module */
   if (ark_mem->interp != NULL) {
-    arkInterpFree(ark_mem, ark_mem->interp);
+    arkInterpDestroy(ark_mem, ark_mem->interp);
     ark_mem->interp = NULL;
   }
 

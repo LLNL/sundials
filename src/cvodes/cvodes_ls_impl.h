@@ -166,7 +166,7 @@ int cvLsSetup(CVodeMem cv_mem, int convfail, N_Vector ypred,
               N_Vector vtemp1, N_Vector vtemp2, N_Vector vtemp3);
 int cvLsSolve(CVodeMem cv_mem, N_Vector b, N_Vector weight,
               N_Vector ycur, N_Vector fcur);
-int cvLsFree(CVodeMem cv_mem);
+int cvLsDestroy(CVodeMem cv_mem);
 
 /* Auxilliary functions */
 int cvLsInitializeCounters(CVLsMem cvls_mem);

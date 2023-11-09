@@ -52,7 +52,7 @@ ARK_MRI_TABLE(ARKODE_MRI_NONE, {
 ARK_MRI_TABLE(ARKODE_MIS_KW3, { /* Schlegel et al., JCAM 226:345-357, 2009 */
     ARKodeButcherTable B = ARKodeButcherTable_LoadERK(ARKODE_KNOTH_WOLKE_3_3);
     MRIStepCoupling C = MRIStepCoupling_MIStoMRI(B, 3, 0);
-    ARKodeButcherTable_Free(B);
+    ARKodeButcherTable_Destroy(B);
     return C;
   })
 
@@ -139,7 +139,7 @@ ARK_MRI_TABLE(ARKODE_MRI_GARK_IRK21a, { /* A. Sandu, SINUM 57:2300-2327, 2019 */
     B->b[2] = RCONST(0.5);
 
     C = MRIStepCoupling_MIStoMRI(B, 2, 0);
-    ARKodeButcherTable_Free(B);
+    ARKodeButcherTable_Destroy(B);
     return C;
   })
 

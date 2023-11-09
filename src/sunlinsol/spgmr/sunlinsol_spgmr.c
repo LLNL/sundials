@@ -87,12 +87,12 @@ SUNLinearSolver SUNLinSol_SPGMR(N_Vector y, int pretype, int maxl, SUNContext su
   S->ops->resid             = SUNLinSolResid_SPGMR;
   S->ops->lastflag          = SUNLinSolLastFlag_SPGMR;
   S->ops->space             = SUNLinSolSpace_SPGMR;
-  S->ops->free              = SUNLinSolFree_SPGMR;
+  S->ops->free              = SUNLinSolDestroy_SPGMR;
 
   /* Create content */
   content = NULL;
   content = (SUNLinearSolverContent_SPGMR) malloc(sizeof *content);
-  if (content == NULL) { SUNLinSolFree(S); return(NULL); }
+  if (content == NULL) { SUNLinSolDestroy(S); return(NULL); }
 
   /* Attach content */
   S->content = content;
@@ -129,10 +129,10 @@ SUNLinearSolver SUNLinSol_SPGMR(N_Vector y, int pretype, int maxl, SUNContext su
 
   /* Allocate content */
   content->xcor = N_VClone(y);
-  if (content->xcor == NULL) { SUNLinSolFree(S); return(NULL); }
+  if (content->xcor == NULL) { SUNLinSolDestroy(S); return(NULL); }
 
   content->vtemp = N_VClone(y);
-  if (content->vtemp == NULL) { SUNLinSolFree(S); return(NULL); }
+  if (content->vtemp == NULL) { SUNLinSolDestroy(S); return(NULL); }
 
   return(S);
 }
@@ -815,7 +815,7 @@ int SUNLinSolSpace_SPGMR(SUNLinearSolver S,
 }
 
 
-int SUNLinSolFree_SPGMR(SUNLinearSolver S)
+int SUNLinSolDestroy_SPGMR(SUNLinearSolver S)
 {
   int k;
 

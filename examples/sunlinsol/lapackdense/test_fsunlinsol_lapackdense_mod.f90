@@ -88,8 +88,8 @@ contains
     ! create RHS vector for linear solve
     fails = FSUNMatMatvec(A, x, b)
     if (fails /= 0) then
-      call FSUNMatDestroy(A)
-      call FSUNMatDestroy(I)
+      retval = FSUNMatDestroy(A)
+      retval = FSUNMatDestroy(I)
       call FN_VDestroy(x)
       call FN_VDestroy(b)
       return
@@ -109,8 +109,8 @@ contains
 
     ! cleanup
     tmp = FSUNLinSolFree(LS)
-    call FSUNMatDestroy(A)
-    call FSUNMatDestroy(I)
+    retval = FSUNMatDestroy(A)
+    retval = FSUNMatDestroy(I)
     call FN_VDestroy(x)
     call FN_VDestroy(b)
 

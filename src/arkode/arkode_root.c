@@ -229,7 +229,7 @@ int arkRootInit(ARKodeMem ark_mem, int nrtfn, ARKRootFn g)
   This routine frees all memory associated with ARKODE's
   rootfinding module.
   ---------------------------------------------------------------*/
-int arkRootFree(void* arkode_mem)
+int arkRootDestroy(void* arkode_mem)
 {
   ARKodeMem ark_mem;
   if (arkode_mem == NULL) {

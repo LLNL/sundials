@@ -79,8 +79,8 @@ contains
     fails = fails + FSUNMatSpace_Dense(A, lenrw, leniw)
 
     !======= Cleanup ===========
-    call FSUNMatDestroy_Dense(A)
-    call FSUNMatDestroy_Dense(B)
+    fails = fails + FSUNMatDestroy_Dense(A)
+    fails = fails + FSUNMatDestroy_Dense(B)
     call FN_VDestroy_Serial(x)
     call FN_VDestroy_Serial(y)
 
@@ -146,8 +146,8 @@ contains
     fails = fails + Test_FSUNMatSpace(A, 0)
 
     ! cleanup
-    call FSUNMatDestroy(A)
-    call FSUNMatDestroy(I)
+    fails = fails + FSUNMatDestroy(A)
+    fails = fails + FSUNMatDestroy(I)
     call FN_VDestroy(x)
     call FN_VDestroy(y)
 

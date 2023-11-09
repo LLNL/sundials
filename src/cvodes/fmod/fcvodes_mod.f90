@@ -4469,21 +4469,21 @@ function FCVodeQuadDestroy(cvode_mem) &
 result(swig_result)
 use, intrinsic :: ISO_C_BINDING
 integer(C_INT) :: swig_result
-type(C_PTR), target, intent(inout) :: cvode_mem
+type(C_PTR) :: cvode_mem
 integer(C_INT) :: fresult 
 type(C_PTR) :: farg1 
 
-farg1 = c_loc(cvode_mem)
+farg1 = cvode_mem
 fresult = swigc_FCVodeQuadDestroy(farg1)
 swig_result = fresult
 end function
 
 subroutine FCVodeQuadFree(cvode_mem)
 use, intrinsic :: ISO_C_BINDING
-type(C_PTR), target, intent(inout) :: cvode_mem
+type(C_PTR) :: cvode_mem
 type(C_PTR) :: farg1 
 
-farg1 = c_loc(cvode_mem)
+farg1 = cvode_mem
 call swigc_FCVodeQuadFree(farg1)
 end subroutine
 
@@ -5072,21 +5072,21 @@ function FCVodeSensDestroy(cvode_mem) &
 result(swig_result)
 use, intrinsic :: ISO_C_BINDING
 integer(C_INT) :: swig_result
-type(C_PTR), target, intent(inout) :: cvode_mem
+type(C_PTR) :: cvode_mem
 integer(C_INT) :: fresult 
 type(C_PTR) :: farg1 
 
-farg1 = c_loc(cvode_mem)
+farg1 = cvode_mem
 fresult = swigc_FCVodeSensDestroy(farg1)
 swig_result = fresult
 end function
 
 subroutine FCVodeSensFree(cvode_mem)
 use, intrinsic :: ISO_C_BINDING
-type(C_PTR), target, intent(inout) :: cvode_mem
+type(C_PTR) :: cvode_mem
 type(C_PTR) :: farg1 
 
-farg1 = c_loc(cvode_mem)
+farg1 = cvode_mem
 call swigc_FCVodeSensFree(farg1)
 end subroutine
 
@@ -5351,21 +5351,21 @@ function FCVodeQuadSensDestroy(cvode_mem) &
 result(swig_result)
 use, intrinsic :: ISO_C_BINDING
 integer(C_INT) :: swig_result
-type(C_PTR), target, intent(inout) :: cvode_mem
+type(C_PTR) :: cvode_mem
 integer(C_INT) :: fresult 
 type(C_PTR) :: farg1 
 
-farg1 = c_loc(cvode_mem)
+farg1 = cvode_mem
 fresult = swigc_FCVodeQuadSensDestroy(farg1)
 swig_result = fresult
 end function
 
 subroutine FCVodeQuadSensFree(cvode_mem)
 use, intrinsic :: ISO_C_BINDING
-type(C_PTR), target, intent(inout) :: cvode_mem
+type(C_PTR) :: cvode_mem
 type(C_PTR) :: farg1 
 
-farg1 = c_loc(cvode_mem)
+farg1 = cvode_mem
 call swigc_FCVodeQuadSensFree(farg1)
 end subroutine
 
@@ -5405,21 +5405,21 @@ function FCVodeAdjDestroy(cvode_mem) &
 result(swig_result)
 use, intrinsic :: ISO_C_BINDING
 integer(C_INT) :: swig_result
-type(C_PTR), target, intent(inout) :: cvode_mem
+type(C_PTR) :: cvode_mem
 integer(C_INT) :: fresult 
 type(C_PTR) :: farg1 
 
-farg1 = c_loc(cvode_mem)
+farg1 = cvode_mem
 fresult = swigc_FCVodeAdjDestroy(farg1)
 swig_result = fresult
 end function
 
 subroutine FCVodeAdjFree(cvode_mem)
 use, intrinsic :: ISO_C_BINDING
-type(C_PTR), target, intent(inout) :: cvode_mem
+type(C_PTR) :: cvode_mem
 type(C_PTR) :: farg1 
 
-farg1 = c_loc(cvode_mem)
+farg1 = cvode_mem
 call swigc_FCVodeAdjFree(farg1)
 end subroutine
 

@@ -101,19 +101,19 @@ MRIStepCoupling MRIStepCoupling_Alloc(int nmat, int stages,
    * -------------------------------------------- */
 
   MRIC->c = (realtype *) calloc( stages, sizeof(realtype) );
-  if (!(MRIC->c)) { MRIStepCoupling_Free(MRIC); return(NULL); }
+  if (!(MRIC->c)) { MRIStepCoupling_Destroy(MRIC); return(NULL); }
 
   if (type == MRISTEP_EXPLICIT || type == MRISTEP_IMEX) {
 
     /* allocate W matrices */
     MRIC->W = (realtype ***) calloc( nmat, sizeof(realtype**) );
-    if (!(MRIC->W)) { MRIStepCoupling_Free(MRIC); return(NULL); }
+    if (!(MRIC->W)) { MRIStepCoupling_Destroy(MRIC); return(NULL); }
 
     /* allocate rows of each matrix in W */
     for (i=0; i<nmat; i++) {
       MRIC->W[i] = NULL;
       MRIC->W[i] = (realtype **) calloc( stages, sizeof(realtype*) );
-      if (!(MRIC->W[i])) { MRIStepCoupling_Free(MRIC); return(NULL); }
+      if (!(MRIC->W[i])) { MRIStepCoupling_Destroy(MRIC); return(NULL); }
     }
 
     /* allocate columns of each matrix in W */
@@ -121,7 +121,7 @@ MRIStepCoupling MRIStepCoupling_Alloc(int nmat, int stages,
       for (j=0; j<stages; j++) {
         MRIC->W[i][j] = NULL;
         MRIC->W[i][j] = (realtype *) calloc( stages, sizeof(realtype) );
-        if (!(MRIC->W[i][j])) { MRIStepCoupling_Free(MRIC); return(NULL); }
+        if (!(MRIC->W[i][j])) { MRIStepCoupling_Destroy(MRIC); return(NULL); }
       }
   }
 
@@ -129,13 +129,13 @@ MRIStepCoupling MRIStepCoupling_Alloc(int nmat, int stages,
 
     /* allocate G matrices */
     MRIC->G = (realtype ***) calloc( nmat, sizeof(realtype**) );
-    if (!(MRIC->G)) { MRIStepCoupling_Free(MRIC); return(NULL); }
+    if (!(MRIC->G)) { MRIStepCoupling_Destroy(MRIC); return(NULL); }
 
     /* allocate rows of each matrix in G */
     for (i=0; i<nmat; i++) {
       MRIC->G[i] = NULL;
       MRIC->G[i] = (realtype **) calloc( stages, sizeof(realtype*) );
-      if (!(MRIC->G[i])) { MRIStepCoupling_Free(MRIC); return(NULL); }
+      if (!(MRIC->G[i])) { MRIStepCoupling_Destroy(MRIC); return(NULL); }
     }
 
     /* allocate columns of each matrix in G */
@@ -143,7 +143,7 @@ MRIStepCoupling MRIStepCoupling_Alloc(int nmat, int stages,
       for (j=0; j<stages; j++) {
         MRIC->G[i][j] = NULL;
         MRIC->G[i][j] = (realtype *) calloc( stages, sizeof(realtype) );
-        if (!(MRIC->G[i][j])) { MRIStepCoupling_Free(MRIC); return(NULL); }
+        if (!(MRIC->G[i][j])) { MRIStepCoupling_Destroy(MRIC); return(NULL); }
       }
   }
 
@@ -408,7 +408,7 @@ void MRIStepCoupling_Space(MRIStepCoupling MRIC, sunindextype *liw,
 /*---------------------------------------------------------------
   Routine to free a MRIStepCoupling structure
   ---------------------------------------------------------------*/
-void MRIStepCoupling_Destroy(MRIStepCoupling MRIC)
+int MRIStepCoupling_Destroy(MRIStepCoupling MRIC)
 {
   int k, i;
 
@@ -449,6 +449,8 @@ void MRIStepCoupling_Destroy(MRIStepCoupling MRIC)
 
     free(MRIC);
   }
+
+  return ARK_SUCCESS;
 }
 
 

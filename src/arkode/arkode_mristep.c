@@ -94,7 +94,7 @@ void* MRIStepCreate(ARKRhsFn fse, ARKRhsFn fsi, realtype t0, N_Vector y0,
   if (step_mem == NULL) {
     arkProcessError(ark_mem, ARK_MEM_FAIL, "ARKODE::MRIStep",
                     "MRIStepCreate", MSG_ARK_ARKMEM_FAIL);
-    MRIStepFree((void**) &ark_mem);  return(NULL);
+    MRIStepDestroy((void**) &ark_mem);  return(NULL);
   }
   memset(step_mem, 0, sizeof(struct ARKodeMRIStepMemRec));
 
@@ -115,7 +115,7 @@ void* MRIStepCreate(ARKRhsFn fse, ARKRhsFn fsi, realtype t0, N_Vector y0,
     arkProcessError(ark_mem, retval, "ARKODE::MRIStep",
                     "MRIStepCreate",
                     "Error setting default solver options");
-    MRIStepFree((void**) &ark_mem);  return(NULL);
+    MRIStepDestroy((void**) &ark_mem);  return(NULL);
   }
 
   /* Allocate the general MRI stepper vectors using y0 as a template */
@@ -144,13 +144,13 @@ void* MRIStepCreate(ARKRhsFn fse, ARKRhsFn fsi, realtype t0, N_Vector y0,
     if (!NLS) {
       arkProcessError(ark_mem, ARK_MEM_FAIL, "ARKODE::MRIStep",
                       "MRIStepCreate", "Error creating default Newton solver");
-      MRIStepFree((void**) &ark_mem);  return(NULL);
+      MRIStepDestroy((void**) &ark_mem);  return(NULL);
     }
     retval = MRIStepSetNonlinearSolver(ark_mem, NLS);
     if (retval != ARK_SUCCESS) {
       arkProcessError(ark_mem, ARK_MEM_FAIL, "ARKODE::MRIStep",
                       "MRIStepCreate", "Error attaching default Newton solver");
-      MRIStepFree((void**) &ark_mem);  return(NULL);
+      MRIStepDestroy((void**) &ark_mem);  return(NULL);
     }
     step_mem->ownNLS = SUNTRUE;
   }
@@ -183,7 +183,7 @@ void* MRIStepCreate(ARKRhsFn fse, ARKRhsFn fsi, realtype t0, N_Vector y0,
   if (retval != ARK_SUCCESS) {
     arkProcessError(ark_mem, retval, "ARKODE::MRIStep", "MRIStepCreate",
                     "Unable to initialize main ARKODE infrastructure");
-    MRIStepFree((void**) &ark_mem);  return(NULL);
+    MRIStepDestroy((void**) &ark_mem);  return(NULL);
   }
 
   /* Attach the inner stepper memory */
@@ -195,7 +195,7 @@ void* MRIStepCreate(ARKRhsFn fse, ARKRhsFn fsi, realtype t0, N_Vector y0,
     arkProcessError(ark_mem, ARK_ILL_INPUT, "ARKODE::MRIStep",
                     "MRIStepCreate",
                     "A required inner stepper function is NULL");
-    MRIStepFree((void**) &ark_mem);
+    MRIStepDestroy((void**) &ark_mem);
     return(NULL);
   }
 
@@ -294,7 +294,7 @@ int MRIStepResize(void *arkode_mem, N_Vector y0, realtype t0,
   if ((step_mem->NLS != NULL) && (step_mem->ownNLS)) {
 
     /* destroy existing NLS object */
-    retval = SUNNonlinSolFree(step_mem->NLS);
+    retval = SUNNonlinSolDestroy(step_mem->NLS);
     if (retval != ARK_SUCCESS)  return(retval);
     step_mem->NLS = NULL;
     step_mem->ownNLS = SUNFALSE;
@@ -389,13 +389,13 @@ int MRIStepReInit(void* arkode_mem, ARKRhsFn fse, ARKRhsFn fsi, realtype t0,
     if (!NLS) {
       arkProcessError(ark_mem, ARK_MEM_FAIL, "ARKODE::MRIStep",
                       "MRIStepReInit", "Error creating default Newton solver");
-      MRIStepFree((void**) &ark_mem); return(ARK_MEM_FAIL);
+      MRIStepDestroy((void**) &ark_mem); return(ARK_MEM_FAIL);
     }
     retval = MRIStepSetNonlinearSolver(ark_mem, NLS);
     if (retval != ARK_SUCCESS) {
       arkProcessError(ark_mem, ARK_MEM_FAIL, "ARKODE::MRIStep",
                       "MRIStepReInit", "Error attaching default Newton solver");
-      MRIStepFree((void**) &ark_mem);  return(ARK_MEM_FAIL);
+      MRIStepDestroy((void**) &ark_mem);  return(ARK_MEM_FAIL);
     }
     step_mem->ownNLS = SUNTRUE;
   }
@@ -599,14 +599,14 @@ int MRIStepComputeState(void *arkode_mem, N_Vector zcor, N_Vector z)
   MRIStepDestroy frees all MRIStep memory, and then calls an ARKODE
   utility routine to free the ARKODE infrastructure memory.
   ---------------------------------------------------------------*/
-void MRIStepDestroy(void **arkode_mem)
+int MRIStepDestroy(void **arkode_mem)
 {
   sunindextype Cliw, Clrw;
   ARKodeMem ark_mem;
   ARKodeMRIStepMem step_mem;
 
   /* nothing to do if arkode_mem is already NULL */
-  if (*arkode_mem == NULL)  return;
+  if (*arkode_mem == NULL)  return ARK_SUCCESS;
 
   /* conditional frees on non-NULL MRIStep module */
   ark_mem = (ARKodeMem) (*arkode_mem);
@@ -617,7 +617,7 @@ void MRIStepDestroy(void **arkode_mem)
     /* free the coupling structure and derived quantities */
     if (step_mem->MRIC != NULL) {
       MRIStepCoupling_Space(step_mem->MRIC, &Cliw, &Clrw);
-      MRIStepCoupling_Free(step_mem->MRIC);
+      MRIStepCoupling_Destroy(step_mem->MRIC);
       step_mem->MRIC = NULL;
       ark_mem->liw -= Cliw;
       ark_mem->lrw -= Clrw;
@@ -645,7 +645,7 @@ void MRIStepDestroy(void **arkode_mem)
 
     /* free the nonlinear solver memory (if applicable) */
     if ((step_mem->NLS != NULL) && (step_mem->ownNLS)) {
-      SUNNonlinSolFree(step_mem->NLS);
+      SUNNonlinSolDestroy(step_mem->NLS);
       step_mem->ownNLS = SUNFALSE;
     }
     step_mem->NLS = NULL;
@@ -702,7 +702,9 @@ void MRIStepDestroy(void **arkode_mem)
   }
 
   /* free memory for overall ARKODE infrastructure */
-  arkFree(arkode_mem);
+  arkDestroy(arkode_mem);
+
+  return ARK_SUCCESS;
 }
 
 
@@ -1128,7 +1130,7 @@ int mriStep_Init(void* arkode_mem, int init_type)
         return(ARK_MEM_FAIL);
     } else {
       if ((step_mem->NLS != NULL) && (step_mem->ownNLS)) {
-        SUNNonlinSolFree(step_mem->NLS);
+        SUNNonlinSolDestroy(step_mem->NLS);
         step_mem->NLS = NULL;
         step_mem->ownNLS = SUNFALSE;
       }
@@ -2601,7 +2603,7 @@ int MRIStepInnerStepper_Create(SUNContext sunctx, MRIStepInnerStepper *stepper)
 }
 
 
-int MRIStepInnerStepper_Free(MRIStepInnerStepper *stepper)
+int MRIStepInnerStepper_Destroy(MRIStepInnerStepper *stepper)
 {
   if (*stepper == NULL) return ARK_SUCCESS;
 

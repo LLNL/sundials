@@ -89,7 +89,7 @@ SUNDIALS_EXPORT realtype* SUNDenseMatrix_Column(SUNMatrix A, sunindextype j);
 
 SUNDIALS_EXPORT SUNMatrix_ID SUNMatGetID_Dense(SUNMatrix A);
 SUNDIALS_EXPORT SUNMatrix SUNMatClone_Dense(SUNMatrix A);
-SUNDIALS_EXPORT void SUNMatDestroy_Dense(SUNMatrix A);
+SUNDIALS_EXPORT int SUNMatDestroy_Dense(SUNMatrix A);
 SUNDIALS_EXPORT int SUNMatZero_Dense(SUNMatrix A);
 SUNDIALS_EXPORT int SUNMatCopy_Dense(SUNMatrix A, SUNMatrix B);
 SUNDIALS_EXPORT int SUNMatScaleAdd_Dense(realtype c, SUNMatrix A, SUNMatrix B);

@@ -478,7 +478,7 @@ int CVodeInit(void *cvode_mem, CVRhsFn f, realtype t0, N_Vector y0)
     cvProcessError(cv_mem, retval, "CVODE", "CVodeInit",
                    "Setting the nonlinear solver failed");
     cvFreeVectors(cv_mem);
-    SUNNonlinSolFree(NLS);
+    SUNNonlinSolDestroy(NLS);
     SUNDIALS_MARK_FUNCTION_END(CV_PROFILER);
     return(CV_MEM_FAIL);
   }
@@ -1621,7 +1621,7 @@ int CVodeDestroy(void **cvode_mem)
 {
   CVodeMem cv_mem;
 
-  if (*cvode_mem == NULL) return;
+  if (*cvode_mem == NULL) return CV_SUCCESS;
 
   cv_mem = (CVodeMem) (*cvode_mem);
 
@@ -1629,7 +1629,7 @@ int CVodeDestroy(void **cvode_mem)
 
   /* if CVODE created the nonlinear solver object then free it */
   if (cv_mem->ownNLS) {
-    SUNNonlinSolFree(cv_mem->NLS);
+    SUNNonlinSolDestroy(cv_mem->NLS);
     cv_mem->ownNLS = SUNFALSE;
     cv_mem->NLS = NULL;
   }
@@ -1646,11 +1646,13 @@ int CVodeDestroy(void **cvode_mem)
   }
 
   if (cv_mem->proj_mem) {
-    cvProjFree(&(cv_mem->proj_mem));
+    cvProjDestroy(&(cv_mem->proj_mem));
   }
 
   free(*cvode_mem);
   *cvode_mem = NULL;
+
+  return CV_SUCCESS;
 }
 
 /*

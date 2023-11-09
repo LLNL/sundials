@@ -326,13 +326,13 @@ int CVodeAdjReInit(void *cvode_mem)
  * This routine frees the memory allocated by CVodeAdjInit.
  */
 
-void CVodeAdjFree(void *cvode_mem)
+int CVodeAdjDestroy(void *cvode_mem)
 {
   CVodeMem cv_mem;
   CVadjMem ca_mem;
   long int i;
 
-  if (cvode_mem == NULL) return;
+  if (cvode_mem == NULL) return CV_SUCCESS;
   cv_mem = (CVodeMem) cvode_mem;
 
   if (cv_mem->cv_adjMallocDone) {
@@ -362,6 +362,7 @@ void CVodeAdjFree(void *cvode_mem)
 
   }
 
+  return CV_SUCCESS;
 }
 
 /*
@@ -2060,7 +2061,7 @@ static void CVAbckpbDelete(CVodeBMem *cvB_memPtr)
 
     /* Free CVODES memory in tmp */
     cvode_mem = (void *)(tmp->cv_mem);
-    CVodeFree(&cvode_mem);
+    CVodeDestroy(&cvode_mem);
 
     /* Free linear solver memory */
     if (tmp->cv_lfree != NULL) tmp->cv_lfree(tmp);

@@ -93,12 +93,13 @@ SUNLinearSolver SUNLinSol_SuperLUMT(N_Vector y, SUNMatrix A, int num_threads, SU
   S->ops->solve      = SUNLinSolSolve_SuperLUMT;
   S->ops->lastflag   = SUNLinSolLastFlag_SuperLUMT;
   S->ops->space      = SUNLinSolSpace_SuperLUMT;
-  S->ops->free       = SUNLinSolFree_SuperLUMT;
+  S->ops->destroy    = SUNLinSolDestroy_SuperLUMT;
+  S->ops->free       = SUNLinSolDestroy_SuperLUMT;;
 
   /* Create content */
   content = NULL;
   content = (SUNLinearSolverContent_SuperLUMT) malloc(sizeof *content);
-  if (content == NULL) { SUNLinSolFree(S); return(NULL); }
+  if (content == NULL) { SUNLinSolDestroy(S); return(NULL); }
 
   /* Attach content */
   S->content = content;
@@ -121,38 +122,38 @@ SUNLinearSolver SUNLinSol_SuperLUMT(N_Vector y, SUNMatrix A, int num_threads, SU
 
   /* Allocate content */
   content->perm_r = (sunindextype *) malloc(MatrixRows*sizeof(sunindextype));
-  if (content->perm_r == NULL) { SUNLinSolFree(S); return(NULL); }
+  if (content->perm_r == NULL) { SUNLinSolDestroy(S); return(NULL); }
 
   content->perm_c = (sunindextype *) malloc(MatrixRows*sizeof(sunindextype));
-  if (content->perm_c == NULL) { SUNLinSolFree(S); return(NULL); }
+  if (content->perm_c == NULL) { SUNLinSolDestroy(S); return(NULL); }
 
   content->Gstat = (Gstat_t *) malloc(sizeof(Gstat_t));
-  if (content->Gstat == NULL) { SUNLinSolFree(S); return(NULL); }
+  if (content->Gstat == NULL) { SUNLinSolDestroy(S); return(NULL); }
 
   content->A = (SuperMatrix *) malloc(sizeof(SuperMatrix));
-  if (content->A == NULL) { SUNLinSolFree(S); return(NULL); }
+  if (content->A == NULL) { SUNLinSolDestroy(S); return(NULL); }
   content->A->Store = NULL;
 
   content->AC = (SuperMatrix *) malloc(sizeof(SuperMatrix));
-  if (content->AC == NULL) { SUNLinSolFree(S); return(NULL); }
+  if (content->AC == NULL) { SUNLinSolDestroy(S); return(NULL); }
   content->AC->Store = NULL;
 
   content->L = (SuperMatrix *) malloc(sizeof(SuperMatrix));
-  if (content->L == NULL) { SUNLinSolFree(S); return(NULL); }
+  if (content->L == NULL) { SUNLinSolDestroy(S); return(NULL); }
   content->L->Store = NULL;
 
   content->U = (SuperMatrix *) malloc(sizeof(SuperMatrix));
-  if (content->U == NULL) { SUNLinSolFree(S); return(NULL); }
+  if (content->U == NULL) { SUNLinSolDestroy(S); return(NULL); }
   content->U->Store = NULL;
 
   content->B = (SuperMatrix *) malloc(sizeof(SuperMatrix));
-  if (content->B == NULL) { SUNLinSolFree(S); return(NULL); }
+  if (content->B == NULL) { SUNLinSolDestroy(S); return(NULL); }
   content->B->Store = NULL;
   xCreate_Dense_Matrix(content->B, MatrixRows, 1, NULL, MatrixRows, SLU_DN,
                        SLU_D, SLU_GE);
 
   content->options = (superlumt_options_t *) malloc(sizeof(superlumt_options_t));
-  if (content->options == NULL) { SUNLinSolFree(S); return(NULL); }
+  if (content->options == NULL) { SUNLinSolDestroy(S); return(NULL); }
   StatAlloc(MatrixRows, num_threads, sp_ienv(1), sp_ienv(2), content->Gstat);
 
   return(S);
@@ -333,7 +334,7 @@ int SUNLinSolSpace_SuperLUMT(SUNLinearSolver S,
   return(SUNLS_SUCCESS);
 }
 
-int SUNLinSolFree_SuperLUMT(SUNLinearSolver S)
+int SUNLinSolDestroy_SuperLUMT(SUNLinearSolver S)
 {
   /* return with success if already freed */
   if (S == NULL) return(SUNLS_SUCCESS);
@@ -366,7 +367,7 @@ int SUNLinSolFree_SuperLUMT(SUNLinearSolver S)
       SM_U(S) = NULL;
     }
     if (GSTAT(S)) {
-      StatFree(GSTAT(S));
+      StatDestroy(GSTAT(S));
       free(GSTAT(S));
       GSTAT(S) = NULL;
     }

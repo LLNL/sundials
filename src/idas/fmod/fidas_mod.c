@@ -1749,10 +1749,10 @@ SWIGEXPORT int _wrap_FIDAGetQuadStats(void *farg1, long *farg2, long *farg3) {
 
 SWIGEXPORT int _wrap_FIDAQuadDestroy(void *farg1) {
   int fresult ;
-  void **arg1 = (void **) 0 ;
+  void *arg1 = (void *) 0 ;
   int result;
   
-  arg1 = (void **)(farg1);
+  arg1 = (void *)(farg1);
   result = (int)IDAQuadDestroy(arg1);
   fresult = (int)(result);
   return fresult;
@@ -1760,9 +1760,9 @@ SWIGEXPORT int _wrap_FIDAQuadDestroy(void *farg1) {
 
 
 SWIGEXPORT void _wrap_FIDAQuadFree(void *farg1) {
-  void **arg1 = (void **) 0 ;
+  void *arg1 = (void *) 0 ;
   
-  arg1 = (void **)(farg1);
+  arg1 = (void *)(farg1);
   IDAQuadFree(arg1);
 }
 
@@ -2191,10 +2191,10 @@ SWIGEXPORT int _wrap_FIDAGetNumStepSensSolveFails(void *farg1, long *farg2) {
 
 SWIGEXPORT int _wrap_FIDASensDestroy(void *farg1) {
   int fresult ;
-  void **arg1 = (void **) 0 ;
+  void *arg1 = (void *) 0 ;
   int result;
   
-  arg1 = (void **)(farg1);
+  arg1 = (void *)(farg1);
   result = (int)IDASensDestroy(arg1);
   fresult = (int)(result);
   return fresult;
@@ -2202,9 +2202,9 @@ SWIGEXPORT int _wrap_FIDASensDestroy(void *farg1) {
 
 
 SWIGEXPORT void _wrap_FIDASensFree(void *farg1) {
-  void **arg1 = (void **) 0 ;
+  void *arg1 = (void *) 0 ;
   
-  arg1 = (void **)(farg1);
+  arg1 = (void *)(farg1);
   IDASensFree(arg1);
 }
 
@@ -2429,10 +2429,10 @@ SWIGEXPORT int _wrap_FIDAGetQuadSensStats(void *farg1, long *farg2, long *farg3)
 
 SWIGEXPORT int _wrap_FIDAQuadSensDestroy(void *farg1) {
   int fresult ;
-  void **arg1 = (void **) 0 ;
+  void *arg1 = (void *) 0 ;
   int result;
   
-  arg1 = (void **)(farg1);
+  arg1 = (void *)(farg1);
   result = (int)IDAQuadSensDestroy(arg1);
   fresult = (int)(result);
   return fresult;
@@ -2440,9 +2440,9 @@ SWIGEXPORT int _wrap_FIDAQuadSensDestroy(void *farg1) {
 
 
 SWIGEXPORT void _wrap_FIDAQuadSensFree(void *farg1) {
-  void **arg1 = (void **) 0 ;
+  void *arg1 = (void *) 0 ;
   
-  arg1 = (void **)(farg1);
+  arg1 = (void *)(farg1);
   IDAQuadSensFree(arg1);
 }
 
@@ -2477,10 +2477,10 @@ SWIGEXPORT int _wrap_FIDAAdjReInit(void *farg1) {
 
 SWIGEXPORT int _wrap_FIDAAdjDestroy(void *farg1) {
   int fresult ;
-  void **arg1 = (void **) 0 ;
+  void *arg1 = (void *) 0 ;
   int result;
   
-  arg1 = (void **)(farg1);
+  arg1 = (void *)(farg1);
   result = (int)IDAAdjDestroy(arg1);
   fresult = (int)(result);
   return fresult;
@@ -2488,9 +2488,9 @@ SWIGEXPORT int _wrap_FIDAAdjDestroy(void *farg1) {
 
 
 SWIGEXPORT void _wrap_FIDAAdjFree(void *farg1) {
-  void **arg1 = (void **) 0 ;
+  void *arg1 = (void *) 0 ;
   
-  arg1 = (void **)(farg1);
+  arg1 = (void *)(farg1);
   IDAAdjFree(arg1);
 }
 

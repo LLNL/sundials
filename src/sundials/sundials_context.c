@@ -69,7 +69,7 @@ int SUNContext_Create(void* comm, SUNContext* sunctx)
   if (*sunctx == NULL)
   {
 #if defined(SUNDIALS_BUILD_WITH_PROFILING) && !defined(SUNDIALS_CALIPER_ENABLED)
-    SUNProfiler_Free(&profiler);
+    SUNProfiler_Destroy(&profiler);
 #endif
     SUNLogger_Destroy(&logger);
     return (-1);
@@ -111,7 +111,7 @@ int SUNContext_SetProfiler(SUNContext sunctx, SUNProfiler profiler)
   /* free any existing profiler */
   if (sunctx->profiler && sunctx->own_profiler)
   {
-    if (SUNProfiler_Free(&(sunctx->profiler))) return (-1);
+    if (SUNProfiler_Destroy(&(sunctx->profiler))) return (-1);
     sunctx->profiler = NULL;
   }
 
@@ -198,7 +198,7 @@ int SUNContext_Destroy(SUNContext* sunctx)
   {
     if (fp) SUNProfiler_Print((*sunctx)->profiler, fp);
     if (fp) fclose(fp);
-    if ((*sunctx)->own_profiler) SUNProfiler_Free(&(*sunctx)->profiler);
+    if ((*sunctx)->own_profiler) SUNProfiler_Destroy(&(*sunctx)->profiler);
   }
 #endif
 

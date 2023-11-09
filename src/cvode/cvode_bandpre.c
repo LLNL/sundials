@@ -43,7 +43,7 @@ static int CVBandPrecSolve(realtype t, N_Vector y, N_Vector fy,
                            int lr, void *bp_data);
 
 /* Prototype for CVBandPrecFree */
-static int CVBandPrecFree(CVodeMem cv_mem);
+static int CVBandPrecDestroy(CVodeMem cv_mem);
 
 /* Prototype for difference quotient Jacobian calculation routine */
 static int CVBandPDQJac(CVBandPrecData pdata, realtype t, N_Vector y,
@@ -145,7 +145,7 @@ int CVBandPrecInit(void *cvode_mem, sunindextype N,
   pdata->tmp1 = NULL;
   pdata->tmp1 = N_VClone(cv_mem->cv_tempv);
   if (pdata->tmp1 == NULL) {
-    SUNLinSolFree(pdata->LS);
+    SUNLinSolDestroy(pdata->LS);
     SUNMatDestroy(pdata->savedP);
     SUNMatDestroy(pdata->savedJ);
     free(pdata); pdata = NULL;
@@ -156,7 +156,7 @@ int CVBandPrecInit(void *cvode_mem, sunindextype N,
   pdata->tmp2 = NULL;
   pdata->tmp2 = N_VClone(cv_mem->cv_tempv);
   if (pdata->tmp2 == NULL) {
-    SUNLinSolFree(pdata->LS);
+    SUNLinSolDestroy(pdata->LS);
     SUNMatDestroy(pdata->savedP);
     SUNMatDestroy(pdata->savedJ);
     N_VDestroy(pdata->tmp1);
@@ -169,7 +169,7 @@ int CVBandPrecInit(void *cvode_mem, sunindextype N,
   /* initialize band linear solver object */
   flag = SUNLinSolInitialize(pdata->LS);
   if (flag != SUNLS_SUCCESS) {
-    SUNLinSolFree(pdata->LS);
+    SUNLinSolDestroy(pdata->LS);
     SUNMatDestroy(pdata->savedP);
     SUNMatDestroy(pdata->savedJ);
     N_VDestroy(pdata->tmp1);
@@ -188,7 +188,7 @@ int CVBandPrecInit(void *cvode_mem, sunindextype N,
   cvls_mem->P_data = pdata;
 
   /* Attach the pfree function */
-  cvls_mem->pfree = CVBandPrecFree;
+  cvls_mem->pfree = CVBandPrecDestroy;
 
   /* Attach preconditioner solve and setup functions */
   flag = CVodeSetPreconditioner(cvode_mem,
@@ -444,7 +444,7 @@ static int CVBandPrecSolve(realtype t, N_Vector y, N_Vector fy,
 }
 
 
-static int CVBandPrecFree(CVodeMem cv_mem)
+static int CVBandPrecDestroy(CVodeMem cv_mem)
 {
   CVLsMem cvls_mem;
   CVBandPrecData pdata;
@@ -455,7 +455,7 @@ static int CVBandPrecFree(CVodeMem cv_mem)
   if (cvls_mem->P_data == NULL) return(0);
   pdata = (CVBandPrecData) cvls_mem->P_data;
 
-  SUNLinSolFree(pdata->LS);
+  SUNLinSolDestroy(pdata->LS);
   SUNMatDestroy(pdata->savedP);
   SUNMatDestroy(pdata->savedJ);
   N_VDestroy(pdata->tmp1);

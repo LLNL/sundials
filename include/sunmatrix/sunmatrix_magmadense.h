@@ -105,7 +105,7 @@ SUNDIALS_STATIC_INLINE
 SUNMatrix_ID SUNMatGetID_MagmaDense(SUNMatrix A) { return SUNMATRIX_MAGMADENSE; }
 
 SUNDIALS_EXPORT SUNMatrix SUNMatClone_MagmaDense(SUNMatrix A);
-SUNDIALS_EXPORT void SUNMatDestroy_MagmaDense(SUNMatrix A);
+SUNDIALS_EXPORT int SUNMatDestroy_MagmaDense(SUNMatrix A);
 SUNDIALS_EXPORT int SUNMatZero_MagmaDense(SUNMatrix A);
 SUNDIALS_EXPORT int SUNMatCopy_MagmaDense(SUNMatrix A, SUNMatrix B);
 SUNDIALS_EXPORT int SUNMatScaleAdd_MagmaDense(realtype c, SUNMatrix A, SUNMatrix B);

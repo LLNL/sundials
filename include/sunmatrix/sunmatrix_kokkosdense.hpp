@@ -60,7 +60,7 @@ SUNMatrix SUNMatClone_KokkosDense(SUNMatrix A)
 }
 
 template<class MatrixType>
-void SUNMatDestroy_KokkosDense(SUNMatrix A)
+int SUNMatDestroy_KokkosDense(SUNMatrix A)
 {
   auto A_mat{GetDenseMat<MatrixType>(A)};
   delete A_mat; // NOLINT
