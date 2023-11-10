@@ -289,13 +289,11 @@ options as the vector they are cloned from while vectors created with
   ``v_data = NV_DATA_OMP(v)`` and then access ``v_data[i]`` within the
   loop than it is to use ``NV_Ith_OMP(v,i)`` within the loop.
 
-* :c:func:`N_VNewEmpty_OpenMP`, :c:func:`N_VMake_OpenMP`, and
-  :c:func:`N_VCloneVectorArrayEmpty_OpenMP()` set the field *own_data*
-  to ``SUNFALSE``.  The functions :c:func:`N_VDestroy_OpenMP()` and
-  :c:func:`N_VDestroyVectorArray_OpenMP()` will not attempt to free the
-  pointer data for any ``N_Vector`` with *own_data* set to ``SUNFALSE``.
-  In such a case, it is the user's responsibility to deallocate the
-  data pointer.
+* :c:func:`N_VNewEmpty_OpenMP` and :c:func:`N_VMake_OpenMP` set the field
+  *own_data* to ``SUNFALSE``.  The function :c:func:`N_VDestroy_OpenMP()` will
+  not attempt to free the pointer data for any ``N_Vector`` with *own_data* set
+  to ``SUNFALSE``. In such a case, it is the user's responsibility to deallocate
+  the data pointer.
 
 * To maximize efficiency, vector operations in the NVECTOR_OPENMP
   implementation that have more than one ``N_Vector`` argument do not
