@@ -18,6 +18,15 @@
 // By default, wrap all constants as native fortran PARAMETERs
 %fortranconst;
 
+// Inform SWIG of the SUNDIALS_EXPORT macro
+#define SUNDIALS_EXPORT
+#define SUNDIALS_DEPRECATED_EXPORT
+#define SUNDIALS_DEPRECATED_EXPORT_MSG(msg)
+#define SUNDIALS_STATIC_INLINE
+
+// All modules need sundials_types
+%import "../sundials/fsundials_types_mod.i"
+
 // Prefix all functions with F
 // E.g. CVodeCreate -> FCVodeCreate
 %rename("F%s", %$isfunction) "";
@@ -58,19 +67,6 @@
 
 // Treat all ** as an opaque pointer
 %apply void** { SWIGTYPE ** };
-
-// Treat SUNComm as an int.
-// This means the newer type(MPI_Comm) in mpi_f08 cannot be used
-// but we have to do so to avoid generating separate Fortran interfaces for
-// the MPI and no-MPI cases.
-%apply int { SUNComm };
-
-// Inform SWIG of the SUNDIALS_EXPORT macro
-#define SUNDIALS_EXPORT
-#define SUNDIALS_DEPRECATED_EXPORT
-#define SUNDIALS_DEPRECATED_EXPORT_MSG(msg)
-#define SUNDIALS_STATIC_INLINE
-
 
 // Insert SUNDIALS copyright into generated C files.
 %insert(begin)

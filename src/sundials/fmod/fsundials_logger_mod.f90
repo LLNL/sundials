@@ -20,6 +20,7 @@
 
 module fsundials_logger_mod
  use, intrinsic :: ISO_C_BINDING
+ use fsundials_types_mod
  implicit none
  private
 
@@ -160,7 +161,7 @@ function FSUNLogger_Create(comm, output_rank, logger) &
 result(swig_result)
 use, intrinsic :: ISO_C_BINDING
 integer(C_INT) :: swig_result
-integer(C_INT), intent(in) :: comm
+integer :: comm
 integer(C_INT), intent(in) :: output_rank
 type(C_PTR), target, intent(inout) :: logger
 integer(C_INT) :: fresult 
@@ -168,7 +169,7 @@ integer(C_INT) :: farg1
 integer(C_INT) :: farg2 
 type(C_PTR) :: farg3 
 
-farg1 = comm
+farg1 = int(comm, C_INT)
 farg2 = output_rank
 farg3 = c_loc(logger)
 fresult = swigc_FSUNLogger_Create(farg1, farg2, farg3)
@@ -179,13 +180,13 @@ function FSUNLogger_CreateFromEnv(comm, logger) &
 result(swig_result)
 use, intrinsic :: ISO_C_BINDING
 integer(C_INT) :: swig_result
-integer(C_INT), intent(in) :: comm
+integer :: comm
 type(C_PTR), target, intent(inout) :: logger
 integer(C_INT) :: fresult 
 integer(C_INT) :: farg1 
 type(C_PTR) :: farg2 
 
-farg1 = comm
+farg1 = int(comm, C_INT)
 farg2 = c_loc(logger)
 fresult = swigc_FSUNLogger_CreateFromEnv(farg1, farg2)
 swig_result = fresult

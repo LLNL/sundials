@@ -129,7 +129,7 @@ int main(int argc, char *argv[])
   MPI_Comm_rank(comm, &my_pe);
 
   /* Create SUNDIALS context */
-  retval = SUNContext_Create(&comm, &sunctx);
+  retval = SUNContext_Create(comm, &sunctx);
   if (check_retval(&retval, "SUNContex_Create", 1, my_pe)) MPI_Abort(comm, 1);
 
   /* Set partitioning. */

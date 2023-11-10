@@ -218,7 +218,7 @@ It is applicable to any of the SUNDIALS solver packages.
    SUNProfiler profobj;
 
    /* Create the SUNDIALS context */
-   retval = SUNContext_Create(NULL, &ctx);
+   retval = SUNContext_Create(SUN_COMM_NULL, &ctx);
 
    /* Get a reference to the profiler */
    retval = SUNContext_GetProfiler(ctx, &profobj);

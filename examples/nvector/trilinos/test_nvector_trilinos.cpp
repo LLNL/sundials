@@ -43,7 +43,7 @@ int main (int argc, char *argv[])
   typedef TpetraVectorInterface::vector_type vector_type;
   typedef vector_type::map_type map_type;
 
-  Test_Init(NULL);
+  Test_Init(SUN_COMM_NULL);
 
   /* Start an MPI session */
   Tpetra::ScopeGuard tpetraScope(&argc, &argv);

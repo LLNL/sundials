@@ -48,7 +48,7 @@ int main(int argc, char* argv[])
   sunindextype length; /* vector length             */
   int print_timing;    /* turn timing on/off        */
 
-  Test_Init(NULL);
+  Test_Init(SUN_COMM_NULL);
 
   /* check input and set vector length */
   if (argc < 3)

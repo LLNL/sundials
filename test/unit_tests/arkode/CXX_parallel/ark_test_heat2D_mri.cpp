@@ -108,7 +108,7 @@ static int FreeUserData(UserData *udata);
 int main(int argc, char* argv[]) {
   /* Create the SUNDIALS context object for this simulation. */
   SUNContext ctx = NULL;
-  SUNContext_Create(NULL, &ctx);
+  SUNContext_Create(SUN_COMM_NULL, &ctx);
 
   // general problem parameters
   sunrealtype T0 = SUN_RCONST(0.0);     // initial time

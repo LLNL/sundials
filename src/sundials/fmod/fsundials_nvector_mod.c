@@ -297,7 +297,13 @@ SWIGEXPORT int _wrap_FN_VGetCommunicator(N_Vector farg1) {
   
   arg1 = (N_Vector)(farg1);
   result = (SUNComm)N_VGetCommunicator(arg1);
-  fresult = (SUNComm)(result);
+#if SUNDIALS_MPI_ENABLED
+  if (result != SUN_COMM_NULL) {
+    fresult = (int)(MPI_Comm_c2f(result));
+  }
+#else
+  fresult = result;
+#endif
   return fresult;
 }
 

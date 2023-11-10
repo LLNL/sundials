@@ -841,14 +841,14 @@ end subroutine
 function FN_VGetCommunicator(v) &
 result(swig_result)
 use, intrinsic :: ISO_C_BINDING
-integer(C_INT) :: swig_result
+integer :: swig_result
 type(N_Vector), target, intent(inout) :: v
 integer(C_INT) :: fresult 
 type(C_PTR) :: farg1 
 
 farg1 = c_loc(v)
 fresult = swigc_FN_VGetCommunicator(farg1)
-swig_result = fresult
+swig_result = int(fresult)
 end function
 
 function FN_VGetLength(v) &

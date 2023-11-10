@@ -44,10 +44,10 @@ double max_time(N_Vector X, double time);
 void sync_device(N_Vector X);
 
 /* Shared test initialization/finalization */
-int Test_Init(void* comm);
+int Test_Init(SUNComm comm);
 int Test_Finalize();
 void Test_Abort(int code);
-void Test_AbortMPI(void* comm, int code);
+void Test_AbortMPI(SUNComm comm, int code);
 
 /* Vector ID test */
 int Test_N_VGetVectorID(N_Vector X, N_Vector_ID ID, int myid);

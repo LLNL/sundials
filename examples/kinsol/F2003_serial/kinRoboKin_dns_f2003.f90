@@ -348,7 +348,7 @@ program main
 
   ! -------------------------
   ! Create the SUNDIALS context used for this simulation
-  ierr = FSUNContext_Create(c_null_ptr, sunctx)
+  ierr = FSUNContext_Create(0, sunctx)
 
   ! -------------------------
   ! Create SUNDIALS vectors for solution, scales, and constraints

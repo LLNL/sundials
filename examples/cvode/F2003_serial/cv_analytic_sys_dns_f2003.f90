@@ -173,7 +173,7 @@ program main
   yvec(3) = 1.0d0
 
   ! create SUNDIALS context
-  ierr = FSUNContext_Create(c_null_ptr, ctx)
+  ierr = FSUNContext_Create(0, ctx)
 
   ! create a serial vector
   sunvec_y => FN_VMake_Serial(neq, yvec, ctx)

@@ -40,8 +40,8 @@ contains
 
   subroutine Test_Init(comm)
     implicit none
-    type(C_PTR), value :: comm
-    integer(C_INT)     :: retval
+    integer(C_INT), value :: comm
+    integer(C_INT)        :: retval
 
     retval = FSUNContext_Create(comm, sunctx)
     if (retval /= 0) then

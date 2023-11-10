@@ -213,7 +213,7 @@ int main(int argc, char *argv[])
   }
 
   /* Create the SUNDIALS context object for this simulation */
-  flag = SUNContext_Create(&comm, &sunctx);
+  flag = SUNContext_Create(comm, &sunctx);
   if (check_flag(&flag, "SUNContext_Create", 1, my_pe)) return 1;
 
   /* Set local length */

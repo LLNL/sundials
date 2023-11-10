@@ -77,8 +77,6 @@ int SUNContext_Create(SUNComm comm, SUNContext* sunctx)
   SUNLogger_SetDebugFilename(logger, "");
 #endif
 
-
-
   *sunctx = NULL;
   *sunctx = (SUNContext)malloc(sizeof(struct _SUNContext));
 
@@ -296,7 +294,7 @@ void sunAdiakCollectMetadata() {
   adiak_namevalue("magma_version", 2, NULL, "%s", SUN_MAGMA_VERSION);
 #endif
 
-#ifdef SUNDIALS_MPI_ENABLED
+#if SUNDIALS_MPI_ENABLED
   adiak_namevalue("mpi_c_compiler", 2, NULL, "%s", SUN_MPI_C_COMPILER);
   adiak_namevalue("mpi_c_version", 2, NULL, "%s", SUN_MPI_C_VERSION);
 

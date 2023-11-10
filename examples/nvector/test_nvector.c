@@ -71,7 +71,7 @@ static int print_time = 0;
 #define FMT "%s Time: %22.15e\n\n"
 #define PRINT_TIME(test, time) if (print_time) printf(FMT, test, time)
 
-int Test_Init(void* comm)
+int Test_Init(SUNComm comm)
 {
   if (sunctx == NULL) {
     if (SUNContext_Create(comm, &sunctx)) {

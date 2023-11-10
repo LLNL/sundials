@@ -49,7 +49,7 @@ int main(int argc, char *argv[])
   int          print_timing;      /* turn timing on/off        */
   int          memtype;
 
-  Test_Init(NULL);
+  Test_Init(SUN_COMM_NULL);
 
   /* check input and set vector length */
   if (argc < 3){

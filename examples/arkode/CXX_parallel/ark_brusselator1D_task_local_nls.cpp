@@ -122,7 +122,7 @@ int main(int argc, char *argv[])
 
   /* Create SUNDIALS context */
   SUNContext ctx;
-  retval = SUNContext_Create(&comm, &ctx);
+  retval = SUNContext_Create(comm, &ctx);
   if (check_retval(&retval, "SUNContext_Create", 1)) MPI_Abort(comm, 1);
 
   /* Add scope to destroy objects before MPIFinalize */

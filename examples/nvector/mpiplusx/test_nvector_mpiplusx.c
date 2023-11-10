@@ -48,25 +48,25 @@ int main(int argc, char *argv[])
   if (retval != MPI_SUCCESS)  return(1);
 
   comm = MPI_COMM_WORLD;
-  Test_Init(&comm);
+  Test_Init(comm);
 
   retval = MPI_Comm_size(comm, &nprocs);
-  if (retval != MPI_SUCCESS)  Test_AbortMPI(&comm, -1);
+  if (retval != MPI_SUCCESS)  Test_AbortMPI(comm, -1);
   retval = MPI_Comm_rank(comm, &myid);
-  if (retval != MPI_SUCCESS)  Test_AbortMPI(&comm, -1);
+  if (retval != MPI_SUCCESS)  Test_AbortMPI(comm, -1);
 
   /* check inputs */
   if (argc < 3) {
     if (myid == 0)
       printf("ERROR: TWO (2) Inputs required: vector local length, print timing \n");
-    Test_AbortMPI(&comm, -1);
+    Test_AbortMPI(comm, -1);
   }
 
   local_length = (sunindextype) atol(argv[1]);
   if (local_length < 1) {
     if (myid == 0)
       printf("ERROR: local vector length must be a positive integer \n");
-    Test_AbortMPI(&comm, -1);
+    Test_AbortMPI(comm, -1);
   }
 
   print_timing = atoi(argv[2]);
@@ -86,7 +86,7 @@ int main(int argc, char *argv[])
   Xlocal = N_VNew_Serial(local_length, sunctx);
   if (Xlocal == NULL) {
     printf("FAIL: Unable to create a new serial vector, Proc %d\n\n", myid);
-    Test_AbortMPI(&comm, 1);
+    Test_AbortMPI(comm, 1);
   }
 
   /* Create a new MPIPlusX */
@@ -94,7 +94,7 @@ int main(int argc, char *argv[])
   if (X == NULL) {
     N_VDestroy(Xlocal);
     printf("FAIL: Unable to create a new MPIPlusX vector, Proc %d\n\n", myid);
-    Test_AbortMPI(&comm, 1);
+    Test_AbortMPI(comm, 1);
   }
 
   /* Check vector ID */
@@ -134,7 +134,7 @@ int main(int argc, char *argv[])
     N_VDestroy(X);
     N_VDestroy(Xlocal);
     printf("FAIL: Unable to create a new vector, Proc %d\n\n", myid);
-    Test_AbortMPI(&comm, 1);
+    Test_AbortMPI(comm, 1);
   }
 
   /* Clone additional vectors for testing */
@@ -144,7 +144,7 @@ int main(int argc, char *argv[])
     N_VDestroy(X);
     N_VDestroy(Xlocal);
     printf("FAIL: Unable to create a new vector, Proc %d\n\n", myid);
-    Test_AbortMPI(&comm, 1);
+    Test_AbortMPI(comm, 1);
   }
 
   Z = N_VClone(X);
@@ -154,7 +154,7 @@ int main(int argc, char *argv[])
     N_VDestroy(Y);
     N_VDestroy(Xlocal);
     printf("FAIL: Unable to create a new vector, Proc %d\n\n", myid);
-    Test_AbortMPI(&comm, 1);
+    Test_AbortMPI(comm, 1);
   }
 
   /* Standard vector operation tests */
@@ -193,7 +193,7 @@ int main(int argc, char *argv[])
     N_VDestroy(Z);
     N_VDestroy(Xlocal);
     printf("FAIL: Unable to create a new vector, Proc %d\n\n", myid);
-    Test_AbortMPI(&comm, 1);
+    Test_AbortMPI(comm, 1);
   }
 
   /* fused operations */
@@ -224,7 +224,7 @@ int main(int argc, char *argv[])
     N_VDestroy(U);
     N_VDestroy(Xlocal);
     printf("FAIL: Unable to create a new vector, Proc %d\n\n", myid);
-    Test_AbortMPI(&comm, 1);
+    Test_AbortMPI(comm, 1);
   }
 
   /* fused operations */

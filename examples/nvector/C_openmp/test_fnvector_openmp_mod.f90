@@ -191,7 +191,7 @@ program main
   !============== Introduction =============
   print *, 'OpenMP N_Vector Fortran 2003 interface test'
 
-  call Test_Init(c_null_ptr)
+  call Test_Init(0)
 
   fails = smoke_tests()
   if (fails /= 0) then

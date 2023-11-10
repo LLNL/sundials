@@ -34,7 +34,7 @@ int main(int argc, char *argv[])
   N_Vector     U, V, W, X, Y, Z;  /* test vectors              */
   int          print_timing;      /* turn timing on/off        */
 
-  Test_Init(NULL);
+  Test_Init(SUN_COMM_NULL);
 
   /* check input and set vector length */
   if (argc < 3){

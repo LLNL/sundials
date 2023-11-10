@@ -115,7 +115,7 @@ int main(int argc, char *argv[])
   fails = MPI_Comm_rank(ProbData.comm, &(ProbData.myid));
   if (check_flag(&fails, "MPI_Comm_rank", 1)) return 1;
 
-  if (SUNContext_Create(&ProbData.comm, &sunctx)) {
+  if (SUNContext_Create(ProbData.comm, &sunctx)) {
     printf("ERROR: SUNContext_Create failed\n");
     return(-1);
   }

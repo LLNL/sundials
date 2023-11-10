@@ -41,14 +41,14 @@
 }
 
 %typemap(in, noblock=1) MPI_Comm {
-%#ifdef SUNDIALS_MPI_ENABLED
+%#if SUNDIALS_MPI_ENABLED
     $1 = MPI_Comm_f2c(%static_cast(*$input, MPI_Fint));
 %#else
     $1 = *$input;
 %#endif
 }
 %typemap(out, noblock=1) MPI_Comm {
-%#ifdef SUNDIALS_MPI_ENABLED
+%#if SUNDIALS_MPI_ENABLED
     $result = %static_cast(MPI_Comm_c2f($1), int);
 %#else
     $result = $1;

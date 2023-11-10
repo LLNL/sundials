@@ -128,7 +128,7 @@ int main(int argc, char *argv[])
   if(check_retval(&retval, "PetscInitialize", 1, my_pe)) MPI_Abort(comm, 1);
 
   /* Create SUNDIALS context */
-  retval = SUNContext_Create(&comm, &sunctx);
+  retval = SUNContext_Create(comm, &sunctx);
   if(check_retval(&retval, "SUNContext_Create", 1, my_pe)) MPI_Abort(comm, 1);
 
   /* Set local vector length. */

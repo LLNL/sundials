@@ -51,7 +51,7 @@ routines for different SUNDIALS classes/modules e.g.,
    void* package_mem;
    N_Vector x;
 
-   SUNContext_Create(NULL, &sunctx);
+   SUNContext_Create(SUN_COMM_NULL, &sunctx);
 
    package_mem = CVodeCreate(..., sunctx);
    package_mem = IDACreate(..., sunctx);

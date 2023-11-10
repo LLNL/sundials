@@ -43,7 +43,7 @@ int main(int argc, char *argv[])
   hipStream_t     stream;            /* hip stream                */
   int             memtype, policy;
 
-  Test_Init(NULL);
+  Test_Init(SUN_COMM_NULL);
 
   /* check input and set vector length */
   if (argc < 4){

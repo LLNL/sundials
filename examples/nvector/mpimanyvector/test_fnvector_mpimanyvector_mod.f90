@@ -30,7 +30,6 @@ module test_nvector_mpimanyvector
   integer(c_int),  parameter :: nv       = 3          ! length of vector arrays
   integer(c_long), parameter :: N        = N1 + N2    ! overall manyvector length
   integer(c_int), target     :: comm = MPI_COMM_WORLD ! default MPI communicator
-  integer(c_int), pointer    :: commptr
   integer(c_int)             :: nprocs                ! number of MPI processes
 
 contains
@@ -40,7 +39,6 @@ contains
 
     integer(c_long)         :: lenrw(1), leniw(1)     ! real and int work space size
     integer(c_long)         :: ival                   ! integer work value
-    type(c_ptr)             :: cptr                   ! c_ptr work value
     real(c_double)          :: rval                   ! real work value
     real(c_double)          :: x1data(N1), x2data(N2) ! vector data array
     real(c_double), pointer :: xptr(:)                ! pointer to vector data array
@@ -250,12 +248,10 @@ program main
     stop 1
   endif
 
-  commptr => comm
-
   !============== Introduction =============
   if (myid == 0) print *, 'MPIManyVector N_Vector Fortran 2003 interface test'
 
-  call Test_Init(c_loc(commptr))
+  call Test_Init(comm)
 
   call MPI_Comm_size(comm, nprocs, fails)
   if (fails /= 0) then

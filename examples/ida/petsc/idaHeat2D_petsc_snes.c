@@ -165,7 +165,7 @@ int main(int argc, char *argv[])
   if(check_retval(&ierr, "PetscInitialize", 1, thispe)) MPI_Abort(comm, 1);
 
   /* Create SUNDIALS context */
-  ierr = SUNContext_Create(&comm, &ctx);
+  ierr = SUNContext_Create(comm, &ctx);
   if(check_retval(&ierr, "SUNContext_Create", 1, thispe)) MPI_Abort(comm, 1);
 
   /* Initialize user application context */

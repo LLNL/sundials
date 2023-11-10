@@ -52,32 +52,32 @@ int main(int argc, char *argv[])
   if (retval != MPI_SUCCESS)  return(1);
 
   comm = MPI_COMM_WORLD;
-  Test_Init(&comm);
+  Test_Init(comm);
 
   retval = MPI_Comm_size(comm, &nprocs);
-  if (retval != MPI_SUCCESS)  Test_AbortMPI(&comm, -1);
+  if (retval != MPI_SUCCESS)  Test_AbortMPI(comm, -1);
   retval = MPI_Comm_rank(comm, &myid);
-  if (retval != MPI_SUCCESS)  Test_AbortMPI(&comm, -1);
+  if (retval != MPI_SUCCESS)  Test_AbortMPI(comm, -1);
 
   /* check inputs */
   if (argc < 4) {
     if (myid == 0)
       printf("ERROR: THREE (3) Inputs required: subvector 1 local vector length, subvector 2 local vector length, print timing \n");
-    Test_AbortMPI(&comm, -1);
+    Test_AbortMPI(comm, -1);
   }
 
   loclen1 = (sunindextype) atol(argv[1]);
   if (loclen1 < 1) {
     if (myid == 0)
       printf("ERROR: local subvector 1 length must be a positive integer \n");
-    Test_AbortMPI(&comm, -1);
+    Test_AbortMPI(comm, -1);
   }
 
   loclen2 = (sunindextype) atol(argv[2]);
   if (loclen2 < 1) {
     if (myid == 0)
       printf("ERROR: local subvector 2 length must be a positive integer \n");
-    Test_AbortMPI(&comm, -1);
+    Test_AbortMPI(comm, -1);
   }
 
   print_timing = atoi(argv[3]);
@@ -85,11 +85,11 @@ int main(int argc, char *argv[])
 
   /* Split main communicator into even/odd subcommunicators */
   retval = MPI_Comm_split(comm, myid%2, 0, &subcomm);
-  if (retval != MPI_SUCCESS)  Test_AbortMPI(&comm, -1);
+  if (retval != MPI_SUCCESS)  Test_AbortMPI(comm, -1);
   retval = MPI_Comm_size(subcomm, &subprocs);
-  if (retval != MPI_SUCCESS)  Test_AbortMPI(&comm, -1);
+  if (retval != MPI_SUCCESS)  Test_AbortMPI(comm, -1);
   retval = MPI_Comm_rank(subcomm, &subid);
-  if (retval != MPI_SUCCESS)  Test_AbortMPI(&comm, -1);
+  if (retval != MPI_SUCCESS)  Test_AbortMPI(comm, -1);
 
   /* global parallel subvector length in subcommunicator */
   globlen = subprocs*loclen2;
@@ -121,13 +121,13 @@ int main(int argc, char *argv[])
   Xsub[0] = N_VNew_Serial(loclen1, sunctx);
   if (Xsub[0] == NULL) {
     printf("FAIL: Unable to create a new serial subvector, Proc %d\n\n", myid);
-    Test_AbortMPI(&comm, 1);
+    Test_AbortMPI(comm, 1);
   }
   Xsub[1] = N_VNew_Parallel(subcomm, loclen2, globlen, sunctx);
   if (Xsub[1] == NULL) {
     N_VDestroy(Xsub[0]);
     printf("FAIL: Unable to create a new parallel subvector, Proc %d\n\n", myid);
-    Test_AbortMPI(&comm, 1);
+    Test_AbortMPI(comm, 1);
   }
 
   /* Make a ManyVector, where intercommunicator is specified */
@@ -136,7 +136,7 @@ int main(int argc, char *argv[])
     N_VDestroy(Xsub[0]);
     N_VDestroy(Xsub[1]);
     printf("FAIL: Unable to create a new ManyVector, Proc %d\n\n", myid);
-    Test_AbortMPI(&comm, 1);
+    Test_AbortMPI(comm, 1);
   }
 
   /* Check vector ID */
@@ -180,7 +180,7 @@ int main(int argc, char *argv[])
     N_VDestroy(Xsub[0]);
     N_VDestroy(Xsub[1]);
     printf("FAIL: Unable to create a new vector, Proc %d\n\n", myid);
-    Test_AbortMPI(&comm, 1);
+    Test_AbortMPI(comm, 1);
   }
 
   /* Clone additional vectors for testing */
@@ -191,7 +191,7 @@ int main(int argc, char *argv[])
     N_VDestroy(Xsub[0]);
     N_VDestroy(Xsub[1]);
     printf("FAIL: Unable to create a new vector, Proc %d\n\n", myid);
-    Test_AbortMPI(&comm, 1);
+    Test_AbortMPI(comm, 1);
   }
 
   Z = N_VClone(X);
@@ -202,7 +202,7 @@ int main(int argc, char *argv[])
     N_VDestroy(Xsub[0]);
     N_VDestroy(Xsub[1]);
     printf("FAIL: Unable to create a new vector, Proc %d\n\n", myid);
-    Test_AbortMPI(&comm, 1);
+    Test_AbortMPI(comm, 1);
   }
 
   /* Standard vector operation tests */
@@ -242,7 +242,7 @@ int main(int argc, char *argv[])
     N_VDestroy(Xsub[0]);
     N_VDestroy(Xsub[1]);
     printf("FAIL: Unable to create a new vector, Proc %d\n\n", myid);
-    Test_AbortMPI(&comm, 1);
+    Test_AbortMPI(comm, 1);
   }
 
   /* fused operations */
@@ -274,7 +274,7 @@ int main(int argc, char *argv[])
     N_VDestroy(Xsub[0]);
     N_VDestroy(Xsub[1]);
     printf("FAIL: Unable to create a new vector, Proc %d\n\n", myid);
-    Test_AbortMPI(&comm, 1);
+    Test_AbortMPI(comm, 1);
   }
 
   /* fused operations */

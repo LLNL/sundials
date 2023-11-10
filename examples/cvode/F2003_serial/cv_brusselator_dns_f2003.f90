@@ -206,7 +206,7 @@ program main
   yvec(3) = 2.8d0
 
   ! create SUNDIALS context
-  ierr = FSUNContext_Create(c_null_ptr, ctx)
+  ierr = FSUNContext_Create(0, ctx)
 
   ! create SUNDIALS N_Vector
   sunvec_y => FN_VMake_Serial(neq, yvec, ctx)

@@ -243,7 +243,7 @@ program main
   real(c_double), dimension(mgrid,mgrid) :: uu, up, res, constraints
 
   !======= Internals ============
-  retval = FSUNContext_Create(c_null_ptr, sunctx)
+  retval = FSUNContext_Create(0, sunctx)
 
   ! Assign parameters in dae_mod
   dx = 1.d0/(mgrid-1)

@@ -240,7 +240,15 @@ SWIGEXPORT int _wrap_FSUNLogger_Create(int const *farg1, int const *farg2, void 
   SUNLogger *arg3 = (SUNLogger *) 0 ;
   int result;
   
-  arg1 = (SUNComm)(*farg1);
+#if SUNDIALS_MPI_ENABLED
+  if((*farg1)) {
+    arg1 = MPI_Comm_f2c((MPI_Fint)(*farg1));
+  } else {
+    arg1 = SUN_COMM_NULL;
+  }
+#else
+  arg1 = *farg1;
+#endif
   arg2 = (int)(*farg2);
   arg3 = (SUNLogger *)(farg3);
   result = (int)SUNLogger_Create(arg1,arg2,arg3);
@@ -255,7 +263,15 @@ SWIGEXPORT int _wrap_FSUNLogger_CreateFromEnv(int const *farg1, void *farg2) {
   SUNLogger *arg2 = (SUNLogger *) 0 ;
   int result;
   
-  arg1 = (SUNComm)(*farg1);
+#if SUNDIALS_MPI_ENABLED
+  if((*farg1)) {
+    arg1 = MPI_Comm_f2c((MPI_Fint)(*farg1));
+  } else {
+    arg1 = SUN_COMM_NULL;
+  }
+#else
+  arg1 = *farg1;
+#endif
   arg2 = (SUNLogger *)(farg2);
   result = (int)SUNLogger_CreateFromEnv(arg1,arg2);
   fresult = (int)(result);

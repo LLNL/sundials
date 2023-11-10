@@ -998,7 +998,7 @@ contains
     use fsunlinsol_dense_mod
     use fsunmatrix_dense_mod
 
-    use ode_mod, only : sunctx, Nvar, comm, monitor
+    use ode_mod, only : sunctx, Nvar, comm
 
     !======= Declarations =========
     implicit none
@@ -1011,7 +1011,6 @@ contains
     type(SUNNonlinearSolver_Ops), pointer :: nlsops ! solver operations
 
     integer        :: ierr   ! MPI error status
-    integer(c_int) :: retval ! SUNDIALS error status
 
     !======= Internals ============
 
@@ -1084,7 +1083,6 @@ program main
   integer          :: ierr               ! MPI error status
   integer(c_int)   :: retval             ! SUNDIALS error status
   double precision :: starttime, endtime ! timing variables
-  integer, pointer :: commptr
 
   type(N_Vector), pointer :: sunvec_ys   ! sundials serial vector
   type(N_Vector), pointer :: sunvec_y    ! sundials MPI+X vector
@@ -1103,7 +1101,7 @@ program main
 
   ! Create SUNDIALS simulation context
   comm = MPI_COMM_WORLD
-  retval = FSUNContext_Create(c_loc(commptr), sunctx)
+  retval = FSUNContext_Create(comm, sunctx)
   if (retval /= 0) then
     print *, "Error: FSUNContext_Create returned ",retval
     call MPI_Abort(comm, 1, ierr)
@@ -1251,7 +1249,6 @@ subroutine EvolveProblemIMEX(sunvec_y)
   integer            :: ierr        ! MPI error status
   integer            :: iout        ! output counter
   double precision   :: tout, dtout ! output time and update
-  character(len=100) :: outname     ! diagnostics ouptput file
 
   !======= Internals ============
 
@@ -1543,7 +1540,6 @@ subroutine EvolveProblemExplicit(sunvec_y)
   integer            :: ierr        ! output counter
   integer            :: iout        ! output counter
   double precision   :: tout, dtout ! output time and update
-  character(len=100) :: outname     ! diagnostics ouptput file
 
   !======= Internals ============
 

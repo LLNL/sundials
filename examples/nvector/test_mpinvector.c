@@ -23,10 +23,10 @@
 
 #include "test_nvector.h"
 
-void Test_AbortMPI(void* comm, int code)
+void Test_AbortMPI(SUNComm comm, int code)
 {
   Test_Finalize();
-  MPI_Abort(*((MPI_Comm*)comm), code);
+  MPI_Abort(comm, code);
 }
 
 /* ----------------------------------------------------------------------
