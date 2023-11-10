@@ -30,18 +30,18 @@
 void sunAdiakCollectMetadata();
 #endif
 
-int SUNContext_Create(SUN_Comm comm, SUNContext* sunctx)
+int SUNContext_Create(SUNComm comm, SUNContext* sunctx)
 {
   SUNProfiler profiler = NULL;
   SUNLogger logger     = NULL;
 
   /* Since this function used to take a void* comm that was NULL 
      when the comm was to be ignored, we check if its NULL here
-     and translate it to SUN_COMM_NULL to make the transition 
+     and translate it to SUNComm_NULL to make the transition 
      easier for users. */
   if (comm == NULL) 
   {
-    comm = SUN_COMM_NULL;
+    comm = SUNComm_NULL;
   }
 
 #if defined(SUNDIALS_BUILD_WITH_PROFILING) && !defined(SUNDIALS_CALIPER_ENABLED)
@@ -57,7 +57,7 @@ int SUNContext_Create(SUN_Comm comm, SUNContext* sunctx)
 #if SUNDIALS_MPI_ENABLED
   if (SUNLogger_CreateFromEnv(comm, &logger))
 #else
-  if (SUNLogger_CreateFromEnv(SUN_COMM_NULL, &logger))
+  if (SUNLogger_CreateFromEnv(SUNComm_NULL, &logger))
 #endif
   {
     return (-1);
@@ -66,7 +66,7 @@ int SUNContext_Create(SUN_Comm comm, SUNContext* sunctx)
 #if SUNDIALS_MPI_ENABLED
   if (SUNLogger_Create(comm, 0, &logger))
 #else
-  if (SUNLogger_Create(SUN_COMM_NULL, 0, &logger))
+  if (SUNLogger_Create(SUNComm_NULL, 0, &logger))
 #endif
   {
     return (-1);

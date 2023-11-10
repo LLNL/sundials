@@ -344,7 +344,7 @@ SUNComm N_VGetCommunicator(N_Vector v)
   if (v->ops->nvgetcommunicator)
     return(v->ops->nvgetcommunicator(v));
   else
-    return(SUN_COMM_NULL);
+    return(SUNComm_NULL);
 }
 
 sunindextype N_VGetLength(N_Vector v)

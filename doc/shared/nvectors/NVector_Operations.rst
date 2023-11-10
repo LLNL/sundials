@@ -157,7 +157,7 @@ operations below.
    Returns the ``SUNComm`` (which is just an ``MPI_Comm`` when SUNDIALS is built
    with MPI, otherwise it is an ``int``) associated with the vector (if
    applicable).  For MPI-unaware vector implementations, this should return
-   ``SUN_COMM_NULL``.
+   ``SUNComm_NULL``.
 
    Usage:
 

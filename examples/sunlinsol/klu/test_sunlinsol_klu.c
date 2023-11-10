@@ -46,7 +46,7 @@ int main(int argc, char *argv[])
   sun_klu_common   *common;
   SUNContext      sunctx;
 
-  if (SUNContext_Create(SUN_COMM_NULL, &sunctx)) {
+  if (SUNContext_Create(SUNComm_NULL, &sunctx)) {
     printf("ERROR: SUNContext_Create failed\n");
     return(-1);
   }

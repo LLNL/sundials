@@ -211,7 +211,7 @@ int main(void)
 
   /* Create the SUNDIALS context object for this simulation. */
   SUNContext sunctx = NULL;
-  SUNContext_Create(SUN_COMM_NULL, &sunctx);
+  SUNContext_Create(SUNComm_NULL, &sunctx);
 
   cc = sc = constraints = NULL;
   kmem = NULL;

@@ -41,17 +41,17 @@ int Test_N_VGetCommunicatorMPI(N_Vector W, SUNComm comm, int myid)
   wcomm = N_VGetCommunicator(W);
 
   /* return with success if both are NULL */
-  if ((wcomm == SUN_COMM_NULL) && (comm == SUN_COMM_NULL))  {
+  if ((wcomm == SUNComm_NULL) && (comm == SUNComm_NULL))  {
     printf("PASSED test -- N_VGetCommunicator\n");
     return(0);
   }
 
   /* return with failure if either is NULL */
-  if (wcomm == SUN_COMM_NULL) {
+  if (wcomm == SUNComm_NULL) {
     printf(">>> FAILED test -- N_VGetCommunicator, Proc %d (incorrectly reports NULL comm)\n", myid);
     return(1);
   }
-  if (comm == SUN_COMM_NULL) {
+  if (comm == SUNComm_NULL) {
     printf(">>> FAILED test -- N_VGetCommunicator, Proc %d (incorrectly reports non-NULL comm)\n", myid);
     return(1);
   }

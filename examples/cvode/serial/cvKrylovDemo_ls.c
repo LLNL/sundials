@@ -217,7 +217,7 @@ int main(int argc, char* argv[])
   /* Create SUNDIALS context and a logger which will record
      nonlinear solver info (e.g., residual) amongst other things. */
   
-  retval = SUNContext_Create(SUN_COMM_NULL, &sunctx);
+  retval = SUNContext_Create(SUNComm_NULL, &sunctx);
   if (check_retval(&retval, "SUNContext_Create", 1)) return 1;
 
   retval = SUNLogger_Create(SUN_COMM_NULL, 0, &logger);

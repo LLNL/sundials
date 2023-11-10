@@ -29,13 +29,13 @@ The :c:type:`SUNContext` class/type is defined in the header file
 Users should create a :c:type:`SUNContext` object prior to any other calls to
 SUNDIALS library functions by calling:
 
-.. c:function:: int SUNContext_Create(SUN_Comm comm, SUNContext* ctx)
+.. c:function:: int SUNContext_Create(SUNComm comm, SUNContext* ctx)
 
    Creates a :c:type:`SUNContext` object associated with the thread of execution.
    The data of the :c:type:`SUNContext` class is private.
 
    **Arguments**:
-      * ``comm`` -- the MPI communicator or ``SUN_COMM_NULL`` if not using MPI.
+      * ``comm`` -- the MPI communicator or ``SUNComm_NULL`` if not using MPI.
       * ``ctx`` --  [in,out] upon successful exit, a pointer to the newly
         created :c:type:`SUNContext` object.
 

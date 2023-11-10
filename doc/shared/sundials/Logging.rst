@@ -124,7 +124,7 @@ The :c:type:`SUNLogger` class provides the following methods.
    Creates a new :c:type:`SUNLogger` object.
 
    **Arguments:**
-      * ``comm`` -- the MPI communicator to use, if MPI is enabled, otherwise can be ``SUN_COMM_NULL``.
+      * ``comm`` -- the MPI communicator to use, if MPI is enabled, otherwise can be ``SUNComm_NULL``.
       * ``output_rank`` -- the MPI rank used for output (can be ``-1`` to print
         to all ranks).
       * ``logger`` -- [in,out] On input this is a pointer to a
@@ -135,7 +135,7 @@ The :c:type:`SUNLogger` class provides the following methods.
       * Returns zero if successful, or non-zero if an error occurred.
 
 
-.. c:function:: int SUNLogger_CreateFromEnv(SUN_Comm comm, SUNLogger* logger)
+.. c:function:: int SUNLogger_CreateFromEnv(SUNComm comm, SUNLogger* logger)
 
    Creates a new :c:type:`SUNLogger` object and opens the output streams/files
    from the environment variables:
@@ -148,7 +148,7 @@ The :c:type:`SUNLogger` class provides the following methods.
       SUNLOGGER_DEBUG_FILENAME
 
    **Arguments:**
-      * ``comm`` -- the MPI communicator to use, if MPI is enabled, otherwise can be   ``SUN_COMM_NULL``.
+      * ``comm`` -- the MPI communicator to use, if MPI is enabled, otherwise can be   ``SUNComm_NULL``.
       * ``logger`` -- [in,out] On input this is a pointer to a
          :c:type:`SUNLogger`, on output it will point to a new
          :c:type:`SUNLogger` instance.
