@@ -14,12 +14,13 @@ env:
   BUILD_TYPE: Release
 
 jobs:
-  build_wo_profiling:
+  build_cycle_log_levels:
     runs-on: ubuntu-latest
 
     strategy:
       matrix:
-        logging_level: [0, 1, 2, 3, 4, 5]
+        # 2 is what all other builds use (its the default), so skip it here
+        logging_level: [0, 1, 3, 4, 5] 
 
     steps:
     - name: Install LLVM and Clang
@@ -38,7 +39,7 @@ jobs:
       # Build your program with the given configuration
       run: cmake --build ${{github.workspace}}/build --config ${{env.BUILD_TYPE}}
 
-  build_w_profiling:
+  build_cycle_profiling:
     runs-on: ubuntu-latest
 
     strategy:
