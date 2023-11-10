@@ -146,8 +146,6 @@ int arkAdapt(void* arkode_mem, ARKodeHAdaptMem hadapt_mem,
                      "ARKODE::arkAdapt", "step-history",
                      "hcur = %"RSYM", hhist[0] = %"RSYM", hhist[0] = %"RSYM,
                      hcur, hadapt_mem->hhist[0], hadapt_mem->hhist[1]);
-
-  SUNLogger_QueueMsg(ARK_LOGGER, SUN_LOGLEVEL_DEBUG,
 #endif
 
   /* enforce safety factors */
