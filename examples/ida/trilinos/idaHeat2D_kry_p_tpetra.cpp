@@ -187,7 +187,7 @@ int main(int argc, char *argv[])
     MPI_Comm rawComm = *(mpiComm->getRawMpiComm());
 
     SUNContext ctx;
-    retval = SUNContext_Create((void*) &rawComm, &ctx);
+    retval = SUNContext_Create(rawComm, &ctx);
     if (check_retval(&retval, "SUNContext_Create", 1, thispe)) return -1;
 
     /* Allocate and initialize the data structure */
