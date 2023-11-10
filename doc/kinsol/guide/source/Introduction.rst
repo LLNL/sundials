@@ -104,6 +104,10 @@ CMake targets.
 
 Added Fortran support for the LAPACK  dense ``SUNLinearSolver`` implementation.
 
+**Breaking change**
+Functions, types and header files that were previously deprecated have been
+removed. 
+
 Changes in v6.6.1
 -----------------
 
