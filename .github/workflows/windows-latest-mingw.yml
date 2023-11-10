@@ -1,4 +1,4 @@
-name: Windows (mingw) short test
+name: Build and Test - Windows/mingw (short)
 
 on:
   pull_request:
@@ -14,7 +14,7 @@ env:
   BUILD_TYPE: Release
 
 jobs:
-  build:
+  buil_and_test:
     runs-on: windows-latest
 
     steps:
