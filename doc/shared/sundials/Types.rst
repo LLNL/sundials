@@ -25,7 +25,7 @@ The header file ``sundials_types.h`` contains the definition of the types:
 
 * :c:type:`SUNOutputFormat` -- an enumerated type for SUNDIALS output formats
 
-* :c:type:`SUN_Comm` -- a simple typedef to an `int` when SUNDIALS is built without MPI, or a ``MPI_Comm`` when built with MPI. 
+* :c:type:`SUNComm` -- a simple typedef to an `int` when SUNDIALS is built without MPI, or a ``MPI_Comm`` when built with MPI. 
 
 Floating point types
 --------------------
@@ -148,7 +148,7 @@ Output formatting type
 MPI types
 ---------
 
-.. c:type:: SUN_Comm 
+.. c:type:: SUNComm 
 
    A simple typedef to an `int` when SUNDIALS is built without MPI, or a
    ``MPI_Comm`` when built with MPI. This type exists solely to ensure SUNDIALS

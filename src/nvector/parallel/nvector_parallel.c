@@ -430,7 +430,7 @@ void N_VSetArrayPointer_Parallel(sunrealtype *v_data, N_Vector v)
   return;
 }
 
-SUN_Comm N_VGetCommunicator_Parallel(N_Vector v)
+SUNComm N_VGetCommunicator_Parallel(N_Vector v)
 {
   return NV_COMM_P(v);
 }

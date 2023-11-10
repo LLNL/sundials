@@ -59,11 +59,11 @@
 // Treat all ** as an opaque pointer
 %apply void** { SWIGTYPE ** };
 
-// Treat SUN_Comm as an int.
+// Treat SUNComm as an int.
 // This means the newer type(MPI_Comm) in mpi_f08 cannot be used
 // but we have to do so to avoid generating separate Fortran interfaces for
 // the MPI and no-MPI cases.
-%apply int { SUN_Comm };
+%apply int { SUNComm };
 
 // Inform SWIG of the SUNDIALS_EXPORT macro
 #define SUNDIALS_EXPORT

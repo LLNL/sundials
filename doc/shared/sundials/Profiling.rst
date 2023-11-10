@@ -106,7 +106,7 @@ In addition to the macros, the following methods of the ``SUNProfiler`` class
 are available.
 
 
-.. c:function:: int SUNProfiler_Create(SUN_Comm comm, const char* title, SUNProfiler* p)
+.. c:function:: int SUNProfiler_Create(SUNComm comm, const char* title, SUNProfiler* p)
 
    Creates a new ``SUNProfiler`` object.
 

@@ -152,9 +152,9 @@ operations below.
       N_VSetArrayPointer(vdata,v);
 
 
-.. c:function:: SUN_Comm N_VGetCommunicator(N_Vector v)
+.. c:function:: SUNComm N_VGetCommunicator(N_Vector v)
 
-   Returns the ``SUN_Comm`` (which is just an ``MPI_Comm`` when SUNDIALS is built
+   Returns the ``SUNComm`` (which is just an ``MPI_Comm`` when SUNDIALS is built
    with MPI, otherwise it is an ``int``) associated with the vector (if
    applicable).  For MPI-unaware vector implementations, this should return
    ``SUN_COMM_NULL``.
@@ -165,7 +165,7 @@ operations below.
 
       MPI_Comm comm = N_VGetCommunicator(v); // Works if MPI is enabled
       int comm = N_VGetCommunicator(v);      // Works if MPI is disabled
-      SUN_Comm = N_VGetCommunicator(v);      // Work with or without MPI
+      SUNComm = N_VGetCommunicator(v);      // Work with or without MPI
 
 
 .. c:function:: sunindextype N_VGetLength(N_Vector v)

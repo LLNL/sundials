@@ -544,13 +544,13 @@ void MVAPPEND(N_VSpace)(N_Vector v, sunindextype *lrw, sunindextype *liw)
 
 #ifdef MANYVECTOR_BUILD_WITH_MPI
 /* This function retrieves the MPI Communicator from an MPIManyVector object. */
-SUN_Comm N_VGetCommunicator_MPIManyVector(N_Vector v)
+SUNComm N_VGetCommunicator_MPIManyVector(N_Vector v)
 {
   return(MANYVECTOR_COMM(v));
 }
 #else
 /* This function retrieves the MPI Communicator from a ManyVector object. */
-SUN_Comm N_VGetCommunicator_ManyVector(N_Vector v)
+SUNComm N_VGetCommunicator_ManyVector(N_Vector v)
 {
   return SUN_COMM_NULL;
 }

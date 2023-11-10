@@ -66,8 +66,8 @@ int Test_N_VClone(N_Vector W, sunindextype local_length, int myid);
 int Test_N_VGetArrayPointer(N_Vector W, sunindextype local_length, int myid);
 int Test_N_VSetArrayPointer(N_Vector W, sunindextype local_length, int myid);
 int Test_N_VGetLength(N_Vector W, int myid);
-int Test_N_VGetCommunicator(N_Vector W, SUN_Comm comm, int myid);
-int Test_N_VGetCommunicatorMPI(N_Vector W, SUN_Comm comm, int myid);
+int Test_N_VGetCommunicator(N_Vector W, SUNComm comm, int myid);
+int Test_N_VGetCommunicatorMPI(N_Vector W, SUNComm comm, int myid);
 
 /* Standard vector operation tests */
 int Test_N_VLinearSum(N_Vector X, N_Vector Y, N_Vector Z,

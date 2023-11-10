@@ -57,7 +57,7 @@ defined as
       sunrealtype* (*nvgetarraypointer)(N_Vector);
       sunrealtype* (*nvgetdevicearraypointer)(N_Vector);
       void         (*nvsetarraypointer)(sunrealtype *, N_Vector);
-      SUN_Comm     (*nvgetcommunicator)(N_Vector);
+      SUNComm     (*nvgetcommunicator)(N_Vector);
       sunindextype (*nvgetlength)(N_Vector);
       sunindextype (*nvgetlocallength)(N_Vector);
       void         (*nvlinearsum)(sunrealtype, N_Vector, sunrealtype, N_Vector, N_Vector);

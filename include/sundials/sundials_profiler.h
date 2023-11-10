@@ -30,7 +30,7 @@ extern "C" {
 
 typedef struct _SUNProfiler* SUNProfiler;
 
-SUNDIALS_EXPORT int SUNProfiler_Create(SUN_Comm comm, const char* title,
+SUNDIALS_EXPORT int SUNProfiler_Create(SUNComm comm, const char* title,
                                        SUNProfiler* p);
 SUNDIALS_EXPORT int SUNProfiler_Free(SUNProfiler* p);
 SUNDIALS_EXPORT int SUNProfiler_Begin(SUNProfiler p, const char* name);

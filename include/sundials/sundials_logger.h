@@ -35,9 +35,9 @@ typedef enum {
   SUN_LOGLEVEL_DEBUG   = 4
 } SUNLogLevel;
 
-SUNDIALS_EXPORT int SUNLogger_Create(SUN_Comm comm, int output_rank,
+SUNDIALS_EXPORT int SUNLogger_Create(SUNComm comm, int output_rank,
                                      SUNLogger* logger);
-SUNDIALS_EXPORT int SUNLogger_CreateFromEnv(SUN_Comm comm, SUNLogger* logger);
+SUNDIALS_EXPORT int SUNLogger_CreateFromEnv(SUNComm comm, SUNLogger* logger);
 SUNDIALS_EXPORT int SUNLogger_SetErrorFilename(SUNLogger logger,
                                                const char* error_filename);
 SUNDIALS_EXPORT int SUNLogger_SetWarningFilename(SUNLogger logger,

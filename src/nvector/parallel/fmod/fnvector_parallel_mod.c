@@ -387,11 +387,11 @@ SWIGEXPORT void _wrap_FN_VSetArrayPointer_Parallel(double *farg1, N_Vector farg2
 SWIGEXPORT int _wrap_FN_VGetCommunicator_Parallel(N_Vector farg1) {
   int fresult ;
   N_Vector arg1 = (N_Vector) 0 ;
-  SUN_Comm result;
+  SUNComm result;
   
   arg1 = (N_Vector)(farg1);
-  result = (SUN_Comm)N_VGetCommunicator_Parallel(arg1);
-  fresult = (SUN_Comm)(result);
+  result = (SUNComm)N_VGetCommunicator_Parallel(arg1);
+  fresult = (SUNComm)(result);
   return fresult;
 }
 

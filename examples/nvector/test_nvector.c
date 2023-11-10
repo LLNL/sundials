@@ -503,9 +503,9 @@ int Test_N_VGetLength(N_Vector W, int myid)
 /* ----------------------------------------------------------------------
  * Test_N_VGetCommunicator Test (without MPI dependency)
  * --------------------------------------------------------------------*/
-int Test_N_VGetCommunicator(N_Vector W, SUN_Comm comm, int myid)
+int Test_N_VGetCommunicator(N_Vector W, SUNComm comm, int myid)
 {
-  SUN_Comm wcomm;
+  SUNComm wcomm;
 
   /* ask W for its communicator */
   wcomm = N_VGetCommunicator(W);

@@ -463,7 +463,7 @@ void N_VSetArrayPointer_ParHyp(sunrealtype *v_data, N_Vector v)
 }
 
 
-SUN_Comm N_VGetCommunicator_ParHyp(N_Vector v)
+SUNComm N_VGetCommunicator_ParHyp(N_Vector v)
 {
   return(NV_COMM_PH(v));
 }

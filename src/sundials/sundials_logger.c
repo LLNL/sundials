@@ -149,7 +149,7 @@ static sunbooleantype sunLoggerIsOutputRank(SUNLogger logger, int* rank_ref)
   return retval;
 }
 
-int SUNLogger_Create(SUN_Comm comm, int output_rank, SUNLogger* logger_ptr)
+int SUNLogger_Create(SUNComm comm, int output_rank, SUNLogger* logger_ptr)
 {
   SUNLogger logger = NULL;
 
@@ -198,7 +198,7 @@ int SUNLogger_Create(SUN_Comm comm, int output_rank, SUNLogger* logger_ptr)
   return 0;
 }
 
-int SUNLogger_CreateFromEnv(SUN_Comm comm, SUNLogger* logger)
+int SUNLogger_CreateFromEnv(SUNComm comm, SUNLogger* logger)
 {
   int retval = 0;
 

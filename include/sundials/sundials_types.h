@@ -170,19 +170,19 @@ typedef enum {
 
 /*
  *------------------------------------------------------------------
- * Type : SUN_Comm
+ * Type : SUNComm
  *------------------------------------------------------------------
- * SUN_Comm replaces MPI_Comm use in SUNDIALS code. It maps to
+ * SUNComm replaces MPI_Comm use in SUNDIALS code. It maps to
  * MPI_Comm when MPI is enabled.
  *------------------------------------------------------------------
  */
 
 #if SUNDIALS_MPI_ENABLED
 #define SUN_COMM_NULL MPI_COMM_NULL
-typedef MPI_Comm SUN_Comm;
+typedef MPI_Comm SUNComm;
 #else
 #define SUN_COMM_NULL 0
-typedef int SUN_Comm;
+typedef int SUNComm;
 #endif
 
 #ifdef __cplusplus

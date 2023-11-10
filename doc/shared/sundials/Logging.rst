@@ -119,7 +119,7 @@ functions to identify the output level or file.
 The :c:type:`SUNLogger` class provides the following methods.
 
 
-.. c:function:: int SUNLogger_Create(SUN_Comm comm, int output_rank, SUNLogger* logger)
+.. c:function:: int SUNLogger_Create(SUNComm comm, int output_rank, SUNLogger* logger)
 
    Creates a new :c:type:`SUNLogger` object.
 

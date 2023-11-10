@@ -32,9 +32,9 @@ void Test_AbortMPI(void* comm, int code)
 /* ----------------------------------------------------------------------
  * Test_N_VGetCommunicator Test (with MPI dependency).
  * --------------------------------------------------------------------*/
-int Test_N_VGetCommunicatorMPI(N_Vector W, SUN_Comm comm, int myid)
+int Test_N_VGetCommunicatorMPI(N_Vector W, SUNComm comm, int myid)
 {
-  SUN_Comm wcomm;
+  SUNComm wcomm;
   int same;
 
   /* ask W for its communicator */

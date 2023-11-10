@@ -149,14 +149,14 @@ static void sunResetTiming(sunTimerStruct* entry)
 
 struct _SUNProfiler
 {
-  SUN_Comm comm;
+  SUNComm comm;
   char* title;
   SUNHashMap map;
   sunTimerStruct* overhead;
   double sundials_time;
 };
 
-int SUNProfiler_Create(SUN_Comm comm, const char* title, SUNProfiler* p)
+int SUNProfiler_Create(SUNComm comm, const char* title, SUNProfiler* p)
 {
   SUNProfiler profiler;
   int max_entries;

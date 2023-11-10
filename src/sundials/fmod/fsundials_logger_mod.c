@@ -235,12 +235,12 @@ SWIGINTERN SwigArrayWrapper SwigArrayWrapper_uninitialized() {
 
 SWIGEXPORT int _wrap_FSUNLogger_Create(int const *farg1, int const *farg2, void *farg3) {
   int fresult ;
-  SUN_Comm arg1 ;
+  SUNComm arg1 ;
   int arg2 ;
   SUNLogger *arg3 = (SUNLogger *) 0 ;
   int result;
   
-  arg1 = (SUN_Comm)(*farg1);
+  arg1 = (SUNComm)(*farg1);
   arg2 = (int)(*farg2);
   arg3 = (SUNLogger *)(farg3);
   result = (int)SUNLogger_Create(arg1,arg2,arg3);
@@ -251,11 +251,11 @@ SWIGEXPORT int _wrap_FSUNLogger_Create(int const *farg1, int const *farg2, void 
 
 SWIGEXPORT int _wrap_FSUNLogger_CreateFromEnv(int const *farg1, void *farg2) {
   int fresult ;
-  SUN_Comm arg1 ;
+  SUNComm arg1 ;
   SUNLogger *arg2 = (SUNLogger *) 0 ;
   int result;
   
-  arg1 = (SUN_Comm)(*farg1);
+  arg1 = (SUNComm)(*farg1);
   arg2 = (SUNLogger *)(farg2);
   result = (int)SUNLogger_CreateFromEnv(arg1,arg2);
   fresult = (int)(result);
