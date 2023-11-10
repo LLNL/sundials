@@ -111,7 +111,7 @@ are available.
    Creates a new ``SUNProfiler`` object.
 
    **Arguments:**
-      * ``comm`` -- the MPI communicator to use, if MPI is enabled, otherwise can be ``SUNComm_NULL``.
+      * ``comm`` -- the MPI communicator to use, if MPI is enabled, otherwise can be ``SUN_COMM_NULL``.
       * ``title`` -- a title or description of the profiler
       * ``p`` -- [in,out] On input this is a pointer to a ``SUNProfiler``, on output it will point to a new ``SUNProfiler`` instance
 

@@ -115,7 +115,7 @@ int main (int argc, char *argv[])
   auto mpicomm = Teuchos::rcp_dynamic_cast<const Teuchos::MpiComm<int>>(comm);
   fails += Test_N_VGetCommunicatorMPI(X, *(mpicomm->getRawMpiComm().get()), myRank);
 #else
-  fails += Test_N_VGetCommunicator(X, SUNComm_NULL, myRank);
+  fails += Test_N_VGetCommunicator(X, SUN_COMM_NULL, myRank);
 #endif
 
   /* Test clone functions */

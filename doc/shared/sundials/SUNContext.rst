@@ -35,7 +35,7 @@ SUNDIALS library functions by calling:
    The data of the :c:type:`SUNContext` class is private.
 
    **Arguments**:
-      * ``comm`` -- the MPI communicator or ``SUNComm_NULL`` if not using MPI.
+      * ``comm`` -- the MPI communicator or ``SUN_COMM_NULL`` if not using MPI.
       * ``ctx`` --  [in,out] upon successful exit, a pointer to the newly
         created :c:type:`SUNContext` object.
 

@@ -86,7 +86,7 @@ int main(int argc, char* argv[])
     fails += Test_N_VGetLength(X, 0);
 
     /* Check vector communicator */
-    fails += Test_N_VGetCommunicator(X, SUNComm_NULL, 0);
+    fails += Test_N_VGetCommunicator(X, SUN_COMM_NULL, 0);
 
     /* Clone additional vectors for testing */
     VecType Y{X};

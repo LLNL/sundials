@@ -115,7 +115,7 @@ static sunbooleantype sunLoggerIsOutputRank(SUNLogger logger, int* rank_ref)
 
   if (logger->comm)
   {
-    if (logger->comm != SUNComm_NULL) 
+    if (logger->comm != SUN_COMM_NULL) 
     {
       MPI_Comm_rank(logger->comm, &rank);
     } 
@@ -164,17 +164,17 @@ int SUNLogger_Create(SUNComm comm, int output_rank, SUNLogger* logger_ptr)
 
   /* Attach the comm, duplicating it if MPI is used. */
 #if SUNDIALS_MPI_ENABLED
-  logger->comm = SUNComm_NULL;
-  if (comm != SUNComm_NULL)
+  logger->comm = SUN_COMM_NULL;
+  if (comm != SUN_COMM_NULL)
   {
     MPI_Comm_dup(comm, &logger->comm);
   }
 #else
-  if (comm != SUNComm_NULL)
+  if (comm != SUN_COMM_NULL)
   {
     return -1;
   }
-  logger->comm = SUNComm_NULL;
+  logger->comm = SUN_COMM_NULL;
 #endif
   logger->output_rank = output_rank;
   logger->content     = NULL;
