@@ -165,7 +165,7 @@ operations below.
 
       MPI_Comm comm = N_VGetCommunicator(v); // Works if MPI is enabled
       int comm = N_VGetCommunicator(v);      // Works if MPI is disabled
-      SUNComm = N_VGetCommunicator(v);      // Work with or without MPI
+      SUNComm = N_VGetCommunicator(v);      // Works with or without MPI
 
 
 .. c:function:: sunindextype N_VGetLength(N_Vector v)
