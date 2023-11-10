@@ -165,7 +165,7 @@ int main(int argc, char* argv[])
     bool outproc = (myid == 0);
 
     // SUNDIALS context
-    sundials::Context sunctx(&comm_w);
+    sundials::Context sunctx(comm_w);
 
     // ------------------------------------------
     // Setup UserData and parallel decomposition

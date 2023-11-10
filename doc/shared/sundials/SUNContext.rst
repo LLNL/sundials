@@ -250,7 +250,7 @@ For C++ users a RAII safe class, ``sundials::Context``, is provided:
    class Context : public sundials::ConvertibleTo<SUNContext>
    {
    public:
-   explicit Context(void* comm = nullptr)
+   explicit Context(SUNComm comm = SUN_COMM_NULL)
    {
       sunctx_ = std::make_unique<SUNContext>();
       SUNContext_Create(comm, sunctx_.get());
