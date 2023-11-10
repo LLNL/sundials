@@ -98,7 +98,7 @@ SUNDIALS_EXPORT void N_VSpace_ParHyp(N_Vector v, sunindextype *lrw,
                                      sunindextype *liw);
 SUNDIALS_EXPORT sunrealtype *N_VGetArrayPointer_ParHyp(N_Vector v);
 SUNDIALS_EXPORT void N_VSetArrayPointer_ParHyp(sunrealtype *v_data, N_Vector v);
-SUNDIALS_EXPORT void *N_VGetCommunicator_ParHyp(N_Vector v);
+SUNDIALS_EXPORT MPI_Comm N_VGetCommunicator_ParHyp(N_Vector v);
 SUNDIALS_EXPORT sunindextype N_VGetLength_ParHyp(N_Vector v);
 
 /* standard vector operations */

@@ -365,11 +365,15 @@ SWIGEXPORT void _wrap_FN_VSpace_MPIManyVector(N_Vector farg1, int64_t *farg2, in
 SWIGEXPORT int _wrap_FN_VGetCommunicator_MPIManyVector(N_Vector farg1) {
   int fresult ;
   N_Vector arg1 = (N_Vector) 0 ;
-  SUNComm result;
+  MPI_Comm result;
   
   arg1 = (N_Vector)(farg1);
-  result = (SUNComm)N_VGetCommunicator_MPIManyVector(arg1);
-  fresult = (SUNComm)(result);
+  result = N_VGetCommunicator_MPIManyVector(arg1);
+#ifdef SUNDIALS_MPI_ENABLED
+  fresult = (int)(MPI_Comm_c2f(result));
+#else
+  fresult = result;
+#endif
   return fresult;
 }
 
