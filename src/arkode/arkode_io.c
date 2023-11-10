@@ -309,33 +309,6 @@ int arkSetUserData(void *arkode_mem, void *user_data)
   return(ARK_SUCCESS);
 }
 
-
-/*---------------------------------------------------------------
-  arkSetDiagnostics:
-
-  Specifies to enable solver diagnostics, and specifies the FILE
-  pointer for output (diagfp==NULL disables output)
-  ---------------------------------------------------------------*/
-int arkSetDiagnostics(void *arkode_mem, FILE *diagfp)
-{
-  ARKodeMem ark_mem;
-  if (arkode_mem==NULL) {
-    arkProcessError(NULL, ARK_MEM_NULL, "ARKODE",
-                    "arkSetDiagnostics", MSG_ARK_NO_MEM);
-    return(ARK_MEM_NULL);
-  }
-  ark_mem = (ARKodeMem) arkode_mem;
-  ark_mem->diagfp = diagfp;
-  if (diagfp != NULL) {
-    ark_mem->report = SUNTRUE;
-  } else {
-    ark_mem->report = SUNFALSE;
-  }
-
-  return(ARK_SUCCESS);
-}
-
-
 /*---------------------------------------------------------------
   arkSetAdaptController:
 
