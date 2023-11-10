@@ -86,8 +86,6 @@ int arkSetDefaults(void *arkode_mem)
   ark_mem->tstopset                = SUNFALSE;       /* no stop time set */
   ark_mem->tstopinterp             = SUNFALSE;       /* copy at stop time */
   ark_mem->tstop                   = ZERO;           /* no fixed stop time */
-  ark_mem->diagfp                  = NULL;           /* no solver diagnostics file */
-  ark_mem->report                  = SUNFALSE;       /* don't report solver diagnostics */
   ark_mem->hadapt_mem->etamx1      = ETAMX1;         /* max change on first step */
   ark_mem->hadapt_mem->etamxf      = ETAMXF;         /* max change on error-failed step */
   ark_mem->hadapt_mem->etamin      = ETAMIN;         /* min bound on time step reduction */
