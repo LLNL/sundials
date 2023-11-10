@@ -49,7 +49,6 @@
  *     KINScSNorm
  *   KINSOL Verbose output functions
  *     KINPrintInfo
- *     KINInfoHandler
  *   KINSOL Error Handling functions
  *     KINProcessError
  *     KINErrHandler
@@ -274,8 +273,6 @@ void *KINCreate(SUNContext sunctx)
   kin_mem->kin_constraintsSet   = SUNFALSE;
   kin_mem->kin_ehfun            = KINErrHandler;
   kin_mem->kin_eh_data          = kin_mem;
-  kin_mem->kin_ihfun            = KINInfoHandler;
-  kin_mem->kin_ih_data          = kin_mem;
   kin_mem->kin_ret_newest       = SUNFALSE;
   kin_mem->kin_mxiter           = MXITER_DEFAULT;
   kin_mem->kin_noInitSetup      = SUNFALSE;
@@ -2359,34 +2356,16 @@ void KINPrintInfo(KINMem kin_mem,
 
   }
 
-  /* call the info message handler */
-
-  kin_mem->kin_ihfun(module, fname, msg, kin_mem->kin_ih_data);
+#if SUNDIALS_LOGGING_LEVEL >= SUNDIALS_LOGGING_INFO
+  SUNLogger_QueueMsg(KIN_LOGGER, SUN_LOGLEVEL_INFO,
+    "KINSOL", fname, "%s", msg);
+#endif
 
   /* finalize argument processing */
 
   va_end(ap);
 
   return;
-}
-
-
-/*
- * KINInfoHandler
- *
- * This is the default KINSOL info handling function.
- * It sends the info message to the stream pointed to by kin_infofp
- */
-
-void KINInfoHandler(const char *module, const char *function,
-                    char *msg, void *data)
-{
-  KINMem kin_mem;
-  kin_mem = (KINMem) data;
-#if SUNDIALS_LOGGING_LEVEL >= SUNDIALS_LOGGING_INFO
-  SUNLogger_QueueMsg(KIN_LOGGER, SUN_LOGLEVEL_INFO,
-    "KINSOL::KINInfoHandler", function, "%s", msg);
-#endif
 }
 
 /*
