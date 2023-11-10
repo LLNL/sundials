@@ -138,7 +138,7 @@ int main(int argc, char *argv[])
 
   if (SUNDIALS_LOGGING_LEVEL >= SUN_LOGLEVEL_ERROR) {
     retval = SUNLogger_Create(
-      (void*) &comm, // MPI communicator
+      comm, // MPI communicator
       0, // output on process 0
       &logger
     );

@@ -119,7 +119,7 @@ int main()
   SUNLogger logger = NULL;
   if (SUNDIALS_LOGGING_LEVEL >= SUN_LOGLEVEL_ERROR) {
     flag = SUNLogger_Create(
-      NULL, // no MPI communicator
+      SUN_COMM_NULL, // no MPI communicator
       0, // output on process 0 (the only one)
       &logger
     );
