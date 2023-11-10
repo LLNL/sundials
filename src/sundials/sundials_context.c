@@ -39,7 +39,7 @@ int SUNContext_Create(SUNComm comm, SUNContext* sunctx)
      when the comm was to be ignored, we check if its NULL here
      and translate it to SUN_COMM_NULL to make the transition 
      easier for users. */
-  if (comm == NULL) 
+  if (!comm) 
   {
     comm = SUN_COMM_NULL;
   }
