@@ -34,9 +34,7 @@ int SUNContext_Create(void* commptr, SUNContext* sunctx)
 {
   SUNProfiler profiler = NULL;
   SUNLogger logger     = NULL;
-#if SUNDIALS_MPI_ENABLED
-  SUN_Comm comm = commptr == NULL ? SUN_COMM_NULL : *((SUN_Comm*) commptr);
-#endif
+  SUN_Comm comm        = commptr == NULL ? SUN_COMM_NULL : *((SUN_Comm*) commptr);
 
 #if defined(SUNDIALS_BUILD_WITH_PROFILING) && !defined(SUNDIALS_CALIPER_ENABLED)
   if (SUNProfiler_Create(comm, "SUNContext Default", &profiler)) return (-1);
