@@ -135,6 +135,10 @@ and a typedef to a ``MPI_Comm`` in builds with MPI. Here is what this means:
 The change away from type-erased pointers for :c:type:`SUNComm` fixes problems like the 
 one described in `GitHub Issue #275 <https://github.com/LLNL/sundials/issues/275>`.
 
+**Breaking change**
+Functions, types and header files that were previously deprecated have been
+removed. 
+
 Changes in v5.6.1
 -----------------
 

@@ -249,26 +249,6 @@ N_Vector *N_VCloneVectorArray_Petsc(int count, N_Vector w)
 }
 
 /* ----------------------------------------------------------------
- * Function to create an array of new PETSc vector wrappers with
- * empty (NULL) PETSc vectors.
- */
-
-N_Vector *N_VCloneVectorArrayEmpty_Petsc(int count, N_Vector w)
-{
-  return(N_VCloneEmptyVectorArray(count, w));
-}
-
-/* ----------------------------------------------------------------
- * Function to free an array created with N_VCloneVectorArray_Petsc
- */
-
-void N_VDestroyVectorArray_Petsc(N_Vector *vs, int count)
-{
-  N_VDestroyVectorArray(vs, count);
-  return;
-}
-
-/* ----------------------------------------------------------------
  * Function to extract PETSc vector
  */
 

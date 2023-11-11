@@ -21,6 +21,7 @@ install(CODE "MESSAGE(\"\nInstall shared components\n\")")
 
 # Add variable sundials_HEADERS with the exported SUNDIALS header files
 set(sundials_HEADERS
+  sundials_adaptcontroller.h
   sundials_base.hpp
   sundials_band.h
   sundials_context.h
@@ -73,6 +74,7 @@ endif()
 add_prefix(${SUNDIALS_SOURCE_DIR}/include/sundials/ sundials_HEADERS)
 
 set(sundials_SOURCES
+  sundials_adaptcontroller.c
   sundials_band.c
   sundials_context.c
   sundials_dense.c
@@ -128,8 +130,6 @@ sundials_add_library(sundials_core
     ${_include_mpi_if_needed}
   LINK_LIBRARIES
     ${_link_mpi_if_needed}
-    ${_link_caliper_if_needed}
-    ${_link_adiak_if_needed}
   OUTPUT_NAME
     sundials_core
   VERSION

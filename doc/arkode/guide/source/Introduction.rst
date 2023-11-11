@@ -133,6 +133,21 @@ Changes from previous versions
 Changes in vX.X.X
 -----------------
 
+Added the :c:type:`SUNAdaptController` base class, ported ARKODE's internal
+implementations of time step controllers into implementations of this class,
+and updated ARKODE to use these objects instead of its own implementations.  Added
+:c:func:`ARKStepSetAdaptController` and :c:func:`ERKStepSetAdaptController`
+routines so that users can modify controller parameters, or even provide custom
+implementations.
+
+Added the routines :c:func:`ARKStepSetAdaptivityAdjustment` and
+:c:func:`ERKStepSetAdaptivityAdjustment`, that allow users to adjust the
+value for the method order supplied to the temporal adaptivity controllers.
+The ARKODE default for this adjustment has been :math:`-1` since its initial
+release, but for some applications a value of :math:`0` is more appropriate.
+Users who notice that their simulations encounter a large number of
+temporal error test failures may want to experiment with adjusting this value.
+
 Fixed the build system support for MAGMA when using a NVIDIA HPC SDK installation of CUDA
 and fixed the targets used for rocBLAS and rocSPARSE.
 
@@ -190,6 +205,10 @@ and a typedef to a ``MPI_Comm`` in builds with MPI. Here is what this means:
 The change away from type-erased pointers for :c:type:`SUNComm` fixes problems like the 
 one described in `GitHub Issue #275 <https://github.com/LLNL/sundials/issues/275>`.
 
+**Breaking change**
+Functions, types and header files that were previously deprecated have been
+removed. 
+
 
 Changes in v5.6.1
 -----------------
@@ -203,6 +222,21 @@ Fixed a bug where the stop time may not be cleared when using normal mode if the
 requested output time is the same as the stop time. Additionally, this fix
 removes an unnecessary interpolation of the solution at the stop time that could
 occur in this case.
+
+Fixed a bug in ERKStep where methods with :math:`c_s = 1` but
+:math:`a_{s,j} \neq b_j` were incorrectly treated as having the first same as
+last (FSAL) property.
+
+Fixed a bug in :c:func:`MRIStepCoupling_Write` where explicit coupling tables
+were not written to the output file pointer.
+
+ARKStep, ERKStep, MRIStep, and SPRKStep were updated to remove a potentially
+unnecessary right-hand side evaluation at the end of an integration. ARKStep was
+additionally updated to remove extra right-hand side evaluations when using an
+explicit method or an implicit method with an explicit first stage.
+
+The :c:type:`MRIStepInnerStepper` class in MRIStep was updated to make supplying
+an :c:func:`MRIStepInnerFullRhsFn` optional.
 
 Changes in v5.6.0
 -----------------

@@ -287,13 +287,11 @@ options as the vector they are cloned from, while vectors created with
   ``v_data = NV_DATA_P(v)``, and then access ``v_data[i]`` within the loop
   than it is to use ``NV_Ith_P(v,i)`` within the loop.
 
-* :c:func:`N_VNewEmpty_Parallel`, :c:func:`N_VMake_Parallel`, and
-  :c:func:`N_VCloneVectorArrayEmpty_Parallel()` set the field *own_data* to
-  ``SUNFALSE``. The routines :c:func:`N_VDestroy_Parallel()` and
-  :c:func:`N_VDestroyVectorArray_Parallel()` will not attempt to free the
-  pointer data for any ``N_Vector`` with *own_data* set to
-  ``SUNFALSE``. In such a case, it is the user's responsibility to
-  deallocate the data pointer.
+* :c:func:`N_VNewEmpty_Parallel` and :c:func:`N_VMake_Parallel` set the field
+  *own_data* to ``SUNFALSE``. The routine :c:func:`N_VDestroy_Parallel()` will
+  not attempt to free the pointer data for any ``N_Vector`` with *own_data* set
+  to ``SUNFALSE``. In such a case, it is the user's responsibility to deallocate
+  the data pointer.
 
 * To maximize efficiency, vector operations in the NVECTOR_PARALLEL
   implementation that have more than one ``N_Vector`` argument do not

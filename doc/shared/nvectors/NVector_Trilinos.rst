@@ -108,7 +108,6 @@ The module NVECTOR_TRILINOS provides the following additional user-callable rout
   N_VGetVector_Trilinos(v)`` and then access components using the
   appropriate Trilinos functions.
 
-* The functions ``N_VDestroy_Trilinos`` and
-  ``N_VDestroyVectorArray_Trilinos`` only delete the ``N_Vector``
+* The function ``N_VDestroy_Trilinos`` only deletes the ``N_Vector``
   wrapper. The underlying Tpetra vector object will exist for as long
   as there is at least one reference to it.

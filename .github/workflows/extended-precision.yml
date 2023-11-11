@@ -1,5 +1,5 @@
 #
-name: extended precision build and test with GCC+TPLs (no GPUs)
+name: Build and Test - Ubuntu/gcc extended precision (TPLs, no GPUs)
 
 on:
   pull_request:

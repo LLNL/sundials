@@ -1,4 +1,4 @@
-name: Windows short test
+name: Build and Test - Windows/MSVC (short)
 
 on:
   pull_request:
@@ -14,7 +14,7 @@ env:
   BUILD_TYPE: Release
 
 jobs:
-  build:
+  build_and_test:
     runs-on: windows-latest
 
     steps:

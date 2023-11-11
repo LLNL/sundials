@@ -718,6 +718,18 @@ SWIGEXPORT void _wrap_FARKodeButcherTable_Write(void *farg1, void *farg2) {
 }
 
 
+SWIGEXPORT int _wrap_FARKodeButcherTable_IsStifflyAccurate(void *farg1) {
+  int fresult ;
+  ARKodeButcherTable arg1 = (ARKodeButcherTable) 0 ;
+  int result;
+  
+  arg1 = (ARKodeButcherTable)(farg1);
+  result = (int)ARKodeButcherTable_IsStifflyAccurate(arg1);
+  fresult = (int)(result);
+  return fresult;
+}
+
+
 SWIGEXPORT int _wrap_FARKodeButcherTable_CheckOrder(void *farg1, int *farg2, int *farg3, void *farg4) {
   int fresult ;
   ARKodeButcherTable arg1 = (ARKodeButcherTable) 0 ;
