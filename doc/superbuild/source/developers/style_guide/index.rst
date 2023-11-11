@@ -12,18 +12,19 @@
    SUNDIALS Copyright End
    -----------------------------------------------------------------------------
 
-.. _Testing:
+.. _Style:
 
-*******
-Testing
-*******
+Style Guide
+===========
 
-The following sections describe the SUNDIALS CI suite as well as a testing workflow for developers.
+This chapter covers the SUNDIALS style conventions for formatting source code,
+CMake files, and documentation files to ensure consistency and maintainability.
 
 .. toctree::
-   :maxdepth: 2
+   :maxdepth: 1
 
-   CI
-   Local
-   Benchmarking
-   Spot
+   SourceCode
+   Documentation
+..
+   Classes
+   CMake
