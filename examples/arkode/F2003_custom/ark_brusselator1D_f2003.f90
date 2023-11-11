@@ -300,7 +300,7 @@ program main
   print '(2(a,es8.1))', "    reltol = ",reltol,",  abstol = ",abstol
 
   ! create the SUNDIALS context for the simulation
-  ierr = FSUNContext_Create(c_null_ptr, sunctx)
+  ierr = FSUNContext_Create(0, sunctx)
   if (ierr /= 0) then
     write(*,*) 'Error in FSUNContext_Create'
     stop 1

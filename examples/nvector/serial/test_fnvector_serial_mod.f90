@@ -32,7 +32,6 @@ contains
 
     integer(c_long)         :: lenrw(1), leniw(1) ! real and int work space size
     integer(c_long)         :: ival               ! integer work value
-    type(c_ptr)             :: cptr               ! c_ptr work value
     real(c_double)          :: rval               ! real work value
     real(c_double)          :: xdata(N)           ! vector data array
     real(c_double), pointer :: xptr(:)            ! pointer to vector data array
@@ -69,7 +68,7 @@ contains
     call FN_VSpace_Serial(x, lenrw, leniw)
     xptr => FN_VGetArrayPointer_Serial(x)
     call FN_VSetArrayPointer_Serial(xdata, x)
-    cptr = FN_VGetCommunicator(x)
+    ival = FN_VGetCommunicator(x)
     ival = FN_VGetLength_Serial(x)
 
     ! test standard vector operations
@@ -181,6 +180,7 @@ end function has_data
 program main
   !======== Inclusions ==========
   use, intrinsic :: iso_c_binding
+  use fsundials_types_mod
   use test_nvector_serial
 
   !======== Declarations ========
@@ -190,7 +190,7 @@ program main
   !============== Introduction =============
   print *, 'Serial N_Vector Fortran 2003 interface test'
 
-  call Test_Init(c_null_ptr)
+  call Test_Init(SUN_COMM_NULL)
 
   fails = smoke_tests()
   if (fails /= 0) then

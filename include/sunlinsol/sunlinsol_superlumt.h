@@ -43,7 +43,7 @@ extern "C" {
 /* Default SuperLU_MT solver parameters */
 #define SUNSLUMT_ORDERING_DEFAULT  3     /* COLAMD */
 
-/* Interfaces to match 'realtype' with the correct SuperLUMT functions */
+/* Interfaces to match 'sunrealtype' with the correct SuperLUMT functions */
 #if defined(SUNDIALS_DOUBLE_PRECISION)
 #ifndef _SLUMT_H
 #define _SLUMT_H
@@ -65,7 +65,7 @@ extern "C" {
 #define xCreate_Dense_Matrix    sCreate_Dense_Matrix
 #define xCreate_CompCol_Matrix  sCreate_CompCol_Matrix
 #else  /* incompatible sunindextype for SuperLUMT */
-#error  Incompatible realtype for SuperLUMT
+#error  Incompatible sunrealtype for SuperLUMT
 #endif
 
 
@@ -81,7 +81,7 @@ struct _SUNLinearSolverContent_SuperLUMT {
   sunindextype *perm_r, *perm_c;
   sunindextype N;
   int          num_threads;
-  realtype     diag_pivot_thresh;
+  sunrealtype     diag_pivot_thresh;
   int          ordering;
   superlumt_options_t *options;
 };
@@ -104,7 +104,7 @@ SUNDIALS_EXPORT SUNLinearSolver_ID SUNLinSolGetID_SuperLUMT(SUNLinearSolver S);
 SUNDIALS_EXPORT int SUNLinSolInitialize_SuperLUMT(SUNLinearSolver S);
 SUNDIALS_EXPORT int SUNLinSolSetup_SuperLUMT(SUNLinearSolver S, SUNMatrix A);
 SUNDIALS_EXPORT int SUNLinSolSolve_SuperLUMT(SUNLinearSolver S, SUNMatrix A,
-                                       N_Vector x, N_Vector b, realtype tol);
+                                       N_Vector x, N_Vector b, sunrealtype tol);
 SUNDIALS_EXPORT sunindextype SUNLinSolLastFlag_SuperLUMT(SUNLinearSolver S);
 SUNDIALS_EXPORT int SUNLinSolSpace_SuperLUMT(SUNLinearSolver S,
                                              long int *lenrwLS,

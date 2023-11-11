@@ -27,34 +27,6 @@
 // nvector_impl macro defines some ignore and inserts with the vector name appended
 %nvector_impl(MPIPlusX)
 
-// handle MPI comm
-%include <typemaps.i>
-
-%apply int { MPI_Comm };
-%typemap(ftype) MPI_Comm
-   "integer"
-%typemap(fin, noblock=1) MPI_Comm {
-    $1 = int($input, C_INT)
-}
-%typemap(fout, noblock=1) MPI_Comm {
-    $result = int($1)
-}
-
-%typemap(in, noblock=1) MPI_Comm {
-%#ifdef SUNDIALS_MPI_ENABLED
-    $1 = MPI_Comm_f2c(%static_cast(*$input, MPI_Fint));
-%#else
-    $1 = *$input;
-%#endif
-}
-%typemap(out, noblock=1) MPI_Comm {
-%#ifdef SUNDIALS_MPI_ENABLED
-    $result = %static_cast(MPI_Comm_c2f($1), int);
-%#else
-    $result = $1;
-%#endif
-}
-
 // Process and wrap functions in the following files
 %include "nvector/nvector_mpiplusx.h"
 
@@ -62,10 +34,10 @@
 SWIGEXPORT double * _wrap_FN_VGetArrayPointer_MPIPlusX(N_Vector farg1) {
   double * fresult ;
   N_Vector arg1 = (N_Vector) 0 ;
-  realtype *result = 0 ;
+  sunrealtype *result = 0 ;
   
   arg1 = (N_Vector)(farg1);
-  result = (realtype *)N_VGetArrayPointer_MPIPlusX(arg1);
+  result = (sunrealtype *)N_VGetArrayPointer_MPIPlusX(arg1);
   fresult = result;
   return fresult;
 }

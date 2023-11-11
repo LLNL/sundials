@@ -25,8 +25,8 @@
 #include "sundials_context_impl.h"
 #include "sundials_logger_impl.h"
 
-#define ZERO RCONST(0.0)
-#define ONE  RCONST(1.0)
+#define ZERO SUN_RCONST(0.0)
+#define ONE  SUN_RCONST(1.0)
 
 /*
  * -----------------------------------------------------------------
@@ -258,7 +258,7 @@ int SUNLinSolSetScalingVectors_PCG(SUNLinearSolver S, N_Vector s,
 }
 
 
-int SUNLinSolSetZeroGuess_PCG(SUNLinearSolver S, booleantype onoff)
+int SUNLinSolSetZeroGuess_PCG(SUNLinearSolver S, sunbooleantype onoff)
 {
   /* set flag indicating a zero initial guess */
   if (S == NULL) return(SUNLS_MEM_NULL);
@@ -297,18 +297,18 @@ int SUNLinSolSetup_PCG(SUNLinearSolver S, SUNMatrix nul)
 
 
 int SUNLinSolSolve_PCG(SUNLinearSolver S, SUNMatrix nul, N_Vector x,
-                       N_Vector b, realtype delta)
+                       N_Vector b, sunrealtype delta)
 {
   /* local data and shortcut variables */
-  realtype alpha, beta, r0_norm, rho, rz, rz_old;
+  sunrealtype alpha, beta, r0_norm, rho, rz, rz_old;
   N_Vector r, p, z, Ap, w;
-  booleantype UsePrec, UseScaling, converged;
-  booleantype *zeroguess;
+  sunbooleantype UsePrec, UseScaling, converged;
+  sunbooleantype *zeroguess;
   int l, l_max, pretype, ier;
   void *A_data, *P_data;
   SUNATimesFn atimes;
   SUNPSolveFn psolve;
-  realtype *res_norm;
+  sunrealtype *res_norm;
   int *nli;
 
   /* Make local shorcuts to solver variables. */
@@ -332,7 +332,7 @@ int SUNLinSolSolve_PCG(SUNLinearSolver S, SUNMatrix nul, N_Vector x,
   *nli = 0;
   converged = SUNFALSE;
 
-  /* set booleantype flags for internal solver options */
+  /* set sunbooleantype flags for internal solver options */
   UsePrec = ( (pretype == SUN_PREC_BOTH) ||
               (pretype == SUN_PREC_LEFT) ||
               (pretype == SUN_PREC_RIGHT) );
@@ -515,7 +515,7 @@ int SUNLinSolNumIters_PCG(SUNLinearSolver S)
 }
 
 
-realtype SUNLinSolResNorm_PCG(SUNLinearSolver S)
+sunrealtype SUNLinSolResNorm_PCG(SUNLinearSolver S)
 {
   /* return the stored 'resnorm' value */
   if (S == NULL) return(-ONE);

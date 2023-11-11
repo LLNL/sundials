@@ -28,7 +28,7 @@
 #include "sundials/sundials_nvector_senswrapper.h"
 
 /* constant macros */
-#define ONE RCONST(1.0)
+#define ONE SUN_RCONST(1.0)
 
 /* private functions */
 static int cvNlsResidualSensSim(N_Vector ycorSim, N_Vector resSim,
@@ -36,12 +36,12 @@ static int cvNlsResidualSensSim(N_Vector ycorSim, N_Vector resSim,
 static int cvNlsFPFunctionSensSim(N_Vector ycorSim, N_Vector resSim,
                                   void* cvode_mem);
 
-static int cvNlsLSetupSensSim(booleantype jbad, booleantype* jcur,
+static int cvNlsLSetupSensSim(sunbooleantype jbad, sunbooleantype* jcur,
                               void* cvode_mem);
 static int cvNlsLSolveSensSim(N_Vector deltaSim, void* cvode_mem);
 static int cvNlsConvTestSensSim(SUNNonlinearSolver NLS,
                                 N_Vector ycorSim, N_Vector delSim,
-                                realtype tol, N_Vector ewtSim, void* cvode_mem);
+                                sunrealtype tol, N_Vector ewtSim, void* cvode_mem);
 
 /* -----------------------------------------------------------------------------
  * Exported functions
@@ -206,9 +206,9 @@ int CVodeSetNonlinearSolverSensSim(void *cvode_mem, SUNNonlinearSolver NLS)
   This routine provides access to the relevant data needed to
   compute the nonlinear system function.
   ---------------------------------------------------------------*/
-int CVodeGetNonlinearSystemDataSens(void *cvode_mem, realtype *tcur,
+int CVodeGetNonlinearSystemDataSens(void *cvode_mem, sunrealtype *tcur,
                                     N_Vector **ySpred, N_Vector **ySn,
-                                    realtype *gamma, realtype *rl1,
+                                    sunrealtype *gamma, sunrealtype *rl1,
                                     N_Vector **znS1, void **user_data)
 {
   CVodeMem cv_mem;
@@ -279,7 +279,7 @@ int cvNlsInitSensSim(CVodeMem cvode_mem)
 }
 
 
-static int cvNlsLSetupSensSim(booleantype jbad, booleantype* jcur,
+static int cvNlsLSetupSensSim(sunbooleantype jbad, sunbooleantype* jcur,
                               void* cvode_mem)
 {
   CVodeMem cv_mem;
@@ -362,12 +362,12 @@ static int cvNlsLSolveSensSim(N_Vector deltaSim, void* cvode_mem)
 
 static int cvNlsConvTestSensSim(SUNNonlinearSolver NLS,
                                 N_Vector ycorSim, N_Vector deltaSim,
-                                realtype tol, N_Vector ewtSim, void* cvode_mem)
+                                sunrealtype tol, N_Vector ewtSim, void* cvode_mem)
 {
   CVodeMem cv_mem;
   int m, retval;
-  realtype del, delS, Del;
-  realtype dcon;
+  sunrealtype del, delS, Del;
+  sunrealtype dcon;
   N_Vector ycor, delta, ewt;
   N_Vector *deltaS, *ewtS;
 
@@ -442,7 +442,7 @@ static int cvNlsResidualSensSim(N_Vector ycorSim, N_Vector resSim, void* cvode_m
   int retval;
   N_Vector ycor, res;
   N_Vector *ycorS, *resS;
-  realtype cvals[3];
+  sunrealtype cvals[3];
   N_Vector* XXvecs[3];
 
   if (cvode_mem == NULL) {

@@ -26,18 +26,18 @@
 #include "arkode_ls_impl.h"
 #include <sundials/sundials_math.h>
 
-#define MIN_INC_MULT RCONST(1000.0)
-#define ZERO         RCONST(0.0)
-#define ONE          RCONST(1.0)
+#define MIN_INC_MULT SUN_RCONST(1000.0)
+#define ZERO         SUN_RCONST(0.0)
+#define ONE          SUN_RCONST(1.0)
 
 
 /* Prototypes of ARKBandPrecSetup and ARKBandPrecSolve */
-static int ARKBandPrecSetup(realtype t, N_Vector y, N_Vector fy,
-                            booleantype jok, booleantype *jcurPtr,
-                            realtype gamma, void *bp_data);
-static int ARKBandPrecSolve(realtype t, N_Vector y, N_Vector fy,
+static int ARKBandPrecSetup(sunrealtype t, N_Vector y, N_Vector fy,
+                            sunbooleantype jok, sunbooleantype *jcurPtr,
+                            sunrealtype gamma, void *bp_data);
+static int ARKBandPrecSolve(sunrealtype t, N_Vector y, N_Vector fy,
                             N_Vector r, N_Vector z,
-                            realtype gamma, realtype delta,
+                            sunrealtype gamma, sunrealtype delta,
                             int lr, void *bp_data);
 
 /* Prototype for ARKBandPrecFree */
@@ -45,7 +45,7 @@ static int ARKBandPrecDestroy(ARKodeMem ark_mem);
 
 /* Prototype for difference quotient Jacobian calculation routine */
 static int ARKBandPDQJac(ARKBandPrecData pdata,
-                         realtype t, N_Vector y, N_Vector fy,
+                         sunrealtype t, N_Vector y, N_Vector fy,
                          N_Vector ftemp, N_Vector ytemp);
 
 
@@ -311,9 +311,9 @@ int ARKBandPrecGetNumRhsEvals(void *arkode_mem, long int *nfevalsBP)
    0  if successful, or
    1  if the band factorization failed.
 ---------------------------------------------------------------*/
-static int ARKBandPrecSetup(realtype t, N_Vector y, N_Vector fy,
-                           booleantype jok, booleantype *jcurPtr,
-                           realtype gamma, void *bp_data)
+static int ARKBandPrecSetup(sunrealtype t, N_Vector y, N_Vector fy,
+                           sunbooleantype jok, sunbooleantype *jcurPtr,
+                           sunrealtype gamma, void *bp_data)
 {
   ARKBandPrecData pdata;
   ARKodeMem ark_mem;
@@ -406,9 +406,9 @@ static int ARKBandPrecSetup(realtype t, N_Vector y, N_Vector fy,
  The value returned by the ARKBandPrecSolve function is always 0,
  indicating success.
 ---------------------------------------------------------------*/
-static int ARKBandPrecSolve(realtype t, N_Vector y, N_Vector fy,
+static int ARKBandPrecSolve(sunrealtype t, N_Vector y, N_Vector fy,
                             N_Vector r, N_Vector z,
-                            realtype gamma, realtype delta,
+                            sunrealtype gamma, sunrealtype delta,
                             int lr, void *bp_data)
 {
   ARKBandPrecData pdata;
@@ -466,15 +466,15 @@ static int ARKBandPrecDestroy(ARKodeMem ark_mem)
  each of the elements of a column in succession.
 ---------------------------------------------------------------*/
 static int ARKBandPDQJac(ARKBandPrecData pdata,
-                         realtype t, N_Vector y, N_Vector fy,
+                         sunrealtype t, N_Vector y, N_Vector fy,
                          N_Vector ftemp, N_Vector ytemp)
 {
   ARKodeMem ark_mem;
   ARKRhsFn fi;
-  realtype fnorm, minInc, inc, inc_inv, yj, srur, conj;
+  sunrealtype fnorm, minInc, inc, inc_inv, yj, srur, conj;
   sunindextype group, i, j, width, ngroups, i1, i2;
-  realtype *col_j, *ewt_data, *fy_data, *ftemp_data;
-  realtype *y_data, *ytemp_data, *cns_data;
+  sunrealtype *col_j, *ewt_data, *fy_data, *ftemp_data;
+  sunrealtype *y_data, *ytemp_data, *cns_data;
   int retval;
 
   ark_mem = (ARKodeMem) pdata->arkode_mem;

@@ -56,23 +56,23 @@ listed below.
 | `--npy <int>`                        | Number of MPI tasks in the y-direction (0 forces MPI to decide)                          | 0       |
 | `--nx <int>`                         | Number of mesh points in the x-direction                                                 | 32      |
 | `--ny <int>`                         | Number of mesh points in the y-direction                                                 | 32      |
-| `--xu <realtype>`                    | The domain upper bound in the x-direction $x_{\text{max}}$                               | 1.0     |
-| `--yu <realtype>`                    | The domain upper bound in the y-direction $y_{\text{max}}$                               | 1.0     |
-| `--kx <realtype>`                    | Diffusion coefficient in the x-direction $k_x$                                           | 1.0     |
-| `--ky <realtype>`                    | Diffusion coefficient in the y-direction $k_y$                                           | 1.0     |
-| `--tf <realtype>`                    | The final time `tf`                                                                      | 1.0     |
+| `--xu <sunrealtype>`                    | The domain upper bound in the x-direction $x_{\text{max}}$                               | 1.0     |
+| `--yu <sunrealtype>`                    | The domain upper bound in the y-direction $y_{\text{max}}$                               | 1.0     |
+| `--kx <sunrealtype>`                    | Diffusion coefficient in the x-direction $k_x$                                           | 1.0     |
+| `--ky <sunrealtype>`                    | Diffusion coefficient in the y-direction $k_y$                                           | 1.0     |
+| `--tf <sunrealtype>`                    | The final time `tf`                                                                      | 1.0     |
 | `--noforcing`                        | Disable the forcing term                                                                 | Enabled |
 | Output Options                       |                                                                                          |         |
 | `--output <int>`                     | Output level: `0` no output, `1` output progress and stats, `2` write solution to disk   | 1       |
 | `--nout <int>`                       | Number of output times                                                                   | 20      |
 | Common Integrator and Solver Options |                                                                                          |         |
-| `--rtol <realtype>`                  | Relative tolerance                                                                       | 1e-5    |
-| `--atol <realtype>`                  | Absolute tolerance                                                                       | 1e-10   |
+| `--rtol <sunrealtype>`                  | Relative tolerance                                                                       | 1e-5    |
+| `--atol <sunrealtype>`                  | Absolute tolerance                                                                       | 1e-10   |
 | `--maxsteps <int>`                   | Max number of steps between outputs (0 uses the integrator default)                      | 0       |
 | `--onstep <int>`                     | Number of steps to run using `ONE_STEP` mode for debugging (0 uses `NORMAL` mode)        | 0       |
 | `--ls <cg,gmres,sludist>`            | Linear solver: CG, GMRES, or SuperLU_DIST                                                | cg      |
 | `--liniters <int>`                   | Number of linear iterations                                                              | 20      |
-| `--epslin <realtype>`                | Linear solve tolerance factor (0 uses the integrator default)                            | 0       |
+| `--epslin <sunrealtype>`                | Linear solve tolerance factor (0 uses the integrator default)                            | 0       |
 | `--msbp <int>`                       | The linear solver setup frequency (CVODE and ARKODE only, 0 uses the integrator default) | 0       |
 | Additional ARKODE Options            |                                                                                          |         |
 | `--order <int>`                      | Methods order                                                                            | 3       |

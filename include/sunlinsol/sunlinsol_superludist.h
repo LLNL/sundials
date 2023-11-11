@@ -61,9 +61,9 @@ extern "C" {
  */
 
 struct _SUNLinearSolverContent_SuperLUDIST {
-  booleantype             first_factorize;
+  sunbooleantype             first_factorize;
   int                     last_flag;
-  realtype                berr;
+  sunrealtype                berr;
   gridinfo_t              *grid;
   xLUstruct_t             *lu;
   superlu_dist_options_t  *options;
@@ -97,7 +97,7 @@ SUNDIALS_EXPORT SUNLinearSolver SUNLinSol_SuperLUDIST(N_Vector y, SUNMatrix A,
  * ----------------------------------------------------------------------------
  */
 
-SUNDIALS_EXPORT realtype SUNLinSol_SuperLUDIST_GetBerr(SUNLinearSolver LS);
+SUNDIALS_EXPORT sunrealtype SUNLinSol_SuperLUDIST_GetBerr(SUNLinearSolver LS);
 SUNDIALS_EXPORT gridinfo_t* SUNLinSol_SuperLUDIST_GetGridinfo(SUNLinearSolver LS);
 SUNDIALS_EXPORT xLUstruct_t* SUNLinSol_SuperLUDIST_GetLUstruct(SUNLinearSolver LS);
 SUNDIALS_EXPORT superlu_dist_options_t* SUNLinSol_SuperLUDIST_GetSuperLUOptions(SUNLinearSolver LS);
@@ -116,7 +116,7 @@ SUNDIALS_EXPORT SUNLinearSolver_ID SUNLinSolGetID_SuperLUDIST(SUNLinearSolver S)
 SUNDIALS_EXPORT int SUNLinSolInitialize_SuperLUDIST(SUNLinearSolver S);
 SUNDIALS_EXPORT int SUNLinSolSetup_SuperLUDIST(SUNLinearSolver S, SUNMatrix A);
 SUNDIALS_EXPORT int SUNLinSolSolve_SuperLUDIST(SUNLinearSolver S, SUNMatrix A,
-                                               N_Vector x, N_Vector b, realtype tol);
+                                               N_Vector x, N_Vector b, sunrealtype tol);
 SUNDIALS_EXPORT sunindextype SUNLinSolLastFlag_SuperLUDIST(SUNLinearSolver S);
 SUNDIALS_EXPORT int SUNLinSolSpace_SuperLUDIST(SUNLinearSolver S,
                                               long int *lenrwLS,

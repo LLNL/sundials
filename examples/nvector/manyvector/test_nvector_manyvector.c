@@ -37,7 +37,7 @@ int main(int argc, char *argv[])
   N_Vector     U, V, W, X, Y, Z;  /* test vectors              */
   int          print_timing;      /* turn timing on/off        */
 
-  Test_Init(NULL);
+  Test_Init(SUN_COMM_NULL);
 
   /* check input and set vector length */
   if (argc < 4){
@@ -89,7 +89,7 @@ int main(int argc, char *argv[])
   fails += Test_N_VGetLength(X, 0);
 
   /* Check vector communicator */
-  fails += Test_N_VGetCommunicator(X, NULL, 0);
+  fails += Test_N_VGetCommunicator(X, SUN_COMM_NULL, 0);
 
   /* Test subvector accessors */
   if (N_VGetNumSubvectors_ManyVector(X) != 2) {
@@ -262,12 +262,12 @@ int main(int argc, char *argv[])
 /* ----------------------------------------------------------------------
  * Implementation specific utility functions for vector tests
  * --------------------------------------------------------------------*/
-int check_ans(realtype ans, N_Vector X, sunindextype local_length)
+int check_ans(sunrealtype ans, N_Vector X, sunindextype local_length)
 {
   int          failure = 0;
   sunindextype i;
   N_Vector     Xsub[2];
-  realtype     *x0, *x1;
+  sunrealtype     *x0, *x1;
   sunindextype x0len, x1len;
 
   Xsub[0] = N_VGetSubvector_ManyVector(X, 0);
@@ -288,13 +288,13 @@ int check_ans(realtype ans, N_Vector X, sunindextype local_length)
   return (failure > ZERO) ? (1) : (0);
 }
 
-booleantype has_data(N_Vector X)
+sunbooleantype has_data(N_Vector X)
 {
   /* should not be called in these tests */
   return SUNTRUE;
 }
 
-void set_element(N_Vector X, sunindextype i, realtype val)
+void set_element(N_Vector X, sunindextype i, sunrealtype val)
 {
   N_Vector     Xsub[2];
   sunindextype x0len;
@@ -311,7 +311,7 @@ void set_element(N_Vector X, sunindextype i, realtype val)
   }
 }
 
-void set_element_range(N_Vector X, sunindextype is, sunindextype ie, realtype val)
+void set_element_range(N_Vector X, sunindextype is, sunindextype ie, sunrealtype val)
 {
   N_Vector     Xsub[2];
   sunindextype x0len, i;
@@ -325,7 +325,7 @@ void set_element_range(N_Vector X, sunindextype is, sunindextype ie, realtype va
   for (i=x0len; i<=ie; i++)  NV_Ith_S(Xsub[1], i-x0len) = val;
 }
 
-realtype get_element(N_Vector X, sunindextype i)
+sunrealtype get_element(N_Vector X, sunindextype i)
 {
   N_Vector     Xsub[2];
   sunindextype x0len;

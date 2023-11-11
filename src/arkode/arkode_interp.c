@@ -65,20 +65,20 @@ int arkInterpSetDegree(void* arkode_mem, ARKInterp interp,
 }
 
 int arkInterpInit(void* arkode_mem, ARKInterp interp,
-                  realtype tnew)
+                  sunrealtype tnew)
 {
   if (interp == NULL)  return(ARK_SUCCESS);
   return((int) interp->ops->init(arkode_mem, interp, tnew));
 }
 
-int arkInterpUpdate(void* arkode_mem, ARKInterp interp, realtype tnew)
+int arkInterpUpdate(void* arkode_mem, ARKInterp interp, sunrealtype tnew)
 {
   if (interp == NULL)  return(ARK_SUCCESS);
   return((int) interp->ops->update(arkode_mem, interp, tnew));
 }
 
 int arkInterpEvaluate(void* arkode_mem, ARKInterp interp,
-                      realtype tau, int d, int order, N_Vector yout)
+                      sunrealtype tau, int d, int order, N_Vector yout)
 {
   if (interp == NULL)  return(ARK_SUCCESS);
   return((int) interp->ops->evaluate(arkode_mem, interp,
@@ -157,7 +157,7 @@ ARKInterp arkInterpCreate_Hermite(void* arkode_mem, int degree)
   /* initialize time values */
   content->told = ark_mem->tcur;
   content->tnew = ark_mem->tcur;
-  content->h    = RCONST(0.0);
+  content->h    = SUN_RCONST(0.0);
 
   return(interp);
 }
@@ -201,7 +201,7 @@ int arkInterpResize_Hermite(void* arkode_mem, ARKInterp interp,
   /* reinitialize time values */
   HINT_TOLD(interp) = ark_mem->tcur;
   HINT_TNEW(interp) = ark_mem->tcur;
-  HINT_H(interp)    = RCONST(0.0);
+  HINT_H(interp)    = SUN_RCONST(0.0);
 
   return(ARK_SUCCESS);
 }
@@ -357,7 +357,7 @@ int arkInterpSetDegree_Hermite(void* arkode_mem, ARKInterp interp,
   5. Copies fnew into fold
   ---------------------------------------------------------------*/
 int arkInterpInit_Hermite(void* arkode_mem, ARKInterp interp,
-                          realtype tnew)
+                          sunrealtype tnew)
 {
   ARKodeMem ark_mem;
 
@@ -368,7 +368,7 @@ int arkInterpInit_Hermite(void* arkode_mem, ARKInterp interp,
   /* initialize time values */
   HINT_TOLD(interp) = tnew;
   HINT_TNEW(interp) = tnew;
-  HINT_H(interp)    = RCONST(0.0);
+  HINT_H(interp)    = SUN_RCONST(0.0);
 
   /* allocate vectors based on interpolant degree */
   if (HINT_FOLD(interp) == NULL)
@@ -404,7 +404,7 @@ int arkInterpInit_Hermite(void* arkode_mem, ARKInterp interp,
   This routine copies ynew into yold, and fnew into fold, so that
   yold and fold contain the previous values.
   ---------------------------------------------------------------*/
-int arkInterpUpdate_Hermite(void* arkode_mem, ARKInterp interp, realtype tnew)
+int arkInterpUpdate_Hermite(void* arkode_mem, ARKInterp interp, sunrealtype tnew)
 {
   int retval;
   ARKodeMem ark_mem;
@@ -467,13 +467,13 @@ int arkInterpUpdate_Hermite(void* arkode_mem, ARKInterp interp, realtype tnew)
   other values result in extrapolation.
   ---------------------------------------------------------------*/
 int arkInterpEvaluate_Hermite(void* arkode_mem, ARKInterp interp,
-                              realtype tau, int d, int order, N_Vector yout)
+                              sunrealtype tau, int d, int order, N_Vector yout)
 {
   /* local variables */
   int q, retval;
-  realtype tval, a0, a1, tau2, tau3, tau4, tau5;
-  realtype h, h2, h3, h4, h5;
-  realtype a[6];
+  sunrealtype tval, a0, a1, tau2, tau3, tau4, tau5;
+  sunrealtype h, h2, h3, h4, h5;
+  sunrealtype a[6];
   N_Vector X[6];
   ARKodeMem ark_mem;
 
@@ -611,35 +611,35 @@ int arkInterpEvaluate_Hermite(void* arkode_mem, ARKInterp interp,
 
     /* evaluate desired function */
     if (d == 0) {
-      a[0] = -SIX*tau2 - RCONST(16.0)*tau3 - RCONST(9.0)*tau4;
-      a[1] = ONE + SIX*tau2 + RCONST(16.0)*tau3 + RCONST(9.0)*tau4;
-      a[2] = h*FOURTH*(-FIVE*tau2 - RCONST(14.0)*tau3 - RCONST(9.0)*tau4);
+      a[0] = -SIX*tau2 - SUN_RCONST(16.0)*tau3 - SUN_RCONST(9.0)*tau4;
+      a[1] = ONE + SIX*tau2 + SUN_RCONST(16.0)*tau3 + SUN_RCONST(9.0)*tau4;
+      a[2] = h*FOURTH*(-FIVE*tau2 - SUN_RCONST(14.0)*tau3 - SUN_RCONST(9.0)*tau4);
       a[3] = h*(tau + TWO*tau2 + tau3);
-      a[4] = h*RCONST(27.0)*FOURTH*(-tau4 - TWO*tau3 - tau2);
+      a[4] = h*SUN_RCONST(27.0)*FOURTH*(-tau4 - TWO*tau3 - tau2);
     } else if (d == 1) {
-      a[0] = (-TWELVE*tau - RCONST(48.0)*tau2 - RCONST(36.0)*tau3)/h;
-      a[1] = (TWELVE*tau + RCONST(48.0)*tau2 + RCONST(36.0)*tau3)/h;
-      a[2] = HALF*(-FIVE*tau - RCONST(21.0)*tau2 - RCONST(18.0)*tau3);
+      a[0] = (-TWELVE*tau - SUN_RCONST(48.0)*tau2 - SUN_RCONST(36.0)*tau3)/h;
+      a[1] = (TWELVE*tau + SUN_RCONST(48.0)*tau2 + SUN_RCONST(36.0)*tau3)/h;
+      a[2] = HALF*(-FIVE*tau - SUN_RCONST(21.0)*tau2 - SUN_RCONST(18.0)*tau3);
       a[3] = (ONE + FOUR*tau + THREE*tau2);
-      a[4] = -RCONST(27.0)*HALF*(TWO*tau3 + THREE*tau2 + tau);
+      a[4] = -SUN_RCONST(27.0)*HALF*(TWO*tau3 + THREE*tau2 + tau);
     } else if (d == 2) {
-      a[0] = (-TWELVE - RCONST(96.0)*tau - RCONST(108.0)*tau2)/h2;
-      a[1] = (TWELVE + RCONST(96.0)*tau + RCONST(108.0)*tau2)/h2;
-      a[2] = (-FIVE*HALF - RCONST(21.0)*tau - RCONST(27.0)*tau2)/h;
+      a[0] = (-TWELVE - SUN_RCONST(96.0)*tau - SUN_RCONST(108.0)*tau2)/h2;
+      a[1] = (TWELVE + SUN_RCONST(96.0)*tau + SUN_RCONST(108.0)*tau2)/h2;
+      a[2] = (-FIVE*HALF - SUN_RCONST(21.0)*tau - SUN_RCONST(27.0)*tau2)/h;
       a[3] = (FOUR + SIX*tau)/h;
-      a[4] = (-RCONST(27.0)*HALF - RCONST(81.0)*tau - RCONST(81.0)*tau2)/h;
+      a[4] = (-SUN_RCONST(27.0)*HALF - SUN_RCONST(81.0)*tau - SUN_RCONST(81.0)*tau2)/h;
     } else if (d == 3) {
-      a[0] = (-RCONST(96.0) - RCONST(216.0)*tau)/h3;
-      a[1] = (RCONST(96.0) + RCONST(216.0)*tau)/h3;
-      a[2] = (-RCONST(21.0) - RCONST(54.0)*tau)/h2;
+      a[0] = (-SUN_RCONST(96.0) - SUN_RCONST(216.0)*tau)/h3;
+      a[1] = (SUN_RCONST(96.0) + SUN_RCONST(216.0)*tau)/h3;
+      a[2] = (-SUN_RCONST(21.0) - SUN_RCONST(54.0)*tau)/h2;
       a[3] = SIX/h2;
-      a[4] = (-RCONST(81.0) - RCONST(162.0)*tau)/h2;
+      a[4] = (-SUN_RCONST(81.0) - SUN_RCONST(162.0)*tau)/h2;
     } else {  /* d == 4 */
-      a[0] = -RCONST(216.0)/h4;
-      a[1] = RCONST(216.0)/h4;
-      a[2] = -RCONST(54.0)/h3;
+      a[0] = -SUN_RCONST(216.0)/h4;
+      a[1] = SUN_RCONST(216.0)/h4;
+      a[2] = -SUN_RCONST(54.0)/h3;
       a[3] = ZERO;
-      a[4] = -RCONST(162.0)/h3;
+      a[4] = -SUN_RCONST(162.0)/h3;
     }
     X[0] = HINT_YOLD(interp);
     X[1] = ark_mem->yn;
@@ -676,46 +676,46 @@ int arkInterpEvaluate_Hermite(void* arkode_mem, ARKInterp interp,
 
     /* evaluate desired function */
     if (d == 0) {
-      a[0] = RCONST(54.0)*tau5 + RCONST(135.0)*tau4 + RCONST(110.0)*tau3 + RCONST(30.0)*tau2;
+      a[0] = SUN_RCONST(54.0)*tau5 + SUN_RCONST(135.0)*tau4 + SUN_RCONST(110.0)*tau3 + SUN_RCONST(30.0)*tau2;
       a[1] = ONE - a[0];
-      a[2] = h/FOUR*(RCONST(27.0)*tau5 + RCONST(63.0)*tau4 + RCONST(49.0)*tau3 + RCONST(13.0)*tau2);
-      a[3] = h/FOUR*(RCONST(27.0)*tau5 + RCONST(72.0)*tau4 + RCONST(67.0)*tau3 + RCONST(26.0)*tau2 + FOUR*tau);
-      a[4] = h/FOUR*(RCONST(81.0)*tau5 + RCONST(189.0)*tau4 + RCONST(135.0)*tau3 + RCONST(27.0)*tau2);
-      a[5] = h/FOUR*(RCONST(81.0)*tau5 + RCONST(216.0)*tau4 + RCONST(189.0)*tau3 + RCONST(54.0)*tau2);
+      a[2] = h/FOUR*(SUN_RCONST(27.0)*tau5 + SUN_RCONST(63.0)*tau4 + SUN_RCONST(49.0)*tau3 + SUN_RCONST(13.0)*tau2);
+      a[3] = h/FOUR*(SUN_RCONST(27.0)*tau5 + SUN_RCONST(72.0)*tau4 + SUN_RCONST(67.0)*tau3 + SUN_RCONST(26.0)*tau2 + FOUR*tau);
+      a[4] = h/FOUR*(SUN_RCONST(81.0)*tau5 + SUN_RCONST(189.0)*tau4 + SUN_RCONST(135.0)*tau3 + SUN_RCONST(27.0)*tau2);
+      a[5] = h/FOUR*(SUN_RCONST(81.0)*tau5 + SUN_RCONST(216.0)*tau4 + SUN_RCONST(189.0)*tau3 + SUN_RCONST(54.0)*tau2);
     } else if (d == 1) {
-      a[0] = (RCONST(270.0)*tau4 + RCONST(540.0)*tau3 + RCONST(330.0)*tau2 + RCONST(60.0)*tau)/h;
+      a[0] = (SUN_RCONST(270.0)*tau4 + SUN_RCONST(540.0)*tau3 + SUN_RCONST(330.0)*tau2 + SUN_RCONST(60.0)*tau)/h;
       a[1] = -a[0];
-      a[2] = (RCONST(135.0)*tau4 + RCONST(252.0)*tau3 + RCONST(147.0)*tau2 + RCONST(26.0)*tau)/FOUR;
-      a[3] = (RCONST(135.0)*tau4 + RCONST(288.0)*tau3 + RCONST(201.0)*tau2 + RCONST(52.0)*tau + FOUR)/FOUR;
-      a[4] = (RCONST(405.0)*tau4 + RCONST(4.0)*189*tau3 + RCONST(405.0)*tau2 + RCONST(54.0)*tau)/FOUR;
-      a[5] = (RCONST(405.0)*tau4 + RCONST(864.0)*tau3 + RCONST(567.0)*tau2 + RCONST(108.0)*tau)/FOUR;
+      a[2] = (SUN_RCONST(135.0)*tau4 + SUN_RCONST(252.0)*tau3 + SUN_RCONST(147.0)*tau2 + SUN_RCONST(26.0)*tau)/FOUR;
+      a[3] = (SUN_RCONST(135.0)*tau4 + SUN_RCONST(288.0)*tau3 + SUN_RCONST(201.0)*tau2 + SUN_RCONST(52.0)*tau + FOUR)/FOUR;
+      a[4] = (SUN_RCONST(405.0)*tau4 + SUN_RCONST(4.0)*189*tau3 + SUN_RCONST(405.0)*tau2 + SUN_RCONST(54.0)*tau)/FOUR;
+      a[5] = (SUN_RCONST(405.0)*tau4 + SUN_RCONST(864.0)*tau3 + SUN_RCONST(567.0)*tau2 + SUN_RCONST(108.0)*tau)/FOUR;
     } else if (d == 2) {
-      a[0] = (RCONST(1080.0)*tau3 + RCONST(1620.0)*tau2 + RCONST(660.0)*tau + RCONST(60.0))/h2;
+      a[0] = (SUN_RCONST(1080.0)*tau3 + SUN_RCONST(1620.0)*tau2 + SUN_RCONST(660.0)*tau + SUN_RCONST(60.0))/h2;
       a[1] = -a[0];
-      a[2] = (RCONST(270.0)*tau3 + RCONST(378.0)*tau2 + RCONST(147.0)*tau + RCONST(13.0))/(TWO*h);
-      a[3] = (RCONST(270.0)*tau3 + RCONST(432.0)*tau2 + RCONST(201.0)*tau + RCONST(26.0))/(TWO*h);
-      a[4] = (RCONST(810.0)*tau3 + RCONST(1134.0)*tau2 + RCONST(405.0)*tau + RCONST(27.0))/(TWO*h);
-      a[5] = (RCONST(810.0)*tau3 + RCONST(1296.0)*tau2 + RCONST(567.0)*tau + RCONST(54.0))/(TWO*h);
+      a[2] = (SUN_RCONST(270.0)*tau3 + SUN_RCONST(378.0)*tau2 + SUN_RCONST(147.0)*tau + SUN_RCONST(13.0))/(TWO*h);
+      a[3] = (SUN_RCONST(270.0)*tau3 + SUN_RCONST(432.0)*tau2 + SUN_RCONST(201.0)*tau + SUN_RCONST(26.0))/(TWO*h);
+      a[4] = (SUN_RCONST(810.0)*tau3 + SUN_RCONST(1134.0)*tau2 + SUN_RCONST(405.0)*tau + SUN_RCONST(27.0))/(TWO*h);
+      a[5] = (SUN_RCONST(810.0)*tau3 + SUN_RCONST(1296.0)*tau2 + SUN_RCONST(567.0)*tau + SUN_RCONST(54.0))/(TWO*h);
     } else if (d == 3) {
-      a[0] = (RCONST(3240.0)*tau2 + RCONST(3240.0)*tau + RCONST(660.0))/h3;
+      a[0] = (SUN_RCONST(3240.0)*tau2 + SUN_RCONST(3240.0)*tau + SUN_RCONST(660.0))/h3;
       a[1] = -a[0];
-      a[2] = (RCONST(810.0)*tau2 + RCONST(756.0)*tau + RCONST(147.0))/(TWO*h2);
-      a[3] = (RCONST(810.0)*tau2 + RCONST(864.0)*tau + RCONST(201.0))/(TWO*h2);
-      a[4] = (RCONST(2430.0)*tau2 + RCONST(2268.0)*tau + RCONST(405.0))/(TWO*h2);
-      a[5] = (RCONST(2430.0)*tau2 + RCONST(2592.0)*tau + RCONST(567.0))/(TWO*h2);
+      a[2] = (SUN_RCONST(810.0)*tau2 + SUN_RCONST(756.0)*tau + SUN_RCONST(147.0))/(TWO*h2);
+      a[3] = (SUN_RCONST(810.0)*tau2 + SUN_RCONST(864.0)*tau + SUN_RCONST(201.0))/(TWO*h2);
+      a[4] = (SUN_RCONST(2430.0)*tau2 + SUN_RCONST(2268.0)*tau + SUN_RCONST(405.0))/(TWO*h2);
+      a[5] = (SUN_RCONST(2430.0)*tau2 + SUN_RCONST(2592.0)*tau + SUN_RCONST(567.0))/(TWO*h2);
     } else if (d == 4) {
-      a[0] = (RCONST(6480.0)*tau + RCONST(3240.0))/h4;
+      a[0] = (SUN_RCONST(6480.0)*tau + SUN_RCONST(3240.0))/h4;
       a[1] = -a[0];
-      a[2] = (RCONST(810.0)*tau + RCONST(378.0))/h3;
-      a[3] = (RCONST(810.0)*tau + RCONST(432.0))/h3;
-      a[4] = (RCONST(2430.0)*tau + RCONST(1134.0))/h3;
-      a[5] = (RCONST(2430.0)*tau + RCONST(1296.0))/h3;
+      a[2] = (SUN_RCONST(810.0)*tau + SUN_RCONST(378.0))/h3;
+      a[3] = (SUN_RCONST(810.0)*tau + SUN_RCONST(432.0))/h3;
+      a[4] = (SUN_RCONST(2430.0)*tau + SUN_RCONST(1134.0))/h3;
+      a[5] = (SUN_RCONST(2430.0)*tau + SUN_RCONST(1296.0))/h3;
     } else {  /* d == 5 */
-      a[0] = RCONST(6480.0)/h5;
+      a[0] = SUN_RCONST(6480.0)/h5;
       a[1] = -a[0];
-      a[2] = RCONST(810.0)/h4;
+      a[2] = SUN_RCONST(810.0)/h4;
       a[3] = a[2];
-      a[4] = RCONST(2430.0)/h4;
+      a[4] = SUN_RCONST(2430.0)/h4;
       a[5] = a[4];
     }
     X[0] = HINT_YOLD(interp);
@@ -1006,7 +1006,7 @@ int arkInterpSetDegree_Lagrange(void* arkode_mem, ARKInterp I,
   4. updates the 'active' history counter to 1
   ---------------------------------------------------------------*/
 int arkInterpInit_Lagrange(void* arkode_mem, ARKInterp I,
-                           realtype tnew)
+                           sunrealtype tnew)
 {
   int i;
   ARKodeMem ark_mem;
@@ -1035,7 +1035,7 @@ int arkInterpInit_Lagrange(void* arkode_mem, ARKInterp I,
 
   /* allocate storage for time and solution histories */
   if (LINT_THIST(I) == NULL) {
-    LINT_THIST(I) = (realtype*) malloc(LINT_NMAX(I) * sizeof(realtype));
+    LINT_THIST(I) = (sunrealtype*) malloc(LINT_NMAX(I) * sizeof(sunrealtype));
     if (LINT_THIST(I) == NULL) {
       arkInterpDestroy(ark_mem, I); return(ARK_MEM_FAIL);
     }
@@ -1061,8 +1061,8 @@ int arkInterpInit_Lagrange(void* arkode_mem, ARKInterp I,
 
   /* zero out history (to be safe) */
   for (i=0; i<LINT_NMAXALLOC(I); i++)
-    LINT_TJ(I,i) = RCONST(0.0);
-  if (N_VConstVectorArray(LINT_NMAXALLOC(I), RCONST(0.0), LINT_YHIST(I)))
+    LINT_TJ(I,i) = SUN_RCONST(0.0);
+  if (N_VConstVectorArray(LINT_NMAXALLOC(I), SUN_RCONST(0.0), LINT_YHIST(I)))
     return(ARK_VECTOROP_ERR);
 
   /* set current time and state as first entries of (t,y) history, update counter */
@@ -1086,14 +1086,14 @@ int arkInterpInit_Lagrange(void* arkode_mem, ARKInterp I,
      into the first history vector
   Otherwise it just returns with success.
   ---------------------------------------------------------------*/
-int arkInterpUpdate_Lagrange(void* arkode_mem, ARKInterp I, realtype tnew)
+int arkInterpUpdate_Lagrange(void* arkode_mem, ARKInterp I, sunrealtype tnew)
 {
   int i;
   ARKodeMem ark_mem;
-  realtype tdiff;
+  sunrealtype tdiff;
   N_Vector ytmp;
   int nhist, nmax;
-  realtype *thist;
+  sunrealtype *thist;
   N_Vector *yhist;
 
   /* access ARKodeMem structure */
@@ -1159,17 +1159,17 @@ int arkInterpUpdate_Lagrange(void* arkode_mem, ARKInterp I, realtype tnew)
   approximate).
   ---------------------------------------------------------------*/
 int arkInterpEvaluate_Lagrange(void* arkode_mem, ARKInterp I,
-                               realtype tau, int deriv, int degree,
+                               sunrealtype tau, int deriv, int degree,
                                N_Vector yout)
 {
   /* local variables */
   int q, retval, i, j;
-  realtype tval;
-  realtype a[6];
+  sunrealtype tval;
+  sunrealtype a[6];
   N_Vector X[6];
   ARKodeMem ark_mem;
   int nhist;
-  realtype *thist;
+  sunrealtype *thist;
   N_Vector *yhist;
 
   /* access ARKodeMem structure */
@@ -1263,10 +1263,10 @@ int arkInterpEvaluate_Lagrange(void* arkode_mem, ARKInterp I,
 
 
 /* Lagrange utility routines (basis functions and their derivatives) */
-realtype LBasis(ARKInterp I, int j, realtype t)
+sunrealtype LBasis(ARKInterp I, int j, sunrealtype t)
 {
   int k;
-  realtype p = ONE;
+  sunrealtype p = ONE;
   for (k=0; k<LINT_NHIST(I); k++) {
     if (k == j) continue;
     p *= (t-LINT_TJ(I,k))/(LINT_TJ(I,j)-LINT_TJ(I,k));
@@ -1275,10 +1275,10 @@ realtype LBasis(ARKInterp I, int j, realtype t)
 }
 
 
-realtype LBasisD(ARKInterp I, int j, realtype t)
+sunrealtype LBasisD(ARKInterp I, int j, sunrealtype t)
 {
   int i, k;
-  realtype p, q;
+  sunrealtype p, q;
   p = ZERO;
   for (i=0; i<LINT_NHIST(I); i++) {
     if (i == j) continue;
@@ -1295,10 +1295,10 @@ realtype LBasisD(ARKInterp I, int j, realtype t)
 }
 
 
-realtype LBasisD2(ARKInterp I, int j, realtype t)
+sunrealtype LBasisD2(ARKInterp I, int j, sunrealtype t)
 {
   int i, k, l;
-  realtype p, q, r;
+  sunrealtype p, q, r;
   p = ZERO;
   for (l=0; l<LINT_NHIST(I); l++) {
     if (l == j) continue;
@@ -1322,10 +1322,10 @@ realtype LBasisD2(ARKInterp I, int j, realtype t)
 }
 
 
-realtype LBasisD3(ARKInterp I, int j, realtype t)
+sunrealtype LBasisD3(ARKInterp I, int j, sunrealtype t)
 {
   int i, k, l, m;
-  realtype p, q, r, s;
+  sunrealtype p, q, r, s;
   p = ZERO;
   for (m=0; m<LINT_NHIST(I); m++) {
     if (m == j) continue;

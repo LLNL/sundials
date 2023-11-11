@@ -18,7 +18,7 @@
 #include "sundials/sundials_math.h"
 
 /* constant macros */
-#define ONE RCONST(1.0) /* real 1.0 */
+#define ONE SUN_RCONST(1.0) /* real 1.0 */
 
 /* nonlinear solver constants
      NLS_MAXCOR  maximum no. of corrector iterations for the nonlinear solver
@@ -27,21 +27,21 @@
      RDIV        declare divergence if ratio del/delp > RDIV
  */
 #define NLS_MAXCOR 3
-#define CRDOWN     RCONST(0.3)
-#define RDIV       RCONST(2.0)
+#define CRDOWN     SUN_RCONST(0.3)
+#define RDIV       SUN_RCONST(2.0)
 
 /* private functions */
 static int cvNlsResidual(N_Vector ycor, N_Vector res, void* cvode_mem);
 static int cvNlsFPFunction(N_Vector ycor, N_Vector res, void* cvode_mem);
 
-static int cvNlsLSetup(booleantype jbad, booleantype* jcur, void* cvode_mem);
+static int cvNlsLSetup(sunbooleantype jbad, sunbooleantype* jcur, void* cvode_mem);
 static int cvNlsLSolve(N_Vector delta, void* cvode_mem);
 static int cvNlsConvTest(SUNNonlinearSolver NLS, N_Vector ycor, N_Vector del,
-                         realtype tol, N_Vector ewt, void* cvode_mem);
+                         sunrealtype tol, N_Vector ewt, void* cvode_mem);
 
 #ifdef SUNDIALS_BUILD_PACKAGE_FUSED_KERNELS
-int cvNlsResid_fused(const realtype rl1,
-                     const realtype ngamma,
+int cvNlsResid_fused(const sunrealtype rl1,
+                     const sunrealtype ngamma,
                      const N_Vector zn1,
                      const N_Vector ycor,
                      const N_Vector ftemp,
@@ -173,10 +173,10 @@ int CVodeSetNlsRhsFn(void *cvode_mem, CVRhsFn f)
   This routine provides access to the relevant data needed to
   compute the nonlinear system function.
   ---------------------------------------------------------------*/
-int CVodeGetNonlinearSystemData(void *cvode_mem, realtype *tcur,
+int CVodeGetNonlinearSystemData(void *cvode_mem, sunrealtype *tcur,
                                 N_Vector *ypred, N_Vector *yn,
-                                N_Vector *fn, realtype *gamma,
-                                realtype *rl1, N_Vector *zn1,
+                                N_Vector *fn, sunrealtype *gamma,
+                                sunrealtype *rl1, N_Vector *zn1,
                                 void **user_data)
 {
   CVodeMem cv_mem;
@@ -248,7 +248,7 @@ int cvNlsInit(CVodeMem cvode_mem)
 }
 
 
-static int cvNlsLSetup(booleantype jbad, booleantype* jcur, void* cvode_mem)
+static int cvNlsLSetup(sunbooleantype jbad, sunbooleantype* jcur, void* cvode_mem)
 {
   CVodeMem cv_mem;
   int      retval;
@@ -305,12 +305,12 @@ static int cvNlsLSolve(N_Vector delta, void* cvode_mem)
 
 
 static int cvNlsConvTest(SUNNonlinearSolver NLS, N_Vector ycor, N_Vector delta,
-                         realtype tol, N_Vector ewt, void* cvode_mem)
+                         sunrealtype tol, N_Vector ewt, void* cvode_mem)
 {
   CVodeMem cv_mem;
   int m, retval;
-  realtype del;
-  realtype dcon;
+  sunrealtype del;
+  sunrealtype dcon;
 
   if (cvode_mem == NULL) {
     cvProcessError(NULL, CV_MEM_NULL, "CVODE", "cvNlsConvTest", MSGCV_NO_MEM);

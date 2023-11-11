@@ -18,6 +18,15 @@
 // By default, wrap all constants as native fortran PARAMETERs
 %fortranconst;
 
+#define SUNDIALS_EXPORT
+#define SUNDIALS_DEPRECATED_MSG(msg)
+#define SUNDIALS_DEPRECATED_EXPORT
+#define SUNDIALS_DEPRECATED_EXPORT_MSG(msg)
+#define SUNDIALS_STATIC_INLINE
+
+// All modules need sundials_types
+%import "../sundials/fsundials_types_mod.i"
+
 // Prefix all functions with F
 // E.g. CVodeCreate -> FCVodeCreate
 %rename("F%s", %$isfunction) "";
@@ -37,6 +46,7 @@
 %sundials_generic(SUNLinearSolver)
 %sundials_generic(SUNNonlinearSolver)
 %sundials_generic(SUNMatrix)
+%sundials_generic(SUNAdaptController)
 
 // Treat FILE* as an opaque pointer
 %apply void* { FILE* };
@@ -44,8 +54,8 @@
 // Treat array of N_Vectors as an opaque pointer
 %apply void* { N_Vector* };
 
-// Assume realtype* is an array of doubles
-%apply double[] { realtype* };
+// Assume sunrealtype* is an array of doubles
+%apply double[] { sunrealtype* };
 
 // Assume sunindextype* is an array of long int
 %apply long int[] { sunindextype* };
@@ -58,15 +68,6 @@
 
 // Treat all ** as an opaque pointer
 %apply void** { SWIGTYPE ** };
-
-
-// Inform SWIG of the SUNDIALS_EXPORT macro
-#define SUNDIALS_EXPORT
-#define SUNDIALS_DEPRECATED_MSG(msg)
-#define SUNDIALS_DEPRECATED_EXPORT
-#define SUNDIALS_DEPRECATED_EXPORT_MSG(msg)
-#define SUNDIALS_STATIC_INLINE
-
 
 // Insert SUNDIALS copyright into generated C files.
 %insert(begin)

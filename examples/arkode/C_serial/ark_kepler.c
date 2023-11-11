@@ -468,7 +468,7 @@ int main(int argc, char* argv[])
   int retval        = 0;
 
   /* Create the SUNDIALS context object for this simulation */
-  retval = SUNContext_Create(NULL, &sunctx);
+  retval = SUNContext_Create(SUN_COMM_NULL, &sunctx);
   if (check_retval(&retval, "SUNContext_Create", 1)) { return 1; }
 
   /* Parse the command line arguments */
@@ -585,7 +585,7 @@ int main(int argc, char* argv[])
            expected_order, (long double)ord_max_conv, (long double)ord_avg,
            (long double)ord_est);
 
-    if (ord_max_acc < (expected_order - RCONST(0.5)))
+    if (ord_max_acc < (expected_order - SUN_RCONST(0.5)))
     {
       printf(">>> FAILURE: computed order of accuracy wrt solution is below "
              "expected (%d)\n",
@@ -593,7 +593,7 @@ int main(int argc, char* argv[])
       return 1;
     }
 
-    if (ord_max_conv < (expected_order - RCONST(0.5)))
+    if (ord_max_conv < (expected_order - SUN_RCONST(0.5)))
     {
       printf(">>> FAILURE: computed order of accuracy wrt Hamiltonian is below "
              "expected (%d)\n",

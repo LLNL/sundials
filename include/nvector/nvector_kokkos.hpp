@@ -208,7 +208,7 @@ void N_VConst_Kokkos(sunrealtype c, N_Vector z)
 }
 
 template<class VectorType>
-booleantype N_VConstrMask_Kokkos(N_Vector c, N_Vector x, N_Vector m)
+sunbooleantype N_VConstrMask_Kokkos(N_Vector c, N_Vector x, N_Vector m)
 {
   auto cvec{GetVec<VectorType>(c)};
   auto cdata{cvec->View()};
@@ -289,7 +289,7 @@ void N_VInv_Kokkos(N_Vector x, N_Vector z)
 }
 
 template<class VectorType>
-booleantype N_VInvTest_Kokkos(N_Vector x, N_Vector z)
+sunbooleantype N_VInvTest_Kokkos(N_Vector x, N_Vector z)
 {
   auto xvec{GetVec<VectorType>(x)};
   auto xdata{xvec->View()};

@@ -17,7 +17,7 @@
 #include "diffusion_2D.hpp"
 
 // Diffusion function
-int laplacian(realtype t, N_Vector u, N_Vector f, UserData* udata)
+int laplacian(sunrealtype t, N_Vector u, N_Vector f, UserData* udata)
 {
   SUNDIALS_CXX_MARK_FUNCTION(udata->prof);
 
@@ -39,15 +39,15 @@ int laplacian(realtype t, N_Vector u, N_Vector f, UserData* udata)
   sunindextype jend   = (udata->HaveNbrN) ? ny_loc : ny_loc - 1;
 
   // Constants for computing diffusion term
-  realtype cx = udata->kx / (udata->dx * udata->dx);
-  realtype cy = udata->ky / (udata->dy * udata->dy);
-  realtype cc = -TWO * (cx + cy);
+  sunrealtype cx = udata->kx / (udata->dx * udata->dx);
+  sunrealtype cy = udata->ky / (udata->dy * udata->dy);
+  sunrealtype cc = -TWO * (cx + cy);
 
   // Access data arrays
-  realtype *uarray = N_VGetArrayPointer(u);
+  sunrealtype *uarray = N_VGetArrayPointer(u);
   if (check_flag((void *) uarray, "N_VGetArrayPointer", 0)) return -1;
 
-  realtype *farray = N_VGetArrayPointer(f);
+  sunrealtype *farray = N_VGetArrayPointer(f);
   if (check_flag((void *) farray, "N_VGetArrayPointer", 0)) return -1;
 
   // Initialize rhs vector to zero (handles boundary conditions)
@@ -56,15 +56,15 @@ int laplacian(realtype t, N_Vector u, N_Vector f, UserData* udata)
   // Iterate over subdomain and compute rhs forcing term
   if (udata->forcing)
   {
-    realtype x, y;
-    realtype sin_sqr_x, sin_sqr_y;
-    realtype cos_sqr_x, cos_sqr_y;
+    sunrealtype x, y;
+    sunrealtype sin_sqr_x, sin_sqr_y;
+    sunrealtype cos_sqr_x, cos_sqr_y;
 
-    realtype bx = (udata->kx) * TWO * PI * PI;
-    realtype by = (udata->ky) * TWO * PI * PI;
+    sunrealtype bx = (udata->kx) * TWO * PI * PI;
+    sunrealtype by = (udata->ky) * TWO * PI * PI;
 
-    realtype sin_t_cos_t = sin(PI * t) * cos(PI * t);
-    realtype cos_sqr_t   = cos(PI * t) * cos(PI * t);
+    sunrealtype sin_t_cos_t = sin(PI * t) * cos(PI * t);
+    sunrealtype cos_sqr_t   = cos(PI * t) * cos(PI * t);
 
     for (j = jstart; j < jend; j++)
     {
@@ -104,10 +104,10 @@ int laplacian(realtype t, N_Vector u, N_Vector f, UserData* udata)
   if (check_flag(&flag, "UserData::end_excahnge", 1)) return -1;
 
   // Iterate over subdomain boundaries and add rhs diffusion term
-  realtype *Warray = udata->Wrecv;
-  realtype *Earray = udata->Erecv;
-  realtype *Sarray = udata->Srecv;
-  realtype *Narray = udata->Nrecv;
+  sunrealtype *Warray = udata->Wrecv;
+  sunrealtype *Earray = udata->Erecv;
+  sunrealtype *Sarray = udata->Srecv;
+  sunrealtype *Narray = udata->Nrecv;
 
   // West face (updates south-west and north-west corners if necessary)
   if (udata->HaveNbrW)

@@ -30,8 +30,9 @@ sundials_add_library(sundials_sunlinsolmagmadense
     ${SUNDIALS_SOURCE_DIR}/include/sunlinsol/sunlinsol_magmadense.h
   INCLUDE_SUBDIR
     sunlinsol
+  LINK_LIBRARIES
+    PUBLIC sundials_core
   OBJECT_LIBRARIES
-    sundials_generic_obj
   LINK_LIBRARIES
     PUBLIC SUNDIALS::MAGMA ${_libs_needed}
   OUTPUT_NAME

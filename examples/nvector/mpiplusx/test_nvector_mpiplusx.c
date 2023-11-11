@@ -48,25 +48,25 @@ int main(int argc, char *argv[])
   if (retval != MPI_SUCCESS)  return(1);
 
   comm = MPI_COMM_WORLD;
-  Test_Init(&comm);
+  Test_Init(comm);
 
   retval = MPI_Comm_size(comm, &nprocs);
-  if (retval != MPI_SUCCESS)  Test_AbortMPI(&comm, -1);
+  if (retval != MPI_SUCCESS)  Test_AbortMPI(comm, -1);
   retval = MPI_Comm_rank(comm, &myid);
-  if (retval != MPI_SUCCESS)  Test_AbortMPI(&comm, -1);
+  if (retval != MPI_SUCCESS)  Test_AbortMPI(comm, -1);
 
   /* check inputs */
   if (argc < 3) {
     if (myid == 0)
       printf("ERROR: TWO (2) Inputs required: vector local length, print timing \n");
-    Test_AbortMPI(&comm, -1);
+    Test_AbortMPI(comm, -1);
   }
 
   local_length = (sunindextype) atol(argv[1]);
   if (local_length < 1) {
     if (myid == 0)
       printf("ERROR: local vector length must be a positive integer \n");
-    Test_AbortMPI(&comm, -1);
+    Test_AbortMPI(comm, -1);
   }
 
   print_timing = atoi(argv[2]);
@@ -86,7 +86,7 @@ int main(int argc, char *argv[])
   Xlocal = N_VNew_Serial(local_length, sunctx);
   if (Xlocal == NULL) {
     printf("FAIL: Unable to create a new serial vector, Proc %d\n\n", myid);
-    Test_AbortMPI(&comm, 1);
+    Test_AbortMPI(comm, 1);
   }
 
   /* Create a new MPIPlusX */
@@ -94,7 +94,7 @@ int main(int argc, char *argv[])
   if (X == NULL) {
     N_VDestroy(Xlocal);
     printf("FAIL: Unable to create a new MPIPlusX vector, Proc %d\n\n", myid);
-    Test_AbortMPI(&comm, 1);
+    Test_AbortMPI(comm, 1);
   }
 
   /* Check vector ID */
@@ -110,7 +110,7 @@ int main(int argc, char *argv[])
   }
 
   /* Check vector communicator */
-  if (Test_N_VGetCommunicatorMPI(X, &comm, myid)) {
+  if (Test_N_VGetCommunicatorMPI(X, comm, myid)) {
     printf(">>> FAILED test -- N_VGetCommunicator, Proc %d\n\n", myid);
     fails += 1;
   }
@@ -134,7 +134,7 @@ int main(int argc, char *argv[])
     N_VDestroy(X);
     N_VDestroy(Xlocal);
     printf("FAIL: Unable to create a new vector, Proc %d\n\n", myid);
-    Test_AbortMPI(&comm, 1);
+    Test_AbortMPI(comm, 1);
   }
 
   /* Clone additional vectors for testing */
@@ -144,7 +144,7 @@ int main(int argc, char *argv[])
     N_VDestroy(X);
     N_VDestroy(Xlocal);
     printf("FAIL: Unable to create a new vector, Proc %d\n\n", myid);
-    Test_AbortMPI(&comm, 1);
+    Test_AbortMPI(comm, 1);
   }
 
   Z = N_VClone(X);
@@ -154,7 +154,7 @@ int main(int argc, char *argv[])
     N_VDestroy(Y);
     N_VDestroy(Xlocal);
     printf("FAIL: Unable to create a new vector, Proc %d\n\n", myid);
-    Test_AbortMPI(&comm, 1);
+    Test_AbortMPI(comm, 1);
   }
 
   /* Standard vector operation tests */
@@ -193,7 +193,7 @@ int main(int argc, char *argv[])
     N_VDestroy(Z);
     N_VDestroy(Xlocal);
     printf("FAIL: Unable to create a new vector, Proc %d\n\n", myid);
-    Test_AbortMPI(&comm, 1);
+    Test_AbortMPI(comm, 1);
   }
 
   /* fused operations */
@@ -224,7 +224,7 @@ int main(int argc, char *argv[])
     N_VDestroy(U);
     N_VDestroy(Xlocal);
     printf("FAIL: Unable to create a new vector, Proc %d\n\n", myid);
-    Test_AbortMPI(&comm, 1);
+    Test_AbortMPI(comm, 1);
   }
 
   /* fused operations */
@@ -294,11 +294,11 @@ int main(int argc, char *argv[])
 /* ----------------------------------------------------------------------
  * Implementation specific utility functions for vector tests
  * --------------------------------------------------------------------*/
-int check_ans(realtype ans, N_Vector X, sunindextype local_length)
+int check_ans(sunrealtype ans, N_Vector X, sunindextype local_length)
 {
   int          failure = 0;
   sunindextype i;
-  realtype     *x0;
+  sunrealtype     *x0;
   sunindextype x0len;
 
   x0len = N_VGetLocalLength_MPIPlusX(X);
@@ -314,15 +314,15 @@ int check_ans(realtype ans, N_Vector X, sunindextype local_length)
   return (failure > ZERO) ? (1) : (0);
 }
 
-booleantype has_data(N_Vector X)
+sunbooleantype has_data(N_Vector X)
 {
   /* should not be called in these tests */
   return SUNTRUE;
 }
 
-void set_element(N_Vector X, sunindextype i, realtype val)
+void set_element(N_Vector X, sunindextype i, sunrealtype val)
 {
-  realtype *data;
+  sunrealtype *data;
 
   data = N_VGetArrayPointer(X);
 
@@ -330,10 +330,10 @@ void set_element(N_Vector X, sunindextype i, realtype val)
   data[i] = val;
 }
 
-void set_element_range(N_Vector X, sunindextype is, sunindextype ie, realtype val)
+void set_element_range(N_Vector X, sunindextype is, sunindextype ie, sunrealtype val)
 {
   sunindextype x0len, i;
-  realtype *data;
+  sunrealtype *data;
 
   data = N_VGetArrayPointer(X);
   x0len = N_VGetLocalLength_MPIPlusX(X);
@@ -342,9 +342,9 @@ void set_element_range(N_Vector X, sunindextype is, sunindextype ie, realtype va
   for (i=is; i<x0len; i++)  data[i] = val;
 }
 
-realtype get_element(N_Vector X, sunindextype i)
+sunrealtype get_element(N_Vector X, sunindextype i)
 {
-  realtype *data;
+  sunrealtype *data;
 
   data = N_VGetArrayPointer(X);
 
@@ -355,11 +355,11 @@ realtype get_element(N_Vector X, sunindextype i)
 double max_time(N_Vector X, double time)
 {
   double maxt;
-  MPI_Comm *comm;
+  MPI_Comm comm;
 
   /* get max time across all MPI ranks */
-  comm = (MPI_Comm *) N_VGetCommunicator(X);
-  (void) MPI_Reduce(&time, &maxt, 1, MPI_DOUBLE, MPI_MAX, 0, *comm);
+  comm = N_VGetCommunicator(X);
+  (void) MPI_Reduce(&time, &maxt, 1, MPI_DOUBLE, MPI_MAX, 0, comm);
   return(maxt);
 }
 

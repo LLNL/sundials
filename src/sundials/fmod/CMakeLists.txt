@@ -30,7 +30,9 @@ set(sundials_SOURCES
   fsundials_types_mod.f90
   fsundials_types_mod.c
   fsundials_context_mod.f90
-  fsundials_context_mod.c)
+  fsundials_context_mod.c
+  fsundials_adaptcontroller_mod.f90
+  fsundials_adaptcontroller_mod.c)
 
 if(SUNDIALS_BUILD_WITH_PROFILING)
   list(APPEND sundials_SOURCES
@@ -38,7 +40,7 @@ if(SUNDIALS_BUILD_WITH_PROFILING)
     fsundials_profiler_mod.c)
 endif()
 
-sundials_add_f2003_library(sundials_fgeneric_mod
+sundials_add_f2003_library(sundials_fcore_mod
   SOURCES
     ${sundials_SOURCES}
   OBJECT_LIB_ONLY

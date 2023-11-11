@@ -100,19 +100,19 @@ MRIStepCoupling MRIStepCoupling_Alloc(int nmat, int stages,
    * Allocate abscissae and coupling coefficients
    * -------------------------------------------- */
 
-  MRIC->c = (realtype *) calloc( stages, sizeof(realtype) );
+  MRIC->c = (sunrealtype *) calloc( stages, sizeof(sunrealtype) );
   if (!(MRIC->c)) { MRIStepCoupling_Destroy(MRIC); return(NULL); }
 
   if (type == MRISTEP_EXPLICIT || type == MRISTEP_IMEX) {
 
     /* allocate W matrices */
-    MRIC->W = (realtype ***) calloc( nmat, sizeof(realtype**) );
+    MRIC->W = (sunrealtype ***) calloc( nmat, sizeof(sunrealtype**) );
     if (!(MRIC->W)) { MRIStepCoupling_Destroy(MRIC); return(NULL); }
 
     /* allocate rows of each matrix in W */
     for (i=0; i<nmat; i++) {
       MRIC->W[i] = NULL;
-      MRIC->W[i] = (realtype **) calloc( stages, sizeof(realtype*) );
+      MRIC->W[i] = (sunrealtype **) calloc( stages, sizeof(sunrealtype*) );
       if (!(MRIC->W[i])) { MRIStepCoupling_Destroy(MRIC); return(NULL); }
     }
 
@@ -120,7 +120,7 @@ MRIStepCoupling MRIStepCoupling_Alloc(int nmat, int stages,
     for (i=0; i<nmat; i++)
       for (j=0; j<stages; j++) {
         MRIC->W[i][j] = NULL;
-        MRIC->W[i][j] = (realtype *) calloc( stages, sizeof(realtype) );
+        MRIC->W[i][j] = (sunrealtype *) calloc( stages, sizeof(sunrealtype) );
         if (!(MRIC->W[i][j])) { MRIStepCoupling_Destroy(MRIC); return(NULL); }
       }
   }
@@ -128,13 +128,13 @@ MRIStepCoupling MRIStepCoupling_Alloc(int nmat, int stages,
   if (type == MRISTEP_IMPLICIT || type == MRISTEP_IMEX) {
 
     /* allocate G matrices */
-    MRIC->G = (realtype ***) calloc( nmat, sizeof(realtype**) );
+    MRIC->G = (sunrealtype ***) calloc( nmat, sizeof(sunrealtype**) );
     if (!(MRIC->G)) { MRIStepCoupling_Destroy(MRIC); return(NULL); }
 
     /* allocate rows of each matrix in G */
     for (i=0; i<nmat; i++) {
       MRIC->G[i] = NULL;
-      MRIC->G[i] = (realtype **) calloc( stages, sizeof(realtype*) );
+      MRIC->G[i] = (sunrealtype **) calloc( stages, sizeof(sunrealtype*) );
       if (!(MRIC->G[i])) { MRIStepCoupling_Destroy(MRIC); return(NULL); }
     }
 
@@ -142,7 +142,7 @@ MRIStepCoupling MRIStepCoupling_Alloc(int nmat, int stages,
     for (i=0; i<nmat; i++)
       for (j=0; j<stages; j++) {
         MRIC->G[i][j] = NULL;
-        MRIC->G[i][j] = (realtype *) calloc( stages, sizeof(realtype) );
+        MRIC->G[i][j] = (sunrealtype *) calloc( stages, sizeof(sunrealtype) );
         if (!(MRIC->G[i][j])) { MRIStepCoupling_Destroy(MRIC); return(NULL); }
       }
   }
@@ -155,7 +155,7 @@ MRIStepCoupling MRIStepCoupling_Alloc(int nmat, int stages,
   Routine to allocate and fill a MRIStepCoupling structure
   ---------------------------------------------------------------*/
 MRIStepCoupling MRIStepCoupling_Create(int nmat, int stages, int q, int p,
-                                       realtype *W, realtype *G, realtype *c)
+                                       sunrealtype *W, sunrealtype *G, sunrealtype *c)
 {
   int i, j, k;
   MRISTEP_METHOD_TYPE type;
@@ -217,13 +217,13 @@ MRIStepCoupling MRIStepCoupling_MIStoMRI(ARKodeButcherTable B,
                                          int q, int p)
 {
   int i, j, stages;
-  booleantype padding;
-  realtype Asum;
-  realtype ***C;
+  sunbooleantype padding;
+  sunrealtype Asum;
+  sunrealtype ***C;
   MRISTEP_METHOD_TYPE type;
   MRIStepCoupling MRIC;
 
-  const realtype tol = RCONST(100.0) * UNIT_ROUNDOFF;
+  const sunrealtype tol = SUN_RCONST(100.0) * SUN_UNIT_ROUNDOFF;
 
   /* Check that input table is non-NULL */
   if (!B) return(NULL);
@@ -543,8 +543,8 @@ void MRIStepCoupling_Write(MRIStepCoupling MRIC, FILE *outfile)
 int mriStepCoupling_GetStageType(MRIStepCoupling MRIC, int is)
 {
   int i;
-  realtype Gabs, cdiff;
-  const realtype tol = RCONST(100.0) * UNIT_ROUNDOFF;
+  sunrealtype Gabs, cdiff;
+  const sunrealtype tol = SUN_RCONST(100.0) * SUN_UNIT_ROUNDOFF;
 
   if ((is < 1) || (is >= MRIC->stages)) return ARK_INVALID_TABLE;
 
@@ -585,8 +585,8 @@ int mriStepCoupling_GetStageMap(MRIStepCoupling MRIC,
                                 int* nstages_active)
 {
   int i, j, k, idx;
-  realtype Wsum, Gsum;
-  const realtype tol = RCONST(100.0) * UNIT_ROUNDOFF;
+  sunrealtype Wsum, Gsum;
+  const sunrealtype tol = SUN_RCONST(100.0) * SUN_UNIT_ROUNDOFF;
 
   /* ----------------------
    * Check for valid inputs

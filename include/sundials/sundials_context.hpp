@@ -20,13 +20,14 @@
 #include <memory>
 #include <sundials/sundials_context.h>
 #include <sundials/sundials_convertibleto.hpp>
+#include "sundials/sundials_types.h"
 
 namespace sundials {
 
 class Context : public sundials::ConvertibleTo<SUNContext>
 {
 public:
-  explicit Context(void* comm = nullptr)
+  explicit Context(SUNComm comm = SUN_COMM_NULL)
   {
     sunctx_ = std::make_unique<SUNContext>();
     SUNContext_Create(comm, sunctx_.get());

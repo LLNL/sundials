@@ -20,6 +20,7 @@
 
 module fnvector_mpimanyvector_mod
  use, intrinsic :: ISO_C_BINDING
+ use fsundials_types_mod
  use fsundials_nvector_mod
  use fsundials_context_mod
  use fsundials_types_mod
@@ -203,7 +204,7 @@ bind(C, name="_wrap_FN_VGetCommunicator_MPIManyVector") &
 result(fresult)
 use, intrinsic :: ISO_C_BINDING
 type(C_PTR), value :: farg1
-type(C_PTR) :: fresult
+integer(C_INT) :: fresult
 end function
 
 function swigc_FN_VGetLength_MPIManyVector(farg1) &
@@ -883,14 +884,14 @@ end subroutine
 function FN_VGetCommunicator_MPIManyVector(v) &
 result(swig_result)
 use, intrinsic :: ISO_C_BINDING
-type(C_PTR) :: swig_result
+integer :: swig_result
 type(N_Vector), target, intent(inout) :: v
-type(C_PTR) :: fresult 
+integer(C_INT) :: fresult 
 type(C_PTR) :: farg1 
 
 farg1 = c_loc(v)
 fresult = swigc_FN_VGetCommunicator_MPIManyVector(farg1)
-swig_result = fresult
+swig_result = int(fresult)
 end function
 
 function FN_VGetLength_MPIManyVector(v) &

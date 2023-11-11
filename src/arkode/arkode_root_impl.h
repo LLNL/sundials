@@ -34,7 +34,7 @@ extern "C" {
 #define ARK_ROOT_LIW  12   /* int, ptr, etc */
 
 /* Numeric constants */
-#define HUND   RCONST(100.0)    /* real 100.0   */
+#define HUND   SUN_RCONST(100.0)    /* real 100.0   */
 
 
 /*===============================================================
@@ -54,18 +54,18 @@ typedef struct ARKodeRootMemRec {
   int          nrtfn;       /* number of components of g                    */
   int         *iroots;      /* array for root information                   */
   int         *rootdir;     /* array specifying direction of zero-crossing  */
-  realtype     tlo;         /* nearest endpoint of interval in root search  */
-  realtype     thi;         /* farthest endpoint of interval in root search */
-  realtype     trout;       /* t value returned by rootfinding routine      */
-  realtype    *glo;         /* saved array of g values at t = tlo           */
-  realtype    *ghi;         /* saved array of g values at t = thi           */
-  realtype    *grout;       /* array of g values at t = trout               */
-  realtype     toutc;       /* copy of tout (if NORMAL mode)                */
-  realtype     ttol;        /* tolerance on root location                   */
+  sunrealtype     tlo;         /* nearest endpoint of interval in root search  */
+  sunrealtype     thi;         /* farthest endpoint of interval in root search */
+  sunrealtype     trout;       /* t value returned by rootfinding routine      */
+  sunrealtype    *glo;         /* saved array of g values at t = tlo           */
+  sunrealtype    *ghi;         /* saved array of g values at t = thi           */
+  sunrealtype    *grout;       /* array of g values at t = trout               */
+  sunrealtype     toutc;       /* copy of tout (if NORMAL mode)                */
+  sunrealtype     ttol;        /* tolerance on root location                   */
   int          taskc;       /* copy of parameter itask                      */
   int          irfnd;       /* flag showing whether last step had a root    */
   long int     nge;         /* counter for g evaluations                    */
-  booleantype *gactive;     /* array with active/inactive event functions   */
+  sunbooleantype *gactive;     /* array with active/inactive event functions   */
   int          mxgnull;     /* num. warning messages about possible g==0    */
   void        *root_data;   /* pointer to user_data                         */
 

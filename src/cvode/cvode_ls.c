@@ -27,19 +27,19 @@
 #include <sunmatrix/sunmatrix_sparse.h>
 
 /* Private constants */
-#define MIN_INC_MULT RCONST(1000.0)
+#define MIN_INC_MULT SUN_RCONST(1000.0)
 #define MAX_DQITERS  3  /* max. number of attempts to recover in DQ J*v */
-#define ZERO         RCONST(0.0)
-#define PT25         RCONST(0.25)
-#define ONE          RCONST(1.0)
-#define TWO          RCONST(2.0)
+#define ZERO         SUN_RCONST(0.0)
+#define PT25         SUN_RCONST(0.25)
+#define ONE          SUN_RCONST(1.0)
+#define TWO          SUN_RCONST(2.0)
 
 /*=================================================================
   PRIVATE FUNCTION PROTOTYPES
   =================================================================*/
 
-static int cvLsLinSys(realtype t, N_Vector y, N_Vector fy, SUNMatrix A,
-                      booleantype jok, booleantype *jcur, realtype gamma,
+static int cvLsLinSys(sunrealtype t, N_Vector y, N_Vector fy, SUNMatrix A,
+                      sunbooleantype jok, sunbooleantype *jcur, sunrealtype gamma,
                       void *user_data, N_Vector tmp1, N_Vector tmp2,
                       N_Vector tmp3);
 
@@ -56,8 +56,8 @@ int CVodeSetLinearSolver(void *cvode_mem, SUNLinearSolver LS,
   CVodeMem    cv_mem;
   CVLsMem     cvls_mem;
   int         retval, LSType;
-  booleantype iterative;    /* is the solver iterative?    */
-  booleantype matrixbased;  /* is a matrix structure used? */
+  sunbooleantype iterative;    /* is the solver iterative?    */
+  sunbooleantype matrixbased;  /* is a matrix structure used? */
 
   /* Return immediately if either cvode_mem or LS inputs are NULL */
   if (cvode_mem == NULL) {
@@ -309,7 +309,7 @@ int CVodeSetJacFn(void *cvode_mem, CVLsJacFn jac)
 /* CVodeSetDeltaGammaMaxBadJac specifies the maximum gamma ratio change
  * after a NLS convergence failure with a potentially bad Jacobian. If
  * |gamma/gammap-1| < dgmax_jbad then the Jacobian is marked as bad */
-int CVodeSetDeltaGammaMaxBadJac(void *cvode_mem, realtype dgmax_jbad)
+int CVodeSetDeltaGammaMaxBadJac(void *cvode_mem, sunrealtype dgmax_jbad)
 {
   CVodeMem cv_mem;
   CVLsMem  cvls_mem;
@@ -331,7 +331,7 @@ int CVodeSetDeltaGammaMaxBadJac(void *cvode_mem, realtype dgmax_jbad)
 
 
 /* CVodeSetEpsLin specifies the nonlinear -> linear tolerance scale factor */
-int CVodeSetEpsLin(void *cvode_mem, realtype eplifac)
+int CVodeSetEpsLin(void *cvode_mem, sunrealtype eplifac)
 {
   CVodeMem cv_mem;
   CVLsMem  cvls_mem;
@@ -357,7 +357,7 @@ int CVodeSetEpsLin(void *cvode_mem, realtype eplifac)
 
 /* CVodeSetLSNormFactor sets or computes the factor to use when converting from
    the integrator tolerance to the linear solver tolerance (WRMS to L2 norm). */
-int CVodeSetLSNormFactor(void *cvode_mem, realtype nrmfac)
+int CVodeSetLSNormFactor(void *cvode_mem, sunrealtype nrmfac)
 {
   CVodeMem cv_mem;
   CVLsMem  cvls_mem;
@@ -411,7 +411,7 @@ int CVodeSetJacEvalFrequency(void *cvode_mem, long int msbj)
 
 /* CVodeSetLinearSolutionScaling enables or disables scaling the
    linear solver solution to account for changes in gamma. */
-int CVodeSetLinearSolutionScaling(void *cvode_mem, booleantype onoff)
+int CVodeSetLinearSolutionScaling(void *cvode_mem, sunbooleantype onoff)
 {
   CVodeMem cv_mem;
   CVLsMem  cvls_mem;
@@ -985,7 +985,7 @@ int cvLsPSetup(void *cvode_mem)
   only case in which the user's psolve routine is allowed to be
   NULL.
   -----------------------------------------------------------------*/
-int cvLsPSolve(void *cvode_mem, N_Vector r, N_Vector z, realtype tol, int lr)
+int cvLsPSolve(void *cvode_mem, N_Vector r, N_Vector z, sunrealtype tol, int lr)
 {
   CVodeMem cv_mem;
   CVLsMem  cvls_mem;
@@ -1013,7 +1013,7 @@ int cvLsPSolve(void *cvode_mem, N_Vector r, N_Vector z, realtype tol, int lr)
   implementations of the difference quotient Jacobian
   approximation routines.
   ---------------------------------------------------------------*/
-int cvLsDQJac(realtype t, N_Vector y, N_Vector fy,
+int cvLsDQJac(sunrealtype t, N_Vector y, N_Vector fy,
               SUNMatrix Jac, void *cvode_mem, N_Vector tmp1,
               N_Vector tmp2, N_Vector tmp3)
 {
@@ -1074,11 +1074,11 @@ int cvLsDQJac(realtype t, N_Vector y, N_Vector fy,
   function.  Finally, the actual computation of the jth column of
   the Jacobian is done with a call to N_VLinearSum.
   -----------------------------------------------------------------*/
-int cvLsDenseDQJac(realtype t, N_Vector y, N_Vector fy,
+int cvLsDenseDQJac(sunrealtype t, N_Vector y, N_Vector fy,
                    SUNMatrix Jac, CVodeMem cv_mem, N_Vector tmp1)
 {
-  realtype fnorm, minInc, inc, inc_inv, yjsaved, srur, conj;
-  realtype *y_data, *ewt_data, *cns_data;
+  sunrealtype fnorm, minInc, inc, inc_inv, yjsaved, srur, conj;
+  sunrealtype *y_data, *ewt_data, *cns_data;
   N_Vector ftemp, jthCol;
   sunindextype j, N;
   CVLsMem cvls_mem;
@@ -1158,13 +1158,13 @@ int cvLsDenseDQJac(realtype t, N_Vector y, N_Vector fy,
   a simple for loop to set each of the elements of a column in
   succession.
   -----------------------------------------------------------------*/
-int cvLsBandDQJac(realtype t, N_Vector y, N_Vector fy, SUNMatrix Jac,
+int cvLsBandDQJac(sunrealtype t, N_Vector y, N_Vector fy, SUNMatrix Jac,
                   CVodeMem cv_mem, N_Vector tmp1, N_Vector tmp2)
 {
   N_Vector ftemp, ytemp;
-  realtype fnorm, minInc, inc, inc_inv, srur, conj;
-  realtype *col_j, *ewt_data, *fy_data, *ftemp_data;
-  realtype *y_data, *ytemp_data, *cns_data;
+  sunrealtype fnorm, minInc, inc, inc_inv, srur, conj;
+  sunrealtype *col_j, *ewt_data, *fy_data, *ftemp_data;
+  sunrealtype *y_data, *ytemp_data, *cns_data;
   sunindextype group, i, j, width, ngroups, i1, i2;
   sunindextype N, mupper, mlower;
   CVLsMem cvls_mem;
@@ -1262,13 +1262,13 @@ int cvLsBandDQJac(realtype t, N_Vector y, N_Vector fy, SUNMatrix Jac,
   Jv = [f(y + v*sig) - f(y)]/sig, where sig = 1 / ||v||_WRMS,
   i.e. the WRMS norm of v*sig is 1.
   -----------------------------------------------------------------*/
-int cvLsDQJtimes(N_Vector v, N_Vector Jv, realtype t,
+int cvLsDQJtimes(N_Vector v, N_Vector Jv, sunrealtype t,
                  N_Vector y, N_Vector fy, void *cvode_mem,
                  N_Vector work)
 {
   CVodeMem cv_mem;
   CVLsMem  cvls_mem;
-  realtype sig, siginv;
+  sunrealtype sig, siginv;
   int      iter, retval;
 
   /* access CVLsMem structure */
@@ -1310,8 +1310,8 @@ int cvLsDQJtimes(N_Vector v, N_Vector Jv, realtype t,
 
   Setup the linear system A = I - gamma J
   -----------------------------------------------------------------*/
-static int cvLsLinSys(realtype t, N_Vector y, N_Vector fy, SUNMatrix A,
-                      booleantype jok, booleantype *jcur, realtype gamma,
+static int cvLsLinSys(sunrealtype t, N_Vector y, N_Vector fy, SUNMatrix A,
+                      sunbooleantype jok, sunbooleantype *jcur, sunrealtype gamma,
                       void *cvode_mem, N_Vector vtemp1, N_Vector vtemp2,
                       N_Vector vtemp3)
 {
@@ -1531,11 +1531,11 @@ int cvLsInitialize(CVodeMem cv_mem)
   This routine then calls the LS 'setup' routine with A.
   -----------------------------------------------------------------*/
 int cvLsSetup(CVodeMem cv_mem, int convfail, N_Vector ypred,
-              N_Vector fpred, booleantype *jcurPtr,
+              N_Vector fpred, sunbooleantype *jcurPtr,
               N_Vector vtemp1, N_Vector vtemp2, N_Vector vtemp3)
 {
   CVLsMem  cvls_mem;
-  realtype dgamma;
+  sunrealtype dgamma;
   int      retval;
 
   /* access CVLsMem structure */
@@ -1636,11 +1636,11 @@ int cvLsSolve(CVodeMem cv_mem, N_Vector b, N_Vector weight,
               N_Vector ynow, N_Vector fnow)
 {
   CVLsMem  cvls_mem;
-  realtype bnorm = ZERO;
-  realtype deltar, delta, w_mean;
+  sunrealtype bnorm = ZERO;
+  sunrealtype deltar, delta, w_mean;
   int      curiter, nli_inc, retval;
 #if SUNDIALS_LOGGING_LEVEL >= SUNDIALS_LOGGING_DEBUG
-  realtype resnorm;
+  sunrealtype resnorm;
   long int nps_inc;
 #endif
 

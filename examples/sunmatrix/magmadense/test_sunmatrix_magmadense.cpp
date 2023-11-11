@@ -51,14 +51,14 @@ int main(int argc, char *argv[])
   sunindextype matrows, matcols; /* matrix dimensions          */
   sunindextype nblocks;          /* number of blocks in matrix */
   N_Vector     x, y;             /* test vectors               */
-  realtype     *xdata, *ydata;   /* pointers to vector data    */
+  sunrealtype     *xdata, *ydata;   /* pointers to vector data    */
   SUNMatrix    A, I;             /* test matrices              */
-  realtype     *Adata, *Idata;   /* pointers to matrix data    */
+  sunrealtype     *Adata, *Idata;   /* pointers to matrix data    */
   int          print_timing, square;
   sunindextype i, j, k, m, n;
   SUNContext   sunctx;
 
-  if (SUNContext_Create(NULL, &sunctx)) {
+  if (SUNContext_Create(SUN_COMM_NULL, &sunctx)) {
     printf("ERROR: SUNContext_Create failed\n");
     return(-1);
   }
@@ -113,9 +113,9 @@ int main(int argc, char *argv[])
     I = SUNMatClone(A);
 
   /* Allocate host data */
-  Adata = (realtype*) malloc(sizeof(realtype)*SUNMatrix_MagmaDense_LData(A));
+  Adata = (sunrealtype*) malloc(sizeof(sunrealtype)*SUNMatrix_MagmaDense_LData(A));
   if (square)
-    Idata = (realtype*) malloc(sizeof(realtype)*SUNMatrix_MagmaDense_LData(I));
+    Idata = (sunrealtype*) malloc(sizeof(sunrealtype)*SUNMatrix_MagmaDense_LData(I));
 
   /* Fill matrices and vectors */
   for(k=0; k < nblocks; k++) {
@@ -194,14 +194,14 @@ int main(int argc, char *argv[])
 /* ----------------------------------------------------------------------
  * Check matrix
  * --------------------------------------------------------------------*/
-int check_matrix(SUNMatrix A, SUNMatrix B, realtype tol)
+int check_matrix(SUNMatrix A, SUNMatrix B, sunrealtype tol)
 {
   int failure = 0;
   sunindextype i = 0;
   sunindextype Aldata = SUNMatrix_MagmaDense_LData(A);
   sunindextype Bldata = SUNMatrix_MagmaDense_LData(B);
-  realtype *Adata = (realtype*) malloc(sizeof(realtype)*Aldata);
-  realtype *Bdata = (realtype*) malloc(sizeof(realtype)*Bldata);
+  sunrealtype *Adata = (sunrealtype*) malloc(sizeof(sunrealtype)*Aldata);
+  sunrealtype *Bdata = (sunrealtype*) malloc(sizeof(sunrealtype)*Bldata);
 
   /* copy data to host */
   SUNMatrix_MagmaDense_CopyFromDevice(A, Adata);
@@ -227,12 +227,12 @@ int check_matrix(SUNMatrix A, SUNMatrix B, realtype tol)
     return(0);
 }
 
-int check_matrix_entry(SUNMatrix A, realtype val, realtype tol)
+int check_matrix_entry(SUNMatrix A, sunrealtype val, sunrealtype tol)
 {
   int failure = 0;
   sunindextype i = 0;
   sunindextype Aldata = SUNMatrix_MagmaDense_LData(A);
-  realtype *Adata = (realtype*) malloc(sizeof(realtype)*Aldata);
+  sunrealtype *Adata = (sunrealtype*) malloc(sizeof(sunrealtype)*Aldata);
 
   /* copy data to host */
   SUNMatrix_MagmaDense_CopyFromDevice(A, Adata);
@@ -254,10 +254,10 @@ int check_matrix_entry(SUNMatrix A, realtype val, realtype tol)
     return(0);
 }
 
-int check_vector(N_Vector actual, N_Vector expected, realtype tol)
+int check_vector(N_Vector actual, N_Vector expected, sunrealtype tol)
 {
   int failure = 0;
-  realtype *xdata, *ydata;
+  sunrealtype *xdata, *ydata;
   sunindextype xldata, yldata;
   sunindextype i;
 
@@ -299,16 +299,16 @@ int check_vector(N_Vector actual, N_Vector expected, realtype tol)
     return(0);
 }
 
-booleantype has_data(SUNMatrix A)
+sunbooleantype has_data(SUNMatrix A)
 {
-  realtype *Adata = SUNMatrix_MagmaDense_Data(A);
+  sunrealtype *Adata = SUNMatrix_MagmaDense_Data(A);
   if (Adata == NULL)
     return SUNFALSE;
   else
     return SUNTRUE;
 }
 
-booleantype is_square(SUNMatrix A)
+sunbooleantype is_square(SUNMatrix A)
 {
   if (SUNMatrix_MagmaDense_Rows(A) == SUNMatrix_MagmaDense_Columns(A))
     return SUNTRUE;

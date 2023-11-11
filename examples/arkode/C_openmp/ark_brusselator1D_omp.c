@@ -52,7 +52,7 @@
 #include <nvector/nvector_openmp.h>   /* access to OpenMP N_Vector */
 #include <sunmatrix/sunmatrix_band.h> /* access to band SUNMatrix */
 #include <sunlinsol/sunlinsol_band.h> /* access to band SUNLinearSolver */
-#include <sundials/sundials_types.h>  /* def. of type 'realtype' */
+#include <sundials/sundials_types.h>  /* def. of type 'sunrealtype' */
 
 #ifdef _OPENMP
 #include <omp.h>                      /* OpenMP functions */
@@ -75,25 +75,25 @@
 typedef struct {
   sunindextype N;  /* number of intervals      */
   int nthreads;    /* number of OpenMP threads */
-  realtype dx;     /* mesh spacing             */
-  realtype a;      /* constant forcing on u    */
-  realtype b;      /* steady-state value of w  */
-  realtype du;     /* diffusion coeff for u    */
-  realtype dv;     /* diffusion coeff for v    */
-  realtype dw;     /* diffusion coeff for w    */
-  realtype ep;     /* stiffness parameter      */
+  sunrealtype dx;     /* mesh spacing             */
+  sunrealtype a;      /* constant forcing on u    */
+  sunrealtype b;      /* steady-state value of w  */
+  sunrealtype du;     /* diffusion coeff for u    */
+  sunrealtype dv;     /* diffusion coeff for v    */
+  sunrealtype dw;     /* diffusion coeff for w    */
+  sunrealtype ep;     /* stiffness parameter      */
 } *UserData;
 
 
 /* User-supplied Functions Called by the Solver */
-static int f(realtype t, N_Vector y, N_Vector ydot, void *user_data);
-static int Jac(realtype t, N_Vector y, N_Vector fy,
+static int f(sunrealtype t, N_Vector y, N_Vector ydot, void *user_data);
+static int Jac(sunrealtype t, N_Vector y, N_Vector fy,
                SUNMatrix J, void *user_data,
                N_Vector tmp1, N_Vector tmp2, N_Vector tmp3);
 
 /* Private helper functions  */
-static int LaplaceMatrix(realtype c, SUNMatrix Jac, UserData udata);
-static int ReactionJac(realtype c, N_Vector y, SUNMatrix Jac, UserData udata);
+static int LaplaceMatrix(sunrealtype c, SUNMatrix Jac, UserData udata);
+static int ReactionJac(sunrealtype c, N_Vector y, SUNMatrix Jac, UserData udata);
 
 /* Private function to check function return values */
 static int check_flag(void *flagvalue, const char *funcname, int opt);
@@ -102,21 +102,21 @@ static int check_flag(void *flagvalue, const char *funcname, int opt);
 int main(int argc, char *argv[])
 {
   /* general problem parameters */
-  realtype T0 = RCONST(0.0);    /* initial time */
-  realtype Tf = RCONST(10.0);   /* final time */
+  sunrealtype T0 = SUN_RCONST(0.0);    /* initial time */
+  sunrealtype Tf = SUN_RCONST(10.0);   /* final time */
   int Nt = 100;                 /* total number of output times */
   int Nvar = 3;                 /* number of solution fields */
   UserData udata = NULL;
-  realtype *data;
+  sunrealtype *data;
   sunindextype N = 201;         /* spatial mesh size */
-  realtype a = 0.6;             /* problem parameters */
-  realtype b = 2.0;
-  realtype du = 0.025;
-  realtype dv = 0.025;
-  realtype dw = 0.025;
-  realtype ep = 1.0e-5;         /* stiffness parameter */
-  realtype reltol = 1.0e-6;     /* tolerances */
-  realtype abstol = 1.0e-10;
+  sunrealtype a = 0.6;             /* problem parameters */
+  sunrealtype b = 2.0;
+  sunrealtype du = 0.025;
+  sunrealtype dv = 0.025;
+  sunrealtype dw = 0.025;
+  sunrealtype ep = 1.0e-5;         /* stiffness parameter */
+  sunrealtype reltol = 1.0e-6;     /* tolerances */
+  sunrealtype abstol = 1.0e-10;
   sunindextype NEQ, i;
 
   /* general problem variables */
@@ -128,14 +128,14 @@ int main(int argc, char *argv[])
   SUNMatrix A = NULL;           /* empty matrix for linear solver */
   SUNLinearSolver LS = NULL;    /* empty linear solver structure */
   void *arkode_mem = NULL;      /* empty ARKode memory structure */
-  realtype pi, t, dTout, tout, u, v, w;
+  sunrealtype pi, t, dTout, tout, u, v, w;
   FILE *FID, *UFID, *VFID, *WFID;
   int iout, num_threads;
   long int nst, nst_a, nfe, nfi, nsetups, nje, nfeLS, nni, ncfn, netf;
 
   /* Create the SUNDIALS context object for this simulation */
   SUNContext ctx;
-  flag = SUNContext_Create(NULL, &ctx);
+  flag = SUNContext_Create(SUN_COMM_NULL, &ctx);
   if (check_flag(&flag, "SUNContext_Create", 1)) return 1;
 
   /* allocate udata structure */
@@ -190,32 +190,32 @@ int main(int argc, char *argv[])
   if (check_flag((void *)wmask, "N_VClone", 0)) return 1;
 
   /* Set initial conditions into y */
-  udata->dx = RCONST(1.0)/(N-1);     /* set spatial mesh spacing */
+  udata->dx = SUN_RCONST(1.0)/(N-1);     /* set spatial mesh spacing */
   data = N_VGetArrayPointer(y);      /* Access data array for new NVector y */
   if (check_flag((void *)data, "N_VGetArrayPointer", 0)) return 1;
 
-  pi = RCONST(4.0)*atan(RCONST(1.0));
+  pi = SUN_RCONST(4.0)*atan(SUN_RCONST(1.0));
   for (i=0; i<N; i++) {
-    data[IDX(i,0)] =  a  + RCONST(0.1)*sin(pi*i*udata->dx);  /* u */
-    data[IDX(i,1)] = b/a + RCONST(0.1)*sin(pi*i*udata->dx);  /* v */
-    data[IDX(i,2)] =  b  + RCONST(0.1)*sin(pi*i*udata->dx);  /* w */
+    data[IDX(i,0)] =  a  + SUN_RCONST(0.1)*sin(pi*i*udata->dx);  /* u */
+    data[IDX(i,1)] = b/a + SUN_RCONST(0.1)*sin(pi*i*udata->dx);  /* v */
+    data[IDX(i,2)] =  b  + SUN_RCONST(0.1)*sin(pi*i*udata->dx);  /* w */
   }
 
   /* Set mask array values for each solution component */
   N_VConst(0.0, umask);
   data = N_VGetArrayPointer(umask);
   if (check_flag((void *) data, "N_VGetArrayPointer", 0)) return 1;
-  for (i=0; i<N; i++)  data[IDX(i,0)] = RCONST(1.0);
+  for (i=0; i<N; i++)  data[IDX(i,0)] = SUN_RCONST(1.0);
 
   N_VConst(0.0, vmask);
   data = N_VGetArrayPointer(vmask);
   if (check_flag((void *) data, "N_VGetArrayPointer", 0)) return 1;
-  for (i=0; i<N; i++)  data[IDX(i,1)] = RCONST(1.0);
+  for (i=0; i<N; i++)  data[IDX(i,1)] = SUN_RCONST(1.0);
 
   N_VConst(0.0, wmask);
   data = N_VGetArrayPointer(wmask);
   if (check_flag((void *) data, "N_VGetArrayPointer", 0)) return 1;
-  for (i=0; i<N; i++)  data[IDX(i,2)] = RCONST(1.0);
+  for (i=0; i<N; i++)  data[IDX(i,2)] = SUN_RCONST(1.0);
 
   /* Initialize matrix and linear solver data structures */
   A = SUNBandMatrix(NEQ, 4, 4, ctx);
@@ -350,19 +350,19 @@ int main(int argc, char *argv[])
  *-------------------------------*/
 
 /* f routine to compute the ODE RHS function f(t,y). */
-static int f(realtype t, N_Vector y, N_Vector ydot, void *user_data)
+static int f(sunrealtype t, N_Vector y, N_Vector ydot, void *user_data)
 {
   UserData udata = (UserData) user_data;      /* access problem data */
   sunindextype N = udata->N;                  /* set variable shortcuts */
-  realtype a  = udata->a;
-  realtype b  = udata->b;
-  realtype ep = udata->ep;
-  realtype du = udata->du;
-  realtype dv = udata->dv;
-  realtype dw = udata->dw;
-  realtype dx = udata->dx;
-  realtype *Ydata=NULL, *dYdata=NULL;
-  realtype uconst, vconst, wconst, u, ul, ur, v, vl, vr, w, wl, wr;
+  sunrealtype a  = udata->a;
+  sunrealtype b  = udata->b;
+  sunrealtype ep = udata->ep;
+  sunrealtype du = udata->du;
+  sunrealtype dv = udata->dv;
+  sunrealtype dw = udata->dw;
+  sunrealtype dx = udata->dx;
+  sunrealtype *Ydata=NULL, *dYdata=NULL;
+  sunrealtype uconst, vconst, wconst, u, ul, ur, v, vl, vr, w, wl, wr;
   sunindextype i = 0;
 
   /* clear out ydot (to be careful) */
@@ -387,13 +387,13 @@ static int f(realtype t, N_Vector y, N_Vector ydot, void *user_data)
     w = Ydata[IDX(i,2)];  wl = Ydata[IDX(i-1,2)];  wr = Ydata[IDX(i+1,2)];
 
     /* u_t = du*u_xx + a - (w+1)*u + v*u^2 */
-    dYdata[IDX(i,0)] = (ul - RCONST(2.0)*u + ur)*uconst + a - (w+RCONST(1.0))*u + v*u*u;
+    dYdata[IDX(i,0)] = (ul - SUN_RCONST(2.0)*u + ur)*uconst + a - (w+SUN_RCONST(1.0))*u + v*u*u;
 
     /* v_t = dv*v_xx + w*u - v*u^2 */
-    dYdata[IDX(i,1)] = (vl - RCONST(2.0)*v + vr)*vconst + w*u - v*u*u;
+    dYdata[IDX(i,1)] = (vl - SUN_RCONST(2.0)*v + vr)*vconst + w*u - v*u*u;
 
     /* w_t = dw*w_xx + (b-w)/ep - w*u */
-    dYdata[IDX(i,2)] = (wl - RCONST(2.0)*w + wr)*wconst + (b-w)/ep - w*u;
+    dYdata[IDX(i,2)] = (wl - SUN_RCONST(2.0)*w + wr)*wconst + (b-w)/ep - w*u;
 
   }
 
@@ -406,7 +406,7 @@ static int f(realtype t, N_Vector y, N_Vector ydot, void *user_data)
 
 
 /* Jacobian routine to compute J(t,y) = df/dy. */
-static int Jac(realtype t, N_Vector y, N_Vector fy,
+static int Jac(sunrealtype t, N_Vector y, N_Vector fy,
                SUNMatrix J, void *user_data,
                N_Vector tmp1, N_Vector tmp2, N_Vector tmp3)
 {
@@ -414,13 +414,13 @@ static int Jac(realtype t, N_Vector y, N_Vector fy,
   SUNMatZero(J);                          /* Initialize Jacobian to zero */
 
   /* Fill in the Laplace matrix */
-  if (LaplaceMatrix(RCONST(1.0), J, udata)) {
+  if (LaplaceMatrix(SUN_RCONST(1.0), J, udata)) {
     printf("Jacobian calculation error in calling LaplaceMatrix!\n");
     return 1;
   }
 
   /* Add in the Jacobian of the reaction terms matrix */
-  if (ReactionJac(RCONST(1.0), y, J, udata)) {
+  if (ReactionJac(SUN_RCONST(1.0), y, J, udata)) {
     printf("Jacobian calculation error in calling ReactionJac!\n");
     return 1;
   }
@@ -434,14 +434,14 @@ static int Jac(realtype t, N_Vector y, N_Vector fy,
 
 /* Routine to compute the stiffness matrix from (L*y), scaled by the factor c.
    We add the result into Jac and do not erase what was already there */
-static int LaplaceMatrix(realtype c, SUNMatrix Jac, UserData udata)
+static int LaplaceMatrix(sunrealtype c, SUNMatrix Jac, UserData udata)
 {
   sunindextype N = udata->N;            /* set shortcuts */
-  realtype dx = udata->dx;
+  sunrealtype dx = udata->dx;
   sunindextype i  = 0;
-  realtype uconst = c*udata->du/dx/dx;
-  realtype vconst = c*udata->dv/dx/dx;
-  realtype wconst = c*udata->dw/dx/dx;
+  sunrealtype uconst = c*udata->du/dx/dx;
+  sunrealtype vconst = c*udata->dv/dx/dx;
+  sunrealtype wconst = c*udata->dw/dx/dx;
 
   /* iterate over intervals, filling in Jacobian entries */
 #pragma omp parallel for default(shared) private(i) schedule(static) num_threads(udata->nthreads)
@@ -451,9 +451,9 @@ static int LaplaceMatrix(realtype c, SUNMatrix Jac, UserData udata)
     SM_ELEMENT_B(Jac,IDX(i,0),IDX(i-1,0)) += uconst;
     SM_ELEMENT_B(Jac,IDX(i,1),IDX(i-1,1)) += vconst;
     SM_ELEMENT_B(Jac,IDX(i,2),IDX(i-1,2)) += wconst;
-    SM_ELEMENT_B(Jac,IDX(i,0),IDX(i,0)) -= RCONST(2.0)*uconst;
-    SM_ELEMENT_B(Jac,IDX(i,1),IDX(i,1)) -= RCONST(2.0)*vconst;
-    SM_ELEMENT_B(Jac,IDX(i,2),IDX(i,2)) -= RCONST(2.0)*wconst;
+    SM_ELEMENT_B(Jac,IDX(i,0),IDX(i,0)) -= SUN_RCONST(2.0)*uconst;
+    SM_ELEMENT_B(Jac,IDX(i,1),IDX(i,1)) -= SUN_RCONST(2.0)*vconst;
+    SM_ELEMENT_B(Jac,IDX(i,2),IDX(i,2)) -= SUN_RCONST(2.0)*wconst;
     SM_ELEMENT_B(Jac,IDX(i,0),IDX(i+1,0)) += uconst;
     SM_ELEMENT_B(Jac,IDX(i,1),IDX(i+1,1)) += vconst;
     SM_ELEMENT_B(Jac,IDX(i,2),IDX(i+1,2)) += wconst;
@@ -466,13 +466,13 @@ static int LaplaceMatrix(realtype c, SUNMatrix Jac, UserData udata)
 
 /* Routine to compute the Jacobian matrix from R(y), scaled by the factor c.
    We add the result into Jac and do not erase what was already there */
-static int ReactionJac(realtype c, N_Vector y, SUNMatrix Jac, UserData udata)
+static int ReactionJac(sunrealtype c, N_Vector y, SUNMatrix Jac, UserData udata)
 {
   sunindextype N = udata->N;                   /* set shortcuts */
-  realtype ep = udata->ep;
+  sunrealtype ep = udata->ep;
   sunindextype i = 0;
-  realtype u, v, w;
-  realtype *Ydata = N_VGetArrayPointer(y);     /* access solution array */
+  sunrealtype u, v, w;
+  sunrealtype *Ydata = N_VGetArrayPointer(y);     /* access solution array */
   if (check_flag((void *)Ydata, "N_VGetArrayPointer", 0)) return 1;
 
   /* iterate over nodes, filling in Jacobian entries */
@@ -485,8 +485,8 @@ static int ReactionJac(realtype c, N_Vector y, SUNMatrix Jac, UserData udata)
     w = Ydata[IDX(i,2)];
 
     /* all vars wrt u */
-    SM_ELEMENT_B(Jac,IDX(i,0),IDX(i,0)) += c*(RCONST(2.0)*u*v-(w+RCONST(1.0)));
-    SM_ELEMENT_B(Jac,IDX(i,1),IDX(i,0)) += c*(w - RCONST(2.0)*u*v);
+    SM_ELEMENT_B(Jac,IDX(i,0),IDX(i,0)) += c*(SUN_RCONST(2.0)*u*v-(w+SUN_RCONST(1.0)));
+    SM_ELEMENT_B(Jac,IDX(i,1),IDX(i,0)) += c*(w - SUN_RCONST(2.0)*u*v);
     SM_ELEMENT_B(Jac,IDX(i,2),IDX(i,0)) += c*(-w);
 
     /* all vars wrt v */
@@ -496,7 +496,7 @@ static int ReactionJac(realtype c, N_Vector y, SUNMatrix Jac, UserData udata)
     /* all vars wrt w */
     SM_ELEMENT_B(Jac,IDX(i,0),IDX(i,2)) += c*(-u);
     SM_ELEMENT_B(Jac,IDX(i,1),IDX(i,2)) += c*(u);
-    SM_ELEMENT_B(Jac,IDX(i,2),IDX(i,2)) += c*(-RCONST(1.0)/ep - u);
+    SM_ELEMENT_B(Jac,IDX(i,2),IDX(i,2)) += c*(-SUN_RCONST(1.0)/ep - u);
 
   }
 

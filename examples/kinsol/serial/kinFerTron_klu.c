@@ -57,7 +57,7 @@
 #include <nvector/nvector_serial.h>     /* access to serial N_Vector       */
 #include <sunmatrix/sunmatrix_sparse.h> /* access to sparse SUNMatrix      */
 #include <sunlinsol/sunlinsol_klu.h>    /* access to KLU SUNLinearSolver   */
-#include <sundials/sundials_types.h>    /* defs. of realtype, sunindextype */
+#include <sundials/sundials_types.h>    /* defs. of sunrealtype, sunindextype */
 #include <sundials/sundials_math.h>     /* access to SUNRexp               */
 
 /* Problem Constants */
@@ -65,22 +65,22 @@
 #define NVAR   2
 #define NEQ    3*NVAR
 
-#define FTOL   RCONST(1.e-5) /* function tolerance */
-#define STOL   RCONST(1.e-5) /* step tolerance     */
+#define FTOL   SUN_RCONST(1.e-5) /* function tolerance */
+#define STOL   SUN_RCONST(1.e-5) /* step tolerance     */
 
-#define ZERO   RCONST(0.0)
-#define PT25   RCONST(0.25)
-#define PT5    RCONST(0.5)
-#define ONE    RCONST(1.0)
-#define ONEPT5 RCONST(1.5)
-#define TWO    RCONST(2.0)
+#define ZERO   SUN_RCONST(0.0)
+#define PT25   SUN_RCONST(0.25)
+#define PT5    SUN_RCONST(0.5)
+#define ONE    SUN_RCONST(1.0)
+#define ONEPT5 SUN_RCONST(1.5)
+#define TWO    SUN_RCONST(2.0)
 
-#define PI     RCONST(3.1415926)
-#define E      RCONST(2.7182818)
+#define PI     SUN_RCONST(3.1415926)
+#define E      SUN_RCONST(2.7182818)
 
 typedef struct {
-  realtype lb[NVAR];
-  realtype ub[NVAR];
+  sunrealtype lb[NVAR];
+  sunrealtype ub[NVAR];
   int nnz;
 } *UserData;
 
@@ -93,7 +93,7 @@ static int jac(N_Vector y, N_Vector f, SUNMatrix J,
 static void SetInitialGuess1(N_Vector u, UserData data);
 static void SetInitialGuess2(N_Vector u, UserData data);
 static int SolveIt(void *kmem, N_Vector u, N_Vector s, int glstr, int mset);
-static void PrintHeader(realtype fnormtol, realtype scsteptol);
+static void PrintHeader(sunrealtype fnormtol, sunrealtype scsteptol);
 static void PrintOutput(N_Vector u);
 static void PrintFinalStats(void *kmem);
 static int check_retval(void *retvalvalue, const char *funcname, int opt);
@@ -108,7 +108,7 @@ int main()
 {
   SUNContext sunctx;
   UserData data;
-  realtype fnormtol, scsteptol;
+  sunrealtype fnormtol, scsteptol;
   N_Vector u1, u2, u, s, c;
   int glstr, mset, retval;
   void *kmem;
@@ -130,7 +130,7 @@ int main()
   data->nnz = 12;
 
   /* Create the SUNDIALS context that all SUNDIALS objects require */
-  retval = SUNContext_Create(NULL, &sunctx);
+  retval = SUNContext_Create(SUN_COMM_NULL, &sunctx);
   if (check_retval(&retval, "SUNContext_Create", 1)) return(1);
 
   /* Create serial vectors of length NEQ */
@@ -330,9 +330,9 @@ static int SolveIt(void *kmem, N_Vector u, N_Vector s, int glstr, int mset)
 
 static int func(N_Vector u, N_Vector f, void *user_data)
 {
-  realtype *udata, *fdata;
-  realtype x1, l1, L1, x2, l2, L2;
-  realtype *lb, *ub;
+  sunrealtype *udata, *fdata;
+  sunrealtype x1, l1, L1, x2, l2, L2;
+  sunrealtype *lb, *ub;
   UserData params;
 
   params = (UserData)user_data;
@@ -367,10 +367,10 @@ static int func(N_Vector u, N_Vector f, void *user_data)
 static int jac(N_Vector y, N_Vector f, SUNMatrix J,
                void *user_data, N_Vector tmp1, N_Vector tmp2)
 {
-  realtype *yd;
+  sunrealtype *yd;
   sunindextype *rowptrs = SUNSparseMatrix_IndexPointers(J);
   sunindextype *colvals = SUNSparseMatrix_IndexValues(J);
-  realtype *data = SUNSparseMatrix_Data(J);
+  sunrealtype *data = SUNSparseMatrix_Data(J);
 
   yd = N_VGetArrayPointer(y);
 
@@ -437,9 +437,9 @@ static int jac(N_Vector y, N_Vector f, SUNMatrix J,
 
 static void SetInitialGuess1(N_Vector u, UserData data)
 {
-  realtype x1, x2;
-  realtype *udata;
-  realtype *lb, *ub;
+  sunrealtype x1, x2;
+  sunrealtype *udata;
+  sunrealtype *lb, *ub;
 
   udata = N_VGetArrayPointer(u);
 
@@ -462,9 +462,9 @@ static void SetInitialGuess1(N_Vector u, UserData data)
 
 static void SetInitialGuess2(N_Vector u, UserData data)
 {
-  realtype x1, x2;
-  realtype *udata;
-  realtype *lb, *ub;
+  sunrealtype x1, x2;
+  sunrealtype *udata;
+  sunrealtype *lb, *ub;
 
   udata = N_VGetArrayPointer(u);
 
@@ -489,7 +489,7 @@ static void SetInitialGuess2(N_Vector u, UserData data)
  * Print first lines of output (problem description)
  */
 
-static void PrintHeader(realtype fnormtol, realtype scsteptol)
+static void PrintHeader(sunrealtype fnormtol, sunrealtype scsteptol)
 {
   printf("\nFerraris and Tronconi test problem\n");
   printf("Tolerance parameters:\n");

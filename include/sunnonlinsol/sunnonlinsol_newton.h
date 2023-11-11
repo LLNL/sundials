@@ -44,7 +44,7 @@ struct _SUNNonlinearSolverContent_Newton {
 
   /* nonlinear solver variables */
   N_Vector    delta;      /* Newton update vector                                   */
-  booleantype jcur;       /* Jacobian status, current = SUNTRUE / stale = SUNFALSE  */
+  sunbooleantype jcur;       /* Jacobian status, current = SUNTRUE / stale = SUNFALSE  */
   int         curiter;    /* current number of iterations in a solve attempt        */
   int         maxiters;   /* maximum number of iterations in a solve attempt        */
   long int    niters;     /* total number of nonlinear iterations across all solves */
@@ -78,8 +78,8 @@ SUNDIALS_EXPORT int SUNNonlinSolInitialize_Newton(SUNNonlinearSolver NLS);
 
 SUNDIALS_EXPORT int SUNNonlinSolSolve_Newton(SUNNonlinearSolver NLS,
                                              N_Vector y0, N_Vector y,
-                                             N_Vector w, realtype tol,
-                                             booleantype callLSetup, void *mem);
+                                             N_Vector w, sunrealtype tol,
+                                             sunbooleantype callLSetup, void *mem);
 
 SUNDIALS_EXPORT int SUNNonlinSolDestroy_Newton(SUNNonlinearSolver NLS);
 

@@ -58,7 +58,7 @@
 #include <arkode/arkode_arkstep.h>                  /* prototypes for ARKStep fcts., consts */
 #include <nvector/nvector_serial.h>                 /* serial N_Vector types, fcts., macros */
 #include <sunnonlinsol/sunnonlinsol_fixedpoint.h>   /* access to FP nonlinear solver        */
-#include <sundials/sundials_types.h>                /* def. of type 'realtype'              */
+#include <sundials/sundials_types.h>                /* def. of type 'sunrealtype'              */
 #include <sundials/sundials_logger.h>
 
 #if defined(SUNDIALS_EXTENDED_PRECISION)
@@ -72,8 +72,8 @@
 #endif
 
 /* User-supplied Functions Called by the Solver */
-static int fe(realtype t, N_Vector y, N_Vector ydot, void *user_data);
-static int fi(realtype t, N_Vector y, N_Vector ydot, void *user_data);
+static int fe(sunrealtype t, N_Vector y, N_Vector ydot, void *user_data);
+static int fi(sunrealtype t, N_Vector y, N_Vector ydot, void *user_data);
 
 /* Private function to check function return values */
 static int check_flag(void *flagvalue, const char *funcname, int opt);
@@ -82,18 +82,18 @@ static int check_flag(void *flagvalue, const char *funcname, int opt);
 int main(int argc, char *argv[])
 {
   /* general problem parameters */
-  realtype T0 = RCONST(0.0);     /* initial time */
-  realtype Tf = RCONST(10.0);    /* final time */
-  realtype dTout = RCONST(1.0);  /* time between outputs */
+  sunrealtype T0 = SUN_RCONST(0.0);     /* initial time */
+  sunrealtype Tf = SUN_RCONST(10.0);    /* final time */
+  sunrealtype dTout = SUN_RCONST(1.0);  /* time between outputs */
   sunindextype NEQ = 3;          /* number of dependent vars. */
   int Nt = (int) ceil(Tf/dTout); /* number of output times */
   int test = 3;                  /* test problem to run */
-  realtype reltol = 1.0e-6;      /* tolerances */
-  realtype abstol = 1.0e-10;
+  sunrealtype reltol = 1.0e-6;      /* tolerances */
+  sunrealtype abstol = 1.0e-10;
   int fp_m = 3;                  /* dimension of acceleration subspace */
   int maxcor = 10;               /* maximum # of nonlinear iterations/step */
-  realtype a, b, ep, u0, v0, w0;
-  realtype rdata[3];
+  sunrealtype a, b, ep, u0, v0, w0;
+  sunrealtype rdata[3];
   int monitor = 0;               /* turn on/off monitoring */
 
   /* general problem variables */
@@ -105,7 +105,7 @@ int main(int argc, char *argv[])
   SUNNonlinearSolver NLS = NULL;  /* empty nonlinear solver object */
   void *arkode_mem = NULL;        /* empty ARKode memory structure */
   FILE *UFID;
-  realtype t, tout;
+  sunrealtype t, tout;
   int iout;
   long int nst, nst_a, nfe, nfi, nni, ncfn, netf;
 
@@ -117,14 +117,14 @@ int main(int argc, char *argv[])
   /* create SUNDIALS context and a logger which will record
      nonlinear solver info (e.g., residual) amongst other things. */
   
-  flag = SUNContext_Create(NULL, &ctx);
+  flag = SUNContext_Create(SUN_COMM_NULL, &ctx);
   if (check_flag(&flag, "SUNContext_Create", 1)) return 1;
 
-  flag = SUNLogger_Create(NULL, 0, &logger);
+  flag = SUNLogger_Create(SUN_COMM_NULL, 0, &logger);
   if (check_flag(&flag, "SUNLogger_Create", 1)) return 1;
 
   if (monitor) {
-    flag = SUNLogger_SetInfoFilename(logger, info_fname);   
+    flag = SUNLogger_SetInfoFilename(logger, info_fname);
     if (check_flag(&flag, "SUNLogger_SetInfoFilename", 1)) return 1;
   }
 
@@ -133,26 +133,26 @@ int main(int argc, char *argv[])
 
   /* set up the test problem according to the desired test */
   if (test == 1) {
-    u0 = RCONST(3.9);
-    v0 = RCONST(1.1);
-    w0 = RCONST(2.8);
-    a  = RCONST(1.2);
-    b  = RCONST(2.5);
-    ep = RCONST(1.0e-5);
+    u0 = SUN_RCONST(3.9);
+    v0 = SUN_RCONST(1.1);
+    w0 = SUN_RCONST(2.8);
+    a  = SUN_RCONST(1.2);
+    b  = SUN_RCONST(2.5);
+    ep = SUN_RCONST(1.0e-5);
   } else if (test == 3) {
-    u0 = RCONST(3.0);
-    v0 = RCONST(3.0);
-    w0 = RCONST(3.5);
-    a  = RCONST(0.5);
-    b  = RCONST(3.0);
-    ep = RCONST(5.0e-4);
+    u0 = SUN_RCONST(3.0);
+    v0 = SUN_RCONST(3.0);
+    w0 = SUN_RCONST(3.5);
+    a  = SUN_RCONST(0.5);
+    b  = SUN_RCONST(3.0);
+    ep = SUN_RCONST(5.0e-4);
   } else {
-    u0 = RCONST(1.2);
-    v0 = RCONST(3.1);
-    w0 = RCONST(3.0);
-    a  = RCONST(1.0);
-    b  = RCONST(3.5);
-    ep = RCONST(5.0e-6);
+    u0 = SUN_RCONST(1.2);
+    v0 = SUN_RCONST(3.1);
+    w0 = SUN_RCONST(3.0);
+    a  = SUN_RCONST(1.0);
+    b  = SUN_RCONST(3.5);
+    ep = SUN_RCONST(5.0e-6);
   }
 
   /* Initial problem output */
@@ -261,12 +261,12 @@ int main(int argc, char *argv[])
  *-------------------------------*/
 
 /* fi routine to compute the implicit portion of the ODE RHS. */
-static int fi(realtype t, N_Vector y, N_Vector ydot, void *user_data)
+static int fi(sunrealtype t, N_Vector y, N_Vector ydot, void *user_data)
 {
-  realtype *rdata = (realtype *) user_data;   /* cast user_data to realtype */
-  realtype b  = rdata[1];                     /* access data entries */
-  realtype ep = rdata[2];
-  realtype w = NV_Ith_S(y,2);                 /* access solution values */
+  sunrealtype *rdata = (sunrealtype *) user_data;   /* cast user_data to sunrealtype */
+  sunrealtype b  = rdata[1];                     /* access data entries */
+  sunrealtype ep = rdata[2];
+  sunrealtype w = NV_Ith_S(y,2);                 /* access solution values */
 
   /* fill in the RHS function */
   NV_Ith_S(ydot,0) = 0.0;
@@ -277,13 +277,13 @@ static int fi(realtype t, N_Vector y, N_Vector ydot, void *user_data)
 }
 
 /* fe routine to compute the explicit portion of the ODE RHS. */
-static int fe(realtype t, N_Vector y, N_Vector ydot, void *user_data)
+static int fe(sunrealtype t, N_Vector y, N_Vector ydot, void *user_data)
 {
-  realtype *rdata = (realtype *) user_data;   /* cast user_data to realtype */
-  realtype a  = rdata[0];                     /* access data entries */
-  realtype u = NV_Ith_S(y,0);                 /* access solution values */
-  realtype v = NV_Ith_S(y,1);
-  realtype w = NV_Ith_S(y,2);
+  sunrealtype *rdata = (sunrealtype *) user_data;   /* cast user_data to sunrealtype */
+  sunrealtype a  = rdata[0];                     /* access data entries */
+  sunrealtype u = NV_Ith_S(y,0);                 /* access solution values */
+  sunrealtype v = NV_Ith_S(y,1);
+  sunrealtype w = NV_Ith_S(y,2);
 
   /* fill in the RHS function */
   NV_Ith_S(ydot,0) = a - (w+1.0)*u + v*u*u;

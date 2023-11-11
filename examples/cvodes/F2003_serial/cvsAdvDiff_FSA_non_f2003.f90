@@ -214,7 +214,7 @@ program main
   call ProcessArgs(sensi, sensi_meth, err_con)
 
   ! Create SUNDIALS simulation context
-  retval = FSUNContext_Create(c_null_ptr, ctx)
+  retval = FSUNContext_Create(0, ctx)
   if (retval /= 0) then
      print *, "Error: FSUNContext_Create returned ",retval
      stop 1

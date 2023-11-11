@@ -30,7 +30,7 @@ The vector content layout is as follows:
    struct _N_VectorContent_Sycl
    {
       sunindextype       length;
-      booleantype        own_helper;
+      sunbooleantype        own_helper;
       SUNMemory          host_data;
       SUNMemory          device_data;
       SUNSyclExecPolicy* stream_exec_policy;
@@ -96,21 +96,21 @@ constructors for creating a new NVECTOR_SYCL:
    operation are launched in the provided queue.
 
 
-.. cpp:function:: N_Vector N_VMake_Sycl(sunindextype length, realtype *h_vdata, realtype *d_vdata, sycl::queue* Q, SUNContext sunctx)
+.. cpp:function:: N_Vector N_VMake_Sycl(sunindextype length, sunrealtype *h_vdata, sunrealtype *d_vdata, sycl::queue* Q, SUNContext sunctx)
 
    This function creates an NVECTOR_SYCL with user-supplied host and device
    data arrays. This function does not allocate memory for data itself. All
    operation are launched in the provided queue.
 
 
-.. cpp:function:: N_Vector N_VMakeManaged_Sycl(sunindextype length, realtype *vdata, sycl::queue *Q, SUNContext sunctx)
+.. cpp:function:: N_Vector N_VMakeManaged_Sycl(sunindextype length, sunrealtype *vdata, sycl::queue *Q, SUNContext sunctx)
 
    This function creates an NVECTOR_SYCL with a user-supplied managed (shared)
    data array. This function does not allocate memory for data itself. All
    operation are launched in the provided queue.
 
 
-.. cpp:function:: N_Vector N_VNewWithMemHelp_Sycl(sunindextype length, booleantype use_managed_mem, SUNMemoryHelper helper, sycl::queue *Q, SUNContext sunctx)
+.. cpp:function:: N_Vector N_VNewWithMemHelp_Sycl(sunindextype length, sunbooleantype use_managed_mem, SUNMemoryHelper helper, sycl::queue *Q, SUNContext sunctx)
 
    This function creates an NVECTOR_SYCL with a user-supplied SUNMemoryHelper
    for allocating/freeing memory. All operation are launched in the provided
@@ -133,22 +133,22 @@ functions given below. To ensure memory coherency, a user will need to call the
 host and device, unless managed (shared) memory is used.
 
 
-.. cpp:function:: realtype* N_VGetHostArrayPointer_Sycl(N_Vector v)
+.. cpp:function:: sunrealtype* N_VGetHostArrayPointer_Sycl(N_Vector v)
 
    This function returns a pointer to the vector host data array.
 
 
-.. cpp:function:: realtype* N_VGetDeviceArrayPointer_Sycl(N_Vector v)
+.. cpp:function:: sunrealtype* N_VGetDeviceArrayPointer_Sycl(N_Vector v)
 
    This function returns a pointer to the vector device data array.
 
 
-.. cpp:function:: void N_VSetHostArrayPointer_Sycl(realtype* h_vdata, N_Vector v)
+.. cpp:function:: void N_VSetHostArrayPointer_Sycl(sunrealtype* h_vdata, N_Vector v)
 
    This function sets the host array pointer in the vector ``v``.
 
 
-.. cpp:function:: void N_VSetDeviceArrayPointer_Sycl(realtype* d_vdata, N_Vector v)
+.. cpp:function:: void N_VSetDeviceArrayPointer_Sycl(sunrealtype* d_vdata, N_Vector v)
 
    This function sets the device array pointer in the vector ``v``.
 
@@ -163,7 +163,7 @@ host and device, unless managed (shared) memory is used.
    This function copies vector data from the device to the host.
 
 
-.. cpp:function:: booleantype N_VIsManagedMemory_Sycl(N_Vector v)
+.. cpp:function:: sunbooleantype N_VIsManagedMemory_Sycl(N_Vector v)
 
    This function returns ``SUNTRUE`` if the vector data is allocated as managed
    (shared) memory otherwise it returns ``SUNFALSE``.
@@ -224,19 +224,19 @@ vectors created by any of the constructors above will have the default settings
 for the NVECTOR_SYCL module.
 
 
-.. cpp:function:: int N_VEnableFusedOps_Sycl(N_Vector v, booleantype tf)
+.. cpp:function:: int N_VEnableFusedOps_Sycl(N_Vector v, sunbooleantype tf)
 
    This function enables (``SUNTRUE``) or disables (``SUNFALSE``) all fused and
    vector array operations in the SYCL vector. The return value is ``0`` for
    success and ``-1`` if the input vector or its ``ops`` structure are ``NULL``.
 
-.. cpp:function:: int N_VEnableLinearCombination_Sycl(N_Vector v, booleantype tf)
+.. cpp:function:: int N_VEnableLinearCombination_Sycl(N_Vector v, sunbooleantype tf)
 
    This function enables (``SUNTRUE``) or disables (``SUNFALSE``) the linear
    combination fused operation in the SYCL vector. The return value is ``0`` for
    success and ``-1`` if the input vector or its ``ops`` structure are ``NULL``.
 
-.. cpp:function:: int N_VEnableScaleAddMulti_Sycl(N_Vector v, booleantype tf)
+.. cpp:function:: int N_VEnableScaleAddMulti_Sycl(N_Vector v, sunbooleantype tf)
 
    This function enables (``SUNTRUE``) or disables (``SUNFALSE``) the scale and
    add a vector to multiple vectors fused operation in the SYCL vector. The
@@ -244,53 +244,53 @@ for the NVECTOR_SYCL module.
    ``ops`` structure are ``NULL``.
 
 ..
-   .. cpp:function:: int N_VEnableDotProdMulti_Sycl(N_Vector v, booleantype tf)
+   .. cpp:function:: int N_VEnableDotProdMulti_Sycl(N_Vector v, sunbooleantype tf)
 
       This function enables (``SUNTRUE``) or disables (``SUNFALSE``) the multiple
       dot products fused operation in the SYCL vector. The return value is ``0``
       for success and ``-1`` if the input vector or its ``ops`` structure are
       ``NULL``.
 
-.. cpp:function:: int N_VEnableLinearSumVectorArray_Sycl(N_Vector v, booleantype tf)
+.. cpp:function:: int N_VEnableLinearSumVectorArray_Sycl(N_Vector v, sunbooleantype tf)
 
    This function enables (``SUNTRUE``) or disables (``SUNFALSE``) the linear sum
    operation for vector arrays in the SYCL vector. The return value is ``0`` for
    success and ``-1`` if the input vector or its ``ops`` structure are ``NULL``.
 
-.. cpp:function:: int N_VEnableScaleVectorArray_Sycl(N_Vector v, booleantype tf)
+.. cpp:function:: int N_VEnableScaleVectorArray_Sycl(N_Vector v, sunbooleantype tf)
 
    This function enables (``SUNTRUE``) or disables (``SUNFALSE``) the scale
    operation for vector arrays in the SYCL vector. The return value is ``0`` for
    success and ``-1`` if the input vector or its ``ops`` structure are ``NULL``.
 
-.. cpp:function:: int N_VEnableConstVectorArray_Sycl(N_Vector v, booleantype tf)
+.. cpp:function:: int N_VEnableConstVectorArray_Sycl(N_Vector v, sunbooleantype tf)
 
    This function enables (``SUNTRUE``) or disables (``SUNFALSE``) the const
    operation for vector arrays in the SYCL vector. The return value is ``0`` for
    success and ``-1`` if the input vector or its ``ops`` structure are ``NULL``.
 
 ..
-   .. cpp:function:: int N_VEnableWrmsNormVectorArray_Sycl(N_Vector v, booleantype tf)
+   .. cpp:function:: int N_VEnableWrmsNormVectorArray_Sycl(N_Vector v, sunbooleantype tf)
 
       This function enables (``SUNTRUE``) or disables (``SUNFALSE``) the WRMS norm
       operation for vector arrays in the SYCL vector. The return value is ``0`` for
       success and ``-1`` if the input vector or its ``ops`` structure are ``NULL``.
 
-   .. cpp:function:: int N_VEnableWrmsNormMaskVectorArray_Sycl(N_Vector v, booleantype tf)
+   .. cpp:function:: int N_VEnableWrmsNormMaskVectorArray_Sycl(N_Vector v, sunbooleantype tf)
 
       This function enables (``SUNTRUE``) or disables (``SUNFALSE``) the masked WRMS
       norm operation for vector arrays in the SYCL vector. The return value is
       ``0`` for success and ``-1`` if the input vector or its ``ops`` structure are
       ``NULL``.
 
-.. cpp:function:: int N_VEnableScaleAddMultiVectorArray_Sycl(N_Vector v, booleantype tf)
+.. cpp:function:: int N_VEnableScaleAddMultiVectorArray_Sycl(N_Vector v, sunbooleantype tf)
 
    This function enables (``SUNTRUE``) or disables (``SUNFALSE``) the scale and
    add a vector array to multiple vector arrays operation in the SYCL vector. The
    return value is ``0`` for success and ``-1`` if the input vector or its
    ``ops`` structure are ``NULL``.
 
-.. cpp:function:: int N_VEnableLinearCombinationVectorArray_Sycl(N_Vector v, booleantype tf)
+.. cpp:function:: int N_VEnableLinearCombinationVectorArray_Sycl(N_Vector v, sunbooleantype tf)
 
    This function enables (``SUNTRUE``) or disables (``SUNFALSE``) the linear
    combination operation for vector arrays in the SYCL vector. The return value

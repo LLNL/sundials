@@ -58,17 +58,17 @@
 
 #define SM_FSTROW_SLUNRLOC(A)        ( SM_SUPERSTORE_SLUNRLOC(A)->fst_row )
 
-#define SM_DATA_SLUNRLOC(A)          ( (realtype*)SM_SUPERSTORE_SLUNRLOC(A)->nzval )
+#define SM_DATA_SLUNRLOC(A)          ( (sunrealtype*)SM_SUPERSTORE_SLUNRLOC(A)->nzval )
 
 #define SM_COLIND_SLUNRLOC(A)        ( SM_SUPERSTORE_SLUNRLOC(A)->colind )
 
 #define SM_ROWPTRS_SLUNRLOC(A)       ( SM_SUPERSTORE_SLUNRLOC(A)->rowptr )
 
 /* constants */
-#define ZERO RCONST(0.0)
+#define ZERO SUN_RCONST(0.0)
 
 /* Private function prototypes */
-static booleantype SMCompatible_SLUNRloc(SUNMatrix A, SUNMatrix B);
+static sunbooleantype SMCompatible_SLUNRloc(SUNMatrix A, SUNMatrix B);
 
 /*
  * ----------------------------------------------------------------------------
@@ -155,7 +155,7 @@ gridinfo_t* SUNMatrix_SLUNRloc_ProcessGrid(SUNMatrix A)
   return(SM_GRID_SLUNRLOC(A));
 }
 
-booleantype SUNMatrix_SLUNRloc_OwnData(SUNMatrix A)
+sunbooleantype SUNMatrix_SLUNRloc_OwnData(SUNMatrix A)
 {
   return(SM_OWNDATA_SLUNRLOC(A));
 }
@@ -260,7 +260,7 @@ int SUNMatCopy_SLUNRloc(SUNMatrix A, SUNMatrix B)
   return(SUNMAT_SUCCESS);
 }
 
-int SUNMatScaleAdd_SLUNRloc(realtype c, SUNMatrix A, SUNMatrix B)
+int SUNMatScaleAdd_SLUNRloc(sunrealtype c, SUNMatrix A, SUNMatrix B)
 {
   /* check that B can be added into A */
   if (!SMCompatible_SLUNRloc(A, B)) return(SUNMAT_ILL_INPUT);
@@ -271,7 +271,7 @@ int SUNMatScaleAdd_SLUNRloc(realtype c, SUNMatrix A, SUNMatrix B)
   return(SUNMAT_SUCCESS);
 }
 
-int SUNMatScaleAddI_SLUNRloc(realtype c, SUNMatrix A)
+int SUNMatScaleAddI_SLUNRloc(sunrealtype c, SUNMatrix A)
 {
   /* call SuperLU-DIST ScaleAddI function */
   dScaleAddId_CompRowLoc_Matrix_dist(SM_SUPERMATRIX_SLUNRLOC(A), c);
@@ -281,7 +281,7 @@ int SUNMatScaleAddI_SLUNRloc(realtype c, SUNMatrix A)
 int SUNMatMatvec_SLUNRloc(SUNMatrix A, N_Vector x, N_Vector y)
 {
   SuperMatrix *ACS;
-  realtype *xdata, *ydata;
+  sunrealtype *xdata, *ydata;
 
   /* Extract the column-sorted A */
   ACS = SM_COLSORTED_SLUNRLOC(A);
@@ -389,7 +389,7 @@ int SUNMatSpace_SLUNRloc(SUNMatrix A, long int *lenrw, long int *leniw)
 /* Function to check compatibility of two sparse SUNMatrix objects.
    Checks to make sure that the the matrices are both SLUNRLOC,
    have the same number of rows, cols and nonzeros.*/
-static booleantype SMCompatible_SLUNRloc(SUNMatrix A, SUNMatrix B)
+static sunbooleantype SMCompatible_SLUNRloc(SUNMatrix A, SUNMatrix B)
 {
   /* both matrices must be SLUNRLOC */
   if ((SUNMatGetID(A) != SUNMATRIX_SLUNRLOC) ||

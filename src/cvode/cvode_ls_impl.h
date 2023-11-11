@@ -38,8 +38,8 @@ extern "C" {
               tolerance on the linear iteration
   -----------------------------------------------------------------*/
 #define CVLS_MSBJ   51
-#define CVLS_DGMAX  RCONST(0.2)
-#define CVLS_EPLIN  RCONST(0.05)
+#define CVLS_DGMAX  SUN_RCONST(0.2)
+#define CVLS_EPLIN  SUN_RCONST(0.05)
 
 
 /*-----------------------------------------------------------------
@@ -50,23 +50,23 @@ extern "C" {
 typedef struct CVLsMemRec {
 
   /* Linear solver type information */
-  booleantype iterative;    /* is the solver iterative?    */
-  booleantype matrixbased;  /* is a matrix structure used? */
+  sunbooleantype iterative;    /* is the solver iterative?    */
+  sunbooleantype matrixbased;  /* is a matrix structure used? */
 
   /* Jacobian construction & storage */
-  booleantype jacDQ;   /* SUNTRUE if using internal DQ Jac approx.     */
+  sunbooleantype jacDQ;   /* SUNTRUE if using internal DQ Jac approx.     */
   CVLsJacFn jac;       /* Jacobian routine to be called                */
   void *J_data;        /* user data is passed to jac                   */
-  booleantype jbad;    /* heuristic suggestion for pset                */
-  realtype dgmax_jbad; /* if convfail = FAIL_BAD_J and the gamma ratio *
+  sunbooleantype jbad;    /* heuristic suggestion for pset                */
+  sunrealtype dgmax_jbad; /* if convfail = FAIL_BAD_J and the gamma ratio *
                         * |gamma/gammap-1| < dgmax_jbad then J is bad  */
 
   /* Matrix-based solver, scale solution to account for change in gamma */
-  booleantype scalesol;
+  sunbooleantype scalesol;
 
   /* Iterative solver tolerance */
-  realtype eplifac;   /* nonlinear -> linear tol scaling factor       */
-  realtype nrmfac;    /* integrator -> LS norm conversion factor      */
+  sunrealtype eplifac;   /* nonlinear -> linear tol scaling factor       */
+  sunrealtype nrmfac;    /* integrator -> LS norm conversion factor      */
 
   /* Linear solver, matrix and vector objects/pointers */
   SUNLinearSolver LS; /* generic linear solver object                 */
@@ -110,7 +110,7 @@ typedef struct CVLsMemRec {
    * (b) internal jtimes
    *     - jt_data == cvode_mem
    *     - jtimesDQ == SUNTRUE */
-  booleantype jtimesDQ;
+  sunbooleantype jtimesDQ;
   CVLsJacTimesSetupFn jtsetup;
   CVLsJacTimesVecFn jtimes;
   CVRhsFn jt_f;
@@ -123,7 +123,7 @@ typedef struct CVLsMemRec {
    * (b) internal linsys function:
    *     - user_linsys = SUNFALSE
    *     - A_data      = cvode_mem */
-  booleantype user_linsys;
+  sunbooleantype user_linsys;
   CVLsLinSysFn linsys;
   void* A_data;
 
@@ -139,26 +139,26 @@ typedef struct CVLsMemRec {
 int cvLsATimes(void* cvode_mem, N_Vector v, N_Vector z);
 int cvLsPSetup(void* cvode_mem);
 int cvLsPSolve(void* cvode_mem, N_Vector r, N_Vector z,
-               realtype tol, int lr);
+               sunrealtype tol, int lr);
 
 /* Difference quotient approximation for Jac times vector */
-int cvLsDQJtimes(N_Vector v, N_Vector Jv, realtype t,
+int cvLsDQJtimes(N_Vector v, N_Vector Jv, sunrealtype t,
                  N_Vector y, N_Vector fy, void *data,
                  N_Vector work);
 
 /* Difference-quotient Jacobian approximation routines */
-int cvLsDQJac(realtype t, N_Vector y, N_Vector fy, SUNMatrix Jac,
+int cvLsDQJac(sunrealtype t, N_Vector y, N_Vector fy, SUNMatrix Jac,
               void *data, N_Vector tmp1, N_Vector tmp2, N_Vector tmp3);
-int cvLsDenseDQJac(realtype t, N_Vector y, N_Vector fy,
+int cvLsDenseDQJac(sunrealtype t, N_Vector y, N_Vector fy,
                    SUNMatrix Jac, CVodeMem cv_mem, N_Vector tmp1);
-int cvLsBandDQJac(realtype t, N_Vector y, N_Vector fy,
+int cvLsBandDQJac(sunrealtype t, N_Vector y, N_Vector fy,
                   SUNMatrix Jac, CVodeMem cv_mem, N_Vector tmp1,
                   N_Vector tmp2);
 
 /* Generic linit/lsetup/lsolve/lfree interface routines for CVode to call */
 int cvLsInitialize(CVodeMem cv_mem);
 int cvLsSetup(CVodeMem cv_mem, int convfail, N_Vector ypred,
-              N_Vector fpred, booleantype *jcurPtr,
+              N_Vector fpred, sunbooleantype *jcurPtr,
               N_Vector vtemp1, N_Vector vtemp2, N_Vector vtemp3);
 int cvLsSolve(CVodeMem cv_mem, N_Vector b, N_Vector weight,
               N_Vector ycur, N_Vector fcur);

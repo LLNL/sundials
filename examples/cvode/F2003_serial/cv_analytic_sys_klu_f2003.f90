@@ -233,7 +233,7 @@ program main
   yvec(2) = 1.0d0
   yvec(3) = 1.0d0
 
-  ierr = FSUNContext_Create(c_null_ptr, sunctx)
+  ierr = FSUNContext_Create(0, sunctx)
   if (ierr /= 0) then
      print *, 'ERROR: FSUNContext_Create returned non-zero'
      stop 1

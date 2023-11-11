@@ -159,9 +159,9 @@ int main(int argc, char *argv[])
  * --------------------------------------------------------------------*/
 
 /* random data between lower and upper */
-void N_VRand(N_Vector Xvec, sunindextype Xlen, realtype lower, realtype upper)
+void N_VRand(N_Vector Xvec, sunindextype Xlen, sunrealtype lower, sunrealtype upper)
 {
-  realtype *Xdata;
+  sunrealtype *Xdata;
 
   Xdata = N_VGetHostArrayPointer_OpenMPDEV(Xvec);
   rand_realtype(Xdata, Xlen, lower, upper);
@@ -171,7 +171,7 @@ void N_VRand(N_Vector Xvec, sunindextype Xlen, realtype lower, realtype upper)
 /* series of 0 and 1 */
 void N_VRandZeroOne(N_Vector Xvec, sunindextype Xlen)
 {
-  realtype *Xdata;
+  sunrealtype *Xdata;
 
   Xdata = N_VGetHostArrayPointer_OpenMPDEV(Xvec);
   rand_realtype_zero_one(Xdata, Xlen);
@@ -181,7 +181,7 @@ void N_VRandZeroOne(N_Vector Xvec, sunindextype Xlen)
 /* random values for constraint array */
 void N_VRandConstraints(N_Vector Xvec, sunindextype Xlen)
 {
-  realtype *Xdata;
+  sunrealtype *Xdata;
 
   Xdata = N_VGetHostArrayPointer_OpenMPDEV(Xvec);
   rand_realtype_constraints(Xdata, Xlen);

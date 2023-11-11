@@ -189,7 +189,7 @@ implementation specific functions:
       ``SUNMATRIX_ILL_INPUT``.
 
 
-.. c:function:: realtype* SUNMatrix_MagmaDense_Data(SUNMatrix A)
+.. c:function:: sunrealtype* SUNMatrix_MagmaDense_Data(SUNMatrix A)
 
    This function returns the ``SUNMatrix`` data array.
 
@@ -200,7 +200,7 @@ implementation specific functions:
       If successful, the ``SUNMatrix`` data array otherwise ``NULL``.
 
 
-.. c:function:: realtype** SUNMatrix_MagmaDense_BlockData(SUNMatrix A)
+.. c:function:: sunrealtype** SUNMatrix_MagmaDense_BlockData(SUNMatrix A)
 
    This function returns an array of pointers that point to the start of the
    data array for each block in the ``SUNMatrix``.
@@ -213,7 +213,7 @@ implementation specific functions:
       blocks otherwise ``NULL``.
 
 
-.. c:function:: realtype* SUNMatrix_MagmaDense_Block(SUNMatrix A, sunindextype k)
+.. c:function:: sunrealtype* SUNMatrix_MagmaDense_Block(SUNMatrix A, sunindextype k)
 
    This function returns a pointer to the data array for block *k* in the
    ``SUNMatrix``.
@@ -232,7 +232,7 @@ implementation specific functions:
       less than *nblocks*.
 
 
-.. c:function:: realtype* SUNMatrix_MagmaDense_Column(SUNMatrix A, sunindextype j)
+.. c:function:: sunrealtype* SUNMatrix_MagmaDense_Column(SUNMatrix A, sunindextype j)
 
    This function returns a pointer to the data array for column *j* in the
    ``SUNMatrix``.
@@ -251,7 +251,7 @@ implementation specific functions:
       less than :math:`nblocks * N_{\text{block}}`.
 
 
-.. c:function:: realtype* SUNMatrix_MagmaDense_BlockColumn(SUNMatrix A, sunindextype k, sunindextype j)
+.. c:function:: sunrealtype* SUNMatrix_MagmaDense_BlockColumn(SUNMatrix A, sunindextype k, sunindextype j)
 
    This function returns a pointer to the data array for column *j* of block *k*
    in the ``SUNMatrix``.
@@ -273,7 +273,7 @@ implementation specific functions:
 
 
 
-.. c:function:: int SUNMatrix_MagmaDense_CopyToDevice(SUNMatrix A, realtype* h_data)
+.. c:function:: int SUNMatrix_MagmaDense_CopyToDevice(SUNMatrix A, sunrealtype* h_data)
 
    This function copies the matrix data to the GPU device from the provided host
    array.
@@ -289,7 +289,7 @@ implementation specific functions:
       * ``SUNMAT_MEM_FAIL`` -- if the copy fails.
 
 
-.. c:function:: int SUNMatrix_MagmaDense_CopyFromDevice(SUNMatrix A, realtype* h_data)
+.. c:function:: int SUNMatrix_MagmaDense_CopyFromDevice(SUNMatrix A, sunrealtype* h_data)
 
    This function copies the matrix data from the GPU device to the provided host
    array.

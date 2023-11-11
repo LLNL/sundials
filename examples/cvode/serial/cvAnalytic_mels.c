@@ -33,7 +33,7 @@
 #include <math.h>
 #include <cvode/cvode.h>               /* prototypes for CVODE fcts., consts.  */
 #include <nvector/nvector_serial.h>    /* access to serial N_Vector            */
-#include <sundials/sundials_types.h>   /* defs. of realtype, sunindextype      */
+#include <sundials/sundials_types.h>   /* defs. of sunrealtype, sunindextype      */
 
 #if defined(SUNDIALS_EXTENDED_PRECISION)
 #define GSYM "Lg"
@@ -46,17 +46,17 @@
 #endif
 
 /* User-supplied functions called by CVode */
-static int f(realtype t, N_Vector y, N_Vector ydot, void *user_data);
+static int f(sunrealtype t, N_Vector y, N_Vector ydot, void *user_data);
 
 /* Custom linear solver data structure, accessor macros, and routines */
 static SUNLinearSolver MatrixEmbeddedLS(void *cvode_mem);
 static SUNLinearSolver_Type MatrixEmbeddedLSType(SUNLinearSolver S);
 static int MatrixEmbeddedLSSolve(SUNLinearSolver S, SUNMatrix A, N_Vector x,
-                                 N_Vector b, realtype tol);
+                                 N_Vector b, sunrealtype tol);
 static int MatrixEmbeddedLSFree(SUNLinearSolver S);
 
 /* Private function to check computed solution */
-static int check_ans(N_Vector y, realtype t, realtype rtol, realtype atol);
+static int check_ans(N_Vector y, sunrealtype t, sunrealtype rtol, sunrealtype atol);
 
 /* Private function to check function return values */
 static int check_retval(void *returnvalue, const char *funcname, int opt);
@@ -68,24 +68,24 @@ static SUNContext sunctx = NULL;
 int main()
 {
   /* general problem parameters */
-  realtype T0 = RCONST(0.0);         /* initial time */
-  realtype Tf = RCONST(10.0);        /* final time */
-  realtype dTout = RCONST(1.0);      /* time between outputs */
+  sunrealtype T0 = SUN_RCONST(0.0);         /* initial time */
+  sunrealtype Tf = SUN_RCONST(10.0);        /* final time */
+  sunrealtype dTout = SUN_RCONST(1.0);      /* time between outputs */
   sunindextype NEQ = 1;              /* number of dependent vars. */
-  realtype reltol = RCONST(1.0e-6);  /* tolerances */
-  realtype abstol = RCONST(1.0e-10);
-  realtype lamda  = RCONST(-100.0);  /* stiffness parameter */
+  sunrealtype reltol = SUN_RCONST(1.0e-6);  /* tolerances */
+  sunrealtype abstol = SUN_RCONST(1.0e-10);
+  sunrealtype lamda  = SUN_RCONST(-100.0);  /* stiffness parameter */
 
   /* general problem variables */
   int retval;                     /* reusable error-checking flag */
   N_Vector y = NULL;              /* empty vector for storing solution */
   SUNLinearSolver LS = NULL;      /* empty linear solver object */
   void *cvode_mem = NULL;         /* empty CVode memory structure */
-  realtype t, tout;
+  sunrealtype t, tout;
   long int nst, nfe, nsetups, nje, nfeLS, nni, ncfn, netf;
 
   /* Create the SUNDIALS context */
-  retval = SUNContext_Create(NULL, &sunctx);
+  retval = SUNContext_Create(SUN_COMM_NULL, &sunctx);
   if(check_retval(&retval, "SUNContext_Create", 1)) return(1);
 
   /* Initial diagnostics output */
@@ -97,7 +97,7 @@ int main()
   /* Initialize data structures */
   y = N_VNew_Serial(NEQ, sunctx);          /* Create serial vector for solution */
   if (check_retval((void *)y, "N_VNew_Serial", 0)) return 1;
-  N_VConst(RCONST(0.0), y);        /* Specify initial condition */
+  N_VConst(SUN_RCONST(0.0), y);        /* Specify initial condition */
 
   /* Call CVodeCreate to create the solver memory and specify the
    * Backward Differentiation Formula */
@@ -193,14 +193,14 @@ int main()
  *-------------------------------*/
 
 /* f routine to compute the ODE RHS function f(t,y). */
-static int f(realtype t, N_Vector y, N_Vector ydot, void *user_data)
+static int f(sunrealtype t, N_Vector y, N_Vector ydot, void *user_data)
 {
-  realtype *rdata = (realtype *) user_data;   /* cast user_data to realtype */
-  realtype lamda = rdata[0];                  /* set shortcut for stiffness parameter */
-  realtype u = NV_Ith_S(y,0);                 /* access current solution value */
+  sunrealtype *rdata = (sunrealtype *) user_data;   /* cast user_data to sunrealtype */
+  sunrealtype lamda = rdata[0];                  /* set shortcut for stiffness parameter */
+  sunrealtype u = NV_Ith_S(y,0);                 /* access current solution value */
 
   /* fill in the RHS function: "NV_Ith_S" accesses the 0th entry of ydot */
-  NV_Ith_S(ydot,0) = lamda*u + RCONST(1.0)/(RCONST(1.0)+t*t) - lamda*atan(t);
+  NV_Ith_S(ydot,0) = lamda*u + SUN_RCONST(1.0)/(SUN_RCONST(1.0)+t*t) - lamda*atan(t);
 
   return 0;                                   /* return with success */
 }
@@ -236,15 +236,15 @@ static SUNLinearSolver_Type MatrixEmbeddedLSType(SUNLinearSolver S)
 
 /* linear solve routine */
 static int MatrixEmbeddedLSSolve(SUNLinearSolver LS, SUNMatrix A, N_Vector x,
-                                 N_Vector b, realtype tol)
+                                 N_Vector b, sunrealtype tol)
 {
   /* temporary variables */
   int       retval;
   N_Vector  y, ypred, fn, zn1;
-  realtype  tcur, gamma, rl1;
+  sunrealtype  tcur, gamma, rl1;
   void      *user_data;
-  realtype  *rdata;
-  realtype  lamda;
+  sunrealtype  *rdata;
+  sunrealtype  lamda;
 
   /* retrieve implicit system data from CVode */
   retval = CVodeGetNonlinearSystemData(LS->content, &tcur, &ypred, &y, &fn,
@@ -253,7 +253,7 @@ static int MatrixEmbeddedLSSolve(SUNLinearSolver LS, SUNMatrix A, N_Vector x,
     return(-1);
 
   /* extract stiffness parameter from user_data */
-  rdata = (realtype *) user_data;
+  rdata = (sunrealtype *) user_data;
   lamda = rdata[0];
 
   /* perform linear solve: (1-gamma*lamda)*x = b */
@@ -312,18 +312,18 @@ static int check_retval(void *returnvalue, const char *funcname, int opt)
 }
 
 /* check the computed solution */
-static int check_ans(N_Vector y, realtype t, realtype rtol, realtype atol)
+static int check_ans(N_Vector y, sunrealtype t, sunrealtype rtol, sunrealtype atol)
 {
   int      passfail=0;     /* answer pass (0) or fail (1) flag     */
-  realtype ans, err, ewt;  /* answer data, error, and error weight */
+  sunrealtype ans, err, ewt;  /* answer data, error, and error weight */
 
   /* compute solution error */
   ans = atan(t);
-  ewt = RCONST(1.0) / (rtol * fabs(ans) + atol);
+  ewt = SUN_RCONST(1.0) / (rtol * fabs(ans) + atol);
   err = ewt * fabs(NV_Ith_S(y,0) - ans);
 
   /* is the solution within the tolerances? */
-  passfail = (err < RCONST(1.0)) ? 0 : 1;
+  passfail = (err < SUN_RCONST(1.0)) ? 0 : 1;
 
   if (passfail) {
     fprintf(stdout, "\nSUNDIALS_WARNING: check_ans error=%"GSYM"\n\n", err);

@@ -49,22 +49,22 @@
 #endif
 
 /* User-supplied Functions Called by the Solver */
-static int f(realtype t, N_Vector y, N_Vector ydot, void *user_data);
+static int f(sunrealtype t, N_Vector y, N_Vector ydot, void *user_data);
 
 /* Private function to check function return values */
 static int check_flag(void *flagvalue, const char *funcname, int opt);
 
 /* Private function to verify test results */
-static int verify_results(realtype lambda, int rtype,
-                          realtype *yrate, realtype *dyrate,
-                          realtype *d2yrate, realtype *yrate2,
-                          realtype *dyrate2, realtype *d2yrate2);
+static int verify_results(sunrealtype lambda, int rtype,
+                          sunrealtype *yrate, sunrealtype *dyrate,
+                          sunrealtype *d2yrate, sunrealtype *yrate2,
+                          sunrealtype *dyrate2, sunrealtype *d2yrate2);
 
 /* Main Program */
 int main(int argc, char *argv[])
 {
   /* initial declaration of all variables */
-  realtype T0, Tf, lambda, t, t_test, hbase, rtol, atol;
+  sunrealtype T0, Tf, lambda, t, t_test, hbase, rtol, atol;
   sunindextype NEQ;
   int flag, nttest, ideg, ih, itest, rtype;
   N_Vector y, ytest, dytest, d2ytest, d3ytest, d4ytest, d5ytest;
@@ -72,35 +72,35 @@ int main(int argc, char *argv[])
   SUNMatrix A;
   SUNLinearSolver LS;
   void *arkode_mem;
-  realtype hvals[NHVALS], yerrs[NHVALS], dyerrs[NHVALS], d2yerrs[NHVALS];
-  realtype d3yerrs[NHVALS], d4yerrs[NHVALS], d5yerrs[NHVALS];
-  realtype yrate[ARK_INTERP_MAX_DEGREE+1], dyrate[ARK_INTERP_MAX_DEGREE+1];
-  realtype d2yrate[ARK_INTERP_MAX_DEGREE+1], d3yrate[ARK_INTERP_MAX_DEGREE+1];
-  realtype d4yrate[ARK_INTERP_MAX_DEGREE+1], d5yrate[ARK_INTERP_MAX_DEGREE+1];
-  realtype yferr[ARK_INTERP_MAX_DEGREE+1], dyferr[ARK_INTERP_MAX_DEGREE+1];
-  realtype d2yferr[ARK_INTERP_MAX_DEGREE+1], d3yferr[ARK_INTERP_MAX_DEGREE+1];
-  realtype d4yferr[ARK_INTERP_MAX_DEGREE+1], d5yferr[ARK_INTERP_MAX_DEGREE+1];
-  realtype yrate2[ARK_INTERP_MAX_DEGREE+1], dyrate2[ARK_INTERP_MAX_DEGREE+1];
-  realtype d2yrate2[ARK_INTERP_MAX_DEGREE+1], yferr2[ARK_INTERP_MAX_DEGREE+1];
-  realtype dyferr2[ARK_INTERP_MAX_DEGREE+1], d2yferr2[ARK_INTERP_MAX_DEGREE+1];
+  sunrealtype hvals[NHVALS], yerrs[NHVALS], dyerrs[NHVALS], d2yerrs[NHVALS];
+  sunrealtype d3yerrs[NHVALS], d4yerrs[NHVALS], d5yerrs[NHVALS];
+  sunrealtype yrate[ARK_INTERP_MAX_DEGREE+1], dyrate[ARK_INTERP_MAX_DEGREE+1];
+  sunrealtype d2yrate[ARK_INTERP_MAX_DEGREE+1], d3yrate[ARK_INTERP_MAX_DEGREE+1];
+  sunrealtype d4yrate[ARK_INTERP_MAX_DEGREE+1], d5yrate[ARK_INTERP_MAX_DEGREE+1];
+  sunrealtype yferr[ARK_INTERP_MAX_DEGREE+1], dyferr[ARK_INTERP_MAX_DEGREE+1];
+  sunrealtype d2yferr[ARK_INTERP_MAX_DEGREE+1], d3yferr[ARK_INTERP_MAX_DEGREE+1];
+  sunrealtype d4yferr[ARK_INTERP_MAX_DEGREE+1], d5yferr[ARK_INTERP_MAX_DEGREE+1];
+  sunrealtype yrate2[ARK_INTERP_MAX_DEGREE+1], dyrate2[ARK_INTERP_MAX_DEGREE+1];
+  sunrealtype d2yrate2[ARK_INTERP_MAX_DEGREE+1], yferr2[ARK_INTERP_MAX_DEGREE+1];
+  sunrealtype dyferr2[ARK_INTERP_MAX_DEGREE+1], d2yferr2[ARK_INTERP_MAX_DEGREE+1];
 
   /* Create the SUNDIALS context object for this simulation. */
   SUNContext sunctx = NULL;
-  SUNContext_Create(NULL, &sunctx);
+  SUNContext_Create(SUN_COMM_NULL, &sunctx);
 
   /* general problem parameters */
-  T0 = RCONST(0.0);       /* initial time */
-  Tf = RCONST(10.0);      /* final time */
+  T0 = SUN_RCONST(0.0);       /* initial time */
+  Tf = SUN_RCONST(10.0);      /* final time */
   NEQ = 2;                /* number of dependent vars. */
 
   /* if an argument supplied, set lambda (otherwise use -100) */
-  lambda = -RCONST(100.0);
+  lambda = -SUN_RCONST(100.0);
   if (argc > 1)  lambda = strtod(argv[1], NULL);
 
   /* determine test configuration */
-  if (sizeof(realtype) == 4) {
+  if (sizeof(sunrealtype) == 4) {
     rtype = 32;
-  } else if (sizeof(realtype) == 8) {
+  } else if (sizeof(sunrealtype) == 8) {
     rtype = 64;
   } else {
     rtype = 128;
@@ -164,7 +164,7 @@ int main(int argc, char *argv[])
 
   /* test parameters */
   nttest = 500;
-  hbase = RCONST(2.0);
+  hbase = SUN_RCONST(2.0);
 
   /*---- Part I: Hermite interpolation module ----*/
   printf("\nHermite interpolation module tests:\n");
@@ -174,23 +174,23 @@ int main(int argc, char *argv[])
 
     /* reset error/convergence arrays */
     for (ih=0; ih<NHVALS; ih++) {
-      yerrs[ih]   = RCONST(0.0);
-      dyerrs[ih]  = RCONST(0.0);
-      d2yerrs[ih] = RCONST(0.0);
-      d3yerrs[ih] = RCONST(0.0);
-      d4yerrs[ih] = RCONST(0.0);
-      d5yerrs[ih] = RCONST(0.0);
+      yerrs[ih]   = SUN_RCONST(0.0);
+      dyerrs[ih]  = SUN_RCONST(0.0);
+      d2yerrs[ih] = SUN_RCONST(0.0);
+      d3yerrs[ih] = SUN_RCONST(0.0);
+      d4yerrs[ih] = SUN_RCONST(0.0);
+      d5yerrs[ih] = SUN_RCONST(0.0);
     }
 
     /* run tests for this dense output polynomial degree */
     for (ih=0; ih<NHVALS; ih++) {
 
       /* set test stepsize */
-      hvals[ih] = RCONST(2.0)/pow(hbase,ih);
+      hvals[ih] = SUN_RCONST(2.0)/pow(hbase,ih);
 
       /* Initialize y values */
-      NV_Ith_S(y,0) = RCONST(0.0);
-      NV_Ith_S(y,1) = RCONST(1.0);
+      NV_Ith_S(y,0) = SUN_RCONST(0.0);
+      NV_Ith_S(y,1) = SUN_RCONST(1.0);
 
       /* Create/initialize ARKStep module */
       arkode_mem = ARKStepCreate(NULL, f, T0, y, sunctx);
@@ -261,23 +261,23 @@ int main(int argc, char *argv[])
 
         /* set error values */
         /*   y */
-        NV_Ith_S(yerr,0) = SUNRabs(SIN(RCONST(2.0)*t_test) - NV_Ith_S(ytest,0));
-        NV_Ith_S(yerr,1) = SUNRabs(COS(RCONST(3.0)*t_test) - NV_Ith_S(ytest,1));
+        NV_Ith_S(yerr,0) = SUNRabs(SIN(SUN_RCONST(2.0)*t_test) - NV_Ith_S(ytest,0));
+        NV_Ith_S(yerr,1) = SUNRabs(COS(SUN_RCONST(3.0)*t_test) - NV_Ith_S(ytest,1));
         /*   dy */
-        NV_Ith_S(dyerr,0) = SUNRabs(RCONST(2.0)*COS(RCONST(2.0)*t_test) - NV_Ith_S(dytest,0));
-        NV_Ith_S(dyerr,1) = SUNRabs(-RCONST(3.0)*SIN(RCONST(3.0)*t_test) - NV_Ith_S(dytest,1));
+        NV_Ith_S(dyerr,0) = SUNRabs(SUN_RCONST(2.0)*COS(SUN_RCONST(2.0)*t_test) - NV_Ith_S(dytest,0));
+        NV_Ith_S(dyerr,1) = SUNRabs(-SUN_RCONST(3.0)*SIN(SUN_RCONST(3.0)*t_test) - NV_Ith_S(dytest,1));
         /*   d2y */
-        NV_Ith_S(d2yerr,0) = SUNRabs(-RCONST(4.0)*SIN(RCONST(2.0)*t_test) - NV_Ith_S(d2ytest,0));
-        NV_Ith_S(d2yerr,1) = SUNRabs(-RCONST(9.0)*COS(RCONST(3.0)*t_test) - NV_Ith_S(d2ytest,1));
+        NV_Ith_S(d2yerr,0) = SUNRabs(-SUN_RCONST(4.0)*SIN(SUN_RCONST(2.0)*t_test) - NV_Ith_S(d2ytest,0));
+        NV_Ith_S(d2yerr,1) = SUNRabs(-SUN_RCONST(9.0)*COS(SUN_RCONST(3.0)*t_test) - NV_Ith_S(d2ytest,1));
         /*   d3y */
-        NV_Ith_S(d3yerr,0) = SUNRabs(-RCONST(8.0)*COS(RCONST(2.0)*t_test) - NV_Ith_S(d3ytest,0));
-        NV_Ith_S(d3yerr,1) = SUNRabs(RCONST(27.0)*SIN(RCONST(3.0)*t_test) - NV_Ith_S(d3ytest,1));
+        NV_Ith_S(d3yerr,0) = SUNRabs(-SUN_RCONST(8.0)*COS(SUN_RCONST(2.0)*t_test) - NV_Ith_S(d3ytest,0));
+        NV_Ith_S(d3yerr,1) = SUNRabs(SUN_RCONST(27.0)*SIN(SUN_RCONST(3.0)*t_test) - NV_Ith_S(d3ytest,1));
         /*   d4y */
-        NV_Ith_S(d4yerr,0) = SUNRabs(RCONST(16.0)*SIN(RCONST(2.0)*t_test) - NV_Ith_S(d4ytest,0));
-        NV_Ith_S(d4yerr,1) = SUNRabs(RCONST(81.0)*COS(RCONST(3.0)*t_test) - NV_Ith_S(d4ytest,1));
+        NV_Ith_S(d4yerr,0) = SUNRabs(SUN_RCONST(16.0)*SIN(SUN_RCONST(2.0)*t_test) - NV_Ith_S(d4ytest,0));
+        NV_Ith_S(d4yerr,1) = SUNRabs(SUN_RCONST(81.0)*COS(SUN_RCONST(3.0)*t_test) - NV_Ith_S(d4ytest,1));
         /*   d5y */
-        NV_Ith_S(d5yerr,0) = SUNRabs(RCONST(32.0)*COS(RCONST(2.0)*t_test) - NV_Ith_S(d5ytest,0));
-        NV_Ith_S(d5yerr,1) = SUNRabs(-RCONST(243.0)*SIN(RCONST(3.0)*t_test) - NV_Ith_S(d5ytest,1));
+        NV_Ith_S(d5yerr,0) = SUNRabs(SUN_RCONST(32.0)*COS(SUN_RCONST(2.0)*t_test) - NV_Ith_S(d5ytest,0));
+        NV_Ith_S(d5yerr,1) = SUNRabs(-SUN_RCONST(243.0)*SIN(SUN_RCONST(3.0)*t_test) - NV_Ith_S(d5ytest,1));
 
         /* compute error norms (2-norm per test, max-norm over interval) */
         yerrs[ih] = SUNMAX(yerrs[ih], SQRT(N_VDotProd(yerr,yerr)));
@@ -361,20 +361,20 @@ int main(int argc, char *argv[])
 
     /* reset error/convergence arrays */
     for (ih=0; ih<NHVALS; ih++) {
-      yerrs[ih] = RCONST(0.0);
-      dyerrs[ih] = RCONST(0.0);
-      d2yerrs[ih] = RCONST(0.0);
+      yerrs[ih] = SUN_RCONST(0.0);
+      dyerrs[ih] = SUN_RCONST(0.0);
+      d2yerrs[ih] = SUN_RCONST(0.0);
     }
 
     /* run tests for this dense output polynomial degree */
     for (ih=0; ih<NHVALS; ih++) {
 
       /* set test stepsize */
-      hvals[ih] = RCONST(2.0)/pow(hbase,ih);
+      hvals[ih] = SUN_RCONST(2.0)/pow(hbase,ih);
 
       /* Initialize y values */
-      NV_Ith_S(y,0) = RCONST(0.0);
-      NV_Ith_S(y,1) = RCONST(1.0);
+      NV_Ith_S(y,0) = SUN_RCONST(0.0);
+      NV_Ith_S(y,1) = SUN_RCONST(1.0);
 
       /* Create/initialize ARKStep module */
       arkode_mem = ARKStepCreate(NULL, f, T0, y, sunctx);
@@ -438,14 +438,14 @@ int main(int argc, char *argv[])
 
         /* set error values */
         /*   y */
-        NV_Ith_S(yerr,0) = SUNRabs(SIN(RCONST(2.0)*t_test) - NV_Ith_S(ytest,0));
-        NV_Ith_S(yerr,1) = SUNRabs(COS(RCONST(3.0)*t_test) - NV_Ith_S(ytest,1));
+        NV_Ith_S(yerr,0) = SUNRabs(SIN(SUN_RCONST(2.0)*t_test) - NV_Ith_S(ytest,0));
+        NV_Ith_S(yerr,1) = SUNRabs(COS(SUN_RCONST(3.0)*t_test) - NV_Ith_S(ytest,1));
         /*   dy */
-        NV_Ith_S(dyerr,0) = SUNRabs(RCONST(2.0)*COS(RCONST(2.0)*t_test) - NV_Ith_S(dytest,0));
-        NV_Ith_S(dyerr,1) = SUNRabs(-RCONST(3.0)*SIN(RCONST(3.0)*t_test) - NV_Ith_S(dytest,1));
+        NV_Ith_S(dyerr,0) = SUNRabs(SUN_RCONST(2.0)*COS(SUN_RCONST(2.0)*t_test) - NV_Ith_S(dytest,0));
+        NV_Ith_S(dyerr,1) = SUNRabs(-SUN_RCONST(3.0)*SIN(SUN_RCONST(3.0)*t_test) - NV_Ith_S(dytest,1));
         /*   d2y */
-        NV_Ith_S(d2yerr,0) = SUNRabs(-RCONST(4.0)*SIN(RCONST(2.0)*t_test) - NV_Ith_S(d2ytest,0));
-        NV_Ith_S(d2yerr,1) = SUNRabs(-RCONST(9.0)*COS(RCONST(3.0)*t_test) - NV_Ith_S(d2ytest,1));
+        NV_Ith_S(d2yerr,0) = SUNRabs(-SUN_RCONST(4.0)*SIN(SUN_RCONST(2.0)*t_test) - NV_Ith_S(d2ytest,0));
+        NV_Ith_S(d2yerr,1) = SUNRabs(-SUN_RCONST(9.0)*COS(SUN_RCONST(3.0)*t_test) - NV_Ith_S(d2ytest,1));
 
         /* compute error norms (2-norm per test, max-norm over interval) */
         yerrs[ih] = SUNMAX(yerrs[ih], SQRT(N_VDotProd(yerr,yerr)));
@@ -548,13 +548,13 @@ int main(int argc, char *argv[])
  *-------------------------------*/
 
 /* f routine to compute the ODE RHS function f(t,y). */
-static int f(realtype t, N_Vector y, N_Vector ydot, void *user_data)
+static int f(sunrealtype t, N_Vector y, N_Vector ydot, void *user_data)
 {
-  realtype *lambda = (realtype *) user_data;
-  NV_Ith_S(ydot,0) = (*lambda)*(NV_Ith_S(y,0) - SIN(RCONST(2.0)*t))
-    + NV_Ith_S(y,1) - COS(RCONST(3.0)*t) + RCONST(2.0)*COS(RCONST(2.0)*t);
-  NV_Ith_S(ydot,1) = NV_Ith_S(y,0) - NV_Ith_S(y,1) - SIN(RCONST(2.0)*t)
-    + COS(RCONST(3.0)*t) - RCONST(3.0)*SIN(RCONST(3.0)*t);
+  sunrealtype *lambda = (sunrealtype *) user_data;
+  NV_Ith_S(ydot,0) = (*lambda)*(NV_Ith_S(y,0) - SIN(SUN_RCONST(2.0)*t))
+    + NV_Ith_S(y,1) - COS(SUN_RCONST(3.0)*t) + SUN_RCONST(2.0)*COS(SUN_RCONST(2.0)*t);
+  NV_Ith_S(ydot,1) = NV_Ith_S(y,0) - NV_Ith_S(y,1) - SIN(SUN_RCONST(2.0)*t)
+    + COS(SUN_RCONST(3.0)*t) - SUN_RCONST(3.0)*SIN(SUN_RCONST(3.0)*t);
   return 0;  /* Return with success */
 }
 
@@ -608,13 +608,13 @@ static int check_flag(void *flagvalue, const char *funcname, int opt)
    error values >1 are omitted from these checks, as non-convergence
    may occur differently on various architectures.
 
-   We consider realtype precisions {32,64,128} and stiffness values
+   We consider sunrealtype precisions {32,64,128} and stiffness values
    lambda = {-1e2, -1e4, -1e6}.
 */
-static int verify_results(realtype lambda, int rtype,
-                          realtype *yrate, realtype *dyrate,
-                          realtype *d2yrate, realtype *yrate2,
-                          realtype *dyrate2, realtype *d2yrate2)
+static int verify_results(sunrealtype lambda, int rtype,
+                          sunrealtype *yrate, sunrealtype *dyrate,
+                          sunrealtype *d2yrate, sunrealtype *yrate2,
+                          sunrealtype *dyrate2, sunrealtype *d2yrate2)
 {
   int tests=0;
   int failure=0;

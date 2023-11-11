@@ -36,11 +36,11 @@
  * =================================================================
  */
 
-#define ZERO        RCONST(0.0)        /* real 0.0   */
-#define ONE         RCONST(1.0)        /* real 1.0   */
-#define TWO         RCONST(2.0)        /* real 2.0   */
-#define HUNDRED     RCONST(100.0)      /* real 100.0 */
-#define FUZZ_FACTOR RCONST(1000000.0)  /* fuzz factor for IMget */
+#define ZERO        SUN_RCONST(0.0)        /* real 0.0   */
+#define ONE         SUN_RCONST(1.0)        /* real 1.0   */
+#define TWO         SUN_RCONST(2.0)        /* real 2.0   */
+#define HUNDRED     SUN_RCONST(100.0)      /* real 100.0 */
+#define FUZZ_FACTOR SUN_RCONST(1000000.0)  /* fuzz factor for IMget */
 
 /*=================================================================*/
 /* Shortcuts                                                       */
@@ -63,25 +63,25 @@ static void CVAbckpbDelete(CVodeBMem *cvB_memPtr);
 static int  CVAdataStore(CVodeMem cv_mem, CVckpntMem ck_mem);
 static int  CVAckpntGet(CVodeMem cv_mem, CVckpntMem ck_mem);
 
-static int CVAfindIndex(CVodeMem cv_mem, realtype t,
-                        long int *indx, booleantype *newpoint);
+static int CVAfindIndex(CVodeMem cv_mem, sunrealtype t,
+                        long int *indx, sunbooleantype *newpoint);
 
-static booleantype CVAhermiteMalloc(CVodeMem cv_mem);
+static sunbooleantype CVAhermiteMalloc(CVodeMem cv_mem);
 static void CVAhermiteFree(CVodeMem cv_mem);
-static int CVAhermiteGetY(CVodeMem cv_mem, realtype t, N_Vector y, N_Vector *yS);
+static int CVAhermiteGetY(CVodeMem cv_mem, sunrealtype t, N_Vector y, N_Vector *yS);
 static int CVAhermiteStorePnt(CVodeMem cv_mem, CVdtpntMem d);
 
-static booleantype CVApolynomialMalloc(CVodeMem cv_mem);
+static sunbooleantype CVApolynomialMalloc(CVodeMem cv_mem);
 static void CVApolynomialFree(CVodeMem cv_mem);
-static int CVApolynomialGetY(CVodeMem cv_mem, realtype t, N_Vector y, N_Vector *yS);
+static int CVApolynomialGetY(CVodeMem cv_mem, sunrealtype t, N_Vector y, N_Vector *yS);
 static int CVApolynomialStorePnt(CVodeMem cv_mem, CVdtpntMem d);
 
 /* Wrappers */
 
-static int CVArhs(realtype t, N_Vector yB,
+static int CVArhs(sunrealtype t, N_Vector yB,
                   N_Vector yBdot, void *cvode_mem);
 
-static int CVArhsQ(realtype t, N_Vector yB,
+static int CVArhsQ(sunrealtype t, N_Vector yB,
                    N_Vector qBdot, void *cvode_mem);
 
 /*
@@ -376,8 +376,8 @@ int CVodeAdjDestroy(void *cvode_mem)
  * ncheckPtr points to the number of check points stored so far.
  */
 
-int CVodeF(void *cvode_mem, realtype tout, N_Vector yout,
-           realtype *tret, int itask, int *ncheckPtr)
+int CVodeF(void *cvode_mem, sunrealtype tout, N_Vector yout,
+           sunrealtype *tret, int itask, int *ncheckPtr)
 {
   CVadjMem ca_mem;
   CVodeMem cv_mem;
@@ -385,8 +385,8 @@ int CVodeF(void *cvode_mem, realtype tout, N_Vector yout,
   CVdtpntMem *dt_mem;
   long int nstloc;
   int flag, i;
-  booleantype allocOK, earlyret;
-  realtype ttest;
+  sunbooleantype allocOK, earlyret;
+  sunrealtype ttest;
 
   /* Check if cvode_mem exists */
   if (cvode_mem == NULL) {
@@ -718,7 +718,7 @@ int CVodeCreateB(void *cvode_mem, int lmmB, int *which)
 
 int CVodeInitB(void *cvode_mem, int which,
                CVRhsFnB fB,
-               realtype tB0, N_Vector yB0)
+               sunrealtype tB0, N_Vector yB0)
 {
   CVodeMem cv_mem;
   CVadjMem ca_mem;
@@ -789,7 +789,7 @@ int CVodeInitB(void *cvode_mem, int which,
 
 int CVodeInitBS(void *cvode_mem, int which,
                 CVRhsFnBS fBs,
-                realtype tB0, N_Vector yB0)
+                sunrealtype tB0, N_Vector yB0)
 {
   CVodeMem cv_mem;
   CVadjMem ca_mem;
@@ -860,7 +860,7 @@ int CVodeInitBS(void *cvode_mem, int which,
 
 
 int CVodeReInitB(void *cvode_mem, int which,
-                 realtype tB0, N_Vector yB0)
+                 sunrealtype tB0, N_Vector yB0)
 {
   CVodeMem cv_mem;
   CVadjMem ca_mem;
@@ -910,7 +910,7 @@ int CVodeReInitB(void *cvode_mem, int which,
 }
 
 
-int CVodeSStolerancesB(void *cvode_mem, int which, realtype reltolB, realtype abstolB)
+int CVodeSStolerancesB(void *cvode_mem, int which, sunrealtype reltolB, sunrealtype abstolB)
 {
   CVodeMem cv_mem;
   CVadjMem ca_mem;
@@ -959,7 +959,7 @@ int CVodeSStolerancesB(void *cvode_mem, int which, realtype reltolB, realtype ab
 }
 
 
-int CVodeSVtolerancesB(void *cvode_mem, int which, realtype reltolB, N_Vector abstolB)
+int CVodeSVtolerancesB(void *cvode_mem, int which, sunrealtype reltolB, N_Vector abstolB)
 {
   CVodeMem cv_mem;
   CVadjMem ca_mem;
@@ -1169,7 +1169,7 @@ int CVodeQuadReInitB(void *cvode_mem, int which, N_Vector yQB0)
   return(CV_SUCCESS);
 }
 
-int CVodeQuadSStolerancesB(void *cvode_mem, int which, realtype reltolQB, realtype abstolQB)
+int CVodeQuadSStolerancesB(void *cvode_mem, int which, sunrealtype reltolQB, sunrealtype abstolQB)
 {
   CVodeMem cv_mem;
   CVadjMem ca_mem;
@@ -1216,7 +1216,7 @@ int CVodeQuadSStolerancesB(void *cvode_mem, int which, realtype reltolQB, realty
   return(flag);
 }
 
-int CVodeQuadSVtolerancesB(void *cvode_mem, int which, realtype reltolQB, N_Vector abstolQB)
+int CVodeQuadSVtolerancesB(void *cvode_mem, int which, sunrealtype reltolQB, N_Vector abstolQB)
 {
   CVodeMem cv_mem;
   CVadjMem ca_mem;
@@ -1277,15 +1277,15 @@ int CVodeQuadSVtolerancesB(void *cvode_mem, int which, realtype reltolQB, N_Vect
  * when called in ONE_STEP mode.
  */
 
-int CVodeB(void *cvode_mem, realtype tBout, int itaskB)
+int CVodeB(void *cvode_mem, sunrealtype tBout, int itaskB)
 {
   CVodeMem cv_mem;
   CVadjMem ca_mem;
   CVodeBMem cvB_mem, tmp_cvB_mem;
   CVckpntMem ck_mem;
   int sign, flag=0;
-  realtype tfuzz, tBret, tBn;
-  booleantype gotCheckpoint, isActive, reachedTBout;
+  sunrealtype tfuzz, tBret, tBn;
+  sunbooleantype gotCheckpoint, isActive, reachedTBout;
 
   /* Check if cvode_mem exists */
 
@@ -1518,7 +1518,7 @@ int CVodeB(void *cvode_mem, realtype tBout, int itaskB)
 }
 
 
-int CVodeGetB(void *cvode_mem, int which, realtype *tret, N_Vector yB)
+int CVodeGetB(void *cvode_mem, int which, sunrealtype *tret, N_Vector yB)
 {
   CVodeMem cv_mem;
   CVadjMem ca_mem;
@@ -1563,7 +1563,7 @@ int CVodeGetB(void *cvode_mem, int which, realtype *tret, N_Vector yB)
  * CVodeGetQuadB
  */
 
-int CVodeGetQuadB(void *cvode_mem, int which, realtype *tret, N_Vector qB)
+int CVodeGetQuadB(void *cvode_mem, int which, sunrealtype *tret, N_Vector qB)
 {
   CVodeMem cv_mem;
   CVadjMem ca_mem;
@@ -2100,7 +2100,7 @@ static int CVAdataStore(CVodeMem cv_mem, CVckpntMem ck_mem)
 {
   CVadjMem ca_mem;
   CVdtpntMem *dt_mem;
-  realtype t;
+  sunrealtype t;
   long int i;
   int flag, sign;
 
@@ -2307,13 +2307,13 @@ static int CVAckpntGet(CVodeMem cv_mem, CVckpntMem ck_mem)
  * find indx (t is too far beyond limits).
  */
 
-static int CVAfindIndex(CVodeMem cv_mem, realtype t,
-                        long int *indx, booleantype *newpoint)
+static int CVAfindIndex(CVodeMem cv_mem, sunrealtype t,
+                        long int *indx, sunbooleantype *newpoint)
 {
   CVadjMem ca_mem;
   CVdtpntMem *dt_mem;
   int sign;
-  booleantype to_left, to_right;
+  sunbooleantype to_left, to_right;
 
   ca_mem = cv_mem->cv_adj_mem;
   dt_mem = ca_mem->dt_mem;
@@ -2391,7 +2391,7 @@ static int CVAfindIndex(CVodeMem cv_mem, realtype t,
  * The user must allocate space for y.
  */
 
-int CVodeGetAdjY(void *cvode_mem, realtype t, N_Vector y)
+int CVodeGetAdjY(void *cvode_mem, sunrealtype t, N_Vector y)
 {
   CVodeMem cv_mem;
   CVadjMem ca_mem;
@@ -2425,13 +2425,13 @@ int CVodeGetAdjY(void *cvode_mem, realtype t, N_Vector y)
  * at any other time.
  */
 
-static booleantype CVAhermiteMalloc(CVodeMem cv_mem)
+static sunbooleantype CVAhermiteMalloc(CVodeMem cv_mem)
 {
   CVadjMem ca_mem;
   CVdtpntMem *dt_mem;
   CVhermiteDataMem content;
   long int i, ii=0;
-  booleantype allocOK;
+  sunbooleantype allocOK;
 
   allocOK = SUNTRUE;
 
@@ -2644,26 +2644,26 @@ static int CVAhermiteStorePnt(CVodeMem cv_mem, CVdtpntMem d)
  * can be directly called by the user through CVodeGetAdjY
  */
 
-static int CVAhermiteGetY(CVodeMem cv_mem, realtype t,
+static int CVAhermiteGetY(CVodeMem cv_mem, sunrealtype t,
                           N_Vector y, N_Vector *yS)
 {
   CVadjMem ca_mem;
   CVdtpntMem *dt_mem;
   CVhermiteDataMem content0, content1;
 
-  realtype t0, t1, delta;
-  realtype factor1, factor2, factor3;
+  sunrealtype t0, t1, delta;
+  sunrealtype factor1, factor2, factor3;
 
   N_Vector y0, yd0, y1, yd1;
   N_Vector *yS0=NULL, *ySd0=NULL, *yS1, *ySd1;
 
   int flag, is, NS;
   long int indx;
-  booleantype newpoint;
+  sunbooleantype newpoint;
 
   /* local variables for fused vector oerations */
   int retval;
-  realtype  cvals[4];
+  sunrealtype  cvals[4];
   N_Vector  Xvecs[4];
   N_Vector* XXvecs[4];
 
@@ -2820,13 +2820,13 @@ static int CVAhermiteGetY(CVodeMem cv_mem, realtype t,
  * at any other time.
  */
 
-static booleantype CVApolynomialMalloc(CVodeMem cv_mem)
+static sunbooleantype CVApolynomialMalloc(CVodeMem cv_mem)
 {
   CVadjMem ca_mem;
   CVdtpntMem *dt_mem;
   CVpolynomialDataMem content;
   long int i, ii=0;
-  booleantype allocOK;
+  sunbooleantype allocOK;
 
   allocOK = SUNTRUE;
 
@@ -2986,7 +2986,7 @@ static int CVApolynomialStorePnt(CVodeMem cv_mem, CVdtpntMem d)
  * can be directly called by the user through CVodeGetAdjY.
  */
 
-static int CVApolynomialGetY(CVodeMem cv_mem, realtype t,
+static int CVApolynomialGetY(CVodeMem cv_mem, sunrealtype t,
                              N_Vector y, N_Vector *yS)
 {
   CVadjMem ca_mem;
@@ -2995,8 +2995,8 @@ static int CVApolynomialGetY(CVodeMem cv_mem, realtype t,
 
   int flag, dir, order, i, j, is, NS, retval;
   long int indx, base;
-  booleantype newpoint;
-  realtype dt, factor;
+  sunbooleantype newpoint;
+  sunrealtype dt, factor;
 
   ca_mem = cv_mem->cv_adj_mem;
   dt_mem = ca_mem->dt_mem;
@@ -3131,7 +3131,7 @@ static int CVApolynomialGetY(CVodeMem cv_mem, realtype t,
  * provided by the user.
  */
 
-static int CVArhs(realtype t, N_Vector yB,
+static int CVArhs(sunrealtype t, N_Vector yB,
                   N_Vector yBdot, void *cvode_mem)
 {
   CVodeMem cv_mem;
@@ -3174,7 +3174,7 @@ static int CVArhs(realtype t, N_Vector yB,
  * provided by the user.
  */
 
-static int CVArhsQ(realtype t, N_Vector yB,
+static int CVArhsQ(sunrealtype t, N_Vector yB,
                    N_Vector qBdot, void *cvode_mem)
 {
   CVodeMem cv_mem;

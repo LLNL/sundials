@@ -27,8 +27,8 @@ flag *own_data* which specifies the ownership of data.
 
    struct _N_VectorContent_Serial {
       sunindextype length;
-      booleantype own_data;
-      realtype *data;
+      sunbooleantype own_data;
+      sunrealtype *data;
    };
 
 The header file to be included when using this module is ``nvector_serial.h``.
@@ -154,7 +154,7 @@ user-callable routines:
    (``NULL``) data array.
 
 
-.. c:function:: N_Vector N_VMake_Serial(sunindextype vec_length, realtype* v_data, SUNContext sunctx)
+.. c:function:: N_Vector N_VMake_Serial(sunindextype vec_length, sunrealtype* v_data, SUNContext sunctx)
 
    This function creates and allocates memory for a serial vector with
    user-provided data array, *v_data*.
@@ -183,71 +183,71 @@ operations enabled/disabled as cloned vectors inherit the same enable/disable
 options as the vector they are cloned, from while vectors created with
 :c:func:`N_VNew_Serial` will have the default settings for the NVECTOR_SERIAL module.
 
-.. c:function:: int N_VEnableFusedOps_Serial(N_Vector v, booleantype tf)
+.. c:function:: int N_VEnableFusedOps_Serial(N_Vector v, sunbooleantype tf)
 
    This function enables (``SUNTRUE``) or disables (``SUNFALSE``) all fused and
    vector array operations in the serial vector. The return value is ``0`` for
    success and ``-1`` if the input vector or its ``ops`` structure are ``NULL``.
 
-.. c:function:: int N_VEnableLinearCombination_Serial(N_Vector v, booleantype tf)
+.. c:function:: int N_VEnableLinearCombination_Serial(N_Vector v, sunbooleantype tf)
 
    This function enables (``SUNTRUE``) or disables (``SUNFALSE``) the linear
    combination fused operation in the serial vector. The return value is ``0`` for
    success and ``-1`` if the input vector or its ``ops`` structure are ``NULL``.
 
-.. c:function:: int N_VEnableScaleAddMulti_Serial(N_Vector v, booleantype tf)
+.. c:function:: int N_VEnableScaleAddMulti_Serial(N_Vector v, sunbooleantype tf)
 
    This function enables (``SUNTRUE``) or disables (``SUNFALSE``) the scale and
    add a vector to multiple vectors fused operation in the serial vector. The
    return value is ``0`` for success and ``-1`` if the input vector or its
    ``ops`` structure are ``NULL``.
 
-.. c:function:: int N_VEnableDotProdMulti_Serial(N_Vector v, booleantype tf)
+.. c:function:: int N_VEnableDotProdMulti_Serial(N_Vector v, sunbooleantype tf)
 
    This function enables (``SUNTRUE``) or disables (``SUNFALSE``) the multiple
    dot products fused operation in the serial vector. The return value is ``0``
    for success and ``-1`` if the input vector or its ``ops`` structure are
    ``NULL``.
 
-.. c:function:: int N_VEnableLinearSumVectorArray_Serial(N_Vector v, booleantype tf)
+.. c:function:: int N_VEnableLinearSumVectorArray_Serial(N_Vector v, sunbooleantype tf)
 
    This function enables (``SUNTRUE``) or disables (``SUNFALSE``) the linear sum
    operation for vector arrays in the serial vector. The return value is ``0`` for
    success and ``-1`` if the input vector or its ``ops`` structure are ``NULL``.
 
-.. c:function:: int N_VEnableScaleVectorArray_Serial(N_Vector v, booleantype tf)
+.. c:function:: int N_VEnableScaleVectorArray_Serial(N_Vector v, sunbooleantype tf)
 
    This function enables (``SUNTRUE``) or disables (``SUNFALSE``) the scale
    operation for vector arrays in the serial vector. The return value is ``0`` for
    success and ``-1`` if the input vector or its ``ops`` structure are ``NULL``.
 
-.. c:function:: int N_VEnableConstVectorArray_Serial(N_Vector v, booleantype tf)
+.. c:function:: int N_VEnableConstVectorArray_Serial(N_Vector v, sunbooleantype tf)
 
    This function enables (``SUNTRUE``) or disables (``SUNFALSE``) the const
    operation for vector arrays in the serial vector. The return value is ``0`` for
    success and ``-1`` if the input vector or its ``ops`` structure are ``NULL``.
 
-.. c:function:: int N_VEnableWrmsNormVectorArray_Serial(N_Vector v, booleantype tf)
+.. c:function:: int N_VEnableWrmsNormVectorArray_Serial(N_Vector v, sunbooleantype tf)
 
    This function enables (``SUNTRUE``) or disables (``SUNFALSE``) the WRMS norm
    operation for vector arrays in the serial vector. The return value is ``0`` for
    success and ``-1`` if the input vector or its ``ops`` structure are ``NULL``.
 
-.. c:function:: int N_VEnableWrmsNormMaskVectorArray_Serial(N_Vector v, booleantype tf)
+.. c:function:: int N_VEnableWrmsNormMaskVectorArray_Serial(N_Vector v, sunbooleantype tf)
 
    This function enables (``SUNTRUE``) or disables (``SUNFALSE``) the masked WRMS
    norm operation for vector arrays in the serial vector. The return value is
    ``0`` for success and ``-1`` if the input vector or its ``ops`` structure are
    ``NULL``.
 
-.. c:function:: int N_VEnableScaleAddMultiVectorArray_Serial(N_Vector v, booleantype tf)
+.. c:function:: int N_VEnableScaleAddMultiVectorArray_Serial(N_Vector v, sunbooleantype tf)
 
    This function enables (``SUNTRUE``) or disables (``SUNFALSE``) the scale and
    add a vector array to multiple vector arrays operation in the serial vector. The
    return value is ``0`` for success and ``-1`` if the input vector or its
    ``ops`` structure are ``NULL``.
 
-.. c:function:: int N_VEnableLinearCombinationVectorArray_Serial(N_Vector v, booleantype tf)
+.. c:function:: int N_VEnableLinearCombinationVectorArray_Serial(N_Vector v, sunbooleantype tf)
 
    This function enables (``SUNTRUE``) or disables (``SUNFALSE``) the linear
    combination operation for vector arrays in the serial vector. The return value
@@ -263,13 +263,11 @@ options as the vector they are cloned, from while vectors created with
   and then access ``v_data[i]`` within the loop than it
   is to use ``NV_Ith_S(v,i)`` within the loop.
 
-* :c:func:`N_VNewEmpty_Serial`, :c:func:`N_VMake_Serial`, and
-  :c:func:`N_VCloneVectorArrayEmpty_Serial()` set the field *own_data*
-  to ``SUNFALSE``.  The functions :c:func:`N_VDestroy_Serial()` and
-  :c:func:`N_VDestroyVectorArray_Serial()` will not attempt to free the
-  pointer data for any ``N_Vector`` with *own_data* set to ``SUNFALSE``.
-  In such a case, it is the user's responsibility to deallocate the
-  data pointer.
+* :c:func:`N_VNewEmpty_Serial`, :c:func:`N_VMake_Serial` set the field
+  *own_data* to ``SUNFALSE``.  The function :c:func:`N_VDestroy_Serial()` will
+  not attempt to free the pointer data for any ``N_Vector`` with *own_data* set
+  to ``SUNFALSE``. In such a case, it is the user's responsibility to deallocate
+  the data pointer.
 
 * To maximize efficiency, vector operations in the NVECTOR_SERIAL
   implementation that have more than one ``N_Vector`` argument do not

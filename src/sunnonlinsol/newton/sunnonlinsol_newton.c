@@ -30,8 +30,8 @@
 #define NEWTON_CONTENT(S) ( (SUNNonlinearSolverContent_Newton)(S->content) )
 
 /* Constant macros */
-#define ZERO RCONST(0.0) /* real 0.0 */
-#define ONE  RCONST(1.0) /* real 1.0 */
+#define ZERO SUN_RCONST(0.0) /* real 0.0 */
+#define ONE  SUN_RCONST(1.0) /* real 1.0 */
 
 /*==============================================================================
   Constructor to create a new Newton solver
@@ -186,12 +186,12 @@ int SUNNonlinSolInitialize_Newton(SUNNonlinearSolver NLS)
   ----------------------------------------------------------------------------*/
 int SUNNonlinSolSolve_Newton(SUNNonlinearSolver NLS,
                              N_Vector y0, N_Vector ycor,
-                             N_Vector w, realtype tol,
-                             booleantype callLSetup, void* mem)
+                             N_Vector w, sunrealtype tol,
+                             sunbooleantype callLSetup, void* mem)
 {
   /* local variables */
   int retval;
-  booleantype jbad;
+  sunbooleantype jbad;
   N_Vector delta;
 
   /* check that the inputs are non-null */

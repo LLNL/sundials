@@ -98,7 +98,7 @@ contains
     ! run tests
     fails = fails + Test_FSUNLinSolInitialize(LS, 0)
     fails = fails + Test_FSUNLinSolSetup(LS, A, 0)
-    fails = fails + Test_FSUNLinSolSolve(LS, A, x, b, 1000*UNIT_ROUNDOFF, 0)
+    fails = fails + Test_FSUNLinSolSolve(LS, A, x, b, 1000*SUN_UNIT_ROUNDOFF, 0)
 
     fails = fails + Test_FSUNLinSolGetType(LS, SUNLINEARSOLVER_DIRECT, 0)
     fails = fails + Test_FSUNLinSolLastFlag(LS, 0)
@@ -166,7 +166,7 @@ program main
   !============== Introduction =============
   print *, 'KLU SUNLinearSolver Fortran 2003 interface test'
 
-  call Test_Init(c_null_ptr)
+  call Test_Init(0)
 
   fails = unit_tests()
   if (fails /= 0) then

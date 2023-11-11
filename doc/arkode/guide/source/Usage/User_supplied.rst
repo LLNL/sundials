@@ -79,7 +79,7 @@ the ODE system function to ERKStep, or the "slow" right-hand side of the
 ODE system to MRIStep:
 
 
-.. c:type:: int (*ARKRhsFn)(realtype t, N_Vector y, N_Vector ydot, void* user_data)
+.. c:type:: int (*ARKRhsFn)(sunrealtype t, N_Vector y, N_Vector ydot, void* user_data)
 
    These functions compute the ODE right-hand side for a given
    value of the independent variable :math:`t` and state vector :math:`y`.
@@ -257,7 +257,7 @@ such that the error estimate for the next time step remains below 1.
 
 
 
-.. c:type:: int (*ARKAdaptFn)(N_Vector y, realtype t, realtype h1, realtype h2, realtype h3, realtype e1, realtype e2, realtype e3, int q, int p, realtype* hnew, void* user_data)
+.. c:type:: int (*ARKAdaptFn)(N_Vector y, sunrealtype t, sunrealtype h1, sunrealtype h2, sunrealtype h3, sunrealtype e1, sunrealtype e2, sunrealtype e3, int q, int p, sunrealtype* hnew, void* user_data)
 
    This function implements a time step adaptivity algorithm
    that chooses :math:`h` to satisfy the error tolerances.
@@ -305,7 +305,7 @@ step, and the accuracy-based time step.
 
 
 
-.. c:type:: int (*ARKExpStabFn)(N_Vector y, realtype t, realtype* hstab, void* user_data)
+.. c:type:: int (*ARKExpStabFn)(N_Vector y, sunrealtype t, sunrealtype* hstab, void* user_data)
 
    This function predicts the maximum stable step size for the
    explicit portion of the ODE system.
@@ -350,7 +350,7 @@ recommended that the user *not* call :c:func:`ARKStepSetPredictorMethod` or
 
 
 
-.. c:type:: int (*ARKStagePredictFn)(realtype t, N_Vector zpred, void* user_data)
+.. c:type:: int (*ARKStagePredictFn)(sunrealtype t, N_Vector zpred, void* user_data)
 
    This function updates the prediction for the implicit stage solution.
 
@@ -388,7 +388,7 @@ ODE system, the user must supply a function of type :c:type:`ARKRootFn`.
 
 
 
-.. c:type:: int (*ARKRootFn)(realtype t, N_Vector y, realtype* gout, void* user_data)
+.. c:type:: int (*ARKRootFn)(sunrealtype t, N_Vector y, sunrealtype* gout, void* user_data)
 
    This function implements a vector-valued function
    :math:`g(t,y)` such that roots are sought for the components
@@ -425,7 +425,7 @@ object was supplied to :c:func:`ARKStepSetLinearSolver` or
 
 
 
-.. c:type:: int (*ARKLsJacFn)(realtype t, N_Vector y, N_Vector fy, SUNMatrix Jac, void* user_data, N_Vector tmp1, N_Vector tmp2, N_Vector tmp3)
+.. c:type:: int (*ARKLsJacFn)(sunrealtype t, N_Vector y, N_Vector fy, SUNMatrix Jac, void* user_data, N_Vector tmp1, N_Vector tmp2, N_Vector tmp3)
 
    This function computes the Jacobian matrix :math:`J(t,y) =
    \dfrac{\partial f^I}{\partial y}(t,y)` (or an approximation to it).
@@ -482,7 +482,7 @@ object was supplied to :c:func:`ARKStepSetLinearSolver` or
       then use the ``ARKStepGet*`` or ``MRIStepGet*`` functions listed in
       :numref:`ARKODE.Usage.ARKStep.OptionalOutputs` or
       :numref:`ARKODE.Usage.MRIStep.OptionalOutputs`. The unit roundoff can be
-      accessed as ``UNIT_ROUNDOFF``, which is defined in the header
+      accessed as ``SUN_UNIT_ROUNDOFF``, which is defined in the header
       file ``sundials_types.h``.
 
       **dense** :math:`J(t,y)`:
@@ -513,7 +513,7 @@ object was supplied to :c:func:`ARKStepSetLinearSolver` or
 
 
 
-.. c:type:: int (*ARKLsLinSysFn)(realtype t, N_Vector y, N_Vector fy, SUNMatrix A, SUNMatrix M, booleantype jok, booleantype *jcur, realtype gamma, void *user_data, N_Vector tmp1, N_Vector tmp2, N_Vector tmp3)
+.. c:type:: int (*ARKLsLinSysFn)(sunrealtype t, N_Vector y, N_Vector fy, SUNMatrix A, SUNMatrix M, sunbooleantype jok, sunbooleantype *jcur, sunrealtype gamma, void *user_data, N_Vector tmp1, N_Vector tmp2, N_Vector tmp3)
 
    This function computes the linear system matrix :math:`\mathcal{A}(t,y) = M(t) - \gamma J(t,y)` (or
    an approximation to it).
@@ -568,7 +568,7 @@ matrix-vector products :math:`Jv`. If such a function is not supplied,
 the default is a difference quotient approximation to these products.
 
 
-.. c:type:: int (*ARKLsJacTimesVecFn)(N_Vector v, N_Vector Jv, realtype t, N_Vector y, N_Vector fy, void* user_data, N_Vector tmp)
+.. c:type:: int (*ARKLsJacTimesVecFn)(N_Vector v, N_Vector Jv, sunrealtype t, N_Vector y, N_Vector fy, void* user_data, N_Vector tmp)
 
    This function computes the product :math:`Jv` where :math:`J(t,y) \approx
    \dfrac{\partial f^I}{\partial y}(t,y)` (or an approximation to it).
@@ -600,7 +600,7 @@ the default is a difference quotient approximation to these products.
       their ``user_data``, and then use the ``ARKStepGet*`` or ``MRIStepGet*``
       functions listed in :numref:`ARKODE.Usage.ARKStep.OptionalOutputs` or
       :numref:`ARKODE.Usage.MRIStep.OptionalOutputs`. The unit roundoff can be
-      accessed as ``UNIT_ROUNDOFF``, which is defined in the header
+      accessed as ``SUN_UNIT_ROUNDOFF``, which is defined in the header
       file ``sundials_types.h``.
 
 
@@ -617,7 +617,7 @@ user-supplied function of type :c:type:`ARKLsJacTimesSetupFn`,
 defined as follows:
 
 
-.. c:type:: int (*ARKLsJacTimesSetupFn)(realtype t, N_Vector y, N_Vector fy, void* user_data)
+.. c:type:: int (*ARKLsJacTimesSetupFn)(sunrealtype t, N_Vector y, N_Vector fy, void* user_data)
 
    This function preprocesses and/or evaluates any Jacobian-related
    data needed by the Jacobian-times-vector routine.
@@ -652,7 +652,7 @@ defined as follows:
       ``MRIStepGet*`` functions listed in
       :numref:`ARKODE.Usage.ARKStep.OptionalOutputs` or
       :numref:`ARKODE.Usage.MRIStep.OptionalOutputs`. The unit roundoff can be
-      accessed as ``UNIT_ROUNDOFF``, which is defined in the header
+      accessed as ``SUN_UNIT_ROUNDOFF``, which is defined in the header
       file ``sundials_types.h``.
 
 
@@ -675,7 +675,7 @@ preconditioner matrices should approximate :math:`\mathcal{A}`.
 
 
 
-.. c:type:: int (*ARKLsPrecSolveFn)(realtype t, N_Vector y, N_Vector fy, N_Vector r, N_Vector z, realtype gamma, realtype delta, int lr, void* user_data)
+.. c:type:: int (*ARKLsPrecSolveFn)(sunrealtype t, N_Vector y, N_Vector fy, N_Vector r, N_Vector z, sunrealtype gamma, sunrealtype delta, int lr, void* user_data)
 
    This function solves the preconditioner system :math:`Pz=r`.
 
@@ -721,7 +721,7 @@ preprocessed or evaluated, then these actions need to occur within a
 user-supplied function of type :c:type:`ARKLsPrecSetupFn`.
 
 
-.. c:type:: int (*ARKLsPrecSetupFn)(realtype t, N_Vector y, N_Vector fy, booleantype jok, booleantype* jcurPtr, realtype gamma, void* user_data)
+.. c:type:: int (*ARKLsPrecSetupFn)(sunrealtype t, N_Vector y, N_Vector fy, sunbooleantype jok, sunbooleantype* jcurPtr, sunrealtype gamma, void* user_data)
 
    This function preprocesses and/or evaluates Jacobian-related
    data needed by the preconditioner.
@@ -782,7 +782,7 @@ user-supplied function of type :c:type:`ARKLsPrecSetupFn`.
       ``user_data``, and then use the ``ARKStepGet*`` or ``MRIStepGet*``
       functions listed in :numref:`ARKODE.Usage.ARKStep.OptionalOutputs` or
       :numref:`ARKODE.Usage.MRIStep.OptionalOutputs`. The unit roundoff can be
-      accessed as ``UNIT_ROUNDOFF``, which is defined in the header
+      accessed as ``SUN_UNIT_ROUNDOFF``, which is defined in the header
       file ``sundials_types.h``.
 
 
@@ -799,7 +799,7 @@ the mass matrix approximation.
 
 
 
-.. c:type:: int (*ARKLsMassFn)(realtype t, SUNMatrix M, void* user_data, N_Vector tmp1, N_Vector tmp2, N_Vector tmp3)
+.. c:type:: int (*ARKLsMassFn)(sunrealtype t, SUNMatrix M, void* user_data, N_Vector tmp1, N_Vector tmp2, N_Vector tmp3)
 
    This function computes the mass matrix :math:`M(t)` (or an approximation to it).
 
@@ -870,7 +870,7 @@ compute matrix-vector products :math:`M(t)\, v`.
 
 
 
-.. c:type:: int (*ARKLsMassTimesVecFn)(N_Vector v, N_Vector Mv, realtype t, void* mtimes_data)
+.. c:type:: int (*ARKLsMassTimesVecFn)(N_Vector v, N_Vector Mv, sunrealtype t, void* mtimes_data)
 
    This function computes the product :math:`M(t)\, v` (or an approximation to it).
 
@@ -901,7 +901,7 @@ be done in a user-supplied function of type
 
 
 
-.. c:type:: int (*ARKLsMassTimesSetupFn)(realtype t, void* mtimes_data)
+.. c:type:: int (*ARKLsMassTimesSetupFn)(sunrealtype t, void* mtimes_data)
 
    This function preprocesses and/or evaluates any mass-matrix-related
    data needed by the mass-matrix-times-vector routine.
@@ -934,7 +934,7 @@ both sides, the product of the two preconditioner matrices should
 approximate :math:`M(t)`.
 
 
-.. c:type:: int (*ARKLsMassPrecSolveFn)(realtype t, N_Vector r, N_Vector z, realtype delta, int lr, void* user_data)
+.. c:type:: int (*ARKLsMassPrecSolveFn)(sunrealtype t, N_Vector r, N_Vector z, sunrealtype delta, int lr, void* user_data)
 
    This function solves the preconditioner system :math:`Pz=r`.
 
@@ -977,7 +977,7 @@ occur within a user-supplied function of type
 
 
 
-.. c:type:: int (*ARKLsMassPrecSetupFn)(realtype t, void* user_data)
+.. c:type:: int (*ARKLsMassPrecSetupFn)(sunrealtype t, void* user_data)
 
    This function preprocesses and/or evaluates mass-matrix-related
    data needed by the preconditioner.
@@ -1067,7 +1067,7 @@ memory transfers of forcing data supplied by the outer integrator to the inner
 integrator for the inner integration.
 
 
-.. c:type:: int (*MRIStepPreInnerFn)(realtype t, N_Vector* f, int num_vecs, void* user_data)
+.. c:type:: int (*MRIStepPreInnerFn)(sunrealtype t, N_Vector* f, int num_vecs, void* user_data)
 
    **Arguments:**
       * *t* -- the current value of the independent variable.
@@ -1098,7 +1098,7 @@ memory transfers of state data supplied by the inner integrator to the
 outer integrator for the outer integration.
 
 
-.. c:type:: int (*MRIStepPostInnerFn)(realtype t, N_Vector y, void* user_data)
+.. c:type:: int (*MRIStepPostInnerFn)(sunrealtype t, N_Vector y, void* user_data)
 
    **Arguments:**
       * *t* -- the current value of the independent variable.
@@ -1122,7 +1122,7 @@ outer integrator for the outer integration.
 Relaxation function
 -------------------
 
-.. c:type:: int (*ARKRelaxFn)(N_Vector y, realtype* r, void* user_data)
+.. c:type:: int (*ARKRelaxFn)(N_Vector y, sunrealtype* r, void* user_data)
 
    When applying relaxation, an :c:func:`ARKRelaxFn` function is required to
    compute the conservative or dissipative function :math:`\xi(y)`.

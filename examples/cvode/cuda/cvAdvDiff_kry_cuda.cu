@@ -45,24 +45,24 @@
 
 #include <cvode/cvode.h>               /* prototypes for CVODE fcts., consts. */
 #include <sunlinsol/sunlinsol_spgmr.h> /* access to SPGMR SUNLinearSolver     */
-#include <sundials/sundials_types.h>   /* definition of type realtype */
+#include <sundials/sundials_types.h>   /* definition of type sunrealtype */
 #include <sundials/sundials_math.h>    /* definition of ABS and EXP   */
 
 #include <nvector/nvector_cuda.h>
 
 /* Real Constants */
 
-#define ATOL  RCONST(1.0e-5) /* scalar absolute tolerance */
-#define T0    RCONST(0.0)    /* initial time              */
-#define T1    RCONST(0.1)    /* first output time         */
-#define DTOUT RCONST(0.1)    /* output time increment     */
+#define ATOL  SUN_RCONST(1.0e-5) /* scalar absolute tolerance */
+#define T0    SUN_RCONST(0.0)    /* initial time              */
+#define T1    SUN_RCONST(0.1)    /* first output time         */
+#define DTOUT SUN_RCONST(0.1)    /* output time increment     */
 #define NOUT  10             /* number of output times    */
 
-#define ZERO RCONST(0.0)
-#define HALF RCONST(0.5)
-#define ONE  RCONST(1.0)
-#define TWO  RCONST(2.0)
-#define FIVE RCONST(5.0)
+#define ZERO SUN_RCONST(0.0)
+#define HALF SUN_RCONST(0.5)
+#define ONE  SUN_RCONST(1.0)
+#define TWO  SUN_RCONST(2.0)
+#define FIVE SUN_RCONST(5.0)
 
 #if defined(SUNDIALS_EXTENDED_PRECISION)
 #define GSYM "Lg"
@@ -85,11 +85,11 @@
  * CUDA kernels
  */
 
-__global__ void fKernel(const realtype *u, realtype *udot,
+__global__ void fKernel(const sunrealtype *u, sunrealtype *udot,
                                sunindextype MX, sunindextype MY,
-                               realtype hordc, realtype horac, realtype verdc)
+                               sunrealtype hordc, sunrealtype horac, sunrealtype verdc)
 {
-  realtype uij, udn, uup, ult, urt, hdiff, hadv, vdiff;
+  sunrealtype uij, udn, uup, ult, urt, hdiff, hadv, vdiff;
   sunindextype i, j, tid;
 
   /* Loop over all grid points. */
@@ -115,9 +115,9 @@ __global__ void fKernel(const realtype *u, realtype *udot,
 
 }
 
-__global__ void jtvKernel(const realtype *vdata, realtype *Jvdata,
+__global__ void jtvKernel(const sunrealtype *vdata, sunrealtype *Jvdata,
                           sunindextype MX, sunindextype MY,
-                          realtype hordc, realtype horac, realtype verdc)
+                          sunrealtype hordc, sunrealtype horac, sunrealtype verdc)
 {
   sunindextype i, j, tid;
 
@@ -145,8 +145,8 @@ __global__ void jtvKernel(const realtype *vdata, realtype *Jvdata,
 /* Type : _UserData (contains model and discretization parameters) */
 struct _UserData {
   sunindextype MX, MY, NEQ;
-  realtype dx, dy, XMAX, YMAX;
-  realtype hdcoef, hacoef, vdcoef;
+  sunrealtype dx, dy, XMAX, YMAX;
+  sunrealtype hdcoef, hacoef, vdcoef;
 };
 
 typedef _UserData *UserData;
@@ -156,14 +156,14 @@ static UserData SetUserData(int argc, char** argv);
 static void SetIC(N_Vector u, UserData data);
 
 /* Functions Called by the Solver */
-static int f(realtype t, N_Vector u, N_Vector udot, void *user_data);
-static int jtv(N_Vector v, N_Vector Jv, realtype t,
+static int f(sunrealtype t, N_Vector u, N_Vector udot, void *user_data);
+static int jtv(N_Vector v, N_Vector Jv, sunrealtype t,
                N_Vector u, N_Vector fu,
                void *user_data, N_Vector tmp);
 
 /* Private Helper Functions */
-static void PrintHeader(realtype reltol, realtype abstol, realtype umax, UserData data);
-static void PrintOutput(realtype t, realtype umax, long int nst);
+static void PrintHeader(sunrealtype reltol, sunrealtype abstol, sunrealtype umax, UserData data);
+static void PrintOutput(sunrealtype t, sunrealtype umax, long int nst);
 static void PrintFinalStats(void *cvode_mem);
 
 /* Private function to check function return values */
@@ -178,7 +178,7 @@ static int check_retval(void *returnvalue, const char *funcname, int opt);
 
 int main(int argc, char** argv)
 {
-  realtype reltol, abstol, t, tout, umax;
+  sunrealtype reltol, abstol, t, tout, umax;
   N_Vector u;
   UserData data;
   SUNLinearSolver LS;
@@ -296,8 +296,8 @@ UserData SetUserData(int argc, char *argv[])
 {
   const sunindextype MX = 10;
   const sunindextype MY = 5;
-  const realtype XMAX = RCONST(2.0);    /* domain boundaries         */
-  const realtype YMAX = RCONST(1.0);
+  const sunrealtype XMAX = SUN_RCONST(2.0);    /* domain boundaries         */
+  const sunrealtype YMAX = SUN_RCONST(1.0);
 
   /* Allocate user data structure */
   UserData ud = (UserData) malloc(sizeof *ud);
@@ -323,18 +323,18 @@ static void SetIC(N_Vector u, UserData data)
 {
   /* Extract needed constants from data */
 
-  const realtype dx = data->dx;
-  const realtype dy = data->dy;
-  const realtype xmax = data->XMAX;
-  const realtype ymax = data->YMAX;
+  const sunrealtype dx = data->dx;
+  const sunrealtype dy = data->dy;
+  const sunrealtype xmax = data->XMAX;
+  const sunrealtype ymax = data->YMAX;
   const sunindextype MY = data->MY;
   const sunindextype NEQ = data->NEQ;
 
   /* Extract pointer to solution vector data on the host */
-  realtype *udata = N_VGetHostArrayPointer_Cuda(u);
+  sunrealtype *udata = N_VGetHostArrayPointer_Cuda(u);
 
   sunindextype i, j, tid;
-  realtype x, y;
+  sunrealtype x, y;
 
 
   /* Load initial profile into u vector */
@@ -360,20 +360,20 @@ static void SetIC(N_Vector u, UserData data)
 
 /* f routine. Compute f(t,u). */
 
-static int f(realtype t, N_Vector u, N_Vector udot, void *user_data)
+static int f(sunrealtype t, N_Vector u, N_Vector udot, void *user_data)
 {
   UserData data = (UserData) user_data;
 
   /* Extract needed constants from data */
   const sunindextype MX  = data->MX;
   const sunindextype MY  = data->MY;
-  const realtype hordc   = data->hdcoef;
-  const realtype horac   = data->hacoef;
-  const realtype verdc   = data->vdcoef;
+  const sunrealtype hordc   = data->hdcoef;
+  const sunrealtype horac   = data->hacoef;
+  const sunrealtype verdc   = data->vdcoef;
 
   /* Extract pointers to vector data */
-  const realtype *udata = N_VGetDeviceArrayPointer_Cuda(u);
-  realtype *dudata      = N_VGetDeviceArrayPointer_Cuda(udot);
+  const sunrealtype *udata = N_VGetDeviceArrayPointer_Cuda(u);
+  sunrealtype *dudata      = N_VGetDeviceArrayPointer_Cuda(udot);
 
   unsigned block = 256;
   unsigned grid = (MX*MY + block - 1) / block;
@@ -386,7 +386,7 @@ static int f(realtype t, N_Vector u, N_Vector udot, void *user_data)
 
 /* Jacobian-times-vector routine. */
 
-static int jtv(N_Vector v, N_Vector Jv, realtype t,
+static int jtv(N_Vector v, N_Vector Jv, sunrealtype t,
                N_Vector u, N_Vector fu,
                void *user_data, N_Vector tmp)
 {
@@ -395,13 +395,13 @@ static int jtv(N_Vector v, N_Vector Jv, realtype t,
   /* Extract needed constants from data */
   const sunindextype MX  = data->MX;
   const sunindextype MY  = data->MY;
-  const realtype hordc   = data->hdcoef;
-  const realtype horac   = data->hacoef;
-  const realtype verdc   = data->vdcoef;
+  const sunrealtype hordc   = data->hdcoef;
+  const sunrealtype horac   = data->hacoef;
+  const sunrealtype verdc   = data->vdcoef;
 
   /* Extract pointers to vector data */
-  const realtype *vdata = N_VGetDeviceArrayPointer_Cuda(v);
-  realtype *Jvdata      = N_VGetDeviceArrayPointer_Cuda(Jv);
+  const sunrealtype *vdata = N_VGetDeviceArrayPointer_Cuda(v);
+  sunrealtype *Jvdata      = N_VGetDeviceArrayPointer_Cuda(Jv);
 
   unsigned block = 256;
   unsigned grid = (MX*MY + block - 1) / block;
@@ -421,7 +421,7 @@ static int jtv(N_Vector v, N_Vector Jv, realtype t,
 
 /* Print first lines of output (problem description) */
 
-static void PrintHeader(realtype reltol, realtype abstol, realtype umax,
+static void PrintHeader(sunrealtype reltol, sunrealtype abstol, sunrealtype umax,
                         UserData data)
 {
   printf("\n2-D Advection-Diffusion Equation\n");
@@ -435,7 +435,7 @@ static void PrintHeader(realtype reltol, realtype abstol, realtype umax,
 
 /* Print current value */
 
-static void PrintOutput(realtype t, realtype umax, long int nst)
+static void PrintOutput(sunrealtype t, sunrealtype umax, long int nst)
 {
   printf("At t = %4.2" FSYM "   max.norm(u) =%14.6" ESYM "   nst = %4ld\n", t, umax, nst);
   return;

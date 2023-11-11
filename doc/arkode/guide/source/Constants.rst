@@ -468,6 +468,8 @@ contains the ARKODE output constants.
    | :index:`ARK_RELAX_JAC_FAIL`         | -46  | The relaxation Jacobian function returned an unrecoverable |
    |                                     |      | error                                                      |
    +-------------------------------------+------+------------------------------------------------------------+
+   | :index:`ARK_CONTROLLER_ERR`         | -47  | An error with a SUNAdaptController object was encountered. |
+   +-------------------------------------+------+------------------------------------------------------------+
    | :index:`ARK_UNRECOGNIZED_ERROR`     | -99  | An unknown error was encountered.                          |
    +-------------------------------------+------+------------------------------------------------------------+
    |                                                                                                         |

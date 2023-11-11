@@ -69,9 +69,9 @@
 #define DSYM "d"
 #endif
 
-#define ZERO  RCONST(0.0)
-#define ONE   RCONST(1.0)
-#define TWO   RCONST(2.0)
+#define ZERO  SUN_RCONST(0.0)
+#define ONE   SUN_RCONST(1.0)
+#define TWO   SUN_RCONST(2.0)
 
 #define NOUT         11             /* Number of output times */
 
@@ -93,7 +93,7 @@ typedef struct {
 
 /* User-supplied residual function */
 
-int resHeat(realtype tt, N_Vector uu, N_Vector up, N_Vector rr, void *user_data);
+int resHeat(sunrealtype tt, N_Vector uu, N_Vector up, N_Vector rr, void *user_data);
 int jacHeat(SNES snes, Vec x, Mat Jpre, Mat J, void *user_data);
 
 /* User-supplied preconditioner routines */
@@ -107,9 +107,9 @@ int PsolveHeat(PC pc, Vec x, Vec y);
 static int SetInitialProfile(N_Vector uu, N_Vector up, N_Vector id,
                              N_Vector res, void *user_data);
 
-static void PrintHeader(sunindextype Neq, realtype rtol, realtype atol);
+static void PrintHeader(sunindextype Neq, sunrealtype rtol, sunrealtype atol);
 
-static void PrintOutput(int id, void *ida_mem, realtype t, N_Vector uu, SNES snes);
+static void PrintOutput(int id, void *ida_mem, sunrealtype t, N_Vector uu, SNES snes);
 
 static void PrintFinalStats(void *ida_mem, SNES snes);
 
@@ -125,7 +125,7 @@ int main(int argc, char *argv[])
 {
   MPI_Comm comm;
   int iout, thispe, retval, npes;
-  realtype rtol, atol, t0, t1, tout, tret;
+  sunrealtype rtol, atol, t0, t1, tout, tret;
   sunindextype Neq;
   PetscBool pre, jac;
   /* declare SUNDIALS data structures */
@@ -165,7 +165,7 @@ int main(int argc, char *argv[])
   if(check_retval(&ierr, "PetscInitialize", 1, thispe)) MPI_Abort(comm, 1);
 
   /* Create SUNDIALS context */
-  ierr = SUNContext_Create(&comm, &ctx);
+  ierr = SUNContext_Create(comm, &ctx);
   if(check_retval(&ierr, "SUNContext_Create", 1, thispe)) MPI_Abort(comm, 1);
 
   /* Initialize user application context */
@@ -245,11 +245,11 @@ int main(int argc, char *argv[])
 
   /* Set constraints to all 1's for nonnegative solution values. */
   N_VConst(ONE, constraints);
-  t0 = ZERO; t1 = RCONST(0.01);
+  t0 = ZERO; t1 = SUN_RCONST(0.01);
 
   /* Scalar relative and absolute tolerance. */
   rtol = ZERO;
-  atol = RCONST(1.0e-4);
+  atol = SUN_RCONST(1.0e-4);
 
   /*
    * Call IDACreate and IDAInit, set integration tolerances, then set optional inputs
@@ -384,7 +384,7 @@ int main(int argc, char *argv[])
  *
  */
 
-int resHeat(realtype tt, N_Vector uu, N_Vector up, N_Vector rr,
+int resHeat(sunrealtype tt, N_Vector uu, N_Vector up, N_Vector rr,
             void *user_data)
 {
   PetscErrorCode ierr;
@@ -730,7 +730,7 @@ static int SetInitialProfile(N_Vector uu, N_Vector up, N_Vector id,
  * Print first lines of output and table heading
  */
 
-static void PrintHeader(sunindextype Neq, realtype rtol, realtype atol)
+static void PrintHeader(sunindextype Neq, sunrealtype rtol, sunrealtype atol)
 {
   printf("\nidaHeat2D_kry_petscsnes: Heat equation, parallel example problem for IDA\n");
   printf("                         Discretized heat equation on 2D unit square.\n");
@@ -763,9 +763,9 @@ static void PrintHeader(sunindextype Neq, realtype rtol, realtype atol)
  * PrintOutput: print max norm of solution and current solver statistics
  */
 
-static void PrintOutput(int id, void *ida_mem, realtype t, N_Vector uu, SNES snes)
+static void PrintOutput(int id, void *ida_mem, sunrealtype t, N_Vector uu, SNES snes)
 {
-  realtype hused, umax;
+  sunrealtype hused, umax;
   long int nst, nni, njve, nre, nreLS, npe, nps;
   int kused;
   PetscInt nli;

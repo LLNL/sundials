@@ -19,21 +19,21 @@
 #include "sundials/sundials_nvector_senswrapper.h"
 
 /* constant macros */
-#define PT0001  RCONST(0.0001) /* real 0.0001 */
-#define ONE     RCONST(1.0)    /* real 1.0    */
-#define TWENTY  RCONST(20.0)   /* real 20.0   */
+#define PT0001  SUN_RCONST(0.0001) /* real 0.0001 */
+#define ONE     SUN_RCONST(1.0)    /* real 1.0    */
+#define TWENTY  SUN_RCONST(20.0)   /* real 20.0   */
 
 /* nonlinear solver parameters */
 #define MAXIT   4           /* default max number of nonlinear iterations    */
-#define RATEMAX RCONST(0.9) /* max convergence rate used in divergence check */
+#define RATEMAX SUN_RCONST(0.9) /* max convergence rate used in divergence check */
 
 /* private functions passed to nonlinear solver */
 static int idaNlsResidualSensStg(N_Vector ycor, N_Vector res, void* ida_mem);
-static int idaNlsLSetupSensStg(booleantype jbad, booleantype* jcur,
+static int idaNlsLSetupSensStg(sunbooleantype jbad, sunbooleantype* jcur,
                                void* ida_mem);
 static int idaNlsLSolveSensStg(N_Vector delta, void* ida_mem);
 static int idaNlsConvTestSensStg(SUNNonlinearSolver NLS, N_Vector ycor, N_Vector del,
-                                 realtype tol, N_Vector ewt, void* ida_mem);
+                                 sunrealtype tol, N_Vector ewt, void* ida_mem);
 
 /* -----------------------------------------------------------------------------
  * Exported functions
@@ -219,7 +219,7 @@ int idaNlsInitSensStg(IDAMem IDA_mem)
 }
 
 
-static int idaNlsLSetupSensStg(booleantype jbad, booleantype* jcur,
+static int idaNlsLSetupSensStg(sunbooleantype jbad, sunbooleantype* jcur,
                                void* ida_mem)
 {
   IDAMem IDA_mem;
@@ -313,12 +313,12 @@ static int idaNlsResidualSensStg(N_Vector ycorStg, N_Vector resStg, void* ida_me
 
 
 static int idaNlsConvTestSensStg(SUNNonlinearSolver NLS, N_Vector ycor, N_Vector del,
-                                 realtype tol, N_Vector ewt, void* ida_mem)
+                                 sunrealtype tol, N_Vector ewt, void* ida_mem)
 {
   IDAMem IDA_mem;
   int m, retval;
-  realtype delnrm;
-  realtype rate;
+  sunrealtype delnrm;
+  sunrealtype rate;
 
   if (ida_mem == NULL) {
     IDAProcessError(NULL, IDA_MEM_NULL, "IDAS", "idaNlsConvTestSensStg", MSG_NO_MEM);

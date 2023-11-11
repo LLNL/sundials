@@ -105,8 +105,9 @@ sundials_add_library(sundials_cvode
     ${cvode_HEADERS}
   INCLUDE_SUBDIR
     cvode
+  LINK_LIBRARIES
+    PUBLIC sundials_core
   OBJECT_LIBRARIES
-    sundials_generic_obj
     sundials_sunmemsys_obj
     sundials_nvecserial_obj
     sundials_sunmatrixband_obj

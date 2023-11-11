@@ -1,7 +1,28 @@
 # SUNDIALS Changelog
 
+## Changes to SUNDIALS in release 7.0.0
+
+The previously deprecated types `realtype` and `booleantype` were removed from `sundials_types.h`.
+Users should use `sunrealtype` and `sunbooleantype` instead, but the old names for the types
+can be used by including the header file `sundials_types_old.h`.
+
 
 ## Changes to SUNDIALS in release X.X.X
+
+Added the `SUNAdaptController` base class, ported ARKODE's internal
+implementations of time step controllers into implementations of this class,
+and updated ARKODE to use these objects instead of its own implementations.
+Added `ARKStepSetAdaptController` and `ERKStepSetAdaptController` routines
+so that users can modify controller parameters, or even provide custom
+implementations.
+
+Added the routines `ARKStepSetAdaptivityAdjustment` and
+`ERKStepSetAdaptivityAdjustment`, that allow users to adjust the
+value for the method order supplied to the temporal adaptivity controllers.
+The ARKODE default for this adjustment has been -1 since its initial
+release, but for some applications a value of 0 is more appropriate.
+Users who notice that their simulations encounter a large number of
+temporal error test failures may want to experiment with adjusting this value.
 
 Fixed a regression introduced by the stop time bug fix in v6.6.1 where ARKODE,
 CVODE, CVODES, IDA, and IDAS would return at the stop time rather than the
@@ -41,6 +62,32 @@ method `ARKODE_VERNER_16_8_9`.
 Changed the `SUNProfiler` so that it does not rely on `MPI_WTime` in any case.
 This fixes https://github.com/LLNL/sundials/issues/312. 
 
+**Breaking change** 
+We have replaced the use of a type-erased (i.e., `void*`) pointer to a
+communicator in place of `MPI_Comm` throughout the SUNDIALS API with a
+:c:type:`SUNComm`, which is just a typedef to a `int` in builds without MPI
+and a typedef to a `MPI_Comm` in builds with MPI. Here is what this means:
+
+- All users will need to update their codes because the call to 
+  `SUNContext_Create` now takes a :c:type:`SUNComm` instead
+  of type-erased pointer to a communicator. For non-MPI codes,
+  pass :c:type:`SUN_COMM_NULL` to the `comm` argument instead of
+  `NULL`. For MPI codes, pass the `MPI_Comm` directly. 
+  The required change should be doable with a find-and-replace. 
+
+- The same change must be made for calls to 
+  `SUNLogger_Create` or `SUNProfiler_Create`. 
+  
+- Some users will need to update their calls to `N_VGetCommunicator`, and 
+  update any custom `N_Vector` implementations tht provide 
+  `N_VGetCommunicator`, since it now returns a `SUNComm`. 
+
+The change away from type-erased pointers for `SUNComm` fixes problems like the 
+one described in `GitHub Issue #275 <https://github.com/LLNL/sundials/issues/275>`.
+
+**Breaking change**
+Functions, types and header files that were previously deprecated have been
+removed. 
 
 ## Changes to SUNDIALS in release 6.6.1
 

@@ -74,7 +74,7 @@ program main
   fails = 0
 
   ! create SUNDIALS context
-  fails = FSUNContext_Create(c_null_ptr, sunctx)
+  fails = FSUNContext_Create(0, sunctx)
 
   ! create new vectors, using New, Make and Clone routines
   allocate(Udata(Nvar,N))

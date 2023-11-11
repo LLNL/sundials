@@ -54,29 +54,29 @@
 #endif
 
 /* User-supplied Functions Called by the Solver */
-static int f(realtype t, N_Vector y, N_Vector ydot, void *user_data);
-static int f0(realtype t, N_Vector y, N_Vector ydot, void *user_data);
-static int Jac(realtype t, N_Vector y, N_Vector fy, SUNMatrix J,
+static int f(sunrealtype t, N_Vector y, N_Vector ydot, void *user_data);
+static int f0(sunrealtype t, N_Vector y, N_Vector ydot, void *user_data);
+static int Jac(sunrealtype t, N_Vector y, N_Vector fy, SUNMatrix J,
                void *user_data, N_Vector tmp1, N_Vector tmp2, N_Vector tmp3);
 
 /* Analytical solution */
-static realtype ytrue(realtype t);
+static sunrealtype ytrue(sunrealtype t);
 
 /* Private function to check function return values */
 static int check_retval(void *flagvalue, const char *funcname, int opt);
 
 /* Private function to check computed solution */
-static int check_ans(N_Vector y, realtype t, realtype rtol, realtype atol);
+static int check_ans(N_Vector y, sunrealtype t, sunrealtype rtol, sunrealtype atol);
 
 /* Main Program */
 int main()
 {
   /* general problem parameters */
-  realtype T0     = RCONST(0.0);
-  realtype dTout  = RCONST(0.1);
-  realtype lambda = RCONST(-25.0);
-  realtype rtol   = RCONST(1e-3);
-  realtype atol   = RCONST(1e-6);
+  sunrealtype T0     = SUN_RCONST(0.0);
+  sunrealtype dTout  = SUN_RCONST(0.1);
+  sunrealtype lambda = SUN_RCONST(-25.0);
+  sunrealtype rtol   = SUN_RCONST(1e-3);
+  sunrealtype atol   = SUN_RCONST(1e-6);
 
   /* general problem variables */
   N_Vector y = NULL;
@@ -86,7 +86,7 @@ int main()
   void *mristep_mem = NULL;
   MRIStepInnerStepper inner_stepper = NULL;
   int retval;
-  realtype t;
+  sunrealtype t;
 
   SUNContext ctx;
 
@@ -94,7 +94,7 @@ int main()
   printf("\nARKODE reset functionality tester:\n");
 
   /* Create the SUNDIALS context object for this simulation */
-  retval = SUNContext_Create(NULL, &ctx);
+  retval = SUNContext_Create(SUN_COMM_NULL, &ctx);
   if (check_retval(&retval, "SUNContext_Create", 1)) return 1;
 
   /* Initialize vector, matrix, and linaer solver data structures */
@@ -125,7 +125,7 @@ int main()
   check_retval(&retval, "ERKStepSetStopTime", 1);
   retval = ERKStepEvolve(arkode_mem, t + dTout, y, &t, ARK_NORMAL);
   if (check_retval(&retval, "ERKStepEvolve", 1)) return 1;
-  if (check_ans(y, t, RCONST(0.001), RCONST(0.000001))) {
+  if (check_ans(y, t, SUN_RCONST(0.001), SUN_RCONST(0.000001))) {
     printf("  Initial ERKStepEvolve had insufficient accuracy\n");
     printf("    t = %" GSYM "\n", t);
     printf("    y = %" GSYM "\n", NV_Ith_S(y,0));
@@ -144,7 +144,7 @@ int main()
   check_retval(&retval, "ERKStepReset", 1);
   retval = ERKStepEvolve(arkode_mem, t + dTout, y, &t, ARK_NORMAL);
   if (check_retval(&retval, "ERKStepEvolve", 1)) return 1;
-  if (check_ans(y, t, RCONST(0.001), RCONST(0.000001))) {
+  if (check_ans(y, t, SUN_RCONST(0.001), SUN_RCONST(0.000001))) {
     printf("  Second ERKStepEvolve call had insufficient accuracy\n");
     printf("    t = %" GSYM "\n", t);
     printf("    y = %" GSYM "\n", NV_Ith_S(y,0));
@@ -156,13 +156,13 @@ int main()
   }
 
   /* Reset state to analytical solution at 3*dTout, evolve to 4*dTout and check result */
-  t = T0 + RCONST(3.0)*dTout;
+  t = T0 + SUN_RCONST(3.0)*dTout;
   N_VConst(ytrue(t), y);
   retval = ERKStepReset(arkode_mem, t, y);
   check_retval(&retval, "ERKStepReset", 1);
   retval = ERKStepEvolve(arkode_mem, t + dTout, y, &t, ARK_NORMAL);
   if (check_retval(&retval, "ERKStepEvolve", 1)) return 1;
-  if (check_ans(y, t, RCONST(0.001), RCONST(0.000001))) {
+  if (check_ans(y, t, SUN_RCONST(0.001), SUN_RCONST(0.000001))) {
     printf("  Third ERKStepEvolve call had insufficient accuracy\n");
     printf("    t = %" GSYM "\n", t);
     printf("    y = %" GSYM "\n", NV_Ith_S(y,0));
@@ -180,7 +180,7 @@ int main()
   check_retval(&retval, "ERKStepReset", 1);
   retval = ERKStepEvolve(arkode_mem, t + dTout, y, &t, ARK_NORMAL);
   if (check_retval(&retval, "ERKStepEvolve", 1)) return 1;
-  if (check_ans(y, t, RCONST(0.001), RCONST(0.000001))) {
+  if (check_ans(y, t, SUN_RCONST(0.001), SUN_RCONST(0.000001))) {
     printf("  Fourth ERKStepEvolve call had insufficient accuracy\n");
     printf("    t = %" GSYM "\n", t);
     printf("    y = %" GSYM "\n", NV_Ith_S(y,0));
@@ -220,7 +220,7 @@ int main()
   /* Initially evolve to dTout, and check result */
   retval = ARKStepEvolve(arkode_mem, t + dTout, y, &t, ARK_NORMAL);
   if (check_retval(&retval, "ARKStepEvolve", 1)) return 1;
-  if (check_ans(y, t, RCONST(0.001), RCONST(0.000001))) {
+  if (check_ans(y, t, SUN_RCONST(0.001), SUN_RCONST(0.000001))) {
     printf("  Initial ARKStepEvolve had insufficient accuracy\n");
     printf("    t = %" GSYM "\n", t);
     printf("    y = %" GSYM "\n", NV_Ith_S(y,0));
@@ -238,7 +238,7 @@ int main()
   check_retval(&retval, "ARKStepReset", 1);
   retval = ARKStepEvolve(arkode_mem, t + dTout, y, &t, ARK_NORMAL);
   if (check_retval(&retval, "ARKStepEvolve", 1)) return 1;
-  if (check_ans(y, t, RCONST(0.001), RCONST(0.000001))) {
+  if (check_ans(y, t, SUN_RCONST(0.001), SUN_RCONST(0.000001))) {
     printf("  Second ARKStepEvolve call had insufficient accuracy\n");
     printf("    t = %" GSYM "\n", t);
     printf("    y = %" GSYM "\n", NV_Ith_S(y,0));
@@ -250,13 +250,13 @@ int main()
   }
 
   /* Reset state to analytical solution at 3*dTout, evolve to 4*dTout and check result */
-  t = T0 + RCONST(3.0)*dTout;
+  t = T0 + SUN_RCONST(3.0)*dTout;
   N_VConst(ytrue(t), y);
   retval = ARKStepReset(arkode_mem, t, y);
   check_retval(&retval, "ARKStepReset", 1);
   retval = ARKStepEvolve(arkode_mem, t + dTout, y, &t, ARK_NORMAL);
   if (check_retval(&retval, "ARKStepEvolve", 1)) return 1;
-  if (check_ans(y, t, RCONST(0.001), RCONST(0.000001))) {
+  if (check_ans(y, t, SUN_RCONST(0.001), SUN_RCONST(0.000001))) {
     printf("  Third ARKStepEvolve call had insufficient accuracy\n");
     printf("    t = %" GSYM "\n", t);
     printf("    y = %" GSYM "\n", NV_Ith_S(y,0));
@@ -274,7 +274,7 @@ int main()
   check_retval(&retval, "ARKStepReset", 1);
   retval = ARKStepEvolve(arkode_mem, t + dTout, y, &t, ARK_NORMAL);
   if (check_retval(&retval, "ARKStepEvolve", 1)) return 1;
-  if (check_ans(y, t, RCONST(0.001), RCONST(0.000001))) {
+  if (check_ans(y, t, SUN_RCONST(0.001), SUN_RCONST(0.000001))) {
     printf("  Fourth ARKStepEvolve call had insufficient accuracy\n");
     printf("    t = %" GSYM "\n", t);
     printf("    y = %" GSYM "\n", NV_Ith_S(y,0));
@@ -316,13 +316,13 @@ int main()
   if (check_retval(&retval, "MRIStepSetLinear", 1)) return 1;
   retval = MRIStepSetMaxNumSteps(mristep_mem, 100);
   check_retval(&retval, "MRIStepSetMaxNumSteps", 1);
-  retval = MRIStepSetFixedStep(mristep_mem, dTout*RCONST(0.105));
+  retval = MRIStepSetFixedStep(mristep_mem, dTout*SUN_RCONST(0.105));
   check_retval(&retval, "MRIStepSetFixedStep", 1);
 
   /* Initially evolve to dTout, and check result */
   retval = MRIStepEvolve(mristep_mem, t + dTout, y, &t, ARK_NORMAL);
   if (check_retval(&retval, "MRIStepEvolve", 1)) return 1;
-  if (check_ans(y, t, RCONST(0.001), RCONST(0.000001))) {
+  if (check_ans(y, t, SUN_RCONST(0.001), SUN_RCONST(0.000001))) {
     printf("  Initial MRIStepEvolve had insufficient accuracy\n");
     printf("    t = %" GSYM "\n", t);
     printf("    y = %" GSYM "\n", NV_Ith_S(y,0));
@@ -340,7 +340,7 @@ int main()
   check_retval(&retval, "MRIStepReset", 1);
   retval = MRIStepEvolve(mristep_mem, t + dTout, y, &t, ARK_NORMAL);
   if (check_retval(&retval, "MRIStepEvolve", 1)) return 1;
-  if (check_ans(y, t, RCONST(0.001), RCONST(0.000001))) {
+  if (check_ans(y, t, SUN_RCONST(0.001), SUN_RCONST(0.000001))) {
     printf("  Second MRIStepEvolve call had insufficient accuracy\n");
     printf("    t = %" GSYM "\n", t);
     printf("    y = %" GSYM "\n", NV_Ith_S(y,0));
@@ -352,13 +352,13 @@ int main()
   }
 
   /* Reset state to analytical solution at 3*dTout, evolve to 4*dTout and check result */
-  t = T0 + RCONST(3.0)*dTout;
+  t = T0 + SUN_RCONST(3.0)*dTout;
   N_VConst(ytrue(t), y);
   retval = MRIStepReset(mristep_mem, t, y);
   check_retval(&retval, "MRIStepReset", 1);
   retval = MRIStepEvolve(mristep_mem, t + dTout, y, &t, ARK_NORMAL);
   if (check_retval(&retval, "MRIStepEvolve", 1)) return 1;
-  if (check_ans(y, t, RCONST(0.001), RCONST(0.000001))) {
+  if (check_ans(y, t, SUN_RCONST(0.001), SUN_RCONST(0.000001))) {
     printf("  Third MRIStepEvolve call had insufficient accuracy\n");
     printf("    t = %" GSYM "\n", t);
     printf("    y = %" GSYM "\n", NV_Ith_S(y,0));
@@ -376,7 +376,7 @@ int main()
   check_retval(&retval, "MRIStepReset", 1);
   retval = MRIStepEvolve(mristep_mem, t + dTout, y, &t, ARK_NORMAL);
   if (check_retval(&retval, "MRIStepEvolve", 1)) return 1;
-  if (check_ans(y, t, RCONST(0.001), RCONST(0.000001))) {
+  if (check_ans(y, t, SUN_RCONST(0.001), SUN_RCONST(0.000001))) {
     printf("  Fourth MRIStepEvolve call had insufficient accuracy\n");
     printf("    t = %" GSYM "\n", t);
     printf("    y = %" GSYM "\n", NV_Ith_S(y,0));
@@ -406,32 +406,32 @@ int main()
  *-------------------------------*/
 
 /* f routine to compute the ODE RHS function f(t,y). */
-static int f(realtype t, N_Vector y, N_Vector ydot, void *user_data)
+static int f(sunrealtype t, N_Vector y, N_Vector ydot, void *user_data)
 {
-  realtype *rdata = (realtype *) user_data;   /* cast user_data to realtype */
-  realtype lambda = rdata[0];                 /* set shortcut for stiffness parameter */
-  realtype u = NV_Ith_S(y,0);                 /* access current solution value */
+  sunrealtype *rdata = (sunrealtype *) user_data;   /* cast user_data to sunrealtype */
+  sunrealtype lambda = rdata[0];                 /* set shortcut for stiffness parameter */
+  sunrealtype u = NV_Ith_S(y,0);                 /* access current solution value */
 
   /* fill in the RHS function: "NV_Ith_S" accesses the 0th entry of ydot */
-  NV_Ith_S(ydot,0) = lambda*u + RCONST(1.0)/(RCONST(1.0)+t*t) - lambda*atan(t);
+  NV_Ith_S(ydot,0) = lambda*u + SUN_RCONST(1.0)/(SUN_RCONST(1.0)+t*t) - lambda*atan(t);
 
   return 0;                                   /* return with success */
 }
 
 /* f0 routine to compute a zero-valued ODE RHS function f(t,y). */
-static int f0(realtype t, N_Vector y, N_Vector ydot, void *user_data)
+static int f0(sunrealtype t, N_Vector y, N_Vector ydot, void *user_data)
 {
-  N_VConst(RCONST(0.0), ydot);
+  N_VConst(SUN_RCONST(0.0), ydot);
   return 0;
 }
 
 /* Jacobian routine to compute J(t,y) = df/dy. */
-static int Jac(realtype t, N_Vector y, N_Vector fy, SUNMatrix J,
+static int Jac(sunrealtype t, N_Vector y, N_Vector fy, SUNMatrix J,
                void *user_data, N_Vector tmp1, N_Vector tmp2, N_Vector tmp3)
 {
-  realtype *rdata = (realtype *) user_data;   /* cast user_data to realtype */
-  realtype lambda = rdata[0];                  /* set shortcut for stiffness parameter */
-  realtype *Jdata = SUNDenseMatrix_Data(J);
+  sunrealtype *rdata = (sunrealtype *) user_data;   /* cast user_data to sunrealtype */
+  sunrealtype lambda = rdata[0];                  /* set shortcut for stiffness parameter */
+  sunrealtype *Jdata = SUNDenseMatrix_Data(J);
 
   /* Fill in Jacobian of f: set the first entry of the data array to set the (0,0) entry */
   Jdata[0] = lambda;
@@ -479,24 +479,24 @@ static int check_retval(void *flagvalue, const char *funcname, int opt)
 }
 
 /* analytical solution */
-static realtype ytrue(realtype t)
+static sunrealtype ytrue(sunrealtype t)
 {
   return (atan(t));
 }
 
 /* check the computed solution */
-static int check_ans(N_Vector y, realtype t, realtype rtol, realtype atol)
+static int check_ans(N_Vector y, sunrealtype t, sunrealtype rtol, sunrealtype atol)
 {
   int      passfail=0;     /* answer pass (0) or fail (1) value    */
-  realtype ans, err, ewt;  /* answer data, error, and error weight */
+  sunrealtype ans, err, ewt;  /* answer data, error, and error weight */
 
   /* compute solution error */
   ans = ytrue(t);
-  ewt = RCONST(1.0) / (rtol * fabs(ans) + atol);
+  ewt = SUN_RCONST(1.0) / (rtol * fabs(ans) + atol);
   err = ewt * fabs(NV_Ith_S(y,0) - ans);
 
   /* is the solution within the tolerances? */
-  passfail = (err < RCONST(1.0)) ? 0 : 1;
+  passfail = (err < SUN_RCONST(1.0)) ? 0 : 1;
 
   if (passfail) {
     fprintf(stdout, "\nSUNDIALS_WARNING: check_ans error=%"GSYM"\n\n", err);

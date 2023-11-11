@@ -36,7 +36,7 @@
 #include <nvector/nvector_serial.h>        /* access to serial N_Vector         */
 #include <sunmatrix/sunmatrix_sparse.h>    /* access to sparse SUNMatrix        */
 #include <sunlinsol/sunlinsol_superlumt.h> /* access to SuperLUMT linear solver */
-#include <sundials/sundials_types.h>       /* defs. of realtype, sunindextype   */
+#include <sundials/sundials_types.h>       /* defs. of sunrealtype, sunindextype   */
 #include <sundials/sundials_math.h>        /* access to SUNRsqrt                */
 
 /* Problem Constants */
@@ -44,12 +44,12 @@
 #define NVAR  8              /* variables */
 #define NEQ   3*NVAR         /* equations + bounds */
 
-#define FTOL   RCONST(1.e-5) /* function tolerance */
-#define STOL   RCONST(1.e-5) /* step tolerance */
+#define FTOL   SUN_RCONST(1.e-5) /* function tolerance */
+#define STOL   SUN_RCONST(1.e-5) /* step tolerance */
 
-#define ZERO  RCONST(0.0)
-#define ONE   RCONST(1.0)
-#define TWO   RCONST(2.0)
+#define ZERO  SUN_RCONST(0.0)
+#define ONE   SUN_RCONST(1.0)
+#define TWO   SUN_RCONST(2.0)
 
 #define Ith(v,i)    NV_Ith_S(v,i-1)
 
@@ -69,7 +69,7 @@ static int check_retval(void *retvalvalue, const char *funcname, int opt);
 int main()
 {
   SUNContext sunctx;
-  realtype fnormtol, scsteptol;
+  sunrealtype fnormtol, scsteptol;
   N_Vector y, scale, constraints;
   int mset, retval, i;
   void *kmem;
@@ -88,7 +88,7 @@ int main()
   printf("KINSOL problem size: 8 + 2*8 = 24 \n\n");
 
   /* Create the SUNDIALS context that all SUNDIALS objects require */
-  retval = SUNContext_Create(NULL, &sunctx);
+  retval = SUNContext_Create(SUN_COMM_NULL, &sunctx);
   if (check_retval(&retval, "SUNContext_Create", 1)) return(1);
 
   /* Create vectors for solution, scales, and constraints */
@@ -192,15 +192,15 @@ int main()
 
 static int func(N_Vector y, N_Vector f, void *user_data)
 {
-  realtype *yd, *fd;
+  sunrealtype *yd, *fd;
 
-  realtype x1, x2, x3, x4, x5, x6, x7, x8;
-  realtype l1, l2, l3, l4, l5, l6, l7, l8;
-  realtype u1, u2, u3, u4, u5, u6, u7, u8;
+  sunrealtype x1, x2, x3, x4, x5, x6, x7, x8;
+  sunrealtype l1, l2, l3, l4, l5, l6, l7, l8;
+  sunrealtype u1, u2, u3, u4, u5, u6, u7, u8;
 
-  realtype eq1, eq2, eq3, eq4, eq5, eq6, eq7, eq8;
-  realtype lb1, lb2, lb3, lb4, lb5, lb6, lb7, lb8;
-  realtype ub1, ub2, ub3, ub4, ub5, ub6, ub7, ub8;
+  sunrealtype eq1, eq2, eq3, eq4, eq5, eq6, eq7, eq8;
+  sunrealtype lb1, lb2, lb3, lb4, lb5, lb6, lb7, lb8;
+  sunrealtype ub1, ub2, ub3, ub4, ub5, ub6, ub7, ub8;
 
   yd = N_VGetArrayPointer(y);
   fd = N_VGetArrayPointer(f);
@@ -268,11 +268,11 @@ static int func(N_Vector y, N_Vector f, void *user_data)
 static int jac(N_Vector y, N_Vector f, SUNMatrix J,
                void *user_data, N_Vector tmp1, N_Vector tmp2)
 {
-  realtype *yd;
-  realtype x1, x2, x3, x4, x5, x6, x7, x8;
+  sunrealtype *yd;
+  sunrealtype x1, x2, x3, x4, x5, x6, x7, x8;
   sunindextype *colptrs = SUNSparseMatrix_IndexPointers(J);
   sunindextype *rowvals = SUNSparseMatrix_IndexValues(J);
-  realtype *data = SUNSparseMatrix_Data(J);
+  sunrealtype *data = SUNSparseMatrix_Data(J);
 
   yd = N_VGetArrayPointer(y);
 

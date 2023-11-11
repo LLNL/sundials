@@ -43,11 +43,11 @@ struct _SUNNonlinearSolverContent_FixedPoint {
   /* nonlinear solver variables */
   int          m;          /* number of acceleration vectors to use          */
   int         *imap;       /* array of length m                              */
-  booleantype  damping;    /* flag to apply dampling in acceleration         */
-  realtype     beta;       /* damping paramter                               */
-  realtype    *R;          /* array of length m*m                            */
-  realtype    *gamma;      /* array of length m                              */
-  realtype    *cvals;      /* array of length m+1 for fused vector op        */
+  sunbooleantype  damping;    /* flag to apply dampling in acceleration         */
+  sunrealtype     beta;       /* damping paramter                               */
+  sunrealtype    *R;          /* array of length m*m                            */
+  sunrealtype    *gamma;      /* array of length m                              */
+  sunrealtype    *cvals;      /* array of length m+1 for fused vector op        */
   N_Vector    *df;         /* vector array of length m                       */
   N_Vector    *dg;         /* vector array of length m                       */
   N_Vector    *q;          /* vector array of length m                       */
@@ -90,8 +90,8 @@ SUNDIALS_EXPORT int SUNNonlinSolInitialize_FixedPoint(SUNNonlinearSolver NLS);
 
 SUNDIALS_EXPORT int SUNNonlinSolSolve_FixedPoint(SUNNonlinearSolver NLS,
                                                  N_Vector y0, N_Vector y,
-                                                 N_Vector w, realtype tol,
-                                                 booleantype callSetup, void *mem);
+                                                 N_Vector w, sunrealtype tol,
+                                                 sunbooleantype callSetup, void *mem);
 
 SUNDIALS_EXPORT int SUNNonlinSolDestroy_FixedPoint(SUNNonlinearSolver NLS);
 
@@ -113,7 +113,7 @@ SUNDIALS_EXPORT int SUNNonlinSolSetMaxIters_FixedPoint(SUNNonlinearSolver NLS,
                                                        int maxiters);
 
 SUNDIALS_EXPORT int SUNNonlinSolSetDamping_FixedPoint(SUNNonlinearSolver NLS,
-                                                      realtype beta);
+                                                      sunrealtype beta);
 
 /* get functions */
 SUNDIALS_EXPORT int SUNNonlinSolGetNumIters_FixedPoint(SUNNonlinearSolver NLS,

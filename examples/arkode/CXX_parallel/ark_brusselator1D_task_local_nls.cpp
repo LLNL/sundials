@@ -122,7 +122,7 @@ int main(int argc, char *argv[])
 
   /* Create SUNDIALS context */
   SUNContext ctx;
-  retval = SUNContext_Create(&comm, &ctx);
+  retval = SUNContext_Create(comm, &ctx);
   if (check_retval(&retval, "SUNContext_Create", 1)) MPI_Abort(comm, 1);
 
   /* Add scope to destroy objects before MPIFinalize */
@@ -967,7 +967,7 @@ int TaskLocalNewton_Initialize(SUNNonlinearSolver NLS)
 int TaskLocalNewton_Solve(SUNNonlinearSolver NLS,
                           N_Vector y0, N_Vector ycor,
                           N_Vector w, double tol,
-                          booleantype callLSetup, void* mem)
+                          sunbooleantype callLSetup, void* mem)
 {
   /* local variables */
   MPI_Comm comm;
@@ -1105,10 +1105,7 @@ SUNNonlinearSolver TaskLocalNewton(SUNContext ctx, N_Vector y)
   NLS->content = content;
 
   /* Fill general content */
-  tmp_comm = N_VGetCommunicator(y);
-  if (tmp_comm == NULL) { SUNNonlinSolFree(NLS); return NULL; }
-
-  content->comm = *((MPI_Comm*) tmp_comm);
+  content->comm = N_VGetCommunicator(y);
   if (content->comm == MPI_COMM_NULL) { SUNNonlinSolFree(NLS); return NULL; }
 
   content->local_nls = SUNNonlinSol_Newton(N_VGetLocalVector_MPIPlusX(y), ctx);

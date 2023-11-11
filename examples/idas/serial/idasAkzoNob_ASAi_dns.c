@@ -34,7 +34,7 @@
 #include <nvector/nvector_serial.h>    /* access to serial N_Vector            */
 #include <sunmatrix/sunmatrix_dense.h> /* access to dense SUNMatrix            */
 #include <sunlinsol/sunlinsol_dense.h> /* access to dense SUNLinearSolver      */
-#include <sundials/sundials_types.h>   /* defs. of realtype, sunindextype      */
+#include <sundials/sundials_types.h>   /* defs. of sunrealtype, sunindextype      */
 #include <sundials/sundials_math.h>    /* def. of SUNRpowerI                   */
 
 /* Accessor macros */
@@ -42,40 +42,40 @@
 
 /* Problem Constants */
 #define NEQ 6
-#define T0  RCONST(0.0)
+#define T0  SUN_RCONST(0.0)
 
-#define TF  RCONST(180.0) /* Final time. */
+#define TF  SUN_RCONST(180.0) /* Final time. */
 
-#define RTOL  RCONST(1.0e-08)
-#define ATOL  RCONST(1.0e-10)
-#define RTOLB RCONST(1.0e-06)
-#define ATOLB RCONST(1.0e-08)
-#define RTOLQ RCONST(1.0e-10)
-#define ATOLQ RCONST(1.0e-12)
+#define RTOL  SUN_RCONST(1.0e-08)
+#define ATOL  SUN_RCONST(1.0e-10)
+#define RTOLB SUN_RCONST(1.0e-06)
+#define ATOLB SUN_RCONST(1.0e-08)
+#define RTOLQ SUN_RCONST(1.0e-10)
+#define ATOLQ SUN_RCONST(1.0e-12)
 
-#define ZERO  RCONST(0.0)
-#define HALF  RCONST(0.5)
-#define ONE   RCONST(1.0)
-#define TWO   RCONST(2.0)
+#define ZERO  SUN_RCONST(0.0)
+#define HALF  SUN_RCONST(0.5)
+#define ONE   SUN_RCONST(1.0)
+#define TWO   SUN_RCONST(2.0)
 
 #define STEPS 150
 
 typedef struct {
-  realtype k1, k2, k3, k4;
-  realtype K, klA, Ks, pCO2, H;
+  sunrealtype k1, k2, k3, k4;
+  sunrealtype K, klA, Ks, pCO2, H;
 } *UserData;
 
-static int res(realtype t, N_Vector yy, N_Vector yd, N_Vector resval, void *userdata);
+static int res(sunrealtype t, N_Vector yy, N_Vector yd, N_Vector resval, void *userdata);
 
-static int resB(realtype tt,
+static int resB(sunrealtype tt,
                 N_Vector yy, N_Vector yp,
                 N_Vector yyB, N_Vector ypB, N_Vector rrB,
                 void *user_dataB);
 
-static int rhsQ(realtype t, N_Vector yy, N_Vector yp,
+static int rhsQ(sunrealtype t, N_Vector yy, N_Vector yp,
               N_Vector qdot, void *user_data);
 
-static void PrintOutput(realtype tfinal, N_Vector yB, N_Vector ypB);
+static void PrintOutput(sunrealtype tfinal, N_Vector yB, N_Vector ypB);
 static int check_retval(void *returnvalue, const char *funcname, int opt);
 
 /* Main program */
@@ -86,7 +86,7 @@ int main()
   N_Vector yy, yp, rr, q;
   N_Vector yB, ypB;
   int ncheck, retval;
-  realtype time;
+  sunrealtype time;
   long int nst, nstB;
   int indexB;
   SUNMatrix A, AB;
@@ -94,11 +94,11 @@ int main()
   SUNContext ctx;
 
   /* Consistent IC for  y, y'. */
-  const realtype y01 = RCONST(0.444);
-  const realtype y02 = RCONST(0.00123);
-  const realtype y03 = RCONST(0.0);
-  const realtype y04 = RCONST(0.007);
-  const realtype y05 = RCONST(0.0);
+  const sunrealtype y01 = SUN_RCONST(0.444);
+  const sunrealtype y02 = SUN_RCONST(0.00123);
+  const sunrealtype y03 = SUN_RCONST(0.0);
+  const sunrealtype y04 = SUN_RCONST(0.007);
+  const sunrealtype y05 = SUN_RCONST(0.0);
 
   mem = NULL;
   yy = yp = NULL;
@@ -111,22 +111,22 @@ int main()
   printf("-------------------------------------------------------------\n\n");
 
   /* Create the SUNDIALS context object for this simulation */
-  retval = SUNContext_Create(NULL, &ctx);
+  retval = SUNContext_Create(SUN_COMM_NULL, &ctx);
   if (check_retval(&retval, "SUNContext_Create", 1)) return 1;
 
   /* Allocate user data. */
   data = (UserData) malloc(sizeof(*data));
 
   /* Fill user's data with the appropriate values for coefficients. */
-  data->k1 = RCONST(18.7);
-  data->k2 = RCONST(0.58);
-  data->k3 = RCONST(0.09);
-  data->k4 = RCONST(0.42);
-  data->K = RCONST(34.4);
-  data->klA = RCONST(3.3);
-  data->Ks = RCONST(115.83);
-  data->pCO2 = RCONST(0.9);
-  data->H = RCONST(737.0);
+  data->k1 = SUN_RCONST(18.7);
+  data->k2 = SUN_RCONST(0.58);
+  data->k3 = SUN_RCONST(0.09);
+  data->k4 = SUN_RCONST(0.42);
+  data->K = SUN_RCONST(34.4);
+  data->klA = SUN_RCONST(3.3);
+  data->Ks = SUN_RCONST(115.83);
+  data->pCO2 = SUN_RCONST(0.9);
+  data->H = SUN_RCONST(737.0);
 
   /* Allocate N-vectors. */
   yy = N_VNew_Serial(NEQ, ctx);
@@ -287,16 +287,16 @@ int main()
 }
 
 
-static int res(realtype t, N_Vector yy, N_Vector yd, N_Vector resval, void *userdata)
+static int res(sunrealtype t, N_Vector yy, N_Vector yd, N_Vector resval, void *userdata)
 {
   UserData data;
-  realtype k1, k2, k3, k4;
-  realtype K, klA, Ks, pCO2, H;
+  sunrealtype k1, k2, k3, k4;
+  sunrealtype K, klA, Ks, pCO2, H;
 
-  realtype y1, y2, y3, y4, y5, y6;
-  realtype yd1, yd2, yd3, yd4, yd5;
+  sunrealtype y1, y2, y3, y4, y5, y6;
+  sunrealtype yd1, yd2, yd3, yd4, yd5;
 
-  realtype r1, r2, r3, r4, r5, Fin;
+  sunrealtype r1, r2, r3, r4, r5, Fin;
 
   data = (UserData) userdata;
   k1 = data->k1;
@@ -343,36 +343,36 @@ static int res(realtype t, N_Vector yy, N_Vector yd, N_Vector resval, void *user
  * rhsQ routine. Computes quadrature(t,y).
  */
 
-static int rhsQ(realtype t, N_Vector yy, N_Vector yp, N_Vector qdot, void *user_data)
+static int rhsQ(sunrealtype t, N_Vector yy, N_Vector yp, N_Vector qdot, void *user_data)
 {
   Ith(qdot,1) = Ith(yy,1);
 
   return(0);
 }
 
-#define QUARTER   RCONST(0.25)
-#define FOUR      RCONST(4.0)
-#define EIGHT     RCONST(8.0)
+#define QUARTER   SUN_RCONST(0.25)
+#define FOUR      SUN_RCONST(4.0)
+#define EIGHT     SUN_RCONST(8.0)
 
 /*
  * resB routine. Residual for adjoint system.
  */
-static int resB(realtype tt,
+static int resB(sunrealtype tt,
                 N_Vector yy, N_Vector yp,
                 N_Vector yyB, N_Vector ypB, N_Vector rrB,
                 void *user_dataB)
 {
   UserData data;
 
-  realtype y1, y2, y3, y4, y5, y6;
+  sunrealtype y1, y2, y3, y4, y5, y6;
 
-  realtype yB1, yB2, yB3, yB4, yB5, yB6;
-  realtype ypB1, ypB2, ypB3, ypB4, ypB5;
+  sunrealtype yB1, yB2, yB3, yB4, yB5, yB6;
+  sunrealtype ypB1, ypB2, ypB3, ypB4, ypB5;
 
-  realtype k1, k2, k3, k4;
-  realtype K, klA, Ks;
+  sunrealtype k1, k2, k3, k4;
+  sunrealtype K, klA, Ks;
 
-  realtype y2tohalf, y1to3, k2overK, tmp1, tmp2;
+  sunrealtype y2tohalf, y1to3, k2overK, tmp1, tmp2;
 
   data = (UserData) user_dataB;
   k1 = data->k1;
@@ -434,7 +434,7 @@ static int resB(realtype tt,
 /*
  * Print results after backward integration
  */
-static void PrintOutput(realtype tfinal, N_Vector yB, N_Vector ypB)
+static void PrintOutput(sunrealtype tfinal, N_Vector yB, N_Vector ypB)
 {
 #if defined(SUNDIALS_EXTENDED_PRECISION)
   printf("dG/dy0: \t%12.4Le\n\t\t%12.4Le\n\t\t%12.4Le\n\t\t%12.4Le\n\t\t%12.4Le\n",

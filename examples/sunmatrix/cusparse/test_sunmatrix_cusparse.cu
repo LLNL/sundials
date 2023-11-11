@@ -79,9 +79,9 @@ int main(int argc, char *argv[])
   int          block_nnz_max;              /* max number of nnz in block */
   int          mattype;                    /* matrix storage type        */
   N_Vector     x, y, d_x, d_y;             /* test vectors               */
-  realtype*    vecdata;                    /* pointers to vector data    */
+  sunrealtype*    vecdata;                    /* pointers to vector data    */
   SUNMatrix    A, B, C, D, dA, dB, dI;     /* test matrices              */
-  realtype*    matdata;                    /* pointer to matrix data     */
+  sunrealtype*    matdata;                    /* pointer to matrix data     */
   int          print_timing, square;
   int          matrix_to_use;
   sunindextype i, j;
@@ -90,7 +90,7 @@ int main(int argc, char *argv[])
   cusparseStatus_t cusp_status;
   cusparseHandle_t cusp_handle;
 
-  if (SUNContext_Create(NULL, &sunctx)) {
+  if (SUNContext_Create(SUN_COMM_NULL, &sunctx)) {
     printf("ERROR: SUNContext_Create failed\n");
     return(-1);
   }
@@ -201,10 +201,10 @@ int main(int argc, char *argv[])
           sunindextype col = cols[j] + blkcols*i;
           sunindextype row = rows[j] + blkrows*i;
           matdata = SUNDenseMatrix_Column(D,col);
-          matdata[row] = (realtype) rand() / (realtype) RAND_MAX / N;
+          matdata[row] = (sunrealtype) rand() / (sunrealtype) RAND_MAX / N;
         }
     }
-    if (SUNMatScaleAddI(RCONST(1.0), D)) {
+    if (SUNMatScaleAddI(SUN_RCONST(1.0), D)) {
       printf("ERROR: SUNMatScaleAddI failed for dense matrix D\n");
       return(-1);
     }
@@ -216,10 +216,10 @@ int main(int argc, char *argv[])
           sunindextype col = cols[j] + blkcols*i;
           sunindextype row = rows[j] + blkrows*i;
           matdata = SUNDenseMatrix_Column(C,col);
-          matdata[row] = (realtype) rand() / (realtype) RAND_MAX / N;
+          matdata[row] = (sunrealtype) rand() / (sunrealtype) RAND_MAX / N;
         }
     }
-    if (SUNMatScaleAddI(RCONST(1.0), C)) {
+    if (SUNMatScaleAddI(SUN_RCONST(1.0), C)) {
       printf("ERROR: SUNMatScaleAddI failed for dense matrix C\n");
       return(-1);
     }
@@ -243,14 +243,14 @@ int main(int argc, char *argv[])
     N = blkcols * nblocks;
 
     D = SUNDenseMatrix(M, N, sunctx);
-    SUNMatScaleAddI(RCONST(0.0), D);
-    if (SUNMatScaleAddI(RCONST(0.0), D)) {
+    SUNMatScaleAddI(SUN_RCONST(0.0), D);
+    if (SUNMatScaleAddI(SUN_RCONST(0.0), D)) {
       printf("ERROR: SUNMatScaleAddI failed for dense matrix D\n");
       return(-1);
     }
 
     C = SUNDenseMatrix(M, N, sunctx);
-    if (SUNMatScaleAddI(RCONST(0.0), C)) {
+    if (SUNMatScaleAddI(SUN_RCONST(0.0), C)) {
       printf("ERROR: SUNMatScaleAddI failed for dense matrix C\n");
       return(-1);
     }
@@ -279,7 +279,7 @@ int main(int argc, char *argv[])
     }
     SUNMatDestroy(cscA);
 
-    if (SUNMatScaleAddI(RCONST(1.0), A)) {
+    if (SUNMatScaleAddI(SUN_RCONST(1.0), A)) {
       printf("ERROR: SUNMatScaleAddI failed on matrix that read\n");
       return(-1);
     }
@@ -386,7 +386,7 @@ int main(int argc, char *argv[])
   /* Fill vector on the host */
   vecdata = N_VGetArrayPointer(x);
   for(i=0; i<N; i++)
-    vecdata[i] = (realtype) rand() / (realtype) RAND_MAX;
+    vecdata[i] = (sunrealtype) rand() / (sunrealtype) RAND_MAX;
 
   /* Compute reference y on the host */
   if (SUNMatMatvec(A, x, y)) {
@@ -468,7 +468,7 @@ int main(int argc, char *argv[])
 int Test_SetKernelExecPolicy(SUNMatrix I, int myid)
 {
   int print_all_ranks = 0;
-  realtype  tol = 100*UNIT_ROUNDOFF;
+  sunrealtype  tol = 100*SUN_UNIT_ROUNDOFF;
   SUNMatrix B = SUNMatClone(I);
 
   /* check cloned matrix */
@@ -491,7 +491,7 @@ int Test_SetKernelExecPolicy(SUNMatrix I, int myid)
   SUNMatrix_cuSparse_SetKernelExecPolicy(B, &exec_policy);
 
   /* try out an operation */
-  if (SUNMatScaleAddI(RCONST(-1.0), B)) {
+  if (SUNMatScaleAddI(SUN_RCONST(-1.0), B)) {
     TEST_STATUS(">>> FAILED test -- SetKernelExecPolicy \n", myid);
     TEST_STATUS("    SUNMatScaleAddI returned nonzero \n \n", myid);
     SUNMatDestroy(B);
@@ -516,11 +516,11 @@ int Test_SetKernelExecPolicy(SUNMatrix I, int myid)
  /* ----------------------------------------------------------------------
   * Check matrix
   * --------------------------------------------------------------------*/
- int check_matrix(SUNMatrix dA, SUNMatrix dB, realtype tol)
+ int check_matrix(SUNMatrix dA, SUNMatrix dB, sunrealtype tol)
  {
    int failure = 0;
    SUNMatrix A, B;
-   realtype *Adata, *Bdata;
+   sunrealtype *Adata, *Bdata;
    sunindextype *Aindexptrs, *Bindexptrs;
    sunindextype *Aindexvals, *Bindexvals;
    sunindextype i, ANP, Annz, Bnnz;
@@ -614,14 +614,14 @@ int Test_SetKernelExecPolicy(SUNMatrix I, int myid)
    return(0);
  }
 
- int check_matrix_entry(SUNMatrix dA, realtype val, realtype tol)
+ int check_matrix_entry(SUNMatrix dA, sunrealtype val, sunrealtype tol)
  {
    int failure = 0;
-   realtype *Adata;
+   sunrealtype *Adata;
    sunindextype i;
 
    /* copy matrix data to host for the checks */
-   Adata = (realtype*) malloc(SUNMatrix_cuSparse_NNZ(dA)*sizeof(realtype));
+   Adata = (sunrealtype*) malloc(SUNMatrix_cuSparse_NNZ(dA)*sizeof(sunrealtype));
    failure = SUNMatrix_cuSparse_CopyFromDevice(dA, Adata, NULL, NULL);
    cudaDeviceSynchronize();
 
@@ -638,10 +638,10 @@ int Test_SetKernelExecPolicy(SUNMatrix I, int myid)
      return(0);
  }
 
- int check_vector(N_Vector expected, N_Vector computed, realtype tol)
+ int check_vector(N_Vector expected, N_Vector computed, sunrealtype tol)
  {
    int failure = 0;
-   realtype *xdata, *ydata;
+   sunrealtype *xdata, *ydata;
    sunindextype xldata, yldata;
    sunindextype i;
 
@@ -674,16 +674,16 @@ int Test_SetKernelExecPolicy(SUNMatrix I, int myid)
      return(0);
  }
 
- booleantype has_data(SUNMatrix A)
+ sunbooleantype has_data(SUNMatrix A)
  {
-   realtype *Adata = SUNMatrix_cuSparse_Data(A);
+   sunrealtype *Adata = SUNMatrix_cuSparse_Data(A);
    if (Adata == NULL)
      return SUNFALSE;
    else
      return SUNTRUE;
  }
 
- booleantype is_square(SUNMatrix A)
+ sunbooleantype is_square(SUNMatrix A)
  {
    if (SUNMatrix_cuSparse_Rows(A) == SUNMatrix_cuSparse_Columns(A))
      return SUNTRUE;

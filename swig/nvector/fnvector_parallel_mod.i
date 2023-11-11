@@ -41,14 +41,14 @@
 }
 
 %typemap(in, noblock=1) MPI_Comm {
-%#ifdef SUNDIALS_MPI_ENABLED
+%#if SUNDIALS_MPI_ENABLED
     $1 = MPI_Comm_f2c(%static_cast(*$input, MPI_Fint));
 %#else
     $1 = *$input;
 %#endif
 }
 %typemap(out, noblock=1) MPI_Comm {
-%#ifdef SUNDIALS_MPI_ENABLED
+%#if SUNDIALS_MPI_ENABLED
     $result = %static_cast(MPI_Comm_c2f($1), int);
 %#else
     $result = $1;
@@ -62,10 +62,10 @@
 SWIGEXPORT double * _wrap_FN_VGetArrayPointer_Parallel(N_Vector farg1) {
   double * fresult ;
   N_Vector arg1 = (N_Vector) 0 ;
-  realtype *result = 0 ;
+  sunrealtype *result = 0 ;
   
   arg1 = (N_Vector)(farg1);
-  result = (realtype *)N_VGetArrayPointer_Parallel(arg1);
+  result = (sunrealtype *)N_VGetArrayPointer_Parallel(arg1);
   fresult = result;
   return fresult;
 }

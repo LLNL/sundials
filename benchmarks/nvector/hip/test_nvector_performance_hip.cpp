@@ -30,22 +30,22 @@ static int FinalizeClearCache();
 
 /* private data for clearing cache */
 static sunindextype N;    /* data length */
-static realtype* h_data;  /* host data   */
-static realtype* h_sum;   /* host sum    */
-static realtype* d_data;  /* device data */
-static realtype* d_sum;   /* device sum  */
+static sunrealtype* h_data;  /* host data   */
+static sunrealtype* h_sum;   /* host sum    */
+static sunrealtype* d_data;  /* device data */
+static sunrealtype* d_sum;   /* device sum  */
 static int blocksPerGrid;
 
 /* hip reduction kernel to clearing cache between tests */
 __global__
-void ClearCacheKernel(sunindextype N, realtype* data, realtype* out)
+void ClearCacheKernel(sunindextype N, sunrealtype* data, sunrealtype* out)
 {
-  __shared__ realtype shared[256];
+  __shared__ sunrealtype shared[256];
 
   int sharedidx = blockIdx.x;
   int tid = blockIdx.x * blockDim.x + threadIdx.x;
 
-  realtype tmp = 0;
+  sunrealtype tmp = 0;
   while (tid < N) {
     tmp += data[tid];
     tid += blockDim.x * gridDim.x;
@@ -132,7 +132,7 @@ int main(int argc, char *argv[])
   printf("  number of tests       %d  \n", ntests);
   printf("  timing on/off         %d  \n", print_timing);
 
-  flag = SUNContext_Create(NULL, &ctx);
+  flag = SUNContext_Create(SUN_COMM_NULL, &ctx);
   if (flag) return flag;
 
   /* Create vectors */
@@ -202,7 +202,7 @@ int main(int argc, char *argv[])
  * --------------------------------------------------------------------*/
 
 /* random data between lower and upper */
-void N_VRand(N_Vector Xvec, sunindextype Xlen, realtype lower, realtype upper)
+void N_VRand(N_Vector Xvec, sunindextype Xlen, sunrealtype lower, sunrealtype upper)
 {
   rand_realtype(N_VGetHostArrayPointer_Hip(Xvec), Xlen, lower, upper);
   N_VCopyToDevice_Hip(Xvec);
@@ -249,33 +249,33 @@ static int InitializeClearCache(int cachesize)
   hipError_t err;     /* hip error flag     */
   size_t      nbytes;  /* cache size in bytes */
 
-  /* determine size of vector to clear cache, N = ceil(2 * nbytes/realtype) */
+  /* determine size of vector to clear cache, N = ceil(2 * nbytes/sunrealtype) */
   nbytes = (size_t) (2 * cachesize * 1024 * 1024);
-  N = (sunindextype) ((nbytes + sizeof(realtype) - 1)/sizeof(realtype));
+  N = (sunindextype) ((nbytes + sizeof(sunrealtype) - 1)/sizeof(sunrealtype));
 
   /* allocate host data */
   blocksPerGrid = SUNMIN(32,(N+255)/256);
 
-  h_data = (realtype*) malloc(N*sizeof(realtype));
-  h_sum  = (realtype*) malloc(blocksPerGrid*sizeof(realtype));
+  h_data = (sunrealtype*) malloc(N*sizeof(sunrealtype));
+  h_sum  = (sunrealtype*) malloc(blocksPerGrid*sizeof(sunrealtype));
 
   /* allocate device data */
-  err = hipMalloc((void**) &d_data, N*sizeof(realtype));
+  err = hipMalloc((void**) &d_data, N*sizeof(sunrealtype));
   if (err != hipSuccess) {
     fprintf(stderr,"Failed to allocate device vector (error code %d )!\n",err);
     return(-1);
   }
 
-  err = hipMalloc((void**) &d_sum, blocksPerGrid*sizeof(realtype));
+  err = hipMalloc((void**) &d_sum, blocksPerGrid*sizeof(sunrealtype));
   if (err != hipSuccess) {
     fprintf(stderr,"Failed to allocate device vector (error code %d )!\n",err);
     return(-1);
   }
 
   /* fill host vector with random data and copy to device */
-  rand_realtype(h_data, N, RCONST(-1.0), RCONST(1.0));
+  rand_realtype(h_data, N, SUN_RCONST(-1.0), SUN_RCONST(1.0));
 
-  err = hipMemcpy(d_data, h_data, N*sizeof(realtype), hipMemcpyHostToDevice);
+  err = hipMemcpy(d_data, h_data, N*sizeof(sunrealtype), hipMemcpyHostToDevice);
   if (err != hipSuccess) {
     fprintf(stderr,"Failed to copy data from host to device (error code %d )!\n",err);
     return(-1);
@@ -310,7 +310,7 @@ void ClearCache()
 {
   /* call hip kernel to clear the cache */
   ClearCacheKernel<<<SUNMIN(32,(N+255)/256), 256>>>(N, d_data, d_sum);
-  hipMemcpy(h_sum, d_sum, blocksPerGrid*sizeof(realtype), hipMemcpyDeviceToHost);
+  hipMemcpy(h_sum, d_sum, blocksPerGrid*sizeof(sunrealtype), hipMemcpyDeviceToHost);
   hipDeviceSynchronize();
   return;
 }

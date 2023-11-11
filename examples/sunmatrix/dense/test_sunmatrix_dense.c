@@ -45,14 +45,14 @@ int main(int argc, char *argv[])
   int          fails = 0;        /* counter for test failures  */
   sunindextype matrows, matcols; /* vector length              */
   N_Vector     x, y;             /* test vectors               */
-  realtype     *xdata, *ydata;   /* pointers to vector data    */
+  sunrealtype     *xdata, *ydata;   /* pointers to vector data    */
   SUNMatrix    A, I;             /* test matrices              */
-  realtype     *Adata, *Idata;   /* pointers to matrix data    */
+  sunrealtype     *Adata, *Idata;   /* pointers to matrix data    */
   int          print_timing, square;
   sunindextype i, j, m, n;
   SUNContext   sunctx;
 
-  if (SUNContext_Create(NULL, &sunctx)) {
+  if (SUNContext_Create(SUN_COMM_NULL, &sunctx)) {
     printf("ERROR: SUNContext_Create failed\n");
     return(-1);
   }
@@ -166,10 +166,10 @@ int main(int argc, char *argv[])
 /* ----------------------------------------------------------------------
  * Check matrix
  * --------------------------------------------------------------------*/
-int check_matrix(SUNMatrix A, SUNMatrix B, realtype tol)
+int check_matrix(SUNMatrix A, SUNMatrix B, sunrealtype tol)
 {
   int failure = 0;
-  realtype *Adata, *Bdata;
+  sunrealtype *Adata, *Bdata;
   sunindextype Aldata, Bldata;
   sunindextype i;
 
@@ -197,10 +197,10 @@ int check_matrix(SUNMatrix A, SUNMatrix B, realtype tol)
     return(0);
 }
 
-int check_matrix_entry(SUNMatrix A, realtype val, realtype tol)
+int check_matrix_entry(SUNMatrix A, sunrealtype val, sunrealtype tol)
 {
   int failure = 0;
-  realtype *Adata;
+  sunrealtype *Adata;
   sunindextype Aldata;
   sunindextype i;
 
@@ -227,10 +227,10 @@ int check_matrix_entry(SUNMatrix A, realtype val, realtype tol)
     return(0);
 }
 
-int check_vector(N_Vector x, N_Vector y, realtype tol)
+int check_vector(N_Vector x, N_Vector y, sunrealtype tol)
 {
   int failure = 0;
-  realtype *xdata, *ydata;
+  sunrealtype *xdata, *ydata;
   sunindextype xldata, yldata;
   sunindextype i;
 
@@ -265,16 +265,16 @@ int check_vector(N_Vector x, N_Vector y, realtype tol)
     return(0);
 }
 
-booleantype has_data(SUNMatrix A)
+sunbooleantype has_data(SUNMatrix A)
 {
-  realtype *Adata = SUNDenseMatrix_Data(A);
+  sunrealtype *Adata = SUNDenseMatrix_Data(A);
   if (Adata == NULL)
     return SUNFALSE;
   else
     return SUNTRUE;
 }
 
-booleantype is_square(SUNMatrix A)
+sunbooleantype is_square(SUNMatrix A)
 {
   if (SUNDenseMatrix_Rows(A) == SUNDenseMatrix_Columns(A))
     return SUNTRUE;

@@ -84,7 +84,7 @@ operations below.
 
    Returns storage requirements for the ``N_Vector`` *v*:
 
-   * *lrw* contains the number of ``realtype`` words
+   * *lrw* contains the number of ``sunrealtype`` words
    * *liw* contains the number of integer words.
 
    This function is advisory only, for use in
@@ -99,11 +99,11 @@ operations below.
       N_VSpace(nvSpec, &lrw, &liw);
 
 
-.. c:function:: realtype* N_VGetArrayPointer(N_Vector v)
+.. c:function:: sunrealtype* N_VGetArrayPointer(N_Vector v)
 
-   Returns a pointer to a ``realtype`` array from the ``N_Vector``
+   Returns a pointer to a ``sunrealtype`` array from the ``N_Vector``
    *v*.  Note that this assumes that the internal data in the
-   ``N_Vector`` is a contiguous array of ``realtype`` and is
+   ``N_Vector`` is a contiguous array of ``sunrealtype`` and is
    accesible from the CPU.
 
    This routine is
@@ -119,11 +119,11 @@ operations below.
       vdata = N_VGetArrayPointer(v);
 
 
-.. c:function:: realtype* N_VGetDeviceArrayPointer(N_Vector v)
+.. c:function:: sunrealtype* N_VGetDeviceArrayPointer(N_Vector v)
 
-   Returns a device pointer to a ``realtype`` array from the ``N_Vector``
+   Returns a device pointer to a ``sunrealtype`` array from the ``N_Vector``
    ``v``. Note that this assumes that the internal data in ``N_Vector`` is a
-   contiguous array of ``realtype`` and is accessible from the device (e.g.,
+   contiguous array of ``sunrealtype`` and is accessible from the device (e.g.,
    GPU).
 
    This operation is *optional* except when using the GPU-enabled direct
@@ -136,12 +136,12 @@ operations below.
       vdata = N_VGetArrayPointer(v);
 
 
-.. c:function:: void N_VSetArrayPointer(realtype* vdata, N_Vector v)
+.. c:function:: void N_VSetArrayPointer(sunrealtype* vdata, N_Vector v)
 
    Replaces the data array pointer in an ``N_Vector`` with a given
-   array of ``realtype``.  Note that this assumes that the internal
+   array of ``sunrealtype``.  Note that this assumes that the internal
    data in the ``N_Vector`` is a contiguous array of
-   ``realtype``. This routine is only used in the interfaces to the
+   ``sunrealtype``. This routine is only used in the interfaces to the
    dense (serial) linear solver, hence need not exist in a
    user-supplied NVECTOR module.
 
@@ -152,17 +152,20 @@ operations below.
       N_VSetArrayPointer(vdata,v);
 
 
-.. c:function:: void* N_VGetCommunicator(N_Vector v)
+.. c:function:: SUNComm N_VGetCommunicator(N_Vector v)
 
-   Returns a pointer to the ``MPI_Comm`` object associated with the
-   vector (if applicable).  For MPI-unaware vector implementations, this
-   should return ``NULL``.
+   Returns the ``SUNComm`` (which is just an ``MPI_Comm`` when SUNDIALS is built
+   with MPI, otherwise it is an ``int``) associated with the vector (if
+   applicable).  For MPI-unaware vector implementations, this should return
+   ``SUN_COMM_NULL``.
 
    Usage:
 
    .. code-block:: c
 
-      commptr = N_VGetCommunicator(v);
+      MPI_Comm comm = N_VGetCommunicator(v); // Works if MPI is enabled
+      int comm = N_VGetCommunicator(v);      // Works if MPI is disabled
+      SUNComm = N_VGetCommunicator(v);      // Works with or without MPI
 
 
 .. c:function:: sunindextype N_VGetLength(N_Vector v)
@@ -193,10 +196,10 @@ operations below.
       local_length = N_VGetLocalLength(v);
 
 
-.. c:function:: void N_VLinearSum(realtype a, N_Vector x, realtype b, N_Vector y, N_Vector z)
+.. c:function:: void N_VLinearSum(sunrealtype a, N_Vector x, sunrealtype b, N_Vector y, N_Vector z)
 
    Performs the operation *z = ax + by*, where *a* and *b* are
-   ``realtype`` scalars and *x* and *y* are of type ``N_Vector``:
+   ``sunrealtype`` scalars and *x* and *y* are of type ``N_Vector``:
 
    .. math::
       z_i = a x_i + b y_i, \quad i=0,\ldots,n-1.
@@ -211,9 +214,9 @@ operations below.
       N_VLinearSum(a, x, b, y, z);
 
 
-.. c:function:: void N_VConst(realtype c, N_Vector z)
+.. c:function:: void N_VConst(sunrealtype c, N_Vector z)
 
-   Sets all components of the ``N_Vector`` *z* to ``realtype`` *c*:
+   Sets all components of the ``N_Vector`` *z* to ``sunrealtype`` *c*:
 
    .. math::
       z_i = c, \quad i=0,\ldots,n-1.
@@ -258,9 +261,9 @@ operations below.
       N_VDiv(x, y, z);
 
 
-.. c:function:: void N_VScale(realtype c, N_Vector x, N_Vector z)
+.. c:function:: void N_VScale(sunrealtype c, N_Vector x, N_Vector z)
 
-   Scales the ``N_Vector`` *x* by the ``realtype`` scalar *c* and
+   Scales the ``N_Vector`` *x* by the ``sunrealtype`` scalar *c* and
    returns the result in *z*:
 
    .. math::
@@ -306,9 +309,9 @@ operations below.
       N_VInv(x, z);
 
 
-.. c:function:: void N_VAddConst(N_Vector x, realtype b, N_Vector z)
+.. c:function:: void N_VAddConst(N_Vector x, sunrealtype b, N_Vector z)
 
-   Adds the ``realtype`` scalar *b* to all components of *x* and
+   Adds the ``sunrealtype`` scalar *b* to all components of *x* and
    returns the result in the ``N_Vector`` *z*:
 
    .. math::
@@ -321,7 +324,7 @@ operations below.
       N_VAddConst(x, b, z);
 
 
-.. c:function:: realtype N_VDotProd(N_Vector x, N_Vector z)
+.. c:function:: sunrealtype N_VDotProd(N_Vector x, N_Vector z)
 
    Returns the value of the dot-product of the ``N_Vectors`` *x* and *y*:
 
@@ -335,7 +338,7 @@ operations below.
       d = N_VDotProd(x, y);
 
 
-.. c:function:: realtype N_VMaxNorm(N_Vector x)
+.. c:function:: sunrealtype N_VMaxNorm(N_Vector x)
 
    Returns the value of the :math:`l_{\infty}` norm of the
    ``N_Vector`` *x*:
@@ -350,10 +353,10 @@ operations below.
       m = N_VMaxNorm(x);
 
 
-.. c:function:: realtype N_VWrmsNorm(N_Vector x, N_Vector w)
+.. c:function:: sunrealtype N_VWrmsNorm(N_Vector x, N_Vector w)
 
    Returns the weighted root-mean-square norm of the ``N_Vector`` *x*
-   with (positive) ``realtype`` weight vector *w*:
+   with (positive) ``sunrealtype`` weight vector *w*:
 
    .. math::
       m = \sqrt{\left( \sum_{i=0}^{n-1} (x_i w_i)^2 \right) / n}
@@ -365,10 +368,10 @@ operations below.
       m = N_VWrmsNorm(x, w);
 
 
-.. c:function:: realtype N_VWrmsNormMask(N_Vector x, N_Vector w, N_Vector id)
+.. c:function:: sunrealtype N_VWrmsNormMask(N_Vector x, N_Vector w, N_Vector id)
 
    Returns the weighted root mean square norm of the ``N_Vector`` *x*
-   with ``realtype`` weight vector *w* built using only the
+   with ``sunrealtype`` weight vector *w* built using only the
    elements of *x* corresponding to positive elements of the
    ``N_Vector`` *id*:
 
@@ -383,7 +386,7 @@ operations below.
 
       m = N_VWrmsNormMask(x, w, id);
 
-.. c:function:: realtype N_VMin(N_Vector x)
+.. c:function:: sunrealtype N_VMin(N_Vector x)
 
    Returns the smallest element of the ``N_Vector`` *x*:
 
@@ -396,10 +399,10 @@ operations below.
 
       m = N_VMin(x);
 
-.. c:function:: realtype N_VWl2Norm(N_Vector x, N_Vector w)
+.. c:function:: sunrealtype N_VWl2Norm(N_Vector x, N_Vector w)
 
    Returns the weighted Euclidean :math:`l_2` norm of the ``N_Vector``
-   *x* with ``realtype`` weight vector *w*:
+   *x* with ``sunrealtype`` weight vector *w*:
 
    .. math::
       m = \sqrt{\sum_{i=0}^{n-1}\left(x_i w_i\right)^2}.
@@ -410,7 +413,7 @@ operations below.
 
       m = N_VWL2Norm(x, w);
 
-.. c:function:: realtype N_VL1Norm(N_Vector x)
+.. c:function:: sunrealtype N_VL1Norm(N_Vector x)
 
    Returns the :math:`l_1` norm of the ``N_Vector`` *x*:
 
@@ -424,9 +427,9 @@ operations below.
       m = N_VL1Norm(x);
 
 
-.. c:function:: void N_VCompare(realtype c, N_Vector x, N_Vector z)
+.. c:function:: void N_VCompare(sunrealtype c, N_Vector x, N_Vector z)
 
-   Compares the components of the ``N_Vector`` *x* to the ``realtype``
+   Compares the components of the ``N_Vector`` *x* to the ``sunrealtype``
    scalar *c* and returns an ``N_Vector`` *z* such that for all
    :math:`0\le i< n`,
 
@@ -440,7 +443,7 @@ operations below.
 
       N_VCompare(c, x, z);
 
-.. c:function:: booleantype N_VInvTest(N_Vector x, N_Vector z)
+.. c:function:: sunbooleantype N_VInvTest(N_Vector x, N_Vector z)
 
    Sets the components of the ``N_Vector`` *z* to be the inverses of
    the components of the ``N_Vector`` *x*, with prior testing for
@@ -459,7 +462,7 @@ operations below.
 
       t = N_VInvTest(x, z);
 
-.. c:function:: booleantype N_VConstrMask(N_Vector c, N_Vector x, N_Vector m)
+.. c:function:: sunbooleantype N_VConstrMask(N_Vector c, N_Vector x, N_Vector m)
 
    Performs the following constraint tests based on the values in
    :math:`c_i`:
@@ -485,7 +488,7 @@ operations below.
 
       t = N_VConstrMask(c, x, m);
 
-.. c:function:: realtype N_VMinQuotient(N_Vector num, N_Vector denom)
+.. c:function:: sunrealtype N_VMinQuotient(N_Vector num, N_Vector denom)
 
    This routine returns the minimum of the quotients obtained by
    termwise dividing the elements of *n* by the elements in *d*:
@@ -494,7 +497,7 @@ operations below.
       \min_{0\le i< n} \frac{\text{num}_i}{\text{denom}_i}.
 
    A zero element in *denom* will be skipped.  If no such quotients
-   are found, then the large value ``BIG_REAL`` (defined in the header
+   are found, then the large value ``SUN_BIG_REAL`` (defined in the header
    file ``sundials_types.h``) is returned.
 
    Usage:
@@ -521,7 +524,7 @@ the name, usage of the function, and a description of its mathematical
 operations below.
 
 
-.. c:function:: int N_VLinearCombination(int nv, realtype* c, N_Vector* X, N_Vector z)
+.. c:function:: int N_VLinearCombination(int nv, sunrealtype* c, N_Vector* X, N_Vector z)
 
    This routine computes the linear combination of *nv* vectors with :math:`n` elements:
 
@@ -541,7 +544,7 @@ operations below.
       retval = N_VLinearCombination(nv, c, X, z);
 
 
-.. c:function:: int N_VScaleAddMulti(int nv, realtype* c, N_Vector x, N_Vector* Y, N_Vector* Z)
+.. c:function:: int N_VScaleAddMulti(int nv, sunrealtype* c, N_Vector x, N_Vector* Y, N_Vector* Z)
 
    This routine scales and adds one vector to *nv* vectors with :math:`n` elements:
 
@@ -560,7 +563,7 @@ operations below.
       retval = N_VScaleAddMulti(nv, c, x, Y, Z);
 
 
-.. c:function:: int N_VDotProdMulti(int nv, N_Vector x, N_Vector* Y, realtype* d)
+.. c:function:: int N_VDotProdMulti(int nv, N_Vector x, N_Vector* Y, sunrealtype* d)
 
    This routine computes the dot product of a vector with *nv* vectors
    having :math:`n` elements:
@@ -596,7 +599,7 @@ operation, we give the name, usage of the function, and a description
 of its mathematical operations below.
 
 
-.. c:function:: int N_VLinearSumVectorArray(int nv, realtype a, N_Vector X, realtype b, N_Vector* Y, N_Vector* Z)
+.. c:function:: int N_VLinearSumVectorArray(int nv, sunrealtype a, N_Vector X, sunrealtype b, N_Vector* Y, N_Vector* Z)
 
    This routine computes the linear sum of two vector arrays of *nv* vectors with :math:`n` elements:
 
@@ -615,7 +618,7 @@ of its mathematical operations below.
       retval = N_VLinearSumVectorArray(nv, a, X, b, Y, Z);
 
 
-.. c:function:: int N_VScaleVectorArray(int nv, realtype* c, N_Vector* X, N_Vector* Z)
+.. c:function:: int N_VScaleVectorArray(int nv, sunrealtype* c, N_Vector* X, N_Vector* Z)
 
    This routine scales each element in a vector of :math:`n` elements
    in a vector array of *nv* vectors by a potentially different constant:
@@ -634,7 +637,7 @@ of its mathematical operations below.
       retval = N_VScaleVectorArray(nv, c, X, Z);
 
 
-.. c:function:: int N_VConstVectorArray(int nv, realtype c, N_Vector* Z)
+.. c:function:: int N_VConstVectorArray(int nv, sunrealtype c, N_Vector* Z)
 
    This routine sets each element in a vector of :math:`n` elements in
    a vector array of *nv* vectors to the same value:
@@ -652,7 +655,7 @@ of its mathematical operations below.
       retval = N_VConstVectorArray(nv, c, Z);
 
 
-.. c:function:: int N_VWrmsNormVectorArray(int nv, N_Vector* X, N_Vector* W, realtype* m)
+.. c:function:: int N_VWrmsNormVectorArray(int nv, N_Vector* X, N_Vector* W, sunrealtype* m)
 
    This routine computes the weighted root mean square norm of each
    vector in a vector array:
@@ -672,7 +675,7 @@ of its mathematical operations below.
       retval = N_VWrmsNormVectorArray(nv, X, W, m);
 
 
-.. c:function:: int N_VWrmsNormMaskVectorArray(int nv, N_Vector* X, N_Vector* W, N_Vector id, realtype* m)
+.. c:function:: int N_VWrmsNormMaskVectorArray(int nv, N_Vector* X, N_Vector* W, N_Vector id, sunrealtype* m)
 
    This routine computes the masked weighted root mean square norm of
    each vector in a vector array:
@@ -694,7 +697,7 @@ of its mathematical operations below.
       retval = N_VWrmsNormMaskVectorArray(nv, X, W, id, m);
 
 
-.. c:function:: int N_VScaleAddMultiVectorArray(int nv, int nsum, realtype* c, N_Vector* X, N_Vector** YY, N_Vector** ZZ)
+.. c:function:: int N_VScaleAddMultiVectorArray(int nv, int nsum, sunrealtype* c, N_Vector* X, N_Vector** YY, N_Vector** ZZ)
 
    This routine scales and adds a vector array of *nv* vectors to
    *nsum* other vector arrays:
@@ -715,7 +718,7 @@ of its mathematical operations below.
       retval = N_VScaleAddMultiVectorArray(nv, nsum, c, x, YY, ZZ);
 
 
-.. c:function:: int N_VLinearCombinationVectorArray(int nv, int nsum, realtype* c, N_Vector** XX, N_Vector* Z)
+.. c:function:: int N_VLinearCombinationVectorArray(int nv, int nsum, sunrealtype* c, N_Vector** XX, N_Vector* Z)
 
    This routine computes the linear combination of *nsum* vector
    arrays containing *nv* vectors:
@@ -752,7 +755,7 @@ the name, usage of the function, and a description of its mathematical
 operations below.
 
 
-.. c:function:: realtype N_VDotProdLocal(N_Vector x, N_Vector y)
+.. c:function:: sunrealtype N_VDotProdLocal(N_Vector x, N_Vector y)
 
    This routine computes the MPI task-local portion of the ordinary
    dot product of *x* and *y*:
@@ -771,7 +774,7 @@ operations below.
       d = N_VDotProdLocal(x, y);
 
 
-.. c:function:: realtype N_VMaxNormLocal(N_Vector x)
+.. c:function:: sunrealtype N_VMaxNormLocal(N_Vector x)
 
    This routine computes the MPI task-local portion of the maximum
    norm of the NVECTOR *x*:
@@ -790,7 +793,7 @@ operations below.
       m = N_VMaxNormLocal(x);
 
 
-.. c:function:: realtype N_VMinLocal(N_Vector x)
+.. c:function:: sunrealtype N_VMinLocal(N_Vector x)
 
    This routine computes the smallest element of the MPI task-local
    portion of the NVECTOR *x*:
@@ -809,7 +812,7 @@ operations below.
       m = N_VMinLocal(x);
 
 
-.. c:function:: realtype N_VL1NormLocal(N_Vector x)
+.. c:function:: sunrealtype N_VL1NormLocal(N_Vector x)
 
    This routine computes the MPI task-local portion of the :math:`l_1`
    norm of the ``N_Vector`` *x*:
@@ -828,7 +831,7 @@ operations below.
       n = N_VL1NormLocal(x);
 
 
-.. c:function:: realtype N_VWSqrSumLocal(N_Vector x, N_Vector w)
+.. c:function:: sunrealtype N_VWSqrSumLocal(N_Vector x, N_Vector w)
 
    This routine computes the MPI task-local portion of the weighted
    squared sum of the NVECTOR *x* with weight vector *w*:
@@ -847,7 +850,7 @@ operations below.
       s = N_VWSqrSumLocal(x, w);
 
 
-.. c:function:: realtype N_VWSqrSumMaskLocal(N_Vector x, N_Vector w, N_Vector id)
+.. c:function:: sunrealtype N_VWSqrSumMaskLocal(N_Vector x, N_Vector w, N_Vector id)
 
    This routine computes the MPI task-local portion of the weighted
    squared sum of the NVECTOR *x* with weight vector *w* built using
@@ -872,7 +875,7 @@ operations below.
       s = N_VWSqrSumMaskLocal(x, w, id);
 
 
-.. c:function:: booleantype N_VInvTestLocal(N_Vector x)
+.. c:function:: sunbooleantype N_VInvTestLocal(N_Vector x)
 
    This routine sets the MPI task-local components of the
    NVECTOR *z* to be the inverses of the components of the NVECTOR
@@ -894,7 +897,7 @@ operations below.
       t = N_VInvTestLocal(x);
 
 
-.. c:function:: booleantype N_VConstrMaskLocal(N_Vector c, N_Vector x, N_Vector m)
+.. c:function:: sunbooleantype N_VConstrMaskLocal(N_Vector c, N_Vector x, N_Vector m)
 
    Performs the following constraint tests based on the values in
    :math:`c_i`:
@@ -922,13 +925,13 @@ operations below.
       t = N_VConstrMaskLocal(c, x, m);
 
 
-.. c:function:: realtype N_VMinQuotientLocal(N_Vector num, N_Vector denom)
+.. c:function:: sunrealtype N_VMinQuotientLocal(N_Vector num, N_Vector denom)
 
    This routine returns the minimum of the quotients obtained by
    term-wise dividing :math:`num_i` by :math:`denom_i`, for all MPI
    task-local components of the vectors.  A zero element in *denom*
    will be skipped. If no such quotients are found, then the large value
-   ``BIG_REAL`` (defined in the header file ``sundials_types.h``)
+   ``SUN_BIG_REAL`` (defined in the header file ``sundials_types.h``)
    is returned.
 
    Usage:
@@ -950,7 +953,7 @@ orthogonalization methods to reduce the number of MPI ``Allreduce`` calls. If a
 particular NVECTOR implementation does not define these operations additional
 communication will be required.
 
-.. c:function:: int N_VDotProdMultiLocal(int nv, N_Vector x, N_Vector* Y, realtype* d)
+.. c:function:: int N_VDotProdMultiLocal(int nv, N_Vector x, N_Vector* Y, sunrealtype* d)
 
    This routine computes the MPI task-local portion of the dot product of a
    vector :math:`x` with *nv* vectors :math:`y_j`:
@@ -971,7 +974,7 @@ communication will be required.
       retval = N_VDotProdMultiLocal(nv, x, Y, d);
 
 
-.. c:function:: int N_VDotProdMultiAllReduce(int nv, N_Vector x, realtype* d)
+.. c:function:: int N_VDotProdMultiAllReduce(int nv, N_Vector x, sunrealtype* d)
 
    This routine combines the MPI task-local portions of the dot product of a
    vector :math:`x` with *nv* vectors:

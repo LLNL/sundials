@@ -36,32 +36,32 @@
 #include <nvector/nvector_serial.h>    /* access to serial N_Vector            */
 #include <sunmatrix/sunmatrix_dense.h> /* access to dense SUNMatrix            */
 #include <sunlinsol/sunlinsol_dense.h> /* access to dense SUNLinearSolver      */
-#include <sundials/sundials_types.h>   /* defs. of realtype, sunindextype      */
+#include <sundials/sundials_types.h>   /* defs. of sunrealtype, sunindextype      */
 
 /* Problem Constants */
 
 #define NEQ   3                /* number of equations  */
-#define Y1    RCONST(1.0)      /* initial y components */
-#define Y2    RCONST(0.0)
-#define Y3    RCONST(0.0)
-#define RTOL  RCONST(1.0e-4)   /* scalar relative tolerance            */
-#define ATOL1 RCONST(1.0e-7)   /* vector absolute tolerance components */
-#define ATOL2 RCONST(1.0e-13)
-#define ATOL3 RCONST(1.0e-5)
-#define T0    RCONST(0.0)      /* initial time           */
-#define T1    RCONST(0.4)      /* first output time      */
-#define TMULT RCONST(10.0)     /* output time factor     */
+#define Y1    SUN_RCONST(1.0)      /* initial y components */
+#define Y2    SUN_RCONST(0.0)
+#define Y3    SUN_RCONST(0.0)
+#define RTOL  SUN_RCONST(1.0e-4)   /* scalar relative tolerance            */
+#define ATOL1 SUN_RCONST(1.0e-7)   /* vector absolute tolerance components */
+#define ATOL2 SUN_RCONST(1.0e-13)
+#define ATOL3 SUN_RCONST(1.0e-5)
+#define T0    SUN_RCONST(0.0)      /* initial time           */
+#define T1    SUN_RCONST(0.4)      /* first output time      */
+#define TMULT SUN_RCONST(10.0)     /* output time factor     */
 #define NOUT  14               /* number of output times */
 
-#define ZERO  RCONST(0.0)
+#define ZERO  SUN_RCONST(0.0)
 
 /* Functions Called by the Solver */
 
-static int f(realtype t, N_Vector y, N_Vector ydot, void *user_data);
+static int f(sunrealtype t, N_Vector y, N_Vector ydot, void *user_data);
 
 /* Private functions to output results */
 
-static void PrintOutput(realtype t, realtype y1, realtype y2, realtype y3);
+static void PrintOutput(sunrealtype t, sunrealtype y1, sunrealtype y2, sunrealtype y3);
 
 /* Private function to print final statistics */
 
@@ -81,14 +81,14 @@ static int check_retval(void *returnvalue, const char *funcname, int opt);
 int main()
 {
   SUNContext sunctx;
-  realtype t, tout;
+  sunrealtype t, tout;
   N_Vector y;
   N_Vector abstol;
   SUNMatrix A;
   SUNLinearSolver LS;
   void *cvode_mem;
   int retval, iout;
-  booleantype check_negative;
+  sunbooleantype check_negative;
 
   y = NULL;
   abstol = NULL;
@@ -97,7 +97,7 @@ int main()
   cvode_mem = NULL;
 
   /* Create the SUNDIALS context */
-  retval = SUNContext_Create(NULL, &sunctx);
+  retval = SUNContext_Create(SUN_COMM_NULL, &sunctx);
   if (check_retval(&retval, "SUNContext_Create", 1)) return(1);
 
   /* Initial conditions */
@@ -206,20 +206,20 @@ int main()
  * f routine. Compute function f(t,y).
  */
 
-static int f(realtype t, N_Vector y, N_Vector ydot, void *user_data)
+static int f(sunrealtype t, N_Vector y, N_Vector ydot, void *user_data)
 {
-  realtype y1, y2, y3, yd1, yd3;
-  booleantype *check_negative;
+  sunrealtype y1, y2, y3, yd1, yd3;
+  sunbooleantype *check_negative;
 
-  check_negative = (booleantype *)user_data;
+  check_negative = (sunbooleantype *)user_data;
 
   y1 = NV_Ith_S(y,0); y2 = NV_Ith_S(y,1); y3 = NV_Ith_S(y,2);
 
   if ( *check_negative && (y1<0 || y2<0 || y3<0) )
     return(1);
 
-  yd1 = NV_Ith_S(ydot,0) = RCONST(-0.04)*y1 + RCONST(1.0e4)*y2*y3;
-  yd3 = NV_Ith_S(ydot,2) = RCONST(3.0e7)*y2*y2;
+  yd1 = NV_Ith_S(ydot,0) = SUN_RCONST(-0.04)*y1 + SUN_RCONST(1.0e4)*y2*y3;
+  yd3 = NV_Ith_S(ydot,2) = SUN_RCONST(3.0e7)*y2*y2;
         NV_Ith_S(ydot,1) = -yd1 - yd3;
 
   return(0);
@@ -231,7 +231,7 @@ static int f(realtype t, N_Vector y, N_Vector ydot, void *user_data)
  *-------------------------------
  */
 
-static void PrintOutput(realtype t, realtype y1, realtype y2, realtype y3)
+static void PrintOutput(sunrealtype t, sunrealtype y1, sunrealtype y2, sunrealtype y3)
 {
 #if defined(SUNDIALS_EXTENDED_PRECISION)
   printf("At t = %0.4Le      y =%14.6Le  %14.6Le  %14.6Le\n", t, y1, y2, y3);

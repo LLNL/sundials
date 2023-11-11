@@ -91,7 +91,7 @@
 #include <nvector/nvector_parallel.h>  /* access to MPI parallel N_Vector      */
 #include <sunlinsol/sunlinsol_spgmr.h> /* access to SPGMR SUNLinearSolver      */
 #include <sundials/sundials_dense.h>   /* use generic dense solver in precond. */
-#include <sundials/sundials_types.h>   /* defs. of realtype, sunindextype      */
+#include <sundials/sundials_types.h>   /* defs. of sunrealtype, sunindextype      */
 
 #include <mpi.h>
 
@@ -106,7 +106,7 @@
 #define NUM_SPECIES     6  /* must equal 2*(number of prey or predators)
                               number of prey = number of predators       */
 
-#define PI       RCONST(3.1415926535898)   /* pi */
+#define PI       SUN_RCONST(3.1415926535898)   /* pi */
 
 #define NPEX        2            /* number of processors in the x-direction  */
 #define NPEY        2            /* number of processors in the y-direction  */
@@ -117,22 +117,22 @@
 #define NSMXSUB     (NUM_SPECIES * MXSUB)
 #define NSMXSUB2    (NUM_SPECIES * (MXSUB+2))
 #define NEQ         (NUM_SPECIES*MX*MY)  /* number of equations in the system */
-#define AA          RCONST(1.0)    /* value of coefficient AA in above eqns */
-#define EE          RCONST(10000.) /* value of coefficient EE in above eqns */
-#define GG          RCONST(0.5e-6) /* value of coefficient GG in above eqns */
-#define BB          RCONST(1.0)    /* value of coefficient BB in above eqns */
-#define DPREY       RCONST(1.0)    /* value of coefficient dprey above */
-#define DPRED       RCONST(0.5)    /* value of coefficient dpred above */
-#define ALPHA       RCONST(1.0)    /* value of coefficient alpha above */
-#define AX          RCONST(1.0)    /* total range of x variable */
-#define AY          RCONST(1.0)    /* total range of y variable */
-#define FTOL        RCONST(1.e-7)  /* ftol tolerance */
-#define STOL        RCONST(1.e-13) /* stol tolerance */
-#define THOUSAND    RCONST(1000.0) /* one thousand */
-#define ZERO        RCONST(0.0)    /* 0. */
-#define ONE         RCONST(1.0)    /* 1. */
-#define PREYIN      RCONST(1.0)    /* initial guess for prey concentrations. */
-#define PREDIN      RCONST(30000.0)/* initial guess for predator concs.      */
+#define AA          SUN_RCONST(1.0)    /* value of coefficient AA in above eqns */
+#define EE          SUN_RCONST(10000.) /* value of coefficient EE in above eqns */
+#define GG          SUN_RCONST(0.5e-6) /* value of coefficient GG in above eqns */
+#define BB          SUN_RCONST(1.0)    /* value of coefficient BB in above eqns */
+#define DPREY       SUN_RCONST(1.0)    /* value of coefficient dprey above */
+#define DPRED       SUN_RCONST(0.5)    /* value of coefficient dpred above */
+#define ALPHA       SUN_RCONST(1.0)    /* value of coefficient alpha above */
+#define AX          SUN_RCONST(1.0)    /* total range of x variable */
+#define AY          SUN_RCONST(1.0)    /* total range of y variable */
+#define FTOL        SUN_RCONST(1.e-7)  /* ftol tolerance */
+#define STOL        SUN_RCONST(1.e-13) /* stol tolerance */
+#define THOUSAND    SUN_RCONST(1000.0) /* one thousand */
+#define ZERO        SUN_RCONST(0.0)    /* 0. */
+#define ONE         SUN_RCONST(1.0)    /* 1. */
+#define PREYIN      SUN_RCONST(1.0)    /* initial guess for prey concentrations. */
+#define PREDIN      SUN_RCONST(30000.0)/* initial guess for predator concs.      */
 
 /* User-defined vector access macro: IJ_Vptr */
 
@@ -147,15 +147,15 @@
    contains preconditioner blocks, pivot arrays, and problem constants */
 
 typedef struct {
-  realtype **P[MXSUB][MYSUB];
+  sunrealtype **P[MXSUB][MYSUB];
   sunindextype *pivot[MXSUB][MYSUB];
-  realtype **acoef, *bcoef;
+  sunrealtype **acoef, *bcoef;
   N_Vector rates;
-  realtype *cox, *coy;
-  realtype ax, ay, dx, dy;
-  realtype uround, sqruround;
+  sunrealtype *cox, *coy;
+  sunrealtype ax, ay, dx, dy;
+  sunrealtype uround, sqruround;
   int mx, my, ns, np;
-  realtype cext[NUM_SPECIES * (MXSUB+2)*(MYSUB+2)];
+  sunrealtype cext[NUM_SPECIES * (MXSUB+2)*(MYSUB+2)];
   int my_pe, isubx, isuby, nsmxsub, nsmxsub2;
   MPI_Comm comm;
 } *UserData;
@@ -179,23 +179,23 @@ static void InitUserData(int my_pe, MPI_Comm comm, UserData data);
 static void FreeUserData(UserData data);
 static void SetInitialProfiles(N_Vector cc, N_Vector sc);
 static void PrintHeader(int globalstrategy, int maxl, int maxlrst,
-                        realtype fnormtol, realtype scsteptol);
+                        sunrealtype fnormtol, sunrealtype scsteptol);
 static void PrintOutput(int my_pe, MPI_Comm comm, N_Vector cc);
 static void PrintFinalStats(void *kmem);
-static void WebRate(realtype xx, realtype yy, realtype *cxy, realtype *ratesxy,
+static void WebRate(sunrealtype xx, sunrealtype yy, sunrealtype *cxy, sunrealtype *ratesxy,
                     void *user_data);
-static realtype DotProd(int size, realtype *x1, realtype *x2);
+static sunrealtype DotProd(int size, sunrealtype *x1, sunrealtype *x2);
 static void BSend(MPI_Comm comm, int my_pe, int isubx,
                   int isuby, int dsizex,
-                  int dsizey, realtype *cdata);
+                  int dsizey, sunrealtype *cdata);
 static void BRecvPost(MPI_Comm comm, MPI_Request request[], int my_pe,
                       int isubx, int isuby,
                       int dsizex, int dsizey,
-                      realtype *cext, realtype *buffer);
+                      sunrealtype *cext, sunrealtype *buffer);
 static void BRecvWait(MPI_Request request[], int isubx,
-                      int isuby, int dsizex, realtype *cext,
-                      realtype *buffer);
-static void ccomm(realtype *cdata, UserData data);
+                      int isuby, int dsizex, sunrealtype *cext,
+                      sunrealtype *buffer);
+static void ccomm(sunrealtype *cdata, UserData data);
 static void fcalcprpr(N_Vector cc, N_Vector fval,void *user_data);
 static int check_retval(void *retvalvalue, const char *funcname, int opt, int id);
 
@@ -210,7 +210,7 @@ int main(int argc, char *argv[])
   SUNContext sunctx;
   int globalstrategy;
   sunindextype local_N;
-  realtype fnormtol, scsteptol;
+  sunrealtype fnormtol, scsteptol;
   N_Vector cc, sc, constraints;
   UserData data;
   int retval, maxl, maxlrst;
@@ -239,7 +239,7 @@ int main(int argc, char *argv[])
   }
 
   /* Create the SUNDIALS context that all SUNDIALS objects require */
-  retval = SUNContext_Create(&comm, &sunctx);
+  retval = SUNContext_Create(comm, &sunctx);
   if (check_retval(&retval, "SUNContext_Create", 1, my_pe)) MPI_Abort(comm, 1);
 
   /* Allocate memory, and set problem data, initial values, tolerances */
@@ -364,7 +364,7 @@ int main(int argc, char *argv[])
 
 static int funcprpr(N_Vector cc, N_Vector fval, void *user_data)
 {
-  realtype *cdata;
+  sunrealtype *cdata;
   UserData data;
 
   cdata = N_VGetArrayPointer(cc);
@@ -387,8 +387,8 @@ static int Precondbd(N_Vector cc, N_Vector cscale,
                      N_Vector fval, N_Vector fscale,
                      void *user_data)
 {
-  realtype r, r0, uround, sqruround, xx, yy, delx, dely, csave, fac;
-  realtype *cxy, *scxy, **Pxy, *ratesxy, *Pxycol, perturb_rates[NUM_SPECIES];
+  sunrealtype r, r0, uround, sqruround, xx, yy, delx, dely, csave, fac;
+  sunrealtype *cxy, *scxy, **Pxy, *ratesxy, *Pxycol, perturb_rates[NUM_SPECIES];
   int i, j, jx, jy;
   sunindextype ret;
   UserData data;
@@ -453,7 +453,7 @@ static int PSolvebd(N_Vector cc, N_Vector cscale,
                     N_Vector fval, N_Vector fscale,
                     N_Vector vv, void *user_data)
 {
-  realtype **Pxy, *vxy;
+  sunrealtype **Pxy, *vxy;
   sunindextype *piv, jx, jy;
   UserData data;
 
@@ -483,11 +483,11 @@ static int PSolvebd(N_Vector cc, N_Vector cscale,
  * Interaction rate function routine
  */
 
-static void WebRate(realtype xx, realtype yy, realtype *cxy, realtype *ratesxy,
+static void WebRate(sunrealtype xx, sunrealtype yy, sunrealtype *cxy, sunrealtype *ratesxy,
                     void *user_data)
 {
   int i;
-  realtype fac;
+  sunrealtype fac;
   UserData data;
 
   data = (UserData) user_data;
@@ -502,13 +502,13 @@ static void WebRate(realtype xx, realtype yy, realtype *cxy, realtype *ratesxy,
 }
 
 /*
- * Dot product routine for realtype arrays
+ * Dot product routine for sunrealtype arrays
  */
 
-static realtype DotProd(int size, realtype *x1, realtype *x2)
+static sunrealtype DotProd(int size, sunrealtype *x1, sunrealtype *x2)
 {
   int i;
-  realtype *xx1, *xx2, temp = ZERO;
+  sunrealtype *xx1, *xx2, temp = ZERO;
 
   xx1 = x1; xx2 = x2;
   for (i = 0; i < size; i++) temp += (*xx1++) * (*xx2++);
@@ -541,9 +541,9 @@ static UserData AllocUserData(void)
   }
 
   acoef = SUNDlsMat_newDenseMat(NUM_SPECIES, NUM_SPECIES);
-  bcoef = (realtype *)malloc(NUM_SPECIES * sizeof(realtype));
-  cox   = (realtype *)malloc(NUM_SPECIES * sizeof(realtype));
-  coy   = (realtype *)malloc(NUM_SPECIES * sizeof(realtype));
+  bcoef = (sunrealtype *)malloc(NUM_SPECIES * sizeof(sunrealtype));
+  cox   = (sunrealtype *)malloc(NUM_SPECIES * sizeof(sunrealtype));
+  coy   = (sunrealtype *)malloc(NUM_SPECIES * sizeof(sunrealtype));
 
   return(data);
 }
@@ -555,7 +555,7 @@ static UserData AllocUserData(void)
 static void InitUserData(int my_pe, MPI_Comm comm, UserData data)
 {
   int i, j, np;
-  realtype *a1,*a2, *a3, *a4, dx2, dy2;
+  sunrealtype *a1,*a2, *a3, *a4, dx2, dy2;
 
   data->mx = MX;
   data->my = MY;
@@ -565,7 +565,7 @@ static void InitUserData(int my_pe, MPI_Comm comm, UserData data)
   data->ay = AY;
   data->dx = (data->ax)/(MX-1);
   data->dy = (data->ay)/(MY-1);
-  data->uround = UNIT_ROUNDOFF;
+  data->uround = SUN_UNIT_ROUNDOFF;
   data->sqruround = sqrt(data->uround);
   data->my_pe = my_pe;
   data->comm = comm;
@@ -638,8 +638,8 @@ static void FreeUserData(UserData data)
 static void SetInitialProfiles(N_Vector cc, N_Vector sc)
 {
   int i, jx, jy;
-  realtype *cloc, *sloc;
-  realtype  ctemp[NUM_SPECIES], stemp[NUM_SPECIES];
+  sunrealtype *cloc, *sloc;
+  sunrealtype  ctemp[NUM_SPECIES], stemp[NUM_SPECIES];
 
   /* Initialize arrays ctemp and stemp used in the loading process */
   for (i = 0; i < NUM_SPECIES/2; i++) {
@@ -648,7 +648,7 @@ static void SetInitialProfiles(N_Vector cc, N_Vector sc)
   }
   for (i = NUM_SPECIES/2; i < NUM_SPECIES; i++) {
     ctemp[i] = PREDIN;
-    stemp[i] = RCONST(0.00001);
+    stemp[i] = SUN_RCONST(0.00001);
   }
 
   /* Load initial profiles into cc and sc vector from ctemp and stemp. */
@@ -669,7 +669,7 @@ static void SetInitialProfiles(N_Vector cc, N_Vector sc)
  */
 
 static void PrintHeader(int globalstrategy, int maxl, int maxlrst,
-                        realtype fnormtol, realtype scsteptol)
+                        sunrealtype fnormtol, sunrealtype scsteptol)
 {
   printf("\nPredator-prey test problem --  KINSol (parallel version)\n\n");
 
@@ -718,7 +718,7 @@ static void PrintHeader(int globalstrategy, int maxl, int maxlrst,
 static void PrintOutput(int my_pe, MPI_Comm comm, N_Vector cc)
 {
   int is, i0, npelast;
-  realtype *ct, tempc[NUM_SPECIES];
+  sunrealtype *ct, tempc[NUM_SPECIES];
   MPI_Status status;
 
   npelast = NPEX*NPEY - 1;
@@ -805,11 +805,11 @@ static void PrintFinalStats(void *kmem)
 
 static void BSend(MPI_Comm comm, int my_pe,
                   int isubx, int isuby,
-                  int dsizex, int dsizey, realtype *cdata)
+                  int dsizex, int dsizey, sunrealtype *cdata)
 {
   int i, ly;
   int offsetc, offsetbuf;
-  realtype bufleft[NUM_SPECIES*MYSUB], bufright[NUM_SPECIES*MYSUB];
+  sunrealtype bufleft[NUM_SPECIES*MYSUB], bufright[NUM_SPECIES*MYSUB];
 
   /* If isuby > 0, send data from bottom x-line of u */
   if (isuby != 0)
@@ -847,7 +847,7 @@ static void BSend(MPI_Comm comm, int my_pe,
 /*
  * Routine to start receiving boundary data from neighboring PEs.
  *  Notes:
- *  1) buffer should be able to hold 2*NUM_SPECIES*MYSUB realtype entries,
+ *  1) buffer should be able to hold 2*NUM_SPECIES*MYSUB sunrealtype entries,
  *     should be passed to both the BRecvPost and BRecvWait functions, and
  *     should not be manipulated between the two calls.
  *  2) request should have 4 entries, and should be passed in both calls also.
@@ -856,12 +856,12 @@ static void BSend(MPI_Comm comm, int my_pe,
 static void BRecvPost(MPI_Comm comm, MPI_Request request[], int my_pe,
                       int isubx, int isuby,
                       int dsizex, int dsizey,
-                      realtype *cext, realtype *buffer)
+                      sunrealtype *cext, sunrealtype *buffer)
 {
   int offsetce;
 
   /* Have bufleft and bufright use the same buffer */
-  realtype *bufleft = buffer, *bufright = buffer+NUM_SPECIES*MYSUB;
+  sunrealtype *bufleft = buffer, *bufright = buffer+NUM_SPECIES*MYSUB;
 
   /* If isuby > 0, receive data for bottom x-line of cext */
   if (isuby != 0)
@@ -891,19 +891,19 @@ static void BRecvPost(MPI_Comm comm, MPI_Request request[], int my_pe,
 /*
  * Routine to finish receiving boundary data from neighboring PEs.
  *  Notes:
- *  1) buffer should be able to hold 2*NUM_SPECIES*MYSUB realtype entries,
+ *  1) buffer should be able to hold 2*NUM_SPECIES*MYSUB sunrealtype entries,
  *     should be passed to both the BRecvPost and BRecvWait functions, and
  *  should not be manipulated between the two calls.
  *  2) request should have 4 entries, and should be passed in both calls also.
  */
 
 static void BRecvWait(MPI_Request request[], int isubx,
-                      int isuby, int dsizex, realtype *cext,
-                      realtype *buffer)
+                      int isuby, int dsizex, sunrealtype *cext,
+                      sunrealtype *buffer)
 {
   int i, ly;
   int dsizex2, offsetce, offsetbuf;
-  realtype *bufleft = buffer, *bufright = buffer+NUM_SPECIES*MYSUB;
+  sunrealtype *bufleft = buffer, *bufright = buffer+NUM_SPECIES*MYSUB;
   MPI_Status status;
 
   dsizex2 = dsizex + 2*NUM_SPECIES;
@@ -948,9 +948,9 @@ static void BRecvWait(MPI_Request request[], int isubx,
  * between processors of data needed to calculate f.
  */
 
-static void ccomm(realtype *cdata, UserData data)
+static void ccomm(sunrealtype *cdata, UserData data)
 {
-  realtype *cext, buffer[2*NUM_SPECIES*MYSUB];
+  sunrealtype *cext, buffer[2*NUM_SPECIES*MYSUB];
   MPI_Comm comm;
   int my_pe, isubx, isuby, nsmxsub, nsmysub;
   MPI_Request request[4];
@@ -979,8 +979,8 @@ static void ccomm(realtype *cdata, UserData data)
 
 static void fcalcprpr(N_Vector cc, N_Vector fval, void *user_data)
 {
-  realtype xx, yy, *cxy, *rxy, *fxy, dcydi, dcyui, dcxli, dcxri;
-  realtype *cext, dely, delx, *cdata;
+  sunrealtype xx, yy, *cxy, *rxy, *fxy, dcydi, dcyui, dcxli, dcxri;
+  sunrealtype *cext, dely, delx, *cdata;
   int i, jx, jy, is, ly;
   int isubx, isuby, nsmxsub, nsmxsub2;
   int shifty, offsetc, offsetce, offsetcl, offsetcr, offsetcd, offsetcu;

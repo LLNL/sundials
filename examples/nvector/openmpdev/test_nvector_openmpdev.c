@@ -39,7 +39,7 @@ int main(int argc, char *argv[])
   N_Vector     U, V, W, X, Y, Z;  /* test vectors              */
   int          print_timing;      /* turn timing on/off        */
 
-  Test_Init(NULL);
+  Test_Init(SUN_COMM_NULL);
 
   /* check input and set vector length */
   if (argc < 3){
@@ -84,7 +84,7 @@ int main(int argc, char *argv[])
   fails += Test_N_VGetLength(X, 0);
 
   /* Check vector communicator */
-  fails += Test_N_VGetCommunicator(X, NULL, 0);
+  fails += Test_N_VGetCommunicator(X, SUN_COMM_NULL, 0);
 
   /* Test clone functions */
   fails += Test_N_VCloneEmpty(X, 0);
@@ -239,7 +239,7 @@ int main(int argc, char *argv[])
 int Test_N_VMake_OpenMPDEV(N_Vector X, sunindextype length, int myid)
 {
   int failure = 0;
-  realtype *h_data, *d_data;
+  sunrealtype *h_data, *d_data;
   N_Vector Y;
 
   N_VConst(NEG_HALF, X);
@@ -305,11 +305,11 @@ int Test_N_VMake_OpenMPDEV(N_Vector X, sunindextype length, int myid)
 /* ----------------------------------------------------------------------
  * Implementation specific utility functions for vector tests
  * --------------------------------------------------------------------*/
-int check_ans(realtype ans, N_Vector X, sunindextype local_length)
+int check_ans(sunrealtype ans, N_Vector X, sunindextype local_length)
 {
   int          failure = 0;
   sunindextype i;
-  realtype     *Xdata;
+  sunrealtype     *Xdata;
 
   N_VCopyFromDevice_OpenMPDEV(X);
   Xdata = N_VGetHostArrayPointer_OpenMPDEV(X);
@@ -322,24 +322,24 @@ int check_ans(realtype ans, N_Vector X, sunindextype local_length)
   return (failure > ZERO) ? (1) : (0);
 }
 
-booleantype has_data(N_Vector X)
+sunbooleantype has_data(N_Vector X)
 {
-  realtype *Xdata = N_VGetHostArrayPointer_OpenMPDEV(X);
+  sunrealtype *Xdata = N_VGetHostArrayPointer_OpenMPDEV(X);
   if (Xdata == NULL)
     return SUNFALSE;
   else
     return SUNTRUE;
 }
 
-void set_element(N_Vector X, sunindextype i, realtype val)
+void set_element(N_Vector X, sunindextype i, sunrealtype val)
 {
   set_element_range(X, i, i, val);
 }
 
 void set_element_range(N_Vector X, sunindextype is, sunindextype ie,
-                       realtype val)
+                       sunrealtype val)
 {
-  realtype     *xdev;
+  sunrealtype     *xdev;
   int           dev;
   sunindextype  i;
 
@@ -354,9 +354,9 @@ void set_element_range(N_Vector X, sunindextype is, sunindextype ie,
   }
 }
 
-realtype get_element(N_Vector X, sunindextype i)
+sunrealtype get_element(N_Vector X, sunindextype i)
 {
-  realtype *data;
+  sunrealtype *data;
 
   N_VCopyFromDevice_OpenMPDEV(X);
   data = N_VGetHostArrayPointer_OpenMPDEV(X);

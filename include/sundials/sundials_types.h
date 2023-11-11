@@ -54,6 +54,10 @@
 #include <stddef.h>
 #include <stdint.h>
 
+#if SUNDIALS_MPI_ENABLED
+#include <mpi.h>
+#endif
+
 #ifdef __cplusplus  /* wrapper to enable C++ usage */
 extern "C" {
 #endif
@@ -83,13 +87,6 @@ extern "C" {
 
 #if defined(SUNDIALS_SINGLE_PRECISION)
 
-/* deprecated */
-typedef float realtype;
-# define RCONST(x) x##F
-# define BIG_REAL FLT_MAX
-# define SMALL_REAL FLT_MIN
-# define UNIT_ROUNDOFF FLT_EPSILON
-
 typedef float sunrealtype;
 # define SUN_RCONST(x) x##F
 # define SUN_BIG_REAL FLT_MAX
@@ -98,13 +95,6 @@ typedef float sunrealtype;
 
 #elif defined(SUNDIALS_DOUBLE_PRECISION)
 
-/* deprecated */
-typedef double realtype;
-# define RCONST(x) x
-# define BIG_REAL DBL_MAX
-# define SMALL_REAL DBL_MIN
-# define UNIT_ROUNDOFF DBL_EPSILON
-
 typedef double sunrealtype;
 # define SUN_RCONST(x) x
 # define SUN_BIG_REAL DBL_MAX
@@ -112,13 +102,6 @@ typedef double sunrealtype;
 # define SUN_UNIT_ROUNDOFF DBL_EPSILON
 
 #elif defined(SUNDIALS_EXTENDED_PRECISION)
-
-/* deprecated */
-typedef long double realtype;
-# define RCONST(x) x##L
-# define BIG_REAL LDBL_MAX
-# define SMALL_REAL LDBL_MIN
-# define UNIT_ROUNDOFF LDBL_EPSILON
 
 typedef long double sunrealtype;
 # define SUN_RCONST(x) x##L
@@ -159,11 +142,6 @@ typedef SUNDIALS_INDEX_TYPE sunindextype;
  *------------------------------------------------------------------
  */
 
-/* deprecated */
-#ifndef booleantype
-#define booleantype int
-#endif
-
 #ifndef sunbooleantype
 #define sunbooleantype int
 #endif
@@ -188,6 +166,24 @@ typedef enum {
   SUN_OUTPUTFORMAT_TABLE,
   SUN_OUTPUTFORMAT_CSV
 } SUNOutputFormat;
+
+
+/*
+ *------------------------------------------------------------------
+ * Type : SUNComm
+ *------------------------------------------------------------------
+ * SUNComm replaces MPI_Comm use in SUNDIALS code. It maps to
+ * MPI_Comm when MPI is enabled.
+ *------------------------------------------------------------------
+ */
+
+#if SUNDIALS_MPI_ENABLED
+#define SUN_COMM_NULL MPI_COMM_NULL
+typedef MPI_Comm SUNComm;
+#else
+#define SUN_COMM_NULL 0
+typedef int SUNComm;
+#endif
 
 #ifdef __cplusplus
 }

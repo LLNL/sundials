@@ -52,7 +52,7 @@
 #include <sunnonlinsol/sunnonlinsol_newton.h> /* access to Newton SUNNonlinearSolver         */
 #include <nvector/nvector_serial.h>           /* serial N_Vector types, fct. and macros      */
 #include <sundials/sundials_dense.h>          /* use generic DENSE solver in preconditioning */
-#include <sundials/sundials_types.h>          /* definition of realtype                      */
+#include <sundials/sundials_types.h>          /* definition of sunrealtype                      */
 #include <sundials/sundials_logger.h>
 
 /* helpful macros */
@@ -73,34 +73,34 @@
 
 /* Problem Constants */
 
-#define ZERO RCONST(0.0)
-#define ONE  RCONST(1.0)
-#define TWO  RCONST(2.0)
+#define ZERO SUN_RCONST(0.0)
+#define ONE  SUN_RCONST(1.0)
+#define TWO  SUN_RCONST(2.0)
 
 #define NUM_SPECIES  2                 /* number of species         */
-#define KH           RCONST(4.0e-6)    /* horizontal diffusivity Kh */
-#define VEL          RCONST(0.001)     /* advection velocity V      */
-#define KV0          RCONST(1.0e-8)    /* coefficient in Kv(y)      */
-#define Q1           RCONST(1.63e-16)  /* coefficients q1, q2, c3   */
-#define Q2           RCONST(4.66e-16)
-#define C3           RCONST(3.7e16)
-#define A3           RCONST(22.62)     /* coefficient in expression for q3(t) */
-#define A4           RCONST(7.601)     /* coefficient in expression for q4(t) */
-#define C1_SCALE     RCONST(1.0e6)     /* coefficients in initial profiles    */
-#define C2_SCALE     RCONST(1.0e12)
+#define KH           SUN_RCONST(4.0e-6)    /* horizontal diffusivity Kh */
+#define VEL          SUN_RCONST(0.001)     /* advection velocity V      */
+#define KV0          SUN_RCONST(1.0e-8)    /* coefficient in Kv(y)      */
+#define Q1           SUN_RCONST(1.63e-16)  /* coefficients q1, q2, c3   */
+#define Q2           SUN_RCONST(4.66e-16)
+#define C3           SUN_RCONST(3.7e16)
+#define A3           SUN_RCONST(22.62)     /* coefficient in expression for q3(t) */
+#define A4           SUN_RCONST(7.601)     /* coefficient in expression for q4(t) */
+#define C1_SCALE     SUN_RCONST(1.0e6)     /* coefficients in initial profiles    */
+#define C2_SCALE     SUN_RCONST(1.0e12)
 
 #define T0           ZERO                 /* initial time */
 #define NOUT         12                   /* number of output times */
-#define TWOHR        RCONST(7200.0)       /* number of seconds in two hours  */
-#define HALFDAY      RCONST(4.32e4)       /* number of seconds in a half day */
-#define PI       RCONST(3.1415926535898)  /* pi */
+#define TWOHR        SUN_RCONST(7200.0)       /* number of seconds in two hours  */
+#define HALFDAY      SUN_RCONST(4.32e4)       /* number of seconds in a half day */
+#define PI       SUN_RCONST(3.1415926535898)  /* pi */
 
 #define XMIN         ZERO                 /* grid boundaries in x  */
-#define XMAX         RCONST(20.0)
-#define YMIN         RCONST(30.0)         /* grid boundaries in y  */
-#define YMAX         RCONST(50.0)
-#define XMID         RCONST(10.0)         /* grid midpoints in x,y */
-#define YMID         RCONST(40.0)
+#define XMAX         SUN_RCONST(20.0)
+#define YMIN         SUN_RCONST(30.0)         /* grid boundaries in y  */
+#define YMAX         SUN_RCONST(50.0)
+#define XMID         SUN_RCONST(10.0)         /* grid midpoints in x,y */
+#define YMID         SUN_RCONST(40.0)
 
 #define MX           10             /* MX = number of x mesh points */
 #define MY           10             /* MY = number of y mesh points */
@@ -109,8 +109,8 @@
 
 /* CVodeInit Constants */
 
-#define RTOL    RCONST(1.0e-5)    /* scalar relative tolerance */
-#define FLOOR   RCONST(100.0)     /* value of C1 or C2 at which tolerances */
+#define RTOL    SUN_RCONST(1.0e-5)    /* scalar relative tolerance */
+#define FLOOR   SUN_RCONST(100.0)     /* value of C1 or C2 at which tolerances */
                                   /* change from relative to absolute      */
 #define ATOL    (RTOL*FLOOR)      /* scalar absolute tolerance */
 #define NEQ     (NUM_SPECIES*MM)  /* NEQ = number of equations */
@@ -137,7 +137,7 @@
    For each mesh point (j,k), the elements for species i and i+1 are
    contiguous within vdata.
 
-   IJth(a,i,j) references the (i,j)th entry of the matrix realtype **a,
+   IJth(a,i,j) references the (i,j)th entry of the matrix sunrealtype **a,
    where 1 <= i,j <= NUM_SPECIES. The small matrix routines in
    sundials_dense.h work with matrices stored by column in a 2-dimensional
    array. In C, arrays are indexed starting at 0, not 1. */
@@ -150,9 +150,9 @@
    solution vector, and linsolver type */
 
 typedef struct {
-  realtype **P[MX][MY], **Jbd[MX][MY];
+  sunrealtype **P[MX][MY], **Jbd[MX][MY];
   sunindextype *pivot[MX][MY];
-  realtype q4, om, dx, dy, hdco, haco, vdco;
+  sunrealtype q4, om, dx, dy, hdco, haco, vdco;
   N_Vector u;
   int linsolver;
 } *UserData;
@@ -162,21 +162,21 @@ typedef struct {
 static UserData AllocUserData(void);
 static void InitUserData(UserData data, N_Vector u);
 static void FreeUserData(UserData data);
-static void SetInitialProfiles(N_Vector u, realtype dx, realtype dy);
-static void PrintOutput(void *cvode_mem, N_Vector u, realtype t);
+static void SetInitialProfiles(N_Vector u, sunrealtype dx, sunrealtype dy);
+static void PrintOutput(void *cvode_mem, N_Vector u, sunrealtype t);
 static void PrintStats(void *cvode_mem, int linsolver, int stats);
 static int check_retval(void *returnvalue, const char *funcname, int opt);
 
 /* Functions Called by the Solver */
 
-static int f(realtype t, N_Vector u, N_Vector udot, void *user_data);
+static int f(sunrealtype t, N_Vector u, N_Vector udot, void *user_data);
 
-static int Precond(realtype tn, N_Vector u, N_Vector fu, booleantype jok,
-                   booleantype *jcurPtr, realtype gamma, void *user_data);
+static int Precond(sunrealtype tn, N_Vector u, N_Vector fu, sunbooleantype jok,
+                   sunbooleantype *jcurPtr, sunrealtype gamma, void *user_data);
 
-static int PSolve(realtype tn, N_Vector u, N_Vector fu,
+static int PSolve(sunrealtype tn, N_Vector u, N_Vector fu,
                   N_Vector r, N_Vector z,
-                  realtype gamma, realtype delta,
+                  sunrealtype gamma, sunrealtype delta,
                   int lr, void *user_data);
 
 static int myMonitorFunction(void *cvode_mem, void *user_data);
@@ -189,7 +189,7 @@ static int myMonitorFunction(void *cvode_mem, void *user_data);
 
 int main(int argc, char* argv[])
 {
-  realtype abstol, reltol, t, tout;
+  sunrealtype abstol, reltol, t, tout;
   N_Vector u;
   UserData data;
   SUNLinearSolver LS;
@@ -197,7 +197,7 @@ int main(int argc, char* argv[])
   void *cvode_mem;
   int linsolver, iout, retval;
   int nrmfactor;   /* LS norm conversion factor flag */
-  realtype nrmfac; /* LS norm conversion factor      */
+  sunrealtype nrmfac; /* LS norm conversion factor      */
   int monitor;     /* LS resiudal monitoring flag    */
   SUNContext sunctx;
   SUNLogger logger;
@@ -217,14 +217,14 @@ int main(int argc, char* argv[])
   /* Create SUNDIALS context and a logger which will record
      nonlinear solver info (e.g., residual) amongst other things. */
   
-  retval = SUNContext_Create(NULL, &sunctx);
+  retval = SUNContext_Create(SUN_COMM_NULL, &sunctx);
   if (check_retval(&retval, "SUNContext_Create", 1)) return 1;
 
-  retval = SUNLogger_Create(NULL, 0, &logger);
+  retval = SUNLogger_Create(SUN_COMM_NULL, 0, &logger);
   if (check_retval(&retval, "SUNLogger_Create", 1)) return 1;
 
   if (monitor) {
-    retval = SUNLogger_SetInfoFilename(logger, info_fname);   
+    retval = SUNLogger_SetInfoFilename(logger, info_fname);
     if (check_retval(&retval, "SUNLogger_SetInfoFilename", 1)) return 1;
   }
 
@@ -314,7 +314,7 @@ int main(int argc, char* argv[])
          left preconditioning and the default maximum Krylov dimension */
       LS = SUNLinSol_SPGMR(u, SUN_PREC_LEFT, 0, sunctx);
       if (check_retval((void *)LS, "SUNLinSol_SPGMR", 0)) return(1);
-      
+
       retval = CVodeSetLinearSolver(cvode_mem, LS, NULL);
       if (check_retval(&retval, "CVodeSetLinearSolver", 1)) return 1;
 
@@ -332,7 +332,7 @@ int main(int argc, char* argv[])
          left preconditioning and the default maximum Krylov dimension */
       LS = SUNLinSol_SPFGMR(u, SUN_PREC_LEFT, 0, sunctx);
       if (check_retval((void *)LS, "SUNLinSol_SPFGMR", 0)) return(1);
-      
+
       retval = CVodeSetLinearSolver(cvode_mem, LS, NULL);
       if (check_retval(&retval, "CVodeSetLinearSolver", 1)) return 1;
 
@@ -350,7 +350,7 @@ int main(int argc, char* argv[])
          left preconditioning and the default maximum Krylov dimension */
       LS = SUNLinSol_SPBCGS(u, SUN_PREC_LEFT, 0, sunctx);
       if (check_retval((void *)LS, "SUNLinSol_SPBCGS", 0)) return(1);
-      
+
       retval = CVodeSetLinearSolver(cvode_mem, LS, NULL);
       if (check_retval(&retval, "CVodeSetLinearSolver", 1)) return 1;
 
@@ -386,7 +386,7 @@ int main(int argc, char* argv[])
 
     case(1):
       /* use the square root of the vector length */
-      nrmfac = SQRT((realtype)NEQ);
+      nrmfac = SQRT((sunrealtype)NEQ);
       break;
     case(2):
       /* compute with dot product */
@@ -483,11 +483,11 @@ static void FreeUserData(UserData data)
 
 /* Set initial conditions in u */
 
-static void SetInitialProfiles(N_Vector u, realtype dx, realtype dy)
+static void SetInitialProfiles(N_Vector u, sunrealtype dx, sunrealtype dy)
 {
   int jx, jy;
-  realtype x, y, cx, cy;
-  realtype *udata;
+  sunrealtype x, y, cx, cy;
+  sunrealtype *udata;
 
   /* Set pointer to data array in vector u. */
 
@@ -497,12 +497,12 @@ static void SetInitialProfiles(N_Vector u, realtype dx, realtype dy)
 
   for (jy=0; jy < MY; jy++) {
     y = YMIN + jy*dy;
-    cy = SQR(RCONST(0.1)*(y - YMID));
-    cy = ONE - cy + RCONST(0.5)*SQR(cy);
+    cy = SQR(SUN_RCONST(0.1)*(y - YMID));
+    cy = ONE - cy + SUN_RCONST(0.5)*SQR(cy);
     for (jx=0; jx < MX; jx++) {
       x = XMIN + jx*dx;
-      cx = SQR(RCONST(0.1)*(x - XMID));
-      cx = ONE - cx + RCONST(0.5)*SQR(cx);
+      cx = SQR(SUN_RCONST(0.1)*(x - XMID));
+      cx = ONE - cx + SUN_RCONST(0.5)*SQR(cx);
       IJKth(udata,1,jx,jy) = C1_SCALE*cx*cy;
       IJKth(udata,2,jx,jy) = C2_SCALE*cx*cy;
     }
@@ -511,11 +511,11 @@ static void SetInitialProfiles(N_Vector u, realtype dx, realtype dy)
 
 /* Print current t, step count, order, stepsize, and sampled c1,c2 values */
 
-static void PrintOutput(void *cvode_mem, N_Vector u, realtype t)
+static void PrintOutput(void *cvode_mem, N_Vector u, sunrealtype t)
 {
   long int nst;
   int qu, retval;
-  realtype hu, *udata;
+  sunrealtype hu, *udata;
   int mxh = MX/2 - 1, myh = MY/2 - 1, mx1 = MX - 1, my1 = MY - 1;
 
   udata = N_VGetArrayPointer(u);
@@ -640,13 +640,13 @@ static int check_retval(void *returnvalue, const char *funcname, int opt)
 
 /* f routine. Compute RHS function f(t,u). */
 
-static int f(realtype t, N_Vector u, N_Vector udot, void *user_data)
+static int f(sunrealtype t, N_Vector u, N_Vector udot, void *user_data)
 {
-  realtype q3, c1, c2, c1dn, c2dn, c1up, c2up, c1lt, c2lt;
-  realtype c1rt, c2rt, cydn, cyup, hord1, hord2, horad1, horad2;
-  realtype qq1, qq2, qq3, qq4, rkin1, rkin2, s, vertd1, vertd2, ydn, yup;
-  realtype q4coef, dely, verdco, hordco, horaco;
-  realtype *udata, *dudata;
+  sunrealtype q3, c1, c2, c1dn, c2dn, c1up, c2up, c1lt, c2lt;
+  sunrealtype c1rt, c2rt, cydn, cyup, hord1, hord2, horad1, horad2;
+  sunrealtype qq1, qq2, qq3, qq4, rkin1, rkin2, s, vertd1, vertd2, ydn, yup;
+  sunrealtype q4coef, dely, verdco, hordco, horaco;
+  sunrealtype *udata, *dudata;
   int jx, jy, idn, iup, ileft, iright;
   UserData data;
 
@@ -679,10 +679,10 @@ static int f(realtype t, N_Vector u, N_Vector udot, void *user_data)
 
     /* Set vertical diffusion coefficients at jy +- 1/2 */
 
-    ydn = YMIN + (jy - RCONST(0.5))*dely;
+    ydn = YMIN + (jy - SUN_RCONST(0.5))*dely;
     yup = ydn + dely;
-    cydn = verdco*exp(RCONST(0.2)*ydn);
-    cyup = verdco*exp(RCONST(0.2)*yup);
+    cydn = verdco*exp(SUN_RCONST(0.2)*ydn);
+    cyup = verdco*exp(SUN_RCONST(0.2)*yup);
     idn = (jy == 0) ? 1 : -1;
     iup = (jy == MY-1) ? -1 : 1;
     for (jx=0; jx < MX; jx++) {
@@ -732,14 +732,14 @@ static int f(realtype t, N_Vector u, N_Vector udot, void *user_data)
 
 /* Preconditioner setup routine. Generate and preprocess P. */
 
-static int Precond(realtype tn, N_Vector u, N_Vector fu, booleantype jok,
-                   booleantype *jcurPtr, realtype gamma, void *user_data)
+static int Precond(sunrealtype tn, N_Vector u, N_Vector fu, sunbooleantype jok,
+                   sunbooleantype *jcurPtr, sunrealtype gamma, void *user_data)
 {
-  realtype c1, c2, cydn, cyup, diag, ydn, yup, q4coef, dely, verdco, hordco;
-  realtype **(*P)[MY], **(*Jbd)[MY];
+  sunrealtype c1, c2, cydn, cyup, diag, ydn, yup, q4coef, dely, verdco, hordco;
+  sunrealtype **(*P)[MY], **(*Jbd)[MY];
   sunindextype *(*pivot)[MY], retval;
   int jx, jy;
-  realtype *udata, **a, **j;
+  sunrealtype *udata, **a, **j;
   UserData data;
 
   /* Make local copies of pointers in user_data, and of pointer to u's data */
@@ -776,10 +776,10 @@ static int Precond(realtype tn, N_Vector u, N_Vector fu, booleantype jok,
        computed on the last f call).  Load into P. */
 
     for (jy=0; jy < MY; jy++) {
-      ydn = YMIN + (jy - RCONST(0.5))*dely;
+      ydn = YMIN + (jy - SUN_RCONST(0.5))*dely;
       yup = ydn + dely;
-      cydn = verdco*exp(RCONST(0.2)*ydn);
-      cyup = verdco*exp(RCONST(0.2)*yup);
+      cydn = verdco*exp(SUN_RCONST(0.2)*ydn);
+      cyup = verdco*exp(SUN_RCONST(0.2)*yup);
       diag = -(cydn + cyup + TWO*hordco);
       for (jx=0; jx < MX; jx++) {
         c1 = IJKth(udata,1,jx,jy);
@@ -819,15 +819,15 @@ static int Precond(realtype tn, N_Vector u, N_Vector fu, booleantype jok,
 
 /* Preconditioner solve routine */
 
-static int PSolve(realtype tn, N_Vector u, N_Vector fu,
+static int PSolve(sunrealtype tn, N_Vector u, N_Vector fu,
                   N_Vector r, N_Vector z,
-                  realtype gamma, realtype delta,
+                  sunrealtype gamma, sunrealtype delta,
                   int lr, void *user_data)
 {
-  realtype **(*P)[MY];
+  sunrealtype **(*P)[MY];
   sunindextype *(*pivot)[MY];
   int jx, jy;
-  realtype *zdata, *v;
+  sunrealtype *zdata, *v;
   UserData data;
 
   /* Extract the P and pivot arrays from user_data. */
@@ -858,7 +858,7 @@ static int PSolve(realtype tn, N_Vector u, N_Vector fu,
 static int myMonitorFunction(void* cvode_mem, void* user_data)
 {
   UserData data = (UserData) user_data;
-  realtype t = 0;
+  sunrealtype t = 0;
 
   CVodeGetCurrentTime(cvode_mem, &t);
   PrintOutput(cvode_mem, data->u, t);

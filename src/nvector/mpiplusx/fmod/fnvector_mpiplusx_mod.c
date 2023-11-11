@@ -215,8 +215,12 @@ SWIGEXPORT N_Vector _wrap_FN_VMake_MPIPlusX(int const *farg1, N_Vector farg2, vo
   SUNContext arg3 = (SUNContext) 0 ;
   N_Vector result;
   
-#ifdef SUNDIALS_MPI_ENABLED
-  arg1 = MPI_Comm_f2c((MPI_Fint)(*farg1));
+#if SUNDIALS_MPI_ENABLED
+  if((*farg1)) {
+    arg1 = MPI_Comm_f2c((MPI_Fint)(*farg1));
+  } else {
+    arg1 = 0;
+  }
 #else
   arg1 = *farg1;
 #endif
@@ -241,10 +245,10 @@ SWIGEXPORT int _wrap_FN_VGetVectorID_MPIPlusX(N_Vector farg1) {
 
 
 SWIGEXPORT void _wrap_FN_VSetArrayPointer_MPIPlusX(double *farg1, N_Vector farg2) {
-  realtype *arg1 = (realtype *) 0 ;
+  sunrealtype *arg1 = (sunrealtype *) 0 ;
   N_Vector arg2 = (N_Vector) 0 ;
   
-  arg1 = (realtype *)(farg1);
+  arg1 = (sunrealtype *)(farg1);
   arg2 = (N_Vector)(farg2);
   N_VSetArrayPointer_MPIPlusX(arg1,arg2);
 }
@@ -310,10 +314,10 @@ SWIGEXPORT int _wrap_FN_VEnableFusedOps_MPIPlusX(N_Vector farg1, int const *farg
 SWIGEXPORT double * _wrap_FN_VGetArrayPointer_MPIPlusX(N_Vector farg1) {
   double * fresult ;
   N_Vector arg1 = (N_Vector) 0 ;
-  realtype *result = 0 ;
+  sunrealtype *result = 0 ;
   
   arg1 = (N_Vector)(farg1);
-  result = (realtype *)N_VGetArrayPointer_MPIPlusX(arg1);
+  result = (sunrealtype *)N_VGetArrayPointer_MPIPlusX(arg1);
   fresult = result;
   return fresult;
 }

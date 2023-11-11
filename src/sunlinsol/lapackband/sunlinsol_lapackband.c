@@ -24,7 +24,7 @@
 
 #include "sundials_lapack_defs.h"
 
-/* Interfaces to match 'realtype' with the correct LAPACK functions */
+/* Interfaces to match 'sunrealtype' with the correct LAPACK functions */
 #if defined(SUNDIALS_DOUBLE_PRECISION)
 #define xgbtrf_f77    dgbtrf_f77
 #define xgbtrs_f77    dgbtrs_f77
@@ -32,11 +32,11 @@
 #define xgbtrf_f77    sgbtrf_f77
 #define xgbtrs_f77    sgbtrs_f77
 #else
-#error  Incompatible realtype for LAPACK; disable LAPACK and rebuild
+#error  Incompatible sunrealtype for LAPACK; disable LAPACK and rebuild
 #endif
 
-#define ZERO  RCONST(0.0)
-#define ONE   RCONST(1.0)
+#define ZERO  SUN_RCONST(0.0)
+#define ONE   SUN_RCONST(1.0)
 
 /*
  * -----------------------------------------------------------------
@@ -173,10 +173,10 @@ int SUNLinSolSetup_LapackBand(SUNLinearSolver S, SUNMatrix A)
 
 
 int SUNLinSolSolve_LapackBand(SUNLinearSolver S, SUNMatrix A, N_Vector x,
-                              N_Vector b, realtype tol)
+                              N_Vector b, sunrealtype tol)
 {
   sunindextype n, ml, mu, ldim, one, ier;
-  realtype *xdata;
+  sunrealtype *xdata;
 
   /* check for valid inputs */
   if ( (A == NULL) || (S == NULL) || (x == NULL) || (b == NULL) )

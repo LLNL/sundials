@@ -47,7 +47,7 @@ int main(int argc, char *argv[])
   MPI_Init(&argc, &argv);
 
   comm = MPI_COMM_WORLD;
-  Test_Init(&comm);
+  Test_Init(comm);
 
   MPI_Comm_size(comm, &nprocs);
   MPI_Comm_rank(comm, &myid);
@@ -56,14 +56,14 @@ int main(int argc, char *argv[])
   if (argc < 3) {
     if (myid == 0)
       printf("ERROR: TWO (2) Inputs required: vector length, print timing \n");
-    Test_AbortMPI(&comm, -1);
+    Test_AbortMPI(comm, -1);
   }
 
   local_length = (sunindextype) atol(argv[1]);
   if (local_length < 1) {
     if (myid == 0)
       printf("ERROR: local vector length must be a positive integer \n");
-    Test_AbortMPI(&comm, -1);
+    Test_AbortMPI(comm, -1);
   }
 
   print_timing = atoi(argv[2]);
@@ -88,7 +88,7 @@ int main(int argc, char *argv[])
     if (local_length < 1) {
       printf("Using global partition.\n");
       printf("I don't do this stuff. Now exiting...\n");
-      Test_AbortMPI(&comm, 1);
+      Test_AbortMPI(comm, 1);
     }
   }
 
@@ -103,7 +103,7 @@ int main(int argc, char *argv[])
     N_VDestroy(X);
     HYPRE_ParVectorDestroy(Xhyp);
     if (myid == 0) printf("FAIL: Unable to create a new vector \n\n");
-    Test_AbortMPI(&comm, 1);
+    Test_AbortMPI(comm, 1);
   }
 
   /* Check vector ID */
@@ -113,7 +113,7 @@ int main(int argc, char *argv[])
   fails += Test_N_VGetLength(X, myid);
 
   /* Check vector communicator */
-  fails += Test_N_VGetCommunicatorMPI(X, &comm, myid);
+  fails += Test_N_VGetCommunicatorMPI(X, comm, myid);
 
   /* Test clone functions */
   fails += Test_N_VCloneEmpty(X, myid);
@@ -127,7 +127,7 @@ int main(int argc, char *argv[])
     N_VDestroy(X);
     HYPRE_ParVectorDestroy(Xhyp);
     if (myid == 0) printf("FAIL: Unable to create a new vector \n\n");
-    Test_AbortMPI(&comm, 1);
+    Test_AbortMPI(comm, 1);
   }
 
   Z = N_VClone(X);
@@ -136,7 +136,7 @@ int main(int argc, char *argv[])
     N_VDestroy(Y);
     HYPRE_ParVectorDestroy(Xhyp);
     if (myid == 0) printf("FAIL: Unable to create a new vector \n\n");
-    Test_AbortMPI(&comm, 1);
+    Test_AbortMPI(comm, 1);
   }
 
   /* Standard vector operation tests */
@@ -174,7 +174,7 @@ int main(int argc, char *argv[])
     N_VDestroy(Z);
     HYPRE_ParVectorDestroy(Xhyp);
     if (myid == 0) printf("FAIL: Unable to create a new vector \n\n");
-    Test_AbortMPI(&comm, 1);
+    Test_AbortMPI(comm, 1);
   }
 
   /* fused operations */
@@ -204,7 +204,7 @@ int main(int argc, char *argv[])
     N_VDestroy(U);
     HYPRE_ParVectorDestroy(Xhyp);
     if (myid == 0) printf("FAIL: Unable to create a new vector \n\n");
-    Test_AbortMPI(&comm, 1);
+    Test_AbortMPI(comm, 1);
   }
 
   /* fused operations */
@@ -276,12 +276,12 @@ int main(int argc, char *argv[])
 /* ----------------------------------------------------------------------
  * Implementation specific utility functions for vector tests
  * --------------------------------------------------------------------*/
-int check_ans(realtype ans, N_Vector X, sunindextype local_length)
+int check_ans(sunrealtype ans, N_Vector X, sunindextype local_length)
 {
   int             failure = 0;
   sunindextype    i;
   HYPRE_ParVector Xvec;
-  realtype        *Xdata;
+  sunrealtype        *Xdata;
 
   Xvec  = N_VGetVector_ParHyp(X);
   Xdata = hypre_VectorData(hypre_ParVectorLocalVector(Xvec));
@@ -294,23 +294,23 @@ int check_ans(realtype ans, N_Vector X, sunindextype local_length)
   return (failure > ZERO) ? (1) : (0);
 }
 
-booleantype has_data(N_Vector X)
+sunbooleantype has_data(N_Vector X)
 {
   /* check if wrapped hypre ParVector is non-null */
   return (N_VGetVector_ParHyp(X) == NULL) ? SUNFALSE : SUNTRUE;
 }
 
-void set_element(N_Vector X, sunindextype i, realtype val)
+void set_element(N_Vector X, sunindextype i, sunrealtype val)
 {
   /* set i-th element of data array */
   set_element_range(X, i, i, val);
 }
 
 void set_element_range(N_Vector X, sunindextype is, sunindextype ie,
-                       realtype val)
+                       sunrealtype val)
 {
   HYPRE_ParVector  Xvec;
-  realtype        *Xdata;
+  sunrealtype        *Xdata;
   sunindextype     i;
 
   /* set elements [is,ie] of the data array */
@@ -320,10 +320,10 @@ void set_element_range(N_Vector X, sunindextype is, sunindextype ie,
   for(i = is; i <= ie; i++) Xdata[i] = val;
 }
 
-realtype get_element(N_Vector X, sunindextype i)
+sunrealtype get_element(N_Vector X, sunindextype i)
 {
   HYPRE_ParVector Xvec;
-  realtype        *Xdata;
+  sunrealtype        *Xdata;
 
   /* get i-th element of data array */
   Xvec  = N_VGetVector_ParHyp(X);

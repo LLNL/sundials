@@ -60,11 +60,11 @@
 
 
 // Macros for problem constants
-#define PI    RCONST(3.141592653589793238462643383279502884197169)
-#define ZERO  RCONST(0.0)
-#define ONE   RCONST(1.0)
-#define TWO   RCONST(2.0)
-#define EIGHT RCONST(8.0)
+#define PI    SUN_RCONST(3.141592653589793238462643383279502884197169)
+#define ZERO  SUN_RCONST(0.0)
+#define ONE   SUN_RCONST(1.0)
+#define TWO   SUN_RCONST(2.0)
+#define EIGHT SUN_RCONST(8.0)
 
 // Macro to access (x,y) location in 1D NVector array
 #define IDX(x,y,n) ((n)*(y)+(x))
@@ -78,18 +78,18 @@ using namespace std;
 struct UserData
 {
   // Diffusion coefficients in the x and y directions
-  realtype kx;
-  realtype ky;
+  sunrealtype kx;
+  sunrealtype ky;
 
   // Enable/disable forcing
   bool forcing;
 
   // Final time
-  realtype tf;
+  sunrealtype tf;
 
   // Upper bounds in x and y directions
-  realtype xu;
-  realtype yu;
+  sunrealtype xu;
+  sunrealtype yu;
 
   // Number of nodes in the x and y directions
   sunindextype nx;
@@ -99,13 +99,13 @@ struct UserData
   sunindextype nodes;
 
   // Mesh spacing in the x and y directions
-  realtype dx;
-  realtype dy;
+  sunrealtype dx;
+  sunrealtype dy;
 
   // Integrator settings
-  realtype rtol;        // relative tolerance
-  realtype atol;        // absolute tolerance
-  realtype hfixed;      // fixed step size
+  sunrealtype rtol;        // relative tolerance
+  sunrealtype atol;        // absolute tolerance
+  sunrealtype hfixed;      // fixed step size
   int      order;       // ARKode method order
   int      controller;  // step size adaptivity method
   int      maxsteps;    // max number of steps between outputs
@@ -118,7 +118,7 @@ struct UserData
   bool     lsinfo;    // output residual history
   int      liniters;  // number of linear iterations
   int      msbp;      // max number of steps between preconditioner setups
-  realtype epslin;    // linear solver tolerance factor
+  sunrealtype epslin;    // linear solver tolerance factor
 
   // Inverse of Jacobian diagonal for preconditioner
   N_Vector d;
@@ -143,14 +143,14 @@ struct UserData
 // -----------------------------------------------------------------------------
 
 // ODE right hand side function
-static int f(realtype t, N_Vector u, N_Vector f, void *user_data);
+static int f(sunrealtype t, N_Vector u, N_Vector f, void *user_data);
 
 // Preconditioner setup and solve functions
-static int PSetup(realtype t, N_Vector u, N_Vector f, booleantype jok,
-                  booleantype *jcurPtr, realtype gamma, void *user_data);
+static int PSetup(sunrealtype t, N_Vector u, N_Vector f, sunbooleantype jok,
+                  sunbooleantype *jcurPtr, sunrealtype gamma, void *user_data);
 
-static int PSolve(realtype t, N_Vector u, N_Vector f, N_Vector r,
-                  N_Vector z, realtype gamma, realtype delta, int lr,
+static int PSolve(sunrealtype t, N_Vector u, N_Vector f, N_Vector r,
+                  N_Vector z, sunrealtype gamma, sunrealtype delta, int lr,
                   void *user_data);
 
 // -----------------------------------------------------------------------------
@@ -171,10 +171,10 @@ static int ReadInputs(int *argc, char ***argv, UserData *udata);
 // -----------------------------------------------------------------------------
 
 // Compute the true solution
-static int Solution(realtype t, N_Vector u, UserData *udata);
+static int Solution(sunrealtype t, N_Vector u, UserData *udata);
 
 // Compute the solution error solution
-static int SolutionError(realtype t, N_Vector u,  N_Vector e, UserData *udata);
+static int SolutionError(sunrealtype t, N_Vector u,  N_Vector e, UserData *udata);
 
 // Print the command line options
 static void InputHelp();
@@ -184,7 +184,7 @@ static int PrintUserData(UserData *udata);
 
 // Output solution and error
 static int OpenOutput(UserData *udata);
-static int WriteOutput(realtype t, N_Vector u, UserData *udata);
+static int WriteOutput(sunrealtype t, N_Vector u, UserData *udata);
 static int CloseOutput(UserData *udata);
 
 // Print integration statistics
@@ -207,6 +207,7 @@ int main(int argc, char* argv[])
   N_Vector u         = NULL;  // vector for storing solution
   SUNLinearSolver LS = NULL;  // linear solver memory structure
   void *arkode_mem   = NULL;  // ARKODE memory structure
+  SUNAdaptController C = NULL;  // Adaptivity controller
 
   // Timing variables
   chrono::time_point<chrono::steady_clock> t1;
@@ -214,7 +215,7 @@ int main(int argc, char* argv[])
 
   // Create the SUNDIALS context object for this simulation
   SUNContext ctx;
-  flag = SUNContext_Create(NULL, &ctx);
+  flag = SUNContext_Create(SUN_COMM_NULL, &ctx);
   if (check_flag(&flag, "SUNContext_Create", 1)) return 1;
 
   // ---------------
@@ -335,7 +336,7 @@ int main(int argc, char* argv[])
   else
   {
     // Use implicit Euler (requires fixed step size)
-    realtype c[1], A[1], b[1];
+    sunrealtype c[1], A[1], b[1];
     ARKodeButcherTable B = NULL;
 
     // Create implicit Euler Butcher table
@@ -359,9 +360,16 @@ int main(int argc, char* argv[])
   }
   else
   {
-    flag = ARKStepSetAdaptivityMethod(arkode_mem, udata->controller, SUNTRUE,
-                                      SUNFALSE, NULL);
-    if (check_flag(&flag, "ARKStepSetAdaptivityMethod", 1)) return 1;
+    switch (udata->controller) {
+    case (ARK_ADAPT_PID):      C = SUNAdaptController_PID(ctx);     break;
+    case (ARK_ADAPT_PI):       C = SUNAdaptController_PI(ctx);      break;
+    case (ARK_ADAPT_I):        C = SUNAdaptController_I(ctx);       break;
+    case (ARK_ADAPT_EXP_GUS):  C = SUNAdaptController_ExpGus(ctx);  break;
+    case (ARK_ADAPT_IMP_GUS):  C = SUNAdaptController_ImpGus(ctx);  break;
+    case (ARK_ADAPT_IMEX_GUS): C = SUNAdaptController_ImExGus(ctx); break;
+    }
+    flag = ARKStepSetAdaptController(arkode_mem, C);
+    if (check_flag(&flag, "ARKStepSetAdaptController", 1)) return 1;
   }
 
   // Specify linearly implicit non-time-dependent RHS
@@ -383,9 +391,9 @@ int main(int argc, char* argv[])
   // Loop over output times
   // -----------------------
 
-  realtype t     = ZERO;
-  realtype dTout = udata->tf / udata->nout;
-  realtype tout  = dTout;
+  sunrealtype t     = ZERO;
+  sunrealtype dTout = udata->tf / udata->nout;
+  sunrealtype tout  = dTout;
 
   // Inital output
   flag = OpenOutput(udata);
@@ -440,10 +448,10 @@ int main(int argc, char* argv[])
     flag = SolutionError(t, u, udata->e, udata);
     if (check_flag(&flag, "SolutionError", 1)) return 1;
 
-    realtype maxerr = N_VMaxNorm(udata->e);
+    sunrealtype maxerr = N_VMaxNorm(udata->e);
 
     cout << scientific;
-    cout << setprecision(numeric_limits<realtype>::digits10);
+    cout << setprecision(numeric_limits<sunrealtype>::digits10);
     cout << "  Max error = " << maxerr << endl;
   }
 
@@ -463,6 +471,7 @@ int main(int argc, char* argv[])
   N_VDestroy(u);             // Free vectors
   FreeUserData(udata);       // Free user data
   delete udata;
+  (void) SUNAdaptController_Destroy(C); // Free time adaptivity controller
   SUNContext_Free(&ctx);     // Free context
 
   return 0;
@@ -473,7 +482,7 @@ int main(int argc, char* argv[])
 // -----------------------------------------------------------------------------
 
 // f routine to compute the ODE RHS function f(t,y).
-static int f(realtype t, N_Vector u, N_Vector f, void *user_data)
+static int f(sunrealtype t, N_Vector u, N_Vector f, void *user_data)
 {
   // Timing variables
   chrono::time_point<chrono::steady_clock> t1;
@@ -490,15 +499,15 @@ static int f(realtype t, N_Vector u, N_Vector f, void *user_data)
   sunindextype ny = udata->ny;
 
   // Constants for computing diffusion term
-  realtype cx = udata->kx / (udata->dx * udata->dx);
-  realtype cy = udata->ky / (udata->dy * udata->dy);
-  realtype cc = -TWO * (cx + cy);
+  sunrealtype cx = udata->kx / (udata->dx * udata->dx);
+  sunrealtype cy = udata->ky / (udata->dy * udata->dy);
+  sunrealtype cc = -TWO * (cx + cy);
 
   // Access data arrays
-  realtype *uarray = N_VGetArrayPointer(u);
+  sunrealtype *uarray = N_VGetArrayPointer(u);
   if (check_flag((void *) uarray, "N_VGetArrayPointer", 0)) return -1;
 
-  realtype *farray = N_VGetArrayPointer(f);
+  sunrealtype *farray = N_VGetArrayPointer(f);
   if (check_flag((void *) farray, "N_VGetArrayPointer", 0)) return -1;
 
   // Initialize rhs vector to zero (handles boundary conditions)
@@ -507,15 +516,15 @@ static int f(realtype t, N_Vector u, N_Vector f, void *user_data)
   // Iterate over domain interior and compute rhs forcing term
   if (udata->forcing)
   {
-    realtype x, y;
-    realtype sin_sqr_x, sin_sqr_y;
-    realtype cos_sqr_x, cos_sqr_y;
+    sunrealtype x, y;
+    sunrealtype sin_sqr_x, sin_sqr_y;
+    sunrealtype cos_sqr_x, cos_sqr_y;
 
-    realtype bx = (udata->kx) * TWO * PI * PI;
-    realtype by = (udata->ky) * TWO * PI * PI;
+    sunrealtype bx = (udata->kx) * TWO * PI * PI;
+    sunrealtype by = (udata->ky) * TWO * PI * PI;
 
-    realtype sin_t_cos_t = sin(PI * t) * cos(PI * t);
-    realtype cos_sqr_t   = cos(PI * t) * cos(PI * t);
+    sunrealtype sin_t_cos_t = sin(PI * t) * cos(PI * t);
+    sunrealtype cos_sqr_t   = cos(PI * t) * cos(PI * t);
 
     for (sunindextype j = 1; j < ny - 1; j++)
     {
@@ -561,8 +570,8 @@ static int f(realtype t, N_Vector u, N_Vector f, void *user_data)
 }
 
 // Preconditioner setup routine
-static int PSetup(realtype t, N_Vector u, N_Vector f, booleantype jok,
-                  booleantype *jcurPtr, realtype gamma, void *user_data)
+static int PSetup(sunrealtype t, N_Vector u, N_Vector f, sunbooleantype jok,
+                  sunbooleantype *jcurPtr, sunrealtype gamma, void *user_data)
 {
   // Timing variables
   chrono::time_point<chrono::steady_clock> t1;
@@ -575,17 +584,17 @@ static int PSetup(realtype t, N_Vector u, N_Vector f, booleantype jok,
   UserData *udata = (UserData *) user_data;
 
   // Access data array
-  realtype *diag = N_VGetArrayPointer(udata->d);
+  sunrealtype *diag = N_VGetArrayPointer(udata->d);
   if (check_flag((void *) diag, "N_VGetArrayPointer", 0)) return -1;
 
   // Constants for computing diffusion
-  realtype cx = udata->kx / (udata->dx * udata->dx);
-  realtype cy = udata->ky / (udata->dy * udata->dy);
-  realtype cc = -TWO * (cx + cy);
+  sunrealtype cx = udata->kx / (udata->dx * udata->dx);
+  sunrealtype cy = udata->ky / (udata->dy * udata->dy);
+  sunrealtype cc = -TWO * (cx + cy);
 
   // Set all entries of d to the inverse diagonal values of interior
   // (since boundary RHS is 0, set boundary diagonals to the same)
-  realtype c = ONE / (ONE - gamma * cc);
+  sunrealtype c = ONE / (ONE - gamma * cc);
   N_VConst(c, udata->d);
 
   // Stop timer
@@ -599,8 +608,8 @@ static int PSetup(realtype t, N_Vector u, N_Vector f, booleantype jok,
 }
 
 // Preconditioner solve routine for Pz = r
-static int PSolve(realtype t, N_Vector u, N_Vector f, N_Vector r,
-                  N_Vector z, realtype gamma, realtype delta, int lr,
+static int PSolve(sunrealtype t, N_Vector u, N_Vector f, N_Vector r,
+                  N_Vector z, sunrealtype gamma, sunrealtype delta, int lr,
                   void *user_data)
 {
   // Timing variables
@@ -657,8 +666,8 @@ static int InitUserData(UserData *udata)
   udata->dy = udata->yu / (udata->ny - 1);
 
   // Integrator settings
-  udata->rtol        = RCONST(1.e-5);   // relative tolerance
-  udata->atol        = RCONST(1.e-10);  // absolute tolerance
+  udata->rtol        = SUN_RCONST(1.e-5);   // relative tolerance
+  udata->atol        = SUN_RCONST(1.e-10);  // absolute tolerance
   udata->hfixed      = ZERO;            // using adaptive step sizes
   udata->order       = 3;               // method order
   udata->controller  = 0;               // PID controller
@@ -862,11 +871,11 @@ static int ReadInputs(int *argc, char ***argv, UserData *udata)
 // -----------------------------------------------------------------------------
 
 // Compute the exact solution
-static int Solution(realtype t, N_Vector u, UserData *udata)
+static int Solution(sunrealtype t, N_Vector u, UserData *udata)
 {
-  realtype x, y;
-  realtype cos_sqr_t;
-  realtype sin_sqr_x, sin_sqr_y;
+  sunrealtype x, y;
+  sunrealtype cos_sqr_t;
+  sunrealtype sin_sqr_x, sin_sqr_y;
 
   // Constants for computing solution
   cos_sqr_t = cos(PI * t) * cos(PI * t);
@@ -874,7 +883,7 @@ static int Solution(realtype t, N_Vector u, UserData *udata)
   // Initialize u to zero (handles boundary conditions)
   N_VConst(ZERO, u);
 
-  realtype *uarray = N_VGetArrayPointer(u);
+  sunrealtype *uarray = N_VGetArrayPointer(u);
   if (check_flag((void *) uarray, "N_VGetArrayPointer", 0)) return -1;
 
   for (sunindextype j = 1; j < udata->ny - 1; j++)
@@ -895,7 +904,7 @@ static int Solution(realtype t, N_Vector u, UserData *udata)
 }
 
 // Compute the solution error
-static int SolutionError(realtype t, N_Vector u, N_Vector e, UserData *udata)
+static int SolutionError(sunrealtype t, N_Vector u, N_Vector e, UserData *udata)
 {
   // Compute true solution
   int flag = Solution(t, e, udata);
@@ -989,7 +998,7 @@ static int OpenOutput(UserData *udata)
   if (udata->output > 0)
   {
     cout << scientific;
-    cout << setprecision(numeric_limits<realtype>::digits10);
+    cout << setprecision(numeric_limits<sunrealtype>::digits10);
     if (udata->forcing)
     {
       cout << "          t           ";
@@ -1024,13 +1033,13 @@ static int OpenOutput(UserData *udata)
     // Open output streams for solution and error
     udata->uout.open("heat2d_solution.txt");
     udata->uout << scientific;
-    udata->uout << setprecision(numeric_limits<realtype>::digits10);
+    udata->uout << setprecision(numeric_limits<sunrealtype>::digits10);
 
     if (udata->forcing)
     {
       udata->eout.open("heat2d_error.txt");
       udata->eout << scientific;
-      udata->eout << setprecision(numeric_limits<realtype>::digits10);
+      udata->eout << setprecision(numeric_limits<sunrealtype>::digits10);
     }
   }
 
@@ -1038,14 +1047,14 @@ static int OpenOutput(UserData *udata)
 }
 
 // Write output
-static int WriteOutput(realtype t, N_Vector u, UserData *udata)
+static int WriteOutput(sunrealtype t, N_Vector u, UserData *udata)
 {
   int flag;
 
   if (udata->output > 0)
   {
     // Compute rms norm of the state
-    realtype urms = sqrt(N_VDotProd(u, u) / udata->nx / udata->ny);
+    sunrealtype urms = sqrt(N_VDotProd(u, u) / udata->nx / udata->ny);
 
     // Output current status
     if (udata->forcing)
@@ -1055,7 +1064,7 @@ static int WriteOutput(realtype t, N_Vector u, UserData *udata)
       if (check_flag(&flag, "SolutionError", 1)) return 1;
 
       // Compute max error
-      realtype max = N_VMaxNorm(udata->e);
+      sunrealtype max = N_VMaxNorm(udata->e);
 
       cout << setw(22) << t << setw(25) << urms << setw(25) << max << endl;
     }
@@ -1067,7 +1076,7 @@ static int WriteOutput(realtype t, N_Vector u, UserData *udata)
     // Write solution and error to disk
     if (udata->output == 2)
     {
-      realtype *uarray = N_VGetArrayPointer(u);
+      sunrealtype *uarray = N_VGetArrayPointer(u);
       if (check_flag((void *) uarray, "N_VGetArrayPointer", 0)) return -1;
 
       udata->uout << t << " ";
@@ -1080,7 +1089,7 @@ static int WriteOutput(realtype t, N_Vector u, UserData *udata)
       if (udata->forcing)
       {
         // Output error to disk
-        realtype *earray = N_VGetArrayPointer(udata->e);
+        sunrealtype *earray = N_VGetArrayPointer(udata->e);
         if (check_flag((void *) earray, "N_VGetArrayPointer", 0)) return -1;
 
         udata->eout << t << " ";
@@ -1174,8 +1183,8 @@ static int OutputStats(void *arkode_mem, UserData* udata)
   cout << endl;
 
   // Compute average nls iters per step attempt and ls iters per nls iter
-  realtype avgnli = (realtype) nni / (realtype) nst_a;
-  realtype avgli  = (realtype) nli / (realtype) nni;
+  sunrealtype avgnli = (sunrealtype) nni / (sunrealtype) nst_a;
+  sunrealtype avgli  = (sunrealtype) nli / (sunrealtype) nni;
   cout << "  Avg NLS iters per step attempt = " << avgnli << endl;
   cout << "  Avg LS iters per NLS iter      = " << avgli  << endl;
   cout << endl;

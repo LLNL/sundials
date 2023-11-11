@@ -28,8 +28,8 @@
 #include "sundials_hip.h"
 #include "sundials_debug.h"
 
-#define ZERO RCONST(0.0)
-#define HALF RCONST(0.5)
+#define ZERO SUN_RCONST(0.0)
+#define HALF SUN_RCONST(0.5)
 
 using namespace sundials;
 using namespace sundials::hip;
@@ -45,14 +45,14 @@ static int AllocateData(N_Vector v);
 // Reduction buffer functions
 static int InitializeDeviceCounter(N_Vector v);
 static int FreeDeviceCounter(N_Vector v);
-static int InitializeReductionBuffer(N_Vector v, realtype value, size_t n = 1);
+static int InitializeReductionBuffer(N_Vector v, sunrealtype value, size_t n = 1);
 static void FreeReductionBuffer(N_Vector v);
 static int CopyReductionBufferFromDevice(N_Vector v, size_t n = 1);
 
 // Kernel launch parameters
-static int GetKernelParameters(N_Vector v, booleantype reduction, size_t& grid, size_t& block,
+static int GetKernelParameters(N_Vector v, sunbooleantype reduction, size_t& grid, size_t& block,
                                size_t& shMemSize, hipStream_t& stream, size_t n = 0);
-static int GetKernelParameters(N_Vector v, booleantype reduction, size_t& grid, size_t& block,
+static int GetKernelParameters(N_Vector v, sunbooleantype reduction, size_t& grid, size_t& block,
                                 size_t& shMemSize, hipStream_t& stream, bool& atomic, size_t n = 0);
 static void PostKernelLaunch();
 
@@ -62,16 +62,16 @@ static void PostKernelLaunch();
 
 // Macros to access vector content
 #define NVEC_HIP_CONTENT(x)  ((N_VectorContent_Hip)(x->content))
-#define NVEC_HIP_MEMSIZE(x)  (NVEC_HIP_CONTENT(x)->length * sizeof(realtype))
+#define NVEC_HIP_MEMSIZE(x)  (NVEC_HIP_CONTENT(x)->length * sizeof(sunrealtype))
 #define NVEC_HIP_MEMHELP(x)  (NVEC_HIP_CONTENT(x)->mem_helper)
-#define NVEC_HIP_HDATAp(x)   ((realtype*) NVEC_HIP_CONTENT(x)->host_data->ptr)
-#define NVEC_HIP_DDATAp(x)   ((realtype*) NVEC_HIP_CONTENT(x)->device_data->ptr)
+#define NVEC_HIP_HDATAp(x)   ((sunrealtype*) NVEC_HIP_CONTENT(x)->host_data->ptr)
+#define NVEC_HIP_DDATAp(x)   ((sunrealtype*) NVEC_HIP_CONTENT(x)->device_data->ptr)
 #define NVEC_HIP_STREAM(x)   (NVEC_HIP_CONTENT(x)->stream_exec_policy->stream())
 
 // Macros to access vector private content
 #define NVEC_HIP_PRIVATE(x)   ((N_PrivateVectorContent_Hip)(NVEC_HIP_CONTENT(x)->priv))
-#define NVEC_HIP_HBUFFERp(x)  ((realtype*) NVEC_HIP_PRIVATE(x)->reduce_buffer_host->ptr)
-#define NVEC_HIP_DBUFFERp(x)  ((realtype*) NVEC_HIP_PRIVATE(x)->reduce_buffer_dev->ptr)
+#define NVEC_HIP_HBUFFERp(x)  ((sunrealtype*) NVEC_HIP_PRIVATE(x)->reduce_buffer_host->ptr)
+#define NVEC_HIP_DBUFFERp(x)  ((sunrealtype*) NVEC_HIP_PRIVATE(x)->reduce_buffer_dev->ptr)
 #define NVEC_HIP_DCOUNTERp(x) ((unsigned int*) NVEC_HIP_PRIVATE(x)->device_counter->ptr)
 
 /*
@@ -80,7 +80,7 @@ static void PostKernelLaunch();
 
 struct _N_PrivateVectorContent_Hip
 {
-  booleantype     use_managed_mem;               /* indicates if the data pointers and buffer pointers are managed memory */
+  sunbooleantype     use_managed_mem;               /* indicates if the data pointers and buffer pointers are managed memory */
   size_t          reduce_buffer_allocated_bytes; /* current size of the reduction buffer */
   SUNMemory       reduce_buffer_dev;             /* device buffer used for reductions */
   SUNMemory       reduce_buffer_host;            /* host buffer used for reductions */
@@ -230,7 +230,7 @@ N_Vector N_VNew_Hip(sunindextype length, SUNContext sunctx)
   return(v);
 }
 
-N_Vector N_VNewWithMemHelp_Hip(sunindextype length, booleantype use_managed_mem, SUNMemoryHelper helper, SUNContext sunctx)
+N_Vector N_VNewWithMemHelp_Hip(sunindextype length, sunbooleantype use_managed_mem, SUNMemoryHelper helper, SUNContext sunctx)
 {
   N_Vector v;
 
@@ -299,7 +299,7 @@ N_Vector N_VNewManaged_Hip(sunindextype length, SUNContext sunctx)
   return(v);
 }
 
-N_Vector N_VMake_Hip(sunindextype length, realtype *h_vdata, realtype *d_vdata, SUNContext sunctx)
+N_Vector N_VMake_Hip(sunindextype length, sunrealtype *h_vdata, sunrealtype *d_vdata, SUNContext sunctx)
 {
   N_Vector v;
 
@@ -336,7 +336,7 @@ N_Vector N_VMake_Hip(sunindextype length, realtype *h_vdata, realtype *d_vdata, 
   return(v);
 }
 
-N_Vector N_VMakeManaged_Hip(sunindextype length, realtype *vdata, SUNContext sunctx)
+N_Vector N_VMakeManaged_Hip(sunindextype length, sunrealtype *vdata, SUNContext sunctx)
 {
   N_Vector v;
 
@@ -377,7 +377,7 @@ N_Vector N_VMakeManaged_Hip(sunindextype length, realtype *vdata, SUNContext sun
  * Set pointer to the raw host data. Does not free the existing pointer.
  */
 
-void N_VSetHostArrayPointer_Hip(realtype* h_vdata, N_Vector v)
+void N_VSetHostArrayPointer_Hip(sunrealtype* h_vdata, N_Vector v)
 {
   if (N_VIsManagedMemory_Hip(v))
   {
@@ -409,7 +409,7 @@ void N_VSetHostArrayPointer_Hip(realtype* h_vdata, N_Vector v)
  * Set pointer to the raw device data
  */
 
-void N_VSetDeviceArrayPointer_Hip(realtype* d_vdata, N_Vector v)
+void N_VSetDeviceArrayPointer_Hip(sunrealtype* d_vdata, N_Vector v)
 {
   if (N_VIsManagedMemory_Hip(v))
   {
@@ -441,7 +441,7 @@ void N_VSetDeviceArrayPointer_Hip(realtype* d_vdata, N_Vector v)
  * Return a flag indicating if the memory for the vector data is managed
  */
 
-booleantype N_VIsManagedMemory_Hip(N_Vector x)
+sunbooleantype N_VIsManagedMemory_Hip(N_Vector x)
 {
   return NVEC_HIP_PRIVATE(x)->use_managed_mem;
 }
@@ -674,7 +674,7 @@ void N_VSpace_Hip(N_Vector X, sunindextype *lrw, sunindextype *liw)
   *liw = 2;
 }
 
-void N_VConst_Hip(realtype a, N_Vector X)
+void N_VConst_Hip(sunrealtype a, N_Vector X)
 {
   size_t grid, block, shMemSize;
   hipStream_t stream;
@@ -693,7 +693,7 @@ void N_VConst_Hip(realtype a, N_Vector X)
   PostKernelLaunch();
 }
 
-void N_VLinearSum_Hip(realtype a, N_Vector X, realtype b, N_Vector Y, N_Vector Z)
+void N_VLinearSum_Hip(sunrealtype a, N_Vector X, sunrealtype b, N_Vector Y, N_Vector Z)
 {
   size_t grid, block, shMemSize;
   hipStream_t stream;
@@ -756,7 +756,7 @@ void N_VDiv_Hip(N_Vector X, N_Vector Y, N_Vector Z)
   PostKernelLaunch();
 }
 
-void N_VScale_Hip(realtype a, N_Vector X, N_Vector Z)
+void N_VScale_Hip(sunrealtype a, N_Vector X, N_Vector Z)
 {
   size_t grid, block, shMemSize;
   hipStream_t stream;
@@ -814,7 +814,7 @@ void N_VInv_Hip(N_Vector X, N_Vector Z)
   PostKernelLaunch();
 }
 
-void N_VAddConst_Hip(N_Vector X, realtype b, N_Vector Z)
+void N_VAddConst_Hip(N_Vector X, sunrealtype b, N_Vector Z)
 {
   size_t grid, block, shMemSize;
   hipStream_t stream;
@@ -834,13 +834,13 @@ void N_VAddConst_Hip(N_Vector X, realtype b, N_Vector Z)
   PostKernelLaunch();
 }
 
-realtype N_VDotProd_Hip(N_Vector X, N_Vector Y)
+sunrealtype N_VDotProd_Hip(N_Vector X, N_Vector Y)
 {
   bool atomic;
   size_t grid, block, shMemSize;
   hipStream_t stream;
 
-  realtype gpu_result = ZERO;
+  sunrealtype gpu_result = ZERO;
 
   if (GetKernelParameters(X, true, grid, block, shMemSize, stream, atomic))
   {
@@ -856,7 +856,7 @@ realtype N_VDotProd_Hip(N_Vector X, N_Vector Y)
 
   if (atomic)
   {
-    dotProdKernel<realtype, sunindextype, GridReducerAtomic><<<grid, block, shMemSize, stream>>>
+    dotProdKernel<sunrealtype, sunindextype, GridReducerAtomic><<<grid, block, shMemSize, stream>>>
     (
       NVEC_HIP_DDATAp(X),
       NVEC_HIP_DDATAp(Y),
@@ -867,7 +867,7 @@ realtype N_VDotProd_Hip(N_Vector X, N_Vector Y)
   }
   else
   {
-    dotProdKernel<realtype, sunindextype, GridReducerLDS><<<grid, block, shMemSize, stream>>>
+    dotProdKernel<sunrealtype, sunindextype, GridReducerLDS><<<grid, block, shMemSize, stream>>>
     (
       NVEC_HIP_DDATAp(X),
       NVEC_HIP_DDATAp(Y),
@@ -885,13 +885,13 @@ realtype N_VDotProd_Hip(N_Vector X, N_Vector Y)
   return gpu_result;
 }
 
-realtype N_VMaxNorm_Hip(N_Vector X)
+sunrealtype N_VMaxNorm_Hip(N_Vector X)
 {
   bool atomic;
   size_t grid, block, shMemSize;
   hipStream_t stream;
 
-  realtype gpu_result = ZERO;
+  sunrealtype gpu_result = ZERO;
 
   if (GetKernelParameters(X, true, grid, block, shMemSize, stream, atomic))
   {
@@ -907,7 +907,7 @@ realtype N_VMaxNorm_Hip(N_Vector X)
 
   if (atomic)
   {
-    maxNormKernel<realtype, sunindextype, GridReducerAtomic><<<grid, block, shMemSize, stream>>>
+    maxNormKernel<sunrealtype, sunindextype, GridReducerAtomic><<<grid, block, shMemSize, stream>>>
     (
       NVEC_HIP_DDATAp(X),
       NVEC_HIP_DBUFFERp(X),
@@ -917,7 +917,7 @@ realtype N_VMaxNorm_Hip(N_Vector X)
   }
   else
   {
-    maxNormKernel<realtype, sunindextype, GridReducerLDS><<<grid, block, shMemSize, stream>>>
+    maxNormKernel<sunrealtype, sunindextype, GridReducerLDS><<<grid, block, shMemSize, stream>>>
     (
       NVEC_HIP_DDATAp(X),
       NVEC_HIP_DBUFFERp(X),
@@ -935,13 +935,13 @@ realtype N_VMaxNorm_Hip(N_Vector X)
   return gpu_result;
 }
 
-realtype N_VWSqrSumLocal_Hip(N_Vector X, N_Vector W)
+sunrealtype N_VWSqrSumLocal_Hip(N_Vector X, N_Vector W)
 {
   bool atomic;
   size_t grid, block, shMemSize;
   hipStream_t stream;
 
-  realtype gpu_result = ZERO;
+  sunrealtype gpu_result = ZERO;
 
   if (GetKernelParameters(X, true, grid, block, shMemSize, stream, atomic))
   {
@@ -956,7 +956,7 @@ realtype N_VWSqrSumLocal_Hip(N_Vector X, N_Vector W)
 
   if (atomic)
   {
-    wL2NormSquareKernel<realtype, sunindextype, GridReducerAtomic><<<grid, block, shMemSize, stream>>>
+    wL2NormSquareKernel<sunrealtype, sunindextype, GridReducerAtomic><<<grid, block, shMemSize, stream>>>
     (
       NVEC_HIP_DDATAp(X),
       NVEC_HIP_DDATAp(W),
@@ -967,7 +967,7 @@ realtype N_VWSqrSumLocal_Hip(N_Vector X, N_Vector W)
   }
   else
   {
-    wL2NormSquareKernel<realtype, sunindextype, GridReducerLDS><<<grid, block, shMemSize, stream>>>
+    wL2NormSquareKernel<sunrealtype, sunindextype, GridReducerLDS><<<grid, block, shMemSize, stream>>>
     (
       NVEC_HIP_DDATAp(X),
       NVEC_HIP_DDATAp(W),
@@ -986,19 +986,19 @@ realtype N_VWSqrSumLocal_Hip(N_Vector X, N_Vector W)
   return gpu_result;
 }
 
-realtype N_VWrmsNorm_Hip(N_Vector X, N_Vector W)
+sunrealtype N_VWrmsNorm_Hip(N_Vector X, N_Vector W)
 {
-  const realtype sum = N_VWSqrSumLocal_Hip(X, W);
+  const sunrealtype sum = N_VWSqrSumLocal_Hip(X, W);
   return std::sqrt(sum/NVEC_HIP_CONTENT(X)->length);
 }
 
-realtype N_VWSqrSumMaskLocal_Hip(N_Vector X, N_Vector W, N_Vector Id)
+sunrealtype N_VWSqrSumMaskLocal_Hip(N_Vector X, N_Vector W, N_Vector Id)
 {
   bool atomic;
   size_t grid, block, shMemSize;
   hipStream_t stream;
 
-  realtype gpu_result = ZERO;
+  sunrealtype gpu_result = ZERO;
 
   if (GetKernelParameters(X, true, grid, block, shMemSize, stream, atomic))
   {
@@ -1013,7 +1013,7 @@ realtype N_VWSqrSumMaskLocal_Hip(N_Vector X, N_Vector W, N_Vector Id)
 
   if (atomic)
   {
-    wL2NormSquareMaskKernel<realtype, sunindextype, GridReducerAtomic><<<grid, block, shMemSize, stream>>>
+    wL2NormSquareMaskKernel<sunrealtype, sunindextype, GridReducerAtomic><<<grid, block, shMemSize, stream>>>
     (
       NVEC_HIP_DDATAp(X),
       NVEC_HIP_DDATAp(W),
@@ -1025,7 +1025,7 @@ realtype N_VWSqrSumMaskLocal_Hip(N_Vector X, N_Vector W, N_Vector Id)
   }
   else
   {
-    wL2NormSquareMaskKernel<realtype, sunindextype, GridReducerLDS><<<grid, block, shMemSize, stream>>>
+    wL2NormSquareMaskKernel<sunrealtype, sunindextype, GridReducerLDS><<<grid, block, shMemSize, stream>>>
     (
       NVEC_HIP_DDATAp(X),
       NVEC_HIP_DDATAp(W),
@@ -1045,19 +1045,19 @@ realtype N_VWSqrSumMaskLocal_Hip(N_Vector X, N_Vector W, N_Vector Id)
   return gpu_result;
 }
 
-realtype N_VWrmsNormMask_Hip(N_Vector X, N_Vector W, N_Vector Id)
+sunrealtype N_VWrmsNormMask_Hip(N_Vector X, N_Vector W, N_Vector Id)
 {
-  const realtype sum = N_VWSqrSumMaskLocal_Hip(X, W, Id);
+  const sunrealtype sum = N_VWSqrSumMaskLocal_Hip(X, W, Id);
   return std::sqrt(sum/NVEC_HIP_CONTENT(X)->length);
 }
 
-realtype N_VMin_Hip(N_Vector X)
+sunrealtype N_VMin_Hip(N_Vector X)
 {
   bool atomic;
   size_t grid, block, shMemSize;
   hipStream_t stream;
 
-  realtype gpu_result = std::numeric_limits<realtype>::max();
+  sunrealtype gpu_result = std::numeric_limits<sunrealtype>::max();
 
   if (GetKernelParameters(X, true, grid, block, shMemSize, stream, atomic))
   {
@@ -1072,7 +1072,7 @@ realtype N_VMin_Hip(N_Vector X)
 
   if (atomic)
   {
-    findMinKernel<realtype, sunindextype, GridReducerAtomic><<<grid, block, shMemSize, stream>>>
+    findMinKernel<sunrealtype, sunindextype, GridReducerAtomic><<<grid, block, shMemSize, stream>>>
     (
       gpu_result,
       NVEC_HIP_DDATAp(X),
@@ -1083,7 +1083,7 @@ realtype N_VMin_Hip(N_Vector X)
   }
   else
   {
-    findMinKernel<realtype, sunindextype, GridReducerLDS><<<grid, block, shMemSize, stream>>>
+    findMinKernel<sunrealtype, sunindextype, GridReducerLDS><<<grid, block, shMemSize, stream>>>
     (
       gpu_result,
       NVEC_HIP_DDATAp(X),
@@ -1102,19 +1102,19 @@ realtype N_VMin_Hip(N_Vector X)
   return gpu_result;
 }
 
-realtype N_VWL2Norm_Hip(N_Vector X, N_Vector W)
+sunrealtype N_VWL2Norm_Hip(N_Vector X, N_Vector W)
 {
-  const realtype sum = N_VWSqrSumLocal_Hip(X, W);
+  const sunrealtype sum = N_VWSqrSumLocal_Hip(X, W);
   return std::sqrt(sum);
 }
 
-realtype N_VL1Norm_Hip(N_Vector X)
+sunrealtype N_VL1Norm_Hip(N_Vector X)
 {
   bool atomic;
   size_t grid, block, shMemSize;
   hipStream_t stream;
 
-  realtype gpu_result = ZERO;
+  sunrealtype gpu_result = ZERO;
 
   if (GetKernelParameters(X, true, grid, block, shMemSize, stream, atomic))
   {
@@ -1129,7 +1129,7 @@ realtype N_VL1Norm_Hip(N_Vector X)
 
   if (atomic)
   {
-    L1NormKernel<realtype, sunindextype, GridReducerAtomic><<<grid, block, shMemSize, stream>>>
+    L1NormKernel<sunrealtype, sunindextype, GridReducerAtomic><<<grid, block, shMemSize, stream>>>
     (
       NVEC_HIP_DDATAp(X),
       NVEC_HIP_DBUFFERp(X),
@@ -1139,7 +1139,7 @@ realtype N_VL1Norm_Hip(N_Vector X)
   }
   else
   {
-    L1NormKernel<realtype, sunindextype, GridReducerLDS><<<grid, block, shMemSize, stream>>>
+    L1NormKernel<sunrealtype, sunindextype, GridReducerLDS><<<grid, block, shMemSize, stream>>>
     (
       NVEC_HIP_DDATAp(X),
       NVEC_HIP_DBUFFERp(X),
@@ -1157,7 +1157,7 @@ realtype N_VL1Norm_Hip(N_Vector X)
   return gpu_result;
 }
 
-void N_VCompare_Hip(realtype c, N_Vector X, N_Vector Z)
+void N_VCompare_Hip(sunrealtype c, N_Vector X, N_Vector Z)
 {
   size_t grid, block, shMemSize;
   hipStream_t stream;
@@ -1177,13 +1177,13 @@ void N_VCompare_Hip(realtype c, N_Vector X, N_Vector Z)
   PostKernelLaunch();
 }
 
-booleantype N_VInvTest_Hip(N_Vector X, N_Vector Z)
+sunbooleantype N_VInvTest_Hip(N_Vector X, N_Vector Z)
 {
   bool atomic;
   size_t grid, block, shMemSize;
   hipStream_t stream;
 
-  realtype gpu_result = ZERO;
+  sunrealtype gpu_result = ZERO;
 
   if (GetKernelParameters(X, true, grid, block, shMemSize, stream, atomic))
   {
@@ -1198,7 +1198,7 @@ booleantype N_VInvTest_Hip(N_Vector X, N_Vector Z)
 
   if (atomic)
   {
-    invTestKernel<realtype, sunindextype, GridReducerAtomic><<<grid, block, shMemSize, stream>>>
+    invTestKernel<sunrealtype, sunindextype, GridReducerAtomic><<<grid, block, shMemSize, stream>>>
     (
       NVEC_HIP_DDATAp(X),
       NVEC_HIP_DDATAp(Z),
@@ -1209,7 +1209,7 @@ booleantype N_VInvTest_Hip(N_Vector X, N_Vector Z)
   }
   else
   {
-    invTestKernel<realtype, sunindextype, GridReducerLDS><<<grid, block, shMemSize, stream>>>
+    invTestKernel<sunrealtype, sunindextype, GridReducerLDS><<<grid, block, shMemSize, stream>>>
     (
       NVEC_HIP_DDATAp(X),
       NVEC_HIP_DDATAp(Z),
@@ -1228,13 +1228,13 @@ booleantype N_VInvTest_Hip(N_Vector X, N_Vector Z)
   return (gpu_result < HALF);
 }
 
-booleantype N_VConstrMask_Hip(N_Vector C, N_Vector X, N_Vector M)
+sunbooleantype N_VConstrMask_Hip(N_Vector C, N_Vector X, N_Vector M)
 {
   bool atomic;
   size_t grid, block, shMemSize;
   hipStream_t stream;
 
-  realtype gpu_result = ZERO;
+  sunrealtype gpu_result = ZERO;
 
   if (GetKernelParameters(X, true, grid, block, shMemSize, stream, atomic))
   {
@@ -1249,7 +1249,7 @@ booleantype N_VConstrMask_Hip(N_Vector C, N_Vector X, N_Vector M)
 
   if (atomic)
   {
-    constrMaskKernel<realtype, sunindextype, GridReducerAtomic><<<grid, block, shMemSize, stream>>>
+    constrMaskKernel<sunrealtype, sunindextype, GridReducerAtomic><<<grid, block, shMemSize, stream>>>
     (
       NVEC_HIP_DDATAp(C),
       NVEC_HIP_DDATAp(X),
@@ -1261,7 +1261,7 @@ booleantype N_VConstrMask_Hip(N_Vector C, N_Vector X, N_Vector M)
   }
   else
   {
-    constrMaskKernel<realtype, sunindextype, GridReducerLDS><<<grid, block, shMemSize, stream>>>
+    constrMaskKernel<sunrealtype, sunindextype, GridReducerLDS><<<grid, block, shMemSize, stream>>>
     (
       NVEC_HIP_DDATAp(C),
       NVEC_HIP_DDATAp(X),
@@ -1281,13 +1281,13 @@ booleantype N_VConstrMask_Hip(N_Vector C, N_Vector X, N_Vector M)
   return (gpu_result < HALF);
 }
 
-realtype N_VMinQuotient_Hip(N_Vector num, N_Vector denom)
+sunrealtype N_VMinQuotient_Hip(N_Vector num, N_Vector denom)
 {
   bool atomic;
   size_t grid, block, shMemSize;
   hipStream_t stream;
 
-  realtype gpu_result = std::numeric_limits<realtype>::max();;
+  sunrealtype gpu_result = std::numeric_limits<sunrealtype>::max();;
 
   if (GetKernelParameters(num, true, grid, block, shMemSize, stream, atomic))
   {
@@ -1302,7 +1302,7 @@ realtype N_VMinQuotient_Hip(N_Vector num, N_Vector denom)
 
   if (atomic)
   {
-    minQuotientKernel<realtype, sunindextype, GridReducerAtomic><<<grid, block, shMemSize, stream>>>
+    minQuotientKernel<sunrealtype, sunindextype, GridReducerAtomic><<<grid, block, shMemSize, stream>>>
     (
       gpu_result,
       NVEC_HIP_DDATAp(num),
@@ -1314,7 +1314,7 @@ realtype N_VMinQuotient_Hip(N_Vector num, N_Vector denom)
   }
   else
   {
-    minQuotientKernel<realtype, sunindextype, GridReducerLDS><<<grid, block, shMemSize, stream>>>
+    minQuotientKernel<sunrealtype, sunindextype, GridReducerLDS><<<grid, block, shMemSize, stream>>>
     (
       gpu_result,
       NVEC_HIP_DDATAp(num),
@@ -1341,27 +1341,27 @@ realtype N_VMinQuotient_Hip(N_Vector num, N_Vector denom)
  * -----------------------------------------------------------------
  */
 
-int N_VLinearCombination_Hip(int nvec, realtype* c, N_Vector* X, N_Vector Z)
+int N_VLinearCombination_Hip(int nvec, sunrealtype* c, N_Vector* X, N_Vector Z)
 {
   hipError_t err;
 
   // Copy c array to device
-  realtype* d_c;
-  err = hipMalloc((void**) &d_c, nvec*sizeof(realtype));
+  sunrealtype* d_c;
+  err = hipMalloc((void**) &d_c, nvec*sizeof(sunrealtype));
   if (!SUNDIALS_HIP_VERIFY(err)) return(-1);
-  err = hipMemcpy(d_c, c, nvec*sizeof(realtype), hipMemcpyHostToDevice);
+  err = hipMemcpy(d_c, c, nvec*sizeof(sunrealtype), hipMemcpyHostToDevice);
   if (!SUNDIALS_HIP_VERIFY(err)) return(-1);
 
   // Create array of device pointers on host
-  realtype** h_Xd = new realtype*[nvec];
+  sunrealtype** h_Xd = new sunrealtype*[nvec];
   for (int i=0; i<nvec; i++)
     h_Xd[i] = NVEC_HIP_DDATAp(X[i]);
 
   // Copy array of device pointers to device from host
-  realtype** d_Xd;
-  err = hipMalloc((void**) &d_Xd, nvec*sizeof(realtype*));
+  sunrealtype** d_Xd;
+  err = hipMalloc((void**) &d_Xd, nvec*sizeof(sunrealtype*));
   if (!SUNDIALS_HIP_VERIFY(err)) return(-1);
-  err = hipMemcpy(d_Xd, h_Xd, nvec*sizeof(realtype*), hipMemcpyHostToDevice);
+  err = hipMemcpy(d_Xd, h_Xd, nvec*sizeof(sunrealtype*), hipMemcpyHostToDevice);
   if (!SUNDIALS_HIP_VERIFY(err)) return(-1);
 
   // Set kernel parameters and launch
@@ -1390,38 +1390,38 @@ int N_VLinearCombination_Hip(int nvec, realtype* c, N_Vector* X, N_Vector Z)
   return(0);
 }
 
-int N_VScaleAddMulti_Hip(int nvec, realtype* c, N_Vector X, N_Vector* Y,
+int N_VScaleAddMulti_Hip(int nvec, sunrealtype* c, N_Vector X, N_Vector* Y,
                           N_Vector* Z)
 {
   hipError_t err;
 
   // Copy c array to device
-  realtype* d_c;
-  err = hipMalloc((void**) &d_c, nvec*sizeof(realtype));
+  sunrealtype* d_c;
+  err = hipMalloc((void**) &d_c, nvec*sizeof(sunrealtype));
   if (!SUNDIALS_HIP_VERIFY(err)) return(-1);
-  err = hipMemcpy(d_c, c, nvec*sizeof(realtype), hipMemcpyHostToDevice);
+  err = hipMemcpy(d_c, c, nvec*sizeof(sunrealtype), hipMemcpyHostToDevice);
   if (!SUNDIALS_HIP_VERIFY(err)) return(-1);
 
   // Create array of device pointers on host
-  realtype** h_Yd = new realtype*[nvec];
+  sunrealtype** h_Yd = new sunrealtype*[nvec];
   for (int i=0; i<nvec; i++)
     h_Yd[i] = NVEC_HIP_DDATAp(Y[i]);
 
-  realtype** h_Zd = new realtype*[nvec];
+  sunrealtype** h_Zd = new sunrealtype*[nvec];
   for (int i=0; i<nvec; i++)
     h_Zd[i] = NVEC_HIP_DDATAp(Z[i]);
 
   // Copy array of device pointers to device from host
-  realtype** d_Yd;
-  err = hipMalloc((void**) &d_Yd, nvec*sizeof(realtype*));
+  sunrealtype** d_Yd;
+  err = hipMalloc((void**) &d_Yd, nvec*sizeof(sunrealtype*));
   if (!SUNDIALS_HIP_VERIFY(err)) return(-1);
-  err = hipMemcpy(d_Yd, h_Yd, nvec*sizeof(realtype*), hipMemcpyHostToDevice);
+  err = hipMemcpy(d_Yd, h_Yd, nvec*sizeof(sunrealtype*), hipMemcpyHostToDevice);
   if (!SUNDIALS_HIP_VERIFY(err)) return(-1);
 
-  realtype** d_Zd;
-  err = hipMalloc((void**) &d_Zd, nvec*sizeof(realtype*));
+  sunrealtype** d_Zd;
+  err = hipMalloc((void**) &d_Zd, nvec*sizeof(sunrealtype*));
   if (!SUNDIALS_HIP_VERIFY(err)) return(-1);
-  err = hipMemcpy(d_Zd, h_Zd, nvec*sizeof(realtype*), hipMemcpyHostToDevice);
+  err = hipMemcpy(d_Zd, h_Zd, nvec*sizeof(sunrealtype*), hipMemcpyHostToDevice);
   if (!SUNDIALS_HIP_VERIFY(err)) return(-1);
 
   // Set kernel parameters
@@ -1454,20 +1454,20 @@ int N_VScaleAddMulti_Hip(int nvec, realtype* c, N_Vector X, N_Vector* Y,
   return(0);
 }
 
-int N_VDotProdMulti_Hip(int nvec, N_Vector X, N_Vector* Y, realtype* dots)
+int N_VDotProdMulti_Hip(int nvec, N_Vector X, N_Vector* Y, sunrealtype* dots)
 {
   hipError_t err;
 
   // Create array of device pointers on host
-  realtype** h_Yd = new realtype*[nvec];
+  sunrealtype** h_Yd = new sunrealtype*[nvec];
   for (int i=0; i<nvec; i++)
     h_Yd[i] = NVEC_HIP_DDATAp(Y[i]);
 
   // Copy array of device pointers to device from host
-  realtype** d_Yd;
-  err = hipMalloc((void**) &d_Yd, nvec*sizeof(realtype*));
+  sunrealtype** d_Yd;
+  err = hipMalloc((void**) &d_Yd, nvec*sizeof(sunrealtype*));
   if (!SUNDIALS_HIP_VERIFY(err)) return(-1);
-  err = hipMemcpy(d_Yd, h_Yd, nvec*sizeof(realtype*), hipMemcpyHostToDevice);
+  err = hipMemcpy(d_Yd, h_Yd, nvec*sizeof(sunrealtype*), hipMemcpyHostToDevice);
   if (!SUNDIALS_HIP_VERIFY(err)) return(-1);
 
   // Set kernel parameters
@@ -1478,13 +1478,13 @@ int N_VDotProdMulti_Hip(int nvec, N_Vector X, N_Vector* Y, realtype* dots)
   grid = nvec;
 
   // Allocate reduction buffer on device
-  realtype* d_buff;
-  err = hipMalloc((void**) &d_buff, grid*sizeof(realtype));
+  sunrealtype* d_buff;
+  err = hipMalloc((void**) &d_buff, grid*sizeof(sunrealtype));
   if (!SUNDIALS_HIP_VERIFY(err)) return(-1);
-  err = hipMemsetAsync(d_buff, 0, grid*sizeof(realtype));
+  err = hipMemsetAsync(d_buff, 0, grid*sizeof(sunrealtype));
   if (!SUNDIALS_HIP_VERIFY(err)) return(-1);
 
-  dotProdMultiKernel<realtype, sunindextype, GridReducerAtomic><<<grid, block, shMemSize, stream>>>(
+  dotProdMultiKernel<sunrealtype, sunindextype, GridReducerAtomic><<<grid, block, shMemSize, stream>>>(
     nvec,
     NVEC_HIP_DDATAp(X),
     d_Yd,
@@ -1494,7 +1494,7 @@ int N_VDotProdMulti_Hip(int nvec, N_Vector X, N_Vector* Y, realtype* dots)
   PostKernelLaunch();
 
   // Copy GPU result to the cpu.
-  err = hipMemcpy(dots, d_buff, grid*sizeof(realtype), hipMemcpyDeviceToHost);
+  err = hipMemcpy(dots, d_buff, grid*sizeof(sunrealtype), hipMemcpyDeviceToHost);
   if (!SUNDIALS_HIP_VERIFY(err)) return(-1);
 
   // Free host array
@@ -1516,41 +1516,41 @@ int N_VDotProdMulti_Hip(int nvec, N_Vector X, N_Vector* Y, realtype* dots)
  * -----------------------------------------------------------------------------
  */
 
-int N_VLinearSumVectorArray_Hip(int nvec, realtype a, N_Vector* X, realtype b,
+int N_VLinearSumVectorArray_Hip(int nvec, sunrealtype a, N_Vector* X, sunrealtype b,
                                  N_Vector* Y, N_Vector* Z)
 {
   hipError_t err;
 
   // Create array of device pointers on host
-  realtype** h_Xd = new realtype*[nvec];
+  sunrealtype** h_Xd = new sunrealtype*[nvec];
   for (int i=0; i<nvec; i++)
     h_Xd[i] = NVEC_HIP_DDATAp(X[i]);
 
-  realtype** h_Yd = new realtype*[nvec];
+  sunrealtype** h_Yd = new sunrealtype*[nvec];
   for (int i=0; i<nvec; i++)
     h_Yd[i] = NVEC_HIP_DDATAp(Y[i]);
 
-  realtype** h_Zd = new realtype*[nvec];
+  sunrealtype** h_Zd = new sunrealtype*[nvec];
   for (int i=0; i<nvec; i++)
     h_Zd[i] = NVEC_HIP_DDATAp(Z[i]);
 
   // Copy array of device pointers to device from host
-  realtype** d_Xd;
-  err = hipMalloc((void**) &d_Xd, nvec*sizeof(realtype*));
+  sunrealtype** d_Xd;
+  err = hipMalloc((void**) &d_Xd, nvec*sizeof(sunrealtype*));
   if (!SUNDIALS_HIP_VERIFY(err)) return(-1);
-  err = hipMemcpy(d_Xd, h_Xd, nvec*sizeof(realtype*), hipMemcpyHostToDevice);
-  if (!SUNDIALS_HIP_VERIFY(err)) return(-1);
-
-  realtype** d_Yd;
-  err = hipMalloc((void**) &d_Yd, nvec*sizeof(realtype*));
-  if (!SUNDIALS_HIP_VERIFY(err)) return(-1);
-  err = hipMemcpy(d_Yd, h_Yd, nvec*sizeof(realtype*), hipMemcpyHostToDevice);
+  err = hipMemcpy(d_Xd, h_Xd, nvec*sizeof(sunrealtype*), hipMemcpyHostToDevice);
   if (!SUNDIALS_HIP_VERIFY(err)) return(-1);
 
-  realtype** d_Zd;
-  err = hipMalloc((void**) &d_Zd, nvec*sizeof(realtype*));
+  sunrealtype** d_Yd;
+  err = hipMalloc((void**) &d_Yd, nvec*sizeof(sunrealtype*));
   if (!SUNDIALS_HIP_VERIFY(err)) return(-1);
-  err = hipMemcpy(d_Zd, h_Zd, nvec*sizeof(realtype*), hipMemcpyHostToDevice);
+  err = hipMemcpy(d_Yd, h_Yd, nvec*sizeof(sunrealtype*), hipMemcpyHostToDevice);
+  if (!SUNDIALS_HIP_VERIFY(err)) return(-1);
+
+  sunrealtype** d_Zd;
+  err = hipMalloc((void**) &d_Zd, nvec*sizeof(sunrealtype*));
+  if (!SUNDIALS_HIP_VERIFY(err)) return(-1);
+  err = hipMemcpy(d_Zd, h_Zd, nvec*sizeof(sunrealtype*), hipMemcpyHostToDevice);
   if (!SUNDIALS_HIP_VERIFY(err)) return(-1);
 
   // Set kernel parameters
@@ -1585,37 +1585,37 @@ int N_VLinearSumVectorArray_Hip(int nvec, realtype a, N_Vector* X, realtype b,
   return(0);
 }
 
-int N_VScaleVectorArray_Hip(int nvec, realtype* c, N_Vector* X, N_Vector* Z)
+int N_VScaleVectorArray_Hip(int nvec, sunrealtype* c, N_Vector* X, N_Vector* Z)
 {
   hipError_t err;
 
   // Copy c array to device
-  realtype* d_c;
-  err = hipMalloc((void**) &d_c, nvec*sizeof(realtype));
+  sunrealtype* d_c;
+  err = hipMalloc((void**) &d_c, nvec*sizeof(sunrealtype));
   if (!SUNDIALS_HIP_VERIFY(err)) return(-1);
-  err = hipMemcpy(d_c, c, nvec*sizeof(realtype), hipMemcpyHostToDevice);
+  err = hipMemcpy(d_c, c, nvec*sizeof(sunrealtype), hipMemcpyHostToDevice);
   if (!SUNDIALS_HIP_VERIFY(err)) return(-1);
 
   // Create array of device pointers on host
-  realtype** h_Xd = new realtype*[nvec];
+  sunrealtype** h_Xd = new sunrealtype*[nvec];
   for (int i=0; i<nvec; i++)
     h_Xd[i] = NVEC_HIP_DDATAp(X[i]);
 
-  realtype** h_Zd = new realtype*[nvec];
+  sunrealtype** h_Zd = new sunrealtype*[nvec];
   for (int i=0; i<nvec; i++)
     h_Zd[i] = NVEC_HIP_DDATAp(Z[i]);
 
   // Copy array of device pointers to device from host
-  realtype** d_Xd;
-  err = hipMalloc((void**) &d_Xd, nvec*sizeof(realtype*));
+  sunrealtype** d_Xd;
+  err = hipMalloc((void**) &d_Xd, nvec*sizeof(sunrealtype*));
   if (!SUNDIALS_HIP_VERIFY(err)) return(-1);
-  err = hipMemcpy(d_Xd, h_Xd, nvec*sizeof(realtype*), hipMemcpyHostToDevice);
+  err = hipMemcpy(d_Xd, h_Xd, nvec*sizeof(sunrealtype*), hipMemcpyHostToDevice);
   if (!SUNDIALS_HIP_VERIFY(err)) return(-1);
 
-  realtype** d_Zd;
-  err = hipMalloc((void**) &d_Zd, nvec*sizeof(realtype*));
+  sunrealtype** d_Zd;
+  err = hipMalloc((void**) &d_Zd, nvec*sizeof(sunrealtype*));
   if (!SUNDIALS_HIP_VERIFY(err)) return(-1);
-  err = hipMemcpy(d_Zd, h_Zd, nvec*sizeof(realtype*), hipMemcpyHostToDevice);
+  err = hipMemcpy(d_Zd, h_Zd, nvec*sizeof(sunrealtype*), hipMemcpyHostToDevice);
   if (!SUNDIALS_HIP_VERIFY(err)) return(-1);
 
   // Set kernel parameters
@@ -1647,20 +1647,20 @@ int N_VScaleVectorArray_Hip(int nvec, realtype* c, N_Vector* X, N_Vector* Z)
   return(0);
 }
 
-int N_VConstVectorArray_Hip(int nvec, realtype c, N_Vector* Z)
+int N_VConstVectorArray_Hip(int nvec, sunrealtype c, N_Vector* Z)
 {
   hipError_t err;
 
   // Create array of device pointers on host
-  realtype** h_Zd = new realtype*[nvec];
+  sunrealtype** h_Zd = new sunrealtype*[nvec];
   for (int i=0; i<nvec; i++)
     h_Zd[i] = NVEC_HIP_DDATAp(Z[i]);
 
   // Copy array of device pointers to device from host
-  realtype** d_Zd;
-  err = hipMalloc((void**) &d_Zd, nvec*sizeof(realtype*));
+  sunrealtype** d_Zd;
+  err = hipMalloc((void**) &d_Zd, nvec*sizeof(sunrealtype*));
   if (!SUNDIALS_HIP_VERIFY(err)) return(-1);
-  err = hipMemcpy(d_Zd, h_Zd, nvec*sizeof(realtype*), hipMemcpyHostToDevice);
+  err = hipMemcpy(d_Zd, h_Zd, nvec*sizeof(sunrealtype*), hipMemcpyHostToDevice);
   if (!SUNDIALS_HIP_VERIFY(err)) return(-1);
 
   // Set kernel parameters
@@ -1687,29 +1687,29 @@ int N_VConstVectorArray_Hip(int nvec, realtype c, N_Vector* Z)
 }
 
 int N_VWrmsNormVectorArray_Hip(int nvec, N_Vector* X, N_Vector* W,
-                                realtype* norms)
+                                sunrealtype* norms)
 {
   hipError_t err;
 
   // Create array of device pointers on host
-  realtype** h_Xd = new realtype*[nvec];
+  sunrealtype** h_Xd = new sunrealtype*[nvec];
   for (int i=0; i<nvec; i++)
     h_Xd[i] = NVEC_HIP_DDATAp(X[i]);
-  realtype** h_Wd = new realtype*[nvec];
+  sunrealtype** h_Wd = new sunrealtype*[nvec];
   for (int i=0; i<nvec; i++)
     h_Wd[i] = NVEC_HIP_DDATAp(W[i]);
 
   // Copy array of device pointers to device from host
-  realtype** d_Xd;
-  err = hipMalloc((void**) &d_Xd, nvec*sizeof(realtype*));
+  sunrealtype** d_Xd;
+  err = hipMalloc((void**) &d_Xd, nvec*sizeof(sunrealtype*));
   if (!SUNDIALS_HIP_VERIFY(err)) return(-1);
-  err = hipMemcpy(d_Xd, h_Xd, nvec*sizeof(realtype*), hipMemcpyHostToDevice);
+  err = hipMemcpy(d_Xd, h_Xd, nvec*sizeof(sunrealtype*), hipMemcpyHostToDevice);
   if (!SUNDIALS_HIP_VERIFY(err)) return(-1);
 
-  realtype** d_Wd;
-  err = hipMalloc((void**) &d_Wd, nvec*sizeof(realtype*));
+  sunrealtype** d_Wd;
+  err = hipMalloc((void**) &d_Wd, nvec*sizeof(sunrealtype*));
   if (!SUNDIALS_HIP_VERIFY(err)) return(-1);
-  err = hipMemcpy(d_Wd, h_Wd, nvec*sizeof(realtype*), hipMemcpyHostToDevice);
+  err = hipMemcpy(d_Wd, h_Wd, nvec*sizeof(sunrealtype*), hipMemcpyHostToDevice);
   if (!SUNDIALS_HIP_VERIFY(err)) return(-1);
 
   // Set kernel parameters
@@ -1720,13 +1720,13 @@ int N_VWrmsNormVectorArray_Hip(int nvec, N_Vector* X, N_Vector* W,
   grid = nvec;
 
   // Allocate reduction buffer on device
-  realtype* d_buff;
-  err = hipMalloc((void**) &d_buff, grid*sizeof(realtype));
+  sunrealtype* d_buff;
+  err = hipMalloc((void**) &d_buff, grid*sizeof(sunrealtype));
   if (!SUNDIALS_HIP_VERIFY(err)) return(-1);
-  err = hipMemsetAsync(d_buff, 0, grid*sizeof(realtype));
+  err = hipMemsetAsync(d_buff, 0, grid*sizeof(sunrealtype));
   if (!SUNDIALS_HIP_VERIFY(err)) return(-1);
 
-  wL2NormSquareVectorArrayKernel<realtype, sunindextype, GridReducerAtomic><<<grid, block, shMemSize, stream>>>(
+  wL2NormSquareVectorArrayKernel<sunrealtype, sunindextype, GridReducerAtomic><<<grid, block, shMemSize, stream>>>(
     nvec,
     d_Xd,
     d_Wd,
@@ -1736,7 +1736,7 @@ int N_VWrmsNormVectorArray_Hip(int nvec, N_Vector* X, N_Vector* W,
   PostKernelLaunch();
 
   // Copy GPU result to the cpu.
-  err = hipMemcpy(norms, d_buff, grid*sizeof(realtype), hipMemcpyDeviceToHost);
+  err = hipMemcpy(norms, d_buff, grid*sizeof(sunrealtype), hipMemcpyDeviceToHost);
   if (!SUNDIALS_HIP_VERIFY(err)) return(-1);
 
   // Finish computation
@@ -1759,30 +1759,30 @@ int N_VWrmsNormVectorArray_Hip(int nvec, N_Vector* X, N_Vector* W,
 }
 
 int N_VWrmsNormMaskVectorArray_Hip(int nvec, N_Vector* X, N_Vector* W,
-                                    N_Vector id, realtype* norms)
+                                    N_Vector id, sunrealtype* norms)
 {
   hipError_t err;
 
   // Create array of device pointers on host
-  realtype** h_Xd = new realtype*[nvec];
+  sunrealtype** h_Xd = new sunrealtype*[nvec];
   for (int i=0; i<nvec; i++)
     h_Xd[i] = NVEC_HIP_DDATAp(X[i]);
 
-  realtype** h_Wd = new realtype*[nvec];
+  sunrealtype** h_Wd = new sunrealtype*[nvec];
   for (int i=0; i<nvec; i++)
     h_Wd[i] = NVEC_HIP_DDATAp(W[i]);
 
   // Copy array of device pointers to device from host
-  realtype** d_Xd;
-  err = hipMalloc((void**) &d_Xd, nvec*sizeof(realtype*));
+  sunrealtype** d_Xd;
+  err = hipMalloc((void**) &d_Xd, nvec*sizeof(sunrealtype*));
   if (!SUNDIALS_HIP_VERIFY(err)) return(-1);
-  err = hipMemcpy(d_Xd, h_Xd, nvec*sizeof(realtype*), hipMemcpyHostToDevice);
+  err = hipMemcpy(d_Xd, h_Xd, nvec*sizeof(sunrealtype*), hipMemcpyHostToDevice);
   if (!SUNDIALS_HIP_VERIFY(err)) return(-1);
 
-  realtype** d_Wd;
-  err = hipMalloc((void**) &d_Wd, nvec*sizeof(realtype*));
+  sunrealtype** d_Wd;
+  err = hipMalloc((void**) &d_Wd, nvec*sizeof(sunrealtype*));
   if (!SUNDIALS_HIP_VERIFY(err)) return(-1);
-  err = hipMemcpy(d_Wd, h_Wd, nvec*sizeof(realtype*), hipMemcpyHostToDevice);
+  err = hipMemcpy(d_Wd, h_Wd, nvec*sizeof(sunrealtype*), hipMemcpyHostToDevice);
   if (!SUNDIALS_HIP_VERIFY(err)) return(-1);
 
   // Set kernel parameters
@@ -1793,13 +1793,13 @@ int N_VWrmsNormMaskVectorArray_Hip(int nvec, N_Vector* X, N_Vector* W,
   grid = nvec;
 
   // Allocate reduction buffer on device
-  realtype* d_buff;
-  err = hipMalloc((void**) &d_buff, grid*sizeof(realtype));
+  sunrealtype* d_buff;
+  err = hipMalloc((void**) &d_buff, grid*sizeof(sunrealtype));
   if (!SUNDIALS_HIP_VERIFY(err)) return(-1);
-  err = hipMemsetAsync(d_buff, 0, grid*sizeof(realtype));
+  err = hipMemsetAsync(d_buff, 0, grid*sizeof(sunrealtype));
   if (!SUNDIALS_HIP_VERIFY(err)) return(-1);
 
-  wL2NormSquareMaskVectorArrayKernel<realtype, sunindextype, GridReducerAtomic><<<grid, block, shMemSize, stream>>>(
+  wL2NormSquareMaskVectorArrayKernel<sunrealtype, sunindextype, GridReducerAtomic><<<grid, block, shMemSize, stream>>>(
     nvec,
     d_Xd,
     d_Wd,
@@ -1810,7 +1810,7 @@ int N_VWrmsNormMaskVectorArray_Hip(int nvec, N_Vector* X, N_Vector* W,
   PostKernelLaunch();
 
   // Copy GPU result to the cpu.
-  err = hipMemcpy(norms, d_buff, grid*sizeof(realtype), hipMemcpyDeviceToHost);
+  err = hipMemcpy(norms, d_buff, grid*sizeof(sunrealtype), hipMemcpyDeviceToHost);
   if (!SUNDIALS_HIP_VERIFY(err)) return(-1);
 
   // Finish computation
@@ -1832,50 +1832,50 @@ int N_VWrmsNormMaskVectorArray_Hip(int nvec, N_Vector* X, N_Vector* W,
   return(0);
 }
 
-int N_VScaleAddMultiVectorArray_Hip(int nvec, int nsum, realtype* c,
+int N_VScaleAddMultiVectorArray_Hip(int nvec, int nsum, sunrealtype* c,
                                      N_Vector* X, N_Vector** Y, N_Vector** Z)
 {
   hipError_t err;
 
   // Copy c array to device
-  realtype* d_c;
-  err = hipMalloc((void**) &d_c, nsum*sizeof(realtype));
+  sunrealtype* d_c;
+  err = hipMalloc((void**) &d_c, nsum*sizeof(sunrealtype));
   if (!SUNDIALS_HIP_VERIFY(err)) return(-1);
-  err = hipMemcpy(d_c, c, nsum*sizeof(realtype), hipMemcpyHostToDevice);
+  err = hipMemcpy(d_c, c, nsum*sizeof(sunrealtype), hipMemcpyHostToDevice);
   if (!SUNDIALS_HIP_VERIFY(err)) return(-1);
 
   // Create array of device pointers on host
-  realtype** h_Xd = new realtype*[nvec];
+  sunrealtype** h_Xd = new sunrealtype*[nvec];
   for (int i=0; i<nvec; i++)
     h_Xd[i] = NVEC_HIP_DDATAp(X[i]);
 
-  realtype** h_Yd = new realtype*[nsum*nvec];
+  sunrealtype** h_Yd = new sunrealtype*[nsum*nvec];
   for (int j=0; j<nvec; j++)
     for (int i=0; i<nsum; i++)
       h_Yd[j*nsum+i] = NVEC_HIP_DDATAp(Y[i][j]);
 
-  realtype** h_Zd = new realtype*[nsum*nvec];
+  sunrealtype** h_Zd = new sunrealtype*[nsum*nvec];
   for (int j=0; j<nvec; j++)
     for (int i=0; i<nsum; i++)
       h_Zd[j*nsum+i] = NVEC_HIP_DDATAp(Z[i][j]);
 
   // Copy array of device pointers to device from host
-  realtype** d_Xd;
-  err = hipMalloc((void**) &d_Xd, nvec*sizeof(realtype*));
+  sunrealtype** d_Xd;
+  err = hipMalloc((void**) &d_Xd, nvec*sizeof(sunrealtype*));
   if (!SUNDIALS_HIP_VERIFY(err)) return(-1);
-  err = hipMemcpy(d_Xd, h_Xd, nvec*sizeof(realtype*), hipMemcpyHostToDevice);
-  if (!SUNDIALS_HIP_VERIFY(err)) return(-1);
-
-  realtype** d_Yd;
-  err = hipMalloc((void**) &d_Yd, nsum*nvec*sizeof(realtype*));
-  if (!SUNDIALS_HIP_VERIFY(err)) return(-1);
-  err = hipMemcpy(d_Yd, h_Yd, nsum*nvec*sizeof(realtype*), hipMemcpyHostToDevice);
+  err = hipMemcpy(d_Xd, h_Xd, nvec*sizeof(sunrealtype*), hipMemcpyHostToDevice);
   if (!SUNDIALS_HIP_VERIFY(err)) return(-1);
 
-  realtype** d_Zd;
-  err = hipMalloc((void**) &d_Zd, nsum*nvec*sizeof(realtype*));
+  sunrealtype** d_Yd;
+  err = hipMalloc((void**) &d_Yd, nsum*nvec*sizeof(sunrealtype*));
   if (!SUNDIALS_HIP_VERIFY(err)) return(-1);
-  err = hipMemcpy(d_Zd, h_Zd, nsum*nvec*sizeof(realtype*), hipMemcpyHostToDevice);
+  err = hipMemcpy(d_Yd, h_Yd, nsum*nvec*sizeof(sunrealtype*), hipMemcpyHostToDevice);
+  if (!SUNDIALS_HIP_VERIFY(err)) return(-1);
+
+  sunrealtype** d_Zd;
+  err = hipMalloc((void**) &d_Zd, nsum*nvec*sizeof(sunrealtype*));
+  if (!SUNDIALS_HIP_VERIFY(err)) return(-1);
+  err = hipMemcpy(d_Zd, h_Zd, nsum*nvec*sizeof(sunrealtype*), hipMemcpyHostToDevice);
   if (!SUNDIALS_HIP_VERIFY(err)) return(-1);
 
   // Set kernel parameters
@@ -1912,39 +1912,39 @@ int N_VScaleAddMultiVectorArray_Hip(int nvec, int nsum, realtype* c,
   return(0);
 }
 
-int N_VLinearCombinationVectorArray_Hip(int nvec, int nsum, realtype* c,
+int N_VLinearCombinationVectorArray_Hip(int nvec, int nsum, sunrealtype* c,
                                          N_Vector** X, N_Vector* Z)
 {
   hipError_t err;
 
   // Copy c array to device
-  realtype* d_c;
-  err = hipMalloc((void**) &d_c, nsum*sizeof(realtype));
+  sunrealtype* d_c;
+  err = hipMalloc((void**) &d_c, nsum*sizeof(sunrealtype));
   if (!SUNDIALS_HIP_VERIFY(err)) return(-1);
-  err = hipMemcpy(d_c, c, nsum*sizeof(realtype), hipMemcpyHostToDevice);
+  err = hipMemcpy(d_c, c, nsum*sizeof(sunrealtype), hipMemcpyHostToDevice);
   if (!SUNDIALS_HIP_VERIFY(err)) return(-1);
 
   // Create array of device pointers on host
-  realtype** h_Xd = new realtype*[nsum*nvec];
+  sunrealtype** h_Xd = new sunrealtype*[nsum*nvec];
   for (int j=0; j<nvec; j++)
     for (int i=0; i<nsum; i++)
       h_Xd[j*nsum+i] = NVEC_HIP_DDATAp(X[i][j]);
 
-  realtype** h_Zd = new realtype*[nvec];
+  sunrealtype** h_Zd = new sunrealtype*[nvec];
   for (int i=0; i<nvec; i++)
     h_Zd[i] = NVEC_HIP_DDATAp(Z[i]);
 
   // Copy array of device pointers to device from host
-  realtype** d_Xd;
-  err = hipMalloc((void**) &d_Xd, nsum*nvec*sizeof(realtype*));
+  sunrealtype** d_Xd;
+  err = hipMalloc((void**) &d_Xd, nsum*nvec*sizeof(sunrealtype*));
   if (!SUNDIALS_HIP_VERIFY(err)) return(-1);
-  err = hipMemcpy(d_Xd, h_Xd, nsum*nvec*sizeof(realtype*), hipMemcpyHostToDevice);
+  err = hipMemcpy(d_Xd, h_Xd, nsum*nvec*sizeof(sunrealtype*), hipMemcpyHostToDevice);
   if (!SUNDIALS_HIP_VERIFY(err)) return(-1);
 
-  realtype** d_Zd;
-  err = hipMalloc((void**) &d_Zd, nvec*sizeof(realtype*));
+  sunrealtype** d_Zd;
+  err = hipMalloc((void**) &d_Zd, nvec*sizeof(sunrealtype*));
   if (!SUNDIALS_HIP_VERIFY(err)) return(-1);
-  err = hipMemcpy(d_Zd, h_Zd, nvec*sizeof(realtype*), hipMemcpyHostToDevice);
+  err = hipMemcpy(d_Zd, h_Zd, nvec*sizeof(sunrealtype*), hipMemcpyHostToDevice);
   if (!SUNDIALS_HIP_VERIFY(err)) return(-1);
 
   // Set kernel parameters
@@ -2050,7 +2050,7 @@ int N_VBufUnpack_Hip(N_Vector x, void *buf)
  */
 
 
-int N_VEnableFusedOps_Hip(N_Vector v, booleantype tf)
+int N_VEnableFusedOps_Hip(N_Vector v, sunbooleantype tf)
 {
   /* check that vector is non-NULL */
   if (v == NULL) return(-1);
@@ -2097,7 +2097,7 @@ int N_VEnableFusedOps_Hip(N_Vector v, booleantype tf)
   return(0);
 }
 
-int N_VEnableLinearCombination_Hip(N_Vector v, booleantype tf)
+int N_VEnableLinearCombination_Hip(N_Vector v, sunbooleantype tf)
 {
   /* check that vector is non-NULL */
   if (v == NULL) return(-1);
@@ -2115,7 +2115,7 @@ int N_VEnableLinearCombination_Hip(N_Vector v, booleantype tf)
   return(0);
 }
 
-int N_VEnableScaleAddMulti_Hip(N_Vector v, booleantype tf)
+int N_VEnableScaleAddMulti_Hip(N_Vector v, sunbooleantype tf)
 {
   /* check that vector is non-NULL */
   if (v == NULL) return(-1);
@@ -2133,7 +2133,7 @@ int N_VEnableScaleAddMulti_Hip(N_Vector v, booleantype tf)
   return(0);
 }
 
-int N_VEnableDotProdMulti_Hip(N_Vector v, booleantype tf)
+int N_VEnableDotProdMulti_Hip(N_Vector v, sunbooleantype tf)
 {
   /* check that vector is non-NULL */
   if (v == NULL) return(-1);
@@ -2154,7 +2154,7 @@ int N_VEnableDotProdMulti_Hip(N_Vector v, booleantype tf)
   return(0);
 }
 
-int N_VEnableLinearSumVectorArray_Hip(N_Vector v, booleantype tf)
+int N_VEnableLinearSumVectorArray_Hip(N_Vector v, sunbooleantype tf)
 {
   /* check that vector is non-NULL */
   if (v == NULL) return(-1);
@@ -2172,7 +2172,7 @@ int N_VEnableLinearSumVectorArray_Hip(N_Vector v, booleantype tf)
   return(0);
 }
 
-int N_VEnableScaleVectorArray_Hip(N_Vector v, booleantype tf)
+int N_VEnableScaleVectorArray_Hip(N_Vector v, sunbooleantype tf)
 {
   /* check that vector is non-NULL */
   if (v == NULL) return(-1);
@@ -2190,7 +2190,7 @@ int N_VEnableScaleVectorArray_Hip(N_Vector v, booleantype tf)
   return(0);
 }
 
-int N_VEnableConstVectorArray_Hip(N_Vector v, booleantype tf)
+int N_VEnableConstVectorArray_Hip(N_Vector v, sunbooleantype tf)
 {
   /* check that vector is non-NULL */
   if (v == NULL) return(-1);
@@ -2208,7 +2208,7 @@ int N_VEnableConstVectorArray_Hip(N_Vector v, booleantype tf)
   return(0);
 }
 
-int N_VEnableWrmsNormVectorArray_Hip(N_Vector v, booleantype tf)
+int N_VEnableWrmsNormVectorArray_Hip(N_Vector v, sunbooleantype tf)
 {
   /* check that vector is non-NULL */
   if (v == NULL) return(-1);
@@ -2226,7 +2226,7 @@ int N_VEnableWrmsNormVectorArray_Hip(N_Vector v, booleantype tf)
   return(0);
 }
 
-int N_VEnableWrmsNormMaskVectorArray_Hip(N_Vector v, booleantype tf)
+int N_VEnableWrmsNormMaskVectorArray_Hip(N_Vector v, sunbooleantype tf)
 {
   /* check that vector is non-NULL */
   if (v == NULL) return(-1);
@@ -2244,7 +2244,7 @@ int N_VEnableWrmsNormMaskVectorArray_Hip(N_Vector v, booleantype tf)
   return(0);
 }
 
-int N_VEnableScaleAddMultiVectorArray_Hip(N_Vector v, booleantype tf)
+int N_VEnableScaleAddMultiVectorArray_Hip(N_Vector v, sunbooleantype tf)
 {
   /* check that vector is non-NULL */
   if (v == NULL) return(-1);
@@ -2262,7 +2262,7 @@ int N_VEnableScaleAddMultiVectorArray_Hip(N_Vector v, booleantype tf)
   return(0);
 }
 
-int N_VEnableLinearCombinationVectorArray_Hip(N_Vector v, booleantype tf)
+int N_VEnableLinearCombinationVectorArray_Hip(N_Vector v, sunbooleantype tf)
 {
   /* check that vector is non-NULL */
   if (v == NULL) return(-1);
@@ -2334,12 +2334,12 @@ int AllocateData(N_Vector v)
  * of the vector is increased. The buffer is initialized to the
  * value given.
  */
-static int InitializeReductionBuffer(N_Vector v, realtype value, size_t n)
+static int InitializeReductionBuffer(N_Vector v, sunrealtype value, size_t n)
 {
   int         alloc_fail = 0;
   int         copy_fail  = 0;
-  booleantype alloc_mem  = SUNFALSE;
-  size_t      bytes      = n * sizeof(realtype);
+  sunbooleantype alloc_mem  = SUNFALSE;
+  size_t      bytes      = n * sizeof(sunrealtype);
 
   // Get the vector private memory structure
   N_PrivateVectorContent_Hip vcp = NVEC_HIP_PRIVATE(v);
@@ -2388,7 +2388,7 @@ static int InitializeReductionBuffer(N_Vector v, realtype value, size_t n)
 
     // Initialize the host memory with the value
     for (int i = 0; i < n; ++i)
-      ((realtype*)vcp->reduce_buffer_host->ptr)[i] = value;
+      ((sunrealtype*)vcp->reduce_buffer_host->ptr)[i] = value;
 
     // Initialize the device memory with the value
     copy_fail = SUNMemoryHelper_CopyAsync(NVEC_HIP_MEMHELP(v),
@@ -2438,7 +2438,7 @@ static int CopyReductionBufferFromDevice(N_Vector v, size_t n)
   copy_fail = SUNMemoryHelper_CopyAsync(NVEC_HIP_MEMHELP(v),
                                         NVEC_HIP_PRIVATE(v)->reduce_buffer_host,
                                         NVEC_HIP_PRIVATE(v)->reduce_buffer_dev,
-                                        n * sizeof(realtype),
+                                        n * sizeof(sunrealtype),
                                         (void*) NVEC_HIP_STREAM(v));
 
   if (copy_fail)
@@ -2477,7 +2477,7 @@ static int FreeDeviceCounter(N_Vector v)
 /* Get the kernel launch parameters based on the kernel type (reduction or not),
  * using the appropriate kernel execution policy.
  */
-static int GetKernelParameters(N_Vector v, booleantype reduction, size_t& grid,
+static int GetKernelParameters(N_Vector v, sunbooleantype reduction, size_t& grid,
                                size_t& block, size_t& shMemSize,
                                hipStream_t& stream, bool& atomic, size_t n)
 {
@@ -2538,7 +2538,7 @@ static int GetKernelParameters(N_Vector v, booleantype reduction, size_t& grid,
   return(0);
 }
 
-static int GetKernelParameters(N_Vector v, booleantype reduction, size_t& grid,
+static int GetKernelParameters(N_Vector v, sunbooleantype reduction, size_t& grid,
                                size_t& block, size_t& shMemSize, hipStream_t& stream,
                                size_t n)
 {

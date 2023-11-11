@@ -182,7 +182,7 @@ program main
   !============== Introduction =============
   print *, 'Band SUNMatrix Fortran 2003 interface test'
 
-  call Test_Init(c_null_ptr)
+  call Test_Init(0)
 
   fails = unit_tests()
   if (fails /= 0) then

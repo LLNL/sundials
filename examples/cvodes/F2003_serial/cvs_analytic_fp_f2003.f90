@@ -124,7 +124,7 @@ program main
 
   !======= Internals ============
 
-  ierr = FSUNContext_Create(c_null_ptr, ctx)
+  ierr = FSUNContext_Create(0, ctx)
 
   ! initialize ODE
   tstart = 0.0d0

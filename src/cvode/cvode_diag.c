@@ -25,8 +25,8 @@
 
 #ifdef SUNDIALS_BUILD_PACKAGE_FUSED_KERNELS
 extern
-int cvDiagSetup_formY(const realtype h,
-                      const realtype r,
+int cvDiagSetup_formY(const sunrealtype h,
+                      const sunrealtype r,
                       const N_Vector fpred,
                       const N_Vector zn1,
                       const N_Vector ypred,
@@ -34,9 +34,9 @@ int cvDiagSetup_formY(const realtype h,
                       N_Vector y);
 
 extern
-int cvDiagSetup_buildM(const realtype fract,
-                       const realtype uround,
-                       const realtype h,
+int cvDiagSetup_buildM(const sunrealtype fract,
+                       const sunrealtype uround,
+                       const sunrealtype h,
                        const N_Vector ftemp,
                        const N_Vector fpred,
                        const N_Vector ewt,
@@ -45,20 +45,20 @@ int cvDiagSetup_buildM(const realtype fract,
                        N_Vector y,
                        N_Vector M);
 
-int cvDiagSolve_updateM(const realtype r, N_Vector M);
+int cvDiagSolve_updateM(const sunrealtype r, N_Vector M);
 #endif
 
 /* Other Constants */
 
-#define FRACT RCONST(0.1)
-#define ONE   RCONST(1.0)
+#define FRACT SUN_RCONST(0.1)
+#define ONE   SUN_RCONST(1.0)
 
 /* CVDIAG linit, lsetup, lsolve, and lfree routines */
 
 static int CVDiagInit(CVodeMem cv_mem);
 
 static int CVDiagSetup(CVodeMem cv_mem, int convfail, N_Vector ypred,
-                       N_Vector fpred, booleantype *jcurPtr, N_Vector vtemp1,
+                       N_Vector fpred, sunbooleantype *jcurPtr, N_Vector vtemp1,
                        N_Vector vtemp2, N_Vector vtemp3);
 
 static int CVDiagSolve(CVodeMem cv_mem, N_Vector b, N_Vector weight,
@@ -339,12 +339,12 @@ static int CVDiagInit(CVodeMem cv_mem)
  */
 
 static int CVDiagSetup(CVodeMem cv_mem, int convfail, N_Vector ypred,
-                       N_Vector fpred, booleantype *jcurPtr, N_Vector vtemp1,
+                       N_Vector fpred, sunbooleantype *jcurPtr, N_Vector vtemp1,
                        N_Vector vtemp2, N_Vector vtemp3)
 {
-  realtype r;
+  sunrealtype r;
   N_Vector ftemp, y;
-  booleantype invOK;
+  sunbooleantype invOK;
   CVDiagMem cvdiag_mem;
   int retval;
 
@@ -429,8 +429,8 @@ static int CVDiagSetup(CVodeMem cv_mem, int convfail, N_Vector ypred,
 static int CVDiagSolve(CVodeMem cv_mem, N_Vector b, N_Vector weight,
                        N_Vector ycur, N_Vector fcur)
 {
-  booleantype invOK;
-  realtype r;
+  sunbooleantype invOK;
+  sunrealtype r;
   CVDiagMem cvdiag_mem;
 
   cvdiag_mem = (CVDiagMem) lmem;

@@ -24,7 +24,7 @@
 #define ONE  SUN_RCONST(1.0)
 
 /* Dummy user-supplied function */
-static int f(realtype t, N_Vector y, N_Vector ydot, void *user_data)
+static int f(sunrealtype t, N_Vector y, N_Vector ydot, void *user_data)
 {
   return 0;
 }
@@ -40,7 +40,7 @@ int main(int argc, char *argv[])
   void       *udata_out = NULL;
 
   /* Create the SUNDIALS context object for this simulation. */
-  retval = SUNContext_Create(NULL, &sunctx);
+  retval = SUNContext_Create(SUN_COMM_NULL, &sunctx);
   if (retval)
   {
     fprintf(stderr, "SUNContext_Create returned %i\n", retval);

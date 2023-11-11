@@ -74,7 +74,7 @@ extern "C" {
 
 #if defined(SUNDIALS_DOUBLE_PRECISION)
 #else
-#error  Incompatible realtype for KLU
+#error  Incompatible sunrealtype for KLU
 #endif
 
 /* --------------------------------------
@@ -128,7 +128,7 @@ SUNDIALS_EXPORT SUNLinearSolver_ID SUNLinSolGetID_KLU(SUNLinearSolver S);
 SUNDIALS_EXPORT int SUNLinSolInitialize_KLU(SUNLinearSolver S);
 SUNDIALS_EXPORT int SUNLinSolSetup_KLU(SUNLinearSolver S, SUNMatrix A);
 SUNDIALS_EXPORT int SUNLinSolSolve_KLU(SUNLinearSolver S, SUNMatrix A,
-                                       N_Vector x, N_Vector b, realtype tol);
+                                       N_Vector x, N_Vector b, sunrealtype tol);
 SUNDIALS_EXPORT sunindextype SUNLinSolLastFlag_KLU(SUNLinearSolver S);
 SUNDIALS_EXPORT int SUNLinSolSpace_KLU(SUNLinearSolver S,
                                        long int *lenrwLS,

@@ -32,16 +32,16 @@
 #endif
 
 #define NEQ   3                /* number of equations        */
-#define TOL   RCONST(1.0e-2)   /* nonlinear solver tolerance */
+#define TOL   SUN_RCONST(1.0e-2)   /* nonlinear solver tolerance */
 #define MAXIT 10               /* max nonlinear iterations   */
 
-#define ZERO  RCONST(0.0)  /* real 0.0 */
-#define HALF  RCONST(0.5)  /* real 0.5 */
-#define ONE   RCONST(1.0)  /* real 1.0 */
-#define TWO   RCONST(2.0)  /* real 2.0 */
-#define THREE RCONST(3.0)  /* real 3.0 */
-#define FOUR  RCONST(4.0)  /* real 4.0 */
-#define SIX   RCONST(6.0)  /* real 6.0 */
+#define ZERO  SUN_RCONST(0.0)  /* real 0.0 */
+#define HALF  SUN_RCONST(0.5)  /* real 0.5 */
+#define ONE   SUN_RCONST(1.0)  /* real 1.0 */
+#define TWO   SUN_RCONST(2.0)  /* real 2.0 */
+#define THREE SUN_RCONST(3.0)  /* real 3.0 */
+#define FOUR  SUN_RCONST(4.0)  /* real 4.0 */
+#define SIX   SUN_RCONST(6.0)  /* real 6.0 */
 
 /* approximate solution */
 #define Y1 0.785196933062355226
@@ -75,7 +75,7 @@ int main(int argc, char *argv[])
   retval = PetscInitializeNoArguments();CHKERRQ(retval);
 
   /* create SUNDIALS context */
-  retval = SUNContext_Create(NULL, &sunctx);
+  retval = SUNContext_Create(SUN_COMM_NULL, &sunctx);
   if (check_retval(&retval, "SUNContext_Create", 1)) return(1);
 
   /* create vector */
@@ -127,7 +127,7 @@ int main(int argc, char *argv[])
   if (check_retval(&retval, "SUNNonlinSolSolve", 1)) return(1);
 
   /* get the solution */
-  realtype yvals[3];
+  sunrealtype yvals[3];
   sunindextype indc[3] = {0, 1, 2};
   VecGetValues(Y, 3, indc, yvals);
 
@@ -184,8 +184,8 @@ int main(int argc, char *argv[])
 int Res(N_Vector y, N_Vector f, void *mem)
 {
   Vec yvec, fvec;
-  realtype vals[3];
-  realtype y1, y2, y3;
+  sunrealtype vals[3];
+  sunrealtype y1, y2, y3;
 
   yvec = N_VGetVector_Petsc(y);
   fvec = N_VGetVector_Petsc(f);
@@ -221,8 +221,8 @@ int Res(N_Vector y, N_Vector f, void *mem)
  * ---------------------------------------------------------------------------*/
 int Jac(SNES snes, Vec y, Mat J, Mat Jpre, void *ctx)
 {
-  realtype y1, y2, y3;
-  realtype yvals[3];
+  sunrealtype y1, y2, y3;
+  sunrealtype yvals[3];
 
   /* set vector indices */
   sunindextype indc[3] = { 0, 1, 2 };
@@ -232,7 +232,7 @@ int Jac(SNES snes, Vec y, Mat J, Mat Jpre, void *ctx)
   y1 = yvals[0]; y2 = yvals[1]; y3 = yvals[2];
 
   /* set the Jacobian values */
-  realtype jvals[3][3] =  { { TWO*y1,  TWO*y2,  TWO*y3 },
+  sunrealtype jvals[3][3] =  { { TWO*y1,  TWO*y2,  TWO*y3 },
                             { FOUR*y1, TWO*y2, -FOUR   },
                             { SIX*y1, -FOUR,    TWO*y3 } };
   MatSetValues(J, 3, indc, 3, indc, &jvals[0][0], INSERT_VALUES);

@@ -85,7 +85,7 @@ int main(int argc, char* argv[])
     bool outproc = (myid == 0);
 
     // SUNDIALS context
-    sundials::Context sunctx(&comm_w);
+    sundials::Context sunctx(comm_w);
 
     // ------------------------------------------
     // Setup UserData and parallel decomposition
@@ -253,12 +253,12 @@ int main(int argc, char* argv[])
     retval = SolutionError(u, udata->e, udata);
     if (check_retval(&retval, "SolutionError", 1)) return 1;
 
-    realtype maxerr = N_VMaxNorm(udata->e);
+    sunrealtype maxerr = N_VMaxNorm(udata->e);
 
     if (outproc)
     {
       cout << scientific;
-      cout << setprecision(numeric_limits<realtype>::digits10);
+      cout << setprecision(numeric_limits<sunrealtype>::digits10);
       cout << "  Max error = " << maxerr << endl;
     }
 
@@ -399,23 +399,23 @@ static int SetupDecomp(MPI_Comm comm_w, UserData *udata)
   // Allocate exchange buffers if necessary
   if (udata->HaveNbrW)
   {
-    udata->Wrecv = new realtype[udata->ny_loc];
-    udata->Wsend = new realtype[udata->ny_loc];
+    udata->Wrecv = new sunrealtype[udata->ny_loc];
+    udata->Wsend = new sunrealtype[udata->ny_loc];
   }
   if (udata->HaveNbrE)
   {
-    udata->Erecv = new realtype[udata->ny_loc];
-    udata->Esend = new realtype[udata->ny_loc];
+    udata->Erecv = new sunrealtype[udata->ny_loc];
+    udata->Esend = new sunrealtype[udata->ny_loc];
   }
   if (udata->HaveNbrS)
   {
-    udata->Srecv = new realtype[udata->nx_loc];
-    udata->Ssend = new realtype[udata->nx_loc];
+    udata->Srecv = new sunrealtype[udata->nx_loc];
+    udata->Ssend = new sunrealtype[udata->nx_loc];
   }
   if (udata->HaveNbrN)
   {
-    udata->Nrecv = new realtype[udata->nx_loc];
-    udata->Nsend = new realtype[udata->nx_loc];
+    udata->Nrecv = new sunrealtype[udata->nx_loc];
+    udata->Nsend = new sunrealtype[udata->nx_loc];
   }
 
   // MPI neighborhood information
@@ -588,19 +588,19 @@ static int SetupRHS(void *user_data)
   // ----------------------
 
   // Access data array
-  realtype *barray = N_VGetArrayPointer(udata->b);
+  sunrealtype *barray = N_VGetArrayPointer(udata->b);
   if (check_retval((void *) barray, "N_VGetArrayPointer", 0)) return 1;
 
   // Initialize rhs vector to zero (handles boundary conditions)
   N_VConst(ZERO, udata->b);
 
   // Iterate over subdomain and compute forcing term (b)
-  realtype x, y;
-  realtype sin_sqr_x, sin_sqr_y;
-  realtype cos_sqr_x, cos_sqr_y;
+  sunrealtype x, y;
+  sunrealtype sin_sqr_x, sin_sqr_y;
+  sunrealtype cos_sqr_x, cos_sqr_y;
 
-  realtype bx = (udata->kx) * TWO * PI * PI;
-  realtype by = (udata->ky) * TWO * PI * PI;
+  sunrealtype bx = (udata->kx) * TWO * PI * PI;
+  sunrealtype by = (udata->ky) * TWO * PI * PI;
 
   for (j = jstart; j < jend; j++)
   {
@@ -654,17 +654,17 @@ static int c(N_Vector u, N_Vector z, void *user_data)
   sunindextype jend   = (udata->HaveNbrN) ? ny_loc : ny_loc - 1;
 
   // Access data arrays
-  realtype *uarray = N_VGetArrayPointer(u);
+  sunrealtype *uarray = N_VGetArrayPointer(u);
   if (check_retval((void *) uarray, "N_VGetArrayPointer", 0)) return 1;
 
-  realtype *zarray = N_VGetArrayPointer(z);
+  sunrealtype *zarray = N_VGetArrayPointer(z);
   if (check_retval((void *) zarray, "N_VGetArrayPointer", 0)) return 1;
 
   // Initialize rhs vector to zero (handles boundary conditions)
   N_VConst(ZERO, z);
 
   // Iterate over subdomain and compute z = c(u)
-  realtype u_val;
+  sunrealtype u_val;
 
   for (j = jstart; j < jend; j++)
   {
@@ -848,7 +848,7 @@ static int PSetup(void *user_data)
 
 // Preconditioner solve routine for Pz = r
 static int PSolve(void *user_data, N_Vector r, N_Vector z,
-                  realtype tol, int lr)
+                  sunrealtype tol, int lr)
 {
   int retval;
 
@@ -1108,9 +1108,9 @@ static int Jac(UserData *udata)
       (ilower[1] <= iupper[1]))
   {
     // Jacobian values
-    realtype cx = udata->kx / (udata->dx * udata->dx);
-    realtype cy = udata->ky / (udata->dy * udata->dy);
-    realtype cc = -TWO * (cx + cy);
+    sunrealtype cx = udata->kx / (udata->dx * udata->dx);
+    sunrealtype cy = udata->ky / (udata->dy * udata->dy);
+    sunrealtype cc = -TWO * (cx + cy);
 
     // --------------------------------
     // Set matrix values for all nodes
@@ -1444,7 +1444,7 @@ static int InitUserData(UserData *udata)
   udata->ipN = -1;
 
   // Fixed Point Solver settings
-  udata->rtol        = RCONST(1.e-8);   // relative tolerance
+  udata->rtol        = SUN_RCONST(1.e-8);   // relative tolerance
   udata->maa         = 0;               // no Anderson Acceleration
   udata->damping     = ONE;             // no damping for Anderson Acceleration
   udata->orthaa      = 0;               // use MGS for Anderson Acceleration
@@ -1453,7 +1453,7 @@ static int InitUserData(UserData *udata)
 
   // Linear solver and preconditioner options
   udata->liniters  = 20;            // max linear iterations
-  udata->epslin    = RCONST(1.e-8); // use default (0.05)
+  udata->epslin    = SUN_RCONST(1.e-8); // use default (0.05)
 
   // Linear solver object
   udata->LS    = NULL;
@@ -1690,8 +1690,8 @@ static int ReadInputs(int *argc, char ***argv, UserData *udata, bool outproc)
 // Compute the exact solution
 static int Solution(N_Vector u, UserData *udata)
 {
-  realtype x, y;
-  realtype sin_sqr_x, sin_sqr_y;
+  sunrealtype x, y;
+  sunrealtype sin_sqr_x, sin_sqr_y;
 
   // Initialize u to zero (handles boundary conditions)
   N_VConst(ZERO, u);
@@ -1703,7 +1703,7 @@ static int Solution(N_Vector u, UserData *udata)
   sunindextype jstart = (udata->HaveNbrS) ? 0 : 1;
   sunindextype jend   = (udata->HaveNbrN) ? udata->ny_loc : udata->ny_loc - 1;
 
-  realtype *uarray = N_VGetArrayPointer(u);
+  sunrealtype *uarray = N_VGetArrayPointer(u);
   if (check_retval((void *) uarray, "N_VGetArrayPointer", 0)) return 1;
 
   for (sunindextype j = jstart; j < jend; j++)
@@ -1916,10 +1916,10 @@ static int WriteSolution(N_Vector u, UserData *udata)
   udata->uout.open(fname.str());
 
   udata->uout << scientific;
-  udata->uout << setprecision(numeric_limits<realtype>::digits10);
+  udata->uout << setprecision(numeric_limits<sunrealtype>::digits10);
 
   // Write solution and error to disk
-  realtype *uarray = N_VGetArrayPointer(u);
+  sunrealtype *uarray = N_VGetArrayPointer(u);
   if (check_retval((void *) uarray, "N_VGetArrayPointer", 0)) return -1;
 
   for (sunindextype i = 0; i < udata->nodes_loc; i++)
@@ -1949,7 +1949,7 @@ static int OpenOutput(UserData *udata)
     udata->rout.open(fname.str());
 
     udata->rout << scientific;
-    udata->rout << setprecision(numeric_limits<realtype>::digits10);
+    udata->rout << setprecision(numeric_limits<sunrealtype>::digits10);
 
     // Open output stream for error
     fname.str("");
@@ -1958,7 +1958,7 @@ static int OpenOutput(UserData *udata)
     udata->eout.open(fname.str());
 
     udata->eout << scientific;
-    udata->eout << setprecision(numeric_limits<realtype>::digits10);
+    udata->eout << setprecision(numeric_limits<sunrealtype>::digits10);
   }
 
   return 0;
@@ -1971,12 +1971,12 @@ static int WriteOutput(N_Vector u, N_Vector f, UserData *udata)
 
   // r = \|G(u) - u\|_2
   N_VLinearSum(ONE, f, -ONE, u, udata->e);
-  realtype res = N_VDotProd(udata->e, udata->e);
+  sunrealtype res = N_VDotProd(udata->e, udata->e);
 
   // e = \|u_exact - u\|_2
   retval = SolutionError(u, udata->e, udata);
   if (check_retval(&retval, "SolutionError", 1)) return 1;
-  realtype err = N_VDotProd(udata->e, udata->e);
+  sunrealtype err = N_VDotProd(udata->e, udata->e);
 
   if (outproc)
   {

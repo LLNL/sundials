@@ -18,7 +18,7 @@ sundials_add_f2003_library(sundials_fsunmatrixsparse_mod
   SOURCES
     fsunmatrix_sparse_mod.f90 fsunmatrix_sparse_mod.c
   OBJECT_LIBRARIES
-    sundials_fgeneric_mod_obj
+    sundials_fcore_mod_obj
   OUTPUT_NAME
     sundials_fsunmatrixsparse_mod
   VERSION

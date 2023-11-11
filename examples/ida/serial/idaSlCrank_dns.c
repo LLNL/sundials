@@ -29,38 +29,38 @@
 #include <nvector/nvector_serial.h>    /* access to serial N_Vector            */
 #include <sunmatrix/sunmatrix_dense.h> /* access to dense SUNMatrix            */
 #include <sunlinsol/sunlinsol_dense.h> /* access to dense SUNLinearSolver      */
-#include <sundials/sundials_types.h>   /* defs. of realtype, sunindextype      */
+#include <sundials/sundials_types.h>   /* defs. of sunrealtype, sunindextype      */
 
 /* Problem Constants */
 
 #define NEQ   10
 
-#define TEND  RCONST(10.0)
+#define TEND  SUN_RCONST(10.0)
 #define NOUT  41
 
 
-#define ZERO RCONST(0.0)
-#define HALF RCONST(0.5)
-#define ONE  RCONST(1.0)
-#define TWO  RCONST(2.0)
-#define FOUR RCONST(4.0)
+#define ZERO SUN_RCONST(0.0)
+#define HALF SUN_RCONST(0.5)
+#define ONE  SUN_RCONST(1.0)
+#define TWO  SUN_RCONST(2.0)
+#define FOUR SUN_RCONST(4.0)
 
 typedef struct {
-  realtype a;
-  realtype J1, J2, m2;
-  realtype k, c, l0;
-  realtype F;
+  sunrealtype a;
+  sunrealtype J1, J2, m2;
+  sunrealtype k, c, l0;
+  sunrealtype F;
 } *UserData;
 
-int ressc(realtype tres, N_Vector yy, N_Vector yp,
+int ressc(sunrealtype tres, N_Vector yy, N_Vector yp,
            N_Vector resval, void *user_data);
 
 void setIC(N_Vector yy, N_Vector yp, UserData data);
-void force(N_Vector yy, realtype *Q, UserData data);
+void force(N_Vector yy, sunrealtype *Q, UserData data);
 
 /* Prototypes of private functions */
-static void PrintHeader(realtype rtol, realtype atol, N_Vector y);
-static int PrintOutput(void *mem, realtype t, N_Vector y);
+static void PrintHeader(sunrealtype rtol, sunrealtype atol, N_Vector y);
+static int PrintOutput(void *mem, sunrealtype t, N_Vector y);
 static int PrintFinalStats(void *mem);
 static int check_retval(void *returnvalue, const char *funcname, int opt);
 
@@ -76,8 +76,8 @@ int main(void)
 
   void *mem;
   N_Vector yy, yp, id;
-  realtype rtol, atol;
-  realtype t0, tf, tout, dt, tret;
+  sunrealtype rtol, atol;
+  sunrealtype t0, tf, tout, dt, tret;
   int retval, iout;
   SUNMatrix A;
   SUNLinearSolver LS;
@@ -87,7 +87,7 @@ int main(void)
   LS = NULL;
 
   /* Create the SUNDIALS context object for this simulation */
-  retval = SUNContext_Create(NULL, &ctx);
+  retval = SUNContext_Create(SUN_COMM_NULL, &ctx);
   if (check_retval(&retval, "SUNContext_Create", 1)) return 1;
 
   /* User data */
@@ -119,8 +119,8 @@ int main(void)
   NV_Ith_S(id,9) = ZERO;
 
   /* Tolerances */
-  rtol = RCONST(1.0e-6);
-  atol = RCONST(1.0e-6);
+  rtol = SUN_RCONST(1.0e-6);
+  atol = SUN_RCONST(1.0e-6);
 
   /* Integration limits */
   t0 = ZERO;
@@ -182,10 +182,10 @@ int main(void)
 
 void setIC(N_Vector yy, N_Vector yp, UserData data)
 {
-  realtype pi;
-  realtype a, J1, m2, J2;
-  realtype q, p, x;
-  realtype Q[3];
+  sunrealtype pi;
+  sunrealtype a, J1, m2, J2;
+  sunrealtype q, p, x;
+  sunrealtype Q[3];
 
   N_VConst(ZERO, yy);
   N_VConst(ZERO, yp);
@@ -213,14 +213,14 @@ void setIC(N_Vector yy, N_Vector yp, UserData data)
 
 }
 
-void force(N_Vector yy, realtype *Q, UserData data)
+void force(N_Vector yy, sunrealtype *Q, UserData data)
 {
-  realtype a, k, c, l0, F;
-  realtype q, x, p;
-  realtype qd, xd, pd;
-  realtype s1, c1, s2, c2, s21, c21;
-  realtype l2, l, ld;
-  realtype f, fl;
+  sunrealtype a, k, c, l0, F;
+  sunrealtype q, x, p;
+  sunrealtype qd, xd, pd;
+  sunrealtype s1, c1, s2, c2, s21, c21;
+  sunrealtype l2, l, ld;
+  sunrealtype f, fl;
 
   a = data->a;
   k = data->k;
@@ -257,16 +257,16 @@ void force(N_Vector yy, realtype *Q, UserData data)
 
 }
 
-int ressc(realtype tres, N_Vector yy, N_Vector yp, N_Vector rr, void *user_data)
+int ressc(sunrealtype tres, N_Vector yy, N_Vector yp, N_Vector rr, void *user_data)
 {
   UserData data;
-  realtype Q[3];
-  realtype a, J1, m2, J2;
-  realtype *yval, *ypval, *rval;
-  realtype q, x, p;
-  realtype qd, xd, pd;
-  realtype lam1, lam2, mu1, mu2;
-  realtype s1, c1, s2, c2;
+  sunrealtype Q[3];
+  sunrealtype a, J1, m2, J2;
+  sunrealtype *yval, *ypval, *rval;
+  sunrealtype q, x, p;
+  sunrealtype qd, xd, pd;
+  sunrealtype lam1, lam2, mu1, mu2;
+  sunrealtype s1, c1, s2, c2;
 
   data = (UserData) user_data;
 
@@ -317,7 +317,7 @@ int ressc(realtype tres, N_Vector yy, N_Vector yp, N_Vector rr, void *user_data)
   return(0);
 }
 
-static void PrintHeader(realtype rtol, realtype atol, N_Vector y)
+static void PrintHeader(sunrealtype rtol, sunrealtype atol, N_Vector y)
 {
   printf("\nidaSlCrank_dns: Slider-Crank DAE serial example problem for IDA\n");
   printf("Linear solver: DENSE, Jacobian is computed by IDA.\n");
@@ -337,12 +337,12 @@ static void PrintHeader(realtype rtol, realtype atol, N_Vector y)
   printf("-----------------------------------------------------------------------\n");
 }
 
-static int PrintOutput(void *mem, realtype t, N_Vector y)
+static int PrintOutput(void *mem, sunrealtype t, N_Vector y)
 {
-  realtype *yval;
+  sunrealtype *yval;
   int retval, kused;
   long int nst;
-  realtype hused;
+  sunrealtype hused;
 
   yval  = N_VGetArrayPointer(y);
 

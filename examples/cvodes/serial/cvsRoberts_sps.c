@@ -57,32 +57,32 @@
 
 #define NEQ   3                /* number of equations  */
 #define NNZ   7                /* number of non-zero entries in the Jacobian */
-#define Y1    RCONST(1.0)      /* initial y components */
-#define Y2    RCONST(0.0)
-#define Y3    RCONST(0.0)
-#define RTOL  RCONST(1.0e-4)   /* scalar relative tolerance            */
-#define ATOL1 RCONST(1.0e-8)   /* vector absolute tolerance components */
-#define ATOL2 RCONST(1.0e-14)
-#define ATOL3 RCONST(1.0e-6)
-#define T0    RCONST(0.0)      /* initial time           */
-#define T1    RCONST(0.4)      /* first output time      */
-#define TMULT RCONST(10.0)     /* output time factor     */
+#define Y1    SUN_RCONST(1.0)      /* initial y components */
+#define Y2    SUN_RCONST(0.0)
+#define Y3    SUN_RCONST(0.0)
+#define RTOL  SUN_RCONST(1.0e-4)   /* scalar relative tolerance            */
+#define ATOL1 SUN_RCONST(1.0e-8)   /* vector absolute tolerance components */
+#define ATOL2 SUN_RCONST(1.0e-14)
+#define ATOL3 SUN_RCONST(1.0e-6)
+#define T0    SUN_RCONST(0.0)      /* initial time           */
+#define T1    SUN_RCONST(0.4)      /* first output time      */
+#define TMULT SUN_RCONST(10.0)     /* output time factor     */
 #define NOUT  12               /* number of output times */
 
-#define ZERO  RCONST(0.0)
+#define ZERO  SUN_RCONST(0.0)
 
 /* Functions Called by the Solver */
 
-static int f(realtype t, N_Vector y, N_Vector ydot, void *user_data);
+static int f(sunrealtype t, N_Vector y, N_Vector ydot, void *user_data);
 
-static int g(realtype t, N_Vector y, realtype *gout, void *user_data);
+static int g(sunrealtype t, N_Vector y, sunrealtype *gout, void *user_data);
 
-static int Jac(realtype t, N_Vector y, N_Vector fy, SUNMatrix J,
+static int Jac(sunrealtype t, N_Vector y, N_Vector fy, SUNMatrix J,
                void *user_data, N_Vector tmp1, N_Vector tmp2, N_Vector tmp3);
 
 /* Private functions to output results */
 
-static void PrintOutput(realtype t, realtype y1, realtype y2, realtype y3);
+static void PrintOutput(sunrealtype t, sunrealtype y1, sunrealtype y2, sunrealtype y3);
 static void PrintRootInfo(int root_f1, int root_f2);
 
 /* Private function to print final statistics */
@@ -103,7 +103,7 @@ static int check_retval(void *returnvalue, const char *funcname, int opt);
 int main()
 {
   SUNContext sunctx;
-  realtype t, tout;
+  sunrealtype t, tout;
   N_Vector y;
   N_Vector abstol;
   SUNMatrix A;
@@ -120,7 +120,7 @@ int main()
   cvode_mem = NULL;
 
   /* Create the SUNDIALS context */
-  retval = SUNContext_Create(NULL, &sunctx);
+  retval = SUNContext_Create(SUN_COMM_NULL, &sunctx);
   if (check_retval(&retval, "SUNContext_Create", 1)) return(1);
 
   /* Initial conditions */
@@ -225,14 +225,14 @@ int main()
  * f routine. Compute function f(t,y).
  */
 
-static int f(realtype t, N_Vector y, N_Vector ydot, void *user_data)
+static int f(sunrealtype t, N_Vector y, N_Vector ydot, void *user_data)
 {
-  realtype y1, y2, y3, yd1, yd3;
+  sunrealtype y1, y2, y3, yd1, yd3;
 
   y1 = Ith(y,1); y2 = Ith(y,2); y3 = Ith(y,3);
 
-  yd1 = Ith(ydot,1) = RCONST(-0.04)*y1 + RCONST(1.0e4)*y2*y3;
-  yd3 = Ith(ydot,3) = RCONST(3.0e7)*y2*y2;
+  yd1 = Ith(ydot,1) = SUN_RCONST(-0.04)*y1 + SUN_RCONST(1.0e4)*y2*y3;
+  yd3 = Ith(ydot,3) = SUN_RCONST(3.0e7)*y2*y2;
         Ith(ydot,2) = -yd1 - yd3;
 
   return(0);
@@ -242,13 +242,13 @@ static int f(realtype t, N_Vector y, N_Vector ydot, void *user_data)
  * g routine. Compute functions g_i(t,y) for i = 0,1.
  */
 
-static int g(realtype t, N_Vector y, realtype *gout, void *user_data)
+static int g(sunrealtype t, N_Vector y, sunrealtype *gout, void *user_data)
 {
-  realtype y1, y3;
+  sunrealtype y1, y3;
 
   y1 = Ith(y,1); y3 = Ith(y,3);
-  gout[0] = y1 - RCONST(0.0001);
-  gout[1] = y3 - RCONST(0.01);
+  gout[0] = y1 - SUN_RCONST(0.0001);
+  gout[1] = y3 - SUN_RCONST(0.01);
 
   return(0);
 }
@@ -257,18 +257,18 @@ static int g(realtype t, N_Vector y, realtype *gout, void *user_data)
  * Jacobian routine. Compute J(t,y) = df/dy. *
  */
 
-static int Jac(realtype t, N_Vector y, N_Vector fy, SUNMatrix J,
+static int Jac(sunrealtype t, N_Vector y, N_Vector fy, SUNMatrix J,
                void *user_data, N_Vector tmp1, N_Vector tmp2, N_Vector tmp3)
 {
   /* State at which to evaluate the Jacobian */
-  realtype *yval = N_VGetArrayPointer(y);
+  sunrealtype *yval = N_VGetArrayPointer(y);
 
   /* J is stored in CSC format:
      data    = non-zero matrix entries stored column-wise (length NNZ)
      rowvals = row index for each non-zero matrix entry (length NNZ)
      colptrs = i-th entry is the index in data where the first non-zero matrix
                entry of the i-th column is stored (length NEQ + 1) */
-  realtype     *data    = SUNSparseMatrix_Data(J);
+  sunrealtype     *data    = SUNSparseMatrix_Data(J);
   sunindextype *rowvals = SUNSparseMatrix_IndexValues(J);
   sunindextype *colptrs = SUNSparseMatrix_IndexPointers(J);
 
@@ -276,31 +276,31 @@ static int Jac(realtype t, N_Vector y, N_Vector fy, SUNMatrix J,
   colptrs[0] = 0;
 
   rowvals[0] = 0;
-  data[0]    = RCONST(-0.04);
+  data[0]    = SUN_RCONST(-0.04);
 
   rowvals[1] = 1;
-  data[1]    = RCONST(0.04);
+  data[1]    = SUN_RCONST(0.04);
 
   /* second column entries start at data[2], three entries (rows 0, 1, and 2) */
   colptrs[1] = 2;
 
   rowvals[2] = 0;
-  data[2]    = RCONST(1.0e4) * yval[2];
+  data[2]    = SUN_RCONST(1.0e4) * yval[2];
 
   rowvals[3] = 1;
-  data[3]    = (RCONST(-1.0e4) * yval[2]) - (RCONST(6.0e7) * yval[1]);
+  data[3]    = (SUN_RCONST(-1.0e4) * yval[2]) - (SUN_RCONST(6.0e7) * yval[1]);
 
   rowvals[4] = 2;
-  data[4]    = RCONST(6.0e7) * yval[1];
+  data[4]    = SUN_RCONST(6.0e7) * yval[1];
 
   /* third column entries start at data[5], two entries (rows 0 and 1) */
   colptrs[2] = 5;
 
   rowvals[5] = 0;
-  data[5]    = RCONST(1.0e4) * yval[1];
+  data[5]    = SUN_RCONST(1.0e4) * yval[1];
 
   rowvals[6] = 1;
-  data[6]    = RCONST(-1.0e4) * yval[1];
+  data[6]    = SUN_RCONST(-1.0e4) * yval[1];
 
   /* number of non-zeros */
   colptrs[3] = 7;
@@ -314,7 +314,7 @@ static int Jac(realtype t, N_Vector y, N_Vector fy, SUNMatrix J,
  *-------------------------------
  */
 
-static void PrintOutput(realtype t, realtype y1, realtype y2, realtype y3)
+static void PrintOutput(sunrealtype t, sunrealtype y1, sunrealtype y2, sunrealtype y3)
 {
 #if defined(SUNDIALS_EXTENDED_PRECISION)
   printf("At t = %0.4Le      y =%14.6Le  %14.6Le  %14.6Le\n", t, y1, y2, y3);

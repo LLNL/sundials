@@ -28,25 +28,25 @@
 #include "cvode_ls_impl.h"
 #include <sundials/sundials_math.h>
 
-#define MIN_INC_MULT RCONST(1000.0)
-#define ZERO         RCONST(0.0)
-#define ONE          RCONST(1.0)
-#define TWO          RCONST(2.0)
+#define MIN_INC_MULT SUN_RCONST(1000.0)
+#define ZERO         SUN_RCONST(0.0)
+#define ONE          SUN_RCONST(1.0)
+#define TWO          SUN_RCONST(2.0)
 
 /* Prototypes of CVBandPrecSetup and CVBandPrecSolve */
-static int CVBandPrecSetup(realtype t, N_Vector y, N_Vector fy,
-                           booleantype jok, booleantype *jcurPtr,
-                           realtype gamma, void *bp_data);
-static int CVBandPrecSolve(realtype t, N_Vector y, N_Vector fy,
+static int CVBandPrecSetup(sunrealtype t, N_Vector y, N_Vector fy,
+                           sunbooleantype jok, sunbooleantype *jcurPtr,
+                           sunrealtype gamma, void *bp_data);
+static int CVBandPrecSolve(sunrealtype t, N_Vector y, N_Vector fy,
                            N_Vector r, N_Vector z,
-                           realtype gamma, realtype delta,
+                           sunrealtype gamma, sunrealtype delta,
                            int lr, void *bp_data);
 
 /* Prototype for CVBandPrecFree */
 static int CVBandPrecDestroy(CVodeMem cv_mem);
 
 /* Prototype for difference quotient Jacobian calculation routine */
-static int CVBandPDQJac(CVBandPrecData pdata, realtype t, N_Vector y,
+static int CVBandPDQJac(CVBandPrecData pdata, sunrealtype t, N_Vector y,
                         N_Vector fy, N_Vector ftemp, N_Vector ytemp);
 
 
@@ -334,9 +334,9 @@ int CVBandPrecGetNumRhsEvals(void *cvode_mem, long int *nfevalsBP)
     0  if successful, or
     1  if the band factorization failed.
   -----------------------------------------------------------------*/
-static int CVBandPrecSetup(realtype t, N_Vector y, N_Vector fy,
-                           booleantype jok, booleantype *jcurPtr,
-                           realtype gamma, void *bp_data)
+static int CVBandPrecSetup(sunrealtype t, N_Vector y, N_Vector fy,
+                           sunbooleantype jok, sunbooleantype *jcurPtr,
+                           sunrealtype gamma, void *bp_data)
 {
   CVBandPrecData pdata;
   CVodeMem cv_mem;
@@ -428,9 +428,9 @@ static int CVBandPrecSetup(realtype t, N_Vector y, N_Vector fy,
   The value returned by the CVBandPrecSolve function is always 0,
   indicating success.
   -----------------------------------------------------------------*/
-static int CVBandPrecSolve(realtype t, N_Vector y, N_Vector fy,
-                           N_Vector r, N_Vector z, realtype gamma,
-                           realtype delta, int lr, void *bp_data)
+static int CVBandPrecSolve(sunrealtype t, N_Vector y, N_Vector fy,
+                           N_Vector r, N_Vector z, sunrealtype gamma,
+                           sunrealtype delta, int lr, void *bp_data)
 {
   CVBandPrecData pdata;
   int retval;
@@ -479,14 +479,14 @@ static int CVBandPrecDestroy(CVodeMem cv_mem)
   write a simple for loop to set each of the elements of a column
   in succession.
   -----------------------------------------------------------------*/
-static int CVBandPDQJac(CVBandPrecData pdata, realtype t, N_Vector y,
+static int CVBandPDQJac(CVBandPrecData pdata, sunrealtype t, N_Vector y,
                         N_Vector fy, N_Vector ftemp, N_Vector ytemp)
 {
   CVodeMem cv_mem;
-  realtype fnorm, minInc, inc, inc_inv, yj, srur, conj;
+  sunrealtype fnorm, minInc, inc, inc_inv, yj, srur, conj;
   sunindextype group, i, j, width, ngroups, i1, i2;
-  realtype *col_j, *ewt_data, *fy_data, *ftemp_data;
-  realtype *y_data, *ytemp_data, *cns_data;
+  sunrealtype *col_j, *ewt_data, *fy_data, *ftemp_data;
+  sunrealtype *y_data, *ytemp_data, *cns_data;
   int retval;
 
   /* initialize cns_data to avoid compiler warning */

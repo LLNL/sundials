@@ -39,7 +39,7 @@ extern "C" {
 
 struct _SUNLinearSolverContent_cuSolverSp_batchQR {
   int                last_flag;            /* last return flag                                     */
-  booleantype        first_factorize;      /* is this the first factorization?                     */
+  sunbooleantype        first_factorize;      /* is this the first factorization?                     */
   size_t             internal_size;        /* size of cusolver internal buffer for Q and R         */
   size_t             workspace_size;       /* size of cusolver memory block for num. factorization */
   cusolverSpHandle_t cusolver_handle;      /* cuSolverSp context                                   */
@@ -81,7 +81,7 @@ SUNDIALS_EXPORT int SUNLinSolSolve_cuSolverSp_batchQR(SUNLinearSolver S,
                                                       SUNMatrix A,
                                                       N_Vector x,
                                                       N_Vector b,
-                                                      realtype tol);
+                                                      sunrealtype tol);
 
 SUNDIALS_EXPORT sunindextype SUNLinSolLastFlag_cuSolverSp_batchQR(SUNLinearSolver S);
 

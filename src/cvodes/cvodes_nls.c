@@ -19,16 +19,16 @@
 #include "sundials/sundials_nvector_senswrapper.h"
 
 /* constant macros */
-#define ONE RCONST(1.0)
+#define ONE SUN_RCONST(1.0)
 
 /* private functions */
 static int cvNlsResidual(N_Vector ycor, N_Vector res, void* cvode_mem);
 static int cvNlsFPFunction(N_Vector ycor, N_Vector res, void* cvode_mem);
 
-static int cvNlsLSetup(booleantype jbad, booleantype* jcur, void* cvode_mem);
+static int cvNlsLSetup(sunbooleantype jbad, sunbooleantype* jcur, void* cvode_mem);
 static int cvNlsLSolve(N_Vector delta, void* cvode_mem);
 static int cvNlsConvTest(SUNNonlinearSolver NLS, N_Vector ycor, N_Vector del,
-                         realtype tol, N_Vector ewt, void* cvode_mem);
+                         sunrealtype tol, N_Vector ewt, void* cvode_mem);
 
 /* -----------------------------------------------------------------------------
  * Exported functions
@@ -155,10 +155,10 @@ int CVodeSetNlsRhsFn(void *cvode_mem, CVRhsFn f)
   This routine provides access to the relevant data needed to
   compute the nonlinear system function.
   ---------------------------------------------------------------*/
-int CVodeGetNonlinearSystemData(void *cvode_mem, realtype *tcur,
+int CVodeGetNonlinearSystemData(void *cvode_mem, sunrealtype *tcur,
                                 N_Vector *ypred, N_Vector *yn,
-                                N_Vector *fn, realtype *gamma,
-                                realtype *rl1, N_Vector *zn1,
+                                N_Vector *fn, sunrealtype *gamma,
+                                sunrealtype *rl1, N_Vector *zn1,
                                 void **user_data)
 {
   CVodeMem cv_mem;
@@ -230,7 +230,7 @@ int cvNlsInit(CVodeMem cvode_mem)
 }
 
 
-static int cvNlsLSetup(booleantype jbad, booleantype* jcur, void* cvode_mem)
+static int cvNlsLSetup(sunbooleantype jbad, sunbooleantype* jcur, void* cvode_mem)
 {
   CVodeMem cv_mem;
   int      retval;
@@ -289,12 +289,12 @@ static int cvNlsLSolve(N_Vector delta, void* cvode_mem)
 
 
 static int cvNlsConvTest(SUNNonlinearSolver NLS, N_Vector ycor, N_Vector delta,
-                         realtype tol, N_Vector ewt, void* cvode_mem)
+                         sunrealtype tol, N_Vector ewt, void* cvode_mem)
 {
   CVodeMem cv_mem;
   int m, retval;
-  realtype del;
-  realtype dcon;
+  sunrealtype del;
+  sunrealtype dcon;
 
   if (cvode_mem == NULL) {
     cvProcessError(NULL, CV_MEM_NULL, "CVODE", "cvNlsConvTest", MSGCV_NO_MEM);

@@ -130,30 +130,30 @@
 #define NPREY       1              /* No. of prey (= no. of predators). */
 #define NUM_SPECIES 2*NPREY
 
-#define PI          RCONST(3.1415926535898)
-#define FOURPI      (RCONST(4.0)*PI)
+#define PI          SUN_RCONST(3.1415926535898)
+#define FOURPI      (SUN_RCONST(4.0)*PI)
 
 #define MX          20             /* MX = number of x mesh points      */
 #define MY          20             /* MY = number of y mesh points      */
 #define NSMX        (NUM_SPECIES * MX)
 #define NEQ         (NUM_SPECIES*MX*MY)
-#define AA          RCONST(1.0)    /* Coefficient in above eqns. for a  */
-#define EE          RCONST(10000.) /* Coefficient in above eqns. for a  */
-#define GG          RCONST(0.5e-6) /* Coefficient in above eqns. for a  */
-#define BB          RCONST(1.0)    /* Coefficient in above eqns. for b  */
-#define DPREY       RCONST(1.0)    /* Coefficient in above eqns. for d  */
-#define DPRED       RCONST(0.05)   /* Coefficient in above eqns. for d  */
-#define ALPHA       RCONST(50.)    /* Coefficient alpha in above eqns.  */
-#define BETA        RCONST(1000.)  /* Coefficient beta in above eqns.   */
-#define AX          RCONST(1.0)    /* Total range of x variable         */
-#define AY          RCONST(1.0)    /* Total range of y variable         */
-#define RTOL        RCONST(1.e-5)  /* Relative tolerance                */
-#define ATOL        RCONST(1.e-5)  /* Absolute tolerance                */
+#define AA          SUN_RCONST(1.0)    /* Coefficient in above eqns. for a  */
+#define EE          SUN_RCONST(10000.) /* Coefficient in above eqns. for a  */
+#define GG          SUN_RCONST(0.5e-6) /* Coefficient in above eqns. for a  */
+#define BB          SUN_RCONST(1.0)    /* Coefficient in above eqns. for b  */
+#define DPREY       SUN_RCONST(1.0)    /* Coefficient in above eqns. for d  */
+#define DPRED       SUN_RCONST(0.05)   /* Coefficient in above eqns. for d  */
+#define ALPHA       SUN_RCONST(50.)    /* Coefficient alpha in above eqns.  */
+#define BETA        SUN_RCONST(1000.)  /* Coefficient beta in above eqns.   */
+#define AX          SUN_RCONST(1.0)    /* Total range of x variable         */
+#define AY          SUN_RCONST(1.0)    /* Total range of y variable         */
+#define RTOL        SUN_RCONST(1.e-5)  /* Relative tolerance                */
+#define ATOL        SUN_RCONST(1.e-5)  /* Absolute tolerance                */
 #define NOUT        6              /* Number of output times            */
-#define TMULT       RCONST(10.0)   /* Multiplier for tout values        */
-#define TADD        RCONST(0.3)    /* Increment for tout values         */
-#define ZERO        RCONST(0.)
-#define ONE         RCONST(1.0)
+#define TMULT       SUN_RCONST(10.0)   /* Multiplier for tout values        */
+#define TADD        SUN_RCONST(0.3)    /* Increment for tout values         */
+#define ZERO        SUN_RCONST(0.)
+#define ONE         SUN_RCONST(1.0)
 
 /*
  * User-defined vector and accessor macro: IJ_Vptr.
@@ -169,9 +169,9 @@
 
 typedef struct {
   sunindextype Neq, ns, np, mx, my;
-  realtype dx, dy, **acoef;
-  realtype cox[NUM_SPECIES], coy[NUM_SPECIES], bcoef[NUM_SPECIES];
-  realtype **PP[MX][MY];
+  sunrealtype dx, dy, **acoef;
+  sunrealtype cox[NUM_SPECIES], coy[NUM_SPECIES], bcoef[NUM_SPECIES];
+  sunrealtype **PP[MX][MY];
   sunindextype *pivot[MX][MY];
   N_Vector rates;
   N_Vector ewt;
@@ -181,28 +181,28 @@ typedef struct {
 
 /* Prototypes for functions called by the IDA Solver. */
 
-static int resweb(realtype time, N_Vector cc, N_Vector cp, N_Vector resval,
+static int resweb(sunrealtype time, N_Vector cc, N_Vector cp, N_Vector resval,
                   void *user_data);
 
-static int Precond(realtype tt, N_Vector cc, N_Vector cp,
-                   N_Vector rr, realtype cj, void *user_data);
+static int Precond(sunrealtype tt, N_Vector cc, N_Vector cp,
+                   N_Vector rr, sunrealtype cj, void *user_data);
 
-static int PSolve(realtype tt, N_Vector cc, N_Vector cp,
+static int PSolve(sunrealtype tt, N_Vector cc, N_Vector cp,
                   N_Vector rr, N_Vector rvec, N_Vector zvec,
-		  realtype cj, realtype delta, void *user_data);
+		  sunrealtype cj, sunrealtype delta, void *user_data);
 
 /* Prototypes for private Helper Functions. */
 
 static void InitUserData(UserData webdata);
 static void SetInitialProfiles(N_Vector cc, N_Vector cp, N_Vector id,
                                UserData webdata);
-static void PrintHeader(int maxl, realtype rtol, realtype atol);
-static void PrintOutput(void *ida_mem, N_Vector c, realtype t);
+static void PrintHeader(int maxl, sunrealtype rtol, sunrealtype atol);
+static void PrintOutput(void *ida_mem, N_Vector c, sunrealtype t);
 static void PrintFinalStats(void *ida_mem);
-static void Fweb(realtype tcalc, N_Vector cc, N_Vector crate, UserData webdata);
-static void WebRates(realtype xx, realtype yy, realtype *cxy, realtype *ratesxy,
+static void Fweb(sunrealtype tcalc, N_Vector cc, N_Vector crate, UserData webdata);
+static void WebRates(sunrealtype xx, sunrealtype yy, sunrealtype *cxy, sunrealtype *ratesxy,
                      UserData webdata);
-static realtype dotprod(sunindextype size, realtype *x1, realtype *x2);
+static sunrealtype dotprod(sunindextype size, sunrealtype *x1, sunrealtype *x2);
 static int check_retval(void *returnvalue, char *funcname, int opt);
 
 /*
@@ -219,7 +219,7 @@ int main(int argc, char *argv[])
   N_Vector cc, cp, id;
   int iout, jx, jy, retval;
   int maxl;
-  realtype rtol, atol, t0, tout, tret;
+  sunrealtype rtol, atol, t0, tout, tret;
   int num_threads;
   SUNContext ctx;
 
@@ -237,7 +237,7 @@ int main(int argc, char *argv[])
     num_threads = (int) strtol(argv[1], NULL, 0);
 
   /* Create the SUNDIALS context object for this simulation */
-  retval = SUNContext_Create(NULL, &ctx);
+  retval = SUNContext_Create(SUN_COMM_NULL, &ctx);
   if (check_retval(&retval, "SUNContext_Create", 1)) return 1;
 
   /* Allocate and initialize user data block webdata. */
@@ -309,7 +309,7 @@ int main(int argc, char *argv[])
 
   /* Call IDACalcIC (with default options) to correct the initial values. */
 
-  tout = RCONST(0.001);
+  tout = SUN_RCONST(0.001);
   retval = IDACalcIC(ida_mem, IDA_YA_YDP_INIT, tout);
   if(check_retval(&retval, "IDACalcIC", 1)) return(1);
 
@@ -382,11 +382,11 @@ int main(int argc, char *argv[])
  * using cp in the case of prey species.
  */
 
-static int resweb(realtype tt, N_Vector cc, N_Vector cp,
+static int resweb(sunrealtype tt, N_Vector cc, N_Vector cp,
                   N_Vector res,  void *user_data)
 {
   sunindextype jx, jy, is, yloc, loc, np;
-  realtype *resv, *cpv;
+  sunrealtype *resv, *cpv;
   UserData webdata;
 
   jx = jy = is = 0;
@@ -421,25 +421,25 @@ static int resweb(realtype tt, N_Vector cc, N_Vector cp,
 }
 
 
-static int Precond(realtype tt, N_Vector cc, N_Vector cp,
-                   N_Vector rr, realtype cj, void *user_data)
+static int Precond(sunrealtype tt, N_Vector cc, N_Vector cp,
+                   N_Vector rr, sunrealtype cj, void *user_data)
 {
   int retval;
   sunindextype ret;
-  realtype uround, xx, yy, del_x, del_y;
-  realtype **Pxy, *ratesxy, *Pxycol, *cxy, *cpxy, *ewtxy, cctmp;
-  realtype inc, fac, sqru, perturb_rates[NUM_SPECIES];
+  sunrealtype uround, xx, yy, del_x, del_y;
+  sunrealtype **Pxy, *ratesxy, *Pxycol, *cxy, *cpxy, *ewtxy, cctmp;
+  sunrealtype inc, fac, sqru, perturb_rates[NUM_SPECIES];
   int is, js, jx, jy;
   void *ida_mem;
   N_Vector ewt;
-  realtype hh;
+  sunrealtype hh;
   UserData webdata;
 
   webdata = (UserData) user_data;
   del_x = webdata->dx;
   del_y = webdata->dy;
 
-  uround = UNIT_ROUNDOFF;
+  uround = SUN_UNIT_ROUNDOFF;
   sqru = sqrt(uround);
 
   ida_mem = webdata->ida_mem;
@@ -489,11 +489,11 @@ static int Precond(realtype tt, N_Vector cc, N_Vector cp,
 }
 
 
-static int PSolve(realtype tt, N_Vector cc, N_Vector cp,
+static int PSolve(sunrealtype tt, N_Vector cc, N_Vector cp,
                   N_Vector rr, N_Vector rvec, N_Vector zvec,
-		  realtype cj, realtype dalta, void *user_data)
+		  sunrealtype cj, sunrealtype dalta, void *user_data)
 {
-  realtype **Pxy, *zxy;
+  sunrealtype **Pxy, *zxy;
   sunindextype *pivot;
   sunindextype jx, jy;
   UserData webdata;
@@ -533,7 +533,7 @@ static int PSolve(realtype tt, N_Vector cc, N_Vector cp,
 static void InitUserData(UserData webdata)
 {
   sunindextype i, j, np;
-  realtype *a1,*a2, *a3, *a4, dx2, dy2;
+  sunrealtype *a1,*a2, *a3, *a4, dx2, dy2;
 
   webdata->mx = MX;
   webdata->my = MY;
@@ -584,8 +584,8 @@ static void SetInitialProfiles(N_Vector cc, N_Vector cp, N_Vector id,
                                UserData webdata)
 {
   sunindextype loc, yloc, is, jx, jy, np;
-  realtype xx, yy, xyfactor;
-  realtype *ccv, *cpv, *idv;
+  sunrealtype xx, yy, xyfactor;
+  sunrealtype *ccv, *cpv, *idv;
 
   ccv = NV_DATA_OMP(cc);
   cpv = NV_DATA_OMP(cp);
@@ -598,17 +598,17 @@ static void SetInitialProfiles(N_Vector cc, N_Vector cp, N_Vector id,
     yloc = NSMX * jy;
     for (jx = 0; jx < MX; jx++) {
       xx = jx * webdata->dx;
-      xyfactor = RCONST(16.0)*xx*(ONE-xx)*yy*(ONE-yy);
+      xyfactor = SUN_RCONST(16.0)*xx*(ONE-xx)*yy*(ONE-yy);
       xyfactor *= xyfactor;
       loc = yloc + NUM_SPECIES*jx;
 
       for (is = 0; is < NUM_SPECIES; is++) {
         if (is < np) {
-          ccv[loc+is] = RCONST(10.0) + (realtype)(is+1) * xyfactor;
+          ccv[loc+is] = SUN_RCONST(10.0) + (sunrealtype)(is+1) * xyfactor;
           idv[loc+is] = ONE;
         }
         else {
-	  ccv[loc+is] = RCONST(1.0e5);
+	  ccv[loc+is] = SUN_RCONST(1.0e5);
           idv[loc+is] = ZERO;
         }
       }
@@ -634,7 +634,7 @@ static void SetInitialProfiles(N_Vector cc, N_Vector cp, N_Vector id,
  * Print first lines of output (problem description)
  */
 
-static void PrintHeader(int maxl, realtype rtol, realtype atol)
+static void PrintHeader(int maxl, sunrealtype rtol, sunrealtype atol)
 {
   printf("\nidaFoodWeb_kry_omp: Predator-prey DAE OpenMP example problem using Krylov solver for IDA \n\n");
   printf("Number of species ns: %d", NUM_SPECIES);
@@ -662,11 +662,11 @@ static void PrintHeader(int maxl, realtype rtol, realtype atol)
  * are printed for the bottom left and top right grid points only.
  */
 
-static void PrintOutput(void *ida_mem, N_Vector c, realtype t)
+static void PrintOutput(void *ida_mem, N_Vector c, sunrealtype t)
 {
   int i, kused, retval;
   long int nst;
-  realtype *c_bl, *c_tr, hused;
+  sunrealtype *c_bl, *c_tr, hused;
 
   retval = IDAGetLastOrder(ida_mem, &kused);
   check_retval(&retval, "IDAGetLastOrder", 1);
@@ -740,11 +740,11 @@ static void PrintFinalStats(void *ida_mem)
  * The interaction term is computed by the function WebRates.
  */
 
-static void Fweb(realtype tcalc, N_Vector cc, N_Vector crate,
+static void Fweb(sunrealtype tcalc, N_Vector cc, N_Vector crate,
                  UserData webdata)
 {
   sunindextype jx, jy, is, idyu, idyl, idxu, idxl;
-  realtype xx, yy, *cxy, *ratesxy, *cratexy, dcyli, dcyui, dcxli, dcxui;
+  sunrealtype xx, yy, *cxy, *ratesxy, *cratexy, dcyli, dcyui, dcxli, dcxui;
 
   /* Loop over grid points, evaluate interaction vector (length ns),
      form diffusion difference terms, and load crate.                    */
@@ -794,11 +794,11 @@ static void Fweb(realtype tcalc, N_Vector cc, N_Vector crate,
  * At a given (x,y), evaluate the array of ns reaction terms R.
  */
 
-static void WebRates(realtype xx, realtype yy, realtype *cxy, realtype *ratesxy,
+static void WebRates(sunrealtype xx, sunrealtype yy, sunrealtype *cxy, sunrealtype *ratesxy,
                      UserData webdata)
 {
   int is;
-  realtype fac;
+  sunrealtype fac;
 
   for (is = 0; is < NUM_SPECIES; is++)
     ratesxy[is] = dotprod(NUM_SPECIES, cxy, acoef[is]);
@@ -811,13 +811,13 @@ static void WebRates(realtype xx, realtype yy, realtype *cxy, realtype *ratesxy,
 }
 
 /*
- * dotprod: dot product routine for realtype arrays, for use by WebRates.
+ * dotprod: dot product routine for sunrealtype arrays, for use by WebRates.
  */
 
-static realtype dotprod(sunindextype size, realtype *x1, realtype *x2)
+static sunrealtype dotprod(sunindextype size, sunrealtype *x1, sunrealtype *x2)
 {
   sunindextype i;
-  realtype *xx1, *xx2, temp = ZERO;
+  sunrealtype *xx1, *xx2, temp = ZERO;
 
   xx1 = x1; xx2 = x2;
   for (i = 0; i < size; i++) temp += (*xx1++) * (*xx2++);

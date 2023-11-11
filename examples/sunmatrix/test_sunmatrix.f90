@@ -137,7 +137,7 @@ contains
 
     integer(C_INT)  :: myid
     type(SUNMatrix) :: A
-    real(C_DOUBLE)  :: tol = 10*UNIT_ROUNDOFF
+    real(C_DOUBLE)  :: tol = 10*SUN_UNIT_ROUNDOFF
     type(SUNMatrix), pointer ::  B
 
     failure = 0
@@ -180,7 +180,7 @@ contains
     implicit none
 
     integer(C_INT)  :: myid
-    real(C_DOUBLE)  :: tol = 10*UNIT_ROUNDOFF
+    real(C_DOUBLE)  :: tol = 10*SUN_UNIT_ROUNDOFF
     type(SUNMatrix) :: A
     type(SUNMatrix), pointer :: B
 
@@ -218,7 +218,7 @@ contains
     implicit none
 
     integer(C_INT)  :: myid
-    real(C_DOUBLE)  :: tol = 10*UNIT_ROUNDOFF
+    real(C_DOUBLE)  :: tol = 10*SUN_UNIT_ROUNDOFF
     type(SUNMatrix) :: A
     type(SUNMatrix), pointer :: B
 
@@ -257,7 +257,7 @@ contains
     implicit none
 
     integer(C_INT)  :: myid
-    real(C_DOUBLE)  :: tol = 10*UNIT_ROUNDOFF
+    real(C_DOUBLE)  :: tol = 10*SUN_UNIT_ROUNDOFF
     type(SUNMatrix) :: A, I
     type(SUNMatrix), pointer :: B
 
@@ -306,7 +306,7 @@ contains
     implicit none
 
     integer(C_INT)  :: myid
-    real(C_DOUBLE)  :: tol = 10*UNIT_ROUNDOFF
+    real(C_DOUBLE)  :: tol = 10*SUN_UNIT_ROUNDOFF
     type(SUNMatrix) :: A, I
     type(SUNMatrix), pointer :: B
 
@@ -386,7 +386,7 @@ contains
     type(N_Vector)               :: x, y
     type(N_Vector),  pointer     :: z, w
     integer(C_INT)               :: myid
-    real(C_DOUBLE)               :: tol = 100*UNIT_ROUNDOFF
+    real(C_DOUBLE)               :: tol = 100*SUN_UNIT_ROUNDOFF
     type(SUNMatrix_Ops), pointer :: ops
 
     failure = 0

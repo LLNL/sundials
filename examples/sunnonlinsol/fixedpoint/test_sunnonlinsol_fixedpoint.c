@@ -62,19 +62,19 @@
 /* problem constants */
 #define NEQ   3 /* number of equations */
 
-#define ZERO         RCONST(0.0)             /* real 0.0  */
-#define PTONE        RCONST(0.1)             /* real 0.1  */
-#define HALF         RCONST(0.5)             /* real 0.5  */
-#define PTNINE       RCONST(0.9)             /* real 0.9  */
-#define ONE          RCONST(1.0)             /* real 1.0  */
-#define ONEPTZEROSIX RCONST(1.06)            /* real 1.06 */
-#define THREE        RCONST(3.0)             /* real 3.0  */
-#define SIX          RCONST(6.0)             /* real 6.0  */
-#define NINE         RCONST(9.0)             /* real 9.0  */
-#define TEN          RCONST(10.0)            /* real 10.0 */
-#define TWENTY       RCONST(20.0)            /* real 20.0 */
-#define SIXTY        RCONST(60.0)            /* real 60.0 */
-#define PI           RCONST(3.1415926535898) /* real pi   */
+#define ZERO         SUN_RCONST(0.0)             /* real 0.0  */
+#define PTONE        SUN_RCONST(0.1)             /* real 0.1  */
+#define HALF         SUN_RCONST(0.5)             /* real 0.5  */
+#define PTNINE       SUN_RCONST(0.9)             /* real 0.9  */
+#define ONE          SUN_RCONST(1.0)             /* real 1.0  */
+#define ONEPTZEROSIX SUN_RCONST(1.06)            /* real 1.06 */
+#define THREE        SUN_RCONST(3.0)             /* real 3.0  */
+#define SIX          SUN_RCONST(6.0)             /* real 6.0  */
+#define NINE         SUN_RCONST(9.0)             /* real 9.0  */
+#define TEN          SUN_RCONST(10.0)            /* real 10.0 */
+#define TWENTY       SUN_RCONST(20.0)            /* real 20.0 */
+#define SIXTY        SUN_RCONST(60.0)            /* real 60.0 */
+#define PI           SUN_RCONST(3.1415926535898) /* real pi   */
 
 /* analytic solution */
 #define XTRUE HALF
@@ -82,7 +82,7 @@
 #define ZTRUE -PI/SIX
 
 /* Check the system solution */
-static int check_ans(N_Vector ycur, realtype tol);
+static int check_ans(N_Vector ycur, sunrealtype tol);
 
 /* Check function return values */
 static int check_retval(void *flagvalue, const char *funcname, int opt);
@@ -92,7 +92,7 @@ static int FPFunction(N_Vector y, N_Vector f, void *mem);
 
 /* Convergence test function */
 static int ConvTest(SUNNonlinearSolver NLS, N_Vector y, N_Vector del,
-                    realtype tol, N_Vector ewt, void* mem);
+                    sunrealtype tol, N_Vector ewt, void* mem);
 
 /*
  * Proxy for integrator memory struct
@@ -114,17 +114,17 @@ int main(int argc, char *argv[])
   IntegratorMem      Imem    = NULL;
   int                retval  = 0;
   SUNNonlinearSolver NLS     = NULL;
-  realtype           tol     = 100 * SUNRsqrt(UNIT_ROUNDOFF);
+  sunrealtype           tol     = 100 * SUNRsqrt(SUN_UNIT_ROUNDOFF);
   int                mxiter  = 20;
   int                maa     = 0;           /* no acceleration */
-  realtype           damping = RCONST(1.0); /* no damping      */
+  sunrealtype           damping = SUN_RCONST(1.0); /* no damping      */
   long int           niters  = 0;
-  realtype*          data    = NULL;
+  sunrealtype*          data    = NULL;
   SUNContext         sunctx     = NULL;
 
   /* Check if a acceleration/dampling values were provided */
   if (argc > 1) maa     = (long int) atoi(argv[1]);
-  if (argc > 2) damping = (realtype) atof(argv[2]);
+  if (argc > 2) damping = (sunrealtype) atof(argv[2]);
 
   /* Print problem description */
   printf("Solve the nonlinear system:\n");
@@ -142,7 +142,7 @@ int main(int argc, char *argv[])
   printf("    damping   = %"GSYM"\n", damping);
 
   /* create SUNDIALS context */
-  retval = SUNContext_Create(NULL, &sunctx);
+  retval = SUNContext_Create(SUN_COMM_NULL, &sunctx);
   if (check_retval(&retval, "SUNContext_Create", 1)) return(1);
 
   /* create proxy for integrator memory */
@@ -226,10 +226,10 @@ int main(int argc, char *argv[])
 }
 
 /* Proxy for integrator convergence test function */
-int ConvTest(SUNNonlinearSolver NLS, N_Vector y, N_Vector del, realtype tol,
+int ConvTest(SUNNonlinearSolver NLS, N_Vector y, N_Vector del, sunrealtype tol,
              N_Vector ewt, void* mem)
 {
-  realtype delnrm;
+  sunrealtype delnrm;
 
   /* compute the norm of the correction */
   delnrm = N_VMaxNorm(del);
@@ -262,9 +262,9 @@ int ConvTest(SUNNonlinearSolver NLS, N_Vector y, N_Vector del, realtype tol,
 int FPFunction(N_Vector ycor, N_Vector gvec, void *mem)
 {
   IntegratorMem Imem;
-  realtype*     ydata = NULL;
-  realtype*     gdata = NULL;
-  realtype      x, y, z;
+  sunrealtype*     ydata = NULL;
+  sunrealtype*     gdata = NULL;
+  sunrealtype      x, y, z;
 
   if (mem == NULL) {
     printf("ERROR: Integrator memory is NULL");
@@ -300,10 +300,10 @@ int FPFunction(N_Vector ycor, N_Vector gvec, void *mem)
 /* -----------------------------------------------------------------------------
  * Check the solution of the nonlinear system and return PASS or FAIL
  * ---------------------------------------------------------------------------*/
-static int check_ans(N_Vector ycur, realtype tol)
+static int check_ans(N_Vector ycur, sunrealtype tol)
 {
-  realtype* data = NULL;
-  realtype  ex, ey, ez;
+  sunrealtype* data = NULL;
+  sunrealtype  ex, ey, ez;
 
   /* Get vector data array */
   data = N_VGetArrayPointer(ycur);

@@ -106,12 +106,12 @@ In addition to the macros, the following methods of the ``SUNProfiler`` class
 are available.
 
 
-.. c:function:: int SUNProfiler_Create(void* comm, const char* title, SUNProfiler* p)
+.. c:function:: int SUNProfiler_Create(SUNComm comm, const char* title, SUNProfiler* p)
 
    Creates a new ``SUNProfiler`` object.
 
    **Arguments:**
-      * ``comm`` -- a pointer to the MPI communicator if MPI is enabled, otherwise can be ``NULL``
+      * ``comm`` -- the MPI communicator to use, if MPI is enabled, otherwise can be ``SUN_COMM_NULL``.
       * ``title`` -- a title or description of the profiler
       * ``p`` -- [in,out] On input this is a pointer to a ``SUNProfiler``, on output it will point to a new ``SUNProfiler`` instance
 
@@ -218,7 +218,7 @@ It is applicable to any of the SUNDIALS solver packages.
    SUNProfiler profobj;
 
    /* Create the SUNDIALS context */
-   retval = SUNContext_Create(NULL, &ctx);
+   retval = SUNContext_Create(SUN_COMM_NULL, &ctx);
 
    /* Get a reference to the profiler */
    retval = SUNContext_GetProfiler(ctx, &profobj);

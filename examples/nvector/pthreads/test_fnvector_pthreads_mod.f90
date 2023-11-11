@@ -70,7 +70,7 @@ module test_nvector_pthreads
     call FN_VSpace_Pthreads(x, lenrw, leniw)
     xptr => FN_VGetArrayPointer_Pthreads(x)
     call FN_VSetArrayPointer_Pthreads(xdata, x)
-    cptr = FN_VGetCommunicator(x)
+    ival = FN_VGetCommunicator(x)
     ival = FN_VGetLength_Pthreads(x)
 
     ! test standard vector operations
@@ -191,7 +191,7 @@ program main
   !============== Introduction =============
   print *, 'Pthreads N_Vector Fortran 2003 interface test'
 
-  call Test_Init(c_null_ptr)
+  call Test_Init(0)
 
   fails = smoke_tests()
   if (fails /= 0) then

@@ -49,16 +49,16 @@ int ERKStepSetMaxNumSteps(void *arkode_mem, long int mxsteps) {
   return(arkSetMaxNumSteps(arkode_mem, mxsteps)); }
 int ERKStepSetMaxHnilWarns(void *arkode_mem, int mxhnil) {
   return(arkSetMaxHnilWarns(arkode_mem, mxhnil)); }
-int ERKStepSetInitStep(void *arkode_mem, realtype hin) {
+int ERKStepSetInitStep(void *arkode_mem, sunrealtype hin) {
   return(arkSetInitStep(arkode_mem, hin)); }
-int ERKStepSetMinStep(void *arkode_mem, realtype hmin) {
+int ERKStepSetMinStep(void *arkode_mem, sunrealtype hmin) {
   return(arkSetMinStep(arkode_mem, hmin)); }
-int ERKStepSetMaxStep(void *arkode_mem, realtype hmax) {
+int ERKStepSetMaxStep(void *arkode_mem, sunrealtype hmax) {
   return(arkSetMaxStep(arkode_mem, hmax)); }
-int ERKStepSetStopTime(void *arkode_mem, realtype tstop) {
+int ERKStepSetStopTime(void *arkode_mem, sunrealtype tstop) {
   return(arkSetStopTime(arkode_mem, tstop)); }
 int ERKStepSetInterpolateStopTime(void *arkode_mem,
-                                  booleantype interp) {
+                                  sunbooleantype interp) {
   return(arkSetInterpolateStopTime(arkode_mem, interp)); }
 int ERKStepClearStopTime(void *arkode_mem) {
   return(arkClearStopTime(arkode_mem)); }
@@ -76,26 +76,21 @@ int ERKStepSetPostprocessStepFn(void *arkode_mem,
 int ERKStepSetPostprocessStageFn(void *arkode_mem,
                                 ARKPostProcessFn ProcessStage) {
   return(arkSetPostprocessStageFn(arkode_mem, ProcessStage)); }
-int ERKStepSetCFLFraction(void *arkode_mem, realtype cfl_frac) {
+int ERKStepSetAdaptivityAdjustment(void *arkode_mem, int adjust) {
+  return(arkSetAdaptivityAdjustment(arkode_mem, adjust)); }
+int ERKStepSetCFLFraction(void *arkode_mem, sunrealtype cfl_frac) {
   return(arkSetCFLFraction(arkode_mem, cfl_frac)); }
-int ERKStepSetSafetyFactor(void *arkode_mem, realtype safety) {
+int ERKStepSetSafetyFactor(void *arkode_mem, sunrealtype safety) {
   return(arkSetSafetyFactor(arkode_mem, safety)); }
-int ERKStepSetErrorBias(void *arkode_mem, realtype bias) {
-  return(arkSetErrorBias(arkode_mem, bias)); }
-int ERKStepSetMaxGrowth(void *arkode_mem, realtype mx_growth) {
+int ERKStepSetMaxGrowth(void *arkode_mem, sunrealtype mx_growth) {
   return(arkSetMaxGrowth(arkode_mem, mx_growth)); }
-int ERKStepSetMinReduction(void *arkode_mem, realtype eta_min) {
+int ERKStepSetMinReduction(void *arkode_mem, sunrealtype eta_min) {
   return(arkSetMinReduction(arkode_mem, eta_min)); }
-int ERKStepSetFixedStepBounds(void *arkode_mem, realtype lb, realtype ub) {
+int ERKStepSetFixedStepBounds(void *arkode_mem, sunrealtype lb, sunrealtype ub) {
   return(arkSetFixedStepBounds(arkode_mem, lb, ub)); }
-int ERKStepSetAdaptivityMethod(void *arkode_mem, int imethod, int idefault,
-                               int pq, realtype adapt_params[3]) {
-  return(arkSetAdaptivityMethod(arkode_mem, imethod, idefault, pq, adapt_params)); }
-int ERKStepSetAdaptivityFn(void *arkode_mem, ARKAdaptFn hfun, void *h_data) {
-  return(arkSetAdaptivityFn(arkode_mem, hfun, h_data)); }
-int ERKStepSetMaxFirstGrowth(void *arkode_mem, realtype etamx1) {
+int ERKStepSetMaxFirstGrowth(void *arkode_mem, sunrealtype etamx1) {
   return(arkSetMaxFirstGrowth(arkode_mem, etamx1)); }
-int ERKStepSetMaxEFailGrowth(void *arkode_mem, realtype etamxf) {
+int ERKStepSetMaxEFailGrowth(void *arkode_mem, sunrealtype etamxf) {
   return(arkSetMaxEFailGrowth(arkode_mem, etamxf)); }
 int ERKStepSetSmallNumEFails(void *arkode_mem, int small_nef) {
   return(arkSetSmallNumEFails(arkode_mem, small_nef)); }
@@ -103,8 +98,10 @@ int ERKStepSetStabilityFn(void *arkode_mem, ARKExpStabFn EStab, void *estab_data
   return(arkSetStabilityFn(arkode_mem, EStab, estab_data)); }
 int ERKStepSetMaxErrTestFails(void *arkode_mem, int maxnef) {
   return(arkSetMaxErrTestFails(arkode_mem, maxnef)); }
-int ERKStepSetFixedStep(void *arkode_mem, realtype hfixed) {
+int ERKStepSetFixedStep(void *arkode_mem, sunrealtype hfixed) {
   return(arkSetFixedStep(arkode_mem, hfixed)); }
+int ERKStepSetAdaptController(void *arkode_mem, SUNAdaptController C) {
+  return(arkSetAdaptController(arkode_mem, C)); }
 
 
 /*===============================================================
@@ -116,15 +113,15 @@ int ERKStepGetNumStepAttempts(void *arkode_mem, long int *nstep_attempts) {
   return(arkGetNumStepAttempts(arkode_mem, nstep_attempts)); }
 int ERKStepGetNumSteps(void *arkode_mem, long int *nsteps) {
   return(arkGetNumSteps(arkode_mem, nsteps)); }
-int ERKStepGetActualInitStep(void *arkode_mem, realtype *hinused) {
+int ERKStepGetActualInitStep(void *arkode_mem, sunrealtype *hinused) {
   return(arkGetActualInitStep(arkode_mem, hinused)); }
-int ERKStepGetLastStep(void *arkode_mem, realtype *hlast) {
+int ERKStepGetLastStep(void *arkode_mem, sunrealtype *hlast) {
   return(arkGetLastStep(arkode_mem, hlast)); }
-int ERKStepGetCurrentStep(void *arkode_mem, realtype *hcur) {
+int ERKStepGetCurrentStep(void *arkode_mem, sunrealtype *hcur) {
   return(arkGetCurrentStep(arkode_mem, hcur)); }
-int ERKStepGetCurrentTime(void *arkode_mem, realtype *tcur) {
+int ERKStepGetCurrentTime(void *arkode_mem, sunrealtype *tcur) {
   return(arkGetCurrentTime(arkode_mem, tcur)); }
-int ERKStepGetTolScaleFactor(void *arkode_mem, realtype *tolsfact) {
+int ERKStepGetTolScaleFactor(void *arkode_mem, sunrealtype *tolsfact) {
   return(arkGetTolScaleFactor(arkode_mem, tolsfact)); }
 int ERKStepGetErrWeights(void *arkode_mem, N_Vector eweight) {
   return(arkGetErrWeights(arkode_mem, eweight)); }
@@ -135,8 +132,8 @@ int ERKStepGetNumGEvals(void *arkode_mem, long int *ngevals) {
 int ERKStepGetRootInfo(void *arkode_mem, int *rootsfound) {
   return(arkGetRootInfo(arkode_mem, rootsfound)); }
 int ERKStepGetStepStats(void *arkode_mem, long int *nsteps,
-                        realtype *hinused, realtype *hlast,
-                        realtype *hcur, realtype *tcur) {
+                        sunrealtype *hinused, sunrealtype *hlast,
+                        sunrealtype *hcur, sunrealtype *tcur) {
   return(arkGetStepStats(arkode_mem, nsteps, hinused, hlast, hcur, tcur)); }
 int ERKStepGetNumConstrFails(void *arkode_mem, long int *nconstrfails) {
   return(arkGetNumConstrFails(arkode_mem, nconstrfails)); }
@@ -232,6 +229,34 @@ int ERKStepGetNumRelaxSolveIters(void* arkode_mem, long int* iters)
   return arkRelaxGetNumRelaxSolveIters(arkode_mem, iters);
 }
 
+
+/*===============================================================
+  DEPRECATED ERKStep optional input/output functions
+  ===============================================================*/
+
+/*---------------------------------------------------------------
+  ERKStepSetAdaptivityMethod: user should create/attach a
+  specific SUNAdaptController object.
+  ---------------------------------------------------------------*/
+int ERKStepSetAdaptivityMethod(void *arkode_mem, int imethod, int idefault,
+                               int pq, sunrealtype adapt_params[3]) {
+  return(arkSetAdaptivityMethod(arkode_mem, imethod, idefault, pq, adapt_params)); }
+
+/*---------------------------------------------------------------
+  ERKStepSetAdaptivityFn: user should create/attach a custom
+  SUNAdaptController object.
+  ---------------------------------------------------------------*/
+int ERKStepSetAdaptivityFn(void *arkode_mem, ARKAdaptFn hfun, void *h_data) {
+  return(arkSetAdaptivityFn(arkode_mem, hfun, h_data)); }
+
+/*---------------------------------------------------------------
+  ERKStepSetErrorBias: user should set this value directly in the
+  SUNAdaptController object.
+  ---------------------------------------------------------------*/
+int ERKStepSetErrorBias(void *arkode_mem, sunrealtype bias) {
+  return(arkSetErrorBias(arkode_mem, bias)); }
+
+
 /*===============================================================
   ERKStep optional input functions -- stepper-specific
   ===============================================================*/
@@ -248,6 +273,7 @@ int ERKStepSetDefaults(void* arkode_mem)
   ARKodeMem ark_mem;
   ARKodeERKStepMem step_mem;
   int retval;
+  long int lenrw, leniw;
 
   /* access ARKodeERKStepMem structure */
   retval = erkStep_AccessStepMem(arkode_mem, "ERKStepSetDefaults",
@@ -263,19 +289,48 @@ int ERKStepSetDefaults(void* arkode_mem)
     return(retval);
   }
 
+  /* Remove current SUNAdaptController object, and replace with "PI" */
+  retval = SUNAdaptController_Space(ark_mem->hadapt_mem->hcontroller, &lenrw, &leniw);
+  if (retval == SUNADAPTCONTROLLER_SUCCESS) {
+    ark_mem->liw -= leniw;
+    ark_mem->lrw -= lenrw;
+  }
+  if (ark_mem->hadapt_mem->owncontroller) {
+    retval = SUNAdaptController_Destroy(ark_mem->hadapt_mem->hcontroller);
+    ark_mem->hadapt_mem->owncontroller = SUNFALSE;
+    if (retval != SUNADAPTCONTROLLER_SUCCESS) {
+      arkProcessError(ark_mem, ARK_MEM_FAIL, "ARKODE", "ERKStepSetDefaults",
+                      "SUNAdaptController_Destroy failure");
+      return(ARK_MEM_FAIL);
+    }
+  }
+  ark_mem->hadapt_mem->hcontroller = NULL;
+  ark_mem->hadapt_mem->hcontroller = SUNAdaptController_PI(ark_mem->sunctx);
+  if (ark_mem->hadapt_mem->hcontroller == NULL) {
+    arkProcessError(ark_mem, ARK_MEM_FAIL, "ARKODE::ERKStep",
+                    "ERKStepSetDefaults",
+                    "SUNAdaptControllerPI allocation failure");
+    return(ARK_MEM_FAIL);
+  }
+  ark_mem->hadapt_mem->owncontroller = SUNTRUE;
+  retval = SUNAdaptController_Space(ark_mem->hadapt_mem->hcontroller, &lenrw, &leniw);
+  if (retval == SUNADAPTCONTROLLER_SUCCESS) {
+    ark_mem->liw += leniw;
+    ark_mem->lrw += lenrw;
+  }
+
   /* Set default values for integrator optional inputs
      (overwrite some adaptivity params for ERKStep use) */
   step_mem->q = Q_DEFAULT;                     /* method order */
   step_mem->p = 0;                             /* embedding order */
-  ark_mem->hadapt_mem->etamxf  = RCONST(0.3);  /* max change on error-failed step */
-  ark_mem->hadapt_mem->imethod = ARK_ADAPT_PI; /* PI controller */
-  ark_mem->hadapt_mem->safety  = RCONST(0.99); /* step adaptivity safety factor  */
-  ark_mem->hadapt_mem->bias    = RCONST(1.2);  /* step adaptivity error bias */
-  ark_mem->hadapt_mem->growth  = RCONST(25.0); /* step adaptivity growth factor */
-  ark_mem->hadapt_mem->k1      = RCONST(0.8);  /* step adaptivity parameter */
-  ark_mem->hadapt_mem->k2      = RCONST(0.31); /* step adaptivity parameter */
   step_mem->stages = 0;                        /* no stages */
   step_mem->B = NULL;                          /* no Butcher table */
+  ark_mem->hadapt_mem->etamxf  = SUN_RCONST(0.3);  /* max change on error-failed step */
+  ark_mem->hadapt_mem->safety  = SUN_RCONST(0.99); /* step adaptivity safety factor  */
+  ark_mem->hadapt_mem->growth  = SUN_RCONST(25.0); /* step adaptivity growth factor */
+  (void) SUNAdaptController_SetErrorBias(ark_mem->hadapt_mem->hcontroller, SUN_RCONST(1.2));
+  (void) SUNAdaptController_SetParams_PI(ark_mem->hadapt_mem->hcontroller,
+                                         SUN_RCONST(0.8), -SUN_RCONST(0.31));
   return(ARK_SUCCESS);
 }
 

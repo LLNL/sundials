@@ -99,7 +99,7 @@ initialization (:c:func:`SUNNonlinSolInitialization`), setup
       require setup may set this operation to ``NULL``.
 
 
-.. c:function:: int SUNNonlinSolSolve(SUNNonlinearSolver NLS, N_Vector y0, N_Vector ycor, N_Vector w, realtype tol, booleantype callLSetup, void *mem)
+.. c:function:: int SUNNonlinSolSolve(SUNNonlinearSolver NLS, N_Vector y0, N_Vector ycor, N_Vector w, sunrealtype tol, sunbooleantype callLSetup, void *mem)
 
    This *required* function solves the nonlinear system
    :math:`F(y)=0` or :math:`G(y)=y`.
@@ -376,7 +376,7 @@ module have types defined in the header file
       linear solver setup and solve functions as applicable.
 
 
-.. c:type:: int (*SUNNonlinSolLSetupFn)(booleantype jbad, booleantype* jcur, void* mem)
+.. c:type:: int (*SUNNonlinSolLSetupFn)(sunbooleantype jbad, sunbooleantype* jcur, void* mem)
 
    These functions are wrappers to the SUNDIALS integrator's function
    for setting up linear solves with SUNLinSol modules.
@@ -439,7 +439,7 @@ module have types defined in the header file
       solution).
 
 
-.. c:type:: int (*SUNNonlinSolConvTestFn)(SUNNonlinearSolver NLS, N_Vector ycor, N_Vector del, realtype tol, N_Vector ewt, void* ctest_data)
+.. c:type:: int (*SUNNonlinSolConvTestFn)(SUNNonlinearSolver NLS, N_Vector ycor, N_Vector del, sunrealtype tol, N_Vector ewt, void* ctest_data)
 
    These functions are SUNDIALS integrator-specific convergence tests for
    nonlinear solvers and are typically supplied by each SUNDIALS integrator,
@@ -547,7 +547,7 @@ structure is defined as
      int                     (*initialize)(SUNNonlinearSolver);
      int                     (*setup)(SUNNonlinearSolver, N_Vector, void*);
      int                     (*solve)(SUNNonlinearSolver, N_Vector, N_Vector,
-                                      N_Vector, realtype, booleantype, void*);
+                                      N_Vector, sunrealtype, sunbooleantype, void*);
      int                     (*free)(SUNNonlinearSolver);
      int                     (*setsysfn)(SUNNonlinearSolver, SUNNonlinSolSysFn);
      int                     (*setlsetupfn)(SUNNonlinearSolver, SUNNonlinSolLSetupFn);
@@ -575,8 +575,8 @@ system and returns a flag denoting a successful or failed solve:
 
    int SUNNonlinSolSolve(SUNNonlinearSolver NLS,
                          N_Vector y0, N_Vector y,
-                         N_Vector w, realtype tol,
-                         booleantype callLSetup, void* mem)
+                         N_Vector w, sunrealtype tol,
+                         sunbooleantype callLSetup, void* mem)
    {
      return((int) NLS->ops->solve(NLS, y0, y, w, tol, callLSetup, mem));
    }

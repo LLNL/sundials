@@ -40,7 +40,7 @@
 #include <nvector/nvector_serial.h>     /* serial N_Vector types, fcts., macros */
 #include <sunmatrix/sunmatrix_dense.h>  /* access to dense SUNMatrix            */
 #include <sunlinsol/sunlinsol_dense.h>  /* access to dense SUNLinearSolver      */
-#include <sundials/sundials_types.h>    /* defs. of 'realtype', 'sunindextype'  */
+#include <sundials/sundials_types.h>    /* defs. of 'sunrealtype', 'sunindextype'  */
 
 #if defined(SUNDIALS_EXTENDED_PRECISION)
 #define GSYM "Lg"
@@ -53,25 +53,25 @@
 #endif
 
 /* User-supplied Functions Called by the Solver */
-static int f(realtype t, N_Vector y, N_Vector ydot, void *user_data);
-static int Jac(realtype t, N_Vector y, N_Vector fy, SUNMatrix J,
+static int f(sunrealtype t, N_Vector y, N_Vector ydot, void *user_data);
+static int Jac(sunrealtype t, N_Vector y, N_Vector fy, SUNMatrix J,
                void *user_data, N_Vector tmp1, N_Vector tmp2, N_Vector tmp3);
 
 /* Private function to check function return values */
 static int check_flag(void *flagvalue, const char *funcname, int opt);
 
 /* Private function to check computed solution */
-static int check_ans(N_Vector y, realtype t, realtype rtol, realtype atol);
+static int check_ans(N_Vector y, sunrealtype t, sunrealtype rtol, sunrealtype atol);
 
 /* Main Program */
 int main()
 {
-  realtype ONE = RCONST(1.0);
+  sunrealtype ONE = SUN_RCONST(1.0);
 
   /* general problem parameters */
-  realtype T0 = RCONST(0.0);     /* initial time */
-  realtype Tf = RCONST(1.e11);   /* final time */
-  realtype dTout = (Tf-T0)/100;  /* time between outputs */
+  sunrealtype T0 = SUN_RCONST(0.0);     /* initial time */
+  sunrealtype Tf = SUN_RCONST(1.e11);   /* final time */
+  sunrealtype dTout = (Tf-T0)/100;  /* time between outputs */
   int Nt = (int) ceil(Tf/dTout); /* number of output times */
   sunindextype NEQ = 3;          /* number of dependent vars. */
 
@@ -83,21 +83,21 @@ int main()
   SUNLinearSolver LS = NULL;     /* empty linear solver object */
   void *arkode_mem = NULL;       /* empty ARKode memory structure */
   FILE *UFID;
-  realtype t, tout;
+  sunrealtype t, tout;
   int iout;
   long int nst, nst_a, nfe, nfi, nsetups, nje, nfeLS, nni, nnf, ncfn, netf, nctf;
 
   /* set up the initial conditions, tolerances, initial time step size */
-  realtype u0 = RCONST(1.0);
-  realtype v0 = RCONST(0.0);
-  realtype w0 = RCONST(0.0);
-  realtype reltol = RCONST(1.0e-3);
-  realtype abstol = RCONST(1.0e-7);
-  realtype h0 = RCONST(1.0e-4) * reltol;
+  sunrealtype u0 = SUN_RCONST(1.0);
+  sunrealtype v0 = SUN_RCONST(0.0);
+  sunrealtype w0 = SUN_RCONST(0.0);
+  sunrealtype reltol = SUN_RCONST(1.0e-3);
+  sunrealtype abstol = SUN_RCONST(1.0e-7);
+  sunrealtype h0 = SUN_RCONST(1.0e-4) * reltol;
 
   /* Create the SUNDIALS context object for this simulation */
   SUNContext ctx;
-  flag = SUNContext_Create(NULL, &ctx);
+  flag = SUNContext_Create(SUN_COMM_NULL, &ctx);
   if (check_flag(&flag, "SUNContext_Create", 1)) return 1;
 
   /* Initial problem output */
@@ -130,7 +130,7 @@ int main()
   if (check_flag(&flag, "ARKStepSetMaxErrTestFails", 1)) return 1;
   flag = ARKStepSetMaxNonlinIters(arkode_mem, 8);             /* Increase max nonlin iters  */
   if (check_flag(&flag, "ARKStepSetMaxNonlinIters", 1)) return 1;
-  flag = ARKStepSetNonlinConvCoef(arkode_mem, RCONST(1.e-7)); /* Set nonlinear convergence coeff. */
+  flag = ARKStepSetNonlinConvCoef(arkode_mem, SUN_RCONST(1.e-7)); /* Set nonlinear convergence coeff. */
   if (check_flag(&flag, "ARKStepSetNonlinConvCoef", 1)) return 1;
   flag = ARKStepSetMaxNumSteps(arkode_mem, 100000);           /* Increase max num steps */
   if (check_flag(&flag, "ARKStepSetMaxNumSteps", 1)) return 1;
@@ -244,11 +244,11 @@ int main()
  *-------------------------------*/
 
 /* f routine to compute the ODE RHS function f(t,y). */
-static int f(realtype t, N_Vector y, N_Vector ydot, void *user_data)
+static int f(sunrealtype t, N_Vector y, N_Vector ydot, void *user_data)
 {
-  realtype u = NV_Ith_S(y,0);   /* access current solution */
-  realtype v = NV_Ith_S(y,1);
-  realtype w = NV_Ith_S(y,2);
+  sunrealtype u = NV_Ith_S(y,0);   /* access current solution */
+  sunrealtype v = NV_Ith_S(y,1);
+  sunrealtype w = NV_Ith_S(y,2);
 
   /* Fill in ODE RHS function */
   NV_Ith_S(ydot,0) = -0.04*u + 1.e4*v*w;
@@ -259,11 +259,11 @@ static int f(realtype t, N_Vector y, N_Vector ydot, void *user_data)
 }
 
 /* Jacobian routine to compute J(t,y) = df/dy. */
-static int Jac(realtype t, N_Vector y, N_Vector fy, SUNMatrix J,
+static int Jac(sunrealtype t, N_Vector y, N_Vector fy, SUNMatrix J,
                void *user_data, N_Vector tmp1, N_Vector tmp2, N_Vector tmp3)
 {
-  realtype v = NV_Ith_S(y,1);   /* access current solution */
-  realtype w = NV_Ith_S(y,2);
+  sunrealtype v = NV_Ith_S(y,1);   /* access current solution */
+  sunrealtype w = NV_Ith_S(y,2);
   SUNMatZero(J);                /* initialize Jacobian to zero */
 
   /* Fill in the Jacobian of the ODE RHS function */
@@ -321,23 +321,23 @@ static int check_flag(void *flagvalue, const char *funcname, int opt)
 
 /* compare the solution at the final time 1e11s to a reference solution computed
    using a relative tolerance of 1e-8 and absoltue tolerance of 1e-14 */
-static int check_ans(N_Vector y, realtype t, realtype rtol, realtype atol)
+static int check_ans(N_Vector y, sunrealtype t, sunrealtype rtol, sunrealtype atol)
 {
   int      passfail=0;        /* answer pass (0) or fail (1) flag */
   N_Vector ref;               /* reference solution vector        */
   N_Vector ewt;               /* error weight vector              */
-  realtype err;               /* wrms error                       */
-  realtype ZERO=RCONST(0.0);
-  realtype ONE=RCONST(1.0);
+  sunrealtype err;               /* wrms error                       */
+  sunrealtype ZERO=SUN_RCONST(0.0);
+  sunrealtype ONE=SUN_RCONST(1.0);
 
   /* create reference solution and error weight vectors */
   ref = N_VClone(y);
   ewt = N_VClone(y);
 
   /* set the reference solution data */
-  NV_Ith_S(ref,0) = RCONST(2.0833403356917897e-08);
-  NV_Ith_S(ref,1) = RCONST(8.1470714598028223e-14);
-  NV_Ith_S(ref,2) = RCONST(9.9999997916651040e-01);
+  NV_Ith_S(ref,0) = SUN_RCONST(2.0833403356917897e-08);
+  NV_Ith_S(ref,1) = SUN_RCONST(8.1470714598028223e-14);
+  NV_Ith_S(ref,2) = SUN_RCONST(9.9999997916651040e-01);
 
   /* compute the error weight vector */
   N_VAbs(ref, ewt);

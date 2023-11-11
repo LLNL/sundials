@@ -906,147 +906,24 @@ steps, :math:`t_{n-3} \to t_{n-2} \to t_{n-1} \to t_n`.  These local
 error history values are all initialized to 1 upon program
 initialization, to accommodate the few initial time steps of a
 calculation where some of these error estimates have not yet been
-computed.  With these estimates, ARKODE supports a variety of error
-control algorithms, as specified in the subsections below.
+computed.  With these estimates, ARKODE supports one of two approaches
+for temporal error control.
 
+First, any valid implementation of the SUNAdaptController class
+:numref:`SUNAdaptController.Description` may be used by ARKODE's adaptive
+time-stepping modules to provide a candidate error-based prospective step
+size :math:`h'`.
 
-.. _ARKODE.Mathematics.Adaptivity.ErrorControl.PID:
-
-PID controller
------------------
-
-This is the default time adaptivity controller used by the ARKStep and
-ERKStep modules.  It derives from those found in :cite:p:`KenCarp:03`, :cite:p:`Sod:98`, :cite:p:`Sod:03` and
-:cite:p:`Sod:06`, and uses all three of the local error estimates
-:math:`\varepsilon_n`, :math:`\varepsilon_{n-1}` and
-:math:`\varepsilon_{n-2}` in determination of a prospective step size,
-
-.. math::
-   h' \;=\; h_n\; \varepsilon_n^{-k_1/p}\; \varepsilon_{n-1}^{k_2/p}\;
-        \varepsilon_{n-2}^{-k_3/p},
-
-where the constants :math:`k_1`, :math:`k_2` and :math:`k_3` default
-to 0.58, 0.21 and 0.1, respectively, and may be modified by the user.
-In this estimate, a floor of :math:`\varepsilon > 10^{-10}` is
-enforced to avoid division-by-zero errors.
-
-
-
-.. _ARKODE.Mathematics.Adaptivity.ErrorControl.PI:
-
-PI controller
-----------------------
-
-Like with the previous method, the PI controller derives from those
-found in :cite:p:`KenCarp:03`, :cite:p:`Sod:98`, :cite:p:`Sod:03` and :cite:p:`Sod:06`, but it differs in
-that it only uses the two most recent step sizes in its adaptivity
-algorithm,
-
-.. math::
-   h' \;=\; h_n\; \varepsilon_n^{-k_1/p}\; \varepsilon_{n-1}^{k_2/p}.
-
-Here, the default values of :math:`k_1` and :math:`k_2` default
-to 0.8 and 0.31, respectively, though they may be changed by the user.
-
-
-
-.. _ARKODE.Mathematics.Adaptivity.ErrorControl.I:
-
-I controller
-----------------------
-
-This is the standard time adaptivity control algorithm in use by most
-publicly-available ODE solver codes.  It bases the prospective time step
-estimate entirely off of the current local error estimate,
-
-.. math::
-   h' \;=\; h_n\; \varepsilon_n^{-k_1/p}.
-
-By default, :math:`k_1=1`, but that may be modified by the user.
-
-
-
-
-.. _ARKODE.Mathematics.Adaptivity.ErrorControl.eGus:
-
-Explicit Gustafsson controller
----------------------------------
-
-This step adaptivity algorithm was proposed in :cite:p:`Gust:91`, and
-is primarily useful with explicit Runge--Kutta methods.
-In the notation of our earlier controllers, it has the form
-
-.. math::
-   h' \;=\; \begin{cases}
-      h_1\; \varepsilon_1^{-1/p}, &\quad\text{on the first step}, \\
-      h_n\; \varepsilon_n^{-k_1/p}\;
-        \left(\dfrac{\varepsilon_n}{\varepsilon_{n-1}}\right)^{k_2/p}, &
-      \quad\text{on subsequent steps}.
-   \end{cases}
-   :label: ARKODE_expGus
-
-The default values of :math:`k_1` and :math:`k_2` are 0.367 and 0.268,
-respectively, and may be modified by the user.
-
-
-
-
-.. _ARKODE.Mathematics.Adaptivity.ErrorControl.iGus:
-
-Implicit Gustafsson controller
----------------------------------
-
-A version of the above controller suitable for implicit Runge--Kutta
-methods was introduced in :cite:p:`Gust:94`, and has the form
-
-.. math::
-   h' = \begin{cases}
-      h_1 \varepsilon_1^{-1/p}, &\quad\text{on the first step}, \\
-      h_n \left(\dfrac{h_n}{h_{n-1}}\right) \varepsilon_n^{-k_1/p}
-        \left(\dfrac{\varepsilon_n}{\varepsilon_{n-1}}\right)^{-k_2/p}, &
-      \quad\text{on subsequent steps}.
-   \end{cases}
-   :label: ARKODE_impGus
-
-The algorithm parameters default to :math:`k_1 = 0.98` and
-:math:`k_2 = 0.95`, but may be modified by the user.
-
-
-
-
-.. _ARKODE.Mathematics.Adaptivity.ErrorControl.ieGus:
-
-ImEx Gustafsson controller
----------------------------------
-
-An ImEx version of these two preceding controllers is also available.
-This approach computes the estimates :math:`h'_1` arising from
-equation :eq:`ARKODE_expGus` and the estimate :math:`h'_2` arising from
-equation :eq:`ARKODE_impGus`, and selects
-
-.. math::
-   h' = \frac{h}{|h|}\min\left\{|h'_1|, |h'_2|\right\}.
-
-Here, equation :eq:`ARKODE_expGus` uses :math:`k_1` and
-:math:`k_2` with default values of 0.367 and 0.268, while equation
-:eq:`ARKODE_impGus` sets both parameters to the input :math:`k_3` that
-defaults to 0.95.  All of these values may be modified by the user.
-
-
-
-.. _ARKODE.Mathematics.Adaptivity.ErrorControl.User:
-
-User-supplied controller
----------------------------------
-
-Finally, ARKODE's time-stepping modules allow the user to define their
-own time step adaptivity function,
+Second, ARKODE's adaptive time-stepping modules currently still allow the
+user to define their own time step adaptivity function,
 
 .. math::
    h' = H(y, t, h_n, h_{n-1}, h_{n-2}, \varepsilon_n, \varepsilon_{n-1}, \varepsilon_{n-2}, q, p),
 
-to allow for problem-specific choices, or for continued
-experimentation with temporal error controllers.
+allowing for problem-specific choices, or for continued
+experimentation with temporal error controllers.  We note that this
+support has been deprecated in favor of the SUNAdaptController class,
+and will be removed in a future release.
 
 
 

@@ -20,16 +20,18 @@
 
 module fsundials_profiler_mod
  use, intrinsic :: ISO_C_BINDING
+ use fsundials_types_mod
  implicit none
  private
 
  ! DECLARATION CONSTRUCTS
- public :: FSUNProfiler_Destroy
- public :: FSUNProfiler_Free
  type, bind(C) :: SwigArrayWrapper
   type(C_PTR), public :: data = C_NULL_PTR
   integer(C_SIZE_T), public :: size = 0
  end type
+ public :: FSUNProfiler_Create
+ public :: FSUNProfiler_Destroy
+ public :: FSUNProfiler_Free
  public :: FSUNProfiler_Begin
  public :: FSUNProfiler_End
  public :: FSUNProfiler_GetTimerResolution
@@ -37,11 +39,19 @@ module fsundials_profiler_mod
  public :: FSUNProfiler_Print
  public :: FSUNProfiler_Reset
 
-  public :: FSUNProfiler_Create
-
-
 ! WRAPPER DECLARATIONS
 interface
+function swigc_FSUNProfiler_Create(farg1, farg2, farg3) &
+bind(C, name="_wrap_FSUNProfiler_Create") &
+result(fresult)
+use, intrinsic :: ISO_C_BINDING
+import :: swigarraywrapper
+integer(C_INT), intent(in) :: farg1
+type(SwigArrayWrapper) :: farg2
+type(C_PTR), value :: farg3
+integer(C_INT) :: fresult
+end function
+
 function swigc_FSUNProfiler_Destroy(farg1) &
 bind(C, name="_wrap_FSUNProfiler_Destroy") &
 result(fresult)
@@ -115,23 +125,49 @@ type(C_PTR), value :: farg1
 integer(C_INT) :: fresult
 end function
 
-
-function swigc_FSUNProfiler_Create(farg1, farg2, farg3) &
-bind(C, name="_wrap_FSUNProfiler_Create") &
-result(fresult)
-use, intrinsic :: ISO_C_BINDING
-import :: swigarraywrapper
-type(C_PTR), value :: farg1
-type(SwigArrayWrapper) :: farg2
-type(C_PTR), value :: farg3
-integer(C_INT) :: fresult
-end function
-
 end interface
 
 
 contains
  ! MODULE SUBPROGRAMS
+
+subroutine SWIG_string_to_chararray(string, chars, wrap)
+  use, intrinsic :: ISO_C_BINDING
+  character(kind=C_CHAR, len=*), intent(IN) :: string
+  character(kind=C_CHAR), dimension(:), target, allocatable, intent(OUT) :: chars
+  type(SwigArrayWrapper), intent(OUT) :: wrap
+  integer :: i
+
+  allocate(character(kind=C_CHAR) :: chars(len(string) + 1))
+  do i=1,len(string)
+    chars(i) = string(i:i)
+  end do
+  i = len(string) + 1
+  chars(i) = C_NULL_CHAR ! C string compatibility
+  wrap%data = c_loc(chars)
+  wrap%size = len(string)
+end subroutine
+
+function FSUNProfiler_Create(comm, title, p) &
+result(swig_result)
+use, intrinsic :: ISO_C_BINDING
+integer(C_INT) :: swig_result
+integer :: comm
+character(kind=C_CHAR, len=*), target :: title
+character(kind=C_CHAR), dimension(:), allocatable, target :: farg2_chars
+type(C_PTR), target, intent(inout) :: p
+integer(C_INT) :: fresult 
+integer(C_INT) :: farg1 
+type(SwigArrayWrapper) :: farg2 
+type(C_PTR) :: farg3 
+
+farg1 = int(comm, C_INT)
+call SWIG_string_to_chararray(title, farg2_chars, farg2)
+farg3 = c_loc(p)
+fresult = swigc_FSUNProfiler_Create(farg1, farg2, farg3)
+swig_result = fresult
+end function
+
 function FSUNProfiler_Destroy(p) &
 result(swig_result)
 use, intrinsic :: ISO_C_BINDING
@@ -157,24 +193,6 @@ farg1 = c_loc(p)
 fresult = swigc_FSUNProfiler_Free(farg1)
 swig_result = fresult
 end function
-
-
-subroutine SWIG_string_to_chararray(string, chars, wrap)
-  use, intrinsic :: ISO_C_BINDING
-  character(kind=C_CHAR, len=*), intent(IN) :: string
-  character(kind=C_CHAR), dimension(:), target, allocatable, intent(OUT) :: chars
-  type(SwigArrayWrapper), intent(OUT) :: wrap
-  integer :: i
-
-  allocate(character(kind=C_CHAR) :: chars(len(string) + 1))
-  do i=1,len(string)
-    chars(i) = string(i:i)
-  end do
-  i = len(string) + 1
-  chars(i) = C_NULL_CHAR ! C string compatibility
-  wrap%data = c_loc(chars)
-  wrap%size = len(string)
-end subroutine
 
 function FSUNProfiler_Begin(p, name) &
 result(swig_result)
@@ -272,27 +290,6 @@ type(C_PTR) :: farg1
 
 farg1 = p
 fresult = swigc_FSUNProfiler_Reset(farg1)
-swig_result = fresult
-end function
-
-
-function FSUNProfiler_Create(comm, title, p) &
-result(swig_result)
-use, intrinsic :: ISO_C_BINDING
-integer(C_INT) :: swig_result
-type(C_PTR) :: comm
-character(kind=C_CHAR, len=*), target :: title
-character(kind=C_CHAR), dimension(:), allocatable, target :: farg2_chars
-type(C_PTR), target, intent(inout) :: p
-integer(C_INT) :: fresult
-type(C_PTR) :: farg1
-type(SwigArrayWrapper) :: farg2
-type(C_PTR) :: farg3
-
-farg1 = comm
-call SWIG_string_to_chararray(title, farg2_chars, farg2)
-farg3 = c_loc(p)
-fresult = swigc_FSUNProfiler_Create(farg1, farg2, farg3)
 swig_result = fresult
 end function
 

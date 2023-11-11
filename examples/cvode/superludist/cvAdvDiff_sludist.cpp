@@ -49,52 +49,52 @@
 #include <nvector/nvector_parallel.h>             /* access to MPI-parallel N_Vector              */
 #include <sunlinsol/sunlinsol_superludist.h>      /* access to the SuperLU-DIST SUNLinearSolver   */
 #include <sunmatrix/sunmatrix_slunrloc.h>         /* access to the SuperLU SLU_NR_loc SUNMatrix   */
-#include <sundials/sundials_types.h>              /* definition of type realtype                  */
+#include <sundials/sundials_types.h>              /* definition of type sunrealtype                  */
 
 #include <mpi.h> /* MPI constants and types */
 
 /* Problem Constants */
 
-#define XMAX  RCONST(2.0)    /* domain boundary           */
+#define XMAX  SUN_RCONST(2.0)    /* domain boundary           */
 #define MX    10             /* mesh dimension            */
 #define NEQ   MX             /* number of equations       */
-#define ATOL  RCONST(1.0e-5) /* scalar absolute tolerance */
+#define ATOL  SUN_RCONST(1.0e-5) /* scalar absolute tolerance */
 #define T0    ZERO           /* initial time              */
-#define T1    RCONST(0.5)    /* first output time         */
-#define DTOUT RCONST(0.5)    /* output time increment     */
+#define T1    SUN_RCONST(0.5)    /* first output time         */
+#define DTOUT SUN_RCONST(0.5)    /* output time increment     */
 #define NOUT  10             /* number of output times    */
 
-#define ZERO  RCONST(0.0)
-#define HALF  RCONST(0.5)
-#define ONE   RCONST(1.0)
-#define TWO   RCONST(2.0)
-#define FIVE  RCONST(5.0)
+#define ZERO  SUN_RCONST(0.0)
+#define HALF  SUN_RCONST(0.5)
+#define ONE   SUN_RCONST(1.0)
+#define TWO   SUN_RCONST(2.0)
+#define FIVE  SUN_RCONST(5.0)
 
 /* Type : UserData
    contains grid constants, parallel machine parameters, work array. */
 
 typedef struct {
-  realtype dx, hdcoef, hacoef;
+  sunrealtype dx, hdcoef, hacoef;
   int npes, my_pe;
   MPI_Comm comm;
-  realtype z[100];
+  sunrealtype z[100];
 } *UserData;
 
 /* Private Helper Functions */
 
-static void SetIC(N_Vector u, realtype dx, sunindextype my_length,
+static void SetIC(N_Vector u, sunrealtype dx, sunindextype my_length,
                   sunindextype my_base);
 
 static void PrintIntro(int npes);
 
-static void PrintData(realtype t, realtype umax, long int nst);
+static void PrintData(sunrealtype t, sunrealtype umax, long int nst);
 
 static void PrintFinalStats(void *cvode_mem);
 
 /* Functions Called by the Solver */
 
-static int f(realtype t, N_Vector u, N_Vector udot, void *user_data);
-static int Jac(realtype t, N_Vector u, N_Vector fu,
+static int f(sunrealtype t, N_Vector u, N_Vector udot, void *user_data);
+static int Jac(sunrealtype t, N_Vector u, N_Vector fu,
                SUNMatrix J, void *user_data,
                N_Vector tmp1, N_Vector tmp2, N_Vector tmp3);
 
@@ -108,7 +108,7 @@ int main(int argc, char *argv[])
 {
   MPI_Comm comm;
   SUNContext sunctx;
-  realtype dx, reltol, abstol, t, tout, umax;
+  sunrealtype dx, reltol, abstol, t, tout, umax;
   UserData data;
   void *cvode_mem;
   int iout, retval, my_pe, npes, nprow, npcol;
@@ -123,7 +123,7 @@ int main(int argc, char *argv[])
   superlu_dist_options_t options;
   SuperMatrix Asuper;
   sunindextype *rowptr, *colind;
-  realtype *matdata;
+  sunrealtype *matdata;
 
   N_Vector u;
   SUNMatrix A;
@@ -143,7 +143,7 @@ int main(int argc, char *argv[])
   MPI_Comm_rank(comm, &my_pe);
 
   /* Create the SUNDIALS context */
-  retval = SUNContext_Create(&comm, &sunctx);
+  retval = SUNContext_Create(comm, &sunctx);
   if(check_retval(&retval, "SUNContext_Create", 1, my_pe)) return(1);
 
   /* check for nprow and npcol arguments */
@@ -182,7 +182,7 @@ int main(int argc, char *argv[])
   reltol = ZERO;  /* Set the tolerances */
   abstol = ATOL;
 
-  dx = data->dx = XMAX/((realtype)(MX+1));  /* Set grid coefficients in data */
+  dx = data->dx = XMAX/((sunrealtype)(MX+1));  /* Set grid coefficients in data */
   data->hdcoef = ONE/(dx*dx);
   data->hacoef = HALF/(TWO*dx);
 
@@ -194,7 +194,7 @@ int main(int argc, char *argv[])
     local_NNZ = 3*local_N;
 
   /* Create the SuperLU-DIST SuperMatrix which will be wrapped as A */
-  matdata = (realtype *) malloc(local_NNZ*sizeof(realtype));
+  matdata = (sunrealtype *) malloc(local_NNZ*sizeof(sunrealtype));
   colind  = (sunindextype *) calloc(local_NNZ, sizeof(sunindextype));
   rowptr  = (sunindextype *) calloc((local_N+1), sizeof(sunindextype));
   dCreate_CompRowLoc_Matrix_dist(&Asuper, NEQ, NEQ, local_NNZ, local_N, my_base, matdata, colind, rowptr,
@@ -290,13 +290,13 @@ int main(int argc, char *argv[])
 
 /* Set initial conditions in u vector */
 
-static void SetIC(N_Vector u, realtype dx, sunindextype my_length,
+static void SetIC(N_Vector u, sunrealtype dx, sunindextype my_length,
                   sunindextype my_base)
 {
   int i;
   sunindextype iglobal;
-  realtype x;
-  realtype *udata;
+  sunrealtype x;
+  sunrealtype *udata;
 
   /* Set pointer to data array and get local length of u. */
   udata = N_VGetArrayPointer(u);
@@ -322,7 +322,7 @@ static void PrintIntro(int npes)
 
 /* Print data */
 
-static void PrintData(realtype t, realtype umax, long int nst)
+static void PrintData(sunrealtype t, sunrealtype umax, long int nst)
 {
 
 #if defined(SUNDIALS_EXTENDED_PRECISION)
@@ -363,10 +363,10 @@ static void PrintFinalStats(void *cvode_mem)
 
 /* f routine. Compute f(t,u). */
 
-static int f(realtype t, N_Vector u, N_Vector udot, void *user_data)
+static int f(sunrealtype t, N_Vector u, N_Vector udot, void *user_data)
 {
-  realtype ui, ult, urt, hordc, horac, hdiff, hadv;
-  realtype *udata, *dudata, *z;
+  sunrealtype ui, ult, urt, hordc, horac, hdiff, hadv;
+  sunrealtype *udata, *dudata, *z;
   int i;
   int npes, my_pe, my_length, my_pe_m1, my_pe_p1, last_pe;
   UserData data;
@@ -431,12 +431,12 @@ static int f(realtype t, N_Vector u, N_Vector udot, void *user_data)
 
 /* Jacobian routine. Compute J(t,u). */
 
-static int Jac(realtype t, N_Vector u, N_Vector fu,
+static int Jac(sunrealtype t, N_Vector u, N_Vector fu,
                SUNMatrix J, void *user_data,
                N_Vector tmp1, N_Vector tmp2, N_Vector tmp3)
 {
   sunindextype i, j;
-  realtype *nzval, hordc, horac;
+  sunrealtype *nzval, hordc, horac;
   UserData data;
   SuperMatrix *Jsuper;
   NRformat_loc *Jstore;
@@ -455,14 +455,14 @@ static int Jac(realtype t, N_Vector u, N_Vector fu,
 
   Jsuper = SUNMatrix_SLUNRloc_SuperMatrix(J);
   Jstore = (NRformat_loc *) Jsuper->Store;
-  nzval  = (realtype *) Jstore->nzval;
+  nzval  = (sunrealtype *) Jstore->nzval;
   sunindextype *colind = Jstore->colind;
   sunindextype *rowptr = Jstore->rowptr;
 
   /* set non-zero Jacobian entries */
   for (i=0; i < Jstore->m_loc; i++) {
-    booleantype first_local_row;
-    booleantype first_row, last_row;
+    sunbooleantype first_local_row;
+    sunbooleantype first_row, last_row;
 
     /* global row index */
     j = Jstore->fst_row + i;

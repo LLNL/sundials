@@ -48,7 +48,7 @@ int main(int argc, char *argv[])
   MPI_Init(&argc, &argv);
 
   comm = MPI_COMM_WORLD;
-  Test_Init(&comm);
+  Test_Init(comm);
 
   MPI_Comm_size(comm, &nprocs);
   MPI_Comm_rank(comm, &myid);
@@ -57,14 +57,14 @@ int main(int argc, char *argv[])
   if (argc < 3) {
     if (myid == 0)
       printf("ERROR: TWO (2) Inputs required: vector length, print timing \n");
-    Test_AbortMPI(&comm, -1);
+    Test_AbortMPI(comm, -1);
   }
 
   local_length = (sunindextype) atol(argv[1]);
   if (local_length < 1) {
     if (myid == 0)
       printf("ERROR: local vector length must be a positive integer \n");
-    Test_AbortMPI(&comm, -1);
+    Test_AbortMPI(comm, -1);
   }
 
   print_timing = atoi(argv[2]);
@@ -95,7 +95,7 @@ int main(int argc, char *argv[])
     N_VDestroy(X);
     VecDestroy(&xvec);
     if (myid == 0) printf("FAIL: Unable to create a new vector \n\n");
-    Test_AbortMPI(&comm, 1);
+    Test_AbortMPI(comm, 1);
   }
 
   /* Check vector ID */
@@ -108,7 +108,7 @@ int main(int argc, char *argv[])
      PETSc vector is not necessarily identical to the one supplied to VecCreate,
      so we compare against the one that is actually *used* in the PETSc vector. */
   PetscObjectGetComm((PetscObject) xvec, &comm2);
-  fails += Test_N_VGetCommunicatorMPI(X, &comm2, myid);
+  fails += Test_N_VGetCommunicatorMPI(X, comm2, myid);
 
   /* Test clone functions */
   fails += Test_N_VCloneEmpty(X, myid);
@@ -122,7 +122,7 @@ int main(int argc, char *argv[])
     N_VDestroy(X);
     VecDestroy(&xvec);
     if (myid == 0) printf("FAIL: Unable to create a new vector \n\n");
-    Test_AbortMPI(&comm, 1);
+    Test_AbortMPI(comm, 1);
   }
 
   Z = N_VClone(X);
@@ -131,7 +131,7 @@ int main(int argc, char *argv[])
     N_VDestroy(Y);
     VecDestroy(&xvec);
     if (myid == 0) printf("FAIL: Unable to create a new vector \n\n");
-    Test_AbortMPI(&comm, 1);
+    Test_AbortMPI(comm, 1);
   }
 
   /* Standard vector operation tests */
@@ -169,7 +169,7 @@ int main(int argc, char *argv[])
     N_VDestroy(Z);
     VecDestroy(&xvec);
     if (myid == 0) printf("FAIL: Unable to create a new vector \n\n");
-    Test_AbortMPI(&comm, 1);
+    Test_AbortMPI(comm, 1);
   }
 
   /* fused operations */
@@ -199,7 +199,7 @@ int main(int argc, char *argv[])
     N_VDestroy(U);
     VecDestroy(&xvec);
     if (myid == 0) printf("FAIL: Unable to create a new vector \n\n");
-    Test_AbortMPI(&comm, 1);
+    Test_AbortMPI(comm, 1);
   }
 
   /* fused operations */
@@ -272,7 +272,7 @@ int main(int argc, char *argv[])
 /* ----------------------------------------------------------------------
  * Implementation specific utility functions for vector tests
  * --------------------------------------------------------------------*/
-int check_ans(realtype ans, N_Vector X, sunindextype local_length)
+int check_ans(sunrealtype ans, N_Vector X, sunindextype local_length)
 {
   int          failure = 0;
   sunindextype i;
@@ -292,19 +292,19 @@ int check_ans(realtype ans, N_Vector X, sunindextype local_length)
   return (failure > ZERO) ? (1) : (0);
 }
 
-booleantype has_data(N_Vector X)
+sunbooleantype has_data(N_Vector X)
 {
   /* check if wrapped PETSc vector is non-null */
   return (N_VGetVector_Petsc(X) == NULL) ? SUNFALSE : SUNTRUE;
 }
 
-void set_element(N_Vector X, sunindextype i, realtype val)
+void set_element(N_Vector X, sunindextype i, sunrealtype val)
 {
   set_element_range(X, i, i, val);
 }
 
 void set_element_range(N_Vector X, sunindextype is, sunindextype ie,
-                       realtype val)
+                       sunrealtype val)
 {
   Vec           xv;
   PetscScalar  *a;
@@ -319,11 +319,11 @@ void set_element_range(N_Vector X, sunindextype is, sunindextype ie,
   VecRestoreArray(xv, &a);
 }
 
-realtype get_element(N_Vector X, sunindextype i)
+sunrealtype get_element(N_Vector X, sunindextype i)
 {
   PetscScalar *a;
   Vec         xv;
-  realtype    val;
+  sunrealtype    val;
 
   /* extract the PETSc vector from the N_Vector wrapper */
   xv = N_VGetVector_Petsc(X);

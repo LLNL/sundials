@@ -19,21 +19,21 @@
 #include "sundials/sundials_nvector_senswrapper.h"
 
 /* constant macros */
-#define PT0001  RCONST(0.0001) /* real 0.0001 */
-#define ONE     RCONST(1.0)    /* real 1.0    */
-#define TWENTY  RCONST(20.0)   /* real 20.0   */
+#define PT0001  SUN_RCONST(0.0001) /* real 0.0001 */
+#define ONE     SUN_RCONST(1.0)    /* real 1.0    */
+#define TWENTY  SUN_RCONST(20.0)   /* real 20.0   */
 
 /* nonlinear solver parameters */
 #define MAXIT   4           /* default max number of nonlinear iterations    */
-#define RATEMAX RCONST(0.9) /* max convergence rate used in divergence check */
+#define RATEMAX SUN_RCONST(0.9) /* max convergence rate used in divergence check */
 
 /* private functions passed to nonlinear solver */
 static int idaNlsResidualSensSim(N_Vector ycor, N_Vector res, void* ida_mem);
-static int idaNlsLSetupSensSim(booleantype jbad, booleantype* jcur,
+static int idaNlsLSetupSensSim(sunbooleantype jbad, sunbooleantype* jcur,
                                void* ida_mem);
 static int idaNlsLSolveSensSim(N_Vector delta, void* ida_mem);
 static int idaNlsConvTestSensSim(SUNNonlinearSolver NLS, N_Vector ycor, N_Vector del,
-                                 realtype tol, N_Vector ewt, void* ida_mem);
+                                 sunrealtype tol, N_Vector ewt, void* ida_mem);
 
 /* -----------------------------------------------------------------------------
  * Exported functions
@@ -193,10 +193,10 @@ int IDASetNonlinearSolverSensSim(void *ida_mem, SUNNonlinearSolver NLS)
   This routine provides access to the relevant data needed to
   compute the nonlinear system function.
   ---------------------------------------------------------------*/
-int IDAGetNonlinearSystemDataSens(void *ida_mem, realtype *tcur,
+int IDAGetNonlinearSystemDataSens(void *ida_mem, sunrealtype *tcur,
                                   N_Vector **yySpred, N_Vector **ypSpred,
                                   N_Vector **yySn, N_Vector **ypSn,
-                                  realtype *cj, void **user_data)
+                                  sunrealtype *cj, void **user_data)
 {
   IDAMem IDA_mem;
 
@@ -265,7 +265,7 @@ int idaNlsInitSensSim(IDAMem IDA_mem)
 }
 
 
-static int idaNlsLSetupSensSim(booleantype jbad, booleantype* jcur,
+static int idaNlsLSetupSensSim(sunbooleantype jbad, sunbooleantype* jcur,
                                void* ida_mem)
 {
   IDAMem IDA_mem;
@@ -408,12 +408,12 @@ static int idaNlsResidualSensSim(N_Vector ycorSim, N_Vector resSim, void* ida_me
 
 
 static int idaNlsConvTestSensSim(SUNNonlinearSolver NLS, N_Vector ycor, N_Vector del,
-                                 realtype tol, N_Vector ewt, void* ida_mem)
+                                 sunrealtype tol, N_Vector ewt, void* ida_mem)
 {
   IDAMem IDA_mem;
   int m, retval;
-  realtype delnrm;
-  realtype rate;
+  sunrealtype delnrm;
+  sunrealtype rate;
 
   if (ida_mem == NULL) {
     IDAProcessError(NULL, IDA_MEM_NULL, "IDAS", "idaNlsConvTestSensSim", MSG_NO_MEM);

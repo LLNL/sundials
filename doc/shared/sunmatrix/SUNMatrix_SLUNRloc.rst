@@ -29,7 +29,7 @@ structure:
 .. code-block:: c
 
    struct _SUNMatrixContent_SLUNRloc {
-     booleantype   own_data;
+     sunbooleantype   own_data;
      gridinfo_t    *grid;
      sunindextype  *row_to_proc;
      pdgsmv_comm_t *gsmv_comm;
@@ -101,7 +101,7 @@ The SUNMATRIX_SLUNRLOC module provides the following user-callable routines:
    ``A``. Its only argument is the ``SUNMatrix`` object to access.
 
 
-.. c:function:: booleantype SUNMatrix_SLUNRloc_OwnData(SUNMatrix A)
+.. c:function:: sunbooleantype SUNMatrix_SLUNRloc_OwnData(SUNMatrix A)
 
    This function returns true if the ``SUNMatrix`` object is responsible
    for freeing the underlying ``SuperMatrix``, otherwise it returns false.

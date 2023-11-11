@@ -36,7 +36,7 @@ extern "C" {
 
 typedef struct {
 
-  realtype di_gammasv; /* gammasv = gamma at the last call to setup or solve */
+  sunrealtype di_gammasv; /* gammasv = gamma at the last call to setup or solve */
 
   N_Vector di_M;       /* M = (I - gamma J)^{-1} , gamma = h / l1   */
 

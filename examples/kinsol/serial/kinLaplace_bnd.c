@@ -32,7 +32,7 @@
 #include <nvector/nvector_serial.h>    /* access to serial N_Vector       */
 #include <sunmatrix/sunmatrix_band.h>  /* access to band SUNMatrix        */
 #include <sunlinsol/sunlinsol_band.h>  /* access to band SUNLinearSolver  */
-#include <sundials/sundials_types.h>   /* defs. of realtype, sunindextype */
+#include <sundials/sundials_types.h>   /* defs. of sunrealtype, sunindextype */
 #include <sundials/sundials_math.h>    /* access to SUNRexp               */
 
 /* Problem Constants */
@@ -43,11 +43,11 @@
 
 #define SKIP 3              /* no. of points skipped for printing */
 
-#define FTOL RCONST(1.e-12) /* function tolerance */
+#define FTOL SUN_RCONST(1.e-12) /* function tolerance */
 
-#define ZERO RCONST(0.0)
-#define ONE  RCONST(1.0)
-#define TWO  RCONST(2.0)
+#define ZERO SUN_RCONST(0.0)
+#define ONE  SUN_RCONST(1.0)
+#define TWO  SUN_RCONST(2.0)
 
 /* IJth is defined in order to isolate the translation from the
    mathematical 2-dimensional structure of the dependent variable vector
@@ -76,7 +76,7 @@ static int check_retval(void *retvalvalue, const char *funcname, int opt);
 int main()
 {
   SUNContext sunctx;
-  realtype fnormtol, fnorm;
+  sunrealtype fnormtol, fnorm;
   N_Vector y, scale;
   int mset, msubset, retval;
   void *kmem;
@@ -99,7 +99,7 @@ int main()
   printf("Problem size: %2ld x %2ld = %4ld\n", (long int) NX, (long int) NY, (long int) NEQ);
 
   /* Create the SUNDIALS context that all SUNDIALS objects require */
-  retval = SUNContext_Create(NULL, &sunctx);
+  retval = SUNContext_Create(SUN_COMM_NULL, &sunctx);
   if (check_retval(&retval, "SUNContext_Create", 1)) return(1);
 
   /* --------------------------------------
@@ -236,10 +236,10 @@ int main()
 
 static int func(N_Vector u, N_Vector f, void *user_data)
 {
-  realtype dx, dy, hdiff, vdiff;
-  realtype hdc, vdc;
-  realtype uij, udn, uup, ult, urt;
-  realtype *udata, *fdata;
+  sunrealtype dx, dy, hdiff, vdiff;
+  sunrealtype hdc, vdc;
+  sunrealtype uij, udn, uup, ult, urt;
+  sunrealtype *udata, *fdata;
 
   int i, j;
 
@@ -284,8 +284,8 @@ static int func(N_Vector u, N_Vector f, void *user_data)
 static void PrintOutput(N_Vector u)
 {
   int i, j;
-  realtype dx, dy, x, y;
-  realtype *udata;
+  sunrealtype dx, dy, x, y;
+  sunrealtype *udata;
 
   dx = ONE/(NX+1);
   dy = ONE/(NY+1);

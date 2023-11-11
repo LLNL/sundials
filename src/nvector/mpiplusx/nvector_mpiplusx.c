@@ -53,12 +53,12 @@ N_Vector_ID N_VGetVectorID_MPIPlusX(N_Vector v)
   return SUNDIALS_NVEC_MPIPLUSX;
 }
 
-realtype* N_VGetArrayPointer_MPIPlusX(N_Vector v)
+sunrealtype* N_VGetArrayPointer_MPIPlusX(N_Vector v)
 {
   return N_VGetSubvectorArrayPointer_MPIManyVector(v, 0);
 }
 
-void N_VSetArrayPointer_MPIPlusX(realtype *vdata, N_Vector v)
+void N_VSetArrayPointer_MPIPlusX(sunrealtype *vdata, N_Vector v)
 {
   N_VSetSubvectorArrayPointer_MPIManyVector(vdata, v, 0);
 }

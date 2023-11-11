@@ -28,31 +28,31 @@
 #include <nvector/nvector_openmpdev.h>
 #include <sundials/sundials_math.h>
 
-#define ZERO   RCONST(0.0)
-#define HALF   RCONST(0.5)
-#define ONE    RCONST(1.0)
-#define ONEPT5 RCONST(1.5)
+#define ZERO   SUN_RCONST(0.0)
+#define HALF   SUN_RCONST(0.5)
+#define ONE    SUN_RCONST(1.0)
+#define ONEPT5 SUN_RCONST(1.5)
 
 /* Private functions for special cases of vector operations */
 static void VCopy_OpenMPDEV(N_Vector x, N_Vector z);                              /* z=x       */
 static void VSum_OpenMPDEV(N_Vector x, N_Vector y, N_Vector z);                   /* z=x+y     */
 static void VDiff_OpenMPDEV(N_Vector x, N_Vector y, N_Vector z);                  /* z=x-y     */
 static void VNeg_OpenMPDEV(N_Vector x, N_Vector z);                               /* z=-x      */
-static void VScaleSum_OpenMPDEV(realtype c, N_Vector x, N_Vector y, N_Vector z);  /* z=c(x+y)  */
-static void VScaleDiff_OpenMPDEV(realtype c, N_Vector x, N_Vector y, N_Vector z); /* z=c(x-y)  */
-static void VLin1_OpenMPDEV(realtype a, N_Vector x, N_Vector y, N_Vector z);      /* z=ax+y    */
-static void VLin2_OpenMPDEV(realtype a, N_Vector x, N_Vector y, N_Vector z);      /* z=ax-y    */
-static void Vaxpy_OpenMPDEV(realtype a, N_Vector x, N_Vector y);                  /* y <- ax+y */
-static void VScaleBy_OpenMPDEV(realtype a, N_Vector x);                           /* x <- ax   */
+static void VScaleSum_OpenMPDEV(sunrealtype c, N_Vector x, N_Vector y, N_Vector z);  /* z=c(x+y)  */
+static void VScaleDiff_OpenMPDEV(sunrealtype c, N_Vector x, N_Vector y, N_Vector z); /* z=c(x-y)  */
+static void VLin1_OpenMPDEV(sunrealtype a, N_Vector x, N_Vector y, N_Vector z);      /* z=ax+y    */
+static void VLin2_OpenMPDEV(sunrealtype a, N_Vector x, N_Vector y, N_Vector z);      /* z=ax-y    */
+static void Vaxpy_OpenMPDEV(sunrealtype a, N_Vector x, N_Vector y);                  /* y <- ax+y */
+static void VScaleBy_OpenMPDEV(sunrealtype a, N_Vector x);                           /* x <- ax   */
 
 /* Private functions for special cases of vector array operations */
 static int VSumVectorArray_OpenMPDEV(int nvec, N_Vector* X, N_Vector* Y, N_Vector* Z);                   /* Z=X+Y     */
 static int VDiffVectorArray_OpenMPDEV(int nvec, N_Vector* X, N_Vector* Y, N_Vector* Z);                  /* Z=X-Y     */
-static int VScaleSumVectorArray_OpenMPDEV(int nvec, realtype c, N_Vector* X, N_Vector* Y, N_Vector* Z);  /* Z=c(X+Y)  */
-static int VScaleDiffVectorArray_OpenMPDEV(int nvec, realtype c, N_Vector* X, N_Vector* Y, N_Vector* Z); /* Z=c(X-Y)  */
-static int VLin1VectorArray_OpenMPDEV(int nvec, realtype a, N_Vector* X, N_Vector* Y, N_Vector* Z);      /* Z=aX+Y    */
-static int VLin2VectorArray_OpenMPDEV(int nvec, realtype a, N_Vector* X, N_Vector* Y, N_Vector* Z);      /* Z=aX-Y    */
-static int VaxpyVectorArray_OpenMPDEV(int nvec, realtype a, N_Vector* X, N_Vector* Y);                   /* Y <- aX+Y */
+static int VScaleSumVectorArray_OpenMPDEV(int nvec, sunrealtype c, N_Vector* X, N_Vector* Y, N_Vector* Z);  /* Z=c(X+Y)  */
+static int VScaleDiffVectorArray_OpenMPDEV(int nvec, sunrealtype c, N_Vector* X, N_Vector* Y, N_Vector* Z); /* Z=c(X-Y)  */
+static int VLin1VectorArray_OpenMPDEV(int nvec, sunrealtype a, N_Vector* X, N_Vector* Y, N_Vector* Z);      /* Z=aX+Y    */
+static int VLin2VectorArray_OpenMPDEV(int nvec, sunrealtype a, N_Vector* X, N_Vector* Y, N_Vector* Z);      /* Z=aX-Y    */
+static int VaxpyVectorArray_OpenMPDEV(int nvec, sunrealtype a, N_Vector* X, N_Vector* Y);                   /* Y <- aX+Y */
 
 /*
  * -----------------------------------------------------------------
@@ -158,8 +158,8 @@ N_Vector N_VNewEmpty_OpenMPDEV(sunindextype length, SUNContext sunctx)
 N_Vector N_VNew_OpenMPDEV(sunindextype length)
 {
   N_Vector v;
-  realtype *data;
-  realtype *dev_data;
+  sunrealtype *data;
+  sunrealtype *dev_data;
   int dev;
 
   v = NULL;
@@ -174,12 +174,12 @@ N_Vector N_VNew_OpenMPDEV(sunindextype length)
 
     /* Allocate memory on host */
     data = NULL;
-    data = (realtype *) malloc(length * sizeof(realtype));
+    data = (sunrealtype *) malloc(length * sizeof(sunrealtype));
     if (data == NULL) { N_VDestroy(v); return(NULL); }
 
     /* Allocate memory on device */
     dev = omp_get_default_device();
-    dev_data = omp_target_alloc(length * sizeof(realtype), dev);
+    dev_data = omp_target_alloc(length * sizeof(sunrealtype), dev);
     if (dev_data == NULL) { N_VDestroy(v); return(NULL); }
 
     /* Attach data */
@@ -195,8 +195,8 @@ N_Vector N_VNew_OpenMPDEV(sunindextype length)
  * Function to create a vector with user data component
  */
 
-N_Vector N_VMake_OpenMPDEV(sunindextype length, realtype *h_vdata,
-                           realtype *d_vdata)
+N_Vector N_VMake_OpenMPDEV(sunindextype length, sunrealtype *h_vdata,
+                           sunrealtype *d_vdata)
 {
   N_Vector v;
   int dev, host;
@@ -231,25 +231,6 @@ N_Vector *N_VCloneVectorArray_OpenMPDEV(int count, N_Vector w)
 }
 
 /* ----------------------------------------------------------------------------
- * Function to create an array of new vectors with NULL data array.
- */
-
-N_Vector *N_VCloneVectorArrayEmpty_OpenMPDEV(int count, N_Vector w)
-{
-  return(N_VCloneEmptyVectorArray(count, w));
-}
-
-/* ----------------------------------------------------------------------------
- * Function to free an array created with N_VCloneVectorArray_OpenMPDEV
- */
-
-void N_VDestroyVectorArray_OpenMPDEV(N_Vector *vs, int count)
-{
-  N_VDestroyVectorArray(vs, count);
-  return;
-}
-
-/* ----------------------------------------------------------------------------
  * Function to return number of vector elements
  */
 sunindextype N_VGetLength_OpenMPDEV(N_Vector v)
@@ -260,17 +241,17 @@ sunindextype N_VGetLength_OpenMPDEV(N_Vector v)
 /* ----------------------------------------------------------------------------
  * Function to return a pointer to the data array on the host.
  */
-realtype *N_VGetHostArrayPointer_OpenMPDEV(N_Vector v)
+sunrealtype *N_VGetHostArrayPointer_OpenMPDEV(N_Vector v)
 {
-  return((realtype *) NV_DATA_HOST_OMPDEV(v));
+  return((sunrealtype *) NV_DATA_HOST_OMPDEV(v));
 }
 
 /* ----------------------------------------------------------------------------
  * Function to return a pointer to the data array on the device.
  */
-realtype *N_VGetDeviceArrayPointer_OpenMPDEV(N_Vector v)
+sunrealtype *N_VGetDeviceArrayPointer_OpenMPDEV(N_Vector v)
 {
-  return((realtype *) NV_DATA_DEV_OMPDEV(v));
+  return((sunrealtype *) NV_DATA_DEV_OMPDEV(v));
 }
 
 /* ----------------------------------------------------------------------------
@@ -289,7 +270,7 @@ void N_VPrint_OpenMPDEV(N_Vector x)
 void N_VPrintFile_OpenMPDEV(N_Vector x, FILE *outfile)
 {
   sunindextype i, N;
-  realtype *xd;
+  sunrealtype *xd;
 
   xd = NULL;
 
@@ -318,8 +299,8 @@ void N_VCopyToDevice_OpenMPDEV(N_Vector x)
 {
   int dev, host;
   sunindextype length;
-  realtype *host_ptr;
-  realtype *dev_ptr;
+  sunrealtype *host_ptr;
+  sunrealtype *dev_ptr;
 
   /* Get array information */
   length   = NV_LENGTH_OMPDEV(x);
@@ -331,7 +312,7 @@ void N_VCopyToDevice_OpenMPDEV(N_Vector x)
   host = omp_get_initial_device();
 
   /* Copy array from host to device */
-  omp_target_memcpy(dev_ptr, host_ptr, sizeof(realtype) * length, 0, 0, dev, host);
+  omp_target_memcpy(dev_ptr, host_ptr, sizeof(sunrealtype) * length, 0, 0, dev, host);
 
   return;
 }
@@ -344,8 +325,8 @@ void N_VCopyFromDevice_OpenMPDEV(N_Vector x)
 {
   int dev, host;
   sunindextype length;
-  realtype *host_ptr;
-  realtype *dev_ptr;
+  sunrealtype *host_ptr;
+  sunrealtype *dev_ptr;
 
   /* Get array information */
   length   = NV_LENGTH_OMPDEV(x);
@@ -357,7 +338,7 @@ void N_VCopyFromDevice_OpenMPDEV(N_Vector x)
   host = omp_get_initial_device();
 
   /* Copy array from device to host */
-  omp_target_memcpy(host_ptr, dev_ptr, sizeof(realtype) * length, 0, 0, host, dev);
+  omp_target_memcpy(host_ptr, dev_ptr, sizeof(sunrealtype) * length, 0, 0, host, dev);
 
   return;
 }
@@ -414,8 +395,8 @@ N_Vector N_VCloneEmpty_OpenMPDEV(N_Vector w)
 N_Vector N_VClone_OpenMPDEV(N_Vector w)
 {
   N_Vector v;
-  realtype *data;
-  realtype *dev_data;
+  sunrealtype *data;
+  sunrealtype *dev_data;
   sunindextype length;
   int dev;
 
@@ -433,12 +414,12 @@ N_Vector N_VClone_OpenMPDEV(N_Vector w)
 
     /* Allocate memory on host */
     data = NULL;
-    data = (realtype *) malloc(length * sizeof(realtype));
+    data = (sunrealtype *) malloc(length * sizeof(sunrealtype));
     if (data == NULL) { N_VDestroy(v); return(NULL); }
 
     /* Allocate memory on device */
     dev = omp_get_default_device();
-    dev_data = omp_target_alloc(length * sizeof(realtype), dev);
+    dev_data = omp_target_alloc(length * sizeof(sunrealtype), dev);
     if (dev_data == NULL) { N_VDestroy(v); return(NULL); }
 
     /* Attach data */
@@ -505,12 +486,12 @@ void N_VSpace_OpenMPDEV(N_Vector v, sunindextype *lrw, sunindextype *liw)
  * Compute linear combination z[i] = a*x[i]+b*y[i]
  */
 
-void N_VLinearSum_OpenMPDEV(realtype a, N_Vector x, realtype b, N_Vector y, N_Vector z)
+void N_VLinearSum_OpenMPDEV(sunrealtype a, N_Vector x, sunrealtype b, N_Vector y, N_Vector z)
 {
   sunindextype i, N;
-  realtype c, *xd_dev, *yd_dev, *zd_dev;
+  sunrealtype c, *xd_dev, *yd_dev, *zd_dev;
   N_Vector v1, v2;
-  booleantype test;
+  sunbooleantype test;
   int dev;
 
   xd_dev = yd_dev = zd_dev = NULL;
@@ -603,10 +584,10 @@ void N_VLinearSum_OpenMPDEV(realtype a, N_Vector x, realtype b, N_Vector y, N_Ve
  * Assigns constant value to all vector elements, z[i] = c
  */
 
-void N_VConst_OpenMPDEV(realtype c, N_Vector z)
+void N_VConst_OpenMPDEV(sunrealtype c, N_Vector z)
 {
   sunindextype i, N;
-  realtype *zd_dev;
+  sunrealtype *zd_dev;
   int dev;
 
   zd_dev = NULL;
@@ -631,7 +612,7 @@ void N_VConst_OpenMPDEV(realtype c, N_Vector z)
 void N_VProd_OpenMPDEV(N_Vector x, N_Vector y, N_Vector z)
 {
   sunindextype i, N;
-  realtype *xd_dev, *yd_dev, *zd_dev;
+  sunrealtype *xd_dev, *yd_dev, *zd_dev;
   int dev;
 
   xd_dev = yd_dev = zd_dev = NULL;
@@ -660,7 +641,7 @@ void N_VProd_OpenMPDEV(N_Vector x, N_Vector y, N_Vector z)
 void N_VDiv_OpenMPDEV(N_Vector x, N_Vector y, N_Vector z)
 {
   sunindextype i, N;
-  realtype *xd_dev, *yd_dev, *zd_dev;
+  sunrealtype *xd_dev, *yd_dev, *zd_dev;
   int dev;
 
   xd_dev = yd_dev = zd_dev = NULL;
@@ -686,10 +667,10 @@ void N_VDiv_OpenMPDEV(N_Vector x, N_Vector y, N_Vector z)
  * Compute scaler multiplication z[i] = c*x[i]
  */
 
-void N_VScale_OpenMPDEV(realtype c, N_Vector x, N_Vector z)
+void N_VScale_OpenMPDEV(sunrealtype c, N_Vector x, N_Vector z)
 {
   sunindextype i, N;
-  realtype *xd_dev, *zd_dev;
+  sunrealtype *xd_dev, *zd_dev;
   int dev;
 
   xd_dev = zd_dev = NULL;
@@ -728,7 +709,7 @@ void N_VScale_OpenMPDEV(realtype c, N_Vector x, N_Vector z)
 void N_VAbs_OpenMPDEV(N_Vector x, N_Vector z)
 {
   sunindextype i, N;
-  realtype *xd_dev, *zd_dev;
+  sunrealtype *xd_dev, *zd_dev;
   int dev;
 
   xd_dev = zd_dev = NULL;
@@ -756,7 +737,7 @@ void N_VAbs_OpenMPDEV(N_Vector x, N_Vector z)
 void N_VInv_OpenMPDEV(N_Vector x, N_Vector z)
 {
   sunindextype i, N;
-  realtype *xd_dev, *zd_dev;
+  sunrealtype *xd_dev, *zd_dev;
   int dev;
 
   xd_dev = zd_dev = NULL;
@@ -781,10 +762,10 @@ void N_VInv_OpenMPDEV(N_Vector x, N_Vector z)
  * Compute componentwise addition of a scaler to a vector z[i] = x[i] + b
  */
 
-void N_VAddConst_OpenMPDEV(N_Vector x, realtype b, N_Vector z)
+void N_VAddConst_OpenMPDEV(N_Vector x, sunrealtype b, N_Vector z)
 {
   sunindextype i, N;
-  realtype *xd_dev, *zd_dev;
+  sunrealtype *xd_dev, *zd_dev;
   int dev;
 
   xd_dev = zd_dev = NULL;
@@ -809,10 +790,10 @@ void N_VAddConst_OpenMPDEV(N_Vector x, realtype b, N_Vector z)
  * Computes the dot product of two vectors, a = sum(x[i]*y[i])
  */
 
-realtype N_VDotProd_OpenMPDEV(N_Vector x, N_Vector y)
+sunrealtype N_VDotProd_OpenMPDEV(N_Vector x, N_Vector y)
 {
   sunindextype i, N;
-  realtype sum, *xd_dev, *yd_dev;
+  sunrealtype sum, *xd_dev, *yd_dev;
   int dev;
 
   xd_dev = yd_dev = NULL;
@@ -840,10 +821,10 @@ realtype N_VDotProd_OpenMPDEV(N_Vector x, N_Vector y)
  * Computes max norm of a vector
  */
 
-realtype N_VMaxNorm_OpenMPDEV(N_Vector x)
+sunrealtype N_VMaxNorm_OpenMPDEV(N_Vector x)
 {
   sunindextype i, N;
-  realtype max, *xd_dev;
+  sunrealtype max, *xd_dev;
   int dev;
 
   max = ZERO;
@@ -869,7 +850,7 @@ realtype N_VMaxNorm_OpenMPDEV(N_Vector x)
  * Computes weighted root mean square norm of a vector
  */
 
-realtype N_VWrmsNorm_OpenMPDEV(N_Vector x, N_Vector w)
+sunrealtype N_VWrmsNorm_OpenMPDEV(N_Vector x, N_Vector w)
 {
   return(SUNRsqrt(N_VWSqrSumLocal_OpenMPDEV(x, w)/(NV_LENGTH_OMPDEV(x))));
 }
@@ -879,7 +860,7 @@ realtype N_VWrmsNorm_OpenMPDEV(N_Vector x, N_Vector w)
  * Computes weighted root mean square norm of a masked vector
  */
 
-realtype N_VWrmsNormMask_OpenMPDEV(N_Vector x, N_Vector w, N_Vector id)
+sunrealtype N_VWrmsNormMask_OpenMPDEV(N_Vector x, N_Vector w, N_Vector id)
 {
   return(SUNRsqrt(N_VWSqrSumMaskLocal_OpenMPDEV(x, w, id) / (NV_LENGTH_OMPDEV(x))));
 }
@@ -889,10 +870,10 @@ realtype N_VWrmsNormMask_OpenMPDEV(N_Vector x, N_Vector w, N_Vector id)
  * Computes weighted square sum of a vector
  */
 
-realtype N_VWSqrSumLocal_OpenMPDEV(N_Vector x, N_Vector w)
+sunrealtype N_VWSqrSumLocal_OpenMPDEV(N_Vector x, N_Vector w)
 {
   sunindextype i, N;
-  realtype sum, *xd_dev, *wd_dev;
+  sunrealtype sum, *xd_dev, *wd_dev;
   int dev;
 
   sum = ZERO;
@@ -919,10 +900,10 @@ realtype N_VWSqrSumLocal_OpenMPDEV(N_Vector x, N_Vector w)
  * Computes weighted square sum of a masked vector
  */
 
-realtype N_VWSqrSumMaskLocal_OpenMPDEV(N_Vector x, N_Vector w, N_Vector id)
+sunrealtype N_VWSqrSumMaskLocal_OpenMPDEV(N_Vector x, N_Vector w, N_Vector id)
 {
   sunindextype i, N;
-  realtype sum, *xd_dev, *wd_dev, *idd_dev;
+  sunrealtype sum, *xd_dev, *wd_dev, *idd_dev;
   int dev;
 
   sum = ZERO;
@@ -952,10 +933,10 @@ realtype N_VWSqrSumMaskLocal_OpenMPDEV(N_Vector x, N_Vector w, N_Vector id)
  * Finds the minimun component of a vector
  */
 
-realtype N_VMin_OpenMPDEV(N_Vector x)
+sunrealtype N_VMin_OpenMPDEV(N_Vector x)
 {
   sunindextype i, N;
-  realtype min, *xd_dev;
+  sunrealtype min, *xd_dev;
   int dev;
 
   xd_dev = NULL;
@@ -984,10 +965,10 @@ realtype N_VMin_OpenMPDEV(N_Vector x)
  * Computes weighted L2 norm of a vector
  */
 
-realtype N_VWL2Norm_OpenMPDEV(N_Vector x, N_Vector w)
+sunrealtype N_VWL2Norm_OpenMPDEV(N_Vector x, N_Vector w)
 {
   sunindextype i, N;
-  realtype sum, *xd_dev, *wd_dev;
+  sunrealtype sum, *xd_dev, *wd_dev;
   int dev;
 
   sum = ZERO;
@@ -1014,10 +995,10 @@ realtype N_VWL2Norm_OpenMPDEV(N_Vector x, N_Vector w)
  * Computes L1 norm of a vector
  */
 
-realtype N_VL1Norm_OpenMPDEV(N_Vector x)
+sunrealtype N_VL1Norm_OpenMPDEV(N_Vector x)
 {
   sunindextype i, N;
-  realtype sum, *xd_dev;
+  sunrealtype sum, *xd_dev;
   int dev;
 
   sum = ZERO;
@@ -1042,10 +1023,10 @@ realtype N_VL1Norm_OpenMPDEV(N_Vector x)
  * Compare vector component values to a scaler
  */
 
-void N_VCompare_OpenMPDEV(realtype c, N_Vector x, N_Vector z)
+void N_VCompare_OpenMPDEV(sunrealtype c, N_Vector x, N_Vector z)
 {
   sunindextype i, N;
-  realtype *xd_dev, *zd_dev;
+  sunrealtype *xd_dev, *zd_dev;
   int dev;
 
   xd_dev = zd_dev = NULL;
@@ -1070,10 +1051,10 @@ void N_VCompare_OpenMPDEV(realtype c, N_Vector x, N_Vector z)
  * Compute componentwise inverse z[i] = ONE/x[i] and checks if x[i] == ZERO
  */
 
-booleantype N_VInvTest_OpenMPDEV(N_Vector x, N_Vector z)
+sunbooleantype N_VInvTest_OpenMPDEV(N_Vector x, N_Vector z)
 {
   sunindextype i, N;
-  realtype *xd_dev, *zd_dev, val;
+  sunrealtype *xd_dev, *zd_dev, val;
   int dev;
 
   xd_dev = zd_dev = NULL;
@@ -1107,11 +1088,11 @@ booleantype N_VInvTest_OpenMPDEV(N_Vector x, N_Vector z)
  * Compute constraint mask of a vector
  */
 
-booleantype N_VConstrMask_OpenMPDEV(N_Vector c, N_Vector x, N_Vector m)
+sunbooleantype N_VConstrMask_OpenMPDEV(N_Vector c, N_Vector x, N_Vector m)
 {
   sunindextype i, N;
-  realtype temp;
-  realtype *cd_dev, *xd_dev, *md_dev;
+  sunrealtype temp;
+  sunrealtype *cd_dev, *xd_dev, *md_dev;
   int dev;
 
   cd_dev = xd_dev = md_dev = NULL;
@@ -1149,10 +1130,10 @@ booleantype N_VConstrMask_OpenMPDEV(N_Vector c, N_Vector x, N_Vector m)
  * Compute minimum componentwise quotient
  */
 
-realtype N_VMinQuotient_OpenMPDEV(N_Vector num, N_Vector denom)
+sunrealtype N_VMinQuotient_OpenMPDEV(N_Vector num, N_Vector denom)
 {
   sunindextype i, N;
-  realtype *nd_dev, *dd_dev, min;
+  sunrealtype *nd_dev, *dd_dev, min;
   int dev;
 
   nd_dev = dd_dev = NULL;
@@ -1164,7 +1145,7 @@ realtype N_VMinQuotient_OpenMPDEV(N_Vector num, N_Vector denom)
   /* get default device identifier */
   dev = omp_get_default_device();
 
-  min = BIG_REAL;
+  min = SUN_BIG_REAL;
 
 #pragma omp target map(tofrom:min) is_device_ptr(nd_dev, dd_dev) device(dev)
 #pragma omp teams distribute parallel for reduction(min:min) schedule(static, 1)
@@ -1181,14 +1162,14 @@ realtype N_VMinQuotient_OpenMPDEV(N_Vector num, N_Vector denom)
  * -----------------------------------------------------------------
  */
 
-int N_VLinearCombination_OpenMPDEV(int nvec, realtype* c, N_Vector* X, N_Vector z)
+int N_VLinearCombination_OpenMPDEV(int nvec, sunrealtype* c, N_Vector* X, N_Vector z)
 {
   int          i, dev;
-  realtype     to_add; /* temporary variable to hold sum being added in atomic operation */
+  sunrealtype     to_add; /* temporary variable to hold sum being added in atomic operation */
   sunindextype j, N;
-  realtype*    zd_dev=NULL;
-  realtype*    xd_dev=NULL;
-  realtype**   xd_dev_ptrs=NULL;
+  sunrealtype*    zd_dev=NULL;
+  sunrealtype*    xd_dev=NULL;
+  sunrealtype**   xd_dev_ptrs=NULL;
 
   /* invalid number of vectors */
   if (nvec < 1) return(-1);
@@ -1213,7 +1194,7 @@ int N_VLinearCombination_OpenMPDEV(int nvec, realtype* c, N_Vector* X, N_Vector 
   dev = omp_get_default_device();
 
   /* Allocate and store X dev pointers to copy to device */
-  xd_dev_ptrs = (realtype**) malloc(nvec * sizeof(realtype*));
+  xd_dev_ptrs = (sunrealtype**) malloc(nvec * sizeof(sunrealtype*));
   for (i=0; i<nvec; i++)
     xd_dev_ptrs[i] = NV_DATA_DEV_OMPDEV(X[i]);
 
@@ -1300,15 +1281,15 @@ int N_VLinearCombination_OpenMPDEV(int nvec, realtype* c, N_Vector* X, N_Vector 
   return(0);
 }
 
-int N_VScaleAddMulti_OpenMPDEV(int nvec, realtype* a, N_Vector x, N_Vector* Y, N_Vector* Z)
+int N_VScaleAddMulti_OpenMPDEV(int nvec, sunrealtype* a, N_Vector x, N_Vector* Y, N_Vector* Z)
 {
   int          i, dev;
   sunindextype j, N;
-  realtype*    xd_dev=NULL;
-  realtype*    yd_dev=NULL;
-  realtype*    zd_dev=NULL;
-  realtype**   yd_dev_ptrs=NULL;
-  realtype**   zd_dev_ptrs=NULL;
+  sunrealtype*    xd_dev=NULL;
+  sunrealtype*    yd_dev=NULL;
+  sunrealtype*    zd_dev=NULL;
+  sunrealtype**   yd_dev_ptrs=NULL;
+  sunrealtype**   zd_dev_ptrs=NULL;
 
   /* invalid number of vectors */
   if (nvec < 1) return(-1);
@@ -1327,7 +1308,7 @@ int N_VScaleAddMulti_OpenMPDEV(int nvec, realtype* a, N_Vector x, N_Vector* Y, N
   dev = omp_get_default_device();
 
   /* Allocate and store dev pointers to copy to device */
-  yd_dev_ptrs = (realtype**) malloc(nvec * sizeof(realtype*));
+  yd_dev_ptrs = (sunrealtype**) malloc(nvec * sizeof(sunrealtype*));
   for (i=0; i<nvec; i++)
     yd_dev_ptrs[i] = NV_DATA_DEV_OMPDEV(Y[i]);
 
@@ -1351,7 +1332,7 @@ int N_VScaleAddMulti_OpenMPDEV(int nvec, realtype* a, N_Vector x, N_Vector* Y, N
   }
 
   /* Allocate and store dev pointers to copy to device */
-  zd_dev_ptrs = (realtype**) malloc(nvec * sizeof(realtype*));
+  zd_dev_ptrs = (sunrealtype**) malloc(nvec * sizeof(sunrealtype*));
   for (i=0; i<nvec; i++)
     zd_dev_ptrs[i] = NV_DATA_DEV_OMPDEV(Z[i]);
 
@@ -1375,14 +1356,14 @@ int N_VScaleAddMulti_OpenMPDEV(int nvec, realtype* a, N_Vector x, N_Vector* Y, N
   return(0);
 }
 
-int N_VDotProdMulti_OpenMPDEV(int nvec, N_Vector x, N_Vector* Y, realtype* dotprods)
+int N_VDotProdMulti_OpenMPDEV(int nvec, N_Vector x, N_Vector* Y, sunrealtype* dotprods)
 {
   int          i, dev;
   sunindextype j, N;
-  realtype     sum;
-  realtype*    xd_dev=NULL;
-  realtype*    yd_dev=NULL;
-  realtype**   yd_dev_ptrs=NULL;
+  sunrealtype     sum;
+  sunrealtype*    xd_dev=NULL;
+  sunrealtype*    yd_dev=NULL;
+  sunrealtype**   yd_dev_ptrs=NULL;
 
   /* invalid number of vectors */
   if (nvec < 1) return(-1);
@@ -1406,7 +1387,7 @@ int N_VDotProdMulti_OpenMPDEV(int nvec, N_Vector x, N_Vector* Y, realtype* dotpr
   }
 
   /* Allocate and store dev pointers to copy to device */
-  yd_dev_ptrs = (realtype**) malloc(nvec * sizeof(realtype*));
+  yd_dev_ptrs = (sunrealtype**) malloc(nvec * sizeof(sunrealtype*));
   for (i=0; i<nvec; i++)
     yd_dev_ptrs[i] = NV_DATA_DEV_OMPDEV(Y[i]);
 
@@ -1435,22 +1416,22 @@ int N_VDotProdMulti_OpenMPDEV(int nvec, N_Vector x, N_Vector* Y, realtype* dotpr
  */
 
 int N_VLinearSumVectorArray_OpenMPDEV(int nvec,
-                                     realtype a, N_Vector* X,
-                                     realtype b, N_Vector* Y,
+                                     sunrealtype a, N_Vector* X,
+                                     sunrealtype b, N_Vector* Y,
                                      N_Vector* Z)
 {
   int          i, dev;
   sunindextype j, N;
   N_Vector*    V1;
   N_Vector*    V2;
-  booleantype  test;
-  realtype     c;
-  realtype*    xd_dev=NULL;
-  realtype*    yd_dev=NULL;
-  realtype*    zd_dev=NULL;
-  realtype**   xd_dev_ptrs=NULL;
-  realtype**   yd_dev_ptrs=NULL;
-  realtype**   zd_dev_ptrs=NULL;
+  sunbooleantype  test;
+  sunrealtype     c;
+  sunrealtype*    xd_dev=NULL;
+  sunrealtype*    yd_dev=NULL;
+  sunrealtype*    zd_dev=NULL;
+  sunrealtype**   xd_dev_ptrs=NULL;
+  sunrealtype**   yd_dev_ptrs=NULL;
+  sunrealtype**   zd_dev_ptrs=NULL;
 
   /* invalid number of vectors */
   if (nvec < 1) return(-1);
@@ -1524,9 +1505,9 @@ int N_VLinearSumVectorArray_OpenMPDEV(int nvec,
   dev = omp_get_default_device();
 
   /* Allocate and store dev pointers to copy to device */
-  xd_dev_ptrs = (realtype**) malloc(nvec * sizeof(realtype*));
-  yd_dev_ptrs = (realtype**) malloc(nvec * sizeof(realtype*));
-  zd_dev_ptrs = (realtype**) malloc(nvec * sizeof(realtype*));
+  xd_dev_ptrs = (sunrealtype**) malloc(nvec * sizeof(sunrealtype*));
+  yd_dev_ptrs = (sunrealtype**) malloc(nvec * sizeof(sunrealtype*));
+  zd_dev_ptrs = (sunrealtype**) malloc(nvec * sizeof(sunrealtype*));
   for (i=0; i<nvec; i++)
     xd_dev_ptrs[i] = NV_DATA_DEV_OMPDEV(X[i]);
   for (i=0; i<nvec; i++)
@@ -1555,14 +1536,14 @@ int N_VLinearSumVectorArray_OpenMPDEV(int nvec,
   return(0);
 }
 
-int N_VScaleVectorArray_OpenMPDEV(int nvec, realtype* c, N_Vector* X, N_Vector* Z)
+int N_VScaleVectorArray_OpenMPDEV(int nvec, sunrealtype* c, N_Vector* X, N_Vector* Z)
 {
   int          i, dev;
   sunindextype j, N;
-  realtype*    xd_dev=NULL;
-  realtype*    zd_dev=NULL;
-  realtype**   xd_dev_ptrs=NULL;
-  realtype**   zd_dev_ptrs=NULL;
+  sunrealtype*    xd_dev=NULL;
+  sunrealtype*    zd_dev=NULL;
+  sunrealtype**   xd_dev_ptrs=NULL;
+  sunrealtype**   zd_dev_ptrs=NULL;
 
   /* invalid number of vectors */
   if (nvec < 1) return(-1);
@@ -1580,7 +1561,7 @@ int N_VScaleVectorArray_OpenMPDEV(int nvec, realtype* c, N_Vector* X, N_Vector* 
   dev = omp_get_default_device();
 
   /* Allocate and store dev pointers to copy to device */
-  xd_dev_ptrs = (realtype**) malloc(nvec * sizeof(realtype*));
+  xd_dev_ptrs = (sunrealtype**) malloc(nvec * sizeof(sunrealtype*));
   for (i=0; i<nvec; i++) {
     xd_dev_ptrs[i] = NV_DATA_DEV_OMPDEV(X[i]);
   }
@@ -1605,7 +1586,7 @@ int N_VScaleVectorArray_OpenMPDEV(int nvec, realtype* c, N_Vector* X, N_Vector* 
   }
 
   /* Allocate and store dev pointers to copy to device */
-  zd_dev_ptrs = (realtype**) malloc(nvec * sizeof(realtype*));
+  zd_dev_ptrs = (sunrealtype**) malloc(nvec * sizeof(sunrealtype*));
   for (i=0; i<nvec; i++)
     zd_dev_ptrs[i] = NV_DATA_DEV_OMPDEV(Z[i]);
 
@@ -1629,12 +1610,12 @@ int N_VScaleVectorArray_OpenMPDEV(int nvec, realtype* c, N_Vector* X, N_Vector* 
   return(0);
 }
 
-int N_VConstVectorArray_OpenMPDEV(int nvec, realtype c, N_Vector* Z)
+int N_VConstVectorArray_OpenMPDEV(int nvec, sunrealtype c, N_Vector* Z)
 {
   int          i, dev;
   sunindextype j, N;
-  realtype*    zd_dev=NULL;
-  realtype**   zd_dev_ptrs=NULL;
+  sunrealtype*    zd_dev=NULL;
+  sunrealtype**   zd_dev_ptrs=NULL;
 
   /* invalid number of vectors */
   if (nvec < 1) return(-1);
@@ -1652,7 +1633,7 @@ int N_VConstVectorArray_OpenMPDEV(int nvec, realtype c, N_Vector* Z)
   dev = omp_get_default_device();
 
   /* Allocate and store dev pointers to copy to device */
-  zd_dev_ptrs = (realtype**) malloc(nvec * sizeof(realtype*));
+  zd_dev_ptrs = (sunrealtype**) malloc(nvec * sizeof(sunrealtype*));
   for (i=0; i<nvec; i++)
     zd_dev_ptrs[i] = NV_DATA_DEV_OMPDEV(Z[i]);
 
@@ -1673,15 +1654,15 @@ int N_VConstVectorArray_OpenMPDEV(int nvec, realtype c, N_Vector* Z)
   return(0);
 }
 
-int N_VWrmsNormVectorArray_OpenMPDEV(int nvec, N_Vector* X, N_Vector* W, realtype* nrm)
+int N_VWrmsNormVectorArray_OpenMPDEV(int nvec, N_Vector* X, N_Vector* W, sunrealtype* nrm)
 {
   int          i, dev;
   sunindextype j, N;
-  realtype     sum;
-  realtype*    wd_dev=NULL;
-  realtype*    xd_dev=NULL;
-  realtype**   wd_dev_ptrs=NULL;
-  realtype**   xd_dev_ptrs=NULL;
+  sunrealtype     sum;
+  sunrealtype*    wd_dev=NULL;
+  sunrealtype*    xd_dev=NULL;
+  sunrealtype**   wd_dev_ptrs=NULL;
+  sunrealtype**   xd_dev_ptrs=NULL;
 
   /* invalid number of vectors */
   if (nvec < 1) return(-1);
@@ -1703,8 +1684,8 @@ int N_VWrmsNormVectorArray_OpenMPDEV(int nvec, N_Vector* X, N_Vector* W, realtyp
     nrm[i] = ZERO;
 
   /* Allocate and store dev pointers to copy to device */
-  wd_dev_ptrs = (realtype**) malloc(nvec * sizeof(realtype*));
-  xd_dev_ptrs = (realtype**) malloc(nvec * sizeof(realtype*));
+  wd_dev_ptrs = (sunrealtype**) malloc(nvec * sizeof(sunrealtype*));
+  xd_dev_ptrs = (sunrealtype**) malloc(nvec * sizeof(sunrealtype*));
   for (i=0; i<nvec; i++)
     wd_dev_ptrs[i] = NV_DATA_DEV_OMPDEV(W[i]);
   for (i=0; i<nvec; i++)
@@ -1735,16 +1716,16 @@ int N_VWrmsNormVectorArray_OpenMPDEV(int nvec, N_Vector* X, N_Vector* W, realtyp
 
 
 int N_VWrmsNormMaskVectorArray_OpenMPDEV(int nvec, N_Vector* X, N_Vector* W,
-                                        N_Vector id, realtype* nrm)
+                                        N_Vector id, sunrealtype* nrm)
 {
   int          i, dev;
   sunindextype j, N;
-  realtype     sum;
-  realtype*    wd_dev=NULL;
-  realtype*    xd_dev=NULL;
-  realtype*    idd_dev=NULL;
-  realtype**   wd_dev_ptrs=NULL;
-  realtype**   xd_dev_ptrs=NULL;
+  sunrealtype     sum;
+  sunrealtype*    wd_dev=NULL;
+  sunrealtype*    xd_dev=NULL;
+  sunrealtype*    idd_dev=NULL;
+  sunrealtype**   wd_dev_ptrs=NULL;
+  sunrealtype**   xd_dev_ptrs=NULL;
 
   /* invalid number of vectors */
   if (nvec < 1) return(-1);
@@ -1767,8 +1748,8 @@ int N_VWrmsNormMaskVectorArray_OpenMPDEV(int nvec, N_Vector* X, N_Vector* W,
     nrm[i] = ZERO;
 
   /* Allocate and store dev pointers to copy to device */
-  xd_dev_ptrs = (realtype**) malloc(nvec * sizeof(realtype*));
-  wd_dev_ptrs = (realtype**) malloc(nvec * sizeof(realtype*));
+  xd_dev_ptrs = (sunrealtype**) malloc(nvec * sizeof(sunrealtype*));
+  wd_dev_ptrs = (sunrealtype**) malloc(nvec * sizeof(sunrealtype*));
   for (i=0; i<nvec; i++)
     xd_dev_ptrs[i] = NV_DATA_DEV_OMPDEV(X[i]);
   for (i=0; i<nvec; i++)
@@ -1799,17 +1780,17 @@ int N_VWrmsNormMaskVectorArray_OpenMPDEV(int nvec, N_Vector* X, N_Vector* W,
   return(0);
 }
 
-int N_VScaleAddMultiVectorArray_OpenMPDEV(int nvec, int nsum, realtype* a,
+int N_VScaleAddMultiVectorArray_OpenMPDEV(int nvec, int nsum, sunrealtype* a,
                                           N_Vector* X, N_Vector** Y, N_Vector** Z)
 {
   int          i, j, dev;
   sunindextype k, N;
-  realtype*    xd_dev=NULL;
-  realtype*    yd_dev=NULL;
-  realtype*    zd_dev=NULL;
-  realtype**   xd_dev_ptrs=NULL;
-  realtype**   yd_dev_ptrs=NULL;
-  realtype**   zd_dev_ptrs=NULL;
+  sunrealtype*    xd_dev=NULL;
+  sunrealtype*    yd_dev=NULL;
+  sunrealtype*    zd_dev=NULL;
+  sunrealtype**   xd_dev_ptrs=NULL;
+  sunrealtype**   yd_dev_ptrs=NULL;
+  sunrealtype**   zd_dev_ptrs=NULL;
 
   int          retval;
   N_Vector*    YY;
@@ -1868,8 +1849,8 @@ int N_VScaleAddMultiVectorArray_OpenMPDEV(int nvec, int nsum, realtype* a,
   dev = omp_get_default_device();
 
   /* Allocate and store dev pointers to copy to device */
-  xd_dev_ptrs = (realtype**) malloc(nvec * sizeof(realtype*));
-  yd_dev_ptrs = (realtype**) malloc(nvec * nsum * sizeof(realtype*));
+  xd_dev_ptrs = (sunrealtype**) malloc(nvec * sizeof(sunrealtype*));
+  yd_dev_ptrs = (sunrealtype**) malloc(nvec * nsum * sizeof(sunrealtype*));
   for (i=0; i<nvec; i++)
     xd_dev_ptrs[i] = NV_DATA_DEV_OMPDEV(X[i]);
   for (i=0; i<nvec; i++) {
@@ -1901,7 +1882,7 @@ int N_VScaleAddMultiVectorArray_OpenMPDEV(int nvec, int nsum, realtype* a,
   }
 
   /* Allocate and store dev pointers to copy to device */
-  zd_dev_ptrs = (realtype**) malloc(nvec * nsum * sizeof(realtype*));
+  zd_dev_ptrs = (sunrealtype**) malloc(nvec * nsum * sizeof(sunrealtype*));
   for (i=0; i<nvec; i++) {
     for (j=0; j<nsum; j++)
       zd_dev_ptrs[i * nsum + j] = NV_DATA_DEV_OMPDEV(Z[j][i]);
@@ -1933,7 +1914,7 @@ int N_VScaleAddMultiVectorArray_OpenMPDEV(int nvec, int nsum, realtype* a,
 }
 
 int N_VLinearCombinationVectorArray_OpenMPDEV(int nvec, int nsum,
-                                             realtype* c,
+                                             sunrealtype* c,
                                              N_Vector** X,
                                              N_Vector* Z)
 {
@@ -1941,13 +1922,13 @@ int N_VLinearCombinationVectorArray_OpenMPDEV(int nvec, int nsum,
   int          j; /* vector index in vector array     [0,nvec) */
   sunindextype k; /* element index in vector          [0,N)    */
   sunindextype N;
-  realtype*    zd_dev=NULL;
-  realtype*    xd_dev=NULL;
-  realtype**   zd_dev_ptrs=NULL;
-  realtype**   xd_dev_ptrs=NULL;
+  sunrealtype*    zd_dev=NULL;
+  sunrealtype*    xd_dev=NULL;
+  sunrealtype**   zd_dev_ptrs=NULL;
+  sunrealtype**   xd_dev_ptrs=NULL;
   int dev;
 
-  realtype*    ctmp;
+  sunrealtype*    ctmp;
   N_Vector*    Y;
 
   /* invalid number of vectors */
@@ -1992,7 +1973,7 @@ int N_VLinearCombinationVectorArray_OpenMPDEV(int nvec, int nsum,
   /* should have called N_VScaleVectorArray */
   if (nsum == 1) {
 
-    ctmp = (realtype*) malloc(nvec * sizeof(realtype));
+    ctmp = (sunrealtype*) malloc(nvec * sizeof(sunrealtype));
 
     for (j=0; j<nvec; j++) {
       ctmp[j] = c[0];
@@ -2021,8 +2002,8 @@ int N_VLinearCombinationVectorArray_OpenMPDEV(int nvec, int nsum,
   dev = omp_get_default_device();
 
   /* Allocate and store dev pointers to copy to device */
-  zd_dev_ptrs = (realtype**) malloc(nvec * sizeof(realtype*));
-  xd_dev_ptrs = (realtype**) malloc(nvec * nsum * sizeof(realtype*));
+  zd_dev_ptrs = (sunrealtype**) malloc(nvec * sizeof(sunrealtype*));
+  xd_dev_ptrs = (sunrealtype**) malloc(nvec * nsum * sizeof(sunrealtype*));
   for (j=0; j<nvec; j++)
     zd_dev_ptrs[j] = NV_DATA_DEV_OMPDEV(Z[j]);
   for (j=0; j<nvec; j++) {
@@ -2124,7 +2105,7 @@ int N_VLinearCombinationVectorArray_OpenMPDEV(int nvec, int nsum,
 static void VCopy_OpenMPDEV(N_Vector x, N_Vector z)
 {
   sunindextype i, N;
-  realtype *xd_dev, *zd_dev;
+  sunrealtype *xd_dev, *zd_dev;
   int dev;
 
   xd_dev = zd_dev = NULL;
@@ -2152,7 +2133,7 @@ static void VCopy_OpenMPDEV(N_Vector x, N_Vector z)
 static void VSum_OpenMPDEV(N_Vector x, N_Vector y, N_Vector z)
 {
   sunindextype i, N;
-  realtype *xd_dev, *yd_dev, *zd_dev;
+  sunrealtype *xd_dev, *yd_dev, *zd_dev;
   int dev;
 
   xd_dev = yd_dev = zd_dev = NULL;
@@ -2181,7 +2162,7 @@ static void VSum_OpenMPDEV(N_Vector x, N_Vector y, N_Vector z)
 static void VDiff_OpenMPDEV(N_Vector x, N_Vector y, N_Vector z)
 {
   sunindextype i, N;
-  realtype *xd_dev, *yd_dev, *zd_dev;
+  sunrealtype *xd_dev, *yd_dev, *zd_dev;
   int dev;
 
   xd_dev = yd_dev = zd_dev = NULL;
@@ -2210,7 +2191,7 @@ static void VDiff_OpenMPDEV(N_Vector x, N_Vector y, N_Vector z)
 static void VNeg_OpenMPDEV(N_Vector x, N_Vector z)
 {
   sunindextype i, N;
-  realtype *xd_dev, *zd_dev;
+  sunrealtype *xd_dev, *zd_dev;
   int dev;
 
   xd_dev = zd_dev = NULL;
@@ -2235,10 +2216,10 @@ static void VNeg_OpenMPDEV(N_Vector x, N_Vector z)
  * Compute scaled vector sum
  */
 
-static void VScaleSum_OpenMPDEV(realtype c, N_Vector x, N_Vector y, N_Vector z)
+static void VScaleSum_OpenMPDEV(sunrealtype c, N_Vector x, N_Vector y, N_Vector z)
 {
   sunindextype i, N;
-  realtype *xd_dev, *yd_dev, *zd_dev;
+  sunrealtype *xd_dev, *yd_dev, *zd_dev;
   int dev;
 
   xd_dev = yd_dev = zd_dev = NULL;
@@ -2264,10 +2245,10 @@ static void VScaleSum_OpenMPDEV(realtype c, N_Vector x, N_Vector y, N_Vector z)
  * Compute scaled vector difference
  */
 
-static void VScaleDiff_OpenMPDEV(realtype c, N_Vector x, N_Vector y, N_Vector z)
+static void VScaleDiff_OpenMPDEV(sunrealtype c, N_Vector x, N_Vector y, N_Vector z)
 {
   sunindextype i, N;
-  realtype *xd_dev, *yd_dev, *zd_dev;
+  sunrealtype *xd_dev, *yd_dev, *zd_dev;
   int dev;
 
   xd_dev = yd_dev = zd_dev = NULL;
@@ -2293,10 +2274,10 @@ static void VScaleDiff_OpenMPDEV(realtype c, N_Vector x, N_Vector y, N_Vector z)
  * Compute vector sum z[i] = a*x[i]+y[i]
  */
 
-static void VLin1_OpenMPDEV(realtype a, N_Vector x, N_Vector y, N_Vector z)
+static void VLin1_OpenMPDEV(sunrealtype a, N_Vector x, N_Vector y, N_Vector z)
 {
   sunindextype i, N;
-  realtype *xd_dev, *yd_dev, *zd_dev;
+  sunrealtype *xd_dev, *yd_dev, *zd_dev;
   int dev;
 
   xd_dev = yd_dev = zd_dev = NULL;
@@ -2322,10 +2303,10 @@ static void VLin1_OpenMPDEV(realtype a, N_Vector x, N_Vector y, N_Vector z)
  * Compute vector difference z[i] = a*x[i]-y[i]
  */
 
-static void VLin2_OpenMPDEV(realtype a, N_Vector x, N_Vector y, N_Vector z)
+static void VLin2_OpenMPDEV(sunrealtype a, N_Vector x, N_Vector y, N_Vector z)
 {
   sunindextype i, N;
-  realtype *xd_dev, *yd_dev, *zd_dev;
+  sunrealtype *xd_dev, *yd_dev, *zd_dev;
   int dev;
 
   xd_dev = yd_dev = zd_dev = NULL;
@@ -2351,10 +2332,10 @@ static void VLin2_OpenMPDEV(realtype a, N_Vector x, N_Vector y, N_Vector z)
  * Compute special cases of linear sum
  */
 
-static void Vaxpy_OpenMPDEV(realtype a, N_Vector x, N_Vector y)
+static void Vaxpy_OpenMPDEV(sunrealtype a, N_Vector x, N_Vector y)
 {
   sunindextype i, N;
-  realtype *xd_dev, *yd_dev;
+  sunrealtype *xd_dev, *yd_dev;
   int dev;
 
   xd_dev = yd_dev = NULL;
@@ -2395,10 +2376,10 @@ static void Vaxpy_OpenMPDEV(realtype a, N_Vector x, N_Vector y)
  * Compute scaled vector x[i] = a*x[i]
  */
 
-static void VScaleBy_OpenMPDEV(realtype a, N_Vector x)
+static void VScaleBy_OpenMPDEV(sunrealtype a, N_Vector x)
 {
   sunindextype i, N;
-  realtype *xd_dev;
+  sunrealtype *xd_dev;
   int dev;
 
   xd_dev = NULL;
@@ -2428,12 +2409,12 @@ static int VSumVectorArray_OpenMPDEV(int nvec, N_Vector* X, N_Vector* Y, N_Vecto
 {
   int          i, dev;
   sunindextype j, N;
-  realtype*    xd_dev=NULL;
-  realtype*    yd_dev=NULL;
-  realtype*    zd_dev=NULL;
-  realtype**   xd_dev_ptrs=NULL;
-  realtype**   yd_dev_ptrs=NULL;
-  realtype**   zd_dev_ptrs=NULL;
+  sunrealtype*    xd_dev=NULL;
+  sunrealtype*    yd_dev=NULL;
+  sunrealtype*    zd_dev=NULL;
+  sunrealtype**   xd_dev_ptrs=NULL;
+  sunrealtype**   yd_dev_ptrs=NULL;
+  sunrealtype**   zd_dev_ptrs=NULL;
 
   N = NV_LENGTH_OMPDEV(X[0]);
 
@@ -2441,9 +2422,9 @@ static int VSumVectorArray_OpenMPDEV(int nvec, N_Vector* X, N_Vector* Y, N_Vecto
   dev = omp_get_default_device();
 
   /* Allocate and store dev pointers to copy to device */
-  xd_dev_ptrs = (realtype**) malloc(nvec * sizeof(realtype*));
-  yd_dev_ptrs = (realtype**) malloc(nvec * sizeof(realtype*));
-  zd_dev_ptrs = (realtype**) malloc(nvec * sizeof(realtype*));
+  xd_dev_ptrs = (sunrealtype**) malloc(nvec * sizeof(sunrealtype*));
+  yd_dev_ptrs = (sunrealtype**) malloc(nvec * sizeof(sunrealtype*));
+  zd_dev_ptrs = (sunrealtype**) malloc(nvec * sizeof(sunrealtype*));
   for (i=0; i<nvec; i++)
     xd_dev_ptrs[i] = NV_DATA_DEV_OMPDEV(X[i]);
   for (i=0; i<nvec; i++)
@@ -2475,12 +2456,12 @@ static int VDiffVectorArray_OpenMPDEV(int nvec, N_Vector* X, N_Vector* Y, N_Vect
 {
   int          i, dev;
   sunindextype j, N;
-  realtype*    xd_dev=NULL;
-  realtype*    yd_dev=NULL;
-  realtype*    zd_dev=NULL;
-  realtype**   xd_dev_ptrs=NULL;
-  realtype**   yd_dev_ptrs=NULL;
-  realtype**   zd_dev_ptrs=NULL;
+  sunrealtype*    xd_dev=NULL;
+  sunrealtype*    yd_dev=NULL;
+  sunrealtype*    zd_dev=NULL;
+  sunrealtype**   xd_dev_ptrs=NULL;
+  sunrealtype**   yd_dev_ptrs=NULL;
+  sunrealtype**   zd_dev_ptrs=NULL;
 
   N = NV_LENGTH_OMPDEV(X[0]);
 
@@ -2488,9 +2469,9 @@ static int VDiffVectorArray_OpenMPDEV(int nvec, N_Vector* X, N_Vector* Y, N_Vect
   dev = omp_get_default_device();
 
   /* Allocate and store dev pointers to copy to device */
-  xd_dev_ptrs = (realtype**) malloc(nvec * sizeof(realtype*));
-  yd_dev_ptrs = (realtype**) malloc(nvec * sizeof(realtype*));
-  zd_dev_ptrs = (realtype**) malloc(nvec * sizeof(realtype*));
+  xd_dev_ptrs = (sunrealtype**) malloc(nvec * sizeof(sunrealtype*));
+  yd_dev_ptrs = (sunrealtype**) malloc(nvec * sizeof(sunrealtype*));
+  zd_dev_ptrs = (sunrealtype**) malloc(nvec * sizeof(sunrealtype*));
   for (i=0; i<nvec; i++)
     xd_dev_ptrs[i] = NV_DATA_DEV_OMPDEV(X[i]);
   for (i=0; i<nvec; i++)
@@ -2518,16 +2499,16 @@ static int VDiffVectorArray_OpenMPDEV(int nvec, N_Vector* X, N_Vector* Y, N_Vect
   return(0);
 }
 
-static int VScaleSumVectorArray_OpenMPDEV(int nvec, realtype c, N_Vector* X, N_Vector* Y, N_Vector* Z)
+static int VScaleSumVectorArray_OpenMPDEV(int nvec, sunrealtype c, N_Vector* X, N_Vector* Y, N_Vector* Z)
 {
   int          i, dev;
   sunindextype j, N;
-  realtype*    xd_dev=NULL;
-  realtype*    yd_dev=NULL;
-  realtype*    zd_dev=NULL;
-  realtype**   xd_dev_ptrs=NULL;
-  realtype**   yd_dev_ptrs=NULL;
-  realtype**   zd_dev_ptrs=NULL;
+  sunrealtype*    xd_dev=NULL;
+  sunrealtype*    yd_dev=NULL;
+  sunrealtype*    zd_dev=NULL;
+  sunrealtype**   xd_dev_ptrs=NULL;
+  sunrealtype**   yd_dev_ptrs=NULL;
+  sunrealtype**   zd_dev_ptrs=NULL;
 
   N = NV_LENGTH_OMPDEV(X[0]);
 
@@ -2535,9 +2516,9 @@ static int VScaleSumVectorArray_OpenMPDEV(int nvec, realtype c, N_Vector* X, N_V
   dev = omp_get_default_device();
 
   /* Allocate and store dev pointers to copy to device */
-  xd_dev_ptrs = (realtype**) malloc(nvec * sizeof(realtype*));
-  yd_dev_ptrs = (realtype**) malloc(nvec * sizeof(realtype*));
-  zd_dev_ptrs = (realtype**) malloc(nvec * sizeof(realtype*));
+  xd_dev_ptrs = (sunrealtype**) malloc(nvec * sizeof(sunrealtype*));
+  yd_dev_ptrs = (sunrealtype**) malloc(nvec * sizeof(sunrealtype*));
+  zd_dev_ptrs = (sunrealtype**) malloc(nvec * sizeof(sunrealtype*));
   for (i=0; i<nvec; i++)
     xd_dev_ptrs[i] = NV_DATA_DEV_OMPDEV(X[i]);
   for (i=0; i<nvec; i++)
@@ -2565,16 +2546,16 @@ static int VScaleSumVectorArray_OpenMPDEV(int nvec, realtype c, N_Vector* X, N_V
   return(0);
 }
 
-static int VScaleDiffVectorArray_OpenMPDEV(int nvec, realtype c, N_Vector* X, N_Vector* Y, N_Vector* Z)
+static int VScaleDiffVectorArray_OpenMPDEV(int nvec, sunrealtype c, N_Vector* X, N_Vector* Y, N_Vector* Z)
 {
   int          i, dev;
   sunindextype j, N;
-  realtype*    xd_dev=NULL;
-  realtype*    yd_dev=NULL;
-  realtype*    zd_dev=NULL;
-  realtype**   xd_dev_ptrs=NULL;
-  realtype**   yd_dev_ptrs=NULL;
-  realtype**   zd_dev_ptrs=NULL;
+  sunrealtype*    xd_dev=NULL;
+  sunrealtype*    yd_dev=NULL;
+  sunrealtype*    zd_dev=NULL;
+  sunrealtype**   xd_dev_ptrs=NULL;
+  sunrealtype**   yd_dev_ptrs=NULL;
+  sunrealtype**   zd_dev_ptrs=NULL;
 
   N = NV_LENGTH_OMPDEV(X[0]);
 
@@ -2582,9 +2563,9 @@ static int VScaleDiffVectorArray_OpenMPDEV(int nvec, realtype c, N_Vector* X, N_
   dev = omp_get_default_device();
 
   /* Allocate and store dev ointer to copy to device */
-  xd_dev_ptrs = (realtype**) malloc(nvec * sizeof(realtype*));
-  yd_dev_ptrs = (realtype**) malloc(nvec * sizeof(realtype*));
-  zd_dev_ptrs = (realtype**) malloc(nvec * sizeof(realtype*));
+  xd_dev_ptrs = (sunrealtype**) malloc(nvec * sizeof(sunrealtype*));
+  yd_dev_ptrs = (sunrealtype**) malloc(nvec * sizeof(sunrealtype*));
+  zd_dev_ptrs = (sunrealtype**) malloc(nvec * sizeof(sunrealtype*));
   for (i=0; i<nvec; i++)
     xd_dev_ptrs[i] = NV_DATA_DEV_OMPDEV(X[i]);
   for (i=0; i<nvec; i++)
@@ -2612,16 +2593,16 @@ static int VScaleDiffVectorArray_OpenMPDEV(int nvec, realtype c, N_Vector* X, N_
   return(0);
 }
 
-static int VLin1VectorArray_OpenMPDEV(int nvec, realtype a, N_Vector* X, N_Vector* Y, N_Vector* Z)
+static int VLin1VectorArray_OpenMPDEV(int nvec, sunrealtype a, N_Vector* X, N_Vector* Y, N_Vector* Z)
 {
   int          i, dev;
   sunindextype j, N;
-  realtype*    xd_dev=NULL;
-  realtype*    yd_dev=NULL;
-  realtype*    zd_dev=NULL;
-  realtype**   xd_dev_ptrs=NULL;
-  realtype**   yd_dev_ptrs=NULL;
-  realtype**   zd_dev_ptrs=NULL;
+  sunrealtype*    xd_dev=NULL;
+  sunrealtype*    yd_dev=NULL;
+  sunrealtype*    zd_dev=NULL;
+  sunrealtype**   xd_dev_ptrs=NULL;
+  sunrealtype**   yd_dev_ptrs=NULL;
+  sunrealtype**   zd_dev_ptrs=NULL;
 
   N = NV_LENGTH_OMPDEV(X[0]);
 
@@ -2629,9 +2610,9 @@ static int VLin1VectorArray_OpenMPDEV(int nvec, realtype a, N_Vector* X, N_Vecto
   dev = omp_get_default_device();
 
   /* Allocate and store dev pointers to copy to device */
-  xd_dev_ptrs = (realtype**) malloc(nvec * sizeof(realtype*));
-  yd_dev_ptrs = (realtype**) malloc(nvec * sizeof(realtype*));
-  zd_dev_ptrs = (realtype**) malloc(nvec * sizeof(realtype*));
+  xd_dev_ptrs = (sunrealtype**) malloc(nvec * sizeof(sunrealtype*));
+  yd_dev_ptrs = (sunrealtype**) malloc(nvec * sizeof(sunrealtype*));
+  zd_dev_ptrs = (sunrealtype**) malloc(nvec * sizeof(sunrealtype*));
   for (i=0; i<nvec; i++)
     xd_dev_ptrs[i] = NV_DATA_DEV_OMPDEV(X[i]);
   for (i=0; i<nvec; i++)
@@ -2659,16 +2640,16 @@ static int VLin1VectorArray_OpenMPDEV(int nvec, realtype a, N_Vector* X, N_Vecto
   return(0);
 }
 
-static int VLin2VectorArray_OpenMPDEV(int nvec, realtype a, N_Vector* X, N_Vector* Y, N_Vector* Z)
+static int VLin2VectorArray_OpenMPDEV(int nvec, sunrealtype a, N_Vector* X, N_Vector* Y, N_Vector* Z)
 {
   int          i, dev;
   sunindextype j, N;
-  realtype*    xd_dev=NULL;
-  realtype*    yd_dev=NULL;
-  realtype*    zd_dev=NULL;
-  realtype**   xd_dev_ptrs=NULL;
-  realtype**   yd_dev_ptrs=NULL;
-  realtype**   zd_dev_ptrs=NULL;
+  sunrealtype*    xd_dev=NULL;
+  sunrealtype*    yd_dev=NULL;
+  sunrealtype*    zd_dev=NULL;
+  sunrealtype**   xd_dev_ptrs=NULL;
+  sunrealtype**   yd_dev_ptrs=NULL;
+  sunrealtype**   zd_dev_ptrs=NULL;
 
   N = NV_LENGTH_OMPDEV(X[0]);
 
@@ -2676,9 +2657,9 @@ static int VLin2VectorArray_OpenMPDEV(int nvec, realtype a, N_Vector* X, N_Vecto
   dev = omp_get_default_device();
 
   /* Allocate and store dev pointers to copy to device */
-  xd_dev_ptrs = (realtype**) malloc(nvec * sizeof(realtype*));
-  yd_dev_ptrs = (realtype**) malloc(nvec * sizeof(realtype*));
-  zd_dev_ptrs = (realtype**) malloc(nvec * sizeof(realtype*));
+  xd_dev_ptrs = (sunrealtype**) malloc(nvec * sizeof(sunrealtype*));
+  yd_dev_ptrs = (sunrealtype**) malloc(nvec * sizeof(sunrealtype*));
+  zd_dev_ptrs = (sunrealtype**) malloc(nvec * sizeof(sunrealtype*));
   for (i=0; i<nvec; i++)
     xd_dev_ptrs[i] = NV_DATA_DEV_OMPDEV(X[i]);
   for (i=0; i<nvec; i++)
@@ -2706,14 +2687,14 @@ static int VLin2VectorArray_OpenMPDEV(int nvec, realtype a, N_Vector* X, N_Vecto
   return(0);
 }
 
-static int VaxpyVectorArray_OpenMPDEV(int nvec, realtype a, N_Vector* X, N_Vector* Y)
+static int VaxpyVectorArray_OpenMPDEV(int nvec, sunrealtype a, N_Vector* X, N_Vector* Y)
 {
   int          i, dev;
   sunindextype j, N;
-  realtype*    xd_dev=NULL;
-  realtype*    yd_dev=NULL;
-  realtype**   xd_dev_ptrs=NULL;
-  realtype**   yd_dev_ptrs=NULL;
+  sunrealtype*    xd_dev=NULL;
+  sunrealtype*    yd_dev=NULL;
+  sunrealtype**   xd_dev_ptrs=NULL;
+  sunrealtype**   yd_dev_ptrs=NULL;
 
   N = NV_LENGTH_OMPDEV(X[0]);
 
@@ -2721,8 +2702,8 @@ static int VaxpyVectorArray_OpenMPDEV(int nvec, realtype a, N_Vector* X, N_Vecto
   dev = omp_get_default_device();
 
   /* Allocate and store dev pointers to copy to device */
-  xd_dev_ptrs = (realtype**) malloc(nvec * sizeof(realtype*));
-  yd_dev_ptrs = (realtype**) malloc(nvec * sizeof(realtype*));
+  xd_dev_ptrs = (sunrealtype**) malloc(nvec * sizeof(sunrealtype*));
+  yd_dev_ptrs = (sunrealtype**) malloc(nvec * sizeof(sunrealtype*));
   for (i=0; i<nvec; i++)
     xd_dev_ptrs[i] = NV_DATA_DEV_OMPDEV(X[i]);
   for (i=0; i<nvec; i++)
@@ -2788,7 +2769,7 @@ static int VaxpyVectorArray_OpenMPDEV(int nvec, realtype a, N_Vector* X, N_Vecto
  * -----------------------------------------------------------------
  */
 
-int N_VEnableFusedOps_OpenMPDEV(N_Vector v, booleantype tf)
+int N_VEnableFusedOps_OpenMPDEV(N_Vector v, sunbooleantype tf)
 {
   /* check that vector is non-NULL */
   if (v == NULL) return(-1);
@@ -2833,7 +2814,7 @@ int N_VEnableFusedOps_OpenMPDEV(N_Vector v, booleantype tf)
 }
 
 
-int N_VEnableLinearCombination_OpenMPDEV(N_Vector v, booleantype tf)
+int N_VEnableLinearCombination_OpenMPDEV(N_Vector v, sunbooleantype tf)
 {
   /* check that vector is non-NULL */
   if (v == NULL) return(-1);
@@ -2851,7 +2832,7 @@ int N_VEnableLinearCombination_OpenMPDEV(N_Vector v, booleantype tf)
   return(0);
 }
 
-int N_VEnableScaleAddMulti_OpenMPDEV(N_Vector v, booleantype tf)
+int N_VEnableScaleAddMulti_OpenMPDEV(N_Vector v, sunbooleantype tf)
 {
   /* check that vector is non-NULL */
   if (v == NULL) return(-1);
@@ -2869,7 +2850,7 @@ int N_VEnableScaleAddMulti_OpenMPDEV(N_Vector v, booleantype tf)
   return(0);
 }
 
-int N_VEnableDotProdMulti_OpenMPDEV(N_Vector v, booleantype tf)
+int N_VEnableDotProdMulti_OpenMPDEV(N_Vector v, sunbooleantype tf)
 {
   /* check that vector is non-NULL */
   if (v == NULL) return(-1);
@@ -2890,7 +2871,7 @@ int N_VEnableDotProdMulti_OpenMPDEV(N_Vector v, booleantype tf)
   return(0);
 }
 
-int N_VEnableLinearSumVectorArray_OpenMPDEV(N_Vector v, booleantype tf)
+int N_VEnableLinearSumVectorArray_OpenMPDEV(N_Vector v, sunbooleantype tf)
 {
   /* check that vector is non-NULL */
   if (v == NULL) return(-1);
@@ -2908,7 +2889,7 @@ int N_VEnableLinearSumVectorArray_OpenMPDEV(N_Vector v, booleantype tf)
   return(0);
 }
 
-int N_VEnableScaleVectorArray_OpenMPDEV(N_Vector v, booleantype tf)
+int N_VEnableScaleVectorArray_OpenMPDEV(N_Vector v, sunbooleantype tf)
 {
   /* check that vector is non-NULL */
   if (v == NULL) return(-1);
@@ -2926,7 +2907,7 @@ int N_VEnableScaleVectorArray_OpenMPDEV(N_Vector v, booleantype tf)
   return(0);
 }
 
-int N_VEnableConstVectorArray_OpenMPDEV(N_Vector v, booleantype tf)
+int N_VEnableConstVectorArray_OpenMPDEV(N_Vector v, sunbooleantype tf)
 {
   /* check that vector is non-NULL */
   if (v == NULL) return(-1);
@@ -2944,7 +2925,7 @@ int N_VEnableConstVectorArray_OpenMPDEV(N_Vector v, booleantype tf)
   return(0);
 }
 
-int N_VEnableWrmsNormVectorArray_OpenMPDEV(N_Vector v, booleantype tf)
+int N_VEnableWrmsNormVectorArray_OpenMPDEV(N_Vector v, sunbooleantype tf)
 {
   /* check that vector is non-NULL */
   if (v == NULL) return(-1);
@@ -2962,7 +2943,7 @@ int N_VEnableWrmsNormVectorArray_OpenMPDEV(N_Vector v, booleantype tf)
   return(0);
 }
 
-int N_VEnableWrmsNormMaskVectorArray_OpenMPDEV(N_Vector v, booleantype tf)
+int N_VEnableWrmsNormMaskVectorArray_OpenMPDEV(N_Vector v, sunbooleantype tf)
 {
   /* check that vector is non-NULL */
   if (v == NULL) return(-1);
@@ -2980,7 +2961,7 @@ int N_VEnableWrmsNormMaskVectorArray_OpenMPDEV(N_Vector v, booleantype tf)
   return(0);
 }
 
-int N_VEnableScaleAddMultiVectorArray_OpenMPDEV(N_Vector v, booleantype tf)
+int N_VEnableScaleAddMultiVectorArray_OpenMPDEV(N_Vector v, sunbooleantype tf)
 {
   /* check that vector is non-NULL */
   if (v == NULL) return(-1);
@@ -2998,7 +2979,7 @@ int N_VEnableScaleAddMultiVectorArray_OpenMPDEV(N_Vector v, booleantype tf)
   return(0);
 }
 
-int N_VEnableLinearCombinationVectorArray_OpenMPDEV(N_Vector v, booleantype tf)
+int N_VEnableLinearCombinationVectorArray_OpenMPDEV(N_Vector v, sunbooleantype tf)
 {
   /* check that vector is non-NULL */
   if (v == NULL) return(-1);

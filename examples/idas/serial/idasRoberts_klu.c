@@ -38,7 +38,7 @@
 #include <nvector/nvector_serial.h>        /* access to serial N_Vector            */
 #include <sunmatrix/sunmatrix_sparse.h>    /* access to sparse SUNMatrix           */
 #include <sunlinsol/sunlinsol_klu.h>       /* access to KLU linear solver          */
-#include <sundials/sundials_types.h>       /* defs. of realtype, sunindextype      */
+#include <sundials/sundials_types.h>       /* defs. of sunrealtype, sunindextype      */
 #include <sundials/sundials_math.h>        /* defs. of SUNRabs, SUNRexp, etc.      */
 
 /* Problem Constants */
@@ -46,30 +46,30 @@
 #define NEQ   3
 #define NOUT  12
 
-#define ZERO RCONST(0.0)
-#define ONE  RCONST(1.0)
+#define ZERO SUN_RCONST(0.0)
+#define ONE  SUN_RCONST(1.0)
 
 /* Prototypes of functions called by IDA */
 
-int resrob(realtype tres, N_Vector yy, N_Vector yp,
+int resrob(sunrealtype tres, N_Vector yy, N_Vector yp,
            N_Vector resval, void *user_data);
 
-static int grob(realtype t, N_Vector yy, N_Vector yp,
-                realtype *gout, void *user_data);
+static int grob(sunrealtype t, N_Vector yy, N_Vector yp,
+                sunrealtype *gout, void *user_data);
 
-int jacrobCSC(realtype tt,  realtype cj,
+int jacrobCSC(sunrealtype tt,  sunrealtype cj,
               N_Vector yy, N_Vector yp, N_Vector resvec,
               SUNMatrix JJ, void *user_data,
               N_Vector tempv1, N_Vector tempv2, N_Vector tempv3);
 
-int jacrobCSR(realtype tt,  realtype cj,
+int jacrobCSR(sunrealtype tt,  sunrealtype cj,
               N_Vector yy, N_Vector yp, N_Vector resvec,
               SUNMatrix JJ, void *user_data,
               N_Vector tempv1, N_Vector tempv2, N_Vector tempv3);
 
 /* Prototypes of private functions */
-static void PrintHeader(realtype rtol, N_Vector avtol, N_Vector y);
-static void PrintOutput(void *mem, realtype t, N_Vector y);
+static void PrintHeader(sunrealtype rtol, N_Vector avtol, N_Vector y);
+static void PrintOutput(void *mem, sunrealtype t, N_Vector y);
 static void PrintRootInfo(int root_f1, int root_f2);
 static void PrintFinalStats(void *mem);
 static int check_retval(void *returnvalue, const char *funcname, int opt);
@@ -84,8 +84,8 @@ int main(void)
 {
   void *mem;
   N_Vector yy, yp, avtol;
-  realtype rtol, *yval, *ypval, *atval;
-  realtype t0, tout1, tout, tret;
+  sunrealtype rtol, *yval, *ypval, *atval;
+  sunrealtype t0, tout1, tout, tret;
   int iout, retval, retvalr;
   int rootsfound[2];
   SUNMatrix A;
@@ -100,7 +100,7 @@ int main(void)
   LS = NULL;
 
   /* Create the SUNDIALS context object for this simulation */
-  retval = SUNContext_Create(NULL, &ctx);
+  retval = SUNContext_Create(SUN_COMM_NULL, &ctx);
   if (check_retval(&retval, "SUNContext_Create", 1)) return 1;
 
   /* Allocate N-vectors. */
@@ -118,20 +118,20 @@ int main(void)
   yval[2] = ZERO;
 
   ypval = N_VGetArrayPointer(yp);
-  ypval[0]  = RCONST(-0.04);
-  ypval[1]  = RCONST(0.04);
+  ypval[0]  = SUN_RCONST(-0.04);
+  ypval[1]  = SUN_RCONST(0.04);
   ypval[2]  = ZERO;
 
-  rtol = RCONST(1.0e-4);
+  rtol = SUN_RCONST(1.0e-4);
 
   atval = N_VGetArrayPointer(avtol);
-  atval[0] = RCONST(1.0e-8);
-  atval[1] = RCONST(1.0e-6);
-  atval[2] = RCONST(1.0e-6);
+  atval[0] = SUN_RCONST(1.0e-8);
+  atval[1] = SUN_RCONST(1.0e-6);
+  atval[2] = SUN_RCONST(1.0e-6);
 
   /* Integration limits */
   t0 = ZERO;
-  tout1 = RCONST(0.4);
+  tout1 = SUN_RCONST(0.4);
 
   PrintHeader(rtol, avtol, yy);
 
@@ -188,7 +188,7 @@ int main(void)
 
     if (retval == IDA_SUCCESS) {
       iout++;
-      tout *= RCONST(10.0);
+      tout *= SUN_RCONST(10.0);
     }
 
     if (iout == NOUT) break;
@@ -219,16 +219,16 @@ int main(void)
  * Define the system residual function.
  */
 
-int resrob(realtype tres, N_Vector yy, N_Vector yp, N_Vector rr, void *user_data)
+int resrob(sunrealtype tres, N_Vector yy, N_Vector yp, N_Vector rr, void *user_data)
 {
-  realtype *yval, *ypval, *rval;
+  sunrealtype *yval, *ypval, *rval;
 
   yval = N_VGetArrayPointer(yy);
   ypval = N_VGetArrayPointer(yp);
   rval = N_VGetArrayPointer(rr);
 
-  rval[0]  = RCONST(-0.04)*yval[0] + RCONST(1.0e4)*yval[1]*yval[2];
-  rval[1]  = -rval[0] - RCONST(3.0e7)*yval[1]*yval[1] - ypval[1];
+  rval[0]  = SUN_RCONST(-0.04)*yval[0] + SUN_RCONST(1.0e4)*yval[1]*yval[2];
+  rval[1]  = -rval[0] - SUN_RCONST(3.0e7)*yval[1]*yval[1] - ypval[1];
   rval[0] -=  ypval[0];
   rval[2]  =  yval[0] + yval[1] + yval[2] - ONE;
 
@@ -239,15 +239,15 @@ int resrob(realtype tres, N_Vector yy, N_Vector yp, N_Vector rr, void *user_data
  * Root function routine. Compute functions g_i(t,y) for i = 0,1.
  */
 
-static int grob(realtype t, N_Vector yy, N_Vector yp, realtype *gout,
+static int grob(sunrealtype t, N_Vector yy, N_Vector yp, sunrealtype *gout,
                 void *user_data)
 {
-  realtype *yval, y1, y3;
+  sunrealtype *yval, y1, y3;
 
   yval = N_VGetArrayPointer(yy);
   y1 = yval[0]; y3 = yval[2];
-  gout[0] = y1 - RCONST(0.0001);
-  gout[1] = y3 - RCONST(0.01);
+  gout[0] = y1 - SUN_RCONST(0.0001);
+  gout[1] = y3 - SUN_RCONST(0.01);
 
   return(0);
 }
@@ -256,15 +256,15 @@ static int grob(realtype t, N_Vector yy, N_Vector yp, realtype *gout,
  * Define the Jacobian function.
  */
 
-int jacrobCSC(realtype tt,  realtype cj,
+int jacrobCSC(sunrealtype tt,  sunrealtype cj,
               N_Vector yy, N_Vector yp, N_Vector resvec,
               SUNMatrix JJ, void *user_data,
               N_Vector tempv1, N_Vector tempv2, N_Vector tempv3)
 {
-  realtype *yval;
+  sunrealtype *yval;
   sunindextype *colptrs = SUNSparseMatrix_IndexPointers(JJ);
   sunindextype *rowvals = SUNSparseMatrix_IndexValues(JJ);
-  realtype *data = SUNSparseMatrix_Data(JJ);
+  sunrealtype *data = SUNSparseMatrix_Data(JJ);
 
   yval = N_VGetArrayPointer(yy);
 
@@ -276,25 +276,25 @@ int jacrobCSC(realtype tt,  realtype cj,
   colptrs[3] = 9;
 
   /* column 0 */
-  data[0] = RCONST(-0.04) - cj;
+  data[0] = SUN_RCONST(-0.04) - cj;
   rowvals[0] = 0;
-  data[1] = RCONST(0.04);
+  data[1] = SUN_RCONST(0.04);
   rowvals[1] = 1;
   data[2] = ONE;
   rowvals[2] = 2;
 
   /* column 1 */
-  data[3] = RCONST(1.0e4)*yval[2];
+  data[3] = SUN_RCONST(1.0e4)*yval[2];
   rowvals[3] = 0;
-  data[4] = (RCONST(-1.0e4)*yval[2]) - (RCONST(6.0e7)*yval[1]) - cj;
+  data[4] = (SUN_RCONST(-1.0e4)*yval[2]) - (SUN_RCONST(6.0e7)*yval[1]) - cj;
   rowvals[4] = 1;
   data[5] = ONE;
   rowvals[5] = 2;
 
   /* column 2 */
-  data[6] = RCONST(1.0e4)*yval[1];
+  data[6] = SUN_RCONST(1.0e4)*yval[1];
   rowvals[6] = 0;
-  data[7] = RCONST(-1.0e4)*yval[1];
+  data[7] = SUN_RCONST(-1.0e4)*yval[1];
   rowvals[7] = 1;
   data[8] = ONE;
   rowvals[8] = 2;
@@ -305,15 +305,15 @@ int jacrobCSC(realtype tt,  realtype cj,
 /*
  * Define the Jacobian function, where Jacobian is CSR matrix.
  */
-int jacrobCSR(realtype tt,  realtype cj,
+int jacrobCSR(sunrealtype tt,  sunrealtype cj,
               N_Vector yy, N_Vector yp, N_Vector resvec,
               SUNMatrix JJ, void *user_data,
               N_Vector tempv1, N_Vector tempv2, N_Vector tempv3)
 {
-  realtype *yval;
+  sunrealtype *yval;
   sunindextype *rowptrs = SUNSparseMatrix_IndexPointers(JJ);
   sunindextype *colvals = SUNSparseMatrix_IndexValues(JJ);
-  realtype *data = SUNSparseMatrix_Data(JJ);
+  sunrealtype *data = SUNSparseMatrix_Data(JJ);
 
   yval = N_VGetArrayPointer(yy);
 
@@ -325,19 +325,19 @@ int jacrobCSR(realtype tt,  realtype cj,
   rowptrs[3] = 9;
 
   /* row 0 */
-  data[0] = RCONST(-0.04) - cj;
+  data[0] = SUN_RCONST(-0.04) - cj;
   colvals[0] = 0;
-  data[1] = RCONST(1.0e4)*yval[2];
+  data[1] = SUN_RCONST(1.0e4)*yval[2];
   colvals[1] = 1;
-  data[2] = RCONST(1.0e4)*yval[1];
+  data[2] = SUN_RCONST(1.0e4)*yval[1];
   colvals[2] = 2;
 
   /* row 1 */
-  data[3] = RCONST(0.04);
+  data[3] = SUN_RCONST(0.04);
   colvals[3] = 0;
-  data[4] = (RCONST(-1.0e4)*yval[2]) - (RCONST(6.0e7)*yval[1]) - cj;
+  data[4] = (SUN_RCONST(-1.0e4)*yval[2]) - (SUN_RCONST(6.0e7)*yval[1]) - cj;
   colvals[4] = 1;
-  data[5] = RCONST(-1.0e4)*yval[1];
+  data[5] = SUN_RCONST(-1.0e4)*yval[1];
   colvals[5] = 2;
 
   /* row 2 */
@@ -361,9 +361,9 @@ int jacrobCSR(realtype tt,  realtype cj,
  * Print first lines of output (problem description)
  */
 
-static void PrintHeader(realtype rtol, N_Vector avtol, N_Vector y)
+static void PrintHeader(sunrealtype rtol, N_Vector avtol, N_Vector y)
 {
-  realtype *atval, *yval;
+  sunrealtype *atval, *yval;
 
   atval  = N_VGetArrayPointer(avtol);
   yval  = N_VGetArrayPointer(y);
@@ -398,12 +398,12 @@ static void PrintHeader(realtype rtol, N_Vector avtol, N_Vector y)
  * Print Output
  */
 
-static void PrintOutput(void *mem, realtype t, N_Vector y)
+static void PrintOutput(void *mem, sunrealtype t, N_Vector y)
 {
-  realtype *yval;
+  sunrealtype *yval;
   int retval, kused;
   long int nst;
-  realtype hused;
+  sunrealtype hused;
 
   yval  = N_VGetArrayPointer(y);
 

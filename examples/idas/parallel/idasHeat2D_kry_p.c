@@ -52,9 +52,9 @@
 
 #include <mpi.h>
 
-#define ZERO  RCONST(0.0)
-#define ONE   RCONST(1.0)
-#define TWO   RCONST(2.0)
+#define ZERO  SUN_RCONST(0.0)
+#define ONE   SUN_RCONST(1.0)
+#define TWO   SUN_RCONST(2.0)
 
 #define NOUT         11             /* Number of output times */
 
@@ -71,40 +71,40 @@
 typedef struct {
   int thispe, npex, npey, ixsub, jysub;
   sunindextype mx, my, mxsub, mysub;
-  realtype    dx, dy, coeffx, coeffy, coeffxy;
-  realtype    uext[(MXSUB+2)*(MYSUB+2)];
+  sunrealtype    dx, dy, coeffx, coeffy, coeffxy;
+  sunrealtype    uext[(MXSUB+2)*(MYSUB+2)];
   N_Vector    pp;    /* vector of diagonal preconditioner elements */
   MPI_Comm    comm;
 } *UserData;
 
 /* User-supplied residual function and supporting routines */
 
-int resHeat(realtype tt, N_Vector uu, N_Vector up,
+int resHeat(sunrealtype tt, N_Vector uu, N_Vector up,
             N_Vector rr, void *user_data);
 
 static int rescomm(N_Vector uu, N_Vector up, void *user_data);
 
-static int reslocal(realtype tt, N_Vector uu, N_Vector up,
+static int reslocal(sunrealtype tt, N_Vector uu, N_Vector up,
                     N_Vector res,  void *user_data);
 
 static int BSend(MPI_Comm comm, int thispe, int ixsub, int jysub,
-                 sunindextype dsizex, sunindextype dsizey, realtype uarray[]);
+                 sunindextype dsizex, sunindextype dsizey, sunrealtype uarray[]);
 
 static int BRecvPost(MPI_Comm comm, MPI_Request request[], int thispe,
                      int ixsub, int jysub, sunindextype dsizex,
-                     sunindextype dsizey, realtype uext[], realtype buffer[]);
+                     sunindextype dsizey, sunrealtype uext[], sunrealtype buffer[]);
 
 static int BRecvWait(MPI_Request request[], int ixsub, int jysub,
-                     sunindextype dsizex, realtype uext[], realtype buffer[]);
+                     sunindextype dsizex, sunrealtype uext[], sunrealtype buffer[]);
 
 /* User-supplied preconditioner routines */
 
-int PsolveHeat(realtype tt, N_Vector uu, N_Vector up, N_Vector rr,
-               N_Vector rvec, N_Vector zvec, realtype c_j,
-               realtype delta, void *user_data);
+int PsolveHeat(sunrealtype tt, N_Vector uu, N_Vector up, N_Vector rr,
+               N_Vector rvec, N_Vector zvec, sunrealtype c_j,
+               sunrealtype delta, void *user_data);
 
-int PsetupHeat(realtype tt, N_Vector yy, N_Vector yp, N_Vector rr,
-               realtype c_j, void *user_data);
+int PsetupHeat(sunrealtype tt, N_Vector yy, N_Vector yp, N_Vector rr,
+               sunrealtype c_j, void *user_data);
 
 /* Private function to check function return values */
 
@@ -113,9 +113,9 @@ static int InitUserData(int thispe, MPI_Comm comm, UserData data);
 static int SetInitialProfile(N_Vector uu, N_Vector up, N_Vector id,
                              N_Vector res, UserData data);
 
-static void PrintHeader(sunindextype Neq, realtype rtol, realtype atol);
+static void PrintHeader(sunindextype Neq, sunrealtype rtol, sunrealtype atol);
 
-static void PrintOutput(int id, void *ida_mem, realtype t, N_Vector uu);
+static void PrintOutput(int id, void *ida_mem, sunrealtype t, N_Vector uu);
 
 static void PrintFinalStats(void *ida_mem);
 
@@ -136,7 +136,7 @@ int main(int argc, char *argv[])
   UserData data;
   int iout, thispe, retval, npes;
   sunindextype Neq, local_N;
-  realtype rtol, atol, t0, t1, tout, tret;
+  sunrealtype rtol, atol, t0, t1, tout, tret;
   N_Vector uu, up, constraints, id, res;
 
   ida_mem = NULL;
@@ -162,7 +162,7 @@ int main(int argc, char *argv[])
 
   /* Create the SUNDIALS context object for this simulation. */
 
-  retval = SUNContext_Create((void*) &comm, &ctx);
+  retval = SUNContext_Create(comm, &ctx);
   if (check_retval(&retval, "SUNContext_Create", 1, thispe)) MPI_Abort(comm, 1);
 
   /* Set local length local_N and global length Neq. */
@@ -212,12 +212,12 @@ int main(int argc, char *argv[])
 
   N_VConst(ONE, constraints);
 
-  t0 = ZERO; t1 = RCONST(0.01);
+  t0 = ZERO; t1 = SUN_RCONST(0.01);
 
   /* Scalar relative and absolute tolerance. */
 
   rtol = ZERO;
-  atol = RCONST(1.0e-3);
+  atol = SUN_RCONST(1.0e-3);
 
   /* Call IDACreate and IDAMalloc to initialize solution. */
 
@@ -317,7 +317,7 @@ int main(int argc, char *argv[])
  * of uu required to calculate the residual.
  */
 
-int resHeat(realtype tt, N_Vector uu, N_Vector up, N_Vector rr,
+int resHeat(sunrealtype tt, N_Vector uu, N_Vector up, N_Vector rr,
             void *user_data)
 {
   int retval;
@@ -350,10 +350,10 @@ int resHeat(realtype tt, N_Vector uu, N_Vector up, N_Vector rr,
  *
  */
 
-int PsetupHeat(realtype tt, N_Vector yy, N_Vector yp, N_Vector rr,
-               realtype c_j, void *user_data)
+int PsetupHeat(sunrealtype tt, N_Vector yy, N_Vector yp, N_Vector rr,
+               sunrealtype c_j, void *user_data)
 {
-  realtype *ppv, pelinv;
+  sunrealtype *ppv, pelinv;
   sunindextype lx, ly, ixbegin, ixend, jybegin, jyend, locu, mxsub, mysub;
   int ixsub, jysub, npex, npey;
   UserData data;
@@ -403,9 +403,9 @@ int PsetupHeat(realtype tt, N_Vector yy, N_Vector yp, N_Vector rr,
  * computed in PsetupHeat), returning the result in zvec.
  */
 
-int PsolveHeat(realtype tt, N_Vector uu, N_Vector up,
+int PsolveHeat(sunrealtype tt, N_Vector uu, N_Vector up,
                N_Vector rr, N_Vector rvec, N_Vector zvec,
-               realtype c_j, realtype delta, void *user_data)
+               sunrealtype c_j, sunrealtype delta, void *user_data)
 {
   UserData data;
 
@@ -432,7 +432,7 @@ int PsolveHeat(realtype tt, N_Vector uu, N_Vector up,
 static int rescomm(N_Vector uu, N_Vector up, void *user_data)
 {
   UserData data;
-  realtype *uarray, *uext, buffer[2*MYSUB];
+  sunrealtype *uarray, *uext, buffer[2*MYSUB];
   MPI_Comm comm;
   int thispe, ixsub, jysub;
   sunindextype mxsub, mysub;
@@ -466,11 +466,11 @@ static int rescomm(N_Vector uu, N_Vector up, void *user_data)
  * has already been done, and that this data is in the work array uext.
  */
 
-static int reslocal(realtype tt, N_Vector uu, N_Vector up, N_Vector rr,
+static int reslocal(sunrealtype tt, N_Vector uu, N_Vector up, N_Vector rr,
                     void *user_data)
 {
-  realtype *uext, *uuv, *upv, *resv;
-  realtype termx, termy, termctr;
+  sunrealtype *uext, *uuv, *upv, *resv;
+  sunrealtype termx, termy, termctr;
   sunindextype lx, ly, offsetu, offsetue, locu, locue;
   int ixsub, jysub, npex, npey;
   sunindextype mxsub, mxsub2, mysub;
@@ -536,10 +536,10 @@ static int reslocal(realtype tt, N_Vector uu, N_Vector up, N_Vector rr,
  */
 
 static int BSend(MPI_Comm comm, int thispe, int ixsub, int jysub,
-                 sunindextype dsizex, sunindextype dsizey, realtype uarray[])
+                 sunindextype dsizex, sunindextype dsizey, sunrealtype uarray[])
 {
   sunindextype ly, offsetu;
-  realtype bufleft[MYSUB], bufright[MYSUB];
+  sunrealtype bufleft[MYSUB], bufright[MYSUB];
 
   /* If jysub > 0, send data from bottom x-line of u. */
 
@@ -581,7 +581,7 @@ static int BSend(MPI_Comm comm, int thispe, int ixsub, int jysub,
 /*
  * Routine to start receiving boundary data from neighboring PEs.
  * Notes:
- *   1) buffer should be able to hold 2*MYSUB realtype entries, should be
+ *   1) buffer should be able to hold 2*MYSUB sunrealtype entries, should be
  *      passed to both the BRecvPost and BRecvWait functions, and should not
  *      be manipulated between the two calls.
  *   2) request should have 4 entries, and should be passed in
@@ -590,11 +590,11 @@ static int BSend(MPI_Comm comm, int thispe, int ixsub, int jysub,
 
 static int BRecvPost(MPI_Comm comm, MPI_Request request[], int thispe,
                      int ixsub, int jysub, sunindextype dsizex,
-                     sunindextype dsizey, realtype uext[], realtype buffer[])
+                     sunindextype dsizey, sunrealtype uext[], sunrealtype buffer[])
 {
   sunindextype offsetue;
   /* Have bufleft and bufright use the same buffer. */
-  realtype *bufleft = buffer, *bufright = buffer+MYSUB;
+  sunrealtype *bufleft = buffer, *bufright = buffer+MYSUB;
 
   /* If jysub > 0, receive data for bottom x-line of uext. */
   if (jysub != 0)
@@ -627,7 +627,7 @@ static int BRecvPost(MPI_Comm comm, MPI_Request request[], int thispe,
 /*
  * Routine to finish receiving boundary data from neighboring PEs.
  * Notes:
- *   1) buffer should be able to hold 2*MYSUB realtype entries, should be
+ *   1) buffer should be able to hold 2*MYSUB sunrealtype entries, should be
  *      passed to both the BRecvPost and BRecvWait functions, and should not
  *      be manipulated between the two calls.
  *   2) request should have four entries, and should be passed in both
@@ -635,10 +635,10 @@ static int BRecvPost(MPI_Comm comm, MPI_Request request[], int thispe,
  */
 
 static int BRecvWait(MPI_Request request[], int ixsub, int jysub,
-                     sunindextype dsizex, realtype uext[], realtype buffer[])
+                     sunindextype dsizex, sunrealtype uext[], sunrealtype buffer[])
 {
   sunindextype ly, dsizex2, offsetue;
-  realtype *bufleft = buffer, *bufright = buffer+MYSUB;
+  sunrealtype *bufleft = buffer, *bufright = buffer+MYSUB;
   MPI_Status status;
 
   dsizex2 = dsizex + 2;
@@ -718,7 +718,7 @@ static int SetInitialProfile(N_Vector uu, N_Vector up,  N_Vector id,
   int ixsub, jysub;
   sunindextype i, iloc, j, jloc, offset, loc;
   sunindextype ixbegin, ixend, jybegin, jyend;
-  realtype xfact, yfact, *udata, *iddata;
+  sunrealtype xfact, yfact, *udata, *iddata;
 
   /* Initialize uu. */
 
@@ -747,7 +747,7 @@ static int SetInitialProfile(N_Vector uu, N_Vector up,  N_Vector id,
     for (i = ixbegin, iloc = 0; i <= ixend; i++, iloc++) {
       xfact = data->dx * i;
       loc = offset + iloc;
-      udata[loc] = RCONST(16.0) * xfact * (ONE - xfact) * yfact * (ONE - yfact);
+      udata[loc] = SUN_RCONST(16.0) * xfact * (ONE - xfact) * yfact * (ONE - yfact);
       if (i == 0 || i == MX-1 || j == 0 || j == MY-1) iddata[loc] = ZERO;
     }
   }
@@ -769,7 +769,7 @@ static int SetInitialProfile(N_Vector uu, N_Vector up,  N_Vector id,
  * Print first lines of output and table heading
  */
 
-static void PrintHeader(sunindextype Neq, realtype rtol, realtype atol)
+static void PrintHeader(sunindextype Neq, sunrealtype rtol, sunrealtype atol)
 {
   printf("\nidasHeat2D_p: Heat equation, parallel example problem for IDA\n");
   printf("                Discretized heat equation on 2D unit square.\n");
@@ -802,9 +802,9 @@ static void PrintHeader(sunindextype Neq, realtype rtol, realtype atol)
  * PrintOutput: print max norm of solution and current solver statistics
  */
 
-static void PrintOutput(int id, void *ida_mem, realtype t, N_Vector uu)
+static void PrintOutput(int id, void *ida_mem, sunrealtype t, N_Vector uu)
 {
-  realtype hused, umax;
+  sunrealtype hused, umax;
   long int nst, nni, nje, nre, nreLS, nli, npe, nps;
   int kused, retval;
 

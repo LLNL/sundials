@@ -24,8 +24,9 @@ sundials_add_library(sundials_nvecparhyp
     ${SUNDIALS_SOURCE_DIR}/include/nvector/nvector_parhyp.h
   INCLUDE_SUBDIR
     nvector
+  LINK_LIBRARIES
+    PUBLIC sundials_core
   OBJECT_LIBRARIES
-    sundials_generic_obj
   LINK_LIBRARIES
     PUBLIC
     SUNDIALS::HYPRE

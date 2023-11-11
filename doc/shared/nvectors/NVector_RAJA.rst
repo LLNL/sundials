@@ -39,9 +39,9 @@ The vector content layout is as follows:
    struct _N_VectorContent_Raja
    {
       sunindextype length;
-      booleantype  own_data;
-      realtype*    host_data;
-      realtype*    device_data;
+      sunbooleantype  own_data;
+      sunrealtype*    host_data;
+      sunrealtype*    device_data;
       void*        priv; /* 'private' data */
    };
 
@@ -74,16 +74,16 @@ accessor functions:
 
 
 
-.. c:function:: realtype* N_VGetHostArrayPointer_Raja(N_Vector v)
+.. c:function:: sunrealtype* N_VGetHostArrayPointer_Raja(N_Vector v)
 
    This function returns pointer to the vector data on the host.
 
 
-.. c:function:: realtype* N_VGetDeviceArrayPointer_Raja(N_Vector v)
+.. c:function:: sunrealtype* N_VGetDeviceArrayPointer_Raja(N_Vector v)
 
    This function returns pointer to the vector data on the device.
 
-.. c:function:: booleantype N_VIsManagedMemory_Raja(N_Vector v)
+.. c:function:: sunbooleantype N_VIsManagedMemory_Raja(N_Vector v)
 
    This function returns a boolean flag indicating if the vector
    data is allocated in managed memory or not.
@@ -125,19 +125,19 @@ NVECTOR_RAJA provides the following additional user-callable routines:
    The vector data array is allocated in managed memory.
 
 
-.. c:function:: N_Vector N_VMake_Raja(sunindextype length, realtype *h_data, realtype *v_data, SUNContext sunctx)
+.. c:function:: N_Vector N_VMake_Raja(sunindextype length, sunrealtype *h_data, sunrealtype *v_data, SUNContext sunctx)
 
    This function creates an NVECTOR_RAJA with user-supplied host and device
    data arrays. This function does not allocate memory for data itself.
 
 
-.. c:function:: N_Vector N_VMakeManaged_Raja(sunindextype length, realtype *vdata, SUNContext sunctx)
+.. c:function:: N_Vector N_VMakeManaged_Raja(sunindextype length, sunrealtype *vdata, SUNContext sunctx)
 
    This function creates an NVECTOR_RAJA with a user-supplied managed
    memory data array. This function does not allocate memory for data itself.
 
 
-.. c:function:: N_Vector N_VNewWithMemHelp_Raja(sunindextype length, booleantype use_managed_mem, SUNMemoryHelper helper, SUNContext sunctx)
+.. c:function:: N_Vector N_VNewWithMemHelp_Raja(sunindextype length, sunbooleantype use_managed_mem, SUNMemoryHelper helper, SUNContext sunctx)
 
    This function creates an NVECTOR_RAJA with a user-supplied SUNMemoryHelper
    for allocating/freeing memory.
@@ -181,19 +181,19 @@ operations enabled/disabled as cloned vectors inherit the same enable/disable
 options as the vector they are cloned from while vectors created with
 :c:func:`N_VNew_Raja` will have the default settings for the NVECTOR_RAJA module.
 
-.. c:function:: int N_VEnableFusedOps_Raja(N_Vector v, booleantype tf)
+.. c:function:: int N_VEnableFusedOps_Raja(N_Vector v, sunbooleantype tf)
 
    This function enables (``SUNTRUE``) or disables (``SUNFALSE``) all fused and
    vector array operations in the RAJA vector. The return value is ``0`` for
    success and ``-1`` if the input vector or its ``ops`` structure are ``NULL``.
 
-.. c:function:: int N_VEnableLinearCombination_Raja(N_Vector v, booleantype tf)
+.. c:function:: int N_VEnableLinearCombination_Raja(N_Vector v, sunbooleantype tf)
 
    This function enables (``SUNTRUE``) or disables (``SUNFALSE``) the linear
    combination fused operation in the RAJA vector. The return value is ``0`` for
    success and ``-1`` if the input vector or its ``ops`` structure are ``NULL``.
 
-.. c:function:: int N_VEnableScaleAddMulti_Raja(N_Vector v, booleantype tf)
+.. c:function:: int N_VEnableScaleAddMulti_Raja(N_Vector v, sunbooleantype tf)
 
    This function enables (``SUNTRUE``) or disables (``SUNFALSE``) the scale and
    add a vector to multiple vectors fused operation in the RAJA vector. The
@@ -201,53 +201,53 @@ options as the vector they are cloned from while vectors created with
    ``ops`` structure are ``NULL``.
 
 ..
-   .. c:function:: int N_VEnableDotProdMulti_Raja(N_Vector v, booleantype tf)
+   .. c:function:: int N_VEnableDotProdMulti_Raja(N_Vector v, sunbooleantype tf)
 
       This function enables (``SUNTRUE``) or disables (``SUNFALSE``) the multiple
       dot products fused operation in the RAJA vector. The return value is ``0``
       for success and ``-1`` if the input vector or its ``ops`` structure are
       ``NULL``.
 
-.. c:function:: int N_VEnableLinearSumVectorArray_Raja(N_Vector v, booleantype tf)
+.. c:function:: int N_VEnableLinearSumVectorArray_Raja(N_Vector v, sunbooleantype tf)
 
    This function enables (``SUNTRUE``) or disables (``SUNFALSE``) the linear sum
    operation for vector arrays in the RAJA vector. The return value is ``0`` for
    success and ``-1`` if the input vector or its ``ops`` structure are ``NULL``.
 
-.. c:function:: int N_VEnableScaleVectorArray_Raja(N_Vector v, booleantype tf)
+.. c:function:: int N_VEnableScaleVectorArray_Raja(N_Vector v, sunbooleantype tf)
 
    This function enables (``SUNTRUE``) or disables (``SUNFALSE``) the scale
    operation for vector arrays in the RAJA vector. The return value is ``0`` for
    success and ``-1`` if the input vector or its ``ops`` structure are ``NULL``.
 
-.. c:function:: int N_VEnableConstVectorArray_Raja(N_Vector v, booleantype tf)
+.. c:function:: int N_VEnableConstVectorArray_Raja(N_Vector v, sunbooleantype tf)
 
    This function enables (``SUNTRUE``) or disables (``SUNFALSE``) the const
    operation for vector arrays in the RAJA vector. The return value is ``0`` for
    success and ``-1`` if the input vector or its ``ops`` structure are ``NULL``.
 
 ..
-   .. c:function:: int N_VEnableWrmsNormVectorArray_Raja(N_Vector v, booleantype tf)
+   .. c:function:: int N_VEnableWrmsNormVectorArray_Raja(N_Vector v, sunbooleantype tf)
 
       This function enables (``SUNTRUE``) or disables (``SUNFALSE``) the WRMS norm
       operation for vector arrays in the RAJA vector. The return value is ``0`` for
       success and ``-1`` if the input vector or its ``ops`` structure are ``NULL``.
 
-   .. c:function:: int N_VEnableWrmsNormMaskVectorArray_Raja(N_Vector v, booleantype tf)
+   .. c:function:: int N_VEnableWrmsNormMaskVectorArray_Raja(N_Vector v, sunbooleantype tf)
 
       This function enables (``SUNTRUE``) or disables (``SUNFALSE``) the masked WRMS
       norm operation for vector arrays in the RAJA vector. The return value is
       ``0`` for success and ``-1`` if the input vector or its ``ops`` structure are
       ``NULL``.
 
-.. c:function:: int N_VEnableScaleAddMultiVectorArray_Raja(N_Vector v, booleantype tf)
+.. c:function:: int N_VEnableScaleAddMultiVectorArray_Raja(N_Vector v, sunbooleantype tf)
 
    This function enables (``SUNTRUE``) or disables (``SUNFALSE``) the scale and
    add a vector array to multiple vector arrays operation in the RAJA vector. The
    return value is ``0`` for success and ``-1`` if the input vector or its
    ``ops`` structure are ``NULL``.
 
-.. c:function:: int N_VEnableLinearCombinationVectorArray_Raja(N_Vector v, booleantype tf)
+.. c:function:: int N_VEnableLinearCombinationVectorArray_Raja(N_Vector v, sunbooleantype tf)
 
    This function enables (``SUNTRUE``) or disables (``SUNFALSE``) the linear
    combination operation for vector arrays in the RAJA vector. The return value

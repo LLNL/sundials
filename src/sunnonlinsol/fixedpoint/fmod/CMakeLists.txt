@@ -19,7 +19,7 @@ sundials_add_f2003_library(sundials_fsunnonlinsolfixedpoint_mod
   SOURCES
     fsunnonlinsol_fixedpoint_mod.f90 fsunnonlinsol_fixedpoint_mod.c
   OBJECT_LIBRARIES
-    sundials_fgeneric_mod_obj
+    sundials_fcore_mod_obj
   OUTPUT_NAME
     sundials_fsunnonlinsolfixedpoint_mod
   VERSION

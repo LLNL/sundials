@@ -20,6 +20,7 @@
 
 module fcvode_mod
  use, intrinsic :: ISO_C_BINDING
+ use fsundials_types_mod
  use fsundials_nvector_mod
  use fsundials_context_mod
  use fsundials_types_mod
@@ -33,7 +34,6 @@ module fcvode_mod
  use fsundials_context_mod
  use fsundials_types_mod
  use fsundials_nonlinearsolver_mod
- use fsundials_types_mod
  implicit none
  private
 
@@ -3154,13 +3154,13 @@ result(swig_result)
 use, intrinsic :: ISO_C_BINDING
 integer(C_INT) :: swig_result
 type(C_PTR) :: cvode_mem
-real(C_DOUBLE), target, intent(inout) :: t_j
+real(C_DOUBLE), dimension(*), target, intent(inout) :: t_j
 integer(C_INT) :: fresult 
 type(C_PTR) :: farg1 
 type(C_PTR) :: farg2 
 
 farg1 = cvode_mem
-farg2 = c_loc(t_j)
+farg2 = c_loc(t_j(1))
 fresult = swigc_FCVodeGetJacTime(farg1, farg2)
 swig_result = fresult
 end function

@@ -42,7 +42,7 @@ extern "C" {
  * Utility functions
  * ---------------------------------------------------------------------------*/
 
-inline booleantype SUNDIALS_CUSPARSE_Assert(cusparseStatus_t status, const char *file, int line)
+inline sunbooleantype SUNDIALS_CUSPARSE_Assert(cusparseStatus_t status, const char *file, int line)
 {
   if (status != CUSPARSE_STATUS_SUCCESS)
   {

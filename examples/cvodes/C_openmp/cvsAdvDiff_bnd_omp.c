@@ -58,7 +58,7 @@
 #include <nvector/nvector_openmp.h>    /* serial N_Vector types, fcts., macros */
 #include <sunmatrix/sunmatrix_band.h>  /* access to band SUNMatrix */
 #include <sunlinsol/sunlinsol_band.h>  /* access to band SUNLinearSolver */
-#include <sundials/sundials_types.h>   /* definition of type realtype */
+#include <sundials/sundials_types.h>   /* definition of type sunrealtype */
 
 #ifdef _OPENMP
 #include <omp.h>
@@ -66,22 +66,22 @@
 
 /* Problem Constants */
 
-#define XMAX  RCONST(2.0)    /* domain boundaries         */
-#define YMAX  RCONST(1.0)
+#define XMAX  SUN_RCONST(2.0)    /* domain boundaries         */
+#define YMAX  SUN_RCONST(1.0)
 #define MX    10             /* mesh dimensions           */
 #define MY    5
 #define NEQ   MX*MY          /* number of equations       */
-#define ATOL  RCONST(1.0e-5) /* scalar absolute tolerance */
-#define T0    RCONST(0.0)    /* initial time              */
-#define T1    RCONST(0.1)    /* first output time         */
-#define DTOUT RCONST(0.1)    /* output time increment     */
+#define ATOL  SUN_RCONST(1.0e-5) /* scalar absolute tolerance */
+#define T0    SUN_RCONST(0.0)    /* initial time              */
+#define T1    SUN_RCONST(0.1)    /* first output time         */
+#define DTOUT SUN_RCONST(0.1)    /* output time increment     */
 #define NOUT  10             /* number of output times    */
 
-#define ZERO RCONST(0.0)
-#define HALF RCONST(0.5)
-#define ONE  RCONST(1.0)
-#define TWO  RCONST(2.0)
-#define FIVE RCONST(5.0)
+#define ZERO SUN_RCONST(0.0)
+#define HALF SUN_RCONST(0.5)
+#define ONE  SUN_RCONST(1.0)
+#define TWO  SUN_RCONST(2.0)
+#define FIVE SUN_RCONST(5.0)
 
 /* User-defined vector access macro IJth */
 
@@ -99,15 +99,15 @@
 /* Type : UserData (contains grid constants) */
 
 typedef struct {
-  realtype dx, dy, hdcoef, hacoef, vdcoef;
+  sunrealtype dx, dy, hdcoef, hacoef, vdcoef;
   int nthreads;
 } *UserData;
 
 /* Private Helper Functions */
 
 static void SetIC(N_Vector u, UserData data);
-static void PrintHeader(realtype reltol, realtype abstol, realtype umax);
-static void PrintOutput(realtype t, realtype umax, long int nst);
+static void PrintHeader(sunrealtype reltol, sunrealtype abstol, sunrealtype umax);
+static void PrintOutput(sunrealtype t, sunrealtype umax, long int nst);
 static void PrintFinalStats(void *cvode_mem);
 
 /* Private function to check function return values */
@@ -116,8 +116,8 @@ static int check_retval(void *returnvalue, char *funcname, int opt);
 
 /* Functions Called by the Solver */
 
-static int f(realtype t, N_Vector u, N_Vector udot, void *user_data);
-static int Jac(realtype t, N_Vector u, N_Vector fu, SUNMatrix J,
+static int f(sunrealtype t, N_Vector u, N_Vector udot, void *user_data);
+static int Jac(sunrealtype t, N_Vector u, N_Vector fu, SUNMatrix J,
                void *user_data, N_Vector tmp1, N_Vector tmp2, N_Vector tmp3);
 
 /*
@@ -129,7 +129,7 @@ static int Jac(realtype t, N_Vector u, N_Vector fu, SUNMatrix J,
 int main(int argc, char *argv[])
 {
   SUNContext sunctx;
-  realtype dx, dy, reltol, abstol, t, tout, umax;
+  sunrealtype dx, dy, reltol, abstol, t, tout, umax;
   N_Vector u;
   UserData data;
   SUNMatrix A;
@@ -146,7 +146,7 @@ int main(int argc, char *argv[])
   cvode_mem = NULL;
 
   /* Create the SUNDIALS simulation context that all SUNDIALS objects require */
-  retval = SUNContext_Create(NULL, &sunctx);
+  retval = SUNContext_Create(SUN_COMM_NULL, &sunctx);
   if (check_retval(&retval, "SUNContext_Create", 1)) return(1);
 
   /* Set the number of threads to use */
@@ -247,10 +247,10 @@ int main(int argc, char *argv[])
 
 /* f routine. Compute f(t,u). */
 
-static int f(realtype t, N_Vector u,N_Vector udot, void *user_data)
+static int f(sunrealtype t, N_Vector u,N_Vector udot, void *user_data)
 {
-  realtype uij, udn, uup, ult, urt, hordc, horac, verdc, hdiff, hadv, vdiff;
-  realtype *udata, *dudata;
+  sunrealtype uij, udn, uup, ult, urt, hordc, horac, verdc, hdiff, hadv, vdiff;
+  sunrealtype *udata, *dudata;
   sunindextype i, j;
   UserData data;
 
@@ -294,11 +294,11 @@ static int f(realtype t, N_Vector u,N_Vector udot, void *user_data)
 
 /* Jacobian routine. Compute J(t,u). */
 
-static int Jac(realtype t, N_Vector u, N_Vector fu, SUNMatrix J,
+static int Jac(sunrealtype t, N_Vector u, N_Vector fu, SUNMatrix J,
                void *user_data, N_Vector tmp1, N_Vector tmp2, N_Vector tmp3)
 {
   sunindextype i, j, k;
-  realtype *kthCol, hordc, horac, verdc;
+  sunrealtype *kthCol, hordc, horac, verdc;
   UserData data;
 
   /*
@@ -348,8 +348,8 @@ static int Jac(realtype t, N_Vector u, N_Vector fu, SUNMatrix J,
 static void SetIC(N_Vector u, UserData data)
 {
   sunindextype i, j;
-  realtype x, y, dx, dy;
-  realtype *udata;
+  sunrealtype x, y, dx, dy;
+  sunrealtype *udata;
 
   i = j = 0;
 
@@ -375,7 +375,7 @@ static void SetIC(N_Vector u, UserData data)
 
 /* Print first lines of output (problem description) */
 
-static void PrintHeader(realtype reltol, realtype abstol, realtype umax)
+static void PrintHeader(sunrealtype reltol, sunrealtype abstol, sunrealtype umax)
 {
   printf("\n2-D Advection-Diffusion Equation\n");
   printf("Mesh dimensions = %d X %d\n", MX, MY);
@@ -398,7 +398,7 @@ static void PrintHeader(realtype reltol, realtype abstol, realtype umax)
 
 /* Print current value */
 
-static void PrintOutput(realtype t, realtype umax, long int nst)
+static void PrintOutput(sunrealtype t, sunrealtype umax, long int nst)
 {
 #if defined(SUNDIALS_EXTENDED_PRECISION)
   printf("At t = %4.2Lf   max.norm(u) =%14.6Le   nst = %4ld\n", t, umax, nst);
