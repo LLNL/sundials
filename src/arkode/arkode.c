@@ -1271,7 +1271,7 @@ void arkErrHandler(int error_code, const char *module,
 int arkInit(ARKodeMem ark_mem, sunrealtype t0, N_Vector y0,
             int init_type)
 {
-  booleantype stepperOK, nvectorOK, allocOK;
+  sunbooleantype stepperOK, nvectorOK, allocOK;
   int retval;
   sunindextype lrw1, liw1;
 
@@ -2453,7 +2453,7 @@ int arkYddNorm(ARKodeMem ark_mem, sunrealtype hg, sunrealtype *yddnrm)
 int arkCompleteStep(ARKodeMem ark_mem, sunrealtype dsm)
 {
   int retval;
-  realtype troundoff;
+  sunrealtype troundoff;
 
   /* Set current time to the end of the step (in case the last
      stage time does not coincide with the step solution time).

@@ -97,8 +97,8 @@ SUNAdaptController ARKUserControl(SUNContext sunctx, void* arkode_mem,
 SUNAdaptController_Type SUNAdaptController_GetType_ARKUserControl(SUNAdaptController C)
 { return SUN_ADAPTCONTROLLER_H; }
 
-int SUNAdaptController_EstimateStep_ARKUserControl(SUNAdaptController C, realtype h,
-                                                   int p, realtype dsm, realtype* hnew)
+int SUNAdaptController_EstimateStep_ARKUserControl(SUNAdaptController C, sunrealtype h,
+                                                   int p, sunrealtype dsm, sunrealtype* hnew)
 {
   /* call user-provided function to compute new step */
   sunrealtype ttmp = (dsm <= ONE) ? SC_ARKMEM(C)->tn + SC_ARKMEM(C)->h : SC_ARKMEM(C)->tn;
@@ -137,7 +137,7 @@ int SUNAdaptController_Write_ARKUserControl(SUNAdaptController C, FILE *fptr)
   return SUNADAPTCONTROLLER_SUCCESS;
 }
 
-int SUNAdaptController_UpdateH_ARKUserControl(SUNAdaptController C, realtype h, realtype dsm)
+int SUNAdaptController_UpdateH_ARKUserControl(SUNAdaptController C, sunrealtype h, sunrealtype dsm)
 {
   SC_HPP(C) = SC_HP(C);
   SC_HP(C) = h;

@@ -1232,15 +1232,15 @@ int arkStep_Init(void* arkode_mem, int init_type)
     {
       if (!(step_mem->stage_times))
       {
-        step_mem->stage_times = (realtype*) calloc(step_mem->stages,
-                                                   sizeof(realtype));
+        step_mem->stage_times = (sunrealtype*) calloc(step_mem->stages,
+                                                   sizeof(sunrealtype));
         ark_mem->lrw += step_mem->stages;
       }
 
       if (!(step_mem->stage_coefs))
       {
-        step_mem->stage_coefs = (realtype*) calloc(step_mem->stages,
-                                                   sizeof(realtype));
+        step_mem->stage_coefs = (sunrealtype*) calloc(step_mem->stages,
+                                                   sizeof(sunrealtype));
         ark_mem->lrw += step_mem->stages;
       }
     }
@@ -1372,7 +1372,7 @@ int arkStep_Init(void* arkode_mem, int init_type)
   when estimating the initial time step size, so we strive to store the
   intermediate parts so that they do not interfere with the other two modes.
   ----------------------------------------------------------------------------*/
-int arkStep_FullRHS(void* arkode_mem, realtype t, N_Vector y, N_Vector f,
+int arkStep_FullRHS(void* arkode_mem, sunrealtype t, N_Vector y, N_Vector f,
                     int mode)
 {
   ARKodeMem ark_mem;
@@ -1381,7 +1381,7 @@ int arkStep_FullRHS(void* arkode_mem, realtype t, N_Vector y, N_Vector f,
   sunbooleantype recomputeRHS;
   sunrealtype* cvals;
   N_Vector* Xvecs;
-  realtype stage_coefs = ONE;
+  sunrealtype stage_coefs = ONE;
 
   /* access ARKodeARKStepMem structure */
   retval = arkStep_AccessStepMem(arkode_mem, "arkStep_FullRHS",
@@ -1737,10 +1737,10 @@ int arkStep_FullRHS(void* arkode_mem, realtype t, N_Vector y, N_Vector f,
 int arkStep_TakeStep_Z(void* arkode_mem, sunrealtype *dsmPtr, int *nflagPtr)
 {
   int retval, is, is_start, mode;
-  booleantype implicit_stage;
-  booleantype deduce_stage;
-  booleantype save_stages;
-  booleantype stiffly_accurate;
+  sunbooleantype implicit_stage;
+  sunbooleantype deduce_stage;
+  sunbooleantype save_stages;
+  sunbooleantype stiffly_accurate;
   ARKodeMem ark_mem;
   ARKodeARKStepMem step_mem;
   N_Vector zcor0;
@@ -2699,7 +2699,7 @@ int arkStep_StageSetup(ARKodeMem ark_mem, sunbooleantype implicit)
   int retval, i, j, jmax, nvec;
   sunrealtype*  cj;
   sunrealtype** Aij;
-  realtype* cvals;
+  sunrealtype* cvals;
   N_Vector* Xvecs;
 
   /* access ARKodeARKStepMem structure */
@@ -2816,8 +2816,8 @@ int arkStep_ComputeSolutions(ARKodeMem ark_mem, sunrealtype *dsmPtr)
   sunrealtype* cj;
   sunrealtype* bj;
   sunrealtype* dj;
-  booleantype stiffly_accurate;
-  realtype* cvals;
+  sunbooleantype stiffly_accurate;
+  sunrealtype* cvals;
   N_Vector* Xvecs;
   ARKodeARKStepMem step_mem;
 
@@ -2984,8 +2984,8 @@ int arkStep_ComputeSolutions_MassFixed(ARKodeMem ark_mem, sunrealtype *dsmPtr)
   /* local data */
   int retval, j, nvec;
   N_Vector y, yerr;
-  booleantype stiffly_accurate;
-  realtype* cvals;
+  sunbooleantype stiffly_accurate;
+  sunrealtype* cvals;
   N_Vector* Xvecs;
   ARKodeARKStepMem step_mem;
 
@@ -3262,17 +3262,17 @@ int arkStep_MRIStepInnerReset(MRIStepInnerStepper stepper, sunrealtype tR,
   combination.
   ----------------------------------------------------------------------------*/
 
-void arkStep_ApplyForcing(ARKodeARKStepMem step_mem, realtype* stage_times,
-                          realtype* stage_coefs, int jmax, int* nvec)
+void arkStep_ApplyForcing(ARKodeARKStepMem step_mem, sunrealtype* stage_times,
+                          sunrealtype* stage_coefs, int jmax, int* nvec)
 {
-  realtype tau, taui;
+  sunrealtype tau, taui;
   int j, k;
 
   /* Shortcuts to step_mem data */
-  realtype* vals     = step_mem->cvals;
+  sunrealtype* vals     = step_mem->cvals;
   N_Vector* vecs     = step_mem->Xvecs;
-  realtype  tshift   = step_mem->tshift;
-  realtype  tscale   = step_mem->tscale;
+  sunrealtype  tshift   = step_mem->tshift;
+  sunrealtype  tscale   = step_mem->tscale;
   int       nforcing = step_mem->nforcing;
   N_Vector* forcing  = step_mem->forcing;
 

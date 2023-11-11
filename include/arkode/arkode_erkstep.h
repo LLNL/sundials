@@ -90,19 +90,19 @@ SUNDIALS_EXPORT int ERKStepSetAdaptivityAdjustment(void *arkode_mem, int adjust)
 SUNDIALS_EXPORT int ERKStepSetCFLFraction(void *arkode_mem,
                                           sunrealtype cfl_frac);
 SUNDIALS_EXPORT int ERKStepSetSafetyFactor(void *arkode_mem,
-                                           realtype safety);
+                                           sunrealtype safety);
 SUNDIALS_DEPRECATED_EXPORT_MSG("use SUNAdaptController instead")
-int ERKStepSetErrorBias(void *arkode_mem, realtype bias);
+int ERKStepSetErrorBias(void *arkode_mem, sunrealtype bias);
 SUNDIALS_EXPORT int ERKStepSetMaxGrowth(void *arkode_mem,
                                         sunrealtype mx_growth);
 SUNDIALS_EXPORT int ERKStepSetMinReduction(void *arkode_mem,
                                            sunrealtype eta_min);
 SUNDIALS_EXPORT int ERKStepSetFixedStepBounds(void *arkode_mem,
-                                              realtype lb, realtype ub);
+                                              sunrealtype lb, sunrealtype ub);
 SUNDIALS_DEPRECATED_EXPORT_MSG("use SUNAdaptController instead")
 int ERKStepSetAdaptivityMethod(void *arkode_mem, int imethod,
                                int idefault, int pq,
-                               realtype adapt_params[3]);
+                               sunrealtype adapt_params[3]);
 SUNDIALS_DEPRECATED_EXPORT_MSG("use SUNAdaptController instead")
 int ERKStepSetAdaptivityFn(void *arkode_mem, ARKAdaptFn hfun,
                            void *h_data);

@@ -76,19 +76,19 @@ typedef struct ARKodeHAdaptMemRec {
   sunrealtype     etamxf;      /* h reduction factor on multiple error fails */
   sunrealtype     etamin;      /* eta >= etamin on error test fail           */
   int          small_nef;   /* bound to determine 'multiple' above        */
-  realtype     etacf;       /* h reduction factor on nonlinear conv fail  */
-  realtype     cfl;         /* cfl safety factor                          */
-  realtype     safety;      /* accuracy safety factor on h                */
-  realtype     growth;      /* maximum step growth safety factor          */
-  realtype     lbound;      /* eta lower bound to leave h unchanged       */
-  realtype     ubound;      /* eta upper bound to leave h unchanged       */
+  sunrealtype     etacf;       /* h reduction factor on nonlinear conv fail  */
+  sunrealtype     cfl;         /* cfl safety factor                          */
+  sunrealtype     safety;      /* accuracy safety factor on h                */
+  sunrealtype     growth;      /* maximum step growth safety factor          */
+  sunrealtype     lbound;      /* eta lower bound to leave h unchanged       */
+  sunrealtype     ubound;      /* eta upper bound to leave h unchanged       */
   int          p;           /* embedding order                            */
   int          q;           /* method order                               */
   int          pq;          /* decision flag for controller order         */
   int          adjust;      /* controller order adjustment factor         */
 
   SUNAdaptController hcontroller; /* temporal error controller            */
-  booleantype  owncontroller;  /* flag indicating hcontroller ownership   */
+  sunbooleantype  owncontroller;  /* flag indicating hcontroller ownership   */
 
   ARKExpStabFn expstab;     /* step stability function                    */
   void        *estab_data;  /* user pointer passed to expstab             */
@@ -106,8 +106,8 @@ typedef struct ARKodeHAdaptMemRec {
 ARKodeHAdaptMem arkAdaptInit();
 void arkPrintAdaptMem(ARKodeHAdaptMem hadapt_mem, FILE *outfile);
 int arkAdapt(void* arkode_mem, ARKodeHAdaptMem hadapt_mem,
-             N_Vector ycur, realtype tcur, realtype hcur,
-             realtype dsm, long int nst);
+             N_Vector ycur, sunrealtype tcur, sunrealtype hcur,
+             sunrealtype dsm, long int nst);
 
 
 #ifdef __cplusplus

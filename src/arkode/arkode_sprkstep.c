@@ -517,7 +517,7 @@ int sprkStep_f2(ARKodeSPRKStepMem step_mem, sunrealtype tcur, N_Vector ycur,
   Since RHS values are not stored in SPRKStep we evaluate the RHS functions for
   all modes.
   ----------------------------------------------------------------------------*/
-int sprkStep_FullRHS(void* arkode_mem, realtype t, N_Vector y, N_Vector f,
+int sprkStep_FullRHS(void* arkode_mem, sunrealtype t, N_Vector y, N_Vector f,
                      int mode)
 {
   int retval                 = 0;

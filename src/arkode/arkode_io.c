@@ -871,11 +871,11 @@ int arkSetMaxNumConstrFails(void *arkode_mem, int maxfails)
   via the time-stepping module *SetController routines.
   ---------------------------------------------------------------*/
 int arkSetAdaptivityMethod(void *arkode_mem, int imethod, int idefault,
-                           int pq, realtype adapt_params[3])
+                           int pq, sunrealtype adapt_params[3])
 {
   int retval;
   long int lenrw, leniw;
-  realtype k1, k2, k3;
+  sunrealtype k1, k2, k3;
   ARKodeMem ark_mem;
   SUNAdaptController C;
   if (arkode_mem==NULL) {

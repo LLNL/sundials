@@ -77,17 +77,17 @@ int ARKStepSetPostprocessStageFn(void *arkode_mem,
   return(arkSetPostprocessStageFn(arkode_mem, ProcessStage)); }
 int ARKStepSetAdaptivityAdjustment(void *arkode_mem, int adjust) {
   return(arkSetAdaptivityAdjustment(arkode_mem, adjust)); }
-int ARKStepSetCFLFraction(void *arkode_mem, realtype cfl_frac) {
+int ARKStepSetCFLFraction(void *arkode_mem, sunrealtype cfl_frac) {
   return(arkSetCFLFraction(arkode_mem, cfl_frac)); }
 int ARKStepSetSafetyFactor(void *arkode_mem, sunrealtype safety) {
   return(arkSetSafetyFactor(arkode_mem, safety)); }
-int ARKStepSetMaxGrowth(void *arkode_mem, realtype mx_growth) {
+int ARKStepSetMaxGrowth(void *arkode_mem, sunrealtype mx_growth) {
   return(arkSetMaxGrowth(arkode_mem, mx_growth)); }
 int ARKStepSetMinReduction(void *arkode_mem, sunrealtype eta_min) {
   return(arkSetMinReduction(arkode_mem, eta_min)); }
 int ARKStepSetFixedStepBounds(void *arkode_mem, sunrealtype lb, sunrealtype ub) {
   return(arkSetFixedStepBounds(arkode_mem, lb, ub)); }
-int ARKStepSetMaxFirstGrowth(void *arkode_mem, realtype etamx1) {
+int ARKStepSetMaxFirstGrowth(void *arkode_mem, sunrealtype etamx1) {
   return(arkSetMaxFirstGrowth(arkode_mem, etamx1)); }
 int ARKStepSetMaxEFailGrowth(void *arkode_mem, sunrealtype etamxf) {
   return(arkSetMaxEFailGrowth(arkode_mem, etamxf)); }
@@ -103,7 +103,7 @@ int ARKStepSetMaxConvFails(void *arkode_mem, int maxncf) {
   return(arkSetMaxConvFails(arkode_mem, maxncf)); }
 int ARKStepSetAdaptController(void *arkode_mem, SUNAdaptController C) {
   return(arkSetAdaptController(arkode_mem, C)); }
-int ARKStepSetFixedStep(void *arkode_mem, realtype hfixed) {
+int ARKStepSetFixedStep(void *arkode_mem, sunrealtype hfixed) {
   return(arkSetFixedStep(arkode_mem, hfixed)); }
 
 
@@ -349,7 +349,7 @@ int ARKStepGetNumRelaxSolveIters(void* arkode_mem, long int* iters)
   specific SUNAdaptController object.
   ---------------------------------------------------------------*/
 int ARKStepSetAdaptivityMethod(void *arkode_mem, int imethod, int idefault,
-                               int pq, realtype adapt_params[3]) {
+                               int pq, sunrealtype adapt_params[3]) {
   return(arkSetAdaptivityMethod(arkode_mem, imethod, idefault, pq, adapt_params)); }
 
 /*---------------------------------------------------------------
@@ -363,7 +363,7 @@ int ARKStepSetAdaptivityFn(void *arkode_mem, ARKAdaptFn hfun, void *h_data) {
   ARKStepSetErrorBias: user should set this value directly in the
   SUNAdaptController object.
   ---------------------------------------------------------------*/
-int ARKStepSetErrorBias(void *arkode_mem, realtype bias) {
+int ARKStepSetErrorBias(void *arkode_mem, sunrealtype bias) {
   return(arkSetErrorBias(arkode_mem, bias)); }
 
 

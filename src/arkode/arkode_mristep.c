@@ -1239,7 +1239,7 @@ int mriStep_Init(void* arkode_mem, int init_type)
 
   Presently ff(t,y) is always called with ARK_FULLRHS_OTHER mode.
   ----------------------------------------------------------------------------*/
-int mriStep_FullRHS(void* arkode_mem, realtype t, N_Vector y, N_Vector f,
+int mriStep_FullRHS(void* arkode_mem, sunrealtype t, N_Vector y, N_Vector f,
                     int mode)
 {
   ARKodeMem ark_mem;

@@ -32,10 +32,10 @@ extern "C" {
  * --------------------------------------------------- */
 
 struct _ARKUserControlContent {
-  realtype hp;        /* h from previous step */
-  realtype hpp;       /* h from 2 steps ago */
-  realtype ep;        /* error from previous step */
-  realtype epp;       /* error from 2 steps ago */
+  sunrealtype hp;        /* h from previous step */
+  sunrealtype hpp;       /* h from 2 steps ago */
+  sunrealtype ep;        /* error from previous step */
+  sunrealtype epp;       /* error from 2 steps ago */
   ARKodeMem ark_mem;  /* main ARKODE memory structure */
   ARKAdaptFn hadapt;  /* user-provided adaptivity fn */
   void* hadapt_data;  /* user-provided data pointer */
@@ -53,14 +53,14 @@ SUNAdaptController ARKUserControl(SUNContext sunctx, void* arkode_mem,
 SUNDIALS_EXPORT
 SUNAdaptController_Type SUNAdaptController_GetType_ARKUserControl(SUNAdaptController C);
 SUNDIALS_EXPORT
-int SUNAdaptController_EstimateStep_ARKUserControl(SUNAdaptController C, realtype h,
-                                                   int p, realtype dsm, realtype* hnew);
+int SUNAdaptController_EstimateStep_ARKUserControl(SUNAdaptController C, sunrealtype h,
+                                                   int p, sunrealtype dsm, sunrealtype* hnew);
 SUNDIALS_EXPORT
 int SUNAdaptController_Reset_ARKUserControl(SUNAdaptController C);
 SUNDIALS_EXPORT
 int SUNAdaptController_Write_ARKUserControl(SUNAdaptController C, FILE* fptr);
 SUNDIALS_EXPORT
-int SUNAdaptController_UpdateH_ARKUserControl(SUNAdaptController C, realtype h, realtype dsm);
+int SUNAdaptController_UpdateH_ARKUserControl(SUNAdaptController C, sunrealtype h, sunrealtype dsm);
 SUNDIALS_EXPORT
 int SUNAdaptController_Space_ARKUserControl(SUNAdaptController C, long int *lenrw,
                                             long int *leniw);

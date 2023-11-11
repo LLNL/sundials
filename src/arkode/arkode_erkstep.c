@@ -630,7 +630,7 @@ int erkStep_Init(void* arkode_mem, int init_type)
   when estimating the initial time step size, so we strive to store the
   intermediate parts so that they do not interfere with the other two modes.
   ----------------------------------------------------------------------------*/
-int erkStep_FullRHS(void* arkode_mem, realtype t, N_Vector y, N_Vector f,
+int erkStep_FullRHS(void* arkode_mem, sunrealtype t, N_Vector y, N_Vector f,
                     int mode)
 {
   int retval;
@@ -747,7 +747,7 @@ int erkStep_FullRHS(void* arkode_mem, realtype t, N_Vector y, N_Vector f,
 int erkStep_TakeStep(void* arkode_mem, sunrealtype *dsmPtr, int *nflagPtr)
 {
   int retval, is, js, nvec, mode;
-  realtype* cvals;
+  sunrealtype* cvals;
   N_Vector* Xvecs;
   ARKodeMem ark_mem;
   ARKodeERKStepMem step_mem;

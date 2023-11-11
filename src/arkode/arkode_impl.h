@@ -333,7 +333,7 @@ struct ARKodeMemRec
   /* N_Vector storage */
   N_Vector ewt;                 /* error weight vector                        */
   N_Vector rwt;                 /* residual weight vector                     */
-  booleantype rwt_is_ewt;       /* SUNTRUE if rwt is a pointer to ewt         */
+  sunbooleantype rwt_is_ewt;       /* SUNTRUE if rwt is a pointer to ewt         */
   N_Vector ycur;                /* pointer to user-provided solution memory;
                                    used as evolving solution by the time stepper
                                    modules */
@@ -407,9 +407,9 @@ struct ARKodeMemRec
   sunbooleantype MallocDone;
   sunbooleantype initsetup;    /* denotes a call to InitialSetup is needed   */
   int         init_type;    /* initialization type (see constants above)  */
-  booleantype firststage;   /* denotes first stage in simulation          */
-  booleantype initialized;  /* denotes arkInitialSetup has been done      */
-  booleantype call_fullrhs; /* denotes the full RHS fn will be called     */
+  sunbooleantype firststage;   /* denotes first stage in simulation          */
+  sunbooleantype initialized;  /* denotes arkInitialSetup has been done      */
+  sunbooleantype call_fullrhs; /* denotes the full RHS fn will be called     */
 
   /* Error handler function and error ouput file */
   ARKErrHandlerFn ehfun;    /* error messages are handled by ehfun        */
@@ -1024,12 +1024,12 @@ int arkSetPostprocessStageFn(void *arkode_mem,
 int arkSetConstraints(void *arkode_mem, N_Vector constraints);
 int arkSetMaxNumConstrFails(void *arkode_mem, int maxfails);
 int arkSetAdaptivityAdjustment(void *arkode_mem, int adjust);
-int arkSetCFLFraction(void *arkode_mem, realtype cfl_frac);
-int arkSetSafetyFactor(void *arkode_mem, realtype safety);
-int arkSetErrorBias(void *arkode_mem, realtype bias);
-int arkSetMaxGrowth(void *arkode_mem, realtype mx_growth);
-int arkSetMinReduction(void *arkode_mem, realtype eta_min);
-int arkSetFixedStepBounds(void *arkode_mem, realtype lb, realtype ub);
+int arkSetCFLFraction(void *arkode_mem, sunrealtype cfl_frac);
+int arkSetSafetyFactor(void *arkode_mem, sunrealtype safety);
+int arkSetErrorBias(void *arkode_mem, sunrealtype bias);
+int arkSetMaxGrowth(void *arkode_mem, sunrealtype mx_growth);
+int arkSetMinReduction(void *arkode_mem, sunrealtype eta_min);
+int arkSetFixedStepBounds(void *arkode_mem, sunrealtype lb, sunrealtype ub);
 int arkSetAdaptivityMethod(void *arkode_mem, int imethod, int idefault,
                            int pq, sunrealtype adapt_params[3]);
 int arkSetAdaptivityFn(void *arkode_mem, ARKAdaptFn hfun, void *h_data);

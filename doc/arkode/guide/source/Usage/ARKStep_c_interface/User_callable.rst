@@ -1820,7 +1820,7 @@ Explicit stability function                                 :c:func:`ARKStepSetS
 
    .. versionadded:: x.x.x
 
-.. c:function:: int ARKStepSetCFLFraction(void* arkode_mem, realtype cfl_frac)
+.. c:function:: int ARKStepSetCFLFraction(void* arkode_mem, sunrealtype cfl_frac)
 
    Specifies the fraction of the estimated explicitly stable step to use.
 

@@ -98,7 +98,7 @@ int arkAdapt(void* arkode_mem, ARKodeHAdaptMem hadapt_mem,
              sunrealtype dsm, long int nst)
 {
   int retval;
-  realtype h_acc, h_cfl, int_dir;
+  sunrealtype h_acc, h_cfl, int_dir;
   ARKodeMem ark_mem;
   int controller_order;
   if (arkode_mem == NULL) {
