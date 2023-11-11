@@ -112,10 +112,10 @@ int SUNAdaptController_EstimateStep_ARKUserControl(SUNAdaptController C, sunreal
 
 int SUNAdaptController_Reset_ARKUserControl(SUNAdaptController C)
 {
-  SC_EP(C)  = RCONST(1.0);
-  SC_EPP(C) = RCONST(1.0);
-  SC_HP(C)  = RCONST(0.0);
-  SC_HPP(C) = RCONST(0.0);
+  SC_EP(C)  = SUN_RCONST(1.0);
+  SC_EPP(C) = SUN_RCONST(1.0);
+  SC_HP(C)  = SUN_RCONST(0.0);
+  SC_HPP(C) = SUN_RCONST(0.0);
   return SUNADAPTCONTROLLER_SUCCESS;
 }
 

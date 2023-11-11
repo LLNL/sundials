@@ -815,7 +815,7 @@ int arkSetConstraints(void *arkode_mem, N_Vector constraints)
 
   /* Check the constraints vector */
   temptest = N_VMaxNorm(constraints);
-  if ((temptest > RCONST(2.5)) || (temptest < HALF)) {
+  if ((temptest > SUN_RCONST(2.5)) || (temptest < HALF)) {
     arkProcessError(ark_mem, ARK_ILL_INPUT, "ARKODE",
                     "arkSetConstraints", MSG_ARK_BAD_CONSTR);
     return(ARK_ILL_INPUT);

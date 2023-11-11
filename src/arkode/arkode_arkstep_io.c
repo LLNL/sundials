@@ -524,12 +524,12 @@ int ARKStepSetOptimalParams(void *arkode_mem)
                       "SUNAdaptController_PI allocation failure");
       return(ARK_MEM_FAIL);
     }
-    (void) SUNAdaptController_SetErrorBias(hadapt_mem->hcontroller, RCONST(1.2));
-    (void) SUNAdaptController_SetParams_PI(hadapt_mem->hcontroller, RCONST(0.8),
-                                           -RCONST(0.31));
-    hadapt_mem->safety = RCONST(0.99);
-    hadapt_mem->growth = RCONST(25.0);
-    hadapt_mem->etamxf = RCONST(0.3);
+    (void) SUNAdaptController_SetErrorBias(hadapt_mem->hcontroller, SUN_RCONST(1.2));
+    (void) SUNAdaptController_SetParams_PI(hadapt_mem->hcontroller, SUN_RCONST(0.8),
+                                           -SUN_RCONST(0.31));
+    hadapt_mem->safety = SUN_RCONST(0.99);
+    hadapt_mem->growth = SUN_RCONST(25.0);
+    hadapt_mem->etamxf = SUN_RCONST(0.3);
     hadapt_mem->pq     = PQ;
 
   /*    implicit */
@@ -549,7 +549,7 @@ int ARKStepSetOptimalParams(void *arkode_mem)
       hadapt_mem->small_nef = SMALL_NEF;
       hadapt_mem->etacf     = ETACF;
       hadapt_mem->pq        = PQ;
-      step_mem->nlscoef     = RCONST(0.001);
+      step_mem->nlscoef     = SUN_RCONST(0.001);
       step_mem->maxcor      = 5;
       step_mem->crdown      = CRDOWN;
       step_mem->rdiv        = RDIV;
@@ -564,17 +564,17 @@ int ARKStepSetOptimalParams(void *arkode_mem)
                         "SUNAdaptController_I allocation failure");
         return(ARK_MEM_FAIL);
       }
-      (void) SUNAdaptController_SetErrorBias(hadapt_mem->hcontroller, RCONST(1.9));
-      hadapt_mem->safety    = RCONST(0.957);
-      hadapt_mem->growth    = RCONST(17.6);
-      hadapt_mem->etamxf    = RCONST(0.45);
+      (void) SUNAdaptController_SetErrorBias(hadapt_mem->hcontroller, SUN_RCONST(1.9));
+      hadapt_mem->safety    = SUN_RCONST(0.957);
+      hadapt_mem->growth    = SUN_RCONST(17.6);
+      hadapt_mem->etamxf    = SUN_RCONST(0.45);
       hadapt_mem->small_nef = SMALL_NEF;
       hadapt_mem->etacf     = ETACF;
       hadapt_mem->pq        = PQ;
-      step_mem->nlscoef     = RCONST(0.22);
-      step_mem->crdown      = RCONST(0.17);
-      step_mem->rdiv        = RCONST(2.3);
-      step_mem->dgmax       = RCONST(0.19);
+      step_mem->nlscoef     = SUN_RCONST(0.22);
+      step_mem->crdown      = SUN_RCONST(0.17);
+      step_mem->rdiv        = SUN_RCONST(2.3);
+      step_mem->dgmax       = SUN_RCONST(0.19);
       step_mem->msbp        = 60;
       break;
     case 4:
@@ -585,19 +585,19 @@ int ARKStepSetOptimalParams(void *arkode_mem)
                         "SUNAdaptController_PID allocation failure");
         return(ARK_MEM_FAIL);
       }
-      (void) SUNAdaptController_SetErrorBias(hadapt_mem->hcontroller, RCONST(1.2));
-      (void) SUNAdaptController_SetParams_PID(hadapt_mem->hcontroller, RCONST(0.535),
-                                              -RCONST(0.209), RCONST(0.148));
-      hadapt_mem->safety    = RCONST(0.988);
-      hadapt_mem->growth    = RCONST(31.5);
-      hadapt_mem->etamxf    = RCONST(0.33);
+      (void) SUNAdaptController_SetErrorBias(hadapt_mem->hcontroller, SUN_RCONST(1.2));
+      (void) SUNAdaptController_SetParams_PID(hadapt_mem->hcontroller, SUN_RCONST(0.535),
+                                              -SUN_RCONST(0.209), SUN_RCONST(0.148));
+      hadapt_mem->safety    = SUN_RCONST(0.988);
+      hadapt_mem->growth    = SUN_RCONST(31.5);
+      hadapt_mem->etamxf    = SUN_RCONST(0.33);
       hadapt_mem->small_nef = SMALL_NEF;
       hadapt_mem->etacf     = ETACF;
       hadapt_mem->pq        = PQ;
-      step_mem->nlscoef     = RCONST(0.24);
-      step_mem->crdown      = RCONST(0.26);
-      step_mem->rdiv        = RCONST(2.3);
-      step_mem->dgmax       = RCONST(0.16);
+      step_mem->nlscoef     = SUN_RCONST(0.24);
+      step_mem->crdown      = SUN_RCONST(0.26);
+      step_mem->rdiv        = SUN_RCONST(2.3);
+      step_mem->dgmax       = SUN_RCONST(0.16);
       step_mem->msbp        = 31;
       break;
     case 5:
@@ -608,19 +608,19 @@ int ARKStepSetOptimalParams(void *arkode_mem)
                         "SUNAdaptController_PID allocation failure");
         return(ARK_MEM_FAIL);
       }
-      (void) SUNAdaptController_SetErrorBias(hadapt_mem->hcontroller, RCONST(3.3));
-      (void) SUNAdaptController_SetParams_PID(hadapt_mem->hcontroller, RCONST(0.56),
-                                              -RCONST(0.338), RCONST(0.14));
-      hadapt_mem->safety    = RCONST(0.937);
-      hadapt_mem->growth    = RCONST(22.0);
-      hadapt_mem->etamxf    = RCONST(0.44);
+      (void) SUNAdaptController_SetErrorBias(hadapt_mem->hcontroller, SUN_RCONST(3.3));
+      (void) SUNAdaptController_SetParams_PID(hadapt_mem->hcontroller, SUN_RCONST(0.56),
+                                              -SUN_RCONST(0.338), SUN_RCONST(0.14));
+      hadapt_mem->safety    = SUN_RCONST(0.937);
+      hadapt_mem->growth    = SUN_RCONST(22.0);
+      hadapt_mem->etamxf    = SUN_RCONST(0.44);
       hadapt_mem->small_nef = SMALL_NEF;
       hadapt_mem->etacf     = ETACF;
       hadapt_mem->pq        = PQ;
-      step_mem->nlscoef     = RCONST(0.25);
-      step_mem->crdown      = RCONST(0.4);
-      step_mem->rdiv        = RCONST(2.3);
-      step_mem->dgmax       = RCONST(0.32);
+      step_mem->nlscoef     = SUN_RCONST(0.25);
+      step_mem->crdown      = SUN_RCONST(0.4);
+      step_mem->rdiv        = SUN_RCONST(2.3);
+      step_mem->dgmax       = SUN_RCONST(0.32);
       step_mem->msbp        = 31;
       break;
     }
@@ -642,7 +642,7 @@ int ARKStepSetOptimalParams(void *arkode_mem)
       hadapt_mem->small_nef = SMALL_NEF;
       hadapt_mem->etacf     = ETACF;
       hadapt_mem->pq        = PQ;
-      step_mem->nlscoef     = RCONST(0.001);
+      step_mem->nlscoef     = SUN_RCONST(0.001);
       step_mem->maxcor      = 5;
       step_mem->crdown      = CRDOWN;
       step_mem->rdiv        = RDIV;
@@ -657,19 +657,19 @@ int ARKStepSetOptimalParams(void *arkode_mem)
                         "SUNAdaptController_PID allocation failure");
         return(ARK_MEM_FAIL);
       }
-      (void) SUNAdaptController_SetErrorBias(hadapt_mem->hcontroller, RCONST(1.42));
-      (void) SUNAdaptController_SetParams_PID(hadapt_mem->hcontroller, RCONST(0.54),
-                                              -RCONST(0.36), RCONST(0.14));
-      hadapt_mem->safety    = RCONST(0.965);
-      hadapt_mem->growth    = RCONST(28.7);
-      hadapt_mem->etamxf    = RCONST(0.46);
+      (void) SUNAdaptController_SetErrorBias(hadapt_mem->hcontroller, SUN_RCONST(1.42));
+      (void) SUNAdaptController_SetParams_PID(hadapt_mem->hcontroller, SUN_RCONST(0.54),
+                                              -SUN_RCONST(0.36), SUN_RCONST(0.14));
+      hadapt_mem->safety    = SUN_RCONST(0.965);
+      hadapt_mem->growth    = SUN_RCONST(28.7);
+      hadapt_mem->etamxf    = SUN_RCONST(0.46);
       hadapt_mem->small_nef = SMALL_NEF;
       hadapt_mem->etacf     = ETACF;
       hadapt_mem->pq        = PQ;
-      step_mem->nlscoef     = RCONST(0.22);
-      step_mem->crdown      = RCONST(0.17);
-      step_mem->rdiv        = RCONST(2.3);
-      step_mem->dgmax       = RCONST(0.19);
+      step_mem->nlscoef     = SUN_RCONST(0.22);
+      step_mem->crdown      = SUN_RCONST(0.17);
+      step_mem->rdiv        = SUN_RCONST(2.3);
+      step_mem->dgmax       = SUN_RCONST(0.19);
       step_mem->msbp        = 60;
       break;
     case 4:
@@ -680,19 +680,19 @@ int ARKStepSetOptimalParams(void *arkode_mem)
                         "SUNAdaptController_PID allocation failure");
         return(ARK_MEM_FAIL);
       }
-      (void) SUNAdaptController_SetErrorBias(hadapt_mem->hcontroller, RCONST(1.35));
-      (void) SUNAdaptController_SetParams_PID(hadapt_mem->hcontroller, RCONST(0.543),
-                                              -RCONST(0.297), RCONST(0.14));
-      hadapt_mem->safety    = RCONST(0.97);
-      hadapt_mem->growth    = RCONST(25.0);
-      hadapt_mem->etamxf    = RCONST(0.47);
+      (void) SUNAdaptController_SetErrorBias(hadapt_mem->hcontroller, SUN_RCONST(1.35));
+      (void) SUNAdaptController_SetParams_PID(hadapt_mem->hcontroller, SUN_RCONST(0.543),
+                                              -SUN_RCONST(0.297), SUN_RCONST(0.14));
+      hadapt_mem->safety    = SUN_RCONST(0.97);
+      hadapt_mem->growth    = SUN_RCONST(25.0);
+      hadapt_mem->etamxf    = SUN_RCONST(0.47);
       hadapt_mem->small_nef = SMALL_NEF;
       hadapt_mem->etacf     = ETACF;
       hadapt_mem->pq        = PQ;
-      step_mem->nlscoef     = RCONST(0.24);
-      step_mem->crdown      = RCONST(0.26);
-      step_mem->rdiv        = RCONST(2.3);
-      step_mem->dgmax       = RCONST(0.16);
+      step_mem->nlscoef     = SUN_RCONST(0.24);
+      step_mem->crdown      = SUN_RCONST(0.26);
+      step_mem->rdiv        = SUN_RCONST(2.3);
+      step_mem->dgmax       = SUN_RCONST(0.16);
       step_mem->msbp        = 31;
       break;
     case 5:
@@ -703,19 +703,19 @@ int ARKStepSetOptimalParams(void *arkode_mem)
                         "SUNAdaptController_PI allocation failure");
         return(ARK_MEM_FAIL);
       }
-      (void) SUNAdaptController_SetErrorBias(hadapt_mem->hcontroller, RCONST(1.15));
-      (void) SUNAdaptController_SetParams_PI(hadapt_mem->hcontroller, RCONST(0.8),
-                                             -RCONST(0.35));
-      hadapt_mem->safety    = RCONST(0.993);
-      hadapt_mem->growth    = RCONST(28.5);
-      hadapt_mem->etamxf    = RCONST(0.3);
+      (void) SUNAdaptController_SetErrorBias(hadapt_mem->hcontroller, SUN_RCONST(1.15));
+      (void) SUNAdaptController_SetParams_PI(hadapt_mem->hcontroller, SUN_RCONST(0.8),
+                                             -SUN_RCONST(0.35));
+      hadapt_mem->safety    = SUN_RCONST(0.993);
+      hadapt_mem->growth    = SUN_RCONST(28.5);
+      hadapt_mem->etamxf    = SUN_RCONST(0.3);
       hadapt_mem->small_nef = SMALL_NEF;
       hadapt_mem->etacf     = ETACF;
       hadapt_mem->pq        = PQ;
-      step_mem->nlscoef     = RCONST(0.25);
-      step_mem->crdown      = RCONST(0.4);
-      step_mem->rdiv        = RCONST(2.3);
-      step_mem->dgmax       = RCONST(0.32);
+      step_mem->nlscoef     = SUN_RCONST(0.25);
+      step_mem->crdown      = SUN_RCONST(0.4);
+      step_mem->rdiv        = SUN_RCONST(2.3);
+      step_mem->dgmax       = SUN_RCONST(0.32);
       step_mem->msbp        = 31;
       break;
     }

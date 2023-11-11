@@ -36,11 +36,11 @@ extern "C" {
 #define ARK_ADAPT_LIW  7    /* includes function/data pointers */
 
 /* Time step controller default values */
-#define CFLFAC    RCONST(0.5)
-#define SAFETY    RCONST(0.96)  /* CVODE uses 1.0  */
-#define GROWTH    RCONST(20.0)  /* CVODE uses 10.0 */
-#define HFIXED_LB RCONST(1.0)   /* CVODE uses 1.0  */
-#define HFIXED_UB RCONST(1.5)   /* CVODE uses 1.5  */
+#define CFLFAC    SUN_RCONST(0.5)
+#define SAFETY    SUN_RCONST(0.96)  /* CVODE uses 1.0  */
+#define GROWTH    SUN_RCONST(20.0)  /* CVODE uses 10.0 */
+#define HFIXED_LB SUN_RCONST(1.0)   /* CVODE uses 1.0  */
+#define HFIXED_UB SUN_RCONST(1.5)   /* CVODE uses 1.5  */
 
 #define ETAMX1    SUN_RCONST(10000.0)  /* maximum step size change on first step */
 #define ETAMXF    SUN_RCONST(0.3)      /* step size reduction factor on multiple error

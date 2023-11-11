@@ -3054,7 +3054,7 @@ int arkStep_ComputeSolutions_MassFixed(ARKodeMem ark_mem, sunrealtype *dsmPtr)
     /* solve for y update (stored in y) */
     retval = step_mem->msolve((void *) ark_mem, y, step_mem->nlscoef);
     if (retval < 0) {
-      *dsmPtr = RCONST(2.0);   /* indicate too much error, step with smaller step */
+      *dsmPtr = SUN_RCONST(2.0);   /* indicate too much error, step with smaller step */
       N_VScale(ONE, ark_mem->yn, y);      /* place old solution into y */
       return(CONV_FAIL);
     }
