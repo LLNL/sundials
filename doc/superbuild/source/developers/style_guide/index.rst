@@ -25,6 +25,5 @@ CMake files, and documentation files to ensure consistency and maintainability.
 
    SourceCode
    Documentation
-..
    Classes
-   CMake
+   .. CMake
