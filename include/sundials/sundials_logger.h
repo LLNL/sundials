@@ -34,10 +34,10 @@ typedef enum
 } SUNLogLevel;
 
 SUNDIALS_EXPORT
-SUNErrCode SUNLogger_Create(void* comm, int output_rank, SUNLogger* logger);
+SUNErrCode SUNLogger_Create(SUNComm comm, int output_rank, SUNLogger* logger);
 
 SUNDIALS_EXPORT
-SUNErrCode SUNLogger_CreateFromEnv(void* comm, SUNLogger* logger);
+SUNErrCode SUNLogger_CreateFromEnv(SUNComm comm, SUNLogger* logger);
 
 SUNDIALS_EXPORT
 SUNErrCode SUNLogger_SetErrorFilename(SUNLogger logger,

@@ -93,7 +93,7 @@ SUNDIALS_EXPORT N_Vector N_VClone_MPIManyVector(N_Vector w);
 SUNDIALS_EXPORT void N_VDestroy_MPIManyVector(N_Vector v);
 SUNDIALS_EXPORT void N_VSpace_MPIManyVector(N_Vector v, sunindextype *lrw,
                                             sunindextype *liw);
-SUNDIALS_EXPORT void *N_VGetCommunicator_MPIManyVector(N_Vector v);
+SUNDIALS_EXPORT MPI_Comm N_VGetCommunicator_MPIManyVector(N_Vector v);
 SUNDIALS_EXPORT sunindextype N_VGetLength_MPIManyVector(N_Vector v);
 SUNDIALS_EXPORT sunindextype N_VGetSubvectorLocalLength_MPIManyVector(N_Vector v, sunindextype vec_num);
 SUNDIALS_EXPORT void N_VLinearSum_MPIManyVector(sunrealtype a, N_Vector x,

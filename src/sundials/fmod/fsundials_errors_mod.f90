@@ -20,6 +20,7 @@
 
 module fsundials_errors_mod
  use, intrinsic :: ISO_C_BINDING
+ use fsundials_types_mod
  implicit none
  private
 
@@ -62,9 +63,6 @@ module fsundials_errors_mod
   type(C_PTR), public :: cptr = C_NULL_PTR
   integer(C_INT), public :: cmemflags = 0
  end type
- type, public :: SWIGTYPE_p_SUNErrHandlerFn
-  type(SwigClassWrapper), public :: swigdata
- end type
  ! struct struct SUNErrHandler_
  type, public :: SUNErrHandler_
   type(SwigClassWrapper), public :: swigdata
@@ -84,10 +82,7 @@ module fsundials_errors_mod
  end interface
  public :: FSUNErrHandler_Create
  public :: FSUNErrHandler_Destroy
- type, public :: SWIGTYPE_p_SUNErrCode
-  type(SwigClassWrapper), public :: swigdata
- end type
- type, public :: SWIGTYPE_p_SUNContext
+ type, public :: SWIGTYPE_p_SUNContext_
   type(SwigClassWrapper), public :: swigdata
  end type
  type, bind(C) :: SwigArrayWrapper
@@ -129,7 +124,7 @@ bind(C, name="_wrap_SUNErrHandler__call_set")
 use, intrinsic :: ISO_C_BINDING
 import :: swigclasswrapper
 type(SwigClassWrapper) :: farg1
-type(SwigClassWrapper) :: farg2
+type(C_FUNPTR), value :: farg2
 end subroutine
 
 function swigc_SUNErrHandler__call_get(farg1) &
@@ -138,7 +133,7 @@ result(fresult)
 use, intrinsic :: ISO_C_BINDING
 import :: swigclasswrapper
 type(SwigClassWrapper) :: farg1
-type(SwigClassWrapper) :: fresult
+type(C_FUNPTR) :: fresult
 end function
 
 subroutine swigc_SUNErrHandler__data_set(farg1, farg2) &
@@ -185,8 +180,7 @@ function swigc_FSUNErrHandler_Create(farg1, farg2) &
 bind(C, name="_wrap_FSUNErrHandler_Create") &
 result(fresult)
 use, intrinsic :: ISO_C_BINDING
-import :: swigclasswrapper
-type(SwigClassWrapper) :: farg1
+type(C_FUNPTR), value :: farg1
 type(C_PTR), value :: farg2
 type(C_PTR) :: fresult
 end function
@@ -207,7 +201,7 @@ integer(C_INT), intent(in) :: farg1
 type(SwigArrayWrapper) :: farg2
 type(SwigArrayWrapper) :: farg3
 type(SwigArrayWrapper) :: farg4
-type(SwigClassWrapper) :: farg5
+integer(C_INT), intent(in) :: farg5
 type(C_PTR), value :: farg6
 type(SwigClassWrapper) :: farg7
 integer(C_INT) :: fresult
@@ -223,7 +217,7 @@ integer(C_INT), intent(in) :: farg1
 type(SwigArrayWrapper) :: farg2
 type(SwigArrayWrapper) :: farg3
 type(SwigArrayWrapper) :: farg4
-type(SwigClassWrapper) :: farg5
+integer(C_INT), intent(in) :: farg5
 type(C_PTR), value :: farg6
 type(SwigClassWrapper) :: farg7
 integer(C_INT) :: fresult
@@ -239,7 +233,7 @@ integer(C_INT), intent(in) :: farg1
 type(SwigArrayWrapper) :: farg2
 type(SwigArrayWrapper) :: farg3
 type(SwigArrayWrapper) :: farg4
-type(SwigClassWrapper) :: farg5
+integer(C_INT), intent(in) :: farg5
 type(C_PTR), value :: farg6
 type(SwigClassWrapper) :: farg7
 integer(C_INT) :: fresult
@@ -256,7 +250,7 @@ result(fresult)
 use, intrinsic :: ISO_C_BINDING
 import :: swigarraywrapper
 import :: swigclasswrapper
-type(SwigClassWrapper) :: farg1
+integer(C_INT), intent(in) :: farg1
 type(SwigClassWrapper) :: farg2
 type(SwigArrayWrapper) :: fresult
 end function
@@ -267,7 +261,7 @@ result(fresult)
 use, intrinsic :: ISO_C_BINDING
 import :: swigclasswrapper
 type(SwigClassWrapper) :: farg1
-type(SwigClassWrapper) :: fresult
+integer(C_INT) :: fresult
 end function
 
 function swigc_FSUNSetLastErr(farg1, farg2) &
@@ -275,9 +269,9 @@ bind(C, name="_wrap_FSUNSetLastErr") &
 result(fresult)
 use, intrinsic :: ISO_C_BINDING
 import :: swigclasswrapper
-type(SwigClassWrapper) :: farg1
+integer(C_INT), intent(in) :: farg1
 type(SwigClassWrapper) :: farg2
-type(SwigClassWrapper) :: fresult
+integer(C_INT) :: fresult
 end function
 
 function swigc_FSUNPeekLastErr(farg1) &
@@ -286,7 +280,7 @@ result(fresult)
 use, intrinsic :: ISO_C_BINDING
 import :: swigclasswrapper
 type(SwigClassWrapper) :: farg1
-type(SwigClassWrapper) :: fresult
+integer(C_INT) :: fresult
 end function
 
 subroutine swigc_FSUNHandleErr(farg1, farg2, farg3, farg4, farg5) &
@@ -297,7 +291,7 @@ import :: swigclasswrapper
 integer(C_INT), intent(in) :: farg1
 type(SwigArrayWrapper) :: farg2
 type(SwigArrayWrapper) :: farg3
-type(SwigClassWrapper) :: farg4
+integer(C_INT), intent(in) :: farg4
 type(SwigClassWrapper) :: farg5
 end subroutine
 
@@ -310,7 +304,7 @@ integer(C_INT), intent(in) :: farg1
 type(SwigArrayWrapper) :: farg2
 type(SwigArrayWrapper) :: farg3
 type(SwigArrayWrapper) :: farg4
-type(SwigClassWrapper) :: farg5
+integer(C_INT), intent(in) :: farg5
 type(SwigClassWrapper) :: farg6
 end subroutine
 
@@ -323,7 +317,7 @@ integer(C_INT), intent(in) :: farg1
 type(SwigArrayWrapper) :: farg2
 type(SwigArrayWrapper) :: farg3
 type(SwigArrayWrapper) :: farg4
-type(SwigClassWrapper) :: farg5
+integer(C_INT), intent(in) :: farg5
 type(SwigClassWrapper) :: farg6
 end subroutine
 
@@ -360,26 +354,26 @@ end function
 subroutine swigf_SUNErrHandler__call_set(self, call)
 use, intrinsic :: ISO_C_BINDING
 class(SUNErrHandler_), intent(in) :: self
-type(SWIGTYPE_p_SUNErrHandlerFn), intent(in) :: call
+type(C_FUNPTR), intent(in), value :: call
 type(SwigClassWrapper) :: farg1 
-type(SwigClassWrapper) :: farg2 
+type(C_FUNPTR) :: farg2 
 
 farg1 = self%swigdata
-farg2 = call%swigdata
+farg2 = call
 call swigc_SUNErrHandler__call_set(farg1, farg2)
 end subroutine
 
 function swigf_SUNErrHandler__call_get(self) &
 result(swig_result)
 use, intrinsic :: ISO_C_BINDING
-type(SWIGTYPE_p_SUNErrHandlerFn) :: swig_result
+type(C_FUNPTR) :: swig_result
 class(SUNErrHandler_), intent(in) :: self
-type(SwigClassWrapper) :: fresult 
+type(C_FUNPTR) :: fresult 
 type(SwigClassWrapper) :: farg1 
 
 farg1 = self%swigdata
 fresult = swigc_SUNErrHandler__call_get(farg1)
-swig_result%swigdata = fresult
+swig_result = fresult
 end function
 
 subroutine swigf_SUNErrHandler__data_set(self, data)
@@ -448,13 +442,13 @@ function FSUNErrHandler_Create(eh_fn, eh_data) &
 result(swig_result)
 use, intrinsic :: ISO_C_BINDING
 type(C_PTR) :: swig_result
-type(SWIGTYPE_p_SUNErrHandlerFn), intent(in) :: eh_fn
+type(C_FUNPTR), intent(in), value :: eh_fn
 type(C_PTR) :: eh_data
 type(C_PTR) :: fresult 
-type(SwigClassWrapper) :: farg1 
+type(C_FUNPTR) :: farg1 
 type(C_PTR) :: farg2 
 
-farg1 = eh_fn%swigdata
+farg1 = eh_fn
 farg2 = eh_data
 fresult = swigc_FSUNErrHandler_Create(farg1, farg2)
 swig_result = fresult
@@ -498,15 +492,15 @@ character(kind=C_CHAR, len=*), target :: file
 character(kind=C_CHAR), dimension(:), allocatable, target :: farg3_chars
 character(kind=C_CHAR, len=*), target :: msg
 character(kind=C_CHAR), dimension(:), allocatable, target :: farg4_chars
-type(SWIGTYPE_p_SUNErrCode), intent(in) :: err_code
+integer(C_INT), intent(in) :: err_code
 type(C_PTR) :: err_user_data
-type(SWIGTYPE_p_SUNContext), intent(in) :: sunctx
+class(SWIGTYPE_p_SUNContext_), intent(in) :: sunctx
 integer(C_INT) :: fresult 
 integer(C_INT) :: farg1 
 type(SwigArrayWrapper) :: farg2 
 type(SwigArrayWrapper) :: farg3 
 type(SwigArrayWrapper) :: farg4 
-type(SwigClassWrapper) :: farg5 
+integer(C_INT) :: farg5 
 type(C_PTR) :: farg6 
 type(SwigClassWrapper) :: farg7 
 
@@ -514,7 +508,7 @@ farg1 = line
 call SWIG_string_to_chararray(func, farg2_chars, farg2)
 call SWIG_string_to_chararray(file, farg3_chars, farg3)
 call SWIG_string_to_chararray(msg, farg4_chars, farg4)
-farg5 = err_code%swigdata
+farg5 = err_code
 farg6 = err_user_data
 farg7 = sunctx%swigdata
 fresult = swigc_FSUNLogErrHandlerFn(farg1, farg2, farg3, farg4, farg5, farg6, farg7)
@@ -532,15 +526,15 @@ character(kind=C_CHAR, len=*), target :: file
 character(kind=C_CHAR), dimension(:), allocatable, target :: farg3_chars
 character(kind=C_CHAR, len=*), target :: msg
 character(kind=C_CHAR), dimension(:), allocatable, target :: farg4_chars
-type(SWIGTYPE_p_SUNErrCode), intent(in) :: err_code
+integer(C_INT), intent(in) :: err_code
 type(C_PTR) :: err_user_data
-type(SWIGTYPE_p_SUNContext), intent(in) :: sunctx
+class(SWIGTYPE_p_SUNContext_), intent(in) :: sunctx
 integer(C_INT) :: fresult 
 integer(C_INT) :: farg1 
 type(SwigArrayWrapper) :: farg2 
 type(SwigArrayWrapper) :: farg3 
 type(SwigArrayWrapper) :: farg4 
-type(SwigClassWrapper) :: farg5 
+integer(C_INT) :: farg5 
 type(C_PTR) :: farg6 
 type(SwigClassWrapper) :: farg7 
 
@@ -548,7 +542,7 @@ farg1 = line
 call SWIG_string_to_chararray(func, farg2_chars, farg2)
 call SWIG_string_to_chararray(file, farg3_chars, farg3)
 call SWIG_string_to_chararray(msg, farg4_chars, farg4)
-farg5 = err_code%swigdata
+farg5 = err_code
 farg6 = err_user_data
 farg7 = sunctx%swigdata
 fresult = swigc_FSUNAbortErrHandlerFn(farg1, farg2, farg3, farg4, farg5, farg6, farg7)
@@ -566,15 +560,15 @@ character(kind=C_CHAR, len=*), target :: file
 character(kind=C_CHAR), dimension(:), allocatable, target :: farg3_chars
 character(kind=C_CHAR, len=*), target :: msg
 character(kind=C_CHAR), dimension(:), allocatable, target :: farg4_chars
-type(SWIGTYPE_p_SUNErrCode), intent(in) :: err_code
+integer(C_INT), intent(in) :: err_code
 type(C_PTR) :: err_user_data
-type(SWIGTYPE_p_SUNContext), intent(in) :: sunctx
+class(SWIGTYPE_p_SUNContext_), intent(in) :: sunctx
 integer(C_INT) :: fresult 
 integer(C_INT) :: farg1 
 type(SwigArrayWrapper) :: farg2 
 type(SwigArrayWrapper) :: farg3 
 type(SwigArrayWrapper) :: farg4 
-type(SwigClassWrapper) :: farg5 
+integer(C_INT) :: farg5 
 type(C_PTR) :: farg6 
 type(SwigClassWrapper) :: farg7 
 
@@ -582,7 +576,7 @@ farg1 = line
 call SWIG_string_to_chararray(func, farg2_chars, farg2)
 call SWIG_string_to_chararray(file, farg3_chars, farg3)
 call SWIG_string_to_chararray(msg, farg4_chars, farg4)
-farg5 = err_code%swigdata
+farg5 = err_code
 farg6 = err_user_data
 farg7 = sunctx%swigdata
 fresult = swigc_FSUNAssertErrHandlerFn(farg1, farg2, farg3, farg4, farg5, farg6, farg7)
@@ -607,13 +601,13 @@ function FSUNGetErrMsg(code, sunctx) &
 result(swig_result)
 use, intrinsic :: ISO_C_BINDING
 character(kind=C_CHAR, len=:), allocatable :: swig_result
-type(SWIGTYPE_p_SUNErrCode), intent(in) :: code
-type(SWIGTYPE_p_SUNContext), intent(in) :: sunctx
+integer(C_INT), intent(in) :: code
+class(SWIGTYPE_p_SUNContext_), intent(in) :: sunctx
 type(SwigArrayWrapper) :: fresult 
-type(SwigClassWrapper) :: farg1 
+integer(C_INT) :: farg1 
 type(SwigClassWrapper) :: farg2 
 
-farg1 = code%swigdata
+farg1 = code
 farg2 = sunctx%swigdata
 fresult = swigc_FSUNGetErrMsg(farg1, farg2)
 call SWIG_chararray_to_string(fresult, swig_result)
@@ -623,43 +617,43 @@ end function
 function FSUNGetLastErr(sunctx) &
 result(swig_result)
 use, intrinsic :: ISO_C_BINDING
-type(SWIGTYPE_p_SUNErrCode) :: swig_result
-type(SWIGTYPE_p_SUNContext), intent(in) :: sunctx
-type(SwigClassWrapper) :: fresult 
+integer(C_INT) :: swig_result
+class(SWIGTYPE_p_SUNContext_), intent(in) :: sunctx
+integer(C_INT) :: fresult 
 type(SwigClassWrapper) :: farg1 
 
 farg1 = sunctx%swigdata
 fresult = swigc_FSUNGetLastErr(farg1)
-swig_result%swigdata = fresult
+swig_result = fresult
 end function
 
 function FSUNSetLastErr(code, sunctx) &
 result(swig_result)
 use, intrinsic :: ISO_C_BINDING
-type(SWIGTYPE_p_SUNErrCode) :: swig_result
-type(SWIGTYPE_p_SUNErrCode), intent(in) :: code
-type(SWIGTYPE_p_SUNContext), intent(in) :: sunctx
-type(SwigClassWrapper) :: fresult 
-type(SwigClassWrapper) :: farg1 
+integer(C_INT) :: swig_result
+integer(C_INT), intent(in) :: code
+class(SWIGTYPE_p_SUNContext_), intent(in) :: sunctx
+integer(C_INT) :: fresult 
+integer(C_INT) :: farg1 
 type(SwigClassWrapper) :: farg2 
 
-farg1 = code%swigdata
+farg1 = code
 farg2 = sunctx%swigdata
 fresult = swigc_FSUNSetLastErr(farg1, farg2)
-swig_result%swigdata = fresult
+swig_result = fresult
 end function
 
 function FSUNPeekLastErr(sunctx) &
 result(swig_result)
 use, intrinsic :: ISO_C_BINDING
-type(SWIGTYPE_p_SUNErrCode) :: swig_result
-type(SWIGTYPE_p_SUNContext), intent(in) :: sunctx
-type(SwigClassWrapper) :: fresult 
+integer(C_INT) :: swig_result
+class(SWIGTYPE_p_SUNContext_), intent(in) :: sunctx
+integer(C_INT) :: fresult 
 type(SwigClassWrapper) :: farg1 
 
 farg1 = sunctx%swigdata
 fresult = swigc_FSUNPeekLastErr(farg1)
-swig_result%swigdata = fresult
+swig_result = fresult
 end function
 
 subroutine FSUNHandleErr(line, func, file, code, sunctx)
@@ -669,18 +663,18 @@ character(kind=C_CHAR, len=*), target :: func
 character(kind=C_CHAR), dimension(:), allocatable, target :: farg2_chars
 character(kind=C_CHAR, len=*), target :: file
 character(kind=C_CHAR), dimension(:), allocatable, target :: farg3_chars
-type(SWIGTYPE_p_SUNErrCode), intent(in) :: code
-type(SWIGTYPE_p_SUNContext), intent(in) :: sunctx
+integer(C_INT), intent(in) :: code
+class(SWIGTYPE_p_SUNContext_), intent(in) :: sunctx
 integer(C_INT) :: farg1 
 type(SwigArrayWrapper) :: farg2 
 type(SwigArrayWrapper) :: farg3 
-type(SwigClassWrapper) :: farg4 
+integer(C_INT) :: farg4 
 type(SwigClassWrapper) :: farg5 
 
 farg1 = line
 call SWIG_string_to_chararray(func, farg2_chars, farg2)
 call SWIG_string_to_chararray(file, farg3_chars, farg3)
-farg4 = code%swigdata
+farg4 = code
 farg5 = sunctx%swigdata
 call swigc_FSUNHandleErr(farg1, farg2, farg3, farg4, farg5)
 end subroutine
@@ -694,20 +688,20 @@ character(kind=C_CHAR, len=*), target :: file
 character(kind=C_CHAR), dimension(:), allocatable, target :: farg3_chars
 character(kind=C_CHAR, len=*), target :: msg
 character(kind=C_CHAR), dimension(:), allocatable, target :: farg4_chars
-type(SWIGTYPE_p_SUNErrCode), intent(in) :: code
-type(SWIGTYPE_p_SUNContext), intent(in) :: sunctx
+integer(C_INT), intent(in) :: code
+class(SWIGTYPE_p_SUNContext_), intent(in) :: sunctx
 integer(C_INT) :: farg1 
 type(SwigArrayWrapper) :: farg2 
 type(SwigArrayWrapper) :: farg3 
 type(SwigArrayWrapper) :: farg4 
-type(SwigClassWrapper) :: farg5 
+integer(C_INT) :: farg5 
 type(SwigClassWrapper) :: farg6 
 
 farg1 = line
 call SWIG_string_to_chararray(func, farg2_chars, farg2)
 call SWIG_string_to_chararray(file, farg3_chars, farg3)
 call SWIG_string_to_chararray(msg, farg4_chars, farg4)
-farg5 = code%swigdata
+farg5 = code
 farg6 = sunctx%swigdata
 call swigc_FSUNHandleErrWithMsg(farg1, farg2, farg3, farg4, farg5, farg6)
 end subroutine
@@ -721,20 +715,20 @@ character(kind=C_CHAR, len=*), target :: file
 character(kind=C_CHAR), dimension(:), allocatable, target :: farg3_chars
 character(kind=C_CHAR, len=*), target :: msgfmt
 character(kind=C_CHAR), dimension(:), allocatable, target :: farg4_chars
-type(SWIGTYPE_p_SUNErrCode), intent(in) :: code
-type(SWIGTYPE_p_SUNContext), intent(in) :: sunctx
+integer(C_INT), intent(in) :: code
+class(SWIGTYPE_p_SUNContext_), intent(in) :: sunctx
 integer(C_INT) :: farg1 
 type(SwigArrayWrapper) :: farg2 
 type(SwigArrayWrapper) :: farg3 
 type(SwigArrayWrapper) :: farg4 
-type(SwigClassWrapper) :: farg5 
+integer(C_INT) :: farg5 
 type(SwigClassWrapper) :: farg6 
 
 farg1 = line
 call SWIG_string_to_chararray(func, farg2_chars, farg2)
 call SWIG_string_to_chararray(file, farg3_chars, farg3)
 call SWIG_string_to_chararray(msgfmt, farg4_chars, farg4)
-farg5 = code%swigdata
+farg5 = code
 farg6 = sunctx%swigdata
 call swigc_FSUNHandleErrWithFmtMsg(farg1, farg2, farg3, farg4, farg5, farg6)
 end subroutine

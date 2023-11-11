@@ -21,6 +21,7 @@ install(CODE "MESSAGE(\"\nInstall shared components\n\")")
 
 # Add variable sundials_HEADERS with the exported SUNDIALS header files
 set(sundials_HEADERS
+  sundials_adaptcontroller.h
   sundials_band.h
   sundials_base.hpp
   sundials_context.h
@@ -57,6 +58,10 @@ if(BUILD_FORTRAN_MODULE_INTERFACE)
   list(APPEND sundials_HEADERS sundials_futils.h)
 endif()
 
+if(ENABLE_MPI)
+  list(APPEND sundials_HEADERS sundials_mpi_errors.h)
+endif()
+
 if(ENABLE_CUDA)
   list(APPEND sundials_HEADERS sundials_cuda_policies.hpp)
 endif()
@@ -78,6 +83,7 @@ endif()
 add_prefix(${SUNDIALS_SOURCE_DIR}/include/sundials/ sundials_HEADERS)
 
 set(sundials_SOURCES
+  sundials_adaptcontroller.c
   sundials_band.c
   sundials_context.c
   sundials_dense.c
@@ -95,6 +101,10 @@ set(sundials_SOURCES
   sundials_version.c
   )
 
+if(ENABLE_MPI)
+  list(APPEND sundials_SOURCES sundials_mpi_errors.c)
+endif()
+
 if(SUNDIALS_BUILD_WITH_PROFILING)
   message(WARNING "SUNDIALS built with profiling turned on, performance may be affected.")
   list(APPEND sundials_SOURCES sundials_profiler.c)
@@ -108,23 +118,12 @@ endif()
 add_prefix(${SUNDIALS_SOURCE_DIR}/src/sundials/ sundials_SOURCES)
 
 if(ENABLE_MPI AND MPI_C_FOUND)
-  # Create a library out of the generic sundials modules
-  sundials_add_library(sundials_core_mpi_addons
-    SOURCES
-      sundials_mpi_errors.c
-    HEADERS
-      ${SUNDIALS_SOURCE_DIR}/include/sundials/sundials_mpi_errors.h
-    INCLUDE_SUBDIR
-      sundials
-    INCLUDE_DIRECTORIES
-      PUBLIC ${MPI_C_INCLUDE_DIRS}
-    LINK_LIBRARIES
-      PUBLIC ${MPI_C_LIBRARIES}
-    OBJECT_LIB_ONLY
-  )
+  # Workaround bug in CMake < 3.17.3 when using MPI::MPI_CXX and CUDA
+  set(_include_mpi_if_needed PUBLIC ${MPI_C_INCLUDE_DIRS})
+  set(_link_mpi_if_needed PUBLIC ${MPI_C_LIBRARIES})
 endif()
 
-if(SUNDIALS_BUILD_WITH_PROFILING OR SUNDIALS_LOGGING_ENABLE_MPI)
+if(SUNDIALS_BUILD_WITH_PROFILING)
   if(ENABLE_CALIPER)
     set(_link_caliper_if_needed PUBLIC caliper)
   endif()
@@ -133,15 +132,8 @@ if(SUNDIALS_BUILD_WITH_PROFILING OR SUNDIALS_LOGGING_ENABLE_MPI)
   endif()
 endif()
 
-if(SUNDIALS_LOGGING_ENABLE_MPI)
-  if(ENABLE_MPI AND MPI_C_FOUND)
-    set(_include_mpi_if_needed PUBLIC ${MPI_C_INCLUDE_DIRS})
-    set(_link_mpi_if_needed PUBLIC ${MPI_C_LIBRARIES})
-  endif()
-endif()
-
 # Create a library out of the generic sundials modules
-sundials_add_library(sundials_generic
+sundials_add_library(sundials_core
   SOURCES
     ${sundials_SOURCES}
   HEADERS
@@ -152,10 +144,8 @@ sundials_add_library(sundials_generic
     ${_include_mpi_if_needed}
   LINK_LIBRARIES
     ${_link_mpi_if_needed}
-    ${_link_caliper_if_needed}
-    ${_link_adiak_if_needed}
   OUTPUT_NAME
-    sundials_generic
+    sundials_core
   VERSION
     ${sundialslib_VERSION}
   SOVERSION
@@ -171,7 +161,7 @@ install(FILES
 # SUNDIALS_EXPORT macro
 include(GenerateExportHeader)
 generate_export_header(
-  sundials_generic BASE_NAME SUNDIALS
+  sundials_core BASE_NAME SUNDIALS
   EXPORT_FILE_NAME
   "${PROJECT_BINARY_DIR}/include/sundials/sundials_export.h"
 )

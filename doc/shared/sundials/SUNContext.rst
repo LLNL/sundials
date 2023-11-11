@@ -29,13 +29,13 @@ The :c:type:`SUNContext` class/type is defined in the header file
 Users should create a :c:type:`SUNContext` object prior to any other calls to
 SUNDIALS library functions by calling:
 
-.. c:function:: int SUNContext_Create(void* comm, SUNContext* ctx)
+.. c:function:: int SUNContext_Create(SUNComm comm, SUNContext* ctx)
 
    Creates a :c:type:`SUNContext` object associated with the thread of execution.
    The data of the :c:type:`SUNContext` class is private.
 
    **Arguments**:
-      * ``comm`` -- a pointer to the MPI communicator or NULL if not using MPI.
+      * ``comm`` -- the MPI communicator or ``SUN_COMM_NULL`` if not using MPI.
       * ``ctx`` --  [in,out] upon successful exit, a pointer to the newly
         created :c:type:`SUNContext` object.
 
@@ -51,7 +51,7 @@ routines for different SUNDIALS classes/modules e.g.,
    void* package_mem;
    N_Vector x;
 
-   SUNContext_Create(NULL, &sunctx);
+   SUNContext_Create(SUN_COMM_NULL, &sunctx);
 
    package_mem = CVodeCreate(..., sunctx);
    package_mem = IDACreate(..., sunctx);
@@ -250,7 +250,7 @@ For C++ users a RAII safe class, ``sundials::Context``, is provided:
    class Context : public sundials::ConvertibleTo<SUNContext>
    {
    public:
-   explicit Context(void* comm = nullptr)
+   explicit Context(SUNComm comm = SUN_COMM_NULL)
    {
       sunctx_ = std::make_unique<SUNContext>();
       SUNContext_Create(comm, sunctx_.get());

@@ -44,7 +44,7 @@ extern "C" {
  * Utility functions
  * ---------------------------------------------------------------------------*/
 
-inline booleantype SUNDIALS_CUSOLVER_Assert(cusolverStatus_t status, const char *file, int line)
+inline sunbooleantype SUNDIALS_CUSOLVER_Assert(cusolverStatus_t status, const char *file, int line)
 {
   if (status != CUSOLVER_STATUS_SUCCESS)
   {

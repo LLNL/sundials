@@ -128,7 +128,7 @@ int main(void)
   sunctx = NULL;
 
   /* Create the SUNDIALS context */
-  retval = SUNContext_Create(NULL, &sunctx);
+  retval = SUNContext_Create(SUN_COMM_NULL, &sunctx);
   if(check_retval(retval, "SUNContext_Create")) return(1);
 
   /* Setup different error handler stack so that we abort after logging */

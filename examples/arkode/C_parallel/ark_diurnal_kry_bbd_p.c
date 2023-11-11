@@ -192,7 +192,7 @@ int main(int argc, char *argv[])
   }
 
   /* Create the SUNDIALS context object for this simulation. */
-  flag = SUNContext_Create((void*) &comm, &ctx);
+  flag = SUNContext_Create(comm, &ctx);
   if (check_flag(&flag, "SUNContext_Create", 1, my_pe)) MPI_Abort(comm, 1);
 
   /* Set local length */
@@ -245,6 +245,10 @@ int main(int argc, char *argv[])
   flag = ARKBBDPrecInit(arkode_mem, local_N, mudq, mldq,
                         mukeep, mlkeep, ZERO, flocal, NULL);
   if(check_flag(&flag, "ARKBBDPrecInit", 1, my_pe)) MPI_Abort(comm, 1);
+
+  /* Tighten nonlinear solver tolerance */
+  flag = ARKStepSetNonlinConvCoef(arkode_mem, SUN_RCONST(0.01));
+  if(check_flag(&flag, "ARKStepSetNonlinConvCoef", 1, my_pe)) MPI_Abort(comm, 1);
 
   /* Print heading */
   if (my_pe == 0) PrintIntro(npes, mudq, mldq, mukeep, mlkeep);

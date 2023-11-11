@@ -31,7 +31,7 @@
 %import "../sundials/fsundials_matrix_mod.i"
 %import "../sundials/fsundials_linearsolver_mod.i"
 %import "../sundials/fsundials_nonlinearsolver_mod.i"
-%import "../sundials/fsundials_types_mod.i"
+
 
 // Process definitions from these files
 %include "cvodes/cvodes.h"

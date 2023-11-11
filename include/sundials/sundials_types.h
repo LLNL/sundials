@@ -53,7 +53,11 @@
 #include <stdint.h>
 #include <sundials/sundials_config.h>
 
-#ifdef __cplusplus /* wrapper to enable C++ usage */
+#if SUNDIALS_MPI_ENABLED
+#include <mpi.h>
+#endif
+
+#ifdef __cplusplus  /* wrapper to enable C++ usage */
 extern "C" {
 #endif
 
@@ -71,8 +75,6 @@ extern "C" {
 #else
 #define _SUNDIALS_STRUCT_ struct
 #endif
-
-typedef void* SUNMPIComm;
 
 /*
  *------------------------------------------------------------------
@@ -198,6 +200,23 @@ typedef struct SUNLogger_* SUNLogger;
 typedef int (*SUNErrHandlerFn)(int line, const char* func, const char* file,
                                const char* msg, SUNErrCode err_code,
                                void* err_user_data, SUNContext sunctx);
+
+/*
+ *------------------------------------------------------------------
+ * Type : SUNComm
+ *------------------------------------------------------------------
+ * SUNComm replaces MPI_Comm use in SUNDIALS code. It maps to
+ * MPI_Comm when MPI is enabled.
+ *------------------------------------------------------------------
+ */
+
+#if SUNDIALS_MPI_ENABLED
+#define SUN_COMM_NULL MPI_COMM_NULL
+typedef MPI_Comm SUNComm;
+#else
+#define SUN_COMM_NULL 0
+typedef int SUNComm;
+#endif
 
 #ifdef __cplusplus
 }

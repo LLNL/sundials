@@ -24,6 +24,7 @@
 #include <sundials/sundials_profiler.h>
 #include <sundials/impl/sundials_errors_impl.h>
 #include <sundials/impl/sundials_context_impl.h>
+#include "sundials/sundials_types.h"
 #include "sundials_debug.h"
 
 #ifdef SUNDIALS_ADIAK_ENABLED
@@ -31,7 +32,7 @@
 void sunAdiakCollectMetadata();
 #endif
 
-SUNErrCode SUNContext_Create(void* comm, SUNContext* sunctx_ptr)
+int SUNContext_Create(SUNComm comm, SUNContext* sunctx_out)
 {
   SUNProfiler profiler = NULL;
   SUNLogger logger     = NULL;
@@ -46,23 +47,28 @@ SUNErrCode SUNContext_Create(void* comm, SUNContext* sunctx_ptr)
   }
 
   SUNAssignSUNCTX(sunctx);
-
-#if defined(SUNDIALS_BUILD_WITH_PROFILING) && !defined(SUNDIALS_CALIPER_ENABLED)
-  if (SUNProfiler_Create(comm, "SUNContext Default", &profiler)) return (-1);
-#endif
-
+  
 #ifdef SUNDIALS_ADIAK_ENABLED 
-  adiak_init(comm);
-  sunAdiakCollectMetadata(comm);
+  adiak_init(&comm);
+  sunAdiakCollectMetadata();
 #endif
+
+  /* Since this function used to take a void* comm that was NULL 
+     when the comm was to be ignored, we check if its NULL here
+     and translate it to SUN_COMM_NULL to make the transition 
+     easier for users. */
+  if (!comm) 
+  {
+    comm = SUN_COMM_NULL;
+  }
 
 #if SUNDIALS_LOGGING_LEVEL > 0 
-#if defined(SUNDIALS_LOGGING_ENABLE_MPI)
+#if SUNDIALS_MPI_ENABLED
   if (SUNLogger_CreateFromEnv(comm, &logger)) {
     return SUN_ERR_LOGGER_CORRUPT;
   }
 #else
-  if (SUNLogger_CreateFromEnv(NULL, &logger)) {
+  if (SUNLogger_CreateFromEnv(SUN_COMM_NULL, &logger)) {
     return SUN_ERR_LOGGER_CORRUPT;
   }
 #endif
@@ -88,7 +94,7 @@ SUNErrCode SUNContext_Create(void* comm, SUNContext* sunctx_ptr)
   sunctx->err_handler   = SUNErrHandler_Create(SUNLogErrHandlerFn, NULL);
   sunctx->comm          = comm;
 
-  *sunctx_ptr = sunctx;
+  *sunctx_out = sunctx;
 
   return SUN_SUCCESS;
 }
@@ -303,7 +309,7 @@ void sunAdiakCollectMetadata() {
   adiak_namevalue("magma_version", 2, NULL, "%s", SUN_MAGMA_VERSION);
 #endif
 
-#ifdef SUNDIALS_MPI_ENABLED
+#if SUNDIALS_MPI_ENABLED
   adiak_namevalue("mpi_c_compiler", 2, NULL, "%s", SUN_MPI_C_COMPILER);
   adiak_namevalue("mpi_c_version", 2, NULL, "%s", SUN_MPI_C_VERSION);
 

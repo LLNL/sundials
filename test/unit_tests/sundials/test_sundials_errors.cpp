@@ -13,11 +13,12 @@
 #include <gmock/gmock.h>
 #include <gtest/gtest.h>
 #include <sundials/sundials_core.h>
+#include "sundials/sundials_types.h"
 
 class SUNErrHandlerFnTest : public testing::Test
 {
 protected:
-  SUNErrHandlerFnTest() { SUNContext_Create(nullptr, &sunctx); }
+  SUNErrHandlerFnTest() { SUNContext_Create(SUN_COMM_NULL, &sunctx); }
   ~SUNErrHandlerFnTest() { SUNContext_Free(&sunctx); }
   SUNContext sunctx;
 };
@@ -56,7 +57,7 @@ TEST_F(SUNErrHandlerFnTest, SUNAssertErrHandlerFnAbortsWhenCalled)
 class SUNContextErrFunctionTests : public testing::Test
 {
 protected:
-  SUNContextErrFunctionTests() { SUNContext_Create(nullptr, &sunctx); }
+  SUNContextErrFunctionTests() { SUNContext_Create(SUN_COMM_NULL, &sunctx); }
   ~SUNContextErrFunctionTests() { SUNContext_Free(&sunctx); }
   SUNContext sunctx;
 };

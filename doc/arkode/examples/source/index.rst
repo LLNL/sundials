@@ -45,7 +45,7 @@ B598130 from `Lawrence Livermore National Laboratory
 
 Along with the ARKode solver, we have created a suite of example
 problems demonstrating its usage on applications written in C, C++ and
-Fortran 77 and Fortran 90.  These examples demonstrate a large variety
+Fortran.  These examples demonstrate a large variety
 of ARKode solver options, including explicit, implicit and ImEx
 solvers, root-finding, Newton and fixed-point nonlinear solvers,
 direct and iterative linear solvers, adaptive resize capabilities, and
@@ -60,8 +60,7 @@ The following tables summarize the salient features of each of the
 example problems in this document.  Each example is designed to be
 relatively self-contained, so that you need only study and/or emulate
 the problem that is most closely related to your own.  We group these
-examples according to programming language (C, C++, Fortran 77,
-Fortran 90). 
+examples according to programming language (C, C++, Fortran).
 
 
 ARKode example problems written in C are summarized in the table
@@ -106,35 +105,36 @@ Problem                  Integrator  Nonlinear    Linear  Size           Extras
 =======================  ==========  ===========  ======  =============  =================================
 
 
-ARKode example problems written in Fortran 77 are summarized in the table
-below, and are further described in the chapters :ref:`serial_f77` and
-:ref:`parallel_f77`. 
+..
+   ARKode example problems written in Fortran 77 are summarized in the table
+   below, and are further described in the chapters :ref:`serial_f77` and
+   :ref:`parallel_f77`.
 
-.. cssclass:: table-bordered
+   .. cssclass:: table-bordered
 
-==========================   ==========  ===========  ======  =============  =================================
-Problem                      Integrator  Nonlinear    Linear  Size           Extras
-==========================   ==========  ===========  ======  =============  =================================
-:ref:`fark_diurnal_kry_bp`   DIRK        Newton       SPGMR   10             banded preconditioner
-:ref:`fark_roberts_dnsL`     DIRK        Newton       Dense   3              LAPACK dense solver, rootfinding
-:ref:`fark_diag_kry_bbd_p`   DIRK        Newton       SPGMR   10*NProcs      parallel BBD preconditioner
-:ref:`fark_diag_non_p`       ERK         N.A.         N.A.    10*NProcs      parallel
-==========================   ==========  ===========  ======  =============  =================================
+   ==========================   ==========  ===========  ======  =============  =================================
+   Problem                      Integrator  Nonlinear    Linear  Size           Extras
+   ==========================   ==========  ===========  ======  =============  =================================
+   :ref:`fark_diurnal_kry_bp`   DIRK        Newton       SPGMR   10             banded preconditioner
+   :ref:`fark_roberts_dnsL`     DIRK        Newton       Dense   3              LAPACK dense solver, rootfinding
+   :ref:`fark_diag_kry_bbd_p`   DIRK        Newton       SPGMR   10*NProcs      parallel BBD preconditioner
+   :ref:`fark_diag_non_p`       ERK         N.A.         N.A.    10*NProcs      parallel
+   ==========================   ==========  ===========  ======  =============  =================================
 
 
-ARKode example problems written in Fortran 90 are summarized in the table
-below, and are further described in the chapters :ref:`serial_f90` and
-:ref:`parallel_f90`. 
+   ARKode example problems written in Fortran 90 are summarized in the table
+   below, and are further described in the chapters :ref:`serial_f90` and
+   :ref:`parallel_f90`.
 
-.. cssclass:: table-bordered
+   .. cssclass:: table-bordered
 
-==========================  ==========  =========  ======  =============  ===============================================
-Problem                     Integrator  Nonlinear  Linear  Size           Extras
-==========================  ==========  =========  ======  =============  ===============================================
-:ref:`ark_bruss`            ARK         Newton     Dense   3              
-:ref:`ark_bruss1D_FEM_klu`  DIRK        Newton     KLU     3N             finite-element, :math:`M\ne I`, sparse matrices
-:ref:`fark_heat2D`          DIRK        Newton     PCG     :math:`nx*ny`  parallel
-==========================  ==========  =========  ======  =============  ===============================================
+   ==========================  ==========  =========  ======  =============  ===============================================
+   Problem                     Integrator  Nonlinear  Linear  Size           Extras
+   ==========================  ==========  =========  ======  =============  ===============================================
+   :ref:`ark_bruss`            ARK         Newton     Dense   3
+   :ref:`ark_bruss1D_FEM_klu`  DIRK        Newton     KLU     3N             finite-element, :math:`M\ne I`, sparse matrices
+   :ref:`fark_heat2D`          DIRK        Newton     PCG     :math:`nx*ny`  parallel
+   ==========================  ==========  =========  ======  =============  ===============================================
 
 
 
@@ -154,14 +154,14 @@ Problem                     Integrator  Nonlinear  Linear  Size           Extras
    c_parhyp
    cpp_serial
    cpp_parallel
-   f77_serial
-   f77_parallel
-   f90_serial
-   f90_parallel
-   References           
-   
+   References
+..
+  Remove F77 interface examples
+  f77_serial
+  f77_parallel
+  f90_serial
+  f90_parallel
+
 .. only:: html
 
    * :ref:`search`
-
-

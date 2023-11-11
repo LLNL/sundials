@@ -23,7 +23,7 @@ Inequality constraint fails  = 0
 Initial step size            = 0.001
 Last step size               = 2.582822844487962e-11
 Current step size            = 0.001
-Explicit RHS fn evals        = 400009
+Explicit RHS fn evals        = 400008
 Implicit RHS fn evals        = 0
 NLS iters                    = 0
 NLS fails                    = 0
@@ -54,8 +54,8 @@ Inequality constraint fails  = 0
 Initial step size            = 0.1
 Last step size               = 0.0999999999995608
 Current step size            = 0.1
-f1 RHS fn evals              = 2001
-f2 RHS fn evals              = 2001
+f1 RHS fn evals              = 2000
+f2 RHS fn evals              = 2000
 
 
    Begin Kepler Problem
@@ -82,8 +82,8 @@ Inequality constraint fails  = 0
 Initial step size            = 0.05
 Last step size               = 0.05
 Current step size            = 0.05
-f1 RHS fn evals              = 4001
-f2 RHS fn evals              = 4001
+f1 RHS fn evals              = 4000
+f2 RHS fn evals              = 4000
 
 
    Begin Kepler Problem
@@ -110,8 +110,8 @@ Inequality constraint fails  = 0
 Initial step size            = 0.025
 Last step size               = 1.769251412042648e-12
 Current step size            = 0.025
-f1 RHS fn evals              = 8005
-f2 RHS fn evals              = 8005
+f1 RHS fn evals              = 8004
+f2 RHS fn evals              = 8004
 
 
    Begin Kepler Problem
@@ -138,8 +138,8 @@ Inequality constraint fails  = 0
 Initial step size            = 0.0125
 Last step size               = 0.01249999999719619
 Current step size            = 0.0125
-f1 RHS fn evals              = 16001
-f2 RHS fn evals              = 16001
+f1 RHS fn evals              = 16000
+f2 RHS fn evals              = 16000
 
 
    Begin Kepler Problem
@@ -166,8 +166,8 @@ Inequality constraint fails  = 0
 Initial step size            = 0.00625
 Last step size               = 0.006249999992917305
 Current step size            = 0.00625
-f1 RHS fn evals              = 32001
-f2 RHS fn evals              = 32001
+f1 RHS fn evals              = 32000
+f2 RHS fn evals              = 32000
 
 
    Begin Kepler Problem
@@ -194,8 +194,8 @@ Inequality constraint fails  = 0
 Initial step size            = 0.003125
 Last step size               = 1.124078607972478e-11
 Current step size            = 0.003125
-f1 RHS fn evals              = 64005
-f2 RHS fn evals              = 64005
+f1 RHS fn evals              = 64004
+f2 RHS fn evals              = 64004
 
 
    Begin Kepler Problem
@@ -222,8 +222,8 @@ Inequality constraint fails  = 0
 Initial step size            = 0.0015625
 Last step size               = 2.835776058418557e-11
 Current step size            = 0.0015625
-f1 RHS fn evals              = 128005
-f2 RHS fn evals              = 128005
+f1 RHS fn evals              = 128004
+f2 RHS fn evals              = 128004
 
 
    Begin Kepler Problem
@@ -250,8 +250,8 @@ Inequality constraint fails  = 0
 Initial step size            = 0.00078125
 Last step size               = 0.0007812499550681189
 Current step size            = 0.00078125
-f1 RHS fn evals              = 256001
-f2 RHS fn evals              = 256001
+f1 RHS fn evals              = 256000
+f2 RHS fn evals              = 256000
 
 Order of accuracy wrt solution:    expected = 4, max = 3.9974,  avg = 3.5943,  overall = 3.7564
 Order of accuracy wrt Hamiltonian: expected = 4, max = 4.2742,  avg = 3.8327,  overall = 3.8935

@@ -23,8 +23,9 @@ sundials_add_library(sundials_sunlinsolcusolversp
     ${SUNDIALS_SOURCE_DIR}/include/sunlinsol/sunlinsol_cusolversp_batchqr.h
   INCLUDE_SUBDIR
     sunlinsol
+  LINK_LIBRARIES
+    PUBLIC sundials_core
   OBJECT_LIBRARIES
-    sundials_generic_obj
   LINK_LIBRARIES
     PUBLIC sundials_sunmatrixcusparse CUDA::cusolver
     PRIVATE CUDA::cusparse

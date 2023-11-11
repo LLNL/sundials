@@ -45,13 +45,13 @@
   output         = 1
  --------------------------------- 
 
-  Max error = 3.297223456216303e-03
+  Max error = 3.297223495382084e-03
 
 Final max integrator statistics:
   Steps            = 1780
   Step attempts    = 1780
   Error test fails = 450
-  RHS evals        = 14240
+  RHS evals        = 12460
   NLS iters        = 5340
   NLS fails        = 0
   LS iters         = 30510

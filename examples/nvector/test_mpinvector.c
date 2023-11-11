@@ -23,46 +23,41 @@
 
 #include "test_nvector.h"
 
-void Test_AbortMPI(void* comm, int code)
+void Test_AbortMPI(SUNComm comm, int code)
 {
   Test_Finalize();
-  MPI_Abort(*((MPI_Comm*)comm), code);
+  MPI_Abort(comm, code);
 }
 
 /* ----------------------------------------------------------------------
  * Test_N_VGetCommunicator Test (with MPI dependency).
  * --------------------------------------------------------------------*/
-int Test_N_VGetCommunicatorMPI(N_Vector W, void *comm, int myid)
+int Test_N_VGetCommunicatorMPI(N_Vector W, SUNComm comm, int myid)
 {
-  void* wcomm;
-  MPI_Comm* Wcomm;
-  MPI_Comm* Comm;
+  SUNComm wcomm;
   int same;
 
   /* ask W for its communicator */
-  wcomm = NULL;
   wcomm = N_VGetCommunicator(W);
 
   /* return with success if both are NULL */
-  if ((wcomm == NULL) && (comm == NULL))  {
+  if ((wcomm == SUN_COMM_NULL) && (comm == SUN_COMM_NULL))  {
     printf("PASSED test -- N_VGetCommunicator\n");
     return(0);
   }
 
   /* return with failure if either is NULL */
-  if (wcomm == NULL) {
+  if (wcomm == SUN_COMM_NULL) {
     printf(">>> FAILED test -- N_VGetCommunicator, Proc %d (incorrectly reports NULL comm)\n", myid);
     return(1);
   }
-  if (comm == NULL) {
+  if (comm == SUN_COMM_NULL) {
     printf(">>> FAILED test -- N_VGetCommunicator, Proc %d (incorrectly reports non-NULL comm)\n", myid);
     return(1);
   }
 
   /* call MPI_Comm_compare to check that communicators match or are congruent */
-  Wcomm = (MPI_Comm *) wcomm;
-  Comm  = (MPI_Comm *) comm;
-  if (MPI_Comm_compare(*Comm, *Wcomm, &same) != MPI_SUCCESS) {
+  if (MPI_Comm_compare(comm, wcomm, &same) != MPI_SUCCESS) {
     printf(">>> FAILED test -- N_VGetCommunicator, Proc %d (error in MPI_Comm_compare)\n", myid);
     return(1);
   }

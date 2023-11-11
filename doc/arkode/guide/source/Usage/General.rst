@@ -81,4 +81,3 @@ using the ARKBBDPRE module, the header ``arkode/arkode_bbdpre.h`` is needed to
 access the preconditioner initialization routines.
 
 
-.. include:: ../../../../shared/Types.rst

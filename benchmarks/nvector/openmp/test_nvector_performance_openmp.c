@@ -108,7 +108,7 @@ int main(int argc, char *argv[])
   printf("  timing on/off         %d  \n", print_timing);
   printf("  number of threads     %d  \n", nthreads);
 
-  flag = SUNContext_Create(NULL, &ctx);
+  flag = SUNContext_Create(SUN_COMM_NULL, &ctx);
   if (flag) return flag;
 
   /* Create vectors */

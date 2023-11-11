@@ -26,6 +26,7 @@ set(ARKODE_unit_tests
   "ark_test_arkstepsetforcing\;1 3 2.0 10.0 2.0 8.0"
   "ark_test_arkstepsetforcing\;1 3 2.0 10.0 1.0 5.0"
   "ark_test_getuserdata\;"
+  "ark_test_innerstepper\;"
   "ark_test_interp\;-100"
   "ark_test_interp\;-10000"
   "ark_test_interp\;-1000000"
@@ -65,6 +66,8 @@ foreach(test_tuple ${ARKODE_unit_tests})
       sundials_sunlinsolband_obj
       sundials_sunlinsoldense_obj
       sundials_sunnonlinsolnewton_obj
+      sundials_sunadaptcontrollerimexgus_obj
+      sundials_sunadaptcontrollersoderlind_obj
       ${EXE_EXTRA_LINK_LIBS})
 
     # Tell CMake that we depend on the ARKODE library since it does not pick

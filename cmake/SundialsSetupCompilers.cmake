@@ -426,7 +426,7 @@ endforeach()
 # ===============================================================
 
 foreach(lang ${_SUNDIALS_ENABLED_LANGS})
-  if((SUNDIALS_BUILD_WITH_PROFILING OR SUNDIALS_LOGGING_ENABLE_MPI) AND ENABLE_MPI)
+  if((SUNDIALS_BUILD_WITH_PROFILING) AND ENABLE_MPI)
     if(DEFINED MPI_${lang}_COMPILER)
       set(_EXAMPLES_${lang}_COMPILER "${MPI_${lang}_COMPILER}" CACHE INTERNAL "${lang} compiler for installed examples")
     endif()

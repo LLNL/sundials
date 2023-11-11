@@ -267,27 +267,6 @@ N_Vector *N_VCloneVectorArray_ParHyp(int count, N_Vector w)
 }
 
 /* ----------------------------------------------------------------
- * Function to create an array of new parhyp vector wrappers
- * without uderlying HYPRE vectors.
- */
-
-N_Vector *N_VCloneVectorArrayEmpty_ParHyp(int count, N_Vector w)
-{
-  return(N_VCloneEmptyVectorArray(count, w));
-}
-
-/* ----------------------------------------------------------------
- * Function to free an array created with N_VCloneVectorArray_ParHyp
- */
-
-void N_VDestroyVectorArray_ParHyp(N_Vector *vs, int count)
-{
-  N_VDestroyVectorArray(vs, count);
-  return;
-}
-
-
-/* ----------------------------------------------------------------
  * Extract HYPRE vector
  */
 
@@ -463,9 +442,9 @@ void N_VSetArrayPointer_ParHyp(sunrealtype *v_data, N_Vector v)
 }
 
 
-void *N_VGetCommunicator_ParHyp(N_Vector v)
+SUNComm N_VGetCommunicator_ParHyp(N_Vector v)
 {
-  return((void *) &(NV_COMM_PH(v)));
+  return(NV_COMM_PH(v));
 }
 
 sunindextype N_VGetLength_ParHyp(N_Vector v)

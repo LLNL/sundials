@@ -199,7 +199,6 @@ if [[ "${SUNDIALS_TPLS}" == "OFF" ]]; then
 
     # mpi
     export SUNDIALS_MPI=OFF
-    export SUNDIALS_LOGGING_ENABLE_MPI=OFF
 
     # gpu
     export SUNDIALS_CUDA=OFF

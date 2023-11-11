@@ -242,26 +242,6 @@ N_Vector* N_VCloneVectorArray_Parallel(int count, N_Vector w)
 }
 
 /* ----------------------------------------------------------------
- * Function to create an array of new parallel vectors with empty
- * (NULL) data array.
- */
-
-N_Vector* N_VCloneVectorArrayEmpty_Parallel(int count, N_Vector w)
-{
-  return(N_VCloneEmptyVectorArray(count, w));
-}
-
-/* ----------------------------------------------------------------
- * Function to free an array created with N_VCloneVectorArray_Parallel
- */
-
-void N_VDestroyVectorArray_Parallel(N_Vector* vs, int count)
-{
-  N_VDestroyVectorArray(vs, count);
-  return;
-}
-
-/* ----------------------------------------------------------------
  * Function to return global vector length
  */
 
@@ -430,9 +410,9 @@ void N_VSetArrayPointer_Parallel(sunrealtype *v_data, N_Vector v)
   return;
 }
 
-void *N_VGetCommunicator_Parallel(N_Vector v)
+SUNComm N_VGetCommunicator_Parallel(N_Vector v)
 {
-  return((void *) &(NV_COMM_P(v)));
+  return NV_COMM_P(v);
 }
 
 void N_VLinearSum_Parallel(sunrealtype a, N_Vector x, sunrealtype b, N_Vector y, N_Vector z)

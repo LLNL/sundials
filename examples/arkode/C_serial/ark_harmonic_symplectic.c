@@ -103,7 +103,7 @@ int main(int argc, char* argv[])
   /* Default problem parameters */
 
   /* Create the SUNDIALS context object for this simulation */
-  retval = SUNContext_Create(NULL, &sunctx);
+  retval = SUNContext_Create(SUN_COMM_NULL, &sunctx);
   if (check_retval(&retval, "SUNContext_Create", 1)) return 1;
 
   printf("\n   Begin simple harmonic oscillator problem\n\n");

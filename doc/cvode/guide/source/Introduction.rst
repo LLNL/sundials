@@ -134,6 +134,33 @@ This fixes `GitHub Issue #312 <https://github.com/LLNL/sundials/issues/312>`_.
 
 Added Fortran support for the LAPACK  dense ``SUNLinearSolver`` implementation.
 
+**Breaking change** 
+We have replaced the use of a type-erased (i.e., ``void*``) pointer to a
+communicator in place of ``MPI_Comm`` throughout the SUNDIALS API with a
+:c:type:`SUNComm`, which is just a typedef to a ``int`` in builds without MPI
+and a typedef to a ``MPI_Comm`` in builds with MPI. Here is what this means:
+
+- All users will need to update their codes because the call to 
+  :c:func:`SUNContext_Create` now takes a :c:type:`SUNComm` instead
+  of type-erased pointer to a communicator. For non-MPI codes,
+  pass :c:type:`SUN_COMM_NULL` to the ``comm`` argument instead of
+  ``NULL``. For MPI codes, pass the ``MPI_Comm`` directly. 
+  The required change should be doable with a find-and-replace. 
+
+- The same change must be made for calls to 
+  :c:func:`SUNLogger_Create` or :c:func:`SUNProfiler_Create`. 
+  
+- Some users will need to update their calls to ``N_VGetCommunicator``, and 
+  update any custom ``N_Vector`` implementations tht provide 
+  ``N_VGetCommunicator``, since it now returns a ``SUNComm``. 
+
+The change away from type-erased pointers for :c:type:`SUNComm` fixes problems like the 
+one described in `GitHub Issue #275 <https://github.com/LLNL/sundials/issues/275>`.
+
+**Breaking change**
+Functions, types and header files that were previously deprecated have been
+removed. 
+
 Changes in v6.6.1
 -----------------
 

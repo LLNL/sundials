@@ -27,8 +27,7 @@ if(BUILD_NVECTOR_MANYVECTOR)
     INCLUDE_SUBDIR
       nvector
     OBJECT_LIBRARIES
-      sundials_generic_obj
-      sundials_core_mpi_addons_obj
+      sundials_core_obj
     OUTPUT_NAME
       sundials_nvecmanyvector
     VERSION
@@ -61,7 +60,7 @@ if(BUILD_NVECTOR_MPIMANYVECTOR)
     INCLUDE_SUBDIR
       nvector
     OBJECT_LIBRARIES
-      sundials_generic_obj
+      sundials_core_obj
     COMPILE_DEFINITIONS
       PRIVATE MANYVECTOR_BUILD_WITH_MPI
     OUTPUT_NAME

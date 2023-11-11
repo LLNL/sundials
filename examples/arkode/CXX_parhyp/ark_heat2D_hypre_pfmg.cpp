@@ -319,6 +319,7 @@ int main(int argc, char* argv[])
   N_Vector u         = NULL;  // vector for storing solution
   SUNLinearSolver LS = NULL;  // linear solver memory structure
   void *arkode_mem   = NULL;  // ARKODE memory structure
+  SUNAdaptController C = NULL;  // timestep adaptivity controller
 
   // Timing variables
   double t1 = 0.0;
@@ -337,7 +338,7 @@ int main(int argc, char* argv[])
 
   // Create the SUNDIALS context object for this simulation
   SUNContext ctx;
-  flag = SUNContext_Create(&comm_w, &ctx);
+  flag = SUNContext_Create(comm_w, &ctx);
   if (check_flag(&flag, "SUNContext_Create", 1)) return 1;
 
   // Set output process flag
@@ -488,9 +489,16 @@ int main(int argc, char* argv[])
   }
   else
   {
-    flag = ARKStepSetAdaptivityMethod(arkode_mem, udata->controller, SUNTRUE,
-                                      SUNFALSE, NULL);
-    if (check_flag(&flag, "ARKStepSetAdaptivityMethod", 1)) return 1;
+    switch (udata->controller) {
+    case (ARK_ADAPT_PID):      C = SUNAdaptController_PID(ctx);     break;
+    case (ARK_ADAPT_PI):       C = SUNAdaptController_PI(ctx);      break;
+    case (ARK_ADAPT_I):        C = SUNAdaptController_I(ctx);       break;
+    case (ARK_ADAPT_EXP_GUS):  C = SUNAdaptController_ExpGus(ctx);  break;
+    case (ARK_ADAPT_IMP_GUS):  C = SUNAdaptController_ImpGus(ctx);  break;
+    case (ARK_ADAPT_IMEX_GUS): C = SUNAdaptController_ImExGus(ctx); break;
+    }
+    flag = ARKStepSetAdaptController(arkode_mem, C);
+    if (check_flag(&flag, "ARKStepSetAdaptController", 1)) return 1;
   }
 
   // Specify linearly implicit non-time-dependent RHS
@@ -595,6 +603,7 @@ int main(int argc, char* argv[])
   N_VDestroy(u);             // Free vectors
   FreeUserData(udata);       // Free user data
   delete udata;
+  (void) SUNAdaptController_Destroy(C);  // Free timestep adaptivity controller
   SUNContext_Free(&ctx);     // Free context
   flag = MPI_Finalize();     // Finalize MPI
   return 0;

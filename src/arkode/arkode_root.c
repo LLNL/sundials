@@ -30,7 +30,8 @@
 
   arkRootInit initializes a rootfinding problem to be solved
   during the integration of the ODE system.  It loads the root
-  function pointer and the number of root functions, and allocates
+  function pointer and the number of root functions, notifies
+  ARKODE that the "fullrhs" function is required, and allocates
   workspace memory.  The return value is ARK_SUCCESS = 0 if no
   errors occurred, or a negative value otherwise.
   ---------------------------------------------------------------*/
@@ -45,6 +46,24 @@ int arkRootInit(ARKodeMem ark_mem, int nrtfn, ARKRootFn g)
     return(ARK_MEM_NULL);
   }
   nrt = (nrtfn < 0) ? 0 : nrtfn;
+
+  /* Ensure that stepper provides fullrhs function */
+  if (nrt > 0)
+  {
+    if (!(ark_mem->step_fullrhs))
+    {
+      arkProcessError(ark_mem, ARK_ILL_INPUT, "ARKODE",
+                      "arkRootInit", MSG_ARK_MISSING_FULLRHS);
+      return ARK_ILL_INPUT;
+    }
+
+    if (!arkAllocVec(ark_mem, ark_mem->yn, &ark_mem->fn))
+    {
+      arkProcessError(ark_mem, ARK_MEM_FAIL, "ARKODE",
+                      "arkInitialSetup", MSG_ARK_MEM_FAIL);
+      return(ARK_MEM_FAIL);
+    }
+  }
 
   /* If unallocated, allocate rootfinding structure, set defaults, update space */
   if (ark_mem->root_mem == NULL) {

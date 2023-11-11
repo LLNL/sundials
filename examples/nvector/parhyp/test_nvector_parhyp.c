@@ -47,7 +47,7 @@ int main(int argc, char *argv[])
   MPI_Init(&argc, &argv);
 
   comm = MPI_COMM_WORLD;
-  Test_Init(&comm);
+  Test_Init(comm);
 
   MPI_Comm_size(comm, &nprocs);
   MPI_Comm_rank(comm, &myid);
@@ -56,14 +56,14 @@ int main(int argc, char *argv[])
   if (argc < 3) {
     if (myid == 0)
       printf("ERROR: TWO (2) Inputs required: vector length, print timing \n");
-    Test_AbortMPI(&comm, -1);
+    Test_AbortMPI(comm, -1);
   }
 
   local_length = (sunindextype) atol(argv[1]);
   if (local_length < 1) {
     if (myid == 0)
       printf("ERROR: local vector length must be a positive integer \n");
-    Test_AbortMPI(&comm, -1);
+    Test_AbortMPI(comm, -1);
   }
 
   print_timing = atoi(argv[2]);
@@ -88,7 +88,7 @@ int main(int argc, char *argv[])
     if (local_length < 1) {
       printf("Using global partition.\n");
       printf("I don't do this stuff. Now exiting...\n");
-      Test_AbortMPI(&comm, 1);
+      Test_AbortMPI(comm, 1);
     }
   }
 
@@ -103,7 +103,7 @@ int main(int argc, char *argv[])
     N_VDestroy(X);
     HYPRE_ParVectorDestroy(Xhyp);
     if (myid == 0) printf("FAIL: Unable to create a new vector \n\n");
-    Test_AbortMPI(&comm, 1);
+    Test_AbortMPI(comm, 1);
   }
 
   /* Check vector ID */
@@ -113,7 +113,7 @@ int main(int argc, char *argv[])
   fails += Test_N_VGetLength(X, myid);
 
   /* Check vector communicator */
-  fails += Test_N_VGetCommunicatorMPI(X, &comm, myid);
+  fails += Test_N_VGetCommunicatorMPI(X, comm, myid);
 
   /* Test clone functions */
   fails += Test_N_VCloneEmpty(X, myid);
@@ -127,7 +127,7 @@ int main(int argc, char *argv[])
     N_VDestroy(X);
     HYPRE_ParVectorDestroy(Xhyp);
     if (myid == 0) printf("FAIL: Unable to create a new vector \n\n");
-    Test_AbortMPI(&comm, 1);
+    Test_AbortMPI(comm, 1);
   }
 
   Z = N_VClone(X);
@@ -136,7 +136,7 @@ int main(int argc, char *argv[])
     N_VDestroy(Y);
     HYPRE_ParVectorDestroy(Xhyp);
     if (myid == 0) printf("FAIL: Unable to create a new vector \n\n");
-    Test_AbortMPI(&comm, 1);
+    Test_AbortMPI(comm, 1);
   }
 
   /* Standard vector operation tests */
@@ -174,7 +174,7 @@ int main(int argc, char *argv[])
     N_VDestroy(Z);
     HYPRE_ParVectorDestroy(Xhyp);
     if (myid == 0) printf("FAIL: Unable to create a new vector \n\n");
-    Test_AbortMPI(&comm, 1);
+    Test_AbortMPI(comm, 1);
   }
 
   /* fused operations */
@@ -204,7 +204,7 @@ int main(int argc, char *argv[])
     N_VDestroy(U);
     HYPRE_ParVectorDestroy(Xhyp);
     if (myid == 0) printf("FAIL: Unable to create a new vector \n\n");
-    Test_AbortMPI(&comm, 1);
+    Test_AbortMPI(comm, 1);
   }
 
   /* fused operations */

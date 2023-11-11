@@ -1,47 +1,49 @@
-# #
-# name: spack@develop build and test with GCC+TPLs (no GPUs)
+#
+name: Build and Test - Ubuntu/gcc spack@develop (TPLs, no GPUs)
 
-# on:
-#   pull_request:
-#   workflow_dispatch:
-#   schedule:
-#   - cron: '00 22 * * *'
+on:
+  pull_request:
+  merge_group:
+  workflow_dispatch:
+  schedule:
+  - cron: '00 22 * * *'
 
-# jobs:
-#   build_and_test:
-#     runs-on: ubuntu-latest
-#     container:
-#       image: ghcr.io/llnl/sundials-ci-int${{ matrix.indexsize }}-${{ matrix.precision }}:spack-develop
-#       options: --user root
-#     strategy:
-#       matrix:
-#         indexsize: [32, 64]
-#         precision: ['double']
-#     steps:
-#       - name: Checkout repository
-#         uses: actions/checkout@v3
-#         with:
-#           submodules: true
-#       - name: Run test_driver.sh
-#         uses: ./.github/actions/test-driver
-#         with:
-#           indexsize: ${{ matrix.indexsize }}
-#           precision: ${{ matrix.precision }}
-#         env:
-#           SUNDIALS_DISABLE_ERROR_CHECKS: ${{ matrix.errorchecks }}
-#           CMAKE_BUILD_TYPE: ${{ matrix.buildtype }}
-#       - name: Archive build files from failed build
-#         uses: actions/upload-artifact@v2.2.4
-#         if: failure()
-#         with:
-#           name: build_files
-#           path: |
-#             ${{ github.workspace }}/test/build_*
-#             !${{ github.workspace }}/test/build_*/Testing/output
-#       - name: Archive output files from failed build
-#         uses: actions/upload-artifact@v2.2.4
-#         if: failure()
-#         with:
-#           name: output_files
-#           path: |
-#             ${{ github.workspace }}/test/build_*/Testing/output
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  build_and_test:
+    runs-on: ubuntu-latest
+    container:
+      image: ghcr.io/llnl/sundials-ci-int${{ matrix.indexsize }}-${{ matrix.precision }}:spack-develop
+      options: --user root
+    strategy:
+      matrix:
+        indexsize: [32, 64]
+        precision: ['double']
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+        with:
+          submodules: true
+      - name: Run test_driver.sh
+        uses: ./.github/actions/test-driver
+        with:
+          indexsize: ${{ matrix.indexsize }}
+          precision: ${{ matrix.precision }}
+      - name: Archive build files from failed build
+        uses: actions/upload-artifact@v3
+        if: failure()
+        with:
+          name: build_files
+          path: |
+            ${{ github.workspace }}/test/build_*
+            !${{ github.workspace }}/test/build_*/Testing/output
+      - name: Archive output files from failed build
+        uses: actions/upload-artifact@v3
+        if: failure()
+        with:
+          name: output_files
+          path: |
+            ${{ github.workspace }}/test/build_*/Testing/

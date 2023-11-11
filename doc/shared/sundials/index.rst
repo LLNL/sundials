@@ -23,6 +23,7 @@ six packages all leverage some other common infrastructure, which we discuss
 in this section.
 
 .. toctree::
+   Types
    SUNContext
    Logging
    Profiling

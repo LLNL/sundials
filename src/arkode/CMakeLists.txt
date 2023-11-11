@@ -41,6 +41,7 @@ set(arkode_SOURCES
   arkode_sprkstep_io.c
   arkode_sprkstep.c
   arkode_sprk.c
+  arkode_user_controller.c
   arkode.c
 )
 
@@ -71,10 +72,13 @@ sundials_add_library(sundials_arkode
     ${arkode_HEADERS}
   INCLUDE_SUBDIR
     arkode
+  LINK_LIBRARIES
+    PUBLIC sundials_core
   OBJECT_LIBRARIES
-    sundials_generic_obj
     sundials_sunmemsys_obj
     sundials_nvecserial_obj
+    sundials_sunadaptcontrollerimexgus_obj
+    sundials_sunadaptcontrollersoderlind_obj
     sundials_sunmatrixband_obj
     sundials_sunmatrixdense_obj
     sundials_sunmatrixsparse_obj

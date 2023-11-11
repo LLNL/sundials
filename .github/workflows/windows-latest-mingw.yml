@@ -1,14 +1,20 @@
-name: Windows (mingw) short test
+name: Build and Test - Windows/mingw (short)
 
 on:
   pull_request:
+  merge_group:
+  workflow_dispatch:
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
 
 env:
   # Customize the CMake build type here (Release, Debug, RelWithDebInfo, etc.)
   BUILD_TYPE: Release
 
 jobs:
-  build:
+  buil_and_test:
     runs-on: windows-latest
 
     steps:

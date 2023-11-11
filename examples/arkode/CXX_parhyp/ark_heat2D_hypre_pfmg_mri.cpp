@@ -325,6 +325,7 @@ int main(int argc, char* argv[])
   void *inner_arkode_mem = NULL;            // ARKode memory structure
   MRIStepInnerStepper inner_stepper = NULL; // inner stepper
   MRIStepCoupling C = NULL;                 // slow coupling coefficients
+  SUNAdaptController Ctrl = NULL;           // timestep adaptivity controller
 
   // Timing variables
   double t1 = 0.0;
@@ -347,7 +348,7 @@ int main(int argc, char* argv[])
     bool outproc = (myid == 0);
 
     // Create SUNDIALS context
-    sundials::Context sunctx(&comm_w);
+    sundials::Context sunctx(comm_w);
 
     // ------------------------------------------
     // Setup UserData and parallel decomposition
@@ -439,9 +440,16 @@ int main(int argc, char* argv[])
     }
     else
     {
-      flag = ARKStepSetAdaptivityMethod(inner_arkode_mem, udata.controller, SUNTRUE,
-                                        SUNFALSE, NULL);
-      if (check_flag(&flag, "ARKStepSetAdaptivityMethod", 1)) return 1;
+      switch (udata.controller) {
+      case (ARK_ADAPT_PID):      Ctrl = SUNAdaptController_PID(sunctx);     break;
+      case (ARK_ADAPT_PI):       Ctrl = SUNAdaptController_PI(sunctx);      break;
+      case (ARK_ADAPT_I):        Ctrl = SUNAdaptController_I(sunctx);       break;
+      case (ARK_ADAPT_EXP_GUS):  Ctrl = SUNAdaptController_ExpGus(sunctx);  break;
+      case (ARK_ADAPT_IMP_GUS):  Ctrl = SUNAdaptController_ImpGus(sunctx);  break;
+      case (ARK_ADAPT_IMEX_GUS): Ctrl = SUNAdaptController_ImExGus(sunctx); break;
+      }
+      flag = ARKStepSetAdaptController(inner_arkode_mem, Ctrl);
+      if (check_flag(&flag, "ARKStepSetAdaptController", 1)) return 1;
     }
 
     // Attach user data
@@ -606,6 +614,7 @@ int main(int argc, char* argv[])
     SUNLinSolFree(LSf);                        // Free linear solver
     N_VDestroy(u);                             // Free vectors
     FreeUserData(&udata);                      // Free user data
+    (void) SUNAdaptController_Destroy(Ctrl);   // Free timestep adaptivity controller
   }
 
   // Finalize MPI

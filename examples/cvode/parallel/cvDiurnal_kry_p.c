@@ -219,7 +219,7 @@ int main(int argc, char *argv[])
   MPI_Comm_rank(comm, &my_pe);
 
   /* Create the SUNDIALS context */
-  retval = SUNContext_Create(&comm, &sunctx);
+  retval = SUNContext_Create(comm, &sunctx);
   if (check_retval(&retval, "SUNContext_Create", 1, my_pe)) MPI_Abort(comm, 1);
 
   if (npes != NPEX*NPEY) {

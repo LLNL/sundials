@@ -97,7 +97,7 @@ program main
   fails = 0
 
    ! create SUNDIALS context
-  fails = FSUNContext_Create(c_null_ptr, sunctx)
+  fails = FSUNContext_Create(0, sunctx)
 
   ! create new matrices and vectors
   sX => FN_VNew_Fortran(Nvar, N, sunctx)

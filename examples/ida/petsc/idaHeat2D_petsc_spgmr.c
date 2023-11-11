@@ -157,7 +157,7 @@ int main(int argc, char *argv[])
   CHKERRQ(ierr);
 
   /* Create the SUNDIALS context object for this simulation. */
-  retval = SUNContext_Create((void*) &comm, &ctx);
+  retval = SUNContext_Create(comm, &ctx);
   if (check_retval(&retval, "SUNContext_Create", 1, thispe)) MPI_Abort(comm, 1);
 
   /* Allocate and initialize the data structure and N-vectors. */

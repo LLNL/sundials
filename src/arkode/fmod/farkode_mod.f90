@@ -20,6 +20,7 @@
 
 module farkode_mod
  use, intrinsic :: ISO_C_BINDING
+ use fsundials_types_mod
  use fsundials_nvector_mod
  use fsundials_context_mod
  use fsundials_types_mod
@@ -34,7 +35,7 @@ module farkode_mod
  use fsundials_context_mod
  use fsundials_types_mod
  use fsundials_nonlinearsolver_mod
- use fsundials_types_mod
+ use fsundials_adaptcontroller_mod
  implicit none
  private
 
@@ -105,6 +106,7 @@ module farkode_mod
  integer(C_INT), parameter, public :: ARK_RELAX_MEM_NULL = -44_C_INT
  integer(C_INT), parameter, public :: ARK_RELAX_FUNC_FAIL = -45_C_INT
  integer(C_INT), parameter, public :: ARK_RELAX_JAC_FAIL = -46_C_INT
+ integer(C_INT), parameter, public :: ARK_CONTROLLER_ERR = -47_C_INT
  integer(C_INT), parameter, public :: ARK_UNRECOGNIZED_ERROR = -99_C_INT
  ! typedef enum ARKRelaxSolver
  enum, bind(c)
@@ -159,6 +161,7 @@ module farkode_mod
  public :: FARKodeButcherTable_Space
  public :: FARKodeButcherTable_Free
  public :: FARKodeButcherTable_Write
+ public :: FARKodeButcherTable_IsStifflyAccurate
  public :: FARKodeButcherTable_CheckOrder
  public :: FARKodeButcherTable_CheckARKOrder
  ! typedef enum ARKODE_DIRKTableID
@@ -578,6 +581,14 @@ use, intrinsic :: ISO_C_BINDING
 type(C_PTR), value :: farg1
 type(C_PTR), value :: farg2
 end subroutine
+
+function swigc_FARKodeButcherTable_IsStifflyAccurate(farg1) &
+bind(C, name="_wrap_FARKodeButcherTable_IsStifflyAccurate") &
+result(fresult)
+use, intrinsic :: ISO_C_BINDING
+type(C_PTR), value :: farg1
+integer(C_INT) :: fresult
+end function
 
 function swigc_FARKodeButcherTable_CheckOrder(farg1, farg2, farg3, farg4) &
 bind(C, name="_wrap_FARKodeButcherTable_CheckOrder") &
@@ -1265,6 +1276,19 @@ farg1 = b
 farg2 = outfile
 call swigc_FARKodeButcherTable_Write(farg1, farg2)
 end subroutine
+
+function FARKodeButcherTable_IsStifflyAccurate(b) &
+result(swig_result)
+use, intrinsic :: ISO_C_BINDING
+integer(C_INT) :: swig_result
+type(C_PTR) :: b
+integer(C_INT) :: fresult 
+type(C_PTR) :: farg1 
+
+farg1 = b
+fresult = swigc_FARKodeButcherTable_IsStifflyAccurate(farg1)
+swig_result = fresult
+end function
 
 function FARKodeButcherTable_CheckOrder(b, q, p, outfile) &
 result(swig_result)

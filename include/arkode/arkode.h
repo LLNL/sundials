@@ -136,6 +136,7 @@ extern "C" {
 #define ARK_RELAX_FUNC_FAIL        -45
 #define ARK_RELAX_JAC_FAIL         -46
 
+#define ARK_CONTROLLER_ERR         -47
 
 #define ARK_UNRECOGNIZED_ERROR     -99
 

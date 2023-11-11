@@ -21,7 +21,7 @@
 #include <sundials/sundials_config.h>
 #include <sundials/sundials_logger.h>
 
-#ifdef SUNDIALS_LOGGING_ENABLE_MPI
+#if SUNDIALS_MPI_ENABLED
 #include <mpi.h>
 #endif
 
@@ -32,8 +32,6 @@
 #define SUN_MAX_LOGFILE_HANDLES_ 8
 
 /* shortcut */
-#define SUNLOGGER_MPICOMM(logger) (*((MPI_Comm*)logger->commptr))
-
 static void sunCreateLogMessage(SUNLogLevel lvl, int rank, const char* scope,
                                 const char* label, const char* txt,
                                 va_list args, char** log_msg)
@@ -114,12 +112,15 @@ static sunbooleantype sunLoggerIsOutputRank(SUNLogger logger, int* rank_ref)
 {
   sunbooleantype retval;
 
-#ifdef SUNDIALS_LOGGING_ENABLE_MPI
+#if SUNDIALS_MPI_ENABLED
   int rank = 0;
 
-  if (logger->commptr)
+  if (logger->comm)
   {
-    MPI_Comm_rank(SUNLOGGER_MPICOMM(logger), &rank);
+    if (logger->comm != SUN_COMM_NULL) 
+    {
+      MPI_Comm_rank(logger->comm, &rank);
+    } 
 
     if (logger->output_rank < 0)
     {
@@ -153,7 +154,7 @@ static sunbooleantype sunLoggerIsOutputRank(SUNLogger logger, int* rank_ref)
   return retval;
 }
 
-SUNErrCode SUNLogger_Create(void* comm, int output_rank, SUNLogger* logger_ptr)
+SUNErrCode SUNLogger_Create(SUNComm comm, int output_rank, SUNLogger* logger_ptr)
 {
   SUNLogger logger = NULL;
 
@@ -161,16 +162,19 @@ SUNErrCode SUNLogger_Create(void* comm, int output_rank, SUNLogger* logger_ptr)
   if (logger == NULL) { return SUN_ERR_MALLOC_FAIL; }
 
   /* Attach the comm, duplicating it if MPI is used. */
-#ifdef SUNDIALS_LOGGING_ENABLE_MPI
-  logger->commptr = NULL;
-  if (comm != NULL)
+#if SUNDIALS_MPI_ENABLED
+  logger->comm = SUN_COMM_NULL;
+  if (comm != SUN_COMM_NULL)
   {
-    logger->commptr = malloc(sizeof(MPI_Comm));
-    MPI_Comm_dup(*((MPI_Comm*) comm), (MPI_Comm*) logger->commptr);
+    printf(">>>> here\n");
+    MPI_Comm_dup(comm, &logger->comm);
   }
 #else
-  // if (comm != NULL) { return SUN_ERR_ARG_CORRUPT; } // TODO(CJB): if we do this, then you cant use the logger with MPI when SUNDIALS_LOGGING_ENABLE_MPI=OFF
-  logger->commptr = NULL;
+  logger->comm = SUN_COMM_NULL;
+  if (comm != SUN_COMM_NULL)
+  {
+    return SUN_ERR_ARG_CORRUPT;
+  }
 #endif
   logger->output_rank = output_rank;
   logger->content     = NULL;
@@ -197,7 +201,7 @@ SUNErrCode SUNLogger_Create(void* comm, int output_rank, SUNLogger* logger_ptr)
   return SUN_SUCCESS;
 }
 
-SUNErrCode SUNLogger_CreateFromEnv(void* comm, SUNLogger* logger)
+SUNErrCode SUNLogger_CreateFromEnv(SUNComm comm, SUNLogger* logger)
 {
   SUNErrCode retval = SUN_SUCCESS;
 
@@ -242,13 +246,6 @@ SUNErrCode SUNLogger_SetErrorFilename(SUNLogger logger, const char* error_filena
         return SUN_ERR_LOGGER_CANNOTOPENFILE;
       }
     }
-#else
-    fprintf(stderr,
-            "[LOGGER WARNING] "
-            "SUNDIALS_LOGGING_LEVEL=%d (build time option) "
-            "is set too low for ERROR, but a ERROR file was provided. "
-            "Set the logging level to >= %d and recompile if ERROR output level "
-            "is desired.\n", SUNDIALS_LOGGING_LEVEL, SUN_LOGLEVEL_ERROR);
 #endif
   }
 
@@ -280,13 +277,6 @@ SUNErrCode SUNLogger_SetWarningFilename(SUNLogger logger, const char* warning_fi
         return SUN_ERR_LOGGER_CANNOTOPENFILE;
       }
     }
-#else
-    fprintf(stderr,
-            "[LOGGER WARNING] "
-            "SUNDIALS_LOGGING_LEVEL=%d (build time option) "
-            "is set too low for WARNING, but a WARNING file was provided. "
-            "Set the logging level to >= %d and recompile if WARNING output "
-            "level is desired.\n", SUNDIALS_LOGGING_LEVEL, SUN_LOGLEVEL_WARNING);
 #endif
   }
 
@@ -318,13 +308,6 @@ SUNErrCode SUNLogger_SetInfoFilename(SUNLogger logger, const char* info_filename
         return SUN_ERR_LOGGER_CANNOTOPENFILE;
       }
     }
-#else
-    fprintf(stderr,
-            "[LOGGER WARNING] "
-            "SUNDIALS_LOGGING_LEVEL=%d (build time option) "
-            "is set too low for INFO, but a INFO file was provided. Set the "
-            "logging level to >= %d and recompile if INFO output level is "
-            "desired.\n", SUNDIALS_LOGGING_LEVEL, SUN_LOGLEVEL_INFO);
 #endif
   }
 
@@ -356,13 +339,6 @@ SUNErrCode SUNLogger_SetDebugFilename(SUNLogger logger, const char* debug_filena
         return SUN_ERR_LOGGER_CANNOTOPENFILE;
       }
     }
-#else
-    fprintf(stderr,
-            "[LOGGER WARNING] "
-            "SUNDIALS_LOGGING_LEVEL=%d (build time option) "
-            "is set too low for DEBUG output, but a DEBUG file was provided. "
-            "Set the logging level to >= %d and recompile if DEBUG output level "
-            "is desired.\n", SUNDIALS_LOGGING_LEVEL, SUN_LOGLEVEL_DEBUG);
 #endif
   }
 

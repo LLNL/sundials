@@ -101,7 +101,7 @@ int main()
   printf("Problem size: %2ld x %2ld = %4ld\n", (long int) NX, (long int) NY, (long int) NEQ);
 
   /* Create the SUNDIALS context that all SUNDIALS objects require */
-  retval = SUNContext_Create(NULL, &sunctx);
+  retval = SUNContext_Create(SUN_COMM_NULL, &sunctx);
   if (check_retval(&retval, "SUNContext_Create", 1)) return(1);
 
   /* --------------------------------------

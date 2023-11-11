@@ -216,7 +216,7 @@ SWIGEXPORT N_Vector _wrap_FN_VNew_Parallel(int const *farg1, int64_t const *farg
   SUNContext arg4 = (SUNContext) 0 ;
   N_Vector result;
   
-#ifdef SUNDIALS_MPI_ENABLED
+#if SUNDIALS_MPI_ENABLED
   arg1 = MPI_Comm_f2c((MPI_Fint)(*farg1));
 #else
   arg1 = *farg1;
@@ -238,7 +238,7 @@ SWIGEXPORT N_Vector _wrap_FN_VNewEmpty_Parallel(int const *farg1, int64_t const 
   SUNContext arg4 = (SUNContext) 0 ;
   N_Vector result;
   
-#ifdef SUNDIALS_MPI_ENABLED
+#if SUNDIALS_MPI_ENABLED
   arg1 = MPI_Comm_f2c((MPI_Fint)(*farg1));
 #else
   arg1 = *farg1;
@@ -261,7 +261,7 @@ SWIGEXPORT N_Vector _wrap_FN_VMake_Parallel(int const *farg1, int64_t const *far
   SUNContext arg5 = (SUNContext) 0 ;
   N_Vector result;
   
-#ifdef SUNDIALS_MPI_ENABLED
+#if SUNDIALS_MPI_ENABLED
   arg1 = MPI_Comm_f2c((MPI_Fint)(*farg1));
 #else
   arg1 = *farg1;
@@ -384,14 +384,18 @@ SWIGEXPORT void _wrap_FN_VSetArrayPointer_Parallel(double *farg1, N_Vector farg2
 }
 
 
-SWIGEXPORT void * _wrap_FN_VGetCommunicator_Parallel(N_Vector farg1) {
-  void * fresult ;
+SWIGEXPORT int _wrap_FN_VGetCommunicator_Parallel(N_Vector farg1) {
+  int fresult ;
   N_Vector arg1 = (N_Vector) 0 ;
-  void *result = 0 ;
+  MPI_Comm result;
   
   arg1 = (N_Vector)(farg1);
-  result = (void *)N_VGetCommunicator_Parallel(arg1);
+  result = N_VGetCommunicator_Parallel(arg1);
+#if SUNDIALS_MPI_ENABLED
+  fresult = (int)(MPI_Comm_c2f(result));
+#else
   fresult = result;
+#endif
   return fresult;
 }
 

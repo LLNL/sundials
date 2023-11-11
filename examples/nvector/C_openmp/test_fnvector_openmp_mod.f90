@@ -70,7 +70,7 @@ module test_nvector_openmp
     call FN_VSpace_OpenMP(x, lenrw, leniw)
     xptr => FN_VGetArrayPointer_OpenMP(x)
     call FN_VSetArrayPointer_OpenMP(xdata, x)
-    cptr = FN_VGetCommunicator(x)
+    ival = FN_VGetCommunicator(x)
     ival = FN_VGetLength_OpenMP(x)
 
     ! test standard vector operations
@@ -191,7 +191,7 @@ program main
   !============== Introduction =============
   print *, 'OpenMP N_Vector Fortran 2003 interface test'
 
-  call Test_Init(c_null_ptr)
+  call Test_Init(0)
 
   fails = smoke_tests()
   if (fails /= 0) then

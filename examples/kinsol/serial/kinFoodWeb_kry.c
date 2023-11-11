@@ -196,7 +196,7 @@ int main(void)
   data = NULL;
 
   /* Create the SUNDIALS context that all SUNDIALS objects require */
-  retval = SUNContext_Create(NULL, &sunctx);
+  retval = SUNContext_Create(SUN_COMM_NULL, &sunctx);
   if (check_retval(&retval, "SUNContext_Create", 1)) return(1);
 
   /* Allocate memory, and set problem data, initial values, tolerances */

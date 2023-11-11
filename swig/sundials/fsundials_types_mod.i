@@ -17,7 +17,6 @@
 
 %module fsundials_types_mod
 
-%include "../sundials/fsundials.i"
 %include <stdint.i>
 
 // Inform SWIG of the configure-provided types
@@ -25,6 +24,43 @@
 #define SUNDIALS_INDEX_TYPE int64_t
 #define SUNDIALS_DOUBLE_PRECISION
 #define sunbooleantype int
+
+// Handle MPI_Comm and SUNComm
+%include <typemaps.i>
+
+%apply int { MPI_Comm };
+%typemap(ftype) MPI_Comm
+   "integer"
+%typemap(fin, noblock=1) MPI_Comm {
+    $1 = int($input, C_INT)
+}
+%typemap(fout, noblock=1) MPI_Comm {
+    $result = int($1)
+}
+
+%typemap(in, noblock=1) MPI_Comm {
+%#if SUNDIALS_MPI_ENABLED
+    if((*$input)) {
+      $1 = MPI_Comm_f2c(%static_cast(*$input, MPI_Fint));
+    } else {
+      $1 = SUN_COMM_NULL;
+    }
+%#else
+    $1 = *$input;
+%#endif
+}
+%typemap(out, noblock=1) MPI_Comm {
+%#if SUNDIALS_MPI_ENABLED
+    if ($1 != SUN_COMM_NULL) {
+      $result = %static_cast(MPI_Comm_c2f($1), int);
+    }
+%#else
+    $result = $1;
+%#endif
+}
+
+%apply MPI_Comm { SUNComm };
+
 
 // Insert code into the C wrapper to check that the sizes match
 %{

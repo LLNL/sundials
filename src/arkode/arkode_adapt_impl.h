@@ -20,6 +20,7 @@
 
 #include <stdarg.h>
 #include <arkode/arkode.h>
+#include <sundials/sundials_adaptcontroller.h>
 
 #ifdef __cplusplus  /* wrapper to enable C++ usage */
 extern "C" {
@@ -31,29 +32,15 @@ extern "C" {
   ===============================================================*/
 
 /* size constants for the adaptivity memory structure */
-#define ARK_ADAPT_LRW  19
-#define ARK_ADAPT_LIW  8    /* includes function/data pointers */
+#define ARK_ADAPT_LRW  10
+#define ARK_ADAPT_LIW  7    /* includes function/data pointers */
 
 /* Time step controller default values */
 #define CFLFAC    SUN_RCONST(0.5)
 #define SAFETY    SUN_RCONST(0.96)  /* CVODE uses 1.0  */
-#define BIAS      SUN_RCONST(1.5)   /* CVODE uses 6.0  */
 #define GROWTH    SUN_RCONST(20.0)  /* CVODE uses 10.0 */
 #define HFIXED_LB SUN_RCONST(1.0)   /* CVODE uses 1.0  */
 #define HFIXED_UB SUN_RCONST(1.5)   /* CVODE uses 1.5  */
-#define AD0_K1    SUN_RCONST(0.58)  /* PID controller constants */
-#define AD0_K2    SUN_RCONST(0.21)
-#define AD0_K3    SUN_RCONST(0.1)
-#define AD1_K1    SUN_RCONST(0.8)   /* PI controller constants */
-#define AD1_K2    SUN_RCONST(0.31)
-#define AD2_K1    SUN_RCONST(1.0)   /* I controller constants */
-#define AD3_K1    SUN_RCONST(0.367) /* explicit Gustafsson controller */
-#define AD3_K2    SUN_RCONST(0.268)
-#define AD4_K1    SUN_RCONST(0.98)  /* implicit Gustafsson controller */
-#define AD4_K2    SUN_RCONST(0.95)
-#define AD5_K1    SUN_RCONST(0.367) /* imex Gustafsson controller */
-#define AD5_K2    SUN_RCONST(0.268)
-#define AD5_K3    SUN_RCONST(0.95)
 
 #define ETAMX1    SUN_RCONST(10000.0)  /* maximum step size change on first step */
 #define ETAMXF    SUN_RCONST(0.3)      /* step size reduction factor on multiple error
@@ -64,6 +51,11 @@ extern "C" {
                                       convergence failure */
 #define SMALL_NEF 2                /* if an error failure occurs and SMALL_NEF <= nef,
                                       then reset  eta = MIN(eta, ETAMXF) */
+#define PQ        0                /* order to use for controller: 0=embedding,
+                                      1=method, otherwise min(method,embedding)
+                                      REMOVE AT SAME TIME AS ARKStepSetAdaptivityMethod */
+#define ADJUST    -1               /* adjustment to apply within controller to method
+                                      order of accuracy */
 
 
 /*===============================================================
@@ -85,30 +77,18 @@ typedef struct ARKodeHAdaptMemRec {
   sunrealtype     etamin;      /* eta >= etamin on error test fail           */
   int          small_nef;   /* bound to determine 'multiple' above        */
   sunrealtype     etacf;       /* h reduction factor on nonlinear conv fail  */
-  ARKAdaptFn   HAdapt;      /* function to set the new time step size     */
-  void        *HAdapt_data; /* user pointer passed to hadapt              */
-  sunrealtype     ehist[2];    /* error history for time adaptivity          */
-  sunrealtype     hhist[2];    /* step history for time adaptivity           */
-  int          imethod;     /* step adaptivity method to use:
-                               -1 -> User-specified function above
-                                0 -> PID controller
-                                1 -> PI controller
-                                2 -> I controller
-                                3 -> explicit Gustafsson controller
-                                4 -> implicit Gustafsson controller
-                                5 -> imex Gustafsson controller           */
   sunrealtype     cfl;         /* cfl safety factor                          */
   sunrealtype     safety;      /* accuracy safety factor on h                */
-  sunrealtype     bias;        /* accuracy safety factor on LTE              */
   sunrealtype     growth;      /* maximum step growth safety factor          */
   sunrealtype     lbound;      /* eta lower bound to leave h unchanged       */
   sunrealtype     ubound;      /* eta upper bound to leave h unchanged       */
-  sunrealtype     k1;          /* method-specific adaptivity parameters      */
-  sunrealtype     k2;
-  sunrealtype     k3;
-  int q;                    /* method order                               */
-  int p;                    /* embedding order                            */
-  sunbooleantype pq;           /* choice of using p (0) vs q (1)             */
+  int          p;           /* embedding order                            */
+  int          q;           /* method order                               */
+  int          pq;          /* decision flag for controller order         */
+  int          adjust;      /* controller order adjustment factor         */
+
+  SUNAdaptController hcontroller; /* temporal error controller            */
+  sunbooleantype  owncontroller;  /* flag indicating hcontroller ownership   */
 
   ARKExpStabFn expstab;     /* step stability function                    */
   void        *estab_data;  /* user pointer passed to expstab             */
@@ -128,18 +108,6 @@ void arkPrintAdaptMem(ARKodeHAdaptMem hadapt_mem, FILE *outfile);
 int arkAdapt(void* arkode_mem, ARKodeHAdaptMem hadapt_mem,
              N_Vector ycur, sunrealtype tcur, sunrealtype hcur,
              sunrealtype dsm, long int nst);
-int arkAdaptPID(ARKodeHAdaptMem hadapt_mem, int k,
-                sunrealtype hcur, sunrealtype ecur, sunrealtype *hnew);
-int arkAdaptPI(ARKodeHAdaptMem hadapt_mem, int k,
-               sunrealtype hcur, sunrealtype ecur, sunrealtype *hnew);
-int arkAdaptI(ARKodeHAdaptMem hadapt_mem, int k,
-              sunrealtype hcur, sunrealtype ecur, sunrealtype *hnew);
-int arkAdaptExpGus(ARKodeHAdaptMem hadapt_mem, int k, long int nst,
-                   sunrealtype hcur, sunrealtype ecur, sunrealtype *hnew);
-int arkAdaptImpGus(ARKodeHAdaptMem hadapt_mem, int k, long int nst,
-                   sunrealtype hcur, sunrealtype ecur, sunrealtype *hnew);
-int arkAdaptImExGus(ARKodeHAdaptMem hadapt_mem, int k, long int nst,
-                    sunrealtype hcur, sunrealtype ecur, sunrealtype *hnew);
 
 
 #ifdef __cplusplus
