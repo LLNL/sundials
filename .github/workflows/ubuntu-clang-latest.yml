@@ -1,4 +1,4 @@
-name: Build - Ubuntu/Clang (no TPLS)
+name: Build - Ubuntu/Clang (no TPLs)
 
 on:
   pull_request:

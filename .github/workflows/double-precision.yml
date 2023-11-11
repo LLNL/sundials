@@ -1,5 +1,5 @@
 #
-name: Build and Test - Ubuntu/gcc double precision (TPLS, no GPUs)
+name: Build and Test - Ubuntu/gcc double precision (TPLs, no GPUs)
 
 on:
   push:

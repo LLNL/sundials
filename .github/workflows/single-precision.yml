@@ -1,5 +1,5 @@
 #
-name: Build and Test - Ubuntu/gcc single precision (TPLS, no GPUs)
+name: Build and Test - Ubuntu/gcc single precision (TPLs, no GPUs)
 
 on:
   pull_request:
