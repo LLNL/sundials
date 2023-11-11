@@ -9,8 +9,8 @@ Brusselator ODE test problem, fixed-point solver:
     1.000000    1.897255    1.274939    2.997155
     2.000000    0.346125    2.366448    2.999481
     3.000000    0.147442    2.862061    2.999781
-    4.000000    0.140733    3.226731    2.999788
-    5.000000    0.142659    3.583206    2.999788
+    4.000000    0.140733    3.226731    2.999780
+    5.000000    0.142659    3.583206    2.999789
     6.000000    0.145095    3.936910    2.999782
     7.000000    0.147720    4.287893    2.999780
     8.000000    0.150542    4.635957    2.999775
@@ -20,7 +20,7 @@ Brusselator ODE test problem, fixed-point solver:
 
 Final Solver Statistics:
    Internal solver steps = 729 (attempted = 730)
-   Total RHS evals:  Fe = 4383,  Fi = 18793
+   Total RHS evals:  Fe = 4382,  Fi = 18792
    Total number of fixed-point iterations = 14410
    Total number of nonlinear solver convergence failures = 0
    Total number of error test failures = 1

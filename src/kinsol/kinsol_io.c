@@ -87,56 +87,6 @@ int KINSetErrFile(void *kinmem, FILE *errfp)
 
 /*
  * -----------------------------------------------------------------
- * Function : KINSetPrintLevel
- * -----------------------------------------------------------------
- */
-
-int KINSetPrintLevel(void *kinmem, int printfl)
-{
-  KINMem kin_mem;
-
-  if (kinmem == NULL) {
-    KINProcessError(NULL, KIN_MEM_NULL, "KINSOL", "KINSetPrintLevel", MSG_NO_MEM);
-    return(KIN_MEM_NULL);
-  }
-
-  kin_mem = (KINMem) kinmem;
-
-  if ((printfl < 0) || (printfl > 3)) {
-    KINProcessError(NULL, KIN_ILL_INPUT, "KINSOL", "KINSetPrintLevel", MSG_BAD_PRINTFL);
-    return(KIN_ILL_INPUT);
-  }
-
-  kin_mem->kin_printfl = printfl;
-
-  return(KIN_SUCCESS);
-}
-
-/*
- * -----------------------------------------------------------------
- * KINSetInfoHandlerFn
- * -----------------------------------------------------------------
- */
-
-int KINSetInfoHandlerFn(void *kinmem, KINInfoHandlerFn ihfun, void *ih_data)
-{
-  KINMem kin_mem;
-
-  if (kinmem == NULL) {
-    KINProcessError(NULL, KIN_MEM_NULL, "KINSOL", "KINSetInfoHandlerFn", MSG_NO_MEM);
-    return(KIN_MEM_NULL);
-  }
-
-  kin_mem = (KINMem) kinmem;
-
-  kin_mem->kin_ihfun = ihfun;
-  kin_mem->kin_ih_data = ih_data;
-
-  return(KIN_SUCCESS);
-}
-
-/*
- * -----------------------------------------------------------------
  * Function : KINSetUserData
  * -----------------------------------------------------------------
  */

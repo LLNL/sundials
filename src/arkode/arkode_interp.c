@@ -150,10 +150,6 @@ ARKInterp arkInterpCreate_Hermite(void* arkode_mem, int degree)
   /* set maximum interpolant degree */
   content->degree = SUNMIN(ARK_INTERP_MAX_DEGREE, degree);
 
-  /* set ynew and fnew pointers to ark_mem->yn and ark_mem->fn, respectively */
-  content->ynew = ark_mem->yn;
-  content->fnew = ark_mem->fn;
-
   /* update workspace sizes */
   ark_mem->lrw += 2;
   ark_mem->liw += 5;
@@ -201,10 +197,6 @@ int arkInterpResize_Hermite(void* arkode_mem, ARKInterp interp,
   if (!arkResizeVec(ark_mem, resize, resize_data, lrw_diff,
                     liw_diff, y0, &HINT_FB(interp)))
     return(ARK_MEM_FAIL);
-
-  /* update ynew and fnew pointers */
-  HINT_YNEW(interp) = ark_mem->yn;
-  HINT_FNEW(interp) = ark_mem->fn;
 
   /* reinitialize time values */
   HINT_TOLD(interp) = ark_mem->tcur;
@@ -286,12 +278,8 @@ void arkInterpPrintMem_Hermite(ARKInterp interp, FILE *outfile)
 #ifdef SUNDIALS_DEBUG_PRINTVEC
     fprintf(outfile, "arkode_interp (Hermite): fold:\n");
     N_VPrintFile(HINT_FOLD(interp), outfile);
-    fprintf(outfile, "arkode_interp (Hermite): fnew:\n");
-    N_VPrintFile(HINT_FNEW(interp), outfile);
     fprintf(outfile, "arkode_interp (Hermite): yold:\n");
     N_VPrintFile(HINT_YOLD(interp), outfile);
-    fprintf(outfile, "arkode_interp (Hermite): ynew:\n");
-    N_VPrintFile(HINT_YNEW(interp), outfile);
     fprintf(outfile, "arkode_interp (Hermite): fa:\n");
     N_VPrintFile(HINT_FA(interp), outfile);
     fprintf(outfile, "arkode_interp (Hermite): fb:\n");
@@ -402,13 +390,7 @@ int arkInterpInit_Hermite(void* arkode_mem, ARKInterp interp,
     }
   }
 
-  /* copy current solution into yold */
-  N_VScale(ONE, ark_mem->yn, HINT_YOLD(interp));
-
-  /* copy fnew into fold */
-  N_VScale(ONE, HINT_FNEW(interp), HINT_FOLD(interp));
-
-  /* signal that fullrhs is required after each step */
+  /* signal that a full RHS data is required for interpolation */
   ark_mem->call_fullrhs = SUNTRUE;
 
   /* return with success */
@@ -424,15 +406,26 @@ int arkInterpInit_Hermite(void* arkode_mem, ARKInterp interp,
   ---------------------------------------------------------------*/
 int arkInterpUpdate_Hermite(void* arkode_mem, ARKInterp interp, sunrealtype tnew)
 {
+  int retval;
   ARKodeMem ark_mem;
 
   /* access ARKodeMem structure */
   if (arkode_mem == NULL)  return(ARK_MEM_NULL);
   ark_mem = (ARKodeMem) arkode_mem;
 
+  /* call full RHS if needed -- called just BEFORE the end of a step, so yn has
+     NOT been updated to ycur yet */
+  if (!(ark_mem->fn_is_current))
+  {
+    retval = ark_mem->step_fullrhs(ark_mem, ark_mem->tn, ark_mem->yn,
+                                   ark_mem->fn, ARK_FULLRHS_START);
+    if (retval) { return ARK_RHSFUNC_FAIL; }
+    ark_mem->fn_is_current = SUNTRUE;
+  }
+
   /* copy ynew and fnew into yold and fold, respectively */
-  N_VScale(ONE, HINT_YNEW(interp), HINT_YOLD(interp));
-  N_VScale(ONE, HINT_FNEW(interp), HINT_FOLD(interp));
+  N_VScale(ONE, ark_mem->yn, HINT_YOLD(interp));
+  N_VScale(ONE, ark_mem->fn, HINT_FOLD(interp));
 
   /* update time values */
   HINT_TOLD(interp) = HINT_TNEW(interp);
@@ -510,6 +503,16 @@ int arkInterpEvaluate_Hermite(void* arkode_mem, ARKInterp interp,
                      "tau = %"RSYM", d = %i, q = %i", tau, d, q);
 #endif
 
+  /* call full RHS if needed -- called just AFTER the end of a step, so yn has
+     been updated to ycur */
+  if (!(ark_mem->fn_is_current))
+  {
+    retval = ark_mem->step_fullrhs(ark_mem, ark_mem->tn, ark_mem->yn,
+                                   ark_mem->fn, ARK_FULLRHS_END);
+    if (retval) { return ARK_RHSFUNC_FAIL; }
+    ark_mem->fn_is_current = SUNTRUE;
+  }
+
   /* error on illegal d */
   if (d < 0) {
     arkProcessError(ark_mem, ARK_ILL_INPUT, "ARKODE",
@@ -528,7 +531,7 @@ int arkInterpEvaluate_Hermite(void* arkode_mem, ARKInterp interp,
   switch (q) {
 
   case(0):    /* constant interpolant, yout = 0.5*(yn+yp) */
-    N_VLinearSum(HALF, HINT_YOLD(interp), HALF, HINT_YNEW(interp), yout);
+    N_VLinearSum(HALF, HINT_YOLD(interp), HALF, ark_mem->yn, yout);
     break;
 
   case(1):    /* linear interpolant */
@@ -539,7 +542,7 @@ int arkInterpEvaluate_Hermite(void* arkode_mem, ARKInterp interp,
       a0 = -ONE/h;
       a1 =  ONE/h;
     }
-    N_VLinearSum(a0, HINT_YOLD(interp), a1, HINT_YNEW(interp), yout);
+    N_VLinearSum(a0, HINT_YOLD(interp), a1, ark_mem->yn, yout);
     break;
 
   case(2):    /* quadratic interpolant */
@@ -557,8 +560,8 @@ int arkInterpEvaluate_Hermite(void* arkode_mem, ARKInterp interp,
       a[2] = TWO/h;
     }
     X[0] = HINT_YOLD(interp);
-    X[1] = HINT_YNEW(interp);
-    X[2] = HINT_FNEW(interp);
+    X[1] = ark_mem->yn;
+    X[2] = ark_mem->fn;
     retval = N_VLinearCombination(3, a, X, yout);
     if (retval != 0)  return(ARK_VECTOROP_ERR);
     break;
@@ -586,9 +589,9 @@ int arkInterpEvaluate_Hermite(void* arkode_mem, ARKInterp interp,
       a[3] = SIX/h2;
     }
     X[0] = HINT_YOLD(interp);
-    X[1] = HINT_YNEW(interp);
+    X[1] = ark_mem->yn;
     X[2] = HINT_FOLD(interp);
-    X[3] = HINT_FNEW(interp);
+    X[3] = ark_mem->fn;
     retval = N_VLinearCombination(4, a, X, yout);
     if (retval != 0) return(ARK_VECTOROP_ERR);
    break;
@@ -639,9 +642,9 @@ int arkInterpEvaluate_Hermite(void* arkode_mem, ARKInterp interp,
       a[4] = -SUN_RCONST(162.0)/h3;
     }
     X[0] = HINT_YOLD(interp);
-    X[1] = HINT_YNEW(interp);
+    X[1] = ark_mem->yn;
     X[2] = HINT_FOLD(interp);
-    X[3] = HINT_FNEW(interp);
+    X[3] = ark_mem->fn;
     X[4] = HINT_FA(interp);
     retval = N_VLinearCombination(5, a, X, yout);
     if (retval != 0) return(ARK_VECTOROP_ERR);
@@ -716,9 +719,9 @@ int arkInterpEvaluate_Hermite(void* arkode_mem, ARKInterp interp,
       a[5] = a[4];
     }
     X[0] = HINT_YOLD(interp);
-    X[1] = HINT_YNEW(interp);
+    X[1] = ark_mem->yn;
     X[2] = HINT_FOLD(interp);
-    X[3] = HINT_FNEW(interp);
+    X[3] = ark_mem->fn;
     X[4] = HINT_FA(interp);
     X[5] = HINT_FB(interp);
     retval = N_VLinearCombination(6, a, X, yout);
@@ -1052,7 +1055,7 @@ int arkInterpInit_Lagrange(void* arkode_mem, ARKInterp I,
     }
   }
 
-  /* update allocated size if necesary */
+  /* update allocated size if necessary */
   if (LINT_NMAX(I) > LINT_NMAXALLOC(I))
     LINT_NMAXALLOC(I) = LINT_NMAX(I);
 

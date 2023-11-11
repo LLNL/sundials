@@ -263,13 +263,11 @@ options as the vector they are cloned, from while vectors created with
   and then access ``v_data[i]`` within the loop than it
   is to use ``NV_Ith_S(v,i)`` within the loop.
 
-* :c:func:`N_VNewEmpty_Serial`, :c:func:`N_VMake_Serial`, and
-  :c:func:`N_VCloneVectorArrayEmpty_Serial()` set the field *own_data*
-  to ``SUNFALSE``.  The functions :c:func:`N_VDestroy_Serial()` and
-  :c:func:`N_VDestroyVectorArray_Serial()` will not attempt to free the
-  pointer data for any ``N_Vector`` with *own_data* set to ``SUNFALSE``.
-  In such a case, it is the user's responsibility to deallocate the
-  data pointer.
+* :c:func:`N_VNewEmpty_Serial`, :c:func:`N_VMake_Serial` set the field
+  *own_data* to ``SUNFALSE``.  The function :c:func:`N_VDestroy_Serial()` will
+  not attempt to free the pointer data for any ``N_Vector`` with *own_data* set
+  to ``SUNFALSE``. In such a case, it is the user's responsibility to deallocate
+  the data pointer.
 
 * To maximize efficiency, vector operations in the NVECTOR_SERIAL
   implementation that have more than one ``N_Vector`` argument do not

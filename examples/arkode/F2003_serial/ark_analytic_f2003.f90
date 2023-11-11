@@ -101,6 +101,8 @@ program main
   use fsunmatrix_dense_mod       ! Fortran interface to dense SUNMatrix
   use fsunlinsol_dense_mod       ! Fortran interface to dense SUNLinearSolver
   use fsundials_context_mod      ! Fortran interface to SUNContext
+  use fsundials_adaptcontroller_mod  ! Fortran interface to the generic SUNAdaptController
+  use fsunadaptcontroller_soderlind_mod ! Fortran interface to Soderlind controller
   use ode_mod                    ! ODE functions
 
   !======= Declarations =========
@@ -114,17 +116,16 @@ program main
   real(c_double) :: dtout                    ! output time interval
   real(c_double) :: tout                     ! output time
   real(c_double) :: tcur(1)                  ! current time
-  integer(c_int) :: imethod, idefault, pq    ! time step adaptivity parameters
-  real(c_double) :: adapt_params(3)          ! time step adaptivity parameters
   integer(c_int) :: ierr                     ! error flag from C functions
   integer(c_int) :: nout                     ! number of outputs
   integer(c_int) :: outstep                  ! output loop counter
 
-  type(N_Vector),        pointer :: sunvec_y    ! sundials vector
-  type(SUNMatrix),       pointer :: sunmat_A    ! sundials matrix
-  type(SUNLinearSolver), pointer :: sunls       ! sundials linear solver
-  type(c_ptr)                    :: arkode_mem  ! ARKODE memory
-  real(c_double),        pointer :: yvec(:)     ! underlying vector
+  type(N_Vector),           pointer :: sunvec_y    ! sundials vector
+  type(SUNMatrix),          pointer :: sunmat_A    ! sundials matrix
+  type(SUNLinearSolver),    pointer :: sunls       ! sundials linear solver
+  type(SUNAdaptController), pointer :: sunCtrl     ! time step controller
+  type(c_ptr)                       :: arkode_mem  ! ARKODE memory
+  real(c_double),           pointer :: yvec(:)     ! underlying vector
 
   !======= Internals ============
 
@@ -183,12 +184,20 @@ program main
      stop 1
   end if
 
-  imethod = 4
-  idefault = 1
-  pq = 0
-  ierr = FARKStepSetAdaptivityMethod(arkode_mem, imethod, idefault, pq, adapt_params)
+  sunCtrl => FSUNAdaptController_ImpGus(ctx)
+  if (.not. associated(sunCtrl)) then
+     print *, 'ERROR: sunCtrl = NULL'
+     stop 1
+  end if
+  ierr = FARKStepSetAdaptController(arkode_mem, sunCtrl)
   if (ierr /= 0) then
-     write(*,*) 'Error in FARKStepSetAdaptivityMethod, ierr = ', ierr, '; halting'
+     write(*,*) 'Error in FARKStepSetAdaptController, ierr = ', ierr, '; halting'
+     stop 1
+  end if
+
+  ierr = FARKStepSetNonlinConvCoef(arkode_mem, 0.01d0)
+  if (ierr /= 0) then
+     write(*,*) 'Error in FARKStepSetNonlinConvCoef, ierr = ', ierr, '; halting'
      stop 1
   end if
 
@@ -222,6 +231,7 @@ program main
   call FN_VDestroy(sunvec_y)
   call FSUNMatDestroy(sunmat_A)
   ierr = FSUNLinSolFree(sunls)
+  ierr = FSUNAdaptController_Destroy(sunCtrl)
   ierr = FSUNContext_Free(ctx)
 
 end program main

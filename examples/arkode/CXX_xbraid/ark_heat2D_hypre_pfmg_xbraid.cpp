@@ -355,6 +355,7 @@ int main(int argc, char* argv[])
   void *arkode_mem   = NULL;  // ARKODE memory structure
   braid_Core core    = NULL;  // XBraid memory structure
   braid_App app      = NULL;  // ARKode + XBraid interface structure
+  SUNAdaptController    C = NULL;  // time step adaptivity controller
 
   // Timing variables
   double t1 = 0.0;
@@ -526,9 +527,11 @@ int main(int argc, char* argv[])
   // Set adaptive stepping (XBraid with temporal refinement) options
   if (udata->x_refine)
   {
-    // Use I controller
-    flag = ARKStepSetAdaptivityMethod(arkode_mem, ARK_ADAPT_I, 1, 0, NULL);
-    if (check_flag(&flag, "ARKStepSetAdaptivityMethod", 1)) return 1;
+    // Use I controller with default parameters
+    C = SUNAdaptController_I(ctx);
+    if (check_flag((void*) C, "SUNAdaptController_I", 0)) return 1;
+    flag = ARKStepSetAdaptController(arkode_mem, C);
+    if (check_flag(&flag, "ARKStepSetAdaptController", 1)) return 1;
 
     // Set the step size reduction factor limit (1 / refinement factor limit)
     flag = ARKStepSetMinReduction(arkode_mem, ONE / udata->x_rfactor_limit);
@@ -699,15 +702,16 @@ int main(int argc, char* argv[])
   // Clean up and return
   // --------------------
 
-  ARKStepFree(&arkode_mem);  // Free integrator memory
-  SUNLinSolFree(LS);         // Free linear solver
-  N_VDestroy(u);             // Free vectors
-  FreeUserData(udata);       // Free user data
+  ARKStepFree(&arkode_mem);              // Free integrator memory
+  SUNLinSolFree(LS);                     // Free linear solver
+  N_VDestroy(u);                         // Free vectors
+  FreeUserData(udata);                   // Free user data
   delete udata;
-  braid_Destroy(core);       // Free braid memory
-  ARKBraid_Free(&app);       // Free interface memory
-  SUNContext_Free(&ctx);     // Free context
-  flag = MPI_Finalize();     // Finalize MPI
+  braid_Destroy(core);                   // Free braid memory
+  ARKBraid_Free(&app);                   // Free interface memory
+  (void) SUNAdaptController_Destroy(C);  // Free time adaptivity controller
+  SUNContext_Free(&ctx);                 // Free context
+  flag = MPI_Finalize();                 // Finalize MPI
 
   return 0;
 }

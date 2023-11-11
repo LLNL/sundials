@@ -291,13 +291,11 @@ options as the vector they are cloned from while vectors created with
   back from the device with ``N_VCopyFromDevice_OpenMPDEV(v)``
   to ensure the array is up to date.
 
-* :c:func:`N_VNewEmpty_OpenMPDEV`, :c:func:`N_VMake_OpenMPDEV`, and
-  :c:func:`N_VCloneVectorArrayEmpty_OpenMPDEV()` set the field *own_data*
-  to ``SUNFALSE``.  The functions :c:func:`N_VDestroy_OpenMPDEV()` and
-  :c:func:`N_VDestroyVectorArray_OpenMPDEV()` will not attempt to free the
-  pointer data for any ``N_Vector`` with *own_data* set to ``SUNFALSE``.
-  In such a case, it is the user's responsibility to deallocate the
-  data pointers.
+* :c:func:`N_VNewEmpty_OpenMPDEV` and :c:func:`N_VMake_OpenMPDEV` set the field
+  *own_data* to ``SUNFALSE``.  The function :c:func:`N_VDestroy_OpenMPDEV()`
+  will not attempt to free the pointer data for any ``N_Vector`` with *own_data*
+  set to ``SUNFALSE``. In such a case, it is the user's responsibility to
+  deallocate the data pointers.
 
 * To maximize efficiency, vector operations in the NVECTOR_OPENMPDEV
   implementation that have more than one ``N_Vector`` argument do not

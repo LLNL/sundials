@@ -28,5 +28,6 @@ SUNDIALS Developers Guide
    benchmarks/index
    pull_requests/index
    releases/index
+   packages/index
    appendix/index
    references

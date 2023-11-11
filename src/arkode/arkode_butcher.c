@@ -304,6 +304,20 @@ void ARKodeButcherTable_Write(ARKodeButcherTable B, FILE *outfile)
 }
 
 
+sunbooleantype ARKodeButcherTable_IsStifflyAccurate(ARKodeButcherTable B)
+{
+  int i;
+  for (i = 0; i < B->stages; i++)
+  {
+    if (SUNRabs(B->b[i] - B->A[B->stages - 1][i]) > 100 * SUN_UNIT_ROUNDOFF)
+    {
+      return SUNFALSE;
+    }
+  }
+  return SUNTRUE;
+}
+
+
 /*---------------------------------------------------------------
   Routine to determine the analytical order of accuracy for a
   specified Butcher table.  We check the analytical [necessary]

@@ -631,6 +631,8 @@ static int check_order(void *arkode_mem, N_Vector y, sunrealtype T0,
     if (check_retval(&retval, "ARKStepSetLSetupFrequency", 1)) return 1;
     retval = ARKStepSetMaxNonlinIters(arkode_mem, 20);
     if (check_retval(&retval, "ARKStepSetMaxNonlinIters", 1)) return 1;
+    retval = ARKStepSetNonlinConvCoef(arkode_mem, SUN_RCONST(0.01));
+    if (check_retval(&retval, "ARKStepSetNonlinConvCoef", 1)) return 1;
   }
 
   // Set array of fixed step sizes to use, storage for corresponding errors/orders
