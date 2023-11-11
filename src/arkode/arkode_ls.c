@@ -2736,6 +2736,10 @@ int arkLsSolve(void* arkode_mem, N_Vector b, realtype tnow,
                      "ls-stats", "bnorm = %"RSYM", resnorm = %"RSYM
                      ", ls_iters = %i, prec_solves = %i",
                      bnorm, resnorm, nli_inc, (int) (arkls_mem->nps - nps_inc));
+#else
+  /* Suppress warning about set but unused variables due to logging ifdef. */
+  (void) nps_inc;
+  (void) resnorm;
 #endif
 
   /* Interpret solver return value  */
