@@ -32,6 +32,7 @@ meant for SUNDIALS developers.
    benchmarks/index
    pull_requests/index
    releases/index
+   packages/index
    appendix/index
 
 .. only:: html

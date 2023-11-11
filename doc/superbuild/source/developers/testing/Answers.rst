@@ -36,10 +36,10 @@ repostiory <https://github.com/sundials-codes/answers>`_ which holds answers for
 such as the GitHub Actions virtual machines. 
 
 
-Updating Answer Files
----------------------
+Updating and Adding Answer Files for Existing Machines
+------------------------------------------------------
 
-Sometimes it is necessary to update the answer files so that the tests pass, if a change in output
+Sometimes it is necessary to update the answer files, or add a new file, so that the tests pass, if a change in output
 is expected/desired. Changing output files requires careful verification that the output is still
 "correct". The procedure for updating answer files is as follows:
 
@@ -51,7 +51,8 @@ is expected/desired. Changing output files requires careful verification that th
 - For the ``.out`` files in `sundials-codes/answers <https://github.com/sundials-codes/answers>`_:
 
   #. Navigate to `test/answers` in the sundials repository. If there is nothing in this directory,
-     you need to run `git submodule init && git submodule update`.
+     you need to run `git submodule init && git submodule update`. Alternatively clone the answers
+     repository outside of the SUNDIALS source tree. 
 
   #. Checkout the main branch: ``git checkout main``. 
 
@@ -66,15 +67,34 @@ is expected/desired. Changing output files requires careful verification that th
      machines by going to `<https://github.com/LLNL/sundials/actions>`_ finding your failing
      test, clicking it, then at the bottom downloading the "output_files" artifact (you can also find your
      failing test at the bottom of a PR). The downloaded zip file will be the SUNDIALS build
-     directory. The ``.out`` files you want are in
-     ``build_that_you_downloaded_and_extracted/Testing/output``.
+     directory. To update just the failed files you can use ``scripts/updateOutFiles.py ``e.g.,
+    
+     .. code::
+
+         cd scripts  
+         ./updateOutFiles.py <source path> <destination path>  
+      
+     When updating files in the answers repo the source path is the path to the build directory
+     downloaded from GitHub and the destination path is ``<path to answers
+     repo>/linux-ubuntu20.04-x86_64/gcc-9.4.0/<double|single|extended>``. When updating with output
+     from Jenkins the source path is the build directory for the Jenkins run and the destination
+     path is the top level of the sundials repo (i.e., ../. if running from scripts). The script
+     will automatically traverse the examples and test/unit_test directories to update output files
+     for failed tests.
+
+  #. If you need to use ssh authentication for pushing to GitHub, then you may need to update the 
+     remote for the submodule:
+
+   .. code::
+
+         git remote set-url origin git@github.com:LLNL/sundials.git
 
   #. Create a pull-request in `sundials-codes/answers <https://github.com/sundials-codes/answers>`_
      with your updates. 
 
 
-Adding New Answer Files
------------------------
+Adding Answer Files for a New Machine
+-------------------------------------
 
 - For the ``.out`` files embedded in examples, simply overwrite the file with the new output. If the
   tests running on Jenkins still fail, then you will need to download the output file generated on
