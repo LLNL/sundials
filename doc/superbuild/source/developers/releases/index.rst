@@ -12,22 +12,14 @@
    SUNDIALS Copyright End
    -----------------------------------------------------------------------------
 
-#########################
-SUNDIALS Developers Guide
-#########################
+.. _Releases:
+
+Releases
+========
+
+This chapter discusses preparing a SUNDIALS release.
 
 .. toctree::
-   :numbered:
-   :maxdepth: 2
+   :maxdepth: 1
 
-   introduction/index
-   getting_started/index
-   style_guide/index
-   development/index
-   testing/index
-   benchmarks/index
-   pull_requests/index
-   releases/index
-   packages/index
-   appendix/index
-   references
+   Checklist
