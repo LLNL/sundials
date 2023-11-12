@@ -114,7 +114,7 @@ if(SUNDIALS_TEST_DEVTESTS)
       add_dependencies(setup_local_ci setup_local_ci_${index_size}_${precision_})
 
       set(container_test_exe ./test_driver.sh)
-      set(container_test_exe_args --testtype CUSTOM --env env/docker.sh --tpls --realtype ${precision_} --indexsize ${index_size})
+      set(container_test_exe_args --testtype CUSTOM --env env/docker.sh --tpls --sunrealtype ${precision_} --indexsize ${index_size})
       set(container_exe_args exec -w ${SUNDIALS_TEST_CONTAINER_MNT}/test ${container} ${container_test_exe} ${container_test_exe_args})
       add_custom_target(test_local_ci_${index_size}_${precision_}
         COMMENT "Running tests in CI container ${container}:${tag}"

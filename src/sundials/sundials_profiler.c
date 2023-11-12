@@ -20,10 +20,9 @@
 
 #if SUNDIALS_MPI_ENABLED
 #include <mpi.h>
-#elif defined(SUNDIALS_HAVE_POSIX_TIMERS)
-#if !defined(_POSIX_C_SOURCE) || (_POSIX_C_SOURCE < 200112L)
-#define _POSIX_C_SOURCE 200112L
 #endif
+
+#if defined(SUNDIALS_HAVE_POSIX_TIMERS)
 #include <stddef.h>
 #include <time.h>
 #include <unistd.h>
