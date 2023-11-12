@@ -46,7 +46,7 @@ int SUNContext_Create(SUNComm comm, SUNContext* sunctx_out)
     return SUN_ERR_MALLOC_FAIL;
   }
 
-  SUNAssignSUNCTX(sunctx);
+  SUNFunctionBegin(sunctx);
   
 #ifdef SUNDIALS_ADIAK_ENABLED 
   adiak_init(&comm);

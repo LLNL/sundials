@@ -35,7 +35,7 @@ static SUNProfiler getSUNProfiler(SUNLinearSolver S)
 
 SUNLinearSolver SUNLinSolNewEmpty(SUNContext sunctx)
 {
-  SUNAssignSUNCTX(sunctx);
+  SUNFunctionBegin(sunctx);
   SUNLinearSolver LS;
   SUNLinearSolver_Ops ops;
 

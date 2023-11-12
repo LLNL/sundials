@@ -37,7 +37,7 @@ static inline SUNProfiler getSUNProfiler(N_Vector v)
 /* Create an empty NVector object */
 N_Vector N_VNewEmpty(SUNContext sunctx)
 {
-  SUNAssignSUNCTX(sunctx);
+  SUNFunctionBegin(sunctx);
   N_Vector     v;
   N_Vector_Ops ops;
 
@@ -170,7 +170,7 @@ void N_VFreeEmpty(N_Vector v)
 /* Copy a vector 'ops' structure */
 SUNErrCode N_VCopyOps(N_Vector w, N_Vector v)
 {
-  SUNAssignSUNCTX(w->sunctx);
+  SUNFunctionBegin(w->sunctx);
   /* Check that ops structures exist */
   SUNAssert(w && w->ops && v && v->ops, SUN_ERR_ARG_CORRUPT);
 
@@ -992,7 +992,7 @@ N_Vector* N_VNewVectorArray(int count)
 
 N_Vector* N_VCloneEmptyVectorArray(int count, N_Vector w)
 {
-  SUNAssignSUNCTX(w->sunctx);
+  SUNFunctionBegin(w->sunctx);
   N_Vector* vs = NULL;
   int j;
 
@@ -1014,7 +1014,7 @@ N_Vector* N_VCloneEmptyVectorArray(int count, N_Vector w)
 
 N_Vector* N_VCloneVectorArray(int count, N_Vector w)
 {
-  SUNAssignSUNCTX(w->sunctx);
+  SUNFunctionBegin(w->sunctx);
   int j;
   N_Vector* vs = NULL;
 
@@ -1053,14 +1053,14 @@ void N_VDestroyVectorArray(N_Vector* vs, int count)
 /* These function are really only for users of the Fortran interface */
 N_Vector N_VGetVecAtIndexVectorArray(N_Vector* vs, int index)
 {
-  SUNAssignSUNCTX(vs[0]->sunctx);
+  SUNFunctionBegin(vs[0]->sunctx);
   SUNAssert(index >= 0, SUN_ERR_ARG_OUTOFRANGE);
   return vs[index];
 }
 
 void N_VSetVecAtIndexVectorArray(N_Vector* vs, int index, N_Vector w)
 {
-  SUNAssignSUNCTX(w->sunctx);
+  SUNFunctionBegin(w->sunctx);
   SUNAssert(index >= 0, SUN_ERR_ARG_OUTOFRANGE);
   vs[index] = w;
 }

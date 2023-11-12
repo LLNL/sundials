@@ -36,7 +36,7 @@ static SUNProfiler getSUNProfiler(SUNMatrix A)
 
 SUNMatrix SUNMatNewEmpty(SUNContext sunctx)
 {
-  SUNAssignSUNCTX(sunctx);
+  SUNFunctionBegin(sunctx);
   SUNMatrix     A;
   SUNMatrix_Ops ops;
 
@@ -95,7 +95,7 @@ void SUNMatFreeEmpty(SUNMatrix A)
 
 SUNErrCode SUNMatCopyOps(SUNMatrix A, SUNMatrix B)
 {
-  SUNAssignSUNCTX(A->sunctx);
+  SUNFunctionBegin(A->sunctx);
   /* Check that ops structures exist */
   SUNAssert(A && A->ops && A && A->ops, SUN_ERR_ARG_CORRUPT);
   SUNAssert(B && B->ops && B && B->ops, SUN_ERR_ARG_CORRUPT);

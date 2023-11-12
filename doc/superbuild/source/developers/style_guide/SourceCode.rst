@@ -233,16 +233,16 @@ Coding Conventions and Rules
    do not do this and are exceptions to the rule for backwards compatiblilty. 
    In addition, internal helper functions may or may-not return a ``SUNErrCode``.
 
-#. Functions that need a ``SUNContext`` object should unpack it from the first argument
-   that has a reference to the object using the ``SUNAssignSUNCTX()`` macro. This
-   should be done before any other line in the function when possible, otherwise
-   it should be done as soon as possible.  For example,
+#. All SUNDIALS functions, with the exception of some internal/private functions
+   that do not have access to a ``SUNContext``, should begin with a call to 
+   ``SUNFunctionBegin()``. This macro is used for error handling and declares a 
+   local variable access via the macro ``SUNCTX``.
 
    .. code-block:: c
 
       SUNErrCode N_VLinearCombination_Serial(int nvec, realtype* c, N_Vector* X, N_Vector z)
       {
-         SUNAssignSUNCTX(X[0]->sunctx); // Correct
+         SUNFunctionBegin(X[0]->sunctx); // Correct
          
          int          i;
          sunindextype j, N;
@@ -262,7 +262,7 @@ Coding Conventions and Rules
          realtype*    zd=NULL;
          realtype*    xd=NULL;
 
-         SUNAssignSUNCTX(X[0]->sunctx); // Incorrect
+         SUNFunctionBegin(X[0]->sunctx); // Incorrect
 
          /* invalid number of vectors */
          SUNAssert(nvec >= 1, SUN_ERR_ARG_OUTOFRANGE);
@@ -282,7 +282,7 @@ Coding Conventions and Rules
 
          cv_mem = (CVodeMem) cvode_mem;
 
-         SUNAssignSUNCTX(cv_mem->sunctx); // Correct
+         SUNFunctionBegin(cv_mem->sunctx); // Correct
 
          // ...
       }
@@ -332,7 +332,7 @@ Coding Conventions and Rules
       
       SUNLinearSolver SUNLinSol_Band(N_Vector y, SUNMatrix A, SUNContext sunctx)
       {
-         SUNAssignSUNCTX(sunctx);
+         SUNFunctionBegin(sunctx);
          SUNLinearSolver S;
          SUNLinearSolverContent_Band content;
          sunindextype MatrixRows;

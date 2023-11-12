@@ -35,7 +35,7 @@ static SUNProfiler getSUNProfiler(SUNNonlinearSolver NLS)
 
 SUNNonlinearSolver SUNNonlinSolNewEmpty(SUNContext sunctx)
 {
-  SUNAssignSUNCTX(sunctx);
+  SUNFunctionBegin(sunctx);
   SUNNonlinearSolver     NLS;
   SUNNonlinearSolver_Ops ops;
 
