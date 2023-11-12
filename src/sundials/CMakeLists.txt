@@ -117,10 +117,8 @@ endif()
 # Add prefix with complete path to the source files
 add_prefix(${SUNDIALS_SOURCE_DIR}/src/sundials/ sundials_SOURCES)
 
-if(ENABLE_MPI AND MPI_C_FOUND)
-  # Workaround bug in CMake < 3.17.3 when using MPI::MPI_CXX and CUDA
-  set(_include_mpi_if_needed PUBLIC ${MPI_C_INCLUDE_DIRS})
-  set(_link_mpi_if_needed PUBLIC ${MPI_C_LIBRARIES})
+if(ENABLE_MPI)
+  set(_link_mpi_if_needed PUBLIC MPI::MPI_C)
 endif()
 
 if(SUNDIALS_BUILD_WITH_PROFILING)
@@ -140,8 +138,6 @@ sundials_add_library(sundials_core
     ${sundials_HEADERS}
   INCLUDE_SUBDIR
     sundials
-  INCLUDE_DIRECTORIES
-    ${_include_mpi_if_needed}
   LINK_LIBRARIES
     ${_link_mpi_if_needed}
   OUTPUT_NAME
