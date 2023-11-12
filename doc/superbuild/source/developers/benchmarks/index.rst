@@ -12,14 +12,15 @@
    SUNDIALS Copyright End
    -----------------------------------------------------------------------------
 
-.. _Releases:
+.. _Benchmarks:
 
-Releases
-========
+Benchmarks
+==========
 
-This chapter discusses preparing a SUNDIALS release.
+The following sections describe the SUNDIALS performance benchmark problems.
 
 .. toctree::
-   :maxdepth: 2
+   :maxdepth: 1
 
-   Checklist
+   advection_reaction.rst
+   diffusion.rst
