@@ -87,7 +87,7 @@ is expected/desired. Changing output files requires careful verification that th
 
    .. code::
 
-         git remote set-url origin git@github.com:LLNL/sundials.git
+         git remote set-url origin git@github.com:sundials-codes/answers.git
 
   #. Create a pull-request in `sundials-codes/answers <https://github.com/sundials-codes/answers>`_
      with your updates. 
