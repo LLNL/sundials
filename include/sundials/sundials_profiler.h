@@ -101,9 +101,5 @@ SUNErrCode SUNProfiler_Reset(SUNProfiler p);
 #ifdef __cplusplus
 }
 
-/* We include this here for backwards compatibility
-   (the contents used to be defined here directly) */
-#include <sundials/sundials_profiler.hpp>
-
 #endif
 #endif /* SUNDIALS_PROFILER_H */
