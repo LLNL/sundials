@@ -14,9 +14,9 @@
 
 .. _Installation:
 
-===============================
-SUNDIALS Installation Procedure
-===============================
+======================
+Installation Procedure
+======================
 
 The installation of any SUNDIALS package is accomplished by installing the
 SUNDIALS suite as a whole, according to the instructions that follow.  The same
