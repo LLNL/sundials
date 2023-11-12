@@ -25,6 +25,19 @@
 
 #include <mpi.h>
 
+
+/* --- Definitions and macros for CUDA/HIP agnostic compilation --- */
+
+#if defined(SUNDIALS_HYPRE_BACKENDS_CUDA) || defined(SUNDIALS_HYPRE_BACKENDS_HIP)
+#define SUNDIALS_HYPRE_BACKENDS_CUDA_OR_HIP
+#endif
+
+#if defined(SUNDIALS_HYPRE_BACKENDS_CUDA)
+#define NV_ADD_LANG_PREFIX_PH(token) cuda##token // token pasting; expands to ```cuda[token]```
+#elif defined(SUNDIALS_HYPRE_BACKENDS_HIP)
+#define NV_ADD_LANG_PREFIX_PH(token) hip##token  // token pasting; expands to ```hip[token]```
+#endif
+
 /* ----------------------------------------------------------------------
  * Main NVector Testing Routine
  * --------------------------------------------------------------------*/
@@ -285,11 +298,21 @@ int check_ans(realtype ans, N_Vector X, sunindextype local_length)
 
   Xvec  = N_VGetVector_ParHyp(X);
   Xdata = hypre_VectorData(hypre_ParVectorLocalVector(Xvec));
+  // if CUDA, malloc host -> cudamemcpy -> check -> free
+#if defined(SUNDIALS_HYPRE_BACKENDS_CUDA_OR_HIP)
+  realtype *host_data = (realtype*)malloc(sizeof(realtype)*local_length);
+  NV_ADD_LANG_PREFIX_PH(Memcpy)(host_data,Xdata,sizeof(realtype)*local_length,NV_ADD_LANG_PREFIX_PH(MemcpyDeviceToHost));
+  Xdata = host_data;
+#endif
 
   /* check vector data */
   for (i = 0; i < local_length; i++) {
     failure += SUNRCompare(Xdata[i], ans);
   }
+
+#if defined(SUNDIALS_HYPRE_BACKENDS_CUDA_OR_HIP)
+  free(host_data);
+#endif
 
   return (failure > ZERO) ? (1) : (0);
 }
@@ -317,7 +340,24 @@ void set_element_range(N_Vector X, sunindextype is, sunindextype ie,
   Xvec  = N_VGetVector_ParHyp(X);
   Xdata = hypre_VectorData(hypre_ParVectorLocalVector(Xvec));
 
+#if defined(SUNDIALS_HYPRE_BACKENDS_SERIAL)
   for(i = is; i <= ie; i++) Xdata[i] = val;
+#elif defined(SUNDIALS_HYPRE_BACKENDS_CUDA_OR_HIP)
+  int sub_len = ie-is+1;
+  realtype *host_data = (realtype*)malloc(sizeof(realtype)*sub_len);
+  for(i = 0; i < sub_len; i++)
+  {
+    // printf("set x[%d] = %f\n",is+i,val);
+    host_data[i] = val;
+  }
+  NV_ADD_LANG_PREFIX_PH(Memcpy)
+  (
+    Xdata+is,host_data,
+    sizeof(realtype)*sub_len,
+    NV_ADD_LANG_PREFIX_PH(MemcpyHostToDevice)
+  );
+  free(host_data);
+#endif
 }
 
 realtype get_element(N_Vector X, sunindextype i)
@@ -329,7 +369,19 @@ realtype get_element(N_Vector X, sunindextype i)
   Xvec  = N_VGetVector_ParHyp(X);
   Xdata = hypre_VectorData(hypre_ParVectorLocalVector(Xvec));
 
+#if defined(SUNDIALS_HYPRE_BACKENDS_SERIAL)
   return Xdata[i];
+#elif defined(SUNDIALS_HYPRE_BACKENDS_CUDA_OR_HIP)
+  realtype host_data;
+  NV_ADD_LANG_PREFIX_PH(Memcpy)
+  (
+    &host_data,
+    Xdata+i,
+    sizeof(realtype),
+    NV_ADD_LANG_PREFIX_PH(MemcpyDeviceToHost)
+  );
+  return host_data;
+#endif
 }
 
 double max_time(N_Vector X, double time)
@@ -346,5 +398,8 @@ double max_time(N_Vector X, double time)
 void sync_device(N_Vector x)
 {
   /* not running on GPU, just return */
+  #if defined(SUNDIALS_HYPRE_BACKENDS_CUDA_OR_HIP)
+  NV_ADD_LANG_PREFIX_PH(DeviceSynchronize)();
+  #endif
   return;
 }

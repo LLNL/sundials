@@ -36,14 +36,30 @@ endif()
 # Section 2: Check to make sure options are compatible
 # -----------------------------------------------------------------------------
 
+# --- hypre requires MPI and C99 or newer ---
 if(ENABLE_HYPRE)
-  # Using hypre requres building with MPI enabled
+  # Using hypre requires building with MPI enabled
   if(NOT ENABLE_MPI)
     print_error("MPI is required for hypre support. Set ENABLE_MPI to ON.")
   endif()
   # Using hypre requres C99 or newer
   if(CMAKE_C_STANDARD STREQUAL "90")
     message(SEND_ERROR "CMAKE_C_STANDARD must be >= c99 with ENABLE_HYPRE=ON")
+  endif()
+endif()
+
+# --- Ensure requested backend is enabled in SUNDIALS ---
+set(HYPRE_BACKEND_NOT_ENABLED_MESSAGE "\
+************************************************************************\n\
+ERROR: Requested that SUNDIALS use the ${SUNDIALS_HYPRE_BACKENDS} hypre backend,\n\
+       but ENABLE_${SUNDIALS_HYPRE_BACKENDS} is set to OFF.\n\
+       \n\
+       Please set ENABLE_${SUNDIALS_HYPRE_BACKENDS} to ON\n\
+       or request a different hypre backend.\n\
+************************************************************************")
+if(NOT SUNDIALS_HYPRE_BACKENDS MATCHES "SERIAL")
+  if(NOT ENABLE_${SUNDIALS_HYPRE_BACKENDS})
+    message(FATAL_ERROR ${HYPRE_BACKEND_NOT_ENABLED_MESSAGE})
   endif()
 endif()
 
@@ -60,6 +76,35 @@ message(STATUS "HYPRE_INCLUDE_DIR: ${HYPRE_INCLUDE_DIR}")
 # Section 4: Test the TPL
 # -----------------------------------------------------------------------------
 
+# --- Ensure hypre built with requested backend ---
+set(HYPRE_BACKEND_NOT_AVAILABLE_MESSAGE "\
+************************************************************************\n\
+ERROR: Requested that SUNDIALS use the ${SUNDIALS_HYPRE_BACKENDS} hypre backend,\n\
+       but hypre was built with the ${HYPRE_BACKENDS} backend(s).\n\
+       \n\
+       Please set SUNDIALS_HYPRE_BACKENDS to an available backend\n\
+       or rebuild hypre with the desired backend.\n\
+************************************************************************")
+message(STATUS "Requested SUNDIALS hypre backend: ${SUNDIALS_HYPRE_BACKENDS}")
+list(FIND HYPRE_BACKENDS ${SUNDIALS_HYPRE_BACKENDS} _idx)
+if(_idx EQUAL -1)
+  message(FATAL_ERROR ${HYPRE_BACKEND_NOT_AVAILABLE_MESSAGE})
+endif()
+
+# --- Warn user if requesting default (SERIAL) backend when another backend is available ---
+set(HYPRE_NONSERIAL_BACKEND_AVAILABLE_MESSAGE "\
+************************************************************************\n\
+NOTICE: hypre was built with backends other than SERIAL,\n\
+        but SUNDIALS_HYPRE_BACKENDS is set to the default SERIAL backend.\n\
+        \n\
+        SUNDIALS will use the SERIAL hypre backend unless otherwise specified.\n\
+************************************************************************")
+list(LENGTH HYPRE_BACKENDS _len)
+if((SUNDIALS_HYPRE_BACKENDS MATCHES "SERIAL") AND (_len GREATER 1))
+  message(NOTICE ${HYPRE_NONSERIAL_BACKEND_AVAILABLE_MESSAGE})
+endif()
+
+# --- Test hypre libraries ---
 if(HYPRE_FOUND AND (NOT HYPRE_WORKS))
   # Do any checks which don't require compilation first.
 
@@ -67,23 +112,40 @@ if(HYPRE_FOUND AND (NOT HYPRE_WORKS))
   set(HYPRE_TEST_DIR ${PROJECT_BINARY_DIR}/HYPRE_TEST)
   file(MAKE_DIRECTORY ${HYPRE_TEST_DIR})
 
+  # Choose test language (C for serial, C++ for CUDA or HIP)
+  if (SUNDIALS_HYPRE_BACKENDS MATCHES "SERIAL")
+    set(_hypre_test_project_languages C)
+    set(_hypre_test_file_language C)
+  elseif (SUNDIALS_HYPRE_BACKENDS MATCHES "CUDA")
+    set(_hypre_test_project_languages C CXX CUDA)
+    set(_hypre_test_file_language CUDA)
+  elseif (SUNDIALS_HYPRE_BACKENDS MATCHES "HIP")
+    set(_hypre_test_project_languages C CXX HIP)
+    set(_hypre_test_file_language CXX)
+  endif ()
+
   # Create a CMakeLists.txt file
   file(WRITE ${HYPRE_TEST_DIR}/CMakeLists.txt
-  "CMAKE_MINIMUM_REQUIRED(VERSION ${CMAKE_VERSION})\n"
-  "PROJECT(ltest C)\n"
-  "SET(CMAKE_VERBOSE_MAKEFILE ON)\n"
-  "SET(CMAKE_BUILD_TYPE \"${CMAKE_BUILD_TYPE}\")\n"
-  "SET(CMAKE_C_COMPILER ${MPI_C_COMPILER})\n"
-  "SET(CMAKE_C_STANDARD \"${CMAKE_C_STANDARD}\")\n"
-  "SET(CMAKE_C_FLAGS \"${CMAKE_C_FLAGS}\")\n"
-  "SET(CMAKE_C_FLAGS_RELEASE \"${CMAKE_C_FLAGS_RELEASE}\")\n"
-  "SET(CMAKE_C_FLAGS_DEBUG \"${CMAKE_C_FLAGS_DEBUG}\")\n"
-  "SET(CMAKE_C_FLAGS_RELWITHDEBUGINFO \"${CMAKE_C_FLAGS_RELWITHDEBUGINFO}\")\n"
-  "SET(CMAKE_C_FLAGS_MINSIZE \"${CMAKE_C_FLAGS_MINSIZE}\")\n"
-  "SET(CMAKE_EXE_LINKER_FLAGS \"${LINK_MATH_LIB}\")\n"
-  "INCLUDE_DIRECTORIES(${HYPRE_INCLUDE_DIR})\n"
-  "ADD_EXECUTABLE(ltest ltest.c)\n"
-  "TARGET_LINK_LIBRARIES(ltest ${HYPRE_LIBRARIES})\n")
+    "CMAKE_MINIMUM_REQUIRED(VERSION ${CMAKE_VERSION})\n"
+    "PROJECT(ltest ${_hypre_test_project_languages})\n"
+    "SET(CMAKE_VERBOSE_MAKEFILE ON)\n"
+    "SET(CMAKE_BUILD_TYPE \"${CMAKE_BUILD_TYPE}\")\n")
+  foreach(_language IN LISTS _hypre_test_project_languages)
+    file(APPEND ${HYPRE_TEST_DIR}/CMakeLists.txt
+      "SET(CMAKE_${_language}_COMPILER ${MPI_${_language}_COMPILER})\n"
+      "SET(CMAKE_${_language}_STANDARD \"${CMAKE_${_language}_STANDARD}\")\n"
+      "SET(CMAKE_${_language}_FLAGS \"${CMAKE_${_language}_FLAGS}\")\n"
+      "SET(CMAKE_${_language}_FLAGS_RELEASE \"${CMAKE_${_language}_FLAGS_RELEASE}\")\n"
+      "SET(CMAKE_${_language}_FLAGS_DEBUG \"${CMAKE_${_language}_FLAGS_DEBUG}\")\n"
+      "SET(CMAKE_${_language}_FLAGS_RELWITHDEBUGINFO \"${CMAKE_${_language}_FLAGS_RELWITHDEBUGINFO}\")\n"
+      "SET(CMAKE_${_language}_FLAGS_MINSIZE \"${CMAKE_${_language}_FLAGS_MINSIZE}\")\n")
+  endforeach()
+  file(APPEND ${HYPRE_TEST_DIR}/CMakeLists.txt
+    "SET(CMAKE_EXE_LINKER_FLAGS \"${LINK_MATH_LIB}\")\n"
+    "INCLUDE_DIRECTORIES(${HYPRE_INCLUDE_DIR})\n"
+    "ADD_EXECUTABLE(ltest ltest.c)\n"
+    "TARGET_LINK_LIBRARIES(ltest ${HYPRE_LIBRARIES})\n"
+    "SET_SOURCE_FILES_PROPERTIES(ltest.c LANGUAGE ${_hypre_test_file_language})\n")
 
   file(WRITE ${HYPRE_TEST_DIR}/ltest.c
   "\#include \"HYPRE_parcsr_ls.h\"\n"
@@ -106,15 +168,15 @@ if(HYPRE_FOUND AND (NOT HYPRE_WORKS))
 
   # Process test result
   if(COMPILE_OK)
-    message(STATUS "Checking if HYPRE works... OK")
-    set(HYPRE_WORKS TRUE CACHE BOOL "HYPRE works with SUNDIALS as configured" FORCE)
+    message(STATUS "Checking if hypre works... OK")
+    set(HYPRE_WORKS TRUE CACHE BOOL "hypre works with SUNDIALS as configured" FORCE)
   else()
-    message(STATUS "Checking if HYPRE works... FAILED")
+    message(STATUS "Checking if hypre works... FAILED")
     message(STATUS "Check output: ")
     message("${COMPILE_OUTPUT}")
-    print_error("SUNDIALS interface to HYPRE is not functional.")
+    print_error("SUNDIALS interface to hypre is not functional.")
   endif()
 
 elseif(HYPRE_FOUND AND HYPRE_WORKS)
-  message(STATUS "Skipped HYPRE tests, assuming HYPRE works with SUNDIALS. Set HYPRE_WORKS=FALSE to (re)run compatibility test.")
+  message(STATUS "Skipped hypre tests, assuming hypre works with SUNDIALS. Set HYPRE_WORKS=FALSE to (re)run compatibility test.")
 endif()

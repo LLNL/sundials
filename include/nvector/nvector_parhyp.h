@@ -40,16 +40,44 @@
 
 #ifndef _NVECTOR_PARHYP_H
 #define _NVECTOR_PARHYP_H
+#endif
 
-#include <stdio.h>
 #include <mpi.h>
+#include <stdio.h>
+#include <stdlib.h>
+
+/* --- SUNDIALS and hypre headers --- */
+
+#include <sundials/sundials_math.h>
+#include <sundials/sundials_config.h>
 #include <sundials/sundials_nvector.h>
 #include <sundials/sundials_mpi_types.h>
 
-/* hypre header files */
 #include <_hypre_parcsr_mv.h>
 
-#ifdef __cplusplus  /* wrapper to enable C++ usage */
+/* --- Backend-specific headers --- */
+
+#if defined(SUNDIALS_HYPRE_BACKENDS_SERIAL)
+#pragma message "hypre backend SERIAL confirmed from nvector_parhyp.h"
+
+#elif defined(SUNDIALS_HYPRE_BACKENDS_CUDA)
+#pragma message "hypre backend CUDA confirmed from nvector_parhyp.h"
+#include <cuda_runtime.h>
+#include <sundials/sundials_cuda_policies.hpp>
+#include <sunmemory/sunmemory_cuda.h>
+#include "sundials_cuda.h"            /* located in src/nvector/sundials */
+
+#elif defined(SUNDIALS_HYPRE_BACKENDS_HIP)
+#pragma message "hypre backend HIP confirmed from nvector_parhyp.h"
+#include <hip/hip_runtime.h>
+#include <sundials/sundials_hip_policies.hpp>
+#include <sunmemory/sunmemory_hip.h>
+#include "sundials_hip.h"             /* located in src/nvector/sundials */
+#endif
+
+/* --- Wrapper to enable C++ usage --- */
+
+#ifdef __cplusplus
 extern "C" {
 #endif
 
@@ -59,17 +87,27 @@ extern "C" {
  * -----------------------------------------------------------------
  */
 
-struct _N_VectorContent_ParHyp {
-  sunindextype local_length;  /* local vector length         */
-  sunindextype global_length; /* global vector length        */
-  booleantype own_parvector;  /* ownership of HYPRE vector   */
-  MPI_Comm comm;              /* pointer to MPI communicator */
-
-  HYPRE_ParVector x;          /* the actual HYPRE_ParVector object */
+struct _N_VectorContent_ParHyp
+{
+  sunindextype       local_length;        /* local vector length               */
+  sunindextype       global_length;       /* global vector length              */
+  booleantype        own_parvector;       /* ownership of HYPRE vector         */
+  MPI_Comm           comm;                /* pointer to MPI communicator       */
+  HYPRE_ParVector    x;                   /* the actual HYPRE_ParVector object */
+#if defined(SUNDIALS_HYPRE_BACKENDS_CUDA)
+  SUNCudaExecPolicy *stream_exec_policy;
+  SUNCudaExecPolicy *reduce_exec_policy;
+  SUNMemoryHelper    mem_helper;
+  void              *priv;                /* private buffers, counters, etc.   */
+#if defined(SUNDIALS_HYPRE_BACKENDS_HIP)
+  SUNHipExecPolicy  *stream_exec_policy;
+  SUNHipExecPolicy  *reduce_exec_policy;
+  SUNMemoryHelper    mem_helper;
+  void              *priv;                /* private buffers, counters, etc.   */
+#endif
 };
 
 typedef struct _N_VectorContent_ParHyp *N_VectorContent_ParHyp;
-
 
 /*
  * -----------------------------------------------------------------
@@ -101,7 +139,8 @@ SUNDIALS_EXPORT void N_VSetArrayPointer_ParHyp(realtype *v_data, N_Vector v);
 SUNDIALS_EXPORT void *N_VGetCommunicator_ParHyp(N_Vector v);
 SUNDIALS_EXPORT sunindextype N_VGetLength_ParHyp(N_Vector v);
 
-/* standard vector operations */
+/* --- Standard vector operations --- */
+
 SUNDIALS_EXPORT void N_VLinearSum_ParHyp(realtype a, N_Vector x, realtype b,
                                          N_Vector y, N_Vector z);
 SUNDIALS_EXPORT void N_VConst_ParHyp(realtype c, N_Vector z);
@@ -125,7 +164,8 @@ SUNDIALS_EXPORT booleantype N_VConstrMask_ParHyp(N_Vector c, N_Vector x,
                                                  N_Vector m);
 SUNDIALS_EXPORT realtype N_VMinQuotient_ParHyp(N_Vector num, N_Vector denom);
 
-/* fused vector operations */
+/* --- Fused vector operations --- */
+
 SUNDIALS_EXPORT int N_VLinearCombination_ParHyp(int nvec, realtype* c,
                                                 N_Vector* X, N_Vector z);
 SUNDIALS_EXPORT int N_VScaleAddMulti_ParHyp(int nvec, realtype* a, N_Vector x,
@@ -133,7 +173,8 @@ SUNDIALS_EXPORT int N_VScaleAddMulti_ParHyp(int nvec, realtype* a, N_Vector x,
 SUNDIALS_EXPORT int N_VDotProdMulti_ParHyp(int nvec, N_Vector x, N_Vector* Y,
                                            realtype* dotprods);
 
-/* vector array operations */
+/* --- Vector array operations --- */
+
 SUNDIALS_EXPORT int N_VLinearSumVectorArray_ParHyp(int nvec,
                                                    realtype a, N_Vector* X,
                                                    realtype b, N_Vector* Y,
@@ -157,7 +198,8 @@ SUNDIALS_EXPORT int N_VLinearCombinationVectorArray_ParHyp(int nvec, int nsum,
                                                            N_Vector** X,
                                                            N_Vector* Z);
 
-/* OPTIONAL local reduction kernels (no parallel communication) */
+/* --- OPTIONAL local reduction kernels (no parallel communication) --- */
+
 SUNDIALS_EXPORT realtype N_VDotProdLocal_ParHyp(N_Vector x, N_Vector y);
 SUNDIALS_EXPORT realtype N_VMaxNormLocal_ParHyp(N_Vector x);
 SUNDIALS_EXPORT realtype N_VMinLocal_ParHyp(N_Vector x);
@@ -171,14 +213,16 @@ SUNDIALS_EXPORT booleantype N_VConstrMaskLocal_ParHyp(N_Vector c, N_Vector x,
 SUNDIALS_EXPORT realtype N_VMinQuotientLocal_ParHyp(N_Vector num,
                                                     N_Vector denom);
 
-/* OPTIONAL single buffer reduction operations */
+/* --- OPTIONAL single buffer reduction operations --- */
+
 SUNDIALS_EXPORT int N_VDotProdMultiLocal_ParHyp(int nvec, N_Vector x,
                                                 N_Vector* Y,
                                                 realtype* dotprods);
 SUNDIALS_EXPORT int N_VDotProdMultiAllReduce_ParHyp(int nvec, N_Vector x,
                                                     realtype* sum);
 
-/* OPTIONAL XBraid interface operations */
+/* --- OPTIONAL XBraid interface operations --- */
+
 SUNDIALS_EXPORT int N_VBufSize_ParHyp(N_Vector x, sunindextype *size);
 SUNDIALS_EXPORT int N_VBufPack_ParHyp(N_Vector x, void *buf);
 SUNDIALS_EXPORT int N_VBufUnpack_ParHyp(N_Vector x, void *buf);

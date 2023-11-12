@@ -32,7 +32,7 @@
 #   HYPRE_LIBRARIES   - all of the libraries needed for HYPRE
 # ---------------------------------------------------------------
 
-### Find include dir
+# --- Find hypre include dir ---
 find_path(temp_HYPRE_INCLUDE_DIR
           NAMES HYPRE.h hypre.h
           HINTS "${HYPRE_DIR}" "${HYPRE_DIR}/include" "${HYPRE_INCLUDE_DIR}")
@@ -41,36 +41,98 @@ if (temp_HYPRE_INCLUDE_DIR)
 endif()
 unset(temp_HYPRE_INCLUDE_DIR CACHE)
 
-if (HYPRE_LIBRARY)
-    # We have (or were given) HYPRE_LIBRARY - get path to use for any related libs
-    get_filename_component(HYPRE_LIBRARY_DIR ${HYPRE_LIBRARY} PATH)
-
-    # force CACHE update to show user DIR that will be used
-    set(HYPRE_LIBRARY_DIR ${HYPRE_LIBRARY_DIR} CACHE PATH "" FORCE)
+# --- Find hypre library ---
+if ((NOT HYPRE_LIBRARY) OR (NOT HYPRE_DIR EQUAL HYPRE_DIR_OLD))
+  # If we don't have HYPRE_LIBRARY *or* the user has updated HYPRE_DIR, search provided path
+  set(HYPRE_LIBRARY_NAMES hypre HYPRE)
+  find_library(HYPRE_LIBRARY
+    NAMES ${HYPRE_LIBRARY_NAMES}
+    HINTS "${HYPRE_DIR}" "${HYPRE_DIR}/lib" "${HYPRE_DIR}/lib64" "${HYPRE_LIBRARY_DIR}"
+    NO_DEFAULT_PATH)
 else ()
-    # find library with user provided directory path
-    set(HYPRE_LIBRARY_NAMES hypre HYPRE)
-    find_library(HYPRE_LIBRARY
-      NAMES ${HYPRE_LIBRARY_NAMES}
-      HINTS "${HYPRE_DIR}" "${HYPRE_DIR}/lib" "${HYPRE_DIR}/lib64" "${HYPRE_LIBRARY_DIR}"
-      NO_DEFAULT_PATH
-      )
+  # We have (or were given) HYPRE_LIBRARY - get path to use for any related libs
+  get_filename_component(HYPRE_LIBRARY_DIR ${HYPRE_LIBRARY} PATH)
+  # Force CACHE update to show user DIR that will be used
+  set(HYPRE_LIBRARY_DIR ${HYPRE_LIBRARY_DIR} CACHE PATH "" FORCE)
 endif ()
+set(HYPRE_DIR_OLD ${HYPRE_DIR})
 mark_as_advanced(HYPRE_LIBRARY)
 
+# --- Append found library to HYPRE_LIBRARIES ---
 list(FIND HYPRE_LIBRARIES ${HYPRE_LIBRARY} _idx)
 if (_idx EQUAL -1)
-  set(HYPRE_LIBRARIES "${HYPRE_LIBRARY};${HYPRE_LIBRARIES}" CACHE STRING "" FORCE)
+  # Automatically overwrite "HYPRE_LIBRARY-NOTFOUND" entry if present
+  if (HYPRE_LIBRARIES MATCHES "HYPRE_LIBRARY-NOTFOUND")
+    set(HYPRE_LIBRARIES "${HYPRE_LIBRARY}" CACHE STRING "" FORCE)
+  # ...otherwise append HYPRE_LIBRARY entry.
+  else ()
+    set(HYPRE_LIBRARIES "${HYPRE_LIBRARY};${HYPRE_LIBRARIES}" CACHE STRING "" FORCE)
+  endif ()
 endif ()
 
-# set a more informative error message in case the library was not found
+# --- Set a more informative error message in case the library was not found ---
+set(HYPRE_CONFIG_NOT_FOUND_MESSAGE "\
+************************************************************************\n\
+ERROR: Could not find hypre library configuration file (HYPRE_config.h).\n\
+       Please specify HYPRE_DIR and ensure that it contains\n\
+       \"include\" and \"lib\" or \"lib64\" subdirectories.\n\
+       (e.g. \".../hypre/src/hypre\")\n\
+************************************************************************")
 set(HYPRE_NOT_FOUND_MESSAGE "\
 ************************************************************************\n\
-ERROR: Could not find HYPRE. Please check the variables:\n\
+ERROR: Could not find hypre. Please check the variables:\n\
        HYPRE_INCLUDE_DIR and HYPRE_LIBRARY_DIR\n\
 ************************************************************************")
 
-# set package variables including HYPRE_FOUND
+# --- Find the hypre library configuration file (HYPRE_config.h) ---
+find_file(HYPRE_CONFIGH_PATH HYPRE_config.h
+          HINTS "${HYPRE_DIR}"
+          PATH_SUFFIXES include
+          NO_DEFAULT_PATH)
+mark_as_advanced(FORCE HYPRE_CONFIGH_PATH)
+if (HYPRE_CONFIGH_PATH)
+  message(STATUS "hypre library configuration file found. Parsing for version and backends...")
+else ()
+  message(FATAL_ERROR "${HYPRE_CONFIG_NOT_FOUND_MESSAGE}")
+endif ()
+
+# --- Parse config for hypre version ---
+file(READ "${HYPRE_CONFIGH_PATH}" _hypre_config_file_text)
+string(REGEX MATCH "[0-9]+\.[0-9]+\.[0-9]+" _hypre_release_version "${_hypre_config_file_text}")
+message(STATUS "hypre Version: ${_hypre_release_version}")
+
+# --- Parse config for hypre backends ---
+set(HYPRE_BACKENDS SERIAL)
+foreach(_backend HIP CUDA)
+  file(STRINGS "${HYPRE_CONFIGH_PATH}" _hypre_has_backend REGEX "^#define HYPRE_USING_${_backend}")
+  if(_hypre_has_backend)
+    set(HYPRE_BACKENDS "${_backend};${HYPRE_BACKENDS}")
+    message(STATUS "hypre built with ${_backend} backend? - YES")
+  else()
+    message(STATUS "hypre built with ${_backend} backend? - NO")
+  endif()
+endforeach()
+
+# --- Parse config for CUDA Unified Memory ---
+file(STRINGS "${HYPRE_CONFIGH_PATH}" _hypre_using_unified_memory REGEX "^#define HYPRE_USING_UNIFIED_MEMORY")
+if(_hypre_using_unified_memory)
+  set(SUNDIALS_HYPRE_USING_UNIFIED_MEMORY TRUE)
+  message(STATUS "hypre using CUDA Unified Memory? - YES")
+else()
+  message(STATUS "hypre using CUDA Unified Memory? - NO")
+endif()
+
+# --- Add libraries for backend support ---
+
+if(SUNDIALS_HYPRE_BACKENDS MATCHES "HIP")
+  find_package(rocblas   REQUIRED)
+  find_package(rocsparse REQUIRED)
+  find_package(rocsolver REQUIRED)
+  find_package(rocrand   REQUIRED)
+  list(APPEND HYPRE_LIBRARIES roc::rocblas roc::rocsparse roc::rocsolver roc::rocrand)
+endif()
+
+# --- Set package variables including HYPRE_FOUND ---
 find_package_handle_standard_args(HYPRE
   REQUIRED_VARS
     HYPRE_LIBRARY
@@ -80,7 +142,7 @@ find_package_handle_standard_args(HYPRE
     "${HYPRE_NOT_FOUND_MESSAGE}"
   )
 
-# Create target for HYPRE
+# --- Create target for HYPRE ---
 if(HYPRE_FOUND)
 
   if(NOT TARGET SUNDIALS::HYPRE)

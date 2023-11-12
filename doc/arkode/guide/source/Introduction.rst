@@ -189,6 +189,8 @@ Updated the Tpetra NVector interface to support Trilinos 14.
 
 Fixed a memory leak when destroying a CUDA, HIP, SYCL, or system SUNMemoryHelper
 object.
+Added CUDA and HIP hypre backend support. The hypre backend to use is selected
+at configuration time with SUNDIALS_HYPRE_BACKENDS.
 
 Fixed a bug where the stop time may not be cleared when using normal mode if the
 requested output time is the same as the stop time. Additionally, this fix
