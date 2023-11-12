@@ -14,15 +14,14 @@
 
 .. _Style:
 
-***********
 Style Guide
-***********
+===========
 
 This chapter covers the SUNDIALS style conventions for formatting source code,
 CMake files, and documentation files to ensure consistency and maintainability.
 
 .. toctree::
-   :maxdepth: 2
+   :maxdepth: 1
 
    SourceCode
    Classes

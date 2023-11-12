@@ -106,16 +106,15 @@ Comments
 TODO Comments
 ^^^^^^^^^^^^^
 
-Following the Google Style Guide [GoogleStyle]_, TODO comments are used to note
-code that is "temporary, a short-term solution, or good-enough but not perfect."
+Following the `Google Style Guide <https://google.github.io/styleguide/>`_ , TODO comments are used
+to note code that is "temporary, a short-term solution, or good-enough but not perfect."
 
-A consistent TODO comment format provides an easy to search for keyword with
-details on how to get more information. TODO comments should start with ``TODO``
-followed by a unique identifier, enclosed in parentheses, for the person most
-knowledgeable about the issue and a brief description of the TODO item.
-Generally, these comments should be used sparingly and are not a substitute for
-creating an issue or bug report. When applicable, the comment should include the
-relevant issue or bug report number.
+A consistent TODO comment format provides an easy to search for keyword with details on how to get
+more information. TODO comments should start with ``TODO`` followed by a unique identifier, enclosed
+in parentheses, for the person most knowledgeable about the issue and a brief description of the
+TODO item. Generally, these comments should be used sparingly and are not a substitute for creating
+an issue or bug report. When applicable, the comment should include the relevant issue or bug report
+number.
 
 Examples:
 
