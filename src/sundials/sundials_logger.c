@@ -167,7 +167,6 @@ int SUNLogger_Create(SUNComm comm, int output_rank, SUNLogger* logger_ptr)
   logger->comm = SUN_COMM_NULL;
   if (comm != SUN_COMM_NULL)
   {
-    printf(">>>> here\n");
     MPI_Comm_dup(comm, &logger->comm);
   }
 #else

@@ -196,7 +196,6 @@ int SUNProfiler_Create(SUNComm comm, const char* title, SUNProfiler* p)
   profiler->comm = SUN_COMM_NULL;
   if (comm != SUN_COMM_NULL)
   {
-    printf(">>>> here 2\n");
     MPI_Comm_dup(comm, &profiler->comm);
   }
 #else
