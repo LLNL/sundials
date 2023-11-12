@@ -65,7 +65,7 @@ int main(int argc, char *argv[])
   ierr = PetscInitializeNoArguments();
   CHKERRQ(ierr);
 
-  if (SUNContext_Create(&comm, &sunctx)) {
+  if (SUNContext_Create(comm, &sunctx)) {
     printf("ERROR: SUNContext_Create returned nonzero\n");
     return(-1);
   }

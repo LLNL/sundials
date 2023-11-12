@@ -115,7 +115,7 @@ int main(int argc, char *argv[])
     printf("  number of MPI procs   %d  \n", nprocs);
   }
 
-  flag = SUNContext_Create(&comm, &ctx);
+  flag = SUNContext_Create(comm, &ctx);
   if (flag) return flag;
 
   /* set partitioning */
