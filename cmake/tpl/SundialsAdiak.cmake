@@ -59,7 +59,7 @@ if(adiak_FOUND AND (NOT adiak_WORKS))
   # Create a C source file
   file(WRITE ${adiak_TEST_DIR}/ltest.c
   "\#include <adiak.h>\n"
-  "int main()\n"
+  "int main(void)\n"
   "{\n"
   "  adiak_init(NULL);\n"
   "  adiak_fini();\n" 
