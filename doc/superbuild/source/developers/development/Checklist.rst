@@ -81,3 +81,6 @@ system, etc. developers should adhere to the following checklist.
    only. Additionally, the ``SUNDIALS_DEBUG_PRINTVEC`` macro should be used to
    ``#ifdef`` out calls to the generic vector print functions ``N_VPrint`` and
    ``N_VPrintFile`` used for debugging purposes.
+
+#. If answer files changed, and it is expected/desired, then update the `.out` files
+   that are embedded in the `examples/` directory AND the :ref:`"answers" repository<>`. 

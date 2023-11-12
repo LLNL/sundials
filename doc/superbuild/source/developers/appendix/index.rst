@@ -12,9 +12,12 @@
    SUNDIALS Copyright End
    -----------------------------------------------------------------------------
 
-**********
-References
-**********
+.. _Appendix:
 
-.. [GoogleStyle] `Google Style Guides
-                 <https://google.github.io/styleguide/>`_
+Appendix
+========
+
+.. toctree::
+   :maxdepth: 1
+
+   GitCheatSheet
