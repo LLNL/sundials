@@ -3,6 +3,21 @@
 
 ## Changes to SUNDIALS in release X.X.X
 
+Added the `SUNAdaptController` base class, ported ARKODE's internal
+implementations of time step controllers into implementations of this class,
+and updated ARKODE to use these objects instead of its own implementations.
+Added `ARKStepSetAdaptController` and `ERKStepSetAdaptController` routines
+so that users can modify controller parameters, or even provide custom
+implementations.
+
+Added the routines `ARKStepSetAdaptivityAdjustment` and
+`ERKStepSetAdaptivityAdjustment`, that allow users to adjust the
+value for the method order supplied to the temporal adaptivity controllers.
+The ARKODE default for this adjustment has been -1 since its initial
+release, but for some applications a value of 0 is more appropriate.
+Users who notice that their simulations encounter a large number of
+temporal error test failures may want to experiment with adjusting this value.
+
 Fixed a regression introduced by the stop time bug fix in v6.6.1 where ARKODE,
 CVODE, CVODES, IDA, and IDAS would return at the stop time rather than the
 requested output time if the stop time was reached in the same step in which the
@@ -27,6 +42,24 @@ Fixed scaling bug in `SUNMatScaleAddI_Sparse` for non-square matrices.
 Fixed missing soversions in some `SUNLinearSolver` and `SUNNonlinearSolver`
 CMake targets.
 
+Added Fortran support for the LAPACK dense `SUNLinearSolver` implementation.
+
+Fixed the build system support for MAGMA when using a NVIDIA HPC SDK installation of CUDA
+and fixed the targets used for rocBLAS and rocSPARSE.
+
+Added the third order ERK method `ARKODE_SHU_OSHER_3_2_3`, the fourth order
+ERK method `ARKODE_SOFRONIOU_SPALETTA_5_3_4`, the sixth order ERK method
+`ARKODE_VERNER_9_5_6`, the seventh order ERK method `ARKODE_VERNER_10_6_7`,
+the eighth order ERK method `ARKODE_VERNER_13_7_8`, and the ninth order ERK
+method `ARKODE_VERNER_16_8_9`.
+
+Changed the `SUNProfiler` so that it does not rely on `MPI_WTime` in any case.
+This fixes https://github.com/LLNL/sundials/issues/312. 
+
+**Breaking change**
+Functions, types and header files that were previously deprecated have been
+removed. 
+
 ## Changes to SUNDIALS in release 6.6.1
 
 Updated the Tpetra NVector interface to support Trilinos 14.
@@ -39,6 +72,20 @@ be cleared when using normal mode if the requested output time is the same as
 the stop time. Additionally, with ARKODE, CVODE, and CVODES this fix removes an
 unnecessary interpolation of the solution at the stop time that could occur in
 this case.
+
+Fixed a bug in ERKStep where methods with `c[s-1] = 1` but `a[s-1,j] != b[j]`
+were incorrectly treated as having the first same as last (FSAL) property.
+
+Fixed a bug in `MRIStepCoupling_Write` where explicit coupling tables were not
+written to the output file pointer.
+
+ARKStep, ERKStep, MRIStep, and SPRKStep were updated to remove a potentially
+unnecessary right-hand side evaluation at the end of an integration. ARKStep was
+additionally updated to remove extra right-hand side evaluations when using an
+explicit method or an implicit method with an explicit first stage.
+
+The `MRIStepInnerStepper` class in MRIStep was updated to make supplying an
+`MRIStepInnerFullRhsFn` optional.
 
 ## Changes to SUNDIALS in release 6.6.0
 

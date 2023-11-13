@@ -119,12 +119,6 @@ SUNDIALS_EXPORT int SUNLinSolSpace_SPFGMR(SUNLinearSolver S,
                                           long int *lenrwLS,
                                           long int *leniwLS);
 SUNDIALS_EXPORT int SUNLinSolFree_SPFGMR(SUNLinearSolver S);
-SUNDIALS_DEPRECATED_EXPORT_MSG("Use SUNLogger_SetInfoFilename instead")
-int SUNLinSolSetInfoFile_SPFGMR(SUNLinearSolver LS,
-                                FILE* info_file);
-SUNDIALS_DEPRECATED_EXPORT_MSG("Use SUNLogger interface instead")
-int SUNLinSolSetPrintLevel_SPFGMR(SUNLinearSolver LS, int print_level);
-
 
 #ifdef __cplusplus
 }

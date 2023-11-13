@@ -965,7 +965,6 @@ int mriStep_GetGammas(void* arkode_mem, realtype *gamma,
   - sets/checks the ARK Butcher tables to be used
   - allocates any memory that depends on the number of ARK
     stages, method order, or solver options
-  - sets the call_fullrhs flag
 
   With other initialization types, this routine does nothing.
   ---------------------------------------------------------------*/
@@ -1207,37 +1206,39 @@ int mriStep_Init(void* arkode_mem, int init_type)
     }
   }
 
-  /* Signal to shared arkode module that fullrhs is required after each step */
-  ark_mem->call_fullrhs = SUNTRUE;
-
   return(ARK_SUCCESS);
 }
 
 
-/*---------------------------------------------------------------
+/*------------------------------------------------------------------------------
   mriStep_FullRHS:
 
   This is just a wrapper to call the user-supplied RHS functions,
   f(t,y) = fse(t,y) + fsi(t,y)  + ff(t,y).
 
   This will be called in one of three 'modes':
-    ARK_FULLRHS_START -> called at the beginning of a simulation
-                         or after post processing at step
-    ARK_FULLRHS_END   -> called at the end of a successful step
-    ARK_FULLRHS_OTHER -> called elsewhere (e.g. for dense output)
 
-  If it is called in ARK_FULLRHS_START mode, we store the vectors
-  f(t,y) in F[0] for possible reuse in the first stage of the
+     ARK_FULLRHS_START -> called at the beginning of a simulation i.e., at
+                          (tn, yn) = (t0, y0) or (tR, yR)
+
+     ARK_FULLRHS_END   -> called at the end of a successful step i.e, at
+                          (tcur, ycur) or the start of the subsequent step i.e.,
+                          at (tn, yn) = (tcur, ycur) from the end of the last
+                          step
+
+     ARK_FULLRHS_OTHER -> called elsewhere (e.g. for dense output)
+
+  If this function is called in ARK_FULLRHS_START or ARK_FULLRHS_END mode and
+  evaluating the RHS functions is necessary, we store the vectors fse(t,y) and
+  fsi(t,y) in Fse[0] and Fsi[0] for possible reuse in the first stage of the
   subsequent time step.
 
-  If it is called in ARK_FULLRHS_END mode, we reevauate f(t,y). At
-  this time no checks are made to see if the method coefficient
-  support copying vectors F[stages] to fill f instead of calling f().
+  ARK_FULLRHS_OTHER mode is only called for dense output in-between steps, or
+  when estimating the initial time step size, so we strive to store the
+  intermediate parts so that they do not interfere with the other two modes.
 
-  ARK_FULLRHS_OTHER mode is only called for dense output in-between
-  steps, so we strive to store the intermediate parts so that they
-  do not interfere with the other two modes.
-  ---------------------------------------------------------------*/
+  Presently ff(t,y) is always called with ARK_FULLRHS_OTHER mode.
+  ----------------------------------------------------------------------------*/
 int mriStep_FullRHS(void* arkode_mem, realtype t, N_Vector y, N_Vector f,
                     int mode)
 {
@@ -1250,115 +1251,144 @@ int mriStep_FullRHS(void* arkode_mem, realtype t, N_Vector y, N_Vector f,
                                  &ark_mem, &step_mem);
   if (retval != ARK_SUCCESS) return(retval);
 
+  /* ensure that inner stepper provides fullrhs function */
+  if (!(step_mem->stepper->ops->fullrhs))
+  {
+    arkProcessError(ark_mem, ARK_ILL_INPUT, "ARKODE::MRIStep",
+                    "mriStep_FullRHS", MSG_ARK_MISSING_FULLRHS);
+    return ARK_ILL_INPUT;
+  }
+
   /* perform RHS functions contingent on 'mode' argument */
   switch(mode) {
 
-  /* ARK_FULLRHS_START: called at the beginning of a simulation
-     Store the vector fs(t,y) in F[0] for possible reuse
-     in the first stage of the subsequent time step */
   case ARK_FULLRHS_START:
 
-    /* call fse if the problem has an explicit component */
-    if (step_mem->explicit_rhs) {
-      retval = step_mem->fse(t, y, step_mem->Fse[0], ark_mem->user_data);
-      step_mem->nfse++;
-      if (retval != 0) {
-         arkProcessError(ark_mem, ARK_RHSFUNC_FAIL, "ARKODE::MRIStep",
-                         "mriStep_FullRHS", MSG_ARK_RHSFUNC_FAILED, t);
-         return(ARK_RHSFUNC_FAIL);
+    /* compute the full RHS */
+    if (!(ark_mem->fn_is_current))
+    {
+      /* compute the explicit component */
+      if (step_mem->explicit_rhs)
+      {
+        retval = step_mem->fse(t, y, step_mem->Fse[0], ark_mem->user_data);
+        step_mem->nfse++;
+        if (retval != 0)
+        {
+          arkProcessError(ark_mem, ARK_RHSFUNC_FAIL, "ARKODE::MRIStep",
+                          "mriStep_FullRHS", MSG_ARK_RHSFUNC_FAILED, t);
+          return(ARK_RHSFUNC_FAIL);
+        }
       }
-    }
 
-    /* call fsi if the problem has an implicit component */
-    if (step_mem->implicit_rhs) {
-      retval = step_mem->fsi(t, y, step_mem->Fsi[0], ark_mem->user_data);
-      step_mem->nfsi++;
-      if (retval != 0) {
+      /* compute the implicit component */
+      if (step_mem->implicit_rhs)
+      {
+        retval = step_mem->fsi(t, y, step_mem->Fsi[0], ark_mem->user_data);
+        step_mem->nfsi++;
+        if (retval != 0)
+        {
+          arkProcessError(ark_mem, ARK_RHSFUNC_FAIL, "ARKODE::MRIStep",
+                          "mriStep_FullRHS", MSG_ARK_RHSFUNC_FAILED, t);
+          return(ARK_RHSFUNC_FAIL);
+        }
+      }
+
+      /* compute the fast component (force new RHS computation) */
+      retval = mriStepInnerStepper_FullRhs(step_mem->stepper, t, y, f,
+                                           ARK_FULLRHS_OTHER);
+      if (retval != ARK_SUCCESS)
+      {
         arkProcessError(ark_mem, ARK_RHSFUNC_FAIL, "ARKODE::MRIStep",
                         "mriStep_FullRHS", MSG_ARK_RHSFUNC_FAILED, t);
         return(ARK_RHSFUNC_FAIL);
       }
     }
 
-    /* call ff (force new RHS computation) */
-    retval = mriStepInnerStepper_FullRhs(step_mem->stepper, t, y, f,
-                                         ARK_FULLRHS_OTHER);
-    if (retval != ARK_SUCCESS) {
-      arkProcessError(ark_mem, ARK_RHSFUNC_FAIL, "ARKODE::MRIStep",
-                      "mriStep_FullRHS", MSG_ARK_RHSFUNC_FAILED, t);
-      return(ARK_RHSFUNC_FAIL);
-    }
-
     /* combine RHS vectors into output */
-    if (step_mem->explicit_rhs && step_mem->implicit_rhs) { /* ImEx */
+    if (step_mem->explicit_rhs && step_mem->implicit_rhs)
+    {
+      /* ImEx */
       N_VLinearSum(ONE, step_mem->Fse[0], ONE, f, f);
       N_VLinearSum(ONE, step_mem->Fsi[0], ONE, f, f);
-    } else {
-      if (step_mem->implicit_rhs) {         /* implicit */
-        N_VLinearSum(ONE, step_mem->Fsi[0], ONE, f, f);
-      } else {                          /* explicit */
-        N_VLinearSum(ONE, step_mem->Fse[0], ONE, f, f);
-      }
+    }
+    else if (step_mem->implicit_rhs)
+    {
+      /* implicit */
+      N_VLinearSum(ONE, step_mem->Fsi[0], ONE, f, f);
+    }
+    else
+    {
+      /* explicit */
+      N_VLinearSum(ONE, step_mem->Fse[0], ONE, f, f);
     }
 
     break;
 
-
-  /* ARK_FULLRHS_END: called at the end of a successful step
-     This always recomputes the full RHS (i.e., this is the
-     same as case 0). */
   case ARK_FULLRHS_END:
 
-    /* call fse if the problem has an explicit component */
-    if (step_mem->explicit_rhs) {
-      retval = step_mem->fse(t, y, step_mem->Fse[0], ark_mem->user_data);
-      step_mem->nfse++;
-      if (retval != 0) {
+    /* compute the full RHS */
+    if (!(ark_mem->fn_is_current))
+    {
+      /* compute the explicit component */
+      if (step_mem->explicit_rhs)
+      {
+        retval = step_mem->fse(t, y, step_mem->Fse[0], ark_mem->user_data);
+        step_mem->nfse++;
+        if (retval != 0)
+        {
+          arkProcessError(ark_mem, ARK_RHSFUNC_FAIL, "ARKODE::MRIStep",
+                          "mriStep_FullRHS", MSG_ARK_RHSFUNC_FAILED, t);
+          return(ARK_RHSFUNC_FAIL);
+        }
+      }
+
+      /* compute the implicit component */
+      if (step_mem->implicit_rhs)
+      {
+        retval = step_mem->fsi(t, y, step_mem->Fsi[0], ark_mem->user_data);
+        step_mem->nfsi++;
+        if (retval != 0)
+        {
+          arkProcessError(ark_mem, ARK_RHSFUNC_FAIL, "ARKODE::MRIStep",
+                          "mriStep_FullRHS", MSG_ARK_RHSFUNC_FAILED, t);
+          return(ARK_RHSFUNC_FAIL);
+        }
+      }
+
+      /* compute the fast component (force new RHS computation) */
+      retval = mriStepInnerStepper_FullRhs(step_mem->stepper, t, y, f,
+                                           ARK_FULLRHS_OTHER);
+      if (retval != ARK_SUCCESS)
+      {
         arkProcessError(ark_mem, ARK_RHSFUNC_FAIL, "ARKODE::MRIStep",
                         "mriStep_FullRHS", MSG_ARK_RHSFUNC_FAILED, t);
         return(ARK_RHSFUNC_FAIL);
       }
-    }
-
-    /* call fsi if the problem has an implicit component */
-    if (step_mem->implicit_rhs) {
-      retval = step_mem->fsi(t, y, step_mem->Fsi[0], ark_mem->user_data);
-      step_mem->nfsi++;
-      if (retval != 0) {
-        arkProcessError(ark_mem, ARK_RHSFUNC_FAIL, "ARKODE::MRIStep",
-                        "mriStep_FullRHS", MSG_ARK_RHSFUNC_FAILED, t);
-        return(ARK_RHSFUNC_FAIL);
-      }
-    }
-
-    /* call ff (force new RHS computation) */
-    retval = mriStepInnerStepper_FullRhs(step_mem->stepper, t, y, f,
-                                         ARK_FULLRHS_OTHER);
-    if (retval != ARK_SUCCESS) {
-      arkProcessError(ark_mem, ARK_RHSFUNC_FAIL, "ARKODE::MRIStep",
-                      "mriStep_FullRHS", MSG_ARK_RHSFUNC_FAILED, t);
-      return(ARK_RHSFUNC_FAIL);
     }
 
     /* combine RHS vectors into output */
-    if (step_mem->explicit_rhs && step_mem->implicit_rhs) { /* ImEx */
+    if (step_mem->explicit_rhs && step_mem->implicit_rhs)
+    {
+      /* ImEx */
       N_VLinearSum(ONE, step_mem->Fse[0], ONE, f, f);
       N_VLinearSum(ONE, step_mem->Fsi[0], ONE, f, f);
-    } else {
-      if (step_mem->implicit_rhs) {         /* implicit */
-        N_VLinearSum(ONE, step_mem->Fsi[0], ONE, f, f);
-      } else {                          /* explicit */
-        N_VLinearSum(ONE, step_mem->Fse[0], ONE, f, f);
-      }
     }
+    else if (step_mem->implicit_rhs)
+    {
+      /* implicit */
+      N_VLinearSum(ONE, step_mem->Fsi[0], ONE, f, f);
+    }
+    else
+    {
+      /* explicit */
+      N_VLinearSum(ONE, step_mem->Fse[0], ONE, f, f);
+    }
+
     break;
 
-  /*  ARK_FULLRHS_OTHER: called for dense output in-between steps
-      store the intermediate calculations in such a way as to not
-      interfere with the other two modes */
   case ARK_FULLRHS_OTHER:
 
-    /* call fse if the problem has an explicit component (store in ark_tempv2) */
+    /* compute the explicit component and store in ark_tempv2 */
     if (step_mem->explicit_rhs) {
       retval = step_mem->fse(t, y, ark_mem->tempv2, ark_mem->user_data);
       step_mem->nfse++;
@@ -1369,7 +1399,7 @@ int mriStep_FullRHS(void* arkode_mem, realtype t, N_Vector y, N_Vector f,
       }
     }
 
-    /* call fsi if the problem has an implicit component (store in sdata) */
+    /* compute the implicit component and store in sdata */
     if (step_mem->implicit_rhs) {
       retval = step_mem->fsi(t, y, step_mem->sdata, ark_mem->user_data);
       step_mem->nfsi++;
@@ -1381,7 +1411,7 @@ int mriStep_FullRHS(void* arkode_mem, realtype t, N_Vector y, N_Vector f,
     }
 
 
-    /* call ff (force new RHS computation) */
+    /* compute the fast component (force new RHS computation) */
     retval = mriStepInnerStepper_FullRhs(step_mem->stepper, t, y, f,
                                          ARK_FULLRHS_OTHER);
     if (retval != ARK_SUCCESS) {
@@ -1391,15 +1421,21 @@ int mriStep_FullRHS(void* arkode_mem, realtype t, N_Vector y, N_Vector f,
     }
 
     /* combine RHS vectors into output */
-    if (step_mem->explicit_rhs && step_mem->implicit_rhs) { /* ImEx */
+    if (step_mem->explicit_rhs && step_mem->implicit_rhs)
+    {
+      /* ImEx */
       N_VLinearSum(ONE, ark_mem->tempv2, ONE, f, f);
       N_VLinearSum(ONE, step_mem->sdata, ONE, f, f);
-    } else {                   /* implicit */
-      if (step_mem->implicit_rhs) {
-        N_VLinearSum(ONE, step_mem->sdata, ONE, f, f);
-      } else {                                           /* explicit */
-        N_VLinearSum(ONE, ark_mem->tempv2, ONE, f, f);
-      }
+    }
+    else if (step_mem->implicit_rhs)
+    {
+      /* implicit */
+      N_VLinearSum(ONE, step_mem->sdata, ONE, f, f);
+    }
+    else
+    {
+      /* explicit */
+      N_VLinearSum(ONE, ark_mem->tempv2, ONE, f, f);
     }
 
     break;
@@ -1457,6 +1493,45 @@ int mriStep_TakeStep(void* arkode_mem, realtype *dsmPtr, int *nflagPtr)
                                  &ark_mem, &step_mem);
   if (retval != ARK_SUCCESS) return(retval);
 
+  /* call nonlinear solver setup if it exists */
+  if (step_mem->NLS)
+  {
+    if ((step_mem->NLS)->ops->setup) {
+      N_VConst(ZERO, ark_mem->tempv3);   /* set guess to 0 for predictor-corrector form */
+      retval = SUNNonlinSolSetup(step_mem->NLS, ark_mem->tempv3, ark_mem);
+      if (retval < 0) return(ARK_NLS_SETUP_FAIL);
+      if (retval > 0) return(ARK_NLS_SETUP_RECVR);
+    }
+  }
+
+  /* Evaluate the slow RHS functions if needed. NOTE: We do not use the full RHS
+     function here (unlike ERKStep and ARKStep) since it does not need to check
+     for FSAL or SA methods and thus avoids potentially unnecessary evaluations
+     of the inner (fast) RHS function */
+
+  if (!(ark_mem->fn_is_current))
+  {
+    /* compute the explicit component */
+    if (step_mem->explicit_rhs)
+    {
+      retval = step_mem->fse(ark_mem->tn, ark_mem->yn, step_mem->Fse[0],
+                             ark_mem->user_data);
+      step_mem->nfse++;
+      if (retval) { return ARK_RHSFUNC_FAIL; }
+    }
+
+    /* compute the implicit component */
+    if (step_mem->implicit_rhs)
+    {
+      retval = step_mem->fsi(ark_mem->tn, ark_mem->yn, step_mem->Fsi[0],
+                             ark_mem->user_data);
+      step_mem->nfsi++;
+      if (retval) { return ARK_RHSFUNC_FAIL; }
+    }
+
+    ark_mem->fn_is_current = SUNTRUE;
+  }
+
 #ifdef SUNDIALS_DEBUG
   printf("    MRIStep step %li,  stage 0,  h = %"RSYM",  t_n = %"RSYM"\n",
          ark_mem->nst, ark_mem->h, ark_mem->tcur);
@@ -1484,15 +1559,6 @@ int mriStep_TakeStep(void* arkode_mem, realtype *dsmPtr, int *nflagPtr)
   }
 #endif
 
-  /* call nonlinear solver setup if it exists */
-  if (step_mem->NLS)
-    if ((step_mem->NLS)->ops->setup) {
-      N_VConst(ZERO, ark_mem->tempv3);   /* set guess to 0 for predictor-corrector form */
-      retval = SUNNonlinSolSetup(step_mem->NLS, ark_mem->tempv3, ark_mem);
-      if (retval < 0) return(ARK_NLS_SETUP_FAIL);
-      if (retval > 0) return(ARK_NLS_SETUP_RECVR);
-    }
-
   /* The first stage is the previous time-step solution, so its RHS
      is the [already-computed] slow RHS from the start of the step */
 
@@ -1503,15 +1569,11 @@ int mriStep_TakeStep(void* arkode_mem, realtype *dsmPtr, int *nflagPtr)
     ark_mem->tcur = ark_mem->tn + step_mem->MRIC->c[is]*ark_mem->h;
 
     /* Solver diagnostics reporting */
-    if (ark_mem->report)
-      fprintf(ark_mem->diagfp, "MRIStep  step  %li  %"RSYM"  %i  %"RSYM"\n",
-              ark_mem->nst, ark_mem->h, is, ark_mem->tcur);
-
-#if SUNDIALS_LOGGING_LEVEL >= SUNDIALS_LOGGING_INFO
-    SUNLogger_QueueMsg(ARK_LOGGER, SUN_LOGLEVEL_INFO,
+#if SUNDIALS_LOGGING_LEVEL >= SUNDIALS_LOGGING_DEBUG
+    SUNLogger_QueueMsg(ARK_LOGGER, SUN_LOGLEVEL_DEBUG,
                        "ARKODE::mriStep_TakeStep", "start-stage",
-                       "step = %li, stage = %i, h = %"RSYM", tcur = %"RSYM,
-                       ark_mem->nst, is, ark_mem->h, ark_mem->tcur);
+                       "step = %li, stage = %i, stage type = %d, h = %"RSYM", tcur = %"RSYM,
+                       ark_mem->nst, is, step_mem->stagetypes[is], ark_mem->h, ark_mem->tcur);
 #endif
 
     /* Determine current stage type, and call corresponding routine; the
@@ -1613,12 +1675,8 @@ int mriStep_TakeStep(void* arkode_mem, realtype *dsmPtr, int *nflagPtr)
 #endif
 
   /* Solver diagnostics reporting */
-  if (ark_mem->report)
-    fprintf(ark_mem->diagfp, "MRIStep  etest  %li  %"RSYM"  %"RSYM"\n",
-            ark_mem->nst, ark_mem->h, *dsmPtr);
-
-#if SUNDIALS_LOGGING_LEVEL >= SUNDIALS_LOGGING_INFO
-  SUNLogger_QueueMsg(ARK_LOGGER, SUN_LOGLEVEL_INFO,
+#if SUNDIALS_LOGGING_LEVEL >= SUNDIALS_LOGGING_DEBUG
+  SUNLogger_QueueMsg(ARK_LOGGER, SUN_LOGLEVEL_DEBUG,
                      "ARKODE::mriStep_TakeStep", "error-test",
                      "step = %li, h = %"RSYM", dsm = %"RSYM,
                      ark_mem->nst, ark_mem->h, *dsmPtr);
@@ -2729,7 +2787,7 @@ int mriStepInnerStepper_HasRequiredOps(MRIStepInnerStepper stepper)
   if (stepper == NULL) return ARK_ILL_INPUT;
   if (stepper->ops == NULL) return ARK_ILL_INPUT;
 
-  if (stepper->ops->evolve && stepper->ops->fullrhs)
+  if (stepper->ops->evolve)
     return ARK_SUCCESS;
   else
     return ARK_ILL_INPUT;
@@ -2744,7 +2802,7 @@ int mriStepInnerStepper_Evolve(MRIStepInnerStepper stepper,
   if (stepper->ops == NULL) return ARK_ILL_INPUT;
   if (stepper->ops->evolve == NULL) return ARK_ILL_INPUT;
 
-#if SUNDIALS_LOGGING_LEVEL >= SUNDIALS_LOGGING_INFO
+#if SUNDIALS_LOGGING_LEVEL >= SUNDIALS_LOGGING_DEBUG
   SUNLogger_QueueMsg(stepper->sunctx->logger, SUN_LOGLEVEL_INFO,
                      "ARKODE::mriStepInnerStepper_Evolve", "start-inner-evolve",
                      "t0 = %"RSYM", tout = %"RSYM, t0, tout);
@@ -2752,7 +2810,7 @@ int mriStepInnerStepper_Evolve(MRIStepInnerStepper stepper,
 
   stepper->last_flag = stepper->ops->evolve(stepper, t0, tout, y);
 
-#if SUNDIALS_LOGGING_LEVEL >= SUNDIALS_LOGGING_INFO
+#if SUNDIALS_LOGGING_LEVEL >= SUNDIALS_LOGGING_DEBUG
   SUNLogger_QueueMsg(stepper->sunctx->logger, SUN_LOGLEVEL_INFO,
                      "ARKODE::mriStepInnerStepper_Evolve", "end-inner-evolve",
                      "flag = %i", stepper->last_flag);
@@ -2785,7 +2843,7 @@ int mriStepInnerStepper_Reset(MRIStepInnerStepper stepper,
   if (stepper == NULL) return ARK_ILL_INPUT;
   if (stepper->ops == NULL) return ARK_ILL_INPUT;
 
-#if SUNDIALS_LOGGING_LEVEL >= SUNDIALS_LOGGING_INFO
+#if SUNDIALS_LOGGING_LEVEL >= SUNDIALS_LOGGING_DEBUG
   SUNLogger_QueueMsg(stepper->sunctx->logger, SUN_LOGLEVEL_INFO,
                      "ARKODE::mriStepInnerStepper_Reset", "reset-inner-state",
                      "tR = %"RSYM, tR);

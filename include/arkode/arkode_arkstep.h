@@ -20,6 +20,8 @@
 #include <sundials/sundials_nvector.h>
 #include <sundials/sundials_linearsolver.h>
 #include <sundials/sundials_nonlinearsolver.h>
+#include <sunadaptcontroller/sunadaptcontroller_soderlind.h>
+#include <sunadaptcontroller/sunadaptcontroller_imexgus.h>
 #include <arkode/arkode.h>
 #include <arkode/arkode_ls.h>
 #include <arkode/arkode_butcher_erk.h>
@@ -41,7 +43,9 @@ static const int ARKSTEP_DEFAULT_ERK_3 = ARKODE_BOGACKI_SHAMPINE_4_2_3;
 static const int ARKSTEP_DEFAULT_ERK_4 = ARKODE_ZONNEVELD_5_3_4;
 static const int ARKSTEP_DEFAULT_ERK_5 = ARKODE_CASH_KARP_6_4_5;
 static const int ARKSTEP_DEFAULT_ERK_6 = ARKODE_VERNER_8_5_6;
+static const int ARKSTEP_DEFAULT_ERK_7 = ARKODE_VERNER_10_6_7;
 static const int ARKSTEP_DEFAULT_ERK_8 = ARKODE_FEHLBERG_13_7_8;
+static const int ARKSTEP_DEFAULT_ERK_9 = ARKODE_VERNER_16_8_9;
 
 /*    implicit */
 static const int ARKSTEP_DEFAULT_DIRK_2 = ARKODE_SDIRK_2_1_2;
@@ -58,53 +62,6 @@ static const int ARKSTEP_DEFAULT_ARK_ITABLE_2 = ARKODE_ARK2_DIRK_3_1_2;
 static const int ARKSTEP_DEFAULT_ARK_ITABLE_3 = ARKODE_ARK324L2SA_DIRK_4_2_3;
 static const int ARKSTEP_DEFAULT_ARK_ITABLE_4 = ARKODE_ARK436L2SA_DIRK_6_3_4;
 static const int ARKSTEP_DEFAULT_ARK_ITABLE_5 = ARKODE_ARK548L2SA_DIRK_8_4_5;
-
-#ifndef DEFAULT_ERK_2
-/* DEPRECATED DEFAULT_ERK_2: use ARKSTEP_ERK_DEFAULT_2 */
-#define DEFAULT_ERK_2           ARKSTEP_ERK_DEFAULT_2
-#endif
-
-#ifndef DEFAULT_ERK_3
-/* DEPRECATED DEFAULT_ERK_3: use ARKSTEP_ERK_DEFAULT_3 */
-#define DEFAULT_ERK_3           ARKSTEP_ERK_DEFAULT_3
-#endif
-
-#ifndef DEFAULT_ERK_4
-/* DEPRECATED DEFAULT_ERK_4: use ARKSTEP_ERK_DEFAULT_4 */
-#define DEFAULT_ERK_4           ARKSTEP_ERK_DEFAULT_4
-#endif
-
-#ifndef DEFAULT_ERK_5
-/* DEPRECATED DEFAULT_ERK_5: use ARKSTEP_ERK_DEFAULT_5 */
-#define DEFAULT_ERK_5           ARKSTEP_ERK_DEFAULT_5
-#endif
-
-#ifndef DEFAULT_ERK_6
-/* DEPRECATED DEFAULT_ERK_6: use ARKSTEP_ERK_DEFAULT_6 */
-#define DEFAULT_ERK_6           ARKSTEP_ERK_DEFAULT_6
-#endif
-
-#ifndef DEFAULT_ERK_8
-/* DEPRECATED DEFAULT_ERK_8: use ARKSTEP_ERK_DEFAULT_8 */
-#define DEFAULT_ERK_8           ARKSTEP_ERK_DEFAULT_8
-#endif
-
-/*    ImEx */
-/* DEPRECATED DEFAULT_ARK_ETABLE_3: use ARKSTEP_DEFAULT_ARK_ETABLE_3 */
-#define DEFAULT_ARK_ETABLE_3    ARKSTEP_DEFAULT_ARK_ETABLE_3
-/* DEPRECATED DEFAULT_ARK_ETABLE_4: use ARKSTEP_DEFAULT_ARK_ETABLE_4 */
-#define DEFAULT_ARK_ETABLE_4    ARKSTEP_DEFAULT_ARK_ETABLE_4
-/* DEPRECATED DEFAULT_ARK_ETABLE_5: use ARKSTEP_DEFAULT_ARK_ETABLE_4 */
-#define DEFAULT_ARK_ETABLE_5    ARKSTEP_DEFAULT_ARK_ETABLE_5
-/* DEPRECATED DEFAULT_ARK_ITABLE_3: use ARKSTEP_DEFAULT_ARK_ITABLE_3 */
-#define DEFAULT_ARK_ITABLE_3    ARKSTEP_DEFAULT_ARK_ITABLE_3
-/* DEPRECATED DEFAULT_ARK_ITABLE_4: use ARKSTEP_DEFAULT_ARK_ITABLE_4 */
-#define DEFAULT_ARK_ITABLE_4    ARKSTEP_DEFAULT_ARK_ITABLE_4
-/* DEPRECATED DEFAULT_ARK_ITABLE_5: use ARKSTEP_DEFAULT_ARK_ITABLE_5 */
-#define DEFAULT_ARK_ITABLE_5    ARKSTEP_DEFAULT_ARK_ITABLE_5
-
-/* backwards-compatibility */
-typedef ARKStagePredictFn ARKStepStagePredictFn;
 
 /* -------------------
  * Exported Functions
@@ -180,25 +137,27 @@ SUNDIALS_EXPORT int ARKStepSetTableNum(void *arkode_mem,
                                        ARKODE_DIRKTableID itable, ARKODE_ERKTableID etable);
 SUNDIALS_EXPORT int ARKStepSetTableName(void *arkode_mem,
                                         const char *itable, const char *etable);
+SUNDIALS_EXPORT int ARKStepSetAdaptController(void *arkode_mem, SUNAdaptController C);
+SUNDIALS_EXPORT int ARKStepSetAdaptivityAdjustment(void *arkode_mem, int adjust);
 SUNDIALS_EXPORT int ARKStepSetCFLFraction(void *arkode_mem,
                                           realtype cfl_frac);
 SUNDIALS_EXPORT int ARKStepSetSafetyFactor(void *arkode_mem,
                                            realtype safety);
-SUNDIALS_EXPORT int ARKStepSetErrorBias(void *arkode_mem,
-                                        realtype bias);
+SUNDIALS_DEPRECATED_EXPORT_MSG("use SUNAdaptController instead")
+int ARKStepSetErrorBias(void *arkode_mem, realtype bias);
 SUNDIALS_EXPORT int ARKStepSetMaxGrowth(void *arkode_mem,
                                         realtype mx_growth);
 SUNDIALS_EXPORT int ARKStepSetMinReduction(void *arkode_mem,
                                            realtype eta_min);
 SUNDIALS_EXPORT int ARKStepSetFixedStepBounds(void *arkode_mem,
                                               realtype lb, realtype ub);
-SUNDIALS_EXPORT int ARKStepSetAdaptivityMethod(void *arkode_mem,
-                                               int imethod,
-                                               int idefault, int pq,
-                                               realtype adapt_params[3]);
-SUNDIALS_EXPORT int ARKStepSetAdaptivityFn(void *arkode_mem,
-                                           ARKAdaptFn hfun,
-                                           void *h_data);
+SUNDIALS_DEPRECATED_EXPORT_MSG("use SUNAdaptController instead")
+int ARKStepSetAdaptivityMethod(void *arkode_mem, int imethod,
+                               int idefault, int pq,
+                               realtype adapt_params[3]);
+SUNDIALS_DEPRECATED_EXPORT_MSG("use SUNAdaptController instead")
+int ARKStepSetAdaptivityFn(void *arkode_mem, ARKAdaptFn hfun,
+                           void *h_data);
 SUNDIALS_EXPORT int ARKStepSetMaxFirstGrowth(void *arkode_mem,
                                              realtype etamx1);
 SUNDIALS_EXPORT int ARKStepSetMaxEFailGrowth(void *arkode_mem,
@@ -261,8 +220,6 @@ SUNDIALS_EXPORT int ARKStepSetErrFile(void *arkode_mem,
                                       FILE *errfp);
 SUNDIALS_EXPORT int ARKStepSetUserData(void *arkode_mem,
                                        void *user_data);
-SUNDIALS_DEPRECATED_EXPORT_MSG("use SUNDIALS_LOGGER instead")
-int ARKStepSetDiagnostics(void *arkode_mem, FILE *diagfp);
 
 SUNDIALS_EXPORT int ARKStepSetPostprocessStepFn(void *arkode_mem,
                                                 ARKPostProcessFn ProcessStep);

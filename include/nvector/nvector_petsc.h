@@ -195,21 +195,6 @@ SUNDIALS_EXPORT int N_VEnableLinearCombinationVectorArray_Petsc(N_Vector v, bool
 
 SUNDIALS_EXPORT int N_VEnableDotProdMultiLocal_Petsc(N_Vector v, booleantype tf);
 
-/*
- * -----------------------------------------------------------------
- * Deprecated functions
- * -----------------------------------------------------------------
- */
-
-/* use N_VCloneVectorArray */
-SUNDIALS_DEPRECATED_EXPORT N_Vector *N_VCloneVectorArray_Petsc(int count, N_Vector w);
-
-/* use N_VCloneVectorArrayEmpty */
-SUNDIALS_DEPRECATED_EXPORT N_Vector *N_VCloneVectorArrayEmpty_Petsc(int count, N_Vector w);
-
-/* use N_VDestroyVectorArray */
-SUNDIALS_DEPRECATED_EXPORT void N_VDestroyVectorArray_Petsc(N_Vector *vs, int count);
-
 #ifdef __cplusplus
 }
 #endif

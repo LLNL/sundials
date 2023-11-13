@@ -17,10 +17,12 @@
  * ---------------------------------------------------------------------------*/
 
 // Header files
-#include <stdio.h>
+#include <cstdio>
+#include <iomanip>
 #include <iostream>
-#include <string.h>
+#include <cstring>
 #include <cmath>
+#include <string>
 
 #include <arkode/arkode_arkstep.h>
 #include <arkode/arkode_mristep.h>
@@ -91,12 +93,12 @@ int main(int argc, char* argv[])
   UserData udata;
 
   // Check for inputs
-  if (argc > 1) udata.lambda_e = stod(argv[1]);
-  if (argc > 2) udata.lambda_i = stod(argv[2]);
-  if (argc > 3) udata.lambda_f = stod(argv[3]);
-  if (argc > 4) hs = stod(argv[4]);
-  if (argc > 5) hf = stod(argv[5]);
-  if (argc > 5) nsteps = stoi(argv[6]);
+  if (argc > 1) udata.lambda_e = std::stod(argv[1]);
+  if (argc > 2) udata.lambda_i = std::stod(argv[2]);
+  if (argc > 3) udata.lambda_f = std::stod(argv[3]);
+  if (argc > 4) hs = std::stod(argv[4]);
+  if (argc > 5) hf = std::stod(argv[5]);
+  if (argc > 5) nsteps = std::stoi(argv[6]);
 
   // Output problem setup
   cout << "\nDahlquist ODE test problem:\n";
@@ -267,9 +269,9 @@ int run_tests(MRISTEP_METHOD_TYPE type, realtype t0, int nsteps,
     num_methods = 3;
     methods = new ARKODE_MRITableID[num_methods];
 
-    methods[0] = ARKODE_MRI_GARK_ERK45a;
+    methods[0] = ARKODE_MIS_KW3;
     methods[1] = ARKODE_MRI_GARK_ERK33a;
-    methods[2] = ARKODE_MIS_KW3;
+    methods[2] = ARKODE_MRI_GARK_ERK45a;
   }
   else if (type == MRISTEP_IMPLICIT)
   {
@@ -281,13 +283,13 @@ int run_tests(MRISTEP_METHOD_TYPE type, realtype t0, int nsteps,
     methods = new ARKODE_MRITableID[num_methods];
     stiffly_accurate = new bool[num_methods];
 
-    methods[0] = ARKODE_MRI_GARK_ESDIRK46a;
+    methods[0] = ARKODE_MRI_GARK_IRK21a;
     stiffly_accurate[0] = true;
 
     methods[1] = ARKODE_MRI_GARK_ESDIRK34a;
     stiffly_accurate[1] = true;
 
-    methods[2] = ARKODE_MRI_GARK_IRK21a;
+    methods[2] = ARKODE_MRI_GARK_ESDIRK46a;
     stiffly_accurate[2] = true;
   }
   else if (type == MRISTEP_IMEX)
@@ -300,13 +302,13 @@ int run_tests(MRISTEP_METHOD_TYPE type, realtype t0, int nsteps,
     methods = new ARKODE_MRITableID[num_methods];
     stiffly_accurate = new bool[num_methods];
 
-    methods[0] = ARKODE_IMEX_MRI_GARK4;
+    methods[0] = ARKODE_IMEX_MRI_GARK3a;
     stiffly_accurate[0] = false;
 
     methods[1] = ARKODE_IMEX_MRI_GARK3b;
     stiffly_accurate[1] = false;
 
-    methods[2] = ARKODE_IMEX_MRI_GARK3a;
+    methods[2] = ARKODE_IMEX_MRI_GARK4;
     stiffly_accurate[2] = false;
   }
   else
@@ -432,7 +434,7 @@ int run_tests(MRISTEP_METHOD_TYPE type, realtype t0, int nsteps,
     long int fe_evals = 0;
     if (type == MRISTEP_EXPLICIT || type == MRISTEP_IMEX)
     {
-      fe_evals = mri_nst * nstages_stored + 1;
+      fe_evals = mri_nst * nstages_stored;
     }
 
     if (mri_nfse != fe_evals)
@@ -444,8 +446,20 @@ int run_tests(MRISTEP_METHOD_TYPE type, realtype t0, int nsteps,
     long int fi_evals = 0;
     if (type == MRISTEP_IMPLICIT || type == MRISTEP_IMEX)
     {
-      fi_evals = mri_nst * nstages_stored + mri_nni;
-      if (stiffly_accurate && !stiffly_accurate[i]) fi_evals++;
+      if (stiffly_accurate[i])
+      {
+        // The last stage is implicit so it does not correspond to a column of
+        // zeros in the coupling matrix and is counted in "nstages_stored"
+        // however we do not evaluate the RHS functions after the solve since
+        // the methods is "FSAL" (the index map value and allocated space is
+        // used in the nonlinear for this stage). The RHS functions will be
+        // evaluated and stored at the start of the next step.
+        fi_evals = mri_nst * (nstages_stored - 1) + mri_nni;
+      }
+      else
+      {
+        fi_evals = mri_nst * nstages_stored + mri_nni;
+      }
     }
 
     if (mri_nfsi != fi_evals)

@@ -64,8 +64,8 @@ for splittings tuned for use with optimal implicit solver algorithms.
 This framework allows for significant freedom over the constitutive
 methods used for each component, and ARKODE is packaged with a wide
 array of built-in methods for use.  These built-in Butcher tables
-include adaptive explicit methods of orders 2-8, adaptive implicit
-methods of orders 2-5, and adaptive ImEx methods of orders 3-5.
+include adaptive explicit methods of orders 2-9, adaptive implicit
+methods of orders 2-5, and adaptive ImEx methods of orders 2-5.
 
 
 *ERKStep* focuses specifically on problems posed in explicit form,
@@ -77,7 +77,7 @@ methods of orders 2-5, and adaptive ImEx methods of orders 3-5.
 allowing for increased computational efficiency and memory savings.
 The algorithms used in ERKStep are adaptive- and fixed-step explicit
 Runge--Kutta methods.   As with ARKStep, the ERKStep module is packaged
-with adaptive explicit methods of orders 2-8.
+with adaptive explicit methods of orders 2-9.
 
 *SPRKStep* focuses on Hamiltonian systems posed in the form,
 
@@ -133,6 +133,24 @@ Changes from previous versions
 Changes in vX.X.X
 -----------------
 
+Added the :c:type:`SUNAdaptController` base class, ported ARKODE's internal
+implementations of time step controllers into implementations of this class,
+and updated ARKODE to use these objects instead of its own implementations.  Added
+:c:func:`ARKStepSetAdaptController` and :c:func:`ERKStepSetAdaptController`
+routines so that users can modify controller parameters, or even provide custom
+implementations.
+
+Added the routines :c:func:`ARKStepSetAdaptivityAdjustment` and
+:c:func:`ERKStepSetAdaptivityAdjustment`, that allow users to adjust the
+value for the method order supplied to the temporal adaptivity controllers.
+The ARKODE default for this adjustment has been :math:`-1` since its initial
+release, but for some applications a value of :math:`0` is more appropriate.
+Users who notice that their simulations encounter a large number of
+temporal error test failures may want to experiment with adjusting this value.
+
+Fixed the build system support for MAGMA when using a NVIDIA HPC SDK installation of CUDA
+and fixed the targets used for rocBLAS and rocSPARSE.
+
 Fixed a regression introduced by the stop time bug fix in v6.6.1 where ARKODE
 steppers would return at the stop time rather than the requested output time if
 the stop time was reached in the same step in which the output time was passed.
@@ -153,6 +171,22 @@ Fixed scaling bug in ``SUNMatScaleAddI_Sparse`` for non-square matrices.
 Fixed missing soversions in some ``SUNLinearSolver`` and ``SUNNonlinearSolver``
 CMake targets.
 
+Added the third order ERK method ``ARKODE_SHU_OSHER_3_2_3``, the fourth order
+ERK method ``ARKODE_SOFRONIOU_SPALETTA_5_3_4``, the sixth order ERK method
+``ARKODE_VERNER_9_5_6``, the seventh order ERK method ``ARKODE_VERNER_10_6_7``,
+the eighth order ERK method ``ARKODE_VERNER_13_7_8``, and the ninth order ERK
+method ``ARKODE_VERNER_16_8_9``.
+
+Changed the ``SUNProfiler`` so that it does not rely on ``MPI_WTime`` in any case.
+This fixes `GitHub Issue #312 <https://github.com/LLNL/sundials/issues/312>`_. 
+
+Added Fortran support for the LAPACK  dense ``SUNLinearSolver`` implementation.
+
+**Breaking change**
+Functions, types and header files that were previously deprecated have been
+removed. 
+
+
 Changes in v5.6.1
 -----------------
 
@@ -165,6 +199,21 @@ Fixed a bug where the stop time may not be cleared when using normal mode if the
 requested output time is the same as the stop time. Additionally, this fix
 removes an unnecessary interpolation of the solution at the stop time that could
 occur in this case.
+
+Fixed a bug in ERKStep where methods with :math:`c_s = 1` but
+:math:`a_{s,j} \neq b_j` were incorrectly treated as having the first same as
+last (FSAL) property.
+
+Fixed a bug in :c:func:`MRIStepCoupling_Write` where explicit coupling tables
+were not written to the output file pointer.
+
+ARKStep, ERKStep, MRIStep, and SPRKStep were updated to remove a potentially
+unnecessary right-hand side evaluation at the end of an integration. ARKStep was
+additionally updated to remove extra right-hand side evaluations when using an
+explicit method or an implicit method with an explicit first stage.
+
+The :c:type:`MRIStepInnerStepper` class in MRIStep was updated to make supplying
+an :c:func:`MRIStepInnerFullRhsFn` optional.
 
 Changes in v5.6.0
 -----------------
@@ -981,7 +1030,6 @@ utilize a zero initial guess.
 
 A bug was fixed in the ARKODE stepper modules where the stop time may be passed
 after resetting the integrator.
-
 
 Changes in v4.7.0
 -----------------

@@ -91,6 +91,9 @@ Changes from previous versions
 Changes in vX.X.X
 -----------------
 
+Fixed the build system support for MAGMA when using a NVIDIA HPC SDK installation of CUDA
+and fixed the targets used for rocBLAS and rocSPARSE.
+
 Improved computational complexity of ``SUNMatScaleAddI_Sparse`` from ``O(M*N)`` to
 ``O(NNZ)``.
 
@@ -99,6 +102,12 @@ Fixed scaling bug in ``SUNMatScaleAddI_Sparse`` for non-square matrices.
 Fixed missing soversions in some ``SUNLinearSolver`` and ``SUNNonlinearSolver``
 CMake targets.
 
+Added Fortran support for the LAPACK  dense ``SUNLinearSolver`` implementation.
+
+**Breaking change**
+Functions, types and header files that were previously deprecated have been
+removed. 
+
 Changes in v6.6.1
 -----------------
 
@@ -106,6 +115,9 @@ Updated the Tpetra NVector interface to support Trilinos 14.
 
 Fixed a memory leak when destroying a CUDA, HIP, SYCL, or system SUNMemoryHelper
 object.
+
+Changed the ``SUNProfiler`` so that it does not rely on ``MPI_WTime`` in any case.
+This fixes `GitHub Issue #312 <https://github.com/LLNL/sundials/issues/312>`_. 
 
 Changes in v6.6.0
 -----------------

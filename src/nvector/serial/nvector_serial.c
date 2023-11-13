@@ -214,25 +214,6 @@ N_Vector* N_VCloneVectorArray_Serial(int count, N_Vector w)
 }
 
 /* ----------------------------------------------------------------------------
- * Function to create an array of new serial vectors with NULL data array.
- */
-
-N_Vector* N_VCloneVectorArrayEmpty_Serial(int count, N_Vector w)
-{
-  return(N_VCloneEmptyVectorArray(count, w));
-}
-
-/* ----------------------------------------------------------------------------
- * Function to free an array created with N_VCloneVectorArray_Serial
- */
-
-void N_VDestroyVectorArray_Serial(N_Vector* vs, int count)
-{
-  N_VDestroyVectorArray(vs, count);
-  return;
-}
-
-/* ----------------------------------------------------------------------------
  * Function to return number of vector elements
  */
 sunindextype N_VGetLength_Serial(N_Vector v)

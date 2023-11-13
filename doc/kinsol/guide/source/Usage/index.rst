@@ -483,11 +483,7 @@ negative, so a test ``retval`` :math:`<0` will catch any error.
   +--------------------------------------------------------+----------------------------------+------------------------------+
   | Info handler function                                  | :c:func:`KINSetInfoHandlerFn`    | internal fn.                 |
   +--------------------------------------------------------+----------------------------------+------------------------------+
-  | Pointer to an info file                                | :c:func:`KINSetInfoFile`         | ``stdout``                   |
-  +--------------------------------------------------------+----------------------------------+------------------------------+
   | Data for problem-defining function                     | :c:func:`KINSetUserData`         | ``NULL``                     |
-  +--------------------------------------------------------+----------------------------------+------------------------------+
-  | Verbosity level of output                              | :c:func:`KINSetPrintLevel`       | 0                            |
   +--------------------------------------------------------+----------------------------------+------------------------------+
   | Max. number of nonlinear iterations                    | :c:func:`KINSetNumMaxIters`      | 200                          |
   +--------------------------------------------------------+----------------------------------+------------------------------+
@@ -599,83 +595,6 @@ negative, so a test ``retval`` :math:`<0` will catch any error.
 
       Error messages indicating that the KINSOL solver memory is
       ``NULL`` will  always be directed to ``stderr``.
-
-
-.. c:function:: int KINSetInfoFile(void * kin_mem, FILE * infofp)
-
-   The function :c:func:`KINSetInfoFile` specifies the pointer to the file
-   where all informative (non-error) messages should be directed.
-
-   **Arguments:**
-     * ``kin_mem`` -- pointer to the KINSOL memory block.
-     * ``infofp`` -- pointer to output file.
-
-   **Return value:**
-     * ``KIN_SUCCESS`` -- The optional value has been successfully set.
-     * ``KIN_MEM_NULL`` -- The ``kin_mem`` pointer is ``NULL``.
-
-   **Notes:**
-      The default value for ``infofp`` is ``stdout``.
-
-   .. deprecated:: 6.2.0
-
-      Use :c:func:`SUNLogger_SetInfoFilename` instead.
-
-
-.. c:function:: int KINSetInfoHandlerFn(void * kin_mem, KINInfoHandlerFn ihfun, void * ih_data)
-
-   The function :c:func:`KINSetInfoHandlerFn` specifies the optional
-   user-defined function  to be used in handling informative (non-error)
-   messages.
-
-   **Arguments:**
-     * ``kin_mem`` -- pointer to the KINSOL memory block.
-     * ``ihfun`` -- is the user's CC information handler function (see :numref:`KINSOL.Usage.CC.user_fct_sim.ihFn`).
-     * ``ih_data`` -- pointer to user data passed to ``ihfun`` every time it is called.
-
-   **Return value:**
-     * ``KIN_SUCCESS`` -- The function ``ihfun`` and data pointer ``ih_data`` have been successfully set.
-     * ``KIN_MEM_NULL`` -- The ``kin_mem`` pointer is ``NULL``.
-
-   **Notes:**
-      The default internal information handler function directs informative
-      (non-error)  messages to the file specified by the file pointer ``infofp``
-      (see  :c:func:`KINSetInfoFile` above).
-
-
-.. c:function:: int KINSetPrintLevel(void * kin_mem, int printfl)
-
-   The function :c:func:`KINSetPrintLevel` specifies the level of verbosity  of the output.
-
-   **Arguments:**
-     * ``kin_mem`` -- pointer to the KINSOL memory block.
-     * ``printfl`` -- flag indicating the level of verbosity. Must be one of:
-
-       0 -- no information is displayed.
-
-       1 -- for each nonlinear iteration display the following information:
-
-       - the scaled Euclidean :math:`\ell_2` norm of the system function evaluated at the current iterate,
-       - the scaled norm of the Newton step (only if using ``KIN_NONE``), and
-       - the number of function evaluations performed so far.
-
-       2 -- display level 1 output and the following values for each iteration:
-
-       - :math:`\|F(u)\|_{D_F}` (only for ``KIN_NONE``).
-       - :math:`\|F(u)\|_{D_F,\infty}` (for ``KIN_NONE`` and ``KIN_LINESEARCH``).
-
-       3 -- display level 2 output plus
-
-       - additional values used by the global strategy (only if using ``KIN_LINESEARCH``), and
-       - statistical information for iterative linear solver modules.
-
-   **Return value:**
-     * ``KIN_SUCCESS`` -- The optional value has been successfully set.
-     * ``KIN_MEM_NULL`` -- The ``kin_mem`` pointer is ``NULL``.
-     * ``KIN_ILL_INPUT`` -- The argument ``printfl`` had an illegal value.
-
-   **Notes:**
-      The default value for ``printfl`` is :math:`0`.
 
 
 .. c:function:: int KINSetUserData(void * kin_mem, void * user_data)
@@ -1999,31 +1918,6 @@ follows:
       ``error_code`` is negative for errors and positive (``KIN_WARNING``) for
       warnings. If a function that returns a pointer to memory encounters an error,
       it sets ``error_code`` to 0.
-
-.. _KINSOL.Usage.CC.user_fct_sim.ihFn:
-
-Informational message handler function
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-As an alternative to the default behavior of directing informational (meaning non-error) messages
-to the file pointed to by ``infofp`` (see :c:func:`KINSetInfoFile`), the user may
-provide a function of type :c:type:`KINInfoHandlerFn` to process any such messages.
-The function type :c:type:`KINInfoHandlerFn` is defined as follows:
-
-.. c:type:: void (*KINInfoHandlerFn)(const char *module, const char *function, char *msg, void *ih_data)
-
-   This function processes error and warning messages from KINSOL and its
-   sub-modules.
-
-   **Arguments:**
-      * ``error_code`` -- is the error code
-      * ``module`` -- is the name of the KINSOL module reporting the error
-      * ``function`` -- is the name of the function in which the error occurred
-      * ``ih_data`` -- is a pointer to user data, the same as the ``ih_data``
-        parameter passed to :c:func:`KINSetInfoHandlerFn`
-
-   **Return value:**
-      This function has no return value.
 
 
 .. _KINSOL.Usage.CC.user_fct_sim.jacFn:

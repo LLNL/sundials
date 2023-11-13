@@ -726,11 +726,8 @@ the user has set a stop time (with a call to the optional input function
         in :numref:`ARKODE.Mathematics.Interpolation`).
 
         The *ARK_ONE_STEP* option tells the solver to only take a
-        single internal step :math:`y_{n-1} \to y_{n}` and then return
-        control back to the calling program.  If this step will
-        overtake *tout* then the solver will again return an
-        interpolated result; otherwise it will return a copy of the
-        internal solution :math:`y_{n}` in the vector *yout*.
+        single internal step, :math:`y_{n-1} \to y_{n}`, and return the solution
+        at that point, :math:`y_{n}`, in the vector *yout*.
 
    **Return value:**
       * *ARK_SUCCESS* if successful.
@@ -795,8 +792,8 @@ the user has set a stop time (with a call to the optional input function
       only to get the direction and a rough scale of the independent
       variable.
 
-      All failure return values are negative and so testing the return argument for
-      negative values will trap all :c:func:`ARKStepEvolve()` failures.
+      All failure return values are negative and so testing the return argument
+      for negative values will trap all :c:func:`ARKStepEvolve()` failures.
 
       Since interpolation may reduce the accuracy in the reported
       solution, if full method accuracy is desired the user should issue
@@ -1110,8 +1107,9 @@ Set max number of constraint failures             :c:func:`ARKStepSetMaxNumConst
       :c:func:`ARKStepSetMaxGrowth()`,
       :c:func:`ARKStepSetMinReduction()`,
       :c:func:`ARKStepSetSafetyFactor()`,
-      :c:func:`ARKStepSetSmallNumEFails()` and
-      :c:func:`ARKStepSetStabilityFn()`
+      :c:func:`ARKStepSetSmallNumEFails()`,
+      :c:func:`ARKStepSetStabilityFn()`, and
+      :c:func:`ARKStepSetAdaptController()`
       will be ignored, since temporal adaptivity is disabled.
 
       If both :c:func:`ARKStepSetFixedStep()` and
@@ -1691,24 +1689,42 @@ the code, is provided in :numref:`ARKODE.Mathematics.Adaptivity`.
 
 .. cssclass:: table-bordered
 
-========================================================   ======================================  ========
-Optional input                                             Function name                           Default
-========================================================   ======================================  ========
-Set a custom time step adaptivity function                 :c:func:`ARKStepSetAdaptivityFn()`      internal
-Choose an existing time step adaptivity method             :c:func:`ARKStepSetAdaptivityMethod()`  0
-Explicit stability safety factor                           :c:func:`ARKStepSetCFLFraction()`       0.5
-Time step error bias factor                                :c:func:`ARKStepSetErrorBias()`         1.5
-Bounds determining no change in step size                  :c:func:`ARKStepSetFixedStepBounds()`   1.0  1.5
-Maximum step growth factor on convergence fail             :c:func:`ARKStepSetMaxCFailGrowth()`    0.25
-Maximum step growth factor on error test fail              :c:func:`ARKStepSetMaxEFailGrowth()`    0.3
-Maximum first step growth factor                           :c:func:`ARKStepSetMaxFirstGrowth()`    10000.0
-Maximum allowed general step growth factor                 :c:func:`ARKStepSetMaxGrowth()`         20.0
-Minimum allowed step reduction factor on error test fail   :c:func:`ARKStepSetMinReduction()`      0.1
-Time step safety factor                                    :c:func:`ARKStepSetSafetyFactor()`      0.96
-Error fails before MaxEFailGrowth takes effect             :c:func:`ARKStepSetSmallNumEFails()`    2
-Explicit stability function                                :c:func:`ARKStepSetStabilityFn()`       none
-========================================================   ======================================  ========
+=========================================================   ==========================================  ========
+Optional input                                              Function name                               Default
+=========================================================   ==========================================  ========
+Provide a :c:type:`SUNAdaptController` for ARKStep to use   :c:func:`ARKStepSetAdaptController()`       PID
+Set a custom time step adaptivity function                  :c:func:`ARKStepSetAdaptivityFn()`          internal
+Choose an existing time step adaptivity method              :c:func:`ARKStepSetAdaptivityMethod()`      0
+Adjust the method order used in the controller              :c:func:`ERKStepSetAdaptivityAdjustment()`  -1
+Explicit stability safety factor                            :c:func:`ARKStepSetCFLFraction()`           0.5
+Time step error bias factor                                 :c:func:`ARKStepSetErrorBias()`             1.5
+Bounds determining no change in step size                   :c:func:`ARKStepSetFixedStepBounds()`       1.0  1.5
+Maximum step growth factor on convergence fail              :c:func:`ARKStepSetMaxCFailGrowth()`        0.25
+Maximum step growth factor on error test fail               :c:func:`ARKStepSetMaxEFailGrowth()`        0.3
+Maximum first step growth factor                            :c:func:`ARKStepSetMaxFirstGrowth()`        10000.0
+Maximum allowed general step growth factor                  :c:func:`ARKStepSetMaxGrowth()`             20.0
+Minimum allowed step reduction factor on error test fail    :c:func:`ARKStepSetMinReduction()`          0.1
+Time step safety factor                                     :c:func:`ARKStepSetSafetyFactor()`          0.96
+Error fails before MaxEFailGrowth takes effect              :c:func:`ARKStepSetSmallNumEFails()`        2
+Explicit stability function                                 :c:func:`ARKStepSetStabilityFn()`           none
+=========================================================   ==========================================  ========
 
+
+
+.. c:function:: int ARKStepSetAdaptController(void* arkode_mem, SUNAdaptController C)
+
+   Sets a user-supplied time-step controller object.
+
+   **Arguments:**
+      * *arkode_mem* -- pointer to the ARKStep memory block.
+      * *C* -- user-supplied time adaptivity controller.  If ``NULL`` then the PID controller will be created (see :numref:`SUNAdaptController.Soderlind`).
+
+   **Return value:**
+      * *ARK_SUCCESS* if successful
+      * *ARK_MEM_NULL* if the ARKStep memory is ``NULL``
+      * *ARK_MEM_FAIL* if *C* was ``NULL`` and the PID controller could not be allocated.
+
+   .. versionadded:: x.x.x
 
 
 .. c:function:: int ARKStepSetAdaptivityFn(void* arkode_mem, ARKAdaptFn hfun, void* h_data)
@@ -1732,6 +1748,11 @@ Explicit stability function                                :c:func:`ARKStepSetSt
       :c:func:`ARKStepSetStabilityFn()` should be used instead.
 
 
+   .. deprecated:: x.x.x
+
+      Use the SUNAdaptController infrastructure instead (see :numref:`SUNAdaptController.Description`).
+
+
 
 .. c:function:: int ARKStepSetAdaptivityMethod(void* arkode_mem, int imethod, int idefault, int pq, realtype* adapt_params)
 
@@ -1747,7 +1768,8 @@ Explicit stability function                                :c:func:`ARKStepSetSt
         parameters (1), or that they will be supplied in the
         *adapt_params* argument (0).
       * *pq* -- flag denoting whether to use the embedding order of
-        accuracy *p* (0) or the method order of accuracy *q* (1)
+        accuracy *p* (0), the method order of accuracy *q* (1), or the
+        minimum of the two (any input not equal to 0 or 1)
         within the adaptivity algorithm.  *p* is the default.
       * *adapt_params[0]* -- :math:`k_1` parameter within accuracy-based adaptivity algorithms.
       * *adapt_params[1]* -- :math:`k_2` parameter within accuracy-based adaptivity algorithms.
@@ -1764,7 +1786,39 @@ Explicit stability function                                :c:func:`ARKStepSetSt
       parameter values are desired, it is recommended to instead provide
       a custom function through a call to :c:func:`ARKStepSetAdaptivityFn()`.
 
+      .. versionchanged:: x.x.x
+         
+         Prior to version x.x.x, any nonzero value for *pq* would result in use of the
+         embedding order of accuracy.
 
+
+   .. deprecated:: x.x.x
+
+      Use the SUNAdaptController infrastructure instead (see :numref:`SUNAdaptController.Description`).
+
+
+
+.. c:function:: int ARKStepSetAdaptivityAdjustment(void* arkode_mem, int adjust)
+
+   Called by a user to adjust the method order supplied to the temporal adaptivity
+   controller.  For example, if the user expects order reduction due to problem stiffness,
+   they may request that the controller assume a reduced order of accuracy for the method
+   by specifying a value :math:`adjust < 0`.
+
+   **Arguments:**
+      * *arkode_mem* -- pointer to the ARKStep memory block.
+      * *adjust* -- adjustment factor (default is -1).
+
+   **Return value:**
+      * *ARK_SUCCESS* if successful
+      * *ARK_MEM_NULL* if the ARKStep memory is ``NULL``
+      * *ARK_ILL_INPUT* if an argument has an illegal value
+
+   **Notes:**
+      This should be called prior to calling :c:func:`ARKStepEvolve()`, and can only be
+      reset following a call to :c:func:`ARKStepReInit()`.
+
+   .. versionadded:: x.x.x
 
 .. c:function:: int ARKStepSetCFLFraction(void* arkode_mem, realtype cfl_frac)
 
@@ -1803,6 +1857,13 @@ Explicit stability function                                :c:func:`ARKStepSetSt
    **Notes:**
       Any value below 1.0 will imply a reset to the default value.
 
+      If both this and one of :c:func:`ARKStepSetAdaptivityMethod` or
+      :c:func:`ARKStepSetAdaptController` will be called, then this routine must be called
+      *second*.
+
+   .. deprecated:: x.x.x
+
+      Use the SUNAdaptController infrastructure instead (see :numref:`SUNAdaptController.Description`).
 
 
 .. c:function:: int ARKStepSetFixedStepBounds(void* arkode_mem, realtype lb, realtype ub)

@@ -4122,14 +4122,30 @@ If the quadrature variables are part of the step size control mechanism,
 one of the following functions must be called to specify the
 integration tolerances for quadrature variables.
 
-.. c:function:: int CVodeQuadSVtolerances(void * cvode_mem, realtype reltolQ, N_Vector abstolQ)
+.. c:function:: int CVodeQuadSStolerances(void *cvode_mem, realtype reltolQ, realtype abstolQ)
 
-   The function ``CVodeQuadSStolerances`` specifies scalar relative and absolute  tolerances.
+   The function ``CVodeQuadSStolerances`` specifies scalar relative and absolute tolerances.
 
    **Arguments:**
      * ``cvode_mem`` -- pointer to the CVODES memory block.
-     * ``reltolQ`` --  tolerances is the scalar relative error tolerance.
+     * ``reltolQ`` --  is the scalar relative error tolerance.
      * ``abstolQ`` -- is the scalar absolute error tolerance.
+
+   **Return value:**
+     * ``CV_SUCCESS`` -- The optional value has been successfully set.
+     * ``CV_NO_QUAD`` -- Quadrature integration was not initialized.
+     * ``CV_MEM_NULL`` -- The ``cvode_mem`` pointer is ``NULL``.
+     * ``CV_ILL_INPUT`` -- One of the input tolerances was negative.
+
+
+.. c:function:: int CVodeQuadSVtolerances(void * cvode_mem, realtype reltolQ, N_Vector abstolQ)
+
+   The function ``CVodeQuadSVtolerances`` specifies scalar relative and vector absolute tolerances.
+
+   **Arguments:**
+     * ``cvode_mem`` -- pointer to the CVODES memory block.
+     * ``reltolQ`` --  is the scalar relative error tolerance.
+     * ``abstolQ`` -- the vector of absolute error tolerances.
 
    **Return value:**
      * ``CV_SUCCESS`` -- The optional value has been successfully set.

@@ -17,6 +17,7 @@
 
 # Exit immediately if a command fails
 set -e
+set -o pipefail
 
 #==============================================================================
 #
@@ -199,6 +200,8 @@ echo -e "\n--- Create temporary directory ---"
 echo "copy $sundialsdir to $rootdir/$tmpdir"
 rm -rf $tmpdir
 mkdir $tmpdir
+mkdir $tmpdir/benchmarks
+mkdir $tmpdir/cmake
 mkdir $tmpdir/doc
 mkdir $tmpdir/examples
 mkdir $tmpdir/include
@@ -219,16 +222,6 @@ cp $sundialsdir/LICENSE $tmpdir/
 cp $sundialsdir/NOTICE $tmpdir/
 cp $sundialsdir/README.md $tmpdir/
 cp $sundialsdir/.readthedocs.yaml $tmpdir/
-
-# Make install guide and copy to $tmpdir
-if [ $doc = "T" ]; then
-    echo -e "--- SUNDIALS Common Installation documentation"
-    cd $sundialsdir/doc/install_guide
-    make clean
-    make latexpdf
-    cp build/latex/INSTALL_GUIDE.pdf $tmpdir/INSTALL_GUIDE.pdf
-    cd -
-fi
 
 cp -r $sundialsdir/benchmarks $tmpdir/
 cp -r $sundialsdir/cmake $tmpdir/
@@ -251,6 +244,7 @@ cp -r $sundialsdir/include/sunmatrix $tmpdir/include/
 cp -r $sundialsdir/include/sunmemory $tmpdir/include/
 cp -r $sundialsdir/include/sunlinsol $tmpdir/include/
 cp -r $sundialsdir/include/sunnonlinsol $tmpdir/include/
+cp -r $sundialsdir/include/sunadaptcontroller $tmpdir/include/
 
 cp -r $sundialsdir/scripts $tmpdir/
 
@@ -261,15 +255,34 @@ cp -r $sundialsdir/src/sunmatrix $tmpdir/src/
 cp -r $sundialsdir/src/sunmemory $tmpdir/src/
 cp -r $sundialsdir/src/sunlinsol $tmpdir/src/
 cp -r $sundialsdir/src/sunnonlinsol $tmpdir/src/
+cp -r $sundialsdir/src/sunadaptcontroller $tmpdir/src/
 
 cp    $sundialsdir/test/testRunner $tmpdir/test/
 cp -r $sundialsdir/test/unit_tests $tmpdir/test/
 
-# Don't release MATLAB until brought current with new version(s)
-#if [ $do_sundials = "T" ]; then
-#    cp -r $sundialsdir/sundialsTB $tmpdir/
-#    cp -r $sundialsdir/sundialsTB/doc $tmpdir/doc/sundialsTB
-#fi
+# Clean up tmpdir
+rm -rf $tmpdir/doc/shared/__pycache__
+find $tmpdir -name "*~" -delete
+find $tmpdir -name "*.orig" -delete
+find $tmpdir -name "#*#" -delete
+find $tmpdir -name ".DS_Store" -delete
+
+# Remove ignored or untracked files that may have been added
+cd $sundialsdir
+for f in $(git ls-files --others --directory benchmarks cmake doc examples include scripts src test); do
+    rm -rf $tmpdir/$f
+done
+cd -
+
+# Make install guide and copy to $tmpdir
+if [ $doc = "T" ]; then
+    echo -e "--- SUNDIALS Common Installation documentation"
+    cd $sundialsdir/doc/install_guide
+    make clean
+    make latexpdf
+    cp build/latex/INSTALL_GUIDE.pdf $tmpdir/INSTALL_GUIDE.pdf
+    cd -
+fi
 
 if [ $do_sundials = "T" -o $do_arkode = "T" ]; then
     cp -r $sundialsdir/include/arkode $tmpdir/include/
@@ -316,11 +329,6 @@ do
         fi
     fi
 done
-
-# Clean up tmpdir
-rm -r $tmpdir/doc/shared/__pycache__
-find $tmpdir -name "*~" -delete
-find $tmpdir -name "*.orig" -delete
 
 #---------------------------
 # Create tar files

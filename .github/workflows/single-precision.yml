@@ -1,8 +1,14 @@
 #
-name: single precision build and test with GCC+TPLs (no GPUs)
+name: Build and Test - Ubuntu/gcc single precision (TPLs, no GPUs)
 
 on:
   pull_request:
+  merge_group:
+  workflow_dispatch:
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
 
 jobs:
   build_and_test:
@@ -24,10 +30,18 @@ jobs:
         with:
           indexsize: ${{ matrix.indexsize }}
           precision: ${{ matrix.precision }}
-      - name: Archive files from failed build
-        uses: actions/upload-artifact@v2.2.4
+      - name: Archive build files from failed build
+        uses: actions/upload-artifact@v3
         if: failure()
         with:
           name: build_files
           path: |
             ${{ github.workspace }}/test/build_*
+            !${{ github.workspace }}/test/build_*/Testing/output
+      - name: Archive output files from failed build
+        uses: actions/upload-artifact@v3
+        if: failure()
+        with:
+          name: output_files
+          path: |
+            ${{ github.workspace }}/test/build_*/Testing/

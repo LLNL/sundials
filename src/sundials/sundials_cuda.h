@@ -21,8 +21,6 @@
 #include <stdio.h>
 
 #include <cuda_runtime.h>
-#include <cusolverSp.h>
-#include <cusparse.h>
 
 #include <sundials/sundials_types.h>
 
@@ -38,8 +36,6 @@ extern "C" {
  * ---------------------------------------------------------------------------*/
 
 #define SUNDIALS_CUDA_VERIFY(cuerr) SUNDIALS_CUDA_Assert(cuerr, __FILE__, __LINE__)
-#define SUNDIALS_CUSPARSE_VERIFY(cuerr) SUNDIALS_CUSPARSE_Assert(cuerr, __FILE__, __LINE__)
-#define SUNDIALS_CUSOLVER_VERIFY(cuerr) SUNDIALS_CUSOLVER_Assert(cuerr, __FILE__, __LINE__)
 
 #define SUNDIALS_KERNEL_NAME(...) __VA_ARGS__
 #ifndef SUNDIALS_DEBUG_CUDA_LASTERROR
@@ -75,39 +71,6 @@ inline booleantype SUNDIALS_CUDA_Assert(cudaError_t cuerr, const char *file, int
   return SUNTRUE; /* Assert OK */
 }
 
-inline booleantype SUNDIALS_CUSPARSE_Assert(cusparseStatus_t status, const char *file, int line)
-{
-  if (status != CUSPARSE_STATUS_SUCCESS)
-  {
-#ifdef SUNDIALS_DEBUG
-    fprintf(stderr,
-            "ERROR in cuSPARSE runtime operation: cusparseStatus_t = %d %s:%d\n",
-            status, file, line);
-#ifdef SUNDIALS_DEBUG_ASSERT
-    assert(false);
-#endif
-#endif
-    return SUNFALSE; /*  Assert failed */
-  }
-  return SUNTRUE; /* Assert OK */
-}
-
-inline booleantype SUNDIALS_CUSOLVER_Assert(cusolverStatus_t status, const char *file, int line)
-{
-  if (status != CUSOLVER_STATUS_SUCCESS)
-  {
-#ifdef SUNDIALS_DEBUG
-    fprintf(stderr,
-            "ERROR in cuSOLVER runtime operation: cusolverStatus_t = %d %s:%d\n",
-            status, file, line);
-#ifdef SUNDIALS_DEBUG_ASSERT
-    assert(false);
-#endif
-#endif
-    return SUNFALSE; /*  Assert failed */
-  }
-  return SUNTRUE; /* Assert OK */
-}
 
 #ifdef __cplusplus  /* wrapper to enable C++ usage */
 }

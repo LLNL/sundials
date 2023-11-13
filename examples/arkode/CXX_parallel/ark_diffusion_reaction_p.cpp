@@ -67,7 +67,7 @@
 // Include MPI
 #include "mpi.h"
 
-// Include desired integrators, vectors, linear solvers, and nonlinear sovlers
+// Include desired integrators, vectors, linear solvers, and nonlinear solvers
 #include "arkode/arkode_arkstep.h"
 #include "arkode/arkode_mristep.h"
 #include "cvode/cvode.h"
@@ -291,7 +291,6 @@ struct UserData
   int  maxsteps    = 0;      // max steps between outputs (0 = use default)
   bool linear      = true;   // enable/disable linearly implicit option
   bool diagnostics = false;  // output diagnostics
-  FILE *diagfp     = NULL;   // diagnostics output file
 
   // -----------------------------------------
   // Nonlinear solver settings
@@ -307,7 +306,7 @@ struct UserData
   bool     pcg      = true;   // use PCG (true) or GMRES (false)
   bool     prec     = true;   // preconditioner on/off
   bool     lsinfo   = false;  // output residual history
-  int      liniters = 5;      // number of linear iterations
+  int      liniters = 10;     // number of linear iterations
   int      msbp     = 0;      // preconditioner setup frequency (0 = default)
   realtype epslin   = ZERO;   // linear solver tolerance factor (ZERO = default)
   N_Vector diag     = NULL;   // inverse of Jacobian diagonal
@@ -393,10 +392,11 @@ static int SetupDecomp(UserData *udata);
 
 // Integrator setup functions
 static int SetupARK(SUNContext ctx, UserData *udata, N_Vector u,
-                    SUNLinearSolver LS, void **arkode_mem);
+                    SUNLinearSolver LS, SUNAdaptController *Ctrl,
+                    void **arkode_mem);
 static int SetupMRI(SUNContext ctx, UserData *udata, N_Vector u,
-                    SUNLinearSolver LS, void **arkode_mem,
-                    MRIStepInnerStepper *stepper);
+                    SUNLinearSolver LS, SUNAdaptController *Ctrl,
+                    void **arkode_mem, MRIStepInnerStepper *stepper);
 static int SetupMRICVODE(SUNContext ctx, UserData *udata, N_Vector u,
                          SUNLinearSolver LS, SUNNonlinearSolver *NLS,
                          void **arkode_mem, MRIStepInnerStepper *stepper);
@@ -507,6 +507,20 @@ int main(int argc, char* argv[])
     if (check_flag(&flag, "PrintUserData", 1)) return 1;
   }
 
+  if (udata.diagnostics || udata.lsinfo)
+  {
+    SUNLogger logger;
+  
+    flag = SUNContext_GetLogger(ctx, &logger);
+    if (check_flag(&flag, "SUNContext_GetLogger", 1)) return 1;
+
+    flag = SUNLogger_SetInfoFilename(logger, "diagnostics.txt");
+    if (check_flag(&flag, "SUNLogger_SetInfoFilename", 1)) return 1;
+
+    flag = SUNLogger_SetDebugFilename(logger, "diagnostics.txt");
+    if (check_flag(&flag, "SUNLogger_SetDebugFilename", 1)) return 1;
+  }
+
   // --------------
   // Create vectors
   // --------------
@@ -519,13 +533,6 @@ int main(int argc, char* argv[])
   // Create linear solver
   // --------------------
 
-  // Open diagnostics file
-  if (outproc && (udata.diagnostics || udata.lsinfo))
-  {
-    udata.diagfp = fopen("diagnostics.txt", "w");
-    if (check_flag((void *) (udata.diagfp), "fopen", 0)) return 1;
-  }
-
   // Preconditioning type
   int prectype = (udata.prec) ? SUN_PREC_RIGHT : SUN_PREC_NONE;
 
@@ -536,29 +543,11 @@ int main(int argc, char* argv[])
   {
     LS = SUNLinSol_PCG(u, prectype, udata.liniters, ctx);
     if (check_flag((void *) LS, "SUNLinSol_PCG", 0)) return 1;
-
-    if (udata.lsinfo && outproc)
-    {
-      flag = SUNLinSolSetPrintLevel_PCG(LS, 1);
-      if (check_flag(&flag, "SUNLinSolSetPrintLevel_PCG", 1)) return(1);
-
-      flag = SUNLinSolSetInfoFile_PCG(LS, udata.diagfp);
-      if (check_flag(&flag, "SUNLinSolSetInfoFile_PCG", 1)) return(1);
-    }
   }
   else
   {
     LS = SUNLinSol_SPGMR(u, prectype, udata.liniters, ctx);
     if (check_flag((void *) LS, "SUNLinSol_SPGMR", 0)) return 1;
-
-    if (udata.lsinfo && outproc)
-    {
-      flag = SUNLinSolSetPrintLevel_SPGMR(LS, 1);
-      if (check_flag(&flag, "SUNLinSolSetPrintLevel_SPGMR", 1)) return(1);
-
-      flag = SUNLinSolSetInfoFile_SPGMR(LS, udata.diagfp);
-      if (check_flag(&flag, "SUNLinSolSetInfoFile_SPGMR", 1)) return(1);
-    }
   }
 
   // Allocate preconditioner workspace
@@ -588,15 +577,18 @@ int main(int argc, char* argv[])
   // Inner stepper nonlinear solver (CVODE)
   SUNNonlinearSolver NLS = NULL;
 
+  // Timestep adaptivity controller
+  SUNAdaptController Ctrl = NULL;
+
   // Create integrator
   switch(udata.integrator)
   {
   case(0):
-    flag = SetupARK(ctx, &udata, u, LS, &arkode_mem);
+    flag = SetupARK(ctx, &udata, u, LS, &Ctrl, &arkode_mem);
     if (check_flag((void *) arkode_mem, "SetupARK", 0)) return 1;
     break;
   case(1):
-    flag = SetupMRI(ctx, &udata, u, LS, &arkode_mem, &stepper);
+    flag = SetupMRI(ctx, &udata, u, LS, &Ctrl, &arkode_mem, &stepper);
     if (check_flag((void *) arkode_mem, "SetupMRI", 0)) return 1;
     break;
   case(2):
@@ -708,8 +700,6 @@ int main(int argc, char* argv[])
   // Clean up and return
   // --------------------
 
-  if (outproc && (udata.diagnostics || udata.lsinfo)) fclose(udata.diagfp);
-
   switch(udata.integrator)
   {
   case(0):
@@ -746,6 +736,7 @@ int main(int argc, char* argv[])
   N_VDestroy(N_VGetLocalVector_MPIPlusX(u));
   N_VDestroy(u);
   FreeUserData(&udata);
+  (void) SUNAdaptController_Destroy(Ctrl);
   SUNContext_Free(&ctx);
   flag = MPI_Finalize();
   return 0;
@@ -955,7 +946,8 @@ static int SetupDecomp(UserData *udata)
 
 
 static int SetupARK(SUNContext ctx, UserData* udata, N_Vector u,
-                    SUNLinearSolver LS, void** arkode_mem)
+                    SUNLinearSolver LS, SUNAdaptController *Ctrl,
+                    void** arkode_mem)
 {
   int flag;
 
@@ -1016,9 +1008,16 @@ static int SetupARK(SUNContext ctx, UserData* udata, N_Vector u,
   }
   else
   {
-    flag = ARKStepSetAdaptivityMethod(*arkode_mem, udata->controller, SUNTRUE,
-                                      SUNFALSE, NULL);
-    if (check_flag(&flag, "ARKStepSetAdaptivityMethod", 1)) return 1;
+    switch (udata->controller) {
+    case (ARK_ADAPT_PID):      *Ctrl = SUNAdaptController_PID(ctx);     break;
+    case (ARK_ADAPT_PI):       *Ctrl = SUNAdaptController_PI(ctx);      break;
+    case (ARK_ADAPT_I):        *Ctrl = SUNAdaptController_I(ctx);       break;
+    case (ARK_ADAPT_EXP_GUS):  *Ctrl = SUNAdaptController_ExpGus(ctx);  break;
+    case (ARK_ADAPT_IMP_GUS):  *Ctrl = SUNAdaptController_ImpGus(ctx);  break;
+    case (ARK_ADAPT_IMEX_GUS): *Ctrl = SUNAdaptController_ImExGus(ctx); break;
+    }
+    flag = ARKStepSetAdaptController(*arkode_mem, *Ctrl);
+    if (check_flag(&flag, "ARKStepSetAdaptController", 1)) return 1;
   }
 
   // Set max steps between outputs
@@ -1029,20 +1028,13 @@ static int SetupARK(SUNContext ctx, UserData* udata, N_Vector u,
   flag = ARKStepSetStopTime(*arkode_mem, udata->tf);
   if (check_flag(&flag, "ARKStepSetStopTime", 1)) return 1;
 
-  // Set diagnostics output file
-  if (udata->diagnostics && udata->outproc)
-  {
-    flag = ARKStepSetDiagnostics(*arkode_mem, udata->diagfp);
-    if (check_flag(&flag, "ARKStepSetDiagnostics", 1)) return 1;
-  }
-
   return 0;
 }
 
 
 static int SetupMRI(SUNContext ctx, UserData* udata, N_Vector y,
-                    SUNLinearSolver LS, void** arkode_mem,
-                    MRIStepInnerStepper* stepper)
+                    SUNLinearSolver LS, SUNAdaptController *Ctrl,
+                    void** arkode_mem, MRIStepInnerStepper* stepper)
 {
   int flag;
 
@@ -1075,21 +1067,21 @@ static int SetupMRI(SUNContext ctx, UserData* udata, N_Vector y,
   }
   else
   {
-    flag = ARKStepSetAdaptivityMethod(inner_arkode_mem, udata->controller,
-                                      SUNTRUE, SUNFALSE, NULL);
-    if (check_flag(&flag, "ARKStepSetAdaptivityMethod", 1)) return 1;
+    switch (udata->controller) {
+    case (ARK_ADAPT_PID):      *Ctrl = SUNAdaptController_PID(ctx);     break;
+    case (ARK_ADAPT_PI):       *Ctrl = SUNAdaptController_PI(ctx);      break;
+    case (ARK_ADAPT_I):        *Ctrl = SUNAdaptController_I(ctx);       break;
+    case (ARK_ADAPT_EXP_GUS):  *Ctrl = SUNAdaptController_ExpGus(ctx);  break;
+    case (ARK_ADAPT_IMP_GUS):  *Ctrl = SUNAdaptController_ImpGus(ctx);  break;
+    case (ARK_ADAPT_IMEX_GUS): *Ctrl = SUNAdaptController_ImExGus(ctx); break;
+    }
+    flag = ARKStepSetAdaptController(inner_arkode_mem, *Ctrl);
+    if (check_flag(&flag, "ARKStepSetAdaptController", 1)) return 1;
   }
 
   // Set max steps between outputs
   flag = ARKStepSetMaxNumSteps(inner_arkode_mem, udata->maxsteps);
   if (check_flag(&flag, "ARKStepSetMaxNumSteps", 1)) return 1;
-
-  // Set diagnostics output file
-  if (udata->diagnostics && udata->outproc)
-  {
-    flag = ARKStepSetDiagnostics(inner_arkode_mem, udata->diagfp);
-    if (check_flag(&flag, "ARKStepSetDiagnostics", 1)) return 1;
-  }
 
   // Wrap ARKODE as an MRIStepInnerStepper
   flag = ARKStepCreateMRIStepInnerStepper(inner_arkode_mem,
@@ -1158,13 +1150,6 @@ static int SetupMRI(SUNContext ctx, UserData* udata, N_Vector y,
   // Set stopping time
   flag = MRIStepSetStopTime(*arkode_mem, udata->tf);
   if (check_flag(&flag, "MRIStepSetStopTime", 1)) return 1;
-
-  // Set diagnostics output file
-  if (udata->diagnostics && udata->outproc)
-  {
-    flag = MRIStepSetDiagnostics(*arkode_mem, udata->diagfp);
-    if (check_flag(&flag, "MRIStepSetDiagnostics", 1)) return 1;
-  }
 
   return 0;
 }
@@ -1318,13 +1303,6 @@ static int SetupMRICVODE(SUNContext ctx, UserData *udata, N_Vector y,
   // Set stopping time
   flag = MRIStepSetStopTime(*arkode_mem, udata->tf);
   if (check_flag(&flag, "MRIStepSetStopTime", 1)) return 1;
-
-  // Set diagnostics output file
-  if (udata->diagnostics && udata->outproc)
-  {
-    flag = MRIStepSetDiagnostics(*arkode_mem, udata->diagfp);
-    if (check_flag(&flag, "MRIStepSetDiagnostics", 1)) return 1;
-  }
 
   return 0;
 }

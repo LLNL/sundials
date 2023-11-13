@@ -194,22 +194,6 @@ SUNDIALS_EXPORT int N_VEnableWrmsNormMaskVectorArray_OpenMP(N_Vector v, booleant
 SUNDIALS_EXPORT int N_VEnableScaleAddMultiVectorArray_OpenMP(N_Vector v, booleantype tf);
 SUNDIALS_EXPORT int N_VEnableLinearCombinationVectorArray_OpenMP(N_Vector v, booleantype tf);
 
-/*
- * -----------------------------------------------------------------
- * Deprecated functions
- * -----------------------------------------------------------------
- */
-
-/* use N_VCloneVectorArray */
-SUNDIALS_DEPRECATED_EXPORT N_Vector* N_VCloneVectorArray_OpenMP(int count, N_Vector w);
-
-/* use N_VCloneVectorArrayEmpty */
-SUNDIALS_DEPRECATED_EXPORT N_Vector* N_VCloneVectorArrayEmpty_OpenMP(int count, N_Vector w);
-
-/* use N_VDestroyVectorArray */
-SUNDIALS_DEPRECATED_EXPORT void N_VDestroyVectorArray_OpenMP(N_Vector* vs, int count);
-
-
 #ifdef __cplusplus
 }
 #endif

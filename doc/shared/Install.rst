@@ -14,9 +14,9 @@
 
 .. _Installation:
 
-===============================
-SUNDIALS Installation Procedure
-===============================
+======================
+Installation Procedure
+======================
 
 The installation of any SUNDIALS package is accomplished by installing the
 SUNDIALS suite as a whole, according to the instructions that follow.  The same
@@ -1022,6 +1022,7 @@ illustration only.
 .. cmakeoption:: SUNDIALS_BUILD_WITH_PROFILING
 
    Build SUNDIALS with capabilties for fine-grained profiling.
+   This requires POSIX timers or the Windows ``profileapi.h`` timers.
 
    Default: OFF
 
@@ -1966,15 +1967,11 @@ configuration file to build against SUNDIALS in their own CMake project.
    |                              |              +----------------------------------------------+
    |                              |              | ``cvode/cvode_diag.h``                       |
    |                              |              +----------------------------------------------+
-   |                              |              | ``cvode/cvode_direct.h``                     |
-   |                              |              +----------------------------------------------+
    |                              |              | ``cvode/cvode_impl.h``                       |
    |                              |              +----------------------------------------------+
    |                              |              | ``cvode/cvode_ls.h``                         |
    |                              |              +----------------------------------------------+
    |                              |              | ``cvode/cvode_proj.h``                       |
-   |                              |              +----------------------------------------------+
-   |                              |              | ``cvode/cvode_spils.h``                      |
    +------------------------------+--------------+----------------------------------------------+
    | CVODES                       | Libraries    | ``libsundials_cvodes.LIB``                   |
    |                              +--------------+----------------------------------------------+
@@ -1986,13 +1983,9 @@ configuration file to build against SUNDIALS in their own CMake project.
    |                              |              +----------------------------------------------+
    |                              |              | ``cvodes/cvodes_diag.h``                     |
    |                              |              +----------------------------------------------+
-   |                              |              | ``cvodes/cvodes_direct.h``                   |
-   |                              |              +----------------------------------------------+
    |                              |              | ``cvodes/cvodes_impl.h``                     |
    |                              |              +----------------------------------------------+
    |                              |              | ``cvodes/cvodes_ls.h``                       |
-   |                              |              +----------------------------------------------+
-   |                              |              | ``cvodes/cvodes_spils.h``                    |
    +------------------------------+--------------+----------------------------------------------+
    | ARKODE                       | Libraries    | ``libsundials_arkode.LIB``                   |
    |                              |              +----------------------------------------------+
@@ -2028,13 +2021,9 @@ configuration file to build against SUNDIALS in their own CMake project.
    |                              |              +----------------------------------------------+
    |                              |              | ``ida/ida_bbdpre.h``                         |
    |                              |              +----------------------------------------------+
-   |                              |              | ``ida/ida_direct.h``                         |
-   |                              |              +----------------------------------------------+
    |                              |              | ``ida/ida_impl.h``                           |
    |                              |              +----------------------------------------------+
    |                              |              | ``ida/ida_ls.h``                             |
-   |                              |              +----------------------------------------------+
-   |                              |              | ``ida/ida_spils.h``                          |
    +------------------------------+--------------+----------------------------------------------+
    | IDAS                         | Libraries    | ``libsundials_idas.LIB``                     |
    |                              +--------------+----------------------------------------------+
@@ -2042,11 +2031,7 @@ configuration file to build against SUNDIALS in their own CMake project.
    |                              |              +----------------------------------------------+
    |                              |              | ``idas/idas_bbdpre.h``                       |
    |                              |              +----------------------------------------------+
-   |                              |              | ``idas/idas_direct.h``                       |
-   |                              |              +----------------------------------------------+
    |                              |              | ``idas/idas_impl.h``                         |
-   |                              |              +----------------------------------------------+
-   |                              |              | ``idas/idas_spils.h``                        |
    +------------------------------+--------------+----------------------------------------------+
    | KINSOL                       | Libraries    | ``libsundials_kinsol.LIB``                   |
    |                              +--------------+----------------------------------------------+
@@ -2054,11 +2039,7 @@ configuration file to build against SUNDIALS in their own CMake project.
    |                              |              +----------------------------------------------+
    |                              |              | ``kinsol/kinsol_bbdpre.h``                   |
    |                              |              +----------------------------------------------+
-   |                              |              | ``kinsol/kinsol_direct.h``                   |
-   |                              |              +----------------------------------------------+
    |                              |              | ``kinsol/kinsol_impl.h``                     |
    |                              |              +----------------------------------------------+
    |                              |              | ``kinsol/kinsol_ls.h``                       |
-   |                              |              +----------------------------------------------+
-   |                              |              | ``kinsol/kinsol_spils.h``                    |
    +------------------------------+--------------+----------------------------------------------+

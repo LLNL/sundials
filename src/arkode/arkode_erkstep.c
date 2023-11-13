@@ -19,6 +19,7 @@
 #include <stdlib.h>
 #include <string.h>
 
+#include "arkode/arkode_butcher.h"
 #include "arkode_impl.h"
 #include "arkode_erkstep_impl.h"
 #include "arkode_interp_impl.h"
@@ -593,37 +594,42 @@ int erkStep_Init(void* arkode_mem, int init_type)
     }
   }
 
-  /* Signal to shared arkode module that fullrhs is required after each step */
+  /* Signal to shared arkode module that full RHS evaluations are required */
   ark_mem->call_fullrhs = SUNTRUE;
 
   return(ARK_SUCCESS);
 }
 
 
-/*---------------------------------------------------------------
+/*------------------------------------------------------------------------------
   erkStep_FullRHS:
 
-  This is just a wrapper to call the user-supplied RHS function,
-  f(t,y).
+  This is just a wrapper to call the user-supplied RHS function, f(t,y).
 
   This will be called in one of three 'modes':
-    ARK_FULLRHS_START -> called at the beginning of a simulation
-                         or after post processing at step
-    ARK_FULLRHS_END   -> called at the end of a successful step
-    ARK_FULLRHS_OTHER -> called elsewhere (e.g. for dense output)
 
-  If it is called in ARK_FULLRHS_START mode, we store the vectors
-  f(t,y) in F[0] for possible reuse in the first stage of the
-  subsequent time step.
+     ARK_FULLRHS_START -> called at the beginning of a simulation i.e., at
+                          (tn, yn) = (t0, y0) or (tR, yR)
 
-  If it is called in ARK_FULLRHS_END mode and the method coefficients
-  support it, we may just copy vectors F[stages] to fill f instead
-  of calling f().
+     ARK_FULLRHS_END   -> called at the end of a successful step i.e, at
+                          (tcur, ycur) or the start of the subsequent step i.e.,
+                          at (tn, yn) = (tcur, ycur) from the end of the last
+                          step
 
-  ARK_FULLRHS_OTHER mode is only called for dense output in-between
-  steps, so we strive to store the intermediate parts so that they
-  do not interfere with the other two modes.
-  ---------------------------------------------------------------*/
+     ARK_FULLRHS_OTHER -> called elsewhere (e.g. for dense output)
+
+  If this function is called in ARK_FULLRHS_START or ARK_FULLRHS_END mode and
+  evaluating the RHS functions is necessary, we store the vector f(t,y) in Fe[0]
+  for reuse in the first stage of the subsequent time step.
+
+  In ARK_FULLRHS_END mode we check if the method is "stiffly accurate" and, if
+  appropriate, copy the vector F[stages - 1] to F[0] for reuse in the first
+  stage of the subsequent time step.
+
+  ARK_FULLRHS_OTHER mode is only called for dense output in-between steps, or
+  when estimating the initial time step size, so we strive to store the
+  intermediate parts so that they do not interfere with the other two modes.
+  ----------------------------------------------------------------------------*/
 int erkStep_FullRHS(void* arkode_mem, realtype t, N_Vector y, N_Vector f,
                     int mode)
 {
@@ -640,51 +646,19 @@ int erkStep_FullRHS(void* arkode_mem, realtype t, N_Vector y, N_Vector f,
   /* perform RHS functions contingent on 'mode' argument */
   switch(mode) {
 
-  /* ARK_FULLRHS_START: called at the beginning of a simulation
-     Store the vectors f(t,y) in F[0] for possible reuse
-     in the first stage of the subsequent time step */
   case ARK_FULLRHS_START:
 
-    /* call f */
-    retval = step_mem->f(t, y, step_mem->F[0], ark_mem->user_data);
-    step_mem->nfe++;
-    if (retval != 0) {
-      arkProcessError(ark_mem, ARK_RHSFUNC_FAIL, "ARKODE::ERKStep",
-                      "erkStep_FullRHS", MSG_ARK_RHSFUNC_FAILED, t);
-      return(ARK_RHSFUNC_FAIL);
-    }
-
-    /* copy RHS vector into output */
-    N_VScale(ONE, step_mem->F[0], f);
-
-    break;
-
-
-  /* ARK_FULLRHS_END: called at the end of a successful step
-     If the method coefficients support it, we just copy the last stage RHS
-     vectors to fill f instead of calling f(t,y).
-     Copy the results to F[0] if the coefficients support it. */
-  case ARK_FULLRHS_END:
-
-    /* determine if explicit RHS function needs to be recomputed */
-    recomputeRHS = SUNFALSE;
-    if (SUNRabs(step_mem->B->c[step_mem->stages - 1] - ONE) > TINY)
-      recomputeRHS = SUNTRUE;
-
-    /* base RHS calls on recomputeRHS argument */
-    if (recomputeRHS) {
-
-      /* call f */
+    /* compute the RHS */
+    if (!(ark_mem->fn_is_current))
+    {
       retval = step_mem->f(t, y, step_mem->F[0], ark_mem->user_data);
       step_mem->nfe++;
-      if (retval != 0) {
+      if (retval != 0)
+      {
         arkProcessError(ark_mem, ARK_RHSFUNC_FAIL, "ARKODE::ERKStep",
                         "erkStep_FullRHS", MSG_ARK_RHSFUNC_FAILED, t);
         return(ARK_RHSFUNC_FAIL);
       }
-
-    } else {
-      N_VScale(ONE, step_mem->F[step_mem->stages-1], step_mem->F[0]);
     }
 
     /* copy RHS vector into output */
@@ -692,9 +666,40 @@ int erkStep_FullRHS(void* arkode_mem, realtype t, N_Vector y, N_Vector f,
 
     break;
 
-  /*  ARK_FULLRHS_OTHER: called for dense output in-between steps
-      store the intermediate calculations in such a way as to not
-      interfere with the other two modes */
+  case ARK_FULLRHS_END:
+
+    /* determine if RHS function needs to be recomputed */
+    if (!(ark_mem->fn_is_current))
+    {
+      recomputeRHS = !ARKodeButcherTable_IsStifflyAccurate(step_mem->B);
+
+      /* First Same As Last methods are not FSAL when relaxation is enabled */
+      if (ark_mem->relax_enabled) { recomputeRHS = SUNTRUE; }
+
+      /* base RHS calls on recomputeRHS argument */
+      if (recomputeRHS)
+      {
+        /* call f */
+        retval = step_mem->f(t, y, step_mem->F[0], ark_mem->user_data);
+        step_mem->nfe++;
+        if (retval != 0)
+        {
+          arkProcessError(ark_mem, ARK_RHSFUNC_FAIL, "ARKODE::ERKStep",
+                        "erkStep_FullRHS", MSG_ARK_RHSFUNC_FAILED, t);
+          return(ARK_RHSFUNC_FAIL);
+        }
+      }
+      else
+      {
+        N_VScale(ONE, step_mem->F[step_mem->stages-1], step_mem->F[0]);
+      }
+    }
+
+    /* copy RHS vector into output */
+    N_VScale(ONE, step_mem->F[0], f);
+
+    break;
+
   case ARK_FULLRHS_OTHER:
 
     /* call f */
@@ -741,7 +746,7 @@ int erkStep_FullRHS(void* arkode_mem, realtype t, N_Vector y, N_Vector f,
   ---------------------------------------------------------------*/
 int erkStep_TakeStep(void* arkode_mem, realtype *dsmPtr, int *nflagPtr)
 {
-  int retval, is, js, nvec;
+  int retval, is, js, nvec, mode;
   realtype* cvals;
   N_Vector* Xvecs;
   ARKodeMem ark_mem;
@@ -759,8 +764,8 @@ int erkStep_TakeStep(void* arkode_mem, realtype *dsmPtr, int *nflagPtr)
   cvals = step_mem->cvals;
   Xvecs = step_mem->Xvecs;
 
-#if SUNDIALS_LOGGING_LEVEL >= SUNDIALS_LOGGING_INFO
-  SUNLogger_QueueMsg(ARK_LOGGER, SUN_LOGLEVEL_INFO,
+#if SUNDIALS_LOGGING_LEVEL >= SUNDIALS_LOGGING_DEBUG
+  SUNLogger_QueueMsg(ARK_LOGGER, SUN_LOGLEVEL_DEBUG,
                      "ARKODE::erkStep_TakeStep", "start-stage",
                      "step = %li, stage = 0, h = %"RSYM", tcur = %"RSYM,
                      ark_mem->nst, ark_mem->h, ark_mem->tcur);
@@ -777,6 +782,21 @@ int erkStep_TakeStep(void* arkode_mem, realtype *dsmPtr, int *nflagPtr)
   N_VPrintFile(step_mem->F[0], ARK_LOGGER->debug_fp);
 #endif
 
+  /* Call the full RHS if needed. If this is the first step then we may need to
+     evaluate or copy the RHS values from an  earlier evaluation (e.g., to
+     compute h0). For subsequent steps treat this RHS evaluation as an
+     evaluation at the end of the just completed step to potentially reuse
+     (FSAL methods) RHS evaluations from the end of the last step. */
+
+  if (!(ark_mem->fn_is_current))
+  {
+    mode = (ark_mem->initsetup) ? ARK_FULLRHS_START : ARK_FULLRHS_END;
+    retval = ark_mem->step_fullrhs(ark_mem, ark_mem->tn, ark_mem->yn,
+                                   ark_mem->fn, mode);
+    if (retval) { return ARK_RHSFUNC_FAIL; }
+    ark_mem->fn_is_current = SUNTRUE;
+  }
+
   /* Loop over internal stages to the step; since the method is explicit
      the first stage RHS is just the full RHS from the start of the step */
   for (is=1; is<step_mem->stages; is++) {
@@ -784,13 +804,8 @@ int erkStep_TakeStep(void* arkode_mem, realtype *dsmPtr, int *nflagPtr)
     /* Set current stage time(s) */
     ark_mem->tcur = ark_mem->tn + step_mem->B->c[is]*ark_mem->h;
 
-    /* Solver diagnostics reporting */
-    if (ark_mem->report)
-      fprintf(ark_mem->diagfp, "ERKStep  step  %li  %"RSYM"  %i  %"RSYM"\n",
-              ark_mem->nst, ark_mem->h, is, ark_mem->tcur);
-
-#if SUNDIALS_LOGGING_LEVEL >= SUNDIALS_LOGGING_INFO
-    SUNLogger_QueueMsg(ARK_LOGGER, SUN_LOGLEVEL_INFO,
+#if SUNDIALS_LOGGING_LEVEL >= SUNDIALS_LOGGING_DEBUG
+    SUNLogger_QueueMsg(ARK_LOGGER, SUN_LOGLEVEL_DEBUG,
                        "ARKODE::erkStep_TakeStep", "start-stage",
                        "step = %li, stage = %i, h = %"RSYM", tcur = %"RSYM,
                        ark_mem->nst, is, ark_mem->h, ark_mem->tcur);
@@ -846,13 +861,8 @@ int erkStep_TakeStep(void* arkode_mem, realtype *dsmPtr, int *nflagPtr)
   N_VPrintFile(ark_mem->ycur, ARK_LOGGER->debug_fp);
 #endif
 
-  /* Solver diagnostics reporting */
-  if (ark_mem->report)
-    fprintf(ark_mem->diagfp, "ERKStep  etest  %li  %"RSYM"  %"RSYM"\n",
-            ark_mem->nst, ark_mem->h, *dsmPtr);
-
-#if SUNDIALS_LOGGING_LEVEL >= SUNDIALS_LOGGING_INFO
-  SUNLogger_QueueMsg(ARK_LOGGER, SUN_LOGLEVEL_INFO,
+#if SUNDIALS_LOGGING_LEVEL >= SUNDIALS_LOGGING_DEBUG
+  SUNLogger_QueueMsg(ARK_LOGGER, SUN_LOGLEVEL_DEBUG,
                      "ARKODE::erkStep_TakeStep", "error-test",
                      "step = %li, h = %"RSYM", dsm = %"RSYM,
                      ark_mem->nst, ark_mem->h, *dsmPtr);
@@ -957,14 +967,19 @@ int erkStep_SetButcherTable(ARKodeMem ark_mem)
     etable = ERKSTEP_DEFAULT_6;
     break;
   case(7):
+    etable = ERKSTEP_DEFAULT_7;
+    break;
   case(8):
     etable = ERKSTEP_DEFAULT_8;
+    break;
+  case(9):
+    etable = ERKSTEP_DEFAULT_9;
     break;
   default:    /* no available method, set default */
     arkProcessError(ark_mem, ARK_ILL_INPUT, "ARKODE::ERKStep",
                     "erkStep_SetButcherTable",
-                    "No explicit method at requested order, using q=6.");
-    etable = ERKSTEP_DEFAULT_6;
+                    "No explicit method at requested order, using q=9.");
+    etable = ERKSTEP_DEFAULT_9;
     break;
   }
 
@@ -1169,46 +1184,6 @@ int erkStep_ComputeSolutions(ARKodeMem ark_mem, realtype *dsmPtr)
   return(ARK_SUCCESS);
 }
 
-/* -----------------------------------------------------------------------------
- * erkStep_RelaxDeltaY
- *
- * Computes the RK update to yn for use in relaxation methods
- * ---------------------------------------------------------------------------*/
-
-int erkStep_RelaxDeltaY(ARKodeMem ark_mem, N_Vector delta_y)
-{
-  int i, nvec, retval;
-  realtype* cvals;
-  N_Vector* Xvecs;
-  ARKodeERKStepMem step_mem;
-
-  /* Access the stepper memory structure */
-  if (!(ark_mem->step_mem))
-  {
-    arkProcessError(ark_mem, ARK_MEM_NULL, "ARKODE::ERKStep",
-                    "erkStep_RelaxDeltaY", MSG_ERKSTEP_NO_MEM);
-    return ARK_MEM_NULL;
-  }
-  step_mem = (ARKodeERKStepMem)(ark_mem->step_mem);
-
-  /* Set arrays for fused vector operation */
-  cvals = step_mem->cvals;
-  Xvecs = step_mem->Xvecs;
-
-  nvec = 0;
-  for (i = 0; i < step_mem->stages; i++)
-  {
-    cvals[nvec] = ark_mem->h * step_mem->B->b[i];
-    Xvecs[nvec] = step_mem->F[i];
-    nvec++;
-  }
-
-  /* Compute time step update (delta_y) */
-  retval = N_VLinearCombination(nvec, cvals, Xvecs, delta_y);
-  if (retval) return ARK_VECTOROP_ERR;
-
-  return ARK_SUCCESS;
-}
 
 /* -----------------------------------------------------------------------------
  * erkStep_RelaxDeltaE

@@ -21,6 +21,7 @@ install(CODE "MESSAGE(\"\nInstall shared components\n\")")
 
 # Add variable sundials_HEADERS with the exported SUNDIALS header files
 set(sundials_HEADERS
+  sundials_adaptcontroller.h
   sundials_base.hpp
   sundials_band.h
   sundials_context.h
@@ -42,6 +43,7 @@ set(sundials_HEADERS
   sundials_nvector.h
   sundials_nvector.hpp
   sundials_profiler.h
+  sundials_profiler.hpp
   sundials_logger.h
   sundials_types.h
   sundials_version.h
@@ -63,11 +65,6 @@ if(ENABLE_SYCL)
   list(APPEND sundials_HEADERS sundials_sycl_policies.hpp)
 endif()
 
-# If Blas/Lapack support was enabled, add the Lapack interface headers
-if(BUILD_SUNLINSOL_LAPACKBAND OR BUILD_SUNLINSOL_LAPACKDENSE)
-  list(APPEND sundials_HEADERS sundials_lapack.h)
-endif()
-
 # If enabled, add the XBraid interface header
 if(ENABLE_XBRAID)
   list(APPEND sundials_HEADERS sundials_xbraid.h)
@@ -77,6 +74,7 @@ endif()
 add_prefix(${SUNDIALS_SOURCE_DIR}/include/sundials/ sundials_HEADERS)
 
 set(sundials_SOURCES
+  sundials_adaptcontroller.c
   sundials_band.c
   sundials_context.c
   sundials_dense.c
@@ -105,17 +103,11 @@ endif()
 # Add prefix with complete path to the source files
 add_prefix(${SUNDIALS_SOURCE_DIR}/src/sundials/ sundials_SOURCES)
 
-if(SUNDIALS_BUILD_WITH_PROFILING OR SUNDIALS_LOGGING_ENABLE_MPI)
+if(SUNDIALS_LOGGING_ENABLE_MPI)
   if(ENABLE_MPI AND MPI_C_FOUND)
     # Workaround bug in CMake < 3.17.3 when using MPI::MPI_CXX and CUDA
     set(_include_mpi_if_needed PUBLIC ${MPI_C_INCLUDE_DIRS})
     set(_link_mpi_if_needed PUBLIC ${MPI_C_LIBRARIES})
-  endif()
-  if(ENABLE_CALIPER)
-    set(_link_caliper_if_needed PUBLIC caliper)
-  endif()
-  if(ENABLE_ADIAK)
-    set(_link_adiak_if_needed PUBLIC adiak::adiak ${CMAKE_DL_LIBS})
   endif()
 endif()
 
@@ -131,8 +123,6 @@ sundials_add_library(sundials_generic
     ${_include_mpi_if_needed}
   LINK_LIBRARIES
     ${_link_mpi_if_needed}
-    ${_link_caliper_if_needed}
-    ${_link_adiak_if_needed}
   OUTPUT_NAME
     sundials_generic
   VERSION

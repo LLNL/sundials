@@ -495,7 +495,7 @@ static int SetupLS(N_Vector u, void *user_data, SUNContext sunctx)
   // Access problem data
   UserData *udata = (UserData *) user_data;
 
-  int prectype = PREC_RIGHT;
+  int prectype = SUN_PREC_RIGHT;
 
   // Create linear solver
   udata->LS = SUNLinSol_PCG(u, prectype, udata->liniters, sunctx);
@@ -1282,7 +1282,6 @@ static int InitUserData(UserData *udata)
 
 
   // Linear solver and preconditioner options
-  udata->lsinfo    = false;         // output residual history
   udata->liniters  = 20;            // max linear iterations
   udata->epslin    = RCONST(1.e-8); // relative stopping tolerance
 
@@ -1412,10 +1411,6 @@ static int ReadInputs(int *argc, char ***argv, UserData *udata, bool outproc)
       udata->maxits = stoi((*argv)[arg_idx++]);
     }
     // Linear solver settings
-    else if (arg == "--lsinfo")
-    {
-      udata->lsinfo = true;
-    }
     else if (arg == "--liniters")
     {
       udata->liniters = stoi((*argv)[arg_idx++]);
@@ -1488,7 +1483,6 @@ static void InputHelp()
   cout << "  --damping <damping>     : damping for Anderson Acceleration " << endl;
   cout << "  --orthaa <orthaa>       : orthogonalization routine used in Anderson Acceleration " << endl;
   cout << "  --C                     : scalar value on exponential term " << endl;
-  cout << "  --lsinfo                : output residual history" << endl;
   cout << "  --liniters <iters>      : max number of iterations" << endl;
   cout << "  --epslin <factor>       : linear tolerance factor" << endl;
   cout << "  --pfmg_relax <types>    : relaxtion type in PFMG" << endl;
