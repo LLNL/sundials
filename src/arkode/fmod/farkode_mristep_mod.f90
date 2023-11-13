@@ -48,17 +48,6 @@ module farkode_mristep_mod
  end enum
  integer, parameter, public :: MRISTEP_METHOD_TYPE = kind(MRISTEP_EXPLICIT)
  public :: MRISTEP_EXPLICIT, MRISTEP_IMPLICIT, MRISTEP_IMEX
- integer(C_INT), parameter, public :: MIS_KW3 = 200_C_INT
- integer(C_INT), parameter, public :: MRI_GARK_ERK33a = 201_C_INT
- integer(C_INT), parameter, public :: MRI_GARK_ERK45a = 202_C_INT
- integer(C_INT), parameter, public :: MRI_GARK_IRK21a = 203_C_INT
- integer(C_INT), parameter, public :: MRI_GARK_ESDIRK34a = 204_C_INT
- integer(C_INT), parameter, public :: MRI_GARK_ESDIRK46a = 205_C_INT
- integer(C_INT), parameter, public :: IMEX_MRI_GARK3a = 206_C_INT
- integer(C_INT), parameter, public :: IMEX_MRI_GARK3b = 207_C_INT
- integer(C_INT), parameter, public :: IMEX_MRI_GARK4 = 208_C_INT
- integer(C_INT), parameter, public :: MIN_MRI_NUM = 200_C_INT
- integer(C_INT), parameter, public :: MAX_MRI_NUM = 208_C_INT
  ! typedef enum ARKODE_MRITableID
  enum, bind(c)
   enumerator :: ARKODE_MRI_NONE = -1
@@ -169,7 +158,6 @@ module farkode_mristep_mod
  public :: FMRIStepSetErrHandlerFn
  public :: FMRIStepSetErrFile
  public :: FMRIStepSetUserData
- public :: FMRIStepSetDiagnostics
  public :: FMRIStepSetPostprocessStepFn
  public :: FMRIStepSetPostprocessStageFn
  public :: FMRIStepSetPreInnerFn
@@ -800,15 +788,6 @@ end function
 
 function swigc_FMRIStepSetUserData(farg1, farg2) &
 bind(C, name="_wrap_FMRIStepSetUserData") &
-result(fresult)
-use, intrinsic :: ISO_C_BINDING
-type(C_PTR), value :: farg1
-type(C_PTR), value :: farg2
-integer(C_INT) :: fresult
-end function
-
-function swigc_FMRIStepSetDiagnostics(farg1, farg2) &
-bind(C, name="_wrap_FMRIStepSetDiagnostics") &
 result(fresult)
 use, intrinsic :: ISO_C_BINDING
 type(C_PTR), value :: farg1
@@ -2446,22 +2425,6 @@ type(C_PTR) :: farg2
 farg1 = arkode_mem
 farg2 = user_data
 fresult = swigc_FMRIStepSetUserData(farg1, farg2)
-swig_result = fresult
-end function
-
-function FMRIStepSetDiagnostics(arkode_mem, diagfp) &
-result(swig_result)
-use, intrinsic :: ISO_C_BINDING
-integer(C_INT) :: swig_result
-type(C_PTR) :: arkode_mem
-type(C_PTR) :: diagfp
-integer(C_INT) :: fresult 
-type(C_PTR) :: farg1 
-type(C_PTR) :: farg2 
-
-farg1 = arkode_mem
-farg2 = diagfp
-fresult = swigc_FMRIStepSetDiagnostics(farg1, farg2)
 swig_result = fresult
 end function
 

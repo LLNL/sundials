@@ -21,21 +21,17 @@ install(CODE "MESSAGE(\"\nInstall IDA\n\")")
 set(ida_SOURCES
   ida.c
   ida_bbdpre.c
-  ida_direct.c
   ida_ic.c
   ida_io.c
   ida_ls.c
   ida_nls.c
-  ida_spils.c
   )
 
 # Add variable ida_HEADERS with the exported IDA header files
 set(ida_HEADERS
   ida.h
   ida_bbdpre.h
-  ida_direct.h
   ida_ls.h
-  ida_spils.h
   )
 
 # Add prefix with complete path to the IDA header files

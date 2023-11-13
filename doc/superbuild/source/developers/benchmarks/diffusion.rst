@@ -149,8 +149,6 @@ listed in :numref:`Benchmarks.Table.2D_diffusion_options`.
    | ``--ls``                      | Linear solver: ``cg``, ``gmres``,    | ``cg``        |
    |                               | ``sludist``                          |               |
    +-------------------------------+--------------------------------------+---------------+
-   | ``--lsinfo``                  | Output linear solver diagnostics     | Off           |
-   +-------------------------------+--------------------------------------+---------------+
    | ``--liniters <int>``          | Number of linear iterations          | 20            |
    +-------------------------------+--------------------------------------+---------------+
    | ``--epslin <realtype>``       | Linear solve tolerance factor        | 0             |
@@ -168,8 +166,6 @@ listed in :numref:`Benchmarks.Table.2D_diffusion_options`.
    +-------------------------------+--------------------------------------+---------------+
    | ``--nonlinear``               | Treat the problem as nonlinearly     | Linear        |
    |                               | implicit                             |               |
-   +-------------------------------+--------------------------------------+---------------+
-   | ``--diagnostics``             | Output integrator diagnostics        | Off           |
    +-------------------------------+--------------------------------------+---------------+
 
 

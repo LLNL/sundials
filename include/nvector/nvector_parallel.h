@@ -225,21 +225,6 @@ SUNDIALS_EXPORT int N_VEnableLinearCombinationVectorArray_Parallel(N_Vector v, b
 
 SUNDIALS_EXPORT int N_VEnableDotProdMultiLocal_Parallel(N_Vector v, booleantype tf);
 
-/*
- * -----------------------------------------------------------------
- * Deprecated functions
- * -----------------------------------------------------------------
- */
-
-/* use N_VCloneVectorArray */
-SUNDIALS_DEPRECATED_EXPORT N_Vector* N_VCloneVectorArray_Parallel(int count, N_Vector w);
-
-/* use N_VCloneVectorArrayEmpty */
-SUNDIALS_DEPRECATED_EXPORT N_Vector* N_VCloneVectorArrayEmpty_Parallel(int count, N_Vector w);
-
-/* use N_VDestroyVectorArray */
-SUNDIALS_DEPRECATED_EXPORT void N_VDestroyVectorArray_Parallel(N_Vector* vs, int count);
-
 
 #ifdef __cplusplus
 }

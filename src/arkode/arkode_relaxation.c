@@ -841,8 +841,8 @@ int arkRelax(ARKodeMem ark_mem, int* relax_fails, realtype* dsm_inout,
     /* Cut step size and try again */
     ark_mem->eta = relax_mem->eta_fail;
 
-#if SUNDIALS_LOGGING_LEVEL >= SUNDIALS_LOGGING_INFO
-    SUNLogger_QueueMsg(ARK_LOGGER, SUN_LOGLEVEL_INFO,
+#if SUNDIALS_LOGGING_LEVEL >= SUNDIALS_LOGGING_DEBUG
+    SUNLogger_QueueMsg(ARK_LOGGER, SUN_LOGLEVEL_DEBUG,
                        "ARKODE::arkStep_TakeStep_Z", "relaxation",
                        "relaxation failed");
 #endif
@@ -858,8 +858,8 @@ int arkRelax(ARKodeMem ark_mem, int* relax_fails, realtype* dsm_inout,
   N_VLinearSum(relax_val, ark_mem->ycur, (ONE - relax_val), ark_mem->yn,
                ark_mem->ycur);
 
-#if SUNDIALS_LOGGING_LEVEL >= SUNDIALS_LOGGING_INFO
-  SUNLogger_QueueMsg(ARK_LOGGER, SUN_LOGLEVEL_INFO,
+#if SUNDIALS_LOGGING_LEVEL >= SUNDIALS_LOGGING_DEBUG
+  SUNLogger_QueueMsg(ARK_LOGGER, SUN_LOGLEVEL_DEBUG,
                      "ARKODE::arkStep_TakeStep_Z", "relaxation",
                      "relaxation parameter = %"RSYM", relaxed h = %"RSYM
                      ", relaxed error = %"RSYM,

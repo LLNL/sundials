@@ -99,7 +99,6 @@ module farkode_erkstep_mod
  public :: FERKStepSetErrHandlerFn
  public :: FERKStepSetErrFile
  public :: FERKStepSetUserData
- public :: FERKStepSetDiagnostics
  public :: FERKStepSetPostprocessStepFn
  public :: FERKStepSetPostprocessStageFn
  public :: FERKStepEvolve
@@ -582,15 +581,6 @@ end function
 
 function swigc_FERKStepSetUserData(farg1, farg2) &
 bind(C, name="_wrap_FERKStepSetUserData") &
-result(fresult)
-use, intrinsic :: ISO_C_BINDING
-type(C_PTR), value :: farg1
-type(C_PTR), value :: farg2
-integer(C_INT) :: fresult
-end function
-
-function swigc_FERKStepSetDiagnostics(farg1, farg2) &
-bind(C, name="_wrap_FERKStepSetDiagnostics") &
 result(fresult)
 use, intrinsic :: ISO_C_BINDING
 type(C_PTR), value :: farg1
@@ -1850,22 +1840,6 @@ type(C_PTR) :: farg2
 farg1 = arkode_mem
 farg2 = user_data
 fresult = swigc_FERKStepSetUserData(farg1, farg2)
-swig_result = fresult
-end function
-
-function FERKStepSetDiagnostics(arkode_mem, diagfp) &
-result(swig_result)
-use, intrinsic :: ISO_C_BINDING
-integer(C_INT) :: swig_result
-type(C_PTR) :: arkode_mem
-type(C_PTR) :: diagfp
-integer(C_INT) :: fresult 
-type(C_PTR) :: farg1 
-type(C_PTR) :: farg2 
-
-farg1 = arkode_mem
-farg2 = diagfp
-fresult = swigc_FERKStepSetDiagnostics(farg1, farg2)
 swig_result = fresult
 end function
 

@@ -76,12 +76,12 @@ sundials_option(SUNDIALS_BUILD_WITH_PROFILING BOOL "${DOCSTR}" OFF)
 # ---------------------------------------------------------------
 
 set(DOCSTR "Build with logging capabilities enabled (0 = no logging, 1 = errors, 2 = +warnings, 3 = +info, 4 = +debug, 5 = +extras")
-sundials_option(SUNDIALS_LOGGING_LEVEL STRING "${DOCSTR}" 0
+sundials_option(SUNDIALS_LOGGING_LEVEL STRING "${DOCSTR}" 2
                 OPTIONS "0;1;2;3;4;5")
 
-if(SUNDIALS_LOGGING_LEVEL GREATER_EQUAL 1)
+if(SUNDIALS_LOGGING_LEVEL GREATER_EQUAL 3)
   message(STATUS "SUNDIALS logging level set to ${SUNDIALS_LOGGING_LEVEL}")
-  message(WARNING "SUNDIALS built with logging turned on, performance may be affected.")
+  message(WARNING "SUNDIALS built with additional logging turned on, performance may be affected.")
 endif()
 
 set(DOCSTR "Build SUNDIALS logging with MPI support")

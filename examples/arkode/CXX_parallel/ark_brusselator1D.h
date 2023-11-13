@@ -196,7 +196,7 @@ typedef struct
 #define LOCAL_NLS(NLS)       ( GET_NLS_CONTENT(NLS)->local_nls )
 
 /* SUNNonlinearSolver constructor */
-SUNNonlinearSolver TaskLocalNewton(SUNContext ctx, N_Vector y, FILE* DFID);
+SUNNonlinearSolver TaskLocalNewton(SUNContext ctx, N_Vector y);
 
 
 /*

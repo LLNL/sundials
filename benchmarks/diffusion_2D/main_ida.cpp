@@ -28,7 +28,6 @@ struct UserOptions
   // Linear solver and preconditioner settings
   std::string ls              = "cg";   // linear solver to use
   bool        preconditioning = true;   // preconditioner on/off
-  bool        lsinfo          = false;  // output residual history
   int         liniters        = 20;     // number of linear iterations
   realtype    epslin          = ZERO;   // linear solver tolerance factor
 
@@ -113,21 +112,11 @@ int main(int argc, char* argv[])
     flag = udata.setup();
     if (check_flag(&flag, "UserData::setup", 1)) return 1;
 
-    // Output problem setup/options
-    FILE *diagfp = NULL;
-
     if (outproc)
     {
       udata.print();
       uopts.print();
       uout.print();
-
-      // Open diagnostics output file
-      if (uopts.lsinfo)
-      {
-        diagfp = fopen("diagnostics.txt", "w");
-        if (check_flag((void *) diagfp, "fopen", 0)) return 1;
-      }
     }
 
     // ---------------
@@ -187,35 +176,17 @@ int main(int argc, char* argv[])
     sunindextype* A_row_ptrs = nullptr;
 #endif
 
-    int prectype = (uopts.preconditioning) ? PREC_RIGHT : PREC_NONE;
+    int prectype = (uopts.preconditioning) ? SUN_PREC_RIGHT : SUN_PREC_NONE;
 
     if (uopts.ls == "cg")
     {
       LS = SUNLinSol_PCG(u, prectype, uopts.liniters, ctx);
       if (check_flag((void *) LS, "SUNLinSol_PCG", 0)) return 1;
-
-      if (uopts.lsinfo && outproc)
-      {
-        flag = SUNLinSolSetPrintLevel_PCG(LS, 1);
-        if (check_flag(&flag, "SUNLinSolSetPrintLevel_PCG", 1)) return(1);
-
-        flag = SUNLinSolSetInfoFile_PCG(LS, diagfp);
-        if (check_flag(&flag, "SUNLinSolSetInfoFile_PCG", 1)) return(1);
-      }
     }
     else if (uopts.ls == "gmres")
     {
       LS = SUNLinSol_SPGMR(u, prectype, uopts.liniters, ctx);
       if (check_flag((void *) LS, "SUNLinSol_SPGMR", 0)) return 1;
-
-      if (uopts.lsinfo && outproc)
-      {
-        flag = SUNLinSolSetPrintLevel_SPGMR(LS, 1);
-        if (check_flag(&flag, "SUNLinSolSetPrintLevel_SPGMR", 1)) return(1);
-
-        flag = SUNLinSolSetInfoFile_SPGMR(LS, diagfp);
-        if (check_flag(&flag, "SUNLinSolSetInfoFile_SPGMR", 1)) return(1);
-      }
     }
     else
     {
@@ -386,9 +357,6 @@ int main(int argc, char* argv[])
     // Free MPI Cartesian communicator
     MPI_Comm_free(&(udata.comm_c));
 
-    // Close diagnostics output file
-    if (diagfp) fclose(diagfp);
-
     // Free integrator and linear solver
     IDAFree(&ida_mem);     // Free integrator memory
     SUNLinSolFree(LS);         // Free linear solver
@@ -474,12 +442,6 @@ int UserOptions::parse_args(vector<string> &args, bool outproc)
     args.erase(it, it + 2);
   }
 
-  it = find(args.begin(), args.end(), "--lsinfo");
-  if (it != args.end())
-  {
-    lsinfo = true;
-    args.erase(it);
-  }
 
   it = find(args.begin(), args.end(), "--liniters");
   if (it != args.end())
@@ -507,7 +469,6 @@ void UserOptions::help()
   cout << "  --rtol <rtol>           : relative tolerance" << endl;
   cout << "  --atol <atol>           : absoltue tolerance" << endl;
   cout << "  --ls <cg|gmres|sludist> : linear solver" << endl;
-  cout << "  --lsinfo                : output residual history" << endl;
   cout << "  --liniters <iters>      : max number of iterations" << endl;
   cout << "  --epslin <factor>       : linear tolerance factor" << endl;
   cout << "  --noprec                : disable preconditioner" << endl;
@@ -537,7 +498,6 @@ void UserOptions::print()
 #else
     cout << " LS       = SuperLU_DIST" << endl;
 #endif
-    cout << " LS info  = " << lsinfo   << endl;
     cout << " --------------------------------- " << endl;
   }
   else
@@ -546,7 +506,6 @@ void UserOptions::print()
     cout << " --------------------------------- " << endl;
     cout << " LS       = " << ls              << endl;
     cout << " precond  = " << preconditioning << endl;
-    cout << " LS info  = " << lsinfo          << endl;
     cout << " LS iters = " << liniters        << endl;
     cout << " epslin   = " << epslin          << endl;
     cout << " --------------------------------- " << endl;

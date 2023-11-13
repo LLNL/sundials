@@ -47,7 +47,6 @@ extern "C" {
 
 /* KINSOL default constants */
 
-#define PRINTFL_DEFAULT    0
 #define MXITER_DEFAULT     200
 #define MXNBCF_DEFAULT     10
 #define MSBSET_DEFAULT     10
@@ -90,7 +89,6 @@ typedef struct KINMemRec {
   realtype kin_scsteptol;      /* scaled step length tolerance                 */
   int kin_globalstrategy;      /* choices are KIN_NONE, KIN_LINESEARCH
                                   KIN_PICARD and KIN_FP                        */
-  int kin_printfl;             /* level of verbosity of output                 */
   long int kin_mxiter;         /* maximum number of nonlinear iterations       */
   long int kin_msbset;         /* maximum number of nonlinear iterations that
                                   may be performed between calls to the
@@ -279,16 +277,6 @@ typedef struct KINMemRec {
   void *kin_eh_data;           /* dats pointer passed to ehfun                 */
   FILE *kin_errfp;             /* KINSOL error messages are sent to errfp      */
 
-  KINInfoHandlerFn kin_ihfun;  /* Info messages are handled by ihfun           */
-  void *kin_ih_data;           /* dats pointer passed to ihfun                 */
-  FILE *kin_infofp;            /* where KINSol info messages are sent          */
-
-  /*---------
-    Debugging
-    ---------*/
-
-  FILE *kin_debugfp; /* debugging output file */
-
 } *KINMem;
 
 /*
@@ -432,7 +420,6 @@ void KINInfoHandler(const char *module, const char *function,
 #define MSG_FUNC_NULL          "func = NULL illegal."
 #define MSG_NO_MALLOC          "Attempt to call before KINMalloc illegal."
 
-#define MSG_BAD_PRINTFL        "Illegal value for printfl."
 #define MSG_BAD_MXITER         "Illegal value for mxiter."
 #define MSG_BAD_MSBSET         "Illegal msbset < 0."
 #define MSG_BAD_MSBSETSUB      "Illegal msbsetsub < 0."

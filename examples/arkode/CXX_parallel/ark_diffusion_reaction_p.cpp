@@ -291,7 +291,6 @@ struct UserData
   int  maxsteps    = 0;      // max steps between outputs (0 = use default)
   bool linear      = true;   // enable/disable linearly implicit option
   bool diagnostics = false;  // output diagnostics
-  FILE *diagfp     = NULL;   // diagnostics output file
 
   // -----------------------------------------
   // Nonlinear solver settings
@@ -508,6 +507,20 @@ int main(int argc, char* argv[])
     if (check_flag(&flag, "PrintUserData", 1)) return 1;
   }
 
+  if (udata.diagnostics || udata.lsinfo)
+  {
+    SUNLogger logger;
+  
+    flag = SUNContext_GetLogger(ctx, &logger);
+    if (check_flag(&flag, "SUNContext_GetLogger", 1)) return 1;
+
+    flag = SUNLogger_SetInfoFilename(logger, "diagnostics.txt");
+    if (check_flag(&flag, "SUNLogger_SetInfoFilename", 1)) return 1;
+
+    flag = SUNLogger_SetDebugFilename(logger, "diagnostics.txt");
+    if (check_flag(&flag, "SUNLogger_SetDebugFilename", 1)) return 1;
+  }
+
   // --------------
   // Create vectors
   // --------------
@@ -520,13 +533,6 @@ int main(int argc, char* argv[])
   // Create linear solver
   // --------------------
 
-  // Open diagnostics file
-  if (outproc && (udata.diagnostics || udata.lsinfo))
-  {
-    udata.diagfp = fopen("diagnostics.txt", "w");
-    if (check_flag((void *) (udata.diagfp), "fopen", 0)) return 1;
-  }
-
   // Preconditioning type
   int prectype = (udata.prec) ? SUN_PREC_RIGHT : SUN_PREC_NONE;
 
@@ -537,29 +543,11 @@ int main(int argc, char* argv[])
   {
     LS = SUNLinSol_PCG(u, prectype, udata.liniters, ctx);
     if (check_flag((void *) LS, "SUNLinSol_PCG", 0)) return 1;
-
-    if (udata.lsinfo && outproc)
-    {
-      flag = SUNLinSolSetPrintLevel_PCG(LS, 1);
-      if (check_flag(&flag, "SUNLinSolSetPrintLevel_PCG", 1)) return(1);
-
-      flag = SUNLinSolSetInfoFile_PCG(LS, udata.diagfp);
-      if (check_flag(&flag, "SUNLinSolSetInfoFile_PCG", 1)) return(1);
-    }
   }
   else
   {
     LS = SUNLinSol_SPGMR(u, prectype, udata.liniters, ctx);
     if (check_flag((void *) LS, "SUNLinSol_SPGMR", 0)) return 1;
-
-    if (udata.lsinfo && outproc)
-    {
-      flag = SUNLinSolSetPrintLevel_SPGMR(LS, 1);
-      if (check_flag(&flag, "SUNLinSolSetPrintLevel_SPGMR", 1)) return(1);
-
-      flag = SUNLinSolSetInfoFile_SPGMR(LS, udata.diagfp);
-      if (check_flag(&flag, "SUNLinSolSetInfoFile_SPGMR", 1)) return(1);
-    }
   }
 
   // Allocate preconditioner workspace
@@ -711,8 +699,6 @@ int main(int argc, char* argv[])
   // --------------------
   // Clean up and return
   // --------------------
-
-  if (outproc && (udata.diagnostics || udata.lsinfo)) fclose(udata.diagfp);
 
   switch(udata.integrator)
   {
@@ -1042,13 +1028,6 @@ static int SetupARK(SUNContext ctx, UserData* udata, N_Vector u,
   flag = ARKStepSetStopTime(*arkode_mem, udata->tf);
   if (check_flag(&flag, "ARKStepSetStopTime", 1)) return 1;
 
-  // Set diagnostics output file
-  if (udata->diagnostics && udata->outproc)
-  {
-    flag = ARKStepSetDiagnostics(*arkode_mem, udata->diagfp);
-    if (check_flag(&flag, "ARKStepSetDiagnostics", 1)) return 1;
-  }
-
   return 0;
 }
 
@@ -1103,13 +1082,6 @@ static int SetupMRI(SUNContext ctx, UserData* udata, N_Vector y,
   // Set max steps between outputs
   flag = ARKStepSetMaxNumSteps(inner_arkode_mem, udata->maxsteps);
   if (check_flag(&flag, "ARKStepSetMaxNumSteps", 1)) return 1;
-
-  // Set diagnostics output file
-  if (udata->diagnostics && udata->outproc)
-  {
-    flag = ARKStepSetDiagnostics(inner_arkode_mem, udata->diagfp);
-    if (check_flag(&flag, "ARKStepSetDiagnostics", 1)) return 1;
-  }
 
   // Wrap ARKODE as an MRIStepInnerStepper
   flag = ARKStepCreateMRIStepInnerStepper(inner_arkode_mem,
@@ -1178,13 +1150,6 @@ static int SetupMRI(SUNContext ctx, UserData* udata, N_Vector y,
   // Set stopping time
   flag = MRIStepSetStopTime(*arkode_mem, udata->tf);
   if (check_flag(&flag, "MRIStepSetStopTime", 1)) return 1;
-
-  // Set diagnostics output file
-  if (udata->diagnostics && udata->outproc)
-  {
-    flag = MRIStepSetDiagnostics(*arkode_mem, udata->diagfp);
-    if (check_flag(&flag, "MRIStepSetDiagnostics", 1)) return 1;
-  }
 
   return 0;
 }
@@ -1338,13 +1303,6 @@ static int SetupMRICVODE(SUNContext ctx, UserData *udata, N_Vector y,
   // Set stopping time
   flag = MRIStepSetStopTime(*arkode_mem, udata->tf);
   if (check_flag(&flag, "MRIStepSetStopTime", 1)) return 1;
-
-  // Set diagnostics output file
-  if (udata->diagnostics && udata->outproc)
-  {
-    flag = MRIStepSetDiagnostics(*arkode_mem, udata->diagfp);
-    if (check_flag(&flag, "MRIStepSetDiagnostics", 1)) return 1;
-  }
 
   return 0;
 }

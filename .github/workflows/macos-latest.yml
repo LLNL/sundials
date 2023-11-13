@@ -1,4 +1,4 @@
-name: MacOS short test
+name: Build and Test - MacOS (short)
 
 on:
   pull_request:
@@ -14,7 +14,7 @@ env:
   BUILD_TYPE: Release
 
 jobs:
-  build:
+  build_and_test:
     # The CMake configure and build commands are platform agnostic and should work equally
     # well on Windows or Mac.  You can convert this to a matrix build if you need
     # cross-platform coverage.

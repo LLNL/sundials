@@ -102,10 +102,6 @@ ARKodeMem arkCreate(SUNContext sunctx)
   ark_mem->relax_enabled = SUNFALSE;
   ark_mem->relax_mem     = NULL;
 
-  /* Initialize diagnostics reporting variables */
-  ark_mem->report  = SUNFALSE;
-  ark_mem->diagfp  = NULL;
-
   /* Initialize lrw and liw */
   ark_mem->lrw = 18;
   ark_mem->liw = 41;  /* fcn/data ptr, int, long int, sunindextype, booleantype */
@@ -856,8 +852,8 @@ int arkEvolve(ARKodeMem ark_mem, realtype tout, N_Vector yout,
       attempts++;
       ark_mem->nst_attempts++;
 
-#if SUNDIALS_LOGGING_LEVEL >= SUNDIALS_LOGGING_INFO
-      SUNLogger_QueueMsg(ARK_LOGGER, SUN_LOGLEVEL_INFO,
+#if SUNDIALS_LOGGING_LEVEL >= SUNDIALS_LOGGING_DEBUG
+      SUNLogger_QueueMsg(ARK_LOGGER, SUN_LOGLEVEL_DEBUG,
                          "ARKODE::arkEvolve", "start-step",
                          "step = %li, attempt = %i, h = %"RSYM", tcur = %"RSYM,
                          ark_mem->nst, attempts, ark_mem->h, ark_mem->tcur);
@@ -1435,7 +1431,6 @@ void arkPrintMem(ARKodeMem ark_mem, FILE *outfile)
   fprintf(outfile, "tstopset = %i\n", ark_mem->tstopset);
   fprintf(outfile, "tstopinterp = %i\n", ark_mem->tstopinterp);
   fprintf(outfile, "tstop = %" RSYM"\n", ark_mem->tstop);
-  fprintf(outfile, "report = %i\n", ark_mem->report);
   fprintf(outfile, "VabstolMallocDone = %i\n", ark_mem->VabstolMallocDone);
   fprintf(outfile, "MallocDone = %i\n", ark_mem->MallocDone);
   fprintf(outfile, "initsetup = %i\n", ark_mem->initsetup);
@@ -2481,8 +2476,8 @@ int arkCompleteStep(ARKodeMem ark_mem, realtype dsm)
       ark_mem->tcur = ark_mem->tstop;
   }
 
-#if SUNDIALS_LOGGING_LEVEL >= SUNDIALS_LOGGING_INFO
-  SUNLogger_QueueMsg(ARK_LOGGER, SUN_LOGLEVEL_INFO,
+#if SUNDIALS_LOGGING_LEVEL >= SUNDIALS_LOGGING_DEBUG
+  SUNLogger_QueueMsg(ARK_LOGGER, SUN_LOGLEVEL_DEBUG,
                      "ARKODE::arkCompleteStep", "end-step",
                      "step = %li, h = %"RSYM", tcur = %"RSYM,
                      ark_mem->nst, ark_mem->h, ark_mem->tcur);

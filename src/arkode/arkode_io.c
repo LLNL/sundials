@@ -86,8 +86,6 @@ int arkSetDefaults(void *arkode_mem)
   ark_mem->tstopset                = SUNFALSE;       /* no stop time set */
   ark_mem->tstopinterp             = SUNFALSE;       /* copy at stop time */
   ark_mem->tstop                   = ZERO;           /* no fixed stop time */
-  ark_mem->diagfp                  = NULL;           /* no solver diagnostics file */
-  ark_mem->report                  = SUNFALSE;       /* don't report solver diagnostics */
   ark_mem->hadapt_mem->etamx1      = ETAMX1;         /* max change on first step */
   ark_mem->hadapt_mem->etamxf      = ETAMXF;         /* max change on error-failed step */
   ark_mem->hadapt_mem->etamin      = ETAMIN;         /* min bound on time step reduction */
@@ -308,33 +306,6 @@ int arkSetUserData(void *arkode_mem, void *user_data)
 
   return(ARK_SUCCESS);
 }
-
-
-/*---------------------------------------------------------------
-  arkSetDiagnostics:
-
-  Specifies to enable solver diagnostics, and specifies the FILE
-  pointer for output (diagfp==NULL disables output)
-  ---------------------------------------------------------------*/
-int arkSetDiagnostics(void *arkode_mem, FILE *diagfp)
-{
-  ARKodeMem ark_mem;
-  if (arkode_mem==NULL) {
-    arkProcessError(NULL, ARK_MEM_NULL, "ARKODE",
-                    "arkSetDiagnostics", MSG_ARK_NO_MEM);
-    return(ARK_MEM_NULL);
-  }
-  ark_mem = (ARKodeMem) arkode_mem;
-  ark_mem->diagfp = diagfp;
-  if (diagfp != NULL) {
-    ark_mem->report = SUNTRUE;
-  } else {
-    ark_mem->report = SUNFALSE;
-  }
-
-  return(ARK_SUCCESS);
-}
-
 
 /*---------------------------------------------------------------
   arkSetAdaptController:

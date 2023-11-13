@@ -56,6 +56,10 @@ method `ARKODE_VERNER_16_8_9`.
 Changed the `SUNProfiler` so that it does not rely on `MPI_WTime` in any case.
 This fixes https://github.com/LLNL/sundials/issues/312. 
 
+**Breaking change**
+Functions, types and header files that were previously deprecated have been
+removed. 
+
 ## Changes to SUNDIALS in release 6.6.1
 
 Updated the Tpetra NVector interface to support Trilinos 14.

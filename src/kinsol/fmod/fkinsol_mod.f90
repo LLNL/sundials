@@ -100,10 +100,6 @@ module fkinsol_mod
  public :: FKINSetSysFunc
  public :: FKINSetErrHandlerFn
  public :: FKINSetErrFile
- public :: FKINSetInfoHandlerFn
- public :: FKINSetInfoFile
- public :: FKINSetPrintLevel
- public :: FKINSetDebugFile
  public :: FKINGetWorkSpace
  public :: FKINGetNumNonlinSolvIters
  public :: FKINGetNumFuncEvals
@@ -423,43 +419,6 @@ end function
 
 function swigc_FKINSetErrFile(farg1, farg2) &
 bind(C, name="_wrap_FKINSetErrFile") &
-result(fresult)
-use, intrinsic :: ISO_C_BINDING
-type(C_PTR), value :: farg1
-type(C_PTR), value :: farg2
-integer(C_INT) :: fresult
-end function
-
-function swigc_FKINSetInfoHandlerFn(farg1, farg2, farg3) &
-bind(C, name="_wrap_FKINSetInfoHandlerFn") &
-result(fresult)
-use, intrinsic :: ISO_C_BINDING
-type(C_PTR), value :: farg1
-type(C_FUNPTR), value :: farg2
-type(C_PTR), value :: farg3
-integer(C_INT) :: fresult
-end function
-
-function swigc_FKINSetInfoFile(farg1, farg2) &
-bind(C, name="_wrap_FKINSetInfoFile") &
-result(fresult)
-use, intrinsic :: ISO_C_BINDING
-type(C_PTR), value :: farg1
-type(C_PTR), value :: farg2
-integer(C_INT) :: fresult
-end function
-
-function swigc_FKINSetPrintLevel(farg1, farg2) &
-bind(C, name="_wrap_FKINSetPrintLevel") &
-result(fresult)
-use, intrinsic :: ISO_C_BINDING
-type(C_PTR), value :: farg1
-integer(C_INT), intent(in) :: farg2
-integer(C_INT) :: fresult
-end function
-
-function swigc_FKINSetDebugFile(farg1, farg2) &
-bind(C, name="_wrap_FKINSetDebugFile") &
 result(fresult)
 use, intrinsic :: ISO_C_BINDING
 type(C_PTR), value :: farg1
@@ -1261,73 +1220,6 @@ type(C_PTR) :: farg2
 farg1 = kinmem
 farg2 = errfp
 fresult = swigc_FKINSetErrFile(farg1, farg2)
-swig_result = fresult
-end function
-
-function FKINSetInfoHandlerFn(kinmem, ihfun, ih_data) &
-result(swig_result)
-use, intrinsic :: ISO_C_BINDING
-integer(C_INT) :: swig_result
-type(C_PTR) :: kinmem
-type(C_FUNPTR), intent(in), value :: ihfun
-type(C_PTR) :: ih_data
-integer(C_INT) :: fresult 
-type(C_PTR) :: farg1 
-type(C_FUNPTR) :: farg2 
-type(C_PTR) :: farg3 
-
-farg1 = kinmem
-farg2 = ihfun
-farg3 = ih_data
-fresult = swigc_FKINSetInfoHandlerFn(farg1, farg2, farg3)
-swig_result = fresult
-end function
-
-function FKINSetInfoFile(kinmem, infofp) &
-result(swig_result)
-use, intrinsic :: ISO_C_BINDING
-integer(C_INT) :: swig_result
-type(C_PTR) :: kinmem
-type(C_PTR) :: infofp
-integer(C_INT) :: fresult 
-type(C_PTR) :: farg1 
-type(C_PTR) :: farg2 
-
-farg1 = kinmem
-farg2 = infofp
-fresult = swigc_FKINSetInfoFile(farg1, farg2)
-swig_result = fresult
-end function
-
-function FKINSetPrintLevel(kinmem, printfl) &
-result(swig_result)
-use, intrinsic :: ISO_C_BINDING
-integer(C_INT) :: swig_result
-type(C_PTR) :: kinmem
-integer(C_INT), intent(in) :: printfl
-integer(C_INT) :: fresult 
-type(C_PTR) :: farg1 
-integer(C_INT) :: farg2 
-
-farg1 = kinmem
-farg2 = printfl
-fresult = swigc_FKINSetPrintLevel(farg1, farg2)
-swig_result = fresult
-end function
-
-function FKINSetDebugFile(kinmem, debugfp) &
-result(swig_result)
-use, intrinsic :: ISO_C_BINDING
-integer(C_INT) :: swig_result
-type(C_PTR) :: kinmem
-type(C_PTR) :: debugfp
-integer(C_INT) :: fresult 
-type(C_PTR) :: farg1 
-type(C_PTR) :: farg2 
-
-farg1 = kinmem
-farg2 = debugfp
-fresult = swigc_FKINSetDebugFile(farg1, farg2)
 swig_result = fresult
 end function
 

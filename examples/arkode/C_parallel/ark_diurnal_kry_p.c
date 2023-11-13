@@ -838,7 +838,7 @@ static int Precond(realtype tn, N_Vector u, N_Vector fu,
   /* jok = SUNTRUE: Copy Jbd to P */
     for (ly = 0; ly < MYSUB; ly++)
       for (lx = 0; lx < MXSUB; lx++)
-        denseCopy(Jbd[lx][ly], P[lx][ly], NVARS, NVARS);
+        SUNDlsMat_denseCopy(Jbd[lx][ly], P[lx][ly], NVARS, NVARS);
 
   *jcurPtr = SUNFALSE;
 
@@ -873,7 +873,7 @@ static int Precond(realtype tn, N_Vector u, N_Vector fu,
         IJth(j,1,2) = -Q2*c1 + q4coef;
         IJth(j,2,1) = Q1*C3 - Q2*c2;
         IJth(j,2,2) = (-Q2*c1 - q4coef) + diag;
-        denseCopy(j, a, NVARS, NVARS);
+        SUNDlsMat_denseCopy(j, a, NVARS, NVARS);
       }
     }
 
@@ -884,7 +884,7 @@ static int Precond(realtype tn, N_Vector u, N_Vector fu,
   /* Scale by -gamma */
   for (ly = 0; ly < MYSUB; ly++)
     for (lx = 0; lx < MXSUB; lx++)
-      denseScale(-gamma, P[lx][ly], NVARS, NVARS);
+      SUNDlsMat_denseScale(-gamma, P[lx][ly], NVARS, NVARS);
 
   /* Add identity matrix and do LU decompositions on blocks in place */
   for (lx = 0; lx < MXSUB; lx++) {

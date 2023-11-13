@@ -1268,12 +1268,6 @@ int arkStep_Init(void* arkode_mem, int init_type)
         return (ARK_ILL_INPUT);
       }
     }
-
-    /* If configured with either predictor 4 or 5 and a non-identity mass
-       matrix, reset to trivial predictor */
-    if (step_mem->mass_type != MASS_IDENTITY)
-      if ((step_mem->predictor == 4) || (step_mem->predictor == 5))
-        step_mem->predictor = 0;
   }
 
   /* set appropriate TakeStep routine based on problem configuration */
@@ -1883,8 +1877,8 @@ int arkStep_TakeStep_Z(void* arkode_mem, realtype *dsmPtr, int *nflagPtr)
     else
       ark_mem->tcur = ark_mem->tn + step_mem->Be->c[is]*ark_mem->h;
 
-#if SUNDIALS_LOGGING_LEVEL >= SUNDIALS_LOGGING_INFO
-    SUNLogger_QueueMsg(ARK_LOGGER, SUN_LOGLEVEL_INFO,
+#if SUNDIALS_LOGGING_LEVEL >= SUNDIALS_LOGGING_DEBUG
+    SUNLogger_QueueMsg(ARK_LOGGER, SUN_LOGLEVEL_DEBUG,
                        "ARKODE::arkStep_TakeStep_Z", "start-stage",
                        "step = %li, stage = %i, implicit = %i, h = %"RSYM", tcur = %"RSYM,
                        ark_mem->nst, is, implicit_stage, ark_mem->h, ark_mem->tcur);
@@ -1934,11 +1928,6 @@ int arkStep_TakeStep_Z(void* arkode_mem, realtype *dsmPtr, int *nflagPtr)
                        "sdata =", "");
     N_VPrintFile(step_mem->sdata, ARK_LOGGER->debug_fp);
 #endif
-
-    /* solver diagnostics reporting */
-    if (ark_mem->report)
-      fprintf(ark_mem->diagfp, "ARKStep  step  %li  %"RSYM"  %i  %"RSYM"\n",
-              ark_mem->nst, ark_mem->h, is, ark_mem->tcur);
 
     /* perform implicit solve if required */
     if (implicit_stage) {
@@ -2087,11 +2076,6 @@ int arkStep_TakeStep_Z(void* arkode_mem, realtype *dsmPtr, int *nflagPtr)
                      "ycur =", "");
   N_VPrintFile(ark_mem->ycur, ARK_LOGGER->debug_fp);
 #endif
-
-  /* solver diagnostics reporting */
-  if (ark_mem->report)
-    fprintf(ark_mem->diagfp, "ARKStep  etest  %li  %"RSYM"  %"RSYM"\n",
-            ark_mem->nst, ark_mem->h, *dsmPtr);
 
 #if SUNDIALS_LOGGING_LEVEL >= SUNDIALS_LOGGING_INFO
   SUNLogger_QueueMsg(ARK_LOGGER, SUN_LOGLEVEL_INFO,
@@ -2740,28 +2724,6 @@ int arkStep_StageSetup(ARKodeMem ark_mem, booleantype implicit)
       step_mem->gammap = step_mem->gamma;
     step_mem->gamrat = (ark_mem->firststage) ?
       ONE : step_mem->gamma / step_mem->gammap;  /* protect x/x != 1.0 */
-  }
-
-  /* If predictor==5, then sdata=0 (plus any implicit forcing).
-     Set sdata appropriately and return */
-  if (implicit && (step_mem->predictor == 5)) {
-
-    /* apply external polynomial forcing (updates nvec, cvals, Xvecs) */
-    if (step_mem->impforcing) {
-      nvec = 0;
-
-      step_mem->stage_times[0] = ark_mem->tcur;
-      step_mem->stage_coefs[0] = step_mem->gamma;
-
-      arkStep_ApplyForcing(step_mem, step_mem->stage_times,
-                           step_mem->stage_coefs, 1, &nvec);
-      retval = N_VLinearCombination(nvec, cvals, Xvecs, step_mem->sdata);
-      if (retval != 0) return(ARK_VECTOROP_ERR);
-    } else {
-      N_VConst(ZERO, step_mem->sdata);
-    }
-    return (ARK_SUCCESS);
-
   }
 
   /* If implicit, initialize sdata to yn - zpred (here: zpred = zp), and set

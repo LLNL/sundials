@@ -45,8 +45,6 @@ int ERKStepSetErrFile(void *arkode_mem, FILE *errfp) {
   return(arkSetErrFile(arkode_mem, errfp)); }
 int ERKStepSetUserData(void *arkode_mem, void *user_data) {
   return(arkSetUserData(arkode_mem, user_data)); }
-int ERKStepSetDiagnostics(void *arkode_mem, FILE *diagfp) {
-  return(arkSetDiagnostics(arkode_mem, diagfp)); }
 int ERKStepSetMaxNumSteps(void *arkode_mem, long int mxsteps) {
   return(arkSetMaxNumSteps(arkode_mem, mxsteps)); }
 int ERKStepSetMaxHnilWarns(void *arkode_mem, int mxhnil) {

@@ -764,8 +764,8 @@ int erkStep_TakeStep(void* arkode_mem, realtype *dsmPtr, int *nflagPtr)
   cvals = step_mem->cvals;
   Xvecs = step_mem->Xvecs;
 
-#if SUNDIALS_LOGGING_LEVEL >= SUNDIALS_LOGGING_INFO
-  SUNLogger_QueueMsg(ARK_LOGGER, SUN_LOGLEVEL_INFO,
+#if SUNDIALS_LOGGING_LEVEL >= SUNDIALS_LOGGING_DEBUG
+  SUNLogger_QueueMsg(ARK_LOGGER, SUN_LOGLEVEL_DEBUG,
                      "ARKODE::erkStep_TakeStep", "start-stage",
                      "step = %li, stage = 0, h = %"RSYM", tcur = %"RSYM,
                      ark_mem->nst, ark_mem->h, ark_mem->tcur);
@@ -804,13 +804,8 @@ int erkStep_TakeStep(void* arkode_mem, realtype *dsmPtr, int *nflagPtr)
     /* Set current stage time(s) */
     ark_mem->tcur = ark_mem->tn + step_mem->B->c[is]*ark_mem->h;
 
-    /* Solver diagnostics reporting */
-    if (ark_mem->report)
-      fprintf(ark_mem->diagfp, "ERKStep  step  %li  %"RSYM"  %i  %"RSYM"\n",
-              ark_mem->nst, ark_mem->h, is, ark_mem->tcur);
-
-#if SUNDIALS_LOGGING_LEVEL >= SUNDIALS_LOGGING_INFO
-    SUNLogger_QueueMsg(ARK_LOGGER, SUN_LOGLEVEL_INFO,
+#if SUNDIALS_LOGGING_LEVEL >= SUNDIALS_LOGGING_DEBUG
+    SUNLogger_QueueMsg(ARK_LOGGER, SUN_LOGLEVEL_DEBUG,
                        "ARKODE::erkStep_TakeStep", "start-stage",
                        "step = %li, stage = %i, h = %"RSYM", tcur = %"RSYM,
                        ark_mem->nst, is, ark_mem->h, ark_mem->tcur);
@@ -866,13 +861,8 @@ int erkStep_TakeStep(void* arkode_mem, realtype *dsmPtr, int *nflagPtr)
   N_VPrintFile(ark_mem->ycur, ARK_LOGGER->debug_fp);
 #endif
 
-  /* Solver diagnostics reporting */
-  if (ark_mem->report)
-    fprintf(ark_mem->diagfp, "ERKStep  etest  %li  %"RSYM"  %"RSYM"\n",
-            ark_mem->nst, ark_mem->h, *dsmPtr);
-
-#if SUNDIALS_LOGGING_LEVEL >= SUNDIALS_LOGGING_INFO
-  SUNLogger_QueueMsg(ARK_LOGGER, SUN_LOGLEVEL_INFO,
+#if SUNDIALS_LOGGING_LEVEL >= SUNDIALS_LOGGING_DEBUG
+  SUNLogger_QueueMsg(ARK_LOGGER, SUN_LOGLEVEL_DEBUG,
                      "ARKODE::erkStep_TakeStep", "error-test",
                      "step = %li, h = %"RSYM", dsm = %"RSYM,
                      ark_mem->nst, ark_mem->h, *dsmPtr);
