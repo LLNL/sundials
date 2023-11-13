@@ -17,6 +17,7 @@
 
 module test_nvector_mpimanyvector
   use, intrinsic :: iso_c_binding
+  use fsundials_types_mod
   use fsundials_nvector_mod
   use fnvector_mpimanyvector_mod
   use fnvector_serial_mod
@@ -54,7 +55,7 @@ contains
     tmp  => FN_VMake_Serial(N2, x2data, sunctx)
     call FN_VSetVecAtIndexVectorArray(subvecs, 1, tmp)
 
-    x => FN_VMake_MPIManyVector(MPI_COMM_WORLD, int(nsubvecs,8), subvecs, sunctx)
+    x => FN_VMake_MPIManyVector(comm, int(nsubvecs,8), subvecs, sunctx)
     call FN_VConst(ONE, x)
     y => FN_VClone_MPIManyVector(x)
     call FN_VConst(ONE, y)
@@ -152,7 +153,7 @@ contains
     tmp  => FN_VMake_Serial(N2, x2data, sunctx)
     call FN_VSetVecAtIndexVectorArray(subvecs, 1, tmp)
 
-    x => FN_VMake_MPIManyVector(MPI_COMM_WORLD, int(nsubvecs,8), subvecs, sunctx)
+    x => FN_VMake_MPIManyVector(comm, int(nsubvecs,8), subvecs, sunctx)
     call FN_VConst(ONE, x)
 
     !==== tests ====
