@@ -1068,6 +1068,7 @@ program main
   use fnvector_mpiplusx_mod      ! Access MPI+X N_Vector
   use fnvector_mpimanyvector_mod ! Access MPIManyVector N_Vector
   use fnvector_serial_mod        ! Access serial N_Vector
+  use fsundials_types_mod
   use fsundials_context_mod      ! Access sundials context
   use fsundials_logger_mod       ! Access SUNLogger
 
@@ -2284,6 +2285,7 @@ subroutine FreeProblem()
   !======= Inclusions ===========
   use, intrinsic :: iso_c_binding
 
+  use fsundials_types_mod
   use fsundials_context_mod
   use fsundials_logger_mod
   use fsundials_nvector_mod
