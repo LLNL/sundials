@@ -390,10 +390,6 @@ struct ARKodeMemRec
   long int netf;          /* num error test failures                    */
   long int nconstrfails;  /* number of constraint failures              */
 
-  /* Diagnostic output */
-  booleantype report;   /* flag to enable/disable diagnostic output    */
-  FILE       *diagfp;   /* diagnostic outputs are sent to diagfp   */
-
   /* Space requirements for ARKODE */
   sunindextype lrw1;        /* no. of realtype words in 1 N_Vector          */
   sunindextype liw1;        /* no. of integer words in 1 N_Vector           */
@@ -1010,7 +1006,6 @@ int arkSetErrHandlerFn(void *arkode_mem,
                        void *eh_data);
 int arkSetErrFile(void *arkode_mem, FILE *errfp);
 int arkSetUserData(void *arkode_mem, void *user_data);
-int arkSetDiagnostics(void *arkode_mem, FILE *diagfp);
 int arkSetMaxNumSteps(void *arkode_mem, long int mxsteps);
 int arkSetMaxHnilWarns(void *arkode_mem, int mxhnil);
 int arkSetInitStep(void *arkode_mem, realtype hin);

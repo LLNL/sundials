@@ -71,7 +71,6 @@ listed below.
 | `--maxsteps <int>`                   | Max number of steps between outputs (0 uses the integrator default)                      | 0       |
 | `--onstep <int>`                     | Number of steps to run using `ONE_STEP` mode for debugging (0 uses `NORMAL` mode)        | 0       |
 | `--ls <cg,gmres,sludist>`            | Linear solver: CG, GMRES, or SuperLU_DIST                                                | cg      |
-| `--lsinfo`                           | Output linear solver diagnostics                                                         | Off     |
 | `--liniters <int>`                   | Number of linear iterations                                                              | 20      |
 | `--epslin <realtype>`                | Linear solve tolerance factor (0 uses the integrator default)                            | 0       |
 | `--msbp <int>`                       | The linear solver setup frequency (CVODE and ARKODE only, 0 uses the integrator default) | 0       |
@@ -79,7 +78,6 @@ listed below.
 | `--order <int>`                      | Methods order                                                                            | 3       |
 | `--controller <int>`                 | Error controller option                                                                  | 0       |
 | `--nonlinear`                        | Treat the problem as nonlinearly implicit                                                | Linear  |
-| `--diagnostics`                      | Output integrator diagnostics                                                            | Off     |
 
 ## Building
 

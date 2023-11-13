@@ -176,7 +176,6 @@ struct UserData
   bool     pcg;       // use PCG (true) or GMRES (false)
   bool     prec;      // preconditioner on/off
   bool     matvec;    // use hypre matrix-vector product
-  bool     lsinfo;    // output residual history
   int      liniters;  // number of linear iterations
   int      msbp;      // max number of steps between preconditioner setups
   realtype epslin;    // linear solver tolerance factor
@@ -334,7 +333,6 @@ int main(int argc, char* argv[])
     N_Vector u         = NULL;  // vector for storing solution
     SUNLinearSolver LS = NULL;  // linear solver memory structure
     void *cvode_mem    = NULL;  // CVODE memory structure
-    FILE *diagfp       = NULL;  // diagnostics output file
 
     // SUNDIALS context
     sundials::Context sunctx(&comm_w);
@@ -363,13 +361,6 @@ int main(int argc, char* argv[])
     {
       flag = PrintUserData(udata);
       if (check_flag(&flag, "PrintUserData", 1)) return 1;
-
-      // Open diagnostics output file
-      if (udata->lsinfo)
-      {
-        diagfp = fopen("diagnostics.txt", "w");
-        if (check_flag((void *) diagfp, "fopen", 0)) return 1;
-      }
     }
 
     // ------------------------
@@ -399,29 +390,11 @@ int main(int argc, char* argv[])
     {
       LS = SUNLinSol_PCG(u, prectype, udata->liniters, sunctx);
       if (check_flag((void *) LS, "SUNLinSol_PCG", 0)) return 1;
-
-      if (udata->lsinfo && outproc)
-      {
-        flag = SUNLinSolSetPrintLevel_PCG(LS, 1);
-        if (check_flag(&flag, "SUNLinSolSetPrintLevel_PCG", 1)) return(1);
-
-        flag = SUNLinSolSetInfoFile_PCG(LS, diagfp);
-        if (check_flag(&flag, "SUNLinSolSetInfoFile_PCG", 1)) return(1);
-      }
     }
     else
     {
       LS = SUNLinSol_SPGMR(u, prectype, udata->liniters, sunctx);
       if (check_flag((void *) LS, "SUNLinSol_SPGMR", 0)) return 1;
-
-      if (udata->lsinfo && outproc)
-      {
-        flag = SUNLinSolSetPrintLevel_SPGMR(LS, 1);
-        if (check_flag(&flag, "SUNLinSolSetPrintLevel_SPGMR", 1)) return(1);
-
-        flag = SUNLinSolSetInfoFile_SPGMR(LS, diagfp);
-        if (check_flag(&flag, "SUNLinSolSetInfoFile_SPGMR", 1)) return(1);
-      }
     }
 
     // ---------------------
@@ -569,8 +542,6 @@ int main(int argc, char* argv[])
     // --------------------
     // Clean up and return
     // --------------------
-
-    if (udata->lsinfo && outproc) fclose(diagfp);
 
     CVodeFree(&cvode_mem);     // Free integrator memory
     SUNLinSolFree(LS);         // Free linear solver
@@ -2023,7 +1994,6 @@ UserData::UserData(sundials::Context& sunctx)
   pcg       = true;       // use PCG (true) or GMRES (false)
   prec      = true;       // enable preconditioning
   matvec    = false;      // use hypre matrix-vector product
-  lsinfo    = false;      // output residual history
   liniters  = 10;         // max linear iterations
   msbp      = 0;          // use default (20 steps)
   epslin    = ZERO;       // use default (0.05)
@@ -2172,10 +2142,6 @@ static int ReadInputs(int *argc, char ***argv, UserData *udata, bool outproc)
     {
       udata->matvec = true;
     }
-    else if (arg == "--lsinfo")
-    {
-      udata->lsinfo = true;
-    }
     else if (arg == "--liniters")
     {
       udata->liniters = stoi((*argv)[arg_idx++]);
@@ -2321,7 +2287,6 @@ static void InputHelp()
   cout << "  --atol <atol>           : absoltue tolerance" << endl;
   cout << "  --gmres                 : use GMRES linear solver" << endl;
   cout << "  --matvec                : use hypre matrix-vector product" << endl;
-  cout << "  --lsinfo                : output residual history" << endl;
   cout << "  --liniters <iters>      : max number of iterations" << endl;
   cout << "  --epslin <factor>       : linear tolerance factor" << endl;
   cout << "  --noprec                : disable preconditioner" << endl;

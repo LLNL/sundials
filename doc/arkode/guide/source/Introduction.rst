@@ -130,6 +130,13 @@ provided with SUNDIALS, or again may utilize a user-supplied module.
 Changes from previous versions
 ==============================
 
+Changes in vX.X.X
+-----------------
+
+**Breaking change**
+Functions, types and header files that were previously deprecated have been
+removed.
+
 Changes in v5.7.0
 -----------------
 

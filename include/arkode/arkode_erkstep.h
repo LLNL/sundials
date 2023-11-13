@@ -42,36 +42,6 @@ static const int ERKSTEP_DEFAULT_7 = ARKODE_VERNER_10_6_7;
 static const int ERKSTEP_DEFAULT_8 = ARKODE_FEHLBERG_13_7_8;
 static const int ERKSTEP_DEFAULT_9 = ARKODE_VERNER_16_8_9;
 
-#ifndef DEFAULT_ERK_2
-/* DEPRECATED DEFAULT_ERK_2: use ERKSTEP_DEFAULT_2 */
-#define DEFAULT_ERK_2           ERKSTEP_DEFAULT_2
-#endif
-
-#ifndef DEFAULT_ERK_3
-/* DEPRECATED DEFAULT_ERK_3: use ERKSTEP_DEFAULT_3 */
-#define DEFAULT_ERK_3           ERKSTEP_DEFAULT_3
-#endif
-
-#ifndef DEFAULT_ERK_4
-/* DEPRECATED DEFAULT_ERK_4: use ERKSTEP_DEFAULT_4 */
-#define DEFAULT_ERK_4           ERKSTEP_DEFAULT_4
-#endif
-
-#ifndef DEFAULT_ERK_5
-/* DEPRECATED DEFAULT_ERK_5: use ERKSTEP_DEFAULT_5 */
-#define DEFAULT_ERK_5           ERKSTEP_DEFAULT_5
-#endif
-
-#ifndef DEFAULT_ERK_6
-/* DEPRECATED DEFAULT_ERK_6: use ERKSTEP_DEFAULT_6 */
-#define DEFAULT_ERK_6           ERKSTEP_DEFAULT_6
-#endif
-
-#ifndef DEFAULT_ERK_8
-/* DEPRECATED DEFAULT_ERK_8: use ERKSTEP_DEFAULT_8 */
-#define DEFAULT_ERK_8           ERKSTEP_DEFAULT_8
-#endif
-
 /* -------------------
  * Exported Functions
  * ------------------- */
@@ -180,8 +150,6 @@ SUNDIALS_EXPORT int ERKStepSetErrFile(void *arkode_mem,
                                       FILE *errfp);
 SUNDIALS_EXPORT int ERKStepSetUserData(void *arkode_mem,
                                        void *user_data);
-SUNDIALS_DEPRECATED_EXPORT_MSG("use SUNDIALS_LOGGER instead")
-int ERKStepSetDiagnostics(void *arkode_mem, FILE *diagfp);
 
 SUNDIALS_EXPORT int ERKStepSetPostprocessStepFn(void *arkode_mem,
                                                 ARKPostProcessFn ProcessStep);

@@ -208,7 +208,6 @@ int main(int argc, char* argv[])
   SUNLinearSolver LS = NULL;  // linear solver memory structure
   void *arkode_mem   = NULL;  // ARKODE memory structure
   SUNAdaptController C = NULL;  // Adaptivity controller
-  FILE *diagfp       = NULL;  // diagnostics output file
 
   // Timing variables
   chrono::time_point<chrono::steady_clock> t1;
@@ -237,11 +236,18 @@ int main(int argc, char* argv[])
   flag = PrintUserData(udata);
   if (check_flag(&flag, "PrintUserData", 1)) return 1;
 
-  // Open diagnostics output file
   if (udata->diagnostics || udata->lsinfo)
   {
-    diagfp = fopen("diagnostics.txt", "w");
-    if (check_flag((void *) diagfp, "fopen", 0)) return 1;
+    SUNLogger logger = NULL;
+  
+    flag = SUNContext_GetLogger(ctx, &logger);
+    if (check_flag(&flag, "SUNContext_GetLogger", 1)) return 1;
+
+    flag = SUNLogger_SetInfoFilename(logger, "diagnostics.txt");
+    if (check_flag(&flag, "SUNLogger_SetInfoFilename", 1)) return 1;
+
+    flag = SUNLogger_SetDebugFilename(logger, "diagnostics.txt");
+    if (check_flag(&flag, "SUNLogger_SetInfoFilename", 1)) return 1;
   }
 
   // ----------------------
@@ -271,29 +277,11 @@ int main(int argc, char* argv[])
   {
     LS = SUNLinSol_PCG(u, prectype, udata->liniters, ctx);
     if (check_flag((void *) LS, "SUNLinSol_PCG", 0)) return 1;
-
-    if (udata->lsinfo)
-    {
-      flag = SUNLinSolSetPrintLevel_PCG(LS, 1);
-      if (check_flag(&flag, "SUNLinSolSetPrintLevel_PCG", 1)) return(1);
-
-      flag = SUNLinSolSetInfoFile_PCG(LS, diagfp);
-      if (check_flag(&flag, "SUNLinSolSetInfoFile_PCG", 1)) return(1);
-    }
   }
   else
   {
     LS = SUNLinSol_SPGMR(u, prectype, udata->liniters, ctx);
     if (check_flag((void *) LS, "SUNLinSol_SPGMR", 0)) return 1;
-
-    if (udata->lsinfo)
-    {
-      flag = SUNLinSolSetPrintLevel_SPGMR(LS, 1);
-      if (check_flag(&flag, "SUNLinSolSetPrintLevel_SPGMR", 1)) return(1);
-
-      flag = SUNLinSolSetInfoFile_SPGMR(LS, diagfp);
-      if (check_flag(&flag, "SUNLinSolSetInfoFile_SPGMR", 1)) return(1);
-    }
   }
 
   // Allocate preconditioner workspace
@@ -399,13 +387,6 @@ int main(int argc, char* argv[])
   flag = ARKStepSetStopTime(arkode_mem, udata->tf);
   if (check_flag(&flag, "ARKStepSetStopTime", 1)) return 1;
 
-  // Set diagnostics output file
-  if (udata->diagnostics)
-  {
-    flag = ARKStepSetDiagnostics(arkode_mem, diagfp);
-    if (check_flag(&flag, "ARKStepSetDiagnostics", 1)) return 1;
-  }
-
   // -----------------------
   // Loop over output times
   // -----------------------
@@ -484,8 +465,6 @@ int main(int argc, char* argv[])
   // --------------------
   // Clean up and return
   // --------------------
-
-  if (udata->diagnostics || udata->lsinfo) fclose(diagfp);
 
   ARKStepFree(&arkode_mem);  // Free integrator memory
   SUNLinSolFree(LS);         // Free linear solver

@@ -170,7 +170,6 @@ struct UserData
   int      controller;  // step size adaptivity method
   int      maxsteps;    // max number of steps between outputs
   bool     linear;      // enable/disable linearly implicit option
-  bool     diagnostics; // output diagnostics
 
   // Linear solver and preconditioner settings
   bool     pcg;       // use PCG (true) or GMRES (false)
@@ -362,8 +361,7 @@ int main(int argc, char* argv[])
   SUNMatrix A        = NULL;  // matrix for Jacobian
   SUNLinearSolver LS = NULL;  // linear solver memory structure
   void *arkode_mem   = NULL;  // ARKODE memory structure
-  FILE *diagfp       = NULL;  // diagnostics output file
-  SUNAdaptController C = NULL;  // timestep adaptivity controller
+  SUNAdaptController C = NULL;  // timestep adaptivity controlle
 
   // Timing variables
   double t1 = 0.0;
@@ -411,13 +409,6 @@ int main(int argc, char* argv[])
   {
     flag = PrintUserData(udata);
     if (check_flag(&flag, "PrintUserData", 1)) return 1;
-
-    // Open diagnostics output file
-    if (udata->diagnostics)
-    {
-      diagfp = fopen("diagnostics.txt", "w");
-      if (check_flag((void *) diagfp, "fopen", 0)) return 1;
-    }
   }
 
   // ------------------------
@@ -541,13 +532,6 @@ int main(int argc, char* argv[])
   flag = ARKStepSetStopTime(arkode_mem, udata->tf);
   if (check_flag(&flag, "ARKStepSetStopTime", 1)) return 1;
 
-  // Set diagnostics output file
-  if (udata->diagnostics && outproc)
-  {
-    flag = ARKStepSetDiagnostics(arkode_mem, diagfp);
-    if (check_flag(&flag, "ARKStepSetDiagnostics", 1)) return 1;
-  }
-
   // -----------------------
   // Loop over output times
   // -----------------------
@@ -629,8 +613,6 @@ int main(int argc, char* argv[])
   // --------------------
   // Clean up and return
   // --------------------
-
-  if (udata->diagnostics && outproc) fclose(diagfp);
 
   ARKStepFree(&arkode_mem);  // Free integrator memory
   SUNLinSolFree(LS);         // Free linear solver
@@ -1660,7 +1642,6 @@ static int InitUserData(UserData *udata)
   udata->controller  = 0;               // PID controller
   udata->maxsteps    = 0;               // use default
   udata->linear      = true;            // linearly implicit problem
-  udata->diagnostics = false;           // output diagnostics
 
   // Linear solver and preconditioner options
   udata->pcg       = true;       // use PCG (true) or GMRES (false)
@@ -1787,10 +1768,6 @@ static int ReadInputs(int *argc, char ***argv, UserData *udata, bool outproc)
     else if (arg == "--nonlinear")
     {
       udata->linear = false;
-    }
-    else if (arg == "--diagnostics")
-    {
-      udata->diagnostics = true;
     }
     // Linear solver settings
     else if (arg == "--gmres")
@@ -1951,7 +1928,6 @@ static void InputHelp()
   cout << "  --order <ord>           : method order" << endl;
   cout << "  --fixedstep <step>      : used fixed step size" << endl;
   cout << "  --controller <ctr>      : time step adaptivity controller" << endl;
-  cout << "  --diagnostics           : output diagnostics" << endl;
   cout << "  --gmres                 : use GMRES linear solver" << endl;
   cout << "  --liniters <iters>      : max number of iterations" << endl;
   cout << "  --epslin <factor>       : linear tolerance factor" << endl;

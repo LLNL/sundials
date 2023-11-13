@@ -231,11 +231,7 @@ int main(int argc, char *argv[])
   infofp = fopen("kinsol.log", "w");
   if (check_retval((void *)infofp, "fopen", 0)) return(1);
 
-  retval = KINSetInfoFile(kmem, infofp);
-  if (check_retval(&retval, "KINSetInfoFile", 1)) return(1);
 
-  retval = KINSetPrintLevel(kmem, 1);
-  if (check_retval(&retval, "KINSetPrintLevel", 1)) return(1);
 
   /* -------------
    * Initial guess

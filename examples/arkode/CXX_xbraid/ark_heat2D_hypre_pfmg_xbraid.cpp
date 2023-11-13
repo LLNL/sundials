@@ -177,13 +177,11 @@ struct UserData
   realtype atol;        // absolute tolerance
   int      order;       // ARKode method order
   bool     linear;      // enable/disable linearly implicit option
-  bool     diagnostics; // output diagnostics
 
   // Linear solver and preconditioner settings
   bool     pcg;       // use PCG (true) or GMRES (false)
   bool     prec;      // preconditioner on/off
   bool     matvec;    // use hypre matrix-vector product
-  bool     lsinfo;    // output residual history
   int      liniters;  // number of linear iterations
   int      msbp;      // max number of steps between preconditioner setups
   realtype epslin;    // linear solver tolerance factor
@@ -355,7 +353,6 @@ int main(int argc, char* argv[])
   N_Vector u         = NULL;  // vector for storing solution
   SUNLinearSolver LS = NULL;  // linear solver memory structure
   void *arkode_mem   = NULL;  // ARKODE memory structure
-  FILE *diagfp       = NULL;  // diagnostics output file
   braid_Core core    = NULL;  // XBraid memory structure
   braid_App app      = NULL;  // ARKode + XBraid interface structure
   SUNAdaptController    C = NULL;  // time step adaptivity controller
@@ -406,18 +403,6 @@ int main(int argc, char* argv[])
   {
     flag = PrintUserData(udata);
     if (check_flag(&flag, "PrintUserData", 1)) return 1;
-
-    // Open diagnostics output file
-    if ((udata->diagnostics || udata->lsinfo) && udata->myid_c == 0)
-    {
-      stringstream fname;
-      fname << "diagnostics." << setfill('0') << setw(5) << udata->myid_w
-            << ".txt";
-
-      const std::string tmp = fname.str();
-      diagfp = fopen(tmp.c_str(), "w");
-      if (check_flag((void *) diagfp, "fopen", 0)) return 1;
-    }
   }
 
   // ------------------------
@@ -447,29 +432,11 @@ int main(int argc, char* argv[])
   {
     LS = SUNLinSol_PCG(u, prectype, udata->liniters, ctx);
     if (check_flag((void *) LS, "SUNLinSol_PCG", 0)) return 1;
-
-    if (udata->lsinfo && outproc)
-    {
-      flag = SUNLinSolSetPrintLevel_PCG(LS, 1);
-      if (check_flag(&flag, "SUNLinSolSetPrintLevel_PCG", 1)) return(1);
-
-      flag = SUNLinSolSetInfoFile_PCG(LS, diagfp);
-      if (check_flag(&flag, "SUNLinSolSetInfoFile_PCG", 1)) return(1);
-    }
   }
   else
   {
     LS = SUNLinSol_SPGMR(u, prectype, udata->liniters, ctx);
     if (check_flag((void *) LS, "SUNLinSol_SPGMR", 0)) return 1;
-
-    if (udata->lsinfo && outproc)
-    {
-      flag = SUNLinSolSetPrintLevel_SPGMR(LS, 1);
-      if (check_flag(&flag, "SUNLinSolSetPrintLevel_SPGMR", 1)) return(1);
-
-      flag = SUNLinSolSetInfoFile_SPGMR(LS, diagfp);
-      if (check_flag(&flag, "SUNLinSolSetInfoFile_SPGMR", 1)) return(1);
-    }
   }
 
   // ---------------------
@@ -573,13 +540,6 @@ int main(int argc, char* argv[])
     // Set the failed solve step size reduction factor (1 / refinement factor)
     flag = ARKStepSetMaxCFailGrowth(arkode_mem, ONE / udata->x_rfactor_fail);
     if (check_flag(&flag, "ARKStepSetMaxCFailGrowth", 1)) return 1;
-  }
-
-  // Set diagnostics output file
-  if (udata->diagnostics && udata->myid_c == 0)
-  {
-    flag = ARKStepSetDiagnostics(arkode_mem, diagfp);
-    if (check_flag(&flag, "ARKStepSetDiagnostics", 1)) return 1;
   }
 
   // ------------------------
@@ -741,8 +701,6 @@ int main(int argc, char* argv[])
   // --------------------
   // Clean up and return
   // --------------------
-
-  if ((udata->diagnostics || udata->lsinfo) && udata->myid_c == 0) fclose(diagfp);
 
   ARKStepFree(&arkode_mem);              // Free integrator memory
   SUNLinSolFree(LS);                     // Free linear solver
@@ -2407,13 +2365,11 @@ static int InitUserData(UserData *udata, SUNContext ctx)
   udata->atol        = RCONST(1.e-10);  // absolute tolerance
   udata->order       = 3;               // method order
   udata->linear      = true;            // linearly implicit problem
-  udata->diagnostics = false;           // output diagnostics
 
   // Linear solver and preconditioner options
   udata->pcg       = true;       // use PCG (true) or GMRES (false)
   udata->prec      = true;       // enable preconditioning
   udata->matvec    = false;      // use hypre matrix-vector product
-  udata->lsinfo    = false;      // output residual history
   udata->liniters  = 100;        // max linear iterations
   udata->msbp      = 0;          // use default (20 steps)
   udata->epslin    = ZERO;       // use default (0.05)
@@ -2600,10 +2556,6 @@ static int ReadInputs(int *argc, char ***argv, UserData *udata, bool outproc)
     {
       udata->linear = false;
     }
-    else if (arg == "--diagnostics")
-    {
-      udata->diagnostics = true;
-    }
     // Linear solver settings
     else if (arg == "--gmres")
     {
@@ -2612,10 +2564,6 @@ static int ReadInputs(int *argc, char ***argv, UserData *udata, bool outproc)
     else if (arg == "--matvec")
     {
       udata->matvec = true;
-    }
-    else if (arg == "--lsinfo")
-    {
-      udata->lsinfo = true;
     }
     else if (arg == "--liniters")
     {
@@ -2854,10 +2802,8 @@ static void InputHelp()
   cout << "  --atol <atol>           : absoltue tolerance" << endl;
   cout << "  --nonlinear             : disable linearly implicit flag" << endl;
   cout << "  --order <ord>           : method order" << endl;
-  cout << "  --diagnostics           : output diagnostics" << endl;
   cout << "  --gmres                 : use GMRES linear solver" << endl;
   cout << "  --matvec                : use hypre matrix-vector product" << endl;
-  cout << "  --lsinfo                : output residual history" << endl;
   cout << "  --liniters <iters>      : max number of iterations" << endl;
   cout << "  --epslin <factor>       : linear tolerance factor" << endl;
   cout << "  --noprec                : disable preconditioner" << endl;

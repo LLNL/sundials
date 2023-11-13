@@ -53,6 +53,7 @@
 #include <nvector/nvector_serial.h>           /* serial N_Vector types, fct. and macros      */
 #include <sundials/sundials_dense.h>          /* use generic DENSE solver in preconditioning */
 #include <sundials/sundials_types.h>          /* definition of realtype                      */
+#include <sundials/sundials_logger.h>
 
 /* helpful macros */
 
@@ -195,17 +196,17 @@ int main(int argc, char* argv[])
   SUNNonlinearSolver NLS;
   void *cvode_mem;
   int linsolver, iout, retval;
-  FILE* infofp;
   int nrmfactor;   /* LS norm conversion factor flag */
   realtype nrmfac; /* LS norm conversion factor      */
   int monitor;     /* LS resiudal monitoring flag    */
   SUNContext sunctx;
+  SUNLogger logger;
+  const char* info_fname = "cvKrylovDemo_ls-info.txt";
 
   u         = NULL;
   data      = NULL;
   LS        = NULL;
   cvode_mem = NULL;
-  infofp    = NULL;
   nrmfactor = 0;
   monitor   = 0;
 
@@ -213,15 +214,22 @@ int main(int argc, char* argv[])
   if (argc > 1) nrmfactor = atoi(argv[1]);
   if (argc > 2) monitor   = atoi(argv[2]);
 
-  /* Create SUNDIALS context */
+  /* Create SUNDIALS context and a logger which will record
+     nonlinear solver info (e.g., residual) amongst other things. */
+  
   retval = SUNContext_Create(NULL, &sunctx);
-  if (check_retval(&retval, "SUNContext_Create", 1)) return(1);
+  if (check_retval(&retval, "SUNContext_Create", 1)) return 1;
 
-  /* Open info file if monitoring is turned on */
+  retval = SUNLogger_Create(NULL, 0, &logger);
+  if (check_retval(&retval, "SUNLogger_Create", 1)) return 1;
+
   if (monitor) {
-    infofp = fopen("cvKrylovDemo_ls-info.txt", "w+");
-    if (check_retval((void *)infofp, "fopen", 0)) return(1);
+    retval = SUNLogger_SetInfoFilename(logger, info_fname);   
+    if (check_retval(&retval, "SUNLogger_SetInfoFilename", 1)) return 1;
   }
+
+  retval = SUNContext_SetLogger(sunctx, logger);
+  if (check_retval(&retval, "SUNContext_SetLogger", 1)) return 1;
 
   /* Allocate memory, and set problem data, initial values, tolerances */
   u = N_VNew_Serial(NEQ, sunctx);
@@ -265,14 +273,6 @@ int main(int argc, char* argv[])
   /* Create the SUNNonlinearSolver */
   NLS = SUNNonlinSol_Newton(u, sunctx);
   if (check_retval(&retval, "SUNNonlinSol_Newton", 0)) return(1);
-  if (monitor) {
-    /* Set the print level set to 1, so that the nonlinear residual
-       is printed every newton iteration. */
-    retval = SUNNonlinSolSetPrintLevel_Newton(NLS, 1);
-    if (check_retval(&retval, "SUNNonlinSolSetPrintLevel_Newton", 1)) return(1);
-    retval = SUNNonlinSolSetInfoFile_Newton(NLS, infofp);
-    if (check_retval(&retval, "SUNNonlinSolSetInfoFile_Newton", 1)) return(1);
-  }
 
   /* Call CVodeSetNonlinearSolver to attach the nonlinear solver to CVode */
   retval = CVodeSetNonlinearSolver(cvode_mem, NLS);
@@ -309,22 +309,12 @@ int main(int argc, char* argv[])
       printf(" -------");
       printf(" \n| SPGMR |\n");
       printf(" -------\n");
-      if (monitor) {
-        fprintf(infofp, " ---------");
-        fprintf(infofp, " \n| SPGMR |\n");
-        fprintf(infofp, " ---------\n");
-      }
 
       /* Call SUNLinSol_SPGMR to specify the linear solver SPGMR with
          left preconditioning and the default maximum Krylov dimension */
       LS = SUNLinSol_SPGMR(u, SUN_PREC_LEFT, 0, sunctx);
       if (check_retval((void *)LS, "SUNLinSol_SPGMR", 0)) return(1);
-      if (monitor) {
-        retval = SUNLinSolSetPrintLevel_SPGMR(LS, 1);
-        if (check_retval(&retval, "SUNLinSolSetPrintLevel_SPGMR", 1)) return(1);
-        retval = SUNLinSolSetInfoFile_SPGMR(LS, infofp);
-        if (check_retval(&retval, "SUNLinSolSetInfoFile_SPGMR", 1)) return(1);
-      }
+      
       retval = CVodeSetLinearSolver(cvode_mem, LS, NULL);
       if (check_retval(&retval, "CVodeSetLinearSolver", 1)) return 1;
 
@@ -337,22 +327,12 @@ int main(int argc, char* argv[])
       printf(" ---------");
       printf(" \n| SPFGMR |\n");
       printf(" ---------\n");
-      if (monitor) {
-        fprintf(infofp, " ---------");
-        fprintf(infofp, " \n| SPFGMR |\n");
-        fprintf(infofp, " ---------\n");
-      }
 
       /* Call SUNLinSol_SPFGMR to specify the linear solver SPFGMR with
          left preconditioning and the default maximum Krylov dimension */
       LS = SUNLinSol_SPFGMR(u, SUN_PREC_LEFT, 0, sunctx);
       if (check_retval((void *)LS, "SUNLinSol_SPFGMR", 0)) return(1);
-      if (monitor) {
-        retval = SUNLinSolSetPrintLevel_SPFGMR(LS, 1);
-        if (check_retval(&retval, "SUNLinSolSetPrintLevel_SPFGMR", 1)) return(1);
-        retval = SUNLinSolSetInfoFile_SPFGMR(LS, infofp);
-        if (check_retval(&retval, "SUNLinSolSetInfoFile_SPFGMR", 1)) return(1);
-      }
+      
       retval = CVodeSetLinearSolver(cvode_mem, LS, NULL);
       if (check_retval(&retval, "CVodeSetLinearSolver", 1)) return 1;
 
@@ -365,22 +345,12 @@ int main(int argc, char* argv[])
       printf(" -------");
       printf(" \n| SPBCGS |\n");
       printf(" -------\n");
-      if (monitor) {
-        fprintf(infofp, " ---------");
-        fprintf(infofp, " \n| SPBCGS |\n");
-        fprintf(infofp, " ---------\n");
-      }
 
       /* Call SUNLinSol_SPBCGS to specify the linear solver SPBCGS with
          left preconditioning and the default maximum Krylov dimension */
       LS = SUNLinSol_SPBCGS(u, SUN_PREC_LEFT, 0, sunctx);
       if (check_retval((void *)LS, "SUNLinSol_SPBCGS", 0)) return(1);
-      if (monitor) {
-        retval = SUNLinSolSetPrintLevel_SPBCGS(LS, 1);
-        if (check_retval(&retval, "SUNLinSolSetPrintLevel_SPBCGS", 1)) return(1);
-        retval = SUNLinSolSetInfoFile_SPBCGS(LS, infofp);
-        if (check_retval(&retval, "SUNLinSolSetInfoFile_SPBCGS", 1)) return(1);
-      }
+      
       retval = CVodeSetLinearSolver(cvode_mem, LS, NULL);
       if (check_retval(&retval, "CVodeSetLinearSolver", 1)) return 1;
 
@@ -393,22 +363,12 @@ int main(int argc, char* argv[])
       printf(" ---------");
       printf(" \n| SPTFQMR |\n");
       printf(" ---------\n");
-      if (monitor) {
-        fprintf(infofp, " ---------");
-        fprintf(infofp, " \n| SPTFQMR |\n");
-        fprintf(infofp, " ---------\n");
-      }
 
       /* Call SUNLinSol_SPTFQMR to specify the linear solver SPTFQMR with
          left preconditioning and the default maximum Krylov dimension */
       LS = SUNLinSol_SPTFQMR(u, SUN_PREC_LEFT, 0, sunctx);
       if (check_retval((void *)LS, "SUNLinSol_SPTFQMR", 0)) return(1);
-      if (monitor) {
-        retval = SUNLinSolSetPrintLevel_SPTFQMR(LS, 1);
-        if (check_retval(&retval, "SUNLinSolSetPrintLevel_SPTFQMR", 1)) return(1);
-        retval = SUNLinSolSetInfoFile_SPTFQMR(LS, infofp);
-        if (check_retval(&retval, "SUNLinSolSetInfoFile_SPTFQMR", 1)) return(1);
-      }
+
       retval = CVodeSetLinearSolver(cvode_mem, LS, NULL);
       if (check_retval(&retval, "CVodeSetLinearSolver", 1)) return 1;
 
@@ -454,12 +414,12 @@ int main(int argc, char* argv[])
   }  /* END: Loop through SPGMR, SPBCG and SPTFQMR linear solver modules */
 
   /* Free memory */
-  if (monitor) fclose(infofp);
   N_VDestroy(u);
   FreeUserData(data);
   CVodeFree(&cvode_mem);
   SUNLinSolFree(LS);
   SUNNonlinSolFree(NLS);
+  SUNLogger_Destroy(&logger);
   SUNContext_Free(&sunctx);
 
   return(0);

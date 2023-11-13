@@ -1,6 +1,12 @@
 # SUNDIALS Changelog
 
 
+## Changes to SUNDIALS in release X.X.X
+
+**Breaking change**
+Functions, types and header files that were previously deprecated have been
+removed. 
+
 ## Changes to SUNDIALS in release 6.7.0
 
 Added the `SUNAdaptController` base class, ported ARKODE's internal

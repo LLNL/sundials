@@ -111,6 +111,13 @@ implementations.
 Changes from previous versions
 ==============================
 
+Changes in vX.X.X
+-----------------
+
+**Breaking change**
+Functions, types and header files that were previously deprecated have been
+removed.
+
 Changes in v6.7.0
 -----------------
 

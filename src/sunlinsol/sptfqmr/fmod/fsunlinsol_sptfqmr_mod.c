@@ -464,32 +464,4 @@ SWIGEXPORT int _wrap_FSUNLinSolFree_SPTFQMR(SUNLinearSolver farg1) {
 }
 
 
-SWIGEXPORT int _wrap_FSUNLinSolSetInfoFile_SPTFQMR(SUNLinearSolver farg1, void *farg2) {
-  int fresult ;
-  SUNLinearSolver arg1 = (SUNLinearSolver) 0 ;
-  FILE *arg2 = (FILE *) 0 ;
-  int result;
-  
-  arg1 = (SUNLinearSolver)(farg1);
-  arg2 = (FILE *)(farg2);
-  result = (int)SUNLinSolSetInfoFile_SPTFQMR(arg1,arg2);
-  fresult = (int)(result);
-  return fresult;
-}
-
-
-SWIGEXPORT int _wrap_FSUNLinSolSetPrintLevel_SPTFQMR(SUNLinearSolver farg1, int const *farg2) {
-  int fresult ;
-  SUNLinearSolver arg1 = (SUNLinearSolver) 0 ;
-  int arg2 ;
-  int result;
-  
-  arg1 = (SUNLinearSolver)(farg1);
-  arg2 = (int)(*farg2);
-  result = (int)SUNLinSolSetPrintLevel_SPTFQMR(arg1,arg2);
-  fresult = (int)(result);
-  return fresult;
-}
-
-
 

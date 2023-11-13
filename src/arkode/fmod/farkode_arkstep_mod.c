@@ -1255,20 +1255,6 @@ SWIGEXPORT int _wrap_FARKStepSetUserData(void *farg1, void *farg2) {
 }
 
 
-SWIGEXPORT int _wrap_FARKStepSetDiagnostics(void *farg1, void *farg2) {
-  int fresult ;
-  void *arg1 = (void *) 0 ;
-  FILE *arg2 = (FILE *) 0 ;
-  int result;
-  
-  arg1 = (void *)(farg1);
-  arg2 = (FILE *)(farg2);
-  result = (int)ARKStepSetDiagnostics(arg1,arg2);
-  fresult = (int)(result);
-  return fresult;
-}
-
-
 SWIGEXPORT int _wrap_FARKStepSetPostprocessStepFn(void *farg1, ARKPostProcessFn farg2) {
   int fresult ;
   void *arg1 = (void *) 0 ;

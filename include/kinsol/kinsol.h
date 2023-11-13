@@ -133,18 +133,10 @@ SUNDIALS_EXPORT int KINSetScaledStepTol(void *kinmem, realtype scsteptol);
 SUNDIALS_EXPORT int KINSetConstraints(void *kinmem, N_Vector constraints);
 SUNDIALS_EXPORT int KINSetSysFunc(void *kinmem, KINSysFn func);
 
-/* Optional input functions for handling error/info/debug events */
+/* Optional input functions for handling error events */
 SUNDIALS_EXPORT int KINSetErrHandlerFn(void *kinmem, KINErrHandlerFn ehfun,
                                        void *eh_data);
 SUNDIALS_EXPORT int KINSetErrFile(void *kinmem, FILE *errfp);
-SUNDIALS_EXPORT int KINSetInfoHandlerFn(void *kinmem, KINInfoHandlerFn ihfun,
-                                        void *ih_data);
-SUNDIALS_DEPRECATED_EXPORT_MSG("Use SUNLogger_SetInfoFilename instead")
-SUNDIALS_EXPORT int KINSetInfoFile(void *kinmem, FILE *infofp);
-SUNDIALS_EXPORT int KINSetPrintLevel(void *kinmem, int printfl);
-SUNDIALS_DEPRECATED_EXPORT_MSG("Use SUNLogger_SetDebugFilename instead")
-int KINSetDebugFile(void *kinmem, FILE *debugfp);
-
 
 /* Optional output functions */
 SUNDIALS_EXPORT int KINGetWorkSpace(void *kinmem, long int *lenrw,

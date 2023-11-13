@@ -144,11 +144,7 @@ int main()
 
   infofp = fopen("KINSOL.log", "w");
 
-  retval = KINSetInfoFile(kmem, infofp);
-  if (check_retval(&retval, "KINSetInfoFile", 1)) return(1);
 
-  retval = KINSetPrintLevel(kmem, 3);
-  if (check_retval(&retval, "KINSetPrintLevel", 1)) return(1);
 
   /* ----------------------
    * Create SUNLinearSolver

@@ -44,8 +44,6 @@ int ARKStepSetErrHandlerFn(void *arkode_mem, ARKErrHandlerFn ehfun,
   return(arkSetErrHandlerFn(arkode_mem, ehfun, eh_data)); }
 int ARKStepSetErrFile(void *arkode_mem, FILE *errfp) {
   return(arkSetErrFile(arkode_mem, errfp)); }
-int ARKStepSetDiagnostics(void *arkode_mem, FILE *diagfp) {
-  return(arkSetDiagnostics(arkode_mem, diagfp)); }
 int ARKStepSetMaxNumSteps(void *arkode_mem, long int mxsteps) {
   return(arkSetMaxNumSteps(arkode_mem, mxsteps)); }
 int ARKStepSetMaxHnilWarns(void *arkode_mem, int mxhnil) {
@@ -1456,16 +1454,6 @@ int ARKStepSetPredictorMethod(void *arkode_mem, int pred_method)
     return(ARK_ILL_INPUT);
   }
 
-  /* Deprecate options 4 and 5 */
-  if (pred_method == 4) {
-    arkProcessError(ark_mem, ARK_ILL_INPUT, "ARKODE::ARKStep", "ARKStepSetPredictorMethod",
-                    "Predictor option 4 is deprecated, and will be removed in an upcoming release");
-  }
-  if (pred_method == 5) {
-    arkProcessError(ark_mem, ARK_ILL_INPUT, "ARKODE::ARKStep", "ARKStepSetPredictorMethod",
-                    "Predictor option 5 is deprecated, and will be removed in an upcoming release");
-  }
-
   /* set parameter */
   step_mem->predictor = pred_method;
 
@@ -1563,14 +1551,6 @@ int ARKStepSetStagePredictFn(void *arkode_mem,
   retval = arkStep_AccessStepMem(arkode_mem, "ARKStepSetStagePredictFn",
                                  &ark_mem, &step_mem);
   if (retval != ARK_SUCCESS) return(retval);
-
-  /* override predictor method 5 if non-NULL PredictStage is supplied */
-  if ((step_mem->predictor == 5) && (PredictStage != NULL)) {
-    arkProcessError(ark_mem, ARK_ILL_INPUT, "ARKODE::ARKStep",
-                    "ARKStepSetStagePredictFn",
-                    "User-supplied predictor is incompatible with predictor method 5");
-    return(ARK_ILL_INPUT);
-  }
 
   step_mem->stage_predict = PredictStage;
   return(ARK_SUCCESS);
