@@ -234,6 +234,7 @@ end module dae_mod
 ! Main program
 program main
   use, intrinsic :: iso_c_binding
+  use fsundials_types_mod
   use fsundials_context_mod
   use fidas_mod                  ! Fortran interface to IDA
   use fnvector_serial_mod        ! Fortran interface to serial N_Vector

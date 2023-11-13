@@ -184,6 +184,7 @@ program main
   !======= Inclusions ===========
   use, intrinsic :: iso_c_binding
 
+  use fsundials_types_mod
   use fsundials_context_mod         ! Fortran interface to SUNDIALS context
   use fcvodes_mod                   ! Fortran interface to CVODES
   use fnvector_serial_mod           ! Fortran interface to serial N_Vector

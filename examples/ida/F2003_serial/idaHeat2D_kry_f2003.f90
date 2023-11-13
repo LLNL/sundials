@@ -214,6 +214,7 @@ program main
   use, intrinsic :: iso_c_binding
 
   use fida_mod                   ! Fortran interface to IDA
+  use fsundials_types_mod
   use fsundials_context_mod      ! Fortran interface to SUNContext
   use fnvector_serial_mod        ! Fortran interface to serial N_Vector
   use fsunlinsol_spgmr_mod       ! Fortran interface to spgmr SUNLinearSolver

@@ -122,6 +122,7 @@ program main
   use farkode_mod           ! Fortran interface to the ARKode module
   use farkode_arkstep_mod   ! Fortran interface to the ARKStep module
   use fnvector_complex_mod  ! Custom complex N_Vector
+  use fsundials_types_mod
   use fsundials_context_mod
   use ode_mod               ! ODE functions
 

@@ -190,6 +190,7 @@ program main
   !======= Inclusions ===========
   use, intrinsic :: iso_c_binding
 
+  use fsundials_types_mod
   use fsundials_context_mod
   use fsundials_futils_mod       ! Fortran utilities
   use fkinsol_mod                ! Fortran interface to KINSOL

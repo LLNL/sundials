@@ -100,6 +100,7 @@ program main
   use fnvector_serial_mod        ! Fortran interface to serial N_Vector
   use fsunmatrix_dense_mod       ! Fortran interface to dense SUNMatrix
   use fsunlinsol_dense_mod       ! Fortran interface to dense SUNLinearSolver
+  use fsundials_types_mod
   use fsundials_context_mod      ! Fortran interface to SUNContext
   use fsundials_adaptcontroller_mod  ! Fortran interface to the generic SUNAdaptController
   use fsunadaptcontroller_soderlind_mod ! Fortran interface to Soderlind controller

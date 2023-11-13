@@ -80,6 +80,7 @@ module ode_mod
   use fnvector_serial_mod
   use fsunmatrix_dense_mod
   use fsunlinsol_dense_mod
+  use fsundials_types_mod
   use fsundials_context_mod
   use fsundials_matrix_mod
   use fsundials_linearsolver_mod
