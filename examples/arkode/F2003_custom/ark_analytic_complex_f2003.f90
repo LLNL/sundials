@@ -141,7 +141,7 @@ program main
   !======= Internals ============
 
   ! create the SUNDIALS context
-  ierr = FSUNContext_Create(0, sunctx)
+  ierr = FSUNContext_Create(SUN_COMM_NULL, sunctx)
 
   ! initial problem output
   print *, "  "

@@ -282,7 +282,7 @@ program main
 
   !======= Internals ============
 
-  retval = FSUNContext_Create(0, sunctx)
+  retval = FSUNContext_Create(SUN_COMM_NULL, sunctx)
 
   ! initialize solution vectors and tolerances
   yval(1) = 1.d0

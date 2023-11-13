@@ -334,7 +334,7 @@ program main
   !============== Introduction =============
   print *, 'Newton SUNNonlinearSolver Fortran 2003 interface test'
 
-  call Test_Init(0)
+  call Test_Init(SUN_COMM_NULL)
 
   retval = unit_tests()
   if (retval /= 0) then

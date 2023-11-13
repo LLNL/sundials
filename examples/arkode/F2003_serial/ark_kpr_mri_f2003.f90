@@ -701,7 +701,7 @@ program main
   end select
 
   ! Create the SUNDIALS context object for this simulation
-  retval = FSUNContext_Create(0, sunctx)
+  retval = FSUNContext_Create(SUN_COMM_NULL, sunctx)
   call check_retval(retval, 'FSUNContext_Create')
 
   ! Create and initialize serial vector for the solution

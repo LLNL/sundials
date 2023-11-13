@@ -242,7 +242,7 @@ program main
 
   ! -------------------------
   ! Create the SUNDIALS context used for this simulation
-  ierr = FSUNContext_Create(0, sunctx)
+  ierr = FSUNContext_Create(SUN_COMM_NULL, sunctx)
 
   ! -------------------------
   ! Create vectors for solution and scaling

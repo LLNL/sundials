@@ -162,7 +162,7 @@ program main
   print '(2(a,i2),a,i3)', "Problem size: ", nx, " x ", ny, " = ", neq
 
   ! -------------------------
-  ierr = FSUNContext_Create(0, sunctx)
+  ierr = FSUNContext_Create(SUN_COMM_NULL, sunctx)
   if (ierr /= 0) then
     print *, 'ERROR in FSUNContext_Create'
     stop 1

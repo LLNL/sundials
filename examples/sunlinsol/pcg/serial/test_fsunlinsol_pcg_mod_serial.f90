@@ -341,7 +341,7 @@ program main
   print *, 'PCG SUNLinearSolver Fortran 2003 interface test'
   print *, ''
 
-  call Test_Init(0)
+  call Test_Init(SUN_COMM_NULL)
 
   fails = unit_tests()
   if (fails /= 0) then

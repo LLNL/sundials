@@ -170,7 +170,7 @@ program main
   !============== Introduction =============
   print *, 'LAPACK-Dense SUNLinearSolver Fortran 2003 interface test'
 
-  call Test_Init(0)
+  call Test_Init(SUN_COMM_NULL)
 
   fails = unit_tests()
   if (fails /= 0) then

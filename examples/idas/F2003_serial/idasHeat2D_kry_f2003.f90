@@ -244,7 +244,7 @@ program main
   coeff = 1.d0/(dx * dx)
 
   ! Create the SUNDIALS simulation context
-  retval = FSUNContext_Create(0, sunctx)
+  retval = FSUNContext_Create(SUN_COMM_NULL, sunctx)
   if (retval /= 0) then
     print *, 'ERROR: FSUNContext_Create returned nonzero'
     stop 1

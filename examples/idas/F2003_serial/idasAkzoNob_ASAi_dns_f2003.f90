@@ -285,7 +285,7 @@ program main
   H    = 737.0d0
 
   ! Create the SUNDIALS simulation context
-  retval = FSUNContext_Create(0, sunctx)
+  retval = FSUNContext_Create(SUN_COMM_NULL, sunctx)
   call check_retval(retval, "FSUNContext_Create")
 
   ! Allocate N-vectors.

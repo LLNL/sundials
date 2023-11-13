@@ -130,7 +130,7 @@ program main
   !======= Internals ============
 
   ! create the SUNDIALS context
-  ierr = FSUNContext_Create(0, ctx)
+  ierr = FSUNContext_Create(SUN_COMM_NULL, ctx)
 
   ! initialize ODE
   tstart = 0.0d0
