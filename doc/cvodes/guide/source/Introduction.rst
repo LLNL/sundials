@@ -140,7 +140,7 @@ Added Fortran support for the LAPACK  dense ``SUNLinearSolver`` implementation.
 **Breaking change** 
 We have replaced the use of a type-erased (i.e., ``void*``) pointer to a
 communicator in place of ``MPI_Comm`` throughout the SUNDIALS API with a
-:c:type:`SUNComm`, which is just a typedef to a ``int`` in builds without MPI
+:c:type:`SUNComm`, which is just a typedef to an ``int`` in builds without MPI
 and a typedef to a ``MPI_Comm`` in builds with MPI. Here is what this means:
 
 - All users will need to update their codes because the call to 
