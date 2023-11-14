@@ -898,6 +898,7 @@ int arkStep_AttachMasssol(void* arkode_mem,
                           ARKMassSolveFn msolve,
                           ARKMassFreeFn mfree,
                           booleantype time_dep,
+                          sunbooleantype singular,
                           SUNLinearSolver_Type msolve_type,
                           void *mass_mem)
 {
@@ -914,14 +915,15 @@ int arkStep_AttachMasssol(void* arkode_mem,
   if (step_mem->mfree != NULL)  step_mem->mfree(arkode_mem);
 
   /* Attach the provided routines, data structure and solve type */
-  step_mem->minit       = minit;
-  step_mem->msetup      = msetup;
-  step_mem->mmult       = mmult;
-  step_mem->msolve      = msolve;
-  step_mem->mfree       = mfree;
-  step_mem->mass_mem    = mass_mem;
-  step_mem->mass_type   = (time_dep) ? MASS_TIMEDEP : MASS_FIXED;
-  step_mem->msolve_type = msolve_type;
+  step_mem->minit         = minit;
+  step_mem->msetup        = msetup;
+  step_mem->mmult         = mmult;
+  step_mem->msolve        = msolve;
+  step_mem->mfree         = mfree;
+  step_mem->mass_mem      = mass_mem;
+  step_mem->mass_type     = (time_dep) ? MASS_TIMEDEP : MASS_FIXED;
+  step_mem->mass_singular = singular;
+  step_mem->msolve_type   = msolve_type;
 
   /* Attach mmult function pointer to ark_mem as well */
   ark_mem->step_mmult = mmult;
@@ -1162,6 +1164,28 @@ int arkStep_Init(void* arkode_mem, int init_type)
       arkProcessError(ark_mem, ARK_ILL_INPUT, "ARKODE::ARKStep", "arkStep_Init",
                       "Adaptive timestepping cannot be performed without embedding coefficients");
       return(ARK_ILL_INPUT);
+    }
+
+    if (ark_mem->mass_singular) {
+      if (!step_mem->implicit) {
+        arkProcessError(ark_mem, ARK_ILL_INPUT, "ARKODE::ARKStep", "arkStep_Init",
+            "Singular mass matrices are not supported by explicit methods");
+        return(ARK_ILL_INPUT);
+      }
+
+      for (j = 0; j < step_mem->stages; j++) {
+        if (SUNRabs(step_mem->Bi->A[j][j]) <= TINY) {
+          arkProcessError(ark_mem, ARK_ILL_INPUT, "ARKODE::ARKStep", "arkStep_Init",
+              "Singular mass matrices require all stages of the implicit method to be implicit");
+          return(ARK_ILL_INPUT);
+        }
+      }
+
+      if (!step_mem->deduce_rhs) {
+        arkProcessError(ark_mem, ARK_ILL_INPUT, "ARKODE::ARKStep", "arkStep_Init",
+            "Singular mass matrices are not supported with deducing implicit RHS values diabled");
+        return(ARK_ILL_INPUT);
+      }
     }
 
     /* Relaxation is incompatible with implicit RHS deduction */

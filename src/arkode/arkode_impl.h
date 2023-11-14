@@ -190,6 +190,7 @@ typedef int (*ARKTimestepAttachMasssolFn)(void* arkode_mem,
                                           ARKMassSolveFn msolve,
                                           ARKMassFreeFn mfree,
                                           booleantype time_dep,
+                                          sunbooleantype singular,
                                           SUNLinearSolver_Type msolve_type,
                                           void *mass_mem);
 typedef void (*ARKTimestepDisableLSetup)(void* arkode_mem);

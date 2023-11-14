@@ -177,6 +177,8 @@ SUNDIALS_EXPORT int ARKStepSetExplicit(void *arkode_mem);
 SUNDIALS_EXPORT int ARKStepSetImplicit(void *arkode_mem);
 SUNDIALS_EXPORT int ARKStepSetImEx(void *arkode_mem);
 SUNDIALS_EXPORT int ARKStepSetDeduceImplicitRhs(void *arkode_mem, sunbooleantype deduce);
+SUNDIALS_EXPORT int ARKStepSetMassSingular(void *arkode_mem,
+                                           sunbooleantype singular);
 SUNDIALS_EXPORT int ARKStepSetTables(void *arkode_mem, int q, int p,
                                      ARKodeButcherTable Bi,
                                      ARKodeButcherTable Be);

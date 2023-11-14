@@ -135,6 +135,8 @@ typedef struct ARKodeARKStepMemRec {
   ARKMassFreeFn        mfree;
   void*                mass_mem;
   int                  mass_type;  /* 0=identity, 1=fixed, 2=time-dep */
+  sunbooleantype       mass_singular;
+
   SUNLinearSolver_Type msolve_type;
 
   /* Counters */
