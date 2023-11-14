@@ -105,17 +105,17 @@ listed in :numref:`Table.3D_advection_reaction_options`.
    | ``--npxyz <int> <int> <int>`` | Number of MPI tasks in each        | 0 0 0         |
    |                               | direction (0 forces MPI to decide) |               |
    +-------------------------------+------------------------------------+---------------+
-   | ``--xmax <sunrealtype>``         | Maximum value of :math:`x`,        | 1.0           |
+   | ``--xmax <sunrealtype>``      | Maximum value of :math:`x`,        | 1.0           |
    |                               | :math:`y`, and :math:`z` in        |               |
    |                               | :math:`\textbf{x}_{\text{max}}`    |               |
    +-------------------------------+------------------------------------+---------------+
-   | ``--A <sunrealtype>``            | Constant concentration of species  | 1.0           |
+   | ``--A <sunrealtype>``         | Constant concentration of species  | 1.0           |
    |                               | :math:`A`                          |               |
    +-------------------------------+------------------------------------+---------------+
-   | ``--B <sunrealtype>``            | Constant concentration of species  | 3.5           |
+   | ``--B <sunrealtype>``         | Constant concentration of species  | 3.5           |
    |                               | :math:`B`                          |               |
    +-------------------------------+------------------------------------+---------------+
-   | ``--c <sunrealtype>``            | Advection speed :math:`c`          | 0.01          |
+   | ``--c <sunrealtype>``         | Advection speed :math:`c`          | 0.01          |
    +-------------------------------+------------------------------------+---------------+
    | ``--order <int>``             | Integration method order           | 3             |
    +-------------------------------+------------------------------------+---------------+
@@ -132,11 +132,11 @@ listed in :numref:`Table.3D_advection_reaction_options`.
    +-------------------------------+------------------------------------+---------------+
    | ``--fused``                   | Enabled fused operations           | Off           |
    +-------------------------------+------------------------------------+---------------+
-   | ``--tf <sunrealtype>``           | Final integration time :math:`t_f` | 10.0          |
+   | ``--tf <sunrealtype>``        | Final integration time :math:`t_f` | 10.0          |
    +-------------------------------+------------------------------------+---------------+
-   | ``--rtol <sunrealtype>``         | Relative tolerance                 | 1.0e-6        |
+   | ``--rtol <sunrealtype>``      | Relative tolerance                 | 1.0e-6        |
    +-------------------------------+------------------------------------+---------------+
-   | ``--atol <sunrealtype>``         | Absolute tolerance                 | 1.0e-9        |
+   | ``--atol <sunrealtype>``      | Absolute tolerance                 | 1.0e-9        |
    +-------------------------------+------------------------------------+---------------+
 
 

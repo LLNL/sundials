@@ -1,13 +1,11 @@
 # SUNDIALS Changelog
 
-## Changes to SUNDIALS in release 7.0.0
-
-The previously deprecated types `realtype` and `booleantype` were removed from `sundials_types.h`.
-Users should use `sunrealtype` and `sunbooleantype` instead, but the old names for the types
-can be used by including the header file `sundials_types_old.h`.
-
-
 ## Changes to SUNDIALS in release X.X.X
+
+The previously deprecated types `realtype` and `booleantype` were removed from `sundials_types.h`
+and replaced with `sunrealtype` and `sunbooleantype`. The deprecated names for these types
+can be used by including the header file `sundials_types_deprecated.h` but will be fully removed in the
+next major release.
 
 Added the `SUNAdaptController` base class, ported ARKODE's internal
 implementations of time step controllers into implementations of this class,

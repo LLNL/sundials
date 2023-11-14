@@ -51,6 +51,7 @@ set(sundials_HEADERS
   sundials_profiler.hpp
   sundials_logger.h
   sundials_types.h
+  sundials_types_deprecated.h
   sundials_version.h
   )
 
