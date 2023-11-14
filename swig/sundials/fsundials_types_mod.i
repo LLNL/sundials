@@ -29,6 +29,7 @@
 %include <typemaps.i>
 
 %apply int { MPI_Comm };
+
 %typemap(ftype) MPI_Comm
    "integer"
 %typemap(fin, noblock=1) MPI_Comm {
@@ -40,7 +41,9 @@
 
 %typemap(in, noblock=1) MPI_Comm {
 %#if SUNDIALS_MPI_ENABLED
-    if((*$input)) {
+    int flag = 0;
+    MPI_Initialized(&flag);
+    if(flag) {
       $1 = MPI_Comm_f2c(%static_cast(*$input, MPI_Fint));
     } else {
       $1 = SUN_COMM_NULL;

@@ -81,6 +81,19 @@ if(EXAMPLES_INSTALL)
 
 endif()
 
+# We need this to ensure the installed templates have MPI when ENABLE_MPI=TRUE,
+# at least until we convert all of the templates to use the SUNDIALS CMake target.
+if(ENABLE_MPI)
+  if(MPI_C_COMPILER)
+    set(CMAKE_C_COMPILER ${MPI_C_COMPILER})
+  endif()
+  if(MPI_CXX_COMPILER)
+    set(CMAKE_CXX_COMPILER ${MPI_CXX_COMPILER})
+  endif()
+  if(MPI_Fortran_COMPILER)
+    set(CMAKE_Fortran_COMPILER ${MPI_Fortran_COMPILER})
+  endif()
+endif()
 
 #----------------------------------------
 # Add specific examples
