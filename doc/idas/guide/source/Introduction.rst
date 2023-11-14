@@ -1736,7 +1736,7 @@ The structure of this document is as follows:
   (:numref:`IDAS.Mathematics.rootfinding`).
 
 * The following chapter describes the structure of the SUNDIALS suite of solvers
-  (:numref:`Organization`) and the software organization of the IDAS solver
+  (:numref:`IDAS.Organization`) and the software organization of the IDAS solver
   (:numref:`IDAS.Organization.IDAS`).
 
 * Chapter :numref:`IDAS.Usage.SIM` is the main usage document for IDAS
