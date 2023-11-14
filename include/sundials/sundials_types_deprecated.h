@@ -14,8 +14,8 @@
  * to only use the types defined in sundials_types.h .
  * -----------------------------------------------------------------*/
 
-#ifndef _SUNDIALS_TYPES_OLD_H
-#define _SUNDIALS_TYPES_OLD_H
+#ifndef _SUNDIALS_TYPES_DEPRECATED_H
+#define _SUNDIALS_TYPES_DEPRECATED_H
 
 #include <sundials/sundials_config.h>
 #include <sundials/sundials_types.h>
@@ -70,4 +70,4 @@ typedef long double realtype;
 }
 #endif
 
-#endif  /* _SUNDIALS_TYPES_OLD_H */
+#endif  /* _SUNDIALS_TYPES_DEPRECATED_H */

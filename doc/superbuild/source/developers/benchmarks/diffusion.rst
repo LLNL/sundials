@@ -109,19 +109,19 @@ listed in :numref:`Benchmarks.Table.2D_diffusion_options`.
    | ``--ny <int>``                | Number of mesh points in the         | 32            |
    |                               | y-direction                          |               |
    +-------------------------------+--------------------------------------+---------------+
-   | ``--xu <sunrealtype>``           | The domain upper bound in the        | 1.0           |
+   | ``--xu <sunrealtype>``        | The domain upper bound in the        | 1.0           |
    |                               | x-direction (:math:`x_\text{max}`)   |               |
    +-------------------------------+--------------------------------------+---------------+
-   | ``--yu <sunrealtype>``           | The domain upper bound in the        | 1.0           |
+   | ``--yu <sunrealtype>``        | The domain upper bound in the        | 1.0           |
    |                               | y-direction :math:`y_\text{max}`     |               |
    +-------------------------------+--------------------------------------+---------------+
-   | ``--kx <sunrealtype>``           | Diffusion coefficient in the         | 1.0           |
+   | ``--kx <sunrealtype>``        | Diffusion coefficient in the         | 1.0           |
    |                               | x-direction :math:`k_x`              |               |
    +-------------------------------+--------------------------------------+---------------+
-   | ``--ky <sunrealtype>``           | Diffusion coefficient in the         | 1.0           |
+   | ``--ky <sunrealtype>``        | Diffusion coefficient in the         | 1.0           |
    |                               | y-direction :math:`k_y`              |               |
    +-------------------------------+--------------------------------------+---------------+
-   | ``--tf <sunrealtype>``           | The final time :math:`t_f`           | 1.0           |
+   | ``--tf <sunrealtype>``        | The final time :math:`t_f`           | 1.0           |
    +-------------------------------+--------------------------------------+---------------+
    | ``--noforcing``               | Disable the forcing term             | Enabled       |
    +-------------------------------+--------------------------------------+---------------+
@@ -135,9 +135,9 @@ listed in :numref:`Benchmarks.Table.2D_diffusion_options`.
    +-------------------------------+--------------------------------------+---------------+
    | Common Integrator and Solver Options                                                 |
    +-------------------------------+--------------------------------------+---------------+
-   | ``--rtol <sunrealtype>``         | Relative tolerance                   | 1e-5          |
+   | ``--rtol <sunrealtype>``      | Relative tolerance                   | 1e-5          |
    +-------------------------------+--------------------------------------+---------------+
-   | ``--atol <sunrealtype>``         | Absolute tolerance                   | 1e-10         |
+   | ``--atol <sunrealtype>``      | Absolute tolerance                   | 1e-10         |
    +-------------------------------+--------------------------------------+---------------+
    | ``--maxsteps <int>``          | Max number of steps between outputs  | 0             |
    |                               | (0 uses the integrator default)      |               |
@@ -151,7 +151,7 @@ listed in :numref:`Benchmarks.Table.2D_diffusion_options`.
    +-------------------------------+--------------------------------------+---------------+
    | ``--liniters <int>``          | Number of linear iterations          | 20            |
    +-------------------------------+--------------------------------------+---------------+
-   | ``--epslin <sunrealtype>``       | Linear solve tolerance factor        | 0             |
+   | ``--epslin <sunrealtype>``    | Linear solve tolerance factor        | 0             |
    |                               | (0 uses the integrator default)      |               |
    +-------------------------------+--------------------------------------+---------------+
    | ``--msbp <int>``              | The linear solver setup frequency    | 0             |
