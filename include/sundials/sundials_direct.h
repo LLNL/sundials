@@ -63,7 +63,7 @@ extern "C" {
  *    M     - number of rows
  *    N     - number of columns
  *    ldim  - leading dimension (ldim >= M)
- *    data  - pointer to a contiguous block of realtype variables
+ *    data  - pointer to a contiguous block of sunrealtype variables
  *    ldata - length of the data array =ldim*N
  *    cols  - array of pointers. cols[j] points to the first element
  *            of the j-th column of the matrix in the array data.
@@ -94,7 +94,7 @@ extern "C" {
  *            partial pivoting. The s_mu field holds the upper
  *            bandwidth allocated for A.
  *    ldim  - leading dimension (ldim >= s_mu)
- *    data  - pointer to a contiguous block of realtype variables
+ *    data  - pointer to a contiguous block of sunrealtype variables
  *    ldata - length of the data array =ldim*(s_mu+ml+1)
  *    cols  - array of pointers. cols[j] points to the first element
  *            of the j-th column of the matrix in the array data.
@@ -122,9 +122,9 @@ typedef struct _DlsMat {
   sunindextype mu;
   sunindextype ml;
   sunindextype s_mu;
-  realtype *data;
+  sunrealtype *data;
   sunindextype ldata;
-  realtype **cols;
+  sunrealtype **cols;
 } *SUNDlsMat; 
 
 
@@ -141,7 +141,7 @@ typedef struct _DlsMat {
  *
  * SUNDLS_DENSE_COL(A,j) references the jth column of the M-by-N dense
  * matrix A, 0 <= j < N. The type of the expression SUNDLS_DENSE_COL(A,j)
- * is (realtype *). After the assignment col_j = SUNDLS_DENSE_COL(A,j),
+ * is (sunrealtype *). After the assignment col_j = SUNDLS_DENSE_COL(A,j),
  * col_j may be treated as an array indexed from 0 to M-1. The (i,j)-th
  * element of A is thus referenced by * col_j[i].
  *
@@ -161,7 +161,7 @@ typedef struct _DlsMat {
  *
  * SUNDLS_BAND_COL(A,j) references the diagonal element of the jth
  * column of the N by N band matrix A, 0 <= j <= N-1. The type of the
- * expression SUNDLS_BAND_COL(A,j) is realtype *. The pointer returned
+ * expression SUNDLS_BAND_COL(A,j) is sunrealtype *. The pointer returned
  * by the call SUNDLS_BAND_COL(A,j) can be treated as an array which
  * is indexed from -(A->mu) to (A->ml).
  *
@@ -267,14 +267,14 @@ sunindextype* SUNDlsMat_NewIndexArray(sunindextype N);
  * -----------------------------------------------------------------
  * Function: SUNDlsMat_NewRealArray
  * -----------------------------------------------------------------
- * SUNDlsMat_NewRealArray allocates memory an array of N realtype and
+ * SUNDlsMat_NewRealArray allocates memory an array of N sunrealtype and
  * returns the pointer to the memory it allocates. If the request for
  * memory storage cannot be satisfied, it returns NULL.
  * -----------------------------------------------------------------
  */
 
 SUNDIALS_EXPORT
-realtype* SUNDlsMat_NewRealArray(sunindextype N);
+sunrealtype* SUNDlsMat_NewRealArray(sunindextype N);
 
 /*
  * -----------------------------------------------------------------
@@ -333,20 +333,20 @@ void SUNDlsMat_PrintMat(SUNDlsMat A, FILE *outfile);
 
 /*
  * ==================================================================
- * Exported function prototypes (functions working on realtype**)
+ * Exported function prototypes (functions working on sunrealtype**)
  * ==================================================================
  */
 
 SUNDIALS_EXPORT
-realtype** SUNDlsMat_newDenseMat(sunindextype m, sunindextype n);
+sunrealtype** SUNDlsMat_newDenseMat(sunindextype m, sunindextype n);
 
 SUNDIALS_EXPORT
-realtype** SUNDlsMat_newBandMat(sunindextype n, sunindextype smu,
+sunrealtype** SUNDlsMat_newBandMat(sunindextype n, sunindextype smu,
                                 sunindextype ml);
 
 
 SUNDIALS_EXPORT
-void SUNDlsMat_destroyMat(realtype** a);
+void SUNDlsMat_destroyMat(sunrealtype** a);
 
 SUNDIALS_EXPORT
 int* SUNDlsMat_newIntArray(int n);
@@ -355,7 +355,7 @@ SUNDIALS_EXPORT
 sunindextype* SUNDlsMat_newIndexArray(sunindextype n);
 
 SUNDIALS_EXPORT
-realtype* SUNDlsMat_newRealArray(sunindextype m);
+sunrealtype* SUNDlsMat_newRealArray(sunindextype m);
 
 SUNDIALS_EXPORT
 void SUNDlsMat_destroyArray(void* v);

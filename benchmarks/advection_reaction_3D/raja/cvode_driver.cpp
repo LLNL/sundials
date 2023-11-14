@@ -27,7 +27,7 @@ int EvolveProblemBDF(N_Vector y, UserData* udata, UserOptions* uopt)
   SUNNonlinearSolver NLS = NULL;         /* empty nonlinear solver structure */
   SUNLinearSolver    LS  = NULL;         /* empty linear solver structure    */
 
-  realtype t, dtout, tout;    /* current/output time data     */
+  sunrealtype t, dtout, tout;    /* current/output time data     */
   int      retval;            /* reusable error-checking flag */
   int      iout;              /* output counter               */
   long int nst, netf;         /* step stats                   */
@@ -184,7 +184,7 @@ int EvolveProblemAdams(N_Vector y, UserData* udata, UserOptions* uopt)
   void*              cvode_mem = NULL;   /* empty CVODE memory structure    */
   SUNNonlinearSolver NLS = NULL;         /* empty nonlinear solver structure */
 
-  realtype t, dtout, tout;    /* current/output time data     */
+  sunrealtype t, dtout, tout;    /* current/output time data     */
   int      retval;            /* reusable error-checking flag */
   int      iout;              /* output counter               */
   long int nst, netf;         /* step stats                   */

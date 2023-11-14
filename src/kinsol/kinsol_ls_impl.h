@@ -43,11 +43,11 @@ extern "C" {
 typedef struct KINLsMemRec {
 
   /* Linear solver type information */
-  booleantype iterative;    /* is the solver iterative?    */
-  booleantype matrixbased;  /* is a matrix structure used? */
+  sunbooleantype iterative;    /* is the solver iterative?    */
+  sunbooleantype matrixbased;  /* is a matrix structure used? */
 
   /* Jacobian construction & storage */
-  booleantype jacDQ;   /* SUNTRUE if using internal DQ Jacobian approx. */
+  sunbooleantype jacDQ;   /* SUNTRUE if using internal DQ Jacobian approx. */
   KINLsJacFn jac;      /* Jacobian routine to be called                 */
   void *J_data;        /* J_data is passed to jac                       */
 
@@ -56,7 +56,7 @@ typedef struct KINLsMemRec {
   SUNMatrix J;         /* problem Jacobian                              */
 
   /* Solver tolerance adjustment factor (if needed, see kinLsSolve)     */
-  realtype tol_fac;
+  sunrealtype tol_fac;
 
   /* Statistics and associated parameters */
   long int nje;        /* no. of calls to jac                           */
@@ -68,7 +68,7 @@ typedef struct KINLsMemRec {
   long int ncfl;       /* ncfl = total number of convergence failures   */
   long int njtimes;    /* njtimes = total number of calls to jtimes     */
 
-  booleantype new_uu;  /* flag indicating if the iterate has been
+  sunbooleantype new_uu;  /* flag indicating if the iterate has been
                           updated - the Jacobian must be updated or
                           reevaluated (meant to be used by a
                           user-supplied jtimes function                 */
@@ -94,7 +94,7 @@ typedef struct KINLsMemRec {
      (b) internal jtimes
          - jt_data == kin_mem
          - jtimesDQ == SUNTRUE */
-  booleantype jtimesDQ;
+  sunbooleantype jtimesDQ;
   KINLsJacTimesVecFn jtimes;
   KINSysFn jt_func;
   void *jt_data;
@@ -110,11 +110,11 @@ typedef struct KINLsMemRec {
 int kinLsATimes(void *kinmem, N_Vector v, N_Vector z);
 int kinLsPSetup(void *kinmem);
 int kinLsPSolve(void *kinmem, N_Vector r, N_Vector z,
-                realtype tol, int lr);
+                sunrealtype tol, int lr);
 
 /* Difference quotient approximation for Jacobian times vector */
 int kinLsDQJtimes(N_Vector v, N_Vector Jv, N_Vector u,
-                  booleantype *new_u, void *data);
+                  sunbooleantype *new_u, void *data);
 
 /* Difference-quotient Jacobian approximation routines */
 int kinLsDQJac(N_Vector u, N_Vector fu, SUNMatrix Jac,
@@ -130,7 +130,7 @@ int kinLsBandDQJac(N_Vector u, N_Vector fu, SUNMatrix Jac,
 int kinLsInitialize(KINMem kin_mem);
 int kinLsSetup(KINMem kin_mem);
 int kinLsSolve(KINMem kin_mem, N_Vector x, N_Vector b,
-               realtype *sJpnorm, realtype *sFdotJp);
+               sunrealtype *sJpnorm, sunrealtype *sFdotJp);
 int kinLsFree(KINMem kin_mem);
 
 /* Auxilliary functions */

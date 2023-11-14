@@ -26,7 +26,7 @@
    upwind 1st order finite differences.  At present, only periodic boudary
    conditions are supported, which are handled via MPI's Cartesian
    communicator (even for serial runs). */
-static int Advection(realtype t, N_Vector y, N_Vector ydot, void* user_data)
+static int Advection(sunrealtype t, N_Vector y, N_Vector ydot, void* user_data)
 {
   /* access problem data */
   UserData* udata = (UserData*) user_data;
@@ -38,10 +38,10 @@ static int Advection(realtype t, N_Vector y, N_Vector ydot, void* user_data)
   const int      nyl = udata->grid->nyl;
   const int      nzl = udata->grid->nzl;
   const int      dof = udata->grid->dof;
-  const realtype c   = udata->c;
-  const realtype cx  = -c / udata->grid->dx;
-  const realtype cy  = -c / udata->grid->dy;
-  const realtype cz  = -c / udata->grid->dz;
+  const sunrealtype c   = udata->c;
+  const sunrealtype cx  = -c / udata->grid->dx;
+  const sunrealtype cy  = -c / udata->grid->dy;
+  const sunrealtype cz  = -c / udata->grid->dz;
 
   /* local variables */
   int retval;
@@ -71,9 +71,9 @@ static int Advection(realtype t, N_Vector y, N_Vector ydot, void* user_data)
                          Range3D({1,1,1},{nxl,nyl,nzl}),
                          KOKKOS_LAMBDA (int i, int j, int k)
     {
-      const realtype u_ijk = Yview(i,j,k,0);
-      const realtype v_ijk = Yview(i,j,k,1);
-      const realtype w_ijk = Yview(i,j,k,2);
+      const sunrealtype u_ijk = Yview(i,j,k,0);
+      const sunrealtype v_ijk = Yview(i,j,k,1);
+      const sunrealtype w_ijk = Yview(i,j,k,2);
 
       // grad * u
       dYview(i,j,k,0)  = cz * (u_ijk - Yview(i,j,k-1,0)); // du/dz
@@ -98,9 +98,9 @@ static int Advection(realtype t, N_Vector y, N_Vector ydot, void* user_data)
                          Range3D({0,0,0},{nxl-1,nyl-1,nzl-1}),
                          KOKKOS_LAMBDA (int i, int j, int k)
     {
-      const realtype u_ijk = Yview(i,j,k,0);
-      const realtype v_ijk = Yview(i,j,k,1);
-      const realtype w_ijk = Yview(i,j,k,2);
+      const sunrealtype u_ijk = Yview(i,j,k,0);
+      const sunrealtype v_ijk = Yview(i,j,k,1);
+      const sunrealtype w_ijk = Yview(i,j,k,2);
 
       // grad * u
       dYview(i,j,k,0)  = cz * (Yview(i,j,k+1,0) - u_ijk); // du/dz
@@ -143,9 +143,9 @@ static int Advection(realtype t, N_Vector y, N_Vector ydot, void* user_data)
                          KOKKOS_LAMBDA (int j, int k, int l)
     {
       const int i = 0;
-      const realtype Yijkl  = Yview(i,j,k,l);
-      const realtype YSouth = (j > 0) ? Yview(i,j-1,k,l) : Srecv(i,0,k,l);
-      const realtype YBack  = (k > 0) ? Yview(i,j,k-1,l) : Brecv(i,j,0,l);
+      const sunrealtype Yijkl  = Yview(i,j,k,l);
+      const sunrealtype YSouth = (j > 0) ? Yview(i,j-1,k,l) : Srecv(i,0,k,l);
+      const sunrealtype YBack  = (k > 0) ? Yview(i,j,k-1,l) : Brecv(i,j,0,l);
       dYview(i,j,k,l)  = cx * (Yijkl - Wrecv(0,j,k,l)); // d/dx
       dYview(i,j,k,l) += cy * (Yijkl - YSouth);         // d/dy
       dYview(i,j,k,l) += cz * (Yijkl - YBack);          // d/dz
@@ -155,9 +155,9 @@ static int Advection(realtype t, N_Vector y, N_Vector ydot, void* user_data)
                          KOKKOS_LAMBDA (int i, int k, int l)
     {
       const int j = 0;
-      const realtype Yijkl  = Yview(i,j,k,l);
-      const realtype YWest = (i > 0) ? Yview(i-1,j,k,l) : Wrecv(0,j,k,l);
-      const realtype YBack = (k > 0) ? Yview(i,j,k-1,l) : Brecv(i,j,0,l);
+      const sunrealtype Yijkl  = Yview(i,j,k,l);
+      const sunrealtype YWest = (i > 0) ? Yview(i-1,j,k,l) : Wrecv(0,j,k,l);
+      const sunrealtype YBack = (k > 0) ? Yview(i,j,k-1,l) : Brecv(i,j,0,l);
       dYview(i,j,k,l)  = cx * (Yijkl - YWest);          // d/dx
       dYview(i,j,k,l) += cy * (Yijkl - Srecv(i,0,k,l)); // d/dy
       dYview(i,j,k,l) += cz * (Yijkl - YBack);          // d/dz
@@ -167,9 +167,9 @@ static int Advection(realtype t, N_Vector y, N_Vector ydot, void* user_data)
                          KOKKOS_LAMBDA (int i, int j, int l)
     {
       const int k = 0;
-      const realtype Yijkl  = Yview(i,j,k,l);
-      const realtype YWest  = (i > 0) ? Yview(i-1,j,k,l) : Wrecv(0,j,k,l);
-      const realtype YSouth = (j > 0) ? Yview(i,j-1,k,l) : Srecv(i,0,k,l);
+      const sunrealtype Yijkl  = Yview(i,j,k,l);
+      const sunrealtype YWest  = (i > 0) ? Yview(i-1,j,k,l) : Wrecv(0,j,k,l);
+      const sunrealtype YSouth = (j > 0) ? Yview(i,j-1,k,l) : Srecv(i,0,k,l);
       dYview(i,j,k,l)  = cx * (Yijkl - YWest);          // d/dx
       dYview(i,j,k,l) += cy * (Yijkl - YSouth);         // d/dy
       dYview(i,j,k,l) += cz * (Yijkl - Brecv(i,j,0,l)); // d/dz
@@ -193,9 +193,9 @@ static int Advection(realtype t, N_Vector y, N_Vector ydot, void* user_data)
                          KOKKOS_LAMBDA (int j, int k, int l)
     {
       const int i = nxl-1;
-      const realtype Yijkl = Yview(i,j,k,l);
-      const realtype YNorth = (j < nyl-1) ? Yview(i,j+1,k,l) : Nrecv(i,0,k,l);
-      const realtype YFront = (k < nzl-1) ? Yview(i,j,k+1,l) : Frecv(i,j,0,l);
+      const sunrealtype Yijkl = Yview(i,j,k,l);
+      const sunrealtype YNorth = (j < nyl-1) ? Yview(i,j+1,k,l) : Nrecv(i,0,k,l);
+      const sunrealtype YFront = (k < nzl-1) ? Yview(i,j,k+1,l) : Frecv(i,j,0,l);
       dYview(i,j,k,l)  = cx * (Erecv(0,j,k,l) - Yijkl); // d/dx
       dYview(i,j,k,l) += cy * (YNorth - Yijkl);         // d/dy
       dYview(i,j,k,l) += cz * (YFront - Yijkl);         // d/dz
@@ -205,9 +205,9 @@ static int Advection(realtype t, N_Vector y, N_Vector ydot, void* user_data)
                          KOKKOS_LAMBDA (int i, int k, int l)
     {
       const int j = nyl-1;
-      const realtype Yijkl = Yview(i,j,k,l);
-      const realtype YEast  = (i < nxl-1) ? Yview(i+1,j,k,l) : Erecv(0,j,k,l);
-      const realtype YFront = (k < nzl-1) ? Yview(i,j,k+1,l) : Frecv(i,j,0,l);
+      const sunrealtype Yijkl = Yview(i,j,k,l);
+      const sunrealtype YEast  = (i < nxl-1) ? Yview(i+1,j,k,l) : Erecv(0,j,k,l);
+      const sunrealtype YFront = (k < nzl-1) ? Yview(i,j,k+1,l) : Frecv(i,j,0,l);
       dYview(i,j,k,l)  = cx * (YEast - Yijkl);          // d/dx
       dYview(i,j,k,l) += cy * (Nrecv(i,0,k,l) - Yijkl); // d/dy
       dYview(i,j,k,l) += cz * (YFront - Yijkl);         // d/dz
@@ -217,9 +217,9 @@ static int Advection(realtype t, N_Vector y, N_Vector ydot, void* user_data)
                          KOKKOS_LAMBDA (int i, int j, int l)
     {
       const int k = nzl-1;
-      const realtype Yijkl = Yview(i,j,k,l);
-      const realtype YEast  = (i < nxl-1) ? Yview(i+1,j,k,l) : Erecv(0,j,k,l);
-      const realtype YNorth = (j < nyl-1) ? Yview(i,j+1,k,l) : Nrecv(i,0,k,l);
+      const sunrealtype Yijkl = Yview(i,j,k,l);
+      const sunrealtype YEast  = (i < nxl-1) ? Yview(i+1,j,k,l) : Erecv(0,j,k,l);
+      const sunrealtype YNorth = (j < nyl-1) ? Yview(i,j+1,k,l) : Nrecv(i,0,k,l);
       dYview(i,j,k,l)  = cx * (YEast - Yijkl);          // d/dx
       dYview(i,j,k,l) += cy * (YNorth - Yijkl);         // d/dy
       dYview(i,j,k,l) += cz * (Frecv(i,j,0,l) - Yijkl); // d/dz
@@ -232,7 +232,7 @@ static int Advection(realtype t, N_Vector y, N_Vector ydot, void* user_data)
 
 
 /* Compute the reaction term g(t,y). */
-static int Reaction(realtype t, N_Vector y, N_Vector ydot, void* user_data)
+static int Reaction(sunrealtype t, N_Vector y, N_Vector ydot, void* user_data)
 {
   /* access problem data */
   UserData* udata = (UserData*) user_data;
@@ -240,14 +240,14 @@ static int Reaction(realtype t, N_Vector y, N_Vector ydot, void* user_data)
   SUNDIALS_CXX_MARK_FUNCTION(udata->prof);
 
   /* set variable shortcuts */
-  const realtype A  = udata->A;
-  const realtype B  = udata->B;
-  const realtype k1 = udata->k1;
-  const realtype k2 = udata->k2;
-  const realtype k3 = udata->k3;
-  const realtype k4 = udata->k4;
-  const realtype k5 = udata->k5;
-  const realtype k6 = udata->k6;
+  const sunrealtype A  = udata->A;
+  const sunrealtype B  = udata->B;
+  const sunrealtype k1 = udata->k1;
+  const sunrealtype k2 = udata->k2;
+  const sunrealtype k3 = udata->k3;
+  const sunrealtype k4 = udata->k4;
+  const sunrealtype k5 = udata->k5;
+  const sunrealtype k6 = udata->k6;
   const int     nxl = udata->grid->nxl;
   const int     nyl = udata->grid->nyl;
   const int     nzl = udata->grid->nzl;
@@ -266,9 +266,9 @@ static int Reaction(realtype t, N_Vector y, N_Vector ydot, void* user_data)
                        Range3D({0,0,0},{nxl,nyl,nzl}),
                        KOKKOS_LAMBDA (int i, int j, int k)
   {
-    const realtype u = Yview(i,j,k,0);
-    const realtype v = Yview(i,j,k,1);
-    const realtype w = Yview(i,j,k,2);
+    const sunrealtype u = Yview(i,j,k,0);
+    const sunrealtype v = Yview(i,j,k,1);
+    const sunrealtype w = Yview(i,j,k,2);
     dYview(i,j,k,0) += k1 * A - k2 * w * u + k3 * u * u * v - k4 * u;
     dYview(i,j,k,1) += k2 * w * u - k3 * u * u * v;
     dYview(i,j,k,2) += -k2 * w * u + k5 * B - k6 * w;
@@ -280,7 +280,7 @@ static int Reaction(realtype t, N_Vector y, N_Vector ydot, void* user_data)
 
 
 /* Compute the RHS as h(t,y) = f(t,y) + g(t,y). */
-static int AdvectionReaction(realtype t, N_Vector y, N_Vector ydot,
+static int AdvectionReaction(sunrealtype t, N_Vector y, N_Vector ydot,
                              void *user_data)
 {
   /* access problem data */
@@ -300,7 +300,7 @@ static int AdvectionReaction(realtype t, N_Vector y, N_Vector ydot,
 }
 
 /* Compute the residual F(t,y,y') = ydot - h(t,y) = 0. */
-static int AdvectionReactionResidual(realtype t, N_Vector y, N_Vector ydot,
+static int AdvectionReactionResidual(sunrealtype t, N_Vector y, N_Vector ydot,
                                      N_Vector F, void *user_data)
 {
   /* access problem data */
@@ -330,17 +330,17 @@ static int AdvectionReactionResidual(realtype t, N_Vector y, N_Vector ydot,
    When using a fully implicit method, we are approximating
    dh/dy as dg/dy. */
 static int SolveReactionLinSys(N_Vector y, N_Vector x, N_Vector b,
-                               const realtype gamma, UserData* udata)
+                               const sunrealtype gamma, UserData* udata)
 {
   /* set variable shortcuts */
   const int dof = udata->grid->dof;
   const int nxl = udata->grid->nxl;
   const int nyl = udata->grid->nyl;
   const int nzl = udata->grid->nzl;
-  const realtype k2  = udata->k2;
-  const realtype k3  = udata->k3;
-  const realtype k4  = udata->k4;
-  const realtype k6  = udata->k6;
+  const sunrealtype k2  = udata->k2;
+  const sunrealtype k3  = udata->k3;
+  const sunrealtype k4  = udata->k4;
+  const sunrealtype k6  = udata->k6;
 
   /* create 4D views of state, RHS and solution vectors */
   Vec4D Yview(N_VGetDeviceArrayPointer(N_VGetLocalVector_MPIPlusX(y)), nxl, nyl, nzl, dof);
@@ -354,47 +354,47 @@ static int SolveReactionLinSys(N_Vector y, N_Vector x, N_Vector b,
   {
 
     /* shortcuts to u, v, w for the block */
-    const realtype u = Yview(i,j,k,0);
-    const realtype v = Yview(i,j,k,1);
-    const realtype w = Yview(i,j,k,2);
+    const sunrealtype u = Yview(i,j,k,0);
+    const sunrealtype v = Yview(i,j,k,1);
+    const sunrealtype w = Yview(i,j,k,2);
 
     //
     // compute A = I - gamma*(dg/dy)
     //
 
     /* 1st row: u, v, w */
-    const realtype A0 = 1. - gamma * (-k2 * w + 2.0 * k3 * u * v - k4);
-    const realtype A1 = -gamma * (k3 * u * u);
-    const realtype A2 = -gamma * (-k2 * u);
+    const sunrealtype A0 = 1. - gamma * (-k2 * w + 2.0 * k3 * u * v - k4);
+    const sunrealtype A1 = -gamma * (k3 * u * u);
+    const sunrealtype A2 = -gamma * (-k2 * u);
 
     /* 2nd row: u, v, w */
-    const realtype A3 = -gamma * (k2 * w - 2.0 * k3 * u * v);
-    const realtype A4 = 1. - gamma * (-k3 * u * u);
-    const realtype A5 = -gamma * (k2 * u);
+    const sunrealtype A3 = -gamma * (k2 * w - 2.0 * k3 * u * v);
+    const sunrealtype A4 = 1. - gamma * (-k3 * u * u);
+    const sunrealtype A5 = -gamma * (k2 * u);
 
     /* 3rd row: u, v, w */
-    const realtype A6 = -gamma * (-k2 * w);
-    const realtype A7 =  0.0;
-    const realtype A8 = 1. - gamma * (-k2 * u - k6);
+    const sunrealtype A6 = -gamma * (-k2 * w);
+    const sunrealtype A7 =  0.0;
+    const sunrealtype A8 = 1. - gamma * (-k2 * u - k6);
 
     //
     // compute x = A^{-1}*b
     //
 
-    const realtype scratch_0 = A4*A8;
-    const realtype scratch_1 = A1*A5;
-    const realtype scratch_2 = A2*A7;
-    const realtype scratch_3 = A5*A7;
-    const realtype scratch_4 = A1*A8;
-    const realtype scratch_5 = A2*A4;
-    const realtype scratch_6 = 1.0/(A0*scratch_0 - A0*scratch_3 + A3*scratch_2 - A3*scratch_4 + A6*scratch_1 - A6*scratch_5);
-    const realtype scratch_7 = A2*A3;
-    const realtype scratch_8 = A6*Bview(i,j,k,0);
-    const realtype scratch_9 = A2*A6;
-    const realtype scratch_10 = A3*Bview(i,j,k,0);
-    const realtype scratch_11 = 1.0/A0;
-    const realtype scratch_12 = A1*scratch_11;
-    const realtype scratch_13 = (-A6*scratch_12 + A7)/(-A3*scratch_12 + A4);
+    const sunrealtype scratch_0 = A4*A8;
+    const sunrealtype scratch_1 = A1*A5;
+    const sunrealtype scratch_2 = A2*A7;
+    const sunrealtype scratch_3 = A5*A7;
+    const sunrealtype scratch_4 = A1*A8;
+    const sunrealtype scratch_5 = A2*A4;
+    const sunrealtype scratch_6 = 1.0/(A0*scratch_0 - A0*scratch_3 + A3*scratch_2 - A3*scratch_4 + A6*scratch_1 - A6*scratch_5);
+    const sunrealtype scratch_7 = A2*A3;
+    const sunrealtype scratch_8 = A6*Bview(i,j,k,0);
+    const sunrealtype scratch_9 = A2*A6;
+    const sunrealtype scratch_10 = A3*Bview(i,j,k,0);
+    const sunrealtype scratch_11 = 1.0/A0;
+    const sunrealtype scratch_12 = A1*scratch_11;
+    const sunrealtype scratch_13 = (-A6*scratch_12 + A7)/(-A3*scratch_12 + A4);
 
     Xview(i,j,k,0) = scratch_6*( Bview(i,j,k,0)*(scratch_0 - scratch_3)
                                + Bview(i,j,k,1)*(scratch_2 - scratch_4)
@@ -414,17 +414,17 @@ static int SolveReactionLinSys(N_Vector y, N_Vector x, N_Vector b,
 /* Solve the linear systems Ax = b where A = -dg/dy + gamma.
    We are approximating dh/dy as dg/dy. */
 static int SolveReactionLinSysRes(N_Vector y, N_Vector x, N_Vector b,
-                                  const realtype gamma, UserData* udata)
+                                  const sunrealtype gamma, UserData* udata)
 {
   /* set variable shortcuts */
   const int dof = udata->grid->dof;
   const int nxl = udata->grid->nxl;
   const int nyl = udata->grid->nyl;
   const int nzl = udata->grid->nzl;
-  const realtype k2  = udata->k2;
-  const realtype k3  = udata->k3;
-  const realtype k4  = udata->k4;
-  const realtype k6  = udata->k6;
+  const sunrealtype k2  = udata->k2;
+  const sunrealtype k3  = udata->k3;
+  const sunrealtype k4  = udata->k4;
+  const sunrealtype k6  = udata->k6;
 
   /* create 4D views of state, RHS and solution vectors */
   Vec4D Yview(N_VGetDeviceArrayPointer(N_VGetLocalVector_MPIPlusX(y)), nxl, nyl, nzl, dof);
@@ -438,9 +438,9 @@ static int SolveReactionLinSysRes(N_Vector y, N_Vector x, N_Vector b,
   {
 
     /* shortcuts to u, v, w for the block */
-    const realtype u = Yview(i,j,k,0);
-    const realtype v = Yview(i,j,k,1);
-    const realtype w = Yview(i,j,k,2);
+    const sunrealtype u = Yview(i,j,k,0);
+    const sunrealtype v = Yview(i,j,k,1);
+    const sunrealtype w = Yview(i,j,k,2);
 
     //
     // compute A = -dg/dy + gamma*diag(df/dydot)
@@ -449,38 +449,38 @@ static int SolveReactionLinSysRes(N_Vector y, N_Vector x, N_Vector b,
     //
 
     /* 1st row: u, v, w */
-    const realtype A0 = -(-k2 * w + 2.0 * k3 * u * v - k4) + gamma;
-    const realtype A1 = -(k3 * u * u);
-    const realtype A2 = -(-k2 * u);
+    const sunrealtype A0 = -(-k2 * w + 2.0 * k3 * u * v - k4) + gamma;
+    const sunrealtype A1 = -(k3 * u * u);
+    const sunrealtype A2 = -(-k2 * u);
 
     /* 2nd row: u, v, w */
-    const realtype A3 = -(k2 * w - 2.0 * k3 * u * v);
-    const realtype A4 = -(-k3 * u * u) + gamma;
-    const realtype A5 = -(k2 * u);
+    const sunrealtype A3 = -(k2 * w - 2.0 * k3 * u * v);
+    const sunrealtype A4 = -(-k3 * u * u) + gamma;
+    const sunrealtype A5 = -(k2 * u);
 
     /* 3rd row: u, v, w */
-    const realtype A6 = -(-k2 * w);
-    const realtype A7 =  0.0;
-    const realtype A8 = -(-k2 * u - k6) + gamma;
+    const sunrealtype A6 = -(-k2 * w);
+    const sunrealtype A7 =  0.0;
+    const sunrealtype A8 = -(-k2 * u - k6) + gamma;
 
     //
     // compute x = A^{-1}*b
     //
 
-    const realtype scratch_0 = A4*A8;
-    const realtype scratch_1 = A1*A5;
-    const realtype scratch_2 = A2*A7;
-    const realtype scratch_3 = A5*A7;
-    const realtype scratch_4 = A1*A8;
-    const realtype scratch_5 = A2*A4;
-    const realtype scratch_6 = 1.0/(A0*scratch_0 - A0*scratch_3 + A3*scratch_2 - A3*scratch_4 + A6*scratch_1 - A6*scratch_5);
-    const realtype scratch_7 = A2*A3;
-    const realtype scratch_8 = A6*Bview(i,j,k,0);
-    const realtype scratch_9 = A2*A6;
-    const realtype scratch_10 = A3*Bview(i,j,k,0);
-    const realtype scratch_11 = 1.0/A0;
-    const realtype scratch_12 = A1*scratch_11;
-    const realtype scratch_13 = (-A6*scratch_12 + A7)/(-A3*scratch_12 + A4);
+    const sunrealtype scratch_0 = A4*A8;
+    const sunrealtype scratch_1 = A1*A5;
+    const sunrealtype scratch_2 = A2*A7;
+    const sunrealtype scratch_3 = A5*A7;
+    const sunrealtype scratch_4 = A1*A8;
+    const sunrealtype scratch_5 = A2*A4;
+    const sunrealtype scratch_6 = 1.0/(A0*scratch_0 - A0*scratch_3 + A3*scratch_2 - A3*scratch_4 + A6*scratch_1 - A6*scratch_5);
+    const sunrealtype scratch_7 = A2*A3;
+    const sunrealtype scratch_8 = A6*Bview(i,j,k,0);
+    const sunrealtype scratch_9 = A2*A6;
+    const sunrealtype scratch_10 = A3*Bview(i,j,k,0);
+    const sunrealtype scratch_11 = 1.0/A0;
+    const sunrealtype scratch_12 = A1*scratch_11;
+    const sunrealtype scratch_13 = (-A6*scratch_12 + A7)/(-A3*scratch_12 + A4);
 
     Xview(i,j,k,0) = scratch_6*( Bview(i,j,k,0)*(scratch_0 - scratch_3)
                                + Bview(i,j,k,1)*(scratch_2 - scratch_4)
@@ -503,8 +503,8 @@ static int SolveReactionLinSysRes(N_Vector y, N_Vector x, N_Vector b,
  * --------------------------------------------------------------*/
 
 /* Solves Pz = r where P = I - gamma * dg/dy */
-static int PSolve(realtype t, N_Vector y, N_Vector ydot, N_Vector r,
-                  N_Vector z, realtype gamma, realtype delta, int lr,
+static int PSolve(sunrealtype t, N_Vector y, N_Vector ydot, N_Vector r,
+                  N_Vector z, sunrealtype gamma, sunrealtype delta, int lr,
                   void *user_data)
 {
   /* local variables */
@@ -520,8 +520,8 @@ static int PSolve(realtype t, N_Vector y, N_Vector ydot, N_Vector r,
 }
 
 /* Solves Pz = r where P = -dg/dy + gamma */
-static int PSolveRes(realtype t, N_Vector y, N_Vector ydot, N_Vector F,
-                     N_Vector r, N_Vector z, realtype cj, realtype delta,
+static int PSolveRes(sunrealtype t, N_Vector y, N_Vector ydot, N_Vector F,
+                     N_Vector r, N_Vector z, sunrealtype cj, sunrealtype delta,
                      void *user_data)
 {
   /* local variables */

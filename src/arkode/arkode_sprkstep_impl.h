@@ -76,7 +76,7 @@ int sprkStep_TakeStep_Compensated(void* arkode_mem, sunrealtype* dsmPtr,
 /* Internal utility routines */
 int sprkStep_AccessStepMem(void* arkode_mem, const char* fname,
                            ARKodeMem* ark_mem, ARKodeSPRKStepMem* step_mem);
-booleantype sprkStep_CheckNVector(N_Vector tmpl);
+sunbooleantype sprkStep_CheckNVector(N_Vector tmpl);
 /* f1 = p' (Force evaluation) */
 int sprkStep_f1(ARKodeSPRKStepMem step_mem, sunrealtype tcur, N_Vector ycur,
                 N_Vector f1, void* user_data);

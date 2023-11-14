@@ -40,7 +40,7 @@ extern "C" {
 struct _N_VectorContent_SensWrapper {
   N_Vector* vecs;        /* array of wrapped vectors                */
   int nvecs;             /* number of wrapped vectors               */
-  booleantype own_vecs;  /* flag indicating if wrapper owns vectors */
+  sunbooleantype own_vecs;  /* flag indicating if wrapper owns vectors */
 };
 
 typedef struct _N_VectorContent_SensWrapper *N_VectorContent_SensWrapper;
@@ -71,30 +71,30 @@ SUNDIALS_EXPORT N_Vector N_VClone_SensWrapper(N_Vector w);
 SUNDIALS_EXPORT void N_VDestroy_SensWrapper(N_Vector v);
 
 /* standard vector operations */
-SUNDIALS_EXPORT void N_VLinearSum_SensWrapper(realtype a, N_Vector x,
-                                              realtype b, N_Vector y,
+SUNDIALS_EXPORT void N_VLinearSum_SensWrapper(sunrealtype a, N_Vector x,
+                                              sunrealtype b, N_Vector y,
                                               N_Vector z);
-SUNDIALS_EXPORT void N_VConst_SensWrapper(realtype c, N_Vector z);
+SUNDIALS_EXPORT void N_VConst_SensWrapper(sunrealtype c, N_Vector z);
 SUNDIALS_EXPORT void N_VProd_SensWrapper(N_Vector x, N_Vector y, N_Vector z);
 SUNDIALS_EXPORT void N_VDiv_SensWrapper(N_Vector x, N_Vector y, N_Vector z);
-SUNDIALS_EXPORT void N_VScale_SensWrapper(realtype c, N_Vector x, N_Vector z);
+SUNDIALS_EXPORT void N_VScale_SensWrapper(sunrealtype c, N_Vector x, N_Vector z);
 SUNDIALS_EXPORT void N_VAbs_SensWrapper(N_Vector x, N_Vector z);
 SUNDIALS_EXPORT void N_VInv_SensWrapper(N_Vector x, N_Vector z);
-SUNDIALS_EXPORT void N_VAddConst_SensWrapper(N_Vector x, realtype b,
+SUNDIALS_EXPORT void N_VAddConst_SensWrapper(N_Vector x, sunrealtype b,
                                              N_Vector z);
-SUNDIALS_EXPORT realtype N_VDotProd_SensWrapper(N_Vector x, N_Vector y);
-SUNDIALS_EXPORT realtype N_VMaxNorm_SensWrapper(N_Vector x);
-SUNDIALS_EXPORT realtype N_VWrmsNorm_SensWrapper(N_Vector x, N_Vector w);
-SUNDIALS_EXPORT realtype N_VWrmsNormMask_SensWrapper(N_Vector x, N_Vector w,
+SUNDIALS_EXPORT sunrealtype N_VDotProd_SensWrapper(N_Vector x, N_Vector y);
+SUNDIALS_EXPORT sunrealtype N_VMaxNorm_SensWrapper(N_Vector x);
+SUNDIALS_EXPORT sunrealtype N_VWrmsNorm_SensWrapper(N_Vector x, N_Vector w);
+SUNDIALS_EXPORT sunrealtype N_VWrmsNormMask_SensWrapper(N_Vector x, N_Vector w,
                                                      N_Vector id);
-SUNDIALS_EXPORT realtype N_VMin_SensWrapper(N_Vector x);
-SUNDIALS_EXPORT realtype N_VWL2Norm_SensWrapper(N_Vector x, N_Vector w);
-SUNDIALS_EXPORT realtype N_VL1Norm_SensWrapper(N_Vector x);
-SUNDIALS_EXPORT void N_VCompare_SensWrapper(realtype c, N_Vector x, N_Vector z);
-SUNDIALS_EXPORT booleantype N_VInvTest_SensWrapper(N_Vector x, N_Vector z);
-SUNDIALS_EXPORT booleantype N_VConstrMask_SensWrapper(N_Vector c, N_Vector x,
+SUNDIALS_EXPORT sunrealtype N_VMin_SensWrapper(N_Vector x);
+SUNDIALS_EXPORT sunrealtype N_VWL2Norm_SensWrapper(N_Vector x, N_Vector w);
+SUNDIALS_EXPORT sunrealtype N_VL1Norm_SensWrapper(N_Vector x);
+SUNDIALS_EXPORT void N_VCompare_SensWrapper(sunrealtype c, N_Vector x, N_Vector z);
+SUNDIALS_EXPORT sunbooleantype N_VInvTest_SensWrapper(N_Vector x, N_Vector z);
+SUNDIALS_EXPORT sunbooleantype N_VConstrMask_SensWrapper(N_Vector c, N_Vector x,
                                                       N_Vector m);
-SUNDIALS_EXPORT realtype N_VMinQuotient_SensWrapper(N_Vector num,
+SUNDIALS_EXPORT sunrealtype N_VMinQuotient_SensWrapper(N_Vector num,
                                                     N_Vector denom);
 
 #ifdef __cplusplus

@@ -49,14 +49,14 @@
  *   --nopre            turn off preconditioning
  *   --order <int>      the method order to use
  *   --npts <int>       number of mesh points in each direction
- *   --xmax <realtype>  maximum value of x (size of domain)
- *   --tf <realtype>    final time
- *   --A <realtype>     A parameter value
- *   --B <realtype>     B parameter value
- *   --k <realtype>     reaction rate
- *   --c <realtype>     advection speed
- *   --rtol <realtype>  relative tolerance
- *   --atol <realtype>  absolute tolerance
+ *   --xmax <sunrealtype>  maximum value of x (size of domain)
+ *   --tf <sunrealtype>    final time
+ *   --A <sunrealtype>     A parameter value
+ *   --B <sunrealtype>     B parameter value
+ *   --k <sunrealtype>     reaction rate
+ *   --c <sunrealtype>     advection speed
+ *   --rtol <sunrealtype>  relative tolerance
+ *   --atol <sunrealtype>  absolute tolerance
  * --------------------------------------------------------------------------*/
 
 #include "advection_reaction_3D.hpp"
@@ -167,7 +167,7 @@ int FillSendBuffers(N_Vector y, UserData* udata)
 {
 
   /* Shortcuts */
-  const realtype c = udata->c;
+  const sunrealtype c = udata->c;
   const int nxl = udata->grid->nxl;
   const int nyl = udata->grid->nyl;
   const int nzl = udata->grid->nzl;
@@ -468,8 +468,8 @@ int SetupProblem(int argc, char *argv[], UserData* udata, UserOptions* uopt,
 
   /* Setup the parallel decomposition */
   const sunindextype npts[] = {uopt->npts, uopt->npts, uopt->npts};
-  const realtype amax[] = {0.0, 0.0, 0.0};
-  const realtype bmax[] = {udata->xmax, udata->xmax, udata->xmax};
+  const sunrealtype amax[] = {0.0, 0.0, 0.0};
+  const sunrealtype bmax[] = {udata->xmax, udata->xmax, udata->xmax};
   udata->grid = new ParallelGrid<sunindextype>(&udata->comm, amax, bmax, npts,
       3, BoundaryType::PERIODIC, StencilType::UPWIND, udata->c, uopt->npxyz);
 
@@ -551,15 +551,15 @@ int SetupProblem(int argc, char *argv[], UserData* udata, UserOptions* uopt,
 
 /* Compute the 3D Gaussian function. */
 KOKKOS_FUNCTION
-void Gaussian3D(realtype& x, realtype& y, realtype& z, realtype xmax)
+void Gaussian3D(sunrealtype& x, sunrealtype& y, sunrealtype& z, sunrealtype xmax)
 {
   /* Gaussian distribution defaults */
-  const realtype alpha = 0.1;
-  const realtype mu[] = { xmax/RCONST(2.0), xmax/RCONST(2.0), xmax/RCONST(2.0) };
-  const realtype sigma[] = { xmax/RCONST(4.0), xmax/RCONST(4.0), xmax/RCONST(4.0) }; // Sigma = diag(sigma)
+  const sunrealtype alpha = 0.1;
+  const sunrealtype mu[] = { xmax/SUN_RCONST(2.0), xmax/SUN_RCONST(2.0), xmax/SUN_RCONST(2.0) };
+  const sunrealtype sigma[] = { xmax/SUN_RCONST(4.0), xmax/SUN_RCONST(4.0), xmax/SUN_RCONST(4.0) }; // Sigma = diag(sigma)
 
   /* denominator = 2*sqrt(|Sigma|*(2pi)^3) */
-  const realtype denom = 2.0 * sqrt((sigma[0]*sigma[1]*sigma[2])*pow(2*M_PI,3));
+  const sunrealtype denom = 2.0 * sqrt((sigma[0]*sigma[1]*sigma[2])*pow(2*M_PI,3));
   x = alpha * exp( -((x - mu[0])*(x - mu[0])*(1.0/sigma[0])) / denom );
   y = alpha * exp( -((y - mu[1])*(y - mu[1])*(1.0/sigma[1])) / denom );
   z = alpha * exp( -((z - mu[2])*(z - mu[2])*(1.0/sigma[2])) / denom );
@@ -576,24 +576,24 @@ int SetIC(N_Vector y, UserData* udata)
   const int      nyl  = udata->grid->nyl;
   const int      nzl  = udata->grid->nzl;
   const int      dof  = udata->grid->dof;
-  const realtype dx   = udata->grid->dx;
-  const realtype dy   = udata->grid->dy;
-  const realtype dz   = udata->grid->dz;
-  const realtype xmax = udata->xmax;
-  const realtype A    = udata->A;
-  const realtype B    = udata->B;
-  const realtype k1   = udata->k1;
-  const realtype k2   = udata->k2;
-  const realtype k3   = udata->k3;
-  const realtype k4   = udata->k4;
+  const sunrealtype dx   = udata->grid->dx;
+  const sunrealtype dy   = udata->grid->dy;
+  const sunrealtype dz   = udata->grid->dz;
+  const sunrealtype xmax = udata->xmax;
+  const sunrealtype A    = udata->A;
+  const sunrealtype B    = udata->B;
+  const sunrealtype k1   = udata->k1;
+  const sunrealtype k2   = udata->k2;
+  const sunrealtype k3   = udata->k3;
+  const sunrealtype k4   = udata->k4;
   const int      xcrd = udata->grid->coords[0];
   const int      ycrd = udata->grid->coords[1];
   const int      zcrd = udata->grid->coords[2];
 
   /* Steady state solution */
-  const realtype us = k1 * A / k4;
-  const realtype vs = k2 * k4 * B / (k1 * k3 * A);
-  const realtype ws = 3.0;
+  const sunrealtype us = k1 * A / k4;
+  const sunrealtype vs = k2 * k4 * B / (k1 * k3 * A);
+  const sunrealtype ws = 3.0;
 
   /* Create 4D view of y */
   Vec4D yview(N_VGetDeviceArrayPointer(N_VGetLocalVector_MPIPlusX(y)), nxl, nyl, nzl, dof);
@@ -603,11 +603,11 @@ int SetIC(N_Vector y, UserData* udata)
                        Range3D({0,0,0},{nxl,nyl,nzl}),
                        KOKKOS_LAMBDA (int i, int j, int k)
   {
-    realtype x = (xcrd * nxl + i) * dx;
-    realtype y = (ycrd * nyl + j) * dy;
-    realtype z = (zcrd * nzl + k) * dz;
+    sunrealtype x = (xcrd * nxl + i) * dx;
+    sunrealtype y = (ycrd * nyl + j) * dy;
+    sunrealtype z = (zcrd * nzl + k) * dz;
     Gaussian3D(x,y,z,xmax);
-    const realtype p = x + y + z;
+    const sunrealtype p = x + y + z;
     yview(i,j,k,0) = us + p;
     yview(i,j,k,1) = vs + p;
     yview(i,j,k,2) = ws + p;
@@ -619,17 +619,17 @@ int SetIC(N_Vector y, UserData* udata)
 
 
 /* Write time and solution to disk */
-int WriteOutput(realtype t, N_Vector y, UserData* udata, UserOptions* uopt)
+int WriteOutput(sunrealtype t, N_Vector y, UserData* udata, UserOptions* uopt)
 {
   SUNDIALS_CXX_MARK_FUNCTION(udata->prof);
 
   /* output current solution norm to screen */
-  realtype N = (realtype) udata->grid->npts();
-  realtype u = N_VWL2Norm(y, udata->umask);
+  sunrealtype N = (sunrealtype) udata->grid->npts();
+  sunrealtype u = N_VWL2Norm(y, udata->umask);
   u = sqrt(u*u/N);
-  realtype v = N_VWL2Norm(y, udata->vmask);
+  sunrealtype v = N_VWL2Norm(y, udata->vmask);
   v = sqrt(v*v/N);
-  realtype w = N_VWL2Norm(y, udata->wmask);
+  sunrealtype w = N_VWL2Norm(y, udata->wmask);
   w = sqrt(w*w/N);
   if (udata->myid == 0) {
     printf("     %10.6f   %10.6f   %10.6f   %10.6f\n", t, u, v, w);
@@ -697,14 +697,14 @@ void InputError(char *name)
     fprintf(stderr, "  --order <int>             the method order to use\n");
     fprintf(stderr, "  --npts <int>              number of mesh points in each direction\n");
     fprintf(stderr, "  --npxyz <int> <int> <int> number of processors in each direction (0 forces MPI to decide)\n");
-    fprintf(stderr, "  --xmax <realtype>         maximum value of x (size of domain)\n");
-    fprintf(stderr, "  --tf <realtype>           final time\n");
-    fprintf(stderr, "  --A <realtype>            A parameter value\n");
-    fprintf(stderr, "  --B <realtype>            B parameter value\n");
-    fprintf(stderr, "  --k <realtype>            reaction rate\n");
-    fprintf(stderr, "  --c <realtype>            advection speed\n");
-    fprintf(stderr, "  --rtol <realtype>         relative tolerance\n");
-    fprintf(stderr, "  --atol <realtype>         absolute tolerance\n");
+    fprintf(stderr, "  --xmax <sunrealtype>         maximum value of x (size of domain)\n");
+    fprintf(stderr, "  --tf <sunrealtype>           final time\n");
+    fprintf(stderr, "  --A <sunrealtype>            A parameter value\n");
+    fprintf(stderr, "  --B <sunrealtype>            B parameter value\n");
+    fprintf(stderr, "  --k <sunrealtype>            reaction rate\n");
+    fprintf(stderr, "  --c <sunrealtype>            advection speed\n");
+    fprintf(stderr, "  --rtol <sunrealtype>         relative tolerance\n");
+    fprintf(stderr, "  --atol <sunrealtype>         absolute tolerance\n");
   }
 
   MPI_Barrier(MPI_COMM_WORLD);

@@ -48,7 +48,7 @@ int main(int argc, char *argv[])
   N_Vector     x, y;                 /* test vectors               */
   int          print_timing;
   sunindextype i, j, k, kstart, kend, jstart, jend;
-  realtype     *colj, *xdata, *ydata;
+  sunrealtype     *colj, *xdata, *ydata;
   SUNContext   sunctx;
 
   if (SUNContext_Create(NULL, &sunctx)) {
@@ -105,7 +105,7 @@ int main(int argc, char *argv[])
 
     /* identity matrix */
     colj = SUNBandMatrix_Column(I, j);
-    colj[0] = RCONST(1.0);
+    colj[0] = SUN_RCONST(1.0);
 
     /* A matrix */
     colj = SUNBandMatrix_Column(A, j);
@@ -122,7 +122,7 @@ int main(int argc, char *argv[])
     xdata[i] = i;
 
     /* y vector */
-    ydata[i] = RCONST(0.0);
+    ydata[i] = SUN_RCONST(0.0);
     jstart = SUNMAX(0, i-lband);
     jend = SUNMIN(cols-1, i+uband);
     for (j=jstart; j<=jend; j++)
@@ -167,11 +167,11 @@ int main(int argc, char *argv[])
 /* ----------------------------------------------------------------------
  * Implementation-specific 'check' routines
  * --------------------------------------------------------------------*/
-int check_matrix(SUNMatrix A, SUNMatrix B, realtype tol)
+int check_matrix(SUNMatrix A, SUNMatrix B, sunrealtype tol)
 {
   int failure = 0;
   sunindextype i, j, istart, iend;
-  realtype *Acolj, *Bcolj;
+  sunrealtype *Acolj, *Bcolj;
 
   /* check matrix type and dimensions */
   if (SUNMatGetID(A) != SUNMatGetID(B))
@@ -214,11 +214,11 @@ int check_matrix(SUNMatrix A, SUNMatrix B, realtype tol)
     return(0);
 }
 
-int check_matrix_entry(SUNMatrix A, realtype val, realtype tol)
+int check_matrix_entry(SUNMatrix A, sunrealtype val, sunrealtype tol)
 {
   int failure = 0;
   sunindextype i, j, istart, iend;
-  realtype *Acolj;
+  sunrealtype *Acolj;
 
   /* check matrix data */
   for (j=0; j<SUNBandMatrix_Columns(A); j++) {
@@ -245,11 +245,11 @@ int check_matrix_entry(SUNMatrix A, realtype val, realtype tol)
     return(0);
 }
 
-int check_vector(N_Vector X, N_Vector Y, realtype tol)
+int check_vector(N_Vector X, N_Vector Y, sunrealtype tol)
 {
   int failure = 0;
   sunindextype i, local_length;
-  realtype *Xdata, *Ydata;
+  sunrealtype *Xdata, *Ydata;
 
   Xdata = N_VGetArrayPointer(X);
   Ydata = N_VGetArrayPointer(Y);
@@ -266,16 +266,16 @@ int check_vector(N_Vector X, N_Vector Y, realtype tol)
     return(0);
 }
 
-booleantype has_data(SUNMatrix A)
+sunbooleantype has_data(SUNMatrix A)
 {
-  realtype *Adata = SUNBandMatrix_Data(A);
+  sunrealtype *Adata = SUNBandMatrix_Data(A);
   if (Adata == NULL)
     return SUNFALSE;
   else
     return SUNTRUE;
 }
 
-booleantype is_square(SUNMatrix A)
+sunbooleantype is_square(SUNMatrix A)
 {
   return SUNTRUE;
 }

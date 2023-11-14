@@ -233,7 +233,7 @@ that SUNDIALS has been configured appropriately to link with KLU
 (see :numref:`Installation.CMake.ExternalLibraries` for details).
 Additionally, this wrapper only supports double-precision
 calculations, and therefore cannot be compiled if SUNDIALS is
-configured to have :c:type:`realtype` set to either ``extended`` or
+configured to have :c:type:`sunrealtype` set to either ``extended`` or
 ``single`` (see :ref:`Usage.CC.DataTypes` for
 details). Since the KLU library supports both 32-bit and 64-bit
 integers, this interface will be compiled for either of the available

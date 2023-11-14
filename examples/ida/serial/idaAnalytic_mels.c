@@ -31,7 +31,7 @@
 #include <stdio.h>
 #include <ida/ida.h>                          /* prototypes for IDA fcts., consts.    */
 #include <nvector/nvector_serial.h>           /* access to serial N_Vector            */
-#include <sundials/sundials_types.h>          /* defs. of realtype, sunindextype      */
+#include <sundials/sundials_types.h>          /* defs. of sunrealtype, sunindextype      */
 #include <sundials/sundials_math.h>           /* defs. of SUNRabs, SUNRexp, etc.      */
 
 #if defined(SUNDIALS_EXTENDED_PRECISION)
@@ -45,21 +45,21 @@
 #endif
 
 /* User-supplied functions called by IDA */
-int fres(realtype tres, N_Vector yy, N_Vector yp, N_Vector resval, void *user_data);
+int fres(sunrealtype tres, N_Vector yy, N_Vector yp, N_Vector resval, void *user_data);
 
 /* Custom linear solver data structure, accessor macros, and routines */
 static SUNLinearSolver MatrixEmbeddedLS(void *ida_mem, SUNContext ctx);
 static SUNLinearSolver_Type MatrixEmbeddedLSType(SUNLinearSolver S);
 static int MatrixEmbeddedLSSolve(SUNLinearSolver S, SUNMatrix A, N_Vector x,
-                                 N_Vector b, realtype tol);
+                                 N_Vector b, sunrealtype tol);
 static int MatrixEmbeddedLSFree(SUNLinearSolver S);
 
 /* Private function to check function return values */
 static int check_retval(void *returnvalue, const char *funcname, int opt);
 
 /* Private function to check computed solution */
-static void analytical_solution(realtype t, N_Vector y, N_Vector yp);
-static int check_ans(N_Vector y, realtype t, realtype rtol, realtype atol);
+static void analytical_solution(sunrealtype t, N_Vector y, N_Vector yp);
+static int check_ans(N_Vector y, sunrealtype t, sunrealtype rtol, sunrealtype atol);
 
 /* Main Program */
 int main(void)
@@ -68,13 +68,13 @@ int main(void)
   SUNContext ctx;
 
   /* general problem parameters */
-  realtype T0 = RCONST(0.0);         /* initial time */
-  realtype Tf = RCONST(1.0);         /* final time */
-  realtype dTout = RCONST(0.1);      /* time between outputs */
+  sunrealtype T0 = SUN_RCONST(0.0);         /* initial time */
+  sunrealtype Tf = SUN_RCONST(1.0);         /* final time */
+  sunrealtype dTout = SUN_RCONST(0.1);      /* time between outputs */
   sunindextype NEQ = 2;              /* number of dependent vars. */
-  realtype reltol = RCONST(1.0e-4);  /* tolerances */
-  realtype abstol = RCONST(1.0e-9);
-  realtype alpha  = RCONST(10.0);    /* stiffness parameter */
+  sunrealtype reltol = SUN_RCONST(1.0e-4);  /* tolerances */
+  sunrealtype abstol = SUN_RCONST(1.0e-9);
+  sunrealtype alpha  = SUN_RCONST(10.0);    /* stiffness parameter */
 
   /* general problem variables */
   int retval;                     /* reusable error-checking flag */
@@ -82,7 +82,7 @@ int main(void)
   N_Vector yp = NULL;             /* empty vector for storing solution derivative */
   SUNLinearSolver LS = NULL;      /* empty linear solver object */
   void *ida_mem = NULL;           /* empty IDA memory structure */
-  realtype t, tout;
+  sunrealtype t, tout;
   long int nst, nre, nni, netf, ncfn, nreLS;
 
   /* Initial diagnostics output */
@@ -186,15 +186,15 @@ int main(void)
       0 = (1-alpha)/(t-2)*x1 - x1 + (alpha-1)*x2 + 2*exp(t) - x1'(t)
       0 = (t+2)*x1 - (t+2)*exp(t)
 */
-int fres(realtype t, N_Vector yy, N_Vector yp, N_Vector rr, void *user_data)
+int fres(sunrealtype t, N_Vector yy, N_Vector yp, N_Vector rr, void *user_data)
 {
-  realtype *rdata = (realtype *) user_data;   /* cast user_data to realtype */
-  realtype alpha = rdata[0];                  /* set shortcut for stiffness parameter */
-  realtype x1 = NV_Ith_S(yy,0);               /* access current solution values */
-  realtype x2 = NV_Ith_S(yy,1);
-  realtype x1p = NV_Ith_S(yp,0);              /* access current derivative values */
-  realtype ONE = RCONST(1.0);
-  realtype TWO = RCONST(2.0);
+  sunrealtype *rdata = (sunrealtype *) user_data;   /* cast user_data to sunrealtype */
+  sunrealtype alpha = rdata[0];                  /* set shortcut for stiffness parameter */
+  sunrealtype x1 = NV_Ith_S(yy,0);               /* access current solution values */
+  sunrealtype x2 = NV_Ith_S(yy,1);
+  sunrealtype x1p = NV_Ith_S(yp,0);              /* access current derivative values */
+  sunrealtype ONE = SUN_RCONST(1.0);
+  sunrealtype TWO = SUN_RCONST(2.0);
 
   NV_Ith_S(rr,0) = (ONE-alpha)/(t-TWO)*x1 - x1 + (alpha-ONE)*x2 + TWO*exp(t) - x1p;
   NV_Ith_S(rr,1) = (t+TWO)*x1 - (t+TWO)*SUNRexp(t);
@@ -233,18 +233,18 @@ static SUNLinearSolver_Type MatrixEmbeddedLSType(SUNLinearSolver S)
 
 /* linear solve routine */
 static int MatrixEmbeddedLSSolve(SUNLinearSolver LS, SUNMatrix A, N_Vector x,
-                                 N_Vector b, realtype tol)
+                                 N_Vector b, sunrealtype tol)
 {
   /* temporary variables */
   int       retval;
   N_Vector  yypred, yppred, yyn, ypn, res;
-  realtype  tcur, cj;
+  sunrealtype  tcur, cj;
   void      *user_data;
-  realtype  *rdata;
-  realtype  alpha;
-  realtype  a11, a12, a21, b1, b2;
-  realtype  ONE   = RCONST(1.0);
-  realtype  TWO   = RCONST(2.0);
+  sunrealtype  *rdata;
+  sunrealtype  alpha;
+  sunrealtype  a11, a12, a21, b1, b2;
+  sunrealtype  ONE   = SUN_RCONST(1.0);
+  sunrealtype  TWO   = SUN_RCONST(2.0);
 
   /* retrieve implicit system data from IDA */
   retval = IDAGetNonlinearSystemData(LS->content, &tcur, &yypred, &yppred,
@@ -253,7 +253,7 @@ static int MatrixEmbeddedLSSolve(SUNLinearSolver LS, SUNMatrix A, N_Vector x,
     return(-1);
 
   /* extract stiffness parameter from user_data */
-  rdata = (realtype *) user_data;
+  rdata = (sunrealtype *) user_data;
   alpha = rdata[0];
 
   /* perform linear solve: A*x=b
@@ -325,23 +325,23 @@ static int check_retval(void *returnvalue, const char *funcname, int opt)
 }
 
 /* routine to fill analytical solution and its derivative */
-static void analytical_solution(realtype t, N_Vector y, N_Vector yp)
+static void analytical_solution(sunrealtype t, N_Vector y, N_Vector yp)
 {
   NV_Ith_S(y,0) = SUNRexp(t);
-  NV_Ith_S(y,1) = SUNRexp(t)/(t-RCONST(2.0));
+  NV_Ith_S(y,1) = SUNRexp(t)/(t-SUN_RCONST(2.0));
   NV_Ith_S(yp,0) = SUNRexp(t);
-  NV_Ith_S(yp,1) = SUNRexp(t)/(t-RCONST(2.0)) - SUNRexp(t)/(t-RCONST(2.0))/(t-RCONST(2.0));
+  NV_Ith_S(yp,1) = SUNRexp(t)/(t-SUN_RCONST(2.0)) - SUNRexp(t)/(t-SUN_RCONST(2.0))/(t-SUN_RCONST(2.0));
 }
 
 /* check the computed solution */
-static int check_ans(N_Vector y, realtype t, realtype rtol, realtype atol)
+static int check_ans(N_Vector y, sunrealtype t, sunrealtype rtol, sunrealtype atol)
 {
   int      passfail=0;        /* answer pass (0) or fail (1) retval */
   N_Vector ytrue;             /* true solution vector               */
   N_Vector ewt;               /* error weight vector                */
   N_Vector abstol;            /* absolute tolerance vector          */
-  realtype err;               /* wrms error                         */
-  realtype ONE = RCONST(1.0);
+  sunrealtype err;               /* wrms error                         */
+  sunrealtype ONE = SUN_RCONST(1.0);
 
   /* create solution and error weight vectors */
   ytrue = N_VClone(y);
@@ -354,8 +354,8 @@ static int check_ans(N_Vector y, realtype t, realtype rtol, realtype atol)
   /* compute the error weight vector, loosen atol */
   N_VConst(atol, abstol);
   N_VAbs(ytrue, ewt);
-  N_VLinearSum(rtol, ewt, RCONST(10.0), abstol, ewt);
-  if (N_VMin(ewt) <= RCONST(0.0)) {
+  N_VLinearSum(rtol, ewt, SUN_RCONST(10.0), abstol, ewt);
+  if (N_VMin(ewt) <= SUN_RCONST(0.0)) {
     fprintf(stderr, "\nSUNDIALS_ERROR: check_ans failed - ewt <= 0\n\n");
     return(-1);
   }

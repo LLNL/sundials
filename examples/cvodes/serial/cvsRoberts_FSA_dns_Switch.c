@@ -35,7 +35,7 @@
 #include <nvector/nvector_serial.h>    /* access to serial NVector                 */
 #include <sunmatrix/sunmatrix_dense.h> /* access to dense SUNMatrix                */
 #include <sunlinsol/sunlinsol_dense.h> /* access to dense SUNLinearSolver          */
-#include <sundials/sundials_types.h>   /* defs. of realtype, sunindextype          */
+#include <sundials/sundials_types.h>   /* defs. of sunrealtype, sunindextype          */
 
 #if defined(SUNDIALS_EXTENDED_PRECISION)
 #define GSYM "Lg"
@@ -50,33 +50,33 @@
 /* Problem Constants */
 #define MXSTEPS 2000            /* max number of steps */
 #define NEQ     3               /* number of equations */
-#define T0      RCONST(0.0)     /* initial time        */
-#define T1      RCONST(4.0e10)  /* first output time   */
+#define T0      SUN_RCONST(0.0)     /* initial time        */
+#define T1      SUN_RCONST(4.0e10)  /* first output time   */
 
-#define ZERO    RCONST(0.0)
+#define ZERO    SUN_RCONST(0.0)
 
 /* Type : UserData */
 typedef struct {
-  booleantype sensi;     /* turn on (T) or off (F) sensitivity analysis    */
-  booleantype errconS;   /* full (T) or partial error control (F)          */
-  booleantype fsDQ;      /* user provided r.h.s sensitivity analysis (T/F) */
+  sunbooleantype sensi;     /* turn on (T) or off (F) sensitivity analysis    */
+  sunbooleantype errconS;   /* full (T) or partial error control (F)          */
+  sunbooleantype fsDQ;      /* user provided r.h.s sensitivity analysis (T/F) */
   int meth;              /* sensitivity method                             */
-  realtype p[3];         /* sensitivity variables                          */
+  sunrealtype p[3];         /* sensitivity variables                          */
 } *UserData;
 
 /* User provided routine called by the solver to compute
  * the function f(t,y). */
-static int f(realtype t, N_Vector y, N_Vector ydot, void *udata);
+static int f(sunrealtype t, N_Vector y, N_Vector ydot, void *udata);
 
 /* User provided routine called by the solver to
  * approximate the Jacobian J(t,y).  */
-static int Jac(realtype t, N_Vector y, N_Vector fy,
+static int Jac(sunrealtype t, N_Vector y, N_Vector fy,
                SUNMatrix J, void *udata,
                N_Vector tmp1, N_Vector tmp2, N_Vector tmp3);
 
 /* User provided routine called by the solver to compute
  * r.h.s. sensititivy. */
-static int fS(int Ns, realtype t, N_Vector y, N_Vector ydot,
+static int fS(int Ns, sunrealtype t, N_Vector y, N_Vector ydot,
               int iS, N_Vector yS, N_Vector ySdot,
               void *udata, N_Vector tmp1, N_Vector tmp2);
 
@@ -98,11 +98,11 @@ int main(int argc, char *argv[])
   UserData data;
   void *cvode_mem;
 
-  realtype reltol;
+  sunrealtype reltol;
   N_Vector y0, y, abstol;
 
   int Ns;
-  realtype *pbar;
+  sunrealtype *pbar;
   int is, *plist, retval;
   N_Vector *yS0, *yS;
 
@@ -118,9 +118,9 @@ int main(int argc, char *argv[])
   data = (UserData) malloc(sizeof *data);
 
   /* Initialize sensitivity variables (reaction rates for this problem) */
-  data->p[0] = RCONST(0.04);
-  data->p[1] = RCONST(1.0e4);
-  data->p[2] = RCONST(3.0e7);
+  data->p[0] = SUN_RCONST(0.04);
+  data->p[1] = SUN_RCONST(1.0e4);
+  data->p[2] = SUN_RCONST(3.0e7);
 
   /* Allocate initial condition vector and set context */
   y0 = N_VNew_Serial(NEQ, sunctx);
@@ -134,15 +134,15 @@ int main(int argc, char *argv[])
   if (check_retval((void *)abstol, "N_VClone", 0)) return(1);
 
   /* Set initial conditions */
-  NV_Ith_S(y0,0) = RCONST(1.0);
-  NV_Ith_S(y0,1) = RCONST(0.0);
-  NV_Ith_S(y0,2) = RCONST(0.0);
+  NV_Ith_S(y0,0) = SUN_RCONST(1.0);
+  NV_Ith_S(y0,1) = SUN_RCONST(0.0);
+  NV_Ith_S(y0,2) = SUN_RCONST(0.0);
 
   /* Set integration tolerances */
-  reltol = RCONST(1e-6);
-  NV_Ith_S(abstol,0) = RCONST(1e-8);
-  NV_Ith_S(abstol,1) = RCONST(1e-14);
-  NV_Ith_S(abstol,2) = RCONST(1e-6);
+  reltol = SUN_RCONST(1e-6);
+  NV_Ith_S(abstol,0) = SUN_RCONST(1e-8);
+  NV_Ith_S(abstol,1) = SUN_RCONST(1e-14);
+  NV_Ith_S(abstol,2) = SUN_RCONST(1e-6);
 
   /* Call CVodeCreate to create the solver memory and specify the
    * Backward Differentiation Formula */
@@ -194,7 +194,7 @@ int main(int argc, char *argv[])
 
   Ns = 3;
 
-  pbar = (realtype *) malloc(Ns * sizeof(realtype));
+  pbar = (sunrealtype *) malloc(Ns * sizeof(sunrealtype));
   pbar[0] = data->p[0];
   pbar[1] = data->p[1];
   pbar[2] = data->p[2];
@@ -235,9 +235,9 @@ int main(int argc, char *argv[])
     Reinitialize and run CVODES
   */
 
-  data->p[0] = RCONST(0.05);
-  data->p[1] = RCONST(2.0e4);
-  data->p[2] = RCONST(2.9e7);
+  data->p[0] = SUN_RCONST(0.05);
+  data->p[1] = SUN_RCONST(2.0e4);
+  data->p[2] = SUN_RCONST(2.9e7);
 
   data->sensi = SUNFALSE;
 
@@ -257,9 +257,9 @@ int main(int argc, char *argv[])
     Reinitialize and run CVODES
   */
 
-  data->p[0] = RCONST(0.06);
-  data->p[1] = RCONST(3.0e4);
-  data->p[2] = RCONST(2.8e7);
+  data->p[0] = SUN_RCONST(0.06);
+  data->p[1] = SUN_RCONST(3.0e4);
+  data->p[2] = SUN_RCONST(2.8e7);
 
   data->sensi = SUNTRUE;
   data->fsDQ  = SUNTRUE;
@@ -341,7 +341,7 @@ int main(int argc, char *argv[])
 
 static int runCVode(void *cvode_mem, N_Vector y, N_Vector *yS, UserData data)
 {
-  realtype t;
+  sunrealtype t;
   int retval;
 
   /* Print header for current run */
@@ -369,11 +369,11 @@ static int runCVode(void *cvode_mem, N_Vector y, N_Vector *yS, UserData data)
  * f routine. Compute f(t,y).
  */
 
-static int f(realtype t, N_Vector y, N_Vector ydot, void *udata)
+static int f(sunrealtype t, N_Vector y, N_Vector ydot, void *udata)
 {
-  realtype y1, y2, y3, yd1, yd3;
+  sunrealtype y1, y2, y3, yd1, yd3;
   UserData data;
-  realtype p1, p2, p3;
+  sunrealtype p1, p2, p3;
 
   y1 = NV_Ith_S(y,0); y2 = NV_Ith_S(y,1); y3 = NV_Ith_S(y,2);
   data = (UserData) udata;
@@ -391,13 +391,13 @@ static int f(realtype t, N_Vector y, N_Vector ydot, void *udata)
  * Jacobian routine. Compute J(t,y).
  */
 
-static int Jac(realtype t, N_Vector y, N_Vector fy,
+static int Jac(sunrealtype t, N_Vector y, N_Vector fy,
                SUNMatrix J, void *udata,
                N_Vector tmp1, N_Vector tmp2, N_Vector tmp3)
 {
-  realtype y2, y3;
+  sunrealtype y2, y3;
   UserData data;
-  realtype p1, p2, p3;
+  sunrealtype p1, p2, p3;
 
   y2 = NV_Ith_S(y,1); y3 = NV_Ith_S(y,2);
   data = (UserData) udata;
@@ -414,15 +414,15 @@ static int Jac(realtype t, N_Vector y, N_Vector fy,
  * fS routine. Compute sensitivity r.h.s.
  */
 
-static int fS(int Ns, realtype t, N_Vector y, N_Vector ydot,
+static int fS(int Ns, sunrealtype t, N_Vector y, N_Vector ydot,
               int iS, N_Vector yS, N_Vector ySdot,
               void *udata, N_Vector tmp1, N_Vector tmp2)
 {
   UserData data;
-  realtype p1, p2, p3;
-  realtype y1, y2, y3;
-  realtype s1, s2, s3;
-  realtype sd1, sd2, sd3;
+  sunrealtype p1, p2, p3;
+  sunrealtype y1, y2, y3;
+  sunrealtype s1, s2, s3;
+  sunrealtype sd1, sd2, sd3;
 
   data = (UserData) udata;
   p1 = data->p[0]; p2 = data->p[1]; p3 = data->p[2];

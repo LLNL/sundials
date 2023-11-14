@@ -194,7 +194,7 @@ int main(int argc, char *argv[])
   }
 
   // Allocate host data
-  realtype* Adata = (realtype*) malloc(sizeof(realtype) *
+  sunrealtype* Adata = (sunrealtype*) malloc(sizeof(sunrealtype) *
                                        SUNMatrix_OneMklDense_LData(A));
   if (!Adata)
   {
@@ -207,7 +207,7 @@ int main(int argc, char *argv[])
     SUNMatDestroy(I);
   }
 
-  realtype* Idata = (realtype*) malloc(sizeof(realtype) *
+  sunrealtype* Idata = (sunrealtype*) malloc(sizeof(sunrealtype) *
                                        SUNMatrix_OneMklDense_LData(I));
   if (!Idata)
   {
@@ -226,14 +226,14 @@ int main(int argc, char *argv[])
     for (j = 0; j < cols; j++)
       for (i = 0; i < rows; i++)
         Adata[k * cols * rows + j * rows + i] =
-          (realtype) rand() / (realtype) RAND_MAX / cols;
+          (sunrealtype) rand() / (sunrealtype) RAND_MAX / cols;
 
   // Create anti-identity matrix
   for (k = 0; k < nblocks; k++)
     for(j = 0; j < cols; j++)
       for (i = 0; i < rows; i++)
         Idata[k * cols * rows + j * rows + i] =
-          ((rows-1-i) == j) ? RCONST(1.0) : RCONST(0.0);
+          ((rows-1-i) == j) ? SUN_RCONST(1.0) : SUN_RCONST(0.0);
 
   // Add anti-identity to ensure the solver needs to do row-swapping
   for (k = 0; k < nblocks; k++)
@@ -246,9 +246,9 @@ int main(int argc, char *argv[])
   SUNMatrix_OneMklDense_CopyToDevice(I, Idata);
 
   // Fill x vector with uniform random data in [0,1]
-  realtype* xdata = N_VGetArrayPointer(x);
+  sunrealtype* xdata = N_VGetArrayPointer(x);
   for (j = 0; j < cols * nblocks; j++)
-    xdata[j] = (realtype) rand() / (realtype) RAND_MAX;
+    xdata[j] = (sunrealtype) rand() / (sunrealtype) RAND_MAX;
 
   N_VCopyToDevice_Sycl(x);
 
@@ -297,7 +297,7 @@ int main(int argc, char *argv[])
   // Run Tests
   fails += Test_SUNLinSolInitialize(LS, 0);
   fails += Test_SUNLinSolSetup(LS, A, 0);
-  fails += Test_SUNLinSolSolve(LS, A, x, b, RCONST(1e-10), SUNTRUE, 0);
+  fails += Test_SUNLinSolSolve(LS, A, x, b, SUN_RCONST(1e-10), SUNTRUE, 0);
   fails += Test_SUNLinSolGetType(LS, SUNLINEARSOLVER_DIRECT, 0);
   fails += Test_SUNLinSolGetID(LS, SUNLINEARSOLVER_ONEMKLDENSE, 0);
   fails += Test_SUNLinSolLastFlag(LS, 0);
@@ -344,13 +344,13 @@ int main(int argc, char *argv[])
  * ---------------------------------------------------------------------------*/
 
 
-int check_vector(N_Vector X, N_Vector Y, realtype tol)
+int check_vector(N_Vector X, N_Vector Y, sunrealtype tol)
 {
   int failure = 0;
   sunindextype i = 0;
   sunindextype local_length = N_VGetLength(X);
-  realtype* Xdata = N_VGetArrayPointer(X);
-  realtype* Ydata = N_VGetArrayPointer(Y);
+  sunrealtype* Xdata = N_VGetArrayPointer(X);
+  sunrealtype* Ydata = N_VGetArrayPointer(Y);
 
   // Copy data to host
   N_VCopyFromDevice_Sycl(X);
@@ -362,7 +362,7 @@ int check_vector(N_Vector X, N_Vector Y, realtype tol)
 
   if (failure > ZERO)
   {
-    realtype maxerr = ZERO;
+    sunrealtype maxerr = ZERO;
     for(i = 0; i < local_length; i++)
       maxerr = SUNMAX(SUNRabs(Xdata[i] - Ydata[i]), maxerr);
     printf("check err failure: maxerr = %g (tol = %g)\n", maxerr, tol);

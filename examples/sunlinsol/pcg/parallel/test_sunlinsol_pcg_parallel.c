@@ -39,8 +39,8 @@
 #endif
 
 /* constants */
-#define FIVE      RCONST(5.0)
-#define THOUSAND  RCONST(1000.0)
+#define FIVE      SUN_RCONST(5.0)
+#define THOUSAND  SUN_RCONST(1000.0)
 
 /* user data structure */
 typedef struct {
@@ -58,11 +58,11 @@ int ATimes(void* ProbData, N_Vector v, N_Vector z);
 /*    preconditioner setup */
 int PSetup(void* ProbData);
 /*    preconditioner solve */
-int PSolve(void* ProbData, N_Vector r, N_Vector z, realtype tol, int lr);
+int PSolve(void* ProbData, N_Vector r, N_Vector z, sunrealtype tol, int lr);
 /*    checks function return values  */
 static int check_flag(void *flagvalue, const char *funcname, int opt);
 /*    uniform random number generator in [0,1] */
-static realtype urand();
+static sunrealtype urand();
 
 /* global copy of Nloc (for check_vector routine) */
 sunindextype local_problem_size;
@@ -108,7 +108,7 @@ int main(int argc, char *argv[])
   UserData        ProbData;         /* problem data structure    */
   int             maxl, print_timing;
   sunindextype    i;
-  realtype        *vecdata;
+  sunrealtype        *vecdata;
   double          tol;
   SUNContext      sunctx;
 
@@ -361,7 +361,7 @@ int main(int argc, char *argv[])
 int ATimes(void* Data, N_Vector v_vec, N_Vector z_vec)
 {
   /* local variables */
-  realtype *v, *z, *s, vL, vR, vsL, vsR;
+  sunrealtype *v, *z, *s, vL, vR, vsL, vsR;
   sunindextype i, Nloc;
   int ierr;
   UserData *ProbData;
@@ -426,10 +426,10 @@ int ATimes(void* Data, N_Vector v_vec, N_Vector z_vec)
 int PSetup(void* Data) { return 0; }
 
 /* preconditioner solve */
-int PSolve(void* Data, N_Vector r_vec, N_Vector z_vec, realtype tol, int lr)
+int PSolve(void* Data, N_Vector r_vec, N_Vector z_vec, sunrealtype tol, int lr)
 {
   /* local variables */
-  realtype *r, *z, *d, *s;
+  sunrealtype *r, *z, *d, *s;
   sunindextype i;
   UserData *ProbData;
 
@@ -453,9 +453,9 @@ int PSolve(void* Data, N_Vector r_vec, N_Vector z_vec, realtype tol, int lr)
 }
 
 /* uniform random number generator */
-static realtype urand()
+static sunrealtype urand()
 {
-  return ((realtype) rand() / (realtype) RAND_MAX);
+  return ((sunrealtype) rand() / (sunrealtype) RAND_MAX);
 }
 
 /* Check function return value based on "opt" input:
@@ -486,11 +486,11 @@ static int check_flag(void *flagvalue, const char *funcname, int opt)
 /* ----------------------------------------------------------------------
  * Implementation-specific 'check' routines
  * --------------------------------------------------------------------*/
-int check_vector(N_Vector X, N_Vector Y, realtype tol)
+int check_vector(N_Vector X, N_Vector Y, sunrealtype tol)
 {
   int failure = 0;
   sunindextype i;
-  realtype *Xdata, *Ydata, maxerr;
+  sunrealtype *Xdata, *Ydata, maxerr;
 
   Xdata = N_VGetArrayPointer(X);
   Ydata = N_VGetArrayPointer(Y);

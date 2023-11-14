@@ -37,7 +37,7 @@
 #include <nvector/nvector_serial.h>        /* serial N_Vector types, fcts., macros */
 #include <sunmatrix/sunmatrix_dense.h>     /* access to dense SUNMatrix            */
 #include <sunlinsol/sunlinsol_dense.h>     /* access to dense SUNLinearSolver      */
-#include <sundials/sundials_types.h>       /* definition of type realtype          */
+#include <sundials/sundials_types.h>       /* definition of type sunrealtype          */
 
 #if defined(SUNDIALS_EXTENDED_PRECISION)
 #define GSYM "Lg"
@@ -50,27 +50,27 @@
 #endif
 
 /* User-supplied Functions Called by the Solver */
-static int f(realtype t, N_Vector y, N_Vector ydot, void *user_data);
-static int Jac(realtype t, N_Vector y, N_Vector fy, SUNMatrix J,
+static int f(sunrealtype t, N_Vector y, N_Vector ydot, void *user_data);
+static int Jac(sunrealtype t, N_Vector y, N_Vector fy, SUNMatrix J,
                void *user_data, N_Vector tmp1, N_Vector tmp2, N_Vector tmp3);
 
 /* Private function to check function return values */
 static int check_flag(void *flagvalue, const char *funcname, int opt);
 
 /* Private function to check computed solution */
-static int check_ans(N_Vector y, realtype t, realtype rtol, realtype atol);
+static int check_ans(N_Vector y, sunrealtype t, sunrealtype rtol, sunrealtype atol);
 
 /* Main Program */
 int main()
 {
   /* general problem parameters */
-  realtype T0 = RCONST(0.0);         /* initial time */
-  realtype Tf = RCONST(10.0);        /* final time */
-  realtype dTout = RCONST(1.0);      /* time between outputs */
+  sunrealtype T0 = SUN_RCONST(0.0);         /* initial time */
+  sunrealtype Tf = SUN_RCONST(10.0);        /* final time */
+  sunrealtype dTout = SUN_RCONST(1.0);      /* time between outputs */
   sunindextype NEQ = 1;              /* number of dependent vars. */
-  realtype reltol = RCONST(1.0e-6);  /* tolerances */
-  realtype abstol = RCONST(1.0e-10);
-  realtype lamda  = RCONST(-100.0);  /* stiffness parameter */
+  sunrealtype reltol = SUN_RCONST(1.0e-6);  /* tolerances */
+  sunrealtype abstol = SUN_RCONST(1.0e-10);
+  sunrealtype lamda  = SUN_RCONST(-100.0);  /* stiffness parameter */
 
   /* general problem variables */
   int flag;                       /* reusable error-checking flag */
@@ -79,7 +79,7 @@ int main()
   SUNLinearSolver LS = NULL;      /* empty linear solver object */
   void *arkode_mem = NULL;        /* empty ARKode memory structure */
   FILE *UFID;
-  realtype t, tout;
+  sunrealtype t, tout;
   long int nst, nst_a, nfe, nfi, nsetups, nje, nfeLS, nni, ncfn, netf;
 
   /* Create the SUNDIALS context object for this simulation */
@@ -96,7 +96,7 @@ int main()
   /* Initialize data structures */
   y = N_VNew_Serial(NEQ, ctx);          /* Create serial vector for solution */
   if (check_flag((void *)y, "N_VNew_Serial", 0)) return 1;
-  N_VConst(RCONST(0.0), y);        /* Specify initial condition */
+  N_VConst(SUN_RCONST(0.0), y);        /* Specify initial condition */
 
   /* Call ARKStepCreate to initialize the ARK timestepper module and
      specify the right-hand side function in y'=f(t,y), the inital time
@@ -205,25 +205,25 @@ int main()
  *-------------------------------*/
 
 /* f routine to compute the ODE RHS function f(t,y). */
-static int f(realtype t, N_Vector y, N_Vector ydot, void *user_data)
+static int f(sunrealtype t, N_Vector y, N_Vector ydot, void *user_data)
 {
-  realtype *rdata = (realtype *) user_data;   /* cast user_data to realtype */
-  realtype lamda = rdata[0];                  /* set shortcut for stiffness parameter */
-  realtype u = NV_Ith_S(y,0);                 /* access current solution value */
+  sunrealtype *rdata = (sunrealtype *) user_data;   /* cast user_data to sunrealtype */
+  sunrealtype lamda = rdata[0];                  /* set shortcut for stiffness parameter */
+  sunrealtype u = NV_Ith_S(y,0);                 /* access current solution value */
 
   /* fill in the RHS function: "NV_Ith_S" accesses the 0th entry of ydot */
-  NV_Ith_S(ydot,0) = lamda*u + RCONST(1.0)/(RCONST(1.0)+t*t) - lamda*atan(t);
+  NV_Ith_S(ydot,0) = lamda*u + SUN_RCONST(1.0)/(SUN_RCONST(1.0)+t*t) - lamda*atan(t);
 
   return 0;                                   /* return with success */
 }
 
 /* Jacobian routine to compute J(t,y) = df/dy. */
-static int Jac(realtype t, N_Vector y, N_Vector fy, SUNMatrix J,
+static int Jac(sunrealtype t, N_Vector y, N_Vector fy, SUNMatrix J,
                void *user_data, N_Vector tmp1, N_Vector tmp2, N_Vector tmp3)
 {
-  realtype *rdata = (realtype *) user_data;   /* cast user_data to realtype */
-  realtype lamda = rdata[0];                  /* set shortcut for stiffness parameter */
-  realtype *Jdata = SUNDenseMatrix_Data(J);
+  sunrealtype *rdata = (sunrealtype *) user_data;   /* cast user_data to sunrealtype */
+  sunrealtype lamda = rdata[0];                  /* set shortcut for stiffness parameter */
+  sunrealtype *Jdata = SUNDenseMatrix_Data(J);
 
   /* Fill in Jacobian of f: set the first entry of the data array to set the (0,0) entry */
   Jdata[0] = lamda;
@@ -271,18 +271,18 @@ static int check_flag(void *flagvalue, const char *funcname, int opt)
 }
 
 /* check the computed solution */
-static int check_ans(N_Vector y, realtype t, realtype rtol, realtype atol)
+static int check_ans(N_Vector y, sunrealtype t, sunrealtype rtol, sunrealtype atol)
 {
   int      passfail=0;     /* answer pass (0) or fail (1) flag     */
-  realtype ans, err, ewt;  /* answer data, error, and error weight */
+  sunrealtype ans, err, ewt;  /* answer data, error, and error weight */
 
   /* compute solution error */
   ans = atan(t);
-  ewt = RCONST(1.0) / (rtol * fabs(ans) + atol);
+  ewt = SUN_RCONST(1.0) / (rtol * fabs(ans) + atol);
   err = ewt * fabs(NV_Ith_S(y,0) - ans);
 
   /* is the solution within the tolerances? */
-  passfail = (err < RCONST(1.0)) ? 0 : 1;
+  passfail = (err < SUN_RCONST(1.0)) ? 0 : 1;
 
   if (passfail) {
     fprintf(stdout, "\nSUNDIALS_WARNING: check_ans error=%"GSYM"\n\n", err);

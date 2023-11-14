@@ -33,12 +33,12 @@
   SPRKStep Exported functions -- Required
   ===============================================================*/
 
-void* SPRKStepCreate(ARKRhsFn f1, ARKRhsFn f2, realtype t0, N_Vector y0,
+void* SPRKStepCreate(ARKRhsFn f1, ARKRhsFn f2, sunrealtype t0, N_Vector y0,
                      SUNContext sunctx)
 {
   ARKodeMem ark_mem          = NULL;
   ARKodeSPRKStepMem step_mem = NULL;
-  booleantype nvectorOK      = 0;
+  sunbooleantype nvectorOK      = 0;
   int retval                 = 0;
 
   /* Check that f1 and f2 are supplied */
@@ -171,7 +171,7 @@ void* SPRKStepCreate(ARKRhsFn f1, ARKRhsFn f2, realtype t0, N_Vector y0,
 
   Note all internal counters are set to 0 on re-initialization.
   ---------------------------------------------------------------*/
-int SPRKStepReInit(void* arkode_mem, ARKRhsFn f1, ARKRhsFn f2, realtype t0,
+int SPRKStepReInit(void* arkode_mem, ARKRhsFn f1, ARKRhsFn f2, sunrealtype t0,
                    N_Vector y0)
 {
   ARKodeMem ark_mem          = NULL;
@@ -238,7 +238,7 @@ int SPRKStepReInit(void* arkode_mem, ARKRhsFn f1, ARKRhsFn f2, realtype t0,
   problem from the given time with the input state (all counter
   values are retained).
   ---------------------------------------------------------------*/
-int SPRKStepReset(void* arkode_mem, realtype tR, N_Vector yR)
+int SPRKStepReset(void* arkode_mem, sunrealtype tR, N_Vector yR)
 {
   ARKodeMem ark_mem          = NULL;
   ARKodeSPRKStepMem step_mem = NULL;
@@ -270,8 +270,8 @@ int SPRKStepReset(void* arkode_mem, realtype tR, N_Vector yR)
   This is the main time-integration driver (wrappers for general
   ARKODE utility routine)
   ---------------------------------------------------------------*/
-int SPRKStepEvolve(void* arkode_mem, realtype tout, N_Vector yout,
-                   realtype* tret, int itask)
+int SPRKStepEvolve(void* arkode_mem, sunrealtype tout, N_Vector yout,
+                   sunrealtype* tret, int itask)
 {
   /* unpack ark_mem, call arkEvolve, and return */
   ARKodeMem ark_mem = NULL;
@@ -296,7 +296,7 @@ int SPRKStepEvolve(void* arkode_mem, realtype tout, N_Vector yout,
   derivatives over the most-recently-computed step (wrapper for
   generic ARKODE utility routine)
   ---------------------------------------------------------------*/
-int SPRKStepGetDky(void* arkode_mem, realtype t, int k, N_Vector dky)
+int SPRKStepGetDky(void* arkode_mem, sunrealtype t, int k, N_Vector dky)
 {
   /* unpack ark_mem, call arkGetDky, and return */
   ARKodeMem ark_mem = NULL;
@@ -517,7 +517,7 @@ int sprkStep_f2(ARKodeSPRKStepMem step_mem, sunrealtype tcur, N_Vector ycur,
   Since RHS values are not stored in SPRKStep we evaluate the RHS functions for
   all modes.
   ----------------------------------------------------------------------------*/
-int sprkStep_FullRHS(void* arkode_mem, realtype t, N_Vector y, N_Vector f,
+int sprkStep_FullRHS(void* arkode_mem, sunrealtype t, N_Vector y, N_Vector f,
                      int mode)
 {
   int retval                 = 0;
@@ -571,7 +571,7 @@ int sprkStep_FullRHS(void* arkode_mem, realtype t, N_Vector y, N_Vector f,
    This requires only 2 vectors in principle, but we use three
    since we persist the stage data. Only the stage data vector
    belongs to SPRKStep, the other two are reused from the ARKODE core. */
-int sprkStep_TakeStep(void* arkode_mem, realtype* dsmPtr, int* nflagPtr)
+int sprkStep_TakeStep(void* arkode_mem, sunrealtype* dsmPtr, int* nflagPtr)
 {
   ARKodeMem ark_mem          = NULL;
   ARKodeSPRKStepMem step_mem = NULL;
@@ -648,7 +648,7 @@ int sprkStep_TakeStep(void* arkode_mem, realtype* dsmPtr, int* nflagPtr)
 /* Increment SPRK algorithm with compensated summation.
    This algorithm requires 6 vectors, but 5 of them are reused
    from the ARKODE core. */
-int sprkStep_TakeStep_Compensated(void* arkode_mem, realtype* dsmPtr,
+int sprkStep_TakeStep_Compensated(void* arkode_mem, sunrealtype* dsmPtr,
                                   int* nflagPtr)
 {
   ARKodeMem ark_mem          = NULL;
@@ -787,7 +787,7 @@ int sprkStep_AccessStepMem(void* arkode_mem, const char* fname,
   This routine checks if all required vector operations are
   present.  If any of them is missing it returns SUNFALSE.
   ---------------------------------------------------------------*/
-booleantype sprkStep_CheckNVector(N_Vector tmpl)
+sunbooleantype sprkStep_CheckNVector(N_Vector tmpl)
 {
   if ((tmpl->ops->nvclone == NULL) || (tmpl->ops->nvdestroy == NULL) ||
       (tmpl->ops->nvlinearsum == NULL) || (tmpl->ops->nvconst == NULL) ||

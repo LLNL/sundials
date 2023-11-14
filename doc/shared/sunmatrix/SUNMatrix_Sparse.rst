@@ -30,7 +30,7 @@ structure:
      sunindextype N;
      sunindextype NNZ;
      sunindextype NP;
-     realtype *data;
+     sunrealtype *data;
      int sparsetype;
      sunindextype *indexvals;
      sunindextype *indexptrs;
@@ -58,7 +58,7 @@ complete description of the parts of this *content* field is given below:
   ``NP=M``. This value is set automatically at construction based the
   input choice for ``sparsetype``.
 
-* ``data`` - pointer to a contiguous block of ``realtype``
+* ``data`` - pointer to a contiguous block of ``sunrealtype``
   variables (of length ``NNZ``), containing the values of the
   nonzero entries in the matrix
 
@@ -337,7 +337,7 @@ following additional user-callable routines:
 
 
 
-.. c:function:: SUNMatrix SUNSparseFromDenseMatrix(SUNMatrix A, realtype droptol, int sparsetype)
+.. c:function:: SUNMatrix SUNSparseFromDenseMatrix(SUNMatrix A, sunrealtype droptol, int sparsetype)
 
    This constructor function creates a new sparse matrix from an
    existing SUNMATRIX_DENSE object by copying all values with
@@ -356,7 +356,7 @@ following additional user-callable routines:
 
 
 
-.. c:function:: SUNMatrix SUNSparseFromBandMatrix(SUNMatrix A, realtype droptol, int sparsetype)
+.. c:function:: SUNMatrix SUNSparseFromBandMatrix(SUNMatrix A, sunrealtype droptol, int sparsetype)
 
    This constructor function creates a new sparse matrix from an
    existing SUNMATRIX_BAND object by copying all values with
@@ -422,7 +422,7 @@ following additional user-callable routines:
    or ``CSC_MAT``) for the sparse  ``SUNMatrix``.
 
 
-.. c:function:: realtype* SUNSparseMatrix_Data(SUNMatrix A)
+.. c:function:: sunrealtype* SUNSparseMatrix_Data(SUNMatrix A)
 
    This function returns a pointer to the data array for the
    sparse ``SUNMatrix``.

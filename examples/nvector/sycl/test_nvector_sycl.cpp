@@ -183,9 +183,9 @@ int main(int argc, char *argv[])
       }
 
       /* Fill vector with uniform random data in [-1,1] */
-      realtype* xdata = N_VGetHostArrayPointer_Sycl(X);
+      sunrealtype* xdata = N_VGetHostArrayPointer_Sycl(X);
       for (sunindextype j=0; j<length; j++)
-        xdata[j] = ((realtype) rand() / (realtype) RAND_MAX)*2-1;
+        xdata[j] = ((sunrealtype) rand() / (sunrealtype) RAND_MAX)*2-1;
       N_VCopyToDevice_Sycl(X);
 
       /* Clone additional vectors for testing */
@@ -211,11 +211,11 @@ int main(int argc, char *argv[])
       }
 
       /* Fill vectors with uniform random data in [-1,1] */
-      realtype* ydata = N_VGetHostArrayPointer_Sycl(Y);
-      realtype* zdata = N_VGetHostArrayPointer_Sycl(Z);
+      sunrealtype* ydata = N_VGetHostArrayPointer_Sycl(Y);
+      sunrealtype* zdata = N_VGetHostArrayPointer_Sycl(Z);
       for (sunindextype j=0; j<length; j++) {
-        ydata[j] = ((realtype) rand() / (realtype) RAND_MAX)*2-1;
-        zdata[j] = ((realtype) rand() / (realtype) RAND_MAX)*2-1;
+        ydata[j] = ((sunrealtype) rand() / (sunrealtype) RAND_MAX)*2-1;
+        zdata[j] = ((sunrealtype) rand() / (sunrealtype) RAND_MAX)*2-1;
       }
       N_VCopyToDevice_Sycl(Y);
       N_VCopyToDevice_Sycl(Z);
@@ -405,11 +405,11 @@ int main(int argc, char *argv[])
 /* ----------------------------------------------------------------------
  * Implementation specific utility functions for vector tests
  * --------------------------------------------------------------------*/
-int check_ans(realtype ans, N_Vector X, sunindextype length)
+int check_ans(sunrealtype ans, N_Vector X, sunindextype length)
 {
   int          failure = 0;
   sunindextype i;
-  realtype     *Xdata;
+  sunrealtype     *Xdata;
 
   N_VCopyFromDevice_Sycl(X);
   Xdata = N_VGetHostArrayPointer_Sycl(X);
@@ -425,7 +425,7 @@ int check_ans(realtype ans, N_Vector X, sunindextype length)
   return (failure > ZERO) ? (1) : (0);
 }
 
-booleantype has_data(N_Vector X)
+sunbooleantype has_data(N_Vector X)
 {
   /* check if vector data is non-null */
   if ((N_VGetHostArrayPointer_Sycl(X) == NULL) &&
@@ -434,17 +434,17 @@ booleantype has_data(N_Vector X)
   return SUNTRUE;
 }
 
-void set_element(N_Vector X, sunindextype i, realtype val)
+void set_element(N_Vector X, sunindextype i, sunrealtype val)
 {
   /* set i-th element of data array */
   set_element_range(X, i, i, val);
 }
 
 void set_element_range(N_Vector X, sunindextype is, sunindextype ie,
-                       realtype val)
+                       sunrealtype val)
 {
   sunindextype i;
-  realtype*    xd;
+  sunrealtype*    xd;
 
   /* set elements [is,ie] of the data array */
   N_VCopyFromDevice_Sycl(X);
@@ -453,7 +453,7 @@ void set_element_range(N_Vector X, sunindextype is, sunindextype ie,
   N_VCopyToDevice_Sycl(X);
 }
 
-realtype get_element(N_Vector X, sunindextype i)
+sunrealtype get_element(N_Vector X, sunindextype i)
 {
   /* get i-th element of data array */
   N_VCopyFromDevice_Sycl(X);

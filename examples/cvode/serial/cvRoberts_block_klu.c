@@ -43,7 +43,7 @@
 #include <nvector/nvector_serial.h>     /* access to serial N_Vector            */
 #include <sunmatrix/sunmatrix_sparse.h> /* access to sparse SUNMatrix           */
 #include <sunlinsol/sunlinsol_klu.h>    /* access to KLU sparse direct solver   */
-#include <sundials/sundials_types.h>    /* defs. of realtype, sunindextype      */
+#include <sundials/sundials_types.h>    /* defs. of sunrealtype, sunindextype      */
 
 /* User-defined vector and matrix accessor macro: Ith */
 
@@ -61,30 +61,30 @@
 /* Problem Constants */
 
 #define GROUPSIZE 3            /* number of equations per group */
-#define Y1    RCONST(1.0)      /* initial y components */
-#define Y2    RCONST(0.0)
-#define Y3    RCONST(0.0)
-#define RTOL  RCONST(1.0e-4)   /* scalar relative tolerance            */
-#define ATOL1 RCONST(1.0e-8)   /* vector absolute tolerance components */
-#define ATOL2 RCONST(1.0e-14)
-#define ATOL3 RCONST(1.0e-6)
-#define T0    RCONST(0.0)      /* initial time           */
-#define T1    RCONST(0.4)      /* first output time      */
-#define TMULT RCONST(10.0)     /* output time factor     */
+#define Y1    SUN_RCONST(1.0)      /* initial y components */
+#define Y2    SUN_RCONST(0.0)
+#define Y3    SUN_RCONST(0.0)
+#define RTOL  SUN_RCONST(1.0e-4)   /* scalar relative tolerance            */
+#define ATOL1 SUN_RCONST(1.0e-8)   /* vector absolute tolerance components */
+#define ATOL2 SUN_RCONST(1.0e-14)
+#define ATOL3 SUN_RCONST(1.0e-6)
+#define T0    SUN_RCONST(0.0)      /* initial time           */
+#define T1    SUN_RCONST(0.4)      /* first output time      */
+#define TMULT SUN_RCONST(10.0)     /* output time factor     */
 #define NOUT  12               /* number of output times */
 
-#define ZERO  RCONST(0.0)
+#define ZERO  SUN_RCONST(0.0)
 
 /* Functions Called by the Solver */
 
-static int f(realtype t, N_Vector y, N_Vector ydot, void *user_data);
+static int f(sunrealtype t, N_Vector y, N_Vector ydot, void *user_data);
 
-static int Jac(realtype t, N_Vector y, N_Vector fy, SUNMatrix J,
+static int Jac(sunrealtype t, N_Vector y, N_Vector fy, SUNMatrix J,
                void *user_data, N_Vector tmp1, N_Vector tmp2, N_Vector tmp3);
 
 /* Private functions to output results */
 
-static void PrintOutput(realtype t, realtype y1, realtype y2, realtype y3);
+static void PrintOutput(sunrealtype t, sunrealtype y1, sunrealtype y2, sunrealtype y3);
 
 /* Private function to print final statistics */
 
@@ -109,7 +109,7 @@ typedef struct {
 int main(int argc, char *argv[])
 {
   SUNContext sunctx;
-  realtype reltol, t, tout;
+  sunrealtype reltol, t, tout;
   N_Vector y, abstol;
   SUNMatrix A;
   SUNLinearSolver LS;
@@ -250,19 +250,19 @@ int main(int argc, char *argv[])
  * Functions called by the solver
  *-------------------------------
  */
-static int f(realtype t, N_Vector y, N_Vector ydot, void *user_data)
+static int f(sunrealtype t, N_Vector y, N_Vector ydot, void *user_data)
 {
   UserData *udata;
   sunindextype groupj;
-  realtype y1, y2, y3, yd1, yd3;
+  sunrealtype y1, y2, y3, yd1, yd3;
 
   udata = (UserData*) user_data;
 
   for (groupj = 0; groupj < udata->neq; groupj += GROUPSIZE) {
     y1 = Ith(y,1+groupj); y2 = Ith(y,2+groupj); y3 = Ith(y,3+groupj);
 
-    yd1 = Ith(ydot,1+groupj) = RCONST(-0.04)*y1 + RCONST(1.0e4)*y2*y3;
-    yd3 = Ith(ydot,3+groupj) = RCONST(3.0e7)*y2*y2;
+    yd1 = Ith(ydot,1+groupj) = SUN_RCONST(-0.04)*y1 + SUN_RCONST(1.0e4)*y2*y3;
+    yd3 = Ith(ydot,3+groupj) = SUN_RCONST(3.0e7)*y2*y2;
           Ith(ydot,2+groupj) = -yd1 - yd3;
   }
 
@@ -273,15 +273,15 @@ static int f(realtype t, N_Vector y, N_Vector ydot, void *user_data)
  * Jacobian routine. Compute J(t,y) = df/dy. *
  */
 
-static int Jac(realtype t, N_Vector y, N_Vector fy, SUNMatrix J,
+static int Jac(sunrealtype t, N_Vector y, N_Vector fy, SUNMatrix J,
                void *user_data, N_Vector tmp1, N_Vector tmp2, N_Vector tmp3)
 {
   UserData *udata = (UserData*) user_data;
   sunindextype *rowptrs = SUNSparseMatrix_IndexPointers(J);
   sunindextype *colvals = SUNSparseMatrix_IndexValues(J);
-  realtype *data = SUNSparseMatrix_Data(J);
-  realtype *ydata;
-  realtype y2, y3;
+  sunrealtype *data = SUNSparseMatrix_Data(J);
+  sunrealtype *ydata;
+  sunrealtype y2, y3;
   sunindextype groupj, nnzper;
 
   ydata = N_VGetArrayPointer(y);
@@ -302,24 +302,24 @@ static int Jac(realtype t, N_Vector y, N_Vector fy, SUNMatrix J,
     rowptrs[GROUPSIZE*groupj + 2] = 9 + nnzper*groupj;
 
     /* first row of block */
-    data[nnzper*groupj]     = RCONST(-0.04);
-    data[nnzper*groupj + 1] = RCONST(1.0e4)*y3;
-    data[nnzper*groupj + 2] = RCONST(1.0e4)*y2;
+    data[nnzper*groupj]     = SUN_RCONST(-0.04);
+    data[nnzper*groupj + 1] = SUN_RCONST(1.0e4)*y3;
+    data[nnzper*groupj + 2] = SUN_RCONST(1.0e4)*y2;
     colvals[nnzper*groupj]     = GROUPSIZE*groupj;
     colvals[nnzper*groupj + 1] = GROUPSIZE*groupj + 1;
     colvals[nnzper*groupj + 2] = GROUPSIZE*groupj + 2;
 
     /* second row of block */
-    data[nnzper*groupj + 3] = RCONST(0.04);
-    data[nnzper*groupj + 4] = (RCONST(-1.0e4)*y3) - (RCONST(6.0e7)*y2);
-    data[nnzper*groupj + 5] = RCONST(-1.0e4)*y2;
+    data[nnzper*groupj + 3] = SUN_RCONST(0.04);
+    data[nnzper*groupj + 4] = (SUN_RCONST(-1.0e4)*y3) - (SUN_RCONST(6.0e7)*y2);
+    data[nnzper*groupj + 5] = SUN_RCONST(-1.0e4)*y2;
     colvals[nnzper*groupj + 3] = GROUPSIZE*groupj;
     colvals[nnzper*groupj + 4] = GROUPSIZE*groupj + 1;
     colvals[nnzper*groupj + 5] = GROUPSIZE*groupj + 2;
 
     /* third row of block */
     data[nnzper*groupj + 6] = ZERO;
-    data[nnzper*groupj + 7] = RCONST(6.0e7)*y2;
+    data[nnzper*groupj + 7] = SUN_RCONST(6.0e7)*y2;
     data[nnzper*groupj + 8] = ZERO;
     colvals[nnzper*groupj + 6] = GROUPSIZE*groupj;
     colvals[nnzper*groupj + 7] = GROUPSIZE*groupj + 1;
@@ -335,7 +335,7 @@ static int Jac(realtype t, N_Vector y, N_Vector fy, SUNMatrix J,
  *-------------------------------
  */
 
-static void PrintOutput(realtype t, realtype y1, realtype y2, realtype y3)
+static void PrintOutput(sunrealtype t, sunrealtype y1, sunrealtype y2, sunrealtype y3)
 {
 #if defined(SUNDIALS_EXTENDED_PRECISION)
   printf("At t = %0.4Le      y =%14.6Le  %14.6Le  %14.6Le\n", t, y1, y2, y3);

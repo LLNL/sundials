@@ -62,10 +62,10 @@
 SWIGEXPORT double * _wrap_FN_VGetArrayPointer_Parallel(N_Vector farg1) {
   double * fresult ;
   N_Vector arg1 = (N_Vector) 0 ;
-  realtype *result = 0 ;
+  sunrealtype *result = 0 ;
   
   arg1 = (N_Vector)(farg1);
-  result = (realtype *)N_VGetArrayPointer_Parallel(arg1);
+  result = (sunrealtype *)N_VGetArrayPointer_Parallel(arg1);
   fresult = result;
   return fresult;
 }

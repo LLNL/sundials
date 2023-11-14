@@ -62,7 +62,7 @@ typedef int (*KINLsPrecSolveFn)(N_Vector uu, N_Vector uscale,
                                 N_Vector vv, void *user_data);
 
 typedef int (*KINLsJacTimesVecFn)(N_Vector v, N_Vector Jv, N_Vector uu,
-                                  booleantype *new_uu, void *J_data);
+                                  sunbooleantype *new_uu, void *J_data);
 
 
 /*==================================================================

@@ -172,7 +172,7 @@ user-callable functions.
       calls to *SysFn*.
 
 
-.. c:function:: int SUNNonlinSolSetDamping_FixedPoint(SUNNonlinearSolver NLS, realtype beta)
+.. c:function:: int SUNNonlinSolSetDamping_FixedPoint(SUNNonlinearSolver NLS, sunrealtype beta)
 
    This sets the damping parameter :math:`\beta` to use with Anderson
    acceleration. By default damping is disabled i.e., :math:`\beta = 1.0`.
@@ -271,11 +271,11 @@ following structure.
 
      int          m;
      int         *imap;
-     realtype    *R;
-     booleantype  damping
-     realtype     beta
-     realtype    *gamma;
-     realtype    *cvals;
+     sunrealtype    *R;
+     sunbooleantype  damping
+     sunrealtype     beta
+     sunrealtype    *gamma;
+     sunrealtype    *cvals;
      N_Vector    *df;
      N_Vector    *dg;
      N_Vector    *q;

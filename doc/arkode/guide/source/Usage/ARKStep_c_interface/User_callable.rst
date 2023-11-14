@@ -41,7 +41,7 @@ ARKStep initialization and deallocation functions
 ------------------------------------------------------
 
 
-.. c:function:: void* ARKStepCreate(ARKRhsFn fe, ARKRhsFn fi, realtype t0, N_Vector y0, SUNContext sunctx)
+.. c:function:: void* ARKStepCreate(ARKRhsFn fe, ARKRhsFn fi, sunrealtype t0, N_Vector y0, SUNContext sunctx)
 
    This function creates an internal memory block for a problem to be
    solved using the ARKStep time-stepping module in ARKODE.
@@ -114,7 +114,7 @@ Alternatively, the user may supply a custom function to supply the
 
 
 
-.. c:function:: int ARKStepSStolerances(void* arkode_mem, realtype reltol, realtype abstol)
+.. c:function:: int ARKStepSStolerances(void* arkode_mem, sunrealtype reltol, sunrealtype abstol)
 
    This function specifies scalar relative and absolute tolerances.
 
@@ -131,7 +131,7 @@ Alternatively, the user may supply a custom function to supply the
 
 
 
-.. c:function:: int ARKStepSVtolerances(void* arkode_mem, realtype reltol, N_Vector abstol)
+.. c:function:: int ARKStepSVtolerances(void* arkode_mem, sunrealtype reltol, N_Vector abstol)
 
    This function specifies a scalar relative tolerance and a vector
    absolute tolerance (a potentially different absolute tolerance for
@@ -207,7 +207,7 @@ these functions is provided below.
 
 
 
-.. c:function:: int ARKStepResStolerance(void* arkode_mem, realtype rabstol)
+.. c:function:: int ARKStepResStolerance(void* arkode_mem, sunrealtype rabstol)
 
    This function specifies a scalar absolute residual tolerance.
 
@@ -546,7 +546,7 @@ Newton and mass matrix systems, these must have the same type:
   Newton systems.
 
 
-.. c:function:: int ARKStepSetMassLinearSolver(void* arkode_mem, SUNLinearSolver LS, SUNMatrix M, booleantype time_dep)
+.. c:function:: int ARKStepSetMassLinearSolver(void* arkode_mem, SUNLinearSolver LS, SUNMatrix M, sunbooleantype time_dep)
 
    This function specifies the ``SUNLinearSolver`` object
    that ARKStep should use for mass matrix systems, as well as a
@@ -704,7 +704,7 @@ the user has set a stop time (with a call to the optional input function
 :c:func:`ARKStepSetStopTime()`) or has requested rootfinding.
 
 
-.. c:function:: int ARKStepEvolve(void* arkode_mem, realtype tout, N_Vector yout, realtype *tret, int itask)
+.. c:function:: int ARKStepEvolve(void* arkode_mem, sunrealtype tout, N_Vector yout, sunrealtype *tret, int itask)
 
    Integrates the ODE over an interval in :math:`t`.
 
@@ -1071,7 +1071,7 @@ Set max number of constraint failures             :c:func:`ARKStepSetMaxNumConst
 
 
 
-.. c:function:: int ARKStepSetFixedStep(void* arkode_mem, realtype hfixed)
+.. c:function:: int ARKStepSetFixedStep(void* arkode_mem, sunrealtype hfixed)
 
    Disables time step adaptivity within ARKStep, and specifies the
    fixed time step size to use for the following internal step(s).
@@ -1130,7 +1130,7 @@ Set max number of constraint failures             :c:func:`ARKStepSetMaxNumConst
 
 
 
-.. c:function:: int ARKStepSetInitStep(void* arkode_mem, realtype hin)
+.. c:function:: int ARKStepSetInitStep(void* arkode_mem, sunrealtype hin)
 
    Specifies the initial time step size ARKStep should use after
    initialization, re-initialization, or resetting.
@@ -1204,7 +1204,7 @@ Set max number of constraint failures             :c:func:`ARKStepSetMaxNumConst
 
 
 
-.. c:function:: int ARKStepSetMaxStep(void* arkode_mem, realtype hmax)
+.. c:function:: int ARKStepSetMaxStep(void* arkode_mem, sunrealtype hmax)
 
    Specifies the upper bound on the magnitude of the time step size.
 
@@ -1222,7 +1222,7 @@ Set max number of constraint failures             :c:func:`ARKStepSetMaxNumConst
 
 
 
-.. c:function:: int ARKStepSetMinStep(void* arkode_mem, realtype hmin)
+.. c:function:: int ARKStepSetMinStep(void* arkode_mem, sunrealtype hmin)
 
    Specifies the lower bound on the magnitude of the time step size.
 
@@ -1240,7 +1240,7 @@ Set max number of constraint failures             :c:func:`ARKStepSetMaxNumConst
 
 
 
-.. c:function:: int ARKStepSetStopTime(void* arkode_mem, realtype tstop)
+.. c:function:: int ARKStepSetStopTime(void* arkode_mem, sunrealtype tstop)
 
    Specifies the value of the independent variable
    :math:`t` past which the solution is not to proceed.
@@ -1266,7 +1266,7 @@ Set max number of constraint failures             :c:func:`ARKStepSetMaxNumConst
       :c:func:`ARKStepClearStopTime`.
 
 
-.. c:function:: int ARKStepSetInterpolateStopTime(void* arkode_mem, booleantype interp)
+.. c:function:: int ARKStepSetInterpolateStopTime(void* arkode_mem, sunbooleantype interp)
 
    Specifies that the output solution should be interpolated when the current
    :math:`t` equals the specified ``tstop`` (instead of merely copying the
@@ -1754,7 +1754,7 @@ Explicit stability function                                 :c:func:`ARKStepSetS
 
 
 
-.. c:function:: int ARKStepSetAdaptivityMethod(void* arkode_mem, int imethod, int idefault, int pq, realtype* adapt_params)
+.. c:function:: int ARKStepSetAdaptivityMethod(void* arkode_mem, int imethod, int idefault, int pq, sunrealtype* adapt_params)
 
    Specifies the method (and associated parameters) used for time step adaptivity.
 
@@ -1820,7 +1820,7 @@ Explicit stability function                                 :c:func:`ARKStepSetS
 
    .. versionadded:: x.x.x
 
-.. c:function:: int ARKStepSetCFLFraction(void* arkode_mem, realtype cfl_frac)
+.. c:function:: int ARKStepSetCFLFraction(void* arkode_mem, sunrealtype cfl_frac)
 
    Specifies the fraction of the estimated explicitly stable step to use.
 
@@ -1839,7 +1839,7 @@ Explicit stability function                                 :c:func:`ARKStepSetS
 
 
 
-.. c:function:: int ARKStepSetErrorBias(void* arkode_mem, realtype bias)
+.. c:function:: int ARKStepSetErrorBias(void* arkode_mem, sunrealtype bias)
 
    Specifies the bias to be applied to the error estimates within
    accuracy-based adaptivity strategies.
@@ -1866,7 +1866,7 @@ Explicit stability function                                 :c:func:`ARKStepSetS
       Use the SUNAdaptController infrastructure instead (see :numref:`SUNAdaptController.Description`).
 
 
-.. c:function:: int ARKStepSetFixedStepBounds(void* arkode_mem, realtype lb, realtype ub)
+.. c:function:: int ARKStepSetFixedStepBounds(void* arkode_mem, sunrealtype lb, sunrealtype ub)
 
    Specifies the step growth interval in which the step size will remain unchanged.
 
@@ -1885,7 +1885,7 @@ Explicit stability function                                 :c:func:`ARKStepSetS
 
 
 
-.. c:function:: int ARKStepSetMaxCFailGrowth(void* arkode_mem, realtype etacf)
+.. c:function:: int ARKStepSetMaxCFailGrowth(void* arkode_mem, sunrealtype etacf)
 
    Specifies the maximum step size growth factor upon an algebraic
    solver convergence failure on a stage solve within a step, :math:`\eta_{cf}` from
@@ -1906,7 +1906,7 @@ Explicit stability function                                 :c:func:`ARKStepSetS
 
 
 
-.. c:function:: int ARKStepSetMaxEFailGrowth(void* arkode_mem, realtype etamxf)
+.. c:function:: int ARKStepSetMaxEFailGrowth(void* arkode_mem, sunrealtype etamxf)
 
    Specifies the maximum step size growth factor upon multiple successive
    accuracy-based error failures in the solver.
@@ -1925,7 +1925,7 @@ Explicit stability function                                 :c:func:`ARKStepSetS
 
 
 
-.. c:function:: int ARKStepSetMaxFirstGrowth(void* arkode_mem, realtype etamx1)
+.. c:function:: int ARKStepSetMaxFirstGrowth(void* arkode_mem, sunrealtype etamx1)
 
    Specifies the maximum allowed growth factor in step size following the very
    first integration step.
@@ -1945,7 +1945,7 @@ Explicit stability function                                 :c:func:`ARKStepSetS
 
 
 
-.. c:function:: int ARKStepSetMaxGrowth(void* arkode_mem, realtype mx_growth)
+.. c:function:: int ARKStepSetMaxGrowth(void* arkode_mem, sunrealtype mx_growth)
 
    Specifies the maximum allowed growth factor in step size between
    consecutive steps in the integration process.
@@ -1965,7 +1965,7 @@ Explicit stability function                                 :c:func:`ARKStepSetS
 
 
 
-.. c:function:: int ARKStepSetMinReduction(void* arkode_mem, realtype eta_min)
+.. c:function:: int ARKStepSetMinReduction(void* arkode_mem, sunrealtype eta_min)
 
    Specifies the minimum allowed reduction factor in step size between
    step attempts, resulting from a temporal error failure in the integration
@@ -1987,7 +1987,7 @@ Explicit stability function                                 :c:func:`ARKStepSetS
 
 
 
-.. c:function:: int ARKStepSetSafetyFactor(void* arkode_mem, realtype safety)
+.. c:function:: int ARKStepSetSafetyFactor(void* arkode_mem, sunrealtype safety)
 
    Specifies the safety factor to be applied to the accuracy-based
    estimated step.
@@ -2248,7 +2248,7 @@ Specify if :math:`f^I` is deduced after a nonlinear solve  :c:func:`ARKStepSetDe
 
 
 
-.. c:function:: int ARKStepSetNonlinConvCoef(void* arkode_mem, realtype nlscoef)
+.. c:function:: int ARKStepSetNonlinConvCoef(void* arkode_mem, sunrealtype nlscoef)
 
    Specifies the safety factor :math:`\epsilon` used within the nonlinear
    solver convergence test :eq:`ARKODE_NonlinearTolerance`.
@@ -2268,7 +2268,7 @@ Specify if :math:`f^I` is deduced after a nonlinear solve  :c:func:`ARKStepSetDe
 
 
 
-.. c:function:: int ARKStepSetNonlinCRDown(void* arkode_mem, realtype crdown)
+.. c:function:: int ARKStepSetNonlinCRDown(void* arkode_mem, sunrealtype crdown)
 
    Specifies the constant :math:`c_r` used in estimating the nonlinear solver convergence rate :eq:`ARKODE_NonlinearCRate`.
 
@@ -2286,7 +2286,7 @@ Specify if :math:`f^I` is deduced after a nonlinear solve  :c:func:`ARKStepSetDe
 
 
 
-.. c:function:: int ARKStepSetNonlinRDiv(void* arkode_mem, realtype rdiv)
+.. c:function:: int ARKStepSetNonlinRDiv(void* arkode_mem, sunrealtype rdiv)
 
    Specifies the nonlinear correction threshold :math:`r_{div}` from
    :eq:`ARKODE_NonlinearDivergence`, beyond which the iteration will be declared divergent.
@@ -2435,7 +2435,7 @@ is recomputed using the current :math:`\gamma` value.
    =============================================  =========================================  ============
 
 
-.. c:function:: int ARKStepSetDeltaGammaMax(void* arkode_mem, realtype dgmax)
+.. c:function:: int ARKStepSetDeltaGammaMax(void* arkode_mem, sunrealtype dgmax)
 
    Specifies a scaled step size ratio tolerance, :math:`\Delta\gamma_{max}` from
    :numref:`ARKODE.Mathematics.Linear.Setup`, beyond which the linear solver
@@ -2663,7 +2663,7 @@ data in the program. The user data pointer may be specified through
       :numref:`ARKODE.Usage.UserSupplied`.
 
 
-.. c:function:: int ARKStepSetLinearSolutionScaling(void* arkode_mem, booleantype onoff)
+.. c:function:: int ARKStepSetLinearSolutionScaling(void* arkode_mem, sunbooleantype onoff)
 
    Enables or disables scaling the linear system solution to account for a
    change in :math:`\gamma` in the linear system. For more details see
@@ -2969,7 +2969,7 @@ the user through the :c:func:`ARKStepSetEpsLin()` function.
 
 
 
-.. c:function:: int ARKStepSetEpsLin(void* arkode_mem, realtype eplifac)
+.. c:function:: int ARKStepSetEpsLin(void* arkode_mem, sunrealtype eplifac)
 
    Specifies the factor :math:`\epsilon_L` by which the tolerance on
    the nonlinear iteration is multiplied to get a tolerance on the
@@ -2995,7 +2995,7 @@ the user through the :c:func:`ARKStepSetEpsLin()` function.
 
 
 
-.. c:function:: int ARKStepSetMassEpsLin(void* arkode_mem, realtype eplifac)
+.. c:function:: int ARKStepSetMassEpsLin(void* arkode_mem, sunrealtype eplifac)
 
    Specifies the factor by which the tolerance on the nonlinear
    iteration is multiplied to get a tolerance on the mass matrix
@@ -3035,7 +3035,7 @@ functions :c:func:`ARKStepSetLSNormFactor()` and :c:func:`ARKStepSetMassLSNormFa
 allow for additional user control over these conversion factors.
 
 
-.. c:function:: int ARKStepSetLSNormFactor(void* arkode_mem, realtype nrmfac)
+.. c:function:: int ARKStepSetLSNormFactor(void* arkode_mem, sunrealtype nrmfac)
 
    Specifies the factor to use when converting from the integrator tolerance
    (WRMS norm) to the linear solver tolerance (L2 norm) for Newton linear system
@@ -3064,7 +3064,7 @@ allow for additional user control over these conversion factors.
 
 
 
-.. c:function:: int ARKStepSetMassLSNormFactor(void* arkode_mem, realtype nrmfac)
+.. c:function:: int ARKStepSetMassLSNormFactor(void* arkode_mem, sunrealtype nrmfac)
 
    Specifies the factor to use when converting from the integrator tolerance
    (WRMS norm) to the linear solver tolerance (L2 norm) for mass matrix linear
@@ -3184,7 +3184,7 @@ polynomial model may be evaluated upon request.
 
 
 
-.. c:function:: int ARKStepGetDky(void* arkode_mem, realtype t, int k, N_Vector dky)
+.. c:function:: int ARKStepGetDky(void* arkode_mem, sunrealtype t, int k, N_Vector dky)
 
    Computes the *k*-th derivative of the function
    :math:`y` at the time *t*,
@@ -3331,7 +3331,7 @@ Retrieve a pointer for user data                       :c:func:`ARKStepGetUserDa
 
    **Arguments:**
       * *arkode_mem* -- pointer to the ARKStep memory block.
-      * *lenrw* -- the number of ``realtype`` values in the ARKStep workspace.
+      * *lenrw* -- the number of ``sunrealtype`` values in the ARKStep workspace.
       * *leniw* -- the number of integer values in the ARKStep workspace.
 
    **Return value:**
@@ -3355,7 +3355,7 @@ Retrieve a pointer for user data                       :c:func:`ARKStepGetUserDa
 
 
 
-.. c:function:: int ARKStepGetActualInitStep(void* arkode_mem, realtype* hinused)
+.. c:function:: int ARKStepGetActualInitStep(void* arkode_mem, sunrealtype* hinused)
 
    Returns the value of the integration step size used on the first step.
 
@@ -3378,7 +3378,7 @@ Retrieve a pointer for user data                       :c:func:`ARKStepGetUserDa
 
 
 
-.. c:function:: int ARKStepGetLastStep(void* arkode_mem, realtype* hlast)
+.. c:function:: int ARKStepGetLastStep(void* arkode_mem, sunrealtype* hlast)
 
    Returns the integration step size taken on the last successful
    internal step.
@@ -3393,7 +3393,7 @@ Retrieve a pointer for user data                       :c:func:`ARKStepGetUserDa
 
 
 
-.. c:function:: int ARKStepGetCurrentStep(void* arkode_mem, realtype* hcur)
+.. c:function:: int ARKStepGetCurrentStep(void* arkode_mem, sunrealtype* hcur)
 
    Returns the integration step size to be attempted on the next internal step.
 
@@ -3407,7 +3407,7 @@ Retrieve a pointer for user data                       :c:func:`ARKStepGetUserDa
 
 
 
-.. c:function:: int ARKStepGetCurrentTime(void* arkode_mem, realtype* tcur)
+.. c:function:: int ARKStepGetCurrentTime(void* arkode_mem, sunrealtype* tcur)
 
    Returns the current internal time reached by the solver.
 
@@ -3439,7 +3439,7 @@ Retrieve a pointer for user data                       :c:func:`ARKStepGetUserDa
       on the particular use case and on when this routine is called.
 
 
-.. c:function:: int ARKStepGetCurrentGamma(void *arkode_mem, realtype *gamma)
+.. c:function:: int ARKStepGetCurrentGamma(void *arkode_mem, sunrealtype *gamma)
 
    Returns the current internal value of :math:`\gamma` used in the implicit
    solver Newton matrix (see equation :eq:`ARKODE_NewtonMatrix`).
@@ -3454,7 +3454,7 @@ Retrieve a pointer for user data                       :c:func:`ARKStepGetUserDa
 
 
 
-.. c:function:: int ARKStepGetTolScaleFactor(void* arkode_mem, realtype* tolsfac)
+.. c:function:: int ARKStepGetTolScaleFactor(void* arkode_mem, sunrealtype* tolsfac)
 
    Returns a suggested factor by which the user's
    tolerances should be scaled when too much accuracy has been
@@ -3506,7 +3506,7 @@ Retrieve a pointer for user data                       :c:func:`ARKStepGetUserDa
 
 
 
-.. c:function:: int ARKStepGetStepStats(void* arkode_mem, long int* nsteps, realtype* hinused, realtype* hlast, realtype* hcur, realtype* tcur)
+.. c:function:: int ARKStepGetStepStats(void* arkode_mem, long int* nsteps, sunrealtype* hinused, sunrealtype* hlast, sunrealtype* hcur, sunrealtype* tcur)
 
    Returns many of the most useful optional outputs in a single call.
 
@@ -3684,10 +3684,10 @@ Retrieve a pointer for user data                       :c:func:`ARKStepGetUserDa
         int q;           /* method order of accuracy       */
         int p;           /* embedding order of accuracy    */
         int stages;      /* number of stages               */
-        realtype **A;    /* Butcher table coefficients     */
-        realtype *c;     /* canopy node coefficients       */
-        realtype *b;     /* root node coefficients         */
-        realtype *d;     /* embedding coefficients         */
+        sunrealtype **A;    /* Butcher table coefficients     */
+        sunrealtype *c;     /* canopy node coefficients       */
+        sunrealtype *b;     /* root node coefficients         */
+        sunrealtype *d;     /* embedding coefficients         */
 
       } *ARKStepButcherTable;
 
@@ -4026,7 +4026,7 @@ Last return from a mass matrix solver function                     :c:func:`ARKS
 
    **Arguments:**
       * *arkode_mem* -- pointer to the ARKStep memory block.
-      * *lenrwLS* -- the number of ``realtype`` values in the ARKLS workspace.
+      * *lenrwLS* -- the number of ``sunrealtype`` values in the ARKLS workspace.
       * *leniwLS* -- the number of integer values in the ARKLS workspace.
 
    **Return value:**
@@ -4273,7 +4273,7 @@ Last return from a mass matrix solver function                     :c:func:`ARKS
 
    **Arguments:**
       * *arkode_mem* -- pointer to the ARKStep memory block.
-      * *lenrwMLS* -- the number of ``realtype`` values in the ARKLS mass solver workspace.
+      * *lenrwMLS* -- the number of ``sunrealtype`` values in the ARKLS mass solver workspace.
       * *leniwMLS* -- the number of integer values in the ARKLS mass solver workspace.
 
    **Return value:**
@@ -4619,7 +4619,7 @@ comments apply if there is to be a jump in the dependent variable
 vector.
 
 
-.. c:function:: int ARKStepReInit(void* arkode_mem, ARKRhsFn fe, ARKRhsFn fi, realtype t0, N_Vector y0)
+.. c:function:: int ARKStepReInit(void* arkode_mem, ARKRhsFn fe, ARKRhsFn fi, sunrealtype t0, N_Vector y0)
 
    Provides required problem specifications and re-initializes the
    ARKStep time-stepper module.
@@ -4695,7 +4695,7 @@ comments apply if there is to be a jump in the dependent variable
 vector.
 
 
-.. c:function:: int ARKStepReset(void* arkode_mem, realtype tR, N_Vector yR)
+.. c:function:: int ARKStepReset(void* arkode_mem, sunrealtype tR, N_Vector yR)
 
    Resets the current ARKStep time-stepper module state to the provided
    independent variable value and dependent variable vector.
@@ -4761,7 +4761,7 @@ rescale the upcoming time step by the specified factor.  If a value
 
 
 
-.. c:function:: int ARKStepResize(void* arkode_mem, N_Vector yR, realtype hscale, realtype tR, ARKVecResizeFn resize, void* resize_data)
+.. c:function:: int ARKStepResize(void* arkode_mem, N_Vector yR, sunrealtype hscale, sunrealtype tR, ARKVecResizeFn resize, void* resize_data)
 
    Re-sizes ARKStep with a different state vector but with comparable
    dynamical time scale.

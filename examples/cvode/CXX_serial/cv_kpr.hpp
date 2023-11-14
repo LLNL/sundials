@@ -32,11 +32,11 @@
 #include <example_utilities.hpp>
 
 // Macros for problem constants
-#define ZERO    RCONST(0.0)
-#define HALF    RCONST(0.5)
-#define ONE     RCONST(1.0)
-#define TWO     RCONST(2.0)
-#define TWENTY  RCONST(20.0)
+#define ZERO    SUN_RCONST(0.0)
+#define HALF    SUN_RCONST(0.5)
+#define ONE     SUN_RCONST(1.0)
+#define TWO     SUN_RCONST(2.0)
+#define TWENTY  SUN_RCONST(20.0)
 
 // -----------------------------------------------------------------------------
 // Problem options
@@ -45,8 +45,8 @@
 struct Options
 {
   // Relative and absolute tolerances
-  sunrealtype rtol = RCONST(1.0e-6);
-  sunrealtype atol = RCONST(1.0e-10);
+  sunrealtype rtol = SUN_RCONST(1.0e-6);
+  sunrealtype atol = SUN_RCONST(1.0e-10);
 
   // Finite difference Jacobian
   bool fd_jac = false;

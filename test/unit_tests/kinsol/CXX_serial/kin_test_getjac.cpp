@@ -140,7 +140,7 @@ int J(N_Vector uu, N_Vector fuu, SUNMatrix J, void *user_data, N_Vector tmp1,
 // -----------------------------------------------------------------------------
 
 int DenseSetupAndSolve(SUNLinearSolver S, SUNMatrix A, N_Vector x,
-                       N_Vector b, realtype tol)
+                       N_Vector b, sunrealtype tol)
 {
   // Create a copy of the matrix for factorization
   SUNMatrix Acpy = SUNMatClone(A);

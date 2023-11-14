@@ -41,7 +41,7 @@ ERKStep initialization and deallocation functions
 ------------------------------------------------------
 
 
-.. c:function:: void* ERKStepCreate(ARKRhsFn f, realtype t0, N_Vector y0, SUNContext sunctx)
+.. c:function:: void* ERKStepCreate(ARKRhsFn f, sunrealtype t0, N_Vector y0, SUNContext sunctx)
 
    This function allocates and initializes memory for a problem to
    be solved using the ERKStep time-stepping module in ARKODE.
@@ -112,7 +112,7 @@ Alternatively, the user may supply a custom function to supply the
 
 
 
-.. c:function:: int ERKStepSStolerances(void* arkode_mem, realtype reltol, realtype abstol)
+.. c:function:: int ERKStepSStolerances(void* arkode_mem, sunrealtype reltol, sunrealtype abstol)
 
    This function specifies scalar relative and absolute tolerances.
 
@@ -129,7 +129,7 @@ Alternatively, the user may supply a custom function to supply the
 
 
 
-.. c:function:: int ERKStepSVtolerances(void* arkode_mem, realtype reltol, N_Vector abstol)
+.. c:function:: int ERKStepSVtolerances(void* arkode_mem, sunrealtype reltol, N_Vector abstol)
 
    This function specifies a scalar relative tolerance and a vector
    absolute tolerance (a potentially different absolute tolerance for
@@ -329,7 +329,7 @@ has requested rootfinding.
 
 
 
-.. c:function:: int ERKStepEvolve(void* arkode_mem, realtype tout, N_Vector yout, realtype *tret, int itask)
+.. c:function:: int ERKStepEvolve(void* arkode_mem, sunrealtype tout, N_Vector yout, sunrealtype *tret, int itask)
 
    Integrates the ODE over an interval in :math:`t`.
 
@@ -696,7 +696,7 @@ Optional inputs for ERKStep
 
 
 
-.. c:function:: int ERKStepSetFixedStep(void* arkode_mem, realtype hfixed)
+.. c:function:: int ERKStepSetFixedStep(void* arkode_mem, sunrealtype hfixed)
 
    Disabled time step adaptivity within ERKStep, and specifies the
    fixed time step size to use for the following internal step(s).
@@ -753,7 +753,7 @@ Optional inputs for ERKStep
 
 
 
-.. c:function:: int ERKStepSetInitStep(void* arkode_mem, realtype hin)
+.. c:function:: int ERKStepSetInitStep(void* arkode_mem, sunrealtype hin)
 
    Specifies the initial time step size ERKStep should use after
    initialization, re-initialization, or resetting.
@@ -826,7 +826,7 @@ Optional inputs for ERKStep
 
 
 
-.. c:function:: int ERKStepSetMaxStep(void* arkode_mem, realtype hmax)
+.. c:function:: int ERKStepSetMaxStep(void* arkode_mem, sunrealtype hmax)
 
    Specifies the upper bound on the magnitude of the time step size.
 
@@ -844,7 +844,7 @@ Optional inputs for ERKStep
 
 
 
-.. c:function:: int ERKStepSetMinStep(void* arkode_mem, realtype hmin)
+.. c:function:: int ERKStepSetMinStep(void* arkode_mem, sunrealtype hmin)
 
    Specifies the lower bound on the magnitude of the time step size.
 
@@ -862,7 +862,7 @@ Optional inputs for ERKStep
 
 
 
-.. c:function:: int ERKStepSetStopTime(void* arkode_mem, realtype tstop)
+.. c:function:: int ERKStepSetStopTime(void* arkode_mem, sunrealtype tstop)
 
    Specifies the value of the independent variable
    :math:`t` past which the solution is not to proceed.
@@ -888,7 +888,7 @@ Optional inputs for ERKStep
       :c:func:`ERKStepClearStopTime`.
 
 
-.. c:function:: int ERKStepSetInterpolateStopTime(void* arkode_mem, booleantype interp)
+.. c:function:: int ERKStepSetInterpolateStopTime(void* arkode_mem, sunbooleantype interp)
 
    Specifies that the output solution should be interpolated when the current
    :math:`t` equals the specified ``tstop`` (instead of merely copying the
@@ -1240,7 +1240,7 @@ the code, is provided in :numref:`ARKODE.Mathematics.Adaptivity`.
       Use the SUNAdaptController infrastructure instead (see :numref:`SUNAdaptController.Description`).
 
 
-.. c:function:: int ERKStepSetAdaptivityMethod(void* arkode_mem, int imethod, int idefault, int pq, realtype* adapt_params)
+.. c:function:: int ERKStepSetAdaptivityMethod(void* arkode_mem, int imethod, int idefault, int pq, sunrealtype* adapt_params)
 
    Specifies the method (and associated parameters) used for time step adaptivity.
 
@@ -1304,7 +1304,7 @@ the code, is provided in :numref:`ARKODE.Mathematics.Adaptivity`.
 
    .. versionadded:: x.x.x
 
-.. c:function:: int ERKStepSetCFLFraction(void* arkode_mem, realtype cfl_frac)
+.. c:function:: int ERKStepSetCFLFraction(void* arkode_mem, sunrealtype cfl_frac)
 
    Specifies the fraction of the estimated explicitly stable step to use.
 
@@ -1323,7 +1323,7 @@ the code, is provided in :numref:`ARKODE.Mathematics.Adaptivity`.
 
 
 
-.. c:function:: int ERKStepSetErrorBias(void* arkode_mem, realtype bias)
+.. c:function:: int ERKStepSetErrorBias(void* arkode_mem, sunrealtype bias)
 
    Specifies the bias to be applied to the error estimates within
    accuracy-based adaptivity strategies.
@@ -1351,7 +1351,7 @@ the code, is provided in :numref:`ARKODE.Mathematics.Adaptivity`.
 
 
 
-.. c:function:: int ERKStepSetFixedStepBounds(void* arkode_mem, realtype lb, realtype ub)
+.. c:function:: int ERKStepSetFixedStepBounds(void* arkode_mem, sunrealtype lb, sunrealtype ub)
 
    Specifies the step growth interval in which the step size will remain unchanged.
 
@@ -1370,7 +1370,7 @@ the code, is provided in :numref:`ARKODE.Mathematics.Adaptivity`.
 
 
 
-.. c:function:: int ERKStepSetMaxEFailGrowth(void* arkode_mem, realtype etamxf)
+.. c:function:: int ERKStepSetMaxEFailGrowth(void* arkode_mem, sunrealtype etamxf)
 
    Specifies the maximum step size growth factor upon multiple successive
    accuracy-based error failures in the solver.
@@ -1389,7 +1389,7 @@ the code, is provided in :numref:`ARKODE.Mathematics.Adaptivity`.
 
 
 
-.. c:function:: int ERKStepSetMaxFirstGrowth(void* arkode_mem, realtype etamx1)
+.. c:function:: int ERKStepSetMaxFirstGrowth(void* arkode_mem, sunrealtype etamx1)
 
    Specifies the maximum allowed growth factor in step size following the very
    first integration step.
@@ -1409,7 +1409,7 @@ the code, is provided in :numref:`ARKODE.Mathematics.Adaptivity`.
 
 
 
-.. c:function:: int ERKStepSetMaxGrowth(void* arkode_mem, realtype mx_growth)
+.. c:function:: int ERKStepSetMaxGrowth(void* arkode_mem, sunrealtype mx_growth)
 
    Specifies the maximum allowed growth factor in step size between
    consecutive steps in the integration process.
@@ -1429,7 +1429,7 @@ the code, is provided in :numref:`ARKODE.Mathematics.Adaptivity`.
 
 
 
-.. c:function:: int ERKStepSetMinReduction(void* arkode_mem, realtype eta_min)
+.. c:function:: int ERKStepSetMinReduction(void* arkode_mem, sunrealtype eta_min)
 
    Specifies the minimum allowed reduction factor in step size between
    step attempts, resulting from a temporal error failure in the integration
@@ -1451,7 +1451,7 @@ the code, is provided in :numref:`ARKODE.Mathematics.Adaptivity`.
 
 
 
-.. c:function:: int ERKStepSetSafetyFactor(void* arkode_mem, realtype safety)
+.. c:function:: int ERKStepSetSafetyFactor(void* arkode_mem, sunrealtype safety)
 
    Specifies the safety factor to be applied to the accuracy-based
    estimated step.
@@ -1610,7 +1610,7 @@ derivatives of the polynomial model may be evaluated upon request.
 
 
 
-.. c:function:: int ERKStepGetDky(void* arkode_mem, realtype t, int k, N_Vector dky)
+.. c:function:: int ERKStepGetDky(void* arkode_mem, sunrealtype t, int k, N_Vector dky)
 
    Computes the *k*-th derivative of the function
    :math:`y` at the time *t*,
@@ -1752,7 +1752,7 @@ Main solver optional output functions
 
    **Arguments:**
       * *arkode_mem* -- pointer to the ERKStep memory block.
-      * *lenrw* -- the number of ``realtype`` values in the ERKStep workspace.
+      * *lenrw* -- the number of ``sunrealtype`` values in the ERKStep workspace.
       * *leniw* -- the number of integer values in the ERKStep workspace.
 
    **Return value:**
@@ -1776,7 +1776,7 @@ Main solver optional output functions
 
 
 
-.. c:function:: int ERKStepGetActualInitStep(void* arkode_mem, realtype* hinused)
+.. c:function:: int ERKStepGetActualInitStep(void* arkode_mem, sunrealtype* hinused)
 
    Returns the value of the integration step size used on the first step.
 
@@ -1798,7 +1798,7 @@ Main solver optional output functions
 
 
 
-.. c:function:: int ERKStepGetLastStep(void* arkode_mem, realtype* hlast)
+.. c:function:: int ERKStepGetLastStep(void* arkode_mem, sunrealtype* hlast)
 
    Returns the integration step size taken on the last successful
    internal step.
@@ -1813,7 +1813,7 @@ Main solver optional output functions
 
 
 
-.. c:function:: int ERKStepGetCurrentStep(void* arkode_mem, realtype* hcur)
+.. c:function:: int ERKStepGetCurrentStep(void* arkode_mem, sunrealtype* hcur)
 
    Returns the integration step size to be attempted on the next internal step.
 
@@ -1827,7 +1827,7 @@ Main solver optional output functions
 
 
 
-.. c:function:: int ERKStepGetCurrentTime(void* arkode_mem, realtype* tcur)
+.. c:function:: int ERKStepGetCurrentTime(void* arkode_mem, sunrealtype* tcur)
 
    Returns the current internal time reached by the solver.
 
@@ -1841,7 +1841,7 @@ Main solver optional output functions
 
 
 
-.. c:function:: int ERKStepGetTolScaleFactor(void* arkode_mem, realtype* tolsfac)
+.. c:function:: int ERKStepGetTolScaleFactor(void* arkode_mem, sunrealtype* tolsfac)
 
    Returns a suggested factor by which the user's
    tolerances should be scaled when too much accuracy has been
@@ -1875,7 +1875,7 @@ Main solver optional output functions
 
 
 
-.. c:function:: int ERKStepGetStepStats(void* arkode_mem, long int* nsteps, realtype* hinused, realtype* hlast, realtype* hcur, realtype* tcur)
+.. c:function:: int ERKStepGetStepStats(void* arkode_mem, long int* nsteps, sunrealtype* hinused, sunrealtype* hlast, sunrealtype* hcur, sunrealtype* tcur)
 
    Returns many of the most useful optional outputs in a single call.
 
@@ -2031,10 +2031,10 @@ Main solver optional output functions
            int q;           /* method order of accuracy       */
            int p;           /* embedding order of accuracy    */
            int stages;      /* number of stages               */
-           realtype **A;    /* Butcher table coefficients     */
-           realtype *c;     /* canopy node coefficients       */
-           realtype *b;     /* root node coefficients         */
-           realtype *d;     /* embedding coefficients         */
+           sunrealtype **A;    /* Butcher table coefficients     */
+           sunrealtype *c;     /* canopy node coefficients       */
+           sunrealtype *b;     /* root node coefficients         */
+           sunrealtype *d;     /* embedding coefficients         */
 
          } *ARKodeButcherTable;
 
@@ -2301,7 +2301,7 @@ comments apply if there is to be a jump in the dependent variable
 vector.
 
 
-.. c:function:: int ERKStepReInit(void* arkode_mem, ARKRhsFn f, realtype t0, N_Vector y0)
+.. c:function:: int ERKStepReInit(void* arkode_mem, ARKRhsFn f, sunrealtype t0, N_Vector y0)
 
    Provides required problem specifications and re-initializes the
    ERKStep time-stepper module.
@@ -2369,7 +2369,7 @@ restarted problem uses the new values (which have jumped).  Similar
 comments apply if there is to be a jump in the dependent variable
 vector.
 
-.. c:function:: int ERKStepReset(void* arkode_mem, realtype tR, N_Vector yR)
+.. c:function:: int ERKStepReset(void* arkode_mem, sunrealtype tR, N_Vector yR)
 
    Resets the current ERKStep time-stepper module state to the provided
    independent variable value and dependent variable vector.
@@ -2435,7 +2435,7 @@ rescale the upcoming time step by the specified factor.  If a value
 
 
 
-.. c:function:: int ERKStepResize(void* arkode_mem, N_Vector yR, realtype hscale, realtype tR, ARKVecResizeFn resize, void* resize_data)
+.. c:function:: int ERKStepResize(void* arkode_mem, N_Vector yR, sunrealtype hscale, sunrealtype tR, ARKVecResizeFn resize, void* resize_data)
 
    Re-sizes ERKStep with a different state vector but with comparable
    dynamical time scale.

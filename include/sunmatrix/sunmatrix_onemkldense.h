@@ -93,13 +93,13 @@ SUNDIALS_EXPORT
 sunindextype SUNMatrix_OneMklDense_LData(SUNMatrix A);
 
 SUNDIALS_EXPORT
-realtype* SUNMatrix_OneMklDense_Data(SUNMatrix A);
+sunrealtype* SUNMatrix_OneMklDense_Data(SUNMatrix A);
 
 SUNDIALS_STATIC_INLINE
-realtype* SUNMatrix_OneMklDense_Column(SUNMatrix Amat, sunindextype j)
+sunrealtype* SUNMatrix_OneMklDense_Column(SUNMatrix Amat, sunindextype j)
 {
   SUNMatrixContent_OneMklDense A = (SUNMatrixContent_OneMklDense) Amat->content;
-  return( ((realtype*) A->data->ptr) + j * A->block_rows );
+  return( ((sunrealtype*) A->data->ptr) + j * A->block_rows );
 }
 
 /* Get matrix block data */
@@ -108,31 +108,31 @@ SUNDIALS_EXPORT
 sunindextype SUNMatrix_OneMklDense_BlockLData(SUNMatrix A);
 
 SUNDIALS_EXPORT
-realtype** SUNMatrix_OneMklDense_BlockData(SUNMatrix A);
+sunrealtype** SUNMatrix_OneMklDense_BlockData(SUNMatrix A);
 
 SUNDIALS_STATIC_INLINE
-realtype* SUNMatrix_OneMklDense_Block(SUNMatrix Amat, sunindextype k)
+sunrealtype* SUNMatrix_OneMklDense_Block(SUNMatrix Amat, sunindextype k)
 {
   SUNMatrixContent_OneMklDense A = (SUNMatrixContent_OneMklDense) Amat->content;
-  return( ((realtype*) A->data->ptr) + k * A->block_rows * A->block_cols );
+  return( ((sunrealtype*) A->data->ptr) + k * A->block_rows * A->block_cols );
 }
 
 SUNDIALS_STATIC_INLINE
-realtype* SUNMatrix_OneMklDense_BlockColumn(SUNMatrix Amat, sunindextype k,
+sunrealtype* SUNMatrix_OneMklDense_BlockColumn(SUNMatrix Amat, sunindextype k,
                                             sunindextype j)
 {
   SUNMatrixContent_OneMklDense A = (SUNMatrixContent_OneMklDense) Amat->content;
-  return( ((realtype*) A->data->ptr) +
+  return( ((sunrealtype*) A->data->ptr) +
           k * A->block_rows * A->block_cols + j * A->block_rows );
 }
 
 /* Copy data */
 
 SUNDIALS_EXPORT
-int SUNMatrix_OneMklDense_CopyToDevice(SUNMatrix A, realtype* h_data);
+int SUNMatrix_OneMklDense_CopyToDevice(SUNMatrix A, sunrealtype* h_data);
 
 SUNDIALS_EXPORT
-int SUNMatrix_OneMklDense_CopyFromDevice(SUNMatrix A, realtype* h_data);
+int SUNMatrix_OneMklDense_CopyFromDevice(SUNMatrix A, sunrealtype* h_data);
 
 /* ---------------------------------------------------------------------------
  * SUNMatrix API functions
@@ -154,10 +154,10 @@ SUNDIALS_EXPORT
 int SUNMatCopy_OneMklDense(SUNMatrix A, SUNMatrix B);
 
 SUNDIALS_EXPORT
-int SUNMatScaleAdd_OneMklDense(realtype c, SUNMatrix A, SUNMatrix B);
+int SUNMatScaleAdd_OneMklDense(sunrealtype c, SUNMatrix A, SUNMatrix B);
 
 SUNDIALS_EXPORT
-int SUNMatScaleAddI_OneMklDense(realtype c, SUNMatrix A);
+int SUNMatScaleAddI_OneMklDense(sunrealtype c, SUNMatrix A);
 
 SUNDIALS_EXPORT
 int SUNMatMatvecSetup_OneMklDense(SUNMatrix A);

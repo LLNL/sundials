@@ -17,33 +17,33 @@ Data Types
 
 The header file ``sundials_types.h`` contains the definition of the types:
 
-* :c:type:`realtype` -- the floating-point type used by the SUNDIALS packages
+* :c:type:`sunrealtype` -- the floating-point type used by the SUNDIALS packages
 
 * :c:type:`sunindextype` -- the integer type used for vector and matrix indices
 
-* :c:type:`booleantype` -- the type used for logic operations within SUNDIALS
+* :c:type:`sunbooleantype` -- the type used for logic operations within SUNDIALS
 
 * :c:type:`SUNOutputFormat` -- an enumerated type for SUNDIALS output formats
 
 Floating point types
 ~~~~~~~~~~~~~~~~~~~~
 
-.. c:type:: realtype
+.. c:type:: sunrealtype
 
-   The type ``realtype`` can be ``float``, ``double``, or ``long double``, with
+   The type ``sunrealtype`` can be ``float``, ``double``, or ``long double``, with
    the default being ``double``. The user can change the precision of the
    arithmetic used in the SUNDIALS solvers at the configuration stage (see
    :cmakeop:`SUNDIALS_PRECISION`).
 
 Additionally, based on the current precision, ``sundials_types.h`` defines
-``BIG_REAL`` to be the largest value representable as a ``realtype``,
-``SMALL_REAL`` to be the smallest value representable as a ``realtype``, and
-``UNIT_ROUNDOFF`` to be the difference between :math:`1.0` and the minimum
-``realtype`` greater than :math:`1.0`.
+``SUN_BIG_REAL`` to be the largest value representable as a ``sunrealtype``,
+``SUN_SMALL_REAL`` to be the smallest value representable as a ``sunrealtype``, and
+``SUN_UNIT_ROUNDOFF`` to be the difference between :math:`1.0` and the minimum
+``sunrealtype`` greater than :math:`1.0`.
 
-Within SUNDIALS, real constants are set by way of a macro called ``RCONST``. It
+Within SUNDIALS, real constants are set by way of a macro called ``SUN_RCONST``. It
 is this macro that needs the ability to branch on the definition of
-``realtype``. In ANSI C, a floating-point constant with no suffix is stored as a
+``sunrealtype``. In ANSI C, a floating-point constant with no suffix is stored as a
 ``double``. Placing the suffix "``F``" at the end of a floating point constant
 makes it a ``float``, whereas using the suffix "``L``" makes it a ``long
 double``. For example,
@@ -56,27 +56,27 @@ double``. For example,
 
 defines ``A`` to be a ``double`` constant equal to :math:`1.0`, ``B`` to be a
 ``float`` constant equal to :math:`1.0`, and ``C`` to be a ``long double``
-constant equal to :math:`1.0`. The macro call ``RCONST(1.0)`` automatically
-expands to ``1.0`` if ``realtype`` is ``double``, to ``1.0F`` if ``realtype`` is
-``float``, or to ``1.0L`` if ``realtype`` is ``long double``. SUNDIALS uses the
-``RCONST`` macro internally to declare all of its floating-point constants.
+constant equal to :math:`1.0`. The macro call ``SUN_RCONST(1.0)`` automatically
+expands to ``1.0`` if ``sunrealtype`` is ``double``, to ``1.0F`` if ``sunrealtype`` is
+``float``, or to ``1.0L`` if ``sunrealtype`` is ``long double``. SUNDIALS uses the
+``SUN_RCONST`` macro internally to declare all of its floating-point constants.
 
 Additionally, SUNDIALS defines several macros for common mathematical functions
 *e.g.*, ``fabs``, ``sqrt``, ``exp``, etc. in ``sundials_math.h``. The macros are
 prefixed with ``SUNR`` and expand to the appropriate ``C`` function based on the
-``realtype``. For example, the macro ``SUNRabs`` expands to the ``C`` function
-``fabs`` when ``realtype`` is ``double``, ``fabsf`` when ``realtype`` is
-``float``, and ``fabsl`` when ``realtype`` is ``long double``.
+``sunrealtype``. For example, the macro ``SUNRabs`` expands to the ``C`` function
+``fabs`` when ``sunrealtype`` is ``double``, ``fabsf`` when ``sunrealtype`` is
+``float``, and ``fabsl`` when ``sunrealtype`` is ``long double``.
 
-A user program which uses the type ``realtype``, the ``RCONST`` macro, and the
+A user program which uses the type ``sunrealtype``, the ``SUN_RCONST`` macro, and the
 ``SUNR`` mathematical function macros is precision-independent except for any
 calls to precision-specific library functions. Our example programs use
-``realtype``, ``RCONST``, and the ``SUNR`` macros. Users can, however, use the
+``sunrealtype``, ``SUN_RCONST``, and the ``SUNR`` macros. Users can, however, use the
 type ``double``, ``float``, or ``long double`` in their code (assuming that this
-usage is consistent with the typedef for ``realtype``) and call the appropriate
+usage is consistent with the typedef for ``sunrealtype``) and call the appropriate
 math library functions directly. Thus, a previously existing piece of C or C++
-code can use SUNDIALS without modifying the code to use ``realtype``,
-``RCONST``, or the ``SUNR`` macros so long as the SUNDIALS libraries are built
+code can use SUNDIALS without modifying the code to use ``sunrealtype``,
+``SUN_RCONST``, or the ``SUNR`` macros so long as the SUNDIALS libraries are built
 to use the corresponding precision (see :numref:`Installation.CMake.Options`).
 
 Integer types used for indexing
@@ -110,14 +110,14 @@ SUNDIALS libraries use the appropriate index storage type (for details see
 Boolean type
 ~~~~~~~~~~~~
 
-.. c:type:: booleantype
+.. c:type:: sunbooleantype
 
    As ANSI C89 (ISO C90) does not have a built-in boolean data type, SUNDIALS
-   defines the type ``booleantype`` as an ``int``.
+   defines the type ``sunbooleantype`` as an ``int``.
 
-The advantage of using the name booleantype (instead of int) is an increase in
+The advantage of using the name sunbooleantype (instead of int) is an increase in
 code readability. It also allows the programmer to make a distinction between
-int and boolean data. Variables of type ``booleantype`` are intended to have
+int and boolean data. Variables of type ``sunbooleantype`` are intended to have
 only the two values ``SUNFALSE`` (``0``) and ``SUNTRUE`` (``1``).
 
 Output formatting type

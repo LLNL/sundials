@@ -20,11 +20,11 @@
  * Notes:
  *   - The definition of the generic SUNMatrix structure can be found
  *     in the header file sundials_matrix.h.
- *   - The definition of the type 'realtype' can be found in the
+ *   - The definition of the type 'sunrealtype' can be found in the
  *     header file sundials_types.h, and it may be changed (at the
  *     configuration stage) according to the user's needs.
  *     The sundials_types.h file also contains the definition
- *     for the type 'booleantype' and 'indextype'.
+ *     for the type 'sunbooleantype' and 'indextype'.
  * -----------------------------------------------------------------
  */
 
@@ -49,9 +49,9 @@ struct _SUNMatrixContent_Band {
   sunindextype mu;
   sunindextype ml;
   sunindextype s_mu;
-  realtype *data;
+  sunrealtype *data;
   sunindextype ldata;
-  realtype **cols;
+  sunrealtype **cols;
 };
 
 typedef struct _SUNMatrixContent_Band *SUNMatrixContent_Band;
@@ -110,17 +110,17 @@ SUNDIALS_EXPORT sunindextype SUNBandMatrix_UpperBandwidth(SUNMatrix A);
 SUNDIALS_EXPORT sunindextype SUNBandMatrix_StoredUpperBandwidth(SUNMatrix A);
 SUNDIALS_EXPORT sunindextype SUNBandMatrix_LDim(SUNMatrix A);
 SUNDIALS_EXPORT sunindextype SUNBandMatrix_LData(SUNMatrix A);
-SUNDIALS_EXPORT realtype* SUNBandMatrix_Data(SUNMatrix A);
-SUNDIALS_EXPORT realtype** SUNBandMatrix_Cols(SUNMatrix A);
-SUNDIALS_EXPORT realtype* SUNBandMatrix_Column(SUNMatrix A, sunindextype j);
+SUNDIALS_EXPORT sunrealtype* SUNBandMatrix_Data(SUNMatrix A);
+SUNDIALS_EXPORT sunrealtype** SUNBandMatrix_Cols(SUNMatrix A);
+SUNDIALS_EXPORT sunrealtype* SUNBandMatrix_Column(SUNMatrix A, sunindextype j);
 
 SUNDIALS_EXPORT SUNMatrix_ID SUNMatGetID_Band(SUNMatrix A);
 SUNDIALS_EXPORT SUNMatrix SUNMatClone_Band(SUNMatrix A);
 SUNDIALS_EXPORT void SUNMatDestroy_Band(SUNMatrix A);
 SUNDIALS_EXPORT int SUNMatZero_Band(SUNMatrix A);
 SUNDIALS_EXPORT int SUNMatCopy_Band(SUNMatrix A, SUNMatrix B);
-SUNDIALS_EXPORT int SUNMatScaleAdd_Band(realtype c, SUNMatrix A, SUNMatrix B);
-SUNDIALS_EXPORT int SUNMatScaleAddI_Band(realtype c, SUNMatrix A);
+SUNDIALS_EXPORT int SUNMatScaleAdd_Band(sunrealtype c, SUNMatrix A, SUNMatrix B);
+SUNDIALS_EXPORT int SUNMatScaleAddI_Band(sunrealtype c, SUNMatrix A);
 SUNDIALS_EXPORT int SUNMatMatvec_Band(SUNMatrix A, N_Vector x, N_Vector y);
 SUNDIALS_EXPORT int SUNMatSpace_Band(SUNMatrix A, long int *lenrw, long int *leniw);
 

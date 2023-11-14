@@ -58,27 +58,27 @@ extern "C" {
   CVLS user-supplied function prototypes
   =================================================================*/
 
-typedef int (*CVLsJacFn)(realtype t, N_Vector y, N_Vector fy,
+typedef int (*CVLsJacFn)(sunrealtype t, N_Vector y, N_Vector fy,
                          SUNMatrix Jac, void *user_data,
                          N_Vector tmp1, N_Vector tmp2, N_Vector tmp3);
 
-typedef int (*CVLsPrecSetupFn)(realtype t, N_Vector y, N_Vector fy,
-                               booleantype jok, booleantype *jcurPtr,
-                               realtype gamma, void *user_data);
+typedef int (*CVLsPrecSetupFn)(sunrealtype t, N_Vector y, N_Vector fy,
+                               sunbooleantype jok, sunbooleantype *jcurPtr,
+                               sunrealtype gamma, void *user_data);
 
-typedef int (*CVLsPrecSolveFn)(realtype t, N_Vector y, N_Vector fy,
-                               N_Vector r, N_Vector z, realtype gamma,
-                               realtype delta, int lr, void *user_data);
+typedef int (*CVLsPrecSolveFn)(sunrealtype t, N_Vector y, N_Vector fy,
+                               N_Vector r, N_Vector z, sunrealtype gamma,
+                               sunrealtype delta, int lr, void *user_data);
 
-typedef int (*CVLsJacTimesSetupFn)(realtype t, N_Vector y,
+typedef int (*CVLsJacTimesSetupFn)(sunrealtype t, N_Vector y,
                                    N_Vector fy, void *user_data);
 
-typedef int (*CVLsJacTimesVecFn)(N_Vector v, N_Vector Jv, realtype t,
+typedef int (*CVLsJacTimesVecFn)(N_Vector v, N_Vector Jv, sunrealtype t,
                                  N_Vector y, N_Vector fy,
                                  void *user_data, N_Vector tmp);
 
-typedef int (*CVLsLinSysFn)(realtype t, N_Vector y, N_Vector fy, SUNMatrix A,
-                            booleantype jok, booleantype *jcur, realtype gamma,
+typedef int (*CVLsLinSysFn)(sunrealtype t, N_Vector y, N_Vector fy, SUNMatrix A,
+                            sunbooleantype jok, sunbooleantype *jcur, sunrealtype gamma,
                             void *user_data, N_Vector tmp1, N_Vector tmp2,
                             N_Vector tmp3);
 
@@ -99,12 +99,12 @@ SUNDIALS_EXPORT int CVodeSetJacFn(void *cvode_mem, CVLsJacFn jac);
 SUNDIALS_EXPORT int CVodeSetJacEvalFrequency(void *cvode_mem,
                                              long int msbj);
 SUNDIALS_EXPORT int CVodeSetLinearSolutionScaling(void *cvode_mem,
-                                                  booleantype onoff);
+                                                  sunbooleantype onoff);
 SUNDIALS_EXPORT int CVodeSetDeltaGammaMaxBadJac(void *cvode_mem,
-                                                realtype dgmax_jbad);
-SUNDIALS_EXPORT int CVodeSetEpsLin(void *cvode_mem, realtype eplifac);
+                                                sunrealtype dgmax_jbad);
+SUNDIALS_EXPORT int CVodeSetEpsLin(void *cvode_mem, sunrealtype eplifac);
 SUNDIALS_EXPORT int CVodeSetLSNormFactor(void *arkode_mem,
-                                         realtype nrmfac);
+                                         sunrealtype nrmfac);
 SUNDIALS_EXPORT int CVodeSetPreconditioner(void *cvode_mem,
                                            CVLsPrecSetupFn pset,
                                            CVLsPrecSolveFn psolve);
@@ -156,64 +156,64 @@ SUNDIALS_EXPORT char *CVodeGetLinReturnFlagName(long int flag);
   CVLS user-supplied function prototypes
   =================================================================*/
 
-typedef int (*CVLsJacFnB)(realtype t, N_Vector y, N_Vector yB,
+typedef int (*CVLsJacFnB)(sunrealtype t, N_Vector y, N_Vector yB,
                           N_Vector fyB, SUNMatrix JB,
                           void *user_dataB, N_Vector tmp1B,
                           N_Vector tmp2B, N_Vector tmp3B);
 
-typedef int (*CVLsJacFnBS)(realtype t, N_Vector y, N_Vector *yS,
+typedef int (*CVLsJacFnBS)(sunrealtype t, N_Vector y, N_Vector *yS,
                            N_Vector yB, N_Vector fyB, SUNMatrix JB,
                            void *user_dataB, N_Vector tmp1B,
                            N_Vector tmp2B, N_Vector tmp3B);
 
-typedef int (*CVLsPrecSetupFnB)(realtype t, N_Vector y, N_Vector yB,
-                                N_Vector fyB, booleantype jokB,
-                                booleantype *jcurPtrB,
-                                realtype gammaB, void *user_dataB);
+typedef int (*CVLsPrecSetupFnB)(sunrealtype t, N_Vector y, N_Vector yB,
+                                N_Vector fyB, sunbooleantype jokB,
+                                sunbooleantype *jcurPtrB,
+                                sunrealtype gammaB, void *user_dataB);
 
-typedef int (*CVLsPrecSetupFnBS)(realtype t, N_Vector y,
+typedef int (*CVLsPrecSetupFnBS)(sunrealtype t, N_Vector y,
                                  N_Vector *yS, N_Vector yB,
-                                 N_Vector fyB, booleantype jokB,
-                                 booleantype *jcurPtrB,
-                                 realtype gammaB, void *user_dataB);
+                                 N_Vector fyB, sunbooleantype jokB,
+                                 sunbooleantype *jcurPtrB,
+                                 sunrealtype gammaB, void *user_dataB);
 
-typedef int (*CVLsPrecSolveFnB)(realtype t, N_Vector y, N_Vector yB,
+typedef int (*CVLsPrecSolveFnB)(sunrealtype t, N_Vector y, N_Vector yB,
                                 N_Vector fyB, N_Vector rB,
-                                N_Vector zB, realtype gammaB,
-                                realtype deltaB, int lrB,
+                                N_Vector zB, sunrealtype gammaB,
+                                sunrealtype deltaB, int lrB,
                                 void *user_dataB);
 
-typedef int (*CVLsPrecSolveFnBS)(realtype t, N_Vector y, N_Vector *yS,
+typedef int (*CVLsPrecSolveFnBS)(sunrealtype t, N_Vector y, N_Vector *yS,
                                  N_Vector yB, N_Vector fyB,
                                  N_Vector rB, N_Vector zB,
-                                 realtype gammaB, realtype deltaB,
+                                 sunrealtype gammaB, sunrealtype deltaB,
                                  int lrB, void *user_dataB);
 
-typedef int (*CVLsJacTimesSetupFnB)(realtype t, N_Vector y, N_Vector yB,
+typedef int (*CVLsJacTimesSetupFnB)(sunrealtype t, N_Vector y, N_Vector yB,
                                     N_Vector fyB, void *jac_dataB);
 
-typedef int (*CVLsJacTimesSetupFnBS)(realtype t, N_Vector y,
+typedef int (*CVLsJacTimesSetupFnBS)(sunrealtype t, N_Vector y,
                                      N_Vector *yS, N_Vector yB,
                                      N_Vector fyB, void *jac_dataB);
 
-typedef int (*CVLsJacTimesVecFnB)(N_Vector vB, N_Vector JvB, realtype t,
+typedef int (*CVLsJacTimesVecFnB)(N_Vector vB, N_Vector JvB, sunrealtype t,
                                   N_Vector y, N_Vector yB, N_Vector fyB,
                                   void *jac_dataB, N_Vector tmpB);
 
 typedef int (*CVLsJacTimesVecFnBS)(N_Vector vB, N_Vector JvB,
-                                   realtype t, N_Vector y, N_Vector *yS,
+                                   sunrealtype t, N_Vector y, N_Vector *yS,
                                    N_Vector yB, N_Vector fyB,
                                    void *jac_dataB, N_Vector tmpB);
 
-typedef int (*CVLsLinSysFnB)(realtype t, N_Vector y, N_Vector yB, N_Vector fyB,
-                             SUNMatrix AB, booleantype jokB, booleantype *jcurB,
-                             realtype gammaB, void *user_dataB, N_Vector tmp1B,
+typedef int (*CVLsLinSysFnB)(sunrealtype t, N_Vector y, N_Vector yB, N_Vector fyB,
+                             SUNMatrix AB, sunbooleantype jokB, sunbooleantype *jcurB,
+                             sunrealtype gammaB, void *user_dataB, N_Vector tmp1B,
                              N_Vector tmp2B, N_Vector tmp3B);
 
-typedef int (*CVLsLinSysFnBS)(realtype t, N_Vector y, N_Vector* yS,
+typedef int (*CVLsLinSysFnBS)(sunrealtype t, N_Vector y, N_Vector* yS,
                               N_Vector yB, N_Vector fyB, SUNMatrix AB,
-                              booleantype jokB, booleantype *jcurB,
-                              realtype gammaB, void *user_dataB, N_Vector tmp1B,
+                              sunbooleantype jokB, sunbooleantype *jcurB,
+                              sunrealtype gammaB, void *user_dataB, N_Vector tmp1B,
                               N_Vector tmp2B, N_Vector tmp3B);
 
 /*=================================================================
@@ -238,13 +238,13 @@ SUNDIALS_EXPORT int CVodeSetJacFnBS(void *cvode_mem, int which,
                                     CVLsJacFnBS jacBS);
 
 SUNDIALS_EXPORT int CVodeSetEpsLinB(void *cvode_mem, int which,
-                                    realtype eplifacB);
+                                    sunrealtype eplifacB);
 
 SUNDIALS_EXPORT int CVodeSetLSNormFactorB(void *arkode_mem, int which,
-                                          realtype nrmfacB);
+                                          sunrealtype nrmfacB);
 
 SUNDIALS_EXPORT int CVodeSetLinearSolutionScalingB(void *cvode_mem, int which,
-                                                   booleantype onoffB);
+                                                   sunbooleantype onoffB);
 
 SUNDIALS_EXPORT int CVodeSetPreconditionerB(void *cvode_mem, int which,
                                             CVLsPrecSetupFnB psetB,

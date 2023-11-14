@@ -46,22 +46,22 @@ int main(int argc, char* argv[])
   N_Vector y = N_VNew_Serial(2, sunctx);
   if (check_ptr(y, "N_VNew_Serial")) return 1;
 
-  realtype utrue, vtrue;
+  sunrealtype utrue, vtrue;
   flag = true_sol(ZERO, &utrue, &vtrue);
   if (check_flag(flag, "true_sol")) return 1;
 
-  realtype* ydata = N_VGetArrayPointer(y);
+  sunrealtype* ydata = N_VGetArrayPointer(y);
   ydata[0] = utrue;
   ydata[1] = vtrue;
 
   N_Vector yp = N_VNew_Serial(2, sunctx);
   if (check_ptr(y, "N_VNew_Serial")) return 1;
 
-  realtype uptrue, vptrue;
+  sunrealtype uptrue, vptrue;
   flag = true_sol_p(ZERO, &uptrue, &vptrue);
   if (check_flag(flag, "true_sol")) return 1;
 
-  realtype* ypdata = N_VGetArrayPointer(yp);
+  sunrealtype* ypdata = N_VGetArrayPointer(yp);
   ypdata[0] = uptrue;
   ypdata[1] = vptrue;
 
@@ -87,7 +87,7 @@ int main(int argc, char* argv[])
   flag = IDASetJacFn(ida_mem, J);
   if (check_flag(flag, "IDASetJacFn")) return 1;
 
-  realtype udata[4] = {-TWO, HALF, HALF, -ONE};
+  sunrealtype udata[4] = {-TWO, HALF, HALF, -ONE};
   flag = IDASetUserData(ida_mem, udata);
   if (check_flag(flag, "IDASetUserData")) return 1;
 
@@ -111,12 +111,12 @@ int main(int argc, char* argv[])
   if (check_flag(flag, "IDASetDeltaCjLSetup")) return 1;
 
   // Initial time and fist output time
-  realtype tret  = ZERO;
-  realtype tout  = tret + opts.dtout;
+  sunrealtype tret  = ZERO;
+  sunrealtype tout  = tret + opts.dtout;
 
   // Output initial contion
   cout << scientific;
-  cout << setprecision(numeric_limits<realtype>::digits10);
+  cout << setprecision(numeric_limits<sunrealtype>::digits10);
   cout << "           t              ";
   cout << "          u              ";
   cout << "          v              ";
@@ -173,26 +173,26 @@ int main(int argc, char* argv[])
  *   ru = [a  b] * [ (-1 + u^2 - r(t)) / (2*u) ] + [ r'(t) / (2u) ] - [u']
  *   rv = [c  d]   [ (-2 + v^2 - s(t)) / (2*v) ]   [ s'(t) / (2v) ] - [v']
  * ---------------------------------------------------------------------------*/
-int res(realtype t, N_Vector y, N_Vector yp, N_Vector rr, void *user_data)
+int res(sunrealtype t, N_Vector y, N_Vector yp, N_Vector rr, void *user_data)
 {
-  realtype* udata = (realtype *) user_data;
-  const realtype a = udata[0];
-  const realtype b = udata[1];
-  const realtype c = udata[2];
-  const realtype d = udata[3];
+  sunrealtype* udata = (sunrealtype *) user_data;
+  const sunrealtype a = udata[0];
+  const sunrealtype b = udata[1];
+  const sunrealtype c = udata[2];
+  const sunrealtype d = udata[3];
 
-  realtype* ydata = N_VGetArrayPointer(y);
-  const realtype u = ydata[0];
-  const realtype v = ydata[1];
+  sunrealtype* ydata = N_VGetArrayPointer(y);
+  const sunrealtype u = ydata[0];
+  const sunrealtype v = ydata[1];
 
-  realtype* ypdata = N_VGetArrayPointer(yp);
-  const realtype up = ypdata[0];
-  const realtype vp = ypdata[1];
+  sunrealtype* ypdata = N_VGetArrayPointer(yp);
+  const sunrealtype up = ypdata[0];
+  const sunrealtype vp = ypdata[1];
 
-  const realtype tmp1 = (-ONE + u * u - r(t)) / (TWO * u);
-  const realtype tmp2 = (-TWO + v * v - s(t)) / (TWO * v);
+  const sunrealtype tmp1 = (-ONE + u * u - r(t)) / (TWO * u);
+  const sunrealtype tmp2 = (-TWO + v * v - s(t)) / (TWO * v);
 
-  realtype* rdata = N_VGetArrayPointer(rr);
+  sunrealtype* rdata = N_VGetArrayPointer(rr);
   rdata[0] = (a * tmp1 + b * tmp2 + rdot(t) / (TWO * u)) - up;
   rdata[1] = (c * tmp1 + d * tmp2 + sdot(t) / (TWO * v)) - vp;
 
@@ -204,21 +204,21 @@ int res(realtype t, N_Vector y, N_Vector yp, N_Vector rr, void *user_data)
  *   [a/2 + (a(1+r(t))-r'(t))/(2u^2) - cj  b/2 + b*(2+s(t))/(2*v^2)            ]
  *   [c/2 + c(1+r(t))/(2u^2)               d/2 + (d(2+s(t))-s'(t))/(2u^2) - cj ]
  * ---------------------------------------------------------------------------*/
-int J(realtype t,  realtype cj, N_Vector y, N_Vector yp, N_Vector rr,
+int J(sunrealtype t,  sunrealtype cj, N_Vector y, N_Vector yp, N_Vector rr,
       SUNMatrix J, void *user_data, N_Vector tempv1, N_Vector tempv2,
       N_Vector tempv3)
 {
-  realtype* udata = (realtype *) user_data;
-  const realtype a = udata[0];
-  const realtype b = udata[1];
-  const realtype c = udata[2];
-  const realtype d = udata[3];
+  sunrealtype* udata = (sunrealtype *) user_data;
+  const sunrealtype a = udata[0];
+  const sunrealtype b = udata[1];
+  const sunrealtype c = udata[2];
+  const sunrealtype d = udata[3];
 
-  realtype* ydata = N_VGetArrayPointer(y);
-  realtype* Jdata = SUNDenseMatrix_Data(J);
+  sunrealtype* ydata = N_VGetArrayPointer(y);
+  sunrealtype* Jdata = SUNDenseMatrix_Data(J);
 
-  const realtype u = ydata[0];
-  const realtype v = ydata[1];
+  const sunrealtype u = ydata[0];
+  const sunrealtype v = ydata[1];
 
   Jdata[0] = (a / TWO + (a * (ONE + r(t)) - rdot(t)) / (TWO * u * u)) - cj;
   Jdata[1] = c / TWO +  c * (ONE + r(t)) / (TWO * u * u);

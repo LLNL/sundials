@@ -60,7 +60,7 @@ users, but might be useful for users who choose to provide their own
 implementation of the ``SUNNonlinearSolver`` API. For example, such a user might
 need access to the current value of :math:`\gamma` to compute Jacobian data.
 
-.. c:function:: int CVodeGetCurrentGamma(void* cvode_mem, realtype* gamma)
+.. c:function:: int CVodeGetCurrentGamma(void* cvode_mem, sunrealtype* gamma)
 
    The function :c:func:`CVodeGetCurrentGamma` returns the current value of the
    scalar :math:`\gamma`.
@@ -91,7 +91,7 @@ need access to the current value of :math:`\gamma` to compute Jacobian data.
      * ``CV_MEM_NULL`` -- The CVODES memory block was ``NULL``.
 
 
-.. c:function:: int CVodeGetNonlinearSystemData(void *cvode_mem, realtype *tcur, N_Vector *ypred, N_Vector *yn, N_Vector *fn, realtype *gamma, realtype *rl1, N_Vector *zn1, void **user_data)
+.. c:function:: int CVodeGetNonlinearSystemData(void *cvode_mem, sunrealtype *tcur, N_Vector *ypred, N_Vector *yn, N_Vector *fn, sunrealtype *gamma, sunrealtype *rl1, N_Vector *zn1, void **user_data)
 
    The function :c:func:`CVodeGetNonlinearSystemData` returns all internal data
    required to construct the current nonlinear system :eq:`CVODES_res_corrector` or

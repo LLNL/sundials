@@ -55,28 +55,28 @@
 #include <nvector/nvector_serial.h>    /* access to serial N_Vector            */
 #include <sunmatrix/sunmatrix_band.h>  /* access to band SUNMatrix             */
 #include <sunlinsol/sunlinsol_band.h>  /* access to band SUNLinearSolver       */
-#include <sundials/sundials_types.h>   /* definition of type realtype          */
+#include <sundials/sundials_types.h>   /* definition of type sunrealtype          */
 #include <sundials/sundials_math.h>    /* definition of SUNRabs and SUNRexp    */
 
 /* Problem Constants */
 
-#define XMAX  RCONST(2.0)   /* domain boundaries             */
-#define YMAX  RCONST(1.0)
+#define XMAX  SUN_RCONST(2.0)   /* domain boundaries             */
+#define YMAX  SUN_RCONST(1.0)
 #define MX    40            /* mesh dimensions               */
 #define MY    20
 #define NEQ   MX*MY         /* number of equations           */
-#define ATOL  RCONST(1.e-5)
-#define RTOLB RCONST(1.e-6)
-#define T0    RCONST(0.0)   /* initial time                  */
-#define T1    RCONST(0.1)   /* first output time             */
-#define DTOUT RCONST(0.1)   /* output time increment         */
+#define ATOL  SUN_RCONST(1.e-5)
+#define RTOLB SUN_RCONST(1.e-6)
+#define T0    SUN_RCONST(0.0)   /* initial time                  */
+#define T1    SUN_RCONST(0.1)   /* first output time             */
+#define DTOUT SUN_RCONST(0.1)   /* output time increment         */
 #define NOUT  10            /* number of output times        */
-#define TOUT  RCONST(1.0)   /* final time                    */
+#define TOUT  SUN_RCONST(1.0)   /* final time                    */
 #define NSTEP 50            /* check point saved every NSTEP */
 
-#define ZERO  RCONST(0.0)
-#define ONE   RCONST(1.0)
-#define TWO   RCONST(2.0)
+#define ZERO  SUN_RCONST(0.0)
+#define ONE   SUN_RCONST(1.0)
+#define TWO   SUN_RCONST(2.0)
 
 /* User-defined vector access macro IJth */
 
@@ -95,19 +95,19 @@
    contains grid constants */
 
 typedef struct {
-  realtype dx, dy, hdcoef, hacoef, vdcoef;
+  sunrealtype dx, dy, hdcoef, hacoef, vdcoef;
 } *UserData;
 
 /* Prototypes of user-supplied functions */
 
-static int f(realtype t, N_Vector u, N_Vector udot, void *user_data);
+static int f(sunrealtype t, N_Vector u, N_Vector udot, void *user_data);
 
-static int Jac(realtype t, N_Vector u, N_Vector fu, SUNMatrix J,
+static int Jac(sunrealtype t, N_Vector u, N_Vector fu, SUNMatrix J,
                void *user_data, N_Vector tmp1, N_Vector tmp2, N_Vector tmp3);
 
-static int fB(realtype tB, N_Vector u, N_Vector uB, N_Vector uBdot, void *user_dataB);
+static int fB(sunrealtype tB, N_Vector u, N_Vector uB, N_Vector uBdot, void *user_dataB);
 
-static int JacB(realtype tB, N_Vector u, N_Vector uB, N_Vector fuB, SUNMatrix JB,
+static int JacB(sunrealtype tB, N_Vector u, N_Vector uB, N_Vector fuB, SUNMatrix JB,
                 void *user_dataB, N_Vector tmp1B, N_Vector tmp2B, N_Vector tmp3B);
 
 /* Prototypes of private functions */
@@ -131,12 +131,12 @@ int main(int argc, char *argv[])
   SUNMatrix A, AB;
   SUNLinearSolver LS, LSB;
 
-  realtype dx, dy, reltol, abstol, t;
+  sunrealtype dx, dy, reltol, abstol, t;
   N_Vector u;
 
   int indexB;
 
-  realtype reltolB, abstolB;
+  sunrealtype reltolB, abstolB;
   N_Vector uB;
 
   int retval, ncheck;
@@ -155,7 +155,7 @@ int main(int argc, char *argv[])
   dx = data->dx = XMAX/(MX+1);
   dy = data->dy = YMAX/(MY+1);
   data->hdcoef = ONE/(dx*dx);
-  data->hacoef = RCONST(1.5)/(TWO*dx);
+  data->hacoef = SUN_RCONST(1.5)/(TWO*dx);
   data->vdcoef = ONE/(dy*dy);
 
   /* Set the tolerances for the forward integration */
@@ -294,10 +294,10 @@ int main(int argc, char *argv[])
  * f routine. right-hand side of forward ODE.
  */
 
-static int f(realtype t, N_Vector u, N_Vector udot, void *user_data)
+static int f(sunrealtype t, N_Vector u, N_Vector udot, void *user_data)
 {
-  realtype uij, udn, uup, ult, urt, hordc, horac, verdc, hdiff, hadv, vdiff;
-  realtype *udata, *dudata;
+  sunrealtype uij, udn, uup, ult, urt, hordc, horac, verdc, hdiff, hadv, vdiff;
+  sunrealtype *udata, *dudata;
   int i, j;
   UserData data;
 
@@ -341,11 +341,11 @@ static int f(realtype t, N_Vector u, N_Vector udot, void *user_data)
  * Jac function. Jacobian of forward ODE.
  */
 
-static int Jac(realtype t, N_Vector u, N_Vector fu, SUNMatrix J,
+static int Jac(sunrealtype t, N_Vector u, N_Vector fu, SUNMatrix J,
                void *user_data, N_Vector tmp1, N_Vector tmp2, N_Vector tmp3)
 {
   int i, j, k;
-  realtype *kthCol, hordc, horac, verdc;
+  sunrealtype *kthCol, hordc, horac, verdc;
   UserData data;
 
   /*
@@ -385,14 +385,14 @@ static int Jac(realtype t, N_Vector u, N_Vector fu, SUNMatrix J,
  * fB function. Right-hand side of backward ODE.
  */
 
-static int fB(realtype tB, N_Vector u, N_Vector uB, N_Vector uBdot,
+static int fB(sunrealtype tB, N_Vector u, N_Vector uB, N_Vector uBdot,
               void *user_dataB)
 {
   UserData data;
-  realtype *uBdata, *duBdata;
-  realtype hordc, horac, verdc;
-  realtype uBij, uBdn, uBup, uBlt, uBrt;
-  realtype hdiffB, hadvB, vdiffB;
+  sunrealtype *uBdata, *duBdata;
+  sunrealtype hordc, horac, verdc;
+  sunrealtype uBij, uBdn, uBup, uBlt, uBrt;
+  sunrealtype hdiffB, hadvB, vdiffB;
   int i, j;
 
   uBdata = N_VGetArrayPointer(uB);
@@ -435,11 +435,11 @@ static int fB(realtype tB, N_Vector u, N_Vector uB, N_Vector uBdot,
  * JacB function. Jacobian of backward ODE
  */
 
-static int JacB(realtype tB, N_Vector u, N_Vector uB, N_Vector fuB, SUNMatrix JB,
+static int JacB(sunrealtype tB, N_Vector u, N_Vector uB, N_Vector fuB, SUNMatrix JB,
                 void *user_dataB, N_Vector tmp1B, N_Vector tmp2B, N_Vector tmp3B)
 {
   int i, j, k;
-  realtype *kthCol, hordc, horac, verdc;
+  sunrealtype *kthCol, hordc, horac, verdc;
   UserData data;
 
   /* The Jacobian of the adjoint system is: JB = -J^T */
@@ -480,8 +480,8 @@ static int JacB(realtype tB, N_Vector u, N_Vector uB, N_Vector fuB, SUNMatrix JB
 static void SetIC(N_Vector u, UserData data)
 {
   int i, j;
-  realtype x, y, dx, dy;
-  realtype *udata;
+  sunrealtype x, y, dx, dy;
+  sunrealtype *udata;
 
   /* Extract needed constants from data */
 
@@ -498,7 +498,7 @@ static void SetIC(N_Vector u, UserData data)
     y = j*dy;
     for (i=1; i <= MX; i++) {
       x = i*dx;
-      IJth(udata,i,j) = x*(XMAX - x)*y*(YMAX - y)*SUNRexp(RCONST(5.0)*x*y);
+      IJth(udata,i,j) = x*(XMAX - x)*y*(YMAX - y)*SUNRexp(SUN_RCONST(5.0)*x*y);
     }
   }
 
@@ -510,7 +510,7 @@ static void SetIC(N_Vector u, UserData data)
 
 static void PrintOutput(N_Vector uB, UserData data)
 {
-  realtype *uBdata, uBij, uBmax, x, y, dx, dy;
+  sunrealtype *uBdata, uBij, uBmax, x, y, dx, dy;
   int i, j;
 
   x = y = ZERO;
