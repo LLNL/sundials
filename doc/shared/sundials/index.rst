@@ -23,6 +23,8 @@ six packages all leverage some other common infrastructure, which we discuss
 in this section.
 
 .. toctree::
+
+   Install
    Types
    SUNContext
    Logging
