@@ -28,10 +28,10 @@ extern "C" {
 
 /* User-supplied function Types */
 
-typedef int (*ARKLocalFn)(sunindextype Nlocal, realtype t,
+typedef int (*ARKLocalFn)(sunindextype Nlocal, sunrealtype t,
                           N_Vector y, N_Vector g, void *user_data);
 
-typedef int (*ARKCommFn)(sunindextype Nlocal, realtype t,
+typedef int (*ARKCommFn)(sunindextype Nlocal, sunrealtype t,
                          N_Vector y, void *user_data);
 
 /* Exported Functions */
@@ -42,14 +42,14 @@ SUNDIALS_EXPORT int ARKBBDPrecInit(void *arkode_mem,
                                    sunindextype mldq,
                                    sunindextype mukeep,
                                    sunindextype mlkeep,
-                                   realtype dqrely,
+                                   sunrealtype dqrely,
                                    ARKLocalFn gloc,
                                    ARKCommFn cfn);
 
 SUNDIALS_EXPORT int ARKBBDPrecReInit(void *arkode_mem,
                                      sunindextype mudq,
                                      sunindextype mldq,
-                                     realtype dqrely);
+                                     sunrealtype dqrely);
 
 /* Optional output functions */
 

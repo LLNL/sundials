@@ -35,11 +35,11 @@ SWIGEXPORT double * _wrap_FN_VGetSubvectorArrayPointer_ManyVector(N_Vector farg1
   double * fresult ;
   N_Vector arg1 = (N_Vector) 0 ;
   sunindextype arg2 ;
-  realtype *result = 0 ;
+  sunrealtype *result = 0 ;
   
   arg1 = (N_Vector)(farg1);
   arg2 = (sunindextype)(*farg2);
-  result = (realtype *)N_VGetSubvectorArrayPointer_ManyVector(arg1,arg2);
+  result = (sunrealtype *)N_VGetSubvectorArrayPointer_ManyVector(arg1,arg2);
   fresult = result;
   return fresult;
 }

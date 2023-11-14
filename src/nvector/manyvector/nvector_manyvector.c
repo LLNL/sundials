@@ -32,8 +32,8 @@
 #define MVAPPEND(fun) fun##_ManyVector
 #endif
 
-#define ZERO RCONST(0.0)
-#define ONE  RCONST(1.0)
+#define ZERO SUN_RCONST(0.0)
+#define ONE  SUN_RCONST(1.0)
 
 /* -----------------------------------------------------------------
    ManyVector content accessor macros
@@ -53,7 +53,7 @@
 /* -----------------------------------------------------------------
    Prototypes of utility routines
    -----------------------------------------------------------------*/
-static N_Vector ManyVectorClone(N_Vector w, booleantype cloneempty);
+static N_Vector ManyVectorClone(N_Vector w, sunbooleantype cloneempty);
 #ifdef MANYVECTOR_BUILD_WITH_MPI
 static int SubvectorMPIRank(N_Vector w);
 #endif
@@ -219,7 +219,7 @@ N_Vector N_VNew_MPIManyVector(sunindextype num_subvectors,
                               SUNContext sunctx)
 {
   sunindextype i;
-  booleantype nocommfound;
+  sunbooleantype nocommfound;
   void* tmpcomm;
   MPI_Comm comm, *vcomm;
   int retval, comparison;
@@ -399,7 +399,7 @@ N_Vector MVAPPEND(N_VGetSubvector)(N_Vector v, sunindextype vec_num)
    the N_Vector array.  If vec_num is outside of applicable bounds, or if
    the subvector does not support the N_VGetArrayPointer routine, then
    NULL is returned. */
-realtype *MVAPPEND(N_VGetSubvectorArrayPointer)(N_Vector v, sunindextype vec_num)
+sunrealtype *MVAPPEND(N_VGetSubvectorArrayPointer)(N_Vector v, sunindextype vec_num)
 {
   if ( (vec_num < 0) || (vec_num > MANYVECTOR_NUM_SUBVECS(v)) )
     return(NULL);
@@ -413,7 +413,7 @@ realtype *MVAPPEND(N_VGetSubvectorArrayPointer)(N_Vector v, sunindextype vec_num
    the N_Vector array.  If vec_num is outside of applicable bounds, or if
    the subvector does not support the N_VSetArrayPointer routine, then
    -1 is returned; otherwise this routine returns 0. */
-int MVAPPEND(N_VSetSubvectorArrayPointer)(realtype *v_data, N_Vector v, sunindextype vec_num)
+int MVAPPEND(N_VSetSubvectorArrayPointer)(sunrealtype *v_data, N_Vector v, sunindextype vec_num)
 {
   if ( (vec_num < 0) || (vec_num > MANYVECTOR_NUM_SUBVECS(v)) )
     return(-1);
@@ -570,7 +570,7 @@ sunindextype MVAPPEND(N_VGetSubvectorLocalLength)(N_Vector v, sunindextype vec_n
 /* Performs the linear sum z = a*x + b*y by calling N_VLinearSum on all subvectors;
    this routine does not check that x, y and z are ManyVectors, if they have the
    same number of subvectors, or if these subvectors are compatible. */
-void MVAPPEND(N_VLinearSum)(realtype a, N_Vector x, realtype b, N_Vector y, N_Vector z)
+void MVAPPEND(N_VLinearSum)(sunrealtype a, N_Vector x, sunrealtype b, N_Vector y, N_Vector z)
 {
   sunindextype i;
   for (i=0; i<MANYVECTOR_NUM_SUBVECS(x); i++)
@@ -581,7 +581,7 @@ void MVAPPEND(N_VLinearSum)(realtype a, N_Vector x, realtype b, N_Vector y, N_Ve
 
 
 /* Performs the operation z = c by calling N_VConst on all subvectors. */
-void MVAPPEND(N_VConst)(realtype c, N_Vector z)
+void MVAPPEND(N_VConst)(sunrealtype c, N_Vector z)
 {
   sunindextype i;
   for (i=0; i<MANYVECTOR_NUM_SUBVECS(z); i++)
@@ -619,7 +619,7 @@ void MVAPPEND(N_VDiv)(N_Vector x, N_Vector y, N_Vector z)
 /* Performs the operation z_j = c*x_j by calling N_VScale on all subvectors;
    this routine does not check that x and z are ManyVectors, if they have the
    same number of subvectors, or if these subvectors are compatible. */
-void MVAPPEND(N_VScale)(realtype c, N_Vector x, N_Vector z)
+void MVAPPEND(N_VScale)(sunrealtype c, N_Vector x, N_Vector z)
 {
   sunindextype i;
   for (i=0; i<MANYVECTOR_NUM_SUBVECS(x); i++)
@@ -655,7 +655,7 @@ void MVAPPEND(N_VInv)(N_Vector x, N_Vector z)
 /* Performs the operation z_j = x_j + b by calling N_VAddConst on all subvectors;
    this routine does not check that x and z are ManyVectors, if they have the
    same number of subvectors, or if these subvectors are compatible. */
-void MVAPPEND(N_VAddConst)(N_Vector x, realtype b, N_Vector z)
+void MVAPPEND(N_VAddConst)(N_Vector x, sunrealtype b, N_Vector z)
 {
   sunindextype i;
   for (i=0; i<MANYVECTOR_NUM_SUBVECS(x); i++)
@@ -673,12 +673,12 @@ void MVAPPEND(N_VAddConst)(N_Vector x, realtype b, N_Vector z)
    function pointer), then this routine will call N_VDotProd, but only
    accumulate the sum if this is the root task for that subvector's
    communicator (note: serial vectors are always root task). */
-realtype MVAPPEND(N_VDotProdLocal)(N_Vector x, N_Vector y)
+sunrealtype MVAPPEND(N_VDotProdLocal)(N_Vector x, N_Vector y)
 {
   sunindextype i;
-  realtype sum;
+  sunrealtype sum;
 #ifdef MANYVECTOR_BUILD_WITH_MPI
-  realtype contrib;
+  sunrealtype contrib;
   int rank;
 #endif
 
@@ -725,9 +725,9 @@ realtype MVAPPEND(N_VDotProdLocal)(N_Vector x, N_Vector y)
    combining the results.  This routine does not check that x and y are
    ManyVectors, if they have the same number of subvectors, or if these
    subvectors are compatible. */
-realtype N_VDotProd_MPIManyVector(N_Vector x, N_Vector y)
+sunrealtype N_VDotProd_MPIManyVector(N_Vector x, N_Vector y)
 {
-  realtype lsum, gsum;
+  sunrealtype lsum, gsum;
   lsum = gsum = N_VDotProdLocal_MPIManyVector(x,y);
   if (MANYVECTOR_COMM(x) != MPI_COMM_NULL)
     MPI_Allreduce(&lsum, &gsum, 1, MPI_SUNREALTYPE, MPI_SUM, MANYVECTOR_COMM(x));
@@ -741,10 +741,10 @@ realtype N_VDotProd_MPIManyVector(N_Vector x, N_Vector y)
 
    If any subvector does not implement the N_VMaxNormLocal routine (NULL
    function pointer), then this routine will call N_VMaxNorm instead. */
-realtype MVAPPEND(N_VMaxNormLocal)(N_Vector x)
+sunrealtype MVAPPEND(N_VMaxNormLocal)(N_Vector x)
 {
   sunindextype i;
-  realtype max, lmax;
+  sunrealtype max, lmax;
 
   /* initialize output*/
   max = ZERO;
@@ -773,9 +773,9 @@ realtype MVAPPEND(N_VMaxNormLocal)(N_Vector x)
 #ifdef MANYVECTOR_BUILD_WITH_MPI
 /* Performs the maximum norm of a ManyVector by calling N_VMaxNormLocal and
    combining the results. */
-realtype N_VMaxNorm_MPIManyVector(N_Vector x)
+sunrealtype N_VMaxNorm_MPIManyVector(N_Vector x)
 {
-  realtype lmax, gmax;
+  sunrealtype lmax, gmax;
   lmax = gmax = N_VMaxNormLocal_MPIManyVector(x);
   if (MANYVECTOR_COMM(x) != MPI_COMM_NULL)
     MPI_Allreduce(&lmax, &gmax, 1, MPI_SUNREALTYPE, MPI_MAX, MANYVECTOR_COMM(x));
@@ -794,10 +794,10 @@ realtype N_VMaxNorm_MPIManyVector(N_Vector x)
    to unravel the squared sum of the subvector components.  It will then only
    accumulate this to the overall sum if this is the root task for that
    subvector's communicator (note: serial vectors are always root task). */
-realtype MVAPPEND(N_VWSqrSumLocal)(N_Vector x, N_Vector w)
+sunrealtype MVAPPEND(N_VWSqrSumLocal)(N_Vector x, N_Vector w)
 {
   sunindextype i, N;
-  realtype sum, contrib;
+  sunrealtype sum, contrib;
 #ifdef MANYVECTOR_BUILD_WITH_MPI
   int rank;
 #endif
@@ -848,11 +848,11 @@ realtype MVAPPEND(N_VWSqrSumLocal)(N_Vector x, N_Vector w)
    combining the results; this routine does not check that x and
    w are ManyVectors, if they have the same number of subvectors, or if these
    subvectors are compatible. */
-realtype MVAPPEND(N_VWrmsNorm)(N_Vector x, N_Vector w)
+sunrealtype MVAPPEND(N_VWrmsNorm)(N_Vector x, N_Vector w)
 {
-  realtype gsum;
+  sunrealtype gsum;
 #ifdef MANYVECTOR_BUILD_WITH_MPI
-  realtype lsum;
+  sunrealtype lsum;
   lsum = gsum = N_VWSqrSumLocal_MPIManyVector(x, w);
   if (MANYVECTOR_COMM(x) != MPI_COMM_NULL)
     MPI_Allreduce(&lsum, &gsum, 1, MPI_SUNREALTYPE, MPI_SUM, MANYVECTOR_COMM(x));
@@ -874,10 +874,10 @@ realtype MVAPPEND(N_VWrmsNorm)(N_Vector x, N_Vector w)
    It will then only accumulate this to the overall sum if this is the root
    task for that subvector's communicator (note: serial vectors are always
    root task). */
-realtype MVAPPEND(N_VWSqrSumMaskLocal)(N_Vector x, N_Vector w, N_Vector id)
+sunrealtype MVAPPEND(N_VWSqrSumMaskLocal)(N_Vector x, N_Vector w, N_Vector id)
 {
   sunindextype i, N;
-  realtype sum, contrib;
+  sunrealtype sum, contrib;
 #ifdef MANYVECTOR_BUILD_WITH_MPI
   int rank;
 #endif
@@ -931,11 +931,11 @@ realtype MVAPPEND(N_VWSqrSumMaskLocal)(N_Vector x, N_Vector w, N_Vector id)
    and combining the results; this routine does not check that x, w and id are
    ManyVectors, if they have the same number of subvectors, or if these subvectors
    are compatible. */
-realtype MVAPPEND(N_VWrmsNormMask)(N_Vector x, N_Vector w, N_Vector id)
+sunrealtype MVAPPEND(N_VWrmsNormMask)(N_Vector x, N_Vector w, N_Vector id)
 {
-  realtype gsum;
+  sunrealtype gsum;
 #ifdef MANYVECTOR_BUILD_WITH_MPI
-  realtype lsum;
+  sunrealtype lsum;
   lsum = gsum = N_VWSqrSumMaskLocal_MPIManyVector(x, w, id);
   if (MANYVECTOR_COMM(x) != MPI_COMM_NULL)
     MPI_Allreduce(&lsum, &gsum, 1, MPI_SUNREALTYPE, MPI_SUM, MANYVECTOR_COMM(x));
@@ -951,13 +951,13 @@ realtype MVAPPEND(N_VWrmsNormMask)(N_Vector x, N_Vector w, N_Vector id)
 
    If any subvector does not implement the N_VMinLocal routine (NULL
    function pointer), then this routine will call N_VMin instead. */
-realtype MVAPPEND(N_VMinLocal)(N_Vector x)
+sunrealtype MVAPPEND(N_VMinLocal)(N_Vector x)
 {
   sunindextype i;
-  realtype min, lmin;
+  sunrealtype min, lmin;
 
   /* initialize output*/
-  min = BIG_REAL;
+  min = SUN_BIG_REAL;
 
   for (i=0; i<MANYVECTOR_NUM_SUBVECS(x); i++) {
 
@@ -983,9 +983,9 @@ realtype MVAPPEND(N_VMinLocal)(N_Vector x)
 #ifdef MANYVECTOR_BUILD_WITH_MPI
 /* Computes the minimum entry of a ManyVector by calling N_VMinLocal and
    combining the results. */
-realtype N_VMin_MPIManyVector(N_Vector x)
+sunrealtype N_VMin_MPIManyVector(N_Vector x)
 {
-  realtype lmin, gmin;
+  sunrealtype lmin, gmin;
   lmin = gmin = N_VMinLocal_MPIManyVector(x);
   if (MANYVECTOR_COMM(x) != MPI_COMM_NULL)
     MPI_Allreduce(&lmin, &gmin, 1, MPI_SUNREALTYPE, MPI_MIN, MANYVECTOR_COMM(x));
@@ -998,11 +998,11 @@ realtype N_VMin_MPIManyVector(N_Vector x)
    'massaging' the result.  This routine does not check that x and w are
    ManyVectors, if they have the same number of subvectors, or if these
    subvectors are compatible. */
-realtype MVAPPEND(N_VWL2Norm)(N_Vector x, N_Vector w)
+sunrealtype MVAPPEND(N_VWL2Norm)(N_Vector x, N_Vector w)
 {
-  realtype gsum;
+  sunrealtype gsum;
 #ifdef MANYVECTOR_BUILD_WITH_MPI
-  realtype lsum;
+  sunrealtype lsum;
   lsum = gsum = N_VWSqrSumLocal_MPIManyVector(x, w);
   if (MANYVECTOR_COMM(x) != MPI_COMM_NULL)
     MPI_Allreduce(&lsum, &gsum, 1, MPI_SUNREALTYPE, MPI_SUM, MANYVECTOR_COMM(x));
@@ -1018,12 +1018,12 @@ realtype MVAPPEND(N_VWL2Norm)(N_Vector x, N_Vector w)
    (NULL function pointer), then this routine will call N_VL1Norm, but only
    accumulate the sum if this is the root task for that subvector's
    communicator (note: serial vectors are always root task). */
-realtype MVAPPEND(N_VL1NormLocal)(N_Vector x)
+sunrealtype MVAPPEND(N_VL1NormLocal)(N_Vector x)
 {
   sunindextype i;
-  realtype sum;
+  sunrealtype sum;
 #ifdef MANYVECTOR_BUILD_WITH_MPI
-  realtype contrib;
+  sunrealtype contrib;
   int rank;
 #endif
 
@@ -1068,9 +1068,9 @@ realtype MVAPPEND(N_VL1NormLocal)(N_Vector x)
 #ifdef MANYVECTOR_BUILD_WITH_MPI
 /* Performs the L1 norm of a ManyVector by calling N_VL1NormLocal and
    combining the results. */
-realtype N_VL1Norm_MPIManyVector(N_Vector x)
+sunrealtype N_VL1Norm_MPIManyVector(N_Vector x)
 {
-  realtype lsum, gsum;
+  sunrealtype lsum, gsum;
   lsum = gsum = N_VL1NormLocal_MPIManyVector(x);
   if (MANYVECTOR_COMM(x) != MPI_COMM_NULL)
     MPI_Allreduce(&lsum, &gsum, 1, MPI_SUNREALTYPE, MPI_SUM, MANYVECTOR_COMM(x));
@@ -1082,7 +1082,7 @@ realtype N_VL1Norm_MPIManyVector(N_Vector x)
 /* Performs N_VCompare on all subvectors; this routine does not check that x and z are
    ManyVectors, if they have the same number of subvectors, or if these subvectors are
    compatible. */
-void MVAPPEND(N_VCompare)(realtype c, N_Vector x, N_Vector z)
+void MVAPPEND(N_VCompare)(sunrealtype c, N_Vector x, N_Vector z)
 {
   sunindextype i;
   for (i=0; i<MANYVECTOR_NUM_SUBVECS(x); i++)
@@ -1098,10 +1098,10 @@ void MVAPPEND(N_VCompare)(realtype c, N_Vector x, N_Vector z)
 
    If any subvector does not implement the N_VInvTestLocal routine (NULL
    function pointer), then this routine will call N_VInvTest instead. */
-booleantype MVAPPEND(N_VInvTestLocal)(N_Vector x, N_Vector z)
+sunbooleantype MVAPPEND(N_VInvTestLocal)(N_Vector x, N_Vector z)
 {
   sunindextype i;
-  booleantype val, subval;
+  sunbooleantype val, subval;
 
   /* initialize output*/
   val = SUNTRUE;
@@ -1132,9 +1132,9 @@ booleantype MVAPPEND(N_VInvTestLocal)(N_Vector x, N_Vector z)
    combining the results. This routine does not check that x and z
    are ManyVectors, if they have the same number of subvectors, or if these
    subvectors are compatible. */
-booleantype N_VInvTest_MPIManyVector(N_Vector x, N_Vector z)
+sunbooleantype N_VInvTest_MPIManyVector(N_Vector x, N_Vector z)
 {
-  realtype val, gval;
+  sunrealtype val, gval;
   val = gval = (N_VInvTestLocal_MPIManyVector(x, z)) ? ONE : ZERO;
   if (MANYVECTOR_COMM(x) != MPI_COMM_NULL)
     MPI_Allreduce(&val, &gval, 1, MPI_SUNREALTYPE, MPI_MIN, MANYVECTOR_COMM(x));
@@ -1150,10 +1150,10 @@ booleantype N_VInvTest_MPIManyVector(N_Vector x, N_Vector z)
 
    If any subvector does not implement the N_VConstrMaskLocal routine (NULL
    function pointer), then this routine will call N_VConstrMask instead. */
-booleantype MVAPPEND(N_VConstrMaskLocal)(N_Vector c, N_Vector x, N_Vector m)
+sunbooleantype MVAPPEND(N_VConstrMaskLocal)(N_Vector c, N_Vector x, N_Vector m)
 {
   sunindextype i;
-  booleantype val, subval;
+  sunbooleantype val, subval;
 
   /* initialize output*/
   val = SUNTRUE;
@@ -1186,9 +1186,9 @@ booleantype MVAPPEND(N_VConstrMaskLocal)(N_Vector c, N_Vector x, N_Vector m)
    combining the results.  This routine does not check that c, x and m
    are ManyVectors, if they have the same number of subvectors, or if these
    subvectors are compatible. */
-booleantype N_VConstrMask_MPIManyVector(N_Vector c, N_Vector x, N_Vector m)
+sunbooleantype N_VConstrMask_MPIManyVector(N_Vector c, N_Vector x, N_Vector m)
 {
-  realtype val, gval;
+  sunrealtype val, gval;
   val = gval = (N_VConstrMaskLocal_MPIManyVector(c, x, m)) ? ONE : ZERO;
   if (MANYVECTOR_COMM(x) != MPI_COMM_NULL)
     MPI_Allreduce(&val, &gval, 1, MPI_SUNREALTYPE, MPI_MIN, MANYVECTOR_COMM(x));
@@ -1204,13 +1204,13 @@ booleantype N_VConstrMask_MPIManyVector(N_Vector c, N_Vector x, N_Vector m)
 
    If any subvector does not implement the N_VMinQuotientLocal routine (NULL
    function pointer), then this routine will call N_VMinQuotient instead. */
-realtype MVAPPEND(N_VMinQuotientLocal)(N_Vector num, N_Vector denom)
+sunrealtype MVAPPEND(N_VMinQuotientLocal)(N_Vector num, N_Vector denom)
 {
   sunindextype i;
-  realtype min, lmin;
+  sunrealtype min, lmin;
 
   /* initialize output*/
-  min = BIG_REAL;
+  min = SUN_BIG_REAL;
 
   for (i=0; i<MANYVECTOR_NUM_SUBVECS(num); i++) {
 
@@ -1240,9 +1240,9 @@ realtype MVAPPEND(N_VMinQuotientLocal)(N_Vector num, N_Vector denom)
    and combining the results.  This routine does not check that num and
    denom are ManyVectors, if they have the same number of subvectors, or if
    these subvectors are compatible. */
-realtype N_VMinQuotient_MPIManyVector(N_Vector num, N_Vector denom)
+sunrealtype N_VMinQuotient_MPIManyVector(N_Vector num, N_Vector denom)
 {
-  realtype lmin, gmin;
+  sunrealtype lmin, gmin;
   lmin = gmin = N_VMinQuotientLocal_MPIManyVector(num, denom);
   if (MANYVECTOR_COMM(num) != MPI_COMM_NULL)
     MPI_Allreduce(&lmin, &gmin, 1, MPI_SUNREALTYPE, MPI_MIN, MANYVECTOR_COMM(num));
@@ -1257,12 +1257,12 @@ realtype N_VMinQuotient_MPIManyVector(N_Vector num, N_Vector denom)
 
 
 int MVAPPEND(N_VDotProdMultiLocal)(int nvec, N_Vector x, N_Vector* Y,
-                                   realtype* dotprods)
+                                   sunrealtype* dotprods)
 {
   int          j, retval;
   sunindextype i;
   N_Vector*    Ysub;
-  realtype*    contrib;
+  sunrealtype*    contrib;
 
   /* create temporary workspace arrays */
   Ysub = NULL;
@@ -1270,7 +1270,7 @@ int MVAPPEND(N_VDotProdMultiLocal)(int nvec, N_Vector x, N_Vector* Y,
   if (!Ysub) return -1;
 
   contrib = NULL;
-  contrib = (realtype*) malloc(nvec * sizeof(realtype));
+  contrib = (sunrealtype*) malloc(nvec * sizeof(sunrealtype));
   if (!contrib) return -1;
 
   /* initialize output */
@@ -1307,7 +1307,7 @@ int MVAPPEND(N_VDotProdMultiLocal)(int nvec, N_Vector x, N_Vector* Y,
 
 
 #ifdef MANYVECTOR_BUILD_WITH_MPI
-int N_VDotProdMultiAllReduce_MPIManyVector(int nvec_total, N_Vector x, realtype* sum)
+int N_VDotProdMultiAllReduce_MPIManyVector(int nvec_total, N_Vector x, sunrealtype* sum)
 {
   /* accumulate totals and return */
   if (MANYVECTOR_COMM(x) != MPI_COMM_NULL)
@@ -1332,7 +1332,7 @@ int N_VDotProdMultiAllReduce_MPIManyVector(int nvec_total, N_Vector x, realtype*
    array-of-arrays of N_Vectors that comprise X.  This routine will be
    passed an array of ManyVectors, so to call the subvector-specific routines
    we must unravel the subvectors while retaining an array of outer vectors. */
-int MVAPPEND(N_VLinearCombination)(int nvec, realtype* c, N_Vector* X, N_Vector z)
+int MVAPPEND(N_VLinearCombination)(int nvec, sunrealtype* c, N_Vector* X, N_Vector z)
 {
   sunindextype i, j;
   int retval;
@@ -1375,7 +1375,7 @@ int MVAPPEND(N_VLinearCombination)(int nvec, realtype* c, N_Vector* X, N_Vector 
    N_Vectors that comprise Y and Z.  This routine will be passed an array of
    ManyVectors, so to call the subvector-specific routines we must unravel
    the subvectors while retaining an array of outer vectors. */
-int MVAPPEND(N_VScaleAddMulti)(int nvec, realtype* a, N_Vector x, N_Vector* Y, N_Vector* Z)
+int MVAPPEND(N_VScaleAddMulti)(int nvec, sunrealtype* a, N_Vector x, N_Vector* Y, N_Vector* Z)
 {
   sunindextype i, j;
   int retval;
@@ -1423,7 +1423,7 @@ int MVAPPEND(N_VScaleAddMulti)(int nvec, realtype* a, N_Vector x, N_Vector* Y, N
    will require only a single array-valued reduction operation (in contrast to calling
    N_VDotProdMulti on all subvectors, where we would require num_subvectors separate
    reductions). */
-int MVAPPEND(N_VDotProdMulti)(int nvec, N_Vector x, N_Vector* Y, realtype* dotprods)
+int MVAPPEND(N_VDotProdMulti)(int nvec, N_Vector x, N_Vector* Y, sunrealtype* dotprods)
 {
   sunindextype i;
 
@@ -1454,8 +1454,8 @@ int MVAPPEND(N_VDotProdMulti)(int nvec, N_Vector x, N_Vector* Y, realtype* dotpr
    N_Vectors that comprise X, Y and Z.  This routine will be passed arrays of
    ManyVectors, so to call the subvector-specific routines we must unravel
    the subvectors while retaining arrays of outer vectors. */
-int MVAPPEND(N_VLinearSumVectorArray)(int nvec, realtype a,
-                                      N_Vector *X, realtype b,
+int MVAPPEND(N_VLinearSumVectorArray)(int nvec, sunrealtype a,
+                                      N_Vector *X, sunrealtype b,
                                       N_Vector *Y, N_Vector *Z)
 {
   sunindextype i, j;
@@ -1512,7 +1512,7 @@ int MVAPPEND(N_VLinearSumVectorArray)(int nvec, realtype a,
    N_Vectors that comprise X and Z.  This routine will be passed arrays of
    ManyVectors, so to call the subvector-specific routines we must unravel
    the subvectors while retaining arrays of outer vectors. */
-int MVAPPEND(N_VScaleVectorArray)(int nvec, realtype* c, N_Vector* X, N_Vector* Z)
+int MVAPPEND(N_VScaleVectorArray)(int nvec, sunrealtype* c, N_Vector* X, N_Vector* Z)
 {
   sunindextype i, j;
   int retval;
@@ -1562,7 +1562,7 @@ int MVAPPEND(N_VScaleVectorArray)(int nvec, realtype* c, N_Vector* X, N_Vector* 
    N_Vectors that comprise Z.  This routine will be passed an array of
    ManyVectors, so to call the subvector-specific routines we must unravel
    the subvectors while retaining an array of outer vectors. */
-int MVAPPEND(N_VConstVectorArray)(int nvec, realtype c, N_Vector* Z)
+int MVAPPEND(N_VConstVectorArray)(int nvec, sunrealtype c, N_Vector* Z)
 {
   sunindextype i, j;
   int retval;
@@ -1608,7 +1608,7 @@ int MVAPPEND(N_VConstVectorArray)(int nvec, realtype c, N_Vector* Z)
    will require only a single array-valued reduction operation (in contrast to calling
    N_VWrmsNormVectorArray on all subvectors, where we would require num_subvectors
    separate reductions). */
-int MVAPPEND(N_VWrmsNormVectorArray)(int nvec, N_Vector* X, N_Vector* W, realtype* nrm)
+int MVAPPEND(N_VWrmsNormVectorArray)(int nvec, N_Vector* X, N_Vector* W, sunrealtype* nrm)
 {
   sunindextype i;
   int retval;
@@ -1645,7 +1645,7 @@ int MVAPPEND(N_VWrmsNormVectorArray)(int nvec, N_Vector* X, N_Vector* W, realtyp
    to calling N_VWrmsNormMaskVectorArray on all subvectors, where we would require
    num_subvectors separate reductions). */
 int MVAPPEND(N_VWrmsNormMaskVectorArray)(int nvec, N_Vector* X, N_Vector* W,
-                                         N_Vector id, realtype* nrm)
+                                         N_Vector id, sunrealtype* nrm)
 {
   sunindextype i;
   int retval;
@@ -1766,7 +1766,7 @@ int MVAPPEND(N_VBufUnpack)(N_Vector x, void *buf)
    Enable / Disable fused and vector array operations
    ----------------------------------------------------------------- */
 
-int MVAPPEND(N_VEnableFusedOps)(N_Vector v, booleantype tf)
+int MVAPPEND(N_VEnableFusedOps)(N_Vector v, sunbooleantype tf)
 {
   /* check that vector is non-NULL */
   if (v == NULL) return(-1);
@@ -1811,7 +1811,7 @@ int MVAPPEND(N_VEnableFusedOps)(N_Vector v, booleantype tf)
 }
 
 
-int MVAPPEND(N_VEnableLinearCombination)(N_Vector v, booleantype tf)
+int MVAPPEND(N_VEnableLinearCombination)(N_Vector v, sunbooleantype tf)
 {
   /* check that vector is non-NULL */
   if (v == NULL) return(-1);
@@ -1829,7 +1829,7 @@ int MVAPPEND(N_VEnableLinearCombination)(N_Vector v, booleantype tf)
   return(0);
 }
 
-int MVAPPEND(N_VEnableScaleAddMulti)(N_Vector v, booleantype tf)
+int MVAPPEND(N_VEnableScaleAddMulti)(N_Vector v, sunbooleantype tf)
 {
   /* check that vector is non-NULL */
   if (v == NULL) return(-1);
@@ -1847,7 +1847,7 @@ int MVAPPEND(N_VEnableScaleAddMulti)(N_Vector v, booleantype tf)
   return(0);
 }
 
-int MVAPPEND(N_VEnableDotProdMulti)(N_Vector v, booleantype tf)
+int MVAPPEND(N_VEnableDotProdMulti)(N_Vector v, sunbooleantype tf)
 {
   /* check that vector is non-NULL */
   if (v == NULL) return(-1);
@@ -1865,7 +1865,7 @@ int MVAPPEND(N_VEnableDotProdMulti)(N_Vector v, booleantype tf)
   return(0);
 }
 
-int MVAPPEND(N_VEnableLinearSumVectorArray)(N_Vector v, booleantype tf)
+int MVAPPEND(N_VEnableLinearSumVectorArray)(N_Vector v, sunbooleantype tf)
 {
   /* check that vector is non-NULL */
   if (v == NULL) return(-1);
@@ -1883,7 +1883,7 @@ int MVAPPEND(N_VEnableLinearSumVectorArray)(N_Vector v, booleantype tf)
   return(0);
 }
 
-int MVAPPEND(N_VEnableScaleVectorArray)(N_Vector v, booleantype tf)
+int MVAPPEND(N_VEnableScaleVectorArray)(N_Vector v, sunbooleantype tf)
 {
   /* check that vector is non-NULL */
   if (v == NULL) return(-1);
@@ -1901,7 +1901,7 @@ int MVAPPEND(N_VEnableScaleVectorArray)(N_Vector v, booleantype tf)
   return(0);
 }
 
-int MVAPPEND(N_VEnableConstVectorArray)(N_Vector v, booleantype tf)
+int MVAPPEND(N_VEnableConstVectorArray)(N_Vector v, sunbooleantype tf)
 {
   /* check that vector is non-NULL */
   if (v == NULL) return(-1);
@@ -1919,7 +1919,7 @@ int MVAPPEND(N_VEnableConstVectorArray)(N_Vector v, booleantype tf)
   return(0);
 }
 
-int MVAPPEND(N_VEnableWrmsNormVectorArray)(N_Vector v, booleantype tf)
+int MVAPPEND(N_VEnableWrmsNormVectorArray)(N_Vector v, sunbooleantype tf)
 {
   /* check that vector is non-NULL */
   if (v == NULL) return(-1);
@@ -1937,7 +1937,7 @@ int MVAPPEND(N_VEnableWrmsNormVectorArray)(N_Vector v, booleantype tf)
   return(0);
 }
 
-int MVAPPEND(N_VEnableWrmsNormMaskVectorArray)(N_Vector v, booleantype tf)
+int MVAPPEND(N_VEnableWrmsNormMaskVectorArray)(N_Vector v, sunbooleantype tf)
 {
   /* check that vector is non-NULL */
   if (v == NULL) return(-1);
@@ -1955,7 +1955,7 @@ int MVAPPEND(N_VEnableWrmsNormMaskVectorArray)(N_Vector v, booleantype tf)
   return(0);
 }
 
-int MVAPPEND(N_VEnableDotProdMultiLocal)(N_Vector v, booleantype tf)
+int MVAPPEND(N_VEnableDotProdMultiLocal)(N_Vector v, sunbooleantype tf)
 {
   /* check that vector is non-NULL */
   if (v == NULL) return(-1);
@@ -1980,7 +1980,7 @@ int MVAPPEND(N_VEnableDotProdMultiLocal)(N_Vector v, booleantype tf)
 /* This function performs a generic clone operation on an input N_Vector.
    Based on the 'cloneempty' flag it will either call "nvclone" or
    "nvcloneempty" when creating subvectors in the cloned vector. */
-static N_Vector ManyVectorClone(N_Vector w, booleantype cloneempty)
+static N_Vector ManyVectorClone(N_Vector w, sunbooleantype cloneempty)
 {
   N_Vector v;
   MVAPPEND(N_VectorContent) content;

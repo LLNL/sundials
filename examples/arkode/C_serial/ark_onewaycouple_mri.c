@@ -46,7 +46,7 @@
 #include <arkode/arkode_mristep.h>    /* prototypes for MRIStep fcts., consts */
 #include <arkode/arkode_arkstep.h>    /* prototypes for ARKStep fcts., consts */
 #include <nvector/nvector_serial.h>   /* serial N_Vector types, fcts., macros */
-#include <sundials/sundials_types.h>  /* def. of type 'realtype'              */
+#include <sundials/sundials_types.h>  /* def. of type 'sunrealtype'              */
 
 #if defined(SUNDIALS_EXTENDED_PRECISION)
 #define GSYM "Lg"
@@ -59,14 +59,14 @@
 #endif
 
 /* User-supplied functions called by the solver */
-static int fs(realtype t, N_Vector y, N_Vector ydot, void *user_data);
-static int ff(realtype t, N_Vector y, N_Vector ydot, void *user_data);
+static int fs(sunrealtype t, N_Vector y, N_Vector ydot, void *user_data);
+static int ff(sunrealtype t, N_Vector y, N_Vector ydot, void *user_data);
 
 /* Private function to compute the analytic solution */
-static int ans(realtype t, N_Vector ytrue, void *user_data);
+static int ans(sunrealtype t, N_Vector ytrue, void *user_data);
 
 /* Private function to compute the max error in the solution */
-static int err(N_Vector y, N_Vector ytrue, realtype* e);
+static int err(N_Vector y, N_Vector ytrue, sunrealtype* e);
 
 /* Private function to check function return values */
 static int check_retval(void *returnvalue, const char *funcname, int opt);
@@ -75,14 +75,14 @@ static int check_retval(void *returnvalue, const char *funcname, int opt);
 int main()
 {
   /* general problem parameters */
-  realtype T0 = RCONST(0.0);     /* initial time */
-  realtype Tf = RCONST(1.0);     /* final time */
-  realtype dTout = RCONST(0.1);  /* time between outputs */
+  sunrealtype T0 = SUN_RCONST(0.0);     /* initial time */
+  sunrealtype Tf = SUN_RCONST(1.0);     /* final time */
+  sunrealtype dTout = SUN_RCONST(0.1);  /* time between outputs */
   sunindextype NEQ = 3;          /* number of dependent vars. */
   int Nt = (int) ceil(Tf/dTout); /* number of output times */
-  realtype hs = RCONST(0.001);   /* slow step size */
-  realtype hf = RCONST(0.0001);  /* fast step size */
-  realtype u0, v0, w0;           /* initial conditions */
+  sunrealtype hs = SUN_RCONST(0.001);   /* slow step size */
+  sunrealtype hf = SUN_RCONST(0.0001);  /* fast step size */
+  sunrealtype u0, v0, w0;           /* initial conditions */
 
   /* general problem variables */
   int retval;                               /* reusable error-checking flag */
@@ -92,8 +92,8 @@ int main()
   void *inner_arkode_mem = NULL;            /* empty ARKode memory structure */
   MRIStepInnerStepper inner_stepper = NULL; /* inner stepper */
   FILE *UFID;
-  realtype t, tout;
-  realtype error = RCONST(0.0);
+  sunrealtype t, tout;
+  sunrealtype error = SUN_RCONST(0.0);
   int iout;
   long int nsts, nstf, nfse, nfsi, nff, tmp;
 
@@ -107,9 +107,9 @@ int main()
   if (check_retval(&retval, "SUNContext_Create", 1)) return 1;
 
   /* Set the initial contions */
-  u0 = RCONST(1.0);
-  v0 = RCONST(0.0);
-  w0 = RCONST(2.0);
+  u0 = SUN_RCONST(1.0);
+  v0 = SUN_RCONST(0.0);
+  w0 = SUN_RCONST(2.0);
 
   /* Initial problem output */
   printf("\nOne way coupling ODE test problem:\n");
@@ -250,13 +250,13 @@ int main()
  * ------------------------------*/
 
 /* ff routine to compute the fast portion of the ODE RHS. */
-static int ff(realtype t, N_Vector y, N_Vector ydot, void *user_data)
+static int ff(sunrealtype t, N_Vector y, N_Vector ydot, void *user_data)
 {
-  realtype w = NV_Ith_S(y,2);                 /* access solution values */
+  sunrealtype w = NV_Ith_S(y,2);                 /* access solution values */
 
   /* fill in the RHS function */
-  NV_Ith_S(ydot,0) = RCONST(0.0);
-  NV_Ith_S(ydot,1) = RCONST(0.0);
+  NV_Ith_S(ydot,0) = SUN_RCONST(0.0);
+  NV_Ith_S(ydot,1) = SUN_RCONST(0.0);
   NV_Ith_S(ydot,2) = -w;
 
   /* Return with success */
@@ -264,11 +264,11 @@ static int ff(realtype t, N_Vector y, N_Vector ydot, void *user_data)
 }
 
 /* fs routine to compute the slow portion of the ODE RHS. */
-static int fs(realtype t, N_Vector y, N_Vector ydot, void *user_data)
+static int fs(sunrealtype t, N_Vector y, N_Vector ydot, void *user_data)
 {
-  realtype c1 = RCONST(50.0);                 /* problem constant */
-  realtype u  = NV_Ith_S(y,0);                /* access solution values */
-  realtype v  = NV_Ith_S(y,1);
+  sunrealtype c1 = SUN_RCONST(50.0);                 /* problem constant */
+  sunrealtype u  = NV_Ith_S(y,0);                /* access solution values */
+  sunrealtype v  = NV_Ith_S(y,1);
 
   /* fill in the RHS function */
   NV_Ith_S(ydot,0) = -c1*v;
@@ -284,12 +284,12 @@ static int fs(realtype t, N_Vector y, N_Vector ydot, void *user_data)
  * ------------------------------------*/
 
 /* function to compute the analytic solution of the ODE */
-static int ans(realtype t, N_Vector ytrue, void *user_data)
+static int ans(sunrealtype t, N_Vector ytrue, void *user_data)
 {
-  realtype c1 = RCONST(50.0);
-  realtype c2 = RCONST(5051.0)/RCONST(2501.0);
-  realtype c3 = RCONST(49.0)/RCONST(2501.0);
-  realtype c4 = RCONST(51.0)/RCONST(2501.0);
+  sunrealtype c1 = SUN_RCONST(50.0);
+  sunrealtype c2 = SUN_RCONST(5051.0)/SUN_RCONST(2501.0);
+  sunrealtype c3 = SUN_RCONST(49.0)/SUN_RCONST(2501.0);
+  sunrealtype c4 = SUN_RCONST(51.0)/SUN_RCONST(2501.0);
 
   /* fill in the solution vector */
   NV_Ith_S(ytrue,0) = cos(c1*t);
@@ -301,10 +301,10 @@ static int ans(realtype t, N_Vector ytrue, void *user_data)
 }
 
 /* function to compute the max error in the solution */
-static int err(N_Vector y, N_Vector ytrue, realtype* e)
+static int err(N_Vector y, N_Vector ytrue, sunrealtype* e)
 {
   /* compute the error and store it in ytrue */
-  N_VLinearSum(RCONST(1.0), y, RCONST(-1.0), ytrue, ytrue);
+  N_VLinearSum(SUN_RCONST(1.0), y, SUN_RCONST(-1.0), ytrue, ytrue);
 
   /* compute the max norm of the error */
   *e = N_VMaxNorm(ytrue);

@@ -46,6 +46,7 @@ set(sundials_HEADERS
   sundials_profiler.hpp
   sundials_logger.h
   sundials_types.h
+  sundials_types_deprecated.h
   sundials_version.h
   )
 
@@ -63,11 +64,6 @@ endif()
 
 if(ENABLE_SYCL)
   list(APPEND sundials_HEADERS sundials_sycl_policies.hpp)
-endif()
-
-# If Blas/Lapack support was enabled, add the Lapack interface headers
-if(BUILD_SUNLINSOL_LAPACKBAND OR BUILD_SUNLINSOL_LAPACKDENSE)
-  list(APPEND sundials_HEADERS sundials_lapack.h)
 endif()
 
 # If enabled, add the XBraid interface header

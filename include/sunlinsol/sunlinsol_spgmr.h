@@ -52,9 +52,9 @@ struct _SUNLinearSolverContent_SPGMR {
   int pretype;
   int gstype;
   int max_restarts;
-  booleantype zeroguess;
+  sunbooleantype zeroguess;
   int numiters;
-  realtype resnorm;
+  sunrealtype resnorm;
   int last_flag;
 
   SUNATimesFn ATimes;
@@ -66,13 +66,13 @@ struct _SUNLinearSolverContent_SPGMR {
   N_Vector s1;
   N_Vector s2;
   N_Vector *V;
-  realtype **Hes;
-  realtype *givens;
+  sunrealtype **Hes;
+  sunrealtype *givens;
   N_Vector xcor;
-  realtype *yg;
+  sunrealtype *yg;
   N_Vector vtemp;
 
-  realtype *cv;
+  sunrealtype *cv;
   N_Vector *Xv;
 
   int print_level;
@@ -109,25 +109,18 @@ SUNDIALS_EXPORT int SUNLinSolSetScalingVectors_SPGMR(SUNLinearSolver S,
                                                      N_Vector s1,
                                                      N_Vector s2);
 SUNDIALS_EXPORT int SUNLinSolSetZeroGuess_SPGMR(SUNLinearSolver S,
-                                                booleantype onff);
+                                                sunbooleantype onff);
 SUNDIALS_EXPORT int SUNLinSolSetup_SPGMR(SUNLinearSolver S, SUNMatrix A);
 SUNDIALS_EXPORT int SUNLinSolSolve_SPGMR(SUNLinearSolver S, SUNMatrix A,
-                                         N_Vector x, N_Vector b, realtype tol);
+                                         N_Vector x, N_Vector b, sunrealtype tol);
 SUNDIALS_EXPORT int SUNLinSolNumIters_SPGMR(SUNLinearSolver S);
-SUNDIALS_EXPORT realtype SUNLinSolResNorm_SPGMR(SUNLinearSolver S);
+SUNDIALS_EXPORT sunrealtype SUNLinSolResNorm_SPGMR(SUNLinearSolver S);
 SUNDIALS_EXPORT N_Vector SUNLinSolResid_SPGMR(SUNLinearSolver S);
 SUNDIALS_EXPORT sunindextype SUNLinSolLastFlag_SPGMR(SUNLinearSolver S);
 SUNDIALS_EXPORT int SUNLinSolSpace_SPGMR(SUNLinearSolver S,
                                          long int *lenrwLS,
                                          long int *leniwLS);
 SUNDIALS_EXPORT int SUNLinSolFree_SPGMR(SUNLinearSolver S);
-SUNDIALS_DEPRECATED_EXPORT_MSG("Use SUNLogger_SetInfoFilename instead")
-int SUNLinSolSetInfoFile_SPGMR(SUNLinearSolver LS,
-                               FILE* info_file);
-SUNDIALS_DEPRECATED_EXPORT_MSG("Use SUNLogger interface instead")
-int SUNLinSolSetPrintLevel_SPGMR(SUNLinearSolver LS, int print_level);
-
-
 
 #ifdef __cplusplus
 }

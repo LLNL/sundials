@@ -107,33 +107,33 @@ struct _generic_N_Vector_Ops
   N_Vector (*nvcloneempty)(N_Vector);
   void (*nvdestroy)(N_Vector);
   void (*nvspace)(N_Vector, sunindextype*, sunindextype*);
-  realtype* (*nvgetarraypointer)(N_Vector);
-  realtype* (*nvgetdevicearraypointer)(N_Vector);
-  void (*nvsetarraypointer)(realtype*, N_Vector);
+  sunrealtype* (*nvgetarraypointer)(N_Vector);
+  sunrealtype* (*nvgetdevicearraypointer)(N_Vector);
+  void (*nvsetarraypointer)(sunrealtype*, N_Vector);
   void* (*nvgetcommunicator)(N_Vector);
   sunindextype (*nvgetlength)(N_Vector);
   sunindextype (*nvgetlocallength)(N_Vector);
 
   /* standard vector operations */
-  void (*nvlinearsum)(realtype, N_Vector, realtype, N_Vector, N_Vector);
-  void (*nvconst)(realtype, N_Vector);
+  void (*nvlinearsum)(sunrealtype, N_Vector, sunrealtype, N_Vector, N_Vector);
+  void (*nvconst)(sunrealtype, N_Vector);
   void (*nvprod)(N_Vector, N_Vector, N_Vector);
   void (*nvdiv)(N_Vector, N_Vector, N_Vector);
-  void (*nvscale)(realtype, N_Vector, N_Vector);
+  void (*nvscale)(sunrealtype, N_Vector, N_Vector);
   void (*nvabs)(N_Vector, N_Vector);
   void (*nvinv)(N_Vector, N_Vector);
-  void (*nvaddconst)(N_Vector, realtype, N_Vector);
-  realtype (*nvdotprod)(N_Vector, N_Vector);
-  realtype (*nvmaxnorm)(N_Vector);
-  realtype (*nvwrmsnorm)(N_Vector, N_Vector);
-  realtype (*nvwrmsnormmask)(N_Vector, N_Vector, N_Vector);
-  realtype (*nvmin)(N_Vector);
-  realtype (*nvwl2norm)(N_Vector, N_Vector);
-  realtype (*nvl1norm)(N_Vector);
-  void (*nvcompare)(realtype, N_Vector, N_Vector);
-  booleantype (*nvinvtest)(N_Vector, N_Vector);
-  booleantype (*nvconstrmask)(N_Vector, N_Vector, N_Vector);
-  realtype (*nvminquotient)(N_Vector, N_Vector);
+  void (*nvaddconst)(N_Vector, sunrealtype, N_Vector);
+  sunrealtype (*nvdotprod)(N_Vector, N_Vector);
+  sunrealtype (*nvmaxnorm)(N_Vector);
+  sunrealtype (*nvwrmsnorm)(N_Vector, N_Vector);
+  sunrealtype (*nvwrmsnormmask)(N_Vector, N_Vector, N_Vector);
+  sunrealtype (*nvmin)(N_Vector);
+  sunrealtype (*nvwl2norm)(N_Vector, N_Vector);
+  sunrealtype (*nvl1norm)(N_Vector);
+  void (*nvcompare)(sunrealtype, N_Vector, N_Vector);
+  sunbooleantype (*nvinvtest)(N_Vector, N_Vector);
+  sunbooleantype (*nvconstrmask)(N_Vector, N_Vector, N_Vector);
+  sunrealtype (*nvminquotient)(N_Vector, N_Vector);
 
   /*
    * OPTIONAL operations.
@@ -142,37 +142,37 @@ struct _generic_N_Vector_Ops
    */
 
   /* OPTIONAL fused vector operations */
-  int (*nvlinearcombination)(int, realtype*, N_Vector*, N_Vector);
-  int (*nvscaleaddmulti)(int, realtype*, N_Vector, N_Vector*, N_Vector*);
-  int (*nvdotprodmulti)(int, N_Vector, N_Vector*, realtype*);
+  int (*nvlinearcombination)(int, sunrealtype*, N_Vector*, N_Vector);
+  int (*nvscaleaddmulti)(int, sunrealtype*, N_Vector, N_Vector*, N_Vector*);
+  int (*nvdotprodmulti)(int, N_Vector, N_Vector*, sunrealtype*);
 
   /* OPTIONAL vector array operations */
-  int (*nvlinearsumvectorarray)(int, realtype, N_Vector*, realtype, N_Vector*, N_Vector*);
-  int (*nvscalevectorarray)(int, realtype*, N_Vector*, N_Vector*);
-  int (*nvconstvectorarray)(int, realtype, N_Vector*);
-  int (*nvwrmsnormvectorarray)(int, N_Vector*, N_Vector*, realtype*);
-  int (*nvwrmsnormmaskvectorarray)(int, N_Vector*, N_Vector*, N_Vector, realtype*);
-  int (*nvscaleaddmultivectorarray)(int, int, realtype*, N_Vector*, N_Vector**, N_Vector**);
-  int (*nvlinearcombinationvectorarray)(int, int, realtype*, N_Vector**, N_Vector*);
+  int (*nvlinearsumvectorarray)(int, sunrealtype, N_Vector*, sunrealtype, N_Vector*, N_Vector*);
+  int (*nvscalevectorarray)(int, sunrealtype*, N_Vector*, N_Vector*);
+  int (*nvconstvectorarray)(int, sunrealtype, N_Vector*);
+  int (*nvwrmsnormvectorarray)(int, N_Vector*, N_Vector*, sunrealtype*);
+  int (*nvwrmsnormmaskvectorarray)(int, N_Vector*, N_Vector*, N_Vector, sunrealtype*);
+  int (*nvscaleaddmultivectorarray)(int, int, sunrealtype*, N_Vector*, N_Vector**, N_Vector**);
+  int (*nvlinearcombinationvectorarray)(int, int, sunrealtype*, N_Vector**, N_Vector*);
 
   /*
    * OPTIONAL operations with no default implementation.
    */
 
   /* Local reduction kernels (no parallel communication) */
-  realtype (*nvdotprodlocal)(N_Vector, N_Vector);
-  realtype (*nvmaxnormlocal)(N_Vector);
-  realtype (*nvminlocal)(N_Vector);
-  realtype (*nvl1normlocal)(N_Vector);
-  booleantype (*nvinvtestlocal)(N_Vector, N_Vector);
-  booleantype (*nvconstrmasklocal)(N_Vector, N_Vector, N_Vector);
-  realtype (*nvminquotientlocal)(N_Vector, N_Vector);
-  realtype (*nvwsqrsumlocal)(N_Vector, N_Vector);
-  realtype (*nvwsqrsummasklocal)(N_Vector, N_Vector, N_Vector);
+  sunrealtype (*nvdotprodlocal)(N_Vector, N_Vector);
+  sunrealtype (*nvmaxnormlocal)(N_Vector);
+  sunrealtype (*nvminlocal)(N_Vector);
+  sunrealtype (*nvl1normlocal)(N_Vector);
+  sunbooleantype (*nvinvtestlocal)(N_Vector, N_Vector);
+  sunbooleantype (*nvconstrmasklocal)(N_Vector, N_Vector, N_Vector);
+  sunrealtype (*nvminquotientlocal)(N_Vector, N_Vector);
+  sunrealtype (*nvwsqrsumlocal)(N_Vector, N_Vector);
+  sunrealtype (*nvwsqrsummasklocal)(N_Vector, N_Vector, N_Vector);
 
   /* Single buffer reduction operations */
-  int (*nvdotprodmultilocal)(int, N_Vector, N_Vector*, realtype*);
-  int (*nvdotprodmultiallreduce)(int, N_Vector, realtype*);
+  int (*nvdotprodmultilocal)(int, N_Vector, N_Vector*, sunrealtype*);
+  int (*nvdotprodmultiallreduce)(int, N_Vector, sunrealtype*);
 
   /* XBraid interface operations */
   int (*nvbufsize)(N_Vector, sunindextype*);
@@ -218,79 +218,79 @@ SUNDIALS_EXPORT N_Vector N_VClone(N_Vector w);
 SUNDIALS_EXPORT N_Vector N_VCloneEmpty(N_Vector w);
 SUNDIALS_EXPORT void N_VDestroy(N_Vector v);
 SUNDIALS_EXPORT void N_VSpace(N_Vector v, sunindextype* lrw, sunindextype* liw);
-SUNDIALS_EXPORT realtype* N_VGetArrayPointer(N_Vector v);
-SUNDIALS_EXPORT realtype* N_VGetDeviceArrayPointer(N_Vector v);
-SUNDIALS_EXPORT void N_VSetArrayPointer(realtype* v_data, N_Vector v);
+SUNDIALS_EXPORT sunrealtype* N_VGetArrayPointer(N_Vector v);
+SUNDIALS_EXPORT sunrealtype* N_VGetDeviceArrayPointer(N_Vector v);
+SUNDIALS_EXPORT void N_VSetArrayPointer(sunrealtype* v_data, N_Vector v);
 SUNDIALS_EXPORT void* N_VGetCommunicator(N_Vector v);
 SUNDIALS_EXPORT sunindextype N_VGetLength(N_Vector v);
 SUNDIALS_EXPORT sunindextype N_VGetLocalLength(N_Vector v);
 
 /* standard vector operations */
-SUNDIALS_EXPORT void N_VLinearSum(realtype a, N_Vector x, realtype b, N_Vector y, N_Vector z);
-SUNDIALS_EXPORT void N_VConst(realtype c, N_Vector z);
+SUNDIALS_EXPORT void N_VLinearSum(sunrealtype a, N_Vector x, sunrealtype b, N_Vector y, N_Vector z);
+SUNDIALS_EXPORT void N_VConst(sunrealtype c, N_Vector z);
 SUNDIALS_EXPORT void N_VProd(N_Vector x, N_Vector y, N_Vector z);
 SUNDIALS_EXPORT void N_VDiv(N_Vector x, N_Vector y, N_Vector z);
-SUNDIALS_EXPORT void N_VScale(realtype c, N_Vector x, N_Vector z);
+SUNDIALS_EXPORT void N_VScale(sunrealtype c, N_Vector x, N_Vector z);
 SUNDIALS_EXPORT void N_VAbs(N_Vector x, N_Vector z);
 SUNDIALS_EXPORT void N_VInv(N_Vector x, N_Vector z);
-SUNDIALS_EXPORT void N_VAddConst(N_Vector x, realtype b, N_Vector z);
-SUNDIALS_EXPORT realtype N_VDotProd(N_Vector x, N_Vector y);
-SUNDIALS_EXPORT realtype N_VMaxNorm(N_Vector x);
-SUNDIALS_EXPORT realtype N_VWrmsNorm(N_Vector x, N_Vector w);
-SUNDIALS_EXPORT realtype N_VWrmsNormMask(N_Vector x, N_Vector w, N_Vector id);
-SUNDIALS_EXPORT realtype N_VMin(N_Vector x);
-SUNDIALS_EXPORT realtype N_VWL2Norm(N_Vector x, N_Vector w);
-SUNDIALS_EXPORT realtype N_VL1Norm(N_Vector x);
-SUNDIALS_EXPORT void N_VCompare(realtype c, N_Vector x, N_Vector z);
-SUNDIALS_EXPORT booleantype N_VInvTest(N_Vector x, N_Vector z);
-SUNDIALS_EXPORT booleantype N_VConstrMask(N_Vector c, N_Vector x, N_Vector m);
-SUNDIALS_EXPORT realtype N_VMinQuotient(N_Vector num, N_Vector denom);
+SUNDIALS_EXPORT void N_VAddConst(N_Vector x, sunrealtype b, N_Vector z);
+SUNDIALS_EXPORT sunrealtype N_VDotProd(N_Vector x, N_Vector y);
+SUNDIALS_EXPORT sunrealtype N_VMaxNorm(N_Vector x);
+SUNDIALS_EXPORT sunrealtype N_VWrmsNorm(N_Vector x, N_Vector w);
+SUNDIALS_EXPORT sunrealtype N_VWrmsNormMask(N_Vector x, N_Vector w, N_Vector id);
+SUNDIALS_EXPORT sunrealtype N_VMin(N_Vector x);
+SUNDIALS_EXPORT sunrealtype N_VWL2Norm(N_Vector x, N_Vector w);
+SUNDIALS_EXPORT sunrealtype N_VL1Norm(N_Vector x);
+SUNDIALS_EXPORT void N_VCompare(sunrealtype c, N_Vector x, N_Vector z);
+SUNDIALS_EXPORT sunbooleantype N_VInvTest(N_Vector x, N_Vector z);
+SUNDIALS_EXPORT sunbooleantype N_VConstrMask(N_Vector c, N_Vector x, N_Vector m);
+SUNDIALS_EXPORT sunrealtype N_VMinQuotient(N_Vector num, N_Vector denom);
 
 /*
  * OPTIONAL operations with default implementations.
  */
 
 /* fused vector operations */
-SUNDIALS_EXPORT int N_VLinearCombination(int nvec, realtype* c, N_Vector* X, N_Vector z);
+SUNDIALS_EXPORT int N_VLinearCombination(int nvec, sunrealtype* c, N_Vector* X, N_Vector z);
 
-SUNDIALS_EXPORT int N_VScaleAddMulti(int nvec, realtype* a, N_Vector x, N_Vector* Y, N_Vector* Z);
+SUNDIALS_EXPORT int N_VScaleAddMulti(int nvec, sunrealtype* a, N_Vector x, N_Vector* Y, N_Vector* Z);
 
-SUNDIALS_EXPORT int N_VDotProdMulti(int nvec, N_Vector x, N_Vector* Y, realtype* dotprods);
+SUNDIALS_EXPORT int N_VDotProdMulti(int nvec, N_Vector x, N_Vector* Y, sunrealtype* dotprods);
 
 /* vector array operations */
-SUNDIALS_EXPORT int N_VLinearSumVectorArray(int nvec, realtype a, N_Vector* X, realtype b, N_Vector* Y, N_Vector* Z);
+SUNDIALS_EXPORT int N_VLinearSumVectorArray(int nvec, sunrealtype a, N_Vector* X, sunrealtype b, N_Vector* Y, N_Vector* Z);
 
-SUNDIALS_EXPORT int N_VScaleVectorArray(int nvec, realtype* c, N_Vector* X, N_Vector* Z);
+SUNDIALS_EXPORT int N_VScaleVectorArray(int nvec, sunrealtype* c, N_Vector* X, N_Vector* Z);
 
-SUNDIALS_EXPORT int N_VConstVectorArray(int nvec, realtype c, N_Vector* Z);
+SUNDIALS_EXPORT int N_VConstVectorArray(int nvec, sunrealtype c, N_Vector* Z);
 
-SUNDIALS_EXPORT int N_VWrmsNormVectorArray(int nvec, N_Vector* X, N_Vector* W, realtype* nrm);
+SUNDIALS_EXPORT int N_VWrmsNormVectorArray(int nvec, N_Vector* X, N_Vector* W, sunrealtype* nrm);
 
-SUNDIALS_EXPORT int N_VWrmsNormMaskVectorArray(int nvec, N_Vector* X, N_Vector* W, N_Vector id, realtype* nrm);
+SUNDIALS_EXPORT int N_VWrmsNormMaskVectorArray(int nvec, N_Vector* X, N_Vector* W, N_Vector id, sunrealtype* nrm);
 
-SUNDIALS_EXPORT int N_VScaleAddMultiVectorArray(int nvec, int nsum, realtype* a, N_Vector* X, N_Vector** Y,
+SUNDIALS_EXPORT int N_VScaleAddMultiVectorArray(int nvec, int nsum, sunrealtype* a, N_Vector* X, N_Vector** Y,
                                                 N_Vector** Z);
 
-SUNDIALS_EXPORT int N_VLinearCombinationVectorArray(int nvec, int nsum, realtype* c, N_Vector** X, N_Vector* Z);
+SUNDIALS_EXPORT int N_VLinearCombinationVectorArray(int nvec, int nsum, sunrealtype* c, N_Vector** X, N_Vector* Z);
 
 /*
  * OPTIONAL operations with no default implementation.
  */
 
 /* local reduction kernels (no parallel communication) */
-SUNDIALS_EXPORT realtype N_VDotProdLocal(N_Vector x, N_Vector y);
-SUNDIALS_EXPORT realtype N_VMaxNormLocal(N_Vector x);
-SUNDIALS_EXPORT realtype N_VMinLocal(N_Vector x);
-SUNDIALS_EXPORT realtype N_VL1NormLocal(N_Vector x);
-SUNDIALS_EXPORT realtype N_VWSqrSumLocal(N_Vector x, N_Vector w);
-SUNDIALS_EXPORT realtype N_VWSqrSumMaskLocal(N_Vector x, N_Vector w, N_Vector id);
-SUNDIALS_EXPORT booleantype N_VInvTestLocal(N_Vector x, N_Vector z);
-SUNDIALS_EXPORT booleantype N_VConstrMaskLocal(N_Vector c, N_Vector x, N_Vector m);
-SUNDIALS_EXPORT realtype N_VMinQuotientLocal(N_Vector num, N_Vector denom);
+SUNDIALS_EXPORT sunrealtype N_VDotProdLocal(N_Vector x, N_Vector y);
+SUNDIALS_EXPORT sunrealtype N_VMaxNormLocal(N_Vector x);
+SUNDIALS_EXPORT sunrealtype N_VMinLocal(N_Vector x);
+SUNDIALS_EXPORT sunrealtype N_VL1NormLocal(N_Vector x);
+SUNDIALS_EXPORT sunrealtype N_VWSqrSumLocal(N_Vector x, N_Vector w);
+SUNDIALS_EXPORT sunrealtype N_VWSqrSumMaskLocal(N_Vector x, N_Vector w, N_Vector id);
+SUNDIALS_EXPORT sunbooleantype N_VInvTestLocal(N_Vector x, N_Vector z);
+SUNDIALS_EXPORT sunbooleantype N_VConstrMaskLocal(N_Vector c, N_Vector x, N_Vector m);
+SUNDIALS_EXPORT sunrealtype N_VMinQuotientLocal(N_Vector num, N_Vector denom);
 
 /* single buffer reduction operations */
-SUNDIALS_EXPORT int N_VDotProdMultiLocal(int nvec, N_Vector x, N_Vector* Y, realtype* dotprods);
-SUNDIALS_EXPORT int N_VDotProdMultiAllReduce(int nvec_total, N_Vector x, realtype* sum);
+SUNDIALS_EXPORT int N_VDotProdMultiLocal(int nvec, N_Vector x, N_Vector* Y, sunrealtype* dotprods);
+SUNDIALS_EXPORT int N_VDotProdMultiAllReduce(int nvec_total, N_Vector x, sunrealtype* sum);
 
 /* XBraid interface operations */
 SUNDIALS_EXPORT int N_VBufSize(N_Vector x, sunindextype* size);

@@ -354,16 +354,16 @@ static int FPFunction(N_Vector u, N_Vector f, void *user_data)
 static int SetupSamples(UserData *udata)
 {
   sunindextype i, j, start, end;
-  realtype mean, val;
+  sunrealtype mean, val;
 
   // Access problem data
-  realtype *samples_local = N_VGetArrayPointer(udata->samples_local);
+  sunrealtype *samples_local = N_VGetArrayPointer(udata->samples_local);
   if (check_retval((void *) samples_local, "N_VGetArrayPointer", 0)) return 1;
 
-  realtype *mu_host = N_VGetArrayPointer(N_VGetLocalVector_MPIPlusX(udata->mu_true));
+  sunrealtype *mu_host = N_VGetArrayPointer(N_VGetLocalVector_MPIPlusX(udata->mu_true));
   if (check_retval((void *) mu_host, "N_VGetArrayPointer", 0)) return 1;
 
-  realtype std_dev = ONE;
+  sunrealtype std_dev = ONE;
 
   for (i = 0; i < 3; i++) {
     // Set number of samples with this mean
@@ -381,7 +381,7 @@ static int SetupSamples(UserData *udata)
     // Setup distribution parameters
     mean = mu_host[i];
     std::default_random_engine generator;
-    std::normal_distribution<realtype> distribution(mean, std_dev);
+    std::normal_distribution<sunrealtype> distribution(mean, std_dev);
 
     // Get samples
     for (j = start; j < end; j++) {
@@ -399,7 +399,7 @@ static int SetMus(UserData *udata)
 {
   sunindextype i;
 
-  realtype *mu_host = N_VGetArrayPointer(N_VGetLocalVector_MPIPlusX(udata->mu_true));
+  sunrealtype *mu_host = N_VGetArrayPointer(N_VGetLocalVector_MPIPlusX(udata->mu_true));
   if (check_retval((void *) mu_host, "N_VGetArrayPointer", 0)) return 1;
 
   // Fill vectors with uniform random data in [-1,1]
@@ -416,14 +416,14 @@ static int SetMus(UserData *udata)
 
 static int SetStartGuess(N_Vector u, UserData* udata)
 {
-  realtype *u_host = N_VGetArrayPointer(N_VGetLocalVector_MPIPlusX(u));
+  sunrealtype *u_host = N_VGetArrayPointer(N_VGetLocalVector_MPIPlusX(u));
   if (check_retval((void *) u_host, "N_VGetArrayPointer", 0)) return 1;
 
   for (sunindextype i = 0; i < udata->nodes_loc; i++)
   {
-    u_host[3 * i]     = RCONST(0.25);
-    u_host[3 * i + 1] = RCONST(3.0);
-    u_host[3 * i + 2] = RCONST(0.75);
+    u_host[3 * i]     = SUN_RCONST(0.25);
+    u_host[3 * i + 1] = SUN_RCONST(3.0);
+    u_host[3 * i + 2] = SUN_RCONST(0.75);
   }
 
   // Return success
@@ -441,20 +441,20 @@ static int EM(N_Vector u, N_Vector f, void *user_data)
   // --------------
 
   // Scale value for functions
-  realtype scale = ONE / sqrt(TWO * PI);
+  sunrealtype scale = ONE / sqrt(TWO * PI);
 
   // Get input pointers
-  realtype *u_host = N_VGetArrayPointer(N_VGetLocalVector_MPIPlusX(u));
-  realtype *x_host = N_VGetArrayPointer(udata->samples_local);
+  sunrealtype *u_host = N_VGetArrayPointer(N_VGetLocalVector_MPIPlusX(u));
+  sunrealtype *x_host = N_VGetArrayPointer(udata->samples_local);
 
   // Get output pointer
-  realtype *px_host  = N_VGetArrayPointer(udata->px);
+  sunrealtype *px_host  = N_VGetArrayPointer(udata->px);
 
   // Px calculation
-  realtype val1, val2, val3;
-  realtype a1 = udata->alpha1;
-  realtype a2 = udata->alpha2;
-  realtype a3 = udata->alpha3;
+  sunrealtype val1, val2, val3;
+  sunrealtype a1 = udata->alpha1;
+  sunrealtype a2 = udata->alpha2;
+  sunrealtype a3 = udata->alpha3;
   for (int i = 0; i < udata->num_samples; i++)
   {
     val1 = x_host[i] - u_host[0];
@@ -471,11 +471,11 @@ static int EM(N_Vector u, N_Vector f, void *user_data)
   // --------------
 
   // Get output device pointers
-  realtype *mub_host = N_VGetArrayPointer(udata->mu_bottom);
-  realtype *mut_host = N_VGetArrayPointer(udata->mu_top);
+  sunrealtype *mub_host = N_VGetArrayPointer(udata->mu_bottom);
+  sunrealtype *mut_host = N_VGetArrayPointer(udata->mu_top);
 
   // Initialize temporary variables
-  realtype frac1, frac2, frac3;
+  sunrealtype frac1, frac2, frac3;
 
   mub_host[0] = ZERO;
   mub_host[1] = ZERO;
@@ -509,7 +509,7 @@ static int EM(N_Vector u, N_Vector f, void *user_data)
   // EM FINALIZE COMPUTATION
   // -----------------------
 
-  realtype *f_host = N_VGetArrayPointer(N_VGetLocalVector_MPIPlusX(f));
+  sunrealtype *f_host = N_VGetArrayPointer(N_VGetLocalVector_MPIPlusX(f));
 
   // Serial EM Fin calculation
   for (int j = 0; j < udata->nodes_loc; j++)
@@ -566,7 +566,7 @@ static int InitUserData(UserData *udata)
   udata->nodes = udata->nodes_loc * udata->nprocs_w;
 
   // Integrator settings
-  udata->rtol        = RCONST(1.e-8);   // relative tolerance
+  udata->rtol        = SUN_RCONST(1.e-8);   // relative tolerance
   udata->maa         = 3;               // 3 vectors in Anderson Acceleration space
   udata->damping     = ONE;             // no damping for Anderson Acceleration
   udata->orthaa      = 0;               // use MGS for Anderson Acceleration
@@ -855,7 +855,7 @@ static int OpenOutput(UserData *udata)
     udata->rout.open(fname.str());
 
     udata->rout << scientific;
-    udata->rout << setprecision(numeric_limits<realtype>::digits10);
+    udata->rout << setprecision(numeric_limits<sunrealtype>::digits10);
 
     // Open output stream for error
     fname.str("");
@@ -865,7 +865,7 @@ static int OpenOutput(UserData *udata)
     udata->eout.open(fname.str());
 
     udata->eout << scientific;
-    udata->eout << setprecision(numeric_limits<realtype>::digits10);
+    udata->eout << setprecision(numeric_limits<sunrealtype>::digits10);
   }
 
   return 0;
@@ -879,12 +879,12 @@ static int WriteOutput(N_Vector u, N_Vector f, UserData *udata)
 
   // r = \|G(u) - u\|_inf
   N_VLinearSum(ONE, f, -ONE, u, udata->vtemp);
-  realtype res = N_VMaxNorm(udata->vtemp);
+  sunrealtype res = N_VMaxNorm(udata->vtemp);
 
   // e = \|u_exact - u\|_inf
   retval = SolutionError(udata->mu_true, u, udata->vtemp, udata);
   if (check_retval(&retval, "SolutionError", 1)) return 1;
-  realtype err = N_VMaxNorm(udata->vtemp);
+  sunrealtype err = N_VMaxNorm(udata->vtemp);
 
   if (outproc)
   {

@@ -31,10 +31,10 @@ extern "C" {
   ===============================================================*/
 
 /* Numeric constants */
-#define FOURTH RCONST(0.25)
-#define THREE  RCONST(3.0)
-#define SIX    RCONST(6.0)
-#define TWELVE RCONST(12.0)
+#define FOURTH SUN_RCONST(0.25)
+#define THREE  SUN_RCONST(3.0)
+#define SIX    SUN_RCONST(6.0)
+#define TWELVE SUN_RCONST(12.0)
 
 
 
@@ -50,9 +50,9 @@ struct _ARKInterpContent_Hermite {
   N_Vector yold;    /* y at beginning of last successful step      */
   N_Vector fa;      /* f(t,y) used in higher-order interpolation   */
   N_Vector fb;      /* f(t,y) used in higher-order interpolation   */
-  realtype told;    /* t at beginning of last successful step      */
-  realtype tnew;    /* t at end of last successful step            */
-  realtype h;       /* last successful step size                   */
+  sunrealtype told;    /* t at beginning of last successful step      */
+  sunrealtype tnew;    /* t at end of last successful step            */
+  sunrealtype h;       /* last successful step size                   */
 };
 
 typedef struct _ARKInterpContent_Hermite *ARKInterpContent_Hermite;
@@ -83,10 +83,10 @@ void arkInterpFree_Hermite(void* arkode_mem, ARKInterp interp);
 void arkInterpPrintMem_Hermite(ARKInterp interp, FILE *outfile);
 int arkInterpSetDegree_Hermite(void *arkode_mem, ARKInterp interp, int degree);
 int arkInterpInit_Hermite(void* arkode_mem, ARKInterp interp,
-                          realtype tnew);
-int arkInterpUpdate_Hermite(void* arkode_mem, ARKInterp interp, realtype tnew);
+                          sunrealtype tnew);
+int arkInterpUpdate_Hermite(void* arkode_mem, ARKInterp interp, sunrealtype tnew);
 int arkInterpEvaluate_Hermite(void* arkode_mem, ARKInterp interp,
-                              realtype tau, int d, int order, N_Vector yout);
+                              sunrealtype tau, int d, int order, N_Vector yout);
 
 
 
@@ -102,9 +102,9 @@ struct _ARKInterpContent_Lagrange {
   int       nmax;      /* number of previous solutions to use      */
   int       nmaxalloc; /* vectors allocated for previous solutions */
   N_Vector *yhist;     /* previous solution vectors                */
-  realtype *thist;     /* 't' values associated with yhist         */
+  sunrealtype *thist;     /* 't' values associated with yhist         */
   int       nhist;     /* number of 'active' vectors in yhist      */
-  realtype  tround;    /* unit roundoff for 't' values             */
+  sunrealtype  tround;    /* unit roundoff for 't' values             */
 };
 
 typedef struct _ARKInterpContent_Lagrange *ARKInterpContent_Lagrange;
@@ -135,17 +135,17 @@ void arkInterpFree_Lagrange(void* arkode_mem, ARKInterp interp);
 void arkInterpPrintMem_Lagrange(ARKInterp interp, FILE *outfile);
 int arkInterpSetDegree_Lagrange(void *arkode_mem, ARKInterp interp, int degree);
 int arkInterpInit_Lagrange(void* arkode_mem, ARKInterp interp,
-                           realtype tnew);
-int arkInterpUpdate_Lagrange(void* arkode_mem, ARKInterp interp, realtype tnew);
+                           sunrealtype tnew);
+int arkInterpUpdate_Lagrange(void* arkode_mem, ARKInterp interp, sunrealtype tnew);
 int arkInterpEvaluate_Lagrange(void* arkode_mem, ARKInterp interp,
-                               realtype tau, int d, int order, N_Vector yout);
+                               sunrealtype tau, int d, int order, N_Vector yout);
 
 
 /* Lagrange structure utility routines */
-realtype LBasis(ARKInterp interp, int idx, realtype t);
-realtype LBasisD(ARKInterp interp, int idx, realtype t);
-realtype LBasisD2(ARKInterp interp, int idx, realtype t);
-realtype LBasisD3(ARKInterp interp, int idx, realtype t);
+sunrealtype LBasis(ARKInterp interp, int idx, sunrealtype t);
+sunrealtype LBasisD(ARKInterp interp, int idx, sunrealtype t);
+sunrealtype LBasisD2(ARKInterp interp, int idx, sunrealtype t);
+sunrealtype LBasisD3(ARKInterp interp, int idx, sunrealtype t);
 
 #ifdef __cplusplus
 }

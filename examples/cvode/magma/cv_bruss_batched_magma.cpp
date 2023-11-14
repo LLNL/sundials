@@ -163,9 +163,9 @@ struct UserData {
 
 int main(int argc, char *argv[])
 {
-  const sunrealtype T0 = RCONST(0.0);     /* initial time                   */
-  const sunrealtype Tf = RCONST(10.0);    /* final time                    */
-  const sunrealtype dTout = RCONST(1.0);  /* time between outputs          */
+  const sunrealtype T0 = SUN_RCONST(0.0);     /* initial time                   */
+  const sunrealtype Tf = SUN_RCONST(10.0);    /* final time                    */
+  const sunrealtype dTout = SUN_RCONST(1.0);  /* time between outputs          */
   const int Nt = (int) ceil(Tf/dTout);    /* number of output times        */
   const sunrealtype reltol = 1.0e-6;      /* relative integrator tolerance */
   int retval;
@@ -209,26 +209,26 @@ int main(int argc, char *argv[])
   /* Set the Reaction parameters according to test_type_type */
   for (int batchj = 0; batchj < udata.nbatches; ++batchj) {
     if (test_type == 1) {
-      udata.u0[batchj] = RCONST(3.9);
-      udata.v0[batchj] = RCONST(1.1);
-      udata.w0[batchj] = RCONST(2.8);
-      udata.a[batchj]  = RCONST(1.2);
-      udata.b[batchj]  = RCONST(2.5);
-      udata.ep[batchj] = RCONST(1.0e-5);
+      udata.u0[batchj] = SUN_RCONST(3.9);
+      udata.v0[batchj] = SUN_RCONST(1.1);
+      udata.w0[batchj] = SUN_RCONST(2.8);
+      udata.a[batchj]  = SUN_RCONST(1.2);
+      udata.b[batchj]  = SUN_RCONST(2.5);
+      udata.ep[batchj] = SUN_RCONST(1.0e-5);
     } else if (test_type == 2) {
-      udata.u0[batchj] = RCONST(3.0);
-      udata.v0[batchj] = RCONST(3.0);
-      udata.w0[batchj] = RCONST(3.5);
-      udata.a[batchj]  = RCONST(0.5);
-      udata.b[batchj]  = RCONST(3.0);
-      udata.ep[batchj] = RCONST(5.0e-4);
+      udata.u0[batchj] = SUN_RCONST(3.0);
+      udata.v0[batchj] = SUN_RCONST(3.0);
+      udata.w0[batchj] = SUN_RCONST(3.5);
+      udata.a[batchj]  = SUN_RCONST(0.5);
+      udata.b[batchj]  = SUN_RCONST(3.0);
+      udata.ep[batchj] = SUN_RCONST(5.0e-4);
     } else if (test_type == 3) {
-      udata.u0[batchj] = RCONST(1.2);
-      udata.v0[batchj] = RCONST(3.1);
-      udata.w0[batchj] = RCONST(3.0);
-      udata.a[batchj]  = RCONST(1.0);
-      udata.b[batchj]  = RCONST(3.5);
-      udata.ep[batchj] = RCONST(5.0e-6);
+      udata.u0[batchj] = SUN_RCONST(1.2);
+      udata.v0[batchj] = SUN_RCONST(3.1);
+      udata.w0[batchj] = SUN_RCONST(3.0);
+      udata.a[batchj]  = SUN_RCONST(1.0);
+      udata.b[batchj]  = SUN_RCONST(3.5);
+      udata.ep[batchj] = SUN_RCONST(5.0e-6);
     }
   }
 

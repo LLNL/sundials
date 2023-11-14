@@ -30,12 +30,12 @@
 #include "mpi.h"                            // MPI header file
 
 // Macros for problem constants
-#define PI    RCONST(3.141592653589793238462643383279502884197169)
-#define ZERO  RCONST(0.0)
-#define ONE   RCONST(1.0)
-#define TWO   RCONST(2.0)
-#define SIX   RCONST(6.0)
-#define EIGHT RCONST(8.0)
+#define PI    SUN_RCONST(3.141592653589793238462643383279502884197169)
+#define ZERO  SUN_RCONST(0.0)
+#define ONE   SUN_RCONST(1.0)
+#define TWO   SUN_RCONST(2.0)
+#define SIX   SUN_RCONST(6.0)
+#define EIGHT SUN_RCONST(8.0)
 
 // Macro to access (x,y) location in 1D NVector array
 #define IDX(x,y,n) ((n)*(y)+(x))
@@ -49,11 +49,11 @@ using namespace std;
 struct UserData
 {
   // Exponential term coefficient
-  realtype C;
+  sunrealtype C;
 
   // Upper bounds in x and y directions
-  realtype xu;
-  realtype yu;
+  sunrealtype xu;
+  sunrealtype yu;
 
   // Global number of nodes in the x and y directions
   sunindextype nx;
@@ -63,8 +63,8 @@ struct UserData
   sunindextype nodes;
 
   // Mesh spacing in the x and y directions
-  realtype dx;
-  realtype dy;
+  sunrealtype dx;
+  sunrealtype dy;
 
   // Local number of nodes in the x and y directions
   sunindextype nx_loc;
@@ -101,17 +101,16 @@ struct UserData
   int ipN;
 
   // Fixed Point Solver settings
-  realtype rtol;        // relative tolerance
+  sunrealtype rtol;        // relative tolerance
   int      maa;         // m for Anderson Acceleration
-  realtype damping;     // daming for Anderson Acceleration
+  sunrealtype damping;     // daming for Anderson Acceleration
   int      orthaa;      // orthogonalization routine for AA
   int      maxits;      // max number of fixed point iterations
 
   // Linear solver and preconditioner settings
-  bool     lsinfo;    // output residual history
   int      liniters;  // number of linear iterations
   int      msbp;      // max number of steps between preconditioner setups
-  realtype epslin;    // linear solver tolerance factor
+  sunrealtype epslin;    // linear solver tolerance factor
 
   // Linear solver object
   SUNLinearSolver LS;  // linear solver memory structure
@@ -175,7 +174,7 @@ static int JTimes(void *user_data, N_Vector v, N_Vector Jv);
 static int PSetup(void *user_data);
 
 static int PSolve(void *user_data, N_Vector r, N_Vector z,
-                  realtype tol, int lr);
+                  sunrealtype tol, int lr);
 
 // -----------------------------------------------------------------------------
 // Helper functions

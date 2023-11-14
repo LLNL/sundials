@@ -133,6 +133,12 @@ Changes from previous versions
 Changes in vX.X.X
 -----------------
 
+The previously deprecated types ``realtype`` and ``booleantype`` were removed
+from ``sundials_types.h`` and replaced with ``sunrealtype`` and
+``sunbooleantype``. The deprecated names for these types can be used by including
+the header file ``sundials_types_deprecated.h`` but will be fully removed in the
+next major release.
+
 Added the :c:type:`SUNAdaptController` base class, ported ARKODE's internal
 implementations of time step controllers into implementations of this class,
 and updated ARKODE to use these objects instead of its own implementations.  Added
@@ -181,6 +187,11 @@ Changed the ``SUNProfiler`` so that it does not rely on ``MPI_WTime`` in any cas
 This fixes `GitHub Issue #312 <https://github.com/LLNL/sundials/issues/312>`_. 
 
 Added Fortran support for the LAPACK  dense ``SUNLinearSolver`` implementation.
+
+**Breaking change**
+Functions, types and header files that were previously deprecated have been
+removed. 
+
 
 Changes in v5.6.1
 -----------------

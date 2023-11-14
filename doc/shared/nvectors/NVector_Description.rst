@@ -54,56 +54,56 @@ defined as
       N_Vector     (*nvcloneempty)(N_Vector);
       void         (*nvdestroy)(N_Vector);
       void         (*nvspace)(N_Vector, sunindextype *, sunindextype *);
-      realtype*    (*nvgetarraypointer)(N_Vector);
-      realtype*    (*nvgetdevicearraypointer)(N_Vector);
-      void         (*nvsetarraypointer)(realtype *, N_Vector);
+      sunrealtype*    (*nvgetarraypointer)(N_Vector);
+      sunrealtype*    (*nvgetdevicearraypointer)(N_Vector);
+      void         (*nvsetarraypointer)(sunrealtype *, N_Vector);
       void*        (*nvgetcommunicator)(N_Vector);
       sunindextype (*nvgetlength)(N_Vector);
       sunindextype (*nvgetlocallength)(N_Vector);
-      void         (*nvlinearsum)(realtype, N_Vector, realtype, N_Vector, N_Vector);
-      void         (*nvconst)(realtype, N_Vector);
+      void         (*nvlinearsum)(sunrealtype, N_Vector, sunrealtype, N_Vector, N_Vector);
+      void         (*nvconst)(sunrealtype, N_Vector);
       void         (*nvprod)(N_Vector, N_Vector, N_Vector);
       void         (*nvdiv)(N_Vector, N_Vector, N_Vector);
-      void         (*nvscale)(realtype, N_Vector, N_Vector);
+      void         (*nvscale)(sunrealtype, N_Vector, N_Vector);
       void         (*nvabs)(N_Vector, N_Vector);
       void         (*nvinv)(N_Vector, N_Vector);
-      void         (*nvaddconst)(N_Vector, realtype, N_Vector);
-      realtype     (*nvdotprod)(N_Vector, N_Vector);
-      realtype     (*nvmaxnorm)(N_Vector);
-      realtype     (*nvwrmsnorm)(N_Vector, N_Vector);
-      realtype     (*nvwrmsnormmask)(N_Vector, N_Vector, N_Vector);
-      realtype     (*nvmin)(N_Vector);
-      realtype     (*nvwl2norm)(N_Vector, N_Vector);
-      realtype     (*nvl1norm)(N_Vector);
-      void         (*nvcompare)(realtype, N_Vector, N_Vector);
-      booleantype  (*nvinvtest)(N_Vector, N_Vector);
-      booleantype  (*nvconstrmask)(N_Vector, N_Vector, N_Vector);
-      realtype     (*nvminquotient)(N_Vector, N_Vector);
-      int          (*nvlinearcombination)(int, realtype *, N_Vector *, N_Vector);
-      int          (*nvscaleaddmulti)(int, realtype *, N_Vector, N_Vector *, N_Vector *);
-      int          (*nvdotprodmulti)(int, N_Vector, N_Vector *,  realtype *);
-      int          (*nvlinearsumvectorarray)(int, realtype, N_Vector *, realtype,
+      void         (*nvaddconst)(N_Vector, sunrealtype, N_Vector);
+      sunrealtype     (*nvdotprod)(N_Vector, N_Vector);
+      sunrealtype     (*nvmaxnorm)(N_Vector);
+      sunrealtype     (*nvwrmsnorm)(N_Vector, N_Vector);
+      sunrealtype     (*nvwrmsnormmask)(N_Vector, N_Vector, N_Vector);
+      sunrealtype     (*nvmin)(N_Vector);
+      sunrealtype     (*nvwl2norm)(N_Vector, N_Vector);
+      sunrealtype     (*nvl1norm)(N_Vector);
+      void         (*nvcompare)(sunrealtype, N_Vector, N_Vector);
+      sunbooleantype  (*nvinvtest)(N_Vector, N_Vector);
+      sunbooleantype  (*nvconstrmask)(N_Vector, N_Vector, N_Vector);
+      sunrealtype     (*nvminquotient)(N_Vector, N_Vector);
+      int          (*nvlinearcombination)(int, sunrealtype *, N_Vector *, N_Vector);
+      int          (*nvscaleaddmulti)(int, sunrealtype *, N_Vector, N_Vector *, N_Vector *);
+      int          (*nvdotprodmulti)(int, N_Vector, N_Vector *,  sunrealtype *);
+      int          (*nvlinearsumvectorarray)(int, sunrealtype, N_Vector *, sunrealtype,
                                              N_Vector *, N_Vector *);
-      int          (*nvscalevectorarray)(int, realtype *,  N_Vector *, N_Vector *);
-      int          (*nvconstvectorarray)(int, realtype, N_Vector *);
-      int          (*nvwrmsnomrvectorarray)(int, N_Vector *, N_Vector *, realtype *);
+      int          (*nvscalevectorarray)(int, sunrealtype *,  N_Vector *, N_Vector *);
+      int          (*nvconstvectorarray)(int, sunrealtype, N_Vector *);
+      int          (*nvwrmsnomrvectorarray)(int, N_Vector *, N_Vector *, sunrealtype *);
       int          (*nvwrmsnomrmaskvectorarray)(int, N_Vector *, N_Vector *, N_Vector,
-                                                realtype *);
-      int          (*nvscaleaddmultivectorarray)(int, int, realtype *, N_Vector *,
+                                                sunrealtype *);
+      int          (*nvscaleaddmultivectorarray)(int, int, sunrealtype *, N_Vector *,
                                                  N_Vector **, N_Vector **);
-      int          (*nvlinearcombinationvectorarray)(int, int, realtype *, N_Vector **,
+      int          (*nvlinearcombinationvectorarray)(int, int, sunrealtype *, N_Vector **,
                                                      N_Vector *);
-      realtype     (*nvdotprodlocal)(N_Vector, N_Vector);
-      realtype     (*nvmaxnormlocal)(N_Vector);
-      realtype     (*nvminlocal)(N_Vector);
-      realtype     (*nvl1normlocal)(N_Vector);
-      booleantype  (*nvinvtestlocal)(N_Vector, N_Vector);
-      booleantype  (*nvconstrmasklocal)(N_Vector, N_Vector, N_Vector);
-      realtype     (*nvminquotientlocal)(N_Vector, N_Vector);
-      realtype     (*nvwsqrsumlocal)(N_Vector, N_Vector);
-      realtype     (*nvwsqrsummasklocal(N_Vector, N_Vector, N_Vector);
-      int          (*nvdotprodmultilocal)(int, N_Vector, N_Vector *, realtype *);
-      int          (*nvdotprodmultiallreduce)(int, N_Vector, realtype *);
+      sunrealtype     (*nvdotprodlocal)(N_Vector, N_Vector);
+      sunrealtype     (*nvmaxnormlocal)(N_Vector);
+      sunrealtype     (*nvminlocal)(N_Vector);
+      sunrealtype     (*nvl1normlocal)(N_Vector);
+      sunbooleantype  (*nvinvtestlocal)(N_Vector, N_Vector);
+      sunbooleantype  (*nvconstrmasklocal)(N_Vector, N_Vector, N_Vector);
+      sunrealtype     (*nvminquotientlocal)(N_Vector, N_Vector);
+      sunrealtype     (*nvwsqrsumlocal)(N_Vector, N_Vector);
+      sunrealtype     (*nvwsqrsummasklocal(N_Vector, N_Vector, N_Vector);
+      int          (*nvdotprodmultilocal)(int, N_Vector, N_Vector *, sunrealtype *);
+      int          (*nvdotprodmultiallreduce)(int, N_Vector, sunrealtype *);
       int          (*nvbufsize)(N_Vector, sunindextype *);
       int          (*nvbufpack)(N_Vector, void*);
       int          (*nvbufunpack)(N_Vector, void*);
@@ -121,7 +121,7 @@ for vectors :math:`x` and :math:`z` and a scalar :math:`c`:
 
 .. code-block:: c
 
-   void N_VScale(realtype c, N_Vector x, N_Vector z) {
+   void N_VScale(sunrealtype c, N_Vector x, N_Vector z) {
       z->ops->nvscale(c, x, z);
    }
 
@@ -419,7 +419,7 @@ provide the following guidance:
 
 * :c:func:`N_VDotProd()` should mathematically return a complex number
   for complex-valued vectors; as this is not possible with
-  SUNDIALS' current ``realtype``, this routine should
+  SUNDIALS' current ``sunrealtype``, this routine should
   be set to ``NULL`` in the custom NVECTOR implementation.
 
 * :c:func:`N_VCompare()`, :c:func:`N_VConstrMask()`, :c:func:`N_VMinQuotient()`,

@@ -243,9 +243,9 @@ The SUNLinSol_SPFGMR module defines the *content* field of a
      int pretype;
      int gstype;
      int max_restarts;
-     booleantype zeroguess;
+     sunbooleantype zeroguess;
      int numiters;
-     realtype resnorm;
+     sunrealtype resnorm;
      int last_flag;
      SUNATimesFn ATimes;
      void* ATData;
@@ -256,10 +256,10 @@ The SUNLinSol_SPFGMR module defines the *content* field of a
      N_Vector s2;
      N_Vector *V;
      N_Vector *Z;
-     realtype **Hes;
-     realtype *givens;
+     sunrealtype **Hes;
+     sunrealtype *givens;
      N_Vector xcor;
-     realtype *yg;
+     sunrealtype *yg;
      N_Vector vtemp;
      int      print_level;
      FILE*    info_file;
@@ -338,7 +338,7 @@ information:
 * ``xcor`` - a vector which holds the scaled, preconditioned
   correction to the initial guess,
 
-* ``yg`` - a length :math:`(\text{maxl}+1)` array of ``realtype``
+* ``yg`` - a length :math:`(\text{maxl}+1)` array of ``sunrealtype``
   values used to hold "short" vectors (e.g. :math:`y` and :math:`g`),
 
 * ``vtemp`` - temporary vector storage.

@@ -26,8 +26,8 @@
 #include "sundials_context_impl.h"
 #include "sundials_logger_impl.h"
 
-#define ZERO RCONST(0.0)
-#define ONE  RCONST(1.0)
+#define ZERO SUN_RCONST(0.0)
+#define ONE  SUN_RCONST(1.0)
 
 /*
  * -----------------------------------------------------------------
@@ -280,7 +280,7 @@ int SUNLinSolSetScalingVectors_SPBCGS(SUNLinearSolver S, N_Vector s1,
 }
 
 
-int SUNLinSolSetZeroGuess_SPBCGS(SUNLinearSolver S, booleantype onoff)
+int SUNLinSolSetZeroGuess_SPBCGS(SUNLinearSolver S, sunbooleantype onoff)
 {
   /* set flag indicating a zero initial guess */
   if (S == NULL) return(SUNLS_MEM_NULL);
@@ -319,23 +319,23 @@ int SUNLinSolSetup_SPBCGS(SUNLinearSolver S, SUNMatrix A)
 
 
 int SUNLinSolSolve_SPBCGS(SUNLinearSolver S, SUNMatrix A, N_Vector x,
-                          N_Vector b, realtype delta)
+                          N_Vector b, sunrealtype delta)
 {
   /* local data and shortcut variables */
-  realtype alpha, beta, omega, omega_denom, beta_num, beta_denom, r_norm, rho;
+  sunrealtype alpha, beta, omega, omega_denom, beta_num, beta_denom, r_norm, rho;
   N_Vector r_star, r, p, q, u, Ap, vtemp;
-  booleantype preOnLeft, preOnRight, scale_x, scale_b, converged;
-  booleantype *zeroguess;
+  sunbooleantype preOnLeft, preOnRight, scale_x, scale_b, converged;
+  sunbooleantype *zeroguess;
   int l, l_max, ier;
   void *A_data, *P_data;
   N_Vector sx, sb;
   SUNATimesFn atimes;
   SUNPSolveFn psolve;
-  realtype *res_norm;
+  sunrealtype *res_norm;
   int *nli;
 
   /* local variables for fused vector operations */
-  realtype cv[3];
+  sunrealtype cv[3];
   N_Vector Xv[3];
 
   /* Make local shorcuts to solver variables. */
@@ -362,7 +362,7 @@ int SUNLinSolSolve_SPBCGS(SUNLinearSolver S, SUNMatrix A, N_Vector x,
   *nli = 0;
   converged = SUNFALSE;
 
-  /* set booleantype flags for internal solver options */
+  /* set sunbooleantype flags for internal solver options */
   preOnLeft  = ( (PRETYPE(S) == SUN_PREC_LEFT) ||
                  (PRETYPE(S) == SUN_PREC_BOTH) );
   preOnRight = ( (PRETYPE(S) == SUN_PREC_RIGHT) ||
@@ -701,7 +701,7 @@ int SUNLinSolNumIters_SPBCGS(SUNLinearSolver S)
 }
 
 
-realtype SUNLinSolResNorm_SPBCGS(SUNLinearSolver S)
+sunrealtype SUNLinSolResNorm_SPBCGS(SUNLinearSolver S)
 {
   /* return the stored 'resnorm' value */
   if (S == NULL) return(-ONE);
@@ -777,35 +777,5 @@ int SUNLinSolFree_SPBCGS(SUNLinearSolver S)
   }
   if (S->ops) { free(S->ops); S->ops = NULL; }
   free(S); S = NULL;
-  return(SUNLS_SUCCESS);
-}
-
-
-int SUNLinSolSetInfoFile_SPBCGS(SUNLinearSolver S,
-                                FILE* info_file)
-{
-  /* check that the linear solver is non-null */
-  if (S == NULL)
-    return(SUNLS_MEM_NULL);
-
-  SPBCGS_CONTENT(S)->info_file = info_file;
-
-  return(SUNLS_SUCCESS);
-}
-
-
-int SUNLinSolSetPrintLevel_SPBCGS(SUNLinearSolver S,
-                                  int print_level)
-{
-  /* check that the linear solver is non-null */
-  if (S == NULL)
-    return(SUNLS_MEM_NULL);
-
-  /* check for valid print level */
-  if (print_level < 0 || print_level > 1)
-    return(SUNLS_ILL_INPUT);
-
-  SPBCGS_CONTENT(S)->print_level = print_level;
-
   return(SUNLS_SUCCESS);
 }

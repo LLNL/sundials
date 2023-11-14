@@ -36,9 +36,9 @@ is not deleted for as long as the ``N_Vector`` object exists.
 The Tpetra vector type in the ``sundials::trilinos::nvector_tpetra::TpetraVectorInterface``
 class is defined as:
 
-.. cpp:type:: Tpetra::Vector<realtype, int, sunindextype> vector_type;
+.. cpp:type:: Tpetra::Vector<sunrealtype, int, sunindextype> vector_type;
 
-The Tpetra vector will use the SUNDIALS-specified ``realtype`` as its scalar
+The Tpetra vector will use the SUNDIALS-specified ``sunrealtype`` as its scalar
 type, ``int`` as the local ordinal type, and ``sunindextype`` as the global ordinal type.
 This type definition will use Tpetra's default node type. Available Kokkos node
 types as of the Trilinos 12.14 release are serial (single thread), OpenMP, Pthread,
@@ -108,7 +108,6 @@ The module NVECTOR_TRILINOS provides the following additional user-callable rout
   N_VGetVector_Trilinos(v)`` and then access components using the
   appropriate Trilinos functions.
 
-* The functions ``N_VDestroy_Trilinos`` and
-  ``N_VDestroyVectorArray_Trilinos`` only delete the ``N_Vector``
+* The function ``N_VDestroy_Trilinos`` only deletes the ``N_Vector``
   wrapper. The underlying Tpetra vector object will exist for as long
   as there is at least one reference to it.

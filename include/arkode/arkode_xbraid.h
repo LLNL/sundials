@@ -34,7 +34,7 @@ extern "C" {
 SUNDIALS_EXPORT int ARKBraid_Create(void *arkode_mem, braid_App *app);
 
 SUNDIALS_EXPORT int ARKBraid_BraidInit(MPI_Comm comm_w, MPI_Comm comm_t,
-                                       realtype tstart, realtype tstop,
+                                       sunrealtype tstart, sunrealtype tstop,
                                        sunindextype nt, braid_App app,
                                        braid_Core *core);
 
@@ -72,7 +72,7 @@ SUNDIALS_EXPORT int ARKBraid_GetLastBraidFlag(braid_App app, int *last_flag);
 
 SUNDIALS_EXPORT int ARKBraid_GetLastARKStepFlag(braid_App app, int *last_flag);
 
-SUNDIALS_EXPORT int ARKBraid_GetSolution(braid_App app, realtype *tout,
+SUNDIALS_EXPORT int ARKBraid_GetSolution(braid_App app, sunrealtype *tout,
                                          N_Vector yout);
 
 
@@ -85,7 +85,7 @@ SUNDIALS_EXPORT int ARKBraid_Step(braid_App app, braid_Vector ustop,
                                   braid_Vector fstop, braid_Vector u,
                                   braid_StepStatus status);
 
-SUNDIALS_EXPORT int ARKBraid_Init(braid_App app, realtype t,
+SUNDIALS_EXPORT int ARKBraid_Init(braid_App app, sunrealtype t,
                                   braid_Vector *u_ptr);
 
 SUNDIALS_EXPORT int ARKBraid_Access(braid_App app, braid_Vector u,
@@ -97,8 +97,8 @@ SUNDIALS_EXPORT int ARKBraid_Access(braid_App app, braid_Vector u,
  * ----------------- */
 
 
-SUNDIALS_EXPORT int ARKBraid_TakeStep(void *arkode_mem, realtype tstart,
-                                      realtype tstop, N_Vector y,
+SUNDIALS_EXPORT int ARKBraid_TakeStep(void *arkode_mem, sunrealtype tstart,
+                                      sunrealtype tstop, N_Vector y,
                                       int *ark_flag);
 
 

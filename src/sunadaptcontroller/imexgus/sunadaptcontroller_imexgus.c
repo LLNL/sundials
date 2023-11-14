@@ -39,12 +39,12 @@
  * Default parameters
  * ------------------ */
 
-#define DEFAULT_K1E    RCONST(0.367)
-#define DEFAULT_K2E    RCONST(0.268)
-#define DEFAULT_K1I    RCONST(0.95)
-#define DEFAULT_K2I    RCONST(0.95)
-#define DEFAULT_BIAS   RCONST(1.5)
-#define TINY           RCONST(1.0e-10)
+#define DEFAULT_K1E    SUN_RCONST(0.367)
+#define DEFAULT_K2E    SUN_RCONST(0.268)
+#define DEFAULT_K1I    SUN_RCONST(0.95)
+#define DEFAULT_K2I    SUN_RCONST(0.95)
+#define DEFAULT_BIAS   SUN_RCONST(1.5)
+#define TINY           SUN_RCONST(1.0e-10)
 
 
 /* -----------------------------------------------------------------
@@ -128,7 +128,7 @@ int SUNAdaptController_EstimateStep_ImExGus(SUNAdaptController C, sunrealtype h,
   const int ord = p + 1;
 
   /* set usable time-step adaptivity parameters -- first step */
-  const sunrealtype k = -RCONST(1.0) / ord;
+  const sunrealtype k = -SUN_RCONST(1.0) / ord;
   const sunrealtype e = SUNMAX(SACIMEXGUS_BIAS(C) * dsm, TINY);
 
   /* set usable time-step adaptivity parameters -- subsequent steps */
@@ -159,7 +159,7 @@ int SUNAdaptController_EstimateStep_ImExGus(SUNAdaptController C, sunrealtype h,
 
 int SUNAdaptController_Reset_ImExGus(SUNAdaptController C)
 {
-  SACIMEXGUS_EP(C) = RCONST(1.0);
+  SACIMEXGUS_EP(C) = SUN_RCONST(1.0);
   SACIMEXGUS_FIRSTSTEP(C) = SUNTRUE;
   return SUNADAPTCONTROLLER_SUCCESS;
 }
@@ -203,7 +203,7 @@ int SUNAdaptController_SetErrorBias_ImExGus(SUNAdaptController C, sunrealtype bi
 {
   if (C == NULL) { return SUNADAPTCONTROLLER_ILL_INPUT; }
   /* set allowed value, otherwise set default */
-  if (bias <= RCONST(0.0)) {
+  if (bias <= SUN_RCONST(0.0)) {
     SACIMEXGUS_BIAS(C) = DEFAULT_BIAS;
   } else {
     SACIMEXGUS_BIAS(C) = bias;

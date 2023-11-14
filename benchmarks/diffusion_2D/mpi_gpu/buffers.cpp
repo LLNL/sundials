@@ -33,9 +33,9 @@
 // Pack exchange buffers kernel
 __global__ void pack_buffers_kernel(const sunindextype nx_loc,
                                     const sunindextype ny_loc,
-                                    const realtype *u,
-                                    realtype *wbuf, realtype *ebuf,
-                                    realtype *sbuf, realtype *nbuf)
+                                    const sunrealtype *u,
+                                    sunrealtype *wbuf, sunrealtype *ebuf,
+                                    sunrealtype *sbuf, sunrealtype *nbuf)
 {
   // Thread ID
   int i = blockIdx.x * blockDim.x + threadIdx.x;
@@ -60,7 +60,7 @@ __global__ void pack_buffers_kernel(const sunindextype nx_loc,
 int UserData::pack_buffers(const N_Vector u)
 {
   // Access data array
-  const realtype *uarray = N_VGetDeviceArrayPointer(N_VGetLocalVector_MPIPlusX(u));
+  const sunrealtype *uarray = N_VGetDeviceArrayPointer(N_VGetLocalVector_MPIPlusX(u));
   if (check_flag((void *) uarray, "N_VGetDeviceArrayPointer", 0)) return -1;
 
   sunindextype maxdim = max(nx_loc, ny_loc);
@@ -80,11 +80,11 @@ int UserData::allocate_buffers()
   if (HaveNbrW)
   {
 #if defined(USE_HIP)
-    hipMalloc(&Wrecv, ny_loc * sizeof(realtype));
-    hipMalloc(&Wsend, ny_loc * sizeof(realtype));
+    hipMalloc(&Wrecv, ny_loc * sizeof(sunrealtype));
+    hipMalloc(&Wsend, ny_loc * sizeof(sunrealtype));
 #elif defined(USE_CUDA)
-    cudaMalloc(&Wrecv, ny_loc * sizeof(realtype));
-    cudaMalloc(&Wsend, ny_loc * sizeof(realtype));
+    cudaMalloc(&Wrecv, ny_loc * sizeof(sunrealtype));
+    cudaMalloc(&Wsend, ny_loc * sizeof(sunrealtype));
 #else
 #error Define USE_CUDA or USE_HIP
 #endif
@@ -93,11 +93,11 @@ int UserData::allocate_buffers()
   if (HaveNbrE)
   {
 #if defined(USE_HIP)
-    hipMalloc(&Erecv, ny_loc * sizeof(realtype));
-    hipMalloc(&Esend, ny_loc * sizeof(realtype));
+    hipMalloc(&Erecv, ny_loc * sizeof(sunrealtype));
+    hipMalloc(&Esend, ny_loc * sizeof(sunrealtype));
 #elif defined(USE_CUDA)
-    cudaMalloc(&Erecv, ny_loc * sizeof(realtype));
-    cudaMalloc(&Esend, ny_loc * sizeof(realtype));
+    cudaMalloc(&Erecv, ny_loc * sizeof(sunrealtype));
+    cudaMalloc(&Esend, ny_loc * sizeof(sunrealtype));
 #else
 #error Define USE_CUDA or USE_HIP
 #endif
@@ -106,11 +106,11 @@ int UserData::allocate_buffers()
   if (HaveNbrS)
   {
 #if defined(USE_HIP)
-    hipMalloc(&Srecv, nx_loc * sizeof(realtype));
-    hipMalloc(&Ssend, nx_loc * sizeof(realtype));
+    hipMalloc(&Srecv, nx_loc * sizeof(sunrealtype));
+    hipMalloc(&Ssend, nx_loc * sizeof(sunrealtype));
 #elif defined(USE_CUDA)
-    cudaMalloc(&Srecv, nx_loc * sizeof(realtype));
-    cudaMalloc(&Ssend, nx_loc * sizeof(realtype));
+    cudaMalloc(&Srecv, nx_loc * sizeof(sunrealtype));
+    cudaMalloc(&Ssend, nx_loc * sizeof(sunrealtype));
 #else
 #error Define USE_CUDA or USE_HIP
 #endif
@@ -119,11 +119,11 @@ int UserData::allocate_buffers()
   if (HaveNbrN)
   {
 #if defined(USE_HIP)
-    hipMalloc(&Nrecv, nx_loc * sizeof(realtype));
-    hipMalloc(&Nsend, nx_loc * sizeof(realtype));
+    hipMalloc(&Nrecv, nx_loc * sizeof(sunrealtype));
+    hipMalloc(&Nsend, nx_loc * sizeof(sunrealtype));
 #elif defined(USE_CUDA)
-    cudaMalloc(&Nrecv, nx_loc * sizeof(realtype));
-    cudaMalloc(&Nsend, nx_loc * sizeof(realtype));
+    cudaMalloc(&Nrecv, nx_loc * sizeof(sunrealtype));
+    cudaMalloc(&Nsend, nx_loc * sizeof(sunrealtype));
 #else
 #error Define USE_CUDA or USE_HIP
 #endif

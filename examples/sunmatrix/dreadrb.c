@@ -62,7 +62,7 @@
  * Purpose
  * =======
  *
- * Read a realtype PRECISION matrix stored in Rutherford-Boeing format
+ * Read a sunrealtype PRECISION matrix stored in Rutherford-Boeing format
  * as described below.
  *
  * Line 1 (A72, A8)
@@ -206,7 +206,7 @@ static int ReadVector(FILE *fp, sunindextype n, sunindextype *where, sunindextyp
     return 0;
 }
 
-static int dReadValues(FILE *fp, sunindextype n, realtype *destination,
+static int dReadValues(FILE *fp, sunindextype n, sunrealtype *destination,
         sunindextype perline, sunindextype persize)
 {
     register sunindextype i, j, k, s;
@@ -239,12 +239,12 @@ static int dReadValues(FILE *fp, sunindextype n, realtype *destination,
  * </pre>
  */
 static void
-FormFullA(sunindextype n, sunindextype *nonz, realtype **nzval, sunindextype **rowind, sunindextype **colptr)
+FormFullA(sunindextype n, sunindextype *nonz, sunrealtype **nzval, sunindextype **rowind, sunindextype **colptr)
 {
     register sunindextype i, j, k, col, new_nnz;
     sunindextype *t_rowind, *t_colptr, *al_rowind, *al_colptr, *a_rowind, *a_colptr;
     sunindextype *marker;
-    realtype *t_val, *al_val, *a_val;
+    sunrealtype *t_val, *al_val, *a_val;
 
     al_rowind = *rowind;
     al_colptr = *colptr;
@@ -256,7 +256,7 @@ FormFullA(sunindextype n, sunindextype *nonz, realtype **nzval, sunindextype **r
 	DREADRB_ABORT("malloc t_colptr[]");
     if ( !(t_rowind = (sunindextype *) malloc( *nonz * sizeof(sunindextype)) ) )
 	DREADRB_ABORT("malloc fails for t_rowind[]");
-    if ( !(t_val = (realtype*) malloc( *nonz * sizeof(realtype)) ) )
+    if ( !(t_val = (sunrealtype*) malloc( *nonz * sizeof(sunrealtype)) ) )
 	DREADRB_ABORT("malloc fails for t_val[]");
 
     /* Get counts of each column of T, and set up column pointers */
@@ -285,7 +285,7 @@ FormFullA(sunindextype n, sunindextype *nonz, realtype **nzval, sunindextype **r
 	DREADRB_ABORT("malloc a_colptr[]");
     if ( !(a_rowind = (sunindextype *) malloc( new_nnz * sizeof(sunindextype)) ) )
 	DREADRB_ABORT("malloc fails for a_rowind[]");
-    if ( !(a_val = (realtype*) malloc( new_nnz * sizeof(realtype)) ) )
+    if ( !(a_val = (sunrealtype*) malloc( new_nnz * sizeof(sunrealtype)) ) )
 	DREADRB_ABORT("malloc fails for a_val[]");
 
     a_colptr[0] = 0;
@@ -330,7 +330,7 @@ dreadrb_dist(int iam, FILE *fp, SUNMatrix *Aout, SUNContext sunctx)
     register sunindextype i, numer_lines = 0;
     sunindextype tmp, colnum, colsize, rownum, rowsize, valnum, valsize, nrow, ncol, nonz;
     sunindextype *rowind, *colptr;
-    realtype *nzval;
+    sunrealtype *nzval;
     char buf[100], type[4];
     int sym;
     SUNMatrix A;

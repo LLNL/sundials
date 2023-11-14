@@ -16,9 +16,9 @@
  *
  * There are two sets of band solver routines listed in
  * this file: one set uses type SUNDlsMat defined below and the
- * other set uses the type realtype ** for band matrix arguments.
+ * other set uses the type sunrealtype ** for band matrix arguments.
  * Routines that work with the type SUNDlsMat begin with "Band".
- * Routines that work with realtype ** begin with "band".
+ * Routines that work with sunrealtype ** begin with "band".
  * -----------------------------------------------------------------*/
 
 #ifndef _SUNDIALS_BAND_H
@@ -79,18 +79,10 @@ extern "C" {
 SUNDIALS_EXPORT
 sunindextype SUNDlsMat_BandGBTRF(SUNDlsMat A, sunindextype* p);
 
-SUNDIALS_DEPRECATED_EXPORT_MSG("use SUNDlsMat_BandGBTRF instead")
-sunindextype BandGBTRF(DlsMat A, sunindextype *p);
-
 SUNDIALS_EXPORT
-sunindextype SUNDlsMat_bandGBTRF(realtype **a, sunindextype n,
+sunindextype SUNDlsMat_bandGBTRF(sunrealtype **a, sunindextype n,
                                  sunindextype mu, sunindextype ml,
                                  sunindextype smu, sunindextype *p);
-
-SUNDIALS_DEPRECATED_EXPORT_MSG("use SUNDlsMat_bandGBTRF instead")
-sunindextype bandGBTRF(realtype **a, sunindextype n,
-                       sunindextype mu, sunindextype ml,
-                       sunindextype smu, sunindextype *p);
 
 /*
  * -----------------------------------------------------------------
@@ -111,18 +103,11 @@ sunindextype bandGBTRF(realtype **a, sunindextype n,
  */
 
 SUNDIALS_EXPORT
-void SUNDlsMat_BandGBTRS(SUNDlsMat A, sunindextype *p, realtype *b);
-
-SUNDIALS_DEPRECATED_EXPORT_MSG("use SUNDlsMat_BandGBTRS instead")
-void BandGBTRS(DlsMat A, sunindextype *p, realtype *b);
+void SUNDlsMat_BandGBTRS(SUNDlsMat A, sunindextype *p, sunrealtype *b);
 
 SUNDIALS_EXPORT
-void SUNDlsMat_bandGBTRS(realtype **a, sunindextype n, sunindextype smu,
-                         sunindextype ml, sunindextype *p, realtype *b);
-
-SUNDIALS_DEPRECATED_EXPORT_MSG("use SUNDlsMat_bandGBTRS instead")
-void bandGBTRS(realtype **a, sunindextype n, sunindextype smu,
-               sunindextype ml, sunindextype *p, realtype *b);
+void SUNDlsMat_bandGBTRS(sunrealtype **a, sunindextype n, sunindextype smu,
+                         sunindextype ml, sunindextype *p, sunrealtype *b);
 
 /*
  * -----------------------------------------------------------------
@@ -143,20 +128,10 @@ void bandGBTRS(realtype **a, sunindextype n, sunindextype smu,
 SUNDIALS_EXPORT
 void SUNDlsMat_BandCopy(SUNDlsMat A, SUNDlsMat B, sunindextype copymu,
                         sunindextype copyml);
-
-SUNDIALS_DEPRECATED_EXPORT_MSG("use SUNDlsMat_BandCopy instead")
-void BandCopy(DlsMat A, DlsMat B, sunindextype copymu,
-              sunindextype copyml);
-
 SUNDIALS_EXPORT
-void SUNDlsMat_bandCopy(realtype **a, realtype **b, sunindextype n,
+void SUNDlsMat_bandCopy(sunrealtype **a, sunrealtype **b, sunindextype n,
                         sunindextype a_smu, sunindextype b_smu,
                         sunindextype copymu, sunindextype copyml);
-
-SUNDIALS_DEPRECATED_EXPORT_MSG("use SUNDlsMat_bandCopy instead")
-void bandCopy(realtype **a, realtype **b, sunindextype n,
-              sunindextype a_smu, sunindextype b_smu,
-              sunindextype copymu, sunindextype copyml);
 
 /*
  * -----------------------------------------------------------------
@@ -172,32 +147,22 @@ void bandCopy(realtype **a, realtype **b, sunindextype n,
  * -----------------------------------------------------------------
  */
 
-void SUNDlsMat_BandScale(realtype c, SUNDlsMat A);
-
-SUNDIALS_DEPRECATED_EXPORT_MSG("use SUNDlsMat_BandScale instead")
-void BandScale(realtype c, DlsMat A);
+void SUNDlsMat_BandScale(sunrealtype c, SUNDlsMat A);
 
 SUNDIALS_EXPORT
-void SUNDlsMat_bandScale(realtype c, realtype **a, sunindextype n,
+void SUNDlsMat_bandScale(sunrealtype c, sunrealtype **a, sunindextype n,
                          sunindextype mu, sunindextype ml, sunindextype smu);
-
-SUNDIALS_DEPRECATED_EXPORT_MSG("use SUNDlsMat_bandScale instead")
-void bandScale(realtype c, realtype **a, sunindextype n,
-               sunindextype mu, sunindextype ml, sunindextype smu);
 
 /*
  * -----------------------------------------------------------------
  * Function: SUNDlsMat_bandAddIdentity
  * -----------------------------------------------------------------
  * SUNDlsMat_bandAddIdentity adds the identity matrix to the n-by-n
- * matrix stored in the realtype** arrays.
+ * matrix stored in the sunrealtype** arrays.
  * -----------------------------------------------------------------
  */
 
-void SUNDlsMat_bandAddIdentity(realtype **a, sunindextype n, sunindextype smu);
-
-SUNDIALS_DEPRECATED_EXPORT_MSG("use SUNDlsMat_bandAddIdentity instead")
-void bandAddIdentity(realtype **a, sunindextype n, sunindextype smu);
+void SUNDlsMat_bandAddIdentity(sunrealtype **a, sunindextype n, sunindextype smu);
 
 
 /*
@@ -216,20 +181,12 @@ void bandAddIdentity(realtype **a, sunindextype n, sunindextype smu);
  */
 
 SUNDIALS_EXPORT
-void SUNDlsMat_BandMatvec(SUNDlsMat A, realtype *x, realtype *y);
-
-SUNDIALS_DEPRECATED_EXPORT_MSG("use SUNDlsMat_BandMatvec instead")
-void BandMatvec(DlsMat A, realtype *x, realtype *y);
+void SUNDlsMat_BandMatvec(SUNDlsMat A, sunrealtype *x, sunrealtype *y);
 
 SUNDIALS_EXPORT
-void SUNDlsMat_bandMatvec(realtype **a, realtype *x, realtype *y,
+void SUNDlsMat_bandMatvec(sunrealtype **a, sunrealtype *x, sunrealtype *y,
                           sunindextype n, sunindextype mu,
                           sunindextype ml, sunindextype smu);
-
-SUNDIALS_DEPRECATED_EXPORT_MSG("use SUNDlsMat_bandMatvec instead")
-void bandMatvec(realtype **a, realtype *x, realtype *y,
-                sunindextype n, sunindextype mu,
-                sunindextype ml, sunindextype smu);
 
 #ifdef __cplusplus
 }

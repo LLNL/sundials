@@ -70,21 +70,21 @@
 #endif
 
 /* Problem Constants */
-#define PI    RCONST(3.141592653589793238462643383279502884197169)
-#define ZERO  RCONST(0.0)
-#define ONE   RCONST(1.0)
-#define TWO   RCONST(2.0)
+#define PI    SUN_RCONST(3.141592653589793238462643383279502884197169)
+#define ZERO  SUN_RCONST(0.0)
+#define ONE   SUN_RCONST(1.0)
+#define TWO   SUN_RCONST(2.0)
 
 /* User-defined data structure */
 typedef struct UserData_
 {
-  realtype alpha; /* particle velocity */
+  sunrealtype alpha; /* particle velocity */
 
   int      orbits; /* number of orbits */
-  realtype torbit; /* orbit time       */
+  sunrealtype torbit; /* orbit time       */
 
-  realtype rtol; /* integration tolerances */
-  realtype atol;
+  sunrealtype rtol; /* integration tolerances */
+  sunrealtype atol;
 
   int proj;    /* enable/disable solution projection */
   int projerr; /* enable/disable error projection */
@@ -95,20 +95,20 @@ typedef struct UserData_
 } *UserData;
 
 /* Functions provided to CVODES */
-static int f(realtype t, N_Vector y, N_Vector ydot, void *user_data);
-static int Jac(realtype t, N_Vector y, N_Vector fy, SUNMatrix J,
+static int f(sunrealtype t, N_Vector y, N_Vector ydot, void *user_data);
+static int Jac(sunrealtype t, N_Vector y, N_Vector fy, SUNMatrix J,
                void *user_data, N_Vector tmp1, N_Vector tmp2, N_Vector tmp3);
-static int Proj(realtype t, N_Vector ycur, N_Vector corr, realtype epsProj,
+static int Proj(sunrealtype t, N_Vector ycur, N_Vector corr, sunrealtype epsProj,
                 N_Vector err, void *user_data);
 
 /* Utility functions */
 static int InitUserData(int *argc, char ***argv, UserData udata);
 static int PrintUserData(UserData udata);
 static void InputHelp();
-static int ComputeSolution(realtype t, N_Vector y, UserData udata);
-static int ComputeError(realtype t, N_Vector y, N_Vector e, realtype *ec,
+static int ComputeSolution(sunrealtype t, N_Vector y, UserData udata);
+static int ComputeError(sunrealtype t, N_Vector y, N_Vector e, sunrealtype *ec,
                         UserData udata);
-static int WriteOutput(realtype t, N_Vector y, N_Vector e, realtype ec,
+static int WriteOutput(sunrealtype t, N_Vector y, N_Vector e, sunrealtype ec,
                        int screenfile, FILE *YFID, FILE *EFID);
 static int PrintStats(void *cvode_mem);
 static int check_retval(void *returnvalue, const char *funcname, int opt);
@@ -123,16 +123,16 @@ int main(int argc, char* argv[])
   int      retval;          /* reusable return flag       */
   int      out      = 0;    /* output counter             */
   int      totalout = 0;    /* output counter             */
-  realtype t        = ZERO; /* current integration time   */
-  realtype dtout    = ZERO; /* output spacing             */
-  realtype tout     = ZERO; /* next output time           */
-  realtype ec       = ZERO; /* constraint error           */
+  sunrealtype t        = ZERO; /* current integration time   */
+  sunrealtype dtout    = ZERO; /* output spacing             */
+  sunrealtype tout     = ZERO; /* next output time           */
+  sunrealtype ec       = ZERO; /* constraint error           */
   UserData udata    = NULL; /* user data structure        */
 
   SUNContext      sunctx     = NULL; /* SUNDIALS context     */
   void            *cvode_mem = NULL; /* CVODES memory        */
   N_Vector         y         = NULL; /* solution vector      */
-  realtype        *ydata     = NULL; /* solution vector data */
+  sunrealtype        *ydata     = NULL; /* solution vector data */
   N_Vector         e         = NULL; /* error vector         */
   SUNMatrix        A         = NULL; /* Jacobian matrix      */
   SUNLinearSolver  LS        = NULL; /* linear solver        */
@@ -312,11 +312,11 @@ int main(int argc, char* argv[])
 
 
 /* Compute the right-hand side function, y' = f(t,y) */
-static int f(realtype t, N_Vector y, N_Vector ydot, void *user_data)
+static int f(sunrealtype t, N_Vector y, N_Vector ydot, void *user_data)
 {
   UserData  udata = (UserData) user_data;
-  realtype *ydata = N_VGetArrayPointer(y);
-  realtype *fdata = N_VGetArrayPointer(ydot);
+  sunrealtype *ydata = N_VGetArrayPointer(y);
+  sunrealtype *fdata = N_VGetArrayPointer(ydot);
 
   fdata[0] = -(udata->alpha) * ydata[1];
   fdata[1] =  (udata->alpha) * ydata[0];
@@ -326,11 +326,11 @@ static int f(realtype t, N_Vector y, N_Vector ydot, void *user_data)
 
 
 /* Compute the Jacobian of the right-hand side function, J(t,y) = df/dy */
-static int Jac(realtype t, N_Vector y, N_Vector fy, SUNMatrix J,
+static int Jac(sunrealtype t, N_Vector y, N_Vector fy, SUNMatrix J,
                void *user_data, N_Vector tmp1, N_Vector tmp2, N_Vector tmp3)
 {
   UserData  udata = (UserData) user_data;
-  realtype *Jdata = SUNDenseMatrix_Data(J);
+  sunrealtype *Jdata = SUNDenseMatrix_Data(J);
 
   Jdata[0] =  ZERO;
   Jdata[1] = -(udata->alpha);
@@ -341,16 +341,16 @@ static int Jac(realtype t, N_Vector y, N_Vector fy, SUNMatrix J,
 }
 
 /* Project the solution onto the constraint manifold */
-static int Proj(realtype t, N_Vector ycur, N_Vector corr, realtype epsProj,
+static int Proj(sunrealtype t, N_Vector ycur, N_Vector corr, sunrealtype epsProj,
                 N_Vector err, void *user_data)
 {
-  realtype *ydata = N_VGetArrayPointer(ycur);
-  realtype *cdata = N_VGetArrayPointer(corr);
-  realtype *edata = NULL;
-  realtype  x = ydata[0];
-  realtype  y = ydata[1];
-  realtype  xp, yp, r;
-  realtype  errxp, erryp;
+  sunrealtype *ydata = N_VGetArrayPointer(ycur);
+  sunrealtype *cdata = N_VGetArrayPointer(corr);
+  sunrealtype *edata = NULL;
+  sunrealtype  x = ydata[0];
+  sunrealtype  y = ydata[1];
+  sunrealtype  xp, yp, r;
+  sunrealtype  errxp, erryp;
 
   /* project onto the unit circle */
   r = SQRT(x * x + y * y);
@@ -392,8 +392,8 @@ static int InitUserData(int *argc, char ***argv, UserData udata)
   udata->orbits = 100;
   udata->torbit = (TWO * PI) / udata->alpha;
 
-  udata->rtol = RCONST(1.0e-4);
-  udata->atol = RCONST(1.0e-9);
+  udata->rtol = SUN_RCONST(1.0e-4);
+  udata->atol = SUN_RCONST(1.0e-9);
 
   udata->proj    = 1;
   udata->projerr = 0;
@@ -502,9 +502,9 @@ static void InputHelp()
 
 
 /* Compute the analytical solution */
-static int ComputeSolution(realtype t, N_Vector y, UserData udata)
+static int ComputeSolution(sunrealtype t, N_Vector y, UserData udata)
 {
-  realtype *ydata = N_VGetArrayPointer(y);
+  sunrealtype *ydata = N_VGetArrayPointer(y);
 
   ydata[0] = COS((udata->alpha) * t);
   ydata[1] = SIN((udata->alpha) * t);
@@ -514,10 +514,10 @@ static int ComputeSolution(realtype t, N_Vector y, UserData udata)
 
 
 /* Compute the error in the solution and constraint */
-static int ComputeError(realtype t, N_Vector y, N_Vector e, realtype *ec,
+static int ComputeError(sunrealtype t, N_Vector y, N_Vector e, sunrealtype *ec,
                         UserData udata)
 {
-  realtype *ydata = N_VGetArrayPointer(y);
+  sunrealtype *ydata = N_VGetArrayPointer(y);
   int retval;
 
   /* solution error */
@@ -532,11 +532,11 @@ static int ComputeError(realtype t, N_Vector y, N_Vector e, realtype *ec,
 }
 
 /* Output the solution to the screen or disk */
-static int WriteOutput(realtype t, N_Vector y, N_Vector e, realtype ec,
+static int WriteOutput(sunrealtype t, N_Vector y, N_Vector e, sunrealtype ec,
                        int screenfile, FILE* YFID, FILE* EFID)
 {
-  realtype *ydata = N_VGetArrayPointer(y);
-  realtype *edata = N_VGetArrayPointer(e);
+  sunrealtype *ydata = N_VGetArrayPointer(y);
+  sunrealtype *edata = N_VGetArrayPointer(e);
 
   if (screenfile == 0)
   {

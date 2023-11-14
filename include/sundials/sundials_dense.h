@@ -16,9 +16,9 @@
  *
  * There are two sets of dense solver routines listed in
  * this file: one set uses type DlsMat defined below and the
- * other set uses the type realtype ** for dense matrix arguments.
+ * other set uses the type sunrealtype ** for dense matrix arguments.
  * Routines that work with the type DlsMat begin with "Dense".
- * Routines that work with realtype** begin with "dense".
+ * Routines that work with sunrealtype** begin with "dense".
  * -----------------------------------------------------------------*/
 
 #ifndef _SUNDIALS_DENSE_H
@@ -71,27 +71,17 @@ extern "C" {
 
 SUNDIALS_EXPORT
 sunindextype SUNDlsMat_DenseGETRF(SUNDlsMat A, sunindextype *p);
-SUNDIALS_DEPRECATED_EXPORT_MSG("use SUNDlsMat_DenseGETRF instead")
-sunindextype DenseGETRF(DlsMat A, sunindextype *p);
 
 SUNDIALS_EXPORT
-void SUNDlsMat_DenseGETRS(SUNDlsMat A, sunindextype *p, realtype *b);
-SUNDIALS_DEPRECATED_EXPORT_MSG("use SUNDlsMat_DenseGETRS instead")
-void DenseGETRS(DlsMat A, sunindextype *p, realtype *b);
+void SUNDlsMat_DenseGETRS(SUNDlsMat A, sunindextype *p, sunrealtype *b);
 
 SUNDIALS_EXPORT
-sunindextype SUNDlsMat_denseGETRF(realtype **a, sunindextype m,
+sunindextype SUNDlsMat_denseGETRF(sunrealtype **a, sunindextype m,
                                   sunindextype n, sunindextype *p);
-SUNDIALS_DEPRECATED_EXPORT_MSG("use SUNDlsMat_denseGETRF instead")
-sunindextype denseGETRF(realtype **a, sunindextype m,
-                        sunindextype n, sunindextype *p);
 
 SUNDIALS_EXPORT
-void SUNDlsMat_denseGETRS(realtype **a, sunindextype n, sunindextype *p,
-                          realtype *b);
-SUNDIALS_DEPRECATED_EXPORT_MSG("use SUNDlsMat_denseGETRS instead")
-void denseGETRS(realtype **a, sunindextype n, sunindextype *p,
-                realtype *b);
+void SUNDlsMat_denseGETRS(sunrealtype **a, sunindextype n, sunindextype *p,
+                          sunrealtype *b);
 
 /*
  * ----------------------------------------------------------------------------
@@ -114,23 +104,15 @@ void denseGETRS(realtype **a, sunindextype n, sunindextype *p,
 
 SUNDIALS_EXPORT
 sunindextype SUNDlsMat_DensePOTRF(SUNDlsMat A);
-SUNDIALS_DEPRECATED_EXPORT_MSG("use SUNDlsMat_DensePOTRF instead")
-sunindextype DensePOTRF(DlsMat A);
 
 SUNDIALS_EXPORT
-void SUNDlsMat_DensePOTRS(SUNDlsMat A, realtype *b);
-SUNDIALS_DEPRECATED_EXPORT_MSG("use SUNDlsMat_DensePOTRS instead")
-void DensePOTRS(DlsMat A, realtype *b);
+void SUNDlsMat_DensePOTRS(SUNDlsMat A, sunrealtype *b);
 
 SUNDIALS_EXPORT
-sunindextype SUNDlsMat_densePOTRF(realtype **a, sunindextype m);
-SUNDIALS_DEPRECATED_EXPORT_MSG("use SUNDlsMat_densePOTRF instead")
-sunindextype densePOTRF(realtype **a, sunindextype m);
+sunindextype SUNDlsMat_densePOTRF(sunrealtype **a, sunindextype m);
 
 SUNDIALS_EXPORT
-void SUNDlsMat_densePOTRS(realtype **a, sunindextype m, realtype *b);
-SUNDIALS_DEPRECATED_EXPORT_MSG("use SUNDlsMat_densePOTRS instead")
-void densePOTRS(realtype **a, sunindextype m, realtype *b);
+void SUNDlsMat_densePOTRS(sunrealtype **a, sunindextype m, sunrealtype *b);
 
 /*
  * -----------------------------------------------------------------------------
@@ -159,33 +141,21 @@ void densePOTRS(realtype **a, sunindextype m, realtype *b);
  */
 
 SUNDIALS_EXPORT
-int SUNDlsMat_DenseGEQRF(SUNDlsMat A, realtype *beta, realtype *wrk);
-SUNDIALS_DEPRECATED_EXPORT_MSG("use SUNDlsMat_DenseGEQRF instead")
-int DenseGEQRF(DlsMat A, realtype *beta, realtype *wrk);
+int SUNDlsMat_DenseGEQRF(SUNDlsMat A, sunrealtype *beta, sunrealtype *wrk);
 
 SUNDIALS_EXPORT
-int SUNDlsMat_DenseORMQR(SUNDlsMat A, realtype *beta, realtype *vn,
-                         realtype *vm, realtype *wrk);
-SUNDIALS_DEPRECATED_EXPORT_MSG("use SUNDlsMat_DenseORMQR instead")
-int DenseORMQR(DlsMat A, realtype *beta, realtype *vn,
-               realtype *vm, realtype *wrk);
+int SUNDlsMat_DenseORMQR(SUNDlsMat A, sunrealtype *beta, sunrealtype *vn,
+                         sunrealtype *vm, sunrealtype *wrk);
 
 
 SUNDIALS_EXPORT
-int SUNDlsMat_denseGEQRF(realtype **a, sunindextype m, sunindextype n,
-                         realtype *beta, realtype *wrk);
-SUNDIALS_DEPRECATED_EXPORT_MSG("use SUNDlsMat_denseGEQRF instead")
-int denseGEQRF(realtype **a, sunindextype m, sunindextype n,
-               realtype *beta, realtype *wrk);
+int SUNDlsMat_denseGEQRF(sunrealtype **a, sunindextype m, sunindextype n,
+                         sunrealtype *beta, sunrealtype *wrk);
 
 SUNDIALS_EXPORT
-int SUNDlsMat_denseORMQR(realtype **a, sunindextype m, sunindextype n,
-                         realtype *beta, realtype *v, realtype *w,
-                         realtype *wrk);
-SUNDIALS_DEPRECATED_EXPORT_MSG("use SUNDlsMat_denseORMQR instead")
-int denseORMQR(realtype **a, sunindextype m, sunindextype n,
-               realtype *beta, realtype *v, realtype *w,
-               realtype *wrk);
+int SUNDlsMat_denseORMQR(sunrealtype **a, sunindextype m, sunindextype n,
+                         sunrealtype *beta, sunrealtype *v, sunrealtype *w,
+                         sunrealtype *wrk);
 
 /*
  * ----------------------------------------------------------------------------
@@ -201,15 +171,10 @@ int denseORMQR(realtype **a, sunindextype m, sunindextype n,
 
 SUNDIALS_EXPORT
 void SUNDlsMat_DenseCopy(SUNDlsMat A, SUNDlsMat B);
-SUNDIALS_DEPRECATED_EXPORT_MSG("use SUNDlsMat_DenseCopy instead")
-void DenseCopy(DlsMat A, DlsMat B);
 
 SUNDIALS_EXPORT
-void SUNDlsMat_denseCopy(realtype **a, realtype **b, sunindextype m,
+void SUNDlsMat_denseCopy(sunrealtype **a, sunrealtype **b, sunindextype m,
                          sunindextype n);
-SUNDIALS_DEPRECATED_EXPORT_MSG("use SUNDlsMat_denseCopy instead")
-void denseCopy(realtype **a, realtype **b, sunindextype m,
-               sunindextype n);
 
 /*
  * -----------------------------------------------------------------------------
@@ -225,31 +190,23 @@ void denseCopy(realtype **a, realtype **b, sunindextype m,
  */
 
 SUNDIALS_EXPORT
-void SUNDlsMat_DenseScale(realtype c, SUNDlsMat A);
-SUNDIALS_DEPRECATED_EXPORT_MSG("use SUNDlsSUNDlsMat_DenseScale_denseCopy instead")
-void DenseScale(realtype c, DlsMat A);
+void SUNDlsMat_DenseScale(sunrealtype c, SUNDlsMat A);
 
 SUNDIALS_EXPORT
-void SUNDlsMat_denseScale(realtype c, realtype **a, sunindextype m,
+void SUNDlsMat_denseScale(sunrealtype c, sunrealtype **a, sunindextype m,
                           sunindextype n);
-SUNDIALS_DEPRECATED_EXPORT_MSG("use SUNDlsMat_denseScale instead")
-void denseScale(realtype c, realtype **a, sunindextype m,
-                sunindextype n);
-
 
 /*
  * -----------------------------------------------------------------------------
  * Function: SUNDlsMat_denseAddIdentity
  * -----------------------------------------------------------------------------
  * SUNDlsMat_denseAddIdentity adds the identity matrix to the n-by-n matrix
- * stored in a realtype** array.
+ * stored in a sunrealtype** array.
  * -----------------------------------------------------------------------------
  */
 
 SUNDIALS_EXPORT
-void SUNDlsMat_denseAddIdentity(realtype **a, sunindextype n);
-SUNDIALS_DEPRECATED_EXPORT_MSG("use SUNDlsMat_denseAddIdentity instead")
-void denseAddIdentity(realtype **a, sunindextype n);
+void SUNDlsMat_denseAddIdentity(sunrealtype **a, sunindextype n);
 
 
 /*
@@ -267,16 +224,11 @@ void denseAddIdentity(realtype **a, sunindextype n);
  */
 
 SUNDIALS_EXPORT
-void SUNDlsMat_DenseMatvec(SUNDlsMat A, realtype *x, realtype *y);
-SUNDIALS_DEPRECATED_EXPORT_MSG("use SUNDlsMat_DenseMatvec instead")
-void DenseMatvec(DlsMat A, realtype *x, realtype *y);
+void SUNDlsMat_DenseMatvec(SUNDlsMat A, sunrealtype *x, sunrealtype *y);
 
 SUNDIALS_EXPORT
-void SUNDlsMat_denseMatvec(realtype **a, realtype *x, realtype *y,
+void SUNDlsMat_denseMatvec(sunrealtype **a, sunrealtype *x, sunrealtype *y,
                            sunindextype m, sunindextype n);
-SUNDIALS_DEPRECATED_EXPORT_MSG("use SUNDlsMat_denseMatvec instead")
-void denseMatvec(realtype **a, realtype *x, realtype *y,
-                 sunindextype m, sunindextype n);
 
 
 #ifdef __cplusplus

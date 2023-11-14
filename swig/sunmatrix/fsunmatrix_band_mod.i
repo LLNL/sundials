@@ -37,10 +37,10 @@
 SWIGEXPORT double * _wrap_FSUNBandMatrix_Data(SUNMatrix farg1) {
   double * fresult ;
   SUNMatrix arg1 = (SUNMatrix) 0 ;
-  realtype *result = 0 ;
+  sunrealtype *result = 0 ;
   
   arg1 = (SUNMatrix)(farg1);
-  result = (realtype *)SUNBandMatrix_Data(arg1);
+  result = (sunrealtype *)SUNBandMatrix_Data(arg1);
   fresult = result;
   return fresult;
 }
@@ -49,11 +49,11 @@ SWIGEXPORT double * _wrap_FSUNBandMatrix_Column(SUNMatrix farg1, int64_t const *
   double * fresult ;
   SUNMatrix arg1 = (SUNMatrix) 0 ;
   sunindextype arg2 ;
-  realtype *result = 0 ;
+  sunrealtype *result = 0 ;
   
   arg1 = (SUNMatrix)(farg1);
   arg2 = (sunindextype)(*farg2);
-  result = (realtype *)SUNBandMatrix_Column(arg1,arg2);
+  result = (sunrealtype *)SUNBandMatrix_Column(arg1,arg2);
   fresult = result;
   return fresult;
 }

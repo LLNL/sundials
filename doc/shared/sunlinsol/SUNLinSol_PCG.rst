@@ -268,9 +268,9 @@ The SUNLinSol_PCG module defines the *content* field of a
    struct _SUNLinearSolverContent_PCG {
      int maxl;
      int pretype;
-     booleantype zeroguess;
+     sunbooleantype zeroguess;
      int numiters;
-     realtype resnorm;
+     sunrealtype resnorm;
      int last_flag;
      SUNATimesFn ATimes;
      void* ATData;

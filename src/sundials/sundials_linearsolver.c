@@ -150,7 +150,7 @@ int SUNLinSolSetScalingVectors(SUNLinearSolver S,
   return(ier);
 }
 
-int SUNLinSolSetZeroGuess(SUNLinearSolver S, booleantype onoff)
+int SUNLinSolSetZeroGuess(SUNLinearSolver S, sunbooleantype onoff)
 {
   if (S->ops->setzeroguess)
     return ((int) S->ops->setzeroguess(S, onoff));
@@ -183,7 +183,7 @@ int SUNLinSolSetup(SUNLinearSolver S, SUNMatrix A)
 }
 
 int SUNLinSolSolve(SUNLinearSolver S, SUNMatrix A, N_Vector x,
-                   N_Vector b, realtype tol)
+                   N_Vector b, sunrealtype tol)
 {
   int ier;
   SUNDIALS_MARK_FUNCTION_BEGIN(getSUNProfiler(S));
@@ -202,14 +202,14 @@ int SUNLinSolNumIters(SUNLinearSolver S)
   return(ier);
 }
 
-realtype SUNLinSolResNorm(SUNLinearSolver S)
+sunrealtype SUNLinSolResNorm(SUNLinearSolver S)
 {
   double result;
   SUNDIALS_MARK_FUNCTION_BEGIN(getSUNProfiler(S));
   if (S->ops->resnorm)
     result = S->ops->resnorm(S);
   else
-    result = RCONST(0.0);
+    result = SUN_RCONST(0.0);
   SUNDIALS_MARK_FUNCTION_END(getSUNProfiler(S));
   return(result);
 }

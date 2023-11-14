@@ -60,7 +60,7 @@
 #include <nvector/nvector_serial.h>     /* serial N_Vector types, fcts., macros */
 #include <sunmatrix/sunmatrix_dense.h>  /* access to dense SUNMatrix            */
 #include <sunlinsol/sunlinsol_dense.h>  /* access to dense SUNLinearSolver      */
-#include <sundials/sundials_types.h>    /* def. of type 'realtype' */
+#include <sundials/sundials_types.h>    /* def. of type 'sunrealtype' */
 
 #if defined(SUNDIALS_EXTENDED_PRECISION)
 #define GSYM "Lg"
@@ -73,8 +73,8 @@
 #endif
 
 /* User-supplied Functions Called by the Solver */
-static int f(realtype t, N_Vector y, N_Vector ydot, void *user_data);
-static int Jac(realtype t, N_Vector y, N_Vector fy, SUNMatrix J, void *user_data,
+static int f(sunrealtype t, N_Vector y, N_Vector ydot, void *user_data);
+static int Jac(sunrealtype t, N_Vector y, N_Vector fy, SUNMatrix J, void *user_data,
                N_Vector tmp1, N_Vector tmp2, N_Vector tmp3);
 
 /* Private function to check function return values */
@@ -84,15 +84,15 @@ static int check_flag(void *flagvalue, const char *funcname, int opt);
 int main()
 {
   /* general problem parameters */
-  realtype T0 = RCONST(0.0);         /* initial time */
-  realtype Tf = RCONST(10.0);        /* final time */
-  realtype dTout = RCONST(1.0);      /* time between outputs */
+  sunrealtype T0 = SUN_RCONST(0.0);         /* initial time */
+  sunrealtype Tf = SUN_RCONST(10.0);        /* final time */
+  sunrealtype dTout = SUN_RCONST(1.0);      /* time between outputs */
   sunindextype NEQ = 3;              /* number of dependent vars. */
   int Nt = (int) ceil(Tf/dTout);     /* number of output times */
   int test = 2;                      /* test problem to run */
-  realtype reltol = 1.0e-6;          /* tolerances */
-  realtype abstol = 1.0e-10;
-  realtype a, b, ep, u0, v0, w0;
+  sunrealtype reltol = 1.0e-6;          /* tolerances */
+  sunrealtype abstol = 1.0e-10;
+  sunrealtype a, b, ep, u0, v0, w0;
 
   /* general problem variables */
   int flag;                      /* reusable error-checking flag */
@@ -100,9 +100,9 @@ int main()
   SUNMatrix A = NULL;            /* empty matrix for solver */
   SUNLinearSolver LS = NULL;     /* empty linear solver object */
   void *arkode_mem = NULL;       /* empty ARKode memory structure */
-  realtype rdata[3];
+  sunrealtype rdata[3];
   FILE *UFID;
-  realtype t, tout;
+  sunrealtype t, tout;
   int iout;
   long int nst, nst_a, nfe, nfi, nsetups, nje, nfeLS, nni, nnf, ncfn, netf;
 
@@ -113,26 +113,26 @@ int main()
 
   /* set up the test problem according to the desired test */
   if (test == 1) {
-    u0 = RCONST(3.9);
-    v0 = RCONST(1.1);
-    w0 = RCONST(2.8);
-    a  = RCONST(1.2);
-    b  = RCONST(2.5);
-    ep = RCONST(1.0e-5);
+    u0 = SUN_RCONST(3.9);
+    v0 = SUN_RCONST(1.1);
+    w0 = SUN_RCONST(2.8);
+    a  = SUN_RCONST(1.2);
+    b  = SUN_RCONST(2.5);
+    ep = SUN_RCONST(1.0e-5);
   } else if (test == 3) {
-    u0 = RCONST(3.0);
-    v0 = RCONST(3.0);
-    w0 = RCONST(3.5);
-    a  = RCONST(0.5);
-    b  = RCONST(3.0);
-    ep = RCONST(5.0e-4);
+    u0 = SUN_RCONST(3.0);
+    v0 = SUN_RCONST(3.0);
+    w0 = SUN_RCONST(3.5);
+    a  = SUN_RCONST(0.5);
+    b  = SUN_RCONST(3.0);
+    ep = SUN_RCONST(5.0e-4);
   } else {
-    u0 = RCONST(1.2);
-    v0 = RCONST(3.1);
-    w0 = RCONST(3.0);
-    a  = RCONST(1.0);
-    b  = RCONST(3.5);
-    ep = RCONST(5.0e-6);
+    u0 = SUN_RCONST(1.2);
+    v0 = SUN_RCONST(3.1);
+    w0 = SUN_RCONST(3.0);
+    a  = SUN_RCONST(1.0);
+    b  = SUN_RCONST(3.5);
+    ep = SUN_RCONST(5.0e-6);
   }
 
   /* Initial problem output */
@@ -264,15 +264,15 @@ int main()
  *-------------------------------*/
 
 /* f routine to compute the ODE RHS function f(t,y). */
-static int f(realtype t, N_Vector y, N_Vector ydot, void *user_data)
+static int f(sunrealtype t, N_Vector y, N_Vector ydot, void *user_data)
 {
-  realtype *rdata = (realtype *) user_data;   /* cast user_data to realtype */
-  realtype a  = rdata[0];                     /* access data entries */
-  realtype b  = rdata[1];
-  realtype ep = rdata[2];
-  realtype u = NV_Ith_S(y,0);                 /* access solution values */
-  realtype v = NV_Ith_S(y,1);
-  realtype w = NV_Ith_S(y,2);
+  sunrealtype *rdata = (sunrealtype *) user_data;   /* cast user_data to sunrealtype */
+  sunrealtype a  = rdata[0];                     /* access data entries */
+  sunrealtype b  = rdata[1];
+  sunrealtype ep = rdata[2];
+  sunrealtype u = NV_Ith_S(y,0);                 /* access solution values */
+  sunrealtype v = NV_Ith_S(y,1);
+  sunrealtype w = NV_Ith_S(y,2);
 
   /* fill in the RHS function */
   NV_Ith_S(ydot,0) = a - (w+1.0)*u + v*u*u;
@@ -283,14 +283,14 @@ static int f(realtype t, N_Vector y, N_Vector ydot, void *user_data)
 }
 
 /* Jacobian routine to compute J(t,y) = df/dy. */
-static int Jac(realtype t, N_Vector y, N_Vector fy, SUNMatrix J, void *user_data,
+static int Jac(sunrealtype t, N_Vector y, N_Vector fy, SUNMatrix J, void *user_data,
                N_Vector tmp1, N_Vector tmp2, N_Vector tmp3)
 {
-  realtype *rdata = (realtype *) user_data;   /* cast user_data to realtype */
-  realtype ep = rdata[2];                     /* access data entries */
-  realtype u = NV_Ith_S(y,0);                 /* access solution values */
-  realtype v = NV_Ith_S(y,1);
-  realtype w = NV_Ith_S(y,2);
+  sunrealtype *rdata = (sunrealtype *) user_data;   /* cast user_data to sunrealtype */
+  sunrealtype ep = rdata[2];                     /* access data entries */
+  sunrealtype u = NV_Ith_S(y,0);                 /* access solution values */
+  sunrealtype v = NV_Ith_S(y,1);
+  sunrealtype w = NV_Ith_S(y,2);
 
   /* fill in the Jacobian via SUNDenseMatrix macro, SM_ELEMENT_D (see sunmatrix_dense.h) */
   SM_ELEMENT_D(J,0,0) = -(w+1.0) + 2.0*u*v;

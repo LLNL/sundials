@@ -91,6 +91,12 @@ Changes from previous versions
 Changes in vX.X.X
 -----------------
 
+The previously deprecated types ``realtype`` and ``booleantype`` were removed
+from ``sundials_types.h`` and replaced with ``sunrealtype`` and
+``sunbooleantype``. The deprecated names for these types can be used by including
+the header file ``sundials_types_deprecated.h`` but will be fully removed in the
+next major release.
+
 Fixed the build system support for MAGMA when using a NVIDIA HPC SDK installation of CUDA
 and fixed the targets used for rocBLAS and rocSPARSE.
 
@@ -103,6 +109,10 @@ Fixed missing soversions in some ``SUNLinearSolver`` and ``SUNNonlinearSolver``
 CMake targets.
 
 Added Fortran support for the LAPACK  dense ``SUNLinearSolver`` implementation.
+
+**Breaking change**
+Functions, types and header files that were previously deprecated have been
+removed. 
 
 Changes in v6.6.1
 -----------------

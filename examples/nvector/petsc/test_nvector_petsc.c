@@ -272,7 +272,7 @@ int main(int argc, char *argv[])
 /* ----------------------------------------------------------------------
  * Implementation specific utility functions for vector tests
  * --------------------------------------------------------------------*/
-int check_ans(realtype ans, N_Vector X, sunindextype local_length)
+int check_ans(sunrealtype ans, N_Vector X, sunindextype local_length)
 {
   int          failure = 0;
   sunindextype i;
@@ -292,19 +292,19 @@ int check_ans(realtype ans, N_Vector X, sunindextype local_length)
   return (failure > ZERO) ? (1) : (0);
 }
 
-booleantype has_data(N_Vector X)
+sunbooleantype has_data(N_Vector X)
 {
   /* check if wrapped PETSc vector is non-null */
   return (N_VGetVector_Petsc(X) == NULL) ? SUNFALSE : SUNTRUE;
 }
 
-void set_element(N_Vector X, sunindextype i, realtype val)
+void set_element(N_Vector X, sunindextype i, sunrealtype val)
 {
   set_element_range(X, i, i, val);
 }
 
 void set_element_range(N_Vector X, sunindextype is, sunindextype ie,
-                       realtype val)
+                       sunrealtype val)
 {
   Vec           xv;
   PetscScalar  *a;
@@ -319,11 +319,11 @@ void set_element_range(N_Vector X, sunindextype is, sunindextype ie,
   VecRestoreArray(xv, &a);
 }
 
-realtype get_element(N_Vector X, sunindextype i)
+sunrealtype get_element(N_Vector X, sunindextype i)
 {
   PetscScalar *a;
   Vec         xv;
-  realtype    val;
+  sunrealtype    val;
 
   /* extract the PETSc vector from the N_Vector wrapper */
   xv = N_VGetVector_Petsc(X);

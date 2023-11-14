@@ -94,11 +94,11 @@ void arkPrintAdaptMem(ARKodeHAdaptMem hadapt_mem, FILE *outfile)
   data structure.
   ---------------------------------------------------------------*/
 int arkAdapt(void* arkode_mem, ARKodeHAdaptMem hadapt_mem,
-             N_Vector ycur, realtype tcur, realtype hcur,
-             realtype dsm, long int nst)
+             N_Vector ycur, sunrealtype tcur, sunrealtype hcur,
+             sunrealtype dsm, long int nst)
 {
   int retval;
-  realtype h_acc, h_cfl, int_dir;
+  sunrealtype h_acc, h_cfl, int_dir;
   ARKodeMem ark_mem;
   int controller_order;
   if (arkode_mem == NULL) {
@@ -134,7 +134,7 @@ int arkAdapt(void* arkode_mem, ARKodeHAdaptMem hadapt_mem,
                     "Error in explicit stability function.");
     return (ARK_ILL_INPUT);
   }
-  if (h_cfl <= ZERO)  h_cfl = RCONST(1.0e30) * SUNRabs(hcur);
+  if (h_cfl <= ZERO)  h_cfl = SUN_RCONST(1.0e30) * SUNRabs(hcur);
 
 #if SUNDIALS_LOGGING_LEVEL >= SUNDIALS_LOGGING_INFO
   SUNLogger_QueueMsg(ARK_LOGGER, SUN_LOGLEVEL_INFO,
@@ -151,10 +151,6 @@ int arkAdapt(void* arkode_mem, ARKodeHAdaptMem hadapt_mem,
 
   /* enforce minimum bound time step reduction */
   h_acc = int_dir * SUNMAX(SUNRabs(h_acc), SUNRabs(hadapt_mem->etamin*hcur));
-
-  /* Solver diagnostics reporting */
-  if (ark_mem->report)
-    fprintf(ark_mem->diagfp, "%"RSYM"  %"RSYM"  ", h_acc, h_cfl);
 
 #if SUNDIALS_LOGGING_LEVEL >= SUNDIALS_LOGGING_INFO
   SUNLogger_QueueMsg(ARK_LOGGER, SUN_LOGLEVEL_INFO,
@@ -187,12 +183,8 @@ int arkAdapt(void* arkode_mem, ARKodeHAdaptMem hadapt_mem,
   ark_mem->eta /= SUNMAX(ONE, SUNRabs(hcur) *
                          ark_mem->hmax_inv*ark_mem->eta);
 
-  /* Solver diagnostics reporting */
-  if (ark_mem->report)
-    fprintf(ark_mem->diagfp, "%"RSYM"\n", ark_mem->eta);
-
-#if SUNDIALS_LOGGING_LEVEL >= SUNDIALS_LOGGING_INFO
-  SUNLogger_QueueMsg(ARK_LOGGER, SUN_LOGLEVEL_INFO, "ARKODE::arkAdapt",
+#if SUNDIALS_LOGGING_LEVEL >= SUNDIALS_LOGGING_DEBUG
+  SUNLogger_QueueMsg(ARK_LOGGER, SUN_LOGLEVEL_DEBUG, "ARKODE::arkAdapt",
                      "new-step-eta", "eta = %"RSYM, ark_mem->eta);
 #endif
 

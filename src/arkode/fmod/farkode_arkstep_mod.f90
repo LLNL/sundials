@@ -134,7 +134,6 @@ module farkode_arkstep_mod
  public :: FARKStepSetErrHandlerFn
  public :: FARKStepSetErrFile
  public :: FARKStepSetUserData
- public :: FARKStepSetDiagnostics
  public :: FARKStepSetPostprocessStepFn
  public :: FARKStepSetPostprocessStageFn
  public :: FARKStepSetStagePredictFn
@@ -881,15 +880,6 @@ end function
 
 function swigc_FARKStepSetUserData(farg1, farg2) &
 bind(C, name="_wrap_FARKStepSetUserData") &
-result(fresult)
-use, intrinsic :: ISO_C_BINDING
-type(C_PTR), value :: farg1
-type(C_PTR), value :: farg2
-integer(C_INT) :: fresult
-end function
-
-function swigc_FARKStepSetDiagnostics(farg1, farg2) &
-bind(C, name="_wrap_FARKStepSetDiagnostics") &
 result(fresult)
 use, intrinsic :: ISO_C_BINDING
 type(C_PTR), value :: farg1
@@ -3023,22 +3013,6 @@ fresult = swigc_FARKStepSetUserData(farg1, farg2)
 swig_result = fresult
 end function
 
-function FARKStepSetDiagnostics(arkode_mem, diagfp) &
-result(swig_result)
-use, intrinsic :: ISO_C_BINDING
-integer(C_INT) :: swig_result
-type(C_PTR) :: arkode_mem
-type(C_PTR) :: diagfp
-integer(C_INT) :: fresult 
-type(C_PTR) :: farg1 
-type(C_PTR) :: farg2 
-
-farg1 = arkode_mem
-farg2 = diagfp
-fresult = swigc_FARKStepSetDiagnostics(farg1, farg2)
-swig_result = fresult
-end function
-
 function FARKStepSetPostprocessStepFn(arkode_mem, processstep) &
 result(swig_result)
 use, intrinsic :: ISO_C_BINDING
@@ -4049,13 +4023,13 @@ result(swig_result)
 use, intrinsic :: ISO_C_BINDING
 integer(C_INT) :: swig_result
 type(C_PTR) :: arkode_mem
-real(C_DOUBLE), target, intent(inout) :: t_j
+real(C_DOUBLE), dimension(*), target, intent(inout) :: t_j
 integer(C_INT) :: fresult 
 type(C_PTR) :: farg1 
 type(C_PTR) :: farg2 
 
 farg1 = arkode_mem
-farg2 = c_loc(t_j)
+farg2 = c_loc(t_j(1))
 fresult = swigc_FARKStepGetJacTime(farg1, farg2)
 swig_result = fresult
 end function

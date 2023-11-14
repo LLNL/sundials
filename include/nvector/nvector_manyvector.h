@@ -19,11 +19,11 @@
  *   - The definition of the generic N_Vector structure can be found
  *     in the header file sundials_nvector.h.
  *
- *   - The definitions of the types 'realtype' and 'sunindextype' can
+ *   - The definitions of the types 'sunrealtype' and 'sunindextype' can
  *     be found in the header file sundials_types.h, and it may be
  *     changed (at the configuration stage) according to the user's needs.
  *     The sundials_types.h file also contains the definition
- *     for the type 'booleantype'.
+ *     for the type 'sunbooleantype'.
  *
  *   - N_Vector arguments to arithmetic vector operations need not
  *     be distinct. For example, the following call:
@@ -52,7 +52,7 @@ struct _N_VectorContent_ManyVector {
   sunindextype  num_subvectors;  /* number of vectors attached       */
   sunindextype  global_length;   /* overall global manyvector length */
   N_Vector*     subvec_array;    /* pointer to N_Vector array        */
-  booleantype   own_data;        /* flag indicating data ownership   */
+  sunbooleantype   own_data;        /* flag indicating data ownership   */
 };
 
 typedef struct _N_VectorContent_ManyVector *N_VectorContent_ManyVector;
@@ -68,10 +68,10 @@ SUNDIALS_EXPORT N_Vector N_VNew_ManyVector(sunindextype num_subvectors,
 SUNDIALS_EXPORT N_Vector N_VGetSubvector_ManyVector(N_Vector v,
                                                     sunindextype vec_num);
 
-SUNDIALS_EXPORT realtype *N_VGetSubvectorArrayPointer_ManyVector(N_Vector v,
+SUNDIALS_EXPORT sunrealtype *N_VGetSubvectorArrayPointer_ManyVector(N_Vector v,
                                                                  sunindextype vec_num);
 
-SUNDIALS_EXPORT int N_VSetSubvectorArrayPointer_ManyVector(realtype *v_data, N_Vector v,
+SUNDIALS_EXPORT int N_VSetSubvectorArrayPointer_ManyVector(sunrealtype *v_data, N_Vector v,
                                                            sunindextype vec_num);
 
 SUNDIALS_EXPORT sunindextype N_VGetNumSubvectors_ManyVector(N_Vector v);
@@ -87,68 +87,68 @@ SUNDIALS_EXPORT void N_VSpace_ManyVector(N_Vector v, sunindextype *lrw,
                                          sunindextype *liw);
 SUNDIALS_EXPORT sunindextype N_VGetLength_ManyVector(N_Vector v);
 SUNDIALS_EXPORT sunindextype N_VGetSubvectorLocalLength_ManyVector(N_Vector v, sunindextype vec_num);
-SUNDIALS_EXPORT void N_VLinearSum_ManyVector(realtype a, N_Vector x,
-                                             realtype b, N_Vector y,
+SUNDIALS_EXPORT void N_VLinearSum_ManyVector(sunrealtype a, N_Vector x,
+                                             sunrealtype b, N_Vector y,
                                              N_Vector z);
-SUNDIALS_EXPORT void N_VConst_ManyVector(realtype c, N_Vector z);
+SUNDIALS_EXPORT void N_VConst_ManyVector(sunrealtype c, N_Vector z);
 SUNDIALS_EXPORT void N_VProd_ManyVector(N_Vector x, N_Vector y, N_Vector z);
 SUNDIALS_EXPORT void N_VDiv_ManyVector(N_Vector x, N_Vector y, N_Vector z);
-SUNDIALS_EXPORT void N_VScale_ManyVector(realtype c, N_Vector x, N_Vector z);
+SUNDIALS_EXPORT void N_VScale_ManyVector(sunrealtype c, N_Vector x, N_Vector z);
 SUNDIALS_EXPORT void N_VAbs_ManyVector(N_Vector x, N_Vector z);
 SUNDIALS_EXPORT void N_VInv_ManyVector(N_Vector x, N_Vector z);
-SUNDIALS_EXPORT void N_VAddConst_ManyVector(N_Vector x, realtype b,
+SUNDIALS_EXPORT void N_VAddConst_ManyVector(N_Vector x, sunrealtype b,
                                             N_Vector z);
-SUNDIALS_EXPORT realtype N_VWrmsNorm_ManyVector(N_Vector x, N_Vector w);
-SUNDIALS_EXPORT realtype N_VWrmsNormMask_ManyVector(N_Vector x, N_Vector w,
+SUNDIALS_EXPORT sunrealtype N_VWrmsNorm_ManyVector(N_Vector x, N_Vector w);
+SUNDIALS_EXPORT sunrealtype N_VWrmsNormMask_ManyVector(N_Vector x, N_Vector w,
                                                     N_Vector id);
-SUNDIALS_EXPORT realtype N_VWL2Norm_ManyVector(N_Vector x, N_Vector w);
-SUNDIALS_EXPORT void N_VCompare_ManyVector(realtype c, N_Vector x, N_Vector z);
+SUNDIALS_EXPORT sunrealtype N_VWL2Norm_ManyVector(N_Vector x, N_Vector w);
+SUNDIALS_EXPORT void N_VCompare_ManyVector(sunrealtype c, N_Vector x, N_Vector z);
 
 /* fused vector operations */
-SUNDIALS_EXPORT int N_VLinearCombination_ManyVector(int nvec, realtype* c,
+SUNDIALS_EXPORT int N_VLinearCombination_ManyVector(int nvec, sunrealtype* c,
                                                     N_Vector* V, N_Vector z);
-SUNDIALS_EXPORT int N_VScaleAddMulti_ManyVector(int nvec, realtype* a,
+SUNDIALS_EXPORT int N_VScaleAddMulti_ManyVector(int nvec, sunrealtype* a,
                                                 N_Vector x, N_Vector* Y,
                                                 N_Vector* Z);
 SUNDIALS_EXPORT int N_VDotProdMulti_ManyVector(int nvec, N_Vector x,
                                                N_Vector *Y,
-                                               realtype* dotprods);
+                                               sunrealtype* dotprods);
 
 /* vector array operations */
 SUNDIALS_EXPORT int N_VLinearSumVectorArray_ManyVector(int nvec,
-                                                       realtype a, N_Vector* X,
-                                                       realtype b, N_Vector* Y,
+                                                       sunrealtype a, N_Vector* X,
+                                                       sunrealtype b, N_Vector* Y,
                                                        N_Vector* Z);
-SUNDIALS_EXPORT int N_VScaleVectorArray_ManyVector(int nvec, realtype* c,
+SUNDIALS_EXPORT int N_VScaleVectorArray_ManyVector(int nvec, sunrealtype* c,
                                                    N_Vector* X, N_Vector* Z);
-SUNDIALS_EXPORT int N_VConstVectorArray_ManyVector(int nvecs, realtype c,
+SUNDIALS_EXPORT int N_VConstVectorArray_ManyVector(int nvecs, sunrealtype c,
                                                    N_Vector* Z);
 SUNDIALS_EXPORT int N_VWrmsNormVectorArray_ManyVector(int nvecs, N_Vector* X,
-                                                      N_Vector* W, realtype* nrm);
+                                                      N_Vector* W, sunrealtype* nrm);
 SUNDIALS_EXPORT int N_VWrmsNormMaskVectorArray_ManyVector(int nvec,
                                                           N_Vector* X,
                                                           N_Vector* W,
                                                           N_Vector id,
-                                                          realtype* nrm);
+                                                          sunrealtype* nrm);
 
 /* OPTIONAL local reduction kernels (no parallel communication) */
-SUNDIALS_EXPORT realtype N_VDotProdLocal_ManyVector(N_Vector x, N_Vector y);
-SUNDIALS_EXPORT realtype N_VMaxNormLocal_ManyVector(N_Vector x);
-SUNDIALS_EXPORT realtype N_VMinLocal_ManyVector(N_Vector x);
-SUNDIALS_EXPORT realtype N_VL1NormLocal_ManyVector(N_Vector x);
-SUNDIALS_EXPORT realtype N_VWSqrSumLocal_ManyVector(N_Vector x, N_Vector w);
-SUNDIALS_EXPORT realtype N_VWSqrSumMaskLocal_ManyVector(N_Vector x, N_Vector w,
+SUNDIALS_EXPORT sunrealtype N_VDotProdLocal_ManyVector(N_Vector x, N_Vector y);
+SUNDIALS_EXPORT sunrealtype N_VMaxNormLocal_ManyVector(N_Vector x);
+SUNDIALS_EXPORT sunrealtype N_VMinLocal_ManyVector(N_Vector x);
+SUNDIALS_EXPORT sunrealtype N_VL1NormLocal_ManyVector(N_Vector x);
+SUNDIALS_EXPORT sunrealtype N_VWSqrSumLocal_ManyVector(N_Vector x, N_Vector w);
+SUNDIALS_EXPORT sunrealtype N_VWSqrSumMaskLocal_ManyVector(N_Vector x, N_Vector w,
                                                         N_Vector id);
-SUNDIALS_EXPORT booleantype N_VInvTestLocal_ManyVector(N_Vector x, N_Vector z);
-SUNDIALS_EXPORT booleantype N_VConstrMaskLocal_ManyVector(N_Vector c, N_Vector x,
+SUNDIALS_EXPORT sunbooleantype N_VInvTestLocal_ManyVector(N_Vector x, N_Vector z);
+SUNDIALS_EXPORT sunbooleantype N_VConstrMaskLocal_ManyVector(N_Vector c, N_Vector x,
                                                           N_Vector m);
-SUNDIALS_EXPORT realtype N_VMinQuotientLocal_ManyVector(N_Vector num,
+SUNDIALS_EXPORT sunrealtype N_VMinQuotientLocal_ManyVector(N_Vector num,
                                                         N_Vector denom);
 
 /* OPTIONAL single buffer reduction operations */
 SUNDIALS_EXPORT int N_VDotProdMultiLocal_ManyVector(int nvec, N_Vector x,
                                                     N_Vector *Y,
-                                                    realtype* dotprods);
+                                                    sunrealtype* dotprods);
 
 /* OPTIONAL XBraid interface operations */
 SUNDIALS_EXPORT int N_VBufSize_ManyVector(N_Vector x, sunindextype *size);
@@ -159,19 +159,19 @@ SUNDIALS_EXPORT int N_VBufUnpack_ManyVector(N_Vector x, void *buf);
    Enable / disable fused vector operations
    ----------------------------------------------------------------- */
 
-SUNDIALS_EXPORT int N_VEnableFusedOps_ManyVector(N_Vector v, booleantype tf);
+SUNDIALS_EXPORT int N_VEnableFusedOps_ManyVector(N_Vector v, sunbooleantype tf);
 
-SUNDIALS_EXPORT int N_VEnableLinearCombination_ManyVector(N_Vector v, booleantype tf);
-SUNDIALS_EXPORT int N_VEnableScaleAddMulti_ManyVector(N_Vector v, booleantype tf);
-SUNDIALS_EXPORT int N_VEnableDotProdMulti_ManyVector(N_Vector v, booleantype tf);
+SUNDIALS_EXPORT int N_VEnableLinearCombination_ManyVector(N_Vector v, sunbooleantype tf);
+SUNDIALS_EXPORT int N_VEnableScaleAddMulti_ManyVector(N_Vector v, sunbooleantype tf);
+SUNDIALS_EXPORT int N_VEnableDotProdMulti_ManyVector(N_Vector v, sunbooleantype tf);
 
-SUNDIALS_EXPORT int N_VEnableLinearSumVectorArray_ManyVector(N_Vector v, booleantype tf);
-SUNDIALS_EXPORT int N_VEnableScaleVectorArray_ManyVector(N_Vector v, booleantype tf);
-SUNDIALS_EXPORT int N_VEnableConstVectorArray_ManyVector(N_Vector v, booleantype tf);
-SUNDIALS_EXPORT int N_VEnableWrmsNormVectorArray_ManyVector(N_Vector v, booleantype tf);
-SUNDIALS_EXPORT int N_VEnableWrmsNormMaskVectorArray_ManyVector(N_Vector v, booleantype tf);
+SUNDIALS_EXPORT int N_VEnableLinearSumVectorArray_ManyVector(N_Vector v, sunbooleantype tf);
+SUNDIALS_EXPORT int N_VEnableScaleVectorArray_ManyVector(N_Vector v, sunbooleantype tf);
+SUNDIALS_EXPORT int N_VEnableConstVectorArray_ManyVector(N_Vector v, sunbooleantype tf);
+SUNDIALS_EXPORT int N_VEnableWrmsNormVectorArray_ManyVector(N_Vector v, sunbooleantype tf);
+SUNDIALS_EXPORT int N_VEnableWrmsNormMaskVectorArray_ManyVector(N_Vector v, sunbooleantype tf);
 
-SUNDIALS_EXPORT int N_VEnableDotProdMultiLocal_ManyVector(N_Vector v, booleantype tf);
+SUNDIALS_EXPORT int N_VEnableDotProdMultiLocal_ManyVector(N_Vector v, sunbooleantype tf);
 
 #ifdef __cplusplus
 }

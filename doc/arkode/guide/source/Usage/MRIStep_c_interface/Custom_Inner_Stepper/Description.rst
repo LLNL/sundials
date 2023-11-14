@@ -253,7 +253,7 @@ this section can be used to either apply the inner (fast) forcing or access the
 data necessary to construct the inner (fast) forcing polynomial.
 
 
-.. c:function:: int MRIStepInnerStepper_AddForcing(MRIStepInnerStepper stepper, realtype t, N_Vector ff)
+.. c:function:: int MRIStepInnerStepper_AddForcing(MRIStepInnerStepper stepper, sunrealtype t, N_Vector ff)
 
    This function computes the forcing term :eq:`ARKODE_MRI_forcing_poly` at the input
    time *t* and adds it to input vector *ff*, i.e., the inner (fast) right-hand
@@ -279,7 +279,7 @@ data necessary to construct the inner (fast) forcing polynomial.
       * ``examples/arkode/CXX_parallel/ark_diffusion_reaction_p.cpp``
 
 
-.. c:function:: int MRIStepInnerStepper_GetForcingData(MRIStepInnerStepper stepper, realtype *tshift, realtype *tscale, N_Vector **forcing, int *nforcing)
+.. c:function:: int MRIStepInnerStepper_GetForcingData(MRIStepInnerStepper stepper, sunrealtype *tshift, sunrealtype *tscale, N_Vector **forcing, int *nforcing)
 
    This function provides access to data necessary to compute the forcing term
    :eq:`ARKODE_MRI_forcing_poly`. This includes the shift and scaling factors for the
@@ -345,7 +345,7 @@ An :c:type:`MRIStepInnerStepper` *must* provide implementations of the following
 member functions:
 
 
-.. c:type:: int (*MRIStepInnerEvolveFn)(MRIStepInnerStepper stepper, realtype t0, realtype tout, N_Vector v)
+.. c:type:: int (*MRIStepInnerEvolveFn)(MRIStepInnerStepper stepper, sunrealtype t0, sunrealtype tout, N_Vector v)
 
    This function advances the state vector *v* for the inner (fast) ODE system
    from time *t0* to time *tout*.
@@ -371,7 +371,7 @@ Optional Member Functions
 An :c:type:`MRIStepInnerStepper` *may* provide implementations of any of the
 following member functions:
 
-.. c:type:: int (*MRIStepInnerFullRhsFn)(MRIStepInnerStepper stepper, realtype t, N_Vector v, N_Vector f, int mode)
+.. c:type:: int (*MRIStepInnerFullRhsFn)(MRIStepInnerStepper stepper, sunrealtype t, N_Vector v, N_Vector f, int mode)
 
    This function computes the full right-hand side function of the inner (fast)
    ODE, :math:`f^F(t,v)` in :eq:`ARKODE_MRI_IVP` for a given value of the independent
@@ -402,7 +402,7 @@ following member functions:
 
       Supplying a full right-hand side function was made optional.
 
-.. c:type:: int (*MRIStepInnerResetFn)(MRIStepInnerStepper stepper, realtype tR, N_Vector vR)
+.. c:type:: int (*MRIStepInnerResetFn)(MRIStepInnerStepper stepper, sunrealtype tR, N_Vector vR)
 
    This function resets the inner (fast) stepper state to the provided
    independent variable value and dependent variable vector.

@@ -18,11 +18,11 @@
  * Notes:
  *   - The definition of the generic SUNLinearSolver structure can
  *     be found in the header file sundials_linearsolver.h.
- *   - The definition of the type 'realtype' can be found in the
+ *   - The definition of the type 'sunrealtype' can be found in the
  *     header file sundials_types.h, and it may be changed (at the
  *     configuration stage) according to the user's needs.
  *     The sundials_types.h file also contains the definition
- *     for the type 'booleantype' and 'indextype'.
+ *     for the type 'sunbooleantype' and 'indextype'.
  * -----------------------------------------------------------------
  */
 
@@ -61,7 +61,7 @@ SUNDIALS_EXPORT SUNLinearSolver_ID SUNLinSolGetID_Dense(SUNLinearSolver S);
 SUNDIALS_EXPORT int SUNLinSolInitialize_Dense(SUNLinearSolver S);
 SUNDIALS_EXPORT int SUNLinSolSetup_Dense(SUNLinearSolver S, SUNMatrix A);
 SUNDIALS_EXPORT int SUNLinSolSolve_Dense(SUNLinearSolver S, SUNMatrix A,
-                                         N_Vector x, N_Vector b, realtype tol);
+                                         N_Vector x, N_Vector b, sunrealtype tol);
 SUNDIALS_EXPORT sunindextype SUNLinSolLastFlag_Dense(SUNLinearSolver S);
 SUNDIALS_EXPORT int SUNLinSolSpace_Dense(SUNLinearSolver S,
                                          long int *lenrwLS,

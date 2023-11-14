@@ -36,7 +36,7 @@ typedef struct CVBBDPrecDataRec {
 
   /* passed by user to CVBBDPrecInit and used by PrecSetup/PrecSolve */
   sunindextype mudq, mldq, mukeep, mlkeep;
-  realtype dqrely;
+  sunrealtype dqrely;
   CVLocalFn gloc;
   CVCommFn cfn;
 

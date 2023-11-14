@@ -63,85 +63,38 @@ static const int ARKSTEP_DEFAULT_ARK_ITABLE_3 = ARKODE_ARK324L2SA_DIRK_4_2_3;
 static const int ARKSTEP_DEFAULT_ARK_ITABLE_4 = ARKODE_ARK436L2SA_DIRK_6_3_4;
 static const int ARKSTEP_DEFAULT_ARK_ITABLE_5 = ARKODE_ARK548L2SA_DIRK_8_4_5;
 
-#ifndef DEFAULT_ERK_2
-/* DEPRECATED DEFAULT_ERK_2: use ARKSTEP_ERK_DEFAULT_2 */
-#define DEFAULT_ERK_2           ARKSTEP_ERK_DEFAULT_2
-#endif
-
-#ifndef DEFAULT_ERK_3
-/* DEPRECATED DEFAULT_ERK_3: use ARKSTEP_ERK_DEFAULT_3 */
-#define DEFAULT_ERK_3           ARKSTEP_ERK_DEFAULT_3
-#endif
-
-#ifndef DEFAULT_ERK_4
-/* DEPRECATED DEFAULT_ERK_4: use ARKSTEP_ERK_DEFAULT_4 */
-#define DEFAULT_ERK_4           ARKSTEP_ERK_DEFAULT_4
-#endif
-
-#ifndef DEFAULT_ERK_5
-/* DEPRECATED DEFAULT_ERK_5: use ARKSTEP_ERK_DEFAULT_5 */
-#define DEFAULT_ERK_5           ARKSTEP_ERK_DEFAULT_5
-#endif
-
-#ifndef DEFAULT_ERK_6
-/* DEPRECATED DEFAULT_ERK_6: use ARKSTEP_ERK_DEFAULT_6 */
-#define DEFAULT_ERK_6           ARKSTEP_ERK_DEFAULT_6
-#endif
-
-#ifndef DEFAULT_ERK_8
-/* DEPRECATED DEFAULT_ERK_8: use ARKSTEP_ERK_DEFAULT_8 */
-#define DEFAULT_ERK_8           ARKSTEP_ERK_DEFAULT_8
-#endif
-
-/*    ImEx */
-/* DEPRECATED DEFAULT_ARK_ETABLE_3: use ARKSTEP_DEFAULT_ARK_ETABLE_3 */
-#define DEFAULT_ARK_ETABLE_3    ARKSTEP_DEFAULT_ARK_ETABLE_3
-/* DEPRECATED DEFAULT_ARK_ETABLE_4: use ARKSTEP_DEFAULT_ARK_ETABLE_4 */
-#define DEFAULT_ARK_ETABLE_4    ARKSTEP_DEFAULT_ARK_ETABLE_4
-/* DEPRECATED DEFAULT_ARK_ETABLE_5: use ARKSTEP_DEFAULT_ARK_ETABLE_4 */
-#define DEFAULT_ARK_ETABLE_5    ARKSTEP_DEFAULT_ARK_ETABLE_5
-/* DEPRECATED DEFAULT_ARK_ITABLE_3: use ARKSTEP_DEFAULT_ARK_ITABLE_3 */
-#define DEFAULT_ARK_ITABLE_3    ARKSTEP_DEFAULT_ARK_ITABLE_3
-/* DEPRECATED DEFAULT_ARK_ITABLE_4: use ARKSTEP_DEFAULT_ARK_ITABLE_4 */
-#define DEFAULT_ARK_ITABLE_4    ARKSTEP_DEFAULT_ARK_ITABLE_4
-/* DEPRECATED DEFAULT_ARK_ITABLE_5: use ARKSTEP_DEFAULT_ARK_ITABLE_5 */
-#define DEFAULT_ARK_ITABLE_5    ARKSTEP_DEFAULT_ARK_ITABLE_5
-
-/* backwards-compatibility */
-typedef ARKStagePredictFn ARKStepStagePredictFn;
-
 /* -------------------
  * Exported Functions
  * ------------------- */
 
 /* Create, Resize, and Reinitialization functions */
 SUNDIALS_EXPORT void* ARKStepCreate(ARKRhsFn fe, ARKRhsFn fi,
-                                    realtype t0, N_Vector y0,
+                                    sunrealtype t0, N_Vector y0,
                                     SUNContext sunctx);
 
 SUNDIALS_EXPORT int ARKStepResize(void *arkode_mem, N_Vector ynew,
-                                  realtype hscale, realtype t0,
+                                  sunrealtype hscale, sunrealtype t0,
                                   ARKVecResizeFn resize,
                                   void *resize_data);
 
 SUNDIALS_EXPORT int ARKStepReInit(void* arkode_mem, ARKRhsFn fe,
-                                  ARKRhsFn fi, realtype t0, N_Vector y0);
+                                  ARKRhsFn fi, sunrealtype t0, N_Vector y0);
 
-SUNDIALS_EXPORT int ARKStepReset(void* arkode_mem, realtype tR, N_Vector yR);
+SUNDIALS_EXPORT int ARKStepReset(void* arkode_mem, sunrealtype tR, N_Vector yR);
 
 /* Tolerance input functions */
 SUNDIALS_EXPORT int ARKStepSStolerances(void *arkode_mem,
-                                        realtype reltol,
-                                        realtype abstol);
+                                        sunrealtype reltol,
+                                        sunrealtype abstol);
 SUNDIALS_EXPORT int ARKStepSVtolerances(void *arkode_mem,
-                                        realtype reltol,
+                                        sunrealtype reltol,
                                         N_Vector abstol);
 SUNDIALS_EXPORT int ARKStepWFtolerances(void *arkode_mem,
                                         ARKEwtFn efun);
 
 /* Residual tolerance input functions */
 SUNDIALS_EXPORT int ARKStepResStolerance(void *arkode_mem,
-                                         realtype rabstol);
+                                         sunrealtype rabstol);
 SUNDIALS_EXPORT int ARKStepResVtolerance(void *arkode_mem,
                                          N_Vector rabstol);
 SUNDIALS_EXPORT int ARKStepResFtolerance(void *arkode_mem,
@@ -155,7 +108,7 @@ SUNDIALS_EXPORT int ARKStepSetLinearSolver(void *arkode_mem,
 SUNDIALS_EXPORT int ARKStepSetMassLinearSolver(void *arkode_mem,
                                                SUNLinearSolver LS,
                                                SUNMatrix M,
-                                               booleantype time_dep);
+                                               sunbooleantype time_dep);
 
 /* Rootfinding initialization */
 SUNDIALS_EXPORT int ARKStepRootInit(void *arkode_mem, int nrtfn,
@@ -189,38 +142,38 @@ SUNDIALS_EXPORT int ARKStepSetTableName(void *arkode_mem,
 SUNDIALS_EXPORT int ARKStepSetAdaptController(void *arkode_mem, SUNAdaptController C);
 SUNDIALS_EXPORT int ARKStepSetAdaptivityAdjustment(void *arkode_mem, int adjust);
 SUNDIALS_EXPORT int ARKStepSetCFLFraction(void *arkode_mem,
-                                          realtype cfl_frac);
+                                          sunrealtype cfl_frac);
 SUNDIALS_EXPORT int ARKStepSetSafetyFactor(void *arkode_mem,
-                                           realtype safety);
+                                           sunrealtype safety);
 SUNDIALS_DEPRECATED_EXPORT_MSG("use SUNAdaptController instead")
-int ARKStepSetErrorBias(void *arkode_mem, realtype bias);
+int ARKStepSetErrorBias(void *arkode_mem, sunrealtype bias);
 SUNDIALS_EXPORT int ARKStepSetMaxGrowth(void *arkode_mem,
-                                        realtype mx_growth);
+                                        sunrealtype mx_growth);
 SUNDIALS_EXPORT int ARKStepSetMinReduction(void *arkode_mem,
-                                           realtype eta_min);
+                                           sunrealtype eta_min);
 SUNDIALS_EXPORT int ARKStepSetFixedStepBounds(void *arkode_mem,
-                                              realtype lb, realtype ub);
+                                              sunrealtype lb, sunrealtype ub);
 SUNDIALS_DEPRECATED_EXPORT_MSG("use SUNAdaptController instead")
 int ARKStepSetAdaptivityMethod(void *arkode_mem, int imethod,
                                int idefault, int pq,
-                               realtype adapt_params[3]);
+                               sunrealtype adapt_params[3]);
 SUNDIALS_DEPRECATED_EXPORT_MSG("use SUNAdaptController instead")
 int ARKStepSetAdaptivityFn(void *arkode_mem, ARKAdaptFn hfun,
                            void *h_data);
 SUNDIALS_EXPORT int ARKStepSetMaxFirstGrowth(void *arkode_mem,
-                                             realtype etamx1);
+                                             sunrealtype etamx1);
 SUNDIALS_EXPORT int ARKStepSetMaxEFailGrowth(void *arkode_mem,
-                                             realtype etamxf);
+                                             sunrealtype etamxf);
 SUNDIALS_EXPORT int ARKStepSetSmallNumEFails(void *arkode_mem,
                                              int small_nef);
 SUNDIALS_EXPORT int ARKStepSetMaxCFailGrowth(void *arkode_mem,
-                                             realtype etacf);
+                                             sunrealtype etacf);
 SUNDIALS_EXPORT int ARKStepSetNonlinCRDown(void *arkode_mem,
-                                           realtype crdown);
+                                           sunrealtype crdown);
 SUNDIALS_EXPORT int ARKStepSetNonlinRDiv(void *arkode_mem,
-                                         realtype rdiv);
+                                         sunrealtype rdiv);
 SUNDIALS_EXPORT int ARKStepSetDeltaGammaMax(void *arkode_mem,
-                                            realtype dgmax);
+                                            sunrealtype dgmax);
 SUNDIALS_EXPORT int ARKStepSetLSetupFrequency(void *arkode_mem,
                                               int msbp);
 SUNDIALS_EXPORT int ARKStepSetPredictorMethod(void *arkode_mem,
@@ -235,7 +188,7 @@ SUNDIALS_EXPORT int ARKStepSetMaxNonlinIters(void *arkode_mem,
 SUNDIALS_EXPORT int ARKStepSetMaxConvFails(void *arkode_mem,
                                            int maxncf);
 SUNDIALS_EXPORT int ARKStepSetNonlinConvCoef(void *arkode_mem,
-                                             realtype nlscoef);
+                                             sunrealtype nlscoef);
 SUNDIALS_EXPORT int ARKStepSetConstraints(void *arkode_mem,
                                           N_Vector constraints);
 SUNDIALS_EXPORT int ARKStepSetMaxNumSteps(void *arkode_mem,
@@ -243,18 +196,18 @@ SUNDIALS_EXPORT int ARKStepSetMaxNumSteps(void *arkode_mem,
 SUNDIALS_EXPORT int ARKStepSetMaxHnilWarns(void *arkode_mem,
                                            int mxhnil);
 SUNDIALS_EXPORT int ARKStepSetInitStep(void *arkode_mem,
-                                       realtype hin);
+                                       sunrealtype hin);
 SUNDIALS_EXPORT int ARKStepSetMinStep(void *arkode_mem,
-                                      realtype hmin);
+                                      sunrealtype hmin);
 SUNDIALS_EXPORT int ARKStepSetMaxStep(void *arkode_mem,
-                                      realtype hmax);
+                                      sunrealtype hmax);
 SUNDIALS_EXPORT int ARKStepSetInterpolateStopTime(void *arkode_mem,
-                                                  booleantype interp);
+                                                  sunbooleantype interp);
 SUNDIALS_EXPORT int ARKStepSetStopTime(void *arkode_mem,
-                                       realtype tstop);
+                                       sunrealtype tstop);
 SUNDIALS_EXPORT int ARKStepClearStopTime(void *arkode_mem);
 SUNDIALS_EXPORT int ARKStepSetFixedStep(void *arkode_mem,
-                                        realtype hfixed);
+                                        sunrealtype hfixed);
 SUNDIALS_EXPORT int ARKStepSetMaxNumConstrFails(void *arkode_mem,
                                                 int maxfails);
 
@@ -269,8 +222,6 @@ SUNDIALS_EXPORT int ARKStepSetErrFile(void *arkode_mem,
                                       FILE *errfp);
 SUNDIALS_EXPORT int ARKStepSetUserData(void *arkode_mem,
                                        void *user_data);
-SUNDIALS_DEPRECATED_EXPORT_MSG("use SUNDIALS_LOGGER instead")
-int ARKStepSetDiagnostics(void *arkode_mem, FILE *diagfp);
 
 SUNDIALS_EXPORT int ARKStepSetPostprocessStepFn(void *arkode_mem,
                                                 ARKPostProcessFn ProcessStep);
@@ -286,13 +237,13 @@ SUNDIALS_EXPORT int ARKStepSetMassFn(void *arkode_mem, ARKLsMassFn mass);
 SUNDIALS_EXPORT int ARKStepSetJacEvalFrequency(void *arkode_mem,
                                                long int msbj);
 SUNDIALS_EXPORT int ARKStepSetLinearSolutionScaling(void *arkode_mem,
-                                                    booleantype onoff);
-SUNDIALS_EXPORT int ARKStepSetEpsLin(void *arkode_mem, realtype eplifac);
-SUNDIALS_EXPORT int ARKStepSetMassEpsLin(void *arkode_mem, realtype eplifac);
+                                                    sunbooleantype onoff);
+SUNDIALS_EXPORT int ARKStepSetEpsLin(void *arkode_mem, sunrealtype eplifac);
+SUNDIALS_EXPORT int ARKStepSetMassEpsLin(void *arkode_mem, sunrealtype eplifac);
 SUNDIALS_EXPORT int ARKStepSetLSNormFactor(void *arkode_mem,
-                                           realtype nrmfac);
+                                           sunrealtype nrmfac);
 SUNDIALS_EXPORT int ARKStepSetMassLSNormFactor(void *arkode_mem,
-                                               realtype nrmfac);
+                                               sunrealtype nrmfac);
 SUNDIALS_EXPORT int ARKStepSetPreconditioner(void *arkode_mem,
                                              ARKLsPrecSetupFn psetup,
                                              ARKLsPrecSolveFn psolve);
@@ -311,12 +262,12 @@ SUNDIALS_EXPORT int ARKStepSetMassTimes(void *arkode_mem,
 SUNDIALS_EXPORT int ARKStepSetLinSysFn(void *arkode_mem, ARKLsLinSysFn linsys);
 
 /* Integrate the ODE over an interval in t */
-SUNDIALS_EXPORT int ARKStepEvolve(void *arkode_mem, realtype tout,
-                                  N_Vector yout, realtype *tret,
+SUNDIALS_EXPORT int ARKStepEvolve(void *arkode_mem, sunrealtype tout,
+                                  N_Vector yout, sunrealtype *tret,
                                   int itask);
 
 /* Computes the kth derivative of the y function at time t */
-SUNDIALS_EXPORT int ARKStepGetDky(void *arkode_mem, realtype t,
+SUNDIALS_EXPORT int ARKStepGetDky(void *arkode_mem, sunrealtype t,
                                   int k, N_Vector dky);
 
 /* Utility function to update/compute y based on zcor */
@@ -348,21 +299,21 @@ SUNDIALS_EXPORT int ARKStepGetWorkSpace(void *arkode_mem,
 SUNDIALS_EXPORT int ARKStepGetNumSteps(void *arkode_mem,
                                        long int *nsteps);
 SUNDIALS_EXPORT int ARKStepGetActualInitStep(void *arkode_mem,
-                                             realtype *hinused);
+                                             sunrealtype *hinused);
 SUNDIALS_EXPORT int ARKStepGetLastStep(void *arkode_mem,
-                                       realtype *hlast);
+                                       sunrealtype *hlast);
 SUNDIALS_EXPORT int ARKStepGetCurrentStep(void *arkode_mem,
-                                          realtype *hcur);
+                                          sunrealtype *hcur);
 SUNDIALS_EXPORT int ARKStepGetCurrentTime(void *arkode_mem,
-                                          realtype *tcur);
+                                          sunrealtype *tcur);
 SUNDIALS_EXPORT int ARKStepGetCurrentState(void *arkode_mem,
                                            N_Vector *state);
 SUNDIALS_EXPORT int ARKStepGetCurrentGamma(void *arkode_mem,
-                                           realtype *gamma);
+                                           sunrealtype *gamma);
 SUNDIALS_EXPORT int ARKStepGetCurrentMassMatrix(void *arkode_mem,
                                                 SUNMatrix *M);
 SUNDIALS_EXPORT int ARKStepGetTolScaleFactor(void *arkode_mem,
-                                             realtype *tolsfac);
+                                             sunrealtype *tolsfac);
 SUNDIALS_EXPORT int ARKStepGetErrWeights(void *arkode_mem,
                                          N_Vector eweight);
 SUNDIALS_EXPORT int ARKStepGetResWeights(void *arkode_mem,
@@ -395,18 +346,18 @@ SUNDIALS_EXPORT int ARKStepGetTimestepperStats(void *arkode_mem,
                                                long int *netfails);
 SUNDIALS_EXPORT int ARKStepGetStepStats(void *arkode_mem,
                                         long int *nsteps,
-                                        realtype *hinused,
-                                        realtype *hlast,
-                                        realtype *hcur,
-                                        realtype *tcur);
+                                        sunrealtype *hinused,
+                                        sunrealtype *hlast,
+                                        sunrealtype *hcur,
+                                        sunrealtype *tcur);
 
 /* Nonlinear solver optional output functions */
 SUNDIALS_EXPORT int ARKStepGetNonlinearSystemData(void *arkode_mem,
-                                                  realtype *tcur,
+                                                  sunrealtype *tcur,
                                                   N_Vector *zpred,
                                                   N_Vector *z,
                                                   N_Vector *Fi,
-                                                  realtype *gamma,
+                                                  sunrealtype *gamma,
                                                   N_Vector *sdata,
                                                   void     **user_data);
 
