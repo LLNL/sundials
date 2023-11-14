@@ -54,11 +54,13 @@ set(SUNDIALS_LIBRARY_DIR
   @CMAKE_INSTALL_PREFIX@/@CMAKE_INSTALL_LIBDIR@
   CACHE PATH "Location of SUNDIALS libraries")
 
-# Find the SUNDIALS libraries
+find_library(SUNDIALS_CORE_LIB
+  sundials_core ${SUNDIALS_LIBRARY_DIR}
+  DOC "SUNDIALS core library")
+
 find_library(SUNDIALS_SOLVER_LIB
   @SOLVER_LIB@ ${SUNDIALS_LIBRARY_DIR}
   DOC "@SOLVER@ library")
-
 find_library(SUNDIALS_SOLVER_FLIB
   @SOLVER_FLIB@ ${SUNDIALS_LIBRARY_DIR}
   DOC "@SOLVER@ Fortran-C library")
