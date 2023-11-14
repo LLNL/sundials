@@ -29,7 +29,7 @@ structure:
 .. code-block:: c
 
    struct _SUNMatrixContent_SLUNRloc {
-     sunbooleantype   own_data;
+     sunbooleantype own_data;
      gridinfo_t    *grid;
      sunindextype  *row_to_proc;
      pdgsmv_comm_t *gsmv_comm;
