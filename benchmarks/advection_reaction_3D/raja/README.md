@@ -60,19 +60,19 @@ listed below.
 | `--nout <int>`              | Number of output times                                                        | 40          |
 | `--npts <int>`              | Number of mesh points in each direction                                       | 100         |
 | `--npxyz <int> <int> <int>` | Number of MPI tasks in each direction (0 forces MPI to decide)                | 0 0 0       |
-| `--xmax <sunrealtype>`         | Maximum value of `x`, `y`, and `z` in :math:`X_max`                           | 1.0         |
-| `--A <sunrealtype>`            | Constant concentration of species `A`                                         | 1.0         |
-| `--B <sunrealtype>`            | Constant concentration of species `B`                                         | 3.5         |
-| `--c <sunrealtype>`            | Advection speed `c`                                                           | 0.01        |
+| `--xmax <sunrealtype>`      | Maximum value of `x`, `y`, and `z` in :math:`X_max`                           | 1.0         |
+| `--A <sunrealtype>`         | Constant concentration of species `A`                                         | 1.0         |
+| `--B <sunrealtype>`         | Constant concentration of species `B`                                         | 3.5         |
+| `--c <sunrealtype>`         | Advection speed `c`                                                           | 0.01        |
 | `--order <int>`             | Integration method order                                                      | 3           |
 | `--method <method>`         | Integrator to use: `ERK`, `ARK-DIRK`, `ARK-IMEX`, `CV-BDF`, `CV-ADAMS`, `IDA` | `ARK-DIRK`  |
 | `--nls <method>`            | Nonlinear Solver Method: `newton`, `tl-newton`, `fixedpoint`, `none`          | `newton`    |
 | `--fpaccel <int>`           | Number of fixed point acceleration vectors                                    | 3           |
 | `--nopre`                   | Disable preconditioning                                                       | False       |
 | `--fused`                   | Enabled fused operations                                                      | Off         |
-| `--tf <sunrealtype>`           | Final integration time `t_f`                                                  | 10.0        |
-| `--rtol <sunrealtype>`         | Relative tolerance                                                            | 1.0e-6      |
-| `--atol <sunrealtype>`         | Absolute tolerance                                                            | 1.0e-9      |
+| `--tf <sunrealtype>`        | Final integration time `t_f`                                                  | 10.0        |
+| `--rtol <sunrealtype>`      | Relative tolerance                                                            | 1.0e-6      |
+| `--atol <sunrealtype>`      | Absolute tolerance                                                            | 1.0e-9      |
 
 ## Building and Running
 
