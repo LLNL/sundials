@@ -21,14 +21,14 @@
 #include <math.h>
 
 /* define constatnts */
-#define NEG_TWO  RCONST(-2.0)
-#define NEG_ONE  RCONST(-1.0)
-#define NEG_HALF RCONST(-0.5)
-#define ZERO     RCONST(0.0)
-#define HALF     RCONST(0.5)
-#define ONE      RCONST(1.0)
-#define TWO      RCONST(2.0)
-#define THREE    RCONST(3.0)
+#define NEG_TWO  SUN_RCONST(-2.0)
+#define NEG_ONE  SUN_RCONST(-1.0)
+#define NEG_HALF SUN_RCONST(-0.5)
+#define ZERO     SUN_RCONST(0.0)
+#define HALF     SUN_RCONST(0.5)
+#define ONE      SUN_RCONST(1.0)
+#define TWO      SUN_RCONST(2.0)
+#define THREE    SUN_RCONST(3.0)
 
 /* Helpers for printing out test status information */
 #define TEST_STATUS(fmt, myrank)                     \
@@ -57,11 +57,11 @@
 extern "C" {
 #endif
   /* Forward declarations for implementation specific utility functions */
-  int check_matrix(SUNMatrix A, SUNMatrix B, realtype tol);
-  int check_matrix_entry(SUNMatrix A, realtype val, realtype tol);
-  int check_vector(N_Vector expected, N_Vector computed, realtype tol);
-  booleantype has_data(SUNMatrix A);
-  booleantype is_square(SUNMatrix A);
+  int check_matrix(SUNMatrix A, SUNMatrix B, sunrealtype tol);
+  int check_matrix_entry(SUNMatrix A, sunrealtype val, sunrealtype tol);
+  int check_vector(N_Vector expected, N_Vector computed, sunrealtype tol);
+  sunbooleantype has_data(SUNMatrix A);
+  sunbooleantype is_square(SUNMatrix A);
   void sync_device(SUNMatrix A);
 
   /* Test function declarations */

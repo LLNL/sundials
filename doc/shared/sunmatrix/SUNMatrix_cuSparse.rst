@@ -110,7 +110,7 @@ functions:
       ``blockrows == blockcols``.
 
 
-.. c:function:: SUNMatrix SUNMatrix_cuSparse_MakeCSR(cusparseMatDescr_t mat_descr, int M, int N, int NNZ, int *rowptrs , int *colind , realtype *data, cusparseHandle_t cusp, SUNContext sunctx)
+.. c:function:: SUNMatrix SUNMatrix_cuSparse_MakeCSR(cusparseMatDescr_t mat_descr, int M, int N, int NNZ, int *rowptrs , int *colind , sunrealtype *data, cusparseHandle_t cusp, SUNContext sunctx)
 
    This constructor function creates a SUNMATRIX_CUSPARSE ``SUNMatrix``
    object from user provided pointers. Its arguments are a ``cusparseMatDescr_t``
@@ -141,7 +141,7 @@ functions:
    or ``SUNMAT_CUSPARSE_BCSR``) for the sparse ``SUNMatrix``.
 
 
-.. c:function:: realtype* SUNMatrix_cuSparse_Data(SUNMatrix A)
+.. c:function:: sunrealtype* SUNMatrix_cuSparse_Data(SUNMatrix A)
 
    This function returns a pointer to the data array for the
    sparse ``SUNMatrix``.
@@ -185,7 +185,7 @@ functions:
    matrix block.
 
 
-.. c:function:: realtype* SUNMatrix_cuSparse_BlockData(SUNMatrix A, int blockidx)
+.. c:function:: sunrealtype* SUNMatrix_cuSparse_BlockData(SUNMatrix A, int blockidx)
 
    This function returns a pointer to the location in the ``data`` array
    where the data for the block, ``blockidx``, begins. Thus, ``blockidx``
@@ -199,7 +199,7 @@ functions:
    the matrix.
 
 
-.. c:function:: int SUNMatrix_cuSparse_CopyToDevice(SUNMatrix A, realtype* h_data, int* h_idxptrs, int* h_idxvals)
+.. c:function:: int SUNMatrix_cuSparse_CopyToDevice(SUNMatrix A, sunrealtype* h_data, int* h_idxptrs, int* h_idxvals)
 
    This functions copies the matrix information to the GPU device from the provided
    host arrays. A user may provide ``NULL`` for any of ``h_data``, ``h_idxptrs``, or
@@ -208,13 +208,13 @@ functions:
    The function returns ``SUNMAT_SUCCESS`` if the copy operation(s) were successful,
    or a nonzero error code otherwise.
 
-.. c:function:: int SUNMatrix_cuSparse_CopyFromDevice(SUNMatrix A, realtype* h_data, int* h_idxptrs, int* h_idxvals)
+.. c:function:: int SUNMatrix_cuSparse_CopyFromDevice(SUNMatrix A, sunrealtype* h_data, int* h_idxptrs, int* h_idxvals)
 
    This functions copies the matrix information from the GPU device to the provided
    host arrays. A user may provide ``NULL`` for any of ``h_data``, ``h_idxptrs``, or
    ``h_idxvals`` to avoid copying that information. Otherwise:
 
-   * The ``h_data`` array must be at least ``SUNMatrix_cuSparse_NNZ(A)*sizeof(realtype)``
+   * The ``h_data`` array must be at least ``SUNMatrix_cuSparse_NNZ(A)*sizeof(sunrealtype)``
      bytes.
 
    * The ``h_idxptrs`` array must be at least
@@ -227,7 +227,7 @@ functions:
    or a nonzero error code otherwise.
 
 
-.. c:function:: int SUNMatrix_cuSparse_SetFixedPattern(SUNMatrix A, booleantype yesno)
+.. c:function:: int SUNMatrix_cuSparse_SetFixedPattern(SUNMatrix A, sunbooleantype yesno)
 
    This function changes the behavior of the the ``SUNMatZero`` operation on the object
    ``A``.  By default the matrix sparsity pattern is not considered to be fixed, thus,

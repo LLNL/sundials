@@ -45,19 +45,19 @@
 #endif
 
 /* User-supplied Functions Called by the Solver */
-static int f(realtype t, N_Vector y, N_Vector ydot, void *user_data);
+static int f(sunrealtype t, N_Vector y, N_Vector ydot, void *user_data);
 
-static int Jac(realtype t, N_Vector y, N_Vector fy, SUNMatrix J,
+static int Jac(sunrealtype t, N_Vector y, N_Vector fy, SUNMatrix J,
                void *user_data, N_Vector tmp1, N_Vector tmp2, N_Vector tmp3);
 
 /* Private function to check function return values */
 static int check_flag(void *flagvalue, const char *funcname, int opt);
 
 /* Private function to check computed solution */
-static int compute_ans(realtype t, realtype tshift, realtype tscale,
+static int compute_ans(sunrealtype t, sunrealtype tshift, sunrealtype tscale,
                        N_Vector* forcing, int order, N_Vector ans);
-static int compute_error(N_Vector y, N_Vector ans, N_Vector tmp, realtype rtol,
-                         realtype atol);
+static int compute_error(N_Vector y, N_Vector ans, N_Vector tmp, sunrealtype rtol,
+                         sunrealtype atol);
 
 /* Main Program */
 int main(int argc, char *argv[])
@@ -67,14 +67,14 @@ int main(int argc, char *argv[])
   /* default input values */
   sunindextype NEQ    = 1;           /* number of dependent vars.    */
   int          order  = 3;           /* order of polynomial forcing  */
-  realtype     T0     = RCONST(0.0); /* initial time                 */
-  realtype     Tf     = RCONST(1.0); /* final time                   */
-  realtype     tshift = T0;          /* time shift for normalization */
-  realtype     tscale = Tf;          /* time scale for normalization */
+  sunrealtype     T0     = SUN_RCONST(0.0); /* initial time                 */
+  sunrealtype     Tf     = SUN_RCONST(1.0); /* final time                   */
+  sunrealtype     tshift = T0;          /* time shift for normalization */
+  sunrealtype     tscale = Tf;          /* time scale for normalization */
 
   /* tolerances */
-  realtype reltol = SUNRsqrt(UNIT_ROUNDOFF);
-  realtype abstol = SUNRsqrt(UNIT_ROUNDOFF)/100;
+  sunrealtype reltol = SUNRsqrt(SUN_UNIT_ROUNDOFF);
+  sunrealtype abstol = SUNRsqrt(SUN_UNIT_ROUNDOFF)/100;
 
   /* general problem variables */
   int flag;                  /* reusable error-checking flag             */
@@ -86,8 +86,8 @@ int main(int argc, char *argv[])
   SUNLinearSolver LS = NULL; /* linear solver object                     */
   void *arkode_mem = NULL;   /* ARKode memory structure                  */
   int i, j;                  /* loop counters                            */
-  realtype tret;             /* integrator return time                   */
-  realtype* data;            /* array for accessing vector data          */
+  sunrealtype tret;             /* integrator return time                   */
+  sunrealtype* data;            /* array for accessing vector data          */
   long int nst, nst_a;       /* number of integrator steps               */
   long int mxsteps = 100000; /* max steps before output                  */
 
@@ -113,8 +113,8 @@ int main(int argc, char *argv[])
       printf("ERROR: Both the initial and final time are required\n");
       return(1);
     }
-    T0 = (realtype) atof(argv[3]);
-    Tf = (realtype) atof(argv[4]);
+    T0 = (sunrealtype) atof(argv[3]);
+    Tf = (sunrealtype) atof(argv[4]);
     if (SUNRabs(T0) >= SUNRabs(Tf)) {
       printf("ERROR: |T0| must be less than |Tf|\n");
       return(1);
@@ -126,8 +126,8 @@ int main(int argc, char *argv[])
       printf("ERROR: Both tshift and tscale are required\n");
       return(1);
     }
-    tshift = (realtype) atof(argv[5]);
-    tscale = (realtype) atof(argv[6]);
+    tshift = (sunrealtype) atof(argv[5]);
+    tscale = (sunrealtype) atof(argv[6]);
     if (SUNRabs(tscale) < TINY) {
       printf("ERROR: |tscale| must be greater than %"GSYM"\n", TINY);
       return(1);
@@ -176,7 +176,7 @@ int main(int argc, char *argv[])
   for (i = 0; i < order + 1; i++) {
     data = N_VGetArrayPointer(forcing[i]);
     for (j = 0; j < NEQ; j++) {
-      data[j] = (realtype) rand() / (realtype) RAND_MAX;
+      data[j] = (sunrealtype) rand() / (sunrealtype) RAND_MAX;
     }
   }
 
@@ -406,14 +406,14 @@ int main(int argc, char *argv[])
  *-------------------------------*/
 
 /* ODE RHS function */
-static int f(realtype t, N_Vector y, N_Vector ydot, void *user_data)
+static int f(sunrealtype t, N_Vector y, N_Vector ydot, void *user_data)
 {
   N_VConst(ZERO, ydot);
   return 0;
 }
 
 /* ODE RHS Jacobian function */
-static int Jac(realtype t, N_Vector y, N_Vector fy, SUNMatrix J,
+static int Jac(sunrealtype t, N_Vector y, N_Vector fy, SUNMatrix J,
                void *user_data, N_Vector tmp1, N_Vector tmp2, N_Vector tmp3)
 {
   SUNMatZero(J);
@@ -460,16 +460,16 @@ static int check_flag(void *flagvalue, const char *funcname, int opt)
 }
 
 /* computed the true solution at a given time */
-static int compute_ans(realtype t, realtype tshift, realtype tscale,
+static int compute_ans(sunrealtype t, sunrealtype tshift, sunrealtype tscale,
                        N_Vector* forcing, int order, N_Vector ans)
 {
   int       i;
-  realtype  tau;
+  sunrealtype  tau;
   N_Vector* vecs;
-  realtype* vals;
+  sunrealtype* vals;
 
   vals = NULL;
-  vals = (realtype*) calloc(order + 1, sizeof(realtype));
+  vals = (sunrealtype*) calloc(order + 1, sizeof(sunrealtype));
   if (vals == NULL) return(1);
 
   vecs = NULL;
@@ -493,11 +493,11 @@ static int compute_ans(realtype t, realtype tshift, realtype tscale,
 }
 
 /* compure the weighted max norm of the difference of two vectors */
-static int compute_error(N_Vector y, N_Vector ans, N_Vector tmp, realtype rtol,
-                         realtype atol)
+static int compute_error(N_Vector y, N_Vector ans, N_Vector tmp, sunrealtype rtol,
+                         sunrealtype atol)
 {
   int      status; /* success (0) or failure (1) flag */
-  realtype error;
+  sunrealtype error;
 
   /* compute the error in y */
   N_VLinearSum(ONE, y, -ONE, ans, y);

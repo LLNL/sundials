@@ -41,7 +41,7 @@ int EvolveDAEProblem(N_Vector y, UserData* udata, UserOptions* uopt)
   SUNLinearSolver    LS  = NULL;      /* empty linear solver structure    */
   N_Vector           yp  = NULL;      /* empty vector structure           */
 
-  realtype t, dtout, tout;    /* current/output time data     */
+  sunrealtype t, dtout, tout;    /* current/output time data     */
   int      retval;            /* reusable error-checking flag */
   int      iout;              /* output counter               */
   long int nst, netf;         /* step stats                   */

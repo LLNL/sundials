@@ -57,29 +57,29 @@ extern "C" {
   IDALS user-supplied function prototypes
   =================================================================*/
 
-typedef int (*IDALsJacFn)(realtype t, realtype c_j, N_Vector y,
+typedef int (*IDALsJacFn)(sunrealtype t, sunrealtype c_j, N_Vector y,
                           N_Vector yp, N_Vector r, SUNMatrix Jac,
                           void *user_data, N_Vector tmp1,
                           N_Vector tmp2, N_Vector tmp3);
 
-typedef int (*IDALsPrecSetupFn)(realtype tt, N_Vector yy,
+typedef int (*IDALsPrecSetupFn)(sunrealtype tt, N_Vector yy,
                                 N_Vector yp, N_Vector rr,
-                                realtype c_j, void *user_data);
+                                sunrealtype c_j, void *user_data);
 
-typedef int (*IDALsPrecSolveFn)(realtype tt, N_Vector yy,
+typedef int (*IDALsPrecSolveFn)(sunrealtype tt, N_Vector yy,
                                 N_Vector yp, N_Vector rr,
                                 N_Vector rvec, N_Vector zvec,
-                                realtype c_j, realtype delta,
+                                sunrealtype c_j, sunrealtype delta,
                                 void *user_data);
 
-typedef int (*IDALsJacTimesSetupFn)(realtype tt, N_Vector yy,
+typedef int (*IDALsJacTimesSetupFn)(sunrealtype tt, N_Vector yy,
                                     N_Vector yp, N_Vector rr,
-                                    realtype c_j, void *user_data);
+                                    sunrealtype c_j, void *user_data);
 
-typedef int (*IDALsJacTimesVecFn)(realtype tt, N_Vector yy,
+typedef int (*IDALsJacTimesVecFn)(sunrealtype tt, N_Vector yy,
                                   N_Vector yp, N_Vector rr,
                                   N_Vector v, N_Vector Jv,
-                                  realtype c_j, void *user_data,
+                                  sunrealtype c_j, void *user_data,
                                   N_Vector tmp1, N_Vector tmp2);
 
 
@@ -103,13 +103,13 @@ SUNDIALS_EXPORT int IDASetPreconditioner(void *ida_mem,
 SUNDIALS_EXPORT int IDASetJacTimes(void *ida_mem,
                                    IDALsJacTimesSetupFn jtsetup,
                                    IDALsJacTimesVecFn jtimes);
-SUNDIALS_EXPORT int IDASetEpsLin(void *ida_mem, realtype eplifac);
+SUNDIALS_EXPORT int IDASetEpsLin(void *ida_mem, sunrealtype eplifac);
 SUNDIALS_EXPORT int IDASetLSNormFactor(void *ida_mem,
-                                       realtype nrmfac);
+                                       sunrealtype nrmfac);
 SUNDIALS_EXPORT int IDASetLinearSolutionScaling(void *ida_mem,
-                                                booleantype onoff);
+                                                sunbooleantype onoff);
 SUNDIALS_EXPORT int IDASetIncrementFactor(void *ida_mem,
-                                          realtype dqincfac);
+                                          sunrealtype dqincfac);
 
 /*-----------------------------------------------------------------
   Optional outputs from the IDALS linear solver interface
@@ -151,69 +151,69 @@ SUNDIALS_EXPORT char *IDAGetLinReturnFlagName(long int flag);
   IDALS user-supplied function prototypes
   =================================================================*/
 
-typedef int (*IDALsJacFnB)(realtype tt, realtype c_jB, N_Vector yy,
+typedef int (*IDALsJacFnB)(sunrealtype tt, sunrealtype c_jB, N_Vector yy,
                            N_Vector yp, N_Vector yyB, N_Vector ypB,
                            N_Vector rrB, SUNMatrix JacB,
                            void *user_dataB, N_Vector tmp1B,
                            N_Vector tmp2B, N_Vector tmp3B);
 
-typedef int (*IDALsJacFnBS)(realtype tt, realtype c_jB, N_Vector yy,
+typedef int (*IDALsJacFnBS)(sunrealtype tt, sunrealtype c_jB, N_Vector yy,
                             N_Vector yp, N_Vector *yS, N_Vector *ypS,
                             N_Vector yyB, N_Vector ypB, N_Vector rrB,
                             SUNMatrix JacB, void *user_dataB,
                             N_Vector tmp1B, N_Vector tmp2B,
                             N_Vector tmp3B);
 
-typedef int (*IDALsPrecSetupFnB)(realtype tt, N_Vector yy,
+typedef int (*IDALsPrecSetupFnB)(sunrealtype tt, N_Vector yy,
                                  N_Vector yp, N_Vector yyB,
                                  N_Vector ypB, N_Vector rrB,
-                                 realtype c_jB, void *user_dataB);
+                                 sunrealtype c_jB, void *user_dataB);
 
-typedef int (*IDALsPrecSetupFnBS)(realtype tt, N_Vector yy,
+typedef int (*IDALsPrecSetupFnBS)(sunrealtype tt, N_Vector yy,
                                   N_Vector yp, N_Vector *yyS,
                                   N_Vector *ypS, N_Vector yyB,
                                   N_Vector ypB, N_Vector rrB,
-                                  realtype c_jB, void *user_dataB);
+                                  sunrealtype c_jB, void *user_dataB);
 
-typedef int (*IDALsPrecSolveFnB)(realtype tt, N_Vector yy,
+typedef int (*IDALsPrecSolveFnB)(sunrealtype tt, N_Vector yy,
                                  N_Vector yp, N_Vector yyB,
                                  N_Vector ypB, N_Vector rrB,
                                  N_Vector rvecB, N_Vector zvecB,
-                                 realtype c_jB, realtype deltaB,
+                                 sunrealtype c_jB, sunrealtype deltaB,
                                  void *user_dataB);
 
-typedef int (*IDALsPrecSolveFnBS)(realtype tt, N_Vector yy,
+typedef int (*IDALsPrecSolveFnBS)(sunrealtype tt, N_Vector yy,
                                   N_Vector yp, N_Vector *yyS,
                                   N_Vector *ypS, N_Vector yyB,
                                   N_Vector ypB, N_Vector rrB,
                                   N_Vector rvecB, N_Vector zvecB,
-                                  realtype c_jB, realtype deltaB,
+                                  sunrealtype c_jB, sunrealtype deltaB,
                                   void *user_dataB);
 
-typedef int (*IDALsJacTimesSetupFnB)(realtype t, N_Vector yy,
+typedef int (*IDALsJacTimesSetupFnB)(sunrealtype t, N_Vector yy,
                                      N_Vector yp, N_Vector yyB,
                                      N_Vector ypB, N_Vector rrB,
-                                     realtype c_jB, void *user_dataB);
+                                     sunrealtype c_jB, void *user_dataB);
 
-typedef int (*IDALsJacTimesSetupFnBS)(realtype t, N_Vector yy,
+typedef int (*IDALsJacTimesSetupFnBS)(sunrealtype t, N_Vector yy,
                                       N_Vector yp, N_Vector *yyS,
                                       N_Vector *ypS, N_Vector yyB,
                                       N_Vector ypB, N_Vector rrB,
-                                      realtype c_jB, void *user_dataB);
+                                      sunrealtype c_jB, void *user_dataB);
 
-typedef int (*IDALsJacTimesVecFnB)(realtype t, N_Vector yy,
+typedef int (*IDALsJacTimesVecFnB)(sunrealtype t, N_Vector yy,
                                    N_Vector yp, N_Vector yyB,
                                    N_Vector ypB, N_Vector rrB,
                                    N_Vector vB, N_Vector JvB,
-                                   realtype c_jB, void *user_dataB,
+                                   sunrealtype c_jB, void *user_dataB,
                                    N_Vector tmp1B, N_Vector tmp2B);
 
-typedef int (*IDALsJacTimesVecFnBS)(realtype t, N_Vector yy,
+typedef int (*IDALsJacTimesVecFnBS)(sunrealtype t, N_Vector yy,
                                     N_Vector yp, N_Vector *yyS,
                                     N_Vector *ypS, N_Vector yyB,
                                     N_Vector ypB, N_Vector rrB,
                                     N_Vector vB, N_Vector JvB,
-                                    realtype c_jB, void *user_dataB,
+                                    sunrealtype c_jB, void *user_dataB,
                                     N_Vector tmp1B, N_Vector tmp2B);
 
 
@@ -239,13 +239,13 @@ SUNDIALS_EXPORT int IDASetJacFnBS(void *ida_mem, int which,
                                   IDALsJacFnBS jacBS);
 
 SUNDIALS_EXPORT int IDASetEpsLinB(void *ida_mem, int which,
-                                  realtype eplifacB);
+                                  sunrealtype eplifacB);
 SUNDIALS_EXPORT int IDASetLSNormFactorB(void *ida_mem, int which,
-                                        realtype nrmfacB);
+                                        sunrealtype nrmfacB);
 SUNDIALS_EXPORT int IDASetLinearSolutionScalingB(void *ida_mem, int which,
-                                                 booleantype onoffB);
+                                                 sunbooleantype onoffB);
 SUNDIALS_EXPORT int IDASetIncrementFactorB(void *ida_mem, int which,
-                                           realtype dqincfacB);
+                                           sunrealtype dqincfacB);
 SUNDIALS_EXPORT int IDASetPreconditionerB(void *ida_mem, int which,
                                           IDALsPrecSetupFnB psetB,
                                           IDALsPrecSolveFnB psolveB);

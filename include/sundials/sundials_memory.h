@@ -47,7 +47,7 @@ struct _SUNMemory
 {
   void*         ptr;
   SUNMemoryType type;
-  booleantype   own;
+  sunbooleantype   own;
   size_t        bytes;
 };
 
@@ -152,7 +152,7 @@ SUNDIALS_EXPORT int SUNMemoryHelper_CopyOps(SUNMemoryHelper src,
 
 /* Checks that all required SUNMemoryHelper ops are provided */
 SUNDIALS_EXPORT
-booleantype SUNMemoryHelper_ImplementsRequiredOps(SUNMemoryHelper);
+sunbooleantype SUNMemoryHelper_ImplementsRequiredOps(SUNMemoryHelper);
 
 
 #ifdef __cplusplus

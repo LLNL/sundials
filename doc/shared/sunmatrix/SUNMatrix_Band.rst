@@ -29,9 +29,9 @@ defines the *content* field of ``SUNMatrix`` to be the following structure:
      sunindextype ml;
      sunindextype smu;
      sunindextype ldim;
-     realtype *data;
+     sunrealtype *data;
      sunindextype ldata;
-     realtype **cols;
+     sunrealtype **cols;
    };
 
 A diagram of the underlying data representation in a banded matrix is
@@ -57,7 +57,7 @@ complete description of the parts of this *content* field is given below:
 
 * ``ldim`` - leading dimension (:math:`\text{ldim} \ge smu + ml + 1`)
 
-* ``data`` - pointer to a contiguous block of ``realtype`` variables.
+* ``data`` - pointer to a contiguous block of ``sunrealtype`` variables.
   The elements of the banded matrix are stored columnwise
   (i.e. columns are stored one on top of the other in memory). Only
   elements within the specified half-bandwidths are stored.  ``data``
@@ -251,7 +251,7 @@ the *banded* version.
    The assignment ``col_j = SM_COLUMN_B(A,j)`` sets ``col_j`` to be
    a pointer to the diagonal element of the j-th column of the
    :math:`N \times N` band matrix ``A``, :math:`0 \le j \le N-1`.
-   The type of the expression ``SM_COLUMN_B(A,j)`` is ``realtype *``.
+   The type of the expression ``SM_COLUMN_B(A,j)`` is ``sunrealtype *``.
    The pointer returned by the call ``SM_COLUMN_B(A,j)`` can be treated as
    an array which is indexed from ``-mu`` to ``ml``.
 
@@ -381,17 +381,17 @@ following additional user-callable routines:
 
    This function returns the length of the data array for the banded ``SUNMatrix``.
 
-.. c:function:: realtype* SUNBandMatrix_Data(SUNMatrix A)
+.. c:function:: sunrealtype* SUNBandMatrix_Data(SUNMatrix A)
 
    This function returns a pointer to the data array for the banded ``SUNMatrix``.
 
 
-.. c:function:: realtype** SUNBandMatrix_Cols(SUNMatrix A)
+.. c:function:: sunrealtype** SUNBandMatrix_Cols(SUNMatrix A)
 
    This function returns a pointer to the cols array for the band ``SUNMatrix``.
 
 
-.. c:function:: realtype* SUNBandMatrix_Column(SUNMatrix A, sunindextype j)
+.. c:function:: sunrealtype* SUNBandMatrix_Column(SUNMatrix A, sunindextype j)
 
    This function returns a pointer to the diagonal entry of the j-th
    column of the banded ``SUNMatrix``.  The resulting pointer should

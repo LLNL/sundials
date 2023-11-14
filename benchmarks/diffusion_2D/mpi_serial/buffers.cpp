@@ -20,7 +20,7 @@
 int UserData::pack_buffers(const N_Vector u)
 {
   // Access data array
-  const realtype *uarray = N_VGetArrayPointer(u);
+  const sunrealtype *uarray = N_VGetArrayPointer(u);
   if (check_flag((void *) uarray, "N_VGetArrayPointer", 0)) return -1;
 
   if (HaveNbrW)
@@ -48,26 +48,26 @@ int UserData::allocate_buffers()
 {
   if (HaveNbrW)
   {
-    Wrecv = new realtype[ny_loc];
-    Wsend = new realtype[ny_loc];
+    Wrecv = new sunrealtype[ny_loc];
+    Wsend = new sunrealtype[ny_loc];
   }
 
   if (HaveNbrE)
   {
-    Erecv = new realtype[ny_loc];
-    Esend = new realtype[ny_loc];
+    Erecv = new sunrealtype[ny_loc];
+    Esend = new sunrealtype[ny_loc];
   }
 
   if (HaveNbrS)
   {
-    Srecv = new realtype[nx_loc];
-    Ssend = new realtype[nx_loc];
+    Srecv = new sunrealtype[nx_loc];
+    Ssend = new sunrealtype[nx_loc];
   }
 
   if (HaveNbrN)
   {
-    Nrecv = new realtype[nx_loc];
-    Nsend = new realtype[nx_loc];
+    Nrecv = new sunrealtype[nx_loc];
+    Nsend = new sunrealtype[nx_loc];
   }
 
   return 0;

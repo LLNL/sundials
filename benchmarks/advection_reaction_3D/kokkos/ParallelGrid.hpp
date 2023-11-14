@@ -47,8 +47,8 @@ using MemSpace  = Kokkos::HostSpace;
 using ExecSpace = Kokkos::Serial;
 using MemSpace  = Kokkos::HostSpace;
 #endif
-using Vec1D = Kokkos::View<realtype*, MemSpace>;
-using Vec4D = Kokkos::View<realtype****, MemSpace>;
+using Vec1D = Kokkos::View<sunrealtype*, MemSpace>;
+using Vec4D = Kokkos::View<sunrealtype****, MemSpace>;
 using Vec1DHost = Vec1D::HostMirror;
 using Vec4DHost = Vec4D::HostMirror;
 using Range3D = Kokkos::MDRangePolicy<ExecSpace, Kokkos::Rank<3>>;
@@ -84,8 +84,8 @@ public:
   // [in] st - the stencil to use (see StencilType)
   // [in] npxyz - the number of processors in each dimension; defaults to 0 which means MPI will choose
   // [in] reorder - should MPI_Cart_create do process reordering to optimize or not; defaults to false (some MPI implementations ignore this)
-  ParallelGrid(MPI_Comm* comm, const realtype a[], const realtype b[], const GLOBALINT npts[],
-               int dof, BoundaryType bc, StencilType st, const realtype c,
+  ParallelGrid(MPI_Comm* comm, const sunrealtype a[], const sunrealtype b[], const GLOBALINT npts[],
+               int dof, BoundaryType bc, StencilType st, const sunrealtype c,
                const int npxyz[] = nullptr, bool reorder = false)
     : nx(1), ny(1), nz(1),
       nxl(1), nyl(1), nzl(1),
@@ -130,7 +130,7 @@ public:
     nx  = npts[0];
     ax  = a[0];
     bx  = b[0];
-    dx  = (bx-ax) / (realtype) nx;
+    dx  = (bx-ax) / (sunrealtype) nx;
     int is = nx*(coords[0])/npx;
     int ie = nx*(coords[0]+1)/npx-1;
     nxl = ie-is+1;
@@ -141,7 +141,7 @@ public:
     ny  = npts[1];
     ay  = a[1];
     by  = b[1];
-    dy  = (by-ay) / (realtype) ny;
+    dy  = (by-ay) / (sunrealtype) ny;
     int js = ny*(coords[1])/npy;
     int je = ny*(coords[1]+1)/npy-1;
     nyl = je-js+1;
@@ -152,7 +152,7 @@ public:
     nz  = npts[2];
     az  = a[2];
     bz  = b[2];
-    dz  = (bz-az) / (realtype) nz;
+    dz  = (bz-az) / (sunrealtype) nz;
     int ks = nz*(coords[2])/npz;
     int ke = nz*(coords[2]+1)/npz-1;
     nzl = ke-ks+1;
@@ -469,31 +469,31 @@ public:
     return dof*nptsl();
   }
 
-  realtype* GetRecvView(const std::string& direction)
+  sunrealtype* GetRecvView(const std::string& direction)
   {
     if (direction == "WEST")
     {
-      return static_cast<realtype*>(Wrecv_.data());
+      return static_cast<sunrealtype*>(Wrecv_.data());
     }
     else if (direction == "EAST")
     {
-      return static_cast<realtype*>(Erecv_.data());
+      return static_cast<sunrealtype*>(Erecv_.data());
     }
     else if (direction == "NORTH")
     {
-      return static_cast<realtype*>(Nrecv_.data());
+      return static_cast<sunrealtype*>(Nrecv_.data());
     }
     else if (direction == "SOUTH")
     {
-      return static_cast<realtype*>(Srecv_.data());
+      return static_cast<sunrealtype*>(Srecv_.data());
     }
     else if (direction == "FRONT")
     {
-      return static_cast<realtype*>(Frecv_.data());
+      return static_cast<sunrealtype*>(Frecv_.data());
     }
     else if (direction == "BACK")
     {
-      return static_cast<realtype*>(Brecv_.data());
+      return static_cast<sunrealtype*>(Brecv_.data());
     }
     else
     {
@@ -502,31 +502,31 @@ public:
     }
   }
 
-  realtype* GetSendView(const std::string& direction)
+  sunrealtype* GetSendView(const std::string& direction)
   {
     if (direction == "WEST")
     {
-      return static_cast<realtype*>(Wsend_.data());
+      return static_cast<sunrealtype*>(Wsend_.data());
     }
     else if (direction == "EAST")
     {
-      return static_cast<realtype*>(Esend_.data());
+      return static_cast<sunrealtype*>(Esend_.data());
     }
     else if (direction == "NORTH")
     {
-      return static_cast<realtype*>(Nsend_.data());
+      return static_cast<sunrealtype*>(Nsend_.data());
     }
     else if (direction == "SOUTH")
     {
-      return static_cast<realtype*>(Ssend_.data());
+      return static_cast<sunrealtype*>(Ssend_.data());
     }
     else if (direction == "FRONT")
     {
-      return static_cast<realtype*>(Fsend_.data());
+      return static_cast<sunrealtype*>(Fsend_.data());
     }
     else if (direction == "BACK")
     {
-      return static_cast<realtype*>(Bsend_.data());
+      return static_cast<sunrealtype*>(Bsend_.data());
     }
     else
     {
@@ -538,9 +538,9 @@ public:
   GLOBALINT nx, ny, nz;    /* number of intervals globally       */
   int       nxl, nyl, nzl; /* number of intervals locally        */
   int       npx, npy, npz; /* numner of processes                */
-  realtype  dx, dy, dz;    /* mesh spacing                       */
-  realtype  ax, ay, az;    /* domain in [a, b]                   */
-  realtype  bx, by, bz;
+  sunrealtype  dx, dy, dz;    /* mesh spacing                       */
+  sunrealtype  ax, ay, az;    /* domain in [a, b]                   */
+  sunrealtype  bx, by, bz;
   int       dof;           /* degrees of freedom per node        */
   int       neq;           /* total number of equations locally  */
 

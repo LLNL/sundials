@@ -32,22 +32,22 @@
 
 
 // Forcing device function
-__device__ void add_forcing(const realtype t,
-                            const realtype x, const realtype y,
-                            const realtype kx, const realtype ky,
-                            const sunindextype c, realtype *udot)
+__device__ void add_forcing(const sunrealtype t,
+                            const sunrealtype x, const sunrealtype y,
+                            const sunrealtype kx, const sunrealtype ky,
+                            const sunindextype c, sunrealtype *udot)
 {
-  realtype sin_sqr_x = sin(PI * x) * sin(PI * x);
-  realtype sin_sqr_y = sin(PI * y) * sin(PI * y);
+  sunrealtype sin_sqr_x = sin(PI * x) * sin(PI * x);
+  sunrealtype sin_sqr_y = sin(PI * y) * sin(PI * y);
 
-  realtype cos_sqr_x = cos(PI * x) * cos(PI * x);
-  realtype cos_sqr_y = cos(PI * y) * cos(PI * y);
+  sunrealtype cos_sqr_x = cos(PI * x) * cos(PI * x);
+  sunrealtype cos_sqr_y = cos(PI * y) * cos(PI * y);
 
-  realtype sin_t_cos_t = sin(PI * t) * cos(PI * t);
-  realtype cos_sqr_t   = cos(PI * t) * cos(PI * t);
+  sunrealtype sin_t_cos_t = sin(PI * t) * cos(PI * t);
+  sunrealtype cos_sqr_t   = cos(PI * t) * cos(PI * t);
 
-  realtype bx = kx * TWO * PI * PI;
-  realtype by = ky * TWO * PI * PI;
+  sunrealtype bx = kx * TWO * PI * PI;
+  sunrealtype by = ky * TWO * PI * PI;
 
   udot[c] += -TWO * PI * sin_sqr_x * sin_sqr_y * sin_t_cos_t
     -bx * (cos_sqr_x - sin_sqr_x) * sin_sqr_y * cos_sqr_t
@@ -56,17 +56,17 @@ __device__ void add_forcing(const realtype t,
 
 
 // Interior diffusion kernel
-__global__ void diffusion_interior_kernel(const realtype t,
-                                          const realtype *u,
-                                          realtype *udot,
+__global__ void diffusion_interior_kernel(const sunrealtype t,
+                                          const sunrealtype *u,
+                                          sunrealtype *udot,
                                           const sunindextype is,
                                           const sunindextype js,
                                           const sunindextype nx_loc,
                                           const sunindextype ny_loc,
-                                          const realtype dx,
-                                          const realtype dy,
-                                          const realtype kx,
-                                          const realtype ky,
+                                          const sunrealtype dx,
+                                          const sunrealtype dy,
+                                          const sunrealtype kx,
+                                          const sunrealtype ky,
                                           const bool forcing)
 {
   // Thread location in the local grid
@@ -86,16 +86,16 @@ __global__ void diffusion_interior_kernel(const realtype t,
     int n = c + nx_loc;
 
     // Set diffusion term
-    realtype cx = kx / (dx * dx);
-    realtype cy = ky / (dy * dy);
-    realtype cc = -TWO * (cx + cy);
+    sunrealtype cx = kx / (dx * dx);
+    sunrealtype cy = ky / (dy * dy);
+    sunrealtype cc = -TWO * (cx + cy);
 
     udot[c] = cc * u[c] + cx * (u[w] + u[e]) + cy * (u[s] + u[n]);
 
     if (forcing)
     {
-      realtype x = (is + i) * dx;
-      realtype y = (js + j) * dy;
+      sunrealtype x = (is + i) * dx;
+      sunrealtype y = (js + j) * dy;
 
       add_forcing(t, x, y, kx, ky, c, udot);
     }
@@ -104,30 +104,30 @@ __global__ void diffusion_interior_kernel(const realtype t,
 
 
 // Interior boundary kernel
-__global__ void diffusion_boundary_kernel(const realtype t,
-                                          const realtype *u,
-                                          realtype *udot,
+__global__ void diffusion_boundary_kernel(const sunrealtype t,
+                                          const sunrealtype *u,
+                                          sunrealtype *udot,
                                           const sunindextype is,
                                           const sunindextype js,
                                           const sunindextype nx_loc,
                                           const sunindextype ny_loc,
-                                          const realtype dx,
-                                          const realtype dy,
-                                          const realtype kx,
-                                          const realtype ky,
+                                          const sunrealtype dx,
+                                          const sunrealtype dy,
+                                          const sunrealtype kx,
+                                          const sunrealtype ky,
                                           const bool forcing,
-                                          const realtype *wbuf,
-                                          const realtype *ebuf,
-                                          const realtype *sbuf,
-                                          const realtype *nbuf)
+                                          const sunrealtype *wbuf,
+                                          const sunrealtype *ebuf,
+                                          const sunrealtype *sbuf,
+                                          const sunrealtype *nbuf)
 {
   // Thread ID
   int i = blockIdx.x * blockDim.x + threadIdx.x;
 
   // Set diffusion term
-  realtype cx = kx / (dx * dx);
-  realtype cy = ky / (dy * dy);
-  realtype cc = -TWO * (cx + cy);
+  sunrealtype cx = kx / (dx * dx);
+  sunrealtype cy = ky / (dy * dy);
+  sunrealtype cc = -TWO * (cx + cy);
 
   // West and East faces excluding corners
   if (i > 0 && i < ny_loc - 1)
@@ -146,8 +146,8 @@ __global__ void diffusion_boundary_kernel(const realtype t,
 
       if (forcing)
       {
-        realtype x = is * dx;
-        realtype y = (js + i) * dy;
+        sunrealtype x = is * dx;
+        sunrealtype y = (js + i) * dy;
 
         add_forcing(t, x, y, kx, ky, c, udot);
       }
@@ -172,8 +172,8 @@ __global__ void diffusion_boundary_kernel(const realtype t,
 
       if (forcing)
       {
-        realtype x = (is + nx_loc - 1) * dx;
-        realtype y = (js + i) * dy;
+        sunrealtype x = (is + nx_loc - 1) * dx;
+        sunrealtype y = (js + i) * dy;
 
         add_forcing(t, x, y, kx, ky, c, udot);
       }
@@ -204,8 +204,8 @@ __global__ void diffusion_boundary_kernel(const realtype t,
 
       if (forcing)
       {
-        realtype x = (is + i) * dx;
-        realtype y = js * dy;
+        sunrealtype x = (is + i) * dx;
+        sunrealtype y = js * dy;
 
         add_forcing(t, x, y, kx, ky, c, udot);
       }
@@ -230,8 +230,8 @@ __global__ void diffusion_boundary_kernel(const realtype t,
 
       if (forcing)
       {
-        realtype x = (is + i) * dx;
-        realtype y = (js + ny_loc - 1) * dy;
+        sunrealtype x = (is + i) * dx;
+        sunrealtype y = (js + ny_loc - 1) * dy;
 
         add_forcing(t, x, y, kx, ky, c, udot);
       }
@@ -262,8 +262,8 @@ __global__ void diffusion_boundary_kernel(const realtype t,
 
       if (forcing)
       {
-        realtype x = is * dx;
-        realtype y = js * dy;
+        sunrealtype x = is * dx;
+        sunrealtype y = js * dy;
 
         add_forcing(t, x, y, kx, ky, c, udot);
       }
@@ -288,8 +288,8 @@ __global__ void diffusion_boundary_kernel(const realtype t,
 
       if (forcing)
       {
-        realtype x = (is + nx_loc - 1) * dx;
-        realtype y = js * dy;
+        sunrealtype x = (is + nx_loc - 1) * dx;
+        sunrealtype y = js * dy;
 
         add_forcing(t, x, y, kx, ky, c, udot);
       }
@@ -314,8 +314,8 @@ __global__ void diffusion_boundary_kernel(const realtype t,
 
       if (forcing)
       {
-        realtype x = is * dx;
-        realtype y = (js + ny_loc - 1) * dy;
+        sunrealtype x = is * dx;
+        sunrealtype y = (js + ny_loc - 1) * dy;
 
         add_forcing(t, x, y, kx, ky, c, udot);
       }
@@ -340,8 +340,8 @@ __global__ void diffusion_boundary_kernel(const realtype t,
 
       if (forcing)
       {
-        realtype x = (is + nx_loc - 1) * dx;
-        realtype y = (js + ny_loc - 1) * dy;
+        sunrealtype x = (is + nx_loc - 1) * dx;
+        sunrealtype y = (js + ny_loc - 1) * dy;
 
         add_forcing(t, x, y, kx, ky, c, udot);
       }
@@ -356,7 +356,7 @@ __global__ void diffusion_boundary_kernel(const realtype t,
 
 
 // Diffusion function
-int laplacian(realtype t, N_Vector u, N_Vector f, UserData* udata)
+int laplacian(sunrealtype t, N_Vector u, N_Vector f, UserData* udata)
 {
   SUNDIALS_CXX_MARK_FUNCTION(udata->prof);
 
@@ -371,17 +371,17 @@ int laplacian(realtype t, N_Vector u, N_Vector f, UserData* udata)
   const sunindextype js      = udata->js;
   const sunindextype nx_loc  = udata->nx_loc;
   const sunindextype ny_loc  = udata->ny_loc;
-  const realtype     dx      = udata->dx;
-  const realtype     dy      = udata->dy;
-  const realtype     kx      = udata->kx;
-  const realtype     ky      = udata->ky;
+  const sunrealtype     dx      = udata->dx;
+  const sunrealtype     dy      = udata->dy;
+  const sunrealtype     kx      = udata->kx;
+  const sunrealtype     ky      = udata->ky;
   const bool         forcing = udata->forcing;
 
   // Access data arrays
-  const realtype *uarray = N_VGetDeviceArrayPointer(N_VGetLocalVector_MPIPlusX(u));
+  const sunrealtype *uarray = N_VGetDeviceArrayPointer(N_VGetLocalVector_MPIPlusX(u));
   if (check_flag((void *) uarray, "N_VGetDeviceArrayPointer", 0)) return -1;
 
-  realtype *farray = N_VGetDeviceArrayPointer(N_VGetLocalVector_MPIPlusX(f));
+  sunrealtype *farray = N_VGetDeviceArrayPointer(N_VGetLocalVector_MPIPlusX(f));
   if (check_flag((void *) farray, "N_VGetDeviceArrayPointer", 0)) return -1;
 
   // Update subdomain interior
@@ -397,10 +397,10 @@ int laplacian(realtype t, N_Vector u, N_Vector f, UserData* udata)
   if (check_flag(&flag, "UserData::end_exchagne", 1)) return -1;
 
   // Update subdomain boundary
-  const realtype *Warray = (udata->HaveNbrW) ? udata->Wrecv : NULL;
-  const realtype *Earray = (udata->HaveNbrE) ? udata->Erecv : NULL;
-  const realtype *Sarray = (udata->HaveNbrS) ? udata->Srecv : NULL;
-  const realtype *Narray = (udata->HaveNbrN) ? udata->Nrecv : NULL;
+  const sunrealtype *Warray = (udata->HaveNbrW) ? udata->Wrecv : NULL;
+  const sunrealtype *Earray = (udata->HaveNbrE) ? udata->Erecv : NULL;
+  const sunrealtype *Sarray = (udata->HaveNbrS) ? udata->Srecv : NULL;
+  const sunrealtype *Narray = (udata->HaveNbrN) ? udata->Nrecv : NULL;
 
   sunindextype maxdim = max(nx_loc, ny_loc);
   dim3 bblock(BLOCK_SIZE);

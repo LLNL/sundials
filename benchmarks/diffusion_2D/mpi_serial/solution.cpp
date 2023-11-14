@@ -17,16 +17,16 @@
 #include "diffusion_2D.hpp"
 
 // Compute the exact solution
-int Solution(realtype t, N_Vector u, UserData *udata)
+int Solution(sunrealtype t, N_Vector u, UserData *udata)
 {
   // Initialize u to zero (handles boundary conditions)
   N_VConst(ZERO, u);
 
-  realtype x, y;
-  realtype sin_sqr_x, sin_sqr_y;
+  sunrealtype x, y;
+  sunrealtype sin_sqr_x, sin_sqr_y;
 
   // Constants for computing solution
-  realtype cos_sqr_t = cos(PI * t) * cos(PI * t);
+  sunrealtype cos_sqr_t = cos(PI * t) * cos(PI * t);
 
   // Iterative over domain interior
   sunindextype istart = (udata->HaveNbrW) ? 0 : 1;
@@ -35,7 +35,7 @@ int Solution(realtype t, N_Vector u, UserData *udata)
   sunindextype jstart = (udata->HaveNbrS) ? 0 : 1;
   sunindextype jend   = (udata->HaveNbrN) ? udata->ny_loc : udata->ny_loc - 1;
 
-  realtype *uarray = N_VGetArrayPointer(u);
+  sunrealtype *uarray = N_VGetArrayPointer(u);
   if (check_flag((void *) uarray, "N_VGetArrayPointer", 0)) return -1;
 
   for (sunindextype j = jstart; j < jend; j++)
@@ -57,16 +57,16 @@ int Solution(realtype t, N_Vector u, UserData *udata)
 
 
 // Compute the exact solution derivative
-int SolutionDerivative(realtype t, N_Vector up, UserData *udata)
+int SolutionDerivative(sunrealtype t, N_Vector up, UserData *udata)
 {
   // Initialize u to zero (handles boundary conditions)
   N_VConst(ZERO, up);
 
-  realtype x, y;
-  realtype sin_sqr_x, sin_sqr_y;
+  sunrealtype x, y;
+  sunrealtype sin_sqr_x, sin_sqr_y;
 
   // Constants for computing solution
-  realtype cos_sin_t = -TWO * PI * cos(PI * t) * sin(PI * t);
+  sunrealtype cos_sin_t = -TWO * PI * cos(PI * t) * sin(PI * t);
 
   // Iterative over domain interior
   sunindextype istart = (udata->HaveNbrW) ? 0 : 1;
@@ -75,7 +75,7 @@ int SolutionDerivative(realtype t, N_Vector up, UserData *udata)
   sunindextype jstart = (udata->HaveNbrS) ? 0 : 1;
   sunindextype jend   = (udata->HaveNbrN) ? udata->ny_loc : udata->ny_loc - 1;
 
-  realtype *uparray = N_VGetArrayPointer(up);
+  sunrealtype *uparray = N_VGetArrayPointer(up);
   if (check_flag((void *) uparray, "N_VGetArrayPointer", 0)) return -1;
 
   for (sunindextype j = jstart; j < jend; j++)

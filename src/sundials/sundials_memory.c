@@ -85,7 +85,7 @@ int SUNMemoryHelper_CopyOps(SUNMemoryHelper src, SUNMemoryHelper dst)
 }
 
 
-booleantype SUNMemoryHelper_ImplementsRequiredOps(SUNMemoryHelper helper)
+sunbooleantype SUNMemoryHelper_ImplementsRequiredOps(SUNMemoryHelper helper)
 {
   if (helper->ops->alloc == NULL || helper->ops->dealloc == NULL ||
       helper->ops->copy == NULL)

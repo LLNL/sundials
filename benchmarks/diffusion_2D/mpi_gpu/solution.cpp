@@ -32,13 +32,13 @@
 
 
 // Compute the exact solution
-__global__ void solution_kernel(const realtype t, realtype *u,
+__global__ void solution_kernel(const sunrealtype t, sunrealtype *u,
                                 const sunindextype is, const sunindextype ie,
                                 const sunindextype js, const sunindextype je,
                                 const sunindextype nx, const sunindextype ny,
                                 const sunindextype nx_loc,
                                 const sunindextype ny_loc,
-                                const realtype dx, const realtype dy)
+                                const sunrealtype dx, const sunrealtype dy)
 {
   // Thread location in the local grid
   int i = blockIdx.x * blockDim.x + threadIdx.x;
@@ -54,12 +54,12 @@ __global__ void solution_kernel(const realtype t, realtype *u,
     }
     else
     {
-      realtype x = (is + i) * dx;
-      realtype y = (js + j) * dy;
+      sunrealtype x = (is + i) * dx;
+      sunrealtype y = (js + j) * dy;
 
-      realtype cos_sqr_t = cos(PI * t) * cos(PI * t);
-      realtype sin_sqr_x = sin(PI * x) * sin(PI * x);
-      realtype sin_sqr_y = sin(PI * y) * sin(PI * y);
+      sunrealtype cos_sqr_t = cos(PI * t) * cos(PI * t);
+      sunrealtype sin_sqr_x = sin(PI * x) * sin(PI * x);
+      sunrealtype sin_sqr_y = sin(PI * y) * sin(PI * y);
 
       u[i + j * nx_loc] = sin_sqr_x * sin_sqr_y * cos_sqr_t;
     }
@@ -68,13 +68,13 @@ __global__ void solution_kernel(const realtype t, realtype *u,
 
 
 // Compute the exact solution derivative
-__global__ void solution_p_kernel(const realtype t, realtype *up,
+__global__ void solution_p_kernel(const sunrealtype t, sunrealtype *up,
                                   const sunindextype is, const sunindextype ie,
                                   const sunindextype js, const sunindextype je,
                                   const sunindextype nx, const sunindextype ny,
                                   const sunindextype nx_loc,
                                   const sunindextype ny_loc,
-                                  const realtype dx, const realtype dy)
+                                  const sunrealtype dx, const sunrealtype dy)
 {
   // Thread location in the local grid
   int i = blockIdx.x * blockDim.x + threadIdx.x;
@@ -90,12 +90,12 @@ __global__ void solution_p_kernel(const realtype t, realtype *up,
     }
     else
     {
-      realtype x = (is + i) * dx;
-      realtype y = (js + j) * dy;
+      sunrealtype x = (is + i) * dx;
+      sunrealtype y = (js + j) * dy;
 
-      realtype cos_sin_t = -TWO * PI * cos(PI * t) * sin(PI * t);
-      realtype sin_sqr_x = sin(PI * x) * sin(PI * x);
-      realtype sin_sqr_y = sin(PI * y) * sin(PI * y);
+      sunrealtype cos_sin_t = -TWO * PI * cos(PI * t) * sin(PI * t);
+      sunrealtype sin_sqr_x = sin(PI * x) * sin(PI * x);
+      sunrealtype sin_sqr_y = sin(PI * y) * sin(PI * y);
 
       up[i + j * nx_loc] = sin_sqr_x * sin_sqr_y * cos_sin_t;
     }
@@ -104,7 +104,7 @@ __global__ void solution_p_kernel(const realtype t, realtype *up,
 
 
 // Compute the exact solution
-int Solution(realtype t, N_Vector u, UserData *udata)
+int Solution(sunrealtype t, N_Vector u, UserData *udata)
 {
   // Initialize u to zero (handles boundary conditions)
   N_VConst(ZERO, u);
@@ -118,10 +118,10 @@ int Solution(realtype t, N_Vector u, UserData *udata)
   const sunindextype ny      = udata->ny;
   const sunindextype nx_loc  = udata->nx_loc;
   const sunindextype ny_loc  = udata->ny_loc;
-  const realtype     dx      = udata->dx;
-  const realtype     dy      = udata->dy;
+  const sunrealtype     dx      = udata->dx;
+  const sunrealtype     dy      = udata->dy;
 
-  realtype *uarray = N_VGetDeviceArrayPointer(N_VGetLocalVector_MPIPlusX(u));
+  sunrealtype *uarray = N_VGetDeviceArrayPointer(N_VGetLocalVector_MPIPlusX(u));
   if (check_flag((void *) uarray, "N_VGetDeviceArrayPointer", 0)) return -1;
 
   dim3 block(BLOCK_SIZE_X, BLOCK_SIZE_Y);
@@ -135,7 +135,7 @@ int Solution(realtype t, N_Vector u, UserData *udata)
 
 
 // Compute the exact solution derivative
-int SolutionDerivative(realtype t, N_Vector up, UserData *udata)
+int SolutionDerivative(sunrealtype t, N_Vector up, UserData *udata)
 {
   // Initialize u to zero (handles boundary conditions)
   N_VConst(ZERO, up);
@@ -149,10 +149,10 @@ int SolutionDerivative(realtype t, N_Vector up, UserData *udata)
   const sunindextype ny      = udata->ny;
   const sunindextype nx_loc  = udata->nx_loc;
   const sunindextype ny_loc  = udata->ny_loc;
-  const realtype     dx      = udata->dx;
-  const realtype     dy      = udata->dy;
+  const sunrealtype     dx      = udata->dx;
+  const sunrealtype     dy      = udata->dy;
 
-  realtype *uparray = N_VGetDeviceArrayPointer(N_VGetLocalVector_MPIPlusX(up));
+  sunrealtype *uparray = N_VGetDeviceArrayPointer(N_VGetLocalVector_MPIPlusX(up));
   if (check_flag((void *) uparray, "N_VGetDeviceArrayPointer", 0)) return -1;
 
   dim3 block(BLOCK_SIZE_X, BLOCK_SIZE_Y);

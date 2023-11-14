@@ -57,10 +57,10 @@ where ``ARKodeButcherTableMem`` is the structure
      int q;
      int p;
      int stages;
-     realtype **A;
-     realtype *c;
-     realtype *b;
-     realtype *d;
+     sunrealtype **A;
+     sunrealtype *c;
+     sunrealtype *b;
+     sunrealtype *d;
 
    };
 
@@ -172,7 +172,7 @@ ARKodeButcherTable functions
       This function is case sensitive.
 
 
-.. c:function:: ARKodeButcherTable ARKodeButcherTable_Alloc(int stages, booleantype embedded)
+.. c:function:: ARKodeButcherTable ARKodeButcherTable_Alloc(int stages, sunbooleantype embedded)
 
    Allocates an empty Butcher table.
 
@@ -185,7 +185,7 @@ ARKodeButcherTable functions
       * :c:type:`ARKodeButcherTable` structure if successful.
       * ``NULL`` pointer if *stages* was invalid or an allocation error occurred.
 
-.. c:function:: ARKodeButcherTable ARKodeButcherTable_Create(int s, int q, int p, realtype *c, realtype *A, realtype *b, realtype *d)
+.. c:function:: ARKodeButcherTable ARKodeButcherTable_Create(int s, int q, int p, sunrealtype *c, sunrealtype *A, sunrealtype *b, sunrealtype *d)
 
    Allocates a Butcher table and fills it with the given values.
 
@@ -228,7 +228,7 @@ ARKodeButcherTable functions
 
    **Arguments:**
       * *B* -- the Butcher table.
-      * *lenrw* -- the number of ``realtype`` values in the Butcher table workspace.
+      * *lenrw* -- the number of ``sunrealtype`` values in the Butcher table workspace.
       * *leniw* -- the number of integer values in the Butcher table workspace.
 
    **Return value:**

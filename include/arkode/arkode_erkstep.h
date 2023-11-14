@@ -47,26 +47,26 @@ static const int ERKSTEP_DEFAULT_9 = ARKODE_VERNER_16_8_9;
  * ------------------- */
 
 /* Create, Resize, and Reinitialization functions */
-SUNDIALS_EXPORT void* ERKStepCreate(ARKRhsFn f, realtype t0,
+SUNDIALS_EXPORT void* ERKStepCreate(ARKRhsFn f, sunrealtype t0,
                                     N_Vector y0, SUNContext sunctx);
 
 SUNDIALS_EXPORT int ERKStepResize(void *arkode_mem, N_Vector ynew,
-                                  realtype hscale, realtype t0,
+                                  sunrealtype hscale, sunrealtype t0,
                                   ARKVecResizeFn resize,
                                   void *resize_data);
 
 SUNDIALS_EXPORT int ERKStepReInit(void* arkode_mem, ARKRhsFn f,
-                                  realtype t0, N_Vector y0);
+                                  sunrealtype t0, N_Vector y0);
 
-SUNDIALS_EXPORT int ERKStepReset(void* arkode_mem, realtype tR,
+SUNDIALS_EXPORT int ERKStepReset(void* arkode_mem, sunrealtype tR,
                                  N_Vector yR);
 
 /* Tolerance input functions */
 SUNDIALS_EXPORT int ERKStepSStolerances(void *arkode_mem,
-                                        realtype reltol,
-                                        realtype abstol);
+                                        sunrealtype reltol,
+                                        sunrealtype abstol);
 SUNDIALS_EXPORT int ERKStepSVtolerances(void *arkode_mem,
-                                        realtype reltol,
+                                        sunrealtype reltol,
                                         N_Vector abstol);
 SUNDIALS_EXPORT int ERKStepWFtolerances(void *arkode_mem,
                                         ARKEwtFn efun);
@@ -88,28 +88,28 @@ SUNDIALS_EXPORT int ERKStepSetTableName(void *arkode_mem, const char *etable);
 SUNDIALS_EXPORT int ERKStepSetAdaptController(void *arkode_mem, SUNAdaptController C);
 SUNDIALS_EXPORT int ERKStepSetAdaptivityAdjustment(void *arkode_mem, int adjust);
 SUNDIALS_EXPORT int ERKStepSetCFLFraction(void *arkode_mem,
-                                          realtype cfl_frac);
+                                          sunrealtype cfl_frac);
 SUNDIALS_EXPORT int ERKStepSetSafetyFactor(void *arkode_mem,
-                                           realtype safety);
+                                           sunrealtype safety);
 SUNDIALS_DEPRECATED_EXPORT_MSG("use SUNAdaptController instead")
-int ERKStepSetErrorBias(void *arkode_mem, realtype bias);
+int ERKStepSetErrorBias(void *arkode_mem, sunrealtype bias);
 SUNDIALS_EXPORT int ERKStepSetMaxGrowth(void *arkode_mem,
-                                        realtype mx_growth);
+                                        sunrealtype mx_growth);
 SUNDIALS_EXPORT int ERKStepSetMinReduction(void *arkode_mem,
-                                           realtype eta_min);
+                                           sunrealtype eta_min);
 SUNDIALS_EXPORT int ERKStepSetFixedStepBounds(void *arkode_mem,
-                                              realtype lb, realtype ub);
+                                              sunrealtype lb, sunrealtype ub);
 SUNDIALS_DEPRECATED_EXPORT_MSG("use SUNAdaptController instead")
 int ERKStepSetAdaptivityMethod(void *arkode_mem, int imethod,
                                int idefault, int pq,
-                               realtype adapt_params[3]);
+                               sunrealtype adapt_params[3]);
 SUNDIALS_DEPRECATED_EXPORT_MSG("use SUNAdaptController instead")
 int ERKStepSetAdaptivityFn(void *arkode_mem, ARKAdaptFn hfun,
                            void *h_data);
 SUNDIALS_EXPORT int ERKStepSetMaxFirstGrowth(void *arkode_mem,
-                                             realtype etamx1);
+                                             sunrealtype etamx1);
 SUNDIALS_EXPORT int ERKStepSetMaxEFailGrowth(void *arkode_mem,
-                                             realtype etamxf);
+                                             sunrealtype etamxf);
 SUNDIALS_EXPORT int ERKStepSetSmallNumEFails(void *arkode_mem,
                                              int small_nef);
 SUNDIALS_EXPORT int ERKStepSetStabilityFn(void *arkode_mem,
@@ -124,18 +124,18 @@ SUNDIALS_EXPORT int ERKStepSetMaxNumSteps(void *arkode_mem,
 SUNDIALS_EXPORT int ERKStepSetMaxHnilWarns(void *arkode_mem,
                                            int mxhnil);
 SUNDIALS_EXPORT int ERKStepSetInitStep(void *arkode_mem,
-                                       realtype hin);
+                                       sunrealtype hin);
 SUNDIALS_EXPORT int ERKStepSetMinStep(void *arkode_mem,
-                                      realtype hmin);
+                                      sunrealtype hmin);
 SUNDIALS_EXPORT int ERKStepSetMaxStep(void *arkode_mem,
-                                      realtype hmax);
+                                      sunrealtype hmax);
 SUNDIALS_EXPORT int ERKStepSetInterpolateStopTime(void *arkode_mem,
-                                                  booleantype interp);
+                                                  sunbooleantype interp);
 SUNDIALS_EXPORT int ERKStepSetStopTime(void *arkode_mem,
-                                       realtype tstop);
+                                       sunrealtype tstop);
 SUNDIALS_EXPORT int ERKStepClearStopTime(void *arkode_mem);
 SUNDIALS_EXPORT int ERKStepSetFixedStep(void *arkode_mem,
-                                        realtype hfixed);
+                                        sunrealtype hfixed);
 SUNDIALS_EXPORT int ERKStepSetMaxNumConstrFails(void *arkode_mem,
                                                 int maxfails);
 
@@ -158,12 +158,12 @@ SUNDIALS_EXPORT int ERKStepSetPostprocessStageFn(void *arkode_mem,
 
 
 /* Integrate the ODE over an interval in t */
-SUNDIALS_EXPORT int ERKStepEvolve(void *arkode_mem, realtype tout,
-                                  N_Vector yout, realtype *tret,
+SUNDIALS_EXPORT int ERKStepEvolve(void *arkode_mem, sunrealtype tout,
+                                  N_Vector yout, sunrealtype *tret,
                                   int itask);
 
 /* Computes the kth derivative of the y function at time t */
-SUNDIALS_EXPORT int ERKStepGetDky(void *arkode_mem, realtype t,
+SUNDIALS_EXPORT int ERKStepGetDky(void *arkode_mem, sunrealtype t,
                                   int k, N_Vector dky);
 
 /* Optional output functions */
@@ -187,15 +187,15 @@ SUNDIALS_EXPORT int ERKStepGetWorkSpace(void *arkode_mem,
 SUNDIALS_EXPORT int ERKStepGetNumSteps(void *arkode_mem,
                                        long int *nsteps);
 SUNDIALS_EXPORT int ERKStepGetActualInitStep(void *arkode_mem,
-                                             realtype *hinused);
+                                             sunrealtype *hinused);
 SUNDIALS_EXPORT int ERKStepGetLastStep(void *arkode_mem,
-                                       realtype *hlast);
+                                       sunrealtype *hlast);
 SUNDIALS_EXPORT int ERKStepGetCurrentStep(void *arkode_mem,
-                                          realtype *hcur);
+                                          sunrealtype *hcur);
 SUNDIALS_EXPORT int ERKStepGetCurrentTime(void *arkode_mem,
-                                          realtype *tcur);
+                                          sunrealtype *tcur);
 SUNDIALS_EXPORT int ERKStepGetTolScaleFactor(void *arkode_mem,
-                                             realtype *tolsfac);
+                                             sunrealtype *tolsfac);
 SUNDIALS_EXPORT int ERKStepGetErrWeights(void *arkode_mem,
                                          N_Vector eweight);
 SUNDIALS_EXPORT int ERKStepGetNumGEvals(void *arkode_mem,
@@ -224,10 +224,10 @@ SUNDIALS_EXPORT int ERKStepGetTimestepperStats(void *arkode_mem,
                                                long int *netfails);
 SUNDIALS_EXPORT int ERKStepGetStepStats(void *arkode_mem,
                                         long int *nsteps,
-                                        realtype *hinused,
-                                        realtype *hlast,
-                                        realtype *hcur,
-                                        realtype *tcur);
+                                        sunrealtype *hinused,
+                                        sunrealtype *hlast,
+                                        sunrealtype *hcur,
+                                        sunrealtype *tcur);
 
 
 /* Free function */

@@ -25,10 +25,10 @@
 #include <nvector/trilinos/SundialsTpetraVectorInterface.hpp>
 #include <nvector/trilinos/SundialsTpetraVectorKernels.hpp>
 
-#define ZERO   RCONST(0.0)
-#define HALF   RCONST(0.5)
-#define ONE    RCONST(1.0)
-#define ONEPT5 RCONST(1.5)
+#define ZERO   SUN_RCONST(0.0)
+#define HALF   SUN_RCONST(0.5)
+#define ONE    SUN_RCONST(1.0)
+#define ONEPT5 SUN_RCONST(1.5)
 
 
 
@@ -250,7 +250,7 @@ sunindextype N_VGetLength_Trilinos(N_Vector x)
 /*
  * Linear combination of two vectors: z = a*x + b*y
  */
-void N_VLinearSum_Trilinos(realtype a, N_Vector x, realtype b, N_Vector y, N_Vector z)
+void N_VLinearSum_Trilinos(sunrealtype a, N_Vector x, sunrealtype b, N_Vector y, N_Vector z)
 {
   Teuchos::RCP<const vector_type> xv = N_VGetVector_Trilinos(x);
   Teuchos::RCP<const vector_type> yv = N_VGetVector_Trilinos(y);
@@ -269,7 +269,7 @@ void N_VLinearSum_Trilinos(realtype a, N_Vector x, realtype b, N_Vector y, N_Vec
 /*
  * Set all vector elements to a constant: z[i] = c
  */
-void N_VConst_Trilinos(realtype c, N_Vector z)
+void N_VConst_Trilinos(sunrealtype c, N_Vector z)
 {
   Teuchos::RCP<vector_type> zv = N_VGetVector_Trilinos(z);
 
@@ -303,7 +303,7 @@ void N_VDiv_Trilinos(N_Vector x, N_Vector y, N_Vector z)
 /*
  * Scale vector: z = c*x
  */
-void N_VScale_Trilinos(realtype c, N_Vector x, N_Vector z)
+void N_VScale_Trilinos(sunrealtype c, N_Vector x, N_Vector z)
 {
   Teuchos::RCP<const vector_type> xv = N_VGetVector_Trilinos(x);
   Teuchos::RCP<vector_type> zv       = N_VGetVector_Trilinos(z);
@@ -336,7 +336,7 @@ void N_VInv_Trilinos(N_Vector x, N_Vector z)
 /*
  * Add constant: z = x + b
  */
-void N_VAddConst_Trilinos(N_Vector x, realtype b, N_Vector z)
+void N_VAddConst_Trilinos(N_Vector x, sunrealtype b, N_Vector z)
 {
   Teuchos::RCP<const vector_type> xv = N_VGetVector_Trilinos(x);
   Teuchos::RCP<vector_type> zv       = N_VGetVector_Trilinos(z);
@@ -347,7 +347,7 @@ void N_VAddConst_Trilinos(N_Vector x, realtype b, N_Vector z)
 /*
  * Scalar product of vectors x and y
  */
-realtype N_VDotProd_Trilinos(N_Vector x, N_Vector y)
+sunrealtype N_VDotProd_Trilinos(N_Vector x, N_Vector y)
 {
   Teuchos::RCP<const vector_type> xv = N_VGetVector_Trilinos(x);
   Teuchos::RCP<const vector_type> yv = N_VGetVector_Trilinos(y);
@@ -358,7 +358,7 @@ realtype N_VDotProd_Trilinos(N_Vector x, N_Vector y)
 /*
  * Max norm (L infinity) of vector x
  */
-realtype N_VMaxNorm_Trilinos(N_Vector x)
+sunrealtype N_VMaxNorm_Trilinos(N_Vector x)
 {
   Teuchos::RCP<const vector_type> xv = N_VGetVector_Trilinos(x);
 
@@ -368,7 +368,7 @@ realtype N_VMaxNorm_Trilinos(N_Vector x)
 /*
  * Weighted RMS norm
  */
-realtype N_VWrmsNorm_Trilinos(N_Vector x, N_Vector w)
+sunrealtype N_VWrmsNorm_Trilinos(N_Vector x, N_Vector w)
 {
   Teuchos::RCP<const vector_type> xv = N_VGetVector_Trilinos(x);
   Teuchos::RCP<const vector_type> wv = N_VGetVector_Trilinos(w);
@@ -379,7 +379,7 @@ realtype N_VWrmsNorm_Trilinos(N_Vector x, N_Vector w)
 /*
  * Masked weighted RMS norm
  */
-realtype N_VWrmsNormMask_Trilinos(N_Vector x, N_Vector w, N_Vector id)
+sunrealtype N_VWrmsNormMask_Trilinos(N_Vector x, N_Vector w, N_Vector id)
 {
   Teuchos::RCP<const vector_type> xv  = N_VGetVector_Trilinos(x);
   Teuchos::RCP<const vector_type> wv  = N_VGetVector_Trilinos(w);
@@ -391,7 +391,7 @@ realtype N_VWrmsNormMask_Trilinos(N_Vector x, N_Vector w, N_Vector id)
 /*
  * Returns minimum vector element
  */
-realtype N_VMin_Trilinos(N_Vector x)
+sunrealtype N_VMin_Trilinos(N_Vector x)
 {
   Teuchos::RCP<const vector_type> xv  = N_VGetVector_Trilinos(x);
 
@@ -401,7 +401,7 @@ realtype N_VMin_Trilinos(N_Vector x)
 /*
  * Weighted L2 norm
  */
-realtype N_VWL2Norm_Trilinos(N_Vector x, N_Vector w)
+sunrealtype N_VWL2Norm_Trilinos(N_Vector x, N_Vector w)
 {
   Teuchos::RCP<const vector_type> xv = N_VGetVector_Trilinos(x);
   Teuchos::RCP<const vector_type> wv = N_VGetVector_Trilinos(w);
@@ -412,7 +412,7 @@ realtype N_VWL2Norm_Trilinos(N_Vector x, N_Vector w)
 /*
  * L1 norm
  */
-realtype N_VL1Norm_Trilinos(N_Vector x)
+sunrealtype N_VL1Norm_Trilinos(N_Vector x)
 {
   Teuchos::RCP<const vector_type> xv = N_VGetVector_Trilinos(x);
 
@@ -422,7 +422,7 @@ realtype N_VL1Norm_Trilinos(N_Vector x)
 /*
  * Elementwise z[i] = |x[i]| >= c ? 1 : 0
  */
-void N_VCompare_Trilinos(realtype c, N_Vector x, N_Vector z)
+void N_VCompare_Trilinos(sunrealtype c, N_Vector x, N_Vector z)
 {
   Teuchos::RCP<const vector_type> xv = N_VGetVector_Trilinos(x);
   Teuchos::RCP<vector_type> zv       = N_VGetVector_Trilinos(z);
@@ -433,7 +433,7 @@ void N_VCompare_Trilinos(realtype c, N_Vector x, N_Vector z)
 /*
  * Elementwise inverse with zero checking: z[i] = 1/x[i], x[i] != 0
  */
-booleantype N_VInvTest_Trilinos(N_Vector x, N_Vector z)
+sunbooleantype N_VInvTest_Trilinos(N_Vector x, N_Vector z)
 {
   Teuchos::RCP<const vector_type> xv = N_VGetVector_Trilinos(x);
   Teuchos::RCP<vector_type> zv       = N_VGetVector_Trilinos(z);
@@ -445,7 +445,7 @@ booleantype N_VInvTest_Trilinos(N_Vector x, N_Vector z)
  * Checks constraint violations for vector x. Constraints are defined in
  * vector c, and constraint violation flags are stored in vector m.
  */
-booleantype N_VConstrMask_Trilinos(N_Vector c, N_Vector x, N_Vector m)
+sunbooleantype N_VConstrMask_Trilinos(N_Vector c, N_Vector x, N_Vector m)
 {
   Teuchos::RCP<const vector_type> cv = N_VGetVector_Trilinos(c);
   Teuchos::RCP<const vector_type> xv = N_VGetVector_Trilinos(x);
@@ -457,7 +457,7 @@ booleantype N_VConstrMask_Trilinos(N_Vector c, N_Vector x, N_Vector m)
 /*
  * Find minimum quotient: minq  = min ( num[i]/denom[i]), denom[i] != 0.
  */
-realtype N_VMinQuotient_Trilinos(N_Vector num, N_Vector denom)
+sunrealtype N_VMinQuotient_Trilinos(N_Vector num, N_Vector denom)
 {
   Teuchos::RCP<const vector_type> numv = N_VGetVector_Trilinos(num);
   Teuchos::RCP<const vector_type> denv = N_VGetVector_Trilinos(denom);
@@ -468,7 +468,7 @@ realtype N_VMinQuotient_Trilinos(N_Vector num, N_Vector denom)
 /*
  * MPI task-local dot product
  */
-realtype N_VDotProdLocal_Trilinos(N_Vector x, N_Vector y)
+sunrealtype N_VDotProdLocal_Trilinos(N_Vector x, N_Vector y)
 {
   Teuchos::RCP<const vector_type> xv = N_VGetVector_Trilinos(x);
   Teuchos::RCP<const vector_type> yv = N_VGetVector_Trilinos(y);
@@ -479,7 +479,7 @@ realtype N_VDotProdLocal_Trilinos(N_Vector x, N_Vector y)
 /*
  * MPI task-local maximum norm
  */
-realtype N_VMaxNormLocal_Trilinos(N_Vector x)
+sunrealtype N_VMaxNormLocal_Trilinos(N_Vector x)
 {
   Teuchos::RCP<const vector_type> xv = N_VGetVector_Trilinos(x);
 
@@ -489,7 +489,7 @@ realtype N_VMaxNormLocal_Trilinos(N_Vector x)
 /*
  * MPI task-local minimum element
  */
-realtype N_VMinLocal_Trilinos(N_Vector x)
+sunrealtype N_VMinLocal_Trilinos(N_Vector x)
 {
   Teuchos::RCP<const vector_type> xv = N_VGetVector_Trilinos(x);
 
@@ -499,7 +499,7 @@ realtype N_VMinLocal_Trilinos(N_Vector x)
 /*
  * MPI task-local L1 norm
  */
-realtype N_VL1NormLocal_Trilinos(N_Vector x)
+sunrealtype N_VL1NormLocal_Trilinos(N_Vector x)
 {
   Teuchos::RCP<const vector_type> xv = N_VGetVector_Trilinos(x);
 
@@ -509,7 +509,7 @@ realtype N_VL1NormLocal_Trilinos(N_Vector x)
 /*
  * MPI task-local weighted squared sum
  */
-realtype N_VWSqrSumLocal_Trilinos(N_Vector x, N_Vector w)
+sunrealtype N_VWSqrSumLocal_Trilinos(N_Vector x, N_Vector w)
 {
   Teuchos::RCP<const vector_type> xv = N_VGetVector_Trilinos(x);
   Teuchos::RCP<const vector_type> wv = N_VGetVector_Trilinos(w);
@@ -520,7 +520,7 @@ realtype N_VWSqrSumLocal_Trilinos(N_Vector x, N_Vector w)
 /*
  * MPI task-local weighted masked squared sum
  */
-realtype N_VWSqrSumMaskLocal_Trilinos(N_Vector x, N_Vector w, N_Vector id)
+sunrealtype N_VWSqrSumMaskLocal_Trilinos(N_Vector x, N_Vector w, N_Vector id)
 {
   Teuchos::RCP<const vector_type> xv  = N_VGetVector_Trilinos(x);
   Teuchos::RCP<const vector_type> wv  = N_VGetVector_Trilinos(w);
@@ -532,7 +532,7 @@ realtype N_VWSqrSumMaskLocal_Trilinos(N_Vector x, N_Vector w, N_Vector id)
 /*
  * MPI task-local elementwise inverse with zero checking: z[i] = 1/x[i], x[i] != 0
  */
-booleantype N_VInvTestLocal_Trilinos(N_Vector x, N_Vector z)
+sunbooleantype N_VInvTestLocal_Trilinos(N_Vector x, N_Vector z)
 {
   Teuchos::RCP<const vector_type> xv = N_VGetVector_Trilinos(x);
   Teuchos::RCP<vector_type> zv = N_VGetVector_Trilinos(z);
@@ -544,7 +544,7 @@ booleantype N_VInvTestLocal_Trilinos(N_Vector x, N_Vector z)
  * MPI task-local constraint checking for vector x. Constraints are defined in
  * vector c, and constraint violation flags are stored in vector m.
  */
-booleantype N_VConstrMaskLocal_Trilinos(N_Vector c, N_Vector x, N_Vector m)
+sunbooleantype N_VConstrMaskLocal_Trilinos(N_Vector c, N_Vector x, N_Vector m)
 {
   Teuchos::RCP<const vector_type> cv = N_VGetVector_Trilinos(c);
   Teuchos::RCP<const vector_type> xv = N_VGetVector_Trilinos(x);
@@ -556,7 +556,7 @@ booleantype N_VConstrMaskLocal_Trilinos(N_Vector c, N_Vector x, N_Vector m)
 /*
  * MPI task-local minimum quotient: minq  = min ( num[i]/denom[i]), denom[i] != 0.
  */
-realtype N_VMinQuotientLocal_Trilinos(N_Vector num, N_Vector denom)
+sunrealtype N_VMinQuotientLocal_Trilinos(N_Vector num, N_Vector denom)
 {
   Teuchos::RCP<const vector_type> numv = N_VGetVector_Trilinos(num);
   Teuchos::RCP<const vector_type> denv = N_VGetVector_Trilinos(denom);

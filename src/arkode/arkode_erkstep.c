@@ -31,11 +31,11 @@
   ERKStep Exported functions -- Required
   ===============================================================*/
 
-void* ERKStepCreate(ARKRhsFn f, realtype t0, N_Vector y0, SUNContext sunctx)
+void* ERKStepCreate(ARKRhsFn f, sunrealtype t0, N_Vector y0, SUNContext sunctx)
 {
   ARKodeMem ark_mem;
   ARKodeERKStepMem step_mem;
-  booleantype nvectorOK;
+  sunbooleantype nvectorOK;
   int retval;
 
   /* Check that f is supplied */
@@ -106,7 +106,7 @@ void* ERKStepCreate(ARKRhsFn f, realtype t0, N_Vector y0, SUNContext sunctx)
   step_mem->f = f;
 
   /* Update the ARKODE workspace requirements -- UPDATE */
-  ark_mem->liw += 41;  /* fcn/data ptr, int, long int, sunindextype, booleantype */
+  ark_mem->liw += 41;  /* fcn/data ptr, int, long int, sunindextype, sunbooleantype */
   ark_mem->lrw += 10;
 
   /* Initialize all the counters */
@@ -131,8 +131,8 @@ void* ERKStepCreate(ARKRhsFn f, realtype t0, N_Vector y0, SUNContext sunctx)
   It first resizes the main ARKODE infrastructure memory, and
   then resizes its own data.
   ---------------------------------------------------------------*/
-int ERKStepResize(void *arkode_mem, N_Vector y0, realtype hscale,
-                  realtype t0, ARKVecResizeFn resize, void *resize_data)
+int ERKStepResize(void *arkode_mem, N_Vector y0, sunrealtype hscale,
+                  sunrealtype t0, ARKVecResizeFn resize, void *resize_data)
 {
   ARKodeMem ark_mem;
   ARKodeERKStepMem step_mem;
@@ -186,7 +186,7 @@ int ERKStepResize(void *arkode_mem, N_Vector y0, realtype hscale,
 
   Note all internal counters are set to 0 on re-initialization.
   ---------------------------------------------------------------*/
-int ERKStepReInit(void* arkode_mem, ARKRhsFn f, realtype t0, N_Vector y0)
+int ERKStepReInit(void* arkode_mem, ARKRhsFn f, sunrealtype t0, N_Vector y0)
 {
   ARKodeMem ark_mem;
   ARKodeERKStepMem step_mem;
@@ -243,7 +243,7 @@ int ERKStepReInit(void* arkode_mem, ARKRhsFn f, realtype t0, N_Vector y0)
   problem from the given time with the input state (all counter
   values are retained).
   ---------------------------------------------------------------*/
-int ERKStepReset(void* arkode_mem, realtype tR, N_Vector yR)
+int ERKStepReset(void* arkode_mem, sunrealtype tR, N_Vector yR)
 {
   ARKodeMem ark_mem;
   ARKodeERKStepMem step_mem;
@@ -273,7 +273,7 @@ int ERKStepReset(void* arkode_mem, realtype tR, N_Vector yR)
   These routines set integration tolerances (wrappers for general
   ARKODE utility routines)
   ---------------------------------------------------------------*/
-int ERKStepSStolerances(void *arkode_mem, realtype reltol, realtype abstol)
+int ERKStepSStolerances(void *arkode_mem, sunrealtype reltol, sunrealtype abstol)
 {
   /* unpack ark_mem, call arkSStolerances, and return */
   ARKodeMem ark_mem;
@@ -287,7 +287,7 @@ int ERKStepSStolerances(void *arkode_mem, realtype reltol, realtype abstol)
 }
 
 
-int ERKStepSVtolerances(void *arkode_mem, realtype reltol, N_Vector abstol)
+int ERKStepSVtolerances(void *arkode_mem, sunrealtype reltol, N_Vector abstol)
 {
   /* unpack ark_mem, call arkSVtolerances, and return */
   ARKodeMem ark_mem;
@@ -329,8 +329,8 @@ int ERKStepRootInit(void *arkode_mem, int nrtfn, ARKRootFn g)
 }
 
 
-int ERKStepEvolve(void *arkode_mem, realtype tout, N_Vector yout,
-                  realtype *tret, int itask)
+int ERKStepEvolve(void *arkode_mem, sunrealtype tout, N_Vector yout,
+                  sunrealtype *tret, int itask)
 {
   /* unpack ark_mem, call arkEvolve, and return */
   int retval;
@@ -348,7 +348,7 @@ int ERKStepEvolve(void *arkode_mem, realtype tout, N_Vector yout,
 }
 
 
-int ERKStepGetDky(void *arkode_mem, realtype t, int k, N_Vector dky)
+int ERKStepGetDky(void *arkode_mem, sunrealtype t, int k, N_Vector dky)
 {
   /* unpack ark_mem, call arkGetDky, and return */
   int retval;
@@ -460,7 +460,7 @@ void ERKStepPrintMem(void* arkode_mem, FILE* outfile)
   /* output long integer quantities */
   fprintf(outfile,"ERKStep: nfe = %li\n", step_mem->nfe);
 
-  /* output realtype quantities */
+  /* output sunrealtype quantities */
   fprintf(outfile,"ERKStep: Butcher table:\n");
   ARKodeButcherTable_Write(step_mem->B, outfile);
 
@@ -560,7 +560,7 @@ int erkStep_Init(void* arkode_mem, int init_type)
 
   /* Allocate reusable arrays for fused vector interface */
   if (step_mem->cvals == NULL) {
-    step_mem->cvals = (realtype *) calloc(step_mem->stages+1, sizeof(realtype));
+    step_mem->cvals = (sunrealtype *) calloc(step_mem->stages+1, sizeof(sunrealtype));
     if (step_mem->cvals == NULL)  return(ARK_MEM_FAIL);
     ark_mem->lrw += (step_mem->stages + 1);
   }
@@ -630,13 +630,13 @@ int erkStep_Init(void* arkode_mem, int init_type)
   when estimating the initial time step size, so we strive to store the
   intermediate parts so that they do not interfere with the other two modes.
   ----------------------------------------------------------------------------*/
-int erkStep_FullRHS(void* arkode_mem, realtype t, N_Vector y, N_Vector f,
+int erkStep_FullRHS(void* arkode_mem, sunrealtype t, N_Vector y, N_Vector f,
                     int mode)
 {
   int retval;
   ARKodeMem ark_mem;
   ARKodeERKStepMem step_mem;
-  booleantype recomputeRHS;
+  sunbooleantype recomputeRHS;
 
   /* access ARKodeERKStepMem structure */
   retval = erkStep_AccessStepMem(arkode_mem, "erkStep_FullRHS",
@@ -744,10 +744,10 @@ int erkStep_FullRHS(void* arkode_mem, realtype t, N_Vector y, N_Vector f,
                  reduce step and retry (if possible)
            <0 => step encountered unrecoverable failure
   ---------------------------------------------------------------*/
-int erkStep_TakeStep(void* arkode_mem, realtype *dsmPtr, int *nflagPtr)
+int erkStep_TakeStep(void* arkode_mem, sunrealtype *dsmPtr, int *nflagPtr)
 {
   int retval, is, js, nvec, mode;
-  realtype* cvals;
+  sunrealtype* cvals;
   N_Vector* Xvecs;
   ARKodeMem ark_mem;
   ARKodeERKStepMem step_mem;
@@ -909,7 +909,7 @@ int erkStep_AccessStepMem(void* arkode_mem, const char *fname,
   This routine checks if all required vector operations are
   present.  If any of them is missing it returns SUNFALSE.
   ---------------------------------------------------------------*/
-booleantype erkStep_CheckNVector(N_Vector tmpl)
+sunbooleantype erkStep_CheckNVector(N_Vector tmpl)
 {
   if ( (tmpl->ops->nvclone     == NULL) ||
        (tmpl->ops->nvdestroy   == NULL) ||
@@ -1017,9 +1017,9 @@ int erkStep_SetButcherTable(ARKodeMem ark_mem)
 int erkStep_CheckButcherTable(ARKodeMem ark_mem)
 {
   int i, j;
-  booleantype okay;
+  sunbooleantype okay;
   ARKodeERKStepMem step_mem;
-  realtype tol = RCONST(1.0e-12);
+  sunrealtype tol = SUN_RCONST(1.0e-12);
 
   /* access ARKodeERKStepMem structure */
   if (ark_mem->step_mem==NULL) {
@@ -1117,12 +1117,12 @@ int erkStep_CheckButcherTable(ARKodeMem ark_mem)
   Note: at this point in the step, the vector ark_tempv1 may be
   used as a temporary vector.
   ---------------------------------------------------------------*/
-int erkStep_ComputeSolutions(ARKodeMem ark_mem, realtype *dsmPtr)
+int erkStep_ComputeSolutions(ARKodeMem ark_mem, sunrealtype *dsmPtr)
 {
   /* local data */
   int retval, j, nvec;
   N_Vector y, yerr;
-  realtype* cvals;
+  sunrealtype* cvals;
   N_Vector* Xvecs;
   ARKodeERKStepMem step_mem;
 
@@ -1196,7 +1196,7 @@ int erkStep_RelaxDeltaE(ARKodeMem ark_mem, ARKRelaxJacFn relax_jac_fn,
                         long int* num_relax_jac_evals, sunrealtype* delta_e_out)
 {
   int i, j, nvec, retval;
-  realtype* cvals;
+  sunrealtype* cvals;
   N_Vector* Xvecs;
   ARKodeERKStepMem step_mem;
   N_Vector z_stage = ark_mem->tempv2;

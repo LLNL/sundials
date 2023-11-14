@@ -343,10 +343,10 @@ SWIGEXPORT int64_t _wrap_FSUNBandMatrix_LData(SUNMatrix farg1) {
 SWIGEXPORT void * _wrap_FSUNBandMatrix_Cols(SUNMatrix farg1) {
   void * fresult ;
   SUNMatrix arg1 = (SUNMatrix) 0 ;
-  realtype **result = 0 ;
+  sunrealtype **result = 0 ;
   
   arg1 = (SUNMatrix)(farg1);
-  result = (realtype **)SUNBandMatrix_Cols(arg1);
+  result = (sunrealtype **)SUNBandMatrix_Cols(arg1);
   fresult = result;
   return fresult;
 }
@@ -412,12 +412,12 @@ SWIGEXPORT int _wrap_FSUNMatCopy_Band(SUNMatrix farg1, SUNMatrix farg2) {
 
 SWIGEXPORT int _wrap_FSUNMatScaleAdd_Band(double const *farg1, SUNMatrix farg2, SUNMatrix farg3) {
   int fresult ;
-  realtype arg1 ;
+  sunrealtype arg1 ;
   SUNMatrix arg2 = (SUNMatrix) 0 ;
   SUNMatrix arg3 = (SUNMatrix) 0 ;
   int result;
   
-  arg1 = (realtype)(*farg1);
+  arg1 = (sunrealtype)(*farg1);
   arg2 = (SUNMatrix)(farg2);
   arg3 = (SUNMatrix)(farg3);
   result = (int)SUNMatScaleAdd_Band(arg1,arg2,arg3);
@@ -428,11 +428,11 @@ SWIGEXPORT int _wrap_FSUNMatScaleAdd_Band(double const *farg1, SUNMatrix farg2, 
 
 SWIGEXPORT int _wrap_FSUNMatScaleAddI_Band(double const *farg1, SUNMatrix farg2) {
   int fresult ;
-  realtype arg1 ;
+  sunrealtype arg1 ;
   SUNMatrix arg2 = (SUNMatrix) 0 ;
   int result;
   
-  arg1 = (realtype)(*farg1);
+  arg1 = (sunrealtype)(*farg1);
   arg2 = (SUNMatrix)(farg2);
   result = (int)SUNMatScaleAddI_Band(arg1,arg2);
   fresult = (int)(result);
@@ -476,10 +476,10 @@ SWIGEXPORT int _wrap_FSUNMatSpace_Band(SUNMatrix farg1, long *farg2, long *farg3
 SWIGEXPORT double * _wrap_FSUNBandMatrix_Data(SUNMatrix farg1) {
   double * fresult ;
   SUNMatrix arg1 = (SUNMatrix) 0 ;
-  realtype *result = 0 ;
+  sunrealtype *result = 0 ;
   
   arg1 = (SUNMatrix)(farg1);
-  result = (realtype *)SUNBandMatrix_Data(arg1);
+  result = (sunrealtype *)SUNBandMatrix_Data(arg1);
   fresult = result;
   return fresult;
 }
@@ -488,11 +488,11 @@ SWIGEXPORT double * _wrap_FSUNBandMatrix_Column(SUNMatrix farg1, int64_t const *
   double * fresult ;
   SUNMatrix arg1 = (SUNMatrix) 0 ;
   sunindextype arg2 ;
-  realtype *result = 0 ;
+  sunrealtype *result = 0 ;
   
   arg1 = (SUNMatrix)(farg1);
   arg2 = (sunindextype)(*farg2);
-  result = (realtype *)SUNBandMatrix_Column(arg1,arg2);
+  result = (sunrealtype *)SUNBandMatrix_Column(arg1,arg2);
   fresult = result;
   return fresult;
 }

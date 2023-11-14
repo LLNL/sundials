@@ -52,8 +52,8 @@ extern "C" {
 #define MSBSET_DEFAULT     10
 #define MSBSET_SUB_DEFAULT 5
 
-#define OMEGA_MIN RCONST(0.00001)
-#define OMEGA_MAX RCONST(0.9)
+#define OMEGA_MIN SUN_RCONST(0.00001)
+#define OMEGA_MAX SUN_RCONST(0.9)
 
 /*=================================================================*/
 /* Shortcuts                                                       */
@@ -77,16 +77,16 @@ typedef struct KINMemRec {
 
   SUNContext kin_sunctx;
 
-  realtype kin_uround;        /* machine epsilon (or unit roundoff error)
+  sunrealtype kin_uround;        /* machine epsilon (or unit roundoff error)
                                  (defined in sundials_types.h)                */
 
   /* problem specification data */
 
   KINSysFn kin_func;           /* nonlinear system function implementation     */
   void *kin_user_data;         /* work space available to func routine         */
-  realtype kin_fnormtol;       /* stopping tolerance on L2-norm of function
+  sunrealtype kin_fnormtol;       /* stopping tolerance on L2-norm of function
                                   value                                        */
-  realtype kin_scsteptol;      /* scaled step length tolerance                 */
+  sunrealtype kin_scsteptol;      /* scaled step length tolerance                 */
   int kin_globalstrategy;      /* choices are KIN_NONE, KIN_LINESEARCH
                                   KIN_PICARD and KIN_FP                        */
   long int kin_mxiter;         /* maximum number of nonlinear iterations       */
@@ -97,40 +97,40 @@ typedef struct KINMemRec {
   long int kin_mxnbcf;         /* maximum number of beta condition failures    */
   int kin_etaflag;             /* choices are KIN_ETACONSTANT, KIN_ETACHOICE1
                                   and KIN_ETACHOICE2                           */
-  booleantype kin_noMinEps;    /* flag controlling whether or not the value
+  sunbooleantype kin_noMinEps;    /* flag controlling whether or not the value
                                   of eps is bounded below                      */
-  booleantype kin_constraintsSet; /* flag indicating if constraints are being
+  sunbooleantype kin_constraintsSet; /* flag indicating if constraints are being
                                      used                                      */
-  booleantype kin_jacCurrent;     /* flag indicating if the Jacobian info.
+  sunbooleantype kin_jacCurrent;     /* flag indicating if the Jacobian info.
                                      used by the linear solver is current      */
-  booleantype kin_callForcingTerm; /* flag set if using either KIN_ETACHOICE1
+  sunbooleantype kin_callForcingTerm; /* flag set if using either KIN_ETACHOICE1
                                       or KIN_ETACHOICE2                        */
-  booleantype kin_noResMon;         /* flag indicating if the nonlinear
+  sunbooleantype kin_noResMon;         /* flag indicating if the nonlinear
                                        residual monitoring scheme should be
                                        used                                    */
-  booleantype kin_retry_nni;        /* flag indicating if nonlinear iteration
+  sunbooleantype kin_retry_nni;        /* flag indicating if nonlinear iteration
                                        should be retried (set by residual
                                        monitoring algorithm)                   */
-  booleantype kin_update_fnorm_sub; /* flag indicating if the fnorm associated
+  sunbooleantype kin_update_fnorm_sub; /* flag indicating if the fnorm associated
                                        with the subinterval needs to be
                                        updated (set by residual monitoring
                                        algorithm)                              */
 
-  realtype kin_mxnewtstep;     /* maximum allowable scaled step length         */
-  realtype kin_mxnstepin;      /* input (or preset) value for mxnewtstep       */
-  realtype kin_sqrt_relfunc;   /* relative error bound for func(u)             */
-  realtype kin_stepl;          /* scaled length of current step                */
-  realtype kin_stepmul;        /* step scaling factor                          */
-  realtype kin_eps;            /* current value of eps                         */
-  realtype kin_eta;            /* current value of eta                         */
-  realtype kin_eta_gamma;      /* gamma value used in eta calculation
+  sunrealtype kin_mxnewtstep;     /* maximum allowable scaled step length         */
+  sunrealtype kin_mxnstepin;      /* input (or preset) value for mxnewtstep       */
+  sunrealtype kin_sqrt_relfunc;   /* relative error bound for func(u)             */
+  sunrealtype kin_stepl;          /* scaled length of current step                */
+  sunrealtype kin_stepmul;        /* step scaling factor                          */
+  sunrealtype kin_eps;            /* current value of eps                         */
+  sunrealtype kin_eta;            /* current value of eta                         */
+  sunrealtype kin_eta_gamma;      /* gamma value used in eta calculation
                                   (choice #2)                                  */
-  realtype kin_eta_alpha;      /* alpha value used in eta calculation
+  sunrealtype kin_eta_alpha;      /* alpha value used in eta calculation
                                   (choice #2)                                  */
-  booleantype kin_noInitSetup; /* flag controlling whether or not the KINSol
+  sunbooleantype kin_noInitSetup; /* flag controlling whether or not the KINSol
                                   routine makes an initial call to the
                                   linear solver setup routine (lsetup)         */
-  realtype kin_sthrsh;         /* threshold value for calling the linear
+  sunrealtype kin_sthrsh;         /* threshold value for calling the linear
                                   solver setup routine                         */
 
   /* counters */
@@ -170,9 +170,9 @@ typedef struct KINMemRec {
   N_Vector kin_vtemp3;      /* scratch vector #3                               */
 
   /* fixed point and Picard options */
-  booleantype kin_ret_newest; /* return the newest FP iteration     */
-  booleantype kin_damping;    /* flag to apply damping in FP/Picard */
-  realtype    kin_beta;       /* damping parameter for FP/Picard    */
+  sunbooleantype kin_ret_newest; /* return the newest FP iteration     */
+  sunbooleantype kin_damping;    /* flag to apply damping in FP/Picard */
+  sunrealtype    kin_beta;       /* damping parameter for FP/Picard    */
 
   /* space requirements for AA, Broyden and NLEN */
   N_Vector kin_fold_aa;       /* vector needed for AA, Broyden, and NLEN         */
@@ -180,10 +180,10 @@ typedef struct KINMemRec {
   N_Vector *kin_df_aa;        /* vector array needed for AA, Broyden, and NLEN   */
   N_Vector *kin_dg_aa;        /* vector array needed for AA, Broyden and NLEN    */
   N_Vector *kin_q_aa;         /* vector array needed for AA                      */
-  realtype kin_beta_aa;       /* beta damping parameter for AA                   */
-  realtype *kin_gamma_aa;     /* array of size maa used in AA                    */
-  realtype *kin_R_aa;         /* array of size maa*maa used in AA                */
-  realtype *kin_T_aa;         /* array of size maa*maa used in AA with ICWY MGS  */
+  sunrealtype kin_beta_aa;       /* beta damping parameter for AA                   */
+  sunrealtype *kin_gamma_aa;     /* array of size maa used in AA                    */
+  sunrealtype *kin_R_aa;         /* array of size maa*maa used in AA                */
+  sunrealtype *kin_T_aa;         /* array of size maa*maa used in AA with ICWY MGS  */
   long int *kin_ipt_map;      /* array of size maa*maa/2 used in AA              */
   long int kin_m_aa;          /* parameter for AA, Broyden or NLEN               */
   long int kin_delay_aa;      /* number of iterations to delay AA */
@@ -196,17 +196,17 @@ typedef struct KINMemRec {
   SUNQRAddFn kin_qr_func;     /* QRAdd function for AA orthogonalization         */
   SUNQRData  kin_qr_data;     /* Additional parameters required for QRAdd routine
                                  set for AA                                      */
-  booleantype kin_damping_aa; /* flag to apply damping in AA                     */
-  realtype *kin_cv;           /* scalar array for fused vector operations        */
+  sunbooleantype kin_damping_aa; /* flag to apply damping in AA                     */
+  sunrealtype *kin_cv;           /* scalar array for fused vector operations        */
   N_Vector *kin_Xv;           /* vector array for fused vector operations        */
 
   /* space requirements for vector storage */
 
-  sunindextype kin_lrw1;    /* number of realtype-sized memory blocks needed
+  sunindextype kin_lrw1;    /* number of sunrealtype-sized memory blocks needed
                                for a single N_Vector                           */
   sunindextype kin_liw1;    /* number of int-sized memory blocks needed for
                                a single N_Vecotr                               */
-  long int kin_lrw;         /* total number of realtype-sized memory blocks
+  long int kin_lrw;         /* total number of sunrealtype-sized memory blocks
                                needed for all KINSOL work vectors              */
   long int kin_liw;         /* total number of int-sized memory blocks needed
                                for all KINSOL work vectors                     */
@@ -220,33 +220,33 @@ typedef struct KINMemRec {
   int (*kin_lsetup)(struct KINMemRec *kin_mem);
 
   int (*kin_lsolve)(struct KINMemRec *kin_mem, N_Vector xx, N_Vector bb,
-                    realtype *sJpnorm, realtype *sFdotJp);
+                    sunrealtype *sJpnorm, sunrealtype *sFdotJp);
 
   int (*kin_lfree)(struct KINMemRec *kin_mem);
 
-  booleantype kin_inexact_ls; /* flag set by the linear solver module
+  sunbooleantype kin_inexact_ls; /* flag set by the linear solver module
                                  (in linit) indicating whether this is an
                                  iterative linear solver (SUNTRUE), or a direct
                                  linear solver (SUNFALSE)                       */
 
   void *kin_lmem;         /* pointer to linear solver memory block             */
 
-  realtype kin_fnorm;     /* value of L2-norm of fscale*fval                   */
-  realtype kin_f1norm;    /* f1norm = 0.5*(fnorm)^2                            */
-  realtype kin_sFdotJp;   /* value of scaled F(u) vector (fscale*fval)
+  sunrealtype kin_fnorm;     /* value of L2-norm of fscale*fval                   */
+  sunrealtype kin_f1norm;    /* f1norm = 0.5*(fnorm)^2                            */
+  sunrealtype kin_sFdotJp;   /* value of scaled F(u) vector (fscale*fval)
                              dotted with scaled J(u)*pp vector (set by lsolve) */
-  realtype kin_sJpnorm;   /* value of L2-norm of fscale*(J(u)*pp)
+  sunrealtype kin_sJpnorm;   /* value of L2-norm of fscale*(J(u)*pp)
                              (set by lsolve)                                   */
 
-  realtype kin_fnorm_sub; /* value of L2-norm of fscale*fval (subinterval)     */
-  booleantype kin_eval_omega; /* flag indicating that omega must be evaluated. */
-  realtype kin_omega;     /* constant value for real scalar used in test to
+  sunrealtype kin_fnorm_sub; /* value of L2-norm of fscale*fval (subinterval)     */
+  sunbooleantype kin_eval_omega; /* flag indicating that omega must be evaluated. */
+  sunrealtype kin_omega;     /* constant value for real scalar used in test to
                              determine if reduction of norm of nonlinear
                              residual is sufficient. Unless a valid constant
                              value is specified by the user, omega is estimated
                              from omega_min and omega_max at each iteration.    */
-  realtype kin_omega_min; /* lower bound on omega                               */
-  realtype kin_omega_max; /* upper bound on omega                               */
+  sunrealtype kin_omega_min; /* lower bound on omega                               */
+  sunrealtype kin_omega_max; /* upper bound on omega                               */
 
   /*
    * -----------------------------------------------------------------
@@ -265,7 +265,7 @@ typedef struct KINMemRec {
    * -----------------------------------------------------------------
    */
 
-  booleantype kin_MallocDone; /* flag indicating if KINMalloc has been
+  sunbooleantype kin_MallocDone; /* flag indicating if KINMalloc has been
                                  called yet                                    */
 
   /* message files */
@@ -294,7 +294,7 @@ typedef struct KINMemRec {
  * but system memory allocation should be done by the subroutine
  * that actually initializes the environment for liner solver
  * package. If the linear system is to be preconditioned, then the
- * variable setupNonNull (type booleantype) should be set to SUNTRUE
+ * variable setupNonNull (type sunbooleantype) should be set to SUNTRUE
  * (predefined constant) and the kin_lsetup routine should be
  * appropriately defined.
  *
@@ -329,7 +329,7 @@ typedef struct KINMemRec {
 /*
  * -----------------------------------------------------------------
  * Function : int (*kin_lsolve)(KINMem kin_mem, N_Vector xx,
- *                N_Vector bb, realtype *sJpnorm, realtype *sFdotJp)
+ *                N_Vector bb, sunrealtype *sJpnorm, sunrealtype *sFdotJp)
  * -----------------------------------------------------------------
  * kin_lsolve interfaces with the subroutine implementing the
  * numerical method to be used to solve the linear system J*xx = bb,

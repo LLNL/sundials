@@ -231,12 +231,12 @@ SWIGEXPORT SUNMatrix _wrap_FSUNSparseMatrix(int64_t const *farg1, int64_t const 
 SWIGEXPORT SUNMatrix _wrap_FSUNSparseFromDenseMatrix(SUNMatrix farg1, double const *farg2, int const *farg3) {
   SUNMatrix fresult ;
   SUNMatrix arg1 = (SUNMatrix) 0 ;
-  realtype arg2 ;
+  sunrealtype arg2 ;
   int arg3 ;
   SUNMatrix result;
   
   arg1 = (SUNMatrix)(farg1);
-  arg2 = (realtype)(*farg2);
+  arg2 = (sunrealtype)(*farg2);
   arg3 = (int)(*farg3);
   result = (SUNMatrix)SUNSparseFromDenseMatrix(arg1,arg2,arg3);
   fresult = result;
@@ -247,12 +247,12 @@ SWIGEXPORT SUNMatrix _wrap_FSUNSparseFromDenseMatrix(SUNMatrix farg1, double con
 SWIGEXPORT SUNMatrix _wrap_FSUNSparseFromBandMatrix(SUNMatrix farg1, double const *farg2, int const *farg3) {
   SUNMatrix fresult ;
   SUNMatrix arg1 = (SUNMatrix) 0 ;
-  realtype arg2 ;
+  sunrealtype arg2 ;
   int arg3 ;
   SUNMatrix result;
   
   arg1 = (SUNMatrix)(farg1);
-  arg2 = (realtype)(*farg2);
+  arg2 = (sunrealtype)(*farg2);
   arg3 = (int)(*farg3);
   result = (SUNMatrix)SUNSparseFromBandMatrix(arg1,arg2,arg3);
   fresult = result;
@@ -444,12 +444,12 @@ SWIGEXPORT int _wrap_FSUNMatCopy_Sparse(SUNMatrix farg1, SUNMatrix farg2) {
 
 SWIGEXPORT int _wrap_FSUNMatScaleAdd_Sparse(double const *farg1, SUNMatrix farg2, SUNMatrix farg3) {
   int fresult ;
-  realtype arg1 ;
+  sunrealtype arg1 ;
   SUNMatrix arg2 = (SUNMatrix) 0 ;
   SUNMatrix arg3 = (SUNMatrix) 0 ;
   int result;
   
-  arg1 = (realtype)(*farg1);
+  arg1 = (sunrealtype)(*farg1);
   arg2 = (SUNMatrix)(farg2);
   arg3 = (SUNMatrix)(farg3);
   result = (int)SUNMatScaleAdd_Sparse(arg1,arg2,arg3);
@@ -460,11 +460,11 @@ SWIGEXPORT int _wrap_FSUNMatScaleAdd_Sparse(double const *farg1, SUNMatrix farg2
 
 SWIGEXPORT int _wrap_FSUNMatScaleAddI_Sparse(double const *farg1, SUNMatrix farg2) {
   int fresult ;
-  realtype arg1 ;
+  sunrealtype arg1 ;
   SUNMatrix arg2 = (SUNMatrix) 0 ;
   int result;
   
-  arg1 = (realtype)(*farg1);
+  arg1 = (sunrealtype)(*farg1);
   arg2 = (SUNMatrix)(farg2);
   result = (int)SUNMatScaleAddI_Sparse(arg1,arg2);
   fresult = (int)(result);
@@ -508,10 +508,10 @@ SWIGEXPORT int _wrap_FSUNMatSpace_Sparse(SUNMatrix farg1, long *farg2, long *far
 SWIGEXPORT double * _wrap_FSUNSparseMatrix_Data(SUNMatrix farg1) {
   double * fresult ;
   SUNMatrix arg1 = (SUNMatrix) 0 ;
-  realtype *result = 0 ;
+  sunrealtype *result = 0 ;
   
   arg1 = (SUNMatrix)(farg1);
-  result = (realtype *)SUNSparseMatrix_Data(arg1);
+  result = (sunrealtype *)SUNSparseMatrix_Data(arg1);
   fresult = result;
   return fresult;
 }

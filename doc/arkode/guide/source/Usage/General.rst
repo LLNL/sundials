@@ -66,7 +66,7 @@ function prototypes, and include the shared ``arkode/arkode.h`` and
 ``arkode/arkode_ls.h`` header files.
 
 Note that ``arkode.h`` includes ``sundials_types.h`` directly, which
-defines the types ``realtype``,  ``sunindextype``, and ``booleantype``
+defines the types ``sunrealtype``,  ``sunindextype``, and ``sunbooleantype``
 and the constants ``SUNFALSE`` and ``SUNTRUE``, so a user program does
 not need to include ``sundials_types.h`` directly.
 

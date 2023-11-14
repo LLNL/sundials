@@ -59,25 +59,25 @@
 
 #define NEQ 2 /* number of equations  */
 
-#define Force  RCONST(2200.0) /* engine force */
-#define massr  RCONST(10.0)   /* rocket mass (empty) */
-#define massf0 RCONST(1.0)    /* initial fuel mass */
-#define brate  RCONST(0.1)    /* fuel burn rate */
-#define Drag   RCONST(0.3)    /* Drag coefficient */
-#define grav   RCONST(32.0)   /* acceleration due to gravity */
-#define Hcut   RCONST(4000.0) /* height of engine cutoff */
+#define Force  SUN_RCONST(2200.0) /* engine force */
+#define massr  SUN_RCONST(10.0)   /* rocket mass (empty) */
+#define massf0 SUN_RCONST(1.0)    /* initial fuel mass */
+#define brate  SUN_RCONST(0.1)    /* fuel burn rate */
+#define Drag   SUN_RCONST(0.3)    /* Drag coefficient */
+#define grav   SUN_RCONST(32.0)   /* acceleration due to gravity */
+#define Hcut   SUN_RCONST(4000.0) /* height of engine cutoff */
 
-#define Y1    RCONST(0.0) /* initial y components */
-#define Y2    RCONST(0.0)
-#define RTOL  RCONST(1.0e-5) /* scalar relative tolerance            */
-#define ATOL1 RCONST(1.0e-2) /* vector absolute tolerance components */
-#define ATOL2 RCONST(1.0e-1)
-#define T0    RCONST(0.0) /* initial time           */
-#define T1    RCONST(1.0) /* first output time      */
-#define TINC  RCONST(1.0) /* output time increment  */
+#define Y1    SUN_RCONST(0.0) /* initial y components */
+#define Y2    SUN_RCONST(0.0)
+#define RTOL  SUN_RCONST(1.0e-5) /* scalar relative tolerance            */
+#define ATOL1 SUN_RCONST(1.0e-2) /* vector absolute tolerance components */
+#define ATOL2 SUN_RCONST(1.0e-1)
+#define T0    SUN_RCONST(0.0) /* initial time           */
+#define T1    SUN_RCONST(1.0) /* first output time      */
+#define TINC  SUN_RCONST(1.0) /* output time increment  */
 #define NOUT  70          /* number of output times */
 
-#define ZERO RCONST(0.0)
+#define ZERO SUN_RCONST(0.0)
 
 /* Functions Called by the Solver */
 
@@ -306,7 +306,7 @@ static int Jac(sunrealtype t, N_Vector y, N_Vector fy, SUNMatrix J, void* user_d
   /* Jdata is column-major */
   sunrealtype* Jdata = SUNDenseMatrix_Data(J);
 
-  Jdata[1] = RCONST(1.0);
+  Jdata[1] = SUN_RCONST(1.0);
   Jdata[3] = -Drag;
 
   return (0);

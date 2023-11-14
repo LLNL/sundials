@@ -74,7 +74,7 @@ int Test_N_VLinearSum(N_Vector X, sunindextype local_length, int ntests)
   double   start_time, stop_time;
   double   *times;
   double   avgtime, sdevtime, mintime, maxtime;
-  realtype a, b;
+  sunrealtype a, b;
   int      i;
   N_Vector Y, Z;
 
@@ -137,7 +137,7 @@ int Test_N_VLinearSum(N_Vector X, sunindextype local_length, int ntests)
     /* fill vector data */
     N_VRand(X, local_length, NEG_ONE, ONE);
     N_VRand(Y, local_length, NEG_ONE, ONE);
-    a = ((realtype)rand() / (realtype)RAND_MAX) + 1.0;
+    a = ((sunrealtype)rand() / (sunrealtype)RAND_MAX) + 1.0;
 
     ClearCache();
     start_time = get_time();
@@ -205,7 +205,7 @@ int Test_N_VLinearSum(N_Vector X, sunindextype local_length, int ntests)
     /* fill vector data */
     N_VRand(X, local_length, NEG_ONE, ONE);
     N_VRand(Y, local_length, NEG_ONE, ONE);
-    b = ((realtype)rand() / (realtype)RAND_MAX) + 1.0;
+    b = ((sunrealtype)rand() / (sunrealtype)RAND_MAX) + 1.0;
 
     ClearCache();
     start_time = get_time();
@@ -298,7 +298,7 @@ int Test_N_VLinearSum(N_Vector X, sunindextype local_length, int ntests)
     N_VRand(X, local_length, NEG_ONE, ONE);
     N_VRand(Y, local_length, NEG_ONE, ONE);
     N_VConst(ZERO, Z);
-    b = ((realtype)rand() / (realtype)RAND_MAX) + 1.0;
+    b = ((sunrealtype)rand() / (sunrealtype)RAND_MAX) + 1.0;
 
     ClearCache();
     start_time = get_time();
@@ -322,7 +322,7 @@ int Test_N_VLinearSum(N_Vector X, sunindextype local_length, int ntests)
     N_VRand(X, local_length, NEG_ONE, ONE);
     N_VRand(Y, local_length, NEG_ONE, ONE);
     N_VConst(ZERO, Z);
-    a = ((realtype)rand() / (realtype)RAND_MAX) + 1.0;
+    a = ((sunrealtype)rand() / (sunrealtype)RAND_MAX) + 1.0;
 
     ClearCache();
     start_time = get_time();
@@ -346,7 +346,7 @@ int Test_N_VLinearSum(N_Vector X, sunindextype local_length, int ntests)
     N_VRand(X, local_length, NEG_ONE, ONE);
     N_VRand(Y, local_length, NEG_ONE, ONE);
     N_VConst(ZERO, Z);
-    b = ((realtype)rand() / (realtype)RAND_MAX) + 1.0;
+    b = ((sunrealtype)rand() / (sunrealtype)RAND_MAX) + 1.0;
 
     ClearCache();
     start_time = get_time();
@@ -370,7 +370,7 @@ int Test_N_VLinearSum(N_Vector X, sunindextype local_length, int ntests)
     N_VRand(X, local_length, NEG_ONE, ONE);
     N_VRand(Y, local_length, NEG_ONE, ONE);
     N_VConst(ZERO, Z);
-    a = ((realtype)rand() / (realtype)RAND_MAX) + 1.0;
+    a = ((sunrealtype)rand() / (sunrealtype)RAND_MAX) + 1.0;
 
     ClearCache();
     start_time = get_time();
@@ -394,7 +394,7 @@ int Test_N_VLinearSum(N_Vector X, sunindextype local_length, int ntests)
     N_VRand(X, local_length, NEG_ONE, ONE);
     N_VRand(Y, local_length, NEG_ONE, ONE);
     N_VConst(ZERO, Z);
-    a = ((realtype)rand() / (realtype)RAND_MAX) + 1.0;
+    a = ((sunrealtype)rand() / (sunrealtype)RAND_MAX) + 1.0;
 
     ClearCache();
     start_time = get_time();
@@ -418,7 +418,7 @@ int Test_N_VLinearSum(N_Vector X, sunindextype local_length, int ntests)
     N_VRand(X, local_length, NEG_ONE, ONE);
     N_VRand(Y, local_length, NEG_ONE, ONE);
     N_VConst(ZERO, Z);
-    a = ((realtype)rand() / (realtype)RAND_MAX) + 1.0;
+    a = ((sunrealtype)rand() / (sunrealtype)RAND_MAX) + 1.0;
     b = -1.0*a;
 
     ClearCache();
@@ -443,8 +443,8 @@ int Test_N_VLinearSum(N_Vector X, sunindextype local_length, int ntests)
     N_VRand(X, local_length, NEG_ONE, ONE);
     N_VRand(Y, local_length, NEG_ONE, ONE);
     N_VConst(ZERO, Z);
-    a = 2.0*((realtype)rand() / (realtype)RAND_MAX) - 1.0;
-    b = 2.0*((realtype)rand() / (realtype)RAND_MAX) - 1.0;
+    a = 2.0*((sunrealtype)rand() / (sunrealtype)RAND_MAX) - 1.0;
+    b = 2.0*((sunrealtype)rand() / (sunrealtype)RAND_MAX) - 1.0;
 
     ClearCache();
     start_time = get_time();
@@ -476,13 +476,13 @@ int Test_N_VConst(N_Vector X, sunindextype local_length, int ntests)
   double   start_time, stop_time;
   double   *times;
   double   avgtime, sdevtime, mintime, maxtime;
-  realtype c;
+  sunrealtype c;
   int      i;
 
   times = (double*) malloc((ntests+nwarmups)*sizeof(double));
 
   for (i=0; i < ntests+nwarmups; i++) {
-    c = 2.0*((realtype)rand() / (realtype)RAND_MAX) - 1.0;
+    c = 2.0*((sunrealtype)rand() / (sunrealtype)RAND_MAX) - 1.0;
 
     ClearCache();
     start_time = get_time();
@@ -601,7 +601,7 @@ int Test_N_VScale(N_Vector X, sunindextype local_length, int ntests)
   double   start_time, stop_time;
   double   *times;
   double   avgtime, sdevtime, mintime, maxtime;
-  realtype c;
+  sunrealtype c;
   int      i;
   N_Vector Z;
 
@@ -617,7 +617,7 @@ int Test_N_VScale(N_Vector X, sunindextype local_length, int ntests)
   for (i=0; i < ntests+nwarmups; i++) {
     /* fill vector data */
     N_VRand(X, local_length, NEG_ONE, ONE);
-    c = 2.0*((realtype)rand() / (realtype)RAND_MAX) - 1.0;
+    c = 2.0*((sunrealtype)rand() / (sunrealtype)RAND_MAX) - 1.0;
 
     ClearCache();
     start_time = get_time();
@@ -684,7 +684,7 @@ int Test_N_VScale(N_Vector X, sunindextype local_length, int ntests)
     /* fill vector data */
     N_VRand(X, local_length, NEG_ONE, ONE);
     N_VConst(ZERO, Z);
-    c = 2.0*((realtype)rand() / (realtype)RAND_MAX) - 1.0;
+    c = 2.0*((sunrealtype)rand() / (sunrealtype)RAND_MAX) - 1.0;
 
     ClearCache();
     start_time = get_time();
@@ -799,7 +799,7 @@ int Test_N_VAddConst(N_Vector X, sunindextype local_length, int ntests)
   double   start_time, stop_time;
   double   *times;
   double   avgtime, sdevtime, mintime, maxtime;
-  realtype c;
+  sunrealtype c;
   int      i;
   N_Vector Z;
 
@@ -812,7 +812,7 @@ int Test_N_VAddConst(N_Vector X, sunindextype local_length, int ntests)
     /* fill vector data */
     N_VRand(X, local_length, NEG_ONE, ONE);
     N_VConst(ZERO, Z);
-    c = 2.0*((realtype)rand() / (realtype)RAND_MAX) - 1.0;
+    c = 2.0*((sunrealtype)rand() / (sunrealtype)RAND_MAX) - 1.0;
 
     ClearCache();
     start_time = get_time();
@@ -1123,7 +1123,7 @@ int Test_N_VCompare(N_Vector X, sunindextype local_length, int ntests)
   double   start_time, stop_time;
   double   *times;
   double   avgtime, sdevtime, mintime, maxtime;
-  realtype c;
+  sunrealtype c;
   int      i;
   N_Vector Z;
 
@@ -1136,7 +1136,7 @@ int Test_N_VCompare(N_Vector X, sunindextype local_length, int ntests)
     /* fill vector data */
     N_VRand(X, local_length, NEG_ONE, ONE);
     N_VConst(ZERO, Z);
-    c = ((realtype)rand() / (realtype)RAND_MAX);
+    c = ((sunrealtype)rand() / (sunrealtype)RAND_MAX);
 
     ClearCache();
     start_time = get_time();
@@ -1303,7 +1303,7 @@ int Test_N_VLinearCombination(N_Vector X, sunindextype local_length, int nvecs, 
   double   *ftimes, *utimes;
   int      i, j;
   int      ier = 0;
-  realtype *c;
+  sunrealtype *c;
   N_Vector *Y;
 
   /* allocate timing arrays */
@@ -1311,7 +1311,7 @@ int Test_N_VLinearCombination(N_Vector X, sunindextype local_length, int nvecs, 
   utimes = (double*) malloc((ntests+nwarmups)*sizeof(double));
 
   /* create additional nvectors and array of scaling factors */
-  c = (realtype*) malloc(nvecs*sizeof(realtype));
+  c = (sunrealtype*) malloc(nvecs*sizeof(sunrealtype));
   Y = N_VCloneVectorArray(nvecs, X);
 
   /*
@@ -1324,7 +1324,7 @@ int Test_N_VLinearCombination(N_Vector X, sunindextype local_length, int nvecs, 
 
   for (j=1; j < nvecs; j++) {
     N_VRand(Y[j], local_length, NEG_ONE, ONE);
-    c[j] = ((realtype)rand() / (realtype)RAND_MAX) + 1.0;
+    c[j] = ((sunrealtype)rand() / (sunrealtype)RAND_MAX) + 1.0;
   }
 
   /* unfused operation */
@@ -1354,7 +1354,7 @@ int Test_N_VLinearCombination(N_Vector X, sunindextype local_length, int nvecs, 
 
   for (j=1; j < nvecs; j++) {
     N_VRand(Y[j], local_length, NEG_ONE, ONE);
-    c[j] = ((realtype)rand() / (realtype)RAND_MAX) + 1.0;
+    c[j] = ((sunrealtype)rand() / (sunrealtype)RAND_MAX) + 1.0;
   }
 
   /* fused operation */
@@ -1381,12 +1381,12 @@ int Test_N_VLinearCombination(N_Vector X, sunindextype local_length, int nvecs, 
    */
 
   /* fill vector data */
-  c[0] = ((realtype)rand() / (realtype)RAND_MAX) + 1.0;
+  c[0] = ((sunrealtype)rand() / (sunrealtype)RAND_MAX) + 1.0;
   N_VRand(Y[0], local_length, NEG_ONE, ONE);
 
   for (j=1; j < nvecs; j++) {
     N_VRand(Y[j], local_length, NEG_ONE, ONE);
-    c[j] = ((realtype)rand() / (realtype)RAND_MAX) + 1.0;
+    c[j] = ((sunrealtype)rand() / (sunrealtype)RAND_MAX) + 1.0;
   }
 
   /* unfused operation */
@@ -1412,12 +1412,12 @@ int Test_N_VLinearCombination(N_Vector X, sunindextype local_length, int nvecs, 
   }
 
   /* fill vector data */
-  c[0] = ((realtype)rand() / (realtype)RAND_MAX) + 1.0;
+  c[0] = ((sunrealtype)rand() / (sunrealtype)RAND_MAX) + 1.0;
   N_VRand(Y[0], local_length, NEG_ONE, ONE);
 
   for (j=1; j < nvecs; j++) {
     N_VRand(Y[j], local_length, NEG_ONE, ONE);
-    c[j] = ((realtype)rand() / (realtype)RAND_MAX) + 1.0;
+    c[j] = ((sunrealtype)rand() / (sunrealtype)RAND_MAX) + 1.0;
   }
 
   /* fused operation */
@@ -1446,7 +1446,7 @@ int Test_N_VLinearCombination(N_Vector X, sunindextype local_length, int nvecs, 
   /* fill vector data */
   for (j=0; j < nvecs; j++) {
     N_VRand(Y[j], local_length, NEG_ONE, ONE);
-    c[j] = ((realtype)rand() / (realtype)RAND_MAX) + 1.0;
+    c[j] = ((sunrealtype)rand() / (sunrealtype)RAND_MAX) + 1.0;
   }
 
   /* unfused operation */
@@ -1474,7 +1474,7 @@ int Test_N_VLinearCombination(N_Vector X, sunindextype local_length, int nvecs, 
   /* fill vector data */
   for (j=0; j < nvecs; j++) {
     N_VRand(Y[j], local_length, NEG_ONE, ONE);
-    c[j] = ((realtype)rand() / (realtype)RAND_MAX) + 1.0;
+    c[j] = ((sunrealtype)rand() / (sunrealtype)RAND_MAX) + 1.0;
   }
 
   /* fused operation */
@@ -1516,7 +1516,7 @@ int Test_N_VScaleAddMulti(N_Vector X, sunindextype local_length, int nvecs, int 
   double   *ftimes, *utimes;
   int      i, j;
   int      ier = 0;
-  realtype *c;
+  sunrealtype *c;
   N_Vector *Y, *Z;
 
   /* allocate timing arrays */
@@ -1524,7 +1524,7 @@ int Test_N_VScaleAddMulti(N_Vector X, sunindextype local_length, int nvecs, int 
   utimes = (double*) malloc((ntests+nwarmups)*sizeof(double));
 
   /* create additional nvectors and array of scaling factors */
-  c = (realtype*) malloc(nvecs*sizeof(realtype));
+  c = (sunrealtype*) malloc(nvecs*sizeof(sunrealtype));
   Y = N_VCloneVectorArray(nvecs, X);
   Z = N_VCloneVectorArray(nvecs, X);
 
@@ -1536,7 +1536,7 @@ int Test_N_VScaleAddMulti(N_Vector X, sunindextype local_length, int nvecs, int 
   N_VRand(X, local_length, NEG_ONE, ONE);
   for (j=0; j < nvecs; j++) {
     N_VRand(Y[j], local_length, NEG_ONE, ONE);
-    c[j] = ((realtype)rand() / (realtype)RAND_MAX) + 1.0;
+    c[j] = ((sunrealtype)rand() / (sunrealtype)RAND_MAX) + 1.0;
   }
 
   /* unfused operation */
@@ -1556,7 +1556,7 @@ int Test_N_VScaleAddMulti(N_Vector X, sunindextype local_length, int nvecs, int 
   N_VRand(X, local_length, NEG_ONE, ONE);
   for (j=0; j < nvecs; j++) {
     N_VRand(Y[j], local_length, NEG_ONE, ONE);
-    c[j] = ((realtype)rand() / (realtype)RAND_MAX) + 1.0;
+    c[j] = ((sunrealtype)rand() / (sunrealtype)RAND_MAX) + 1.0;
   }
 
   /* fused operation */
@@ -1586,7 +1586,7 @@ int Test_N_VScaleAddMulti(N_Vector X, sunindextype local_length, int nvecs, int 
   N_VRand(X, local_length, NEG_ONE, ONE);
   for (j=0; j < nvecs; j++) {
     N_VRand(Y[j], local_length, NEG_ONE, ONE);
-    c[j] = ((realtype)rand() / (realtype)RAND_MAX) + 1.0;
+    c[j] = ((sunrealtype)rand() / (sunrealtype)RAND_MAX) + 1.0;
   }
 
   /* unfused operation */
@@ -1606,7 +1606,7 @@ int Test_N_VScaleAddMulti(N_Vector X, sunindextype local_length, int nvecs, int 
   N_VRand(X, local_length, NEG_ONE, ONE);
   for (j=0; j < nvecs; j++) {
     N_VRand(Y[j], local_length, NEG_ONE, ONE);
-    c[j] = ((realtype)rand() / (realtype)RAND_MAX) + 1.0;
+    c[j] = ((sunrealtype)rand() / (sunrealtype)RAND_MAX) + 1.0;
   }
 
   /* fused operation */
@@ -1649,7 +1649,7 @@ int Test_N_VDotProdMulti(N_Vector X, sunindextype local_length, int nvecs, int n
   double   *ftimes, *utimes;
   int      i, j;
   int      ier = 0;
-  realtype *c;
+  sunrealtype *c;
   N_Vector *Y;
 
   /* allocate timing arrays */
@@ -1657,7 +1657,7 @@ int Test_N_VDotProdMulti(N_Vector X, sunindextype local_length, int nvecs, int n
   utimes = (double*) malloc((ntests+nwarmups)*sizeof(double));
 
   /* create additional nvectors and array of dot products */
-  c = (realtype*) malloc(nvecs*sizeof(realtype));
+  c = (sunrealtype*) malloc(nvecs*sizeof(sunrealtype));
   Y = N_VCloneVectorArray(nvecs, X);
 
   /* fill vector data */
@@ -1723,7 +1723,7 @@ int Test_N_VLinearSumVectorArray(N_Vector V, sunindextype local_length,
   double   *ftimes, *utimes;
   int      i, j;
   int      ier = 0;
-  realtype a, b;
+  sunrealtype a, b;
   N_Vector *X, *Y, *Z;
 
   /* allocate timing arrays */
@@ -1740,8 +1740,8 @@ int Test_N_VLinearSumVectorArray(N_Vector V, sunindextype local_length,
    */
 
   /* fill vector data */
-  a = ((realtype)rand() / (realtype)RAND_MAX) + 1.0;
-  b = ((realtype)rand() / (realtype)RAND_MAX) + 1.0;
+  a = ((sunrealtype)rand() / (sunrealtype)RAND_MAX) + 1.0;
+  b = ((sunrealtype)rand() / (sunrealtype)RAND_MAX) + 1.0;
   for (j=0; j < nvecs; j++) {
     N_VRand(X[j], local_length, NEG_ONE, ONE);
     N_VRand(Y[j], local_length, NEG_ONE, ONE);
@@ -1761,8 +1761,8 @@ int Test_N_VLinearSumVectorArray(N_Vector V, sunindextype local_length,
   }
 
   /* fill vector data */
-  a = ((realtype)rand() / (realtype)RAND_MAX) + 1.0;
-  b = ((realtype)rand() / (realtype)RAND_MAX) + 1.0;
+  a = ((sunrealtype)rand() / (sunrealtype)RAND_MAX) + 1.0;
+  b = ((sunrealtype)rand() / (sunrealtype)RAND_MAX) + 1.0;
   for (j=0; j < nvecs; j++) {
     N_VRand(X[j], local_length, NEG_ONE, ONE);
     N_VRand(Y[j], local_length, NEG_ONE, ONE);
@@ -1809,7 +1809,7 @@ int Test_N_VScaleVectorArray(N_Vector X, sunindextype local_length,
   double   *ftimes, *utimes;
   int      i, j;
   int      ier = 0;
-  realtype *c;
+  sunrealtype *c;
   N_Vector *Y, *Z;
 
   /* allocate timing arrays */
@@ -1817,7 +1817,7 @@ int Test_N_VScaleVectorArray(N_Vector X, sunindextype local_length,
   utimes = (double*) malloc((ntests+nwarmups)*sizeof(double));
 
   /* create nvectors arrays and scaling factor array */
-  c = (realtype*) malloc(nvecs*sizeof(realtype));
+  c = (sunrealtype*) malloc(nvecs*sizeof(sunrealtype));
   Y = N_VCloneVectorArray(nvecs, X);
   Z = N_VCloneVectorArray(nvecs, X);
 
@@ -1827,7 +1827,7 @@ int Test_N_VScaleVectorArray(N_Vector X, sunindextype local_length,
 
   /* fill vector data */
   for (j=0; j < nvecs; j++) {
-    c[j] = ((realtype)rand() / (realtype)RAND_MAX) + 1.0;
+    c[j] = ((sunrealtype)rand() / (sunrealtype)RAND_MAX) + 1.0;
     N_VRand(Y[j], local_length, NEG_ONE, ONE);
   }
 
@@ -1846,7 +1846,7 @@ int Test_N_VScaleVectorArray(N_Vector X, sunindextype local_length,
 
   /* fill vector data */
   for (j=0; j < nvecs; j++) {
-    c[j] = ((realtype)rand() / (realtype)RAND_MAX) + 1.0;
+    c[j] = ((sunrealtype)rand() / (sunrealtype)RAND_MAX) + 1.0;
     N_VRand(Y[j], local_length, NEG_ONE, ONE);
   }
 
@@ -1875,7 +1875,7 @@ int Test_N_VScaleVectorArray(N_Vector X, sunindextype local_length,
 
   /* fill vector data */
   for (j=0; j < nvecs; j++) {
-    c[j] = ((realtype)rand() / (realtype)RAND_MAX) + 1.0;
+    c[j] = ((sunrealtype)rand() / (sunrealtype)RAND_MAX) + 1.0;
     N_VRand(Y[j], local_length, NEG_ONE, ONE);
   }
 
@@ -1894,7 +1894,7 @@ int Test_N_VScaleVectorArray(N_Vector X, sunindextype local_length,
 
   /* fill vector data */
   for (j=0; j < nvecs; j++) {
-    c[j] = ((realtype)rand() / (realtype)RAND_MAX) + 1.0;
+    c[j] = ((sunrealtype)rand() / (sunrealtype)RAND_MAX) + 1.0;
     N_VRand(Y[j], local_length, NEG_ONE, ONE);
   }
 
@@ -1939,7 +1939,7 @@ int Test_N_VConstVectorArray(N_Vector X, sunindextype local_length,
   double   *ftimes, *utimes;
   int      i, j;
   int      ier = 0;
-  realtype c;
+  sunrealtype c;
   N_Vector *Y;
 
   /* allocate timing arrays */
@@ -1954,7 +1954,7 @@ int Test_N_VConstVectorArray(N_Vector X, sunindextype local_length,
    */
 
   /* fill vector data */
-  c = ((realtype)rand() / (realtype)RAND_MAX) + 1.0;
+  c = ((sunrealtype)rand() / (sunrealtype)RAND_MAX) + 1.0;
   for (j=0; j < nvecs; j++)
     N_VRand(Y[j], local_length, NEG_ONE, ONE);
 
@@ -1972,7 +1972,7 @@ int Test_N_VConstVectorArray(N_Vector X, sunindextype local_length,
   }
 
   /* fill vector data */
-  c = ((realtype)rand() / (realtype)RAND_MAX) + 1.0;
+  c = ((sunrealtype)rand() / (sunrealtype)RAND_MAX) + 1.0;
   for (j=0; j < nvecs; j++)
     N_VRand(Y[j], local_length, NEG_ONE, ONE);
 
@@ -2015,7 +2015,7 @@ int Test_N_VWrmsNormVectorArray(N_Vector X, sunindextype local_length,
   double   *ftimes, *utimes;
   int      i, j;
   int      ier = 0;
-  realtype *c;
+  sunrealtype *c;
   N_Vector *Z, *W;
 
   /* allocate timing arrays */
@@ -2023,7 +2023,7 @@ int Test_N_VWrmsNormVectorArray(N_Vector X, sunindextype local_length,
   utimes = (double*) malloc((ntests+nwarmups)*sizeof(double));
 
   /* create nvectors arrays and array for norms */
-  c = (realtype*) malloc(nvecs*sizeof(realtype));
+  c = (sunrealtype*) malloc(nvecs*sizeof(sunrealtype));
   Z = N_VCloneVectorArray(nvecs, X);
   W = N_VCloneVectorArray(nvecs, X);
 
@@ -2097,7 +2097,7 @@ int Test_N_VWrmsNormMaskVectorArray(N_Vector X, sunindextype local_length,
   double   *ftimes, *utimes;
   int      i, j;
   int      ier = 0;
-  realtype *c;
+  sunrealtype *c;
   N_Vector *Z, *W, ID;
 
   /* allocate timing arrays */
@@ -2105,7 +2105,7 @@ int Test_N_VWrmsNormMaskVectorArray(N_Vector X, sunindextype local_length,
   utimes = (double*) malloc((ntests+nwarmups)*sizeof(double));
 
   /* create nvectors arrays and array for norms */
-  c  = (realtype*) malloc(nvecs*sizeof(realtype));
+  c  = (sunrealtype*) malloc(nvecs*sizeof(sunrealtype));
   Z  = N_VCloneVectorArray(nvecs, X);
   W  = N_VCloneVectorArray(nvecs, X);
   ID = N_VClone(X);
@@ -2183,7 +2183,7 @@ int Test_N_VScaleAddMultiVectorArray(N_Vector V, sunindextype local_length,
   double   *ftimes, *utimes;
   int      i, j, k;
   int      ier = 0;
-  realtype *c;
+  sunrealtype *c;
   N_Vector *X, **Y, **Z;
 
   /* allocate timing arrays */
@@ -2191,7 +2191,7 @@ int Test_N_VScaleAddMultiVectorArray(N_Vector V, sunindextype local_length,
   utimes = (double*) malloc((ntests+nwarmups)*sizeof(double));
 
   /* create nvectors arrays and array for norms */
-  c = (realtype*) malloc(nsums*sizeof(realtype));
+  c = (sunrealtype*) malloc(nsums*sizeof(sunrealtype));
   X = N_VCloneVectorArray(nvecs, V);
 
   Y = (N_Vector**) malloc(nsums*sizeof(N_Vector*));
@@ -2207,7 +2207,7 @@ int Test_N_VScaleAddMultiVectorArray(N_Vector V, sunindextype local_length,
 
   /* fill data */
   for (j=0; j < nsums; j++)
-    c[j] = ((realtype)rand() / (realtype)RAND_MAX) + 1.0;
+    c[j] = ((sunrealtype)rand() / (sunrealtype)RAND_MAX) + 1.0;
 
   for (k=0; k < nvecs; k++)
     N_VRand(X[k], local_length, NEG_ONE, ONE);
@@ -2232,7 +2232,7 @@ int Test_N_VScaleAddMultiVectorArray(N_Vector V, sunindextype local_length,
 
   /* fill data */
   for (j=0; j < nsums; j++)
-    c[j] = ((realtype)rand() / (realtype)RAND_MAX) + 1.0;
+    c[j] = ((sunrealtype)rand() / (sunrealtype)RAND_MAX) + 1.0;
 
   for (k=0; k < nvecs; k++)
     N_VRand(X[k], local_length, NEG_ONE, ONE);
@@ -2266,7 +2266,7 @@ int Test_N_VScaleAddMultiVectorArray(N_Vector V, sunindextype local_length,
 
   /* fill data */
   for (j=0; j < nsums; j++)
-    c[j] = ((realtype)rand() / (realtype)RAND_MAX) + 1.0;
+    c[j] = ((sunrealtype)rand() / (sunrealtype)RAND_MAX) + 1.0;
 
   for (k=0; k < nvecs; k++)
     N_VRand(X[k], local_length, NEG_ONE, ONE);
@@ -2291,7 +2291,7 @@ int Test_N_VScaleAddMultiVectorArray(N_Vector V, sunindextype local_length,
 
   /* fill data */
   for (j=0; j < nsums; j++)
-    c[j] = ((realtype)rand() / (realtype)RAND_MAX) + 1.0;
+    c[j] = ((sunrealtype)rand() / (sunrealtype)RAND_MAX) + 1.0;
 
   for (k=0; k < nvecs; k++)
     N_VRand(X[k], local_length, NEG_ONE, ONE);
@@ -2347,7 +2347,7 @@ int Test_N_VLinearCombinationVectorArray(N_Vector V, sunindextype local_length,
   double   *ftimes, *utimes;
   int      i, j, k;
   int      ier = 0;
-  realtype *c;
+  sunrealtype *c;
   N_Vector **X, *Z;
 
   /* allocate timing arrays */
@@ -2355,7 +2355,7 @@ int Test_N_VLinearCombinationVectorArray(N_Vector V, sunindextype local_length,
   utimes = (double*) malloc((ntests+nwarmups)*sizeof(double));
 
   /* create nvectors arrays and array for norms */
-  c = (realtype*) malloc(nsums*sizeof(realtype));
+  c = (sunrealtype*) malloc(nsums*sizeof(sunrealtype));
   Z = N_VCloneVectorArray(nvecs, V);
 
   X = (N_Vector**) malloc(nsums*sizeof(N_Vector*));
@@ -2369,7 +2369,7 @@ int Test_N_VLinearCombinationVectorArray(N_Vector V, sunindextype local_length,
   /* fill data */
   c[0] = ONE;
   for (j=1; j < nsums; j++)
-    c[j] = ((realtype)rand() / (realtype)RAND_MAX) + 1.0;
+    c[j] = ((sunrealtype)rand() / (sunrealtype)RAND_MAX) + 1.0;
 
   for (j=0; j < nsums; j++)
     for (k=0; k < nvecs; k++)
@@ -2401,7 +2401,7 @@ int Test_N_VLinearCombinationVectorArray(N_Vector V, sunindextype local_length,
   /* fill data */
   c[0] = ONE;
   for (j=1; j < nsums; j++)
-    c[j] = ((realtype)rand() / (realtype)RAND_MAX) + 1.0;
+    c[j] = ((sunrealtype)rand() / (sunrealtype)RAND_MAX) + 1.0;
 
   for (j=0; j < nsums; j++)
     for (k=0; k < nvecs; k++)
@@ -2433,7 +2433,7 @@ int Test_N_VLinearCombinationVectorArray(N_Vector V, sunindextype local_length,
 
   /* fill data */
   for (j=0; j < nsums; j++)
-    c[j] = ((realtype)rand() / (realtype)RAND_MAX) + 1.0;
+    c[j] = ((sunrealtype)rand() / (sunrealtype)RAND_MAX) + 1.0;
 
   for (j=0; j < nsums; j++)
     for (k=0; k < nvecs; k++)
@@ -2467,7 +2467,7 @@ int Test_N_VLinearCombinationVectorArray(N_Vector V, sunindextype local_length,
 
   /* fill data */
   for (j=0; j < nsums; j++)
-    c[j] = ((realtype)rand() / (realtype)RAND_MAX) + 1.0;
+    c[j] = ((sunrealtype)rand() / (sunrealtype)RAND_MAX) + 1.0;
 
   for (j=0; j < nsums; j++)
     for (k=0; k < nvecs; k++)
@@ -2499,7 +2499,7 @@ int Test_N_VLinearCombinationVectorArray(N_Vector V, sunindextype local_length,
 
   /* fill data */
   for (j=0; j < nsums; j++)
-    c[j] = ((realtype)rand() / (realtype)RAND_MAX) + 1.0;
+    c[j] = ((sunrealtype)rand() / (sunrealtype)RAND_MAX) + 1.0;
 
   for (j=0; j < nsums; j++)
     for (k=0; k < nvecs; k++)
@@ -2533,7 +2533,7 @@ int Test_N_VLinearCombinationVectorArray(N_Vector V, sunindextype local_length,
 
   /* fill data */
   for (j=0; j < nsums; j++)
-    c[j] = ((realtype)rand() / (realtype)RAND_MAX) + 1.0;
+    c[j] = ((sunrealtype)rand() / (sunrealtype)RAND_MAX) + 1.0;
 
   for (j=0; j < nsums; j++)
     for (k=0; k < nvecs; k++)
@@ -2623,13 +2623,13 @@ void SetTiming(int onoff, int myid)
 
 
 /* ----------------------------------------------------------------------
- * Fill a realtype array with random numbers between lower and upper
+ * Fill a sunrealtype array with random numbers between lower and upper
  * using a linear congruential generator suggested in the C99 standard
  * --------------------------------------------------------------------*/
-void rand_realtype(realtype *data, sunindextype len, realtype lower, realtype upper)
+void rand_realtype(sunrealtype *data, sunindextype len, sunrealtype lower, sunrealtype upper)
 {
   int i, rand;
-  realtype range;
+  sunrealtype range;
   static int rand_max = 0x7fffffff; /* 2^32 - 1 */
 
   /* fill array with random data between lower and upper */
@@ -2637,7 +2637,7 @@ void rand_realtype(realtype *data, sunindextype len, realtype lower, realtype up
   rand  = (int) time(NULL);
   for (i=0; i < len; i++) {
     rand = (1103515245*rand+12345) & rand_max;
-    data[i] = range*((realtype)rand / (realtype)rand_max) + lower;
+    data[i] = range*((sunrealtype)rand / (sunrealtype)rand_max) + lower;
   }
 
   return;
@@ -2645,9 +2645,9 @@ void rand_realtype(realtype *data, sunindextype len, realtype lower, realtype up
 
 
 /* ----------------------------------------------------------------------
- * Fill a realtype array with random series of 0 or 1
+ * Fill a sunrealtype array with random series of 0 or 1
  * --------------------------------------------------------------------*/
-void rand_realtype_zero_one(realtype *data, sunindextype len)
+void rand_realtype_zero_one(sunrealtype *data, sunindextype len)
 {
   int i, rand;
   static int rand_max = 0x7fffffff; /* 2^32 - 1 */
@@ -2656,7 +2656,7 @@ void rand_realtype_zero_one(realtype *data, sunindextype len)
   rand = (int) time(NULL);
   for (i=0; i < len; i++) {
     rand = (1103515245*rand+12345) & rand_max;
-    data[i] = (realtype) (rand % 2);
+    data[i] = (sunrealtype) (rand % 2);
   }
 
   return;
@@ -2664,9 +2664,9 @@ void rand_realtype_zero_one(realtype *data, sunindextype len)
 
 
 /* ----------------------------------------------------------------------
- * Fill a realtype array with random values for constraint testing
+ * Fill a sunrealtype array with random values for constraint testing
  * --------------------------------------------------------------------*/
-void rand_realtype_constraints(realtype *data, sunindextype len)
+void rand_realtype_constraints(sunrealtype *data, sunindextype len)
 {
   int i, rand;
   static int rand_max = 0x7fffffff; /* 2^32 - 1 */
@@ -2675,7 +2675,7 @@ void rand_realtype_constraints(realtype *data, sunindextype len)
   rand = (int) time(NULL);
   for (i=0; i < len; i++) {
     rand = (1103515245*rand+12345) & rand_max;
-    data[i] = (realtype) (rand % 5 - 2);
+    data[i] = (sunrealtype) (rand % 5 - 2);
   }
 
   return;

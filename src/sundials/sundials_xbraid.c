@@ -17,7 +17,7 @@
 #include "sundials/sundials_xbraid.h"
 #include "sundials/sundials_math.h"
 
-#define ONE RCONST(1.0)
+#define ONE SUN_RCONST(1.0)
 
 
 /* -------------------------

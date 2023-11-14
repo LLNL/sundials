@@ -1461,51 +1461,51 @@ end function
 subroutine swigf_ARKodeSPRKTableMem_a_set(self, a)
 use, intrinsic :: ISO_C_BINDING
 class(ARKodeSPRKTableMem), intent(in) :: self
-real(C_DOUBLE), target, intent(inout) :: a
+real(C_DOUBLE), dimension(*), target, intent(inout) :: a
 type(SwigClassWrapper) :: farg1 
 type(C_PTR) :: farg2 
 
 farg1 = self%swigdata
-farg2 = c_loc(a)
+farg2 = c_loc(a(1))
 call swigc_ARKodeSPRKTableMem_a_set(farg1, farg2)
 end subroutine
 
 function swigf_ARKodeSPRKTableMem_a_get(self) &
 result(swig_result)
 use, intrinsic :: ISO_C_BINDING
-real(C_DOUBLE), pointer :: swig_result
+real(C_DOUBLE), dimension(:), pointer :: swig_result
 class(ARKodeSPRKTableMem), intent(in) :: self
 type(C_PTR) :: fresult 
 type(SwigClassWrapper) :: farg1 
 
 farg1 = self%swigdata
 fresult = swigc_ARKodeSPRKTableMem_a_get(farg1)
-call c_f_pointer(fresult, swig_result)
+call c_f_pointer(fresult, swig_result, [1])
 end function
 
 subroutine swigf_ARKodeSPRKTableMem_ahat_set(self, ahat)
 use, intrinsic :: ISO_C_BINDING
 class(ARKodeSPRKTableMem), intent(in) :: self
-real(C_DOUBLE), target, intent(inout) :: ahat
+real(C_DOUBLE), dimension(*), target, intent(inout) :: ahat
 type(SwigClassWrapper) :: farg1 
 type(C_PTR) :: farg2 
 
 farg1 = self%swigdata
-farg2 = c_loc(ahat)
+farg2 = c_loc(ahat(1))
 call swigc_ARKodeSPRKTableMem_ahat_set(farg1, farg2)
 end subroutine
 
 function swigf_ARKodeSPRKTableMem_ahat_get(self) &
 result(swig_result)
 use, intrinsic :: ISO_C_BINDING
-real(C_DOUBLE), pointer :: swig_result
+real(C_DOUBLE), dimension(:), pointer :: swig_result
 class(ARKodeSPRKTableMem), intent(in) :: self
 type(C_PTR) :: fresult 
 type(SwigClassWrapper) :: farg1 
 
 farg1 = self%swigdata
 fresult = swigc_ARKodeSPRKTableMem_ahat_get(farg1)
-call c_f_pointer(fresult, swig_result)
+call c_f_pointer(fresult, swig_result, [1])
 end function
 
 function swigf_create_ARKodeSPRKTableMem() &
@@ -1551,8 +1551,8 @@ use, intrinsic :: ISO_C_BINDING
 type(C_PTR) :: swig_result
 integer(C_INT), intent(in) :: s
 integer(C_INT), intent(in) :: q
-real(C_DOUBLE), target, intent(inout) :: a
-real(C_DOUBLE), target, intent(inout) :: ahat
+real(C_DOUBLE), dimension(*), target, intent(inout) :: a
+real(C_DOUBLE), dimension(*), target, intent(inout) :: ahat
 type(C_PTR) :: fresult 
 integer(C_INT) :: farg1 
 integer(C_INT) :: farg2 
@@ -1561,8 +1561,8 @@ type(C_PTR) :: farg4
 
 farg1 = s
 farg2 = q
-farg3 = c_loc(a)
-farg4 = c_loc(ahat)
+farg3 = c_loc(a(1))
+farg4 = c_loc(ahat(1))
 fresult = swigc_FARKodeSPRKTable_Create(farg1, farg2, farg3, farg4)
 swig_result = fresult
 end function

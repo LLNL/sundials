@@ -73,7 +73,7 @@
 #include <cvodes/cvodes_diag.h>                   /* access to CVDIAG linear solver               */
 #include "sunnonlinsol/sunnonlinsol_newton.h"     /* access to the newton SUNNonlinearSolver      */
 #include "sunnonlinsol/sunnonlinsol_fixedpoint.h" /* access to the fixed point SUNNonlinearSolver */
-#include <sundials/sundials_types.h>              /* definition of realtype                       */
+#include <sundials/sundials_types.h>              /* definition of sunrealtype                       */
 
 /* helpful macros */
 
@@ -83,38 +83,38 @@
 
 /* Shared Problem Constants */
 
-#define ATOL RCONST(1.0e-6)
-#define RTOL RCONST(0.0)
+#define ATOL SUN_RCONST(1.0e-6)
+#define RTOL SUN_RCONST(0.0)
 
-#define ZERO   RCONST(0.0)
-#define ONE    RCONST(1.0)
-#define TWO    RCONST(2.0)
-#define THIRTY RCONST(30.0)
+#define ZERO   SUN_RCONST(0.0)
+#define ONE    SUN_RCONST(1.0)
+#define TWO    SUN_RCONST(2.0)
+#define THIRTY SUN_RCONST(30.0)
 
 /* Problem #1 Constants */
 
 #define P1_NEQ        2
-#define P1_ETA        RCONST(3.0)
+#define P1_ETA        SUN_RCONST(3.0)
 #define P1_NOUT       4
-#define P1_T0         RCONST(0.0)
-#define P1_T1         RCONST(1.39283880203)
-#define P1_DTOUT      RCONST(2.214773875)
-#define P1_TOL_FACTOR RCONST(1.0e4)
+#define P1_T0         SUN_RCONST(0.0)
+#define P1_T1         SUN_RCONST(1.39283880203)
+#define P1_DTOUT      SUN_RCONST(2.214773875)
+#define P1_TOL_FACTOR SUN_RCONST(1.0e4)
 
 /* Problem #2 Constants */
 
 #define P2_MESHX      5
 #define P2_MESHY      5
 #define P2_NEQ        P2_MESHX*P2_MESHY
-#define P2_ALPH1      RCONST(1.0)
-#define P2_ALPH2      RCONST(1.0)
+#define P2_ALPH1      SUN_RCONST(1.0)
+#define P2_ALPH2      SUN_RCONST(1.0)
 #define P2_NOUT       5
 #define P2_ML         5
 #define P2_MU         0
-#define P2_T0         RCONST(0.0)
-#define P2_T1         RCONST(0.01)
-#define P2_TOUT_MULT  RCONST(10.0)
-#define P2_TOL_FACTOR RCONST(1.0e3)
+#define P2_T0         SUN_RCONST(0.0)
+#define P2_T1         SUN_RCONST(0.01)
+#define P2_TOUT_MULT  SUN_RCONST(10.0)
+#define P2_TOL_FACTOR SUN_RCONST(1.0e3)
 
 /* Linear Solver Options */
 
@@ -125,28 +125,28 @@ enum {FUNC, DENSE_USER, DENSE_DQ, DIAG, BAND_USER, BAND_DQ};
 static int  Problem1(void);
 static void PrintIntro1(void);
 static void PrintHeader1(void);
-static void PrintOutput1(realtype t, realtype y0, realtype y1, int qu, realtype hu);
+static void PrintOutput1(sunrealtype t, sunrealtype y0, sunrealtype y1, int qu, sunrealtype hu);
 static int  Problem2(void);
 static void PrintIntro2(void);
 static void PrintHeader2(void);
-static void PrintOutput2(realtype t, realtype erm, int qu, realtype hu);
-static realtype MaxError(N_Vector y, realtype t);
+static void PrintOutput2(sunrealtype t, sunrealtype erm, int qu, sunrealtype hu);
+static sunrealtype MaxError(N_Vector y, sunrealtype t);
 static int PrepareNextRun(SUNContext sunctx, void *cvode_mem, int lmm, int miter,
                           N_Vector y, SUNMatrix* A, sunindextype mu,
                           sunindextype ml, SUNLinearSolver* LS,
                           SUNNonlinearSolver* NLS);
-static void PrintErrOutput(realtype tol_factor);
-static void PrintFinalStats(void *cvode_mem, int miter, realtype ero);
+static void PrintErrOutput(sunrealtype tol_factor);
+static void PrintFinalStats(void *cvode_mem, int miter, sunrealtype ero);
 static void PrintErrInfo(int nerr);
 
 /* Functions Called by the Solver */
 
-static int f1(realtype t, N_Vector y, N_Vector ydot, void *user_data);
-static int Jac1(realtype tn, N_Vector y, N_Vector fy, SUNMatrix J,
+static int f1(sunrealtype t, N_Vector y, N_Vector ydot, void *user_data);
+static int Jac1(sunrealtype tn, N_Vector y, N_Vector fy, SUNMatrix J,
                 void *user_data, N_Vector tmp1, N_Vector tmp2, N_Vector tmp3);
 
-static int f2(realtype t, N_Vector y, N_Vector ydot, void *user_data);
-static int Jac2(realtype tn, N_Vector y, N_Vector fy, SUNMatrix J, void *user_data,
+static int f2(sunrealtype t, N_Vector y, N_Vector ydot, void *user_data);
+static int Jac2(sunrealtype tn, N_Vector y, N_Vector fy, SUNMatrix J, void *user_data,
                 N_Vector tmp1, N_Vector tmp2, N_Vector tmp3);
 
 /* Private function to check function return values */
@@ -168,16 +168,16 @@ int main(void)
 
 static int Problem1(void)
 {
-  realtype reltol=RTOL, abstol=ATOL, t, tout, ero, er;
+  sunrealtype reltol=RTOL, abstol=ATOL, t, tout, ero, er;
   int miter, retval, temp_retval, iout, nerr=0;
   N_Vector y;
   SUNMatrix A;
   SUNLinearSolver LS;
   SUNNonlinearSolver NLS;
   void *cvode_mem;
-  booleantype firstrun;
+  sunbooleantype firstrun;
   int qu;
-  realtype hu;
+  sunrealtype hu;
   SUNContext sunctx;
 
   y = NULL;
@@ -346,7 +346,7 @@ static void PrintHeader1(void)
   return;
 }
 
-static void PrintOutput1(realtype t, realtype y0, realtype y1, int qu, realtype hu)
+static void PrintOutput1(sunrealtype t, sunrealtype y0, sunrealtype y1, int qu, sunrealtype hu)
 {
 #if defined(SUNDIALS_EXTENDED_PRECISION)
   printf("%10.5Lf    %12.5Le   %12.5Le   %2d    %6.4Le\n", t, y0, y1, qu, hu);
@@ -359,9 +359,9 @@ static void PrintOutput1(realtype t, realtype y0, realtype y1, int qu, realtype 
   return;
 }
 
-static int f1(realtype t, N_Vector y, N_Vector ydot, void *user_data)
+static int f1(sunrealtype t, N_Vector y, N_Vector ydot, void *user_data)
 {
-  realtype y0, y1;
+  sunrealtype y0, y1;
 
   y0 = NV_Ith_S(y,0);
   y1 = NV_Ith_S(y,1);
@@ -372,10 +372,10 @@ static int f1(realtype t, N_Vector y, N_Vector ydot, void *user_data)
   return(0);
 }
 
-static int Jac1(realtype tn, N_Vector y, N_Vector fy, SUNMatrix J,
+static int Jac1(sunrealtype tn, N_Vector y, N_Vector fy, SUNMatrix J,
                 void *user_data, N_Vector tmp1, N_Vector tmp2, N_Vector tmp3)
 {
-  realtype y0, y1;
+  sunrealtype y0, y1;
 
   y0 = NV_Ith_S(y,0);
   y1 = NV_Ith_S(y,1);
@@ -389,16 +389,16 @@ static int Jac1(realtype tn, N_Vector y, N_Vector fy, SUNMatrix J,
 
 static int Problem2(void)
 {
-  realtype reltol=RTOL, abstol=ATOL, t, tout, er, erm, ero;
+  sunrealtype reltol=RTOL, abstol=ATOL, t, tout, er, erm, ero;
   int miter, retval, temp_retval, nerr=0;
   N_Vector y;
   SUNMatrix A;
   SUNLinearSolver LS;
   SUNNonlinearSolver NLS;
   void *cvode_mem;
-  booleantype firstrun;
+  sunbooleantype firstrun;
   int qu, iout;
-  realtype hu;
+  sunrealtype hu;
   SUNContext sunctx;
 
   y = NULL;
@@ -571,7 +571,7 @@ static void PrintHeader2(void)
   return;
 }
 
-static void PrintOutput2(realtype t, realtype erm, int qu, realtype hu)
+static void PrintOutput2(sunrealtype t, sunrealtype erm, int qu, sunrealtype hu)
 {
 #if defined(SUNDIALS_EXTENDED_PRECISION)
   printf("%10.3Lf  %12.4Le   %2d   %12.4Le\n", t, erm, qu, hu);
@@ -584,10 +584,10 @@ static void PrintOutput2(realtype t, realtype erm, int qu, realtype hu)
   return;
 }
 
-static int f2(realtype t, N_Vector y, N_Vector ydot, void *user_data)
+static int f2(sunrealtype t, N_Vector y, N_Vector ydot, void *user_data)
 {
   sunindextype i, j, k;
-  realtype d, *ydata, *dydata;
+  sunrealtype d, *ydata, *dydata;
 
   ydata  = N_VGetArrayPointer(y);
   dydata = N_VGetArrayPointer(ydot);
@@ -612,11 +612,11 @@ static int f2(realtype t, N_Vector y, N_Vector ydot, void *user_data)
   return(0);
 }
 
-static int Jac2(realtype tn, N_Vector y, N_Vector fy, SUNMatrix J,
+static int Jac2(sunrealtype tn, N_Vector y, N_Vector fy, SUNMatrix J,
                 void *user_data, N_Vector tmp1, N_Vector tmp2, N_Vector tmp3)
 {
   int i, j, k;
-  realtype *kthCol;
+  sunrealtype *kthCol;
 
   /*
      The components of f(t,y) which depend on y    are
@@ -647,10 +647,10 @@ static int Jac2(realtype tn, N_Vector y, N_Vector fy, SUNMatrix J,
   return(0);
 }
 
-static realtype MaxError(N_Vector y, realtype t)
+static sunrealtype MaxError(N_Vector y, sunrealtype t)
 {
   sunindextype i, j, k;
-  realtype *ydata, er, ex=ZERO, yt, maxError=ZERO, ifact_inv, jfact_inv=ONE;
+  sunrealtype *ydata, er, ex=ZERO, yt, maxError=ZERO, ifact_inv, jfact_inv=ONE;
 
   if (t == ZERO) return(ZERO);
 
@@ -814,7 +814,7 @@ static int PrepareNextRun(SUNContext sunctx, void *cvode_mem, int lmm, int miter
   return(retval);
 }
 
-static void PrintErrOutput(realtype tol_factor)
+static void PrintErrOutput(sunrealtype tol_factor)
 {
 #if defined(SUNDIALS_EXTENDED_PRECISION)
   printf("\n\n Error exceeds %Lg * tolerance \n\n", tol_factor);
@@ -827,7 +827,7 @@ static void PrintErrOutput(realtype tol_factor)
   return;
 }
 
-static void PrintFinalStats(void *cvode_mem, int miter, realtype ero)
+static void PrintFinalStats(void *cvode_mem, int miter, sunrealtype ero)
 {
   long int lenrw, leniw, lenrwLS, leniwLS;
   long int nst, nfe, nsetups, nni, ncfn, netf, nje, nfeLS;

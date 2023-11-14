@@ -237,14 +237,14 @@ SWIGEXPORT void * _wrap_FARKStepCreate(ARKRhsFn farg1, ARKRhsFn farg2, double co
   void * fresult ;
   ARKRhsFn arg1 = (ARKRhsFn) 0 ;
   ARKRhsFn arg2 = (ARKRhsFn) 0 ;
-  realtype arg3 ;
+  sunrealtype arg3 ;
   N_Vector arg4 = (N_Vector) 0 ;
   SUNContext arg5 = (SUNContext) 0 ;
   void *result = 0 ;
   
   arg1 = (ARKRhsFn)(farg1);
   arg2 = (ARKRhsFn)(farg2);
-  arg3 = (realtype)(*farg3);
+  arg3 = (sunrealtype)(*farg3);
   arg4 = (N_Vector)(farg4);
   arg5 = (SUNContext)(farg5);
   result = (void *)ARKStepCreate(arg1,arg2,arg3,arg4,arg5);
@@ -257,16 +257,16 @@ SWIGEXPORT int _wrap_FARKStepResize(void *farg1, N_Vector farg2, double const *f
   int fresult ;
   void *arg1 = (void *) 0 ;
   N_Vector arg2 = (N_Vector) 0 ;
-  realtype arg3 ;
-  realtype arg4 ;
+  sunrealtype arg3 ;
+  sunrealtype arg4 ;
   ARKVecResizeFn arg5 = (ARKVecResizeFn) 0 ;
   void *arg6 = (void *) 0 ;
   int result;
   
   arg1 = (void *)(farg1);
   arg2 = (N_Vector)(farg2);
-  arg3 = (realtype)(*farg3);
-  arg4 = (realtype)(*farg4);
+  arg3 = (sunrealtype)(*farg3);
+  arg4 = (sunrealtype)(*farg4);
   arg5 = (ARKVecResizeFn)(farg5);
   arg6 = (void *)(farg6);
   result = (int)ARKStepResize(arg1,arg2,arg3,arg4,arg5,arg6);
@@ -280,14 +280,14 @@ SWIGEXPORT int _wrap_FARKStepReInit(void *farg1, ARKRhsFn farg2, ARKRhsFn farg3,
   void *arg1 = (void *) 0 ;
   ARKRhsFn arg2 = (ARKRhsFn) 0 ;
   ARKRhsFn arg3 = (ARKRhsFn) 0 ;
-  realtype arg4 ;
+  sunrealtype arg4 ;
   N_Vector arg5 = (N_Vector) 0 ;
   int result;
   
   arg1 = (void *)(farg1);
   arg2 = (ARKRhsFn)(farg2);
   arg3 = (ARKRhsFn)(farg3);
-  arg4 = (realtype)(*farg4);
+  arg4 = (sunrealtype)(*farg4);
   arg5 = (N_Vector)(farg5);
   result = (int)ARKStepReInit(arg1,arg2,arg3,arg4,arg5);
   fresult = (int)(result);
@@ -298,12 +298,12 @@ SWIGEXPORT int _wrap_FARKStepReInit(void *farg1, ARKRhsFn farg2, ARKRhsFn farg3,
 SWIGEXPORT int _wrap_FARKStepReset(void *farg1, double const *farg2, N_Vector farg3) {
   int fresult ;
   void *arg1 = (void *) 0 ;
-  realtype arg2 ;
+  sunrealtype arg2 ;
   N_Vector arg3 = (N_Vector) 0 ;
   int result;
   
   arg1 = (void *)(farg1);
-  arg2 = (realtype)(*farg2);
+  arg2 = (sunrealtype)(*farg2);
   arg3 = (N_Vector)(farg3);
   result = (int)ARKStepReset(arg1,arg2,arg3);
   fresult = (int)(result);
@@ -314,13 +314,13 @@ SWIGEXPORT int _wrap_FARKStepReset(void *farg1, double const *farg2, N_Vector fa
 SWIGEXPORT int _wrap_FARKStepSStolerances(void *farg1, double const *farg2, double const *farg3) {
   int fresult ;
   void *arg1 = (void *) 0 ;
-  realtype arg2 ;
-  realtype arg3 ;
+  sunrealtype arg2 ;
+  sunrealtype arg3 ;
   int result;
   
   arg1 = (void *)(farg1);
-  arg2 = (realtype)(*farg2);
-  arg3 = (realtype)(*farg3);
+  arg2 = (sunrealtype)(*farg2);
+  arg3 = (sunrealtype)(*farg3);
   result = (int)ARKStepSStolerances(arg1,arg2,arg3);
   fresult = (int)(result);
   return fresult;
@@ -330,12 +330,12 @@ SWIGEXPORT int _wrap_FARKStepSStolerances(void *farg1, double const *farg2, doub
 SWIGEXPORT int _wrap_FARKStepSVtolerances(void *farg1, double const *farg2, N_Vector farg3) {
   int fresult ;
   void *arg1 = (void *) 0 ;
-  realtype arg2 ;
+  sunrealtype arg2 ;
   N_Vector arg3 = (N_Vector) 0 ;
   int result;
   
   arg1 = (void *)(farg1);
-  arg2 = (realtype)(*farg2);
+  arg2 = (sunrealtype)(*farg2);
   arg3 = (N_Vector)(farg3);
   result = (int)ARKStepSVtolerances(arg1,arg2,arg3);
   fresult = (int)(result);
@@ -360,11 +360,11 @@ SWIGEXPORT int _wrap_FARKStepWFtolerances(void *farg1, ARKEwtFn farg2) {
 SWIGEXPORT int _wrap_FARKStepResStolerance(void *farg1, double const *farg2) {
   int fresult ;
   void *arg1 = (void *) 0 ;
-  realtype arg2 ;
+  sunrealtype arg2 ;
   int result;
   
   arg1 = (void *)(farg1);
-  arg2 = (realtype)(*farg2);
+  arg2 = (sunrealtype)(*farg2);
   result = (int)ARKStepResStolerance(arg1,arg2);
   fresult = (int)(result);
   return fresult;
@@ -716,11 +716,11 @@ SWIGEXPORT int _wrap_FARKStepSetAdaptivityAdjustment(void *farg1, int const *far
 SWIGEXPORT int _wrap_FARKStepSetCFLFraction(void *farg1, double const *farg2) {
   int fresult ;
   void *arg1 = (void *) 0 ;
-  realtype arg2 ;
+  sunrealtype arg2 ;
   int result;
   
   arg1 = (void *)(farg1);
-  arg2 = (realtype)(*farg2);
+  arg2 = (sunrealtype)(*farg2);
   result = (int)ARKStepSetCFLFraction(arg1,arg2);
   fresult = (int)(result);
   return fresult;
@@ -730,11 +730,11 @@ SWIGEXPORT int _wrap_FARKStepSetCFLFraction(void *farg1, double const *farg2) {
 SWIGEXPORT int _wrap_FARKStepSetSafetyFactor(void *farg1, double const *farg2) {
   int fresult ;
   void *arg1 = (void *) 0 ;
-  realtype arg2 ;
+  sunrealtype arg2 ;
   int result;
   
   arg1 = (void *)(farg1);
-  arg2 = (realtype)(*farg2);
+  arg2 = (sunrealtype)(*farg2);
   result = (int)ARKStepSetSafetyFactor(arg1,arg2);
   fresult = (int)(result);
   return fresult;
@@ -744,11 +744,11 @@ SWIGEXPORT int _wrap_FARKStepSetSafetyFactor(void *farg1, double const *farg2) {
 SWIGEXPORT int _wrap_FARKStepSetErrorBias(void *farg1, double const *farg2) {
   int fresult ;
   void *arg1 = (void *) 0 ;
-  realtype arg2 ;
+  sunrealtype arg2 ;
   int result;
   
   arg1 = (void *)(farg1);
-  arg2 = (realtype)(*farg2);
+  arg2 = (sunrealtype)(*farg2);
   result = (int)ARKStepSetErrorBias(arg1,arg2);
   fresult = (int)(result);
   return fresult;
@@ -758,11 +758,11 @@ SWIGEXPORT int _wrap_FARKStepSetErrorBias(void *farg1, double const *farg2) {
 SWIGEXPORT int _wrap_FARKStepSetMaxGrowth(void *farg1, double const *farg2) {
   int fresult ;
   void *arg1 = (void *) 0 ;
-  realtype arg2 ;
+  sunrealtype arg2 ;
   int result;
   
   arg1 = (void *)(farg1);
-  arg2 = (realtype)(*farg2);
+  arg2 = (sunrealtype)(*farg2);
   result = (int)ARKStepSetMaxGrowth(arg1,arg2);
   fresult = (int)(result);
   return fresult;
@@ -772,11 +772,11 @@ SWIGEXPORT int _wrap_FARKStepSetMaxGrowth(void *farg1, double const *farg2) {
 SWIGEXPORT int _wrap_FARKStepSetMinReduction(void *farg1, double const *farg2) {
   int fresult ;
   void *arg1 = (void *) 0 ;
-  realtype arg2 ;
+  sunrealtype arg2 ;
   int result;
   
   arg1 = (void *)(farg1);
-  arg2 = (realtype)(*farg2);
+  arg2 = (sunrealtype)(*farg2);
   result = (int)ARKStepSetMinReduction(arg1,arg2);
   fresult = (int)(result);
   return fresult;
@@ -786,13 +786,13 @@ SWIGEXPORT int _wrap_FARKStepSetMinReduction(void *farg1, double const *farg2) {
 SWIGEXPORT int _wrap_FARKStepSetFixedStepBounds(void *farg1, double const *farg2, double const *farg3) {
   int fresult ;
   void *arg1 = (void *) 0 ;
-  realtype arg2 ;
-  realtype arg3 ;
+  sunrealtype arg2 ;
+  sunrealtype arg3 ;
   int result;
   
   arg1 = (void *)(farg1);
-  arg2 = (realtype)(*farg2);
-  arg3 = (realtype)(*farg3);
+  arg2 = (sunrealtype)(*farg2);
+  arg3 = (sunrealtype)(*farg3);
   result = (int)ARKStepSetFixedStepBounds(arg1,arg2,arg3);
   fresult = (int)(result);
   return fresult;
@@ -805,7 +805,7 @@ SWIGEXPORT int _wrap_FARKStepSetAdaptivityMethod(void *farg1, int const *farg2, 
   int arg2 ;
   int arg3 ;
   int arg4 ;
-  realtype *arg5 ;
+  sunrealtype *arg5 ;
   int result;
   
   arg1 = (void *)(farg1);
@@ -838,11 +838,11 @@ SWIGEXPORT int _wrap_FARKStepSetAdaptivityFn(void *farg1, ARKAdaptFn farg2, void
 SWIGEXPORT int _wrap_FARKStepSetMaxFirstGrowth(void *farg1, double const *farg2) {
   int fresult ;
   void *arg1 = (void *) 0 ;
-  realtype arg2 ;
+  sunrealtype arg2 ;
   int result;
   
   arg1 = (void *)(farg1);
-  arg2 = (realtype)(*farg2);
+  arg2 = (sunrealtype)(*farg2);
   result = (int)ARKStepSetMaxFirstGrowth(arg1,arg2);
   fresult = (int)(result);
   return fresult;
@@ -852,11 +852,11 @@ SWIGEXPORT int _wrap_FARKStepSetMaxFirstGrowth(void *farg1, double const *farg2)
 SWIGEXPORT int _wrap_FARKStepSetMaxEFailGrowth(void *farg1, double const *farg2) {
   int fresult ;
   void *arg1 = (void *) 0 ;
-  realtype arg2 ;
+  sunrealtype arg2 ;
   int result;
   
   arg1 = (void *)(farg1);
-  arg2 = (realtype)(*farg2);
+  arg2 = (sunrealtype)(*farg2);
   result = (int)ARKStepSetMaxEFailGrowth(arg1,arg2);
   fresult = (int)(result);
   return fresult;
@@ -880,11 +880,11 @@ SWIGEXPORT int _wrap_FARKStepSetSmallNumEFails(void *farg1, int const *farg2) {
 SWIGEXPORT int _wrap_FARKStepSetMaxCFailGrowth(void *farg1, double const *farg2) {
   int fresult ;
   void *arg1 = (void *) 0 ;
-  realtype arg2 ;
+  sunrealtype arg2 ;
   int result;
   
   arg1 = (void *)(farg1);
-  arg2 = (realtype)(*farg2);
+  arg2 = (sunrealtype)(*farg2);
   result = (int)ARKStepSetMaxCFailGrowth(arg1,arg2);
   fresult = (int)(result);
   return fresult;
@@ -894,11 +894,11 @@ SWIGEXPORT int _wrap_FARKStepSetMaxCFailGrowth(void *farg1, double const *farg2)
 SWIGEXPORT int _wrap_FARKStepSetNonlinCRDown(void *farg1, double const *farg2) {
   int fresult ;
   void *arg1 = (void *) 0 ;
-  realtype arg2 ;
+  sunrealtype arg2 ;
   int result;
   
   arg1 = (void *)(farg1);
-  arg2 = (realtype)(*farg2);
+  arg2 = (sunrealtype)(*farg2);
   result = (int)ARKStepSetNonlinCRDown(arg1,arg2);
   fresult = (int)(result);
   return fresult;
@@ -908,11 +908,11 @@ SWIGEXPORT int _wrap_FARKStepSetNonlinCRDown(void *farg1, double const *farg2) {
 SWIGEXPORT int _wrap_FARKStepSetNonlinRDiv(void *farg1, double const *farg2) {
   int fresult ;
   void *arg1 = (void *) 0 ;
-  realtype arg2 ;
+  sunrealtype arg2 ;
   int result;
   
   arg1 = (void *)(farg1);
-  arg2 = (realtype)(*farg2);
+  arg2 = (sunrealtype)(*farg2);
   result = (int)ARKStepSetNonlinRDiv(arg1,arg2);
   fresult = (int)(result);
   return fresult;
@@ -922,11 +922,11 @@ SWIGEXPORT int _wrap_FARKStepSetNonlinRDiv(void *farg1, double const *farg2) {
 SWIGEXPORT int _wrap_FARKStepSetDeltaGammaMax(void *farg1, double const *farg2) {
   int fresult ;
   void *arg1 = (void *) 0 ;
-  realtype arg2 ;
+  sunrealtype arg2 ;
   int result;
   
   arg1 = (void *)(farg1);
-  arg2 = (realtype)(*farg2);
+  arg2 = (sunrealtype)(*farg2);
   result = (int)ARKStepSetDeltaGammaMax(arg1,arg2);
   fresult = (int)(result);
   return fresult;
@@ -1022,11 +1022,11 @@ SWIGEXPORT int _wrap_FARKStepSetMaxConvFails(void *farg1, int const *farg2) {
 SWIGEXPORT int _wrap_FARKStepSetNonlinConvCoef(void *farg1, double const *farg2) {
   int fresult ;
   void *arg1 = (void *) 0 ;
-  realtype arg2 ;
+  sunrealtype arg2 ;
   int result;
   
   arg1 = (void *)(farg1);
-  arg2 = (realtype)(*farg2);
+  arg2 = (sunrealtype)(*farg2);
   result = (int)ARKStepSetNonlinConvCoef(arg1,arg2);
   fresult = (int)(result);
   return fresult;
@@ -1078,11 +1078,11 @@ SWIGEXPORT int _wrap_FARKStepSetMaxHnilWarns(void *farg1, int const *farg2) {
 SWIGEXPORT int _wrap_FARKStepSetInitStep(void *farg1, double const *farg2) {
   int fresult ;
   void *arg1 = (void *) 0 ;
-  realtype arg2 ;
+  sunrealtype arg2 ;
   int result;
   
   arg1 = (void *)(farg1);
-  arg2 = (realtype)(*farg2);
+  arg2 = (sunrealtype)(*farg2);
   result = (int)ARKStepSetInitStep(arg1,arg2);
   fresult = (int)(result);
   return fresult;
@@ -1092,11 +1092,11 @@ SWIGEXPORT int _wrap_FARKStepSetInitStep(void *farg1, double const *farg2) {
 SWIGEXPORT int _wrap_FARKStepSetMinStep(void *farg1, double const *farg2) {
   int fresult ;
   void *arg1 = (void *) 0 ;
-  realtype arg2 ;
+  sunrealtype arg2 ;
   int result;
   
   arg1 = (void *)(farg1);
-  arg2 = (realtype)(*farg2);
+  arg2 = (sunrealtype)(*farg2);
   result = (int)ARKStepSetMinStep(arg1,arg2);
   fresult = (int)(result);
   return fresult;
@@ -1106,11 +1106,11 @@ SWIGEXPORT int _wrap_FARKStepSetMinStep(void *farg1, double const *farg2) {
 SWIGEXPORT int _wrap_FARKStepSetMaxStep(void *farg1, double const *farg2) {
   int fresult ;
   void *arg1 = (void *) 0 ;
-  realtype arg2 ;
+  sunrealtype arg2 ;
   int result;
   
   arg1 = (void *)(farg1);
-  arg2 = (realtype)(*farg2);
+  arg2 = (sunrealtype)(*farg2);
   result = (int)ARKStepSetMaxStep(arg1,arg2);
   fresult = (int)(result);
   return fresult;
@@ -1134,11 +1134,11 @@ SWIGEXPORT int _wrap_FARKStepSetInterpolateStopTime(void *farg1, int const *farg
 SWIGEXPORT int _wrap_FARKStepSetStopTime(void *farg1, double const *farg2) {
   int fresult ;
   void *arg1 = (void *) 0 ;
-  realtype arg2 ;
+  sunrealtype arg2 ;
   int result;
   
   arg1 = (void *)(farg1);
-  arg2 = (realtype)(*farg2);
+  arg2 = (sunrealtype)(*farg2);
   result = (int)ARKStepSetStopTime(arg1,arg2);
   fresult = (int)(result);
   return fresult;
@@ -1160,11 +1160,11 @@ SWIGEXPORT int _wrap_FARKStepClearStopTime(void *farg1) {
 SWIGEXPORT int _wrap_FARKStepSetFixedStep(void *farg1, double const *farg2) {
   int fresult ;
   void *arg1 = (void *) 0 ;
-  realtype arg2 ;
+  sunrealtype arg2 ;
   int result;
   
   arg1 = (void *)(farg1);
-  arg2 = (realtype)(*farg2);
+  arg2 = (sunrealtype)(*farg2);
   result = (int)ARKStepSetFixedStep(arg1,arg2);
   fresult = (int)(result);
   return fresult;
@@ -1356,11 +1356,11 @@ SWIGEXPORT int _wrap_FARKStepSetLinearSolutionScaling(void *farg1, int const *fa
 SWIGEXPORT int _wrap_FARKStepSetEpsLin(void *farg1, double const *farg2) {
   int fresult ;
   void *arg1 = (void *) 0 ;
-  realtype arg2 ;
+  sunrealtype arg2 ;
   int result;
   
   arg1 = (void *)(farg1);
-  arg2 = (realtype)(*farg2);
+  arg2 = (sunrealtype)(*farg2);
   result = (int)ARKStepSetEpsLin(arg1,arg2);
   fresult = (int)(result);
   return fresult;
@@ -1370,11 +1370,11 @@ SWIGEXPORT int _wrap_FARKStepSetEpsLin(void *farg1, double const *farg2) {
 SWIGEXPORT int _wrap_FARKStepSetMassEpsLin(void *farg1, double const *farg2) {
   int fresult ;
   void *arg1 = (void *) 0 ;
-  realtype arg2 ;
+  sunrealtype arg2 ;
   int result;
   
   arg1 = (void *)(farg1);
-  arg2 = (realtype)(*farg2);
+  arg2 = (sunrealtype)(*farg2);
   result = (int)ARKStepSetMassEpsLin(arg1,arg2);
   fresult = (int)(result);
   return fresult;
@@ -1384,11 +1384,11 @@ SWIGEXPORT int _wrap_FARKStepSetMassEpsLin(void *farg1, double const *farg2) {
 SWIGEXPORT int _wrap_FARKStepSetLSNormFactor(void *farg1, double const *farg2) {
   int fresult ;
   void *arg1 = (void *) 0 ;
-  realtype arg2 ;
+  sunrealtype arg2 ;
   int result;
   
   arg1 = (void *)(farg1);
-  arg2 = (realtype)(*farg2);
+  arg2 = (sunrealtype)(*farg2);
   result = (int)ARKStepSetLSNormFactor(arg1,arg2);
   fresult = (int)(result);
   return fresult;
@@ -1398,11 +1398,11 @@ SWIGEXPORT int _wrap_FARKStepSetLSNormFactor(void *farg1, double const *farg2) {
 SWIGEXPORT int _wrap_FARKStepSetMassLSNormFactor(void *farg1, double const *farg2) {
   int fresult ;
   void *arg1 = (void *) 0 ;
-  realtype arg2 ;
+  sunrealtype arg2 ;
   int result;
   
   arg1 = (void *)(farg1);
-  arg2 = (realtype)(*farg2);
+  arg2 = (sunrealtype)(*farg2);
   result = (int)ARKStepSetMassLSNormFactor(arg1,arg2);
   fresult = (int)(result);
   return fresult;
@@ -1506,16 +1506,16 @@ SWIGEXPORT int _wrap_FARKStepSetLinSysFn(void *farg1, ARKLsLinSysFn farg2) {
 SWIGEXPORT int _wrap_FARKStepEvolve(void *farg1, double const *farg2, N_Vector farg3, double *farg4, int const *farg5) {
   int fresult ;
   void *arg1 = (void *) 0 ;
-  realtype arg2 ;
+  sunrealtype arg2 ;
   N_Vector arg3 = (N_Vector) 0 ;
-  realtype *arg4 = (realtype *) 0 ;
+  sunrealtype *arg4 = (sunrealtype *) 0 ;
   int arg5 ;
   int result;
   
   arg1 = (void *)(farg1);
-  arg2 = (realtype)(*farg2);
+  arg2 = (sunrealtype)(*farg2);
   arg3 = (N_Vector)(farg3);
-  arg4 = (realtype *)(farg4);
+  arg4 = (sunrealtype *)(farg4);
   arg5 = (int)(*farg5);
   result = (int)ARKStepEvolve(arg1,arg2,arg3,arg4,arg5);
   fresult = (int)(result);
@@ -1526,13 +1526,13 @@ SWIGEXPORT int _wrap_FARKStepEvolve(void *farg1, double const *farg2, N_Vector f
 SWIGEXPORT int _wrap_FARKStepGetDky(void *farg1, double const *farg2, int const *farg3, N_Vector farg4) {
   int fresult ;
   void *arg1 = (void *) 0 ;
-  realtype arg2 ;
+  sunrealtype arg2 ;
   int arg3 ;
   N_Vector arg4 = (N_Vector) 0 ;
   int result;
   
   arg1 = (void *)(farg1);
-  arg2 = (realtype)(*farg2);
+  arg2 = (sunrealtype)(*farg2);
   arg3 = (int)(*farg3);
   arg4 = (N_Vector)(farg4);
   result = (int)ARKStepGetDky(arg1,arg2,arg3,arg4);
@@ -1706,11 +1706,11 @@ SWIGEXPORT int _wrap_FARKStepGetNumSteps(void *farg1, long *farg2) {
 SWIGEXPORT int _wrap_FARKStepGetActualInitStep(void *farg1, double *farg2) {
   int fresult ;
   void *arg1 = (void *) 0 ;
-  realtype *arg2 = (realtype *) 0 ;
+  sunrealtype *arg2 = (sunrealtype *) 0 ;
   int result;
   
   arg1 = (void *)(farg1);
-  arg2 = (realtype *)(farg2);
+  arg2 = (sunrealtype *)(farg2);
   result = (int)ARKStepGetActualInitStep(arg1,arg2);
   fresult = (int)(result);
   return fresult;
@@ -1720,11 +1720,11 @@ SWIGEXPORT int _wrap_FARKStepGetActualInitStep(void *farg1, double *farg2) {
 SWIGEXPORT int _wrap_FARKStepGetLastStep(void *farg1, double *farg2) {
   int fresult ;
   void *arg1 = (void *) 0 ;
-  realtype *arg2 = (realtype *) 0 ;
+  sunrealtype *arg2 = (sunrealtype *) 0 ;
   int result;
   
   arg1 = (void *)(farg1);
-  arg2 = (realtype *)(farg2);
+  arg2 = (sunrealtype *)(farg2);
   result = (int)ARKStepGetLastStep(arg1,arg2);
   fresult = (int)(result);
   return fresult;
@@ -1734,11 +1734,11 @@ SWIGEXPORT int _wrap_FARKStepGetLastStep(void *farg1, double *farg2) {
 SWIGEXPORT int _wrap_FARKStepGetCurrentStep(void *farg1, double *farg2) {
   int fresult ;
   void *arg1 = (void *) 0 ;
-  realtype *arg2 = (realtype *) 0 ;
+  sunrealtype *arg2 = (sunrealtype *) 0 ;
   int result;
   
   arg1 = (void *)(farg1);
-  arg2 = (realtype *)(farg2);
+  arg2 = (sunrealtype *)(farg2);
   result = (int)ARKStepGetCurrentStep(arg1,arg2);
   fresult = (int)(result);
   return fresult;
@@ -1748,11 +1748,11 @@ SWIGEXPORT int _wrap_FARKStepGetCurrentStep(void *farg1, double *farg2) {
 SWIGEXPORT int _wrap_FARKStepGetCurrentTime(void *farg1, double *farg2) {
   int fresult ;
   void *arg1 = (void *) 0 ;
-  realtype *arg2 = (realtype *) 0 ;
+  sunrealtype *arg2 = (sunrealtype *) 0 ;
   int result;
   
   arg1 = (void *)(farg1);
-  arg2 = (realtype *)(farg2);
+  arg2 = (sunrealtype *)(farg2);
   result = (int)ARKStepGetCurrentTime(arg1,arg2);
   fresult = (int)(result);
   return fresult;
@@ -1776,11 +1776,11 @@ SWIGEXPORT int _wrap_FARKStepGetCurrentState(void *farg1, void *farg2) {
 SWIGEXPORT int _wrap_FARKStepGetCurrentGamma(void *farg1, double *farg2) {
   int fresult ;
   void *arg1 = (void *) 0 ;
-  realtype *arg2 = (realtype *) 0 ;
+  sunrealtype *arg2 = (sunrealtype *) 0 ;
   int result;
   
   arg1 = (void *)(farg1);
-  arg2 = (realtype *)(farg2);
+  arg2 = (sunrealtype *)(farg2);
   result = (int)ARKStepGetCurrentGamma(arg1,arg2);
   fresult = (int)(result);
   return fresult;
@@ -1804,11 +1804,11 @@ SWIGEXPORT int _wrap_FARKStepGetCurrentMassMatrix(void *farg1, void *farg2) {
 SWIGEXPORT int _wrap_FARKStepGetTolScaleFactor(void *farg1, double *farg2) {
   int fresult ;
   void *arg1 = (void *) 0 ;
-  realtype *arg2 = (realtype *) 0 ;
+  sunrealtype *arg2 = (sunrealtype *) 0 ;
   int result;
   
   arg1 = (void *)(farg1);
-  arg2 = (realtype *)(farg2);
+  arg2 = (sunrealtype *)(farg2);
   result = (int)ARKStepGetTolScaleFactor(arg1,arg2);
   fresult = (int)(result);
   return fresult;
@@ -1986,18 +1986,18 @@ SWIGEXPORT int _wrap_FARKStepGetStepStats(void *farg1, long *farg2, double *farg
   int fresult ;
   void *arg1 = (void *) 0 ;
   long *arg2 = (long *) 0 ;
-  realtype *arg3 = (realtype *) 0 ;
-  realtype *arg4 = (realtype *) 0 ;
-  realtype *arg5 = (realtype *) 0 ;
-  realtype *arg6 = (realtype *) 0 ;
+  sunrealtype *arg3 = (sunrealtype *) 0 ;
+  sunrealtype *arg4 = (sunrealtype *) 0 ;
+  sunrealtype *arg5 = (sunrealtype *) 0 ;
+  sunrealtype *arg6 = (sunrealtype *) 0 ;
   int result;
   
   arg1 = (void *)(farg1);
   arg2 = (long *)(farg2);
-  arg3 = (realtype *)(farg3);
-  arg4 = (realtype *)(farg4);
-  arg5 = (realtype *)(farg5);
-  arg6 = (realtype *)(farg6);
+  arg3 = (sunrealtype *)(farg3);
+  arg4 = (sunrealtype *)(farg4);
+  arg5 = (sunrealtype *)(farg5);
+  arg6 = (sunrealtype *)(farg6);
   result = (int)ARKStepGetStepStats(arg1,arg2,arg3,arg4,arg5,arg6);
   fresult = (int)(result);
   return fresult;
@@ -2007,21 +2007,21 @@ SWIGEXPORT int _wrap_FARKStepGetStepStats(void *farg1, long *farg2, double *farg
 SWIGEXPORT int _wrap_FARKStepGetNonlinearSystemData(void *farg1, double *farg2, void *farg3, void *farg4, void *farg5, double *farg6, void *farg7, void *farg8) {
   int fresult ;
   void *arg1 = (void *) 0 ;
-  realtype *arg2 = (realtype *) 0 ;
+  sunrealtype *arg2 = (sunrealtype *) 0 ;
   N_Vector *arg3 = (N_Vector *) 0 ;
   N_Vector *arg4 = (N_Vector *) 0 ;
   N_Vector *arg5 = (N_Vector *) 0 ;
-  realtype *arg6 = (realtype *) 0 ;
+  sunrealtype *arg6 = (sunrealtype *) 0 ;
   N_Vector *arg7 = (N_Vector *) 0 ;
   void **arg8 = (void **) 0 ;
   int result;
   
   arg1 = (void *)(farg1);
-  arg2 = (realtype *)(farg2);
+  arg2 = (sunrealtype *)(farg2);
   arg3 = (N_Vector *)(farg3);
   arg4 = (N_Vector *)(farg4);
   arg5 = (N_Vector *)(farg5);
-  arg6 = (realtype *)(farg6);
+  arg6 = (sunrealtype *)(farg6);
   arg7 = (N_Vector *)(farg7);
   arg8 = (void **)(farg8);
   result = (int)ARKStepGetNonlinearSystemData(arg1,arg2,arg3,arg4,arg5,arg6,arg7,arg8);

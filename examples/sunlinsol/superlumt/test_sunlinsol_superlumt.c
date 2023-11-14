@@ -38,7 +38,7 @@ int main(int argc, char *argv[])
   SUNLinearSolver LS;                 /* linear solver object       */
   SUNMatrix       A, B;               /* test matrices              */
   N_Vector        x, y, b;            /* test vectors               */
-  realtype        *matdata, *xdata;
+  sunrealtype        *matdata, *xdata;
   int             mattype, num_threads, print_timing;
   sunindextype    i, j, k;
   SUNContext      sunctx;
@@ -90,7 +90,7 @@ int main(int argc, char *argv[])
     i = rand() % N;
     j = rand() % N;
     matdata = SUNDenseMatrix_Column(B,j);
-    matdata[i] = (realtype) rand() / (realtype) RAND_MAX / N;
+    matdata[i] = (sunrealtype) rand() / (sunrealtype) RAND_MAX / N;
   }
 
   /* Add identity to matrix */
@@ -103,7 +103,7 @@ int main(int argc, char *argv[])
   /* Fill x vector with uniform random data in [0,1] */
   xdata = N_VGetArrayPointer(x);
   for (i=0; i<N; i++)
-    xdata[i] = (realtype) rand() / (realtype) RAND_MAX;
+    xdata[i] = (sunrealtype) rand() / (sunrealtype) RAND_MAX;
 
   /* Create sparse matrix from dense, and destroy B */
   A = SUNSparseFromDenseMatrix(B, ZERO, mattype);
@@ -125,7 +125,7 @@ int main(int argc, char *argv[])
   /* Run Tests */
   fails += Test_SUNLinSolInitialize(LS, 0);
   fails += Test_SUNLinSolSetup(LS, A, 0);
-  fails += Test_SUNLinSolSolve(LS, A, x, b, 1000*UNIT_ROUNDOFF, SUNTRUE, 0);
+  fails += Test_SUNLinSolSolve(LS, A, x, b, 1000*SUN_UNIT_ROUNDOFF, SUNTRUE, 0);
 
   fails += Test_SUNLinSolGetType(LS, SUNLINEARSOLVER_DIRECT, 0);
   fails += Test_SUNLinSolGetID(LS, SUNLINEARSOLVER_SUPERLUMT, 0);
@@ -161,11 +161,11 @@ int main(int argc, char *argv[])
 /* ----------------------------------------------------------------------
  * Implementation-specific 'check' routines
  * --------------------------------------------------------------------*/
-int check_vector(N_Vector X, N_Vector Y, realtype tol)
+int check_vector(N_Vector X, N_Vector Y, sunrealtype tol)
 {
   int failure = 0;
   sunindextype i, local_length, maxloc;
-  realtype *Xdata, *Ydata, maxerr;
+  sunrealtype *Xdata, *Ydata, maxerr;
 
   Xdata = N_VGetArrayPointer(X);
   Ydata = N_VGetArrayPointer(Y);

@@ -25,16 +25,16 @@
 
 static long double sunNextafterl(long double from, long double to);
 
-static booleantype sunIsInf(sunrealtype a)
+static sunbooleantype sunIsInf(sunrealtype a)
 {
 #if defined(__cplusplus) || defined(SUNDIALS_C_COMPILER_HAS_ISINF_ISNAN)
   return(isinf(a));
 #else
-  return(a < -BIG_REAL || a > BIG_REAL);
+  return(a < -SUN_BIG_REAL || a > SUN_BIG_REAL);
 #endif
 }
 
-static booleantype sunIsNaN(sunrealtype a)
+static sunbooleantype sunIsNaN(sunrealtype a)
 {
 #if defined(__cplusplus) || defined(SUNDIALS_C_COMPILER_HAS_ISINF_ISNAN)
   return(isnan(a));
@@ -52,16 +52,16 @@ sunrealtype SUNRpowerI(sunrealtype base, int exponent)
   int i, expt;
   sunrealtype prod;
 
-  prod = RCONST(1.0);
+  prod = SUN_RCONST(1.0);
   expt = abs(exponent);
   for(i = 1; i <= expt; i++) prod *= base;
-  if (exponent < 0) prod = RCONST(1.0)/prod;
+  if (exponent < 0) prod = SUN_RCONST(1.0)/prod;
   return(prod);
 }
 
 sunrealtype SUNRpowerR(sunrealtype base, sunrealtype exponent)
 {
-  if (base <= RCONST(0.0)) return(RCONST(0.0));
+  if (base <= SUN_RCONST(0.0)) return(SUN_RCONST(0.0));
 
 #if defined(__cplusplus) || defined(SUNDIALS_C_COMPILER_HAS_MATH_PRECISIONS)
 #if defined(SUNDIALS_DOUBLE_PRECISION)
@@ -76,12 +76,12 @@ sunrealtype SUNRpowerR(sunrealtype base, sunrealtype exponent)
 #endif
 }
 
-booleantype SUNRCompare(sunrealtype a, sunrealtype b)
+sunbooleantype SUNRCompare(sunrealtype a, sunrealtype b)
 {
-  return(SUNRCompareTol(a, b, 10*UNIT_ROUNDOFF));
+  return(SUNRCompareTol(a, b, 10*SUN_UNIT_ROUNDOFF));
 }
 
-booleantype SUNRCompareTol(sunrealtype a, sunrealtype b, sunrealtype tol)
+sunbooleantype SUNRCompareTol(sunrealtype a, sunrealtype b, sunrealtype tol)
 {
   sunrealtype diff;
   sunrealtype norm;
@@ -98,18 +98,18 @@ booleantype SUNRCompareTol(sunrealtype a, sunrealtype b, sunrealtype tol)
   if (sunIsInf(a) || sunIsInf(b)) return(SUNTRUE);
 
   diff = SUNRabs(a - b);
-  norm = SUNMIN(SUNRabs(a + b), BIG_REAL);
+  norm = SUNMIN(SUNRabs(a + b), SUN_BIG_REAL);
 
-  /* When |a + b| is very small (less than 10*UNIT_ROUNDOFF) or zero, we use an
+  /* When |a + b| is very small (less than 10*SUN_UNIT_ROUNDOFF) or zero, we use an
    * absolute difference:
-   *    |a - b| >= 10*UNIT_ROUNDOFF
+   *    |a - b| >= 10*SUN_UNIT_ROUNDOFF
    * Otherwise we use a relative difference:
    *    |a - b| < tol * |a + b|
    * The choice to use |a + b| over max(a, b)
    * is arbitrary, as is the choice to use
-   * 10*UNIT_ROUNDOFF.
+   * 10*SUN_UNIT_ROUNDOFF.
    */
-  return(diff >= SUNMAX(10*UNIT_ROUNDOFF, tol*norm));
+  return(diff >= SUNMAX(10*SUN_UNIT_ROUNDOFF, tol*norm));
 }
 
 long double sunNextafterl(long double from, long double to)

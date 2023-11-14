@@ -20,8 +20,8 @@
 /* -----------------------------------------------------------------------------
  * Type: SUNQRData
  * -----------------------------------------------------------------------------
- * A SUNQRData struct holds temporary workspace vectors and realtype arrays for
- * a SUNQRAddFn. The N_Vectors and realtype arrays it contains are created by
+ * A SUNQRData struct holds temporary workspace vectors and sunrealtype arrays for
+ * a SUNQRAddFn. The N_Vectors and sunrealtype arrays it contains are created by
  * the routine calling a SUNQRAdd function.
  * ---------------------------------------------------------------------------*/
 
@@ -31,5 +31,5 @@ struct _SUNQRData
 {
   N_Vector vtemp;
   N_Vector vtemp2;
-  realtype *temp_array;
+  sunrealtype *temp_array;
 };
