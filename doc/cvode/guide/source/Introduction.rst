@@ -114,6 +114,12 @@ Changes from previous versions
 Changes in vX.X.X
 -----------------
 
+The previously deprecated types ``realtype`` and ``booleantype`` were removed
+from ``sundials_types.h`` and replaced with ``sunrealtype`` and
+`sunbooleantype`. The deprecated names for these types can be used by including
+the header file ``sundials_types_deprecated.h`` but will be fully removed in the
+next major release.
+
 Fixed the build system support for MAGMA when using a NVIDIA HPC SDK installation of CUDA
 and fixed the targets used for rocBLAS and rocSPARSE.
 
