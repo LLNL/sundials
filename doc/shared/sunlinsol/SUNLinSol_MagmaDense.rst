@@ -109,7 +109,7 @@ The SUNLinearSolver_MagmaDense module defines the object *content* field of a
 
    struct _SUNLinearSolverContent_MagmaDense {
      int             last_flag;
-     sunbooleantype     async;
+     sunbooleantype  async;
      sunindextype    N;
      SUNMemory       pivots;
      SUNMemory       pivotsarr;

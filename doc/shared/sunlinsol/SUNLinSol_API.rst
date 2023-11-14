@@ -626,7 +626,7 @@ structure is defined as
      int                  (*solve)(SUNLinearSolver, SUNMatrix, N_Vector,
                                    N_Vector, sunrealtype);
      int                  (*numiters)(SUNLinearSolver);
-     sunrealtype             (*resnorm)(SUNLinearSolver);
+     sunrealtype          (*resnorm)(SUNLinearSolver);
      sunindextype         (*lastflag)(SUNLinearSolver);
      int                  (*space)(SUNLinearSolver, long int*, long int*);
      N_Vector             (*resid)(SUNLinearSolver);

@@ -133,7 +133,7 @@ The SUNLinSol_SuperLUMT module defines the *content* field of a
      sunindextype *perm_r, *perm_c;
      sunindextype N;
      int          num_threads;
-     sunrealtype     diag_pivot_thresh;
+     sunrealtype  diag_pivot_thresh;
      int          ordering;
      superlumt_options_t *options;
    };

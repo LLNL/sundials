@@ -28,7 +28,7 @@ the HIP-clang compiler. The vector content layout is as follows:
    struct _N_VectorContent_Hip
    {
       sunindextype       length;
-      sunbooleantype        own_helper;
+      sunbooleantype     own_helper;
       SUNMemory          host_data;
       SUNMemory          device_data;
       SUNHipExecPolicy*  stream_exec_policy;
