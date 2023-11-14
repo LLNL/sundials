@@ -10,4 +10,4 @@
    SUNDIALS Copyright End
    ----------------------------------------------------------------
 
-.. include:: ../../../shared/sundials/Install.rst
+.. include:: ../../../../shared/sundials/Install.rst

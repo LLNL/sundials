@@ -34,7 +34,7 @@ KINSOL Documentation
    sunmatrix/index.rst
    sunlinsol/index.rst
    sunmemory/index.rst
-   Install_link.rst
+   sundials/Install_link.rst
    Constants
    History_link.rst
    References
