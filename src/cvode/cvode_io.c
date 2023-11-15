@@ -1885,3 +1885,26 @@ char *CVodeGetReturnFlagName(long int flag)
 
   return(name);
 }
+
+
+int CVodeSetErrWeightMethod(void* cvode_mem, int method)
+{
+  CVodeMem cv_mem;
+
+  if (cvode_mem == NULL)
+  {
+    cvProcessError(NULL, CV_MEM_NULL, "CVODE", "CVodeSetErrWeightMethod",
+                   MSGCV_NO_MEM);
+    return(CV_MEM_NULL);
+  }
+
+  cv_mem = (CVodeMem) cvode_mem;
+
+  /* Set method
+   * 0 = default cvode error weight with y_n-1
+   * else = error weight using max(|y_n-1|, |y_n|)
+   */
+  cv_mem->cv_err_weight_method = method;
+
+  return(CV_SUCCESS);
+}

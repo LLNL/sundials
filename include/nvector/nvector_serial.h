@@ -122,6 +122,7 @@ SUNDIALS_EXPORT void N_VCompare_Serial(realtype c, N_Vector x, N_Vector z);
 SUNDIALS_EXPORT booleantype N_VInvTest_Serial(N_Vector x, N_Vector z);
 SUNDIALS_EXPORT booleantype N_VConstrMask_Serial(N_Vector c, N_Vector x, N_Vector m);
 SUNDIALS_EXPORT realtype N_VMinQuotient_Serial(N_Vector num, N_Vector denom);
+SUNDIALS_EXPORT void N_VMaxAbsVec_Serial(N_Vector x, N_Vector y, N_Vector z);
 
 /* fused vector operations */
 SUNDIALS_EXPORT int N_VLinearCombination_Serial(int nvec, realtype* c, N_Vector* V,

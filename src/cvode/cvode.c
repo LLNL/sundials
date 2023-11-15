@@ -375,6 +375,9 @@ void *CVodeCreate(int lmm, SUNContext sunctx)
   /* Initialize fused operations variable */
   cv_mem->cv_usefused = SUNFALSE;
 
+  /* Error weight method */
+  cv_mem->cv_err_weight_method = 0;
+
   /* Return pointer to CVODE memory block */
 
   return((void *)cv_mem);
@@ -1372,6 +1375,17 @@ int CVode(void *cvode_mem, realtype tout, N_Vector yout,
                        cv_mem->cv_tn, cv_mem->cv_h);
       if (cv_mem->cv_nhnil == cv_mem->cv_mxhnil)
         cvProcessError(cv_mem, CV_WARNING, "CVODE", "CVode", MSGCV_HNIL_DONE);
+    }
+
+    /* Save y_n-1 for used in new error weight option
+     *
+     * Fairly sure that vtemp1 is unneeded in our current case but in general
+     * this may be needed elsewhere in other cases e.g., finite-difference
+     * Jacobian (really need a temp vector stack).
+     */
+    if (cv_mem->cv_err_weight_method)
+    {
+      N_VScale(ONE, cv_mem->cv_zn[0], cv_mem->cv_vtemp1);
     }
 
     /* Call cvStep to take a step */
@@ -3282,6 +3296,35 @@ static int cvDoErrorTest(CVodeMem cv_mem, int *nflagPtr, realtype saved_t,
   realtype dsm;
   int retval;
 
+  /* Re-compute correction norm using weights that incorporate the new solution
+   *
+   * If the step fails, we don't want to use the error weight vector computed
+   * here. Since the original error weights are computed outside the step
+   * attempt loop we need to be careful about overwriting the error weight
+   * vector. So only (for now added extra vector ops) put the weights into a
+   * temp vector and copy into ewt if the step is successful.
+   *
+   * Future need to consider user supplied error weight vector. Also other
+   * integrators (ARKODE) can fail a step after the error test (relaxation). In
+   * those cases do we need to roll back the weight calculation. Note calling
+   * EwtSet will overwite cv_tempv which is used when projection is enabled so
+   * need to change this.
+   *
+   * Need to save y_n-1 (zn[0]) from the start of the step because this is
+   * overwritten during the course of the step
+   *
+   * vtemp1 = y_n-1
+   * vtemp2 = max(|y_n-1|,|y_n|)
+   * vtemp3 = new ewt
+   */
+
+  if (cv_mem->cv_err_weight_method)
+  {
+    N_VMaxAbsVec(cv_mem->cv_vtemp1, cv_mem->cv_y, cv_mem->cv_vtemp2);
+    cvEwtSet(cv_mem->cv_vtemp2, cv_mem->cv_vtemp3, cv_mem);
+    cv_mem->cv_acnrm = N_VWrmsNorm(cv_mem->cv_acor, cv_mem->cv_vtemp3);
+  }
+
   dsm = cv_mem->cv_acnrm * cv_mem->cv_tq[2];
 
 #if SUNDIALS_LOGGING_LEVEL >= SUNDIALS_LOGGING_DEBUG
@@ -3290,12 +3333,26 @@ static int cvDoErrorTest(CVodeMem cv_mem, int *nflagPtr, realtype saved_t,
 #endif
 #ifdef SUNDIALS_LOGGING_EXTRA_DEBUG
   fprintf(cv_mem->cv_sunctx->logger->debug_fp, "ewt\n");
-  N_VPrintFile(cv_mem->cv_ewt, cv_mem->cv_sunctx->logger->debug_fp);
+  if (cv_mem->cv_err_weight_method)
+  {
+    N_VPrintFile(cv_mem->cv_vtemp3, cv_mem->cv_sunctx->logger->debug_fp);
+  }
+  else
+  {
+    N_VPrintFile(cv_mem->cv_ewt, cv_mem->cv_sunctx->logger->debug_fp);
+  }
 #endif
 
   /* If est. local error norm dsm passes test, return CV_SUCCESS */
   *dsmPtr = dsm;
-  if (dsm <= ONE) return(CV_SUCCESS);
+  if (dsm <= ONE)
+  {
+    if (cv_mem->cv_err_weight_method)
+    {
+      N_VScale(ONE, cv_mem->cv_vtemp3, cv_mem->cv_ewt);
+    }
+    return(CV_SUCCESS);
+  }
 
   /* Test failed; increment counters, set nflag, and restore zn array */
   (*nefPtr)++;

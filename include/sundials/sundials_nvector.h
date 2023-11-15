@@ -134,6 +134,7 @@ struct _generic_N_Vector_Ops
   booleantype (*nvinvtest)(N_Vector, N_Vector);
   booleantype (*nvconstrmask)(N_Vector, N_Vector, N_Vector);
   realtype (*nvminquotient)(N_Vector, N_Vector);
+  void (*nvmaxabsvec)(N_Vector, N_Vector, N_Vector);
 
   /*
    * OPTIONAL operations.
@@ -245,6 +246,7 @@ SUNDIALS_EXPORT void N_VCompare(realtype c, N_Vector x, N_Vector z);
 SUNDIALS_EXPORT booleantype N_VInvTest(N_Vector x, N_Vector z);
 SUNDIALS_EXPORT booleantype N_VConstrMask(N_Vector c, N_Vector x, N_Vector m);
 SUNDIALS_EXPORT realtype N_VMinQuotient(N_Vector num, N_Vector denom);
+SUNDIALS_EXPORT void N_VMaxAbsVec(N_Vector x, N_Vector y, N_Vector z);
 
 /*
  * OPTIONAL operations with default implementations.
