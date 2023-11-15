@@ -3288,6 +3288,10 @@ static int cvDoErrorTest(CVodeMem cv_mem, int *nflagPtr, realtype saved_t,
   SUNLogger_QueueMsg(CV_LOGGER, SUN_LOGLEVEL_DEBUG,
                      "CVODE::cvDoErrorTest", "error-test", "dsm = %.16g", dsm);
 #endif
+#ifdef SUNDIALS_LOGGING_EXTRA_DEBUG
+  fprintf(cv_mem->cv_sunctx->logger->debug_fp, "ewt\n");
+  N_VPrintFile(cv_mem->cv_ewt, cv_mem->cv_sunctx->logger->debug_fp);
+#endif
 
   /* If est. local error norm dsm passes test, return CV_SUCCESS */
   *dsmPtr = dsm;
