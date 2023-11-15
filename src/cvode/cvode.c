@@ -2281,7 +2281,7 @@ static int cvStep(CVodeMem cv_mem)
     SUNLogger_QueueMsg(CV_LOGGER, SUN_LOGLEVEL_INFO,
                        "CVODE::cvStep", "begin-step-attempt",
                        "step = %li, t_n = %.16g, h = %.16g, q = %d",
-                       cv_mem->cv_nst, cv_mem->cv_tn, cv_mem->cv_h,
+                       cv_mem->cv_nst + 1, cv_mem->cv_tn, cv_mem->cv_h,
                        cv_mem->cv_q);
 #endif
 

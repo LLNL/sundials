@@ -253,10 +253,10 @@ int SUNNonlinSolSolve_FixedPoint(SUNNonlinearSolver NLS, N_Vector y0,
                                     FP_CONTENT(NLS)->ctest_data);
 
 #if SUNDIALS_LOGGING_LEVEL >= SUNDIALS_LOGGING_INFO
-    SUNLogger_QueueMsg(NLS->sunctx->logger, SUN_LOGLEVEL_INFO,
-                       "SUNNonlinSolSolve_FixedPoint", "convergence-check",
-                       "iter = %ld, wrmsnorm = %.16g", FP_CONTENT(NLS)->curiter + 1,
-                       N_VWrmsNorm(delta, w));
+    /*     SUNLogger_QueueMsg(NLS->sunctx->logger, SUN_LOGLEVEL_INFO, */
+    /*                        "SUNNonlinSolSolve_FixedPoint", "convergence-check", */
+    /*                        "iter = %ld, wrmsnorm = %.16g", FP_CONTENT(NLS)->curiter + 1, */
+    /*                        N_VWrmsNorm(delta, w)); /\* ideally don't recompute norm, add Get function to API *\/ */
 #endif
 
     /* return if successful */
@@ -265,7 +265,7 @@ int SUNNonlinSolSolve_FixedPoint(SUNNonlinearSolver NLS, N_Vector y0,
 #if SUNDIALS_LOGGING_LEVEL >= SUNDIALS_LOGGING_INFO
       SUNLogger_QueueMsg(NLS->sunctx->logger, SUN_LOGLEVEL_INFO,
                          "SUNNonlinSolSolve_FixedPoint", "end-nonlinear-solve",
-                         "success");
+                         "success, iters = %ld", FP_CONTENT(NLS)->curiter + 1);
 #endif
       return(SUN_NLS_SUCCESS);
     }
@@ -277,7 +277,7 @@ int SUNNonlinSolSolve_FixedPoint(SUNNonlinearSolver NLS, N_Vector y0,
 #if SUNDIALS_LOGGING_LEVEL >= SUNDIALS_LOGGING_INFO
       SUNLogger_QueueMsg(NLS->sunctx->logger, SUN_LOGLEVEL_INFO,
                          "SUNNonlinSolSolve_FixedPoint", "end-nonlinear-solve",
-                         "Failed");
+                         "Failed, iters = %ld", FP_CONTENT(NLS)->curiter + 1);
 #endif
       FP_CONTENT(NLS)->nconvfails++;
       return(retval);
@@ -290,7 +290,7 @@ int SUNNonlinSolSolve_FixedPoint(SUNNonlinearSolver NLS, N_Vector y0,
 #if SUNDIALS_LOGGING_LEVEL >= SUNDIALS_LOGGING_INFO
   SUNLogger_QueueMsg(NLS->sunctx->logger, SUN_LOGLEVEL_INFO,
                      "SUNNonlinSolSolve_FixedPoint", "end-nonlinear-solve",
-                     "Failed");
+                     "Failed, iters = %ld", FP_CONTENT(NLS)->curiter + 1);
 #endif
 
   FP_CONTENT(NLS)->nconvfails++;
