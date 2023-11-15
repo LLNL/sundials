@@ -22,6 +22,5 @@ sundials_add_library(sundials_sunmemsys
     sunmemory
   LINK_LIBRARIES
     PUBLIC sundials_core
-  OBJECT_LIBRARIES
   OBJECT_LIB_ONLY
 )
