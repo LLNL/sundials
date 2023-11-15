@@ -659,7 +659,7 @@ int arkEvolve(ARKodeMem ark_mem, sunrealtype tout, N_Vector yout,
   sunrealtype troundoff, nrm;
   sunbooleantype inactive_roots;
   sunrealtype dsm;
-  int nflag, attempts, ncf, nef, constrfails;
+  int nflag, ncf, nef, constrfails;
   int relax_fails;
 
   /* Check and process inputs */
@@ -843,16 +843,21 @@ int arkEvolve(ARKodeMem ark_mem, sunrealtype tout, N_Vector yout,
 
     /* Looping point for step attempts */
     dsm = ZERO;
-    attempts = ncf = nef = constrfails = ark_mem->last_kflag = 0;
+    ncf = nef = constrfails = ark_mem->last_kflag = 0;
     relax_fails = 0;
     nflag = FIRST_CALL;
+
+#if SUNDIALS_LOGGING_LEVEL >= SUNDIALS_LOGGING_DEBUG
+    int attempts = 0;
+#endif
+
     for(;;) {
 
       /* increment attempt counters */
-      attempts++;
       ark_mem->nst_attempts++;
 
 #if SUNDIALS_LOGGING_LEVEL >= SUNDIALS_LOGGING_DEBUG
+      attempts++;
       SUNLogger_QueueMsg(ARK_LOGGER, SUN_LOGLEVEL_DEBUG,
                          "ARKODE::arkEvolve", "start-step",
                          "step = %li, attempt = %i, h = %"RSYM", tcur = %"RSYM,

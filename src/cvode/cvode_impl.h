@@ -476,7 +476,7 @@ typedef struct CVodeMemRec {
 
   /* Resize history workspace */
   N_Vector resize_wrk[L_MAX];
-  booleantype first_step_after_resize;
+  sunbooleantype first_step_after_resize;
 
   int cv_err_weight_method;
 

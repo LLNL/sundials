@@ -23,8 +23,8 @@
 #include "cvode_impl.h"
 #include <sundials/sundials_types.h>
 
-#define ZERO    RCONST(0.0)     /* real 0.0     */
-#define ONE     RCONST(1.0)     /* real 1.0     */
+#define ZERO    SUN_RCONST(0.0)     /* real 0.0     */
+#define ONE     SUN_RCONST(1.0)     /* real 1.0     */
 
 /* -----------------------------------------------------------------------------
  * Build Adams Nordsieck array from f(t,y) history

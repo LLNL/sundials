@@ -12,8 +12,8 @@
 #include <nvector/nvector_serial.h>
 #include "test_utilities.hpp"
 
-#define ZERO    RCONST(0.0)     /* real 0.0     */
-#define ONE     RCONST(1.0)     /* real 1.0     */
+#define ZERO    SUN_RCONST(0.0)     /* real 0.0     */
+#define ONE     SUN_RCONST(1.0)     /* real 1.0     */
 #define PI 3.14159265358979323846
 
 /* -----------------------------------------------------------------------------
