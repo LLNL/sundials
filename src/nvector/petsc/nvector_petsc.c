@@ -415,7 +415,7 @@ void N_VSetArrayPointer_Petsc(sunrealtype *v_data, N_Vector v)
   return;
 }
 
-SUNComm N_VGetCommunicator_Petsc(N_Vector v)
+MPI_Comm N_VGetCommunicator_Petsc(N_Vector v)
 {
   return(NV_COMM_PTC(v));
 }
