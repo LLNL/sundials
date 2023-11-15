@@ -51,7 +51,7 @@ LINKFLAGS_SLUMT = ${LINKFLAGS}:@SUPERLUMT_LIBRARY_DIR@
 
 TMP_INCS  = ${includedir} ${INCLUDES_SLUMT} ${INCLUDES_KLU}
 INCLUDES  = $(addprefix -I, ${TMP_INCS})
-LIBRARIES = -l@SOLVER_LIB@ -lsundials_nvecpthreads ${LIBS}
+LIBRARIES = -lsundials_core -l@SOLVER_LIB@ -lsundials_nvecpthreads ${LIBS}
 
 # -----------------------------------------------------------------------------------------
 

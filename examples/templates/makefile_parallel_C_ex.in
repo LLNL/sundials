@@ -43,7 +43,7 @@ MPI_FLAGS   = @MPI_FLAGS@
 
 TMP_INCS  = ${includedir} ${MPI_INC_DIR}
 INCLUDES  = $(addprefix -I, ${TMP_INCS})
-LIBRARIES = -l@SOLVER_LIB@ -lsundials_nvecparallel -lsundials_nvecserial \
+LIBRARIES = -lsundials_core -l@SOLVER_LIB@ -lsundials_nvecparallel -lsundials_nvecserial \
 						-lsundials_nvecmpimanyvector -lsundials_nvecmpiplusx ${LIBS}
 
 EXAMPLES = @EXAMPLES@
