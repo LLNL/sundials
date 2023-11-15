@@ -55,7 +55,7 @@ referenced.
 
       y0 = N_VMake_***(..., ydata);
 
-   if the ``realtype`` array ``ydata`` containing the initial values of
+   if the ``sunrealtype`` array ``ydata`` containing the initial values of
    :math:`y` already exists. For some GPU-enabled vectors, a similar constructor
    can be used to provide host  and device data pointers. If the data array
    does not already exist, create a new vector by making a call of the form

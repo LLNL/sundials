@@ -53,7 +53,7 @@ int ComputeConvergence(int num_dt, sunrealtype* orders,
     *ord_avg += orders[i - 1];
     *ord_max = SUNMAX(*ord_max, orders[i - 1]);
   }
-  *ord_avg = *ord_avg / ((realtype)num_dt - 1);
+  *ord_avg = *ord_avg / ((sunrealtype)num_dt - 1);
   det      = a11 * a22 - a12 * a21;
   *ord_est = (a11 * b2 - a21 * b1) / det;
   return 0;

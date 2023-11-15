@@ -162,7 +162,7 @@ constexpr auto LocalNvector = N_VNew_Serial;
 
 /* Get the vector data array pointer for the device
    if using the GPU, or host if not. */
-static realtype* GetVecData(N_Vector y)
+static sunrealtype* GetVecData(N_Vector y)
 {
 #ifdef USE_GPU
   if (N_VGetVectorID(y) == SUNDIALS_NVEC_MPIPLUSX)

@@ -25,8 +25,8 @@
 #include "sundials_context_impl.h"
 #include "sundials_logger_impl.h"
 
-#define ZERO RCONST(0.0)
-#define ONE  RCONST(1.0)
+#define ZERO SUN_RCONST(0.0)
+#define ONE  SUN_RCONST(1.0)
 
 /*
  * -----------------------------------------------------------------
@@ -295,7 +295,7 @@ int SUNLinSolSetScalingVectors_SPTFQMR(SUNLinearSolver S,
 }
 
 
-int SUNLinSolSetZeroGuess_SPTFQMR(SUNLinearSolver S, booleantype onoff)
+int SUNLinSolSetZeroGuess_SPTFQMR(SUNLinearSolver S, sunbooleantype onoff)
 {
   /* set flag indicating a zero initial guess */
   if (S == NULL) return(SUNLS_MEM_NULL);
@@ -333,25 +333,25 @@ int SUNLinSolSetup_SPTFQMR(SUNLinearSolver S, SUNMatrix A)
 
 
 int SUNLinSolSolve_SPTFQMR(SUNLinearSolver S, SUNMatrix A, N_Vector x,
-                           N_Vector b, realtype delta)
+                           N_Vector b, sunrealtype delta)
 {
   /* local data and shortcut variables */
-  realtype alpha, tau, eta, beta, c, sigma, v_bar, omega;
-  realtype rho[2];
-  realtype r_init_norm, r_curr_norm;
-  realtype temp_val;
-  booleantype preOnLeft, preOnRight, scale_x, scale_b, converged, b_ok;
-  booleantype *zeroguess;
+  sunrealtype alpha, tau, eta, beta, c, sigma, v_bar, omega;
+  sunrealtype rho[2];
+  sunrealtype r_init_norm, r_curr_norm;
+  sunrealtype temp_val;
+  sunbooleantype preOnLeft, preOnRight, scale_x, scale_b, converged, b_ok;
+  sunbooleantype *zeroguess;
   int n, m, ier, l_max;
   void *A_data, *P_data;
   SUNATimesFn atimes;
   SUNPSolveFn psolve;
-  realtype *res_norm;
+  sunrealtype *res_norm;
   int *nli;
   N_Vector sx, sb, r_star, q, d, v, p, *r, u, vtemp1, vtemp2, vtemp3;
 
   /* local variables for fused vector operations */
-  realtype cv[3];
+  sunrealtype cv[3];
   N_Vector Xv[3];
 
   /* Make local shorcuts to solver variables. */
@@ -383,7 +383,7 @@ int SUNLinSolSolve_SPTFQMR(SUNLinearSolver S, SUNMatrix A, N_Vector x,
   converged = SUNFALSE;
   b_ok = SUNFALSE;
 
-  /* set booleantype flags for internal solver options */
+  /* set sunbooleantype flags for internal solver options */
   preOnLeft  = ( (SPTFQMR_CONTENT(S)->pretype == SUN_PREC_LEFT) ||
                  (SPTFQMR_CONTENT(S)->pretype == SUN_PREC_BOTH) );
   preOnRight = ( (SPTFQMR_CONTENT(S)->pretype == SUN_PREC_RIGHT) ||
@@ -817,7 +817,7 @@ int SUNLinSolNumIters_SPTFQMR(SUNLinearSolver S)
 }
 
 
-realtype SUNLinSolResNorm_SPTFQMR(SUNLinearSolver S)
+sunrealtype SUNLinSolResNorm_SPTFQMR(SUNLinearSolver S)
 {
   /* return the stored 'resnorm' value */
   if (S == NULL) return(-ONE);

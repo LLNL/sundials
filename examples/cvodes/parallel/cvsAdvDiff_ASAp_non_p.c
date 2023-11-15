@@ -62,48 +62,48 @@
 
 /* Problem Constants */
 
-#define XMAX  RCONST(2.0)   /* domain boundary            */
+#define XMAX  SUN_RCONST(2.0)   /* domain boundary            */
 #define MX    20            /* mesh dimension             */
 #define NEQ   MX            /* number of equations        */
-#define ATOL  RCONST(1.e-5) /* scalar absolute tolerance  */
-#define T0    RCONST(0.0)   /* initial time               */
-#define TOUT  RCONST(2.5)   /* output time increment      */
+#define ATOL  SUN_RCONST(1.e-5) /* scalar absolute tolerance  */
+#define T0    SUN_RCONST(0.0)   /* initial time               */
+#define TOUT  SUN_RCONST(2.5)   /* output time increment      */
 
 /* Adjoint Problem Constants */
 
 #define NP    2            /* number of parameters       */
 #define STEPS 200          /* steps between check points */
 
-#define ZERO RCONST(0.0)
-#define ONE  RCONST(1.0)
-#define TWO  RCONST(2.0)
+#define ZERO SUN_RCONST(0.0)
+#define ONE  SUN_RCONST(1.0)
+#define TWO  SUN_RCONST(2.0)
 
 /* Type : UserData */
 
 typedef struct {
-  realtype p[2];            /* model parameters                         */
-  realtype dx;              /* spatial discretization grid              */
-  realtype hdcoef, hacoef;  /* diffusion and advection coefficients     */
+  sunrealtype p[2];            /* model parameters                         */
+  sunrealtype dx;              /* spatial discretization grid              */
+  sunrealtype hdcoef, hacoef;  /* diffusion and advection coefficients     */
   sunindextype local_N;
   int npes, my_pe;          /* total number of processes and current ID */
   sunindextype nperpe, nrem;
   MPI_Comm comm;            /* MPI communicator                         */
-  realtype *z1, *z2;        /* work space                               */
+  sunrealtype *z1, *z2;        /* work space                               */
 } *UserData;
 
 /* Prototypes of user-supplied funcitons */
 
-static int f(realtype t, N_Vector u, N_Vector udot, void *user_data);
-static int fB(realtype t, N_Vector u,
+static int f(sunrealtype t, N_Vector u, N_Vector udot, void *user_data);
+static int fB(sunrealtype t, N_Vector u,
               N_Vector uB, N_Vector uBdot, void *user_dataB);
 
 /* Prototypes of private functions */
 
-static void SetIC(N_Vector u, realtype dx, sunindextype my_length, sunindextype my_base);
+static void SetIC(N_Vector u, sunrealtype dx, sunindextype my_length, sunindextype my_base);
 static void SetICback(N_Vector uB, sunindextype my_base);
-static realtype Xintgr(realtype *z, sunindextype l, realtype dx);
-static realtype Compute_g(N_Vector u, UserData data);
-static void PrintOutput(realtype g_val, N_Vector uB, UserData data);
+static sunrealtype Xintgr(sunrealtype *z, sunindextype l, sunrealtype dx);
+static sunrealtype Compute_g(N_Vector u, UserData data);
+static void PrintOutput(sunrealtype g_val, N_Vector uB, UserData data);
 static int check_retval(void *returnvalue, const char *funcname, int opt, int id);
 
 /*
@@ -119,12 +119,12 @@ int main(int argc, char *argv[])
   void *cvode_mem;
 
   N_Vector u;
-  realtype reltol, abstol;
+  sunrealtype reltol, abstol;
 
   int indexB;
   N_Vector uB;
 
-  realtype dx, t, g_val;
+  sunrealtype dx, t, g_val;
   int retval, my_pe, nprocs, npes, ncheck;
   sunindextype local_N=0, nperpe, nrem, my_base=-1;
 
@@ -182,8 +182,8 @@ int main(int argc, char *argv[])
   data = (UserData) malloc(sizeof *data);
   if (check_retval((void *)data , "malloc", 2, my_pe)) MPI_Abort(comm, 1);
   data->p[0] = ONE;
-  data->p[1] = RCONST(0.5);
-  dx = data->dx = XMAX/((realtype)(MX+1));
+  data->p[1] = SUN_RCONST(0.5);
+  dx = data->dx = XMAX/((sunrealtype)(MX+1));
   data->hdcoef = data->p[0]/(dx*dx);
   data->hacoef = data->p[1]/(TWO*dx);
   data->comm = comm;
@@ -258,9 +258,9 @@ int main(int argc, char *argv[])
   } else {
 
     /* Allocate work space */
-    data->z1 = (realtype *)malloc(local_N*sizeof(realtype));
+    data->z1 = (sunrealtype *)malloc(local_N*sizeof(sunrealtype));
     if (check_retval((void *)data->z1, "malloc", 2, my_pe)) MPI_Abort(comm, 1);
-    data->z2 = (realtype *)malloc(local_N*sizeof(realtype));
+    data->z2 = (sunrealtype *)malloc(local_N*sizeof(sunrealtype));
     if (check_retval((void *)data->z2, "malloc", 2, my_pe)) MPI_Abort(comm, 1);
 
   }
@@ -332,11 +332,11 @@ int main(int argc, char *argv[])
  * f routine. Compute f(t,u) for forward phase.
  */
 
-static int f(realtype t, N_Vector u, N_Vector udot, void *user_data)
+static int f(sunrealtype t, N_Vector u, N_Vector udot, void *user_data)
 {
-  realtype uLeft, uRight, ui, ult, urt;
-  realtype hordc, horac, hdiff, hadv;
-  realtype *udata, *dudata;
+  sunrealtype uLeft, uRight, ui, ult, urt;
+  sunrealtype hordc, horac, hdiff, hadv;
+  sunrealtype *udata, *dudata;
   sunindextype i, my_length;
   int npes, my_pe, my_pe_m1, my_pe_p1, last_pe;
   UserData data;
@@ -402,18 +402,18 @@ static int f(realtype t, N_Vector u, N_Vector udot, void *user_data)
  * fB routine. Compute right hand side of backward problem
  */
 
-static int fB(realtype t, N_Vector u,
+static int fB(sunrealtype t, N_Vector u,
               N_Vector uB, N_Vector uBdot, void *user_dataB)
 {
-  realtype *uBdata, *duBdata, *udata;
-  realtype uBLeft, uBRight, uBi, uBlt, uBrt;
-  realtype uLeft, uRight, ui, ult, urt;
-  realtype dx, hordc, horac, hdiff, hadv;
-  realtype *z1, *z2, intgr1, intgr2;
+  sunrealtype *uBdata, *duBdata, *udata;
+  sunrealtype uBLeft, uBRight, uBi, uBlt, uBrt;
+  sunrealtype uLeft, uRight, ui, ult, urt;
+  sunrealtype dx, hordc, horac, hdiff, hadv;
+  sunrealtype *z1, *z2, intgr1, intgr2;
   sunindextype i, my_length;
   int j, npes, my_pe, my_pe_m1, my_pe_p1, last_pe;
   UserData data;
-  realtype data_in[2], data_out[2];
+  sunrealtype data_in[2], data_out[2];
   MPI_Status status;
   MPI_Comm comm;
 
@@ -540,12 +540,12 @@ static int fB(realtype t, N_Vector u,
  * Set initial conditions in u vector
  */
 
-static void SetIC(N_Vector u, realtype dx, sunindextype my_length, sunindextype my_base)
+static void SetIC(N_Vector u, sunrealtype dx, sunindextype my_length, sunindextype my_base)
 {
   int i;
   sunindextype iglobal;
-  realtype x;
-  realtype *udata;
+  sunrealtype x;
+  sunrealtype *udata;
 
   /* Set pointer to data array and get local length of u */
   udata = N_VGetArrayPointer_Parallel(u);
@@ -566,7 +566,7 @@ static void SetIC(N_Vector u, realtype dx, sunindextype my_length, sunindextype 
 static void SetICback(N_Vector uB, sunindextype my_base)
 {
   int i;
-  realtype *uBdata;
+  sunrealtype *uBdata;
   sunindextype my_length;
 
   /* Set pointer to data array and get local length of uB */
@@ -582,12 +582,12 @@ static void SetICback(N_Vector uB, sunindextype my_base)
  * Compute local value of the space integral int_x z(x) dx
  */
 
-static realtype Xintgr(realtype *z, sunindextype l, realtype dx)
+static sunrealtype Xintgr(sunrealtype *z, sunindextype l, sunrealtype dx)
 {
-  realtype my_intgr;
+  sunrealtype my_intgr;
   sunindextype i;
 
-  my_intgr = RCONST(0.5)*(z[0] + z[l-1]);
+  my_intgr = SUN_RCONST(0.5)*(z[0] + z[l-1]);
   for (i = 1; i < l-1; i++)
     my_intgr += z[i];
   my_intgr *= dx;
@@ -599,9 +599,9 @@ static realtype Xintgr(realtype *z, sunindextype l, realtype dx)
  * Compute value of g(u)
  */
 
-static realtype Compute_g(N_Vector u, UserData data)
+static sunrealtype Compute_g(N_Vector u, UserData data)
 {
-  realtype intgr, my_intgr, dx, *udata;
+  sunrealtype intgr, my_intgr, dx, *udata;
   sunindextype my_length;
   int npes, my_pe, i;
   MPI_Status status;
@@ -634,14 +634,14 @@ static realtype Compute_g(N_Vector u, UserData data)
  * Print output after backward integration
  */
 
-static void PrintOutput(realtype g_val, N_Vector uB, UserData data)
+static void PrintOutput(sunrealtype g_val, N_Vector uB, UserData data)
 {
   MPI_Comm comm;
   MPI_Status status;
   int j, npes, my_pe;
   sunindextype i, Ni, indx, local_N, nperpe, nrem;
-  realtype *uBdata;
-  realtype *mu;
+  sunrealtype *uBdata;
+  sunrealtype *mu;
 
   comm = data->comm;
   npes = data->npes;
@@ -665,7 +665,7 @@ static void PrintOutput(realtype g_val, N_Vector uB, UserData data)
     printf("dgdp(tf)\n  [ 1]: %8e\n  [ 2]: %8e\n\n", -uBdata[0], -uBdata[1]);
 #endif
 
-    mu = (realtype *)malloc(NEQ*sizeof(realtype));
+    mu = (sunrealtype *)malloc(NEQ*sizeof(sunrealtype));
     if (check_retval((void *)mu, "malloc", 2, my_pe)) MPI_Abort(comm, 1);
 
     indx = 0;

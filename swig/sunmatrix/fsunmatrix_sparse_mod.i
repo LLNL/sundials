@@ -39,10 +39,10 @@
 SWIGEXPORT double * _wrap_FSUNSparseMatrix_Data(SUNMatrix farg1) {
   double * fresult ;
   SUNMatrix arg1 = (SUNMatrix) 0 ;
-  realtype *result = 0 ;
+  sunrealtype *result = 0 ;
   
   arg1 = (SUNMatrix)(farg1);
-  result = (realtype *)SUNSparseMatrix_Data(arg1);
+  result = (sunrealtype *)SUNSparseMatrix_Data(arg1);
   fresult = result;
   return fresult;
 }

@@ -24,7 +24,7 @@
 #define ONE  SUN_RCONST(1.0)
 
 /* Dummy user-supplied function */
-static int f(realtype t, N_Vector y, N_Vector ydot, void *user_data)
+static int f(sunrealtype t, N_Vector y, N_Vector ydot, void *user_data)
 {
   return 0;
 }

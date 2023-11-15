@@ -33,8 +33,8 @@ their interaction with {\cvode}.
 Following the initial comment block, this program has a number
 of \id{\#include} lines, which allow access to useful items in {\cvode}
 header files.  The \id{sundials\_types.h} file provides the definition of the
-type \id{realtype} (see \ugref{s:types} for details).  
-For now, it suffices to read \id{realtype} as \id{double}.
+type \id{sunrealtype} (see \ugref{s:types} for details).  
+For now, it suffices to read \id{sunrealtype} as \id{double}.
 The \id{cvode.h} file provides prototypes for the {\cvode}
 functions to be called (excluding the linear solver selection
 function), and also a number of constants that are to be used in
@@ -407,7 +407,7 @@ include \id{sunlinsol\_spgmr.h} and \id{sundials\_math.h}.  The first
 contains constants and function prototypes associated with the
 {\sunlinsolspgmr} module, including the values of the \id{pretype}
 argument to \id{SUNLinSol\_SPGMR}. The inclusion of \id{sundials\_math.h} is
-done to access the \id{SUNSQR} macro for the square of a \id{realtype}
+done to access the \id{SUNSQR} macro for the square of a \id{sunrealtype}
 number. 
 
 The \id{main} program calls \id{CVodeCreate} specifying the \id{CV\_BDF} method
@@ -474,7 +474,7 @@ We need to take a brief detour to explain one last important aspect of
 this program.  While the generic {\sunlinsoldense} linear solver
 module serves as the interface to dense matrix solves for the main
 {\sundials} solvers, the underlying algebraic operations operate on
-dense matrices with \id{realtype **} as the underlying dense matrix
+dense matrices with \id{sunrealtype **} as the underlying dense matrix
 type.  To avoid the extra layer of function calls and dense matrix and
 linear solver data structures, \id{cvDiurnal\_kry.c} uses underling small
 dense functions for all operations on the $2 \times 2$ preconditioner blocks.  

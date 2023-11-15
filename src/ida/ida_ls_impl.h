@@ -35,11 +35,11 @@ extern "C" {
 typedef struct IDALsMemRec {
 
   /* Linear solver type information */
-  booleantype iterative;    /* is the solver iterative?    */
-  booleantype matrixbased;  /* is a matrix structure used? */
+  sunbooleantype iterative;    /* is the solver iterative?    */
+  sunbooleantype matrixbased;  /* is a matrix structure used? */
 
   /* Jacobian construction & storage */
-  booleantype jacDQ;    /* SUNTRUE if using internal DQ Jacobian approx. */
+  sunbooleantype jacDQ;    /* SUNTRUE if using internal DQ Jacobian approx. */
   IDALsJacFn jac;       /* Jacobian routine to be called                 */
   void *J_data;         /* J_data is passed to jac                       */
 
@@ -54,14 +54,14 @@ typedef struct IDALsMemRec {
   N_Vector rcur;        /* rcur = F(tn, ycur, ypcur)                     */
 
   /* Matrix-based solver, scale solution to account for change in cj */
-  booleantype scalesol;
+  sunbooleantype scalesol;
 
   /* Iterative solver tolerance */
-  realtype eplifac;   /* nonlinear -> linear tol scaling factor       */
-  realtype nrmfac;    /* integrator -> LS norm conversion factor      */
+  sunrealtype eplifac;   /* nonlinear -> linear tol scaling factor       */
+  sunrealtype nrmfac;    /* integrator -> LS norm conversion factor      */
 
   /* Statistics and associated parameters */
-  realtype dqincfac;  /* dqincfac = optional increment factor in Jv   */
+  sunrealtype dqincfac;  /* dqincfac = optional increment factor in Jv   */
   long int nje;       /* nje = no. of calls to jac                    */
   long int npe;       /* npe = total number of precond calls          */
   long int nli;       /* nli = total number of linear iterations      */
@@ -99,7 +99,7 @@ typedef struct IDALsMemRec {
      (b) internal jtimes
          - jt_data == ida_mem
          - jtimesDQ == SUNTRUE */
-  booleantype jtimesDQ;
+  sunbooleantype jtimesDQ;
   IDALsJacTimesSetupFn jtsetup;
   IDALsJacTimesVecFn jtimes;
   IDAResFn jt_res;
@@ -116,22 +116,22 @@ typedef struct IDALsMemRec {
 int idaLsATimes(void *ida_mem, N_Vector v, N_Vector z);
 int idaLsPSetup(void *ida_mem);
 int idaLsPSolve(void *ida_mem, N_Vector r, N_Vector z,
-                realtype tol, int lr);
+                sunrealtype tol, int lr);
 
 /* Difference quotient approximation for Jac times vector */
-int idaLsDQJtimes(realtype tt, N_Vector yy, N_Vector yp,
+int idaLsDQJtimes(sunrealtype tt, N_Vector yy, N_Vector yp,
                   N_Vector rr, N_Vector v, N_Vector Jv,
-                  realtype c_j, void *data,
+                  sunrealtype c_j, void *data,
                   N_Vector work1, N_Vector work2);
 
 /* Difference-quotient Jacobian approximation routines */
-int idaLsDQJac(realtype tt, realtype c_j, N_Vector yy, N_Vector yp,
+int idaLsDQJac(sunrealtype tt, sunrealtype c_j, N_Vector yy, N_Vector yp,
                N_Vector rr, SUNMatrix Jac, void *data,
                N_Vector tmp1, N_Vector tmp2, N_Vector tmp3);
-int idaLsDenseDQJac(realtype tt, realtype c_j, N_Vector yy,
+int idaLsDenseDQJac(sunrealtype tt, sunrealtype c_j, N_Vector yy,
                     N_Vector yp, N_Vector rr, SUNMatrix Jac,
                     IDAMem IDA_mem, N_Vector tmp1);
-int idaLsBandDQJac(realtype tt, realtype c_j,  N_Vector yy,
+int idaLsBandDQJac(sunrealtype tt, sunrealtype c_j,  N_Vector yy,
                    N_Vector yp, N_Vector rr, SUNMatrix Jac,
                    IDAMem IDA_mem, N_Vector tmp1,
                    N_Vector tmp2, N_Vector tmp3);

@@ -178,7 +178,7 @@ int main(int argc, char *argv[])
   }
 
   // Allocate host data
-  realtype* Adata = (realtype*) malloc(sizeof(realtype)*SUNMatrix_OneMklDense_LData(A));
+  sunrealtype* Adata = (sunrealtype*) malloc(sizeof(sunrealtype)*SUNMatrix_OneMklDense_LData(A));
   if (!Adata)
   {
     printf("Data allocation failed\n");
@@ -187,10 +187,10 @@ int main(int argc, char *argv[])
     SUNMatDestroy(A);
   }
 
-  realtype* Idata = NULL;
+  sunrealtype* Idata = NULL;
   if (square)
   {
-    Idata = (realtype*) malloc(sizeof(realtype)*SUNMatrix_OneMklDense_LData(I));
+    Idata = (sunrealtype*) malloc(sizeof(sunrealtype)*SUNMatrix_OneMklDense_LData(I));
     if (!Idata)
     {
       printf("Data allocation failed\n");
@@ -224,7 +224,7 @@ int main(int argc, char *argv[])
     SUNMatrix_OneMklDense_CopyToDevice(I, Idata);
   }
 
-  realtype* xdata = N_VGetArrayPointer(x);
+  sunrealtype* xdata = N_VGetArrayPointer(x);
   for(k = 0; k < nblocks; k++)
     for(i = 0; i < matcols; i++)
       xdata[matcols * k + i] = ONE / (i+1);
@@ -233,7 +233,7 @@ int main(int argc, char *argv[])
 
   N_VCopyToDevice_Sycl(x);
 
-  realtype* ydata = N_VGetArrayPointer(y);
+  sunrealtype* ydata = N_VGetArrayPointer(y);
   for(k = 0; k < nblocks; k++)
   {
     for(i = 0; i < matrows; i++)
@@ -290,14 +290,14 @@ int main(int argc, char *argv[])
  * ---------------------------------------------------------------------------*/
 
 
-int check_matrix(SUNMatrix A, SUNMatrix B, realtype tol)
+int check_matrix(SUNMatrix A, SUNMatrix B, sunrealtype tol)
 {
   int failure = 0;
   sunindextype i = 0;
   sunindextype Aldata = SUNMatrix_OneMklDense_LData(A);
   sunindextype Bldata = SUNMatrix_OneMklDense_LData(B);
-  realtype *Adata = (realtype*) malloc(sizeof(realtype) * Aldata);
-  realtype *Bdata = (realtype*) malloc(sizeof(realtype) * Bldata);
+  sunrealtype *Adata = (sunrealtype*) malloc(sizeof(sunrealtype) * Aldata);
+  sunrealtype *Bdata = (sunrealtype*) malloc(sizeof(sunrealtype) * Bldata);
 
   // Copy data to host
   SUNMatrix_OneMklDense_CopyFromDevice(A, Adata);
@@ -326,12 +326,12 @@ int check_matrix(SUNMatrix A, SUNMatrix B, realtype tol)
 }
 
 
-int check_matrix_entry(SUNMatrix A, realtype val, realtype tol)
+int check_matrix_entry(SUNMatrix A, sunrealtype val, sunrealtype tol)
 {
   int failure = 0;
   sunindextype i = 0;
   sunindextype Aldata = SUNMatrix_OneMklDense_LData(A);
-  realtype *Adata = (realtype*) malloc(sizeof(realtype) * Aldata);
+  sunrealtype *Adata = (sunrealtype*) malloc(sizeof(sunrealtype) * Aldata);
 
   // copy data to host
   SUNMatrix_OneMklDense_CopyFromDevice(A, Adata);
@@ -356,10 +356,10 @@ int check_matrix_entry(SUNMatrix A, realtype val, realtype tol)
 }
 
 
-int check_vector(N_Vector actual, N_Vector expected, realtype tol)
+int check_vector(N_Vector actual, N_Vector expected, sunrealtype tol)
 {
   int failure = 0;
-  realtype *xdata, *ydata;
+  sunrealtype *xdata, *ydata;
   sunindextype xldata, yldata;
   sunindextype i;
 
@@ -401,9 +401,9 @@ int check_vector(N_Vector actual, N_Vector expected, realtype tol)
 }
 
 
-booleantype has_data(SUNMatrix A)
+sunbooleantype has_data(SUNMatrix A)
 {
-  realtype *Adata = SUNMatrix_OneMklDense_Data(A);
+  sunrealtype *Adata = SUNMatrix_OneMklDense_Data(A);
   if (Adata == NULL)
     return SUNFALSE;
   else
@@ -411,7 +411,7 @@ booleantype has_data(SUNMatrix A)
 }
 
 
-booleantype is_square(SUNMatrix A)
+sunbooleantype is_square(SUNMatrix A)
 {
   if (SUNMatrix_OneMklDense_Rows(A) == SUNMatrix_OneMklDense_Columns(A))
     return SUNTRUE;

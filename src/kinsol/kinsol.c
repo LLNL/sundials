@@ -76,22 +76,22 @@
  * =================================================================
  */
 
-#define HALF      RCONST(0.5)
-#define ZERO      RCONST(0.0)
-#define ONE       RCONST(1.0)
-#define ONEPT5    RCONST(1.5)
-#define TWO       RCONST(2.0)
-#define THREE     RCONST(3.0)
-#define FIVE      RCONST(5.0)
-#define TWELVE    RCONST(12.0)
-#define POINT1    RCONST(0.1)
-#define POINT01   RCONST(0.01)
-#define POINT99   RCONST(0.99)
-#define THOUSAND  RCONST(1000.0)
-#define ONETHIRD  RCONST(0.3333333333333333)
-#define TWOTHIRDS RCONST(0.6666666666666667)
-#define POINT9    RCONST(0.9)
-#define POINT0001 RCONST(0.0001)
+#define HALF      SUN_RCONST(0.5)
+#define ZERO      SUN_RCONST(0.0)
+#define ONE       SUN_RCONST(1.0)
+#define ONEPT5    SUN_RCONST(1.5)
+#define TWO       SUN_RCONST(2.0)
+#define THREE     SUN_RCONST(3.0)
+#define FIVE      SUN_RCONST(5.0)
+#define TWELVE    SUN_RCONST(12.0)
+#define POINT1    SUN_RCONST(0.1)
+#define POINT01   SUN_RCONST(0.01)
+#define POINT99   SUN_RCONST(0.99)
+#define THOUSAND  SUN_RCONST(1000.0)
+#define ONETHIRD  SUN_RCONST(0.3333333333333333)
+#define TWOTHIRDS SUN_RCONST(0.6666666666666667)
+#define POINT9    SUN_RCONST(0.9)
+#define POINT0001 SUN_RCONST(0.0001)
 
 /*
  * =================================================================
@@ -161,29 +161,29 @@
  * =================================================================
  */
 
-static booleantype KINCheckNvector(N_Vector tmpl);
-static booleantype KINAllocVectors(KINMem kin_mem, N_Vector tmpl);
+static sunbooleantype KINCheckNvector(N_Vector tmpl);
+static sunbooleantype KINAllocVectors(KINMem kin_mem, N_Vector tmpl);
 static int KINSolInit(KINMem kin_mem);
 static int KINConstraint(KINMem kin_mem );
-static void KINForcingTerm(KINMem kin_mem, realtype fnormp);
+static void KINForcingTerm(KINMem kin_mem, sunrealtype fnormp);
 static void KINFreeVectors(KINMem kin_mem);
 
-static int  KINFullNewton(KINMem kin_mem, realtype *fnormp,
-                          realtype *f1normp, booleantype *maxStepTaken);
-static int  KINLineSearch(KINMem kin_mem, realtype *fnormp,
-                          realtype *f1normp, booleantype *maxStepTaken);
+static int  KINFullNewton(KINMem kin_mem, sunrealtype *fnormp,
+                          sunrealtype *f1normp, sunbooleantype *maxStepTaken);
+static int  KINLineSearch(KINMem kin_mem, sunrealtype *fnormp,
+                          sunrealtype *f1normp, sunbooleantype *maxStepTaken);
 static int  KINPicardAA(KINMem kin_mem);
 static int  KINFP(KINMem kin_mem);
 
 static int  KINLinSolDrv(KINMem kinmem);
 static int  KINPicardFcnEval(KINMem kin_mem, N_Vector gval, N_Vector uval,
                              N_Vector fval1);
-static realtype KINScFNorm(KINMem kin_mem, N_Vector v, N_Vector scale);
-static realtype KINScSNorm(KINMem kin_mem, N_Vector v, N_Vector u);
-static int KINStop(KINMem kin_mem, booleantype maxStepTaken,
+static sunrealtype KINScFNorm(KINMem kin_mem, N_Vector v, N_Vector scale);
+static sunrealtype KINScSNorm(KINMem kin_mem, N_Vector v, N_Vector u);
+static int KINStop(KINMem kin_mem, sunbooleantype maxStepTaken,
                    int sflag);
 static int AndersonAcc(KINMem kin_mem, N_Vector gval, N_Vector fv, N_Vector x,
-                       N_Vector x_old, long int iter, realtype *R, realtype *gamma);
+                       N_Vector x_old, long int iter, sunrealtype *R, sunrealtype *gamma);
 
 /*
  * =================================================================
@@ -210,7 +210,7 @@ static int AndersonAcc(KINMem kin_mem, N_Vector gval, N_Vector fv, N_Vector x,
 void *KINCreate(SUNContext sunctx)
 {
   KINMem kin_mem;
-  realtype uround;
+  sunrealtype uround;
 
   /* Test inputs */
   if (sunctx == NULL) {
@@ -232,7 +232,7 @@ void *KINCreate(SUNContext sunctx)
 
   /* set uround (unit roundoff) */
 
-  kin_mem->kin_uround = uround = UNIT_ROUNDOFF;
+  kin_mem->kin_uround = uround = SUN_UNIT_ROUNDOFF;
 
   /* set default values for solver optional inputs */
 
@@ -328,7 +328,7 @@ int KINInit(void *kinmem, KINSysFn func, N_Vector tmpl)
 {
   sunindextype liw1, lrw1;
   KINMem kin_mem;
-  booleantype allocOK, nvectorOK, dotprodSB;
+  sunbooleantype allocOK, nvectorOK, dotprodSB;
 
   /* check kinmem */
 
@@ -467,10 +467,10 @@ int KINInit(void *kinmem, KINSysFn func, N_Vector tmpl)
 int KINSol(void *kinmem, N_Vector u, int strategy_in,
            N_Vector u_scale, N_Vector f_scale)
 {
-  realtype fnormp, f1normp, epsmin;
+  sunrealtype fnormp, f1normp, epsmin;
   KINMem kin_mem;
   int ret, sflag;
-  booleantype maxStepTaken;
+  sunbooleantype maxStepTaken;
 
   /* intialize to avoid compiler warning messages */
 
@@ -774,7 +774,7 @@ void KINFree(void **kinmem)
  * SUNTRUE. Otherwise, SUNFALSE is returned.
  */
 
-static booleantype KINCheckNvector(N_Vector tmpl)
+static sunbooleantype KINCheckNvector(N_Vector tmpl)
 {
   if ((tmpl->ops->nvclone     == NULL) ||
       (tmpl->ops->nvdestroy   == NULL) ||
@@ -805,7 +805,7 @@ static booleantype KINCheckNvector(N_Vector tmpl)
  * returns SUNFALSE.
  */
 
-static booleantype KINAllocVectors(KINMem kin_mem, N_Vector tmpl)
+static sunbooleantype KINAllocVectors(KINMem kin_mem, N_Vector tmpl)
 {
   /* allocate unew, fval, pp, vtemp1 and vtemp2. */
   /* allocate df, dg, q, for Anderson Acceleration, Broyden and EN */
@@ -877,7 +877,7 @@ static booleantype KINAllocVectors(KINMem kin_mem, N_Vector tmpl)
   if (kin_mem->kin_m_aa) {
 
     if (kin_mem->kin_R_aa == NULL) {
-      kin_mem->kin_R_aa = (realtype *) malloc((kin_mem->kin_m_aa*kin_mem->kin_m_aa) * sizeof(realtype));
+      kin_mem->kin_R_aa = (sunrealtype *) malloc((kin_mem->kin_m_aa*kin_mem->kin_m_aa) * sizeof(sunrealtype));
       if (kin_mem->kin_R_aa == NULL) {
         KINProcessError(kin_mem, 0, "KINSOL", "KINAllocVectors", MSG_MEM_FAIL);
         N_VDestroy(kin_mem->kin_unew);
@@ -892,7 +892,7 @@ static booleantype KINAllocVectors(KINMem kin_mem, N_Vector tmpl)
     }
 
     if (kin_mem->kin_gamma_aa == NULL) {
-      kin_mem->kin_gamma_aa = (realtype *) malloc(kin_mem->kin_m_aa * sizeof(realtype));
+      kin_mem->kin_gamma_aa = (sunrealtype *) malloc(kin_mem->kin_m_aa * sizeof(sunrealtype));
       if (kin_mem->kin_gamma_aa == NULL) {
         KINProcessError(kin_mem, 0, "KINSOL", "KINAllocVectors", MSG_MEM_FAIL);
         N_VDestroy(kin_mem->kin_unew);
@@ -925,7 +925,7 @@ static booleantype KINAllocVectors(KINMem kin_mem, N_Vector tmpl)
     }
 
     if (kin_mem->kin_cv == NULL) {
-      kin_mem->kin_cv = (realtype *) malloc(2 * (kin_mem->kin_m_aa+1) * sizeof(realtype));
+      kin_mem->kin_cv = (sunrealtype *) malloc(2 * (kin_mem->kin_m_aa+1) * sizeof(sunrealtype));
       if (kin_mem->kin_cv == NULL) {
         KINProcessError(kin_mem, 0, "KINSOL", "KINAllocVectors", MSG_MEM_FAIL);
         N_VDestroy(kin_mem->kin_unew);
@@ -1134,7 +1134,7 @@ static booleantype KINAllocVectors(KINMem kin_mem, N_Vector tmpl)
       if (kin_mem->kin_orth_aa == KIN_ORTH_ICWY)
       {
         if (kin_mem->kin_T_aa == NULL) {
-          kin_mem->kin_T_aa = (realtype *) malloc(((kin_mem->kin_m_aa*kin_mem->kin_m_aa)) * sizeof(realtype));
+          kin_mem->kin_T_aa = (sunrealtype *) malloc(((kin_mem->kin_m_aa*kin_mem->kin_m_aa)) * sizeof(sunrealtype));
           if (kin_mem->kin_T_aa == NULL) {
             KINProcessError(kin_mem, 0, "KINSOL", "KINAllocVectors", MSG_MEM_FAIL);
             N_VDestroy(kin_mem->kin_unew);
@@ -1333,7 +1333,7 @@ static void KINFreeVectors(KINMem kin_mem)
 static int KINSolInit(KINMem kin_mem)
 {
   int retval;
-  realtype fmax;
+  sunrealtype fmax;
 
   /* check for illegal input parameters */
 
@@ -1567,11 +1567,11 @@ static int KINLinSolDrv(KINMem kin_mem)
  * violated, or if the norm of pp is greater than mxnewtstep.
  */
 
-static int KINFullNewton(KINMem kin_mem, realtype *fnormp, realtype *f1normp,
-                         booleantype *maxStepTaken)
+static int KINFullNewton(KINMem kin_mem, sunrealtype *fnormp, sunrealtype *f1normp,
+                         sunbooleantype *maxStepTaken)
 {
-  realtype pnorm, ratio;
-  booleantype fOK;
+  sunrealtype pnorm, ratio;
+  sunbooleantype fOK;
   int ircvr, retval;
 
   *maxStepTaken = SUNFALSE;
@@ -1702,14 +1702,14 @@ static int KINFullNewton(KINMem kin_mem, realtype *fnormp, realtype *f1normp,
  * condition, as rl can only decrease from 1 at that stage)
  */
 
-static int KINLineSearch(KINMem kin_mem, realtype *fnormp, realtype *f1normp,
-                         booleantype *maxStepTaken)
+static int KINLineSearch(KINMem kin_mem, sunrealtype *fnormp, sunrealtype *f1normp,
+                         sunbooleantype *maxStepTaken)
 {
-  realtype pnorm, ratio, slpi, rlmin, rlength, rl, rlmax, rldiff;
-  realtype rltmp, rlprev, pt1trl, f1nprv, rllo, rlinc, alpha, beta;
-  realtype alpha_cond, beta_cond, rl_a, tmp1, rl_b, tmp2, disc;
+  sunrealtype pnorm, ratio, slpi, rlmin, rlength, rl, rlmax, rldiff;
+  sunrealtype rltmp, rlprev, pt1trl, f1nprv, rllo, rlinc, alpha, beta;
+  sunrealtype alpha_cond, beta_cond, rl_a, tmp1, rl_b, tmp2, disc;
   int ircvr, nbktrk_l, retval;
-  booleantype firstBacktrack, fOK;
+  sunbooleantype firstBacktrack, fOK;
 
   /* Initializations */
 
@@ -2043,9 +2043,9 @@ static int KINConstraint(KINMem kin_mem)
  * sflag    is one of KIN_SUCCESS, STEP_TOO_SMALL
  */
 
-static int KINStop(KINMem kin_mem, booleantype maxStepTaken, int sflag)
+static int KINStop(KINMem kin_mem, sunbooleantype maxStepTaken, int sflag)
 {
-  realtype fmax, rlength, omexp;
+  sunrealtype fmax, rlength, omexp;
   N_Vector delta;
 
   /* Check for too small a step */
@@ -2185,9 +2185,9 @@ static int KINStop(KINMem kin_mem, booleantype maxStepTaken, int sflag)
  * 6/94/75 of the same title.
  */
 
-static void KINForcingTerm(KINMem kin_mem, realtype fnormp)
+static void KINForcingTerm(KINMem kin_mem, sunrealtype fnormp)
 {
-  realtype eta_max, eta_min, eta_safe, linmodel_norm;
+  sunrealtype eta_max, eta_min, eta_safe, linmodel_norm;
 
   eta_max  = POINT9;
   eta_min  = POINT0001;
@@ -2246,7 +2246,7 @@ static void KINForcingTerm(KINMem kin_mem, realtype fnormp)
  * functions from the vector module.
  */
 
-static realtype KINScFNorm(KINMem kin_mem, N_Vector v, N_Vector scale)
+static sunrealtype KINScFNorm(KINMem kin_mem, N_Vector v, N_Vector scale)
 {
   N_VProd(scale, v, kin_mem->kin_vtemp1);
   return(N_VMaxNorm(kin_mem->kin_vtemp1));
@@ -2259,9 +2259,9 @@ static realtype KINScFNorm(KINMem kin_mem, N_Vector v, N_Vector scale)
  * Here ucur is the current step and usc is the u scale factor.
  */
 
-static realtype KINScSNorm(KINMem kin_mem, N_Vector v, N_Vector u)
+static sunrealtype KINScSNorm(KINMem kin_mem, N_Vector v, N_Vector u)
 {
-  realtype length;
+  sunrealtype length;
 
   N_VInv(kin_mem->kin_uscale, kin_mem->kin_vtemp1);
   N_VAbs(u, kin_mem->kin_vtemp2);
@@ -2467,8 +2467,8 @@ static int KINPicardAA(KINMem kin_mem)
   int ret;          /* iteration status            */
   long int iter_aa; /* iteration count for AA      */
   N_Vector delta;   /* temporary workspace vector  */
-  realtype epsmin;
-  realtype fnormp;
+  sunrealtype epsmin;
+  sunrealtype fnormp;
 
   delta  = kin_mem->kin_vtemp1;
   ret    = CONTINUE_ITERATIONS;
@@ -2663,7 +2663,7 @@ static int KINFP(KINMem kin_mem)
   int retval;       /* return value from user func */
   int ret;          /* iteration status            */
   long int iter_aa; /* iteration count for AA      */
-  realtype tolfac;  /* tolerance adjustment factor */
+  sunrealtype tolfac;  /* tolerance adjustment factor */
   N_Vector delta;   /* temporary workspace vector  */
 
   delta  = kin_mem->kin_vtemp1;
@@ -2810,19 +2810,19 @@ static int KINFP(KINMem kin_mem)
 
 static int AndersonAcc(KINMem kin_mem, N_Vector gval, N_Vector fv,
                        N_Vector x, N_Vector xold,
-                       long int iter, realtype *R, realtype *gamma)
+                       long int iter, sunrealtype *R, sunrealtype *gamma)
 {
   int retval;
   long int i_pt, i, j, lAA;
   long int *ipt_map;
-  realtype alfa;
-  realtype onembeta;
-  realtype a, b, temp, c, s;
-  booleantype dotprodSB = SUNFALSE;
+  sunrealtype alfa;
+  sunrealtype onembeta;
+  sunrealtype a, b, temp, c, s;
+  sunbooleantype dotprodSB = SUNFALSE;
 
   /* local shortcuts for fused vector operation */
   int       nvec=0;
-  realtype* cv=kin_mem->kin_cv;
+  sunrealtype* cv=kin_mem->kin_cv;
   N_Vector* Xv=kin_mem->kin_Xv;
 
   /* local dot product flag for single buffer reductions */

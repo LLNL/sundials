@@ -105,7 +105,7 @@ user-callable routines:
       local_length = N_VGetLocalLength_MPIPlusX(v);
 
 
-.. c:function:: realtype *N_VGetArrayPointer_MPIPlusX(N_Vector v)
+.. c:function:: sunrealtype *N_VGetArrayPointer_MPIPlusX(N_Vector v)
 
    This function returns the data array pointer for the local vector.
 
@@ -113,7 +113,7 @@ user-callable routines:
    operation, then ``NULL`` is returned.
 
 
-.. c:function:: void N_VSetArrayPointer_MPIPlusX(realtype *v_data, N_Vector v)
+.. c:function:: void N_VSetArrayPointer_MPIPlusX(sunrealtype *v_data, N_Vector v)
 
    This function sets the data array pointer for the local vector if
    the local vector implements the :c:func:`N_VSetArrayPointer` operation.

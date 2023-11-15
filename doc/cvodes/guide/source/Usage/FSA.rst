@@ -234,7 +234,7 @@ sensitivity analysis beyond those for IVP solution
    Upon completion of the integration, deallocate memory for the vectors
    ``yS0`` using ``N_VDestroyVectorArray(yS0, Ns);``
 
-   If ``yS`` was created from ``realtype`` arrays ``yS_i``, it is the user’s
+   If ``yS`` was created from ``sunrealtype`` arrays ``yS_i``, it is the user’s
    responsibility to also free the space for the arrays ``yS0_i``.
 
 #. :silver:`Finalize MPI, if used`
@@ -429,7 +429,7 @@ One of the following three functions must be called to specify the
 integration tolerances for sensitivities. Note that this call must be made after
 the call to :c:func:`CVodeSensInit` or :c:func:`CVodeSensInit1`.
 
-.. c:function:: int CVodeSensSStolerances(void * cvode_mem, realtype reltolS, realtype* abstolS)
+.. c:function:: int CVodeSensSStolerances(void * cvode_mem, sunrealtype reltolS, sunrealtype* abstolS)
 
    The function :c:func:`CVodeSensSStolerances` specifies scalar relative and absolute
    tolerances.
@@ -446,7 +446,7 @@ the call to :c:func:`CVodeSensInit` or :c:func:`CVodeSensInit1`.
      * ``CV_ILL_INPUT`` -- One of the input tolerances was negative.
 
 
-.. c:function:: int CVodeSensSVtolerances(void * cvode_mem, realtype reltolS, N_Vector* abstolS)
+.. c:function:: int CVodeSensSVtolerances(void * cvode_mem, sunrealtype reltolS, N_Vector* abstolS)
 
    The function :c:func:`CVodeSensSVtolerances` specifies scalar relative tolerance
    and  vector absolute tolerances.
@@ -617,7 +617,7 @@ solution :math:`y` in ``yout``. Solution sensitivities can be obtained through
 one of the following functions:
 
 
-.. c:function:: int CVodeGetSens(void * cvode_mem, realtype * tret, N_Vector * yS)
+.. c:function:: int CVodeGetSens(void * cvode_mem, sunrealtype * tret, N_Vector * yS)
 
    The function :c:func:`CVodeGetSens` returns the sensitivity solution vectors after
    a  successful return from :c:func:`CVode`.
@@ -644,7 +644,7 @@ function is called by :c:func:`CVodeGetSens` with ``k`` :math:`= 0`, but may als
 called directly by the user.
 
 
-.. c:function:: int CVodeGetSensDky(void * cvode_mem, realtype t, int k, N_Vector * dkyS)
+.. c:function:: int CVodeGetSensDky(void * cvode_mem, sunrealtype t, int k, N_Vector * dkyS)
 
    The function :c:func:`CVodeGetSensDky` returns derivatives of the sensitivity
    solution  vectors after a successful return from :c:func:`CVode`.
@@ -669,7 +669,7 @@ parameter in turn through the functions :c:func:`CVodeGetSens1` and
 :c:func:`CVodeGetSensDky1`, defined as follows:
 
 
-.. c:function:: int CVodeGetSens1(void * cvode_mem, realtype * tret, int is, N_Vector yS)
+.. c:function:: int CVodeGetSens1(void * cvode_mem, sunrealtype * tret, int is, N_Vector yS)
 
    The function :c:func:`CVodeGetSens1` returns the ``is``-th sensitivity solution
    vector  after a successful return from :c:func:`CVode`.
@@ -693,7 +693,7 @@ parameter in turn through the functions :c:func:`CVodeGetSens1` and
       will be  the same as that returned at the last :c:func:`CVode` call.
 
 
-.. c:function:: int CVodeGetSensDky1(void * cvode_mem, realtype t, int k, int is, N_Vector dkyS)
+.. c:function:: int CVodeGetSensDky1(void * cvode_mem, sunrealtype t, int k, int is, N_Vector dkyS)
 
    The function :c:func:`CVodeGetSensDky1` returns the ``k``-th derivative of the
    ``is``-th sensitivity solution vector after a successful return from
@@ -747,7 +747,7 @@ time and, if successful, takes effect immediately.
    =================================== ==================================== ============
 
 
-.. c:function:: int CVodeSetSensParams(void * cvode_mem, realtype * p, realtype * pbar, int * plist)
+.. c:function:: int CVodeSetSensParams(void * cvode_mem, sunrealtype * p, sunrealtype * pbar, int * plist)
 
    The function :c:func:`CVodeSetSensParams` specifies problem parameter information
    for sensitivity calculations.
@@ -776,7 +776,7 @@ time and, if successful, takes effect immediately.
          :c:func:`CVodeSensInit1`.
 
 
-.. c:function:: int CVodeSetSensDQMethod(void * cvode_mem, int DQtype, realtype DQrhomax)
+.. c:function:: int CVodeSetSensDQMethod(void * cvode_mem, int DQtype, sunrealtype DQrhomax)
 
    The function :c:func:`CVodeSetSensDQMethod` specifies the difference quotient
    strategy in  the case in which the right-hand side of the sensitivity
@@ -805,7 +805,7 @@ time and, if successful, takes effect immediately.
       ``DQrhomax=0.0``.
 
 
-.. c:function:: int CVodeSetSensErrCon(void * cvode_mem, booleantype errconS)
+.. c:function:: int CVodeSetSensErrCon(void * cvode_mem, sunbooleantype errconS)
 
    The function :c:func:`CVodeSetSensErrCon` specifies the error control  strategy for
    sensitivity variables.
@@ -1177,7 +1177,7 @@ right-hand sides of the sensitivity equations :eq:`CVODES_sens_eqns`, for all
 sensitivity parameters at once, through a function of type :c:type:`CVSensRhsFn`
 defined by:
 
-.. c:type:: int (*CVSensRhsFn)(int Ns, realtype t, N_Vector y, N_Vector ydot, N_Vector *yS, N_Vector *ySdot, void *user_data, N_Vector tmp1, N_Vector tmp2)
+.. c:type:: int (*CVSensRhsFn)(int Ns, sunrealtype t, N_Vector y, N_Vector ydot, N_Vector *yS, N_Vector *ySdot, void *user_data, N_Vector tmp1, N_Vector tmp2)
 
    This function computes the sensitivity right-hand side for all sensitivity
    equations at once.  It must compute the vectors
@@ -1227,7 +1227,7 @@ sensitivity parameter at a time, through a function of type
 :c:func:`CVodeSensInit1`. The type :c:type:`CVSensRhs1Fn` is defined by
 
 
-.. c:type:: int (*CVSensRhs1Fn)(int Ns, realtype t, N_Vector y, N_Vector ydot, int iS, N_Vector yS, N_Vector ySdot, void *user_data, N_Vector tmp1, N_Vector tmp2)
+.. c:type:: int (*CVSensRhs1Fn)(int Ns, sunrealtype t, N_Vector y, N_Vector ydot, int iS, N_Vector yS, N_Vector ySdot, void *user_data, N_Vector tmp1, N_Vector tmp2)
 
    This function computes the sensitivity right-hand side for one sensitivity
    equation at a time.  It must compute the vector
@@ -1471,7 +1471,7 @@ vectors, and quadratures depending on sensitivities at time ``t``. However,
 Sensitivity-dependent quadratures can be obtained using one of the following
 functions:
 
-.. c:function:: int CVodeGetQuadSens(void * cvode_mem, realtype tret, N_Vector * yQS)
+.. c:function:: int CVodeGetQuadSens(void * cvode_mem, sunrealtype tret, N_Vector * yQS)
 
    The function :c:func:`CVodeGetQuadSens` returns the quadrature sensitivities
    solution vectors after a successful return from :c:func:`CVode`.
@@ -1494,7 +1494,7 @@ the interpolating polynomials for the sensitivity-dependent quadrature variables
 at time ``t``. This function is called by :c:func:`CVodeGetQuadSens` with ``k =
 0``, but may also be called directly by the user.
 
-.. c:function:: int CVodeGetQuadSensDky(void* cvode_mem, realtype t, int k, N_Vector* dkyQS)
+.. c:function:: int CVodeGetQuadSensDky(void* cvode_mem, sunrealtype t, int k, N_Vector* dkyQS)
 
    The function :c:func:`CVodeGetQuadSensDky` returns derivatives of the
    quadrature sensitivities  solution vectors after a successful return from
@@ -1520,7 +1520,7 @@ Quadrature sensitivity solution vectors can also be extracted separately for
 each parameter in turn through the functions :c:func:`CVodeGetQuadSens1` and
 :c:func:`CVodeGetQuadSensDky1`, defined as follows:
 
-.. c:function:: int CVodeGetQuadSens1(void * cvode_mem, realtype tret, int is, N_Vector yQS)
+.. c:function:: int CVodeGetQuadSens1(void * cvode_mem, sunrealtype tret, int is, N_Vector yQS)
 
    The function :c:func:`CVodeGetQuadSens1` returns the ``is``-th sensitivity
    of quadratures after a successful return from :c:func:`CVode`.
@@ -1540,7 +1540,7 @@ each parameter in turn through the functions :c:func:`CVodeGetQuadSens1` and
      * ``CV_BAD_DKY`` -- ``yQS`` is ``NULL``.
 
 
-.. c:function:: int CVodeGetQuadSensDky1(void * cvode_mem, realtype t, int k, int is, N_Vector dkyQS)
+.. c:function:: int CVodeGetQuadSensDky1(void * cvode_mem, sunrealtype t, int k, int is, N_Vector dkyQS)
 
    The function :c:func:`CVodeGetQuadSensDky1` returns the ``k``-th derivative
    of the  ``is``-th sensitivity solution vector after a successful  return from
@@ -1573,7 +1573,7 @@ CVODES provides the following optional input functions to control the
 integration of sensitivity-dependent quadrature equations.
 
 
-.. c:function:: int CVodeSetQuadSensErrCon(void * cvode_mem, booleantype errconQS)
+.. c:function:: int CVodeSetQuadSensErrCon(void * cvode_mem, sunbooleantype errconQS)
 
    The function :c:func:`CVodeSetQuadSensErrCon` specifies whether or not the
    quadrature variables are to be used in the step size control  mechanism. If
@@ -1600,7 +1600,7 @@ integration of sensitivity-dependent quadrature equations.
          to :c:func:`CVodeQuadSensInit`.
 
 
-.. c:function:: int CVodeQuadSensSStolerances(void * cvode_mem, realtype reltolQS, realtype* abstolQS)
+.. c:function:: int CVodeQuadSensSStolerances(void * cvode_mem, sunrealtype reltolQS, sunrealtype* abstolQS)
 
    The function :c:func:`CVodeQuadSensSStolerances` specifies scalar relative
    and absolute  tolerances.
@@ -1617,7 +1617,7 @@ integration of sensitivity-dependent quadrature equations.
      * ``CV_NO_QUADSENS`` -- Quadratures depending on the sensitivities were not activated.
      * ``CV_ILL_INPUT`` -- One of the input tolerances was negative.
 
-.. c:function:: int CVodeQuadSensSVtolerances(void * cvode_mem, realtype reltolQS, N_Vector* abstolQS)
+.. c:function:: int CVodeQuadSensSVtolerances(void * cvode_mem, sunrealtype reltolQS, N_Vector* abstolQS)
 
    The function :c:func:`CVodeQuadSensSVtolerances` specifies scalar relative
    and  vector absolute tolerances.
@@ -1745,7 +1745,7 @@ integrand :math:`q`, the appropriate right-hand side functions are given by:
 :math:`\bar{q}_i = q_y s_i + q_{p_i}`. This user function must be of type
 ``CVQuadSensRhsFn`` defined as follows:
 
-.. c:type:: int (*CVQuadSensRhsFn)(int Ns, realtype t, N_Vector y, N_Vector *yS, N_Vector yQdot, N_Vector *yQSdot, void *user_data, N_Vector tmp, N_Vector tmpQ)
+.. c:type:: int (*CVQuadSensRhsFn)(int Ns, sunrealtype t, N_Vector y, N_Vector *yS, N_Vector yQdot, N_Vector *yQSdot, void *user_data, N_Vector tmp, N_Vector tmpQ)
 
    This function computes the sensitivity quadrature equation right-hand side
    for a given value of the independent variable :math:`t`` and state vector

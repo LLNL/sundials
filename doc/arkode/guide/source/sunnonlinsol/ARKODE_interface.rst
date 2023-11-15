@@ -107,7 +107,7 @@ of user-supplied SUNNonlinSol modules are as follows.
       * ``ARK_MEM_NULL`` if the ARKStep memory was ``NULL``.
 
 
-.. c:function:: int ARKStepGetNonlinearSystemData(void* arkode_mem, realtype *tcur, N_Vector *zpred, N_Vector *z, N_Vector *Fi, realtype *gamma, N_Vector *sdata, void **user_data)
+.. c:function:: int ARKStepGetNonlinearSystemData(void* arkode_mem, sunrealtype *tcur, N_Vector *zpred, N_Vector *z, N_Vector *Fi, sunrealtype *gamma, N_Vector *sdata, void **user_data)
 
    Returns all internal data required to construct the current nonlinear
    implicit system :eq:`ARKODE_Residual_corrector` or :eq:`ARKODE_FixedPt_corrector`:
@@ -203,7 +203,7 @@ Additional advanced output functions that are provided to aid in the constructio
 of user-supplied SUNNonlinSol modules are as follows.
 
 
-.. c:function:: int MRIStepGetNonlinearSystemData(void* arkode_mem, realtype *tcur, N_Vector *zpred, N_Vector *z, N_Vector *Fi, realtype *gamma, N_Vector *sdata, void **user_data)
+.. c:function:: int MRIStepGetNonlinearSystemData(void* arkode_mem, sunrealtype *tcur, N_Vector *zpred, N_Vector *z, N_Vector *Fi, sunrealtype *gamma, N_Vector *sdata, void **user_data)
 
    Returns all internal data required to construct the current nonlinear
    implicit system :eq:`ARKODE_Residual_corrector` or :eq:`ARKODE_FixedPt_corrector`:

@@ -414,7 +414,7 @@ Adjoint Sensitivity Analysis. It is not for use in Forward Sensitivity Analysis;
 for that, see :numref:`IDAS.Usage.FSA`. The call to this function
 has the form
 
-.. c:function:: int IDASolveF(void * ida_mem, realtype tout, realtype * tret, N_Vector yret, N_Vector ypret, int itask, int * ncheck)
+.. c:function:: int IDASolveF(void * ida_mem, sunrealtype tout, sunrealtype * tret, N_Vector yret, N_Vector ypret, int itask, int * ncheck)
 
    The function :c:func:`IDASolveF` integrates the forward problem over an
    interval in :math:`t`  and saves checkpointing data.
@@ -512,7 +512,7 @@ not depend on the forward sensitivities. It is essentially wrapper for IDAInit
 with some particularization for backward integration, as described below.
 
 
-.. c:function:: int IDAInitB(void * ida_mem, int which, IDAResFnB resB, realtype tB0, N_Vector yB0, N_Vector ypB0)
+.. c:function:: int IDAInitB(void * ida_mem, int which, IDAResFnB resB, sunrealtype tB0, N_Vector yB0, N_Vector ypB0)
 
    The function :c:func:`IDAInitB` provides problem specification, allocates
    internal memory,  and initializes the backward problem.
@@ -542,7 +542,7 @@ user must call :c:func:`IDAInitBS` instead of :c:func:`IDAInitB`. Only the third
 argument of each function differs between these functions.
 
 
-.. c:function:: int IDAInitBS(void * ida_mem, int which, IDAResFnBS resBS, realtype tB0, N_Vector yB0, N_Vector ypB0)
+.. c:function:: int IDAInitBS(void * ida_mem, int which, IDAResFnBS resBS, sunrealtype tB0, N_Vector yB0, N_Vector ypB0)
 
    The function :c:func:`IDAInitBS` provides problem specification, allocates
    internal memory,  and initializes the backward problem.
@@ -579,7 +579,7 @@ extraction functions ``IDAGet**`` associated with the previous backward problem.
 The call to the :c:func:`IDAReInitB` function has the form
 
 
-.. c:function:: int IDAReInitB(void * ida_mem, int which, realtype tB0, N_Vector yB0, N_Vector ypB0)
+.. c:function:: int IDAReInitB(void * ida_mem, int which, sunrealtype tB0, N_Vector yB0, N_Vector ypB0)
 
    The function :c:func:`IDAReInitB` reinitializes an IDAS backward problem.
 
@@ -608,7 +608,7 @@ One of the following two functions must be called to specify the integration
 tolerances for the backward problem. Note that this call must be made after the
 call to :c:func:`IDAInitB` or :c:func:`IDAInitBS`.
 
-.. c:function:: int IDASStolerancesB(void * ida_mem, int which, realtype reltolB, realtype abstolB)
+.. c:function:: int IDASStolerancesB(void * ida_mem, int which, sunrealtype reltolB, sunrealtype abstolB)
 
    The function :c:func:`IDASStolerancesB` specifies scalar relative and
    absolute  tolerances.
@@ -627,7 +627,7 @@ call to :c:func:`IDAInitB` or :c:func:`IDAInitBS`.
      * ``IDA_ILL_INPUT`` -- One of the input tolerances was negative.
 
 
-.. c:function:: int IDASVtolerancesB(void * ida_mem, int which, realtype reltolB, N_Vector abstolB)
+.. c:function:: int IDASVtolerancesB(void * ida_mem, int which, sunrealtype reltolB, N_Vector abstolB)
 
    The function :c:func:`IDASVtolerancesB` specifies scalar relative tolerance
    and  vector absolute tolerances.
@@ -755,7 +755,7 @@ Both functions require forward solutions at the final time ``tB0``.
 :c:func:`IDACalcICBS` also needs forward sensitivities at the final time
 ``tB0``.
 
-.. c:function:: int IDACalcICB(void * ida_mem, int which, realtype tBout1, N_Vector yfin, N_Vector ypfin)
+.. c:function:: int IDACalcICB(void * ida_mem, int which, sunrealtype tBout1, N_Vector yfin, N_Vector ypfin)
 
    The function :c:func:`IDACalcICB` corrects the initial values ``yB0`` and
    ``ypB0`` at  time ``tB0`` for the backward problem.
@@ -791,7 +791,7 @@ In the case where the backward problem also depends on the forward
 sensitivities, user must call the following function to correct the initial
 conditions:
 
-.. c:function:: int IDACalcICBS(void * ida_mem, int which, realtype tBout1, N_Vector yfin, N_Vector ypfin, N_Vector ySfin, N_Vector ypSfin)
+.. c:function:: int IDACalcICBS(void * ida_mem, int which, sunrealtype tBout1, N_Vector yfin, N_Vector ypfin, N_Vector ySfin, N_Vector ypSfin)
 
    The function :c:func:`IDACalcICBS` corrects the initial values ``yB0`` and
    ``ypB0`` at  time ``tB0`` for the backward problem.
@@ -850,7 +850,7 @@ should be disabled for :c:func:`IDASolveB` by first calling :c:func:`IDARootInit
 
 The call to :c:func:`IDASolveB` has the form
 
-.. c:function:: int IDASolveB(void * ida_mem, realtype tBout, int itaskB)
+.. c:function:: int IDASolveB(void * ida_mem, sunrealtype tBout, int itaskB)
 
    The function :c:func:`IDASolveB` integrates the backward DAE problem.
 
@@ -891,7 +891,7 @@ The call to :c:func:`IDASolveB` has the form
 To obtain the solution ``yB`` to the backward problem, call the function
 :c:func:`IDAGetB` as follows:
 
-.. c:function:: int IDAGetB(void * ida_mem, int which, realtype * tret, N_Vector yB, N_Vector ypB)
+.. c:function:: int IDAGetB(void * ida_mem, int which, sunrealtype * tret, N_Vector yB, N_Vector ypB)
 
    The function :c:func:`IDAGetB` provides the solution ``yB`` of the backward
    DAE  problem.
@@ -1022,7 +1022,7 @@ backward problem depends on the forward sensitivities.
 The function :c:func:`IDASetLinearSolutionScalingB` can be used to enable or
 disable solution scaling when using a matrix-based linear solver.
 
-.. c:function:: int IDASetLinearSolutionScalingB(void * ida_mem, int which, booleantype onoffB)
+.. c:function:: int IDASetLinearSolutionScalingB(void * ida_mem, int which, sunbooleantype onoffB)
 
    The function :c:func:`IDASetLinearSolutionScalingB` enables or disables
    scaling  the linear system solution to account for a change in :math:`\alpha`
@@ -1108,7 +1108,7 @@ product for the backward problem, the user may specify the factor to use in
 setting increments for the finite-difference approximation, via a call to
 :c:func:`IDASetIncrementFactorB`.
 
-.. c:function:: int IDASetIncrementFactorB(void * ida_mem, int which, realtype dqincfacB)
+.. c:function:: int IDASetIncrementFactorB(void * ida_mem, int which, sunrealtype dqincfacB)
 
    The function :c:func:`IDASetIncrementFactorB` specifies the factor  in the
    increments used in the difference quotient approximations to matrix-vector
@@ -1236,7 +1236,7 @@ These may be accomplished through calling the following functions:
       The previous routine ``IDASpilsSetPreconditionerBS`` is now deprecated.
 
 
-.. c:function:: int IDASetEpsLinB(void * ida_mem, int which, realtype eplifacB)
+.. c:function:: int IDASetEpsLinB(void * ida_mem, int which, sunrealtype eplifacB)
 
    The function :c:func:`IDASetEpsLinB` specifies the factor by  which the
    Krylov linear solver's convergence test constant is reduced  from the
@@ -1266,7 +1266,7 @@ These may be accomplished through calling the following functions:
 
       The previous routine ``IDASpilsSetEpsLinB`` is now deprecated.
 
-.. c:function:: int IDASetLSNormFactorB(void * ida_mem, int which, realtype nrmfac)
+.. c:function:: int IDASetLSNormFactorB(void * ida_mem, int which, sunrealtype nrmfac)
 
    The function :c:func:`IDASetLSNormFactorB` specifies the factor to use when
    converting from the integrator tolerance (WRMS norm) to the linear solver
@@ -1341,7 +1341,7 @@ which the backward solution has just been obtained with :c:func:`IDAGetB`. In
 any case, it must be within the last checkpoint interval used by
 :c:func:`IDASolveB`.
 
-.. c:function:: int IDAGetAdjY(void * ida_mem, realtype t, N_Vector y, N_Vector yp)
+.. c:function:: int IDAGetAdjY(void * ida_mem, sunrealtype t, N_Vector y, N_Vector yp)
 
    The function :c:func:`IDAGetAdjY` returns the interpolated value of the
    forward solution :math:`y` and its derivative during a backward integration.
@@ -1381,15 +1381,15 @@ any case, it must be within the last checkpoint interval used by
 
       -  ``ckpnt[i].next_addr`` (``void *``) address of next checkpoint
 
-      -  ``ckpnt[i].t0`` (``realtype``) start of checkpoint interval
+      -  ``ckpnt[i].t0`` (``sunrealtype``) start of checkpoint interval
 
-      -  ``ckpnt[i].t1`` (``realtype``) end of checkpoint interval
+      -  ``ckpnt[i].t1`` (``sunrealtype``) end of checkpoint interval
 
       -  ``ckpnt[i].nstep`` (``long int``) step counter at ckeckpoint ``t0``
 
       -  ``ckpnt[i].order`` (``int``) method order at checkpoint ``t0``
 
-      -  ``ckpnt[i].step`` (``realtype``) step size at checkpoint ``t0``
+      -  ``ckpnt[i].step`` (``sunrealtype``) step size at checkpoint ``t0``
 
 
 .. _IDAS.Usage.ADJ.user_callable.optional_ouput_b.iccalcB:
@@ -1523,7 +1523,7 @@ To extract the values of the quadrature variables at the last return time of
 :c:func:`IDAGetQuad`. The call to this function has the form
 
 
-.. c:function:: int IDAGetQuadB(void * ida_mem, int which, realtype * tret, N_Vector yQB)
+.. c:function:: int IDAGetQuadB(void * ida_mem, int which, sunrealtype * tret, N_Vector yQB)
 
    The function :c:func:`IDAGetQuadB` returns the quadrature solution vector
    after  a successful return from :c:func:`IDASolveB`.
@@ -1603,7 +1603,7 @@ DAE residual for the backward problem
 
 The user must provide a ``resB`` function of type ``IDAResFnB`` defined as follows:
 
-.. c:type:: int (*IDAResFnB)(realtype t, N_Vector y, N_Vector yp, N_Vector yB, N_Vector ypB, N_Vector resvalB, void *user_dataB)
+.. c:type:: int (*IDAResFnB)(sunrealtype t, N_Vector y, N_Vector yp, N_Vector yB, N_Vector ypB, N_Vector resvalB, void *user_dataB)
 
    This function evaluates the residual of the backward problem DAE system.
    This could be :eq:`IDAS_adj_eqns` or :eq:`IDAS_adj1_eqns`.
@@ -1650,7 +1650,7 @@ DAE residual for the backward problem depending on the forward sensitivities
 The user must provide a ``resBS`` function of type ``IDAResFnBS`` defined as
 follows:
 
-.. c:type:: int (*IDAResFnBS)(realtype t, N_Vector y, N_Vector yp, N_Vector *yS, N_Vector *ypS, N_Vector yB, N_Vector ypB, N_Vector resvalB, void *user_dataB)
+.. c:type:: int (*IDAResFnBS)(sunrealtype t, N_Vector y, N_Vector yp, N_Vector *yS, N_Vector *ypS, N_Vector yB, N_Vector ypB, N_Vector resvalB, void *user_dataB)
 
    This function evaluates the residual of the backward problem DAE system.
    This could be :eq:`IDAS_adj_eqns` or :eq:`IDAS_adj1_eqns`.
@@ -1699,7 +1699,7 @@ Quadrature right-hand side for the backward problem
 
 The user must provide an ``fQB`` function of type ``IDAQuadRhsFnB`` defined by
 
-.. c:type:: int (*IDAQuadRhsFnB)(realtype t, N_Vector y, N_Vector yp, N_Vector yB, N_Vector ypB, N_Vector rhsvalBQ, void *user_dataB)
+.. c:type:: int (*IDAQuadRhsFnB)(sunrealtype t, N_Vector y, N_Vector yp, N_Vector yB, N_Vector ypB, N_Vector rhsvalBQ, void *user_dataB)
 
    This function computes the quadrature equation right-hand side for the
    backward problem.
@@ -1750,7 +1750,7 @@ Sensitivity-dependent quadrature right-hand side for the backward problem
 
 The user must provide an ``fQBS`` function of type ``IDAQuadRhsFnBS`` defined by
 
-.. c:type:: int (*IDAQuadRhsFnBS)(realtype t, N_Vector y, N_Vector yp, N_Vector *yS, N_Vector *ypS, N_Vector yB, N_Vector ypB, N_Vector rhsvalBQS, void *user_dataB)
+.. c:type:: int (*IDAQuadRhsFnBS)(sunrealtype t, N_Vector y, N_Vector yp, N_Vector *yS, N_Vector *ypS, N_Vector yB, N_Vector ypB, N_Vector rhsvalBQS, void *user_dataB)
 
    This function computes the quadrature equation residual for the  backward problem.
 
@@ -1803,7 +1803,7 @@ argument in the step described in :numref:`IDAS.Usage.ADJ.skeleton_adj`), the
 user may provide a function of type ``IDALsJacFnB`` or :c:type:`IDALsJacFnBS`, defined
 as follows:
 
-.. c:type:: int (*IDALsJacFnB)(realtype tt, realtype c_jB, N_Vector yy, N_Vector yp, N_Vector yyB, N_Vector ypB, N_Vector rrB, SUNMatrix JacB, void *user_dataB, N_Vector tmp1B, N_Vector tmp2B, N_Vector tmp3B)
+.. c:type:: int (*IDALsJacFnB)(sunrealtype tt, sunrealtype c_jB, N_Vector yy, N_Vector yp, N_Vector yyB, N_Vector ypB, N_Vector rrB, SUNMatrix JacB, void *user_dataB, N_Vector tmp1B, N_Vector tmp2B, N_Vector tmp3B)
 
    This function computes the Jacobian of the backward problem (or an
    approximation  to it).
@@ -1857,7 +1857,7 @@ as follows:
         the new function type name soon.
 
 
-.. c:type:: int (*IDALsJacFnBS)(realtype tt, realtype c_jB, N_Vector yy, N_Vector yp, N_Vector *yS, N_Vector *ypS, N_Vector yyB, N_Vector ypB, N_Vector rrB, SUNMatrix JacB, void *user_dataB, N_Vector tmp1B, N_Vector tmp2B, N_Vector tmp3B);
+.. c:type:: int (*IDALsJacFnBS)(sunrealtype tt, sunrealtype c_jB, N_Vector yy, N_Vector yp, N_Vector *yS, N_Vector *ypS, N_Vector yyB, N_Vector ypB, N_Vector rrB, SUNMatrix JacB, void *user_dataB, N_Vector tmp1B, N_Vector tmp2B, N_Vector tmp3B);
 
    This function computes the Jacobian of the backward problem (or an
    approximation to it), in the case where the backward problem depends on the
@@ -1928,7 +1928,7 @@ in the following form, to compute matrix-vector products :math:`Jv`. If such a
 function is not supplied, the default is a difference quotient approximation to
 these products.
 
-.. c:type:: int (*IDALsJacTimesVecFnB)(realtype t, N_Vector yy, N_Vector yp, N_Vector yB, N_Vector ypB, N_Vector resvalB, N_Vector vB, N_Vector JvB, realtype cjB, void *user_dataB, N_Vector tmp1B, N_Vector tmp2B)
+.. c:type:: int (*IDALsJacTimesVecFnB)(sunrealtype t, N_Vector yy, N_Vector yp, N_Vector yB, N_Vector ypB, N_Vector resvalB, N_Vector vB, N_Vector JvB, sunrealtype cjB, void *user_dataB, N_Vector tmp1B, N_Vector tmp2B)
 
    This function computes the action of the backward problem Jacobian ``JB``  on
    a given vector ``vB``.
@@ -1971,7 +1971,7 @@ these products.
       name soon.
 
 
-.. c:type:: int (*IDALsJacTimesVecFnBS)(realtype t, N_Vector yy, N_Vector yp, N_Vector *yyS, N_Vector *ypS, N_Vector yB, N_Vector ypB, N_Vector resvalB, N_Vector vB, N_Vector JvB, realtype cjB, void *user_dataB, N_Vector tmp1B, N_Vector tmp2B)
+.. c:type:: int (*IDALsJacTimesVecFnBS)(sunrealtype t, N_Vector yy, N_Vector yp, N_Vector *yyS, N_Vector *ypS, N_Vector yB, N_Vector ypB, N_Vector resvalB, N_Vector vB, N_Vector JvB, sunrealtype cjB, void *user_dataB, N_Vector tmp1B, N_Vector tmp2B)
 
    This function computes the action of the backward problem Jacobian ``JB``  on
    a given vector ``vB``, in the case where the backward problem depends  on the
@@ -2025,7 +2025,7 @@ preprocessed or evaluated, then this needs to be done in a user-supplied
 function of type :c:type:`IDALsJacTimesSetupFnB` or
 :c:type:`IDALsJacTimesSetupFnBS`, defined as follows:
 
-.. c:type:: int (*IDALsJacTimesSetupFnB)(realtype tt, N_Vector yy, N_Vector yp, N_Vector yB, N_Vector ypB, N_Vector resvalB, realtype cjB, void *user_dataB)
+.. c:type:: int (*IDALsJacTimesSetupFnB)(sunrealtype tt, N_Vector yy, N_Vector yp, N_Vector yB, N_Vector ypB, N_Vector resvalB, sunrealtype cjB, void *user_dataB)
 
    This function preprocesses and/or evaluates Jacobian data needed  by the
    Jacobian-times-vector routine for the backward problem.
@@ -2057,7 +2057,7 @@ function of type :c:type:`IDALsJacTimesSetupFnB` or
       these, the user will need to add a pointer to ``ida_mem``  to
       ``user_dataB`` and then use the ``IDAGet*`` functions described in
       :numref:`IDAS.Usage.SIM.user_callable.optional_output.main`.
-      The unit roundoff can be accessed as  ``UNIT_ROUNDOFF`` defined in
+      The unit roundoff can be accessed as  ``SUN_UNIT_ROUNDOFF`` defined in
       ``sundials_types.h``.
 
    .. warning::
@@ -2069,7 +2069,7 @@ function of type :c:type:`IDALsJacTimesSetupFnB` or
       name soon.
 
 
-.. c:type:: int (*IDALsJacTimesSetupFnBS)(realtype tt, N_Vector yy, N_Vector yp, N_Vector *yyS, N_Vector *ypS, N_Vector yB, N_Vector ypB, N_Vector resvalB, realtype cjB, void *user_dataB)
+.. c:type:: int (*IDALsJacTimesSetupFnBS)(sunrealtype tt, N_Vector yy, N_Vector yp, N_Vector *yyS, N_Vector *ypS, N_Vector yB, N_Vector ypB, N_Vector resvalB, sunrealtype cjB, void *user_dataB)
 
    This function preprocesses and/or evaluates Jacobian data needed  by the Jacobian-times-vector routine for the backward problem, in the case that  the backward problem depends on the forward sensitivities.
 
@@ -2102,7 +2102,7 @@ function of type :c:type:`IDALsJacTimesSetupFnB` or
       etc.  To obtain these, the user will need to add a pointer to ``ida_mem``
       to ``user_dataB`` and then use the ``IDAGet*`` functions described in
       :numref:`IDAS.Usage.ADJ.user_callable.optional_output_b`. The unit roundoff
-      can be accessed as  ``UNIT_ROUNDOFF`` defined in ``sundials_types.h``.
+      can be accessed as  ``SUN_UNIT_ROUNDOFF`` defined in ``sundials_types.h``.
       The previous function type ``IDASpilsJacTimesSetupFnBS`` is deprecated.
 
    .. warning::
@@ -2124,7 +2124,7 @@ user must provide a function to solve the linear system :math:`Pz = r`, where
 :math:`P` is a left preconditioner matrix. This function must have one of the
 following two forms:
 
-.. c:type:: int (*IDALsPrecSolveFnB)(realtype t, N_Vector yy, N_Vector yp, N_Vector yB, N_Vector ypB, N_Vector resvalB, N_Vector rvecB, N_Vector zvecB, realtype cjB, realtype deltaB, void *user_dataB)
+.. c:type:: int (*IDALsPrecSolveFnB)(sunrealtype t, N_Vector yy, N_Vector yp, N_Vector yB, N_Vector ypB, N_Vector resvalB, N_Vector rvecB, N_Vector zvecB, sunrealtype cjB, sunrealtype deltaB, void *user_dataB)
 
    This function solves the preconditioning system :math:`Pz = r` for the backward
    problem.
@@ -2154,7 +2154,7 @@ following two forms:
       ``IDALsPrecSolveFnB``, and is deprecated.
 
 
-.. c:type:: int (*IDALsPrecSolveFnBS)(realtype t, N_Vector yy, N_Vector yp, N_Vector *yyS, N_Vector *ypS, N_Vector yB, N_Vector ypB, N_Vector resvalB, N_Vector rvecB, N_Vector zvecB, realtype cjB, realtype deltaB, void *user_dataB)
+.. c:type:: int (*IDALsPrecSolveFnBS)(sunrealtype t, N_Vector yy, N_Vector yp, N_Vector *yyS, N_Vector *ypS, N_Vector yB, N_Vector ypB, N_Vector resvalB, N_Vector rvecB, N_Vector zvecB, sunrealtype cjB, sunrealtype deltaB, void *user_dataB)
 
    This function solves the preconditioning system :math:`Pz = r` for the
    backward problem,  for the case in which the backward problem depends on the
@@ -2196,7 +2196,7 @@ If the user’s preconditioner requires that any Jacobian-related data be
 preprocessed or evaluated, then this needs to be done in a user-supplied
 function of one of the following two types:
 
-.. c:type:: int (*IDALsPrecSetupFnB)(realtype t, N_Vector yy, N_Vector yp, N_Vector yB, N_Vector ypB, N_Vector resvalB, realtype cjB, void *user_dataB)
+.. c:type:: int (*IDALsPrecSetupFnB)(sunrealtype t, N_Vector yy, N_Vector yp, N_Vector yB, N_Vector ypB, N_Vector resvalB, sunrealtype cjB, void *user_dataB)
 
    This function preprocesses and/or evaluates Jacobian-related data needed  by
    the preconditioner for the backward problem.
@@ -2223,7 +2223,7 @@ function of one of the following two types:
       ``IDALsPrecSetupFnB``, and is deprecated.
 
 
-.. c:type:: int (*IDALsPrecSetupFnBS)(realtype t, N_Vector yy, N_Vector yp, N_Vector *yyS, N_Vector *ypS, N_Vector yB, N_Vector ypB, N_Vector resvalB, realtype cjB, void *user_dataB)
+.. c:type:: int (*IDALsPrecSetupFnBS)(sunrealtype t, N_Vector yy, N_Vector yp, N_Vector *yyS, N_Vector *ypS, N_Vector yB, N_Vector ypB, N_Vector resvalB, sunrealtype cjB, void *user_dataB)
 
    This function preprocesses and/or evaluates Jacobian-related data needed  by
    the preconditioner for the backward problem, in the case where the  backward
@@ -2280,7 +2280,7 @@ The IDABBDPRE module is initialized by calling the following function, *after*
 an iterative linear solver for the backward problem has been attached to IDAS by
 calling :c:func:`IDASetLinearSolverB` (see :numref:`IDAS.Usage.ADJ.user_callable.lin_solv_b`).
 
-.. c:function:: int IDABBDPrecInitB(void * ida_mem, int which, sunindextype NlocalB, sunindextype mudqB, sunindextype mldqB, sunindextype mukeepB, sunindextype mlkeepB, realtype dqrelyB, IDABBDLocalFnB GresB, IDABBDCommFnB GcommB)
+.. c:function:: int IDABBDPrecInitB(void * ida_mem, int which, sunindextype NlocalB, sunindextype mudqB, sunindextype mldqB, sunindextype mukeepB, sunindextype mlkeepB, sunrealtype dqrelyB, IDABBDLocalFnB GresB, IDABBDCommFnB GcommB)
 
    The function :c:func:`IDABBDPrecInitB` initializes and allocates  memory for
    the IDABBDPRE preconditioner for the backward problem.
@@ -2311,7 +2311,7 @@ To reinitialize the IDABBDPRE preconditioner module for the backward problem,
 possibly with a change in ``mudqB``, ``mldqB``, or ``dqrelyB``, call the
 following function:
 
-.. c:function:: int IDABBDPrecReInitB(void * ida_mem, int which, sunindextype mudqB, sunindextype mldqB, realtype dqrelyB)
+.. c:function:: int IDABBDPrecReInitB(void * ida_mem, int which, sunindextype mudqB, sunindextype mldqB, sunrealtype dqrelyB)
 
    The function :c:func:`IDABBDPrecReInitB` reinitializes the IDABBDPRE
    preconditioner  for the backward problem.
@@ -2345,7 +2345,7 @@ necessary to evaluate this approximate residual (see
 are described below.
 
 
-.. c:type:: int (*IDABBDLocalFnB)(sunindextype NlocalB, realtype t, N_Vector y, N_Vector yp, N_Vector yB, N_Vector ypB, N_Vector gB, void *user_dataB)
+.. c:type:: int (*IDABBDLocalFnB)(sunindextype NlocalB, sunrealtype t, N_Vector y, N_Vector yp, N_Vector yB, N_Vector ypB, N_Vector gB, void *user_dataB)
 
    This ``GresB`` function loads the vector ``gB``, an approximation to the
    residual of the backward problem, as a function of ``t``, ``y``, ``yp``,  and
@@ -2381,7 +2381,7 @@ are described below.
         halt the integration  (:c:func:`IDASolveB` returns ``IDA_LSETUP_FAIL``).
 
 
-.. c:type:: int (*IDABBDCommFnB)(sunindextype NlocalB, realtype t, N_Vector y, N_Vector yp, N_Vector yB, N_Vector ypB, void *user_dataB)
+.. c:type:: int (*IDABBDCommFnB)(sunindextype NlocalB, sunrealtype t, N_Vector y, N_Vector yp, N_Vector yB, N_Vector ypB, void *user_dataB)
 
    This ``GcommB`` function performs all interprocess communications necessary
    for the execution of the ``GresB`` function above, using the input  vectors

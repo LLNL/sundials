@@ -236,13 +236,13 @@ SWIGINTERN SwigArrayWrapper SwigArrayWrapper_uninitialized() {
 SWIGEXPORT void * _wrap_FERKStepCreate(ARKRhsFn farg1, double const *farg2, N_Vector farg3, void *farg4) {
   void * fresult ;
   ARKRhsFn arg1 = (ARKRhsFn) 0 ;
-  realtype arg2 ;
+  sunrealtype arg2 ;
   N_Vector arg3 = (N_Vector) 0 ;
   SUNContext arg4 = (SUNContext) 0 ;
   void *result = 0 ;
   
   arg1 = (ARKRhsFn)(farg1);
-  arg2 = (realtype)(*farg2);
+  arg2 = (sunrealtype)(*farg2);
   arg3 = (N_Vector)(farg3);
   arg4 = (SUNContext)(farg4);
   result = (void *)ERKStepCreate(arg1,arg2,arg3,arg4);
@@ -255,16 +255,16 @@ SWIGEXPORT int _wrap_FERKStepResize(void *farg1, N_Vector farg2, double const *f
   int fresult ;
   void *arg1 = (void *) 0 ;
   N_Vector arg2 = (N_Vector) 0 ;
-  realtype arg3 ;
-  realtype arg4 ;
+  sunrealtype arg3 ;
+  sunrealtype arg4 ;
   ARKVecResizeFn arg5 = (ARKVecResizeFn) 0 ;
   void *arg6 = (void *) 0 ;
   int result;
   
   arg1 = (void *)(farg1);
   arg2 = (N_Vector)(farg2);
-  arg3 = (realtype)(*farg3);
-  arg4 = (realtype)(*farg4);
+  arg3 = (sunrealtype)(*farg3);
+  arg4 = (sunrealtype)(*farg4);
   arg5 = (ARKVecResizeFn)(farg5);
   arg6 = (void *)(farg6);
   result = (int)ERKStepResize(arg1,arg2,arg3,arg4,arg5,arg6);
@@ -277,13 +277,13 @@ SWIGEXPORT int _wrap_FERKStepReInit(void *farg1, ARKRhsFn farg2, double const *f
   int fresult ;
   void *arg1 = (void *) 0 ;
   ARKRhsFn arg2 = (ARKRhsFn) 0 ;
-  realtype arg3 ;
+  sunrealtype arg3 ;
   N_Vector arg4 = (N_Vector) 0 ;
   int result;
   
   arg1 = (void *)(farg1);
   arg2 = (ARKRhsFn)(farg2);
-  arg3 = (realtype)(*farg3);
+  arg3 = (sunrealtype)(*farg3);
   arg4 = (N_Vector)(farg4);
   result = (int)ERKStepReInit(arg1,arg2,arg3,arg4);
   fresult = (int)(result);
@@ -294,12 +294,12 @@ SWIGEXPORT int _wrap_FERKStepReInit(void *farg1, ARKRhsFn farg2, double const *f
 SWIGEXPORT int _wrap_FERKStepReset(void *farg1, double const *farg2, N_Vector farg3) {
   int fresult ;
   void *arg1 = (void *) 0 ;
-  realtype arg2 ;
+  sunrealtype arg2 ;
   N_Vector arg3 = (N_Vector) 0 ;
   int result;
   
   arg1 = (void *)(farg1);
-  arg2 = (realtype)(*farg2);
+  arg2 = (sunrealtype)(*farg2);
   arg3 = (N_Vector)(farg3);
   result = (int)ERKStepReset(arg1,arg2,arg3);
   fresult = (int)(result);
@@ -310,13 +310,13 @@ SWIGEXPORT int _wrap_FERKStepReset(void *farg1, double const *farg2, N_Vector fa
 SWIGEXPORT int _wrap_FERKStepSStolerances(void *farg1, double const *farg2, double const *farg3) {
   int fresult ;
   void *arg1 = (void *) 0 ;
-  realtype arg2 ;
-  realtype arg3 ;
+  sunrealtype arg2 ;
+  sunrealtype arg3 ;
   int result;
   
   arg1 = (void *)(farg1);
-  arg2 = (realtype)(*farg2);
-  arg3 = (realtype)(*farg3);
+  arg2 = (sunrealtype)(*farg2);
+  arg3 = (sunrealtype)(*farg3);
   result = (int)ERKStepSStolerances(arg1,arg2,arg3);
   fresult = (int)(result);
   return fresult;
@@ -326,12 +326,12 @@ SWIGEXPORT int _wrap_FERKStepSStolerances(void *farg1, double const *farg2, doub
 SWIGEXPORT int _wrap_FERKStepSVtolerances(void *farg1, double const *farg2, N_Vector farg3) {
   int fresult ;
   void *arg1 = (void *) 0 ;
-  realtype arg2 ;
+  sunrealtype arg2 ;
   N_Vector arg3 = (N_Vector) 0 ;
   int result;
   
   arg1 = (void *)(farg1);
-  arg2 = (realtype)(*farg2);
+  arg2 = (sunrealtype)(*farg2);
   arg3 = (N_Vector)(farg3);
   result = (int)ERKStepSVtolerances(arg1,arg2,arg3);
   fresult = (int)(result);
@@ -510,11 +510,11 @@ SWIGEXPORT int _wrap_FERKStepSetAdaptivityAdjustment(void *farg1, int const *far
 SWIGEXPORT int _wrap_FERKStepSetCFLFraction(void *farg1, double const *farg2) {
   int fresult ;
   void *arg1 = (void *) 0 ;
-  realtype arg2 ;
+  sunrealtype arg2 ;
   int result;
   
   arg1 = (void *)(farg1);
-  arg2 = (realtype)(*farg2);
+  arg2 = (sunrealtype)(*farg2);
   result = (int)ERKStepSetCFLFraction(arg1,arg2);
   fresult = (int)(result);
   return fresult;
@@ -524,11 +524,11 @@ SWIGEXPORT int _wrap_FERKStepSetCFLFraction(void *farg1, double const *farg2) {
 SWIGEXPORT int _wrap_FERKStepSetSafetyFactor(void *farg1, double const *farg2) {
   int fresult ;
   void *arg1 = (void *) 0 ;
-  realtype arg2 ;
+  sunrealtype arg2 ;
   int result;
   
   arg1 = (void *)(farg1);
-  arg2 = (realtype)(*farg2);
+  arg2 = (sunrealtype)(*farg2);
   result = (int)ERKStepSetSafetyFactor(arg1,arg2);
   fresult = (int)(result);
   return fresult;
@@ -538,11 +538,11 @@ SWIGEXPORT int _wrap_FERKStepSetSafetyFactor(void *farg1, double const *farg2) {
 SWIGEXPORT int _wrap_FERKStepSetErrorBias(void *farg1, double const *farg2) {
   int fresult ;
   void *arg1 = (void *) 0 ;
-  realtype arg2 ;
+  sunrealtype arg2 ;
   int result;
   
   arg1 = (void *)(farg1);
-  arg2 = (realtype)(*farg2);
+  arg2 = (sunrealtype)(*farg2);
   result = (int)ERKStepSetErrorBias(arg1,arg2);
   fresult = (int)(result);
   return fresult;
@@ -552,11 +552,11 @@ SWIGEXPORT int _wrap_FERKStepSetErrorBias(void *farg1, double const *farg2) {
 SWIGEXPORT int _wrap_FERKStepSetMaxGrowth(void *farg1, double const *farg2) {
   int fresult ;
   void *arg1 = (void *) 0 ;
-  realtype arg2 ;
+  sunrealtype arg2 ;
   int result;
   
   arg1 = (void *)(farg1);
-  arg2 = (realtype)(*farg2);
+  arg2 = (sunrealtype)(*farg2);
   result = (int)ERKStepSetMaxGrowth(arg1,arg2);
   fresult = (int)(result);
   return fresult;
@@ -566,11 +566,11 @@ SWIGEXPORT int _wrap_FERKStepSetMaxGrowth(void *farg1, double const *farg2) {
 SWIGEXPORT int _wrap_FERKStepSetMinReduction(void *farg1, double const *farg2) {
   int fresult ;
   void *arg1 = (void *) 0 ;
-  realtype arg2 ;
+  sunrealtype arg2 ;
   int result;
   
   arg1 = (void *)(farg1);
-  arg2 = (realtype)(*farg2);
+  arg2 = (sunrealtype)(*farg2);
   result = (int)ERKStepSetMinReduction(arg1,arg2);
   fresult = (int)(result);
   return fresult;
@@ -580,13 +580,13 @@ SWIGEXPORT int _wrap_FERKStepSetMinReduction(void *farg1, double const *farg2) {
 SWIGEXPORT int _wrap_FERKStepSetFixedStepBounds(void *farg1, double const *farg2, double const *farg3) {
   int fresult ;
   void *arg1 = (void *) 0 ;
-  realtype arg2 ;
-  realtype arg3 ;
+  sunrealtype arg2 ;
+  sunrealtype arg3 ;
   int result;
   
   arg1 = (void *)(farg1);
-  arg2 = (realtype)(*farg2);
-  arg3 = (realtype)(*farg3);
+  arg2 = (sunrealtype)(*farg2);
+  arg3 = (sunrealtype)(*farg3);
   result = (int)ERKStepSetFixedStepBounds(arg1,arg2,arg3);
   fresult = (int)(result);
   return fresult;
@@ -599,7 +599,7 @@ SWIGEXPORT int _wrap_FERKStepSetAdaptivityMethod(void *farg1, int const *farg2, 
   int arg2 ;
   int arg3 ;
   int arg4 ;
-  realtype *arg5 ;
+  sunrealtype *arg5 ;
   int result;
   
   arg1 = (void *)(farg1);
@@ -632,11 +632,11 @@ SWIGEXPORT int _wrap_FERKStepSetAdaptivityFn(void *farg1, ARKAdaptFn farg2, void
 SWIGEXPORT int _wrap_FERKStepSetMaxFirstGrowth(void *farg1, double const *farg2) {
   int fresult ;
   void *arg1 = (void *) 0 ;
-  realtype arg2 ;
+  sunrealtype arg2 ;
   int result;
   
   arg1 = (void *)(farg1);
-  arg2 = (realtype)(*farg2);
+  arg2 = (sunrealtype)(*farg2);
   result = (int)ERKStepSetMaxFirstGrowth(arg1,arg2);
   fresult = (int)(result);
   return fresult;
@@ -646,11 +646,11 @@ SWIGEXPORT int _wrap_FERKStepSetMaxFirstGrowth(void *farg1, double const *farg2)
 SWIGEXPORT int _wrap_FERKStepSetMaxEFailGrowth(void *farg1, double const *farg2) {
   int fresult ;
   void *arg1 = (void *) 0 ;
-  realtype arg2 ;
+  sunrealtype arg2 ;
   int result;
   
   arg1 = (void *)(farg1);
-  arg2 = (realtype)(*farg2);
+  arg2 = (sunrealtype)(*farg2);
   result = (int)ERKStepSetMaxEFailGrowth(arg1,arg2);
   fresult = (int)(result);
   return fresult;
@@ -746,11 +746,11 @@ SWIGEXPORT int _wrap_FERKStepSetMaxHnilWarns(void *farg1, int const *farg2) {
 SWIGEXPORT int _wrap_FERKStepSetInitStep(void *farg1, double const *farg2) {
   int fresult ;
   void *arg1 = (void *) 0 ;
-  realtype arg2 ;
+  sunrealtype arg2 ;
   int result;
   
   arg1 = (void *)(farg1);
-  arg2 = (realtype)(*farg2);
+  arg2 = (sunrealtype)(*farg2);
   result = (int)ERKStepSetInitStep(arg1,arg2);
   fresult = (int)(result);
   return fresult;
@@ -760,11 +760,11 @@ SWIGEXPORT int _wrap_FERKStepSetInitStep(void *farg1, double const *farg2) {
 SWIGEXPORT int _wrap_FERKStepSetMinStep(void *farg1, double const *farg2) {
   int fresult ;
   void *arg1 = (void *) 0 ;
-  realtype arg2 ;
+  sunrealtype arg2 ;
   int result;
   
   arg1 = (void *)(farg1);
-  arg2 = (realtype)(*farg2);
+  arg2 = (sunrealtype)(*farg2);
   result = (int)ERKStepSetMinStep(arg1,arg2);
   fresult = (int)(result);
   return fresult;
@@ -774,11 +774,11 @@ SWIGEXPORT int _wrap_FERKStepSetMinStep(void *farg1, double const *farg2) {
 SWIGEXPORT int _wrap_FERKStepSetMaxStep(void *farg1, double const *farg2) {
   int fresult ;
   void *arg1 = (void *) 0 ;
-  realtype arg2 ;
+  sunrealtype arg2 ;
   int result;
   
   arg1 = (void *)(farg1);
-  arg2 = (realtype)(*farg2);
+  arg2 = (sunrealtype)(*farg2);
   result = (int)ERKStepSetMaxStep(arg1,arg2);
   fresult = (int)(result);
   return fresult;
@@ -802,11 +802,11 @@ SWIGEXPORT int _wrap_FERKStepSetInterpolateStopTime(void *farg1, int const *farg
 SWIGEXPORT int _wrap_FERKStepSetStopTime(void *farg1, double const *farg2) {
   int fresult ;
   void *arg1 = (void *) 0 ;
-  realtype arg2 ;
+  sunrealtype arg2 ;
   int result;
   
   arg1 = (void *)(farg1);
-  arg2 = (realtype)(*farg2);
+  arg2 = (sunrealtype)(*farg2);
   result = (int)ERKStepSetStopTime(arg1,arg2);
   fresult = (int)(result);
   return fresult;
@@ -828,11 +828,11 @@ SWIGEXPORT int _wrap_FERKStepClearStopTime(void *farg1) {
 SWIGEXPORT int _wrap_FERKStepSetFixedStep(void *farg1, double const *farg2) {
   int fresult ;
   void *arg1 = (void *) 0 ;
-  realtype arg2 ;
+  sunrealtype arg2 ;
   int result;
   
   arg1 = (void *)(farg1);
-  arg2 = (realtype)(*farg2);
+  arg2 = (sunrealtype)(*farg2);
   result = (int)ERKStepSetFixedStep(arg1,arg2);
   fresult = (int)(result);
   return fresult;
@@ -954,16 +954,16 @@ SWIGEXPORT int _wrap_FERKStepSetPostprocessStageFn(void *farg1, ARKPostProcessFn
 SWIGEXPORT int _wrap_FERKStepEvolve(void *farg1, double const *farg2, N_Vector farg3, double *farg4, int const *farg5) {
   int fresult ;
   void *arg1 = (void *) 0 ;
-  realtype arg2 ;
+  sunrealtype arg2 ;
   N_Vector arg3 = (N_Vector) 0 ;
-  realtype *arg4 = (realtype *) 0 ;
+  sunrealtype *arg4 = (sunrealtype *) 0 ;
   int arg5 ;
   int result;
   
   arg1 = (void *)(farg1);
-  arg2 = (realtype)(*farg2);
+  arg2 = (sunrealtype)(*farg2);
   arg3 = (N_Vector)(farg3);
-  arg4 = (realtype *)(farg4);
+  arg4 = (sunrealtype *)(farg4);
   arg5 = (int)(*farg5);
   result = (int)ERKStepEvolve(arg1,arg2,arg3,arg4,arg5);
   fresult = (int)(result);
@@ -974,13 +974,13 @@ SWIGEXPORT int _wrap_FERKStepEvolve(void *farg1, double const *farg2, N_Vector f
 SWIGEXPORT int _wrap_FERKStepGetDky(void *farg1, double const *farg2, int const *farg3, N_Vector farg4) {
   int fresult ;
   void *arg1 = (void *) 0 ;
-  realtype arg2 ;
+  sunrealtype arg2 ;
   int arg3 ;
   N_Vector arg4 = (N_Vector) 0 ;
   int result;
   
   arg1 = (void *)(farg1);
-  arg2 = (realtype)(*farg2);
+  arg2 = (sunrealtype)(*farg2);
   arg3 = (int)(*farg3);
   arg4 = (N_Vector)(farg4);
   result = (int)ERKStepGetDky(arg1,arg2,arg3,arg4);
@@ -1120,11 +1120,11 @@ SWIGEXPORT int _wrap_FERKStepGetNumSteps(void *farg1, long *farg2) {
 SWIGEXPORT int _wrap_FERKStepGetActualInitStep(void *farg1, double *farg2) {
   int fresult ;
   void *arg1 = (void *) 0 ;
-  realtype *arg2 = (realtype *) 0 ;
+  sunrealtype *arg2 = (sunrealtype *) 0 ;
   int result;
   
   arg1 = (void *)(farg1);
-  arg2 = (realtype *)(farg2);
+  arg2 = (sunrealtype *)(farg2);
   result = (int)ERKStepGetActualInitStep(arg1,arg2);
   fresult = (int)(result);
   return fresult;
@@ -1134,11 +1134,11 @@ SWIGEXPORT int _wrap_FERKStepGetActualInitStep(void *farg1, double *farg2) {
 SWIGEXPORT int _wrap_FERKStepGetLastStep(void *farg1, double *farg2) {
   int fresult ;
   void *arg1 = (void *) 0 ;
-  realtype *arg2 = (realtype *) 0 ;
+  sunrealtype *arg2 = (sunrealtype *) 0 ;
   int result;
   
   arg1 = (void *)(farg1);
-  arg2 = (realtype *)(farg2);
+  arg2 = (sunrealtype *)(farg2);
   result = (int)ERKStepGetLastStep(arg1,arg2);
   fresult = (int)(result);
   return fresult;
@@ -1148,11 +1148,11 @@ SWIGEXPORT int _wrap_FERKStepGetLastStep(void *farg1, double *farg2) {
 SWIGEXPORT int _wrap_FERKStepGetCurrentStep(void *farg1, double *farg2) {
   int fresult ;
   void *arg1 = (void *) 0 ;
-  realtype *arg2 = (realtype *) 0 ;
+  sunrealtype *arg2 = (sunrealtype *) 0 ;
   int result;
   
   arg1 = (void *)(farg1);
-  arg2 = (realtype *)(farg2);
+  arg2 = (sunrealtype *)(farg2);
   result = (int)ERKStepGetCurrentStep(arg1,arg2);
   fresult = (int)(result);
   return fresult;
@@ -1162,11 +1162,11 @@ SWIGEXPORT int _wrap_FERKStepGetCurrentStep(void *farg1, double *farg2) {
 SWIGEXPORT int _wrap_FERKStepGetCurrentTime(void *farg1, double *farg2) {
   int fresult ;
   void *arg1 = (void *) 0 ;
-  realtype *arg2 = (realtype *) 0 ;
+  sunrealtype *arg2 = (sunrealtype *) 0 ;
   int result;
   
   arg1 = (void *)(farg1);
-  arg2 = (realtype *)(farg2);
+  arg2 = (sunrealtype *)(farg2);
   result = (int)ERKStepGetCurrentTime(arg1,arg2);
   fresult = (int)(result);
   return fresult;
@@ -1176,11 +1176,11 @@ SWIGEXPORT int _wrap_FERKStepGetCurrentTime(void *farg1, double *farg2) {
 SWIGEXPORT int _wrap_FERKStepGetTolScaleFactor(void *farg1, double *farg2) {
   int fresult ;
   void *arg1 = (void *) 0 ;
-  realtype *arg2 = (realtype *) 0 ;
+  sunrealtype *arg2 = (sunrealtype *) 0 ;
   int result;
   
   arg1 = (void *)(farg1);
-  arg2 = (realtype *)(farg2);
+  arg2 = (sunrealtype *)(farg2);
   result = (int)ERKStepGetTolScaleFactor(arg1,arg2);
   fresult = (int)(result);
   return fresult;
@@ -1340,18 +1340,18 @@ SWIGEXPORT int _wrap_FERKStepGetStepStats(void *farg1, long *farg2, double *farg
   int fresult ;
   void *arg1 = (void *) 0 ;
   long *arg2 = (long *) 0 ;
-  realtype *arg3 = (realtype *) 0 ;
-  realtype *arg4 = (realtype *) 0 ;
-  realtype *arg5 = (realtype *) 0 ;
-  realtype *arg6 = (realtype *) 0 ;
+  sunrealtype *arg3 = (sunrealtype *) 0 ;
+  sunrealtype *arg4 = (sunrealtype *) 0 ;
+  sunrealtype *arg5 = (sunrealtype *) 0 ;
+  sunrealtype *arg6 = (sunrealtype *) 0 ;
   int result;
   
   arg1 = (void *)(farg1);
   arg2 = (long *)(farg2);
-  arg3 = (realtype *)(farg3);
-  arg4 = (realtype *)(farg4);
-  arg5 = (realtype *)(farg5);
-  arg6 = (realtype *)(farg6);
+  arg3 = (sunrealtype *)(farg3);
+  arg4 = (sunrealtype *)(farg4);
+  arg5 = (sunrealtype *)(farg5);
+  arg6 = (sunrealtype *)(farg6);
   result = (int)ERKStepGetStepStats(arg1,arg2,arg3,arg4,arg5,arg6);
   fresult = (int)(result);
   return fresult;

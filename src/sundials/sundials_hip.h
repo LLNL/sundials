@@ -52,7 +52,7 @@ extern "C" {
 /* ---------------------------------------------------------------------------
  * Utility functions
  * ---------------------------------------------------------------------------*/
-inline booleantype SUNDIALS_HIP_Assert(hipError_t hiperr, const char *file, int line)
+inline sunbooleantype SUNDIALS_HIP_Assert(hipError_t hiperr, const char *file, int line)
 {
   if (hiperr != hipSuccess)
   {

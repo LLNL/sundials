@@ -31,11 +31,11 @@
 #include "sunlinsol/sunlinsol_dense.h"
 
 // Macros for problem constants
-#define ZERO    RCONST(0.0)
-#define HALF    RCONST(0.5)
-#define ONE     RCONST(1.0)
-#define TWO     RCONST(2.0)
-#define TWENTY  RCONST(20.0)
+#define ZERO    SUN_RCONST(0.0)
+#define HALF    SUN_RCONST(0.5)
+#define ONE     SUN_RCONST(1.0)
+#define TWO     SUN_RCONST(2.0)
+#define TWENTY  SUN_RCONST(20.0)
 
 using namespace std;
 
@@ -46,28 +46,28 @@ using namespace std;
 struct TestOptions
 {
   // Relative and absolute tolerances
-  realtype rtol = RCONST(1.0e-6);
-  realtype atol = RCONST(1.0e-10);
+  sunrealtype rtol = SUN_RCONST(1.0e-6);
+  sunrealtype atol = SUN_RCONST(1.0e-10);
 
   // Fixed step size eta bounds (use defaults = 0.0 and 1.5)
-  realtype eta_min_fx = -ONE;
-  realtype eta_max_fx = -ONE;
+  sunrealtype eta_min_fx = -ONE;
+  sunrealtype eta_max_fx = -ONE;
 
   // Max and min eta bounds on a general step (use default = 10)
-  realtype eta_max = -ONE;
-  realtype eta_min = -ONE;
+  sunrealtype eta_max = -ONE;
+  sunrealtype eta_min = -ONE;
 
   // Min eta bound after an error test fail (use default = 0.25)
-  realtype eta_min_ef = -ONE;
+  sunrealtype eta_min_ef = -ONE;
 
   // Eta value on a nonlinear solver convergence failure (use default = 0.25)
-  realtype eta_cf = -ONE;
+  sunrealtype eta_cf = -ONE;
 
   // Parameter for if a change in c_j needs a call lsetup (use defaults 0.25)
-  realtype dcj = -ONE;
+  sunrealtype dcj = -ONE;
 
   // Output options
-  realtype dtout = ONE; // output interval
+  sunrealtype dtout = ONE; // output interval
   int      nout  = 10;  // number of outputs
 };
 
@@ -76,10 +76,10 @@ struct TestOptions
 // -----------------------------------------------------------------------------
 
 // DAE residual function
-int res(realtype t, N_Vector y, N_Vector yp, N_Vector rr, void *user_data);
+int res(sunrealtype t, N_Vector y, N_Vector yp, N_Vector rr, void *user_data);
 
 // Jacobian of RHS function
-int J(realtype t,  realtype cj, N_Vector y, N_Vector yp, N_Vector rr,
+int J(sunrealtype t,  sunrealtype cj, N_Vector y, N_Vector yp, N_Vector rr,
       SUNMatrix J, void *user_data, N_Vector tempv1, N_Vector tempv2,
       N_Vector tempv3);
 
@@ -88,31 +88,31 @@ int J(realtype t,  realtype cj, N_Vector y, N_Vector yp, N_Vector rr,
 // -----------------------------------------------------------------------------
 
 // Compute r(t)
-static realtype r(realtype t)
+static sunrealtype r(sunrealtype t)
 {
   return HALF * cos(t);
 }
 
 // Compute the derivative of r(t)
-static realtype rdot(realtype t)
+static sunrealtype rdot(sunrealtype t)
 {
   return -HALF * sin(t);
 }
 
 // Compute s(t)
-static realtype s(realtype t)
+static sunrealtype s(sunrealtype t)
 {
   return cos(TWENTY * t);
 }
 
 // Compute the derivative of s(t)
-static realtype sdot(realtype t)
+static sunrealtype sdot(sunrealtype t)
 {
   return -TWENTY * sin(TWENTY * t);
 }
 
 // Compute the true solution
-static int true_sol(realtype t, realtype* u, realtype* v)
+static int true_sol(sunrealtype t, sunrealtype* u, sunrealtype* v)
 {
   *u = sqrt(ONE + r(t));
   *v = sqrt(TWO + s(t));
@@ -121,7 +121,7 @@ static int true_sol(realtype t, realtype* u, realtype* v)
 }
 
 // Compute the true solution derivative
-static int true_sol_p(realtype t, realtype* up, realtype* vp)
+static int true_sol_p(sunrealtype t, sunrealtype* up, sunrealtype* vp)
 {
   *up = rdot(t) / (TWO * sqrt(ONE + r(t)));
   *vp = sdot(t) / (TWO * sqrt(TWO + s(t)));
@@ -150,7 +150,7 @@ int check_ptr(void *ptr, const string funcname)
   return 1;
 }
 
-inline void find_arg(vector<string> &args, const string key, realtype &dest)
+inline void find_arg(vector<string> &args, const string key, sunrealtype &dest)
 {
   auto it = find(args.begin(), args.end(), key);
   if (it != args.end())

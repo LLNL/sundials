@@ -230,7 +230,7 @@ following structure.
      SUNNonlinSolConvTestFn CTest;
 
      N_Vector    delta;
-     booleantype jcur;
+     sunbooleantype jcur;
      int         curiter;
      int         maxiters;
      long int    niters;

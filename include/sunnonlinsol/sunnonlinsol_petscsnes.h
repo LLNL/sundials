@@ -68,8 +68,8 @@ SUNDIALS_EXPORT int SUNNonlinSolInitialize_PetscSNES(SUNNonlinearSolver NLS);
 
 SUNDIALS_EXPORT int SUNNonlinSolSolve_PetscSNES(SUNNonlinearSolver NLS,
                                                 N_Vector y0, N_Vector y,
-                                                N_Vector w, realtype tol,
-                                                booleantype callLSetup, void* mem);
+                                                N_Vector w, sunrealtype tol,
+                                                sunbooleantype callLSetup, void* mem);
 
 SUNDIALS_EXPORT int SUNNonlinSolSetSysFn_PetscSNES(SUNNonlinearSolver NLS,
                                                    SUNNonlinSolSysFn SysFn);

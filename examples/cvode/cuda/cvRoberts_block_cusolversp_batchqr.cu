@@ -43,45 +43,45 @@
 #include <nvector/nvector_cuda.h>                     /* access to cuda N_Vector                       */
 #include <sunmatrix/sunmatrix_cusparse.h>             /* access to cusparse SUNMatrix                  */
 #include <sunlinsol/sunlinsol_cusolversp_batchqr.h>   /* access to cuSolverSp batch QR SUNLinearSolver */
-#include <sundials/sundials_types.h>                  /* defs. of realtype, int                        */
+#include <sundials/sundials_types.h>                  /* defs. of sunrealtype, int                        */
 
 /* Problem Constants */
 
 #define GROUPSIZE 3            /* number of equations per group */
-#define Y1    RCONST(1.0)      /* initial y components */
-#define Y2    RCONST(0.0)
-#define Y3    RCONST(0.0)
-#define RTOL  RCONST(1.0e-4)   /* scalar relative tolerance            */
-#define ATOL1 RCONST(1.0e-8)   /* vector absolute tolerance components */
-#define ATOL2 RCONST(1.0e-14)
-#define ATOL3 RCONST(1.0e-6)
-#define T0    RCONST(0.0)      /* initial time           */
-#define T1    RCONST(0.4)      /* first output time      */
-#define TMULT RCONST(10.0)     /* output time factor     */
+#define Y1    SUN_RCONST(1.0)      /* initial y components */
+#define Y2    SUN_RCONST(0.0)
+#define Y3    SUN_RCONST(0.0)
+#define RTOL  SUN_RCONST(1.0e-4)   /* scalar relative tolerance            */
+#define ATOL1 SUN_RCONST(1.0e-8)   /* vector absolute tolerance components */
+#define ATOL2 SUN_RCONST(1.0e-14)
+#define ATOL3 SUN_RCONST(1.0e-6)
+#define T0    SUN_RCONST(0.0)      /* initial time           */
+#define T1    SUN_RCONST(0.4)      /* first output time      */
+#define TMULT SUN_RCONST(10.0)     /* output time factor     */
 #define NOUT  12               /* number of output times */
 
-#define ZERO  RCONST(0.0)
+#define ZERO  SUN_RCONST(0.0)
 
 /* Functions Called by the Solver */
 
-static int f(realtype t, N_Vector y, N_Vector ydot, void *user_data);
+static int f(sunrealtype t, N_Vector y, N_Vector ydot, void *user_data);
 
 __global__
-static void f_kernel(realtype t, realtype* y, realtype* ydot,
+static void f_kernel(sunrealtype t, sunrealtype* y, sunrealtype* ydot,
                      int neq, int ngroups);
 
-static int Jac(realtype t, N_Vector y, N_Vector fy, SUNMatrix J,
+static int Jac(sunrealtype t, N_Vector y, N_Vector fy, SUNMatrix J,
                void *user_data, N_Vector tmp1, N_Vector tmp2, N_Vector tmp3);
 
 __global__
-static void j_kernel(int ngroups, int nnzper, realtype* ydata, realtype *Jdata);
+static void j_kernel(int ngroups, int nnzper, sunrealtype* ydata, sunrealtype *Jdata);
 
 /* Private function to initialize the Jacobian sparsity pattern */
 static int JacInit(SUNMatrix J);
 
 /* Private function to output results */
 
-static void PrintOutput(realtype t, realtype y1, realtype y2, realtype y3);
+static void PrintOutput(sunrealtype t, sunrealtype y1, sunrealtype y2, sunrealtype y3);
 
 /* Private function to print final statistics */
 
@@ -106,8 +106,8 @@ typedef struct {
 int main(int argc, char *argv[])
 {
   SUNContext sunctx;
-  realtype reltol, t, tout;
-  realtype *ydata, *abstol_data;
+  sunrealtype reltol, t, tout;
+  sunrealtype *ydata, *abstol_data;
   N_Vector y, abstol;
   SUNMatrix A;
   SUNLinearSolver LS;
@@ -275,10 +275,10 @@ int main(int argc, char *argv[])
    to do the actual computation. At the very least, doing this
    saves moving the vector data in y and ydot to/from the device
    every evaluation of f. */
-static int f(realtype t, N_Vector y, N_Vector ydot, void *user_data)
+static int f(sunrealtype t, N_Vector y, N_Vector ydot, void *user_data)
 {
   UserData *udata;
-  realtype *ydata, *ydotdata;
+  sunrealtype *ydata, *ydotdata;
 
   udata = (UserData*) user_data;
   ydata = N_VGetDeviceArrayPointer_Cuda(y);
@@ -302,18 +302,18 @@ static int f(realtype t, N_Vector y, N_Vector ydot, void *user_data)
 
 /* Right hand side function evalutation kernel. */
 __global__
-static void f_kernel(realtype t, realtype* ydata, realtype* ydotdata,
+static void f_kernel(sunrealtype t, sunrealtype* ydata, sunrealtype* ydotdata,
                      int neq, int ngroups)
 {
-  realtype y1, y2, y3, yd1, yd3;
+  sunrealtype y1, y2, y3, yd1, yd3;
   int i = blockIdx.x*blockDim.x + threadIdx.x;
   int groupj = i*GROUPSIZE;
 
   if (i < neq) {
     y1 = ydata[groupj]; y2 = ydata[groupj+1]; y3 = ydata[groupj+2];
 
-    yd1 = ydotdata[groupj]   = RCONST(-0.04)*y1 + RCONST(1.0e4)*y2*y3;
-    yd3 = ydotdata[groupj+2] = RCONST(3.0e7)*y2*y2;
+    yd1 = ydotdata[groupj]   = SUN_RCONST(-0.04)*y1 + SUN_RCONST(1.0e4)*y2*y3;
+    yd3 = ydotdata[groupj+2] = SUN_RCONST(3.0e7)*y2*y2;
     ydotdata[groupj+1] = -yd1 - yd3;
   }
 }
@@ -365,12 +365,12 @@ static int JacInit(SUNMatrix J)
  * This is done on the GPU.
  */
 
-static int Jac(realtype t, N_Vector y, N_Vector fy, SUNMatrix J,
+static int Jac(sunrealtype t, N_Vector y, N_Vector fy, SUNMatrix J,
                void *user_data, N_Vector tmp1, N_Vector tmp2, N_Vector tmp3)
 {
   UserData *udata = (UserData*) user_data;
   int nnzper;
-  realtype *Jdata, *ydata;
+  sunrealtype *Jdata, *ydata;
   unsigned block_size, grid_size;
 
   nnzper  = GROUPSIZE * GROUPSIZE;
@@ -395,10 +395,10 @@ static int Jac(realtype t, N_Vector y, N_Vector fy, SUNMatrix J,
 
 /* Jacobian evaluation GPU kernel */
 __global__
-static void j_kernel(int ngroups, int nnzper, realtype* ydata, realtype *Jdata)
+static void j_kernel(int ngroups, int nnzper, sunrealtype* ydata, sunrealtype *Jdata)
 {
   int groupj;
-  realtype y2, y3;
+  sunrealtype y2, y3;
 
   for (groupj = blockIdx.x*blockDim.x + threadIdx.x;
        groupj < ngroups;
@@ -409,18 +409,18 @@ static void j_kernel(int ngroups, int nnzper, realtype* ydata, realtype *Jdata)
     y3 = ydata[GROUPSIZE*groupj + 2];
 
     /* first row of block */
-    Jdata[nnzper*groupj]       = RCONST(-0.04);
-    Jdata[nnzper*groupj + 1]   = RCONST(1.0e4)*y3;
-    Jdata[nnzper*groupj + 2]   = RCONST(1.0e4)*y2;
+    Jdata[nnzper*groupj]       = SUN_RCONST(-0.04);
+    Jdata[nnzper*groupj + 1]   = SUN_RCONST(1.0e4)*y3;
+    Jdata[nnzper*groupj + 2]   = SUN_RCONST(1.0e4)*y2;
 
     /* second row of block */
-    Jdata[nnzper*groupj + 3]   = RCONST(0.04);
-    Jdata[nnzper*groupj + 4]   = (RCONST(-1.0e4)*y3) - (RCONST(6.0e7)*y2);
-    Jdata[nnzper*groupj + 5]   = RCONST(-1.0e4)*y2;
+    Jdata[nnzper*groupj + 3]   = SUN_RCONST(0.04);
+    Jdata[nnzper*groupj + 4]   = (SUN_RCONST(-1.0e4)*y3) - (SUN_RCONST(6.0e7)*y2);
+    Jdata[nnzper*groupj + 5]   = SUN_RCONST(-1.0e4)*y2;
 
     /* third row of block */
     Jdata[nnzper*groupj + 6]   = ZERO;
-    Jdata[nnzper*groupj + 7]   = RCONST(6.0e7)*y2;
+    Jdata[nnzper*groupj + 7]   = SUN_RCONST(6.0e7)*y2;
     Jdata[nnzper*groupj + 8]   = ZERO;
   }
 }
@@ -431,7 +431,7 @@ static void j_kernel(int ngroups, int nnzper, realtype* ydata, realtype *Jdata)
  *-------------------------------
  */
 
-static void PrintOutput(realtype t, realtype y1, realtype y2, realtype y3)
+static void PrintOutput(sunrealtype t, sunrealtype y1, sunrealtype y2, sunrealtype y3)
 {
 #if defined(SUNDIALS_EXTENDED_PRECISION)
   printf("At t = %0.4Le      y =%14.6Le  %14.6Le  %14.6Le\n", t, y1, y2, y3);

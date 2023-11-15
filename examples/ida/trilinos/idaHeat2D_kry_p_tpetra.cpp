@@ -60,9 +60,9 @@
 #include <sundials/sundials_types.h>
 #include <sundials/sundials_mpi_types.h>
 
-#define ZERO  RCONST(0.0)
-#define ONE   RCONST(1.0)
-#define TWO   RCONST(2.0)
+#define ZERO  SUN_RCONST(0.0)
+#define ONE   SUN_RCONST(1.0)
+#define TWO   SUN_RCONST(2.0)
 
 #define NOUT         11    /* Number of output times */
 
@@ -96,7 +96,7 @@ struct UserData {
   Teuchos::RCP<const Teuchos::Comm<int> > comm;
   int thispe, npex, npey, ixsub, jysub;
   sunindextype mx, my, mxsub, mysub;
-  realtype dx, dy, coeffx, coeffy, coeffxy;
+  sunrealtype dx, dy, coeffx, coeffy, coeffxy;
   Kokkos::View<scalar_type*, memory_space> uext; /* device array */
 
   Kokkos::View<scalar_type*, memory_space> send_buff_top;
@@ -123,12 +123,12 @@ struct UserData {
 
 /* User-supplied residual and supporting functions */
 
-int resHeat(realtype tt, N_Vector uu, N_Vector up,
+int resHeat(sunrealtype tt, N_Vector uu, N_Vector up,
             N_Vector rr, void *user_data);
 
 static int rescomm(N_Vector uu, N_Vector up, void *user_data);
 
-static int reslocal(realtype tt, N_Vector uu, N_Vector up,
+static int reslocal(sunrealtype tt, N_Vector uu, N_Vector up,
                     N_Vector res,  void *user_data);
 
 static int BSend(N_Vector uu, void *user_data);
@@ -140,12 +140,12 @@ static int BRecvWait(MPI_Request request[], void *user_data);
 
 /* User-supplied preconditioner functions */
 
-int PsolveHeat(realtype tt, N_Vector uu, N_Vector up, N_Vector rr,
-               N_Vector rvec, N_Vector zvec, realtype c_j,
-               realtype delta, void *user_data);
+int PsolveHeat(sunrealtype tt, N_Vector uu, N_Vector up, N_Vector rr,
+               N_Vector rvec, N_Vector zvec, sunrealtype c_j,
+               sunrealtype delta, void *user_data);
 
-int PsetupHeat(realtype tt, N_Vector yy, N_Vector yp, N_Vector rr,
-               realtype c_j, void *user_data);
+int PsetupHeat(sunrealtype tt, N_Vector yy, N_Vector yp, N_Vector rr,
+               sunrealtype c_j, void *user_data);
 
 /* Private function to allocate memory, initialize problem and print output */
 
@@ -156,9 +156,9 @@ static int AllocUserData(int thispe, N_Vector uu, UserData *data);
 static int SetInitialProfile(N_Vector uu, N_Vector up, N_Vector id,
                              N_Vector res, UserData *data);
 
-static void PrintHeader(realtype rtol, realtype atol, UserData *data);
+static void PrintHeader(sunrealtype rtol, sunrealtype atol, UserData *data);
 
-static void PrintOutput(int id, void *ida_mem, realtype t, N_Vector uu);
+static void PrintOutput(int id, void *ida_mem, sunrealtype t, N_Vector uu);
 
 static void PrintFinalStats(void *ida_mem);
 
@@ -255,12 +255,12 @@ int main(int argc, char *argv[])
     /* Set constraints to all 1's for nonnegative solution values. */
     N_VConst(ONE, constraints);
 
-    realtype t0 = ZERO;
-    realtype t1 = RCONST(0.01);
+    sunrealtype t0 = ZERO;
+    sunrealtype t1 = SUN_RCONST(0.01);
 
     /* Scalar relative and absolute tolerance. */
-    realtype rtol = ZERO;
-    realtype atol = RCONST(1.0e-3);
+    sunrealtype rtol = ZERO;
+    sunrealtype atol = SUN_RCONST(1.0e-3);
 
     /* Call IDACreate and IDAMalloc to initialize solution. */
 
@@ -314,7 +314,7 @@ int main(int argc, char *argv[])
 
     /* Loop over tout, call IDASolve, print output. */
     int iout;
-    realtype tret, tout;
+    sunrealtype tret, tout;
 
     for (tout = t1, iout = 1; iout <= NOUT; iout++, tout *= TWO) {
 
@@ -372,7 +372,7 @@ int main(int argc, char *argv[])
  * BSend, BRecvPost, and BREcvWait handle interprocessor communication
  * of uu required to calculate the residual.
  */
-int resHeat(realtype tt, N_Vector uu, N_Vector up, N_Vector rr,
+int resHeat(sunrealtype tt, N_Vector uu, N_Vector up, N_Vector rr,
             void *user_data)
 {
   int retval = 0;
@@ -404,8 +404,8 @@ int resHeat(realtype tt, N_Vector uu, N_Vector up, N_Vector rr,
  * pp etc.) are used from the PsetupHeat argument list.
  *
  */
-int PsetupHeat(realtype tt, N_Vector yy, N_Vector yp, N_Vector rr,
-               realtype c_j, void *user_data)
+int PsetupHeat(sunrealtype tt, N_Vector yy, N_Vector yp, N_Vector rr,
+               sunrealtype c_j, void *user_data)
 {
   /* Unwrap the user data */
   UserData* data = reinterpret_cast<UserData*>(user_data);
@@ -433,7 +433,7 @@ int PsetupHeat(realtype tt, N_Vector yy, N_Vector yp, N_Vector rr,
 #endif
 
   /* Calculate the value for the inverse element of the diagonal preconditioner */
-  const realtype pelinv = ONE/(c_j + data->coeffxy);
+  const sunrealtype pelinv = ONE/(c_j + data->coeffxy);
 
   ibc = (ixsub == 0) || (ixsub == npex-1);
   i0  = (ixsub == 0);
@@ -461,9 +461,9 @@ int PsetupHeat(realtype tt, N_Vector yy, N_Vector yp, N_Vector rr,
  * containing the inverse diagonal Jacobian elements (previously
  * computed in PsetupHeat), returning the result in zvec.
  */
-int PsolveHeat(realtype tt, N_Vector uu, N_Vector up,
+int PsolveHeat(sunrealtype tt, N_Vector uu, N_Vector up,
                N_Vector rr, N_Vector rvec, N_Vector zvec,
-               realtype c_j, realtype delta, void *user_data)
+               sunrealtype c_j, sunrealtype delta, void *user_data)
 {
   UserData* data = reinterpret_cast<UserData*>(user_data);
 
@@ -505,7 +505,7 @@ static int rescomm(N_Vector uu, N_Vector up, void* user_data)
  * that all inter-processor communication of data needed to calculate F
  * has already been done, and that this data is in the work array uext.
  */
-static int reslocal(realtype tt, N_Vector uu, N_Vector up, N_Vector rr,
+static int reslocal(sunrealtype tt, N_Vector uu, N_Vector up, N_Vector rr,
                     void *user_data)
 {
   UserData* data = reinterpret_cast<UserData*>(user_data);
@@ -518,9 +518,9 @@ static int reslocal(realtype tt, N_Vector uu, N_Vector up, N_Vector rr,
   const sunindextype mxsub  = data->mxsub;
   const sunindextype mxsub2 = data->mxsub + 2;
   const sunindextype mysub  = data->mysub;
-  const realtype coeffx  = data->coeffx;
-  const realtype coeffy  = data->coeffy;
-  const realtype coeffxy = data->coeffxy;
+  const sunrealtype coeffx  = data->coeffx;
+  const sunrealtype coeffy  = data->coeffy;
+  const sunrealtype coeffxy = data->coeffxy;
 
   sunindextype ibc, i0, jbc, j0;
 
@@ -549,7 +549,7 @@ static int reslocal(realtype tt, N_Vector uu, N_Vector up, N_Vector rr,
   auto rr_1d = Kokkos::subview (rr_2d, Kokkos::ALL(), 0);
 #endif
 
-  Kokkos::View<realtype*, memory_space> uext_1d = data->uext;
+  Kokkos::View<sunrealtype*, memory_space> uext_1d = data->uext;
 
   /* Copy local segment of u vector into the working extended array uext.
      This completes uext prior to the computation of the rr vector.
@@ -581,9 +581,9 @@ static int reslocal(realtype tt, N_Vector uu, N_Vector up, N_Vector rr,
       sunindextype locu  = i + j*mxsub;
       sunindextype locue = (i+1) + (j+1)*mxsub2;
 
-      realtype termx   = coeffx * (uext_1d(locue-1)      + uext_1d(locue+1));
-      realtype termy   = coeffy * (uext_1d(locue-mxsub2) + uext_1d(locue+mxsub2));
-      realtype termctr = coeffxy * uext_1d(locue);
+      sunrealtype termx   = coeffx * (uext_1d(locue-1)      + uext_1d(locue+1));
+      sunrealtype termy   = coeffy * (uext_1d(locue-mxsub2) + uext_1d(locue+mxsub2));
+      sunrealtype termctr = coeffxy * uext_1d(locue);
       rr_1d(locu) = up_1d(locu) - (termx + termy - termctr);
     }
   );
@@ -614,14 +614,14 @@ static int BSend(N_Vector uu, void *user_data)
   const int mysub = data->mysub;
 
   /* Get pointers to buffers and extended solution vector data array uext. */
-  Kokkos::View<realtype*, memory_space> bufleft   = data->send_buff_left;
-  Kokkos::View<realtype*, memory_space> bufright  = data->send_buff_right;
-  Kokkos::View<realtype*, memory_space> buftop    = data->send_buff_top;
-  Kokkos::View<realtype*, memory_space> bufbottom = data->send_buff_bottom;
-  typename Kokkos::View<realtype*>::HostMirror h_bufleft   =  data->h_send_buff_left;
-  typename Kokkos::View<realtype*>::HostMirror h_bufright  =  data->h_send_buff_right;
-  typename Kokkos::View<realtype*>::HostMirror h_buftop    =  data->h_send_buff_top;
-  typename Kokkos::View<realtype*>::HostMirror h_bufbottom =  data->h_send_buff_bottom;
+  Kokkos::View<sunrealtype*, memory_space> bufleft   = data->send_buff_left;
+  Kokkos::View<sunrealtype*, memory_space> bufright  = data->send_buff_right;
+  Kokkos::View<sunrealtype*, memory_space> buftop    = data->send_buff_top;
+  Kokkos::View<sunrealtype*, memory_space> bufbottom = data->send_buff_bottom;
+  typename Kokkos::View<sunrealtype*>::HostMirror h_bufleft   =  data->h_send_buff_left;
+  typename Kokkos::View<sunrealtype*>::HostMirror h_bufright  =  data->h_send_buff_right;
+  typename Kokkos::View<sunrealtype*>::HostMirror h_buftop    =  data->h_send_buff_top;
+  typename Kokkos::View<sunrealtype*>::HostMirror h_bufbottom =  data->h_send_buff_bottom;
 
   /* Get solution vector data. */
   Teuchos::RCP<vector_type> uuv = N_VGetVector_Trilinos(uu);
@@ -706,7 +706,7 @@ static int BSend(N_Vector uu, void *user_data)
 /*
  * Routine to start receiving boundary data from neighboring PEs.
  * Notes:
- *   1) buffer should be able to hold 2*(MYSUB+MYSUB) realtype entries, should
+ *   1) buffer should be able to hold 2*(MYSUB+MYSUB) sunrealtype entries, should
  *      be passed to both the BRecvPost and BRecvWait functions, and should not
  *      be manipulated between the two calls.
  *   2) request should have 4 entries, and should be passed in
@@ -729,10 +729,10 @@ static int BRecvPost(MPI_Request request[], void *user_data)
   const sunindextype mysub = data->mysub;
 
   /* Get left, right, top and bottom host buffers. */
-  typename Kokkos::View<realtype*>::HostMirror h_bufleft   = data->h_recv_buff_left;
-  typename Kokkos::View<realtype*>::HostMirror h_bufright  = data->h_recv_buff_right;
-  typename Kokkos::View<realtype*>::HostMirror h_buftop    = data->h_recv_buff_top;
-  typename Kokkos::View<realtype*>::HostMirror h_bufbottom = data->h_recv_buff_bottom;
+  typename Kokkos::View<sunrealtype*>::HostMirror h_bufleft   = data->h_recv_buff_left;
+  typename Kokkos::View<sunrealtype*>::HostMirror h_bufright  = data->h_recv_buff_right;
+  typename Kokkos::View<sunrealtype*>::HostMirror h_buftop    = data->h_recv_buff_top;
+  typename Kokkos::View<sunrealtype*>::HostMirror h_bufbottom = data->h_recv_buff_bottom;
 
   /* If jysub > 0, receive data for bottom x-line of uext. */
   if (jysub != 0) {
@@ -765,7 +765,7 @@ static int BRecvPost(MPI_Request request[], void *user_data)
 /*
  * Routine to finish receiving boundary data from neighboring PEs.
  * Notes:
- *   1) buffer should be able to hold 2*MYSUB realtype entries, should be
+ *   1) buffer should be able to hold 2*MYSUB sunrealtype entries, should be
  *      passed to both the BRecvPost and BRecvWait functions, and should not
  *      be manipulated between the two calls.
  *   2) request should have four entries, and should be passed in both
@@ -785,17 +785,17 @@ static int BRecvWait(MPI_Request request[], void *user_data)
   const sunindextype mysub = data->mysub;
 
   /* Get pointers to buffers and extended solution vector data array uext. */
-  typename Kokkos::View<realtype*>::HostMirror h_bufleft   = data->h_recv_buff_left;
-  typename Kokkos::View<realtype*>::HostMirror h_bufright  = data->h_recv_buff_right;
-  typename Kokkos::View<realtype*>::HostMirror h_buftop    = data->h_recv_buff_top;
-  typename Kokkos::View<realtype*>::HostMirror h_bufbottom = data->h_recv_buff_bottom;
+  typename Kokkos::View<sunrealtype*>::HostMirror h_bufleft   = data->h_recv_buff_left;
+  typename Kokkos::View<sunrealtype*>::HostMirror h_bufright  = data->h_recv_buff_right;
+  typename Kokkos::View<sunrealtype*>::HostMirror h_buftop    = data->h_recv_buff_top;
+  typename Kokkos::View<sunrealtype*>::HostMirror h_bufbottom = data->h_recv_buff_bottom;
 
-  Kokkos::View<realtype*, memory_space> bufleft   = data->recv_buff_left;
-  Kokkos::View<realtype*, memory_space> bufright  = data->recv_buff_right;
-  Kokkos::View<realtype*, memory_space> buftop    = data->recv_buff_top;
-  Kokkos::View<realtype*, memory_space> bufbottom = data->recv_buff_bottom;
+  Kokkos::View<sunrealtype*, memory_space> bufleft   = data->recv_buff_left;
+  Kokkos::View<sunrealtype*, memory_space> bufright  = data->recv_buff_right;
+  Kokkos::View<sunrealtype*, memory_space> buftop    = data->recv_buff_top;
+  Kokkos::View<sunrealtype*, memory_space> bufbottom = data->recv_buff_bottom;
 
-  Kokkos::View<realtype*, memory_space> uext_1d = data->uext;
+  Kokkos::View<sunrealtype*, memory_space> uext_1d = data->uext;
 
   const sunindextype mxsub2 = mxsub + 2;
   const sunindextype mysub1 = mysub + 1;
@@ -941,7 +941,7 @@ static int SetInitialProfile(N_Vector uu, N_Vector up,  N_Vector id,
                              N_Vector res, UserData *data)
 {
   sunindextype i, iloc, j, jloc, loc;
-  realtype xfact, yfact;
+  sunrealtype xfact, yfact;
 
   /* Initialize uu. */
 
@@ -969,8 +969,8 @@ static int SetInitialProfile(N_Vector uu, N_Vector up,  N_Vector id,
 #endif
 
   /* Set mesh spacings and subgrid indices for this PE. */
-  const realtype dx = data->dx;
-  const realtype dy = data->dy;
+  const sunrealtype dx = data->dx;
+  const sunrealtype dy = data->dy;
   const int ixsub = data->ixsub;
   const int jysub = data->jysub;
 
@@ -992,7 +992,7 @@ static int SetInitialProfile(N_Vector uu, N_Vector up,  N_Vector id,
     for (i = ixbegin, iloc = 0; i <= ixend; i++, iloc++) {
       xfact = dx*i;
       loc = iloc + jloc*mxsub;
-      u_1d(loc) = RCONST(16.0) * xfact * (ONE - xfact) * yfact * (ONE - yfact);
+      u_1d(loc) = SUN_RCONST(16.0) * xfact * (ONE - xfact) * yfact * (ONE - yfact);
 
       if (i == 0 || i == data->mx - 1 || j == 0 || j == data->my - 1)
         id_1d(loc) = ZERO;
@@ -1024,7 +1024,7 @@ static int SetInitialProfile(N_Vector uu, N_Vector up,  N_Vector id,
 /*
  * Print first lines of output and table heading
  */
-static void PrintHeader(realtype rtol, realtype atol, UserData *data)
+static void PrintHeader(sunrealtype rtol, sunrealtype atol, UserData *data)
 {
   printf("\nidaHeat2D_kry_p: Heat equation, parallel example problem for IDA\n");
   printf("            Discretized heat equation on 2D unit square.\n");
@@ -1057,9 +1057,9 @@ static void PrintHeader(realtype rtol, realtype atol, UserData *data)
 /*
  * PrintOutput: print max norm of solution and current solver statistics
  */
-static void PrintOutput(int id, void *ida_mem, realtype t, N_Vector uu)
+static void PrintOutput(int id, void *ida_mem, sunrealtype t, N_Vector uu)
 {
-  realtype hused, umax;
+  sunrealtype hused, umax;
   long int nst, nni, nje, nre, nreLS, nli, npe, nps;
   int kused, retval;
 

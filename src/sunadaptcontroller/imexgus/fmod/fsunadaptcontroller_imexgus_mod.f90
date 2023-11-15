@@ -198,7 +198,7 @@ type(SUNAdaptController), target, intent(inout) :: c
 real(C_DOUBLE), intent(in) :: h
 integer(C_INT), intent(in) :: p
 real(C_DOUBLE), intent(in) :: dsm
-real(C_DOUBLE), target, intent(inout) :: hnew
+real(C_DOUBLE), dimension(*), target, intent(inout) :: hnew
 integer(C_INT) :: fresult 
 type(C_PTR) :: farg1 
 real(C_DOUBLE) :: farg2 
@@ -210,7 +210,7 @@ farg1 = c_loc(c)
 farg2 = h
 farg3 = p
 farg4 = dsm
-farg5 = c_loc(hnew)
+farg5 = c_loc(hnew(1))
 fresult = swigc_FSUNAdaptController_EstimateStep_ImExGus(farg1, farg2, farg3, farg4, farg5)
 swig_result = fresult
 end function

@@ -34,7 +34,7 @@ if(USE_XSDK_DEFAULTS)
 endif()
 
 # ---------------------------------------------------------------
-# Option to specify precision (realtype)
+# Option to specify precision (sunrealtype)
 # ---------------------------------------------------------------
 
 set(DOCSTR "single, double, or extended")

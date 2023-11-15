@@ -36,18 +36,18 @@ extern "C" {
 #define ARK_ADAPT_LIW  7    /* includes function/data pointers */
 
 /* Time step controller default values */
-#define CFLFAC    RCONST(0.5)
-#define SAFETY    RCONST(0.96)  /* CVODE uses 1.0  */
-#define GROWTH    RCONST(20.0)  /* CVODE uses 10.0 */
-#define HFIXED_LB RCONST(1.0)   /* CVODE uses 1.0  */
-#define HFIXED_UB RCONST(1.5)   /* CVODE uses 1.5  */
+#define CFLFAC    SUN_RCONST(0.5)
+#define SAFETY    SUN_RCONST(0.96)  /* CVODE uses 1.0  */
+#define GROWTH    SUN_RCONST(20.0)  /* CVODE uses 10.0 */
+#define HFIXED_LB SUN_RCONST(1.0)   /* CVODE uses 1.0  */
+#define HFIXED_UB SUN_RCONST(1.5)   /* CVODE uses 1.5  */
 
-#define ETAMX1    RCONST(10000.0)  /* maximum step size change on first step */
-#define ETAMXF    RCONST(0.3)      /* step size reduction factor on multiple error
+#define ETAMX1    SUN_RCONST(10000.0)  /* maximum step size change on first step */
+#define ETAMXF    SUN_RCONST(0.3)      /* step size reduction factor on multiple error
                                       test failures (multiple implies >= SMALL_NEF) */
-#define ETAMIN    RCONST(0.1)      /* smallest allowable step size reduction factor
+#define ETAMIN    SUN_RCONST(0.1)      /* smallest allowable step size reduction factor
                                       on an error test failure */
-#define ETACF     RCONST(0.25)     /* step size reduction factor on nonlinear
+#define ETACF     SUN_RCONST(0.25)     /* step size reduction factor on nonlinear
                                       convergence failure */
 #define SMALL_NEF 2                /* if an error failure occurs and SMALL_NEF <= nef,
                                       then reset  eta = MIN(eta, ETAMXF) */
@@ -71,24 +71,24 @@ extern "C" {
   ---------------------------------------------------------------*/
 typedef struct ARKodeHAdaptMemRec {
 
-  realtype     etamax;      /* eta <= etamax                              */
-  realtype     etamx1;      /* max step size change on first step         */
-  realtype     etamxf;      /* h reduction factor on multiple error fails */
-  realtype     etamin;      /* eta >= etamin on error test fail           */
+  sunrealtype     etamax;      /* eta <= etamax                              */
+  sunrealtype     etamx1;      /* max step size change on first step         */
+  sunrealtype     etamxf;      /* h reduction factor on multiple error fails */
+  sunrealtype     etamin;      /* eta >= etamin on error test fail           */
   int          small_nef;   /* bound to determine 'multiple' above        */
-  realtype     etacf;       /* h reduction factor on nonlinear conv fail  */
-  realtype     cfl;         /* cfl safety factor                          */
-  realtype     safety;      /* accuracy safety factor on h                */
-  realtype     growth;      /* maximum step growth safety factor          */
-  realtype     lbound;      /* eta lower bound to leave h unchanged       */
-  realtype     ubound;      /* eta upper bound to leave h unchanged       */
+  sunrealtype     etacf;       /* h reduction factor on nonlinear conv fail  */
+  sunrealtype     cfl;         /* cfl safety factor                          */
+  sunrealtype     safety;      /* accuracy safety factor on h                */
+  sunrealtype     growth;      /* maximum step growth safety factor          */
+  sunrealtype     lbound;      /* eta lower bound to leave h unchanged       */
+  sunrealtype     ubound;      /* eta upper bound to leave h unchanged       */
   int          p;           /* embedding order                            */
   int          q;           /* method order                               */
   int          pq;          /* decision flag for controller order         */
   int          adjust;      /* controller order adjustment factor         */
 
   SUNAdaptController hcontroller; /* temporal error controller            */
-  booleantype  owncontroller;  /* flag indicating hcontroller ownership   */
+  sunbooleantype  owncontroller;  /* flag indicating hcontroller ownership   */
 
   ARKExpStabFn expstab;     /* step stability function                    */
   void        *estab_data;  /* user pointer passed to expstab             */
@@ -106,8 +106,8 @@ typedef struct ARKodeHAdaptMemRec {
 ARKodeHAdaptMem arkAdaptInit();
 void arkPrintAdaptMem(ARKodeHAdaptMem hadapt_mem, FILE *outfile);
 int arkAdapt(void* arkode_mem, ARKodeHAdaptMem hadapt_mem,
-             N_Vector ycur, realtype tcur, realtype hcur,
-             realtype dsm, long int nst);
+             N_Vector ycur, sunrealtype tcur, sunrealtype hcur,
+             sunrealtype dsm, long int nst);
 
 
 #ifdef __cplusplus

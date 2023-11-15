@@ -46,7 +46,7 @@ typedef int (*KINBBDLocalFn)(sunindextype Nlocal, N_Vector uu,
 SUNDIALS_EXPORT int KINBBDPrecInit(void *kinmem, sunindextype Nlocal,
                                    sunindextype mudq, sunindextype mldq,
                                    sunindextype mukeep, sunindextype mlkeep,
-                                   realtype dq_rel_uu,
+                                   sunrealtype dq_rel_uu,
                                    KINBBDLocalFn gloc, KINBBDCommFn gcomm);
 
 /* Optional output functions */

@@ -60,43 +60,43 @@
 #include "sunnonlinsol/sunnonlinsol_fixedpoint.h" /* access to the fixed point SUNNonlinearSolver */
 
 /* Problem Constants */
-#define XMAX  RCONST(2.0)   /* domain boundary           */
+#define XMAX  SUN_RCONST(2.0)   /* domain boundary           */
 #define MX    10            /* mesh dimension            */
 #define NEQ   MX            /* number of equations       */
-#define ATOL  RCONST(1.e-5) /* scalar absolute tolerance */
-#define T0    RCONST(0.0)   /* initial time              */
-#define T1    RCONST(0.5)   /* first output time         */
-#define DTOUT RCONST(0.5)   /* output time increment     */
+#define ATOL  SUN_RCONST(1.e-5) /* scalar absolute tolerance */
+#define T0    SUN_RCONST(0.0)   /* initial time              */
+#define T1    SUN_RCONST(0.5)   /* first output time         */
+#define DTOUT SUN_RCONST(0.5)   /* output time increment     */
 #define NOUT  10            /* number of output times    */
 
 #define NP    2
 #define NS    2
 
-#define ZERO  RCONST(0.0)
+#define ZERO  SUN_RCONST(0.0)
 
 /* Type : UserData
    contains problem parameters, grid constants, work array. */
 
 typedef struct {
-  realtype *p;
-  realtype dx;
+  sunrealtype *p;
+  sunrealtype dx;
 } *UserData;
 
 /* Functions Called by the CVODES Solver */
 
-static int f(realtype t, N_Vector u, N_Vector udot, void *user_data);
+static int f(sunrealtype t, N_Vector u, N_Vector udot, void *user_data);
 
 /* Private Helper Functions */
 
 static void ProcessArgs(int argc, char *argv[],
-                        booleantype *sensi, int *sensi_meth,
-			booleantype *err_con);
+                        sunbooleantype *sensi, int *sensi_meth,
+			sunbooleantype *err_con);
 static void WrongArgs(char *name);
-static void SetIC(N_Vector u, realtype dx);
-static void PrintOutput(void *cvode_mem, realtype t, N_Vector u);
+static void SetIC(N_Vector u, sunrealtype dx);
+static void PrintOutput(void *cvode_mem, sunrealtype t, N_Vector u);
 static void PrintOutputS(N_Vector *uS);
-static void PrintFinalStats(void *cvode_mem, booleantype sensi,
-                            booleantype err_con, int sensi_meth);
+static void PrintFinalStats(void *cvode_mem, sunbooleantype sensi,
+                            sunbooleantype err_con, int sensi_meth);
 
 static int check_retval(void *returnvalue, const char *funcname, int opt);
 
@@ -110,14 +110,14 @@ int main(int argc, char *argv[])
 {
   void *cvode_mem;
   UserData data;
-  realtype dx, reltol, abstol, t, tout;
+  sunrealtype dx, reltol, abstol, t, tout;
   N_Vector u;
   int iout, retval;
 
-  realtype *pbar;
+  sunrealtype *pbar;
   int is, *plist;
   N_Vector *uS;
-  booleantype sensi, err_con;
+  sunbooleantype sensi, err_con;
   int sensi_meth;
 
   SUNNonlinearSolver NLS, NLSsens;
@@ -142,10 +142,10 @@ int main(int argc, char *argv[])
   /* Set user data */
   data = (UserData) malloc(sizeof *data); /* Allocate data memory */
   if(check_retval((void *)data, "malloc", 2)) return(1);
-  data->p = (realtype *) malloc(NP * sizeof(realtype));
-  dx = data->dx = XMAX/((realtype)(MX+1));
-  data->p[0] = RCONST(1.0);
-  data->p[1] = RCONST(0.5);
+  data->p = (sunrealtype *) malloc(NP * sizeof(sunrealtype));
+  dx = data->dx = XMAX/((sunrealtype)(MX+1));
+  data->p[0] = SUN_RCONST(1.0);
+  data->p[1] = SUN_RCONST(0.5);
 
   /* Allocate and set initial states */
   u = N_VNew_Serial(NEQ, sunctx);
@@ -187,7 +187,7 @@ int main(int argc, char *argv[])
     if(check_retval((void *)plist, "malloc", 2)) return(1);
     for(is=0; is<NS; is++) plist[is] = is;
 
-    pbar  = (realtype *) malloc(NS * sizeof(realtype));
+    pbar  = (sunrealtype *) malloc(NS * sizeof(sunrealtype));
     if(check_retval((void *)pbar, "malloc", 2)) return(1);
     for(is=0; is<NS; is++) pbar[is] = data->p[plist[is]];
 
@@ -293,11 +293,11 @@ int main(int argc, char *argv[])
  * f routine. Compute f(t,u).
  */
 
-static int f(realtype t, N_Vector u, N_Vector udot, void *user_data)
+static int f(sunrealtype t, N_Vector u, N_Vector udot, void *user_data)
 {
-  realtype ui, ult, urt, hordc, horac, hdiff, hadv;
-  realtype dx;
-  realtype *udata, *dudata;
+  sunrealtype ui, ult, urt, hordc, horac, hdiff, hadv;
+  sunrealtype dx;
+  sunrealtype *udata, *dudata;
   int i;
   UserData data;
 
@@ -308,7 +308,7 @@ static int f(realtype t, N_Vector u, N_Vector udot, void *user_data)
   data = (UserData) user_data;
   dx    = data->dx;
   hordc = data->p[0]/(dx*dx);
-  horac = data->p[1]/(RCONST(2.0)*dx);
+  horac = data->p[1]/(SUN_RCONST(2.0)*dx);
 
   /* Loop over all grid points. */
   for (i=0; i<NEQ; i++) {
@@ -325,7 +325,7 @@ static int f(realtype t, N_Vector u, N_Vector udot, void *user_data)
       urt = ZERO;
 
     /* Set diffusion and advection terms and load into udot */
-    hdiff = hordc*(ult - RCONST(2.0)*ui + urt);
+    hdiff = hordc*(ult - SUN_RCONST(2.0)*ui + urt);
     hadv = horac*(urt - ult);
     dudata[i] = hdiff + hadv;
   }
@@ -344,7 +344,7 @@ static int f(realtype t, N_Vector u, N_Vector udot, void *user_data)
  */
 
 static void ProcessArgs(int argc, char *argv[],
-                        booleantype *sensi, int *sensi_meth, booleantype *err_con)
+                        sunbooleantype *sensi, int *sensi_meth, sunbooleantype *err_con)
 {
   *sensi = SUNFALSE;
   *sensi_meth = -1;
@@ -396,11 +396,11 @@ static void WrongArgs(char *name)
  * Set initial conditions in u vector.
  */
 
-static void SetIC(N_Vector u, realtype dx)
+static void SetIC(N_Vector u, sunrealtype dx)
 {
   int i;
-  realtype x;
-  realtype *udata;
+  sunrealtype x;
+  sunrealtype *udata;
 
   /* Set pointer to data array and get local length of u. */
   udata = N_VGetArrayPointer(u);
@@ -408,7 +408,7 @@ static void SetIC(N_Vector u, realtype dx)
   /* Load initial profile into u vector */
   for (i=0; i<NEQ; i++) {
     x = (i+1)*dx;
-    udata[i] = x*(XMAX - x)*SUNRexp(RCONST(2.0)*x);
+    udata[i] = x*(XMAX - x)*SUNRexp(SUN_RCONST(2.0)*x);
   }
 }
 
@@ -416,11 +416,11 @@ static void SetIC(N_Vector u, realtype dx)
  * Print current t, step count, order, stepsize, and max norm of solution
  */
 
-static void PrintOutput(void *cvode_mem, realtype t, N_Vector u)
+static void PrintOutput(void *cvode_mem, sunrealtype t, N_Vector u)
 {
   long int nst;
   int qu, retval;
-  realtype hu;
+  sunrealtype hu;
 
   retval = CVodeGetNumSteps(cvode_mem, &nst);
   check_retval(&retval, "CVodeGetNumSteps", 1);
@@ -478,8 +478,8 @@ static void PrintOutputS(N_Vector *uS)
  * Print some final statistics located in the CVODES memory
  */
 
-static void PrintFinalStats(void *cvode_mem, booleantype sensi,
-                            booleantype err_con, int sensi_meth)
+static void PrintFinalStats(void *cvode_mem, sunbooleantype sensi,
+                            sunbooleantype err_con, int sensi_meth)
 {
   long int nst;
   long int nfe, nsetups, nni, ncfn, netf;

@@ -44,10 +44,10 @@ int MRIStepSetMaxNumSteps(void *arkode_mem, long int mxsteps) {
   return(arkSetMaxNumSteps(arkode_mem, mxsteps)); }
 int MRIStepSetMaxHnilWarns(void *arkode_mem, int mxhnil) {
   return(arkSetMaxHnilWarns(arkode_mem, mxhnil)); }
-int MRIStepSetStopTime(void *arkode_mem, realtype tstop) {
+int MRIStepSetStopTime(void *arkode_mem, sunrealtype tstop) {
   return(arkSetStopTime(arkode_mem, tstop)); }
 int MRIStepSetInterpolateStopTime(void *arkode_mem,
-                                  booleantype interp) {
+                                  sunbooleantype interp) {
   return(arkSetInterpolateStopTime(arkode_mem, interp)); }
 int MRIStepClearStopTime(void *arkode_mem) {
   return(arkClearStopTime(arkode_mem)); }
@@ -74,11 +74,11 @@ int MRIStepSetJacFn(void *arkode_mem, ARKLsJacFn jac) {
   return(arkLSSetJacFn(arkode_mem, jac)); }
 int MRIStepSetJacEvalFrequency(void *arkode_mem, long int msbj) {
   return(arkLSSetJacEvalFrequency(arkode_mem, msbj)); }
-int MRIStepSetLinearSolutionScaling(void *arkode_mem, booleantype onoff) {
+int MRIStepSetLinearSolutionScaling(void *arkode_mem, sunbooleantype onoff) {
   return(arkLSSetLinearSolutionScaling(arkode_mem, onoff)); }
-int MRIStepSetEpsLin(void *arkode_mem, realtype eplifac) {
+int MRIStepSetEpsLin(void *arkode_mem, sunrealtype eplifac) {
   return(arkLSSetEpsLin(arkode_mem, eplifac)); }
-int MRIStepSetLSNormFactor(void *arkode_mem, realtype nrmfac) {
+int MRIStepSetLSNormFactor(void *arkode_mem, sunrealtype nrmfac) {
   return(arkLSSetNormFactor(arkode_mem, nrmfac)); }
 int MRIStepSetPreconditioner(void *arkode_mem, ARKLsPrecSetupFn psetup,
                              ARKLsPrecSolveFn psolve) {
@@ -98,13 +98,13 @@ int MRIStepSetLinSysFn(void *arkode_mem, ARKLsLinSysFn linsys) {
   ===============================================================*/
 int MRIStepGetNumSteps(void *arkode_mem, long int *nssteps) {
   return(arkGetNumSteps(arkode_mem, nssteps)); }
-int MRIStepGetLastStep(void *arkode_mem, realtype *hlast) {
+int MRIStepGetLastStep(void *arkode_mem, sunrealtype *hlast) {
   return(arkGetLastStep(arkode_mem, hlast)); }
-int MRIStepGetCurrentTime(void *arkode_mem, realtype *tcur) {
+int MRIStepGetCurrentTime(void *arkode_mem, sunrealtype *tcur) {
   return(arkGetCurrentTime(arkode_mem, tcur)); }
 int MRIStepGetCurrentState(void *arkode_mem, N_Vector *state) {
   return(arkGetCurrentState(arkode_mem, state)); }
-int MRIStepGetTolScaleFactor(void *arkode_mem, realtype *tolsfact) {
+int MRIStepGetTolScaleFactor(void *arkode_mem, sunrealtype *tolsfact) {
   return(arkGetTolScaleFactor(arkode_mem, tolsfact)); }
 int MRIStepGetErrWeights(void *arkode_mem, N_Vector eweight) {
   return(arkGetErrWeights(arkode_mem, eweight)); }
@@ -261,7 +261,7 @@ int MRIStepSetLinear(void *arkode_mem, int timedepend)
   /* set parameters */
   step_mem->linear = SUNTRUE;
   step_mem->linear_timedep = (timedepend == 1);
-  step_mem->dgmax = RCONST(100.0)*UNIT_ROUNDOFF;
+  step_mem->dgmax = SUN_RCONST(100.0)*SUN_UNIT_ROUNDOFF;
 
   return(ARK_SUCCESS);
 }
@@ -441,7 +441,7 @@ int MRIStepSetPostInnerFn(void *arkode_mem, MRIStepPostInnerFn postfn)
   Wrapper for generic arkSetFixedStep routine.  Additionally
   enforces current MRIStep constraint for fixed time-stepping.
   ---------------------------------------------------------------*/
-int MRIStepSetFixedStep(void *arkode_mem, realtype hsfixed)
+int MRIStepSetFixedStep(void *arkode_mem, sunrealtype hsfixed)
 {
   ARKodeMem ark_mem;
   if (arkode_mem==NULL) {
@@ -470,7 +470,7 @@ int MRIStepSetFixedStep(void *arkode_mem, realtype hsfixed)
   crdown.  Legal values are strictly positive; illegal values
   imply a reset to the default.
   ---------------------------------------------------------------*/
-int MRIStepSetNonlinCRDown(void *arkode_mem, realtype crdown)
+int MRIStepSetNonlinCRDown(void *arkode_mem, sunrealtype crdown)
 {
   ARKodeMem ark_mem;
   ARKodeMRIStepMem step_mem;
@@ -499,7 +499,7 @@ int MRIStepSetNonlinCRDown(void *arkode_mem, realtype crdown)
   rdiv.  Legal values are strictly positive; illegal values
   imply a reset to the default.
   ---------------------------------------------------------------*/
-int MRIStepSetNonlinRDiv(void *arkode_mem, realtype rdiv)
+int MRIStepSetNonlinRDiv(void *arkode_mem, sunrealtype rdiv)
 {
   ARKodeMem ark_mem;
   ARKodeMRIStepMem step_mem;
@@ -528,7 +528,7 @@ int MRIStepSetNonlinRDiv(void *arkode_mem, realtype rdiv)
   dgmax.  Legal values are strictly positive; illegal values imply
   a reset to the default.
   ---------------------------------------------------------------*/
-int MRIStepSetDeltaGammaMax(void *arkode_mem, realtype dgmax)
+int MRIStepSetDeltaGammaMax(void *arkode_mem, sunrealtype dgmax)
 {
   ARKodeMem ark_mem;
   ARKodeMRIStepMem step_mem;
@@ -657,7 +657,7 @@ int MRIStepSetMaxNonlinIters(void *arkode_mem, int maxcor)
   Specifies the coefficient in the nonlinear solver convergence
   test.  A non-positive input implies a reset to the default value.
   ---------------------------------------------------------------*/
-int MRIStepSetNonlinConvCoef(void *arkode_mem, realtype nlscoef)
+int MRIStepSetNonlinConvCoef(void *arkode_mem, sunrealtype nlscoef)
 {
   ARKodeMem ark_mem;
   ARKodeMRIStepMem step_mem;
@@ -783,7 +783,7 @@ int MRIStepGetLastInnerStepFlag(void *arkode_mem, int *flag)
 /*---------------------------------------------------------------
   MRIStepGetCurrentGamma: Returns the current value of gamma
   ---------------------------------------------------------------*/
-int MRIStepGetCurrentGamma(void *arkode_mem, realtype *gamma)
+int MRIStepGetCurrentGamma(void *arkode_mem, sunrealtype *gamma)
 {
   int retval;
   ARKodeMem ark_mem;
@@ -969,7 +969,7 @@ int MRIStepPrintAllStats(void *arkode_mem, FILE *outfile, SUNOutputFormat fmt)
     if (ark_mem->nst > 0)
     {
       fprintf(outfile, "NLS iters per step           = %"RSYM"\n",
-              (realtype) step_mem->nls_iters / (realtype) ark_mem->nst);
+              (sunrealtype) step_mem->nls_iters / (sunrealtype) ark_mem->nst);
     }
 
     /* linear solver stats */
@@ -988,11 +988,11 @@ int MRIStepPrintAllStats(void *arkode_mem, FILE *outfile, SUNOutputFormat fmt)
       if (step_mem->nls_iters > 0)
       {
         fprintf(outfile, "LS iters per NLS iter        = %"RSYM"\n",
-                (realtype) arkls_mem->nli / (realtype) step_mem->nls_iters);
+                (sunrealtype) arkls_mem->nli / (sunrealtype) step_mem->nls_iters);
         fprintf(outfile, "Jac evals per NLS iter       = %"RSYM"\n",
-                (realtype) arkls_mem->nje / (realtype) step_mem->nls_iters);
+                (sunrealtype) arkls_mem->nje / (sunrealtype) step_mem->nls_iters);
         fprintf(outfile, "Prec evals per NLS iter      = %"RSYM"\n",
-                (realtype) arkls_mem->npe / (realtype) step_mem->nls_iters);
+                (sunrealtype) arkls_mem->npe / (sunrealtype) step_mem->nls_iters);
       }
     }
     break;
@@ -1008,7 +1008,7 @@ int MRIStepPrintAllStats(void *arkode_mem, FILE *outfile, SUNOutputFormat fmt)
     if (ark_mem->nst > 0)
     {
       fprintf(outfile, ",NLS iters per step,%"RSYM,
-              (realtype) step_mem->nls_iters / (realtype) ark_mem->nst);
+              (sunrealtype) step_mem->nls_iters / (sunrealtype) ark_mem->nst);
     }
     else
     {
@@ -1031,11 +1031,11 @@ int MRIStepPrintAllStats(void *arkode_mem, FILE *outfile, SUNOutputFormat fmt)
       if (step_mem->nls_iters > 0)
       {
         fprintf(outfile, ",LS iters per NLS iter,%"RSYM,
-                (realtype) arkls_mem->nli / (realtype) step_mem->nls_iters);
+                (sunrealtype) arkls_mem->nli / (sunrealtype) step_mem->nls_iters);
         fprintf(outfile, ",Jac evals per NLS iter,%"RSYM,
-                (realtype) arkls_mem->nje / (realtype) step_mem->nls_iters);
+                (sunrealtype) arkls_mem->nje / (sunrealtype) step_mem->nls_iters);
         fprintf(outfile, ",Prec evals per NLS iter,%"RSYM,
-                (realtype) arkls_mem->npe / (realtype) step_mem->nls_iters);
+                (sunrealtype) arkls_mem->npe / (sunrealtype) step_mem->nls_iters);
       }
       else
       {

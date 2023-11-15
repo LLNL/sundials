@@ -34,8 +34,8 @@ extern "C" {
  * ===========================================================================*/
 
 #define PROJ_MAX_FAILS 10
-#define PROJ_EPS       RCONST(0.1)
-#define PROJ_FAIL_ETA  RCONST(0.25)
+#define PROJ_EPS       SUN_RCONST(0.1)
+#define PROJ_FAIL_ETA  SUN_RCONST(0.25)
 
 /* =============================================================================
  * Projection Data Structure
@@ -49,9 +49,9 @@ extern "C" {
  * ---------------------------------------------------------------------------*/
 typedef struct CVodeProjMemRec {
 
-  booleantype internal_proj;  /* use the internal projection algorithm?      */
-  booleantype err_proj;       /* is error projection enabled?                */
-  booleantype first_proj;     /* is this the first time we project?          */
+  sunbooleantype internal_proj;  /* use the internal projection algorithm?      */
+  sunbooleantype err_proj;       /* is error projection enabled?                */
+  sunbooleantype first_proj;     /* is this the first time we project?          */
 
   long int freq;              /* projection frequency                        */
   long int nstlprj;           /* step number of last projection              */
@@ -60,8 +60,8 @@ typedef struct CVodeProjMemRec {
 
   CVProjFn pfun;              /* function to perform projection              */
 
-  realtype eps_proj;          /* projection solve tolerance                  */
-  realtype eta_pfail;         /* projection failure step reduction factor    */
+  sunrealtype eps_proj;          /* projection solve tolerance                  */
+  sunrealtype eta_pfail;         /* projection failure step reduction factor    */
 
   long int nproj;             /* number of projections performed             */
   long int npfails;           /* number of projection failures               */

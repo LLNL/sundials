@@ -79,7 +79,7 @@ but serves to illustrate use of the forward sensitivity capabilities in {\cvodes
 
 The \id{cvsAdvDiff\_FSA\_non.c} file begins by including several header files, including 
 the main {\cvodes} header file, the \id{sundials\_types.h} header file for the
-definition of the \id{realtype} type, and the {\nvecs} header file 
+definition of the \id{sunrealtype} type, and the {\nvecs} header file 
 for the definitions of the serial \id{N\_Vector} type and operations on such vectors.
 Following that are definitions of problem constants and a data block for communication
 with the \id{f} routine.  That block includes the problem parameters and the mesh 
@@ -203,7 +203,7 @@ must provide access to the array of model parameters as the only way for
 {\cvodes} to communicate parameter values to the right-hand side function
 \id{f}. In the \id{cvsRoberts\_FSA\_dns} example this is done by defining
 \id{data} to be of type \id{UserData}, i.e. a pointer to a structure which contains
-an array of \id{NP} \id{realtype} values.
+an array of \id{NP} \id{sunrealtype} values.
 
 Four user-supplied functions are defined. The function \id{f}, passed to \id{CVodeInit},
 computes the right-hand side of the ODE (\ref{e:cvsRoberts_FSA_dns_ode}), while

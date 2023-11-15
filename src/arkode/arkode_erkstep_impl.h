@@ -59,7 +59,7 @@ typedef struct ARKodeERKStepMemRec {
   long int nfe;           /* num fe calls               */
 
   /* Reusable arrays for fused vector operations */
-  realtype* cvals;
+  sunrealtype* cvals;
   N_Vector* Xvecs;
 
 } *ARKodeERKStepMem;
@@ -71,17 +71,17 @@ typedef struct ARKodeERKStepMemRec {
 
 /* Interface routines supplied to ARKODE */
 int erkStep_Init(void* arkode_mem, int init_type);
-int erkStep_FullRHS(void* arkode_mem, realtype t,
+int erkStep_FullRHS(void* arkode_mem, sunrealtype t,
                     N_Vector y, N_Vector f, int mode);
-int erkStep_TakeStep(void* arkode_mem, realtype *dsmPtr, int *nflagPtr);
+int erkStep_TakeStep(void* arkode_mem, sunrealtype *dsmPtr, int *nflagPtr);
 
 /* Internal utility routines */
 int erkStep_AccessStepMem(void* arkode_mem, const char *fname,
                           ARKodeMem *ark_mem, ARKodeERKStepMem *step_mem);
-booleantype erkStep_CheckNVector(N_Vector tmpl);
+sunbooleantype erkStep_CheckNVector(N_Vector tmpl);
 int erkStep_SetButcherTable(ARKodeMem ark_mem);
 int erkStep_CheckButcherTable(ARKodeMem ark_mem);
-int erkStep_ComputeSolutions(ARKodeMem ark_mem, realtype *dsm);
+int erkStep_ComputeSolutions(ARKodeMem ark_mem, sunrealtype *dsm);
 
 /* private functions for relaxation */
 int erkStep_RelaxDeltaE(ARKodeMem ark_mem, ARKRelaxJacFn relax_jac_fn,

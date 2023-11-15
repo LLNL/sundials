@@ -58,7 +58,7 @@ int SPRKStepSetMaxNumSteps(void* arkode_mem, long int mxsteps)
   return (arkSetMaxNumSteps(arkode_mem, mxsteps));
 }
 
-int SPRKStepSetStopTime(void* arkode_mem, realtype tstop)
+int SPRKStepSetStopTime(void* arkode_mem, sunrealtype tstop)
 {
   return (arkSetStopTime(arkode_mem, tstop));
 }
@@ -88,7 +88,7 @@ int SPRKStepSetPostprocessStageFn(void* arkode_mem, ARKPostProcessFn ProcessStag
   return (arkSetPostprocessStageFn(arkode_mem, ProcessStage));
 }
 
-int SPRKStepSetFixedStep(void* arkode_mem, realtype hfixed)
+int SPRKStepSetFixedStep(void* arkode_mem, sunrealtype hfixed)
 {
   return (arkSetFixedStep(arkode_mem, hfixed));
 }
@@ -107,17 +107,17 @@ int SPRKStepGetNumSteps(void* arkode_mem, long int* nsteps)
   return (arkGetNumSteps(arkode_mem, nsteps));
 }
 
-int SPRKStepGetLastStep(void* arkode_mem, realtype* hlast)
+int SPRKStepGetLastStep(void* arkode_mem, sunrealtype* hlast)
 {
   return (arkGetLastStep(arkode_mem, hlast));
 }
 
-int SPRKStepGetCurrentStep(void* arkode_mem, realtype* hcur)
+int SPRKStepGetCurrentStep(void* arkode_mem, sunrealtype* hcur)
 {
   return (arkGetCurrentStep(arkode_mem, hcur));
 }
 
-int SPRKStepGetCurrentTime(void* arkode_mem, realtype* tcur)
+int SPRKStepGetCurrentTime(void* arkode_mem, sunrealtype* tcur)
 {
   return (arkGetCurrentTime(arkode_mem, tcur));
 }
@@ -132,8 +132,8 @@ int SPRKStepGetRootInfo(void* arkode_mem, int* rootsfound)
   return (arkGetRootInfo(arkode_mem, rootsfound));
 }
 
-int SPRKStepGetStepStats(void* arkode_mem, long int* nsteps, realtype* hinused,
-                         realtype* hlast, realtype* hcur, realtype* tcur)
+int SPRKStepGetStepStats(void* arkode_mem, long int* nsteps, sunrealtype* hinused,
+                         sunrealtype* hlast, sunrealtype* hcur, sunrealtype* tcur)
 {
   return (arkGetStepStats(arkode_mem, nsteps, hinused, hlast, hcur, tcur));
 }

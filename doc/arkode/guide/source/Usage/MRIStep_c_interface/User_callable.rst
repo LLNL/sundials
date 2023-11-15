@@ -42,7 +42,7 @@ MRIStep initialization and deallocation functions
 ------------------------------------------------------
 
 
-.. c:function:: void* MRIStepCreate(ARKRhsFn fse, ARKRhsFn fsi, realtype t0, N_Vector y0, MRIStepInnerStepper stepper, SUNContext sunctx)
+.. c:function:: void* MRIStepCreate(ARKRhsFn fse, ARKRhsFn fsi, sunrealtype t0, N_Vector y0, MRIStepInnerStepper stepper, SUNContext sunctx)
 
    This function allocates and initializes memory for a problem to
    be solved using the MRIStep time-stepping module in ARKODE.
@@ -152,7 +152,7 @@ Alternatively, the user may supply a custom function to supply the
 
 
 
-.. c:function:: int MRIStepSStolerances(void* arkode_mem, realtype reltol, realtype abstol)
+.. c:function:: int MRIStepSStolerances(void* arkode_mem, sunrealtype reltol, sunrealtype abstol)
 
    This function specifies scalar relative and absolute tolerances.
 
@@ -169,7 +169,7 @@ Alternatively, the user may supply a custom function to supply the
 
 
 
-.. c:function:: int MRIStepSVtolerances(void* arkode_mem, realtype reltol, N_Vector abstol)
+.. c:function:: int MRIStepSVtolerances(void* arkode_mem, sunrealtype reltol, N_Vector abstol)
 
    This function specifies a scalar relative tolerance and a vector
    absolute tolerance (a potentially different absolute tolerance for
@@ -523,7 +523,7 @@ the user has set a stop time (with a call to the optional input function
 :c:func:`MRIStepSetStopTime()`) or has requested rootfinding.
 
 
-.. c:function:: int MRIStepEvolve(void* arkode_mem, realtype tout, N_Vector yout, realtype *tret, int itask)
+.. c:function:: int MRIStepEvolve(void* arkode_mem, sunrealtype tout, N_Vector yout, sunrealtype *tret, int itask)
 
    Integrates the ODE over an interval in :math:`t`.
 
@@ -917,7 +917,7 @@ Optional inputs for MRIStep
 
 
 
-.. c:function:: int MRIStepSetFixedStep(void* arkode_mem, realtype hs)
+.. c:function:: int MRIStepSetFixedStep(void* arkode_mem, sunrealtype hs)
 
    Set the slow step size used within MRIStep for the following internal step(s).
 
@@ -943,7 +943,7 @@ Optional inputs for MRIStep
 
 
 ..
-   .. c:function:: int MRIStepSetInitStep(void* arkode_mem, realtype hin)
+   .. c:function:: int MRIStepSetInitStep(void* arkode_mem, sunrealtype hin)
 
       Specifies the initial time step size MRIStep should use after
       initialization or re-initialization.
@@ -1028,7 +1028,7 @@ Optional inputs for MRIStep
 
 
 ..
-   .. c:function:: int MRIStepSetMaxStep(void* arkode_mem, realtype hmax)
+   .. c:function:: int MRIStepSetMaxStep(void* arkode_mem, sunrealtype hmax)
 
       Specifies the upper bound on the magnitude of the time step size.
 
@@ -1051,7 +1051,7 @@ Optional inputs for MRIStep
 
 
 ..
-   .. c:function:: int MRIStepSetMinStep(void* arkode_mem, realtype hmin)
+   .. c:function:: int MRIStepSetMinStep(void* arkode_mem, sunrealtype hmin)
 
       Specifies the lower bound on the magnitude of the time step size.
 
@@ -1072,7 +1072,7 @@ Optional inputs for MRIStep
       **Notes:** Pass *hmin* :math:`\le 0.0` to set the default value of 0.
 
 
-.. c:function:: int MRIStepSetStopTime(void* arkode_mem, realtype tstop)
+.. c:function:: int MRIStepSetStopTime(void* arkode_mem, sunrealtype tstop)
 
    Specifies the value of the independent variable
    :math:`t` past which the solution is not to proceed.
@@ -1104,7 +1104,7 @@ Optional inputs for MRIStep
       :c:func:`MRIStepClearStopTime`.
 
 
-.. c:function:: int MRIStepSetInterpolateStopTime(void* arkode_mem, booleantype interp)
+.. c:function:: int MRIStepSetInterpolateStopTime(void* arkode_mem, sunbooleantype interp)
 
    Specifies that the output solution should be interpolated when the current
    :math:`t` equals the specified ``tstop`` (instead of merely copying the
@@ -1429,7 +1429,7 @@ Specify if :math:`f^I` is deduced after a nonlinear solve  :c:func:`MRIStepSetDe
 
 
 
-.. c:function:: int MRIStepSetNonlinConvCoef(void* arkode_mem, realtype nlscoef)
+.. c:function:: int MRIStepSetNonlinConvCoef(void* arkode_mem, sunrealtype nlscoef)
 
    Specifies the safety factor used within the nonlinear solver convergence test.
 
@@ -1447,7 +1447,7 @@ Specify if :math:`f^I` is deduced after a nonlinear solve  :c:func:`MRIStepSetDe
 
 
 
-.. c:function:: int MRIStepSetNonlinCRDown(void* arkode_mem, realtype crdown)
+.. c:function:: int MRIStepSetNonlinCRDown(void* arkode_mem, sunrealtype crdown)
 
    Specifies the constant used in estimating the nonlinear solver convergence rate.
 
@@ -1464,7 +1464,7 @@ Specify if :math:`f^I` is deduced after a nonlinear solve  :c:func:`MRIStepSetDe
 
 
 
-.. c:function:: int MRIStepSetNonlinRDiv(void* arkode_mem, realtype rdiv)
+.. c:function:: int MRIStepSetNonlinRDiv(void* arkode_mem, sunrealtype rdiv)
 
    Specifies the nonlinear correction threshold beyond which the
    iteration will be declared divergent.
@@ -1623,7 +1623,7 @@ Jacobian / preconditioner update frequency     :c:func:`MRIStepSetJacEvalFrequen
 =============================================  =========================================  ============
 
 
-.. c:function:: int MRIStepSetDeltaGammaMax(void* arkode_mem, realtype dgmax)
+.. c:function:: int MRIStepSetDeltaGammaMax(void* arkode_mem, sunrealtype dgmax)
 
    Specifies a scaled step size ratio tolerance, beyond which the
    linear solver setup routine will be signaled.
@@ -1802,7 +1802,7 @@ program. The user data pointer may be specified through
    :numref:`ARKODE.Usage.UserSupplied`.
 
 
-.. c:function:: int MRIStepSetLinearSolutionScaling(void* arkode_mem, booleantype onoff)
+.. c:function:: int MRIStepSetLinearSolutionScaling(void* arkode_mem, sunbooleantype onoff)
 
    Enables or disables scaling the linear system solution to account for a
    change in :math:`\gamma` in the linear system. For more details see
@@ -2006,7 +2006,7 @@ the user through the :c:func:`MRIStepSetEpsLin()` function.
    :numref:`ARKODE.Usage.UserSupplied`.
 
 
-.. c:function:: int MRIStepSetEpsLin(void* arkode_mem, realtype eplifac)
+.. c:function:: int MRIStepSetEpsLin(void* arkode_mem, sunrealtype eplifac)
 
    Specifies the factor by which the tolerance on the nonlinear
    iteration is multiplied to get a tolerance on the linear
@@ -2030,7 +2030,7 @@ the user through the :c:func:`MRIStepSetEpsLin()` function.
    :c:func:`MRIStepSetLinearSolver()`.
 
 
-.. c:function:: int MRIStepSetLSNormFactor(void* arkode_mem, realtype nrmfac)
+.. c:function:: int MRIStepSetLSNormFactor(void* arkode_mem, sunrealtype nrmfac)
 
    Specifies the factor to use when converting from the integrator tolerance
    (WRMS norm) to the linear solver tolerance (L2 norm) for Newton linear system
@@ -2144,7 +2144,7 @@ polynomial model may be evaluated upon request.
 
 
 
-.. c:function:: int MRIStepGetDky(void* arkode_mem, realtype t, int k, N_Vector dky)
+.. c:function:: int MRIStepGetDky(void* arkode_mem, sunrealtype t, int k, N_Vector dky)
 
    Computes the *k*-th derivative of the function
    :math:`y` at the time *t*,
@@ -2312,7 +2312,7 @@ Main solver optional output functions
 
    * *arkode_mem* -- pointer to the MRIStep memory block.
 
-   * *lenrw* -- the number of ``realtype`` values in the MRIStep workspace.
+   * *lenrw* -- the number of ``sunrealtype`` values in the MRIStep workspace.
 
    * *leniw* -- the number of integer values in the MRIStep workspace.
 
@@ -2344,7 +2344,7 @@ Main solver optional output functions
 
 
 ..
-   .. c:function:: int MRIStepGetActualInitStep(void* arkode_mem, realtype* hinused)
+   .. c:function:: int MRIStepGetActualInitStep(void* arkode_mem, sunrealtype* hinused)
 
       Returns the value of the integration step size used on the first step.
 
@@ -2361,7 +2361,7 @@ Main solver optional output functions
       * *ARK_MEM_NULL* if the MRIStep memory was ``NULL``
 
 
-.. c:function:: int MRIStepGetLastStep(void* arkode_mem, realtype* hlast)
+.. c:function:: int MRIStepGetLastStep(void* arkode_mem, sunrealtype* hlast)
 
    Returns the integration step size taken on the last successful
    internal step.
@@ -2380,7 +2380,7 @@ Main solver optional output functions
 
 
 ..
-   .. c:function:: int MRIStepGetCurrentStep(void* arkode_mem, realtype* hcur)
+   .. c:function:: int MRIStepGetCurrentStep(void* arkode_mem, sunrealtype* hcur)
 
       Returns the integration step size to be attempted on the next internal step.
 
@@ -2397,7 +2397,7 @@ Main solver optional output functions
       * *ARK_MEM_NULL* if the MRIStep memory was ``NULL``
 
 
-.. c:function:: int MRIStepGetCurrentTime(void* arkode_mem, realtype* tcur)
+.. c:function:: int MRIStepGetCurrentTime(void* arkode_mem, sunrealtype* tcur)
 
    Returns the current internal time reached by the solver.
 
@@ -2435,7 +2435,7 @@ Main solver optional output functions
    on the particular use case and on when this routine is called.
 
 
-.. c:function:: int MRIStepGetCurrentGamma(void *arkode_mem, realtype *gamma)
+.. c:function:: int MRIStepGetCurrentGamma(void *arkode_mem, sunrealtype *gamma)
 
    Returns the current internal value of :math:`\gamma` used in the implicit
    solver Newton matrix (see equation :eq:`ARKODE_NewtonMatrix`).
@@ -2454,7 +2454,7 @@ Main solver optional output functions
 
 
 
-.. c:function:: int MRIStepGetTolScaleFactor(void* arkode_mem, realtype* tolsfac)
+.. c:function:: int MRIStepGetTolScaleFactor(void* arkode_mem, sunrealtype* tolsfac)
 
    Returns a suggested factor by which the user's
    tolerances should be scaled when too much accuracy has been
@@ -2494,7 +2494,7 @@ Main solver optional output functions
 
 
 ..
-   .. c:function:: int MRIStepGetStepStats(void* arkode_mem, long int* nssteps, long int* nfsteps, realtype* hlast, realtype* tcur)
+   .. c:function:: int MRIStepGetStepStats(void* arkode_mem, long int* nssteps, long int* nfsteps, sunrealtype* hlast, sunrealtype* tcur)
 
       Returns many of the most useful optional outputs in a single call.
 
@@ -2699,8 +2699,8 @@ Main solver optional output functions
          int stages;      /* size of coupling matrices (stages * stages) */
          int q;           /* method order of accuracy                    */
          int p;           /* embedding order of accuracy                 */
-         realtype ***G;   /* coupling matrices [nmat][stages][stages]    */
-         realtype *c;     /* abscissae                                   */
+         sunrealtype ***G;   /* coupling matrices [nmat][stages][stages]    */
+         sunrealtype *c;     /* abscissae                                   */
 
        };
        typedef MRIStepCouplingMem *MRIStepCoupling;
@@ -3077,7 +3077,7 @@ Linear Solver) has been added here (e.g. *lenrwLS*).
 
    * *arkode_mem* -- pointer to the MRIStep memory block.
 
-   * *lenrwLS* -- the number of ``realtype`` values in the ARKLS workspace.
+   * *lenrwLS* -- the number of ``sunrealtype`` values in the ARKLS workspace.
 
    * *leniwLS* -- the number of integer values in the ARKLS workspace.
 
@@ -3481,7 +3481,7 @@ comments apply if there is to be a jump in the dependent variable
 vector.
 
 
-.. c:function:: int MRIStepReInit(void* arkode_mem, ARKRhsFn fse, ARKRhsFn fsi, realtype t0, N_Vector y0)
+.. c:function:: int MRIStepReInit(void* arkode_mem, ARKRhsFn fse, ARKRhsFn fsi, sunrealtype t0, N_Vector y0)
 
    Provides required problem specifications and re-initializes the
    MRIStep outer (slow) stepper.
@@ -3568,7 +3568,7 @@ comments apply if there is to be a jump in the dependent variable
 vector.
 
 
-.. c:function:: int MRIStepReset(void* arkode_mem, realtype tR, N_Vector yR)
+.. c:function:: int MRIStepReset(void* arkode_mem, sunrealtype tR, N_Vector yR)
 
    Resets the current MRIStep outer (slow) time-stepper module state to the
    provided independent variable value and dependent variable vector.
@@ -3630,7 +3630,7 @@ internal to MRIStep will be destroyed and re-cloned from the new input
 vector.
 
 
-.. c:function:: int MRIStepResize(void* arkode_mem, N_Vector yR, realtype tR, ARKVecResizeFn resize, void* resize_data)
+.. c:function:: int MRIStepResize(void* arkode_mem, N_Vector yR, sunrealtype tR, ARKVecResizeFn resize, void* resize_data)
 
    Re-initializes MRIStep with a different state vector.
 

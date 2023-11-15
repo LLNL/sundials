@@ -34,7 +34,7 @@
 
 #include <kinsol/kinsol.h>           /* access to KINSOL func., consts. */
 #include <nvector/nvector_serial.h>  /* access to serial N_Vector       */
-#include <sundials/sundials_types.h> /* defs. of realtype, sunindextype */
+#include <sundials/sundials_types.h> /* defs. of sunrealtype, sunindextype */
 
 #if defined(SUNDIALS_EXTENDED_PRECISION)
 #define GSYM "Lg"
@@ -49,16 +49,16 @@
 /* Problem Constants */
 
 #define NEQ   3              /* number of equations  */
-#define Y10   RCONST(1.0)    /* initial y components */
-#define Y20   RCONST(0.0)
-#define Y30   RCONST(0.0)
-#define TOL   RCONST(1.e-10) /* function tolerance */
-#define DSTEP RCONST(0.1)    /* Size of the single time step used */
+#define Y10   SUN_RCONST(1.0)    /* initial y components */
+#define Y20   SUN_RCONST(0.0)
+#define Y30   SUN_RCONST(0.0)
+#define TOL   SUN_RCONST(1.e-10) /* function tolerance */
+#define DSTEP SUN_RCONST(0.1)    /* Size of the single time step used */
 
 #define PRIORS 2
 
-#define ZERO RCONST(0.0)
-#define ONE  RCONST(1.0)
+#define ZERO SUN_RCONST(0.0)
+#define ONE  SUN_RCONST(1.0)
 
 /* User-defined vector accessor macro: Ith */
 
@@ -80,7 +80,7 @@ static int funcRoberts(N_Vector u, N_Vector f, void *user_data);
 static void PrintOutput(N_Vector u);
 static void PrintFinalStats(void *kmem);
 static int check_retval(void *retvalvalue, const char *funcname, int opt);
-static int check_ans(N_Vector u, realtype rtol, realtype atol);
+static int check_ans(N_Vector u, sunrealtype rtol, sunrealtype atol);
 
 /*
  *--------------------------------------------------------------------
@@ -91,7 +91,7 @@ static int check_ans(N_Vector u, realtype rtol, realtype atol);
 int main()
 {
   SUNContext sunctx;
-  realtype fnormtol, fnorm;
+  sunrealtype fnormtol, fnorm;
   N_Vector y, scale;
   int retval;
   void *kmem;
@@ -195,7 +195,7 @@ int main()
   PrintFinalStats(kmem);
 
   /* check the solution error */
-  retval = check_ans(y, RCONST(1e-4), RCONST(1e-6));
+  retval = check_ans(y, SUN_RCONST(1e-4), SUN_RCONST(1e-6));
 
   /* -----------
    * Free memory
@@ -221,15 +221,15 @@ int main()
 
 static int funcRoberts(N_Vector y, N_Vector g, void *user_data)
 {
-  realtype y1, y2, y3;
-  realtype yd1, yd3;
+  sunrealtype y1, y2, y3;
+  sunrealtype yd1, yd3;
 
   y1 = Ith(y,1);
   y2 = Ith(y,2);
   y3 = Ith(y,3);
 
-  yd1 = DSTEP * ( RCONST(-0.04)*y1 + RCONST(1.0e4)*y2*y3 );
-  yd3 = DSTEP * RCONST(3.0e2)*y2*y2;
+  yd1 = DSTEP * ( SUN_RCONST(-0.04)*y1 + SUN_RCONST(1.0e4)*y2*y3 );
+  yd3 = DSTEP * SUN_RCONST(3.0e2)*y2*y2;
 
   Ith(g,1) = yd1 + Y10;
   Ith(g,2) = -yd1 - yd3 + Y20;
@@ -244,7 +244,7 @@ static int funcRoberts(N_Vector y, N_Vector g, void *user_data)
 
 static void PrintOutput(N_Vector y)
 {
-  realtype y1, y2, y3;
+  sunrealtype y1, y2, y3;
 
   y1 = Ith(y,1);
   y2 = Ith(y,2);
@@ -327,21 +327,21 @@ static int check_retval(void *retvalvalue, const char *funcname, int opt)
 
 /* compare the solution to a reference solution computed with a
    tolerance of 1e-14 */
-static int check_ans(N_Vector u, realtype rtol, realtype atol)
+static int check_ans(N_Vector u, sunrealtype rtol, sunrealtype atol)
 {
   int      passfail=0;        /* answer pass (0) or fail (1) retval */
   N_Vector ref;               /* reference solution vector        */
   N_Vector ewt;               /* error weight vector              */
-  realtype err;               /* wrms error                       */
+  sunrealtype err;               /* wrms error                       */
 
   /* create reference solution and error weight vectors */
   ref = N_VClone(u);
   ewt = N_VClone(u);
 
   /* set the reference solution data */
-  NV_Ith_S(ref,0) = RCONST(9.9678538655358029e-01);
-  NV_Ith_S(ref,1) = RCONST(2.9530060962800345e-03);
-  NV_Ith_S(ref,2) = RCONST(2.6160735013975683e-04);
+  NV_Ith_S(ref,0) = SUN_RCONST(9.9678538655358029e-01);
+  NV_Ith_S(ref,1) = SUN_RCONST(2.9530060962800345e-03);
+  NV_Ith_S(ref,2) = SUN_RCONST(2.6160735013975683e-04);
 
   /* compute the error weight vector */
   N_VAbs(ref, ewt);

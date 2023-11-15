@@ -173,7 +173,7 @@ int SUNMatCopy(SUNMatrix A, SUNMatrix B)
   return(ier);
 }
 
-int SUNMatScaleAdd(realtype c, SUNMatrix A, SUNMatrix B)
+int SUNMatScaleAdd(sunrealtype c, SUNMatrix A, SUNMatrix B)
 {
   int ier;
   SUNDIALS_MARK_FUNCTION_BEGIN(getSUNProfiler(A));
@@ -182,7 +182,7 @@ int SUNMatScaleAdd(realtype c, SUNMatrix A, SUNMatrix B)
   return(ier);
 }
 
-int SUNMatScaleAddI(realtype c, SUNMatrix A)
+int SUNMatScaleAddI(sunrealtype c, SUNMatrix A)
 {
   int ier;
   SUNDIALS_MARK_FUNCTION_BEGIN(getSUNProfiler(A));

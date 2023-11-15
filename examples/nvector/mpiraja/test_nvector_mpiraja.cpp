@@ -314,11 +314,11 @@ int main(int argc, char *argv[])
 /* ----------------------------------------------------------------------
  * Implementation specific utility functions for vector tests
  * --------------------------------------------------------------------*/
-int check_ans(realtype ans, N_Vector plusX, sunindextype local_length)
+int check_ans(sunrealtype ans, N_Vector plusX, sunindextype local_length)
 {
   int          failure = 0;
   sunindextype i;
-  realtype     *Xdata;
+  sunrealtype     *Xdata;
   N_Vector     X;
 
   X = N_VGetLocalVector_MPIPlusX(plusX);
@@ -333,7 +333,7 @@ int check_ans(realtype ans, N_Vector plusX, sunindextype local_length)
   return (failure > ZERO) ? (1) : (0);
 }
 
-booleantype has_data(N_Vector plusX)
+sunbooleantype has_data(N_Vector plusX)
 {
   N_Vector X = N_VGetLocalVector_MPIPlusX(plusX);
   /* check if vector data is non-null */
@@ -343,17 +343,17 @@ booleantype has_data(N_Vector plusX)
   return SUNTRUE;
 }
 
-void set_element(N_Vector plusX, sunindextype i, realtype val)
+void set_element(N_Vector plusX, sunindextype i, sunrealtype val)
 {
   /* set i-th element of data array */
   set_element_range(plusX, i, i, val);
 }
 
 void set_element_range(N_Vector plusX, sunindextype is, sunindextype ie,
-                       realtype val)
+                       sunrealtype val)
 {
   sunindextype i;
-  realtype*    xd;
+  sunrealtype*    xd;
   N_Vector     X;
 
   X = N_VGetLocalVector_MPIPlusX(plusX);
@@ -365,7 +365,7 @@ void set_element_range(N_Vector plusX, sunindextype is, sunindextype ie,
   N_VCopyToDevice_Raja(X);
 }
 
-realtype get_element(N_Vector plusX, sunindextype i)
+sunrealtype get_element(N_Vector plusX, sunindextype i)
 {
   N_Vector X = N_VGetLocalVector_MPIPlusX(plusX);
 
