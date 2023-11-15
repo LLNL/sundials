@@ -214,10 +214,10 @@ int main(int argc, char* argv[])
     std::cout << "CVODE -- RESIZE" << std::endl;
   }
 
+  // Create initial condition
   int problem_size = 1;
   if (resize > 1) { problem_size = 3 * NVAR * CPLX; }
 
-  // Create initial condition
   N_Vector y = N_VNew_Serial(problem_size, sunctx);
   if (check_ptr(y, "N_VNew_Serial")) { return 1; }
 
@@ -349,7 +349,6 @@ int main(int argc, char* argv[])
 
       int n_hist = (i < hist_size) ? i + 1 : hist_size;
 
-      N_VScale(ONE / cv_mem->cv_hscale, cv_mem->cv_zn[1], tmp);
       flag = CVodeResizeHistory(cvode_mem, t_hist, y_hist, f_hist, n_hist,
                                 debug_file);
       if (check_flag(flag, "CVodeResizeHistory")) { return 1; }

@@ -41,7 +41,8 @@ int ode_rhs(sunrealtype t, N_Vector y, N_Vector ydot, void* user_data)
 }
 
 int save_history(sunrealtype t_n, N_Vector y_n, sunrealtype* t_hist,
-                 N_Vector* y_hist, int hist_size, int step)
+                 N_Vector* y_hist, N_Vector* f_hist, int hist_size, int step,
+                 PRData udata)
 {
   // Shuffle over old values
   int i_start = hist_size - 2;
@@ -56,27 +57,42 @@ int save_history(sunrealtype t_n, N_Vector y_n, sunrealtype* t_hist,
   for (int i = i_start; i >= 0; i--)
   {
     N_VScale(ONE, y_hist[i], y_hist[i + 1]);
+    N_VScale(ONE, f_hist[i], f_hist[i + 1]);
   }
   N_VScale(ONE, y_n, y_hist[0]);
+  int retval = ode_rhs(t_n, y_n, f_hist[0], &udata);
+  if (retval) { return 1; }
 
   return 0;
 }
 
-int resize_history(N_Vector* y_hist, int hist_size, int step, SUNContext sunctx)
+// Resize saved history
+int resize_history(sunrealtype* t_hist, N_Vector* y_hist, N_Vector* f_hist,
+                   int hist_size, SUNContext sunctx, PRData udata)
 {
   // Resize and fill all history vectors
+  int new_size = N_VGetLength(y_hist[0]) + 1;
+
   for (int i = 0; i < hist_size; i++)
   {
     sunrealtype* old_data = N_VGetArrayPointer(y_hist[i]);
 
-    N_Vector new_vec = N_VNew_Serial(step + 1, sunctx);
+    N_Vector new_vec = N_VNew_Serial(new_size, sunctx);
     sunrealtype* new_data = N_VGetArrayPointer(new_vec);
-    for (int j = 0; j < step + 1; j++)
+    for (int j = 0; j < new_size; j++)
     {
       new_data[j] = old_data[0];
     }
     N_VDestroy(y_hist[i]);
     y_hist[i] = new_vec;
+  }
+
+  for (int i = 0; i < hist_size; i++)
+  {
+    N_VDestroy(f_hist[i]);
+    f_hist[i] = N_VClone(y_hist[i]);
+    int retval = ode_rhs(t_hist[i], y_hist[i], f_hist[i], &udata);
+    if (retval) { return 1; }
   }
 
   return 0;
@@ -110,23 +126,25 @@ int main(int argc, char* argv[])
   // SUNDIALS context object for this simulation
   sundials::Context sunctx;
 
+  // resize = 0 -- do not resize
+  // resize = 1 -- call resize but with the same problem size
+  // resize = 2 -- grow the problem each time step
   int resize = 0;
   if (argc > 1)
   {
     resize = atoi(argv[1]);
   }
-
-  int reuse_fn = 1;
-  if (argc > 2)
+  if (resize > 2)
   {
-    reuse_fn = atoi(argv[2]);
+    std::cerr << "invalid resize value" << std::endl;
+    return 1;
   }
 
   int method = CV_BDF;
-  if (argc > 3)
+  if (argc > 2)
   {
-    if (atoi(argv[3]) == 1) { method = CV_ADAMS; }
-    else if (atoi(argv[3]) == 2) { method = CV_BDF; }
+    if (atoi(argv[2]) == 1) { method = CV_ADAMS; }
+    else if (atoi(argv[2]) == 2) { method = CV_BDF; }
     else
     {
       std::cerr << "Invalid method option" << std::endl;
@@ -134,10 +152,16 @@ int main(int argc, char* argv[])
     }
   }
 
-  int steps = 60;
+  int err_weight_method = 0;
+  if (argc > 3)
+  {
+    err_weight_method = atoi(argv[3]);
+  }
+
+  int max_steps = 60;
   if (argc > 4)
   {
-    steps = atoi(argv[4]);
+    max_steps = atoi(argv[4]);
   }
 
   if (resize == 0)
@@ -153,14 +177,16 @@ int main(int argc, char* argv[])
   PRData udata;
 
   // Create initial condition
-  N_Vector y = N_VNew_Serial(1, sunctx);
+  int problem_size = 1;
+
+  N_Vector y = N_VNew_Serial(problem_size, sunctx);
   if (check_ptr(y, "N_VNew_Serial")) { return 1; }
 
   int flag = PR_true(ZERO, y, udata);
   if (check_flag(flag, "PR_true")) { return 1; }
 
   // Create CVODE memory structure
-  void* cvode_mem = CVodeCreate(CV_BDF, sunctx);
+  void* cvode_mem = CVodeCreate(method, sunctx);
   if (check_ptr(cvode_mem, "CVodeCreate")) { return 1; }
 
   flag = CVodeInit(cvode_mem, ode_rhs, ZERO, y);
@@ -191,6 +217,9 @@ int main(int argc, char* argv[])
   // flag = CVodeSetMaxOrd(cvode_mem, 2);
   // if (check_flag(flag, "CVodeSetMaxOrd")) { return 1; }
 
+  flag = CVodeSetErrWeightMethod(cvode_mem, err_weight_method);
+  if (check_flag(flag, "CVodeSetErrWeightMethod")) { return 1; }
+
   // Initial time and final times
   sunrealtype tf = SUN_RCONST(10.0);
 
@@ -213,7 +242,11 @@ int main(int argc, char* argv[])
   N_Vector* y_hist = N_VCloneVectorArray(hist_size, y);
   if (check_ptr(y_hist, "N_VCloneVectorArray") != 0) { return 1; }
 
-  sunrealtype t_hist[6] = {ZERO, ZERO, ZERO, ZERO, ZERO, ZERO};
+  N_Vector* f_hist = N_VCloneVectorArray(hist_size, y);
+  if (check_ptr(f_hist, "N_VCloneVectorArray") != 0) { return 1; }
+
+  sunrealtype* t_hist = new sunrealtype[hist_size];
+  for (int i = 0; i < hist_size; i++) { t_hist[i] = ZERO; }
 
   // Initialize saved history
   t_hist[0] = ZERO;
@@ -224,12 +257,17 @@ int main(int argc, char* argv[])
   // FILE* debug_file = stdout;
   FILE* debug_file = nullptr;
 
+  std::cout << "t:      " << ZERO << std::endl;
+  std::cout << "y:      " << N_VGetArrayPointer(y)[0] << std::endl;
+  std::cout << "y_true: " << N_VGetArrayPointer(y)[0] << std::endl;
+  std::cout << "Error:  " << ZERO << std::endl;
+
   // Advance in time
   // 11 steps - reach 2nd order
   // 14 steps - reach 3rd order
   // 22 steps - reach 4th order
   // 27 steps - reach 5th order
-  for (int i = 1; i <= steps; i++)
+  for (int i = 1; i <= max_steps; i++)
   {
     N_Vector tmp = N_VClone(y);
 
@@ -242,7 +280,11 @@ int main(int argc, char* argv[])
     if (check_flag(flag, "PrintNordsieck")) { return 1; }
 
     flag = CVode(cvode_mem, tf, y, &(t_ret), CV_ONE_STEP);
-    if (check_flag(flag, "CVode")) { return 1; }
+    if (check_flag(flag, "CVode"))
+    {
+      N_VDestroy(tmp);
+      break;
+    }
 
     std::cout << " Step Number: " << std::setw(3) << i
               << " | Time: " << std::setw(21) << t_ret
@@ -253,33 +295,12 @@ int main(int argc, char* argv[])
     PrintNordsieck(cv_mem);
     if (check_flag(flag, "PrintNordsieck")) { return 1; }
 
-    std::cout << "zn[1]:" << std::endl;
-    N_VPrint(cv_mem->cv_zn[1]);
-
-    std::cout << "hscale * f(tn, yn) ?= zn[1]:" << std::endl;
-    flag = ode_rhs(t_ret, y, tmp, &udata);
-    N_VScale(cv_mem->cv_hscale, tmp, tmp);
-    N_VPrint(tmp);
-
-    std::cout << "hscale * f_interp(tn, yn) ?= zn[1]:" << std::endl;
-    CVodeGetDky(cvode_mem, t_ret, 1, tmp);
-    N_VScale(cv_mem->cv_hscale, tmp, tmp);
-    N_VPrint(tmp);
-
-    std::cout << "zn[1] / h_scale ?= f(tn, yn):" << std::endl;
-    N_VScale(ONE / cv_mem->cv_hscale, cv_mem->cv_zn[1], tmp);
-    N_VPrint(tmp);
-
-    std::cout << "f(tn, yn):" << std::endl;
-    flag = ode_rhs(t_ret, y, tmp, &udata);
-    N_VPrint(tmp);
-
-    std::cout << "f_interp(tn, yn):" << std::endl;
-    CVodeGetDky(cvode_mem, t_ret, 1, tmp);
-    N_VPrint(tmp);
+    std::cout << "t:      " << t_ret << std::endl;
+    std::cout << "y:      " << N_VGetArrayPointer(y)[0] << std::endl;
 
     flag = PR_true(t_ret, tmp, udata);
     if (check_flag(flag, "PR_true")) { return 1; }
+    std::cout << "y_true: " << N_VGetArrayPointer(tmp)[0] << std::endl;
 
     N_VLinearSum(ONE, y, -ONE, tmp, tmp);
     std::cout << "Error:  " << N_VMaxNorm(tmp) << std::endl;
@@ -289,38 +310,29 @@ int main(int argc, char* argv[])
     if (resize == 1)
     {
       // Save history but do not update problem size
-      flag = save_history(t_ret, y, t_hist, y_hist, hist_size, i);
+      flag = save_history(t_ret, y, t_hist, y_hist, f_hist, hist_size, i, udata);
 
       int n_hist = (i < hist_size) ? i + 1 : hist_size;
 
-      if (reuse_fn)
-      {
-        N_VScale(ONE / cv_mem->cv_hscale, cv_mem->cv_zn[1], tmp);
-        flag = CVodeResizeHistory(cvode_mem, t_hist, y_hist, &tmp, n_hist,
-                                  debug_file);
-      }
-      else
-      {
-        flag = CVodeResizeHistory(cvode_mem, t_hist, y_hist, nullptr, n_hist,
-                                  debug_file);
-      }
+      flag = CVodeResizeHistory(cvode_mem, t_hist, y_hist, f_hist, n_hist,
+                                debug_file);
       if (check_flag(flag, "CVodeResizeHistory")) { return 1; }
     }
     else if (resize == 2)
     {
       // Save history and update problem size
-      flag = save_history(t_ret, y, t_hist, y_hist, hist_size, i);
+      flag = save_history(t_ret, y, t_hist, y_hist, f_hist, hist_size, i, udata);
 
-      flag = resize_history(y_hist, hist_size, i, sunctx);
+      flag = resize_history(t_hist, y_hist, f_hist, hist_size, sunctx, udata);
 
       int n_hist = (i < hist_size) ? i + 1 : hist_size;
-      flag = CVodeResizeHistory(cvode_mem, t_hist, y_hist, nullptr, n_hist,
+      flag = CVodeResizeHistory(cvode_mem, t_hist, y_hist, f_hist, n_hist,
                                 debug_file);
       if (check_flag(flag, "CVodeResizeHistory")) { return 1; }
 
       // "Resize" vectors and nonlinear solver
       N_VDestroy(y);
-      y = N_VNew_Serial(i + 1, sunctx);
+      y = N_VClone(y_hist[0]);
 
       SUNNonlinSolFree(NLS);
       NLS = SUNNonlinSol_FixedPoint(y, 2, sunctx);
@@ -346,8 +358,10 @@ int main(int argc, char* argv[])
   // Clean up and return with successful completion
   N_VDestroy(y);
   N_VDestroyVectorArray(y_hist, hist_size);
+  N_VDestroyVectorArray(f_hist, hist_size);
   SUNNonlinSolFree(NLS);
   CVodeFree(&cvode_mem);
+  delete [] t_hist;
 
   return 0;
 }
