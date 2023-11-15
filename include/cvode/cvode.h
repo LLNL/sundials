@@ -256,6 +256,10 @@ SUNDIALS_EXPORT int CVodeSetJacTimesRhsFn(void *cvode_mem,
 
 SUNDIALS_EXPORT int CVodeSetErrWeightMethod(void* cvode_mem, int method);
 
+SUNDIALS_EXPORT
+int CVodeSetSingleNonlinSolvIter(void* cvode_mem,
+                                 sunbooleantype on_off);
+
 #ifdef __cplusplus
 }
 #endif

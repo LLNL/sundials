@@ -209,6 +209,9 @@ int main(int argc, char* argv[])
   flag = CVodeSetMaxNonlinIters(cvode_mem, 10);
   if (check_flag(flag, "CVodeSetMaxNonlinIters")) { return 1; }
 
+  flag = CVodeSetSingleNonlinSolvIter(cvode_mem, SUNTRUE);
+  if (check_flag(flag, "CVodeSetSingleNonlinSolvIter")) { return 1; }
+
   // Attach user data
   flag = CVodeSetUserData(cvode_mem, &udata);
   if (check_flag(flag, "CVodeSetUserData")) { return 1; }

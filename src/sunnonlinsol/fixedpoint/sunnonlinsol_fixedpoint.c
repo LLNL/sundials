@@ -226,8 +226,8 @@ int SUNNonlinSolSolve_FixedPoint(SUNNonlinearSolver NLS, N_Vector y0,
        Performs stopping tests. */
   for( FP_CONTENT(NLS)->curiter = 0;
        FP_CONTENT(NLS)->curiter < FP_CONTENT(NLS)->maxiters;
-       FP_CONTENT(NLS)->curiter++ ) {
-
+       FP_CONTENT(NLS)->curiter++ )
+  {
     /* update previous solution guess */
     N_VScale(ONE, ycor, yprev);
 
@@ -290,7 +290,7 @@ int SUNNonlinSolSolve_FixedPoint(SUNNonlinearSolver NLS, N_Vector y0,
 #if SUNDIALS_LOGGING_LEVEL >= SUNDIALS_LOGGING_INFO
   SUNLogger_QueueMsg(NLS->sunctx->logger, SUN_LOGLEVEL_INFO,
                      "SUNNonlinSolSolve_FixedPoint", "end-nonlinear-solve",
-                     "Failed, iters = %ld", FP_CONTENT(NLS)->curiter + 1);
+                     "Failed, iters = %ld", FP_CONTENT(NLS)->curiter);
 #endif
 
   FP_CONTENT(NLS)->nconvfails++;
