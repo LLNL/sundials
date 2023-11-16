@@ -89,6 +89,7 @@ int solve(const char *im, const char *ex,
           long int expected_mass_solves)
 {
   int retval = 0;
+  sunrealtype t = 1.0;
   SUNContext sunctx = NULL;
   N_Vector y = NULL;
   SUNMatrix jacobian_mat = NULL;
@@ -162,7 +163,6 @@ int solve(const char *im, const char *ex,
   if (check_retval(&retval, "ARKStepSetMassFn", 1)) return 1;
 
   /* Take one adaptive time step */
-  sunrealtype t = 1.0;
   retval = ARKStepEvolve(arkode_mem, t, y, &t, ARK_ONE_STEP);
   if (check_retval(&retval, "ARKStepEvolve", 1)) return 1;
 
