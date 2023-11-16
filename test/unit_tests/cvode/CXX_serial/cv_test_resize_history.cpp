@@ -255,10 +255,14 @@ int main(int argc, char* argv[])
   t_hist[0] = ZERO;
   N_VScale(ONE, y, y_hist[0]);
 
-  std::cout << "t:      " << ZERO << std::endl;
-  std::cout << "y:      " << N_VGetArrayPointer(y)[0] << std::endl;
+  flag = ode_rhs(t_hist[0], y_hist[0], f_hist[0], &udata);
+  if (check_flag(flag, "ode_rhs")) { return 1; }
+
+  std::cout << "t:      " << t_hist[0] << std::endl;
+  std::cout << "y:      " << N_VGetArrayPointer(y_hist[0])[0] << std::endl;
   std::cout << "y_true: " << N_VGetArrayPointer(y)[0] << std::endl;
   std::cout << "Error:  " << ZERO << std::endl;
+  std::cout << "f:      " << N_VGetArrayPointer(f_hist[0])[0] << std::endl;
 
   // Advance in time
   // 11 steps - reach 2nd order
@@ -274,8 +278,8 @@ int main(int argc, char* argv[])
     std::cout << "\n========== Start Step " << i << " ==========\n\n";
 
     // Print Nordsieck array (length q_max + 1)
-    PrintNordsieck(cv_mem);
-    if (check_flag(flag, "PrintNordsieck")) { return 1; }
+    // PrintNordsieck(cv_mem);
+    // if (check_flag(flag, "PrintNordsieck")) { return 1; }
 
     flag = CVode(cvode_mem, tf, y, &(t_ret), CV_ONE_STEP);
     if (check_flag(flag, "CVode"))
@@ -290,8 +294,8 @@ int main(int argc, char* argv[])
               << " | Order: " << cv_mem->cv_q << std::endl;
 
     // Print Nordsieck array (length q_max + 1)
-    PrintNordsieck(cv_mem);
-    if (check_flag(flag, "PrintNordsieck")) { return 1; }
+    // PrintNordsieck(cv_mem);
+    // if (check_flag(flag, "PrintNordsieck")) { return 1; }
 
     std::cout << "t:      " << t_ret << std::endl;
     std::cout << "y:      " << N_VGetArrayPointer(y)[0] << std::endl;
@@ -302,6 +306,10 @@ int main(int argc, char* argv[])
 
     N_VLinearSum(ONE, y, -ONE, tmp, tmp);
     std::cout << "Error:  " << N_VMaxNorm(tmp) << std::endl;
+
+    flag = ode_rhs(t_ret, y, tmp, &udata);
+    if (check_flag(flag, "ode_rhs")) { return 1; }
+    std::cout << "f:      " << N_VGetArrayPointer(tmp)[0] << std::endl;
 
     std::cout << "========== End Step " << i << " ==========\n";
 

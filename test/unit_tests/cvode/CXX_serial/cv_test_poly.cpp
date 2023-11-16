@@ -288,10 +288,14 @@ int main(int argc, char* argv[])
   t_hist[0] = ZERO;
   N_VScale(ONE, y, y_hist[0]);
 
-  std::cout << "t:      " << ZERO << std::endl;
-  std::cout << "y:      " << N_VGetArrayPointer(y)[0] << std::endl;
+  flag = ode_rhs(t_hist[0], y_hist[0], f_hist[0], &udata);
+  if (check_flag(flag, "ode_rhs")) { return 1; }
+
+  std::cout << "t:      " << t_hist[0] << std::endl;
+  std::cout << "y:      " << N_VGetArrayPointer(y_hist[0])[0] << std::endl;
   std::cout << "y_true: " << N_VGetArrayPointer(y)[0] << std::endl;
   std::cout << "Error:  " << ZERO << std::endl;
+  std::cout << "f:      " << N_VGetArrayPointer(f_hist[0])[0] << std::endl;
 
   // Advance in time
   for (int i = 1; i <= max_steps; i++)
@@ -334,6 +338,10 @@ int main(int argc, char* argv[])
 
     N_VLinearSum(ONE, y, -ONE, tmp, tmp);
     std::cout << "Error:  " << N_VMaxNorm(tmp) << std::endl;
+
+    flag = ode_rhs(t_ret, y, tmp, &udata);
+    if (check_flag(flag, "ode_rhs")) { return 1; }
+    std::cout << "f:      " << N_VGetArrayPointer(tmp)[0] << std::endl;
 
     std::cout << "========== End Step " << i << " ==========\n";
 
