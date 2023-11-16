@@ -182,7 +182,7 @@ int solve(const char *im, const char *ex,
   SUNContext_Free(&sunctx);
 
   retval = actual_mass_solves != expected_mass_solves;
-  printf("%6s | %-30s| %-30s| %-9s| %-14s| %-7d| %-9d\n",
+  printf("%6s | %-30s| %-30s| %-9s| %-14s| %-7ld| %-9ld\n",
          retval ? "Fail" : "Pass",
          im,
          ex,
