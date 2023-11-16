@@ -213,7 +213,7 @@ int PredictY(int order, N_Vector* zn, N_Vector ypred)
  * ---------------------------------------------------------------------------*/
 
 int CVodeResizeHistory(void *cvode_mem, sunrealtype* t_hist, N_Vector* y_hist,
-                       N_Vector* f_hist, int n_hist, FILE* debug_file)
+                       N_Vector* f_hist, int n_hist)
 {
   CVodeMem cv_mem = NULL;
   int retval = 0;
@@ -257,41 +257,40 @@ int CVodeResizeHistory(void *cvode_mem, sunrealtype* t_hist, N_Vector* y_hist,
     return CV_ILL_INPUT;
   }
 
-  if (debug_file)
+#ifdef SUNDIALS_LOGGING_EXTRA_DEBUG
+  fprintf(cv_mem->cv_sunctx->logger->debug_fp, "---------------\n");
+  fprintf(cv_mem->cv_sunctx->logger->debug_fp, "Start Resize\n");
+  fprintf(cv_mem->cv_sunctx->logger->debug_fp, "Input values\n");
+  fprintf(cv_mem->cv_sunctx->logger->debug_fp, "n_hist         = %d\n", n_hist);
+  for (ithist = 0; ithist < n_hist; ithist++)
   {
-    fprintf(debug_file, "---------------\n");
-    fprintf(debug_file, "Start Resize\n");
-    fprintf(debug_file, "Input values\n");
-    fprintf(debug_file, "n_hist         = %d\n", n_hist);
-    for (ithist = 0; ithist < n_hist; ithist++)
-    {
-      fprintf(debug_file, "t_hist[%d]      = %g\n", ithist, t_hist[ithist]);
-    }
-    for (ithist = 0; ithist < n_hist; ithist++) /* n_hist is for BDF */
-    {
-      fprintf(debug_file, "y_hist[%d]\n", ithist);
-      N_VPrintFile(y_hist[ithist], debug_file);
-    }
-    for (ithist = 0; ithist < 2; ithist++) /* 2 is for BDF */
-    {
-      fprintf(debug_file, "f_hist[%d]\n", ithist);
-      N_VPrintFile(f_hist[ithist], debug_file);
-    }
-    fprintf(debug_file, "CVODE values\n");
-    fprintf(debug_file, "tn             = %g\n", cv_mem->cv_tn);
-    fprintf(debug_file, "current h      = %g\n", cv_mem->cv_h);
-    fprintf(debug_file, "next h         = %g\n", cv_mem->cv_hprime);
-    fprintf(debug_file, "next h (?)     = %g\n", cv_mem->cv_next_h);
-    fprintf(debug_file, "h scale        = %g\n", cv_mem->cv_hscale);
-    fprintf(debug_file, "current order  = %d\n", cv_mem->cv_q);
-    fprintf(debug_file, "next order     = %d\n", cv_mem->cv_qprime);
-    fprintf(debug_file, "next order (?) = %d\n", cv_mem->cv_next_q);
-    for (ord = 0; ord <= cv_mem->cv_qmax_alloc; ord++)
-    {
-      fprintf(debug_file, "zn[%d]\n", ord);
-      N_VPrintFile(cv_mem->cv_zn[ord], debug_file);
-    }
+    fprintf(cv_mem->cv_sunctx->logger->debug_fp, "t_hist[%d]      = %g\n", ithist, t_hist[ithist]);
   }
+  for (ithist = 0; ithist < n_hist; ithist++) /* n_hist is for BDF */
+  {
+    fprintf(cv_mem->cv_sunctx->logger->debug_fp, "y_hist[%d]\n", ithist);
+    N_VPrintFile(y_hist[ithist], cv_mem->cv_sunctx->logger->debug_fp);
+  }
+  for (ithist = 0; ithist < 2; ithist++) /* 2 is for BDF */
+  {
+    fprintf(cv_mem->cv_sunctx->logger->debug_fp, "f_hist[%d]\n", ithist);
+    N_VPrintFile(f_hist[ithist], cv_mem->cv_sunctx->logger->debug_fp);
+  }
+  fprintf(cv_mem->cv_sunctx->logger->debug_fp, "CVODE values\n");
+  fprintf(cv_mem->cv_sunctx->logger->debug_fp, "tn             = %g\n", cv_mem->cv_tn);
+  fprintf(cv_mem->cv_sunctx->logger->debug_fp, "current h      = %g\n", cv_mem->cv_h);
+  fprintf(cv_mem->cv_sunctx->logger->debug_fp, "next h         = %g\n", cv_mem->cv_hprime);
+  fprintf(cv_mem->cv_sunctx->logger->debug_fp, "next h (?)     = %g\n", cv_mem->cv_next_h);
+  fprintf(cv_mem->cv_sunctx->logger->debug_fp, "h scale        = %g\n", cv_mem->cv_hscale);
+  fprintf(cv_mem->cv_sunctx->logger->debug_fp, "current order  = %d\n", cv_mem->cv_q);
+  fprintf(cv_mem->cv_sunctx->logger->debug_fp, "next order     = %d\n", cv_mem->cv_qprime);
+  fprintf(cv_mem->cv_sunctx->logger->debug_fp, "next order (?) = %d\n", cv_mem->cv_next_q);
+  for (ord = 0; ord <= cv_mem->cv_qmax_alloc; ord++)
+  {
+    fprintf(cv_mem->cv_sunctx->logger->debug_fp, "zn[%d]\n", ord);
+    N_VPrintFile(cv_mem->cv_zn[ord], cv_mem->cv_sunctx->logger->debug_fp);
+  }
+#endif
 
   /* Make sure number of inputs is sufficient for the current (next) order */
   /* Make sure times[0] == tn */
@@ -404,17 +403,16 @@ int CVodeResizeHistory(void *cvode_mem, sunrealtype* t_hist, N_Vector* y_hist,
     return CV_ILL_INPUT;
   }
 
-  if (debug_file)
+#ifdef SUNDIALS_LOGGING_EXTRA_DEBUG
+  fprintf(cv_mem->cv_sunctx->logger->debug_fp, "Finish Resize\n");
+  fprintf(cv_mem->cv_sunctx->logger->debug_fp, "tn = %g\n", cv_mem->cv_tn);
+  for (ord = 0; ord <= cv_mem->cv_qmax_alloc; ord++)
   {
-    fprintf(debug_file, "Finish Resize\n");
-    fprintf(debug_file, "tn = %g\n", cv_mem->cv_tn);
-    for (ord = 0; ord <= cv_mem->cv_qmax_alloc; ord++)
-    {
-      fprintf(debug_file, "zn[%d]\n", ord);
-      N_VPrintFile(cv_mem->cv_zn[ord], debug_file);
-    }
-    fprintf(debug_file, "---------------\n");
+    fprintf(cv_mem->cv_sunctx->logger->debug_fp, "zn[%d]\n", ord);
+    N_VPrintFile(cv_mem->cv_zn[ord], cv_mem->cv_sunctx->logger->debug_fp);
   }
+  fprintf(cv_mem->cv_sunctx->logger->debug_fp, "---------------\n");
+#endif
 
   if (cv_mem->cv_VabstolMallocDone)
   {

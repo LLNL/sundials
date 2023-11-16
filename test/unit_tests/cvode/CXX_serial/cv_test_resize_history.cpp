@@ -255,11 +255,6 @@ int main(int argc, char* argv[])
   t_hist[0] = ZERO;
   N_VScale(ONE, y, y_hist[0]);
 
-  std::string file_name = "debug_resize_" + std::to_string(resize) + ".txt";
-  // FILE* debug_file = std::fopen(file_name.c_str(), "w");
-  // FILE* debug_file = stdout;
-  FILE* debug_file = nullptr;
-
   std::cout << "t:      " << ZERO << std::endl;
   std::cout << "y:      " << N_VGetArrayPointer(y)[0] << std::endl;
   std::cout << "y_true: " << N_VGetArrayPointer(y)[0] << std::endl;
@@ -317,8 +312,7 @@ int main(int argc, char* argv[])
 
       int n_hist = (i < hist_size) ? i + 1 : hist_size;
 
-      flag = CVodeResizeHistory(cvode_mem, t_hist, y_hist, f_hist, n_hist,
-                                debug_file);
+      flag = CVodeResizeHistory(cvode_mem, t_hist, y_hist, f_hist, n_hist);
       if (check_flag(flag, "CVodeResizeHistory")) { return 1; }
     }
     else if (resize == 2)
@@ -329,8 +323,7 @@ int main(int argc, char* argv[])
       flag = resize_history(t_hist, y_hist, f_hist, hist_size, sunctx, udata);
 
       int n_hist = (i < hist_size) ? i + 1 : hist_size;
-      flag = CVodeResizeHistory(cvode_mem, t_hist, y_hist, f_hist, n_hist,
-                                debug_file);
+      flag = CVodeResizeHistory(cvode_mem, t_hist, y_hist, f_hist, n_hist);
       if (check_flag(flag, "CVodeResizeHistory")) { return 1; }
 
       // "Resize" vectors and nonlinear solver
@@ -351,8 +344,6 @@ int main(int argc, char* argv[])
     N_VDestroy(tmp);
   }
   std::cout << std::endl;
-
-  if (debug_file) { std::fclose(debug_file); }
 
   // Print some final statistics
   flag = CVodePrintAllStats(cvode_mem, stdout, SUN_OUTPUTFORMAT_TABLE);
