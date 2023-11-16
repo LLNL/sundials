@@ -50,8 +50,8 @@ int ode_rhs(sunrealtype t, N_Vector y, N_Vector ydot, void* user_data)
   sunrealtype* data = N_VGetArrayPointer(ydot);
   for (int i = 0; i < N_VGetLocalLength(ydot) / 2; i += 2)
   {
-    data[i]     = -std::sin(t);
-    data[i + 1] =  std::cos(t);
+    data[i] = (10.0 / (100.0 * std::pow((t - 3.0), 2) + 1.0)) - std::sin(t);
+    data[i + 1] = std::cos(t);
   }
 
   return 0;
@@ -63,7 +63,7 @@ int y_true(sunrealtype t, N_Vector y)
   sunrealtype* data = N_VGetArrayPointer(y);
   for (int i = 0; i < N_VGetLocalLength(y) / 2; i += 2)
   {
-    data[i]     = std::cos(t);
+    data[i]     = std::cos(t) + std::atan(10.0 * (t - 3.0));
     data[i + 1] = std::sin(t);
   }
 
