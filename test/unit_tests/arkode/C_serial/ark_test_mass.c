@@ -234,7 +234,7 @@ int main(int argc, char *argv[])
 
   /* FSAL ESDIRK */
   /* 1 for embedded solution and 1 for the first stage. 0 needed for primary due
-   * to FSAL property. The first stage is computing Y_1 = y_n + M^{1} 0, which
+   * to FSAL property. The first stage is computing Y_1 = y_n + M^{-1} 0, which
    * is redundant. Practically, could be 1 solve. Technically the optimal is 0
    * solves if we express embedded solution as linear combination of Y_i. This
    * requires d to be in the rowspace of A. Since this method has the FSAL
@@ -286,7 +286,7 @@ int main(int argc, char *argv[])
 
   /* IMEX 1 */
   /* 1 for primary solution, 1 for embedded solution, and 1 for the first stage.
-  * The first stage is computing Y_1 = y_n + M^{1} 0, which is redundant.
+  * The first stage is computing Y_1 = y_n + M^{-1} 0, which is redundant.
   * Optimally, could be 2 solves */
   retval += solve("ARKODE_ARK2_DIRK_3_1_2", "ARKODE_ARK2_ERK_3_1_2",
                   SUNFALSE, SUNFALSE, 3);
@@ -303,7 +303,7 @@ int main(int argc, char *argv[])
 
   /* IMEX 2 */
   /* 1 for primary solution, 1 for embedded solution, and 1 for the first stage.
-  * The first stage is computing Y_1 = y_n + M^{1} 0, which is redundant.
+  * The first stage is computing Y_1 = y_n + M^{-1} 0, which is redundant.
   * Optimally, could be 2 solves */
   retval += solve("ARKODE_ARK548L2SA_DIRK_8_4_5", "ARKODE_ARK548L2SA_ERK_8_4_5",
                   SUNFALSE, SUNFALSE, 3);
