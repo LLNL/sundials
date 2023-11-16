@@ -2015,13 +2015,13 @@ Butcher table pairs are as follows:
 * :index:`5th-order pair <ARK-8-4-5 ARK method>`:
   :numref:`Butcher.ARK_8_4_5_E` with :numref:`Butcher.ARK_8_4_5_I`,
   corresponding to Butcher tables ``ARKODE_ARK548L2SA_ERK_8_4_5`` and
-  ``ARKODE_ARK548L2SA_ERK_8_4_5`` for :c:func:`ARKStepSetTableNum`
+  ``ARKODE_ARK548L2SA_DIRK_8_4_5`` for :c:func:`ARKStepSetTableNum`
   or :c:func:`ARKStepSetTableName`.
 
 * :index:`5th-order pair <ARK-8-4-5b ARK method>`:
   :numref:`Butcher.ARK_8_4_5b_E` with :numref:`Butcher.ARK_8_4_5b_I`,
   corresponding to Butcher tables ``ARKODE_ARK548L2SAb_ERK_8_4_5`` and
-  ``ARKODE_ARK548L2SAb_ERK_8_4_5`` for :c:func:`ARKStepSetTableNum`
+  ``ARKODE_ARK548L2SAb_DIRK_8_4_5`` for :c:func:`ARKStepSetTableNum`
   or :c:func:`ARKStepSetTableName`.
 
 
