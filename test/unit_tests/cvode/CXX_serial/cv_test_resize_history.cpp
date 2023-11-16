@@ -30,6 +30,7 @@
 
 #include <cvode/cvode_impl.h>
 
+#include "sundials/sundials_types.h"
 #include "test_pr.hpp"
 #include "test_utilities.hpp"
 
@@ -209,7 +210,7 @@ int main(int argc, char* argv[])
   flag = CVodeSetMaxNonlinIters(cvode_mem, 10);
   if (check_flag(flag, "CVodeSetMaxNonlinIters")) { return 1; }
 
-  flag = CVodeSetSingleNonlinSolvIter(cvode_mem, SUNTRUE);
+  flag = CVodeSetSingleNonlinSolvIter(cvode_mem, SUNFALSE);
   if (check_flag(flag, "CVodeSetSingleNonlinSolvIter")) { return 1; }
 
   // Attach user data
