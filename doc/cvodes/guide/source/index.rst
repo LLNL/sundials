@@ -35,7 +35,7 @@ CVODES Documentation
    sunlinsol/index.rst
    sunnonlinsol/index.rst
    sunmemory/index.rst
-   Install_link.rst
+   sundials/Install_link.rst
    Constants
    History_link.rst
    References

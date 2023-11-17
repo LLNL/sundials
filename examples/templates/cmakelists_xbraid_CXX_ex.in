@@ -59,6 +59,10 @@ find_library(SUNDIALS_SOLVER_LIB
   @SOLVER_LIB@ ${SUNDIALS_LIBRARY_DIR}
   DOC "@SOLVER@ library")
 
+find_library(SUNDIALS_CORE_LIB
+  sundials_core ${SUNDIALS_LIBRARY_DIR}
+  DOC "SUNDIALS core library")
+
 # Find the parallel vector library
 find_library(SUNDIALS_NVECPAR_LIB
   sundials_nvecparallel ${SUNDIALS_LIBRARY_DIR}
@@ -74,6 +78,7 @@ set(SUNDIALS_EXTRA_LIBS @LIBS@ CACHE STRING "Additional libraries")
 
 # List of SUNDIALS libraries
 set(SUNDIALS_LIBRARIES
+  ${SUNDIALS_CORE_LIB}
   ${SUNDIALS_SOLVER_LIB}
   ${SUNDIALS_NVECPAR_LIB}
   ${SUNDIALS_XBRAID_LIB}

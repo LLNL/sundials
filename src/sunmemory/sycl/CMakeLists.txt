@@ -20,5 +20,7 @@ sundials_add_library(sundials_sunmemsycl
     ${SUNDIALS_SOURCE_DIR}/include/sunmemory/sunmemory_sycl.h
   INCLUDE_SUBDIR
     sunmemory
+  LINK_LIBRARIES
+    PUBLIC sundials_core
   OBJECT_LIB_ONLY
 )

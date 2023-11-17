@@ -71,7 +71,7 @@ int main(int argc, char *argv[])
    * Create context
    * -------------- */
 
-  flag = SUNContext_Create(NULL, &sunctx);
+  flag = SUNContext_Create(SUN_COMM_NULL, &sunctx);
   if (flag) { return 1; }
 
   /* -----------------------
