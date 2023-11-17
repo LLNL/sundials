@@ -20,7 +20,7 @@ sys.path.append(os.path.dirname(os.path.abspath('../../../shared')))
 # Set variable used to determine which package documentation this is
 # Can be one of 'arkode', 'arkode-examples', 'cvode', 'cvode-examples', 'cvodes', 
 # 'ida', 'idas', 'kinsol' or 'super'
-package_name = 'cvode'
+package_name = 'cvode-examples'
 
 # If your documentation needs a minimal Sphinx version, state it here.
 needs_sphinx = '4.0'
@@ -47,7 +47,7 @@ source_suffix = '.rst'
 master_doc = 'index'
 
 # General information about the project.
-project = u'User Documentation for CVODE'
+project = u'Example Programs for CVODE'
 copyright = """2002-{year}, Alan C. Hindmarsh, Radu Serban, Cody J. Balos, David J. Gardner, Daniel R. Reynolds, and Carol S. Woodward""".format(year = year)
 
 # The version info for the project you're documenting, acts as replacement for
@@ -194,7 +194,7 @@ html_show_sourcelink = False
 #html_file_suffix = None
 
 # Output file base name for HTML help builder.
-htmlhelp_basename = 'CVODEdoc'
+htmlhelp_basename = 'CVODEExampleDoc'
 
 
 # -- Options for LaTeX output --------------------------------------------------
@@ -221,9 +221,9 @@ Carol S. Woodward$^1$
 \\\\
 {\em $^1$Center for Applied Scientific Computing, Lawrence Livermore National Laboratory}\\
 {\em $^2$Department of Mathematics, Southern Methodist University}
-'''
+    '''
 
-latex_documents = [('index', 'cv_guide.tex', project,
+latex_documents = [('index', 'cv_examples.tex', project,
                     tex_author, 'manual', False)]
 
 # make sure the doc logo gets copied to the build directory
@@ -272,7 +272,7 @@ latex_elements = {
 # One entry per manual page. List of tuples
 # (source start file, name, description, authors, manual section).
 man_pages = [
-    ('index', 'CVODE', u'CVODE Documentation',
+    ('index', 'CVODE-examples', u'CVODE Example Documentation',
      [u'Alan C. Hindmarsh, Radu Serban, Cody J. Balos, David J. Gardner, Daniel R. Reynolds, and Carol S. Woodward'], 1)
 ]
 
@@ -286,9 +286,9 @@ man_pages = [
 # (source start file, target name, title, author,
 #  dir menu entry, description, category)
 texinfo_documents = [
-  ('index', 'CVODE', u'CVODE Documentation',
-   u'Alan C. Hindmarsh, Radu Serban, Cody J. Balos, David J. Gardner, Daniel R. Reynolds, and Carol S. Woodward', 'CVODE',
-   'Time integration package for systems of ordinary differntial equations.',
+  ('index', 'CVODE-examples', u'CVODE Example Documentation',
+   u'Alan C. Hindmarsh, Radu Serban, Cody J. Balos, David J. Gardner, Daniel R. Reynolds, and Carol S. Woodward', 'CVODE_example',
+   'Example programs for the CVODE time integration package for systems of ordinary differntial equations.',
    'Miscellaneous'),
 ]
 

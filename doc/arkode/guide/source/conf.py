@@ -18,7 +18,8 @@ sys.path.append(os.path.dirname(os.path.abspath('../../../shared')))
 # -- General configuration ----------------------------------------------------
 
 # Set variable used to determine which package documentation this is
-# Can be one of 'arkode', 'cvode', 'cvodes', 'ida', 'idas', 'kinsol' or 'super'
+# Can be one of 'arkode', 'arkode-examples', 'cvode', 'cvode-examples', 'cvodes', 
+# 'ida', 'idas', 'kinsol' or 'super'
 package_name = 'arkode'
 
 # If your documentation needs a minimal Sphinx version, state it here.
@@ -286,7 +287,7 @@ man_pages = [
 texinfo_documents = [
   ('index', 'ARKODE', u'ARKODE Documentation',
    u'Daniel R. Reynolds, David J. Gardner, Carol S. Woodward, Rujeko Chinomona, and Cody J. Balos', 'ARKODE',
-   'Time integration package for multi-rate systems of ordinary differntial equations.',
+   'Time integration package for multiphysics systems of ordinary differential equations.',
    'Miscellaneous'),
 ]
 

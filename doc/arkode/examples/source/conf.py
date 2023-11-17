@@ -13,24 +13,29 @@
 import sys, os
 sys.path.append(os.path.dirname(os.path.abspath('../../../shared/versions.py')))
 from versions import *
+sys.path.append(os.path.dirname(os.path.abspath('../../../shared')))
 
-# If extensions (or modules to document with autodoc) are in another directory,
-# add these directories to sys.path here. If the directory is relative to the
-# documentation root, use os.path.abspath to make it absolute, like shown here.
-#sys.path.insert(0, os.path.abspath('.'))
+# -- General configuration ----------------------------------------------------
 
-# -- General configuration -----------------------------------------------------
+# Set variable used to determine which package documentation this is
+# Can be one of 'arkode', 'arkode-examples', 'cvode', 'cvode-examples', 'cvodes', 
+# 'ida', 'idas', 'kinsol' or 'super'
+package_name = 'arkode-examples'
 
 # If your documentation needs a minimal Sphinx version, state it here.
 needs_sphinx = '4.0'
 
 # Add any Sphinx extension module names here, as strings. They can be extensions
 # coming with Sphinx (named 'sphinx.ext.*') or your custom ones.
-extensions = ['sphinx.ext.todo', 'sphinx.ext.mathjax']
+extensions = ['sphinx_rtd_theme', 'sphinx.ext.ifconfig', 'sphinx.ext.mathjax',
+              'sphinxfortran.fortran_domain', 'sphinxcontrib.bibtex',
+              'sphinx_copybutton', 'sphinx_sundials']
 
+# References
+bibtex_bibfiles = ['../../../shared/sundials.bib']
 
 # Add any paths that contain templates here, relative to this directory.
-templates_path = ['_templates']
+templates_path = ['../../../shared/_templates']
 
 # The suffix of source filenames.
 source_suffix = '.rst'
@@ -43,7 +48,7 @@ master_doc = 'index'
 
 # General information about the project.
 project = u'Example Programs for ARKODE'
-copyright = u'2012-2021, Daniel R. Reynolds, David J. Gardner, Carol S. Woodward, and Cody J. Balos, release number LLNL-SM-668082'
+copyright = u"""2012-{year}, Daniel R. Reynolds, David J. Gardner, Carol S. Woodward, Rujeko Chinomona, and Cody J. Balos""".format(year = year)
 
 # The version info for the project you're documenting, acts as replacement for
 # |version| and |release|, also used in various other places throughout the
@@ -81,6 +86,16 @@ highlight_language = "c"
 # A list of ignored prefixes for module index sorting.
 #modindex_common_prefix = []
 
+# Number figures, tables, and code blocks (can reference by number with numref)
+numfig = True
+
+# Override format strings that numref/numfig uses
+numfig_format = {
+  'section': '§%s'
+}
+
+rst_prolog = open('../../../shared/global.rst.txt', 'r').read()
+
 rst_epilog = """
 .. |YEAR| replace:: {year}
 .. |CVODE_VERSION| replace:: {cvode_version}
@@ -98,84 +113,17 @@ idas_version = idas_version,
 kinsol_version = kinsol_version
 )
 
-
 # -- Options for HTML output ---------------------------------------------------
 
 # The theme to use for HTML and HTML Help pages.  See the documentation for
 # a list of builtin themes.
+html_theme = 'sphinx_rtd_theme'
 
-##########
-# agogo theme and configuration
-# html_theme = 'agogo'
-# html_theme_options = {
-#  "bodyfont": "Arial",
-#  "headerfont": "Arial",
-#  "pagewidth": "70em",
-#  "documentwidth": "50em",
-#  "sidebarwidth": "20em",
-#  "bgcolor": "#ffffff",
-#  "headerbg": "#ffffff",
-#  "footerbg": "#ffffff",
-#  "linkcolor": "",
-#  "headercolor1": "",
-#  "headercolor2": "",
-#  "headerlinkcolor": "",
-#  "textalign": "justify"
-#}
-#html_theme_path = ["."]
-
-
-##########
-# custom bootstrap theme and configuration
-
-sys.path.append(os.path.abspath('_themes'))
-html_theme = 'bootstrap'
-html_theme_path = ['_themes']
+# Set theme options
 html_theme_options = {
-    # Global TOC depth for "site" navbar tab. (Default: 1)
-    # Switching to -1 shows all levels.
-    'globaltoc_depth': 1,
-
-    # HTML navbar class (Default: "navbar") to attach to <div>.
-    # For black navbar, do "navbar navbar-inverse"
-    'navbar_class': "navbar navbar-inverse",
-
-    # Fix navigation bar to top of page?
-    # Values: "true" (default) or "false"
-    'navbar_fixed_top': "true",
-
-    # Location of link to source.
-    # Options are "nav" (default), "footer".
-    'source_link_position': "nav",
+    # Allow unlimited depth in table of contents tree
+    'navigation_depth': -1
 }
-
-
-##########
-# bootstrap theme and configuration
-
-# import sphinx_bootstrap_theme
-# html_theme = 'bootstrap'
-# html_theme_path = sphinx_bootstrap_theme.get_html_theme_path()
-# html_theme_options = {
-#     # Global TOC depth for "site" navbar tab. (Default: 1)
-#     # Switching to -1 shows all levels.
-#     'globaltoc_depth': 1,
-
-#     # HTML navbar class (Default: "navbar") to attach to <div>.
-#     # For black navbar, do "navbar navbar-inverse"
-#     'navbar_class': "navbar navbar-inverse",
-
-#     # Fix navigation bar to top of page?
-#     # Values: "true" (default) or "false"
-#     'navbar_fixed_top': "true",
-
-#     # Location of link to source.
-#     # Options are "nav" (default), "footer".
-#     'source_link_position': "nav",
-# }
-
-
-#############
 
 # The name for this set of Sphinx documents.  If None, it defaults to
 # "<project> v<release> documentation".
@@ -186,7 +134,7 @@ html_theme_options = {
 
 # The name of an image file (relative to this directory) to place at the top
 # of the sidebar.
-#html_logo = None
+html_logo = 'figs/sundials_logo_blue.png'
 
 # The name of an image file (within the static path) to use as favicon of the
 # docs.  This file should be a Windows icon file (.ico) being 16x16 or 32x32
@@ -196,7 +144,13 @@ html_theme_options = {
 # Add any paths that contain custom static files (such as style sheets) here,
 # relative to this directory. They are copied after the builtin static files,
 # so a file named "default.css" will overwrite the builtin "default.css".
-#html_static_path = ['_static']
+html_static_path = ['../../../shared/_static']
+
+# These paths are either relative to html_static_path
+# or fully qualified paths (eg. https://...)
+html_css_files = [
+  'css/custom.css'
+]
 
 # If not '', a 'Last updated on:' timestamp is inserted at every page bottom,
 # using the given strftime format.
@@ -245,6 +199,11 @@ htmlhelp_basename = 'ARKODEExampleDoc'
 
 # -- Options for LaTeX output --------------------------------------------------
 
+latex_additional_files = ['../../../shared/latex/preamble.tex.txt',
+                          '../../../shared/latex/cover_pages.tex.txt']
+
+im_number = "LLNL-SM-668082"
+
 # 1. the rst file name used to generate the LaTeX file
 # 2. the name of the LaTeX file to generate (and the resulting PDF file name)
 # 3. the document title
@@ -252,9 +211,15 @@ htmlhelp_basename = 'ARKODEExampleDoc'
 # 5. the LaTeX theme
 # 6. include the file from 1. in the output
 tex_author = r'''
-    Daniel R. Reynolds\\
-    {\em Department of Mathematics} \\
-    {\em Southern Methodist University}
+    Daniel R. Reynolds$^1$,
+    David J. Gardner$^2$,
+    Carol S. Woodward$^2$,
+    Rujeko Chinomona$^3$, and
+    Cody J. Balos$^2$ \\
+    \\
+    {\em $^1$Department of Mathematics, Southern Methodist University} \\
+    {\em $^2$Center for Applied Scientific Computing, Lawrence Livermore National Laboratory} \\
+    {\em $^3$Department of Mathematics, Temple University}
     '''
 
 latex_documents = [('index', 'ark_examples.tex', project,
@@ -282,142 +247,22 @@ latex_elements = {
     # background color for code-blocks
     'VerbatimColor={RGB}{240.0,240.0,240.0},'+
     # font used by heading
-    'HeaderFamily=\\rmfamily\\bfseries',
+    'HeaderFamily=\\rmfamily\\bfseries,' +
+    # line breaks are allowed inside inline literals
+    'inlineliteralwraps=true',
 # disable the fncychap package
 'fncychap':'',
 # figure alignment options
 'figure_align': 'htbp',
 # additional preamble content
-'preamble': r'''
-% =====================================================
-% Start custom preamble (see latex_elements in conf.py)
-% =====================================================
-
-% Use ragged-right for the whole document
-\usepackage[document]{ragged2e}
-
-% Specify depths for section numbering and table of contents
-\setcounter{tocdepth}{1}
-\setcounter{secnumdepth}{3}
-
-% Link a footnote to its location in the text
-\usepackage{footnotebackref}
-
-% Add new command for SUNDIALS version
-'''
-+
-r'\newcommand{\sunreleasename}{' + sun_version + r'}'
-+
-r'''
-
-% ===================================================
-% End custom preamble (see latex_elements in conf.py)
-% ===================================================
-''',
+'preamble':
+    '\\input{preamble.tex.txt}\n'+
+    '\\newcommand{\\sunreleasename}{' + sun_version + '}\n' +
+    '\\newcommand{\\imnumber}{' + im_number + '}\n',
+# extra class options
+'extraclassoptions': 'twoside,openright',
 # custom maketitle
-'maketitle': r'''
-% =======================================================
-% Start custom cover page (see latex_elements in conf.py)
-% =======================================================
-
-\makeatletter
-
-% Start roman numbering
-\pagenumbering{Roman}
-
-% Title page
-\begin{titlepage}
-  \newpage
-  \null
-  \vskip 2em%
-  \begin{center}%
-    \let \footnote \thanks
-    {\huge \rmfamily \@title \space \releasename \par}
-    {\Large \rmfamily SUNDIALS \space \sunreleasename \par}
-    \vskip 3.0em%
-    {\large \lineskip .5em%
-     \begin{tabular}[t]{c}%
-       \@author
-     \end{tabular}\par}%
-    \vskip 1em%
-    {\large \@date \par}%
-    \vfill
-    {\includegraphics[width=0.5\textwidth]{doc_logo_blue}}
-    \vfill
-    %{\large \rmfamily LLNL-SM-668082}
-    \vfill
-  \end{center}
-  \par
-  \vskip 1.5em
-\end{titlepage}
-
-\makeatother
-
-\clearpage
-
-% Disclaimer
-\thispagestyle{empty}% no number of this page
-\vglue5\baselineskip
-\begin{center}
-  {\bf DISCLAIMER}
-\end{center}
-\noindent
-This document was prepared as an account of work sponsored by an agency of
-the United States government. Neither the United States government nor
-Lawrence Livermore National Security, LLC, nor any of their employees makes
-any warranty, expressed or implied, or assumes any legal liability or responsibility
-for the accuracy, completeness, or usefulness of any information, apparatus, product,
-or process disclosed, or represents that its use would not infringe privately owned rights.
-Reference herein to any specific commercial product, process, or service by trade name,
-trademark, manufacturer, or otherwise does not necessarily constitute or imply its endorsement,
-recommendation, or favoring by the United States government or Lawrence Livermore National
-Security, LLC. The views and opinions of authors expressed herein do not necessarily state
-or reflect those of the United States government or Lawrence Livermore National Security, LLC,
-and shall not be used for advertising or product endorsement purposes.
-
-\vskip2\baselineskip
-\noindent
-This work was performed under the auspices of the U.S. Department of Energy by Lawrence
-Livermore National Laboratory under Contract DE-AC52-07NA27344.
-\vfill
-\begin{center}
-  Approved for public release; further dissemination unlimited
-\end{center}
-
-\clearpage
-
-% Contributors
-\thispagestyle{empty}% no number of this page
-\vglue5\baselineskip
-\begin{center}
-{\bf CONTRIBUTORS}
-\end{center}
-\noindent
-The SUNDIALS library has been developed over many years by a number of
-contributors. The current SUNDIALS team consists of Cody J. Balos,
-David J. Gardner, Alan C. Hindmarsh, Daniel R. Reynolds, and
-Carol S. Woodward. We thank Radu Serban for significant and critical past
-contributions.\\
-\vskip 2em%
-\noindent
-Other contributors to SUNDIALS include: James Almgren-Bell, Lawrence E. Banks,
-Peter N. Brown, George Byrne, Rujeko Chinomona, Scott D. Cohen, Aaron Collier,
-Keith E. Grant, Steven L. Lee, Shelby L. Lockhart, John Loffeld, Daniel McGreer,
-Yu Pan, Slaven Peles, Cosmin Petra, Steven B. Roberts, H. Hunter Schwartz,
-Jean M. Sexton, Dan Shumaker, Steve G. Smith, Shahbaj Sohal, Allan G. Taylor,
-Hilari C. Tiedeman, Chris White, Ting Yan, and Ulrike M. Yang.
-\clearpage
-
-% clear empty double page
-\newpage{\pagestyle{empty}\cleardoublepage}
-
-% Start arabic numbering
-\pagenumbering{arabic}
-
-% =====================================================
-% End custom cover page (see latex_elements in conf.py)
-% =====================================================
-'''
+'maketitle': '\\input{cover_pages.tex.txt}'
 }
 
 
@@ -426,8 +271,8 @@ Hilari C. Tiedeman, Chris White, Ting Yan, and Ulrike M. Yang.
 # One entry per manual page. List of tuples
 # (source start file, name, description, authors, manual section).
 man_pages = [
-    ('index', 'arkode_example', u'ARKODE Example Documentation',
-     [u'Daniel R. Reynolds'], 1)
+    ('index', 'ARKODE-examples', u'ARKODE Example Documentation',
+     [u'Daniel R. Reynolds, David J. Gardner, Carol S. Woodward, Rujeko Chinomona, and Cody J. Balos'], 1)
 ]
 
 # If true, show URL addresses after external links.
@@ -440,9 +285,9 @@ man_pages = [
 # (source start file, target name, title, author,
 #  dir menu entry, description, category)
 texinfo_documents = [
-  ('index', 'ARKODE_example', u'ARKODE Example Documentation',
-   u'Daniel R. Reynolds', 'ARKODE_example',
-   'Example programs for the ARKODE time integration package for multi-rate systems of ordinary differntial equations.',
+  ('index', 'ARKODE-examples', u'ARKODE Example Documentation',
+   u'Daniel R. Reynolds, David J. Gardner, Carol S. Woodward, Rujeko Chinomona, and Cody J. Balos', 'ARKODE-examples',
+   'Example programs for the ARKODE time integration package for multiphysics systems of ordinary differential equations.',
    'Miscellaneous'),
 ]
 
