@@ -46,8 +46,8 @@ Dirichlet boundary conditions and initial values given by
 .. math::
    :label: BCIC1
 
-   u(t,0) &=& 0 ~,~~~~u(t,2) = 0 ~, \\
-   u(0,x) &=& x(2-x)e^{2x} ~.
+   u(t,0) &= 0, \quad u(t,2) = 0, \\
+   u(0,x) &= x(2-x)e^{2x}.
 
 A system of :math:`M_X` ODEs is obtained by discretizing the :math:`x`-axis with :math:`M_X + 2`
 grid points and replacing the first and second order spatial derivatives
@@ -274,4 +274,3 @@ the left*, but slightly poorer when it is *on the right*.
 
 .. include:: ../../../../examples/cvode/parallel/cvDiurnal_kry_bbd_p.out
    :literal:
-

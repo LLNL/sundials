@@ -49,7 +49,7 @@ since the grouping of the independent systems results in a block diagonal linear
 system, with the oneMKL SUNLinearSolver.  Alternatively, the SPGMR linear
 solver may be used with a Jacobi preconditioner.
 
-The problem uses a scalar relative tolerance and a vector absolute tolerance. 
+The problem uses a scalar relative tolerance and a vector absolute tolerance.
 Output is printed in decades from :math:`t = 0.1` to :math:`10^6`. Run statistics
 (optional outputs) are printed at the end.
 
@@ -68,7 +68,7 @@ This problem is comparable to the ``cvRoberts_block_klu.c`` example.
 Problem output
 ---------------
 
-.. include:: ../../../../examples/cvode/CPP_onemkl/cvRoberts_blockdiag_onemkl.out
+.. include:: ../../../../examples/cvode/CXX_onemkl/cvRoberts_blockdiag_onemkl.out
    :literal:
 
 
@@ -76,7 +76,7 @@ Numerical method
 -----------------
 
 The example routine solves this problem using a Backwards Differentiation
-Formula in fixed-leading coefficient form.  Each stage is solved using the 
+Formula in fixed-leading coefficient form.  Each stage is solved using the
 built-in modified Newton iteration.  Internally, Newton will use the
 SUNLINSOL_ONEMKLDENSE linear solver via the CVode interface.  Alternatively,
 Newton can use SUNLINSOL_SPGMR linear solver via the CVode interface.  The
@@ -90,5 +90,3 @@ CVode solver parameters.
 
 8 times are printed with 10 groups at each multiplicatively equally-spaced time-step,
 and run statistics are printed at the end.
-
-

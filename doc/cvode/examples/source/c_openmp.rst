@@ -65,9 +65,9 @@ Optionally, we can set the number of threads from environment
 variable or command line. To check the current value for number of
 threads from environment:
 
-.. math::
+.. code-block:: bash
 
-   \texttt{% echo \$OMP_NUM_THREADS}
+   echo $OMP_NUM_THREADS
 
 Execution
 ----------
@@ -75,16 +75,16 @@ Execution
 To use the default value or the number of threads from the environment
 value, run without arguments:
 
-.. math::
+.. code-block:: bash
 
-   \texttt{% ./cvAdvDiff_bnd_omp}
+   ./cvAdvDiff_bnd_omp
 
 The environment variable can be over-ridden with a command line
 argument specifying the number of threads to use, e.g:
 
-.. math::
+.. code-block:: bash
 
-   \texttt{% ./cvAdvDiff_bnd_omp 5}
+   ./cvAdvDiff_bnd_omp 5
 
 
 
@@ -102,6 +102,3 @@ The numerical method is identical to the previous implementation,
 except that we now use SUNDIALS' OpenMP-enabled vector kernel module,
 NVECTOR_OPENMP, and have similarly threaded the supplied right-hand
 side residual and banded Jacobian construction functions.
-
-
-

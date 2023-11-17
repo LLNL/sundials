@@ -74,11 +74,11 @@ Numerical method
 ----------------
 
 The example routine solves this problem using a Backwards Differentiation
-Formula in fixed-leading coefficient form.  Each stage is solved using the 
+Formula in fixed-leading coefficient form.  Each stage is solved using the
 built-in modified Newton iteration.  Internally, Newton will use the
 SUNLINSOL_DENSE linear solver via the CVode interface, which in the case
 of this scalar-valued problem is just division.  The example file contains
-functions to evaluate both :math:`f(t,u)` and :math:`J(t,u)`.  
+functions to evaluate both :math:`f(t,u)` and :math:`J(t,u)`.
 
 We specify the relative and absolute tolerances, :math:`reltol=0`
 and :math:`abstol=10^{-5}`, respectively.  Aside from these choices,
@@ -95,7 +95,7 @@ Description
 ------------
 
 This example problem is the same as the previous one aside from the
-use of the LAPACK_BAND linear solver. 
+use of the LAPACK_BAND linear solver.
 
 Problem output
 ---------------
@@ -161,10 +161,10 @@ and SUNNONLINSOL_NEWTON nonlinear solver modules:
 
    *  :math:`\ddot x - 3 \cdot (1 - x^2) \cdot \dot x + x = 0` where
       :math:`x(0) = 2` and :math:`\dot x(0) = 0`.
-   
+
    *  This second-order ODE is converted to a first-order system by
       defining :math:`y_0 = x` and :math:`y_1 = \dot x`.
-      
+
    *  The NEWTON iteration cases use the following types of Jacobian
       approximation: (1) dense, user-supplied, (2) dense, difference
       quotient approximation, (3) diagonal approximation
@@ -175,7 +175,7 @@ and SUNNONLINSOL_NEWTON nonlinear solver modules:
    *  The NEWTON iteration cases use the following types of Jacobian
       approximation: (1) band, user-supplied, (2) band, difference
       quotient approximation, (3) diagonal approximation.
-   
+
    *  For each problem, in the series of eight runs, CVodeInit is
       called only once, for the first run, whereas CVodeReInit is
       called for each of the remaining seven runs.
@@ -210,7 +210,7 @@ and SUNNONLINSOL_NEWTON nonlinear solver modules:
       to work directly with a column of a Dense SUNMatrix.
 
    *  The SM_COLUMN_B and SM_COLUMN_ELEMENT_B allow efficient columnwise access
-      to the elements of a Banded SUNMatix. These macros are used in the 
+      to the elements of a Banded SUNMatix. These macros are used in the
       :math:`Jac_2` function.
 
 
@@ -224,14 +224,14 @@ Problem output
 Numerical method
 ----------------
 
-This program solves the two separate problems first with ADAMS and 
+This program solves the two separate problems first with ADAMS and
 then with BDF method, using a Fixed-point iteration and a Newton
 iteration for their nonlinear solvers, interchangeably.  The first problem
-uses the SUNLINSOL_DENSE linear solver module via the CVode interface.  
+uses the SUNLINSOL_DENSE linear solver module via the CVode interface.
 Similarly, the second problem uses the SUNLINSOL_BAND linear solver
 module via the CVode interface.  Additionally, this example occasionally
 provides a routine to CVode to compute the dense and banded Jacobian,
-respectively. 
+respectively.
 
 The problems are run using scalar relative and absolute tolerances of
 :math:`reltol=0` and :math:`abstol=10^{-6}`, respectively.
@@ -342,11 +342,11 @@ Numerical method
 ----------------
 
 The example routine solves this problem using a Backwards Differentiation
-Formula in fixed-leading coefficient form.  Each stage is solved using the 
+Formula in fixed-leading coefficient form.  Each stage is solved using the
 built-in modified Newton iteration.  Internally, Newton will use the
 SUNLINSOL_SPGMR linear solver via the CVode interface, which in the case
 of this scalar-valued problem is just division.  The example file contains
-functions to evaluate both :math:`f(t,u)` and :math:`J(t,u)`.  
+functions to evaluate both :math:`f(t,u)` and :math:`J(t,u)`.
 
 We specify the relative and absolute tolerances, :math:`reltol=10^{-5}`
 and :math:`abstol=10^{-3}`, respectively.  Aside from these choices,
@@ -376,7 +376,7 @@ Numerical method
 ----------------
 
 See ``cvDiurnal_kry`` for details.
-   
+
 
 
 .. _cvHeat2D_klu:
@@ -387,7 +387,7 @@ cvHeat2D_klu
 Description
 ------------
 
-This (future) example problem is a 2D heat equation in a serial 
+This (future) example problem is a 2D heat equation in a serial
 environment using sparse matrices, and is based on ``idaHeat2D_klu.c`` and
 ``cvRoberts_klu.c``.
 
@@ -401,16 +401,16 @@ The PDE system solved is a spatial discretization of the PDE
    \frac{du}{dt} = \frac{d^2 u}{dx^2} + \frac{d^2 u}{dy^2}
 
 on the unit square. The boundary condition is :math:`u = 0` on
-all edges.  Initial conditions are given by 
+all edges.  Initial conditions are given by
 
 .. math::
-   
+
    u = 16 \cdot x \cdot (1 - x) \cdot y \cdot (1 - y).
 
-The PDE is treated with central differences on a uniform 
+The PDE is treated with central differences on a uniform
 :math:`MGRID \times MGRID` grid.  The values of u at the interior
 points satisfy ODEs, and equations :math:`u = 0` at the boundaries
-are appended, to form a DAE system of size :math:`N = MGRID^2`. 
+are appended, to form a DAE system of size :math:`N = MGRID^2`.
 Here :math:`MGRID = 10`.
 
 The system is solved with CVODE using the direct sparse linear system
@@ -424,10 +424,10 @@ Numerical method
 ----------------
 
 The example routine solves this problem using a Backwards Differentiation
-Formula in fixed-leading coefficient form.  Each stage is solved using the 
+Formula in fixed-leading coefficient form.  Each stage is solved using the
 built-in modified Newton iteration.  Internally, Newton will use the
 SUNLINSOL_KLU linear solver via the CVode interface.  The example file
-contains functions to evaluate both :math:`f(t,x,y)` and :math:`J(t,x,y)`.  
+contains functions to evaluate both :math:`f(t,x,y)` and :math:`J(t,x,y)`.
 
 We specify the relative and absolute tolerances, :math:`rtol=0`
 and :math:`atol=10^{-8}`, respectively.  Aside from these choices,
@@ -445,7 +445,7 @@ cvKrylovDemo_ls
 Description
 ------------
 
-Demonstration program for CVODE -- This example loops through the 
+Demonstration program for CVODE -- This example loops through the
 available iterative linear solvers:
 
 *  SPGMR -- Scaled, Preconditioned, Generalized Minimum Residual
@@ -474,7 +474,7 @@ Problem output
 Numerical method
 ----------------
 
-This program solves the same problem four times via the Backwards 
+This program solves the same problem four times via the Backwards
 Differentiation Formula method, using a Newton iteration for their
 nonlinear solvers.  The first portion of this example uses the
 SUNLINSOL_SPGMR linear solver module via the CVode GMRES interface,
@@ -483,7 +483,7 @@ via the CVode FGMRES interface, the third portion uses the SUNLinSol_SPBCGS
 linear solver module via the CVode Bi-CGStab interface, and the fourth
 portion uses the SUNLINSOL_SPTFQMR linear solver module via the CVode
 TFQMR interface.  Additionally, this example provides a routine to CVode
-to compute the densely-referenced, block-diagonal Jacobian. 
+to compute the densely-referenced, block-diagonal Jacobian.
 
 The problems are run using scalar relative and absolute tolerances of
 :math:`reltol=10^{-5}` and :math:`abstol=10^{-3}`, respectively.
@@ -522,7 +522,7 @@ and the PDEs are as follows:
 where
 
 .. math::
-   
+
    f_i (x, y, c) = c^i \cdot \left( b(i) + \sum_{j = 1}^{ns} a(i, j) c^j \right)
 
 The number of species is :math:`ns = 2 \cdot np`, with the first
@@ -549,7 +549,7 @@ The spatial domain is the unit square. The final time is 10.  The
 boundary conditions are: normal derivative = 0.  A polynomial in
 :math:`x` and :math:`y` is used to set the initial conditions.
 
-The PDEs are discretized by central differencing on an 
+The PDEs are discretized by central differencing on an
 :math:`MX \text{ by } MY` mesh.
 
 The resulting ODE system is stiff.
@@ -601,10 +601,10 @@ Numerical method
 -----------------
 
 The example routine solves this problem using a Backwards Differentiation
-Formula in fixed-leading coefficient form.  Each stage is solved using the 
+Formula in fixed-leading coefficient form.  Each stage is solved using the
 built-in modified Newton iteration.  Internally, Newton will use the
 SUNLINSOL_SPGMR linear solver via the CVode interface.  The example file
-contains functions to evaluate both :math:`f(t,x,y)` and :math:`J(t,x,y)`.  
+contains functions to evaluate both :math:`f(t,x,y)` and :math:`J(t,x,y)`.
 
 We specify the relative and absolute tolerances, :math:`rtol=10^{-5}`
 and :math:`atol=10^{-5}`, respectively.  The Gram-Schmidt type is set
@@ -634,7 +634,7 @@ cvParticle_dns
 Description
 ------------
 
-This example problem solves the equation for a particle moving 
+This example problem solves the equation for a particle moving
 counterclockwise with velocity :math:`\alpha` on the unit circle in
 the :math:`xy`-plane. The ODE system is given by:
 
@@ -672,10 +672,10 @@ Numerical method
 ----------------
 
 The example routine solves this problem using a Backwards Differentiation
-Formula in fixed-leading coefficient form.  Each stage is solved using the 
+Formula in fixed-leading coefficient form.  Each stage is solved using the
 built-in modified Newton iteration.  Internally, Newton will use the
 SUNLINSOL_DENSE linear solver via the CVode interface.  The example file
-contains functions to evaluate both :math:`f(t,x,y)` and :math:`J(t,x,y)`.  
+contains functions to evaluate both :math:`f(t,x,y)` and :math:`J(t,x,y)`.
 
 We specify the relative and absolute tolerances, :math:`rtol=10^{-4}`
 and :math:`atol=10^{-9}`, respectively.  Aside from these choices,
@@ -746,7 +746,7 @@ Optional command line inputs may be used to change the final simulation time
 (default 1), or disable error projection. Use the option ``--help`` for a list
 of the command line flags.
 
- 
+
 Problem output
 ---------------
 
@@ -758,10 +758,10 @@ Numerical method
 ----------------
 
 The example routine solves this problem using a Backwards Differentiation
-Formula in fixed-leading coefficient form.  Each stage is solved using the 
+Formula in fixed-leading coefficient form.  Each stage is solved using the
 built-in modified Newton iteration.  Internally, Newton will use the
 SUNLINSOL_DENSE linear solver via the CVode interface.  The example file
-contains functions to evaluate both :math:`f(t,x,y)` and :math:`J(t,x,y)`.  
+contains functions to evaluate both :math:`f(t,x,y)` and :math:`J(t,x,y)`.
 
 We specify the relative and absolute tolerances for several runs to be
 
@@ -802,7 +802,7 @@ with initial conditions: :math:`y_1 = 1.0`, :math:`y_2 = y_3 = 0`.
 The problem is stiff.
 
 While integrating the system, we also use the rootfinding feature to
-find the points at which :math:`y_1 = 10^{-4}` or at which :math:`y_3 = 0.01`. 
+find the points at which :math:`y_1 = 10^{-4}` or at which :math:`y_3 = 0.01`.
 This program solves the problem with the BDF method, Newton iteration
 with the dense linear solver, and a user-supplied Jacobian routine.
 
@@ -818,12 +818,12 @@ Numerical method
 ----------------
 
 The example routine solves this problem using a Backwards Differentiation
-Formula in fixed-leading coefficient form.  Each stage is solved using the 
+Formula in fixed-leading coefficient form.  Each stage is solved using the
 built-in modified Newton iteration.  Internally, Newton will use the
 SUNLINSOL_DENSE linear solver via the CVode interface.  The example file
-contains functions to evaluate both :math:`f(t, y_1, y_2, y_3)` and 
+contains functions to evaluate both :math:`f(t, y_1, y_2, y_3)` and
 :math:`J(t, y_1, y_2, y_3)`.  Additionally, a root-finding function will,
-as previously mentioned, find roots at :math:`y_3 = 0.01` and 
+as previously mentioned, find roots at :math:`y_3 = 0.01` and
 :math:`y_1 = 10^{-4}` using the built-in root-finding mechanism in CVode.
 
 We specify the scalar relative and vector-valued absolute tolerances, :math:`rtol=10^{-4}`
@@ -863,7 +863,7 @@ Here, we specify the scalar relative and vector-valued absolute tolerances,
 , respectively.
 
 Aside from this, see ``cvRoberts_dns`` above.
-   
+
 
 
 .. _cvRoberts_dns_negsol:
@@ -993,14 +993,14 @@ independent ODEs are grouped together to form a larger system.
 This program takes one optional argument, the number of groups
 of independent ODE systems:
 
-.. math::
+.. code-block::
 
-   \qquad \texttt{./cvRoberts_block_klu [number of groups]}
+   ./cvRoberts_block_klu [number of groups]
 
 The problem is comparable to the CUDA version -
 ``cvRoberts_block_cusolversp_batchqr.cu``.  As previously suggested,
 it was based off of the ``cvRoberts_klu.c`` example.
- 
+
 
 Problem output
 ---------------
@@ -1055,14 +1055,15 @@ Description
 The following is a simple example problem, with the coding needed
 for its solution provided by CVODE. The problem is a simpliflied model
 of a rocket, ascending vertically, with mass decreasing over time.  The
-system (of size 2) is given by:
+system (of size 2) has components :math:`y_1 = H` (rocket height) and
+:math:`y_2 = v` (rocket velocity), with the model is given by
 
 .. math::
 
-   y_1 &= \text{rocket height} \enspace H, &&\text{where } y_1(0) = 0, \\
-   y_2 &= \text{rocket velocity} \enspace v, &&\text{where } y_2(0) = 0, \\
    \frac{dH}{dt} &= v, \\
-   \frac{dv}{dt} &= a(t,v).
+   \frac{dv}{dt} &= a(t,v)
+
+under the initial conditions :math:`y_1(0)=y_2(0)=0`.
 
 The upward acceleration :math:`a(t,v)` is given by:
 
@@ -1097,12 +1098,12 @@ Numerical method
 -----------------
 
 The example routine solves this problem using a Backwards Differentiation
-Formula in fixed-leading coefficient form.  Each stage is solved using the 
+Formula in fixed-leading coefficient form.  Each stage is solved using the
 built-in modified Newton iteration.  Internally, Newton will use the
 SUNLINSOL_DENSE linear solver via the CVode interface.  The example file
-contains functions to evaluate both :math:`f(t, y_1, y_2)` and 
+contains functions to evaluate both :math:`f(t, y_1, y_2)` and
 :math:`J(t, y_1, y_2)`.  Additionally, a root-finding function will,
-as previously mentioned, find roots at either :math:`M_f = 0` or :math:`H = H_c` 
+as previously mentioned, find roots at either :math:`M_f = 0` or :math:`H = H_c`
 as well as at :math:`v = 0` for :math:`t > 0` using the built-in root-finding
 mechanism in CVode.
 
@@ -1113,6 +1114,3 @@ CVode solver parameters.
 
 68 normal + 2 root output times are printed at normatively equally-spaced
 points as well as at the two roots, and run statistics are printed at the end.
-
-
-

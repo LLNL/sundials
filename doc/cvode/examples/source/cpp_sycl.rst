@@ -38,7 +38,7 @@ that here we use the SUNDIALS SPGMR linear solver instead.
 Problem output
 ---------------
 
-.. include:: ../../../../examples/cvode/CPP_sycl/cvAdvDiff_kry_sycl.out
+.. include:: ../../../../examples/cvode/CXX_sycl/cvAdvDiff_kry_sycl.out
    :literal:
 
 
@@ -47,5 +47,3 @@ Numerical method
 
 As previously mentioned, the problem is exactly the same as ``cvAdvDiff_bnd``
 except that here we use SUNLINSOL_SPGMR and NVECTOR_SYCL for demonstration.
-
-

@@ -24,7 +24,7 @@ Parallel MPIManyVector C example problems
 
 .. _cvDiurnal_kry_mpimanyvec:
 
-cvDirunal_kry_mpimanyvec
+cvDiurnal_kry_mpimanyvec
 =================================
 
 Description
@@ -37,12 +37,12 @@ in two spatial dimensions,
 
 .. math::
 
-   \frac{\partial c_i}{\partial t} = 
-     K_h \frac{\partial^2 c_i}{\partial x^2} + 
-     V \frac{\partial     c_i}{\partial x} + 
-     \frac{\partial}{\partial y}\left( K_v(y) 
-     \frac{\partial c_i}{\partial y}\right) + 
-     R_i(c_1,c_2,t),\qquad i=1,2 
+   \frac{\partial c_i}{\partial t} =
+     K_h \frac{\partial^2 c_i}{\partial x^2} +
+     V \frac{\partial     c_i}{\partial x} +
+     \frac{\partial}{\partial y}\left( K_v(y)
+     \frac{\partial c_i}{\partial y}\right) +
+     R_i(c_1,c_2,t),\qquad i=1,2
 
 where
 
@@ -59,7 +59,7 @@ vary diurnally.  The problem is posed on the square spatial domain
 boundary conditions, and for time interval :math:`t\in [0,86400]` sec
 (1 day).
 
-We enforce the initial conditions 
+We enforce the initial conditions
 
 .. math::
 
@@ -75,7 +75,7 @@ mesh, with simple polynomial initial profiles.
 Problem output
 ---------------
 
-.. include:: ../../../../examples/cvode/C_mpimanyvec/cvDirunal_kry_mpimanyvec.out
+.. include:: ../../../../examples/cvode/C_mpimanyvector/cvDiurnal_kry_mpimanyvec.out
    :literal:
 
 
@@ -90,7 +90,7 @@ in space to convert the system of 2 PDEs into a larger system of ODEs.
 To this end, the spatial derivatives are computed using second-order
 centered differences, with the data distributed over :math:`Mx*My`
 points on a uniform spatial grid.  As a result, CVode approaches the
-problem as one involving :math:`2*Mx*My` coupled ODEs. 
+problem as one involving :math:`2*Mx*My` coupled ODEs.
 
 The problem is decomposed in parallel into uniformly-sized subdomains,
 with two subdomains in each direction (four in total), and where each
@@ -106,7 +106,7 @@ solver, through the CVode interface.
 The preconditioner matrix used is block-diagonal, with block-diagonal
 portion of the Newton matrix used as a left preconditioner.  A copy of
 the block-diagonal portion of the Jacobian is saved and conditionally
-reused within the preconditioner routine. 
+reused within the preconditioner routine.
 
 Performance data and sampled solution values are printed at
 selected output times, and all performance counters are printed
