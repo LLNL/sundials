@@ -203,10 +203,10 @@ int main(int argc, char *argv[])
   printf("-------+-------------------------------+-------------------------------+----------+---------------+--------+---------\n");
   
   /* SDIRK */
-  /* 1 for primiary and 1 for embedded soltuion. Optimally, could be 0 solves */
+  /* 1 for primary and 1 for embedded solution. Optimally, could be 0 solves */
   retval += solve("ARKODE_SDIRK_2_1_2", "ARKODE_ERK_NONE",
                   SUNFALSE, SUNFALSE, 2);
-  /* 1 for primiary and 1 for embedded soltuion. Optimally, could be 0 solves */
+  /* 1 for primary and 1 for embedded solution. Optimally, could be 0 solves */
   retval += solve("ARKODE_SDIRK_2_1_2", "ARKODE_ERK_NONE",
                   SUNFALSE, SUNTRUE, 2);
   /* 1 per stage */
@@ -253,11 +253,11 @@ int main(int argc, char *argv[])
                   SUNTRUE, SUNTRUE, 1);
 
   /* ERK */
-  /* 1 per stage, 1 for primary solution, and 1 for embedded soltuion.
+  /* 1 per stage, 1 for primary solution, and 1 for embedded solution.
    * Optimally, could be 3 solves */
   retval += solve("ARKODE_DIRK_NONE", "ARKODE_SHU_OSHER_3_2_3",
                   SUNFALSE, SUNFALSE, 5);
-  /* 1 per stage, 1 for primary solution, and 1 for embedded soltuion.
+  /* 1 per stage, 1 for primary solution, and 1 for embedded solution.
    * Optimally, could be 3 solves */
   retval += solve("ARKODE_DIRK_NONE", "ARKODE_SHU_OSHER_3_2_3",
                   SUNFALSE, SUNTRUE, 5);
@@ -269,11 +269,11 @@ int main(int argc, char *argv[])
                   SUNTRUE, SUNTRUE, 3);
 
   /* FSAL ERK */
-  /* 1 per stage and 1 for embedded soltuion. 0 needed for primary due to FSAL
+  /* 1 per stage and 1 for embedded solution. 0 needed for primary due to FSAL
    * property. Optimally, could be 4 solves */
   retval += solve("ARKODE_DIRK_NONE", "ARKODE_BOGACKI_SHAMPINE_4_2_3",
                   SUNFALSE, SUNFALSE, 5);
-  /* 1 per stage and 1 for embedded soltuion. 0 needed for primary due to FSAL
+  /* 1 per stage and 1 for embedded solution. 0 needed for primary due to FSAL
    * property. Optimally, could be 4 solves */
   retval += solve("ARKODE_DIRK_NONE", "ARKODE_BOGACKI_SHAMPINE_4_2_3",
                   SUNFALSE, SUNTRUE, 5);
