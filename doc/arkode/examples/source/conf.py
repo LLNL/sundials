@@ -18,7 +18,7 @@ sys.path.append(os.path.dirname(os.path.abspath('../../../shared')))
 # -- General configuration ----------------------------------------------------
 
 # Set variable used to determine which package documentation this is
-# Can be one of 'arkode', 'arkode-examples', 'cvode', 'cvode-examples', 'cvodes', 
+# Can be one of 'arkode', 'arkode-examples', 'cvode', 'cvode-examples', 'cvodes',
 # 'ida', 'idas', 'kinsol' or 'super'
 package_name = 'arkode-examples'
 
@@ -199,9 +199,6 @@ htmlhelp_basename = 'ARKODEExampleDoc'
 
 # -- Options for LaTeX output --------------------------------------------------
 
-latex_additional_files = ['../../../shared/latex/preamble.tex.txt',
-                          '../../../shared/latex/cover_pages.tex.txt']
-
 im_number = "LLNL-SM-668082"
 
 # 1. the rst file name used to generate the LaTeX file
@@ -226,7 +223,7 @@ latex_documents = [('index', 'ark_examples.tex', project,
                     tex_author, 'manual', False)]
 
 # make sure the doc logo gets copied to the build directory
-latex_logo = 'figs/doc_logo_blue.pdf'
+latex_logo = 'figs/sundials_logo_blue.png'
 
 # LaTeX customizations
 latex_elements = {
@@ -254,15 +251,8 @@ latex_elements = {
 'fncychap':'',
 # figure alignment options
 'figure_align': 'htbp',
-# additional preamble content
-'preamble':
-    '\\input{preamble.tex.txt}\n'+
-    '\\newcommand{\\sunreleasename}{' + sun_version + '}\n' +
-    '\\newcommand{\\imnumber}{' + im_number + '}\n',
 # extra class options
 'extraclassoptions': 'twoside,openright',
-# custom maketitle
-'maketitle': '\\input{cover_pages.tex.txt}'
 }
 
 

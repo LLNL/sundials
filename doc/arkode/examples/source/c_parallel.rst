@@ -28,19 +28,19 @@ ark_diurnal_kry_bbd_p
 ===================================================
 
 
-This problem is an ARKode clone of the CVODE problem,
+This problem is an ARKODE clone of the CVODE problem,
 ``cv_diurnal_kry_bbd_p``.  As described in [HSR2017]_, this problem
 models a two-species diurnal kinetics advection-diffusion PDE system
 in two spatial dimensions,
 
 .. math::
 
-   \frac{\partial c_i}{\partial t} &= 
-     K_h \frac{\partial^2 c_i}{\partial x^2} + 
-     V \frac{\partial     c_i}{\partial x} + 
-     \frac{\partial}{\partial y}\left( K_v(y) 
-     \frac{\partial c_i}{\partial y}\right) + 
-     R_i(c_1,c_2,t),\quad i=1,2 
+   \frac{\partial c_i}{\partial t} &=
+     K_h \frac{\partial^2 c_i}{\partial x^2} +
+     V \frac{\partial     c_i}{\partial x} +
+     \frac{\partial}{\partial y}\left( K_v(y)
+     \frac{\partial c_i}{\partial y}\right) +
+     R_i(c_1,c_2,t),\quad i=1,2
 
 where
 
@@ -57,7 +57,7 @@ vary diurnally.  The problem is posed on the square spatial domain
 boundary conditions, and for time interval :math:`t\in [0,86400]` sec
 (1 day).
 
-We enforce the initial conditions 
+We enforce the initial conditions
 
 .. math::
 
@@ -76,7 +76,7 @@ We employ a method of lines approach, wherein we first
 semi-discretize in space to convert the system of 2 PDEs into a larger
 system of ODEs.  To this end, the spatial derivatives are computed
 using second-order centered differences, with the data distributed
-over :math:`Mx*My` points on a uniform spatial grid.  As a result, ARKode
+over :math:`Mx*My` points on a uniform spatial grid.  As a result, ARKODE
 approaches the problem as one involving :math:`2*Mx*My` coupled ODEs.
 
 The problem is decomposed in parallel into uniformly-sized subdomains,
@@ -92,7 +92,7 @@ constructed using the ARKBBDPRE module.  Each block is generated using
 difference quotients, with half-bandwidths ``mudq = mldq = 10``, but
 the retained banded blocks have half-bandwidths ``mukeep = mlkeep = 2``.
 A copy of the approximate Jacobian is saved and conditionally reused
-within the preconditioner routine. 
+within the preconditioner routine.
 
 Two runs are made for this problem, first with left and then with
 right preconditioning.
@@ -109,19 +109,19 @@ on completion.
 ark_diurnal_kry_p
 ===================================================
 
-This problem is an ARKode clone of the CVODE problem,
+This problem is an ARKODE clone of the CVODE problem,
 ``cv_diurnal_kry_p``.  As described in [HSR2017]_, this test problem
 models a two-species diurnal kinetics advection-diffusion PDE system
 in two spatial dimensions,
 
 .. math::
 
-   \frac{\partial c_i}{\partial t} &= 
-     K_h \frac{\partial^2 c_i}{\partial x^2} + 
-     V \frac{\partial     c_i}{\partial x} + 
-     \frac{\partial}{\partial y}\left( K_v(y) 
-     \frac{\partial c_i}{\partial y}\right) + 
-     R_i(c_1,c_2,t),\quad i=1,2 
+   \frac{\partial c_i}{\partial t} &=
+     K_h \frac{\partial^2 c_i}{\partial x^2} +
+     V \frac{\partial     c_i}{\partial x} +
+     \frac{\partial}{\partial y}\left( K_v(y)
+     \frac{\partial c_i}{\partial y}\right) +
+     R_i(c_1,c_2,t),\quad i=1,2
 
 where
 
@@ -138,7 +138,7 @@ vary diurnally.  The problem is posed on the square spatial domain
 boundary conditions, and for time interval :math:`t\in [0,86400]` sec
 (1 day).
 
-We enforce the initial conditions 
+We enforce the initial conditions
 
 .. math::
 
@@ -157,8 +157,8 @@ We employ a method of lines approach, wherein we first semi-discretize
 in space to convert the system of 2 PDEs into a larger system of ODEs.
 To this end, the spatial derivatives are computed using second-order
 centered differences, with the data distributed over :math:`Mx*My`
-points on a uniform spatial grid.  As a result, ARKode approaches the
-problem as one involving :math:`2*Mx*My` coupled ODEs. 
+points on a uniform spatial grid.  As a result, ARKODE approaches the
+problem as one involving :math:`2*Mx*My` coupled ODEs.
 
 The problem is decomposed in parallel into uniformly-sized subdomains,
 with two subdomains in each direction (four in total), and where each
@@ -171,7 +171,7 @@ solver, through the ARKSPILS interface.
 The preconditioner matrix used is block-diagonal, with block-diagonal
 portion of the Newton matrix used as a left preconditioner.  A copy of
 the block-diagonal portion of the Jacobian is saved and conditionally
-reused within the preconditioner routine. 
+reused within the preconditioner routine.
 
 Performance data and sampled solution values are printed at
 selected output times, and all performance counters are printed

@@ -28,19 +28,19 @@ Serial Fortran 77 example problems
 fark_diurnal_kry_bp
 ===================================================
 
-This problem is an ARKode clone of the CVODE problem,
+This problem is an ARKODE clone of the CVODE problem,
 ``fcv_diurnal_kry_bp``.  As described in [HSR2017]_, this problem
 models a two-species diurnal kinetics advection-diffusion PDE system
 in two spatial dimensions,
 
 .. math::
 
-   \frac{\partial c_i}{\partial t} &= 
-     K_h \frac{\partial^2 c_i}{\partial x^2} + 
-     V \frac{\partial     c_i}{\partial x} + 
-     \frac{\partial}{\partial y}\left( K_v(y) 
-     \frac{\partial c_i}{\partial y}\right) + 
-     R_i(c_1,c_2,t),\quad i=1,2 
+   \frac{\partial c_i}{\partial t} &=
+     K_h \frac{\partial^2 c_i}{\partial x^2} +
+     V \frac{\partial     c_i}{\partial x} +
+     \frac{\partial}{\partial y}\left( K_v(y)
+     \frac{\partial c_i}{\partial y}\right) +
+     R_i(c_1,c_2,t),\quad i=1,2
 
 where
 
@@ -57,7 +57,7 @@ vary diurnally.  The problem is posed on the square spatial domain
 boundary conditions, and for time interval :math:`t\in [0,86400]` sec
 (1 day).
 
-We enforce the initial conditions 
+We enforce the initial conditions
 
 .. math::
 
@@ -76,17 +76,17 @@ We employ a method of lines approach, wherein we first semi-discretize
 in space to convert the system of 2 PDEs into a larger system of ODEs.
 To this end, the spatial derivatives are computed using second-order
 centered differences, with the data distributed over :math:`Mx*My`
-points on a uniform spatial grid.  As a result, ARKode approaches the
+points on a uniform spatial grid.  As a result, ARKODE approaches the
 problem as one involving :math:`2*Mx*My` coupled ODEs. In this
 problem, we use a relatively coarse uniform mesh with
-:math:`Mx=My=10`.  
+:math:`Mx=My=10`.
 
 This program solves the problem with a DIRK method, using a Newton
 iteration with the preconditioned SUNLINSOL_SPGMR iterative linear
 solver module, and the ARKSPILS interface.
 
 The left preconditioner used is a banded matrix, constructed using
-the ARKBP module.  The banded preconditioner matrix is generated using 
+the ARKBP module.  The banded preconditioner matrix is generated using
 difference quotients, with half-bandwidths ``mu = ml = 2``.
 
 Performance data and sampled solution values are printed at
@@ -103,11 +103,11 @@ on completion.
 fark_roberts_dnsL
 ===================================================
 
-This problem is an ARKode clone of the CVODE problem,
+This problem is an ARKODE clone of the CVODE problem,
 ``fcv_roberts_dnsL``.  As described in [HSR2017]_, this problem models
 the kinetics of a three-species autocatalytic reaction.  This is an
 ODE system with 3 components, :math:`Y = [y_1,\, y_2,\, y_3]^T`,
-satisfying the equations, 
+satisfying the equations,
 
 .. math::
 
@@ -116,7 +116,7 @@ satisfying the equations,
    \frac{d y_3}{dt} &= 3\cdot10^7 y_2^2.
 
 We integrate over the interval :math:`0\le t\le 4\cdot10^{10}`, with initial
-conditions  :math:`Y(0) = [1,\, 0,\, 0]^T`. 
+conditions  :math:`Y(0) = [1,\, 0,\, 0]^T`.
 
 Additionally, we supply the following two root-finding equations:
 
@@ -137,13 +137,10 @@ This program solves the problem with a DIRK method, using a Newton
 iteration with the SUNLINSOL_LAPACKDENSE linear solver module and
 ARKDLS interface.
 
-As with the :ref:`ark_robertson_root` problem, we enable ARKode's
+As with the :ref:`ark_robertson_root` problem, we enable ARKODE's
 rootfinding module to find the times at which either :math:`u=10^{-4}`
-or :math:`w=10^{-2}`. 
+or :math:`w=10^{-2}`.
 
 Performance data and solution values are printed at
 selected output times, along with additional output at rootfinding
 events.  All performance counters are printed on completion.
-
-
-

@@ -28,13 +28,13 @@ Parallel C++ example problems
 ark_heat2D
 ======================================================================
 
-ARKode provides one parallel C++ example problem, that extends our
+ARKODE provides one parallel C++ example problem, that extends our
 previous :ref:`ark_heat1D` test to now simulate a two-dimensional heat
 equation,
 
 .. math::
 
-   \frac{\partial u}{\partial t} = k_x \frac{\partial^2 u}{\partial x^2} 
+   \frac{\partial u}{\partial t} = k_x \frac{\partial^2 u}{\partial x^2}
                                  + k_y \frac{\partial^2 u}{\partial y^2} + h,
 
 for :math:`t \in [0, 0.3]`, and :math:`(x,y) \in [0, 1]^2`, with initial
@@ -42,7 +42,7 @@ condition :math:`u(0,x,y) = 0`, stationary boundary conditions,
 
 .. math::
 
-   \frac{\partial u}{\partial t}(t,0,y) = \frac{\partial u}{\partial t}(t,1,y) = 
+   \frac{\partial u}{\partial t}(t,0,y) = \frac{\partial u}{\partial t}(t,1,y) =
    \frac{\partial u}{\partial t}(t,x,0) = \frac{\partial u}{\partial t}(t,x,1) = 0,
 
 and a periodic heat source,
@@ -50,9 +50,9 @@ and a periodic heat source,
 .. math::
 
    h(x,y) = \sin(\pi x) \sin(2\pi y).
- 
+
 Under these conditions, the problem has an analytical solution of the
-form 
+form
 
 .. math::
 
@@ -64,19 +64,19 @@ Numerical method
 
 The spatial derivatives are computed using second-order centered
 differences, with the data distributed over :math:`nx\times ny` points
-on a uniform spatial grid.  
+on a uniform spatial grid.
 
 The problem is set up to use spatial grid parameters :math:`nx=60` and
 :math:`ny=120`, with heat conductivity parameters :math:`k_x=0.5` and
 :math:`k_y=0.75`.  The problem is run using scalar relative and
 absolute solver tolerances of :math:`rtol=10^{-5}` and
 :math:`atol=10^{-10}`.
- 
+
 As with the 1D version, this program solves the problem with a DIRK
 method, that itself uses a Newton iteration and SUNLINSOL_PCG
 iterative linear solver through the ARKSPILS interface.  However,
 unlike the previous example, here the PCG solver is preconditioned
-using a single Jacobi iteration, and uses ARKSPILS' built-in 
+using a single Jacobi iteration, and uses ARKSPILS' built-in
 finite-difference Jacobian-vector product routine. Additionally, this
 problem uses MPI and the NVECTOR_PARALLEL module for parallelization.
 
