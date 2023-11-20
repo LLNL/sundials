@@ -110,6 +110,7 @@ set(SUNDIALS_LIBRARIES
   ${SUNDIALS_SOLVER_LIB}
   ${SUNDIALS_NVEC_LIB}
   ${SUNDIALS_SUNLS_LIB}
+  ${SUNDIALS_CORE_LIB}
   ${SUNDIALS_EXTRA_LIBS})
 
 # ------------------------------------------------------------------------------

@@ -87,9 +87,9 @@ endif()
 # List of SUNDIALS libraries
 set(SUNDIALS_LIBRARIES
   -L${SUNDIALS_LIBRARY_DIR}
-  ${SUNDIALS_CORE_LIB}
   ${SUNDIALS_SOLVER_LIB}
-  ${SUNDIALS_NVEC_LIB}
+  ${SUNDIALS_NVEC_LIB}  
+  ${SUNDIALS_CORE_LIB}
   ${SUNDIALS_EXTRA_LIBS})
 
 # ------------------------------------------------------------------------------
