@@ -31,7 +31,7 @@ cv_diag_kry_bbd_p
 Description
 ------------
 
-As described in [HSR2017]_, this problem models a stiff, linear, diagonal
+This problem models a stiff, linear, diagonal
 ODE system,
 
 .. math::
@@ -69,7 +69,7 @@ Two runs are made for this problem, first with left and then with
 right preconditioning (``iPre`` is first set to :math:`1` and then to :math:`2`).
 
 Performance data is printed at equally-spaced output times, and maximum
-errors and final performance counters are printed on completion. 
+errors and final performance counters are printed on completion.
 
 
 
@@ -108,10 +108,10 @@ where :math:`J` is a diagonal approximation to the true Jacobian, given by:
    J = diag(0, 0, 0, -4 \alpha, \ldots, -N \alpha).
 
 The vector :math:`r` is copied to :math:`z`, and the inverse of :math:`P`
-(restricted to the local vector segment) is applied to the vecdtor :math:`z`. 
+(restricted to the local vector segment) is applied to the vecdtor :math:`z`.
 
 Performance data is printed at equally-spaced output times, and maximum
-errors and final performance counters are printed on completion. 
+errors and final performance counters are printed on completion.
 
 
 
@@ -123,7 +123,7 @@ cv_diag_non_p
 Description
 ------------
 
-As described in [HSR2017]_, this problem models a nonstiff, linear, diagonal
+This problem models a nonstiff, linear, diagonal
 ODE system,
 
 .. math::
@@ -152,5 +152,3 @@ iteration and CVode interface.
 
 Performance data is printed at equally-spaced output times, and maximum
 errors and final performance counters are printed on completion.
-
-

@@ -13,50 +13,43 @@
    SUNDIALS Copyright End
    ----------------------------------------------------------------
 
-.. CVode_example documentation master file, created by
+.. CVODE_example documentation master file, created by
    sphinx-quickstart on Wed Jun 14 02:10:03 2023.
    You can adapt this file completely to your liking, but it should at least
    contain the root `toctree` directive.
 
 ==============================================
-CVode Example documentation
+Example Programs for CVODE
 ==============================================
 
-CVode Overview
+Introduction
 =============================
 
-This is the documentation for the CVode examples.  CVode is a
-Krylov method integration package for stiff, nonstiff and
-multi-rate systems of ordinary differential equations (ODEs).
-The CVode solver is a component of the `SUNDIALS
-<https://computing.llnl.gov/projects/sundials>`_ suite of
-nonlinear and differential/algebraic equation solvers. It is designed
-to have a similar user experience to the `CVODE
-<https://computing.llnl.gov/projects/sundials/cvode>`_
-solver, with user modes to allow adaptive integration to specified
-output times, return after each internal step and root-finding
-capabilities, for calculations both in serial and parallel (via
-MPI). The default integration and solver options should apply to most
-users, though complete control over all internal parameters and time
-adaptivity algorithms is enabled through optional interface routines.
 
-CVode is developed by `Lawrence Livermore National Laboratory
-<http://www.llnl.gov>`_, with support by the `US Department of Energy
-<http://www.doe.gov>`_ through the `FASTMath
-<https://scidac5-fastmath.lbl.gov/>`_ SciDAC-5 Institute, under
-subcontract 07NA27344.
+This report is intended to serve as a companion document to the User
+Documentation of CVODE :cite:p:`cvode_ug`.  It provides details, with
+listings, on many of the example programs supplied with the CVODE
+distribution package.
 
-Along with the CVode solver, we have created a suite of example
-problems demonstrating its usage on applications written in C, C++ and
-Fortran 2003.  These examples demonstrate a large variety of CVode
-solver options, including explicit, implicit and ImEx solvers, root-
-finding, Newton and fixed-point nonlinear solvers, direct and iterative
-linear solvers, adaptive resize capabilities, and the Fortran solver
-interface.  While these examples are not an exhaustive set of all
-possible usage scenarios, they are designed to show a variety of
-exemplars, and can be used as templates for new problems using CVode's
-solvers.  Further information on the CVode package itself may be found
-in the accompanying CVode user guide [R2018]_.
+This document describes CVODE examples of the following types: serial
+C examples, parallel C examples, an OpenMP example, and a *hypre*
+example.  With the exception of "demo"-type example files, the names of
+all the examples  are of the form ``[slv][PbName]_[ls]_[prec]_[p]``,
+where
+
+* ``[slv]`` identifies the solver (for CVODE examples this is ``cv``;
+
+* ``[PbName]`` identifies the problem;
+
+* ``[ls]`` identifies the linear solver module used (for examples using
+  fixed-point iteration for the nonlinear system solver, ``non`` specifies
+  that no linear solver was used);
+
+* ``[prec]`` indicates the CVODE preconditioner module used, ``bp`` for
+  CVBandPre ``bbd`` for CVBBDPre (only if applicable, for examples using
+  a Krylov linear solver);
+
+* ``[p]`` indicates an example using the parallel vector module NVECTOR_PARALLEL.
 
 The following tables summarize the salient features of each of the
 example problems in this document.  Each example is designed to be
@@ -71,57 +64,52 @@ Tables of Examples
 C Examples
 -----------
 
-CVode example problems written in C are summarized in the table
-below, and are further described in the chapters :ref:`serial_c`,
-:ref:`openmp_c`, :ref:`openmpdev_c`, :ref:`parallel_c`, :ref:`parhyp_c`,
-:ref:`mpimanyvec_c`, :ref:`cuda_c`, and :ref:`raja_c`.
+CVODE example problems written in C are summarized in the table
+below.
 
 .. cssclass:: table-bordered
 
-================================   ============  ============  ==========  =============  =========================================================
-Problem                            Integrator    Nonlinear     Linear      Size           Extras
-================================   ============  ============  ==========  =============  =========================================================
-:ref:`cvAdvDiff_bnd`                BDF           Newton        Band        1              user Jacobian
-:ref:`cvAdvDiff_bndL`               BDF           Newton        Band        1              LAPACK band solver, user Jacobian
-:ref:`cvAnalytic_mels`              BDF           Newton        Custom      1              Matrix-embedded Custom Linear Solver
-:ref:`cvDirectDemo_ls`              BDF \\        Newton \\     Dense \\    3 \\           Van der Pol (1) user (2) dif-quot (3) diag + 2 \\
-                                    ADAMS         Fixed-point   Band        1              2D advection (1) user (2) dif-quot (3) diag + 2
-:ref:`cvDisc_dns`                   BDF           Newton        Dense       2              Solves two separate equations, the second twice
-:ref:`cvDiurnal_kry`                BDF           Newton        SPGMR       200            block-diagonal preconditioner
-:ref:`cvDiurnal_kry_bp`             BDF           Newton        SPGMR       200            Solved twice with banded prec. on left and right
-:ref:`cvHeat2D_klu`                 BDF           Newton        KLU         1100           sparse matrices
-:ref:`cvKrylovDemo_ls`              BDF           Newton        4 Krylov    200            SPGMR, SPBCGS, SPTFQMR used
-:ref:`cvKrylovDemo_prec`            BDF           Newton        SPGMR       216            preconditioner matrix (1) implicit GS (2) block-diag
-:ref:`cvParticle_dns`               BDF           Newton        Dense       2              user Jacobian and user projection
-:ref:`cvPendulum_dns`               BDF           Newton        Dense       4, 2           user projection, solves problem via inexact/exact meth.
-:ref:`cvRoberts_dns`                BDF           Newton        Dense       3              user Jacobian, root-finding
-:ref:`cvRoberts_dns_constraints`    BDF           Newton        Dense       3              user Jacobian, root-finding, constraints for all comp.
-:ref:`cvRoberts_dns_negsol`         BDF           Newton        Dense       3              user Jacobian, root-finding, negative solution comp.
-:ref:`cvRoberts_dns_uw`             BDF           Newton        Dense       3              user Jacobian, root-finding, user error weight
-:ref:`cvRoberts_dnsL`               BDF           Newton        Dense       3              user Jacobian, root-finding, LAPACK dense solver
-:ref:`cvRoberts_klu`                BDF           Newton        KLU         :math:`3N`     sparse matrices
-:ref:`cvRoberts_block_klu`          BDF           Newton        KLU         :math:`3N`     sparse matrices
-:ref:`cvRoberts_sps`                BDF           Newton        SuperLUMT   :math:`3N`     finite-element, sparse matrices
-:ref:`cvRocket_dns`                 BDF           Newton        Dense       2              user Jacobian, root-finding
-:ref:`cvAdvDiff_bnd_omp`            BDF           Newton        Band        50             user Jacobian, OpenMP
-:ref:`cvAdvDiff_kry_ompdev`         BDF           Newton        Band        50             user Jacobian, OpenMP-dev
-:ref:`cvAdvDiff_diag_p`             ADAMS         Newton        Diagonal    10             MPI for user routines
-:ref:`cvAdvDiff_non_p`              ADAMS         Fixed-point               10             MPI for user routines
-:ref:`cvDiurnal_kry_bbd_p`          BDF           Newton        SPGMR       200            MPI for user routines, solved twice with BBD prec.
-:ref:`cvDiurnal_kry_p`              BDF           Newton        SPGMR       200            MPI for user routines, block-diagonal left prec.
-:ref:`cvAdvDiff_non_ph`             ADAMS         Fixed-point               10             HYPRE parallel vector with IJ interface
-:ref:`cvDiurnal_kry_mpimanyvec`     BDF           Newton        SPGMR       200            MPI for user routines, MPIManyVector module
-:ref:`cvAdvDiff_kry_cuda`
-:ref:`cvAdvDiff_kry_raja`
-================================   ============  ============  ==========  =============  =========================================================
+==================================== ============  ============  ==========  =============  =========================================================
+Problem                              Integrator    Nonlinear     Linear      Size           Extras
+==================================== ============  ============  ==========  =============  =========================================================
+:ref:`cvAdvDiff_bnd`                 BDF           Newton        Band        1              user Jacobian
+:ref:`cvAdvDiff_bndL`                BDF           Newton        Band        1              LAPACK band solver, user Jacobian
+:ref:`cvAnalytic_mels`               BDF           Newton        Custom      1              Matrix-embedded Custom Linear Solver
+:ref:`cvDirectDemo_ls`               BDF \\        Newton \\     Dense \\    3 \\           Van der Pol (1) user (2) dif-quot (3) diag + 2 \\
+                                     ADAMS         Fixed-point   Band        1              2D advection (1) user (2) dif-quot (3) diag + 2
+:ref:`cvDisc_dns`                    BDF           Newton        Dense       2              Solves two separate equations, the second twice
+:ref:`cvDiurnal_kry`                 BDF           Newton        SPGMR       200            block-diagonal preconditioner
+:ref:`cvDiurnal_kry_bp`              BDF           Newton        SPGMR       200            Solved twice with banded prec. on left and right
+:ref:`cvHeat2D_klu`                  BDF           Newton        KLU         1100           sparse matrices
+:ref:`cvKrylovDemo_ls`               BDF           Newton        4 Krylov    200            SPGMR, SPBCGS, SPTFQMR used
+:ref:`cvKrylovDemo_prec`             BDF           Newton        SPGMR       216            preconditioner matrix (1) implicit GS (2) block-diag
+:ref:`cvParticle_dns`                BDF           Newton        Dense       2              user Jacobian and user projection
+:ref:`cvPendulum_dns`                BDF           Newton        Dense       4, 2           user projection, solves problem via inexact/exact meth.
+:ref:`cvRoberts_dns`                 BDF           Newton        Dense       3              user Jacobian, root-finding
+:ref:`cvRoberts_dns_constraints`     BDF           Newton        Dense       3              user Jacobian, root-finding, constraints for all comp.
+:ref:`cvRoberts_dns_negsol`          BDF           Newton        Dense       3              user Jacobian, root-finding, negative solution comp.
+:ref:`cvRoberts_dns_uw`              BDF           Newton        Dense       3              user Jacobian, root-finding, user error weight
+:ref:`cvRoberts_dnsL`                BDF           Newton        Dense       3              user Jacobian, root-finding, LAPACK dense solver
+:ref:`cvRoberts_klu`                 BDF           Newton        KLU         :math:`3N`     sparse matrices
+:ref:`cvRoberts_block_klu`           BDF           Newton        KLU         :math:`3N`     sparse matrices
+:ref:`cvRoberts_sps`                 BDF           Newton        SuperLUMT   :math:`3N`     finite-element, sparse matrices
+:ref:`cvRocket_dns`                  BDF           Newton        Dense       2              user Jacobian, root-finding
+:ref:`cvAdvDiff_bnd_omp`             BDF           Newton        Band        50             user Jacobian, OpenMP
+:ref:`cvAdvDiff_kry_ompdev`          BDF           Newton        Band        50             user Jacobian, OpenMP-dev
+:ref:`cvAdvDiff_diag_p`              ADAMS         Newton        Diagonal    10             MPI for user routines
+:ref:`cvAdvDiff_non_p`               ADAMS         Fixed-point               10             MPI for user routines
+:ref:`cvDiurnal_kry_bbd_p`           BDF           Newton        SPGMR       200            MPI for user routines, solved twice with BBD prec.
+:ref:`cvDiurnal_kry_p`               BDF           Newton        SPGMR       200            MPI for user routines, block-diagonal left prec.
+:ref:`cvAdvDiff_non_ph`              ADAMS         Fixed-point               10             HYPRE parallel vector with IJ interface
+:ref:`cvDiurnal_kry_mpimanyvec`      BDF           Newton        SPGMR       200            MPI for user routines, MPIManyVector module
+:ref:`cvAdvDiff_kry_cuda`            BDF           Newton        SPGMR       50             CUDA N_Vector module, RHS, and Jacobian product routines
+:ref:`cvAdvDiff_kry_raja`            BDF           Newton        SPGMR       50             RAJA N_Vector module, RHS, and Jacobian product routines
+==================================== ============  ============  ==========  =============  =========================================================
 
 C Examples Deep Dives
 ----------------------
 
-Deep dives into CVode example problems written in C are listed below,
-and are further described in great length in the chapters
-:ref:`serial_deep_c`, :ref:`parallel_deep_c`, and :ref:`parhyp_deep_c`.
-Further testing is discussed in :ref:`tests_deep_c`.
+Deep dives into CVODE example problems written in C are listed below.
 
 .. cssclass:: table-bordered
 
@@ -140,9 +128,8 @@ Problem                                  Example Type
 C++ Examples
 -------------
 
-CVode example problems written in C++ are summarized in the table
-below, and are further described in the chapters :ref:`serial_cpp`,
-:ref:`parallel_cpp`, :ref:`hypre_cpp`, :ref:`onemkl_cpp`, and :ref:`sycl_cpp`.
+CVODE example problems written in C++ are summarized in the table
+below.
 
 .. cssclass:: table-bordered
 
@@ -161,9 +148,8 @@ Problem                            Integrator  Nonlinear    Linear          Size
 Fortran Examples
 -----------------
 
-CVode example problems written in Fortran 2003 are summarized in the table
-below, and are further described in the chapters :ref:`serial_f2003` and
-:ref:`parallel_f2003`.
+CVODE example problems written in Fortran 2003 are summarized in the table
+below.
 
 .. cssclass:: table-bordered
 
@@ -180,7 +166,7 @@ Problem                             Integrator  Nonlinear    Linear  Size       
 :ref:`cv_diurnal_kry`               BDF         Newton       SPGMR   200            user preconditioner and Jacobian
 :ref:`cv_roberts_dns`               BDF         Newton       Dense   3              user Jacobian, root-finding
 :ref:`cv_roberts_dns_constraints`   BDF         Newton       Dense   3              user Jacobian, root-finding, constraints set
-:ref:`cv_roberts_dnsL`              BDF         Newton       Dense   3              user Jacobian, root-finding, LAPACK dense solver 
+:ref:`cv_roberts_dnsL`              BDF         Newton       Dense   3              user Jacobian, root-finding, LAPACK dense solver
 :ref:`cv_roberts_klu`               BDF         Newton       KLU     3              sparse matrices, root-finding, user Jacobian
 :ref:`cv_diag_kry_bbd_p`            BDF         Newton       SPGMR   128            parallel MPI, BBD prec. -- left and right solve
 :ref:`cv_diag_kry_p`                BDF         Newton       SPGMR   128            parallel MPI, user prec. -- left and right solve
@@ -190,8 +176,8 @@ Problem                             Integrator  Nonlinear    Linear  Size       
 Fortran Deep Dives
 -------------------
 
-Deep dives into CVode example problems written in Fortran 2003 are listed
-below, and are further described in great length in the chapter :ref:`deep_f2003`.
+Deep dives into CVODE example problems written in Fortran 2003 are listed
+below.
 
 .. cssclass:: table-bordered
 
@@ -203,11 +189,33 @@ Problem                                  Example Type
 ======================================   =================
 
 
-Chapter List of Examples and Deep Dives
+Full Section List of Examples and Deep Dives
 ====================================================
 
-Further details on many of the above-listed examples are provided
-in the following chapters:
+In the following sections, we give high-level descriptions of all CVODE examples,
+as well as detailed descriptions ("deep dives") of some examples.  We also give
+our output files for each of these examples, but users should be cautioned that
+their results may differ slightly from these.  Differences in solution
+values may differ within the tolerances, and differences in cumulative
+counters, such as numbers of steps or Newton iterations, may differ
+from one machine environment to another by as much as 10% to 20%.
+
+In the descriptions below, we make frequent references to the CVODE
+User Document :cite:p:`cvode_ug`.  All citations to specific sections
+are references to parts of that User Document, unless explicitly stated
+otherwise.
+
+.. note::
+
+   The examples in the CVODE distribution are written in such a way as
+   to compile and run for any combination of configuration options during
+   the installation of SUNDIALS (see the "Install" section in the User Guide).
+   As a consequence, they contain portions of code that will not be
+   typically present in a user program. For example, all C example programs
+   make use of the variables SUNDIALS_EXTENDED_PRECISION and SUNDIALS_DOUBLE_PRECISION
+   to test if the solver libraries were built in extended or double precision,
+   and use the appropriate conversion specifiers in ``printf`` functions.
+
 
 .. toctree::
    :maxdepth: 1

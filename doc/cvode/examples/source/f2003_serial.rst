@@ -116,7 +116,7 @@ where :math:`A = V * D * V^{-1}` and
 
 .. math::
 
-   A &=\begin{pmatrix} \frac{\lambda}{4} - \frac{23}{40} & 
+   A &=\begin{pmatrix} \frac{\lambda}{4} - \frac{23}{40} &
                        \frac{\lambda}{4} - \frac{3}{40} &
                        \frac{\lambda}{4} - \frac{13}{40} \\
                        \frac{\lambda}{4} + \frac{21}{40} &
@@ -171,10 +171,10 @@ Numerical method
 ----------------
 
 The example routine solves this problem using a Backwards Differentiation
-Formula in fixed-leading coefficient form.  Each stage is solved using the 
+Formula in fixed-leading coefficient form.  Each stage is solved using the
 built-in modified Newton iteration.  Internally, Newton will use the
 SUNLINSOL_DENSE linear solver via the CVode interface.  The example file
-contains a function to evaluate :math:`f(t,y)`.  
+contains a function to evaluate :math:`f(t,y)`.
 
 We specify the relative and absolute tolerances, :math:`rtol=10^{-6}`
 and :math:`atol=10^{-10}`, respectively.  Aside from these choices,
@@ -295,17 +295,17 @@ of :math:`1000` internal time steps.
 cv_diurnal_kry_bp
 ===================================================
 
-As described in [HSR2017]_, this problem models a two-species diurnal
+This problem models a two-species diurnal
 kinetics advection-diffusion PDE system in two spatial dimensions,
 
 .. math::
 
-   \frac{\partial c_i}{\partial t} = 
-     K_h \frac{\partial^2 c_i}{\partial x^2} + 
-     V \frac{\partial     c_i}{\partial x} + 
-     \frac{\partial}{\partial y}\left( K_v(y) 
-     \frac{\partial c_i}{\partial y}\right) + 
-     R_i(c_1,c_2,t),\quad i=1,2 
+   \frac{\partial c_i}{\partial t} =
+     K_h \frac{\partial^2 c_i}{\partial x^2} +
+     V \frac{\partial     c_i}{\partial x} +
+     \frac{\partial}{\partial y}\left( K_v(y)
+     \frac{\partial c_i}{\partial y}\right) +
+     R_i(c_1,c_2,t),\quad i=1,2
 
 where
 
@@ -322,7 +322,7 @@ vary diurnally.  The problem is posed on the square spatial domain
 boundary conditions, and for time interval :math:`t \in [0,86400]` sec
 (1 day).
 
-We enforce the initial conditions 
+We enforce the initial conditions
 
 .. math::
 
@@ -350,14 +350,14 @@ centered differences, with the data distributed over :math:`Mx*My`
 points on a uniform spatial grid.  As a result, CVode approaches the
 problem as one involving :math:`2*Mx*My` coupled ODEs. In this
 problem, we use a relatively coarse uniform mesh with
-:math:`Mx = My = 10`.  
+:math:`Mx = My = 10`.
 
 This program solves the problem with a BDF method, using a Newton
 iteration with the preconditioned SUNLINSOL_SPGMR iterative linear
 solver module, and the CVODE interface.
 
 The left preconditioner used is a banded matrix, constructed using
-the CVBANDPRE module.  The banded preconditioner matrix is generated using 
+the CVBANDPRE module.  The banded preconditioner matrix is generated using
 difference quotients, with half-bandwidths ``mu = ml = 2``.
 
 Performance data and sampled solution values are printed at
@@ -429,7 +429,7 @@ with initial conditions: :math:`y_1 = 1.0`, :math:`y_2 = y_3 = 0`.
 The problem is stiff.
 
 While integrating the system, we also use the rootfinding feature to
-find the points at which :math:`y_1 = 10^{-4}` or at which :math:`y_3 = 0.01`. 
+find the points at which :math:`y_1 = 10^{-4}` or at which :math:`y_3 = 0.01`.
 This program solves the problem with the BDF method, Newton iteration
 with the dense linear solver, and a user-supplied Jacobian routine.
 
@@ -445,12 +445,12 @@ Numerical method
 ----------------
 
 The example routine solves this problem using a Backwards Differentiation
-Formula in fixed-leading coefficient form.  Each stage is solved using the 
+Formula in fixed-leading coefficient form.  Each stage is solved using the
 built-in modified Newton iteration.  Internally, Newton will use the
 SUNLINSOL_DENSE linear solver via the CVode interface.  The example file
-contains functions to evaluate both :math:`f(t, y_1, y_2, y_3)` and 
+contains functions to evaluate both :math:`f(t, y_1, y_2, y_3)` and
 :math:`J(t, y_1, y_2, y_3)`.  Additionally, a root-finding function will,
-as previously mentioned, find roots at :math:`y_3 = 0.01` and 
+as previously mentioned, find roots at :math:`y_3 = 0.01` and
 :math:`y_1 = 10^{-4}` using the built-in root-finding mechanism in CVode.
 
 We specify the scalar relative and vector-valued absolute tolerances, :math:`rtol=10^{-4}`
@@ -496,10 +496,10 @@ Aside from this, see ``cv_roberts_dns`` above.
 cv_roberts_dnsL
 ===================================================
 
-As described in [HSR2017]_, this problem models
+This problem models
 the kinetics of a three-species autocatalytic reaction.  This is an
 ODE system with 3 components, :math:`Y = \begin{bmatrix} y_1 \\ y_2 \\ y_3 \end{bmatrix}`,
-satisfying the equations, 
+satisfying the equations,
 
 .. math::
 
@@ -508,7 +508,7 @@ satisfying the equations,
    \frac{d y_3}{dt} &= 3 \cdot 10^7 y_2^2.
 
 We integrate over the interval :math:`0 \leq t \leq 4 \cdot 10^{10}`, with initial
-conditions  :math:`Y(0) = \begin{bmatrix} 1 \\ 0 \\ 0 \end{bmatrix}`. 
+conditions  :math:`Y(0) = \begin{bmatrix} 1 \\ 0 \\ 0 \end{bmatrix}`.
 
 Additionally, we supply the following two root-finding equations:
 
@@ -538,7 +538,7 @@ CVode interface.
 
 As with the :ref:`cv_roberts_dns` problem, we enable CVode's
 rootfinding module to find the times at which either :math:`u=10^{-4}`
-or :math:`w=10^{-2}`. 
+or :math:`w=10^{-2}`.
 
 Performance data and solution values are printed at
 selected output times, along with additional output at root-finding
@@ -572,5 +572,3 @@ Numerical method
 ----------------
 
 Aside from using SUNLINSOL_KLU, see ``cv_roberts_dns`` above.
-
-
