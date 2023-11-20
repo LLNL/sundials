@@ -11,8 +11,8 @@
  * SPDX-License-Identifier: BSD-3-Clause
  * SUNDIALS Copyright End
  * -----------------------------------------------------------------------------
- * Unit test that checks the number of mass matrix solves taken in one step of
- * an ARKODE integrator.
+ * Unit test that checks the number of mass matrix solves taken in 1 step of an
+ * ARKODE integrator.
  * ---------------------------------------------------------------------------*/
 
 #include <stdio.h>
@@ -207,7 +207,7 @@ int main(int argc, char *argv[])
   printf("Result | Implicit Method              | Explicit Method               | Steps | Time-Dep | Deduce Im RHS | Actual | Expected\n");
   printf("-------+------------------------------+-------------------------------+-------+----------+---------------+--------+---------\n");
 
-  /* One-step tests */
+  /* Tests taking 1 timestep */
   
   /* SDIRK */
   /* 1 for primary and 1 for embedded solution. Optimally, could be 0 solves */
@@ -252,7 +252,7 @@ int main(int argc, char *argv[])
   /* Same comment as previous */
   retval += solve("ARKODE_ESDIRK324L2SA_4_2_3", "ARKODE_ERK_NONE",
                   1, SUNFALSE, SUNTRUE, 2);
-  /* One per stage */
+  /* 1 per stage */
   retval += solve("ARKODE_ESDIRK324L2SA_4_2_3", "ARKODE_ERK_NONE",
                   1, SUNTRUE, SUNFALSE, 4);
   /* Optimal */
@@ -324,6 +324,54 @@ int main(int argc, char *argv[])
    * Optimal */
   retval += solve("ARKODE_ARK548L2SA_DIRK_8_4_5", "ARKODE_ARK548L2SA_ERK_8_4_5",
                   1, SUNTRUE, SUNTRUE, 9);
+
+
+  /* 2 timestep tests to check FSAL optimizations. This assumes there are no
+   * rejected steps */
+
+  /* FSAL ESDIRK */
+  /* 2 per step. The fixed mass matrix implementation cannot benefit from the
+   * FSAL property */
+  retval += solve("ARKODE_ESDIRK324L2SA_4_2_3", "ARKODE_ERK_NONE",
+                  2, SUNFALSE, SUNFALSE, 4);
+  /* 2 per step. The fixed mass matrix implementation cannot benefit from the
+   * FSAL property */
+  retval += solve("ARKODE_ESDIRK324L2SA_4_2_3", "ARKODE_ERK_NONE",
+                  2, SUNFALSE, SUNTRUE, 4);
+  /* 1 per stage except the first stage of step 2 due to FSAL optimization */
+  retval += solve("ARKODE_ESDIRK324L2SA_4_2_3", "ARKODE_ERK_NONE",
+                  2, SUNTRUE, SUNFALSE, 7);
+  /* Optimal */
+  retval += solve("ARKODE_ESDIRK324L2SA_4_2_3", "ARKODE_ERK_NONE",
+                  2, SUNTRUE, SUNTRUE, 1);
+
+  /* FSAL ERK */
+  /* 1 per stage and 1 for embedded solution. 0 needed for primary due to FSAL
+   * property. Optimally, could be 7 solves */
+  retval += solve("ARKODE_DIRK_NONE", "ARKODE_BOGACKI_SHAMPINE_4_2_3",
+                  2, SUNFALSE, SUNFALSE, 10);
+  /* 1 per stage and 1 for embedded solution. 0 needed for primary due to FSAL
+   * property. Optimally, could be 7 solves */
+  retval += solve("ARKODE_DIRK_NONE", "ARKODE_BOGACKI_SHAMPINE_4_2_3",
+                  2, SUNFALSE, SUNTRUE, 10);
+  /* Optimal */
+  retval += solve("ARKODE_DIRK_NONE", "ARKODE_BOGACKI_SHAMPINE_4_2_3",
+                  2, SUNTRUE, SUNFALSE, 7);
+  /* Optimal */
+  retval += solve("ARKODE_DIRK_NONE", "ARKODE_BOGACKI_SHAMPINE_4_2_3",
+                  2, SUNTRUE, SUNTRUE, 7);
+
+  /* IMEX */
+  /* While the implicit part has the FSAL property, the overall IMEX method does
+   * not. The mass solves are all double the 1 step results */
+  retval += solve("ARKODE_ARK548L2SA_DIRK_8_4_5", "ARKODE_ARK548L2SA_ERK_8_4_5",
+                  2, SUNFALSE, SUNFALSE, 6);
+  retval += solve("ARKODE_ARK548L2SA_DIRK_8_4_5", "ARKODE_ARK548L2SA_ERK_8_4_5",
+                  2, SUNFALSE, SUNTRUE, 6);
+  retval += solve("ARKODE_ARK548L2SA_DIRK_8_4_5", "ARKODE_ARK548L2SA_ERK_8_4_5",
+                  2, SUNTRUE, SUNFALSE, 32);
+  retval += solve("ARKODE_ARK548L2SA_DIRK_8_4_5", "ARKODE_ARK548L2SA_ERK_8_4_5",
+                  2, SUNTRUE, SUNTRUE, 18);
 
   return retval;
 }
