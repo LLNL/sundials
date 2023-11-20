@@ -24,7 +24,7 @@ cmake_minimum_required(VERSION @CMAKE_VERSION@)
 
 # Set cache variables for compilers and flags
 set(CMAKE_C_COMPILER
-  @_EXAMPLES_C_COMPILER@
+  "@_EXAMPLES_C_COMPILER@"
   CACHE FILEPATH "C compiler")
 
 set(CMAKE_C_FLAGS
