@@ -29,13 +29,13 @@ ark_diurnal_kry_bbd_p
 
 
 This problem is an ARKODE clone of the CVODE problem,
-``cv_diurnal_kry_bbd_p``.  As described in [HSR2017]_, this problem
+``cv_diurnal_kry_bbd_p``.  As described in :cite:p:`cvode_ex`, this problem
 models a two-species diurnal kinetics advection-diffusion PDE system
 in two spatial dimensions,
 
 .. math::
 
-   \frac{\partial c_i}{\partial t} &=
+   \frac{\partial c_i}{\partial t} =
      K_h \frac{\partial^2 c_i}{\partial x^2} +
      V \frac{\partial     c_i}{\partial x} +
      \frac{\partial}{\partial y}\left( K_v(y)
@@ -46,9 +46,9 @@ where
 
 .. math::
 
-   R_1(c_1,c_2,t) &= -q_1*c_1*c_3 - q_2*c_1*c_2 + 2*q_3(t)*c_3 + q_4(t)*c_2, \\
-   R_2(c_1,c_2,t) &=  q_1*c_1*c_3 - q_2*c_1*c_2 - q_4(t)*c_2, \\
-   K_v(y) &= K_{v0} e^{y/5}.
+   R_1(c_1,c_2,t) &= -q_1\, c_1\, c_3 - q_2\, c_1\, c_2 + 2\, q_3(t)\, c_3  + q_4(t)\, c_2, \\
+   R_2(c_1,c_2,t) &=  q_1\, c_1\, c_3 - q_2\, c_1\, c_2 - q_4(t)\, c_2, \\
+   K_v(y) &= K_{v0}\, e^{y/5}.
 
 Here :math:`K_h`, :math:`V`, :math:`K_{v0}`, :math:`q_1`, :math:`q_2`,
 and :math:`c_3` are constants, and :math:`q_3(t)` and :math:`q_4(t)`
@@ -61,8 +61,8 @@ We enforce the initial conditions
 
 .. math::
 
-   c_1(x,y) &=  10^6 \chi(x)\eta(y) \\
-   c_2(x,y) &=  10^{12} \chi(x)\eta(y) \\
+   c_1(x,y) &=  10^6\, \chi(x)\, \eta(y) \\
+   c_2(x,y) &=  10^{12}\, \chi(x)\, \eta(y) \\
    \chi(x) &= 1 - \sqrt{\frac{x - 10}{10}} + \frac12 \sqrt[4]{\frac{x - 10}{10}} \\
    \eta(y) &= 1 - \sqrt{\frac{y - 40}{10}} + \frac12 \sqrt[4]{\frac{x - 10}{10}}.
 
@@ -85,7 +85,7 @@ subdomain has five points in each direction (i.e. :math:`Mx=My=10`).
 
 This program solves the problem with a DIRK method, using a Newton
 iteration with the preconditioned SUNLINSOL_SPGMR iterative linear
-solver through the ARKSPILS interface.
+solver.
 
 The preconditioner matrix used is block-diagonal, with banded blocks,
 constructed using the ARKBBDPRE module.  Each block is generated using
@@ -110,13 +110,13 @@ ark_diurnal_kry_p
 ===================================================
 
 This problem is an ARKODE clone of the CVODE problem,
-``cv_diurnal_kry_p``.  As described in [HSR2017]_, this test problem
+``cv_diurnal_kry_p``.  As described in :cite:p:`cvode_ex`, this test problem
 models a two-species diurnal kinetics advection-diffusion PDE system
 in two spatial dimensions,
 
 .. math::
 
-   \frac{\partial c_i}{\partial t} &=
+   \frac{\partial c_i}{\partial t} =
      K_h \frac{\partial^2 c_i}{\partial x^2} +
      V \frac{\partial     c_i}{\partial x} +
      \frac{\partial}{\partial y}\left( K_v(y)
@@ -127,9 +127,9 @@ where
 
 .. math::
 
-   R_1(c_1,c_2,t) &= -q_1*c_1*c_3 - q_2*c_1*c_2 + 2*q_3(t)*c_3 + q_4(t)*c_2, \\
-   R_2(c_1,c_2,t) &=  q_1*c_1*c_3 - q_2*c_1*c_2 - q_4(t)*c_2, \\
-   K_v(y) &= K_{v0} e^{y/5}.
+   R_1(c_1,c_2,t) &= -q_1\, c_1\, c_3 - q_2\, c_1\, c_2 + 2\, q_3(t)\, c_3  + q_4(t)\, c_2, \\
+   R_2(c_1,c_2,t) &=  q_1\, c_1\, c_3 - q_2\, c_1\, c_2 - q_4(t)\, c_2, \\
+   K_v(y) &= K_{v0}\, e^{y/5}.
 
 Here :math:`K_h`, :math:`V`, :math:`K_{v0}`, :math:`q_1`, :math:`q_2`,
 and :math:`c_3` are constants, and :math:`q_3(t)` and :math:`q_4(t)`
@@ -142,8 +142,8 @@ We enforce the initial conditions
 
 .. math::
 
-   c^1(x,y) &=  10^6 \chi(x)\eta(y) \\
-   c^2(x,y) &=  10^{12} \chi(x)\eta(y) \\
+   c_1(x,y) &=  10^6\, \chi(x)\, \eta(y) \\
+   c_2(x,y) &=  10^{12}\, \chi(x)\, \eta(y) \\
    \chi(x) &= 1 - \sqrt{\frac{x - 10}{10}} + \frac12 \sqrt[4]{\frac{x - 10}{10}} \\
    \eta(y) &= 1 - \sqrt{\frac{y - 40}{10}} + \frac12 \sqrt[4]{\frac{x - 10}{10}}.
 
@@ -166,7 +166,7 @@ subdomain has five points in each direction (i.e. :math:`Mx=My=10`).
 
 This program solves the problem with a DIRK method, using a Newton
 iteration with the preconditioned SUNLINSOL_SPGMR iterative linear
-solver, through the ARKSPILS interface.
+solver.
 
 The preconditioner matrix used is block-diagonal, with block-diagonal
 portion of the Newton matrix used as a left preconditioner.  A copy of

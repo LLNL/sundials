@@ -29,7 +29,7 @@ fark_diag_kry_bbd_p
 ===================================================
 
 This problem is an ARKODE clone of the CVODE problem,
-``fcv_diag_kry_bbd_p``.  As described in [HSR2017]_, this problem
+``fcv_diag_kry_bbd_p``.  As described in :cite:p:`cvode_ex`, this problem
 models a stiff, linear, diagonal ODE system,
 
 .. math::
@@ -50,7 +50,7 @@ Numerical method
 
 This program solves the problem with a DIRK method, using a Newton
 iteration with the preconditioned SUNLINSOL_SPGMR iterative linear
-solver module and ARKSPILS interface.
+solver module.
 
 A diagonal preconditioner matrix is used, formed automatically through
 difference quotients within the ARKBBDPRE module.  Since ARKBBDPRE is
@@ -76,7 +76,7 @@ fark_diag_non_p
 ===================================================
 
 This problem is an ARKODE clone of the CVODE problem,
-``fcv_diag_non_p``.  As described in [HSR2017]_, this problem models a
+``fcv_diag_non_p``.  As described in :cite:p:`cvode_ex`, this problem models a
 nonstiff, linear, diagonal ODE system,
 
 .. math::

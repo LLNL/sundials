@@ -1,4 +1,4 @@
-..
+.. ----------------------------------------------------------------
    Programmer(s): Daniel R. Reynolds @ SMU
    ----------------------------------------------------------------
    SUNDIALS Copyright Start
@@ -12,19 +12,14 @@
    SUNDIALS Copyright End
    ----------------------------------------------------------------
 
-:tocdepth: 3
-
-.. _References:
+.. _ARKODE.References:
 
 .. only:: html
 
-   ==========
-   References
-   ==========
+   ************
+   Bibliography
+   ************
 
-.. [HSR2017] A.C. Hindmarsh, R. Serban and D.R. Reynolds. Example
-             Programs for CVODE |CVODE_VERSION|. Technical Report
-             UCRL-SM-208110, LLNL, 2021.
-
-.. [R2018] D.R. Reynolds. User Documentation for ARKODE
-           |ARKODE_VERSION|. Technical Report LLNL-CODE-667205, LLNL, 2021.
+.. bibliography::
+   :cited:
+   :style: plain

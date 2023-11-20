@@ -65,7 +65,7 @@ sides are broken up as
 
 The implicit systems are solved using the built-in modified Newton
 iteration, with the SUNMATRIX_DENSE matrix module and accompanying
-SUNLINSOL_DENSE linear solver module, through the ARKDLS interface.
+SUNLINSOL_DENSE linear solver module.
 Both the Jacobian routine and right-hand side functions are supplied
 by functions provided in the example file.
 

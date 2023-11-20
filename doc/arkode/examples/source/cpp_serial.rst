@@ -33,7 +33,7 @@ is that of a linear ODE system,
 
 .. math::
 
-   \frac{dy}{dt} = Ay
+   \frac{\mathrm dy}{\mathrm dt} = Ay
 
 where :math:`A = V D V^{-1}`.  In this example, we use
 
@@ -72,10 +72,9 @@ respectively.
 
 This program solves the problem with the DIRK method,
 Newton iteration with the SUNMATRIX_DENSE matrix module and
-accompanying SUNLINSOL_DENSE linear solver module, ARKDLS direct
-linear solver interface, and a user-supplied dense Jacobian
-routine.  Output is printed every 0.005 units of time (10 total).
-Run statistics (optional outputs) are printed at the end.
+accompanying SUNLINSOL_DENSE linear solver module, and a user-supplied
+dense Jacobian routine.  Output is printed every 0.005 units of time
+(10 total). Run statistics (optional outputs) are printed at the end.
 
 
 
@@ -86,7 +85,7 @@ This problem is included both as a simple example to test systems of
 ODE within ARKODE on a problem having an analytical solution,
 :math:`Y(t) = V e^{Dt} V^{-1} Y(0)`.  As seen in the plots below, the
 computed solution tracks the analytical solution quite well (left),
-and results in errors with exactly the magnitude as specified by the
+and results in errors with precisely the magnitude specified by the
 requested error tolerances (right).
 
 .. image:: figs/plot-ark_analytic_sys.png

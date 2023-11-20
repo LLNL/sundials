@@ -37,11 +37,11 @@ users, though complete control over all internal parameters and time
 adaptivity algorithms is enabled through optional interface routines.
 
 ARKODE is developed by `Southern Methodist University
-<http://www.smu.edu>`_, with support by the `US Department of Energy
-<http://www.doe.gov>`_ through the `FASTMath
-<http://www.fastmath-scidac.org/>`_ SciDAC Institute, under subcontract
-B598130 from `Lawrence Livermore National Laboratory
-<http://www.llnl.gov>`_.
+<http://www.smu.edu>`_ and
+`Lawrence Livermore National Laboratory <http://www.llnl.gov>`_, with
+support by the `US Department of Energy <http://www.doe.gov>`_ through
+the `FASTMath <http://www.fastmath-scidac.org/>`_ SciDAC Institute,
+under DOE award DE-SC0021354.
 
 Along with the ARKODE solver, we have created a suite of example
 problems demonstrating its usage on applications written in C, C++ and
@@ -54,7 +54,7 @@ exhaustive set of all possible usage scenarios, they are designed to
 show a variety of exemplars, and can be used as templates for new
 problems using ARKODE's solvers.  Further information on the ARKODE
 package itself may be found in the accompanying ARKODE user guide
-[R2018]_.
+:cite:p:`arkode_ug`.
 
 The following tables summarize the salient features of each of the
 example problems in this document.  Each example is designed to be
@@ -64,8 +64,7 @@ examples according to programming language (C, C++, Fortran).
 
 
 ARKODE example problems written in C are summarized in the table
-below, and are further described in the chapters :ref:`serial_c`,
-:ref:`openmp_c`, :ref:`parallel_c` and :ref:`parhyp_c`.
+below.
 
 .. cssclass:: table-bordered
 

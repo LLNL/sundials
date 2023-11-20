@@ -29,7 +29,7 @@ fark_diurnal_kry_bp
 ===================================================
 
 This problem is an ARKODE clone of the CVODE problem,
-``fcv_diurnal_kry_bp``.  As described in [HSR2017]_, this problem
+``fcv_diurnal_kry_bp``.  As described in :cite:p:`cvode_ex`, this problem
 models a two-species diurnal kinetics advection-diffusion PDE system
 in two spatial dimensions,
 
@@ -83,7 +83,7 @@ problem, we use a relatively coarse uniform mesh with
 
 This program solves the problem with a DIRK method, using a Newton
 iteration with the preconditioned SUNLINSOL_SPGMR iterative linear
-solver module, and the ARKSPILS interface.
+solver module.
 
 The left preconditioner used is a banded matrix, constructed using
 the ARKBP module.  The banded preconditioner matrix is generated using
@@ -104,7 +104,7 @@ fark_roberts_dnsL
 ===================================================
 
 This problem is an ARKODE clone of the CVODE problem,
-``fcv_roberts_dnsL``.  As described in [HSR2017]_, this problem models
+``fcv_roberts_dnsL``.  As described in :cite:p:`cvode_ex`, this problem models
 the kinetics of a three-species autocatalytic reaction.  This is an
 ODE system with 3 components, :math:`Y = [y_1,\, y_2,\, y_3]^T`,
 satisfying the equations,
@@ -134,8 +134,7 @@ Numerical method
 ----------------
 
 This program solves the problem with a DIRK method, using a Newton
-iteration with the SUNLINSOL_LAPACKDENSE linear solver module and
-ARKDLS interface.
+iteration with the SUNLINSOL_LAPACKDENSE linear solver module.
 
 As with the :ref:`ark_robertson_root` problem, we enable ARKODE's
 rootfinding module to find the times at which either :math:`u=10^{-4}`
