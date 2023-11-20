@@ -240,13 +240,13 @@ int main(int argc, char *argv[])
                   1, SUNTRUE, SUNTRUE, 0);
 
   /* FSAL ESDIRK */
-  /* 1 for embedded solution and 1 for the first stage. 0 needed for primary due
-   * to FSAL property. The first stage is computing Y_1 = y_n + M^{-1} 0, which
-   * is redundant. Practically, could be 1 solve. Technically the optimal is 0
-   * solves if we express embedded solution as linear combination of Y_i. This
-   * requires d to be in the rowspace of A. Since this method has the FSAL
-   * property this small optimization would only save 1 solve on the first
-   * step. */
+  /* 1 for embedded solution. 0 needed for primary due to FSAL property. The
+   * first step is computing y'_0 = M^{-1} f(y_0), which is needed for Hermite
+   * interpolation, but not Lagrange. Practically, could be 1 solve. Technically
+   * the optimal is 0 solves if we express embedded solution as linear
+   * combination of Y_i. This requires d to be in the rowspace of A. Since this
+   * method has the FSAL property this small optimization would only save 1
+   * solve on the first step. */
   retval += solve("ARKODE_ESDIRK324L2SA_4_2_3", "ARKODE_ERK_NONE",
                   1, SUNFALSE, SUNFALSE, 2);
   /* Same comment as previous */
@@ -292,9 +292,9 @@ int main(int argc, char *argv[])
                   1, SUNTRUE, SUNTRUE, 4);
 
   /* IMEX 1 */
-  /* 1 for primary solution, 1 for embedded solution, and 1 for the first stage.
-  * The first stage is computing Y_1 = y_n + M^{-1} 0, which is redundant.
-  * Optimally, could be 2 solves */
+  /* 1 for primary solution and 1 for embedded solution. The first step is
+   * computing y'_0 = M^{-1} f(y_0), which is needed for Hermite interpolation,
+   * but not Lagrange. Optimally, could be 2 solves */
   retval += solve("ARKODE_ARK2_DIRK_3_1_2", "ARKODE_ARK2_ERK_3_1_2",
                   1, SUNFALSE, SUNFALSE, 3);
   /* Same comment as previous */
@@ -309,9 +309,9 @@ int main(int argc, char *argv[])
                   1, SUNTRUE, SUNTRUE, 4);
 
   /* IMEX 2 */
-  /* 1 for primary solution, 1 for embedded solution, and 1 for the first stage.
-  * The first stage is computing Y_1 = y_n + M^{-1} 0, which is redundant.
-  * Optimally, could be 2 solves */
+  /* 1 for primary solution and 1 for embedded solution. The first step is
+   * computing y'_0 = M^{-1} f(y_0), which is needed for Hermite interpolation,
+   * but not Lagrange. Optimally, could be 2 solves */
   retval += solve("ARKODE_ARK548L2SA_DIRK_8_4_5", "ARKODE_ARK548L2SA_ERK_8_4_5",
                   1, SUNFALSE, SUNFALSE, 3);
   /* Same comment as previous */
