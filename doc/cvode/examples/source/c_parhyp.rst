@@ -29,7 +29,7 @@ cvAdvDiff_non_ph
 ============================================
 
 This problem is mathematically identical to the parallel C example
-problem :ref:`cvAdvDiff_non_p`.  As before, the problem is the 
+problem :ref:`cvAdvDiff_non_p`.  As before, the problem is the
 semi-discrete form of the advection-diffusion equation in 1-D:
 
 .. math::
@@ -57,14 +57,14 @@ statistics (optional outputs) are printed at the end.
 
 This version uses MPI for user routines.
 
-Execute with Number of Processors :math:`= N`,  with 
+Execute with Number of Processors :math:`= N`,  with
 :math:`1 \leq N \leq Mx`.
 
 Problem output
 ---------------
 
-.. include:: ../../../../examples/cvode/parhyp/cvAdvDiff_non_ph.out
-   :literal:
+.. literalinclude:: ../../../../examples/cvode/parhyp/cvAdvDiff_non_ph.out
+   :language: text
 
 
 Numerical method
@@ -85,7 +85,7 @@ and create the parallel partitioning:
    HYPRE_IJVectorSetObjectType(Uij, HYPRE_PARCSR);
    HYPRE_IJVectorInitialize(Uij);
 
-The *initialize* call means that vector elements are ready to be set using 
+The *initialize* call means that vector elements are ready to be set using
 the IJ interface. We choose the initial condition vector :math:`x_0 =
 x(t_0)` as the template vector, and we set its values in the
 ``SetInitialProfiles(...)`` function. We complete assembly of the
@@ -101,7 +101,7 @@ use.  The sets the handle ``Upar`` to the actual HYPRE vector.  The
 handle is then passed to the ``N_VMake`` function, which creates the
 template ``N_Vector``, ``u``, as a wrapper around the HYPRE vector.
 All of the other vectors used in the computation are created by
-cloning this template vector.  
+cloning this template vector.
 
 Furthermore, since the template vector does not own the underlying
 HYPRE vector (it was created using the ``HYPRE_IJVectorCreate`` call
@@ -114,14 +114,14 @@ To access individual elements of the solution and derivative vectors
 ``u`` and ``udot`` in the IVP right-hand side function, ``f``, the
 user needs to first extract the HYPRE vector by calling
 ``N_VGetVector_ParHyp``, and then use HYPRE-specific methods to access
-the data from that point on. 
+the data from that point on.
 
 .. note::
-           
+
    Currently, interfaces to HYPRE solvers and preconditioners are not
    available directly through the SUNDIALS interfaces, however these
    could be utilized directly as preconditioners for SUNDIALS' Krylov
    solvers.  Direct interfaces to the HYPRE solvers will be provided
    in subsequent SUNDIALS releases.  The current HYPRE vector
    interface is included in this release mainly for testing purposes
-   and as a preview of functionality to come. 
+   and as a preview of functionality to come.

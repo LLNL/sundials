@@ -32,7 +32,7 @@ Description
 ------------
 
 This simple example problem is an OpenMP implementation of previous
-serial C example ``cvAdvDiff_bnd`` showing how to use the CVode solver
+serial C example ``cvAdvDiff_bnd`` showing how to use the CVODE solver
 interface with a banded Jacobian.
 
 The problem is the semi-discrete form of the advection-diffusion
@@ -91,8 +91,8 @@ argument specifying the number of threads to use, e.g:
 Problem output
 ---------------
 
-.. include:: ../../../../examples/cvode/C_openmp/cvAdvDiff_bnd_omp.out
-   :literal:
+.. literalinclude:: ../../../../examples/cvode/C_openmp/cvAdvDiff_bnd_omp.out
+   :language: text
 
 
 Numerical method

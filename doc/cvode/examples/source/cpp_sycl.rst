@@ -38,8 +38,8 @@ that here we use the SUNDIALS SPGMR linear solver instead.
 Problem output
 ---------------
 
-.. include:: ../../../../examples/cvode/CXX_sycl/cvAdvDiff_kry_sycl.out
-   :literal:
+.. literalinclude:: ../../../../examples/cvode/CXX_sycl/cvAdvDiff_kry_sycl.out
+   :language: text
 
 
 Numerical method

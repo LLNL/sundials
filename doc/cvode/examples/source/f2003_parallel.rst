@@ -48,8 +48,8 @@ conditions :math:`y_i=1` and evolves for the time interval :math:`t\in
 Problem output
 ---------------
 
-.. include:: ../../../../examples/cvode/F2003_parallel/cv_diag_kry_bbd_f2003.out
-   :literal:
+.. literalinclude:: ../../../../examples/cvode/F2003_parallel/cv_diag_kry_bbd_f2003.out
+   :language: text
 
 
 Numerical method
@@ -57,7 +57,7 @@ Numerical method
 
 This program solves the problem with a BDF method, using a Newton
 iteration with the preconditioned SUNLINSOL_SPGMR iterative linear
-solver module and CVode interface.
+solver module.
 
 A diagonal preconditioner matrix is used, formed automatically through
 difference quotients within the CVBBDPRE module.  Since CVBBDPRE is
@@ -88,8 +88,8 @@ in ``cv_diag_kry_bbd_p``.
 Problem output
 ---------------
 
-.. include:: ../../../../examples/cvode/F2003_parallel/cv_diag_kry_f2003.out
-   :literal:
+.. literalinclude:: ../../../../examples/cvode/F2003_parallel/cv_diag_kry_f2003.out
+   :language: text
 
 
 Numerical method
@@ -97,7 +97,7 @@ Numerical method
 
 This program solves the problem with a BDF method, using a Newton
 iteration with the preconditioned SUNLINSOL_SPGMR iterative linear
-solver module and CVode interface.
+solver module.
 
 A user-supplied preconditioner matrix is used, where in the solver
 routine uses a diagonal preconditioner :math:`P = I - \gamma \cdot J`,
@@ -140,15 +140,15 @@ conditions :math:`y_i=1` and evolves for the time interval :math:`t\in [0,1]`.
 Problem output
 ---------------
 
-.. include:: ../../../../examples/cvode/F2003_parallel/cv_diag_non_f2003.out
-   :literal:
+.. literalinclude:: ../../../../examples/cvode/F2003_parallel/cv_diag_non_f2003.out
+   :language: text
 
 
 Numerical method
 -----------------
 
 This program solves the problem with an ADAMS method, using a Fixed-point
-iteration and CVode interface.
+iteration.
 
 Performance data is printed at equally-spaced output times, and maximum
 errors and final performance counters are printed on completion.

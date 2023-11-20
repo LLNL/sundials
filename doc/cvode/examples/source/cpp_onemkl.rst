@@ -68,8 +68,8 @@ This problem is comparable to the ``cvRoberts_block_klu.c`` example.
 Problem output
 ---------------
 
-.. include:: ../../../../examples/cvode/CXX_onemkl/cvRoberts_blockdiag_onemkl.out
-   :literal:
+.. literalinclude:: ../../../../examples/cvode/CXX_onemkl/cvRoberts_blockdiag_onemkl.out
+   :language: text
 
 
 Numerical method
@@ -78,8 +78,8 @@ Numerical method
 The example routine solves this problem using a Backwards Differentiation
 Formula in fixed-leading coefficient form.  Each stage is solved using the
 built-in modified Newton iteration.  Internally, Newton will use the
-SUNLINSOL_ONEMKLDENSE linear solver via the CVode interface.  Alternatively,
-Newton can use SUNLINSOL_SPGMR linear solver via the CVode interface.  The
+SUNLINSOL_ONEMKLDENSE linear solver.  Alternatively,
+Newton can use SUNLINSOL_SPGMR linear solver.  The
 example file contains functions to evaluate both :math:`f(t, y_1, y_2, y_3)`
 and :math:`J(t, y_1, y_2, y_3)`.
 

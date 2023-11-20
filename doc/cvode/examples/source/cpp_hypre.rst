@@ -35,8 +35,8 @@ skipped
 Problem output
 ---------------
 
-.. include:: ../../../../examples/cvode/CXX_parhyp/cv_heat2D_hypre_ls_--np_2_2.out
-   :literal:
+.. literalinclude:: ../../../../examples/cvode/CXX_parhyp/cv_heat2D_hypre_ls_--np_2_2.out
+   :language: text
 
 
 Numerical method
@@ -60,13 +60,11 @@ skipped
 Problem output
 ---------------
 
-.. include:: ../../../../examples/cvode/CXX_parhyp/cv_heat2D_hypre_pfmg_--np_2_2.out
-   :literal:
+.. literalinclude:: ../../../../examples/cvode/CXX_parhyp/cv_heat2D_hypre_pfmg_--np_2_2.out
+   :language: text
 
 
 Numerical method
 -----------------
 
 skipped
-
-

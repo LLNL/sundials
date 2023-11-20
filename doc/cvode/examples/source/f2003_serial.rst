@@ -38,8 +38,8 @@ previous serial C example ``cvAdvDiff_bnd``.
 Problem output
 ---------------
 
-.. include:: ../../../../examples/cvode/F2003_serial/cv_advdiff_bnd_f2003.out
-   :literal:
+.. literalinclude:: ../../../../examples/cvode/F2003_serial/cv_advdiff_bnd_f2003.out
+   :language: text
 
 
 Numerical method
@@ -77,8 +77,8 @@ to result in a well-posed ODE; for values with magnitude larger than
 Problem output
 ---------------
 
-.. include:: ../../../../examples/cvode/F2003_serial/cv_analytic_fp_f2003.out
-   :literal:
+.. literalinclude:: ../../../../examples/cvode/F2003_serial/cv_analytic_fp_f2003.out
+   :language: text
 
 
 Numerical method
@@ -90,7 +90,7 @@ The example file contains a function to evaluate :math:`f(t,y)`.
 
 We specify the relative and absolute tolerances, :math:`rtol = 10^{-6}`
 and :math:`atol = 10^{-10}`, respectively.  Aside from these choices,
-this problem uses only the default CVode solver parameters.
+this problem uses only the default CVODE solver parameters.
 
 Output is printed every 1.0 units of time (10 total).
 Run statistics (optional outputs) are printed at the end.
@@ -163,8 +163,8 @@ Run statistics (optional outputs) are printed at the end.
 Problem output
 ---------------
 
-.. include:: ../../../../examples/cvode/F2003_serial/cv_analytic_sys_dns_f2003.out
-   :literal:
+.. literalinclude:: ../../../../examples/cvode/F2003_serial/cv_analytic_sys_dns_f2003.out
+   :language: text
 
 
 Numerical method
@@ -173,12 +173,12 @@ Numerical method
 The example routine solves this problem using a Backwards Differentiation
 Formula in fixed-leading coefficient form.  Each stage is solved using the
 built-in modified Newton iteration.  Internally, Newton will use the
-SUNLINSOL_DENSE linear solver via the CVode interface.  The example file
+SUNLINSOL_DENSE linear solver.  The example file
 contains a function to evaluate :math:`f(t,y)`.
 
 We specify the relative and absolute tolerances, :math:`rtol=10^{-6}`
 and :math:`atol=10^{-10}`, respectively.  Aside from these choices,
-this problem uses only the default CVode solver parameters.
+this problem uses only the default CVODE solver parameters.
 
 
 .. _cv_analytic_sys_dns_jac:
@@ -196,8 +196,8 @@ that here, as the title suggests, we provide a user-supplied Jacobian function.
 Problem output
 ---------------
 
-.. include:: ../../../../examples/cvode/F2003_serial/cv_analytic_sys_dns_jac_f2003.out
-   :literal:
+.. literalinclude:: ../../../../examples/cvode/F2003_serial/cv_analytic_sys_dns_jac_f2003.out
+   :language: text
 
 
 Numerical method
@@ -219,14 +219,14 @@ Description
 
 This problem is exactly the same as :ref:`cv_analytic_sys_dns` above except
 that here, as the title suggests, we use sparse matrices to operate the
-KLU linear solver module using the CVode interface.
+KLU linear solver module.
 
 
 Problem output
 ---------------
 
-.. include:: ../../../../examples/cvode/F2003_serial/cv_analytic_sys_klu_f2003.out
-   :literal:
+.. literalinclude:: ../../../../examples/cvode/F2003_serial/cv_analytic_sys_klu_f2003.out
+   :language: text
 
 
 Numerical method
@@ -266,8 +266,8 @@ After each unit time interval, the solution is output to the screen.
 Problem output
 ---------------
 
-.. include:: ../../../../examples/cvode/F2003_serial/cv_brusselator_dns_f2003.out
-   :literal:
+.. literalinclude:: ../../../../examples/cvode/F2003_serial/cv_brusselator_dns_f2003.out
+   :language: text
 
 
 Numerical method
@@ -275,10 +275,10 @@ Numerical method
 
 Since this driver and utility functions are written in Fortran 2003,
 this example demonstrates the use of the FCVODE interface for the
-CVode solver.  For time integration, the solver uses a BDF method.
+CVODE solver.  For time integration, the solver uses a BDF method.
 The implicit systems are solved using the built-in modified Newton
 iteration, with the SUNMATRIX_DENSE matrix module and accompanying
-SUNLINSOL_DENSE linear solver module, through the CVode interface.
+SUNLINSOL_DENSE linear solver module.
 Both the Jacobian routine and right-hand side functions are supplied
 by functions provided in the example file.
 
@@ -336,8 +336,8 @@ We enforce the initial conditions
 Problem output
 ---------------
 
-.. include:: ../../../../examples/cvode/F2003_serial/cv_diurnal_kry_bp_f2003.out
-   :literal:
+.. literalinclude:: ../../../../examples/cvode/F2003_serial/cv_diurnal_kry_bp_f2003.out
+   :language: text
 
 
 Numerical method
@@ -347,14 +347,14 @@ We employ a method of lines approach, wherein we first semi-discretize
 in space to convert the system of 2 PDEs into a larger system of ODEs.
 To this end, the spatial derivatives are computed using second-order
 centered differences, with the data distributed over :math:`Mx*My`
-points on a uniform spatial grid.  As a result, CVode approaches the
+points on a uniform spatial grid.  As a result, CVODE approaches the
 problem as one involving :math:`2*Mx*My` coupled ODEs. In this
 problem, we use a relatively coarse uniform mesh with
 :math:`Mx = My = 10`.
 
 This program solves the problem with a BDF method, using a Newton
 iteration with the preconditioned SUNLINSOL_SPGMR iterative linear
-solver module, and the CVODE interface.
+solver module.
 
 The left preconditioner used is a banded matrix, constructed using
 the CVBANDPRE module.  The banded preconditioner matrix is generated using
@@ -386,8 +386,8 @@ This method is employed to setup our user-supplied Preconditioner.
 Problem output
 ---------------
 
-.. include:: ../../../../examples/cvode/F2003_serial/cv_diurnal_kry_f2003.out
-   :literal:
+.. literalinclude:: ../../../../examples/cvode/F2003_serial/cv_diurnal_kry_f2003.out
+   :language: text
 
 
 Numerical method
@@ -437,8 +437,8 @@ with the dense linear solver, and a user-supplied Jacobian routine.
 Problem output
 ---------------
 
-.. include:: ../../../../examples/cvode/F2003_serial/cv_roberts_dns_f2003.out
-   :literal:
+.. literalinclude:: ../../../../examples/cvode/F2003_serial/cv_roberts_dns_f2003.out
+   :language: text
 
 
 Numerical method
@@ -447,16 +447,16 @@ Numerical method
 The example routine solves this problem using a Backwards Differentiation
 Formula in fixed-leading coefficient form.  Each stage is solved using the
 built-in modified Newton iteration.  Internally, Newton will use the
-SUNLINSOL_DENSE linear solver via the CVode interface.  The example file
+SUNLINSOL_DENSE linear solver.  The example file
 contains functions to evaluate both :math:`f(t, y_1, y_2, y_3)` and
 :math:`J(t, y_1, y_2, y_3)`.  Additionally, a root-finding function will,
 as previously mentioned, find roots at :math:`y_3 = 0.01` and
-:math:`y_1 = 10^{-4}` using the built-in root-finding mechanism in CVode.
+:math:`y_1 = 10^{-4}` using the built-in root-finding mechanism in CVODE.
 
 We specify the scalar relative and vector-valued absolute tolerances, :math:`rtol=10^{-4}`
 and :math:`atol=\begin{Bmatrix} 10^{-8} \\ 10^{-14} \\ 10^{-6} \end{Bmatrix}`
 , respectively.  Aside from these choices, this problem uses only the default
-CVode solver parameters.
+CVODE solver parameters.
 
 11 normal + 2 root output times are printed at multiplicatively equally-spaced
 points as well as at the two roots, and run statistics are printed at the end.
@@ -477,8 +477,8 @@ constraint :math:`y_i \geq 0` is posed for all components :math:`i = 1, 2, 3`.
 Problem output
 ---------------
 
-.. include:: ../../../../examples/cvode/F2003_serial/cv_roberts_dns_constraints_f2003.out
-   :literal:
+.. literalinclude:: ../../../../examples/cvode/F2003_serial/cv_roberts_dns_constraints_f2003.out
+   :language: text
 
 
 Numerical method
@@ -525,18 +525,17 @@ solutions attain desired target values.
 Problem output
 ---------------
 
-.. include:: ../../../../examples/cvode/F2003_serial/cv_roberts_dnsL_f2003.out
-   :literal:
+.. literalinclude:: ../../../../examples/cvode/F2003_serial/cv_roberts_dnsL_f2003.out
+   :language: text
 
 
 Numerical method
 ----------------
 
 This program solves the problem with a BDF method, using a Newton
-iteration with the SUNLINSOL_LAPACKDENSE linear solver module and
-CVode interface.
+iteration with the SUNLINSOL_LAPACKDENSE linear solver module.
 
-As with the :ref:`cv_roberts_dns` problem, we enable CVode's
+As with the :ref:`cv_roberts_dns` problem, we enable CVODE's
 rootfinding module to find the times at which either :math:`u=10^{-4}`
 or :math:`w=10^{-2}`.
 
@@ -564,8 +563,8 @@ solver.
 Problem output
 ---------------
 
-.. include:: ../../../../examples/cvode/F2003_serial/cv_roberts_klu_f2003.out
-   :literal:
+.. literalinclude:: ../../../../examples/cvode/F2003_serial/cv_roberts_klu_f2003.out
+   :language: text
 
 
 Numerical method

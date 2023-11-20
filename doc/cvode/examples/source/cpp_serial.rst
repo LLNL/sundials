@@ -75,28 +75,28 @@ available to change the problem parameters and CVODE settings. Use the flag
 Problem output
 ---------------
 
-.. include:: ../../../../examples/cvode/CXX_serial/cv_heat2D.out
-   :literal:
+.. literalinclude:: ../../../../examples/cvode/CXX_serial/cv_heat2D.out
+   :language: text
 
 
 Numerical method
 ----------------
 
 The example routine solves this problem using a Backwards Differentiation
-Formula in fixed-leading coefficient form.  Each stage is solved using the 
+Formula in fixed-leading coefficient form.  Each stage is solved using the
 built-in modified Newton iteration.  Internally, Newton will use the
-SUNLINSOL_PCG linear solver or the SUNLINSOL_SPGMR linear solver via the
-CVode interface.  The example file contains functions to evaluate both
-:math:`f(t,x,y)` and :math:`Pre\_Jac(t,x,y)`.  
+SUNLINSOL_PCG linear solver or the SUNLINSOL_SPGMR linear solver.  The
+example file contains functions to evaluate both
+:math:`f(t,x,y)` and :math:`Pre\_Jac(t,x,y)`.
 
 We specify the relative and absolute tolerances, :math:`rtol=0`
 and :math:`atol=10^{-8}`, respectively.  Aside from these choices,
-this problem uses only the default CVode solver parameters.
+this problem uses only the default CVODE solver parameters.
 
 12 outputs are printed, and run statistics are printed at the end as well.
 
 
-   
+
 .. _cv_kpr:
 
 cv_kpr
@@ -112,7 +112,7 @@ ODE test problem, structured in the following way
 
    \begin{bmatrix} u' \\ v' \end{bmatrix} =
    \begin{bmatrix} a & b \\ c & d \end{bmatrix}
-   \begin{bmatrix} \frac{-1 + u^2 - r(t)}{2u} \\ 
+   \begin{bmatrix} \frac{-1 + u^2 - r(t)}{2u} \\
                    \frac{-2 + v^2 - s(t)}{2v} \end{bmatrix} +
    \begin{bmatrix} \frac{r'(t)}{2u} \\ \frac{s'(t)}{2v} \end{bmatrix}.
 
@@ -135,23 +135,21 @@ where, in this test, we use the functions
 Problem output
 ---------------
 
-.. include:: ../../../../examples/cvode/CXX_serial/cv_kpr.out
-   :literal:
+.. literalinclude:: ../../../../examples/cvode/CXX_serial/cv_kpr.out
+   :language: text
 
 
 Numerical method
 -----------------
 
 The example routine solves this problem using a Backwards Differentiation
-Formula in fixed-leading coefficient form.  Each stage is solved using the 
+Formula in fixed-leading coefficient form.  Each stage is solved using the
 built-in modified Newton iteration.  Internally, Newton will use the
-SUNLINSOL_DENSE linear solver via the CVode interface.  The example file
-contains functions to evaluate both :math:`f(t,u,v)` and :math:`J(t,u,v)`.  
+SUNLINSOL_DENSE linear solver.  The example file contains functions to
+evaluate both :math:`f(t,u,v)` and :math:`J(t,u,v)`.
 
 We specify the relative and absolute tolerances, :math:`rtol=10^{-6}`
 and :math:`atol=10^{-10}`, respectively.  Aside from these choices,
-this problem uses only the default CVode solver parameters.
+this problem uses only the default CVODE solver parameters.
 
 10 outputs are printed, and run statistics are printed at the end as well.
-
-

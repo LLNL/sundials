@@ -75,8 +75,8 @@ mesh, with simple polynomial initial profiles.
 Problem output
 ---------------
 
-.. include:: ../../../../examples/cvode/C_mpimanyvector/cvDiurnal_kry_mpimanyvec.out
-   :literal:
+.. literalinclude:: ../../../../examples/cvode/C_mpimanyvector/cvDiurnal_kry_mpimanyvec.out
+   :language: text
 
 
 Numerical method
@@ -89,7 +89,7 @@ We employ a method of lines approach, wherein we first semi-discretize
 in space to convert the system of 2 PDEs into a larger system of ODEs.
 To this end, the spatial derivatives are computed using second-order
 centered differences, with the data distributed over :math:`Mx*My`
-points on a uniform spatial grid.  As a result, CVode approaches the
+points on a uniform spatial grid.  As a result, CVODE approaches the
 problem as one involving :math:`2*Mx*My` coupled ODEs.
 
 The problem is decomposed in parallel into uniformly-sized subdomains,
@@ -101,7 +101,7 @@ together using the MPIManyVector module.
 
 This program solves the problem with a DIRK method, using a Newton
 iteration with the preconditioned SUNLINSOL_SPGMR iterative linear
-solver, through the CVode interface.
+solver, through the CVLS interface.
 
 The preconditioner matrix used is block-diagonal, with block-diagonal
 portion of the Newton matrix used as a left preconditioner.  A copy of

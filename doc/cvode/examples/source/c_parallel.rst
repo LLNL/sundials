@@ -66,8 +66,8 @@ Execute with Number of Processors :math:`= N`,  with
 Problem output
 ---------------
 
-.. include:: ../../../../examples/cvode/parallel/cvAdvDiff_diag_p.out
-   :literal:
+.. literalinclude:: ../../../../examples/cvode/parallel/cvAdvDiff_diag_p.out
+   :language: text
 
 
 Numerical method
@@ -80,12 +80,12 @@ side residual.
 
 The example routine solves this problem using the Adams-Moulton module.
 Each stage is solved using the built-in modified Newton iteration.
-Internally, Newton will use the CVDIAG linear solver via the CVode interface.
+Internally, Newton will use the CVDIAG linear solver via the CVLS interface.
 The example file contains functions to evaluate :math:`f(t,u)`.
 
 We specify the relative and absolute tolerances, :math:`reltol=0`
 and :math:`abstol=10^{-5}`, respectively.  Aside from these choices,
-this problem uses only the default MPI and CVode solver parameters.
+this problem uses only the default MPI and CVODE solver parameters.
 
 
 .. _cvAdvDiff_non_p:
@@ -104,8 +104,8 @@ systems: ADAMS method along with fixed-point iteration.
 Problem output
 ---------------
 
-.. include:: ../../../../examples/cvode/parallel/cvAdvDiff_non_p.out
-   :literal:
+.. literalinclude:: ../../../../examples/cvode/parallel/cvAdvDiff_non_p.out
+   :language: text
 
 
 Numerical method
@@ -165,8 +165,8 @@ mesh, with simple polynomial initial profiles.
 Problem output
 ---------------
 
-.. include:: ../../../../examples/cvode/parallel/cvDiurnal_kry_bbd_p.out
-   :literal:
+.. literalinclude:: ../../../../examples/cvode/parallel/cvDiurnal_kry_bbd_p.out
+   :language: text
 
 
 Numerical method
@@ -176,7 +176,7 @@ We employ a method of lines approach, wherein we first
 semi-discretize in space to convert the system of 2 PDEs into a larger
 system of ODEs.  To this end, the spatial derivatives are computed
 using second-order centered differences, with the data distributed
-over :math:`Mx*My` points on a uniform spatial grid.  As a result, CVode
+over :math:`Mx*My` points on a uniform spatial grid.  As a result, CVODE
 approaches the problem as one involving :math:`2*Mx*My` coupled ODEs.
 
 The problem is decomposed in parallel into uniformly-sized subdomains,
@@ -185,7 +185,7 @@ subdomain has five points in each direction (i.e. :math:`Mx=My=10`).
 
 This program solves the problem with a DIRK method, using a Newton
 iteration with the preconditioned SUNLINSOL_SPGMR iterative linear
-solver through the CVode interface.
+solver through the CVLS interface.
 
 The preconditioner matrix used is block-diagonal, with banded blocks,
 constructed using the CVBBDPRE module.  Each block is generated using
@@ -253,8 +253,8 @@ mesh, with simple polynomial initial profiles.
 Problem output
 ---------------
 
-.. include:: ../../../../examples/cvode/parallel/cvDiurnal_kry_p.out
-   :literal:
+.. literalinclude:: ../../../../examples/cvode/parallel/cvDiurnal_kry_p.out
+   :language: text
 
 
 Numerical method
@@ -264,7 +264,7 @@ We employ a method of lines approach, wherein we first semi-discretize
 in space to convert the system of 2 PDEs into a larger system of ODEs.
 To this end, the spatial derivatives are computed using second-order
 centered differences, with the data distributed over :math:`Mx*My`
-points on a uniform spatial grid.  As a result, CVode approaches the
+points on a uniform spatial grid.  As a result, CVODE approaches the
 problem as one involving :math:`2*Mx*My` coupled ODEs.
 
 The problem is decomposed in parallel into uniformly-sized subdomains,
@@ -273,7 +273,7 @@ subdomain has five points in each direction (i.e. :math:`Mx=My=10`).
 
 This program solves the problem with a DIRK method, using a Newton
 iteration with the preconditioned SUNLINSOL_SPGMR iterative linear
-solver, through the CVode interface.
+solver, through the CVLS interface.
 
 The preconditioner matrix used is block-diagonal, with block-diagonal
 portion of the Newton matrix used as a left preconditioner.  A copy of

@@ -39,8 +39,8 @@ linear solver.
 Problem output
 ---------------
 
-.. include:: ../../../../examples/cvode/C_openmpdev/cvAdvDiff_kry_ompdev.out
-   :literal:
+.. literalinclude:: ../../../../examples/cvode/C_openmpdev/cvAdvDiff_kry_ompdev.out
+   :language: text
 
 
 Numerical method
@@ -51,4 +51,3 @@ except that we now use SUNDIALS' OpenMP-device-offload-enabled vector
 kernel module, NVECTOR_OPENMPDEV, and have similarly threaded the
 supplied right-hand side residual and banded Jacobian construction
 functions.
-

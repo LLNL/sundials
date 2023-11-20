@@ -12,7 +12,7 @@
    SUNDIALS Copyright End
    ----------------------------------------------------------------
 
-.. _ARKODE.References:
+.. _CVODE_Example.References:
 
 .. only:: html
 

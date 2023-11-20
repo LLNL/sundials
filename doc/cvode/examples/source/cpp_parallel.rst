@@ -38,13 +38,11 @@ are using multiple processors with MPI.
 Problem output
 ---------------
 
-.. include:: ../../../../examples/cvode/CXX_parallel/cv_heat2D_p_--np_2_2.out
-   :literal:
+.. literalinclude:: ../../../../examples/cvode/CXX_parallel/cv_heat2D_p_--np_2_2.out
+   :language: text
 
 
 Numerical method
 ----------------
 
 The same as ``cv_heat2D`` aside from the use of NVECTOR_PARALLEL.
-
-

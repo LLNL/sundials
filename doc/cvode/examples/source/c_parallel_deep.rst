@@ -147,8 +147,8 @@ of roundoff-level differences in various vector operations.  The fairly
 high value of ``ncfn`` indicates that this problem is on the borderline
 of being stiff.
 
-.. include:: ../../../../examples/cvode/parallel/cvAdvDiff_non_p.out
-
+.. literalinclude:: ../../../../examples/cvode/parallel/cvAdvDiff_non_p.out
+   :language: text
 
 
 .. _deep_dive.cvDiurnal_kry_p:
@@ -223,8 +223,8 @@ The following is a sample output from ``cvDiurnal_kry_p``, for four processors
 (in a :math:`2 \times 2` array) with a :math:`5 \times 5` subgrid on each.
 The output will vary slightly if the number of processors is changed.
 
-.. include:: ../../../../examples/cvode/parallel/cvDiurnal_kry_p.out
-   :literal:
+.. literalinclude:: ../../../../examples/cvode/parallel/cvDiurnal_kry_p.out
+   :language: text
 
 
 .. _deep_dive.cvDiurnal_kry_bbd_p:
@@ -272,5 +272,5 @@ as measured by the number of Krylov iterations per Newton iteration,
 ``nli/nni``, is very close to that of ``cvDiurnal_kry_p`` when preconditioning is on
 the left, but slightly poorer when it is on the right.
 
-.. include:: ../../../../examples/cvode/parallel/cvDiurnal_kry_bbd_p.out
-   :literal:
+.. literalinclude:: ../../../../examples/cvode/parallel/cvDiurnal_kry_bbd_p.out
+   :language: text
