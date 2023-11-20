@@ -753,10 +753,43 @@ int expected_rhs_evals(ProblemOptions& prob_opts, int stages, int order,
   long int extra_fe_evals = 0;
   long int extra_fi_evals = 0;
 
+  bool save_fn_for_residual = ((prob_opts.p_type == 0) &&
+                               (prob_opts.m_type == mass_matrix_type::fixed ||
+                                prob_opts.m_type == mass_matrix_type::identity) &&
+                               ((prob_opts.r_type == rk_type::impl) ||
+                                (prob_opts.r_type == rk_type::imex && explicit_first_stage)));
+
   if (prob_opts.r_type == rk_type::impl || prob_opts.r_type == rk_type::imex)
   {
     flag = ARKodeGetNumNonlinSolvIters(arkstep_mem, &nni);
-    if (check_flag(&flag, "ARKodeGetNumNonlinSolvIters", 1)) { return 1; }
+    if (check_flag(&flag, "ARKStepGetNumNonlinSolvIters", 1)) return 1;
+
+    // Remove one evaluation per implicit stage
+    int implicit_stages = (explicit_first_stage) ? stages - 1 : stages;
+
+    if (save_fn_for_residual)
+    {
+      extra_fi_evals -= implicit_stages * nst;
+    }
+
+    // With higher order methods some predictors require additional RHS when
+    // using Hermite interpolation (note default degree is order - 1, except
+    // for first order where the degree is 1.
+    int degree = (order == 1) ? 1 : order - 1;
+
+    if (prob_opts.p_type != 0 && prob_opts.i_type == interp_type::hermite && degree > 3)
+    {
+      if (prob_opts.r_type == rk_type::expl || prob_opts.r_type == rk_type::imex)
+      {
+        extra_fe_evals = (degree == 4) ? 1 : 4;
+      }
+      if (prob_opts.r_type == rk_type::impl || prob_opts.r_type == rk_type::imex)
+      {
+        extra_fi_evals = (degree == 4) ? 1 : 4;
+      }
+      extra_fe_evals *= implicit_stages * (nst - 1);
+      extra_fi_evals *= implicit_stages * (nst - 1);
+    }
   }
 
   // Expected number of explicit functions evaluations
@@ -784,6 +817,19 @@ int expected_rhs_evals(ProblemOptions& prob_opts, int stages, int order,
         nfe_expected += nst;
       }
     }
+
+    if (prob_opts.i_type == interp_type::lagrange && save_fn_for_residual
+        && !explicit_first_stage)
+    {
+      if (stiffly_accurate)
+      {
+        nfe_expected++;
+      }
+      else
+      {
+        nfe_expected += nst;
+      }
+    }
   }
 
   // Expected number of implicit functions evaluations
@@ -808,6 +854,19 @@ int expected_rhs_evals(ProblemOptions& prob_opts, int stages, int order,
       else
       {
         // One extra evaluation in each step
+        nfi_expected += nst;
+      }
+    }
+
+    if (prob_opts.i_type == interp_type::lagrange && save_fn_for_residual &&
+        !explicit_first_stage)
+    {
+      if (stiffly_accurate)
+      {
+        nfi_expected++;
+      }
+      else
+      {
         nfi_expected += nst;
       }
     }
