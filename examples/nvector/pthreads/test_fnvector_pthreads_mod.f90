@@ -33,7 +33,6 @@ module test_nvector_pthreads
 
     integer(c_long)         :: lenrw(1), leniw(1) ! real and int work space size
     integer(c_long)         :: ival               ! integer work value
-    type(c_ptr)             :: cptr               ! c_ptr work value
     real(c_double)          :: rval               ! real work value
     real(c_double)          :: xdata(N)           ! vector data array
     real(c_double), pointer :: xptr(:)            ! pointer to vector data array
