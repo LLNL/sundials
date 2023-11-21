@@ -17,9 +17,9 @@
 
 .. _deep_f2003:
 
-===================================================
-Fortran 2003 example problems -- Deep dive
-===================================================
+==============================
+Detailed Fortran 2003 Examples
+==============================
 
 The Fortran example problem programs supplied with the CVODE
 package are all written in standard Fortran 2003 and use double precision

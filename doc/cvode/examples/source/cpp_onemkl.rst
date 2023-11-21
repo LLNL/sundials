@@ -17,9 +17,9 @@
 
 .. _onemkl_cpp:
 
-====================================
-OneMKL C++ example problems
-====================================
+===================
+OneMKL C++ Examples
+===================
 
 .. _cvRoberts_blockdiag_onemkl:
 

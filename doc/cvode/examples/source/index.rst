@@ -31,11 +31,13 @@ Documentation of CVODE :cite:p:`cvode_ug`.  It provides details, with
 listings, on many of the example programs supplied with the CVODE
 distribution package.
 
-This document describes CVODE examples of the following types: serial
-C examples, parallel C examples, an OpenMP example, and a *hypre*
-example.  With the exception of "demo"-type example files, the names of
-all the examples  are of the form ``[slv][PbName]_[ls]_[prec]_[p]``,
-where
+This document provides detailed descriptions of CVODE examples of the
+following types: serial C examples, parallel C examples, an OpenMP
+example, and a *hypre* example.  Additionally, it provides high level
+descriptions of all remaining CVODE examples.
+
+With the exception of "demo"-type example files, the names of all the
+examples are of the form ``[slv][PbName]_[ls]_[prec]_[p]``, where
 
 * ``[slv]`` identifies the solver (for CVODE examples this is ``cv``;
 
@@ -58,8 +60,45 @@ the problem that is most closely related to your own.  We group these
 examples according to programming language (C, C++, Fortran 2003).
 
 
+
+Detailed examples
+=================
+
+Deep dives into CVODE example problems written in C are listed below.
+
+.. cssclass:: table-bordered
+
+======================================   ========================
+Problem                                  Example Type
+======================================   ========================
+:ref:`deep_dive.cvRoberts_dns`            serial
+:ref:`deep_dive.cvAdvDiff_bnd`            serial
+:ref:`deep_dive.cvDiurnal_kry`            serial
+:ref:`deep_dive.cvAdvDiff_non_p`          parallel
+:ref:`deep_dive.cvDiurnal_kry_p`          parallel
+:ref:`deep_dive.cvDiurnal_kry_bbd_p`      parallel
+:ref:`deep_dive.cvAdvDiff_non_ph`         HYPRE parallel
+======================================   ========================
+
+
+
+Deep dives into CVODE example problems written in Fortran 2003 are listed
+below.
+
+.. cssclass:: table-bordered
+
+======================================   =================
+Problem                                  Example Type
+======================================   =================
+:ref:`deep_dive.cv_diurnal_kry`           serial
+:ref:`deep_dive.cv_diag_kry_bbd_p`        parallel
+======================================   =================
+
+
+
+
 Tables of Examples
-==========================
+==================
 
 C Examples
 -----------
@@ -106,24 +145,6 @@ Problem                              Integrator    Nonlinear     Linear      Siz
 :ref:`cvAdvDiff_kry_raja`            BDF           Newton        SPGMR       50             RAJA N_Vector module, RHS, and Jacobian product routines
 ==================================== ============  ============  ==========  =============  =========================================================
 
-C Examples Deep Dives
-----------------------
-
-Deep dives into CVODE example problems written in C are listed below.
-
-.. cssclass:: table-bordered
-
-======================================   ========================
-Problem                                  Example Type
-======================================   ========================
-:ref:`deep_dive.cvRoberts_dns`            serial
-:ref:`deep_dive.cvAdvDiff_bnd`            serial
-:ref:`deep_dive.cvDiurnal_kry`            serial
-:ref:`deep_dive.cvAdvDiff_non_p`          parallel
-:ref:`deep_dive.cvDiurnal_kry_p`          parallel
-:ref:`deep_dive.cvDiurnal_kry_bbd_p`      parallel
-:ref:`deep_dive.cvAdvDiff_non_ph`         HYPRE parallel
-======================================   ========================
 
 C++ Examples
 -------------
@@ -173,32 +194,17 @@ Problem                             Integrator  Nonlinear    Linear  Size       
 :ref:`cv_diag_non_p`                ADAMS       Fixed-point          128            parallel MPI
 =================================   ==========  ===========  ======  =============  =================================================
 
-Fortran Deep Dives
--------------------
-
-Deep dives into CVODE example problems written in Fortran 2003 are listed
-below.
-
-.. cssclass:: table-bordered
-
-======================================   =================
-Problem                                  Example Type
-======================================   =================
-:ref:`deep_dive.cv_diurnal_kry`           serial
-:ref:`deep_dive.cv_diag_kry_bbd_p`        parallel
-======================================   =================
 
 
 Full Section List of Examples and Deep Dives
 ====================================================
 
-In the following sections, we give high-level descriptions of all CVODE examples,
-as well as detailed descriptions ("deep dives") of some examples.  We also give
-our output files for each of these examples, but users should be cautioned that
-their results may differ slightly from these.  Differences in solution
-values may differ within the tolerances, and differences in cumulative
-counters, such as numbers of steps or Newton iterations, may differ
-from one machine environment to another by as much as 10% to 20%.
+The following sections provide the detailed "deep dive" examples, followed by the
+high-level descriptions of all CVODE examples.  For each example we show
+our output files, but users should be cautioned that their results may differ
+slightly from these.  Differences in solution values may differ within the tolerances,
+and differences in cumulative counters, such as numbers of steps or Newton iterations,
+may differ from one machine environment to another by as much as 10% to 20%.
 
 In the descriptions below, we make frequent references to the CVODE
 User Document :cite:p:`cvode_ug`.  All citations to specific sections
@@ -220,6 +226,11 @@ otherwise.
 .. toctree::
    :maxdepth: 1
 
+   c_serial_deep
+   c_parallel_deep
+   c_parhyp_deep
+   c_tests_deep
+   f2003_deep
    c_serial
    c_openmp
    c_openmpdev
@@ -228,10 +239,6 @@ otherwise.
    c_mpimanyvec
    c_cuda
    c_raja
-   c_serial_deep
-   c_parallel_deep
-   c_parhyp_deep
-   c_tests_deep
    cpp_serial
    cpp_parallel
    cpp_hypre
@@ -239,7 +246,6 @@ otherwise.
    cpp_sycl
    f2003_serial
    f2003_parallel
-   f2003_deep
    References
 
 .. only:: html
