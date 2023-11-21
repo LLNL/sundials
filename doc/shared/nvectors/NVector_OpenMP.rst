@@ -37,8 +37,8 @@ supplied argument in the vector constructor.
 
    struct _N_VectorContent_OpenMP {
      sunindextype length;
-     booleantype own_data;
-     realtype *data;
+     sunbooleantype own_data;
+     sunrealtype *data;
      int num_threads;
    };
 
@@ -180,7 +180,7 @@ The module NVECTOR_OPENMP provides the following additional user-callable routin
    (``NULL``) data array.
 
 
-.. c:function:: N_Vector N_VMake_OpenMP(sunindextype vec_length, realtype* v_data, int num_threads, SUNContext sunctx)
+.. c:function:: N_Vector N_VMake_OpenMP(sunindextype vec_length, sunrealtype* v_data, int num_threads, SUNContext sunctx)
 
    This function creates and allocates memory for a OpenMP vector with
    user-provided data array, *v_data*.
@@ -209,71 +209,71 @@ operations enabled/disabled as cloned vectors inherit the same enable/disable
 options as the vector they are cloned from while vectors created with
 :c:func:`N_VNew_OpenMP` will have the default settings for the NVECTOR_OPENMP module.
 
-.. c:function:: int N_VEnableFusedOps_OpenMP(N_Vector v, booleantype tf)
+.. c:function:: int N_VEnableFusedOps_OpenMP(N_Vector v, sunbooleantype tf)
 
    This function enables (``SUNTRUE``) or disables (``SUNFALSE``) all fused and
    vector array operations in the OpenMP vector. The return value is ``0`` for
    success and ``-1`` if the input vector or its ``ops`` structure are ``NULL``.
 
-.. c:function:: int N_VEnableLinearCombination_OpenMP(N_Vector v, booleantype tf)
+.. c:function:: int N_VEnableLinearCombination_OpenMP(N_Vector v, sunbooleantype tf)
 
    This function enables (``SUNTRUE``) or disables (``SUNFALSE``) the linear
    combination fused operation in the OpenMP vector. The return value is ``0`` for
    success and ``-1`` if the input vector or its ``ops`` structure are ``NULL``.
 
-.. c:function:: int N_VEnableScaleAddMulti_OpenMP(N_Vector v, booleantype tf)
+.. c:function:: int N_VEnableScaleAddMulti_OpenMP(N_Vector v, sunbooleantype tf)
 
    This function enables (``SUNTRUE``) or disables (``SUNFALSE``) the scale and
    add a vector to multiple vectors fused operation in the OpenMP vector. The
    return value is ``0`` for success and ``-1`` if the input vector or its
    ``ops`` structure are ``NULL``.
 
-.. c:function:: int N_VEnableDotProdMulti_OpenMP(N_Vector v, booleantype tf)
+.. c:function:: int N_VEnableDotProdMulti_OpenMP(N_Vector v, sunbooleantype tf)
 
    This function enables (``SUNTRUE``) or disables (``SUNFALSE``) the multiple
    dot products fused operation in the OpenMP vector. The return value is ``0``
    for success and ``-1`` if the input vector or its ``ops`` structure are
    ``NULL``.
 
-.. c:function:: int N_VEnableLinearSumVectorArray_OpenMP(N_Vector v, booleantype tf)
+.. c:function:: int N_VEnableLinearSumVectorArray_OpenMP(N_Vector v, sunbooleantype tf)
 
    This function enables (``SUNTRUE``) or disables (``SUNFALSE``) the linear sum
    operation for vector arrays in the OpenMP vector. The return value is ``0`` for
    success and ``-1`` if the input vector or its ``ops`` structure are ``NULL``.
 
-.. c:function:: int N_VEnableScaleVectorArray_OpenMP(N_Vector v, booleantype tf)
+.. c:function:: int N_VEnableScaleVectorArray_OpenMP(N_Vector v, sunbooleantype tf)
 
    This function enables (``SUNTRUE``) or disables (``SUNFALSE``) the scale
    operation for vector arrays in the OpenMP vector. The return value is ``0`` for
    success and ``-1`` if the input vector or its ``ops`` structure are ``NULL``.
 
-.. c:function:: int N_VEnableConstVectorArray_OpenMP(N_Vector v, booleantype tf)
+.. c:function:: int N_VEnableConstVectorArray_OpenMP(N_Vector v, sunbooleantype tf)
 
    This function enables (``SUNTRUE``) or disables (``SUNFALSE``) the const
    operation for vector arrays in the OpenMP vector. The return value is ``0`` for
    success and ``-1`` if the input vector or its ``ops`` structure are ``NULL``.
 
-.. c:function:: int N_VEnableWrmsNormVectorArray_OpenMP(N_Vector v, booleantype tf)
+.. c:function:: int N_VEnableWrmsNormVectorArray_OpenMP(N_Vector v, sunbooleantype tf)
 
    This function enables (``SUNTRUE``) or disables (``SUNFALSE``) the WRMS norm
    operation for vector arrays in the OpenMP vector. The return value is ``0`` for
    success and ``-1`` if the input vector or its ``ops`` structure are ``NULL``.
 
-.. c:function:: int N_VEnableWrmsNormMaskVectorArray_OpenMP(N_Vector v, booleantype tf)
+.. c:function:: int N_VEnableWrmsNormMaskVectorArray_OpenMP(N_Vector v, sunbooleantype tf)
 
    This function enables (``SUNTRUE``) or disables (``SUNFALSE``) the masked WRMS
    norm operation for vector arrays in the OpenMP vector. The return value is
    ``0`` for success and ``-1`` if the input vector or its ``ops`` structure are
    ``NULL``.
 
-.. c:function:: int N_VEnableScaleAddMultiVectorArray_OpenMP(N_Vector v, booleantype tf)
+.. c:function:: int N_VEnableScaleAddMultiVectorArray_OpenMP(N_Vector v, sunbooleantype tf)
 
    This function enables (``SUNTRUE``) or disables (``SUNFALSE``) the scale and
    add a vector array to multiple vector arrays operation in the OpenMP vector. The
    return value is ``0`` for success and ``-1`` if the input vector or its
    ``ops`` structure are ``NULL``.
 
-.. c:function:: int N_VEnableLinearCombinationVectorArray_OpenMP(N_Vector v, booleantype tf)
+.. c:function:: int N_VEnableLinearCombinationVectorArray_OpenMP(N_Vector v, sunbooleantype tf)
 
    This function enables (``SUNTRUE``) or disables (``SUNFALSE``) the linear
    combination operation for vector arrays in the OpenMP vector. The return value
@@ -289,13 +289,11 @@ options as the vector they are cloned from while vectors created with
   ``v_data = NV_DATA_OMP(v)`` and then access ``v_data[i]`` within the
   loop than it is to use ``NV_Ith_OMP(v,i)`` within the loop.
 
-* :c:func:`N_VNewEmpty_OpenMP`, :c:func:`N_VMake_OpenMP`, and
-  :c:func:`N_VCloneVectorArrayEmpty_OpenMP()` set the field *own_data*
-  to ``SUNFALSE``.  The functions :c:func:`N_VDestroy_OpenMP()` and
-  :c:func:`N_VDestroyVectorArray_OpenMP()` will not attempt to free the
-  pointer data for any ``N_Vector`` with *own_data* set to ``SUNFALSE``.
-  In such a case, it is the user's responsibility to deallocate the
-  data pointer.
+* :c:func:`N_VNewEmpty_OpenMP` and :c:func:`N_VMake_OpenMP` set the field
+  *own_data* to ``SUNFALSE``.  The function :c:func:`N_VDestroy_OpenMP()` will
+  not attempt to free the pointer data for any ``N_Vector`` with *own_data* set
+  to ``SUNFALSE``. In such a case, it is the user's responsibility to deallocate
+  the data pointer.
 
 * To maximize efficiency, vector operations in the NVECTOR_OPENMP
   implementation that have more than one ``N_Vector`` argument do not

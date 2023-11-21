@@ -75,6 +75,15 @@ Changes from previous versions
 Changes in vX.X.X
 -----------------
 
+The previously deprecated types ``realtype`` and ``booleantype`` were removed
+from ``sundials_types.h`` and replaced with ``sunrealtype`` and
+``sunbooleantype``. The deprecated names for these types can be used by including
+the header file ``sundials_types_deprecated.h`` but will be fully removed in the
+next major release.
+
+Fixed the build system support for MAGMA when using a NVIDIA HPC SDK installation of CUDA
+and fixed the targets used for rocBLAS and rocSPARSE.
+
 Fixed a regression introduced by the stop time bug fix in v6.6.1 where IDA would
 return at the stop time rather than the requested output time if the stop time
 was reached in the same step in which the output time was passed.
@@ -86,6 +95,15 @@ Fixed scaling bug in ``SUNMatScaleAddI_Sparse`` for non-square matrices.
 
 Fixed missing soversions in some ``SUNLinearSolver`` and ``SUNNonlinearSolver``
 CMake targets.
+
+Changed the ``SUNProfiler`` so that it does not rely on ``MPI_WTime`` in any case.
+This fixes `GitHub Issue #312 <https://github.com/LLNL/sundials/issues/312>`_. 
+
+Added Fortran support for the LAPACK  dense ``SUNLinearSolver`` implementation.
+
+**Breaking change**
+Functions, types and header files that were previously deprecated have been
+removed. 
 
 Changes in v6.6.1
 -----------------

@@ -62,11 +62,11 @@
 
 
 // Macros for problem constants
-#define PI    RCONST(3.141592653589793238462643383279502884197169)
-#define ZERO  RCONST(0.0)
-#define ONE   RCONST(1.0)
-#define TWO   RCONST(2.0)
-#define EIGHT RCONST(8.0)
+#define PI    SUN_RCONST(3.141592653589793238462643383279502884197169)
+#define ZERO  SUN_RCONST(0.0)
+#define ONE   SUN_RCONST(1.0)
+#define TWO   SUN_RCONST(2.0)
+#define EIGHT SUN_RCONST(8.0)
 
 // Macro to access (x,y) location in 1D NVector array
 #define IDX(x,y,n) ((n)*(y)+(x))
@@ -80,18 +80,18 @@ using namespace std;
 struct UserData
 {
   // Diffusion coefficients in the x and y directions
-  realtype kx;
-  realtype ky;
+  sunrealtype kx;
+  sunrealtype ky;
 
   // Enable/disable forcing
   bool forcing;
 
   // Final time
-  realtype tf;
+  sunrealtype tf;
 
   // Upper bounds in x and y directions
-  realtype xu;
-  realtype yu;
+  sunrealtype xu;
+  sunrealtype yu;
 
   // Global number of nodes in the x and y directions
   sunindextype nx;
@@ -101,8 +101,8 @@ struct UserData
   sunindextype nodes;
 
   // Mesh spacing in the x and y directions
-  realtype dx;
-  realtype dy;
+  sunrealtype dx;
+  sunrealtype dy;
 
   // Local number of nodes in the x and y directions
   sunindextype nx_loc;
@@ -139,10 +139,10 @@ struct UserData
   int ipN;
 
   // Receive buffers for neighbor exchange
-  realtype *Wrecv;
-  realtype *Erecv;
-  realtype *Srecv;
-  realtype *Nrecv;
+  sunrealtype *Wrecv;
+  sunrealtype *Erecv;
+  sunrealtype *Srecv;
+  sunrealtype *Nrecv;
 
   // Receive requests for neighbor exchange
   MPI_Request reqRW;
@@ -151,10 +151,10 @@ struct UserData
   MPI_Request reqRN;
 
   // Send buffers for neighbor exchange
-  realtype *Wsend;
-  realtype *Esend;
-  realtype *Ssend;
-  realtype *Nsend;
+  sunrealtype *Wsend;
+  sunrealtype *Esend;
+  sunrealtype *Ssend;
+  sunrealtype *Nsend;
 
   // Send requests for neighor exchange
   MPI_Request reqSW;
@@ -163,21 +163,20 @@ struct UserData
   MPI_Request reqSN;
 
   // Integrator settings
-  realtype rtol;        // relative tolerance
-  realtype atol;        // absolute tolerance
-  realtype hfixed;      // fixed step size
+  sunrealtype rtol;        // relative tolerance
+  sunrealtype atol;        // absolute tolerance
+  sunrealtype hfixed;      // fixed step size
   int      order;       // ARKode method order
   int      controller;  // step size adaptivity method
   int      maxsteps;    // max number of steps between outputs
   bool     linear;      // enable/disable linearly implicit option
-  bool     diagnostics; // output diagnostics
 
   // Linear solver and preconditioner settings
   bool     pcg;       // use PCG (true) or GMRES (false)
   bool     prec;      // preconditioner on/off
   int      liniters;  // number of linear iterations
   int      msbp;      // max number of steps between preconditioner setups
-  realtype epslin;    // linear solver tolerance factor
+  sunrealtype epslin;    // linear solver tolerance factor
 
   // hypre PFMG settings (hypre defaults)
   HYPRE_Int pfmg_relax;  // type of relaxation:
@@ -244,7 +243,7 @@ SUNMatrix_ID Hypre5ptMatrix_GetID(SUNMatrix A);
 SUNMatrix Hypre5ptMatrix_Clone(SUNMatrix A);
 void Hypre5ptMatrix_Destroy(SUNMatrix A);
 int Hypre5ptMatrix_Copy(SUNMatrix A, SUNMatrix B);
-int Hypre5ptMatrix_ScaleAddI(realtype c, SUNMatrix A);
+int Hypre5ptMatrix_ScaleAddI(sunrealtype c, SUNMatrix A);
 
 // -----------------------------------------------------------------------------
 // Custom hypre linear solver definition
@@ -280,7 +279,7 @@ SUNLinearSolver_Type HypreLS_GetType(SUNLinearSolver S);
 int HypreLS_Initialize(SUNLinearSolver S);
 int HypreLS_Setup(SUNLinearSolver S, SUNMatrix A);
 int HypreLS_Solve(SUNLinearSolver S, SUNMatrix A,
-                   N_Vector x, N_Vector b, realtype tol);
+                   N_Vector x, N_Vector b, sunrealtype tol);
 int HypreLS_NumIters(SUNLinearSolver S);
 int HypreLS_Free(SUNLinearSolver S);
 
@@ -289,10 +288,10 @@ int HypreLS_Free(SUNLinearSolver S);
 // -----------------------------------------------------------------------------
 
 // ODE right hand side function
-static int f(realtype t, N_Vector u, N_Vector f, void *user_data);
+static int f(sunrealtype t, N_Vector u, N_Vector f, void *user_data);
 
 // Jacobian evaluation function
-static int Jac(realtype t, N_Vector u, N_Vector f, SUNMatrix J,
+static int Jac(sunrealtype t, N_Vector u, N_Vector f, SUNMatrix J,
                void *user_data, N_Vector tmp1, N_Vector tmp2, N_Vector tmp3);
 
 // -----------------------------------------------------------------------------
@@ -325,10 +324,10 @@ static int ReadInputs(int *argc, char ***argv, UserData *udata, bool outproc);
 // -----------------------------------------------------------------------------
 
 // Compute the true solution
-static int Solution(realtype t, N_Vector u, UserData *udata);
+static int Solution(sunrealtype t, N_Vector u, UserData *udata);
 
 // Compute the solution error solution
-static int SolutionError(realtype t, N_Vector u,  N_Vector e, UserData *udata);
+static int SolutionError(sunrealtype t, N_Vector u,  N_Vector e, UserData *udata);
 
 // Print the command line options
 static void InputHelp();
@@ -338,7 +337,7 @@ static int PrintUserData(UserData *udata);
 
 // Output solution and error
 static int OpenOutput(UserData *udata);
-static int WriteOutput(realtype t, N_Vector u, UserData *udata);
+static int WriteOutput(sunrealtype t, N_Vector u, UserData *udata);
 static int CloseOutput(UserData *udata);
 
 // Print integration statistics
@@ -362,7 +361,7 @@ int main(int argc, char* argv[])
   SUNMatrix A        = NULL;  // matrix for Jacobian
   SUNLinearSolver LS = NULL;  // linear solver memory structure
   void *arkode_mem   = NULL;  // ARKODE memory structure
-  FILE *diagfp       = NULL;  // diagnostics output file
+  SUNAdaptController C = NULL;  // timestep adaptivity controlle
 
   // Timing variables
   double t1 = 0.0;
@@ -410,13 +409,6 @@ int main(int argc, char* argv[])
   {
     flag = PrintUserData(udata);
     if (check_flag(&flag, "PrintUserData", 1)) return 1;
-
-    // Open diagnostics output file
-    if (udata->diagnostics)
-    {
-      diagfp = fopen("diagnostics.txt", "w");
-      if (check_flag((void *) diagfp, "fopen", 0)) return 1;
-    }
   }
 
   // ------------------------
@@ -489,7 +481,7 @@ int main(int argc, char* argv[])
   else
   {
     // Use implicit Euler (requires fixed step size)
-    realtype c[1], A[1], b[1];
+    sunrealtype c[1], A[1], b[1];
     ARKodeButcherTable B = NULL;
 
     // Create implicit Euler Butcher table
@@ -513,9 +505,16 @@ int main(int argc, char* argv[])
   }
   else
   {
-    flag = ARKStepSetAdaptivityMethod(arkode_mem, udata->controller, SUNTRUE,
-                                      SUNFALSE, NULL);
-    if (check_flag(&flag, "ARKStepSetAdaptivityMethod", 1)) return 1;
+    switch (udata->controller) {
+    case (ARK_ADAPT_PID):      C = SUNAdaptController_PID(ctx);     break;
+    case (ARK_ADAPT_PI):       C = SUNAdaptController_PI(ctx);      break;
+    case (ARK_ADAPT_I):        C = SUNAdaptController_I(ctx);       break;
+    case (ARK_ADAPT_EXP_GUS):  C = SUNAdaptController_ExpGus(ctx);  break;
+    case (ARK_ADAPT_IMP_GUS):  C = SUNAdaptController_ImpGus(ctx);  break;
+    case (ARK_ADAPT_IMEX_GUS): C = SUNAdaptController_ImExGus(ctx); break;
+    }
+    flag = ARKStepSetAdaptController(arkode_mem, C);
+    if (check_flag(&flag, "ARKStepSetAdaptController", 1)) return 1;
   }
 
   // Specify linearly implicit non-time-dependent RHS
@@ -533,20 +532,13 @@ int main(int argc, char* argv[])
   flag = ARKStepSetStopTime(arkode_mem, udata->tf);
   if (check_flag(&flag, "ARKStepSetStopTime", 1)) return 1;
 
-  // Set diagnostics output file
-  if (udata->diagnostics && outproc)
-  {
-    flag = ARKStepSetDiagnostics(arkode_mem, diagfp);
-    if (check_flag(&flag, "ARKStepSetDiagnostics", 1)) return 1;
-  }
-
   // -----------------------
   // Loop over output times
   // -----------------------
 
-  realtype t     = ZERO;
-  realtype dTout = udata->tf / udata->nout;
-  realtype tout  = dTout;
+  sunrealtype t     = ZERO;
+  sunrealtype dTout = udata->tf / udata->nout;
+  sunrealtype tout  = dTout;
 
   // Inital output
   flag = OpenOutput(udata);
@@ -601,12 +593,12 @@ int main(int argc, char* argv[])
     flag = SolutionError(t, u, udata->e, udata);
     if (check_flag(&flag, "SolutionError", 1)) return 1;
 
-    realtype maxerr = N_VMaxNorm(udata->e);
+    sunrealtype maxerr = N_VMaxNorm(udata->e);
 
     if (outproc)
     {
       cout << scientific;
-      cout << setprecision(numeric_limits<realtype>::digits10);
+      cout << setprecision(numeric_limits<sunrealtype>::digits10);
       cout << "  Max error = " << maxerr << endl;
     }
   }
@@ -622,14 +614,13 @@ int main(int argc, char* argv[])
   // Clean up and return
   // --------------------
 
-  if (udata->diagnostics && outproc) fclose(diagfp);
-
   ARKStepFree(&arkode_mem);  // Free integrator memory
   SUNLinSolFree(LS);         // Free linear solver
   SUNMatDestroy(A);          // Free matrix
   N_VDestroy(u);             // Free vectors
   FreeUserData(udata);       // Free user data
   delete udata;
+  (void) SUNAdaptController_Destroy(C);  // Free time adaptivity controller
   SUNContext_Free(&ctx);     // Free context
   flag = MPI_Finalize();     // Finalize MPI
   return 0;
@@ -746,23 +737,23 @@ static int SetupDecomp(MPI_Comm comm_w, UserData *udata)
   // Allocate exchange buffers if necessary
   if (udata->HaveNbrW)
   {
-    udata->Wrecv = new realtype[udata->ny_loc];
-    udata->Wsend = new realtype[udata->ny_loc];
+    udata->Wrecv = new sunrealtype[udata->ny_loc];
+    udata->Wsend = new sunrealtype[udata->ny_loc];
   }
   if (udata->HaveNbrE)
   {
-    udata->Erecv = new realtype[udata->ny_loc];
-    udata->Esend = new realtype[udata->ny_loc];
+    udata->Erecv = new sunrealtype[udata->ny_loc];
+    udata->Esend = new sunrealtype[udata->ny_loc];
   }
   if (udata->HaveNbrS)
   {
-    udata->Srecv = new realtype[udata->nx_loc];
-    udata->Ssend = new realtype[udata->nx_loc];
+    udata->Srecv = new sunrealtype[udata->nx_loc];
+    udata->Ssend = new sunrealtype[udata->nx_loc];
   }
   if (udata->HaveNbrN)
   {
-    udata->Nrecv = new realtype[udata->nx_loc];
-    udata->Nsend = new realtype[udata->nx_loc];
+    udata->Nrecv = new sunrealtype[udata->nx_loc];
+    udata->Nsend = new sunrealtype[udata->nx_loc];
   }
 
   // MPI neighborhood information
@@ -829,7 +820,7 @@ static int SetupDecomp(MPI_Comm comm_w, UserData *udata)
 // -----------------------------------------------------------------------------
 
 // f routine to compute the ODE RHS function f(t,y).
-static int f(realtype t, N_Vector u, N_Vector f, void *user_data)
+static int f(sunrealtype t, N_Vector u, N_Vector f, void *user_data)
 {
   int          flag;
   sunindextype i, j;
@@ -859,15 +850,15 @@ static int f(realtype t, N_Vector u, N_Vector f, void *user_data)
   sunindextype jend   = (udata->HaveNbrN) ? ny_loc : ny_loc - 1;
 
   // Constants for computing diffusion term
-  realtype cx = udata->kx / (udata->dx * udata->dx);
-  realtype cy = udata->ky / (udata->dy * udata->dy);
-  realtype cc = -TWO * (cx + cy);
+  sunrealtype cx = udata->kx / (udata->dx * udata->dx);
+  sunrealtype cy = udata->ky / (udata->dy * udata->dy);
+  sunrealtype cc = -TWO * (cx + cy);
 
   // Access data arrays
-  realtype *uarray = N_VGetArrayPointer(u);
+  sunrealtype *uarray = N_VGetArrayPointer(u);
   if (check_flag((void *) uarray, "N_VGetArrayPointer", 0)) return -1;
 
-  realtype *farray = N_VGetArrayPointer(f);
+  sunrealtype *farray = N_VGetArrayPointer(f);
   if (check_flag((void *) farray, "N_VGetArrayPointer", 0)) return -1;
 
   // Initialize rhs vector to zero (handles boundary conditions)
@@ -876,15 +867,15 @@ static int f(realtype t, N_Vector u, N_Vector f, void *user_data)
   // Iterate over subdomain and compute rhs forcing term
   if (udata->forcing)
   {
-    realtype x, y;
-    realtype sin_sqr_x, sin_sqr_y;
-    realtype cos_sqr_x, cos_sqr_y;
+    sunrealtype x, y;
+    sunrealtype sin_sqr_x, sin_sqr_y;
+    sunrealtype cos_sqr_x, cos_sqr_y;
 
-    realtype bx = (udata->kx) * TWO * PI * PI;
-    realtype by = (udata->ky) * TWO * PI * PI;
+    sunrealtype bx = (udata->kx) * TWO * PI * PI;
+    sunrealtype by = (udata->ky) * TWO * PI * PI;
 
-    realtype sin_t_cos_t = sin(PI * t) * cos(PI * t);
-    realtype cos_sqr_t   = cos(PI * t) * cos(PI * t);
+    sunrealtype sin_t_cos_t = sin(PI * t) * cos(PI * t);
+    sunrealtype cos_sqr_t   = cos(PI * t) * cos(PI * t);
 
     for (j = jstart; j < jend; j++)
     {
@@ -924,10 +915,10 @@ static int f(realtype t, N_Vector u, N_Vector f, void *user_data)
   if (check_flag(&flag, "WaitRecv", 1)) return -1;
 
   // Iterate over subdomain boundaries and add rhs diffusion term
-  realtype *Warray = udata->Wrecv;
-  realtype *Earray = udata->Erecv;
-  realtype *Sarray = udata->Srecv;
-  realtype *Narray = udata->Nrecv;
+  sunrealtype *Warray = udata->Wrecv;
+  sunrealtype *Earray = udata->Erecv;
+  sunrealtype *Sarray = udata->Srecv;
+  sunrealtype *Narray = udata->Nrecv;
 
   // West face (updates south-west and north-west corners if necessary)
   if (udata->HaveNbrW)
@@ -1028,7 +1019,7 @@ static int f(realtype t, N_Vector u, N_Vector f, void *user_data)
 }
 
 // Jac function to compute the ODE RHS function Jacobian, (df/dy)(t,y).
-static int Jac(realtype t, N_Vector y, N_Vector ydot, SUNMatrix J,
+static int Jac(sunrealtype t, N_Vector y, N_Vector ydot, SUNMatrix J,
                void *user_data, N_Vector tmp1, N_Vector tmp2, N_Vector tmp3)
 {
   // Shortcuts to hypre matrix and grid extents, work array, etc.
@@ -1077,9 +1068,9 @@ static int Jac(realtype t, N_Vector y, N_Vector ydot, SUNMatrix J,
       (ilower[1] <= iupper[1]))
   {
     // Jacobian values
-    realtype cx = udata->kx / (udata->dx * udata->dx);
-    realtype cy = udata->ky / (udata->dy * udata->dy);
-    realtype cc = -TWO * (cx + cy);
+    sunrealtype cx = udata->kx / (udata->dx * udata->dx);
+    sunrealtype cy = udata->ky / (udata->dy * udata->dy);
+    sunrealtype cc = -TWO * (cx + cy);
 
     // --------------------------------
     // Set matrix values for all nodes
@@ -1422,7 +1413,7 @@ static int SendData(N_Vector y, UserData *udata)
   double t1 = MPI_Wtime();
 
   // Access data array
-  realtype *Y = N_VGetArrayPointer(y);
+  sunrealtype *Y = N_VGetArrayPointer(y);
   if (check_flag((void *) Y, "N_VGetArrayPointer", 0)) return -1;
 
   // Send data
@@ -1644,14 +1635,13 @@ static int InitUserData(UserData *udata)
   udata->ipN = -1;
 
   // Integrator settings
-  udata->rtol        = RCONST(1.e-5);   // relative tolerance
-  udata->atol        = RCONST(1.e-10);  // absolute tolerance
+  udata->rtol        = SUN_RCONST(1.e-5);   // relative tolerance
+  udata->atol        = SUN_RCONST(1.e-10);  // absolute tolerance
   udata->hfixed      = ZERO;            // using adaptive step sizes
   udata->order       = 3;               // method order
   udata->controller  = 0;               // PID controller
   udata->maxsteps    = 0;               // use default
   udata->linear      = true;            // linearly implicit problem
-  udata->diagnostics = false;           // output diagnostics
 
   // Linear solver and preconditioner options
   udata->pcg       = true;       // use PCG (true) or GMRES (false)
@@ -1779,10 +1769,6 @@ static int ReadInputs(int *argc, char ***argv, UserData *udata, bool outproc)
     {
       udata->linear = false;
     }
-    else if (arg == "--diagnostics")
-    {
-      udata->diagnostics = true;
-    }
     // Linear solver settings
     else if (arg == "--gmres")
     {
@@ -1872,11 +1858,11 @@ static int ReadInputs(int *argc, char ***argv, UserData *udata, bool outproc)
 // -----------------------------------------------------------------------------
 
 // Compute the exact solution
-static int Solution(realtype t, N_Vector u, UserData *udata)
+static int Solution(sunrealtype t, N_Vector u, UserData *udata)
 {
-  realtype x, y;
-  realtype cos_sqr_t;
-  realtype sin_sqr_x, sin_sqr_y;
+  sunrealtype x, y;
+  sunrealtype cos_sqr_t;
+  sunrealtype sin_sqr_x, sin_sqr_y;
 
   // Constants for computing solution
   cos_sqr_t = cos(PI * t) * cos(PI * t);
@@ -1891,7 +1877,7 @@ static int Solution(realtype t, N_Vector u, UserData *udata)
   sunindextype jstart = (udata->HaveNbrS) ? 0 : 1;
   sunindextype jend   = (udata->HaveNbrN) ? udata->ny_loc : udata->ny_loc - 1;
 
-  realtype *uarray = N_VGetArrayPointer(u);
+  sunrealtype *uarray = N_VGetArrayPointer(u);
   if (check_flag((void *) uarray, "N_VGetArrayPointer", 0)) return -1;
 
   for (sunindextype j = jstart; j < jend; j++)
@@ -1912,7 +1898,7 @@ static int Solution(realtype t, N_Vector u, UserData *udata)
 }
 
 // Compute the solution error
-static int SolutionError(realtype t, N_Vector u, N_Vector e, UserData *udata)
+static int SolutionError(sunrealtype t, N_Vector u, N_Vector e, UserData *udata)
 {
   // Compute true solution
   int flag = Solution(t, e, udata);
@@ -1942,7 +1928,6 @@ static void InputHelp()
   cout << "  --order <ord>           : method order" << endl;
   cout << "  --fixedstep <step>      : used fixed step size" << endl;
   cout << "  --controller <ctr>      : time step adaptivity controller" << endl;
-  cout << "  --diagnostics           : output diagnostics" << endl;
   cout << "  --gmres                 : use GMRES linear solver" << endl;
   cout << "  --liniters <iters>      : max number of iterations" << endl;
   cout << "  --epslin <factor>       : linear tolerance factor" << endl;
@@ -2018,7 +2003,7 @@ static int OpenOutput(UserData *udata)
   if (udata->output > 0 && outproc)
   {
     cout << scientific;
-    cout << setprecision(numeric_limits<realtype>::digits10);
+    cout << setprecision(numeric_limits<sunrealtype>::digits10);
     if (udata->forcing)
     {
       cout << "          t           ";
@@ -2069,7 +2054,7 @@ static int OpenOutput(UserData *udata)
     udata->uout.open(fname.str());
 
     udata->uout << scientific;
-    udata->uout << setprecision(numeric_limits<realtype>::digits10);
+    udata->uout << setprecision(numeric_limits<sunrealtype>::digits10);
 
     if (udata->forcing)
     {
@@ -2080,7 +2065,7 @@ static int OpenOutput(UserData *udata)
       udata->eout.open(fname.str());
 
       udata->eout << scientific;
-      udata->eout << setprecision(numeric_limits<realtype>::digits10);
+      udata->eout << setprecision(numeric_limits<sunrealtype>::digits10);
     }
   }
 
@@ -2088,10 +2073,10 @@ static int OpenOutput(UserData *udata)
 }
 
 // Write output
-static int WriteOutput(realtype t, N_Vector u, UserData *udata)
+static int WriteOutput(sunrealtype t, N_Vector u, UserData *udata)
 {
   int      flag;
-  realtype max;
+  sunrealtype max;
   bool     outproc = (udata->myid_c == 0);
 
   if (udata->output > 0)
@@ -2107,7 +2092,7 @@ static int WriteOutput(realtype t, N_Vector u, UserData *udata)
     }
 
     // Compute rms norm of the state
-    realtype urms = sqrt(N_VDotProd(u, u) / udata->nx / udata->ny);
+    sunrealtype urms = sqrt(N_VDotProd(u, u) / udata->nx / udata->ny);
 
     // Output current status
     if (outproc)
@@ -2125,7 +2110,7 @@ static int WriteOutput(realtype t, N_Vector u, UserData *udata)
     // Write solution and error to disk
     if (udata->output == 2)
     {
-      realtype *uarray = N_VGetArrayPointer(u);
+      sunrealtype *uarray = N_VGetArrayPointer(u);
       if (check_flag((void *) uarray, "N_VGetArrayPointer", 0)) return -1;
 
       udata->uout << t << " ";
@@ -2138,7 +2123,7 @@ static int WriteOutput(realtype t, N_Vector u, UserData *udata)
       if (udata->forcing)
       {
         // Output error to disk
-        realtype *earray = N_VGetArrayPointer(udata->e);
+        sunrealtype *earray = N_VGetArrayPointer(udata->e);
         if (check_flag((void *) earray, "N_VGetArrayPointer", 0)) return -1;
 
         udata->eout << t << " ";
@@ -2231,8 +2216,8 @@ static int OutputStats(void *arkode_mem, UserData* udata)
   cout << endl;
 
   // Compute average nls iters per step attempt and ls iters per nls iter
-  realtype avgnli = (realtype) nni / (realtype) nst_a;
-  realtype avgli  = (realtype) nli / (realtype) nni;
+  sunrealtype avgnli = (sunrealtype) nni / (sunrealtype) nst_a;
+  sunrealtype avgli  = (sunrealtype) nli / (sunrealtype) nni;
   cout << "  Avg NLS iters per step attempt = " << avgnli << endl;
   cout << "  Avg LS iters per NLS iter      = " << avgli  << endl;
   cout << endl;
@@ -2486,7 +2471,7 @@ int Hypre5ptMatrix_Copy(SUNMatrix A, SUNMatrix B)
   return(SUNMAT_SUCCESS);
 }
 
-int Hypre5ptMatrix_ScaleAddI(realtype c, SUNMatrix A)
+int Hypre5ptMatrix_ScaleAddI(sunrealtype c, SUNMatrix A)
 {
   int flag;
 
@@ -2732,7 +2717,7 @@ int HypreLS_Setup(SUNLinearSolver LS, SUNMatrix A)
 }
 
 int HypreLS_Solve(SUNLinearSolver LS, SUNMatrix A,
-                  N_Vector x, N_Vector b, realtype tol)
+                  N_Vector x, N_Vector b, sunrealtype tol)
 {
   int flag;
 

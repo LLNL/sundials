@@ -41,7 +41,7 @@ int EvolveDAEProblem(N_Vector y, UserData* udata, UserOptions* uopt)
   SUNLinearSolver    LS  = NULL;      /* empty linear solver structure    */
   N_Vector           yp  = NULL;      /* empty vector structure           */
 
-  realtype t, dtout, tout;    /* current/output time data     */
+  sunrealtype t, dtout, tout;    /* current/output time data     */
   int      retval;            /* reusable error-checking flag */
   int      iout;              /* output counter               */
   long int nst, netf;         /* step stats                   */
@@ -92,7 +92,7 @@ int EvolveDAEProblem(N_Vector y, UserData* udata, UserOptions* uopt)
     if (check_retval(&retval, "IDASetNonlinearSolver", 1, udata->myid)) return 1;
 
     /* Create linear solver */
-    LS = uopt->precond ? SUNLinSol_SPGMR(y, PREC_LEFT, 0, udata->ctx) : SUNLinSol_SPGMR(y, PREC_NONE, 0, udata->ctx);
+    LS = uopt->precond ? SUNLinSol_SPGMR(y, SUN_PREC_LEFT, 0, udata->ctx) : SUNLinSol_SPGMR(y, SUN_PREC_NONE, 0, udata->ctx);
     if (check_retval((void *)LS, "SUNLinSol_SPGMR", 0, udata->myid)) return 1;
 
     /* Attach linear solver */

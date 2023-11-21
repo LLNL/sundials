@@ -82,7 +82,7 @@ the beginning of the array of subvectors, and a boolean flag
      sunindextype  num_subvectors;  /* number of vectors attached      */
      sunindextype  global_length;   /* overall manyvector length       */
      N_Vector*     subvec_array;    /* pointer to N_Vector array       */
-     booleantype   own_data;        /* flag indicating data ownership  */
+     sunbooleantype   own_data;        /* flag indicating data ownership  */
    };
 
 The header file to include when using this module is
@@ -149,7 +149,7 @@ the following additional user-callable routines:
       local_length = N_VGetSubvectorLocalLength_ManyVector(v, 0);
 
 
-.. c:function:: realtype *N_VGetSubvectorArrayPointer_ManyVector(N_Vector v, sunindextype vec_num)
+.. c:function:: sunrealtype *N_VGetSubvectorArrayPointer_ManyVector(N_Vector v, sunindextype vec_num)
 
    This function returns the data array pointer for the *vec_num*
    subvector from the NVECTOR array.
@@ -159,7 +159,7 @@ the following additional user-callable routines:
    returned.
 
 
-.. c:function:: int N_VSetSubvectorArrayPointer_ManyVector(realtype *v_data, N_Vector v, sunindextype vec_num)
+.. c:function:: int N_VSetSubvectorArrayPointer_ManyVector(sunrealtype *v_data, N_Vector v, sunindextype vec_num)
 
    This function sets the data array pointer for the *vec_num*
    subvector from the NVECTOR array.
@@ -193,57 +193,57 @@ that these routines *do not* call the corresponding routines on
 subvectors, so those should be set up as desired *before* attaching
 them to the ManyVector in :c:func:`N_VNew_ManyVector`.
 
-.. c:function:: int N_VEnableFusedOps_ManyVector(N_Vector v, booleantype tf)
+.. c:function:: int N_VEnableFusedOps_ManyVector(N_Vector v, sunbooleantype tf)
 
    This function enables (``SUNTRUE``) or disables (``SUNFALSE``) all fused and
    vector array operations in the manyvector vector. The return value is ``0`` for
    success and ``-1`` if the input vector or its ``ops`` structure are ``NULL``.
 
-.. c:function:: int N_VEnableLinearCombination_ManyVector(N_Vector v, booleantype tf)
+.. c:function:: int N_VEnableLinearCombination_ManyVector(N_Vector v, sunbooleantype tf)
 
    This function enables (``SUNTRUE``) or disables (``SUNFALSE``) the linear
    combination fused operation in the manyvector vector. The return value is ``0`` for
    success and ``-1`` if the input vector or its ``ops`` structure are ``NULL``.
 
-.. c:function:: int N_VEnableScaleAddMulti_ManyVector(N_Vector v, booleantype tf)
+.. c:function:: int N_VEnableScaleAddMulti_ManyVector(N_Vector v, sunbooleantype tf)
 
    This function enables (``SUNTRUE``) or disables (``SUNFALSE``) the scale and
    add a vector to multiple vectors fused operation in the manyvector vector. The
    return value is ``0`` for success and ``-1`` if the input vector or its
    ``ops`` structure are ``NULL``.
 
-.. c:function:: int N_VEnableDotProdMulti_ManyVector(N_Vector v, booleantype tf)
+.. c:function:: int N_VEnableDotProdMulti_ManyVector(N_Vector v, sunbooleantype tf)
 
    This function enables (``SUNTRUE``) or disables (``SUNFALSE``) the multiple
    dot products fused operation in the manyvector vector. The return value is ``0``
    for success and ``-1`` if the input vector or its ``ops`` structure are
    ``NULL``.
 
-.. c:function:: int N_VEnableLinearSumVectorArray_ManyVector(N_Vector v, booleantype tf)
+.. c:function:: int N_VEnableLinearSumVectorArray_ManyVector(N_Vector v, sunbooleantype tf)
 
    This function enables (``SUNTRUE``) or disables (``SUNFALSE``) the linear sum
    operation for vector arrays in the manyvector vector. The return value is ``0`` for
    success and ``-1`` if the input vector or its ``ops`` structure are ``NULL``.
 
-.. c:function:: int N_VEnableScaleVectorArray_ManyVector(N_Vector v, booleantype tf)
+.. c:function:: int N_VEnableScaleVectorArray_ManyVector(N_Vector v, sunbooleantype tf)
 
    This function enables (``SUNTRUE``) or disables (``SUNFALSE``) the scale
    operation for vector arrays in the manyvector vector. The return value is ``0`` for
    success and ``-1`` if the input vector or its ``ops`` structure are ``NULL``.
 
-.. c:function:: int N_VEnableConstVectorArray_ManyVector(N_Vector v, booleantype tf)
+.. c:function:: int N_VEnableConstVectorArray_ManyVector(N_Vector v, sunbooleantype tf)
 
    This function enables (``SUNTRUE``) or disables (``SUNFALSE``) the const
    operation for vector arrays in the manyvector vector. The return value is ``0`` for
    success and ``-1`` if the input vector or its ``ops`` structure are ``NULL``.
 
-.. c:function:: int N_VEnableWrmsNormVectorArray_ManyVector(N_Vector v, booleantype tf)
+.. c:function:: int N_VEnableWrmsNormVectorArray_ManyVector(N_Vector v, sunbooleantype tf)
 
    This function enables (``SUNTRUE``) or disables (``SUNFALSE``) the WRMS norm
    operation for vector arrays in the manyvector vector. The return value is ``0`` for
    success and ``-1`` if the input vector or its ``ops`` structure are ``NULL``.
 
-.. c:function:: int N_VEnableWrmsNormMaskVectorArray_ManyVector(N_Vector v, booleantype tf)
+.. c:function:: int N_VEnableWrmsNormMaskVectorArray_ManyVector(N_Vector v, sunbooleantype tf)
 
    This function enables (``SUNTRUE``) or disables (``SUNFALSE``) the masked WRMS
    norm operation for vector arrays in the manyvector vector. The return value is

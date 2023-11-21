@@ -110,7 +110,6 @@ module ode_mod
   real(c_double) :: t0, tf     ! initial and final time
   real(c_double) :: rtol, atol ! relative and absolute tolerance
   integer(c_int) :: order      ! method order
-  type(c_ptr)    :: DFID       ! ARKODE diagnostics file
 
   logical :: explicit  ! use explicit or IMEX method
   logical :: global    ! use global or task-local nonlinear solver
@@ -999,7 +998,7 @@ contains
     use fsunlinsol_dense_mod
     use fsunmatrix_dense_mod
 
-    use ode_mod, only : sunctx, Nvar, comm, DFID, monitor
+    use ode_mod, only : sunctx, Nvar, comm
 
     !======= Declarations =========
     implicit none
@@ -1012,7 +1011,6 @@ contains
     type(SUNNonlinearSolver_Ops), pointer :: nlsops ! solver operations
 
     integer        :: ierr   ! MPI error status
-    integer(c_int) :: retval ! SUNDIALS error status
 
     !======= Internals ============
 
@@ -1054,20 +1052,6 @@ contains
     ! initialize number of nonlinear solver function evals and fails
     nnlfi    = 0
     ncnf_loc = 0
-
-    if (monitor) then
-       retval = FSUNNonlinSolSetInfoFile_Newton(sunnls_LOC, DFID)
-       if (retval /= 0) then
-          print *, "Error: FSUNNonlinSolSetInfoFile_Newton returned ",retval
-          call MPI_Abort(comm, 1, ierr)
-       end if
-
-       retval = FSUNNonlinSolSetPrintLevel_Newton(sunnls_LOC, 1)
-       if (retval /= 0) then
-          print *, "Error: FSUNNonlinSolSetPrintLevel_Newton returned ",retval
-          call MPI_Abort(comm, 1, ierr)
-       end if
-    end if
 
   end function TaskLocalNewton
 
@@ -1229,7 +1213,7 @@ subroutine EvolveProblemIMEX(sunvec_y)
   use fsundials_nonlinearsolver_mod ! Access generic SUNNonlinearSolver
   use fsunnonlinsol_newton_mod      ! Access Newton SUNNonlinearSolver
 
-  use ode_mod, only : sunctx, comm, myid, Neq, t0, tf, atol, rtol, order, DFID, &
+  use ode_mod, only : sunctx, comm, myid, Neq, t0, tf, atol, rtol, order, &
        monitor, global, nout, umask_s, Advection, Reaction
 
   use prec_mod, only : sunls_P, sunmat_P, PSetup, PSolve
@@ -1267,7 +1251,6 @@ subroutine EvolveProblemIMEX(sunvec_y)
   integer            :: ierr        ! MPI error status
   integer            :: iout        ! output counter
   double precision   :: tout, dtout ! output time and update
-  character(len=100) :: outname     ! diagnostics ouptput file
 
   !======= Internals ============
 
@@ -1298,20 +1281,6 @@ subroutine EvolveProblemIMEX(sunvec_y)
   if (retval /= 0) then
      print *, "Error: FARKStepMaxNumSteps returned ",retval
      call MPI_Abort(comm, 1, ierr)
-  end if
-
-  ! Open output file for integrator diagnostics
-  if (monitor) then
-
-     write(outname,"(A,I0.6,A)") "diagnostics.",myid,".txt"
-     DFID = FSUNDIALSFileOpen(trim(outname), "w")
-
-     retval = FARKStepSetDiagnostics(arkode_mem, DFID)
-     if (retval /= 0) then
-        print *, "Error: FARKStepSetDiagnostics returned ",retval
-        call MPI_Abort(comm, 1, ierr)
-     end if
-
   end if
 
   ! Create the (non)linear solver
@@ -1422,9 +1391,6 @@ subroutine EvolveProblemIMEX(sunvec_y)
      print *, "-----------------------------------------------------------"
      print *, ""
   end if
-
-  ! close output stream
-  if (monitor) call FSUNDIALSFileClose(DFID)
 
   ! Get final statistics
   retval = FARKStepGetNumSteps(arkode_mem, nst)
@@ -1552,7 +1518,7 @@ subroutine EvolveProblemExplicit(sunvec_y)
   use farkode_erkstep_mod   ! Access ERKStep
   use fsundials_nvector_mod ! Access generic N_Vector
 
-  use ode_mod, only : sunctx, comm, myid, t0, tf, atol, rtol, order, DFID, monitor, &
+  use ode_mod, only : sunctx, comm, myid, t0, tf, atol, rtol, order, monitor, &
        nout, AdvectionReaction
 
   !======= Declarations =========
@@ -1576,7 +1542,6 @@ subroutine EvolveProblemExplicit(sunvec_y)
   integer            :: ierr        ! output counter
   integer            :: iout        ! output counter
   double precision   :: tout, dtout ! output time and update
-  character(len=100) :: outname     ! diagnostics ouptput file
 
   !======= Internals ============
 
@@ -1606,20 +1571,6 @@ subroutine EvolveProblemExplicit(sunvec_y)
   if (retval /= 0) then
      print *, "Error: FERKStepMaxNumSteps returned ",retval
      call MPI_Abort(comm, 1, ierr)
-  end if
-
-  ! Open output file for integrator diagnotics
-  if (monitor) then
-
-     write(outname,"(A,I0.6,A)") "diagnostics.",myid,".txt"
-     DFID = FSUNDIALSFileOpen(trim(outname), "w")
-
-     retval = FERKStepSetDiagnostics(arkode_mem, DFID)
-     if (retval /= 0) then
-        print *, "Error: FERKStepSetDiagnostics returned ",retval
-        call MPI_Abort(comm, 1, ierr)
-     end if
-
   end if
 
   ! Set initial time, determine output time, and initialize output count
@@ -1667,9 +1618,6 @@ subroutine EvolveProblemExplicit(sunvec_y)
      print *, "-----------------------------------------------------------"
      print *, ""
   end if
-
-  ! close output stream
-  if (monitor) call FSUNDIALSFileClose(DFID)
 
   ! Get final statistics
   retval = FERKStepGetNumSteps(arkode_mem, nst)

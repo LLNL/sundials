@@ -33,7 +33,7 @@ typedef struct ARKBBDPrecDataRec {
 
   /* passed by user to ARKBBDPrecAlloc and used by PrecSetup/PrecSolve */
   sunindextype mudq, mldq, mukeep, mlkeep;
-  realtype dqrely;
+  sunrealtype dqrely;
   ARKLocalFn gloc;
   ARKCommFn cfn;
 

@@ -22,7 +22,9 @@ cv_ex_intro.tex \
 cv_ex_serial.tex \
 cv_ex_parallel.tex \
 cv_ex_parhyp.tex \
-cv_ex_fortran.tex \
 cv_ex_tests.tex
+
+# Remove F77 example text
+# cv_ex_fortran.tex \
 
 include ../Makefile.in

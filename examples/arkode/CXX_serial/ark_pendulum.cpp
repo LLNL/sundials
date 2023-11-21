@@ -209,6 +209,9 @@ int main(int argc, char* argv[])
     if (check_flag(flag, "ARKStepSetFixedStep")) return 1;
   }
 
+  flag = ARKStepSetNonlinConvCoef(arkode_mem, SUN_RCONST(0.01));
+  if (check_flag(flag, "ARKStepSetNonlinConvCoef")) return 1;
+
   /* --------------- *
    * Advance in Time *
    * --------------- */
@@ -235,7 +238,7 @@ int main(int argc, char* argv[])
 
   std::cout << std::endl;
   std::cout << std::scientific;
-  std::cout << std::setprecision(std::numeric_limits<realtype>::digits10);
+  std::cout << std::setprecision(std::numeric_limits<sunrealtype>::digits10);
   std::cout << std::setw(swidth) << 0 << std::setw(rwidth) << t
             << std::setw(rwidth) << ydata[0] << std::setw(rwidth) << ydata[1]
             << std::setw(rwidth) << eng0 << std::setw(rwidth)

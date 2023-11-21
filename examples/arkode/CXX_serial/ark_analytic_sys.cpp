@@ -49,7 +49,7 @@
 #include <nvector/nvector_serial.h>     // access to serial N_Vector
 #include <sunmatrix/sunmatrix_dense.h>  // access to dense SUNMatrix
 #include <sunlinsol/sunlinsol_dense.h>  // access to dense SUNLinearSolver
-#include <sundials/sundials_types.h>    // def. of type 'realtype'
+#include <sundials/sundials_types.h>    // def. of type 'sunrealtype'
 #include <sundials/sundials_logger.h>
 
 #if defined(SUNDIALS_EXTENDED_PRECISION)
@@ -65,8 +65,8 @@
 using namespace std;
 
 // User-supplied Functions Called by the Solver
-static int f(realtype t, N_Vector y, N_Vector ydot, void *user_data);
-static int Jac(realtype t, N_Vector y, N_Vector fy, SUNMatrix J,
+static int f(sunrealtype t, N_Vector y, N_Vector ydot, void *user_data);
+static int Jac(sunrealtype t, N_Vector y, N_Vector fy, SUNMatrix J,
                void *user_data, N_Vector tmp1, N_Vector tmp2, N_Vector tmp3);
 
 // Private function to perform matrix-matrix product
@@ -79,13 +79,13 @@ static int check_flag(void *flagvalue, const string funcname, int opt);
 int main()
 {
   // general problem parameters
-  realtype T0 = RCONST(0.0);         // initial time
-  realtype Tf = RCONST(0.05);        // final time
-  realtype dTout = RCONST(0.005);    // time between outputs
+  sunrealtype T0 = SUN_RCONST(0.0);         // initial time
+  sunrealtype Tf = SUN_RCONST(0.05);        // final time
+  sunrealtype dTout = SUN_RCONST(0.005);    // time between outputs
   sunindextype NEQ = 3;              // number of dependent vars.
-  realtype reltol = RCONST(1.0e-6);  // tolerances
-  realtype abstol = RCONST(1.0e-10);
-  realtype lamda  = RCONST(-100.0);  // stiffness parameter
+  sunrealtype reltol = SUN_RCONST(1.0e-6);  // tolerances
+  sunrealtype abstol = SUN_RCONST(1.0e-10);
+  sunrealtype lamda  = SUN_RCONST(-100.0);  // stiffness parameter
 
   // general problem variables
   int flag;                      // reusable error-checking flag
@@ -195,8 +195,8 @@ int main()
 
   /* Main time-stepping loop: calls ARKStepEvolve to perform the integration, then
      prints results.  Stops when the final time has been reached */
-  realtype t = T0;
-  realtype tout = T0+dTout;
+  sunrealtype t = T0;
+  sunrealtype tout = T0+dTout;
   cout << "      t        y0        y1        y2\n";
   cout << "   --------------------------------------\n";
   while (Tf - t > 1.0e-15) {
@@ -263,14 +263,14 @@ int main()
  *-------------------------------*/
 
 // f routine to compute the ODE RHS function f(t,y).
-static int f(realtype t, N_Vector y, N_Vector ydot, void *user_data)
+static int f(sunrealtype t, N_Vector y, N_Vector ydot, void *user_data)
 {
-  realtype *rdata = (realtype *) user_data;   // cast user_data to realtype
-  realtype lam = rdata[0];                    // set shortcut for stiffness parameter
-  realtype y0 = NV_Ith_S(y,0);                // access current solution values
-  realtype y1 = NV_Ith_S(y,1);
-  realtype y2 = NV_Ith_S(y,2);
-  realtype yd0, yd1, yd2;
+  sunrealtype *rdata = (sunrealtype *) user_data;   // cast user_data to sunrealtype
+  sunrealtype lam = rdata[0];                    // set shortcut for stiffness parameter
+  sunrealtype y0 = NV_Ith_S(y,0);                // access current solution values
+  sunrealtype y1 = NV_Ith_S(y,1);
+  sunrealtype y2 = NV_Ith_S(y,2);
+  sunrealtype yd0, yd1, yd2;
 
   // fill in the RHS function: f(t,y) = V*D*Vi*y
   yd0 = 0.25*(5.0*y0 + 1.0*y1 - 3.0*y2);     // yd = Vi*y
@@ -290,12 +290,12 @@ static int f(realtype t, N_Vector y, N_Vector ydot, void *user_data)
 }
 
 // Jacobian routine to compute J(t,y) = df/dy.
-static int Jac(realtype t, N_Vector y, N_Vector fy,
+static int Jac(sunrealtype t, N_Vector y, N_Vector fy,
                SUNMatrix J, void *user_data,
                N_Vector tmp1, N_Vector tmp2, N_Vector tmp3)
 {
-  realtype *rdata = (realtype *) user_data;   // cast user_data to realtype
-  realtype lam = rdata[0];                    // set shortcut for stiffness parameter
+  sunrealtype *rdata = (sunrealtype *) user_data;   // cast user_data to sunrealtype
+  sunrealtype lam = rdata[0];                    // set shortcut for stiffness parameter
 
   // Get Jacobian context
   SUNContext sunctx = J->sunctx;
@@ -371,9 +371,9 @@ static int SUNDlsMat_dense_MM(SUNMatrix A, SUNMatrix B, SUNMatrix C)
     return 1;
   }
 
-  realtype **adata = SUNDenseMatrix_Cols(A);     // access data and extents
-  realtype **bdata = SUNDenseMatrix_Cols(B);
-  realtype **cdata = SUNDenseMatrix_Cols(C);
+  sunrealtype **adata = SUNDenseMatrix_Cols(A);     // access data and extents
+  sunrealtype **bdata = SUNDenseMatrix_Cols(B);
+  sunrealtype **cdata = SUNDenseMatrix_Cols(C);
   sunindextype m = SUNDenseMatrix_Rows(C);
   sunindextype n = SUNDenseMatrix_Columns(C);
   sunindextype l = SUNDenseMatrix_Columns(A);

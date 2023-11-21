@@ -25,15 +25,15 @@
 #include <sundials/sundials_types.h>
 #include <sundials/sundials_math.h>
 
-#define ZERO      RCONST(0.0)
-#define POINT1    RCONST(0.1)
-#define ONETHIRD  RCONST(0.3333333333333333)
-#define HALF      RCONST(0.5)
-#define TWOTHIRDS RCONST(0.6666666666666667)
-#define POINT9    RCONST(0.9)
-#define ONE       RCONST(1.0)
-#define TWO       RCONST(2.0)
-#define TWOPT5    RCONST(2.5)
+#define ZERO      SUN_RCONST(0.0)
+#define POINT1    SUN_RCONST(0.1)
+#define ONETHIRD  SUN_RCONST(0.3333333333333333)
+#define HALF      SUN_RCONST(0.5)
+#define TWOTHIRDS SUN_RCONST(0.6666666666666667)
+#define POINT9    SUN_RCONST(0.9)
+#define ONE       SUN_RCONST(1.0)
+#define TWO       SUN_RCONST(2.0)
+#define TWOPT5    SUN_RCONST(2.5)
 
 /*
  * =================================================================
@@ -87,104 +87,6 @@ int KINSetErrFile(void *kinmem, FILE *errfp)
 
 /*
  * -----------------------------------------------------------------
- * Function : KINSetPrintLevel
- * -----------------------------------------------------------------
- */
-
-int KINSetPrintLevel(void *kinmem, int printfl)
-{
-  KINMem kin_mem;
-
-  if (kinmem == NULL) {
-    KINProcessError(NULL, KIN_MEM_NULL, "KINSOL", "KINSetPrintLevel", MSG_NO_MEM);
-    return(KIN_MEM_NULL);
-  }
-
-  kin_mem = (KINMem) kinmem;
-
-  if ((printfl < 0) || (printfl > 3)) {
-    KINProcessError(NULL, KIN_ILL_INPUT, "KINSOL", "KINSetPrintLevel", MSG_BAD_PRINTFL);
-    return(KIN_ILL_INPUT);
-  }
-
-  kin_mem->kin_printfl = printfl;
-
-  return(KIN_SUCCESS);
-}
-
-/*
- * -----------------------------------------------------------------
- * KINSetInfoHandlerFn
- * -----------------------------------------------------------------
- */
-
-int KINSetInfoHandlerFn(void *kinmem, KINInfoHandlerFn ihfun, void *ih_data)
-{
-  KINMem kin_mem;
-
-  if (kinmem == NULL) {
-    KINProcessError(NULL, KIN_MEM_NULL, "KINSOL", "KINSetInfoHandlerFn", MSG_NO_MEM);
-    return(KIN_MEM_NULL);
-  }
-
-  kin_mem = (KINMem) kinmem;
-
-  kin_mem->kin_ihfun = ihfun;
-  kin_mem->kin_ih_data = ih_data;
-
-  return(KIN_SUCCESS);
-}
-
-
-/*
- * -----------------------------------------------------------------
- * Function : KINSetInfoFile
- * DEPRECATED: use SUNLogger_SetInfoFilename instead
- * -----------------------------------------------------------------
- */
-
-int KINSetInfoFile(void *kinmem, FILE *infofp)
-{
-  KINMem kin_mem;
-
-  if (kinmem == NULL) {
-    KINProcessError(NULL, KIN_MEM_NULL, "KINSOL", "KINSetInfoFile", MSG_NO_MEM);
-    return(KIN_MEM_NULL);
-  }
-
-  kin_mem = (KINMem) kinmem;
-  kin_mem->kin_infofp = infofp;
-
-  return(KIN_SUCCESS);
-}
-
-
-/*
- * -----------------------------------------------------------------
- * Function : KINSetDebugFile
- * DEPRECATED: use SUNLogger_SetDebugFilename instead
- * -----------------------------------------------------------------
- */
-
-int KINSetDebugFile(void *kinmem, FILE *debugfp)
-{
-  KINMem kin_mem;
-
-  if (kinmem == NULL) {
-    KINProcessError(NULL, KIN_MEM_NULL, "KINSOL", "KINSetDebugFile",
-                    MSG_NO_MEM);
-    return(KIN_MEM_NULL);
-  }
-
-  kin_mem = (KINMem) kinmem;
-  kin_mem->kin_debugfp = debugfp;
-
-  return(KIN_SUCCESS);
-}
-
-
-/*
- * -----------------------------------------------------------------
  * Function : KINSetUserData
  * -----------------------------------------------------------------
  */
@@ -210,7 +112,7 @@ int KINSetUserData(void *kinmem, void *user_data)
  * -----------------------------------------------------------------
  */
 
-int KINSetDamping(void *kinmem, realtype beta)
+int KINSetDamping(void *kinmem, sunrealtype beta)
 {
   KINMem kin_mem;
 
@@ -335,7 +237,7 @@ int KINSetOrthAA(void *kinmem, int orthaa)
  * -----------------------------------------------------------------
  */
 
-int KINSetDampingAA(void *kinmem, realtype beta)
+int KINSetDampingAA(void *kinmem, sunrealtype beta)
 {
   KINMem kin_mem;
 
@@ -372,7 +274,7 @@ int KINSetDampingAA(void *kinmem, realtype beta)
  * -----------------------------------------------------------------
  */
 
-int KINSetReturnNewest(void *kinmem, booleantype ret_newest)
+int KINSetReturnNewest(void *kinmem, sunbooleantype ret_newest)
 {
   KINMem kin_mem;
 
@@ -424,7 +326,7 @@ int KINSetNumMaxIters(void *kinmem, long int mxiter)
  * -----------------------------------------------------------------
  */
 
-int KINSetNoInitSetup(void *kinmem, booleantype noInitSetup)
+int KINSetNoInitSetup(void *kinmem, sunbooleantype noInitSetup)
 {
   KINMem kin_mem;
 
@@ -445,7 +347,7 @@ int KINSetNoInitSetup(void *kinmem, booleantype noInitSetup)
  * -----------------------------------------------------------------
  */
 
-int KINSetNoResMon(void *kinmem, booleantype noResMon)
+int KINSetNoResMon(void *kinmem, sunbooleantype noResMon)
 {
   KINMem kin_mem;
 
@@ -555,7 +457,7 @@ int KINSetEtaForm(void *kinmem, int etachoice)
  * -----------------------------------------------------------------
  */
 
-int KINSetEtaConstValue(void *kinmem, realtype eta)
+int KINSetEtaConstValue(void *kinmem, sunrealtype eta)
 {
   KINMem kin_mem;
 
@@ -585,7 +487,7 @@ int KINSetEtaConstValue(void *kinmem, realtype eta)
  * -----------------------------------------------------------------
  */
 
-int KINSetEtaParams(void *kinmem, realtype egamma, realtype ealpha)
+int KINSetEtaParams(void *kinmem, sunrealtype egamma, sunrealtype ealpha)
 {
   KINMem kin_mem;
 
@@ -627,7 +529,7 @@ int KINSetEtaParams(void *kinmem, realtype egamma, realtype ealpha)
  * -----------------------------------------------------------------
  */
 
-int KINSetResMonParams(void *kinmem, realtype omegamin, realtype omegamax)
+int KINSetResMonParams(void *kinmem, sunrealtype omegamin, sunrealtype omegamax)
 {
   KINMem kin_mem;
 
@@ -684,7 +586,7 @@ int KINSetResMonParams(void *kinmem, realtype omegamin, realtype omegamax)
  * -----------------------------------------------------------------
  */
 
-int KINSetResMonConstValue(void *kinmem, realtype omegaconst)
+int KINSetResMonConstValue(void *kinmem, sunrealtype omegaconst)
 {
   KINMem kin_mem;
 
@@ -714,7 +616,7 @@ int KINSetResMonConstValue(void *kinmem, realtype omegaconst)
  * -----------------------------------------------------------------
  */
 
-int KINSetNoMinEps(void *kinmem, booleantype noMinEps)
+int KINSetNoMinEps(void *kinmem, sunbooleantype noMinEps)
 {
   KINMem kin_mem;
 
@@ -735,7 +637,7 @@ int KINSetNoMinEps(void *kinmem, booleantype noMinEps)
  * -----------------------------------------------------------------
  */
 
-int KINSetMaxNewtonStep(void *kinmem, realtype mxnewtstep)
+int KINSetMaxNewtonStep(void *kinmem, sunrealtype mxnewtstep)
 {
   KINMem kin_mem;
 
@@ -796,10 +698,10 @@ int KINSetMaxBetaFails(void *kinmem, long int mxnbcf)
  * -----------------------------------------------------------------
  */
 
-int KINSetRelErrFunc(void *kinmem, realtype relfunc)
+int KINSetRelErrFunc(void *kinmem, sunrealtype relfunc)
 {
   KINMem kin_mem;
-  realtype uround;
+  sunrealtype uround;
 
   if (kinmem == NULL) {
     KINProcessError(NULL, KIN_MEM_NULL, "KINSOL", "KINSetRelErrFunc", MSG_NO_MEM);
@@ -829,10 +731,10 @@ int KINSetRelErrFunc(void *kinmem, realtype relfunc)
  * -----------------------------------------------------------------
  */
 
-int KINSetFuncNormTol(void *kinmem, realtype fnormtol)
+int KINSetFuncNormTol(void *kinmem, sunrealtype fnormtol)
 {
   KINMem kin_mem;
-  realtype uround;
+  sunrealtype uround;
 
   if (kinmem == NULL) {
     KINProcessError(NULL, KIN_MEM_NULL, "KINSOL", "KINSetFuncNormTol", MSG_NO_MEM);
@@ -862,10 +764,10 @@ int KINSetFuncNormTol(void *kinmem, realtype fnormtol)
  * -----------------------------------------------------------------
  */
 
-int KINSetScaledStepTol(void *kinmem, realtype scsteptol)
+int KINSetScaledStepTol(void *kinmem, sunrealtype scsteptol)
 {
   KINMem kin_mem;
-  realtype uround;
+  sunrealtype uround;
 
   if (kinmem == NULL) {
     KINProcessError(NULL, KIN_MEM_NULL, "KINSOL", "KINSetScaledStepTol", MSG_NO_MEM);
@@ -898,7 +800,7 @@ int KINSetScaledStepTol(void *kinmem, realtype scsteptol)
 int KINSetConstraints(void *kinmem, N_Vector constraints)
 {
   KINMem kin_mem;
-  realtype temptest;
+  sunrealtype temptest;
 
   if (kinmem == NULL) {
     KINProcessError(NULL, KIN_MEM_NULL, "KINSOL", "KINSetConstraints", MSG_NO_MEM);
@@ -1086,7 +988,7 @@ int KINGetNumBacktrackOps(void *kinmem, long int *nbacktr)
  * -----------------------------------------------------------------
  */
 
-int KINGetFuncNorm(void *kinmem, realtype *funcnorm)
+int KINGetFuncNorm(void *kinmem, sunrealtype *funcnorm)
 {
   KINMem kin_mem;
 
@@ -1107,7 +1009,7 @@ int KINGetFuncNorm(void *kinmem, realtype *funcnorm)
  * -----------------------------------------------------------------
  */
 
-int KINGetStepLength(void *kinmem, realtype *steplength)
+int KINGetStepLength(void *kinmem, sunrealtype *steplength)
 {
   KINMem kin_mem;
 
@@ -1188,11 +1090,11 @@ int KINPrintAllStats(void *kinmem, FILE* outfile, SUNOutputFormat fmt)
       if (kin_mem->kin_nni > 0)
       {
         fprintf(outfile, "LS iters per NLS iter   = %"RSYM"\n",
-                (realtype) kinls_mem->nli / (realtype) kin_mem->kin_nni);
+                (sunrealtype) kinls_mem->nli / (sunrealtype) kin_mem->kin_nni);
         fprintf(outfile, "Jac evals per NLS iter  = %"RSYM"\n",
-                (realtype) kinls_mem->nje / (realtype) kin_mem->kin_nni);
+                (sunrealtype) kinls_mem->nje / (sunrealtype) kin_mem->kin_nni);
         fprintf(outfile, "Prec evals per NLS iter = %"RSYM"\n",
-                (realtype) kinls_mem->npe / (realtype) kin_mem->kin_nni);
+                (sunrealtype) kinls_mem->npe / (sunrealtype) kin_mem->kin_nni);
       }
     }
 
@@ -1220,11 +1122,11 @@ int KINPrintAllStats(void *kinmem, FILE* outfile, SUNOutputFormat fmt)
       if (kin_mem->kin_nni > 0)
       {
         fprintf(outfile, ",LS iters per NLS iter,%"RSYM,
-                (realtype) kinls_mem->nli / (realtype) kin_mem->kin_nni);
+                (sunrealtype) kinls_mem->nli / (sunrealtype) kin_mem->kin_nni);
         fprintf(outfile, ",Jac evals per NLS iter,%"RSYM,
-                (realtype) kinls_mem->nje / (realtype) kin_mem->kin_nni);
+                (sunrealtype) kinls_mem->nje / (sunrealtype) kin_mem->kin_nni);
         fprintf(outfile, ",Prec evals per NLS iter,%"RSYM,
-                (realtype) kinls_mem->npe / (realtype) kin_mem->kin_nni);
+                (sunrealtype) kinls_mem->npe / (sunrealtype) kin_mem->kin_nni);
       }
       else
       {

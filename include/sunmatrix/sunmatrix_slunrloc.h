@@ -37,7 +37,7 @@ extern "C" {
 
 
 struct _SUNMatrixContent_SLUNRloc {
-  booleantype   own_data;
+  sunbooleantype   own_data;
   gridinfo_t    *grid;
   sunindextype  *row_to_proc;
   pdgsmv_comm_t *gsmv_comm;
@@ -62,7 +62,7 @@ SUNDIALS_EXPORT void SUNMatrix_SLUNRloc_Print(SUNMatrix A, FILE *fp);
 
 SUNDIALS_EXPORT SuperMatrix*  SUNMatrix_SLUNRloc_SuperMatrix(SUNMatrix A);
 SUNDIALS_EXPORT gridinfo_t* SUNMatrix_SLUNRloc_ProcessGrid(SUNMatrix A);
-SUNDIALS_EXPORT booleantype   SUNMatrix_SLUNRloc_OwnData(SUNMatrix A);
+SUNDIALS_EXPORT sunbooleantype   SUNMatrix_SLUNRloc_OwnData(SUNMatrix A);
 
 /* -----------------------------------------------------------------------------
  * SuperLU implementations of various SUNMatrix operations:
@@ -73,8 +73,8 @@ SUNDIALS_EXPORT SUNMatrix SUNMatClone_SLUNRloc(SUNMatrix A);
 SUNDIALS_EXPORT void SUNMatDestroy_SLUNRloc(SUNMatrix A);
 SUNDIALS_EXPORT int SUNMatZero_SLUNRloc(SUNMatrix A);
 SUNDIALS_EXPORT int SUNMatCopy_SLUNRloc(SUNMatrix A, SUNMatrix B);
-SUNDIALS_EXPORT int SUNMatScaleAdd_SLUNRloc(realtype c, SUNMatrix A, SUNMatrix B);
-SUNDIALS_EXPORT int SUNMatScaleAddI_SLUNRloc(realtype c, SUNMatrix A);
+SUNDIALS_EXPORT int SUNMatScaleAdd_SLUNRloc(sunrealtype c, SUNMatrix A, SUNMatrix B);
+SUNDIALS_EXPORT int SUNMatScaleAddI_SLUNRloc(sunrealtype c, SUNMatrix A);
 SUNDIALS_EXPORT int SUNMatMatvecSetup_SLUNRloc(SUNMatrix A);
 SUNDIALS_EXPORT int SUNMatMatvec_SLUNRloc(SUNMatrix A, N_Vector x, N_Vector y);
 SUNDIALS_EXPORT int SUNMatSpace_SLUNRloc(SUNMatrix A, long int *lenrw, long int *leniw);

@@ -46,10 +46,10 @@ struct UserOptions
 {
   int      npxyz[3]; /* number of processors in x,y,z */
   sunindextype npts; /* number of spatial mesh points */
-  realtype t0;       /* initial time                  */
-  realtype tf;       /* final time                    */
-  realtype rtol;     /* relative tolerance            */
-  realtype atol;     /* absolute tolerance            */
+  sunrealtype t0;       /* initial time                  */
+  sunrealtype tf;       /* final time                    */
+  sunrealtype rtol;     /* relative tolerance            */
+  sunrealtype atol;     /* absolute tolerance            */
   int      order;    /* method order                  */
   string   method;   /* method string                 */
   string   nls;      /* nonlinear solver to use       */
@@ -92,19 +92,19 @@ struct UserData
   N_Vector wmask;
 
   /* problem paramaters */
-  realtype  xmax; /* maximum x value              */
-  realtype  A;    /* concentration of species A   */
-  realtype  B;    /* w source rate                */
-  realtype  k1;   /* reaction rates               */
-  realtype  k2;
-  realtype  k3;
-  realtype  k4;
-  realtype  k5;
-  realtype  k6;
-  realtype  c;    /* advection coefficient        */
+  sunrealtype  xmax; /* maximum x value              */
+  sunrealtype  A;    /* concentration of species A   */
+  sunrealtype  B;    /* w source rate                */
+  sunrealtype  k1;   /* reaction rates               */
+  sunrealtype  k2;
+  sunrealtype  k3;
+  sunrealtype  k4;
+  sunrealtype  k5;
+  sunrealtype  k6;
+  sunrealtype  c;    /* advection coefficient        */
 
   /* parallel mesh */
-  ParallelGrid<realtype,sunindextype>* grid;
+  ParallelGrid<sunrealtype,sunindextype>* grid;
 
   /* count of implicit function evals by the task local nonlinear solver */
   long int nnlfi;
@@ -165,6 +165,6 @@ void InputError(char *name);
 int ComponentMask(N_Vector mask, const int component, const UserData* udata);
 
 /* function to write solution to disk */
-int WriteOutput(realtype t, N_Vector y, UserData* udata, UserOptions* uopt);
+int WriteOutput(sunrealtype t, N_Vector y, UserData* udata, UserOptions* uopt);
 
 #endif

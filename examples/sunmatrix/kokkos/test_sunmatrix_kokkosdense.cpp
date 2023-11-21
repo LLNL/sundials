@@ -265,9 +265,9 @@ extern "C" int check_vector(N_Vector actual, N_Vector expected, sunrealtype tol)
   else return 0;
 }
 
-extern "C" booleantype has_data(SUNMatrix A) { return SUNTRUE; }
+extern "C" sunbooleantype has_data(SUNMatrix A) { return SUNTRUE; }
 
-extern "C" booleantype is_square(SUNMatrix A)
+extern "C" sunbooleantype is_square(SUNMatrix A)
 {
   auto A_mat{sundials::kokkos::GetDenseMat<MatType>(A)};
 

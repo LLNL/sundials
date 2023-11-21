@@ -244,6 +244,10 @@ int main(int argc, char* argv[])
     flag = ARKStepSetTableName(arkode_mem, "ARKODE_ARK2_DIRK_3_1_2",
                                "ARKODE_ERK_NONE");
     if (check_flag(flag, "ARKStepSetTableName")) return 1;
+
+    /* Tighten nonlinear solver tolerance */
+    flag = ARKStepSetNonlinConvCoef(arkode_mem, SUN_RCONST(0.01));
+    if (check_flag(flag, "ARKStepSetNonlinConvCoef")) return 1;
   }
 
   if (fixed_h > SUN_RCONST(0.0))

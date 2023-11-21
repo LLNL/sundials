@@ -34,16 +34,16 @@
 #endif
 
 #define NEQ   3                /* number of equations        */
-#define TOL   RCONST(1.0e-2)   /* nonlinear solver tolerance */
+#define TOL   SUN_RCONST(1.0e-2)   /* nonlinear solver tolerance */
 #define MAXIT 10               /* max nonlinear iterations   */
 
-#define ZERO  RCONST(0.0)  /* real 0.0 */
-#define HALF  RCONST(0.5)  /* real 0.5 */
-#define ONE   RCONST(1.0)  /* real 1.0 */
-#define TWO   RCONST(2.0)  /* real 2.0 */
-#define THREE RCONST(3.0)  /* real 3.0 */
-#define FOUR  RCONST(4.0)  /* real 4.0 */
-#define SIX   RCONST(6.0)  /* real 6.0 */
+#define ZERO  SUN_RCONST(0.0)  /* real 0.0 */
+#define HALF  SUN_RCONST(0.5)  /* real 0.5 */
+#define ONE   SUN_RCONST(1.0)  /* real 1.0 */
+#define TWO   SUN_RCONST(2.0)  /* real 2.0 */
+#define THREE SUN_RCONST(3.0)  /* real 3.0 */
+#define FOUR  SUN_RCONST(4.0)  /* real 4.0 */
+#define SIX   SUN_RCONST(6.0)  /* real 6.0 */
 
 /* approximate solution */
 #define Y1 0.785196933062355226
@@ -57,7 +57,7 @@ static int check_retval(void *flagvalue, const char *funcname, int opt);
 static int Res(N_Vector y, N_Vector f, void *mem);
 
 /* Jacobian of the nonlinear residual */
-static int Jac(realtype t, N_Vector y, N_Vector fy, SUNMatrix J,
+static int Jac(sunrealtype t, N_Vector y, N_Vector fy, SUNMatrix J,
                void *user_data, N_Vector tmp1, N_Vector tmp2, N_Vector tmp3);
 
 /*
@@ -76,14 +76,14 @@ typedef struct IntegratorMemRec {
 } *IntegratorMem;
 
 /* Linear solver setup interface function */
-static int LSetup(booleantype jbad, booleantype* jcur, void* mem);
+static int LSetup(sunbooleantype jbad, sunbooleantype* jcur, void* mem);
 
 /* Linear solver solve interface function */
 static int LSolve(N_Vector b, void* mem);
 
 /* Convergence test function */
 static int ConvTest(SUNNonlinearSolver NLS, N_Vector y, N_Vector del,
-                    realtype tol, N_Vector ewt, void* mem);
+                    sunrealtype tol, N_Vector ewt, void* mem);
 
 /* -----------------------------------------------------------------------------
  * Main testing routine
@@ -219,7 +219,7 @@ int main(int argc, char *argv[])
 
 
 /* Proxy for integrator lsetup function */
-int LSetup(booleantype jbad, booleantype* jcur, void* mem)
+int LSetup(sunbooleantype jbad, sunbooleantype* jcur, void* mem)
 {
   int retval;
   IntegratorMem Imem;
@@ -264,10 +264,10 @@ int LSolve(N_Vector b, void* mem)
 
 
 /* Proxy for integrator convergence test function */
-int ConvTest(SUNNonlinearSolver NLS, N_Vector y, N_Vector del, realtype tol,
+int ConvTest(SUNNonlinearSolver NLS, N_Vector y, N_Vector del, sunrealtype tol,
              N_Vector ewt, void* mem)
 {
-  realtype delnrm;
+  sunrealtype delnrm;
 
   /* compute the norm of the correction */
   delnrm = N_VWrmsNorm(del, ewt);
@@ -288,7 +288,7 @@ int ConvTest(SUNNonlinearSolver NLS, N_Vector y, N_Vector del, realtype tol,
 int Res(N_Vector ycor, N_Vector f, void *mem)
 {
   IntegratorMem Imem;
-  realtype y1, y2, y3;
+  sunrealtype y1, y2, y3;
 
   if (mem == NULL) {
     printf("ERROR: Integrator memory is NULL");
@@ -322,10 +322,10 @@ int Res(N_Vector ycor, N_Vector f, void *mem)
  *            ( 6x  -4  2z )
  *
  * ---------------------------------------------------------------------------*/
-int Jac(realtype t, N_Vector y, N_Vector fy, SUNMatrix J,
+int Jac(sunrealtype t, N_Vector y, N_Vector fy, SUNMatrix J,
         void *user_data, N_Vector tmp1, N_Vector tmp2, N_Vector tmp3)
 {
-  realtype y1, y2, y3;
+  sunrealtype y1, y2, y3;
 
   y1 = NV_Ith_S(y,0);
   y2 = NV_Ith_S(y,1);

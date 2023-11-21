@@ -33,12 +33,12 @@
   SPRKStep Exported functions -- Required
   ===============================================================*/
 
-void* SPRKStepCreate(ARKRhsFn f1, ARKRhsFn f2, realtype t0, N_Vector y0,
+void* SPRKStepCreate(ARKRhsFn f1, ARKRhsFn f2, sunrealtype t0, N_Vector y0,
                      SUNContext sunctx)
 {
   ARKodeMem ark_mem          = NULL;
   ARKodeSPRKStepMem step_mem = NULL;
-  booleantype nvectorOK      = 0;
+  sunbooleantype nvectorOK      = 0;
   int retval                 = 0;
 
   /* Check that f1 and f2 are supplied */
@@ -143,6 +143,10 @@ void* SPRKStepCreate(ARKRhsFn f1, ARKRhsFn f2, realtype t0, N_Vector y0,
   /* Zero yerr for compensated summation */
   if (ark_mem->use_compensated_sums) { N_VConst(ZERO, step_mem->yerr); }
 
+  /* SPRKStep uses Lagrange interpolation by default, since Hermite is
+     less compatible with these methods. */
+  arkSetInterpolantType(ark_mem, ARK_INTERP_LAGRANGE);
+
   /* Initialize main ARKODE infrastructure */
   retval = arkInit(ark_mem, t0, y0, FIRST_INIT);
   if (retval != ARK_SUCCESS)
@@ -152,10 +156,6 @@ void* SPRKStepCreate(ARKRhsFn f1, ARKRhsFn f2, realtype t0, N_Vector y0,
     SPRKStepFree((void**)&ark_mem);
     return (NULL);
   }
-
-  /* SPRKStep uses Lagrange interpolation by default, since Hermite is
-     less compatible with these methods. */
-  arkSetInterpolantType(ark_mem, ARK_INTERP_LAGRANGE);
 
   return ((void*)ark_mem);
 }
@@ -171,7 +171,7 @@ void* SPRKStepCreate(ARKRhsFn f1, ARKRhsFn f2, realtype t0, N_Vector y0,
 
   Note all internal counters are set to 0 on re-initialization.
   ---------------------------------------------------------------*/
-int SPRKStepReInit(void* arkode_mem, ARKRhsFn f1, ARKRhsFn f2, realtype t0,
+int SPRKStepReInit(void* arkode_mem, ARKRhsFn f1, ARKRhsFn f2, sunrealtype t0,
                    N_Vector y0)
 {
   ARKodeMem ark_mem          = NULL;
@@ -238,7 +238,7 @@ int SPRKStepReInit(void* arkode_mem, ARKRhsFn f1, ARKRhsFn f2, realtype t0,
   problem from the given time with the input state (all counter
   values are retained).
   ---------------------------------------------------------------*/
-int SPRKStepReset(void* arkode_mem, realtype tR, N_Vector yR)
+int SPRKStepReset(void* arkode_mem, sunrealtype tR, N_Vector yR)
 {
   ARKodeMem ark_mem          = NULL;
   ARKodeSPRKStepMem step_mem = NULL;
@@ -270,8 +270,8 @@ int SPRKStepReset(void* arkode_mem, realtype tR, N_Vector yR)
   This is the main time-integration driver (wrappers for general
   ARKODE utility routine)
   ---------------------------------------------------------------*/
-int SPRKStepEvolve(void* arkode_mem, realtype tout, N_Vector yout,
-                   realtype* tret, int itask)
+int SPRKStepEvolve(void* arkode_mem, sunrealtype tout, N_Vector yout,
+                   sunrealtype* tret, int itask)
 {
   /* unpack ark_mem, call arkEvolve, and return */
   ARKodeMem ark_mem = NULL;
@@ -296,7 +296,7 @@ int SPRKStepEvolve(void* arkode_mem, realtype tout, N_Vector yout,
   derivatives over the most-recently-computed step (wrapper for
   generic ARKODE utility routine)
   ---------------------------------------------------------------*/
-int SPRKStepGetDky(void* arkode_mem, realtype t, int k, N_Vector dky)
+int SPRKStepGetDky(void* arkode_mem, sunrealtype t, int k, N_Vector dky)
 {
   /* unpack ark_mem, call arkGetDky, and return */
   ARKodeMem ark_mem = NULL;
@@ -459,10 +459,6 @@ int sprkStep_Init(void* arkode_mem, int init_type)
     }
   }
 
-  /* Signal to shared arkode module that fullrhs is not required after each step
-   */
-  ark_mem->call_fullrhs = SUNFALSE;
-
   return (ARK_SUCCESS);
 }
 
@@ -500,31 +496,28 @@ int sprkStep_f2(ARKodeSPRKStepMem step_mem, sunrealtype tcur, N_Vector ycur,
   return retval;
 }
 
-/*---------------------------------------------------------------
+/*------------------------------------------------------------------------------
   sprkStep_FullRHS:
 
   This is just a wrapper to call the user-supplied RHS,
   f1(t,y) + f2(t,y).
 
   This will be called in one of three 'modes':
-    ARK_FULLRHS_START -> called at the beginning of a simulation
-                         or after post processing at step
-    ARK_FULLRHS_END   -> called at the end of a successful step
-    ARK_FULLRHS_OTHER -> called elsewhere (e.g. for dense output)
 
-  If it is called in ARK_FULLRHS_START mode, we store the vectors
-  f1(t,y) and f2(t,y) in sdata for possible reuse in the first stage
-  of the subsequent time step.
+     ARK_FULLRHS_START -> called at the beginning of a simulation i.e., at
+                          (tn, yn) = (t0, y0) or (tR, yR)
 
-  If it is called in ARK_FULLRHS_END mode and the method coefficients
-  support it, we may just copy the stage vectors to fill f instead
-  of calling f().
+     ARK_FULLRHS_END   -> called at the end of a successful step i.e, at
+                          (tcur, ycur) or the start of the subsequent step i.e.,
+                          at (tn, yn) = (tcur, ycur) from the end of the last
+                          step
 
-  ARK_FULLRHS_OTHER mode is only called for dense output in-between
-  steps, so we strive to store the intermediate parts so that they
-  do not interfere with the other two modes.
-  ---------------------------------------------------------------*/
-int sprkStep_FullRHS(void* arkode_mem, realtype t, N_Vector y, N_Vector f,
+     ARK_FULLRHS_OTHER -> called elsewhere (e.g. for dense output)
+
+  Since RHS values are not stored in SPRKStep we evaluate the RHS functions for
+  all modes.
+  ----------------------------------------------------------------------------*/
+int sprkStep_FullRHS(void* arkode_mem, sunrealtype t, N_Vector y, N_Vector f,
                      int mode)
 {
   int retval                 = 0;
@@ -542,6 +535,9 @@ int sprkStep_FullRHS(void* arkode_mem, realtype t, N_Vector y, N_Vector f,
   case ARK_FULLRHS_START:
   case ARK_FULLRHS_END:
   case ARK_FULLRHS_OTHER:
+
+    /* Since f1 and f2 do not have overlapping outputs and so the f vector is
+       passed to both RHS functions. */
 
     retval = sprkStep_f1(step_mem, t, y, f, ark_mem->user_data);
     if (retval != 0)
@@ -575,7 +571,7 @@ int sprkStep_FullRHS(void* arkode_mem, realtype t, N_Vector y, N_Vector f,
    This requires only 2 vectors in principle, but we use three
    since we persist the stage data. Only the stage data vector
    belongs to SPRKStep, the other two are reused from the ARKODE core. */
-int sprkStep_TakeStep(void* arkode_mem, realtype* dsmPtr, int* nflagPtr)
+int sprkStep_TakeStep(void* arkode_mem, sunrealtype* dsmPtr, int* nflagPtr)
 {
   ARKodeMem ark_mem          = NULL;
   ARKodeSPRKStepMem step_mem = NULL;
@@ -652,7 +648,7 @@ int sprkStep_TakeStep(void* arkode_mem, realtype* dsmPtr, int* nflagPtr)
 /* Increment SPRK algorithm with compensated summation.
    This algorithm requires 6 vectors, but 5 of them are reused
    from the ARKODE core. */
-int sprkStep_TakeStep_Compensated(void* arkode_mem, realtype* dsmPtr,
+int sprkStep_TakeStep_Compensated(void* arkode_mem, sunrealtype* dsmPtr,
                                   int* nflagPtr)
 {
   ARKodeMem ark_mem          = NULL;
@@ -791,7 +787,7 @@ int sprkStep_AccessStepMem(void* arkode_mem, const char* fname,
   This routine checks if all required vector operations are
   present.  If any of them is missing it returns SUNFALSE.
   ---------------------------------------------------------------*/
-booleantype sprkStep_CheckNVector(N_Vector tmpl)
+sunbooleantype sprkStep_CheckNVector(N_Vector tmpl)
 {
   if ((tmpl->ops->nvclone == NULL) || (tmpl->ops->nvdestroy == NULL) ||
       (tmpl->ops->nvlinearsum == NULL) || (tmpl->ops->nvconst == NULL) ||

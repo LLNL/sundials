@@ -375,10 +375,11 @@ described in the section :numref:`Butcher`.
 For mixed stiff/nonstiff problems, a user should provide both of the
 functions :math:`f^E` and :math:`f^I` that define the IVP system.  For
 such problems, ARKStep currently implements the ARK methods proposed in
-:cite:p:`KenCarp:03`, allowing for methods having order of accuracy :math:`q =
-\{3,4,5\}` and embeddings with orders :math:`p = \{2, 3, 4\}`;
-the tables for these methods are given in section :numref:`Butcher.additive`.
-Additionally, user-defined ARK tables are supported.
+:cite:p:`KenCarp:03,KenCarp:19,giraldo2013implicit`, allowing for methods having
+order of accuracy :math:`q = \{2,3,4,5\}` and embeddings with orders :math:`p =
+\{1,2,3,4\}`; the tables for these methods are given in section
+:numref:`Butcher.additive`.  Additionally, user-defined ARK tables are
+supported.
 
 For nonstiff problems, a user may specify that :math:`f^I = 0`,
 i.e. the equation :eq:`ARKODE_IMEX_IVP` reduces to the non-split IVP
@@ -391,8 +392,8 @@ In this scenario, the coefficients :math:`A^I=0`, :math:`c^I=0`,
 :math:`b^I=0` and :math:`\tilde{b}^I=0` in :eq:`ARKODE_ARK`, and the ARK
 methods reduce to classical :index:`explicit Runge--Kutta methods`
 (ERK).  For these classes of methods, ARKODE provides coefficients
-with orders of accuracy :math:`q = \{2,3,4,5,6,8\}`, with embeddings
-of orders :math:`p = \{1,2,3,4,5,7\}`.  These default to the methods in
+with orders of accuracy :math:`q = \{2,3,4,5,6,7,8,9\}`, with embeddings
+of orders :math:`p = \{1,2,3,4,5,6,7,8\}`.  These default to the methods in
 sections
 :numref:`Butcher.Heun_Euler`,
 :numref:`Butcher.Bogacki_Shampine`, :numref:`Butcher.Zonneveld`,
@@ -465,39 +466,41 @@ than the more general form :eq:`ARKODE_IVP_simple_explicit`.
 SPRKStep -- Symplectic Partitioned Runge--Kutta methods
 =======================================================
 
-The SPRKStep time-stepping module in ARKODE is designed for IVPs of the form
+The SPRKStep time-stepping module in ARKODE is designed for problems where the
+state vector is partitioned as
 
 .. math::
-   \dot{p} = f_1(t, q) = \frac{\partial V(t, q)}{\partial q}, \quad
-   \dot{q} = f_2(t, p) = \frac{\partial T(t, p)}{\partial p},
-   \qquad p(t_0) = p_0,\quad q(t_0) = q_0,
-   :label: ARKODE_IVP_Hamiltonian
+   y(t) =
+   \begin{bmatrix}
+     p(t) \\
+     q(t)
+   \end{bmatrix}
 
-where the system Hamiltonian
+and the component partitioned IVP is given by
+
+.. math::
+   \dot{p} &= f_1(t, q), \qquad p(t_0) = p_0 \\
+   \dot{q} &= f_2(t, p), \qquad q(t_0) = q_0.
+   :label: ARKODE_IVP_SPRK
+
+The right-hand side functions :math:`f_1(t,p)` and :math:`f_2(t,q)` typically
+arise from the **separable** Hamiltonian system
 
 .. math::
    H(t, p, q) = T(t, p) + V(t, q)
 
-**is separable**. When *H* is autonomous, then *H* is a conserved quantity.
-Often this correponds to the conservation of energy (for example, in *n*-body
-problems). For non-autonomous *H*, the invariants are no longer directly
-obtainable from the Hamiltonian :cite:p:`Struckmeier:02`.
-
-In solving the IVP :eq:`ARKODE_IVP_Hamiltonian`, we consider the problem in the form
+where
 
 .. math::
-   \dot{y} =
-      \begin{bmatrix}
-         f_1(t, q) \\
-         f_2(t, p)
-      \end{bmatrix}, \qquad
-      y(t_0) =
-      \begin{bmatrix}
-         p_0\\
-         q_0
-      \end{bmatrix}.
+   f_1(t, q) \equiv \frac{\partial V(t, q)}{\partial q}, \qquad
+   f_2(t, p) \equiv \frac{\partial T(t, p)}{\partial p}.
 
-In practice, the ordering  of the variables does not matter and is determined by the user.
+When *H* is autonomous, then *H* is a conserved quantity. Often this corresponds
+to the conservation of energy (for example, in *n*-body problems). For
+non-autonomous *H*, the invariants are no longer directly obtainable from the
+Hamiltonian :cite:p:`Struckmeier:02`.
+
+In practice, the ordering of the variables does not matter and is determined by the user.
 SPRKStep utilizes Symplectic Partitioned Runge-Kutta (SPRK) methods represented by the pair
 of explicit and diagonally implicit Butcher tableaux,
 
@@ -528,17 +531,18 @@ schemes with order of accuracy and conservation equal to
 the default methods used are given in the section :numref:`Butcher.sprk`.
 
 In the default case, the algorithm for a single time-step is as follows
-(for autonomous Hamiltonian systems the times provided to :math:`f1` and :math:`f2`
+(for autonomous Hamiltonian systems the times provided to :math:`f_1` and
+:math:`f_2`
 can be ignored).
 
-#. Set :math:`P_0 = p_n, Q_1 = q_n`
+#. Set :math:`P_0 = p_{n-1}, Q_1 = q_{n-1}`
 
 #. For :math:`i = 1,\ldots,s` do:
 
-   #. :math:`P_i = P_{i-1} + h_{n+1} \hat{a}_i f_1(t_n + \hat{c}_i h, Q_i)`
-   #. :math:`Q_{i+1} = Q_i + h_{n+1} a_i f_2(t_n + c_i h, P_i)`
+   #. :math:`P_i = P_{i-1} + h_n \hat{a}_i f_1(t_{n-1} + \hat{c}_i h_n, Q_i)`
+   #. :math:`Q_{i+1} = Q_i + h_n a_i f_2(t_{n-1} + c_i h_n, P_i)`
 
-#. Set :math:`p_{n+1} = P_s, q_{n+1} = Q_{s+1}`
+#. Set :math:`p_n = P_s, q_n = Q_{s+1}`
 
 .. _ARKODE.Mathematics.SPRKStep.Compensated:
 
@@ -553,12 +557,12 @@ form is used to compute a time step:
 
 #. For :math:`i = 1,\ldots,s` do:
 
-   #. :math:`\Delta P_i = \Delta P_{i-1} + h_{n+1} \hat{a}_i f_1(t_n + \hat{c}_i h, q_n + \Delta Q_i)`
-   #. :math:`\Delta Q_{i+1} = \Delta Q_i + h_{n+1} a_i f_2(t_n + c_i h, p_n + \Delta P_i)`
+   #. :math:`\Delta P_i = \Delta P_{i-1} + h_n \hat{a}_i f_1(t_{n-1} + \hat{c}_i h_n, q_{n-1} + \Delta Q_i)`
+   #. :math:`\Delta Q_{i+1} = \Delta Q_i + h_n a_i f_2(t_{n-1} + c_i h_n, p_{n-1} + \Delta P_i)`
 
-#. Set :math:`\Delta p_{n+1} = \Delta P_s, \Delta q_{n+1} = \Delta Q_{s+1}`
+#. Set :math:`\Delta p_n = \Delta P_s, \Delta q_n = \Delta Q_{s+1}`
 
-#. Using compensated summation, set :math:`p_{n+1} = p_n + \Delta p_{n+1}, q_{n+1} = q_n + \Delta Q_{s+1}`
+#. Using compensated summation, set :math:`p_n = p_{n-1} + \Delta p_n, q_n = q_{n-1} + \Delta q_n`
 
 Since temporal error based adaptive time-stepping is known to ruin the
 conservation property :cite:p:`HaWa:06`,  SPRKStep employs a fixed time-step size.
@@ -705,7 +709,7 @@ characterized by nonzero values on or above the diagonal of the matrices
 :math:`\Gamma^{\{k\}}`. Typically, MRI-GARK and IMEX-MRI-GARK methods are at
 most diagonally-implicit (i.e., :math:`\gamma_{i,j}^{\{k\}}=0` for all
 :math:`j>i`). Furthermore, diagonally-implicit stages are characterized as being
-"solve-decoupled" if :math:`\Delta c_i^S = 0` when `\gamma_{i,i}^{\{k\}} \ne 0`,
+"solve-decoupled" if :math:`\Delta c_i^S = 0` when :math:`\gamma_{i,i}^{\{k\}} \ne 0`,
 in which case the stage is computed as standard ARK or DIRK update. Alternately,
 a diagonally-implicit stage :math:`i` is considered "solve-coupled" if
 :math:`\Delta c^S_i \gamma_{i,j}^{\{k\}} \ne 0`, in which
@@ -902,147 +906,24 @@ steps, :math:`t_{n-3} \to t_{n-2} \to t_{n-1} \to t_n`.  These local
 error history values are all initialized to 1 upon program
 initialization, to accommodate the few initial time steps of a
 calculation where some of these error estimates have not yet been
-computed.  With these estimates, ARKODE supports a variety of error
-control algorithms, as specified in the subsections below.
+computed.  With these estimates, ARKODE supports one of two approaches
+for temporal error control.
 
+First, any valid implementation of the SUNAdaptController class
+:numref:`SUNAdaptController.Description` may be used by ARKODE's adaptive
+time-stepping modules to provide a candidate error-based prospective step
+size :math:`h'`.
 
-.. _ARKODE.Mathematics.Adaptivity.ErrorControl.PID:
-
-PID controller
------------------
-
-This is the default time adaptivity controller used by the ARKStep and
-ERKStep modules.  It derives from those found in :cite:p:`KenCarp:03`, :cite:p:`Sod:98`, :cite:p:`Sod:03` and
-:cite:p:`Sod:06`, and uses all three of the local error estimates
-:math:`\varepsilon_n`, :math:`\varepsilon_{n-1}` and
-:math:`\varepsilon_{n-2}` in determination of a prospective step size,
-
-.. math::
-   h' \;=\; h_n\; \varepsilon_n^{-k_1/p}\; \varepsilon_{n-1}^{k_2/p}\;
-        \varepsilon_{n-2}^{-k_3/p},
-
-where the constants :math:`k_1`, :math:`k_2` and :math:`k_3` default
-to 0.58, 0.21 and 0.1, respectively, and may be modified by the user.
-In this estimate, a floor of :math:`\varepsilon > 10^{-10}` is
-enforced to avoid division-by-zero errors.
-
-
-
-.. _ARKODE.Mathematics.Adaptivity.ErrorControl.PI:
-
-PI controller
-----------------------
-
-Like with the previous method, the PI controller derives from those
-found in :cite:p:`KenCarp:03`, :cite:p:`Sod:98`, :cite:p:`Sod:03` and :cite:p:`Sod:06`, but it differs in
-that it only uses the two most recent step sizes in its adaptivity
-algorithm,
-
-.. math::
-   h' \;=\; h_n\; \varepsilon_n^{-k_1/p}\; \varepsilon_{n-1}^{k_2/p}.
-
-Here, the default values of :math:`k_1` and :math:`k_2` default
-to 0.8 and 0.31, respectively, though they may be changed by the user.
-
-
-
-.. _ARKODE.Mathematics.Adaptivity.ErrorControl.I:
-
-I controller
-----------------------
-
-This is the standard time adaptivity control algorithm in use by most
-publicly-available ODE solver codes.  It bases the prospective time step
-estimate entirely off of the current local error estimate,
-
-.. math::
-   h' \;=\; h_n\; \varepsilon_n^{-k_1/p}.
-
-By default, :math:`k_1=1`, but that may be modified by the user.
-
-
-
-
-.. _ARKODE.Mathematics.Adaptivity.ErrorControl.eGus:
-
-Explicit Gustafsson controller
----------------------------------
-
-This step adaptivity algorithm was proposed in :cite:p:`Gust:91`, and
-is primarily useful with explicit Runge--Kutta methods.
-In the notation of our earlier controllers, it has the form
-
-.. math::
-   h' \;=\; \begin{cases}
-      h_1\; \varepsilon_1^{-1/p}, &\quad\text{on the first step}, \\
-      h_n\; \varepsilon_n^{-k_1/p}\;
-        \left(\dfrac{\varepsilon_n}{\varepsilon_{n-1}}\right)^{k_2/p}, &
-      \quad\text{on subsequent steps}.
-   \end{cases}
-   :label: ARKODE_expGus
-
-The default values of :math:`k_1` and :math:`k_2` are 0.367 and 0.268,
-respectively, and may be modified by the user.
-
-
-
-
-.. _ARKODE.Mathematics.Adaptivity.ErrorControl.iGus:
-
-Implicit Gustafsson controller
----------------------------------
-
-A version of the above controller suitable for implicit Runge--Kutta
-methods was introduced in :cite:p:`Gust:94`, and has the form
-
-.. math::
-   h' = \begin{cases}
-      h_1 \varepsilon_1^{-1/p}, &\quad\text{on the first step}, \\
-      h_n \left(\dfrac{h_n}{h_{n-1}}\right) \varepsilon_n^{-k_1/p}
-        \left(\dfrac{\varepsilon_n}{\varepsilon_{n-1}}\right)^{-k_2/p}, &
-      \quad\text{on subsequent steps}.
-   \end{cases}
-   :label: ARKODE_impGus
-
-The algorithm parameters default to :math:`k_1 = 0.98` and
-:math:`k_2 = 0.95`, but may be modified by the user.
-
-
-
-
-.. _ARKODE.Mathematics.Adaptivity.ErrorControl.ieGus:
-
-ImEx Gustafsson controller
----------------------------------
-
-An ImEx version of these two preceding controllers is also available.
-This approach computes the estimates :math:`h'_1` arising from
-equation :eq:`ARKODE_expGus` and the estimate :math:`h'_2` arising from
-equation :eq:`ARKODE_impGus`, and selects
-
-.. math::
-   h' = \frac{h}{|h|}\min\left\{|h'_1|, |h'_2|\right\}.
-
-Here, equation :eq:`ARKODE_expGus` uses :math:`k_1` and
-:math:`k_2` with default values of 0.367 and 0.268, while equation
-:eq:`ARKODE_impGus` sets both parameters to the input :math:`k_3` that
-defaults to 0.95.  All of these values may be modified by the user.
-
-
-
-.. _ARKODE.Mathematics.Adaptivity.ErrorControl.User:
-
-User-supplied controller
----------------------------------
-
-Finally, ARKODE's time-stepping modules allow the user to define their
-own time step adaptivity function,
+Second, ARKODE's adaptive time-stepping modules currently still allow the
+user to define their own time step adaptivity function,
 
 .. math::
    h' = H(y, t, h_n, h_{n-1}, h_{n-2}, \varepsilon_n, \varepsilon_{n-1}, \varepsilon_{n-2}, q, p),
 
-to allow for problem-specific choices, or for continued
-experimentation with temporal error controllers.
+allowing for problem-specific choices, or for continued
+experimentation with temporal error controllers.  We note that this
+support has been deprecated in favor of the SUNAdaptController class,
+and will be removed in a future release.
 
 
 

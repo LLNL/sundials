@@ -215,7 +215,6 @@ program main
   type(SUNLinearSolver), pointer :: sunlinsol_LS  ! sundials linear solver
 
   type(c_ptr) :: kmem   ! KINSOL memory
-  type(c_ptr) :: infofp ! info file
 
   ! solution and scaling vectors; nx, ny are set in the prob_mod module
   real(c_double), dimension(nx,ny) :: u, scale
@@ -296,22 +295,6 @@ program main
      stop 1
   end if
 
-  ! Set information file
-
-  infofp = FSUNDIALSFileOpen("KINSOL.log", "w");
-
-  ierr = FKINSetInfoFile(kmem, infofp);
-  if (ierr /= 0) then
-     print *, 'Error in FKINSetInfoFile, ierr = ', ierr, '; halting'
-     stop 1
-  end if
-
-  ierr = FKINSetPrintLevel(kmem, 3);
-  if (ierr /= 0) then
-     print *, 'Error in FKINSetPrintLevel, ierr = ', ierr, '; halting'
-     stop 1
-  end if
-
   ! -------------------------
   ! Create a linear solver
 
@@ -372,7 +355,6 @@ program main
   call PrintFinalStats(kmem)
 
   ! clean up
-  call FSUNDIALSFileClose(infofp)
   call FKINFree(kmem)
   ierr = FSUNLinSolFree(sunlinsol_LS)
   call FN_VDestroy(sunvec_u)

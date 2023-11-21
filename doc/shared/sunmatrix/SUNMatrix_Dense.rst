@@ -25,9 +25,9 @@ defines the *content* field of ``SUNMatrix`` to be the following structure:
    struct _SUNMatrixContent_Dense {
      sunindextype M;
      sunindextype N;
-     realtype *data;
+     sunrealtype *data;
      sunindextype ldata;
-     realtype **cols;
+     sunrealtype **cols;
    };
 
 These entries of the *content* field contain the following information:
@@ -36,7 +36,7 @@ These entries of the *content* field contain the following information:
 
 * ``N`` - number of columns
 
-* ``data`` - pointer to a contiguous block of ``realtype`` variables.
+* ``data`` - pointer to a contiguous block of ``sunrealtype`` variables.
   The elements of the dense matrix are stored columnwise, i.e. the
   :math:`(i,j)` element of a dense ``SUNMatrix`` object
   (with :math:`0 \le i < M` and :math:`0 \le j < N`) may be accessed
@@ -169,7 +169,7 @@ these macros are for *SUNMatrix* implementations, and the suffix
    The assignment ``col_j = SM_COLUMN_D(A,j)`` sets ``col_j`` to be
    a pointer to the first entry of the ``j``-th column of the :math:`M \times N`
    dense matrix ``A`` (with :math:`0 \le j < N`).  The type of the
-   expression ``SM_COLUMN_D(A,j)`` is ``realtype *``.  The pointer
+   expression ``SM_COLUMN_D(A,j)`` is ``sunrealtype *``.  The pointer
    returned by the call ``SM_COLUMN_D(A,j)`` can be treated as
    an array which is indexed from 0 to ``M-1``.
 
@@ -235,17 +235,17 @@ following additional user-callable routines:
    This function returns the length of the data array for the dense ``SUNMatrix``.
 
 
-.. c:function:: realtype* SUNDenseMatrix_Data(SUNMatrix A)
+.. c:function:: sunrealtype* SUNDenseMatrix_Data(SUNMatrix A)
 
    This function returns a pointer to the data array for the dense ``SUNMatrix``.
 
 
-.. c:function:: realtype** SUNDenseMatrix_Cols(SUNMatrix A)
+.. c:function:: sunrealtype** SUNDenseMatrix_Cols(SUNMatrix A)
 
    This function returns a pointer to the cols array for the dense ``SUNMatrix``.
 
 
-.. c:function:: realtype* SUNDenseMatrix_Column(SUNMatrix A, sunindextype j)
+.. c:function:: sunrealtype* SUNDenseMatrix_Column(SUNMatrix A, sunindextype j)
 
    This function returns a pointer to the first entry of the jth
    column of the dense ``SUNMatrix``.  The resulting pointer should

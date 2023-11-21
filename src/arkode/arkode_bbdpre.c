@@ -28,25 +28,25 @@
 #include <nvector/nvector_serial.h>
 
 
-#define MIN_INC_MULT RCONST(1000.0)
-#define ZERO         RCONST(0.0)
-#define ONE          RCONST(1.0)
+#define MIN_INC_MULT SUN_RCONST(1000.0)
+#define ZERO         SUN_RCONST(0.0)
+#define ONE          SUN_RCONST(1.0)
 
 
 /* Prototypes of functions ARKBBDPrecSetup and ARKBBDPrecSolve */
-static int ARKBBDPrecSetup(realtype t, N_Vector y, N_Vector fy,
-                           booleantype jok, booleantype *jcurPtr,
-                           realtype gamma, void *bbd_data);
-static int ARKBBDPrecSolve(realtype t, N_Vector y, N_Vector fy,
+static int ARKBBDPrecSetup(sunrealtype t, N_Vector y, N_Vector fy,
+                           sunbooleantype jok, sunbooleantype *jcurPtr,
+                           sunrealtype gamma, void *bbd_data);
+static int ARKBBDPrecSolve(sunrealtype t, N_Vector y, N_Vector fy,
                            N_Vector r, N_Vector z,
-                           realtype gamma, realtype delta,
+                           sunrealtype gamma, sunrealtype delta,
                            int lr, void *bbd_data);
 
 /* Prototype for ARKBBDPrecFree */
 static int ARKBBDPrecFree(ARKodeMem ark_mem);
 
 /* Prototype for difference quotient Jacobian calculation routine */
-static int ARKBBDDQJac(ARKBBDPrecData pdata, realtype t,
+static int ARKBBDDQJac(ARKBBDPrecData pdata, sunrealtype t,
                        N_Vector y, N_Vector gy,
                        N_Vector ytemp, N_Vector gtemp);
 
@@ -57,7 +57,7 @@ static int ARKBBDDQJac(ARKBBDPrecData pdata, realtype t,
 int ARKBBDPrecInit(void *arkode_mem, sunindextype Nlocal,
                    sunindextype mudq, sunindextype mldq,
                    sunindextype mukeep, sunindextype mlkeep,
-                   realtype dqrely,
+                   sunrealtype dqrely,
                    ARKLocalFn gloc, ARKCommFn cfn)
 {
   ARKodeMem      ark_mem;
@@ -276,7 +276,7 @@ int ARKBBDPrecInit(void *arkode_mem, sunindextype Nlocal,
 
 /*-------------------------------------------------------------*/
 int ARKBBDPrecReInit(void *arkode_mem, sunindextype mudq,
-                     sunindextype mldq, realtype dqrely)
+                     sunindextype mldq, sunrealtype dqrely)
 {
   ARKodeMem      ark_mem;
   ARKLsMem       arkls_mem;
@@ -419,9 +419,9 @@ int ARKBBDPrecGetNumGfnEvals(void *arkode_mem,
    0  if successful,
    1  for a recoverable error (step will be retried).
 ---------------------------------------------------------------*/
-static int ARKBBDPrecSetup(realtype t, N_Vector y, N_Vector fy,
-                           booleantype jok, booleantype *jcurPtr,
-                           realtype gamma, void *bbd_data)
+static int ARKBBDPrecSetup(sunrealtype t, N_Vector y, N_Vector fy,
+                           sunbooleantype jok, sunbooleantype *jcurPtr,
+                           sunrealtype gamma, void *bbd_data)
 {
   ARKBBDPrecData pdata;
   ARKodeMem ark_mem;
@@ -514,9 +514,9 @@ static int ARKBBDPrecSetup(realtype t, N_Vector y, N_Vector fy,
  The value returned by the ARKBBDPrecSolve function is the same
  as the value returned from the linear solver object.
 ---------------------------------------------------------------*/
-static int ARKBBDPrecSolve(realtype t, N_Vector y, N_Vector fy,
+static int ARKBBDPrecSolve(sunrealtype t, N_Vector y, N_Vector fy,
                            N_Vector r, N_Vector z,
-                           realtype gamma, realtype delta,
+                           sunrealtype gamma, sunrealtype delta,
                            int lr, void *bbd_data)
 {
   int retval;
@@ -585,15 +585,15 @@ static int ARKBBDPrecFree(ARKodeMem ark_mem)
  This routine also assumes that the local elements of a vector are
  stored contiguously.
 ---------------------------------------------------------------*/
-static int ARKBBDDQJac(ARKBBDPrecData pdata, realtype t,
+static int ARKBBDDQJac(ARKBBDPrecData pdata, sunrealtype t,
                        N_Vector y, N_Vector gy,
                        N_Vector ytemp, N_Vector gtemp)
 {
   ARKodeMem ark_mem;
-  realtype gnorm, minInc, inc, inc_inv, yj, conj;
+  sunrealtype gnorm, minInc, inc, inc_inv, yj, conj;
   sunindextype group, i, j, width, ngroups, i1, i2;
-  realtype *y_data, *ewt_data, *gy_data, *gtemp_data;
-  realtype *ytemp_data, *col_j, *cns_data;
+  sunrealtype *y_data, *ewt_data, *gy_data, *gtemp_data;
+  sunrealtype *ytemp_data, *col_j, *cns_data;
   int retval;
 
   ark_mem = (ARKodeMem) pdata->arkode_mem;

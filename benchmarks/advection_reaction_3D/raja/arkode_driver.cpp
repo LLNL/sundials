@@ -38,7 +38,7 @@ typedef struct
 #define LOCAL_NLS(NLS)       ( GET_NLS_CONTENT(NLS)->local_nls )
 
 /* SUNNonlinearSolver constructor */
-SUNNonlinearSolver TaskLocalNewton(SUNContext ctx, N_Vector y, FILE* DFID);
+SUNNonlinearSolver TaskLocalNewton(SUNContext ctx, N_Vector y);
 
 
 /* --------------------------------------------------------------
@@ -52,14 +52,13 @@ int EvolveProblemDIRK(N_Vector y, UserData* udata, UserOptions* uopt)
   SUNNonlinearSolver NLS = NULL;         /* empty nonlinear solver structure */
   SUNLinearSolver    LS  = NULL;         /* empty linear solver structure    */
 
-  realtype t, dtout, tout;    /* current/output time data     */
+  sunrealtype t, dtout, tout;    /* current/output time data     */
   int      retval;            /* reusable error-checking flag */
   int      iout;              /* output counter               */
   long int nst, nst_a, netf;  /* step stats                   */
   long int nfe, nfi;          /* RHS stats                    */
   long int nni, ncnf;         /* nonlinear solver stats       */
   long int nli, npsol;        /* linear solver stats          */
-  FILE*    DFID = NULL;       /* diagnostics output file      */
   char     fname[MXSTR];
 
   /* Additively split methods should not add the advection and reaction terms */
@@ -85,16 +84,6 @@ int EvolveProblemDIRK(N_Vector y, UserData* udata, UserOptions* uopt)
   retval = ARKStepSetMaxNumSteps(arkode_mem, 100000);
   if (check_retval(&retval, "ARKStepSetMaxNumSteps", 1, udata->myid)) return 1;
 
-  /* Open output file for integrator diagnostics */
-  if (uopt->save)
-  {
-    sprintf(fname, "%s/diagnostics.%06d.txt", uopt->outputdir, udata->myid);
-    DFID = fopen(fname, "w");
-
-    retval = ARKStepSetDiagnostics(arkode_mem, DFID);
-    if (check_retval(&retval, "ARKStepSetDiagnostics", 1, udata->myid)) return 1;
-  }
-
   /* Create the (non)linear solver */
   if (uopt->nls == "newton")
   {
@@ -107,7 +96,7 @@ int EvolveProblemDIRK(N_Vector y, UserData* udata, UserOptions* uopt)
     if (check_retval(&retval, "ARKStepSetNonlinearSolver", 1, udata->myid)) return 1;
 
     /* Create linear solver */
-    LS = uopt->precond ? SUNLinSol_SPGMR(y, PREC_LEFT, 0, udata->ctx) : SUNLinSol_SPGMR(y, PREC_NONE, 0, udata->ctx);
+    LS = uopt->precond ? SUNLinSol_SPGMR(y, SUN_PREC_LEFT, 0, udata->ctx) : SUNLinSol_SPGMR(y, SUN_PREC_NONE, 0, udata->ctx);
     if (check_retval((void *)LS, "SUNLinSol_SPGMR", 0, udata->myid)) return 1;
 
     /* Attach linear solver */
@@ -169,9 +158,6 @@ int EvolveProblemDIRK(N_Vector y, UserData* udata, UserOptions* uopt)
     iout++;
   } while (iout < uopt->nout);
 
-  /* close output stream */
-  if (uopt->save) fclose(DFID);
-
   /* Get final statistics */
   retval = ARKStepGetNumSteps(arkode_mem, &nst);
   check_retval(&retval, "ARKStepGetNumSteps", 1, udata->myid);
@@ -227,14 +213,13 @@ int EvolveProblemIMEX(N_Vector y, UserData* udata, UserOptions* uopt)
   SUNNonlinearSolver NLS = NULL;         /* empty nonlinear solver structure */
   SUNLinearSolver    LS  = NULL;         /* empty linear solver structure    */
 
-  realtype t, dtout, tout;    /* current/output time data     */
+  sunrealtype t, dtout, tout;    /* current/output time data     */
   int      retval;            /* reusable error-checking flag */
   int      iout;              /* output counter               */
   long int nst, nst_a, netf;  /* step stats                   */
   long int nfe, nfi;          /* RHS stats                    */
   long int nni, ncnf;         /* nonlinear solver stats       */
   long int nli, npsol;        /* linear solver stats          */
-  FILE*    DFID = NULL;       /* diagnostics output file      */
   char     fname[MXSTR];
 
   /* Additively split methods should not add the advection and reaction terms */
@@ -260,16 +245,6 @@ int EvolveProblemIMEX(N_Vector y, UserData* udata, UserOptions* uopt)
   retval = ARKStepSetMaxNumSteps(arkode_mem, 100000);
   if (check_retval(&retval, "ARKStepSetMaxNumSteps", 1, udata->myid)) return 1;
 
-  /* Open output file for integrator diagnostics */
-  if (uopt->save)
-  {
-    sprintf(fname, "%s/diagnostics.%06d.txt", uopt->outputdir, udata->myid);
-    DFID = fopen(fname, "w");
-
-    retval = ARKStepSetDiagnostics(arkode_mem, DFID);
-    if (check_retval(&retval, "ARKStepSetDiagnostics", 1, udata->myid)) return 1;
-  }
-
   /* Create the (non)linear solver */
   if (uopt->nls == "newton")
   {
@@ -282,7 +257,7 @@ int EvolveProblemIMEX(N_Vector y, UserData* udata, UserOptions* uopt)
     if (check_retval(&retval, "ARKStepSetNonlinearSolver", 1, udata->myid)) return 1;
 
     /* Create linear solver */
-    LS = SUNLinSol_SPGMR(y, PREC_LEFT, 0, udata->ctx);
+    LS = SUNLinSol_SPGMR(y, SUN_PREC_LEFT, 0, udata->ctx);
     if (check_retval((void *)LS, "SUNLinSol_SPGMR", 0, udata->myid)) return 1;
 
     /* Attach linear solver */
@@ -297,7 +272,7 @@ int EvolveProblemIMEX(N_Vector y, UserData* udata, UserOptions* uopt)
   {
     /* The custom task-local nonlinear solver handles the linear solve
        as well, so we do not need a SUNLinearSolver. */
-    NLS = TaskLocalNewton(udata->ctx, y, DFID);
+    NLS = TaskLocalNewton(udata->ctx, y);
     if (check_retval((void *)NLS, "TaskLocalNewton", 0, udata->myid)) return 1;
 
     /* Attach nonlinear solver */
@@ -355,9 +330,6 @@ int EvolveProblemIMEX(N_Vector y, UserData* udata, UserOptions* uopt)
     iout++;
   } while (iout < uopt->nout);
 
-  /* close output stream */
-  if (uopt->save) fclose(DFID);
-
   /* Get final statistics */
   retval = ARKStepGetNumSteps(arkode_mem, &nst);
   check_retval(&retval, "ARKStepGetNumSteps", 1, udata->myid);
@@ -410,12 +382,11 @@ int EvolveProblemIMEX(N_Vector y, UserData* udata, UserOptions* uopt)
 int EvolveProblemExplicit(N_Vector y, UserData* udata, UserOptions* uopt)
 {
   void*    arkode_mem = NULL; /* empty ARKODE memory structure */
-  realtype   t, dtout, tout;    /* current/output time data      */
+  sunrealtype   t, dtout, tout;    /* current/output time data      */
   int      retval;            /* reusable error-checking flag  */
   int      iout;              /* output counter                */
   long int nst, nst_a, netf;  /* step stats                    */
   long int nfe;               /* RHS stats                     */
-  FILE*    DFID;              /* diagnostics output file       */
   char     fname[MXSTR];
 
   /* Additively split methods should not add the advection and reaction terms */
@@ -444,16 +415,6 @@ int EvolveProblemExplicit(N_Vector y, UserData* udata, UserOptions* uopt)
   /* Set fixed step size */
   retval = ERKStepSetFixedStep(arkode_mem, 1e-5);
   if (check_retval(&retval, "ERKStepSetFixedStep", 1, udata->myid)) return 1;
-
-  /* Open output file for integrator diagnostics */
-  if (uopt->save)
-  {
-    sprintf(fname, "%s/diagnostics.%06d.txt", uopt->outputdir, udata->myid);
-    DFID = fopen(fname, "w");
-
-    retval = ERKStepSetDiagnostics(arkode_mem, DFID);
-    if (check_retval(&retval, "ERKStepSetDiagnostics", 1, udata->myid)) return 1;
-  }
 
   /* Output initial condition */
   if (uopt->nout > 0)
@@ -489,9 +450,6 @@ int EvolveProblemExplicit(N_Vector y, UserData* udata, UserOptions* uopt)
 
     iout++;
   } while (iout < uopt->nout);
-
-  /* close output stream */
-  if (uopt->save) fclose(DFID);
 
   /* Get final statistics */
   retval = ERKStepGetNumSteps(arkode_mem, &nst);
@@ -529,12 +487,12 @@ int TaskLocalNlsResidual(N_Vector ycor, N_Vector F, void* arkode_mem)
   /* temporary variables */
   UserData* udata;
   int      retval;
-  realtype   c[3];
+  sunrealtype   c[3];
   N_Vector X[3];
 
   /* nonlinear system data */
   N_Vector z, zpred, Fi, sdata;
-  realtype   tcur, gamma;
+  sunrealtype   tcur, gamma;
   void     *user_data;
 
   ARKStepGetNonlinearSystemData(arkode_mem, &tcur, &zpred, &z, &Fi,
@@ -578,7 +536,7 @@ int TaskLocalLSolve(N_Vector delta, void* arkode_mem)
 
   /* nonlinear system data */
   N_Vector z, zpred, Fi, sdata;
-  realtype tcur, gamma;
+  sunrealtype tcur, gamma;
   void*    user_data = NULL;
 
   ARKStepGetNonlinearSystemData(arkode_mem, &tcur, &zpred, &z, &Fi,
@@ -617,8 +575,8 @@ int TaskLocalNewton_Initialize(SUNNonlinearSolver NLS)
 
 int TaskLocalNewton_Solve(SUNNonlinearSolver NLS,
                           N_Vector y0, N_Vector ycor,
-                          N_Vector w, realtype tol,
-                          booleantype callLSetup, void* mem)
+                          N_Vector w, sunrealtype tol,
+                          sunbooleantype callLSetup, void* mem)
 {
   /* local variables */
   MPI_Comm comm;
@@ -718,7 +676,7 @@ int TaskLocalNewton_GetNumConvFails(SUNNonlinearSolver NLS,
 }
 
 
-SUNNonlinearSolver TaskLocalNewton(SUNContext ctx, N_Vector y, FILE* DFID)
+SUNNonlinearSolver TaskLocalNewton(SUNContext ctx, N_Vector y)
 {
   SUNNonlinearSolver NLS;
   TaskLocalNewton_Content content;
@@ -770,13 +728,6 @@ SUNNonlinearSolver TaskLocalNewton(SUNContext ctx, N_Vector y, FILE* DFID)
   MPI_Comm_size(content->comm, &content->nprocs);
 
   content->ncnf = 0;
-
-  /* Setup the local nonlinear solver monitoring */
-  if (DFID != NULL)
-  {
-    SUNNonlinSolSetInfoFile_Newton(LOCAL_NLS(NLS), DFID);
-    SUNNonlinSolSetPrintLevel_Newton(LOCAL_NLS(NLS), 1);
-  }
 
   return NLS;
 }

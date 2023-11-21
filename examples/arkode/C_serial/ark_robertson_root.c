@@ -42,7 +42,7 @@
 #include <nvector/nvector_serial.h>     /* serial N_Vector types, fcts., macros */
 #include <sunmatrix/sunmatrix_dense.h>  /* access to dense SUNMatrix            */
 #include <sunlinsol/sunlinsol_dense.h>  /* access to dense SUNLinearSolver      */
-#include <sundials/sundials_types.h>    /* defs. of 'realtype', 'sunindextype'  */
+#include <sundials/sundials_types.h>    /* defs. of 'sunrealtype', 'sunindextype'  */
 
 #if defined(SUNDIALS_EXTENDED_PRECISION)
 #define GSYM "Lg"
@@ -55,10 +55,10 @@
 #endif
 
 /* User-supplied Functions Called by the Solver */
-static int f(realtype t, N_Vector y, N_Vector ydot, void *user_data);
-static int Jac(realtype t, N_Vector y, N_Vector fy, SUNMatrix J,
+static int f(sunrealtype t, N_Vector y, N_Vector ydot, void *user_data);
+static int Jac(sunrealtype t, N_Vector y, N_Vector fy, SUNMatrix J,
                void *user_data, N_Vector tmp1, N_Vector tmp2, N_Vector tmp3);
-static int g(realtype t, N_Vector y, realtype *gout, void *user_data);
+static int g(sunrealtype t, N_Vector y, sunrealtype *gout, void *user_data);
 
 /* Private function to check function return values */
 static int check_flag(void *flagvalue, const char *funcname, int opt);
@@ -67,9 +67,9 @@ static int check_flag(void *flagvalue, const char *funcname, int opt);
 int main()
 {
   /* general problem parameters */
-  realtype T0 = RCONST(0.0);     /* initial time */
-  realtype T1 = RCONST(0.4);     /* first output time */
-  realtype TMult = RCONST(10.0); /* output time multiplication factor */
+  sunrealtype T0 = SUN_RCONST(0.0);     /* initial time */
+  sunrealtype T1 = SUN_RCONST(0.4);     /* first output time */
+  sunrealtype TMult = SUN_RCONST(10.0); /* output time multiplication factor */
   int Nt = 12;                   /* total number of output times */
   sunindextype NEQ = 3;              /* number of dependent vars. */
  
@@ -85,15 +85,15 @@ int main()
   SUNLinearSolver LS = NULL;     /* empty linear solver object */
   void *arkode_mem = NULL;       /* empty ARKode memory structure */
   FILE *UFID;
-  realtype t, tout;
+  sunrealtype t, tout;
   int iout;
   long int nst, nst_a, nfe, nfi, nsetups, nje, nfeLS, nni, nnf, ncfn, netf, nge;
 
   /* set up the initial conditions */
-  realtype u0 = RCONST(1.0);
-  realtype v0 = RCONST(0.0);
-  realtype w0 = RCONST(0.0);
-  realtype reltol = RCONST(1.0e-4);
+  sunrealtype u0 = SUN_RCONST(1.0);
+  sunrealtype v0 = SUN_RCONST(0.0);
+  sunrealtype w0 = SUN_RCONST(0.0);
+  sunrealtype reltol = SUN_RCONST(1.0e-4);
 
   /* Create the SUNDIALS context object for this simulation */
   SUNContext ctx;
@@ -115,9 +115,9 @@ int main()
   if (check_flag((void *) atols, "N_VNew_Serial", 0)) return 1;
 
   /* Set absolute tolerances */
-  NV_Ith_S(atols,0) = RCONST(1.0e-8);
-  NV_Ith_S(atols,1) = RCONST(1.0e-11);
-  NV_Ith_S(atols,2) = RCONST(1.0e-8);
+  NV_Ith_S(atols,0) = SUN_RCONST(1.0e-8);
+  NV_Ith_S(atols,1) = SUN_RCONST(1.0e-11);
+  NV_Ith_S(atols,2) = SUN_RCONST(1.0e-8);
 
   /* Call ARKStepCreate to initialize the ARK timestepper module and
      specify the right-hand side function in y'=f(t,y), the inital time
@@ -131,7 +131,7 @@ int main()
   if (check_flag(&flag, "ARKStepSetMaxErrTestFails", 1)) return 1;
   flag = ARKStepSetMaxNonlinIters(arkode_mem, 8);             /* Increase max nonlin iters  */
   if (check_flag(&flag, "ARKStepSetMaxNonlinIters", 1)) return 1;
-  flag = ARKStepSetNonlinConvCoef(arkode_mem, RCONST(1.e-7)); /* Set nonlinear convergence coeff. */
+  flag = ARKStepSetNonlinConvCoef(arkode_mem, SUN_RCONST(1.e-7)); /* Set nonlinear convergence coeff. */
   if (check_flag(&flag, "ARKStepSetNonlinConvCoef", 1)) return 1;
   flag = ARKStepSetMaxNumSteps(arkode_mem, 100000);           /* Increase max num steps */
   if (check_flag(&flag, "ARKStepSetMaxNumSteps", 1)) return 1;
@@ -252,11 +252,11 @@ int main()
  *-------------------------------*/
 
 /* f routine to compute the ODE RHS function f(t,y). */
-static int f(realtype t, N_Vector y, N_Vector ydot, void *user_data)
+static int f(sunrealtype t, N_Vector y, N_Vector ydot, void *user_data)
 {
-  realtype u = NV_Ith_S(y,0);   /* access current solution */
-  realtype v = NV_Ith_S(y,1);
-  realtype w = NV_Ith_S(y,2);
+  sunrealtype u = NV_Ith_S(y,0);   /* access current solution */
+  sunrealtype v = NV_Ith_S(y,1);
+  sunrealtype w = NV_Ith_S(y,2);
 
   /* Fill in ODE RHS function */
   NV_Ith_S(ydot,0) = -0.04*u + 1.e4*v*w;
@@ -267,11 +267,11 @@ static int f(realtype t, N_Vector y, N_Vector ydot, void *user_data)
 }
 
 /* Jacobian routine to compute J(t,y) = df/dy. */
-static int Jac(realtype t, N_Vector y, N_Vector fy, SUNMatrix J,
+static int Jac(sunrealtype t, N_Vector y, N_Vector fy, SUNMatrix J,
                void *user_data, N_Vector tmp1, N_Vector tmp2, N_Vector tmp3)
 {
-  realtype v = NV_Ith_S(y,1);   /* access current solution */
-  realtype w = NV_Ith_S(y,2);
+  sunrealtype v = NV_Ith_S(y,1);   /* access current solution */
+  sunrealtype w = NV_Ith_S(y,2);
   SUNMatZero(J);                /* initialize Jacobian to zero */
 
   /* Fill in the Jacobian of the ODE RHS function */
@@ -289,13 +289,13 @@ static int Jac(realtype t, N_Vector y, N_Vector fy, SUNMatrix J,
 }
 
 /* g routine to compute the root-finding function g(t,y). */
-static int g(realtype t, N_Vector y, realtype *gout, void *user_data)
+static int g(sunrealtype t, N_Vector y, sunrealtype *gout, void *user_data)
 {
-  realtype u = NV_Ith_S(y,0);    /* access current solution */
-  realtype w = NV_Ith_S(y,2);
+  sunrealtype u = NV_Ith_S(y,0);    /* access current solution */
+  sunrealtype w = NV_Ith_S(y,2);
 
-  gout[0] = u - RCONST(0.0001);  /* check for u == 1e-4 */
-  gout[1] = w - RCONST(0.01);    /* check for w == 1e-2 */
+  gout[0] = u - SUN_RCONST(0.0001);  /* check for u == 1e-4 */
+  gout[1] = w - SUN_RCONST(0.01);    /* check for w == 1e-2 */
 
   return 0;                      /* Return with success */
 }

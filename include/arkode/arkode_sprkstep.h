@@ -43,13 +43,13 @@ static const int SPRKSTEP_DEFAULT_10 = ARKODE_SPRK_SOFRONIOU_10_36;
  * ------------------- */
 
 /* Create, Resize, and Reinitialization functions */
-SUNDIALS_EXPORT void* SPRKStepCreate(ARKRhsFn f1, ARKRhsFn f2, realtype t0,
+SUNDIALS_EXPORT void* SPRKStepCreate(ARKRhsFn f1, ARKRhsFn f2, sunrealtype t0,
                                      N_Vector y0, SUNContext sunctx);
 
 SUNDIALS_EXPORT int SPRKStepReInit(void* arkode_mem, ARKRhsFn f1, ARKRhsFn f2,
-                                   realtype t0, N_Vector y0);
+                                   sunrealtype t0, N_Vector y0);
 
-SUNDIALS_EXPORT int SPRKStepReset(void* arkode_mem, realtype tR, N_Vector yR);
+SUNDIALS_EXPORT int SPRKStepReset(void* arkode_mem, sunrealtype tR, N_Vector yR);
 
 /* Rootfinding functions */
 
@@ -67,8 +67,8 @@ SUNDIALS_EXPORT int SPRKStepSetOrder(void* arkode_mem, int maxord);
 SUNDIALS_EXPORT int SPRKStepSetInterpolantType(void* arkode_mem, int itype);
 SUNDIALS_EXPORT int SPRKStepSetInterpolantDegree(void* arkode_mem, int degree);
 SUNDIALS_EXPORT int SPRKStepSetMaxNumSteps(void* arkode_mem, long int mxsteps);
-SUNDIALS_EXPORT int SPRKStepSetStopTime(void* arkode_mem, realtype tstop);
-SUNDIALS_EXPORT int SPRKStepSetFixedStep(void* arkode_mem, realtype hfixed);
+SUNDIALS_EXPORT int SPRKStepSetStopTime(void* arkode_mem, sunrealtype tstop);
+SUNDIALS_EXPORT int SPRKStepSetFixedStep(void* arkode_mem, sunrealtype hfixed);
 SUNDIALS_EXPORT int SPRKStepSetErrHandlerFn(void* arkode_mem,
                                             ARKErrHandlerFn ehfun, void* eh_data);
 SUNDIALS_EXPORT int SPRKStepSetErrFile(void* arkode_mem, FILE* errfp);
@@ -80,11 +80,11 @@ SUNDIALS_EXPORT int SPRKStepSetPostprocessStageFn(void* arkode_mem,
                                                   ARKPostProcessFn ProcessStage);
 
 /* Integrate the ODE over an interval in t */
-SUNDIALS_EXPORT int SPRKStepEvolve(void* arkode_mem, realtype tout,
-                                   N_Vector yout, realtype* tret, int itask);
+SUNDIALS_EXPORT int SPRKStepEvolve(void* arkode_mem, sunrealtype tout,
+                                   N_Vector yout, sunrealtype* tret, int itask);
 
 /* Computes the kth derivative of the y function at time t */
-SUNDIALS_EXPORT int SPRKStepGetDky(void* arkode_mem, realtype t, int k,
+SUNDIALS_EXPORT int SPRKStepGetDky(void* arkode_mem, sunrealtype t, int k,
                                    N_Vector dky);
 
 /* Optional output functions */
@@ -92,9 +92,9 @@ SUNDIALS_EXPORT char* SPRKStepGetReturnFlagName(long int flag);
 SUNDIALS_EXPORT int SPRKStepGetCurrentMethod(void* arkode_mem,
                                              ARKodeSPRKTable* sprk_storage);
 SUNDIALS_EXPORT int SPRKStepGetCurrentState(void* arkode_mem, N_Vector* state);
-SUNDIALS_EXPORT int SPRKStepGetCurrentStep(void* arkode_mem, realtype* hcur);
-SUNDIALS_EXPORT int SPRKStepGetCurrentTime(void* arkode_mem, realtype* tcur);
-SUNDIALS_EXPORT int SPRKStepGetLastStep(void* arkode_mem, realtype* hlast);
+SUNDIALS_EXPORT int SPRKStepGetCurrentStep(void* arkode_mem, sunrealtype* hcur);
+SUNDIALS_EXPORT int SPRKStepGetCurrentTime(void* arkode_mem, sunrealtype* tcur);
+SUNDIALS_EXPORT int SPRKStepGetLastStep(void* arkode_mem, sunrealtype* hlast);
 SUNDIALS_EXPORT int SPRKStepGetNumRhsEvals(void* arkode_mem, long int* nf1,
                                            long int* nf2);
 SUNDIALS_EXPORT int SPRKStepGetNumStepAttempts(void* arkode_mem,
@@ -108,8 +108,8 @@ SUNDIALS_EXPORT int SPRKStepWriteParameters(void* arkode_mem, FILE* fp);
 
 /* Grouped optional output functions */
 SUNDIALS_EXPORT int SPRKStepGetStepStats(void* arkode_mem, long int* nsteps,
-                                         realtype* hinused, realtype* hlast,
-                                         realtype* hcur, realtype* tcur);
+                                         sunrealtype* hinused, sunrealtype* hlast,
+                                         sunrealtype* hcur, sunrealtype* tcur);
 
 /* Free function */
 SUNDIALS_EXPORT void SPRKStepFree(void** arkode_mem);

@@ -58,7 +58,7 @@
 #include <nvector/nvector_serial.h>     /* access to serial N_Vector            */
 #include <sunmatrix/sunmatrix_sparse.h> /* access to sparse SUNMatrix           */
 #include <sunlinsol/sunlinsol_klu.h>    /* access to KLU sparse direct solver   */
-#include <sundials/sundials_types.h>    /* defs. of realtype, sunindextype      */
+#include <sundials/sundials_types.h>    /* defs. of sunrealtype, sunindextype      */
 #include <sundials/sundials_math.h>     /* defs. of SUNRabs, SUNRexp, etc.      */
 
 /* User-defined vector accessor macro: Ith */
@@ -78,37 +78,37 @@
 
 #define NEQ   3                /* number of equations  */
 #define NNZ   7                /* number of non-zero entries in the Jacobian */
-#define Y1    RCONST(1.0)      /* initial y components */
-#define Y2    RCONST(0.0)
-#define Y3    RCONST(0.0)
-#define RTOL  RCONST(1.0e-4)   /* scalar relative tolerance            */
-#define ATOL1 RCONST(1.0e-8)   /* vector absolute tolerance components */
-#define ATOL2 RCONST(1.0e-14)
-#define ATOL3 RCONST(1.0e-6)
-#define T0    RCONST(0.0)      /* initial time           */
-#define T1    RCONST(0.4)      /* first output time      */
-#define TMULT RCONST(10.0)     /* output time factor     */
+#define Y1    SUN_RCONST(1.0)      /* initial y components */
+#define Y2    SUN_RCONST(0.0)
+#define Y3    SUN_RCONST(0.0)
+#define RTOL  SUN_RCONST(1.0e-4)   /* scalar relative tolerance            */
+#define ATOL1 SUN_RCONST(1.0e-8)   /* vector absolute tolerance components */
+#define ATOL2 SUN_RCONST(1.0e-14)
+#define ATOL3 SUN_RCONST(1.0e-6)
+#define T0    SUN_RCONST(0.0)      /* initial time           */
+#define T1    SUN_RCONST(0.4)      /* first output time      */
+#define TMULT SUN_RCONST(10.0)     /* output time factor     */
 #define NOUT  12               /* number of output times */
 
 #define NP    3             /* number of problem parameters */
 #define NS    3             /* number of sensitivities computed */
 
-#define ZERO  RCONST(0.0)
+#define ZERO  SUN_RCONST(0.0)
 
 /* Type : UserData */
 
 typedef struct {
-  realtype p[3];           /* problem parameters */
+  sunrealtype p[3];           /* problem parameters */
 } *UserData;
 
 /* Functions Called by the Solver */
 
-static int f(realtype t, N_Vector y, N_Vector ydot, void *user_data);
+static int f(sunrealtype t, N_Vector y, N_Vector ydot, void *user_data);
 
-static int Jac(realtype t, N_Vector y, N_Vector fy, SUNMatrix J,
+static int Jac(sunrealtype t, N_Vector y, N_Vector fy, SUNMatrix J,
                void *user_data, N_Vector tmp1, N_Vector tmp2, N_Vector tmp3);
 
-static int fS(int Ns, realtype t, N_Vector y, N_Vector ydot,
+static int fS(int Ns, sunrealtype t, N_Vector y, N_Vector ydot,
               int iS, N_Vector yS, N_Vector ySdot,
               void *user_data, N_Vector tmp1, N_Vector tmp2);
 
@@ -116,18 +116,18 @@ static int ewt(N_Vector y, N_Vector w, void *user_data);
 
 /* Private functions to output results */
 
-static void PrintOutput(void *cvode_mem, realtype t, N_Vector u);
+static void PrintOutput(void *cvode_mem, sunrealtype t, N_Vector u);
 static void PrintOutputS(N_Vector *uS);
 
 /* Private function to print final statistics */
 
-static void PrintFinalStats(void *cvode_mem, booleantype sensi);
+static void PrintFinalStats(void *cvode_mem, sunbooleantype sensi);
 
 /* Prototypes of private functions */
 
 static void ProcessArgs(int argc, char *argv[],
-                        booleantype *sensi, int *sensi_meth,
-                        booleantype *err_con);
+                        sunbooleantype *sensi, int *sensi_meth,
+                        sunbooleantype *err_con);
 
 static void WrongArgs(char *name);
 
@@ -143,7 +143,7 @@ static int check_retval(void *returnvalue, const char *funcname, int opt);
 int main(int argc, char *argv[])
 {
   SUNContext sunctx;
-  realtype t, tout;
+  sunrealtype t, tout;
   N_Vector y;
   SUNMatrix A;
   SUNLinearSolver LS;
@@ -151,10 +151,10 @@ int main(int argc, char *argv[])
   int retval, iout;
   UserData data;
 
-  realtype pbar[NS];
+  sunrealtype pbar[NS];
   int is;
   N_Vector *yS;
-  booleantype sensi, err_con;
+  sunbooleantype sensi, err_con;
   int sensi_meth;
 
   data = NULL;
@@ -170,9 +170,9 @@ int main(int argc, char *argv[])
   /* User data structure */
   data = (UserData) malloc(sizeof *data);
   if (check_retval((void *)data, "malloc", 2)) return(1);
-  data->p[0] = RCONST(0.04);
-  data->p[1] = RCONST(1.0e4);
-  data->p[2] = RCONST(3.0e7);
+  data->p[0] = SUN_RCONST(0.04);
+  data->p[1] = SUN_RCONST(1.0e4);
+  data->p[2] = SUN_RCONST(3.0e7);
 
   /* Create the SUNDIALS context that all SUNDIALS objects require */
   retval = SUNContext_Create(NULL, &sunctx);
@@ -333,11 +333,11 @@ int main(int argc, char *argv[])
  * f routine. Compute function f(t,y).
  */
 
-static int f(realtype t, N_Vector y, N_Vector ydot, void *user_data)
+static int f(sunrealtype t, N_Vector y, N_Vector ydot, void *user_data)
 {
-  realtype y1, y2, y3, yd1, yd3;
+  sunrealtype y1, y2, y3, yd1, yd3;
   UserData data;
-  realtype p1, p2, p3;
+  sunrealtype p1, p2, p3;
 
   y1 = Ith(y,1); y2 = Ith(y,2); y3 = Ith(y,3);
   data = (UserData) user_data;
@@ -354,24 +354,24 @@ static int f(realtype t, N_Vector y, N_Vector ydot, void *user_data)
  * Jacobian routine. Compute J(t,y) = df/dy. *
  */
 
-static int Jac(realtype t, N_Vector y, N_Vector fy, SUNMatrix J,
+static int Jac(sunrealtype t, N_Vector y, N_Vector fy, SUNMatrix J,
                void *user_data, N_Vector tmp1, N_Vector tmp2, N_Vector tmp3)
 {
   /* State at which to evaluate the Jacobian */
-  realtype *yval = N_VGetArrayPointer(y);
+  sunrealtype *yval = N_VGetArrayPointer(y);
 
   /* J is stored in CSC format:
      data    = non-zero matrix entries stored column-wise (length NNZ)
      rowvals = row index for each non-zero matrix entry (length NNZ)
      colptrs = i-th entry is the index in data where the first non-zero matrix
                entry of the i-th column is stored (length NEQ + 1) */
-  realtype     *data    = SUNSparseMatrix_Data(J);
+  sunrealtype     *data    = SUNSparseMatrix_Data(J);
   sunindextype *rowvals = SUNSparseMatrix_IndexValues(J);
   sunindextype *colptrs = SUNSparseMatrix_IndexPointers(J);
   UserData     userdata = (UserData) user_data;
-  realtype     p1 = userdata->p[0];
-  realtype     p2 = userdata->p[1];
-  realtype     p3 = userdata->p[2];
+  sunrealtype     p1 = userdata->p[0];
+  sunrealtype     p2 = userdata->p[1];
+  sunrealtype     p3 = userdata->p[2];
 
   /* first column entries start at data[0], two entries (rows 0 and 1) */
   colptrs[0] = 0;
@@ -413,15 +413,15 @@ static int Jac(realtype t, N_Vector y, N_Vector fy, SUNMatrix J,
  * fS routine. Compute sensitivity r.h.s.
  */
 
-static int fS(int Ns, realtype t, N_Vector y, N_Vector ydot,
+static int fS(int Ns, sunrealtype t, N_Vector y, N_Vector ydot,
               int iS, N_Vector yS, N_Vector ySdot,
               void *user_data, N_Vector tmp1, N_Vector tmp2)
 {
   UserData data;
-  realtype p1, p2, p3;
-  realtype y1, y2, y3;
-  realtype s1, s2, s3;
-  realtype sd1, sd2, sd3;
+  sunrealtype p1, p2, p3;
+  sunrealtype y1, y2, y3;
+  sunrealtype s1, s2, s3;
+  sunrealtype sd1, sd2, sd3;
 
   data = (UserData) user_data;
   p1 = data->p[0]; p2 = data->p[1]; p3 = data->p[2];
@@ -462,7 +462,7 @@ static int fS(int Ns, realtype t, N_Vector y, N_Vector ydot,
 static int ewt(N_Vector y, N_Vector w, void *user_data)
 {
   int i;
-  realtype yy, ww, rtol, atol[3];
+  sunrealtype yy, ww, rtol, atol[3];
 
   rtol    = RTOL;
   atol[0] = ATOL1;
@@ -490,7 +490,7 @@ static int ewt(N_Vector y, N_Vector w, void *user_data)
  */
 
 static void ProcessArgs(int argc, char *argv[],
-                        booleantype *sensi, int *sensi_meth, booleantype *err_con)
+                        sunbooleantype *sensi, int *sensi_meth, sunbooleantype *err_con)
 {
   *sensi = SUNFALSE;
   *sensi_meth = -1;
@@ -542,11 +542,11 @@ static void WrongArgs(char *name)
  * Print current t, step count, order, stepsize, and solution.
  */
 
-static void PrintOutput(void *cvode_mem, realtype t, N_Vector u)
+static void PrintOutput(void *cvode_mem, sunrealtype t, N_Vector u)
 {
   long int nst;
   int qu, retval;
-  realtype hu, *udata;
+  sunrealtype hu, *udata;
 
   udata = N_VGetArrayPointer(u);
 
@@ -583,7 +583,7 @@ static void PrintOutput(void *cvode_mem, realtype t, N_Vector u)
 
 static void PrintOutputS(N_Vector *uS)
 {
-  realtype *sdata;
+  sunrealtype *sdata;
 
   sdata = N_VGetArrayPointer(uS[0]);
   printf("                  Sensitivity 1  ");
@@ -623,7 +623,7 @@ static void PrintOutputS(N_Vector *uS)
  * Get and print some final statistics
  */
 
-static void PrintFinalStats(void *cvode_mem, booleantype sensi)
+static void PrintFinalStats(void *cvode_mem, sunbooleantype sensi)
 {
   long int nst, nfe, nsetups, nje, nni, nnf, ncfn, netf;
   long int nfSe, nfeS, nsetupsS, nniS, nnfS, ncfnS, netfS;

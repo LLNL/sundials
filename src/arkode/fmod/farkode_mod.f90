@@ -33,6 +33,7 @@ module farkode_mod
  use fsundials_context_mod
  use fsundials_types_mod
  use fsundials_nonlinearsolver_mod
+ use fsundials_adaptcontroller_mod
  use fsundials_types_mod
  implicit none
  private
@@ -104,6 +105,7 @@ module farkode_mod
  integer(C_INT), parameter, public :: ARK_RELAX_MEM_NULL = -44_C_INT
  integer(C_INT), parameter, public :: ARK_RELAX_FUNC_FAIL = -45_C_INT
  integer(C_INT), parameter, public :: ARK_RELAX_JAC_FAIL = -46_C_INT
+ integer(C_INT), parameter, public :: ARK_CONTROLLER_ERR = -47_C_INT
  integer(C_INT), parameter, public :: ARK_UNRECOGNIZED_ERROR = -99_C_INT
  ! typedef enum ARKRelaxSolver
  enum, bind(c)
@@ -158,24 +160,9 @@ module farkode_mod
  public :: FARKodeButcherTable_Space
  public :: FARKodeButcherTable_Free
  public :: FARKodeButcherTable_Write
+ public :: FARKodeButcherTable_IsStifflyAccurate
  public :: FARKodeButcherTable_CheckOrder
  public :: FARKodeButcherTable_CheckARKOrder
- integer(C_INT), parameter, public :: SDIRK_2_1_2 = 100_C_INT
- integer(C_INT), parameter, public :: BILLINGTON_3_3_2 = 101_C_INT
- integer(C_INT), parameter, public :: TRBDF2_3_3_2 = 102_C_INT
- integer(C_INT), parameter, public :: KVAERNO_4_2_3 = 103_C_INT
- integer(C_INT), parameter, public :: ARK324L2SA_DIRK_4_2_3 = 104_C_INT
- integer(C_INT), parameter, public :: CASH_5_2_4 = 105_C_INT
- integer(C_INT), parameter, public :: CASH_5_3_4 = 106_C_INT
- integer(C_INT), parameter, public :: SDIRK_5_3_4 = 107_C_INT
- integer(C_INT), parameter, public :: KVAERNO_5_3_4 = 108_C_INT
- integer(C_INT), parameter, public :: ARK436L2SA_DIRK_6_3_4 = 109_C_INT
- integer(C_INT), parameter, public :: KVAERNO_7_4_5 = 110_C_INT
- integer(C_INT), parameter, public :: ARK548L2SA_DIRK_8_4_5 = 111_C_INT
- integer(C_INT), parameter, public :: ARK437L2SA_DIRK_7_3_4 = 112_C_INT
- integer(C_INT), parameter, public :: ARK548L2SAb_DIRK_8_4_5 = 113_C_INT
- integer(C_INT), parameter, public :: MIN_DIRK_NUM = 100_C_INT
- integer(C_INT), parameter, public :: MAX_DIRK_NUM = 113_C_INT
  ! typedef enum ARKODE_DIRKTableID
  enum, bind(c)
   enumerator :: ARKODE_DIRK_NONE = -1
@@ -220,23 +207,6 @@ module farkode_mod
   integer(C_SIZE_T), public :: size = 0
  end type
  public :: FARKodeButcherTable_LoadDIRKByName
- integer(C_INT), parameter, public :: HEUN_EULER_2_1_2 = 0_C_INT
- integer(C_INT), parameter, public :: BOGACKI_SHAMPINE_4_2_3 = 1_C_INT
- integer(C_INT), parameter, public :: ARK324L2SA_ERK_4_2_3 = 2_C_INT
- integer(C_INT), parameter, public :: ZONNEVELD_5_3_4 = 3_C_INT
- integer(C_INT), parameter, public :: ARK436L2SA_ERK_6_3_4 = 4_C_INT
- integer(C_INT), parameter, public :: SAYFY_ABURUB_6_3_4 = 5_C_INT
- integer(C_INT), parameter, public :: CASH_KARP_6_4_5 = 6_C_INT
- integer(C_INT), parameter, public :: FEHLBERG_6_4_5 = 7_C_INT
- integer(C_INT), parameter, public :: DORMAND_PRINCE_7_4_5 = 8_C_INT
- integer(C_INT), parameter, public :: ARK548L2SA_ERK_8_4_5 = 9_C_INT
- integer(C_INT), parameter, public :: VERNER_8_5_6 = 10_C_INT
- integer(C_INT), parameter, public :: FEHLBERG_13_7_8 = 11_C_INT
- integer(C_INT), parameter, public :: KNOTH_WOLKE_3_3 = 12_C_INT
- integer(C_INT), parameter, public :: ARK437L2SA_ERK_7_3_4 = 13_C_INT
- integer(C_INT), parameter, public :: ARK548L2SAb_ERK_8_4_5 = 14_C_INT
- integer(C_INT), parameter, public :: MIN_ERK_NUM = 0_C_INT
- integer(C_INT), parameter, public :: MAX_ERK_NUM = 14_C_INT
  ! typedef enum ARKODE_ERKTableID
  enum, bind(c)
   enumerator :: ARKODE_ERK_NONE = -1
@@ -257,14 +227,21 @@ module farkode_mod
   enumerator :: ARKODE_ARK437L2SA_ERK_7_3_4
   enumerator :: ARKODE_ARK548L2SAb_ERK_8_4_5
   enumerator :: ARKODE_ARK2_ERK_3_1_2
-  enumerator :: ARKODE_MAX_ERK_NUM = ARKODE_ARK2_ERK_3_1_2
+  enumerator :: ARKODE_SOFRONIOU_SPALETTA_5_3_4
+  enumerator :: ARKODE_SHU_OSHER_3_2_3
+  enumerator :: ARKODE_VERNER_9_5_6
+  enumerator :: ARKODE_VERNER_10_6_7
+  enumerator :: ARKODE_VERNER_13_7_8
+  enumerator :: ARKODE_VERNER_16_8_9
+  enumerator :: ARKODE_MAX_ERK_NUM = ARKODE_VERNER_16_8_9
  end enum
  integer, parameter, public :: ARKODE_ERKTableID = kind(ARKODE_ERK_NONE)
  public :: ARKODE_ERK_NONE, ARKODE_MIN_ERK_NUM, ARKODE_HEUN_EULER_2_1_2, ARKODE_BOGACKI_SHAMPINE_4_2_3, &
     ARKODE_ARK324L2SA_ERK_4_2_3, ARKODE_ZONNEVELD_5_3_4, ARKODE_ARK436L2SA_ERK_6_3_4, ARKODE_SAYFY_ABURUB_6_3_4, &
     ARKODE_CASH_KARP_6_4_5, ARKODE_FEHLBERG_6_4_5, ARKODE_DORMAND_PRINCE_7_4_5, ARKODE_ARK548L2SA_ERK_8_4_5, &
     ARKODE_VERNER_8_5_6, ARKODE_FEHLBERG_13_7_8, ARKODE_KNOTH_WOLKE_3_3, ARKODE_ARK437L2SA_ERK_7_3_4, &
-    ARKODE_ARK548L2SAb_ERK_8_4_5, ARKODE_ARK2_ERK_3_1_2, ARKODE_MAX_ERK_NUM
+    ARKODE_ARK548L2SAb_ERK_8_4_5, ARKODE_ARK2_ERK_3_1_2, ARKODE_SOFRONIOU_SPALETTA_5_3_4, ARKODE_SHU_OSHER_3_2_3, &
+    ARKODE_VERNER_9_5_6, ARKODE_VERNER_10_6_7, ARKODE_VERNER_13_7_8, ARKODE_VERNER_16_8_9, ARKODE_MAX_ERK_NUM
  public :: FARKodeButcherTable_LoadERK
  public :: FARKodeButcherTable_LoadERKByName
  ! typedef enum ARKODE_SPRKMethodID
@@ -603,6 +580,14 @@ use, intrinsic :: ISO_C_BINDING
 type(C_PTR), value :: farg1
 type(C_PTR), value :: farg2
 end subroutine
+
+function swigc_FARKodeButcherTable_IsStifflyAccurate(farg1) &
+bind(C, name="_wrap_FARKodeButcherTable_IsStifflyAccurate") &
+result(fresult)
+use, intrinsic :: ISO_C_BINDING
+type(C_PTR), value :: farg1
+integer(C_INT) :: fresult
+end function
 
 function swigc_FARKodeButcherTable_CheckOrder(farg1, farg2, farg3, farg4) &
 bind(C, name="_wrap_FARKodeButcherTable_CheckOrder") &
@@ -1291,6 +1276,19 @@ farg2 = outfile
 call swigc_FARKodeButcherTable_Write(farg1, farg2)
 end subroutine
 
+function FARKodeButcherTable_IsStifflyAccurate(b) &
+result(swig_result)
+use, intrinsic :: ISO_C_BINDING
+integer(C_INT) :: swig_result
+type(C_PTR) :: b
+integer(C_INT) :: fresult 
+type(C_PTR) :: farg1 
+
+farg1 = b
+fresult = swigc_FARKodeButcherTable_IsStifflyAccurate(farg1)
+swig_result = fresult
+end function
+
 function FARKodeButcherTable_CheckOrder(b, q, p, outfile) &
 result(swig_result)
 use, intrinsic :: ISO_C_BINDING
@@ -1463,51 +1461,51 @@ end function
 subroutine swigf_ARKodeSPRKTableMem_a_set(self, a)
 use, intrinsic :: ISO_C_BINDING
 class(ARKodeSPRKTableMem), intent(in) :: self
-real(C_DOUBLE), target, intent(inout) :: a
+real(C_DOUBLE), dimension(*), target, intent(inout) :: a
 type(SwigClassWrapper) :: farg1 
 type(C_PTR) :: farg2 
 
 farg1 = self%swigdata
-farg2 = c_loc(a)
+farg2 = c_loc(a(1))
 call swigc_ARKodeSPRKTableMem_a_set(farg1, farg2)
 end subroutine
 
 function swigf_ARKodeSPRKTableMem_a_get(self) &
 result(swig_result)
 use, intrinsic :: ISO_C_BINDING
-real(C_DOUBLE), pointer :: swig_result
+real(C_DOUBLE), dimension(:), pointer :: swig_result
 class(ARKodeSPRKTableMem), intent(in) :: self
 type(C_PTR) :: fresult 
 type(SwigClassWrapper) :: farg1 
 
 farg1 = self%swigdata
 fresult = swigc_ARKodeSPRKTableMem_a_get(farg1)
-call c_f_pointer(fresult, swig_result)
+call c_f_pointer(fresult, swig_result, [1])
 end function
 
 subroutine swigf_ARKodeSPRKTableMem_ahat_set(self, ahat)
 use, intrinsic :: ISO_C_BINDING
 class(ARKodeSPRKTableMem), intent(in) :: self
-real(C_DOUBLE), target, intent(inout) :: ahat
+real(C_DOUBLE), dimension(*), target, intent(inout) :: ahat
 type(SwigClassWrapper) :: farg1 
 type(C_PTR) :: farg2 
 
 farg1 = self%swigdata
-farg2 = c_loc(ahat)
+farg2 = c_loc(ahat(1))
 call swigc_ARKodeSPRKTableMem_ahat_set(farg1, farg2)
 end subroutine
 
 function swigf_ARKodeSPRKTableMem_ahat_get(self) &
 result(swig_result)
 use, intrinsic :: ISO_C_BINDING
-real(C_DOUBLE), pointer :: swig_result
+real(C_DOUBLE), dimension(:), pointer :: swig_result
 class(ARKodeSPRKTableMem), intent(in) :: self
 type(C_PTR) :: fresult 
 type(SwigClassWrapper) :: farg1 
 
 farg1 = self%swigdata
 fresult = swigc_ARKodeSPRKTableMem_ahat_get(farg1)
-call c_f_pointer(fresult, swig_result)
+call c_f_pointer(fresult, swig_result, [1])
 end function
 
 function swigf_create_ARKodeSPRKTableMem() &
@@ -1553,8 +1551,8 @@ use, intrinsic :: ISO_C_BINDING
 type(C_PTR) :: swig_result
 integer(C_INT), intent(in) :: s
 integer(C_INT), intent(in) :: q
-real(C_DOUBLE), target, intent(inout) :: a
-real(C_DOUBLE), target, intent(inout) :: ahat
+real(C_DOUBLE), dimension(*), target, intent(inout) :: a
+real(C_DOUBLE), dimension(*), target, intent(inout) :: ahat
 type(C_PTR) :: fresult 
 integer(C_INT) :: farg1 
 integer(C_INT) :: farg2 
@@ -1563,8 +1561,8 @@ type(C_PTR) :: farg4
 
 farg1 = s
 farg2 = q
-farg3 = c_loc(a)
-farg4 = c_loc(ahat)
+farg3 = c_loc(a(1))
+farg4 = c_loc(ahat(1))
 fresult = swigc_FARKodeSPRKTable_Create(farg1, farg2, farg3, farg4)
 swig_result = fresult
 end function

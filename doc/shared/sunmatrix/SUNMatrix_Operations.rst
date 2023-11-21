@@ -65,7 +65,7 @@ below.
 .. c:function:: int SUNMatSpace(SUNMatrix A, long int *lrw, long int *liw)
 
    Returns the storage requirements for the matrix *A*.  *lrw*
-   contains the number of realtype words and *liw* contains the number
+   contains the number of sunrealtype words and *liw* contains the number
    of integer words.  The return value denotes success/failure of the
    operation.
 
@@ -111,7 +111,7 @@ below.
       retval = SUNMatCopy(A,B);
 
 
-.. c:function:: int SUNMatScaleAdd(realtype c, SUNMatrix A, SUNMatrix B)
+.. c:function:: int SUNMatScaleAdd(sunrealtype c, SUNMatrix A, SUNMatrix B)
 
    Performs the operation *A \gets cA + B*.  The return value is an integer
    flag denoting success/failure of the operation:
@@ -126,7 +126,7 @@ below.
       retval = SUNMatScaleAdd(c, A, B);
 
 
-.. c:function:: int SUNMatScaleAddI(realtype c, SUNMatrix A)
+.. c:function:: int SUNMatScaleAddI(sunrealtype c, SUNMatrix A)
 
    Performs the operation *A \gets cA + I*.  The return value is an integer
    flag denoting success/failure of the operation:

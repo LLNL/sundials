@@ -63,7 +63,7 @@ help ()
             kinsol   -- create tarball containing KINSOL only
             all      -- create all possible tarballs
 
-        --realtype TYPE
+        --sunrealtype TYPE
             Real type precision to use in a custom test. TYPE must be one of:
 
             double   -- (default) use double precision
@@ -142,7 +142,7 @@ buildjobs=0
 testjobs=0
 testtype="CUSTOM"
 tarball="NONE"
-realtype="double"
+sunrealtype="double"
 indexsize="64"
 libtype="both"
 tpls="OFF"
@@ -219,20 +219,20 @@ while [[ $# -gt 0 ]]; do
             esac
             shift 2;;
 
-        --realtype)
-            realtype=$2
-            case "$realtype" in
+        --sunrealtype)
+            sunrealtype=$2
+            case "$sunrealtype" in
                 SINGLE|Single|single)
-                    realtype=single
+                    sunrealtype=single
                     ;;
                 DOUBLE|Double|double)
-                    realtype=double
+                    sunrealtype=double
                     ;;
                 EXTENDED|Extended|extended)
-                    realtype=extended
+                    sunrealtype=extended
                     ;;
                 *)
-                    echo "ERROR: Invaid real type option $realtype"
+                    echo "ERROR: Invaid real type option $sunrealtype"
                     help
                     exit 1;;
             esac
@@ -466,14 +466,14 @@ case "$testtype" in
 
     CUSTOM)
         # Use default or user defined values
-        args_realtypes+=("${realtype}")
+        args_realtypes+=("${sunrealtype}")
         args_indexsizes+=("${indexsize}")
         args_libtypes+=("${libtype}")
         args_tpls+=("${tpls}")
         args_suntests+=("${suntesttype}")
         args_phase+=("${phase}")
-        if [ "${realtype}" != "double" ] && [ "${suntesttype}" == "DEV" ]; then
-            echo "WARNING: DEV tests may fail with ${realtype} precision"
+        if [ "${sunrealtype}" != "double" ] && [ "${suntesttype}" == "DEV" ]; then
+            echo "WARNING: DEV tests may fail with ${sunrealtype} precision"
         fi
         ;;
 

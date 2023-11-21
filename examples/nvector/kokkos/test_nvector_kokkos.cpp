@@ -163,7 +163,7 @@ int main(int argc, char* argv[])
  * Implementation specific utility functions for vector tests
  * --------------------------------------------------------------------*/
 
-int check_ans(realtype ans, N_Vector X, sunindextype local_length)
+int check_ans(sunrealtype ans, N_Vector X, sunindextype local_length)
 {
   int failure{0};
   auto Xvec{static_cast<VecType*>(X->content)};
@@ -178,19 +178,19 @@ int check_ans(realtype ans, N_Vector X, sunindextype local_length)
   return (failure > ZERO) ? (1) : (0);
 }
 
-booleantype has_data(N_Vector X)
+sunbooleantype has_data(N_Vector X)
 {
   /* check if vector data is non-null */
   return SUNTRUE;
 }
 
-void set_element(N_Vector X, sunindextype i, realtype val)
+void set_element(N_Vector X, sunindextype i, sunrealtype val)
 {
   /* set i-th element of data array */
   set_element_range(X, i, i, val);
 }
 
-void set_element_range(N_Vector X, sunindextype is, sunindextype ie, realtype val)
+void set_element_range(N_Vector X, sunindextype is, sunindextype ie, sunrealtype val)
 {
   auto Xvec{static_cast<VecType*>(X->content)};
   auto Xdata{Xvec->HostView()};
@@ -201,7 +201,7 @@ void set_element_range(N_Vector X, sunindextype is, sunindextype ie, realtype va
   sundials::kokkos::CopyToDevice<VecType>(X);
 }
 
-realtype get_element(N_Vector X, sunindextype i)
+sunrealtype get_element(N_Vector X, sunindextype i)
 {
   /* get i-th element of data array */
   auto Xvec{static_cast<VecType*>(X->content)};

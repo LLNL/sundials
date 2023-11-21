@@ -32,11 +32,11 @@ extern "C" {
 
 /* User-supplied function Types */
 
-typedef int (*IDABBDLocalFn)(sunindextype Nlocal, realtype tt,
+typedef int (*IDABBDLocalFn)(sunindextype Nlocal, sunrealtype tt,
                              N_Vector yy, N_Vector yp, N_Vector gval,
                              void *user_data);
 
-typedef int (*IDABBDCommFn)(sunindextype Nlocal, realtype tt,
+typedef int (*IDABBDCommFn)(sunindextype Nlocal, sunrealtype tt,
                             N_Vector yy, N_Vector yp, void *user_data);
 
 /* Exported Functions */
@@ -44,12 +44,12 @@ typedef int (*IDABBDCommFn)(sunindextype Nlocal, realtype tt,
 SUNDIALS_EXPORT int IDABBDPrecInit(void *ida_mem, sunindextype Nlocal,
                                    sunindextype mudq, sunindextype mldq,
                                    sunindextype mukeep, sunindextype mlkeep,
-                                   realtype dq_rel_yy,
+                                   sunrealtype dq_rel_yy,
                                    IDABBDLocalFn Gres, IDABBDCommFn Gcomm);
 
 SUNDIALS_EXPORT int IDABBDPrecReInit(void *ida_mem,
                                      sunindextype mudq, sunindextype mldq,
-                                     realtype dq_rel_yy);
+                                     sunrealtype dq_rel_yy);
 
 /* Optional output functions */
 
@@ -67,12 +67,12 @@ SUNDIALS_EXPORT int IDABBDPrecGetNumGfnEvals(void *ida_mem,
 
 /* User-Supplied Function Types */
 
-typedef int (*IDABBDLocalFnB)(sunindextype NlocalB, realtype tt,
+typedef int (*IDABBDLocalFnB)(sunindextype NlocalB, sunrealtype tt,
                               N_Vector yy, N_Vector yp,
                               N_Vector yyB, N_Vector ypB,
                               N_Vector gvalB, void *user_dataB);
 
-typedef int (*IDABBDCommFnB)(sunindextype NlocalB, realtype tt,
+typedef int (*IDABBDCommFnB)(sunindextype NlocalB, sunrealtype tt,
                              N_Vector yy, N_Vector yp,
                              N_Vector yyB, N_Vector ypB, void *user_dataB);
 
@@ -81,12 +81,12 @@ typedef int (*IDABBDCommFnB)(sunindextype NlocalB, realtype tt,
 SUNDIALS_EXPORT int IDABBDPrecInitB(void *ida_mem, int which, sunindextype NlocalB,
                                     sunindextype mudqB, sunindextype mldqB,
                                     sunindextype mukeepB, sunindextype mlkeepB,
-                                    realtype dq_rel_yyB,
+                                    sunrealtype dq_rel_yyB,
                                     IDABBDLocalFnB GresB, IDABBDCommFnB GcommB);
 
 SUNDIALS_EXPORT int IDABBDPrecReInitB(void *ida_mem, int which,
                                       sunindextype mudqB, sunindextype mldqB,
-                                      realtype dq_rel_yyB);
+                                      sunrealtype dq_rel_yyB);
 
 
 #ifdef __cplusplus

@@ -40,7 +40,7 @@
 #include <sunmatrix/sunmatrix_dense.h>        /* access to dense SUNMatrix            */
 #include <sunlinsol/sunlinsol_dense.h>        /* access to dense SUNLinearSolver      */
 #include <sunnonlinsol/sunnonlinsol_newton.h> /* access to Newton SUNNonlinearSolver  */
-#include <sundials/sundials_types.h>          /* defs. of realtype, sunindextype      */
+#include <sundials/sundials_types.h>          /* defs. of sunrealtype, sunindextype      */
 #include <sundials/sundials_math.h>           /* defs. of SUNRabs, SUNRexp, etc.      */
 
 #if defined(SUNDIALS_EXTENDED_PRECISION)
@@ -58,8 +58,8 @@
 #define NEQ   3
 #define NOUT  12
 
-#define ZERO RCONST(0.0)
-#define ONE  RCONST(1.0)
+#define ZERO SUN_RCONST(0.0)
+#define ONE  SUN_RCONST(1.0)
 
 /* Macro to define dense matrix elements, indexed from 1. */
 
@@ -67,23 +67,23 @@
 
 /* Prototypes of functions called by IDA */
 
-int resrob(realtype tres, N_Vector yy, N_Vector yp,
+int resrob(sunrealtype tres, N_Vector yy, N_Vector yp,
            N_Vector resval, void *user_data);
 
-static int grob(realtype t, N_Vector yy, N_Vector yp,
-                realtype *gout, void *user_data);
+static int grob(sunrealtype t, N_Vector yy, N_Vector yp,
+                sunrealtype *gout, void *user_data);
 
-int jacrob(realtype tt,  realtype cj,
+int jacrob(sunrealtype tt,  sunrealtype cj,
            N_Vector yy, N_Vector yp, N_Vector resvec,
            SUNMatrix JJ, void *user_data,
            N_Vector tempv1, N_Vector tempv2, N_Vector tempv3);
 
 /* Prototypes of private functions */
-static void PrintHeader(realtype rtol, N_Vector avtol, N_Vector y);
-static void PrintOutput(void *mem, realtype t, N_Vector y);
+static void PrintHeader(sunrealtype rtol, N_Vector avtol, N_Vector y);
+static void PrintOutput(void *mem, sunrealtype t, N_Vector y);
 static void PrintRootInfo(int root_f1, int root_f2);
 static int check_retval(void *returnvalue, const char *funcname, int opt);
-static int check_ans(N_Vector y, realtype t, realtype rtol, N_Vector atol);
+static int check_ans(N_Vector y, sunrealtype t, sunrealtype rtol, N_Vector atol);
 
 /*
  *--------------------------------------------------------------------
@@ -95,8 +95,8 @@ int main(void)
 {
   void *mem;
   N_Vector yy, yp, avtol;
-  realtype rtol, *yval, *ypval, *atval;
-  realtype t0, tout1, tout, tret;
+  sunrealtype rtol, *yval, *ypval, *atval;
+  sunrealtype t0, tout1, tout, tret;
   int iout, retval, retvalr;
   int rootsfound[2];
   SUNMatrix A;
@@ -131,20 +131,20 @@ int main(void)
   yval[2] = ZERO;
 
   ypval = N_VGetArrayPointer(yp);
-  ypval[0]  = RCONST(-0.04);
-  ypval[1]  = RCONST(0.04);
+  ypval[0]  = SUN_RCONST(-0.04);
+  ypval[1]  = SUN_RCONST(0.04);
   ypval[2]  = ZERO;
 
-  rtol = RCONST(1.0e-4);
+  rtol = SUN_RCONST(1.0e-4);
 
   atval = N_VGetArrayPointer(avtol);
-  atval[0] = RCONST(1.0e-8);
-  atval[1] = RCONST(1.0e-6);
-  atval[2] = RCONST(1.0e-6);
+  atval[0] = SUN_RCONST(1.0e-8);
+  atval[1] = SUN_RCONST(1.0e-6);
+  atval[2] = SUN_RCONST(1.0e-6);
 
   /* Integration limits */
   t0 = ZERO;
-  tout1 = RCONST(0.4);
+  tout1 = SUN_RCONST(0.4);
 
   PrintHeader(rtol, avtol, yy);
 
@@ -208,7 +208,7 @@ int main(void)
 
     if (retval == IDA_SUCCESS) {
       iout++;
-      tout *= RCONST(10.0);
+      tout *= SUN_RCONST(10.0);
     }
 
     if (iout == NOUT) break;
@@ -250,16 +250,16 @@ int main(void)
  * Define the system residual function.
  */
 
-int resrob(realtype tres, N_Vector yy, N_Vector yp, N_Vector rr, void *user_data)
+int resrob(sunrealtype tres, N_Vector yy, N_Vector yp, N_Vector rr, void *user_data)
 {
-  realtype *yval, *ypval, *rval;
+  sunrealtype *yval, *ypval, *rval;
 
   yval = N_VGetArrayPointer(yy);
   ypval = N_VGetArrayPointer(yp);
   rval = N_VGetArrayPointer(rr);
 
-  rval[0]  = RCONST(-0.04)*yval[0] + RCONST(1.0e4)*yval[1]*yval[2];
-  rval[1]  = -rval[0] - RCONST(3.0e7)*yval[1]*yval[1] - ypval[1];
+  rval[0]  = SUN_RCONST(-0.04)*yval[0] + SUN_RCONST(1.0e4)*yval[1]*yval[2];
+  rval[1]  = -rval[0] - SUN_RCONST(3.0e7)*yval[1]*yval[1] - ypval[1];
   rval[0] -=  ypval[0];
   rval[2]  =  yval[0] + yval[1] + yval[2] - ONE;
 
@@ -270,15 +270,15 @@ int resrob(realtype tres, N_Vector yy, N_Vector yp, N_Vector rr, void *user_data
  * Root function routine. Compute functions g_i(t,y) for i = 0,1.
  */
 
-static int grob(realtype t, N_Vector yy, N_Vector yp, realtype *gout,
+static int grob(sunrealtype t, N_Vector yy, N_Vector yp, sunrealtype *gout,
                 void *user_data)
 {
-  realtype *yval, y1, y3;
+  sunrealtype *yval, y1, y3;
 
   yval = N_VGetArrayPointer(yy);
   y1 = yval[0]; y3 = yval[2];
-  gout[0] = y1 - RCONST(0.0001);
-  gout[1] = y3 - RCONST(0.01);
+  gout[0] = y1 - SUN_RCONST(0.0001);
+  gout[1] = y3 - SUN_RCONST(0.01);
 
   return(0);
 }
@@ -287,23 +287,23 @@ static int grob(realtype t, N_Vector yy, N_Vector yp, realtype *gout,
  * Define the Jacobian function.
  */
 
-int jacrob(realtype tt,  realtype cj,
+int jacrob(sunrealtype tt,  sunrealtype cj,
            N_Vector yy, N_Vector yp, N_Vector resvec,
            SUNMatrix JJ, void *user_data,
            N_Vector tempv1, N_Vector tempv2, N_Vector tempv3)
 {
-  realtype *yval;
+  sunrealtype *yval;
 
   yval = N_VGetArrayPointer(yy);
 
-  IJth(JJ,1,1) = RCONST(-0.04) - cj;
-  IJth(JJ,2,1) = RCONST(0.04);
+  IJth(JJ,1,1) = SUN_RCONST(-0.04) - cj;
+  IJth(JJ,2,1) = SUN_RCONST(0.04);
   IJth(JJ,3,1) = ONE;
-  IJth(JJ,1,2) = RCONST(1.0e4)*yval[2];
-  IJth(JJ,2,2) = RCONST(-1.0e4)*yval[2] - RCONST(6.0e7)*yval[1] - cj;
+  IJth(JJ,1,2) = SUN_RCONST(1.0e4)*yval[2];
+  IJth(JJ,2,2) = SUN_RCONST(-1.0e4)*yval[2] - SUN_RCONST(6.0e7)*yval[1] - cj;
   IJth(JJ,3,2) = ONE;
-  IJth(JJ,1,3) = RCONST(1.0e4)*yval[1];
-  IJth(JJ,2,3) = RCONST(-1.0e4)*yval[1];
+  IJth(JJ,1,3) = SUN_RCONST(1.0e4)*yval[1];
+  IJth(JJ,2,3) = SUN_RCONST(-1.0e4)*yval[1];
   IJth(JJ,3,3) = ONE;
 
   return(0);
@@ -319,9 +319,9 @@ int jacrob(realtype tt,  realtype cj,
  * Print first lines of output (problem description)
  */
 
-static void PrintHeader(realtype rtol, N_Vector avtol, N_Vector y)
+static void PrintHeader(sunrealtype rtol, N_Vector avtol, N_Vector y)
 {
-  realtype *atval, *yval;
+  sunrealtype *atval, *yval;
 
   atval  = N_VGetArrayPointer(avtol);
   yval  = N_VGetArrayPointer(y);
@@ -356,12 +356,12 @@ static void PrintHeader(realtype rtol, N_Vector avtol, N_Vector y)
  * Print Output
  */
 
-static void PrintOutput(void *mem, realtype t, N_Vector y)
+static void PrintOutput(void *mem, sunrealtype t, N_Vector y)
 {
-  realtype *yval;
+  sunrealtype *yval;
   int retval, kused;
   long int nst;
-  realtype hused;
+  sunrealtype hused;
 
   yval  = N_VGetArrayPointer(y);
 
@@ -430,25 +430,25 @@ static int check_retval(void *returnvalue, const char *funcname, int opt)
 
 /* compare the solution at the final time 4e10s to a reference solution computed
    using a relative tolerance of 1e-8 and absoltue tolerance of 1e-14 */
-static int check_ans(N_Vector y, realtype t, realtype rtol, N_Vector atol)
+static int check_ans(N_Vector y, sunrealtype t, sunrealtype rtol, N_Vector atol)
 {
   int      passfail=0;        /* answer pass (0) or fail (1) retval */
   N_Vector ref;               /* reference solution vector        */
   N_Vector ewt;               /* error weight vector              */
-  realtype err;               /* wrms error                       */
+  sunrealtype err;               /* wrms error                       */
 
   /* create reference solution and error weight vectors */
   ref = N_VClone(y);
   ewt = N_VClone(y);
 
   /* set the reference solution data */
-  NV_Ith_S(ref,0) = RCONST(5.2083474251394888e-08);
-  NV_Ith_S(ref,1) = RCONST(2.0833390772616859e-13);
-  NV_Ith_S(ref,2) = RCONST(9.9999994791631752e-01);
+  NV_Ith_S(ref,0) = SUN_RCONST(5.2083474251394888e-08);
+  NV_Ith_S(ref,1) = SUN_RCONST(2.0833390772616859e-13);
+  NV_Ith_S(ref,2) = SUN_RCONST(9.9999994791631752e-01);
 
   /* compute the error weight vector, loosen atol */
   N_VAbs(ref, ewt);
-  N_VLinearSum(rtol, ewt, RCONST(10.0), atol, ewt);
+  N_VLinearSum(rtol, ewt, SUN_RCONST(10.0), atol, ewt);
   if (N_VMin(ewt) <= ZERO) {
     fprintf(stderr, "\nSUNDIALS_ERROR: check_ans failed - ewt <= 0\n\n");
     return(-1);

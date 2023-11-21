@@ -37,6 +37,7 @@
 %sundials_generic(SUNLinearSolver)
 %sundials_generic(SUNNonlinearSolver)
 %sundials_generic(SUNMatrix)
+%sundials_generic(SUNAdaptController)
 
 // Treat FILE* as an opaque pointer
 %apply void* { FILE* };
@@ -44,8 +45,8 @@
 // Treat array of N_Vectors as an opaque pointer
 %apply void* { N_Vector* };
 
-// Assume realtype* is an array of doubles
-%apply double[] { realtype* };
+// Assume sunrealtype* is an array of doubles
+%apply double[] { sunrealtype* };
 
 // Assume sunindextype* is an array of long int
 %apply long int[] { sunindextype* };

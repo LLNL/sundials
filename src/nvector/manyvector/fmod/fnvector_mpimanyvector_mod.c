@@ -262,12 +262,12 @@ SWIGEXPORT N_Vector _wrap_FN_VGetSubvector_MPIManyVector(N_Vector farg1, int64_t
 
 SWIGEXPORT int _wrap_FN_VSetSubvectorArrayPointer_MPIManyVector(double *farg1, N_Vector farg2, int64_t const *farg3) {
   int fresult ;
-  realtype *arg1 = (realtype *) 0 ;
+  sunrealtype *arg1 = (sunrealtype *) 0 ;
   N_Vector arg2 = (N_Vector) 0 ;
   sunindextype arg3 ;
   int result;
   
-  arg1 = (realtype *)(farg1);
+  arg1 = (sunrealtype *)(farg1);
   arg2 = (N_Vector)(farg2);
   arg3 = (sunindextype)(*farg3);
   result = (int)N_VSetSubvectorArrayPointer_MPIManyVector(arg1,arg2,arg3);
@@ -401,15 +401,15 @@ SWIGEXPORT int64_t _wrap_FN_VGetSubvectorLocalLength_MPIManyVector(N_Vector farg
 
 
 SWIGEXPORT void _wrap_FN_VLinearSum_MPIManyVector(double const *farg1, N_Vector farg2, double const *farg3, N_Vector farg4, N_Vector farg5) {
-  realtype arg1 ;
+  sunrealtype arg1 ;
   N_Vector arg2 = (N_Vector) 0 ;
-  realtype arg3 ;
+  sunrealtype arg3 ;
   N_Vector arg4 = (N_Vector) 0 ;
   N_Vector arg5 = (N_Vector) 0 ;
   
-  arg1 = (realtype)(*farg1);
+  arg1 = (sunrealtype)(*farg1);
   arg2 = (N_Vector)(farg2);
-  arg3 = (realtype)(*farg3);
+  arg3 = (sunrealtype)(*farg3);
   arg4 = (N_Vector)(farg4);
   arg5 = (N_Vector)(farg5);
   N_VLinearSum_MPIManyVector(arg1,arg2,arg3,arg4,arg5);
@@ -417,10 +417,10 @@ SWIGEXPORT void _wrap_FN_VLinearSum_MPIManyVector(double const *farg1, N_Vector 
 
 
 SWIGEXPORT void _wrap_FN_VConst_MPIManyVector(double const *farg1, N_Vector farg2) {
-  realtype arg1 ;
+  sunrealtype arg1 ;
   N_Vector arg2 = (N_Vector) 0 ;
   
-  arg1 = (realtype)(*farg1);
+  arg1 = (sunrealtype)(*farg1);
   arg2 = (N_Vector)(farg2);
   N_VConst_MPIManyVector(arg1,arg2);
 }
@@ -451,11 +451,11 @@ SWIGEXPORT void _wrap_FN_VDiv_MPIManyVector(N_Vector farg1, N_Vector farg2, N_Ve
 
 
 SWIGEXPORT void _wrap_FN_VScale_MPIManyVector(double const *farg1, N_Vector farg2, N_Vector farg3) {
-  realtype arg1 ;
+  sunrealtype arg1 ;
   N_Vector arg2 = (N_Vector) 0 ;
   N_Vector arg3 = (N_Vector) 0 ;
   
-  arg1 = (realtype)(*farg1);
+  arg1 = (sunrealtype)(*farg1);
   arg2 = (N_Vector)(farg2);
   arg3 = (N_Vector)(farg3);
   N_VScale_MPIManyVector(arg1,arg2,arg3);
@@ -484,11 +484,11 @@ SWIGEXPORT void _wrap_FN_VInv_MPIManyVector(N_Vector farg1, N_Vector farg2) {
 
 SWIGEXPORT void _wrap_FN_VAddConst_MPIManyVector(N_Vector farg1, double const *farg2, N_Vector farg3) {
   N_Vector arg1 = (N_Vector) 0 ;
-  realtype arg2 ;
+  sunrealtype arg2 ;
   N_Vector arg3 = (N_Vector) 0 ;
   
   arg1 = (N_Vector)(farg1);
-  arg2 = (realtype)(*farg2);
+  arg2 = (sunrealtype)(*farg2);
   arg3 = (N_Vector)(farg3);
   N_VAddConst_MPIManyVector(arg1,arg2,arg3);
 }
@@ -498,12 +498,12 @@ SWIGEXPORT double _wrap_FN_VDotProd_MPIManyVector(N_Vector farg1, N_Vector farg2
   double fresult ;
   N_Vector arg1 = (N_Vector) 0 ;
   N_Vector arg2 = (N_Vector) 0 ;
-  realtype result;
+  sunrealtype result;
   
   arg1 = (N_Vector)(farg1);
   arg2 = (N_Vector)(farg2);
-  result = (realtype)N_VDotProd_MPIManyVector(arg1,arg2);
-  fresult = (realtype)(result);
+  result = (sunrealtype)N_VDotProd_MPIManyVector(arg1,arg2);
+  fresult = (sunrealtype)(result);
   return fresult;
 }
 
@@ -511,11 +511,11 @@ SWIGEXPORT double _wrap_FN_VDotProd_MPIManyVector(N_Vector farg1, N_Vector farg2
 SWIGEXPORT double _wrap_FN_VMaxNorm_MPIManyVector(N_Vector farg1) {
   double fresult ;
   N_Vector arg1 = (N_Vector) 0 ;
-  realtype result;
+  sunrealtype result;
   
   arg1 = (N_Vector)(farg1);
-  result = (realtype)N_VMaxNorm_MPIManyVector(arg1);
-  fresult = (realtype)(result);
+  result = (sunrealtype)N_VMaxNorm_MPIManyVector(arg1);
+  fresult = (sunrealtype)(result);
   return fresult;
 }
 
@@ -524,12 +524,12 @@ SWIGEXPORT double _wrap_FN_VWrmsNorm_MPIManyVector(N_Vector farg1, N_Vector farg
   double fresult ;
   N_Vector arg1 = (N_Vector) 0 ;
   N_Vector arg2 = (N_Vector) 0 ;
-  realtype result;
+  sunrealtype result;
   
   arg1 = (N_Vector)(farg1);
   arg2 = (N_Vector)(farg2);
-  result = (realtype)N_VWrmsNorm_MPIManyVector(arg1,arg2);
-  fresult = (realtype)(result);
+  result = (sunrealtype)N_VWrmsNorm_MPIManyVector(arg1,arg2);
+  fresult = (sunrealtype)(result);
   return fresult;
 }
 
@@ -539,13 +539,13 @@ SWIGEXPORT double _wrap_FN_VWrmsNormMask_MPIManyVector(N_Vector farg1, N_Vector 
   N_Vector arg1 = (N_Vector) 0 ;
   N_Vector arg2 = (N_Vector) 0 ;
   N_Vector arg3 = (N_Vector) 0 ;
-  realtype result;
+  sunrealtype result;
   
   arg1 = (N_Vector)(farg1);
   arg2 = (N_Vector)(farg2);
   arg3 = (N_Vector)(farg3);
-  result = (realtype)N_VWrmsNormMask_MPIManyVector(arg1,arg2,arg3);
-  fresult = (realtype)(result);
+  result = (sunrealtype)N_VWrmsNormMask_MPIManyVector(arg1,arg2,arg3);
+  fresult = (sunrealtype)(result);
   return fresult;
 }
 
@@ -553,11 +553,11 @@ SWIGEXPORT double _wrap_FN_VWrmsNormMask_MPIManyVector(N_Vector farg1, N_Vector 
 SWIGEXPORT double _wrap_FN_VMin_MPIManyVector(N_Vector farg1) {
   double fresult ;
   N_Vector arg1 = (N_Vector) 0 ;
-  realtype result;
+  sunrealtype result;
   
   arg1 = (N_Vector)(farg1);
-  result = (realtype)N_VMin_MPIManyVector(arg1);
-  fresult = (realtype)(result);
+  result = (sunrealtype)N_VMin_MPIManyVector(arg1);
+  fresult = (sunrealtype)(result);
   return fresult;
 }
 
@@ -566,12 +566,12 @@ SWIGEXPORT double _wrap_FN_VWL2Norm_MPIManyVector(N_Vector farg1, N_Vector farg2
   double fresult ;
   N_Vector arg1 = (N_Vector) 0 ;
   N_Vector arg2 = (N_Vector) 0 ;
-  realtype result;
+  sunrealtype result;
   
   arg1 = (N_Vector)(farg1);
   arg2 = (N_Vector)(farg2);
-  result = (realtype)N_VWL2Norm_MPIManyVector(arg1,arg2);
-  fresult = (realtype)(result);
+  result = (sunrealtype)N_VWL2Norm_MPIManyVector(arg1,arg2);
+  fresult = (sunrealtype)(result);
   return fresult;
 }
 
@@ -579,21 +579,21 @@ SWIGEXPORT double _wrap_FN_VWL2Norm_MPIManyVector(N_Vector farg1, N_Vector farg2
 SWIGEXPORT double _wrap_FN_VL1Norm_MPIManyVector(N_Vector farg1) {
   double fresult ;
   N_Vector arg1 = (N_Vector) 0 ;
-  realtype result;
+  sunrealtype result;
   
   arg1 = (N_Vector)(farg1);
-  result = (realtype)N_VL1Norm_MPIManyVector(arg1);
-  fresult = (realtype)(result);
+  result = (sunrealtype)N_VL1Norm_MPIManyVector(arg1);
+  fresult = (sunrealtype)(result);
   return fresult;
 }
 
 
 SWIGEXPORT void _wrap_FN_VCompare_MPIManyVector(double const *farg1, N_Vector farg2, N_Vector farg3) {
-  realtype arg1 ;
+  sunrealtype arg1 ;
   N_Vector arg2 = (N_Vector) 0 ;
   N_Vector arg3 = (N_Vector) 0 ;
   
-  arg1 = (realtype)(*farg1);
+  arg1 = (sunrealtype)(*farg1);
   arg2 = (N_Vector)(farg2);
   arg3 = (N_Vector)(farg3);
   N_VCompare_MPIManyVector(arg1,arg2,arg3);
@@ -634,12 +634,12 @@ SWIGEXPORT double _wrap_FN_VMinQuotient_MPIManyVector(N_Vector farg1, N_Vector f
   double fresult ;
   N_Vector arg1 = (N_Vector) 0 ;
   N_Vector arg2 = (N_Vector) 0 ;
-  realtype result;
+  sunrealtype result;
   
   arg1 = (N_Vector)(farg1);
   arg2 = (N_Vector)(farg2);
-  result = (realtype)N_VMinQuotient_MPIManyVector(arg1,arg2);
-  fresult = (realtype)(result);
+  result = (sunrealtype)N_VMinQuotient_MPIManyVector(arg1,arg2);
+  fresult = (sunrealtype)(result);
   return fresult;
 }
 
@@ -647,13 +647,13 @@ SWIGEXPORT double _wrap_FN_VMinQuotient_MPIManyVector(N_Vector farg1, N_Vector f
 SWIGEXPORT int _wrap_FN_VLinearCombination_MPIManyVector(int const *farg1, double *farg2, void *farg3, N_Vector farg4) {
   int fresult ;
   int arg1 ;
-  realtype *arg2 = (realtype *) 0 ;
+  sunrealtype *arg2 = (sunrealtype *) 0 ;
   N_Vector *arg3 = (N_Vector *) 0 ;
   N_Vector arg4 = (N_Vector) 0 ;
   int result;
   
   arg1 = (int)(*farg1);
-  arg2 = (realtype *)(farg2);
+  arg2 = (sunrealtype *)(farg2);
   arg3 = (N_Vector *)(farg3);
   arg4 = (N_Vector)(farg4);
   result = (int)N_VLinearCombination_MPIManyVector(arg1,arg2,arg3,arg4);
@@ -665,14 +665,14 @@ SWIGEXPORT int _wrap_FN_VLinearCombination_MPIManyVector(int const *farg1, doubl
 SWIGEXPORT int _wrap_FN_VScaleAddMulti_MPIManyVector(int const *farg1, double *farg2, N_Vector farg3, void *farg4, void *farg5) {
   int fresult ;
   int arg1 ;
-  realtype *arg2 = (realtype *) 0 ;
+  sunrealtype *arg2 = (sunrealtype *) 0 ;
   N_Vector arg3 = (N_Vector) 0 ;
   N_Vector *arg4 = (N_Vector *) 0 ;
   N_Vector *arg5 = (N_Vector *) 0 ;
   int result;
   
   arg1 = (int)(*farg1);
-  arg2 = (realtype *)(farg2);
+  arg2 = (sunrealtype *)(farg2);
   arg3 = (N_Vector)(farg3);
   arg4 = (N_Vector *)(farg4);
   arg5 = (N_Vector *)(farg5);
@@ -687,13 +687,13 @@ SWIGEXPORT int _wrap_FN_VDotProdMulti_MPIManyVector(int const *farg1, N_Vector f
   int arg1 ;
   N_Vector arg2 = (N_Vector) 0 ;
   N_Vector *arg3 = (N_Vector *) 0 ;
-  realtype *arg4 = (realtype *) 0 ;
+  sunrealtype *arg4 = (sunrealtype *) 0 ;
   int result;
   
   arg1 = (int)(*farg1);
   arg2 = (N_Vector)(farg2);
   arg3 = (N_Vector *)(farg3);
-  arg4 = (realtype *)(farg4);
+  arg4 = (sunrealtype *)(farg4);
   result = (int)N_VDotProdMulti_MPIManyVector(arg1,arg2,arg3,arg4);
   fresult = (int)(result);
   return fresult;
@@ -705,13 +705,13 @@ SWIGEXPORT int _wrap_FN_VDotProdMultiLocal_MPIManyVector(int const *farg1, N_Vec
   int arg1 ;
   N_Vector arg2 = (N_Vector) 0 ;
   N_Vector *arg3 = (N_Vector *) 0 ;
-  realtype *arg4 = (realtype *) 0 ;
+  sunrealtype *arg4 = (sunrealtype *) 0 ;
   int result;
   
   arg1 = (int)(*farg1);
   arg2 = (N_Vector)(farg2);
   arg3 = (N_Vector *)(farg3);
-  arg4 = (realtype *)(farg4);
+  arg4 = (sunrealtype *)(farg4);
   result = (int)N_VDotProdMultiLocal_MPIManyVector(arg1,arg2,arg3,arg4);
   fresult = (int)(result);
   return fresult;
@@ -722,12 +722,12 @@ SWIGEXPORT int _wrap_FN_VDotProdMultiAllReduce_MPIManyVector(int const *farg1, N
   int fresult ;
   int arg1 ;
   N_Vector arg2 = (N_Vector) 0 ;
-  realtype *arg3 = (realtype *) 0 ;
+  sunrealtype *arg3 = (sunrealtype *) 0 ;
   int result;
   
   arg1 = (int)(*farg1);
   arg2 = (N_Vector)(farg2);
-  arg3 = (realtype *)(farg3);
+  arg3 = (sunrealtype *)(farg3);
   result = (int)N_VDotProdMultiAllReduce_MPIManyVector(arg1,arg2,arg3);
   fresult = (int)(result);
   return fresult;
@@ -737,17 +737,17 @@ SWIGEXPORT int _wrap_FN_VDotProdMultiAllReduce_MPIManyVector(int const *farg1, N
 SWIGEXPORT int _wrap_FN_VLinearSumVectorArray_MPIManyVector(int const *farg1, double const *farg2, void *farg3, double const *farg4, void *farg5, void *farg6) {
   int fresult ;
   int arg1 ;
-  realtype arg2 ;
+  sunrealtype arg2 ;
   N_Vector *arg3 = (N_Vector *) 0 ;
-  realtype arg4 ;
+  sunrealtype arg4 ;
   N_Vector *arg5 = (N_Vector *) 0 ;
   N_Vector *arg6 = (N_Vector *) 0 ;
   int result;
   
   arg1 = (int)(*farg1);
-  arg2 = (realtype)(*farg2);
+  arg2 = (sunrealtype)(*farg2);
   arg3 = (N_Vector *)(farg3);
-  arg4 = (realtype)(*farg4);
+  arg4 = (sunrealtype)(*farg4);
   arg5 = (N_Vector *)(farg5);
   arg6 = (N_Vector *)(farg6);
   result = (int)N_VLinearSumVectorArray_MPIManyVector(arg1,arg2,arg3,arg4,arg5,arg6);
@@ -759,13 +759,13 @@ SWIGEXPORT int _wrap_FN_VLinearSumVectorArray_MPIManyVector(int const *farg1, do
 SWIGEXPORT int _wrap_FN_VScaleVectorArray_MPIManyVector(int const *farg1, double *farg2, void *farg3, void *farg4) {
   int fresult ;
   int arg1 ;
-  realtype *arg2 = (realtype *) 0 ;
+  sunrealtype *arg2 = (sunrealtype *) 0 ;
   N_Vector *arg3 = (N_Vector *) 0 ;
   N_Vector *arg4 = (N_Vector *) 0 ;
   int result;
   
   arg1 = (int)(*farg1);
-  arg2 = (realtype *)(farg2);
+  arg2 = (sunrealtype *)(farg2);
   arg3 = (N_Vector *)(farg3);
   arg4 = (N_Vector *)(farg4);
   result = (int)N_VScaleVectorArray_MPIManyVector(arg1,arg2,arg3,arg4);
@@ -777,12 +777,12 @@ SWIGEXPORT int _wrap_FN_VScaleVectorArray_MPIManyVector(int const *farg1, double
 SWIGEXPORT int _wrap_FN_VConstVectorArray_MPIManyVector(int const *farg1, double const *farg2, void *farg3) {
   int fresult ;
   int arg1 ;
-  realtype arg2 ;
+  sunrealtype arg2 ;
   N_Vector *arg3 = (N_Vector *) 0 ;
   int result;
   
   arg1 = (int)(*farg1);
-  arg2 = (realtype)(*farg2);
+  arg2 = (sunrealtype)(*farg2);
   arg3 = (N_Vector *)(farg3);
   result = (int)N_VConstVectorArray_MPIManyVector(arg1,arg2,arg3);
   fresult = (int)(result);
@@ -795,13 +795,13 @@ SWIGEXPORT int _wrap_FN_VWrmsNormVectorArray_MPIManyVector(int const *farg1, voi
   int arg1 ;
   N_Vector *arg2 = (N_Vector *) 0 ;
   N_Vector *arg3 = (N_Vector *) 0 ;
-  realtype *arg4 = (realtype *) 0 ;
+  sunrealtype *arg4 = (sunrealtype *) 0 ;
   int result;
   
   arg1 = (int)(*farg1);
   arg2 = (N_Vector *)(farg2);
   arg3 = (N_Vector *)(farg3);
-  arg4 = (realtype *)(farg4);
+  arg4 = (sunrealtype *)(farg4);
   result = (int)N_VWrmsNormVectorArray_MPIManyVector(arg1,arg2,arg3,arg4);
   fresult = (int)(result);
   return fresult;
@@ -814,14 +814,14 @@ SWIGEXPORT int _wrap_FN_VWrmsNormMaskVectorArray_MPIManyVector(int const *farg1,
   N_Vector *arg2 = (N_Vector *) 0 ;
   N_Vector *arg3 = (N_Vector *) 0 ;
   N_Vector arg4 = (N_Vector) 0 ;
-  realtype *arg5 = (realtype *) 0 ;
+  sunrealtype *arg5 = (sunrealtype *) 0 ;
   int result;
   
   arg1 = (int)(*farg1);
   arg2 = (N_Vector *)(farg2);
   arg3 = (N_Vector *)(farg3);
   arg4 = (N_Vector)(farg4);
-  arg5 = (realtype *)(farg5);
+  arg5 = (sunrealtype *)(farg5);
   result = (int)N_VWrmsNormMaskVectorArray_MPIManyVector(arg1,arg2,arg3,arg4,arg5);
   fresult = (int)(result);
   return fresult;
@@ -832,12 +832,12 @@ SWIGEXPORT double _wrap_FN_VDotProdLocal_MPIManyVector(N_Vector farg1, N_Vector 
   double fresult ;
   N_Vector arg1 = (N_Vector) 0 ;
   N_Vector arg2 = (N_Vector) 0 ;
-  realtype result;
+  sunrealtype result;
   
   arg1 = (N_Vector)(farg1);
   arg2 = (N_Vector)(farg2);
-  result = (realtype)N_VDotProdLocal_MPIManyVector(arg1,arg2);
-  fresult = (realtype)(result);
+  result = (sunrealtype)N_VDotProdLocal_MPIManyVector(arg1,arg2);
+  fresult = (sunrealtype)(result);
   return fresult;
 }
 
@@ -845,11 +845,11 @@ SWIGEXPORT double _wrap_FN_VDotProdLocal_MPIManyVector(N_Vector farg1, N_Vector 
 SWIGEXPORT double _wrap_FN_VMaxNormLocal_MPIManyVector(N_Vector farg1) {
   double fresult ;
   N_Vector arg1 = (N_Vector) 0 ;
-  realtype result;
+  sunrealtype result;
   
   arg1 = (N_Vector)(farg1);
-  result = (realtype)N_VMaxNormLocal_MPIManyVector(arg1);
-  fresult = (realtype)(result);
+  result = (sunrealtype)N_VMaxNormLocal_MPIManyVector(arg1);
+  fresult = (sunrealtype)(result);
   return fresult;
 }
 
@@ -857,11 +857,11 @@ SWIGEXPORT double _wrap_FN_VMaxNormLocal_MPIManyVector(N_Vector farg1) {
 SWIGEXPORT double _wrap_FN_VMinLocal_MPIManyVector(N_Vector farg1) {
   double fresult ;
   N_Vector arg1 = (N_Vector) 0 ;
-  realtype result;
+  sunrealtype result;
   
   arg1 = (N_Vector)(farg1);
-  result = (realtype)N_VMinLocal_MPIManyVector(arg1);
-  fresult = (realtype)(result);
+  result = (sunrealtype)N_VMinLocal_MPIManyVector(arg1);
+  fresult = (sunrealtype)(result);
   return fresult;
 }
 
@@ -869,11 +869,11 @@ SWIGEXPORT double _wrap_FN_VMinLocal_MPIManyVector(N_Vector farg1) {
 SWIGEXPORT double _wrap_FN_VL1NormLocal_MPIManyVector(N_Vector farg1) {
   double fresult ;
   N_Vector arg1 = (N_Vector) 0 ;
-  realtype result;
+  sunrealtype result;
   
   arg1 = (N_Vector)(farg1);
-  result = (realtype)N_VL1NormLocal_MPIManyVector(arg1);
-  fresult = (realtype)(result);
+  result = (sunrealtype)N_VL1NormLocal_MPIManyVector(arg1);
+  fresult = (sunrealtype)(result);
   return fresult;
 }
 
@@ -882,12 +882,12 @@ SWIGEXPORT double _wrap_FN_VWSqrSumLocal_MPIManyVector(N_Vector farg1, N_Vector 
   double fresult ;
   N_Vector arg1 = (N_Vector) 0 ;
   N_Vector arg2 = (N_Vector) 0 ;
-  realtype result;
+  sunrealtype result;
   
   arg1 = (N_Vector)(farg1);
   arg2 = (N_Vector)(farg2);
-  result = (realtype)N_VWSqrSumLocal_MPIManyVector(arg1,arg2);
-  fresult = (realtype)(result);
+  result = (sunrealtype)N_VWSqrSumLocal_MPIManyVector(arg1,arg2);
+  fresult = (sunrealtype)(result);
   return fresult;
 }
 
@@ -897,13 +897,13 @@ SWIGEXPORT double _wrap_FN_VWSqrSumMaskLocal_MPIManyVector(N_Vector farg1, N_Vec
   N_Vector arg1 = (N_Vector) 0 ;
   N_Vector arg2 = (N_Vector) 0 ;
   N_Vector arg3 = (N_Vector) 0 ;
-  realtype result;
+  sunrealtype result;
   
   arg1 = (N_Vector)(farg1);
   arg2 = (N_Vector)(farg2);
   arg3 = (N_Vector)(farg3);
-  result = (realtype)N_VWSqrSumMaskLocal_MPIManyVector(arg1,arg2,arg3);
-  fresult = (realtype)(result);
+  result = (sunrealtype)N_VWSqrSumMaskLocal_MPIManyVector(arg1,arg2,arg3);
+  fresult = (sunrealtype)(result);
   return fresult;
 }
 
@@ -942,12 +942,12 @@ SWIGEXPORT double _wrap_FN_VMinQuotientLocal_MPIManyVector(N_Vector farg1, N_Vec
   double fresult ;
   N_Vector arg1 = (N_Vector) 0 ;
   N_Vector arg2 = (N_Vector) 0 ;
-  realtype result;
+  sunrealtype result;
   
   arg1 = (N_Vector)(farg1);
   arg2 = (N_Vector)(farg2);
-  result = (realtype)N_VMinQuotientLocal_MPIManyVector(arg1,arg2);
-  fresult = (realtype)(result);
+  result = (sunrealtype)N_VMinQuotientLocal_MPIManyVector(arg1,arg2);
+  fresult = (sunrealtype)(result);
   return fresult;
 }
 
@@ -1139,11 +1139,11 @@ SWIGEXPORT double * _wrap_FN_VGetSubvectorArrayPointer_MPIManyVector(N_Vector fa
   double * fresult ;
   N_Vector arg1 = (N_Vector) 0 ;
   sunindextype arg2 ;
-  realtype *result = 0 ;
+  sunrealtype *result = 0 ;
   
   arg1 = (N_Vector)(farg1);
   arg2 = (sunindextype)(*farg2);
-  result = (realtype *)N_VGetSubvectorArrayPointer_MPIManyVector(arg1,arg2);
+  result = (sunrealtype *)N_VGetSubvectorArrayPointer_MPIManyVector(arg1,arg2);
   fresult = result;
   return fresult;
 }

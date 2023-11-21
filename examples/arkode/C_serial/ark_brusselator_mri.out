@@ -31,4 +31,4 @@ Brusselator ODE test problem:
 
 Final Solver Statistics:
    Steps: nsts = 81, nstf = 2187
-   Total RHS evals:  Fs = 244,  Ff = 8831
+   Total RHS evals:  Fs = 244,  Ff = 6581

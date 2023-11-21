@@ -192,15 +192,15 @@
  * the fortran.cxx file.
  */
 #define SWIG_contract_assert(RETURNNULL, EXPR, MSG) \
- if (!(EXPR)) { SWIG_exception_impl("$decl", SWIG_ValueError, MSG, RETURNNULL); } 
+ if (!(EXPR)) { SWIG_exception_impl("$decl", SWIG_ValueError, MSG, RETURNNULL); }
 
 
-#define SWIGVERSION 0x040000 
+#define SWIGVERSION 0x040000
 #define SWIG_VERSION SWIGVERSION
 
 
-#define SWIG_as_voidptr(a) (void *)((const void *)(a)) 
-#define SWIG_as_voidptrptr(a) ((void)SWIG_as_voidptr(*a),(void**)(a)) 
+#define SWIG_as_voidptr(a) (void *)((const void *)(a))
+#define SWIG_as_voidptrptr(a) ((void)SWIG_as_voidptr(*a),(void**)(a))
 
 
 #include "sundials/sundials_linearsolver.h"
@@ -214,7 +214,7 @@ SWIGEXPORT SUNLinearSolver _wrap_FSUNLinSol_LapackDense(N_Vector farg1, SUNMatri
   SUNMatrix arg2 = (SUNMatrix) 0 ;
   SUNContext arg3 = (SUNContext) 0 ;
   SUNLinearSolver result;
-  
+
   arg1 = (N_Vector)(farg1);
   arg2 = (SUNMatrix)(farg2);
   arg3 = (SUNContext)(farg3);
@@ -228,7 +228,7 @@ SWIGEXPORT int _wrap_FSUNLinSolGetType_LapackDense(SUNLinearSolver farg1) {
   int fresult ;
   SUNLinearSolver arg1 = (SUNLinearSolver) 0 ;
   SUNLinearSolver_Type result;
-  
+
   arg1 = (SUNLinearSolver)(farg1);
   result = (SUNLinearSolver_Type)SUNLinSolGetType_LapackDense(arg1);
   fresult = (int)(result);
@@ -240,7 +240,7 @@ SWIGEXPORT int _wrap_FSUNLinSolGetID_LapackDense(SUNLinearSolver farg1) {
   int fresult ;
   SUNLinearSolver arg1 = (SUNLinearSolver) 0 ;
   SUNLinearSolver_ID result;
-  
+
   arg1 = (SUNLinearSolver)(farg1);
   result = (SUNLinearSolver_ID)SUNLinSolGetID_LapackDense(arg1);
   fresult = (int)(result);
@@ -252,7 +252,7 @@ SWIGEXPORT int _wrap_FSUNLinSolInitialize_LapackDense(SUNLinearSolver farg1) {
   int fresult ;
   SUNLinearSolver arg1 = (SUNLinearSolver) 0 ;
   int result;
-  
+
   arg1 = (SUNLinearSolver)(farg1);
   result = (int)SUNLinSolInitialize_LapackDense(arg1);
   fresult = (int)(result);
@@ -265,7 +265,7 @@ SWIGEXPORT int _wrap_FSUNLinSolSetup_LapackDense(SUNLinearSolver farg1, SUNMatri
   SUNLinearSolver arg1 = (SUNLinearSolver) 0 ;
   SUNMatrix arg2 = (SUNMatrix) 0 ;
   int result;
-  
+
   arg1 = (SUNLinearSolver)(farg1);
   arg2 = (SUNMatrix)(farg2);
   result = (int)SUNLinSolSetup_LapackDense(arg1,arg2);
@@ -280,14 +280,14 @@ SWIGEXPORT int _wrap_FSUNLinSolSolve_LapackDense(SUNLinearSolver farg1, SUNMatri
   SUNMatrix arg2 = (SUNMatrix) 0 ;
   N_Vector arg3 = (N_Vector) 0 ;
   N_Vector arg4 = (N_Vector) 0 ;
-  realtype arg5 ;
+  sunrealtype arg5 ;
   int result;
-  
+
   arg1 = (SUNLinearSolver)(farg1);
   arg2 = (SUNMatrix)(farg2);
   arg3 = (N_Vector)(farg3);
   arg4 = (N_Vector)(farg4);
-  arg5 = (realtype)(*farg5);
+  arg5 = (sunrealtype)(*farg5);
   result = (int)SUNLinSolSolve_LapackDense(arg1,arg2,arg3,arg4,arg5);
   fresult = (int)(result);
   return fresult;
@@ -298,7 +298,7 @@ SWIGEXPORT int64_t _wrap_FSUNLinSolLastFlag_LapackDense(SUNLinearSolver farg1) {
   int64_t fresult ;
   SUNLinearSolver arg1 = (SUNLinearSolver) 0 ;
   sunindextype result;
-  
+
   arg1 = (SUNLinearSolver)(farg1);
   result = SUNLinSolLastFlag_LapackDense(arg1);
   fresult = (sunindextype)(result);
@@ -312,7 +312,7 @@ SWIGEXPORT int _wrap_FSUNLinSolSpace_LapackDense(SUNLinearSolver farg1, long *fa
   long *arg2 = (long *) 0 ;
   long *arg3 = (long *) 0 ;
   int result;
-  
+
   arg1 = (SUNLinearSolver)(farg1);
   arg2 = (long *)(farg2);
   arg3 = (long *)(farg3);
@@ -326,12 +326,9 @@ SWIGEXPORT int _wrap_FSUNLinSolFree_LapackDense(SUNLinearSolver farg1) {
   int fresult ;
   SUNLinearSolver arg1 = (SUNLinearSolver) 0 ;
   int result;
-  
+
   arg1 = (SUNLinearSolver)(farg1);
   result = (int)SUNLinSolFree_LapackDense(arg1);
   fresult = (int)(result);
   return fresult;
 }
-
-
-

@@ -17,10 +17,12 @@
  * ---------------------------------------------------------------------------*/
 
 // Header files
-#include <stdio.h>
+#include <cstdio>
+#include <iomanip>
 #include <iostream>
-#include <string.h>
+#include <cstring>
 #include <cmath>
+#include <string>
 
 #include <arkode/arkode_arkstep.h>
 #include <arkode/arkode_mristep.h>
@@ -45,24 +47,24 @@ using namespace std;
 // User data structure
 struct UserData
 {
-  realtype lambda_e = RCONST(-1.0);
-  realtype lambda_i = RCONST(-1.0);
-  realtype lambda_f = RCONST(-1.0);
+  sunrealtype lambda_e = SUN_RCONST(-1.0);
+  sunrealtype lambda_i = SUN_RCONST(-1.0);
+  sunrealtype lambda_f = SUN_RCONST(-1.0);
 };
 
 // User-supplied Functions called by the solver
-static int fe(realtype t, N_Vector y, N_Vector ydot, void *user_data);
-static int fi(realtype t, N_Vector y, N_Vector ydot, void *user_data);
-static int ff(realtype t, N_Vector y, N_Vector ydot, void *user_data);
-static int Ji(realtype t, N_Vector y, N_Vector fy, SUNMatrix J,
+static int fe(sunrealtype t, N_Vector y, N_Vector ydot, void *user_data);
+static int fi(sunrealtype t, N_Vector y, N_Vector ydot, void *user_data);
+static int ff(sunrealtype t, N_Vector y, N_Vector ydot, void *user_data);
+static int Ji(sunrealtype t, N_Vector y, N_Vector fy, SUNMatrix J,
               void *user_data, N_Vector tmp1, N_Vector tmp2, N_Vector tmp3);
 
 // Private function to check function return values
 static int check_flag(void *flagvalue, const string funcname, int opt);
 
 // Test drivers
-static int run_tests(MRISTEP_METHOD_TYPE type, realtype t0, int nsteps,
-                     realtype hs, realtype hf, realtype reltol, realtype abstol,
+static int run_tests(MRISTEP_METHOD_TYPE type, sunrealtype t0, int nsteps,
+                     sunrealtype hs, sunrealtype hf, sunrealtype reltol, sunrealtype abstol,
                      UserData* udata, SUNContext ctx);
 
 
@@ -74,29 +76,29 @@ static int run_tests(MRISTEP_METHOD_TYPE type, realtype t0, int nsteps,
 int main(int argc, char* argv[])
 {
   // Initial time
-  realtype t0 = RCONST(0.0);
+  sunrealtype t0 = SUN_RCONST(0.0);
 
   // Number of time steps
   int nsteps = 1;
 
   // Relative and absolute tolerances
-  realtype reltol = RCONST(1.0e-4);
-  realtype abstol = RCONST(1.0e-6);
+  sunrealtype reltol = SUN_RCONST(1.0e-4);
+  sunrealtype abstol = SUN_RCONST(1.0e-6);
 
   // Slow and fast step sizes
-  realtype hs = RCONST(0.01);
-  realtype hf = RCONST(0.01);
+  sunrealtype hs = SUN_RCONST(0.01);
+  sunrealtype hf = SUN_RCONST(0.01);
 
   // User data structure
   UserData udata;
 
   // Check for inputs
-  if (argc > 1) udata.lambda_e = stod(argv[1]);
-  if (argc > 2) udata.lambda_i = stod(argv[2]);
-  if (argc > 3) udata.lambda_f = stod(argv[3]);
-  if (argc > 4) hs = stod(argv[4]);
-  if (argc > 5) hf = stod(argv[5]);
-  if (argc > 5) nsteps = stoi(argv[6]);
+  if (argc > 1) udata.lambda_e = std::stod(argv[1]);
+  if (argc > 2) udata.lambda_i = std::stod(argv[2]);
+  if (argc > 3) udata.lambda_f = std::stod(argv[3]);
+  if (argc > 4) hs = std::stod(argv[4]);
+  if (argc > 5) hf = std::stod(argv[5]);
+  if (argc > 5) nsteps = std::stoi(argv[6]);
 
   // Output problem setup
   cout << "\nDahlquist ODE test problem:\n";
@@ -142,8 +144,8 @@ int main(int argc, char* argv[])
 // -----------------------------------------------------------------------------
 
 
-int run_tests(MRISTEP_METHOD_TYPE type, realtype t0, int nsteps,
-              realtype hs, realtype hf, realtype reltol, realtype abstol,
+int run_tests(MRISTEP_METHOD_TYPE type, sunrealtype t0, int nsteps,
+              sunrealtype hs, sunrealtype hf, sunrealtype reltol, sunrealtype abstol,
               UserData* udata, SUNContext sunctx)
 {
   // Reusable error-checking flag
@@ -156,7 +158,7 @@ int run_tests(MRISTEP_METHOD_TYPE type, realtype t0, int nsteps,
   N_Vector y = N_VNew_Serial(1, sunctx);
   if (check_flag((void *)y, "N_VNew_Serial", 0)) return 1;
 
-  N_VConst(RCONST(1.0), y);
+  N_VConst(SUN_RCONST(1.0), y);
 
   // Create matrix and linear solver (if necessary)
   SUNMatrix       A  = nullptr;
@@ -267,9 +269,9 @@ int run_tests(MRISTEP_METHOD_TYPE type, realtype t0, int nsteps,
     num_methods = 3;
     methods = new ARKODE_MRITableID[num_methods];
 
-    methods[0] = ARKODE_MRI_GARK_ERK45a;
+    methods[0] = ARKODE_MIS_KW3;
     methods[1] = ARKODE_MRI_GARK_ERK33a;
-    methods[2] = ARKODE_MIS_KW3;
+    methods[2] = ARKODE_MRI_GARK_ERK45a;
   }
   else if (type == MRISTEP_IMPLICIT)
   {
@@ -281,13 +283,13 @@ int run_tests(MRISTEP_METHOD_TYPE type, realtype t0, int nsteps,
     methods = new ARKODE_MRITableID[num_methods];
     stiffly_accurate = new bool[num_methods];
 
-    methods[0] = ARKODE_MRI_GARK_ESDIRK46a;
+    methods[0] = ARKODE_MRI_GARK_IRK21a;
     stiffly_accurate[0] = true;
 
     methods[1] = ARKODE_MRI_GARK_ESDIRK34a;
     stiffly_accurate[1] = true;
 
-    methods[2] = ARKODE_MRI_GARK_IRK21a;
+    methods[2] = ARKODE_MRI_GARK_ESDIRK46a;
     stiffly_accurate[2] = true;
   }
   else if (type == MRISTEP_IMEX)
@@ -300,13 +302,13 @@ int run_tests(MRISTEP_METHOD_TYPE type, realtype t0, int nsteps,
     methods = new ARKODE_MRITableID[num_methods];
     stiffly_accurate = new bool[num_methods];
 
-    methods[0] = ARKODE_IMEX_MRI_GARK4;
+    methods[0] = ARKODE_IMEX_MRI_GARK3a;
     stiffly_accurate[0] = false;
 
     methods[1] = ARKODE_IMEX_MRI_GARK3b;
     stiffly_accurate[1] = false;
 
-    methods[2] = ARKODE_IMEX_MRI_GARK3a;
+    methods[2] = ARKODE_IMEX_MRI_GARK4;
     stiffly_accurate[2] = false;
   }
   else
@@ -346,8 +348,8 @@ int run_tests(MRISTEP_METHOD_TYPE type, realtype t0, int nsteps,
     // Output statistics
     // -----------------
 
-    realtype t  = t0;
-    realtype tf = nsteps * hs;
+    sunrealtype t  = t0;
+    sunrealtype tf = nsteps * hs;
 
     for (int i = 0; i < nsteps; i++)
     {
@@ -391,7 +393,7 @@ int run_tests(MRISTEP_METHOD_TYPE type, realtype t0, int nsteps,
       check_flag(&flag, "MRIStepGetNumLinRhsEvals", 1);
     }
 
-    realtype  pow   = udata->lambda_f;
+    sunrealtype  pow   = udata->lambda_f;
     if (type == MRISTEP_EXPLICIT || type == MRISTEP_IMEX)
     {
       pow += udata->lambda_e;
@@ -400,10 +402,10 @@ int run_tests(MRISTEP_METHOD_TYPE type, realtype t0, int nsteps,
     {
       pow += udata->lambda_i;
     }
-    realtype  ytrue = exp(pow * t);
+    sunrealtype  ytrue = exp(pow * t);
 
-    realtype* ydata = N_VGetArrayPointer(y);
-    realtype  error = ytrue - ydata[0];
+    sunrealtype* ydata = N_VGetArrayPointer(y);
+    sunrealtype  error = ytrue - ydata[0];
 
     cout << "\nMRIStep Statistics:\n";
     cout << "   Time        = " << t           << "\n";
@@ -432,7 +434,7 @@ int run_tests(MRISTEP_METHOD_TYPE type, realtype t0, int nsteps,
     long int fe_evals = 0;
     if (type == MRISTEP_EXPLICIT || type == MRISTEP_IMEX)
     {
-      fe_evals = mri_nst * nstages_stored + 1;
+      fe_evals = mri_nst * nstages_stored;
     }
 
     if (mri_nfse != fe_evals)
@@ -444,8 +446,20 @@ int run_tests(MRISTEP_METHOD_TYPE type, realtype t0, int nsteps,
     long int fi_evals = 0;
     if (type == MRISTEP_IMPLICIT || type == MRISTEP_IMEX)
     {
-      fi_evals = mri_nst * nstages_stored + mri_nni;
-      if (stiffly_accurate && !stiffly_accurate[i]) fi_evals++;
+      if (stiffly_accurate[i])
+      {
+        // The last stage is implicit so it does not correspond to a column of
+        // zeros in the coupling matrix and is counted in "nstages_stored"
+        // however we do not evaluate the RHS functions after the solve since
+        // the methods is "FSAL" (the index map value and allocated space is
+        // used in the nonlinear for this stage). The RHS functions will be
+        // evaluated and stored at the start of the next step.
+        fi_evals = mri_nst * (nstages_stored - 1) + mri_nni;
+      }
+      else
+      {
+        fi_evals = mri_nst * nstages_stored + mri_nni;
+      }
     }
 
     if (mri_nfsi != fi_evals)
@@ -471,7 +485,7 @@ int run_tests(MRISTEP_METHOD_TYPE type, realtype t0, int nsteps,
     MRIStepCoupling_Free(C);
 
     // Reset state vector to the initial condition
-    N_VConst(RCONST(1.0), y);
+    N_VConst(SUN_RCONST(1.0), y);
 
     // Re-initialize fast integrator
     flag = ARKStepReInit(arkstep_mem, ff, nullptr, t0, y);
@@ -520,10 +534,10 @@ int run_tests(MRISTEP_METHOD_TYPE type, realtype t0, int nsteps,
 
 
 // Explicit ODE RHS function fe(t,y)
-static int fe(realtype t, N_Vector y, N_Vector ydot, void *user_data)
+static int fe(sunrealtype t, N_Vector y, N_Vector ydot, void *user_data)
 {
-  realtype* y_data  = N_VGetArrayPointer(y);
-  realtype* yd_data = N_VGetArrayPointer(ydot);
+  sunrealtype* y_data  = N_VGetArrayPointer(y);
+  sunrealtype* yd_data = N_VGetArrayPointer(ydot);
   UserData* udata   = static_cast<UserData*>(user_data);
 
   yd_data[0] = udata->lambda_e * y_data[0];
@@ -532,10 +546,10 @@ static int fe(realtype t, N_Vector y, N_Vector ydot, void *user_data)
 }
 
 // Implicit ODE RHS function fi(t,y)
-static int fi(realtype t, N_Vector y, N_Vector ydot, void *user_data)
+static int fi(sunrealtype t, N_Vector y, N_Vector ydot, void *user_data)
 {
-  realtype* y_data  = N_VGetArrayPointer(y);
-  realtype* yd_data = N_VGetArrayPointer(ydot);
+  sunrealtype* y_data  = N_VGetArrayPointer(y);
+  sunrealtype* yd_data = N_VGetArrayPointer(ydot);
   UserData* udata   = static_cast<UserData*>(user_data);
 
   yd_data[0] = udata->lambda_i * y_data[0];
@@ -545,10 +559,10 @@ static int fi(realtype t, N_Vector y, N_Vector ydot, void *user_data)
 
 
 // Fast ODE RHS function ff(t,y)
-static int ff(realtype t, N_Vector y, N_Vector ydot, void *user_data)
+static int ff(sunrealtype t, N_Vector y, N_Vector ydot, void *user_data)
 {
-  realtype* y_data  = N_VGetArrayPointer(y);
-  realtype* yd_data = N_VGetArrayPointer(ydot);
+  sunrealtype* y_data  = N_VGetArrayPointer(y);
+  sunrealtype* yd_data = N_VGetArrayPointer(ydot);
   UserData* udata   = static_cast<UserData*>(user_data);
 
   yd_data[0] = udata->lambda_f * y_data[0];
@@ -558,11 +572,11 @@ static int ff(realtype t, N_Vector y, N_Vector ydot, void *user_data)
 
 
 // Jacobian routine to compute J(t,y) = dfi/dy.
-static int Ji(realtype t, N_Vector y, N_Vector fy,
+static int Ji(sunrealtype t, N_Vector y, N_Vector fy,
               SUNMatrix J, void *user_data,
               N_Vector tmp1, N_Vector tmp2, N_Vector tmp3)
 {
-  realtype* J_data = SUNDenseMatrix_Data(J);
+  sunrealtype* J_data = SUNDenseMatrix_Data(J);
   UserData* udata  = static_cast<UserData*>(user_data);
 
   J_data[0] = udata->lambda_i;

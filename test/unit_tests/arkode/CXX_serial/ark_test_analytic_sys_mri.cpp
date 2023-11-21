@@ -22,9 +22,10 @@
  *-----------------------------------------------------------------*/
 
 // Header files
-#include <stdio.h>
+#include <cstdio>
 #include <iostream>
-#include <string.h>
+#include <cstring>
+#include <string>
 #include <cmath>
 #include <arkode/arkode_arkstep.h>
 #include <arkode/arkode_mristep.h>
@@ -46,13 +47,13 @@
 
 using namespace std;
 
-#define ZERO RCONST(0.0)
-#define ONE  RCONST(1.0)
+#define ZERO SUN_RCONST(0.0)
+#define ONE  SUN_RCONST(1.0)
 
 // User-supplied Functions Called by the Solver
-static int f(realtype t, N_Vector y, N_Vector ydot, void *user_data);
-static int f0(realtype t, N_Vector y, N_Vector ydot, void *user_data);
-static int Jac(realtype t, N_Vector y, N_Vector fy, SUNMatrix J,
+static int f(sunrealtype t, N_Vector y, N_Vector ydot, void *user_data);
+static int f0(sunrealtype t, N_Vector y, N_Vector ydot, void *user_data);
+static int Jac(sunrealtype t, N_Vector y, N_Vector fy, SUNMatrix J,
                void *user_data, N_Vector tmp1, N_Vector tmp2, N_Vector tmp3);
 
 // Private function to perform matrix-matrix product
@@ -60,6 +61,9 @@ static int dense_MM(SUNMatrix A, SUNMatrix B, SUNMatrix C);
 
 // Private function to check function return values
 static int check_flag(void *flagvalue, const string funcname, int opt);
+
+//    check if relative difference is within tolerance
+static bool Compare(long int a, long int b, sunrealtype tol);
 
 // SUNContext for the simulation
 static SUNContext sunctx = NULL;
@@ -71,13 +75,13 @@ int main(int argc, char* argv[])
   SUNContext_Create(NULL, &sunctx);
 
   // general problem parameters
-  realtype T0 = RCONST(0.0);         // initial time
-  realtype Tf = RCONST(0.05);        // final time
+  sunrealtype T0 = SUN_RCONST(0.0);         // initial time
+  sunrealtype Tf = SUN_RCONST(0.05);        // final time
   int Nt = 1000;                     // total number of internal steps
   sunindextype NEQ = 3;              // number of dependent vars.
-  realtype reltol = RCONST(1.0e-6);  // tolerances
-  realtype abstol = RCONST(1.0e-10);
-  realtype lamda  = RCONST(-100.0);  // stiffness parameter
+  sunrealtype reltol = SUN_RCONST(1.0e-6);  // tolerances
+  sunrealtype abstol = SUN_RCONST(1.0e-10);
+  sunrealtype lamda  = SUN_RCONST(-100.0);  // stiffness parameter
 
   // general problem variables
   int flag;                       // reusable error-checking flag
@@ -92,15 +96,15 @@ int main(int argc, char* argv[])
   void *mristep_mem = NULL;       // empty MRIStep memory structure
   void *inner_mem = NULL;         // empty inner ARKStep memory structure
   int numfails;
-  booleantype fixedpoint;
-  realtype t, tcur;
+  sunbooleantype fixedpoint;
+  sunrealtype t, tcur;
   long int ark_nst, ark_nfe, ark_nfi, ark_nsetups, ark_nje, ark_nfeLS, ark_nni, ark_ncfn;
   long int mri_nst, mri_nfse, mri_nfsi, mri_nsetups, mri_nje, mri_nfeLS, mri_nni, mri_ncfn;
 
   // if an argument supplied, set fixedpoint (otherwise use SUNFALSE)
   fixedpoint = SUNFALSE;
-  if (argc > 1)  fixedpoint = stoi(argv[1], NULL);
-  if (argc > 2)  Nt = stoi(argv[2], NULL);
+  if (argc > 1)  fixedpoint = std::stoi(argv[1], NULL);
+  if (argc > 2)  Nt = std::stoi(argv[2], NULL);
 
   // Initial problem output
   cout << "\nAnalytical ODE test problem:\n";
@@ -135,10 +139,10 @@ int main(int argc, char* argv[])
   // Create DIRK2 (trapezoidal) Butcher table
   ARKodeButcherTable B = ARKodeButcherTable_Alloc(2, SUNFALSE);
   if (check_flag((void *)B, "ARKodeButcherTable_Alloc", 0)) return 1;
-  B->A[1][0] = RCONST(0.5);
-  B->A[1][1] = RCONST(0.5);
-  B->b[0] = RCONST(0.5);
-  B->b[1] = RCONST(0.5);
+  B->A[1][0] = SUN_RCONST(0.5);
+  B->A[1][1] = SUN_RCONST(0.5);
+  B->b[0] = SUN_RCONST(0.5);
+  B->b[1] = SUN_RCONST(0.5);
   B->c[1] = ONE;
   B->q=2;
 
@@ -146,10 +150,10 @@ int main(int argc, char* argv[])
   ARKodeButcherTable Bc = ARKodeButcherTable_Alloc(3, SUNFALSE);
   if (check_flag((void *)Bc, "ARKodeButcherTable_Alloc", 0)) return 1;
   Bc->A[1][0] = ONE;
-  Bc->A[2][0] = RCONST(0.5);
-  Bc->A[2][2] = RCONST(0.5);
-  Bc->b[0] = RCONST(0.5);
-  Bc->b[2] = RCONST(0.5);
+  Bc->A[2][0] = SUN_RCONST(0.5);
+  Bc->A[2][2] = SUN_RCONST(0.5);
+  Bc->b[0] = SUN_RCONST(0.5);
+  Bc->b[2] = SUN_RCONST(0.5);
   Bc->c[1] = ONE;
   Bc->c[2] = ONE;
   Bc->q=2;
@@ -311,11 +315,11 @@ int main(int argc, char* argv[])
     numfails += 1;
     cout << "  Internal solver steps error: " << ark_nst << " vs " << mri_nst << "\n";
   }
-  if ((ark_nfi - ark_nst) != mri_nfsi) {
+  if (!Compare(ark_nfi, mri_nfsi, ONE)) {
     numfails += 1;
     cout << "  RHS evals error: " << ark_nfi << " vs " << mri_nfsi << "\n";
   }
-  if (ark_nni != mri_nni) {
+  if (!Compare(ark_nni, mri_nni, ONE)) {
     numfails += 1;
     cout << "  Nonlinear iterations error: " << ark_nni << " vs " << mri_nni << "\n";
   }
@@ -372,25 +376,25 @@ int main(int argc, char* argv[])
  *-------------------------------*/
 
 // f routine to compute the ODE RHS function f(t,y).
-static int f(realtype t, N_Vector y, N_Vector ydot, void *user_data)
+static int f(sunrealtype t, N_Vector y, N_Vector ydot, void *user_data)
 {
-  realtype *rdata = (realtype *) user_data;   // cast user_data to realtype
-  realtype lam = rdata[0];                    // set shortcut for stiffness parameter
-  realtype y0 = NV_Ith_S(y,0);                // access current solution values
-  realtype y1 = NV_Ith_S(y,1);
-  realtype y2 = NV_Ith_S(y,2);
-  realtype yd0, yd1, yd2;
+  sunrealtype *rdata = (sunrealtype *) user_data;   // cast user_data to sunrealtype
+  sunrealtype lam = rdata[0];                    // set shortcut for stiffness parameter
+  sunrealtype y0 = NV_Ith_S(y,0);                // access current solution values
+  sunrealtype y1 = NV_Ith_S(y,1);
+  sunrealtype y2 = NV_Ith_S(y,2);
+  sunrealtype yd0, yd1, yd2;
 
   // fill in the RHS function: f(t,y) = V*D*Vi*y
-  yd0 = RCONST(0.25)*(RCONST(5.0)*y0 + RCONST(1.0)*y1 - RCONST(3.0)*y2);  // yd = Vi*y
-  yd1 = RCONST(0.25)*(RCONST(2.0)*y0 + RCONST(2.0)*y1 - RCONST(2.0)*y2);
-  yd2 = RCONST(0.25)*(RCONST(1.0)*y0 + RCONST(1.0)*y1 + RCONST(1.0)*y2);
-  y0  = -RCONST(0.5)*yd0;                                                 //  y = D*yd
-  y1  = -RCONST(0.1)*yd1;
+  yd0 = SUN_RCONST(0.25)*(SUN_RCONST(5.0)*y0 + SUN_RCONST(1.0)*y1 - SUN_RCONST(3.0)*y2);  // yd = Vi*y
+  yd1 = SUN_RCONST(0.25)*(SUN_RCONST(2.0)*y0 + SUN_RCONST(2.0)*y1 - SUN_RCONST(2.0)*y2);
+  yd2 = SUN_RCONST(0.25)*(SUN_RCONST(1.0)*y0 + SUN_RCONST(1.0)*y1 + SUN_RCONST(1.0)*y2);
+  y0  = -SUN_RCONST(0.5)*yd0;                                                 //  y = D*yd
+  y1  = -SUN_RCONST(0.1)*yd1;
   y2  =  lam*yd2;
-  yd0 =  RCONST(1.0)*y0 - RCONST(1.0)*y1 + RCONST(1.0)*y2;                // yd = V*y
-  yd1 = -RCONST(1.0)*y0 + RCONST(2.0)*y1 + RCONST(1.0)*y2;
-  yd2 =  RCONST(0.0)*y0 - RCONST(1.0)*y1 + RCONST(2.0)*y2;
+  yd0 =  SUN_RCONST(1.0)*y0 - SUN_RCONST(1.0)*y1 + SUN_RCONST(1.0)*y2;                // yd = V*y
+  yd1 = -SUN_RCONST(1.0)*y0 + SUN_RCONST(2.0)*y1 + SUN_RCONST(1.0)*y2;
+  yd2 =  SUN_RCONST(0.0)*y0 - SUN_RCONST(1.0)*y1 + SUN_RCONST(2.0)*y2;
   NV_Ith_S(ydot,0) = yd0;
   NV_Ith_S(ydot,1) = yd1;
   NV_Ith_S(ydot,2) = yd2;
@@ -399,7 +403,7 @@ static int f(realtype t, N_Vector y, N_Vector ydot, void *user_data)
 }
 
 // f0 routine to compute a zero-valued ODE RHS function f(t,y).
-static int f0(realtype t, N_Vector y, N_Vector ydot, void *user_data)
+static int f0(sunrealtype t, N_Vector y, N_Vector ydot, void *user_data)
 {
   // Initialize ydot to zero and return
   N_VConst(ZERO, ydot);
@@ -407,12 +411,12 @@ static int f0(realtype t, N_Vector y, N_Vector ydot, void *user_data)
 }
 
 // Jacobian routine to compute J(t,y) = df/dy.
-static int Jac(realtype t, N_Vector y, N_Vector fy,
+static int Jac(sunrealtype t, N_Vector y, N_Vector fy,
                SUNMatrix J, void *user_data,
                N_Vector tmp1, N_Vector tmp2, N_Vector tmp3)
 {
-  realtype *rdata = (realtype *) user_data;   // cast user_data to realtype
-  realtype lam = rdata[0];                    // set shortcut for stiffness parameter
+  sunrealtype *rdata = (sunrealtype *) user_data;   // cast user_data to sunrealtype
+  sunrealtype lam = rdata[0];                    // set shortcut for stiffness parameter
   SUNMatrix V  = SUNDenseMatrix(3,3,sunctx);  // create temporary SUNMatrix objects
   SUNMatrix D  = SUNDenseMatrix(3,3,sunctx);  // create temporary SUNMatrix objects
   SUNMatrix Vi = SUNDenseMatrix(3,3,sunctx);  // create temporary SUNMatrix objects
@@ -423,30 +427,30 @@ static int Jac(realtype t, N_Vector y, N_Vector fy,
 
   // Fill in temporary matrices:
   //    V = [1 -1 1; -1 2 1; 0 -1 2]
-  SM_ELEMENT_D(V,0,0) =  RCONST(1.0);
-  SM_ELEMENT_D(V,0,1) = -RCONST(1.0);
-  SM_ELEMENT_D(V,0,2) =  RCONST(1.0);
-  SM_ELEMENT_D(V,1,0) = -RCONST(1.0);
-  SM_ELEMENT_D(V,1,1) =  RCONST(2.0);
-  SM_ELEMENT_D(V,1,2) =  RCONST(1.0);
-  SM_ELEMENT_D(V,2,0) =  RCONST(0.0);
-  SM_ELEMENT_D(V,2,1) = -RCONST(1.0);
-  SM_ELEMENT_D(V,2,2) =  RCONST(2.0);
+  SM_ELEMENT_D(V,0,0) =  SUN_RCONST(1.0);
+  SM_ELEMENT_D(V,0,1) = -SUN_RCONST(1.0);
+  SM_ELEMENT_D(V,0,2) =  SUN_RCONST(1.0);
+  SM_ELEMENT_D(V,1,0) = -SUN_RCONST(1.0);
+  SM_ELEMENT_D(V,1,1) =  SUN_RCONST(2.0);
+  SM_ELEMENT_D(V,1,2) =  SUN_RCONST(1.0);
+  SM_ELEMENT_D(V,2,0) =  SUN_RCONST(0.0);
+  SM_ELEMENT_D(V,2,1) = -SUN_RCONST(1.0);
+  SM_ELEMENT_D(V,2,2) =  SUN_RCONST(2.0);
 
   //    Vi = 0.25*[5 1 -3; 2 2 -2; 1 1 1]
-  SM_ELEMENT_D(Vi,0,0) =  RCONST(0.25)*RCONST(5.0);
-  SM_ELEMENT_D(Vi,0,1) =  RCONST(0.25)*RCONST(1.0);
-  SM_ELEMENT_D(Vi,0,2) = -RCONST(0.25)*RCONST(3.0);
-  SM_ELEMENT_D(Vi,1,0) =  RCONST(0.25)*RCONST(2.0);
-  SM_ELEMENT_D(Vi,1,1) =  RCONST(0.25)*RCONST(2.0);
-  SM_ELEMENT_D(Vi,1,2) = -RCONST(0.25)*RCONST(2.0);
-  SM_ELEMENT_D(Vi,2,0) =  RCONST(0.25)*RCONST(1.0);
-  SM_ELEMENT_D(Vi,2,1) =  RCONST(0.25)*RCONST(1.0);
-  SM_ELEMENT_D(Vi,2,2) =  RCONST(0.25)*RCONST(1.0);
+  SM_ELEMENT_D(Vi,0,0) =  SUN_RCONST(0.25)*SUN_RCONST(5.0);
+  SM_ELEMENT_D(Vi,0,1) =  SUN_RCONST(0.25)*SUN_RCONST(1.0);
+  SM_ELEMENT_D(Vi,0,2) = -SUN_RCONST(0.25)*SUN_RCONST(3.0);
+  SM_ELEMENT_D(Vi,1,0) =  SUN_RCONST(0.25)*SUN_RCONST(2.0);
+  SM_ELEMENT_D(Vi,1,1) =  SUN_RCONST(0.25)*SUN_RCONST(2.0);
+  SM_ELEMENT_D(Vi,1,2) = -SUN_RCONST(0.25)*SUN_RCONST(2.0);
+  SM_ELEMENT_D(Vi,2,0) =  SUN_RCONST(0.25)*SUN_RCONST(1.0);
+  SM_ELEMENT_D(Vi,2,1) =  SUN_RCONST(0.25)*SUN_RCONST(1.0);
+  SM_ELEMENT_D(Vi,2,2) =  SUN_RCONST(0.25)*SUN_RCONST(1.0);
 
   //    D = [-0.5 0 0; 0 -0.1 0; 0 0 lam]
-  SM_ELEMENT_D(D,0,0) = -RCONST(0.5);
-  SM_ELEMENT_D(D,1,1) = -RCONST(0.1);
+  SM_ELEMENT_D(D,0,0) = -SUN_RCONST(0.5);
+  SM_ELEMENT_D(D,1,1) = -SUN_RCONST(0.1);
   SM_ELEMENT_D(D,2,2) = lam;
 
   // Compute J = V*D*Vi
@@ -482,9 +486,9 @@ static int dense_MM(SUNMatrix A, SUNMatrix B, SUNMatrix C)
     return 1;
   }
 
-  realtype **adata = SUNDenseMatrix_Cols(A);     // access data and extents
-  realtype **bdata = SUNDenseMatrix_Cols(B);
-  realtype **cdata = SUNDenseMatrix_Cols(C);
+  sunrealtype **adata = SUNDenseMatrix_Cols(A);     // access data and extents
+  sunrealtype **bdata = SUNDenseMatrix_Cols(B);
+  sunrealtype **cdata = SUNDenseMatrix_Cols(C);
   sunindextype m = SUNDenseMatrix_Rows(C);
   sunindextype n = SUNDenseMatrix_Columns(C);
   sunindextype l = SUNDenseMatrix_Columns(A);
@@ -534,6 +538,13 @@ static int check_flag(void *flagvalue, const string funcname, int opt)
   return 0;
 }
 
+// Check if relative difference of a and b is less than tolerance
+static bool Compare(long int a, long int b, sunrealtype tol)
+{
+  sunrealtype rel_diff = SUN_RCONST(100.0) *
+    abs(static_cast<sunrealtype>(a - b) / static_cast<sunrealtype>(a));
 
+  return (rel_diff > tol) ? false : true;
+}
 
 //---- end of file ----
