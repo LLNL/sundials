@@ -56,7 +56,9 @@ endforeach()
 ### ------- Create TPL imported targets
 
 if("@ENABLE_MPI@" AND NOT TARGET MPI::MPI_C)
-  find_dependency(MPI)
+  get_filename_component(_mpi_base "@MPIEXEC_EXECUTABLE@" DIRECTORY)
+  find_dependency(MPI PATHS ${_mpi_base})
+  unset(_mpi_base)
 endif()
 
 if("@ENABLE_OPENMP@" AND NOT TARGET OpenMP::OpenMP_C)
