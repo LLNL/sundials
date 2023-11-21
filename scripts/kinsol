@@ -44,10 +44,5 @@ $tar $tarfile $distrobase/src/kinsol
 echo "   --- Add kinsol examples to $tarfile"
 $tar $tarfile $distrobase/examples/kinsol
 
-$tar $tarfile $distrobase/examples/kinsol/F2003_parallel/README
-$tar $tarfile $distrobase/examples/kinsol/F2003_parallel/CMakeLists.txt
-$tar $tarfile $distrobase/examples/kinsol/F2003_parallel/kin_diagon_kry_f2003.f90
-$tar $tarfile $distrobase/examples/kinsol/F2003_parallel/kin_diagon_kry_f2003.out
-
 echo "   --- Add kinsol unit tests to $tarfile"
 $tar $tarfile $distrobase/test/unit_tests/kinsol

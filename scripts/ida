@@ -44,15 +44,5 @@ $tar $tarfile $distrobase/src/ida
 echo "   --- Add ida examples to $tarfile"
 $tar $tarfile $distrobase/examples/ida
 
-$tar $tarfile $distrobase/examples/ida/F2003_parallel/README
-$tar $tarfile $distrobase/examples/ida/F2003_parallel/CMakeLists.txt
-$tar $tarfile $distrobase/examples/ida/F2003_parallel/ida_heat2D_kry_bbd_f2003.f90
-$tar $tarfile $distrobase/examples/ida/F2003_parallel/ida_heat2D_kry_bbd_f2003.out
-
-$tar $tarfile $distrobase/examples/ida/F2003_openmp/README
-$tar $tarfile $distrobase/examples/ida/F2003_openmp/CMakeLists.txt
-$tar $tarfile $distrobase/examples/ida/F2003_openmp/idaHeat2D_kry_omp_f2003.f90
-$tar $tarfile $distrobase/examples/ida/F2003_openmp/idaHeat2D_kry_omp_f2003.out
-
 echo "   --- Add ida unit tests to $tarfile"
 $tar $tarfile $distrobase/test/unit_tests/ida
