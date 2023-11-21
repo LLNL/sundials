@@ -7,6 +7,7 @@ Dahlquist ODE test problem:
   relative tol = 0.0001
   absolute tol = 1e-06
   interp type  = Lagrange
+  pred type    = Trivial (0)
 
 ========================
 Test explicit RK methods
@@ -1910,272 +1911,272 @@ Fi RHS evals:
 
 ========================
 IMEX Table ID 1
-  stages:             3
-  order:              2
+  stages:             4
+  order:              3
   explicit 1st stage: 1
   stiffly accurate:   0
   first same as last: 0
 ========================
 --------------------
 Steps: 1
-NLS iters: 2
+NLS iters: 3
 Fe RHS evals:
-  actual:   3
-  expected: 3
+  actual:   4
+  expected: 4
 Fi RHS evals:
-  actual:   5
-  expected: 5
+  actual:   7
+  expected: 7
 --------------------
 Steps: 2
-NLS iters: 4
-Fe RHS evals:
-  actual:   6
-  expected: 6
-Fi RHS evals:
-  actual:   10
-  expected: 10
---------------------
-Steps: 3
 NLS iters: 6
 Fe RHS evals:
-  actual:   9
-  expected: 9
+  actual:   8
+  expected: 8
 Fi RHS evals:
-  actual:   15
-  expected: 15
+  actual:   14
+  expected: 14
 --------------------
-Dense Output
-Fe RHS evals:
-  actual:   9
-  expected: 9
-Fi RHS evals:
-  actual:   15
-  expected: 15
---------------------
-Steps: 4
-NLS iters: 8
+Steps: 3
+NLS iters: 9
 Fe RHS evals:
   actual:   12
   expected: 12
 Fi RHS evals:
-  actual:   20
-  expected: 20
+  actual:   21
+  expected: 21
+--------------------
+Dense Output
+Fe RHS evals:
+  actual:   12
+  expected: 12
+Fi RHS evals:
+  actual:   21
+  expected: 21
+--------------------
+Steps: 4
+NLS iters: 12
+Fe RHS evals:
+  actual:   16
+  expected: 16
+Fi RHS evals:
+  actual:   28
+  expected: 28
 --------------------
 
 ========================
 IMEX Table ID 2
-  stages:             3
-  order:              2
+  stages:             6
+  order:              4
   explicit 1st stage: 1
   stiffly accurate:   0
   first same as last: 0
 ========================
 --------------------
 Steps: 1
-NLS iters: 2
-Fe RHS evals:
-  actual:   3
-  expected: 3
-Fi RHS evals:
-  actual:   5
-  expected: 5
---------------------
-Steps: 2
-NLS iters: 4
+NLS iters: 5
 Fe RHS evals:
   actual:   6
   expected: 6
 Fi RHS evals:
-  actual:   10
-  expected: 10
+  actual:   11
+  expected: 11
 --------------------
-Steps: 3
-NLS iters: 6
-Fe RHS evals:
-  actual:   9
-  expected: 9
-Fi RHS evals:
-  actual:   15
-  expected: 15
---------------------
-Dense Output
-Fe RHS evals:
-  actual:   9
-  expected: 9
-Fi RHS evals:
-  actual:   15
-  expected: 15
---------------------
-Steps: 4
-NLS iters: 8
+Steps: 2
+NLS iters: 10
 Fe RHS evals:
   actual:   12
   expected: 12
 Fi RHS evals:
-  actual:   20
-  expected: 20
+  actual:   22
+  expected: 22
+--------------------
+Steps: 3
+NLS iters: 15
+Fe RHS evals:
+  actual:   18
+  expected: 18
+Fi RHS evals:
+  actual:   33
+  expected: 33
+--------------------
+Dense Output
+Fe RHS evals:
+  actual:   18
+  expected: 18
+Fi RHS evals:
+  actual:   33
+  expected: 33
+--------------------
+Steps: 4
+NLS iters: 20
+Fe RHS evals:
+  actual:   24
+  expected: 24
+Fi RHS evals:
+  actual:   44
+  expected: 44
 --------------------
 
 ========================
 IMEX Table ID 3
-  stages:             3
-  order:              2
+  stages:             7
+  order:              4
   explicit 1st stage: 1
   stiffly accurate:   0
   first same as last: 0
 ========================
 --------------------
 Steps: 1
-NLS iters: 2
-Fe RHS evals:
-  actual:   3
-  expected: 3
-Fi RHS evals:
-  actual:   5
-  expected: 5
---------------------
-Steps: 2
-NLS iters: 4
-Fe RHS evals:
-  actual:   6
-  expected: 6
-Fi RHS evals:
-  actual:   10
-  expected: 10
---------------------
-Steps: 3
 NLS iters: 6
 Fe RHS evals:
-  actual:   9
-  expected: 9
+  actual:   7
+  expected: 7
 Fi RHS evals:
-  actual:   15
-  expected: 15
+  actual:   13
+  expected: 13
+--------------------
+Steps: 2
+NLS iters: 12
+Fe RHS evals:
+  actual:   14
+  expected: 14
+Fi RHS evals:
+  actual:   26
+  expected: 26
+--------------------
+Steps: 3
+NLS iters: 18
+Fe RHS evals:
+  actual:   21
+  expected: 21
+Fi RHS evals:
+  actual:   39
+  expected: 39
 --------------------
 Dense Output
 Fe RHS evals:
-  actual:   9
-  expected: 9
+  actual:   21
+  expected: 21
 Fi RHS evals:
-  actual:   15
-  expected: 15
+  actual:   39
+  expected: 39
 --------------------
 Steps: 4
-NLS iters: 8
+NLS iters: 24
 Fe RHS evals:
-  actual:   12
-  expected: 12
+  actual:   28
+  expected: 28
 Fi RHS evals:
-  actual:   20
-  expected: 20
+  actual:   52
+  expected: 52
 --------------------
 
 ========================
 IMEX Table ID 4
-  stages:             3
-  order:              2
+  stages:             8
+  order:              5
   explicit 1st stage: 1
   stiffly accurate:   0
   first same as last: 0
 ========================
 --------------------
 Steps: 1
-NLS iters: 2
+NLS iters: 7
 Fe RHS evals:
-  actual:   3
-  expected: 3
-Fi RHS evals:
-  actual:   5
-  expected: 5
---------------------
-Steps: 2
-NLS iters: 4
-Fe RHS evals:
-  actual:   6
-  expected: 6
-Fi RHS evals:
-  actual:   10
-  expected: 10
---------------------
-Steps: 3
-NLS iters: 6
-Fe RHS evals:
-  actual:   9
-  expected: 9
+  actual:   8
+  expected: 8
 Fi RHS evals:
   actual:   15
   expected: 15
+--------------------
+Steps: 2
+NLS iters: 14
+Fe RHS evals:
+  actual:   16
+  expected: 16
+Fi RHS evals:
+  actual:   30
+  expected: 30
+--------------------
+Steps: 3
+NLS iters: 21
+Fe RHS evals:
+  actual:   24
+  expected: 24
+Fi RHS evals:
+  actual:   45
+  expected: 45
 --------------------
 Dense Output
 Fe RHS evals:
-  actual:   9
-  expected: 9
+  actual:   24
+  expected: 24
 Fi RHS evals:
-  actual:   15
-  expected: 15
+  actual:   45
+  expected: 45
 --------------------
 Steps: 4
-NLS iters: 8
+NLS iters: 28
 Fe RHS evals:
-  actual:   12
-  expected: 12
+  actual:   32
+  expected: 32
 Fi RHS evals:
-  actual:   20
-  expected: 20
+  actual:   60
+  expected: 60
 --------------------
 
 ========================
 IMEX Table ID 5
-  stages:             3
-  order:              2
+  stages:             8
+  order:              5
   explicit 1st stage: 1
   stiffly accurate:   0
   first same as last: 0
 ========================
 --------------------
 Steps: 1
-NLS iters: 2
+NLS iters: 7
 Fe RHS evals:
-  actual:   3
-  expected: 3
-Fi RHS evals:
-  actual:   5
-  expected: 5
---------------------
-Steps: 2
-NLS iters: 4
-Fe RHS evals:
-  actual:   6
-  expected: 6
-Fi RHS evals:
-  actual:   10
-  expected: 10
---------------------
-Steps: 3
-NLS iters: 6
-Fe RHS evals:
-  actual:   9
-  expected: 9
+  actual:   8
+  expected: 8
 Fi RHS evals:
   actual:   15
   expected: 15
+--------------------
+Steps: 2
+NLS iters: 14
+Fe RHS evals:
+  actual:   16
+  expected: 16
+Fi RHS evals:
+  actual:   30
+  expected: 30
+--------------------
+Steps: 3
+NLS iters: 21
+Fe RHS evals:
+  actual:   24
+  expected: 24
+Fi RHS evals:
+  actual:   45
+  expected: 45
 --------------------
 Dense Output
 Fe RHS evals:
-  actual:   9
-  expected: 9
+  actual:   24
+  expected: 24
 Fi RHS evals:
-  actual:   15
-  expected: 15
+  actual:   45
+  expected: 45
 --------------------
 Steps: 4
-NLS iters: 8
+NLS iters: 28
 Fe RHS evals:
-  actual:   12
-  expected: 12
+  actual:   32
+  expected: 32
 Fi RHS evals:
-  actual:   20
-  expected: 20
+  actual:   60
+  expected: 60
 --------------------
 
 
