@@ -87,6 +87,9 @@ one described in `GitHub Issue #275 <https://github.com/LLNL/sundials/issues/275
 Functions, types and header files that were previously deprecated have been
 removed. 
 
+**Breaking change**
+Users now need to link to `sundials_core` in addition to the libraries already linked to. 
+
 ## Changes to SUNDIALS in release 6.6.1
 
 Updated the Tpetra NVector interface to support Trilinos 14.

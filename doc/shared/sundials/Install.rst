@@ -1693,16 +1693,15 @@ enabled vector:
    #include <sunlinsol/sunlinsol_spgmr.h>
 
 The story is similar for linking to SUNDIALS. Starting in v7.0.0, all
-applications will want to link to ``libsundials_core``. Furthermore, depending
+applications will need to link to ``libsundials_core``. Furthermore, depending
 on the packages and modules of SUNDIALS of interest an application will need to
 link to a few more libraries. Using the same examples as for the includes, we
 would need to also link to ``libsundials_cvode``, ``libsundials_nvecserial`` for
 the first example and ``libsundials_cvode``, ``libsundials_nveccuda``,
 ``libsundials_sunlinsolspgmr`` for the second.
 
-Refer to the documentations sections for the individual packages
-and modules of SUNDIALS that interest you for the proper includes and libraries
-to link to.
+Refer to the documentations sections for the individual packages and modules of
+SUNDIALS that interest you for the proper includes and libraries to link to.
 
 
 Using SUNDIALS as a Third Party Library in other CMake Projects
@@ -1752,7 +1751,9 @@ Table of SUNDIALS libraries and header files
    :align: center
 
    +------------------------------+--------------+----------------------------------------------+
-   | Shared                       | Headers      | ``sundials/sundials_band.h``                 |
+   | Core                         | Libraries    | ``libsundials_core.LIB``                     |
+   |                              +--------------+----------------------------------------------+
+   |                              | Headers      | ``sundials/sundials_band.h``                 |
    |                              |              +----------------------------------------------+
    |                              |              | ``sundials/sundials_config.h``               |
    |                              |              +----------------------------------------------+
