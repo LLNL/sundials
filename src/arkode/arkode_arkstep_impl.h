@@ -118,8 +118,9 @@ typedef struct ARKodeARKStepMemRec
   int maxcor; /* max num iterations for solving the
                             nonlinear equation                       */
 
-  int convfail;        /* NLS fail flag (for interface routines)   */
-  sunbooleantype jcur; /* is Jacobian info for lin solver current? */
+  int convfail;         /* NLS fail flag (for interface routines)   */
+  sunbooleantype jcur;  /* is Jacobian info for lin solver current? */
+  N_Vector fn_implicit; /* alias to saved implicit function evaluation */
 
   /* Linear Solver Data */
   ARKLinsolInitFn linit;

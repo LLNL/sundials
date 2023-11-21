@@ -494,7 +494,7 @@ int arkStep_NlsResidual_MassIdent(N_Vector zcor, N_Vector r, void* arkode_mem)
   /* temporary variables */
   ARKodeMem ark_mem;
   ARKodeARKStepMem step_mem;
-  int retval;
+  int retval, nls_iter;
   sunrealtype c[3];
   N_Vector X[3];
 
@@ -505,12 +505,23 @@ int arkStep_NlsResidual_MassIdent(N_Vector zcor, N_Vector r, void* arkode_mem)
   /* update 'ycur' value as stored predictor + current corrector */
   N_VLinearSum(ONE, step_mem->zpred, ONE, zcor, ark_mem->ycur);
 
-  /* compute implicit RHS */
-  retval = step_mem->nls_fi(ark_mem->tcur, ark_mem->ycur,
-                            step_mem->Fi[step_mem->istage], ark_mem->user_data);
-  step_mem->nfi++;
-  if (retval < 0) { return (ARK_RHSFUNC_FAIL); }
-  if (retval > 0) { return (RHSFUNC_RECVR); }
+  /* compute implicit RHS if not already available */
+  retval = SUNNonlinSolGetCurIter(step_mem->NLS, &nls_iter);
+  if (retval != ARK_SUCCESS) { return ARK_NLS_OP_ERR; }
+
+  if (nls_iter == 0 && step_mem->fn_implicit)
+  {
+    N_VScale(ONE, step_mem->fn_implicit, step_mem->Fi[step_mem->istage]);
+  }
+  else
+  {
+    retval = step_mem->nls_fi(ark_mem->tcur, ark_mem->ycur,
+                              step_mem->Fi[step_mem->istage],
+                              ark_mem->user_data);
+    step_mem->nfi++;
+    if (retval < 0) { return(ARK_RHSFUNC_FAIL); }
+    if (retval > 0) { return(RHSFUNC_RECVR); }
+  }
 
   /* compute residual via linear combination */
   c[0]   = ONE;
@@ -556,7 +567,7 @@ int arkStep_NlsResidual_MassFixed(N_Vector zcor, N_Vector r, void* arkode_mem)
   /* temporary variables */
   ARKodeMem ark_mem;
   ARKodeARKStepMem step_mem;
-  int retval;
+  int retval, nls_iter;
   sunrealtype c[3];
   N_Vector X[3];
 
@@ -567,12 +578,23 @@ int arkStep_NlsResidual_MassFixed(N_Vector zcor, N_Vector r, void* arkode_mem)
   /* update 'ycur' value as stored predictor + current corrector */
   N_VLinearSum(ONE, step_mem->zpred, ONE, zcor, ark_mem->ycur);
 
-  /* compute implicit RHS */
-  retval = step_mem->nls_fi(ark_mem->tcur, ark_mem->ycur,
-                            step_mem->Fi[step_mem->istage], ark_mem->user_data);
-  step_mem->nfi++;
-  if (retval < 0) { return (ARK_RHSFUNC_FAIL); }
-  if (retval > 0) { return (RHSFUNC_RECVR); }
+  /* compute implicit RHS if not already available */
+  retval = SUNNonlinSolGetCurIter(step_mem->NLS, &nls_iter);
+  if (retval != ARK_SUCCESS) { return ARK_NLS_OP_ERR; }
+
+  if (nls_iter == 0 && step_mem->fn_implicit)
+  {
+    N_VScale(ONE, step_mem->fn_implicit, step_mem->Fi[step_mem->istage]);
+  }
+  else
+  {
+    retval = step_mem->nls_fi(ark_mem->tcur, ark_mem->ycur,
+                              step_mem->Fi[step_mem->istage],
+                              ark_mem->user_data);
+    step_mem->nfi++;
+    if (retval < 0) { return(ARK_RHSFUNC_FAIL); }
+    if (retval > 0) { return(RHSFUNC_RECVR); }
+  }
 
   /* put M*zcor in r */
   retval = step_mem->mmult((void*)ark_mem, zcor, r);
