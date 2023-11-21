@@ -645,7 +645,7 @@ program driver
   ! inclusions
   use, intrinsic :: iso_c_binding
   use fsundials_futils_mod       ! Fortran utilities
-  use farkode_mod                ! Access ARKode
+  use farkode_mod                ! Access ARKODE
   use farkode_arkstep_mod        ! Access ARKStep
   use fsundials_types_mod        ! sundials defined types
   use fsundials_nvector_mod      ! Access generic N_Vector
@@ -847,7 +847,7 @@ program driver
   sunvec_ones => FN_VNew_Parallel(comm, N, Ntot, sunctx)
   call FN_VConst(1.d0, sunvec_ones)
 
-  ! Main time-stepping loop: calls ARKode to perform the integration, then
+  ! Main time-stepping loop: calls ARKODE to perform the integration, then
   ! prints results.  Stops when the final time has been reached
   t(1) = T0
   dTout = (Tf-T0)/Nt

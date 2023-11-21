@@ -15,11 +15,13 @@
 ! Example problem:
 !
 ! Diagonal ODE example.  Stiff case, with diagonal preconditioner.
-! Uses FARKODE interfaces and FARKBBD interfaces.
+! Uses FARKODE interfaces and FARKBBD interfaces.  Since the BBD
+! preconditioner "local" function requires no communication,
+! FARKBBDPrecInit is called with NULL-valued cfn argument.
 ! Solves problem twice -- with left and right preconditioning.
 !
 ! Note that this problem should only work with SUNDIALS configured
-! to use 'realtype' as 'double' and 'sunindextype' as '64bit'
+! to use 'sunrealtype' as 'double' and 'sunindextype' as '64bit'
 !-----------------------------------------------------------------
 
 module DiagkryData
@@ -62,9 +64,9 @@ module DiagkryData
 
 
    !-----------------------------------------------------------------
-   ! ODE RHS function f(t,y) (implicit).
+   ! ODE RHS function f(t,y).
    !-----------------------------------------------------------------
-   integer(c_int) function firhs(t, sunvec_y, sunvec_ydot, user_data) &
+   integer(c_int) function frhs(t, sunvec_y, sunvec_ydot, user_data) &
      result(retval) bind(C)
 
      !======= Inclusions ===========
@@ -96,18 +98,18 @@ module DiagkryData
      ! Initialize ydot to zero
      ydot = 0.d0
 
-     ! Fill ydot with ERP rhs function
+     ! Fill ydot with rhs function
      do i = 1,nlocal
         ydot(i) = -alpha * (myid * nlocal + i) * y(i)
      end do
 
      retval = 0              ! Return with success
      return
-   end function firhs
+   end function frhs
    !-----------------------------------------------------------------
 
    !-----------------------------------------------------------------
-   ! Local g function for BBD preconditioner (calls ODE RHS function).
+   ! Local g function for BBD preconditioner (calls ODE RHS).
    !-----------------------------------------------------------------
    integer(c_int) function LocalgFn(nnlocal, t, sunvec_y, sunvec_g, user_data) &
      result(retval) bind(C)
@@ -128,8 +130,8 @@ module DiagkryData
 
      ! local data
      integer :: ierr
-     
-     ierr = firhs(t, sunvec_y, sunvec_g, user_data)
+
+     ierr = frhs(t, sunvec_y, sunvec_g, user_data)
      if (ierr /= 0) then
         write(0,*) "Error in LocalgFn user-defined function, ierr = ", ierr
         stop 1
@@ -138,31 +140,6 @@ module DiagkryData
      retval = 0              ! Return with success
      return
    end function LocalgFn
-   !-----------------------------------------------------------------
-
-   !-----------------------------------------------------------------
-   ! Communication function for BBD preconditioner (Empty).
-   !-----------------------------------------------------------------
-   integer(c_int) function CommFn(nnlocal, t, sunvec_y, user_data) &
-     result(retval) bind(C)
-
-     !======= Inclusions ===========
-     use, intrinsic :: iso_c_binding
-     use fsundials_nvector_mod
-
-     !======= Declarations =========
-     implicit none
-
-     ! calling variables
-     real(c_double), value :: t            ! current time
-     integer(c_long)       :: nnlocal      ! local space
-     type(N_Vector)        :: sunvec_y     ! solution N_Vector
-     type(N_Vector)        :: sunvec_ydot  ! rhs N_Vector
-     type(c_ptr)           :: user_data    ! user-defined data
-
-     retval = 0              ! Return with success
-     return
-   end function CommFn
    !-----------------------------------------------------------------
 
  end module DiagkryData
@@ -177,7 +154,7 @@ module DiagkryData
    ! inclusions
    use, intrinsic :: iso_c_binding
    use fsundials_futils_mod       ! Fortran utilities
-   use farkode_mod                ! Access ARKode
+   use farkode_mod                ! Access ARKODE
    use farkode_arkstep_mod        ! Access ARKStep
    use fsundials_types_mod        ! sundials defined types
    use fsundials_matrix_mod       ! Fortran interface to generic SUNMatrix
@@ -221,7 +198,7 @@ module DiagkryData
    integer(c_long) :: ncfl(1)     ! number of linear convergence fails
    integer(c_long) :: nli(1)      ! number of linear iters
    integer(c_long) :: npre(1)     ! number of preconditioner setups
-   integer(c_long) :: npsol(1)    ! number of preconditioner solves 
+   integer(c_long) :: npsol(1)    ! number of preconditioner solves
    integer(c_long) :: lenrw(1)    ! main solver real/int workspace size
    integer(c_long) :: leniw(1)
    integer(c_long) :: lenrwls(1)  ! linear solver real/int workspace size
@@ -291,7 +268,7 @@ module DiagkryData
    y = 1.d0
 
    ! Create the ARKStep timestepper module
-   arkode_mem = FARKStepCreate(c_null_funptr, c_funloc(firhs), t0, sunvec_y, sunctx)
+   arkode_mem = FARKStepCreate(c_null_funptr, c_funloc(frhs), t0, sunvec_y, sunctx)
    if (.not. c_associated(arkode_mem)) then
       print *, "Error: FARKStepCreate returned NULL"
       call MPI_Abort(comm, 1, ierr)
@@ -325,30 +302,31 @@ module DiagkryData
       call MPI_Abort(comm, 1, ierr)
    end if
 
+   ! Initialize BBD preconditioner
    mu = 0
    ml = 0
    mudq = 0
    mldq = 0
    retval = FARKBBDPrecInit(arkode_mem, nlocal, mudq, mldq, mu, ml, 0.d0, &
-                            c_funloc(LocalgFn), c_funloc(CommFn))
+                            c_funloc(LocalgFn), c_null_funptr)
    if (retval /= 0) then
       print *, "Error: FARKBBDPrecInit returned ",retval
       call MPI_Abort(comm, 1, ierr)
    end if
 
+   ! Run problem twice, using differing preconditioning types each time
    do iPretype = 1,2
 
       if (iPretype == 2) then
-         
-         y = 1.d0
 
-         retval = FARKStepReInit(arkode_mem, c_null_funptr, c_funloc(firhs), &
+         y = 1.d0
+         retval = FARKStepReInit(arkode_mem, c_null_funptr, c_funloc(frhs), &
                                  t0, sunvec_y)
          if (retval /= 0) then
             print *, "Error in FARKStepReInit, retval = ", retval
             call MPI_Abort(comm, 1, ierr)
          end if
-         
+
          retval = FARKBBDPrecReInit(arkode_mem, mudq, mldq, 0.d0)
          if (retval /= 0) then
             print *, "Error in FARKBBDPrecReInit, retval = ", retval
@@ -367,8 +345,8 @@ module DiagkryData
 
       if (iPretype == 1 .and. outproc) write(6,*) "   Preconditioning on left:"
 
-      ! Main time-stepping loop: calls ARKode to perform the integration, then
-      ! prints results.  Stops when the final time has been reached
+      ! Main time-stepping loop: calls FARKStepEvolve to perform the integration,
+      ! then prints results.  Stops when the final time has been reached
       t(1) = T0
       dTout = 0.1d0
       tout = T0+dTout
@@ -385,6 +363,7 @@ module DiagkryData
             call MPI_Abort(comm, 1, ierr)
          end if
 
+         ! Retrieve solver statistics
          retval = FARKStepGetNumSteps(arkode_mem, nst)
          if (retval /= 0) then
             print *, "Error: FARKStepGetNumSteps returned ",retval

@@ -56,7 +56,7 @@ module DiagnonData
 
 
    !-----------------------------------------------------------------
-   ! ODE RHS function f(t,y) (explicit).
+   ! ODE RHS function f(t,y).
    !-----------------------------------------------------------------
    integer(c_int) function frhs(t, sunvec_y, sunvec_ydot, user_data) &
      result(retval) bind(C)
@@ -79,7 +79,7 @@ module DiagnonData
      real(c_double), pointer :: ydot(:)
 
      ! local data
-     integer :: i, ierr
+     integer :: i
 
      !======= Internals ============
 
@@ -90,7 +90,7 @@ module DiagnonData
      ! Initialize ydot to zero
      ydot = 0.d0
 
-     ! Fill ydot with ERP rhs function
+     ! Fill ydot with rhs function
      do i = 1,nlocal
         ydot(i) = -alpha * (myid * nlocal + i) * y(i)
      end do
@@ -113,7 +113,7 @@ module DiagnonData
    ! inclusions
    use, intrinsic :: iso_c_binding
    use fsundials_futils_mod       ! Fortran utilities
-   use farkode_mod                ! Access ARKode
+   use farkode_mod                ! Access ARKODE
    use farkode_erkstep_mod        ! Access ERKStep
    use fsundials_types_mod        ! sundials defined types
    use fsundials_nvector_mod      ! Access generic N_Vector

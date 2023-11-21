@@ -26,7 +26,7 @@
 ! smooth evolution.
 !
 ! This program solves a the Fortran ODE test problem using the
-! FARKODE interface for the ARKode ODE solver module.
+! FARKODE interface for the ARKODE ODE solver module.
 !
 ! This program uses the IMEX ARK solver; here the
 ! implicit systems are solved with a modified Newton iteration
@@ -49,10 +49,10 @@ module bruss_mod
   integer(c_long), parameter :: neq = 3
 
   ! ODE parameters
-  double precision, parameter, dimension(neq) :: y0 = (/ 3.9d0, 1.1d0, 2.8d0 /)
-  double precision, parameter :: a = 1.2d0
-  double precision, parameter :: b = 2.5d0
-  double precision, parameter :: ep = 1.d-5
+  real(c_double), parameter, dimension(neq) :: y0 = (/ 3.9d0, 1.1d0, 2.8d0 /)
+  real(c_double), parameter :: a = 1.2d0
+  real(c_double), parameter :: b = 2.5d0
+  real(c_double), parameter :: ep = 1.d-5
 
 contains
 
@@ -78,17 +78,17 @@ contains
     implicit none
 
     ! calling variables
-    double precision, value :: tn                  ! current time
-    type(N_Vector) :: sunvec_y   ! solution N_Vector
-    type(N_Vector) :: sunvec_f   ! rhs N_Vector
-    type(c_ptr) :: user_data                     ! user-defined data
+    real(c_double), value :: tn        ! current time
+    type(N_Vector)        :: sunvec_y  ! solution N_Vector
+    type(N_Vector)        :: sunvec_f  ! rhs N_Vector
+    type(c_ptr), value    :: user_data ! user-defined data
 
     ! local data
-    double precision :: u, v, w
+    real(c_double) :: u, v, w
 
     ! pointers to data in SUNDIALS vectors
-    double precision, pointer, dimension(neq) :: yvec(:)
-    double precision, pointer, dimension(neq) :: fvec(:)
+    real(c_double), pointer, dimension(neq) :: yvec(:)
+    real(c_double), pointer, dimension(neq) :: fvec(:)
 
     !======= Internals ============
 
@@ -97,9 +97,9 @@ contains
     fvec => FN_VGetArrayPointer(sunvec_f)
 
     ! set temporary values
-    u  = yvec(1)
-    v  = yvec(2)
-    w  = yvec(3)
+    u = yvec(1)
+    v = yvec(2)
+    w = yvec(3)
 
     ! fill RHS vector
     fvec(1) = a - (w + 1.d0)*u + v*u*u
@@ -135,17 +135,17 @@ contains
     implicit none
 
     ! calling variables
-    double precision, value :: tn                  ! current time
-    type(N_Vector) :: sunvec_y                   ! solution N_Vector
-    type(N_Vector) :: sunvec_f                   ! rhs N_Vector
-    type(c_ptr) :: user_data                     ! user-defined data
+    real(c_double), value :: tn        ! current time
+    type(N_Vector)        :: sunvec_y  ! solution N_Vector
+    type(N_Vector)        :: sunvec_f  ! rhs N_Vector
+    type(c_ptr), value    :: user_data ! user-defined data
 
     ! local data
-    double precision :: u, v, w
+    real(c_double) :: u, v, w
 
     ! pointers to data in SUNDIALS vectors
-    double precision, pointer, dimension(neq) :: yvec(:)
-    double precision, pointer, dimension(neq) :: fvec(:)
+    real(c_double), pointer, dimension(neq) :: yvec(:)
+    real(c_double), pointer, dimension(neq) :: fvec(:)
 
     !======= Internals ============
 
@@ -154,9 +154,9 @@ contains
     fvec => FN_VGetArrayPointer(sunvec_f)
 
     ! set temporary values
-    u  = yvec(1)
-    v  = yvec(2)
-    w  = yvec(3)
+    u = yvec(1)
+    v = yvec(2)
+    w = yvec(3)
 
     ! fill RHS vector
     fvec(1) = 0.d0
@@ -177,7 +177,7 @@ contains
   !    1 = recoverable error,
   !   -1 = non-recoverable error
   ! ----------------------------------------------------------------
-  integer(c_int) function Jac(t, sunvec_y, sunvec_f, sunmat_J, user_data, &
+  integer(c_int) function Jac(tn, sunvec_y, sunvec_f, sunmat_J, user_data, &
        sunvec_t1, sunvec_t2, sunvec_t3) result(ierr) bind(C,name='Jac')
 
     !======= Inclusions ===========
@@ -191,18 +191,17 @@ contains
     implicit none
 
     ! calling variables
-    double precision, value :: t         ! current time
+    real(c_double), value :: tn        ! current time
     type(N_Vector)        :: sunvec_y  ! solution N_Vector
     type(N_Vector)        :: sunvec_f  ! rhs N_Vector
     type(SUNMatrix)       :: sunmat_J  ! Jacobian SUNMatrix
-    type(c_ptr),    value :: user_data ! user-defined data
+    type(c_ptr), value    :: user_data ! user-defined data
     type(N_Vector)        :: sunvec_t1 ! temporary N_Vectors
     type(N_Vector)        :: sunvec_t2
     type(N_Vector)        :: sunvec_t3
 
     ! pointers to data in SUNDIALS vector and matrix
-    double precision, pointer :: J(:,:)
-
+    real(c_double), pointer, dimension(neq,neq) :: J(:,:)
 
     !======= Internals ============
 
@@ -220,13 +219,18 @@ contains
   end function Jac
 
 end module bruss_mod
+! ------------------------------------------------------------------
 
+
+!-----------------------------------------------------------------
+! Main driver program
+!-----------------------------------------------------------------
 program main
 
   !======= Inclusions ===========
   use, intrinsic :: iso_c_binding
 
-  use farkode_mod                ! Fortran interface to the ARKode module
+  use farkode_mod                ! Fortran interface to the ARKODE module
   use farkode_arkstep_mod        ! Fortran interface to the ARKStep module
   use fsundials_nvector_mod      ! Fortran interface to the generic N_Vector
   use fsundials_matrix_mod       ! Fortran interface to the generic SUNMatrix
@@ -241,33 +245,33 @@ program main
   implicit none
 
   ! local variables
-  type(c_ptr)    :: ctx                    ! SUNDIALS context for the simulation
-  double precision :: tstart               ! initial time
-  double precision :: tend                 ! final time
-  double precision :: rtol, atol           ! relative and absolute tolerance
-  double precision :: dtout                ! output time interval
-  double precision :: tout                 ! output time
-  double precision :: tcur(1)              ! current time
-  integer(c_int) :: imethod, idefault, pq  ! time step adaptivity parameters
-  double precision :: adapt_params(3)      ! time step adaptivity parameters
-  integer(c_int) :: ierr                   ! error flag from C functions
-  integer(c_int) :: nout                   ! number of outputs
-  integer(c_int) :: outstep                ! output loop counter
-  integer(c_long):: mxsteps                ! max num steps
+  type(c_ptr)     :: sunctx                 ! SUNDIALS context for the simulation
+  real(c_double)  :: tstart                 ! initial time
+  real(c_double)  :: tend                   ! final time
+  real(c_double)  :: rtol, atol             ! relative and absolute tolerance
+  real(c_double)  :: dtout                  ! output time interval
+  real(c_double)  :: tout                   ! output time
+  real(c_double)  :: tcur(1)                ! current time
+  integer(c_int)  :: imethod, idefault, pq  ! time step adaptivity parameters
+  real(c_double)  :: adapt_params(3)        ! time step adaptivity parameters
+  integer(c_int)  :: ierr                   ! error flag from C functions
+  integer(c_int)  :: nout                   ! number of outputs
+  integer(c_int)  :: outstep                ! output loop counter
+  integer(c_long) :: mxsteps                ! max num steps
 
-  double precision, parameter :: nlscoef = 1.d-2  ! non-linear solver coefficient
-  integer(c_int),   parameter :: order = 3        ! method order
+  real(c_double), parameter :: nlscoef = 1.d-2  ! non-linear solver coefficient
+  integer(c_int), parameter :: order = 3        ! method order
 
   type(N_Vector),        pointer :: sunvec_y    ! sundials vector
   type(SUNMatrix),       pointer :: sunmat_A    ! sundials matrix
   type(SUNLinearSolver), pointer :: sunls       ! sundials linear solver
   type(c_ptr)                    :: arkode_mem  ! ARKODE memory
-  double precision,      pointer :: yvec(:)     ! underlying vector
+  real(c_double), pointer, dimension(neq) :: yvec(:) ! underlying vector
 
   !======= Internals ============
 
   ! create the SUNDIALS context
-  ierr = FSUNContext_Create(c_null_ptr, ctx)
+  ierr = FSUNContext_Create(c_null_ptr, sunctx)
 
   ! initialize ODE
   tstart = 0.0d0
@@ -278,7 +282,7 @@ program main
   nout   = ceiling(tend/dtout)
 
   ! create SUNDIALS N_Vector
-  sunvec_y => FN_VNew_Serial(neq, ctx)
+  sunvec_y => FN_VNew_Serial(neq, sunctx)
   if (.not. associated(sunvec_y)) then
      print *, 'ERROR: sunvec = NULL'
      stop 1
@@ -289,17 +293,17 @@ program main
   yvec = y0
 
   ! create ARKStep memory
-  arkode_mem = FARKStepCreate(c_funloc(ExpRhsFn), c_funloc(ImpRhsFn), tstart, sunvec_y, ctx)
+  arkode_mem = FARKStepCreate(c_funloc(ExpRhsFn), c_funloc(ImpRhsFn), tstart, sunvec_y, sunctx)
   if (.not. c_associated(arkode_mem)) print *,'ERROR: arkode_mem = NULL'
 
-  ! Tell ARKODE to use a dense linear solver.
-  sunmat_A => FSUNDenseMatrix(neq, neq, ctx)
+  ! Tell ARKODE to use a dense linear solver with user-supplied Jacobian function.
+  sunmat_A => FSUNDenseMatrix(neq, neq, sunctx)
   if (.not. associated(sunmat_A)) then
      print *, 'ERROR: sunmat = NULL'
      stop 1
   end if
 
-  sunls => FSUNLinSol_Dense(sunvec_y, sunmat_A, ctx)
+  sunls => FSUNLinSol_Dense(sunvec_y, sunmat_A, sunctx)
   if (.not. associated(sunls)) then
      print *, 'ERROR: sunls = NULL'
      stop 1
@@ -327,6 +331,7 @@ program main
      stop 1
   end if
 
+  ! Set additional method parameters
   ierr = FARKStepSetOrder(arkode_mem, order)
   if (ierr /= 0) then
     print *, 'Error in FARKStepSetOrder'
@@ -356,7 +361,6 @@ program main
   ! output initial condition to disk
   write(100,'(3x,4(es23.16,1x))') tstart, yvec
 
-
   ! Start time stepping
   print *, '   '
   print *, 'Finished initialization, starting time steps'
@@ -366,7 +370,7 @@ program main
   print '(2x,4(es12.5,1x))', tcur, yvec(1), yvec(2), yvec(3)
   do outstep = 1,nout
 
-     ! call ARKStep
+     ! call ARKStepEvolve
      tout = min(tout + dtout, tend)
      ierr = FARKStepEvolve(arkode_mem, tout, sunvec_y, tcur, ARK_NORMAL)
      if (ierr /= 0) then
@@ -390,7 +394,7 @@ program main
   call FN_VDestroy(sunvec_y)
   call FSUNMatDestroy(sunmat_A)
   ierr = FSUNLinSolFree(sunls)
-  ierr = FSUNContext_Free(ctx)
+  ierr = FSUNContext_Free(sunctx)
 
 end program main
 
@@ -421,10 +425,10 @@ subroutine ARKStepStats(arkode_mem)
   integer(c_long) :: nlinsetups(1) ! num linear solver setups
   integer(c_long) :: netfails(1)   ! num error test fails
 
-  double precision  :: hinused(1)    ! initial step size
-  double precision  :: hlast(1)      ! last step size
-  double precision  :: hcur(1)       ! step size for next step
-  double precision  :: tcur(1)       ! internal time reached
+  real(c_double)  :: hinused(1)    ! initial step size
+  real(c_double)  :: hlast(1)      ! last step size
+  real(c_double)  :: hcur(1)       ! step size for next step
+  real(c_double)  :: tcur(1)       ! internal time reached
 
   integer(c_long) :: nniters(1)    ! nonlinear solver iterations
   integer(c_long) :: nncfails(1)   ! nonlinear solver fails
