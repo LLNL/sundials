@@ -95,6 +95,7 @@ contains
   end function idx
 
 end module Bruss1DFEMKLU_UserData
+! ------------------------------------------------------------------
 
 ! finite element basis functions
 module FEMBasis
@@ -135,6 +136,7 @@ contains
   end function Eval_x
 
 end module FEMBasis
+! ------------------------------------------------------------------
 
 ! quadrature data
 module Quadrature
@@ -167,6 +169,7 @@ contains
   end function Quad
 
 end module Quadrature
+! ------------------------------------------------------------------
 
 module bruss1D_ode_mod
 
@@ -202,7 +205,7 @@ contains
     real(c_double), value :: tn        ! current time
     type(N_Vector)        :: sunvec_y  ! solution N_Vector
     type(N_Vector)        :: sunvec_f  ! rhs N_Vector
-    type(c_ptr), value    :: user_data ! user-defined data
+    type(c_ptr),    value :: user_data ! user-defined data
 
     ! Local data
     integer(c_int) :: ix
@@ -374,6 +377,7 @@ contains
     return
 
   end function ImpRhsFn
+  ! ----------------------------------------------------------------
 
 
   ! ----------------------------------------------------------------
@@ -403,7 +407,7 @@ contains
     type(N_Vector)        :: sunvec_y  ! solution N_Vector
     type(N_Vector)        :: sunvec_f  ! rhs N_Vector
     type(SUNMatrix)       :: sunmat_J  ! Jacobian SUNMatrix
-    type(c_ptr), value    :: user_data ! user-defined data
+    type(c_ptr),    value :: user_data ! user-defined data
     type(N_Vector)        :: sunvec_t1 ! temporary N_Vectors
     type(N_Vector)        :: sunvec_t2
     type(N_Vector)        :: sunvec_t3
@@ -837,11 +841,12 @@ contains
     return
 
   end function Jac
+  ! ----------------------------------------------------------------
 
 
-  !-----------------------------------------------------------------
+  ! ----------------------------------------------------------------
   ! Mass matrix computation routine
-  !-----------------------------------------------------------------
+  ! ----------------------------------------------------------------
   integer(c_int) function Mass(tn, sunmat_M, user_data, &
        sunvec_t1, sunvec_t2, sunvec_t3) result(ierr) bind(C,name='Mass')
 
@@ -1007,14 +1012,15 @@ contains
     return
 
   end function Mass
+  ! ----------------------------------------------------------------
 
 end module bruss1D_ode_mod
-!-----------------------------------------------------------------
+! ------------------------------------------------------------------
 
 
-!-----------------------------------------------------------------
+! ------------------------------------------------------------------
 ! Main driver program
-!-----------------------------------------------------------------
+! ------------------------------------------------------------------
 program main
 
   !======= Inclusions ===========
@@ -1297,6 +1303,7 @@ program main
   ierr = FSUNContext_Free(ctx)
 
 end program main
+! ----------------------------------------------------------------
 
 
 ! ----------------------------------------------------------------
@@ -1428,3 +1435,4 @@ subroutine ARKStepStats(arkode_mem)
   return
 
 end subroutine ARKStepStats
+! ----------------------------------------------------------------

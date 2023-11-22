@@ -37,7 +37,7 @@ module analytic_mod
   integer(c_long), parameter :: neq = 1
 
   ! ODE parameters
-  double precision, parameter :: lamda = -100.0d0
+  real(c_double), parameter :: lamda = -100.0d0
 
 contains
 
@@ -61,14 +61,14 @@ contains
     implicit none
 
     ! calling variables
-    real(c_double), value :: tn  ! current time
-    type(N_Vector) :: sunvec_y   ! solution N_Vector
-    type(N_Vector) :: sunvec_f   ! rhs N_Vector
-    type(c_ptr) :: user_data     ! user-defined data
+    real(c_double), value :: tn         ! current time
+    type(N_Vector)        :: sunvec_y   ! solution N_Vector
+    type(N_Vector)        :: sunvec_f   ! rhs N_Vector
+    type(c_ptr),    value :: user_data  ! user-defined data
 
     ! pointers to data in SUNDIALS vectors
-    real(c_double), pointer :: yvec(:)
-    real(c_double), pointer :: fvec(:)
+    real(c_double), pointer, dimension(neq) :: yvec(:)
+    real(c_double), pointer, dimension(neq) :: fvec(:)
 
     !======= Internals ============
 
@@ -84,9 +84,15 @@ contains
     return
 
   end function RhsFn
+  ! ----------------------------------------------------------------
 
 end module analytic_mod
+! ------------------------------------------------------------------
 
+
+! ------------------------------------------------------------------
+! Main driver program
+! ------------------------------------------------------------------
 program main
 
   !======= Inclusions ===========
@@ -125,7 +131,7 @@ program main
   type(SUNLinearSolver),    pointer :: sunls       ! sundials linear solver
   type(SUNAdaptController), pointer :: sunCtrl     ! time step controller
   type(c_ptr)                       :: arkode_mem  ! ARKODE memory
-  real(c_double),           pointer :: yvec(:)     ! underlying vector
+  real(c_double), pointer, dimension(neq) :: yvec(:)  ! underlying vector
 
   !======= Internals ============
 
@@ -170,8 +176,8 @@ program main
 
   ierr = FARKStepSetLinearSolver(arkode_mem, sunls, sunmat_A)
   if (ierr /= 0) then
-    write(*,*) 'Error in FARKStepSetLinearSolver'
-    stop 1
+     write(*,*) 'Error in FARKStepSetLinearSolver'
+     stop 1
   end if
 
   ! set relative and absolute tolerances
@@ -235,6 +241,7 @@ program main
   ierr = FSUNContext_Free(ctx)
 
 end program main
+! ----------------------------------------------------------------
 
 
 ! ----------------------------------------------------------------
@@ -366,3 +373,4 @@ subroutine ARKStepStats(arkode_mem)
   return
 
 end subroutine ARKStepStats
+! ----------------------------------------------------------------

@@ -43,7 +43,7 @@
 ! MX and MY, for consistency with the output statements below.
 ! ------------------------------------------------------------------
 
-module diurnal_mod
+module DiurnalKryBP_mod
 
   !======= Inclusions ===========
   use, intrinsic :: iso_c_binding
@@ -119,25 +119,24 @@ contains
     real(c_double), value :: tn        ! current time
     type(N_Vector)        :: sunvec_u  ! solution N_Vector
     type(N_Vector)        :: sunvec_f  ! rhs N_Vector
-    type(c_ptr), value    :: user_data ! user-defined data
+    type(c_ptr),    value :: user_data ! user-defined data
 
     ! local data
-    integer(c_int)  :: ileft, iright
-    integer(c_long) :: idx0, idn, iup, idx
+    integer(c_int)  :: jleft, jright, jdn, jup
     real(c_double)  :: c1dn, c2dn, c1up, c2up, c1lt, c2lt
     real(c_double)  :: c1rt, c2rt, cydn, cyup, hord1, hord2, horad1
     real(c_double)  :: horad2, qq1, qq2, qq3, qq4, rkin1, rkin2, s
     real(c_double)  :: vertd1, vertd2, ydn, yup
 
     ! pointers to data in SUNDIALS vectors
-    real(c_double), pointer, dimension(2,mm) :: uvecI(:,:)
-    real(c_double), pointer, dimension(2,mm) :: fvecI(:,:)
+    real(c_double), pointer, dimension(2,mx,my) :: uvecI(:,:,:)
+    real(c_double), pointer, dimension(2,mx,my) :: fvecI(:,:,:)
 
     !======= Internals ============
 
     ! get data arrays from SUNDIALS vectors
-    uvecI(1:2,1:mm) => FN_VGetArrayPointer(sunvec_u)
-    fvecI(1:2,1:mm) => FN_VGetArrayPointer(sunvec_f)
+    uvecI(1:2,1:mx,1:my) => FN_VGetArrayPointer(sunvec_u)
+    fvecI(1:2,1:mx,1:my) => FN_VGetArrayPointer(sunvec_f)
 
     ! Set diurnal rate coefficients.
     s = sin(om * tn)
@@ -155,15 +154,13 @@ contains
        yup = ydn + dy
        cydn = vdco * exp(0.2d0 * ydn)
        cyup = vdco * exp(0.2d0 * yup)
-       idx0 = (jy - 1) * mx
-       idn = -mx
-       if (jy == 1) idn = mx
-       iup = mx
-       if (jy == my) iup = -mx
+       jdn = jy-1
+       if (jy == 1) jdn = my
+       jup = jy+1
+       if (jy == my) jup = 1
        do jx = 1, mx
-          idx = idx0 + jx
-          c1 = uvecI(1,idx)
-          c2 = uvecI(2,idx)
+          c1 = uvecI(1,jx,jy)
+          c2 = uvecI(2,jx,jy)
           ! Set kinetic rate terms.
           qq1 = q1 * c1 * c3
           qq2 = q2 * c1 * c2
@@ -172,28 +169,28 @@ contains
           rkin1 = -qq1 - qq2 + 2.0d0 * qq3 + qq4
           rkin2 = qq1 - qq2 - qq4
           ! Set vertical diffusion terms.
-          c1dn = uvecI(1,idx + idn)
-          c2dn = uvecI(2,idx + idn)
-          c1up = uvecI(1,idx + iup)
-          c2up = uvecI(2,idx + iup)
+          c1dn = uvecI(1,jx,jdn)
+          c2dn = uvecI(2,jx,jdn)
+          c1up = uvecI(1,jx,jup)
+          c2up = uvecI(2,jx,jup)
           vertd1 = cyup * (c1up - c1) - cydn * (c1 - c1dn)
           vertd2 = cyup * (c2up - c2) - cydn * (c2 - c2dn)
           ! Set horizontal diffusion and advection terms.
-          ileft = -1
-          if (jx == 1) ileft = 1
-          iright = 1
-          if (jx == mx) iright = -1
-          c1lt = uvecI(1,idx + ileft)
-          c2lt = uvecI(2,idx + ileft)
-          c1rt = uvecI(1,idx + iright)
-          c2rt = uvecI(2,idx + iright)
+          jleft = jx-1
+          if (jx == 1) jleft = mx
+          jright = jx+1
+          if (jx == mx) jright = 1
+          c1lt = uvecI(1,jleft,jy)
+          c2lt = uvecI(2,jleft,jy)
+          c1rt = uvecI(1,jright,jy)
+          c2rt = uvecI(2,jright,jy)
           hord1 = hdco * (c1rt - 2.0d0 * c1 + c1lt)
           hord2 = hdco * (c2rt - 2.0d0 * c2 + c2lt)
           horad1 = haco * (c1rt - c1lt)
           horad2 = haco * (c2rt - c2lt)
           ! load all terms into fvecI.
-          fvecI(1,idx) = vertd1 + hord1 + horad1 + rkin1
-          fvecI(2,idx) = vertd2 + hord2 + horad2 + rkin2
+          fvecI(1,jx,jy) = vertd1 + hord1 + horad1 + rkin1
+          fvecI(2,jx,jy) = vertd2 + hord2 + horad2 + rkin2
        end do
     end do
 
@@ -202,12 +199,15 @@ contains
     return
 
   end function ImpRhsFn
+  ! ----------------------------------------------------------------
 
-end module diurnal_mod
+end module DiurnalKryBP_mod
+! ------------------------------------------------------------------
 
-!-----------------------------------------------------------------
+
+! ------------------------------------------------------------------
 ! Main driver program
-!-----------------------------------------------------------------
+! ------------------------------------------------------------------
 program main
 
   !======= Inclusions ===========
@@ -221,7 +221,7 @@ program main
   use fnvector_serial_mod        ! Fortran interface to serial N_Vector
   use fsunlinsol_spgmr_mod       ! Fortran interface to spgmr SUNLinearSolver
   use fsundials_context_mod      ! Fortran interface to SUNContext
-  use diurnal_mod                ! ODE functions
+  use DiurnalKryBP_mod           ! ODE functions
 
   !======= Declarations =========
   implicit none
@@ -389,6 +389,7 @@ program main
   ierr = FSUNContext_Free(ctx)
 
 end program main
+! ----------------------------------------------------------------
 
 
 ! ----------------------------------------------------------------
@@ -542,3 +543,4 @@ subroutine ARKStepStats(arkode_mem)
   return
 
 end subroutine ARKStepStats
+! ----------------------------------------------------------------

@@ -89,6 +89,7 @@ contains
     return
 
   end function fcnirob
+  ! ----------------------------------------------------------------
 
   ! ----------------------------------------------------------------
   ! grob: The root function routine
@@ -113,7 +114,7 @@ contains
     real(c_double), value :: tn        ! current time
     type(N_Vector)        :: sunvec_y  ! solution N_Vector
     real(c_double)        :: gout(2)   ! root function values
-    type(c_ptr), value    :: user_data ! user-defined data
+    type(c_ptr),    value :: user_data ! user-defined data
 
     ! pointers to data in SUNDIALS vectors
     real(c_double), pointer, dimension(neq) :: yval(:)
@@ -132,6 +133,7 @@ contains
     return
 
   end function grob
+  ! ----------------------------------------------------------------
 
   ! ----------------------------------------------------------------
   ! jacrob: The ODE Jacobian function
@@ -160,7 +162,7 @@ contains
     type(N_Vector)        :: sunvec_y  ! solution N_Vector
     type(N_Vector)        :: sunvec_f  ! residual N_Vector
     type(SUNMatrix)       :: sunmat_J  ! Jacobian SUNMatrix
-    type(c_ptr), value    :: user_data ! user-defined data
+    type(c_ptr),    value :: user_data ! user-defined data
     type(N_Vector)        :: sunvec_t1 ! temporary N_Vectors
     type(N_Vector)        :: sunvec_t2
     type(N_Vector)        :: sunvec_t3
@@ -191,6 +193,7 @@ contains
     return
 
   end function jacrob
+  ! ----------------------------------------------------------------
 
 end module dnsL_mod
 ! ------------------------------------------------------------------
@@ -445,6 +448,7 @@ program main
   retval = FSUNContext_Free(sunctx)
 
 end program main
+! ----------------------------------------------------------------
 
 
 ! ----------------------------------------------------------------
@@ -481,6 +485,7 @@ subroutine PrintHeader(rtol, avtol, y)
 
   return
 end subroutine PrintHeader
+! ----------------------------------------------------------------
 
 
 ! ----------------------------------------------------------------
@@ -524,6 +529,7 @@ subroutine PrintOutput(arkode_mem, t, y)
        t, y(1), y(2), y(3), "| ", nst, hused(1)
 
 end subroutine PrintOutput
+! ----------------------------------------------------------------
 
 
 ! ----------------------------------------------------------------
@@ -655,3 +661,4 @@ subroutine PrintFinalStats(arkode_mem)
   return
 
 end subroutine PrintFinalStats
+! ----------------------------------------------------------------

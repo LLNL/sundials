@@ -81,7 +81,7 @@ contains
     real(c_double), value :: tn        ! current time
     type(N_Vector)        :: sunvec_y  ! solution N_Vector
     type(N_Vector)        :: sunvec_f  ! rhs N_Vector
-    type(c_ptr), value    :: user_data ! user-defined data
+    type(c_ptr),    value :: user_data ! user-defined data
 
     ! local data
     real(c_double) :: u, v, w
@@ -111,6 +111,7 @@ contains
     return
 
   end function ExpRhsFn
+  ! ----------------------------------------------------------------
 
 
   ! ----------------------------------------------------------------
@@ -138,7 +139,7 @@ contains
     real(c_double), value :: tn        ! current time
     type(N_Vector)        :: sunvec_y  ! solution N_Vector
     type(N_Vector)        :: sunvec_f  ! rhs N_Vector
-    type(c_ptr), value    :: user_data ! user-defined data
+    type(c_ptr),    value :: user_data ! user-defined data
 
     ! local data
     real(c_double) :: u, v, w
@@ -168,6 +169,7 @@ contains
     return
 
   end function ImpRhsFn
+  ! ----------------------------------------------------------------
 
   ! ----------------------------------------------------------------
   ! Jac: The Jacobian function
@@ -195,7 +197,7 @@ contains
     type(N_Vector)        :: sunvec_y  ! solution N_Vector
     type(N_Vector)        :: sunvec_f  ! rhs N_Vector
     type(SUNMatrix)       :: sunmat_J  ! Jacobian SUNMatrix
-    type(c_ptr), value    :: user_data ! user-defined data
+    type(c_ptr),    value :: user_data ! user-defined data
     type(N_Vector)        :: sunvec_t1 ! temporary N_Vectors
     type(N_Vector)        :: sunvec_t2
     type(N_Vector)        :: sunvec_t3
@@ -217,14 +219,15 @@ contains
     return
 
   end function Jac
+  ! ----------------------------------------------------------------
 
 end module bruss_mod
 ! ------------------------------------------------------------------
 
 
-!-----------------------------------------------------------------
+! ------------------------------------------------------------------
 ! Main driver program
-!-----------------------------------------------------------------
+! ------------------------------------------------------------------
 program main
 
   !======= Inclusions ===========
@@ -311,14 +314,14 @@ program main
 
   ierr = FARKStepSetLinearSolver(arkode_mem, sunls, sunmat_A)
   if (ierr /= 0) then
-    print *, 'Error in FARKStepSetLinearSolver'
-    stop 1
+     print *, 'Error in FARKStepSetLinearSolver'
+     stop 1
   end if
 
   ierr = FARKStepSetJacFn(arkode_mem, c_funloc(Jac))
   if (ierr /= 0) then
-    print *, 'Error in FARKStepSetJacFn'
-    stop 1
+     print *, 'Error in FARKStepSetJacFn'
+     stop 1
   end if
 
   ! set relative and absolute tolerances
@@ -334,14 +337,14 @@ program main
   ! Set additional method parameters
   ierr = FARKStepSetOrder(arkode_mem, order)
   if (ierr /= 0) then
-    print *, 'Error in FARKStepSetOrder'
-    stop 1
+     print *, 'Error in FARKStepSetOrder'
+     stop 1
   end if
 
   ierr = FARKStepSetNonlinConvCoef(arkode_mem, nlscoef)
   if (ierr /= 0) then
-    print *, 'Error in FARKStepSetNonlinConvCoef'
-    stop 1
+     print *, 'Error in FARKStepSetNonlinConvCoef'
+     stop 1
   end if
 
   imethod = 0
@@ -397,6 +400,7 @@ program main
   ierr = FSUNContext_Free(sunctx)
 
 end program main
+! ----------------------------------------------------------------
 
 
 ! ----------------------------------------------------------------
@@ -528,3 +532,4 @@ subroutine ARKStepStats(arkode_mem)
   return
 
 end subroutine ARKStepStats
+! ----------------------------------------------------------------

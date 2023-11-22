@@ -1,6 +1,6 @@
-!-----------------------------------------------------------------
+! ----------------------------------------------------------------
 ! Programmer(s): Daniel R. Reynolds @ SMU
-!-----------------------------------------------------------------
+! ----------------------------------------------------------------
 ! SUNDIALS Copyright Start
 ! Copyright (c) 2002-2023, Lawrence Livermore National Security
 ! and Southern Methodist University.
@@ -10,7 +10,7 @@
 !
 ! SPDX-License-Identifier: BSD-3-Clause
 ! SUNDIALS Copyright End
-!-----------------------------------------------------------------
+! ----------------------------------------------------------------
 ! Example problem:
 !
 ! The following test simulates a simple anisotropic 2D heat
@@ -43,10 +43,10 @@
 !
 ! 20 outputs are printed at equal intervals, and run statistics
 ! are printed at the end.
-!-----------------------------------------------------------------
+! ----------------------------------------------------------------
 
 module Heat2DData
-  !---------------------------------------------------------------
+  ! --------------------------------------------------------------
   ! Description:
   !    Module containing problem-defining parameters, as well as
   !    data buffers for MPI exchanges with neighboring processes.
@@ -54,7 +54,7 @@ module Heat2DData
   !      (a) initialize the module
   !      (b) perform exchanges
   !      (c) free module data.
-  !---------------------------------------------------------------
+  ! --------------------------------------------------------------
 
   !======= Inclusions ===========
   use, intrinsic :: iso_c_binding
@@ -81,8 +81,8 @@ module Heat2DData
   integer :: je
   integer :: nxl           ! local number of x grid points
   integer :: nyl           ! local number of y grid points
-  double precision :: dx   ! x-directional mesh spacing
-  double precision :: dy   ! y-directional mesh spacing
+  real(c_double) :: dx     ! x-directional mesh spacing
+  real(c_double) :: dy     ! y-directional mesh spacing
   integer, target :: comm  ! communicator object
   integer :: myid          ! MPI process ID
   integer :: nprocs        ! total number of MPI processes
@@ -97,8 +97,8 @@ module Heat2DData
   real(c_double), dimension(:), allocatable :: Ssend
 
   ! Problem parameters
-  double precision :: kx   ! x-directional diffusion coefficient
-  double precision :: ky   ! y-directional diffusion coefficient
+  real(c_double) :: kx   ! x-directional diffusion coefficient
+  real(c_double) :: ky   ! y-directional diffusion coefficient
   real(c_double), dimension(:,:), allocatable :: h   ! heat source vector
 
   ! Preconditioning data
@@ -106,9 +106,9 @@ module Heat2DData
 
 contains
 
-  !---------------------------------------------------------------
+  ! --------------------------------------------------------------
   ! Initialize memory allocated within Userdata (set to defaults)
-  !---------------------------------------------------------------
+  ! --------------------------------------------------------------
   subroutine InitHeat2DData()
     implicit none
     nx = 0
@@ -138,12 +138,12 @@ contains
     if (allocated(Nsend))  deallocate(Nsend)
     if (allocated(Ssend))  deallocate(Ssend)
   end subroutine InitHeat2DData
-  !---------------------------------------------------------------
+  ! --------------------------------------------------------------
 
 
-  !---------------------------------------------------------------
+  ! --------------------------------------------------------------
   ! Set up parallel decomposition
-  !---------------------------------------------------------------
+  ! --------------------------------------------------------------
   subroutine SetupDecomp(ierr)
     ! declarations
     implicit none
@@ -228,12 +228,12 @@ contains
     ierr = 0     ! return with success flag
     return
   end subroutine SetupDecomp
-  !---------------------------------------------------------------
+  ! --------------------------------------------------------------
 
 
-  !---------------------------------------------------------------
+  ! --------------------------------------------------------------
   ! Perform neighbor exchange
-  !---------------------------------------------------------------
+  ! --------------------------------------------------------------
   subroutine Exchange(y, ierr)
     ! declarations
     implicit none
@@ -288,7 +288,7 @@ contains
     ! open Irecv buffers
     if (HaveNbor(1,1)) then
        call MPI_Irecv(Wrecv, nyl, MPI_DOUBLE_PRECISION, ipW, &
-                      MPI_ANY_TAG, comm, reqRW, ierr)
+            MPI_ANY_TAG, comm, reqRW, ierr)
        if (ierr /= MPI_SUCCESS) then
           write(0,*) "Error in MPI_Irecv = ", ierr
           return
@@ -296,7 +296,7 @@ contains
     endif
     if (HaveNbor(1,2)) then
        call MPI_Irecv(Erecv, nyl, MPI_DOUBLE_PRECISION, ipE, &
-                      MPI_ANY_TAG, comm, reqRE, ierr)
+            MPI_ANY_TAG, comm, reqRE, ierr)
        if (ierr /= MPI_SUCCESS) then
           write(0,*) "Error in MPI_Irecv = ", ierr
           return
@@ -304,7 +304,7 @@ contains
     endif
     if (HaveNbor(2,1)) then
        call MPI_Irecv(Srecv, nxl, MPI_DOUBLE_PRECISION, ipS, &
-                      MPI_ANY_TAG, comm, reqRS, ierr)
+            MPI_ANY_TAG, comm, reqRS, ierr)
        if (ierr /= MPI_SUCCESS) then
           write(0,*) "Error in MPI_Irecv = ", ierr
           return
@@ -312,7 +312,7 @@ contains
     endif
     if (HaveNbor(2,2)) then
        call MPI_Irecv(Nrecv, nxl, MPI_DOUBLE_PRECISION, ipN, &
-                      MPI_ANY_TAG, comm, reqRN, ierr)
+            MPI_ANY_TAG, comm, reqRN, ierr)
        if (ierr /= MPI_SUCCESS) then
           write(0,*) "Error in MPI_Irecv = ", ierr
           return
@@ -325,7 +325,7 @@ contains
           Wsend(i) = y(1,i)
        enddo
        call MPI_Isend(Wsend, nyl, MPI_DOUBLE_PRECISION, ipW, 0, &
-                      comm, reqSW, ierr)
+            comm, reqSW, ierr)
        if (ierr /= MPI_SUCCESS) then
           write(0,*) "Error in MPI_Isend = ", ierr
           return
@@ -336,7 +336,7 @@ contains
           Esend(i) = y(nxl,i)
        enddo
        call MPI_Isend(Esend, nyl, MPI_DOUBLE_PRECISION, ipE, 1, &
-                      comm, reqSE, ierr)
+            comm, reqSE, ierr)
        if (ierr /= MPI_SUCCESS) then
           write(0,*) "Error in MPI_Isend = ", ierr
           return
@@ -347,7 +347,7 @@ contains
           Ssend(i) = y(i,1)
        enddo
        call MPI_Isend(Ssend, nxl, MPI_DOUBLE_PRECISION, ipS, 2, &
-                      comm, reqSS, ierr)
+            comm, reqSS, ierr)
        if (ierr /= MPI_SUCCESS) then
           write(0,*) "Error in MPI_Isend = ", ierr
           return
@@ -358,7 +358,7 @@ contains
           Nsend(i) = y(i,nyl)
        enddo
        call MPI_Isend(Nsend, nxl, MPI_DOUBLE_PRECISION, ipN, 3, &
-                      comm, reqSN, ierr)
+            comm, reqSN, ierr)
        if (ierr /= MPI_SUCCESS) then
           write(0,*) "Error in MPI_Isend = ", ierr
           return
@@ -418,12 +418,12 @@ contains
     ierr = MPI_SUCCESS    ! return with success flag
     return
   end subroutine Exchange
-  !---------------------------------------------------------------
+  ! --------------------------------------------------------------
 
 
-  !---------------------------------------------------------------
+  ! --------------------------------------------------------------
   ! Free memory allocated within Userdata
-  !---------------------------------------------------------------
+  ! --------------------------------------------------------------
   subroutine FreeHeat2DData(ierr)
     implicit none
     integer, intent(out) :: ierr
@@ -440,13 +440,13 @@ contains
     ierr = 0     ! return with success flag
     return
   end subroutine FreeHeat2DData
-  !---------------------------------------------------------------
+  ! --------------------------------------------------------------
 
-  !-----------------------------------------------------------------
+  ! ----------------------------------------------------------------
   ! ODE RHS function f(t,y).
-  !-----------------------------------------------------------------
+  ! ----------------------------------------------------------------
   integer(c_int) function frhs(t, sunvec_y, sunvec_ydot, user_data) &
-    result(retval) bind(C)
+       result(retval) bind(C)
 
     !======= Inclusions ===========
     use, intrinsic :: iso_c_binding
@@ -459,11 +459,11 @@ contains
     real(c_double), value :: t            ! current time
     type(N_Vector)        :: sunvec_y     ! solution N_Vector
     type(N_Vector)        :: sunvec_ydot  ! rhs N_Vector
-    type(c_ptr)           :: user_data    ! user-defined data
+    type(c_ptr),    value :: user_data    ! user-defined data
 
     ! pointers to data in SUNDIALS vectors
-    real(c_double), pointer :: y(:,:)
-    real(c_double), pointer :: ydot(:,:)
+    real(c_double), pointer, dimension(nxl,nyl) :: y(:,:)
+    real(c_double), pointer, dimension(nxl,nyl) :: ydot(:,:)
 
     ! local data
     real(c_double) :: c1, c2, c3
@@ -547,12 +547,12 @@ contains
     retval = 0              ! Return with success
     return
   end function frhs
-  !-----------------------------------------------------------------
+  ! ----------------------------------------------------------------
 
 
-  !-----------------------------------------------------------------
+  ! ----------------------------------------------------------------
   ! Preconditioner setup routine (fills inverse of Jacobian diagonal)
-  !-----------------------------------------------------------------
+  ! ----------------------------------------------------------------
   integer(c_int) function PSetup(t, sunvec_y, sunvec_ydot, jok, jcurPtr, &
        gamma, user_data) result(ierr) bind(C)
 
@@ -570,7 +570,7 @@ contains
     integer(c_int), value :: jok          ! flag to signal for Jacobian update
     integer(c_int)        :: jcurPtr      ! flag to singal Jacobian is current
     real(c_double), value :: gamma        ! current gamma value
-    type(c_ptr)           :: user_data    ! user-defined data
+    type(c_ptr),    value :: user_data    ! user-defined data
 
     ! local variables
     real(c_double) :: c
@@ -589,11 +589,12 @@ contains
     ierr = 0     ! Return with success
     return
   end function PSetup
+  ! ----------------------------------------------------------------
 
 
-  !-----------------------------------------------------------------
+  ! ----------------------------------------------------------------
   ! Preconditioner solve routine
-  !-----------------------------------------------------------------
+  ! ----------------------------------------------------------------
   integer(c_int) function PSolve(t, sunvec_y, sunvec_ydot, sunvec_r, &
        sunvec_z, gamma, delta, lr, user_data) result(ierr) bind(C)
 
@@ -613,11 +614,11 @@ contains
     real(c_double), value :: gamma        ! current gamma value
     real(c_double), value :: delta        ! current delta value
     integer(c_int), value :: lr           ! left or right preconditioning
-    type(c_ptr)           :: user_data    ! user-defined data
+    type(c_ptr),    value :: user_data    ! user-defined data
 
     ! pointers to data in SUNDIALS vectors
-    real(c_double), pointer :: r(:,:)
-    real(c_double), pointer :: z(:,:)
+    real(c_double), pointer, dimension(nxl,nyl) :: r(:,:)
+    real(c_double), pointer, dimension(nxl,nyl) :: z(:,:)
 
     !======= Internals ============
 
@@ -631,15 +632,15 @@ contains
     ierr = 0     ! Return with success
     return
   end function PSolve
-  !-----------------------------------------------------------------
+  ! ----------------------------------------------------------------
 
 end module Heat2DData
-!-----------------------------------------------------------------
+! ------------------------------------------------------------------
 
 
-!-----------------------------------------------------------------
+! ------------------------------------------------------------------
 ! Main driver program
-!-----------------------------------------------------------------
+! ------------------------------------------------------------------
 program driver
 
   ! inclusions
@@ -662,7 +663,7 @@ program driver
 
   ! Declarations
   ! general problem parameters
-  double precision, parameter :: pi = 3.1415926535897932d0
+  real(c_double), parameter :: pi = 3.1415926535897932d0
   integer, parameter :: Nt = 20           ! total number of output times
   integer, parameter :: nx_ = 60          ! spatial mesh size
   integer, parameter :: ny_ = 120
@@ -675,12 +676,12 @@ program driver
   real(c_double), parameter :: nlscoef = 1.d-7  ! nonlinear solver tolerance factor
 
   ! solution vector and other local variables
-  type(N_Vector), pointer :: sunvec_y        ! solution N_Vector
-  type(N_Vector), pointer :: sunvec_ones     ! masking vector for output
-  real(c_double), pointer :: y(:,:)          ! vector data
-  type(SUNLinearSolver), pointer :: sun_LS   ! linear solver
-  type(SUNMatrix),       pointer :: sunmat_A ! sundials matrix
-  type(c_ptr)     :: arkode_mem              ! ARKODE memory
+  type(N_Vector), pointer :: sunvec_y                   ! solution N_Vector
+  type(N_Vector), pointer :: sunvec_ones                ! masking vector for output
+  real(c_double), pointer, dimension(nxl,nyl) :: y(:,:) ! vector data
+  type(SUNLinearSolver), pointer :: sun_LS              ! linear solver
+  type(SUNMatrix),       pointer :: sunmat_A            ! sundials matrix
+  type(c_ptr)     :: arkode_mem                         ! ARKODE memory
   integer(c_long) :: N, Ntot
   integer(c_int) :: retval
   integer :: ierr
@@ -732,8 +733,8 @@ program driver
   commptr => comm
   retval = FSUNContext_Create(c_loc(commptr), sunctx)
   if (retval /= 0) then
-    print *, "Error: FSUNContext_Create returned ",retval
-    call MPI_Abort(comm, 1, ierr)
+     print *, "Error: FSUNContext_Create returned ",retval
+     call MPI_Abort(comm, 1, ierr)
   end if
 
   ! Initial problem output
@@ -854,9 +855,9 @@ program driver
   tout = T0+dTout
   urms = FN_VWrmsNorm(sunvec_y, sunvec_ones)
   if (outproc) then
-    write(6,*) "        t      ||u||_rms"
-    write(6,*) "   ----------------------"
-    write(6,'(2(2x,f10.6))') t, urms
+     write(6,*) "        t      ||u||_rms"
+     write(6,*) "   ----------------------"
+     write(6,'(2(2x,f10.6))') t, urms
   endif
   do ioutput=1,Nt
 
@@ -955,16 +956,16 @@ program driver
           ncfn
      write(6,'(A,i6)') "   Total number of Newton iterations = ", nni
      write(6,'(A,i6)') "   Total number of error test failures = ", netf
- endif
+  endif
 
- ! Clean up and return with successful completion
- call FARKStepFree(arkode_mem)       ! free integrator memory
- call FN_VDestroy(sunvec_y)          ! free vector memory
- call FN_VDestroy(sunvec_ones)
- retval = FSUNLinSolFree(sun_LS)     ! free linear solver
- call FreeHeat2DData(ierr)           ! free user data
- call MPI_Barrier(comm, ierr)
- call MPI_Finalize(ierr)             ! Finalize MPI
+  ! Clean up and return with successful completion
+  call FARKStepFree(arkode_mem)       ! free integrator memory
+  call FN_VDestroy(sunvec_y)          ! free vector memory
+  call FN_VDestroy(sunvec_ones)
+  retval = FSUNLinSolFree(sun_LS)     ! free linear solver
+  call FreeHeat2DData(ierr)           ! free user data
+  call MPI_Barrier(comm, ierr)
+  call MPI_Finalize(ierr)             ! Finalize MPI
 
 end program driver
-!-----------------------------------------------------------------
+! ----------------------------------------------------------------

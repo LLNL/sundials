@@ -40,7 +40,7 @@
 ! are printed at the end.
 ! ------------------------------------------------------------------
 
-module ode_mod
+module Bruss1D_mod
 
   !======= Inclusions ===========
   use, intrinsic :: iso_c_binding
@@ -86,10 +86,10 @@ contains
     implicit none
 
     ! calling variables
-    real(c_double), value :: tn  ! current time
-    type(N_Vector) :: sunvec_y   ! solution N_Vector
-    type(N_Vector) :: sunvec_f   ! rhs N_Vector
-    type(c_ptr)    :: user_data  ! user-defined data
+    real(c_double), value :: tn         ! current time
+    type(N_Vector)        :: sunvec_y   ! solution N_Vector
+    type(N_Vector)        :: sunvec_f   ! rhs N_Vector
+    type(c_ptr),    value :: user_data  ! user-defined data
 
     ! local variables
     type(FVec), pointer :: y, f  ! ptrs to Fortran vector data
@@ -129,6 +129,7 @@ contains
     ierr = 0
 
   end function RhsImplicit
+  ! ----------------------------------------------------------------
 
   ! ----------------------------------------------------------------
   ! RhsExplicit provides the right hand side function for the
@@ -151,10 +152,10 @@ contains
     implicit none
 
     ! calling variables
-    real(c_double), value :: tn  ! current time
-    type(N_Vector) :: sunvec_y   ! solution N_Vector
-    type(N_Vector) :: sunvec_f   ! rhs N_Vector
-    type(c_ptr) :: user_data     ! user-defined data
+    real(c_double), value :: tn         ! current time
+    type(N_Vector)        :: sunvec_y   ! solution N_Vector
+    type(N_Vector)        :: sunvec_f   ! rhs N_Vector
+    type(c_ptr),    value :: user_data  ! user-defined data
 
     ! local variables
     type(FVec), pointer :: y, f  ! ptrs to Fortran vector data
@@ -185,6 +186,7 @@ contains
     ierr = 0
 
   end function RhsExplicit
+  ! ----------------------------------------------------------------
 
   ! ----------------------------------------------------------------
   ! JacFn provides the Jacobian construction function for the
@@ -208,14 +210,14 @@ contains
     implicit none
 
     ! calling variables
-    real(c_double), value :: tn  ! current time
-    type(N_Vector)  :: sunvec_y  ! solution N_Vector
-    type(N_Vector)  :: sunvec_f  ! rhs N_Vector
-    type(SUNMatrix) :: sunmat_J  ! Jacobian matrix
-    type(c_ptr)     :: user_data ! user-defined data
-    type(N_Vector)  :: sunvec_t1  ! temporary N_Vectors
-    type(N_Vector)  :: sunvec_t2
-    type(N_Vector)  :: sunvec_t3
+    real(c_double), value :: tn        ! current time
+    type(N_Vector)        :: sunvec_y  ! solution N_Vector
+    type(N_Vector)        :: sunvec_f  ! rhs N_Vector
+    type(SUNMatrix)       :: sunmat_J  ! Jacobian matrix
+    type(c_ptr),    value :: user_data ! user-defined data
+    type(N_Vector)        :: sunvec_t1  ! temporary N_Vectors
+    type(N_Vector)        :: sunvec_t2
+    type(N_Vector)        :: sunvec_t3
 
     ! local variables
     type(FVec), pointer :: y, f  ! ptrs to Fortran vector data
@@ -257,9 +259,15 @@ contains
     ierr = 0
 
   end function JacFn
+  ! ----------------------------------------------------------------
 
-end module ode_mod
+end module Bruss1D_mod
+! ------------------------------------------------------------------
 
+
+! ------------------------------------------------------------------
+! Main driver program
+! ------------------------------------------------------------------
 program main
 
   !======= Inclusions ===========
@@ -271,7 +279,7 @@ program main
   use fnvector_fortran_mod       ! Custom Fortran N_Vector
   use fsunmatrix_fortran_mod     ! Custom Fortran SUNMatrix
   use fsunlinsol_fortran_mod     ! Custom Fortran SUNLinearSolver
-  use ode_mod                    ! ODE functions
+  use Bruss1D_mod                ! ODE functions
 
   !======= Declarations =========
   implicit none
@@ -286,7 +294,7 @@ program main
   type(SUNLinearSolver), pointer :: sunls         ! sundials linear solver
   type(c_ptr)                    :: arkode_mem    ! ARKODE memory
 
-  ! solution vector, N and Nvar are set in the ode_mod moduel
+  ! solution vector, N and Nvar are set in the Bruss1D_mod moduel
   real(c_double) :: y(Nvar,N)
 
   !======= Internals ============
@@ -302,23 +310,23 @@ program main
   ! create the SUNDIALS context for the simulation
   ierr = FSUNContext_Create(c_null_ptr, sunctx)
   if (ierr /= 0) then
-    write(*,*) 'Error in FSUNContext_Create'
-    stop 1
+     write(*,*) 'Error in FSUNContext_Create'
+     stop 1
   end if
 
   ! initialize SUNDIALS solution vector
   sunvec_y => FN_VMake_Fortran(Nvar, N, y, sunctx)
   if (.not. associated(sunvec_y)) then
-    write(*,*) 'ERROR: sunvec = NULL'
-    stop 1
+     write(*,*) 'ERROR: sunvec = NULL'
+     stop 1
   end if
 
   ! Set initial conditions into y
   pi = 4.d0*datan(1.d0)
   do i = 1,N
-    y(1,i) =  a  + 0.1d0*sin(pi*i*dx)  ! u
-    y(2,i) = b/a + 0.1d0*sin(pi*i*dx)  ! v
-    y(3,i) =  b  + 0.1d0*sin(pi*i*dx)  ! w
+     y(1,i) =  a  + 0.1d0*sin(pi*i*dx)  ! u
+     y(2,i) = b/a + 0.1d0*sin(pi*i*dx)  ! v
+     y(3,i) =  b  + 0.1d0*sin(pi*i*dx)  ! w
   end do
 
   ! create ARKStep memory
@@ -331,8 +339,8 @@ program main
   ! set routines
   ierr = FARKStepSStolerances(arkode_mem, reltol, abstol)
   if (ierr /= 0) then
-    write(*,*) 'Error in FARKStepSStolerances'
-    stop 1
+     write(*,*) 'Error in FARKStepSStolerances'
+     stop 1
   end if
 
   ! initialize custom matrix data structure and solver; attach to ARKStep
@@ -351,14 +359,14 @@ program main
   ! Attach matrix, linear solver, and Jacobian routine to linear solver interface
   ierr = FARKStepSetLinearSolver(arkode_mem, sunls, sunmat_A)
   if (ierr /= 0) then
-    write(*,*) 'Error in FARKStepSetLinearSolver'
-    stop 1
+     write(*,*) 'Error in FARKStepSetLinearSolver'
+     stop 1
   end if
 
   ierr = FARKStepSetJacFn(arkode_mem, c_funloc(JacFn))
   if (ierr /= 0) then
-    write(*,*) 'Error in FARKStepSetJacFn'
-    stop 1
+     write(*,*) 'Error in FARKStepSetJacFn'
+     stop 1
   end if
 
   ! main time-stepping loop: calls FARKStepEvolve to perform the integration, then
@@ -459,3 +467,4 @@ subroutine ARKStepStats(arkode_mem)
   return
 
 end subroutine ARKStepStats
+! ----------------------------------------------------------------

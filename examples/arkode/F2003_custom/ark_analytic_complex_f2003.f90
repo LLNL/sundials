@@ -31,7 +31,7 @@
 ! Run statistics (optional outputs) are printed at the end.
 ! ------------------------------------------------------------------
 
-module ode_mod
+module AnalyticComplex_mod
 
   !======= Inclusions ===========
   use, intrinsic :: iso_c_binding
@@ -69,10 +69,10 @@ contains
     implicit none
 
     ! calling variables
-    real(c_double), value :: tn  ! current time
-    type(N_Vector) :: sunvec_y   ! solution N_Vector
-    type(N_Vector) :: sunvec_f   ! rhs N_Vector
-    type(c_ptr)    :: user_data  ! user-defined data
+    real(c_double), value :: tn         ! current time
+    type(N_Vector)        :: sunvec_y   ! solution N_Vector
+    type(N_Vector)        :: sunvec_f   ! rhs N_Vector
+    type(c_ptr),    value :: user_data  ! user-defined data
 
     ! local variables
     type(FVec), pointer :: y, f  ! ptrs to Fortran vector data
@@ -88,6 +88,7 @@ contains
     ierr = 0
 
   end function Rhs
+  ! ----------------------------------------------------------------
 
   ! ----------------------------------------------------------------
   ! Sol provides the analytical solution to the ODE.
@@ -111,9 +112,15 @@ contains
     return
 
   end function Sol
+  ! ----------------------------------------------------------------
 
-end module ode_mod
+end module AnalyticComplex_mod
+! ------------------------------------------------------------------
 
+
+! ------------------------------------------------------------------
+! Main driver program
+! ------------------------------------------------------------------
 program main
 
   !======= Inclusions ===========
@@ -123,7 +130,7 @@ program main
   use farkode_arkstep_mod   ! Fortran interface to the ARKStep module
   use fnvector_complex_mod  ! Custom complex N_Vector
   use fsundials_context_mod
-  use ode_mod               ! ODE functions
+  use AnalyticComplex_mod   ! ODE functions
 
   !======= Declarations =========
   implicit none
@@ -213,6 +220,7 @@ program main
   ierr = FSUNContext_Free(sunctx)
 
 end program main
+! ----------------------------------------------------------------
 
 
 ! ----------------------------------------------------------------
@@ -255,3 +263,4 @@ subroutine ARKStepStats(arkode_mem)
   return
 
 end subroutine ARKStepStats
+! ----------------------------------------------------------------

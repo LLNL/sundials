@@ -36,7 +36,7 @@
 ! The second run uses IDAReInit.
 ! ------------------------------------------------------------------
 
-module dae_mod
+module idaHeat2DKryOMP_mod
 
   !======= Inclusions ===========
   use, intrinsic :: iso_c_binding
@@ -64,7 +64,7 @@ contains
   !   -1 = non-recoverable error
   ! ----------------------------------------------------------------
   integer(c_int) function resHeat(tres, sunvec_u, sunvec_up, sunvec_r, user_data) &
-          result(ierr) bind(C,name='resHeat')
+       result(ierr) bind(C,name='resHeat')
 
     !======= Inclusions ===========
     use, intrinsic :: iso_c_binding
@@ -81,9 +81,9 @@ contains
     type(c_ptr),    value :: user_data ! user-defined data
 
     ! pointers to data in SUNDIALS vectors
-    real(c_double), pointer :: u(:,:)
-    real(c_double), pointer :: up(:,:)
-    real(c_double), pointer :: r(:,:)
+    real(c_double), pointer, dimension(mgrid,mgrid) :: u(:,:)
+    real(c_double), pointer, dimension(mgrid,mgrid) :: up(:,:)
+    real(c_double), pointer, dimension(mgrid,mgrid) :: r(:,:)
 
     ! local variables
     integer(c_long) :: i, j
@@ -116,6 +116,7 @@ contains
     return
 
   end function resHeat
+  ! ----------------------------------------------------------------
 
   ! ----------------------------------------------------------------
   ! PsetupHeat: Preconditioner setup routine
@@ -126,7 +127,7 @@ contains
   !   -1 = non-recoverable error
   ! ----------------------------------------------------------------
   integer(c_int) function PSetupHeat(t, sunvec_u, sunvec_up, sunvec_r, cj, prec_data) &
-          result(ierr) bind(C,name='PSetupHeat')
+       result(ierr) bind(C,name='PSetupHeat')
 
     !======= Inclusions ===========
     use, intrinsic :: iso_c_binding
@@ -165,6 +166,7 @@ contains
     return
 
   end function PSetupHeat
+  ! ----------------------------------------------------------------
 
   ! ----------------------------------------------------------------
   ! PsolveHeat: Preconditioner solve routine
@@ -175,7 +177,7 @@ contains
   !   -1 = non-recoverable error
   ! ----------------------------------------------------------------
   integer(c_int) function PSolveHeat(t, sunvec_u, sunvec_up, sunvec_r, sunvec_rhs, &
-          sunvec_sol, cj, delta, prec_data) result(ierr) bind(C,name='PSolveHeat')
+       sunvec_sol, cj, delta, prec_data) result(ierr) bind(C,name='PSolveHeat')
 
     !======= Inclusions ===========
     use, intrinsic :: iso_c_binding
@@ -196,8 +198,8 @@ contains
     type(c_ptr),    value :: prec_data  ! preconditioner data
 
     ! pointers to data in SUNDIALS vectors
-    real(c_double), pointer :: rhs(:,:)
-    real(c_double), pointer :: sol(:,:)
+    real(c_double), pointer, dimension(mgrid,mgrid) :: rhs(:,:)
+    real(c_double), pointer, dimension(mgrid,mgrid) :: sol(:,:)
 
     !======= Internals ============
 
@@ -215,8 +217,9 @@ contains
     return
 
   end function PSolveHeat
+  ! ----------------------------------------------------------------
 
-end module dae_mod
+end module idaHeat2DKryOMP_mod
 ! ------------------------------------------------------------------
 
 
@@ -232,7 +235,7 @@ program main
   use fsundials_matrix_mod       ! Fortran interface to generic SUNMatrix
   use fsundials_nvector_mod      ! Fortran interface to generic N_Vector
   use fsundials_linearsolver_mod ! Fortran interface to generic SUNLinearSolver
-  use dae_mod                    ! ODE functions
+  use idaHeat2DKryOMP_mod        ! ODE functions
 
   !======= Declarations =========
   implicit none
@@ -253,7 +256,7 @@ program main
   integer                        :: nargs, j, nthreads, length, status
   character(len=32)              :: arg          ! input arg
 
-  ! solution, residual and constraints vectors, mgrid is set in the dae_mod module
+  ! solution, residual and constraints vectors, mgrid is set in the idaHeat2DKryOMP_mod module
   real(c_double), dimension(mgrid,mgrid) :: uu, up, res, constraints
 
   !======= Internals ============
@@ -269,7 +272,7 @@ program main
   endif
   call omp_set_num_threads(nthreads)
 
-  ! Assign parameters in dae_mod
+  ! Assign parameters in idaHeat2DKryOMP_mod
   dx = 1.d0/(mgrid-1)
   coeff = 1.d0/(dx * dx)
 
@@ -500,6 +503,7 @@ program main
   retval = FSUNContext_Free(sunctx)
 
 end program main
+! ----------------------------------------------------------------
 
 
 ! ----------------------------------------------------------------
@@ -511,7 +515,7 @@ subroutine SetInitialProfile(sunvec_u, sunvec_up, sunvec_r)
   use, intrinsic :: iso_c_binding
   use fsundials_nvector_mod
   use fnvector_serial_mod
-  use dae_mod
+  use idaHeat2DKryOMP_mod
 
   !======= Declarations =========
   implicit none
@@ -522,9 +526,9 @@ subroutine SetInitialProfile(sunvec_u, sunvec_up, sunvec_r)
   type(N_Vector) :: sunvec_r  ! residual N_Vector
 
   ! pointers to data in SUNDIALS vectors
-  real(c_double), pointer :: uu(:,:)
-  real(c_double), pointer :: up(:,:)
-  real(c_double), pointer :: r(:,:)
+  real(c_double), pointer, dimension(mgrid,mgrid) :: uu(:,:)
+  real(c_double), pointer, dimension(mgrid,mgrid) :: up(:,:)
+  real(c_double), pointer, dimension(mgrid,mgrid) :: r(:,:)
 
   ! local variables
   integer(c_long) :: i, j
@@ -574,6 +578,7 @@ subroutine SetInitialProfile(sunvec_u, sunvec_up, sunvec_r)
 
   return
 end subroutine SetInitialProfile
+! ----------------------------------------------------------------
 
 
 ! ----------------------------------------------------------------
@@ -583,7 +588,7 @@ subroutine PrintHeader(rtol, atol)
 
   !======= Inclusions ===========
   use, intrinsic :: iso_c_binding
-  use dae_mod
+  use idaHeat2DKryOMP_mod
 
   !======= Declarations =========
   implicit none
@@ -598,7 +603,7 @@ subroutine PrintHeader(rtol, atol)
   print *, "         Discretized heat equation on 2D unit square."
   print *, "         Zero boundary conditions, polynomial initial conditions."
   print '(2(a,i4),a,i8)', "         Mesh dimensions: ", mgrid, " x ", mgrid, &
-        "        Total system size: ", neq
+       "        Total system size: ", neq
   print *, " "
   print *, " Number of OpenMP threads = ", omp_get_max_threads()
   print *, " "
@@ -608,6 +613,7 @@ subroutine PrintHeader(rtol, atol)
 
   return
 end subroutine PrintHeader
+! ----------------------------------------------------------------
 
 
 ! ----------------------------------------------------------------
@@ -618,7 +624,7 @@ subroutine PrintOutput(ida_mem, t, uu)
   !======= Inclusions ===========
   use, intrinsic :: iso_c_binding
   use fida_mod
-  use dae_mod
+  use idaHeat2DKryOMP_mod
 
   !======= Declarations =========
   implicit none
@@ -698,6 +704,7 @@ subroutine PrintOutput(ida_mem, t, uu)
 
 
   print '(f5.2,1x,es13.5,4x,i1,2x,3(i3,2x),2(i4,2x),es9.2,2x,2(i3,1x))', &
-          t, umax, kused, nst, nni, nje, nre, nreLS, hused(1), npe, nps
+       t, umax, kused, nst, nni, nje, nre, nreLS, hused(1), npe, nps
 
 end subroutine PrintOutput
+! ----------------------------------------------------------------

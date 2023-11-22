@@ -92,19 +92,19 @@ module ode_mod
   integer :: Npts ! number of spatial nodes (local)
   integer :: Neq  ! number of equations (local)
 
-  double precision :: xmax ! maximum x value
-  double precision :: dx   ! mesh spacing
+  real(c_double) :: xmax ! maximum x value
+  real(c_double) :: dx   ! mesh spacing
 
   ! Problem parameters
-  double precision :: c  ! advection speed
-  double precision :: A  ! constant concentrations
-  double precision :: B
-  double precision :: k1 ! reaction rates
-  double precision :: k2
-  double precision :: k3
-  double precision :: k4
-  double precision :: k5
-  double precision :: k6
+  real(c_double) :: c  ! advection speed
+  real(c_double) :: A  ! constant concentrations
+  real(c_double) :: B
+  real(c_double) :: k1 ! reaction rates
+  real(c_double) :: k2
+  real(c_double) :: k3
+  real(c_double) :: k4
+  real(c_double) :: k5
+  real(c_double) :: k6
 
   ! integrator options
   real(c_double) :: t0, tf     ! initial and final time
@@ -145,15 +145,15 @@ contains
     real(c_double), value :: t          ! current time
     type(N_Vector)        :: sunvec_y   ! solution N_Vector
     type(N_Vector)        :: sunvec_f   ! rhs N_Vector
-    type(c_ptr)           :: user_data  ! user-defined data
+    type(c_ptr),    value :: user_data  ! user-defined data
 
     ! pointers to data in SUNDIALS vectors
     real(c_double), pointer :: ydata(:)
     real(c_double), pointer :: fdata(:)
 
     ! local variables
-    integer          :: i, j, idx1, idx2 ! loop counters and array indices
-    double precision :: tmp              ! temporary value
+    integer        :: i, j, idx1, idx2 ! loop counters and array indices
+    real(c_double) :: tmp              ! temporary value
 
     !======= Internals ============
 
@@ -232,15 +232,15 @@ contains
     real(c_double), value :: t          ! current time
     type(N_Vector)        :: sunvec_y   ! solution N_Vector
     type(N_Vector)        :: sunvec_f   ! rhs N_Vector
-    type(c_ptr)           :: user_data  ! user-defined data
+    type(c_ptr),    value :: user_data  ! user-defined data
 
     ! pointers to data in SUNDIALS vectors
     real(c_double), pointer :: ydata(:)
     real(c_double), pointer :: fdata(:)
 
     ! local variables
-    double precision :: u, v, w ! chemcial species
-    integer          :: j, idx  ! loop counter and array index
+    real(c_double) :: u, v, w ! chemcial species
+    integer        :: j, idx  ! loop counter and array index
 
     !======= Internals ============
 
@@ -309,7 +309,7 @@ contains
     real(c_double), value :: t          ! current time
     type(N_Vector)        :: sunvec_y   ! solution N_Vector
     type(N_Vector)        :: sunvec_f   ! rhs N_Vector
-    type(c_ptr)           :: user_data  ! user-defined data
+    type(c_ptr),    value :: user_data  ! user-defined data
 
     !======= Internals ============
 
@@ -377,14 +377,14 @@ contains
     integer(c_int), value :: jok        ! flag to signal for Jacobian update
     integer(c_int)        :: jcurPtr    ! flag to singal Jacobian is current
     real(c_double), value :: gamma      ! current gamma value
-    type(c_ptr)           :: user_data  ! user-defined data
+    type(c_ptr),    value :: user_data  ! user-defined data
 
     ! local variables
     real(c_double), pointer :: ydata(:) ! vector data
     real(c_double), pointer :: pdata(:) ! matrix data
 
-    double precision :: u, v, w        ! chemical species
-    integer          :: i, idx, offset ! loop counter, array index, col offset
+    real(c_double) :: u, v, w        ! chemical species
+    integer        :: i, idx, offset ! loop counter, array index, col offset
 
     !======= Internals ============
 
@@ -486,7 +486,7 @@ contains
     real(c_double), value :: gamma      ! current gamma value
     real(c_double), value :: delta      ! current gamma value
     integer(c_int), value :: lr         ! left or right preconditioning
-    type(c_ptr)           :: user_data  ! user-defined data
+    type(c_ptr),    value :: user_data  ! user-defined data
 
     ! shortcuts
     type(N_Vector), pointer :: z_local ! z vector data
@@ -668,7 +668,7 @@ contains
     type(c_ptr), value :: arkode_mem   ! ARKODE memory structure
 
     ! residual data
-    type(c_ptr) :: user_data
+    type(c_ptr), value :: user_data
 
     real(c_double) :: tcur(1) ! current time
     real(c_double) :: gam(1)  ! current gamma
@@ -681,8 +681,8 @@ contains
     real(c_double), pointer :: J_data(:)
     real(c_double), pointer :: bnode_data(:)
 
-    double precision :: u, v, w ! chemical species
-    integer          :: i, idx  ! loop counter and array index
+    real(c_double) :: u, v, w ! chemical species
+    integer        :: i, idx  ! loop counter and array index
 
     !======= Internals ============
 
@@ -1082,7 +1082,7 @@ program main
   integer          :: i
   integer          :: ierr               ! MPI error status
   integer(c_int)   :: retval             ! SUNDIALS error status
-  double precision :: starttime, endtime ! timing variables
+  real(c_double)   :: starttime, endtime ! timing variables
   integer, pointer :: commptr
 
   type(N_Vector), pointer :: sunvec_ys   ! sundials serial vector
@@ -1248,9 +1248,9 @@ subroutine EvolveProblemIMEX(sunvec_y)
   type(SUNLinearSolver),    pointer :: sun_LS   ! linear solver
   type(SUNMatrix),          pointer :: sunmat_A ! sundials matrix
 
-  integer            :: ierr        ! MPI error status
-  integer            :: iout        ! output counter
-  double precision   :: tout, dtout ! output time and update
+  integer        :: ierr        ! MPI error status
+  integer        :: iout        ! output counter
+  real(c_double) :: tout, dtout ! output time and update
 
   !======= Internals ============
 
@@ -1539,9 +1539,9 @@ subroutine EvolveProblemExplicit(sunvec_y)
   integer(c_long) :: nfe(1)     ! number of RHS evals
   integer(c_long) :: netf(1)    ! number of error test fails
 
-  integer            :: ierr        ! output counter
-  integer            :: iout        ! output counter
-  double precision   :: tout, dtout ! output time and update
+  integer        :: ierr        ! output counter
+  integer        :: iout        ! output counter
+  real(c_double) :: tout, dtout ! output time and update
 
   !======= Internals ============
 
@@ -1683,7 +1683,7 @@ subroutine WriteOutput(t, sunvec_y)
 
   integer i, idx ! loop counter and array index
 
-  double precision :: u, v, w ! RMS norm of chemical species
+  real(c_double) :: u, v, w ! RMS norm of chemical species
 
   !======= Internals ============
 
@@ -1759,10 +1759,10 @@ subroutine SetIC(sunvec_y)
   type(N_Vector) :: sunvec_y ! solution N_Vector
 
   ! local variables
-  real(c_double), pointer :: ydata(:) ! vector data
+  real(c_double), pointer :: ydata(:)   ! vector data
 
-  double precision :: x, us, vs, ws       ! position and state
-  double precision :: p, mu, sigma, alpha ! perturbation vars
+  real(c_double) :: x, us, vs, ws       ! position and state
+  real(c_double) :: p, mu, sigma, alpha ! perturbation vars
 
   integer :: j, idx ! loop counter and array index
 
