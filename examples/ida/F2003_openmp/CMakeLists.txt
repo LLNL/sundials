@@ -38,11 +38,10 @@ foreach(example_tuple ${FIDA_examples_OMP})
   list(GET example_tuple 2 example_type)
 
   if(NOT TARGET ${example})
-    # Install fortran modules to a unique directory to avoid naming collisions
-    set(CMAKE_Fortran_MODULE_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/CMakeFiles/${example}.dir)
-
     # example source files
     add_executable(${example} ${example}.f90)
+
+    set_target_properties(${example} PROPERTIES FOLDER "Examples")
 
     # libraries to link against
     target_link_libraries(${example}
@@ -52,7 +51,16 @@ foreach(example_tuple ${FIDA_examples_OMP})
       sundials_fnvecopenmp_mod
       ${SUNDIALS_LIBS})
 
-    set_target_properties(${example} PROPERTIES FOLDER "Examples")
+    # Install fortran modules to a unique directory to avoid naming collisions
+    set(CMAKE_Fortran_MODULE_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/CMakeFiles/${example}.dir)
+
+  endif()
+
+  # check if example args are provided and set the test name
+  if("${example_args}" STREQUAL "")
+    set(test_name ${example})
+  else()
+    string(REGEX REPLACE " " "_" test_name ${example}_${example_args})
   endif()
 
   # add example to regression tests
