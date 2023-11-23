@@ -31,7 +31,7 @@
 /* SUN_ERR_CODE_LIST is an X macro that can be expanded in various ways */
 #define SUN_ERR_CODE_LIST(ENTRY)                                               \
   ENTRY(SUN_ERR_ARG_CORRUPT, "argument provided is NULL or corrupted")         \
-  ENTRY(SUN_ERR_ARG_INCOMPATIBLE, "argument provided is not comptaible")       \
+  ENTRY(SUN_ERR_ARG_INCOMPATIBLE, "argument provided is not compatible")       \
   ENTRY(SUN_ERR_ARG_OUTOFRANGE, "argument is out of the valid range")          \
   ENTRY(SUN_ERR_ARG_WRONGTYPE, "argument provided is not the right type")      \
   ENTRY(SUN_ERR_ARG_DIMSMISMATCH, "argument dimensions do not agree")          \
@@ -47,8 +47,7 @@
   ENTRY(SUN_ERR_NOT_IMPLEMENTED,                                               \
         "operation is not implemented: function pointer is NULL")              \
   ENTRY(SUN_ERR_PROFILER_MAPFULL,                                              \
-        "too many SUNProfiler entries, try setting SUNPROFILER_MAX_ENTRIES "   \
-        "in environment to a bigger number")                                   \
+        "the number of profiler entries exceeded SUNPROFILER_MAX_ENTRIES")     \
   ENTRY(SUN_ERR_PROFILER_MAPGET, "unknown error getting SUNProfiler timer")    \
   ENTRY(SUN_ERR_PROFILER_MAPINSERT,                                            \
         "unknown error inserting SUNProfiler timer")                           \
@@ -78,19 +77,6 @@ enum
 #ifdef __cplusplus /* wrapper to enable C++ usage */
 extern "C" {
 #endif
-
-struct SUNErrHandler_
-{
-  SUNErrHandler previous; /* next error handler to call (singly linked-list) */
-  SUNErrHandlerFn call;
-  void* data;
-};
-
-SUNDIALS_EXPORT
-SUNErrHandler SUNErrHandler_Create(SUNErrHandlerFn eh_fn, void* eh_data);
-
-SUNDIALS_EXPORT
-void SUNErrHandler_Destroy(SUNErrHandler eh);
 
 SUNDIALS_EXPORT
 int SUNLogErrHandlerFn(int line, const char* func, const char* file,
@@ -136,49 +122,6 @@ static inline SUNErrCode SUNPeekLastErr(SUNContext sunctx)
   SUNErrCode code = SUN_SUCCESS;
   (void)SUNContext_PeekLastError(sunctx, &code);
   return code;
-}
-
-static inline void SUNHandleErr(int line, const char* func, const char* file,
-                                SUNErrCode code, SUNContext sunctx)
-{
-  sunctx->last_err = code;
-  SUNErrHandler eh = sunctx->err_handler;
-  while (eh != NULL)
-  {
-    eh->call(line, func, file, NULL, code, eh->data, sunctx);
-    eh = eh->previous;
-  }
-}
-
-static inline void SUNHandleErrWithMsg(int line, const char* func,
-                                       const char* file, const char* msg,
-                                       SUNErrCode code, SUNContext sunctx)
-{
-  sunctx->last_err = code;
-  SUNErrHandler eh = sunctx->err_handler;
-  while (eh != NULL)
-  {
-    eh->call(line, func, file, msg, code, eh->data, sunctx);
-    eh = eh->previous;
-  }
-}
-
-static inline void SUNHandleErrWithFmtMsg(int line, const char* func,
-                                          const char* file, const char* msgfmt,
-                                          SUNErrCode code, SUNContext sunctx, ...)
-{
-  size_t msglen;
-  char* msg;
-  va_list values;
-  va_start(values, sunctx);
-  msglen = (size_t)vsnprintf(NULL, (size_t)0, msgfmt, values); /* determine size
-                                                                  of buffer
-                                                                  needed */
-  msg = (char*)malloc(msglen);
-  vsnprintf(msg, msglen, msgfmt, values);
-  SUNHandleErrWithMsg(line, func, file, msg, code, sunctx);
-  va_end(values);
-  free(msg);
 }
 
 #ifdef __cplusplus /* wrapper to enable C++ usage */

@@ -213,12 +213,13 @@ check_c_source_compiles("
 # ---------------------------------------------------------------
 
 check_c_source_compiles("
-  int main() {
+  int main(void) {
     double a = 0.0;
     if (__builtin_expect(a < 0, 0)) {
       a = 0.0;
     }
     a = a + 1.0;
+    return 0;
   }
 " SUNDIALS_C_COMPILER_HAS_BUILTIN_EXPECT)
 

@@ -39,7 +39,7 @@ knowledge of this structure is not necessary for its use.
 The overall organization of the ARKODE package is shown in
 :numref:`ARKODE.Organization.ARKODE.Figure`.  
 
-The central integration modules, deal with the evaluation of integration stages,
+The central integration modules deal with the evaluation of integration stages,
 the nonlinear solvers, estimation of the local truncation error, selection of
 step size, and interpolation to user output points, among other issues.  ARKODE
 supports SUNNonlinearSolver modules in either root-finding or fixed-point form

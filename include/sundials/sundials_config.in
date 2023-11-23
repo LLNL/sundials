@@ -355,3 +355,10 @@
 #else
 #define SUNHintFalse(cond) (cond)
 #endif
+
+/* Hint to the compiler that the branch is likely to be taken */
+#ifdef SUNDIALS_C_COMPILER_HAS_BUILTIN_EXPECT
+#define SUNHintTrue(cond) __builtin_expect((cond), 1)
+#else
+#define SUNHintTrue(cond) (cond)
+#endif

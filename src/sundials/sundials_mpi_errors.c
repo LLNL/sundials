@@ -48,6 +48,6 @@ int SUNMPIAssertErrHandlerFn(int line, const char* func, const char* file, const
                      "SUNMPIAssertErrHandler: assert(%s) failed... terminating.\n", stmt);
   free(file_and_line);
   sleep(1);
-  MPI_Abort(SUN_AsMPIComm(sunctx->comm), err_code);
+  MPI_Abort(sunctx->comm, err_code);
   return 0;
 }

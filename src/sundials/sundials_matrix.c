@@ -97,8 +97,8 @@ SUNErrCode SUNMatCopyOps(SUNMatrix A, SUNMatrix B)
 {
   SUNFunctionBegin(A->sunctx);
   /* Check that ops structures exist */
-  SUNAssert(A && A->ops && A && A->ops, SUN_ERR_ARG_CORRUPT);
-  SUNAssert(B && B->ops && B && B->ops, SUN_ERR_ARG_CORRUPT);
+  SUNAssert(A && A->ops, SUN_ERR_ARG_CORRUPT);
+  SUNAssert(B && B->ops, SUN_ERR_ARG_CORRUPT);
 
   /* Copy ops from A to B */
   B->ops->getid       = A->ops->getid;

@@ -347,7 +347,7 @@ Coding Conventions and Rules
 
 #. If statements and loops should always have braces even if they are one line.
 
-#. Return statements should not unecessarily use parentheses. prefer ``return
+#. Return statements should not unecessarily use parentheses. Prefer ``return
    x;`` to ``return(x);``. Note, however, lots of older SUNDIALS source code
    uses ``return(x);``. 
 

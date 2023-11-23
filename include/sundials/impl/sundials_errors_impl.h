@@ -22,6 +22,68 @@
 
 #include <sundials/sundials_errors.h>
 
+/* ----------------------------------------------------------------------------
+ * SUNErrHandler_ definition
+ * ---------------------------------------------------------------------------*/
+ 
+struct SUNErrHandler_
+{
+  SUNErrHandler previous; /* next error handler to call (singly linked-list) */
+  SUNErrHandlerFn call;
+  void* data;
+};
+
+SUNErrHandler SUNErrHandler_Create(SUNErrHandlerFn eh_fn, void* eh_data);
+
+void SUNErrHandler_Destroy(SUNErrHandler eh);
+
+static inline void SUNHandleErr(int line, const char* func, const char* file,
+                                SUNErrCode code, SUNContext sunctx)
+{
+  sunctx->last_err = code;
+  SUNErrHandler eh = sunctx->err_handler;
+  while (eh != NULL)
+  {
+    eh->call(line, func, file, NULL, code, eh->data, sunctx);
+    eh = eh->previous;
+  }
+}
+
+static inline void SUNHandleErrWithMsg(int line, const char* func,
+                                       const char* file, const char* msg,
+                                       SUNErrCode code, SUNContext sunctx)
+{
+  sunctx->last_err = code;
+  SUNErrHandler eh = sunctx->err_handler;
+  while (eh != NULL)
+  {
+    eh->call(line, func, file, msg, code, eh->data, sunctx);
+    eh = eh->previous;
+  }
+}
+
+static inline void SUNHandleErrWithFmtMsg(int line, const char* func,
+                                          const char* file, const char* msgfmt,
+                                          SUNErrCode code, SUNContext sunctx, ...)
+{
+  size_t msglen;
+  char* msg;
+  va_list values;
+  va_start(values, sunctx);
+  msglen = (size_t)vsnprintf(NULL, (size_t)0, msgfmt, values); /* determine size
+                                                                  of buffer
+                                                                  needed */
+  msg = (char*)malloc(msglen+1);
+  vsnprintf(msg, msglen+1, msgfmt, values);
+  SUNHandleErrWithMsg(line, func, file, msg, code, sunctx);
+  va_end(values);
+  free(msg);
+}
+
+/* ----------------------------------------------------------------------------
+ * Error checking macros
+ * ---------------------------------------------------------------------------*/
+
 #define SUNCTX sunctx_local_scope_
 
 /* The SUNFunctionBegin macro is used to declare the SUNContext
@@ -35,10 +97,6 @@
   SUNContext SUNCTX = sunctx;  \
   (void)SUNCTX
 #endif
-
-/* ----------------------------------------------------------------------------
- * Error checking macros
- * ---------------------------------------------------------------------------*/
 
 /* SUNCheck is like SUNAssert except it is compiled even in release mode
    unless SUNDIALS_DISABLE_ERROR_CHECKS is defined  */
@@ -106,7 +164,7 @@
   }                                                                      \
   while (0)
 #else
-#define SUNCheckCallNull(call) (void)call;
+#define SUNCheckCallNull(call) (void)call
 #endif
 
 /* Same as SUNCheckCall, but returns void. */
@@ -123,7 +181,7 @@
   }                                                                      \
   while (0)
 #else
-#define SUNCheckCallNull(call) (void)call;
+#define SUNCheckCallNull(call) (void)call
 #endif
 
 /* SUNCheckLastErr checks the last_err value in the SUNContext.

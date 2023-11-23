@@ -28,9 +28,10 @@ where ``instdir`` is the directory where SUNDIALS was installed.
 Regardless of where the user's application program resides, its
 associated compilation and load commands must make reference to the
 appropriate locations for the library and header files required by
-ARKODE. ARKODE and the SUNDIALS core symbols are found in
-``libdir/libsundials_arkode.lib``. Symbols for additional SUNDIALS
-modules, such as vectors and algebraic solvers, are found in
+ARKODE. ARKODE symbols are found in ``libdir/libsundials_arkode.lib``. 
+Thus, in addition to linking to ``libdir/libsundials_core.lib``, ARKODE
+users need to link to the ARKODE library. Symbols for additional SUNDIALS
+modules, vectors and algebraic solvers, are found in
 
 - ``libdir/libsundials_nvec*.lib``,
 - ``libdir/libsundials_sunlinsol*.lib``,
