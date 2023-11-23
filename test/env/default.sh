@@ -104,11 +104,7 @@ spack load "${compiler}"
 # make sure spack knows about the compiler
 spack compiler find
 
-if [ "$SUNDIALS_TPLS" == "ON" ]; then
-  spack load cmake@3.18.6
-else
-  spack load cmake@3.12.4
-fi
+spack load cmake@3.18.6
 
 # add CUDA
 if [[ ":${PATH}:" != *":/usr/local/cuda-11.5/bin:"* ]]; then
