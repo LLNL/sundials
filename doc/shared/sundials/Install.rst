@@ -1670,9 +1670,8 @@ header files.
 Using SUNDIALS in your prpject
 ------------------------------
 
-After building and installing SUNDIALS, you probably want to include SUNDIALS in
-your application. This involves two steps: including the right header files, and
-linking to the right libraries.
+After building and installing SUNDIALS, using SUNDIALS in your application involves
+two steps: including the right header files and linking to the right libraries.
 
 Depending on what features of SUNDIALS that your application uses, the header
 files needed will vary. E.g., if you want to use CVODE for serial computations
