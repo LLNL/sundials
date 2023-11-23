@@ -97,9 +97,6 @@ from ``sundials_types.h`` and replaced with ``sunrealtype`` and
 the header file ``sundials_types_deprecated.h`` but will be fully removed in the
 next major release.
 
-Fixed the build system support for MAGMA when using a NVIDIA HPC SDK installation of CUDA
-and fixed the targets used for rocBLAS and rocSPARSE.
-
 Improved computational complexity of ``SUNMatScaleAddI_Sparse`` from ``O(M*N)`` to
 ``O(NNZ)``.
 
@@ -136,6 +133,12 @@ one described in `GitHub Issue #275 <https://github.com/LLNL/sundials/issues/275
 **Breaking change**
 Functions, types and header files that were previously deprecated have been
 removed. 
+
+Changes in v6.6.2
+-----------------
+
+Fixed the build system support for MAGMA when using a NVIDIA HPC SDK installation of CUDA
+and fixed the targets used for rocBLAS and rocSPARSE.
 
 Changes in v6.6.1
 -----------------

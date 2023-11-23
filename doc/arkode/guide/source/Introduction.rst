@@ -154,9 +154,6 @@ release, but for some applications a value of :math:`0` is more appropriate.
 Users who notice that their simulations encounter a large number of
 temporal error test failures may want to experiment with adjusting this value.
 
-Fixed the build system support for MAGMA when using a NVIDIA HPC SDK installation of CUDA
-and fixed the targets used for rocBLAS and rocSPARSE.
-
 Fixed a regression introduced by the stop time bug fix in v6.6.1 where ARKODE
 steppers would return at the stop time rather than the requested output time if
 the stop time was reached in the same step in which the output time was passed.
@@ -215,6 +212,12 @@ one described in `GitHub Issue #275 <https://github.com/LLNL/sundials/issues/275
 Functions, types and header files that were previously deprecated have been
 removed. 
 
+
+Changes in v5.6.2
+-----------------
+
+Fixed the build system support for MAGMA when using a NVIDIA HPC SDK installation of CUDA
+and fixed the targets used for rocBLAS and rocSPARSE.
 
 Changes in v5.6.1
 -----------------

@@ -48,9 +48,6 @@ CMake targets.
 
 Added Fortran support for the LAPACK dense `SUNLinearSolver` implementation.
 
-Fixed the build system support for MAGMA when using a NVIDIA HPC SDK installation of CUDA
-and fixed the targets used for rocBLAS and rocSPARSE.
-
 Added the third order ERK method `ARKODE_SHU_OSHER_3_2_3`, the fourth order
 ERK method `ARKODE_SOFRONIOU_SPALETTA_5_3_4`, the sixth order ERK method
 `ARKODE_VERNER_9_5_6`, the seventh order ERK method `ARKODE_VERNER_10_6_7`,
@@ -86,6 +83,11 @@ one described in `GitHub Issue #275 <https://github.com/LLNL/sundials/issues/275
 **Breaking change**
 Functions, types and header files that were previously deprecated have been
 removed. 
+
+## Changes to SUNDIALS in release 6.6.2
+
+Fixed the build system support for MAGMA when using a NVIDIA HPC SDK installation of CUDA
+and fixed the targets used for rocBLAS and rocSPARSE.
 
 ## Changes to SUNDIALS in release 6.6.1
 

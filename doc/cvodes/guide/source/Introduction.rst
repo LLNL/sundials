@@ -120,9 +120,6 @@ from ``sundials_types.h`` and replaced with ``sunrealtype`` and
 the header file ``sundials_types_deprecated.h`` but will be fully removed in the
 next major release.
 
-Fixed the build system support for MAGMA when using a NVIDIA HPC SDK installation of CUDA
-and fixed the targets used for rocBLAS and rocSPARSE.
-
 Fixed a regression introduced by the stop time bug fix in v6.6.1 where CVODES
 would return at the stop time rather than the requested output time if the stop
 time was reached in the same step in which the output time was passed.
@@ -169,6 +166,12 @@ one described in `GitHub Issue #275 <https://github.com/LLNL/sundials/issues/275
 **Breaking change**
 Functions, types and header files that were previously deprecated have been
 removed. 
+
+Changes in v6.6.2
+-----------------
+
+Fixed the build system support for MAGMA when using a NVIDIA HPC SDK installation of CUDA
+and fixed the targets used for rocBLAS and rocSPARSE.
 
 Changes in v6.6.1
 -----------------

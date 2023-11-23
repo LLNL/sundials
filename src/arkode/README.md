@@ -1,5 +1,5 @@
 # ARKODE
-### Version 5.6.1 (Sep 2023)
+### Version 5.6.2 (Nov 2023)
 
 **Daniel R. Reynolds,
   Department of Mathematics, SMU**
@@ -44,8 +44,8 @@ the "SUNDIALS Release History" appendix of the ARKODE User Guide.
 ## References
 
 * D. R. Reynolds, D. J. Gardner, C. S. Woodward, and C. J. Balos,
-  "User Documentation for ARKODE v5.6.1," LLNL technical report
-  LLNL-SM-668082, Sep 2023.
+  "User Documentation for ARKODE v5.6.2," LLNL technical report
+  LLNL-SM-668082, Nov 2023.
 
-* D. R. Reynolds, "Example Programs for ARKODE v5.6.1," Technical Report,
-  Southern Methodist University Center for Scientific Computation, Sep 2023.
+* D. R. Reynolds, "Example Programs for ARKODE v5.6.2," Technical Report,
+  Southern Methodist University Center for Scientific Computation, Nov 2023.
