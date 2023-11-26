@@ -355,13 +355,13 @@ contains
 
     real(c_double) :: u, v
     real(c_double), pointer, dimension(NEQ) :: yarr(:)
-    real(c_double), pointer, dimension(NEQ,NEQ) :: Jarr(:)
+    real(c_double), pointer, dimension(NEQ,NEQ) :: Jarr(:,:)
 
     ! get N_Vector data arrays
     yarr => FN_VGetArrayPointer(y)
 
     ! get Jacobian data array
-    Jarr => FSUNDenseMatrix_Data(J)
+    Jarr(1:NEQ,1:NEQ) => FSUNDenseMatrix_Data(J)
 
     ! extract variables
     u = yarr(1)
@@ -397,13 +397,13 @@ contains
 
     real(c_double) :: u, v
     real(c_double), pointer, dimension(NEQ) :: yarr(:)
-    real(c_double), pointer, dimension(NEQ,NEQ) :: Jarr(:)
+    real(c_double), pointer, dimension(NEQ,NEQ) :: Jarr(:,:)
 
     ! get N_Vector data array
     yarr => FN_VGetArrayPointer(y)
 
     ! get Jacobian data array
-    Jarr => FSUNDenseMatrix_Data(J)
+    Jarr(1:NEQ,1:NEQ) => FSUNDenseMatrix_Data(J)
 
     ! extract variables
     u = yarr(1)
@@ -439,13 +439,13 @@ contains
 
     real(c_double) :: u, v
     real(c_double), pointer, dimension(NEQ) :: yarr(:)
-    real(c_double), pointer, dimension(NEQ,NEQ) :: Jarr(:)
+    real(c_double), pointer, dimension(NEQ,NEQ) :: Jarr(:,:)
 
     ! get N_Vector data array
     yarr => FN_VGetArrayPointer(y)
 
     ! get Jacobian data array
-    Jarr => FSUNDenseMatrix_Data(J)
+    Jarr(1:NEQ,1:NEQ) => FSUNDenseMatrix_Data(J)
 
     ! extract variables
     u = yarr(1)

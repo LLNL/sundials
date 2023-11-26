@@ -177,7 +177,7 @@ contains
 
     ! pointers to data in SUNDIALS vector and matrix
     real(c_double), pointer, dimension(neq) :: yval(:)
-    real(c_double), pointer, dimension(neq,neq) :: J(:,:)a
+    real(c_double), pointer, dimension(neq,neq) :: J(:,:)
 
 
     !======= Internals ============

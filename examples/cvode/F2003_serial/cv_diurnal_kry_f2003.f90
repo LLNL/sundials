@@ -85,7 +85,7 @@ module diurnal_mod
   integer(c_int), parameter  :: iGStype = 1
   integer(c_int), parameter  :: maxL = 0
   integer(c_long), parameter :: mxsteps = 1000
-  real(c_double) :: p_p(2,2,mm)
+  real(c_double) :: p_p(2,2,mx,my)
 
   ! ODE non-constant parameters
   real(c_double)  :: q3
@@ -233,7 +233,7 @@ contains
 
     ! temporary variables
     real(c_double), pointer, dimension(2,mx,my) :: u(:,:,:)
-    real(c_double) :: p_bd(2,2,mm)
+    real(c_double) :: p_bd(2,2,mx,my)
     u(1:2,1:mx,1:my) => FN_VGetArrayPointer(sunvec_u)
 
     ! if needed, recompute bd
@@ -301,7 +301,7 @@ contains
 
     ! solve the block-diagonal system px = r using lu factors stored in p
     ! and pivot data in ipp, and return the solution in z.
-    call Prec_Sol(mm, p_p, z)
+    call Prec_Sol(mx, my, p_p, z)
 
     ! return success
     ierr = 0
@@ -327,13 +327,12 @@ contains
     implicit none
 
     integer(c_int), intent(in)  :: mmx, mmy
-    real(c_double), intent(in)  :: u(2,*)
-    real(c_double), intent(out) :: bd(2,2,*)
+    real(c_double), intent(in)  :: u(2,mmx,mmy)
+    real(c_double), intent(out) :: bd(2,2,mmx,mmy)
     real(c_double), intent(in)  :: qq1, qq2, qq3, qq4, cc3, ddy, hhdco, vvdco
     integer(c_int), intent(out) :: ierr
 
     ! local variables
-    integer(c_int) :: idx, idx0
     real(c_double) :: cydn, cyup, diag, ydn, yup
 
     do jy = 1, mmy
@@ -342,15 +341,13 @@ contains
        cydn = vvdco * exp(0.2d0 * ydn)
        cyup = vvdco * exp(0.2d0 * yup)
        diag = -(cydn + cyup + 2.0d0 * hhdco)
-       idx0 = (jy - 1) * mmx
        do jx = 1, mmx
-          idx = idx0 + jx
-          c1 = u(1,idx)
-          c2 = u(2,idx)
-          bd(1,1,idx) = (-qq1 * cc3 - qq2 * c2) + diag
-          bd(1,2,idx) = -qq2 * c1 + qq4
-          bd(2,1,idx) =  qq1 * cc3 - qq2 * c2
-          bd(2,2,idx) = (-qq2 * c1 - qq4) + diag
+          c1 = u(1,jx,jy)
+          c2 = u(2,jx,jy)
+          bd(1,1,jx,jy) = (-qq1 * cc3 - qq2 * c2) + diag
+          bd(1,2,jx,jy) = -qq2 * c1 + qq4
+          bd(2,1,jx,jy) =  qq1 * cc3 - qq2 * c2
+          bd(2,2,jx,jy) = (-qq2 * c1 - qq4) + diag
        end do
     end do
 
@@ -416,24 +413,26 @@ contains
   !    1 = recoverable error,
   !   -1 = non-recoverable error
   ! ----------------------------------------------------------------
-  subroutine Prec_Sol(mmm, p, z)
+  subroutine Prec_Sol(mx,my, p, z)
 
     implicit none
 
-    integer(c_long), intent(in)   :: mmm
-    real(c_double), dimension(2,2,mmm), intent(inout) :: p(:,:,:)
-    real(c_double), dimension(2,mmm), intent(inout) :: z(:,:)
+    integer(c_int), intent(in) :: mx, my
+    real(c_double), dimension(2,2,mx,my), intent(inout) :: p(:,:,:,:)
+    real(c_double), dimension(2,mx,my), intent(inout) :: z(:,:,:)
 
     ! local variable
-    integer(c_long) :: i
+    integer(c_long) :: i, j
     real(c_double)  :: z1, z2
 
 
-    do i = 1,mm
-       z1 = z(1,i)
-       z2 = z(2,i)
-       z(1,i) = p(1,1,i) * z1 + p(1,2,i) * z2
-       z(2,i) = p(2,1,i) * z1 + p(2,2,i) * z2
+    do i = 1,mx
+       do j = 1,my
+          z1 = z(1,i,j)
+          z2 = z(2,i,j)
+          z(1,i,j) = p(1,1,i,j) * z1 + p(1,2,i,j) * z2
+          z(2,i,j) = p(2,1,i,j) * z1 + p(2,2,i,j) * z2
+       end do
     end do
 
     return

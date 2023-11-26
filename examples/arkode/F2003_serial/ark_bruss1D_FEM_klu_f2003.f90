@@ -74,16 +74,16 @@ module Bruss1DFEMKLU_UserData
   integer(c_long), parameter :: neqreal = 3
 
   ! ODE parameters
-  integer(c_long), parameter :: N = 201           ! number of intervals
-  integer(c_long), parameter :: neq = neqreal*N   ! set overall problem size
+  integer(c_int),  parameter :: N = 201          ! number of intervals
+  integer(c_long), parameter :: neq = neqreal*N  ! set overall problem size
   integer(c_long), parameter :: nnz = 15*neq
-  real(c_double),  parameter :: a = 0.6d0         ! constant forcing on u
-  real(c_double),  parameter :: b = 2.d0          ! steady-state value of w
-  real(c_double),  parameter :: du = 2.5d-2       ! diffusion coeff for u
-  real(c_double),  parameter :: dv = 2.5d-2       ! diffusion coeff for v
-  real(c_double),  parameter :: dw = 2.5d-2       ! diffusion coeff for w
-  real(c_double),  parameter :: ep = 1.d-5        ! stiffness parameter
-  real(c_double), dimension(N) :: x               ! mesh node locations
+  real(c_double),  parameter :: a = 0.6d0        ! constant forcing on u
+  real(c_double),  parameter :: b = 2.d0         ! steady-state value of w
+  real(c_double),  parameter :: du = 2.5d-2      ! diffusion coeff for u
+  real(c_double),  parameter :: dv = 2.5d-2      ! diffusion coeff for v
+  real(c_double),  parameter :: dw = 2.5d-2      ! diffusion coeff for w
+  real(c_double),  parameter :: ep = 1.d-5       ! stiffness parameter
+  real(c_double),  dimension(N) :: x             ! mesh node locations
 
 contains
 
@@ -99,6 +99,7 @@ end module Bruss1DFEMKLU_UserData
 
 ! finite element basis functions
 module FEMBasis
+  use, intrinsic :: iso_c_binding
 
 contains
 
@@ -140,6 +141,7 @@ end module FEMBasis
 
 ! quadrature data
 module Quadrature
+  use, intrinsic :: iso_c_binding
 
 contains
 
