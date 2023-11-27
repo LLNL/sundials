@@ -16,21 +16,20 @@
 
 # We need this to ensure the installed templates have MPI when ENABLE_MPI=TRUE,
 # at least until we convert all of the templates to use the SUNDIALS CMake target.
-if(ENABLE_MPI)
-  if(MPI_C_COMPILER)
-    set(_EXAMPLES_C_COMPILER ${MPI_C_COMPILER})
+
+# ===============================================================
+# Configure compilers for installed examples
+# ===============================================================
+
+foreach(lang ${_SUNDIALS_ENABLED_LANGS})
+  if(ENABLE_MPI)
+    if(DEFINED MPI_${lang}_COMPILER)
+      set(_EXAMPLES_${lang}_COMPILER "${MPI_${lang}_COMPILER}" CACHE INTERNAL "${lang} compiler for installed examples")
+    endif()
+  else()
+    set(_EXAMPLES_${lang}_COMPILER "${CMAKE_${lang}_COMPILER}" CACHE INTERNAL "${lang} compiler for installed examples")
   endif()
-  if(MPI_CXX_COMPILER)
-    set(_EXAMPLES_CXX_COMPILER ${MPI_CXX_COMPILER})
-  endif()
-  if(MPI_Fortran_COMPILER)
-    set(_EXAMPLES_Fortran_COMPILER ${MPI_Fortran_COMPILER})
-  endif()
-else()
-  set(_EXAMPLES_C_COMPILER ${CMAKE_C_COMPILER})
-  set(_EXAMPLES_CXX_COMPILER ${CMAKE_CXX_COMPILER})
-  set(_EXAMPLES_Fortran_COMPILER ${CMAKE_Fortran_COMPILER})
-endif()
+endforeach()
 
 # Set variables used in generating CMake and Makefiles for examples
 if(EXAMPLES_INSTALL)
