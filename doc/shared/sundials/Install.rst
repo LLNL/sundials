@@ -1674,7 +1674,7 @@ After building and installing SUNDIALS, using SUNDIALS in your application invol
 two steps: including the right header files and linking to the right libraries.
 
 Depending on what features of SUNDIALS that your application uses, the header
-files needed will vary. E.g., if you want to use CVODE for serial computations
+files needed will vary. For example, if you want to use CVODE for serial computations
 you need the following includes:
 
 .. code-block:: c
