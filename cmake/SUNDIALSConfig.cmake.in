@@ -56,7 +56,7 @@ endforeach()
 ### ------- Create TPL imported targets
 
 if("@ENABLE_MPI@" AND NOT TARGET MPI::MPI_C)
-  set(MPIEXEC_EXECUTABLE "@MPIEXEC_EXECUTABLE@")
+  set(MPI_C_COMPILER "@MPI_C_COMPILER@")
   find_dependency(MPI)
 endif()
 
