@@ -234,7 +234,7 @@ N_Vector N_VNew_MPIManyVector(sunindextype num_subvectors,
        if none is present then continue to next subvector */
     vcomm = N_VGetCommunicator(vec_array[i]);
 
-    if (vcomm == SUN_COMM_NULL) { continue; }
+    if (vcomm == MPI_COMM_NULL) { continue; }
 
     /* if this is the first communicator, create a copy */
     if (nocommfound) {
