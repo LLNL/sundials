@@ -43,4 +43,6 @@ endif()
 sundials_add_f2003_library(sundials_fcore_mod
   SOURCES
     ${sundials_SOURCES}
+  LINK_LIBRARIES
+    PUBLIC sundials_core
 )
