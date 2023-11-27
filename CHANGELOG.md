@@ -63,13 +63,13 @@ This fixes https://github.com/LLNL/sundials/issues/312.
 **Breaking change** 
 We have replaced the use of a type-erased (i.e., `void*`) pointer to a
 communicator in place of `MPI_Comm` throughout the SUNDIALS API with a
-:c:type:`SUNComm`, which is just a typedef to an `int` in builds without MPI
+`SUNComm`, which is just a typedef to an `int` in builds without MPI
 and a typedef to a `MPI_Comm` in builds with MPI. Here is what this means:
 
 - All users will need to update their codes because the call to 
-  `SUNContext_Create` now takes a :c:type:`SUNComm` instead
+  `SUNContext_Create` now takes a `SUNComm` instead
   of type-erased pointer to a communicator. For non-MPI codes,
-  pass :c:type:`SUN_COMM_NULL` to the `comm` argument instead of
+  pass `SUN_COMM_NULL` to the `comm` argument instead of
   `NULL`. For MPI codes, pass the `MPI_Comm` directly. 
   The required change should be doable with a find-and-replace. 
 
@@ -81,7 +81,7 @@ and a typedef to a `MPI_Comm` in builds with MPI. Here is what this means:
   `N_VGetCommunicator`, since it now returns a `SUNComm`. 
 
 The change away from type-erased pointers for `SUNComm` fixes problems like the 
-one described in `GitHub Issue #275 <https://github.com/LLNL/sundials/issues/275>`.
+one described in `[GitHub Issue #275](https://github.com/LLNL/sundials/issues/275)`.
 
 **Breaking change**
 Functions, types and header files that were previously deprecated have been
@@ -89,6 +89,7 @@ removed.
 
 **Breaking change**
 Users now need to link to `sundials_core` in addition to the libraries already linked to. 
+This will be picked up automatically in projects that use the SUNDIALS CMake target.
 
 ## Changes to SUNDIALS in release 6.6.1
 

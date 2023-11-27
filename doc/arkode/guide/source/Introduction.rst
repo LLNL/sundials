@@ -216,7 +216,8 @@ Functions, types and header files that were previously deprecated have been
 removed. 
 
 **Breaking change**
-Users now need to link to ``sundials_core`` in addition to the libraries already linked to.
+Users now need to link to ``sundials_core`` in addition to the libraries already linked to. 
+This will be picked up automatically in projects that use the SUNDIALS CMake target.
 
 
 Changes in v5.6.1
