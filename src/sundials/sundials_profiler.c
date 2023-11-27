@@ -197,7 +197,12 @@ SUNErrCode SUNProfiler_Create(SUNComm comm, const char* title, SUNProfiler* p)
     MPI_Comm_dup(comm, &profiler->comm);
   }
 #else
-  profiler->comm = comm;
+  if (comm != SUN_COMM_NULL)
+  {
+    free(profiler);
+    return -1;
+  }
+  profiler->comm = SUN_COMM_NULL;
 #endif
 
   /* Copy the title of the profiler (note strlen does not include terminating

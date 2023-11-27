@@ -13,6 +13,7 @@
  * -----------------------------------------------------------------*/
 
 #include <sundials/impl/sundials_errors_impl.h>
+#include "sundials/sundials_errors.h"
 #include "sundials/sundials_types.h"
 #include <stdarg.h>
 #include <stdio.h>
@@ -115,12 +116,9 @@ static sunbooleantype sunLoggerIsOutputRank(SUNLogger logger, int* rank_ref)
 #if SUNDIALS_MPI_ENABLED
   int rank = 0;
 
-  if (logger->comm)
+  if (logger->comm != SUN_COMM_NULL)
   {
-    if (logger->comm != SUN_COMM_NULL) 
-    {
-      MPI_Comm_rank(logger->comm, &rank);
-    } 
+    MPI_Comm_rank(logger->comm, &rank);
 
     if (logger->output_rank < 0)
     {
@@ -172,6 +170,7 @@ SUNErrCode SUNLogger_Create(SUNComm comm, int output_rank, SUNLogger* logger_ptr
   logger->comm = SUN_COMM_NULL;
   if (comm != SUN_COMM_NULL)
   {
+    free(logger);
     return SUN_ERR_ARG_CORRUPT;
   }
 #endif
@@ -487,27 +486,36 @@ SUNErrCode SUNLogger_GetOutputRank(SUNLogger logger, int* output_rank)
   return SUN_SUCCESS;
 }
 
-SUNErrCode SUNLogger_Destroy(SUNLogger* logger)
+SUNErrCode SUNLogger_Destroy(SUNLogger* logger_ptr)
 {
   SUNErrCode retval = SUN_SUCCESS;
+  SUNLogger logger = NULL;
+  
+  if (!logger_ptr) { return SUN_ERR_ARG_CORRUPT; }
 
-  if ((*logger)->destroy)
+  logger = *logger_ptr;
+
+  if (logger && logger->destroy)
   {
-    retval = (*logger)->destroy(logger);
+    retval = logger->destroy(logger_ptr);
   }
-  else
+  else if (logger)
   {
-    if (logger && (*logger))
-    {
-      /* Default implementation */
-      if (sunLoggerIsOutputRank(*logger, NULL))
-      {
-        SUNHashMap_Destroy(&(*logger)->filenames, sunCloseLogFile);
-      }
+    /* Default implementation */
 
-      free(*logger);
-      *logger = NULL;
+    if (sunLoggerIsOutputRank(logger, NULL))
+    {
+      SUNHashMap_Destroy(&logger->filenames, sunCloseLogFile);
     }
+  
+#if SUNDIALS_MPI_ENABLED
+    if (logger->comm != SUN_COMM_NULL) {  
+      MPI_Comm_free(&logger->comm);
+    }
+#endif
+
+    free(logger);
+    logger = NULL;
   }
 
   return retval;

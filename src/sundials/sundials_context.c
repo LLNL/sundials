@@ -53,14 +53,9 @@ int SUNContext_Create(SUNComm comm, SUNContext* sunctx_out)
   sunAdiakCollectMetadata();
 #endif
 
-  /* Since this function used to take a void* comm that was NULL 
-     when the comm was to be ignored, we check if its NULL here
-     and translate it to SUN_COMM_NULL to make the transition 
-     easier for users. */
-  if (!comm) 
-  {
-    comm = SUN_COMM_NULL;
-  }
+#if defined(SUNDIALS_BUILD_WITH_PROFILING) && !defined(SUNDIALS_CALIPER_ENABLED)
+  if (SUNProfiler_Create(comm, "SUNContext Default", &profiler)) return (-1);
+#endif
 
 #if SUNDIALS_LOGGING_LEVEL > 0 
 #if SUNDIALS_MPI_ENABLED

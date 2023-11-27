@@ -23,7 +23,7 @@ cmake_minimum_required(VERSION @CMAKE_VERSION@)
 
 # Set cache variables for compilers and flags
 set(CMAKE_C_COMPILER
-  @_EXAMPLES_C_COMPILER@
+  "@_EXAMPLES_C_COMPILER@"
   CACHE FILEPATH "C compiler")
 
 set(CMAKE_C_FLAGS
@@ -36,7 +36,7 @@ if("@CMAKE_C_STANDARD@")
 endif()
 
 set(CMAKE_CXX_COMPILER
-  @_EXAMPLES_CXX_COMPILER@
+  "@_EXAMPLES_CXX_COMPILER@"
   CACHE FILEPATH "C++ compiler")
 
 set(CMAKE_CXX_FLAGS
@@ -118,10 +118,10 @@ set(SUNDIALS_EXTRA_LIBS -L${SUNDIALS_LIBRARY_DIR} @LIBS@ CACHE STRING "Additiona
 # List of SUNDIALS libraries
 set(SUNDIALS_LIBRARIES
   -L${SUNDIALS_LIBRARY_DIR}
-  ${SUNDIALS_CORE_LIB}
   ${SUNDIALS_SOLVER_LIB}
   ${SUNDIALS_NVEC_LIB}
   ${SUNDIALS_CUSPARSEMAT_LIB}
+  ${SUNDIALS_CORE_LIB}
   ${SUNDIALS_EXTRA_LIBS})
 
 # ------------------------------------------------------------------------------
@@ -163,10 +163,12 @@ endif()
 
 # List of SUNDIALS libraries
 set(SUNDIALS_LIBRARIES
+  -L${SUNDIALS_LIBRARY_DIR}
   ${SUNDIALS_SOLVER_LIB}
   ${SUNDIALS_NVEC_LIB}
   ${SUNDIALS_CUSPARSEMAT_LIB}
   ${SUNDIALS_CUSOLVERSP_LIB}
+  ${SUNDIALS_CORE_LIB}
   ${SUNDIALS_EXTRA_LIBS})
 
 # Create targets for each example

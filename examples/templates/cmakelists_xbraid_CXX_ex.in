@@ -77,11 +77,12 @@ find_library(SUNDIALS_XBRAID_LIB
 set(SUNDIALS_EXTRA_LIBS @LIBS@ CACHE STRING "Additional libraries")
 
 # List of SUNDIALS libraries
-set(SUNDIALS_LIBRARIES
-  ${SUNDIALS_CORE_LIB}
+set(SUNDIALS_LIBRARIES 
+  -L${SUNDIALS_LIBRARY_DIR}
   ${SUNDIALS_SOLVER_LIB}
   ${SUNDIALS_NVECPAR_LIB}
   ${SUNDIALS_XBRAID_LIB}
+  ${SUNDIALS_CORE_LIB}
   ${SUNDIALS_EXTRA_LIBS})
 
 # ------------------------------------------------------------------------------

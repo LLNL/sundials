@@ -376,8 +376,12 @@ SWIGEXPORT int _wrap_FN_VGetCommunicator_MPIManyVector(N_Vector farg1) {
   arg1 = (N_Vector)(farg1);
   result = N_VGetCommunicator_MPIManyVector(arg1);
 #if SUNDIALS_MPI_ENABLED
-  if (result != 0) {
+  int flag = 0;
+  MPI_Initialized(&flag);
+  if(flag) {
     fresult = (int)(MPI_Comm_c2f(result));
+  } else {
+    fresult = 0;
   }
 #else
   fresult = result;

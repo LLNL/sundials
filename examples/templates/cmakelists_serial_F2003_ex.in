@@ -58,9 +58,14 @@ find_library(SUNDIALS_CORE_LIB
   sundials_core ${SUNDIALS_LIBRARY_DIR}
   DOC "SUNDIALS core library")
 
+find_library(SUNDIALS_FCORE_LIB
+  sundials_fcore_mod ${SUNDIALS_LIBRARY_DIR}
+  DOC "SUNDIALS Fortran core library")
+
 find_library(SUNDIALS_SOLVER_LIB
   @SOLVER_LIB@ ${SUNDIALS_LIBRARY_DIR}
   DOC "@SOLVER@ library")
+
 find_library(SUNDIALS_SOLVER_FLIB
   @SOLVER_FLIB@ ${SUNDIALS_LIBRARY_DIR}
   DOC "@SOLVER@ Fortran-C library")
@@ -110,6 +115,8 @@ set(SUNDIALS_LIBRARIES
   ${SUNDIALS_SOLVER_LIB}
   ${SUNDIALS_NVEC_LIB}
   ${SUNDIALS_SUNLS_LIB}
+  ${SUNDIALS_FCORE_LIB}
+  ${SUNDIALS_CORE_LIB}
   ${SUNDIALS_EXTRA_LIBS})
 
 # ------------------------------------------------------------------------------

@@ -17,8 +17,9 @@
 sundials_add_f2003_library(sundials_fsunlinsolspfgmr_mod
   SOURCES
     fsunlinsol_spfgmr_mod.f90 fsunlinsol_spfgmr_mod.c
+  LINK_LIBRARIES
+    PUBLIC sundials_fcore_mod
   OBJECT_LIBRARIES
-    sundials_fcore_mod_obj
   OUTPUT_NAME
     sundials_fsunlinsolspfgmr_mod
   VERSION

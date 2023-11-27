@@ -26,7 +26,7 @@ LDFLAGS  = @CMAKE_EXE_LINKER_FLAGS_RELEASE@
 # SUNDIALS includes and libraries
 SUNDIALS_INCLUDES  = @CMAKE_INSTALL_PREFIX@/include
 SUNDIALS_LIB_DIR   = @CMAKE_INSTALL_PREFIX@/@CMAKE_INSTALL_LIBDIR@
-SUNDIALS_LIBRARIES = -lsundials_core -l@SOLVER_LIB@ -lsundials_nvecparallel -l@SOLVER_LIB@_xbraid
+SUNDIALS_LIBRARIES = -l@SOLVER_LIB@ -lsundials_nvecparallel -l@SOLVER_LIB@_xbraid -lsundials_core 
 
 # XBraid includes and libraries
 XBRAID_INCLUDES  = @XBRAID_INCS@

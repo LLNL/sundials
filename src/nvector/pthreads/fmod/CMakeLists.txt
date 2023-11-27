@@ -19,8 +19,9 @@ set(nvecpthreads_SOURCES fnvector_pthreads_mod.f90 fnvector_pthreads_mod.c)
 sundials_add_f2003_library(sundials_fnvecpthreads_mod
   SOURCES
     fnvector_pthreads_mod.f90 fnvector_pthreads_mod.c
+  LINK_LIBRARIES
+    PUBLIC sundials_fcore_mod
   OBJECT_LIBRARIES
-    sundials_fcore_mod_obj
   OUTPUT_NAME
     sundials_fnvecpthreads_mod
   VERSION
