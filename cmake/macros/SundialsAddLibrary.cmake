@@ -269,16 +269,6 @@ macro(sundials_add_library target)
       endif()
 
       if(SUNDIALS_BUILD_WITH_PROFILING)
-        if(ENABLE_MPI AND MPI_C_FOUND)
-          # Workaround issues with sundials_core object library dependency on
-          # MPI not getting propagated when building examples.
-          # Workaround bug in CMake < 3.17.3 when using MPI::MPI_C and CUDA
-          target_include_directories(${_actual_target_name} PUBLIC ${MPI_C_INCLUDE_DIRS})
-          target_link_libraries(${_actual_target_name} PUBLIC ${MPI_C_LIBRARIES})
-        endif()
-      endif()
-
-      if(SUNDIALS_BUILD_WITH_PROFILING)
         if(ENABLE_CALIPER)
           target_link_libraries(${_actual_target_name} PUBLIC caliper)
         endif()
