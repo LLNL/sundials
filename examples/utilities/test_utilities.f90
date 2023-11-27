@@ -18,7 +18,7 @@ module test_utilities
 
     use, intrinsic :: iso_c_binding
     use fsundials_types_mod
-  use fsundials_context_mod
+    use fsundials_context_mod
     implicit none
 
     real(C_DOUBLE), parameter :: SUN_UNIT_ROUNDOFF = epsilon(1.0d0)
