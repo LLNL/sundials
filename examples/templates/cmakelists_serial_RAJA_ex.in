@@ -36,7 +36,7 @@ if("@CMAKE_C_STANDARD@")
 endif()
 
 set(CMAKE_CXX_COMPILER
-  @_EXAMPLES_CXX_COMPILER@
+  "@_EXAMPLES_CXX_COMPILER@"
   CACHE FILEPATH "C++ compiler")
 
 set(CMAKE_CXX_FLAGS
@@ -52,7 +52,7 @@ set(CMAKE_CUDA_COMPILER
   CACHE FILEPATH "CUDA compiler")
 
 set(CMAKE_CUDA_HOST_COMPILER
-  @_EXAMPLES_CXX_COMPILER@
+  "@_EXAMPLES_CXX_COMPILER@"
   CACHE FILEPATH "CUDA host compiler")
 
 # Specify project name and languages
