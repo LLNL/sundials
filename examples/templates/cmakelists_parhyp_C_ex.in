@@ -23,7 +23,7 @@ cmake_minimum_required(VERSION @CMAKE_VERSION@)
 
 # Set cache variables for compilers and flags
 set(CMAKE_C_COMPILER
-  @MPI_C_COMPILER@
+  "@MPI_C_COMPILER@"
   CACHE FILEPATH "MPI C compiler")
 
 set(CMAKE_C_FLAGS

@@ -17,7 +17,7 @@ cmake_minimum_required(VERSION @CMAKE_VERSION@)
 
 # Set cache variables for compilers and flags
 set(CMAKE_Fortran_COMPILER
-  @MPI_Fortran_COMPILER@
+  "@MPI_Fortran_COMPILER@"
   CACHE FILEPATH "MPI Fortran compiler")
 
 set(CMAKE_Fortran_FLAGS
