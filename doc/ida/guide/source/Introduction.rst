@@ -126,11 +126,11 @@ one described in `GitHub Issue #275 <https://github.com/LLNL/sundials/issues/275
 
 **Breaking change**
 Functions, types and header files that were previously deprecated have been
-removed. 
+removed.  Additionally, the `SUNDIALS_LOGGING_ENABLE_MPI` macro was removed.
 
 **Breaking change**
 Users now need to link to ``sundials_core`` in addition to the libraries already linked to. 
-This will be picked up automatically in projects that use the SUNDIALS CMake target.
+This will be picked up automatically in projects that use the SUNDIALS CMake target. The library ``sundials_generic`` has been superceded by ``sundials_core`` and is no longer available.
 
 Changes in v6.6.1
 -----------------
