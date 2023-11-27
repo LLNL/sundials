@@ -54,8 +54,12 @@
 }
 %typemap(out, noblock=1) MPI_Comm {
 %#if SUNDIALS_MPI_ENABLED
-    if ($1 != SUN_COMM_NULL) {
+    int flag = 0;
+    MPI_Initialized(&flag);
+    if(flag) {
       $result = %static_cast(MPI_Comm_c2f($1), int);
+    } else {
+      $result = 0;
     }
 %#else
     $result = $1;
