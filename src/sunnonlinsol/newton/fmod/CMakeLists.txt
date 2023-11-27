@@ -18,8 +18,9 @@
 sundials_add_f2003_library(sundials_fsunnonlinsolnewton_mod
   SOURCES
     fsunnonlinsol_newton_mod.f90 fsunnonlinsol_newton_mod.c
+  LINK_LIBRARIES
+    PUBLIC sundials_fcore_mod
   OBJECT_LIBRARIES
-    sundials_fcore_mod_obj
   OUTPUT_NAME
     sundials_fsunnonlinsolnewton_mod
   VERSION

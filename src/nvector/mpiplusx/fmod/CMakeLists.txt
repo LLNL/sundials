@@ -29,8 +29,9 @@ endif()
 sundials_add_f2003_library(sundials_fnvecmpiplusx_mod
   SOURCES
     fnvector_mpiplusx_mod.f90 fnvector_mpiplusx_mod.c
+  LINK_LIBRARIES
+    PUBLIC sundials_fcore_mod
   OBJECT_LIBRARIES
-    sundials_fcore_mod_obj
   OUTPUT_NAME
     sundials_fnvecmpiplusx_mod
   VERSION

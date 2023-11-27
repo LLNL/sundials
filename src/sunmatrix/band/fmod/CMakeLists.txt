@@ -17,8 +17,9 @@
 sundials_add_f2003_library(sundials_fsunmatrixband_mod
   SOURCES
     fsunmatrix_band_mod.f90 fsunmatrix_band_mod.c
+  LINK_LIBRARIES
+    PUBLIC sundials_fcore_mod
   OBJECT_LIBRARIES
-    sundials_fcore_mod_obj
   OUTPUT_NAME
     sundials_fsunmatrixband_mod
   VERSION

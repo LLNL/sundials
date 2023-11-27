@@ -19,8 +19,9 @@ set(cvodes_SOURCES fcvodes_mod.f90 fcvodes_mod.c)
 sundials_add_f2003_library(sundials_fcvodes_mod
   SOURCES
     ${cvodes_SOURCES}
+  LINK_LIBRARIES
+    PUBLIC sundials_fcore_mod
   OBJECT_LIBRARIES
-    sundials_fcore_mod_obj
     sundials_fnvecserial_mod_obj
     sundials_fsunmatrixband_mod_obj
     sundials_fsunmatrixdense_mod_obj
