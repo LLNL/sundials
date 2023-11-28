@@ -381,11 +381,11 @@
 
 #if __cplusplus >= 202302L
 #define SUNAssume(...) [[assume(__VA_ARGS__)]]
-#elif SUNDIALS_C_COMPILER_HAS_ATTRIBUTE_ASSUME
+#elif defined(SUNDIALS_C_COMPILER_HAS_ATTRIBUTE_ASSUME)
 #define SUNAssume(...) __attribute__((assume(__VA_ARGS__)));
-#elif SUNDIALS_C_COMPILER_HAS_BUILTIN_ASSUME
+#elif defined(SUNDIALS_C_COMPILER_HAS_BUILTIN_ASSUME)
 #define SUNAssume(...) __builtin_assume(__VA_ARGS__)
-#elif SUNDIALS_C_COMPILER_HAS_ASSUME
+#elif defined(SUNDIALS_C_COMPILER_HAS_ASSUME)
 #define SUNAssume(...) __assume(__VA_ARGS__)
 #else
 #define SUNAssume(...) 
