@@ -472,7 +472,7 @@ int main(int argc, char* argv[])
   // Create the SUNDIALS context object for this simulation.
   SUNContext ctx = NULL;
   MPI_Comm comm  = MPI_COMM_WORLD;
-  SUNContext_Create((void*) &comm, &ctx);
+  SUNContext_Create(comm, &ctx);
 
   // MPI process ID
   int myid;

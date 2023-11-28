@@ -93,6 +93,7 @@ program main
   use, intrinsic :: iso_c_binding
 
   use fcvode_mod                    ! Fortran interface to CVODE
+  use fsundials_types_mod
   use fsundials_context_mod         ! Fortran interface to SUNContext
   use fsundials_nvector_mod         ! Fortran interface to generic N_Vector
   use fnvector_serial_mod           ! Fortran interface to serial N_Vector
@@ -124,7 +125,7 @@ program main
 
   !======= Internals ============
 
-  ierr = FSUNContext_Create(c_null_ptr, ctx)
+  ierr = FSUNContext_Create(SUN_COMM_NULL, ctx)
 
   ! initialize ODE
   tstart = 0.0d0

@@ -17,8 +17,9 @@
 sundials_add_f2003_library(sundials_fsunmatrixdense_mod
   SOURCES
     fsunmatrix_dense_mod.f90 fsunmatrix_dense_mod.c
+  LINK_LIBRARIES
+    PUBLIC sundials_fcore_mod
   OBJECT_LIBRARIES
-    sundials_fgeneric_mod_obj
   OUTPUT_NAME
     sundials_fsunmatrixdense_mod
   VERSION

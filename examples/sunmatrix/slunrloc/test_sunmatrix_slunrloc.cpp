@@ -75,7 +75,7 @@ int main(int argc, char *argv[])
   MPI_Comm_size(comm, &nprocs);
   MPI_Comm_rank(comm, &rank);
 
-  if (SUNContext_Create(&comm, &sunctx)) {
+  if (SUNContext_Create(comm, &sunctx)) {
     printf("ERROR: SUNContext_Create failed\n");
     return(-1);
   }

@@ -410,9 +410,9 @@ void N_VSetArrayPointer_Parallel(sunrealtype *v_data, N_Vector v)
   return;
 }
 
-void *N_VGetCommunicator_Parallel(N_Vector v)
+MPI_Comm N_VGetCommunicator_Parallel(N_Vector v)
 {
-  return((void *) &(NV_COMM_P(v)));
+  return NV_COMM_P(v);
 }
 
 void N_VLinearSum_Parallel(sunrealtype a, N_Vector x, sunrealtype b, N_Vector y, N_Vector z)

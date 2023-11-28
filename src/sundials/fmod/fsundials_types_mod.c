@@ -216,4 +216,10 @@
 #error "The Fortran bindings are only targeted at 64-bit indices"
 #endif
 
+SWIGEXPORT SWIGEXTERN int const _wrap_SUNFALSE = (int)(0);
+
+SWIGEXPORT SWIGEXTERN int const _wrap_SUNTRUE = (int)(1);
+
+SWIGEXPORT SWIGEXTERN int const _wrap_SUN_COMM_NULL = (int)(0);
+
 

@@ -220,10 +220,6 @@ def main():
             'SUNDIALS_LOGGING_LEVEL', '0', 'STRING',
             'logging', choices=['0', '1', '2', '3', '4', '5'])
 
-    add_arg(group, '--logging-mpi', 'SUNDIALS_LOGGING_ENABLE_MPI',
-            'SUNDIALS_LOGGING_ENABLE_MPI', 'OFF', 'BOOL',
-            'MPI-aware logging')
-
     # fused kernels
     add_arg(group, '--fused-kernels', 'SUNDIALS_FUSED_KERNELS',
             'SUNDIALS_BUILD_PACKAGE_FUSED_KERNELS', 'OFF', 'BOOL',

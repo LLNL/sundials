@@ -91,7 +91,7 @@ int main(int argc, char **argv)
   ierr = PetscInitialize(&argc,&argv,(char*)0,help);if (ierr) return ierr;
 
   /* Create SUNDIALS context */
-  ierr = SUNContext_Create(&comm, &ctx);
+  ierr = SUNContext_Create(comm, &ctx);
   if (ierr) return ierr;
 
   /* Solution start and end time */

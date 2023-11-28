@@ -16,14 +16,10 @@
 
 # Example lists are tuples "name\;nodes\;tasks\;type" where the
 # type is develop for examples excluded from 'make test' in releases
-if(SUNDIALS_LOGGING_ENABLE_MPI)
-  set(FARKODE_examples
+set(FARKODE_examples
     "ark_brusselator1D_task_local_nls_f2003\;--monitor\;1\;4\;develop\;2"
     "ark_brusselator1D_task_local_nls_f2003\;--monitor --global-nls\;1\;4\;develop\;2"
     "ark_brusselator1D_task_local_nls_f2003\;--monitor --explicit --tf 3\;1\;4\;develop\;2")
-else()
-  set(FARKODE_examples )
-endif()
 
 if(MPI_Fortran_COMPILER)
   # use MPI wrapper as the compiler
@@ -33,17 +29,14 @@ else()
   include_directories(${MPI_INCLUDE_PATH})
 endif()
 
-# Specify libraries to link against
-set(ARKODE_LIBS
-  sundials_arkode
+# Set-up linker flags and link libraries
+set(SUNDIALS_LIBS sundials_arkode
   sundials_farkode_mod
   sundials_nvecmpiplusx
   sundials_fnvecmpiplusx_mod
   sundials_nvecmpimanyvector
-  sundials_fnvecmpimanyvector_mod)
-
-# Set-up linker flags and link libraries
-set(SUNDIALS_LIBS ${ARKODE_LIBS} ${EXE_EXTRA_LINK_LIBS})
+  sundials_fnvecmpimanyvector_mod 
+  ${EXE_EXTRA_LINK_LIBS})
 
 # Add the build and install targets for each example
 foreach(example_tuple ${FARKODE_examples})
@@ -114,10 +107,20 @@ if(EXAMPLES_INSTALL)
   set(SOLVER "ARKODE")
 
   # Makefile: convert semi-colon separated target list to space separated string
-  list2string(ARKODE_LIBS EXAMPLE_LIBS)
+  set(EXAMPLE_LIBS_LIST 
+    sundials_farkode_mod
+    sundials_arkode
+    sundials_fnvecmpiplusx_mod
+    sundials_nvecmpiplusx
+    sundials_fnvecmpimanyvector_mod
+    sundials_nvecmpimanyvector
+    sundials_fcore_mod
+    sundials_core)
+
+  list2string(EXAMPLE_LIBS_LIST EXAMPLE_LIBS)
 
   # CMakeLists: replace sundials_ prefix and convert to space separted string
-  list(TRANSFORM ARKODE_LIBS REPLACE "sundials_" "SUNDIALS::"
+  list(TRANSFORM EXAMPLE_LIBS_LIST REPLACE "sundials_" "SUNDIALS::"
     OUTPUT_VARIABLE EXAMPLES_CMAKE_TARGETS_tmp)
   list2string(EXAMPLES_CMAKE_TARGETS_tmp EXAMPLES_CMAKE_TARGETS)
 

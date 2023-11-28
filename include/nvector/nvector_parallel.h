@@ -122,7 +122,7 @@ SUNDIALS_EXPORT void N_VSpace_Parallel(N_Vector v, sunindextype *lrw,
                                        sunindextype *liw);
 SUNDIALS_EXPORT sunrealtype *N_VGetArrayPointer_Parallel(N_Vector v);
 SUNDIALS_EXPORT void N_VSetArrayPointer_Parallel(sunrealtype *v_data, N_Vector v);
-SUNDIALS_EXPORT void *N_VGetCommunicator_Parallel(N_Vector v);
+SUNDIALS_EXPORT MPI_Comm N_VGetCommunicator_Parallel(N_Vector v);
 
 /* standard vector operations */
 SUNDIALS_EXPORT void N_VLinearSum_Parallel(sunrealtype a, N_Vector x, sunrealtype b, N_Vector y, N_Vector z);

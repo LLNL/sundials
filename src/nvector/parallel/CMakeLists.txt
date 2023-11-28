@@ -32,8 +32,9 @@ sundials_add_library(sundials_nvecparallel
     ${SUNDIALS_SOURCE_DIR}/include/nvector/nvector_parallel.h
   INCLUDE_SUBDIR
     nvector
+  LINK_LIBRARIES
+    PUBLIC sundials_core
   OBJECT_LIBRARIES
-    sundials_generic_obj
   OUTPUT_NAME
     sundials_nvecparallel
   VERSION

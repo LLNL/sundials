@@ -26,8 +26,8 @@ if(BUILD_NVECTOR_MANYVECTOR)
       ${SUNDIALS_SOURCE_DIR}/include/nvector/nvector_manyvector.h
     INCLUDE_SUBDIR
       nvector
-    OBJECT_LIBRARIES
-      sundials_generic_obj
+    LINK_LIBRARIES
+      PUBLIC sundials_core
     OUTPUT_NAME
       sundials_nvecmanyvector
     VERSION
@@ -59,8 +59,8 @@ if(BUILD_NVECTOR_MPIMANYVECTOR)
       ${SUNDIALS_SOURCE_DIR}/include/nvector/nvector_mpimanyvector.h
     INCLUDE_SUBDIR
       nvector
-    OBJECT_LIBRARIES
-      sundials_generic_obj
+    LINK_LIBRARIES
+      PUBLIC sundials_core 
     COMPILE_DEFINITIONS
       PRIVATE MANYVECTOR_BUILD_WITH_MPI
     OUTPUT_NAME

@@ -30,8 +30,9 @@ set(arkode_SOURCES
 sundials_add_f2003_library(sundials_farkode_mod
   SOURCES
     ${arkode_SOURCES}
+  LINK_LIBRARIES
+    PUBLIC sundials_fcore_mod
   OBJECT_LIBRARIES
-    sundials_fgeneric_mod_obj
     sundials_fnvecserial_mod_obj
     sundials_fsunadaptcontrollersoderlind_mod_obj
     sundials_fsunadaptcontrollerimexgus_mod_obj

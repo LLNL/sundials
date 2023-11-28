@@ -20,9 +20,10 @@
 
 module fsunlinsol_sptfqmr_mod
  use, intrinsic :: ISO_C_BINDING
- use fsundials_linearsolver_mod
  use fsundials_types_mod
+ use fsundials_linearsolver_mod
  use fsundials_context_mod
+ use fsundials_types_mod
  use fsundials_nvector_mod
  use fsundials_context_mod
  use fsundials_types_mod

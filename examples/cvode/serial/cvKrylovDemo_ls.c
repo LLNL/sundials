@@ -217,14 +217,14 @@ int main(int argc, char* argv[])
   /* Create SUNDIALS context and a logger which will record
      nonlinear solver info (e.g., residual) amongst other things. */
   
-  retval = SUNContext_Create(NULL, &sunctx);
+  retval = SUNContext_Create(SUN_COMM_NULL, &sunctx);
   if (check_retval(&retval, "SUNContext_Create", 1)) return 1;
 
-  retval = SUNLogger_Create(NULL, 0, &logger);
+  retval = SUNLogger_Create(SUN_COMM_NULL, 0, &logger);
   if (check_retval(&retval, "SUNLogger_Create", 1)) return 1;
 
   if (monitor) {
-    retval = SUNLogger_SetInfoFilename(logger, info_fname);   
+    retval = SUNLogger_SetInfoFilename(logger, info_fname);
     if (check_retval(&retval, "SUNLogger_SetInfoFilename", 1)) return 1;
   }
 
@@ -314,7 +314,7 @@ int main(int argc, char* argv[])
          left preconditioning and the default maximum Krylov dimension */
       LS = SUNLinSol_SPGMR(u, SUN_PREC_LEFT, 0, sunctx);
       if (check_retval((void *)LS, "SUNLinSol_SPGMR", 0)) return(1);
-      
+
       retval = CVodeSetLinearSolver(cvode_mem, LS, NULL);
       if (check_retval(&retval, "CVodeSetLinearSolver", 1)) return 1;
 
@@ -332,7 +332,7 @@ int main(int argc, char* argv[])
          left preconditioning and the default maximum Krylov dimension */
       LS = SUNLinSol_SPFGMR(u, SUN_PREC_LEFT, 0, sunctx);
       if (check_retval((void *)LS, "SUNLinSol_SPFGMR", 0)) return(1);
-      
+
       retval = CVodeSetLinearSolver(cvode_mem, LS, NULL);
       if (check_retval(&retval, "CVodeSetLinearSolver", 1)) return 1;
 
@@ -350,7 +350,7 @@ int main(int argc, char* argv[])
          left preconditioning and the default maximum Krylov dimension */
       LS = SUNLinSol_SPBCGS(u, SUN_PREC_LEFT, 0, sunctx);
       if (check_retval((void *)LS, "SUNLinSol_SPBCGS", 0)) return(1);
-      
+
       retval = CVodeSetLinearSolver(cvode_mem, LS, NULL);
       if (check_retval(&retval, "CVodeSetLinearSolver", 1)) return 1;
 

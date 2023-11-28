@@ -119,6 +119,7 @@ program main
   !======= Inclusions ===========
   use, intrinsic :: iso_c_binding
 
+  use fsundials_types_mod
   use fsundials_context_mod
   use fkinsol_mod                ! Fortran interface to KINSOL
   use fnvector_serial_mod        ! Fortran interface to serial N_Vector
@@ -162,7 +163,7 @@ program main
   print '(2(a,i2),a,i3)', "Problem size: ", nx, " x ", ny, " = ", neq
 
   ! -------------------------
-  ierr = FSUNContext_Create(c_null_ptr, sunctx)
+  ierr = FSUNContext_Create(SUN_COMM_NULL, sunctx)
   if (ierr /= 0) then
     print *, 'ERROR in FSUNContext_Create'
     stop 1

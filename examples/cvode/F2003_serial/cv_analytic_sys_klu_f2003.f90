@@ -181,6 +181,7 @@ program main
   !======= Inclusions ===========
   use, intrinsic :: iso_c_binding
 
+  use fsundials_types_mod
   use fsundials_context_mod      ! Fortran interface to SUNContext
   use fcvode_mod                 ! Fortran interface to CVODE
   use fnvector_serial_mod        ! Fortran interface to serial N_Vector
@@ -233,7 +234,7 @@ program main
   yvec(2) = 1.0d0
   yvec(3) = 1.0d0
 
-  ierr = FSUNContext_Create(c_null_ptr, sunctx)
+  ierr = FSUNContext_Create(SUN_COMM_NULL, sunctx)
   if (ierr /= 0) then
      print *, 'ERROR: FSUNContext_Create returned non-zero'
      stop 1

@@ -81,7 +81,6 @@ respectively, where ``instdir`` is the directory where SUNDIALS was installed
 (see :numref:`Installation`).
 
 
-.. include:: ../../../../shared/Types.rst
 
 
 .. _IDA.Usage.CC.header_sim:

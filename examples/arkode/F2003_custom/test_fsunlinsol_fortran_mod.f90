@@ -72,6 +72,7 @@ program main
 
   !======= Inclusions ===========
   use, intrinsic :: iso_c_binding
+  use fsundials_types_mod
   use fsundials_context_mod
   use fsunlinsol_test_mod
 
@@ -97,7 +98,7 @@ program main
   fails = 0
 
    ! create SUNDIALS context
-  fails = FSUNContext_Create(c_null_ptr, sunctx)
+  fails = FSUNContext_Create(SUN_COMM_NULL, sunctx)
 
   ! create new matrices and vectors
   sX => FN_VNew_Fortran(Nvar, N, sunctx)

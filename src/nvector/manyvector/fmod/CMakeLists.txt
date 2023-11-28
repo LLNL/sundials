@@ -18,8 +18,8 @@ if(BUILD_NVECTOR_MANYVECTOR)
   sundials_add_f2003_library(sundials_fnvecmanyvector_mod
     SOURCES
       fnvector_manyvector_mod.f90 fnvector_manyvector_mod.c
-    OBJECT_LIBRARIES
-      sundials_fgeneric_mod_obj
+    LINK_LIBRARIES
+      PUBLIC sundials_fcore_mod
     OUTPUT_NAME
       sundials_fnvecmanyvector_mod
     VERSION
@@ -47,8 +47,8 @@ if(BUILD_NVECTOR_MPIMANYVECTOR)
   sundials_add_f2003_library(sundials_fnvecmpimanyvector_mod
     SOURCES
       fnvector_mpimanyvector_mod.f90 fnvector_mpimanyvector_mod.c
-    OBJECT_LIBRARIES
-      sundials_fgeneric_mod_obj
+    LINK_LIBRARIES
+      PUBLIC sundials_fcore_mod
     OUTPUT_NAME
       sundials_fnvecmpimanyvector_mod
     VERSION

@@ -30,8 +30,9 @@ sundials_add_library(sundials_sunmatrixmagmadense
     ${SUNDIALS_SOURCE_DIR}/include/sunmatrix/sunmatrix_magmadense.h
   INCLUDE_SUBDIR
     sunmatrix
+  LINK_LIBRARIES
+    PUBLIC sundials_core
   OBJECT_LIBRARIES
-    sundials_generic_obj
   INCLUDE_DIRECTORIES
     PUBLIC ${MAGMA_INCLUDE_DIR}
   LINK_LIBRARIES

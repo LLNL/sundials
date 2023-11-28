@@ -71,7 +71,7 @@ static int print_time = 0;
 #define FMT "%s Time: %22.15e\n\n"
 #define PRINT_TIME(test, time) if (print_time) printf(FMT, test, time)
 
-int Test_Init(void* comm)
+int Test_Init(SUNComm comm)
 {
   if (sunctx == NULL) {
     if (SUNContext_Create(comm, &sunctx)) {
@@ -503,32 +503,32 @@ int Test_N_VGetLength(N_Vector W, int myid)
 /* ----------------------------------------------------------------------
  * Test_N_VGetCommunicator Test (without MPI dependency)
  * --------------------------------------------------------------------*/
-int Test_N_VGetCommunicator(N_Vector W, void *comm, int myid)
+int Test_N_VGetCommunicator(N_Vector W, SUNComm comm, int myid)
 {
-  void* wcomm;
+  SUNComm wcomm;
 
   /* ask W for its communicator */
-  wcomm = NULL;
   wcomm = N_VGetCommunicator(W);
 
   /* return with success if both are NULL */
-  if ((wcomm == NULL) && (comm == NULL))  {
+  if ((wcomm == SUN_COMM_NULL) && (comm == SUN_COMM_NULL))  {
     printf("PASSED test -- N_VGetCommunicator\n");
     return(0);
   }
 
   /* return with failure if either is NULL */
-  if (wcomm == NULL) {
+  if (wcomm == SUN_COMM_NULL) {
     printf(">>> FAILED test -- N_VGetCommunicator, Proc %d (incorrectly reports NULL comm)\n", myid);
     return(1);
   }
-  if (comm == NULL) {
+  if (comm == SUN_COMM_NULL) {
     printf(">>> FAILED test -- N_VGetCommunicator, Proc %d (incorrectly reports non-NULL comm)\n", myid);
     return(1);
   }
 
   if (myid == 0)
     printf(">>> FAILED test -- N_VGetCommunicator, Proc %d has non-NULL comm with MPI disabled\n", myid);
+  
   return(0);
 }
 

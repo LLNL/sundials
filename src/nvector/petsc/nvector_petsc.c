@@ -415,9 +415,9 @@ void N_VSetArrayPointer_Petsc(sunrealtype *v_data, N_Vector v)
   return;
 }
 
-void *N_VGetCommunicator_Petsc(N_Vector v)
+MPI_Comm N_VGetCommunicator_Petsc(N_Vector v)
 {
-  return((void *) &(NV_COMM_PTC(v)));
+  return(NV_COMM_PTC(v));
 }
 
 sunindextype N_VGetLength_Petsc(N_Vector v)

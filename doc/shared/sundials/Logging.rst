@@ -32,10 +32,14 @@ set to a value greater than ``0`` when configuring SUNDIALS. This option
 specifies the maximum desired output level. See the documentation entry for
 :cmakeop:`SUNDIALS_LOGGING_LEVEL` for the numeric values correspond to errors,
 warnings, info output, and debug output where errors < warnings < info
-output < debug output < extra debug output. If it is desired that the logger is
-MPI-aware, then the option :cmakeop:`SUNDIALS_LOGGING_ENABLE_MPI` is set to
-``TRUE``. More details in regards to configuring SUNDIALS with CMake can be
+output < debug output < extra debug output. 
+More details in regards to configuring SUNDIALS with CMake can be
 found in :numref:`Installation`.
+
+.. note::
+
+   As of version 7.0.0, enabling MPI in SUNDIALS enables MPI-aware logging.
+
 
 When SUNDIALS is built with logging enabled, then the default logger (stored in
 the :c:type:`SUNContext` object) may be configured through environment variables
@@ -119,13 +123,12 @@ functions to identify the output level or file.
 The :c:type:`SUNLogger` class provides the following methods.
 
 
-.. c:function:: int SUNLogger_Create(void* comm, int output_rank, SUNLogger* logger)
+.. c:function:: int SUNLogger_Create(SUNComm comm, int output_rank, SUNLogger* logger)
 
    Creates a new :c:type:`SUNLogger` object.
 
    **Arguments:**
-      * ``comm`` -- a pointer to the MPI communicator if MPI is enabled,
-        otherwise can be ``NULL``.
+      * ``comm`` -- the MPI communicator to use, if MPI is enabled, otherwise can be ``SUN_COMM_NULL``.
       * ``output_rank`` -- the MPI rank used for output (can be ``-1`` to print
         to all ranks).
       * ``logger`` -- [in,out] On input this is a pointer to a
@@ -136,7 +139,7 @@ The :c:type:`SUNLogger` class provides the following methods.
       * Returns zero if successful, or non-zero if an error occurred.
 
 
-.. c:function:: int SUNLogger_CreateFromEnv(void* comm, SUNLogger* logger)
+.. c:function:: int SUNLogger_CreateFromEnv(SUNComm comm, SUNLogger* logger)
 
    Creates a new :c:type:`SUNLogger` object and opens the output streams/files
    from the environment variables:
@@ -149,8 +152,7 @@ The :c:type:`SUNLogger` class provides the following methods.
       SUNLOGGER_DEBUG_FILENAME
 
    **Arguments:**
-      * ``comm`` -- a pointer to the MPI communicator if MPI is enabled,
-        otherwise can be ``NULL``.
+      * ``comm`` -- the MPI communicator to use, if MPI is enabled, otherwise can be   ``SUN_COMM_NULL``.
       * ``logger`` -- [in,out] On input this is a pointer to a
          :c:type:`SUNLogger`, on output it will point to a new
          :c:type:`SUNLogger` instance.

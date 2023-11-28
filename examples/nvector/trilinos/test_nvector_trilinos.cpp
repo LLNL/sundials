@@ -43,7 +43,7 @@ int main (int argc, char *argv[])
   typedef TpetraVectorInterface::vector_type vector_type;
   typedef vector_type::map_type map_type;
 
-  Test_Init(NULL);
+  Test_Init(SUN_COMM_NULL);
 
   /* Start an MPI session */
   Tpetra::ScopeGuard tpetraScope(&argc, &argv);
@@ -113,9 +113,9 @@ int main (int argc, char *argv[])
   /* Check vector communicator */
 #ifdef SUNDIALS_TRILINOS_HAVE_MPI
   auto mpicomm = Teuchos::rcp_dynamic_cast<const Teuchos::MpiComm<int>>(comm);
-  fails += Test_N_VGetCommunicatorMPI(X, (MPI_Comm *) mpicomm->getRawMpiComm().get(), myRank);
+  fails += Test_N_VGetCommunicatorMPI(X, *(mpicomm->getRawMpiComm().get()), myRank);
 #else
-  fails += Test_N_VGetCommunicator(X, NULL, myRank);
+  fails += Test_N_VGetCommunicator(X, SUN_COMM_NULL, myRank);
 #endif
 
   /* Test clone functions */

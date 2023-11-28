@@ -56,6 +56,7 @@ if(SUNDIALS_BUILD_PACKAGE_FUSED_KERNELS)
       COMPILE_DEFINITIONS
         PRIVATE USE_CUDA
       LINK_LIBRARIES
+        PUBLIC sundials_core
         PRIVATE sundials_nveccuda
       OUTPUT_NAME
         sundials_cvode_fused_cuda
@@ -73,6 +74,7 @@ if(SUNDIALS_BUILD_PACKAGE_FUSED_KERNELS)
       COMPILE_DEFINITIONS
         PRIVATE USE_HIP
       LINK_LIBRARIES
+        PUBLIC sundials_core
         PRIVATE sundials_nvechip
       OUTPUT_NAME
         sundials_cvode_fused_hip
@@ -86,6 +88,8 @@ if(SUNDIALS_BUILD_PACKAGE_FUSED_KERNELS)
   sundials_add_library(sundials_cvode_fused_stubs
     SOURCES
       cvode_fused_stubs.c
+    LINK_LIBRARIES
+        PUBLIC sundials_core
     OUTPUT_NAME
       sundials_cvode_fused_stubs
     VERSION
@@ -105,8 +109,9 @@ sundials_add_library(sundials_cvode
     ${cvode_HEADERS}
   INCLUDE_SUBDIR
     cvode
+  LINK_LIBRARIES
+    PUBLIC sundials_core
   OBJECT_LIBRARIES
-    sundials_generic_obj
     sundials_sunmemsys_obj
     sundials_nvecserial_obj
     sundials_sunmatrixband_obj
