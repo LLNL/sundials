@@ -41,7 +41,6 @@ set(sundials_HEADERS
   sundials_matrix.hpp
   sundials_memory.h
   sundials_memory.hpp
-  sundials_mpi_errors.h
   sundials_mpi_types.h
   sundials_nonlinearsolver.h
   sundials_nonlinearsolver.hpp
@@ -49,9 +48,8 @@ set(sundials_HEADERS
   sundials_nvector.hpp
   sundials_profiler.h
   sundials_profiler.hpp
-  sundials_logger.h
-  sundials_types.h
   sundials_types_deprecated.h
+  sundials_types.h
   sundials_version.h
   )
 

@@ -38,6 +38,7 @@ int SUNContext_Create(SUNComm comm, SUNContext* sunctx_out)
   SUNLogger logger     = NULL;
   SUNContext sunctx    = NULL;
 
+  sunctx_out = NULL;
   sunctx = (SUNContext)malloc(sizeof(struct SUNContext_));
 
   /* SUNContext_Create cannot assert or log since the SUNContext is not yet

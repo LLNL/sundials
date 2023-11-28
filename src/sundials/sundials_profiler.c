@@ -162,7 +162,8 @@ SUNErrCode SUNProfiler_Create(SUNComm comm, const char* title, SUNProfiler* p)
   char* max_entries_env;
 
   *p = profiler = (SUNProfiler)malloc(sizeof(struct _SUNProfiler));
-  if (!profiler) { return SUN_ERR_MALLOC_FAIL; }
+
+  if (profiler == NULL) { return SUN_SUCCESS; }
 
   profiler->overhead = sunTimerStructNew();
   if (!profiler->overhead)

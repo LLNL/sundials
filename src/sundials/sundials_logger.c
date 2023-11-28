@@ -488,10 +488,10 @@ SUNErrCode SUNLogger_GetOutputRank(SUNLogger logger, int* output_rank)
 
 SUNErrCode SUNLogger_Destroy(SUNLogger* logger_ptr)
 {
-  SUNErrCode retval = SUN_SUCCESS;
+  int retval = 0;
   SUNLogger logger = NULL;
   
-  if (!logger_ptr) { return SUN_ERR_ARG_CORRUPT; }
+  if (!logger_ptr) { return SUN_SUCCESS; }
 
   logger = *logger_ptr;
 

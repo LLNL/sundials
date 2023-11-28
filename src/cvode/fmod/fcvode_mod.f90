@@ -76,8 +76,6 @@ module fcvode_mod
  integer(C_INT), parameter, public :: CV_PROJFUNC_FAIL = -30_C_INT
  integer(C_INT), parameter, public :: CV_REPTD_PROJFUNC_ERR = -31_C_INT
  integer(C_INT), parameter, public :: CV_CONTEXT_ERR = -32_C_INT
- integer(C_INT), parameter, public :: CV_BANDPRE_SETUP_FAIL = -33_C_INT
- integer(C_INT), parameter, public :: CV_SUNMAT_FAIL = -34_C_INT
  integer(C_INT), parameter, public :: CV_UNRECOGNIZED_ERR = -99_C_INT
  public :: FCVodeCreate
  public :: FCVodeInit

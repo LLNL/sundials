@@ -57,6 +57,10 @@
 #include <mpi.h>
 #endif
 
+#if SUNDIALS_MPI_ENABLED
+#include <mpi.h>
+#endif
+
 #ifdef __cplusplus  /* wrapper to enable C++ usage */
 extern "C" {
 #endif

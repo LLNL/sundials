@@ -26,7 +26,7 @@ extern "C" {
 #endif
 
 SUNDIALS_EXPORT
-SUNErrCode SUNContext_Create(SUNComm comm, SUNContext* ctx);
+SUNErrCode SUNContext_Create(SUNComm comm, SUNContext* sunctx_out);
 
 SUNDIALS_EXPORT
 SUNErrCode SUNContext_GetLastError(SUNContext sunctx, SUNErrCode* last_err);

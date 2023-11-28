@@ -115,7 +115,7 @@ if(EXAMPLES_INSTALL)
     sundials_fnvecmpimanyvector_mod
     sundials_nvecmpimanyvector
     sundials_fcore_mod
-    sundials_core_mod)
+    sundials_core)
 
   list2string(EXAMPLE_LIBS_LIST EXAMPLE_LIBS)
 

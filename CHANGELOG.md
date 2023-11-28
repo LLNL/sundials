@@ -88,6 +88,7 @@ removed.  Additionally, the `SUNDIALS_LOGGING_ENABLE_MPI` macro was removed.
 Users now need to link to `sundials_core` in addition to the libraries already linked to. 
 This will be picked up automatically in projects that use the SUNDIALS CMake target.
 The library `sundials_generic` has been superceded by `sundials_core` and is no longer available.
+This fixes some duplicate symbol errors on Windows when linking to multiple SUNDIALS libraries.
 
 ## Changes to SUNDIALS in release 6.6.2
 

@@ -32,10 +32,14 @@ set to a value greater than ``0`` when configuring SUNDIALS. This option
 specifies the maximum desired output level. See the documentation entry for
 :cmakeop:`SUNDIALS_LOGGING_LEVEL` for the numeric values correspond to errors,
 warnings, info output, and debug output where errors < warnings < info
-output < debug output < extra debug output. If it is desired that the logger is
-MPI-aware, then the option :cmakeop:`SUNDIALS_LOGGING_ENABLE_MPI` is set to
-``TRUE``. More details in regards to configuring SUNDIALS with CMake can be
+output < debug output < extra debug output. 
+More details in regards to configuring SUNDIALS with CMake can be
 found in :numref:`Installation`.
+
+.. note::
+
+   As of version 7.0.0, enabling MPI in SUNDIALS enables MPI-aware logging.
+
 
 When SUNDIALS is built with logging enabled, then the default logger (stored in
 the :c:type:`SUNContext` object) may be configured through environment variables
