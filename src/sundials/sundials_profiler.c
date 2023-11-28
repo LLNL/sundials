@@ -146,7 +146,7 @@ static void sunResetTiming(sunTimerStruct* entry)
   This structure holds all of the timers in a map.s
  */
 
-struct _SUNProfiler
+struct SUNProfiler_
 {
   SUNComm comm;
   char* title;
@@ -161,7 +161,7 @@ SUNErrCode SUNProfiler_Create(SUNComm comm, const char* title, SUNProfiler* p)
   int max_entries;
   char* max_entries_env;
 
-  *p = profiler = (SUNProfiler)malloc(sizeof(struct _SUNProfiler));
+  *p = profiler = (SUNProfiler)malloc(sizeof(struct SUNProfiler_));
 
   if (profiler == NULL) { return SUN_SUCCESS; }
 

@@ -191,7 +191,7 @@ typedef struct SUNContext_* SUNContext;
 typedef struct SUNErrHandler_* SUNErrHandler;
 
 /* SUNDIALS profiler */
-typedef struct _SUNProfiler* SUNProfiler;
+typedef struct SUNProfiler_* SUNProfiler;
 
 /* SUNDIALS logger */
 typedef struct SUNLogger_* SUNLogger;

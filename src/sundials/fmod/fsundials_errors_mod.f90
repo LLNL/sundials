@@ -35,6 +35,7 @@ module fsundials_errors_mod
   enumerator :: SUN_ERR_CORRUPT
   enumerator :: SUN_ERR_FILE_OPEN
   enumerator :: SUN_ERR_MALLOC_FAIL
+  enumerator :: SUN_ERR_DESTROY_FAIL
   enumerator :: SUN_ERR_NOT_IMPLEMENTED
   enumerator :: SUN_ERR_PROFILER_MAPFULL
   enumerator :: SUN_ERR_PROFILER_MAPGET
@@ -48,9 +49,10 @@ module fsundials_errors_mod
   enumerator :: SUN_SUCCESS = 0
  end enum
  public :: SUN_ERR_MINIMUM, SUN_ERR_ARG_CORRUPT, SUN_ERR_ARG_INCOMPATIBLE, SUN_ERR_ARG_OUTOFRANGE, SUN_ERR_ARG_WRONGTYPE, &
-    SUN_ERR_ARG_DIMSMISMATCH, SUN_ERR_CORRUPT, SUN_ERR_FILE_OPEN, SUN_ERR_MALLOC_FAIL, SUN_ERR_NOT_IMPLEMENTED, &
-    SUN_ERR_PROFILER_MAPFULL, SUN_ERR_PROFILER_MAPGET, SUN_ERR_PROFILER_MAPINSERT, SUN_ERR_PROFILER_MAPKEYNOTFOUND, &
-    SUN_ERR_PROFILER_MAPSORT, SUN_ERR_SUNCTX_CORRUPT, SUN_ERR_MPI_FAIL, SUN_ERR_UNKNOWN, SUN_ERR_MAXIMUM, SUN_SUCCESS
+    SUN_ERR_ARG_DIMSMISMATCH, SUN_ERR_CORRUPT, SUN_ERR_FILE_OPEN, SUN_ERR_MALLOC_FAIL, SUN_ERR_DESTROY_FAIL, &
+    SUN_ERR_NOT_IMPLEMENTED, SUN_ERR_PROFILER_MAPFULL, SUN_ERR_PROFILER_MAPGET, SUN_ERR_PROFILER_MAPINSERT, &
+    SUN_ERR_PROFILER_MAPKEYNOTFOUND, SUN_ERR_PROFILER_MAPSORT, SUN_ERR_SUNCTX_CORRUPT, SUN_ERR_MPI_FAIL, SUN_ERR_UNKNOWN, &
+    SUN_ERR_MAXIMUM, SUN_SUCCESS
 
  integer, parameter :: swig_cmem_own_bit = 0
  integer, parameter :: swig_cmem_rvalue_bit = 1
@@ -228,7 +230,7 @@ fresult = swigc_FSUNAbortErrHandlerFn(farg1, farg2, farg3, farg4, farg5, farg6, 
 swig_result = fresult
 end function
 
-function FSUNAssertErrHandlerFn(line, func, file, msg, err_code, err_user_data, sunctx) &
+function FSUNAssertErrHandlerFn(line, func, file, stmt, err_code, err_user_data, sunctx) &
 result(swig_result)
 use, intrinsic :: ISO_C_BINDING
 integer(C_INT) :: swig_result
@@ -237,7 +239,7 @@ character(kind=C_CHAR, len=*), target :: func
 character(kind=C_CHAR), dimension(:), allocatable, target :: farg2_chars
 character(kind=C_CHAR, len=*), target :: file
 character(kind=C_CHAR), dimension(:), allocatable, target :: farg3_chars
-character(kind=C_CHAR, len=*), target :: msg
+character(kind=C_CHAR, len=*), target :: stmt
 character(kind=C_CHAR), dimension(:), allocatable, target :: farg4_chars
 integer(C_INT), intent(in) :: err_code
 type(C_PTR) :: err_user_data
@@ -254,7 +256,7 @@ type(SwigClassWrapper) :: farg7
 farg1 = line
 call SWIG_string_to_chararray(func, farg2_chars, farg2)
 call SWIG_string_to_chararray(file, farg3_chars, farg3)
-call SWIG_string_to_chararray(msg, farg4_chars, farg4)
+call SWIG_string_to_chararray(stmt, farg4_chars, farg4)
 farg5 = err_code
 farg6 = err_user_data
 farg7 = sunctx%swigdata
