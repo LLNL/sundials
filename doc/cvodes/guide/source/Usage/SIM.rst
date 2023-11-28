@@ -96,7 +96,6 @@ the directory where SUNDIALS was installed (:numref:`Installation`).
 
 .. _CVODES.Usage.SIM.data_types:
 
-.. include:: ../../../../shared/Types.rst
 
 .. _CVODES.Usage.SIM.header_sim:
 

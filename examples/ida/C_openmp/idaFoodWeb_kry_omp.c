@@ -237,7 +237,7 @@ int main(int argc, char *argv[])
     num_threads = (int) strtol(argv[1], NULL, 0);
 
   /* Create the SUNDIALS context object for this simulation */
-  retval = SUNContext_Create(NULL, &ctx);
+  retval = SUNContext_Create(SUN_COMM_NULL, &ctx);
   if (check_retval(&retval, "SUNContext_Create", 1)) return 1;
 
   /* Allocate and initialize user data block webdata. */

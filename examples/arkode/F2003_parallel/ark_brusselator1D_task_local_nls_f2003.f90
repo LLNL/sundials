@@ -1068,6 +1068,7 @@ program main
   use fnvector_mpiplusx_mod      ! Access MPI+X N_Vector
   use fnvector_mpimanyvector_mod ! Access MPIManyVector N_Vector
   use fnvector_serial_mod        ! Access serial N_Vector
+  use fsundials_types_mod
   use fsundials_context_mod      ! Access sundials context
   use fsundials_logger_mod       ! Access SUNLogger
 
@@ -1083,7 +1084,6 @@ program main
   integer          :: ierr               ! MPI error status
   integer(c_int)   :: retval             ! SUNDIALS error status
   double precision :: starttime, endtime ! timing variables
-  integer, pointer :: commptr
 
   type(N_Vector), pointer :: sunvec_ys   ! sundials serial vector
   type(N_Vector), pointer :: sunvec_y    ! sundials MPI+X vector
@@ -1102,8 +1102,7 @@ program main
 
   ! Create SUNDIALS simulation context
   comm = MPI_COMM_WORLD
-  commptr => comm
-  retval = FSUNContext_Create(c_loc(commptr), sunctx)
+  retval = FSUNContext_Create(comm, sunctx)
   if (retval /= 0) then
     print *, "Error: FSUNContext_Create returned ",retval
     call MPI_Abort(comm, 1, ierr)
@@ -1121,7 +1120,7 @@ program main
   ! SUNDIALS will only log up to the max level n, but a lesser level can
   ! be configured at runtime by only providing output files for the
   ! desired levels. We will enable informational logging here:
-  retval = FSUNLogger_Create(c_loc(commptr), 0, logger)
+  retval = FSUNLogger_Create(comm, 0, logger)
   if (retval /= 0) then
     print *, "Error: FSUNLogger_Create returned ",retval
     call MPI_Abort(comm, 1, ierr)
@@ -2286,6 +2285,7 @@ subroutine FreeProblem()
   !======= Inclusions ===========
   use, intrinsic :: iso_c_binding
 
+  use fsundials_types_mod
   use fsundials_context_mod
   use fsundials_logger_mod
   use fsundials_nvector_mod

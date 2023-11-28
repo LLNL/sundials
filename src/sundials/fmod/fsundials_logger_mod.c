@@ -204,7 +204,7 @@
 
 
 #include "sundials/sundials_logger.h"
-#ifdef SUNDIALS_LOGGING_ENABLE_MPI
+#if SUNDIALS_MPI_ENABLED
 #include <mpi.h>
 #endif
 
@@ -233,13 +233,49 @@ SWIGINTERN SwigArrayWrapper SwigArrayWrapper_uninitialized() {
   return result;
 }
 
-SWIGEXPORT int _wrap_FSUNLogger_CreateFromEnv(void *farg1, void *farg2) {
+SWIGEXPORT int _wrap_FSUNLogger_Create(int const *farg1, int const *farg2, void *farg3) {
   int fresult ;
-  void *arg1 = (void *) 0 ;
+  SUNComm arg1 ;
+  int arg2 ;
+  SUNLogger *arg3 = (SUNLogger *) 0 ;
+  int result;
+  
+#if SUNDIALS_MPI_ENABLED
+  int flag = 0;
+  MPI_Initialized(&flag);
+  if(flag) {
+    arg1 = MPI_Comm_f2c((MPI_Fint)(*farg1));
+  } else {
+    arg1 = SUN_COMM_NULL;
+  }
+#else
+  arg1 = *farg1;
+#endif
+  arg2 = (int)(*farg2);
+  arg3 = (SUNLogger *)(farg3);
+  result = (int)SUNLogger_Create(arg1,arg2,arg3);
+  fresult = (int)(result);
+  return fresult;
+}
+
+
+SWIGEXPORT int _wrap_FSUNLogger_CreateFromEnv(int const *farg1, void *farg2) {
+  int fresult ;
+  SUNComm arg1 ;
   SUNLogger *arg2 = (SUNLogger *) 0 ;
   int result;
   
-  arg1 = (void *)(farg1);
+#if SUNDIALS_MPI_ENABLED
+  int flag = 0;
+  MPI_Initialized(&flag);
+  if(flag) {
+    arg1 = MPI_Comm_f2c((MPI_Fint)(*farg1));
+  } else {
+    arg1 = SUN_COMM_NULL;
+  }
+#else
+  arg1 = *farg1;
+#endif
   arg2 = (SUNLogger *)(farg2);
   result = (int)SUNLogger_CreateFromEnv(arg1,arg2);
   fresult = (int)(result);
@@ -363,34 +399,5 @@ SWIGEXPORT int _wrap_FSUNLogger_Destroy(void *farg1) {
   return fresult;
 }
 
-
-
-SWIGEXPORT int _wrap_FSUNLogger_Create(void *farg1, int const *farg2, void *farg3) {
-  int fresult ;
-  void *arg1 = (void *) 0 ;
-  int arg2 ;
-  SUNLogger *arg3 = (SUNLogger *) 0 ;
-  int result;
-#ifdef SUNDIALS_LOGGING_ENABLE_MPI
-  MPI_Comm comm;
-#endif
-
-  arg1 = (void *)(farg1);
-  arg2 = (int)(*farg2);
-  arg3 = (SUNLogger *)(farg3);
-#ifdef SUNDIALS_LOGGING_ENABLE_MPI
-  if (arg1 != NULL) {
-    comm = MPI_Comm_f2c(*((MPI_Fint *) arg1));
-    result = (int)SUNLogger_Create((void*)&comm,arg2,arg3);
-  }
-  else {
-    result = (int)SUNLogger_Create(arg1,arg2,arg3);
-  }
-#else
-  result = (int)SUNLogger_Create(arg1,arg2,arg3);
-#endif
-  fresult = (int)(result);
-  return fresult;
-}
 
 

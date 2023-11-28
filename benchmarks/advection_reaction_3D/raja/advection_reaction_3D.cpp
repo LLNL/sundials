@@ -75,7 +75,7 @@ int main(int argc, char *argv[])
   MPI_Init(&argc, &argv);
 
   /* Create SUNDIALS context */
-  SUNContext_Create((void*) &comm, &ctx);
+  SUNContext_Create(comm, &ctx);
 
   /* Create SUNDIALS memory helper */
 #if defined(USE_CUDA)

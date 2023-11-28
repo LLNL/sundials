@@ -751,7 +751,6 @@ class Sundials(CachedCMakePackage, CudaPackage, ROCmPackage):
                 self.cache_option_from_variant("USE_GENERIC_MATH", "generic-math"),
                 # Logging
                 self.cache_string_from_variant("SUNDIALS_LOGGING_LEVEL", "logging-level"),
-                self.cache_option_from_variant("SUNDIALS_LOGGING_ENABLE_MPI", "logging-mpi"),
                 # Monitoring
                 self.cache_option_from_variant("SUNDIALS_BUILD_WITH_MONITORING", "monitoring"),
                 # Profiling

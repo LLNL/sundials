@@ -247,7 +247,7 @@ int main(int argc, char *argv[])
   MPI_Comm_rank(comm, &myId);
 
   /* Create the SUNDIALS simulation context that all SUNDIALS objects require */
-  retval = SUNContext_Create(&comm, &sunctx);
+  retval = SUNContext_Create(comm, &sunctx);
   if (check_retval(&retval, "SUNContext_Create", 1, myId)) MPI_Abort(comm, 1);
 
   /* Check number of processes */

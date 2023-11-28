@@ -28,6 +28,7 @@ if(BUILD_SUNMATRIX_GINKGO)
   install(CODE "MESSAGE(\"\nInstall SUNMATRIX_GINKGO\n\")")
   message(STATUS "Added BUILD_SUNMATRIX_GINKGO module")
   add_library(sundials_sunmatrixginkgo INTERFACE)
+  target_link_libraries(sundials_sunmatrixginkgo INTERFACE sundials_core)
   target_include_directories(sundials_sunmatrixginkgo INTERFACE
     $<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}/include>
     $<BUILD_INTERFACE:${PROJECT_BINARY_DIR}/include>
@@ -43,7 +44,7 @@ if(BUILD_SUNMATRIX_KOKKOSDENSE)
   message(STATUS "Added BUILD_SUNMATRIX_KOKKOSDENSE module")
   add_library(sundials_sunmatrixkokkosdense INTERFACE)
   target_link_libraries(sundials_sunmatrixkokkosdense INTERFACE
-    Kokkos::kokkos Kokkos::kokkoskernels)
+    sundials_core Kokkos::kokkos Kokkos::kokkoskernels)
   target_include_directories(sundials_sunmatrixkokkosdense INTERFACE
     $<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}/include>
     $<BUILD_INTERFACE:${PROJECT_BINARY_DIR}/include>

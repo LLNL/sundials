@@ -38,7 +38,7 @@ LINKFLAGS = -Wl,-rpath,@libdir@
 INCLUDES_KLU  = ${INCLUDES} -I@KLU_INCLUDE_DIR@
 LIBRARIES_KLU = ${LIBRARIES} \
                 -lsundials_sunmatrixsparse -lsundials_fsunmatrixsparse_mod \
-                -lsundials_sunlinsolklu -lsundials_fsunlinsolklu_mod \
+                -lsundials_sunlinsolklu -lsundials_fsunlinsolklu_mod -lsundials_fcore_mod -lsundials_core \
                 @KLU_LIBS@
 LINKFLAGS_KLU = ${LINKFLAGS}:@KLU_LIBRARY_DIR@
 

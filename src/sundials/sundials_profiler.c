@@ -37,6 +37,7 @@
 #include <stdlib.h>
 #include <sundials/sundials_math.h>
 #include <sundials/sundials_profiler.h>
+#include <sundials/sundials_types.h>
 
 #include "sundials_debug.h"
 #include "sundials_hashmap.h"
@@ -148,14 +149,14 @@ static void sunResetTiming(sunTimerStruct* entry)
 
 struct _SUNProfiler
 {
-  void* comm;
+  SUNComm comm;
   char* title;
   SUNHashMap map;
   sunTimerStruct* overhead;
   double sundials_time;
 };
 
-int SUNProfiler_Create(void* comm, const char* title, SUNProfiler* p)
+int SUNProfiler_Create(SUNComm comm, const char* title, SUNProfiler* p)
 {
   SUNProfiler profiler;
   int max_entries;
@@ -163,7 +164,7 @@ int SUNProfiler_Create(void* comm, const char* title, SUNProfiler* p)
 
   *p = profiler = (SUNProfiler)malloc(sizeof(struct _SUNProfiler));
 
-  if (profiler == NULL) return (-1);
+  if (profiler == NULL) { return 0; }
 
   profiler->overhead = sunTimerStructNew();
   if (profiler->overhead == NULL)
@@ -192,14 +193,18 @@ int SUNProfiler_Create(void* comm, const char* title, SUNProfiler* p)
 
   /* Attach the comm, duplicating it if MPI is used. */
 #if SUNDIALS_MPI_ENABLED
-  profiler->comm = NULL;
-  if (comm != NULL)
+  profiler->comm = SUN_COMM_NULL;
+  if (comm != SUN_COMM_NULL)
   {
-    profiler->comm = malloc(sizeof(MPI_Comm));
-    MPI_Comm_dup(*((MPI_Comm*)comm), (MPI_Comm*)profiler->comm);
+    MPI_Comm_dup(comm, &profiler->comm);
   }
 #else
-  profiler->comm = comm;
+  if (comm != SUN_COMM_NULL)
+  {
+    free(profiler);
+    return -1;
+  }
+  profiler->comm = SUN_COMM_NULL;
 #endif
 
   /* Copy the title of the profiler (note strlen does not include terminating
@@ -227,10 +232,9 @@ int SUNProfiler_Free(SUNProfiler* p)
     SUNHashMap_Destroy(&(*p)->map, sunTimerStructFree);
     sunTimerStructFree((void*)(*p)->overhead);
 #if SUNDIALS_MPI_ENABLED
-    if ((*p)->comm)
+    if ((*p)->comm != SUN_COMM_NULL)
     {
-      MPI_Comm_free((*p)->comm);
-      free((*p)->comm);
+      MPI_Comm_free(&(*p)->comm);
     }
 #endif
     free((*p)->title);
@@ -387,9 +391,9 @@ int SUNProfiler_Print(SUNProfiler p, FILE* fp)
   p->sundials_time = timer->elapsed;
 
 #if SUNDIALS_MPI_ENABLED
-  if (p->comm)
+  if (p->comm != SUN_COMM_NULL)
   {
-    MPI_Comm_rank(*((MPI_Comm*)p->comm), &rank);
+    MPI_Comm_rank(p->comm, &rank);
     /* Find the max and average time across all ranks */
     sunCollectTimers(p);
   }
@@ -412,7 +416,7 @@ int SUNProfiler_Print(SUNProfiler p, FILE* fp)
                 "==================================================\n");
 
 #if SUNDIALS_MPI_ENABLED
-    if (p->comm == NULL)
+    if (p->comm == SUN_COMM_NULL)
       printf(
         "WARNING: no MPI communicator provided, times shown are for rank 0\n");
 #endif
@@ -458,7 +462,7 @@ int sunCollectTimers(SUNProfiler p)
 {
   int i, rank, nranks;
 
-  MPI_Comm comm = *((MPI_Comm*)p->comm);
+  MPI_Comm comm = p->comm;
   MPI_Comm_rank(comm, &rank);
   MPI_Comm_size(comm, &nranks);
 

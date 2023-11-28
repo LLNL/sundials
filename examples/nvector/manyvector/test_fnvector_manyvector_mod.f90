@@ -36,7 +36,6 @@ contains
 
     integer(c_long)         :: lenrw(1), leniw(1)     ! real and int work space size
     integer(c_long)         :: ival                   ! integer work value
-    type(c_ptr)             :: cptr                   ! c_ptr work value
     real(c_double)          :: rval                   ! real work value
     real(c_double)          :: x1data(N1), x2data(N2) ! vector data array
     real(c_double), pointer :: xptr(:)                ! pointer to vector data array
@@ -68,7 +67,7 @@ contains
     ! test generic vector functions
     ival = FN_VGetVectorID_ManyVector(x)
     call FN_VSpace_ManyVector(x, lenrw, leniw)
-    cptr = FN_VGetCommunicator(x)
+    ival = FN_VGetCommunicator(x)
     ival = FN_VGetLength_ManyVector(x)
 
     ! test standard vector operations
@@ -222,7 +221,7 @@ program main
   !============== Introduction =============
   print *, 'ManyVector N_Vector Fortran 2003 interface test'
 
-  call Test_Init(c_null_ptr)
+  call Test_Init(SUN_COMM_NULL)
 
   fails = smoke_tests()
   if (fails /= 0) then

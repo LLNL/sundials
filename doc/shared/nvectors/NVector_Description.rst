@@ -54,10 +54,10 @@ defined as
       N_Vector     (*nvcloneempty)(N_Vector);
       void         (*nvdestroy)(N_Vector);
       void         (*nvspace)(N_Vector, sunindextype *, sunindextype *);
-      sunrealtype*    (*nvgetarraypointer)(N_Vector);
-      sunrealtype*    (*nvgetdevicearraypointer)(N_Vector);
+      sunrealtype* (*nvgetarraypointer)(N_Vector);
+      sunrealtype* (*nvgetdevicearraypointer)(N_Vector);
       void         (*nvsetarraypointer)(sunrealtype *, N_Vector);
-      void*        (*nvgetcommunicator)(N_Vector);
+      SUNComm      (*nvgetcommunicator)(N_Vector);
       sunindextype (*nvgetlength)(N_Vector);
       sunindextype (*nvgetlocallength)(N_Vector);
       void         (*nvlinearsum)(sunrealtype, N_Vector, sunrealtype, N_Vector, N_Vector);

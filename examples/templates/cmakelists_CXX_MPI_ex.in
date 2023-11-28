@@ -17,7 +17,7 @@ cmake_minimum_required(VERSION @CMAKE_VERSION@)
 
 # Set cache variables for C compilers and flags
 set(CMAKE_C_COMPILER
-  @CMAKE_C_COMPILER@
+  "@CMAKE_C_COMPILER@"
   CACHE FILEPATH "C compiler")
 
 set(CMAKE_C_FLAGS
@@ -31,7 +31,7 @@ endif()
 
 # Set cache variables for C++ compilers and flags
 set(CMAKE_CXX_COMPILER
-  @CMAKE_CXX_COMPILER@
+  "@CMAKE_CXX_COMPILER@"
   CACHE FILEPATH "CXX compiler")
 
 set(CMAKE_CXX_FLAGS
@@ -39,20 +39,20 @@ set(CMAKE_CXX_FLAGS
   CACHE STRING "CXX compiler flags")
 
 set(CMAKE_CXX_STANDARD
-  @CMAKE_CXX_STANDARD@
+  "@CMAKE_CXX_STANDARD@"
   CACHE STRING "C++ standard")
 
 # Set cache variables for MPI compiler and executable
 set(MPI_C_COMPILER
-  @MPI_C_COMPILER@
+  "@MPI_C_COMPILER@"
   CACHE FILEPATH "MPI C compiler")
 
 set(MPI_CXX_COMPILER
-  @MPI_CXX_COMPILER@
+  "@MPI_CXX_COMPILER@"
   CACHE FILEPATH "MPI C++ compiler")
 
 set(MPIEXEC_EXECUTABLE
-  @MPIEXEC_EXECUTABLE@
+  "@MPIEXEC_EXECUTABLE@"
   CACHE FILEPATH "MPI executable")
 
 # Specify project name and languages

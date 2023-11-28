@@ -23,6 +23,10 @@ six packages all leverage some other common infrastructure, which we discuss
 in this section.
 
 .. toctree::
+   :maxdepth: 1
+
+   Install_link
+   Types_link
    SUNContext_link
    Profiling_link
    Logging_link

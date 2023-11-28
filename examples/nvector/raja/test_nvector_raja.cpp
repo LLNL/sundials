@@ -49,7 +49,7 @@ int main(int argc, char *argv[])
   int          print_timing;      /* turn timing on/off        */
   int          memtype;
 
-  Test_Init(NULL);
+  Test_Init(SUN_COMM_NULL);
 
   /* check input and set vector length */
   if (argc < 3){
@@ -145,7 +145,7 @@ int main(int argc, char *argv[])
     fails += Test_N_VGetLength(X, 0);
 
     /* Check vector communicator */
-    fails += Test_N_VGetCommunicator(X, NULL, 0);
+    fails += Test_N_VGetCommunicator(X, SUN_COMM_NULL, 0);
 
     /* Test clone functions */
     fails += Test_N_VCloneEmpty(X, 0);

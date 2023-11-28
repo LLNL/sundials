@@ -18,26 +18,31 @@
 ! SUNDIALS Copyright End
 ! ---------------------------------------------------------------
 
-
-#include "sundials/sundials_config.h"
-
 module fsundials_context_mod
  use, intrinsic :: ISO_C_BINDING
+ use fsundials_types_mod
  implicit none
  private
 
  ! DECLARATION CONSTRUCTS
+ public :: FSUNContext_Create
  public :: FSUNContext_GetProfiler
  public :: FSUNContext_SetProfiler
  public :: FSUNContext_GetLogger
  public :: FSUNContext_SetLogger
-
-public :: FSUNContext_Free
-public :: FSUNContext_Create
-
+ public :: FSUNContext_Free
 
 ! WRAPPER DECLARATIONS
 interface
+function swigc_FSUNContext_Create(farg1, farg2) &
+bind(C, name="_wrap_FSUNContext_Create") &
+result(fresult)
+use, intrinsic :: ISO_C_BINDING
+integer(C_INT), intent(in) :: farg1
+type(C_PTR), value :: farg2
+integer(C_INT) :: fresult
+end function
+
 function swigc_FSUNContext_GetProfiler(farg1, farg2) &
 bind(C, name="_wrap_FSUNContext_GetProfiler") &
 result(fresult)
@@ -74,7 +79,6 @@ type(C_PTR), value :: farg2
 integer(C_INT) :: fresult
 end function
 
-
 function swigc_FSUNContext_Free(farg1) &
 bind(C, name="_wrap_FSUNContext_Free") &
 result(fresult)
@@ -83,21 +87,27 @@ type(C_PTR), value :: farg1
 integer(C_INT) :: fresult
 end function
 
-function swigc_FSUNContext_Create(farg1, farg2) &
-bind(C, name="_wrap_FSUNContext_Create") &
-result(fresult)
-use, intrinsic :: ISO_C_BINDING
-type(C_PTR), value :: farg1
-type(C_PTR), value :: farg2
-integer(C_INT) :: fresult
-end function
-
-
 end interface
 
 
 contains
  ! MODULE SUBPROGRAMS
+function FSUNContext_Create(comm, ctx) &
+result(swig_result)
+use, intrinsic :: ISO_C_BINDING
+integer(C_INT) :: swig_result
+integer :: comm
+type(C_PTR), target, intent(inout) :: ctx
+integer(C_INT) :: fresult 
+integer(C_INT) :: farg1 
+type(C_PTR) :: farg2 
+
+farg1 = int(comm, C_INT)
+farg2 = c_loc(ctx)
+fresult = swigc_FSUNContext_Create(farg1, farg2)
+swig_result = fresult
+end function
+
 function FSUNContext_GetProfiler(sunctx, profiler) &
 result(swig_result)
 use, intrinsic :: ISO_C_BINDING
@@ -162,43 +172,16 @@ fresult = swigc_FSUNContext_SetLogger(farg1, farg2)
 swig_result = fresult
 end function
 
-
 function FSUNContext_Free(ctx) &
 result(swig_result)
 use, intrinsic :: ISO_C_BINDING
 integer(C_INT) :: swig_result
 type(C_PTR), target, intent(inout) :: ctx
-integer(C_INT) :: fresult
-type(C_PTR) :: farg1
+integer(C_INT) :: fresult 
+type(C_PTR) :: farg1 
 
 farg1 = c_loc(ctx)
 fresult = swigc_FSUNContext_Free(farg1)
-swig_result = fresult
-end function
-
-function FSUNContext_Create(comm, ctx) &
-result(swig_result)
-use, intrinsic :: ISO_C_BINDING
-#ifdef SUNDIALS_BUILD_WITH_PROFILING
-use fsundials_profiler_mod, only : FSUNProfiler_Create
-#endif
-integer(C_INT) :: swig_result
-type(C_PTR) :: comm
-type(C_PTR), target, intent(inout) :: ctx
-integer(C_INT) :: fresult
-type(C_PTR) :: farg1
-type(C_PTR) :: farg2
-#ifdef SUNDIALS_BUILD_WITH_PROFILING
-type(C_PTR) :: profiler
-#endif
-
-farg1 = comm
-farg2 = c_loc(ctx)
-fresult = swigc_FSUNContext_Create(c_null_ptr, farg2)
-#ifdef SUNDIALS_BUILD_WITH_PROFILING
-fresult = FSUNProfiler_Create(farg1, "FSUNContext Default", profiler)
-fresult = swigc_FSUNContext_SetProfiler(ctx, profiler)
-#endif
 swig_result = fresult
 end function
 

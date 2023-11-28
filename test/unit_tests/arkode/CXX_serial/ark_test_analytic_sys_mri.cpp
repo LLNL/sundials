@@ -72,7 +72,7 @@ static SUNContext sunctx = NULL;
 int main(int argc, char* argv[])
 {
   // Create the SUNDIALS context object for this simulation.
-  SUNContext_Create(NULL, &sunctx);
+  SUNContext_Create(SUN_COMM_NULL, &sunctx);
 
   // general problem parameters
   sunrealtype T0 = SUN_RCONST(0.0);         // initial time

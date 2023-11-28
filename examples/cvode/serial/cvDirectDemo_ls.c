@@ -187,7 +187,7 @@ static int Problem1(void)
   cvode_mem = NULL;
 
   /* Create the SUNDIALS context */
-  retval = SUNContext_Create(NULL, &sunctx);
+  retval = SUNContext_Create(SUN_COMM_NULL, &sunctx);
   if (check_retval(&retval, "SUNContext_Create", 1)) return(1);
 
   y = N_VNew_Serial(P1_NEQ, sunctx);
@@ -409,7 +409,7 @@ static int Problem2(void)
   cvode_mem = NULL;
 
   /* Create SUNDIALS context */
-  retval = SUNContext_Create(NULL, &sunctx);
+  retval = SUNContext_Create(SUN_COMM_NULL, &sunctx);
   if (check_retval(&retval, "SUNContext_Create", 1)) return(1);
 
   y = N_VNew_Serial(P2_NEQ, sunctx);

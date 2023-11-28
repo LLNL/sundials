@@ -297,7 +297,7 @@ int main(int argc, char* argv[])
 
   // Create the SUNDIALS context object for this simulation
   SUNContext ctx;
-  flag = SUNContext_Create((void*) &comm_w, &ctx);
+  flag = SUNContext_Create(comm_w, &ctx);
   if (check_flag(&flag, "SUNContext_Create", 1)) return 1;
 
   // Set output process flag

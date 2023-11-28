@@ -92,7 +92,7 @@ int main(void)
   printf("   abstol = %.1"ESYM"\n\n",abstol);
 
   /* Create the SUNDIALS context object for this simulation */
-  retval = SUNContext_Create(NULL, &ctx);
+  retval = SUNContext_Create(SUN_COMM_NULL, &ctx);
   if (check_retval(&retval, "SUNContext_Create", 1)) return 1;
 
   /* Initialize data structures */

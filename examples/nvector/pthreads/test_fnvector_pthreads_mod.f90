@@ -33,7 +33,6 @@ module test_nvector_pthreads
 
     integer(c_long)         :: lenrw(1), leniw(1) ! real and int work space size
     integer(c_long)         :: ival               ! integer work value
-    type(c_ptr)             :: cptr               ! c_ptr work value
     real(c_double)          :: rval               ! real work value
     real(c_double)          :: xdata(N)           ! vector data array
     real(c_double), pointer :: xptr(:)            ! pointer to vector data array
@@ -70,7 +69,7 @@ module test_nvector_pthreads
     call FN_VSpace_Pthreads(x, lenrw, leniw)
     xptr => FN_VGetArrayPointer_Pthreads(x)
     call FN_VSetArrayPointer_Pthreads(xdata, x)
-    cptr = FN_VGetCommunicator(x)
+    ival = FN_VGetCommunicator(x)
     ival = FN_VGetLength_Pthreads(x)
 
     ! test standard vector operations
@@ -191,7 +190,7 @@ program main
   !============== Introduction =============
   print *, 'Pthreads N_Vector Fortran 2003 interface test'
 
-  call Test_Init(c_null_ptr)
+  call Test_Init(SUN_COMM_NULL)
 
   fails = smoke_tests()
   if (fails /= 0) then

@@ -17,6 +17,7 @@
 
 module test_nvector_mpimanyvector
   use, intrinsic :: iso_c_binding
+  use fsundials_types_mod
   use fsundials_nvector_mod
   use fnvector_mpimanyvector_mod
   use fnvector_serial_mod
@@ -30,7 +31,6 @@ module test_nvector_mpimanyvector
   integer(c_int),  parameter :: nv       = 3          ! length of vector arrays
   integer(c_long), parameter :: N        = N1 + N2    ! overall manyvector length
   integer(c_int), target     :: comm = MPI_COMM_WORLD ! default MPI communicator
-  integer(c_int), pointer    :: commptr
   integer(c_int)             :: nprocs                ! number of MPI processes
 
 contains
@@ -40,7 +40,6 @@ contains
 
     integer(c_long)         :: lenrw(1), leniw(1)     ! real and int work space size
     integer(c_long)         :: ival                   ! integer work value
-    type(c_ptr)             :: cptr                   ! c_ptr work value
     real(c_double)          :: rval                   ! real work value
     real(c_double)          :: x1data(N1), x2data(N2) ! vector data array
     real(c_double), pointer :: xptr(:)                ! pointer to vector data array
@@ -56,7 +55,7 @@ contains
     tmp  => FN_VMake_Serial(N2, x2data, sunctx)
     call FN_VSetVecAtIndexVectorArray(subvecs, 1, tmp)
 
-    x => FN_VMake_MPIManyVector(MPI_COMM_WORLD, int(nsubvecs,8), subvecs, sunctx)
+    x => FN_VMake_MPIManyVector(comm, int(nsubvecs,8), subvecs, sunctx)
     call FN_VConst(ONE, x)
     y => FN_VClone_MPIManyVector(x)
     call FN_VConst(ONE, y)
@@ -72,7 +71,7 @@ contains
     ! test generic vector functions
     ival = FN_VGetVectorID_MPIManyVector(x)
     call FN_VSpace_MPIManyVector(x, lenrw, leniw)
-    cptr = FN_VGetCommunicator(x)
+    ival = FN_VGetCommunicator(x)
     ival = FN_VGetLength_MPIManyVector(x)
 
     ! test standard vector operations
@@ -154,7 +153,7 @@ contains
     tmp  => FN_VMake_Serial(N2, x2data, sunctx)
     call FN_VSetVecAtIndexVectorArray(subvecs, 1, tmp)
 
-    x => FN_VMake_MPIManyVector(MPI_COMM_WORLD, int(nsubvecs,8), subvecs, sunctx)
+    x => FN_VMake_MPIManyVector(comm, int(nsubvecs,8), subvecs, sunctx)
     call FN_VConst(ONE, x)
 
     !==== tests ====
@@ -250,12 +249,10 @@ program main
     stop 1
   endif
 
-  commptr => comm
-
   !============== Introduction =============
   if (myid == 0) print *, 'MPIManyVector N_Vector Fortran 2003 interface test'
 
-  call Test_Init(c_loc(commptr))
+  call Test_Init(comm)
 
   call MPI_Comm_size(comm, nprocs, fails)
   if (fails /= 0) then

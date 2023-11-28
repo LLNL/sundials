@@ -290,14 +290,24 @@ SWIGEXPORT void _wrap_FN_VSetArrayPointer(double *farg1, N_Vector farg2) {
 }
 
 
-SWIGEXPORT void * _wrap_FN_VGetCommunicator(N_Vector farg1) {
-  void * fresult ;
+SWIGEXPORT int _wrap_FN_VGetCommunicator(N_Vector farg1) {
+  int fresult ;
   N_Vector arg1 = (N_Vector) 0 ;
-  void *result = 0 ;
+  SUNComm result;
   
   arg1 = (N_Vector)(farg1);
-  result = (void *)N_VGetCommunicator(arg1);
+  result = (SUNComm)N_VGetCommunicator(arg1);
+#if SUNDIALS_MPI_ENABLED
+  int flag = 0;
+  MPI_Initialized(&flag);
+  if(flag) {
+    fresult = (int)(MPI_Comm_c2f(result));
+  } else {
+    fresult = 0;
+  }
+#else
   fresult = result;
+#endif
   return fresult;
 }
 

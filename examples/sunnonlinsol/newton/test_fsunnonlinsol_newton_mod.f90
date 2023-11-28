@@ -47,6 +47,7 @@ contains
 
   integer(C_INT) function unit_tests() result(retval)
     use, intrinsic :: iso_c_binding
+    use fsundials_types_mod
     use fsundials_context_mod
     use fsundials_nvector_mod
     use fsundials_matrix_mod
@@ -334,7 +335,7 @@ program main
   !============== Introduction =============
   print *, 'Newton SUNNonlinearSolver Fortran 2003 interface test'
 
-  call Test_Init(c_null_ptr)
+  call Test_Init(SUN_COMM_NULL)
 
   retval = unit_tests()
   if (retval /= 0) then

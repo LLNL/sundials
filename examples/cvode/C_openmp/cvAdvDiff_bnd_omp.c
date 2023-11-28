@@ -146,7 +146,7 @@ int main(int argc, char *argv[])
   cvode_mem = NULL;
 
   /* Create the SUNDIALS context */
-  retval = SUNContext_Create(NULL, &sunctx);
+  retval = SUNContext_Create(SUN_COMM_NULL, &sunctx);
   if(check_retval(&retval, "SUNContext_Create", 1)) return(1);
 
   /* Set the number of threads to use */
