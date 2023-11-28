@@ -26,18 +26,15 @@ module fsundials_errors_mod
 
  ! DECLARATION CONSTRUCTS
  enum, bind(c)
-  enumerator :: SUN_ERR_MINIMUM = -2000
+  enumerator :: SUN_ERR_MINIMUM = -10000
   enumerator :: SUN_ERR_ARG_CORRUPT
   enumerator :: SUN_ERR_ARG_INCOMPATIBLE
   enumerator :: SUN_ERR_ARG_OUTOFRANGE
   enumerator :: SUN_ERR_ARG_WRONGTYPE
   enumerator :: SUN_ERR_ARG_DIMSMISMATCH
-  enumerator :: SUN_ERR_LOGGER_CORRUPT
-  enumerator :: SUN_ERR_LOGGER_CANNOTOPENFILE
+  enumerator :: SUN_ERR_CORRUPT
+  enumerator :: SUN_ERR_FILE_OPEN
   enumerator :: SUN_ERR_MALLOC_FAIL
-  enumerator :: SUN_ERR_MANYVECTOR_COMMNOTSAME
-  enumerator :: SUN_ERR_MANYVECTOR_COMMNULL
-  enumerator :: SUN_ERR_MPI_FAIL
   enumerator :: SUN_ERR_NOT_IMPLEMENTED
   enumerator :: SUN_ERR_PROFILER_MAPFULL
   enumerator :: SUN_ERR_PROFILER_MAPGET
@@ -45,16 +42,15 @@ module fsundials_errors_mod
   enumerator :: SUN_ERR_PROFILER_MAPKEYNOTFOUND
   enumerator :: SUN_ERR_PROFILER_MAPSORT
   enumerator :: SUN_ERR_SUNCTX_CORRUPT
-  enumerator :: SUN_ERR_GENERIC
+  enumerator :: SUN_ERR_MPI_FAIL
   enumerator :: SUN_ERR_UNKNOWN
   enumerator :: SUN_ERR_MAXIMUM = -1000
   enumerator :: SUN_SUCCESS = 0
  end enum
  public :: SUN_ERR_MINIMUM, SUN_ERR_ARG_CORRUPT, SUN_ERR_ARG_INCOMPATIBLE, SUN_ERR_ARG_OUTOFRANGE, SUN_ERR_ARG_WRONGTYPE, &
-    SUN_ERR_ARG_DIMSMISMATCH, SUN_ERR_LOGGER_CORRUPT, SUN_ERR_LOGGER_CANNOTOPENFILE, SUN_ERR_MALLOC_FAIL, &
-    SUN_ERR_MANYVECTOR_COMMNOTSAME, SUN_ERR_MANYVECTOR_COMMNULL, SUN_ERR_MPI_FAIL, SUN_ERR_NOT_IMPLEMENTED, &
+    SUN_ERR_ARG_DIMSMISMATCH, SUN_ERR_CORRUPT, SUN_ERR_FILE_OPEN, SUN_ERR_MALLOC_FAIL, SUN_ERR_NOT_IMPLEMENTED, &
     SUN_ERR_PROFILER_MAPFULL, SUN_ERR_PROFILER_MAPGET, SUN_ERR_PROFILER_MAPINSERT, SUN_ERR_PROFILER_MAPKEYNOTFOUND, &
-    SUN_ERR_PROFILER_MAPSORT, SUN_ERR_SUNCTX_CORRUPT, SUN_ERR_GENERIC, SUN_ERR_UNKNOWN, SUN_ERR_MAXIMUM, SUN_SUCCESS
+    SUN_ERR_PROFILER_MAPSORT, SUN_ERR_SUNCTX_CORRUPT, SUN_ERR_MPI_FAIL, SUN_ERR_UNKNOWN, SUN_ERR_MAXIMUM, SUN_SUCCESS
 
  integer, parameter :: swig_cmem_own_bit = 0
  integer, parameter :: swig_cmem_rvalue_bit = 1
@@ -74,9 +70,6 @@ module fsundials_errors_mod
  public :: FSUNAbortErrHandlerFn
  public :: FSUNAssertErrHandlerFn
  public :: FSUNGetErrMsg
- public :: FSUNGetLastErr
- public :: FSUNSetLastErr
- public :: FSUNPeekLastErr
 
 ! WRAPPER DECLARATIONS
 interface
@@ -142,34 +135,6 @@ import :: swigclasswrapper
 integer(C_INT), intent(in) :: farg1
 type(SwigClassWrapper) :: farg2
 type(SwigArrayWrapper) :: fresult
-end function
-
-function swigc_FSUNGetLastErr(farg1) &
-bind(C, name="_wrap_FSUNGetLastErr") &
-result(fresult)
-use, intrinsic :: ISO_C_BINDING
-import :: swigclasswrapper
-type(SwigClassWrapper) :: farg1
-integer(C_INT) :: fresult
-end function
-
-function swigc_FSUNSetLastErr(farg1, farg2) &
-bind(C, name="_wrap_FSUNSetLastErr") &
-result(fresult)
-use, intrinsic :: ISO_C_BINDING
-import :: swigclasswrapper
-integer(C_INT), intent(in) :: farg1
-type(SwigClassWrapper) :: farg2
-integer(C_INT) :: fresult
-end function
-
-function swigc_FSUNPeekLastErr(farg1) &
-bind(C, name="_wrap_FSUNPeekLastErr") &
-result(fresult)
-use, intrinsic :: ISO_C_BINDING
-import :: swigclasswrapper
-type(SwigClassWrapper) :: farg1
-integer(C_INT) :: fresult
 end function
 
 end interface
@@ -326,48 +291,6 @@ farg2 = sunctx%swigdata
 fresult = swigc_FSUNGetErrMsg(farg1, farg2)
 call SWIG_chararray_to_string(fresult, swig_result)
 if (.false.) call SWIG_free(fresult%data)
-end function
-
-function FSUNGetLastErr(sunctx) &
-result(swig_result)
-use, intrinsic :: ISO_C_BINDING
-integer(C_INT) :: swig_result
-class(SWIGTYPE_p_SUNContext_), intent(in) :: sunctx
-integer(C_INT) :: fresult 
-type(SwigClassWrapper) :: farg1 
-
-farg1 = sunctx%swigdata
-fresult = swigc_FSUNGetLastErr(farg1)
-swig_result = fresult
-end function
-
-function FSUNSetLastErr(code, sunctx) &
-result(swig_result)
-use, intrinsic :: ISO_C_BINDING
-integer(C_INT) :: swig_result
-integer(C_INT), intent(in) :: code
-class(SWIGTYPE_p_SUNContext_), intent(in) :: sunctx
-integer(C_INT) :: fresult 
-integer(C_INT) :: farg1 
-type(SwigClassWrapper) :: farg2 
-
-farg1 = code
-farg2 = sunctx%swigdata
-fresult = swigc_FSUNSetLastErr(farg1, farg2)
-swig_result = fresult
-end function
-
-function FSUNPeekLastErr(sunctx) &
-result(swig_result)
-use, intrinsic :: ISO_C_BINDING
-integer(C_INT) :: swig_result
-class(SWIGTYPE_p_SUNContext_), intent(in) :: sunctx
-integer(C_INT) :: fresult 
-type(SwigClassWrapper) :: farg1 
-
-farg1 = sunctx%swigdata
-fresult = swigc_FSUNPeekLastErr(farg1)
-swig_result = fresult
 end function
 
 

@@ -140,8 +140,8 @@ SUNDIALS_EXPORT
 void SUNNonlinSolFreeEmpty(SUNNonlinearSolver NLS);
 
 /* core functions */
-SUNDIALS_EXPORT SUNNonlinearSolver_Type
-SUNNonlinSolGetType(SUNNonlinearSolver NLS);
+SUNDIALS_EXPORT
+SUNNonlinearSolver_Type SUNNonlinSolGetType(SUNNonlinearSolver NLS);
 
 SUNDIALS_EXPORT
 SUNErrCode SUNNonlinSolInitialize(SUNNonlinearSolver NLS);
@@ -157,8 +157,8 @@ SUNDIALS_EXPORT
 SUNErrCode SUNNonlinSolFree(SUNNonlinearSolver NLS);
 
 /* set functions */
-SUNDIALS_EXPORT SUNErrCode
-SUNNonlinSolSetSysFn(SUNNonlinearSolver NLS, SUNNonlinSolSysFn SysFn);
+SUNDIALS_EXPORT
+SUNErrCode SUNNonlinSolSetSysFn(SUNNonlinearSolver NLS, SUNNonlinSolSysFn SysFn);
 
 SUNDIALS_EXPORT
 SUNErrCode SUNNonlinSolSetLSetupFn(SUNNonlinearSolver NLS,

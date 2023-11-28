@@ -216,7 +216,7 @@ SUNErrCode SUNLogger_CreateFromEnv(SUNComm comm, SUNLogger* logger)
   retval += SUNLogger_SetDebugFilename(*logger, debug_fname_env);
   retval += SUNLogger_SetInfoFilename(*logger, info_fname_env);
 
-  return (retval < 0) ? SUN_ERR_LOGGER_CORRUPT : SUN_SUCCESS;
+  return (retval < 0) ? SUN_ERR_CORRUPT : SUN_SUCCESS;
 }
 
 SUNErrCode SUNLogger_SetErrorFilename(SUNLogger logger, const char* error_filename)
@@ -241,7 +241,7 @@ SUNErrCode SUNLogger_SetErrorFilename(SUNLogger logger, const char* error_filena
       }
       else
       {
-        return SUN_ERR_LOGGER_CANNOTOPENFILE;
+        return SUN_ERR_FILE_OPEN;
       }
     }
 #endif
@@ -272,7 +272,7 @@ SUNErrCode SUNLogger_SetWarningFilename(SUNLogger logger, const char* warning_fi
       }
       else
       {
-        return SUN_ERR_LOGGER_CANNOTOPENFILE;
+        return SUN_ERR_FILE_OPEN;
       }
     }
 #endif
@@ -303,7 +303,7 @@ SUNErrCode SUNLogger_SetInfoFilename(SUNLogger logger, const char* info_filename
       }
       else
       {
-        return SUN_ERR_LOGGER_CANNOTOPENFILE;
+        return SUN_ERR_FILE_OPEN;
       }
     }
 #endif
@@ -334,7 +334,7 @@ SUNErrCode SUNLogger_SetDebugFilename(SUNLogger logger, const char* debug_filena
       }
       else
       {
-        return SUN_ERR_LOGGER_CANNOTOPENFILE;
+        return SUN_ERR_FILE_OPEN;
       }
     }
 #endif

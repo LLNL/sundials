@@ -17,7 +17,6 @@
 
 #include <sundials/sundials_config.h>
 #include <sundials/sundials_context.h>
-#include <sundials/sundials_direct.h>
 #include <sundials/sundials_errors.h>
 #include <sundials/sundials_iterative.h>
 #include <sundials/sundials_logger.h>

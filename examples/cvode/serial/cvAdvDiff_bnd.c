@@ -145,7 +145,7 @@ int main(void)
   /* Create a serial vector */
 
   u = N_VNew_Serial(NEQ, sunctx);  /* Allocate u vector */
-  if(check_retval(SUNGetLastErr(sunctx), "N_VNew_Serial")) return(1);
+  if(check_retval(SUNContext_GetLastError(sunctx), "N_VNew_Serial")) return(1);
 
   reltol = ZERO;  /* Set the tolerances */
   abstol = ATOL;
@@ -172,7 +172,7 @@ int main(void)
    * Backward Differentiation Formula */
 
   cvode_mem = CVodeCreate(CV_BDF, sunctx);
-  if(check_retval(SUNGetLastErr(sunctx), "CVodeCreate")) return(1);
+  if(check_retval(SUNContext_GetLastError(sunctx), "CVodeCreate")) return(1);
 
   /* Call CVodeInit to initialize the integrator memory and specify the
    * user's right hand side function in u'=f(t,u), the inital time T0, and
@@ -192,11 +192,11 @@ int main(void)
   /* Create banded SUNMatrix for use in linear solves -- since this will be factored,
      set the storage bandwidth to be the sum of upper and lower bandwidths */
   A = SUNBandMatrix(NEQ, MY, MY, sunctx);
-  if(check_retval(SUNGetLastErr(sunctx), "SUNBandMatrix")) return(1);
+  if(check_retval(SUNContext_GetLastError(sunctx), "SUNBandMatrix")) return(1);
 
   /* Create banded SUNLinearSolver object for use by CVode */
   LS = SUNLinSol_Band(u, A, sunctx);
-  if(check_retval(SUNGetLastErr(sunctx), "SUNLinSol_Band")) return(1);
+  if(check_retval(SUNContext_GetLastError(sunctx), "SUNLinSol_Band")) return(1);
 
   /* Call CVodeSetLinearSolver to attach the matrix and linear solver to CVode */
   retval = CVodeSetLinearSolver(cvode_mem, LS, A);

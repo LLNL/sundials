@@ -29,20 +29,9 @@ module fsundials_context_mod
  public :: FSUNContext_Create
  public :: FSUNContext_GetLastError
  public :: FSUNContext_PeekLastError
-
- integer, parameter :: swig_cmem_own_bit = 0
- integer, parameter :: swig_cmem_rvalue_bit = 1
- integer, parameter :: swig_cmem_const_bit = 2
- type, bind(C) :: SwigClassWrapper
-  type(C_PTR), public :: cptr = C_NULL_PTR
-  integer(C_INT), public :: cmemflags = 0
- end type
- type, public :: SWIGTYPE_p_SUNErrHandler_
-  type(SwigClassWrapper), public :: swigdata
- end type
  public :: FSUNContext_PushErrHandler
  public :: FSUNContext_PopErrHandler
- public :: FSUNContext_ClearHandlers
+ public :: FSUNContext_ClearErrHandlers
  public :: FSUNContext_GetProfiler
  public :: FSUNContext_SetProfiler
  public :: FSUNContext_GetLogger
@@ -60,21 +49,19 @@ type(C_PTR), value :: farg2
 integer(C_INT) :: fresult
 end function
 
-function swigc_FSUNContext_GetLastError(farg1, farg2) &
+function swigc_FSUNContext_GetLastError(farg1) &
 bind(C, name="_wrap_FSUNContext_GetLastError") &
 result(fresult)
 use, intrinsic :: ISO_C_BINDING
 type(C_PTR), value :: farg1
-type(C_PTR), value :: farg2
 integer(C_INT) :: fresult
 end function
 
-function swigc_FSUNContext_PeekLastError(farg1, farg2) &
+function swigc_FSUNContext_PeekLastError(farg1) &
 bind(C, name="_wrap_FSUNContext_PeekLastError") &
 result(fresult)
 use, intrinsic :: ISO_C_BINDING
 type(C_PTR), value :: farg1
-type(C_PTR), value :: farg2
 integer(C_INT) :: fresult
 end function
 
@@ -82,11 +69,10 @@ function swigc_FSUNContext_PushErrHandler(farg1, farg2, farg3) &
 bind(C, name="_wrap_FSUNContext_PushErrHandler") &
 result(fresult)
 use, intrinsic :: ISO_C_BINDING
-import :: swigclasswrapper
 type(C_PTR), value :: farg1
 type(C_FUNPTR), value :: farg2
 type(C_PTR), value :: farg3
-type(SwigClassWrapper) :: fresult
+integer(C_INT) :: fresult
 end function
 
 function swigc_FSUNContext_PopErrHandler(farg1) &
@@ -97,8 +83,8 @@ type(C_PTR), value :: farg1
 integer(C_INT) :: fresult
 end function
 
-function swigc_FSUNContext_ClearHandlers(farg1) &
-bind(C, name="_wrap_FSUNContext_ClearHandlers") &
+function swigc_FSUNContext_ClearErrHandlers(farg1) &
+bind(C, name="_wrap_FSUNContext_ClearErrHandlers") &
 result(fresult)
 use, intrinsic :: ISO_C_BINDING
 type(C_PTR), value :: farg1
@@ -154,62 +140,56 @@ end interface
 
 contains
  ! MODULE SUBPROGRAMS
-function FSUNContext_Create(comm, ctx) &
+function FSUNContext_Create(comm, sunctx_out) &
 result(swig_result)
 use, intrinsic :: ISO_C_BINDING
 integer(C_INT) :: swig_result
 integer :: comm
-type(C_PTR), target, intent(inout) :: ctx
+type(C_PTR), target, intent(inout) :: sunctx_out
 integer(C_INT) :: fresult 
 integer(C_INT) :: farg1 
 type(C_PTR) :: farg2 
 
 farg1 = int(comm, C_INT)
-farg2 = c_loc(ctx)
+farg2 = c_loc(sunctx_out)
 fresult = swigc_FSUNContext_Create(farg1, farg2)
 swig_result = fresult
 end function
 
-function FSUNContext_GetLastError(sunctx, last_err) &
+function FSUNContext_GetLastError(sunctx) &
 result(swig_result)
 use, intrinsic :: ISO_C_BINDING
 integer(C_INT) :: swig_result
 type(C_PTR) :: sunctx
-integer(C_INT), dimension(*), target, intent(inout) :: last_err
 integer(C_INT) :: fresult 
 type(C_PTR) :: farg1 
-type(C_PTR) :: farg2 
 
 farg1 = sunctx
-farg2 = c_loc(last_err(1))
-fresult = swigc_FSUNContext_GetLastError(farg1, farg2)
+fresult = swigc_FSUNContext_GetLastError(farg1)
 swig_result = fresult
 end function
 
-function FSUNContext_PeekLastError(sunctx, last_err) &
+function FSUNContext_PeekLastError(sunctx) &
 result(swig_result)
 use, intrinsic :: ISO_C_BINDING
 integer(C_INT) :: swig_result
 type(C_PTR) :: sunctx
-integer(C_INT), dimension(*), target, intent(inout) :: last_err
 integer(C_INT) :: fresult 
 type(C_PTR) :: farg1 
-type(C_PTR) :: farg2 
 
 farg1 = sunctx
-farg2 = c_loc(last_err(1))
-fresult = swigc_FSUNContext_PeekLastError(farg1, farg2)
+fresult = swigc_FSUNContext_PeekLastError(farg1)
 swig_result = fresult
 end function
 
 function FSUNContext_PushErrHandler(sunctx, err_fn, err_user_data) &
 result(swig_result)
 use, intrinsic :: ISO_C_BINDING
-type(SWIGTYPE_p_SUNErrHandler_) :: swig_result
+integer(C_INT) :: swig_result
 type(C_PTR) :: sunctx
 type(C_FUNPTR), intent(in), value :: err_fn
 type(C_PTR) :: err_user_data
-type(SwigClassWrapper) :: fresult 
+integer(C_INT) :: fresult 
 type(C_PTR) :: farg1 
 type(C_FUNPTR) :: farg2 
 type(C_PTR) :: farg3 
@@ -218,7 +198,7 @@ farg1 = sunctx
 farg2 = err_fn
 farg3 = err_user_data
 fresult = swigc_FSUNContext_PushErrHandler(farg1, farg2, farg3)
-swig_result%swigdata = fresult
+swig_result = fresult
 end function
 
 function FSUNContext_PopErrHandler(sunctx) &
@@ -234,7 +214,7 @@ fresult = swigc_FSUNContext_PopErrHandler(farg1)
 swig_result = fresult
 end function
 
-function FSUNContext_ClearHandlers(sunctx) &
+function FSUNContext_ClearErrHandlers(sunctx) &
 result(swig_result)
 use, intrinsic :: ISO_C_BINDING
 integer(C_INT) :: swig_result
@@ -243,7 +223,7 @@ integer(C_INT) :: fresult
 type(C_PTR) :: farg1 
 
 farg1 = sunctx
-fresult = swigc_FSUNContext_ClearHandlers(farg1)
+fresult = swigc_FSUNContext_ClearErrHandlers(farg1)
 swig_result = fresult
 end function
 

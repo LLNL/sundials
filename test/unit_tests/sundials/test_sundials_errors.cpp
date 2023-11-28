@@ -92,7 +92,7 @@ int thirdHandler(int line, const char *func, const char *file, const char *msg,
 TEST_F(SUNContextErrFunctionTests, SUNContextPushErrHandlerWorks)
 {
   std::vector<int> order = {};
-  SUNContext_ClearHandlers(sunctx);
+  SUNContext_ClearErrHandlers(sunctx);
   SUNContext_PushErrHandler(sunctx, firstHandler, static_cast<void*>(&order));
   SUNContext_PushErrHandler(sunctx, secondHandler, static_cast<void*>(&order));
   SUNContext_PushErrHandler(sunctx, thirdHandler, static_cast<void*>(&order));
@@ -106,7 +106,7 @@ TEST_F(SUNContextErrFunctionTests, SUNContextPushErrHandlerWorks)
 TEST_F(SUNContextErrFunctionTests, SUNContextPopErrHandlerWorks)
 {
   std::vector<int> order = {};
-  SUNContext_ClearHandlers(sunctx);
+  SUNContext_ClearErrHandlers(sunctx);
   SUNContext_PushErrHandler(sunctx, firstHandler, static_cast<void*>(&order));
   SUNContext_PushErrHandler(sunctx, secondHandler, static_cast<void*>(&order));
   SUNContext_PushErrHandler(sunctx, thirdHandler, static_cast<void*>(&order));

@@ -19,8 +19,6 @@
 #include <mpi.h>
 #include <sundials/sundials_types.h>
 
-#define SUN_AsMPIComm(comm) (*((MPI_Comm*)(comm)))
-
 /* define MPI data types */
 
 #if defined(SUNDIALS_SINGLE_PRECISION)

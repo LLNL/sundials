@@ -354,45 +354,4 @@ SWIGEXPORT SwigArrayWrapper _wrap_FSUNGetErrMsg(int const *farg1, SwigClassWrapp
 }
 
 
-SWIGEXPORT int _wrap_FSUNGetLastErr(SwigClassWrapper const *farg1) {
-  int fresult ;
-  SUNContext arg1 = (SUNContext) 0 ;
-  SUNErrCode result;
-  
-  SWIG_check_mutable(*farg1, "SUNContext", "SWIGTYPE_p_SUNContext_", "SUNGetLastErr(SUNContext)", return 0);
-  arg1 = (SUNContext)(farg1->cptr);
-  result = (SUNErrCode)SUNGetLastErr(arg1);
-  fresult = (SUNErrCode)(result);
-  return fresult;
-}
-
-
-SWIGEXPORT int _wrap_FSUNSetLastErr(int const *farg1, SwigClassWrapper const *farg2) {
-  int fresult ;
-  SUNErrCode arg1 ;
-  SUNContext arg2 = (SUNContext) 0 ;
-  SUNErrCode result;
-  
-  arg1 = (SUNErrCode)(*farg1);
-  SWIG_check_mutable(*farg2, "SUNContext", "SWIGTYPE_p_SUNContext_", "SUNSetLastErr(SUNErrCode,SUNContext)", return 0);
-  arg2 = (SUNContext)(farg2->cptr);
-  result = (SUNErrCode)SUNSetLastErr(arg1,arg2);
-  fresult = (SUNErrCode)(result);
-  return fresult;
-}
-
-
-SWIGEXPORT int _wrap_FSUNPeekLastErr(SwigClassWrapper const *farg1) {
-  int fresult ;
-  SUNContext arg1 = (SUNContext) 0 ;
-  SUNErrCode result;
-  
-  SWIG_check_mutable(*farg1, "SUNContext", "SWIGTYPE_p_SUNContext_", "SUNPeekLastErr(SUNContext)", return 0);
-  arg1 = (SUNContext)(farg1->cptr);
-  result = (SUNErrCode)SUNPeekLastErr(arg1);
-  fresult = (SUNErrCode)(result);
-  return fresult;
-}
-
-
 

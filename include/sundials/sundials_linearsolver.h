@@ -156,8 +156,8 @@ SUNLinearSolver SUNLinSolNewEmpty(SUNContext sunctx);
 SUNDIALS_EXPORT
 void SUNLinSolFreeEmpty(SUNLinearSolver S);
 
-SUNDIALS_EXPORT SUNLinearSolver_Type
-SUNLinSolGetType(SUNLinearSolver S);
+SUNDIALS_EXPORT 
+SUNLinearSolver_Type SUNLinSolGetType(SUNLinearSolver S);
 
 SUNDIALS_EXPORT
 SUNLinearSolver_ID SUNLinSolGetID(SUNLinearSolver S);

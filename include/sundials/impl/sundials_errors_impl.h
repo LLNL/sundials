@@ -33,7 +33,8 @@ struct SUNErrHandler_
   void* data;
 };
 
-SUNErrHandler SUNErrHandler_Create(SUNErrHandlerFn eh_fn, void* eh_data);
+SUNErrCode SUNErrHandler_Create(SUNErrHandlerFn eh_fn, void* eh_data,
+                                SUNErrHandler* eh_out);
 
 void SUNErrHandler_Destroy(SUNErrHandler eh);
 
@@ -111,94 +112,105 @@ static inline void SUNHandleErrWithFmtMsg(int line, const char* func,
    returned error code. If an error occured, then it will log the error, set the
    last_err value, and call the error handler. */
 #if defined(SUNDIALS_ENABLE_ERROR_CHECKS)
-#define SUNCheckCallNoRet(call)                                          \
-  do {                                                                   \
-    SUNErrCode sun_chk_call_err_code_ = call;                            \
-    if (SUNHintFalse(sun_chk_call_err_code_ < 0))                        \
-    {                                                                    \
-      SUNHandleErr(__LINE__, __func__, __FILE__, sun_chk_call_err_code_, \
-                   SUNCTX_);                                             \
-      (void)SUNGetLastErr(SUNCTX_);                                      \
-    }                                                                    \
-  }                                                                      \
+#define SUNCheckCallNoRetMsg(call, msg)                      \
+  do {                                                       \
+    SUNErrCode sun_chk_call_err_code_ = call;                \
+    if (SUNHintFalse(sun_chk_call_err_code_ < 0))            \
+    {                                                        \
+      SUNHandleErrWithMsg(__LINE__, __func__, __FILE__, msg, \
+                          sun_chk_call_err_code_, SUNCTX_);  \
+      (void)SUNContext_GetLastError(SUNCTX_);                \
+    }                                                        \
+  }                                                          \
   while (0)
 #else
-#define SUNCheckCallNoRet(call) (void)call
+#define SUNCheckCallNoRetMsg(call, msg) (void)call
 #endif
 
 /* Same as SUNCheckCallNoRet, but returns with the error code if an error
  * occured. */
 #if defined(SUNDIALS_ENABLE_ERROR_CHECKS)
-#define SUNCheckCall(call)                                               \
-  do {                                                                   \
-    SUNErrCode sun_chk_call_err_code_ = call;                            \
-    if (SUNHintFalse(sun_chk_call_err_code_ < 0))                        \
-    {                                                                    \
-      SUNHandleErr(__LINE__, __func__, __FILE__, sun_chk_call_err_code_, \
-                   SUNCTX_);                                             \
-      return sun_chk_call_err_code_;                                     \
-    }                                                                    \
-  }                                                                      \
+#define SUNCheckCallMsg(call, msg)                           \
+  do {                                                       \
+    SUNErrCode sun_chk_call_err_code_ = call;                \
+    if (SUNHintFalse(sun_chk_call_err_code_ < 0))            \
+    {                                                        \
+      SUNHandleErrWithMsg(__LINE__, __func__, __FILE__, msg, \
+                          sun_chk_call_err_code_, SUNCTX_);  \
+      return sun_chk_call_err_code_;                         \
+    }                                                        \
+  }                                                          \
   while (0)
 #else
-#define SUNCheckCall(call) (void)call
+#define SUNCheckCallMsg(call, msg) (void)call
 #endif
 
 /* Same as SUNCheckCall, but returns with NULL. */
 #if defined(SUNDIALS_ENABLE_ERROR_CHECKS)
-#define SUNCheckCallNull(call)                                           \
-  do {                                                                   \
-    SUNErrCode sun_chk_call_err_code_ = call;                            \
-    if (SUNHintFalse(sun_chk_call_err_code_ < 0))                        \
-    {                                                                    \
-      SUNHandleErr(__LINE__, __func__, __FILE__, sun_chk_call_err_code_, \
-                   SUNCTX_);                                             \
-      return NULL;                                                       \
-    }                                                                    \
-  }                                                                      \
+#define SUNCheckCallNullMsg(call, msg)                       \
+  do {                                                       \
+    SUNErrCode sun_chk_call_err_code_ = call;                \
+    if (SUNHintFalse(sun_chk_call_err_code_ < 0))            \
+    {                                                        \
+      SUNHandleErrWithMsg(__LINE__, __func__, __FILE__, msg, \
+                          sun_chk_call_err_code_, SUNCTX_);  \
+      return NULL;                                           \
+    }                                                        \
+  }                                                          \
   while (0)
 #else
-#define SUNCheckCallNull(call) (void)call
+#define SUNCheckCallNullMsg(call, msg) (void)call
 #endif
 
 /* Same as SUNCheckCall, but returns void. */
 #if defined(SUNDIALS_ENABLE_ERROR_CHECKS)
-#define SUNCheckCallVoid(call)                                           \
-  do {                                                                   \
-    SUNErrCode sun_chk_call_err_code_ = call;                            \
-    if (SUNHintFalse(sun_chk_call_err_code_ < 0))                        \
-    {                                                                    \
-      SUNHandleErr(__LINE__, __func__, __FILE__, sun_chk_call_err_code_, \
-                   SUNCTX_);                                             \
-      return;                                                            \
-    }                                                                    \
-  }                                                                      \
+#define SUNCheckCallVoidMsg(call, msg)                       \
+  do {                                                       \
+    SUNErrCode sun_chk_call_err_code_ = call;                \
+    if (SUNHintFalse(sun_chk_call_err_code_ < 0))            \
+    {                                                        \
+      SUNHandleErrWithMsg(__LINE__, __func__, __FILE__, msg, \
+                          sun_chk_call_err_code_, SUNCTX_);  \
+      return;                                                \
+    }                                                        \
+  }                                                          \
   while (0)
 #else
-#define SUNCheckCallNull(call) (void)call
+#define SUNCheckCallVoidMsg(call, msg) (void)call
 #endif
 
-/* SUNCheckLastErr checks the last_err value in the SUNContext.
+/* These versions of SUNCheckCall do not take a custom message so the
+   default message associated with the error code will be used. */
+#define SUNCheckCallNoRet(call) SUNCheckCallNoRetMsg(call, NULL)
+#define SUNCheckCall(call)      SUNCheckCallMsg(call, NULL)
+#define SUNCheckCallNull(call)  SUNCheckCallNull(call, NULL)
+#define SUNCheckCallVoid(call)  SUNCheckCallVoidMsg(call, NULL)
+
+/* SUNCheckLastErrMoRetMsg checks the last_err value in the SUNContext.
    If an error occured, then it will log the error, set the last_err
    value, and calls the error handler. */
-
 #if defined(SUNDIALS_ENABLE_ERROR_CHECKS)
-#define SUNCheckLastErrNoRet() SUNCheckCallNoRet(SUNGetLastErr(SUNCTX_))
-
-/* Same as SUNCheckLastErrNoRet, but returns with the error code. */
-#define SUNCheckLastErr() SUNCheckCall(SUNGetLastErr(SUNCTX_))
-
-/* Same as SUNCheckLastErrNoRet, but returns void. */
-#define SUNCheckLastErrVoid() SUNCheckCallVoid(SUNGetLastErr(SUNCTX_))
-
-/* Same as SUNCheckLastErrNoRet, but returns NULL. */
-#define SUNCheckLastErrNull() SUNCheckCallNull(SUNGetLastErr(SUNCTX_))
+#define SUNCheckLastErrNoRetMsg(msg) \
+  SUNCheckCallNoRetMsg(SUNContext_GetLastError(SUNCTX_), msg)
+#define SUNCheckLastErrMsg(msg) \
+  SUNCheckCallMsg(SUNContext_GetLastError(SUNCTX_), msg)
+#define SUNCheckLastErrNullMsg(msg) \
+  SUNCheckCallNullMsg(SUNContext_GetLastError(SUNCTX_), msg)
+#define SUNCheckLastErrVoidMsg(msg) \
+  SUNCheckCallVoidMsg(SUNContext_GetLastError(SUNCTX_), msg)
 #else
-#define SUNCheckLastErrNoRet()
-#define SUNCheckLastErr()
-#define SUNCheckLastErrVoid()
-#define SUNCheckLastErrNull()
+#define SUNCheckLastErrNoRetMsg(msg)
+#define SUNCheckLastErrMsg(msg)
+#define SUNCheckLastErrVoidMsg(msg)
+#define SUNCheckLastErrNullMsg(msg)
 #endif
+
+/* These versions of SUNCheckLastErr do not take a custom message so the
+   default message associated with the error code will be used. */
+#define SUNCheckLastErr()      SUNCheckLastErrMsg(NULL)
+#define SUNCheckLastErrNoRet() SUNCheckLastErrNoRetMsg(NULL)
+#define SUNCheckLastErrVoid()  SUNCheckLastErrVoidMsg(NULL)
+#define SUNCheckLastErrNull()  SUNCheckLastErrNullMsg(NULL)
 
 /* SUNAssert checks if an expression is true.
    It expands to SUNCheck when error checks are enabled.
