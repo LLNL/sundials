@@ -137,7 +137,7 @@ endif()
 # Check if unit tests are enabled
 if(SUNDIALS_TEST_UNITTESTS)
   find_package(GTest)
-  if(NOT TARGET GTest::gtest_main)
+  if(NOT (TARGET GTest::gtest_main OR TARGET GTest::Main))
     include(FetchContent)
     FetchContent_Declare(
       googletest
@@ -148,11 +148,7 @@ if(SUNDIALS_TEST_UNITTESTS)
       # For Windows: Prevent overriding the parent project's compiler/linker settings
       set(gtest_force_shared_crt ON CACHE BOOL "" FORCE)
     endif()
-    FetchContent_GetProperties(googletest)
-    if(NOT googletest_POPULATED)
-      FetchContent_Populate(googletest)
-      add_subdirectory(${googletest_SOURCE_DIR} ${googletest_BINARY_DIR})
-    endif()
+    FetchContent_MakeAvailable(googletest)
     include(GoogleTest)
   endif()
 endif()

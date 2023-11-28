@@ -17,7 +17,6 @@
 #ifndef _ARKODE_SPRKSTEP_H
 #define _ARKODE_SPRKSTEP_H
 
-#include <sundials/sundials_core.h>
 #include <arkode/arkode.h>
 #include <arkode/arkode_sprk.h>
 

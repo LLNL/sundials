@@ -230,9 +230,9 @@ def main():
             'package fused kernels')
 
     # error checks
-    add_arg(group, '--disable-error-checks', 'SUNDIALS_DISABLE_ERROR_CHECKS',
-            'SUNDIALS_DISABLE_ERROR_CHECKS', 'OFF', 'BOOL',
-            'disable error checks')
+    add_arg(group, '--enable-error-checks', 'SUNDIALS_ENABLE_ERROR_CHECKS',
+            'SUNDIALS_ENABLE_ERROR_CHECKS', 'OFF', 'BOOL',
+            'enable error checks')
 
 
     # -----------

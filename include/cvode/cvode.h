@@ -82,10 +82,6 @@ extern "C" {
 
 #define CV_CONTEXT_ERR          -32
 
-#define CV_BANDPRE_SETUP_FAIL   -33
-
-#define CV_SUNMAT_FAIL          -34
-
 #define CV_UNRECOGNIZED_ERR     -99
 
 

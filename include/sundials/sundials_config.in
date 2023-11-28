@@ -60,6 +60,8 @@
 #cmakedefine SUNDIALS_C_COMPILER_HAS_ISINF_ISNAN
 #cmakedefine SUNDIALS_C_COMPILER_HAS_INLINE
 #cmakedefine SUNDIALS_C_COMPILER_HAS_BUILTIN_EXPECT
+#cmakedefine SUNDIALS_C_COMPILER_HAS_ATTRIBUTE_ASSUME
+#cmakedefine SUNDIALS_C_COMPILER_HAS_ASSUME
 
 /* Define precision of SUNDIALS data type 'sunrealtype'
  * Depending on the precision level, one of the following
@@ -102,8 +104,8 @@
 /* BUILD SUNDIALS with profiling functionalities */
 #cmakedefine SUNDIALS_BUILD_WITH_PROFILING
 
-/* Disable error checking (SUNCheck family of macros) */
-#cmakedefine SUNDIALS_DISABLE_ERROR_CHECKS
+/* Enable error checking within SUNDIALS */
+#cmakedefine SUNDIALS_ENABLE_ERROR_CHECKS
 
 /* BUILD SUNDIALS with logging functionalities */
 #define SUNDIALS_LOGGING_LEVEL @SUNDIALS_LOGGING_LEVEL@
@@ -347,6 +349,9 @@
 
 /* ------------------------------------------------------------------
  * SUNDIALS __builtin_expect related macros.
+ * These macros provide hints to the compiler that the condition
+ * is typically false (or true) which may allow the compiler to 
+ * optimize.
  * -----------------------------------------------------------------*/
 
 /* Hint to the compiler that the branch is unlikely to be taken */
@@ -361,4 +366,27 @@
 #define SUNHintTrue(cond) __builtin_expect((cond), 1)
 #else
 #define SUNHintTrue(cond) (cond)
+#endif
+
+/* ------------------------------------------------------------------
+ * SUNAssume
+ *
+ * This macro tells the compiler that the condition should be assumed
+ * to be true. The consequence is that what happens if the assumption
+ * is violated is undefined. If there is not compiler support for
+ * assumptions, then we dont do anything as there is no reliable 
+ * way to avoid the condition being executed in all cases (such as
+ * the condition being an opaque function call, which we have a lot of). 
+ * -----------------------------------------------------------------*/
+
+#if __cplusplus >= 202302L
+#define SUNAssume(...) [[assume(__VA_ARGS__)]]
+#elif SUNDIALS_C_COMPILER_HAS_ATTRIBUTE_ASSUME
+#define SUNAssume(...) __attribute__((assume(__VA_ARGS__)));
+#elif SUNDIALS_C_COMPILER_HAS_BUILTIN_ASSUME
+#define SUNAssume(...) __builtin_assume(__VA_ARGS__)
+#elif SUNDIALS_C_COMPILER_HAS_ASSUME
+#define SUNAssume(...) __assume(__VA_ARGS__)
+#else
+#define SUNAssume(...) 
 #endif

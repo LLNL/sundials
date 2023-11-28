@@ -202,7 +202,7 @@ check_c_source_compiles("
   static inline double add1(double a) {
     return a + 1.0;
   }
-  int main() {
+  int main(int argc, const char* argv[]) {
     double a = 0.0;
     return add1(a) < a;
   }
@@ -213,7 +213,7 @@ check_c_source_compiles("
 # ---------------------------------------------------------------
 
 check_c_source_compiles("
-  int main(void) {
+  int main(int argc, const char* argv[]) {
     double a = 0.0;
     if (__builtin_expect(a < 0, 0)) {
       a = 0.0;
@@ -222,6 +222,41 @@ check_c_source_compiles("
     return 0;
   }
 " SUNDIALS_C_COMPILER_HAS_BUILTIN_EXPECT)
+
+# ---------------------------------------------------------------
+# Check for assume related extensions
+# ---------------------------------------------------------------
+
+check_c_source_compiles("
+  int main(int argc, const char* argv[]) {
+    double a = 0.0;
+    __attribute__((assume(a >= 0.0)));
+    a = a + 1.0;
+    return 0;
+  }
+" SUNDIALS_C_COMPILER_HAS_ATTRIBUTE_ASSUME)
+
+if(NOT SUNDIALS_C_COMPILER_HAS_ATTRIBUTE_ASSUME)
+  check_c_source_compiles("
+    int main(int argc, const char* argv[]) {
+      double a = 0.0;
+      __builtin_assume(a >= 0.0);
+      a = a + 1.0; 
+      return 0;
+    }
+  " SUNDIALS_C_COMPILER_HAS_BUILTIN_ASSUME)
+endif()
+
+if(NOT (SUNDIALS_C_COMPILER_HAS_ATTRIBUTE_ASSUME OR SUNDIALS_C_COMPILER_HAS_BUILTIN_ASSUME))
+  check_c_source_compiles("
+    int main(int argc, const char* argv[]) {
+      double a = 0.0;
+      __assume(a >= 0.0));
+      a = a + 1.0;
+      return 0;
+    }
+  " SUNDIALS_C_COMPILER_HAS_ASSUME)
+endif()
 
 
 # ---------------------------------------------------------------

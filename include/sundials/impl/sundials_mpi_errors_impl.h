@@ -24,7 +24,7 @@
 #include <sundials/impl/sundials_errors_impl.h>  
 #include <sundials/sundials_mpi_errors.h>
 
-#if !defined(SUNDIALS_DISABLE_ERROR_CHECKS)
+#if defined(SUNDIALS_ENABLE_ERROR_CHECKS)
 #define SUNCheckMPICall(call)                                                \
   do {                                                                       \
     int sun_chk_mpi_call_err_code_ = call;                                   \
@@ -39,7 +39,7 @@
 #define SUNCheckMPICall(call) call
 #endif
 
-#if !defined(SUNDIALS_DISABLE_ERROR_CHECKS)
+#if defined(SUNDIALS_ENABLE_ERROR_CHECKS)
 #define SUNCheckMPICallNull(call)                                            \
   do {                                                                       \
     int sun_chk_mpi_call_err_code_ = call;                                   \
@@ -54,7 +54,7 @@
 #define SUNCheckMPICallNull(call) call
 #endif
 
-#if !defined(SUNDIALS_DISABLE_ERROR_CHECKS)
+#if defined(SUNDIALS_ENABLE_ERROR_CHECKS)
 #define SUNCheckMPICallVoid(call)                                            \
   do {                                                                       \
     int sun_chk_mpi_call_err_code_ = call;                                   \
@@ -69,7 +69,7 @@
 #define SUNCheckMPICallVoid(call) call
 #endif
 
-#if !defined(SUNDIALS_DISABLE_ERROR_CHECKS)
+#if defined(SUNDIALS_ENABLE_ERROR_CHECKS)
 #define SUNCheckMPICallNoRet(call)                                           \
   do {                                                                       \
     int sun_chk_mpi_call_err_code_ = call;                                   \
@@ -81,22 +81,6 @@
   while (0)
 #else
 #define SUNCheckMPICallNoRet(call) call
-#endif
-
-/* SUNMPIAssert checks if an expression is true.
-   If the expression is false, it calls the SUNMPIAssertErrHandler. */
-#if !defined(NDEBUG)
-#define SUNMPIAssert(expr, code)                                          \
-  do {                                                                    \
-    if (!(expr))                                                          \
-    {                                                                     \
-      SUNMPIAssertErrHandlerFn(__LINE__, __func__, __FILE__, #expr, code, \
-                               SUNCTX->err_handler->data, SUNCTX);      \
-    }                                                                     \
-  }                                                                       \
-  while (0)
-#else
-#define SUNMPIAssert(expr, code)
 #endif
 
 #endif /* _SUNDIALS_MPI_ERRORS_IMPL_H */

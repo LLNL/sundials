@@ -13,7 +13,7 @@
 #include <gmock/gmock.h>
 #include <gtest/gtest.h>
 #include <sundials/sundials_core.h>
-#include "sundials/sundials_types.h"
+#include <sundials/impl/sundials_errors_impl.h>
 
 class SUNErrHandlerFnTest : public testing::Test
 {

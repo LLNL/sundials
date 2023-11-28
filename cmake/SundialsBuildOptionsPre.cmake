@@ -75,11 +75,17 @@ sundials_option(SUNDIALS_BUILD_WITH_PROFILING BOOL "${DOCSTR}" OFF)
 # Option to enable/disable error checking
 # ---------------------------------------------------------------
 
+if(CMAKE_BUILD_TYPE MATCHES "Release|RelWithDebInfo")
+  set(_default_err_checks OFF)
+else()
+  set(_default_err_checks ON)
+endif()
+
 set(DOCSTR "Build with error checking enabled/disabled. In most cases it is not recommended to disable error checks.")
-sundials_option(SUNDIALS_DISABLE_ERROR_CHECKS BOOL "${DOCSTR}" OFF)
-if(SUNDIALS_DISABLE_ERROR_CHECKS)
-  message(STATUS "SUNDIALS error checking disabled")
-  message(WARNING "SUNDIALS is being built without error checks. This is not recommended in most cases, but can provide improved performance.")
+sundials_option(SUNDIALS_ENABLE_ERROR_CHECKS BOOL "${DOCSTR}" ${_default_err_checks})
+if(SUNDIALS_ENABLE_ERROR_CHECKS)
+  message(STATUS "SUNDIALS error checking enabled")
+  message(WARNING "SUNDIALS is being built with extensive error checks, performance may be affected.")
 endif()
 
 # ---------------------------------------------------------------
