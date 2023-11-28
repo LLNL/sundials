@@ -81,7 +81,7 @@ and a typedef to a `MPI_Comm` in builds with MPI. Here is what this means:
   `N_VGetCommunicator`, since it now returns a `SUNComm`. 
 
 The change away from type-erased pointers for `SUNComm` fixes problems like the 
-one described in `[GitHub Issue #275](https://github.com/LLNL/sundials/issues/275)`.
+one described in [GitHub Issue #275](https://github.com/LLNL/sundials/issues/275).
 
 **Breaking change**
 The SUNLogger is now always MPI-aware if MPI is enabled in SUNDIALS and the
