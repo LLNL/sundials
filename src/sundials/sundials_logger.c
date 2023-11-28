@@ -538,7 +538,7 @@ int SUNLogger_Destroy(SUNLogger* logger_ptr)
   int retval = 0;
   SUNLogger logger = NULL;
   
-  if (!logger_ptr) { return -1; }
+  if (!logger_ptr) { return 0; }
 
   logger = *logger_ptr;
 

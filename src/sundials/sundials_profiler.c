@@ -164,7 +164,7 @@ int SUNProfiler_Create(SUNComm comm, const char* title, SUNProfiler* p)
 
   *p = profiler = (SUNProfiler)malloc(sizeof(struct _SUNProfiler));
 
-  if (profiler == NULL) return (-1);
+  if (profiler == NULL) { return 0; }
 
   profiler->overhead = sunTimerStructNew();
   if (profiler->overhead == NULL)
