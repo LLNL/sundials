@@ -318,7 +318,7 @@ program main
   end if
 
   ! -------------------------
-  retval = FSUNContext_Create(c_null_ptr, sunctx)
+  retval = FSUNContext_Create(SUN_COMM_NULL, sunctx)
   if (retval /= 0) then
      print *, 'ERROR in FSUNContext_Create'
      stop 1

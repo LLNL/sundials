@@ -221,7 +221,6 @@ program driver
   integer(c_long) :: leniwls(1)
   real(c_double)  :: avdim(1)    ! avg Krylov subspace dim (NLI/NNI)
   integer :: i, ioutput
-  integer, pointer :: commptr
   real(c_double) :: errmax, erri, gerrmax
 
   ! Initialize MPI variables
@@ -251,8 +250,7 @@ program driver
   alpha = 10.0d0
 
   ! Create SUNDIALS simulation context, now that comm has been configured
-  commptr => comm
-  retval = FSUNContext_Create(c_loc(commptr), sunctx)
+  retval = FSUNContext_Create(comm, sunctx)
   if (retval /= 0) then
      print *, "Error: FSUNContext_Create returned ", retval
      call MPI_Abort(comm, 1, ierr)

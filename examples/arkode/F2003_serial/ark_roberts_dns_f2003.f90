@@ -204,6 +204,7 @@ program main
   !======= Inclusions ===========
   use, intrinsic :: iso_c_binding
 
+  use fsundials_types_mod
   use farkode_mod                   ! Fortran interface to ARKODE
   use farkode_arkstep_mod           ! Fortran interface to the ARKStep module
   use fsundials_context_mod         ! Fortran interface to SUNContext
@@ -245,7 +246,7 @@ program main
   !======= Internals ============
 
   ! create the SUNDIALS context
-  retval = FSUNContext_Create(c_null_ptr, sunctx)
+  retval = FSUNContext_Create(SUN_COMM_NULL, sunctx)
 
   ! initialize solution vectors and tolerances
   yval(1)  = 1.d0

@@ -25,28 +25,28 @@ module DiagkrybbdData
     ! Description:
     !    Module containing problem-defining parameters.
     !---------------------------------------------------------------
- 
+
     !======= Inclusions ===========
     use, intrinsic :: iso_c_binding
- 
+
     use fsundials_nvector_mod
- 
+
     !======= Declarations =========
     implicit none
- 
+
     ! With MPI-3 use mpi_f08 is preferred
     include "mpif.h"
- 
+
     save
- 
+
     ! SUNDIALS simulation context
     type(c_ptr) :: sunctx
- 
+
     ! MPI domain decomposition information
     integer, target :: comm  ! communicator object
     integer :: myid          ! MPI process ID
     integer :: nprocs        ! total number of MPI processes
- 
+
     ! Problem parameters
     integer(c_int),  parameter :: iGStype = 1
     integer(c_int),  parameter :: iPretype0 = 1
@@ -54,99 +54,99 @@ module DiagkrybbdData
     integer(c_long) :: neq, mu, ml, mudq, mldq
     integer(c_int) :: iPretype
     real(c_double) :: alpha
- 
+
   contains
- 
- 
- 
+
+
+
     !-----------------------------------------------------------------
     ! ODE RHS function f(t,y) (implicit).
     !-----------------------------------------------------------------
     integer(c_int) function firhs(t, sunvec_y, sunvec_ydot, user_data) &
       result(retval) bind(C)
- 
+
       !======= Inclusions ===========
       use, intrinsic :: iso_c_binding
       use fsundials_nvector_mod
- 
+
       !======= Declarations =========
       implicit none
- 
+
       ! calling variables
       real(c_double), value :: t            ! current time
       type(N_Vector)        :: sunvec_y     ! solution N_Vector
       type(N_Vector)        :: sunvec_ydot  ! rhs N_Vector
       type(c_ptr)           :: user_data    ! user-defined data
- 
+
       ! pointers to data in SUNDIALS vectors
       real(c_double), pointer :: y(:)
       real(c_double), pointer :: ydot(:)
- 
+
       ! local data
       integer :: i
- 
+
       !======= Internals ============
- 
+
       ! Get data arrays from SUNDIALS vectors
       y(1:nlocal)    => FN_VGetArrayPointer(sunvec_y)
       ydot(1:nlocal) => FN_VGetArrayPointer(sunvec_ydot)
- 
+
       ! Initialize ydot to zero
       ydot = 0.d0
- 
+
       ! Fill ydot with rhs function
       do i = 1,nlocal
          ydot(i) = -alpha * (myid * nlocal + i) * y(i)
       end do
- 
+
       retval = 0              ! Return with success
       return
     end function firhs
     !-----------------------------------------------------------------
- 
+
     !-----------------------------------------------------------------
     ! ODE RHS function used for BBD preconditioner.
     !-----------------------------------------------------------------
     integer(c_int) function LocalgFn(nnlocal, t, sunvec_y, sunvec_g, user_data) &
       result(retval) bind(C)
- 
+
       !======= Inclusions ===========
       use, intrinsic :: iso_c_binding
       use fsundials_nvector_mod
- 
+
       !======= Declarations =========
       implicit none
- 
+
       ! calling variables
       real(c_double), value :: t            ! current time
       integer(c_long)       :: nnlocal      ! local space
       type(N_Vector)        :: sunvec_y     ! solution N_Vector
       type(N_Vector)        :: sunvec_g     ! output g N_Vector
       type(c_ptr)           :: user_data    ! user-defined data
- 
+
       ! local data
       integer :: ierr
-      
+
       ierr = firhs(t, sunvec_y, sunvec_g, user_data)
       if (ierr /= 0) then
          write(0,*) "Error in firhs user-defined function, ierr = ", ierr
          stop 1
       end if
- 
+
       retval = 0              ! Return with success
       return
     end function LocalgFn
     !-----------------------------------------------------------------
- 
+
   end module DiagkrybbdData
   !-----------------------------------------------------------------
- 
- 
+
+
   !-----------------------------------------------------------------
   ! Main driver program
   !-----------------------------------------------------------------
   program driver
- 
+
     ! inclusions
     use, intrinsic :: iso_c_binding
     use fsundials_futils_mod       ! Fortran utilities
@@ -158,12 +158,12 @@ module DiagkrybbdData
     use fsundials_linearsolver_mod ! Fortran interface to generic SUNLinearSolver
     use fsunlinsol_spgmr_mod       ! Fortran interface to spgmr SUNLinearSolver
     use fsundials_context_mod      ! Access sundials context
- 
+
     use DiagkrybbdData
- 
+
     !======= Declarations =========
     implicit none
- 
+
     ! Declarations
     ! general problem parameters
     integer, parameter :: Nt = 10                 ! total number of output times
@@ -171,7 +171,7 @@ module DiagkrybbdData
     real(c_double), parameter :: Tf = 1.d0        ! final time
     real(c_double), parameter :: rtol = 1.d-5     ! relative and absolute tolerances
     real(c_double), parameter :: atol = 1.d-10
- 
+
     ! solution vector and other local variables
     type(SUNLinearSolver), pointer :: sunls    ! sundials linear solver
     type(SUNMatrix), pointer :: sunmat_A       ! sundials matrix (empty)
@@ -191,7 +191,7 @@ module DiagkrybbdData
     integer(c_long) :: ncfl(1)     ! number of linear convergence fails
     integer(c_long) :: nli(1)      ! number of linear iters
     integer(c_long) :: npre(1)     ! number of preconditioner setups
-    integer(c_long) :: npsol(1)    ! number of preconditioner solves 
+    integer(c_long) :: npsol(1)    ! number of preconditioner solves
     integer(c_long) :: lenrw(1)    ! main solver real/int workspace size
     integer(c_long) :: leniw(1)
     integer(c_long) :: lenrwls(1)  ! linear solver real/int workspace size
@@ -201,14 +201,13 @@ module DiagkrybbdData
     integer(c_long) :: lenrwbbd(1) ! band preconditioner real/int workspace size
     integer(c_long) :: leniwbbd(1)
     integer :: i, ioutput
-    integer, pointer :: commptr
     real(c_double) :: errmax, erri, gerrmax
- 
+
     ! Initialize MPI variables
     comm = MPI_COMM_WORLD
     myid = 0
     nprocs = 0
- 
+
     ! initialize MPI
     call MPI_Init(ierr)
     if (ierr /= MPI_SUCCESS) then
@@ -225,19 +224,18 @@ module DiagkrybbdData
        write(0,*) "Error in MPI_Comm_rank = ", ierr
        call MPI_Abort(comm, 1, ierr)
     end if
- 
+
     ! Set input arguments neq and alpha
     neq = nprocs * nlocal
     alpha = 10.0d0
- 
+
     ! Create SUNDIALS simulation context, now that comm has been configured
-    commptr => comm
-    retval = FSUNContext_Create(c_loc(commptr), sunctx)
+    retval = FSUNContext_Create(comm, sunctx)
     if (retval /= 0) then
       print *, "Error: FSUNContext_Create returned ", retval
       call MPI_Abort(comm, 1, ierr)
     end if
- 
+
     ! Initial problem output
     outproc = (myid == 0)
     if (outproc) then
@@ -254,12 +252,12 @@ module DiagkrybbdData
        write(6,*) "   Precond is band-block-diagonal, using CVBBDPRE"
        write(6,*) "  "
     endif
- 
+
     ! Create solution vector, point at its data, and set initial condition
     sunvec_y => FN_VNew_Parallel(comm, nlocal, neq, sunctx)
     y(1:nlocal) => FN_VGetArrayPointer(sunvec_y)
     y = 1.d0
- 
+
     ! Create the CVode timestepper module
     cvode_mem = FCVodeCreate(CV_BDF, sunctx)
     if (.not. c_associated(cvode_mem)) then
@@ -272,14 +270,14 @@ module DiagkrybbdData
        print *, "Error: FCVodeInit returned ", retval
        call MPI_Abort(comm, 1, ierr)
     end if
- 
+
     ! Tell CVODE to use a SPGMR linear solver.
     sunls => FSUNLinSol_SPGMR(sunvec_y, iPretype0, 0, sunctx)
     if (.not. associated(sunls)) then
        print *, 'ERROR: sunls = NULL'
        call MPI_Abort(comm, 1, ierr)
     end if
- 
+
     ! Attach the linear solver (with NULL SUNMatrix object)
     sunmat_A => null()
     retval = FCVodeSetLinearSolver(cvode_mem, sunls, sunmat_A)
@@ -287,20 +285,20 @@ module DiagkrybbdData
        print *, 'Error in FCVodeSetLinearSolver, retval = ', retval
        call MPI_Abort(comm, 1, ierr)
     end if
- 
+
     retval = FSUNLinSol_SPGMRSetGSType(sunls, iGStype)
     if (retval /= 0) then
        print *, 'Error in FSUNLinSol_SPGMRSetGSType, retval = ', retval
        call MPI_Abort(comm, 1, ierr)
     end if
- 
+
     ! Specify tolerances
     retval = FCVodeSStolerances(cvode_mem, rtol, atol)
     if (retval /= 0) then
        print *, "Error: FCVodeSStolerances returned ", retval
        call MPI_Abort(comm, 1, ierr)
     end if
- 
+
     mu = 0
     ml = 0
     mudq = 0
@@ -311,37 +309,37 @@ module DiagkrybbdData
        print *, "Error: FCVBBDPrecInit returned ", retval
        call MPI_Abort(comm, 1, ierr)
     end if
- 
+
     do iPretype = 1,2
- 
+
        if (iPretype == 2) then
-          
+
           y = 1.d0
- 
+
           retval = FCVodeReInit(cvode_mem, t0, sunvec_y)
           if (retval /= 0) then
              print *, "Error in FCVodeReInit, retval = ", retval
              call MPI_Abort(comm, 1, ierr)
           end if
-          
+
           retval = FCVBBDPrecReInit(cvode_mem, mudq, mldq, 0.d0)
           if (retval /= 0) then
              print *, "Error in FCVBBDPrecReInit, retval = ", retval
              call MPI_Abort(comm, 1, ierr)
           end if
- 
+
           retval = FSUNLinSol_SPGMRSetPrecType(sunls, iPretype)
           if (retval /= 0) then
              print *, "Error in FSUNLinSol_SPGMRSetPrecType, retval = ", retval
              call MPI_Abort(comm, 1, ierr)
           end if
- 
+
           if (outproc) write(6,*) "   Preconditioning on right:"
- 
+
        end if
- 
+
        if (iPretype == 1 .and. outproc) write(6,*) "   Preconditioning on left:"
- 
+
        ! Main time-stepping loop: calls CVode to perform the integration, then
        ! prints results.  Stops when the final time has been reached
        t(1) = T0
@@ -352,42 +350,42 @@ module DiagkrybbdData
        write(6,*) "   --------------------------------"
        end if
        do ioutput=1,Nt
- 
+
           ! Integrate to output time
           retval = FCVode(cvode_mem, tout, sunvec_y, t, CV_NORMAL)
           if (retval /= 0) then
              print *, "Error: FCVode returned ", retval
              call MPI_Abort(comm, 1, ierr)
           end if
- 
+
           retval = FCVodeGetNumSteps(cvode_mem, nst)
           if (retval /= 0) then
              print *, "Error: FCVodeGetNumSteps returned ", retval
              call MPI_Abort(comm, 1, ierr)
           end if
- 
+
           retval = FCVodeGetNumRhsEvals(cvode_mem, nfe)
           if (retval /= 0) then
              print *, "Error: FCVodeGetNumRhsEvals returned ", retval
              call MPI_Abort(comm, 1, ierr)
           end if
- 
+
           ! print solution stats and update internal time
           if (outproc)   write(6,'(3x,f10.6,3(3x,i6))') t, nst, nfe
           tout = min(tout + dTout, Tf)
- 
+
        end do
        if (outproc) then
           write(6,*) "   --------------------------------"
        end if
- 
+
        ! Get max. absolute error in the local vector.
        errmax = 0.d0
        do i = 1,nlocal
           erri = y(i) - exp(-alpha * (myid * nlocal + i) * t(1))
           errmax = max(errmax, abs(erri))
        end do
- 
+
        ! Get global max. error from MPI_Reduce call.
        call MPI_Reduce(errmax, gerrmax, 1, MPI_DOUBLE, MPI_MAX, &
                        0, comm, ierr)
@@ -395,91 +393,91 @@ module DiagkrybbdData
           print *, "Error in MPI_Reduce = ", ierr
           call MPI_Abort(comm, 1, ierr)
        end if
- 
+
        ! Print global max. error
        if (outproc) print '(a,es10.2)', "Max. absolute error is ", gerrmax
- 
+
        ! Get final statistics
        retval = FCVodeGetNumSteps(cvode_mem, nst)
        if (retval /= 0) then
           print *, "Error: FCVodeGetNumSteps returned ", retval
           call MPI_Abort(comm, 1, ierr)
        end if
- 
+
        retval = FCVodeGetNumRhsEvals(cvode_mem, nfe)
        if (retval /= 0) then
           print *, "Error: FCVodeGetNumRhsEvals returned ", retval
           call MPI_Abort(comm, 1, ierr)
        end if
- 
+
        retval = FCVodeGetNumPrecEvals(cvode_mem, npre)
        if (retval /= 0) then
           print *, "Error: FCVodeGetNumPrecEvals returned ", retval
           call MPI_Abort(comm, 1, ierr)
        end if
- 
+
        retval = FCVodeGetNumPrecSolves(cvode_mem, npsol)
        if (retval /= 0) then
           print *, "Error: FCVodeGetNumPrecSolves returned ", retval
           call MPI_Abort(comm, 1, ierr)
        end if
- 
+
        retval = FCVodeGetNumNonlinSolvIters(cvode_mem, nni)
        if (retval /= 0) then
           print *, "Error: FCVodeGetNumNonlinSolvIters returned ", retval
           call MPI_Abort(comm, 1, ierr)
        end if
- 
+
        retval = FCVodeGetNumLinIters(cvode_mem, nli)
        if (retval /= 0) then
           print *, "Error: FCVodeGetNumLinIters returned ", retval
           call MPI_Abort(comm, 1, ierr)
        end if
- 
+
        avdim = dble(nli) / dble(nni)
- 
+
        retval = FCVodeGetNumNonlinSolvConvFails(cvode_mem, ncfn)
        if (retval /= 0) then
           print *, "Error: FCVodeGetNumNonlinSolvConvFails returned ", retval
           call MPI_Abort(comm, 1, ierr)
        end if
- 
+
        retval = FCVodeGetNumLinConvFails(cvode_mem, ncfl)
        if (retval /= 0) then
           print *, "Error: FCVodeGetNumLinSolvConvFails returned ", retval
           call MPI_Abort(comm, 1, ierr)
        end if
- 
+
        retval = FCVodeGetNumErrTestFails(cvode_mem, netf)
        if (retval /= 0) then
           print *, "Error: FCVodeGetNumErrTestFails returned ", retval
           call MPI_Abort(comm, 1, ierr)
        end if
- 
+
        retval = FCVodeGetWorkSpace(cvode_mem, lenrw, leniw)
        if (retval /= 0) then
           print *, "Error: FCVodeGetWorkSpace returned ", retval
           call MPI_Abort(comm, 1, ierr)
        end if
- 
+
        retval = FCVodeGetLinWorkSpace(cvode_mem, lenrwls, leniwls)
        if (retval /= 0) then
           print *, "Error: FCVodeGetLinWorkSpace returned ", retval
           call MPI_Abort(comm, 1, ierr)
        end if
- 
+
        retval = FCVBBDPrecGetWorkSpace(cvode_mem, lenrwbbd, leniwbbd)
        if (retval /= 0) then
           print *, "Error: FCVBBDPrecGetWorkSpace returned ", retval
           call MPI_Abort(comm, 1, ierr)
        end if
- 
+
        retval = FCVBBDPrecGetNumGfnEvals(cvode_mem, ngebbd)
        if (retval /= 0) then
           print *, "Error: FCVBBDPrecGetNumGfnEvals returned ", retval
           call MPI_Abort(comm, 1, ierr)
        end if
- 
+
        ! Print some final statistics
        if (outproc) then
           write(6,*) "  "
@@ -503,13 +501,12 @@ module DiagkrybbdData
           write(6,'(A)') "    "
        end if
     end do
- 
+
    ! Clean up and return with successful completion
    call FCVodeFree(cvode_mem)       ! free integrator memory
    call FN_VDestroy(sunvec_y)          ! free vector memory
    call MPI_Barrier(comm, ierr)
    call MPI_Finalize(ierr)             ! Finalize MPI
- 
+
   end program driver
   !-----------------------------------------------------------------
- 

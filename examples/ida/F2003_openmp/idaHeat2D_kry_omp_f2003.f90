@@ -228,6 +228,7 @@ program main
   !======= Inclusions ===========
   use, intrinsic :: iso_c_binding
 
+  use fsundials_types_mod
   use fida_mod                   ! Fortran interface to IDA
   use fsundials_context_mod      ! Fortran interface to SUNContext
   use fnvector_openmp_mod        ! Fortran interface to serial N_Vector
@@ -260,7 +261,7 @@ program main
   real(c_double), dimension(mgrid,mgrid) :: uu, up, res, constraints
 
   !======= Internals ============
-  retval = FSUNContext_Create(c_null_ptr, sunctx)
+  retval = FSUNContext_Create(SUN_COMM_NULL, sunctx)
 
   ! get the number of threads passed in as a command line argument (if applicable)
   nargs = command_argument_count()

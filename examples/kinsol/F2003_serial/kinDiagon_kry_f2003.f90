@@ -230,6 +230,7 @@ end module kinDiagonKry_mod
 program main
 
   !======= Inclusions ===========
+  use fsundials_types_mod
   use fsundials_context_mod
   use fkinsol_mod                ! Fortran interface to KINSOL
   use fsundials_nvector_mod      ! Fortran interface to generic N_Vector
@@ -269,7 +270,7 @@ program main
   print '(a,i3)', "Problem size: neq = ", neq
 
   ! -------------------------
-  retval = FSUNContext_Create(c_null_ptr, sunctx)
+  retval = FSUNContext_Create(SUN_COMM_NULL, sunctx)
   if (retval /= 0) then
      print *, 'ERROR in FSUNContext_Create'
      stop 1

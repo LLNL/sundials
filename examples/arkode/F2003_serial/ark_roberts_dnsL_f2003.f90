@@ -244,7 +244,7 @@ program main
   !======= Internals ============
 
   ! create the SUNDIALS context
-  retval = FSUNContext_Create(c_null_ptr, sunctx)
+  retval = FSUNContext_Create(SUN_COMM_NULL, sunctx)
 
   ! initialize solution vectors and tolerances
   yval(1)  = 1.d0

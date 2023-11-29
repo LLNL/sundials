@@ -213,6 +213,7 @@ program main
   !======= Inclusions ===========
   use, intrinsic :: iso_c_binding
 
+  use fsundials_types_mod
   use farkode_mod                ! Fortran interface to the ARKODE module
   use farkode_arkstep_mod        ! Fortran interface to the ARKStep module
   use fsundials_nvector_mod      ! Fortran interface to the generic N_Vector
@@ -251,7 +252,7 @@ program main
   !======= Internals ============
 
   ! create the SUNDIALS context
-  ierr = FSUNContext_Create(c_null_ptr, ctx)
+  ierr = FSUNContext_Create(SUN_COMM_NULL, ctx)
 
   ! initialize ODE
   tstart = 0.0d0

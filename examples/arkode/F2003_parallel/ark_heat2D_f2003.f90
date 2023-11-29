@@ -699,7 +699,6 @@ program driver
   integer(c_long) :: npsol(1)   ! number of preconditioner solves
   integer :: i, j, ioutput
   character*100 :: outname
-  integer, pointer :: commptr
 
   ! initialize MPI
   call MPI_Init(ierr)
@@ -730,8 +729,7 @@ program driver
   end if
 
   ! Create SUNDIALS simulation context, now that comm has been configured
-  commptr => comm
-  retval = FSUNContext_Create(c_loc(commptr), sunctx)
+  retval = FSUNContext_Create(comm, sunctx)
   if (retval /= 0) then
      print *, "Error: FSUNContext_Create returned ",retval
      call MPI_Abort(comm, 1, ierr)

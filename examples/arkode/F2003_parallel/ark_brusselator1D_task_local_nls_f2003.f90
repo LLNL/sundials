@@ -668,7 +668,7 @@ contains
     type(c_ptr), value :: arkode_mem   ! ARKODE memory structure
 
     ! residual data
-    type(c_ptr), value :: user_data
+    type(c_ptr) :: user_data
 
     real(c_double) :: tcur(1) ! current time
     real(c_double) :: gam(1)  ! current gamma

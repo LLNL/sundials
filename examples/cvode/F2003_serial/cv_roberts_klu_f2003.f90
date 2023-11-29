@@ -231,6 +231,7 @@ program main
 
   !======= Inclusions ===========
   use, intrinsic :: iso_c_binding
+  use fsundials_types_mod
   use fcvode_mod                    ! Fortran interface to CVODE
   use fsundials_context_mod         ! Fortran interface to SUNContext
   use fsundials_nvector_mod         ! Fortran interface to generic N_Vector
@@ -267,7 +268,7 @@ program main
 
   !======= Internals ============
 
-  retval = FSUNContext_Create(c_null_ptr, sunctx)
+  retval = FSUNContext_Create(SUN_COMM_NULL, sunctx)
 
   ! initialize solution vectors and tolerances
   yval(1) = 1.0d0
