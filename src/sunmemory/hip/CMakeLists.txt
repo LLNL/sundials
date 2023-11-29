@@ -21,6 +21,7 @@ sundials_add_library(sundials_sunmemhip
   INCLUDE_SUBDIR
     sunmemory
   LINK_LIBRARIES
+    PUBLIC sundials_core
     PRIVATE hip::device
   OBJECT_LIB_ONLY
 )

@@ -146,7 +146,7 @@ int main(int argc, char *argv[])
   printf("   abstol = %.1"ESYM"\n\n", abstol);
 
   /* Create the SUNDIALS context object for this simulation. */
-  SUNContext_Create(NULL, &sunctx);
+  SUNContext_Create(SUN_COMM_NULL, &sunctx);
 
   /* Create solution vector and initialize to zero */
   y = N_VNew_Serial(NEQ, sunctx);

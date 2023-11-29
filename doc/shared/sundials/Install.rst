@@ -14,22 +14,30 @@
 
 .. _Installation:
 
-======================
-Installation Procedure
-======================
+Acquiring SUNDIALS
+==================
 
-The installation of any SUNDIALS package is accomplished by installing the
-SUNDIALS suite as a whole, according to the instructions that follow.  The same
-procedure applies whether or not the downloaded file contains one or all solvers
-in SUNDIALS.
+There are two supported ways for building and installing SUNDIALS from
+source. One option is to use the `Spack HPC package manager <https://spack.io/>`_:
 
-The SUNDIALS suite (or individual solvers) are distributed as compressed
-archives (``.tar.gz``).  The name of the distribution archive is of the form
+.. code-block:: bash
+
+   spack install sundials
+
+The second supported option for building and installing SUNDIALS is with CMake.
+Before proceeding with CMake, the source code must be downloaded. This can be done
+by cloning the `SUNDIALS GitHub repository <https://github.com/LLNL/sundials>`_
+(run ``git clone https://github.com/LLNL/sundials``), or by downloading the 
+SUNDIALS release compressed archives (``.tar.gz``) from  the SUNDIALS 
+`website <https://computing.llnl.gov/projects/sundials/sundials-software>`_.
+
+The compressed archives allow for downloading of indvidual SUNDIALS packages.
+The name of the distribution archive is of the form
 ``SOLVER-X.Y.Z.tar.gz``, where ``SOLVER`` is one of: ``sundials``, ``cvode``,
 ``cvodes``, ``arkode``, ``ida``, ``idas``, or ``kinsol``, and ``X.Y.Z``
 represents the version number (of the SUNDIALS suite or of the individual
-solver).  To begin the installation, first uncompress and expand the sources, by
-issuing
+solver). After downloading the relevant archives, uncompress and expand the sources, 
+by running
 
 .. code-block:: bash
 
@@ -84,8 +92,8 @@ and :numref:`Installation.Results`.
 
 .. _Installation.CMake:
 
-CMake-based installation
-======================================
+Building and Installing with CMake
+==================================
 
 CMake-based installation provides a platform-independent build system. CMake can
 generate Unix and Linux Makefiles, as well as KDevelop, Visual Studio, and
@@ -994,19 +1002,6 @@ illustration only.
    Default: 0
 
 
-.. cmakeoption:: SUNDIALS_LOGGING_ENABLE_MPI
-
-   Enables MPI support in the SUNLogger runtime API. I.e., makes the logger MPI
-   aware and capable of outputting only on specific ranks.
-
-   Default: ``OFF``
-
-   .. note::
-
-      The logger may be used in an MPI application without MPI support turned on,
-      but it will output on all ranks.
-
-
 .. cmakeoption:: SUNDIALS_BUILD_WITH_MONITORING
 
    Build SUNDIALS with capabilties for fine-grained monitoring of solver progress
@@ -1647,11 +1642,10 @@ dependencies for your project.
 
 
 
-
 .. _Installation.Results:
 
 Installed libraries and exported header files
-====================================================
+---------------------------------------------
 
 Using the CMake SUNDIALS build system, the command
 
@@ -1672,12 +1666,41 @@ the table below.  The file extension ``.LIB`` is typically
 table names are relative to ``LIBDIR`` for libraries and to ``INCLUDEDIR`` for
 header files.
 
-A typical user program need not explicitly include any of the shared SUNDIALS
-header files from under the ``INCLUDEDIR/include/sundials`` directory since they
-are explicitly included by the appropriate solver header files (e.g.,
-``sunlinsol_dense.h`` includes ``sundials_dense.h``). However, it is both legal and
-safe to do so, and would be useful, for example, if the functions declared in
-``sundials_dense.h`` are to be used in building a preconditioner.
+
+Using SUNDIALS in your prpject
+------------------------------
+
+After building and installing SUNDIALS, using SUNDIALS in your application involves
+two steps: including the right header files and linking to the right libraries.
+
+Depending on what features of SUNDIALS that your application uses, the header
+files needed will vary. For example, if you want to use CVODE for serial computations
+you need the following includes:
+
+.. code-block:: c
+
+   #include <cvode/cvode.h>
+   #include <nvector/nvector_serial.h>
+
+If you wanted to use CVODE with the GMRES linear solver and our CUDA
+enabled vector:
+
+.. code-block:: c
+
+   #include <cvode/cvode.h>
+   #include <nvector/nvector_cuda.h>
+   #include <sunlinsol/sunlinsol_spgmr.h>
+
+The story is similar for linking to SUNDIALS. Starting in v7.0.0, all
+applications will need to link to ``libsundials_core``. Furthermore, depending
+on the packages and modules of SUNDIALS of interest an application will need to
+link to a few more libraries. Using the same examples as for the includes, we
+would need to also link to ``libsundials_cvode``, ``libsundials_nvecserial`` for
+the first example and ``libsundials_cvode``, ``libsundials_nveccuda``,
+``libsundials_sunlinsolspgmr`` for the second.
+
+Refer to the documentations sections for the individual packages and modules of
+SUNDIALS that interest you for the proper includes and libraries to link to.
 
 
 Using SUNDIALS as a Third Party Library in other CMake Projects
@@ -1716,14 +1739,20 @@ configuration file to build against SUNDIALS in their own CMake project.
   target_link_libraries(myexec PUBLIC SUNDIALS::cvode SUNDIALS::nvecpetsc)
 
 
+Table of SUNDIALS libraries and header files
+--------------------------------------------
+
 .. _Installation.Table:
 
 .. tabularcolumns:: |\Y{0.3}|\Y{0.2}|\Y{0.5}|
 
 .. table:: SUNDIALS shared libraries and header files
+   :align: center
 
    +------------------------------+--------------+----------------------------------------------+
-   | Shared                       | Headers      | ``sundials/sundials_band.h``                 |
+   | Core                         | Libraries    | ``libsundials_core.LIB``                     |
+   |                              +--------------+----------------------------------------------+
+   |                              | Headers      | ``sundials/sundials_band.h``                 |
    |                              |              +----------------------------------------------+
    |                              |              | ``sundials/sundials_config.h``               |
    |                              |              +----------------------------------------------+

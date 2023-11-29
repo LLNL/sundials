@@ -97,7 +97,7 @@ int main(int argc, char* argv[])
     bool outproc = (myid == 0);
 
     // SUNDIALS context
-    sundials::Context sunctx(&comm_w);
+    sundials::Context sunctx(comm_w);
 
     // ------------------------------------------
     // Setup UserData and parallel decomposition
@@ -139,7 +139,7 @@ int main(int argc, char* argv[])
           SUNDIALS will only log up to the max level n, but a lesser level can
           be configured at runtime by only providing output files for the
           desired levels. We will enable all logging here: */
-      retval = SUNLogger_Create((void*)&comm_w, -1, &logger); /* output on all ranks */
+      retval = SUNLogger_Create(comm_w, -1, &logger); /* output on all ranks */
       if (check_retval(&retval, "SUNLogger_Create", 1)) return 1;
       retval = SUNLogger_SetDebugFilename(logger, fname);
       if (check_retval(&retval, "SUNLogger_SetDebugFilename", 1)) return 1;

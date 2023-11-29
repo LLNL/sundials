@@ -79,7 +79,7 @@ int main(int argc, char *argv[])
   MPI_Init(&argc, &argv);
   comm = MPI_COMM_WORLD;
 
-  if (SUNContext_Create(&comm, &sunctx)) {
+  if (SUNContext_Create(comm, &sunctx)) {
     printf("ERROR: SUNContext_Create failed\n");
     return(-1);
   }

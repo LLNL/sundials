@@ -121,7 +121,7 @@ int main(int argc, char *argv[])
   fails = MPI_Comm_rank(ProbData.comm, &(ProbData.myid));
   if (check_flag(&fails, "MPI_Comm_rank", 1)) return 1;
 
-  if (SUNContext_Create(&ProbData.comm, &sunctx)) {
+  if (SUNContext_Create(ProbData.comm, &sunctx)) {
     printf("ERROR: SUNContext_Create failed\n");
     return(-1);
   }
@@ -157,8 +157,8 @@ int main(int argc, char *argv[])
   if (ProbData.myid == 0) {
     printf("\nPCG linear solver test:\n");
     printf("  nprocs = %i\n", ProbData.nprocs);
-    printf("  local/global problem sizes = %ld/%ld\n", (long int) ProbData.Nloc,
-           (long int) ProbData.nprocs * ProbData.Nloc);
+    printf("  local/global problem sizes = %ld/%lld\n", (long int) ProbData.Nloc,
+           (long long int) ProbData.nprocs * ProbData.Nloc);
     printf("  Maximum Krylov subspace dimension = %i\n", maxl);
     printf("  Solver Tolerance = %g\n", tol);
     printf("  timing output flag = %i\n\n", print_timing);

@@ -51,7 +51,7 @@ LINKFLAGS_PETSC = ${LINKFLAGS}
 
 TMP_INCS = ${includedir} ${MPI_INC_DIR} ${INCLUDES_PETSC}
 INCLUDES = $(addprefix -I, ${TMP_INCS})
-LIBRARIES = -l@SOLVER_LIB@ -lsundials_nvecpetsc -lsundials_sunnonlinsolpetscsnes ${LIBS} ${LIBRARIES_PETSC}
+LIBRARIES = -l@SOLVER_LIB@ -lsundials_nvecpetsc -lsundials_sunnonlinsolpetscsnes -lsundials_core ${LIBS} ${LIBRARIES_PETSC}
 
 # -----------------------------------------------------------------------------------------
 

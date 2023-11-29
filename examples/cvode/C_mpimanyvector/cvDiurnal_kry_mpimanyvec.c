@@ -240,7 +240,7 @@ int main(int argc, char *argv[])
   local_N = MXSUB*MYSUB;
 
   /* Create the SUNDIALS context */
-  retval = SUNContext_Create(&comm, &sunctx);
+  retval = SUNContext_Create(comm, &sunctx);
   if(check_retval(&retval, "SUNContext_Create", 1, my_pe)) MPI_Abort(comm, 1);
 
   /* Allocate c[0], c[1], u, and set initial values and tolerances */

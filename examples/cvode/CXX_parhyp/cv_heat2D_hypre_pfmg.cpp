@@ -335,7 +335,7 @@ int main(int argc, char* argv[])
     void *cvode_mem    = NULL;  // CVODE memory structure
 
     // SUNDIALS context
-    sundials::Context sunctx(&comm_w);
+    sundials::Context sunctx(comm_w);
 
     // Set output process flag
     bool outproc = (myid == 0);

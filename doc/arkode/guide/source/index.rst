@@ -66,7 +66,7 @@ with support by the `US Department of Energy <http://www.doe.gov>`_,
    sunnonlinsol/index.rst
    sunadaptcontroller/index.rst
    sunmemory/index.rst
-   Install_link.rst
+   sundials/Install_link.rst
    Constants
    Butcher
    History_link.rst

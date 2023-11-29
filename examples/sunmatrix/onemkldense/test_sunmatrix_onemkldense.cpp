@@ -36,7 +36,7 @@ int main(int argc, char *argv[])
   sunindextype i, j, k, m, n;
   SUNContext   sunctx;
 
-  if (SUNContext_Create(NULL, &sunctx)) {
+  if (SUNContext_Create(SUN_COMM_NULL, &sunctx)) {
     printf("ERROR: SUNContext_Create failed\n");
     return(-1);
   }

@@ -132,7 +132,7 @@ int main(int argc, char *argv[])
 
   /* Create the SUNDIALS context object for this simulation. */
   SUNContext ctx = NULL;
-  SUNContext_Create(NULL, &ctx);
+  SUNContext_Create(SUN_COMM_NULL, &ctx);
 
   /* Print problem description */
   printf("\nAdjoint Sensitivity Example for Chemical Kinetics\n");

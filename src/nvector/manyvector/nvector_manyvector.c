@@ -220,37 +220,41 @@ N_Vector N_VNew_MPIManyVector(sunindextype num_subvectors,
 {
   sunindextype i;
   sunbooleantype nocommfound;
-  void* tmpcomm;
-  MPI_Comm comm, *vcomm;
+
+  MPI_Comm comm, vcomm;
   int retval, comparison;
   N_Vector v = NULL;
 
   /* Check that all subvectors have identical MPI communicators (if present) */
   nocommfound = SUNTRUE;
-  comm = MPI_COMM_NULL;
+  vcomm = MPI_COMM_NULL;
   for (i=0; i<num_subvectors; i++) {
 
     /* access MPI communicator for subvector i (vcomm);
        if none is present then continue to next subvector */
-    tmpcomm = N_VGetCommunicator(vec_array[i]);
-    if (tmpcomm == NULL)  continue;
-    vcomm = (MPI_Comm *) tmpcomm;
+    vcomm = N_VGetCommunicator(vec_array[i]);
+
+    if (vcomm == MPI_COMM_NULL) { continue; }
 
     /* if this is the first communicator, create a copy */
     if (nocommfound) {
 
       /* set comm to duplicate this first subvector communicator */
-      retval = MPI_Comm_dup(*vcomm, &comm);
-      if (retval != MPI_SUCCESS)  return(NULL);
+      retval = MPI_Comm_dup(vcomm, &comm);
+      if (retval != MPI_SUCCESS) { return(NULL); }
+
       nocommfound = SUNFALSE;
 
     /* otherwise, verify that vcomm matches stored comm */
     } else {
+      
+      retval = MPI_Comm_compare(vcomm, comm, &comparison);
+      if (retval != MPI_SUCCESS) { return(NULL); }
 
-      retval = MPI_Comm_compare(*vcomm, comm, &comparison);
-      if ((comparison != MPI_IDENT) && (comparison != MPI_CONGRUENT))
+      if ((comparison != MPI_IDENT) && (comparison != MPI_CONGRUENT)) {
         return(NULL);
-
+      }
+      
     }
   }
 
@@ -540,18 +544,15 @@ void MVAPPEND(N_VSpace)(N_Vector v, sunindextype *lrw, sunindextype *liw)
 
 #ifdef MANYVECTOR_BUILD_WITH_MPI
 /* This function retrieves the MPI Communicator from an MPIManyVector object. */
-void *N_VGetCommunicator_MPIManyVector(N_Vector v)
+MPI_Comm N_VGetCommunicator_MPIManyVector(N_Vector v)
 {
-  if (MANYVECTOR_COMM(v) == MPI_COMM_NULL)
-    return NULL;
-  else
-    return((void *) &MANYVECTOR_COMM(v));
+  return(MANYVECTOR_COMM(v));
 }
 #else
 /* This function retrieves the MPI Communicator from a ManyVector object. */
-void *N_VGetCommunicator_ManyVector(N_Vector v)
+SUNComm N_VGetCommunicator_ManyVector(N_Vector v)
 {
-  return NULL;
+  return SUN_COMM_NULL;
 }
 #endif
 
@@ -2054,15 +2055,12 @@ static N_Vector ManyVectorClone(N_Vector w, sunbooleantype cloneempty)
    returns 0.  If an error occurs in the call to MPI_Comm_Rank, it returns -1. */
 static int SubvectorMPIRank(N_Vector x)
 {
-  void* tmpcomm;
-  MPI_Comm *comm;
+  MPI_Comm comm;
   int rank, retval;
-  tmpcomm = N_VGetCommunicator(x);
-  if (tmpcomm == NULL) return(0);
-  comm = (MPI_Comm *) tmpcomm;
-  if ((*comm) == MPI_COMM_NULL) return(0);
-  retval = MPI_Comm_rank(*comm, &rank);
-  if (retval != MPI_SUCCESS)  return(-1);
+  comm = N_VGetCommunicator(x);
+  if (comm == MPI_COMM_NULL) { return(0); }
+  retval = MPI_Comm_rank(comm, &rank);
+  if (retval != MPI_SUCCESS) { return(-1); }
   return(rank);
 }
 #endif

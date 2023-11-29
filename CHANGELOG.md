@@ -60,9 +60,43 @@ method `ARKODE_VERNER_16_8_9`.
 Changed the `SUNProfiler` so that it does not rely on `MPI_WTime` in any case.
 This fixes https://github.com/LLNL/sundials/issues/312. 
 
+**Breaking change** 
+We have replaced the use of a type-erased (i.e., `void*`) pointer to a
+communicator in place of `MPI_Comm` throughout the SUNDIALS API with a
+`SUNComm`, which is just a typedef to an `int` in builds without MPI
+and a typedef to a `MPI_Comm` in builds with MPI. Here is what this means:
+
+- All users will need to update their codes because the call to 
+  `SUNContext_Create` now takes a `SUNComm` instead
+  of type-erased pointer to a communicator. For non-MPI codes,
+  pass `SUN_COMM_NULL` to the `comm` argument instead of
+  `NULL`. For MPI codes, pass the `MPI_Comm` directly. 
+  The required change should be doable with a find-and-replace. 
+
+- The same change must be made for calls to 
+  `SUNLogger_Create` or `SUNProfiler_Create`. 
+  
+- Some users will need to update their calls to `N_VGetCommunicator`, and 
+  update any custom `N_Vector` implementations tht provide 
+  `N_VGetCommunicator`, since it now returns a `SUNComm`. 
+
+The change away from type-erased pointers for `SUNComm` fixes problems like the 
+one described in [GitHub Issue #275](https://github.com/LLNL/sundials/issues/275).
+
+**Breaking change**
+The SUNLogger is now always MPI-aware if MPI is enabled in SUNDIALS and the
+`SUNDIALS_LOGGING_ENABLE_MPI` CMake option and macro definition were removed 
+accordingly.
+
 **Breaking change**
 Functions, types and header files that were previously deprecated have been
-removed. 
+removed.  
+
+**Breaking change**
+Users now need to link to `sundials_core` in addition to the libraries already linked to. 
+This will be picked up automatically in projects that use the SUNDIALS CMake target.
+The library `sundials_generic` has been superceded by `sundials_core` and is no longer available.
+This fixes some duplicate symbol errors on Windows when linking to multiple SUNDIALS libraries.
 
 ## Changes to SUNDIALS in release 6.6.1
 

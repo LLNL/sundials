@@ -17,7 +17,8 @@
 
 #include <stdio.h>
 
-#include "sundials/sundials_config.h"
+#include <sundials/sundials_config.h>
+#include <sundials/sundials_types.h>
 
 #if defined(SUNDIALS_BUILD_WITH_PROFILING) && defined(SUNDIALS_CALIPER_ENABLED)
 #include "caliper/cali.h"
@@ -29,7 +30,7 @@ extern "C" {
 
 typedef struct _SUNProfiler* SUNProfiler;
 
-SUNDIALS_EXPORT int SUNProfiler_Create(void* comm, const char* title,
+SUNDIALS_EXPORT int SUNProfiler_Create(SUNComm comm, const char* title,
                                        SUNProfiler* p);
 SUNDIALS_EXPORT int SUNProfiler_Free(SUNProfiler* p);
 SUNDIALS_EXPORT int SUNProfiler_Begin(SUNProfiler p, const char* name);

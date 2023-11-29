@@ -242,7 +242,7 @@ bind(C, name="_wrap_FN_VGetCommunicator") &
 result(fresult)
 use, intrinsic :: ISO_C_BINDING
 type(C_PTR), value :: farg1
-type(C_PTR) :: fresult
+integer(C_INT) :: fresult
 end function
 
 function swigc_FN_VGetLength(farg1) &
@@ -841,14 +841,14 @@ end subroutine
 function FN_VGetCommunicator(v) &
 result(swig_result)
 use, intrinsic :: ISO_C_BINDING
-type(C_PTR) :: swig_result
+integer :: swig_result
 type(N_Vector), target, intent(inout) :: v
-type(C_PTR) :: fresult 
+integer(C_INT) :: fresult 
 type(C_PTR) :: farg1 
 
 farg1 = c_loc(v)
 fresult = swigc_FN_VGetCommunicator(farg1)
-swig_result = fresult
+swig_result = int(fresult)
 end function
 
 function FN_VGetLength(v) &

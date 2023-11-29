@@ -44,7 +44,7 @@ int main(int argc, char *argv[])
   void                *udata_out        = NULL;
 
   /* Create the SUNDIALS context object for this simulation. */
-  retval = SUNContext_Create(NULL, &sunctx);
+  retval = SUNContext_Create(SUN_COMM_NULL, &sunctx);
   if (retval)
   {
     fprintf(stderr, "SUNContext_Create returned %i\n", retval);

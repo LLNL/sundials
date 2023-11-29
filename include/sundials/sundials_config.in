@@ -96,9 +96,6 @@
 /* BUILD SUNDIALS with logging functionalities */
 #define SUNDIALS_LOGGING_LEVEL @SUNDIALS_LOGGING_LEVEL@
 
-/* BUILD SUNDIALS with MPI-enabled logging */
-#cmakedefine SUNDIALS_LOGGING_ENABLE_MPI
-
 /* Is snprintf available? */
 #cmakedefine SUNDIALS_C_COMPILER_HAS_SNPRINTF_AND_VA_COPY
 #ifndef SUNDIALS_C_COMPILER_HAS_SNPRINTF_AND_VA_COPY

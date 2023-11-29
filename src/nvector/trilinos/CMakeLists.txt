@@ -30,8 +30,9 @@ sundials_add_library(sundials_nvectrilinos
     ${SUNDIALS_SOURCE_DIR}/include/nvector/nvector_trilinos.h
   INCLUDE_SUBDIR
     nvector
+  LINK_LIBRARIES
+    PUBLIC sundials_core
   OBJECT_LIBRARIES
-    sundials_generic_obj
   LINK_LIBRARIES
     PUBLIC SUNDIALS::TRILINOS
   OUTPUT_NAME

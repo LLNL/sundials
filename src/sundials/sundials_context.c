@@ -30,30 +30,35 @@
 void sunAdiakCollectMetadata();
 #endif
 
-int SUNContext_Create(void* comm, SUNContext* sunctx)
+int SUNContext_Create(SUNComm comm, SUNContext* sunctx)
 {
   SUNProfiler profiler = NULL;
   SUNLogger logger     = NULL;
+
 #if defined(SUNDIALS_BUILD_WITH_PROFILING) && !defined(SUNDIALS_CALIPER_ENABLED)
   if (SUNProfiler_Create(comm, "SUNContext Default", &profiler)) return (-1);
 #endif
 
 #ifdef SUNDIALS_ADIAK_ENABLED 
-  adiak_init(comm);
-  sunAdiakCollectMetadata(comm);
+  adiak_init(&comm);
+  sunAdiakCollectMetadata();
 #endif
 
 #if SUNDIALS_LOGGING_LEVEL > 0 
-#if defined(SUNDIALS_LOGGING_ENABLE_MPI)
+#if SUNDIALS_MPI_ENABLED
   if (SUNLogger_CreateFromEnv(comm, &logger))
 #else
-  if (SUNLogger_CreateFromEnv(NULL, &logger))
+  if (SUNLogger_CreateFromEnv(SUN_COMM_NULL, &logger))
 #endif
   {
     return (-1);
   }
 #else
-  if (SUNLogger_Create(NULL, 0, &logger)) 
+#if SUNDIALS_MPI_ENABLED
+  if (SUNLogger_Create(comm, 0, &logger))
+#else
+  if (SUNLogger_Create(SUN_COMM_NULL, 0, &logger))
+#endif
   {
     return (-1);
   }
@@ -280,7 +285,7 @@ void sunAdiakCollectMetadata() {
   adiak_namevalue("magma_version", 2, NULL, "%s", SUN_MAGMA_VERSION);
 #endif
 
-#ifdef SUNDIALS_MPI_ENABLED
+#if SUNDIALS_MPI_ENABLED
   adiak_namevalue("mpi_c_compiler", 2, NULL, "%s", SUN_MPI_C_COMPILER);
   adiak_namevalue("mpi_c_version", 2, NULL, "%s", SUN_MPI_C_VERSION);
 

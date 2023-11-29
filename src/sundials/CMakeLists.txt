@@ -104,16 +104,21 @@ endif()
 # Add prefix with complete path to the source files
 add_prefix(${SUNDIALS_SOURCE_DIR}/src/sundials/ sundials_SOURCES)
 
-if(SUNDIALS_LOGGING_ENABLE_MPI)
-  if(ENABLE_MPI AND MPI_C_FOUND)
-    # Workaround bug in CMake < 3.17.3 when using MPI::MPI_CXX and CUDA
-    set(_include_mpi_if_needed PUBLIC ${MPI_C_INCLUDE_DIRS})
-    set(_link_mpi_if_needed PUBLIC ${MPI_C_LIBRARIES})
+if(ENABLE_MPI AND MPI_C_FOUND)
+  set(_link_mpi_if_needed PUBLIC MPI::MPI_C)
+endif()
+
+if(SUNDIALS_BUILD_WITH_PROFILING)
+  if(ENABLE_CALIPER)
+    set(_link_caliper_if_needed PUBLIC caliper)
+  endif()
+  if(ENABLE_ADIAK)
+    set(_link_adiak_if_needed PUBLIC adiak::adiak ${CMAKE_DL_LIBS})
   endif()
 endif()
 
 # Create a library out of the generic sundials modules
-sundials_add_library(sundials_generic
+sundials_add_library(sundials_core
   SOURCES
     ${sundials_SOURCES}
   HEADERS
@@ -125,7 +130,7 @@ sundials_add_library(sundials_generic
   LINK_LIBRARIES
     ${_link_mpi_if_needed}
   OUTPUT_NAME
-    sundials_generic
+    sundials_core
   VERSION
     ${sundialslib_VERSION}
   SOVERSION
@@ -135,7 +140,7 @@ sundials_add_library(sundials_generic
 # SUNDIALS_EXPORT macro
 include(GenerateExportHeader)
 generate_export_header(
-  sundials_generic BASE_NAME SUNDIALS
+  sundials_core BASE_NAME SUNDIALS
   EXPORT_FILE_NAME
   "${PROJECT_BINARY_DIR}/include/sundials/sundials_export.h"
 )

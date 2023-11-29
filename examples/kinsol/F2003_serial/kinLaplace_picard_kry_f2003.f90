@@ -190,6 +190,7 @@ program main
   !======= Inclusions ===========
   use, intrinsic :: iso_c_binding
 
+  use fsundials_types_mod
   use fsundials_context_mod
   use fsundials_futils_mod       ! Fortran utilities
   use fkinsol_mod                ! Fortran interface to KINSOL
@@ -242,7 +243,7 @@ program main
 
   ! -------------------------
   ! Create the SUNDIALS context used for this simulation
-  ierr = FSUNContext_Create(c_null_ptr, sunctx)
+  ierr = FSUNContext_Create(SUN_COMM_NULL, sunctx)
 
   ! -------------------------
   ! Create vectors for solution and scaling

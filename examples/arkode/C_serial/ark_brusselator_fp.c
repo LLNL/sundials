@@ -117,14 +117,14 @@ int main(int argc, char *argv[])
   /* create SUNDIALS context and a logger which will record
      nonlinear solver info (e.g., residual) amongst other things. */
   
-  flag = SUNContext_Create(NULL, &ctx);
+  flag = SUNContext_Create(SUN_COMM_NULL, &ctx);
   if (check_flag(&flag, "SUNContext_Create", 1)) return 1;
 
-  flag = SUNLogger_Create(NULL, 0, &logger);
+  flag = SUNLogger_Create(SUN_COMM_NULL, 0, &logger);
   if (check_flag(&flag, "SUNLogger_Create", 1)) return 1;
 
   if (monitor) {
-    flag = SUNLogger_SetInfoFilename(logger, info_fname);   
+    flag = SUNLogger_SetInfoFilename(logger, info_fname);
     if (check_flag(&flag, "SUNLogger_SetInfoFilename", 1)) return 1;
   }
 

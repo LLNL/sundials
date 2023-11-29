@@ -192,7 +192,7 @@ int main(int argc, char *argv[])
   }
 
   /* Create the SUNDIALS context object for this simulation. */
-  flag = SUNContext_Create((void*) &comm, &ctx);
+  flag = SUNContext_Create(comm, &ctx);
   if (check_flag(&flag, "SUNContext_Create", 1, my_pe)) MPI_Abort(comm, 1);
 
   /* Set local length */

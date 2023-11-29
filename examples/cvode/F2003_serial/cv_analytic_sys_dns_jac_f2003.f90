@@ -173,6 +173,7 @@ program main
   use, intrinsic :: iso_c_binding
 
   use fcvode_mod                 ! Fortran interface to CVODE
+  use fsundials_types_mod
   use fsundials_context_mod      ! Fortran interface to SUNContext
   use fnvector_serial_mod        ! Fortran interface to serial N_Vector
   use fsunmatrix_dense_mod       ! Fortran interface to dense SUNMatrix
@@ -223,7 +224,7 @@ program main
   yvec(3) = 1.0d0
 
   ! create SUNDIALS context
-  ierr = FSUNContext_Create(c_null_ptr, ctx)
+  ierr = FSUNContext_Create(SUN_COMM_NULL, ctx)
 
   ! create SUNDIALS N_Vector
   sunvec_y => FN_VMake_Serial(neq, yvec, ctx)

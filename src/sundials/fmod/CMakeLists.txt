@@ -40,8 +40,9 @@ if(SUNDIALS_BUILD_WITH_PROFILING)
     fsundials_profiler_mod.c)
 endif()
 
-sundials_add_f2003_library(sundials_fgeneric_mod
+sundials_add_f2003_library(sundials_fcore_mod
   SOURCES
     ${sundials_SOURCES}
-  OBJECT_LIB_ONLY
+  LINK_LIBRARIES
+    PUBLIC sundials_core
 )

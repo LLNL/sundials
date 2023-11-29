@@ -58,7 +58,7 @@ int main(int argc, char* argv[])
   SUNContext  ctx  = NULL;
   SUNProfiler prof = NULL;
 
-  flag = SUNContext_Create((void*) &comm, &ctx);
+  flag = SUNContext_Create(comm, &ctx);
   if (check_flag(&flag, "SUNContextCreate", 1)) return 1;
 
   flag = SUNContext_GetProfiler(ctx, &prof);

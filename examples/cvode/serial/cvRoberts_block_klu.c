@@ -134,7 +134,7 @@ int main(int argc, char *argv[])
   udata.ngroups = ngroups;
   udata.neq = neq;
 
-  retval = SUNContext_Create(NULL, &sunctx);
+  retval = SUNContext_Create(SUN_COMM_NULL, &sunctx);
   if (check_retval(&retval, "CVodeInit", 1)) return(1);
 
   /* Create serial vector of length neq for I.C. and abstol */

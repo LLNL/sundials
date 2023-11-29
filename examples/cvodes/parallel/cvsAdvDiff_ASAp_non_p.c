@@ -145,7 +145,7 @@ int main(int argc, char *argv[])
   MPI_Comm_size(comm, &nprocs);
   MPI_Comm_rank(comm, &my_pe);
 
-  retval = SUNContext_Create(&comm, &sunctx);
+  retval = SUNContext_Create(comm, &sunctx);
   if (check_retval(&retval, "SUNContext_Create", 1, my_pe)) MPI_Abort(comm, 1);
 
   npes = nprocs - 1; /* pe's dedicated to PDE integration */

@@ -80,6 +80,7 @@ module kpr_mod
   use fnvector_serial_mod
   use fsunmatrix_dense_mod
   use fsunlinsol_dense_mod
+  use fsundials_types_mod
   use fsundials_context_mod
   use fsundials_matrix_mod
   use fsundials_linearsolver_mod
@@ -723,7 +724,7 @@ program main
   end select
 
   ! Create the SUNDIALS context object for this simulation
-  retval = FSUNContext_Create(c_null_ptr, sunctx)
+  retval = FSUNContext_Create(SUN_COMM_NULL, sunctx)
   call check_retval(retval, 'FSUNContext_Create')
 
   ! Create and initialize serial vector for the solution
