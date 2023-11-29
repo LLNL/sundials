@@ -87,11 +87,11 @@ module diurnal_bp_mod
   integer(c_long), parameter :: mxsteps = 10000
 
   ! ODE non-constant parameters
-  real(c_double)  :: q3
-  real(c_double)  :: q4
-  real(c_double)  :: c1
-  real(c_double)  :: c2
-  integer(c_long) :: jx, jy
+  real(c_double) :: q3
+  real(c_double) :: q4
+  real(c_double) :: c1
+  real(c_double) :: c2
+  integer(c_int) :: jx, jy
 
 contains
 
