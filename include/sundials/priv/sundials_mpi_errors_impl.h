@@ -21,7 +21,7 @@
 #define _SUNDIALS_MPI_ERRORS_IMPL_H
 
 #include <mpi.h>
-#include <sundials/impl/sundials_errors_impl.h>  
+#include <sundials/priv/sundials_errors_impl.h>  
 #include <sundials/sundials_mpi_errors.h>
 
 #if defined(SUNDIALS_ENABLE_ERROR_CHECKS)

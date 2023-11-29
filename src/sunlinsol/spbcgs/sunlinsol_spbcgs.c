@@ -23,7 +23,7 @@
 #include <sunlinsol/sunlinsol_spbcgs.h>
 #include <sundials/sundials_math.h>
 
-#include <sundials/impl/sundials_context_impl.h>
+#include <sundials/priv/sundials_context_impl.h>
 #include "sundials_logger_impl.h"
 
 #define ZERO SUN_RCONST(0.0)

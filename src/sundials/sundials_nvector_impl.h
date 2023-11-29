@@ -15,8 +15,8 @@
 #ifndef _SUNDIALS_NVECTOR_IMPL_H
 #define _SUNDIALS_NVECTOR_IMPL_H
 
-#include <sundials/impl/sundials_context_impl.h>
-#include <sundials/impl/sundials_errors_impl.h>
+#include <sundials/priv/sundials_context_impl.h>
+#include <sundials/priv/sundials_errors_impl.h>
 #include <sundials/sundials_core.h>
 #include <sundials/sundials_nvector.h>
 

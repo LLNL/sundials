@@ -20,7 +20,7 @@
 
 #include <stdlib.h>
 #include <sundials/sundials_core.h>
-#include <sundials/impl/sundials_errors_impl.h>
+#include <sundials/priv/sundials_errors_impl.h>
 #include "sundials/sundials_errors.h"
 #include "sundials/sundials_types.h"
 

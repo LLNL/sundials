@@ -15,7 +15,7 @@
  * ----------------------------------------------------------------*/
 
 #include <string.h>
-#include <sundials/impl/sundials_errors_impl.h>
+#include <sundials/priv/sundials_errors_impl.h>
 #include <sundials/sundials_core.h>
 
 #include "sundials/sundials_errors.h"

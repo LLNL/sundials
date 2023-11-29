@@ -1666,6 +1666,13 @@ the table below.  The file extension ``.LIB`` is typically
 table names are relative to ``LIBDIR`` for libraries and to ``INCLUDEDIR`` for
 header files.
 
+.. warning::
+
+   SUNDIALS installs some header files to ``INSTDIR/include/sundials/priv``.
+   All of the header files in this directory are private and **should not
+   be included in user code**. The private headers are subject to change
+   without any notice and relying on them may break your code. 
+
 
 Using SUNDIALS in your prpject
 ------------------------------

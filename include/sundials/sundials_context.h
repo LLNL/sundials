@@ -19,7 +19,7 @@
 #ifndef _SUNDIALS_CONTEXT_H
 #define _SUNDIALS_CONTEXT_H
 
-#include <sundials/impl/sundials_context_impl.h>
+#include <sundials/priv/sundials_context_impl.h>
 
 #ifdef __cplusplus /* wrapper to enable C++ usage */
 extern "C" {
