@@ -97,7 +97,9 @@ SUNErrCode SUNContext_Create(SUNComm comm, SUNContext* sunctx_out)
   } while (0);
 
   if (err) {
+#if defined(SUNDIALS_BUILD_WITH_PROFILING) && !defined(SUNDIALS_CALIPER_ENABLED)
     SUNCheckCallNoRet(SUNProfiler_Free(&profiler));
+#endif
     SUNCheckCallNoRet(SUNLogger_Destroy(&logger));
     free(sunctx);
   } else {
