@@ -423,7 +423,6 @@ subroutine ARKStepStats(arkode_mem)
   integer(c_long) :: nliters(1)    ! linear solver iterations
   integer(c_long) :: ncf(1)        ! num convergence failures nonlinear
   integer(c_long) :: ncfl(1)       ! num convergence failures linear
-  integer(c_long) :: nncfails(1)   ! nonlinear solver fails
   integer(c_long) :: lenrw(1)      ! main solver real/int workspace size
   integer(c_long) :: leniw(1)
   integer(c_long) :: lenrwls(1)    ! linear solver real/int workspace size

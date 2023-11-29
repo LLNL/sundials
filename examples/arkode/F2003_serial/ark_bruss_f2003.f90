@@ -261,7 +261,6 @@ program main
   integer(c_int)  :: ierr                   ! error flag from C functions
   integer(c_int)  :: nout                   ! number of outputs
   integer(c_int)  :: outstep                ! output loop counter
-  integer(c_long) :: mxsteps                ! max num steps
 
   real(c_double), parameter :: nlscoef = 1.d-2  ! non-linear solver coefficient
   integer(c_int), parameter :: order = 3        ! method order

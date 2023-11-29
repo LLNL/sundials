@@ -71,19 +71,19 @@ module Bruss1DFEMKLU_UserData
   implicit none
 
   ! number of equations
-  integer(c_long), parameter :: neqreal = 3
+  integer(c_int), parameter :: neqreal = 3
 
   ! ODE parameters
-  integer(c_int),  parameter :: N = 201          ! number of intervals
-  integer(c_long), parameter :: neq = neqreal*N  ! set overall problem size
-  integer(c_long), parameter :: nnz = 15*neq
-  real(c_double),  parameter :: a = 0.6d0        ! constant forcing on u
-  real(c_double),  parameter :: b = 2.d0         ! steady-state value of w
-  real(c_double),  parameter :: du = 2.5d-2      ! diffusion coeff for u
-  real(c_double),  parameter :: dv = 2.5d-2      ! diffusion coeff for v
-  real(c_double),  parameter :: dw = 2.5d-2      ! diffusion coeff for w
-  real(c_double),  parameter :: ep = 1.d-5       ! stiffness parameter
-  real(c_double),  dimension(N) :: x             ! mesh node locations
+  integer(c_int), parameter :: N = 201          ! number of intervals
+  integer(c_int), parameter :: neq = neqreal*N  ! set overall problem size
+  integer(c_int), parameter :: nnz = 15*neq
+  real(c_double), parameter :: a = 0.6d0        ! constant forcing on u
+  real(c_double), parameter :: b = 2.d0         ! steady-state value of w
+  real(c_double), parameter :: du = 2.5d-2      ! diffusion coeff for u
+  real(c_double), parameter :: dv = 2.5d-2      ! diffusion coeff for v
+  real(c_double), parameter :: dw = 2.5d-2      ! diffusion coeff for w
+  real(c_double), parameter :: ep = 1.d-5       ! stiffness parameter
+  real(c_double), dimension(N) :: x             ! mesh node locations
 
 contains
 
@@ -418,7 +418,7 @@ contains
     integer(c_int) :: ix, nz, Nint
     real(c_double) :: ul, uc, ur, vl, vc, vr, wl, wc, wr, xl, xc, xr
     real(c_double) :: u1, u2, u3, v1, v2, v3, w1, w2, w3
-    real(c_double) :: f1, f2, f3, df1, df2, df3, dQdf1, dQdf2, dQdf3
+    real(c_double) :: df1, df2, df3, dQdf1, dQdf2, dQdf3
     real(c_double) :: ChiL1, ChiL2, ChiL3, ChiR1, ChiR2, ChiR3
     real(c_double), dimension(3,-1:1) :: Ju, Jv, Jw
 
