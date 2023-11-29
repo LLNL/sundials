@@ -41,6 +41,8 @@ SUNLinearSolver SUNLinSolNewEmpty(SUNContext sunctx)
   SUNLinearSolver LS;
   SUNLinearSolver_Ops ops;
 
+  if (sunctx == NULL) return NULL;
+
   SUNFunctionBegin(sunctx);
 
   /* create linear solver object */

@@ -37,6 +37,8 @@ static SUNProfiler getSUNProfiler(SUNMatrix A)
 
 SUNMatrix SUNMatNewEmpty(SUNContext sunctx)
 {
+  if (sunctx == NULL) return NULL;
+
   SUNFunctionBegin(sunctx);
   SUNMatrix     A;
   SUNMatrix_Ops ops;

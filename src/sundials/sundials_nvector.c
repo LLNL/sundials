@@ -40,6 +40,8 @@ static inline SUNProfiler getSUNProfiler(N_Vector v)
 /* Create an empty NVector object */
 N_Vector N_VNewEmpty(SUNContext sunctx)
 {
+  if (sunctx == NULL) return NULL;
+
   SUNFunctionBegin(sunctx);
   N_Vector     v;
   N_Vector_Ops ops;

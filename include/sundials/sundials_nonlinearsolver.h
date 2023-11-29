@@ -147,11 +147,11 @@ SUNDIALS_EXPORT
 SUNErrCode SUNNonlinSolInitialize(SUNNonlinearSolver NLS);
 
 SUNDIALS_EXPORT
-SUNErrCode SUNNonlinSolSetup(SUNNonlinearSolver NLS, N_Vector y, void* mem);
+int SUNNonlinSolSetup(SUNNonlinearSolver NLS, N_Vector y, void* mem);
 
 SUNDIALS_EXPORT 
 int SUNNonlinSolSolve(SUNNonlinearSolver NLS, N_Vector y0, N_Vector y, N_Vector w, sunrealtype tol,
-                                      sunbooleantype callLSetup, void* mem);
+                      sunbooleantype callLSetup, void* mem);
 
 SUNDIALS_EXPORT
 SUNErrCode SUNNonlinSolFree(SUNNonlinearSolver NLS);

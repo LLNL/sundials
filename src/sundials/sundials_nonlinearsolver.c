@@ -36,6 +36,8 @@ static SUNProfiler getSUNProfiler(SUNNonlinearSolver NLS)
 
 SUNNonlinearSolver SUNNonlinSolNewEmpty(SUNContext sunctx)
 {
+  if (sunctx == NULL) return NULL;
+  
   SUNFunctionBegin(sunctx);
   SUNNonlinearSolver     NLS;
   SUNNonlinearSolver_Ops ops;
@@ -111,9 +113,9 @@ SUNErrCode SUNNonlinSolInitialize(SUNNonlinearSolver NLS)
   return(ier);
 }
 
-SUNErrCode SUNNonlinSolSetup(SUNNonlinearSolver NLS, N_Vector y, void* mem)
+int SUNNonlinSolSetup(SUNNonlinearSolver NLS, N_Vector y, void* mem)
 {
-  SUNErrCode ier;
+  int ier;
   SUNDIALS_MARK_FUNCTION_BEGIN(getSUNProfiler(NLS));
   if (NLS->ops->setup)
     ier = NLS->ops->setup(NLS, y, mem);

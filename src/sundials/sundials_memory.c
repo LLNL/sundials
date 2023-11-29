@@ -42,6 +42,8 @@ SUNMemory SUNMemoryNewEmpty()
 
 SUNMemoryHelper SUNMemoryHelper_NewEmpty(SUNContext sunctx)
 {
+  if (sunctx == NULL) return NULL;
+  
   SUNFunctionBegin(sunctx);
   SUNMemoryHelper helper = NULL;
 
