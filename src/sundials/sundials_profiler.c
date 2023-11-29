@@ -247,6 +247,8 @@ SUNErrCode SUNProfiler_Begin(SUNProfiler p, const char* name)
   SUNErrCode ier;
   sunTimerStruct* timer = NULL;
 
+  if (!p) { return SUN_ERR_ARG_CORRUPT; }
+
   sunStartTiming(p->overhead);
 
   if (SUNHashMap_GetValue(p->map, name, (void**)&timer))
@@ -274,6 +276,8 @@ SUNErrCode SUNProfiler_End(SUNProfiler p, const char* name)
   SUNErrCode ier;
   sunTimerStruct* timer;
 
+  if (!p) { return SUN_ERR_ARG_CORRUPT; }
+
   sunStartTiming(p->overhead);
 
   ier = SUNHashMap_GetValue(p->map, name, (void**)&timer);
@@ -292,6 +296,8 @@ SUNErrCode SUNProfiler_End(SUNProfiler p, const char* name)
 
 int SUNProfiler_GetTimerResolution(SUNProfiler p, double* resolution)
 {
+  if (!p) { return SUN_ERR_ARG_CORRUPT; }
+
 #if defined(SUNDIALS_HAVE_POSIX_TIMERS)
   sunTimespec spec;
   clock_getres(CLOCK_MONOTONIC, &spec);
@@ -319,6 +325,8 @@ int SUNProfiler_GetElapsedTime(SUNProfiler p, const char* name, double* time)
 {
   sunTimerStruct* timer;
 
+  if (!p) { return SUN_ERR_ARG_CORRUPT; }
+
   if (SUNHashMap_GetValue(p->map, name, (void**)&timer)) { return (-1); }
 
   *time = timer->elapsed;
@@ -330,6 +338,8 @@ SUNErrCode SUNProfiler_Reset(SUNProfiler p)
 {
   int i                 = 0;
   sunTimerStruct* timer = NULL;
+
+  if (!p) { return SUN_ERR_ARG_CORRUPT; }
 
   /* Reset the overhead timer */
   sunResetTiming(p->overhead);
@@ -360,7 +370,8 @@ SUNErrCode SUNProfiler_Print(SUNProfiler p, FILE* fp)
   sunTimerStruct* timer      = NULL;
   SUNHashMapKeyValue* sorted = NULL;
 
-  if (p == NULL) return (-1);
+  if (!p) { return SUN_ERR_ARG_CORRUPT; }
+  
   sunStartTiming(p->overhead);
 
   /* Get the total SUNDIALS time up to this point */
@@ -535,7 +546,7 @@ int sunCompareTimes(const void* l, const void* r)
   const SUNHashMapKeyValue left  = *((SUNHashMapKeyValue*)l);
   const SUNHashMapKeyValue right = *((SUNHashMapKeyValue*)r);
 
-  if (left == NULL && right == NULL) { return SUN_SUCCESS; }
+  if (left == NULL && right == NULL) { return 0; }
   if (left == NULL) { return (1); }
   if (right == NULL) { return (-1); }
 

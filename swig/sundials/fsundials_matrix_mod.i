@@ -16,9 +16,12 @@
 
 %module fsundials_matrix_mod
 
-// Load the typedefs and generate a "use" statement in the module
-%import "../sundials/fsundials_context_mod.i"
-%import "../sundials/fsundials_nvector_mod.i"
+// Load the typedefs and generate a "use fsundials_types_mod" statement in the module  
+%import "../sundials/fsundials_context_mod.i"  
+%import "../sundials/fsundials_types_mod.i"  
+%import "../sundials/fsundials_nvector_mod.i"  
+
+%include "../sundials/fcopyright.i"  
 
 %{
 #include "sundials/sundials_matrix.h"

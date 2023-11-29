@@ -22,6 +22,8 @@
 
 #include <stdlib.h>
 #include <string.h>
+#include "sundials/sundials_errors.h"
+#include "sundials/sundials_types.h"
 
 static const unsigned long HASH_PRIME        = 14695981039346656037U;
 static const unsigned long HASH_OFFSET_BASIS = 1099511628211U;
@@ -69,10 +71,9 @@ struct _SUNHashMap {
                  allocated
 
   **Returns:**
-    * ``0`` -- success
-    * ``-1`` -- an error occurred
+    * A SUNErrCode indicating success or a failure
  */
-static int SUNHashMap_New(int max_size, SUNHashMap* map)
+static SUNErrCode SUNHashMap_New(int max_size, SUNHashMap* map)
 {
   int i;
 
@@ -84,9 +85,9 @@ static int SUNHashMap_New(int max_size, SUNHashMap* map)
   *map = NULL;
   *map = (SUNHashMap)malloc(sizeof(struct _SUNHashMap));
 
-  if (map == NULL)
+  if (!map)
   {
-    return (-1);
+    return SUN_ERR_MALLOC_FAIL;
   }
 
   (*map)->size     = 0;
@@ -96,10 +97,10 @@ static int SUNHashMap_New(int max_size, SUNHashMap* map)
   (*map)->buckets =
       (SUNHashMapKeyValue*)malloc(max_size * sizeof(SUNHashMapKeyValue));
 
-  if ((*map)->buckets == NULL)
+  if (!(*map)->buckets)
   {
     free(*map);
-    return (-1);
+    return SUN_ERR_MALLOC_FAIL;
   }
 
   /* Initialize all buckets to NULL */
@@ -108,7 +109,7 @@ static int SUNHashMap_New(int max_size, SUNHashMap* map)
     (*map)->buckets[i] = NULL;
   }
 
-  return (0);
+  return SUN_SUCCESS;
 }
 
 /*
@@ -120,16 +121,15 @@ static int SUNHashMap_New(int max_size, SUNHashMap* map)
     * ``freevalue`` -- callback function that should free the value object
 
   **Returns:**
-    * ``0`` -- success
-    * ``-1`` -- an error occurred
+    * A SUNErrCode indicating success or a failure
  */
-static int SUNHashMap_Destroy(SUNHashMap* map, void (*freevalue)(void* ptr))
+static SUNErrCode SUNHashMap_Destroy(SUNHashMap* map, void (*freevalue)(void* ptr))
 {
   int i;
 
   if (map == NULL || freevalue == NULL)
   {
-    return (-1);
+    return SUN_SUCCESS;
   }
 
   for (i = 0; i < (*map)->max_size; i++)
@@ -154,7 +154,7 @@ static int SUNHashMap_Destroy(SUNHashMap* map, void (*freevalue)(void* ptr))
   }
   *map = NULL;
 
-  return (0);
+  return SUN_SUCCESS;
 }
 
 /*
@@ -364,24 +364,23 @@ static int SUNHashMap_GetValue(SUNHashMap map, const char* key, void** value)
                     function
 
   **Returns:**
-    * ``0`` -- success
-    * ``-1`` -- an error occurred
+    * A SUNErrCode indicating success or a failure
  */
-static int SUNHashMap_Sort(SUNHashMap map, SUNHashMapKeyValue** sorted,
-                           int (*compar)(const void*, const void*))
+static SUNErrCode SUNHashMap_Sort(SUNHashMap map, SUNHashMapKeyValue** sorted,
+                                  int (*compar)(const void*, const void*))
 {
   int i;
 
-  if (map == NULL || compar == NULL)
+  if (!map || !compar)
   {
-    return (-1);
+    return SUN_ERR_ARG_CORRUPT;
   }
 
   *sorted =
       (SUNHashMapKeyValue*)malloc(map->max_size * sizeof(SUNHashMapKeyValue));
-  if (*sorted == NULL)
+  if (!(*sorted))
   {
-    return (-1);
+    return SUN_ERR_MALLOC_FAIL;
   }
 
   /* Copy the buckets into a new array */
@@ -392,7 +391,7 @@ static int SUNHashMap_Sort(SUNHashMap map, SUNHashMapKeyValue** sorted,
 
   qsort(*sorted, map->max_size, sizeof(SUNHashMapKeyValue), compar);
 
-  return (0);
+  return SUN_SUCCESS;
 }
 
 /*
@@ -404,24 +403,23 @@ static int SUNHashMap_Sort(SUNHashMap map, SUNHashMapKeyValue** sorted,
     * ``value_size`` -- the size of the values in bytes
 
   **Returns:**
-    * ``0`` -- success
-    * ``-1`` -- an error occurred
+    * A SUNErrCode indicating success or a failure
  */
 #if SUNDIALS_MPI_ENABLED
-static int SUNHashMap_Values(SUNHashMap map, void*** values, size_t value_size)
+static SUNErrCode SUNHashMap_Values(SUNHashMap map, void*** values, size_t value_size)
 {
   int i;
   int count = 0;
 
-  if (map == NULL)
+  if (!map)
   {
-    return (-1);
+    return SUN_ERR_ARG_CORRUPT;
   }
 
   *values = (void**)malloc(map->size * sizeof(value_size));
-  if (values == NULL)
+  if (!values)
   {
-    return (-1);
+    return SUN_ERR_MALLOC_FAIL;
   }
 
   /* Copy the values into a new array */
@@ -433,7 +431,7 @@ static int SUNHashMap_Values(SUNHashMap map, void*** values, size_t value_size)
     }
   }
 
-  return (0);
+  return SUN_SUCCESS;
 }
 #endif
 

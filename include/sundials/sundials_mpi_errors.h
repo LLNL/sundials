@@ -15,6 +15,10 @@
 
 #include <sundials/sundials_errors.h>
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 SUNDIALS_EXPORT
 int SUNMPIAbortErrHandlerFn(int line, const char* func, const char* file,
                             const char* msg, SUNErrCode err_code,
@@ -22,7 +26,11 @@ int SUNMPIAbortErrHandlerFn(int line, const char* func, const char* file,
 
 SUNDIALS_EXPORT
 int SUNMPIAssertErrHandlerFn(int line, const char* func, const char* file,
-                             const char* msg, SUNErrCode err_code,
+                             const char* stmt, SUNErrCode err_code,
                              void* err_user_data, SUNContext sunctx);
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif /* _SUNDIALS_MPI_ERRORS_H */

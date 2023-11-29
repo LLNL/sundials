@@ -34,7 +34,8 @@ knowledge of this structure is not necessary for its use.
 .. TODO(CJB): we should really update the organization figure to include
    the steppers, root-finding, Butcher table "modules" etc. 
    Also, unless we talk about the file structure here, we should avoid
-   mentioning specific files so it does not go stale.
+   mentioning specific files so it does not go stale. We may also want
+   to move this to the developer guide.
 
 The overall organization of the ARKODE package is shown in
 :numref:`ARKODE.Organization.ARKODE.Figure`.  

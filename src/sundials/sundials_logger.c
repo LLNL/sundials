@@ -268,6 +268,8 @@ SUNErrCode SUNLogger_SetErrorFilename(SUNLogger logger, const char* error_filena
 
 SUNErrCode SUNLogger_SetWarningFilename(SUNLogger logger, const char* warning_filename)
 {
+  if (!logger) { return SUN_ERR_ARG_CORRUPT; }
+
   if (!sunLoggerIsOutputRank(logger, NULL)) { return SUN_SUCCESS; }
 
   if (warning_filename && strcmp(warning_filename, ""))
@@ -299,6 +301,8 @@ SUNErrCode SUNLogger_SetWarningFilename(SUNLogger logger, const char* warning_fi
 
 SUNErrCode SUNLogger_SetInfoFilename(SUNLogger logger, const char* info_filename)
 {
+  if (!logger) { return SUN_ERR_ARG_CORRUPT; }
+
   if (!sunLoggerIsOutputRank(logger, NULL)) { return SUN_SUCCESS; }
 
   if (info_filename && strcmp(info_filename, ""))
@@ -330,6 +334,8 @@ SUNErrCode SUNLogger_SetInfoFilename(SUNLogger logger, const char* info_filename
 
 SUNErrCode SUNLogger_SetDebugFilename(SUNLogger logger, const char* debug_filename)
 {
+  if (!logger) { return SUN_ERR_ARG_CORRUPT; }
+
   if (!sunLoggerIsOutputRank(logger, NULL)) { return SUN_SUCCESS; }
 
   if (debug_filename && strcmp(debug_filename, ""))
@@ -366,6 +372,12 @@ SUNErrCode SUNLogger_QueueMsg(SUNLogger logger, SUNLogLevel lvl, const char* sco
 
 #if SUNDIALS_LOGGING_LEVEL > 0
   {
+    if (!logger)
+    {
+      retval = SUN_ERR_ARG_CORRUPT;
+      return retval;
+    }
+
     va_list args;
     va_start(args, msg_txt);
 
@@ -427,7 +439,7 @@ SUNErrCode SUNLogger_Flush(SUNLogger logger, SUNLogLevel lvl)
 {
   SUNErrCode retval = SUN_SUCCESS;
 
-  if (logger == NULL)
+  if (!logger)
   {
     retval = SUN_ERR_ARG_CORRUPT;
     return retval;
@@ -499,6 +511,7 @@ SUNErrCode SUNLogger_Flush(SUNLogger logger, SUNLogLevel lvl)
 
 SUNErrCode SUNLogger_GetOutputRank(SUNLogger logger, int* output_rank)
 {
+  if (!logger) { return SUN_ERR_ARG_CORRUPT; }
   *output_rank = logger->output_rank;
   return SUN_SUCCESS;
 }

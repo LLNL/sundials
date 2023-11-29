@@ -57,9 +57,6 @@
 // Assume sunrealtype* is an array of doubles
 %apply double[] { sunrealtype* };
 
-// Assume realtype* is an array of doubles
-%apply double[] { sunrealtype* };
-
 // Assume sunindextype* is an array of long int
 %apply long int[] { sunindextype* };
 

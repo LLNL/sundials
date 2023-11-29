@@ -233,10 +233,12 @@ Coding Conventions and Rules
    do not do this and are exceptions to the rule for backwards compatiblilty. 
    In addition, internal helper functions may or may-not return a ``SUNErrCode``.
 
-#. All SUNDIALS functions, with the exception of some internal/private functions
+#. All SUNDIALS functions, with the exception of some functions
    that do not have access to a ``SUNContext``, should begin with a call to 
-   ``SUNFunctionBegin()``. This macro is used for error handling and declares a 
-   local variable access via the macro ``SUNCTX``.
+   ``SUNFunctionBegin()``. The argument to ``SUNFunctionBeing()`` is a ``SUNContext``
+   which should come from the first object in the function parameter list that has a
+   ``SUNContext``.  This macro is used for error handling and declares a 
+   local variable access via the macro ``SUNCTX_``.
 
    .. code-block:: c
 
@@ -283,12 +285,13 @@ Coding Conventions and Rules
          cv_mem = (CVodeMem) cvode_mem;
 
          SUNFunctionBegin(cv_mem->sunctx); // Correct
+         SUNFunctionBegin(ele->sunctx); // Incorrect - cvode_mem is first in the function parameter list
 
          // ...
       }
 
 
-#. All references to ``SUNContext`` objects should be done via the ``SUNCTX``
+#. All references to ``SUNContext`` objects should be done via the ``SUNCTX_``
    macro. The only exceptions are functions in the ``SUNContext`` class. 
 
 #. All calls to SUNDIALS functions that return a ``SUNErrCode`` should have

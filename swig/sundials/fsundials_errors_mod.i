@@ -16,7 +16,11 @@
 
 %module fsundials_errors_mod
 
-%include "../sundials/fsundials.i"
+// Load the typedefs and generate a "use fsundials_types_mod" statement in the module  
+%import "../sundials/fsundials_context_mod.i"  
+%import "../sundials/fsundials_types_mod.i"  
+
+%include "../sundials/fcopyright.i"  
 
 // Insert code into the C wrapper to check that the sizes match
 %{

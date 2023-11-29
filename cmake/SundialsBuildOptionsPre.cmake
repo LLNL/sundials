@@ -81,7 +81,7 @@ else()
   set(_default_err_checks ON)
 endif()
 
-set(DOCSTR "Build with error checking enabled/disabled. In most cases it is not recommended to disable error checks.")
+set(DOCSTR "Build with error checking enabled/disabled. Enabling error checks may affect performance.")
 sundials_option(SUNDIALS_ENABLE_ERROR_CHECKS BOOL "${DOCSTR}" ${_default_err_checks})
 if(SUNDIALS_ENABLE_ERROR_CHECKS)
   message(STATUS "SUNDIALS error checking enabled")

@@ -21,7 +21,7 @@
 
 static inline char* combineFileAndLine(int line, const char* file)
 {
-  size_t total_str_len = strlen(file) + 6; /* TODO(CJB): need to figure out width of line */
+  size_t total_str_len = strlen(file) + 6;
   char* file_and_line  = malloc(total_str_len * sizeof(char));
   snprintf(file_and_line, total_str_len, "%s:%d", file, line);
   return file_and_line;
@@ -36,12 +36,12 @@ int SUNMPIAbortErrHandlerFn(int line, const char* func, const char* file, const 
                      "error handler to avoid program termination.\n");
   free(file_and_line);
   sleep(1);
-  MPI_Abort(SUN_AsMPIComm(sunctx->comm), err_code);
+  MPI_Abort(sunctx->comm, err_code);
   return 0;
 }
 
 int SUNMPIAssertErrHandlerFn(int line, const char* func, const char* file, const char* stmt,
-                            SUNErrCode err_code, void* err_user_data, SUNContext sunctx)
+                             SUNErrCode err_code, void* err_user_data, SUNContext sunctx)
 {
   char* file_and_line = combineFileAndLine(line, file);
   SUNLogger_QueueMsg(sunctx->logger, SUN_LOGLEVEL_ERROR, file_and_line, func,

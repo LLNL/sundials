@@ -21,7 +21,9 @@
 #include <stdlib.h>
 #include <sundials/sundials_core.h>
 #include <sundials/impl/sundials_errors_impl.h>
-#include "sundials/sundials_errors.h"
+#include <sundials/sundials_errors.h>
+#include "sundials_iterative_impl.h"
+#include "sundials_logger_impl.h"
 
 #if defined(SUNDIALS_BUILD_WITH_PROFILING)
 static SUNProfiler getSUNProfiler(SUNLinearSolver S)

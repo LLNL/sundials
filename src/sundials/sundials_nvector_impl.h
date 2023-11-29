@@ -21,7 +21,7 @@
 #include <sundials/sundials_nvector.h>
 
 #define NVECTOR_DEFINE_ENABLE_FUSEDOP(fname, opname, suffix)         \
-  SUNErrCode N_VEnable##fname##_##suffix(N_Vector v, booleantype tf) \
+  SUNErrCode N_VEnable##fname##_##suffix(N_Vector v, sunbooleantype tf) \
   {                                                                  \
     if (tf) v->ops->nv##opname = N_V##fname##_##suffix;              \
     else v->ops->nv##opname = NULL;                                  \
