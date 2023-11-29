@@ -21,6 +21,7 @@
 #include <stdlib.h>
 #include <sundials/sundials_core.h>
 #include <sundials/impl/sundials_errors_impl.h>
+#include "sundials/sundials_errors.h"
 #include "sundials/sundials_types.h"
 
 #if defined(SUNDIALS_BUILD_WITH_PROFILING)
@@ -192,7 +193,7 @@ SUNErrCode SUNMatScaleAddI(sunrealtype c, SUNMatrix A)
 
 SUNErrCode SUNMatMatvecSetup(SUNMatrix A)
 {
-  SUNErrCode ier = 0;
+  SUNErrCode ier = SUN_SUCCESS;
   SUNDIALS_MARK_FUNCTION_BEGIN(getSUNProfiler(A));
   if (A->ops->matvecsetup)
     ier = A->ops->matvecsetup(A);

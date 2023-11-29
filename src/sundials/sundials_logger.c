@@ -199,9 +199,10 @@ SUNErrCode SUNLogger_Create(SUNComm comm, int output_rank, SUNLogger* logger_ptr
   return SUN_SUCCESS;
 }
 
-SUNErrCode SUNLogger_CreateFromEnv(SUNComm comm, SUNLogger* logger)
+SUNErrCode SUNLogger_CreateFromEnv(SUNComm comm, SUNLogger* logger_out)
 {
-  SUNErrCode retval = SUN_SUCCESS;
+  SUNErrCode err = SUN_SUCCESS;
+  SUNLogger logger = NULL;
 
   const char* output_rank_env   = getenv("SUNLOGGER_OUTPUT_RANK");
   int output_rank               = (output_rank_env) ? atoi(output_rank_env) : 0;
@@ -209,14 +210,29 @@ SUNErrCode SUNLogger_CreateFromEnv(SUNComm comm, SUNLogger* logger)
   const char* warning_fname_env = getenv("SUNLOGGER_WARNING_FILENAME");
   const char* info_fname_env    = getenv("SUNLOGGER_INFO_FILENAME");
   const char* debug_fname_env   = getenv("SUNLOGGER_DEBUG_FILENAME");
+   
+  if (SUNLogger_Create(comm, output_rank, &logger)) {
+    err = SUN_ERR_CORRUPT;
+    return err;
+  }
 
-  retval += SUNLogger_Create(comm, output_rank, logger);
-  retval += SUNLogger_SetErrorFilename(*logger, error_fname_env);
-  retval += SUNLogger_SetWarningFilename(*logger, warning_fname_env);
-  retval += SUNLogger_SetDebugFilename(*logger, debug_fname_env);
-  retval += SUNLogger_SetInfoFilename(*logger, info_fname_env);
+  do {
+    err = SUNLogger_SetErrorFilename(logger, error_fname_env);
+    if (err) { break; }
+    err = SUNLogger_SetWarningFilename(logger, warning_fname_env);
+    if (err) { break; }
+    err = SUNLogger_SetDebugFilename(logger, debug_fname_env);
+    if (err) { break; }
+    err = SUNLogger_SetInfoFilename(logger, info_fname_env);
+  } while(0);
 
-  return (retval < 0) ? SUN_ERR_CORRUPT : SUN_SUCCESS;
+  if (err) {
+    SUNLogger_Destroy(&logger);
+  } else {
+    *logger_out = logger;
+  }
+
+  return err;
 }
 
 SUNErrCode SUNLogger_SetErrorFilename(SUNLogger logger, const char* error_filename)
@@ -393,7 +409,7 @@ SUNErrCode SUNLogger_QueueMsg(SUNLogger logger, SUNLogLevel lvl, const char* sco
             }
             break;
           default:
-            retval = SUN_ERR_UNKNOWN;
+            retval = SUN_ERR_UNREACHABLE;
         }
 
         free(log_msg);
@@ -413,7 +429,8 @@ SUNErrCode SUNLogger_Flush(SUNLogger logger, SUNLogLevel lvl)
 
   if (logger == NULL)
   {
-    return -1;
+    retval = SUN_ERR_ARG_CORRUPT;
+    return retval;
   }
 
 #if SUNDIALS_LOGGING_LEVEL > 0
@@ -471,7 +488,7 @@ SUNErrCode SUNLogger_Flush(SUNLogger logger, SUNLogLevel lvl)
         }
         break;
       default:
-        retval = SUN_ERR_UNKNOWN;
+        retval = SUN_ERR_UNREACHABLE;
       }
     }
   }

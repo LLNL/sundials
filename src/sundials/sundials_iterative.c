@@ -22,6 +22,7 @@
 #include <sundials/sundials_core.h>
 
 #include <sundials/impl/sundials_errors_impl.h>
+#include "sundials/sundials_errors.h"
 #include "sundials_iterative_impl.h"
 
 #define FACTOR SUN_RCONST(1000.0)
@@ -71,7 +72,7 @@ SUNErrCode SUNModifiedGS(N_Vector* v, sunrealtype** h, int k, int p,
      by a very small vector length. */
 
   temp = FACTOR * vk_norm;
-  if ((temp + (*new_vk_norm)) != temp) return (0);
+  if ((temp + (*new_vk_norm)) != temp) return SUN_SUCCESS;
 
   new_norm_2 = ZERO;
 
@@ -91,7 +92,7 @@ SUNErrCode SUNModifiedGS(N_Vector* v, sunrealtype** h, int k, int p,
     *new_vk_norm = (new_product > ZERO) ? SUNRsqrt(new_product) : ZERO;
   }
 
-  return (0);
+  return SUN_SUCCESS;
 }
 
 /*
@@ -153,7 +154,7 @@ SUNErrCode SUNClassicalGS(N_Vector* v, sunrealtype** h, int k, int p,
     *new_vk_norm = SUNRsqrt(N_VDotProd(v[k], v[k])); SUNCheckLastErr();
   }
 
-  return (0);
+  return SUN_SUCCESS;
 }
 
 /*

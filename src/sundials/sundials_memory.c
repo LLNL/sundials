@@ -18,6 +18,8 @@
 #include <sundials/impl/sundials_errors_impl.h>
 #include <sundials/sundials_core.h>
 
+#include "sundials/sundials_errors.h"
+#include "sundials/sundials_types.h"
 #include "sundials_debug.h"
 
 #if defined(SUNDIALS_BUILD_WITH_PROFILING)
@@ -117,14 +119,12 @@ SUNErrCode SUNMemoryHelper_GetAllocStats(SUNMemoryHelper helper,
                                          size_t* bytes_high_watermark)
 {
   SUNErrCode ier = SUN_SUCCESS;
+  SUNFunctionBegin(helper->sunctx);
+  SUNAssert(helper->ops->getallocstats, SUN_ERR_NOT_IMPLEMENTED);
   SUNDIALS_MARK_FUNCTION_BEGIN(getSUNProfiler(helper));
-  if (helper->ops->getallocstats)
-  {
-    ier = helper->ops->getallocstats(helper, mem_type, num_allocations,
-                                     num_deallocations, bytes_allocated,
-                                     bytes_high_watermark);
-  }
-  else { ier = SUN_ERR_NOT_IMPLEMENTED; }
+  ier = helper->ops->getallocstats(helper, mem_type, num_allocations,
+                                   num_deallocations, bytes_allocated,
+                                   bytes_high_watermark);
   SUNDIALS_MARK_FUNCTION_END(getSUNProfiler(helper));
   return (ier);
 }
@@ -134,12 +134,10 @@ SUNErrCode SUNMemoryHelper_Alloc(SUNMemoryHelper helper, SUNMemory* memptr,
                                  void* queue)
 {
   SUNErrCode ier = SUN_SUCCESS;
+  SUNFunctionBegin(helper->sunctx);
+  SUNAssert(helper->ops->alloc, SUN_ERR_NOT_IMPLEMENTED);
   SUNDIALS_MARK_FUNCTION_BEGIN(getSUNProfiler(helper));
-  if (helper->ops->alloc)
-  {
-    ier = helper->ops->alloc(helper, memptr, mem_size, mem_type, queue);
-  }
-  else { ier = SUN_ERR_NOT_IMPLEMENTED; }
+  ier = helper->ops->alloc(helper, memptr, mem_size, mem_type, queue);
   SUNDIALS_MARK_FUNCTION_END(getSUNProfiler(helper));
   return ier;
 }
@@ -148,8 +146,9 @@ SUNErrCode SUNMemoryHelper_Dealloc(SUNMemoryHelper helper, SUNMemory mem,
                                    void* queue)
 {
   SUNErrCode ier = SUN_SUCCESS;
+  SUNFunctionBegin(helper->sunctx);
+  SUNAssert(helper->ops->dealloc, SUN_ERR_NOT_IMPLEMENTED);
   SUNDIALS_MARK_FUNCTION_BEGIN(getSUNProfiler(helper));
-  if (helper->ops->dealloc == NULL) { ier = -1; }
   if (!mem) { ier = SUN_SUCCESS; }
   else { ier = helper->ops->dealloc(helper, mem, queue); }
   SUNDIALS_MARK_FUNCTION_END(getSUNProfiler(helper));
@@ -160,9 +159,10 @@ SUNErrCode SUNMemoryHelper_Copy(SUNMemoryHelper helper, SUNMemory dst,
                                 SUNMemory src, size_t memory_size, void* queue)
 {
   SUNErrCode ier = SUN_SUCCESS;
+  SUNFunctionBegin(helper->sunctx);
+  SUNAssert(helper->ops->copy, SUN_ERR_NOT_IMPLEMENTED);
   SUNDIALS_MARK_FUNCTION_BEGIN(getSUNProfiler(helper));
-  if (!helper->ops->copy) { ier = SUN_ERR_NOT_IMPLEMENTED; }
-  else { ier = helper->ops->copy(helper, dst, src, memory_size, queue); }
+  ier = helper->ops->copy(helper, dst, src, memory_size, queue);
   SUNDIALS_MARK_FUNCTION_END(getSUNProfiler(helper));
   return ier;
 }
@@ -184,27 +184,30 @@ SUNErrCode SUNMemoryHelper_CopyAsync(SUNMemoryHelper helper, SUNMemory dst,
 
 SUNErrCode SUNMemoryHelper_Destroy(SUNMemoryHelper helper)
 {
-  if (!helper) return SUN_SUCCESS;
+  SUNErrCode err = SUN_SUCCESS;
+  SUNFunctionBegin(helper->sunctx);
+
+  if (!helper) {
+    return err;
+  }
+
+  if (helper->content) {
+    SUNAssert(helper->ops->destroy, SUN_ERR_NOT_IMPLEMENTED);
+  }
 
   if (helper->ops->destroy)
   {
     /* user helper defined destroy */
-    return helper->ops->destroy(helper);
-  }
-  else if (helper->content)
-  {
-    /* helper should have defined destroy */
-    return SUN_ERR_NOT_IMPLEMENTED;
+    err = helper->ops->destroy(helper);
   }
   else
   {
     /* default destroy */
     free(helper->ops);
     free(helper);
-    return SUN_SUCCESS;
   }
 
-  return SUN_SUCCESS;
+  return err;
 }
 
 SUNMemoryHelper SUNMemoryHelper_Clone(SUNMemoryHelper helper)
@@ -214,7 +217,7 @@ SUNMemoryHelper SUNMemoryHelper_Clone(SUNMemoryHelper helper)
   {
     if (helper->content)
     {
-      SUNCheck(!helper->content, SUN_ERR_NOT_IMPLEMENTED);
+      SUNAssert(!helper->ops->clone, SUN_ERR_NOT_IMPLEMENTED);
       return (NULL);
     }
     else

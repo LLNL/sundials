@@ -55,6 +55,9 @@
   ENTRY(SUN_ERR_MPI_FAIL,                                                      \
         "an MPI call returned something other than MPI_SUCCESS")               \
                                                                                \
+  ENTRY(SUN_ERR_UNREACHABLE,                                                   \
+        "Reached code that should be unreachable: open an issue at: "          \
+        "https://github.com/LLNL/sundials")                                    \
   ENTRY(SUN_ERR_UNKNOWN, "Unknown error occured: open an issue at "            \
                          "https://github.com/LLNL/sundials")
 
