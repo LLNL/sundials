@@ -60,10 +60,10 @@ module advdiff_mod
   real(c_double), parameter :: atol = 1.0d-5
 
   ! ODE non-constant parameters
-  integer(c_int)  :: i, j      ! index variables
-  integer(c_long) :: mu, ml    ! band preconditioner constants
-  real(c_double)  :: x, y      ! initialization index variables
-  real(c_double)  :: unorm     ! solution output variable
+  integer(c_int) :: i, j      ! index variables
+  integer(c_int) :: mu, ml    ! band preconditioner constants
+  real(c_double) :: x, y      ! initialization index variables
+  real(c_double) :: unorm     ! solution output variable
 
 contains
 
@@ -172,7 +172,7 @@ contains
     integer(c_int) :: start
     real(c_double), pointer, dimension(mdim,neq) :: Jmat(:,:)
 
-    smu = FSUNBandMatrix_StoredUpperBandwidth(sunmat_J)
+    smu = int(FSUNBandMatrix_StoredUpperBandwidth(sunmat_J), c_int)
     mdim = smu + 1 + ml
     Jmat(1:mdim,1:neq) => FSUNBandMatrix_Data(sunmat_J)
 
@@ -284,7 +284,7 @@ program main
   end if
 
   ! Tell CVODE to use a Band linear solver.
-  sunmat_A => FSUNBandMatrix(neq, mu, ml, ctx)
+  sunmat_A => FSUNBandMatrix(neq, int(mu,c_long), int(ml,c_long), ctx)
   if (.not. associated(sunmat_A)) then
      print *, 'ERROR: sunmat = NULL'
      stop 1
@@ -391,7 +391,6 @@ subroutine CVodeStats(cvode_mem)
   integer(c_long) :: nliters(1)    ! linear solver iterations
   integer(c_long) :: ncf(1)        ! num convergence failures nonlinear
   integer(c_long) :: ncfl(1)       ! num convergence failures linear
-  integer(c_long) :: nncfails(1)   ! nonlinear solver fails
 
   !======= Internals ============
 

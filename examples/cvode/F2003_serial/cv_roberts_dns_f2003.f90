@@ -229,22 +229,15 @@ program main
   integer(c_int) :: iout, retval, retvalr, nrtfn, rootsfound(2)
 
   type(N_Vector),           pointer :: sunvec_y      ! sundials solution vector
-  type(N_Vector),           pointer :: sunvec_f      ! sundials solution vector
   type(N_Vector),           pointer :: sunvec_dky    ! sundials solution vector
   type(N_Vector),           pointer :: sunvec_av     ! sundials tolerance vector
   type(SUNMatrix),          pointer :: sunmat_A      ! sundials matrix
   type(SUNLinearSolver),    pointer :: sunlinsol_LS  ! sundials linear solver
-  type(SUNNonLinearSolver), pointer :: sunnonlin_NLS ! sundials nonlinear solver
   type(c_ptr)                       :: cvode_mem     ! CVode memory
   type(c_ptr)                       :: sunctx        ! SUNDIALS simulation context
 
   ! solution and tolerance vectors, neq is set in the robertsDns_mod module
   real(c_double) :: yval(neq), avtol(neq), dkyval(neq)
-
-  ! fine-tuning initialized here
-  real(c_double)  :: initsize, nlscoef
-  integer(c_long) :: mxsteps
-  integer(c_int)  :: nliters, pmethod, maxetf
 
   !======= Internals ============
 
@@ -386,7 +379,6 @@ program main
   retval = FSUNLinSolFree(sunlinsol_LS)
   call FSUNMatDestroy(sunmat_A)
   call FN_VDestroy(sunvec_y)
-  call FN_VDestroy(sunvec_f)
   call FN_VDestroy(sunvec_dky)
   call FN_VDestroy(sunvec_av)
   retval = FSUNContext_Free(sunctx)
@@ -448,9 +440,6 @@ subroutine PrintOutput(cvode_mem, t, y)
   ! calling variable
   type(c_ptr)    :: cvode_mem
   real(c_double) :: t, y(neq)
-
-  ! internal variables
-  integer(c_int)  :: retval
 
   !======= Internals ============
 

@@ -254,7 +254,7 @@ program main
   type(SUNLinearSolver), pointer :: sunlinsol_LS ! sundials linear solver
   type(c_ptr)                    :: ida_mem      ! IDA memory
   type(c_ptr)                    :: sunctx       ! sundials simulation context
-  integer                        :: nargs, j, nthreads, length, status
+  integer                        :: nargs, nthreads, length, status
   character(len=32)              :: arg          ! input arg
 
   ! solution, residual and constraints vectors, mgrid is set in the idaHeat2DKryOMP_mod module

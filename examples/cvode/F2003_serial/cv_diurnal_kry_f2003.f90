@@ -88,11 +88,11 @@ module diurnal_mod
   real(c_double) :: p_p(2,2,mx,my)
 
   ! ODE non-constant parameters
-  real(c_double)  :: q3
-  real(c_double)  :: q4
-  real(c_double)  :: c1
-  real(c_double)  :: c2
-  integer(c_long) :: jx, jy
+  real(c_double) :: q3
+  real(c_double) :: q4
+  real(c_double) :: c1
+  real(c_double) :: c2
+  integer(c_int) :: jx, jy
 
 contains
 
@@ -235,6 +235,9 @@ contains
     real(c_double), pointer, dimension(2,mx,my) :: u(:,:,:)
     real(c_double) :: p_bd(2,2,mx,my)
     u(1:2,1:mx,1:my) => FN_VGetArrayPointer(sunvec_u)
+
+    ! initialize return value to success
+    ierr = 0
 
     ! if needed, recompute bd
     if (jok == 1) then
@@ -380,6 +383,9 @@ contains
     ! local variable
     integer(c_long) :: i
     real(c_double)  :: p11, p12, p21, p22, det
+
+    ! initialize return value to success
+    ierr = 0
 
     ! add identity matrix and do lu decompositions on blocks, in place.
     do i = 1,mmm
@@ -653,15 +659,11 @@ subroutine CVodeStats(cvode_mem)
   integer(c_long) :: nliters(1)    ! linear solver iterations
   integer(c_long) :: ncf(1)        ! num convergence failures nonlinear
   integer(c_long) :: ncfl(1)       ! num convergence failures linear
-  integer(c_long) :: nncfails(1)   ! nonlinear solver fails
   integer(c_long) :: lenrw(1)      ! main solver real/int workspace size
   integer(c_long) :: leniw(1)
   integer(c_long) :: lenrwls(1)    ! linear solver real/int workspace size
   integer(c_long) :: leniwls(1)
-  integer(c_long) :: nfebp(1)      ! num f evaluations
   real(c_double)  :: avdim(1)      ! avg Krylov subspace dim (NLI/NNI)
-  integer(c_long) :: lenrwbp(1)
-  integer(c_long) :: leniwbp(1)
 
   !======= Internals ============
 

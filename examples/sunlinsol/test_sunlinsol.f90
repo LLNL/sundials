@@ -43,6 +43,8 @@ contains
     integer(SUNLinearSolver_Type)  :: mysunid, sunid
     integer(C_INT)                 :: myid
 
+    failure = 0
+
     sunid = FSUNLinSolGetType(S)
     if (sunid /= mysunid) then
       failure = 1

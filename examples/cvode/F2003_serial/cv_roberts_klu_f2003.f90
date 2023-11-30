@@ -495,9 +495,6 @@ subroutine PrintOutput(cvode_mem, t, y)
   type(c_ptr)    :: cvode_mem
   real(c_double) :: t, y(neq)
 
-  ! internal variables
-  integer(c_int)  :: retval
-
   !======= Internals ============
 
   print '(es12.4,1x,3(es12.4,1x))', t, y(1), y(2), y(3)

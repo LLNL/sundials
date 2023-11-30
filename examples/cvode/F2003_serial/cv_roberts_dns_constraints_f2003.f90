@@ -236,7 +236,6 @@ program main
   integer(c_int) :: iout, retval, retvalr, nrtfn, rootsfound(2)
 
   type(N_Vector),        pointer :: sunvec_y      ! sundials solution vector
-  type(N_Vector),        pointer :: sunvec_f      ! sundials solution vector
   type(N_Vector),        pointer :: sunvec_c      ! sundials constraint vector
   type(N_Vector),        pointer :: sunvec_dky    ! sundials solution vector
   type(N_Vector),        pointer :: sunvec_av     ! sundials tolerance vector
@@ -247,11 +246,6 @@ program main
 
   ! solution and tolerance vectors, neq is set in the RobertsDnsConstr_mod module
   real(c_double), dimension(neq) :: yval, cval, avtol, dkyval
-
-  ! fine-tuning initialized here
-  real(c_double)  :: initsize, nlscoef
-  integer(c_long) :: mxsteps
-  integer(c_int)  :: nliters, pmethod, maxetf
 
   !======= Internals ============
 
@@ -408,7 +402,6 @@ program main
   retval = FSUNLinSolFree(sunlinsol_LS)
   call FSUNMatDestroy(sunmat_A)
   call FN_VDestroy(sunvec_y)
-  call FN_VDestroy(sunvec_f)
   call FN_VDestroy(sunvec_c)
   call FN_VDestroy(sunvec_dky)
   call FN_VDestroy(sunvec_av)
@@ -471,9 +464,6 @@ subroutine PrintOutput(cvode_mem, t, y)
   ! calling variable
   type(c_ptr)    :: cvode_mem
   real(c_double) :: t, y(neq)
-
-  ! internal variables
-  integer(c_int)  :: retval
 
   !======= Internals ============
 

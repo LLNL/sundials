@@ -137,7 +137,6 @@ program driver
   type(N_Vector), pointer :: sunvec_y                ! solution N_Vector
   real(c_double), pointer, dimension(nlocal) :: y(:) ! vector data
   type(c_ptr)     :: arkode_mem                      ! ARKODE memory
-  integer(c_long) :: N, Ntot
   integer(c_int) :: retval
   integer :: ierr
   logical :: outproc
