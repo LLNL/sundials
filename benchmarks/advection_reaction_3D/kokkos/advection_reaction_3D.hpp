@@ -22,9 +22,9 @@
 #include <cmath>
 #include <mpi.h>
 
-#include <sundials/sundials_context.h>
+#include <sundials/sundials_core.hpp>
 #include <nvector/nvector_mpiplusx.h>
-#include "nvector/nvector_kokkos.hpp"
+#include <nvector/nvector_kokkos.hpp>
 #include "check_retval.h"
 #include "ParallelGrid.hpp"
 
