@@ -508,7 +508,7 @@ subroutine PrintOutput(arkode_mem, t, y)
   real(c_double) :: t, y(neq)
 
   ! internal variables
-  integer(c_int)  :: retval, kused(1)
+  integer(c_int)  :: retval
   integer(c_long) :: nst(1)
   real(c_double)  :: hused(1)
 
