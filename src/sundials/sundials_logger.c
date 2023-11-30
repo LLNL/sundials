@@ -162,6 +162,7 @@ SUNErrCode SUNLogger_Create(SUNComm comm, int output_rank, SUNLogger* logger_ptr
   /* Attach the comm, duplicating it if MPI is used. */
 #if SUNDIALS_MPI_ENABLED
   logger->comm = SUN_COMM_NULL;
+  printf("SUNLogger_Create: comm=%p, MPI_COMM_NULL=%p\n", (void*)comm, (void*)MPI_COMM_NULL);
   if (comm != SUN_COMM_NULL)
   {
     MPI_Comm_dup(comm, &logger->comm);

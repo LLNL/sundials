@@ -218,7 +218,7 @@ SWIGEXPORT int _wrap_FSUNContext_Create(int const *farg1, void *farg2) {
   if(flag) {
     arg1 = MPI_Comm_f2c((MPI_Fint)(*farg1));
   } else {
-    arg1 = 0;
+    arg1 = SUN_COMM_NULL;
   }
 #else
   arg1 = *farg1;

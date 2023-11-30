@@ -254,13 +254,13 @@ SWIGEXPORT int _wrap_FSUNNonlinSolSetup(SUNNonlinearSolver farg1, N_Vector farg2
   SUNNonlinearSolver arg1 = (SUNNonlinearSolver) 0 ;
   N_Vector arg2 = (N_Vector) 0 ;
   void *arg3 = (void *) 0 ;
-  SUNErrCode result;
+  int result;
   
   arg1 = (SUNNonlinearSolver)(farg1);
   arg2 = (N_Vector)(farg2);
   arg3 = (void *)(farg3);
-  result = (SUNErrCode)SUNNonlinSolSetup(arg1,arg2,arg3);
-  fresult = (SUNErrCode)(result);
+  result = (int)SUNNonlinSolSetup(arg1,arg2,arg3);
+  fresult = (int)(result);
   return fresult;
 }
 
