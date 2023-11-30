@@ -72,7 +72,7 @@
 #include <nvector/nvector_serial.h> /* serial N_Vector type, fcts., macros  */
 #include <stdio.h>
 #include <string.h>
-#include <sundials/sundials_context.h>
+#include <sundials/sundials_core.h>
 #include <sundials/sundials_math.h> /* def. math fcns, 'sunrealtype'           */
 #include <sundials/sundials_nvector.h>
 #include <sundials/sundials_types.h>
