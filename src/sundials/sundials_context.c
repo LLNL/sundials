@@ -60,7 +60,6 @@ SUNErrCode SUNContext_Create(SUNComm comm, SUNContext* sunctx_out)
   do {
 #if SUNDIALS_LOGGING_LEVEL > 0 
 #if SUNDIALS_MPI_ENABLED
-    printf("SUNContext_Create: comm=%p, MPI_COMM_NULL=%p\n", (void*)comm, (void*)MPI_COMM_NULL);
     err = SUNLogger_CreateFromEnv(comm, &logger); 
     SUNCheckCallNoRet(err); if (err) { break; }
 #else
