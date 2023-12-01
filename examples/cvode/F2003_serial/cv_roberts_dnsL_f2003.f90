@@ -243,11 +243,6 @@ program main
   ! solution and tolerance vectors, neq is set in the robertsDnsL_mod module
   real(c_double) :: yval(neq), avtol(neq), dkyval(neq)
 
-  ! fine-tuning initialized here
-  real(c_double)  :: initsize, nlscoef
-  integer(c_long) :: mxsteps
-  integer(c_int)  :: nliters, pmethod, maxetf
-
   !======= Internals ============
 
   retval = FSUNContext_Create(SUN_COMM_NULL, sunctx)
@@ -449,9 +444,6 @@ subroutine PrintOutput(cvode_mem, t, y)
   ! calling variable
   type(c_ptr)    :: cvode_mem
   real(c_double) :: t, y(neq)
-
-  ! internal variables
-  integer(c_int)  :: retval
 
   !======= Internals ============
 
