@@ -12,8 +12,8 @@
 
 .. _SUNDIALS.Fortran:
 
-SUNDIALS Fortran Interface
-==========================
+Fortran Interface
+=================
 
 SUNDIALS provides modern, Fortran 2003 based, interfaces as Fortran modules to
 most of the C API including:
@@ -178,6 +178,8 @@ equivalencies with the parameter direction in mind.
    +-------------------------+-------------------------------+-------------------------------------------+
    | **C Type**              | **Parameter Direction**       | **Fortran 2003 type**                     |
    +=========================+===============================+===========================================+
+   |``SUNErrCode``           | in, inout, out, return        | ``integer(c_int)``                        |
+   +-------------------------+-------------------------------+-------------------------------------------+
    |``double``               | in, inout, out, return        | ``real(c_double)``                        |
    +-------------------------+-------------------------------+-------------------------------------------+
    |``int``                  | in, inout, out, return        | ``integer(c_int)``                        |

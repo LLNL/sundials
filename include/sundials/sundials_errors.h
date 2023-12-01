@@ -87,19 +87,19 @@ extern "C" {
 #endif
 
 SUNDIALS_EXPORT
-int SUNLogErrHandlerFn(int line, const char* func, const char* file,
-                       const char* msg, SUNErrCode err_code,
-                       void* err_user_data, SUNContext sunctx);
+void SUNLogErrHandlerFn(int line, const char* func, const char* file,
+                        const char* msg, SUNErrCode err_code,
+                        void* err_user_data, SUNContext sunctx);
 
 SUNDIALS_EXPORT
-int SUNAbortErrHandlerFn(int line, const char* func, const char* file,
-                         const char* msg, SUNErrCode err_code,
-                         void* err_user_data, SUNContext sunctx);
-
-SUNDIALS_EXPORT
-int SUNAssertErrHandlerFn(int line, const char* func, const char* file,
-                          const char* stmt, SUNErrCode err_code,
+void SUNAbortErrHandlerFn(int line, const char* func, const char* file,
+                          const char* msg, SUNErrCode err_code,
                           void* err_user_data, SUNContext sunctx);
+
+SUNDIALS_EXPORT
+void SUNAssertErrHandlerFn(int line, const char* func, const char* file,
+                           const char* stmt, SUNErrCode err_code,
+                           void* err_user_data, SUNContext sunctx);
 
 /* ----------------------------------------------------------------------------
  * Error functions

@@ -13,7 +13,7 @@
 .. _SUNDIALS.SUNContext:
 
 The SUNContext Type
-=====================
+===================
 
 .. versionadded:: 6.0.0
 
@@ -29,18 +29,15 @@ The :c:type:`SUNContext` class/type is defined in the header file
 Users should create a :c:type:`SUNContext` object prior to any other calls to
 SUNDIALS library functions by calling:
 
-.. c:function:: int SUNContext_Create(SUNComm comm, SUNContext* ctx)
+.. c:function:: SUNErrCode SUNContext_Create(SUNComm comm, SUNContext* ctx)
 
    Creates a :c:type:`SUNContext` object associated with the thread of execution.
    The data of the :c:type:`SUNContext` class is private.
 
-   **Arguments**:
-      * ``comm`` -- the MPI communicator or ``SUN_COMM_NULL`` if not using MPI.
-      * ``ctx`` --  [in,out] upon successful exit, a pointer to the newly
-        created :c:type:`SUNContext` object.
+   :param comm: the MPI communicator or ``SUN_COMM_NULL`` if not using MPI.
+   :param sunctx: [in,out] upon successful exit, a pointer to the newly created :c:type:`SUNContext` object.
 
-   **Returns**:
-      * Will return < 0 if an error occurs, and zero otherwise.
+   :return: :c:type:`SUNErrCode` indicating success or failure
 
 The created :c:type:`SUNContext` object should be provided to the constructor
 routines for different SUNDIALS classes/modules e.g.,
@@ -63,15 +60,13 @@ routines for different SUNDIALS classes/modules e.g.,
 After all other SUNDIALS code, the :c:type:`SUNContext` object should be freed
 with a call to:
 
-.. c:function:: int SUNContext_Free(SUNContext* ctx)
+.. c:function:: SUNErrCode SUNContext_Free(SUNContext* ctx)
 
    Frees the :c:type:`SUNContext` object.
 
-   **Arguments**:
-      * ``ctx`` -- pointer to a valid :c:type:`SUNContext` object, ``NULL`` upon successful return.
+   :param sunctx: pointer to a valid :c:type:`SUNContext` object, ``NULL`` upon successful return.
 
-   **Returns**:
-      * Will return < 0 if an error occurs, and zero otherwise.
+   :return: :c:type:`SUNErrCode` indicating success or failure
 
    .. warning::
 
@@ -81,61 +76,104 @@ with a call to:
 
 The :c:type:`SUNContext` API further consists of the following functions:
 
-.. c:function:: int SUNContext_GetProfiler(SUNContext ctx, SUNProfiler* profiler)
+.. c:function:: SUNErrCode SUNContext_GetLastError(SUNContext sunctx)
+
+   Gets the last error code set by a SUNDIALS function call. The function
+   then resets the last error code to `SUN_SUCCESS`.
+
+   :param sunctx: a valid :c:type:`SUNContext` object.
+
+   :return: the last :c:type:`SUNErrCode` recorded
+
+
+.. c:function:: SUNErrCode SUNContext_PeekLastError(SUNContext sunctx)
+
+   Gets the last error code set by a SUNDIALS function call. The function
+   *does not* reset the last error code to `SUN_SUCCESS`.
+
+   :param sunctx: a valid :c:type:`SUNContext` object.
+
+   :return: the last :c:type:`SUNErrCode` recorded
+
+
+.. c:function:: SUNErrCode SUNContext_PushErrHandler(SUNContext sunctx, SUNErrHandlerFn err_fn, void* err_user_data)
+
+   Pushes a new :c:type:`SUNErrHandlerFn` onto the error handler stack so that it is called when an
+   error occurs inside of SUNDIALS.
+
+   :param sunctx: a valid :c:type:`SUNContext` object.
+   :param err_fn: a callback function of type :c:type:`SUNErrHandlerFn` to be pushed onto the error handler stack
+   :param err_user_data: a pointer that will be passed back to callback function when it is called
+
+   :return: :c:type:`SUNErrCode` indicating success or failure
+
+
+.. c:function:: SUNErrCode SUNContext_PopErrHandler(SUNContext sunctx)
+
+   Pops the last :c:type:`SUNErrHandlerFn` off of the error handler stack.
+
+   :param sunctx: a valid :c:type:`SUNContext` object.
+
+   :return: :c:type:`SUNErrCode` indicating success or failure
+
+
+.. c:function:: SUNErrCode SUNContext_ClearErrHandler(SUNContext sunctx)
+
+   Clears the entire error handler stack. After doing this it is important to push an error handler
+   onto the stack with :c:type:`SUNContext_PushErrHandler` otherwise errors will be ignored.
+
+   :param sunctx: a valid :c:type:`SUNContext` object.
+
+   :return: :c:type:`SUNErrCode` indicating success or failure
+
+
+.. c:function:: SUNErrCode SUNContext_GetProfiler(SUNContext ctx, SUNProfiler* profiler)
 
    Gets the :c:type:`SUNProfiler` object associated with the
    :c:type:`SUNContext` object.
 
-   **Arguments**:
-      * ``ctx`` -- a valid :c:type:`SUNContext` object.
-      * ``profiler`` -- [in,out] a pointer to the :c:type:`SUNProfiler` object
+   :param sunctx: a valid :c:type:`SUNContext` object.
+   :param profiler: [in,out] a pointer to the :c:type:`SUNProfiler` object
         associated with this context; will be ``NULL`` if profiling is not
         enabled.
 
-   **Returns**:
-      * Will return < 0 if an error occurs, and zero otherwise.
+   :return: :c:type:`SUNErrCode` indicating success or failure
 
 
-.. c:function:: int SUNContext_SetProfiler(SUNContext ctx, SUNProfiler profiler)
+.. c:function:: SUNErrCode SUNContext_SetProfiler(SUNContext ctx, SUNProfiler profiler)
 
    Sets the :c:type:`SUNProfiler` object associated with the
    :c:type:`SUNContext` object.
 
-   **Arguments**:
-      * ``ctx`` -- a valid :c:type:`SUNContext` object.
-      * ``profiler`` -- a :c:type:`SUNProfiler` object to associate with this
+   :param sunctx: a valid :c:type:`SUNContext` object.
+   :param profiler: a :c:type:`SUNProfiler` object to associate with this
         context; this is ignored if profiling is not enabled.
 
-   **Returns**:
-      * Will return < 0 if an error occurs, and zero otherwise.
+   :return: :c:type:`SUNErrCode` indicating success or failure
 
 
-.. c:function:: int SUNContext_SetLogger(SUNContext ctx, SUNLogger logger)
+.. c:function:: SUNErrCode SUNContext_SetLogger(SUNContext ctx, SUNLogger logger)
 
    Sets the :c:type:`SUNLogger` object associated with the :c:type:`SUNContext`
    object.
 
-   **Arguments**:
-      * ``ctx`` -- a valid :c:type:`SUNContext` object.
-      * ``logger`` -- a :c:type:`SUNLogger` object to associate with this
+   :param sunctx: a valid :c:type:`SUNContext` object.
+   :param logger: a :c:type:`SUNLogger` object to associate with this
         context; this is ignored if profiling is not enabled.
 
-   **Returns**:
-      * Will return < 0 if an error occurs, and zero otherwise.
+   :return: :c:type:`SUNErrCode` indicating success or failure
 
    .. versionadded:: 6.2.0
 
 
-.. c:function:: int SUNContext_GetLogger(SUNContext ctx, SUNLogger* logger)
+.. c:function:: SUNErrCode SUNContext_GetLogger(SUNContext ctx, SUNLogger* logger)
 
    Gets the :c:type:`SUNLogger` object associated with the :c:type:`SUNContext` object.
 
-   **Arguments**:
-      * ``ctx`` -- a valid :c:type:`SUNContext` object.
-      * ``logger`` -- [in,out] a pointer to the :c:type:`SUNLogger` object associated with this context; will be ``NULL`` if profiling is not enabled.
+   :param sunctx: a valid :c:type:`SUNContext` object.
+   :param logger: [in,out] a pointer to the :c:type:`SUNLogger` object associated with this context; will be ``NULL`` if profiling is not enabled.
 
-   **Returns**:
-      * Will return < 0 if an error occurs, and zero otherwise.
+   :return: :c:type:`SUNErrCode` indicating success or failure
 
    .. versionadded:: 6.2.0
 

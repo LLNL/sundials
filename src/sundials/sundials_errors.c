@@ -60,21 +60,20 @@ const char* SUNGetErrMsg(SUNErrCode code, SUNContext sunctx)
   return NULL;
 }
 
-int SUNLogErrHandlerFn(int line, const char* func, const char* file,
-                       const char* msg, SUNErrCode err_code, void* err_user_data,
-                       SUNContext sunctx)
+void SUNLogErrHandlerFn(int line, const char* func, const char* file,
+                        const char* msg, SUNErrCode err_code, void* err_user_data,
+                        SUNContext sunctx)
 {
   char* file_and_line = combineFileAndLine(line, file);
   if (msg == NULL) { msg = SUNGetErrMsg(err_code, sunctx); }
   SUNLogger_QueueMsg(sunctx->logger, SUN_LOGLEVEL_ERROR, file_and_line, func,
                      msg);
   free(file_and_line);
-  return 0;
 }
 
-int SUNAbortErrHandlerFn(int line, const char* func, const char* file,
-                         const char* msg, SUNErrCode err_code, void* err_user_data,
-                         SUNContext sunctx)
+void SUNAbortErrHandlerFn(int line, const char* func, const char* file,
+                          const char* msg, SUNErrCode err_code, void* err_user_data,
+                          SUNContext sunctx)
 {
   char* file_and_line = combineFileAndLine(line, file);
   SUNLogger_QueueMsg(sunctx->logger, SUN_LOGLEVEL_ERROR, file_and_line, func,
@@ -82,12 +81,11 @@ int SUNAbortErrHandlerFn(int line, const char* func, const char* file,
                      "error handler to avoid program termination.\n");
   free(file_and_line);
   abort();
-  return 0;
 }
 
-int SUNAssertErrHandlerFn(int line, const char* func, const char* file,
-                          const char* stmt, SUNErrCode err_code, void* err_user_data,
-                          SUNContext sunctx)
+void SUNAssertErrHandlerFn(int line, const char* func, const char* file,
+                           const char* stmt, SUNErrCode err_code, void* err_user_data,
+                           SUNContext sunctx)
 {
   char* file_and_line = combineFileAndLine(line, file);
   SUNLogger_QueueMsg(sunctx->logger, SUN_LOGLEVEL_ERROR, file_and_line, func,
@@ -95,5 +93,4 @@ int SUNAssertErrHandlerFn(int line, const char* func, const char* file,
                      stmt);
   free(file_and_line);
   abort();
-  return 0;
 }

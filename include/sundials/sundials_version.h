@@ -18,18 +18,21 @@
 #define _SUNDIALS_VERSION_H
 
 #include <sundials/sundials_config.h>
+#include <sundials/sundials_errors.h>
 
 #ifdef __cplusplus  /* wrapper to enable C++ usage */
 extern "C" {
 #endif
 
 /* Fill a string with SUNDIALS version information */
-SUNDIALS_EXPORT int SUNDIALSGetVersion(char *version, int len);
+SUNDIALS_EXPORT
+SUNErrCode SUNDIALSGetVersion(char *version, int len);
 
 /* Fills integers with the major, minor, and patch release version numbers and a
    string with the release label.*/
-SUNDIALS_EXPORT int SUNDIALSGetVersionNumber(int *major, int *minor, int *patch,
-                                             char *label, int len);
+SUNDIALS_EXPORT
+SUNErrCode SUNDIALSGetVersionNumber(int *major, int *minor, int *patch,
+                                    char *label, int len);
 
 #ifdef __cplusplus
 }
