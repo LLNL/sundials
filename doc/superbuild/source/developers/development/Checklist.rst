@@ -83,4 +83,5 @@ system, etc. developers should adhere to the following checklist.
    ``N_VPrintFile`` used for debugging purposes.
 
 #. If answer files changed, and it is expected/desired, then update the `.out` files
-   that are embedded in the `examples/` directory AND the :ref:`"answers" repository<>`. 
+   that are embedded in the `examples/` directory AND the
+   `"answers" repository <https://github.com/sundials-codes/answers>_`. 
