@@ -327,7 +327,7 @@ Coding Conventions and Rules
     sunrealtype tmp = N_VDotProd(...); SUNCheckLastErr(); 
     tmp = SUNRsqrt(tmp);
 
-#. Programmer errors should be checked with the ``SUNAssert`` or ``SUNMPIAssert`` macro.
+#. Programmer errors should be checked with the ``SUNAssert`` macro.
    By programmer errors we mean, for example, illegal inputs such as mismatching dimensions or a
    ``NULL`` value for something that should not be. 
 
