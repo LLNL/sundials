@@ -26,8 +26,9 @@ static inline char* combineFileAndLine(int line, const char* file)
   return file_and_line;
 }
 
-void SUNMPIAbortErrHandlerFn(int line, const char* func, const char* file, const char* msg,
-                             SUNErrCode err_code, void* err_user_data, SUNContext sunctx)
+void SUNMPIAbortErrHandlerFn(int line, const char* func, const char* file,
+                             const char* msg, SUNErrCode err_code,
+                             void* err_user_data, SUNContext sunctx)
 {
   char* file_and_line = combineFileAndLine(line, file);
   SUNLogger_QueueMsg(sunctx->logger, SUN_LOGLEVEL_ERROR, file_and_line, func,
@@ -39,8 +40,9 @@ void SUNMPIAbortErrHandlerFn(int line, const char* func, const char* file, const
   MPI_Abort(sunctx->comm, err_code);
 }
 
-void SUNMPIAssertErrHandlerFn(int line, const char* func, const char* file, const char* stmt,
-                              SUNErrCode err_code, void* err_user_data, SUNContext sunctx)
+void SUNMPIAssertErrHandlerFn(int line, const char* func, const char* file,
+                              const char* stmt, SUNErrCode err_code,
+                              void* err_user_data, SUNContext sunctx)
 {
   char* file_and_line = combineFileAndLine(line, file);
   SUNLogger_QueueMsg(sunctx->logger, SUN_LOGLEVEL_ERROR, file_and_line,

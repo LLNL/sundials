@@ -383,7 +383,7 @@ int ComponentMask(N_Vector mask, const int component, const UserData* udata)
   N_VConst(0.0, mask);
   Kokkos::parallel_for(
     "Fill_mask", Range3D({0, 0, 0}, {nxl, nyl, nzl}),
-    KOKKOS_LAMBDA(int i, int j, int k) { maskview(i,    j,    k,    component) = 1.0; });
+    KOKKOS_LAMBDA(int i, int j, int k) { maskview(i, j, k, component) = 1.0; });
 
   return 0;
 }

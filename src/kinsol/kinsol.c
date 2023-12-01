@@ -2337,7 +2337,9 @@ static int KINStop(KINMem kin_mem, sunbooleantype maxStepTaken, int sflag)
           kin_mem->kin_sthrsh = TWO;
           return (CONTINUE_ITERATIONS);
         }
-        else { /* Otherwise, we cannot do anything, so just return. */ }
+        else
+        { /* Otherwise, we cannot do anything, so just return. */
+        }
       }
       else
       {

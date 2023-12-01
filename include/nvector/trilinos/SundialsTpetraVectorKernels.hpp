@@ -88,7 +88,7 @@ inline void elementWiseDivide(const vector_type& x, const vector_type& y,
 
   Kokkos::parallel_for(
     "elementWiseDivide", Kokkos::RangePolicy<execution_space>(0, N),
-    KOKKOS_LAMBDA(const local_ordinal_type& i) { z_1d(i) = x_1d(i)  /  y_1d(i); });
+    KOKKOS_LAMBDA(const local_ordinal_type& i) { z_1d(i) = x_1d(i) / y_1d(i); });
 }
 
 /// Add constant to all vector elements: z(i) = x(i) + b

@@ -3493,7 +3493,10 @@ static int CVArhsQ(sunrealtype t, N_Vector yB, N_Vector qBdot, void* cvode_mem)
   {
     /* flag = */ ca_mem->ca_IMget(cv_mem, t, ca_mem->ca_ytmp, ca_mem->ca_yStmp);
   }
-  else { /* flag = */ ca_mem->ca_IMget(cv_mem, t, ca_mem->ca_ytmp, NULL); }
+  else
+  { /* flag = */
+    ca_mem->ca_IMget(cv_mem, t, ca_mem->ca_ytmp, NULL);
+  }
 
   /* Call the user's RHS function */
 
