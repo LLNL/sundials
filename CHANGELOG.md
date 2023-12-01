@@ -57,6 +57,9 @@ method `ARKODE_VERNER_16_8_9`.
 Changed the `SUNProfiler` so that it does not rely on `MPI_WTime` in any case.
 This fixes https://github.com/LLNL/sundials/issues/312. 
 
+SUNDIALS now has more robust and uniform error handling. See the "Error Handling"
+section in the user guide for details.
+
 **Breaking change** 
 We have replaced the use of a type-erased (i.e., `void*`) pointer to a
 communicator in place of `MPI_Comm` throughout the SUNDIALS API with a

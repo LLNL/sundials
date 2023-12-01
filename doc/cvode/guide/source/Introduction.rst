@@ -137,6 +137,8 @@ This fixes `GitHub Issue #312 <https://github.com/LLNL/sundials/issues/312>`_.
 
 Added Fortran support for the LAPACK  dense ``SUNLinearSolver`` implementation.
 
+SUNDIALS now has more robust and uniform error handling. See :numref:`SUNDIALS.Errors` for details.
+
 **Breaking change** 
 We have replaced the use of a type-erased (i.e., ``void*``) pointer to a
 communicator in place of ``MPI_Comm`` throughout the SUNDIALS API with a
