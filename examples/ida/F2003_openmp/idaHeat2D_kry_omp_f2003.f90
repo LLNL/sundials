@@ -102,7 +102,7 @@ contains
     !$omp end workshare
 
     ! Loop over interior points; set res = up - (central difference)
-    !$omp do collapse(2)
+    !$omp do collapse(2) private(i,j)
     do j = 2,mgrid-1
        do i = 2,mgrid-1
           r(i,j) = up(i,j) - coeff*( u(i-1,j) + u(i+1,j) + u(i,j-1) + u(i,j+1) - 4.d0*u(i,j))
@@ -546,7 +546,7 @@ subroutine SetInitialProfile(sunvec_u, sunvec_up, sunvec_r)
   !======= Internals ============
 
   ! Initialize uu on all grid points
-  !$omp parallel do collapse(2)
+  !$omp parallel do collapse(2) private(yfact,xfact,i,j)
   do j = 1,mgrid
      yfact = dx * (j-1)
      do i = 1,mgrid
