@@ -40,7 +40,7 @@ preconditioner can only be used with ``NVECTOR_PARALLEL``. It is not recommended
 to use a threaded vector object with SuperLU_MT unless it is the
 ``NVECTOR_OPENMP`` module, and SuperLU_MT is also compiled with OpenMP.
 
-.. _IDAS.Usage.CC.header_sim:
+.. _IDAS.Usage.SIM.header_sim:
 
 Access to library and header files
 ----------------------------------
@@ -93,7 +93,7 @@ If using a non-default nonlinear solver object, or when interacting with a
 solver (see Chapter :numref:`SUNNonlinSol` for more information).
 
 If using a nonlinear solver that requires the solution of a linear system of the
-form :eq:`IDA_DAE_nls` (e.g., the default Newton iteration), the calling program
+form :eq:`IDAS_DAE_nls` (e.g., the default Newton iteration), the calling program
 must also include a ``SUNLinearSolver`` implementation header file, of the from
 ``sunlinsol/sunlinsol_*.h`` where ``*`` is the name of the linear solver
 (see Chapter :numref:`SUNLinSol` for more information). 
