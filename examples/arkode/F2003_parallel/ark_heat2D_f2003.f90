@@ -698,7 +698,7 @@ program driver
   integer(c_long) :: npre(1)    ! number of preconditioner setups
   integer(c_long) :: npsol(1)   ! number of preconditioner solves
   integer :: i, j, ioutput
-  character*100 :: outname
+  character(len=:), allocatable :: subdomainname, outname, idstring
 
   ! initialize MPI
   call MPI_Init(ierr)
@@ -825,14 +825,17 @@ program driver
   enddo
 
   ! Each processor outputs subdomain information
-  write(outname,'(16Hheat2d_subdomain,f4.3,4H.txt)') myid/1000.0
-  open(100, file=outname)
+  allocate(character(len=4) :: idstring)
+  write(idstring, "(f4.3)") myid/1000.0
+  subdomainname = "heat2d_subdomain" // idstring // ".txt"
+  open(100, file=subdomainname)
   write(100,'(6(i9,1x))') nx, ny, is, ie, js, je
   close(100)
 
   ! Open output streams for results, access data array
-  write(outname,'(6Hheat2d,f4.3,4H.txt)') myid/1000.0
+  outname = "heat2d" // idstring // ".txt"
   open(101, file=outname)
+  deallocate(idstring)
 
   ! Output initial condition to disk
   do j=1,nyl
