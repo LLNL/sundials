@@ -233,8 +233,7 @@ SWIGINTERN SwigArrayWrapper SwigArrayWrapper_uninitialized() {
 
 #include <string.h>
 
-SWIGEXPORT int _wrap_FSUNLogErrHandlerFn(int const *farg1, SwigArrayWrapper *farg2, SwigArrayWrapper *farg3, SwigArrayWrapper *farg4, int const *farg5, void *farg6, void *farg7) {
-  int fresult ;
+SWIGEXPORT void _wrap_FSUNLogErrHandlerFn(int const *farg1, SwigArrayWrapper *farg2, SwigArrayWrapper *farg3, SwigArrayWrapper *farg4, int const *farg5, void *farg6, void *farg7) {
   int arg1 ;
   char *arg2 = (char *) 0 ;
   char *arg3 = (char *) 0 ;
@@ -242,7 +241,6 @@ SWIGEXPORT int _wrap_FSUNLogErrHandlerFn(int const *farg1, SwigArrayWrapper *far
   SUNErrCode arg5 ;
   void *arg6 = (void *) 0 ;
   SUNContext arg7 = (SUNContext) 0 ;
-  int result;
   
   arg1 = (int)(*farg1);
   arg2 = (char *)(farg2->data);
@@ -251,14 +249,11 @@ SWIGEXPORT int _wrap_FSUNLogErrHandlerFn(int const *farg1, SwigArrayWrapper *far
   arg5 = (SUNErrCode)(*farg5);
   arg6 = (void *)(farg6);
   arg7 = (SUNContext)(farg7);
-  result = (int)SUNLogErrHandlerFn(arg1,(char const *)arg2,(char const *)arg3,(char const *)arg4,arg5,arg6,arg7);
-  fresult = (int)(result);
-  return fresult;
+  SUNLogErrHandlerFn(arg1,(char const *)arg2,(char const *)arg3,(char const *)arg4,arg5,arg6,arg7);
 }
 
 
-SWIGEXPORT int _wrap_FSUNAbortErrHandlerFn(int const *farg1, SwigArrayWrapper *farg2, SwigArrayWrapper *farg3, SwigArrayWrapper *farg4, int const *farg5, void *farg6, void *farg7) {
-  int fresult ;
+SWIGEXPORT void _wrap_FSUNAbortErrHandlerFn(int const *farg1, SwigArrayWrapper *farg2, SwigArrayWrapper *farg3, SwigArrayWrapper *farg4, int const *farg5, void *farg6, void *farg7) {
   int arg1 ;
   char *arg2 = (char *) 0 ;
   char *arg3 = (char *) 0 ;
@@ -266,7 +261,6 @@ SWIGEXPORT int _wrap_FSUNAbortErrHandlerFn(int const *farg1, SwigArrayWrapper *f
   SUNErrCode arg5 ;
   void *arg6 = (void *) 0 ;
   SUNContext arg7 = (SUNContext) 0 ;
-  int result;
   
   arg1 = (int)(*farg1);
   arg2 = (char *)(farg2->data);
@@ -275,14 +269,11 @@ SWIGEXPORT int _wrap_FSUNAbortErrHandlerFn(int const *farg1, SwigArrayWrapper *f
   arg5 = (SUNErrCode)(*farg5);
   arg6 = (void *)(farg6);
   arg7 = (SUNContext)(farg7);
-  result = (int)SUNAbortErrHandlerFn(arg1,(char const *)arg2,(char const *)arg3,(char const *)arg4,arg5,arg6,arg7);
-  fresult = (int)(result);
-  return fresult;
+  SUNAbortErrHandlerFn(arg1,(char const *)arg2,(char const *)arg3,(char const *)arg4,arg5,arg6,arg7);
 }
 
 
-SWIGEXPORT int _wrap_FSUNAssertErrHandlerFn(int const *farg1, SwigArrayWrapper *farg2, SwigArrayWrapper *farg3, SwigArrayWrapper *farg4, int const *farg5, void *farg6, void *farg7) {
-  int fresult ;
+SWIGEXPORT void _wrap_FSUNAssertErrHandlerFn(int const *farg1, SwigArrayWrapper *farg2, SwigArrayWrapper *farg3, SwigArrayWrapper *farg4, int const *farg5, void *farg6, void *farg7) {
   int arg1 ;
   char *arg2 = (char *) 0 ;
   char *arg3 = (char *) 0 ;
@@ -290,7 +281,6 @@ SWIGEXPORT int _wrap_FSUNAssertErrHandlerFn(int const *farg1, SwigArrayWrapper *
   SUNErrCode arg5 ;
   void *arg6 = (void *) 0 ;
   SUNContext arg7 = (SUNContext) 0 ;
-  int result;
   
   arg1 = (int)(*farg1);
   arg2 = (char *)(farg2->data);
@@ -299,9 +289,7 @@ SWIGEXPORT int _wrap_FSUNAssertErrHandlerFn(int const *farg1, SwigArrayWrapper *
   arg5 = (SUNErrCode)(*farg5);
   arg6 = (void *)(farg6);
   arg7 = (SUNContext)(farg7);
-  result = (int)SUNAssertErrHandlerFn(arg1,(char const *)arg2,(char const *)arg3,(char const *)arg4,arg5,arg6,arg7);
-  fresult = (int)(result);
-  return fresult;
+  SUNAssertErrHandlerFn(arg1,(char const *)arg2,(char const *)arg3,(char const *)arg4,arg5,arg6,arg7);
 }
 
 

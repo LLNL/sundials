@@ -20,14 +20,14 @@ extern "C" {
 #endif
 
 SUNDIALS_EXPORT
-int SUNMPIAbortErrHandlerFn(int line, const char* func, const char* file,
-                            const char* msg, SUNErrCode err_code,
-                            void* err_user_data, SUNContext sunctx);
+void SUNMPIAbortErrHandlerFn(int line, const char* func, const char* file,
+                             const char* msg, SUNErrCode err_code,
+                             void* err_user_data, SUNContext sunctx);
 
 SUNDIALS_EXPORT
-int SUNMPIAssertErrHandlerFn(int line, const char* func, const char* file,
-                             const char* stmt, SUNErrCode err_code,
-                             void* err_user_data, SUNContext sunctx);
+void SUNMPIAssertErrHandlerFn(int line, const char* func, const char* file,
+                              const char* stmt, SUNErrCode err_code,
+                              void* err_user_data, SUNContext sunctx);
 
 #ifdef __cplusplus
 }

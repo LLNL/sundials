@@ -201,9 +201,9 @@ typedef struct SUNLogger_* SUNLogger;
  * ---------------------------------------------------------------------------*/
 
 /* Error handler function */
-typedef int (*SUNErrHandlerFn)(int line, const char* func, const char* file,
-                               const char* msg, SUNErrCode err_code,
-                               void* err_user_data, SUNContext sunctx);
+typedef void (*SUNErrHandlerFn)(int line, const char* func, const char* file,
+                                const char* msg, SUNErrCode err_code,
+                                void* err_user_data, SUNContext sunctx);
 
 /*
  *------------------------------------------------------------------
