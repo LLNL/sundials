@@ -33,20 +33,25 @@ Thus, in addition to linking to ``libdir/libsundials_core.lib``, ARKODE
 users need to link to the ARKODE library. Symbols for additional SUNDIALS
 modules, vectors and algebraic solvers, are found in
 
-- ``libdir/libsundials_nvec*.lib``,
-- ``libdir/libsundials_sunlinsol*.lib``,
-- ``libdir/libsundials_sunnonlinsol*.lib``
-- ``libdir/libsundials_sunmem*.lib``
+.. code-block::
+
+  <libdir>/libsundials_nvec*.<so|a>
+  <libdir>/libsundials_sunmat*.<so|a>
+  <libdir>/libsundials_sunlinsol*.<so|a>
+  <libdir>/libsundials_sunnonlinsol*.<so|a>
+  <libdir>/libsundials_sunmem.<so|a>
 
 The file extension ``.lib`` is typically ``.so`` for shared libraries 
 and ``.a`` for static libraries.  
 
 The relevant header files for ARKODE are located in the subdirectories
 ``incdir/include/arkode``. To use ARKODE the application needs to include 
-the header file(s) for the ARKODE time-stepper(s) of choice. 
+the header file(s) for the ARKODE time-stepper(s) of choice in addition
+to the SUNDIALS core header file. 
 
 .. code:: c
 
+  #include <sundials/sundials_core.h> // Provides core SUNDIALS types
   #include <arkode/arkode_erkstep.h>  // ERKStep provides explicit RK methods.
   #include <arkode/arkode_arkstep.h>  // ARKStep provides explicit, implicit, IMEX additive RK methods.
   #include <arkode/arkode_mristep.h>  // MRIStep provides mutlirate RK methods.
@@ -55,7 +60,8 @@ the header file(s) for the ARKODE time-stepper(s) of choice.
 Each of these define several types and various constants, include function
 prototypes, and include the shared ``arkode/arkode.h`` and
 ``arkode/arkode_ls.h`` header files. No other header files are required to be
-included, but there are optional 
+included, but there are optional ones that can be included as necessary.
+Information on optional headers is given in the relevant documentation section.
 
 If the user includes a non-trivial implicit component to their ODE system in
 ARKStep, or if the slow time scale for MRIStep should be treated implicitly,

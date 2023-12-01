@@ -42,68 +42,51 @@ preconditioner can only be used with ``NVECTOR_PARALLEL``. It is not recommended
 to use a threaded vector object with SuperLU_MT unless it is the
 ``NVECTOR_OPENMP`` module, and SuperLU_MT is also compiled with OpenMP.
 
-.. _KINSOL.Usage.CC.file_access:
+.. _KINSOL.Usage.CC.header_sim:
 
 Access to library and header files
 ----------------------------------
 
 At this point, it is assumed that the installation of KINSOL, following the
 procedure described in :numref:`Installation`, has been completed successfully.
+In the proceeding text, the directories ``libdir`` and ``incdir`` are the
+installation library and include directories, respectively. For a default
+installation, these are ``instdir/lib`` and ``instdir/include``, respectively,
+where ``instdir`` is the directory where SUNDIALS was installed.
 
-Regardless of where the user’s application program resides, its associated
-compilation and load commands must make reference to the appropriate locations
-for the library and header files required by KINSOL. The relevant library files are
+Regardless of where the user's application program resides, its
+associated compilation and load commands must make reference to the
+appropriate locations for the library and header files required by
+KINSOL. KINSOL symbols are found in ``libdir/libsundials_ida.lib``. 
+Thus, in addition to linking to ``libdir/libsundials_core.lib``, KINSOL
+users need to link to the KINSOL library. Symbols for additional SUNDIALS
+modules, vectors and algebraic solvers, are found in
 
 .. code-block::
 
-  <libdir>/libsundials_kinsol.<so|a>
   <libdir>/libsundials_nvec*.<so|a>
   <libdir>/libsundials_sunmat*.<so|a>
   <libdir>/libsundials_sunlinsol*.<so|a>
   <libdir>/libsundials_sunnonlinsol*.<so|a>
+  <libdir>/libsundials_sunmem.<so|a>
 
-where the file extension ``.so`` is typically for shared libraries and ``.a``
-for static libraries. The relevant header files are located in the
-subdirectories
+The file extension ``.lib`` is typically ``.so`` for shared libraries 
+and ``.a`` for static libraries.  
 
-.. code-block::
+The relevant header files for KINSOL are located in the subdirectories
+``incdir/include/kinsol``. To use KINSOL the application needs to include 
+the header file for KINSOL in addition to the SUNDIALS core header file:
 
-  <incdir>/kinsol
-  <incdir>/sundials
-  <incdir>/nvector
-  <incdir>/sunmatrix
-  <incdir>/sunlinsol
-  <incdir>/sunnonlinsol
+.. code:: c
 
-The directories ``libdir`` and ``incdir`` are the install library and include
-directories, respectively. For a default installation, these are
-``<instdir>/lib`` or ``<instdir>/lib64`` and ``<instdir>/include``,
-respectively, where ``instdir`` is the directory where SUNDIALS was installed
-(see :numref:`Installation`).
+  #include <sundials/sundials_core.h> // Provides core SUNDIALS types
+  #include <kinsol/kinsol.h>          // KINSOL provides methods for solving nonlinear systems
 
-
-
-
-.. _KINSOL.Usage.CC.header_sim:
-
-Header files
-------------
-
-The calling program must include several header files so that various macros and
-data types can be used. The header file that is always required is:
-
-* ``kinsol/kinsol.h`` the main header file for kinsol, which defines the types and
-  various constants, and includes function prototypes. This includes the
-  header file for KINLS, ``kinsol/kinsol_ls.h``.
-
-Note that ``kinsol.h`` includes ``sundials_types.h``, which defines the types,
-``sunrealtype``, ``sunindextype``, and ``sunbooleantype`` and the constants
-``SUNFALSE`` and ``SUNTRUE``.
-
+The calling program must also include an ``N_Vector`` implementation header file, of the form
+``nvector/nvector_*.h``. See :numref:`NVectors` for the appropriate name.
 The calling program must also include an ``N_Vector`` implementation
-header file, of the form ``nvector/nvector_*.h`` (see :numref:`NVectors`
-for more information). This file in turn includes the header file
-``sundials_nvector.h`` which defines the abstract vector data type.
+header file, of the form ``nvector/nvector_*.h`` (see Chapter :numref:`NVectors`
+for more information). 
 
 If using a Newton or Picard nonlinear solver that requires the solution of a
 linear system, then a linear solver module header file will be required. If the

@@ -47,44 +47,64 @@ CVODES uses various constants for both input and output. These are defined as
 needed in this chapter, but for convenience are also listed separately in
 :numref:`CVODES.Constants`.
 
-.. _CVODES.Usage.SIM.file_access:
+.. _CVODES.Usage.SIM.header_sim:
 
 Access to library and header files
 ----------------------------------
 
 At this point, it is assumed that the installation of CVODES, following the
 procedure described in :numref:`Installation`, has been completed successfully.
+In the proceeding text, the directories ``libdir`` and ``incdir`` are the
+installation library and include directories, respectively. For a default
+installation, these are ``instdir/lib`` and ``instdir/include``, respectively,
+where ``instdir`` is the directory where SUNDIALS was installed.
 
-Regardless of where the user’s application program resides, its
+Regardless of where the user's application program resides, its
 associated compilation and load commands must make reference to the
 appropriate locations for the library and header files required by
-CVODES. The relevant library files are
+CVODES. CVODES symbols are found in ``libdir/libsundials_cvodes.lib``. 
+Thus, in addition to linking to ``libdir/libsundials_core.lib``, CVODES
+users need to link to the CVODES library. Symbols for additional SUNDIALS
+modules, vectors and algebraic solvers, are found in
 
 .. code-block::
 
-  <libdir>/libsundials_cvodes.<so|a>
   <libdir>/libsundials_nvec*.<so|a>
   <libdir>/libsundials_sunmat*.<so|a>
   <libdir>/libsundials_sunlinsol*.<so|a>
   <libdir>/libsundials_sunnonlinsol*.<so|a>
+  <libdir>/libsundials_sunmem.<so|a>
 
-where the file extension ``.so`` is typically for shared libraries and
-``.a`` for static libraries. The relevant header files are located in the
-subdirectories
+The file extension ``.lib`` is typically ``.so`` for shared libraries 
+and ``.a`` for static libraries.  
 
-.. code-block::
+The relevant header files for CVODES are located in the subdirectories
+``incdir/include/cvodes``. To use CVODES the application needs to include 
+the header file for CVODES in addition to the SUNDIALS core header file:
 
-  <incdir>/cvodes
-  <incdir>/sundials
-  <incdir>/nvector
-  <incdir>/sunmatrix
-  <incdir>/sunlinsol
-  <incdir>/sunnonlinsol
+.. code:: c
 
-The directories ``libdir`` and ``incdir`` are the install library and
-include directories, respectively. For a default installation, these are
-``<instdir>/lib`` and ``<instdir>/include``, respectively, where ``instdir`` is
-the directory where SUNDIALS was installed (:numref:`Installation`).
+  #include <sundials/sundials_core.h> // Provides core SUNDIALS types
+  #include <cvodes/cvodes.h>          // CVODES provides linear multistep methods with sensitivity analysis
+
+The calling program must also include an ``N_Vector`` implementation header file, of the form
+``nvector/nvector_*.h``. See :numref:`NVectors` for the appropriate name.
+
+If using a non-default nonlinear solver module, or when interacting with a ``SUNNonlinearSolver``
+module directly, the calling program must also include a ``SUNNonlinearSolver`` implementation
+header file, of the form ``sunnonlinsol/sunnonlinsol_*.h`` where is the name of the nonlinear solver
+module (see :numref:`SUNNonlinSol` for more information). This file in turn includes the header file
+which defines the abstract data type.
+
+If using a nonlinear solver that requires the solution of a linear system of the form
+:eq:`CVODES_Newton` (e.g., the default Newton iteration), then a linear solver module header file
+will be required.
+
+Other headers may be needed, according to the choice of preconditioner, etc. For example, in the
+example (see :cite:p:`cvodes_ex`), preconditioning is done with a block-diagonal matrix. For this,
+even though the ``SUNLINSOL_SPGMR`` linear solver is used, the header is included for access to the
+underlying generic dense matrix arithmetic routines.
+
 
 .. warning::
 
@@ -94,31 +114,6 @@ the directory where SUNDIALS was installed (:numref:`Installation`).
    contain both ODE problems and ODEs with sensitivity analysis, should use
    CVODES.
 
-.. _CVODES.Usage.SIM.data_types:
-
-
-.. _CVODES.Usage.SIM.header_sim:
-
-Header files
-------------
-
-The calling program must include several header files so that various
-macros and data types can be used. The header file that is always
-required is:
-
-* ``cvodes/cvodes.h`` the main header file for CVODES, which defines the several types and various constants, and includes function prototypes. This includes the header file for CVLS, ``cvodes/cvodes_ls.h``.
-
-Note that ``cvodes.h`` includes ``sundials_types.h``, which defines the types, ``sunrealtype``, ``sunindextype``, and ``sunbooleantype`` and the constants ``SUNFALSE`` and ``SUNTRUE``.
-
-The calling program must also include an ``N_Vector`` implementation header file, of the form ``nvector/nvector_*.h``. See :numref:`NVectors` for the appropriate name. This file in turn includes the header file ``sundials_nvector.h`` which defines the abstract data type.
-
-If using a non-default nonlinear solver module, or when interacting with a ``SUNNonlinearSolver`` module directly, the calling program must also include a ``SUNNonlinearSolver`` implementation header file, of the form ``sunnonlinsol/sunnonlinsol_*.h`` where is the name of the nonlinear solver module (see :numref:`SUNNonlinSol` for more information).
-This file in turn includes the header file which defines the abstract data type.
-
-If using a nonlinear solver that requires the solution of a linear system of the form :eq:`CVODES_Newton` (e.g., the default Newton iteration), then a linear solver module header file will be required.
-
-Other headers may be needed, according to the choice of preconditioner, etc. For example, in the example (see :cite:p:`cvodes_ex`), preconditioning is done with a block-diagonal matrix.
-For this, even though the ``SUNLINSOL_SPGMR`` linear solver is used, the header is included for access to the underlying generic dense matrix arithmetic routines.
 
 .. _CVODES.Usage.SIM.skeleton_sim:
 
