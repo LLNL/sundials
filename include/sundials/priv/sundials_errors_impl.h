@@ -183,7 +183,7 @@ static inline void SUNHandleErrWithFmtMsg(int line, const char* func,
    default message associated with the error code will be used. */
 #define SUNCheckCallNoRet(call) SUNCheckCallNoRetMsg(call, NULL)
 #define SUNCheckCall(call)      SUNCheckCallMsg(call, NULL)
-#define SUNCheckCallNull(call)  SUNCheckCallNull(call, NULL)
+#define SUNCheckCallNull(call)  SUNCheckCallNullMsg(call, NULL)
 #define SUNCheckCallVoid(call)  SUNCheckCallVoidMsg(call, NULL)
 
 /* SUNCheckLastErrMoRetMsg checks the last_err value in the SUNContext.

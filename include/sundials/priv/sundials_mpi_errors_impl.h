@@ -21,7 +21,7 @@
 #define _SUNDIALS_MPI_ERRORS_IMPL_H
 
 #include <mpi.h>
-#include <sundials/priv/sundials_errors_impl.h>  
+#include <sundials/priv/sundials_errors_impl.h>
 #include <sundials/sundials_mpi_errors.h>
 
 #if defined(SUNDIALS_ENABLE_ERROR_CHECKS)
@@ -30,7 +30,7 @@
     int sun_chk_mpi_call_err_code_ = call;                                   \
     if (sun_chk_mpi_call_err_code_ != MPI_SUCCESS)                           \
     {                                                                        \
-      SUNHandleErr(__LINE__, __func__, __FILE__, SUN_ERR_MPI_FAIL, SUNCTX);  \
+      SUNHandleErr(__LINE__, __func__, __FILE__, SUN_ERR_MPI_FAIL, SUNCTX_); \
       return SUN_ERR_MPI_FAIL;                                               \
     }                                                                        \
   }                                                                          \
@@ -45,7 +45,7 @@
     int sun_chk_mpi_call_err_code_ = call;                                   \
     if (sun_chk_mpi_call_err_code_ != MPI_SUCCESS)                           \
     {                                                                        \
-      SUNHandleErr(__LINE__, __func__, __FILE__, SUN_ERR_MPI_FAIL, SUNCTX);  \
+      SUNHandleErr(__LINE__, __func__, __FILE__, SUN_ERR_MPI_FAIL, SUNCTX_); \
       return NULL;                                                           \
     }                                                                        \
   }                                                                          \
@@ -60,7 +60,7 @@
     int sun_chk_mpi_call_err_code_ = call;                                   \
     if (sun_chk_mpi_call_err_code_ != MPI_SUCCESS)                           \
     {                                                                        \
-      SUNHandleErr(__LINE__, __func__, __FILE__, SUN_ERR_MPI_FAIL, SUNCTX);  \
+      SUNHandleErr(__LINE__, __func__, __FILE__, SUN_ERR_MPI_FAIL, SUNCTX_); \
       return;                                                                \
     }                                                                        \
   }                                                                          \
@@ -75,7 +75,7 @@
     int sun_chk_mpi_call_err_code_ = call;                                   \
     if (sun_chk_mpi_call_err_code_ != MPI_SUCCESS)                           \
     {                                                                        \
-      SUNHandleErr(__LINE__, __func__, __FILE__, SUN_ERR_MPI_FAIL, SUNCTX);  \
+      SUNHandleErr(__LINE__, __func__, __FILE__, SUN_ERR_MPI_FAIL, SUNCTX_); \
     }                                                                        \
   }                                                                          \
   while (0)
