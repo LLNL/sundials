@@ -160,41 +160,29 @@ int main(int argc, char* argv[])
   FILE* UFID;
 
   /* Command line options */
-  int relax    = 1;                      /* enable relaxation */
-  int implicit = 1;                      /* implicit          */
+  int relax           = 1;               /* enable relaxation */
+  int implicit        = 1;               /* implicit          */
   sunrealtype fixed_h = SUN_RCONST(0.0); /* adaptive stepping */
 
   /* -------------------- *
    * Output Problem Setup *
    * -------------------- */
 
-  if (argc > 1) relax = atoi(argv[1]);
-  if (argc > 2) implicit = atoi(argv[2]);
-  if (argc > 3) fixed_h = atof(argv[3]);
+  if (argc > 1) { relax = atoi(argv[1]); }
+  if (argc > 2) { implicit = atoi(argv[2]); }
+  if (argc > 3) { fixed_h = atof(argv[3]); }
 
   printf("\nConserved Exponential Entropy problem:\n");
-  if (implicit)
-  {
-    printf("   method     = DIRK\n");
-  }
-  else
-  {
-    printf("   method     = ERK\n");
-  }
+  if (implicit) { printf("   method     = DIRK\n"); }
+  else { printf("   method     = ERK\n"); }
   printf("   reltol     = %.1" ESYM "\n", reltol);
   printf("   abstol     = %.1" ESYM "\n", abstol);
   if (fixed_h > SUN_RCONST(0.0))
   {
     printf("   fixed h    = %.1" ESYM "\n", fixed_h);
   }
-  if (relax)
-  {
-    printf("   relaxation = ON\n");
-  }
-  else
-  {
-    printf("   relaxation = OFF\n");
-  }
+  if (relax) { printf("   relaxation = ON\n"); }
+  else { printf("   relaxation = OFF\n"); }
   printf("\n");
 
   /* ------------ *
@@ -203,77 +191,71 @@ int main(int argc, char* argv[])
 
   /* Create the SUNDIALS context object for this simulation */
   flag = SUNContext_Create(SUN_COMM_NULL, &ctx);
-  if (check_flag(flag, "SUNContext_Create")) return 1;
+  if (check_flag(flag, "SUNContext_Create")) { return 1; }
 
   /* Create serial vector and set the initial condition values */
   y = N_VNew_Serial(2, ctx);
-  if (check_ptr(y, "N_VNew_Serial")) return 1;
+  if (check_ptr(y, "N_VNew_Serial")) { return 1; }
 
   ydata = N_VGetArrayPointer(y);
-  if (check_ptr(ydata, "N_VGetArrayPointer")) return 1;
+  if (check_ptr(ydata, "N_VGetArrayPointer")) { return 1; }
 
   ydata[0] = SUN_RCONST(1.0);
   ydata[1] = SUN_RCONST(0.5);
 
   ytrue = N_VClone(y);
-  if (check_ptr(ytrue, "N_VClone")) return 1;
+  if (check_ptr(ytrue, "N_VClone")) { return 1; }
 
   ytdata = N_VGetArrayPointer(ytrue);
-  if (check_ptr(ytdata, "N_VGetArrayPointer")) return 1;
+  if (check_ptr(ytdata, "N_VGetArrayPointer")) { return 1; }
 
   /* Initialize ARKStep */
-  if (implicit)
-  {
-    arkode_mem = ARKStepCreate(NULL, f, t0, y, ctx);
-  }
-  else
-  {
-    arkode_mem = ARKStepCreate(f, NULL, t0, y, ctx);
-  }
-  if (check_ptr(arkode_mem, "ARKStepCreate")) return 1;
+  if (implicit) { arkode_mem = ARKStepCreate(NULL, f, t0, y, ctx); }
+  else { arkode_mem = ARKStepCreate(f, NULL, t0, y, ctx); }
+  if (check_ptr(arkode_mem, "ARKStepCreate")) { return 1; }
 
   /* Specify tolerances */
   flag = ARKStepSStolerances(arkode_mem, reltol, abstol);
-  if (check_flag(flag, "ARKStepSStolerances")) return 1;
+  if (check_flag(flag, "ARKStepSStolerances")) { return 1; }
 
   if (relax)
   {
     /* Enable relaxation methods */
     flag = ARKStepSetRelaxFn(arkode_mem, Ent, JacEnt);
-    if (check_flag(flag, "ARKStepSetRelaxFn")) return 1;
+    if (check_flag(flag, "ARKStepSetRelaxFn")) { return 1; }
   }
 
   if (implicit)
   {
     /* Create dense matrix and linear solver */
     A = SUNDenseMatrix(2, 2, ctx);
-    if (check_ptr(A, "SUNDenseMatrix")) return 1;
+    if (check_ptr(A, "SUNDenseMatrix")) { return 1; }
 
     LS = SUNLinSol_Dense(y, A, ctx);
-    if (check_ptr(LS, "SUNLinSol_Dense")) return 1;
+    if (check_ptr(LS, "SUNLinSol_Dense")) { return 1; }
 
     /* Attach the matrix and linear solver */
     flag = ARKStepSetLinearSolver(arkode_mem, LS, A);
-    if (check_flag(flag, "ARKStepSetLinearSolver")) return 1;
+    if (check_flag(flag, "ARKStepSetLinearSolver")) { return 1; }
 
     /* Set Jacobian routine */
     flag = ARKStepSetJacFn(arkode_mem, Jac);
-    if (check_flag(flag, "ARKStepSetJacFn")) return 1;
+    if (check_flag(flag, "ARKStepSetJacFn")) { return 1; }
 
     /* Select a Butcher table with non-negative b values */
     flag = ARKStepSetTableName(arkode_mem, "ARKODE_ARK2_DIRK_3_1_2",
                                "ARKODE_ERK_NONE");
-    if (check_flag(flag, "ARKStepSetTableName")) return 1;
+    if (check_flag(flag, "ARKStepSetTableName")) { return 1; }
 
     /* Tighten nonlinear solver tolerance */
     flag = ARKStepSetNonlinConvCoef(arkode_mem, SUN_RCONST(0.01));
-    if (check_flag(flag, "ARKStepSetNonlinConvCoef")) return 1;
+    if (check_flag(flag, "ARKStepSetNonlinConvCoef")) { return 1; }
   }
 
   if (fixed_h > SUN_RCONST(0.0))
   {
     flag = ARKStepSetFixedStep(arkode_mem, fixed_h);
-    if (check_flag(flag, "ARKStepSetFixedStep")) return 1;
+    if (check_flag(flag, "ARKStepSetFixedStep")) { return 1; }
   }
 
   /* Open output stream for results, output comment line */
@@ -289,7 +271,7 @@ int main(int argc, char* argv[])
 
   /* Output the initial condition and entropy */
   flag = Ent(y, &ent0, NULL);
-  if (check_flag(flag, "Ent")) return 1;
+  if (check_flag(flag, "Ent")) { return 1; }
 
   fprintf(UFID,
           "%23.16" ESYM " %23.16" ESYM " %23.16" ESYM " %23.16" ESYM
@@ -301,22 +283,22 @@ int main(int argc, char* argv[])
          "  delta e\n");
   printf(" --------------------------------------------------------------------"
          "-----------\n");
-  printf("%5d %14.6" ESYM " %14.6" ESYM " %14.6" ESYM " %14.6" ESYM " %14.6" ESYM
-         "\n",
+  printf("%5d %14.6" ESYM " %14.6" ESYM " %14.6" ESYM " %14.6" ESYM
+         " %14.6" ESYM "\n",
          0, t, ydata[0], ydata[1], ent0, SUN_RCONST(0.0));
 
   while (t < tf)
   {
     /* Evolve in time */
     flag = ARKStepEvolve(arkode_mem, tf, y, &t, ARK_ONE_STEP);
-    if (check_flag(flag, "ARKStepEvolve")) break;
+    if (check_flag(flag, "ARKStepEvolve")) { break; }
 
     /* Output solution and errors */
     flag = Ent(y, &ent, NULL);
-    if (check_flag(flag, "Ent")) return 1;
+    if (check_flag(flag, "Ent")) { return 1; }
 
     flag = ans(t, ytrue);
-    if (check_flag(flag, "ans")) return 1;
+    if (check_flag(flag, "ans")) { return 1; }
 
     ent_err = ent - ent0;
     u_err   = ydata[0] - ytdata[0];
@@ -328,8 +310,8 @@ int main(int argc, char* argv[])
 
     if (nst % 40 == 0)
     {
-      printf("%5ld %14.6" ESYM " %14.6" ESYM " %14.6" ESYM " %14.6" ESYM " %14.6" ESYM
-             "\n",
+      printf("%5ld %14.6" ESYM " %14.6" ESYM " %14.6" ESYM " %14.6" ESYM
+             " %14.6" ESYM "\n",
              nst, t, ydata[0], ydata[1], ent, ent_err);
     }
 

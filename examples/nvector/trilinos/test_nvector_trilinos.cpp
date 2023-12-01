@@ -22,11 +22,11 @@
 #include <Tpetra_Vector.hpp>
 #include <Tpetra_Version.hpp>
 #include <Trilinos_version.h>
-
-#include <sundials/sundials_types.h>
-#include <sundials/sundials_math.h>
-#include <nvector/trilinos/SundialsTpetraVectorInterface.hpp>
 #include <nvector/nvector_trilinos.h>
+#include <nvector/trilinos/SundialsTpetraVectorInterface.hpp>
+#include <sundials/sundials_math.h>
+#include <sundials/sundials_types.h>
+
 #include "test_nvector.h"
 
 using namespace sundials::trilinos::nvector_tpetra;
@@ -34,7 +34,7 @@ using namespace sundials::trilinos::nvector_tpetra;
 /* ----------------------------------------------------------------------
  * Main NVector Testing Routine
  * --------------------------------------------------------------------*/
-int main (int argc, char *argv[])
+int main(int argc, char* argv[])
 {
   using Teuchos::RCP;
   using Teuchos::rcp;
@@ -54,16 +54,22 @@ int main (int argc, char *argv[])
   const int myRank = comm->getRank();
 
   /* check inputs */
-  if (argc < 3) {
+  if (argc < 3)
+  {
     if (myRank == 0)
+    {
       printf("ERROR: TWO (2) Inputs required: vector length, print timing \n");
+    }
     Test_Abort(1);
   }
 
-  const sunindextype local_length = (sunindextype) atol(argv[1]);
-  if (local_length < 1) {
+  const sunindextype local_length = (sunindextype)atol(argv[1]);
+  if (local_length < 1)
+  {
     if (myRank == 0)
+    {
       printf("ERROR: local vector length must be a positive integer \n");
+    }
     Test_Abort(1);
   }
 
@@ -73,34 +79,35 @@ int main (int argc, char *argv[])
   /* Make partitioning easy */
   const sunindextype global_length = comm->getSize() * local_length;
 
-  if (myRank == 0) {
+  if (myRank == 0)
+  {
     printf("Testing the Trilinos (Tpetra) N_Vector wrapper \n");
-    printf("Vector global length %ld \n\n", (long int) global_length);
+    printf("Vector global length %ld \n\n", (long int)global_length);
   }
 
   /* Choose zero-based (C-style) indexing. */
   const sunindextype index_base = 0;
 
   /* Construct an MPI Map */
-  RCP<const map_type> testMap =
-    rcp(new map_type (global_length, index_base, comm,
-                      Tpetra::GloballyDistributed));
+  RCP<const map_type> testMap = rcp(
+    new map_type(global_length, index_base, comm, Tpetra::GloballyDistributed));
 
   /* Construct a Tpetra vector and return refernce counting pointer to it. */
   RCP<vector_type> px = rcp(new vector_type(testMap));
 
-  int fails = 0;       /* counter for test failures */
-  int globfails = 0;   /* counter for test failures */
+  int fails     = 0; /* counter for test failures */
+  int globfails = 0; /* counter for test failures */
 
   /* NVector Test */
 
   /* Create Trilinos (Tpetra) N_Vector wrapper and test */
   N_Vector X = N_VMake_Trilinos(px, sunctx);
   fails += Test_N_VMake(X, local_length, myRank);
-  if (fails != 0) {
+  if (fails != 0)
+  {
     N_VDestroy(X);
     px = Teuchos::null;
-    if (myRank == 0) printf("FAIL: Unable to create a new vector \n\n");
+    if (myRank == 0) { printf("FAIL: Unable to create a new vector \n\n"); }
     Test_Abort(1);
   }
 
@@ -113,7 +120,8 @@ int main (int argc, char *argv[])
   /* Check vector communicator */
 #ifdef SUNDIALS_TRILINOS_HAVE_MPI
   auto mpicomm = Teuchos::rcp_dynamic_cast<const Teuchos::MpiComm<int>>(comm);
-  fails += Test_N_VGetCommunicatorMPI(X, *(mpicomm->getRawMpiComm().get()), myRank);
+  fails += Test_N_VGetCommunicatorMPI(X, *(mpicomm->getRawMpiComm().get()),
+                                      myRank);
 #else
   fails += Test_N_VGetCommunicator(X, SUN_COMM_NULL, myRank);
 #endif
@@ -126,24 +134,26 @@ int main (int argc, char *argv[])
 
   /* Clone additional vectors for testing */
   N_Vector Y = N_VClone(X);
-  if (Y == NULL) {
+  if (Y == NULL)
+  {
     N_VDestroy(X);
     px = Teuchos::null;
-    if (myRank == 0) printf("FAIL: Unable to create a new vector \n\n");
+    if (myRank == 0) { printf("FAIL: Unable to create a new vector \n\n"); }
     Test_Abort(1);
   }
 
   N_Vector Z = N_VClone(X);
-  if (Z == NULL) {
+  if (Z == NULL)
+  {
     N_VDestroy(X);
     N_VDestroy(Y);
     px = Teuchos::null;
-    if (myRank == 0) printf("FAIL: Unable to create a new vector \n\n");
+    if (myRank == 0) { printf("FAIL: Unable to create a new vector \n\n"); }
     Test_Abort(1);
   }
 
   /* Standard vector operation tests */
-  if (myRank == 0) printf("\nTesting standard vector operations:\n\n");
+  if (myRank == 0) { printf("\nTesting standard vector operations:\n\n"); }
 
   fails += Test_N_VConst(X, local_length, myRank);
   fails += Test_N_VLinearSum(X, Y, Z, local_length, myRank);
@@ -166,7 +176,7 @@ int main (int argc, char *argv[])
   fails += Test_N_VMinQuotient(X, Y, local_length, myRank);
 
   /* local reduction operations */
-  if (myRank == 0) printf("\nTesting local reduction operations:\n\n");
+  if (myRank == 0) { printf("\nTesting local reduction operations:\n\n"); }
 
   fails += Test_N_VDotProdLocal(X, Y, local_length, myRank);
   fails += Test_N_VMaxNormLocal(X, local_length, myRank);
@@ -185,23 +195,32 @@ int main (int argc, char *argv[])
 
   /* Print result */
   if (fails)
+  {
     printf("FAIL: NVector module failed %i tests, Proc %d \n \n", fails, myRank);
+  }
 
   /* Check if any other process failed */
-  Teuchos::reduceAll<int, int> (*comm, Teuchos::REDUCE_SUM, fails,
-                                Teuchos::outArg (globfails));
+  Teuchos::reduceAll<int, int>(*comm, Teuchos::REDUCE_SUM, fails,
+                               Teuchos::outArg(globfails));
 
   /* Print global result */
-  if (myRank == 0) {
+  if (myRank == 0)
+  {
     if (globfails)
-      printf("FAIL: NVector module failed total of %i tests across all processes \n \n", globfails);
+    {
+      printf("FAIL: NVector module failed total of %i tests across all "
+             "processes \n \n",
+             globfails);
+    }
     else
+    {
       printf("SUCCESS: NVector module passed all tests on all processes \n \n");
+    }
   }
 
   px = Teuchos::null;
 
-  return(globfails);
+  return (globfails);
 }
 
 /* ----------------------------------------------------------------------
@@ -213,8 +232,7 @@ int main (int argc, char *argv[])
  */
 int check_ans(sunrealtype ans, N_Vector X, sunindextype local_length)
 {
-  Teuchos::RCP<TpetraVectorInterface::vector_type> xv =
-    N_VGetVector_Trilinos(X);
+  Teuchos::RCP<TpetraVectorInterface::vector_type> xv = N_VGetVector_Trilinos(X);
 
 #if TRILINOS_MAJOR_VERSION < 14
   /* Sync the host with the device if needed */
@@ -230,9 +248,7 @@ int check_ans(sunrealtype ans, N_Vector X, sunindextype local_length)
   sunindextype i;
 
   /* check Tpetra vector */
-  for (i = 0; i < local_length; ++i){
-    failure += SUNRCompare(x_1d(i), ans);
-  }
+  for (i = 0; i < local_length; ++i) { failure += SUNRCompare(x_1d(i), ans); }
 
   return (failure > ZERO) ? 1 : 0;
 }
@@ -242,12 +258,9 @@ int check_ans(sunrealtype ans, N_Vector X, sunindextype local_length)
  */
 sunbooleantype has_data(N_Vector X)
 {
-  if (X->content == NULL)
-    return SUNFALSE;
-  if (N_VGetVector_Trilinos(X).getRawPtr() == nullptr)
-    return SUNFALSE;
-  else
-    return SUNTRUE;
+  if (X->content == NULL) { return SUNFALSE; }
+  if (N_VGetVector_Trilinos(X).getRawPtr() == nullptr) { return SUNFALSE; }
+  else { return SUNTRUE; }
 }
 
 /*
@@ -283,7 +296,7 @@ void set_element_range(N_Vector X, sunindextype is, sunindextype ie,
 #endif
 
   sunindextype i;
-  for(i = is; i <= ie; i++) x_1d(i) = val;
+  for (i = is; i <= ie; i++) { x_1d(i) = val; }
 
 #if TRILINOS_MAJOR_VERSION < 14
   /* Sync the device with the host */
@@ -296,8 +309,7 @@ void set_element_range(N_Vector X, sunindextype is, sunindextype ie,
  */
 sunrealtype get_element(N_Vector X, sunindextype i)
 {
-  Teuchos::RCP<TpetraVectorInterface::vector_type> xv =
-    N_VGetVector_Trilinos(X);
+  Teuchos::RCP<TpetraVectorInterface::vector_type> xv = N_VGetVector_Trilinos(X);
 
 #if TRILINOS_MAJOR_VERSION < 14
   /* Sync the host with the device if needed */
@@ -315,15 +327,11 @@ sunrealtype get_element(N_Vector X, sunindextype i)
 double max_time(N_Vector X, double time)
 {
   double maxtime = 0.0;
-  Teuchos::RCP<TpetraVectorInterface::vector_type> xv =
-    N_VGetVector_Trilinos(X);
+  Teuchos::RCP<TpetraVectorInterface::vector_type> xv = N_VGetVector_Trilinos(X);
   auto comm = xv->getMap()->getComm();
-  Teuchos::reduceAll<int, double> (*comm, Teuchos::REDUCE_SUM, time,
-                                   Teuchos::outArg(maxtime));
+  Teuchos::reduceAll<int, double>(*comm, Teuchos::REDUCE_SUM, time,
+                                  Teuchos::outArg(maxtime));
   return maxtime;
 }
 
-void sync_device(N_Vector x)
-{
-  /* Kokkos should take care of this */
-}
+void sync_device(N_Vector x) { /* Kokkos should take care of this */ }

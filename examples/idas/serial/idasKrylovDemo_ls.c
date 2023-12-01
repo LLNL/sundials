@@ -39,16 +39,15 @@
  * is taken at t = 0, .01, .02, .04,..., 10.24.
  * -----------------------------------------------------------------*/
 
+#include <idas/idas.h> /* main integrator header file       */
+#include <math.h>
+#include <nvector/nvector_serial.h> /* serial N_Vector types, fct. and macros */
 #include <stdio.h>
 #include <stdlib.h>
-#include <math.h>
-
-#include <idas/idas.h>                   /* main integrator header file       */
-#include <sunlinsol/sunlinsol_spgmr.h>   /* access to SPGMR SUNLinearSolver   */
-#include <sunlinsol/sunlinsol_spbcgs.h>  /* access to SPBCGS SUNLinearSolver  */
-#include <sunlinsol/sunlinsol_sptfqmr.h> /* access to SPTFQMR SUNLinearSolver */
-#include <nvector/nvector_serial.h>      /* serial N_Vector types, fct. and macros */
 #include <sundials/sundials_types.h>     /* definition of sunrealtype */
+#include <sunlinsol/sunlinsol_spbcgs.h>  /* access to SPBCGS SUNLinearSolver  */
+#include <sunlinsol/sunlinsol_spgmr.h>   /* access to SPGMR SUNLinearSolver   */
+#include <sunlinsol/sunlinsol_sptfqmr.h> /* access to SPTFQMR SUNLinearSolver */
 
 /* helpful macros */
 
@@ -66,7 +65,7 @@
 
 #define NOUT  11
 #define MGRID 10
-#define NEQ   MGRID*MGRID
+#define NEQ   MGRID* MGRID
 #define ZERO  SUN_RCONST(0.0)
 #define ONE   SUN_RCONST(1.0)
 #define TWO   SUN_RCONST(2.0)
@@ -80,34 +79,33 @@
 
 /* User data type */
 
-typedef struct {
-  sunindextype mm;  /* number of grid points */
+typedef struct
+{
+  sunindextype mm; /* number of grid points */
   sunrealtype dx;
   sunrealtype coeff;
-  N_Vector pp;  /* vector of prec. diag. elements */
-} *UserData;
+  N_Vector pp; /* vector of prec. diag. elements */
+}* UserData;
 
 /* Prototypes for functions called by IDA */
 
-int resHeat(sunrealtype tres, N_Vector uu, N_Vector up,
-            N_Vector resval, void *user_data);
+int resHeat(sunrealtype tres, N_Vector uu, N_Vector up, N_Vector resval,
+            void* user_data);
 
-int PsetupHeat(sunrealtype tt,
-               N_Vector uu, N_Vector up, N_Vector rr,
-               sunrealtype c_j, void *user_data);
+int PsetupHeat(sunrealtype tt, N_Vector uu, N_Vector up, N_Vector rr,
+               sunrealtype c_j, void* user_data);
 
-int PsolveHeat(sunrealtype tt,
-               N_Vector uu, N_Vector up, N_Vector rr,
-               N_Vector rvec, N_Vector zvec,
-               sunrealtype c_j, sunrealtype delta, void *user_data);
+int PsolveHeat(sunrealtype tt, N_Vector uu, N_Vector up, N_Vector rr,
+               N_Vector rvec, N_Vector zvec, sunrealtype c_j, sunrealtype delta,
+               void* user_data);
 
 /* Prototypes for private functions */
 
 static int SetInitialProfile(UserData data, N_Vector uu, N_Vector up,
                              N_Vector res);
 static void PrintHeader(sunrealtype rtol, sunrealtype atol, int linsolver);
-static void PrintOutput(void *mem, sunrealtype t, N_Vector uu, int linsolver);
-static int check_retval(void *returnvalue, const char *funcname, int opt);
+static void PrintOutput(void* mem, sunrealtype t, N_Vector uu, int linsolver);
+static int check_retval(void* returnvalue, const char* funcname, int opt);
 
 /*
  *--------------------------------------------------------------------
@@ -117,14 +115,14 @@ static int check_retval(void *returnvalue, const char *funcname, int opt);
 
 int main(int argc, char* argv[])
 {
-  void *mem;
+  void* mem;
   UserData data;
   N_Vector uu, up, constraints, res;
   int retval, iout, linsolver;
   sunrealtype rtol, atol, t0, t1, tout, tret;
   long int netf, ncfn, ncfl;
   SUNLinearSolver LS;
-  int nrmfactor;   /* LS norm conversion factor flag */
+  int nrmfactor;      /* LS norm conversion factor flag */
   sunrealtype nrmfac; /* LS norm conversion factor      */
   SUNContext ctx;
 
@@ -138,37 +136,37 @@ int main(int argc, char* argv[])
   nrmfactor   = 0;
 
   /* Retrieve the command-line options */
-  if (argc > 1) nrmfactor = atoi(argv[1]);
+  if (argc > 1) { nrmfactor = atoi(argv[1]); }
 
   /* Create the SUNDIALS context object for this simulation */
   retval = SUNContext_Create(SUN_COMM_NULL, &ctx);
-  if (check_retval(&retval, "SUNContext_Create", 1)) return 1;
+  if (check_retval(&retval, "SUNContext_Create", 1)) { return 1; }
 
   /* Allocate N-vectors and the user data structure. */
 
   uu = N_VNew_Serial(NEQ, ctx);
-  if(check_retval((void *)uu, "N_VNew_Serial", 0)) return(1);
+  if (check_retval((void*)uu, "N_VNew_Serial", 0)) { return (1); }
 
   up = N_VClone(uu);
-  if(check_retval((void *)up, "N_VNew_Serial", 0)) return(1);
+  if (check_retval((void*)up, "N_VNew_Serial", 0)) { return (1); }
 
   res = N_VClone(uu);
-  if(check_retval((void *)res, "N_VNew_Serial", 0)) return(1);
+  if (check_retval((void*)res, "N_VNew_Serial", 0)) { return (1); }
 
   constraints = N_VClone(uu);
-  if(check_retval((void *)constraints, "N_VNew_Serial", 0)) return(1);
+  if (check_retval((void*)constraints, "N_VNew_Serial", 0)) { return (1); }
 
-  data = (UserData) malloc(sizeof *data);
+  data     = (UserData)malloc(sizeof *data);
   data->pp = NULL;
-  if(check_retval((void *)data, "malloc", 2)) return(1);
+  if (check_retval((void*)data, "malloc", 2)) { return (1); }
 
   /* Assign parameters in the user data structure. */
 
-  data->mm  = MGRID;
-  data->dx = ONE/(MGRID-ONE);
-  data->coeff = ONE/(data->dx * data->dx);
-  data->pp = N_VClone(uu);
-  if(check_retval((void *)data->pp, "N_VNew_Serial", 0)) return(1);
+  data->mm    = MGRID;
+  data->dx    = ONE / (MGRID - ONE);
+  data->coeff = ONE / (data->dx * data->dx);
+  data->pp    = N_VClone(uu);
+  if (check_retval((void*)data->pp, "N_VNew_Serial", 0)) { return (1); }
 
   /* Initialize uu, up. */
 
@@ -188,42 +186,41 @@ int main(int argc, char* argv[])
   /* Call IDACreate and IDAMalloc to initialize solution */
 
   mem = IDACreate(ctx);
-  if(check_retval((void *)mem, "IDACreate", 0)) return(1);
+  if (check_retval((void*)mem, "IDACreate", 0)) { return (1); }
 
   retval = IDASetUserData(mem, data);
-  if(check_retval(&retval, "IDASetUserData", 1)) return(1);
+  if (check_retval(&retval, "IDASetUserData", 1)) { return (1); }
 
   retval = IDASetConstraints(mem, constraints);
-  if(check_retval(&retval, "IDASetConstraints", 1)) return(1);
+  if (check_retval(&retval, "IDASetConstraints", 1)) { return (1); }
   N_VDestroy(constraints);
 
   retval = IDAInit(mem, resHeat, t0, uu, up);
-  if(check_retval(&retval, "IDAInit", 1)) return(1);
+  if (check_retval(&retval, "IDAInit", 1)) { return (1); }
 
   retval = IDASStolerances(mem, rtol, atol);
-  if(check_retval(&retval, "IDASStolerances", 1)) return(1);
+  if (check_retval(&retval, "IDASStolerances", 1)) { return (1); }
 
   /* START: Loop through SPGMR, SPBCG and SPTFQMR linear solver modules */
-  for (linsolver = 0; linsolver < 3; ++linsolver) {
-
-    if (linsolver != 0) {
-
+  for (linsolver = 0; linsolver < 3; ++linsolver)
+  {
+    if (linsolver != 0)
+    {
       /* Re-initialize uu, up. */
       SetInitialProfile(data, uu, up, res);
 
       /* Re-initialize IDA */
       retval = IDAReInit(mem, t0, uu, up);
-      if (check_retval(&retval, "IDAReInit", 1)) return(1);
-
+      if (check_retval(&retval, "IDAReInit", 1)) { return (1); }
     }
 
     /* Free previous linear solver and attach a new linear solver module */
     SUNLinSolFree(LS);
 
-    switch(linsolver) {
-
+    switch (linsolver)
+    {
     /* (a) SPGMR */
-    case(USE_SPGMR):
+    case (USE_SPGMR):
 
       /* Print header */
       printf(" -------");
@@ -233,16 +230,16 @@ int main(int argc, char* argv[])
       /* Call SUNLinSol_SPGMR to specify the linear solver SPGMR with
          left preconditioning and the default maximum Krylov dimension */
       LS = SUNLinSol_SPGMR(uu, SUN_PREC_LEFT, 0, ctx);
-      if(check_retval((void *)LS, "SUNLinSol_SPGMR", 0)) return(1);
+      if (check_retval((void*)LS, "SUNLinSol_SPGMR", 0)) { return (1); }
 
       /* Attach the linear solver */
       retval = IDASetLinearSolver(mem, LS, NULL);
-      if(check_retval(&retval, "IDASetLinearSolver", 1)) return 1;
+      if (check_retval(&retval, "IDASetLinearSolver", 1)) { return 1; }
 
       break;
 
     /* (b) SPBCG */
-    case(USE_SPBCG):
+    case (USE_SPBCG):
 
       /* Print header */
       printf(" -------");
@@ -252,16 +249,16 @@ int main(int argc, char* argv[])
       /* Call SUNLinSol_SPBCGS to specify the linear solver SPBCGS with
          left preconditioning and the default maximum Krylov dimension */
       LS = SUNLinSol_SPBCGS(uu, SUN_PREC_LEFT, 0, ctx);
-      if(check_retval((void *)LS, "SUNLinSol_SPBCGS", 0)) return(1);
+      if (check_retval((void*)LS, "SUNLinSol_SPBCGS", 0)) { return (1); }
 
       /* Attach the linear solver */
       retval = IDASetLinearSolver(mem, LS, NULL);
-      if(check_retval(&retval, "IDASetLinearSolver", 1)) return 1;
+      if (check_retval(&retval, "IDASetLinearSolver", 1)) { return 1; }
 
       break;
 
     /* (c) SPTFQMR */
-    case(USE_SPTFQMR):
+    case (USE_SPTFQMR):
 
       /* Print header */
       printf(" ---------");
@@ -271,28 +268,27 @@ int main(int argc, char* argv[])
       /* Call SUNLinSol_SPTFQMR to specify the linear solver SPTFQMR with
          left preconditioning and the default maximum Krylov dimension */
       LS = SUNLinSol_SPTFQMR(uu, SUN_PREC_LEFT, 0, ctx);
-      if(check_retval((void *)LS, "SUNLinSol_SPTFQMR", 0)) return(1);
+      if (check_retval((void*)LS, "SUNLinSol_SPTFQMR", 0)) { return (1); }
 
       /* Attach the linear solver */
       retval = IDASetLinearSolver(mem, LS, NULL);
-      if(check_retval(&retval, "IDASetLinearSolver", 1)) return 1;
+      if (check_retval(&retval, "IDASetLinearSolver", 1)) { return 1; }
 
       break;
-
     }
 
     /* Specify preconditioner */
     retval = IDASetPreconditioner(mem, PsetupHeat, PsolveHeat);
-    if(check_retval(&retval, "IDASetPreconditioner", 1)) return(1);
+    if (check_retval(&retval, "IDASetPreconditioner", 1)) { return (1); }
 
-        /* Set the linear solver tolerance conversion factor */
-    switch(nrmfactor) {
-
-    case(1):
+    /* Set the linear solver tolerance conversion factor */
+    switch (nrmfactor)
+    {
+    case (1):
       /* use the square root of the vector length */
       nrmfac = SQRT((sunrealtype)NEQ);
       break;
-    case(2):
+    case (2):
       /* compute with dot product */
       nrmfac = -ONE;
       break;
@@ -303,7 +299,7 @@ int main(int argc, char* argv[])
     }
 
     retval = IDASetLSNormFactor(mem, nrmfac);
-    if (check_retval(&retval, "IDASetLSNormFactor", 1)) return(1);
+    if (check_retval(&retval, "IDASetLSNormFactor", 1)) { return (1); }
 
     /* Print output heading. */
     PrintHeader(rtol, atol, linsolver);
@@ -311,14 +307,17 @@ int main(int argc, char* argv[])
     /* Print output table heading, and initial line of table. */
 
     printf("\n   Output Summary (umax = max-norm of solution) \n\n");
-    printf("  time     umax       k  nst  nni  nje   nre   nreLS    h      npe nps\n" );
-    printf("----------------------------------------------------------------------\n");
+    printf("  time     umax       k  nst  nni  nje   nre   nreLS    h      npe "
+           "nps\n");
+    printf("-------------------------------------------------------------------"
+           "---\n");
 
     /* Loop over output times, call IDASolve, and print results. */
 
-    for (tout = t1,iout = 1; iout <= NOUT ; iout++, tout *= TWO) {
+    for (tout = t1, iout = 1; iout <= NOUT; iout++, tout *= TWO)
+    {
       retval = IDASolve(mem, tout, &tret, uu, up, IDA_NORMAL);
-      if(check_retval(&retval, "IDASolve", 1)) return(1);
+      if (check_retval(&retval, "IDASolve", 1)) { return (1); }
       PrintOutput(mem, tret, uu, linsolver);
     }
 
@@ -337,7 +336,10 @@ int main(int argc, char* argv[])
     printf("Linear convergence failures    = %ld\n", ncfl);
 
     if (linsolver < 2)
-      printf("\n======================================================================\n\n");
+    {
+      printf("\n==============================================================="
+             "=======\n\n");
+    }
 
   } /* END: Loop through SPGMR, SPBCG and SPTFQMR linear solver modules */
 
@@ -355,7 +357,7 @@ int main(int argc, char* argv[])
 
   SUNContext_Free(&ctx);
 
-  return(0);
+  return (0);
 }
 
 /*
@@ -373,9 +375,7 @@ int main(int argc, char* argv[])
  * while for each boundary point, it is res_i = u_i.
  */
 
-int resHeat(sunrealtype tt,
-            N_Vector uu, N_Vector up, N_Vector rr,
-            void *user_data)
+int resHeat(sunrealtype tt, N_Vector uu, N_Vector up, N_Vector rr, void* user_data)
 {
   sunindextype i, j, offset, loc, mm;
   sunrealtype *uu_data, *up_data, *rr_data, coeff, dif1, dif2;
@@ -385,7 +385,7 @@ int resHeat(sunrealtype tt,
   up_data = N_VGetArrayPointer(up);
   rr_data = N_VGetArrayPointer(rr);
 
-  data = (UserData) user_data;
+  data = (UserData)user_data;
 
   coeff = data->coeff;
   mm    = data->mm;
@@ -394,17 +394,19 @@ int resHeat(sunrealtype tt,
   N_VScale(ONE, uu, rr);
 
   /* Loop over interior points; set res = up - (central difference). */
-  for (j = 1; j < MGRID-1; j++) {
-    offset = mm*j;
-    for (i = 1; i < mm-1; i++) {
-      loc = offset + i;
-      dif1 = uu_data[loc-1]  + uu_data[loc+1]  - TWO * uu_data[loc];
-      dif2 = uu_data[loc-mm] + uu_data[loc+mm] - TWO * uu_data[loc];
-      rr_data[loc]= up_data[loc] - coeff * ( dif1 + dif2 );
+  for (j = 1; j < MGRID - 1; j++)
+  {
+    offset = mm * j;
+    for (i = 1; i < mm - 1; i++)
+    {
+      loc          = offset + i;
+      dif1         = uu_data[loc - 1] + uu_data[loc + 1] - TWO * uu_data[loc];
+      dif2         = uu_data[loc - mm] + uu_data[loc + mm] - TWO * uu_data[loc];
+      rr_data[loc] = up_data[loc] - coeff * (dif1 + dif2);
     }
   }
 
-  return(0);
+  return (0);
 }
 
 /*
@@ -424,35 +426,35 @@ int resHeat(sunrealtype tt,
  * pp etc.) are used from the PsetupdHeat argument list.
  */
 
-int PsetupHeat(sunrealtype tt,
-               N_Vector uu, N_Vector up, N_Vector rr,
-               sunrealtype c_j, void *user_data)
+int PsetupHeat(sunrealtype tt, N_Vector uu, N_Vector up, N_Vector rr,
+               sunrealtype c_j, void* user_data)
 {
-
   sunindextype i, j, offset, loc, mm;
   sunrealtype *ppv, pelinv;
   UserData data;
 
-  data = (UserData) user_data;
-  ppv = N_VGetArrayPointer(data->pp);
-  mm = data->mm;
+  data = (UserData)user_data;
+  ppv  = N_VGetArrayPointer(data->pp);
+  mm   = data->mm;
 
   /* Initialize the entire vector to 1., then set the interior points to the
      correct value for preconditioning. */
-  N_VConst(ONE,data->pp);
+  N_VConst(ONE, data->pp);
 
   /* Compute the inverse of the preconditioner diagonal elements. */
-  pelinv = ONE/(c_j + FOUR*data->coeff);
+  pelinv = ONE / (c_j + FOUR * data->coeff);
 
-  for (j = 1; j < mm-1; j++) {
+  for (j = 1; j < mm - 1; j++)
+  {
     offset = mm * j;
-    for (i = 1; i < mm-1; i++) {
-      loc = offset + i;
+    for (i = 1; i < mm - 1; i++)
+    {
+      loc      = offset + i;
       ppv[loc] = pelinv;
     }
   }
 
-  return(0);
+  return (0);
 }
 
 /*
@@ -462,15 +464,14 @@ int PsetupHeat(sunrealtype tt,
  * computed in PrecondHeateq), returning the result in zvec.
  */
 
-int PsolveHeat(sunrealtype tt,
-               N_Vector uu, N_Vector up, N_Vector rr,
-               N_Vector rvec, N_Vector zvec,
-               sunrealtype c_j, sunrealtype delta, void *user_data)
+int PsolveHeat(sunrealtype tt, N_Vector uu, N_Vector up, N_Vector rr,
+               N_Vector rvec, N_Vector zvec, sunrealtype c_j, sunrealtype delta,
+               void* user_data)
 {
   UserData data;
-  data = (UserData) user_data;
+  data = (UserData)user_data;
   N_VProd(data->pp, rvec, zvec);
-  return(0);
+  return (0);
 }
 
 /*
@@ -483,26 +484,28 @@ int PsolveHeat(sunrealtype tt,
  * SetInitialProfile: routine to initialize u and up vectors.
  */
 
-static int SetInitialProfile(UserData data, N_Vector uu, N_Vector up,
-                             N_Vector res)
+static int SetInitialProfile(UserData data, N_Vector uu, N_Vector up, N_Vector res)
 {
   sunindextype mm, mm1, i, j, offset, loc;
   sunrealtype xfact, yfact, *udata, *updata;
 
   mm = data->mm;
 
-  udata = N_VGetArrayPointer(uu);
+  udata  = N_VGetArrayPointer(uu);
   updata = N_VGetArrayPointer(up);
 
   /* Initialize uu on all grid points. */
   mm1 = mm - 1;
-  for (j = 0; j < mm; j++) {
-    yfact = data->dx * j;
-    offset = mm*j;
-    for (i = 0;i < mm; i++) {
-      xfact = data->dx * i;
-      loc = offset + i;
-      udata[loc] = SUN_RCONST(16.0) * xfact * (ONE - xfact) * yfact * (ONE - yfact);
+  for (j = 0; j < mm; j++)
+  {
+    yfact  = data->dx * j;
+    offset = mm * j;
+    for (i = 0; i < mm; i++)
+    {
+      xfact      = data->dx * i;
+      loc        = offset + i;
+      udata[loc] = SUN_RCONST(16.0) * xfact * (ONE - xfact) * yfact *
+                   (ONE - yfact);
     }
   }
 
@@ -516,16 +519,18 @@ static int SetInitialProfile(UserData data, N_Vector uu, N_Vector up,
   N_VScale(-ONE, res, up);
 
   /* Set up at boundary points to zero. */
-  for (j = 0; j < mm; j++) {
-    offset = mm*j;
-    for (i = 0; i < mm; i++) {
+  for (j = 0; j < mm; j++)
+  {
+    offset = mm * j;
+    for (i = 0; i < mm; i++)
+    {
       loc = offset + i;
-      if (j == 0 || j == mm1 || i == 0 || i == mm1 ) updata[loc] = ZERO;
+      if (j == 0 || j == mm1 || i == 0 || i == mm1) { updata[loc] = ZERO; }
     }
   }
 
-  return(0);
-  }
+  return (0);
+}
 
 /*
  * Print first lines of output (problem description)
@@ -533,7 +538,8 @@ static int SetInitialProfile(UserData data, N_Vector uu, N_Vector up,
 
 static void PrintHeader(sunrealtype rtol, sunrealtype atol, int linsolver)
 {
-  printf("\nidasKrylovDemo_ls: Heat equation, serial example problem for IDA\n");
+  printf(
+    "\nidasKrylovDemo_ls: Heat equation, serial example problem for IDA\n");
   printf("                   Discretized heat equation on 2D unit square.\n");
   printf("                   Zero boundary conditions,");
   printf(" polynomial initial conditions.\n");
@@ -548,18 +554,19 @@ static void PrintHeader(sunrealtype rtol, sunrealtype atol, int linsolver)
 #endif
   printf("Constraints set to force all solution components >= 0. \n");
 
-  switch(linsolver) {
-
-  case(USE_SPGMR):
+  switch (linsolver)
+  {
+  case (USE_SPGMR):
     printf("Linear solver: SPGMR, preconditioner using diagonal elements. \n");
     break;
 
-  case(USE_SPBCG):
+  case (USE_SPBCG):
     printf("Linear solver: SPBCG, preconditioner using diagonal elements. \n");
     break;
 
-  case(USE_SPTFQMR):
-    printf("Linear solver: SPTFQMR, preconditioner using diagonal elements. \n");
+  case (USE_SPTFQMR):
+    printf(
+      "Linear solver: SPTFQMR, preconditioner using diagonal elements. \n");
     break;
   }
 }
@@ -568,7 +575,7 @@ static void PrintHeader(sunrealtype rtol, sunrealtype atol, int linsolver)
  * PrintOutput: print max norm of solution and current solver statistics
  */
 
-static void PrintOutput(void *mem, sunrealtype t, N_Vector uu, int linsolver)
+static void PrintOutput(void* mem, sunrealtype t, N_Vector uu, int linsolver)
 {
   sunrealtype hused, umax;
   long int nst, nni, nje, nre, nreLS, nli, npe, nps;
@@ -599,7 +606,8 @@ static void PrintOutput(void *mem, sunrealtype t, N_Vector uu, int linsolver)
   check_retval(&retval, "IDAGetNumPrecSolves", 1);
 
 #if defined(SUNDIALS_EXTENDED_PRECISION)
-  printf(" %5.2Lf %13.5Le  %d  %3ld  %3ld  %3ld  %4ld  %4ld  %9.2Le  %3ld %3ld\n",
+  printf(" %5.2Lf %13.5Le  %d  %3ld  %3ld  %3ld  %4ld  %4ld  %9.2Le  %3ld "
+         "%3ld\n",
          t, umax, kused, nst, nni, nje, nre, nreLS, hused, npe, nps);
 #elif defined(SUNDIALS_DOUBLE_PRECISION)
   printf(" %5.2f %13.5e  %d  %3ld  %3ld  %3ld  %4ld  %4ld  %9.2e  %3ld %3ld\n",
@@ -620,32 +628,35 @@ static void PrintOutput(void *mem, sunrealtype t, N_Vector uu, int linsolver)
  *            NULL pointer
  */
 
-static int check_retval(void *returnvalue, const char *funcname, int opt)
+static int check_retval(void* returnvalue, const char* funcname, int opt)
 {
-  int *retval;
+  int* retval;
 
   /* Check if SUNDIALS function returned NULL pointer - no memory allocated */
-  if (opt == 0 && returnvalue == NULL) {
-    fprintf(stderr,
-            "\nSUNDIALS_ERROR: %s() failed - returned NULL pointer\n\n",
+  if (opt == 0 && returnvalue == NULL)
+  {
+    fprintf(stderr, "\nSUNDIALS_ERROR: %s() failed - returned NULL pointer\n\n",
             funcname);
-    return(1);
-  } else if (opt == 1) {
+    return (1);
+  }
+  else if (opt == 1)
+  {
     /* Check if retval < 0 */
-    retval = (int *) returnvalue;
-    if (*retval < 0) {
-      fprintf(stderr,
-              "\nSUNDIALS_ERROR: %s() failed with retval = %d\n\n",
+    retval = (int*)returnvalue;
+    if (*retval < 0)
+    {
+      fprintf(stderr, "\nSUNDIALS_ERROR: %s() failed with retval = %d\n\n",
               funcname, *retval);
-      return(1);
+      return (1);
     }
-  } else if (opt == 2 && returnvalue == NULL) {
+  }
+  else if (opt == 2 && returnvalue == NULL)
+  {
     /* Check if function returned NULL pointer - no memory allocated */
-    fprintf(stderr,
-            "\nMEMORY_ERROR: %s() failed - returned NULL pointer\n\n",
+    fprintf(stderr, "\nMEMORY_ERROR: %s() failed - returned NULL pointer\n\n",
             funcname);
-    return(1);
+    return (1);
   }
 
-  return(0);
+  return (0);
 }

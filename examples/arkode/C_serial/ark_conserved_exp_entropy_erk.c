@@ -158,8 +158,8 @@ int main(int argc, char* argv[])
    * Output Problem Setup *
    * -------------------- */
 
-  if (argc > 1) relax = atoi(argv[1]);
-  if (argc > 2) fixed_h = atof(argv[2]);
+  if (argc > 1) { relax = atoi(argv[1]); }
+  if (argc > 2) { fixed_h = atof(argv[2]); }
 
   printf("\nConserved Exponential Entropy problem:\n");
   printf("   method     = ERK\n");
@@ -169,14 +169,8 @@ int main(int argc, char* argv[])
   {
     printf("   fixed h    = %.1" ESYM "\n", fixed_h);
   }
-  if (relax)
-  {
-    printf("   relaxation = ON\n");
-  }
-  else
-  {
-    printf("   relaxation = OFF\n");
-  }
+  if (relax) { printf("   relaxation = ON\n"); }
+  else { printf("   relaxation = OFF\n"); }
   printf("\n");
 
   /* ------------ *
@@ -185,43 +179,43 @@ int main(int argc, char* argv[])
 
   /* Create the SUNDIALS context object for this simulation */
   flag = SUNContext_Create(SUN_COMM_NULL, &ctx);
-  if (check_flag(flag, "SUNContext_Create")) return 1;
+  if (check_flag(flag, "SUNContext_Create")) { return 1; }
 
   /* Create serial vector and set the initial condition values */
   y = N_VNew_Serial(2, ctx);
-  if (check_ptr(y, "N_VNew_Serial")) return 1;
+  if (check_ptr(y, "N_VNew_Serial")) { return 1; }
 
   ydata = N_VGetArrayPointer(y);
-  if (check_ptr(ydata, "N_VGetArrayPointer")) return 1;
+  if (check_ptr(ydata, "N_VGetArrayPointer")) { return 1; }
 
   ydata[0] = SUN_RCONST(1.0);
   ydata[1] = SUN_RCONST(0.5);
 
   ytrue = N_VClone(y);
-  if (check_ptr(ytrue, "N_VClone")) return 1;
+  if (check_ptr(ytrue, "N_VClone")) { return 1; }
 
   ytdata = N_VGetArrayPointer(ytrue);
-  if (check_ptr(ytdata, "N_VGetArrayPointer")) return 1;
+  if (check_ptr(ytdata, "N_VGetArrayPointer")) { return 1; }
 
   /* Initialize ERKStep */
   arkode_mem = ERKStepCreate(f, t0, y, ctx);
-  if (check_ptr(arkode_mem, "ERKStepCreate")) return 1;
+  if (check_ptr(arkode_mem, "ERKStepCreate")) { return 1; }
 
   /* Specify tolerances */
   flag = ERKStepSStolerances(arkode_mem, reltol, abstol);
-  if (check_flag(flag, "ERKStepSStolerances")) return 1;
+  if (check_flag(flag, "ERKStepSStolerances")) { return 1; }
 
   if (relax)
   {
     /* Enable relaxation methods */
     flag = ERKStepSetRelaxFn(arkode_mem, Ent, JacEnt);
-    if (check_flag(flag, "ERKStepSetRelaxFn")) return 1;
+    if (check_flag(flag, "ERKStepSetRelaxFn")) { return 1; }
   }
 
   if (fixed_h > SUN_RCONST(0.0))
   {
     flag = ERKStepSetFixedStep(arkode_mem, fixed_h);
-    if (check_flag(flag, "ERKStepSetFixedStep")) return 1;
+    if (check_flag(flag, "ERKStepSetFixedStep")) { return 1; }
   }
 
   /* Open output stream for results, output comment line */
@@ -237,7 +231,7 @@ int main(int argc, char* argv[])
 
   /* Output the initial condition and entropy */
   flag = Ent(y, &ent0, NULL);
-  if (check_flag(flag, "Ent")) return 1;
+  if (check_flag(flag, "Ent")) { return 1; }
 
   fprintf(UFID,
           "%23.16" ESYM " %23.16" ESYM " %23.16" ESYM " %23.16" ESYM
@@ -249,22 +243,22 @@ int main(int argc, char* argv[])
          "  delta e\n");
   printf(" --------------------------------------------------------------------"
          "-----------\n");
-  printf("%5d %14.6" ESYM " %14.6" ESYM " %14.6" ESYM " %14.6" ESYM " %14.6" ESYM
-         "\n",
+  printf("%5d %14.6" ESYM " %14.6" ESYM " %14.6" ESYM " %14.6" ESYM
+         " %14.6" ESYM "\n",
          0, t, ydata[0], ydata[1], ent0, SUN_RCONST(0.0));
 
   while (t < tf)
   {
     /* Evolve in time */
     flag = ERKStepEvolve(arkode_mem, tf, y, &t, ARK_ONE_STEP);
-    if (check_flag(flag, "ERKStepEvolve")) break;
+    if (check_flag(flag, "ERKStepEvolve")) { break; }
 
     /* Output solution and errors */
     flag = Ent(y, &ent, NULL);
-    if (check_flag(flag, "Ent")) return 1;
+    if (check_flag(flag, "Ent")) { return 1; }
 
     flag = ans(t, ytrue);
-    if (check_flag(flag, "ans")) return 1;
+    if (check_flag(flag, "ans")) { return 1; }
 
     ent_err = ent - ent0;
     u_err   = ydata[0] - ytdata[0];
@@ -276,8 +270,8 @@ int main(int argc, char* argv[])
 
     if (nst % 40 == 0)
     {
-      printf("%5ld %14.6" ESYM " %14.6" ESYM " %14.6" ESYM " %14.6" ESYM " %14.6" ESYM
-             "\n",
+      printf("%5ld %14.6" ESYM " %14.6" ESYM " %14.6" ESYM " %14.6" ESYM
+             " %14.6" ESYM "\n",
              nst, t, ydata[0], ydata[1], ent, ent_err);
     }
 

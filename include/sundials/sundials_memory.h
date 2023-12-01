@@ -50,7 +50,7 @@ struct _SUNMemory
 };
 
 /* Creates a new SUNMemory object with a NULL ptr */
-SUNDIALS_EXPORT SUNMemory SUNMemoryNewEmpty();
+SUNDIALS_EXPORT SUNMemory SUNMemoryNewEmpty(void);
 
 /*
  * SUNMemoryHelper holds ops which can allocate, deallocate,

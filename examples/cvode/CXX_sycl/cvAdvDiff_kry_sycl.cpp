@@ -37,11 +37,10 @@
  * are printed at the end.
  * ---------------------------------------------------------------------------*/
 
-#include <cstdlib>
 #include <cmath>
+#include <cstdlib>
+#include <cvode/cvode.h> // access CVODE fcts., consts.
 #include <iostream>
-
-#include <cvode/cvode.h>               // access CVODE fcts., consts.
 #include <nvector/nvector_sycl.h>      // access the SYCL NVector
 #include <sunlinsol/sunlinsol_spgmr.h> // access the SPGMR SUNLinearSolver
 
@@ -51,7 +50,7 @@
 #define T0    SUN_RCONST(0.0)    // initial time
 #define T1    SUN_RCONST(0.1)    // first output time
 #define DTOUT SUN_RCONST(0.1)    // output time increment
-#define NOUT  10             // number of output times
+#define NOUT  10                 // number of output times
 
 #define ZERO SUN_RCONST(0.0)
 #define HALF SUN_RCONST(0.5)
@@ -82,29 +81,28 @@ struct UserData
   sunindextype MX      = 10;                // interior nodes in the x-direction
   sunindextype MY      = 5;                 // interior nodes in the y-direction
   sunindextype NEQ     = MX * MY;           // number of equations
-  sunrealtype     xmax    = SUN_RCONST(2.0);       // x-domain boundary
-  sunrealtype     ymax    = SUN_RCONST(1.0);       // y-domain boundary
-  sunrealtype     dx      = xmax / (MX + 1);   // x-direction mesh spacing
-  sunrealtype     dy      = ymax / (MY + 1);   // y-directino mesh spacing
-  sunrealtype     hdcoef  = ONE / (dx * dx);   // x-diffusion
-  sunrealtype     vdcoef  = ONE / (dy * dy);   // y-diffusion
-  sunrealtype     hacoef  = HALF / (TWO * dx); // x-advection
+  sunrealtype xmax     = SUN_RCONST(2.0);   // x-domain boundary
+  sunrealtype ymax     = SUN_RCONST(1.0);   // y-domain boundary
+  sunrealtype dx       = xmax / (MX + 1);   // x-direction mesh spacing
+  sunrealtype dy       = ymax / (MY + 1);   // y-directino mesh spacing
+  sunrealtype hdcoef   = ONE / (dx * dx);   // x-diffusion
+  sunrealtype vdcoef   = ONE / (dy * dy);   // y-diffusion
+  sunrealtype hacoef   = HALF / (TWO * dx); // x-advection
 };
 
 // Functions Called by the Solver
 static int f(sunrealtype t, N_Vector u, N_Vector udot, void* user_data);
-static int jtv(N_Vector v, N_Vector Jv, sunrealtype t,
-               N_Vector u, N_Vector fu,
+static int jtv(N_Vector v, N_Vector Jv, sunrealtype t, N_Vector u, N_Vector fu,
                void* user_data, N_Vector tmp);
 
 // Private Helper Functions
-static void PrintHeader(sunrealtype reltol, sunrealtype abstol, sunrealtype umax,
-                        UserData* data);
+static void PrintHeader(sunrealtype reltol, sunrealtype abstol,
+                        sunrealtype umax, UserData* data);
 static void PrintOutput(sunrealtype t, sunrealtype umax, long int nst);
 static void PrintFinalStats(void* cvode_mem);
 
 // Private function to check function return values
-static int check_retval(void* returnvalue, const char *funcname, int opt);
+static int check_retval(void* returnvalue, const char* funcname, int opt);
 
 /* ---------------------------------------------------------------------------
  * Main Program
@@ -129,8 +127,7 @@ int main(int argc, char** argv)
 #endif
 
   sycl::device dev = myQueue.get_device();
-  std::cout << "Running on "
-            << (dev.get_info<sycl::info::device::name>())
+  std::cout << "Running on " << (dev.get_info<sycl::info::device::name>())
             << std::endl;
 
   // Create user data and set queue
@@ -139,7 +136,7 @@ int main(int argc, char** argv)
 
   // Create a SYCL vector
   N_Vector u = N_VNew_Sycl(data.NEQ, &myQueue, sunctx);
-  if (check_retval((void*)u, "N_VNew_Sycl", 0)) return 1;
+  if (check_retval((void*)u, "N_VNew_Sycl", 0)) { return 1; }
 
   // Extract host pointer to solution vector data on the host
   sunrealtype* udata = N_VGetArrayPointer(u);
@@ -153,8 +150,8 @@ int main(int argc, char** argv)
     sunrealtype x = (i + 1) * data.dx; // x location
     sunrealtype y = (j + 1) * data.dy; // y location
 
-    udata[tid] =
-      x * (data.xmax - x) * y * (data.ymax - y) * std::exp(FIVE * x * y);
+    udata[tid] = x * (data.xmax - x) * y * (data.ymax - y) *
+                 std::exp(FIVE * x * y);
   }
 
   // Copy data to device
@@ -162,33 +159,33 @@ int main(int argc, char** argv)
 
   // Create CVODE and specify the Backward Differentiation Formula
   void* cvode_mem = CVodeCreate(CV_BDF, sunctx);
-  if (check_retval((void *)cvode_mem, "CVodeCreate", 0)) return 1;
+  if (check_retval((void*)cvode_mem, "CVodeCreate", 0)) { return 1; }
 
   // Specify the right hand side function in f(t,u), initial condition (t0, u0)
   retval = CVodeInit(cvode_mem, f, T0, u);
-  if (check_retval(&retval, "CVodeInit", 1)) return 1;
+  if (check_retval(&retval, "CVodeInit", 1)) { return 1; }
 
   // Specify the scalar relative tolerance and scalar absolute tolerance
   sunrealtype reltol = ZERO;
   sunrealtype abstol = ATOL;
-  retval = CVodeSStolerances(cvode_mem, reltol, abstol);
-  if (check_retval(&retval, "CVodeSStolerances", 1)) return 1;
+  retval             = CVodeSStolerances(cvode_mem, reltol, abstol);
+  if (check_retval(&retval, "CVodeSStolerances", 1)) { return 1; }
 
   // Set the pointer to user-defined data
   retval = CVodeSetUserData(cvode_mem, &data);
-  if (check_retval(&retval, "CVodeSetUserData", 1)) return 1;
+  if (check_retval(&retval, "CVodeSetUserData", 1)) { return 1; }
 
   // Create SPGMR solver without preconditioning and default Krylov dimension
   SUNLinearSolver LS = SUNLinSol_SPGMR(u, SUN_PREC_NONE, 0, sunctx);
-  if (check_retval(&retval, "SUNLinSol_SPGMR", 1)) return 1;
+  if (check_retval(&retval, "SUNLinSol_SPGMR", 1)) { return 1; }
 
   // Attach the linear sovler to CVODE
   retval = CVodeSetLinearSolver(cvode_mem, LS, NULL);
-  if (check_retval(&retval, "CVodeSetLinearSolver", 1)) return 1;
+  if (check_retval(&retval, "CVodeSetLinearSolver", 1)) { return 1; }
 
   // Set the Jacobian-times-vector function
   retval = CVodeSetJacTimes(cvode_mem, NULL, jtv);
-  if (check_retval(&retval, "CVodeSetJacTimesVecFn", 1)) return 1;
+  if (check_retval(&retval, "CVodeSetJacTimesVecFn", 1)) { return 1; }
 
   // In loop over output points: call CVODE, print results, test for errors
   sunrealtype umax = N_VMaxNorm(u);
@@ -196,17 +193,17 @@ int main(int argc, char** argv)
 
   sunrealtype tout = T1; // output time
   sunrealtype t;         // CVODE return time
-  long int nst;       // number of time steps
+  long int nst;          // number of time steps
 
   for (int iout = 0; iout < NOUT; iout++)
   {
     // Advance in time
     retval = CVode(cvode_mem, tout, u, &t, CV_NORMAL);
-    if (check_retval(&retval, "CVode", 1)) break;
+    if (check_retval(&retval, "CVode", 1)) { break; }
 
     // Output status
     retval = CVodeGetNumSteps(cvode_mem, &nst);
-    if (check_retval(&retval, "CVodeGetNumSteps", 1)) break;
+    if (check_retval(&retval, "CVodeGetNumSteps", 1)) { break; }
 
     umax = N_VMaxNorm(u);
     PrintOutput(t, umax, nst);
@@ -215,15 +212,14 @@ int main(int argc, char** argv)
     tout += DTOUT;
   }
 
-  PrintFinalStats(cvode_mem);  // Print some final statistics
+  PrintFinalStats(cvode_mem); // Print some final statistics
 
-  N_VDestroy(u);          // Free the u vector
-  CVodeFree(&cvode_mem);  // Free the integrator memory
-  SUNLinSolFree(LS);      // Free linear solver memory
+  N_VDestroy(u);         // Free the u vector
+  CVodeFree(&cvode_mem); // Free the integrator memory
+  SUNLinSolFree(LS);     // Free linear solver memory
 
   return 0;
 }
-
 
 /* ---------------------------------------------------------------------------
  * Functions called by the solver
@@ -235,42 +231,43 @@ static int f(sunrealtype t, N_Vector u, N_Vector udot, void* user_data)
   UserData* data = static_cast<UserData*>(user_data);
 
   // Extract needed constants from data
-  const size_t   MX    = static_cast<size_t>(data->MX);
-  const size_t   MY    = static_cast<size_t>(data->MY);
+  const size_t MX         = static_cast<size_t>(data->MX);
+  const size_t MY         = static_cast<size_t>(data->MY);
   const sunrealtype hordc = data->hdcoef;
   const sunrealtype horac = data->hacoef;
   const sunrealtype verdc = data->vdcoef;
 
   // Extract pointers to vector data
-  const sunrealtype* udata  = N_VGetDeviceArrayPointer(u);
-  sunrealtype*       dudata = N_VGetDeviceArrayPointer(udot);
+  const sunrealtype* udata = N_VGetDeviceArrayPointer(u);
+  sunrealtype* dudata      = N_VGetDeviceArrayPointer(udot);
 
-  data->myQueue->submit([&](sycl::handler& h)
-  {
-    h.parallel_for(sycl::range{MX, MY}, [=](sycl::id<2> idx)
+  data->myQueue->submit(
+    [&](sycl::handler& h)
     {
-      sunindextype i   = idx[0];
-      sunindextype j   = idx[1];
-      sunindextype tid = i * MY + j;
+      h.parallel_for(sycl::range{MX, MY},
+                     [=](sycl::id<2> idx)
+                     {
+                       sunindextype i   = idx[0];
+                       sunindextype j   = idx[1];
+                       sunindextype tid = i * MY + j;
 
-      sunrealtype uij = udata[tid];
-      sunrealtype udn = (j ==      0) ? ZERO : udata[tid - 1];
-      sunrealtype uup = (j == MY - 1) ? ZERO : udata[tid + 1];
-      sunrealtype ult = (i ==      0) ? ZERO : udata[tid - MY];
-      sunrealtype urt = (i == MX - 1) ? ZERO : udata[tid + MY];
+                       sunrealtype uij = udata[tid];
+                       sunrealtype udn = (j == 0) ? ZERO : udata[tid - 1];
+                       sunrealtype uup = (j == MY - 1) ? ZERO : udata[tid + 1];
+                       sunrealtype ult = (i == 0) ? ZERO : udata[tid - MY];
+                       sunrealtype urt = (i == MX - 1) ? ZERO : udata[tid + MY];
 
-      // Set diffusion and advection terms and load into udot
-      sunrealtype hdiff = hordc * (ult - TWO * uij + urt);
-      sunrealtype vdiff = verdc * (uup - TWO * uij + udn);
-      sunrealtype hadv  = horac * (urt - ult);
+                       // Set diffusion and advection terms and load into udot
+                       sunrealtype hdiff = hordc * (ult - TWO * uij + urt);
+                       sunrealtype vdiff = verdc * (uup - TWO * uij + udn);
+                       sunrealtype hadv  = horac * (urt - ult);
 
-      dudata[tid] = hdiff + vdiff + hadv;
+                       dudata[tid] = hdiff + vdiff + hadv;
+                     });
     });
-  });
 
   return 0;
 }
-
 
 // Jacobian-times-vector routine.
 static int jtv(N_Vector v, N_Vector Jv, sunrealtype t, N_Vector u, N_Vector fu,
@@ -279,33 +276,37 @@ static int jtv(N_Vector v, N_Vector Jv, sunrealtype t, N_Vector u, N_Vector fu,
   UserData* data = static_cast<UserData*>(user_data);
 
   // Extract needed constants from data
-  const size_t   MX    = static_cast<size_t>(data->MX);
-  const size_t   MY    = static_cast<size_t>(data->MY);
+  const size_t MX         = static_cast<size_t>(data->MX);
+  const size_t MY         = static_cast<size_t>(data->MY);
   const sunrealtype hordc = data->hdcoef;
   const sunrealtype horac = data->hacoef;
   const sunrealtype verdc = data->vdcoef;
 
   // Extract pointers to vector data
-  const sunrealtype *vdata  = N_VGetDeviceArrayPointer(v);
-  sunrealtype       *Jvdata = N_VGetDeviceArrayPointer(Jv);
+  const sunrealtype* vdata = N_VGetDeviceArrayPointer(v);
+  sunrealtype* Jvdata      = N_VGetDeviceArrayPointer(Jv);
 
-  data->myQueue->submit([&](sycl::handler& h)
-  {
-    h.parallel_for(sycl::range{MX, MY}, [=](sycl::id<2> idx)
+  data->myQueue->submit(
+    [&](sycl::handler& h)
     {
-      sunindextype i   = idx[0];
-      sunindextype j   = idx[1];
-      sunindextype tid = i * MY + j;
+      h.parallel_for(sycl::range{MX, MY},
+                     [=](sycl::id<2> idx)
+                     {
+                       sunindextype i   = idx[0];
+                       sunindextype j   = idx[1];
+                       sunindextype tid = i * MY + j;
 
-      // set the tid-th element of Jv
-      Jvdata[tid] = -TWO * (verdc + hordc) * vdata[tid];
+                       // set the tid-th element of Jv
+                       Jvdata[tid] = -TWO * (verdc + hordc) * vdata[tid];
 
-      if (i !=      0) Jvdata[tid] += (hordc - horac) * vdata[tid - MY];
-      if (i != MX - 1) Jvdata[tid] += (hordc + horac) * vdata[tid + MY];
-      if (j !=      0) Jvdata[tid] += verdc * vdata[tid - 1];
-      if (j != MY - 1) Jvdata[tid] += verdc * vdata[tid + 1];
+                       if (i != 0)
+                         Jvdata[tid] += (hordc - horac) * vdata[tid - MY];
+                       if (i != MX - 1)
+                         Jvdata[tid] += (hordc + horac) * vdata[tid + MY];
+                       if (j != 0) Jvdata[tid] += verdc * vdata[tid - 1];
+                       if (j != MY - 1) Jvdata[tid] += verdc * vdata[tid + 1];
+                     });
     });
-  });
 
   return 0;
 }
@@ -315,14 +316,15 @@ static int jtv(N_Vector v, N_Vector Jv, sunrealtype t, N_Vector u, N_Vector fu,
  * ---------------------------------------------------------------------------*/
 
 // Print first lines of output (problem description)
-static void PrintHeader(sunrealtype reltol, sunrealtype abstol, sunrealtype umax,
-                        UserData* data)
+static void PrintHeader(sunrealtype reltol, sunrealtype abstol,
+                        sunrealtype umax, UserData* data)
 {
   std::cout << "\n2-D Advection-Diffusion Equation" << std::endl;
-  std::cout << "Mesh dimensions = " << data->MX << " X " <<  data->MY << std::endl;
+  std::cout << "Mesh dimensions = " << data->MX << " X " << data->MY << std::endl;
   std::cout << "Total system size = " << data->NEQ << std::endl;
   std::cout << "Tolerance parameters: reltol = " << reltol
-            << "   abstol = " << abstol << std::endl << std::endl;
+            << "   abstol = " << abstol << std::endl
+            << std::endl;
   std::cout << "At t = " << T0 << "      max.norm(u) = " << umax << std::endl;
   return;
 }
@@ -330,7 +332,7 @@ static void PrintHeader(sunrealtype reltol, sunrealtype abstol, sunrealtype umax
 // Print current value
 static void PrintOutput(sunrealtype t, sunrealtype umax, long int nst)
 {
-  std::cout << "At t = " << t << "   max.norm(u) = "<< umax
+  std::cout << "At t = " << t << "   max.norm(u) = " << umax
             << "   nst = " << nst << std::endl;
   return;
 }
@@ -338,7 +340,7 @@ static void PrintOutput(sunrealtype t, sunrealtype umax, long int nst)
 // Get and print some final statistics
 static void PrintFinalStats(void* cvode_mem)
 {
-  long lenrw, leniw ;
+  long lenrw, leniw;
   long lenrwLS, leniwLS;
   long int nst, nfe, nsetups, nni, ncfn, netf;
   long int nli, npe, nps, ncfl, nfeLS;
@@ -373,14 +375,14 @@ static void PrintFinalStats(void* cvode_mem)
   check_retval(&retval, "CVodeGetNumLinRhsEvals", 1);
 
   std::cout << "\nFinal Statistics.. \n\n";
-  std::cout << "lenrw   = " << lenrw   << "     leniw   = " << leniw   << "\n";
+  std::cout << "lenrw   = " << lenrw << "     leniw   = " << leniw << "\n";
   std::cout << "lenrwLS = " << lenrwLS << "     leniwLS = " << leniwLS << "\n";
-  std::cout << "nst     = " << nst     << "\n";
-  std::cout << "nfe     = " << nfe     << "     nfeLS   = " << nfeLS << "\n";
-  std::cout << "nni     = " << nni     << "     nli     = " << nli   << "\n";
-  std::cout << "nsetups = " << nsetups << "     netf    = " << netf  << "\n";
-  std::cout << "npe     = " << npe     << "     nps     = " << nps   << "\n";
-  std::cout << "ncfn    = " << ncfn    << "     ncfl    = " << ncfl  << "\n\n";
+  std::cout << "nst     = " << nst << "\n";
+  std::cout << "nfe     = " << nfe << "     nfeLS   = " << nfeLS << "\n";
+  std::cout << "nni     = " << nni << "     nli     = " << nli << "\n";
+  std::cout << "nsetups = " << nsetups << "     netf    = " << netf << "\n";
+  std::cout << "npe     = " << npe << "     nps     = " << nps << "\n";
+  std::cout << "ncfn    = " << ncfn << "     ncfl    = " << ncfl << "\n\n";
 
   return;
 }
@@ -392,9 +394,9 @@ static void PrintFinalStats(void* cvode_mem)
               retval >= 0
      opt == 2 means function allocates memory so check if returned
               NULL pointer */
-static int check_retval(void* returnvalue, const char *funcname, int opt)
+static int check_retval(void* returnvalue, const char* funcname, int opt)
 {
-  int *retval;
+  int* retval;
 
   if (opt == 0 && returnvalue == NULL)
   {

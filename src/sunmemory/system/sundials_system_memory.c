@@ -101,7 +101,7 @@ int SUNMemoryHelper_Alloc_Sys(SUNMemoryHelper helper, SUNMemory* memptr,
 
 int SUNMemoryHelper_Dealloc_Sys(SUNMemoryHelper helper, SUNMemory mem, void* queue)
 {
-  if (mem == NULL) return (0);
+  if (mem == NULL) { return (0); }
 
   if (mem->ptr != NULL && mem->own)
   {

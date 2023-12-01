@@ -29,7 +29,7 @@ static SUNProfiler getSUNProfiler(SUNMemoryHelper H)
 }
 #endif
 
-SUNMemory SUNMemoryNewEmpty()
+SUNMemory SUNMemoryNewEmpty(void)
 {
   SUNMemory mem = NULL;
 
@@ -42,8 +42,8 @@ SUNMemory SUNMemoryNewEmpty()
 
 SUNMemoryHelper SUNMemoryHelper_NewEmpty(SUNContext sunctx)
 {
-  if (sunctx == NULL) return NULL;
-  
+  if (sunctx == NULL) { return NULL; }
+
   SUNFunctionBegin(sunctx);
   SUNMemoryHelper helper = NULL;
 
@@ -66,7 +66,6 @@ SUNErrCode SUNMemoryHelper_CopyOps(SUNMemoryHelper src, SUNMemoryHelper dst)
   memcpy(dst->ops, src->ops, sizeof(struct _SUNMemoryHelper_Ops));
   return SUN_SUCCESS;
 }
-
 
 sunbooleantype SUNMemoryHelper_ImplementsRequiredOps(SUNMemoryHelper helper)
 {
@@ -189,11 +188,10 @@ SUNErrCode SUNMemoryHelper_Destroy(SUNMemoryHelper helper)
   SUNErrCode err = SUN_SUCCESS;
   SUNFunctionBegin(helper->sunctx);
 
-  if (!helper) {
-    return err;
-  }
+  if (!helper) { return err; }
 
-  if (helper->content) {
+  if (helper->content)
+  {
     SUNAssert(helper->ops->destroy, SUN_ERR_NOT_IMPLEMENTED);
   }
 
@@ -225,7 +223,7 @@ SUNMemoryHelper SUNMemoryHelper_Clone(SUNMemoryHelper helper)
     else
     {
       SUNMemoryHelper hclone = SUNMemoryHelper_NewEmpty(helper->sunctx);
-      if (hclone) SUNMemoryHelper_CopyOps(helper, hclone);
+      if (hclone) { SUNMemoryHelper_CopyOps(helper, hclone); }
       return (hclone);
     }
   }

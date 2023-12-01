@@ -61,10 +61,11 @@
 int f(sunrealtype t, N_Vector u, N_Vector f, void* user_data);
 
 // Preconditioner Setup and Solve functions
-int PSetup(sunrealtype t, N_Vector u, N_Vector f, sunbooleantype jok, sunbooleantype* jcurPtr, sunrealtype gamma, void* user_data);
+int PSetup(sunrealtype t, N_Vector u, N_Vector f, sunbooleantype jok,
+           sunbooleantype* jcurPtr, sunrealtype gamma, void* user_data);
 
-int PSolve(sunrealtype t, N_Vector u, N_Vector f, N_Vector r, N_Vector z, sunrealtype gamma, sunrealtype delta, int lr,
-           void* user_data);
+int PSolve(sunrealtype t, N_Vector u, N_Vector f, N_Vector r, N_Vector z,
+           sunrealtype gamma, sunrealtype delta, int lr, void* user_data);
 
 // -----------------------------------------------------------------------------
 // Main Program
@@ -82,7 +83,7 @@ int main(int argc, char* argv[])
   // Read input options
   UserData udata;
   std::vector<std::string> args(argv + 1, argv + argc);
-  if (ReadInputs(args, udata)) return 1;
+  if (ReadInputs(args, udata)) { return 1; }
   PrintUserData(udata);
 
   // ---------------
@@ -91,15 +92,15 @@ int main(int argc, char* argv[])
 
   // Create solution vector
   N_Vector u = N_VNew_Serial(udata.nodes, sunctx);
-  if (check_ptr(u, "N_VNew_Serial")) return 1;
+  if (check_ptr(u, "N_VNew_Serial")) { return 1; }
 
   // Set initial condition
   int flag = Solution(ZERO, u, udata);
-  if (check_flag(flag, "Solution")) return 1;
+  if (check_flag(flag, "Solution")) { return 1; }
 
   // Create error vector
   N_Vector e = N_VClone(u);
-  if (check_ptr(e, "N_VClone")) return 1;
+  if (check_ptr(e, "N_VClone")) { return 1; }
 
   // ---------------------
   // Create linear solver
@@ -109,19 +110,22 @@ int main(int argc, char* argv[])
   int prectype = (udata.prec) ? SUN_PREC_RIGHT : SUN_PREC_NONE;
 
   SUNLinearSolver LS = nullptr;
-  if (udata.pcg) {
+  if (udata.pcg)
+  {
     LS = SUNLinSol_PCG(u, prectype, udata.liniters, sunctx);
-    if (check_ptr(LS, "SUNLinSol_PCG")) return 1;
+    if (check_ptr(LS, "SUNLinSol_PCG")) { return 1; }
   }
-  else {
+  else
+  {
     LS = SUNLinSol_SPGMR(u, prectype, udata.liniters, sunctx);
-    if (check_ptr(LS, "SUNLinSol_SPGMR")) return 1;
+    if (check_ptr(LS, "SUNLinSol_SPGMR")) { return 1; }
   }
 
   // Allocate preconditioner workspace
-  if (udata.prec) {
+  if (udata.prec)
+  {
     udata.d = N_VClone(u);
-    if (check_ptr((udata.d), "N_VClone")) return 1;
+    if (check_ptr((udata.d), "N_VClone")) { return 1; }
   }
 
   // --------------
@@ -130,45 +134,46 @@ int main(int argc, char* argv[])
 
   // Create integrator
   void* cvode_mem = CVodeCreate(CV_BDF, sunctx);
-  if (check_ptr(cvode_mem, "CVodeCreate")) return 1;
+  if (check_ptr(cvode_mem, "CVodeCreate")) { return 1; }
 
   // Initialize integrator
   flag = CVodeInit(cvode_mem, f, ZERO, u);
-  if (check_flag(flag, "CVodeInit")) return 1;
+  if (check_flag(flag, "CVodeInit")) { return 1; }
 
   // Specify tolerances
   flag = CVodeSStolerances(cvode_mem, udata.rtol, udata.atol);
-  if (check_flag(flag, "CVodeSStolerances")) return 1;
+  if (check_flag(flag, "CVodeSStolerances")) { return 1; }
 
   // Attach user data
   flag = CVodeSetUserData(cvode_mem, (void*)&udata);
-  if (check_flag(flag, "CVodeSetUserData")) return 1;
+  if (check_flag(flag, "CVodeSetUserData")) { return 1; }
 
   // Attach linear solver
   flag = CVodeSetLinearSolver(cvode_mem, LS, NULL);
-  if (check_flag(flag, "CVodeSetLinearSolver")) return 1;
+  if (check_flag(flag, "CVodeSetLinearSolver")) { return 1; }
 
-  if (udata.prec) {
+  if (udata.prec)
+  {
     // Attach preconditioner
     flag = CVodeSetPreconditioner(cvode_mem, PSetup, PSolve);
-    if (check_flag(flag, "CVodeSetPreconditioner")) return 1;
+    if (check_flag(flag, "CVodeSetPreconditioner")) { return 1; }
 
     // Set linear solver setup frequency (update preconditioner)
     flag = CVodeSetLSetupFrequency(cvode_mem, udata.msbp);
-    if (check_flag(flag, "CVodeSetLSetupFrequency")) return 1;
+    if (check_flag(flag, "CVodeSetLSetupFrequency")) { return 1; }
   }
 
   // Set linear solver tolerance factor
   flag = CVodeSetEpsLin(cvode_mem, udata.epslin);
-  if (check_flag(flag, "CVodeSetEpsLin")) return 1;
+  if (check_flag(flag, "CVodeSetEpsLin")) { return 1; }
 
   // Set max steps between outputs
   flag = CVodeSetMaxNumSteps(cvode_mem, udata.maxsteps);
-  if (check_flag(flag, "CVodeSetMaxNumSteps")) return 1;
+  if (check_flag(flag, "CVodeSetMaxNumSteps")) { return 1; }
 
   // Set stopping time
   flag = CVodeSetStopTime(cvode_mem, udata.tf);
-  if (check_flag(flag, "CVodeSetStopTime")) return 1;
+  if (check_flag(flag, "CVodeSetStopTime")) { return 1; }
 
   // -----------------------
   // Loop over output times
@@ -180,19 +185,20 @@ int main(int argc, char* argv[])
 
   // Inital output
   flag = OpenOutput(udata);
-  if (check_flag(flag, "OpenOutput")) return 1;
+  if (check_flag(flag, "OpenOutput")) { return 1; }
 
   flag = WriteOutput(t, u, e, udata);
-  if (check_flag(flag, "WriteOutput")) return 1;
+  if (check_flag(flag, "WriteOutput")) { return 1; }
 
-  for (int iout = 0; iout < udata.nout; iout++) {
+  for (int iout = 0; iout < udata.nout; iout++)
+  {
     // Evolve in time
     flag = CVode(cvode_mem, tout, u, &t, CV_NORMAL);
-    if (check_flag(flag, "CVode")) break;
+    if (check_flag(flag, "CVode")) { break; }
 
     // Output solution and error
     flag = WriteOutput(t, u, e, udata);
-    if (check_flag(flag, "WriteOutput")) return 1;
+    if (check_flag(flag, "WriteOutput")) { return 1; }
 
     // Update output time
     tout += dTout;
@@ -201,7 +207,7 @@ int main(int argc, char* argv[])
 
   // Close output
   flag = CloseOutput(udata);
-  if (check_flag(flag, "CloseOutput")) return 1;
+  if (check_flag(flag, "CloseOutput")) { return 1; }
 
   // --------------
   // Final outputs
@@ -210,27 +216,28 @@ int main(int argc, char* argv[])
   // Print integrator and solver stats
   long int nst, netf, nf, nni, ncfn, nli, nlcf, nsetups, nf_ls, nJv;
   flag = CVodeGetNumSteps(cvode_mem, &nst);
-  if (check_flag(flag, "CVodeGetNumSteps")) return -1;
+  if (check_flag(flag, "CVodeGetNumSteps")) { return -1; }
   flag = CVodeGetNumErrTestFails(cvode_mem, &netf);
-  if (check_flag(flag, "CVodeGetNumErrTestFails")) return -1;
+  if (check_flag(flag, "CVodeGetNumErrTestFails")) { return -1; }
   flag = CVodeGetNumRhsEvals(cvode_mem, &nf);
-  if (check_flag(flag, "CVodeGetNumRhsEvals")) return -1;
+  if (check_flag(flag, "CVodeGetNumRhsEvals")) { return -1; }
   flag = CVodeGetNumNonlinSolvIters(cvode_mem, &nni);
-  if (check_flag(flag, "CVodeGetNumNonlinSolvIters")) return -1;
+  if (check_flag(flag, "CVodeGetNumNonlinSolvIters")) { return -1; }
   flag = CVodeGetNumNonlinSolvConvFails(cvode_mem, &ncfn);
-  if (check_flag(flag, "CVodeGetNumNonlinSolvConvFails")) return -1;
+  if (check_flag(flag, "CVodeGetNumNonlinSolvConvFails")) { return -1; }
   flag = CVodeGetNumLinIters(cvode_mem, &nli);
-  if (check_flag(flag, "CVodeGetNumLinIters")) return -1;
+  if (check_flag(flag, "CVodeGetNumLinIters")) { return -1; }
   flag = CVodeGetNumLinConvFails(cvode_mem, &nlcf);
-  if (check_flag(flag, "CVodeGetNumLinConvFails")) return -1;
+  if (check_flag(flag, "CVodeGetNumLinConvFails")) { return -1; }
   flag = CVodeGetNumLinSolvSetups(cvode_mem, &nsetups);
-  if (check_flag(flag, "CVodeGetNumLinSolvSetups")) return -1;
+  if (check_flag(flag, "CVodeGetNumLinSolvSetups")) { return -1; }
   flag = CVodeGetNumLinRhsEvals(cvode_mem, &nf_ls);
-  if (check_flag(flag, "CVodeGetNumLinRhsEvals")) return -1;
+  if (check_flag(flag, "CVodeGetNumLinRhsEvals")) { return -1; }
   flag = CVodeGetNumJtimesEvals(cvode_mem, &nJv);
-  if (check_flag(flag, "CVodeGetNumJtimesEvals")) return -1;
+  if (check_flag(flag, "CVodeGetNumJtimesEvals")) { return -1; }
 
-  std::cout << std::fixed << std::setprecision(6) << "Final integrator statistics:\n"
+  std::cout << std::fixed << std::setprecision(6)
+            << "Final integrator statistics:\n"
             << "  Steps            = " << nst << "\n"
             << "  Error test fails = " << netf << "\n"
             << "  RHS evals        = " << nf << "\n"
@@ -251,12 +258,13 @@ int main(int argc, char* argv[])
   std::cout << std::endl;
 
   // Get preconditioner stats
-  if (udata.prec) {
+  if (udata.prec)
+  {
     long int npe, nps;
     flag = CVodeGetNumPrecEvals(cvode_mem, &npe);
-    if (check_flag(flag, "CVodeGetNumPrecEvals")) return -1;
+    if (check_flag(flag, "CVodeGetNumPrecEvals")) { return -1; }
     flag = CVodeGetNumPrecSolves(cvode_mem, &nps);
-    if (check_flag(flag, "CVodeGetNumPrecSolves")) return -1;
+    if (check_flag(flag, "CVodeGetNumPrecSolves")) { return -1; }
 
     std::cout << "  Preconditioner setups = " << npe << "\n";
     std::cout << "  Preconditioner solves = " << nps << "\n";
@@ -265,11 +273,12 @@ int main(int argc, char* argv[])
 
   // Output final error
   flag = SolutionError(t, u, e, udata);
-  if (check_flag(flag, "SolutionError")) return 1;
+  if (check_flag(flag, "SolutionError")) { return 1; }
 
   sunrealtype maxerr = N_VMaxNorm(e);
 
-  std::cout << std::scientific << std::setprecision(std::numeric_limits<sunrealtype>::digits10)
+  std::cout << std::scientific
+            << std::setprecision(std::numeric_limits<sunrealtype>::digits10)
             << "  Max error = " << maxerr << std::endl;
 
   // --------------------
@@ -302,10 +311,10 @@ int f(sunrealtype t, N_Vector u, N_Vector f, void* user_data)
 
   // Access data arrays
   auto uarray = N_VGetArrayPointer(u);
-  if (check_ptr(uarray, "N_VGetArrayPointer")) return -1;
+  if (check_ptr(uarray, "N_VGetArrayPointer")) { return -1; }
 
   auto farray = N_VGetArrayPointer(f);
-  if (check_ptr(farray, "N_VGetArrayPointer")) return -1;
+  if (check_ptr(farray, "N_VGetArrayPointer")) { return -1; }
 
   // Constants for computing f(t,y)
   const auto cx = kx / (dx * dx);
@@ -322,8 +331,10 @@ int f(sunrealtype t, N_Vector u, N_Vector f, void* user_data)
   N_VConst(ZERO, f);
 
   // Iterate over domain interior and fill the RHS vector
-  for (sunindextype j = 1; j < ny - 1; j++) {
-    for (sunindextype i = 1; i < nx - 1; i++) {
+  for (sunindextype j = 1; j < ny - 1; j++)
+  {
+    for (sunindextype i = 1; i < nx - 1; i++)
+    {
       auto x = i * dx;
       auto y = j * dy;
 
@@ -340,7 +351,8 @@ int f(sunrealtype t, N_Vector u, N_Vector f, void* user_data)
       auto idx_e = (i + 1) + j * nx;
       auto idx_w = (i - 1) + j * nx;
 
-      farray[idx_c] = cc * uarray[idx_c] + cx * (uarray[idx_w] + uarray[idx_e]) + cy * (uarray[idx_s] + uarray[idx_n]) -
+      farray[idx_c] = cc * uarray[idx_c] + cx * (uarray[idx_w] + uarray[idx_e]) +
+                      cy * (uarray[idx_s] + uarray[idx_n]) -
                       TWO * PI * sin_sqr_x * sin_sqr_y * sin_t_cos_t -
                       bx * (cos_sqr_x - sin_sqr_x) * sin_sqr_y * cos_sqr_t -
                       by * (cos_sqr_y - sin_sqr_y) * sin_sqr_x * cos_sqr_t;
@@ -352,14 +364,15 @@ int f(sunrealtype t, N_Vector u, N_Vector f, void* user_data)
 }
 
 // Preconditioner setup routine
-int PSetup(sunrealtype t, N_Vector u, N_Vector f, sunbooleantype jok, sunbooleantype* jcurPtr, sunrealtype gamma, void* user_data)
+int PSetup(sunrealtype t, N_Vector u, N_Vector f, sunbooleantype jok,
+           sunbooleantype* jcurPtr, sunrealtype gamma, void* user_data)
 {
   // Access problem data
   auto udata = static_cast<UserData*>(user_data);
 
   // Access data array
   sunrealtype* diag = N_VGetArrayPointer(udata->d);
-  if (check_ptr(diag, "N_VGetArrayPointer")) return -1;
+  if (check_ptr(diag, "N_VGetArrayPointer")) { return -1; }
 
   // Constants for computing diffusion
   auto cx = udata->kx / (udata->dx * udata->dx);
@@ -376,8 +389,8 @@ int PSetup(sunrealtype t, N_Vector u, N_Vector f, sunbooleantype jok, sunboolean
 }
 
 // Preconditioner solve routine for Pz = r
-int PSolve(sunrealtype t, N_Vector u, N_Vector f, N_Vector r, N_Vector z, sunrealtype gamma, sunrealtype delta, int lr,
-           void* user_data)
+int PSolve(sunrealtype t, N_Vector u, N_Vector f, N_Vector r, N_Vector z,
+           sunrealtype gamma, sunrealtype delta, int lr, void* user_data)
 {
   // Access user_data structure
   UserData* udata = static_cast<UserData*>(user_data);

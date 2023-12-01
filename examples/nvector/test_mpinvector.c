@@ -15,10 +15,9 @@
  * which have MPI symbols.
  * -----------------------------------------------------------------*/
 
+#include <mpi.h>
 #include <stdio.h>
 #include <stdlib.h>
-#include <mpi.h>
-
 #include <sundials/sundials_nvector.h>
 
 #include "test_nvector.h"
@@ -41,31 +40,43 @@ int Test_N_VGetCommunicatorMPI(N_Vector W, SUNComm comm, int myid)
   wcomm = N_VGetCommunicator(W);
 
   /* return with success if both are NULL */
-  if ((wcomm == SUN_COMM_NULL) && (comm == SUN_COMM_NULL))  {
+  if ((wcomm == SUN_COMM_NULL) && (comm == SUN_COMM_NULL))
+  {
     printf("PASSED test -- N_VGetCommunicator\n");
-    return(0);
+    return (0);
   }
 
   /* return with failure if either is NULL */
-  if (wcomm == SUN_COMM_NULL) {
-    printf(">>> FAILED test -- N_VGetCommunicator, Proc %d (incorrectly reports NULL comm)\n", myid);
-    return(1);
+  if (wcomm == SUN_COMM_NULL)
+  {
+    printf(">>> FAILED test -- N_VGetCommunicator, Proc %d (incorrectly "
+           "reports NULL comm)\n",
+           myid);
+    return (1);
   }
-  if (comm == SUN_COMM_NULL) {
-    printf(">>> FAILED test -- N_VGetCommunicator, Proc %d (incorrectly reports non-NULL comm)\n", myid);
-    return(1);
+  if (comm == SUN_COMM_NULL)
+  {
+    printf(">>> FAILED test -- N_VGetCommunicator, Proc %d (incorrectly "
+           "reports non-NULL comm)\n",
+           myid);
+    return (1);
   }
 
   /* call MPI_Comm_compare to check that communicators match or are congruent */
-  if (MPI_Comm_compare(comm, wcomm, &same) != MPI_SUCCESS) {
-    printf(">>> FAILED test -- N_VGetCommunicator, Proc %d (error in MPI_Comm_compare)\n", myid);
-    return(1);
+  if (MPI_Comm_compare(comm, wcomm, &same) != MPI_SUCCESS)
+  {
+    printf(">>> FAILED test -- N_VGetCommunicator, Proc %d (error in "
+           "MPI_Comm_compare)\n",
+           myid);
+    return (1);
   }
-  if ((same != MPI_IDENT) && (same != MPI_CONGRUENT)) {
-    printf(">>> FAILED test -- N_VGetCommunicator, Proc %d (mismatched comms)\n", myid);
-    return(1);
+  if ((same != MPI_IDENT) && (same != MPI_CONGRUENT))
+  {
+    printf(">>> FAILED test -- N_VGetCommunicator, Proc %d (mismatched "
+           "comms)\n",
+           myid);
+    return (1);
   }
-  if (myid == 0)
-    printf("PASSED test -- N_VGetCommunicator\n");
-  return(0);
+  if (myid == 0) { printf("PASSED test -- N_VGetCommunicator\n"); }
+  return (0);
 }

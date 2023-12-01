@@ -15,39 +15,41 @@
  * implementation.
  * -----------------------------------------------------------------*/
 
+#include <RAJA/RAJA.hpp>
 #include <cstdio>
 #include <cstdlib>
-
-#include <sundials/sundials_types.h>
+#include <mpi.h>
 #include <nvector/nvector_mpiplusx.h>
 #include <nvector/nvector_raja.h>
 #include <sundials/sundials_math.h>
+#include <sundials/sundials_types.h>
+
 #include "test_nvector.h"
 
-#include <RAJA/RAJA.hpp>
-#include <mpi.h>
-
 /* RAJA vector can use unmanaged or managed memory */
-enum mem_type { UNMANAGED, MANAGED };
+enum mem_type
+{
+  UNMANAGED,
+  MANAGED
+};
 
 /* ----------------------------------------------------------------------
  * Main NVector Testing Routine
  * --------------------------------------------------------------------*/
-int main(int argc, char *argv[])
+int main(int argc, char* argv[])
 {
-  int          fails = 0;           /* counter for test failures */
-  int          globfails = 0;       /* counter for test failures */
-  int          retval;              /* function return value     */
-  sunindextype local_length;        /* local vector length       */
-  sunindextype global_length;       /* global vector length      */
-  N_Vector     U, V, X;             /* local test vectors        */
-  N_Vector     plusU, plusV, plusX; /* MPIPlusX test vectors     */
-  N_Vector     plusY, plusZ;        /* MPIPlusX test vectors     */
-  int          print_timing;        /* turn timing on/off        */
-  MPI_Comm     comm;                /* MPI Communicator          */
-  int          nprocs, myid;        /* Number of procs, proc id  */
-  int          i;
-
+  int fails     = 0;            /* counter for test failures */
+  int globfails = 0;            /* counter for test failures */
+  int retval;                   /* function return value     */
+  sunindextype local_length;    /* local vector length       */
+  sunindextype global_length;   /* global vector length      */
+  N_Vector U, V, X;             /* local test vectors        */
+  N_Vector plusU, plusV, plusX; /* MPIPlusX test vectors     */
+  N_Vector plusY, plusZ;        /* MPIPlusX test vectors     */
+  int print_timing;             /* turn timing on/off        */
+  MPI_Comm comm;                /* MPI Communicator          */
+  int nprocs, myid;             /* Number of procs, proc id  */
+  int i;
 
   /* Get processor number and total number of processes */
   MPI_Init(&argc, &argv);
@@ -59,16 +61,22 @@ int main(int argc, char *argv[])
   MPI_Comm_rank(comm, &myid);
 
   /* check inputs */
-  if (argc < 3) {
+  if (argc < 3)
+  {
     if (myid == 0)
+    {
       printf("ERROR: TWO (2) Inputs required: vector length, print timing \n");
+    }
     Test_AbortMPI(comm, -1);
   }
 
-  local_length = (sunindextype) atol(argv[1]);
-  if (local_length < 1) {
+  local_length = (sunindextype)atol(argv[1]);
+  if (local_length < 1)
+  {
     if (myid == 0)
+    {
       printf("ERROR: local vector length must be a positive integer \n");
+    }
     Test_AbortMPI(comm, -1);
   }
 
@@ -79,34 +87,42 @@ int main(int argc, char *argv[])
   SetTiming(print_timing, myid);
 
 #if defined(SUNDIALS_RAJA_BACKENDS_SYCL)
-  camp::resources::Resource* sycl_res = new camp::resources::Resource{camp::resources::Sycl()};
+  camp::resources::Resource* sycl_res =
+    new camp::resources::Resource{camp::resources::Sycl()};
   ::RAJA::sycl::detail::setQueue(sycl_res);
 #endif
 
-  for (i=UNMANAGED; i<=MANAGED; ++i) {
-
-    if (myid == 0) {
-      if (i == UNMANAGED) {
-        printf("Testing RAJA N_Vector \n");
-      } else {
-        printf("\nTesting RAJA N_Vector with managed memory \n");
-      }
-      printf("Vector global length %ld \n", (long int) global_length);
+  for (i = UNMANAGED; i <= MANAGED; ++i)
+  {
+    if (myid == 0)
+    {
+      if (i == UNMANAGED) { printf("Testing RAJA N_Vector \n"); }
+      else { printf("\nTesting RAJA N_Vector with managed memory \n"); }
+      printf("Vector global length %ld \n", (long int)global_length);
       printf("MPI processes %d \n", nprocs);
     }
 
     /* Create new vectors */
-    X = (i == UNMANAGED) ? N_VNew_Raja(local_length, sunctx) : N_VNewManaged_Raja(local_length, sunctx);
-    if (X == NULL) {
-      if (myid == 0) printf("FAIL: Unable to create a new RAJA vector \n\n");
+    X = (i == UNMANAGED) ? N_VNew_Raja(local_length, sunctx)
+                         : N_VNewManaged_Raja(local_length, sunctx);
+    if (X == NULL)
+    {
+      if (myid == 0)
+      {
+        printf("FAIL: Unable to create a new RAJA vector \n\n");
+      }
       Test_AbortMPI(comm, 1);
     }
 
     /* Create the MPI+X vector */
     plusX = N_VMake_MPIPlusX(comm, X, sunctx);
-    if (plusX == NULL) {
+    if (plusX == NULL)
+    {
       N_VDestroy(X);
-      if (myid == 0) printf("FAIL: Unable to create a new MPIPlusX vector \n\n");
+      if (myid == 0)
+      {
+        printf("FAIL: Unable to create a new MPIPlusX vector \n\n");
+      }
       Test_AbortMPI(comm, 1);
     }
 
@@ -127,24 +143,26 @@ int main(int argc, char *argv[])
 
     /* Clone additional vectors for testing */
     plusY = N_VClone(plusX);
-    if (plusY == NULL) {
+    if (plusY == NULL)
+    {
       N_VDestroy(X);
       N_VDestroy(plusX);
-      if (myid == 0) printf("FAIL: Unable to create a new vector \n\n");
+      if (myid == 0) { printf("FAIL: Unable to create a new vector \n\n"); }
       Test_AbortMPI(comm, 1);
     }
 
     plusZ = N_VClone(plusX);
-    if (plusZ == NULL) {
+    if (plusZ == NULL)
+    {
       N_VDestroy(X);
       N_VDestroy(plusX);
       N_VDestroy(plusY);
-      if (myid == 0) printf("FAIL: Unable to create a new vector \n\n");
+      if (myid == 0) { printf("FAIL: Unable to create a new vector \n\n"); }
       Test_AbortMPI(comm, 1);
     }
 
     /* Standard vector operation tests */
-    if (myid == 0) printf("\nTesting standard vector operations:\n\n");
+    if (myid == 0) { printf("\nTesting standard vector operations:\n\n"); }
 
     fails += Test_N_VConst(plusX, local_length, myid);
     fails += Test_N_VLinearSum(plusX, plusY, plusZ, local_length, myid);
@@ -167,28 +185,40 @@ int main(int argc, char *argv[])
     fails += Test_N_VMinQuotient(plusX, plusY, local_length, myid);
 
     /* Fused and vector array operations tests (disabled) */
-    if (myid == 0) printf("\nTesting fused and vector array operations (disabled):\n\n");
+    if (myid == 0)
+    {
+      printf("\nTesting fused and vector array operations (disabled):\n\n");
+    }
 
     /* create vector and disable all fused and vector array operations */
-    U = (i == UNMANAGED) ? N_VNew_Raja(local_length, sunctx) : N_VNewManaged_Raja(local_length, sunctx);
+    U      = (i == UNMANAGED) ? N_VNew_Raja(local_length, sunctx)
+                              : N_VNewManaged_Raja(local_length, sunctx);
     retval = N_VEnableFusedOps_Raja(U, SUNFALSE);
-    if (U == NULL || retval != 0) {
+    if (U == NULL || retval != 0)
+    {
       N_VDestroy(X);
       N_VDestroy(plusX);
       N_VDestroy(plusY);
       N_VDestroy(plusZ);
-      if (myid == 0) printf("FAIL: Unable to create a new RAJA vector \n\n");
+      if (myid == 0)
+      {
+        printf("FAIL: Unable to create a new RAJA vector \n\n");
+      }
       Test_AbortMPI(comm, 1);
     }
 
     plusU = N_VMake_MPIPlusX(comm, U, sunctx);
-    if (U == NULL || retval != 0) {
+    if (U == NULL || retval != 0)
+    {
       N_VDestroy(X);
       N_VDestroy(U);
       N_VDestroy(plusX);
       N_VDestroy(plusY);
       N_VDestroy(plusZ);
-      if (myid == 0) printf("FAIL: Unable to create a new MPIPlusX vector \n\n");
+      if (myid == 0)
+      {
+        printf("FAIL: Unable to create a new MPIPlusX vector \n\n");
+      }
       Test_AbortMPI(comm, 1);
     }
 
@@ -207,25 +237,34 @@ int main(int argc, char *argv[])
     fails += Test_N_VLinearCombinationVectorArray(plusU, local_length, myid);
 
     /* Fused and vector array operations tests (enabled) */
-    if (myid == 0) printf("\nTesting fused and vector array operations (enabled):\n\n");
+    if (myid == 0)
+    {
+      printf("\nTesting fused and vector array operations (enabled):\n\n");
+    }
 
     /* create vector and enable all fused and vector array operations */
-    V = (i == UNMANAGED) ? N_VNew_Raja(local_length, sunctx) : N_VNewManaged_Raja(local_length, sunctx);
+    V      = (i == UNMANAGED) ? N_VNew_Raja(local_length, sunctx)
+                              : N_VNewManaged_Raja(local_length, sunctx);
     retval = N_VEnableFusedOps_Raja(V, SUNTRUE);
-    if (V == NULL || retval != 0) {
+    if (V == NULL || retval != 0)
+    {
       N_VDestroy(X);
       N_VDestroy(U);
       N_VDestroy(plusX);
       N_VDestroy(plusY);
       N_VDestroy(plusZ);
       N_VDestroy(plusU);
-      if (myid == 0) printf("FAIL: Unable to create a new RAJA vector \n\n");
+      if (myid == 0)
+      {
+        printf("FAIL: Unable to create a new RAJA vector \n\n");
+      }
       Test_AbortMPI(comm, 1);
     }
 
     /* create the MPIPlusX vector */
     plusV = N_VMake_MPIPlusX(comm, V, sunctx);
-    if (V == NULL || retval != 0) {
+    if (V == NULL || retval != 0)
+    {
       N_VDestroy(X);
       N_VDestroy(U);
       N_VDestroy(V);
@@ -233,7 +272,10 @@ int main(int argc, char *argv[])
       N_VDestroy(plusX);
       N_VDestroy(plusY);
       N_VDestroy(plusZ);
-      if (myid == 0) printf("FAIL: Unable to create a new MPIPlusX vector \n\n");
+      if (myid == 0)
+      {
+        printf("FAIL: Unable to create a new MPIPlusX vector \n\n");
+      }
       Test_AbortMPI(comm, 1);
     }
 
@@ -252,7 +294,7 @@ int main(int argc, char *argv[])
     fails += Test_N_VLinearCombinationVectorArray(plusV, local_length, myid);
 
     /* local reduction operations */
-    if (myid == 0) printf("\nTesting local reduction operations:\n\n");
+    if (myid == 0) { printf("\nTesting local reduction operations:\n\n"); }
 
     fails += Test_N_VDotProdLocal(plusX, plusY, local_length, myid);
     fails += Test_N_VMaxNormLocal(plusX, local_length, myid);
@@ -265,12 +307,15 @@ int main(int argc, char *argv[])
     fails += Test_N_VMinQuotientLocal(plusX, plusY, local_length, myid);
 
     /* local fused reduction operations */
-    if (myid == 0) printf("\nTesting local fused reduction operations:\n\n");
+    if (myid == 0)
+    {
+      printf("\nTesting local fused reduction operations:\n\n");
+    }
     fails += Test_N_VDotProdMultiLocal(plusV, local_length, myid);
     fails += Test_N_VDotProdMultiAllReduce(plusV, local_length, myid);
 
     /* XBraid interface operations */
-    if (myid == 0) printf("\nTesting XBraid interface operations:\n\n");
+    if (myid == 0) { printf("\nTesting XBraid interface operations:\n\n"); }
 
     fails += Test_N_VBufSize(plusX, local_length, myid);
     fails += Test_N_VBufPack(plusX, local_length, myid);
@@ -285,19 +330,20 @@ int main(int argc, char *argv[])
     N_VDestroy(plusZ);
     N_VDestroy(plusU);
     N_VDestroy(plusV);
-
   }
 
   /* Print result */
-  if (fails) {
+  if (fails)
+  {
     printf("FAIL: NVector module failed %i tests, Proc %d \n\n", fails, myid);
-  } else {
-    if (myid == 0)
-      printf("SUCCESS: NVector module passed all tests \n\n");
+  }
+  else
+  {
+    if (myid == 0) { printf("SUCCESS: NVector module passed all tests \n\n"); }
   }
 
   /* check if any other process failed */
-  (void) MPI_Allreduce(&fails, &globfails, 1, MPI_INT, MPI_MAX, comm);
+  (void)MPI_Allreduce(&fails, &globfails, 1, MPI_INT, MPI_MAX, comm);
 
   sync_device(NULL);
 #if defined(USE_CUDA)
@@ -308,7 +354,7 @@ int main(int argc, char *argv[])
 
   MPI_Finalize();
 
-  return(globfails);
+  return (globfails);
 }
 
 /* ----------------------------------------------------------------------
@@ -316,19 +362,17 @@ int main(int argc, char *argv[])
  * --------------------------------------------------------------------*/
 int check_ans(sunrealtype ans, N_Vector plusX, sunindextype local_length)
 {
-  int          failure = 0;
+  int failure = 0;
   sunindextype i;
-  sunrealtype     *Xdata;
-  N_Vector     X;
+  sunrealtype* Xdata;
+  N_Vector X;
 
   X = N_VGetLocalVector_MPIPlusX(plusX);
   N_VCopyFromDevice_Raja(X);
   Xdata = N_VGetHostArrayPointer_Raja(X);
 
   /* check vector data */
-  for (i = 0; i < local_length; i++) {
-    failure += SUNRCompare(Xdata[i], ans);
-  }
+  for (i = 0; i < local_length; i++) { failure += SUNRCompare(Xdata[i], ans); }
 
   return (failure > ZERO) ? (1) : (0);
 }
@@ -339,7 +383,9 @@ sunbooleantype has_data(N_Vector plusX)
   /* check if vector data is non-null */
   if ((N_VGetHostArrayPointer_Raja(X) == NULL) &&
       (N_VGetDeviceArrayPointer_Raja(X) == NULL))
+  {
     return SUNFALSE;
+  }
   return SUNTRUE;
 }
 
@@ -353,15 +399,15 @@ void set_element_range(N_Vector plusX, sunindextype is, sunindextype ie,
                        sunrealtype val)
 {
   sunindextype i;
-  sunrealtype*    xd;
-  N_Vector     X;
+  sunrealtype* xd;
+  N_Vector X;
 
   X = N_VGetLocalVector_MPIPlusX(plusX);
 
   /* set elements [is,ie] of the data array */
   N_VCopyFromDevice_Raja(X);
   xd = N_VGetHostArrayPointer_Raja(X);
-  for(i = is; i <= ie; i++) xd[i] = val;
+  for (i = is; i <= ie; i++) { xd[i] = val; }
   N_VCopyToDevice_Raja(X);
 }
 
@@ -382,8 +428,8 @@ double max_time(N_Vector plusX, double time)
   comm = N_VGetCommunicator(plusX);
 
   /* get max time across all MPI ranks */
-  (void) MPI_Reduce(&time, &maxt, 1, MPI_DOUBLE, MPI_MAX, 0, comm);
-  return(maxt);
+  (void)MPI_Reduce(&time, &maxt, 1, MPI_DOUBLE, MPI_MAX, 0, comm);
+  return (maxt);
 }
 
 void sync_device(N_Vector x)

@@ -31,7 +31,7 @@ extern "C" {
   /* Forward declarations for implementation specific utility functions */
   void collect_times(N_Vector X, double *times, int ntimes);
   void sync_device(N_Vector x);
-  void ClearCache();
+  void ClearCache(void);
   void N_VRand(N_Vector Xvec, sunindextype Xlen, sunrealtype lower, sunrealtype upper);
   void N_VRandZeroOne(N_Vector Xvec, sunindextype Xlen);
   void N_VRandConstraints(N_Vector Xvec, sunindextype Xlen);

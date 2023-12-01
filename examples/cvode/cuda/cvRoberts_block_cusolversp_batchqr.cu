@@ -37,62 +37,62 @@
  * This problem is comparable to the cvRoberts_block_klu.c example.
  * ------------------------------------------------------------------*/
 
+#include <cvode/cvode.h> /* prototypes for CVODE fcts., consts.           */
+#include <nvector/nvector_cuda.h> /* access to cuda N_Vector                       */
 #include <stdio.h>
-
-#include <cvode/cvode.h>                              /* prototypes for CVODE fcts., consts.           */
-#include <nvector/nvector_cuda.h>                     /* access to cuda N_Vector                       */
-#include <sunmatrix/sunmatrix_cusparse.h>             /* access to cusparse SUNMatrix                  */
-#include <sunlinsol/sunlinsol_cusolversp_batchqr.h>   /* access to cuSolverSp batch QR SUNLinearSolver */
-#include <sundials/sundials_types.h>                  /* defs. of sunrealtype, int                        */
+#include <sundials/sundials_types.h> /* defs. of sunrealtype, int                        */
+#include <sunlinsol/sunlinsol_cusolversp_batchqr.h> /* access to cuSolverSp batch QR SUNLinearSolver */
+#include <sunmatrix/sunmatrix_cusparse.h> /* access to cusparse SUNMatrix                  */
 
 /* Problem Constants */
 
-#define GROUPSIZE 3            /* number of equations per group */
-#define Y1    SUN_RCONST(1.0)      /* initial y components */
-#define Y2    SUN_RCONST(0.0)
-#define Y3    SUN_RCONST(0.0)
-#define RTOL  SUN_RCONST(1.0e-4)   /* scalar relative tolerance            */
-#define ATOL1 SUN_RCONST(1.0e-8)   /* vector absolute tolerance components */
-#define ATOL2 SUN_RCONST(1.0e-14)
-#define ATOL3 SUN_RCONST(1.0e-6)
-#define T0    SUN_RCONST(0.0)      /* initial time           */
-#define T1    SUN_RCONST(0.4)      /* first output time      */
-#define TMULT SUN_RCONST(10.0)     /* output time factor     */
-#define NOUT  12               /* number of output times */
+#define GROUPSIZE 3               /* number of equations per group */
+#define Y1        SUN_RCONST(1.0) /* initial y components */
+#define Y2        SUN_RCONST(0.0)
+#define Y3        SUN_RCONST(0.0)
+#define RTOL      SUN_RCONST(1.0e-4) /* scalar relative tolerance            */
+#define ATOL1     SUN_RCONST(1.0e-8) /* vector absolute tolerance components */
+#define ATOL2     SUN_RCONST(1.0e-14)
+#define ATOL3     SUN_RCONST(1.0e-6)
+#define T0        SUN_RCONST(0.0)  /* initial time           */
+#define T1        SUN_RCONST(0.4)  /* first output time      */
+#define TMULT     SUN_RCONST(10.0) /* output time factor     */
+#define NOUT      12               /* number of output times */
 
-#define ZERO  SUN_RCONST(0.0)
+#define ZERO SUN_RCONST(0.0)
 
 /* Functions Called by the Solver */
 
-static int f(sunrealtype t, N_Vector y, N_Vector ydot, void *user_data);
+static int f(sunrealtype t, N_Vector y, N_Vector ydot, void* user_data);
 
-__global__
-static void f_kernel(sunrealtype t, sunrealtype* y, sunrealtype* ydot,
-                     int neq, int ngroups);
+__global__ static void f_kernel(sunrealtype t, sunrealtype* y,
+                                sunrealtype* ydot, int neq, int ngroups);
 
 static int Jac(sunrealtype t, N_Vector y, N_Vector fy, SUNMatrix J,
-               void *user_data, N_Vector tmp1, N_Vector tmp2, N_Vector tmp3);
+               void* user_data, N_Vector tmp1, N_Vector tmp2, N_Vector tmp3);
 
-__global__
-static void j_kernel(int ngroups, int nnzper, sunrealtype* ydata, sunrealtype *Jdata);
+__global__ static void j_kernel(int ngroups, int nnzper, sunrealtype* ydata,
+                                sunrealtype* Jdata);
 
 /* Private function to initialize the Jacobian sparsity pattern */
 static int JacInit(SUNMatrix J);
 
 /* Private function to output results */
 
-static void PrintOutput(sunrealtype t, sunrealtype y1, sunrealtype y2, sunrealtype y3);
+static void PrintOutput(sunrealtype t, sunrealtype y1, sunrealtype y2,
+                        sunrealtype y3);
 
 /* Private function to print final statistics */
 
-static void PrintFinalStats(void *cvode_mem, SUNLinearSolver LS);
+static void PrintFinalStats(void* cvode_mem, SUNLinearSolver LS);
 
 /* Private function to check function return values */
 
-static int check_retval(void *returnvalue, const char *funcname, int opt);
+static int check_retval(void* returnvalue, const char* funcname, int opt);
 
 /* user data structure */
-typedef struct {
+typedef struct
+{
   int ngroups;
   int neq;
 } UserData;
@@ -103,7 +103,7 @@ typedef struct {
  *-------------------------------
  */
 
-int main(int argc, char *argv[])
+int main(int argc, char* argv[])
 {
   SUNContext sunctx;
   sunrealtype reltol, t, tout;
@@ -111,7 +111,7 @@ int main(int argc, char *argv[])
   N_Vector y, abstol;
   SUNMatrix A;
   SUNLinearSolver LS;
-  void *cvode_mem;
+  void* cvode_mem;
   int retval, iout;
   int neq, ngroups, groupj;
   UserData udata;
@@ -119,20 +119,17 @@ int main(int argc, char *argv[])
   cusolverSpHandle_t cusol_handle;
 
   y = abstol = NULL;
-  A = NULL;
-  LS = NULL;
-  cvode_mem = NULL;
+  A          = NULL;
+  LS         = NULL;
+  cvode_mem  = NULL;
 
   /* Parse command line arguments */
-  if (argc > 1) {
-    ngroups = atoi(argv[1]);
-  } else {
-    ngroups = 100;
-  }
+  if (argc > 1) { ngroups = atoi(argv[1]); }
+  else { ngroups = 100; }
   neq = ngroups * GROUPSIZE;
 
   udata.ngroups = ngroups;
-  udata.neq = neq;
+  udata.neq     = neq;
 
   /* Initialize cuSOLVER and cuSPARSE handles */
   cusparseCreate(&cusp_handle);
@@ -140,22 +137,23 @@ int main(int argc, char *argv[])
 
   /* Create the SUNDIALS context */
   retval = SUNContext_Create(SUN_COMM_NULL, &sunctx);
-  if(check_retval(&retval, "SUNContext_Create", 1)) return(1);
+  if (check_retval(&retval, "SUNContext_Create", 1)) { return (1); }
 
   /* Create CUDA vector of length neq for I.C. and abstol */
   y = N_VNew_Cuda(neq, sunctx);
-  if (check_retval((void *)y, "N_VNew_Cuda", 0)) return(1);
+  if (check_retval((void*)y, "N_VNew_Cuda", 0)) { return (1); }
   abstol = N_VNew_Cuda(neq, sunctx);
-  if (check_retval((void *)abstol, "N_VNew_Cuda", 0)) return(1);
+  if (check_retval((void*)abstol, "N_VNew_Cuda", 0)) { return (1); }
 
-  ydata = N_VGetHostArrayPointer_Cuda(y);
+  ydata       = N_VGetHostArrayPointer_Cuda(y);
   abstol_data = N_VGetHostArrayPointer_Cuda(abstol);
 
   /* Initialize y */
-  for (groupj = 0; groupj < neq; groupj += GROUPSIZE) {
-    ydata[groupj]   = Y1;
-    ydata[groupj+1] = Y2;
-    ydata[groupj+2] = Y3;
+  for (groupj = 0; groupj < neq; groupj += GROUPSIZE)
+  {
+    ydata[groupj]     = Y1;
+    ydata[groupj + 1] = Y2;
+    ydata[groupj + 2] = Y3;
   }
   N_VCopyToDevice_Cuda(y);
 
@@ -163,36 +161,41 @@ int main(int argc, char *argv[])
   reltol = RTOL;
 
   /* Set the vector absolute tolerance */
-  for (groupj = 0; groupj < neq; groupj += GROUPSIZE) {
-    abstol_data[groupj]   = ATOL1;
-    abstol_data[groupj+1] = ATOL2;
-    abstol_data[groupj+2] = ATOL3;
+  for (groupj = 0; groupj < neq; groupj += GROUPSIZE)
+  {
+    abstol_data[groupj]     = ATOL1;
+    abstol_data[groupj + 1] = ATOL2;
+    abstol_data[groupj + 2] = ATOL3;
   }
   N_VCopyToDevice_Cuda(abstol);
 
   /* Call CVodeCreate to create the solver memory and specify the
    * Backward Differentiation Formula */
   cvode_mem = CVodeCreate(CV_BDF, sunctx);
-  if (check_retval((void *)cvode_mem, "CVodeCreate", 0)) return(1);
+  if (check_retval((void*)cvode_mem, "CVodeCreate", 0)) { return (1); }
 
   /* Call CVodeInit to initialize the integrator memory and specify the
    * user's right hand side function in y'=f(t,y), the inital time T0, and
    * the initial dependent variable vector y. */
   retval = CVodeInit(cvode_mem, f, T0, y);
-  if (check_retval(&retval, "CVodeInit", 1)) return(1);
+  if (check_retval(&retval, "CVodeInit", 1)) { return (1); }
 
   /* Call CVodeSetUserData to attach the user data structure */
   retval = CVodeSetUserData(cvode_mem, &udata);
-  if (check_retval(&retval, "CVodeSetUserData", 1)) return(1);
+  if (check_retval(&retval, "CVodeSetUserData", 1)) { return (1); }
 
   /* Call CVodeSVtolerances to specify the scalar relative tolerance
    * and vector absolute tolerances */
   retval = CVodeSVtolerances(cvode_mem, reltol, abstol);
-  if (check_retval(&retval, "CVodeSVtolerances", 1)) return(1);
+  if (check_retval(&retval, "CVodeSVtolerances", 1)) { return (1); }
 
   /* Create sparse SUNMatrix for use in linear solves */
-  A = SUNMatrix_cuSparse_NewBlockCSR(ngroups, GROUPSIZE, GROUPSIZE, GROUPSIZE*GROUPSIZE, cusp_handle, sunctx);
-  if(check_retval((void *)A, "SUNMatrix_cuSparse_NewBlockCSR", 0)) return(1);
+  A = SUNMatrix_cuSparse_NewBlockCSR(ngroups, GROUPSIZE, GROUPSIZE,
+                                     GROUPSIZE * GROUPSIZE, cusp_handle, sunctx);
+  if (check_retval((void*)A, "SUNMatrix_cuSparse_NewBlockCSR", 0))
+  {
+    return (1);
+  }
 
   /* Set the sparsity pattern to be fixed so that the row pointers
    * and column indicies are not zeroed out by SUNMatZero */
@@ -203,40 +206,46 @@ int main(int argc, char *argv[])
 
   /* Create the SUNLinearSolver object for use by CVode */
   LS = SUNLinSol_cuSolverSp_batchQR(y, A, cusol_handle, sunctx);
-  if(check_retval((void *)LS, "SUNLinSol_cuSolverSp_batchQR", 0)) return(1);
+  if (check_retval((void*)LS, "SUNLinSol_cuSolverSp_batchQR", 0))
+  {
+    return (1);
+  }
 
   /* Call CVodeSetLinearSolver to attach the matrix and linear solver to CVode */
   retval = CVodeSetLinearSolver(cvode_mem, LS, A);
-  if(check_retval(&retval, "CVodeSetLinearSolver", 1)) return(1);
+  if (check_retval(&retval, "CVodeSetLinearSolver", 1)) { return (1); }
 
   /* Set the user-supplied Jacobian routine Jac */
   retval = CVodeSetJacFn(cvode_mem, Jac);
-  if(check_retval(&retval, "CVodeSetJacFn", 1)) return(1);
+  if (check_retval(&retval, "CVodeSetJacFn", 1)) { return (1); }
 
   /* In loop, call CVode, print results, and test for error.
      Break out of loop when NOUT preset output times have been reached.  */
   printf(" \nGroup of independent 3-species kinetics problems\n\n");
   printf("number of groups = %d\n\n", ngroups);
 
-  iout = 0;  tout = T1;
-  while(1) {
+  iout = 0;
+  tout = T1;
+  while (1)
+  {
     retval = CVode(cvode_mem, tout, y, &t, CV_NORMAL);
 
     N_VCopyFromDevice_Cuda(y);
-    for (groupj = 0; groupj < ngroups; groupj += 10) {
+    for (groupj = 0; groupj < ngroups; groupj += 10)
+    {
       printf("group %d: ", groupj);
-      PrintOutput(t, ydata[GROUPSIZE*groupj],
-                  ydata[1+GROUPSIZE*groupj],
-                  ydata[2+GROUPSIZE*groupj]);
+      PrintOutput(t, ydata[GROUPSIZE * groupj], ydata[1 + GROUPSIZE * groupj],
+                  ydata[2 + GROUPSIZE * groupj]);
     }
 
-    if (check_retval(&retval, "CVode", 1)) break;
-    if (retval == CV_SUCCESS) {
+    if (check_retval(&retval, "CVode", 1)) { break; }
+    if (retval == CV_SUCCESS)
+    {
       iout++;
       tout *= TMULT;
     }
 
-    if (iout == NOUT) break;
+    if (iout == NOUT) { break; }
   }
 
   /* Print some final statistics */
@@ -261,9 +270,8 @@ int main(int argc, char *argv[])
   cusparseDestroy(cusp_handle);
   cusolverSpDestroy(cusol_handle);
 
-  return(0);
+  return (0);
 }
-
 
 /*
  *-------------------------------
@@ -275,49 +283,51 @@ int main(int argc, char *argv[])
    to do the actual computation. At the very least, doing this
    saves moving the vector data in y and ydot to/from the device
    every evaluation of f. */
-static int f(sunrealtype t, N_Vector y, N_Vector ydot, void *user_data)
+static int f(sunrealtype t, N_Vector y, N_Vector ydot, void* user_data)
 {
-  UserData *udata;
+  UserData* udata;
   sunrealtype *ydata, *ydotdata;
 
-  udata = (UserData*) user_data;
-  ydata = N_VGetDeviceArrayPointer_Cuda(y);
+  udata    = (UserData*)user_data;
+  ydata    = N_VGetDeviceArrayPointer_Cuda(y);
   ydotdata = N_VGetDeviceArrayPointer_Cuda(ydot);
 
   unsigned block_size = 32;
-  unsigned grid_size = (udata->neq + block_size - 1) / block_size;
-  f_kernel<<<grid_size, block_size>>>(t, ydata, ydotdata, udata->neq, udata->ngroups);
+  unsigned grid_size  = (udata->neq + block_size - 1) / block_size;
+  f_kernel<<<grid_size, block_size>>>(t, ydata, ydotdata, udata->neq,
+                                      udata->ngroups);
 
   cudaDeviceSynchronize();
   cudaError_t cuerr = cudaGetLastError();
-  if (cuerr != cudaSuccess) {
-    fprintf(stderr,
-            ">>> ERROR in f: cudaGetLastError returned %s\n",
+  if (cuerr != cudaSuccess)
+  {
+    fprintf(stderr, ">>> ERROR in f: cudaGetLastError returned %s\n",
             cudaGetErrorName(cuerr));
-    return(-1);
+    return (-1);
   }
 
-  return(0);
+  return (0);
 }
 
 /* Right hand side function evalutation kernel. */
-__global__
-static void f_kernel(sunrealtype t, sunrealtype* ydata, sunrealtype* ydotdata,
-                     int neq, int ngroups)
+__global__ static void f_kernel(sunrealtype t, sunrealtype* ydata,
+                                sunrealtype* ydotdata, int neq, int ngroups)
 {
   sunrealtype y1, y2, y3, yd1, yd3;
-  int i = blockIdx.x*blockDim.x + threadIdx.x;
-  int groupj = i*GROUPSIZE;
+  int i      = blockIdx.x * blockDim.x + threadIdx.x;
+  int groupj = i * GROUPSIZE;
 
-  if (i < neq) {
-    y1 = ydata[groupj]; y2 = ydata[groupj+1]; y3 = ydata[groupj+2];
+  if (i < neq)
+  {
+    y1 = ydata[groupj];
+    y2 = ydata[groupj + 1];
+    y3 = ydata[groupj + 2];
 
-    yd1 = ydotdata[groupj]   = SUN_RCONST(-0.04)*y1 + SUN_RCONST(1.0e4)*y2*y3;
-    yd3 = ydotdata[groupj+2] = SUN_RCONST(3.0e7)*y2*y2;
-    ydotdata[groupj+1] = -yd1 - yd3;
+    yd1 = ydotdata[groupj] = SUN_RCONST(-0.04) * y1 + SUN_RCONST(1.0e4) * y2 * y3;
+    yd3 = ydotdata[groupj + 2] = SUN_RCONST(3.0e7) * y2 * y2;
+    ydotdata[groupj + 1]       = -yd1 - yd3;
   }
 }
-
 
 /*
  * Jacobian initialization routine. This sets the sparisty pattern of
@@ -357,7 +367,7 @@ static int JacInit(SUNMatrix J)
   SUNMatrix_cuSparse_CopyToDevice(J, NULL, rowptrs, colvals);
   cudaDeviceSynchronize();
 
-  return(0);
+  return (0);
 }
 
 /*
@@ -366,62 +376,62 @@ static int JacInit(SUNMatrix J)
  */
 
 static int Jac(sunrealtype t, N_Vector y, N_Vector fy, SUNMatrix J,
-               void *user_data, N_Vector tmp1, N_Vector tmp2, N_Vector tmp3)
+               void* user_data, N_Vector tmp1, N_Vector tmp2, N_Vector tmp3)
 {
-  UserData *udata = (UserData*) user_data;
+  UserData* udata = (UserData*)user_data;
   int nnzper;
   sunrealtype *Jdata, *ydata;
   unsigned block_size, grid_size;
 
-  nnzper  = GROUPSIZE * GROUPSIZE;
-  Jdata   = SUNMatrix_cuSparse_Data(J);
-  ydata   = N_VGetDeviceArrayPointer_Cuda(y);
+  nnzper = GROUPSIZE * GROUPSIZE;
+  Jdata  = SUNMatrix_cuSparse_Data(J);
+  ydata  = N_VGetDeviceArrayPointer_Cuda(y);
 
   block_size = 32;
-  grid_size = (udata->neq + block_size - 1) / block_size;
+  grid_size  = (udata->neq + block_size - 1) / block_size;
   j_kernel<<<grid_size, block_size>>>(udata->ngroups, nnzper, ydata, Jdata);
 
   cudaDeviceSynchronize();
   cudaError_t cuerr = cudaGetLastError();
-  if (cuerr != cudaSuccess) {
-    fprintf(stderr,
-            ">>> ERROR in Jac: cudaGetLastError returned %s\n",
+  if (cuerr != cudaSuccess)
+  {
+    fprintf(stderr, ">>> ERROR in Jac: cudaGetLastError returned %s\n",
             cudaGetErrorName(cuerr));
-    return(-1);
+    return (-1);
   }
 
-  return(0);
+  return (0);
 }
 
 /* Jacobian evaluation GPU kernel */
-__global__
-static void j_kernel(int ngroups, int nnzper, sunrealtype* ydata, sunrealtype *Jdata)
+__global__ static void j_kernel(int ngroups, int nnzper, sunrealtype* ydata,
+                                sunrealtype* Jdata)
 {
   int groupj;
   sunrealtype y2, y3;
 
-  for (groupj = blockIdx.x*blockDim.x + threadIdx.x;
-       groupj < ngroups;
+  for (groupj = blockIdx.x * blockDim.x + threadIdx.x; groupj < ngroups;
        groupj += blockDim.x * gridDim.x)
   {
     /* get y values */
-    y2 = ydata[GROUPSIZE*groupj + 1];
-    y3 = ydata[GROUPSIZE*groupj + 2];
+    y2 = ydata[GROUPSIZE * groupj + 1];
+    y3 = ydata[GROUPSIZE * groupj + 2];
 
     /* first row of block */
-    Jdata[nnzper*groupj]       = SUN_RCONST(-0.04);
-    Jdata[nnzper*groupj + 1]   = SUN_RCONST(1.0e4)*y3;
-    Jdata[nnzper*groupj + 2]   = SUN_RCONST(1.0e4)*y2;
+    Jdata[nnzper * groupj]     = SUN_RCONST(-0.04);
+    Jdata[nnzper * groupj + 1] = SUN_RCONST(1.0e4) * y3;
+    Jdata[nnzper * groupj + 2] = SUN_RCONST(1.0e4) * y2;
 
     /* second row of block */
-    Jdata[nnzper*groupj + 3]   = SUN_RCONST(0.04);
-    Jdata[nnzper*groupj + 4]   = (SUN_RCONST(-1.0e4)*y3) - (SUN_RCONST(6.0e7)*y2);
-    Jdata[nnzper*groupj + 5]   = SUN_RCONST(-1.0e4)*y2;
+    Jdata[nnzper * groupj + 3] = SUN_RCONST(0.04);
+    Jdata[nnzper * groupj + 4] = (SUN_RCONST(-1.0e4) * y3) -
+                                 (SUN_RCONST(6.0e7) * y2);
+    Jdata[nnzper * groupj + 5] = SUN_RCONST(-1.0e4) * y2;
 
     /* third row of block */
-    Jdata[nnzper*groupj + 6]   = ZERO;
-    Jdata[nnzper*groupj + 7]   = SUN_RCONST(6.0e7)*y2;
-    Jdata[nnzper*groupj + 8]   = ZERO;
+    Jdata[nnzper * groupj + 6] = ZERO;
+    Jdata[nnzper * groupj + 7] = SUN_RCONST(6.0e7) * y2;
+    Jdata[nnzper * groupj + 8] = ZERO;
   }
 }
 
@@ -431,7 +441,8 @@ static void j_kernel(int ngroups, int nnzper, sunrealtype* ydata, sunrealtype *J
  *-------------------------------
  */
 
-static void PrintOutput(sunrealtype t, sunrealtype y1, sunrealtype y2, sunrealtype y3)
+static void PrintOutput(sunrealtype t, sunrealtype y1, sunrealtype y2,
+                        sunrealtype y3)
 {
 #if defined(SUNDIALS_EXTENDED_PRECISION)
   printf("At t = %0.4Le      y =%14.6Le  %14.6Le  %14.6Le\n", t, y1, y2, y3);
@@ -448,7 +459,7 @@ static void PrintOutput(sunrealtype t, sunrealtype y1, sunrealtype y2, sunrealty
  * Get and print some final statistics
  */
 
-static void PrintFinalStats(void *cvode_mem, SUNLinearSolver LS)
+static void PrintFinalStats(void* cvode_mem, SUNLinearSolver LS)
 {
   long int nst, nfe, nsetups, nje, nni, ncfn, netf, nge;
   int retval;
@@ -473,10 +484,10 @@ static void PrintFinalStats(void *cvode_mem, SUNLinearSolver LS)
   check_retval(&retval, "CVodeGetNumGEvals", 1);
 
   printf("\nFinal Statistics:\n");
-  printf("nst = %-6ld nfe  = %-6ld nsetups = %-6ld nje = %ld\n",
-         nst, nfe, nsetups, nje);
-  printf("nni = %-6ld ncfn = %-6ld netf = %-6ld    nge = %ld\n",
-         nni, ncfn, netf, nge);
+  printf("nst = %-6ld nfe  = %-6ld nsetups = %-6ld nje = %ld\n", nst, nfe,
+         nsetups, nje);
+  printf("nni = %-6ld ncfn = %-6ld netf = %-6ld    nge = %ld\n", nni, ncfn,
+         netf, nge);
 }
 
 /*
@@ -489,29 +500,37 @@ static void PrintFinalStats(void *cvode_mem, SUNLinearSolver LS)
  *            NULL pointer
  */
 
-static int check_retval(void *returnvalue, const char *funcname, int opt)
+static int check_retval(void* returnvalue, const char* funcname, int opt)
 {
-  int *retval;
+  int* retval;
 
   /* Check if SUNDIALS function returned NULL pointer - no memory allocated */
-  if (opt == 0 && returnvalue == NULL) {
+  if (opt == 0 && returnvalue == NULL)
+  {
     fprintf(stderr, "\nSUNDIALS_ERROR: %s() failed - returned NULL pointer\n\n",
             funcname);
-    return(1); }
+    return (1);
+  }
 
   /* Check if retval < 0 */
-  else if (opt == 1) {
-    retval = (int *) returnvalue;
-    if (*retval < 0) {
+  else if (opt == 1)
+  {
+    retval = (int*)returnvalue;
+    if (*retval < 0)
+    {
       fprintf(stderr, "\nSUNDIALS_ERROR: %s() failed with retval = %d\n\n",
               funcname, *retval);
-      return(1); }}
+      return (1);
+    }
+  }
 
   /* Check if function returned NULL pointer - no memory allocated */
-  else if (opt == 2 && returnvalue == NULL) {
+  else if (opt == 2 && returnvalue == NULL)
+  {
     fprintf(stderr, "\nMEMORY_ERROR: %s() failed - returned NULL pointer\n\n",
             funcname);
-    return(1); }
+    return (1);
+  }
 
-  return(0);
+  return (0);
 }

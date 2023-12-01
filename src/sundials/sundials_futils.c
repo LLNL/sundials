@@ -14,8 +14,8 @@
  * SUNDIALS Fortran 2003 interface utility implementations.
  * -----------------------------------------------------------------*/
 
-#include <sundials/sundials_futils.h>
 #include <string.h>
+#include <sundials/sundials_futils.h>
 
 /* Create a file pointer with the given file name and mode. */
 FILE* SUNDIALSFileOpen(const char* filename, const char* mode)
@@ -24,18 +24,9 @@ FILE* SUNDIALSFileOpen(const char* filename, const char* mode)
 
   if (filename)
   {
-    if (!strcmp(filename, "stdout"))
-    {
-      fp = stdout;
-    }
-    else if (!strcmp(filename, "stderr"))
-    {
-      fp = stderr;
-    }
-    else
-    {
-      fp = fopen(filename, mode);
-    }
+    if (!strcmp(filename, "stdout")) { fp = stdout; }
+    else if (!strcmp(filename, "stderr")) { fp = stderr; }
+    else { fp = fopen(filename, mode); }
   }
 
   return fp;
@@ -44,8 +35,5 @@ FILE* SUNDIALSFileOpen(const char* filename, const char* mode)
 /* Close a file pointer with the given file name. */
 void SUNDIALSFileClose(FILE* fp)
 {
-  if (fp && (fp != stdout) && (fp != stderr))
-  {
-    fclose(fp);
-  }
+  if (fp && (fp != stdout) && (fp != stderr)) { fclose(fp); }
 }

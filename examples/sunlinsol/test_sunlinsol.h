@@ -17,6 +17,7 @@
  * -----------------------------------------------------------------
  */
 
+#include <sundials/sundials_core.h>
 #include <math.h>
 
 /* define constatnts */
@@ -28,7 +29,7 @@ extern "C" {
 #endif
 /* Forward declarations for implementation specific utility functions */
 int check_vector(N_Vector expected, N_Vector computed, sunrealtype tol);
-void sync_device();
+void sync_device(void);
 
 /* Test function declarations */
 int Test_SUNLinSolGetType(SUNLinearSolver S, SUNLinearSolver_Type suntype, int myid);

@@ -96,9 +96,9 @@ int SUNMemoryHelper_Alloc_Hip(SUNMemoryHelper helper, SUNMemory* memptr,
 {
   SUNMemory mem = SUNMemoryNewEmpty();
 
-  mem->ptr  = NULL;
-  mem->own  = SUNTRUE;
-  mem->type = mem_type;
+  mem->ptr   = NULL;
+  mem->own   = SUNTRUE;
+  mem->type  = mem_type;
   mem->bytes = mem_size;
 
   if (mem_type == SUNMEMTYPE_HOST)
@@ -188,7 +188,7 @@ int SUNMemoryHelper_Alloc_Hip(SUNMemoryHelper helper, SUNMemory* memptr,
 
 int SUNMemoryHelper_Dealloc_Hip(SUNMemoryHelper helper, SUNMemory mem, void* queue)
 {
-  if (mem == NULL) return (0);
+  if (mem == NULL) { return (0); }
 
   if (mem->ptr != NULL && mem->own)
   {
@@ -265,7 +265,7 @@ int SUNMemoryHelper_Copy_Hip(SUNMemoryHelper helper, SUNMemory dst,
     {
       hiperr = hipMemcpy(dst->ptr, src->ptr, memory_size, hipMemcpyHostToDevice);
     }
-    if (!SUNDIALS_HIP_VERIFY(hiperr)) retval = -1;
+    if (!SUNDIALS_HIP_VERIFY(hiperr)) { retval = -1; }
     break;
   case SUNMEMTYPE_UVM:
   case SUNMEMTYPE_DEVICE:
@@ -278,7 +278,7 @@ int SUNMemoryHelper_Copy_Hip(SUNMemoryHelper helper, SUNMemory dst,
       hiperr = hipMemcpy(dst->ptr, src->ptr, memory_size,
                          hipMemcpyDeviceToDevice);
     }
-    if (!SUNDIALS_HIP_VERIFY(hiperr)) retval = -1;
+    if (!SUNDIALS_HIP_VERIFY(hiperr)) { retval = -1; }
     break;
   default:
     SUNDIALS_DEBUG_PRINT(
@@ -311,7 +311,7 @@ int SUNMemoryHelper_CopyAsync_Hip(SUNMemoryHelper helper, SUNMemory dst,
       hiperr = hipMemcpyAsync(dst->ptr, src->ptr, memory_size,
                               hipMemcpyHostToDevice, stream);
     }
-    if (!SUNDIALS_HIP_VERIFY(hiperr)) retval = -1;
+    if (!SUNDIALS_HIP_VERIFY(hiperr)) { retval = -1; }
     break;
   case SUNMEMTYPE_UVM:
   case SUNMEMTYPE_DEVICE:
@@ -325,7 +325,7 @@ int SUNMemoryHelper_CopyAsync_Hip(SUNMemoryHelper helper, SUNMemory dst,
       hiperr = hipMemcpyAsync(dst->ptr, src->ptr, memory_size,
                               hipMemcpyDeviceToDevice, stream);
     }
-    if (!SUNDIALS_HIP_VERIFY(hiperr)) retval = -1;
+    if (!SUNDIALS_HIP_VERIFY(hiperr)) { retval = -1; }
     break;
   default:
     SUNDIALS_DEBUG_PRINT(
@@ -356,23 +356,23 @@ int SUNMemoryHelper_GetAllocStats_Hip(SUNMemoryHelper helper,
 {
   if (mem_type == SUNMEMTYPE_HOST)
   {
-    *num_allocations      = SUNHELPER_CONTENT(helper)->num_allocations_host;
-    *num_deallocations    = SUNHELPER_CONTENT(helper)->num_deallocations_host;
-    *bytes_allocated      = SUNHELPER_CONTENT(helper)->bytes_allocated_host;
+    *num_allocations   = SUNHELPER_CONTENT(helper)->num_allocations_host;
+    *num_deallocations = SUNHELPER_CONTENT(helper)->num_deallocations_host;
+    *bytes_allocated   = SUNHELPER_CONTENT(helper)->bytes_allocated_host;
     *bytes_high_watermark = SUNHELPER_CONTENT(helper)->bytes_high_watermark_host;
   }
   else if (mem_type == SUNMEMTYPE_PINNED)
   {
-    *num_allocations      = SUNHELPER_CONTENT(helper)->num_allocations_pinned;
-    *num_deallocations    = SUNHELPER_CONTENT(helper)->num_deallocations_pinned;
-    *bytes_allocated      = SUNHELPER_CONTENT(helper)->bytes_allocated_pinned;
+    *num_allocations   = SUNHELPER_CONTENT(helper)->num_allocations_pinned;
+    *num_deallocations = SUNHELPER_CONTENT(helper)->num_deallocations_pinned;
+    *bytes_allocated   = SUNHELPER_CONTENT(helper)->bytes_allocated_pinned;
     *bytes_high_watermark = SUNHELPER_CONTENT(helper)->bytes_high_watermark_pinned;
   }
   else if (mem_type == SUNMEMTYPE_DEVICE)
   {
-    *num_allocations      = SUNHELPER_CONTENT(helper)->num_allocations_device;
-    *num_deallocations    = SUNHELPER_CONTENT(helper)->num_deallocations_device;
-    *bytes_allocated      = SUNHELPER_CONTENT(helper)->bytes_allocated_device;
+    *num_allocations   = SUNHELPER_CONTENT(helper)->num_allocations_device;
+    *num_deallocations = SUNHELPER_CONTENT(helper)->num_deallocations_device;
+    *bytes_allocated   = SUNHELPER_CONTENT(helper)->bytes_allocated_device;
     *bytes_high_watermark = SUNHELPER_CONTENT(helper)->bytes_high_watermark_device;
   }
   else if (mem_type == SUNMEMTYPE_UVM)

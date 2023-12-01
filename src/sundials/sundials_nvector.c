@@ -20,8 +20,8 @@
 
 #include <stdio.h>
 #include <stdlib.h>
-
 #include <sundials_nvector_impl.h>
+
 #include "sundials/priv/sundials_errors_impl.h"
 #include "sundials/sundials_errors.h"
 #include "sundials/sundials_types.h"
@@ -29,7 +29,7 @@
 #if defined(SUNDIALS_BUILD_WITH_PROFILING)
 static inline SUNProfiler getSUNProfiler(N_Vector v)
 {
-  return(v->sunctx->profiler);
+  return (v->sunctx->profiler);
 }
 #endif
 
@@ -40,20 +40,20 @@ static inline SUNProfiler getSUNProfiler(N_Vector v)
 /* Create an empty NVector object */
 N_Vector N_VNewEmpty(SUNContext sunctx)
 {
-  if (sunctx == NULL) return NULL;
+  if (sunctx == NULL) { return NULL; }
 
   SUNFunctionBegin(sunctx);
-  N_Vector     v;
+  N_Vector v;
   N_Vector_Ops ops;
 
   /* create vector object */
   v = NULL;
-  v = (N_Vector) malloc(sizeof *v);
+  v = (N_Vector)malloc(sizeof *v);
   SUNAssert(v, SUN_ERR_MALLOC_FAIL);
 
   /* create vector ops structure */
   ops = NULL;
-  ops = (N_Vector_Ops) malloc(sizeof *ops);
+  ops = (N_Vector_Ops)malloc(sizeof *ops);
   SUNAssert(ops, SUN_ERR_MALLOC_FAIL);
 
   /* initialize operations to NULL */
@@ -121,18 +121,18 @@ N_Vector N_VNewEmpty(SUNContext sunctx)
    * OPTIONAL operations with no default implementation.
    */
 
-  ops->nvgetlocallength    = NULL;
+  ops->nvgetlocallength = NULL;
 
   /* local reduction operations (optional) */
-  ops->nvdotprodlocal      = NULL;
-  ops->nvmaxnormlocal      = NULL;
-  ops->nvminlocal          = NULL;
-  ops->nvl1normlocal       = NULL;
-  ops->nvinvtestlocal      = NULL;
-  ops->nvconstrmasklocal   = NULL;
-  ops->nvminquotientlocal  = NULL;
-  ops->nvwsqrsumlocal      = NULL;
-  ops->nvwsqrsummasklocal  = NULL;
+  ops->nvdotprodlocal     = NULL;
+  ops->nvmaxnormlocal     = NULL;
+  ops->nvminlocal         = NULL;
+  ops->nvl1normlocal      = NULL;
+  ops->nvinvtestlocal     = NULL;
+  ops->nvconstrmasklocal  = NULL;
+  ops->nvminquotientlocal = NULL;
+  ops->nvwsqrsumlocal     = NULL;
+  ops->nvwsqrsummasklocal = NULL;
 
   /* single buffer reduction operations */
   ops->nvdotprodmultilocal     = NULL;
@@ -160,10 +160,10 @@ N_Vector N_VNewEmpty(SUNContext sunctx)
 /* Free a generic N_Vector (assumes content is already empty) */
 void N_VFreeEmpty(N_Vector v)
 {
-  if (v == NULL) return;
+  if (v == NULL) { return; }
 
   /* free non-NULL ops structure */
-  if (v->ops) free(v->ops);
+  if (v->ops) { free(v->ops); }
   v->ops = NULL;
 
   /* free overall N_Vector object and return */
@@ -233,12 +233,12 @@ SUNErrCode N_VCopyOps(N_Vector w, N_Vector v)
   v->ops->nvdotprodmulti      = w->ops->nvdotprodmulti;
 
   /* vector array operations */
-  v->ops->nvlinearsumvectorarray         = w->ops->nvlinearsumvectorarray;
-  v->ops->nvscalevectorarray             = w->ops->nvscalevectorarray;
-  v->ops->nvconstvectorarray             = w->ops->nvconstvectorarray;
-  v->ops->nvwrmsnormvectorarray          = w->ops->nvwrmsnormvectorarray;
-  v->ops->nvwrmsnormmaskvectorarray      = w->ops->nvwrmsnormmaskvectorarray;
-  v->ops->nvscaleaddmultivectorarray     = w->ops->nvscaleaddmultivectorarray;
+  v->ops->nvlinearsumvectorarray     = w->ops->nvlinearsumvectorarray;
+  v->ops->nvscalevectorarray         = w->ops->nvscalevectorarray;
+  v->ops->nvconstvectorarray         = w->ops->nvconstvectorarray;
+  v->ops->nvwrmsnormvectorarray      = w->ops->nvwrmsnormvectorarray;
+  v->ops->nvwrmsnormmaskvectorarray  = w->ops->nvwrmsnormmaskvectorarray;
+  v->ops->nvscaleaddmultivectorarray = w->ops->nvscaleaddmultivectorarray;
   v->ops->nvlinearcombinationvectorarray = w->ops->nvlinearcombinationvectorarray;
 
   /*
@@ -246,15 +246,15 @@ SUNErrCode N_VCopyOps(N_Vector w, N_Vector v)
    */
 
   /* local reduction operations */
-  v->ops->nvdotprodlocal      = w->ops->nvdotprodlocal;
-  v->ops->nvmaxnormlocal      = w->ops->nvmaxnormlocal;
-  v->ops->nvminlocal          = w->ops->nvminlocal;
-  v->ops->nvl1normlocal       = w->ops->nvl1normlocal;
-  v->ops->nvinvtestlocal      = w->ops->nvinvtestlocal;
-  v->ops->nvconstrmasklocal   = w->ops->nvconstrmasklocal;
-  v->ops->nvminquotientlocal  = w->ops->nvminquotientlocal;
-  v->ops->nvwsqrsumlocal      = w->ops->nvwsqrsumlocal;
-  v->ops->nvwsqrsummasklocal  = w->ops->nvwsqrsummasklocal;
+  v->ops->nvdotprodlocal     = w->ops->nvdotprodlocal;
+  v->ops->nvmaxnormlocal     = w->ops->nvmaxnormlocal;
+  v->ops->nvminlocal         = w->ops->nvminlocal;
+  v->ops->nvl1normlocal      = w->ops->nvl1normlocal;
+  v->ops->nvinvtestlocal     = w->ops->nvinvtestlocal;
+  v->ops->nvconstrmasklocal  = w->ops->nvconstrmasklocal;
+  v->ops->nvminquotientlocal = w->ops->nvminquotientlocal;
+  v->ops->nvwsqrsumlocal     = w->ops->nvwsqrsumlocal;
+  v->ops->nvwsqrsummasklocal = w->ops->nvwsqrsummasklocal;
 
   /* single buffer reduction operations */
   v->ops->nvdotprodmultilocal     = w->ops->nvdotprodmultilocal;
@@ -276,16 +276,13 @@ SUNErrCode N_VCopyOps(N_Vector w, N_Vector v)
  * Functions in the 'ops' structure
  * -----------------------------------------------------------------*/
 
-N_Vector_ID N_VGetVectorID(N_Vector w)
-{
-  return(w->ops->nvgetvectorid(w));
-}
+N_Vector_ID N_VGetVectorID(N_Vector w) { return (w->ops->nvgetvectorid(w)); }
 
 N_Vector N_VClone(N_Vector w)
 {
   N_Vector result = NULL;
   SUNDIALS_MARK_FUNCTION_BEGIN(getSUNProfiler(w));
-  result = w->ops->nvclone(w);
+  result         = w->ops->nvclone(w);
   result->sunctx = w->sunctx;
   SUNDIALS_MARK_FUNCTION_END(getSUNProfiler(w));
   return result;
@@ -295,7 +292,7 @@ N_Vector N_VCloneEmpty(N_Vector w)
 {
   N_Vector result;
   SUNDIALS_MARK_FUNCTION_BEGIN(getSUNProfiler(w));
-  result = w->ops->nvcloneempty(w);
+  result         = w->ops->nvcloneempty(w);
   result->sunctx = w->sunctx;
   SUNDIALS_MARK_FUNCTION_END(getSUNProfiler(w));
   return result;
@@ -303,42 +300,52 @@ N_Vector N_VCloneEmpty(N_Vector w)
 
 void N_VDestroy(N_Vector v)
 {
-  if (v == NULL) return;
+  if (v == NULL) { return; }
 
   /* if the destroy operation exists use it */
-  if (v->ops->nvdestroy) {
-    v->ops->nvdestroy(v);
-  } else {
+  if (v->ops->nvdestroy) { v->ops->nvdestroy(v); }
+  else
+  {
     /* if we reach this point, either ops == NULL or nvdestroy == NULL,
       try to cleanup by freeing the content, ops, and vector */
-    if (v->content) { free(v->content); v->content = NULL; }
-    if (v->ops) { free(v->ops); v->ops = NULL; }
-    free(v); v = NULL;
+    if (v->content)
+    {
+      free(v->content);
+      v->content = NULL;
+    }
+    if (v->ops)
+    {
+      free(v->ops);
+      v->ops = NULL;
+    }
+    free(v);
+    v = NULL;
   }
 
   return;
 }
 
-void N_VSpace(N_Vector v, sunindextype *lrw, sunindextype *liw)
+void N_VSpace(N_Vector v, sunindextype* lrw, sunindextype* liw)
 {
   v->ops->nvspace(v, lrw, liw);
   return;
 }
 
-sunrealtype *N_VGetArrayPointer(N_Vector v)
+sunrealtype* N_VGetArrayPointer(N_Vector v)
 {
-  return((sunrealtype *) v->ops->nvgetarraypointer(v));
+  return ((sunrealtype*)v->ops->nvgetarraypointer(v));
 }
 
-sunrealtype *N_VGetDeviceArrayPointer(N_Vector v)
+sunrealtype* N_VGetDeviceArrayPointer(N_Vector v)
 {
   if (v->ops->nvgetdevicearraypointer)
-    return((sunrealtype *) v->ops->nvgetdevicearraypointer(v));
-  else
-    return(NULL);
+  {
+    return ((sunrealtype*)v->ops->nvgetdevicearraypointer(v));
+  }
+  else { return (NULL); }
 }
 
-void N_VSetArrayPointer(sunrealtype *v_data, N_Vector v)
+void N_VSetArrayPointer(sunrealtype* v_data, N_Vector v)
 {
   v->ops->nvsetarraypointer(v_data, v);
   return;
@@ -346,20 +353,18 @@ void N_VSetArrayPointer(sunrealtype *v_data, N_Vector v)
 
 SUNComm N_VGetCommunicator(N_Vector v)
 {
-  if (v->ops->nvgetcommunicator)
-    return(v->ops->nvgetcommunicator(v));
-  else
-    return(SUN_COMM_NULL);
+  if (v->ops->nvgetcommunicator) { return (v->ops->nvgetcommunicator(v)); }
+  else { return (SUN_COMM_NULL); }
 }
 
 sunindextype N_VGetLength(N_Vector v)
 {
-  return((sunindextype) v->ops->nvgetlength(v));
+  return ((sunindextype)v->ops->nvgetlength(v));
 }
 
 sunindextype N_VGetLocalLength(N_Vector v)
 {
-  return((sunindextype) v->ops->nvgetlocallength(v));
+  return ((sunindextype)v->ops->nvgetlocallength(v));
 }
 
 /* -----------------------------------------------------------------
@@ -434,63 +439,63 @@ sunrealtype N_VDotProd(N_Vector x, N_Vector y)
 {
   sunrealtype result;
   SUNDIALS_MARK_FUNCTION_BEGIN(getSUNProfiler(x));
-  result = ((sunrealtype) y->ops->nvdotprod(x, y));
+  result = ((sunrealtype)y->ops->nvdotprod(x, y));
   SUNDIALS_MARK_FUNCTION_END(getSUNProfiler(x));
-  return(result);
+  return (result);
 }
 
 sunrealtype N_VMaxNorm(N_Vector x)
 {
   sunrealtype result;
   SUNDIALS_MARK_FUNCTION_BEGIN(getSUNProfiler(x));
-  result = ((sunrealtype) x->ops->nvmaxnorm(x));
+  result = ((sunrealtype)x->ops->nvmaxnorm(x));
   SUNDIALS_MARK_FUNCTION_END(getSUNProfiler(x));
-  return(result);
+  return (result);
 }
 
 sunrealtype N_VWrmsNorm(N_Vector x, N_Vector w)
 {
   sunrealtype result;
   SUNDIALS_MARK_FUNCTION_BEGIN(getSUNProfiler(x));
-  result = ((sunrealtype) x->ops->nvwrmsnorm(x, w));
+  result = ((sunrealtype)x->ops->nvwrmsnorm(x, w));
   SUNDIALS_MARK_FUNCTION_END(getSUNProfiler(x));
-  return(result);
+  return (result);
 }
 
 sunrealtype N_VWrmsNormMask(N_Vector x, N_Vector w, N_Vector id)
 {
   sunrealtype result;
   SUNDIALS_MARK_FUNCTION_BEGIN(getSUNProfiler(x));
-  result = ((sunrealtype) x->ops->nvwrmsnormmask(x, w, id));
+  result = ((sunrealtype)x->ops->nvwrmsnormmask(x, w, id));
   SUNDIALS_MARK_FUNCTION_END(getSUNProfiler(x));
-  return(result);
+  return (result);
 }
 
 sunrealtype N_VMin(N_Vector x)
 {
   sunrealtype result;
   SUNDIALS_MARK_FUNCTION_BEGIN(getSUNProfiler(x));
-  result = ((sunrealtype) x->ops->nvmin(x));
+  result = ((sunrealtype)x->ops->nvmin(x));
   SUNDIALS_MARK_FUNCTION_END(getSUNProfiler(x));
-  return(result);
+  return (result);
 }
 
 sunrealtype N_VWL2Norm(N_Vector x, N_Vector w)
 {
   sunrealtype result;
   SUNDIALS_MARK_FUNCTION_BEGIN(getSUNProfiler(x));
-  result = ((sunrealtype) x->ops->nvwl2norm(x, w));
+  result = ((sunrealtype)x->ops->nvwl2norm(x, w));
   SUNDIALS_MARK_FUNCTION_END(getSUNProfiler(x));
-  return(result);
+  return (result);
 }
 
 sunrealtype N_VL1Norm(N_Vector x)
 {
   sunrealtype result;
   SUNDIALS_MARK_FUNCTION_BEGIN(getSUNProfiler(x));
-  result = ((sunrealtype) x->ops->nvl1norm(x));
+  result = ((sunrealtype)x->ops->nvl1norm(x));
   SUNDIALS_MARK_FUNCTION_END(getSUNProfiler(x));
-  return(result);
+  return (result);
 }
 
 void N_VCompare(sunrealtype c, N_Vector x, N_Vector z)
@@ -505,30 +510,28 @@ sunbooleantype N_VInvTest(N_Vector x, N_Vector z)
 {
   sunbooleantype result;
   SUNDIALS_MARK_FUNCTION_BEGIN(getSUNProfiler(x));
-  result = ((sunbooleantype) z->ops->nvinvtest(x, z));
+  result = ((sunbooleantype)z->ops->nvinvtest(x, z));
   SUNDIALS_MARK_FUNCTION_END(getSUNProfiler(x));
-  return(result);
+  return (result);
 }
 
 sunbooleantype N_VConstrMask(N_Vector c, N_Vector x, N_Vector m)
 {
   sunbooleantype result;
   SUNDIALS_MARK_FUNCTION_BEGIN(getSUNProfiler(c));
-  result = ((sunbooleantype) x->ops->nvconstrmask(c, x, m));
+  result = ((sunbooleantype)x->ops->nvconstrmask(c, x, m));
   SUNDIALS_MARK_FUNCTION_END(getSUNProfiler(c));
-  return(result);
+  return (result);
 }
 
 sunrealtype N_VMinQuotient(N_Vector num, N_Vector denom)
 {
   sunrealtype result;
   SUNDIALS_MARK_FUNCTION_BEGIN(getSUNProfiler(num));
-  result = ((sunrealtype) num->ops->nvminquotient(num, denom));
+  result = ((sunrealtype)num->ops->nvminquotient(num, denom));
   SUNDIALS_MARK_FUNCTION_END(getSUNProfiler(num));
-  return(result);
+  return (result);
 }
-
-
 
 /* -----------------------------------------------------------------
  * OPTIONAL fused vector operations
@@ -541,70 +544,69 @@ SUNErrCode N_VLinearCombination(int nvec, sunrealtype* c, N_Vector* X, N_Vector 
 
   SUNDIALS_MARK_FUNCTION_BEGIN(getSUNProfiler(X[0]));
 
-  if (z->ops->nvlinearcombination != NULL) {
-
+  if (z->ops->nvlinearcombination != NULL)
+  {
     ier = z->ops->nvlinearcombination(nvec, c, X, z);
-
-  } else {
-
+  }
+  else
+  {
     z->ops->nvscale(c[0], X[0], z);
-    for (i=1; i<nvec; i++) {
+    for (i = 1; i < nvec; i++)
+    {
       z->ops->nvlinearsum(c[i], X[i], SUN_RCONST(1.0), z, z);
     }
     ier = SUN_SUCCESS;
-
   }
 
   SUNDIALS_MARK_FUNCTION_END(getSUNProfiler(X[0]));
-  return(ier);
+  return (ier);
 }
 
-SUNErrCode N_VScaleAddMulti(int nvec, sunrealtype* a, N_Vector x, N_Vector* Y, N_Vector* Z)
+SUNErrCode N_VScaleAddMulti(int nvec, sunrealtype* a, N_Vector x, N_Vector* Y,
+                            N_Vector* Z)
 {
   int i;
   SUNErrCode ier;
 
   SUNDIALS_MARK_FUNCTION_BEGIN(getSUNProfiler(x));
 
-  if (x->ops->nvscaleaddmulti != NULL) {
-
+  if (x->ops->nvscaleaddmulti != NULL)
+  {
     ier = x->ops->nvscaleaddmulti(nvec, a, x, Y, Z);
-
-  } else {
-
-    for (i=0; i<nvec; i++) {
+  }
+  else
+  {
+    for (i = 0; i < nvec; i++)
+    {
       x->ops->nvlinearsum(a[i], x, SUN_RCONST(1.0), Y[i], Z[i]);
     }
     ier = SUN_SUCCESS;
-
   }
 
   SUNDIALS_MARK_FUNCTION_END(getSUNProfiler(x));
-  return(ier);
+  return (ier);
 }
 
-SUNErrCode N_VDotProdMulti(int nvec, N_Vector x, N_Vector* Y, sunrealtype* dotprods)
+SUNErrCode N_VDotProdMulti(int nvec, N_Vector x, N_Vector* Y,
+                           sunrealtype* dotprods)
 {
   int i;
   SUNErrCode ier;
 
   SUNDIALS_MARK_FUNCTION_BEGIN(getSUNProfiler(x));
 
-  if (x->ops->nvdotprodmulti != NULL) {
-
+  if (x->ops->nvdotprodmulti != NULL)
+  {
     ier = x->ops->nvdotprodmulti(nvec, x, Y, dotprods);
-
-  } else {
-
-    for (i=0; i<nvec; i++) {
-      dotprods[i] = x->ops->nvdotprod(x, Y[i]);
-    }
+  }
+  else
+  {
+    for (i = 0; i < nvec; i++) { dotprods[i] = x->ops->nvdotprod(x, Y[i]); }
     ier = SUN_SUCCESS;
-
   }
 
   SUNDIALS_MARK_FUNCTION_END(getSUNProfiler(x));
-  return(ier);
+  return (ier);
 }
 
 /* -----------------------------------------------------------------
@@ -619,21 +621,21 @@ SUNErrCode N_VLinearSumVectorArray(int nvec, sunrealtype a, N_Vector* X,
 
   SUNDIALS_MARK_FUNCTION_BEGIN(getSUNProfiler(X[0]));
 
-  if (Z[0]->ops->nvlinearsumvectorarray != NULL) {
-
+  if (Z[0]->ops->nvlinearsumvectorarray != NULL)
+  {
     ier = Z[0]->ops->nvlinearsumvectorarray(nvec, a, X, b, Y, Z);
-
-  } else {
-
-    for (i=0; i<nvec; i++) {
+  }
+  else
+  {
+    for (i = 0; i < nvec; i++)
+    {
       Z[0]->ops->nvlinearsum(a, X[i], b, Y[i], Z[i]);
     }
     ier = SUN_SUCCESS;
-
   }
 
   SUNDIALS_MARK_FUNCTION_END(getSUNProfiler(X[0]));
-  return(ier);
+  return (ier);
 }
 
 SUNErrCode N_VScaleVectorArray(int nvec, sunrealtype* c, N_Vector* X, N_Vector* Z)
@@ -643,21 +645,18 @@ SUNErrCode N_VScaleVectorArray(int nvec, sunrealtype* c, N_Vector* X, N_Vector* 
 
   SUNDIALS_MARK_FUNCTION_BEGIN(getSUNProfiler(X[0]));
 
-  if (Z[0]->ops->nvscalevectorarray != NULL) {
-
+  if (Z[0]->ops->nvscalevectorarray != NULL)
+  {
     ier = Z[0]->ops->nvscalevectorarray(nvec, c, X, Z);
-
-  } else {
-
-    for (i=0; i<nvec; i++) {
-      Z[0]->ops->nvscale(c[i], X[i], Z[i]);
-    }
+  }
+  else
+  {
+    for (i = 0; i < nvec; i++) { Z[0]->ops->nvscale(c[i], X[i], Z[i]); }
     ier = SUN_SUCCESS;
-
   }
 
   SUNDIALS_MARK_FUNCTION_END(getSUNProfiler(X[0]));
-  return(ier);
+  return (ier);
 }
 
 SUNErrCode N_VConstVectorArray(int nvec, sunrealtype c, N_Vector* Z)
@@ -667,109 +666,107 @@ SUNErrCode N_VConstVectorArray(int nvec, sunrealtype c, N_Vector* Z)
 
   SUNDIALS_MARK_FUNCTION_BEGIN(getSUNProfiler(Z[0]));
 
-  if (Z[0]->ops->nvconstvectorarray != NULL) {
-
+  if (Z[0]->ops->nvconstvectorarray != NULL)
+  {
     ier = Z[0]->ops->nvconstvectorarray(nvec, c, Z);
-
-  } else {
-
-    for (i=0; i<nvec; i++) {
-      Z[0]->ops->nvconst(c, Z[i]);
-    }
+  }
+  else
+  {
+    for (i = 0; i < nvec; i++) { Z[0]->ops->nvconst(c, Z[i]); }
     ier = SUN_SUCCESS;
-
   }
 
   SUNDIALS_MARK_FUNCTION_END(getSUNProfiler(Z[0]));
-  return(ier);
+  return (ier);
 }
 
-SUNErrCode N_VWrmsNormVectorArray(int nvec, N_Vector* X, N_Vector* W, sunrealtype* nrm)
+SUNErrCode N_VWrmsNormVectorArray(int nvec, N_Vector* X, N_Vector* W,
+                                  sunrealtype* nrm)
 {
   int i;
   SUNErrCode ier;
 
   SUNDIALS_MARK_FUNCTION_BEGIN(getSUNProfiler(X[0]));
 
-  if (X[0]->ops->nvwrmsnormvectorarray != NULL) {
-
+  if (X[0]->ops->nvwrmsnormvectorarray != NULL)
+  {
     ier = X[0]->ops->nvwrmsnormvectorarray(nvec, X, W, nrm);
-
-  } else {
-
-    for (i=0; i<nvec; i++) {
-      nrm[i] = X[0]->ops->nvwrmsnorm(X[i], W[i]);
-    }
+  }
+  else
+  {
+    for (i = 0; i < nvec; i++) { nrm[i] = X[0]->ops->nvwrmsnorm(X[i], W[i]); }
     ier = SUN_SUCCESS;
-
   }
 
   SUNDIALS_MARK_FUNCTION_END(getSUNProfiler(X[0]));
-  return(ier);
+  return (ier);
 }
 
-SUNErrCode N_VWrmsNormMaskVectorArray(int nvec, N_Vector* X, N_Vector* W, N_Vector id,
-                                      sunrealtype* nrm)
+SUNErrCode N_VWrmsNormMaskVectorArray(int nvec, N_Vector* X, N_Vector* W,
+                                      N_Vector id, sunrealtype* nrm)
 {
   int i;
   SUNErrCode ier;
 
   SUNDIALS_MARK_FUNCTION_BEGIN(getSUNProfiler(X[0]));
 
-  if (id->ops->nvwrmsnormmaskvectorarray != NULL) {
-
+  if (id->ops->nvwrmsnormmaskvectorarray != NULL)
+  {
     ier = id->ops->nvwrmsnormmaskvectorarray(nvec, X, W, id, nrm);
-
-  } else {
-
-    for (i=0; i<nvec; i++) {
+  }
+  else
+  {
+    for (i = 0; i < nvec; i++)
+    {
       nrm[i] = id->ops->nvwrmsnormmask(X[i], W[i], id);
     }
     ier = SUN_SUCCESS;
-
   }
 
   SUNDIALS_MARK_FUNCTION_END(getSUNProfiler(X[0]));
-  return(ier);
+  return (ier);
 }
 
-SUNErrCode N_VScaleAddMultiVectorArray(int nvec, int nsum, sunrealtype* a, N_Vector* X,
-                                        N_Vector** Y, N_Vector** Z)
+SUNErrCode N_VScaleAddMultiVectorArray(int nvec, int nsum, sunrealtype* a,
+                                       N_Vector* X, N_Vector** Y, N_Vector** Z)
 {
   int i, j, ier;
   N_Vector* YY = NULL;
   N_Vector* ZZ = NULL;
   SUNDIALS_MARK_FUNCTION_BEGIN(getSUNProfiler(X[0]));
 
-  if (X[0]->ops->nvscaleaddmultivectorarray != NULL) {
-
+  if (X[0]->ops->nvscaleaddmultivectorarray != NULL)
+  {
     ier = X[0]->ops->nvscaleaddmultivectorarray(nvec, nsum, a, X, Y, Z);
-
-  } else if (X[0]->ops->nvscaleaddmulti != NULL ) {
-
+  }
+  else if (X[0]->ops->nvscaleaddmulti != NULL)
+  {
     /* allocate arrays of vectors */
-    YY = (N_Vector*) malloc(nsum * sizeof(N_Vector));
-    ZZ = (N_Vector*) malloc(nsum * sizeof(N_Vector));
+    YY = (N_Vector*)malloc(nsum * sizeof(N_Vector));
+    ZZ = (N_Vector*)malloc(nsum * sizeof(N_Vector));
 
-    for (i=0; i<nvec; i++) {
-
-      for (j=0; j<nsum; j++) {
+    for (i = 0; i < nvec; i++)
+    {
+      for (j = 0; j < nsum; j++)
+      {
         YY[j] = Y[j][i];
         ZZ[j] = Z[j][i];
       }
 
       ier = X[0]->ops->nvscaleaddmulti(nsum, a, X[i], YY, ZZ);
-      if (ier != 0) break;
+      if (ier != 0) { break; }
     }
 
     /* free array of vectors */
     free(YY);
     free(ZZ);
-
-  } else {
-
-    for (i=0; i<nvec; i++) {
-      for (j=0; j<nsum; j++) {
+  }
+  else
+  {
+    for (i = 0; i < nvec; i++)
+    {
+      for (j = 0; j < nsum; j++)
+      {
         X[0]->ops->nvlinearsum(a[j], X[i], SUN_RCONST(1.0), Y[j][i], Z[j][i]);
       }
     }
@@ -777,7 +774,7 @@ SUNErrCode N_VScaleAddMultiVectorArray(int nvec, int nsum, sunrealtype* a, N_Vec
   }
 
   SUNDIALS_MARK_FUNCTION_END(getSUNProfiler(X[0]));
-  return(ier);
+  return (ier);
 }
 
 SUNErrCode N_VLinearCombinationVectorArray(int nvec, int nsum, sunrealtype* c,
@@ -787,33 +784,33 @@ SUNErrCode N_VLinearCombinationVectorArray(int nvec, int nsum, sunrealtype* c,
   N_Vector* Y = NULL;
   SUNDIALS_MARK_FUNCTION_BEGIN(getSUNProfiler(X[0][0]));
 
-  if (Z[0]->ops->nvlinearcombinationvectorarray != NULL) {
-
+  if (Z[0]->ops->nvlinearcombinationvectorarray != NULL)
+  {
     ier = Z[0]->ops->nvlinearcombinationvectorarray(nvec, nsum, c, X, Z);
-
-  } else if (Z[0]->ops->nvlinearcombination != NULL ) {
-
+  }
+  else if (Z[0]->ops->nvlinearcombination != NULL)
+  {
     /* allocate array of vectors */
-    Y = (N_Vector* ) malloc(nsum * sizeof(N_Vector));
+    Y = (N_Vector*)malloc(nsum * sizeof(N_Vector));
 
-    for (i=0; i<nvec; i++) {
-
-      for (j=0; j<nsum; j++) {
-        Y[j] = X[j][i];
-      }
+    for (i = 0; i < nvec; i++)
+    {
+      for (j = 0; j < nsum; j++) { Y[j] = X[j][i]; }
 
       ier = Z[0]->ops->nvlinearcombination(nsum, c, Y, Z[i]);
-      if (ier != 0) break;
+      if (ier != 0) { break; }
     }
 
     /* free array of vectors */
     free(Y);
-
-  } else {
-
-    for (i=0; i<nvec; i++) {
+  }
+  else
+  {
+    for (i = 0; i < nvec; i++)
+    {
       Z[0]->ops->nvscale(c[0], X[0][i], Z[i]);
-      for (j=1; j<nsum; j++) {
+      for (j = 1; j < nsum; j++)
+      {
         Z[0]->ops->nvlinearsum(c[j], X[j][i], SUN_RCONST(1.0), Z[i], Z[i]);
       }
     }
@@ -821,7 +818,7 @@ SUNErrCode N_VLinearCombinationVectorArray(int nvec, int nsum, sunrealtype* c,
   }
 
   SUNDIALS_MARK_FUNCTION_END(getSUNProfiler(X[0][0]));
-  return(ier);
+  return (ier);
 }
 
 /* -----------------------------------------------------------------
@@ -832,108 +829,114 @@ sunrealtype N_VDotProdLocal(N_Vector x, N_Vector y)
 {
   sunrealtype result;
   SUNDIALS_MARK_FUNCTION_BEGIN(getSUNProfiler(x));
-  result = ((sunrealtype) y->ops->nvdotprodlocal(x, y));
+  result = ((sunrealtype)y->ops->nvdotprodlocal(x, y));
   SUNDIALS_MARK_FUNCTION_END(getSUNProfiler(x));
-  return(result);
+  return (result);
 }
 
 sunrealtype N_VMaxNormLocal(N_Vector x)
 {
   sunrealtype result;
   SUNDIALS_MARK_FUNCTION_BEGIN(getSUNProfiler(x));
-  result = ((sunrealtype) x->ops->nvmaxnormlocal(x));
+  result = ((sunrealtype)x->ops->nvmaxnormlocal(x));
   SUNDIALS_MARK_FUNCTION_END(getSUNProfiler(x));
-  return(result);
+  return (result);
 }
 
 sunrealtype N_VMinLocal(N_Vector x)
 {
   sunrealtype result;
   SUNDIALS_MARK_FUNCTION_BEGIN(getSUNProfiler(x));
-  result = ((sunrealtype) x->ops->nvminlocal(x));
+  result = ((sunrealtype)x->ops->nvminlocal(x));
   SUNDIALS_MARK_FUNCTION_END(getSUNProfiler(x));
-  return(result);
+  return (result);
 }
 
 sunrealtype N_VL1NormLocal(N_Vector x)
 {
   sunrealtype result;
   SUNDIALS_MARK_FUNCTION_BEGIN(getSUNProfiler(x));
-  result = ((sunrealtype) x->ops->nvl1normlocal(x));
+  result = ((sunrealtype)x->ops->nvl1normlocal(x));
   SUNDIALS_MARK_FUNCTION_END(getSUNProfiler(x));
-  return(result);
+  return (result);
 }
 
 sunrealtype N_VWSqrSumLocal(N_Vector x, N_Vector w)
 {
   sunrealtype result;
   SUNDIALS_MARK_FUNCTION_BEGIN(getSUNProfiler(x));
-  result = ((sunrealtype) x->ops->nvwsqrsumlocal(x,w));
+  result = ((sunrealtype)x->ops->nvwsqrsumlocal(x, w));
   SUNDIALS_MARK_FUNCTION_END(getSUNProfiler(x));
-  return(result);
+  return (result);
 }
 
 sunrealtype N_VWSqrSumMaskLocal(N_Vector x, N_Vector w, N_Vector id)
 {
   sunrealtype result;
   SUNDIALS_MARK_FUNCTION_BEGIN(getSUNProfiler(x));
-  result = ((sunrealtype) x->ops->nvwsqrsummasklocal(x,w,id));
+  result = ((sunrealtype)x->ops->nvwsqrsummasklocal(x, w, id));
   SUNDIALS_MARK_FUNCTION_END(getSUNProfiler(x));
-  return(result);
+  return (result);
 }
 
 sunbooleantype N_VInvTestLocal(N_Vector x, N_Vector z)
 {
   sunbooleantype result;
   SUNDIALS_MARK_FUNCTION_BEGIN(getSUNProfiler(x));
-  result = ((sunbooleantype) z->ops->nvinvtestlocal(x,z));
+  result = ((sunbooleantype)z->ops->nvinvtestlocal(x, z));
   SUNDIALS_MARK_FUNCTION_END(getSUNProfiler(x));
-  return(result);
+  return (result);
 }
 
 sunbooleantype N_VConstrMaskLocal(N_Vector c, N_Vector x, N_Vector m)
 {
   sunbooleantype result;
   SUNDIALS_MARK_FUNCTION_BEGIN(getSUNProfiler(x));
-  result = ((sunbooleantype) x->ops->nvconstrmasklocal(c,x,m));
+  result = ((sunbooleantype)x->ops->nvconstrmasklocal(c, x, m));
   SUNDIALS_MARK_FUNCTION_END(getSUNProfiler(x));
-  return(result);
+  return (result);
 }
 
 sunrealtype N_VMinQuotientLocal(N_Vector num, N_Vector denom)
 {
   sunrealtype result;
   SUNDIALS_MARK_FUNCTION_BEGIN(getSUNProfiler(num));
-  result = ((sunrealtype) num->ops->nvminquotientlocal(num,denom));
+  result = ((sunrealtype)num->ops->nvminquotientlocal(num, denom));
   SUNDIALS_MARK_FUNCTION_END(getSUNProfiler(num));
-  return(result);
+  return (result);
 }
 
 /* -------------------------------------------
  * OPTIONAL single buffer reduction operations
  * -------------------------------------------*/
 
-SUNErrCode N_VDotProdMultiLocal(int nvec, N_Vector x, N_Vector* Y, sunrealtype* dotprods)
+SUNErrCode N_VDotProdMultiLocal(int nvec, N_Vector x, N_Vector* Y,
+                                sunrealtype* dotprods)
 {
   SUNFunctionBegin(x->sunctx);
   SUNErrCode err = SUN_SUCCESS;
-  int i = 0;
+  int i          = 0;
 
   SUNDIALS_MARK_FUNCTION_BEGIN(getSUNProfiler(x));
 
-  SUNAssert(x->ops->nvdotprodmultilocal || x->ops->nvdotprodlocal, SUN_ERR_NOT_IMPLEMENTED);
+  SUNAssert(x->ops->nvdotprodmultilocal || x->ops->nvdotprodlocal,
+            SUN_ERR_NOT_IMPLEMENTED);
 
-  if (x->ops->nvdotprodmultilocal) {
+  if (x->ops->nvdotprodmultilocal)
+  {
     err = x->ops->nvdotprodmultilocal(nvec, x, Y, dotprods);
-  } else if (x->ops->nvdotprodlocal) {
-    for (i = 0; i < nvec; i++) {
+  }
+  else if (x->ops->nvdotprodlocal)
+  {
+    for (i = 0; i < nvec; i++)
+    {
       dotprods[i] = x->ops->nvdotprodlocal(x, Y[i]);
     }
     err = SUN_SUCCESS;
   }
 
   SUNDIALS_MARK_FUNCTION_END(getSUNProfiler(x));
-  
+
   return err;
 }
 
@@ -952,7 +955,7 @@ SUNErrCode N_VDotProdMultiAllReduce(int nvec, N_Vector x, sunrealtype* sum)
  * OPTIONAL XBraid interface operations
  * ------------------------------------*/
 
-SUNErrCode N_VBufSize(N_Vector x, sunindextype *size)
+SUNErrCode N_VBufSize(N_Vector x, sunindextype* size)
 {
   SUNFunctionBegin(x->sunctx);
   SUNErrCode err = SUN_SUCCESS;
@@ -960,10 +963,10 @@ SUNErrCode N_VBufSize(N_Vector x, sunindextype *size)
   SUNAssert(x->ops->nvbufsize, SUN_ERR_NOT_IMPLEMENTED);
   err = x->ops->nvbufsize(x, size);
   SUNDIALS_MARK_FUNCTION_END(getSUNProfiler(x));
-  return(err);
+  return (err);
 }
 
-SUNErrCode N_VBufPack(N_Vector x, void *buf)
+SUNErrCode N_VBufPack(N_Vector x, void* buf)
 {
   SUNFunctionBegin(x->sunctx);
   SUNErrCode ier = SUN_SUCCESS;
@@ -971,18 +974,18 @@ SUNErrCode N_VBufPack(N_Vector x, void *buf)
   SUNAssert(x->ops->nvbufpack, SUN_ERR_NOT_IMPLEMENTED);
   ier = x->ops->nvbufpack(x, buf);
   SUNDIALS_MARK_FUNCTION_END(getSUNProfiler(x));
-  return(ier);
+  return (ier);
 }
 
-SUNErrCode N_VBufUnpack(N_Vector x, void *buf)
+SUNErrCode N_VBufUnpack(N_Vector x, void* buf)
 {
-  SUNFunctionBegin(x->sunctx); 
+  SUNFunctionBegin(x->sunctx);
   SUNErrCode ier = SUN_SUCCESS;
   SUNDIALS_MARK_FUNCTION_BEGIN(getSUNProfiler(x));
   SUNAssert(x->ops->nvbufunpack, SUN_ERR_NOT_IMPLEMENTED);
   ier = x->ops->nvbufunpack(x, buf);
   SUNDIALS_MARK_FUNCTION_END(getSUNProfiler(x));
-  return(ier);
+  return (ier);
 }
 
 /* -----------------------------------------------------------------
@@ -995,8 +998,8 @@ SUNErrCode N_VBufUnpack(N_Vector x, void *buf)
 N_Vector* N_VNewVectorArray(int count)
 {
   N_Vector* vs = NULL;
-  vs = (N_Vector* ) malloc(count * sizeof(N_Vector));
-  return(vs);
+  vs           = (N_Vector*)malloc(count * sizeof(N_Vector));
+  return (vs);
 }
 
 N_Vector* N_VCloneEmptyVectorArray(int count, N_Vector w)
@@ -1007,18 +1010,21 @@ N_Vector* N_VCloneEmptyVectorArray(int count, N_Vector w)
 
   SUNAssert(count > 0, SUN_ERR_ARG_OUTOFRANGE);
 
-  vs = (N_Vector* ) malloc(count * sizeof(N_Vector));
+  vs = (N_Vector*)malloc(count * sizeof(N_Vector));
   SUNAssert(vs, SUN_ERR_MALLOC_FAIL);
 
-  for (j = 0; j < count; j++) {
-    vs[j] = N_VCloneEmpty(w); SUNCheckLastErrNoRet();
-    if (SUNContext_GetLastError(SUNCTX_) < 0) {
-      N_VDestroyVectorArray(vs, j-1);
-      return(NULL);
+  for (j = 0; j < count; j++)
+  {
+    vs[j] = N_VCloneEmpty(w);
+    SUNCheckLastErrNoRet();
+    if (SUNContext_GetLastError(SUNCTX_) < 0)
+    {
+      N_VDestroyVectorArray(vs, j - 1);
+      return (NULL);
     }
   }
 
-  return(vs);
+  return (vs);
 }
 
 N_Vector* N_VCloneVectorArray(int count, N_Vector w)
@@ -1029,32 +1035,37 @@ N_Vector* N_VCloneVectorArray(int count, N_Vector w)
 
   SUNAssert(count > 0, SUN_ERR_ARG_OUTOFRANGE);
 
-  vs = (N_Vector* ) malloc(count * sizeof(N_Vector));
+  vs = (N_Vector*)malloc(count * sizeof(N_Vector));
   SUNAssert(vs, SUN_ERR_MALLOC_FAIL);
 
-  for (j = 0; j < count; j++) {
-    vs[j] = N_VClone(w); SUNCheckLastErrNoRet();
-    if (SUNContext_GetLastError(SUNCTX_) < 0) {
-      N_VDestroyVectorArray(vs, j-1);
-      return(NULL);
+  for (j = 0; j < count; j++)
+  {
+    vs[j] = N_VClone(w);
+    SUNCheckLastErrNoRet();
+    if (SUNContext_GetLastError(SUNCTX_) < 0)
+    {
+      N_VDestroyVectorArray(vs, j - 1);
+      return (NULL);
     }
   }
 
-  return(vs);
+  return (vs);
 }
 
 void N_VDestroyVectorArray(N_Vector* vs, int count)
 {
   int j;
 
-  if (vs == NULL) return;
+  if (vs == NULL) { return; }
 
-  for (j = 0; j < count; j++) {
+  for (j = 0; j < count; j++)
+  {
     N_VDestroy(vs[j]);
     vs[j] = NULL;
   }
 
-  free(vs); vs = NULL;
+  free(vs);
+  vs = NULL;
 
   return;
 }
@@ -1074,31 +1085,26 @@ void N_VSetVecAtIndexVectorArray(N_Vector* vs, int index, N_Vector w)
   vs[index] = w;
 }
 
-
 /* -----------------------------------------------------------------
  * Debugging functions
  * ----------------------------------------------------------------- */
 
 void N_VPrint(N_Vector v)
 {
-  if (v == NULL) {
-    printf("NULL Vector\n");
-  } else if (v->ops->nvprint == NULL) {
-    printf("NULL Print Op\n");
-  } else {
-    v->ops->nvprint(v);
-  }
+  if (v == NULL) { printf("NULL Vector\n"); }
+  else if (v->ops->nvprint == NULL) { printf("NULL Print Op\n"); }
+  else { v->ops->nvprint(v); }
 }
 
 void N_VPrintFile(N_Vector v, FILE* outfile)
 {
-  if (outfile != NULL) {
-    if (v == NULL) {
-      fprintf(outfile, "NULL Vector\n");
-    } else if (v->ops->nvprintfile == NULL) {
+  if (outfile != NULL)
+  {
+    if (v == NULL) { fprintf(outfile, "NULL Vector\n"); }
+    else if (v->ops->nvprintfile == NULL)
+    {
       fprintf(outfile, "NULL PrintFile Op\n");
-    } else {
-      v->ops->nvprintfile(v, outfile);
     }
+    else { v->ops->nvprintfile(v, outfile); }
   }
 }

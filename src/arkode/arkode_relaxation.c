@@ -118,14 +118,13 @@ static int arkRelaxNewtonSolve(ARKodeMem ark_mem)
   for (i = 0; i < ark_mem->relax_mem->max_iters; i++)
   {
     /* Compute the current residual */
-    retval = arkRelaxResidual(relax_mem->relax_param, &(relax_mem->res),
-                              ark_mem);
-    if (retval) return retval;
+    retval = arkRelaxResidual(relax_mem->relax_param, &(relax_mem->res), ark_mem);
+    if (retval) { return retval; }
 
 #ifdef SUNDIALS_LOGGING_EXTRA_DEBUG
     SUNLogger_QueueMsg(ARK_LOGGER, SUN_LOGLEVEL_DEBUG,
                        "ARKODE::arkRelaxNewtonSolve", "residual",
-                       "iter = %i, relax_param = %"RSYM", residual = %"RSYM,
+                       "iter = %i, relax_param = %" RSYM ", residual = %" RSYM,
                        i, relax_mem->relax_param, relax_mem->res);
 #endif
 
@@ -135,11 +134,11 @@ static int arkRelaxNewtonSolve(ARKodeMem ark_mem)
     /* Compute Jacobian */
     retval = arkRelaxResidualJacobian(relax_mem->relax_param, &(relax_mem->jac),
                                       ark_mem);
-    if (retval) return retval;
+    if (retval) { return retval; }
 
     /* Update step length tolerance and solution */
-    tol = (relax_mem->rel_tol * SUNRabs(relax_mem->relax_param)
-           + relax_mem->abs_tol);
+    tol = (relax_mem->rel_tol * SUNRabs(relax_mem->relax_param) +
+           relax_mem->abs_tol);
 
     delta = relax_mem->res / relax_mem->jac;
     relax_mem->relax_param -= delta;
@@ -184,12 +183,12 @@ static int arkRelaxBrentSolve(ARKodeMem ark_mem)
     /* Check if we got lucky */
     if (SUNRabs(fa) < relax_mem->res_tol)
     {
-      relax_mem->res = fa;
+      relax_mem->res         = fa;
       relax_mem->relax_param = xa;
       return ARK_SUCCESS;
     }
 
-    if (fa < ZERO) break;
+    if (fa < ZERO) { break; }
 
     fb = fa;
     xb = xa;
@@ -208,12 +207,12 @@ static int arkRelaxBrentSolve(ARKodeMem ark_mem)
     /* Check if we got lucky */
     if (SUNRabs(fb) < relax_mem->res_tol)
     {
-      relax_mem->res = fb;
+      relax_mem->res         = fb;
       relax_mem->relax_param = xb;
       return ARK_SUCCESS;
     }
 
-    if (fb > ZERO) break;
+    if (fb > ZERO) { break; }
 
     fa = fb;
     xa = xb;
@@ -232,10 +231,10 @@ static int arkRelaxBrentSolve(ARKodeMem ark_mem)
   for (i = 0; i < ark_mem->relax_mem->max_iters; i++)
   {
     /* Ensure xc and xb bracket zero */
-    if (SAME_SIGN(fc,fb))
+    if (SAME_SIGN(fc, fb))
     {
-      xc = xa;
-      fc = fa;
+      xc         = xa;
+      fc         = fa;
       old_update = new_update = xb - xa;
     }
 
@@ -260,7 +259,7 @@ static int arkRelaxBrentSolve(ARKodeMem ark_mem)
     /* Check for convergence */
     if (SUNRabs(xm) < tol || SUNRabs(fb) < relax_mem->res_tol)
     {
-      relax_mem->res = fb;
+      relax_mem->res         = fb;
       relax_mem->relax_param = xb;
       return ARK_SUCCESS;
     }
@@ -274,7 +273,7 @@ static int arkRelaxBrentSolve(ARKodeMem ark_mem)
       if (xa == xc)
       {
         /* Two unique values available, try linear interpolant (secant) */
-        pt = TWO * xm * st ;
+        pt = TWO * xm * st;
         qt = ONE - st;
       }
       else
@@ -317,10 +316,7 @@ static int arkRelaxBrentSolve(ARKodeMem ark_mem)
     fa = fb;
 
     /* If update is small, use tolerance in bisection direction */
-    if (SUNRabs(new_update) > tol)
-    {
-      xb += new_update;
-    }
+    if (SUNRabs(new_update) > tol) { xb += new_update; }
     else
     {
       /* TODO(DJG): Replace with copysign when C99+ required */
@@ -345,25 +341,22 @@ int arkRelaxSolve(ARKodeMem ark_mem, ARKodeRelaxMem relax_mem,
   int retval;
 
   /* Get the change in entropy (uses temp vectors 2 and 3) */
-  retval = relax_mem->delta_e_fn(ark_mem,
-                                 relax_mem->relax_jac_fn,
+  retval = relax_mem->delta_e_fn(ark_mem, relax_mem->relax_jac_fn,
                                  &(relax_mem->num_relax_jac_evals),
                                  &(relax_mem->delta_e));
-  if (retval) return retval;
+  if (retval) { return retval; }
 
 #ifdef SUNDIALS_LOGGING_EXTRA_DEBUG
-  SUNLogger_QueueMsg(ARK_LOGGER, SUN_LOGLEVEL_DEBUG,
-                     "ARKODE::arkRelaxSolve", "compute delta e",
-                     "delta_e = %"RSYM, relax_mem->delta_e);
+  SUNLogger_QueueMsg(ARK_LOGGER, SUN_LOGLEVEL_DEBUG, "ARKODE::arkRelaxSolve",
+                     "compute delta e", "delta_e = %" RSYM, relax_mem->delta_e);
 #endif
 
   /* Get the change in state (delta_y = tempv2) */
   N_VLinearSum(ONE, ark_mem->ycur, -ONE, ark_mem->yn, ark_mem->tempv2);
 
 #ifdef SUNDIALS_LOGGING_EXTRA_DEBUG
-  SUNLogger_QueueMsg(ARK_LOGGER, SUN_LOGLEVEL_DEBUG,
-                     "ARKODE::arkRelaxSolve", "compute delta y",
-                     "delta_y =", "");
+  SUNLogger_QueueMsg(ARK_LOGGER, SUN_LOGLEVEL_DEBUG, "ARKODE::arkRelaxSolve",
+                     "compute delta y", "delta_y =", "");
   N_VPrintFile(ark_mem->tempv2, ARK_LOGGER->debug_fp);
 #endif
 
@@ -375,25 +368,18 @@ int arkRelaxSolve(ARKodeMem ark_mem, ARKodeRelaxMem relax_mem,
   if (retval > 0) { return ARK_RELAX_FUNC_RECV; }
 
 #ifdef SUNDIALS_LOGGING_EXTRA_DEBUG
-  SUNLogger_QueueMsg(ARK_LOGGER, SUN_LOGLEVEL_DEBUG,
-                     "ARKODE::arkRelaxSolve", "compute old e",
-                     "e_old = %"RSYM, relax_mem->e_old);
+  SUNLogger_QueueMsg(ARK_LOGGER, SUN_LOGLEVEL_DEBUG, "ARKODE::arkRelaxSolve",
+                     "compute old e", "e_old = %" RSYM, relax_mem->e_old);
 #endif
 
   /* Initial guess for relaxation parameter */
   relax_mem->relax_param = relax_mem->relax_param_prev;
 
-  switch(relax_mem->solver)
+  switch (relax_mem->solver)
   {
-  case(ARK_RELAX_BRENT):
-    retval = arkRelaxBrentSolve(ark_mem);
-    break;
-  case(ARK_RELAX_NEWTON):
-    retval = arkRelaxNewtonSolve(ark_mem);
-    break;
-  default:
-    return ARK_ILL_INPUT;
-    break;
+  case (ARK_RELAX_BRENT): retval = arkRelaxBrentSolve(ark_mem); break;
+  case (ARK_RELAX_NEWTON): retval = arkRelaxNewtonSolve(ark_mem); break;
+  default: return ARK_ILL_INPUT; break;
   }
 
   /* Check for solver failure */
@@ -436,7 +422,7 @@ int arkRelaxSetEtaFail(void* arkode_mem, sunrealtype eta_fail)
 
   retval = arkRelaxAccessMem(arkode_mem, "arkRelaxSetEtaFail", &ark_mem,
                              &relax_mem);
-  if (retval) return retval;
+  if (retval) { return retval; }
 
   if (eta_fail > ZERO && eta_fail < ONE) { relax_mem->eta_fail = eta_fail; }
   else { relax_mem->eta_fail = ARK_RELAX_DEFAULT_ETA_FAIL; }
@@ -452,7 +438,7 @@ int arkRelaxSetLowerBound(void* arkode_mem, sunrealtype lower)
 
   retval = arkRelaxAccessMem(arkode_mem, "arkRelaxSetLowerBound", &ark_mem,
                              &relax_mem);
-  if (retval) return retval;
+  if (retval) { return retval; }
 
   if (lower > ZERO && lower < ONE) { relax_mem->lower_bound = lower; }
   else { relax_mem->lower_bound = ARK_RELAX_DEFAULT_LOWER_BOUND; }
@@ -468,7 +454,7 @@ int arkRelaxSetMaxFails(void* arkode_mem, int max_fails)
 
   retval = arkRelaxAccessMem(arkode_mem, "arkRelaxSetMaxFails", &ark_mem,
                              &relax_mem);
-  if (retval) return retval;
+  if (retval) { return retval; }
 
   if (max_fails > 0) { relax_mem->max_fails = max_fails; }
   else { relax_mem->max_fails = ARK_RELAX_DEFAULT_MAX_FAILS; }
@@ -484,7 +470,7 @@ int arkRelaxSetMaxIters(void* arkode_mem, int max_iters)
 
   retval = arkRelaxAccessMem(arkode_mem, "arkRelaxSetMaxIters", &ark_mem,
                              &relax_mem);
-  if (retval) return retval;
+  if (retval) { return retval; }
 
   if (max_iters > 0) { relax_mem->max_iters = max_iters; }
   else { relax_mem->max_iters = ARK_RELAX_DEFAULT_MAX_ITERS; }
@@ -500,7 +486,7 @@ int arkRelaxSetSolver(void* arkode_mem, ARKRelaxSolver solver)
 
   retval = arkRelaxAccessMem(arkode_mem, "arkRelaxSetSolver", &ark_mem,
                              &relax_mem);
-  if (retval) return retval;
+  if (retval) { return retval; }
 
   if (solver != ARK_RELAX_BRENT && solver != ARK_RELAX_NEWTON)
   {
@@ -522,7 +508,7 @@ int arkRelaxSetResTol(void* arkode_mem, sunrealtype res_tol)
 
   retval = arkRelaxAccessMem(arkode_mem, "arkRelaxSetResTol", &ark_mem,
                              &relax_mem);
-  if (retval) return retval;
+  if (retval) { return retval; }
 
   if (res_tol > ZERO) { relax_mem->res_tol = res_tol; }
   else { relax_mem->res_tol = ARK_RELAX_DEFAULT_RES_TOL; }
@@ -536,9 +522,8 @@ int arkRelaxSetTol(void* arkode_mem, sunrealtype rel_tol, sunrealtype abs_tol)
   ARKodeMem ark_mem;
   ARKodeRelaxMem relax_mem;
 
-  retval = arkRelaxAccessMem(arkode_mem, "arkRelaxSetTol", &ark_mem,
-                             &relax_mem);
-  if (retval) return retval;
+  retval = arkRelaxAccessMem(arkode_mem, "arkRelaxSetTol", &ark_mem, &relax_mem);
+  if (retval) { return retval; }
 
   if (rel_tol > ZERO) { relax_mem->rel_tol = rel_tol; }
   else { relax_mem->rel_tol = ARK_RELAX_DEFAULT_REL_TOL; }
@@ -557,7 +542,7 @@ int arkRelaxSetUpperBound(void* arkode_mem, sunrealtype upper)
 
   retval = arkRelaxAccessMem(arkode_mem, "arkRelaxSetUpperBound", &ark_mem,
                              &relax_mem);
-  if (retval) return retval;
+  if (retval) { return retval; }
 
   if (upper > ONE) { relax_mem->upper_bound = upper; }
   else { relax_mem->upper_bound = ARK_RELAX_DEFAULT_UPPER_BOUND; }
@@ -577,7 +562,7 @@ int arkRelaxGetNumRelaxFnEvals(void* arkode_mem, long int* r_evals)
 
   retval = arkRelaxAccessMem(arkode_mem, "arkRelaxGetNumRelaxFnEvals", &ark_mem,
                              &relax_mem);
-  if (retval) return retval;
+  if (retval) { return retval; }
 
   *r_evals = relax_mem->num_relax_fn_evals;
 
@@ -590,9 +575,9 @@ int arkRelaxGetNumRelaxJacEvals(void* arkode_mem, long int* J_evals)
   ARKodeMem ark_mem;
   ARKodeRelaxMem relax_mem;
 
-  retval = arkRelaxAccessMem(arkode_mem, "arkRelaxGetNumRelaxJacEvals", &ark_mem,
-                             &relax_mem);
-  if (retval) return retval;
+  retval = arkRelaxAccessMem(arkode_mem, "arkRelaxGetNumRelaxJacEvals",
+                             &ark_mem, &relax_mem);
+  if (retval) { return retval; }
 
   *J_evals = relax_mem->num_relax_jac_evals;
 
@@ -607,7 +592,7 @@ int arkRelaxGetNumRelaxFails(void* arkode_mem, long int* relax_fails)
 
   retval = arkRelaxAccessMem(arkode_mem, "arkRelaxGetNumRelaxFails", &ark_mem,
                              &relax_mem);
-  if (retval) return retval;
+  if (retval) { return retval; }
 
   *relax_fails = relax_mem->num_fails;
 
@@ -622,7 +607,7 @@ int arkRelaxGetNumRelaxSolveFails(void* arkode_mem, long int* fails)
 
   retval = arkRelaxAccessMem(arkode_mem, "arkRelaxGetNumRelaxSolveFails",
                              &ark_mem, &relax_mem);
-  if (retval) return retval;
+  if (retval) { return retval; }
 
   *fails = relax_mem->nls_fails;
 
@@ -637,7 +622,7 @@ int arkRelaxGetNumRelaxBoundFails(void* arkode_mem, long int* fails)
 
   retval = arkRelaxAccessMem(arkode_mem, "arkRelaxGetNumRelaxBoundFails",
                              &ark_mem, &relax_mem);
-  if (retval) return retval;
+  if (retval) { return retval; }
 
   *fails = relax_mem->bound_fails;
 
@@ -652,7 +637,7 @@ int arkRelaxGetNumRelaxSolveIters(void* arkode_mem, long int* iters)
 
   retval = arkRelaxAccessMem(arkode_mem, "arkRelaxGetNumRelaxSolveIters",
                              &ark_mem, &relax_mem);
-  if (retval) return retval;
+  if (retval) { return retval; }
 
   *iters = relax_mem->nls_iters;
 
@@ -667,9 +652,9 @@ int arkRelaxPrintAllStats(void* arkode_mem, FILE* outfile, SUNOutputFormat fmt)
 
   retval = arkRelaxAccessMem(arkode_mem, "arkRelaxPrintAllStats", &ark_mem,
                              &relax_mem);
-  if (retval) return retval;
+  if (retval) { return retval; }
 
-  switch(fmt)
+  switch (fmt)
   {
   case SUN_OUTPUTFORMAT_TABLE:
     fprintf(outfile, "Relax fn evals               = %ld\n",
@@ -756,7 +741,7 @@ int arkRelaxCreate(void* arkode_mem, ARKRelaxFn relax_fn,
   if (!(ark_mem->relax_mem))
   {
     ark_mem->relax_mem = (ARKodeRelaxMem)malloc(sizeof(*(ark_mem->relax_mem)));
-    if (!(ark_mem->relax_mem)) return ARK_MEM_FAIL;
+    if (!(ark_mem->relax_mem)) { return ARK_MEM_FAIL; }
     memset(ark_mem->relax_mem, 0, sizeof(struct ARKodeRelaxMemRec));
 
     /* Set defaults */
@@ -793,7 +778,7 @@ int arkRelaxCreate(void* arkode_mem, ARKRelaxFn relax_fn,
 /* Destructor called by driver */
 int arkRelaxDestroy(ARKodeRelaxMem relax_mem)
 {
-  if (!relax_mem) return ARK_SUCCESS;
+  if (!relax_mem) { return ARK_SUCCESS; }
 
   /* Free structure */
   free(relax_mem);
@@ -812,14 +797,14 @@ int arkRelax(ARKodeMem ark_mem, int* relax_fails, sunrealtype* dsm_inout,
   /* Get the relaxation memory structure */
   if (!relax_mem)
   {
-    arkProcessError(ark_mem, ARK_RELAX_MEM_NULL, "ARKODE",
-                    "arkRelax", MSG_RELAX_MEM_NULL);
+    arkProcessError(ark_mem, ARK_RELAX_MEM_NULL, "ARKODE", "arkRelax",
+                    MSG_RELAX_MEM_NULL);
     return ARK_RELAX_MEM_NULL;
   }
 
   /* Compute the relaxation parameter */
   retval = arkRelaxSolve(ark_mem, relax_mem, &relax_val);
-  if (retval < 0) return retval;
+  if (retval < 0) { return retval; }
   if (retval > 0)
   {
     /* Update failure counts */
@@ -836,7 +821,7 @@ int arkRelax(ARKodeMem ark_mem, int* relax_fails, sunrealtype* dsm_inout,
     }
 
     /* Return with error if using fixed step sizes */
-    if (ark_mem->fixedstep) { return(ARK_RELAX_FAIL); }
+    if (ark_mem->fixedstep) { return (ARK_RELAX_FAIL); }
 
     /* Cut step size and try again */
     ark_mem->eta = relax_mem->eta_fail;
@@ -861,8 +846,8 @@ int arkRelax(ARKodeMem ark_mem, int* relax_fails, sunrealtype* dsm_inout,
 #if SUNDIALS_LOGGING_LEVEL >= SUNDIALS_LOGGING_DEBUG
   SUNLogger_QueueMsg(ARK_LOGGER, SUN_LOGLEVEL_DEBUG,
                      "ARKODE::arkStep_TakeStep_Z", "relaxation",
-                     "relaxation parameter = %"RSYM", relaxed h = %"RSYM
-                     ", relaxed error = %"RSYM,
+                     "relaxation parameter = %" RSYM ", relaxed h = %" RSYM
+                     ", relaxed error = %" RSYM,
                      relax_val, ark_mem->h, *dsm_inout);
 #endif
 

@@ -60,7 +60,7 @@ int ComputeConvergence(int num_dt, sunrealtype* orders,
 }
 
 
-static void PrintHelp()
+static void PrintHelp(void)
 {
   fprintf(stderr, "ark_kepler: an ARKODE example demonstrating the SPRKStep "
                   "time-stepping module solving the Kepler problem\n");

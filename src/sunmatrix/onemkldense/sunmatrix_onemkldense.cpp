@@ -15,11 +15,10 @@
  * SUNMATRIX class using the Intel oneAPI Math Kernel Library (oneMKL).
  * ---------------------------------------------------------------------------*/
 
-#include <stdio.h>
-#include <stdlib.h>
-
 #include <CL/sycl.hpp>
 #include <oneapi/mkl/blas.hpp>
+#include <stdio.h>
+#include <stdlib.h>
 
 // SUNDIALS public headers
 #include <sunmatrix/sunmatrix_onemkldense.h>
@@ -39,22 +38,22 @@
 #define ONE  SUN_RCONST(1.0)
 
 // Content accessor macros
-#define MAT_CONTENT(A)     ((SUNMatrixContent_OneMklDense) (A->content))
-#define MAT_LAST_FLAG(A)   (MAT_CONTENT(A)->last_flag)
-#define MAT_BLOCK_ROWS(A)  (MAT_CONTENT(A)->block_rows)
-#define MAT_BLOCK_COLS(A)  (MAT_CONTENT(A)->block_cols)
-#define MAT_ROWS(A)        (MAT_CONTENT(A)->rows)
-#define MAT_COLS(A)        (MAT_CONTENT(A)->cols)
-#define MAT_NBLOCKS(A)     (MAT_CONTENT(A)->num_blocks)
-#define MAT_LDATA(A)       (MAT_CONTENT(A)->ldata)
-#define MAT_DATA(A)        (MAT_CONTENT(A)->data)
-#define MAT_DATAp(A)       ((sunrealtype*) MAT_CONTENT(A)->data->ptr)
-#define MAT_BLOCKS(A)      (MAT_CONTENT(A)->blocks)
-#define MAT_BLOCKSp(A)     ((sunrealtype**) MAT_CONTENT(A)->blocks->ptr)
-#define MAT_EXECPOLICY(A)  (MAT_CONTENT(A)->exec_policy)
-#define MAT_MEMTYPE(A)     (MAT_CONTENT(A)->mem_type)
-#define MAT_MEMHELPER(A)   (MAT_CONTENT(A)->mem_helper)
-#define MAT_QUEUE(A)       (MAT_CONTENT(A)->queue)
+#define MAT_CONTENT(A)    ((SUNMatrixContent_OneMklDense)(A->content))
+#define MAT_LAST_FLAG(A)  (MAT_CONTENT(A)->last_flag)
+#define MAT_BLOCK_ROWS(A) (MAT_CONTENT(A)->block_rows)
+#define MAT_BLOCK_COLS(A) (MAT_CONTENT(A)->block_cols)
+#define MAT_ROWS(A)       (MAT_CONTENT(A)->rows)
+#define MAT_COLS(A)       (MAT_CONTENT(A)->cols)
+#define MAT_NBLOCKS(A)    (MAT_CONTENT(A)->num_blocks)
+#define MAT_LDATA(A)      (MAT_CONTENT(A)->ldata)
+#define MAT_DATA(A)       (MAT_CONTENT(A)->data)
+#define MAT_DATAp(A)      ((sunrealtype*)MAT_CONTENT(A)->data->ptr)
+#define MAT_BLOCKS(A)     (MAT_CONTENT(A)->blocks)
+#define MAT_BLOCKSp(A)    ((sunrealtype**)MAT_CONTENT(A)->blocks->ptr)
+#define MAT_EXECPOLICY(A) (MAT_CONTENT(A)->exec_policy)
+#define MAT_MEMTYPE(A)    (MAT_CONTENT(A)->mem_type)
+#define MAT_MEMHELPER(A)  (MAT_CONTENT(A)->mem_helper)
+#define MAT_QUEUE(A)      (MAT_CONTENT(A)->queue)
 
 // Private function prototypes
 static sunbooleantype Compatible_AB(SUNMatrix A, SUNMatrix B);
@@ -65,21 +64,17 @@ static int GetKernelParameters(SUNMatrix A, sunbooleantype reduction,
                                size_t& nthreads_total,
                                size_t& nthreads_per_block);
 
-
 /* --------------------------------------------------------------------------
  * Constructors
  * -------------------------------------------------------------------------- */
 
-
 SUNMatrix SUNMatrix_OneMklDense(sunindextype M, sunindextype N,
                                 SUNMemoryType mem_type,
-                                SUNMemoryHelper mem_helper,
-                                sycl::queue* queue, SUNContext sunctx)
+                                SUNMemoryHelper mem_helper, sycl::queue* queue,
+                                SUNContext sunctx)
 {
-  return SUNMatrix_OneMklDenseBlock(1, M, N, mem_type, mem_helper, queue,
-                                    sunctx);
+  return SUNMatrix_OneMklDenseBlock(1, M, N, mem_type, mem_helper, queue, sunctx);
 }
-
 
 SUNMatrix SUNMatrix_OneMklDenseBlock(sunindextype num_blocks, sunindextype M,
                                      sunindextype N, SUNMemoryType mem_type,
@@ -89,8 +84,8 @@ SUNMatrix SUNMatrix_OneMklDenseBlock(sunindextype num_blocks, sunindextype M,
   int retval;
 
   // Check inputs
-  if ( (M <= 0) || (N <= 0) || (num_blocks <= 0) || (!mem_helper) ||
-       ((mem_type != SUNMEMTYPE_UVM) && (mem_type != SUNMEMTYPE_DEVICE)))
+  if ((M <= 0) || (N <= 0) || (num_blocks <= 0) || (!mem_helper) ||
+      ((mem_type != SUNMEMTYPE_UVM) && (mem_type != SUNMEMTYPE_DEVICE)))
   {
     SUNDIALS_DEBUG_ERROR("Illegal input\n");
     return NULL;
@@ -116,7 +111,8 @@ SUNMatrix SUNMatrix_OneMklDenseBlock(sunindextype num_blocks, sunindextype M,
   A->ops->space     = SUNMatSpace_OneMklDense;
 
   // Create content
-  A->content = (SUNMatrixContent_OneMklDense) malloc(sizeof(_SUNMatrixContent_OneMklDense));
+  A->content =
+    (SUNMatrixContent_OneMklDense)malloc(sizeof(_SUNMatrixContent_OneMklDense));
   if (!(A->content))
   {
     SUNDIALS_DEBUG_ERROR("Content allocation failed\n");
@@ -125,18 +121,19 @@ SUNMatrix SUNMatrix_OneMklDenseBlock(sunindextype num_blocks, sunindextype M,
   }
 
   // Fill content
-  MAT_CONTENT(A)->block_rows  = M;
-  MAT_CONTENT(A)->block_cols  = N;
-  MAT_CONTENT(A)->rows        = num_blocks * M;
-  MAT_CONTENT(A)->cols        = num_blocks * N;
-  MAT_CONTENT(A)->num_blocks  = num_blocks;
-  MAT_CONTENT(A)->ldata       = M * N * num_blocks;
-  MAT_CONTENT(A)->data        = NULL;
-  MAT_CONTENT(A)->blocks      = NULL;
-  MAT_CONTENT(A)->mem_type    = mem_type;
-  MAT_CONTENT(A)->mem_helper  = mem_helper;
-  MAT_CONTENT(A)->exec_policy = new sundials::sycl::ThreadDirectExecPolicy(SYCL_BLOCKDIM(queue));
-  MAT_CONTENT(A)->queue       = queue;
+  MAT_CONTENT(A)->block_rows = M;
+  MAT_CONTENT(A)->block_cols = N;
+  MAT_CONTENT(A)->rows       = num_blocks * M;
+  MAT_CONTENT(A)->cols       = num_blocks * N;
+  MAT_CONTENT(A)->num_blocks = num_blocks;
+  MAT_CONTENT(A)->ldata      = M * N * num_blocks;
+  MAT_CONTENT(A)->data       = NULL;
+  MAT_CONTENT(A)->blocks     = NULL;
+  MAT_CONTENT(A)->mem_type   = mem_type;
+  MAT_CONTENT(A)->mem_helper = mem_helper;
+  MAT_CONTENT(A)->exec_policy =
+    new sundials::sycl::ThreadDirectExecPolicy(SYCL_BLOCKDIM(queue));
+  MAT_CONTENT(A)->queue = queue;
 
   // Allocate data
   retval = SUNMemoryHelper_Alloc(MAT_MEMHELPER(A), &(MAT_DATA(A)),
@@ -153,8 +150,8 @@ SUNMatrix SUNMatrix_OneMklDenseBlock(sunindextype num_blocks, sunindextype M,
   {
     // Allocate array of pointers to block data
     retval = SUNMemoryHelper_Alloc(MAT_MEMHELPER(A), &(MAT_BLOCKS(A)),
-                                   sizeof(sunrealtype*) * MAT_NBLOCKS(A), mem_type,
-                                   queue);
+                                   sizeof(sunrealtype*) * MAT_NBLOCKS(A),
+                                   mem_type, queue);
     if (retval)
     {
       SUNDIALS_DEBUG_ERROR("SUNMemory allocation failed\n");
@@ -171,106 +168,78 @@ SUNMatrix SUNMatrix_OneMklDenseBlock(sunindextype num_blocks, sunindextype M,
       return NULL;
     }
 
-    sunrealtype*  Adata   = MAT_DATAp(A);
+    sunrealtype* Adata    = MAT_DATAp(A);
     sunrealtype** Ablocks = MAT_BLOCKSp(A);
 
     // Initialize array of pointers to block data
-    SYCL_FOR(queue, nthreads_total, nthreads_per_block, item,
-             GRID_STRIDE_XLOOP(item, i, num_blocks)
-             {
-               Ablocks[i] = Adata + i * M * N;
-             });
+    SYCL_FOR(
+      queue, nthreads_total, nthreads_per_block, item,
+      GRID_STRIDE_XLOOP(item, i, num_blocks) { Ablocks[i] = Adata + i * M * N; });
   }
 
   return A;
 }
 
-
 /* --------------------------------------------------------------------------
  * Accessor functions
  * -------------------------------------------------------------------------- */
 
-
 sunindextype SUNMatrix_OneMklDense_Rows(SUNMatrix A)
 {
-  if (SUNMatGetID(A) == SUNMATRIX_ONEMKLDENSE)
-    return MAT_ROWS(A);
-  else
-    return SUNMAT_ILL_INPUT;
+  if (SUNMatGetID(A) == SUNMATRIX_ONEMKLDENSE) { return MAT_ROWS(A); }
+  else { return SUNMAT_ILL_INPUT; }
 }
-
 
 sunindextype SUNMatrix_OneMklDense_Columns(SUNMatrix A)
 {
-  if (SUNMatGetID(A) == SUNMATRIX_ONEMKLDENSE)
-    return MAT_COLS(A);
-  else
-    return SUNMAT_ILL_INPUT;
+  if (SUNMatGetID(A) == SUNMATRIX_ONEMKLDENSE) { return MAT_COLS(A); }
+  else { return SUNMAT_ILL_INPUT; }
 }
-
 
 sunindextype SUNMatrix_OneMklDense_NumBlocks(SUNMatrix A)
 {
-  if (SUNMatGetID(A) == SUNMATRIX_ONEMKLDENSE)
-    return MAT_NBLOCKS(A);
-  else
-    return SUNMAT_ILL_INPUT;
+  if (SUNMatGetID(A) == SUNMATRIX_ONEMKLDENSE) { return MAT_NBLOCKS(A); }
+  else { return SUNMAT_ILL_INPUT; }
 }
-
 
 sunindextype SUNMatrix_OneMklDense_BlockRows(SUNMatrix A)
 {
-  if (SUNMatGetID(A) == SUNMATRIX_ONEMKLDENSE)
-    return MAT_BLOCK_ROWS(A);
-  else
-    return SUNMAT_ILL_INPUT;
+  if (SUNMatGetID(A) == SUNMATRIX_ONEMKLDENSE) { return MAT_BLOCK_ROWS(A); }
+  else { return SUNMAT_ILL_INPUT; }
 }
-
 
 sunindextype SUNMatrix_OneMklDense_BlockColumns(SUNMatrix A)
 {
-  if (SUNMatGetID(A) == SUNMATRIX_ONEMKLDENSE)
-    return MAT_BLOCK_COLS(A);
-  else
-    return SUNMAT_ILL_INPUT;
+  if (SUNMatGetID(A) == SUNMATRIX_ONEMKLDENSE) { return MAT_BLOCK_COLS(A); }
+  else { return SUNMAT_ILL_INPUT; }
 }
-
 
 sunindextype SUNMatrix_OneMklDense_LData(SUNMatrix A)
 {
-  if (SUNMatGetID(A) == SUNMATRIX_ONEMKLDENSE)
-    return MAT_LDATA(A);
-  else
-    return SUNMAT_ILL_INPUT;
+  if (SUNMatGetID(A) == SUNMATRIX_ONEMKLDENSE) { return MAT_LDATA(A); }
+  else { return SUNMAT_ILL_INPUT; }
 }
-
 
 sunrealtype* SUNMatrix_OneMklDense_Data(SUNMatrix A)
 {
-  if (SUNMatGetID(A) == SUNMATRIX_ONEMKLDENSE)
-    return MAT_DATAp(A);
-  else
-    return NULL;
+  if (SUNMatGetID(A) == SUNMATRIX_ONEMKLDENSE) { return MAT_DATAp(A); }
+  else { return NULL; }
 }
-
 
 sunindextype SUNMatrix_OneMklDense_BlockLData(SUNMatrix A)
 {
   if (SUNMatGetID(A) == SUNMATRIX_ONEMKLDENSE)
+  {
     return MAT_BLOCK_ROWS(A) * MAT_BLOCK_COLS(A);
-  else
-    return SUNMAT_ILL_INPUT;
+  }
+  else { return SUNMAT_ILL_INPUT; }
 }
-
 
 sunrealtype** SUNMatrix_OneMklDense_BlockData(SUNMatrix A)
 {
-  if (SUNMatGetID(A) == SUNMATRIX_ONEMKLDENSE)
-    return MAT_BLOCKSp(A);
-  else
-    return NULL;
+  if (SUNMatGetID(A) == SUNMATRIX_ONEMKLDENSE) { return MAT_BLOCKSp(A); }
+  else { return NULL; }
 }
-
 
 /* Functions that return pointers to the start of a block, column, or block
    column. These are defined as inline functions in sunmatrix_onemkldense.h, so
@@ -281,13 +250,11 @@ extern sunrealtype* SUNMatrix_OneMklDense_Block(SUNMatrix A, sunindextype k);
 extern sunrealtype* SUNMatrix_OneMklDense_Column(SUNMatrix A, sunindextype j);
 
 extern sunrealtype* SUNMatrix_OneMklDense_BlockColumn(SUNMatrix A, sunindextype k,
-                                                   sunindextype j);
-
+                                                      sunindextype j);
 
 /* --------------------------------------------------------------------------
  * Utility functions
  * -------------------------------------------------------------------------- */
-
 
 int SUNMatrix_OneMklDense_CopyToDevice(SUNMatrix A, sunrealtype* h_data)
 {
@@ -306,11 +273,9 @@ int SUNMatrix_OneMklDense_CopyToDevice(SUNMatrix A, sunrealtype* h_data)
   }
 
   // Copy the data
-  int copy_fail = SUNMemoryHelper_CopyAsync(MAT_MEMHELPER(A),
-                                            MAT_DATA(A),
-                                            _h_data,
-                                            sizeof(sunrealtype) * MAT_LDATA(A),
-                                            MAT_QUEUE(A));
+  int copy_fail =
+    SUNMemoryHelper_CopyAsync(MAT_MEMHELPER(A), MAT_DATA(A), _h_data,
+                              sizeof(sunrealtype) * MAT_LDATA(A), MAT_QUEUE(A));
 
   // Sync with respect to host, but only this queue
   MAT_QUEUE(A)->wait_and_throw();
@@ -324,7 +289,6 @@ int SUNMatrix_OneMklDense_CopyToDevice(SUNMatrix A, sunrealtype* h_data)
 
   return (copy_fail ? SUNMAT_MEM_FAIL : SUNMAT_SUCCESS);
 }
-
 
 int SUNMatrix_OneMklDense_CopyFromDevice(SUNMatrix A, sunrealtype* h_data)
 {
@@ -341,11 +305,9 @@ int SUNMatrix_OneMklDense_CopyFromDevice(SUNMatrix A, sunrealtype* h_data)
     return SUNMAT_MEM_FAIL;
   }
 
-  int copy_fail = SUNMemoryHelper_CopyAsync(MAT_MEMHELPER(A),
-                                            _h_data,
-                                            MAT_DATA(A),
-                                            sizeof(sunrealtype) * MAT_LDATA(A),
-                                            MAT_QUEUE(A));
+  int copy_fail =
+    SUNMemoryHelper_CopyAsync(MAT_MEMHELPER(A), _h_data, MAT_DATA(A),
+                              sizeof(sunrealtype) * MAT_LDATA(A), MAT_QUEUE(A));
 
   // Sync with respect to host, but only this queue
   MAT_QUEUE(A)->wait_and_throw();
@@ -360,11 +322,9 @@ int SUNMatrix_OneMklDense_CopyFromDevice(SUNMatrix A, sunrealtype* h_data)
   return (copy_fail ? SUNMAT_MEM_FAIL : SUNMAT_SUCCESS);
 }
 
-
 /* --------------------------------------------------------------------------
  * Implementation of generic SUNMatrix operations.
  * -------------------------------------------------------------------------- */
-
 
 SUNMatrix SUNMatClone_OneMklDense(SUNMatrix A)
 {
@@ -380,12 +340,9 @@ SUNMatrix SUNMatClone_OneMklDense(SUNMatrix A)
     return NULL;
   }
 
-  SUNMatrix B = SUNMatrix_OneMklDenseBlock(MAT_NBLOCKS(A),
-                                           MAT_BLOCK_ROWS(A),
-                                           MAT_BLOCK_COLS(A),
-                                           MAT_DATA(A)->type,
-                                           MAT_MEMHELPER(A),
-                                           MAT_QUEUE(A),
+  SUNMatrix B = SUNMatrix_OneMklDenseBlock(MAT_NBLOCKS(A), MAT_BLOCK_ROWS(A),
+                                           MAT_BLOCK_COLS(A), MAT_DATA(A)->type,
+                                           MAT_MEMHELPER(A), MAT_QUEUE(A),
                                            A->sunctx);
 
   if (!B)
@@ -396,7 +353,6 @@ SUNMatrix SUNMatClone_OneMklDense(SUNMatrix A)
 
   return B;
 }
-
 
 void SUNMatDestroy_OneMklDense(SUNMatrix A)
 {
@@ -416,10 +372,14 @@ void SUNMatDestroy_OneMklDense(SUNMatrix A)
   if (A->content)
   {
     // Free data array(s)
-    if (MAT_DATA(A)) SUNMemoryHelper_Dealloc(MAT_MEMHELPER(A), MAT_DATA(A),
-                                             MAT_QUEUE(A));
-    if (MAT_BLOCKS(A)) SUNMemoryHelper_Dealloc(MAT_MEMHELPER(A), MAT_BLOCKS(A),
-                                               MAT_QUEUE(A));
+    if (MAT_DATA(A))
+    {
+      SUNMemoryHelper_Dealloc(MAT_MEMHELPER(A), MAT_DATA(A), MAT_QUEUE(A));
+    }
+    if (MAT_BLOCKS(A))
+    {
+      SUNMemoryHelper_Dealloc(MAT_MEMHELPER(A), MAT_BLOCKS(A), MAT_QUEUE(A));
+    }
 
     // Free content struct
     free(A->content);
@@ -432,7 +392,6 @@ void SUNMatDestroy_OneMklDense(SUNMatrix A)
 
   return;
 }
-
 
 int SUNMatZero_OneMklDense(SUNMatrix A)
 {
@@ -448,10 +407,10 @@ int SUNMatZero_OneMklDense(SUNMatrix A)
     return SUNMAT_ILL_INPUT;
   }
 
-  const sunindextype ldata  = MAT_LDATA(A);
-  sunrealtype           *Adata = MAT_DATAp(A);
-  sycl::queue        *Q     = MAT_QUEUE(A);
-  size_t             nthreads_total, nthreads_per_block;
+  const sunindextype ldata = MAT_LDATA(A);
+  sunrealtype* Adata       = MAT_DATAp(A);
+  sycl::queue* Q           = MAT_QUEUE(A);
+  size_t nthreads_total, nthreads_per_block;
 
   if (GetKernelParameters(A, SUNFALSE, nthreads_total, nthreads_per_block))
   {
@@ -460,15 +419,12 @@ int SUNMatZero_OneMklDense(SUNMatrix A)
   }
 
   // Zero out matrix
-  SYCL_FOR(Q, nthreads_total, nthreads_per_block, item,
-           GRID_STRIDE_XLOOP(item, i, ldata)
-           {
-             Adata[i] = ZERO;
-           });
+  SYCL_FOR(
+    Q, nthreads_total, nthreads_per_block, item,
+    GRID_STRIDE_XLOOP(item, i, ldata) { Adata[i] = ZERO; });
 
   return SUNMAT_SUCCESS;
 }
-
 
 int SUNMatCopy_OneMklDense(SUNMatrix A, SUNMatrix B)
 {
@@ -491,11 +447,11 @@ int SUNMatCopy_OneMklDense(SUNMatrix A, SUNMatrix B)
     return SUNMAT_ILL_INPUT;
   }
 
-  const sunindextype ldata  = MAT_LDATA(A);
-  sunrealtype           *Adata = MAT_DATAp(A);
-  sunrealtype           *Bdata = MAT_DATAp(B);
-  sycl::queue        *Q     = MAT_QUEUE(A);
-  size_t             nthreads_total, nthreads_per_block;
+  const sunindextype ldata = MAT_LDATA(A);
+  sunrealtype* Adata       = MAT_DATAp(A);
+  sunrealtype* Bdata       = MAT_DATAp(B);
+  sycl::queue* Q           = MAT_QUEUE(A);
+  size_t nthreads_total, nthreads_per_block;
 
   if (GetKernelParameters(A, SUNFALSE, nthreads_total, nthreads_per_block))
   {
@@ -504,15 +460,12 @@ int SUNMatCopy_OneMklDense(SUNMatrix A, SUNMatrix B)
   }
 
   // Copy A into B
-  SYCL_FOR(Q, nthreads_total, nthreads_per_block, item,
-           GRID_STRIDE_XLOOP(item, i, ldata)
-           {
-             Bdata[i] = Adata[i];
-           });
+  SYCL_FOR(
+    Q, nthreads_total, nthreads_per_block, item,
+    GRID_STRIDE_XLOOP(item, i, ldata) { Bdata[i] = Adata[i]; });
 
   return SUNMAT_SUCCESS;
 }
-
 
 int SUNMatScaleAddI_OneMklDense(sunrealtype c, SUNMatrix A)
 {
@@ -531,35 +484,30 @@ int SUNMatScaleAddI_OneMklDense(sunrealtype c, SUNMatrix A)
   const size_t M     = static_cast<size_t>(MAT_BLOCK_ROWS(A));
   const size_t N     = static_cast<size_t>(MAT_BLOCK_COLS(A));
   const size_t B     = static_cast<size_t>(MAT_NBLOCKS(A));
-  sunrealtype*    Adata = MAT_DATAp(A);
+  sunrealtype* Adata = MAT_DATAp(A);
   sycl::queue* Q     = MAT_QUEUE(A);
 
   // Compute A = c * A + I
-  Q->submit([&](sycl::handler& h)
-  {
-    h.parallel_for(sycl::range{M, N, B}, [=](sycl::id<3> idx)
+  Q->submit(
+    [&](sycl::handler& h)
     {
-      sunindextype i = idx[0];
-      sunindextype j = idx[1];
-      sunindextype k = idx[2];
+      h.parallel_for(sycl::range{M, N, B},
+                     [=](sycl::id<3> idx)
+                     {
+                       sunindextype i = idx[0];
+                       sunindextype j = idx[1];
+                       sunindextype k = idx[2];
 
-      // Index into 1D data array
-      sunindextype tid = k * M * N + j * M + i;
+                       // Index into 1D data array
+                       sunindextype tid = k * M * N + j * M + i;
 
-      if (i == j)
-      {
-        Adata[tid] = c * Adata[tid] + ONE;
-      }
-      else
-      {
-        Adata[tid] = c * Adata[tid];
-      }
+                       if (i == j) { Adata[tid] = c * Adata[tid] + ONE; }
+                       else { Adata[tid] = c * Adata[tid]; }
+                     });
     });
-  });
 
   return SUNMAT_SUCCESS;
 }
-
 
 int SUNMatScaleAdd_OneMklDense(sunrealtype c, SUNMatrix A, SUNMatrix B)
 {
@@ -575,11 +523,11 @@ int SUNMatScaleAdd_OneMklDense(sunrealtype c, SUNMatrix A, SUNMatrix B)
     return SUNMAT_ILL_INPUT;
   }
 
-  const sunindextype ldata  = MAT_LDATA(A);
-  sunrealtype           *Adata = MAT_DATAp(A);
-  sunrealtype           *Bdata = MAT_DATAp(B);
-  sycl::queue        *Q     = MAT_QUEUE(A);
-  size_t             nthreads_total, nthreads_per_block;
+  const sunindextype ldata = MAT_LDATA(A);
+  sunrealtype* Adata       = MAT_DATAp(A);
+  sunrealtype* Bdata       = MAT_DATAp(B);
+  sycl::queue* Q           = MAT_QUEUE(A);
+  size_t nthreads_total, nthreads_per_block;
 
   if (GetKernelParameters(A, SUNFALSE, nthreads_total, nthreads_per_block))
   {
@@ -588,15 +536,12 @@ int SUNMatScaleAdd_OneMklDense(sunrealtype c, SUNMatrix A, SUNMatrix B)
   }
 
   // Compute A = c * A + B
-  SYCL_FOR(Q, nthreads_total, nthreads_per_block, item,
-           GRID_STRIDE_XLOOP(item, i, ldata)
-           {
-             Adata[i] = c * Adata[i] + Bdata[i];
-           });
+  SYCL_FOR(
+    Q, nthreads_total, nthreads_per_block, item,
+    GRID_STRIDE_XLOOP(item, i, ldata) { Adata[i] = c * Adata[i] + Bdata[i]; });
 
   return SUNMAT_SUCCESS;
 }
-
 
 int SUNMatMatvec_OneMklDense(SUNMatrix A, N_Vector x, N_Vector y)
 {
@@ -623,7 +568,7 @@ int SUNMatMatvec_OneMklDense(SUNMatrix A, N_Vector x, N_Vector y)
     {
       const sunrealtype* Adata = MAT_DATAp(A) + i * M * N;
       const sunrealtype* xdata = N_VGetDeviceArrayPointer(x) + i * N;
-      sunrealtype*       ydata = N_VGetDeviceArrayPointer(y) + i * M;
+      sunrealtype* ydata       = N_VGetDeviceArrayPointer(y) + i * M;
 
       // Copmute y = a * A * x + b * y
       oneapi::mkl::blas::gemv(*Q, oneapi::mkl::transpose::N, M, N, ONE, Adata,
@@ -632,12 +577,12 @@ int SUNMatMatvec_OneMklDense(SUNMatrix A, N_Vector x, N_Vector y)
   }
   else
   {
-    sycl::queue*    Q     = MAT_QUEUE(A);
-    sunindextype    M     = MAT_ROWS(A);
-    sunindextype    N     = MAT_COLS(A);
+    sycl::queue* Q           = MAT_QUEUE(A);
+    sunindextype M           = MAT_ROWS(A);
+    sunindextype N           = MAT_COLS(A);
     const sunrealtype* Adata = MAT_DATAp(A);
     const sunrealtype* xdata = N_VGetDeviceArrayPointer(x);
-    sunrealtype*       ydata = N_VGetDeviceArrayPointer(y);
+    sunrealtype* ydata       = N_VGetDeviceArrayPointer(y);
 
     // Copmute y = a * A * x + b * y
     oneapi::mkl::blas::gemv(*Q, oneapi::mkl::transpose::N, M, N, ONE, Adata, M,
@@ -647,8 +592,7 @@ int SUNMatMatvec_OneMklDense(SUNMatrix A, N_Vector x, N_Vector y)
   return SUNMAT_SUCCESS;
 }
 
-
-int SUNMatSpace_OneMklDense(SUNMatrix A, long int *lenrw, long int *leniw)
+int SUNMatSpace_OneMklDense(SUNMatrix A, long int* lenrw, long int* leniw)
 {
   if (!A)
   {
@@ -668,16 +612,13 @@ int SUNMatSpace_OneMklDense(SUNMatrix A, long int *lenrw, long int *leniw)
   return SUNMAT_SUCCESS;
 }
 
-
 /* --------------------------------------------------------------------------
  * Private functions
  * -------------------------------------------------------------------------- */
 
-
 // Get the kernel launch parameters
 static int GetKernelParameters(SUNMatrix A, sunbooleantype reduction,
-                               size_t& nthreads_total,
-                               size_t& nthreads_per_block)
+                               size_t& nthreads_total, size_t& nthreads_per_block)
 {
   if (!MAT_EXECPOLICY(A))
   {
@@ -687,8 +628,7 @@ static int GetKernelParameters(SUNMatrix A, sunbooleantype reduction,
 
   /* Get the number of threads per block and total number threads */
   nthreads_per_block = MAT_EXECPOLICY(A)->blockSize();
-  nthreads_total     = nthreads_per_block *
-                       MAT_EXECPOLICY(A)->gridSize(MAT_LDATA(A));
+  nthreads_total = nthreads_per_block * MAT_EXECPOLICY(A)->gridSize(MAT_LDATA(A));
 
   if (nthreads_per_block == 0)
   {
@@ -704,7 +644,6 @@ static int GetKernelParameters(SUNMatrix A, sunbooleantype reduction,
 
   return 0;
 }
-
 
 static sunbooleantype Compatible_AB(SUNMatrix A, SUNMatrix B)
 {
@@ -742,7 +681,6 @@ static sunbooleantype Compatible_AB(SUNMatrix A, SUNMatrix B)
 
   return SUNTRUE;
 }
-
 
 static sunbooleantype Compatible_Axy(SUNMatrix A, N_Vector x, N_Vector y)
 {

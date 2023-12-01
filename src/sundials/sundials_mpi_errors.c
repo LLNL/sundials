@@ -13,11 +13,10 @@
 #include <mpi.h>
 #include <stdlib.h>
 #include <string.h>
-#include <unistd.h>
-
+#include <sundials/priv/sundials_mpi_errors_impl.h>
 #include <sundials/sundials_core.h>
 #include <sundials/sundials_mpi_types.h>
-#include <sundials/priv/sundials_mpi_errors_impl.h>
+#include <unistd.h>
 
 static inline char* combineFileAndLine(int line, const char* file)
 {
@@ -32,7 +31,8 @@ void SUNMPIAbortErrHandlerFn(int line, const char* func, const char* file, const
 {
   char* file_and_line = combineFileAndLine(line, file);
   SUNLogger_QueueMsg(sunctx->logger, SUN_LOGLEVEL_ERROR, file_and_line, func,
-                     "SUNMPIAbortErrHandler: Calling MPI_Abort now, use a different "
+                     "SUNMPIAbortErrHandler: Calling MPI_Abort now, use a "
+                     "different "
                      "error handler to avoid program termination.\n");
   free(file_and_line);
   sleep(1);
@@ -43,8 +43,9 @@ void SUNMPIAssertErrHandlerFn(int line, const char* func, const char* file, cons
                               SUNErrCode err_code, void* err_user_data, SUNContext sunctx)
 {
   char* file_and_line = combineFileAndLine(line, file);
-  SUNLogger_QueueMsg(sunctx->logger, SUN_LOGLEVEL_ERROR, file_and_line, func,
-                     "SUNMPIAssertErrHandler: assert(%s) failed... terminating.\n", stmt);
+  SUNLogger_QueueMsg(sunctx->logger, SUN_LOGLEVEL_ERROR, file_and_line,
+                     func, "SUNMPIAssertErrHandler: assert(%s) failed... terminating.\n",
+                     stmt);
   free(file_and_line);
   sleep(1);
   MPI_Abort(sunctx->comm, err_code);

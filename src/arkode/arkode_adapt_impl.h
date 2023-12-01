@@ -103,7 +103,7 @@ typedef struct ARKodeHAdaptMemRec {
   ARKODE Time Step Adaptivity Routines
   ===============================================================*/
 
-ARKodeHAdaptMem arkAdaptInit();
+ARKodeHAdaptMem arkAdaptInit(void);
 void arkPrintAdaptMem(ARKodeHAdaptMem hadapt_mem, FILE *outfile);
 int arkAdapt(void* arkode_mem, ARKodeHAdaptMem hadapt_mem,
              N_Vector ycur, sunrealtype tcur, sunrealtype hcur,
