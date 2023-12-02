@@ -303,7 +303,7 @@ public:
     nreq       = 0;
 
     // Initialize all requests in array
-    for (int i = 0; i < 12; i++) req[i] = MPI_REQUEST_NULL;
+    for (int i = 0; i < 12; i++) { req[i] = MPI_REQUEST_NULL; }
 
     // Open an Irecv buffer on host for each neighbor
     if ((ipW != MPI_PROC_NULL) && (upwindRight))
@@ -468,11 +468,11 @@ public:
     std::ofstream mesh_file;
     mesh_file.open(fname);
     mesh_file << std::setprecision(16);
-    for (GLOBALINT i = 0; i < nx; i++) mesh_file << " " << dx * i;
+    for (GLOBALINT i = 0; i < nx; i++) { mesh_file << " " << dx * i; }
     mesh_file << std::endl;
-    for (GLOBALINT i = 0; i < ny; i++) mesh_file << " " << dy * i;
+    for (GLOBALINT i = 0; i < ny; i++) { mesh_file << " " << dy * i; }
     mesh_file << std::endl;
-    for (GLOBALINT i = 0; i < nz; i++) mesh_file << " " << dz * i;
+    for (GLOBALINT i = 0; i < nz; i++) { mesh_file << " " << dz * i; }
     mesh_file << std::endl;
     mesh_file.close();
   }

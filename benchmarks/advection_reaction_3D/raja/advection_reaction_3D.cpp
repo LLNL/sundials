@@ -130,16 +130,30 @@ int main(int argc, char* argv[])
     }
 
     /* Integrate in time */
-    if (uopt.method == "ERK") retval = EvolveProblemExplicit(y, &udata, &uopt);
+    if (uopt.method == "ERK")
+    {
+      retval = EvolveProblemExplicit(y, &udata, &uopt);
+    }
     else if (uopt.method == "ARK-DIRK")
+    {
       retval = EvolveProblemDIRK(y, &udata, &uopt);
+    }
     else if (uopt.method == "ARK-IMEX")
+    {
       retval = EvolveProblemIMEX(y, &udata, &uopt);
+    }
     else if (uopt.method == "CV-BDF")
+    {
       retval = EvolveProblemBDF(y, &udata, &uopt);
+    }
     else if (uopt.method == "CV-ADAMS")
+    {
       retval = EvolveProblemAdams(y, &udata, &uopt);
-    else if (uopt.method == "IDA") retval = EvolveDAEProblem(y, &udata, &uopt);
+    }
+    else if (uopt.method == "IDA")
+    {
+      retval = EvolveDAEProblem(y, &udata, &uopt);
+    }
     if (check_retval(&retval, "Evolve", 1, udata.myid)) { MPI_Abort(comm, 1); }
 
     /* Clean up */

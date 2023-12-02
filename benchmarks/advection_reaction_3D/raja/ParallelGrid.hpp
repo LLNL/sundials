@@ -160,13 +160,17 @@ public:
   {
     /* Allocate send/receive buffers and determine ID for communication West */
     if (upwindRight)
+    {
       SUNMemoryHelper_Alloc(memhelp, &Wrecv_,
                             sizeof(REAL) * dof * width * nyl * nzl,
                             memoryType(), nullptr);
+    }
     else
+    {
       SUNMemoryHelper_Alloc(memhelp, &Wsend_,
                             sizeof(REAL) * dof * width * nyl * nzl,
                             memoryType(), nullptr);
+    }
     ipW = MPI_PROC_NULL;
     if ((coords[0] > 0) || (bc == BoundaryType::PERIODIC))
     {
@@ -177,13 +181,17 @@ public:
 
     /* Allocate send/receive buffers and determine ID for communication East */
     if (upwindRight)
+    {
       SUNMemoryHelper_Alloc(memhelp, &Esend_,
                             sizeof(REAL) * dof * width * nyl * nzl,
                             memoryType(), nullptr);
+    }
     else
+    {
       SUNMemoryHelper_Alloc(memhelp, &Erecv_,
                             sizeof(REAL) * dof * width * nyl * nzl,
                             memoryType(), nullptr);
+    }
     ipE = MPI_PROC_NULL;
     if ((coords[0] < dims[0] - 1) || (bc == BoundaryType::PERIODIC))
     {
@@ -194,13 +202,17 @@ public:
 
     /* Allocate send/receive buffers and determine ID for communication South */
     if (upwindRight)
+    {
       SUNMemoryHelper_Alloc(memhelp, &Srecv_,
                             sizeof(REAL) * dof * width * nxl * nzl,
                             memoryType(), nullptr);
+    }
     else
+    {
       SUNMemoryHelper_Alloc(memhelp, &Ssend_,
                             sizeof(REAL) * dof * width * nxl * nzl,
                             memoryType(), nullptr);
+    }
     ipS = MPI_PROC_NULL;
     if ((coords[1] > 0) || (bc == BoundaryType::PERIODIC))
     {
@@ -211,13 +223,17 @@ public:
 
     /* Allocate send/receive buffers and determine ID for communication North */
     if (upwindRight)
+    {
       SUNMemoryHelper_Alloc(memhelp, &Nsend_,
                             sizeof(REAL) * dof * width * nxl * nzl,
                             memoryType(), nullptr);
+    }
     else
+    {
       SUNMemoryHelper_Alloc(memhelp, &Nrecv_,
                             sizeof(REAL) * dof * width * nxl * nzl,
                             memoryType(), nullptr);
+    }
     ipN = MPI_PROC_NULL;
     if ((coords[1] < dims[1] - 1) || (bc == BoundaryType::PERIODIC))
     {
@@ -228,13 +244,17 @@ public:
 
     /* Allocate send/receive buffers and determine ID for communication Back */
     if (upwindRight)
+    {
       SUNMemoryHelper_Alloc(memhelp, &Brecv_,
                             sizeof(REAL) * dof * width * nxl * nyl,
                             memoryType(), nullptr);
+    }
     else
+    {
       SUNMemoryHelper_Alloc(memhelp, &Bsend_,
                             sizeof(REAL) * dof * width * nxl * nyl,
                             memoryType(), nullptr);
+    }
     ipB = MPI_PROC_NULL;
     if ((coords[2] > 0) || (bc == BoundaryType::PERIODIC))
     {
@@ -245,13 +265,17 @@ public:
 
     /* Allocate send/receive buffers and determine ID for communication Front */
     if (upwindRight)
+    {
       SUNMemoryHelper_Alloc(memhelp, &Fsend_,
                             sizeof(REAL) * dof * width * nxl * nyl,
                             memoryType(), nullptr);
+    }
     else
+    {
       SUNMemoryHelper_Alloc(memhelp, &Frecv_,
                             sizeof(REAL) * dof * width * nxl * nyl,
                             memoryType(), nullptr);
+    }
     ipF = MPI_PROC_NULL;
     if ((coords[2] < dims[2] - 1) || (bc == BoundaryType::PERIODIC))
     {
@@ -268,7 +292,7 @@ public:
     nreq       = 0;
 
     // Initialize all requests in array
-    for (int i = 0; i < 12; i++) req[i] = MPI_REQUEST_NULL;
+    for (int i = 0; i < 12; i++) { req[i] = MPI_REQUEST_NULL; }
 
     // Open an Irecv buffer for each neighbor
     if ((ipW != MPI_PROC_NULL) && (upwindRight))

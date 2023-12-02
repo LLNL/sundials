@@ -2816,7 +2816,7 @@ int N_VEnableFusedOps_OpenMPDEV(N_Vector v, sunbooleantype tf)
     v->ops->nvlinearcombinationvectorarray =
       N_VLinearCombinationVectorArray_OpenMPDEV;
     /* enable single buffer reduction operations */
-    v->ops->nvdotprodmultilocal = N_VDotProdMultiLocal_OpenMPDEV;
+    v->ops->nvdotprodmultilocal = N_VDotProdMulti_OpenMPDEV;
   }
   else
   {

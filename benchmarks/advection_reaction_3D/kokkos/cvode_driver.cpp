@@ -139,7 +139,7 @@ int EvolveProblemBDF(N_Vector y, UserData* udata, UserOptions* uopt)
   /* Integrate to final time */
   t     = uopt->t0;
   dtout = (uopt->tf - uopt->t0);
-  if (uopt->nout != 0) dtout /= uopt->nout;
+  if (uopt->nout != 0) { dtout /= uopt->nout; }
   tout = t + dtout;
   iout = 0;
 
@@ -274,7 +274,7 @@ int EvolveProblemAdams(N_Vector y, UserData* udata, UserOptions* uopt)
   /* Integrate to final time */
   t     = uopt->t0;
   dtout = (uopt->tf - uopt->t0);
-  if (uopt->nout != 0) dtout /= uopt->nout;
+  if (uopt->nout != 0) { dtout /= uopt->nout; }
   tout = t + dtout;
   iout = 0;
 
