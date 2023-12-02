@@ -547,16 +547,16 @@ int sunCompareTimes(const void* l, const void* r)
   const SUNHashMapKeyValue right = *((SUNHashMapKeyValue*)r);
 
   if (left == NULL && right == NULL) { return 0; }
-  if (left == NULL) { return (1); }
-  if (right == NULL) { return (-1); }
+  if (left == NULL) { return 1; }
+  if (right == NULL) { return -1; }
 
   left_max  = ((sunTimerStruct*)left->value)->maximum;
   right_max = ((sunTimerStruct*)right->value)->maximum;
 
-  if (left_max < right_max) { return (1); }
-  if (left_max > right_max) { return (-1); }
+  if (left_max < right_max) { return 1; }
+  if (left_max > right_max) { return -1; }
 
-  return SUN_SUCCESS;
+  return 0;
 }
 
 int sunclock_gettime_monotonic(sunTimespec* ts)
