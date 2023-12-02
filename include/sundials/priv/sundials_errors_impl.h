@@ -23,7 +23,7 @@
 #include <sundials/sundials_errors.h>
 
 /* ----------------------------------------------------------------------------
- * SUNErrHandler_ definition
+ * SUNErrHandler_ definition.
  * ---------------------------------------------------------------------------*/
 
 struct SUNErrHandler_
@@ -33,11 +33,40 @@ struct SUNErrHandler_
   void* data;
 };
 
+/*
+  This function creates a new SUNErrHandler object which is a node in a
+  singly linked-lis of error handlers.
+
+  :param eh_fn: An error handler callback function
+  :param eh_data: A pointer that will be passed back to the error handler
+  callback function :param eh_out: The new SUNErrHandler object
+
+  :return: A SUNErrCode indicating success or failure
+*/
 SUNErrCode SUNErrHandler_Create(SUNErrHandlerFn eh_fn, void* eh_data,
                                 SUNErrHandler* eh_out);
 
+/*
+  This function destroys and frees the memory for the given SUNErrHandler
+  object.
+
+  :param eh: A SUNErrHandler object
+
+  :return: void
+*/
 void SUNErrHandler_Destroy(SUNErrHandler eh);
 
+/*
+  This function calls the error handlers registered with the SUNContext.
+
+  :param line: the line number of the error
+  :param func: the function in which the error occurred
+  :param file: the file in which the error occurred
+  :param code: the SUNErrCode for the error
+  :param sunctx: a valid SUNContext object
+
+  :return: void
+*/
 static inline void SUNHandleErr(int line, const char* func, const char* file,
                                 SUNErrCode code, SUNContext sunctx)
 {
@@ -50,6 +79,19 @@ static inline void SUNHandleErr(int line, const char* func, const char* file,
   }
 }
 
+/*
+  This function calls the error handlers registered with the SUNContext
+  with the provided message.
+
+  :param line: the line number of the error
+  :param func: the function in which the error occurred
+  :param file: the file in which the error occurred
+  :param msg: a message associated with the error
+  :param code: the SUNErrCode for the error
+  :param sunctx: a valid SUNContext object
+
+  :return: void
+*/
 static inline void SUNHandleErrWithMsg(int line, const char* func,
                                        const char* file, const char* msg,
                                        SUNErrCode code, SUNContext sunctx)
@@ -63,6 +105,20 @@ static inline void SUNHandleErrWithMsg(int line, const char* func,
   }
 }
 
+/*
+  This function calls the error handlers registered with the SUNContext
+  with the provided format message.
+
+  :param line: the line number of the error
+  :param func: the function in which the error occurred
+  :param file: the file in which the error occurred
+  :param msgfmt: a message associated with the error with formatting
+  :param code: the SUNErrCode for the error
+  :param sunctx: a valid SUNContext object
+  :param args: the arguments to be provided to the format message
+
+  :return: void
+*/
 static inline void SUNHandleErrWithFmtMsg(int line, const char* func,
                                           const char* file, const char* msgfmt,
                                           SUNErrCode code, SUNContext sunctx, ...)
@@ -81,20 +137,47 @@ static inline void SUNHandleErrWithFmtMsg(int line, const char* func,
   free(msg);
 }
 
-/* ----------------------------------------------------------------------------
- * Error checking macros
- * ---------------------------------------------------------------------------*/
-
+/*
+  The SUNCTX_ macro expands to the name of the local SUNContext object
+  defined by SUNFunctionBegin. SUNCTX_ should be used to reference the
+  SUNContext inside of SUNDIALS functions.
+ */
 #define SUNCTX_ sunctx_local_scope_
 
-/* The SUNFunctionBegin macro is used to declare the SUNContext
-   object to be used a function. */
+/*
+  The SUNFunctionBegin macro is used to declare the local SUNContext object to
+  be used a function. It should be used at the start of every SUNDIALS
+  functions.
+
+  :param sunctx: the SUNContext to set the local SUNContext variable to
+ */
 #define SUNFunctionBegin(sunctx) \
   SUNContext SUNCTX_ = sunctx;   \
   (void)SUNCTX_
 
-/* SUNCheck evaluates the given expression and calls the error handler if it is
- * false. */
+/* ----------------------------------------------------------------------------
+ * SUNCheck* family of error checking macros
+ *
+ * We define several different version of SUNCheck* macros to cover various
+ * programming scenarios.
+ *
+ * SUNCheckCall* macros are used to check SUNDIALS functions calls which do
+ * return a SUNErrCode.
+ *
+ * SUNCheckLastErr* macros are used to check SUNDIALS function calls that
+ * do not return a SUNErrCode.
+ * ---------------------------------------------------------------------------*/
+
+/*
+  SUNCheck evaluates the given expression and calls the error handler if it is
+  false. It should be used to check expressions that do not imply stringent
+  assumptions. If the expression should be strictly assumed as true, then use
+  SUNAssert instead.
+
+  :param expr: a expression to evaluate as true or false
+  :param code: the error code to pass to the error handler if the expression is
+  false
+*/
 #if defined(SUNDIALS_ENABLE_ERROR_CHECKS)
 #define SUNCheck(expr, code)                                                   \
   do {                                                                         \
@@ -108,27 +191,14 @@ static inline void SUNHandleErrWithFmtMsg(int line, const char* func,
 #define SUNCheck(expr, code)
 #endif
 
-/* SUNCheckCallNoRet performs the SUNDIALS function call, and checks the
+/*
+   SUNCheckCallMsg performs the SUNDIALS function call, and checks the
    returned error code. If an error occured, then it will log the error, set the
-   last_err value, and call the error handler. */
-#if defined(SUNDIALS_ENABLE_ERROR_CHECKS)
-#define SUNCheckCallNoRetMsg(call, msg)                      \
-  do {                                                       \
-    SUNErrCode sun_chk_call_err_code_ = call;                \
-    if (SUNHintFalse(sun_chk_call_err_code_ < 0))            \
-    {                                                        \
-      SUNHandleErrWithMsg(__LINE__, __func__, __FILE__, msg, \
-                          sun_chk_call_err_code_, SUNCTX_);  \
-      (void)SUNContext_GetLastError(SUNCTX_);                \
-    }                                                        \
-  }                                                          \
-  while (0)
-#else
-#define SUNCheckCallNoRetMsg(call, msg) (void)call
-#endif
+   last_err value, call the error handler, **and then return the error code**.
 
-/* Same as SUNCheckCallNoRet, but returns with the error code if an error
- * occured. */
+   :param call: the function call
+   :param msg: an error message
+*/
 #if defined(SUNDIALS_ENABLE_ERROR_CHECKS)
 #define SUNCheckCallMsg(call, msg)                           \
   do {                                                       \
@@ -145,7 +215,38 @@ static inline void SUNHandleErrWithFmtMsg(int line, const char* func,
 #define SUNCheckCallMsg(call, msg) (void)call
 #endif
 
-/* Same as SUNCheckCall, but returns with NULL. */
+/*
+   SUNCheckCallNoRetMsg performs the SUNDIALS function call, and checks the
+   returned error code. If an error occured, then it will log the error, set the
+   last_err value, and call the error handler. **It does not return**.
+
+   :param call: the function call
+   :param msg: an error message
+*/
+#if defined(SUNDIALS_ENABLE_ERROR_CHECKS)
+#define SUNCheckCallNoRetMsg(call, msg)                      \
+  do {                                                       \
+    SUNErrCode sun_chk_call_err_code_ = call;                \
+    if (SUNHintFalse(sun_chk_call_err_code_ < 0))            \
+    {                                                        \
+      SUNHandleErrWithMsg(__LINE__, __func__, __FILE__, msg, \
+                          sun_chk_call_err_code_, SUNCTX_);  \
+      (void)SUNContext_GetLastError(SUNCTX_);                \
+    }                                                        \
+  }                                                          \
+  while (0)
+#else
+#define SUNCheckCallNoRetMsg(call, msg) (void)call
+#endif
+
+/*
+   SUNCheckCallNullMsg performs the SUNDIALS function call, and checks the
+   returned error code. If an error occured, then it will log the error, set the
+   last_err value, call the error handler, **and then returns NULL**.
+
+   :param call: the function call
+   :param msg: an error message
+*/
 #if defined(SUNDIALS_ENABLE_ERROR_CHECKS)
 #define SUNCheckCallNullMsg(call, msg)                       \
   do {                                                       \
@@ -162,7 +263,14 @@ static inline void SUNHandleErrWithFmtMsg(int line, const char* func,
 #define SUNCheckCallNullMsg(call, msg) (void)call
 #endif
 
-/* Same as SUNCheckCall, but returns void. */
+/*
+   SUNCheckCallNullMsg performs the SUNDIALS function call, and checks the
+   returned error code. If an error occured, then it will log the error, set the
+   last_err value, call the error handler, **and then returns void**.
+
+   :param call: the function call
+   :param msg: an error message
+*/
 #if defined(SUNDIALS_ENABLE_ERROR_CHECKS)
 #define SUNCheckCallVoidMsg(call, msg)                       \
   do {                                                       \
@@ -179,10 +287,10 @@ static inline void SUNHandleErrWithFmtMsg(int line, const char* func,
 #define SUNCheckCallVoidMsg(call, msg) (void)call
 #endif
 
-/* These versions of SUNCheckCall do not take a custom message so the
+/* These versions of SUNCheckCall do not take a custom message so a
    default message associated with the error code will be used. */
-#define SUNCheckCallNoRet(call) SUNCheckCallNoRetMsg(call, NULL)
 #define SUNCheckCall(call)      SUNCheckCallMsg(call, NULL)
+#define SUNCheckCallNoRet(call) SUNCheckCallNoRetMsg(call, NULL)
 #define SUNCheckCallNull(call)  SUNCheckCallNullMsg(call, NULL)
 #define SUNCheckCallVoid(call)  SUNCheckCallVoidMsg(call, NULL)
 
@@ -190,10 +298,10 @@ static inline void SUNHandleErrWithFmtMsg(int line, const char* func,
    If an error occured, then it will log the error, set the last_err
    value, and calls the error handler. */
 #if defined(SUNDIALS_ENABLE_ERROR_CHECKS)
-#define SUNCheckLastErrNoRetMsg(msg) \
-  SUNCheckCallNoRetMsg(SUNContext_GetLastError(SUNCTX_), msg)
 #define SUNCheckLastErrMsg(msg) \
   SUNCheckCallMsg(SUNContext_GetLastError(SUNCTX_), msg)
+#define SUNCheckLastErrNoRetMsg(msg) \
+  SUNCheckCallNoRetMsg(SUNContext_GetLastError(SUNCTX_), msg)
 #define SUNCheckLastErrNullMsg(msg) \
   SUNCheckCallNullMsg(SUNContext_GetLastError(SUNCTX_), msg)
 #define SUNCheckLastErrVoidMsg(msg) \
@@ -212,11 +320,15 @@ static inline void SUNHandleErrWithFmtMsg(int line, const char* func,
 #define SUNCheckLastErrVoid()  SUNCheckLastErrVoidMsg(NULL)
 #define SUNCheckLastErrNull()  SUNCheckLastErrNullMsg(NULL)
 
-/* SUNAssert checks if an expression is true.
-   It expands to SUNCheck when error checks are enabled.
-   If error checks are disabled, then we try to expand it to an assumption,
-   if the compiler supoprts, so that the compiler can make optimizations based
-   on the assumption.
+/*
+  SUNAssert checks if an expression is true. It expands to SUNCheck when error
+  checks are enabled. If error checks are disabled, then we try to expand it to
+  an assumption, if the compiler supoprts, so that the compiler can make
+  optimizations based on the assumption.
+
+  :param expr: a expression to evaluate as true or false
+  :param code: the error code to pass to the error handler if the expression is
+  false
 */
 
 #if defined(SUNDIALS_ENABLE_ERROR_CHECKS)

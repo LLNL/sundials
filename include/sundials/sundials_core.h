@@ -25,10 +25,10 @@
 #include <sundials/sundials_profiler.h>
 #include <sundials/sundials_types.h>
 #include <sundials/sundials_version.h>
-
 #include <sundials/sundials_nvector.h>
 #include <sundials/sundials_matrix.h>
 #include <sundials/sundials_nonlinearsolver.h>
 #include <sundials/sundials_linearsolver.h>
+#include <sundials/sundials_adaptcontroller.h>
 
 #endif /* _SUNDIALS_CORE_H */

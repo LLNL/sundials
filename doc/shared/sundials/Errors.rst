@@ -20,7 +20,7 @@ Error Checking
 Errors that occur within SUNDIALS are dealt with through error codes and error handler callback
 functions. The error code type :c:type:`SUNErrCode` is just a typedef to an ``int``:
 
-.. c:type:: typedef int SUNErrCode 
+.. c:type:: int SUNErrCode 
 
 Errors are always negative, while success is defined with the ``SUN_SUCCESS`` code and has the value ``0``.
 To see all of the possible error codes, refer to the ``sundials/sundials_errors.h`` header file 
@@ -30,7 +30,7 @@ Functions in the SUNDIALS core API (i.e., ``SUN`` or ``N_V`` functions only) eit
 :c:type:`SUNErrCode`, or (if they don't return a :c:type:`SUNErrCode`) they internally record an
 error code (if an error occurs) within the :c:type:`SUNContext` for the execution stream. 
 This "last error" is accessible via the :c:func:`SUNContext_GetLastError` or
- :c:func:`SUNContext_PeekLastError` functions.
+:c:func:`SUNContext_PeekLastError` functions.
 
 Thus, in user code, SUNDIALS core functions can be checked for errors in one of two ways:
 
@@ -88,9 +88,9 @@ Error Handler Functions
 Errors that occur internally to SUNDIALS result in an error handler function being called. 
 These error handler functions have the type
 
-.. c:type:: typedef int (*SUNErrHandlerFn)(int line, const char* func, const char* file,
-                                           const char* msg, SUNErrCode err_code,
-                                           void* err_user_data, SUNContext sunctx);
+.. c:type:: int (*SUNErrHandlerFn)(int line, const char* func, const char* file, \
+                                           const char* msg, SUNErrCode err_code, \
+                                           void* err_user_data, SUNContext sunctx)
 
 SUNDIALS provides a few different error handlers that can be used, or a custom one defined by the
 user can be provided (useful for linking SUNDIALS errors to your application's error handling).
