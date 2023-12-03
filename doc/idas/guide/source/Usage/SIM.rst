@@ -55,18 +55,18 @@ where ``instdir`` is the directory where SUNDIALS was installed.
 Regardless of where the user's application program resides, its
 associated compilation and load commands must make reference to the
 appropriate locations for the library and header files required by
-IDAS. IDAS symbols are found in ``libdir/libsundials_ida.lib``. 
+IDAS. IDAS symbols are found in ``libdir/libsundials_idas.lib``. 
 Thus, in addition to linking to ``libdir/libsundials_core.lib``, IDAS
 users need to link to the IDAS library. Symbols for additional SUNDIALS
 modules, vectors and algebraic solvers, are found in
 
 .. code-block::
 
-  <libdir>/libsundials_nvec*.<so|a>
-  <libdir>/libsundials_sunmat*.<so|a>
-  <libdir>/libsundials_sunlinsol*.<so|a>
-  <libdir>/libsundials_sunnonlinsol*.<so|a>
-  <libdir>/libsundials_sunmem.<so|a>
+  <libdir>/libsundials_nvec*.lib
+  <libdir>/libsundials_sunmat*.lib
+  <libdir>/libsundials_sunlinsol*.lib
+  <libdir>/libsundials_sunnonlinsol*.lib
+  <libdir>/libsundials_sunmem*.lib
 
 The file extension ``.lib`` is typically ``.so`` for shared libraries 
 and ``.a`` for static libraries.  
@@ -80,27 +80,25 @@ the header file for IDAS in addition to the SUNDIALS core header file:
   #include <sundials/sundials_core.h> // Provides core SUNDIALS types
   #include <idas/idas.h>              // IDAS provides methods for DAEs with sensitivity analysis
 
-The calling program must also include an ``N_Vector`` implementation header file, of the form
+The calling program must also include an :c:type:`N_Vector` implementation header file, of the form  
 ``nvector/nvector_*.h``. See :numref:`NVectors` for the appropriate name.
-The calling program must also include an ``N_Vector`` implementation
-header file, of the form ``nvector/nvector_*.h`` (see Chapter :numref:`NVectors`
-for more information). 
 
 If using a non-default nonlinear solver object, or when interacting with a
-``SUNNonlinearSolver`` object directly, the calling program must also include a
-``SUNNonlinearSolver`` implementation header file, of the form
+:c:type:`SUNNonlinearSolver` object directly, the calling program must also include a  
+:c:type:`SUNNonlinearSolver` implementation header file, of the form 
 ``sunnonlinsol/sunnonlinsol_*.h`` where ``*`` is the name of the nonlinear
 solver (see Chapter :numref:`SUNNonlinSol` for more information).
 
 If using a nonlinear solver that requires the solution of a linear system of the
 form :eq:`IDAS_DAE_nls` (e.g., the default Newton iteration), the calling program
-must also include a ``SUNLinearSolver`` implementation header file, of the from
+must also include a :c:type:`SUNLinearSolver` implementation header file, of the from  
 ``sunlinsol/sunlinsol_*.h`` where ``*`` is the name of the linear solver
 (see Chapter :numref:`SUNLinSol` for more information). 
 
 If the linear solver is matrix-based, the linear solver header will also include
 a header file of the from ``sunmatrix/sunmatrix_*.h`` where ``*`` is the name of
-the matrix implementation compatible with the linear solver. 
+the matrix implementation compatible with the linear solver. (see Chapter  
+:numref:`SUNMatrix` for more information). 
 
 Other headers may be needed, according to the choice of preconditioner, etc. For
 example, in the example ``idasFoodWeb_kry_p`` (see :cite:p:`ida_ex`),

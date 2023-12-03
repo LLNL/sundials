@@ -224,10 +224,6 @@ Users now need to link to ``sundials_core`` in addition to the libraries already
 This will be picked up automatically in projects that use the SUNDIALS CMake target. The library ``sundials_generic`` has been superceded by ``sundials_core`` and is no longer available.
 This fixes some duplicate symbol errors on Windows when linking to multiple SUNDIALS libraries.
 
-**Breaking change**
-Users now need to link to ``sundials_core`` in addition to the libraries already linked to. 
-This will be picked up automatically in projects that use the SUNDIALS CMake target. The library ``sundials_generic`` has been superceded by ``sundials_core`` and is no longer available.
-
 
 Changes in v5.6.2
 -----------------

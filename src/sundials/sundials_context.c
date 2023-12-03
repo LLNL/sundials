@@ -123,7 +123,7 @@ SUNErrCode SUNContext_PeekLastError(SUNContext sunctx)
 
 SUNErrCode SUNContext_PushErrHandler(SUNContext sunctx, SUNErrHandlerFn err_fn, void* err_user_data)
 {
-  if (!sunctx) { return SUN_ERR_SUNCTX_CORRUPT; }
+  if (!sunctx || !err_fn) { return SUN_ERR_SUNCTX_CORRUPT; }
 
   SUNFunctionBegin(sunctx);
   SUNErrHandler new_err_handler = NULL;
@@ -147,7 +147,7 @@ SUNErrCode SUNContext_PopErrHandler(SUNContext sunctx)
     } else {
       sunctx->err_handler = NULL;
     }
-    SUNErrHandler_Destroy(eh);
+    SUNErrHandler_Destroy(&eh);
   }
   return SUN_SUCCESS;
 }
@@ -235,9 +235,8 @@ SUNErrCode SUNContext_SetLogger(SUNContext sunctx, SUNLogger logger)
 
 SUNErrCode SUNContext_Free(SUNContext* sunctx)
 {
-#if defined(SUNDIALS_BUILD_WITH_PROFILING) && !defined(SUNDIALS_CALIPER_ENABLED)
-  FILE* fp = NULL;
-  char* sunprofiler_print_env = NULL;
+#ifdef SUNDIALS_ADIAK_ENABLED
+  adiak_fini();
 #endif
 
   if (!sunctx || !(*sunctx)) {
@@ -246,7 +245,8 @@ SUNErrCode SUNContext_Free(SUNContext* sunctx)
 
 #if defined(SUNDIALS_BUILD_WITH_PROFILING) && !defined(SUNDIALS_CALIPER_ENABLED)
   /* Find out where we are printing to */
-  sunprofiler_print_env = getenv("SUNPROFILER_PRINT");
+  FILE* fp = NULL;
+  char* sunprofiler_print_env = getenv("SUNPROFILER_PRINT");
   fp                    = NULL;
   if (sunprofiler_print_env) {
     if (!strcmp(sunprofiler_print_env, "0")) fp = NULL;
@@ -266,16 +266,12 @@ SUNErrCode SUNContext_Free(SUNContext* sunctx)
   }
 #endif
 
-#ifdef SUNDIALS_ADIAK_ENABLED
-  adiak_fini();
-#endif
-
   if ((*sunctx)->logger && (*sunctx)->own_logger)
   {
     SUNLogger_Destroy(&(*sunctx)->logger);
   }
 
-  SUNErrHandler_Destroy((*sunctx)->err_handler);
+  SUNErrHandler_Destroy(&(*sunctx)->err_handler);
 
   free(*sunctx);
   *sunctx = NULL;

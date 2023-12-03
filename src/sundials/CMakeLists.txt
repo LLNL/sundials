@@ -153,6 +153,12 @@ install(FILES
   ${SUNDIALS_SOURCE_DIR}/include/sundials/priv/sundials_errors_impl.h
   DESTINATION "${CMAKE_INSTALL_INCLUDEDIR}/sundials/priv")
 
+if(ENABLE_MPI)
+  install(FILES 
+    ${SUNDIALS_SOURCE_DIR}/include/sundials/priv/sundials_mpi_errors_impl.h
+    DESTINATION "${CMAKE_INSTALL_INCLUDEDIR}/sundials/priv")
+endif()
+
 # SUNDIALS_EXPORT macro
 include(GenerateExportHeader)
 generate_export_header(

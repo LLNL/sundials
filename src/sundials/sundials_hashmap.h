@@ -79,7 +79,7 @@ static SUNErrCode SUNHashMap_New(int max_size, SUNHashMap* map)
 
   if (max_size <= 0)
   {
-    return (-1);
+    return SUN_ERR_ARG_OUTOFRANGE;
   }
 
   *map = NULL;

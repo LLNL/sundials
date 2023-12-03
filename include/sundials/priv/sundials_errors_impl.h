@@ -1,6 +1,6 @@
 /* -----------------------------------------------------------------
  * SUNDIALS Copyright Start
- * Copyright (c) 2002-2022, Lawrence Livermore National Security
+ * Copyright (c) 2002-2023, Lawrence Livermore National Security
  * and Southern Methodist University.
  * All rights reserved.
  *
@@ -21,6 +21,7 @@
 #define _SUNDIALS_ERRORS_IMPL_H
 
 #include <sundials/sundials_errors.h>
+#include "sundials/sundials_export.h"
 
 /* ----------------------------------------------------------------------------
  * SUNErrHandler_ definition.
@@ -43,6 +44,7 @@ struct SUNErrHandler_
 
   :return: A SUNErrCode indicating success or failure
 */
+SUNDIALS_EXPORT
 SUNErrCode SUNErrHandler_Create(SUNErrHandlerFn eh_fn, void* eh_data,
                                 SUNErrHandler* eh_out);
 
@@ -54,30 +56,8 @@ SUNErrCode SUNErrHandler_Create(SUNErrHandlerFn eh_fn, void* eh_data,
 
   :return: void
 */
-void SUNErrHandler_Destroy(SUNErrHandler eh);
-
-/*
-  This function calls the error handlers registered with the SUNContext.
-
-  :param line: the line number of the error
-  :param func: the function in which the error occurred
-  :param file: the file in which the error occurred
-  :param code: the SUNErrCode for the error
-  :param sunctx: a valid SUNContext object
-
-  :return: void
-*/
-static inline void SUNHandleErr(int line, const char* func, const char* file,
-                                SUNErrCode code, SUNContext sunctx)
-{
-  sunctx->last_err = code;
-  SUNErrHandler eh = sunctx->err_handler;
-  while (eh != NULL)
-  {
-    eh->call(line, func, file, NULL, code, eh->data, sunctx);
-    eh = eh->previous;
-  }
-}
+SUNDIALS_EXPORT
+void SUNErrHandler_Destroy(SUNErrHandler* eh);
 
 /*
   This function calls the error handlers registered with the SUNContext
@@ -92,6 +72,7 @@ static inline void SUNHandleErr(int line, const char* func, const char* file,
 
   :return: void
 */
+SUNDIALS_EXPORT
 static inline void SUNHandleErrWithMsg(int line, const char* func,
                                        const char* file, const char* msg,
                                        SUNErrCode code, SUNContext sunctx)
@@ -119,6 +100,7 @@ static inline void SUNHandleErrWithMsg(int line, const char* func,
 
   :return: void
 */
+SUNDIALS_EXPORT
 static inline void SUNHandleErrWithFmtMsg(int line, const char* func,
                                           const char* file, const char* msgfmt,
                                           SUNErrCode code, SUNContext sunctx, ...)

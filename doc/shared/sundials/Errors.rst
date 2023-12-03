@@ -24,7 +24,7 @@ functions. The error code type :c:type:`SUNErrCode` is just a typedef to an ``in
 
 Errors are always negative, while success is defined with the ``SUN_SUCCESS`` code and has the value ``0``.
 To see all of the possible error codes, refer to the ``sundials/sundials_errors.h`` header file 
-(`here <https://github.com/LLNL/sundials/blob/main/include/sundials/sundials_errors.h>_`).
+(`here <https://github.com/LLNL/sundials/blob/main/include/sundials/sundials_errors.h>`_).
 
 Functions in the SUNDIALS core API (i.e., ``SUN`` or ``N_V`` functions only) either return a
 :c:type:`SUNErrCode`, or (if they don't return a :c:type:`SUNErrCode`) they internally record an
@@ -67,6 +67,17 @@ Thus, in user code, SUNDIALS core functions can be checked for errors in one of 
   }
 
 
+The function :c:func:`SUNGetErrMsg` can be used to get a message describing the error code.
+
+.. c:function:: const char* SUNGetErrMsg(SUNErrCode code)
+
+  Returns a message describing the error code.
+
+  :param code: the error code
+
+  :return: a message describing the error code.
+
+
 .. note::
 
   It is recommended in most cases that users check for an error after calling SUNDIALS functions.
@@ -75,9 +86,9 @@ Thus, in user code, SUNDIALS core functions can be checked for errors in one of 
 
 .. warning::
 
-  If a function returns a :c:type:`SUNErrCode` then the return value is the only place the error is available. 
-  I.e., these functions do not store their error code as the "last error" so it is invalid to use
-  :c:func:`SUNContext_GetLastError` to check these functions for errors.
+  If a function returns a :c:type:`SUNErrCode` then the return value is the only place the error is available  
+  i.e., these functions do not store their error code as the "last error" so it is invalid to use  
+  :c:func:`SUNContext_GetLastError` to check these functions for errors.  
 
 
 .. _SUNDIALS.Errors.Handlers:
@@ -103,7 +114,7 @@ The error handlers provided in SUNDIALS are:
                                         const char* msg, SUNErrCode err_code, \
                                         void* err_user_data, SUNContext sunctx)
 
-  Logs the error that occurred using the :c:type:`SUNLogger` for ``sunctx``.
+  Logs the error that occurred using the :c:type:`SUNLogger` from ``sunctx``.
   This is the default error handler.
 
   :param line: the line number at which the error occured
@@ -125,7 +136,7 @@ The error handlers provided in SUNDIALS are:
   :param line: the line number at which the error occured
   :param func: the function in which the error occured
   :param file: the file in which the error occured 
-  :param msg: the message to log, if this is ``NULL`` then the default error message for the error code will be used
+  :param msg: this parameter is ignored
   :param err_code: the error code for the error that occured
   :param err_user_data: the user pointer provided to :c:func:`SUNContext_PushErrHandler`
   :param sunctx: pointer to a valid :c:type:`SUNContext` object
@@ -160,7 +171,7 @@ The error handlers provided in SUNDIALS are:
   :param line: the line number at which the error occured
   :param func: the function in which the error occured
   :param file: the file in which the error occured 
-  :param msg: the message to log, if this is ``NULL`` then the default error message for the error code will be used
+  :param msg: this parameter is ignored
   :param err_code: the error code for the error that occured
   :param err_user_data: the user pointer provided to :c:func:`SUNContext_PushErrHandler`
   :param sunctx: pointer to a valid :c:type:`SUNContext` object

@@ -222,6 +222,8 @@ SUNErrCode SUNProfiler_Create(SUNComm comm, const char* title, SUNProfiler* p)
 
 SUNErrCode SUNProfiler_Free(SUNProfiler* p)
 {
+  if (!p || !(*p)) { return SUN_SUCCESS; }
+
   SUNDIALS_MARK_END(*p, SUNDIALS_ROOT_TIMER);
 
   if (*p)

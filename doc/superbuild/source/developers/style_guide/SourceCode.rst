@@ -263,7 +263,7 @@ Coding Conventions and Rules
          realtype*    zd=NULL;
          realtype*    xd=NULL;
 
-         SUNFunctionBegin(X[0]->sunctx); // Incorrect
+         SUNFunctionBegin(X[0]->sunctx); // Incorrect, SUNFunctionBegin should occur as early as possible  
 
          /* invalid number of vectors */
          SUNAssert(nvec >= 1, SUN_ERR_ARG_OUTOFRANGE);
@@ -283,7 +283,7 @@ Coding Conventions and Rules
 
          cv_mem = (CVodeMem) cvode_mem;
 
-         SUNFunctionBegin(cv_mem->sunctx); // Correct
+         SUNFunctionBegin(cv_mem->sunctx); // Correct - this is as early as possible to call SUNFunctionBegin
          SUNFunctionBegin(ele->sunctx); // Incorrect - cvode_mem is first in the function parameter list
 
          // ...

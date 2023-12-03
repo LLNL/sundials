@@ -1,6 +1,6 @@
 /* -----------------------------------------------------------------
  * SUNDIALS Copyright Start
- * Copyright (c) 2002-2022, Lawrence Livermore National Security
+ * Copyright (c) 2002-2023, Lawrence Livermore National Security
  * and Southern Methodist University.
  * All rights reserved.
  *
@@ -41,12 +41,14 @@ SUNErrCode SUNErrHandler_Create(SUNErrHandlerFn eh_fn, void* eh_data,
   return SUN_SUCCESS;
 }
 
-void SUNErrHandler_Destroy(SUNErrHandler eh)
+void SUNErrHandler_Destroy(SUNErrHandler* eh)
 {
-  free(eh);
+  if (!eh || !(*eh)) { return; }  
+  free(*eh);  
+  *eh = NULL;  
 }
 
-const char* SUNGetErrMsg(SUNErrCode code, SUNContext sunctx)
+const char* SUNGetErrMsg(SUNErrCode code)
 {
 #define SUN_EXPAND_TO_CASES(name, description) \
   case name: return description; break;
@@ -65,7 +67,7 @@ void SUNLogErrHandlerFn(int line, const char* func, const char* file,
                         SUNContext sunctx)
 {
   char* file_and_line = combineFileAndLine(line, file);
-  if (msg == NULL) { msg = SUNGetErrMsg(err_code, sunctx); }
+  if (msg == NULL) { msg = SUNGetErrMsg(err_code); }
   SUNLogger_QueueMsg(sunctx->logger, SUN_LOGLEVEL_ERROR, file_and_line, func,
                      msg);
   free(file_and_line);
