@@ -19,17 +19,14 @@
 
 #include <limits>
 
-namespace sundials
-{
-namespace reductions
-{
-namespace impl
-{
+namespace sundials {
+namespace reductions {
+namespace impl {
 
 template<typename Arg1, typename Arg2, typename Result>
 struct BinaryOperator
 {
-  using first_arg_type = Arg1;
+  using first_arg_type  = Arg1;
   using second_arg_type = Arg2;
   using result_arg_type = Result;
 };
@@ -79,6 +76,6 @@ struct minimum : public BinaryOperator<Arg1, Arg2, Ret>
   }
 };
 
-} // impl
-} // reductions
-} // sundials
+} // namespace impl
+} // namespace reductions
+} // namespace sundials
