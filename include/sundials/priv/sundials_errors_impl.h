@@ -21,6 +21,7 @@
 #define _SUNDIALS_ERRORS_IMPL_H
 
 #include <sundials/sundials_errors.h>
+
 #include "sundials/sundials_export.h"
 
 /* ----------------------------------------------------------------------------
@@ -72,10 +73,9 @@ void SUNErrHandler_Destroy(SUNErrHandler* eh);
 
   :return: void
 */
-SUNDIALS_EXPORT
-static inline void SUNHandleErrWithMsg(int line, const char* func,
-                                       const char* file, const char* msg,
-                                       SUNErrCode code, SUNContext sunctx)
+SUNDIALS_STATIC_INLINE
+void SUNHandleErrWithMsg(int line, const char* func, const char* file,
+                         const char* msg, SUNErrCode code, SUNContext sunctx)
 {
   sunctx->last_err = code;
   SUNErrHandler eh = sunctx->err_handler;
@@ -100,10 +100,10 @@ static inline void SUNHandleErrWithMsg(int line, const char* func,
 
   :return: void
 */
-SUNDIALS_EXPORT
-static inline void SUNHandleErrWithFmtMsg(int line, const char* func,
-                                          const char* file, const char* msgfmt,
-                                          SUNErrCode code, SUNContext sunctx, ...)
+SUNDIALS_STATIC_INLINE
+void SUNHandleErrWithFmtMsg(int line, const char* func, const char* file,
+                            const char* msgfmt, SUNErrCode code,
+                            SUNContext sunctx, ...)
 {
   size_t msglen;
   char* msg;
