@@ -20,7 +20,7 @@ This API consists of three new SUNDIALS types: :c:type:`SUNMemoryType`,
 :c:type:`SUNMemory`, and :c:type:`SUNMemoryHelper`:
 
 
-.. c:type:: struct _SUNMemory *SUNMemory
+.. c:type:: struct SUNMemory_ *SUNMemory
 
    The ``SUNMemory`` type is a pointer a structure containing a pointer to
    actual data (``ptr``), the data memory type, and a flag indicating ownership
@@ -28,7 +28,7 @@ This API consists of three new SUNDIALS types: :c:type:`SUNMemoryType`,
 
    .. code-block:: c
 
-      struct _SUNMemory
+      struct SUNMemory_
       {
         void*         ptr;
         SUNMemoryType type;
@@ -53,7 +53,7 @@ This API consists of three new SUNDIALS types: :c:type:`SUNMemoryType`,
       } SUNMemoryType;
 
 
-.. c:type:: struct _SUNMemoryHelper *SUNMemoryHelper
+.. c:type:: struct SUNMemoryHelper_ *SUNMemoryHelper
 
    The ``SUNMemoryHelper`` type is a pointer to a structure containing a pointer
    to the implementation-specific member data (``content``) and a virtual method
@@ -61,7 +61,7 @@ This API consists of three new SUNDIALS types: :c:type:`SUNMemoryType`,
 
    .. code-block:: c
 
-      struct _SUNMemoryHelper
+      struct SUNMemoryHelper_
       {
         void*               content;
         SUNMemoryHelper_Ops ops;
@@ -69,7 +69,7 @@ This API consists of three new SUNDIALS types: :c:type:`SUNMemoryType`,
       };
 
 
-.. c:type:: struct _SUNMemoryHelper_Ops *SUNMemoryHelper_Ops
+.. c:type:: struct SUNMemoryHelper_Ops_ *SUNMemoryHelper_Ops
 
    The ``SUNMemoryHelper_Ops`` type is defined as a pointer to the structure
    containing the function pointers to the member function implementations. This
@@ -77,7 +77,7 @@ This API consists of three new SUNDIALS types: :c:type:`SUNMemoryType`,
 
    .. code-block:: c
 
-      struct _SUNMemoryHelper_Ops
+      struct SUNMemoryHelper_Ops_
       {
         /* operations that implementations are required to provide */
         int (*alloc)(SUNMemoryHelper, SUNMemory* memptr size_t mem_size,
