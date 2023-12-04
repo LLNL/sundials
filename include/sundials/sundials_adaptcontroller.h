@@ -59,17 +59,17 @@ struct _generic_SUNAdaptController_Ops
   SUNAdaptController_Type (*gettype)(SUNAdaptController C);
 
   /* REQUIRED for controllers of SUN_ADAPTCONTROLLER_H type. */
-  int (*estimatestep)(SUNAdaptController C, sunrealtype h, int p,
-                      sunrealtype dsm, sunrealtype* hnew);
+  SUNErrCode (*estimatestep)(SUNAdaptController C, sunrealtype h, int p,
+                             sunrealtype dsm, sunrealtype* hnew);
 
   /* OPTIONAL for all SUNAdaptController implementations. */
-  int (*destroy)(SUNAdaptController C);
-  int (*reset)(SUNAdaptController C);
-  int (*setdefaults)(SUNAdaptController C);
-  int (*write)(SUNAdaptController C, FILE* fptr);
-  int (*seterrorbias)(SUNAdaptController C, sunrealtype bias);
-  int (*updateh)(SUNAdaptController C, sunrealtype h, sunrealtype dsm);
-  int (*space)(SUNAdaptController C, long int *lenrw, long int *leniw);
+  SUNErrCode (*destroy)(SUNAdaptController C);
+  SUNErrCode (*reset)(SUNAdaptController C);
+  SUNErrCode (*setdefaults)(SUNAdaptController C);
+  SUNErrCode (*write)(SUNAdaptController C, FILE* fptr);
+  SUNErrCode (*seterrorbias)(SUNAdaptController C, sunrealtype bias);
+  SUNErrCode (*updateh)(SUNAdaptController C, sunrealtype h, sunrealtype dsm);
+  SUNErrCode (*space)(SUNAdaptController C, long int *lenrw, long int *leniw);
 };
 
 /* A SUNAdaptController is a structure with an implementation-dependent
@@ -146,11 +146,10 @@ SUNErrCode SUNAdaptController_Space(SUNAdaptController C, long int *lenrw, long 
  * SUNAdaptController error codes
  * ----------------------------------------------------------------- */
 
+/* TODO(CJB): eliminate these after updating soderlind and imexgus in follow-on PR */
 #define SUNADAPTCONTROLLER_SUCCESS           0     /* function successfull        */
 #define SUNADAPTCONTROLLER_ILL_INPUT         -1001 /* illegal function input      */
-#define SUNADAPTCONTROLLER_MEM_FAIL          -1002 /* failed memory access/alloc  */
 #define SUNADAPTCONTROLLER_USER_FCN_FAIL     -1003 /* user-supplied fcn failure */
-#define SUNADAPTCONTROLLER_OPERATION_FAIL    -1004 /* catchall failure code       */
 
 #ifdef __cplusplus
 }
