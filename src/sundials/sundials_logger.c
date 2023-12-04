@@ -198,9 +198,9 @@ SUNErrCode SUNLogger_CreateFromEnv(SUNComm comm, SUNLogger* logger_out)
 
 SUNErrCode SUNLogger_SetErrorFilename(SUNLogger logger, const char* error_filename)
 {
-  if (!logger) { return SUN_ERR_ARG_CORRUPT; }  
+  if (!logger) { return SUN_ERR_ARG_CORRUPT; }
 
-  if (!sunLoggerIsOutputRank(logger, NULL)) { return SUN_SUCCESS; } 
+  if (!sunLoggerIsOutputRank(logger, NULL)) { return SUN_SUCCESS; }
 
   if (error_filename && strcmp(error_filename, ""))
   {

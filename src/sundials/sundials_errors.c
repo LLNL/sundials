@@ -43,9 +43,9 @@ SUNErrCode SUNErrHandler_Create(SUNErrHandlerFn eh_fn, void* eh_data,
 
 void SUNErrHandler_Destroy(SUNErrHandler* eh)
 {
-  if (!eh || !(*eh)) { return; }  
-  free(*eh);  
-  *eh = NULL;  
+  if (!eh || !(*eh)) { return; }
+  free(*eh);
+  *eh = NULL;
 }
 
 const char* SUNGetErrMsg(SUNErrCode code)

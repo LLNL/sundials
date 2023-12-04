@@ -253,9 +253,9 @@ SUNErrCode SUNContext_Free(SUNContext* sunctx)
 
 #if defined(SUNDIALS_BUILD_WITH_PROFILING) && !defined(SUNDIALS_CALIPER_ENABLED)
   /* Find out where we are printing to */
-  FILE* fp = NULL;
+  FILE* fp                    = NULL;
   char* sunprofiler_print_env = getenv("SUNPROFILER_PRINT");
-  fp                    = NULL;
+  fp                          = NULL;
   if (sunprofiler_print_env)
   {
     if (!strcmp(sunprofiler_print_env, "0")) fp = NULL;
