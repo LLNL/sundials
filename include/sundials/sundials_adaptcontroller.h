@@ -99,7 +99,7 @@ SUNAdaptController_Type SUNAdaptController_GetType(SUNAdaptController C);
    Any return value other than SUNADAPTCONTROLLER_SUCCESS will be treated as
    an unrecoverable failure. */
 SUNDIALS_EXPORT
-int SUNAdaptController_Destroy(SUNAdaptController C);
+SUNErrCode SUNAdaptController_Destroy(SUNAdaptController C);
 
 /* Main step size controller function.  This is called following
    a time step with size 'h' and local error factor 'dsm', and the
@@ -109,37 +109,37 @@ int SUNAdaptController_Destroy(SUNAdaptController C);
    Any return value other than SUNADAPTCONTROLLER_SUCCESS will be treated as
    an unrecoverable failure. */
 SUNDIALS_EXPORT
-int SUNAdaptController_EstimateStep(SUNAdaptController C, sunrealtype h,
-                                    int p, sunrealtype dsm, sunrealtype* hnew);
+SUNErrCode SUNAdaptController_EstimateStep(SUNAdaptController C, sunrealtype h,
+                                           int p, sunrealtype dsm, sunrealtype* hnew);
 
 /* Function to reset the controller to its initial state, e.g., if
    it stores a small number of previous dsm or step size values. */
 SUNDIALS_EXPORT
-int SUNAdaptController_Reset(SUNAdaptController C);
+SUNErrCode SUNAdaptController_Reset(SUNAdaptController C);
 
 /* Function to set the controller parameters to their default values. */
 SUNDIALS_EXPORT
-int SUNAdaptController_SetDefaults(SUNAdaptController C);
+SUNErrCode SUNAdaptController_SetDefaults(SUNAdaptController C);
 
 /* Function to write all controller parameters to the indicated file
    pointer. */
 SUNDIALS_EXPORT
-int SUNAdaptController_Write(SUNAdaptController C, FILE* fptr);
+SUNErrCode SUNAdaptController_Write(SUNAdaptController C, FILE* fptr);
 
 /* Function to set an error bias factor to use for scaling the local error
    'dsm' factors above. */
 SUNDIALS_EXPORT
-int SUNAdaptController_SetErrorBias(SUNAdaptController C, sunrealtype bias);
+SUNErrCode SUNAdaptController_SetErrorBias(SUNAdaptController C, sunrealtype bias);
 
 /* Function to notify a controller of type SUN_ADAPTCONTROLLER_H that
    a successful time step was taken with stepsize h and local error factor
    dsm, indicating that these can be saved for subsequent controller functions. */
 SUNDIALS_EXPORT
-int SUNAdaptController_UpdateH(SUNAdaptController C, sunrealtype h, sunrealtype dsm);
+SUNErrCode SUNAdaptController_UpdateH(SUNAdaptController C, sunrealtype h, sunrealtype dsm);
 
 /* Function to return the memory requirements of the controller object. */
 SUNDIALS_EXPORT
-int SUNAdaptController_Space(SUNAdaptController C, long int *lenrw, long int *leniw);
+SUNErrCode SUNAdaptController_Space(SUNAdaptController C, long int *lenrw, long int *leniw);
 
 
 /* -----------------------------------------------------------------
