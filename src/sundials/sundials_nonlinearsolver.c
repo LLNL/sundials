@@ -17,10 +17,10 @@
  * ---------------------------------------------------------------------------*/
 
 #include <stdlib.h>
-
-#include <sundials/sundials_core.h>
-#include <sundials/priv/sundials_errors_impl.h>
 #include <sundials/priv/sundials_context_impl.h>
+#include <sundials/priv/sundials_errors_impl.h>
+#include <sundials/sundials_core.h>
+
 #include "sundials/sundials_errors.h"
 #include "sundials_logger_impl.h"
 
