@@ -29,7 +29,7 @@ The :c:type:`SUNContext` class/type is defined in the header file
 Users should create a :c:type:`SUNContext` object prior to any other calls to
 SUNDIALS library functions by calling:
 
-.. c:function:: SUNErrCode SUNContext_Create(SUNComm comm, SUNContext* ctx)
+.. c:function:: SUNErrCode SUNContext_Create(SUNComm comm, SUNContext* sunctx)
 
    Creates a :c:type:`SUNContext` object associated with the thread of execution.
    The data of the :c:type:`SUNContext` class is private.
@@ -37,7 +37,7 @@ SUNDIALS library functions by calling:
    :param comm: the MPI communicator or ``SUN_COMM_NULL`` if not using MPI.
    :param sunctx: [in,out] upon successful exit, a pointer to the newly created :c:type:`SUNContext` object.
 
-   :return: :c:type:`SUNErrCode` indicating success or failure
+   :return: :c:type:`SUNErrCode` indicating success or failure.
 
 The created :c:type:`SUNContext` object should be provided to the constructor
 routines for different SUNDIALS classes/modules e.g.,
@@ -60,13 +60,13 @@ routines for different SUNDIALS classes/modules e.g.,
 After all other SUNDIALS code, the :c:type:`SUNContext` object should be freed
 with a call to:
 
-.. c:function:: SUNErrCode SUNContext_Free(SUNContext* ctx)
+.. c:function:: SUNErrCode SUNContext_Free(SUNContext* sunctx)
 
    Frees the :c:type:`SUNContext` object.
 
    :param sunctx: pointer to a valid :c:type:`SUNContext` object, ``NULL`` upon successful return.
 
-   :return: :c:type:`SUNErrCode` indicating success or failure
+   :return: :c:type:`SUNErrCode` indicating success or failure.
 
    .. warning::
 
@@ -83,7 +83,7 @@ The :c:type:`SUNContext` API further consists of the following functions:
 
    :param sunctx: a valid :c:type:`SUNContext` object.
 
-   :return: the last :c:type:`SUNErrCode` recorded
+   :return: the last :c:type:`SUNErrCode` recorded.
 
 
 .. c:function:: SUNErrCode SUNContext_PeekLastError(SUNContext sunctx)
@@ -93,7 +93,7 @@ The :c:type:`SUNContext` API further consists of the following functions:
 
    :param sunctx: a valid :c:type:`SUNContext` object.
 
-   :return: the last :c:type:`SUNErrCode` recorded
+   :return: the last :c:type:`SUNErrCode` recorded.
 
 
 .. c:function:: SUNErrCode SUNContext_PushErrHandler(SUNContext sunctx, SUNErrHandlerFn err_fn, void* err_user_data)
@@ -102,10 +102,10 @@ The :c:type:`SUNContext` API further consists of the following functions:
    error occurs inside of SUNDIALS.
 
    :param sunctx: a valid :c:type:`SUNContext` object.
-   :param err_fn: a callback function of type :c:type:`SUNErrHandlerFn` to be pushed onto the error handler stack
-   :param err_user_data: a pointer that will be passed back to callback function when it is called
+   :param err_fn: a callback function of type :c:type:`SUNErrHandlerFn` to be pushed onto the error handler stack.
+   :param err_user_data: a pointer that will be passed back to the callback function when it is called.
 
-   :return: :c:type:`SUNErrCode` indicating success or failure
+   :return: :c:type:`SUNErrCode` indicating success or failure.
 
 
 .. c:function:: SUNErrCode SUNContext_PopErrHandler(SUNContext sunctx)
@@ -114,7 +114,7 @@ The :c:type:`SUNContext` API further consists of the following functions:
 
    :param sunctx: a valid :c:type:`SUNContext` object.
 
-   :return: :c:type:`SUNErrCode` indicating success or failure
+   :return: :c:type:`SUNErrCode` indicating success or failure.
 
 
 .. c:function:: SUNErrCode SUNContext_ClearErrHandlers(SUNContext sunctx)
@@ -124,10 +124,10 @@ The :c:type:`SUNContext` API further consists of the following functions:
 
    :param sunctx: a valid :c:type:`SUNContext` object.
 
-   :return: :c:type:`SUNErrCode` indicating success or failure
+   :return: :c:type:`SUNErrCode` indicating success or failure.
 
 
-.. c:function:: SUNErrCode SUNContext_GetProfiler(SUNContext ctx, SUNProfiler* profiler)
+.. c:function:: SUNErrCode SUNContext_GetProfiler(SUNContext sunctx, SUNProfiler* profiler)
 
    Gets the :c:type:`SUNProfiler` object associated with the
    :c:type:`SUNContext` object.
@@ -137,10 +137,10 @@ The :c:type:`SUNContext` API further consists of the following functions:
         associated with this context; will be ``NULL`` if profiling is not
         enabled.
 
-   :return: :c:type:`SUNErrCode` indicating success or failure
+   :return: :c:type:`SUNErrCode` indicating success or failure.
 
 
-.. c:function:: SUNErrCode SUNContext_SetProfiler(SUNContext ctx, SUNProfiler profiler)
+.. c:function:: SUNErrCode SUNContext_SetProfiler(SUNContext sunctx, SUNProfiler profiler)
 
    Sets the :c:type:`SUNProfiler` object associated with the
    :c:type:`SUNContext` object.
@@ -149,10 +149,10 @@ The :c:type:`SUNContext` API further consists of the following functions:
    :param profiler: a :c:type:`SUNProfiler` object to associate with this
         context; this is ignored if profiling is not enabled.
 
-   :return: :c:type:`SUNErrCode` indicating success or failure
+   :return: :c:type:`SUNErrCode` indicating success or failure.
 
 
-.. c:function:: SUNErrCode SUNContext_SetLogger(SUNContext ctx, SUNLogger logger)
+.. c:function:: SUNErrCode SUNContext_SetLogger(SUNContext sunctx, SUNLogger logger)
 
    Sets the :c:type:`SUNLogger` object associated with the :c:type:`SUNContext`
    object.
@@ -161,19 +161,19 @@ The :c:type:`SUNContext` API further consists of the following functions:
    :param logger: a :c:type:`SUNLogger` object to associate with this
         context; this is ignored if logging is not enabled.
 
-   :return: :c:type:`SUNErrCode` indicating success or failure
+   :return: :c:type:`SUNErrCode` indicating success or failure.
 
    .. versionadded:: 6.2.0
 
 
-.. c:function:: SUNErrCode SUNContext_GetLogger(SUNContext ctx, SUNLogger* logger)
+.. c:function:: SUNErrCode SUNContext_GetLogger(SUNContext sunctx, SUNLogger* logger)
 
    Gets the :c:type:`SUNLogger` object associated with the :c:type:`SUNContext` object.
 
    :param sunctx: a valid :c:type:`SUNContext` object.
    :param logger: [in,out] a pointer to the :c:type:`SUNLogger` object associated with this context; will be ``NULL`` if logging is not enabled.  
 
-   :return: :c:type:`SUNErrCode` indicating success or failure
+   :return: :c:type:`SUNErrCode` indicating success or failure.
 
    .. versionadded:: 6.2.0
 
