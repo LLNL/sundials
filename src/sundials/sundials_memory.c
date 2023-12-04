@@ -33,7 +33,7 @@ SUNMemory SUNMemoryNewEmpty(void)
 {
   SUNMemory mem = NULL;
 
-  mem = (SUNMemory)malloc(sizeof(struct _SUNMemory));
+  mem = (SUNMemory)malloc(sizeof(struct SUNMemory_));
 
   mem->bytes = 0;
 
@@ -47,14 +47,14 @@ SUNMemoryHelper SUNMemoryHelper_NewEmpty(SUNContext sunctx)
   SUNFunctionBegin(sunctx);
   SUNMemoryHelper helper = NULL;
 
-  helper = (SUNMemoryHelper)malloc(sizeof(struct _SUNMemoryHelper));
+  helper = (SUNMemoryHelper)malloc(sizeof(struct SUNMemoryHelper_));
   SUNAssert(helper, SUN_ERR_MALLOC_FAIL);
 
-  helper->ops = (SUNMemoryHelper_Ops)malloc(sizeof(struct _SUNMemoryHelper_Ops));
+  helper->ops = (SUNMemoryHelper_Ops)malloc(sizeof(struct SUNMemoryHelper_Ops_));
   SUNAssert(helper->ops, SUN_ERR_MALLOC_FAIL);
 
   /* Set all ops to NULL */
-  memset(helper->ops, 0, sizeof(struct _SUNMemoryHelper_Ops));
+  memset(helper->ops, 0, sizeof(struct SUNMemoryHelper_Ops_));
   helper->content = NULL;
   helper->sunctx  = sunctx;
 
@@ -63,7 +63,7 @@ SUNMemoryHelper SUNMemoryHelper_NewEmpty(SUNContext sunctx)
 
 SUNErrCode SUNMemoryHelper_CopyOps(SUNMemoryHelper src, SUNMemoryHelper dst)
 {
-  memcpy(dst->ops, src->ops, sizeof(struct _SUNMemoryHelper_Ops));
+  memcpy(dst->ops, src->ops, sizeof(struct SUNMemoryHelper_Ops_));
   return SUN_SUCCESS;
 }
 

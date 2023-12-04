@@ -35,11 +35,11 @@ modules, vectors and algebraic solvers, are found in
 
 .. code-block::
 
-  <libdir>/libsundials_nvec*.<so|a>
-  <libdir>/libsundials_sunmat*.<so|a>
-  <libdir>/libsundials_sunlinsol*.<so|a>
-  <libdir>/libsundials_sunnonlinsol*.<so|a>
-  <libdir>/libsundials_sunmem.<so|a>
+  <libdir>/libsundials_nvec*.lib
+  <libdir>/libsundials_sunmat*.lib
+  <libdir>/libsundials_sunlinsol*.lib
+  <libdir>/libsundials_sunnonlinsol*.lib
+  <libdir>/libsundials_sunmem*.lib
 
 The file extension ``.lib`` is typically ``.so`` for shared libraries 
 and ``.a`` for static libraries.  
@@ -63,24 +63,34 @@ prototypes, and include the shared ``arkode/arkode.h`` and
 included, but there are optional ones that can be included as necessary.
 Information on optional headers is given in the relevant documentation section.
 
+The calling program must also include an :c:type:`N_Vector` implementation header file,  
+of the form ``nvector/nvector_*.h``. See :numref:`NVectors` for the appropriate name.  
+
 If the user includes a non-trivial implicit component to their ODE system in
 ARKStep, or if the slow time scale for MRIStep should be treated implicitly,
 then each implicit stage will require a nonlinear solver for the resulting
 system of algebraic equations -- the default for this is a modified or inexact
 Newton iteration, depending on the user's choice of linear solver.  If choosing
 to set which nonlinear solver module, or when interacting with a
-:numref:`SUNNonlinSol` module directly, the calling program must also include a
-:numref:`SUNNonlinSol` header file, of the form ``sunnonlinsol/sunnonlinsol_***.h`` 
+:c:type:`SUNNonlinearSolver` module directly, the calling program must also include a
+:c:type:`SUNNonlinearSolver` header file, of the form ``sunnonlinsol/sunnonlinsol_***.h``
 where ``***`` is the name of the nonlinear solver module 
 (see :numref:`SUNNonlinSol` for more information). 
+
 
 If using a nonlinear solver that requires the solution of a linear system of the
 form :math:`\mathcal{A}x=b` (e.g., the default Newton iteration), then a linear
 solver module header file will also be required.  Similarly, if the ODE system
 in ARKStep involves a non-identity mass matrix :math:`M \ne I`, then each time
-step will require a linear solver for systems of the form :math:`Mx=b`. 
-In this case it will be necessary to include the header file for a SUNDIALS linear 
-solver, which is of the form ``sunlinsol/sunlinsol_***.h``. 
+step will require a linear solver for systems of the form :math:`Mx=b`. In this
+case it will be necessary to include the header file for a
+:c:type:`SUNLinearSolver` solver, which is of the form
+``sunlinsol/sunlinsol_***.h`` (see :numref:`SUNLinSol` for more information). 
+
+If the linear solver is matrix-based, the linear solver header will also include a  
+header file of the from ``sunmatrix/sunmatrix_*.h`` where ``*`` is the name of the  
+matrix implementation compatible with the linear solver (see :numref:`SUNMatrix` for  
+more information). 
 
 Other headers may be needed, according to the choice of preconditioner, etc.
 For example, if preconditioning for an iterative linear solver were performed

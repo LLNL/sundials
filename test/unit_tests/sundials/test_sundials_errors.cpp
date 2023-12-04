@@ -1,6 +1,6 @@
 /* -----------------------------------------------------------------
  * SUNDIALS Copyright Start
- * Copyright (c) 2002-2022, Lawrence Livermore National Security
+ * Copyright (c) 2002-2023, Lawrence Livermore National Security
  * and Southern Methodist University.
  * All rights reserved.
  *
@@ -97,7 +97,7 @@ TEST_F(SUNContextErrFunctionTests, SUNContextPushErrHandlerWorks)
   SUNContext_PushErrHandler(sunctx, firstHandler, static_cast<void*>(&order));
   SUNContext_PushErrHandler(sunctx, secondHandler, static_cast<void*>(&order));
   SUNContext_PushErrHandler(sunctx, thirdHandler, static_cast<void*>(&order));
-  SUNHandleErr(__LINE__, __func__, __FILE__, -1, sunctx);
+  SUNHandleErrWithMsg(__LINE__, __func__, __FILE__, NULL, -1, sunctx);
   EXPECT_EQ(order.size(), 3);
   EXPECT_EQ(order.at(0), 2);
   EXPECT_EQ(order.at(1), 1);
@@ -112,7 +112,7 @@ TEST_F(SUNContextErrFunctionTests, SUNContextPopErrHandlerWorks)
   SUNContext_PushErrHandler(sunctx, secondHandler, static_cast<void*>(&order));
   SUNContext_PushErrHandler(sunctx, thirdHandler, static_cast<void*>(&order));
   SUNContext_PopErrHandler(sunctx);
-  SUNHandleErr(__LINE__, __func__, __FILE__, -1, sunctx);
+  SUNHandleErrWithMsg(__LINE__, __func__, __FILE__, NULL, -1, sunctx);
   EXPECT_EQ(order.size(), 2);
   EXPECT_EQ(order.at(0), 1);
   EXPECT_EQ(order.at(1), 0);

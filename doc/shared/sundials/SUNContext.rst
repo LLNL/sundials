@@ -117,7 +117,7 @@ The :c:type:`SUNContext` API further consists of the following functions:
    :return: :c:type:`SUNErrCode` indicating success or failure
 
 
-.. c:function:: SUNErrCode SUNContext_ClearErrHandler(SUNContext sunctx)
+.. c:function:: SUNErrCode SUNContext_ClearErrHandlers(SUNContext sunctx)
 
    Clears the entire error handler stack. After doing this it is important to push an error handler
    onto the stack with :c:type:`SUNContext_PushErrHandler` otherwise errors will be ignored.
@@ -159,7 +159,7 @@ The :c:type:`SUNContext` API further consists of the following functions:
 
    :param sunctx: a valid :c:type:`SUNContext` object.
    :param logger: a :c:type:`SUNLogger` object to associate with this
-        context; this is ignored if profiling is not enabled.
+        context; this is ignored if logging is not enabled.
 
    :return: :c:type:`SUNErrCode` indicating success or failure
 
@@ -171,7 +171,7 @@ The :c:type:`SUNContext` API further consists of the following functions:
    Gets the :c:type:`SUNLogger` object associated with the :c:type:`SUNContext` object.
 
    :param sunctx: a valid :c:type:`SUNContext` object.
-   :param logger: [in,out] a pointer to the :c:type:`SUNLogger` object associated with this context; will be ``NULL`` if profiling is not enabled.
+   :param logger: [in,out] a pointer to the :c:type:`SUNLogger` object associated with this context; will be ``NULL`` if logging is not enabled.  
 
    :return: :c:type:`SUNErrCode` indicating success or failure
 

@@ -107,7 +107,7 @@ void SUNAssertErrHandlerFn(int line, const char* func, const char* file,
 
 /* Turn error code into error message */
 SUNDIALS_EXPORT
-const char* SUNGetErrMsg(SUNErrCode code, SUNContext sunctx);
+const char* SUNGetErrMsg(SUNErrCode code);
 
 #ifdef __cplusplus /* wrapper to enable C++ usage */
 } /* extern "C" */

@@ -23,7 +23,7 @@
 
 namespace sundials {
 namespace impl {
-using BaseMemoryHelper = BaseObject<_SUNMemoryHelper, _SUNMemoryHelper_Ops>;
+using BaseMemoryHelper = BaseObject<SUNMemoryHelper_, SUNMemoryHelper_Ops_>;
 } // namespace impl
 
 namespace experimental {

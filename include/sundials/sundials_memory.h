@@ -39,9 +39,9 @@ typedef enum
  * and its ownership.
  */
 
-typedef struct _SUNMemory* SUNMemory;
+typedef struct SUNMemory_* SUNMemory;
 
-struct _SUNMemory
+struct SUNMemory_
 {
   void* ptr;
   SUNMemoryType type;
@@ -57,17 +57,17 @@ SUNDIALS_EXPORT SUNMemory SUNMemoryNewEmpty(void);
  * and copy SUNMemory.
  */
 
-typedef struct _SUNMemoryHelper_Ops* SUNMemoryHelper_Ops;
-typedef struct _SUNMemoryHelper* SUNMemoryHelper;
+typedef struct SUNMemoryHelper_Ops_* SUNMemoryHelper_Ops;
+typedef struct SUNMemoryHelper_* SUNMemoryHelper;
 
-struct _SUNMemoryHelper
+struct SUNMemoryHelper_
 {
   void* content;
   SUNMemoryHelper_Ops ops;
   SUNContext sunctx;
 };
 
-struct _SUNMemoryHelper_Ops
+struct SUNMemoryHelper_Ops_
 {
   /* operations that implementations are required to provide */
   SUNErrCode (*alloc)(SUNMemoryHelper, SUNMemory* memptr, size_t mem_size,

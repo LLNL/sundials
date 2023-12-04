@@ -112,13 +112,12 @@ end subroutine
  use, intrinsic :: ISO_C_BINDING
  type(C_PTR), value :: cptr
 end subroutine
-function swigc_FSUNGetErrMsg(farg1, farg2) &
+function swigc_FSUNGetErrMsg(farg1) &
 bind(C, name="_wrap_FSUNGetErrMsg") &
 result(fresult)
 use, intrinsic :: ISO_C_BINDING
 import :: swigarraywrapper
 integer(C_INT), intent(in) :: farg1
-type(C_PTR), value :: farg2
 type(SwigArrayWrapper) :: fresult
 end function
 
@@ -249,19 +248,16 @@ subroutine SWIG_chararray_to_string(wrap, string)
   end do
 end subroutine
 
-function FSUNGetErrMsg(code, sunctx) &
+function FSUNGetErrMsg(code) &
 result(swig_result)
 use, intrinsic :: ISO_C_BINDING
 character(kind=C_CHAR, len=:), allocatable :: swig_result
 integer(C_INT), intent(in) :: code
-type(C_PTR) :: sunctx
 type(SwigArrayWrapper) :: fresult 
 integer(C_INT) :: farg1 
-type(C_PTR) :: farg2 
 
 farg1 = code
-farg2 = sunctx
-fresult = swigc_FSUNGetErrMsg(farg1, farg2)
+fresult = swigc_FSUNGetErrMsg(farg1)
 call SWIG_chararray_to_string(fresult, swig_result)
 if (.false.) call SWIG_free(fresult%data)
 end function

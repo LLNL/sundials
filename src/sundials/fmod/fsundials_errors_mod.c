@@ -293,15 +293,13 @@ SWIGEXPORT void _wrap_FSUNAssertErrHandlerFn(int const *farg1, SwigArrayWrapper 
 }
 
 
-SWIGEXPORT SwigArrayWrapper _wrap_FSUNGetErrMsg(int const *farg1, void *farg2) {
+SWIGEXPORT SwigArrayWrapper _wrap_FSUNGetErrMsg(int const *farg1) {
   SwigArrayWrapper fresult ;
   SUNErrCode arg1 ;
-  SUNContext arg2 = (SUNContext) 0 ;
   char *result = 0 ;
   
   arg1 = (SUNErrCode)(*farg1);
-  arg2 = (SUNContext)(farg2);
-  result = (char *)SUNGetErrMsg(arg1,arg2);
+  result = (char *)SUNGetErrMsg(arg1);
   fresult.size = strlen((const char*)(result));
   fresult.data = (char *)(result);
   return fresult;

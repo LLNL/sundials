@@ -69,11 +69,11 @@ modules, vectors and algebraic solvers, are found in
 
 .. code-block::
 
-  <libdir>/libsundials_nvec*.<so|a>
-  <libdir>/libsundials_sunmat*.<so|a>
-  <libdir>/libsundials_sunlinsol*.<so|a>
-  <libdir>/libsundials_sunnonlinsol*.<so|a>
-  <libdir>/libsundials_sunmem.<so|a>
+  <libdir>/libsundials_nvec*.lib
+  <libdir>/libsundials_sunmat*.lib
+  <libdir>/libsundials_sunlinsol*.lib
+  <libdir>/libsundials_sunnonlinsol*.lib
+  <libdir>/libsundials_sunmem*.lib
 
 The file extension ``.lib`` is typically ``.so`` for shared libraries 
 and ``.a`` for static libraries.  
@@ -87,24 +87,32 @@ the header file for CVODES in addition to the SUNDIALS core header file:
   #include <sundials/sundials_core.h> // Provides core SUNDIALS types
   #include <cvodes/cvodes.h>          // CVODES provides linear multistep methods with sensitivity analysis
 
-The calling program must also include an ``N_Vector`` implementation header file, of the form
+The calling program must also include an :c:type`N_Vector` implementation header file, of the form  
 ``nvector/nvector_*.h``. See :numref:`NVectors` for the appropriate name.
 
-If using a non-default nonlinear solver module, or when interacting with a ``SUNNonlinearSolver``
-module directly, the calling program must also include a ``SUNNonlinearSolver`` implementation
-header file, of the form ``sunnonlinsol/sunnonlinsol_*.h`` where is the name of the nonlinear solver
-module (see :numref:`SUNNonlinSol` for more information). This file in turn includes the header file
-which defines the abstract data type.
+If using a non-default nonlinear solver module, or when interacting with a  
+:c:type:`SUNNonlinearSolver` module directly, the calling program must  
+also include a :c:type:`SUNNonlinearSolver` implementation header file,  
+of the form ``sunnonlinsol/sunnonlinsol_*.h`` where ``*`` is the name of  
+the nonlinear solver module (see :numref:`SUNNonlinSol` for more  
+information).  
 
 If using a nonlinear solver that requires the solution of a linear system of the form
 :eq:`CVODES_Newton` (e.g., the default Newton iteration), then a linear solver module header file
-will be required.
+will be required. In this case it will be necessary to include the header file for a  
+:c:type:`SUNLinearSolver` solver, which is of the form ``sunlinsol/sunlinsol_***.h``  
+(see :numref:`SUNLinSol` for more information). 
+
+If the linear solver is matrix-based, the linear solver header will also include a  
+header file of the from ``sunmatrix/sunmatrix_*.h`` where ``*`` is the name of the  
+matrix implementation compatible with the linear solver (see :numref:`SUNMatrix` for  
+more information). 
 
 Other headers may be needed, according to the choice of preconditioner, etc. For example, in the
 example (see :cite:p:`cvodes_ex`), preconditioning is done with a block-diagonal matrix. For this,
-even though the ``SUNLINSOL_SPGMR`` linear solver is used, the header is included for access to the
-underlying generic dense matrix arithmetic routines.
-
+even though the ``SUNLINSOL_SPGMR`` linear solver is used, the header  
+``sundials dense.h`` is included for access to the underlying generic dense matrix  
+arithmetic routines.
 
 .. warning::
 
