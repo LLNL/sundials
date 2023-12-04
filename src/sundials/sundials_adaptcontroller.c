@@ -132,6 +132,7 @@ SUNErrCode SUNAdaptController_Reset(SUNAdaptController C)
 {
   int ier = SUN_SUCCESS;
   if (C == NULL) { return SUN_ERR_ARG_CORRUPT; }
+  SUNFunctionBegin(C->sunctx);
   if (C->ops->reset) { ier = C->ops->reset(C); }
   return(ier);
 }
@@ -140,6 +141,7 @@ SUNErrCode SUNAdaptController_SetDefaults(SUNAdaptController C)
 {
   int ier = SUN_SUCCESS;
   if (C == NULL) { return SUN_ERR_ARG_CORRUPT; }
+  SUNFunctionBegin(C->sunctx);
   if (C->ops->setdefaults) { ier = C->ops->setdefaults(C); }
   return(ier);
 }
@@ -147,7 +149,9 @@ SUNErrCode SUNAdaptController_SetDefaults(SUNAdaptController C)
 SUNErrCode SUNAdaptController_Write(SUNAdaptController C, FILE* fptr)
 {
   int ier = SUN_SUCCESS;
-  if (C == NULL || fptr == NULL) { return SUN_ERR_ARG_CORRUPT; }
+  if (C == NULL) { return SUN_ERR_ARG_CORRUPT; }
+  SUNFunctionBegin(C->sunctx);
+  SUNAssert(fptr, SUN_ERR_ARG_CORRUPT);
   if (C->ops->write) { ier = C->ops->write(C, fptr); }
   return(ier);
 }
@@ -156,6 +160,7 @@ SUNErrCode SUNAdaptController_SetErrorBias(SUNAdaptController C, sunrealtype bia
 {
   int ier = SUN_SUCCESS;
   if (C == NULL) { return SUN_ERR_ARG_CORRUPT; }
+  SUNFunctionBegin(C->sunctx);
   if (C->ops->seterrorbias) { ier = C->ops->seterrorbias(C, bias); }
   return(ier);
 }
@@ -164,6 +169,7 @@ SUNErrCode SUNAdaptController_UpdateH(SUNAdaptController C, sunrealtype h, sunre
 {
   int ier = SUN_SUCCESS;
   if (C == NULL) { return SUN_ERR_ARG_CORRUPT; }
+  SUNFunctionBegin(C->sunctx);
   if (C->ops->updateh) { ier = C->ops->updateh(C, h, dsm); }
   return(ier);
 }
@@ -171,7 +177,10 @@ SUNErrCode SUNAdaptController_UpdateH(SUNAdaptController C, sunrealtype h, sunre
 SUNErrCode SUNAdaptController_Space(SUNAdaptController C, long int *lenrw, long int *leniw)
 {
   int ier = SUN_SUCCESS;
-  if (C == NULL || lenrw == NULL || leniw == NULL) { return SUN_ERR_ARG_CORRUPT; }
+  if (C == NULL) { return SUN_ERR_ARG_CORRUPT; }
+  SUNFunctionBegin(C->sunctx);
+  SUNAssert(lenrw, SUN_ERR_ARG_CORRUPT);
+  SUNAssert(leniw, SUN_ERR_ARG_CORRUPT);
   *lenrw = 0;   /* initialize outputs with identity */
   *leniw = 0;
   if (C->ops->space) { ier = C->ops->space(C, lenrw, leniw); }
