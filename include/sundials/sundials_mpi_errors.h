@@ -24,11 +24,6 @@ void SUNMPIAbortErrHandlerFn(int line, const char* func, const char* file,
                              const char* msg, SUNErrCode err_code,
                              void* err_user_data, SUNContext sunctx);
 
-SUNDIALS_EXPORT
-void SUNMPIAssertErrHandlerFn(int line, const char* func, const char* file,
-                              const char* stmt, SUNErrCode err_code,
-                              void* err_user_data, SUNContext sunctx);
-
 #ifdef __cplusplus
 }
 #endif

@@ -144,24 +144,6 @@ The error handlers provided in SUNDIALS are:
   :return: ``void``
 
 
-.. c:function:: void SUNAssertErrHandlerFn(int line, const char* func, const char* file, \
-                                           const char* stmt, SUNErrCode err_code, \
-                                           void* err_user_data, SUNContext sunctx)
-
-  Logs the error and aborts the program if an error occured, but with a messgae that displays
-  the assertion that failed.
-
-  :param line: the line number at which the error occured
-  :param func: the function in which the error occured
-  :param file: the file in which the error occured 
-  :param stmt: the statement that failed the assertion
-  :param err_code: the error code for the error that occured
-  :param err_user_data: the user pointer provided to :c:func:`SUNContext_PushErrHandler`
-  :param sunctx: pointer to a valid :c:type:`SUNContext` object
-
-  :return: ``void``
-
-
 .. c:function:: void SUNMPIAbortErrHandlerFn(int line, const char* func, const char* file, \
                                              const char* msg, SUNErrCode err_code, \
                                              void* err_user_data, SUNContext sunctx)
@@ -172,24 +154,6 @@ The error handlers provided in SUNDIALS are:
   :param func: the function in which the error occured
   :param file: the file in which the error occured 
   :param msg: this parameter is ignored
-  :param err_code: the error code for the error that occured
-  :param err_user_data: the user pointer provided to :c:func:`SUNContext_PushErrHandler`
-  :param sunctx: pointer to a valid :c:type:`SUNContext` object
-
-  :return: ``void``
-
-
-.. c:function:: void SUNMPIAssertErrHandlerFn(int line, const char* func, const char* file, \
-                                              const char* stmt, SUNErrCode err_code, \
-                                              void* err_user_data, SUNContext sunctx)
-
-  Logs the error and calls ``MPI_Abort`` if an error occured, but with a messgae that displays
-  the assertion that failed.
-
-  :param line: the line number at which the error occured
-  :param func: the function in which the error occured
-  :param file: the file in which the error occured 
-  :param stmt: the statement that failed the assertion
   :param err_code: the error code for the error that occured
   :param err_user_data: the user pointer provided to :c:func:`SUNContext_PushErrHandler`
   :param sunctx: pointer to a valid :c:type:`SUNContext` object

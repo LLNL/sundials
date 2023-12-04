@@ -232,11 +232,11 @@ SWIGEXPORT int _wrap_FSUNAdaptController_GetType(SUNAdaptController farg1) {
 SWIGEXPORT int _wrap_FSUNAdaptController_Destroy(SUNAdaptController farg1) {
   int fresult ;
   SUNAdaptController arg1 = (SUNAdaptController) 0 ;
-  int result;
+  SUNErrCode result;
   
   arg1 = (SUNAdaptController)(farg1);
-  result = (int)SUNAdaptController_Destroy(arg1);
-  fresult = (int)(result);
+  result = (SUNErrCode)SUNAdaptController_Destroy(arg1);
+  fresult = (SUNErrCode)(result);
   return fresult;
 }
 
@@ -248,15 +248,15 @@ SWIGEXPORT int _wrap_FSUNAdaptController_EstimateStep(SUNAdaptController farg1, 
   int arg3 ;
   sunrealtype arg4 ;
   sunrealtype *arg5 = (sunrealtype *) 0 ;
-  int result;
+  SUNErrCode result;
   
   arg1 = (SUNAdaptController)(farg1);
   arg2 = (sunrealtype)(*farg2);
   arg3 = (int)(*farg3);
   arg4 = (sunrealtype)(*farg4);
   arg5 = (sunrealtype *)(farg5);
-  result = (int)SUNAdaptController_EstimateStep(arg1,arg2,arg3,arg4,arg5);
-  fresult = (int)(result);
+  result = (SUNErrCode)SUNAdaptController_EstimateStep(arg1,arg2,arg3,arg4,arg5);
+  fresult = (SUNErrCode)(result);
   return fresult;
 }
 
@@ -264,11 +264,11 @@ SWIGEXPORT int _wrap_FSUNAdaptController_EstimateStep(SUNAdaptController farg1, 
 SWIGEXPORT int _wrap_FSUNAdaptController_Reset(SUNAdaptController farg1) {
   int fresult ;
   SUNAdaptController arg1 = (SUNAdaptController) 0 ;
-  int result;
+  SUNErrCode result;
   
   arg1 = (SUNAdaptController)(farg1);
-  result = (int)SUNAdaptController_Reset(arg1);
-  fresult = (int)(result);
+  result = (SUNErrCode)SUNAdaptController_Reset(arg1);
+  fresult = (SUNErrCode)(result);
   return fresult;
 }
 
@@ -276,11 +276,11 @@ SWIGEXPORT int _wrap_FSUNAdaptController_Reset(SUNAdaptController farg1) {
 SWIGEXPORT int _wrap_FSUNAdaptController_SetDefaults(SUNAdaptController farg1) {
   int fresult ;
   SUNAdaptController arg1 = (SUNAdaptController) 0 ;
-  int result;
+  SUNErrCode result;
   
   arg1 = (SUNAdaptController)(farg1);
-  result = (int)SUNAdaptController_SetDefaults(arg1);
-  fresult = (int)(result);
+  result = (SUNErrCode)SUNAdaptController_SetDefaults(arg1);
+  fresult = (SUNErrCode)(result);
   return fresult;
 }
 
@@ -289,12 +289,12 @@ SWIGEXPORT int _wrap_FSUNAdaptController_Write(SUNAdaptController farg1, void *f
   int fresult ;
   SUNAdaptController arg1 = (SUNAdaptController) 0 ;
   FILE *arg2 = (FILE *) 0 ;
-  int result;
+  SUNErrCode result;
   
   arg1 = (SUNAdaptController)(farg1);
   arg2 = (FILE *)(farg2);
-  result = (int)SUNAdaptController_Write(arg1,arg2);
-  fresult = (int)(result);
+  result = (SUNErrCode)SUNAdaptController_Write(arg1,arg2);
+  fresult = (SUNErrCode)(result);
   return fresult;
 }
 
@@ -303,12 +303,12 @@ SWIGEXPORT int _wrap_FSUNAdaptController_SetErrorBias(SUNAdaptController farg1, 
   int fresult ;
   SUNAdaptController arg1 = (SUNAdaptController) 0 ;
   sunrealtype arg2 ;
-  int result;
+  SUNErrCode result;
   
   arg1 = (SUNAdaptController)(farg1);
   arg2 = (sunrealtype)(*farg2);
-  result = (int)SUNAdaptController_SetErrorBias(arg1,arg2);
-  fresult = (int)(result);
+  result = (SUNErrCode)SUNAdaptController_SetErrorBias(arg1,arg2);
+  fresult = (SUNErrCode)(result);
   return fresult;
 }
 
@@ -318,13 +318,13 @@ SWIGEXPORT int _wrap_FSUNAdaptController_UpdateH(SUNAdaptController farg1, doubl
   SUNAdaptController arg1 = (SUNAdaptController) 0 ;
   sunrealtype arg2 ;
   sunrealtype arg3 ;
-  int result;
+  SUNErrCode result;
   
   arg1 = (SUNAdaptController)(farg1);
   arg2 = (sunrealtype)(*farg2);
   arg3 = (sunrealtype)(*farg3);
-  result = (int)SUNAdaptController_UpdateH(arg1,arg2,arg3);
-  fresult = (int)(result);
+  result = (SUNErrCode)SUNAdaptController_UpdateH(arg1,arg2,arg3);
+  fresult = (SUNErrCode)(result);
   return fresult;
 }
 
@@ -334,13 +334,13 @@ SWIGEXPORT int _wrap_FSUNAdaptController_Space(SUNAdaptController farg1, long *f
   SUNAdaptController arg1 = (SUNAdaptController) 0 ;
   long *arg2 = (long *) 0 ;
   long *arg3 = (long *) 0 ;
-  int result;
+  SUNErrCode result;
   
   arg1 = (SUNAdaptController)(farg1);
   arg2 = (long *)(farg2);
   arg3 = (long *)(farg3);
-  result = (int)SUNAdaptController_Space(arg1,arg2,arg3);
-  fresult = (int)(result);
+  result = (SUNErrCode)SUNAdaptController_Space(arg1,arg2,arg3);
+  fresult = (SUNErrCode)(result);
   return fresult;
 }
 

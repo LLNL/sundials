@@ -44,16 +44,6 @@ TEST_F(SUNErrHandlerFnTest, SUNAbortErrHandlerFnAbortsWhenCalled)
     "avoid program termination.\n");
 }
 
-TEST_F(SUNErrHandlerFnTest, SUNAssertErrHandlerFnAbortsWhenCalled)
-{
-  ASSERT_DEATH(
-    {
-      SUNAssertErrHandlerFn(__LINE__, __func__, __FILE__, "Test assert handler",
-                            -1, nullptr, sunctx);
-    },
-    "SUNAssertErrHandler: assert(.*) failed... terminating\n");
-}
-
 class SUNContextErrFunctionTests : public testing::Test
 {
 protected:

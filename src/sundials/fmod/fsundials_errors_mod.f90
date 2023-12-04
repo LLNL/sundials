@@ -63,7 +63,6 @@ module fsundials_errors_mod
  end type
  public :: FSUNLogErrHandlerFn
  public :: FSUNAbortErrHandlerFn
- public :: FSUNAssertErrHandlerFn
  public :: FSUNGetErrMsg
 
 ! WRAPPER DECLARATIONS
@@ -83,19 +82,6 @@ end subroutine
 
 subroutine swigc_FSUNAbortErrHandlerFn(farg1, farg2, farg3, farg4, farg5, farg6, farg7) &
 bind(C, name="_wrap_FSUNAbortErrHandlerFn")
-use, intrinsic :: ISO_C_BINDING
-import :: swigarraywrapper
-integer(C_INT), intent(in) :: farg1
-type(SwigArrayWrapper) :: farg2
-type(SwigArrayWrapper) :: farg3
-type(SwigArrayWrapper) :: farg4
-integer(C_INT), intent(in) :: farg5
-type(C_PTR), value :: farg6
-type(C_PTR), value :: farg7
-end subroutine
-
-subroutine swigc_FSUNAssertErrHandlerFn(farg1, farg2, farg3, farg4, farg5, farg6, farg7) &
-bind(C, name="_wrap_FSUNAssertErrHandlerFn")
 use, intrinsic :: ISO_C_BINDING
 import :: swigarraywrapper
 integer(C_INT), intent(in) :: farg1
@@ -202,36 +188,6 @@ farg5 = err_code
 farg6 = err_user_data
 farg7 = sunctx
 call swigc_FSUNAbortErrHandlerFn(farg1, farg2, farg3, farg4, farg5, farg6, farg7)
-end subroutine
-
-subroutine FSUNAssertErrHandlerFn(line, func, file, stmt, err_code, err_user_data, sunctx)
-use, intrinsic :: ISO_C_BINDING
-integer(C_INT), intent(in) :: line
-character(kind=C_CHAR, len=*), target :: func
-character(kind=C_CHAR), dimension(:), allocatable, target :: farg2_chars
-character(kind=C_CHAR, len=*), target :: file
-character(kind=C_CHAR), dimension(:), allocatable, target :: farg3_chars
-character(kind=C_CHAR, len=*), target :: stmt
-character(kind=C_CHAR), dimension(:), allocatable, target :: farg4_chars
-integer(C_INT), intent(in) :: err_code
-type(C_PTR) :: err_user_data
-type(C_PTR) :: sunctx
-integer(C_INT) :: farg1 
-type(SwigArrayWrapper) :: farg2 
-type(SwigArrayWrapper) :: farg3 
-type(SwigArrayWrapper) :: farg4 
-integer(C_INT) :: farg5 
-type(C_PTR) :: farg6 
-type(C_PTR) :: farg7 
-
-farg1 = line
-call SWIG_string_to_chararray(func, farg2_chars, farg2)
-call SWIG_string_to_chararray(file, farg3_chars, farg3)
-call SWIG_string_to_chararray(stmt, farg4_chars, farg4)
-farg5 = err_code
-farg6 = err_user_data
-farg7 = sunctx
-call swigc_FSUNAssertErrHandlerFn(farg1, farg2, farg3, farg4, farg5, farg6, farg7)
 end subroutine
 
 
