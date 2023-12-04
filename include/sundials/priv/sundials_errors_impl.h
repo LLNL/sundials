@@ -143,7 +143,7 @@ void SUNHandleErrWithFmtMsg(int line, const char* func, const char* file,
  * We define several different version of SUNCheck* macros to cover various
  * programming scenarios.
  *
- * SUNCheckCall* macros are used to check SUNDIALS functions calls which do
+ * SUNCheckCall* macros are used to check SUNDIALS function calls which do
  * return a SUNErrCode.
  *
  * SUNCheckLastErr* macros are used to check SUNDIALS function calls that
@@ -278,7 +278,7 @@ void SUNHandleErrWithFmtMsg(int line, const char* func, const char* file,
 
 /* SUNCheckLastErrMoRetMsg checks the last_err value in the SUNContext.
    If an error occured, then it will log the error, set the last_err
-   value, and calls the error handler. */
+   value, and call the error handler. */
 #if defined(SUNDIALS_ENABLE_ERROR_CHECKS)
 #define SUNCheckLastErrMsg(msg) \
   SUNCheckCallMsg(SUNContext_GetLastError(SUNCTX_), msg)
@@ -305,7 +305,7 @@ void SUNHandleErrWithFmtMsg(int line, const char* func, const char* file,
 /*
   SUNAssert checks if an expression is true. It expands to SUNCheck when error
   checks are enabled. If error checks are disabled, then we try to expand it to
-  an assumption, if the compiler supoprts, so that the compiler can make
+  an assumption, if the compiler supports, so that the compiler can make
   optimizations based on the assumption.
 
   :param expr: a expression to evaluate as true or false
