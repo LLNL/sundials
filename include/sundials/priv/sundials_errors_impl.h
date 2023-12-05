@@ -41,7 +41,8 @@ struct SUNErrHandler_
 
   :param eh_fn: An error handler callback function
   :param eh_data: A pointer that will be passed back to the error handler
-  callback function :param eh_out: The new SUNErrHandler object
+  callback function
+  :param eh_out: The new SUNErrHandler object
 
   :return: A SUNErrCode indicating success or failure
 */
@@ -53,7 +54,7 @@ SUNErrCode SUNErrHandler_Create(SUNErrHandlerFn eh_fn, void* eh_data,
   This function destroys and frees the memory for the given SUNErrHandler
   object.
 
-  :param eh: A SUNErrHandler object
+  :param eh: A pointer to a SUNErrHandler object
 
   :return: void
 */
@@ -140,10 +141,10 @@ void SUNHandleErrWithFmtMsg(int line, const char* func, const char* file,
 /* ----------------------------------------------------------------------------
  * SUNCheck* family of error checking macros
  *
- * We define several different version of SUNCheck* macros to cover various
+ * We define several different versions of SUNCheck* macros to cover various
  * programming scenarios.
  *
- * SUNCheckCall* macros are used to check SUNDIALS function calls which do
+ * SUNCheckCall* macros are used to check SUNDIALS function calls that
  * return a SUNErrCode.
  *
  * SUNCheckLastErr* macros are used to check SUNDIALS function calls that
@@ -156,7 +157,7 @@ void SUNHandleErrWithFmtMsg(int line, const char* func, const char* file,
   assumptions. If the expression should be strictly assumed as true, then use
   SUNAssert instead.
 
-  :param expr: a expression to evaluate as true or false
+  :param expr: an expression to evaluate as true or false
   :param code: the error code to pass to the error handler if the expression is
   false
 */
@@ -305,8 +306,8 @@ void SUNHandleErrWithFmtMsg(int line, const char* func, const char* file,
 /*
   SUNAssert checks if an expression is true. It expands to SUNCheck when error
   checks are enabled. If error checks are disabled, then we try to expand it to
-  an assumption, if the compiler supports, so that the compiler can make
-  optimizations based on the assumption.
+  an assumption, if the compiler supports assumptions, so that the compiler
+  can make optimizations based on the assumption.
 
   :param expr: a expression to evaluate as true or false
   :param code: the error code to pass to the error handler if the expression is

@@ -45,7 +45,7 @@
   }                                                                            \
   while (0)
 #else
-#define SUNCheckMPICallMsg(call, msg) call
+#define SUNCheckMPICallMsg(call, msg) (void)call
 #endif
 
 /*
@@ -69,7 +69,7 @@
   }                                                                            \
   while (0)
 #else
-#define SUNCheckMPICallNullMsg(call, msg) call
+#define SUNCheckMPICallNullMsg(call, msg) (void)call
 #endif
 
 /*
@@ -93,7 +93,7 @@
   }                                                                            \
   while (0)
 #else
-#define SUNCheckMPICallVoidMsg(call, msg) call
+#define SUNCheckMPICallVoidMsg(call, msg) (void)call
 #endif
 
 /*
@@ -116,7 +116,7 @@
   }                                                                            \
   while (0)
 #else
-#define SUNCheckMPICallNoRetMsg(call) call
+#define SUNCheckMPICallNoRetMsg(call) (void)call
 #endif
 
 /* These versions of SUNCheckMPICall do not take a custom message so a
