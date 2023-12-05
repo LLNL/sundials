@@ -107,7 +107,28 @@ CMake targets.
 
 Added Fortran support for the LAPACK  dense ``SUNLinearSolver`` implementation.
 
+**Major feature**
 SUNDIALS now has more robust and uniform error handling. See :numref:`SUNDIALS.Errors` for details.
+
+**Deprecation notice**
+The functions in `sundials_math.h` will be deprecated in the next release.
+
+.. code-block:: c
+
+  sunrealtype SUNRpowerI(sunrealtype base, int exponent);
+  sunrealtype SUNRpowerR(sunrealtype base, sunrealtype exponent);
+  sunbooleantype SUNRCompare(sunrealtype a, sunrealtype b);
+  sunbooleantype SUNRCompareTol(sunrealtype a, sunrealtype b, sunrealtype tol);
+  sunrealtype SUNStrToReal(const char* str);
+
+Additionally, the following header files (and everything in them) will be deprecated:
+
+.. code-block:: c
+
+  sundials_direct.h
+  sundials_dense.h
+  sundials_band.h
+
 
 **Breaking change** 
 We have replaced the use of a type-erased (i.e., ``void*``) pointer to a

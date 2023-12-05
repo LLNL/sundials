@@ -17,22 +17,20 @@ Error Checking
 
 .. versionadded:: 7.0.0
 
-Errors that occur within SUNDIALS are dealt with through error codes and error handler callback
-functions. The error code type :c:type:`SUNErrCode` is just a typedef to an ``int``:
+Until version 7.0.0, error reporting and handling was inconsistent throughout SUNDIALS. The SUNDIALS
+core was hit and miss with error reporting via return codes and output no error messages. The
+packages of SUNDIALS (CVODE, ARKODE etc.) all reported errors through package specific ``int`` codes
+and error handler callbacks. The packages defaulted to printing error messages to a file, stdout, or
+stderr. Starting with version 7.0.0 all of SUNDIALS (the core, implementations of core modules, and
+packages) reports error mesages through the :c:type:`SUNLogger` API. Furthermore, functions in the
+SUNDIALS core API (i.e., ``SUN`` or ``N_V`` functions only) either return a :c:type:`SUNErrCode`, or
+(if they don't return a :c:type:`SUNErrCode`) they internally record an error code (if an error
+occurs) within the :c:type:`SUNContext` for the execution stream. This "last error" is accessible
+via the :c:func:`SUNContext_GetLastError` or :c:func:`SUNContext_PeekLastError` functions.
 
 .. c:type:: int SUNErrCode 
 
-Errors are always negative, while success is defined with the ``SUN_SUCCESS`` code and has the value ``0``.
-To see all of the possible error codes, refer to the ``sundials/sundials_errors.h`` header file 
-(`here <https://github.com/LLNL/sundials/blob/main/include/sundials/sundials_errors.h>`_).
-
-Functions in the SUNDIALS core API (i.e., ``SUN`` or ``N_V`` functions only) either return a
-:c:type:`SUNErrCode`, or (if they don't return a :c:type:`SUNErrCode`) they internally record an
-error code (if an error occurs) within the :c:type:`SUNContext` for the execution stream. 
-This "last error" is accessible via the :c:func:`SUNContext_GetLastError` or
-:c:func:`SUNContext_PeekLastError` functions.
-
-Thus, in user code, SUNDIALS core functions can be checked for errors in one of two ways:
+Thus, in user code, SUNDIALS core API functions can be checked for errors in one of two ways:
 
 .. code-block:: C
 

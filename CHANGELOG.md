@@ -57,8 +57,28 @@ method `ARKODE_VERNER_16_8_9`.
 Changed the `SUNProfiler` so that it does not rely on `MPI_WTime` in any case.
 This fixes https://github.com/LLNL/sundials/issues/312. 
 
+**Major feature**
 SUNDIALS now has more robust and uniform error handling. See the "Error Handling"
 section in the user guide for details.
+
+**Deprecation notice**
+The functions in `sundials_math.h` will be deprecated in the next release.
+
+```c
+  sunrealtype SUNRpowerI(sunrealtype base, int exponent);
+  sunrealtype SUNRpowerR(sunrealtype base, sunrealtype exponent);
+  sunbooleantype SUNRCompare(sunrealtype a, sunrealtype b);
+  sunbooleantype SUNRCompareTol(sunrealtype a, sunrealtype b, sunrealtype tol);
+  sunrealtype SUNStrToReal(const char* str);
+```
+
+Additionally, the following header files (and everything in them) will be deprecated:
+
+```
+sundials_direct.h
+sundials_dense.h
+sundials_band.h
+```
 
 **Breaking change** 
 We have replaced the use of a type-erased (i.e., `void*`) pointer to a
@@ -92,6 +112,7 @@ Users now need to link to `sundials_core` in addition to the libraries already l
 This will be picked up automatically in projects that use the SUNDIALS CMake target.
 The library `sundials_generic` has been superceded by `sundials_core` and is no longer available.
 This fixes some duplicate symbol errors on Windows when linking to multiple SUNDIALS libraries.
+
 
 ## Changes to SUNDIALS in release 6.6.2
 
