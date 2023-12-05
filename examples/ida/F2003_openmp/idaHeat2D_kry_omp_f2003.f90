@@ -548,8 +548,8 @@ subroutine SetInitialProfile(sunvec_u, sunvec_up, sunvec_r)
   ! Initialize uu on all grid points
   !$omp parallel do collapse(2) private(yfact,xfact,i,j)
   do j = 1,mgrid
-     yfact = dx * (j-1)
      do i = 1,mgrid
+        yfact = dx * (j-1)
         xfact = dx * (i-1)
         uu(i,j) = 16.d0 * xfact * (1.d0 - xfact) * yfact * (1.d0 - yfact)
      end do
@@ -563,19 +563,15 @@ subroutine SetInitialProfile(sunvec_u, sunvec_up, sunvec_r)
   retval = resHeat(0.d0, sunvec_u, sunvec_up, sunvec_r, C_NULL_PTR)
 
   ! Copy -r into up to get correct interior initial up values
-  !$omp parallel
-  !$omp workshare
+  !$omp parallel workshare
   up = -r
-  !$omp end workshare
+  !$omp end parallel workshare
 
   ! Set up at boundary points to zero
-  !$omp workshare
   up(1,:)     = 0.d0
   up(mgrid,:) = 0.d0
   up(:,1)     = 0.d0
   up(:,mgrid) = 0.d0
-  !$omp end workshare
-  !$omp end parallel
 
   return
 end subroutine SetInitialProfile
