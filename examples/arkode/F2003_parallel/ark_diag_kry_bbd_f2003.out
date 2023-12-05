@@ -24,7 +24,7 @@
      0.900000      312      312        0     3335
      1.000000      319      319        0     3410
     -------------------------------------------------
-Max. absolute error is   7.56E-11
+Max. absolute error is   7.52E-11
    
  Final Solver Statistics:
    Internal solver steps =    319 (attempted =    319)
@@ -38,7 +38,7 @@ Max. absolute error is   7.56E-11
    Total Convergence Failures - Nonlinear =      0
                               - Linear    =      0
    Total number of error test failures =      0
-   Main solver real/int workspace sizes =    861   265
+   Main solver real/int workspace sizes =    862   267
    Linear solver real/int workspace sizes =    535   126
    BBD preconditioner real/int workspace sizes =    160    72
    Total number of g evals =     12
@@ -59,7 +59,7 @@ Max. absolute error is   7.56E-11
      0.900000      312      312        0     3335
      1.000000      319      319        0     3410
     -------------------------------------------------
-Max. absolute error is   7.56E-11
+Max. absolute error is   7.52E-11
    
  Final Solver Statistics:
    Internal solver steps =    319 (attempted =    319)
@@ -73,7 +73,7 @@ Max. absolute error is   7.56E-11
    Total Convergence Failures - Nonlinear =      0
                               - Linear    =      0
    Total number of error test failures =      0
-   Main solver real/int workspace sizes =    861   270
+   Main solver real/int workspace sizes =    862   272
    Linear solver real/int workspace sizes =    535   126
    BBD preconditioner real/int workspace sizes =    160    72
    Total number of g evals =     12

@@ -14,36 +14,36 @@ Initial conditions y0 = ( 1.00  0.00  0.00 )
     rootsfound[] =  0   1
   4.0000E-01   9.8517E-01   3.3864E-05   1.4794E-02 |  34    4.4841E-02
   4.0000E+00   9.0552E-01   2.2405E-05   9.4459E-02 |  87    1.0144E-01
-  4.0000E+01   7.1583E-01   9.1856E-06   2.8416E-01 | 217    7.7942E-01
-  4.0000E+02   4.5052E-01   3.2229E-06   5.4948E-01 | 356    6.0017E+00
-  4.0000E+03   1.8320E-01   8.9422E-07   8.1680E-01 | 442    1.1938E+02
-  4.0000E+04   3.8983E-02   1.6218E-07   9.6102E-01 | 519    1.6492E+03
-  4.0000E+05   4.9383E-03   1.9845E-08   9.9506E-01 | 726    2.4045E+04
-  4.0000E+06   5.1681E-04   2.0678E-09   9.9948E-01 | 861    3.7558E+05
-  2.0795E+07   1.0000E-04   3.9911E-10   9.9990E-01 | 884    2.5984E+06
+  4.0000E+01   7.1583E-01   9.1856E-06   2.8416E-01 | 217    7.7919E-01
+  4.0000E+02   4.5052E-01   3.2229E-06   5.4948E-01 | 356    6.0414E+00
+  4.0000E+03   1.8320E-01   8.9423E-07   8.1680E-01 | 445    1.1101E+02
+  4.0000E+04   3.8983E-02   1.6218E-07   9.6102E-01 | 526    1.5172E+03
+  4.0000E+05   4.9383E-03   1.9849E-08   9.9506E-01 | 622    3.2703E+04
+  4.0000E+06   5.1679E-04   2.0689E-09   9.9948E-01 | 668    6.7110E+05
+  2.0796E+07   1.0000E-04   3.9998E-10   9.9990E-01 | 681    2.5236E+06
     rootsfound[] = -1   0
-  4.0000E+07   5.2028E-05   2.0772E-10   9.9995E-01 | 889    7.9434E+06
-  4.0000E+08   5.2078E-06   2.0691E-11   9.9999E-01 | 907    6.1863E+07
-  4.0000E+09   5.2084E-07   1.9449E-12   1.0000E+00 | 927    3.2094E+08
-  4.0000E+10   5.2085E-08   1.9867E-13   1.0000E+00 | 951    1.2903E+09
+  4.0000E+07   5.2028E-05   2.0644E-10   9.9995E-01 | 685    7.2040E+06
+  4.0000E+08   5.2075E-06   2.0694E-11   9.9999E-01 | 699    9.3020E+07
+  4.0000E+09   5.2087E-07   2.2947E-12   1.0000E+00 | 714    4.1703E+08
+  4.0000E+10   5.2085E-08   2.0139E-13   1.0000E+00 | 747    4.5921E+09
   
  ------------------------------------------------------
       Final      y1'          y2'          y3'
  ------------------------------------------------------
-              -1.3021E-18  -1.2726E-23   1.3021E-18
+              -1.3023E-18  -3.1154E-23   1.3023E-18
   
   General Solver Stats:
-    Total internal steps taken    =      951
-    Total internal steps attempts =     1149
+    Total internal steps taken    =      747
+    Total internal steps attempts =      807
     Total rhs exp function calls  =        0
-    Total rhs imp function calls  =    32195
-    Total Jacobian function calls =       60
-    Num lin solver setup calls    =      515
-    Num error test failures       =      186
+    Total rhs imp function calls  =    25557
+    Total Jacobian function calls =       61
+    Num lin solver setup calls    =      239
+    Num error test failures       =       45
     First internal step size      = 1.00000E-08
-    Last internal step size       = 1.29030E+09
-    Next internal step size       = 2.99928E+09
-    Current internal time         = 4.03344E+10
-    Num nonlinear solver iters    =    26476
-    Num nonlinear solver fails    =       50
+    Last internal step size       = 4.59208E+09
+    Next internal step size       = 4.59208E+09
+    Current internal time         = 4.43176E+10
+    Num nonlinear solver iters    =    21568
+    Num nonlinear solver fails    =       56
   
