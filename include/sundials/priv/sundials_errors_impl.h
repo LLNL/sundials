@@ -157,21 +157,100 @@ void SUNHandleErrWithFmtMsg(int line, const char* func, const char* file,
   assumptions. If the expression should be strictly assumed as true, then use
   SUNAssert instead.
 
+  Use SUNAssert macros to check for conditions that do not make sense. E.g.,
+  to check if malloc returned NULL. Use SUNCheck macros for checking inputs.
+
   :param expr: an expression to evaluate as true or false
   :param code: the error code to pass to the error handler if the expression is
   false
 */
 #if defined(SUNDIALS_ENABLE_ERROR_CHECKS)
-#define SUNCheck(expr, code)                                                   \
-  do {                                                                         \
-    if (SUNHintFalse(!(expr)))                                                 \
-    {                                                                          \
-      SUNHandleErrWithMsg(__LINE__, __func__, __FILE__, #expr, code, SUNCTX_); \
-    }                                                                          \
-  }                                                                            \
+#define SUNCheck(expr, code)                                              \
+  do {                                                                    \
+    if (SUNHintFalse(!(expr)))                                            \
+    {                                                                     \
+      SUNHandleErrWithFmtMsg(__LINE__, __func__, __FILE__, "expected %s", \
+                             code, SUNCTX_, #expr);                       \
+      return code;                                                        \
+    }                                                                     \
+  }                                                                       \
   while (0)
 #else
 #define SUNCheck(expr, code)
+#endif
+
+/*
+  SUNCheckNoRet is the same as SUNCheck but *does not return from the caller*.
+  Use SUNAssert macros to check for conditions that do not make sense. E.g.,
+  to check if malloc returned NULL. Use SUNCheck macros for checking inputs.
+
+  :param expr: an expression to evaluate as true or false
+  :param code: the error code to pass to the error handler if the expression is
+  false
+*/
+
+#if defined(SUNDIALS_ENABLE_ERROR_CHECKS)
+#define SUNCheckNoRet(expr, code)                                         \
+  do {                                                                    \
+    if (SUNHintFalse(!(expr)))                                            \
+    {                                                                     \
+      SUNHandleErrWithFmtMsg(__LINE__, __func__, __FILE__, "expected %s", \
+                             code, SUNCTX_, #expr);                       \
+    }                                                                     \
+  }                                                                       \
+  while (0)
+#else
+#define SUNCheckNoRet(expr, code)
+#endif
+
+/*
+  SUNCheckNull is the same as SUNCheck but *returns NULL from the caller*.
+  Use SUNAssert macros to check for conditions that do not make sense. E.g.,
+  to check if malloc returned NULL. Use SUNCheck macros for checking inputs.
+
+  :param expr: an expression to evaluate as true or false
+  :param code: the error code to pass to the error handler if the expression is
+  false
+*/
+
+#if defined(SUNDIALS_ENABLE_ERROR_CHECKS)
+#define SUNCheckNull(expr, code)                                          \
+  do {                                                                    \
+    if (SUNHintFalse(!(expr)))                                            \
+    {                                                                     \
+      SUNHandleErrWithFmtMsg(__LINE__, __func__, __FILE__, "expected %s", \
+                             code, SUNCTX_, #expr);                       \
+      return NULL;                                                        \
+    }                                                                     \
+  }                                                                       \
+  while (0)
+#else
+#define SUNCheckNull(expr, code)
+#endif
+
+/*
+  SUNCheckNull is the same as SUNCheck but *returns void from the caller*.
+  Use SUNAssert macros to check for conditions that do not make sense. E.g.,
+  to check if malloc returned NULL. Use SUNCheck macros for checking inputs.
+
+  :param expr: an expression to evaluate as true or false
+  :param code: the error code to pass to the error handler if the expression is
+  false
+*/
+
+#if defined(SUNDIALS_ENABLE_ERROR_CHECKS)
+#define SUNCheckVoid(expr, code)                                          \
+  do {                                                                    \
+    if (SUNHintFalse(!(expr)))                                            \
+    {                                                                     \
+      SUNHandleErrWithFmtMsg(__LINE__, __func__, __FILE__, "expected %s", \
+                             code, SUNCTX_, #expr);                       \
+      return;                                                             \
+    }                                                                     \
+  }                                                                       \
+  while (0)
+#else
+#define SUNCheckVoid(expr, code)
 #endif
 
 /*
@@ -214,7 +293,6 @@ void SUNHandleErrWithFmtMsg(int line, const char* func, const char* file,
     {                                                        \
       SUNHandleErrWithMsg(__LINE__, __func__, __FILE__, msg, \
                           sun_chk_call_err_code_, SUNCTX_);  \
-      (void)SUNContext_GetLastError(SUNCTX_);                \
     }                                                        \
   }                                                          \
   while (0)
@@ -282,13 +360,13 @@ void SUNHandleErrWithFmtMsg(int line, const char* func, const char* file,
    value, and call the error handler. */
 #if defined(SUNDIALS_ENABLE_ERROR_CHECKS)
 #define SUNCheckLastErrMsg(msg) \
-  SUNCheckCallMsg(SUNContext_GetLastError(SUNCTX_), msg)
+  SUNCheckCallMsg(SUNContext_PeekLastError(SUNCTX_), msg)
 #define SUNCheckLastErrNoRetMsg(msg) \
-  SUNCheckCallNoRetMsg(SUNContext_GetLastError(SUNCTX_), msg)
+  SUNCheckCallNoRetMsg(SUNContext_PeekLastError(SUNCTX_), msg)
 #define SUNCheckLastErrNullMsg(msg) \
-  SUNCheckCallNullMsg(SUNContext_GetLastError(SUNCTX_), msg)
+  SUNCheckCallNullMsg(SUNContext_PeekLastError(SUNCTX_), msg)
 #define SUNCheckLastErrVoidMsg(msg) \
-  SUNCheckCallVoidMsg(SUNContext_GetLastError(SUNCTX_), msg)
+  SUNCheckCallVoidMsg(SUNContext_PeekLastError(SUNCTX_), msg)
 #else
 #define SUNCheckLastErrNoRetMsg(msg)
 #define SUNCheckLastErrMsg(msg)
@@ -304,20 +382,75 @@ void SUNHandleErrWithFmtMsg(int line, const char* func, const char* file,
 #define SUNCheckLastErrNull()  SUNCheckLastErrNullMsg(NULL)
 
 /*
-  SUNAssert checks if an expression is true. It expands to SUNCheck when error
-  checks are enabled. If error checks are disabled, then we try to expand it to
-  an assumption, if the compiler supports assumptions, so that the compiler
-  can make optimizations based on the assumption.
+  SUNAssert checks if an expression is true. It expands to SUNCheck in debug
+  builds othewrise we try to expand it to an assumption, if the compiler
+  supports assumptions, so that the compiler can make optimizations based on the
+  assumption.
+
+  Use SUNAssert macros to check for conditions that do not make sense. E.g.,
+  to check if malloc returned NULL. Use SUNCheck macros for checking inputs.
 
   :param expr: a expression to evaluate as true or false
   :param code: the error code to pass to the error handler if the expression is
   false
 */
 
-#if defined(SUNDIALS_ENABLE_ERROR_CHECKS)
+#if !defined(NDEBUG)
 #define SUNAssert(expr, code) SUNCheck(expr, code)
 #else
 #define SUNAssert(expr, code) SUNAssume(expr)
+#endif
+
+/*
+  SUNAssertNoRet is the same as SUNAssert but it does not return from the
+  caller.
+
+  Use SUNAssert macros to check for conditions that do not make sense. E.g.,
+  to check if malloc returned NULL. Use SUNCheck macros for checking inputs.
+
+  :param expr: a expression to evaluate as true or false
+  :param code: the error code to pass to the error handler if the expression is
+  false
+*/
+
+#if !defined(NDEBUG)
+#define SUNAssertNoRet(expr, code) SUNCheckNoRet(expr, code)
+#else
+#define SUNAssertNoRet(expr, code) SUNAssume(expr)
+#endif
+
+/*
+  SUNAssertNull is the same as SUNAssert but it *returns NULL from the caller*.
+
+  Use SUNAssert macros to check for conditions that do not make sense. E.g.,
+  to check if malloc returned NULL. Use SUNCheck macros for checking inputs.
+
+  :param expr: a expression to evaluate as true or false
+  :param code: the error code to pass to the error handler if the expression is
+  false
+*/
+
+#if !defined(NDEBUG)
+#define SUNAssertNull(expr, code) SUNCheckNull(expr, code)
+#else
+#define SUNAssertNull(expr, code) SUNAssume(expr)
+#endif
+
+/*
+  SUNAssertVoid is the same as SUNAssert but it *returns void from the caller*.
+
+  Use SUNAssert macros to check for conditions that do not make sense. E.g.,
+  to check if malloc returned NULL. Use SUNCheck macros for checking inputs.
+
+  :param expr: a expression to evaluate as true or false
+  :param code: the error code to pass to the error handler if the expression is
+  false
+*/
+
+#if !defined(NDEBUG)
+#define SUNAssertVoid(expr, code) SUNCheckVoid(expr, code)
+#else
+#define SUNAssertVoid(expr, code) SUNAssume(expr)
 #endif
 
 #endif /* _SUNDIALS_ERRORS_IMPL_H */

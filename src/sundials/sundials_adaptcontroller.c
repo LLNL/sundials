@@ -37,12 +37,12 @@ SUNAdaptController SUNAdaptController_NewEmpty(SUNContext sunctx)
   /* create controller object */
   C = NULL;
   C = (SUNAdaptController) malloc(sizeof *C);
-  SUNAssert(C, SUN_ERR_MALLOC_FAIL);
+  SUNAssertNull(C, SUN_ERR_MALLOC_FAIL);
 
   /* create matrix ops structure */
   ops = NULL;
   ops = (SUNAdaptController_Ops) malloc(sizeof *ops);
-  SUNAssert(ops, SUN_ERR_MALLOC_FAIL);
+  SUNAssertNull(ops, SUN_ERR_MALLOC_FAIL);
 
   /* initialize operations to NULL */
   ops->gettype              = NULL;
@@ -151,7 +151,7 @@ SUNErrCode SUNAdaptController_Write(SUNAdaptController C, FILE* fptr)
   int ier = SUN_SUCCESS;
   if (C == NULL) { return SUN_ERR_ARG_CORRUPT; }
   SUNFunctionBegin(C->sunctx);
-  SUNAssert(fptr, SUN_ERR_ARG_CORRUPT);
+  SUNCheck(fptr, SUN_ERR_ARG_CORRUPT);
   if (C->ops->write) { ier = C->ops->write(C, fptr); }
   return(ier);
 }
@@ -179,8 +179,8 @@ SUNErrCode SUNAdaptController_Space(SUNAdaptController C, long int *lenrw, long 
   int ier = SUN_SUCCESS;
   if (C == NULL) { return SUN_ERR_ARG_CORRUPT; }
   SUNFunctionBegin(C->sunctx);
-  SUNAssert(lenrw, SUN_ERR_ARG_CORRUPT);
-  SUNAssert(leniw, SUN_ERR_ARG_CORRUPT);
+  SUNCheck(lenrw, SUN_ERR_ARG_CORRUPT);
+  SUNCheck(leniw, SUN_ERR_ARG_CORRUPT);
   *lenrw = 0;   /* initialize outputs with identity */
   *leniw = 0;
   if (C->ops->space) { ier = C->ops->space(C, lenrw, leniw); }

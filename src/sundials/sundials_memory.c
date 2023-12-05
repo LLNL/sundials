@@ -48,10 +48,10 @@ SUNMemoryHelper SUNMemoryHelper_NewEmpty(SUNContext sunctx)
   SUNMemoryHelper helper = NULL;
 
   helper = (SUNMemoryHelper)malloc(sizeof(struct SUNMemoryHelper_));
-  SUNAssert(helper, SUN_ERR_MALLOC_FAIL);
+  SUNAssertNull(helper, SUN_ERR_MALLOC_FAIL);
 
   helper->ops = (SUNMemoryHelper_Ops)malloc(sizeof(struct SUNMemoryHelper_Ops_));
-  SUNAssert(helper->ops, SUN_ERR_MALLOC_FAIL);
+  SUNAssertNull(helper->ops, SUN_ERR_MALLOC_FAIL);
 
   /* Set all ops to NULL */
   memset(helper->ops, 0, sizeof(struct SUNMemoryHelper_Ops_));
@@ -122,7 +122,7 @@ SUNErrCode SUNMemoryHelper_GetAllocStats(SUNMemoryHelper helper,
 {
   SUNErrCode ier = SUN_SUCCESS;
   SUNFunctionBegin(helper->sunctx);
-  SUNAssert(helper->ops->getallocstats, SUN_ERR_NOT_IMPLEMENTED);
+  SUNCheck(helper->ops->getallocstats, SUN_ERR_NOT_IMPLEMENTED);
   SUNDIALS_MARK_FUNCTION_BEGIN(getSUNProfiler(helper));
   ier = helper->ops->getallocstats(helper, mem_type, num_allocations,
                                    num_deallocations, bytes_allocated,
@@ -137,7 +137,7 @@ SUNErrCode SUNMemoryHelper_Alloc(SUNMemoryHelper helper, SUNMemory* memptr,
 {
   SUNErrCode ier = SUN_SUCCESS;
   SUNFunctionBegin(helper->sunctx);
-  SUNAssert(helper->ops->alloc, SUN_ERR_NOT_IMPLEMENTED);
+  SUNCheck(helper->ops->alloc, SUN_ERR_NOT_IMPLEMENTED);
   SUNDIALS_MARK_FUNCTION_BEGIN(getSUNProfiler(helper));
   ier = helper->ops->alloc(helper, memptr, mem_size, mem_type, queue);
   SUNDIALS_MARK_FUNCTION_END(getSUNProfiler(helper));
@@ -149,7 +149,7 @@ SUNErrCode SUNMemoryHelper_Dealloc(SUNMemoryHelper helper, SUNMemory mem,
 {
   SUNErrCode ier = SUN_SUCCESS;
   SUNFunctionBegin(helper->sunctx);
-  SUNAssert(helper->ops->dealloc, SUN_ERR_NOT_IMPLEMENTED);
+  SUNCheck(helper->ops->dealloc, SUN_ERR_NOT_IMPLEMENTED);
   SUNDIALS_MARK_FUNCTION_BEGIN(getSUNProfiler(helper));
   if (!mem) { ier = SUN_SUCCESS; }
   else { ier = helper->ops->dealloc(helper, mem, queue); }
@@ -162,7 +162,7 @@ SUNErrCode SUNMemoryHelper_Copy(SUNMemoryHelper helper, SUNMemory dst,
 {
   SUNErrCode ier = SUN_SUCCESS;
   SUNFunctionBegin(helper->sunctx);
-  SUNAssert(helper->ops->copy, SUN_ERR_NOT_IMPLEMENTED);
+  SUNCheck(helper->ops->copy, SUN_ERR_NOT_IMPLEMENTED);
   SUNDIALS_MARK_FUNCTION_BEGIN(getSUNProfiler(helper));
   ier = helper->ops->copy(helper, dst, src, memory_size, queue);
   SUNDIALS_MARK_FUNCTION_END(getSUNProfiler(helper));
@@ -194,7 +194,7 @@ SUNErrCode SUNMemoryHelper_Destroy(SUNMemoryHelper helper)
   }
 
   if (helper->content) {
-    SUNAssert(helper->ops->destroy, SUN_ERR_NOT_IMPLEMENTED);
+    SUNCheck(helper->ops->destroy, SUN_ERR_NOT_IMPLEMENTED);
   }
 
   if (helper->ops->destroy)
@@ -219,7 +219,7 @@ SUNMemoryHelper SUNMemoryHelper_Clone(SUNMemoryHelper helper)
   {
     if (helper->content)
     {
-      SUNAssert(!helper->ops->clone, SUN_ERR_NOT_IMPLEMENTED);
+      SUNCheckNull(!helper->ops->clone, SUN_ERR_NOT_IMPLEMENTED);
       return (NULL);
     }
     else

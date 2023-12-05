@@ -110,7 +110,9 @@ SUNErrCode SUNContext_GetLastError(SUNContext sunctx)
   if (!sunctx) { return SUN_ERR_SUNCTX_CORRUPT; }
 
   SUNFunctionBegin(sunctx);
-  return sunctx->last_err;
+  SUNErrCode err = sunctx->last_err;
+  sunctx->last_err = SUN_SUCCESS;
+  return err;
 }
 
 SUNErrCode SUNContext_PeekLastError(SUNContext sunctx)
