@@ -21,7 +21,8 @@
 
 #include <stdarg.h>
 
-#include "ida/ida.h"
+#include <ida/ida.h>
+#include <sundials/priv/sundials_errors_impl.h>
 #include <sundials/priv/sundials_context_impl.h>
 #include "sundials_logger_impl.h"
 
@@ -37,9 +38,9 @@ extern "C" {
 #define RSYMW "23.16g"
 #endif
 
-/*=================================================================*/
-/* Shortcuts                                                       */
-/*=================================================================*/
+/*===============================================================
+  SHORTCUTS
+  ===============================================================*/
 
 #define IDA_PROFILER IDA_mem->ida_sunctx->profiler
 #define IDA_LOGGER IDA_mem->ida_sunctx->logger
@@ -440,9 +441,8 @@ int IDAEwtSet(N_Vector ycur, N_Vector weight, void *data);
 
 /* High level error handler */
 
-void IDAProcessError(IDAMem IDA_mem,
-                     int error_code, const char *module, const char *fname,
-                     const char *msgfmt, ...);
+void IDAProcessError(IDAMem ida_mem, int error_code, int line, const char *func,
+                     const char* file, const char *msgfmt, ...);
 
 /* Prototype of internal errHandler function */
 

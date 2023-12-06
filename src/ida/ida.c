@@ -277,7 +277,7 @@ void* IDACreate(SUNContext sunctx)
   /* Test inputs */
   if (sunctx == NULL)
   {
-    IDAProcessError(NULL, 0, "IDA", "IDACreate", MSG_NULL_SUNCTX);
+    IDAProcessError(NULL, 0, __LINE__, __func__, __FILE__, MSG_NULL_SUNCTX);
     return (NULL);
   }
 
@@ -285,7 +285,7 @@ void* IDACreate(SUNContext sunctx)
   IDA_mem = (IDAMem)malloc(sizeof(struct IDAMemRec));
   if (IDA_mem == NULL)
   {
-    IDAProcessError(NULL, 0, "IDA", "IDACreate", MSG_MEM_FAIL);
+    IDAProcessError(NULL, 0, __LINE__, __func__, __FILE__, MSG_MEM_FAIL);
     return (NULL);
   }
 
@@ -387,7 +387,7 @@ int IDAInit(void* ida_mem, IDAResFn res, sunrealtype t0, N_Vector yy0,
 
   if (ida_mem == NULL)
   {
-    IDAProcessError(NULL, IDA_MEM_NULL, "IDA", "IDAInit", MSG_NO_MEM);
+    IDAProcessError(NULL, IDA_MEM_NULL, __LINE__, __func__, __FILE__, MSG_NO_MEM);
     return (IDA_MEM_NULL);
   }
   IDA_mem = (IDAMem)ida_mem;
@@ -398,21 +398,24 @@ int IDAInit(void* ida_mem, IDAResFn res, sunrealtype t0, N_Vector yy0,
 
   if (yy0 == NULL)
   {
-    IDAProcessError(IDA_mem, IDA_ILL_INPUT, "IDA", "IDAInit", MSG_Y0_NULL);
+    IDAProcessError(IDA_mem, IDA_ILL_INPUT, __LINE__, __func__, __FILE__,
+                    MSG_Y0_NULL);
     SUNDIALS_MARK_FUNCTION_END(IDA_PROFILER);
     return (IDA_ILL_INPUT);
   }
 
   if (yp0 == NULL)
   {
-    IDAProcessError(IDA_mem, IDA_ILL_INPUT, "IDA", "IDAInit", MSG_YP0_NULL);
+    IDAProcessError(IDA_mem, IDA_ILL_INPUT, __LINE__, __func__, __FILE__,
+                    MSG_YP0_NULL);
     SUNDIALS_MARK_FUNCTION_END(IDA_PROFILER);
     return (IDA_ILL_INPUT);
   }
 
   if (res == NULL)
   {
-    IDAProcessError(IDA_mem, IDA_ILL_INPUT, "IDA", "IDAInit", MSG_RES_NULL);
+    IDAProcessError(IDA_mem, IDA_ILL_INPUT, __LINE__, __func__, __FILE__,
+                    MSG_RES_NULL);
     SUNDIALS_MARK_FUNCTION_END(IDA_PROFILER);
     return (IDA_ILL_INPUT);
   }
@@ -422,7 +425,8 @@ int IDAInit(void* ida_mem, IDAResFn res, sunrealtype t0, N_Vector yy0,
   nvectorOK = IDACheckNvector(yy0);
   if (!nvectorOK)
   {
-    IDAProcessError(IDA_mem, IDA_ILL_INPUT, "IDA", "IDAInit", MSG_BAD_NVECTOR);
+    IDAProcessError(IDA_mem, IDA_ILL_INPUT, __LINE__, __func__, __FILE__,
+                    MSG_BAD_NVECTOR);
     SUNDIALS_MARK_FUNCTION_END(IDA_PROFILER);
     return (IDA_ILL_INPUT);
   }
@@ -443,7 +447,8 @@ int IDAInit(void* ida_mem, IDAResFn res, sunrealtype t0, N_Vector yy0,
   allocOK = IDAAllocVectors(IDA_mem, yy0);
   if (!allocOK)
   {
-    IDAProcessError(IDA_mem, IDA_MEM_FAIL, "IDA", "IDAInit", MSG_MEM_FAIL);
+    IDAProcessError(IDA_mem, IDA_MEM_FAIL, __LINE__, __func__, __FILE__,
+                    MSG_MEM_FAIL);
     SUNDIALS_MARK_FUNCTION_END(IDA_PROFILER);
     return (IDA_MEM_FAIL);
   }
@@ -464,7 +469,8 @@ int IDAInit(void* ida_mem, IDAResFn res, sunrealtype t0, N_Vector yy0,
   /* check that nonlinear solver is non-NULL */
   if (NLS == NULL)
   {
-    IDAProcessError(IDA_mem, IDA_MEM_FAIL, "IDA", "IDAInit", MSG_MEM_FAIL);
+    IDAProcessError(IDA_mem, IDA_MEM_FAIL, __LINE__, __func__, __FILE__,
+                    MSG_MEM_FAIL);
     IDAFreeVectors(IDA_mem);
     SUNDIALS_MARK_FUNCTION_END(IDA_PROFILER);
     return (IDA_MEM_FAIL);
@@ -476,7 +482,7 @@ int IDAInit(void* ida_mem, IDAResFn res, sunrealtype t0, N_Vector yy0,
   /* check that the nonlinear solver was successfully attached */
   if (retval != IDA_SUCCESS)
   {
-    IDAProcessError(IDA_mem, retval, "IDA", "IDAInit",
+    IDAProcessError(IDA_mem, retval, __LINE__, __func__, __FILE__,
                     "Setting the nonlinear solver failed");
     IDAFreeVectors(IDA_mem);
     SUNNonlinSolFree(NLS);
@@ -567,7 +573,7 @@ int IDAReInit(void* ida_mem, sunrealtype t0, N_Vector yy0, N_Vector yp0)
 
   if (ida_mem == NULL)
   {
-    IDAProcessError(NULL, IDA_MEM_NULL, "IDA", "IDAReInit", MSG_NO_MEM);
+    IDAProcessError(NULL, IDA_MEM_NULL, __LINE__, __func__, __FILE__, MSG_NO_MEM);
     return (IDA_MEM_NULL);
   }
   IDA_mem = (IDAMem)ida_mem;
@@ -578,7 +584,8 @@ int IDAReInit(void* ida_mem, sunrealtype t0, N_Vector yy0, N_Vector yp0)
 
   if (IDA_mem->ida_MallocDone == SUNFALSE)
   {
-    IDAProcessError(IDA_mem, IDA_NO_MALLOC, "IDA", "IDAReInit", MSG_NO_MALLOC);
+    IDAProcessError(IDA_mem, IDA_NO_MALLOC, __LINE__, __func__, __FILE__,
+                    MSG_NO_MALLOC);
     SUNDIALS_MARK_FUNCTION_END(IDA_PROFILER);
     return (IDA_NO_MALLOC);
   }
@@ -587,14 +594,16 @@ int IDAReInit(void* ida_mem, sunrealtype t0, N_Vector yy0, N_Vector yp0)
 
   if (yy0 == NULL)
   {
-    IDAProcessError(IDA_mem, IDA_ILL_INPUT, "IDA", "IDAReInit", MSG_Y0_NULL);
+    IDAProcessError(IDA_mem, IDA_ILL_INPUT, __LINE__, __func__, __FILE__,
+                    MSG_Y0_NULL);
     SUNDIALS_MARK_FUNCTION_END(IDA_PROFILER);
     return (IDA_ILL_INPUT);
   }
 
   if (yp0 == NULL)
   {
-    IDAProcessError(IDA_mem, IDA_ILL_INPUT, "IDA", "IDAReInit", MSG_YP0_NULL);
+    IDAProcessError(IDA_mem, IDA_ILL_INPUT, __LINE__, __func__, __FILE__,
+                    MSG_YP0_NULL);
     SUNDIALS_MARK_FUNCTION_END(IDA_PROFILER);
     return (IDA_ILL_INPUT);
   }
@@ -660,14 +669,14 @@ int IDASStolerances(void* ida_mem, sunrealtype reltol, sunrealtype abstol)
 
   if (ida_mem == NULL)
   {
-    IDAProcessError(NULL, IDA_MEM_NULL, "IDA", "IDASStolerances", MSG_NO_MEM);
+    IDAProcessError(NULL, IDA_MEM_NULL, __LINE__, __func__, __FILE__, MSG_NO_MEM);
     return (IDA_MEM_NULL);
   }
   IDA_mem = (IDAMem)ida_mem;
 
   if (IDA_mem->ida_MallocDone == SUNFALSE)
   {
-    IDAProcessError(IDA_mem, IDA_NO_MALLOC, "IDA", "IDASStolerances",
+    IDAProcessError(IDA_mem, IDA_NO_MALLOC, __LINE__, __func__, __FILE__,
                     MSG_NO_MALLOC);
     return (IDA_NO_MALLOC);
   }
@@ -676,14 +685,14 @@ int IDASStolerances(void* ida_mem, sunrealtype reltol, sunrealtype abstol)
 
   if (reltol < ZERO)
   {
-    IDAProcessError(IDA_mem, IDA_ILL_INPUT, "IDA", "IDASStolerances",
+    IDAProcessError(IDA_mem, IDA_ILL_INPUT, __LINE__, __func__, __FILE__,
                     MSG_BAD_RTOL);
     return (IDA_ILL_INPUT);
   }
 
   if (abstol < ZERO)
   {
-    IDAProcessError(IDA_mem, IDA_ILL_INPUT, "IDA", "IDASStolerances",
+    IDAProcessError(IDA_mem, IDA_ILL_INPUT, __LINE__, __func__, __FILE__,
                     MSG_BAD_ATOL);
     return (IDA_ILL_INPUT);
   }
@@ -710,14 +719,14 @@ int IDASVtolerances(void* ida_mem, sunrealtype reltol, N_Vector abstol)
 
   if (ida_mem == NULL)
   {
-    IDAProcessError(NULL, IDA_MEM_NULL, "IDA", "IDASVtolerances", MSG_NO_MEM);
+    IDAProcessError(NULL, IDA_MEM_NULL, __LINE__, __func__, __FILE__, MSG_NO_MEM);
     return (IDA_MEM_NULL);
   }
   IDA_mem = (IDAMem)ida_mem;
 
   if (IDA_mem->ida_MallocDone == SUNFALSE)
   {
-    IDAProcessError(IDA_mem, IDA_NO_MALLOC, "IDA", "IDASVtolerances",
+    IDAProcessError(IDA_mem, IDA_NO_MALLOC, __LINE__, __func__, __FILE__,
                     MSG_NO_MALLOC);
     return (IDA_NO_MALLOC);
   }
@@ -726,7 +735,7 @@ int IDASVtolerances(void* ida_mem, sunrealtype reltol, N_Vector abstol)
 
   if (reltol < ZERO)
   {
-    IDAProcessError(IDA_mem, IDA_ILL_INPUT, "IDA", "IDASVtolerances",
+    IDAProcessError(IDA_mem, IDA_ILL_INPUT, __LINE__, __func__, __FILE__,
                     MSG_BAD_RTOL);
     return (IDA_ILL_INPUT);
   }
@@ -734,7 +743,7 @@ int IDASVtolerances(void* ida_mem, sunrealtype reltol, N_Vector abstol)
   atolmin = N_VMin(abstol);
   if (atolmin < ZERO)
   {
-    IDAProcessError(IDA_mem, IDA_ILL_INPUT, "IDA", "IDASVtolerances",
+    IDAProcessError(IDA_mem, IDA_ILL_INPUT, __LINE__, __func__, __FILE__,
                     MSG_BAD_ATOL);
     return (IDA_ILL_INPUT);
   }
@@ -768,14 +777,14 @@ int IDAWFtolerances(void* ida_mem, IDAEwtFn efun)
 
   if (ida_mem == NULL)
   {
-    IDAProcessError(NULL, IDA_MEM_NULL, "IDA", "IDAWFtolerances", MSG_NO_MEM);
+    IDAProcessError(NULL, IDA_MEM_NULL, __LINE__, __func__, __FILE__, MSG_NO_MEM);
     return (IDA_MEM_NULL);
   }
   IDA_mem = (IDAMem)ida_mem;
 
   if (IDA_mem->ida_MallocDone == SUNFALSE)
   {
-    IDAProcessError(IDA_mem, IDA_NO_MALLOC, "IDA", "IDAWFtolerances",
+    IDAProcessError(IDA_mem, IDA_NO_MALLOC, __LINE__, __func__, __FILE__,
                     MSG_NO_MALLOC);
     return (IDA_NO_MALLOC);
   }
@@ -809,7 +818,7 @@ int IDARootInit(void* ida_mem, int nrtfn, IDARootFn g)
   /* Check ida_mem pointer */
   if (ida_mem == NULL)
   {
-    IDAProcessError(NULL, IDA_MEM_NULL, "IDA", "IDARootInit", MSG_NO_MEM);
+    IDAProcessError(NULL, IDA_MEM_NULL, __LINE__, __func__, __FILE__, MSG_NO_MEM);
     return (IDA_MEM_NULL);
   }
   IDA_mem = (IDAMem)ida_mem;
@@ -877,7 +886,7 @@ int IDARootInit(void* ida_mem, int nrtfn, IDARootFn g)
         IDA_mem->ida_lrw -= 3 * nrt;
         IDA_mem->ida_liw -= 3 * nrt;
 
-        IDAProcessError(IDA_mem, IDA_ILL_INPUT, "IDA", "IDARootInit",
+        IDAProcessError(IDA_mem, IDA_ILL_INPUT, __LINE__, __func__, __FILE__,
                         MSG_ROOT_FUNC_NULL);
         SUNDIALS_MARK_FUNCTION_END(IDA_PROFILER);
         return (IDA_ILL_INPUT);
@@ -900,7 +909,7 @@ int IDARootInit(void* ida_mem, int nrtfn, IDARootFn g)
   IDA_mem->ida_nrtfn = nrt;
   if (g == NULL)
   {
-    IDAProcessError(IDA_mem, IDA_ILL_INPUT, "IDA", "IDARootInit",
+    IDAProcessError(IDA_mem, IDA_ILL_INPUT, __LINE__, __func__, __FILE__,
                     MSG_ROOT_FUNC_NULL);
     SUNDIALS_MARK_FUNCTION_END(IDA_PROFILER);
     return (IDA_ILL_INPUT);
@@ -912,7 +921,8 @@ int IDARootInit(void* ida_mem, int nrtfn, IDARootFn g)
   IDA_mem->ida_glo = (sunrealtype*)malloc(nrt * sizeof(sunrealtype));
   if (IDA_mem->ida_glo == NULL)
   {
-    IDAProcessError(IDA_mem, IDA_MEM_FAIL, "IDA", "IDARootInit", MSG_MEM_FAIL);
+    IDAProcessError(IDA_mem, IDA_MEM_FAIL, __LINE__, __func__, __FILE__,
+                    MSG_MEM_FAIL);
     SUNDIALS_MARK_FUNCTION_END(IDA_PROFILER);
     return (IDA_MEM_FAIL);
   }
@@ -923,7 +933,8 @@ int IDARootInit(void* ida_mem, int nrtfn, IDARootFn g)
   {
     free(IDA_mem->ida_glo);
     IDA_mem->ida_glo = NULL;
-    IDAProcessError(IDA_mem, IDA_MEM_FAIL, "IDA", "IDARootInit", MSG_MEM_FAIL);
+    IDAProcessError(IDA_mem, IDA_MEM_FAIL, __LINE__, __func__, __FILE__,
+                    MSG_MEM_FAIL);
     SUNDIALS_MARK_FUNCTION_END(IDA_PROFILER);
     return (IDA_MEM_FAIL);
   }
@@ -936,7 +947,8 @@ int IDARootInit(void* ida_mem, int nrtfn, IDARootFn g)
     IDA_mem->ida_glo = NULL;
     free(IDA_mem->ida_ghi);
     IDA_mem->ida_ghi = NULL;
-    IDAProcessError(IDA_mem, IDA_MEM_FAIL, "IDA", "IDARootInit", MSG_MEM_FAIL);
+    IDAProcessError(IDA_mem, IDA_MEM_FAIL, __LINE__, __func__, __FILE__,
+                    MSG_MEM_FAIL);
     SUNDIALS_MARK_FUNCTION_END(IDA_PROFILER);
     return (IDA_MEM_FAIL);
   }
@@ -951,7 +963,8 @@ int IDARootInit(void* ida_mem, int nrtfn, IDARootFn g)
     IDA_mem->ida_ghi = NULL;
     free(IDA_mem->ida_grout);
     IDA_mem->ida_grout = NULL;
-    IDAProcessError(IDA_mem, IDA_MEM_FAIL, "IDA", "IDARootInit", MSG_MEM_FAIL);
+    IDAProcessError(IDA_mem, IDA_MEM_FAIL, __LINE__, __func__, __FILE__,
+                    MSG_MEM_FAIL);
     SUNDIALS_MARK_FUNCTION_END(IDA_PROFILER);
     return (IDA_MEM_FAIL);
   }
@@ -968,7 +981,8 @@ int IDARootInit(void* ida_mem, int nrtfn, IDARootFn g)
     IDA_mem->ida_grout = NULL;
     free(IDA_mem->ida_iroots);
     IDA_mem->ida_iroots = NULL;
-    IDAProcessError(IDA_mem, IDA_MEM_FAIL, "IDA", "IDARootInit", MSG_MEM_FAIL);
+    IDAProcessError(IDA_mem, IDA_MEM_FAIL, __LINE__, __func__, __FILE__,
+                    MSG_MEM_FAIL);
     SUNDIALS_MARK_FUNCTION_END(IDA_PROFILER);
     return (IDA_MEM_FAIL);
   }
@@ -987,7 +1001,8 @@ int IDARootInit(void* ida_mem, int nrtfn, IDARootFn g)
     IDA_mem->ida_iroots = NULL;
     free(IDA_mem->ida_rootdir);
     IDA_mem->ida_rootdir = NULL;
-    IDAProcessError(IDA_mem, IDA_MEM_FAIL, "IDA", "IDARootInit", MSG_MEM_FAIL);
+    IDAProcessError(IDA_mem, IDA_MEM_FAIL, __LINE__, __func__, __FILE__,
+                    MSG_MEM_FAIL);
     SUNDIALS_MARK_FUNCTION_END(IDA_PROFILER);
     return (IDA_MEM_FAIL);
   }
@@ -1062,7 +1077,7 @@ int IDASolve(void* ida_mem, sunrealtype tout, sunrealtype* tret, N_Vector yret,
 
   if (ida_mem == NULL)
   {
-    IDAProcessError(NULL, IDA_MEM_NULL, "IDA", "IDASolve", MSG_NO_MEM);
+    IDAProcessError(NULL, IDA_MEM_NULL, __LINE__, __func__, __FILE__, MSG_NO_MEM);
     return (IDA_MEM_NULL);
   }
   IDA_mem = (IDAMem)ida_mem;
@@ -1073,7 +1088,8 @@ int IDASolve(void* ida_mem, sunrealtype tout, sunrealtype* tret, N_Vector yret,
 
   if (IDA_mem->ida_MallocDone == SUNFALSE)
   {
-    IDAProcessError(IDA_mem, IDA_NO_MALLOC, "IDA", "IDASolve", MSG_NO_MALLOC);
+    IDAProcessError(IDA_mem, IDA_NO_MALLOC, __LINE__, __func__, __FILE__,
+                    MSG_NO_MALLOC);
     SUNDIALS_MARK_FUNCTION_END(IDA_PROFILER);
     return (IDA_NO_MALLOC);
   }
@@ -1082,7 +1098,8 @@ int IDASolve(void* ida_mem, sunrealtype tout, sunrealtype* tret, N_Vector yret,
 
   if (yret == NULL)
   {
-    IDAProcessError(IDA_mem, IDA_ILL_INPUT, "IDA", "IDASolve", MSG_YRET_NULL);
+    IDAProcessError(IDA_mem, IDA_ILL_INPUT, __LINE__, __func__, __FILE__,
+                    MSG_YRET_NULL);
     SUNDIALS_MARK_FUNCTION_END(IDA_PROFILER);
     return (IDA_ILL_INPUT);
   }
@@ -1090,7 +1107,8 @@ int IDASolve(void* ida_mem, sunrealtype tout, sunrealtype* tret, N_Vector yret,
 
   if (ypret == NULL)
   {
-    IDAProcessError(IDA_mem, IDA_ILL_INPUT, "IDA", "IDASolve", MSG_YPRET_NULL);
+    IDAProcessError(IDA_mem, IDA_ILL_INPUT, __LINE__, __func__, __FILE__,
+                    MSG_YPRET_NULL);
     SUNDIALS_MARK_FUNCTION_END(IDA_PROFILER);
     return (IDA_ILL_INPUT);
   }
@@ -1098,14 +1116,16 @@ int IDASolve(void* ida_mem, sunrealtype tout, sunrealtype* tret, N_Vector yret,
 
   if (tret == NULL)
   {
-    IDAProcessError(IDA_mem, IDA_ILL_INPUT, "IDA", "IDASolve", MSG_TRET_NULL);
+    IDAProcessError(IDA_mem, IDA_ILL_INPUT, __LINE__, __func__, __FILE__,
+                    MSG_TRET_NULL);
     SUNDIALS_MARK_FUNCTION_END(IDA_PROFILER);
     return (IDA_ILL_INPUT);
   }
 
   if ((itask != IDA_NORMAL) && (itask != IDA_ONE_STEP))
   {
-    IDAProcessError(IDA_mem, IDA_ILL_INPUT, "IDA", "IDASolve", MSG_BAD_ITASK);
+    IDAProcessError(IDA_mem, IDA_ILL_INPUT, __LINE__, __func__, __FILE__,
+                    MSG_BAD_ITASK);
     SUNDIALS_MARK_FUNCTION_END(IDA_PROFILER);
     return (IDA_ILL_INPUT);
   }
@@ -1136,7 +1156,8 @@ int IDASolve(void* ida_mem, sunrealtype tout, sunrealtype* tret, N_Vector yret,
     tdist = SUNRabs(tout - IDA_mem->ida_tn);
     if (tdist == ZERO)
     {
-      IDAProcessError(IDA_mem, IDA_ILL_INPUT, "IDA", "IDASolve", MSG_TOO_CLOSE);
+      IDAProcessError(IDA_mem, IDA_ILL_INPUT, __LINE__, __func__, __FILE__,
+                      MSG_TOO_CLOSE);
       SUNDIALS_MARK_FUNCTION_END(IDA_PROFILER);
       return (IDA_ILL_INPUT);
     }
@@ -1144,7 +1165,8 @@ int IDASolve(void* ida_mem, sunrealtype tout, sunrealtype* tret, N_Vector yret,
                 (SUNRabs(IDA_mem->ida_tn) + SUNRabs(tout));
     if (tdist < troundoff)
     {
-      IDAProcessError(IDA_mem, IDA_ILL_INPUT, "IDA", "IDASolve", MSG_TOO_CLOSE);
+      IDAProcessError(IDA_mem, IDA_ILL_INPUT, __LINE__, __func__, __FILE__,
+                      MSG_TOO_CLOSE);
       SUNDIALS_MARK_FUNCTION_END(IDA_PROFILER);
       return (IDA_ILL_INPUT);
     }
@@ -1155,7 +1177,8 @@ int IDASolve(void* ida_mem, sunrealtype tout, sunrealtype* tret, N_Vector yret,
     if ((IDA_mem->ida_hh != ZERO) &&
         ((tout - IDA_mem->ida_tn) * IDA_mem->ida_hh < ZERO))
     {
-      IDAProcessError(IDA_mem, IDA_ILL_INPUT, "IDA", "IDASolve", MSG_BAD_HINIT);
+      IDAProcessError(IDA_mem, IDA_ILL_INPUT, __LINE__, __func__, __FILE__,
+                      MSG_BAD_HINIT);
       SUNDIALS_MARK_FUNCTION_END(IDA_PROFILER);
       return (IDA_ILL_INPUT);
     }
@@ -1184,8 +1207,8 @@ int IDASolve(void* ida_mem, sunrealtype tout, sunrealtype* tret, N_Vector yret,
     {
       if ((IDA_mem->ida_tstop - IDA_mem->ida_tn) * IDA_mem->ida_hh <= ZERO)
       {
-        IDAProcessError(IDA_mem, IDA_ILL_INPUT, "IDA", "IDASolve",
-                        MSG_BAD_TSTOP, IDA_mem->ida_tstop, IDA_mem->ida_tn);
+        IDAProcessError(IDA_mem, IDA_ILL_INPUT, __LINE__, __func__, __FILE__,
+                        MSG_BAD_TSTOP);
         SUNDIALS_MARK_FUNCTION_END(IDA_PROFILER);
         return (IDA_ILL_INPUT);
       }
@@ -1208,8 +1231,8 @@ int IDASolve(void* ida_mem, sunrealtype tout, sunrealtype* tret, N_Vector yret,
       ier = IDARcheck1(IDA_mem);
       if (ier == IDA_RTFUNC_FAIL)
       {
-        IDAProcessError(IDA_mem, IDA_RTFUNC_FAIL, "IDA", "IDARcheck1",
-                        MSG_RTFUNC_FAILED, IDA_mem->ida_tn);
+        IDAProcessError(IDA_mem, IDA_RTFUNC_FAIL, __LINE__, __func__, __FILE__,
+                        MSG_RTFUNC_FAILED);
         SUNDIALS_MARK_FUNCTION_END(IDA_PROFILER);
         return (IDA_RTFUNC_FAIL);
       }
@@ -1245,15 +1268,15 @@ int IDASolve(void* ida_mem, sunrealtype tout, sunrealtype* tret, N_Vector yret,
 
       if (ier == CLOSERT)
       {
-        IDAProcessError(IDA_mem, IDA_ILL_INPUT, "IDA", "IDARcheck2",
-                        MSG_CLOSE_ROOTS, IDA_mem->ida_tlo);
+        IDAProcessError(IDA_mem, IDA_ILL_INPUT, __LINE__, __func__, __FILE__,
+                        MSG_CLOSE_ROOTS);
         SUNDIALS_MARK_FUNCTION_END(IDA_PROFILER);
         return (IDA_ILL_INPUT);
       }
       else if (ier == IDA_RTFUNC_FAIL)
       {
-        IDAProcessError(IDA_mem, IDA_RTFUNC_FAIL, "IDA", "IDARcheck2",
-                        MSG_RTFUNC_FAILED, IDA_mem->ida_tlo);
+        IDAProcessError(IDA_mem, IDA_RTFUNC_FAIL, __LINE__, __func__, __FILE__,
+                        MSG_RTFUNC_FAILED);
         SUNDIALS_MARK_FUNCTION_END(IDA_PROFILER);
         return (IDA_RTFUNC_FAIL);
       }
@@ -1291,8 +1314,8 @@ int IDASolve(void* ida_mem, sunrealtype tout, sunrealtype* tret, N_Vector yret,
         }
         else if (ier == IDA_RTFUNC_FAIL)
         { /* g failed */
-          IDAProcessError(IDA_mem, IDA_RTFUNC_FAIL, "IDA", "IDARcheck3",
-                          MSG_RTFUNC_FAILED, IDA_mem->ida_tlo);
+          IDAProcessError(IDA_mem, IDA_RTFUNC_FAIL, __LINE__, __func__,
+                          __FILE__, MSG_RTFUNC_FAILED);
           SUNDIALS_MARK_FUNCTION_END(IDA_PROFILER);
           return (IDA_RTFUNC_FAIL);
         }
@@ -1318,8 +1341,8 @@ int IDASolve(void* ida_mem, sunrealtype tout, sunrealtype* tret, N_Vector yret,
 
     if ((IDA_mem->ida_mxstep > 0) && (nstloc >= IDA_mem->ida_mxstep))
     {
-      IDAProcessError(IDA_mem, IDA_ILL_INPUT, "IDA", "IDASolve", MSG_MAX_STEPS,
-                      IDA_mem->ida_tn);
+      IDAProcessError(IDA_mem, IDA_ILL_INPUT, __LINE__, __func__, __FILE__,
+                      MSG_MAX_STEPS);
       istate = IDA_TOO_MUCH_WORK;
       *tret = IDA_mem->ida_tretlast = IDA_mem->ida_tn;
       break; /* Here yy=yret and yp=ypret already have the current solution. */
@@ -1340,13 +1363,13 @@ int IDASolve(void* ida_mem, sunrealtype tout, sunrealtype* tret, N_Vector yret,
       {
         if (IDA_mem->ida_itol == IDA_WF)
         {
-          IDAProcessError(IDA_mem, IDA_ILL_INPUT, "IDA", "IDASolve",
-                          MSG_EWT_NOW_FAIL, IDA_mem->ida_tn);
+          IDAProcessError(IDA_mem, IDA_ILL_INPUT, __LINE__, __func__, __FILE__,
+                          MSG_EWT_NOW_FAIL);
         }
         else
         {
-          IDAProcessError(IDA_mem, IDA_ILL_INPUT, "IDA", "IDASolve",
-                          MSG_EWT_NOW_BAD, IDA_mem->ida_tn);
+          IDAProcessError(IDA_mem, IDA_ILL_INPUT, __LINE__, __func__, __FILE__,
+                          MSG_EWT_NOW_BAD);
         }
 
         istate = IDA_ILL_INPUT;
@@ -1364,8 +1387,8 @@ int IDASolve(void* ida_mem, sunrealtype tout, sunrealtype* tret, N_Vector yret,
     if (IDA_mem->ida_tolsf > ONE)
     {
       IDA_mem->ida_tolsf *= TEN;
-      IDAProcessError(IDA_mem, IDA_ILL_INPUT, "IDA", "IDASolve",
-                      MSG_TOO_MUCH_ACC, IDA_mem->ida_tn);
+      IDAProcessError(IDA_mem, IDA_ILL_INPUT, __LINE__, __func__, __FILE__,
+                      MSG_TOO_MUCH_ACC);
       istate = IDA_TOO_MUCH_ACC;
       *tret = IDA_mem->ida_tretlast = IDA_mem->ida_tn;
       if (IDA_mem->ida_nst > 0)
@@ -1419,8 +1442,8 @@ int IDASolve(void* ida_mem, sunrealtype tout, sunrealtype* tret, N_Vector yret,
       }
       else if (ier == IDA_RTFUNC_FAIL)
       { /* g failed */
-        IDAProcessError(IDA_mem, IDA_RTFUNC_FAIL, "IDA", "IDARcheck3",
-                        MSG_RTFUNC_FAILED, IDA_mem->ida_tlo);
+        IDAProcessError(IDA_mem, IDA_RTFUNC_FAIL, __LINE__, __func__, __FILE__,
+                        MSG_RTFUNC_FAILED);
         istate = IDA_RTFUNC_FAIL;
         break;
       }
@@ -1443,7 +1466,7 @@ int IDASolve(void* ida_mem, sunrealtype tout, sunrealtype* tret, N_Vector yret,
         }
         if ((IDA_mem->ida_mxgnull > 0) && inactive_roots)
         {
-          IDAProcessError(IDA_mem, IDA_WARNING, "IDA", "IDASolve",
+          IDAProcessError(IDA_mem, IDA_WARNING, __LINE__, __func__, __FILE__,
                           MSG_INACTIVE_ROOTS);
         }
       }
@@ -1494,7 +1517,7 @@ int IDAGetDky(void* ida_mem, sunrealtype t, int k, N_Vector dky)
   /* Check ida_mem */
   if (ida_mem == NULL)
   {
-    IDAProcessError(NULL, IDA_MEM_NULL, "IDA", "IDAGetDky", MSG_NO_MEM);
+    IDAProcessError(NULL, IDA_MEM_NULL, __LINE__, __func__, __FILE__, MSG_NO_MEM);
     return (IDA_MEM_NULL);
   }
   IDA_mem = (IDAMem)ida_mem;
@@ -1503,14 +1526,15 @@ int IDAGetDky(void* ida_mem, sunrealtype t, int k, N_Vector dky)
 
   if (dky == NULL)
   {
-    IDAProcessError(IDA_mem, IDA_BAD_DKY, "IDA", "IDAGetDky", MSG_NULL_DKY);
+    IDAProcessError(IDA_mem, IDA_BAD_DKY, __LINE__, __func__, __FILE__,
+                    MSG_NULL_DKY);
     SUNDIALS_MARK_FUNCTION_END(IDA_PROFILER);
     return (IDA_BAD_DKY);
   }
 
   if ((k < 0) || (k > IDA_mem->ida_kused))
   {
-    IDAProcessError(IDA_mem, IDA_BAD_K, "IDA", "IDAGetDky", MSG_BAD_K);
+    IDAProcessError(IDA_mem, IDA_BAD_K, __LINE__, __func__, __FILE__, MSG_BAD_K);
     SUNDIALS_MARK_FUNCTION_END(IDA_PROFILER);
     return (IDA_BAD_K);
   }
@@ -1523,8 +1547,7 @@ int IDAGetDky(void* ida_mem, sunrealtype t, int k, N_Vector dky)
   tp = IDA_mem->ida_tn - IDA_mem->ida_hused - tfuzz;
   if ((t - tp) * IDA_mem->ida_hh < ZERO)
   {
-    IDAProcessError(IDA_mem, IDA_BAD_T, "IDA", "IDAGetDky", MSG_BAD_T, t,
-                    IDA_mem->ida_tn - IDA_mem->ida_hused, IDA_mem->ida_tn);
+    IDAProcessError(IDA_mem, IDA_BAD_T, __LINE__, __func__, __FILE__, MSG_BAD_T);
     SUNDIALS_MARK_FUNCTION_END(IDA_PROFILER);
     return (IDA_BAD_T);
   }
@@ -1609,7 +1632,7 @@ int IDAComputeY(void* ida_mem, N_Vector ycor, N_Vector y)
 
   if (ida_mem == NULL)
   {
-    IDAProcessError(NULL, IDA_MEM_NULL, "IDA", "IDAComputeY", MSG_NO_MEM);
+    IDAProcessError(NULL, IDA_MEM_NULL, __LINE__, __func__, __FILE__, MSG_NO_MEM);
     return (IDA_MEM_NULL);
   }
 
@@ -1634,7 +1657,7 @@ int IDAComputeYp(void* ida_mem, N_Vector ycor, N_Vector yp)
 
   if (ida_mem == NULL)
   {
-    IDAProcessError(NULL, IDA_MEM_NULL, "IDA", "IDAComputeYp", MSG_NO_MEM);
+    IDAProcessError(NULL, IDA_MEM_NULL, __LINE__, __func__, __FILE__, MSG_NO_MEM);
     return (IDA_MEM_NULL);
   }
 
@@ -1966,7 +1989,7 @@ int IDAInitialSetup(IDAMem IDA_mem)
   {
     if (IDA_mem->ida_phi[0]->ops->nvwrmsnormmask == NULL)
     {
-      IDAProcessError(IDA_mem, IDA_ILL_INPUT, "IDA", "IDAInitialSetup",
+      IDAProcessError(IDA_mem, IDA_ILL_INPUT, __LINE__, __func__, __FILE__,
                       MSG_BAD_NVECTOR);
       return (IDA_ILL_INPUT);
     }
@@ -1975,7 +1998,7 @@ int IDAInitialSetup(IDAMem IDA_mem)
   /* Test id vector for legality */
   if (IDA_mem->ida_suppressalg && (IDA_mem->ida_id == NULL))
   {
-    IDAProcessError(IDA_mem, IDA_ILL_INPUT, "IDA", "IDAInitialSetup",
+    IDAProcessError(IDA_mem, IDA_ILL_INPUT, __LINE__, __func__, __FILE__,
                     MSG_MISSING_ID);
     return (IDA_ILL_INPUT);
   }
@@ -1983,7 +2006,7 @@ int IDAInitialSetup(IDAMem IDA_mem)
   /* Did the user specify tolerances? */
   if (IDA_mem->ida_itol == IDA_NN)
   {
-    IDAProcessError(IDA_mem, IDA_ILL_INPUT, "IDA", "IDAInitialSetup",
+    IDAProcessError(IDA_mem, IDA_ILL_INPUT, __LINE__, __func__, __FILE__,
                     MSG_NO_TOLS);
     return (IDA_ILL_INPUT);
   }
@@ -1999,12 +2022,12 @@ int IDAInitialSetup(IDAMem IDA_mem)
   {
     if (IDA_mem->ida_itol == IDA_WF)
     {
-      IDAProcessError(IDA_mem, IDA_ILL_INPUT, "IDA", "IDAInitialSetup",
+      IDAProcessError(IDA_mem, IDA_ILL_INPUT, __LINE__, __func__, __FILE__,
                       MSG_FAIL_EWT);
     }
     else
     {
-      IDAProcessError(IDA_mem, IDA_ILL_INPUT, "IDA", "IDAInitialSetup",
+      IDAProcessError(IDA_mem, IDA_ILL_INPUT, __LINE__, __func__, __FILE__,
                       MSG_BAD_EWT);
     }
     return (IDA_ILL_INPUT);
@@ -2017,7 +2040,7 @@ int IDAInitialSetup(IDAMem IDA_mem)
                           IDA_mem->ida_tempv2);
     if (!conOK)
     {
-      IDAProcessError(IDA_mem, IDA_ILL_INPUT, "IDA", "IDAInitialSetup",
+      IDAProcessError(IDA_mem, IDA_ILL_INPUT, __LINE__, __func__, __FILE__,
                       MSG_Y0_FAIL_CONSTR);
       return (IDA_ILL_INPUT);
     }
@@ -2029,7 +2052,7 @@ int IDAInitialSetup(IDAMem IDA_mem)
     ier = IDA_mem->ida_linit(IDA_mem);
     if (ier != 0)
     {
-      IDAProcessError(IDA_mem, IDA_LINIT_FAIL, "IDA", "IDAInitialSetup",
+      IDAProcessError(IDA_mem, IDA_LINIT_FAIL, __LINE__, __func__, __FILE__,
                       MSG_LINIT_FAIL);
       return (IDA_LINIT_FAIL);
     }
@@ -2040,7 +2063,7 @@ int IDAInitialSetup(IDAMem IDA_mem)
   ier = idaNlsInit(IDA_mem);
   if (ier != IDA_SUCCESS)
   {
-    IDAProcessError(IDA_mem, IDA_NLS_INIT_FAIL, "IDA", "IDAInitialSetup",
+    IDAProcessError(IDA_mem, IDA_NLS_INIT_FAIL, __LINE__, __func__, __FILE__,
                     MSG_NLS_INIT_FAIL);
     return (IDA_NLS_INIT_FAIL);
   }
@@ -2162,8 +2185,8 @@ static int IDAStopTest1(IDAMem IDA_mem, sunrealtype tout, sunrealtype* tret,
     /* Test for tn past tstop */
     if ((IDA_mem->ida_tn - IDA_mem->ida_tstop) * IDA_mem->ida_hh > ZERO)
     {
-      IDAProcessError(IDA_mem, IDA_ILL_INPUT, "IDA", "IDASolve", MSG_BAD_TSTOP,
-                      IDA_mem->ida_tstop, IDA_mem->ida_tn);
+      IDAProcessError(IDA_mem, IDA_ILL_INPUT, __LINE__, __func__, __FILE__,
+                      MSG_BAD_TSTOP);
       return (IDA_ILL_INPUT);
     }
 
@@ -2180,8 +2203,8 @@ static int IDAStopTest1(IDAMem IDA_mem, sunrealtype tout, sunrealtype* tret,
         ier = IDAGetSolution(IDA_mem, IDA_mem->ida_tstop, yret, ypret);
         if (ier != IDA_SUCCESS)
         {
-          IDAProcessError(IDA_mem, IDA_ILL_INPUT, "IDA", "IDASolve",
-                          MSG_BAD_TSTOP, IDA_mem->ida_tstop, IDA_mem->ida_tn);
+          IDAProcessError(IDA_mem, IDA_ILL_INPUT, __LINE__, __func__, __FILE__,
+                          MSG_BAD_TSTOP);
           return (IDA_ILL_INPUT);
         }
         *tret = IDA_mem->ida_tretlast = IDA_mem->ida_tstop;
@@ -2214,8 +2237,8 @@ static int IDAStopTest1(IDAMem IDA_mem, sunrealtype tout, sunrealtype* tret,
       ier = IDAGetSolution(IDA_mem, tout, yret, ypret);
       if (ier != IDA_SUCCESS)
       {
-        IDAProcessError(IDA_mem, IDA_ILL_INPUT, "IDA", "IDASolve", MSG_BAD_TOUT,
-                        tout);
+        IDAProcessError(IDA_mem, IDA_ILL_INPUT, __LINE__, __func__, __FILE__,
+                        MSG_BAD_TOUT);
         return (IDA_ILL_INPUT);
       }
       *tret = IDA_mem->ida_tretlast = tout;
@@ -2337,61 +2360,61 @@ static int IDAHandleFailure(IDAMem IDA_mem, int sflag)
   switch (sflag)
   {
   case IDA_ERR_FAIL:
-    IDAProcessError(IDA_mem, IDA_ERR_FAIL, "IDA", "IDASolve", MSG_ERR_FAILS,
-                    IDA_mem->ida_tn, IDA_mem->ida_hh);
+    IDAProcessError(IDA_mem, IDA_ERR_FAIL, __LINE__, __func__, __FILE__,
+                    MSG_ERR_FAILS);
     return (IDA_ERR_FAIL);
 
   case IDA_CONV_FAIL:
-    IDAProcessError(IDA_mem, IDA_CONV_FAIL, "IDA", "IDASolve", MSG_CONV_FAILS,
-                    IDA_mem->ida_tn, IDA_mem->ida_hh);
+    IDAProcessError(IDA_mem, IDA_CONV_FAIL, __LINE__, __func__, __FILE__,
+                    MSG_CONV_FAILS);
     return (IDA_CONV_FAIL);
 
   case IDA_LSETUP_FAIL:
-    IDAProcessError(IDA_mem, IDA_LSETUP_FAIL, "IDA", "IDASolve",
-                    MSG_SETUP_FAILED, IDA_mem->ida_tn);
+    IDAProcessError(IDA_mem, IDA_LSETUP_FAIL, __LINE__, __func__, __FILE__,
+                    MSG_SETUP_FAILED);
     return (IDA_LSETUP_FAIL);
 
   case IDA_LSOLVE_FAIL:
-    IDAProcessError(IDA_mem, IDA_LSOLVE_FAIL, "IDA", "IDASolve",
-                    MSG_SOLVE_FAILED, IDA_mem->ida_tn);
+    IDAProcessError(IDA_mem, IDA_LSOLVE_FAIL, __LINE__, __func__, __FILE__,
+                    MSG_SOLVE_FAILED);
     return (IDA_LSOLVE_FAIL);
 
   case IDA_REP_RES_ERR:
-    IDAProcessError(IDA_mem, IDA_REP_RES_ERR, "IDA", "IDASolve",
-                    MSG_REP_RES_ERR, IDA_mem->ida_tn);
+    IDAProcessError(IDA_mem, IDA_REP_RES_ERR, __LINE__, __func__, __FILE__,
+                    MSG_REP_RES_ERR);
     return (IDA_REP_RES_ERR);
 
   case IDA_RES_FAIL:
-    IDAProcessError(IDA_mem, IDA_RES_FAIL, "IDA", "IDASolve", MSG_RES_NONRECOV,
-                    IDA_mem->ida_tn);
+    IDAProcessError(IDA_mem, IDA_RES_FAIL, __LINE__, __func__, __FILE__,
+                    MSG_RES_NONRECOV);
     return (IDA_RES_FAIL);
 
   case IDA_CONSTR_FAIL:
-    IDAProcessError(IDA_mem, IDA_CONSTR_FAIL, "IDA", "IDASolve",
-                    MSG_FAILED_CONSTR, IDA_mem->ida_tn);
+    IDAProcessError(IDA_mem, IDA_CONSTR_FAIL, __LINE__, __func__, __FILE__,
+                    MSG_FAILED_CONSTR);
     return (IDA_CONSTR_FAIL);
 
   case IDA_MEM_NULL:
-    IDAProcessError(NULL, IDA_MEM_NULL, "IDA", "IDASolve", MSG_NO_MEM);
+    IDAProcessError(NULL, IDA_MEM_NULL, __LINE__, __func__, __FILE__, MSG_NO_MEM);
     return (IDA_MEM_NULL);
 
   case SUN_NLS_MEM_NULL:
-    IDAProcessError(IDA_mem, IDA_MEM_NULL, "IDA", "IDASolve",
-                    MSG_NLS_INPUT_NULL, IDA_mem->ida_tn);
+    IDAProcessError(IDA_mem, IDA_MEM_NULL, __LINE__, __func__, __FILE__,
+                    MSG_NLS_INPUT_NULL);
     return (IDA_MEM_NULL);
 
   case IDA_NLS_SETUP_FAIL:
-    IDAProcessError(IDA_mem, IDA_NLS_SETUP_FAIL, "IDA", "IDASolve",
-                    MSG_NLS_SETUP_FAILED, IDA_mem->ida_tn);
+    IDAProcessError(IDA_mem, IDA_NLS_SETUP_FAIL, __LINE__, __func__, __FILE__,
+                    MSG_NLS_SETUP_FAILED);
     return (IDA_NLS_SETUP_FAIL);
   case IDA_NLS_FAIL:
-    IDAProcessError(IDA_mem, IDA_NLS_FAIL, "IDA", "IDASolve", MSG_NLS_FAIL,
-                    IDA_mem->ida_tn);
+    IDAProcessError(IDA_mem, IDA_NLS_FAIL, __LINE__, __func__, __FILE__,
+                    MSG_NLS_FAIL);
     return (IDA_NLS_FAIL);
   }
 
   /* This return should never happen */
-  IDAProcessError(IDA_mem, IDA_UNRECOGNIZED_ERROR, "IDA", "IDASolve",
+  IDAProcessError(IDA_mem, IDA_UNRECOGNIZED_ERROR, __LINE__, __func__, __FILE__,
                   "IDA encountered an unrecognized error. Please report this "
                   "to the Sundials developers at sundials-users@llnl.gov");
   return (IDA_UNRECOGNIZED_ERROR);
@@ -3357,7 +3380,7 @@ int IDAGetSolution(void* ida_mem, sunrealtype t, N_Vector yret, N_Vector ypret)
 
   if (ida_mem == NULL)
   {
-    IDAProcessError(NULL, IDA_MEM_NULL, "IDA", "IDAGetSolution", MSG_NO_MEM);
+    IDAProcessError(NULL, IDA_MEM_NULL, __LINE__, __func__, __FILE__, MSG_NO_MEM);
     return (IDA_MEM_NULL);
   }
   IDA_mem = (IDAMem)ida_mem;
@@ -3370,8 +3393,7 @@ int IDAGetSolution(void* ida_mem, sunrealtype t, N_Vector yret, N_Vector ypret)
   tp = IDA_mem->ida_tn - IDA_mem->ida_hused - tfuzz;
   if ((t - tp) * IDA_mem->ida_hh < ZERO)
   {
-    IDAProcessError(IDA_mem, IDA_BAD_T, "IDA", "IDAGetSolution", MSG_BAD_T, t,
-                    IDA_mem->ida_tn - IDA_mem->ida_hused, IDA_mem->ida_tn);
+    IDAProcessError(IDA_mem, IDA_BAD_T, __LINE__, __func__, __FILE__, MSG_BAD_T);
     return (IDA_BAD_T);
   }
 
@@ -3968,42 +3990,36 @@ static int IDARootfind(IDAMem IDA_mem)
  * =================================================================
  */
 
-/*
- * IDAProcessError is a high level error handling function.
- * - If ida_mem==NULL it prints the error message to stderr.
- * - Otherwise, it sets up and calls the error handling function
- *   pointed to by ida_ehfun.
- */
-
-void IDAProcessError(IDAMem IDA_mem, int error_code, const char* module,
-                     const char* fname, const char* msgfmt, ...)
+void IDAProcessError(IDAMem IDA_mem, int error_code, int line, const char* func,
+                     const char* file, const char* msgfmt, ...)
 {
-  va_list ap;
-  char msg[256];
-
   /* Initialize the argument pointer variable
-     (msgfmt is the last required argument to IDAProcessError) */
-
+     (msgfmt is the last required argument to cvProcessError) */
+  va_list ap;
   va_start(ap, msgfmt);
 
   /* Compose the message */
-
-  vsprintf(msg, msgfmt, ap);
+  size_t msglen = vsnprintf(NULL, 0, msgfmt, ap) + 1;
+  char* msg     = (char*)malloc(msglen);
+  vsnprintf(msg, msglen, msgfmt, ap);
 
   if (IDA_mem == NULL)
   { /* We write to stderr */
+
 #ifndef NO_FPRINTF_OUTPUT
-    fprintf(stderr, "\n[%s ERROR]  %s\n  ", module, fname);
+    fprintf(stderr, "\n[IDA ERROR]  %s at %s:%d\n  ", func, __FILE__, line);
     fprintf(stderr, "%s\n\n", msg);
 #endif
   }
   else
-  { /* We can call ehfun */
-    IDA_mem->ida_ehfun(error_code, module, fname, msg, IDA_mem->ida_eh_data);
+  {
+    /* Call the SUNDIALS main error handler */
+    SUNHandleErrWithMsg(line, func, file, msg, error_code, IDA_mem->ida_sunctx);
   }
 
   /* Finalize argument processing */
   va_end(ap);
+  free(msg);
 
   return;
 }
