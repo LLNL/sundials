@@ -45,7 +45,7 @@ jobs:
           name: output_files
           path: |
             ${{ github.workspace }}/test/build_*/Testing/
-      - name: Archive coredump
+      - name: Archive coredump from failed build
         uses: actions/upload-artifact@v3
         if: failure()
         with:

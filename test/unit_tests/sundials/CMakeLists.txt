@@ -11,10 +11,12 @@
 # ---------------------------------------------------------------
 
 if(SUNDIALS_ENABLE_ERROR_CHECKS)
-  add_executable(test_sundials_errors test_sundials_errors.cpp)
-  target_link_libraries(test_sundials_errors
-     PRIVATE sundials_core sundials_nvecserial GTest::gtest_main GTest::gmock)
-  gtest_discover_tests(test_sundials_errors)
+  if(TARGET GTest::gtest_main AND TARGET GTest::gmock)
+    add_executable(test_sundials_errors test_sundials_errors.cpp)
+    target_link_libraries(test_sundials_errors
+      PRIVATE sundials_core sundials_nvecserial GTest::gtest_main GTest::gmock)
+    gtest_discover_tests(test_sundials_errors)
+  endif()
 endif()
 
 add_subdirectory(reductions)
