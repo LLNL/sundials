@@ -20,10 +20,13 @@ NVECTOR functions required by ARKODE
 In :numref:`NVectors.ARKODE.Table` below, we list the vector functions in
 the ``N_Vector`` module that are called within the ARKODE package.  The
 table also shows, for each function, which ARKODE module uses the function.
-The ARKSTEP and ERKSTEP columns show function usage within the main
-time-stepping modules and the shared ARKODE infrastructure,  while the
-remaining columns show function usage within the ARKLS linear solver
-interface, the ARKBANDPRE and ARKBBDPRE preconditioner modules.
+The ARKStep, ERKStep, MRIStep, and SPRKStep columns show function usage
+within the main time-stepping modules and the shared ARKODE infrastructure,
+while the remaining columns show function usage within the ARKLS linear solver
+interface, within constraint-handling (i.e., when :c:func:`ARKStepSetConstraints`
+and :c:func:`ERKStepSetConstraints` are used), relaxation (i.e., when
+:c:func:`ARKStepSetRelaxFn`, :c:func:`ERKStepSetRelaxFn` and related are used),
+the ARKBANDPRE and ARKBBDPRE preconditioner modules.
 
 Note that for ARKLS we only list the ``N_Vector`` routines used
 directly by ARKLS, each ``SUNLinearSolver`` module may have additional
@@ -48,31 +51,55 @@ modules).
 .. _NVectors.ARKODE.Table:
 .. table:: List of vector functions usage by ARKODE code modules
 
-   ========================================  =======  =======  =======  =====  ==========  =========
-   Routine                                   ARKSTEP  ERKSTEP  MRISTEP  ARKLS  ARKBANDPRE  ARKBBDPRE
-   ========================================  =======  =======  =======  =====  ==========  =========
-   :c:func:`N_VGetLength`                                               4
-   :c:func:`N_VAbs`                          X        X
-   :c:func:`N_VAddConst`                     X        X
-   :c:func:`N_VClone`                        X        X        X        X
-   :c:func:`N_VCloneEmpty`
-   :c:func:`N_VConst`                        X        X        X        X
-   :c:func:`N_VDestroy`                      X        X        X        X
-   :c:func:`N_VDiv`                          X        X
-   :c:func:`N_VGetArrayPointer`                                         1      X           X
-   :c:func:`N_VInv`                          X        X
-   :c:func:`N_VLinearSum`                    X        X        X        X
-   :c:func:`N_VMaxNorm`                      X        X
-   :c:func:`N_VMin`                          X        X
-   :c:func:`N_VScale`                        X        X        X        X      X           X
-   :c:func:`N_VSetArrayPointer`                                         1
-   :c:func:`N_VSpace`\ :sup:`2`              X        X        X        X      X           X
-   :c:func:`N_VWrmsNorm`                     X        X        X        X      X           X
-   :c:func:`N_VLinearCombination`\ :sup:`3`  X        X        X
-   :c:func:`N_VMinQuotient`\ :sup:`5`        X        X
-   :c:func:`N_VConstrMask`\ :sup:`5`         X        X
-   :c:func:`N_VCompare`\ :sup:`5`            X        X
-   ========================================  =======  =======  =======  =====  ==========  =========
+   +--------------------------------+---------+---------+---------+----------+-------+-------------+------------+-----------------+
+   | Routine                        | ARKStep | ERKStep | MRIStep | SPRKStep | ARKLS | Constraints | Relaxation | BANDPRE, BBDPRE |
+   +================================+=========+=========+=========+==========+=======+=============+============+=================+
+   | :c:func:`N_VAbs`               | X       | X       | X       | X        |       |             |            |                 |
+   +--------------------------------+---------+---------+---------+----------+-------+-------------+------------+-----------------+
+   | :c:func:`N_VAddConst`          | X       | X       | X       | X        |       |             |            |                 |
+   +--------------------------------+---------+---------+---------+----------+-------+-------------+------------+-----------------+
+   | :c:func:`N_VClone`             | X       | X       | X       | X        | X     |             |            |                 |
+   +--------------------------------+---------+---------+---------+----------+-------+-------------+------------+-----------------+
+   | :c:func:`N_VCloneEmpty`        |         |         |         |          | 1     |             |            |                 |
+   +--------------------------------+---------+---------+---------+----------+-------+-------------+------------+-----------------+
+   | :c:func:`N_VConst`             | X       | X       | X       | X        | X     |             |            |                 |
+   +--------------------------------+---------+---------+---------+----------+-------+-------------+------------+-----------------+
+   | :c:func:`N_VConstrMask`        |         |         |         |          |       | X           |            |                 |
+   +--------------------------------+---------+---------+---------+----------+-------+-------------+------------+-----------------+
+   | :c:func:`N_VDestroy`           | X       | X       | X       | X        | X     |             |            |                 |
+   +--------------------------------+---------+---------+---------+----------+-------+-------------+------------+-----------------+
+   | :c:func:`N_VDiv`               | X       | X       |         |          |       |             |            |                 |
+   +--------------------------------+---------+---------+---------+----------+-------+-------------+------------+-----------------+
+   | :c:func:`N_VDotProd`           |         |         |         |          |       |             | X          |                 |
+   +--------------------------------+---------+---------+---------+----------+-------+-------------+------------+-----------------+
+   | :c:func:`N_VGetArrayPointer`   |         |         |         |          | 1     |             |            | X               |
+   +--------------------------------+---------+---------+---------+----------+-------+-------------+------------+-----------------+
+   | :c:func:`N_VGetLength`         |         |         |         |          | 4     |             |            |                 |
+   +--------------------------------+---------+---------+---------+----------+-------+-------------+------------+-----------------+
+   | :c:func:`N_VInv`               | X       | X       | X       | X        |       |             |            |                 |
+   +--------------------------------+---------+---------+---------+----------+-------+-------------+------------+-----------------+
+   | :c:func:`N_VLinearCombination` | X       | X       | X       | X        |       |             |            |                 |
+   | :sup:`3`                       |         |         |         |          |       |             |            |                 |
+   +--------------------------------+---------+---------+---------+----------+-------+-------------+------------+-----------------+
+   | :c:func:`N_VLinearSum`         | X       | X       | X       | X        | X     |             | X          |                 |
+   +--------------------------------+---------+---------+---------+----------+-------+-------------+------------+-----------------+
+   | :c:func:`N_VMaxNorm`           | X       | X       |         |          |       | X           |            |                 |
+   +--------------------------------+---------+---------+---------+----------+-------+-------------+------------+-----------------+
+   | :c:func:`N_VMin`               | X       | X       | X       | X        |       |             |            |                 |
+   +--------------------------------+---------+---------+---------+----------+-------+-------------+------------+-----------------+
+   | :c:func:`N_VMinQuotient`       |         |         |         |          |       | X           |            |                 |
+   +--------------------------------+---------+---------+---------+----------+-------+-------------+------------+-----------------+
+   | :c:func:`N_VProd`              |         |         |         |          |       | X           |            |                 |
+   +--------------------------------+---------+---------+---------+----------+-------+-------------+------------+-----------------+
+   | :c:func:`N_VScale`             | X       | X       | X       | X        | X     | X           | X          | X               |
+   +--------------------------------+---------+---------+---------+----------+-------+-------------+------------+-----------------+
+   | :c:func:`N_VSetArrayPointer`   |         |         |         |          | 1     |             |            |                 |
+   +--------------------------------+---------+---------+---------+----------+-------+-------------+------------+-----------------+
+   | :c:func:`N_VSpace`\ :sup:`2`   | X       | X       | X       | X        | X     |             |            | X               |
+   +--------------------------------+---------+---------+---------+----------+-------+-------------+------------+-----------------+
+   | :c:func:`N_VWrmsNorm`          | X       | X       | X       | X        | X     |             |            | X               |
+   +--------------------------------+---------+---------+---------+----------+-------+-------------+------------+-----------------+
+
 
 Special cases (numbers match markings in table):
 
@@ -88,7 +115,3 @@ Special cases (numbers match markings in table):
 
 4. The :c:func:`N_VGetLength()` function is only required when an iterative or
    matrix iterative ``SUNLinearSolver`` module is used.
-
-5. The functions :c:func:`N_VMinQuotient`, :c:func:`N_VConstrMask`, and
-   :c:func:`N_VCompare` are only used when inequality constraints are enabled
-   and may be omitted if this feature is not used.
