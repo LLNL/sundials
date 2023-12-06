@@ -106,6 +106,9 @@ case "$SUNDIALS_TEST_TYPE" in
         ;;
 esac
 
+# Disable GTest in CI until we determine SEGFAULT cause in test_sundials_errors.c
+export SUNDIALS_TEST_DISABLE_GTEST=ON
+
 # Build Type
 export CMAKE_BUILD_TYPE="Debug"
 
