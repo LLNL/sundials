@@ -26,7 +26,5 @@ runs:
       run: |
         git config --global --add safe.directory $GITHUB_WORKSPACE
         cd test
-        # Turn off GTest unit tests since test_sundials_errors.c randomly Segfaults in Github actions CI
-        export SUNDIALS_TEST_DISABLE_GTEST=ON
         ./test_driver.sh --testtype CUSTOM --env env/docker.sh --tpls --sunrealtype ${{ inputs.precision }} --indexsize ${{ inputs.indexsize }}
       shell: bash
