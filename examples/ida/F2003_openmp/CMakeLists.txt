@@ -20,8 +20,8 @@
 
 # Examples using SUNDIALS linear solvers
 set(FIDA_examples_OMP
-  "idaHeat2D_kry_omp_f2003.f90\;4\;exclude-single"
-  "idaHeat2D_kry_omp_f2003.f90\;8\;exclude-single"
+  "idaHeat2D_kry_omp_f2003.f90\;4\;exclude"
+  "idaHeat2D_kry_omp_f2003.f90\;8\;exclude"
   )
 
 # Specify libraries to link against
