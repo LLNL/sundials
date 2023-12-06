@@ -992,11 +992,14 @@ SUNErrCode N_VBufUnpack(N_Vector x, void *buf)
  *   N_VCloneVectorArray
  *   N_VDestroyVectorArray
  * -----------------------------------------------------------------*/
-N_Vector* N_VNewVectorArray(int count)
+
+N_Vector* N_VNewVectorArray(int count, SUNContext sunctx)
 {
+  SUNFunctionBegin(sunctx);
   N_Vector* vs = NULL;
   vs = (N_Vector* ) malloc(count * sizeof(N_Vector));
-  return(vs);
+  SUNAssertNull(vs, SUN_ERR_MALLOC_FAIL);
+  return vs;
 }
 
 N_Vector* N_VCloneEmptyVectorArray(int count, N_Vector w)

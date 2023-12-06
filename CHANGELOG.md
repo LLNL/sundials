@@ -82,6 +82,24 @@ sundials_dense.h
 sundials_band.h
 ```
 
+**Breaking change**
+The following functions have had their signature updated to ensure they can leverage
+the new SUNDIALS error handling capabilties. 
+
+```c
+// From sundials_futils.h
+SUNDIALSFileOpen
+SUNDIALSFileClose
+
+// From sundials_memory.h
+SUNMemorNewEmpty
+SUNMemoryHelper_Alias
+SUNMemoryHelper_Wrap
+
+// From sundials_nvector.h
+N_VNewVectorArray
+```
+
 **Breaking change** 
 We have replaced the use of a type-erased (i.e., `void*`) pointer to a
 communicator in place of `MPI_Comm` throughout the SUNDIALS API with a

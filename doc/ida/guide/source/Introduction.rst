@@ -123,6 +123,22 @@ rely on these are recommended to transition to the corresponding :c:type:`SUNMat
   sundials_band.h
 
 
+**Breaking change**
+The following functions have had their signature updated to ensure they can leverage
+the new SUNDIALS error handling capabilties. 
+
+From sundials_futils.h
+* :c:func:`SUNDIALSFileOpen`
+* :c:func:`SUNDIALSFileClose`
+
+From sundials_memory.h
+* :c:func:`SUNMemorNewEmpty`
+* :c:func:`SUNMemoryHelper_Alias`
+* :c:func:`SUNMemoryHelper_Wrap`
+
+From sundials_nvector.h
+* :c:func:`N_VNewVectorArray`
+
 **Breaking change** 
 We have replaced the use of a type-erased (i.e., ``void*``) pointer to a
 communicator in place of ``MPI_Comm`` throughout the SUNDIALS API with a

@@ -657,11 +657,12 @@ type(C_PTR), value :: farg2
 integer(C_INT) :: fresult
 end function
 
-function swigc_FN_VNewVectorArray(farg1) &
+function swigc_FN_VNewVectorArray(farg1, farg2) &
 bind(C, name="_wrap_FN_VNewVectorArray") &
 result(fresult)
 use, intrinsic :: ISO_C_BINDING
 integer(C_INT), intent(in) :: farg1
+type(C_PTR), value :: farg2
 type(C_PTR) :: fresult
 end function
 
@@ -1598,16 +1599,19 @@ fresult = swigc_FN_VBufUnpack(farg1, farg2)
 swig_result = fresult
 end function
 
-function FN_VNewVectorArray(count) &
+function FN_VNewVectorArray(count, sunctx) &
 result(swig_result)
 use, intrinsic :: ISO_C_BINDING
 type(C_PTR) :: swig_result
 integer(C_INT), intent(in) :: count
+type(C_PTR) :: sunctx
 type(C_PTR) :: fresult 
 integer(C_INT) :: farg1 
+type(C_PTR) :: farg2 
 
 farg1 = count
-fresult = swigc_FN_VNewVectorArray(farg1)
+farg2 = sunctx
+fresult = swigc_FN_VNewVectorArray(farg1, farg2)
 swig_result = fresult
 end function
 

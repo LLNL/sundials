@@ -945,13 +945,15 @@ SWIGEXPORT int _wrap_FN_VBufUnpack(N_Vector farg1, void *farg2) {
 }
 
 
-SWIGEXPORT void * _wrap_FN_VNewVectorArray(int const *farg1) {
+SWIGEXPORT void * _wrap_FN_VNewVectorArray(int const *farg1, void *farg2) {
   void * fresult ;
   int arg1 ;
+  SUNContext arg2 = (SUNContext) 0 ;
   N_Vector *result = 0 ;
   
   arg1 = (int)(*farg1);
-  result = (N_Vector *)N_VNewVectorArray(arg1);
+  arg2 = (SUNContext)(farg2);
+  result = (N_Vector *)N_VNewVectorArray(arg1,arg2);
   fresult = result;
   return fresult;
 }
