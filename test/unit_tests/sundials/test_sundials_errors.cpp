@@ -87,6 +87,21 @@ TEST_F(SUNErrConditionTest, LastErrConditionPersists)
   N_VDestroyVectorArray(arr, 1);
 }
 
+TEST_F(SUNErrConditionTest, LastErrConditionPersistingResultsInSpecialMessage)
+{
+  testing::internal::CaptureStderr();
+  N_VCloneEmptyVectorArray(-1, v); // -1 is an out of range argument
+  N_Vector* arr = N_VCloneEmptyVectorArray(1, v);
+  std::string output = testing::internal::GetCapturedStderr();
+  EXPECT_THAT(output,
+              testing::AllOf(testing::StartsWith("[ERROR]"),
+                             testing::HasSubstr("[rank 0]"),
+                             testing::HasSubstr("N_VCloneEmptyVectorArray"),
+                             testing::HasSubstr("A previous error has triggered a second error")));
+  N_VDestroyVectorArray(arr, 1);
+}
+
+
 TEST_F(SUNErrConditionTest, ErrConditionResultsInErrReturned)
 {
   SUNErrCode err = N_VCopyOps(v, NULL);
