@@ -121,7 +121,7 @@ SUNErrCode SUNAdaptController_EstimateStep(SUNAdaptController C, sunrealtype h, 
   *hnew = h;   /* initialize output with identity */
   if (C == NULL) { return SUN_ERR_ARG_CORRUPT; }
   SUNFunctionBegin(C->sunctx);
-  SUNCheck(hnew, SUN_ERR_ARG_CORRUPT);
+  SUNAssert(hnew, SUN_ERR_ARG_CORRUPT);
   if (C->ops->estimatestep)
   {
     ier = C->ops->estimatestep(C, h, p, dsm, hnew);
@@ -153,7 +153,7 @@ SUNErrCode SUNAdaptController_Write(SUNAdaptController C, FILE* fptr)
   int ier = SUN_SUCCESS;
   if (C == NULL) { return SUN_ERR_ARG_CORRUPT; }
   SUNFunctionBegin(C->sunctx);
-  SUNCheck(fptr, SUN_ERR_ARG_CORRUPT);
+  SUNAssert(fptr, SUN_ERR_ARG_CORRUPT);
   if (C->ops->write) { ier = C->ops->write(C, fptr); }
   return(ier);
 }
@@ -181,8 +181,8 @@ SUNErrCode SUNAdaptController_Space(SUNAdaptController C, long int *lenrw, long 
   int ier = SUN_SUCCESS;
   if (C == NULL) { return SUN_ERR_ARG_CORRUPT; }
   SUNFunctionBegin(C->sunctx);
-  SUNCheck(lenrw, SUN_ERR_ARG_CORRUPT);
-  SUNCheck(leniw, SUN_ERR_ARG_CORRUPT);
+  SUNAssert(lenrw, SUN_ERR_ARG_CORRUPT);
+  SUNAssert(leniw, SUN_ERR_ARG_CORRUPT);
   *lenrw = 0;   /* initialize outputs with identity */
   *leniw = 0;
   if (C->ops->space) { ier = C->ops->space(C, lenrw, leniw); }

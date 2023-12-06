@@ -463,15 +463,12 @@ void SUNHandleSecondError(int line, const char* func, const char* file,
   supports assumptions, so that the compiler can make optimizations based on the
   assumption.
 
-  Use SUNAssert macros to check for conditions that do not make sense. E.g.,
-  to check if malloc returned NULL. Use SUNCheck macros for checking inputs.
-
   :param expr: a expression to evaluate as true or false
   :param code: the error code to pass to the error handler if the expression is
   false
 */
 
-#if !defined(NDEBUG)
+#if defined(SUNDIALS_ENABLE_ERROR_CHECKS)
 #define SUNAssert(expr, code) SUNCheck(expr, code)
 #else
 #define SUNAssert(expr, code) SUNAssume(expr)
@@ -481,15 +478,12 @@ void SUNHandleSecondError(int line, const char* func, const char* file,
   SUNAssertNoRet is the same as SUNAssert but it does not return from the
   caller.
 
-  Use SUNAssert macros to check for conditions that do not make sense. E.g.,
-  to check if malloc returned NULL. Use SUNCheck macros for checking inputs.
-
   :param expr: a expression to evaluate as true or false
   :param code: the error code to pass to the error handler if the expression is
   false
 */
 
-#if !defined(NDEBUG)
+#if defined(SUNDIALS_ENABLE_ERROR_CHECKS)
 #define SUNAssertNoRet(expr, code) SUNCheckNoRet(expr, code)
 #else
 #define SUNAssertNoRet(expr, code) SUNAssume(expr)
@@ -498,15 +492,12 @@ void SUNHandleSecondError(int line, const char* func, const char* file,
 /*
   SUNAssertNull is the same as SUNAssert but it *returns NULL from the caller*.
 
-  Use SUNAssert macros to check for conditions that do not make sense. E.g.,
-  to check if malloc returned NULL. Use SUNCheck macros for checking inputs.
-
   :param expr: a expression to evaluate as true or false
   :param code: the error code to pass to the error handler if the expression is
   false
 */
 
-#if !defined(NDEBUG)
+#if defined(SUNDIALS_ENABLE_ERROR_CHECKS)
 #define SUNAssertNull(expr, code) SUNCheckNull(expr, code)
 #else
 #define SUNAssertNull(expr, code) SUNAssume(expr)
@@ -515,15 +506,12 @@ void SUNHandleSecondError(int line, const char* func, const char* file,
 /*
   SUNAssertVoid is the same as SUNAssert but it *returns void from the caller*.
 
-  Use SUNAssert macros to check for conditions that do not make sense. E.g.,
-  to check if malloc returned NULL. Use SUNCheck macros for checking inputs.
-
   :param expr: a expression to evaluate as true or false
   :param code: the error code to pass to the error handler if the expression is
   false
 */
 
-#if !defined(NDEBUG)
+#if defined(SUNDIALS_ENABLE_ERROR_CHECKS)
 #define SUNAssertVoid(expr, code) SUNCheckVoid(expr, code)
 #else
 #define SUNAssertVoid(expr, code) SUNAssume(expr)

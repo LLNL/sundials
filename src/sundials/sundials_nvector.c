@@ -177,7 +177,7 @@ SUNErrCode N_VCopyOps(N_Vector w, N_Vector v)
 {
   SUNFunctionBegin(w->sunctx);
   /* Check that ops structures exist */
-  SUNCheck(w && w->ops && v && v->ops, SUN_ERR_ARG_CORRUPT);
+  SUNAssert(w && w->ops && v && v->ops, SUN_ERR_ARG_CORRUPT);
 
   /* Copy ops from w to v */
 
@@ -921,7 +921,7 @@ SUNErrCode N_VDotProdMultiLocal(int nvec, N_Vector x, N_Vector* Y, sunrealtype* 
 
   SUNDIALS_MARK_FUNCTION_BEGIN(getSUNProfiler(x));
 
-  SUNCheck(x->ops->nvdotprodmultilocal || x->ops->nvdotprodlocal, SUN_ERR_NOT_IMPLEMENTED);
+  SUNAssert(x->ops->nvdotprodmultilocal || x->ops->nvdotprodlocal, SUN_ERR_NOT_IMPLEMENTED);
 
   if (x->ops->nvdotprodmultilocal) {
     err = x->ops->nvdotprodmultilocal(nvec, x, Y, dotprods);
@@ -942,7 +942,7 @@ SUNErrCode N_VDotProdMultiAllReduce(int nvec, N_Vector x, sunrealtype* sum)
   SUNFunctionBegin(x->sunctx);
   SUNErrCode err = SUN_SUCCESS;
   SUNDIALS_MARK_FUNCTION_BEGIN(getSUNProfiler(x));
-  SUNCheck(x->ops->nvdotprodmultiallreduce, SUN_ERR_NOT_IMPLEMENTED);
+  SUNAssert(x->ops->nvdotprodmultiallreduce, SUN_ERR_NOT_IMPLEMENTED);
   err = x->ops->nvdotprodmultiallreduce(nvec, x, sum);
   SUNDIALS_MARK_FUNCTION_END(getSUNProfiler(x));
   return err;
@@ -957,7 +957,7 @@ SUNErrCode N_VBufSize(N_Vector x, sunindextype *size)
   SUNFunctionBegin(x->sunctx);
   SUNErrCode err = SUN_SUCCESS;
   SUNDIALS_MARK_FUNCTION_BEGIN(getSUNProfiler(x));
-  SUNCheck(x->ops->nvbufsize, SUN_ERR_NOT_IMPLEMENTED);
+  SUNAssert(x->ops->nvbufsize, SUN_ERR_NOT_IMPLEMENTED);
   err = x->ops->nvbufsize(x, size);
   SUNDIALS_MARK_FUNCTION_END(getSUNProfiler(x));
   return(err);
@@ -968,7 +968,7 @@ SUNErrCode N_VBufPack(N_Vector x, void *buf)
   SUNFunctionBegin(x->sunctx);
   SUNErrCode ier = SUN_SUCCESS;
   SUNDIALS_MARK_FUNCTION_BEGIN(getSUNProfiler(x));
-  SUNCheck(x->ops->nvbufpack, SUN_ERR_NOT_IMPLEMENTED);
+  SUNAssert(x->ops->nvbufpack, SUN_ERR_NOT_IMPLEMENTED);
   ier = x->ops->nvbufpack(x, buf);
   SUNDIALS_MARK_FUNCTION_END(getSUNProfiler(x));
   return(ier);
@@ -979,7 +979,7 @@ SUNErrCode N_VBufUnpack(N_Vector x, void *buf)
   SUNFunctionBegin(x->sunctx); 
   SUNErrCode ier = SUN_SUCCESS;
   SUNDIALS_MARK_FUNCTION_BEGIN(getSUNProfiler(x));
-  SUNCheck(x->ops->nvbufunpack, SUN_ERR_NOT_IMPLEMENTED);
+  SUNAssert(x->ops->nvbufunpack, SUN_ERR_NOT_IMPLEMENTED);
   ier = x->ops->nvbufunpack(x, buf);
   SUNDIALS_MARK_FUNCTION_END(getSUNProfiler(x));
   return(ier);
@@ -1005,7 +1005,7 @@ N_Vector* N_VCloneEmptyVectorArray(int count, N_Vector w)
   N_Vector* vs = NULL;
   int j;
 
-  SUNCheckNull(count > 0, SUN_ERR_ARG_OUTOFRANGE);
+  SUNAssertNull(count > 0, SUN_ERR_ARG_OUTOFRANGE);
 
   vs = (N_Vector* ) malloc(count * sizeof(N_Vector));
   SUNAssertNull(vs, SUN_ERR_MALLOC_FAIL);
@@ -1027,7 +1027,7 @@ N_Vector* N_VCloneVectorArray(int count, N_Vector w)
   int j;
   N_Vector* vs = NULL;
 
-  SUNCheckNull(count > 0, SUN_ERR_ARG_OUTOFRANGE);
+  SUNAssertNull(count > 0, SUN_ERR_ARG_OUTOFRANGE);
 
   vs = (N_Vector* ) malloc(count * sizeof(N_Vector));
   SUNAssertNull(vs, SUN_ERR_MALLOC_FAIL);
@@ -1063,14 +1063,14 @@ void N_VDestroyVectorArray(N_Vector* vs, int count)
 N_Vector N_VGetVecAtIndexVectorArray(N_Vector* vs, int index)
 {
   SUNFunctionBegin(vs[0]->sunctx);
-  SUNCheckNull(index >= 0, SUN_ERR_ARG_OUTOFRANGE);
+  SUNAssertNull(index >= 0, SUN_ERR_ARG_OUTOFRANGE);
   return vs[index];
 }
 
 void N_VSetVecAtIndexVectorArray(N_Vector* vs, int index, N_Vector w)
 {
   SUNFunctionBegin(w->sunctx);
-  SUNCheckVoid(index >= 0, SUN_ERR_ARG_OUTOFRANGE);
+  SUNAssertVoid(index >= 0, SUN_ERR_ARG_OUTOFRANGE);
   vs[index] = w;
 }
 
