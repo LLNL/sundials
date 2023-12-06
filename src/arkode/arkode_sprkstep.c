@@ -44,14 +44,14 @@ void* SPRKStepCreate(ARKRhsFn f1, ARKRhsFn f2, sunrealtype t0, N_Vector y0,
   /* Check that f1 and f2 are supplied */
   if (!f1)
   {
-    arkProcessError(NULL, ARK_ILL_INPUT, "ARKODE::SPRKStep", "SPRKStepCreate",
+    arkProcessError(NULL, ARK_ILL_INPUT, __LINE__, __func__, __FILE__,
                     MSG_ARK_NULL_F);
     return (NULL);
   }
 
   if (!f2)
   {
-    arkProcessError(NULL, ARK_ILL_INPUT, "ARKODE::SPRKStep", "SPRKStepCreate",
+    arkProcessError(NULL, ARK_ILL_INPUT, __LINE__, __func__, __FILE__,
                     MSG_ARK_NULL_F);
     return (NULL);
   }
@@ -59,14 +59,14 @@ void* SPRKStepCreate(ARKRhsFn f1, ARKRhsFn f2, sunrealtype t0, N_Vector y0,
   /* Check for legal input parameters */
   if (!y0)
   {
-    arkProcessError(NULL, ARK_ILL_INPUT, "ARKODE::SPRKStep", "SPRKStepCreate",
+    arkProcessError(NULL, ARK_ILL_INPUT, __LINE__, __func__, __FILE__,
                     MSG_ARK_NULL_Y0);
     return (NULL);
   }
 
   if (!sunctx)
   {
-    arkProcessError(NULL, ARK_ILL_INPUT, "ARKODE::SPRKStep", "SPRKStepCreate",
+    arkProcessError(NULL, ARK_ILL_INPUT, __LINE__, __func__, __FILE__,
                     MSG_ARK_NULL_SUNCTX);
     return (NULL);
   }
@@ -75,7 +75,7 @@ void* SPRKStepCreate(ARKRhsFn f1, ARKRhsFn f2, sunrealtype t0, N_Vector y0,
   nvectorOK = sprkStep_CheckNVector(y0);
   if (!nvectorOK)
   {
-    arkProcessError(NULL, ARK_ILL_INPUT, "ARKODE::SPRKStep", "SPRKStepCreate",
+    arkProcessError(NULL, ARK_ILL_INPUT, __LINE__, __func__, __FILE__,
                     MSG_ARK_BAD_NVECTOR);
     return (NULL);
   }
@@ -84,7 +84,7 @@ void* SPRKStepCreate(ARKRhsFn f1, ARKRhsFn f2, sunrealtype t0, N_Vector y0,
   ark_mem = arkCreate(sunctx);
   if (ark_mem == NULL)
   {
-    arkProcessError(NULL, ARK_MEM_NULL, "ARKODE::SPRKStep", "SPRKStepCreate",
+    arkProcessError(NULL, ARK_MEM_NULL, __LINE__, __func__, __FILE__,
                     MSG_ARK_NO_MEM);
     return (NULL);
   }
@@ -94,7 +94,7 @@ void* SPRKStepCreate(ARKRhsFn f1, ARKRhsFn f2, sunrealtype t0, N_Vector y0,
   step_mem = (ARKodeSPRKStepMem)malloc(sizeof(struct ARKodeSPRKStepMemRec));
   if (step_mem == NULL)
   {
-    arkProcessError(ark_mem, ARK_MEM_FAIL, "ARKODE::SPRKStep", "SPRKStepCreate",
+    arkProcessError(ark_mem, ARK_MEM_FAIL, __LINE__, __func__, __FILE__,
                     MSG_ARK_ARKMEM_FAIL);
     return (NULL);
   }
@@ -125,7 +125,7 @@ void* SPRKStepCreate(ARKRhsFn f1, ARKRhsFn f2, sunrealtype t0, N_Vector y0,
   retval = SPRKStepSetDefaults((void*)ark_mem);
   if (retval != ARK_SUCCESS)
   {
-    arkProcessError(ark_mem, retval, "ARKODE::SPRKStep", "SPRKStepCreate",
+    arkProcessError(ark_mem, retval, __LINE__, __func__, __FILE__,
                     "Error setting default solver options");
     SPRKStepFree((void**)&ark_mem);
     return (NULL);
@@ -151,7 +151,7 @@ void* SPRKStepCreate(ARKRhsFn f1, ARKRhsFn f2, sunrealtype t0, N_Vector y0,
   retval = arkInit(ark_mem, t0, y0, FIRST_INIT);
   if (retval != ARK_SUCCESS)
   {
-    arkProcessError(ark_mem, retval, "ARKODE::SPRKStep", "SPRKStepCreate",
+    arkProcessError(ark_mem, retval, __LINE__, __func__, __FILE__,
                     "Unable to initialize main ARKODE infrastructure");
     SPRKStepFree((void**)&ark_mem);
     return (NULL);
@@ -186,24 +186,24 @@ int SPRKStepReInit(void* arkode_mem, ARKRhsFn f1, ARKRhsFn f2, sunrealtype t0,
   /* Check if ark_mem was allocated */
   if (ark_mem->MallocDone == SUNFALSE)
   {
-    arkProcessError(ark_mem, ARK_NO_MALLOC, "ARKODE::SPRKStep",
-                    "SPRKStepReInit", MSG_ARK_NO_MALLOC);
+    arkProcessError(ark_mem, ARK_NO_MALLOC, __LINE__, __func__, __FILE__,
+                    MSG_ARK_NO_MALLOC);
     return (ARK_NO_MALLOC);
   }
 
   /* Check that f1 and f2 are supplied */
   if (!f1 || !f2)
   {
-    arkProcessError(ark_mem, ARK_ILL_INPUT, "ARKODE::SPRKStep",
-                    "SPRKStepReInit", MSG_ARK_NULL_F);
+    arkProcessError(ark_mem, ARK_ILL_INPUT, __LINE__, __func__, __FILE__,
+                    MSG_ARK_NULL_F);
     return (ARK_ILL_INPUT);
   }
 
   /* Check that y0 is supplied */
   if (!y0)
   {
-    arkProcessError(ark_mem, ARK_ILL_INPUT, "ARKODE::SPRKStep",
-                    "SPRKStepReInit", MSG_ARK_NULL_Y0);
+    arkProcessError(ark_mem, ARK_ILL_INPUT, __LINE__, __func__, __FILE__,
+                    MSG_ARK_NULL_Y0);
     return (ARK_ILL_INPUT);
   }
 
@@ -215,7 +215,7 @@ int SPRKStepReInit(void* arkode_mem, ARKRhsFn f1, ARKRhsFn f2, sunrealtype t0,
   retval = arkInit(ark_mem, t0, y0, FIRST_INIT);
   if (retval != ARK_SUCCESS)
   {
-    arkProcessError(ark_mem, retval, "ARKODE::SPRKStep", "SPRKStepReInit",
+    arkProcessError(ark_mem, retval, __LINE__, __func__, __FILE__,
                     "Unable to reinitialize main ARKODE infrastructure");
     return (retval);
   }
@@ -254,7 +254,7 @@ int SPRKStepReset(void* arkode_mem, sunrealtype tR, N_Vector yR)
 
   if (retval != ARK_SUCCESS)
   {
-    arkProcessError(ark_mem, retval, "ARKODE::SPRKStep", "SPRKStepReset",
+    arkProcessError(ark_mem, retval, __LINE__, __func__, __FILE__,
                     "Unable to initialize main ARKODE infrastructure");
     return (retval);
   }
@@ -278,7 +278,7 @@ int SPRKStepEvolve(void* arkode_mem, sunrealtype tout, N_Vector yout,
   int retval        = 0;
   if (arkode_mem == NULL)
   {
-    arkProcessError(NULL, ARK_MEM_NULL, "ARKODE::SPRKStep", "SPRKKStepGetDky",
+    arkProcessError(NULL, ARK_MEM_NULL, __LINE__, __func__, __FILE__,
                     MSG_ARK_NO_MEM);
     return (ARK_MEM_NULL);
   }
@@ -303,7 +303,7 @@ int SPRKStepGetDky(void* arkode_mem, sunrealtype t, int k, N_Vector dky)
   int retval        = 0;
   if (arkode_mem == NULL)
   {
-    arkProcessError(NULL, ARK_MEM_NULL, "ARKODE::SPRKStep", "SPRKKStepGetDky",
+    arkProcessError(NULL, ARK_MEM_NULL, __LINE__, __func__, __FILE__,
                     MSG_ARK_NO_MEM);
     return (ARK_MEM_NULL);
   }
@@ -452,7 +452,7 @@ int sprkStep_Init(void* arkode_mem, int init_type)
 
     if (retval != ARK_SUCCESS)
     {
-      arkProcessError(ark_mem, ARK_ILL_INPUT, "ARKODE::SPRKStep", "arkStep_Init",
+      arkProcessError(ark_mem, ARK_ILL_INPUT, __LINE__, __func__, __FILE__,
                       "Unable to update interpolation polynomial degree");
       return (ARK_ILL_INPUT);
     }
@@ -467,7 +467,7 @@ int SPRKStepRootInit(void* arkode_mem, int nrtfn, ARKRootFn g)
   ARKodeMem ark_mem = NULL;
   if (arkode_mem == NULL)
   {
-    arkProcessError(NULL, ARK_MEM_NULL, "ARKODE::SPRKStep", "SPRKStepRootInit",
+    arkProcessError(NULL, ARK_MEM_NULL, __LINE__, __func__, __FILE__,
                     MSG_ARK_NO_MEM);
     return (ARK_MEM_NULL);
   }
@@ -541,16 +541,16 @@ int sprkStep_FullRHS(void* arkode_mem, sunrealtype t, N_Vector y, N_Vector f,
     retval = sprkStep_f1(step_mem, t, y, f, ark_mem->user_data);
     if (retval != 0)
     {
-      arkProcessError(ark_mem, ARK_RHSFUNC_FAIL, "ARKODE::SPRKStep",
-                      "SPRKStep_FullRHS", MSG_ARK_RHSFUNC_FAILED, t);
+      arkProcessError(ark_mem, ARK_RHSFUNC_FAIL, __LINE__, __func__, __FILE__,
+                      MSG_ARK_RHSFUNC_FAILED, t);
       return (ARK_RHSFUNC_FAIL);
     }
 
     retval = sprkStep_f2(step_mem, t, y, f, ark_mem->user_data);
     if (retval != 0)
     {
-      arkProcessError(ark_mem, ARK_RHSFUNC_FAIL, "ARKODE::SPRKStep",
-                      "SPRKStep_FullRHS", MSG_ARK_RHSFUNC_FAILED, t);
+      arkProcessError(ark_mem, ARK_RHSFUNC_FAIL, __LINE__, __func__, __FILE__,
+                      MSG_ARK_RHSFUNC_FAILED, t);
       return (ARK_RHSFUNC_FAIL);
     }
 
@@ -558,8 +558,8 @@ int sprkStep_FullRHS(void* arkode_mem, sunrealtype t, N_Vector y, N_Vector f,
 
   default:
     /* return with RHS failure if unknown mode is passed */
-    arkProcessError(ark_mem, ARK_RHSFUNC_FAIL, "ARKODE::SPRKStep",
-                    "SPRKStep_FullRHS", "Unknown full RHS mode");
+    arkProcessError(ark_mem, ARK_RHSFUNC_FAIL, __LINE__, __func__, __FILE__,
+                    "Unknown full RHS mode");
     return (ARK_RHSFUNC_FAIL);
   }
 
@@ -726,8 +726,8 @@ int sprkStep_TakeStep_Compensated(void* arkode_mem, sunrealtype* dsmPtr,
      * wont work with the increment form */
     if (ark_mem->ProcessStage != NULL)
     {
-      arkProcessError(ark_mem, ARK_POSTPROCESS_STAGE_FAIL, "SPRKStep",
-                      "sprkStep_TakeStep_Compensated",
+      arkProcessError(ark_mem, ARK_POSTPROCESS_STAGE_FAIL, __LINE__, __func__,
+                      __FILE__,
                       "Compensated summation is not compatible with stage "
                       "PostProcessing!\n");
       return (ARK_POSTPROCESS_STAGE_FAIL);
@@ -765,14 +765,14 @@ int sprkStep_AccessStepMem(void* arkode_mem, const char* fname,
   /* access ARKodeMem structure */
   if (arkode_mem == NULL)
   {
-    arkProcessError(NULL, ARK_MEM_NULL, "ARKODE::SPRKStep", fname,
+    arkProcessError(NULL, ARK_MEM_NULL, __LINE__, __func__, __FILE__,
                     MSG_ARK_NO_MEM);
     return (ARK_MEM_NULL);
   }
   *ark_mem = (ARKodeMem)arkode_mem;
   if ((*ark_mem)->step_mem == NULL)
   {
-    arkProcessError(*ark_mem, ARK_MEM_NULL, "ARKODE::SPRKStep", fname,
+    arkProcessError(*ark_mem, ARK_MEM_NULL, __LINE__, __func__, __FILE__,
                     MSG_SPRKSTEP_NO_MEM);
     return (ARK_MEM_NULL);
   }

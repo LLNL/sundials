@@ -27,12 +27,13 @@
 #include <sundials/sundials_linearsolver.h>
 #include <sundials/sundials_adaptcontroller.h>
 
+#include <sundials/priv/sundials_context_impl.h>
+#include <sundials/priv/sundials_errors_impl.h>
+#include "sundials_logger_impl.h"
 #include "arkode_types_impl.h"
 #include "arkode_adapt_impl.h"
-#include "arkode_relaxation_impl.h"
 #include "arkode_root_impl.h"
-#include <sundials/priv/sundials_context_impl.h>
-#include "sundials_logger_impl.h"
+#include "arkode_relaxation_impl.h"
 
 #ifdef __cplusplus  /* wrapper to enable C++ usage */
 extern "C" {
@@ -898,9 +899,8 @@ int arkExpStab(N_Vector y, sunrealtype t, sunrealtype *hstab, void *user_data);
   HIGH LEVEL ERROR HANDLER, USED THROUGHOUT ARKODE
   ===============================================================*/
 
-void arkProcessError(ARKodeMem ark_mem, int error_code,
-                     const char *module, const char *fname,
-                     const char *msgfmt, ...);
+void arkProcessError(ARKodeMem ark_mem, int error_code, int line, const char *func,
+                     const char* file, const char *msgfmt, ...);
 
 /*===============================================================
   ARKODE PRIVATE FUNCTION PROTOTYPES

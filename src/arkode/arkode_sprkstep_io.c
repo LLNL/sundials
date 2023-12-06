@@ -193,7 +193,7 @@ int SPRKStepSetDefaults(void* arkode_mem)
   retval = arkSetDefaults(ark_mem);
   if (retval != ARK_SUCCESS)
   {
-    arkProcessError(NULL, ARK_MEM_NULL, "ARKODE::SPRKStep", "SPRKStepSetDefaults",
+    arkProcessError(NULL, ARK_MEM_NULL, __LINE__, __func__, __FILE__,
                     "Error setting ARKODE infrastructure defaults");
     return (retval);
   }
@@ -413,7 +413,7 @@ int SPRKStepPrintAllStats(void* arkode_mem, FILE* outfile, SUNOutputFormat fmt)
     fprintf(outfile, ",f2 RHS fn evals,%ld", step_mem->nf2);
     break;
   default:
-    arkProcessError(ark_mem, ARK_ILL_INPUT, "ARKODE", "SPRKStepPrintAllStats",
+    arkProcessError(ark_mem, ARK_ILL_INPUT, __LINE__, __func__, __FILE__,
                     "Invalid formatting option.");
     return (ARK_ILL_INPUT);
   }
@@ -446,8 +446,7 @@ int SPRKStepWriteParameters(void* arkode_mem, FILE* fp)
   flag = arkWriteParameters(ark_mem, fp);
   if (flag != ARK_SUCCESS)
   {
-    arkProcessError(ark_mem, ARK_MEM_NULL, "ARKODE::SPRKStep",
-                    "SPRKStepWriteParameters",
+    arkProcessError(ark_mem, ARK_MEM_NULL, __LINE__, __func__, __FILE__,
                     "Error writing ARKODE infrastructure parameters");
     return (flag);
   }
