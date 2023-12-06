@@ -24,7 +24,9 @@ runs:
       shell: bash
     - id: run-test-driver
       run: |
+        ulimit -c unlimited # Enable core dumps to be captured (must be in same run block) 
         git config --global --add safe.directory $GITHUB_WORKSPACE
         cd test
         ./test_driver.sh --testtype CUSTOM --env env/docker.sh --tpls --sunrealtype ${{ inputs.precision }} --indexsize ${{ inputs.indexsize }}
+        sudo chmod -R +rwx /cores/* # Enable access to core dumps (doesn't need to be in same run block)
       shell: bash
