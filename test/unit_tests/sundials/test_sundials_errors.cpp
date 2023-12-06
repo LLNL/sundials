@@ -130,18 +130,22 @@ TEST_F(SUNErrConditionTest, LastErrConditionPersistingResultsInSpecialMessage)
 
 TEST_F(SUNErrConditionTest, ErrConditionResultsInErrReturned)
 {
-  SUNErrCode err = N_VCopyOps(v, NULL);
-  EXPECT_EQ(err, SUN_ERR_ARG_CORRUPT);
+  sunindextype size = 0;
+  v->ops->nvbufsize = NULL; // Force a SUN_ERR_NOT_IMPLEMENTED
+  SUNErrCode err = N_VBufSize(v, &size);
+  EXPECT_EQ(err, SUN_ERR_NOT_IMPLEMENTED);
 }
 
 TEST_F(SUNErrConditionTest, ErrConditionResultsInHandlerCalled)
 {
   SUNLogger_SetErrorFilename(logger, errfile.c_str());
-  (void)N_VCopyOps(v, NULL);
+  sunindextype size = 0;
+  v->ops->nvbufsize = NULL; // Force a SUN_ERR_NOT_IMPLEMENTED
+  (void)N_VBufSize(v, &size);
   std::string output = dumpstderr(sunctx);
   EXPECT_THAT(output, testing::AllOf(testing::StartsWith("[ERROR]"),
                                      testing::HasSubstr("[rank 0]"),
-                                     testing::HasSubstr("N_VCopyOps")));
+                                     testing::HasSubstr("N_VBufSize")));
 }
 
 class SUNErrHandlerFnTest : public testing::Test
