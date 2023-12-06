@@ -44,9 +44,7 @@
 #include <nvector/nvector_parallel.h> /* access to MPI-parallel N_Vector     */
 #include <stdio.h>
 #include <stdlib.h>
-#include <sundials/sundials_logger.h>
-#include <sundials/sundials_mpi_errors.h>
-#include <sundials/sundials_types.h> /* definition of type realtype         */
+#include <sundials/sundials_core.h>
 
 /* Problem Constants */
 
@@ -128,7 +126,7 @@ int main(int argc, char* argv[])
 
   /* Setup different error handler stack so that we abort after logging */
   SUNContext_PopErrHandler(sunctx);
-  SUNContext_PushErrHandler(sunctx, SUNMPIAbortErrHandlerFn, NULL);
+  SUNContext_PushErrHandler(sunctx, SUNAbortErrHandlerFn, NULL);
   SUNContext_PushErrHandler(sunctx, SUNLogErrHandlerFn, NULL);
 
   /* This requires that SUNDIALS was configured with the CMake options
