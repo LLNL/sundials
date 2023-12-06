@@ -30,13 +30,13 @@ Initial conditions y0 = ( 1.00  0.00  0.00 )
  ---------------------------------------------------
       Final      y1'          y2'          y3'
  ---------------------------------------------------
-              -8.8152E-19  -3.5261E-24   8.8153E-19
+              -8.8151E-19  -3.5260E-24   8.8151E-19
   
   General Solver Stats:
     Total internal steps taken    =      317
     Total rhs function calls      =      941
     Total Jacobian function calls =       40
-    Total root function calls     =      356
+    Total root function calls     =      357
     Total LU function calls       =      117
     Num error test failures       =       11
     Num nonlinear solver iters    =      940

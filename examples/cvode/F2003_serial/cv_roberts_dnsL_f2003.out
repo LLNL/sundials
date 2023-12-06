@@ -18,26 +18,26 @@ Initial conditions y0 = ( 1.00  0.00  0.00 )
   4.0000E+03   1.8323E-01   8.9439E-07   8.1677E-01
   4.0000E+04   3.8986E-02   1.6219E-07   9.6101E-01
   4.0000E+05   4.9340E-03   1.9833E-08   9.9507E-01
-  4.0000E+06   5.1659E-04   2.0675E-09   9.9948E-01
-  1.9607E+07   1.0000E-04   4.0004E-10   9.9990E-01
+  4.0000E+06   5.1653E-04   2.0672E-09   9.9948E-01
+  1.9818E+07   1.0000E-04   4.0007E-10   9.9990E-01
     rootsfound[] = -1   0
-  4.0000E+07   5.1479E-05   2.0593E-10   9.9995E-01
-  4.0000E+08   6.0238E-06   2.4095E-11   9.9999E-01
-  4.0000E+09   4.6711E-07   1.8685E-12   1.0000E+00
-  4.0000E+10   7.1415E-07   2.8566E-12   1.0000E+00
+  4.0000E+07   4.4844E-05   1.7938E-10   9.9996E-01
+  4.0000E+08   6.8491E-06   2.7396E-11   9.9999E-01
+  4.0000E+09  -6.8850E+05  -4.0000E-06   6.8850E+05
+  4.0000E+10  -1.7968E+07  -4.0000E-06   1.7968E+07
   
  ------------------------------------------------------
       Final      y1'          y2'          y3'
  ------------------------------------------------------
-               5.6187E-17   2.2475E-22  -5.6187E-17
+              -4.7999E-04   1.4590E-21   4.7999E-04
   
   General Solver Stats:
-    Total internal steps taken    =      387
-    Total rhs function calls      =      567
-    Total Jacobian function calls =       13
-    Total root function calls     =      425
-    Total LU function calls       =       95
-    Num error test failures       =       15
-    Num nonlinear solver iters    =      564
-    Num nonlinear solver fails    =        8
+    Total internal steps taken    =      745
+    Total rhs function calls      =     1206
+    Total Jacobian function calls =       45
+    Total root function calls     =      781
+    Total LU function calls       =      190
+    Num error test failures       =       46
+    Num nonlinear solver iters    =     1203
+    Num nonlinear solver fails    =       38
   
