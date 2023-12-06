@@ -656,7 +656,7 @@ int SUNMatrix_cuSparse_CopyToDevice(SUNMatrix dA, sunrealtype* h_data,
 
   if (h_data != NULL)
   {
-    _h_data = SUNMemoryHelper_Wrap(SMCU_MEMHELP(A), h_data, SUNMEMTYPE_HOST);
+    _h_data = SUNMemoryHelper_Wrap(SMCU_MEMHELP(dA), h_data, SUNMEMTYPE_HOST);
     retval  = SUNMemoryHelper_CopyAsync(SMCU_MEMHELP(dA),
                                         SMCU_DATA(dA),
                                         _h_data,
@@ -683,7 +683,7 @@ int SUNMatrix_cuSparse_CopyToDevice(SUNMatrix dA, sunrealtype* h_data,
 
   if (h_idxptrs != NULL)
   {
-    _h_idxptrs = SUNMemoryHelper_Wrap(SMCU_MEMHELP(A), h_idxptrs, SUNMEMTYPE_HOST);
+    _h_idxptrs = SUNMemoryHelper_Wrap(SMCU_MEMHELP(dA), h_idxptrs, SUNMEMTYPE_HOST);
     retval = SUNMemoryHelper_CopyAsync(SMCU_MEMHELP(dA),
                                        SMCU_INDEXPTRS(dA),
                                        _h_idxptrs,
@@ -695,7 +695,7 @@ int SUNMatrix_cuSparse_CopyToDevice(SUNMatrix dA, sunrealtype* h_data,
 
   if (h_idxvals != NULL)
   {
-    _h_idxvals = SUNMemoryHelper_Wrap(SMCU_MEMHELP(A), h_idxvals, SUNMEMTYPE_HOST);
+    _h_idxvals = SUNMemoryHelper_Wrap(SMCU_MEMHELP(dA), h_idxvals, SUNMEMTYPE_HOST);
     retval = SUNMemoryHelper_CopyAsync(SMCU_MEMHELP(dA),
                                        SMCU_INDEXVALS(dA),
                                        _h_idxvals,
@@ -724,7 +724,7 @@ int SUNMatrix_cuSparse_CopyFromDevice(SUNMatrix dA, sunrealtype* h_data,
 
   if (h_data != NULL)
   {
-    _h_data = SUNMemoryHelper_Wrap(SMCU_MEMHELP(A), h_data, SUNMEMTYPE_HOST);
+    _h_data = SUNMemoryHelper_Wrap(SMCU_MEMHELP(dA), h_data, SUNMEMTYPE_HOST);
     retval  = SUNMemoryHelper_CopyAsync(SMCU_MEMHELP(dA),
                                         _h_data,
                                         SMCU_DATA(dA),
@@ -747,7 +747,7 @@ int SUNMatrix_cuSparse_CopyFromDevice(SUNMatrix dA, sunrealtype* h_data,
 
   if (h_idxptrs != NULL)
   {
-    _h_idxptrs = SUNMemoryHelper_Wrap(SMCU_MEMHELP(A), h_idxptrs, SUNMEMTYPE_HOST);
+    _h_idxptrs = SUNMemoryHelper_Wrap(SMCU_MEMHELP(dA), h_idxptrs, SUNMEMTYPE_HOST);
     retval = SUNMemoryHelper_CopyAsync(SMCU_MEMHELP(dA),
                                        _h_idxptrs,
                                        SMCU_INDEXPTRS(dA),
@@ -759,7 +759,7 @@ int SUNMatrix_cuSparse_CopyFromDevice(SUNMatrix dA, sunrealtype* h_data,
 
   if (h_idxvals != NULL)
   {
-    _h_idxvals = SUNMemoryHelper_Wrap(SMCU_MEMHELP(A), h_idxvals, SUNMEMTYPE_HOST);
+    _h_idxvals = SUNMemoryHelper_Wrap(SMCU_MEMHELP(dA), h_idxvals, SUNMEMTYPE_HOST);
     retval = SUNMemoryHelper_CopyAsync(SMCU_MEMHELP(dA),
                                        _h_idxvals,
                                        SMCU_INDEXVALS(dA),
