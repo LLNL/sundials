@@ -10,15 +10,38 @@
  * SUNDIALS Copyright End
  * -----------------------------------------------------------------*/
 
+#include <fstream>
 #include <gmock/gmock.h>
 #include <gtest/gtest.h>
+#include <iostream>
 #include <nvector/nvector_serial.h>
+#include <string>
 #include <sundials/priv/sundials_errors_impl.h>
 #include <sundials/sundials_core.h>
 #include <sundials/sundials_nvector.h>
 
 #include "sundials/sundials_context.h"
 #include "sundials/sundials_errors.h"
+#include "sundials/sundials_logger.h"
+#include "sundials/sundials_types.h"
+
+static const std::string errfile{"test_sundials_errors.err"};
+
+std::string dumpstderr(SUNContext sunctx)
+{
+  SUNLogger logger = NULL;
+  SUNContext_GetLogger(sunctx, &logger);
+  SUNLogger_Flush(logger, SUN_LOGLEVEL_ERROR);
+  std::ifstream file(errfile);
+  std::string line;
+  std::string file_contents;
+  while (std::getline(file, line))
+  {
+    file_contents += line;
+    file_contents.push_back('\n');
+  }
+  return file_contents;
+}
 
 class SUNErrConditionTest : public testing::Test
 {
@@ -28,6 +51,7 @@ protected:
     SUNContext_Create(SUN_COMM_NULL, &sunctx);
     SUNContext_ClearErrHandlers(sunctx);
     SUNContext_PushErrHandler(sunctx, SUNLogErrHandlerFn, NULL);
+    SUNContext_GetLogger(sunctx, &logger);
     v = N_VNew_Serial(1, sunctx);
   }
 
@@ -39,6 +63,7 @@ protected:
 
   N_Vector v;
   SUNContext sunctx;
+  SUNLogger logger;
 };
 
 TEST_F(SUNErrConditionTest, GetLastErrorClearsErr)
@@ -59,9 +84,9 @@ TEST_F(SUNErrConditionTest, PeekLastErrorKeepsErr)
 
 TEST_F(SUNErrConditionTest, LastErrConditionResultsInHandlerCalled)
 {
-  testing::internal::CaptureStderr();
+  SUNLogger_SetErrorFilename(logger, errfile.c_str());
   N_VCloneEmptyVectorArray(-1, v); // -1 is an out of range argument
-  std::string output = testing::internal::GetCapturedStderr();
+  std::string output = dumpstderr(sunctx);
   EXPECT_THAT(output,
               testing::AllOf(testing::StartsWith("[ERROR]"),
                              testing::HasSubstr("[rank 0]"),
@@ -89,18 +114,19 @@ TEST_F(SUNErrConditionTest, LastErrConditionPersists)
 
 TEST_F(SUNErrConditionTest, LastErrConditionPersistingResultsInSpecialMessage)
 {
-  testing::internal::CaptureStderr();
+  SUNLogger_SetErrorFilename(logger, errfile.c_str());
   N_VCloneEmptyVectorArray(-1, v); // -1 is an out of range argument
-  N_Vector* arr = N_VCloneEmptyVectorArray(1, v);
-  std::string output = testing::internal::GetCapturedStderr();
+  N_Vector* arr      = N_VCloneEmptyVectorArray(1, v);
+  std::string output = dumpstderr(sunctx);
   EXPECT_THAT(output,
-              testing::AllOf(testing::StartsWith("[ERROR]"),
-                             testing::HasSubstr("[rank 0]"),
-                             testing::HasSubstr("N_VCloneEmptyVectorArray"),
-                             testing::HasSubstr("A previous error has triggered a second error")));
+              testing::
+                AllOf(testing::StartsWith("[ERROR]"),
+                      testing::HasSubstr("[rank 0]"),
+                      testing::HasSubstr("N_VCloneEmptyVectorArray"),
+                      testing::HasSubstr(
+                        "A previous error has triggered a second error")));
   N_VDestroyVectorArray(arr, 1);
 }
-
 
 TEST_F(SUNErrConditionTest, ErrConditionResultsInErrReturned)
 {
@@ -110,9 +136,9 @@ TEST_F(SUNErrConditionTest, ErrConditionResultsInErrReturned)
 
 TEST_F(SUNErrConditionTest, ErrConditionResultsInHandlerCalled)
 {
-  testing::internal::CaptureStderr();
+  SUNLogger_SetErrorFilename(logger, errfile.c_str());
   (void)N_VCopyOps(v, NULL);
-  std::string output = testing::internal::GetCapturedStderr();
+  std::string output = dumpstderr(sunctx);
   EXPECT_THAT(output, testing::AllOf(testing::StartsWith("[ERROR]"),
                                      testing::HasSubstr("[rank 0]"),
                                      testing::HasSubstr("N_VCopyOps")));
@@ -121,20 +147,27 @@ TEST_F(SUNErrConditionTest, ErrConditionResultsInHandlerCalled)
 class SUNErrHandlerFnTest : public testing::Test
 {
 protected:
-  SUNErrHandlerFnTest() { SUNContext_Create(SUN_COMM_NULL, &sunctx); }
+  SUNErrHandlerFnTest()
+  {
+    SUNContext_Create(SUN_COMM_NULL, &sunctx);
+    SUNContext_ClearErrHandlers(sunctx);
+    SUNContext_PushErrHandler(sunctx, SUNLogErrHandlerFn, NULL);
+    SUNContext_GetLogger(sunctx, &logger);
+  }
 
   ~SUNErrHandlerFnTest() { SUNContext_Free(&sunctx); }
 
+  SUNLogger logger;
   SUNContext sunctx;
 };
 
 TEST_F(SUNErrHandlerFnTest, SUNLogErrHandlerFnLogsWhenCalled)
 {
-  testing::internal::CaptureStderr();
+  SUNLogger_SetErrorFilename(logger, errfile.c_str());
   std::string message = "Test log handler";
   SUNLogErrHandlerFn(__LINE__, __func__, __FILE__, message.c_str(), -1, nullptr,
                      sunctx);
-  std::string output = testing::internal::GetCapturedStderr();
+  std::string output = dumpstderr(sunctx);
   EXPECT_THAT(output, testing::AllOf(testing::StartsWith("[ERROR]"),
                                      testing::HasSubstr("[rank 0]"),
                                      testing::HasSubstr(__func__),
@@ -143,6 +176,9 @@ TEST_F(SUNErrHandlerFnTest, SUNLogErrHandlerFnLogsWhenCalled)
 
 TEST_F(SUNErrHandlerFnTest, SUNAbortErrHandlerFnAbortsWhenCalled)
 {
+  // Need to set the error filename to stderr since that is where ASSERT_DEATH
+  // reads from
+  SUNLogger_SetErrorFilename(logger, "stderr");
   ASSERT_DEATH(
     {
       SUNAbortErrHandlerFn(__LINE__, __func__, __FILE__, "Test abort handler",
