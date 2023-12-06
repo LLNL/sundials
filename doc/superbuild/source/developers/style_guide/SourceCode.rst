@@ -181,7 +181,40 @@ Coding Conventions and Rules
    <https://clang.llvm.org/docs/ClangFormat.html>`_. See :ref:`Style.Formatting`
    for details.
 
-#. Split very long lines when it improves code readability by using ``//``.
+#. If clang-format breaks lines in a way that is unreadable, use ``//`` to break the line. For example,
+   sometimes (mostly in C++ code) you may have code like this:
+
+   .. code-block:: cpp
+
+      MyClass::callAFunctionOfSorts::doSomething().doAnotherThing().doSomethingElse();
+
+   That you would like to format as (for readability):
+
+   .. code-block:: cpp
+
+      MyObject::callAFunctionOfSorts()
+            .doSomething()
+            .doAnotherThing()
+            .doSomethingElse();
+
+   Clang-format might produce something like:
+   
+   .. code-block:: cpp
+
+      MyObject::callAFunctionOfSorts().doSomething().doAnotherThing()
+            .doSomethingElse();
+   ```
+
+   unless you add the `//`.
+  
+   .. code-block:: cpp
+
+      MyObject::callAFunctionOfSorts()
+            .doSomething()       //
+            .doAnotherThing()    //
+            .doSomethingElse();  //
+  
+   There are other scenarios (e.g., a function call with a lot of parameters) where doing this type of line break is useful for readability too.
 
 #. It may be necessary to override clang-tidy at times. This can be done with
    the ``NOLINT`` magic comments e.g.,

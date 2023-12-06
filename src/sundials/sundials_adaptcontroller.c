@@ -16,7 +16,10 @@
  * operations listed in sundials_adaptcontroller.h
  * -----------------------------------------------------------------*/
 
+#include <sundials/priv/sundials_errors_impl.h>
 #include <sundials/sundials_adaptcontroller.h>
+
+#include "sundials/sundials_errors.h"
 
 /* -----------------------------------------------------------------
  * Create a new empty SUNAdaptController object
@@ -30,19 +33,17 @@ SUNAdaptController SUNAdaptController_NewEmpty(SUNContext sunctx)
   /* a context is required */
   if (sunctx == NULL) { return (NULL); }
 
+  SUNFunctionBegin(sunctx);
+
   /* create controller object */
   C = NULL;
   C = (SUNAdaptController)malloc(sizeof *C);
-  if (C == NULL) { return (NULL); }
+  SUNAssertNull(C, SUN_ERR_MALLOC_FAIL);
 
   /* create matrix ops structure */
   ops = NULL;
   ops = (SUNAdaptController_Ops)malloc(sizeof *ops);
-  if (ops == NULL)
-  {
-    free(C);
-    return (NULL);
-  }
+  SUNAssertNull(ops, SUN_ERR_MALLOC_FAIL);
 
   /* initialize operations to NULL */
   ops->gettype      = NULL;
@@ -95,9 +96,9 @@ SUNAdaptController_Type SUNAdaptController_GetType(SUNAdaptController C)
  * Optional functions in the 'ops' structure
  * ----------------------------------------------------------------- */
 
-int SUNAdaptController_Destroy(SUNAdaptController C)
+SUNErrCode SUNAdaptController_Destroy(SUNAdaptController C)
 {
-  if (C == NULL) { return (SUNADAPTCONTROLLER_SUCCESS); }
+  if (C == NULL) { return (SUN_SUCCESS); }
 
   /* if the destroy operation exists use it */
   if (C->ops)
@@ -120,68 +121,77 @@ int SUNAdaptController_Destroy(SUNAdaptController C)
   free(C);
   C = NULL;
 
-  return (SUNADAPTCONTROLLER_SUCCESS);
+  return (SUN_SUCCESS);
 }
 
-int SUNAdaptController_EstimateStep(SUNAdaptController C, sunrealtype h, int p,
-                                    sunrealtype dsm, sunrealtype* hnew)
+SUNErrCode SUNAdaptController_EstimateStep(SUNAdaptController C, sunrealtype h,
+                                           int p, sunrealtype dsm,
+                                           sunrealtype* hnew)
 {
-  int ier = SUNADAPTCONTROLLER_SUCCESS;
+  int ier = SUN_SUCCESS;
   *hnew   = h; /* initialize output with identity */
-  if (C == NULL || hnew == NULL) { return SUNADAPTCONTROLLER_ILL_INPUT; }
+  if (C == NULL) { return SUN_ERR_ARG_CORRUPT; }
+  SUNFunctionBegin(C->sunctx);
+  SUNAssert(hnew, SUN_ERR_ARG_CORRUPT);
   if (C->ops->estimatestep) { ier = C->ops->estimatestep(C, h, p, dsm, hnew); }
   return (ier);
 }
 
-int SUNAdaptController_Reset(SUNAdaptController C)
+SUNErrCode SUNAdaptController_Reset(SUNAdaptController C)
 {
-  int ier = SUNADAPTCONTROLLER_SUCCESS;
-  if (C == NULL) { return SUNADAPTCONTROLLER_ILL_INPUT; }
+  int ier = SUN_SUCCESS;
+  if (C == NULL) { return SUN_ERR_ARG_CORRUPT; }
+  SUNFunctionBegin(C->sunctx);
   if (C->ops->reset) { ier = C->ops->reset(C); }
   return (ier);
 }
 
-int SUNAdaptController_SetDefaults(SUNAdaptController C)
+SUNErrCode SUNAdaptController_SetDefaults(SUNAdaptController C)
 {
-  int ier = SUNADAPTCONTROLLER_SUCCESS;
-  if (C == NULL) { return SUNADAPTCONTROLLER_ILL_INPUT; }
+  int ier = SUN_SUCCESS;
+  if (C == NULL) { return SUN_ERR_ARG_CORRUPT; }
+  SUNFunctionBegin(C->sunctx);
   if (C->ops->setdefaults) { ier = C->ops->setdefaults(C); }
   return (ier);
 }
 
-int SUNAdaptController_Write(SUNAdaptController C, FILE* fptr)
+SUNErrCode SUNAdaptController_Write(SUNAdaptController C, FILE* fptr)
 {
-  int ier = SUNADAPTCONTROLLER_SUCCESS;
-  if (C == NULL || fptr == NULL) { return SUNADAPTCONTROLLER_ILL_INPUT; }
+  int ier = SUN_SUCCESS;
+  if (C == NULL) { return SUN_ERR_ARG_CORRUPT; }
+  SUNFunctionBegin(C->sunctx);
+  SUNAssert(fptr, SUN_ERR_ARG_CORRUPT);
   if (C->ops->write) { ier = C->ops->write(C, fptr); }
   return (ier);
 }
 
-int SUNAdaptController_SetErrorBias(SUNAdaptController C, sunrealtype bias)
+SUNErrCode SUNAdaptController_SetErrorBias(SUNAdaptController C, sunrealtype bias)
 {
-  int ier = SUNADAPTCONTROLLER_SUCCESS;
-  if (C == NULL) { return SUNADAPTCONTROLLER_ILL_INPUT; }
+  int ier = SUN_SUCCESS;
+  if (C == NULL) { return SUN_ERR_ARG_CORRUPT; }
+  SUNFunctionBegin(C->sunctx);
   if (C->ops->seterrorbias) { ier = C->ops->seterrorbias(C, bias); }
   return (ier);
 }
 
-int SUNAdaptController_UpdateH(SUNAdaptController C, sunrealtype h,
-                               sunrealtype dsm)
+SUNErrCode SUNAdaptController_UpdateH(SUNAdaptController C, sunrealtype h,
+                                      sunrealtype dsm)
 {
-  int ier = SUNADAPTCONTROLLER_SUCCESS;
-  if (C == NULL) { return SUNADAPTCONTROLLER_ILL_INPUT; }
+  int ier = SUN_SUCCESS;
+  if (C == NULL) { return SUN_ERR_ARG_CORRUPT; }
+  SUNFunctionBegin(C->sunctx);
   if (C->ops->updateh) { ier = C->ops->updateh(C, h, dsm); }
   return (ier);
 }
 
-int SUNAdaptController_Space(SUNAdaptController C, long int* lenrw,
-                             long int* leniw)
+SUNErrCode SUNAdaptController_Space(SUNAdaptController C, long int* lenrw,
+                                    long int* leniw)
 {
-  int ier = SUNADAPTCONTROLLER_SUCCESS;
-  if (C == NULL || lenrw == NULL || leniw == NULL)
-  {
-    return SUNADAPTCONTROLLER_ILL_INPUT;
-  }
+  int ier = SUN_SUCCESS;
+  if (C == NULL) { return SUN_ERR_ARG_CORRUPT; }
+  SUNFunctionBegin(C->sunctx);
+  SUNAssert(lenrw, SUN_ERR_ARG_CORRUPT);
+  SUNAssert(leniw, SUN_ERR_ARG_CORRUPT);
   *lenrw = 0; /* initialize outputs with identity */
   *leniw = 0;
   if (C->ops->space) { ier = C->ops->space(C, lenrw, leniw); }

@@ -565,6 +565,10 @@ def main():
             'SUNDIALS_TEST_UNITTESTS', 'OFF', 'BOOL',
             'SUNDIALS unit tests')
 
+    add_arg(group, '--no-gtest', 'SUNDIALS_TEST_DISABLE_GTEST',
+            'SUNDIALS_TEST_DISABLE_GTEST', 'OFF', 'BOOL',
+            'SUNDIALS GTest unit tests')
+
     # test output directory
     add_arg(group, '--test-output-dir', 'SUNDIALS_TEST_OUTPUT_DIR',
             'SUNDIALS_TEST_OUTPUT_DIR', None, 'PATH',

@@ -27,7 +27,7 @@
 /*
    SUNCheckMPICallMsg performs the MPI function call, and checks the
    returned error code. If an error occured, then it will log the error, set the
-   last_err value, call the error handler, **and then returns SUN_ERR_MPI_FAIL**.
+   last_err value, call the error handler, **and then return SUN_ERR_MPI_FAIL**.
 
    :param call: the MPI function call
    :param msg: an error message
@@ -40,18 +40,18 @@
     {                                                                          \
       SUNHandleErrWithMsg(__LINE__, __func__, __FILE__, msg, SUN_ERR_MPI_FAIL, \
                           SUNCTX_);                                            \
-      return SUN_ERR_MPI_FAIL;                                                 \
+      return SUN_ERR_MPI_FAIL;     s                                            \
     }                                                                          \
   }                                                                            \
   while (0)
 #else
-#define SUNCheckMPICallMsg(call, msg) call
+#define SUNCheckMPICallMsg(call, msg) (void)call
 #endif
 
 /*
    SUNCheckMPICallNullMsg performs the MPI function call, and checks the
    returned error code. If an error occured, then it will log the error, set the
-   last_err value, call the error handler, **and then returns NULL**.
+   last_err value, call the error handler, **and then return NULL**.
 
    :param call: the MPI function call
    :param msg: an error message
@@ -69,13 +69,13 @@
   }                                                                            \
   while (0)
 #else
-#define SUNCheckMPICallNullMsg(call, msg) call
+#define SUNCheckMPICallNullMsg(call, msg) (void)call
 #endif
 
 /*
    SUNCheckMPICallVoidMsg performs the MPI function call, and checks the
    returned error code. If an error occured, then it will log the error, set the
-   last_err value, call the error handler, **and then returns void**.
+   last_err value, call the error handler, **and then return void**.
 
    :param call: the MPI function call
    :param msg: an error message
@@ -93,13 +93,13 @@
   }                                                                            \
   while (0)
 #else
-#define SUNCheckMPICallVoidMsg(call, msg) call
+#define SUNCheckMPICallVoidMsg(call, msg) (void)call
 #endif
 
 /*
    SUNCheckMPICallNoRetMsg performs the MPI function call, and checks the
    returned error code. If an error occured, then it will log the error, set the
-   last_err value, call the error handler. **It does not return**.
+   last_err value, and call the error handler. **It does not return**.
 
    :param call: the MPI function call
    :param msg: an error message
@@ -116,7 +116,7 @@
   }                                                                            \
   while (0)
 #else
-#define SUNCheckMPICallNoRetMsg(call) call
+#define SUNCheckMPICallNoRetMsg(call) (void)call
 #endif
 
 /* These versions of SUNCheckMPICall do not take a custom message so a

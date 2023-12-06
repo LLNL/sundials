@@ -50,7 +50,7 @@ struct SUNMemory_
 };
 
 /* Creates a new SUNMemory object with a NULL ptr */
-SUNDIALS_EXPORT SUNMemory SUNMemoryNewEmpty(void);
+SUNDIALS_EXPORT SUNMemory SUNMemoryNewEmpty(SUNContext sunctx);
 
 /*
  * SUNMemoryHelper holds ops which can allocate, deallocate,
@@ -96,13 +96,13 @@ struct SUNMemoryHelper_Ops_
  * The SUNMemory returned will not own the ptr, therefore, it will not free
  * the ptr in Dealloc. */
 SUNDIALS_EXPORT
-SUNMemory SUNMemoryHelper_Alias(SUNMemory mem);
+SUNMemory SUNMemoryHelper_Alias(SUNMemoryHelper, SUNMemory mem);
 
 /* Creates a new SUNMemory object with ptr set to the user provided pointer
  * The SUNMemory returned will not own the ptr, therefore, it will not free
  * the ptr in Dealloc. */
 SUNDIALS_EXPORT
-SUNMemory SUNMemoryHelper_Wrap(void* ptr, SUNMemoryType mem_type);
+SUNMemory SUNMemoryHelper_Wrap(SUNMemoryHelper, void* ptr, SUNMemoryType mem_type);
 
 /*
  * Required SUNMemoryHelper operations.

@@ -22,7 +22,10 @@
 
 #include <sundials/sundials_errors.h>
 
+#include "sundials/sundials_context.h"
 #include "sundials/sundials_export.h"
+#include "sundials/sundials_logger.h"
+#include "sundials/sundials_types.h"
 
 /* ----------------------------------------------------------------------------
  * SUNErrHandler_ definition.
@@ -41,7 +44,8 @@ struct SUNErrHandler_
 
   :param eh_fn: An error handler callback function
   :param eh_data: A pointer that will be passed back to the error handler
-  callback function :param eh_out: The new SUNErrHandler object
+  callback function
+  :param eh_out: The new SUNErrHandler object
 
   :return: A SUNErrCode indicating success or failure
 */
@@ -53,7 +57,7 @@ SUNErrCode SUNErrHandler_Create(SUNErrHandlerFn eh_fn, void* eh_data,
   This function destroys and frees the memory for the given SUNErrHandler
   object.
 
-  :param eh: A SUNErrHandler object
+  :param eh: A pointer to a SUNErrHandler object
 
   :return: void
 */
@@ -119,6 +123,18 @@ void SUNHandleErrWithFmtMsg(int line, const char* func, const char* file,
   free(msg);
 }
 
+SUNDIALS_STATIC_INLINE
+void SUNHandleSecondError(int line, const char* func, const char* file,
+                          SUNErrCode code, SUNContext sunctx)
+{
+  SUNHandleErrWithMsg(line, func, file,
+                      "A previous error has triggered a second error. This "
+                      "is likely because the first error was not handled by "
+                      "calling SUNContext_GetLastError or the second error "
+                      "was triggered while handling the first error. ",
+                      code, sunctx);
+}
+
 /*
   The SUNCTX_ macro expands to the name of the local SUNContext object
   defined by SUNFunctionBegin. SUNCTX_ should be used to reference the
@@ -140,10 +156,10 @@ void SUNHandleErrWithFmtMsg(int line, const char* func, const char* file,
 /* ----------------------------------------------------------------------------
  * SUNCheck* family of error checking macros
  *
- * We define several different version of SUNCheck* macros to cover various
+ * We define several different versions of SUNCheck* macros to cover various
  * programming scenarios.
  *
- * SUNCheckCall* macros are used to check SUNDIALS functions calls which do
+ * SUNCheckCall* macros are used to check SUNDIALS function calls that
  * return a SUNErrCode.
  *
  * SUNCheckLastErr* macros are used to check SUNDIALS function calls that
@@ -156,21 +172,100 @@ void SUNHandleErrWithFmtMsg(int line, const char* func, const char* file,
   assumptions. If the expression should be strictly assumed as true, then use
   SUNAssert instead.
 
-  :param expr: a expression to evaluate as true or false
+  Use SUNAssert macros to check for conditions that do not make sense. E.g.,
+  to check if malloc returned NULL. Use SUNCheck macros for checking inputs.
+
+  :param expr: an expression to evaluate as true or false
   :param code: the error code to pass to the error handler if the expression is
   false
 */
 #if defined(SUNDIALS_ENABLE_ERROR_CHECKS)
-#define SUNCheck(expr, code)                                                   \
-  do {                                                                         \
-    if (SUNHintFalse(!(expr)))                                                 \
-    {                                                                          \
-      SUNHandleErrWithMsg(__LINE__, __func__, __FILE__, #expr, code, SUNCTX_); \
-    }                                                                          \
-  }                                                                            \
+#define SUNCheck(expr, code)                                              \
+  do {                                                                    \
+    if (SUNHintFalse(!(expr)))                                            \
+    {                                                                     \
+      SUNHandleErrWithFmtMsg(__LINE__, __func__, __FILE__, "expected %s", \
+                             code, SUNCTX_, #expr);                       \
+      return code;                                                        \
+    }                                                                     \
+  }                                                                       \
   while (0)
 #else
 #define SUNCheck(expr, code)
+#endif
+
+/*
+  SUNCheckNoRet is the same as SUNCheck but *does not return from the caller*.
+  Use SUNAssert macros to check for conditions that do not make sense. E.g.,
+  to check if malloc returned NULL. Use SUNCheck macros for checking inputs.
+
+  :param expr: an expression to evaluate as true or false
+  :param code: the error code to pass to the error handler if the expression is
+  false
+*/
+
+#if defined(SUNDIALS_ENABLE_ERROR_CHECKS)
+#define SUNCheckNoRet(expr, code)                                         \
+  do {                                                                    \
+    if (SUNHintFalse(!(expr)))                                            \
+    {                                                                     \
+      SUNHandleErrWithFmtMsg(__LINE__, __func__, __FILE__, "expected %s", \
+                             code, SUNCTX_, #expr);                       \
+    }                                                                     \
+  }                                                                       \
+  while (0)
+#else
+#define SUNCheckNoRet(expr, code)
+#endif
+
+/*
+  SUNCheckNull is the same as SUNCheck but *returns NULL from the caller*.
+  Use SUNAssert macros to check for conditions that do not make sense. E.g.,
+  to check if malloc returned NULL. Use SUNCheck macros for checking inputs.
+
+  :param expr: an expression to evaluate as true or false
+  :param code: the error code to pass to the error handler if the expression is
+  false
+*/
+
+#if defined(SUNDIALS_ENABLE_ERROR_CHECKS)
+#define SUNCheckNull(expr, code)                                          \
+  do {                                                                    \
+    if (SUNHintFalse(!(expr)))                                            \
+    {                                                                     \
+      SUNHandleErrWithFmtMsg(__LINE__, __func__, __FILE__, "expected %s", \
+                             code, SUNCTX_, #expr);                       \
+      return NULL;                                                        \
+    }                                                                     \
+  }                                                                       \
+  while (0)
+#else
+#define SUNCheckNull(expr, code)
+#endif
+
+/*
+  SUNCheckNull is the same as SUNCheck but *returns void from the caller*.
+  Use SUNAssert macros to check for conditions that do not make sense. E.g.,
+  to check if malloc returned NULL. Use SUNCheck macros for checking inputs.
+
+  :param expr: an expression to evaluate as true or false
+  :param code: the error code to pass to the error handler if the expression is
+  false
+*/
+
+#if defined(SUNDIALS_ENABLE_ERROR_CHECKS)
+#define SUNCheckVoid(expr, code)                                          \
+  do {                                                                    \
+    if (SUNHintFalse(!(expr)))                                            \
+    {                                                                     \
+      SUNHandleErrWithFmtMsg(__LINE__, __func__, __FILE__, "expected %s", \
+                             code, SUNCTX_, #expr);                       \
+      return;                                                             \
+    }                                                                     \
+  }                                                                       \
+  while (0)
+#else
+#define SUNCheckVoid(expr, code)
 #endif
 
 /*
@@ -213,7 +308,6 @@ void SUNHandleErrWithFmtMsg(int line, const char* func, const char* file,
     {                                                        \
       SUNHandleErrWithMsg(__LINE__, __func__, __FILE__, msg, \
                           sun_chk_call_err_code_, SUNCTX_);  \
-      (void)SUNContext_GetLastError(SUNCTX_);                \
     }                                                        \
   }                                                          \
   while (0)
@@ -276,18 +370,79 @@ void SUNHandleErrWithFmtMsg(int line, const char* func, const char* file,
 #define SUNCheckCallNull(call)  SUNCheckCallNullMsg(call, NULL)
 #define SUNCheckCallVoid(call)  SUNCheckCallVoidMsg(call, NULL)
 
-/* SUNCheckLastErrMoRetMsg checks the last_err value in the SUNContext.
-   If an error occured, then it will log the error, set the last_err
-   value, and calls the error handler. */
+/*
+  The SUNPeekIfErrAlreadySet macro is used to check if the last_err in
+  SUNContext is already set to an error inside of the SUNCheckLastErr macros. If
+  the error is already set, then we call the error handler with a message
+  stating that a new error has occured as a result of the old one.
+*/
 #if defined(SUNDIALS_ENABLE_ERROR_CHECKS)
-#define SUNCheckLastErrMsg(msg) \
-  SUNCheckCallMsg(SUNContext_GetLastError(SUNCTX_), msg)
-#define SUNCheckLastErrNoRetMsg(msg) \
-  SUNCheckCallNoRetMsg(SUNContext_GetLastError(SUNCTX_), msg)
-#define SUNCheckLastErrNullMsg(msg) \
-  SUNCheckCallNullMsg(SUNContext_GetLastError(SUNCTX_), msg)
-#define SUNCheckLastErrVoidMsg(msg) \
-  SUNCheckCallVoidMsg(SUNContext_GetLastError(SUNCTX_), msg)
+#define SUNPeekIfErrAlreadySet()                                            \
+  do {                                                                      \
+    SUNErrCode sun_peek_last_err_code_ = SUNContext_PeekLastError(SUNCTX_); \
+    if (SUNHintFalse(sun_peek_last_err_code_ < 0))                          \
+    {                                                                       \
+      SUNHandleSecondError(__LINE__, __func__, __FILE__,                    \
+                           sun_peek_last_err_code_, SUNCTX_);               \
+    }                                                                       \
+  }                                                                         \
+  while (0)
+#else
+#define SUNPeekIfErrAlreadySet()
+#endif
+
+/* SUNCheckLastErrMsg checks the last_err value in the SUNContext.
+   If an error occured, then it will log the error, set the last_err
+   value, and call the error handler, **and then returns the code**. */
+#if defined(SUNDIALS_ENABLE_ERROR_CHECKS)
+#define SUNCheckLastErrMsg(msg)                              \
+  do {                                                       \
+    SUNPeekIfErrAlreadySet();                                \
+    SUNCheckCallMsg(SUNContext_PeekLastError(SUNCTX_), msg); \
+  }                                                          \
+  while (0)
+
+/*
+   SUNCheckLastErrNoRetMsg performs the SUNDIALS function call, and checks the
+   returned error code. If an error occured, then it will log the error, set the
+   last_err value, call the error handler. **It does not return.**
+
+   :param msg: an error message
+*/
+#define SUNCheckLastErrNoRetMsg(msg)                              \
+  do {                                                            \
+    SUNPeekIfErrAlreadySet();                                     \
+    SUNCheckCallNoRetMsg(SUNContext_PeekLastError(SUNCTX_), msg); \
+  }                                                               \
+  while (0)
+
+/*
+   SUNCheckLastErrNullMsg performs the SUNDIALS function call, and checks the
+   returned error code. If an error occured, then it will log the error, set the
+   last_err value, call the error handler, **and then returns NULL**.
+
+   :param msg: an error message
+*/
+#define SUNCheckLastErrNullMsg(msg)                              \
+  do {                                                           \
+    SUNPeekIfErrAlreadySet();                                    \
+    SUNCheckCallNullMsg(SUNContext_PeekLastError(SUNCTX_), msg); \
+  }                                                              \
+  while (0)
+
+/*
+   SUNCheckLastErrVoidMsg performs the SUNDIALS function call, and checks the
+   returned error code. If an error occured, then it will log the error, set the
+   last_err value, call the error handler, **and then returns void**.
+
+   :param msg: an error message
+*/
+#define SUNCheckLastErrVoidMsg(msg)                              \
+  do {                                                           \
+    SUNPeekIfErrAlreadySet();                                    \
+    SUNCheckCallVoidMsg(SUNContext_PeekLastError(SUNCTX_), msg); \
+  }                                                              \
+  while (0)
 #else
 #define SUNCheckLastErrNoRetMsg(msg)
 #define SUNCheckLastErrMsg(msg)
@@ -303,10 +458,10 @@ void SUNHandleErrWithFmtMsg(int line, const char* func, const char* file,
 #define SUNCheckLastErrNull()  SUNCheckLastErrNullMsg(NULL)
 
 /*
-  SUNAssert checks if an expression is true. It expands to SUNCheck when error
-  checks are enabled. If error checks are disabled, then we try to expand it to
-  an assumption, if the compiler supoprts, so that the compiler can make
-  optimizations based on the assumption.
+  SUNAssert checks if an expression is true. It expands to SUNCheck in debug
+  builds othewrise we try to expand it to an assumption, if the compiler
+  supports assumptions, so that the compiler can make optimizations based on the
+  assumption.
 
   :param expr: a expression to evaluate as true or false
   :param code: the error code to pass to the error handler if the expression is
@@ -317,6 +472,49 @@ void SUNHandleErrWithFmtMsg(int line, const char* func, const char* file,
 #define SUNAssert(expr, code) SUNCheck(expr, code)
 #else
 #define SUNAssert(expr, code) SUNAssume(expr)
+#endif
+
+/*
+  SUNAssertNoRet is the same as SUNAssert but it does not return from the
+  caller.
+
+  :param expr: a expression to evaluate as true or false
+  :param code: the error code to pass to the error handler if the expression is
+  false
+*/
+
+#if defined(SUNDIALS_ENABLE_ERROR_CHECKS)
+#define SUNAssertNoRet(expr, code) SUNCheckNoRet(expr, code)
+#else
+#define SUNAssertNoRet(expr, code) SUNAssume(expr)
+#endif
+
+/*
+  SUNAssertNull is the same as SUNAssert but it *returns NULL from the caller*.
+
+  :param expr: a expression to evaluate as true or false
+  :param code: the error code to pass to the error handler if the expression is
+  false
+*/
+
+#if defined(SUNDIALS_ENABLE_ERROR_CHECKS)
+#define SUNAssertNull(expr, code) SUNCheckNull(expr, code)
+#else
+#define SUNAssertNull(expr, code) SUNAssume(expr)
+#endif
+
+/*
+  SUNAssertVoid is the same as SUNAssert but it *returns void from the caller*.
+
+  :param expr: a expression to evaluate as true or false
+  :param code: the error code to pass to the error handler if the expression is
+  false
+*/
+
+#if defined(SUNDIALS_ENABLE_ERROR_CHECKS)
+#define SUNAssertVoid(expr, code) SUNCheckVoid(expr, code)
+#else
+#define SUNAssertVoid(expr, code) SUNAssume(expr)
 #endif
 
 #endif /* _SUNDIALS_ERRORS_IMPL_H */

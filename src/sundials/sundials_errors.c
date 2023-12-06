@@ -84,15 +84,3 @@ void SUNAbortErrHandlerFn(int line, const char* func, const char* file,
   free(file_and_line);
   abort();
 }
-
-void SUNAssertErrHandlerFn(int line, const char* func, const char* file,
-                           const char* stmt, SUNErrCode err_code,
-                           void* err_user_data, SUNContext sunctx)
-{
-  char* file_and_line = combineFileAndLine(line, file);
-  SUNLogger_QueueMsg(sunctx->logger, SUN_LOGLEVEL_ERROR, file_and_line, func,
-                     "SUNAssertErrHandler: assert(%s) failed... terminating\n",
-                     stmt);
-  free(file_and_line);
-  abort();
-}

@@ -327,10 +327,13 @@ SUNMatrix SUNMatrix_cuSparse_MakeCSR(cusparseMatDescr_t mat_descr, int M, int N,
   SMCU_CONTENT(A)->matvec_issetup = SUNFALSE;
   SMCU_CONTENT(A)->fixed_pattern  = SUNFALSE;
   SMCU_CONTENT(A)->sparse_type    = SUNMAT_CUSPARSE_CSR;
-  SMCU_CONTENT(A)->colind    = SUNMemoryHelper_Wrap(colind, SUNMEMTYPE_DEVICE);
-  SMCU_CONTENT(A)->rowptrs   = SUNMemoryHelper_Wrap(rowptrs, SUNMEMTYPE_DEVICE);
-  SMCU_CONTENT(A)->data      = SUNMemoryHelper_Wrap(data, SUNMEMTYPE_DEVICE);
-  SMCU_CONTENT(A)->mat_descr = mat_descr;
+  SMCU_CONTENT(A)->colind      = SUNMemoryHelper_Wrap(SMCU_MEMHELP(A), colind,
+                                                      SUNMEMTYPE_DEVICE);
+  SMCU_CONTENT(A)->rowptrs     = SUNMemoryHelper_Wrap(SMCU_MEMHELP(A), rowptrs,
+                                                      SUNMEMTYPE_DEVICE);
+  SMCU_CONTENT(A)->data        = SUNMemoryHelper_Wrap(SMCU_MEMHELP(A), data,
+                                                      SUNMEMTYPE_DEVICE);
+  SMCU_CONTENT(A)->mat_descr   = mat_descr;
   SMCU_CONTENT(A)->cusp_handle = cusp;
 
   SMCU_CONTENT(A)->exec_policy = DEFAULT_EXEC_POLICY.clone_new_stream(stream);
@@ -637,7 +640,7 @@ int SUNMatrix_cuSparse_CopyToDevice(SUNMatrix dA, sunrealtype* h_data,
 
   if (h_data != NULL)
   {
-    _h_data = SUNMemoryHelper_Wrap(h_data, SUNMEMTYPE_HOST);
+    _h_data = SUNMemoryHelper_Wrap(SMCU_MEMHELP(dA), h_data, SUNMEMTYPE_HOST);
     retval = SUNMemoryHelper_CopyAsync(SMCU_MEMHELP(dA), SMCU_DATA(dA), _h_data,
                                        SMCU_NNZ(dA) * sizeof(sunrealtype),
                                        (void*)stream);
@@ -663,7 +666,8 @@ int SUNMatrix_cuSparse_CopyToDevice(SUNMatrix dA, sunrealtype* h_data,
 
   if (h_idxptrs != NULL)
   {
-    _h_idxptrs = SUNMemoryHelper_Wrap(h_idxptrs, SUNMEMTYPE_HOST);
+    _h_idxptrs = SUNMemoryHelper_Wrap(SMCU_MEMHELP(dA), h_idxptrs,
+                                      SUNMEMTYPE_HOST);
     retval     = SUNMemoryHelper_CopyAsync(SMCU_MEMHELP(dA), SMCU_INDEXPTRS(dA),
                                            _h_idxptrs, nidxptrs * sizeof(int),
                                            (void*)stream);
@@ -673,7 +677,8 @@ int SUNMatrix_cuSparse_CopyToDevice(SUNMatrix dA, sunrealtype* h_data,
 
   if (h_idxvals != NULL)
   {
-    _h_idxvals = SUNMemoryHelper_Wrap(h_idxvals, SUNMEMTYPE_HOST);
+    _h_idxvals = SUNMemoryHelper_Wrap(SMCU_MEMHELP(dA), h_idxvals,
+                                      SUNMEMTYPE_HOST);
     retval     = SUNMemoryHelper_CopyAsync(SMCU_MEMHELP(dA), SMCU_INDEXVALS(dA),
                                            _h_idxvals, nidxvals * sizeof(int),
                                            (void*)stream);
@@ -698,7 +703,7 @@ int SUNMatrix_cuSparse_CopyFromDevice(SUNMatrix dA, sunrealtype* h_data,
 
   if (h_data != NULL)
   {
-    _h_data = SUNMemoryHelper_Wrap(h_data, SUNMEMTYPE_HOST);
+    _h_data = SUNMemoryHelper_Wrap(SMCU_MEMHELP(dA), h_data, SUNMEMTYPE_HOST);
     retval = SUNMemoryHelper_CopyAsync(SMCU_MEMHELP(dA), _h_data, SMCU_DATA(dA),
                                        SMCU_NNZ(dA) * sizeof(sunrealtype),
                                        (void*)stream);
@@ -718,7 +723,8 @@ int SUNMatrix_cuSparse_CopyFromDevice(SUNMatrix dA, sunrealtype* h_data,
 
   if (h_idxptrs != NULL)
   {
-    _h_idxptrs = SUNMemoryHelper_Wrap(h_idxptrs, SUNMEMTYPE_HOST);
+    _h_idxptrs = SUNMemoryHelper_Wrap(SMCU_MEMHELP(dA), h_idxptrs,
+                                      SUNMEMTYPE_HOST);
     retval     = SUNMemoryHelper_CopyAsync(SMCU_MEMHELP(dA), _h_idxptrs,
                                            SMCU_INDEXPTRS(dA),
                                            nidxptrs * sizeof(int), (void*)stream);
@@ -728,7 +734,8 @@ int SUNMatrix_cuSparse_CopyFromDevice(SUNMatrix dA, sunrealtype* h_data,
 
   if (h_idxvals != NULL)
   {
-    _h_idxvals = SUNMemoryHelper_Wrap(h_idxvals, SUNMEMTYPE_HOST);
+    _h_idxvals = SUNMemoryHelper_Wrap(SMCU_MEMHELP(dA), h_idxvals,
+                                      SUNMEMTYPE_HOST);
     retval     = SUNMemoryHelper_CopyAsync(SMCU_MEMHELP(dA), _h_idxvals,
                                            SMCU_INDEXVALS(dA),
                                            nidxvals * sizeof(int), (void*)stream);

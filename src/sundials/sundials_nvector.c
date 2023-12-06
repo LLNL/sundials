@@ -49,12 +49,12 @@ N_Vector N_VNewEmpty(SUNContext sunctx)
   /* create vector object */
   v = NULL;
   v = (N_Vector)malloc(sizeof *v);
-  SUNAssert(v, SUN_ERR_MALLOC_FAIL);
+  SUNAssertNull(v, SUN_ERR_MALLOC_FAIL);
 
   /* create vector ops structure */
   ops = NULL;
   ops = (N_Vector_Ops)malloc(sizeof *ops);
-  SUNAssert(ops, SUN_ERR_MALLOC_FAIL);
+  SUNAssertNull(ops, SUN_ERR_MALLOC_FAIL);
 
   /* initialize operations to NULL */
 
@@ -995,11 +995,14 @@ SUNErrCode N_VBufUnpack(N_Vector x, void* buf)
  *   N_VCloneVectorArray
  *   N_VDestroyVectorArray
  * -----------------------------------------------------------------*/
-N_Vector* N_VNewVectorArray(int count)
+
+N_Vector* N_VNewVectorArray(int count, SUNContext sunctx)
 {
+  SUNFunctionBegin(sunctx);
   N_Vector* vs = NULL;
   vs           = (N_Vector*)malloc(count * sizeof(N_Vector));
-  return (vs);
+  SUNAssertNull(vs, SUN_ERR_MALLOC_FAIL);
+  return vs;
 }
 
 N_Vector* N_VCloneEmptyVectorArray(int count, N_Vector w)
@@ -1008,16 +1011,16 @@ N_Vector* N_VCloneEmptyVectorArray(int count, N_Vector w)
   N_Vector* vs = NULL;
   int j;
 
-  SUNAssert(count > 0, SUN_ERR_ARG_OUTOFRANGE);
+  SUNAssertNull(count > 0, SUN_ERR_ARG_OUTOFRANGE);
 
   vs = (N_Vector*)malloc(count * sizeof(N_Vector));
-  SUNAssert(vs, SUN_ERR_MALLOC_FAIL);
+  SUNAssertNull(vs, SUN_ERR_MALLOC_FAIL);
 
   for (j = 0; j < count; j++)
   {
     vs[j] = N_VCloneEmpty(w);
     SUNCheckLastErrNoRet();
-    if (SUNContext_GetLastError(SUNCTX_) < 0)
+    if (SUNContext_PeekLastError(SUNCTX_) < 0)
     {
       N_VDestroyVectorArray(vs, j - 1);
       return (NULL);
@@ -1033,16 +1036,16 @@ N_Vector* N_VCloneVectorArray(int count, N_Vector w)
   int j;
   N_Vector* vs = NULL;
 
-  SUNAssert(count > 0, SUN_ERR_ARG_OUTOFRANGE);
+  SUNAssertNull(count > 0, SUN_ERR_ARG_OUTOFRANGE);
 
   vs = (N_Vector*)malloc(count * sizeof(N_Vector));
-  SUNAssert(vs, SUN_ERR_MALLOC_FAIL);
+  SUNAssertNull(vs, SUN_ERR_MALLOC_FAIL);
 
   for (j = 0; j < count; j++)
   {
     vs[j] = N_VClone(w);
     SUNCheckLastErrNoRet();
-    if (SUNContext_GetLastError(SUNCTX_) < 0)
+    if (SUNContext_PeekLastError(SUNCTX_) < 0)
     {
       N_VDestroyVectorArray(vs, j - 1);
       return (NULL);
@@ -1074,14 +1077,14 @@ void N_VDestroyVectorArray(N_Vector* vs, int count)
 N_Vector N_VGetVecAtIndexVectorArray(N_Vector* vs, int index)
 {
   SUNFunctionBegin(vs[0]->sunctx);
-  SUNAssert(index >= 0, SUN_ERR_ARG_OUTOFRANGE);
+  SUNAssertNull(index >= 0, SUN_ERR_ARG_OUTOFRANGE);
   return vs[index];
 }
 
 void N_VSetVecAtIndexVectorArray(N_Vector* vs, int index, N_Vector w)
 {
   SUNFunctionBegin(w->sunctx);
-  SUNAssert(index >= 0, SUN_ERR_ARG_OUTOFRANGE);
+  SUNAssertVoid(index >= 0, SUN_ERR_ARG_OUTOFRANGE);
   vs[index] = w;
 }
 

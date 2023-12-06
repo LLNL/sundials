@@ -46,12 +46,12 @@ SUNNonlinearSolver SUNNonlinSolNewEmpty(SUNContext sunctx)
   /* create nonlinear solver object */
   NLS = NULL;
   NLS = (SUNNonlinearSolver)malloc(sizeof *NLS);
-  SUNAssert(NLS, SUN_ERR_MALLOC_FAIL);
+  SUNAssertNull(NLS, SUN_ERR_MALLOC_FAIL);
 
   /* create nonlinear solver ops structure */
   ops = NULL;
   ops = (SUNNonlinearSolver_Ops)malloc(sizeof *ops);
-  SUNAssert(ops, SUN_ERR_MALLOC_FAIL);
+  SUNAssertNull(ops, SUN_ERR_MALLOC_FAIL);
 
   /* initialize operations to NULL */
   ops->gettype         = NULL;

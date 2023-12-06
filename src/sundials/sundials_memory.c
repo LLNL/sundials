@@ -14,6 +14,8 @@
  * SUNDIALS memory helper.
  * ----------------------------------------------------------------*/
 
+#include "sundials/sundials_memory.h"
+
 #include <string.h>
 #include <sundials/priv/sundials_errors_impl.h>
 #include <sundials/sundials_core.h>
@@ -29,11 +31,14 @@ static SUNProfiler getSUNProfiler(SUNMemoryHelper H)
 }
 #endif
 
-SUNMemory SUNMemoryNewEmpty(void)
+SUNMemory SUNMemoryNewEmpty(SUNContext sunctx)
 {
+  SUNFunctionBegin(sunctx);
+
   SUNMemory mem = NULL;
 
   mem = (SUNMemory)malloc(sizeof(struct SUNMemory_));
+  SUNAssertNull(mem, SUN_ERR_MALLOC_FAIL);
 
   mem->bytes = 0;
 
@@ -48,10 +53,10 @@ SUNMemoryHelper SUNMemoryHelper_NewEmpty(SUNContext sunctx)
   SUNMemoryHelper helper = NULL;
 
   helper = (SUNMemoryHelper)malloc(sizeof(struct SUNMemoryHelper_));
-  SUNAssert(helper, SUN_ERR_MALLOC_FAIL);
+  SUNAssertNull(helper, SUN_ERR_MALLOC_FAIL);
 
   helper->ops = (SUNMemoryHelper_Ops)malloc(sizeof(struct SUNMemoryHelper_Ops_));
-  SUNAssert(helper->ops, SUN_ERR_MALLOC_FAIL);
+  SUNAssertNull(helper->ops, SUN_ERR_MALLOC_FAIL);
 
   /* Set all ops to NULL */
   memset(helper->ops, 0, sizeof(struct SUNMemoryHelper_Ops_));
@@ -77,9 +82,12 @@ sunbooleantype SUNMemoryHelper_ImplementsRequiredOps(SUNMemoryHelper helper)
   return SUNTRUE;
 }
 
-SUNMemory SUNMemoryHelper_Alias(SUNMemory mem)
+SUNMemory SUNMemoryHelper_Alias(SUNMemoryHelper helper, SUNMemory mem)
 {
-  SUNMemory alias = SUNMemoryNewEmpty();
+  SUNFunctionBegin(helper->sunctx);
+
+  SUNMemory alias = SUNMemoryNewEmpty(helper->sunctx);
+  SUNCheckLastErrNull();
 
   alias->ptr  = mem->ptr;
   alias->type = mem->type;
@@ -88,26 +96,21 @@ SUNMemory SUNMemoryHelper_Alias(SUNMemory mem)
   return alias;
 }
 
-SUNMemory SUNMemoryHelper_Wrap(void* ptr, SUNMemoryType mem_type)
+SUNMemory SUNMemoryHelper_Wrap(SUNMemoryHelper helper, void* ptr,
+                               SUNMemoryType mem_type)
 {
-  SUNMemory mem = SUNMemoryNewEmpty();
+  SUNFunctionBegin(helper->sunctx);
 
-  mem->ptr = ptr;
-  mem->own = SUNFALSE;
+  SUNCheckNull(mem_type == SUNMEMTYPE_HOST || mem_type == SUNMEMTYPE_PINNED ||
+                 mem_type == SUNMEMTYPE_DEVICE || mem_type == SUNMEMTYPE_UVM,
+               SUN_ERR_ARG_OUTOFRANGE);
 
-  switch (mem_type)
-  {
-  case SUNMEMTYPE_HOST: mem->type = SUNMEMTYPE_HOST; break;
-  case SUNMEMTYPE_PINNED: mem->type = SUNMEMTYPE_PINNED; break;
-  case SUNMEMTYPE_DEVICE: mem->type = SUNMEMTYPE_DEVICE; break;
-  case SUNMEMTYPE_UVM: mem->type = SUNMEMTYPE_UVM; break;
-  default:
-    free(mem);
-    /* TODO(CJB): We dont have access to SUNContext to handle this error */
-    SUNDIALS_DEBUG_PRINT(
-      "ERROR in SUNMemoryHelper_Wrap: unknown memory type\n");
-    return (NULL);
-  }
+  SUNMemory mem = SUNMemoryNewEmpty(helper->sunctx);
+  SUNCheckLastErrNull();
+
+  mem->ptr  = ptr;
+  mem->own  = SUNFALSE;
+  mem->type = mem_type;
 
   return mem;
 }
@@ -217,7 +220,7 @@ SUNMemoryHelper SUNMemoryHelper_Clone(SUNMemoryHelper helper)
   {
     if (helper->content)
     {
-      SUNAssert(!helper->ops->clone, SUN_ERR_NOT_IMPLEMENTED);
+      SUNAssertNull(!helper->ops->clone, SUN_ERR_NOT_IMPLEMENTED);
       return (NULL);
     }
     else

@@ -328,7 +328,7 @@ SUNDIALS_EXPORT SUNErrCode N_VBufUnpack(N_Vector x, void* buf);
  * Additional functions exported by NVECTOR module
  * ----------------------------------------------------------------- */
 
-SUNDIALS_EXPORT N_Vector* N_VNewVectorArray(int count);
+SUNDIALS_EXPORT N_Vector* N_VNewVectorArray(int count, SUNContext sunctx);
 SUNDIALS_EXPORT N_Vector* N_VCloneEmptyVectorArray(int count, N_Vector w);
 SUNDIALS_EXPORT N_Vector* N_VCloneVectorArray(int count, N_Vector w);
 SUNDIALS_EXPORT void N_VDestroyVectorArray(N_Vector* vs, int count);

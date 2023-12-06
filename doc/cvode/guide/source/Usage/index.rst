@@ -112,7 +112,7 @@ more information).
 Other headers may be needed, according to the choice of preconditioner, etc. For example, in the
 example (see :cite:p:`cvode_ex`), preconditioning is done with a block-diagonal matrix. For this,
 even though the ``SUNLINSOL_SPGMR`` linear solver is used, the header  
-``sundials dense.h`` is included for access to the underlying generic dense matrix  
+``sundials_dense.h`` is included for access to the underlying generic dense matrix  
 arithmetic routines.  
 
 .. _CVODE.Usage.CC.skeleton_sim:

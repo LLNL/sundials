@@ -107,7 +107,7 @@ int SUNMemoryHelper_Alloc_Sycl(SUNMemoryHelper helper, SUNMemory* memptr,
   ::sycl::queue* sycl_queue = static_cast<::sycl::queue*>(queue);
 
   // Allocate the memory struct
-  SUNMemory mem = SUNMemoryNewEmpty();
+  SUNMemory mem = SUNMemoryNewEmpty(helper->sunctx);
   if (!mem)
   {
     SUNDIALS_DEBUG_PRINT(

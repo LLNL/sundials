@@ -135,7 +135,7 @@ if(SUNDIALS_TEST_DEVTESTS)
 endif()
 
 # Check if unit tests are enabled
-if(SUNDIALS_TEST_UNITTESTS)
+if(SUNDIALS_TEST_UNITTESTS AND NOT SUNDIALS_TEST_DISABLE_GTEST)
   find_package(GTest)
   if(NOT (TARGET GTest::gtest_main OR TARGET GTest::Main))
     include(FetchContent)

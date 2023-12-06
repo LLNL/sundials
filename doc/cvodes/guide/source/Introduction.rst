@@ -140,7 +140,46 @@ This fixes `GitHub Issue #312 <https://github.com/LLNL/sundials/issues/312>`_.
 
 Added Fortran support for the LAPACK  dense ``SUNLinearSolver`` implementation.
 
+**Major feature**
 SUNDIALS now has more robust and uniform error handling. See :numref:`SUNDIALS.Errors` for details.
+
+**Deprecation notice**
+The functions in `sundials_math.h` will be deprecated in the next release.
+
+.. code-block:: c
+
+  sunrealtype SUNRpowerI(sunrealtype base, int exponent);
+  sunrealtype SUNRpowerR(sunrealtype base, sunrealtype exponent);
+  sunbooleantype SUNRCompare(sunrealtype a, sunrealtype b);
+  sunbooleantype SUNRCompareTol(sunrealtype a, sunrealtype b, sunrealtype tol);
+  sunrealtype SUNStrToReal(const char* str);
+
+Additionally, the following header files (and everything in them) will be deprecated -- users who
+rely on these are recommended to transition to the corresponding :c:type:`SUNMatrix` and
+:c:type:`SUNLinearSolver` modules:
+
+.. code-block:: c
+
+  sundials_direct.h
+  sundials_dense.h
+  sundials_band.h
+
+
+**Breaking change**
+The following functions have had their signature updated to ensure they can leverage
+the new SUNDIALS error handling capabilties. 
+
+From sundials_futils.h
+* :c:func:`SUNDIALSFileOpen`
+* :c:func:`SUNDIALSFileClose`
+
+From sundials_memory.h
+* :c:func:`SUNMemorNewEmpty`
+* :c:func:`SUNMemoryHelper_Alias`
+* :c:func:`SUNMemoryHelper_Wrap`
+
+From sundials_nvector.h
+* :c:func:`N_VNewVectorArray`
 
 **Breaking change** 
 We have replaced the use of a type-erased (i.e., ``void*``) pointer to a

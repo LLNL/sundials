@@ -117,7 +117,9 @@ SUNErrCode SUNContext_GetLastError(SUNContext sunctx)
   if (!sunctx) { return SUN_ERR_SUNCTX_CORRUPT; }
 
   SUNFunctionBegin(sunctx);
-  return sunctx->last_err;
+  SUNErrCode err   = sunctx->last_err;
+  sunctx->last_err = SUN_SUCCESS;
+  return err;
 }
 
 SUNErrCode SUNContext_PeekLastError(SUNContext sunctx)
@@ -258,21 +260,23 @@ SUNErrCode SUNContext_Free(SUNContext* sunctx)
   fp                          = NULL;
   if (sunprofiler_print_env)
   {
-    if (!strcmp(sunprofiler_print_env, "0")) fp = NULL;
+    if (!strcmp(sunprofiler_print_env, "0")) { fp = NULL; }
     else if (!strcmp(sunprofiler_print_env, "1") ||
              !strcmp(sunprofiler_print_env, "TRUE") ||
              !strcmp(sunprofiler_print_env, "stdout"))
+    {
       fp = stdout;
-    else fp = fopen(sunprofiler_print_env, "a");
+    }
+    else { fp = fopen(sunprofiler_print_env, "a"); }
   }
 
   /* Enforce that the profiler is freed before finalizing,
      if it is not owned by the sunctx. */
   if ((*sunctx)->profiler)
   {
-    if (fp) SUNProfiler_Print((*sunctx)->profiler, fp);
-    if (fp) fclose(fp);
-    if ((*sunctx)->own_profiler) SUNProfiler_Free(&(*sunctx)->profiler);
+    if (fp) { SUNProfiler_Print((*sunctx)->profiler, fp); }
+    if (fp) { fclose(fp); }
+    if ((*sunctx)->own_profiler) { SUNProfiler_Free(&(*sunctx)->profiler); }
   }
 #endif
 

@@ -94,7 +94,7 @@ int SUNMemoryHelper_Alloc_Hip(SUNMemoryHelper helper, SUNMemory* memptr,
                               size_t mem_size, SUNMemoryType mem_type,
                               void* queue)
 {
-  SUNMemory mem = SUNMemoryNewEmpty();
+  SUNMemory mem = SUNMemoryNewEmpty(helper->sunctx);
 
   mem->ptr   = NULL;
   mem->own   = SUNTRUE;

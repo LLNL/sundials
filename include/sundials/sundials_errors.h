@@ -96,11 +96,6 @@ void SUNAbortErrHandlerFn(int line, const char* func, const char* file,
                           const char* msg, SUNErrCode err_code,
                           void* err_user_data, SUNContext sunctx);
 
-SUNDIALS_EXPORT
-void SUNAssertErrHandlerFn(int line, const char* func, const char* file,
-                           const char* stmt, SUNErrCode err_code,
-                           void* err_user_data, SUNContext sunctx);
-
 /* ----------------------------------------------------------------------------
  * Error functions
  * ---------------------------------------------------------------------------*/

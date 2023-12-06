@@ -24,7 +24,13 @@ runs:
       shell: bash
     - id: run-test-driver
       run: |
+        # Enable core dumps to be captured (must be in same run block) 
+        ulimit -c unlimited 
         git config --global --add safe.directory $GITHUB_WORKSPACE
         cd test
+        # Turn off GTest unit tests since test_sundials_errors.c randomly Segfaults in Github actions CI
+        export SUNDIALS_TEST_DISABLE_GTEST=ON
         ./test_driver.sh --testtype CUSTOM --env env/docker.sh --tpls --sunrealtype ${{ inputs.precision }} --indexsize ${{ inputs.indexsize }}
+        # Enable access to core dumps (doesn't need to be in same run block)
+        chmod -R +rwx /cores/* 
       shell: bash
