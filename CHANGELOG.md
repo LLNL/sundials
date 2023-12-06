@@ -72,7 +72,9 @@ The functions in `sundials_math.h` will be deprecated in the next release.
   sunrealtype SUNStrToReal(const char* str);
 ```
 
-Additionally, the following header files (and everything in them) will be deprecated:
+Additionally, the following header files (and everything in them) will be deprecated -- users who
+rely on these are recommended to transition to the corresponding `SUNMatrix` and `SUNLinearSolver`
+modules:
 
 ```
 sundials_direct.h

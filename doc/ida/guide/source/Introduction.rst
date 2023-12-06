@@ -112,7 +112,9 @@ The functions in `sundials_math.h` will be deprecated in the next release.
   sunbooleantype SUNRCompareTol(sunrealtype a, sunrealtype b, sunrealtype tol);
   sunrealtype SUNStrToReal(const char* str);
 
-Additionally, the following header files (and everything in them) will be deprecated:
+Additionally, the following header files (and everything in them) will be deprecated -- users who
+rely on these are recommended to transition to the corresponding :c:type:`SUNMatrix` and
+:c:type:`SUNLinearSolver` modules:
 
 .. code-block:: c
 
