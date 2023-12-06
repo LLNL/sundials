@@ -95,13 +95,13 @@ int IDASetLinearSolver(void* ida_mem, SUNLinearSolver LS, SUNMatrix A)
   /* Return immediately if any input is NULL */
   if (ida_mem == NULL)
   {
-    IDAProcessError(NULL, IDALS_MEM_NULL, "IDASLS", "IDASetLinearSolver",
+    IDAProcessError(NULL, IDALS_MEM_NULL, __LINE__, __func__, __FILE__,
                     MSG_LS_IDAMEM_NULL);
     return (IDALS_MEM_NULL);
   }
   if (LS == NULL)
   {
-    IDAProcessError(NULL, IDALS_ILL_INPUT, "IDASLS", "IDASetLinearSolver",
+    IDAProcessError(NULL, IDALS_ILL_INPUT, __LINE__, __func__, __FILE__,
                     "LS must be non-NULL");
     return (IDALS_ILL_INPUT);
   }
@@ -110,7 +110,7 @@ int IDASetLinearSolver(void* ida_mem, SUNLinearSolver LS, SUNMatrix A)
   /* Test if solver is compatible with LS interface */
   if ((LS->ops->gettype == NULL) || (LS->ops->solve == NULL))
   {
-    IDAProcessError(IDA_mem, IDALS_ILL_INPUT, "IDASLS", "IDASetLinearSolver",
+    IDAProcessError(IDA_mem, IDALS_ILL_INPUT, __LINE__, __func__, __FILE__,
                     "LS object is missing a required operation");
     return (IDALS_ILL_INPUT);
   }
@@ -127,7 +127,7 @@ int IDASetLinearSolver(void* ida_mem, SUNLinearSolver LS, SUNMatrix A)
   if (IDA_mem->ida_tempv1->ops->nvconst == NULL ||
       IDA_mem->ida_tempv1->ops->nvwrmsnorm == NULL)
   {
-    IDAProcessError(IDA_mem, IDALS_ILL_INPUT, "IDASLS", "IDASetLinearSolver",
+    IDAProcessError(IDA_mem, IDALS_ILL_INPUT, __LINE__, __func__, __FILE__,
                     MSG_LS_BAD_NVECTOR);
     return (IDALS_ILL_INPUT);
   }
@@ -135,8 +135,8 @@ int IDASetLinearSolver(void* ida_mem, SUNLinearSolver LS, SUNMatrix A)
   /* Ensure that A is NULL when LS is matrix-embedded */
   if ((LSType == SUNLINEARSOLVER_MATRIX_EMBEDDED) && (A != NULL))
   {
-    IDAProcessError(IDA_mem, IDALS_ILL_INPUT, "IDASLS",
-                    "IDASetLinearSolver", "Incompatible inputs: matrix-embedded LS requires NULL matrix");
+    IDAProcessError(IDA_mem, IDALS_ILL_INPUT, __LINE__, __func__,
+                    __FILE__, "Incompatible inputs: matrix-embedded LS requires NULL matrix");
     return (IDALS_ILL_INPUT);
   }
 
@@ -145,7 +145,7 @@ int IDASetLinearSolver(void* ida_mem, SUNLinearSolver LS, SUNMatrix A)
   {
     if (IDA_mem->ida_tempv1->ops->nvgetlength == NULL)
     {
-      IDAProcessError(IDA_mem, IDALS_ILL_INPUT, "IDASLS", "IDASetLinearSolver",
+      IDAProcessError(IDA_mem, IDALS_ILL_INPUT, __LINE__, __func__, __FILE__,
                       MSG_LS_BAD_NVECTOR);
       return (IDALS_ILL_INPUT);
     }
@@ -154,8 +154,8 @@ int IDASetLinearSolver(void* ida_mem, SUNLinearSolver LS, SUNMatrix A)
     {
       if (LS->ops->resid == NULL || LS->ops->numiters == NULL)
       {
-        IDAProcessError(IDA_mem, IDALS_ILL_INPUT, "IDASLS",
-                        "IDASetLinearSolver", "Iterative LS object requires 'resid' and 'numiters' routines");
+        IDAProcessError(IDA_mem, IDALS_ILL_INPUT, __LINE__, __func__,
+                        __FILE__, "Iterative LS object requires 'resid' and 'numiters' routines");
         return (IDALS_ILL_INPUT);
       }
     }
@@ -163,21 +163,21 @@ int IDASetLinearSolver(void* ida_mem, SUNLinearSolver LS, SUNMatrix A)
     if (!matrixbased && (LSType != SUNLINEARSOLVER_MATRIX_EMBEDDED) &&
         (LS->ops->setatimes == NULL))
     {
-      IDAProcessError(IDA_mem, IDALS_ILL_INPUT, "IDASLS",
-                      "IDASetLinearSolver", "Incompatible inputs: iterative LS must support ATimes routine");
+      IDAProcessError(IDA_mem, IDALS_ILL_INPUT, __LINE__, __func__,
+                      __FILE__, "Incompatible inputs: iterative LS must support ATimes routine");
       return (IDALS_ILL_INPUT);
     }
 
     if (matrixbased && (A == NULL))
     {
-      IDAProcessError(IDA_mem, IDALS_ILL_INPUT, "IDASLS",
-                      "IDASetLinearSolver", "Incompatible inputs: matrix-iterative LS requires non-NULL matrix");
+      IDAProcessError(IDA_mem, IDALS_ILL_INPUT, __LINE__, __func__,
+                      __FILE__, "Incompatible inputs: matrix-iterative LS requires non-NULL matrix");
       return (IDALS_ILL_INPUT);
     }
   }
   else if (A == NULL)
   {
-    IDAProcessError(IDA_mem, IDALS_ILL_INPUT, "IDASLS", "IDASetLinearSolver",
+    IDAProcessError(IDA_mem, IDALS_ILL_INPUT, __LINE__, __func__, __FILE__,
                     "Incompatible inputs: direct LS requires non-NULL matrix");
     return (IDALS_ILL_INPUT);
   }
@@ -199,7 +199,7 @@ int IDASetLinearSolver(void* ida_mem, SUNLinearSolver LS, SUNMatrix A)
   idals_mem = (IDALsMem)malloc(sizeof(struct IDALsMemRec));
   if (idals_mem == NULL)
   {
-    IDAProcessError(IDA_mem, IDALS_MEM_FAIL, "IDASLS", "IDASetLinearSolver",
+    IDAProcessError(IDA_mem, IDALS_MEM_FAIL, __LINE__, __func__, __FILE__,
                     MSG_LS_MEM_FAIL);
     return (IDALS_MEM_FAIL);
   }
@@ -252,7 +252,7 @@ int IDASetLinearSolver(void* ida_mem, SUNLinearSolver LS, SUNMatrix A)
     retval = SUNLinSolSetATimes(LS, IDA_mem, idaLsATimes);
     if (retval != SUNLS_SUCCESS)
     {
-      IDAProcessError(IDA_mem, IDALS_SUNLS_FAIL, "IDASLS", "IDASetLinearSolver",
+      IDAProcessError(IDA_mem, IDALS_SUNLS_FAIL, __LINE__, __func__, __FILE__,
                       "Error in calling SUNLinSolSetATimes");
       free(idals_mem);
       idals_mem = NULL;
@@ -266,7 +266,7 @@ int IDASetLinearSolver(void* ida_mem, SUNLinearSolver LS, SUNMatrix A)
     retval = SUNLinSolSetPreconditioner(LS, IDA_mem, NULL, NULL);
     if (retval != SUNLS_SUCCESS)
     {
-      IDAProcessError(IDA_mem, IDALS_SUNLS_FAIL, "IDASLS", "IDASetLinearSolver",
+      IDAProcessError(IDA_mem, IDALS_SUNLS_FAIL, __LINE__, __func__, __FILE__,
                       "Error in calling SUNLinSolSetPreconditioner");
       free(idals_mem);
       idals_mem = NULL;
@@ -278,7 +278,7 @@ int IDASetLinearSolver(void* ida_mem, SUNLinearSolver LS, SUNMatrix A)
   idals_mem->ytemp = N_VClone(IDA_mem->ida_tempv1);
   if (idals_mem->ytemp == NULL)
   {
-    IDAProcessError(IDA_mem, IDALS_MEM_FAIL, "IDASLS", "IDASetLinearSolver",
+    IDAProcessError(IDA_mem, IDALS_MEM_FAIL, __LINE__, __func__, __FILE__,
                     MSG_LS_MEM_FAIL);
     free(idals_mem);
     idals_mem = NULL;
@@ -288,7 +288,7 @@ int IDASetLinearSolver(void* ida_mem, SUNLinearSolver LS, SUNMatrix A)
   idals_mem->yptemp = N_VClone(IDA_mem->ida_tempv1);
   if (idals_mem->yptemp == NULL)
   {
-    IDAProcessError(IDA_mem, IDALS_MEM_FAIL, "IDASLS", "IDASetLinearSolver",
+    IDAProcessError(IDA_mem, IDALS_MEM_FAIL, __LINE__, __func__, __FILE__,
                     MSG_LS_MEM_FAIL);
     N_VDestroy(idals_mem->ytemp);
     free(idals_mem);
@@ -299,7 +299,7 @@ int IDASetLinearSolver(void* ida_mem, SUNLinearSolver LS, SUNMatrix A)
   idals_mem->x = N_VClone(IDA_mem->ida_tempv1);
   if (idals_mem->x == NULL)
   {
-    IDAProcessError(IDA_mem, IDALS_MEM_FAIL, "IDASLS", "IDASetLinearSolver",
+    IDAProcessError(IDA_mem, IDALS_MEM_FAIL, __LINE__, __func__, __FILE__,
                     MSG_LS_MEM_FAIL);
     N_VDestroy(idals_mem->ytemp);
     N_VDestroy(idals_mem->yptemp);
@@ -342,7 +342,7 @@ int IDASetJacFn(void* ida_mem, IDALsJacFn jac)
   /* return with failure if jac cannot be used */
   if ((jac != NULL) && (idals_mem->J == NULL))
   {
-    IDAProcessError(IDA_mem, IDALS_ILL_INPUT, "IDASLS", "IDASetJacFn",
+    IDAProcessError(IDA_mem, IDALS_ILL_INPUT, __LINE__, __func__, __FILE__,
                     "Jacobian routine cannot be supplied for NULL SUNMatrix");
     return (IDALS_ILL_INPUT);
   }
@@ -378,7 +378,7 @@ int IDASetEpsLin(void* ida_mem, sunrealtype eplifac)
   /* Check for legal eplifac */
   if (eplifac < ZERO)
   {
-    IDAProcessError(IDA_mem, IDALS_ILL_INPUT, "IDASLS", "IDASetEpsLin",
+    IDAProcessError(IDA_mem, IDALS_ILL_INPUT, __LINE__, __func__, __FILE__,
                     MSG_LS_NEG_EPLIFAC);
     return (IDALS_ILL_INPUT);
   }
@@ -457,7 +457,7 @@ int IDASetIncrementFactor(void* ida_mem, sunrealtype dqincfac)
   /* Check for legal dqincfac */
   if (dqincfac <= ZERO)
   {
-    IDAProcessError(IDA_mem, IDALS_ILL_INPUT, "IDASLS", "IDASetIncrementFactor",
+    IDAProcessError(IDA_mem, IDALS_ILL_INPUT, __LINE__, __func__, __FILE__,
                     MSG_LS_NEG_DQINCFAC);
     return (IDALS_ILL_INPUT);
   }
@@ -489,7 +489,7 @@ int IDASetPreconditioner(void* ida_mem, IDALsPrecSetupFn psetup,
   /* issue error if LS object does not allow user-supplied preconditioning */
   if (idals_mem->LS->ops->setpreconditioner == NULL)
   {
-    IDAProcessError(IDA_mem, IDALS_ILL_INPUT, "IDASLS", "IDASetPreconditioner",
+    IDAProcessError(IDA_mem, IDALS_ILL_INPUT, __LINE__, __func__, __FILE__,
                     "SUNLinearSolver object does not support user-supplied "
                     "preconditioning");
     return (IDALS_ILL_INPUT);
@@ -502,7 +502,7 @@ int IDASetPreconditioner(void* ida_mem, IDALsPrecSetupFn psetup,
                                       idals_psolve);
   if (retval != SUNLS_SUCCESS)
   {
-    IDAProcessError(IDA_mem, IDALS_SUNLS_FAIL, "IDASLS", "IDASetPreconditioner",
+    IDAProcessError(IDA_mem, IDALS_SUNLS_FAIL, __LINE__, __func__, __FILE__,
                     "Error in calling SUNLinSolSetPreconditioner");
     return (IDALS_SUNLS_FAIL);
   }
@@ -526,8 +526,8 @@ int IDASetJacTimes(void* ida_mem, IDALsJacTimesSetupFn jtsetup,
   /* issue error if LS object does not allow user-supplied ATimes */
   if (idals_mem->LS->ops->setatimes == NULL)
   {
-    IDAProcessError(IDA_mem, IDALS_ILL_INPUT, "IDASLS",
-                    "IDASetJacTimes", "SUNLinearSolver object does not support user-supplied ATimes routine");
+    IDAProcessError(IDA_mem, IDALS_ILL_INPUT, __LINE__, __func__,
+                    __FILE__, "SUNLinearSolver object does not support user-supplied ATimes routine");
     return (IDALS_ILL_INPUT);
   }
 
@@ -568,8 +568,8 @@ int IDASetJacTimesResFn(void* ida_mem, IDAResFn jtimesResFn)
   /* check if using internal finite difference approximation */
   if (!(idals_mem->jtimesDQ))
   {
-    IDAProcessError(IDA_mem, IDALS_ILL_INPUT, "IDASLS",
-                    "IDASetJacTimesResFn", "Internal finite-difference Jacobian-vector product is disabled.");
+    IDAProcessError(IDA_mem, IDALS_ILL_INPUT, __LINE__, __func__,
+                    __FILE__, "Internal finite-difference Jacobian-vector product is disabled.");
     return (IDALS_ILL_INPUT);
   }
 
@@ -944,7 +944,7 @@ int idaLsDQJac(sunrealtype t, sunrealtype c_j, N_Vector y, N_Vector yp,
   /* access IDAMem structure */
   if (ida_mem == NULL)
   {
-    IDAProcessError(NULL, IDALS_MEM_NULL, "IDASLS", "idaLsDQJac",
+    IDAProcessError(NULL, IDALS_MEM_NULL, __LINE__, __func__, __FILE__,
                     MSG_LS_IDAMEM_NULL);
     return (IDALS_MEM_NULL);
   }
@@ -952,7 +952,7 @@ int idaLsDQJac(sunrealtype t, sunrealtype c_j, N_Vector y, N_Vector yp,
   /* verify that Jac is non-NULL */
   if (Jac == NULL)
   {
-    IDAProcessError(IDA_mem, IDALS_LMEM_NULL, "IDASLS", "idaLsDQJac",
+    IDAProcessError(IDA_mem, IDALS_LMEM_NULL, __LINE__, __func__, __FILE__,
                     MSG_LS_LMEM_NULL);
     return (IDALS_LMEM_NULL);
   }
@@ -965,7 +965,7 @@ int idaLsDQJac(sunrealtype t, sunrealtype c_j, N_Vector y, N_Vector yp,
       IDA_mem->ida_tempv1->ops->nvgetarraypointer == NULL ||
       IDA_mem->ida_tempv1->ops->nvsetarraypointer == NULL)
   {
-    IDAProcessError(IDA_mem, IDALS_ILL_INPUT, "IDASLS", "idaLsDQJac",
+    IDAProcessError(IDA_mem, IDALS_ILL_INPUT, __LINE__, __func__, __FILE__,
                     MSG_LS_BAD_NVECTOR);
     return (IDALS_ILL_INPUT);
   }
@@ -981,7 +981,7 @@ int idaLsDQJac(sunrealtype t, sunrealtype c_j, N_Vector y, N_Vector yp,
   }
   else
   {
-    IDAProcessError(IDA_mem, IDA_ILL_INPUT, "IDASLS", "idaLsDQJac",
+    IDAProcessError(IDA_mem, IDA_ILL_INPUT, __LINE__, __func__, __FILE__,
                     "unrecognized matrix type for idaLsDQJac");
     retval = IDA_ILL_INPUT;
   }
@@ -1312,7 +1312,7 @@ int idaLsInitialize(IDAMem IDA_mem)
   /* access IDALsMem structure */
   if (IDA_mem->ida_lmem == NULL)
   {
-    IDAProcessError(IDA_mem, IDALS_LMEM_NULL, "IDASLS", "idaLsInitialize",
+    IDAProcessError(IDA_mem, IDALS_LMEM_NULL, __LINE__, __func__, __FILE__,
                     MSG_LS_LMEM_NULL);
     return (IDALS_LMEM_NULL);
   }
@@ -1345,7 +1345,7 @@ int idaLsInitialize(IDAMem IDA_mem)
     else { retval++; }
     if (retval)
     {
-      IDAProcessError(IDA_mem, IDALS_ILL_INPUT, "IDASLS", "idaLsInitialize",
+      IDAProcessError(IDA_mem, IDALS_ILL_INPUT, __LINE__, __func__, __FILE__,
                       "No Jacobian constructor available for SUNMatrix type");
       idals_mem->last_flag = IDALS_ILL_INPUT;
       return (IDALS_ILL_INPUT);
@@ -1405,7 +1405,7 @@ int idaLsSetup(IDAMem IDA_mem, N_Vector y, N_Vector yp, N_Vector r,
   /* access IDALsMem structure */
   if (IDA_mem->ida_lmem == NULL)
   {
-    IDAProcessError(IDA_mem, IDALS_LMEM_NULL, "IDASLS", "idaLsSetup",
+    IDAProcessError(IDA_mem, IDALS_LMEM_NULL, __LINE__, __func__, __FILE__,
                     MSG_LS_LMEM_NULL);
     return (IDALS_LMEM_NULL);
   }
@@ -1439,8 +1439,8 @@ int idaLsSetup(IDAMem IDA_mem, N_Vector y, N_Vector yp, N_Vector r,
       retval = SUNMatZero(idals_mem->J);
       if (retval != 0)
       {
-        IDAProcessError(IDA_mem, IDALS_SUNMAT_FAIL, "IDASLS", "idaLsSetup",
-                        MSG_LS_MATZERO_FAILED);
+        IDAProcessError(IDA_mem, IDALS_SUNMAT_FAIL, __LINE__, __func__,
+                        __FILE__, MSG_LS_MATZERO_FAILED);
         idals_mem->last_flag = IDALS_SUNMAT_FAIL;
         return (idals_mem->last_flag);
       }
@@ -1451,8 +1451,8 @@ int idaLsSetup(IDAMem IDA_mem, N_Vector y, N_Vector yp, N_Vector r,
                             idals_mem->J, idals_mem->J_data, vt1, vt2, vt3);
     if (retval < 0)
     {
-      IDAProcessError(IDA_mem, IDALS_JACFUNC_UNRECVR, "IDASLS", "idaLsSetup",
-                      MSG_LS_JACFUNC_FAILED);
+      IDAProcessError(IDA_mem, IDALS_JACFUNC_UNRECVR, __LINE__, __func__,
+                      __FILE__, MSG_LS_JACFUNC_FAILED);
       idals_mem->last_flag = IDALS_JACFUNC_UNRECVR;
       return (-1);
     }
@@ -1488,7 +1488,7 @@ int idaLsSolve(IDAMem IDA_mem, N_Vector b, N_Vector weight, N_Vector ycur,
   /* access IDALsMem structure */
   if (IDA_mem->ida_lmem == NULL)
   {
-    IDAProcessError(IDA_mem, IDALS_LMEM_NULL, "IDASLS", "idaLsSolve",
+    IDAProcessError(IDA_mem, IDALS_LMEM_NULL, __LINE__, __func__, __FILE__,
                     MSG_LS_LMEM_NULL);
     return (IDALS_LMEM_NULL);
   }
@@ -1517,7 +1517,7 @@ int idaLsSolve(IDAMem IDA_mem, N_Vector b, N_Vector weight, N_Vector ycur,
     retval = SUNLinSolSetScalingVectors(idals_mem->LS, weight, weight);
     if (retval != SUNLS_SUCCESS)
     {
-      IDAProcessError(IDA_mem, IDALS_SUNLS_FAIL, "IDASLS", "idaLsSolve",
+      IDAProcessError(IDA_mem, IDALS_SUNLS_FAIL, __LINE__, __func__, __FILE__,
                       "Error in calling SUNLinSolSetScalingVectors");
       idals_mem->last_flag = IDALS_SUNLS_FAIL;
       return (idals_mem->last_flag);
@@ -1561,7 +1561,7 @@ int idaLsSolve(IDAMem IDA_mem, N_Vector b, N_Vector weight, N_Vector ycur,
     idals_mem->njtsetup++;
     if (idals_mem->last_flag != 0)
     {
-      IDAProcessError(IDA_mem, retval, "IDASLS", "idaLsSolve",
+      IDAProcessError(IDA_mem, retval, __LINE__, __func__, __FILE__,
                       MSG_LS_JTSETUP_FAILED);
       return (idals_mem->last_flag);
     }
@@ -1621,13 +1621,13 @@ int idaLsSolve(IDAMem IDA_mem, N_Vector b, N_Vector weight, N_Vector ycur,
   case SUNLS_GS_FAIL:
   case SUNLS_QRSOL_FAIL: return (-1); break;
   case SUNLS_PACKAGE_FAIL_UNREC:
-    IDAProcessError(IDA_mem, SUNLS_PACKAGE_FAIL_UNREC, "IDASLS", "idaLsSolve",
-                    "Failure in SUNLinSol external package");
+    IDAProcessError(IDA_mem, SUNLS_PACKAGE_FAIL_UNREC, __LINE__, __func__,
+                    __FILE__, "Failure in SUNLinSol external package");
     return (-1);
     break;
   case SUNLS_PSOLVE_FAIL_UNREC:
-    IDAProcessError(IDA_mem, SUNLS_PSOLVE_FAIL_UNREC, "IDASLS", "idaLsSolve",
-                    MSG_LS_PSOLVE_FAILED);
+    IDAProcessError(IDA_mem, SUNLS_PSOLVE_FAIL_UNREC, __LINE__, __func__,
+                    __FILE__, MSG_LS_PSOLVE_FAILED);
     return (-1);
     break;
   }
@@ -1649,7 +1649,7 @@ int idaLsPerf(IDAMem IDA_mem, int perftask)
   /* access IDALsMem structure */
   if (IDA_mem->ida_lmem == NULL)
   {
-    IDAProcessError(IDA_mem, IDALS_LMEM_NULL, "IDASLS", "idaLsPerf",
+    IDAProcessError(IDA_mem, IDALS_LMEM_NULL, __LINE__, __func__, __FILE__,
                     MSG_LS_LMEM_NULL);
     return (IDALS_LMEM_NULL);
   }
@@ -1688,13 +1688,13 @@ int idaLsPerf(IDAMem IDA_mem, int perftask)
   if (idals_mem->nwarn > 10) { return (1); }
   if (lcfn)
   {
-    IDAProcessError(IDA_mem, IDA_WARNING, "IDASLS", "idaLsPerf",
-                    MSG_LS_CFN_WARN, IDA_mem->ida_tn, rcfn);
+    IDAProcessError(IDA_mem, IDA_WARNING, __LINE__, __func__, __FILE__,
+                    MSG_LS_CFN_WARN);
   }
   if (lcfl)
   {
-    IDAProcessError(IDA_mem, IDA_WARNING, "IDASLS", "idaLsPerf",
-                    MSG_LS_CFL_WARN, IDA_mem->ida_tn, rcfl);
+    IDAProcessError(IDA_mem, IDA_WARNING, __LINE__, __func__, __FILE__,
+                    MSG_LS_CFL_WARN);
   }
   return (0);
 }
@@ -1775,13 +1775,15 @@ int idaLs_AccessLMem(void* ida_mem, const char* fname, IDAMem* IDA_mem,
 {
   if (ida_mem == NULL)
   {
-    IDAProcessError(NULL, IDALS_MEM_NULL, "IDASLS", fname, MSG_LS_IDAMEM_NULL);
+    IDAProcessError(NULL, IDALS_MEM_NULL, __LINE__, __func__, __FILE__,
+                    MSG_LS_IDAMEM_NULL);
     return (IDALS_MEM_NULL);
   }
   *IDA_mem = (IDAMem)ida_mem;
   if ((*IDA_mem)->ida_lmem == NULL)
   {
-    IDAProcessError(*IDA_mem, IDALS_LMEM_NULL, "IDASLS", fname, MSG_LS_LMEM_NULL);
+    IDAProcessError(*IDA_mem, IDALS_LMEM_NULL, __LINE__, __func__, __FILE__,
+                    MSG_LS_LMEM_NULL);
     return (IDALS_LMEM_NULL);
   }
   *idals_mem = (IDALsMem)(*IDA_mem)->ida_lmem;
@@ -1810,7 +1812,7 @@ int IDASetLinearSolverB(void* ida_mem, int which, SUNLinearSolver LS, SUNMatrix 
   /* Check if ida_mem exists */
   if (ida_mem == NULL)
   {
-    IDAProcessError(NULL, IDALS_MEM_NULL, "IDASLS", "IDASetLinearSolverB",
+    IDAProcessError(NULL, IDALS_MEM_NULL, __LINE__, __func__, __FILE__,
                     MSG_LS_IDAMEM_NULL);
     return (IDALS_MEM_NULL);
   }
@@ -1819,7 +1821,7 @@ int IDASetLinearSolverB(void* ida_mem, int which, SUNLinearSolver LS, SUNMatrix 
   /* Was ASA initialized? */
   if (IDA_mem->ida_adjMallocDone == SUNFALSE)
   {
-    IDAProcessError(IDA_mem, IDALS_NO_ADJ, "IDASLS", "IDASetLinearSolverB",
+    IDAProcessError(IDA_mem, IDALS_NO_ADJ, __LINE__, __func__, __FILE__,
                     MSG_LS_NO_ADJ);
     return (IDALS_NO_ADJ);
   }
@@ -1828,7 +1830,7 @@ int IDASetLinearSolverB(void* ida_mem, int which, SUNLinearSolver LS, SUNMatrix 
   /* Check the value of which */
   if (which >= IDAADJ_mem->ia_nbckpbs)
   {
-    IDAProcessError(IDA_mem, IDALS_ILL_INPUT, "IDASLS", "IDASetLinearSolverB",
+    IDAProcessError(IDA_mem, IDALS_ILL_INPUT, __LINE__, __func__, __FILE__,
                     MSG_LS_BAD_WHICH);
     return (IDALS_ILL_INPUT);
   }
@@ -1846,7 +1848,7 @@ int IDASetLinearSolverB(void* ida_mem, int which, SUNLinearSolver LS, SUNMatrix 
   idalsB_mem = (IDALsMemB)malloc(sizeof(struct IDALsMemRecB));
   if (idalsB_mem == NULL)
   {
-    IDAProcessError(IDA_mem, IDALS_MEM_FAIL, "IDASLS", "IDASetLinearSolverB",
+    IDAProcessError(IDA_mem, IDALS_MEM_FAIL, __LINE__, __func__, __FILE__,
                     MSG_LS_MEM_FAIL);
     return (IDALS_MEM_FAIL);
   }
@@ -2176,7 +2178,7 @@ static int idaLsJacBWrapper(sunrealtype tt, sunrealtype c_jB, N_Vector yyB,
                                  IDAADJ_mem->ia_ypTmp, NULL, NULL);
     if (retval != IDA_SUCCESS)
     {
-      IDAProcessError(IDAB_mem->IDA_mem, -1, "IDASLS", "idaLsJacBWrapper",
+      IDAProcessError(IDAB_mem->IDA_mem, -1, __LINE__, __func__, __FILE__,
                       MSG_LS_BAD_T);
       return (-1);
     }
@@ -2226,7 +2228,7 @@ static int idaLsJacBSWrapper(sunrealtype tt, sunrealtype c_jB, N_Vector yyB,
 
     if (retval != IDA_SUCCESS)
     {
-      IDAProcessError(IDAB_mem->IDA_mem, -1, "IDASLS", "idaLsJacBSWrapper",
+      IDAProcessError(IDAB_mem->IDA_mem, -1, __LINE__, __func__, __FILE__,
                       MSG_LS_BAD_T);
       return (-1);
     }
@@ -2265,7 +2267,7 @@ static int idaLsPrecSetupB(sunrealtype tt, N_Vector yyB, N_Vector ypB,
                                  IDAADJ_mem->ia_ypTmp, NULL, NULL);
     if (retval != IDA_SUCCESS)
     {
-      IDAProcessError(IDAB_mem->IDA_mem, -1, "IDASLS", "idaLsPrecSetupB",
+      IDAProcessError(IDAB_mem->IDA_mem, -1, __LINE__, __func__, __FILE__,
                       MSG_LS_BAD_T);
       return (-1);
     }
@@ -2311,7 +2313,7 @@ static int idaLsPrecSetupBS(sunrealtype tt, N_Vector yyB, N_Vector ypB,
     }
     if (retval != IDA_SUCCESS)
     {
-      IDAProcessError(IDAB_mem->IDA_mem, -1, "IDASLS", "idaLsPrecSetupBS",
+      IDAProcessError(IDAB_mem->IDA_mem, -1, __LINE__, __func__, __FILE__,
                       MSG_LS_BAD_T);
       return (-1);
     }
@@ -2350,7 +2352,7 @@ static int idaLsPrecSolveB(sunrealtype tt, N_Vector yyB, N_Vector ypB,
                                  IDAADJ_mem->ia_ypTmp, NULL, NULL);
     if (retval != IDA_SUCCESS)
     {
-      IDAProcessError(IDAB_mem->IDA_mem, -1, "IDASLS", "idaLsPrecSolveB",
+      IDAProcessError(IDAB_mem->IDA_mem, -1, __LINE__, __func__, __FILE__,
                       MSG_LS_BAD_T);
       return (-1);
     }
@@ -2398,7 +2400,7 @@ static int idaLsPrecSolveBS(sunrealtype tt, N_Vector yyB, N_Vector ypB,
     }
     if (retval != IDA_SUCCESS)
     {
-      IDAProcessError(IDAB_mem->IDA_mem, -1, "IDASLS", "idaLsPrecSolveBS",
+      IDAProcessError(IDAB_mem->IDA_mem, -1, __LINE__, __func__, __FILE__,
                       MSG_LS_BAD_T);
       return (-1);
     }
@@ -2437,7 +2439,7 @@ static int idaLsJacTimesSetupB(sunrealtype tt, N_Vector yyB, N_Vector ypB,
                                  IDAADJ_mem->ia_ypTmp, NULL, NULL);
     if (retval != IDA_SUCCESS)
     {
-      IDAProcessError(IDAB_mem->IDA_mem, -1, "IDASLS", "idaLsJacTimesSetupB",
+      IDAProcessError(IDAB_mem->IDA_mem, -1, __LINE__, __func__, __FILE__,
                       MSG_LS_BAD_T);
       return (-1);
     }
@@ -2482,7 +2484,7 @@ static int idaLsJacTimesSetupBS(sunrealtype tt, N_Vector yyB, N_Vector ypB,
     }
     if (retval != IDA_SUCCESS)
     {
-      IDAProcessError(IDAB_mem->IDA_mem, -1, "IDASLS", "idaLsJacTimesSetupBS",
+      IDAProcessError(IDAB_mem->IDA_mem, -1, __LINE__, __func__, __FILE__,
                       MSG_LS_BAD_T);
       return (-1);
     }
@@ -2522,7 +2524,7 @@ static int idaLsJacTimesVecB(sunrealtype tt, N_Vector yyB, N_Vector ypB,
                                  IDAADJ_mem->ia_ypTmp, NULL, NULL);
     if (retval != IDA_SUCCESS)
     {
-      IDAProcessError(IDAB_mem->IDA_mem, -1, "IDASLS", "idaLsJacTimesVecB",
+      IDAProcessError(IDAB_mem->IDA_mem, -1, __LINE__, __func__, __FILE__,
                       MSG_LS_BAD_T);
       return (-1);
     }
@@ -2571,7 +2573,7 @@ static int idaLsJacTimesVecBS(sunrealtype tt, N_Vector yyB, N_Vector ypB,
     }
     if (retval != IDA_SUCCESS)
     {
-      IDAProcessError(IDAB_mem->IDA_mem, -1, "IDASLS", "idaLsJacTimesVecBS",
+      IDAProcessError(IDAB_mem->IDA_mem, -1, __LINE__, __func__, __FILE__,
                       MSG_LS_BAD_T);
       return (-1);
     }
@@ -2611,7 +2613,8 @@ int idaLs_AccessLMemB(void* ida_mem, int which, const char* fname,
   /* access IDAMem structure */
   if (ida_mem == NULL)
   {
-    IDAProcessError(NULL, IDALS_MEM_NULL, "IDASLS", fname, MSG_LS_IDAMEM_NULL);
+    IDAProcessError(NULL, IDALS_MEM_NULL, __LINE__, __func__, __FILE__,
+                    MSG_LS_IDAMEM_NULL);
     return (IDALS_MEM_NULL);
   }
   *IDA_mem = (IDAMem)ida_mem;
@@ -2619,7 +2622,8 @@ int idaLs_AccessLMemB(void* ida_mem, int which, const char* fname,
   /* access IDAadjMem structure */
   if ((*IDA_mem)->ida_adjMallocDone == SUNFALSE)
   {
-    IDAProcessError(*IDA_mem, IDALS_NO_ADJ, "IDASLS", fname, MSG_LS_NO_ADJ);
+    IDAProcessError(*IDA_mem, IDALS_NO_ADJ, __LINE__, __func__, __FILE__,
+                    MSG_LS_NO_ADJ);
     return (IDALS_NO_ADJ);
   }
   *IDAADJ_mem = (*IDA_mem)->ida_adj_mem;
@@ -2627,7 +2631,8 @@ int idaLs_AccessLMemB(void* ida_mem, int which, const char* fname,
   /* Check the value of which */
   if (which >= (*IDAADJ_mem)->ia_nbckpbs)
   {
-    IDAProcessError(*IDA_mem, IDALS_ILL_INPUT, "IDASLS", fname, MSG_LS_BAD_WHICH);
+    IDAProcessError(*IDA_mem, IDALS_ILL_INPUT, __LINE__, __func__, __FILE__,
+                    MSG_LS_BAD_WHICH);
     return (IDALS_ILL_INPUT);
   }
 
@@ -2642,7 +2647,7 @@ int idaLs_AccessLMemB(void* ida_mem, int which, const char* fname,
   /* access IDALsMemB structure */
   if ((*IDAB_mem)->ida_lmem == NULL)
   {
-    IDAProcessError(*IDA_mem, IDALS_LMEMB_NULL, "IDASLS", fname,
+    IDAProcessError(*IDA_mem, IDALS_LMEMB_NULL, __LINE__, __func__, __FILE__,
                     MSG_LS_LMEMB_NULL);
     return (IDALS_LMEMB_NULL);
   }
@@ -2662,7 +2667,8 @@ int idaLs_AccessLMemBCur(void* ida_mem, const char* fname, IDAMem* IDA_mem,
   /* access IDAMem structure */
   if (ida_mem == NULL)
   {
-    IDAProcessError(NULL, IDALS_MEM_NULL, "IDASLS", fname, MSG_LS_IDAMEM_NULL);
+    IDAProcessError(NULL, IDALS_MEM_NULL, __LINE__, __func__, __FILE__,
+                    MSG_LS_IDAMEM_NULL);
     return (IDALS_MEM_NULL);
   }
   *IDA_mem = (IDAMem)ida_mem;
@@ -2670,7 +2676,8 @@ int idaLs_AccessLMemBCur(void* ida_mem, const char* fname, IDAMem* IDA_mem,
   /* access IDAadjMem structure */
   if ((*IDA_mem)->ida_adjMallocDone == SUNFALSE)
   {
-    IDAProcessError(*IDA_mem, IDALS_NO_ADJ, "IDASLS", fname, MSG_LS_NO_ADJ);
+    IDAProcessError(*IDA_mem, IDALS_NO_ADJ, __LINE__, __func__, __FILE__,
+                    MSG_LS_NO_ADJ);
     return (IDALS_NO_ADJ);
   }
   *IDAADJ_mem = (*IDA_mem)->ida_adj_mem;
@@ -2678,7 +2685,7 @@ int idaLs_AccessLMemBCur(void* ida_mem, const char* fname, IDAMem* IDA_mem,
   /* get current backward problem */
   if ((*IDAADJ_mem)->ia_bckpbCrt == NULL)
   {
-    IDAProcessError(*IDA_mem, IDALS_LMEMB_NULL, "IDASLS", fname,
+    IDAProcessError(*IDA_mem, IDALS_LMEMB_NULL, __LINE__, __func__, __FILE__,
                     MSG_LS_LMEMB_NULL);
     return (IDALS_LMEMB_NULL);
   }
@@ -2687,7 +2694,7 @@ int idaLs_AccessLMemBCur(void* ida_mem, const char* fname, IDAMem* IDA_mem,
   /* access IDALsMemB structure */
   if ((*IDAB_mem)->ida_lmem == NULL)
   {
-    IDAProcessError(*IDA_mem, IDALS_LMEMB_NULL, "IDASLS", fname,
+    IDAProcessError(*IDA_mem, IDALS_LMEMB_NULL, __LINE__, __func__, __FILE__,
                     MSG_LS_LMEMB_NULL);
     return (IDALS_LMEMB_NULL);
   }
