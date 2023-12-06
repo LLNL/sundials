@@ -189,7 +189,7 @@ if(BUILD_SUNLINSOL_LAPACKBAND AND BUILD_SUNLINSOL_LAPACKDENSE)
 
      # install example source and out files
     if(EXAMPLES_INSTALL)
-      install(FILES ${example}.f ${example}.out
+      install(FILES ${example}.f90 ${example}.out
         DESTINATION ${EXAMPLES_INSTALL_PATH}/arkode/F2003_serial)
     endif()
 
