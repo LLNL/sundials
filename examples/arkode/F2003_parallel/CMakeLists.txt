@@ -111,6 +111,8 @@ if(EXAMPLES_INSTALL)
   # Makefile: convert semi-colon separated target list to space separated string
   set(EXAMPLE_LIBS_LIST 
     sundials_farkode_mod
+    sundials_nvecparallel
+    sundials_fnvecparallel_mod 
     sundials_arkode
     sundials_fnvecmpiplusx_mod
     sundials_nvecmpiplusx
