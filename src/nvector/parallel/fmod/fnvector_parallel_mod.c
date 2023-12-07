@@ -222,7 +222,7 @@ SWIGEXPORT N_Vector _wrap_FN_VNew_Parallel(int const *farg1, int64_t const *farg
   if(flag) {
     arg1 = MPI_Comm_f2c((MPI_Fint)(*farg1));
   } else {
-    arg1 = 0;
+    arg1 = SUN_COMM_NULL;
   }
 #else
   arg1 = *farg1;
@@ -250,7 +250,7 @@ SWIGEXPORT N_Vector _wrap_FN_VNewEmpty_Parallel(int const *farg1, int64_t const 
   if(flag) {
     arg1 = MPI_Comm_f2c((MPI_Fint)(*farg1));
   } else {
-    arg1 = 0;
+    arg1 = SUN_COMM_NULL;
   }
 #else
   arg1 = *farg1;
@@ -279,7 +279,7 @@ SWIGEXPORT N_Vector _wrap_FN_VMake_Parallel(int const *farg1, int64_t const *far
   if(flag) {
     arg1 = MPI_Comm_f2c((MPI_Fint)(*farg1));
   } else {
-    arg1 = 0;
+    arg1 = SUN_COMM_NULL;
   }
 #else
   arg1 = *farg1;

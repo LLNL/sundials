@@ -255,6 +255,7 @@ void ClearCache()
     sum = SUN_RCONST(0.0);
     for (i=0; i<N; i++)
       sum += data[i];
+    (void) sum;
   }
 
   return;

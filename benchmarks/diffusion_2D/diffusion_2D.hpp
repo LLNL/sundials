@@ -29,6 +29,8 @@
 
 #include "mpi.h"
 
+#include <sundials/sundials_core.hpp>
+
 #if defined(USE_HIP)
 #include "nvector/nvector_mpiplusx.h"
 #include "nvector/nvector_hip.h"

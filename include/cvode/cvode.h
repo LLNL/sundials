@@ -19,9 +19,7 @@
 #define _CVODE_H
 
 #include <stdio.h>
-#include <sundials/sundials_context.h>
-#include <sundials/sundials_nvector.h>
-#include <sundials/sundials_nonlinearsolver.h>
+#include <sundials/sundials_core.h>
 #include <cvode/cvode_ls.h>
 #include <cvode/cvode_proj.h>
 

@@ -18,37 +18,38 @@
 #include <string.h>
 
 #include <sundials/sundials_version.h>
+#include "sundials/sundials_errors.h"
 
 /* note strlen does not include terminating null character hence the
    use of >= when checking len below and strncpy copies up to len
    characters including the terminating null character */
 
 /* fill string with SUNDIALS version information */
-int SUNDIALSGetVersion(char *version, int len)
+SUNErrCode SUNDIALSGetVersion(char *version, int len)
 {
-  if (version == NULL) return(-1);
-  if (strlen(SUNDIALS_VERSION) >= (size_t)len) return(-1);
+  if (version == NULL) return SUN_ERR_ARG_CORRUPT;
+  if (strlen(SUNDIALS_VERSION) >= (size_t)len) return SUN_ERR_ARG_OUTOFRANGE;
 
   strncpy(version, SUNDIALS_VERSION, (size_t)len);
 
-  return(0);
+  return SUN_SUCCESS;
 }
 
 /* fill integers with SUNDIALS major, minor, and patch release
    numbers and fill a string with the release label */
-int SUNDIALSGetVersionNumber(int *major, int *minor, int *patch,
-                             char *label, int len)
+SUNErrCode SUNDIALSGetVersionNumber(int *major, int *minor, int *patch,
+                                    char *label, int len)
 {
   if (major == NULL ||
       minor == NULL ||
       patch == NULL ||
-      label == NULL) return(-1);
-  if (strlen(SUNDIALS_VERSION_LABEL) >= (size_t)len) return(-1);
+      label == NULL) return SUN_ERR_ARG_CORRUPT;
+  if (strlen(SUNDIALS_VERSION_LABEL) >= (size_t)len) return SUN_ERR_ARG_OUTOFRANGE;
 
   *major = SUNDIALS_VERSION_MAJOR;
   *minor = SUNDIALS_VERSION_MINOR;
   *patch = SUNDIALS_VERSION_PATCH;
   strncpy(label, SUNDIALS_VERSION_LABEL, (size_t)len);
 
-  return(0);
+  return SUN_SUCCESS;
 }

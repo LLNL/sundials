@@ -48,9 +48,6 @@ CMake targets.
 
 Added Fortran support for the LAPACK dense `SUNLinearSolver` implementation.
 
-Fixed the build system support for MAGMA when using a NVIDIA HPC SDK installation of CUDA
-and fixed the targets used for rocBLAS and rocSPARSE.
-
 Added the third order ERK method `ARKODE_SHU_OSHER_3_2_3`, the fourth order
 ERK method `ARKODE_SOFRONIOU_SPALETTA_5_3_4`, the sixth order ERK method
 `ARKODE_VERNER_9_5_6`, the seventh order ERK method `ARKODE_VERNER_10_6_7`,
@@ -59,6 +56,50 @@ method `ARKODE_VERNER_16_8_9`.
 
 Changed the `SUNProfiler` so that it does not rely on `MPI_WTime` in any case.
 This fixes https://github.com/LLNL/sundials/issues/312. 
+
+**Major feature**
+SUNDIALS now has more robust and uniform error handling. Non-release builds will
+be built with additional error checking by default. See the "Error Handling"
+section in the user guide for details.
+
+**Deprecation notice**
+The functions in `sundials_math.h` will be deprecated in the next release.
+
+```c
+  sunrealtype SUNRpowerI(sunrealtype base, int exponent);
+  sunrealtype SUNRpowerR(sunrealtype base, sunrealtype exponent);
+  sunbooleantype SUNRCompare(sunrealtype a, sunrealtype b);
+  sunbooleantype SUNRCompareTol(sunrealtype a, sunrealtype b, sunrealtype tol);
+  sunrealtype SUNStrToReal(const char* str);
+```
+
+Additionally, the following header files (and everything in them) will be deprecated -- users who
+rely on these are recommended to transition to the corresponding `SUNMatrix` and `SUNLinearSolver`
+modules:
+
+```
+sundials_direct.h
+sundials_dense.h
+sundials_band.h
+```
+
+**Breaking change**
+The following functions have had their signature updated to ensure they can leverage
+the new SUNDIALS error handling capabilties. 
+
+```c
+// From sundials_futils.h
+SUNDIALSFileOpen
+SUNDIALSFileClose
+
+// From sundials_memory.h
+SUNMemorNewEmpty
+SUNMemoryHelper_Alias
+SUNMemoryHelper_Wrap
+
+// From sundials_nvector.h
+N_VNewVectorArray
+```
 
 **Breaking change** 
 We have replaced the use of a type-erased (i.e., `void*`) pointer to a
@@ -83,20 +124,25 @@ and a typedef to a `MPI_Comm` in builds with MPI. Here is what this means:
 The change away from type-erased pointers for `SUNComm` fixes problems like the 
 one described in [GitHub Issue #275](https://github.com/LLNL/sundials/issues/275).
 
-**Breaking change**
 The SUNLogger is now always MPI-aware if MPI is enabled in SUNDIALS and the
 `SUNDIALS_LOGGING_ENABLE_MPI` CMake option and macro definition were removed 
 accordingly.
 
 **Breaking change**
 Functions, types and header files that were previously deprecated have been
-removed.  
+removed.
 
 **Breaking change**
 Users now need to link to `sundials_core` in addition to the libraries already linked to. 
 This will be picked up automatically in projects that use the SUNDIALS CMake target.
 The library `sundials_generic` has been superceded by `sundials_core` and is no longer available.
 This fixes some duplicate symbol errors on Windows when linking to multiple SUNDIALS libraries.
+
+
+## Changes to SUNDIALS in release 6.6.2
+
+Fixed the build system support for MAGMA when using a NVIDIA HPC SDK installation of CUDA
+and fixed the targets used for rocBLAS and rocSPARSE.
 
 ## Changes to SUNDIALS in release 6.6.1
 

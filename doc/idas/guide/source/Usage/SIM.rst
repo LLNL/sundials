@@ -40,97 +40,65 @@ preconditioner can only be used with ``NVECTOR_PARALLEL``. It is not recommended
 to use a threaded vector object with SuperLU_MT unless it is the
 ``NVECTOR_OPENMP`` module, and SuperLU_MT is also compiled with OpenMP.
 
-.. _IDAS.Usage.SIM.file_access:
+.. _IDAS.Usage.SIM.header_sim:
 
 Access to library and header files
 ----------------------------------
 
 At this point, it is assumed that the installation of IDAS, following the
 procedure described in :numref:`Installation`, has been completed successfully.
+In the proceeding text, the directories ``libdir`` and ``incdir`` are the
+installation library and include directories, respectively. For a default
+installation, these are ``instdir/lib`` and ``instdir/include``, respectively,
+where ``instdir`` is the directory where SUNDIALS was installed.
 
-Regardless of where the user’s application program resides, its associated
-compilation and load commands must make reference to the appropriate locations
-for the library and header files required by IDAS. The relevant library files are
-
-.. code-block::
-
-  <libdir>/libsundials_ida.<so|a>
-  <libdir>/libsundials_nvec*.<so|a>
-  <libdir>/libsundials_sunmat*.<so|a>
-  <libdir>/libsundials_sunlinsol*.<so|a>
-  <libdir>/libsundials_sunnonlinsol*.<so|a>
-
-where the file extension ``.so`` is typically for shared libraries and ``.a``
-for static libraries. The relevant header files are located in the
-subdirectories
+Regardless of where the user's application program resides, its
+associated compilation and load commands must make reference to the
+appropriate locations for the library and header files required by
+IDAS. IDAS symbols are found in ``libdir/libsundials_idas.lib``. 
+Thus, in addition to linking to ``libdir/libsundials_core.lib``, IDAS
+users need to link to the IDAS library. Symbols for additional SUNDIALS
+modules, vectors and algebraic solvers, are found in
 
 .. code-block::
 
-  <incdir>/idas
-  <incdir>/sundials
-  <incdir>/nvector
-  <incdir>/sunmatrix
-  <incdir>/sunlinsol
-  <incdir>/sunnonlinsol
+  <libdir>/libsundials_nvec*.lib
+  <libdir>/libsundials_sunmat*.lib
+  <libdir>/libsundials_sunlinsol*.lib
+  <libdir>/libsundials_sunnonlinsol*.lib
+  <libdir>/libsundials_sunmem*.lib
 
-The directories ``libdir`` and ``incdir`` are the install library and include
-directories, respectively. For a default installation, these are
-``<instdir>/lib`` or ``<instdir>/lib64`` and ``<instdir>/include``,
-respectively, where ``instdir`` is the directory where SUNDIALS was installed
-(see :numref:`Installation`).
+The file extension ``.lib`` is typically ``.so`` for shared libraries 
+and ``.a`` for static libraries.  
 
-.. warning::
+The relevant header files for IDAS are located in the subdirectories
+``incdir/include/idas``. To use IDAS the application needs to include 
+the header file for IDAS in addition to the SUNDIALS core header file:
 
-   Note that an application cannot link to both the IDAS and IDA libraries
-   because both contain user-callable functions with the same names (to ensure
-   that IDAS is backward compatible with IDA). Therefore, applications that
-   contain both DAE problems and DAEs with sensitivity analysis, should use
-   IDAS.
+.. code:: c
 
+  #include <sundials/sundials_core.h> // Provides core SUNDIALS types
+  #include <idas/idas.h>              // IDAS provides methods for DAEs with sensitivity analysis
 
-.. _IDAS.Usage.SIM.header_sim:
-
-Header files
-------------
-
-The calling program must include several header files so that various macros and
-data types can be used. The header file that is always required is:
-
-* ``idas/idas.h`` the main header file for IDAS, which defines the types and
-  various constants, and includes function prototypes. This includes the
-  header file for IDALS, ``idas/idas_ls.h``.
-
-Note that ``idas.h`` includes ``sundials_types.h``, which defines the types,
-``sunrealtype``, ``sunindextype``, and ``sunbooleantype`` and the constants
-``SUNFALSE`` and ``SUNTRUE``.
-
-The calling program must also include an ``N_Vector`` implementation
-header file, of the form ``nvector/nvector_*.h`` (see Chapter :numref:`NVectors`
-for more information). This file in turn includes the header file
-``sundials_nvector.h`` which defines the abstract vector data type.
+The calling program must also include an :c:type:`N_Vector` implementation header file, of the form  
+``nvector/nvector_*.h``. See :numref:`NVectors` for the appropriate name.
 
 If using a non-default nonlinear solver object, or when interacting with a
-``SUNNonlinearSolver`` object directly, the calling program must also include a
-``SUNNonlinearSolver`` implementation header file, of the form
+:c:type:`SUNNonlinearSolver` object directly, the calling program must also include a  
+:c:type:`SUNNonlinearSolver` implementation header file, of the form 
 ``sunnonlinsol/sunnonlinsol_*.h`` where ``*`` is the name of the nonlinear
-solver (see Chapter :numref:`SUNNonlinSol` for more information). This file in
-turn includes the header file ``sundials_nonlinearsolver.h`` which defines the
-abstract nonlinear linear solver data type.
+solver (see Chapter :numref:`SUNNonlinSol` for more information).
 
 If using a nonlinear solver that requires the solution of a linear system of the
 form :eq:`IDAS_DAE_nls` (e.g., the default Newton iteration), the calling program
-must also include a ``SUNLinearSolver`` implementation header file, of the from
+must also include a :c:type:`SUNLinearSolver` implementation header file, of the from  
 ``sunlinsol/sunlinsol_*.h`` where ``*`` is the name of the linear solver
-(see Chapter :numref:`SUNLinSol` for more information).  This file in
-turn includes the header file ``sundials_linearsolver.h`` which defines the
-abstract linear solver data type.
+(see Chapter :numref:`SUNLinSol` for more information). 
 
 If the linear solver is matrix-based, the linear solver header will also include
 a header file of the from ``sunmatrix/sunmatrix_*.h`` where ``*`` is the name of
-the matrix implementation compatible with the linear solver. The matrix header
-file provides access to the relevant matrix functions/macros and in turn
-includes the header file ``sundials_matrix.h`` which defines the abstract matrix
-data type.
+the matrix implementation compatible with the linear solver. (see Chapter  
+:numref:`SUNMatrix` for more information). 
 
 Other headers may be needed, according to the choice of preconditioner, etc. For
 example, in the example ``idasFoodWeb_kry_p`` (see :cite:p:`ida_ex`),

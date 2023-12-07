@@ -59,17 +59,17 @@ struct _generic_SUNAdaptController_Ops
   SUNAdaptController_Type (*gettype)(SUNAdaptController C);
 
   /* REQUIRED for controllers of SUN_ADAPTCONTROLLER_H type. */
-  int (*estimatestep)(SUNAdaptController C, sunrealtype h, int p,
-                      sunrealtype dsm, sunrealtype* hnew);
+  SUNErrCode (*estimatestep)(SUNAdaptController C, sunrealtype h, int p,
+                             sunrealtype dsm, sunrealtype* hnew);
 
   /* OPTIONAL for all SUNAdaptController implementations. */
-  int (*destroy)(SUNAdaptController C);
-  int (*reset)(SUNAdaptController C);
-  int (*setdefaults)(SUNAdaptController C);
-  int (*write)(SUNAdaptController C, FILE* fptr);
-  int (*seterrorbias)(SUNAdaptController C, sunrealtype bias);
-  int (*updateh)(SUNAdaptController C, sunrealtype h, sunrealtype dsm);
-  int (*space)(SUNAdaptController C, long int *lenrw, long int *leniw);
+  SUNErrCode (*destroy)(SUNAdaptController C);
+  SUNErrCode (*reset)(SUNAdaptController C);
+  SUNErrCode (*setdefaults)(SUNAdaptController C);
+  SUNErrCode (*write)(SUNAdaptController C, FILE* fptr);
+  SUNErrCode (*seterrorbias)(SUNAdaptController C, sunrealtype bias);
+  SUNErrCode (*updateh)(SUNAdaptController C, sunrealtype h, sunrealtype dsm);
+  SUNErrCode (*space)(SUNAdaptController C, long int *lenrw, long int *leniw);
 };
 
 /* A SUNAdaptController is a structure with an implementation-dependent
@@ -99,7 +99,7 @@ SUNAdaptController_Type SUNAdaptController_GetType(SUNAdaptController C);
    Any return value other than SUNADAPTCONTROLLER_SUCCESS will be treated as
    an unrecoverable failure. */
 SUNDIALS_EXPORT
-int SUNAdaptController_Destroy(SUNAdaptController C);
+SUNErrCode SUNAdaptController_Destroy(SUNAdaptController C);
 
 /* Main step size controller function.  This is called following
    a time step with size 'h' and local error factor 'dsm', and the
@@ -109,48 +109,47 @@ int SUNAdaptController_Destroy(SUNAdaptController C);
    Any return value other than SUNADAPTCONTROLLER_SUCCESS will be treated as
    an unrecoverable failure. */
 SUNDIALS_EXPORT
-int SUNAdaptController_EstimateStep(SUNAdaptController C, sunrealtype h,
-                                    int p, sunrealtype dsm, sunrealtype* hnew);
+SUNErrCode SUNAdaptController_EstimateStep(SUNAdaptController C, sunrealtype h,
+                                           int p, sunrealtype dsm, sunrealtype* hnew);
 
 /* Function to reset the controller to its initial state, e.g., if
    it stores a small number of previous dsm or step size values. */
 SUNDIALS_EXPORT
-int SUNAdaptController_Reset(SUNAdaptController C);
+SUNErrCode SUNAdaptController_Reset(SUNAdaptController C);
 
 /* Function to set the controller parameters to their default values. */
 SUNDIALS_EXPORT
-int SUNAdaptController_SetDefaults(SUNAdaptController C);
+SUNErrCode SUNAdaptController_SetDefaults(SUNAdaptController C);
 
 /* Function to write all controller parameters to the indicated file
    pointer. */
 SUNDIALS_EXPORT
-int SUNAdaptController_Write(SUNAdaptController C, FILE* fptr);
+SUNErrCode SUNAdaptController_Write(SUNAdaptController C, FILE* fptr);
 
 /* Function to set an error bias factor to use for scaling the local error
    'dsm' factors above. */
 SUNDIALS_EXPORT
-int SUNAdaptController_SetErrorBias(SUNAdaptController C, sunrealtype bias);
+SUNErrCode SUNAdaptController_SetErrorBias(SUNAdaptController C, sunrealtype bias);
 
 /* Function to notify a controller of type SUN_ADAPTCONTROLLER_H that
    a successful time step was taken with stepsize h and local error factor
    dsm, indicating that these can be saved for subsequent controller functions. */
 SUNDIALS_EXPORT
-int SUNAdaptController_UpdateH(SUNAdaptController C, sunrealtype h, sunrealtype dsm);
+SUNErrCode SUNAdaptController_UpdateH(SUNAdaptController C, sunrealtype h, sunrealtype dsm);
 
 /* Function to return the memory requirements of the controller object. */
 SUNDIALS_EXPORT
-int SUNAdaptController_Space(SUNAdaptController C, long int *lenrw, long int *leniw);
+SUNErrCode SUNAdaptController_Space(SUNAdaptController C, long int *lenrw, long int *leniw);
 
 
 /* -----------------------------------------------------------------
  * SUNAdaptController error codes
  * ----------------------------------------------------------------- */
 
+/* TODO(CJB): eliminate these after updating soderlind and imexgus in follow-on PR */
 #define SUNADAPTCONTROLLER_SUCCESS           0     /* function successfull        */
 #define SUNADAPTCONTROLLER_ILL_INPUT         -1001 /* illegal function input      */
-#define SUNADAPTCONTROLLER_MEM_FAIL          -1002 /* failed memory access/alloc  */
 #define SUNADAPTCONTROLLER_USER_FCN_FAIL     -1003 /* user-supplied fcn failure */
-#define SUNADAPTCONTROLLER_OPERATION_FAIL    -1004 /* catchall failure code       */
 
 #ifdef __cplusplus
 }

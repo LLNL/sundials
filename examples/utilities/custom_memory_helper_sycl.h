@@ -25,7 +25,7 @@ int MyMemoryHelper_Alloc(SUNMemoryHelper helper, SUNMemory* memptr,
   if (!queue) return -1;
   sycl::queue* sycl_queue = static_cast<sycl::queue*>(queue);
 
-  SUNMemory mem = SUNMemoryNewEmpty();
+  SUNMemory mem = SUNMemoryNewEmpty(helper->sunctx);
   if (mem == NULL) return -1;
 
   mem->ptr = NULL;

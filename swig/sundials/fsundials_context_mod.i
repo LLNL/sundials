@@ -16,11 +16,16 @@
 
 %module fsundials_context_mod
 
+// Load the typedefs and generate a "use fsundials_types_mod" statement in the module
+%import "../sundials/fsundials_types_mod.i"
+
 %include "../sundials/fsundials.i"
+%include "../sundials/fcopyright.i"
 
 // insert the include into the swig wrapper
 %{
 #include "sundials/sundials_context.h"
+#include "sundials/sundials_profiler.h"
 %}
 
 %apply void* { SUNContext };

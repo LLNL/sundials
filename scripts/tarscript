@@ -57,13 +57,13 @@ function print_usage
 # VERSION NUMBERS
 #---------------------------------------------------------
 
-SUN_VER="6.6.1"
-CV_VER="6.6.1"
-CVS_VER="6.6.1"
-IDA_VER="6.6.1"
-IDAS_VER="5.6.1"
-KIN_VER="6.6.1"
-ARK_VER="5.6.1"
+SUN_VER="6.6.2"
+CV_VER="6.6.2"
+CVS_VER="6.6.2"
+IDA_VER="6.6.2"
+IDAS_VER="5.6.2"
+KIN_VER="6.6.2"
+ARK_VER="5.6.2"
 
 #---------------------------------------------------------
 # Test if the script is executed from within its directory

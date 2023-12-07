@@ -44,9 +44,10 @@
 #ifndef _SUNMATRIX_H
 #define _SUNMATRIX_H
 
+#include <sundials/sundials_config.h>
 #include <sundials/sundials_context.h>
+#include <sundials/sundials_errors.h>
 #include <sundials/sundials_nvector.h>
-#include <sundials/sundials_types.h>
 
 #ifdef __cplusplus /* wrapper to enable C++ usage */
 extern "C" {
@@ -86,13 +87,13 @@ struct _generic_SUNMatrix_Ops
   SUNMatrix_ID (*getid)(SUNMatrix);
   SUNMatrix (*clone)(SUNMatrix);
   void (*destroy)(SUNMatrix);
-  int (*zero)(SUNMatrix);
-  int (*copy)(SUNMatrix, SUNMatrix);
-  int (*scaleadd)(sunrealtype, SUNMatrix, SUNMatrix);
-  int (*scaleaddi)(sunrealtype, SUNMatrix);
-  int (*matvecsetup)(SUNMatrix);
-  int (*matvec)(SUNMatrix, N_Vector, N_Vector);
-  int (*space)(SUNMatrix, long int*, long int*);
+  SUNErrCode (*zero)(SUNMatrix);
+  SUNErrCode (*copy)(SUNMatrix, SUNMatrix);
+  SUNErrCode (*scaleadd)(sunrealtype, SUNMatrix, SUNMatrix);
+  SUNErrCode (*scaleaddi)(sunrealtype, SUNMatrix);
+  SUNErrCode (*matvecsetup)(SUNMatrix);
+  SUNErrCode (*matvec)(SUNMatrix, N_Vector, N_Vector);
+  SUNErrCode (*space)(SUNMatrix, long int*, long int*);
 #ifdef __cplusplus
   _generic_SUNMatrix_Ops() = default;
 #endif
@@ -115,19 +116,44 @@ struct _generic_SUNMatrix
  * Functions exported by SUNMatrix module
  * ----------------------------------------------------------------- */
 
-SUNDIALS_EXPORT SUNMatrix SUNMatNewEmpty(SUNContext sunctx);
-SUNDIALS_EXPORT void SUNMatFreeEmpty(SUNMatrix A);
-SUNDIALS_EXPORT int SUNMatCopyOps(SUNMatrix A, SUNMatrix B);
-SUNDIALS_EXPORT SUNMatrix_ID SUNMatGetID(SUNMatrix A);
-SUNDIALS_EXPORT SUNMatrix SUNMatClone(SUNMatrix A);
-SUNDIALS_EXPORT void SUNMatDestroy(SUNMatrix A);
-SUNDIALS_EXPORT int SUNMatZero(SUNMatrix A);
-SUNDIALS_EXPORT int SUNMatCopy(SUNMatrix A, SUNMatrix B);
-SUNDIALS_EXPORT int SUNMatScaleAdd(sunrealtype c, SUNMatrix A, SUNMatrix B);
-SUNDIALS_EXPORT int SUNMatScaleAddI(sunrealtype c, SUNMatrix A);
-SUNDIALS_EXPORT int SUNMatMatvecSetup(SUNMatrix A);
-SUNDIALS_EXPORT int SUNMatMatvec(SUNMatrix A, N_Vector x, N_Vector y);
-SUNDIALS_EXPORT int SUNMatSpace(SUNMatrix A, long int* lenrw, long int* leniw);
+SUNDIALS_EXPORT
+SUNMatrix SUNMatNewEmpty(SUNContext sunctx);
+
+SUNDIALS_EXPORT
+void SUNMatFreeEmpty(SUNMatrix A);
+
+SUNDIALS_EXPORT
+SUNErrCode SUNMatCopyOps(SUNMatrix A, SUNMatrix B);
+
+SUNDIALS_EXPORT
+SUNMatrix_ID SUNMatGetID(SUNMatrix A) ;
+
+SUNDIALS_EXPORT
+SUNMatrix SUNMatClone(SUNMatrix A);
+
+SUNDIALS_EXPORT 
+void SUNMatDestroy(SUNMatrix A);
+
+SUNDIALS_EXPORT
+SUNErrCode SUNMatZero(SUNMatrix A);
+
+SUNDIALS_EXPORT
+SUNErrCode SUNMatCopy(SUNMatrix A, SUNMatrix B);
+
+SUNDIALS_EXPORT
+SUNErrCode SUNMatScaleAdd(sunrealtype c, SUNMatrix A, SUNMatrix B);
+
+SUNDIALS_EXPORT
+SUNErrCode SUNMatScaleAddI(sunrealtype c, SUNMatrix A);
+
+SUNDIALS_EXPORT
+SUNErrCode SUNMatMatvecSetup(SUNMatrix A);
+
+SUNDIALS_EXPORT
+SUNErrCode SUNMatMatvec(SUNMatrix A, N_Vector x, N_Vector y);
+
+SUNDIALS_EXPORT
+SUNErrCode SUNMatSpace(SUNMatrix A, long int* lenrw, long int* leniw);
 
 /*
  * -----------------------------------------------------------------
