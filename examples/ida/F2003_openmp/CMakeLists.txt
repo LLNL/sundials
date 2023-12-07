@@ -74,7 +74,7 @@ foreach(example_tuple ${FIDA_examples_OMP})
 
   # install example source and out files
   if(EXAMPLES_INSTALL)
-    install(FILES ${example} ${example}.out
+    install(FILES ${example} ${test_name}.out
       DESTINATION ${EXAMPLES_INSTALL_PATH}/ida/F2003_opemp)
   endif()
 endforeach(example_tuple ${FIDA_examples_OMP})
