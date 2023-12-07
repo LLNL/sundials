@@ -914,7 +914,7 @@ SUNErrCode N_VDotProdMultiLocal(int nvec, N_Vector x, N_Vector* Y,
                                 sunrealtype* dotprods)
 {
   SUNFunctionBegin(x->sunctx);
-  SUNErrCode err = SUN_SUCCESS;
+  SUNErrCode ier = SUN_SUCCESS;
   int i          = 0;
 
   SUNDIALS_MARK_FUNCTION_BEGIN(getSUNProfiler(x));
@@ -924,7 +924,7 @@ SUNErrCode N_VDotProdMultiLocal(int nvec, N_Vector x, N_Vector* Y,
 
   if (x->ops->nvdotprodmultilocal)
   {
-    err = x->ops->nvdotprodmultilocal(nvec, x, Y, dotprods);
+    ier = x->ops->nvdotprodmultilocal(nvec, x, Y, dotprods);
   }
   else if (x->ops->nvdotprodlocal)
   {
@@ -932,23 +932,23 @@ SUNErrCode N_VDotProdMultiLocal(int nvec, N_Vector x, N_Vector* Y,
     {
       dotprods[i] = x->ops->nvdotprodlocal(x, Y[i]);
     }
-    err = SUN_SUCCESS;
+    ier = SUN_SUCCESS;
   }
 
   SUNDIALS_MARK_FUNCTION_END(getSUNProfiler(x));
 
-  return err;
+  return ier;
 }
 
 SUNErrCode N_VDotProdMultiAllReduce(int nvec, N_Vector x, sunrealtype* sum)
 {
   SUNFunctionBegin(x->sunctx);
-  SUNErrCode err = SUN_SUCCESS;
+  SUNErrCode ier = SUN_SUCCESS;
   SUNDIALS_MARK_FUNCTION_BEGIN(getSUNProfiler(x));
   SUNAssert(x->ops->nvdotprodmultiallreduce, SUN_ERR_NOT_IMPLEMENTED);
-  err = x->ops->nvdotprodmultiallreduce(nvec, x, sum);
+  ier = x->ops->nvdotprodmultiallreduce(nvec, x, sum);
   SUNDIALS_MARK_FUNCTION_END(getSUNProfiler(x));
-  return err;
+  return ier;
 }
 
 /* ------------------------------------
@@ -958,12 +958,12 @@ SUNErrCode N_VDotProdMultiAllReduce(int nvec, N_Vector x, sunrealtype* sum)
 SUNErrCode N_VBufSize(N_Vector x, sunindextype* size)
 {
   SUNFunctionBegin(x->sunctx);
-  SUNErrCode err = SUN_SUCCESS;
+  SUNErrCode ier = SUN_SUCCESS;
   SUNDIALS_MARK_FUNCTION_BEGIN(getSUNProfiler(x));
   SUNAssert(x->ops->nvbufsize, SUN_ERR_NOT_IMPLEMENTED);
-  err = x->ops->nvbufsize(x, size);
+  ier = x->ops->nvbufsize(x, size);
   SUNDIALS_MARK_FUNCTION_END(getSUNProfiler(x));
-  return (err);
+  return (ier);
 }
 
 SUNErrCode N_VBufPack(N_Vector x, void* buf)
@@ -974,7 +974,7 @@ SUNErrCode N_VBufPack(N_Vector x, void* buf)
   SUNAssert(x->ops->nvbufpack, SUN_ERR_NOT_IMPLEMENTED);
   ier = x->ops->nvbufpack(x, buf);
   SUNDIALS_MARK_FUNCTION_END(getSUNProfiler(x));
-  return (erf);
+  return (ier);
 }
 
 SUNErrCode N_VBufUnpack(N_Vector x, void* buf)
