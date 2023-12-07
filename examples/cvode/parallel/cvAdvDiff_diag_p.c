@@ -129,6 +129,11 @@ int main(int argc, char* argv[])
   SUNContext_PushErrHandler(sunctx, SUNAbortErrHandlerFn, NULL);
   SUNContext_PushErrHandler(sunctx, SUNLogErrHandlerFn, NULL);
 
+  /* Setup different error handler stack so that we abort after logging */
+  SUNContext_PopErrHandler(sunctx);
+  SUNContext_PushErrHandler(sunctx, SUNMPIAbortErrHandlerFn, NULL);
+  SUNContext_PushErrHandler(sunctx, SUNLogErrHandlerFn, NULL);
+
   /* This requires that SUNDIALS was configured with the CMake options
        SUNDIALS_LOGGING_LEVEL=n
     where n is one of:
