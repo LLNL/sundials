@@ -3598,7 +3598,7 @@ int arkStep_RelaxDeltaE(ARKodeMem ark_mem, ARKRelaxJacFn relax_jac_fn,
     retval = relax_jac_fn(z_stage, J_relax, ark_mem->user_data);
     (*num_relax_jac_evals)++;
     if (retval < 0) { return ARK_RELAX_JAC_FAIL; }
-    if (retval > 0) { return ARK_RELAX_BRENT; }
+    if (retval > 0) { return ARK_RELAX_JAC_RECV; }
 
     /* Reset temporary RHS alias */
     rhs_tmp = z_stage;
