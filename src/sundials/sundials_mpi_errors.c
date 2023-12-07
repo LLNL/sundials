@@ -35,6 +35,5 @@ void SUNMPIAbortErrHandlerFn(int line, const char* func, const char* file, const
                      "SUNMPIAbortErrHandler: Calling MPI_Abort now, use a different "
                      "error handler to avoid program termination.\n");
   free(file_and_line);
-  sleep(1);
   MPI_Abort(sunctx->comm, err_code);
 }
