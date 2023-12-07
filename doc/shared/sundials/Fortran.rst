@@ -531,9 +531,13 @@ a C file pointer, SUNDIALS provides two utility functions for creating a
    :param fp: The ``FILE*`` that will be open when the function returns.
       This should be a `type(c_ptr)` in the Fortran.
 
-   :return: The function returns a :c:type:`SUNErrCode`
+   :return: A :c:type:`SUNErrCode`
 
 
+   .. versionchanged:: 7.0.0
+   
+      The function signature was updated to return a `SUNErrCode` and take a `FILE**` as the last input parameter rather then return a `FILE*`.
+ 
 .. c:function:: SUNErrCode SUNDIALSFileClose(FILE** fp)
 
    The function deallocates a C ``FILE*`` by calling the C function ``fclose``
@@ -542,7 +546,11 @@ a C file pointer, SUNDIALS provides two utility functions for creating a
    :param fp: the C ``FILE*`` that was previously obtained from ``fopen``.
         This should have the Fortran type ``type(c_ptr)``.  Note that if either
         ``stdout`` or ``stderr`` were opened using :c:func:`SUNDIALSFileOpen()`
-        then that stream *will not be closed* by this function.
+
+   .. versionchanged:: 7.0.0
+   
+      The function signature was updated to return a `SUNErrCode`.
+ 
 
 
 .. _SUNDIALS.Fortran.Portability:

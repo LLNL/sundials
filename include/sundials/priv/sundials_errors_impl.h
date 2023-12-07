@@ -172,8 +172,8 @@ void SUNHandleSecondError(int line, const char* func, const char* file,
   assumptions. If the expression should be strictly assumed as true, then use
   SUNAssert instead.
 
-  Use SUNAssert macros to check for conditions that do not make sense. E.g.,
-  to check if malloc returned NULL. Use SUNCheck macros for checking inputs.
+  Use SUNAssert macros to check for conditions that do not make sense e.g.,
+  to check if malloc returned NULL.
 
   :param expr: an expression to evaluate as true or false
   :param code: the error code to pass to the error handler if the expression is
@@ -196,8 +196,8 @@ void SUNHandleSecondError(int line, const char* func, const char* file,
 
 /*
   SUNCheckNoRet is the same as SUNCheck but *does not return from the caller*.
-  Use SUNAssert macros to check for conditions that do not make sense. E.g.,
-  to check if malloc returned NULL. Use SUNCheck macros for checking inputs.
+  Use SUNAssert macros to check for conditions that do not make sense e.g.,
+  to check if malloc returned NULL.
 
   :param expr: an expression to evaluate as true or false
   :param code: the error code to pass to the error handler if the expression is
@@ -220,8 +220,8 @@ void SUNHandleSecondError(int line, const char* func, const char* file,
 
 /*
   SUNCheckNull is the same as SUNCheck but *returns NULL from the caller*.
-  Use SUNAssert macros to check for conditions that do not make sense. E.g.,
-  to check if malloc returned NULL. Use SUNCheck macros for checking inputs.
+  Use SUNAssert macros to check for conditions that do not make sense e.g.,
+  to check if malloc returned NULL.
 
   :param expr: an expression to evaluate as true or false
   :param code: the error code to pass to the error handler if the expression is
@@ -245,8 +245,8 @@ void SUNHandleSecondError(int line, const char* func, const char* file,
 
 /*
   SUNCheckNull is the same as SUNCheck but *returns void from the caller*.
-  Use SUNAssert macros to check for conditions that do not make sense. E.g.,
-  to check if malloc returned NULL. Use SUNCheck macros for checking inputs.
+  Use SUNAssert macros to check for conditions that do not make sense e.g.,
+  to check if malloc returned NULL.
 
   :param expr: an expression to evaluate as true or false
   :param code: the error code to pass to the error handler if the expression is
