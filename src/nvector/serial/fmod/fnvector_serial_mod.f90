@@ -29,8 +29,8 @@ module fnvector_serial_mod
  private
 
  ! DECLARATION CONSTRUCTS
- public :: FN_VNew_Serial
  public :: FN_VNewEmpty_Serial
+ public :: FN_VNew_Serial
  public :: FN_VMake_Serial
  public :: FN_VGetLength_Serial
  public :: FN_VPrint_Serial
@@ -88,8 +88,8 @@ module fnvector_serial_mod
 
 ! WRAPPER DECLARATIONS
 interface
-function swigc_FN_VNew_Serial(farg1, farg2) &
-bind(C, name="_wrap_FN_VNew_Serial") &
+function swigc_FN_VNewEmpty_Serial(farg1, farg2) &
+bind(C, name="_wrap_FN_VNewEmpty_Serial") &
 result(fresult)
 use, intrinsic :: ISO_C_BINDING
 integer(C_INT64_T), intent(in) :: farg1
@@ -97,8 +97,8 @@ type(C_PTR), value :: farg2
 type(C_PTR) :: fresult
 end function
 
-function swigc_FN_VNewEmpty_Serial(farg1, farg2) &
-bind(C, name="_wrap_FN_VNewEmpty_Serial") &
+function swigc_FN_VNew_Serial(farg1, farg2) &
+bind(C, name="_wrap_FN_VNew_Serial") &
 result(fresult)
 use, intrinsic :: ISO_C_BINDING
 integer(C_INT64_T), intent(in) :: farg1
@@ -574,22 +574,6 @@ end interface
 
 contains
  ! MODULE SUBPROGRAMS
-function FN_VNew_Serial(vec_length, sunctx) &
-result(swig_result)
-use, intrinsic :: ISO_C_BINDING
-type(N_Vector), pointer :: swig_result
-integer(C_INT64_T), intent(in) :: vec_length
-type(C_PTR) :: sunctx
-type(C_PTR) :: fresult 
-integer(C_INT64_T) :: farg1 
-type(C_PTR) :: farg2 
-
-farg1 = vec_length
-farg2 = sunctx
-fresult = swigc_FN_VNew_Serial(farg1, farg2)
-call c_f_pointer(fresult, swig_result)
-end function
-
 function FN_VNewEmpty_Serial(vec_length, sunctx) &
 result(swig_result)
 use, intrinsic :: ISO_C_BINDING
@@ -603,6 +587,22 @@ type(C_PTR) :: farg2
 farg1 = vec_length
 farg2 = sunctx
 fresult = swigc_FN_VNewEmpty_Serial(farg1, farg2)
+call c_f_pointer(fresult, swig_result)
+end function
+
+function FN_VNew_Serial(vec_length, sunctx) &
+result(swig_result)
+use, intrinsic :: ISO_C_BINDING
+type(N_Vector), pointer :: swig_result
+integer(C_INT64_T), intent(in) :: vec_length
+type(C_PTR) :: sunctx
+type(C_PTR) :: fresult 
+integer(C_INT64_T) :: farg1 
+type(C_PTR) :: farg2 
+
+farg1 = vec_length
+farg2 = sunctx
+fresult = swigc_FN_VNew_Serial(farg1, farg2)
 call c_f_pointer(fresult, swig_result)
 end function
 
