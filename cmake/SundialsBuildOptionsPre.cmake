@@ -317,13 +317,10 @@ sundials_option(SUNDIALS_TEST_DEVTESTS BOOL
 sundials_option(SUNDIALS_TEST_UNITTESTS BOOL
   "Include unit tests in make test" OFF ADVANCED)
 
-# Include unit tests based on Google test in regression tests
+# Include unit tests in regression tests
 sundials_option(SUNDIALS_TEST_ENABLE_GTEST BOOL
   "Disable GTest unit tests" ON ADVANCED)
 
-# Enable clang-tidy to run as part of the CMake build
-sundials_option(SUNDIALS_DEV_CLANG_TIDY BOOL
-  "Enable the clang-tidy linter" OFF ADVANCED)
 
 sundials_option(SUNDIALS_SCHEDULER_COMMAND STRING "Job scheduler command to use to launch SUNDIALS MPI tests" "" ADVANCED)
 
