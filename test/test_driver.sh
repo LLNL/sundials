@@ -377,6 +377,16 @@ case "$testtype" in
         # Don't creat tarballs
         tarball=NONE
 
+        # Address sanitizer tests (TPLs OFF)
+        for is in 32 64; do
+            args_realtypes+=("double")
+            args_indexsizes+=("${is}")
+            args_libtypes+=("static")
+            args_tpls+=("OFF")
+            args_suntests+=("DEV")
+            args_phase+=("TEST")
+        done
+
         # Basic development tests
         for is in 32 64; do
             args_realtypes+=("double")
@@ -391,6 +401,16 @@ case "$testtype" in
     PR)
         # Create sundials tarball
         tarball=sundials
+
+        # Address sanitizer tests (TPLs OFF)
+        for is in 32 64; do
+            args_realtypes+=("double")
+            args_indexsizes+=("${is}")
+            args_libtypes+=("static")
+            args_tpls+=("OFF")
+            args_suntests+=("DEV")
+            args_phase+=("TEST")
+        done
 
         # More development tests
         for rt in single double extended; do
@@ -413,6 +433,16 @@ case "$testtype" in
     RELEASE)
         # Create sundials tarball
         tarball=sundials
+
+        # Address sanitizer tests (TPLs OFF)
+        for is in 32 64; do
+            args_realtypes+=("double")
+            args_indexsizes+=("${is}")
+            args_libtypes+=("static")
+            args_tpls+=("OFF")
+            args_suntests+=("DEV")
+            args_phase+=("TEST")
+        done
 
         # Even more development tests
         for rt in single double extended; do
