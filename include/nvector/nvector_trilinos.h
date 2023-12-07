@@ -98,7 +98,7 @@ SUNDIALS_EXPORT N_Vector N_VCloneEmpty_Trilinos(N_Vector w);
 SUNDIALS_EXPORT N_Vector N_VClone_Trilinos(N_Vector w);
 SUNDIALS_EXPORT void N_VDestroy_Trilinos(N_Vector v);
 SUNDIALS_EXPORT void N_VSpace_Trilinos(N_Vector v, sunindextype *lrw, sunindextype *liw);
-SUNDIALS_EXPORT MPI_Comm N_VGetCommunicator_Trilinos(N_Vector v);
+SUNDIALS_EXPORT SUNComm N_VGetCommunicator_Trilinos(N_Vector v);
 SUNDIALS_EXPORT sunindextype N_VGetLength_Trilinos(N_Vector v);
 SUNDIALS_EXPORT void N_VLinearSum_Trilinos(sunrealtype a, N_Vector x, sunrealtype b, N_Vector y, N_Vector z);
 SUNDIALS_EXPORT void N_VConst_Trilinos(sunrealtype c, N_Vector z);

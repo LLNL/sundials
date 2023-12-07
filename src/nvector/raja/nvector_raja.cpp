@@ -338,8 +338,6 @@ N_Vector N_VMake_Raja(sunindextype length, sunrealtype *h_vdata, sunrealtype *d_
   if (v == NULL) return(NULL);
 
   NVEC_RAJA_CONTENT(v)->length          = length;
-  NVEC_RAJA_CONTENT(v)->host_data       = SUNMemoryHelper_Wrap(h_vdata, SUNMEMTYPE_HOST);
-  NVEC_RAJA_CONTENT(v)->device_data     = SUNMemoryHelper_Wrap(d_vdata, SUNMEMTYPE_DEVICE);
 #if defined(SUNDIALS_RAJA_BACKENDS_CUDA)
   NVEC_RAJA_CONTENT(v)->mem_helper      = SUNMemoryHelper_Cuda(sunctx);
 #elif defined(SUNDIALS_RAJA_BACKENDS_HIP)
@@ -348,6 +346,8 @@ N_Vector N_VMake_Raja(sunindextype length, sunrealtype *h_vdata, sunrealtype *d_
   NVEC_RAJA_CONTENT(v)->mem_helper      = SUNMemoryHelper_Sycl(sunctx);
 #endif
   NVEC_RAJA_CONTENT(v)->own_helper      = SUNTRUE;
+  NVEC_RAJA_CONTENT(v)->host_data       = SUNMemoryHelper_Wrap(NVEC_RAJA_MEMHELP(v), h_vdata, SUNMEMTYPE_HOST);
+  NVEC_RAJA_CONTENT(v)->device_data     = SUNMemoryHelper_Wrap(NVEC_RAJA_MEMHELP(v), d_vdata, SUNMEMTYPE_DEVICE);
   NVEC_RAJA_PRIVATE(v)->use_managed_mem = SUNFALSE;
 
   if (NVEC_RAJA_MEMHELP(v) == NULL)
@@ -381,8 +381,6 @@ N_Vector N_VMakeManaged_Raja(sunindextype length, sunrealtype *vdata,
   if (v == NULL) return(NULL);
 
   NVEC_RAJA_CONTENT(v)->length          = length;
-  NVEC_RAJA_CONTENT(v)->host_data       = SUNMemoryHelper_Wrap(vdata, SUNMEMTYPE_UVM);
-  NVEC_RAJA_CONTENT(v)->device_data     = SUNMemoryHelper_Alias(NVEC_RAJA_CONTENT(v)->host_data);
 #if defined(SUNDIALS_RAJA_BACKENDS_CUDA)
   NVEC_RAJA_CONTENT(v)->mem_helper      = SUNMemoryHelper_Cuda(sunctx);
 #elif defined(SUNDIALS_RAJA_BACKENDS_HIP)
@@ -390,6 +388,8 @@ N_Vector N_VMakeManaged_Raja(sunindextype length, sunrealtype *vdata,
 #elif defined(SUNDIALS_RAJA_BACKENDS_SYCL)
   NVEC_RAJA_CONTENT(v)->mem_helper      = SUNMemoryHelper_Sycl(sunctx);
 #endif
+  NVEC_RAJA_CONTENT(v)->host_data       = SUNMemoryHelper_Wrap(NVEC_RAJA_CONTENT(v)->mem_helper, vdata, SUNMEMTYPE_UVM);
+  NVEC_RAJA_CONTENT(v)->device_data     = SUNMemoryHelper_Alias(NVEC_RAJA_CONTENT(v)->mem_helper, NVEC_RAJA_CONTENT(v)->host_data);
   NVEC_RAJA_CONTENT(v)->own_helper      = SUNTRUE;
   NVEC_RAJA_PRIVATE(v)->use_managed_mem = SUNTRUE;
 
@@ -450,8 +450,8 @@ void N_VSetHostArrayPointer_Raja(sunrealtype* h_vdata, N_Vector v)
     }
     else
     {
-      NVEC_RAJA_CONTENT(v)->host_data = SUNMemoryHelper_Wrap((void*) h_vdata, SUNMEMTYPE_UVM);
-      NVEC_RAJA_CONTENT(v)->device_data = SUNMemoryHelper_Alias(NVEC_RAJA_CONTENT(v)->host_data);
+      NVEC_RAJA_CONTENT(v)->host_data = SUNMemoryHelper_Wrap(NVEC_RAJA_MEMHELP(v), (void*) h_vdata, SUNMEMTYPE_UVM);
+      NVEC_RAJA_CONTENT(v)->device_data = SUNMemoryHelper_Alias(NVEC_RAJA_MEMHELP(v), NVEC_RAJA_CONTENT(v)->host_data);
     }
   }
   else
@@ -462,7 +462,7 @@ void N_VSetHostArrayPointer_Raja(sunrealtype* h_vdata, N_Vector v)
     }
     else
     {
-      NVEC_RAJA_CONTENT(v)->host_data = SUNMemoryHelper_Wrap((void*) h_vdata, SUNMEMTYPE_HOST);
+      NVEC_RAJA_CONTENT(v)->host_data = SUNMemoryHelper_Wrap(NVEC_RAJA_MEMHELP(v), (void*) h_vdata, SUNMEMTYPE_HOST);
     }
   }
 }
@@ -482,8 +482,8 @@ void N_VSetDeviceArrayPointer_Raja(sunrealtype* d_vdata, N_Vector v)
     }
     else
     {
-      NVEC_RAJA_CONTENT(v)->device_data = SUNMemoryHelper_Wrap((void*) d_vdata, SUNMEMTYPE_UVM);
-      NVEC_RAJA_CONTENT(v)->host_data = SUNMemoryHelper_Alias(NVEC_RAJA_CONTENT(v)->device_data);
+      NVEC_RAJA_CONTENT(v)->device_data = SUNMemoryHelper_Wrap(NVEC_RAJA_MEMHELP(v), (void*) d_vdata, SUNMEMTYPE_UVM);
+      NVEC_RAJA_CONTENT(v)->host_data = SUNMemoryHelper_Alias(NVEC_RAJA_MEMHELP(v), NVEC_RAJA_CONTENT(v)->device_data);
     }
   }
   else
@@ -494,7 +494,7 @@ void N_VSetDeviceArrayPointer_Raja(sunrealtype* d_vdata, N_Vector v)
     }
     else
     {
-      NVEC_RAJA_CONTENT(v)->device_data = SUNMemoryHelper_Wrap((void*) d_vdata, SUNMEMTYPE_DEVICE);
+      NVEC_RAJA_CONTENT(v)->device_data = SUNMemoryHelper_Wrap(NVEC_RAJA_MEMHELP(v), (void*) d_vdata, SUNMEMTYPE_DEVICE);
     }
   }
 }
@@ -1412,7 +1412,7 @@ int N_VBufPack_Raja(N_Vector x, void *buf)
 
   if (x == NULL || buf == NULL) return(-1);
 
-  SUNMemory buf_mem = SUNMemoryHelper_Wrap(buf, SUNMEMTYPE_HOST);
+  SUNMemory buf_mem = SUNMemoryHelper_Wrap(NVEC_RAJA_MEMHELP(x), buf, SUNMEMTYPE_HOST);
   if (buf_mem == NULL) return(-1);
 
 #if defined(SUNDIALS_RAJA_BACKENDS_SYCL)
@@ -1454,7 +1454,7 @@ int N_VBufUnpack_Raja(N_Vector x, void *buf)
 
   if (x == NULL || buf == NULL) return(-1);
 
-  SUNMemory buf_mem = SUNMemoryHelper_Wrap(buf, SUNMEMTYPE_HOST);
+  SUNMemory buf_mem = SUNMemoryHelper_Wrap(NVEC_RAJA_MEMHELP(x), buf, SUNMEMTYPE_HOST);
   if (buf_mem == NULL) return(-1);
 
 #if defined(SUNDIALS_RAJA_BACKENDS_SYCL)
@@ -1689,7 +1689,7 @@ int AllocateData(N_Vector v)
     {
       SUNDIALS_DEBUG_PRINT("ERROR in AllocateData: SUNMemoryHelper_Alloc failed for SUNMEMTYPE_UVM\n");
     }
-    vc->host_data = SUNMemoryHelper_Alias(vc->device_data);
+    vc->host_data = SUNMemoryHelper_Alias(NVEC_RAJA_MEMHELP(v), vc->device_data);
   }
   else
   {

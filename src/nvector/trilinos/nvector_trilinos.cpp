@@ -224,7 +224,7 @@ void N_VSpace_Trilinos(N_Vector x, sunindextype *lrw, sunindextype *liw)
 /*
  * MPI communicator accessor
  */
-MPI_Comm N_VGetCommunicator_Trilinos(N_Vector x)
+SUNComm N_VGetCommunicator_Trilinos(N_Vector x)
 {
 #ifdef SUNDIALS_TRILINOS_HAVE_MPI
   Teuchos::RCP<const vector_type> xv = N_VGetVector_Trilinos(x);
@@ -232,7 +232,7 @@ MPI_Comm N_VGetCommunicator_Trilinos(N_Vector x)
   auto comm = Teuchos::rcp_dynamic_cast<const Teuchos::MpiComm<int>>(xv->getMap()->getComm());
   return(*(comm->getRawMpiComm().get()));   /* extract MPI_Comm */
 #else
-  return(NULL);
+  return(SUN_COMM_NULL);
 #endif
 }
 

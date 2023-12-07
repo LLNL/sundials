@@ -114,6 +114,55 @@ Changes from previous versions
 Changes in vX.X.X
 -----------------
 
+The previously deprecated types ``realtype`` and ``booleantype`` were removed
+from ``sundials_types.h`` and replaced with ``sunrealtype`` and
+``sunbooleantype``. The deprecated names for these types can be used by including
+the header file ``sundials_types_deprecated.h`` but will be fully removed in the
+next major release.
+
+**Major feature**
+SUNDIALS now has more robust and uniform error handling. Non-release builds will
+be built with additional error checking by default. See :numref:`SUNDIALS.Errors`
+for details.
+
+**Deprecation notice**
+The functions in `sundials_math.h` will be deprecated in the next release.
+
+.. code-block:: c
+
+  sunrealtype SUNRpowerI(sunrealtype base, int exponent);
+  sunrealtype SUNRpowerR(sunrealtype base, sunrealtype exponent);
+  sunbooleantype SUNRCompare(sunrealtype a, sunrealtype b);
+  sunbooleantype SUNRCompareTol(sunrealtype a, sunrealtype b, sunrealtype tol);
+  sunrealtype SUNStrToReal(const char* str);
+
+Additionally, the following header files (and everything in them) will be deprecated -- users who
+rely on these are recommended to transition to the corresponding :c:type:`SUNMatrix` and
+:c:type:`SUNLinearSolver` modules:
+
+.. code-block:: c
+
+  sundials_direct.h
+  sundials_dense.h
+  sundials_band.h
+
+
+**Breaking change**
+The following functions have had their signature updated to ensure they can leverage
+the new SUNDIALS error handling capabilties. 
+
+From sundials_futils.h
+* :c:func:`SUNDIALSFileOpen`
+* :c:func:`SUNDIALSFileClose`
+
+From sundials_memory.h
+* :c:func:`SUNMemorNewEmpty`
+* :c:func:`SUNMemoryHelper_Alias`
+* :c:func:`SUNMemoryHelper_Wrap`
+
+From sundials_nvector.h
+* :c:func:`N_VNewVectorArray`
+
 **Breaking change** 
 We have replaced the use of a type-erased (i.e., ``void*``) pointer to a
 communicator in place of ``MPI_Comm`` throughout the SUNDIALS API with a
@@ -135,7 +184,7 @@ and a typedef to a ``MPI_Comm`` in builds with MPI. Here is what this means:
   ``N_VGetCommunicator``, since it now returns a ``SUNComm``. 
 
 The change away from type-erased pointers for :c:type:`SUNComm` fixes problems like the 
-one described in `GitHub Issue #275 <https://github.com/LLNL/sundials/issues/275>_`.
+one described in `GitHub Issue #275 <https://github.com/LLNL/sundials/issues/275>`_.
 
 **Breaking change**
 The SUNLogger is now always MPI-aware if MPI is enabled in SUNDIALS and the
@@ -150,12 +199,6 @@ removed.
 Users now need to link to ``sundials_core`` in addition to the libraries already linked to. 
 This will be picked up automatically in projects that use the SUNDIALS CMake target. The library ``sundials_generic`` has been superceded by ``sundials_core`` and is no longer available.
 This fixes some duplicate symbol errors on Windows when linking to multiple SUNDIALS libraries.
-
-The previously deprecated types ``realtype`` and ``booleantype`` were removed
-from ``sundials_types.h`` and replaced with ``sunrealtype`` and
-``sunbooleantype``. The deprecated names for these types can be used by including
-the header file ``sundials_types_deprecated.h`` but will be fully removed in the
-next major release.
 
 Changes in v6.7.0
 -----------------

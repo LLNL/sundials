@@ -17,15 +17,12 @@
 #ifndef _ARKSTEP_H
 #define _ARKSTEP_H
 
-#include <sundials/sundials_nvector.h>
-#include <sundials/sundials_linearsolver.h>
-#include <sundials/sundials_nonlinearsolver.h>
-#include <sunadaptcontroller/sunadaptcontroller_soderlind.h>
-#include <sunadaptcontroller/sunadaptcontroller_imexgus.h>
 #include <arkode/arkode.h>
 #include <arkode/arkode_ls.h>
 #include <arkode/arkode_butcher_erk.h>
 #include <arkode/arkode_butcher_dirk.h>
+#include <sunadaptcontroller/sunadaptcontroller_soderlind.h>
+#include <sunadaptcontroller/sunadaptcontroller_imexgus.h>
 
 #ifdef __cplusplus  /* wrapper to enable C++ usage */
 extern "C" {

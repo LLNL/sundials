@@ -230,25 +230,31 @@ SWIGINTERN SwigArrayWrapper SwigArrayWrapper_uninitialized() {
   return result;
 }
 
-SWIGEXPORT void * _wrap_FSUNDIALSFileOpen(SwigArrayWrapper *farg1, SwigArrayWrapper *farg2) {
-  void * fresult ;
+SWIGEXPORT int _wrap_FSUNDIALSFileOpen(SwigArrayWrapper *farg1, SwigArrayWrapper *farg2, void *farg3) {
+  int fresult ;
   char *arg1 = (char *) 0 ;
   char *arg2 = (char *) 0 ;
-  FILE *result = 0 ;
+  FILE **arg3 = (FILE **) 0 ;
+  SUNErrCode result;
   
   arg1 = (char *)(farg1->data);
   arg2 = (char *)(farg2->data);
-  result = (FILE *)SUNDIALSFileOpen((char const *)arg1,(char const *)arg2);
-  fresult = result;
+  arg3 = (FILE **)(farg3);
+  result = (SUNErrCode)SUNDIALSFileOpen((char const *)arg1,(char const *)arg2,arg3);
+  fresult = (SUNErrCode)(result);
   return fresult;
 }
 
 
-SWIGEXPORT void _wrap_FSUNDIALSFileClose(void *farg1) {
-  FILE *arg1 = (FILE *) 0 ;
+SWIGEXPORT int _wrap_FSUNDIALSFileClose(void *farg1) {
+  int fresult ;
+  FILE **arg1 = (FILE **) 0 ;
+  SUNErrCode result;
   
-  arg1 = (FILE *)(farg1);
-  SUNDIALSFileClose(arg1);
+  arg1 = (FILE **)(farg1);
+  result = (SUNErrCode)SUNDIALSFileClose(arg1);
+  fresult = (SUNErrCode)(result);
+  return fresult;
 }
 
 

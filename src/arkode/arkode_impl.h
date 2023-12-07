@@ -31,7 +31,7 @@
 #include "arkode_adapt_impl.h"
 #include "arkode_relaxation_impl.h"
 #include "arkode_root_impl.h"
-#include "sundials_context_impl.h"
+#include <sundials/priv/sundials_context_impl.h>
 #include "sundials_logger_impl.h"
 
 #ifdef __cplusplus  /* wrapper to enable C++ usage */

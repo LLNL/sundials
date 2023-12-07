@@ -14,16 +14,32 @@
 Testing Locally
 ===============
 
-Using sundials-ci Docker Containers
+Using SUNDIALS CI Docker Containers
 -----------------------------------
 
-It is possible to use the sundials-ci Docker containers available at
+It is possible to use the SUNDIALS CI containers available at
 `https://github.com/orgs/LLNL/packages?ecosystem=container <https://github.com/orgs/LLNL/packages?ecosystem=container>`_
 for testing locally. This will allow you to get as close as possible to running tests
 in the CI environment on your own machine.
 
-Developers with Linux machines can use Docker to pull the image(s) and then
-run the test suite. The ``run`` command will pull the image and start the container:
+If you have Docker or `Podman <https://podman.io/>`_ installed on your machine already,
+than the easiest way to use the containers is via the CMake targets ``setup_local_ci``
+and ``test_local_ci``, for example:
+
+.. code-block:: shell
+
+   $ cd builddir
+   $ make setup_local_ci 
+   ...
+   $ make test_local_ci 
+   ...
+
+The ``setup_local_ci`` target will pull the container for the configured ``SUNDIALS_PRECISION``
+and ``SUNDIALS_INDEX_SIZE``. Then the ``test_local_ci`` target will run the full test suite
+in the container.
+
+Alternatively, if you want to work with Docker directly, you can pull the image(s) and then
+run the test suite manually. The ``run`` command will pull the image and start the container:
 
 .. code-block:: shell
 

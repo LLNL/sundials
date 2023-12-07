@@ -24,6 +24,15 @@ module fsundials_types_mod
  private
 
  ! DECLARATION CONSTRUCTS
+
+#if SUNDIALS_MPI_ENABLED
+ include "mpif.h"
+ integer(C_INT), protected, public :: SUN_COMM_NULL = MPI_COMM_NULL
+#else
+ integer(C_INT), protected, public, &
+   bind(C, name="_wrap_SUN_COMM_NULL") :: SUN_COMM_NULL
+#endif
+
  integer(C_INT), protected, public, &
    bind(C, name="_wrap_SUNFALSE") :: SUNFALSE
  integer(C_INT), protected, public, &
@@ -35,7 +44,5 @@ module fsundials_types_mod
  end enum
  integer, parameter, public :: SUNOutputFormat = kind(SUN_OUTPUTFORMAT_TABLE)
  public :: SUN_OUTPUTFORMAT_TABLE, SUN_OUTPUTFORMAT_CSV
- integer(C_INT), protected, public, &
-   bind(C, name="_wrap_SUN_COMM_NULL") :: SUN_COMM_NULL
 
 end module

@@ -24,6 +24,7 @@ module fnvector_openmp_mod
  use fsundials_nvector_mod
  use fsundials_context_mod
  use fsundials_types_mod
+ use fsundials_types_mod
  implicit none
  private
 

@@ -220,7 +220,8 @@ def main():
             print("  Answer File = " + answerPath)
             print("  Output File = " + outPath)
             if(args.profile):
-                print("  ENV{CALI_CONFIG} = " + os.environ['CALI_CONFIG'] + "\n")
+                print("  ENV{CALI_CONFIG} = " + os.environ['CALI_CONFIG'])
+            print("\n")
 
         outFile = open(outPath, 'w')
         try:

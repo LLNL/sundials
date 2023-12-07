@@ -23,7 +23,7 @@
 #include <mpi.h>
 
 #include <RAJA/RAJA.hpp>
-#include <sundials/sundials_context.h>
+#include <sundials/sundials_core.hpp>
 #include <nvector/nvector_mpiplusx.h>
 
 #include "check_retval.h"

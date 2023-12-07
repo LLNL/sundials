@@ -34,21 +34,24 @@ module fsundials_futils_mod
 
 ! WRAPPER DECLARATIONS
 interface
-function swigc_FSUNDIALSFileOpen(farg1, farg2) &
+function swigc_FSUNDIALSFileOpen(farg1, farg2, farg3) &
 bind(C, name="_wrap_FSUNDIALSFileOpen") &
 result(fresult)
 use, intrinsic :: ISO_C_BINDING
 import :: swigarraywrapper
 type(SwigArrayWrapper) :: farg1
 type(SwigArrayWrapper) :: farg2
-type(C_PTR) :: fresult
+type(C_PTR), value :: farg3
+integer(C_INT) :: fresult
 end function
 
-subroutine swigc_FSUNDIALSFileClose(farg1) &
-bind(C, name="_wrap_FSUNDIALSFileClose")
+function swigc_FSUNDIALSFileClose(farg1) &
+bind(C, name="_wrap_FSUNDIALSFileClose") &
+result(fresult)
 use, intrinsic :: ISO_C_BINDING
 type(C_PTR), value :: farg1
-end subroutine
+integer(C_INT) :: fresult
+end function
 
 end interface
 
@@ -73,32 +76,39 @@ subroutine SWIG_string_to_chararray(string, chars, wrap)
   wrap%size = len(string)
 end subroutine
 
-function FSUNDIALSFileOpen(filename, modes) &
+function FSUNDIALSFileOpen(filename, modes, fp) &
 result(swig_result)
 use, intrinsic :: ISO_C_BINDING
-type(C_PTR) :: swig_result
+integer(C_INT) :: swig_result
 character(kind=C_CHAR, len=*), target :: filename
 character(kind=C_CHAR), dimension(:), allocatable, target :: farg1_chars
 character(kind=C_CHAR, len=*), target :: modes
 character(kind=C_CHAR), dimension(:), allocatable, target :: farg2_chars
-type(C_PTR) :: fresult 
+type(C_PTR), target, intent(inout) :: fp
+integer(C_INT) :: fresult 
 type(SwigArrayWrapper) :: farg1 
 type(SwigArrayWrapper) :: farg2 
+type(C_PTR) :: farg3 
 
 call SWIG_string_to_chararray(filename, farg1_chars, farg1)
 call SWIG_string_to_chararray(modes, farg2_chars, farg2)
-fresult = swigc_FSUNDIALSFileOpen(farg1, farg2)
+farg3 = c_loc(fp)
+fresult = swigc_FSUNDIALSFileOpen(farg1, farg2, farg3)
 swig_result = fresult
 end function
 
-subroutine FSUNDIALSFileClose(fp)
+function FSUNDIALSFileClose(fp) &
+result(swig_result)
 use, intrinsic :: ISO_C_BINDING
-type(C_PTR) :: fp
+integer(C_INT) :: swig_result
+type(C_PTR), target, intent(inout) :: fp
+integer(C_INT) :: fresult 
 type(C_PTR) :: farg1 
 
-farg1 = fp
-call swigc_FSUNDIALSFileClose(farg1)
-end subroutine
+farg1 = c_loc(fp)
+fresult = swigc_FSUNDIALSFileClose(farg1)
+swig_result = fresult
+end function
 
 
 end module

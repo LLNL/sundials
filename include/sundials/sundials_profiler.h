@@ -16,6 +16,7 @@
 #define _SUNDIALS_PROFILER_H
 
 #include <stdio.h>
+#include <sundials/sundials_types.h>
 
 #include <sundials/sundials_config.h>
 #include <sundials/sundials_types.h>
@@ -28,19 +29,31 @@
 extern "C" {
 #endif
 
-typedef struct _SUNProfiler* SUNProfiler;
+SUNDIALS_EXPORT 
+SUNErrCode SUNProfiler_Create(SUNComm comm, const char* title,
+                              SUNProfiler* p);
+SUNDIALS_EXPORT
+SUNErrCode SUNProfiler_Free(SUNProfiler* p);
 
-SUNDIALS_EXPORT int SUNProfiler_Create(SUNComm comm, const char* title,
-                                       SUNProfiler* p);
-SUNDIALS_EXPORT int SUNProfiler_Free(SUNProfiler* p);
-SUNDIALS_EXPORT int SUNProfiler_Begin(SUNProfiler p, const char* name);
-SUNDIALS_EXPORT int SUNProfiler_End(SUNProfiler p, const char* name);
-SUNDIALS_EXPORT int SUNProfiler_GetTimerResolution(SUNProfiler p,
-                                                   double* resolution);
-SUNDIALS_EXPORT int SUNProfiler_GetElapsedTime(SUNProfiler p, const char* name,
-                                               double* time);
-SUNDIALS_EXPORT int SUNProfiler_Print(SUNProfiler p, FILE* fp);
-SUNDIALS_EXPORT int SUNProfiler_Reset(SUNProfiler p);
+SUNDIALS_EXPORT 
+SUNErrCode SUNProfiler_Begin(SUNProfiler p, const char* name);
+
+SUNDIALS_EXPORT
+SUNErrCode SUNProfiler_End(SUNProfiler p, const char* name);
+
+SUNDIALS_EXPORT
+SUNErrCode SUNProfiler_GetTimerResolution(SUNProfiler p, double* resolution);
+
+SUNDIALS_EXPORT
+SUNErrCode SUNProfiler_GetElapsedTime(SUNProfiler p,
+                                      const char* name,
+                                      double* time);
+
+SUNDIALS_EXPORT
+SUNErrCode SUNProfiler_Print(SUNProfiler p, FILE* fp);
+
+SUNDIALS_EXPORT
+SUNErrCode SUNProfiler_Reset(SUNProfiler p);
 
 #if defined(SUNDIALS_BUILD_WITH_PROFILING) && defined(SUNDIALS_CALIPER_ENABLED)
 
@@ -87,10 +100,6 @@ SUNDIALS_EXPORT int SUNProfiler_Reset(SUNProfiler p);
 
 #ifdef __cplusplus
 }
-
-/* We include this here for backwards compatibility
-   (the contents used to be defined here directly) */
-#include <sundials/sundials_profiler.hpp>
 
 #endif
 #endif /* SUNDIALS_PROFILER_H */

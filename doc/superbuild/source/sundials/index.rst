@@ -28,6 +28,7 @@ in this section.
    Install_link
    Types_link
    SUNContext_link
+   Errors_link
    Profiling_link
    Logging_link
    version_information_link
