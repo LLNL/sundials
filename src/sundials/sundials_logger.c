@@ -33,40 +33,6 @@
 /* max number of files that can be opened */
 #define SUN_MAX_LOGFILE_HANDLES_ 8
 
-/* shortcut */
-static void sunCreateLogMessage(SUNLogLevel lvl, int rank, const char* scope,
-                                const char* label, const char* txt,
-                                va_list args, char** log_msg)
-{
-  char* prefix;
-  char* formatted_txt;
-  int msg_length;
-
-  prefix        = NULL;
-  formatted_txt = NULL;
-  msg_length    = 0;
-  *log_msg      = NULL;
-
-  msg_length = sunvasnprintf(&formatted_txt, txt, args);
-  if (msg_length < 0)
-  {
-    fprintf(stderr, "[FATAL LOGGER ERROR] %s\n",
-            "SUNDIALS_MAX_SPRINTF_SIZE is too small");
-  }
-
-  if (lvl == SUN_LOGLEVEL_DEBUG) { prefix = "DEBUG"; }
-  else if (lvl == SUN_LOGLEVEL_WARNING) { prefix = "WARNING"; }
-  else if (lvl == SUN_LOGLEVEL_INFO) { prefix = "INFO"; }
-  else if (lvl == SUN_LOGLEVEL_ERROR) { prefix = "ERROR"; }
-
-  msg_length = sunsnprintf(NULL, 0, "[%s][rank %d][%s][%s] %s\n", prefix, rank,
-                           scope, label, formatted_txt);
-  *log_msg   = (char*)malloc(msg_length + 1);
-  sunsnprintf(*log_msg, msg_length + 1, "[%s][rank %d][%s][%s] %s\n", prefix,
-              rank, scope, label, formatted_txt);
-  free(formatted_txt);
-}
-
 static FILE* sunOpenLogFile(const char* fname, const char* mode)
 {
   FILE* fp = NULL;
