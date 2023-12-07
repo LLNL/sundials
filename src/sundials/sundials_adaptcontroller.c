@@ -133,8 +133,20 @@ SUNErrCode SUNAdaptController_EstimateStep(SUNAdaptController C, sunrealtype h,
   SUNFunctionBegin(C->sunctx);
   SUNAssert(hnew, SUN_ERR_ARG_CORRUPT);
   *hnew = h; /* initialize output with identity */
-  if (C->ops->estimatestep) { ier = C->ops->estimatestep(C, h, p, dsm, hnew); }
-  return (ier);
+  if (C->ops->estimatestep)
+  {
+    free(C->content);
+    C->content = NULL;
+  }
+  if (C->ops)
+  {
+    free(C->ops);
+    C->ops = NULL;
+  }
+  free(C);
+  C = NULL;
+
+  return (SUN_SUCCESS);
 }
 
 SUNErrCode SUNAdaptController_Reset(SUNAdaptController C)
