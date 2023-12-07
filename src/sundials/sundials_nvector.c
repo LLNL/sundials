@@ -974,7 +974,7 @@ SUNErrCode N_VBufPack(N_Vector x, void* buf)
   SUNAssert(x->ops->nvbufpack, SUN_ERR_NOT_IMPLEMENTED);
   ier = x->ops->nvbufpack(x, buf);
   SUNDIALS_MARK_FUNCTION_END(getSUNProfiler(x));
-  return (ier);
+  return (erf);
 }
 
 SUNErrCode N_VBufUnpack(N_Vector x, void* buf)
