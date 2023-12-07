@@ -35,8 +35,6 @@ SUNAdaptController SUNAdaptController_NewEmpty(SUNContext sunctx)
 
   SUNFunctionBegin(sunctx);
 
-  SUNFunctionBegin(sunctx);
-
   /* create controller object */
   C = NULL;
   C = (SUNAdaptController)malloc(sizeof *C);

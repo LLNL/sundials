@@ -108,7 +108,6 @@ SUNErrCode SUNContext_Create(SUNComm comm, SUNContext* sunctx_out)
     free(sunctx);
   }
   else { *sunctx_out = sunctx; }
-  else { *sunctx_out = sunctx; }
 
   return err;
 }
