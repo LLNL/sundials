@@ -128,29 +128,18 @@ SUNErrCode SUNAdaptController_EstimateStep(SUNAdaptController C, sunrealtype h,
                                            int p, sunrealtype dsm,
                                            sunrealtype* hnew)
 {
+  SUNErrCode ier = SUN_SUCCESS;
   if (C == NULL) { return SUN_ERR_ARG_CORRUPT; }
   SUNFunctionBegin(C->sunctx);
   SUNAssert(hnew, SUN_ERR_ARG_CORRUPT);
   *hnew = h; /* initialize output with identity */
-  if (C->ops->estimatestep)
-  {
-    free(C->content);
-    C->content = NULL;
-  }
-  if (C->ops)
-  {
-    free(C->ops);
-    C->ops = NULL;
-  }
-  free(C);
-  C = NULL;
-
-  return (SUN_SUCCESS);
+  if (C->ops->estimatestep) { ier = C->ops->estimatestep(C, h, p, dsm, hnew); }
+  return (ier);
 }
 
 SUNErrCode SUNAdaptController_Reset(SUNAdaptController C)
 {
-  int ier = SUN_SUCCESS;
+  SUNErrCode ier = SUN_SUCCESS;
   if (C == NULL) { return SUN_ERR_ARG_CORRUPT; }
   SUNFunctionBegin(C->sunctx);
   if (C->ops->reset) { ier = C->ops->reset(C); }
@@ -159,7 +148,7 @@ SUNErrCode SUNAdaptController_Reset(SUNAdaptController C)
 
 SUNErrCode SUNAdaptController_SetDefaults(SUNAdaptController C)
 {
-  int ier = SUN_SUCCESS;
+  SUNErrCode ier = SUN_SUCCESS;
   if (C == NULL) { return SUN_ERR_ARG_CORRUPT; }
   SUNFunctionBegin(C->sunctx);
   if (C->ops->setdefaults) { ier = C->ops->setdefaults(C); }
@@ -168,7 +157,7 @@ SUNErrCode SUNAdaptController_SetDefaults(SUNAdaptController C)
 
 SUNErrCode SUNAdaptController_Write(SUNAdaptController C, FILE* fptr)
 {
-  int ier = SUN_SUCCESS;
+  SUNErrCode ier = SUN_SUCCESS;
   if (C == NULL) { return SUN_ERR_ARG_CORRUPT; }
   SUNFunctionBegin(C->sunctx);
   SUNAssert(fptr, SUN_ERR_ARG_CORRUPT);
@@ -178,7 +167,7 @@ SUNErrCode SUNAdaptController_Write(SUNAdaptController C, FILE* fptr)
 
 SUNErrCode SUNAdaptController_SetErrorBias(SUNAdaptController C, sunrealtype bias)
 {
-  int ier = SUN_SUCCESS;
+  SUNErrCode ier = SUN_SUCCESS;
   if (C == NULL) { return SUN_ERR_ARG_CORRUPT; }
   SUNFunctionBegin(C->sunctx);
   if (C->ops->seterrorbias) { ier = C->ops->seterrorbias(C, bias); }
@@ -188,7 +177,7 @@ SUNErrCode SUNAdaptController_SetErrorBias(SUNAdaptController C, sunrealtype bia
 SUNErrCode SUNAdaptController_UpdateH(SUNAdaptController C, sunrealtype h,
                                       sunrealtype dsm)
 {
-  int ier = SUN_SUCCESS;
+  SUNErrCode ier = SUN_SUCCESS;
   if (C == NULL) { return SUN_ERR_ARG_CORRUPT; }
   SUNFunctionBegin(C->sunctx);
   if (C->ops->updateh) { ier = C->ops->updateh(C, h, dsm); }
@@ -198,7 +187,7 @@ SUNErrCode SUNAdaptController_UpdateH(SUNAdaptController C, sunrealtype h,
 SUNErrCode SUNAdaptController_Space(SUNAdaptController C, long int* lenrw,
                                     long int* leniw)
 {
-  int ier = SUN_SUCCESS;
+  SUNErrCode ier = SUN_SUCCESS;
   if (C == NULL) { return SUN_ERR_ARG_CORRUPT; }
   SUNFunctionBegin(C->sunctx);
   SUNAssert(lenrw, SUN_ERR_ARG_CORRUPT);
