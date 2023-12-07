@@ -37,6 +37,23 @@ This API consists of three new SUNDIALS types: :c:type:`SUNMemoryType`,
       };
 
 
+.. c:function:: SUNMemory SUNMemoryNewEmpty(SUNContext sunctx)
+
+   This function returns an empty ``SUNMemory`` object.
+
+   **Arguments:**
+
+   * ``sunctx`` -- the ``SUNContext`` object.
+
+   **Returns:**
+
+   * an uninitialized ``SUNMemory`` object
+   
+   .. versionchanged:: 7.0.0
+
+      The function signature was updated to add the ``SUNContext`` argument.
+
+
 .. c:enum:: SUNMemoryType
 
    The ``SUNMemoryType`` type is an enumeration that defines the supported
@@ -185,7 +202,7 @@ Utility Functions
 The SUNMemoryHelper API defines the following functions which do not
 require a SUNMemoryHelper instance:
 
-.. c:function:: SUNMemory SUNMemoryHelper_Alias(SUNMemory mem1)
+.. c:function:: SUNMemory SUNMemoryHelper_Alias(SUNMemoryHelper helper, SUNMemory mem1)
 
    Returns a ``SUNMemory`` object whose ``ptr`` field points to the same address
    as ``mem1``. The new object *will not* have ownership of ``ptr``, therefore,
@@ -193,14 +210,19 @@ require a SUNMemoryHelper instance:
 
    **Arguments:**
 
+   * ``helper`` -- a ``SUNMemoryHelper`` object.
    * ``mem1`` -- a ``SUNMemory`` object.
 
    **Returns:**
 
    * A ``SUNMemory`` object or ``NULL`` if an error occurs.
 
+   .. versionchanged:: 7.0.0
 
-.. c:function:: SUNMemory SUNMemoryHelper_Wrap(void* ptr, \
+      The ``SUNMemoryHelper`` argument was added to the function signature.
+
+
+.. c:function:: SUNMemory SUNMemoryHelper_Wrap(SUNMemoryHelper helper, void* ptr, \
                                                SUNMemoryType mem_type)
 
    Returns a ``SUNMemory`` object whose ``ptr`` field points to the ``ptr``
@@ -210,6 +232,7 @@ require a SUNMemoryHelper instance:
 
    **Arguments:**
 
+   * ``helper`` -- a ``SUNMemoryHelper`` object.
    * ``ptr`` -- the data pointer to wrap in a ``SUNMemory`` object.
    * ``mem_type`` -- the ``SUNMemoryType`` of the ``ptr``.
 
@@ -217,15 +240,27 @@ require a SUNMemoryHelper instance:
 
    * A ``SUNMemory`` object or ``NULL`` if an error occurs.
 
+   .. versionchanged:: 7.0.0
 
-.. c:function:: SUNMemoryHelper SUNMemoryHelper_NewEmpty()
+      The ``SUNMemoryHelper`` argument was added to the function signature.
+
+
+.. c:function:: SUNMemoryHelper SUNMemoryHelper_NewEmpty(SUNContext sunctx)
 
    Returns an empty ``SUNMemoryHelper``. This is useful for building custom
    ``SUNMemoryHelper`` implementations.
 
+   **Arguments:**
+
+   * ``helper`` -- a ``SUNMemoryHelper`` object.
+
    **Returns:**
 
    * A ``SUNMemoryHelper`` object or ``NULL`` if an error occurs.
+
+   .. versionchanged:: 7.0.0
+
+      The ``SUNMemoryHelper`` argument was added to the function signature.
 
 
 .. c:function:: int SUNMemoryHelper_CopyOps(SUNMemoryHelper src, \
