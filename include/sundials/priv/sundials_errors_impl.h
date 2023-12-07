@@ -27,6 +27,10 @@
 #include "sundials/sundials_logger.h"
 #include "sundials/sundials_types.h"
 
+#ifdef __cplusplus /* wrapper to enable C++ usage */
+extern "C" {
+#endif
+
 /* ----------------------------------------------------------------------------
  * SUNErrHandler_ definition.
  * ---------------------------------------------------------------------------*/
@@ -65,6 +69,21 @@ SUNDIALS_EXPORT
 void SUNErrHandler_Destroy(SUNErrHandler* eh);
 
 /*
+  This function will print an error out to stderr. It is used as a fallback
+  when the SUNContext is NULL or corrupt. It should not be used otherwise.
+
+  :param line: the line number of the error
+  :param func: the function in which the error occurred
+  :param file: the file in which the error occurred
+  :param msg: a message associated with the error
+
+  :return: void
+*/
+SUNDIALS_EXPORT
+void SUNGlobalFallbackErrHandler(int line, const char* func, const char* file,
+                                 const char* msg, SUNErrCode code);
+
+/*
   This function calls the error handlers registered with the SUNContext
   with the provided message.
 
@@ -81,6 +100,11 @@ SUNDIALS_STATIC_INLINE
 void SUNHandleErrWithMsg(int line, const char* func, const char* file,
                          const char* msg, SUNErrCode code, SUNContext sunctx)
 {
+  if (!sunctx)
+  {
+    SUNGlobalFallbackErrHandler(line, func, file, msg, code);
+  }
+
   sunctx->last_err = code;
   SUNErrHandler eh = sunctx->err_handler;
   while (eh != NULL)
@@ -122,6 +146,10 @@ void SUNHandleErrWithFmtMsg(int line, const char* func, const char* file,
   va_end(values);
   free(msg);
 }
+
+#ifdef __cplusplus
+}
+#endif
 
 /*
   The SUNCTX_ macro expands to the name of the local SUNContext object
