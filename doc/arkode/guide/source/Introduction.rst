@@ -209,23 +209,6 @@ rely on these are recommended to transition to the corresponding :c:type:`SUNMat
   sundials_dense.h
   sundials_band.h
 
-**Breaking change**
-The following functions have had their signature updated to ensure they can leverage
-the new SUNDIALS error handling capabilties. 
-
-.. code-block:: c
-
-  // From sundials_futils.h
-  SUNDIALSFileOpen
-  SUNDIALSFileClose
-
-  // From sundials_memory.h
-  SUNMemorNewEmpty
-  SUNMemoryHelper_Alias
-  SUNMemoryHelper_Wrap
-
-  // From sundials_nvector.h
-  N_VNewVectorArray
 
 **Breaking change**
 The following functions have had their signature updated to ensure they can leverage

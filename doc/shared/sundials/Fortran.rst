@@ -493,22 +493,6 @@ a C file pointer, SUNDIALS provides two utility functions for creating a
    The function allocates a ``FILE*`` by calling the C function ``fopen`` with
    the provided filename and I/O mode.
 
-   Usage example:
-
-   .. code-block:: Fortran
-
-      type(c_ptr) :: fp
-
-      ! Open up the file output.log for writing
-      ierr = FSUNDIALSFileOpen("output.log", "w+", fp)
-     
-      ! The C function ARKStepPrintMem takes void* arkode_mem and FILE* fp as arguments
-      call FARKStepPrintMem(arkode_mem, fp)
-     
-      ! Close the file
-      ierr = FSUNDIALSFileClose(fp)
-
-
    :param filename: the path to the file, that should have Fortran
       type ``character(kind=C_CHAR, len=*)``.  There are two special filenames:
       ``stdout`` and ``stderr`` -- these two filenames will result in output
@@ -531,9 +515,27 @@ a C file pointer, SUNDIALS provides two utility functions for creating a
    :param fp: The ``FILE*`` that will be open when the function returns.
       This should be a `type(c_ptr)` in the Fortran.
 
-   :return: The function returns a :c:type:`SUNErrCode`
+   :return: A :c:type:`SUNErrCode`
 
+   Usage example:
 
+   .. code-block:: Fortran
+
+      type(c_ptr) :: fp
+
+      ! Open up the file output.log for writing
+      ierr = FSUNDIALSFileOpen("output.log", "w+", fp)
+     
+      ! The C function ARKStepPrintMem takes void* arkode_mem and FILE* fp as arguments
+      call FARKStepPrintMem(arkode_mem, fp)
+     
+      ! Close the file
+      ierr = FSUNDIALSFileClose(fp)
+
+   .. versionchanged:: 7.0.0
+   
+      The function signature was updated to return a `SUNErrCode` and take a `FILE**` as the last input parameter rather then return a `FILE*`.
+ 
 .. c:function:: SUNErrCode SUNDIALSFileClose(FILE** fp)
 
    The function deallocates a C ``FILE*`` by calling the C function ``fclose``
@@ -542,7 +544,13 @@ a C file pointer, SUNDIALS provides two utility functions for creating a
    :param fp: the C ``FILE*`` that was previously obtained from ``fopen``.
         This should have the Fortran type ``type(c_ptr)``.  Note that if either
         ``stdout`` or ``stderr`` were opened using :c:func:`SUNDIALSFileOpen()`
-        then that stream *will not be closed* by this function.
+
+   :return: A :c:type:`SUNErrCode`
+
+   .. versionchanged:: 7.0.0
+   
+      The function signature was updated to return a `SUNErrCode`.
+ 
 
 
 .. _SUNDIALS.Fortran.Portability:
