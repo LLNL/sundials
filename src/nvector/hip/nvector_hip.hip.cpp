@@ -321,14 +321,16 @@ N_Vector N_VMake_Hip(sunindextype length, sunrealtype* h_vdata,
   v = N_VNewEmpty_Hip(sunctx);
   if (v == NULL) { return (NULL); }
 
-  NVEC_HIP_CONTENT(v)->length             = length;
-  NVEC_HIP_CONTENT(v)->mem_helper         = SUNMemoryHelper_Hip(sunctx);
-  NVEC_HIP_CONTENT(v)->host_data          = SUNMemoryHelper_Wrap(NVEC_HIP_MEMHELP(v), h_vdata, SUNMEMTYPE_HOST);
-  NVEC_HIP_CONTENT(v)->device_data        = SUNMemoryHelper_Wrap(NVEC_HIP_MEMHELP(v), d_vdata, SUNMEMTYPE_DEVICE);
+  NVEC_HIP_CONTENT(v)->length     = length;
+  NVEC_HIP_CONTENT(v)->mem_helper = SUNMemoryHelper_Hip(sunctx);
+  NVEC_HIP_CONTENT(v)->host_data =
+    SUNMemoryHelper_Wrap(NVEC_HIP_MEMHELP(v), h_vdata, SUNMEMTYPE_HOST);
+  NVEC_HIP_CONTENT(v)->device_data =
+    SUNMemoryHelper_Wrap(NVEC_HIP_MEMHELP(v), d_vdata, SUNMEMTYPE_DEVICE);
   NVEC_HIP_CONTENT(v)->stream_exec_policy = DEFAULT_STREAMING_EXECPOLICY.clone();
   NVEC_HIP_CONTENT(v)->reduce_exec_policy = DEFAULT_REDUCTION_EXECPOLICY.clone();
-  NVEC_HIP_CONTENT(v)->own_helper         = SUNTRUE;
-  NVEC_HIP_PRIVATE(v)->use_managed_mem    = SUNFALSE;
+  NVEC_HIP_CONTENT(v)->own_helper      = SUNTRUE;
+  NVEC_HIP_PRIVATE(v)->use_managed_mem = SUNFALSE;
 
   if (NVEC_HIP_MEMHELP(v) == NULL)
   {
@@ -360,14 +362,16 @@ N_Vector N_VMakeManaged_Hip(sunindextype length, sunrealtype* vdata,
   v = N_VNewEmpty_Hip(sunctx);
   if (v == NULL) { return (NULL); }
 
-  NVEC_HIP_CONTENT(v)->length             = length;
-  NVEC_HIP_CONTENT(v)->mem_helper         = SUNMemoryHelper_Hip(sunctx);
-  NVEC_HIP_CONTENT(v)->host_data          = SUNMemoryHelper_Wrap(NVEC_HIP_MEMHELP(v), vdata, SUNMEMTYPE_UVM);
-  NVEC_HIP_CONTENT(v)->device_data        = SUNMemoryHelper_Alias(NVEC_HIP_MEMHELP(v), NVEC_HIP_CONTENT(v)->host_data);
+  NVEC_HIP_CONTENT(v)->length     = length;
+  NVEC_HIP_CONTENT(v)->mem_helper = SUNMemoryHelper_Hip(sunctx);
+  NVEC_HIP_CONTENT(v)->host_data  = SUNMemoryHelper_Wrap(NVEC_HIP_MEMHELP(v),
+                                                         vdata, SUNMEMTYPE_UVM);
+  NVEC_HIP_CONTENT(v)->device_data =
+    SUNMemoryHelper_Alias(NVEC_HIP_MEMHELP(v), NVEC_HIP_CONTENT(v)->host_data);
   NVEC_HIP_CONTENT(v)->stream_exec_policy = DEFAULT_STREAMING_EXECPOLICY.clone();
   NVEC_HIP_CONTENT(v)->reduce_exec_policy = DEFAULT_REDUCTION_EXECPOLICY.clone();
-  NVEC_HIP_CONTENT(v)->own_helper         = SUNTRUE;
-  NVEC_HIP_PRIVATE(v)->use_managed_mem    = SUNTRUE;
+  NVEC_HIP_CONTENT(v)->own_helper      = SUNTRUE;
+  NVEC_HIP_PRIVATE(v)->use_managed_mem = SUNTRUE;
 
   if (NVEC_HIP_MEMHELP(v) == NULL)
   {
@@ -404,8 +408,11 @@ void N_VSetHostArrayPointer_Hip(sunrealtype* h_vdata, N_Vector v)
     }
     else
     {
-      NVEC_HIP_CONTENT(v)->host_data = SUNMemoryHelper_Wrap(NVEC_HIP_MEMHELP(v), (void*) h_vdata, SUNMEMTYPE_UVM);
-      NVEC_HIP_CONTENT(v)->device_data = SUNMemoryHelper_Alias(NVEC_HIP_MEMHELP(v), NVEC_HIP_CONTENT(v)->host_data);
+      NVEC_HIP_CONTENT(v)->host_data =
+        SUNMemoryHelper_Wrap(NVEC_HIP_MEMHELP(v), (void*)h_vdata, SUNMEMTYPE_UVM);
+      NVEC_HIP_CONTENT(v)->device_data =
+        SUNMemoryHelper_Alias(NVEC_HIP_MEMHELP(v),
+                              NVEC_HIP_CONTENT(v)->host_data);
     }
   }
   else
@@ -416,7 +423,9 @@ void N_VSetHostArrayPointer_Hip(sunrealtype* h_vdata, N_Vector v)
     }
     else
     {
-      NVEC_HIP_CONTENT(v)->host_data = SUNMemoryHelper_Wrap(NVEC_HIP_MEMHELP(v), (void*) h_vdata, SUNMEMTYPE_HOST);
+      NVEC_HIP_CONTENT(v)->host_data = SUNMemoryHelper_Wrap(NVEC_HIP_MEMHELP(v),
+                                                            (void*)h_vdata,
+                                                            SUNMEMTYPE_HOST);
     }
   }
 }
@@ -436,8 +445,11 @@ void N_VSetDeviceArrayPointer_Hip(sunrealtype* d_vdata, N_Vector v)
     }
     else
     {
-      NVEC_HIP_CONTENT(v)->device_data = SUNMemoryHelper_Wrap(NVEC_HIP_MEMHELP(v), (void*) d_vdata, SUNMEMTYPE_UVM);
-      NVEC_HIP_CONTENT(v)->host_data = SUNMemoryHelper_Alias(NVEC_HIP_MEMHELP(v), NVEC_HIP_CONTENT(v)->device_data);
+      NVEC_HIP_CONTENT(v)->device_data =
+        SUNMemoryHelper_Wrap(NVEC_HIP_MEMHELP(v), (void*)d_vdata, SUNMEMTYPE_UVM);
+      NVEC_HIP_CONTENT(v)->host_data =
+        SUNMemoryHelper_Alias(NVEC_HIP_MEMHELP(v),
+                              NVEC_HIP_CONTENT(v)->device_data);
     }
   }
   else
@@ -448,7 +460,9 @@ void N_VSetDeviceArrayPointer_Hip(sunrealtype* d_vdata, N_Vector v)
     }
     else
     {
-      NVEC_HIP_CONTENT(v)->device_data = SUNMemoryHelper_Wrap(NVEC_HIP_MEMHELP(v), (void*) d_vdata, SUNMEMTYPE_DEVICE);
+      NVEC_HIP_CONTENT(v)->device_data =
+        SUNMemoryHelper_Wrap(NVEC_HIP_MEMHELP(v), (void*)d_vdata,
+                             SUNMEMTYPE_DEVICE);
     }
   }
 }
@@ -1962,8 +1976,9 @@ int N_VBufPack_Hip(N_Vector x, void* buf)
 
   if (x == NULL || buf == NULL) { return (-1); }
 
-  SUNMemory buf_mem = SUNMemoryHelper_Wrap(NVEC_HIP_MEMHELP(x), buf, SUNMEMTYPE_HOST);
-  if (buf_mem == NULL) return(-1);
+  SUNMemory buf_mem = SUNMemoryHelper_Wrap(NVEC_HIP_MEMHELP(x), buf,
+                                           SUNMEMTYPE_HOST);
+  if (buf_mem == NULL) return (-1);
 
   copy_fail = SUNMemoryHelper_CopyAsync(NVEC_HIP_MEMHELP(x), buf_mem,
                                         NVEC_HIP_CONTENT(x)->device_data,
@@ -1986,8 +2001,9 @@ int N_VBufUnpack_Hip(N_Vector x, void* buf)
 
   if (x == NULL || buf == NULL) { return (-1); }
 
-  SUNMemory buf_mem = SUNMemoryHelper_Wrap(NVEC_HIP_MEMHELP(x), buf, SUNMEMTYPE_HOST);
-  if (buf_mem == NULL) return(-1);
+  SUNMemory buf_mem = SUNMemoryHelper_Wrap(NVEC_HIP_MEMHELP(x), buf,
+                                           SUNMEMTYPE_HOST);
+  if (buf_mem == NULL) return (-1);
 
   copy_fail = SUNMemoryHelper_CopyAsync(NVEC_HIP_MEMHELP(x),
                                         NVEC_HIP_CONTENT(x)->device_data,

@@ -347,14 +347,16 @@ N_Vector N_VMake_Cuda(sunindextype length, sunrealtype* h_vdata,
   v = N_VNewEmpty_Cuda(sunctx);
   if (v == NULL) { return (NULL); }
 
-  NVEC_CUDA_CONTENT(v)->length             = length;
-  NVEC_CUDA_CONTENT(v)->mem_helper         = SUNMemoryHelper_Cuda(sunctx);
-  NVEC_CUDA_CONTENT(v)->host_data          = SUNMemoryHelper_Wrap(NVEC_CUDA_MEMHELP(v), h_vdata, SUNMEMTYPE_HOST);
-  NVEC_CUDA_CONTENT(v)->device_data        = SUNMemoryHelper_Wrap(NVEC_CUDA_MEMHELP(v), d_vdata, SUNMEMTYPE_DEVICE);
+  NVEC_CUDA_CONTENT(v)->length     = length;
+  NVEC_CUDA_CONTENT(v)->mem_helper = SUNMemoryHelper_Cuda(sunctx);
+  NVEC_CUDA_CONTENT(v)->host_data =
+    SUNMemoryHelper_Wrap(NVEC_CUDA_MEMHELP(v), h_vdata, SUNMEMTYPE_HOST);
+  NVEC_CUDA_CONTENT(v)->device_data =
+    SUNMemoryHelper_Wrap(NVEC_CUDA_MEMHELP(v), d_vdata, SUNMEMTYPE_DEVICE);
   NVEC_CUDA_CONTENT(v)->stream_exec_policy = DEFAULT_STREAMING_EXECPOLICY.clone();
   NVEC_CUDA_CONTENT(v)->reduce_exec_policy = DEFAULT_REDUCTION_EXECPOLICY.clone();
-  NVEC_CUDA_CONTENT(v)->own_helper         = SUNTRUE;
-  NVEC_CUDA_PRIVATE(v)->use_managed_mem    = SUNFALSE;
+  NVEC_CUDA_CONTENT(v)->own_helper      = SUNTRUE;
+  NVEC_CUDA_PRIVATE(v)->use_managed_mem = SUNFALSE;
 
   if (NVEC_CUDA_MEMHELP(v) == NULL)
   {
@@ -386,14 +388,16 @@ N_Vector N_VMakeManaged_Cuda(sunindextype length, sunrealtype* vdata,
   v = N_VNewEmpty_Cuda(sunctx);
   if (v == NULL) { return (NULL); }
 
-  NVEC_CUDA_CONTENT(v)->length             = length;
-  NVEC_CUDA_CONTENT(v)->mem_helper         = SUNMemoryHelper_Cuda(sunctx);
-  NVEC_CUDA_CONTENT(v)->host_data          = SUNMemoryHelper_Wrap(NVEC_CUDA_MEMHELP(v), vdata, SUNMEMTYPE_UVM);
-  NVEC_CUDA_CONTENT(v)->device_data        = SUNMemoryHelper_Alias(NVEC_CUDA_MEMHELP(v), NVEC_CUDA_CONTENT(v)->host_data);
+  NVEC_CUDA_CONTENT(v)->length     = length;
+  NVEC_CUDA_CONTENT(v)->mem_helper = SUNMemoryHelper_Cuda(sunctx);
+  NVEC_CUDA_CONTENT(v)->host_data  = SUNMemoryHelper_Wrap(NVEC_CUDA_MEMHELP(v),
+                                                          vdata, SUNMEMTYPE_UVM);
+  NVEC_CUDA_CONTENT(v)->device_data =
+    SUNMemoryHelper_Alias(NVEC_CUDA_MEMHELP(v), NVEC_CUDA_CONTENT(v)->host_data);
   NVEC_CUDA_CONTENT(v)->stream_exec_policy = DEFAULT_STREAMING_EXECPOLICY.clone();
   NVEC_CUDA_CONTENT(v)->reduce_exec_policy = DEFAULT_REDUCTION_EXECPOLICY.clone();
-  NVEC_CUDA_CONTENT(v)->own_helper         = SUNTRUE;
-  NVEC_CUDA_PRIVATE(v)->use_managed_mem    = SUNTRUE;
+  NVEC_CUDA_CONTENT(v)->own_helper      = SUNTRUE;
+  NVEC_CUDA_PRIVATE(v)->use_managed_mem = SUNTRUE;
 
   if (NVEC_CUDA_MEMHELP(v) == NULL)
   {
@@ -430,8 +434,12 @@ void N_VSetHostArrayPointer_Cuda(sunrealtype* h_vdata, N_Vector v)
     }
     else
     {
-      NVEC_CUDA_CONTENT(v)->host_data = SUNMemoryHelper_Wrap(NVEC_CUDA_MEMHELP(v), (void*) h_vdata, SUNMEMTYPE_UVM);
-      NVEC_CUDA_CONTENT(v)->device_data = SUNMemoryHelper_Alias(NVEC_CUDA_MEMHELP(v), NVEC_CUDA_CONTENT(v)->host_data);
+      NVEC_CUDA_CONTENT(v)->host_data =
+        SUNMemoryHelper_Wrap(NVEC_CUDA_MEMHELP(v), (void*)h_vdata,
+                             SUNMEMTYPE_UVM);
+      NVEC_CUDA_CONTENT(v)->device_data =
+        SUNMemoryHelper_Alias(NVEC_CUDA_MEMHELP(v),
+                              NVEC_CUDA_CONTENT(v)->host_data);
     }
   }
   else
@@ -442,7 +450,9 @@ void N_VSetHostArrayPointer_Cuda(sunrealtype* h_vdata, N_Vector v)
     }
     else
     {
-      NVEC_CUDA_CONTENT(v)->host_data = SUNMemoryHelper_Wrap(NVEC_CUDA_MEMHELP(v), (void*) h_vdata, SUNMEMTYPE_HOST);
+      NVEC_CUDA_CONTENT(v)->host_data =
+        SUNMemoryHelper_Wrap(NVEC_CUDA_MEMHELP(v), (void*)h_vdata,
+                             SUNMEMTYPE_HOST);
     }
   }
 }
@@ -462,8 +472,12 @@ void N_VSetDeviceArrayPointer_Cuda(sunrealtype* d_vdata, N_Vector v)
     }
     else
     {
-      NVEC_CUDA_CONTENT(v)->device_data = SUNMemoryHelper_Wrap(NVEC_CUDA_MEMHELP(v), (void*) d_vdata, SUNMEMTYPE_UVM);
-      NVEC_CUDA_CONTENT(v)->host_data = SUNMemoryHelper_Alias(NVEC_CUDA_MEMHELP(v), NVEC_CUDA_CONTENT(v)->device_data);
+      NVEC_CUDA_CONTENT(v)->device_data =
+        SUNMemoryHelper_Wrap(NVEC_CUDA_MEMHELP(v), (void*)d_vdata,
+                             SUNMEMTYPE_UVM);
+      NVEC_CUDA_CONTENT(v)->host_data =
+        SUNMemoryHelper_Alias(NVEC_CUDA_MEMHELP(v),
+                              NVEC_CUDA_CONTENT(v)->device_data);
     }
   }
   else
@@ -474,7 +488,9 @@ void N_VSetDeviceArrayPointer_Cuda(sunrealtype* d_vdata, N_Vector v)
     }
     else
     {
-      NVEC_CUDA_CONTENT(v)->device_data = SUNMemoryHelper_Wrap(NVEC_CUDA_MEMHELP(v), (void*) d_vdata, SUNMEMTYPE_DEVICE);
+      NVEC_CUDA_CONTENT(v)->device_data =
+        SUNMemoryHelper_Wrap(NVEC_CUDA_MEMHELP(v), (void*)d_vdata,
+                             SUNMEMTYPE_DEVICE);
     }
   }
 }
@@ -2013,8 +2029,9 @@ int N_VBufPack_Cuda(N_Vector x, void* buf)
 
   if (x == NULL || buf == NULL) { return (-1); }
 
-  SUNMemory buf_mem = SUNMemoryHelper_Wrap(NVEC_CUDA_MEMHELP(x), buf, SUNMEMTYPE_HOST);
-  if (buf_mem == NULL) return(-1);
+  SUNMemory buf_mem = SUNMemoryHelper_Wrap(NVEC_CUDA_MEMHELP(x), buf,
+                                           SUNMEMTYPE_HOST);
+  if (buf_mem == NULL) return (-1);
 
   copy_fail = SUNMemoryHelper_CopyAsync(NVEC_CUDA_MEMHELP(x), buf_mem,
                                         NVEC_CUDA_CONTENT(x)->device_data,
@@ -2037,8 +2054,9 @@ int N_VBufUnpack_Cuda(N_Vector x, void* buf)
 
   if (x == NULL || buf == NULL) { return (-1); }
 
-  SUNMemory buf_mem = SUNMemoryHelper_Wrap(NVEC_CUDA_MEMHELP(x), buf, SUNMEMTYPE_HOST);
-  if (buf_mem == NULL) return(-1);
+  SUNMemory buf_mem = SUNMemoryHelper_Wrap(NVEC_CUDA_MEMHELP(x), buf,
+                                           SUNMEMTYPE_HOST);
+  if (buf_mem == NULL) return (-1);
 
   copy_fail = SUNMemoryHelper_CopyAsync(NVEC_CUDA_MEMHELP(x),
                                         NVEC_CUDA_CONTENT(x)->device_data,

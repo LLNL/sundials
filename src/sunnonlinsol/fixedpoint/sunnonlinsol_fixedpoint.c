@@ -23,7 +23,6 @@
 #include <sundials/sundials_nvector_senswrapper.h>
 #include <sunnonlinsol/sunnonlinsol_fixedpoint.h>
 
-#include <sundials/priv/sundials_context_impl.h>
 #include "sundials_logger_impl.h"
 
 /* Internal utility routines */

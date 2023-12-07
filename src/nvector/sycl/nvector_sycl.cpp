@@ -430,15 +430,19 @@ N_Vector N_VMake_Sycl(sunindextype length, sunrealtype* h_vdata,
   }
 
   /* Fill content */
-  NVEC_SYCL_CONTENT(v)->length             = length;
-  NVEC_SYCL_CONTENT(v)->own_helper         = SUNTRUE;
-  NVEC_SYCL_CONTENT(v)->mem_helper         = SUNMemoryHelper_Sycl(sunctx);
-  NVEC_SYCL_CONTENT(v)->host_data          = SUNMemoryHelper_Wrap(NVEC_SYCL_MEMHELP(v), h_vdata, SUNMEMTYPE_HOST);
-  NVEC_SYCL_CONTENT(v)->device_data        = SUNMemoryHelper_Wrap(NVEC_SYCL_MEMHELP(v), d_vdata, SUNMEMTYPE_DEVICE);
-  NVEC_SYCL_CONTENT(v)->stream_exec_policy = new ThreadDirectExecPolicy(SYCL_BLOCKDIM(Q));
-  NVEC_SYCL_CONTENT(v)->reduce_exec_policy = new BlockReduceExecPolicy(SYCL_BLOCKDIM(Q));
-  NVEC_SYCL_CONTENT(v)->queue              = Q;
-  NVEC_SYCL_PRIVATE(v)->use_managed_mem    = SUNFALSE;
+  NVEC_SYCL_CONTENT(v)->length     = length;
+  NVEC_SYCL_CONTENT(v)->own_helper = SUNTRUE;
+  NVEC_SYCL_CONTENT(v)->mem_helper = SUNMemoryHelper_Sycl(sunctx);
+  NVEC_SYCL_CONTENT(v)->host_data =
+    SUNMemoryHelper_Wrap(NVEC_SYCL_MEMHELP(v), h_vdata, SUNMEMTYPE_HOST);
+  NVEC_SYCL_CONTENT(v)->device_data =
+    SUNMemoryHelper_Wrap(NVEC_SYCL_MEMHELP(v), d_vdata, SUNMEMTYPE_DEVICE);
+  NVEC_SYCL_CONTENT(v)->stream_exec_policy =
+    new ThreadDirectExecPolicy(SYCL_BLOCKDIM(Q));
+  NVEC_SYCL_CONTENT(v)->reduce_exec_policy =
+    new BlockReduceExecPolicy(SYCL_BLOCKDIM(Q));
+  NVEC_SYCL_CONTENT(v)->queue           = Q;
+  NVEC_SYCL_PRIVATE(v)->use_managed_mem = SUNFALSE;
 
   if (NVEC_SYCL_MEMHELP(v) == NULL)
   {
@@ -493,15 +497,19 @@ N_Vector N_VMakeManaged_Sycl(sunindextype length, sunrealtype* vdata,
   }
 
   /* Fill content */
-  NVEC_SYCL_CONTENT(v)->length             = length;
-  NVEC_SYCL_CONTENT(v)->mem_helper         = SUNMemoryHelper_Sycl(sunctx);
-  NVEC_SYCL_CONTENT(v)->own_helper         = SUNTRUE;
-  NVEC_SYCL_CONTENT(v)->host_data          = SUNMemoryHelper_Wrap(NVEC_SYCL_MEMHELP(v), vdata, SUNMEMTYPE_UVM);
-  NVEC_SYCL_CONTENT(v)->device_data        = SUNMemoryHelper_Alias(NVEC_SYCL_MEMHELP(v), NVEC_SYCL_CONTENT(v)->host_data);
-  NVEC_SYCL_CONTENT(v)->stream_exec_policy = new ThreadDirectExecPolicy(SYCL_BLOCKDIM(Q));
-  NVEC_SYCL_CONTENT(v)->reduce_exec_policy = new BlockReduceExecPolicy(SYCL_BLOCKDIM(Q));
-  NVEC_SYCL_CONTENT(v)->queue              = Q;
-  NVEC_SYCL_PRIVATE(v)->use_managed_mem    = SUNTRUE;
+  NVEC_SYCL_CONTENT(v)->length     = length;
+  NVEC_SYCL_CONTENT(v)->mem_helper = SUNMemoryHelper_Sycl(sunctx);
+  NVEC_SYCL_CONTENT(v)->own_helper = SUNTRUE;
+  NVEC_SYCL_CONTENT(v)->host_data  = SUNMemoryHelper_Wrap(NVEC_SYCL_MEMHELP(v),
+                                                          vdata, SUNMEMTYPE_UVM);
+  NVEC_SYCL_CONTENT(v)->device_data =
+    SUNMemoryHelper_Alias(NVEC_SYCL_MEMHELP(v), NVEC_SYCL_CONTENT(v)->host_data);
+  NVEC_SYCL_CONTENT(v)->stream_exec_policy =
+    new ThreadDirectExecPolicy(SYCL_BLOCKDIM(Q));
+  NVEC_SYCL_CONTENT(v)->reduce_exec_policy =
+    new BlockReduceExecPolicy(SYCL_BLOCKDIM(Q));
+  NVEC_SYCL_CONTENT(v)->queue           = Q;
+  NVEC_SYCL_PRIVATE(v)->use_managed_mem = SUNTRUE;
 
   if (NVEC_SYCL_MEMHELP(v) == NULL)
   {
@@ -551,8 +559,12 @@ void N_VSetHostArrayPointer_Sycl(sunrealtype* h_vdata, N_Vector v)
     }
     else
     {
-      NVEC_SYCL_CONTENT(v)->host_data = SUNMemoryHelper_Wrap(NVEC_SYCL_MEMHELP(v), (void*) h_vdata, SUNMEMTYPE_UVM);
-      NVEC_SYCL_CONTENT(v)->device_data = SUNMemoryHelper_Alias(NVEC_SYCL_MEMHELP(v), NVEC_SYCL_CONTENT(v)->host_data);
+      NVEC_SYCL_CONTENT(v)->host_data =
+        SUNMemoryHelper_Wrap(NVEC_SYCL_MEMHELP(v), (void*)h_vdata,
+                             SUNMEMTYPE_UVM);
+      NVEC_SYCL_CONTENT(v)->device_data =
+        SUNMemoryHelper_Alias(NVEC_SYCL_MEMHELP(v),
+                              NVEC_SYCL_CONTENT(v)->host_data);
     }
   }
   else
@@ -563,7 +575,9 @@ void N_VSetHostArrayPointer_Sycl(sunrealtype* h_vdata, N_Vector v)
     }
     else
     {
-      NVEC_SYCL_CONTENT(v)->host_data = SUNMemoryHelper_Wrap(NVEC_SYCL_MEMHELP(v), (void*) h_vdata, SUNMEMTYPE_HOST);
+      NVEC_SYCL_CONTENT(v)->host_data =
+        SUNMemoryHelper_Wrap(NVEC_SYCL_MEMHELP(v), (void*)h_vdata,
+                             SUNMEMTYPE_HOST);
     }
   }
 }
@@ -580,8 +594,12 @@ void N_VSetDeviceArrayPointer_Sycl(sunrealtype* d_vdata, N_Vector v)
     }
     else
     {
-      NVEC_SYCL_CONTENT(v)->device_data = SUNMemoryHelper_Wrap(NVEC_SYCL_MEMHELP(v), (void*) d_vdata, SUNMEMTYPE_UVM);
-      NVEC_SYCL_CONTENT(v)->host_data = SUNMemoryHelper_Alias(NVEC_SYCL_MEMHELP(v), NVEC_SYCL_CONTENT(v)->device_data);
+      NVEC_SYCL_CONTENT(v)->device_data =
+        SUNMemoryHelper_Wrap(NVEC_SYCL_MEMHELP(v), (void*)d_vdata,
+                             SUNMEMTYPE_UVM);
+      NVEC_SYCL_CONTENT(v)->host_data =
+        SUNMemoryHelper_Alias(NVEC_SYCL_MEMHELP(v),
+                              NVEC_SYCL_CONTENT(v)->device_data);
     }
   }
   else
@@ -592,7 +610,9 @@ void N_VSetDeviceArrayPointer_Sycl(sunrealtype* d_vdata, N_Vector v)
     }
     else
     {
-      NVEC_SYCL_CONTENT(v)->device_data = SUNMemoryHelper_Wrap(NVEC_SYCL_MEMHELP(v), (void*) d_vdata, SUNMEMTYPE_DEVICE);
+      NVEC_SYCL_CONTENT(v)->device_data =
+        SUNMemoryHelper_Wrap(NVEC_SYCL_MEMHELP(v), (void*)d_vdata,
+                             SUNMEMTYPE_DEVICE);
     }
   }
 }
@@ -1858,7 +1878,8 @@ int N_VBufPack_Sycl(N_Vector x, void* buf)
 
   if (x == NULL || buf == NULL) { return -1; }
 
-  SUNMemory buf_mem = SUNMemoryHelper_Wrap(NVEC_SYCL_MEMHELP(x), buf, SUNMEMTYPE_HOST);
+  SUNMemory buf_mem = SUNMemoryHelper_Wrap(NVEC_SYCL_MEMHELP(x), buf,
+                                           SUNMEMTYPE_HOST);
   if (buf_mem == NULL) return -1;
 
   copy_fail = SUNMemoryHelper_Copy(NVEC_SYCL_MEMHELP(x), buf_mem,
@@ -1879,7 +1900,8 @@ int N_VBufUnpack_Sycl(N_Vector x, void* buf)
 
   if (x == NULL || buf == NULL) { return -1; }
 
-  SUNMemory buf_mem = SUNMemoryHelper_Wrap(NVEC_SYCL_MEMHELP(x), buf, SUNMEMTYPE_HOST);
+  SUNMemory buf_mem = SUNMemoryHelper_Wrap(NVEC_SYCL_MEMHELP(x), buf,
+                                           SUNMEMTYPE_HOST);
   if (buf_mem == NULL) return -1;
 
   copy_fail = SUNMemoryHelper_Copy(NVEC_SYCL_MEMHELP(x),
@@ -2059,7 +2081,8 @@ static int InitializeReductionBuffer(N_Vector v, const sunrealtype value, size_t
   N_PrivateVectorContent_Sycl vcp = NVEC_SYCL_PRIVATE(v);
 
   /* Wrap the initial value as SUNMemory object */
-  SUNMemory value_mem = SUNMemoryHelper_Wrap((NVEC_SYCL_MEMHELP(v), void*) &value, SUNMEMTYPE_HOST);
+  SUNMemory value_mem =
+    SUNMemoryHelper_Wrap((NVEC_SYCL_MEMHELP(v), void*)&value, SUNMEMTYPE_HOST);
 
   /* check if the existing reduction memory is not large enough */
   if (vcp->reduce_buffer_bytes < bytes)

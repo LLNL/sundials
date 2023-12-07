@@ -18,8 +18,6 @@
 
 #include <sundials/priv/sundials_errors_impl.h>
 #include <sundials/sundials_adaptcontroller.h>
-#include <sundials/priv/sundials_errors_impl.h>
-#include "sundials/sundials_errors.h"
 
 #include "sundials/sundials_errors.h"
 
@@ -41,12 +39,12 @@ SUNAdaptController SUNAdaptController_NewEmpty(SUNContext sunctx)
 
   /* create controller object */
   C = NULL;
-  C = (SUNAdaptController) malloc(sizeof *C);
+  C = (SUNAdaptController)malloc(sizeof *C);
   SUNAssertNull(C, SUN_ERR_MALLOC_FAIL);
 
   /* create matrix ops structure */
   ops = NULL;
-  ops = (SUNAdaptController_Ops) malloc(sizeof *ops);
+  ops = (SUNAdaptController_Ops)malloc(sizeof *ops);
   SUNAssertNull(ops, SUN_ERR_MALLOC_FAIL);
 
   /* initialize operations to NULL */
@@ -102,7 +100,7 @@ SUNAdaptController_Type SUNAdaptController_GetType(SUNAdaptController C)
 
 SUNErrCode SUNAdaptController_Destroy(SUNAdaptController C)
 {
-  if (C == NULL) return(SUN_SUCCESS);
+  if (C == NULL) return (SUN_SUCCESS);
 
   /* if the destroy operation exists use it */
   if (C->ops)
@@ -112,22 +110,7 @@ SUNErrCode SUNAdaptController_Destroy(SUNAdaptController C)
 
   /* if we reach this point, either ops == NULL or destroy == NULL,
      try to cleanup by freeing the content, ops, and matrix */
-  if (C->content) { free(C->content); C->content = NULL; }
-  if (C->ops) { free(C->ops); C->ops = NULL; }
-  free(C); C = NULL;
-
-  return(SUN_SUCCESS);
-}
-
-SUNErrCode SUNAdaptController_EstimateStep(SUNAdaptController C, sunrealtype h, int p,
-                                           sunrealtype dsm, sunrealtype* hnew)
-{
-  int ier = SUN_SUCCESS;
-  if (C == NULL) { return SUN_ERR_ARG_CORRUPT; }
-  SUNFunctionBegin(C->sunctx);
-  SUNAssert(hnew, SUN_ERR_ARG_CORRUPT);
-  *hnew = h;   /* initialize output with identity */
-  if (C->ops->estimatestep)
+  if (C->content)
   {
     free(C->content);
     C->content = NULL;
@@ -143,6 +126,30 @@ SUNErrCode SUNAdaptController_EstimateStep(SUNAdaptController C, sunrealtype h, 
   return (SUN_SUCCESS);
 }
 
+SUNErrCode SUNAdaptController_EstimateStep(SUNAdaptController C, sunrealtype h,
+                                           int p, sunrealtype dsm,
+                                           sunrealtype* hnew)
+{
+  int ier = SUN_SUCCESS;
+  if (C == NULL) { return SUN_ERR_ARG_CORRUPT; }
+  SUNFunctionBegin(C->sunctx);
+  SUNAssert(hnew, SUN_ERR_ARG_CORRUPT);
+  *hnew = h; /* initialize output with identity */
+  if (C->ops->estimatestep)
+  {
+    free(C->content);
+    C->content = NULL;
+  }
+  if (C->ops)
+  {
+    free(C->ops);
+    C->ops = NULL;
+  }
+  free(C);
+  C = NULL;
+
+  return (SUN_SUCCESS);
+}
 
 SUNErrCode SUNAdaptController_Reset(SUNAdaptController C)
 {
@@ -181,7 +188,8 @@ SUNErrCode SUNAdaptController_SetErrorBias(SUNAdaptController C, sunrealtype bia
   return (ier);
 }
 
-SUNErrCode SUNAdaptController_UpdateH(SUNAdaptController C, sunrealtype h, sunrealtype dsm)
+SUNErrCode SUNAdaptController_UpdateH(SUNAdaptController C, sunrealtype h,
+                                      sunrealtype dsm)
 {
   int ier = SUN_SUCCESS;
   if (C == NULL) { return SUN_ERR_ARG_CORRUPT; }
@@ -190,14 +198,15 @@ SUNErrCode SUNAdaptController_UpdateH(SUNAdaptController C, sunrealtype h, sunre
   return (ier);
 }
 
-SUNErrCode SUNAdaptController_Space(SUNAdaptController C, long int *lenrw, long int *leniw)
+SUNErrCode SUNAdaptController_Space(SUNAdaptController C, long int* lenrw,
+                                    long int* leniw)
 {
   int ier = SUN_SUCCESS;
   if (C == NULL) { return SUN_ERR_ARG_CORRUPT; }
   SUNFunctionBegin(C->sunctx);
   SUNAssert(lenrw, SUN_ERR_ARG_CORRUPT);
   SUNAssert(leniw, SUN_ERR_ARG_CORRUPT);
-  *lenrw = 0;   /* initialize outputs with identity */
+  *lenrw = 0; /* initialize outputs with identity */
   *leniw = 0;
   if (C->ops->space) { ier = C->ops->space(C, lenrw, leniw); }
   return (ier);

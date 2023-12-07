@@ -367,7 +367,7 @@ SUNErrCode SUNProfiler_Print(SUNProfiler p, FILE* fp)
   SUNHashMapKeyValue* sorted = NULL;
 
   if (!p) { return SUN_ERR_ARG_CORRUPT; }
-  
+
   sunStartTiming(p->overhead);
 
   /* Get the total SUNDIALS time up to this point */
