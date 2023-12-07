@@ -128,7 +128,6 @@ SUNErrCode SUNAdaptController_EstimateStep(SUNAdaptController C, sunrealtype h,
                                            int p, sunrealtype dsm,
                                            sunrealtype* hnew)
 {
-  int ier = SUN_SUCCESS;
   if (C == NULL) { return SUN_ERR_ARG_CORRUPT; }
   SUNFunctionBegin(C->sunctx);
   SUNAssert(hnew, SUN_ERR_ARG_CORRUPT);
