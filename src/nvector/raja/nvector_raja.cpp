@@ -1455,7 +1455,7 @@ int N_VBufPack_Raja(N_Vector x, void* buf)
 
   SUNMemory buf_mem = SUNMemoryHelper_Wrap(NVEC_RAJA_MEMHELP(x), buf,
                                            SUNMEMTYPE_HOST);
-  if (buf_mem == NULL) return (-1);
+  if (buf_mem == NULL) { return (-1); }
 
 #if defined(SUNDIALS_RAJA_BACKENDS_SYCL)
   void* queue = static_cast<void*>(::RAJA::sycl::detail::getQueue());
@@ -1495,7 +1495,7 @@ int N_VBufUnpack_Raja(N_Vector x, void* buf)
 
   SUNMemory buf_mem = SUNMemoryHelper_Wrap(NVEC_RAJA_MEMHELP(x), buf,
                                            SUNMEMTYPE_HOST);
-  if (buf_mem == NULL) return (-1);
+  if (buf_mem == NULL) { return (-1); }
 
 #if defined(SUNDIALS_RAJA_BACKENDS_SYCL)
   void* queue = static_cast<void*>(::RAJA::sycl::detail::getQueue());

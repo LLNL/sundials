@@ -35,7 +35,7 @@ static SUNProfiler getSUNProfiler(SUNMatrix A) { return (A->sunctx->profiler); }
 
 SUNMatrix SUNMatNewEmpty(SUNContext sunctx)
 {
-  if (sunctx == NULL) return NULL;
+  if (sunctx == NULL) { return NULL; }
 
   SUNFunctionBegin(sunctx);
   SUNMatrix A;

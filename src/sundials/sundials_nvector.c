@@ -40,7 +40,7 @@ static inline SUNProfiler getSUNProfiler(N_Vector v)
 /* Create an empty NVector object */
 N_Vector N_VNewEmpty(SUNContext sunctx)
 {
-  if (sunctx == NULL) return NULL;
+  if (sunctx == NULL) { return NULL; }
 
   SUNFunctionBegin(sunctx);
   N_Vector v;
@@ -160,10 +160,10 @@ N_Vector N_VNewEmpty(SUNContext sunctx)
 /* Free a generic N_Vector (assumes content is already empty) */
 void N_VFreeEmpty(N_Vector v)
 {
-  if (v == NULL) return;
+  if (v == NULL) { return; }
 
   /* free non-NULL ops structure */
-  if (v->ops) free(v->ops);
+  if (v->ops) { free(v->ops); }
   v->ops = NULL;
 
   /* free overall N_Vector object and return */
@@ -974,7 +974,7 @@ SUNErrCode N_VBufPack(N_Vector x, void* buf)
   SUNAssert(x->ops->nvbufpack, SUN_ERR_NOT_IMPLEMENTED);
   ier = x->ops->nvbufpack(x, buf);
   SUNDIALS_MARK_FUNCTION_END(getSUNProfiler(x));
-  return (err);
+  return (erf);
 }
 
 SUNErrCode N_VBufUnpack(N_Vector x, void* buf)

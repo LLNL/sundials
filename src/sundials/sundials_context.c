@@ -261,7 +261,7 @@ SUNErrCode SUNContext_Free(SUNContext* sunctx)
   fp                          = NULL;
   if (sunprofiler_print_env)
   {
-    if (!strcmp(sunprofiler_print_env, "0")) fp = NULL;
+    if (!strcmp(sunprofiler_print_env, "0")) { fp = NULL; }
     else if (!strcmp(sunprofiler_print_env, "1") ||
              !strcmp(sunprofiler_print_env, "TRUE") ||
              !strcmp(sunprofiler_print_env, "stdout"))
@@ -275,9 +275,9 @@ SUNErrCode SUNContext_Free(SUNContext* sunctx)
      if it is not owned by the sunctx. */
   if ((*sunctx)->profiler)
   {
-    if (fp) SUNProfiler_Print((*sunctx)->profiler, fp);
-    if (fp) fclose(fp);
-    if ((*sunctx)->own_profiler) SUNProfiler_Free(&(*sunctx)->profiler);
+    if (fp) { SUNProfiler_Print((*sunctx)->profiler, fp); }
+    if (fp) { fclose(fp); }
+    if ((*sunctx)->own_profiler) { SUNProfiler_Free(&(*sunctx)->profiler); }
   }
 #endif
 

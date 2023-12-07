@@ -72,7 +72,7 @@ SUNAdaptController SUNAdaptController_NewEmpty(SUNContext sunctx)
 
 void SUNAdaptController_DestroyEmpty(SUNAdaptController C)
 {
-  if (C == NULL) return;
+  if (C == NULL) { return; }
 
   /* free non-NULL ops structure */
   if (C->ops) { free(C->ops); }
@@ -100,7 +100,7 @@ SUNAdaptController_Type SUNAdaptController_GetType(SUNAdaptController C)
 
 SUNErrCode SUNAdaptController_Destroy(SUNAdaptController C)
 {
-  if (C == NULL) return (SUN_SUCCESS);
+  if (C == NULL) { return (SUN_SUCCESS); }
 
   /* if the destroy operation exists use it */
   if (C->ops)

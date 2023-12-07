@@ -2031,7 +2031,7 @@ int N_VBufPack_Cuda(N_Vector x, void* buf)
 
   SUNMemory buf_mem = SUNMemoryHelper_Wrap(NVEC_CUDA_MEMHELP(x), buf,
                                            SUNMEMTYPE_HOST);
-  if (buf_mem == NULL) return (-1);
+  if (buf_mem == NULL) { return (-1); }
 
   copy_fail = SUNMemoryHelper_CopyAsync(NVEC_CUDA_MEMHELP(x), buf_mem,
                                         NVEC_CUDA_CONTENT(x)->device_data,
@@ -2056,7 +2056,7 @@ int N_VBufUnpack_Cuda(N_Vector x, void* buf)
 
   SUNMemory buf_mem = SUNMemoryHelper_Wrap(NVEC_CUDA_MEMHELP(x), buf,
                                            SUNMEMTYPE_HOST);
-  if (buf_mem == NULL) return (-1);
+  if (buf_mem == NULL) { return (-1); }
 
   copy_fail = SUNMemoryHelper_CopyAsync(NVEC_CUDA_MEMHELP(x),
                                         NVEC_CUDA_CONTENT(x)->device_data,

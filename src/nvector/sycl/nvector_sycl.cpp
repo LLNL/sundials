@@ -1880,7 +1880,7 @@ int N_VBufPack_Sycl(N_Vector x, void* buf)
 
   SUNMemory buf_mem = SUNMemoryHelper_Wrap(NVEC_SYCL_MEMHELP(x), buf,
                                            SUNMEMTYPE_HOST);
-  if (buf_mem == NULL) return -1;
+  if (buf_mem == NULL) { return -1; }
 
   copy_fail = SUNMemoryHelper_Copy(NVEC_SYCL_MEMHELP(x), buf_mem,
                                    NVEC_SYCL_CONTENT(x)->device_data,
@@ -1902,7 +1902,7 @@ int N_VBufUnpack_Sycl(N_Vector x, void* buf)
 
   SUNMemory buf_mem = SUNMemoryHelper_Wrap(NVEC_SYCL_MEMHELP(x), buf,
                                            SUNMEMTYPE_HOST);
-  if (buf_mem == NULL) return -1;
+  if (buf_mem == NULL) { return -1; }
 
   copy_fail = SUNMemoryHelper_Copy(NVEC_SYCL_MEMHELP(x),
                                    NVEC_SYCL_CONTENT(x)->device_data, buf_mem,

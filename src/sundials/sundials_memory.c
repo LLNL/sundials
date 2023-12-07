@@ -47,7 +47,7 @@ SUNMemory SUNMemoryNewEmpty(SUNContext sunctx)
 
 SUNMemoryHelper SUNMemoryHelper_NewEmpty(SUNContext sunctx)
 {
-  if (sunctx == NULL) return NULL;
+  if (sunctx == NULL) { return NULL; }
 
   SUNFunctionBegin(sunctx);
   SUNMemoryHelper helper = NULL;
@@ -226,7 +226,7 @@ SUNMemoryHelper SUNMemoryHelper_Clone(SUNMemoryHelper helper)
     else
     {
       SUNMemoryHelper hclone = SUNMemoryHelper_NewEmpty(helper->sunctx);
-      if (hclone) SUNMemoryHelper_CopyOps(helper, hclone);
+      if (hclone) { SUNMemoryHelper_CopyOps(helper, hclone); }
       return (hclone);
     }
   }

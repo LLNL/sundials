@@ -38,18 +38,14 @@
  */
 
 #include <cvode/cvode.h>      /* prototypes for CVODE fcts., consts. */
-#include <cvode/cvode.h>      /* prototypes for CVODE fcts., consts. */
-#include <cvode/cvode_diag.h> /* prototypes for CVODE diagonal solver */
 #include <cvode/cvode_diag.h> /* prototypes for CVODE diagonal solver */
 #include <math.h>
 #include <mpi.h>                      /* MPI constants and types */
-#include <nvector/nvector_parallel.h> /* access to MPI-parallel N_Vector     */
 #include <nvector/nvector_parallel.h> /* access to MPI-parallel N_Vector     */
 #include <stdio.h>
 #include <stdlib.h>
 #include <sundials/sundials_logger.h>
 #include <sundials/sundials_mpi_errors.h>
-#include <sundials/sundials_types.h> /* definition of type realtype         */
 #include <sundials/sundials_types.h> /* definition of type realtype         */
 
 /* Problem Constants */

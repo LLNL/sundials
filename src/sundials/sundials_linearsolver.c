@@ -42,7 +42,7 @@ SUNLinearSolver SUNLinSolNewEmpty(SUNContext sunctx)
   SUNLinearSolver LS;
   SUNLinearSolver_Ops ops;
 
-  if (sunctx == NULL) return NULL;
+  if (sunctx == NULL) { return NULL; }
 
   SUNFunctionBegin(sunctx);
 
@@ -87,10 +87,10 @@ SUNLinearSolver SUNLinSolNewEmpty(SUNContext sunctx)
 
 void SUNLinSolFreeEmpty(SUNLinearSolver S)
 {
-  if (S == NULL) return;
+  if (S == NULL) { return; }
 
   /* free non-NULL ops structure */
-  if (S->ops) free(S->ops);
+  if (S->ops) { free(S->ops); }
   S->ops = NULL;
 
   /* free overall N_Vector object and return */
@@ -109,16 +109,16 @@ SUNLinearSolver_Type SUNLinSolGetType(SUNLinearSolver S)
 
 SUNLinearSolver_ID SUNLinSolGetID(SUNLinearSolver S)
 {
-  if (S->ops->getid) return (S->ops->getid(S));
-  else return (SUNLINEARSOLVER_CUSTOM);
+  if (S->ops->getid) { return (S->ops->getid(S)); }
+  else { return (SUNLINEARSOLVER_CUSTOM); }
 }
 
 SUNErrCode SUNLinSolSetATimes(SUNLinearSolver S, void* A_data, SUNATimesFn ATimes)
 {
   SUNErrCode ier;
   SUNDIALS_MARK_FUNCTION_BEGIN(getSUNProfiler(S));
-  if (S->ops->setatimes) ier = S->ops->setatimes(S, A_data, ATimes);
-  else ier = SUN_SUCCESS;
+  if (S->ops->setatimes) { ier = S->ops->setatimes(S, A_data, ATimes); }
+  else { ier = SUN_SUCCESS; }
   SUNDIALS_MARK_FUNCTION_END(getSUNProfiler(S));
   return (ier);
 }

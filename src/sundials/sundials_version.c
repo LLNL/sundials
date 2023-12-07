@@ -27,8 +27,11 @@
 /* fill string with SUNDIALS version information */
 SUNErrCode SUNDIALSGetVersion(char* version, int len)
 {
-  if (version == NULL) return SUN_ERR_ARG_CORRUPT;
-  if (strlen(SUNDIALS_VERSION) >= (size_t)len) return SUN_ERR_ARG_OUTOFRANGE;
+  if (version == NULL) { return SUN_ERR_ARG_CORRUPT; }
+  if (strlen(SUNDIALS_VERSION) >= (size_t)len)
+  {
+    return SUN_ERR_ARG_OUTOFRANGE;
+  }
 
   strncpy(version, SUNDIALS_VERSION, (size_t)len);
 
@@ -41,9 +44,13 @@ SUNErrCode SUNDIALSGetVersionNumber(int* major, int* minor, int* patch,
                                     char* label, int len)
 {
   if (major == NULL || minor == NULL || patch == NULL || label == NULL)
+  {
     return SUN_ERR_ARG_CORRUPT;
+  }
   if (strlen(SUNDIALS_VERSION_LABEL) >= (size_t)len)
+  {
     return SUN_ERR_ARG_OUTOFRANGE;
+  }
 
   *major = SUNDIALS_VERSION_MAJOR;
   *minor = SUNDIALS_VERSION_MINOR;

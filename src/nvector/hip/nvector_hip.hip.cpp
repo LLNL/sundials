@@ -1978,7 +1978,7 @@ int N_VBufPack_Hip(N_Vector x, void* buf)
 
   SUNMemory buf_mem = SUNMemoryHelper_Wrap(NVEC_HIP_MEMHELP(x), buf,
                                            SUNMEMTYPE_HOST);
-  if (buf_mem == NULL) return (-1);
+  if (buf_mem == NULL) { return (-1); }
 
   copy_fail = SUNMemoryHelper_CopyAsync(NVEC_HIP_MEMHELP(x), buf_mem,
                                         NVEC_HIP_CONTENT(x)->device_data,
@@ -2003,7 +2003,7 @@ int N_VBufUnpack_Hip(N_Vector x, void* buf)
 
   SUNMemory buf_mem = SUNMemoryHelper_Wrap(NVEC_HIP_MEMHELP(x), buf,
                                            SUNMEMTYPE_HOST);
-  if (buf_mem == NULL) return (-1);
+  if (buf_mem == NULL) { return (-1); }
 
   copy_fail = SUNMemoryHelper_CopyAsync(NVEC_HIP_MEMHELP(x),
                                         NVEC_HIP_CONTENT(x)->device_data,

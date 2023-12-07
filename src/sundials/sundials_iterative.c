@@ -76,7 +76,7 @@ SUNErrCode SUNModifiedGS(N_Vector* v, sunrealtype** h, int k, int p,
      by a very small vector length. */
 
   temp = FACTOR * vk_norm;
-  if ((temp + (*new_vk_norm)) != temp) return SUN_SUCCESS;
+  if ((temp + (*new_vk_norm)) != temp) { return SUN_SUCCESS; }
 
   new_norm_2 = ZERO;
 
@@ -226,7 +226,7 @@ int SUNQRfact(int n, sunrealtype** h, sunrealtype* q, int job)
       }
       q[q_ptr]     = c;
       q[q_ptr + 1] = s;
-      if ((h[k][k] = c * temp1 - s * temp2) == ZERO) code = k + 1;
+      if ((h[k][k] = c * temp1 - s * temp2) == ZERO) { code = k + 1; }
     }
     break;
 
@@ -276,7 +276,7 @@ int SUNQRfact(int n, sunrealtype** h, sunrealtype* q, int job)
     q_ptr        = 2 * n_minus_1;
     q[q_ptr]     = c;
     q[q_ptr + 1] = s;
-    if ((h[n_minus_1][n_minus_1] = c * temp1 - s * temp2) == ZERO) code = n;
+    if ((h[n_minus_1][n_minus_1] = c * temp1 - s * temp2) == ZERO) { code = n; }
   }
 
   return (code);
@@ -319,7 +319,7 @@ int SUNQRsol(int n, sunrealtype** h, sunrealtype* q, sunrealtype* b)
       break;
     }
     b[k] /= h[k][k];
-    for (i = 0; i < k; i++) b[i] -= b[k] * h[i][k];
+    for (i = 0; i < k; i++) { b[i] -= b[k] * h[i][k]; }
   }
 
   return (code);
