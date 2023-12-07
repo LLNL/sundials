@@ -12,10 +12,16 @@
 
 #include "sundials/sundials_errors.h"
 
+#include <stdarg.h>
 #include <stdlib.h>
 #include <string.h>
 #include <sundials/priv/sundials_errors_impl.h>
 #include <sundials/sundials_core.h>
+#include <sys/_types/_va_list.h>
+
+#include "sundials/sundials_logger.h"
+#include "sundials/sundials_types.h"
+#include "sundials_logger_impl.h"
 
 static inline char* combineFileAndLine(int line, const char* file)
 {
@@ -83,4 +89,32 @@ void SUNAbortErrHandlerFn(int line, const char* func, const char* file,
                      "error handler to avoid program termination.\n");
   free(file_and_line);
   abort();
+}
+
+void SUNGlobalFallbackErrHandler(int line, const char* func, const char* file,
+                                 const char* msgfmt, SUNErrCode err_code, ...)
+{
+  va_list ap;
+  char* log_msg       = NULL;
+  char* file_and_line = NULL;
+
+  va_start(ap, err_code);
+
+  file_and_line = combineFileAndLine(__LINE__, __FILE__);
+  sunCreateLogMessage(SUN_LOGLEVEL_ERROR, 0, file_and_line,
+                      __func__, "The SUNDIALS SUNContext was corrupt or NULL when an error occurred. As such, error messages have been printed to stderr.",
+                      NULL, &log_msg);
+  fprintf(stderr, "%s", log_msg);
+  free(log_msg);
+  free(file_and_line);
+
+  file_and_line = combineFileAndLine(line, file);
+  if (msgfmt == NULL) { msgfmt = SUNGetErrMsg(err_code); }
+  sunCreateLogMessage(SUN_LOGLEVEL_ERROR, 0, file_and_line, func, msgfmt, ap,
+                      &log_msg);
+  fprintf(stderr, "%s", log_msg);
+  free(log_msg);
+  free(file_and_line);
+
+  va_end(ap);
 }

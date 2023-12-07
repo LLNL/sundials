@@ -22,6 +22,7 @@
 #include <sundials/sundials_types.h>
 
 #include "sundials_hashmap.h"
+#include "sundials_utils.h"
 
 #define SUNDIALS_LOGGING_ERROR 1
 #define SUNDIALS_LOGGING_WARNING 2
@@ -57,5 +58,38 @@ struct SUNLogger_ {
   SUNErrCode (*flush)(SUNLogger logger, SUNLogLevel lvl);
   SUNErrCode (*destroy)(SUNLogger* logger);
 };
+
+static void sunCreateLogMessage(SUNLogLevel lvl, int rank, const char* scope,
+                                const char* label, const char* txt,
+                                va_list args, char** log_msg)
+{
+  char* prefix;
+  char* formatted_txt;
+  int msg_length;
+
+  prefix        = NULL;
+  formatted_txt = NULL;
+  msg_length    = 0;
+  *log_msg      = NULL;
+
+  msg_length = sunvasnprintf(&formatted_txt, txt, args);
+  if (msg_length < 0)
+  {
+    fprintf(stderr, "[FATAL LOGGER ERROR] %s\n",
+            "SUNDIALS_MAX_SPRINTF_SIZE is too small");
+  }
+
+  if (lvl == SUN_LOGLEVEL_DEBUG) { prefix = (char*)"DEBUG"; }
+  else if (lvl == SUN_LOGLEVEL_WARNING) { prefix = (char*)"WARNING"; }
+  else if (lvl == SUN_LOGLEVEL_INFO) { prefix = (char*)"INFO"; }
+  else if (lvl == SUN_LOGLEVEL_ERROR) { prefix = (char*)"ERROR"; }
+
+  msg_length = sunsnprintf(NULL, 0, "[%s][rank %d][%s][%s] %s\n", prefix, rank,
+                           scope, label, formatted_txt);
+  *log_msg   = (char*)malloc(msg_length + 1);
+  sunsnprintf(*log_msg, msg_length + 1, "[%s][rank %d][%s][%s] %s\n", prefix,
+              rank, scope, label, formatted_txt);
+  free(formatted_txt);
+}
 
 #endif /* _SUNDIALS_LOGGER_IMPL_H */

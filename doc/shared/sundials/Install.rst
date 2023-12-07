@@ -602,7 +602,7 @@ illustration only.
    - ``4`` -- log errors + warnings + informational output + debug output
    - ``5`` -- log all of the above and even more (e.g. vector valued variables may be logged)
 
-   Default: 0
+   Default: 2
 
 
 .. cmakeoption:: SUNDIALS_BUILD_WITH_MONITORING
